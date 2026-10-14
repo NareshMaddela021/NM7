@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { useToast } from '../../components/ui';
 import { useMe, setMe, newId } from '../../lib/customerStore';
 import { draftCover, COVER_BLANK } from '../builder/cover';
+import { useJobProfile } from '../../lib/profileStore';
+import { targetRoleOf, withProfileContact } from '../../lib/jobProfile';
 import { MeHead } from './MeLayout';
 import { downloadResume, fmtDay } from './shared';
 
@@ -10,14 +12,18 @@ export default function MeCovers() {
   const me = useMe();
   const toast = useToast();
   const [cur, setCur] = useState(null); // the letter being edited
-  const resumeOf = (c) => me.resumes.find((r) => r.id === c.resumeId) || me.resumes[0];
+  const jp = useJobProfile();
+  const profile = jp.available ? jp.data : null;
+  const found = (c) => me.resumes.find((r) => r.id === c.resumeId) || me.resumes[0];
+  // the letter's name and contact come from the resume; empty ones from the Job Profile
+  const resumeOf = (c) => { const r = found(c); return { ...r, data: withProfileContact(r.data, profile) }; };
   const save = (c) => setMe((s) => ({ covers: s.covers.some((x) => x.id === c.id) ? s.covers.map((x) => (x.id === c.id ? c : x)) : [c, ...s.covers] }));
   const open = (c) => { const full = { ...COVER_BLANK, ...c }; if (!full.body) full.body = draftCover(resumeOf(full).data, full); setCur(full); };
 
   return (
     <>
       <MeHead title="Cover letters" sub="Write one per job. It uses the design of the resume you pick."
-        right={<button type="button" className="btn btn-ink" onClick={() => open({ id: newId('c'), company: '', role: '', resumeId: me.resumes[0].id, at: Date.now(), jd: '', body: '' })}>New cover letter</button>} />
+        right={<button type="button" className="btn btn-ink" onClick={() => open({ id: newId('c'), company: '', role: targetRoleOf(profile), resumeId: me.resumes[0].id, at: Date.now(), jd: '', body: '' })}>New cover letter</button>} />
       <div className="row g16" style={{ alignItems: 'flex-start' }}>
         <div className="stack g8" style={{ flex: '1 1 260px', maxWidth: 360 }}>
           {me.covers.length === 0 && <span className="small muted">No cover letters yet.</span>}

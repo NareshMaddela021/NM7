@@ -3,7 +3,10 @@ import { Link, useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import { Dialog, Icon, Meter, useToast } from '../components/ui';
 import { getMatchedJobs, saveProfile } from '../services/api';
-import { syncFromBuilder, defaultResume, useMe, activeResume } from '../lib/customerStore';
+import { syncFromBuilder, defaultResume, useMe, activeResume, addResume, openInBuilder, blankResume } from '../lib/customerStore';
+import { useJobProfile } from '../lib/profileStore';
+import { profileCompleteness, profileToResume, profileUpdates } from '../lib/jobProfile';
+import { FillFromProfile, ProfileHint, ProfileUpdates, SaveToProfile } from './builder/ProfileSync';
 import { draftKey, currentUser, LIVE } from '../lib/auth';
 import { applyImport } from '../lib/import/apply';
 import { emptyResult } from '../lib/import/shared';
@@ -55,9 +58,11 @@ function ProfileOnly() {
 }
 
 /* ---------- Start & template screens ---------- */
-function Start({ onNext }) {
+function Start({ onNext, profilePct = null }) {
+  const fromProfile = profilePct !== null;
   const opts = [
-    ['scratch', 'Start from scratch', 'Guided, one section at a time.', true],
+    ...(fromProfile ? [['profile', 'Start from my Job Profile', `A new resume filled from your Job Profile (${profilePct}% complete). You pick the look next.`, profilePct >= 40]] : []),
+    ['scratch', 'Start from scratch', 'Guided, one section at a time.', !fromProfile || profilePct < 40],
     ['linkedin', 'Import LinkedIn', 'Upload your LinkedIn profile PDF. We fill every section we can, and you check it before saving.'],
     ['resume', 'Rebuild my old resume', 'Upload a PDF or Word resume in any layout. We sort it into clean sections and point out what to fix.'],
   ];
@@ -127,6 +132,11 @@ export default function Builder({ embedded = null }) {
   const [d, setD] = useState(() => (embedded ? loadDraft(embedded.storageKey, embedded.initial) : loadDraft(DRAFT_KEY(), serverCustomer() ? (activeResume()?.data || defaultResume()) : defaultResume())));
   // Live customer: when their resumes arrive from the server, open the active one (unless a scan import is opening).
   const me = useMe();
+  const jp = useJobProfile();
+  const customer = !embedded && currentUser()?.role === 'customer';
+  const profileReady = customer && jp.available && !!jp.data;
+  const profile = profileReady ? jp.data : null;
+  const edited = useRef(new WeakSet()); // entries changed in this visit: they get "Save this change to my Job Profile"
   const fromServer = useRef(!serverCustomer() || !me.loading);
   useEffect(() => {
     if (embedded || fromServer.current || me.loading) return;
@@ -250,7 +260,8 @@ export default function Builder({ embedded = null }) {
   /* data helpers */
   const getList = (k) => (k.startsWith('c_') ? d.custom.find((c) => c.id === k)?.items || [] : d[k]);
   const setList = (k, arr) => setD((p) => (k.startsWith('c_') ? { ...p, custom: p.custom.map((c) => (c.id === k ? { ...c, items: arr } : c)) } : { ...p, [k]: arr }));
-  const setItem = (k, i, key, v) => { const a = getList(k).slice(); a[i] = { ...a[i], [key]: v }; setList(k, a); };
+  const setItem = (k, i, key, v) => { const a = getList(k).slice(); a[i] = { ...a[i], [key]: v }; edited.current.add(a[i]); setList(k, a); };
+  const markSaved = (k, i) => (pid, pv) => setList(k, getList(k).map((x, j) => (j === i ? { ...x, pid, pv } : x)));
   const setObj = (k, key, v) => setD((p) => ({ ...p, [k]: { ...p[k], [key]: v } }));
   const withUndo = (msg) => { const snapshot = d; toast(msg, () => setD(snapshot)); };
 
@@ -349,6 +360,7 @@ export default function Builder({ embedded = null }) {
                   error={(u) => fieldError('url', u)} onChange={(v) => setItem(k, i, 'links', v)} />];
               })}
             </FieldGrid>
+            {profile && edited.current.has(obj) && <SaveToProfile entry={obj} section={k} profile={profile} onSaved={markSaved(k, i)} />}
             </div>
           </div>
           );
@@ -357,9 +369,16 @@ export default function Builder({ embedded = null }) {
       </div>
     );
   };
+  // personal and pinfo fields: an empty field shows its Job Profile value, one click fills it
+  const hintFrom = { personal: profile?.personal, pinfo: profile?.pinfo };
   const objEditor = (k, fields) => (
     <div className="card" style={{ padding: 20 }}>
-      <FieldGrid>{fields.map((f) => <SchemaField key={f.key} field={f} idBase={k} value={d[k][f.key]} error={errorFor(k, d[k], f)} onChange={(v) => setObj(k, f.key, v)} />)}</FieldGrid>
+      <FieldGrid>{fields.map((f) => {
+        const field = <SchemaField key={f.key} field={f} idBase={k} value={d[k][f.key]} error={errorFor(k, d[k], f)} onChange={(v) => setObj(k, f.key, v)} />;
+        const hint = hintFrom[k]?.[f.key];
+        if (!hint || (k === 'pinfo' && f.key === 'nationality')) return field; // (same wrapper while typing, so focus stays)
+        return <div key={f.key} className="stack g4" style={{ gridColumn: f.full ? '1 / -1' : 'auto' }}>{field}<ProfileHint value={hint} current={d[k][f.key]} label={f.label} onUse={(v) => setObj(k, f.key, v)} /></div>;
+      })}</FieldGrid>
     </div>
   );
 
@@ -370,6 +389,15 @@ export default function Builder({ embedded = null }) {
   ];
   const sumLen = d.summary.length;
 
+  // A new resume (kept next to the others) pre-filled from the Job Profile, then pick a look.
+  const startFromProfile = () => {
+    const nd = migrateLinks(profileToResume(jp.data, blankResume()));
+    syncFromBuilder(d);
+    const id = addResume(`${jp.data.personal.headline || 'Resume'} · from Job Profile`.slice(0, 60), nd);
+    openInBuilder(id);
+    setD(nd); setPast([]); setFuture([]); setSuggest(null); setSec('personal'); setStage('templates');
+    toast('New resume filled from your Job Profile — pick a look');
+  };
   const STAGES = ['start', 'templates', 'build', 'done'];
   const stageIdx = stage === 'import' ? 0 : STAGES.indexOf(stage);
 
@@ -384,7 +412,10 @@ export default function Builder({ embedded = null }) {
         </ol>
       )}
 
-      {stage === 'start' && <Start onNext={(k) => { if (k === 'scratch') setStage('templates'); else { setImportMode(k); setStage('import'); } }} />}
+      {stage === 'start' && <Start profilePct={profileReady ? profileCompleteness(jp.data).pct : null} onNext={(k) => {
+        if (k === 'profile') { startFromProfile(); return; }
+        if (k === 'scratch') setStage('templates'); else { setImportMode(k); setStage('import'); }
+      }} />}
       {stage === 'import' && (
         <Import mode={importMode} d={d} onBack={() => setStage('start')} onDone={(nd, sug) => {
           // start from the suggested template; Kio brings its section order (empty sections simply don't print)
@@ -453,12 +484,13 @@ export default function Builder({ embedded = null }) {
               <button type="button" role="tab" aria-selected={tab === 'cover'} onClick={() => setTab('cover')}>Cover letter</button>
             </div>
             {tab === 'cover' ? (
-              <CoverPanel d={d} setCover={(cover) => setD((p) => ({ ...p, cover }))} onAddSkill={(k) => { addSkill(k); toast(`Added “${k}” to your skills`); }} />
+              <CoverPanel d={d} profile={profile} setCover={(cover) => setD((p) => ({ ...p, cover }))} onAddSkill={(k) => { addSkill(k); toast(`Added “${k}” to your skills`); }} />
             ) : tab === 'design' ? (
               <DesignPanel d={d} ds={ds} set={setDesign} applyPreset={applyTemplate} setTitle={setTitle} fit={fit} fitting={fitting} pages={pages}
                 history={history} savedStyles={savedStyles} saveStyle={saveStyle} applySaved={applySaved} deleteSaved={deleteSaved}
                 reset={() => applyPreset(ds.preset && TEMPLATE_PRESETS[ds.preset] ? ds.preset : 'fresher')} />
             ) : (<>
+            {profile && <ProfileUpdates d={d} setD={setD} updates={profileUpdates(d, profile)} />}
             <div className="row between g12" style={{ alignItems: 'flex-end' }}>
               <div className="stack g4"><span className="mono faint">SECTION {idx + 1} OF {SECS.length}</span><h2 style={{ fontSize: 28 }}>{cur.label}</h2></div>
               <div className="row g8">
@@ -470,6 +502,7 @@ export default function Builder({ embedded = null }) {
                     Show on resume
                   </button>
                 )}
+                {profile && <FillFromProfile id={cur.id} label={cur.label} d={d} setD={setD} profile={profile} />}
                 {cur.custom && <button type="button" className="btn btn-outline" style={{ color: 'var(--danger)' }} onClick={removeSection}>Delete section</button>}
               </div>
             </div>
@@ -523,6 +556,7 @@ export default function Builder({ embedded = null }) {
               <div className="card stack g12" style={{ padding: 20 }}>
                 <label htmlFor="sum" className="label">Your summary</label>
                 <textarea id="sum" className="input" rows={5} value={d.summary} onChange={(e) => setD({ ...d, summary: e.target.value })} placeholder="Who you are, your strongest skills, one result with a number, and the role you want." />
+                {profile && <ProfileHint value={profile.summaries.find((x) => !x.off && x.text.trim())?.text} current={d.summary} label="summary" onUse={(v) => setD((p) => ({ ...p, summary: v }))} />}
                 <div className="row between xs"><span className="faint">{sumLen} chars</span><span className="strong" style={{ color: sumLen >= 150 && sumLen <= 400 ? 'var(--success)' : 'var(--warning)' }}>{sumLen < 150 ? `${150 - sumLen} more characters recommended` : sumLen > 400 ? 'Consider trimming' : '✓ Great length'}</span></div>
                 <span className="label" style={{ marginTop: 6 }}>Or start from one of these</span>
                 {summaryOptions.map(([t, n]) => (
@@ -537,7 +571,7 @@ export default function Builder({ embedded = null }) {
               <div className="card stack g16" style={{ padding: 20 }}>
                 {d.skillGroups.map((g, gi) => {
                   const def = DEFAULT_SKILL_GROUPS.find((x) => x.id === g.id);
-                  const setGroup = (patch) => setD((p) => ({ ...p, skillGroups: p.skillGroups.map((x, j) => (j === gi ? { ...x, ...patch } : x)) }));
+                  const setGroup = (patch) => setD((p) => ({ ...p, skillGroups: p.skillGroups.map((x, j) => { if (j !== gi) return x; const y = { ...x, ...patch }; edited.current.add(y); return y; }) }));
                   return (
                     <div key={g.id} className="stack g8 entry-card well" data-off={!!g.off} style={{ padding: 12 }}>
                       <EntryHeader list="skills" index={gi} count={d.skillGroups.length} label={`Skills category ${gi + 1}`} title={g.label || `Category ${gi + 1}`} off={!!g.off}
@@ -550,6 +584,7 @@ export default function Builder({ embedded = null }) {
                           style={{ flex: 1, minWidth: 0, border: 0, background: 'transparent', padding: '6px 0', fontSize: 12, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--text2)' }} />
                       <label htmlFor={`sg-${g.id}`} className="sr-only">{g.label} — separate items with commas</label>
                       <input id={`sg-${g.id}`} className="input" value={g.value} onChange={(e) => setGroup({ value: e.target.value })} placeholder={def?.ph || 'e.g. item one, item two'} />
+                      {profile && edited.current.has(g) && <SaveToProfile entry={g} section="skills" profile={profile} onSaved={(pid, pv) => setD((p) => ({ ...p, skillGroups: p.skillGroups.map((x, j) => (j === gi ? { ...x, pid, pv } : x)) }))} />}
                       </div>
                     </div>
                   );

@@ -226,3 +226,14 @@ export function applyUpdate(d, u, accept) {
 }
 export const entryLabel = (x) => x.title || x.name || [x.role, x.company].filter(Boolean).join(' · ') || [x.degree, x.institution].filter(Boolean).join(' · ') || x.label || 'Entry';
 export { LIST_OF };
+
+/* ---------- cover letters ---------- */
+/** The role a cover letter is for, when the user hasn't typed one: first target role, else the headline. */
+export const targetRoleOf = (p) => (p ? (p.prefs.targetRoles.split(',')[0] || '').trim() || (p.personal.headline.split(/[·|]/)[0] || '').trim() : '');
+/** Resume data whose empty name / contact fields are taken from the profile (for the cover letter header). */
+export function withProfileContact(d, p) {
+  if (!p || !d) return d;
+  const personal = { ...d.personal };
+  ['name', 'email', 'phone', 'location'].forEach((k) => { if (!(personal[k] || '').trim() && p.personal[k]) personal[k] = p.personal[k]; });
+  return { ...d, personal };
+}
