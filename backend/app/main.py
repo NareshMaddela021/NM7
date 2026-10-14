@@ -3,11 +3,14 @@
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
+from app.auth.router import router as auth_router
+from app.auth.sessions import SESSION_COOKIE
+from app.core import errors
 from app.core.config import get_settings
 from app.core.db import DB, dispose_engine
 
@@ -36,6 +39,18 @@ def create_app() -> FastAPI:
         allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
         allow_headers=["Content-Type"],
     )
+    errors.install(app)
+
+    @app.middleware("http")
+    async def origin_check(request: Request, call_next):
+        # Cookie-authenticated changes must come from our own site (CSRF protection on top of SameSite=Lax).
+        if request.method not in ("GET", "HEAD", "OPTIONS") and SESSION_COOKIE in request.cookies:
+            origin = (request.headers.get("origin") or "").rstrip("/")
+            if origin not in settings.cors_origins:
+                return JSONResponse(
+                    {"error": {"code": "bad_origin", "message": "Request blocked: unknown origin."}}, 403
+                )
+        return await call_next(request)
 
     @app.get("/health", tags=["ops"])
     async def health(db: DB) -> JSONResponse:
@@ -45,6 +60,7 @@ def create_app() -> FastAPI:
             return JSONResponse({"status": "error", "db": "down"}, status_code=503)
         return JSONResponse({"status": "ok", "db": "ok"})
 
+    app.include_router(auth_router)
     return app
 
 

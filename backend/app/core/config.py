@@ -18,6 +18,7 @@ class Settings(BaseSettings):
 
     # Email (Zoho ZeptoMail)
     zeptomail_token: str = ""
+    zeptomail_url: str = "https://api.zeptomail.in/v1.1/email"  # India data centre
     email_from: str = "noreply@nm7.si"
 
     # Razorpay — empty until keys exist
