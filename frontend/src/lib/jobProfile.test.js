@@ -63,6 +63,7 @@ describe('Job Profile', () => {
     expect(d.prefs.locations).toBe('Chennai, Bengaluru');
     expect(JSON.stringify(d)).not.toMatch(/salaryMin|salaryMax/);
     expect(d.proj[0].pu).toBeUndefined();
+    expect(JSON.stringify(d.fromProfile)).not.toContain('98765'); // fingerprints, not the values
   });
 
   it('sources for a resume section include internships under experience', () => {

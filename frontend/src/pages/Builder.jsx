@@ -377,7 +377,7 @@ export default function Builder({ embedded = null }) {
         const field = <SchemaField key={f.key} field={f} idBase={k} value={d[k][f.key]} error={errorFor(k, d[k], f)} onChange={(v) => setObj(k, f.key, v)} />;
         const hint = hintFrom[k]?.[f.key];
         if (!hint || (k === 'pinfo' && f.key === 'nationality')) return field; // (same wrapper while typing, so focus stays)
-        return <div key={f.key} className="stack g4" style={{ gridColumn: f.full ? '1 / -1' : 'auto' }}>{field}<ProfileHint value={hint} current={d[k][f.key]} label={f.label} onUse={(v) => setObj(k, f.key, v)} /></div>;
+        return <div key={f.key} className="stack g4" style={{ gridColumn: f.full ? '1 / -1' : 'auto' }}>{field}<ProfileHint value={hint} current={d[k][f.key]} label={f.label.replace(/\s*[*·].*$/, '')} onUse={(v) => setObj(k, f.key, v)} /></div>;
       })}</FieldGrid>
     </div>
   );

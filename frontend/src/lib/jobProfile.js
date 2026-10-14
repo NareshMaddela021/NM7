@@ -61,6 +61,15 @@ export function profileCompleteness(p) {
 }
 
 /* ---------- profile → resume ---------- */
+// The resume remembers what its contact fields were when copied, as short fingerprints (not the values, so
+// a phone number removed from a resume doesn't linger in its data or on its share link).
+const PERSONAL_SYNC = ['name', 'headline', 'email', 'phone', 'location'];
+export function fp(v) {
+  let h = 0x811c9dc5;
+  for (const c of String(v || '').trim()) { h ^= c.codePointAt(0); h = Math.imul(h, 0x01000193) >>> 0; }
+  return h.toString(36);
+}
+const fingerprints = (personal) => Object.fromEntries(PERSONAL_SYNC.map((k) => [k, fp(personal?.[k])]));
 const strip = (x, keep = []) => Object.fromEntries(Object.entries(x).filter(([k]) => !META.includes(k) || keep.includes(k)));
 /** A resume entry copied from a profile entry (remembers where it came from). */
 export const copyEntry = (x) => ({ ...strip(x, ['off']), pid: x.pid, pv: x.pu || 0 });
@@ -92,7 +101,7 @@ export function profileToResume(p, base = INITIAL) {
   d.custom = p.extra.length ? [{ id: 'c_extra', title: EXTRA_TITLE, items: p.extra.map(copyEntry) }] : [];
   d.prefs = { ...(d.prefs || {}), locations: p.prefs.cities, notice: p.prefs.notice || d.prefs?.notice || '' }; // no salary
   d.hidden = { ...(d.hidden || {}), hobbies: !p.hobbies.trim(), strengths: !p.strengths.trim() };
-  d.fromProfile = { personal: { ...d.personal }, summary: d.summary, at: Date.now() };
+  d.fromProfile = { personal: fingerprints(d.personal), at: Date.now() };
   return d;
 }
 
@@ -204,9 +213,9 @@ export function profileUpdates(d, p) {
   }));
   const snap = d.fromProfile?.personal;
   if (snap) {
-    ['name', 'headline', 'email', 'phone', 'location'].forEach((k) => {
+    PERSONAL_SYNC.forEach((k) => {
       const now = p.personal[k] || '';
-      if (now !== (snap[k] || '') && (d.personal?.[k] || '') === (snap[k] || '')) out.push({ key: `personal:${k}`, section: 'personal', field: k, label: k[0].toUpperCase() + k.slice(1), from: d.personal?.[k] || '', to: now });
+      if (snap[k] !== undefined && fp(now) !== snap[k] && fp(d.personal?.[k]) === snap[k]) out.push({ key: `personal:${k}`, section: 'personal', field: k, label: k[0].toUpperCase() + k.slice(1), from: d.personal?.[k] || '', to: now });
     });
   }
   return out;
@@ -216,7 +225,7 @@ export function applyUpdate(d, u, accept) {
   const out = structuredClone(d);
   if (u.section === 'personal') {
     if (accept) out.personal[u.field] = u.to;
-    out.fromProfile = { ...(out.fromProfile || {}), personal: { ...(out.fromProfile?.personal || {}), [u.field]: u.to } };
+    out.fromProfile = { ...(out.fromProfile || {}), personal: { ...(out.fromProfile?.personal || {}), [u.field]: fp(u.to) } };
     return out;
   }
   const set = (list) => list.map((e) => (e.pid === u.pid ? { ...(accept ? { ...u.to } : e), pid: e.pid, pv: u.pu, ...(e.off ? { off: true } : {}) } : e));
