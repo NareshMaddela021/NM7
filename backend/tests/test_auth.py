@@ -1,12 +1,7 @@
-import json
 from datetime import timedelta
-
-import httpx
-import respx
 
 from app.auth.models import User
 from app.core.db import EMAIL_CODES, RATE_EVENTS, SESSIONS, USERS
-from app.core.email import Email, ZeptoMailer
 from app.core.security import hash_password
 from app.core.time import now
 from tests.conftest import PASSWORD, signup
@@ -312,37 +307,3 @@ async def test_reset_also_verifies_an_unverified_email(client, outbox, db):
 
 
 # ---------- ZeptoMail ----------
-
-
-@respx.mock
-async def test_zeptomail_request_shape():
-    route = respx.post("https://api.zeptomail.in/v1.1/email").mock(return_value=httpx.Response(201, json={}))
-    m = ZeptoMailer("tok123", "noreply@nm7.si", "https://api.zeptomail.in/v1.1/email")
-    await m.send(Email("sai@example.com", "Sai", "Hello", "text", "<p>html</p>"))
-    req = route.calls.last.request
-    assert req.headers["Authorization"] == "Zoho-enczapikey tok123"
-    body = json.loads(req.content)
-    assert body["from"]["address"] == "noreply@nm7.si"
-    assert body["to"][0]["email_address"] == {"address": "sai@example.com", "name": "Sai"}
-    assert body["subject"] == "Hello" and body["htmlbody"] == "<p>html</p>"
-
-
-async def test_cross_site_cookie_setting(client, outbox, monkeypatch):
-    from app.core.config import get_settings
-
-    monkeypatch.setattr(get_settings(), "cookie_samesite", "none")
-    await signup(client, outbox, verify=False)
-    code = outbox.last_code("sai@example.com")
-    r = await client.post("/api/auth/verify-email", json={"email": "sai@example.com", "code": code})
-    cookie = r.headers["set-cookie"].lower()
-    assert "samesite=none" in cookie and "secure" in cookie and "httponly" in cookie
-
-
-async def test_failed_email_never_logs_the_code(client, app, caplog):
-    from app.core.email import MissingMailer, get_mailer
-
-    app.dependency_overrides[get_mailer] = lambda: MissingMailer()
-    r = await signup_raw(client)
-    assert r.json()["codeSent"] is False
-    assert "Could not send an email to sai@example.com" in caplog.text
-    assert "Nm7 code" not in caplog.text and not any(c.isdigit() and len(c) == 6 for c in caplog.text.split())

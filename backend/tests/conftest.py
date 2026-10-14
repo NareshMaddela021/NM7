@@ -49,6 +49,8 @@ async def db():
 
 
 class Outbox:
+    available = True
+
     def __init__(self):
         self.sent: list[Email] = []
 

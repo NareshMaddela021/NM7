@@ -174,3 +174,10 @@ Routes, responses and behaviour are unchanged; the frontend needed no changes.
   racing requests at the same moment.
 - Data in the old Render Postgres database is not copied (it held test data only); the owner admin is recreated
   with `/admin/setup`.
+
+## Email: Resend (replaces ZeptoMail as default)
+
+- `EMAIL_PROVIDER=resend` (default; `zeptomail` still works). Resend HTTP API via httpx, Bearer `RESEND_API_KEY`,
+  sender `Nm7 <no-reply@nm7.si>`, reply-to `info@nm7.si`. Domain `nm7.si` verified in Resend (region ap-northeast-1).
+- In production without a key, sign-up / resend code / forgot password answer **503 "Email is temporarily
+  unavailable"** before saving anything (and the log says which key is missing) instead of claiming a code was sent.

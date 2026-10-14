@@ -1,15 +1,18 @@
-"""Sending email. Production uses Zoho ZeptoMail; dev prints to the log; tests collect messages."""
+"""Sending email. Production uses Resend (or Zoho ZeptoMail); dev prints to the log; tests collect messages."""
 
 import logging
 from dataclasses import dataclass
+from email.utils import parseaddr
 from typing import Annotated, Protocol
 
 import httpx
 from fastapi import Depends
 
 from app.core.config import get_settings
+from app.core.errors import ApiError
 
 log = logging.getLogger("nm7.email")
+TIMEOUT = httpx.Timeout(10.0)
 
 
 @dataclass
@@ -22,23 +25,52 @@ class Email:
 
 
 class Mailer(Protocol):
+    available: bool
+
     async def send(self, msg: Email) -> None: ...
 
 
-class ZeptoMailer:
-    def __init__(self, token: str, sender: str, url: str):
-        self.token, self.sender, self.url = token, sender, url
+class ResendMailer:
+    """Resend HTTP API: POST https://api.resend.com/emails with a Bearer API key."""
+
+    available = True
+
+    def __init__(self, api_key: str, sender: str, reply_to: str, url: str):
+        self.api_key, self.sender, self.reply_to, self.url = api_key, sender, reply_to, url
 
     async def send(self, msg: Email) -> None:
         body = {
-            "from": {"address": self.sender, "name": "Nm7"},
+            "from": self.sender,
+            "to": [msg.to],
+            "subject": msg.subject,
+            "html": msg.html,
+            "text": msg.text,
+            **({"reply_to": self.reply_to} if self.reply_to else {}),
+        }
+        headers = {"Authorization": f"Bearer {self.api_key}", "Accept": "application/json"}
+        async with httpx.AsyncClient(timeout=TIMEOUT) as client:
+            r = await client.post(self.url, json=body, headers=headers)
+            r.raise_for_status()
+
+
+class ZeptoMailer:
+    available = True
+
+    def __init__(self, token: str, sender: str, reply_to: str, url: str):
+        name, address = parseaddr(sender)
+        self.token, self.name, self.address, self.reply_to, self.url = token, name or "Nm7", address, reply_to, url
+
+    async def send(self, msg: Email) -> None:
+        body = {
+            "from": {"address": self.address, "name": self.name},
             "to": [{"email_address": {"address": msg.to, "name": msg.to_name}}],
             "subject": msg.subject,
             "textbody": msg.text,
             "htmlbody": msg.html,
+            **({"reply_to": [{"address": self.reply_to}]} if self.reply_to else {}),
         }
         headers = {"Authorization": f"Zoho-enczapikey {self.token}", "Accept": "application/json"}
-        async with httpx.AsyncClient(timeout=10) as client:
+        async with httpx.AsyncClient(timeout=TIMEOUT) as client:
             r = await client.post(self.url, json=body, headers=headers)
             r.raise_for_status()
 
@@ -46,22 +78,57 @@ class ZeptoMailer:
 class ConsoleMailer:
     """Development: prints the email (including any code) to the server log."""
 
+    available = True
+
     async def send(self, msg: Email) -> None:
         log.warning("EMAIL to %s — %s\n%s", msg.to, msg.subject, msg.text)
 
 
 class MissingMailer:
-    """Production without a ZeptoMail token: never logs the content (codes are secrets)."""
+    """Production without an API key: nothing can be sent (and the content, which holds codes, is never logged)."""
+
+    available = False
+
+    def __init__(self, setting: str):
+        self.setting = setting
 
     async def send(self, msg: Email) -> None:
-        raise RuntimeError("ZEPTOMAIL_TOKEN is not set; email not sent")
+        raise RuntimeError(f"{self.setting} is not set; email not sent")
 
 
 def get_mailer() -> Mailer:
     s = get_settings()
-    if s.zeptomail_token:
-        return ZeptoMailer(s.zeptomail_token, s.email_from, s.zeptomail_url)
-    return MissingMailer() if s.is_prod else ConsoleMailer()
+    if s.email_provider == "resend":
+        if s.resend_api_key:
+            return ResendMailer(s.resend_api_key, s.email_from, s.email_reply_to, s.resend_url)
+        missing = "RESEND_API_KEY"
+    else:
+        if s.zeptomail_token:
+            return ZeptoMailer(s.zeptomail_token, s.email_from, s.email_reply_to, s.zeptomail_url)
+        missing = "ZEPTOMAIL_TOKEN"
+    return MissingMailer(missing) if s.is_prod else ConsoleMailer()
+
+
+EMAIL_UNAVAILABLE = ApiError(503, "email_unavailable", "Email is temporarily unavailable. Please try again later.")
+
+
+def require_email(mailer: Mailer) -> None:
+    """Endpoints that promise "we've emailed you a code" call this first: no key, no promise."""
+    if not mailer.available:
+        log.error(
+            "Email is OFF: %s is not set (EMAIL_PROVIDER=%s). Sign-up, code resend and password reset answer 503 "
+            "until it is added on the server.",
+            getattr(mailer, "setting", "the email API key"),
+            get_settings().email_provider,
+        )
+        raise EMAIL_UNAVAILABLE
+
+
+def log_email_status() -> None:
+    """At start-up: say clearly if production can't send email."""
+    mailer = get_mailer()
+    if not mailer.available:
+        log.error("Email is OFF: %s is not set (EMAIL_PROVIDER=%s).", mailer.setting, get_settings().email_provider)
 
 
 async def send_safely(mailer: Mailer, msg: Email) -> bool:
@@ -69,8 +136,11 @@ async def send_safely(mailer: Mailer, msg: Email) -> bool:
     try:
         await mailer.send(msg)
         return True
+    except httpx.HTTPStatusError as e:
+        # Status and provider message only — never the subject or body (they can contain one-time codes).
+        log.error("Email to %s refused by provider: HTTP %s %s", msg.to, e.response.status_code, e.response.text[:300])
+        return False
     except Exception:
-        # Never log the subject or body: they can contain one-time codes.
         log.exception("Could not send an email to %s", msg.to)
         return False
 

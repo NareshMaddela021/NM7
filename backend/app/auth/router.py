@@ -22,7 +22,7 @@ from app.auth.service import (
 from app.auth.sessions import SESSION_COOKIE, clear_cookie, client_ip, revoke_all, start_session
 from app.core import rate_limit
 from app.core.db import DB, SESSIONS, USERS
-from app.core.email import MailerDep, send_safely
+from app.core.email import MailerDep, require_email, send_safely
 from app.core.errors import ApiError
 from app.core.security import hash_password, needs_rehash, verify_password
 from app.core.time import now
@@ -34,6 +34,7 @@ EMAIL_TAKEN = ApiError(409, "email_taken", "An account with this email already e
 
 @router.post("/signup", status_code=201)
 async def signup(body: SignupIn, request: Request, db: DB, mailer: MailerDep) -> SignupOut:
+    require_email(mailer)  # 503 rather than claim a code was sent
     name = " ".join(body.name.split())
     if not name:
         raise ApiError(400, "name_required", "Enter your name.")
@@ -82,6 +83,7 @@ async def verify_email(body: EmailCodeIn, request: Request, response: Response, 
 
 @router.post("/verify-email/resend")
 async def resend_verification(body: EmailIn, request: Request, db: DB, mailer: MailerDep) -> Ok:
+    require_email(mailer)  # 503 rather than claim a code was sent
     await may_send_code(db, body.email)
     user = await find_user(db, body.email)
     code = None
@@ -127,6 +129,7 @@ async def login(body: LoginIn, request: Request, response: Response, db: DB, mai
 @router.post("/password/forgot")
 async def forgot_password(body: EmailIn, request: Request, db: DB, mailer: MailerDep) -> Ok:
     """Always answers OK, so it can't be used to find out who has an account."""
+    require_email(mailer)  # 503 rather than claim a code was sent
     await may_send_code(db, body.email)
     user = await find_user(db, body.email)
     code = None

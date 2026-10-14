@@ -27,10 +27,15 @@ class Settings(BaseSettings):
     # e.g. testing on *.onrender.com (needs HTTPS; the origin check still blocks other sites).
     cookie_samesite: Literal["lax", "none"] = "lax"
 
-    # Email (Zoho ZeptoMail)
+    # Email: Resend (default) or Zoho ZeptoMail. Without a key, dev prints emails to the log and production refuses
+    # to promise a code (the email endpoints answer 503 "Email is temporarily unavailable").
+    email_provider: Literal["resend", "zeptomail"] = "resend"
+    email_from: str = "Nm7 <no-reply@nm7.si>"
+    email_reply_to: str = "info@nm7.si"
+    resend_api_key: str = ""
+    resend_url: str = "https://api.resend.com/emails"
     zeptomail_token: str = ""
     zeptomail_url: str = "https://api.zeptomail.in/v1.1/email"  # India data centre
-    email_from: str = "noreply@nm7.si"
 
     # One-time owner setup from the website (POST /api/admin/setup) for hosts without a shell. Only works while no
     # admin exists and the token is at least 24 characters. Remove it after use.

@@ -23,16 +23,20 @@ services:
       - key: ENCRYPTION_KEY # encrypts admin authenticator secrets; never change it after admins are set up
         generateValue: true
       - key: CORS_ORIGINS # the frontend's production address (comma-separated list, no trailing slash)
-        value: https://nm7-omega.vercel.app
+        value: https://nm7-omega.vercel.app,https://nm7.si,https://www.nm7.si
       - key: CORS_ORIGIN_REGEX # Vercel preview deployments of project nm7, team nm-8
         value: ^https://nm7-[a-z0-9-]+-nm-8\.vercel\.app$
       - key: COOKIE_SAMESITE # site (vercel.app) and API (onrender.com) are different sites while testing
         value: none
       - key: ADMIN_SETUP_TOKEN # one-time owner setup at /admin/setup; delete after use (it stops working anyway)
         sync: false
-      - key: EMAIL_FROM
-        value: noreply@nm7.si
-      - key: ZEPTOMAIL_TOKEN
+      - key: EMAIL_PROVIDER # resend (default) or zeptomail
+        value: resend
+      - key: EMAIL_FROM # must be on the domain verified in Resend (nm7.si)
+        value: Nm7 <no-reply@nm7.si>
+      - key: EMAIL_REPLY_TO
+        value: info@nm7.si
+      - key: RESEND_API_KEY # Resend API key, "Sending access" for nm7.si — paste it in the dashboard
         sync: false
       - key: RAZORPAY_KEY_ID
         sync: false

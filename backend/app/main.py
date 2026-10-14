@@ -15,6 +15,7 @@ from app.auth.sessions import SESSION_COOKIE
 from app.core import errors
 from app.core.config import get_settings
 from app.core.db import DB, close_client, ensure_indexes, get_database
+from app.core.email import log_email_status
 from app.orders.router import router as orders_router
 from app.payments.router import router as payments_router
 
@@ -22,6 +23,7 @@ from app.payments.router import router as payments_router
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     await ensure_indexes(get_database())  # collections + indexes; safe to run on every start
+    log_email_status()
     yield
     await close_client()
 
