@@ -69,9 +69,10 @@ In Render: **New → Blueprint**, pick the repo, set the Blueprint path to `back
 then fill in the secrets (ZeptoMail token, Razorpay keys). Migrations run on every start (`start.sh`).
 Point `api.nm7.si` at the service with a CNAME record.
 
-**Free-plan test deploy (current `render.yaml`):** both services run on `*.onrender.com` addresses, so the API uses
-`COOKIE_SAMESITE=none` and `CORS_ORIGINS` must be the static site's exact address (default
-`https://asuraa-resume.onrender.com`). Build the frontend with `VITE_API_BASE=https://nm7-api.onrender.com`.
+**Free-plan test deploy (current `render.yaml`):** the site is on Vercel (`frontend/vercel.json`, env
+`VITE_API_BASE=https://nm7-api.onrender.com`) and the API on Render, so they are different sites: the API uses
+`COOKIE_SAMESITE=none`, `CORS_ORIGINS=https://nm7.vercel.app`, and optionally `CORS_ORIGIN_REGEX` for Vercel
+preview deployments (tie it to your own project and team slug — never all of `*.vercel.app`).
 With `ZEPTOMAIL_TOKEN` and `RAZORPAY_*` empty the API still runs: emails are skipped (logged, without codes) and
 ordering answers `payments_unavailable`.
 The free web service has no Shell: create the first admin from your computer with the database's

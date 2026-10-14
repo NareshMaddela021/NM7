@@ -1,5 +1,6 @@
 """Settings, read from environment variables (or a local .env file)."""
 
+import re
 from functools import lru_cache
 from typing import Annotated, Literal
 
@@ -16,6 +17,9 @@ class Settings(BaseSettings):
     # Encrypts authenticator secrets. Falls back to SECRET_KEY; changing it breaks existing admin authenticators.
     encryption_key: str = ""
     cors_origins: Annotated[list[str], NoDecode] = ["http://localhost:5173"]
+    # Extra allowed origins as a full-match regex, e.g. Vercel preview deployments. Keep it tied to your own
+    # project and team, never all of *.vercel.app (anyone can deploy there). Empty = none.
+    cors_origin_regex: str = ""
     cookie_domain: str | None = None
     # "lax" when the site and API share a domain (nm7.si + api.nm7.si). "none" when they are different sites,
     # e.g. testing on *.onrender.com (needs HTTPS; the origin check still blocks other sites).
@@ -47,10 +51,24 @@ class Settings(BaseSettings):
             return [o.strip().rstrip("/") for o in v.split(",") if o.strip()]
         return v
 
+    @field_validator("cors_origin_regex")
+    @classmethod
+    def _valid_regex(cls, v: str) -> str:
+        v = v.strip()
+        if v:
+            re.compile(v)  # fail at start-up, not on the first request
+        return v
+
     @field_validator("cookie_domain", mode="before")
     @classmethod
     def _blank_is_none(cls, v: str | None) -> str | None:
         return v or None
+
+    def origin_allowed(self, origin: str) -> bool:
+        origin = origin.rstrip("/")
+        if origin in self.cors_origins:
+            return True
+        return bool(self.cors_origin_regex) and re.fullmatch(self.cors_origin_regex, origin) is not None
 
     @property
     def is_prod(self) -> bool:

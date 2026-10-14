@@ -1,6 +1,6 @@
 # Render Blueprint for the API (Singapore). In Render: New → Blueprint → pick this repo,
 # set "Blueprint path" to backend/render.yaml. Secrets marked sync:false are entered in the dashboard.
-# Testing setup (free plan, *.onrender.com addresses). For nm7.si later: add `domains: [api.nm7.si]`,
+# Testing setup (free plan; site on Vercel, API on *.onrender.com). For nm7.si later: add `domains: [api.nm7.si]`,
 # set CORS_ORIGINS=https://nm7.si,https://www.nm7.si, COOKIE_DOMAIN=.nm7.si and COOKIE_SAMESITE=lax.
 services:
   - type: web
@@ -20,9 +20,11 @@ services:
         generateValue: true
       - key: ENCRYPTION_KEY # encrypts admin authenticator secrets; never change it after admins are set up
         generateValue: true
-      - key: CORS_ORIGINS # the frontend's address — change it if Render gave the static site a different one
-        value: https://asuraa-resume.onrender.com
-      - key: COOKIE_SAMESITE # site and API are different *.onrender.com sites while testing
+      - key: CORS_ORIGINS # the frontend's production address (comma-separated list, no trailing slash)
+        value: https://nm7.vercel.app
+      - key: CORS_ORIGIN_REGEX # Vercel preview deployments, e.g. ^https://nm7-[a-z0-9-]+-<team-slug>\.vercel\.app$
+        sync: false
+      - key: COOKIE_SAMESITE # site (vercel.app) and API (onrender.com) are different sites while testing
         value: none
       - key: EMAIL_FROM
         value: noreply@nm7.si

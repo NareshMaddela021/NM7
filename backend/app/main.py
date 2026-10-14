@@ -39,6 +39,7 @@ def create_app() -> FastAPI:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,
+        allow_origin_regex=settings.cors_origin_regex or None,
         allow_credentials=True,  # session cookies
         allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
         allow_headers=["Content-Type"],
@@ -47,10 +48,9 @@ def create_app() -> FastAPI:
 
     @app.middleware("http")
     async def origin_check(request: Request, call_next):
-        # Cookie-authenticated changes must come from our own site (CSRF protection on top of SameSite=Lax).
+        # Cookie-authenticated changes must come from our own site (CSRF protection on top of SameSite).
         if request.method not in ("GET", "HEAD", "OPTIONS") and SESSION_COOKIE in request.cookies:
-            origin = (request.headers.get("origin") or "").rstrip("/")
-            if origin not in settings.cors_origins:
+            if not settings.origin_allowed(request.headers.get("origin") or ""):
                 return JSONResponse(
                     {"error": {"code": "bad_origin", "message": "Request blocked: unknown origin."}}, 403
                 )
