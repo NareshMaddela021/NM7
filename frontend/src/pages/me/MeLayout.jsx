@@ -11,6 +11,7 @@ export const ME_NAV = [
   ['orders', '/me/orders', 'My orders', '☰'],
   ['messages', '/me/messages', 'Messages', '✉'],
   ['resumes', '/me/resumes', 'My resumes', '▤'],
+  ['profile', '/me/profile', 'Job Profile', '◉'],
   ['ats', '/me/ats', 'ATS & job match', '◎'],
   ['covers', '/me/covers', 'Cover letters', '✎'],
   ['jobs', '/me/jobs', 'Applications', '▥'],
