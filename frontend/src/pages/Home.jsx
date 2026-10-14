@@ -1,11 +1,12 @@
 // Home / landing page: hero with upload + live scan demo, how it works, try-it bullet improver, templates,
 // before/after slider, experts, pricing, reviews, who it's for, FAQ and a final call to action.
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import SiteFooter from '../components/SiteFooter';
 import { Icon } from '../components/ui';
-import { useFlow } from '../lib/flow';
+import { ROLE_MAX, useFlow } from '../lib/flow';
+import { checkFile } from '../lib/scan/extract';
 import { PLANS, PROMISES, ADDONS, inr } from '../lib/pricing';
 import { STATS, REVIEWS, EXPERTS, visible } from '../lib/homeContent';
 import { atsScore } from '../lib/atsScore';
@@ -17,7 +18,6 @@ import { BEFORE, AFTER, DEMO_JD, improveBullet, bulletScore, EXAMPLES } from './
 import '../styles/home.css';
 
 const MAX_MB = 5;
-const OK_TYPES = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
 const reduced = () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
 /* ---------- small pieces ---------- */
@@ -119,14 +119,14 @@ function Upload({ start, role, setRole, compact }) {
         <div className="row g8" style={{ alignItems: 'flex-end' }}>
           <div className="field" style={{ flex: '1 1 180px' }}>
             <label htmlFor={compact ? 'role2' : 'role'} className="label">Role you’re applying for</label>
-            <input id={compact ? 'role2' : 'role'} className="input" style={{ height: 48 }} value={role} onChange={(e) => setRole(e.target.value)} placeholder="e.g. Data Analyst" />
+            <input id={compact ? 'role2' : 'role'} className="input" style={{ height: 48 }} value={role} maxLength={ROLE_MAX} onChange={(e) => setRole(e.target.value)} onBlur={(e) => setRole(e.target.value.replace(/\s+/g, ' ').trim())} placeholder="e.g. Data Analyst" />
           </div>
           <input ref={fileRef} type="file" accept=".pdf,.docx" className="sr-only" tabIndex={-1} onChange={(e) => start(e.target.files[0])} />
           <button type="button" className="btn btn-ink btn-lg" style={{ flex: '1 1 160px', minHeight: 48 }} onClick={() => fileRef.current.click()}>Scan my resume — free</button>
         </div>
         <span className="row between g8 xs">
           <button type="button" className="link-btn xs" onClick={() => start(null)}>No resume handy? Try a sample</button>
-          <span className="faint">Deleted automatically after {PROMISES.retentionDays} days</span>
+          <span className="faint">Read on your device — never uploaded</span>
         </span>
       </div>
     </div>
@@ -373,8 +373,9 @@ function Faq() {
 /* ---------- page ---------- */
 export default function Home() {
   const nav = useNavigate();
-  const { role, setRole, setAddon } = useFlow();
-  const [err, setErr] = useState('');
+  const { role, setRole, setAddon, setUpload } = useFlow();
+  const location = useLocation();
+  const [err, setErr] = useState(null); // { msg, at: 'top' | 'bottom' }
   const [past, setPast] = useState(false); // scrolled past the hero
   const heroRef = useRef();
   useReveal();
@@ -392,13 +393,19 @@ export default function Home() {
     return () => { io.disconnect(); s.remove(); };
   }, []);
 
-  const start = (file) => {
+  // A scan that failed (unreadable, scanned, password…) comes back here with its message.
+  useEffect(() => {
+    if (location.state?.scanError) { setErr({ msg: location.state.scanError, at: 'top' }); nav('/', { replace: true, state: null }); }
+  }, [location.state]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const start = (file, at = 'top') => {
     if (file) {
-      if (!OK_TYPES.includes(file.type)) { setErr('Please upload a PDF or DOCX file.'); return; }
-      if (file.size > MAX_MB * 1024 * 1024) { setErr(`That file is over ${MAX_MB} MB. Try a smaller one.`); return; }
+      try { checkFile(file); } catch (e) { setErr({ msg: e.message, at }); return; }
     }
-    setErr('');
-    nav('/scan', { state: { fresh: true, fileName: file?.name } });
+    setErr(null);
+    setRole(role.replace(/\s+/g, ' ').trim());
+    setUpload(file || 'sample'); // read in the browser on the next page; nothing is uploaded
+    nav('/scan');
   };
   const goPlan = (k) => { if (k === 'diy') nav('/builder'); else { setAddon(k === 'launch'); nav('/checkout'); } };
   const toTop = () => { window.scrollTo({ top: 0, behavior: reduced() ? 'auto' : 'smooth' }); setTimeout(() => document.getElementById('role')?.focus(), 400); };
@@ -415,8 +422,8 @@ export default function Home() {
               <span className="h-eyebrow">Free ATS scan · freshers to 5 years</span>
               <h1 id="hero-title" className="h-title">Get your resume past the <mark>6-second skim</mark> — and the ATS.</h1>
               <p className="lead" style={{ maxWidth: 540, margin: 0, fontSize: 19 }}>See your score and every issue in seconds. Then fix it yourself in our builder, or have a verified expert from your field rewrite it in {PROMISES.delivery}.</p>
-              <Upload start={start} role={role} setRole={setRole} />
-              {err && <span role="alert" className="error">{err}</span>}
+              <Upload start={(f) => start(f, 'top')} role={role} setRole={setRole} />
+              {err?.at === 'top' && <span role="alert" className="error">{err.msg}</span>}
               <ul className="h-trust" aria-label="Why trust us">
                 <li><Check />Verified experts</li><li><Check />{PROMISES.delivery} delivery</li><li><Check />Full refund if late</li><li><Check />{PROMISES.paymentProvider} secure</li>
               </ul>
@@ -524,7 +531,7 @@ export default function Home() {
               <p className="lead" style={{ margin: 0 }}>Free scan in seconds. Fix it today. Apply with confidence.</p>
               <span className="small muted">Are you a recruiter, hiring manager or career coach? <Link to="/signup?as=expert" style={{ color: 'var(--signal)' }}>Earn as an expert →</Link></span>
             </div>
-            <div className="reveal"><Upload start={start} role={role} setRole={setRole} compact /></div>
+            <div className="reveal"><Upload start={(f) => start(f, 'bottom')} role={role} setRole={setRole} compact />{err?.at === 'bottom' && <span role="alert" className="error">{err.msg}</span>}</div>
           </div>
         </section>
       </main>

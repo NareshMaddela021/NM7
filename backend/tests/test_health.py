@@ -1,4 +1,4 @@
-from sqlalchemy.exc import OperationalError
+from pymongo.errors import ServerSelectionTimeoutError
 
 from app.core.db import get_db
 
@@ -10,12 +10,12 @@ async def test_health_ok(client):
 
 
 async def test_health_reports_db_down(app, client):
-    class DownSession:
-        async def execute(self, *_):
-            raise OperationalError("SELECT 1", {}, Exception("connection refused"))
+    class DownDatabase:
+        async def command(self, *_):
+            raise ServerSelectionTimeoutError("connection refused")
 
     async def down_db():
-        yield DownSession()
+        return DownDatabase()
 
     app.dependency_overrides[get_db] = down_db
     r = await client.get("/health")

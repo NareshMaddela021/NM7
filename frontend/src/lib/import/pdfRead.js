@@ -1,5 +1,5 @@
 // Reads a PDF into positioned text items + links. Works in the browser and in Node (pass the pdf.js module).
-// Item: { str, x, y (from top), w, size, bold, italic, page }
+// Item: { str, x, y (from top), w, size, bold, italic, page }. Also counts drawn images (e.g. a photo).
 
 export async function readPdf(pdfjs, data) {
   const doc = await pdfjs.getDocument({ data, isEvalSupported: false, verbosity: 0 }).promise;
@@ -7,11 +7,14 @@ export async function readPdf(pdfjs, data) {
   const pages = [];
   const items = [];
   const links = [];
+  let images = 0;
+  const IMG = new Set([pdfjs.OPS?.paintImageXObject, pdfjs.OPS?.paintJpegXObject, pdfjs.OPS?.paintInlineImageXObject].filter((x) => x !== undefined));
   for (let p = 1; p <= doc.numPages; p++) {
     const page = await doc.getPage(p);
     const vp = page.getViewport({ scale: 1 });
     pages.push({ w: vp.width, h: vp.height });
-    await page.getOperatorList(); // loads fonts so we can tell bold from regular
+    const ops = await page.getOperatorList(); // also loads fonts so we can tell bold from regular
+    images += ops.fnArray.filter((f) => IMG.has(f)).length;
     const tc = await page.getTextContent();
     const fontName = {};
     const nameOf = (id) => {
@@ -34,7 +37,7 @@ export async function readPdf(pdfjs, data) {
       links.push({ url: a.url, page: p, x: x1, y: vp.height - y2, w: x2 - x1, h: y2 - y1 });
     });
   }
-  return { meta: meta.info || {}, pages, items, links, doc };
+  return { meta: meta.info || {}, pages, items, links, images, doc };
 }
 
 /** Groups items into visual lines (same page, same baseline), left to right. */

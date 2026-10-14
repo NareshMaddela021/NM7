@@ -5,7 +5,7 @@ Resume services by **AsuraaX AI** — free ATS scan, resume builder, verified ex
 | Folder | What | Status |
 |---|---|---|
 | `frontend/` | React 18 + Vite app (all screens) | Built — runs on sample data |
-| `backend/` | FastAPI + PostgreSQL (auth, orders, Razorpay, notifications) | In progress — see [`backend/PLAN.md`](backend/PLAN.md) |
+| `backend/` | FastAPI + MongoDB Atlas (auth, orders, Razorpay, notifications) | In progress — see [`backend/PLAN.md`](backend/PLAN.md) |
 
 ## Run the frontend
 ```bash

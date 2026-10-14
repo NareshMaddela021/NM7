@@ -3,11 +3,11 @@ from datetime import timedelta
 
 import pyotp
 import pytest
-from sqlalchemy import select, update
 
 from app.auth.admin_service import check_totp, create_admin
-from app.auth.models import AdminChallenge, User, UserSession
+from app.auth.models import User
 from app.cli import run as cli_run
+from app.core.db import ADMIN_CHALLENGES, SESSIONS, USERS
 from app.core.security import decrypt
 from app.core.time import now
 from tests.conftest import PASSWORD, signup
@@ -22,7 +22,6 @@ def err(r):
 @pytest.fixture
 async def admin(db):
     user, secret, codes = await create_admin(db, EMAIL, "Naresh (owner)", "owner", PASSWORD)
-    await db.commit()
     return {"user": user, "secret": secret, "codes": codes}
 
 
@@ -43,8 +42,8 @@ async def test_two_step_login(client, admin, db):
     me = (await client.get("/api/auth/me")).json()
     assert me["role"] == "admin" and me["adminRole"] == "owner"
 
-    s = (await db.execute(select(UserSession))).scalar_one()
-    assert s.two_step and timedelta(hours=11) < s.expires_at - now() <= timedelta(hours=12)
+    s = await db[SESSIONS].find_one({})
+    assert s["two_step"] and timedelta(hours=11) < s["expires_at"] - now() <= timedelta(hours=12)
 
     # The challenge is used up.
     r = await client.post("/api/auth/admin/verify", json={"code": pyotp.TOTP(admin["secret"]).now()})
@@ -110,8 +109,7 @@ async def test_challenge_expires_and_has_five_tries(client, admin, db):
     assert err(r) == "no_challenge"
 
     await password_step(client)
-    await db.execute(update(AdminChallenge).values(expires_at=now() - timedelta(seconds=1)))
-    await db.commit()
+    await db[ADMIN_CHALLENGES].update_many({}, {"$set": {"expires_at": now() - timedelta(seconds=1)}})
     r = await client.post("/api/auth/admin/verify", json={"code": pyotp.TOTP(admin["secret"]).now()})
     assert err(r) == "no_challenge"
 
@@ -141,15 +139,13 @@ async def test_role_permissions(client, admin, db, make_client, outbox):
     assert "admin.login" in actions and r.json()[0]["actorName"] == "Naresh (owner)"
 
     # Finance can't see the team audit log.
-    await db.execute(update(User).where(User.email == EMAIL).values(admin_role="finance"))
-    await db.commit()
+    await db[USERS].update_one({"email_lc": EMAIL}, {"$set": {"admin_role": "finance"}})
     r = await client.get("/api/admin/audit-log")
     assert r.status_code == 403 and err(r) == "no_permission"
 
     # A session without two-step is not enough.
-    await db.execute(update(User).where(User.email == EMAIL).values(admin_role="owner"))
-    await db.execute(update(UserSession).values(two_step=False))
-    await db.commit()
+    await db[USERS].update_one({"email_lc": EMAIL}, {"$set": {"admin_role": "owner"}})
+    await db[SESSIONS].update_many({}, {"$set": {"two_step": False}})
     assert err(await client.get("/api/admin/audit-log")) == "admin_only"
 
     customer = make_client()
@@ -162,11 +158,10 @@ async def test_admin_session_does_not_slide(client, admin, db):
     await password_step(client)
     await client.post("/api/auth/admin/verify", json={"code": pyotp.TOTP(admin["secret"]).now()})
     soon = now() + timedelta(minutes=30)
-    await db.execute(update(UserSession).values(last_seen_at=now() - timedelta(hours=3), expires_at=soon))
-    await db.commit()
+    soon = soon.replace(microsecond=soon.microsecond // 1000 * 1000)  # MongoDB keeps milliseconds
+    await db[SESSIONS].update_many({}, {"$set": {"last_seen_at": now() - timedelta(hours=3), "expires_at": soon}})
     assert (await client.get("/api/auth/me")).status_code == 200
-    db.expire_all()
-    assert (await db.execute(select(UserSession.expires_at))).scalar_one() == soon
+    assert (await db[SESSIONS].find_one({}))["expires_at"] == soon
 
 
 async def test_cli_create_and_reset(monkeypatch, capsys, db):
@@ -174,7 +169,7 @@ async def test_cli_create_and_reset(monkeypatch, capsys, db):
     await cli_run(["create-admin", "--email", "ops@nm7.si", "--name", "Ops", "--role", "ops"])
     out = capsys.readouterr().out
     assert "otpauth://totp/Nm7:ops%40nm7.si" in out and out.count("-") >= 10
-    user = (await db.execute(select(User).where(User.email == "ops@nm7.si"))).scalar_one()
+    user = User.load(await db[USERS].find_one({"email_lc": "ops@nm7.si"}))
     assert user.role == "admin" and user.admin_role == "ops" and user.totp_secret_enc
 
     with pytest.raises(SystemExit):
@@ -182,6 +177,5 @@ async def test_cli_create_and_reset(monkeypatch, capsys, db):
 
     old_secret = user.totp_secret_enc
     await cli_run(["reset-admin-2fa", "--email", "ops@nm7.si"])
-    db.expire_all()
-    user = (await db.execute(select(User).where(User.email == "ops@nm7.si"))).scalar_one()
+    user = User.load(await db[USERS].find_one({"email_lc": "ops@nm7.si"}))
     assert user.totp_secret_enc != old_secret

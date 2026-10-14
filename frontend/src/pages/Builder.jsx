@@ -6,6 +6,11 @@ import { getMatchedJobs, saveProfile } from '../services/api';
 import { PLANS, inr } from '../lib/pricing';
 import { syncFromBuilder, defaultResume } from '../lib/customerStore';
 import { draftKey } from '../lib/auth';
+import { applyImport } from '../lib/import/apply';
+import { emptyResult } from '../lib/import/shared';
+
+/** The built-in sample person (shown to guests until they add their own details). */
+const isSampleDraft = (d) => d.personal?.name === INITIAL.personal.name && d.personal?.email === INITIAL.personal.email;
 import ResumePreview from './builder/ResumePreview';
 import { buildResumePdf, savePdf } from './builder/resumePdf';
 import { FieldGrid, LinkFields, SchemaField } from './builder/Fields';
@@ -186,6 +191,19 @@ export default function Builder({ embedded = null }) {
 
   // Opened from the home page with a template picked: apply it once.
   useEffect(() => { const k = location.state?.template; if (!embedded && k && TEMPLATE_PRESETS[k]) { applyTemplate(k); toast(`${TEMPLATE_PRESETS[k].name} template applied`); } }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // From the scan report ("keep fixing it myself"): load the scanned resume, or start empty instead of the sample.
+  useEffect(() => {
+    const st = location.state;
+    if (embedded || !st || (!st.scanImport && !st.blank)) return;
+    const snapshot = d;
+    if (st.scanImport) {
+      setD(applyImport(d, st.scanImport, 'replace'));
+      toast(`Loaded ${st.fileName || 'your resume'} — check each section`, () => setD(snapshot));
+    } else if (isSampleDraft(d)) {
+      setD(applyImport(d, emptyResult('blank').data, 'replace'));
+    }
+    window.history.replaceState({ ...window.history.state, usr: null }, ''); // a refresh shouldn't load it again
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Autosave: browser draft immediately, server (debounced).
   useEffect(() => {

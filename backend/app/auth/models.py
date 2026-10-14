@@ -1,115 +1,107 @@
+"""Account documents (users, email codes, sessions, admin two-step login)."""
+
 import uuid
 from datetime import datetime
 
-from sqlalchemy import BigInteger, Boolean, CheckConstraint, DateTime, ForeignKey, Integer, String, Text, Uuid, func
-from sqlalchemy.dialects.postgresql import CITEXT
-from sqlalchemy.orm import Mapped, mapped_column
+from pydantic import Field
 
-from app.core.db import Base
+from app.core.db import Doc
+from app.core.time import now
 
 ROLES = ("customer", "expert", "admin")
 CODE_PURPOSES = ("verify_email", "reset_password")
 
 
-class User(Base):
-    __tablename__ = "users"
-    __table_args__ = (
-        CheckConstraint("role IN ('customer', 'expert', 'admin')", name="role"),
-        CheckConstraint("(role = 'admin') = (admin_role IS NOT NULL)", name="admin_role"),
-    )
+def new_id() -> str:
+    return str(uuid.uuid4())
 
-    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
-    email: Mapped[str] = mapped_column(CITEXT, unique=True)
-    name: Mapped[str] = mapped_column(String(80))
-    phone: Mapped[str | None] = mapped_column(String(20))
-    role: Mapped[str] = mapped_column(String(10))
-    admin_role: Mapped[str | None] = mapped_column(String(20))  # owner / ops / finance / support / quality
-    expert_status: Mapped[str | None] = mapped_column(String(20))  # draft / review / test / approved / rejected
-    password_hash: Mapped[str] = mapped_column(String(255))
-    totp_secret_enc: Mapped[str | None] = mapped_column(Text)  # admins: encrypted authenticator secret
-    totp_last_step: Mapped[int | None] = mapped_column(BigInteger)  # last accepted 30-second step (no reuse)
-    email_verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    terms_accepted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    disabled_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
-    )
+
+class User(Doc):
+    id: str = Field(default_factory=new_id, alias="_id")
+    email: str  # as typed; unique and matched case-insensitively through email_lc
+    email_lc: str = ""
+    name: str
+    phone: str | None = None
+    role: str  # customer / expert / admin
+    admin_role: str | None = None  # owner / ops / finance / support / quality
+    expert_status: str | None = None  # draft / review / test / approved / rejected
+    password_hash: str
+    totp_secret_enc: str | None = None  # admins: encrypted authenticator secret
+    totp_last_step: int | None = None  # last accepted 30-second step (no reuse)
+    email_verified_at: datetime | None = None
+    terms_accepted_at: datetime | None = None
+    disabled_at: datetime | None = None
+    created_at: datetime = Field(default_factory=now)
+    updated_at: datetime = Field(default_factory=now)
+
+    def model_post_init(self, _ctx) -> None:
+        self.email_lc = self.email.strip().lower()
+        if self.role not in ROLES or (self.role == "admin") != (self.admin_role is not None):
+            raise ValueError("invalid role / admin_role")
 
     @property
     def verified(self) -> bool:
         return self.email_verified_at is not None
 
 
-class EmailCode(Base):
+class EmailCode(Doc):
     """One-time 6-digit codes sent by email. Only a keyed hash is stored."""
 
-    __tablename__ = "email_codes"
-    __table_args__ = (CheckConstraint("purpose IN ('verify_email', 'reset_password')", name="purpose"),)
-
-    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
-    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
-    purpose: Mapped[str] = mapped_column(String(20))
-    code_hash: Mapped[str] = mapped_column(String(64))
-    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    attempts: Mapped[int] = mapped_column(Integer, default=0)
-    used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    ip: Mapped[str | None] = mapped_column(String(45))
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    id: str = Field(default_factory=new_id, alias="_id")
+    user_id: str
+    purpose: str
+    code_hash: str
+    expires_at: datetime
+    attempts: int = 0
+    used_at: datetime | None = None
+    ip: str | None = None
+    created_at: datetime = Field(default_factory=now)
 
 
-class UserSession(Base):
+class UserSession(Doc):
     """A signed-in browser. The cookie holds a random token; only its keyed hash is stored."""
 
-    __tablename__ = "sessions"
-
-    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
-    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
-    token_hash: Mapped[str] = mapped_column(String(64), unique=True)
-    two_step: Mapped[bool] = mapped_column(Boolean, default=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    last_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    ip: Mapped[str | None] = mapped_column(String(45))
-    user_agent: Mapped[str | None] = mapped_column(String(300))
-    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    id: str = Field(default_factory=new_id, alias="_id")
+    user_id: str
+    token_hash: str
+    two_step: bool = False
+    created_at: datetime = Field(default_factory=now)
+    expires_at: datetime
+    last_seen_at: datetime = Field(default_factory=now)
+    ip: str | None = None
+    user_agent: str | None = None
+    revoked_at: datetime | None = None
 
 
-class AdminChallenge(Base):
+class AdminChallenge(Doc):
     """Between admin step 1 (password) and step 2 (authenticator code). Lives 5 minutes."""
 
-    __tablename__ = "admin_challenges"
-
-    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
-    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
-    token_hash: Mapped[str] = mapped_column(String(64), unique=True)
-    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    attempts: Mapped[int] = mapped_column(Integer, default=0)
-    used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    id: str = Field(default_factory=new_id, alias="_id")
+    user_id: str
+    token_hash: str
+    expires_at: datetime
+    attempts: int = 0
+    used_at: datetime | None = None
+    created_at: datetime = Field(default_factory=now)
 
 
-class TrustedDevice(Base):
+class TrustedDevice(Doc):
     """Trust this device for 30 days: skips the authenticator code (the password is still needed)."""
 
-    __tablename__ = "trusted_devices"
-
-    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
-    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
-    token_hash: Mapped[str] = mapped_column(String(64), unique=True)
-    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    ip: Mapped[str | None] = mapped_column(String(45))
-    user_agent: Mapped[str | None] = mapped_column(String(300))
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    id: str = Field(default_factory=new_id, alias="_id")
+    user_id: str
+    token_hash: str
+    expires_at: datetime
+    ip: str | None = None
+    user_agent: str | None = None
+    created_at: datetime = Field(default_factory=now)
+    revoked_at: datetime | None = None
 
 
-class RecoveryCode(Base):
+class RecoveryCode(Doc):
     """One-time codes for an admin who lost their authenticator."""
 
-    __tablename__ = "recovery_codes"
-
-    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
-    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
-    code_hash: Mapped[str] = mapped_column(String(64))
-    used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    id: str = Field(default_factory=new_id, alias="_id")
+    user_id: str
+    code_hash: str
+    used_at: datetime | None = None

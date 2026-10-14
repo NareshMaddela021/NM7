@@ -1,1 +1,0 @@
-CREATE DATABASE nm7_test OWNER nm7;

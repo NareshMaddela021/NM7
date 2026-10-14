@@ -3,12 +3,10 @@ from datetime import timedelta
 import httpx
 import pyotp
 import pytest
-from sqlalchemy import select, update
 
 from app.auth.admin_service import create_admin
+from app.core.db import ORDERS, PAYMENTS, REFUNDS
 from app.core.time import now
-from app.orders.models import Order
-from app.payments.models import Payment
 from app.refunds.models import Refund
 from tests.conftest import PASSWORD, buy, payment_event, send_webhook, signup
 
@@ -28,7 +26,6 @@ def admin_client(make_client, db):
     async def make(role="owner", email=None):
         email = email or f"{role}@nm7.si"
         _, secret, _ = await create_admin(db, email, role.title(), role, PASSWORD)
-        await db.commit()
         c = make_client()
         await c.post("/api/auth/admin/login", json={"email": email, "password": PASSWORD})
         r = await c.post("/api/auth/admin/verify", json={"code": pyotp.TOTP(secret).now()})
@@ -39,8 +36,7 @@ def admin_client(make_client, db):
 
 
 async def set_order(db, order_id, **values):
-    await db.execute(update(Order).where(Order.id == order_id).values(**values))
-    await db.commit()
+    await db[ORDERS].update_one({"_id": order_id}, {"$set": values})
 
 
 QUALITY = {"reason": "quality", "details": "The summary still has my old job title in it."}
@@ -72,7 +68,7 @@ async def test_late_order_is_refunded_at_once(customer, razorpay, db, outbox, ma
     assert razorpay.last_json(razorpay.refunds)["amount"] == 99900
     assert "Refund started" in outbox.sent[-1].subject and "3–5 business days" in outbox.sent[-1].text
 
-    refund = (await db.execute(select(Refund))).scalar_one()
+    refund = Refund.load(await db[REFUNDS].find_one({}))
     event = {
         "event": "refund.processed",
         "payload": {
@@ -87,9 +83,8 @@ async def test_late_order_is_refunded_at_once(customer, razorpay, db, outbox, ma
         },
     }
     await send_webhook(make_client(), event, "evt_r1")
-    db.expire_all()
-    assert (await db.get(Refund, "RF-2001")).status == "processed"
-    assert (await db.execute(select(Payment.status))).scalar_one() == "refunded"
+    assert (await db[REFUNDS].find_one({"_id": "RF-2001"}))["status"] == "processed"
+    assert (await db[PAYMENTS].find_one({}))["status"] == "refunded"
 
 
 async def test_cancel_before_an_expert_accepts(customer, razorpay, db):
@@ -132,7 +127,7 @@ async def test_razorpay_refusing_the_refund_changes_nothing(customer, razorpay, 
     razorpay.refunds.mock(return_value=httpx.Response(400, json={"error": {"description": "insufficient balance"}}))
     r = await customer.post(f"/api/orders/{order['id']}/refund", json={"reason": "late"})
     assert r.status_code == 502
-    assert (await db.execute(select(Refund))).first() is None
+    assert await db[REFUNDS].count_documents({}) == 0
     assert (await customer.get(f"/api/orders/{order['id']}")).json()["status"] == "offer"
 
 
@@ -188,11 +183,10 @@ async def test_failed_refund_can_be_requested_again(customer, razorpay, db, make
     _, order = await buy(customer)
     await set_order(db, order["id"], deadline_at=now() - timedelta(minutes=1))
     await customer.post(f"/api/orders/{order['id']}/refund", json={"reason": "late"})
-    rid = (await db.execute(select(Refund.razorpay_refund_id))).scalar_one()
+    rid = (await db[REFUNDS].find_one({}))["razorpay_refund_id"]
     event = {"event": "refund.failed", "payload": {"refund": {"entity": {"id": rid, "status": "failed"}}}}
     await send_webhook(make_client(), event, "evt_f1")
-    db.expire_all()
-    assert (await db.get(Refund, "RF-2001")).status == "failed"
+    assert (await db[REFUNDS].find_one({"_id": "RF-2001"}))["status"] == "failed"
 
 
 async def test_refund_permissions(customer, razorpay, admin_client):

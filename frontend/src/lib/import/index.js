@@ -11,7 +11,7 @@ export const MAX_MB = 5;
 const err = (code, msg) => Object.assign(new Error(msg), { code });
 
 let pdfjsP = null;
-async function loadPdfjs() {
+export async function loadPdfjs() {
   if (!pdfjsP) {
     pdfjsP = (async () => {
       // pdf.js runs on the main thread here (its "fake worker"), so no extra worker file is needed.

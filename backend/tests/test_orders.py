@@ -3,13 +3,12 @@ from datetime import UTC, datetime, timedelta
 import httpx
 import pyotp
 import pytest
-from sqlalchemy import select, update
 
 from app.auth.admin_service import create_admin
 from app.cli import run as cli_run
 from app.core.config import get_settings
+from app.core.db import ORDERS, PAYMENTS
 from app.core.time import now
-from app.orders.models import Order
 from app.orders.service import financial_year
 from app.payments.models import Payment
 from app.payments.razorpay import BASE_URL
@@ -89,7 +88,7 @@ async def test_razorpay_down_creates_nothing(customer, razorpay, db):
     razorpay.orders.mock(return_value=httpx.Response(500, json={"error": {"description": "oops"}}))
     r = await customer.post("/api/orders", json={"planId": "expert"})
     assert r.status_code == 502 and err(r) == "payment_provider_error"
-    assert (await db.execute(select(Order))).first() is None
+    assert await db[ORDERS].count_documents({}) == 0
 
 
 # ---------- checkout handler ----------
@@ -198,7 +197,7 @@ async def test_webhook_amount_mismatch_is_not_paid(customer, razorpay, make_clie
     created, _ = await buy(customer, pay=False)
     await send_webhook(hook, payment_event("payment.captured", created["razorpayOrderId"], "pay_W1", 100), "e1")
     assert (await customer.get(f"/api/orders/{created['orderId']}")).json()["status"] == "pending_payment"
-    p = (await db.execute(select(Payment))).scalar_one()
+    p = Payment.load(await db[PAYMENTS].find_one({}))
     assert p.status == "created" and "mismatch" in p.error
 
 
@@ -211,7 +210,7 @@ async def test_failed_then_successful_payment(customer, razorpay, make_client, d
         payment_event("payment.failed", rid, "pay_F1", 99900, error_description="Payment declined by bank"),
         "e1",
     )
-    p = (await db.execute(select(Payment))).scalar_one()
+    p = Payment.load(await db[PAYMENTS].find_one({}))
     assert p.status == "failed" and p.error == "Payment declined by bank"
     assert (await customer.get(f"/api/orders/{created['orderId']}")).json()["status"] == "pending_payment"
 
@@ -222,7 +221,7 @@ async def test_failed_then_successful_payment(customer, razorpay, make_client, d
 async def test_payment_without_an_order_is_kept(client, razorpay, db):
     await send_webhook(client, payment_event("payment.captured", "order_UNKNOWN", "pay_ORPHAN", 99900), "e1")
     await send_webhook(client, payment_event("payment.captured", "order_UNKNOWN", "pay_ORPHAN", 99900), "e2")
-    rows = (await db.execute(select(Payment))).scalars().all()
+    rows = [Payment.load(r) async for r in db[PAYMENTS].find({})]
     assert len(rows) == 1 and rows[0].order_id is None and rows[0].status == "captured"
 
 
@@ -232,7 +231,6 @@ async def test_payment_without_an_order_is_kept(client, razorpay, db):
 async def test_admin_with_orders_permission_can_read_any_order(customer, razorpay, make_client, db):
     created, _ = await buy(customer, pay=False)
     _, secret, _ = await create_admin(db, "support@nm7.si", "Support", "support", PASSWORD)
-    await db.commit()
     admin = make_client()
     await admin.post("/api/auth/admin/login", json={"email": "support@nm7.si", "password": PASSWORD})
     await admin.post("/api/auth/admin/verify", json={"code": pyotp.TOTP(secret).now()})
@@ -249,8 +247,7 @@ def test_financial_year():
 async def test_unpaid_orders_expire_and_can_still_be_paid(customer, razorpay, make_client, db, capsys):
     hook = make_client()  # Razorpay's servers: no session cookie
     created, _ = await buy(customer, pay=False)
-    await db.execute(update(Order).values(created_at=now() - timedelta(hours=25)))
-    await db.commit()
+    await db[ORDERS].update_many({}, {"$set": {"created_at": now() - timedelta(hours=25)}})
     await cli_run(["expire-orders"])
     assert "1 unpaid order(s)" in capsys.readouterr().out
     assert (await customer.get(f"/api/orders/{created['orderId']}")).json()["status"] == "expired"

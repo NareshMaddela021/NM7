@@ -3,13 +3,13 @@
 import re
 from datetime import timedelta
 
-from sqlalchemy import select, update
-from sqlalchemy.ext.asyncio import AsyncSession
+from pymongo.asynchronous.database import AsyncDatabase
 
 from app.auth.models import EmailCode, User
 from app.core import rate_limit
+from app.core.db import EMAIL_CODES, USERS, Session
 from app.core.errors import ApiError
-from app.core.security import keyed_hash, new_code, password_issue, same
+from app.core.security import keyed_hash, new_code, password_issue
 from app.core.time import now
 
 CODE_TTL = timedelta(minutes=10)
@@ -49,61 +49,47 @@ def check_new_password(password: str, confirm: str) -> None:
         raise ApiError(400, "password_mismatch", "The two passwords don’t match.")
 
 
-async def find_user(db: AsyncSession, email: str) -> User | None:
-    return (await db.execute(select(User).where(User.email == email.strip()))).scalar_one_or_none()
+async def find_user(db: AsyncDatabase, email: str, session: Session = None) -> User | None:
+    return User.load(await db[USERS].find_one({"email_lc": email.strip().lower()}, session=session))
 
 
 def _code_hash(user: User, purpose: str, code: str) -> str:
     return keyed_hash("code", purpose, str(user.id), code)
 
 
-async def issue_code(db: AsyncSession, user: User, purpose: str, ip: str | None) -> str:
+async def issue_code(db: AsyncDatabase, user: User, purpose: str, ip: str | None) -> str:
     """New code for (user, purpose); any earlier unused code for the same purpose stops working."""
-    await db.execute(
-        update(EmailCode)
-        .where(EmailCode.user_id == user.id, EmailCode.purpose == purpose, EmailCode.used_at.is_(None))
-        .values(used_at=now())
+    await db[EMAIL_CODES].update_many(
+        {"user_id": user.id, "purpose": purpose, "used_at": None}, {"$set": {"used_at": now()}}
     )
     code = new_code()
-    db.add(
-        EmailCode(
-            user_id=user.id,
-            purpose=purpose,
-            code_hash=_code_hash(user, purpose, code),
-            expires_at=now() + CODE_TTL,
-            ip=ip,
-        )
+    doc = EmailCode(
+        user_id=user.id, purpose=purpose, code_hash=_code_hash(user, purpose, code), expires_at=now() + CODE_TTL, ip=ip
     )
+    await db[EMAIL_CODES].insert_one(doc.to_mongo())
     return code
 
 
-async def check_code(db: AsyncSession, user: User, purpose: str, code: str) -> bool:
-    """True and uses up the code if it matches. A wrong guess counts and is saved straight away."""
-    row = (
-        await db.execute(
-            select(EmailCode)
-            .where(
-                EmailCode.user_id == user.id,
-                EmailCode.purpose == purpose,
-                EmailCode.used_at.is_(None),
-                EmailCode.expires_at > now(),
-            )
-            .order_by(EmailCode.created_at.desc())
-            .limit(1)
-            .with_for_update()
-        )
-    ).scalar_one_or_none()
-    if row is None or row.attempts >= CODE_MAX_ATTEMPTS:
-        return False
-    if not same(row.code_hash, _code_hash(user, purpose, code.strip())):
-        row.attempts += 1
-        await db.commit()
-        return False
-    row.used_at = now()
-    return True
+async def check_code(db: AsyncDatabase, user: User, purpose: str, code: str) -> bool:
+    """True and uses up the code if it matches. A wrong guess counts. Both are single atomic updates, so two
+    requests can never use the same code twice or get extra guesses."""
+    live = {
+        "user_id": user.id,
+        "purpose": purpose,
+        "used_at": None,
+        "expires_at": {"$gt": now()},
+        "attempts": {"$lt": CODE_MAX_ATTEMPTS},
+    }
+    used = await db[EMAIL_CODES].find_one_and_update(
+        {**live, "code_hash": _code_hash(user, purpose, code.strip())}, {"$set": {"used_at": now()}}
+    )
+    if used is not None:
+        return True
+    await db[EMAIL_CODES].update_one(live, {"$inc": {"attempts": 1}})
+    return False
 
 
-async def may_send_code(db: AsyncSession, email: str, *, raise_if_limited: bool = True) -> bool:
+async def may_send_code(db: AsyncDatabase, email: str, *, raise_if_limited: bool = True) -> bool:
     """Applies the per-email send limit (whether or not the account exists) and records the send."""
     try:
         await rate_limit.check(

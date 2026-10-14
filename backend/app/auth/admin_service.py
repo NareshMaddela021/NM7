@@ -4,12 +4,13 @@ import secrets
 import time
 
 import pyotp
-from sqlalchemy import select, update
-from sqlalchemy.ext.asyncio import AsyncSession
+from pymongo.asynchronous.database import AsyncDatabase
+from pymongo.errors import DuplicateKeyError
 
-from app.auth.models import RecoveryCode, TrustedDevice, User
+from app.auth.models import RecoveryCode, User
 from app.auth.service import find_user
 from app.auth.sessions import revoke_all
+from app.core.db import RECOVERY_CODES, TRUSTED_DEVICES, USERS, Session, transaction
 from app.core.errors import ApiError
 from app.core.security import decrypt, encrypt, hash_password, keyed_hash, password_issue, same
 from app.core.time import now
@@ -36,16 +37,28 @@ def new_recovery_code() -> str:
     return f"{raw[:4]}-{raw[4:]}"
 
 
-async def set_up_two_step(db: AsyncSession, user: User) -> tuple[str, list[str]]:
+async def set_up_two_step(db: AsyncDatabase, user: User, session: Session = None) -> tuple[str, list[str]]:
     """New authenticator secret + recovery codes. Old ones, trusted devices and sessions stop working."""
     secret = pyotp.random_base32()
     user.totp_secret_enc = encrypt(secret)
     user.totp_last_step = None
     codes = [new_recovery_code() for _ in range(RECOVERY_COUNT)]
-    await db.execute(update(RecoveryCode).where(RecoveryCode.user_id == user.id).values(used_at=now()))
-    db.add_all(RecoveryCode(user_id=user.id, code_hash=_recovery_hash(user, _norm(c))) for c in codes)
-    await db.execute(update(TrustedDevice).where(TrustedDevice.user_id == user.id).values(revoked_at=now()))
-    await revoke_all(db, user.id)
+    await db[USERS].update_one(
+        {"_id": user.id},
+        {"$set": {"totp_secret_enc": user.totp_secret_enc, "totp_last_step": None, "updated_at": now()}},
+        session=session,
+    )
+    await db[RECOVERY_CODES].update_many(
+        {"user_id": user.id, "used_at": None}, {"$set": {"used_at": now()}}, session=session
+    )
+    await db[RECOVERY_CODES].insert_many(
+        [RecoveryCode(user_id=user.id, code_hash=_recovery_hash(user, _norm(c))).to_mongo() for c in codes],
+        session=session,
+    )
+    await db[TRUSTED_DEVICES].update_many(
+        {"user_id": user.id, "revoked_at": None}, {"$set": {"revoked_at": now()}}, session=session
+    )
+    await revoke_all(db, user.id, session=session)
     return secret, codes
 
 
@@ -53,7 +66,7 @@ def provisioning_uri(user: User, secret: str) -> str:
     return pyotp.TOTP(secret).provisioning_uri(name=user.email, issuer_name=ISSUER)
 
 
-async def create_admin(db: AsyncSession, email: str, name: str, admin_role: str, password: str):
+async def create_admin(db: AsyncDatabase, email: str, name: str, admin_role: str, password: str):
     from app.admin.roles import ROLES
 
     if admin_role not in ROLES:
@@ -70,38 +83,62 @@ async def create_admin(db: AsyncSession, email: str, name: str, admin_role: str,
         password_hash=await hash_password(password),
         email_verified_at=now(),
     )
-    db.add(user)
-    await db.flush()
-    secret, codes = await set_up_two_step(db, user)
+
+    async def save(session):
+        await db[USERS].insert_one(user.to_mongo(), session=session)
+        return await set_up_two_step(db, user, session=session)
+
+    try:
+        secret, codes = await transaction(save)
+    except DuplicateKeyError:
+        raise ValueError("an account with this email already exists") from None
     return user, secret, codes
 
 
-def check_totp(user: User, code: str, at: float | None = None) -> bool:
-    """Accepts the current 30-second code or one step either side, never a step already used."""
+def totp_step(user: User, code: str, at: float | None = None) -> int | None:
+    """The 30-second step `code` belongs to (current, or one either side), if newer than the last one used."""
     if not user.totp_secret_enc or not (len(code) == 6 and code.isdigit()):
-        return False
+        return None
     totp = pyotp.TOTP(decrypt(user.totp_secret_enc))
     step = int((at if at is not None else time.time()) // totp.interval)
+    last = user.totp_last_step if user.totp_last_step is not None else -1
     for s in (step - 1, step, step + 1):
-        if s > (user.totp_last_step if user.totp_last_step is not None else -1) and same(totp.generate_otp(s), code):
-            user.totp_last_step = s
-            return True
-    return False
+        if s > last and same(totp.generate_otp(s), code):
+            return s
+    return None
 
 
-async def use_recovery_code(db: AsyncSession, user: User, code: str) -> bool:
-    h = _recovery_hash(user, _norm(code))
-    row = (
-        await db.execute(
-            select(RecoveryCode)
-            .where(RecoveryCode.user_id == user.id, RecoveryCode.code_hash == h, RecoveryCode.used_at.is_(None))
-            .with_for_update()
-        )
-    ).scalar_one_or_none()
-    if row is None:
+def check_totp(user: User, code: str, at: float | None = None) -> bool:
+    """In-memory check (records the step on `user`); use claim_totp to also store it."""
+    s = totp_step(user, code, at)
+    if s is None:
         return False
-    row.used_at = now()
+    user.totp_last_step = s
     return True
+
+
+async def claim_totp(db: AsyncDatabase, user: User, code: str) -> bool:
+    """Checks the code and stores its step in one atomic update, so the same code can never be used twice —
+    not even by two requests at the same moment."""
+    s = totp_step(user, code)
+    if s is None:
+        return False
+    r = await db[USERS].update_one(
+        {"_id": user.id, "$or": [{"totp_last_step": None}, {"totp_last_step": {"$lt": s}}]},
+        {"$set": {"totp_last_step": s}},
+    )
+    if r.modified_count != 1:
+        return False
+    user.totp_last_step = s
+    return True
+
+
+async def use_recovery_code(db: AsyncDatabase, user: User, code: str) -> bool:
+    h = _recovery_hash(user, _norm(code))
+    used = await db[RECOVERY_CODES].find_one_and_update(
+        {"user_id": user.id, "code_hash": h, "used_at": None}, {"$set": {"used_at": now()}}
+    )
+    return used is not None
 
 
 def require_two_step_set_up(user: User) -> None:

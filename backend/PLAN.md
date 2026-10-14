@@ -1,6 +1,6 @@
 # Nm7 backend plan
 
-FastAPI + PostgreSQL API for nm7.si (AsuraaX AI). Phase 1 covers **accounts (sign-up / login), orders and Razorpay**.
+FastAPI + MongoDB API for nm7.si (moved from PostgreSQL — see “Database: MongoDB” below) (AsuraaX AI). Phase 1 covers **accounts (sign-up / login), orders and Razorpay**.
 The frontend in `../frontend` already has every screen; it talks to the server only through
 `src/services/api.js` and `src/lib/auth.js`, so those two files (plus a few screens listed below) are what we connect.
 
@@ -153,3 +153,31 @@ Signature checks are tested with known HMAC vectors.
 - Still browser-only after milestone 6 (next phase): the customer dashboard's order details/timeline, intake answers,
   the expert area and the admin console screens. They need `/api/me/*`, `/api/expert/*` and the admin screens wired to
   the `/api/admin/*` endpoints that already exist.
+
+## Database: MongoDB (replaces PostgreSQL)
+
+The owner moved the database to **MongoDB Atlas** (free M0 cluster "nm7", AWS Mumbai; database `nm7`).
+Routes, responses and behaviour are unchanged; the frontend needed no changes.
+
+- Driver: PyMongo's async API (`AsyncMongoClient`); documents are Pydantic models; no Alembic — collections and
+  indexes are created at start-up (`app/core/db.py`).
+- Collections: `users` (unique lower-cased email), `sessions`, `email_codes`, `admin_challenges`, `trusted_devices`,
+  `recovery_codes`, `rate_events`, `audit_log`, `orders` (`_id` = RS-####, unique `invoice_no`), `payments`
+  (unique Razorpay order / payment ids), `webhook_events`, `refunds` (`_id` = RF-####, one open refund per order),
+  `counters` (atomic numbers), `locks`. Short-lived documents (codes, sessions, challenges, rate events) are removed by
+  TTL indexes. There is no expert data in the backend yet (only `users.expert_status`).
+- Where Postgres used row locks / transactions: payment confirmation (payment + order + invoice number) and admin
+  creation / one-time setup run in multi-document transactions; email codes, authenticator steps, recovery codes,
+  admin challenges and refund decisions use single atomic updates. Razorpay is never called inside a transaction
+  (a retried transaction could refund twice): the refund is saved first, then sent, then the result is recorded.
+- Tests run against a real MongoDB 8.0 replica set (GitHub Actions starts one), including tests that fire the
+  racing requests at the same moment.
+- Data in the old Render Postgres database is not copied (it held test data only); the owner admin is recreated
+  with `/admin/setup`.
+
+## Email: Resend (replaces ZeptoMail as default)
+
+- `EMAIL_PROVIDER=resend` (default; `zeptomail` still works). Resend HTTP API via httpx, Bearer `RESEND_API_KEY`,
+  sender `Nm7 <no-reply@nm7.si>`, reply-to `info@nm7.si`. Domain `nm7.si` verified in Resend (region ap-northeast-1).
+- In production without a key, sign-up / resend code / forgot password answer **503 "Email is temporarily
+  unavailable"** before saving anything (and the log says which key is missing) instead of claiming a code was sent.

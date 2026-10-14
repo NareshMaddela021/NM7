@@ -1,14 +1,11 @@
-import pytest
-
 from app.core.config import Settings
 
 
-@pytest.mark.parametrize(
-    "given",
-    ["postgres://u:p@h:5432/db", "postgresql://u:p@h:5432/db", "postgresql+asyncpg://u:p@h:5432/db"],
-)
-def test_database_url_uses_asyncpg(given):
-    assert Settings(database_url=given).database_url == "postgresql+asyncpg://u:p@h:5432/db"
+def test_mongodb_settings_from_env(monkeypatch):
+    monkeypatch.setenv("MONGODB_URI", "mongodb+srv://user:pass@nm7.example.mongodb.net/?retryWrites=true")
+    monkeypatch.setenv("MONGODB_DB", "nm7")
+    s = Settings()
+    assert s.mongodb_uri.startswith("mongodb+srv://") and s.mongodb_db == "nm7"
 
 
 def test_cors_origins_from_comma_list(monkeypatch):
