@@ -70,6 +70,9 @@ export default function Header({ variant = 'public', right }) {
   const { pathname } = useLocation();
   const { user } = useAuth();
   const flowIdx = FLOW.findIndex(([, , paths]) => paths.some((p) => pathname.startsWith(p)));
+  const [menu, setMenu] = useState(false); // phones: the public links open from a Menu button
+  const { hash } = useLocation();
+  useEffect(() => { setMenu(false); }, [pathname, hash]);
 
   return (
     <header className="site-header">
@@ -77,7 +80,12 @@ export default function Header({ variant = 'public', right }) {
         <Logo suffix={variant === 'expert' ? '/expert' : variant === 'admin' ? '/admin' : variant === 'builder' ? '/builder' : variant === 'me' ? '/me' : '/resume'} />
 
         {variant === 'public' && (
-          <nav className="nav" aria-label="Main">
+          <button type="button" className="btn btn-outline nav-toggle" aria-expanded={menu} aria-controls="main-nav" onClick={() => setMenu(!menu)}>
+            <span aria-hidden="true">{menu ? '✕' : '☰'}</span> Menu
+          </button>
+        )}
+        {variant === 'public' && (
+          <nav id="main-nav" className="nav nav-public" data-open={menu} aria-label="Main">
             <NavLink to="/builder">Build a resume</NavLink>
             <Link to="/#how">How it works</Link>
             <Link to="/#templates">Templates</Link>

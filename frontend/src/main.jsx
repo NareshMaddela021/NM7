@@ -2,6 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, HashRouter } from 'react-router-dom';
 import App from './App';
+import { LIVE, http } from './services/http';
+import { syncPrices } from './lib/pricing';
 import { ThemeProvider } from './lib/theme';
 import { FlowProvider } from './lib/flow';
 import { ToastProvider } from './components/ui';
@@ -14,7 +16,7 @@ try { const ref = new URLSearchParams(window.location.search).get('ref'); if (re
 // Preview builds (no server rewrites) use hash URLs: /#/builder
 const Router = import.meta.env.VITE_HASH_ROUTER === '1' ? HashRouter : BrowserRouter;
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+const tree = () => (
   <React.StrictMode>
     <Router>
       <ThemeProvider>
@@ -25,5 +27,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         </FlowProvider>
       </ThemeProvider>
     </Router>
-  </React.StrictMode>,
+  </React.StrictMode>
 );
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(tree());
+// Live: prices come from the server (the owner can change them); show them once loaded.
+if (LIVE) syncPrices(http).then(() => root.render(tree()), () => {});

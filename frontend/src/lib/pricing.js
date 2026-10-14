@@ -56,3 +56,11 @@ export function gstSplit(amount, inv = INVOICE) {
   const gst = inv.inclusive ? amount - taxable : amount * inv.gstPct / 100;
   return { taxable, gst, total: taxable + gst };
 }
+
+/** Live: the owner sets prices in the admin console; load them into PLANS / ADDONS (rupees) at start-up. */
+export async function syncPrices(http) {
+  const r = await http('/api/public/prices');
+  Object.entries(r.plans || {}).forEach(([k, v]) => { if (PLANS[k]) Object.assign(PLANS[k], { price: v.price, active: v.active }); });
+  Object.entries(r.addons || {}).forEach(([k, v]) => { if (ADDONS[k]) Object.assign(ADDONS[k], { price: v.price, active: v.active }); });
+  if (r.deliveryHours && PROMISES.deliveryHours !== undefined) PROMISES.deliveryHours = r.deliveryHours;
+}

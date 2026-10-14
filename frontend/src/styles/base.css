@@ -174,6 +174,7 @@ textarea.input { height: auto; padding: 12px 14px; line-height: 1.55; resize: ve
 .nav a { padding: 12px; color: var(--text2); text-decoration: none; font-weight: 500; font-size: 15px; border-radius: 8px; }
 .nav a:hover { color: var(--text); }
 .nav a[aria-current="page"] { color: var(--text); box-shadow: inset 0 -2px 0 var(--ink); border-radius: 0; }
+.nav-toggle { display: none; min-height: 40px; gap: 6px; }
 .steps { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 6px; font-size: 14px; font-weight: 500; }
 .steps li { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; color: var(--text3); }
 .steps li[data-state="done"] { color: var(--success); }
@@ -213,6 +214,11 @@ textarea.input { height: auto; padding: 12px 14px; line-height: 1.55; resize: ve
   .site-header .nav, .site-header .steps { order: 3; width: 100%; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
   .site-header .nav a { white-space: nowrap; padding: 10px 12px; }
   .site-header .steps li { white-space: nowrap; }
+  /* public pages: links behind a Menu button, shown as a list when open */
+  .nav-toggle { display: inline-flex; margin-left: auto; }
+  .site-header .nav-public { display: none; }
+  .site-header .nav-public[data-open="true"] { display: flex; flex-direction: column; order: 4; width: 100%; padding: 4px 0 8px; }
+  .site-header .nav-public[data-open="true"] a { padding: 12px 8px; border-bottom: 1px solid var(--border); border-radius: 0; }
 }
 @media (max-width: 640px) {
   .container, .container-wide { padding-left: max(16px, env(safe-area-inset-left, 0px)) !important; padding-right: max(16px, env(safe-area-inset-right, 0px)) !important; }

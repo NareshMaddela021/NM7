@@ -109,6 +109,13 @@ function ScanDemo() {
 function Upload({ start, role, setRole, compact }) {
   const fileRef = useRef();
   const [drag, setDrag] = useState(false);
+  // Closing the file picker without a file: say what to do (instead of silently scanning nothing).
+  useEffect(() => {
+    const el = fileRef.current;
+    const cancel = () => start(null);
+    el?.addEventListener('cancel', cancel);
+    return () => el?.removeEventListener('cancel', cancel);
+  }, [start]);
   return (
     <div className="h-drop">
       <div data-drag={drag} onDragOver={(e) => { e.preventDefault(); setDrag(true); }} onDragLeave={() => setDrag(false)} onDrop={(e) => { e.preventDefault(); setDrag(false); start(e.dataTransfer.files[0]); }} className="stack g12">
@@ -121,11 +128,12 @@ function Upload({ start, role, setRole, compact }) {
             <label htmlFor={compact ? 'role2' : 'role'} className="label">Role you’re applying for</label>
             <input id={compact ? 'role2' : 'role'} className="input" style={{ height: 48 }} value={role} maxLength={ROLE_MAX} onChange={(e) => setRole(e.target.value)} onBlur={(e) => setRole(e.target.value.replace(/\s+/g, ' ').trim())} placeholder="e.g. Data Analyst" />
           </div>
-          <input ref={fileRef} type="file" accept=".pdf,.docx" className="sr-only" tabIndex={-1} onChange={(e) => start(e.target.files[0])} />
+          <input ref={fileRef} type="file" accept=".pdf,.docx" className="sr-only" tabIndex={-1} aria-label={compact ? 'Resume file to scan (bottom of page)' : 'Resume file to scan'}
+            onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ''; start(f || null); }} />
           <button type="button" className="btn btn-ink btn-lg" style={{ flex: '1 1 160px', minHeight: 48 }} onClick={() => fileRef.current.click()}>Scan my resume — free</button>
         </div>
         <span className="row between g8 xs">
-          <button type="button" className="link-btn xs" onClick={() => start(null)}>No resume handy? Try a sample</button>
+          <button type="button" className="link-btn xs" onClick={() => start('sample')}>No resume handy? Try a sample</button>
           <span className="faint">Read on your device — never uploaded</span>
         </span>
       </div>
@@ -150,7 +158,7 @@ function TryIt() {
       <div className="card stack g16 reveal" style={{ padding: 24, borderRadius: 22, boxShadow: 'var(--shadow)' }}>
         <div className="field">
           <label htmlFor="try" className="label row between"><span>Your line</span><span className="faint">Line score {before}/100</span></label>
-          <textarea id="try" className="input" rows={2} value={text} maxLength={220} onChange={(e) => { setText(e.target.value); setOut(null); }} />
+          <textarea id="try" aria-label="Your resume line" className="input" rows={2} value={text} maxLength={220} onChange={(e) => { setText(e.target.value); setOut(null); }} />
         </div>
         <button type="button" className="btn btn-ink btn-lg" disabled={!text.trim()} onClick={() => setOut(improveBullet(text))}><Icon name="spark" size={16} />Improve this line</button>
         {out && (
@@ -399,12 +407,13 @@ export default function Home() {
   }, [location.state]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const start = (file, at = 'top') => {
-    if (file) {
+    if (!file) { setErr({ msg: 'Choose a PDF or DOCX first.', at }); return; } // e.g. the file picker was closed
+    if (file !== 'sample') {
       try { checkFile(file); } catch (e) { setErr({ msg: e.message, at }); return; }
     }
     setErr(null);
     setRole(role.replace(/\s+/g, ' ').trim());
-    setUpload(file || 'sample'); // read in the browser on the next page; nothing is uploaded
+    setUpload(file); // a File or 'sample' — read in the browser on the next page; nothing is uploaded
     nav('/scan');
   };
   const goPlan = (k) => { if (k === 'diy') nav('/builder'); else { setAddon(k === 'launch'); nav('/checkout'); } };
