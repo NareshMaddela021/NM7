@@ -10,4 +10,6 @@ export default defineConfig({
   plugins: [react(), ...(single ? [viteSingleFile()] : [])],
   base: single ? './' : '/',
   build: { outDir: single ? 'dist-preview' : 'dist' },
+  // Unit tests (vitest). The Playwright end-to-end tests live in e2e/ and run with `npm run test:e2e`.
+  test: { include: ['src/**/*.test.js'], environment: 'node' },
 });

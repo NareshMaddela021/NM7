@@ -5,16 +5,19 @@
  * Without it the app runs in preview mode on sample data. Functions whose backend isn't built yet
  * (scan, expert, admin queue, …) still return sample data; their comment shows the future endpoint.
  */
-import { SAMPLE_REPORT, MATCHED_JOBS, ADMIN_ORDERS, EXPERTS, EXPERT_ORDERS, EARNINGS } from '../data/mock';
+import { MATCHED_JOBS, ADMIN_ORDERS, EXPERTS, EXPERT_ORDERS, EARNINGS } from '../data/mock';
 import { http, LIVE } from './http';
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
 /* ---------- Scan ---------- */
-// Real: POST /api/resume/scan  (multipart: file, role)  → report
-export async function scanResume({ file, role }) {
-  await wait(300);
-  return { ...SAMPLE_REPORT, file: file?.name || SAMPLE_REPORT.file, role };
+/**
+ * The free ATS scan runs in the browser: the file is read on the device (never uploaded) and checked with fixed,
+ * documented rules — see src/lib/scan. `source` is a File or 'sample'.
+ */
+export async function scanResume(source, role, onStep) {
+  const { runScan } = await import('../lib/scan');
+  return runScan(source, role, onStep);
 }
 
 /* ---------- Orders & payment ---------- */

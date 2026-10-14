@@ -5,7 +5,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "build:preview": "SINGLE=1 VITE_HASH_ROUTER=1 VITE_PREVIEW=1 vite build"
+    "build:preview": "SINGLE=1 VITE_HASH_ROUTER=1 VITE_PREVIEW=1 vite build",
+    "test": "vitest run",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "fflate": "^0.8.2",
@@ -17,9 +19,11 @@
     "react-router-dom": "^6.26.2"
   },
   "devDependencies": {
+    "@playwright/test": "1.56.1",
     "@vitejs/plugin-react": "^4.3.2",
     "vite": "^5.4.8",
-    "vite-plugin-singlefile": "^2.0.2"
+    "vite-plugin-singlefile": "^2.0.2",
+    "vitest": "^2.1.9"
   },
   "private": true,
   "type": "module"

@@ -127,7 +127,7 @@ export default function Import({ mode, d, onBack, onDone }) {
             {error && <p role="alert" className="card small" style={{ borderColor: 'var(--danger)', color: 'var(--danger)', padding: 16 }}>{error}</p>}
             <div className="well stack g4 small">
               <strong>Your file stays private</strong>
-              <span className="muted">In this preview the file is read on your device — nothing is uploaded. In the live app it’s read on our server and deleted straight away. Only the details you accept are saved to your profile, and resumes are kept for {PROMISES.retentionDays} days.</span>
+              <span className="muted">Read on your device — never uploaded. Only the details you accept are added to your resume.</span>
             </div>
           </div>
           <div className="stack g16" style={{ flex: '1 1 300px' }}>
