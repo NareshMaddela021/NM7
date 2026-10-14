@@ -1,11 +1,11 @@
 // Sign in, sign up (customer or expert, confirmed with an email code), forgot password, admin two-step login, and route guards.
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Logo, ThemeToggle } from '../../components/Header';
 import { Spinner, useToast } from '../../components/ui';
 import {
   useAuth, signIn, signUp, verifyEmail, resendCode, sendReset, resetPassword, adminPassword, adminVerify, signOut,
-  homeFor, passwordIssue, EMAIL_RE, PHONE_RE, DEMO_CODE, SAMPLE_PASSWORD, LIVE, adminSetupStart, adminSetupVerify,
+  homeFor, passwordIssue, EMAIL_RE, PHONE_RE, DEMO_CODE, SAMPLE_PASSWORD, LIVE, adminSetupStart, adminSetupVerify, adminSetupStatus,
 } from '../../lib/auth';
 import SiteFooter from '../../components/SiteFooter';
 
@@ -33,6 +33,30 @@ function Field({ id, label, error, hint, ...p }) {
     </div>
   );
 }
+/** Runs one request at a time: a second click while it runs does nothing (no double sign-ups), and after 3 s
+ * on the live site it says the server is waking up (the free plan sleeps when idle). */
+function useRun() {
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  const [slow, setSlow] = useState(false);
+  const flight = useRef(false);
+  const run = async (fn) => {
+    if (flight.current) return;
+    flight.current = true; setBusy(true); setErr(''); setSlow(false);
+    const t = LIVE ? setTimeout(() => setSlow(true), 3000) : null;
+    try { await fn(); } catch (x) { setErr(x.message); } finally { clearTimeout(t); flight.current = false; setBusy(false); setSlow(false); }
+  };
+  return { busy, err, setErr, slow, run };
+}
+function Waking({ slow }) {
+  return slow ? <p role="status" className="help" style={{ margin: 0 }}>Waking up the server — the first request after a quiet spell can take up to 30 seconds. Please keep this page open.</p> : null;
+}
+/** Seconds left before "Send the code again" works (60 s after each send). */
+function useCountdown(start = 60) {
+  const [left, setLeft] = useState(start);
+  useEffect(() => { if (left <= 0) return undefined; const t = setTimeout(() => setLeft((n) => n - 1), 1000); return () => clearTimeout(t); }, [left]);
+  return [left, () => setLeft(start)];
+}
 function Demo({ children }) {
   if (!isPreview) return null;
   return <div className="well xs" style={{ borderLeft: '3px solid var(--signal)' }}><strong>Preview only:</strong> {children}</div>;
@@ -44,19 +68,19 @@ function CodeInput({ value, onChange, id = 'otp', label = '6-digit code' }) {
 /* ---------- confirm email with the 6-digit code ---------- */
 function VerifyEmail({ email, note, onDone, onBack }) {
   const [code, setCode] = useState('');
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState('');
+  const { busy, err, slow, run } = useRun();
   const [info, setInfo] = useState('');
-  const run = async (fn) => { setBusy(true); setErr(''); setInfo(''); try { await fn(); } catch (x) { setErr(x.message); } finally { setBusy(false); } };
+  const [left, restart] = useCountdown();
   return (
     <Shell title="Confirm your email" sub={note || `We sent a 6-digit code to ${email}. It works for 10 minutes.`}>
       <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); run(async () => onDone(await verifyEmail(email, code))); }}>
         <CodeInput value={code} onChange={setCode} />
         {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
         {info && <p role="status" className="help" style={{ margin: 0 }}>{info}</p>}
+        <Waking slow={slow} />
         <button type="submit" className="btn btn-ink btn-lg" disabled={busy || code.length !== 6}>{busy && <Spinner />}Confirm & continue</button>
         <span className="row g12 small">
-          <button type="button" className="link-btn small" disabled={busy} onClick={() => run(async () => { await resendCode(email); setInfo('A new code is on its way. Check your spam folder too.'); })}>Send the code again</button>
+          <button type="button" className="link-btn small" disabled={busy || left > 0} onClick={() => run(async () => { setInfo(''); await resendCode(email); restart(); setInfo('A new code is on its way. Check your spam folder too.'); })}>{left > 0 ? `Send the code again in ${left} s` : 'Send the code again'}</button>
           {onBack && <button type="button" className="link-btn small" onClick={onBack}>Use a different email</button>}
         </span>
       </form>
@@ -73,30 +97,39 @@ export function Login() {
   const { user } = useAuth();
   const [f, setF] = useState({ email: '', password: '' });
   const [verify, setVerify] = useState(null); // { email, note } when the account still needs its email code
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState('');
+  const { busy, err, setErr, slow, run } = useRun();
+  const [emailErr, setEmailErr] = useState('');
   const [show, setShow] = useState(false);
   const go = (u) => nav(next && !(u.role === 'expert' && next.startsWith('/me')) && !(u.role === 'customer' && next.startsWith('/expert')) ? next : homeFor(u), { replace: true });
   if (verify) return <VerifyEmail email={verify.email} note={verify.note} onDone={go} onBack={() => setVerify(null)} />;
   if (user && user.role !== 'admin') return <Navigate to={next || homeFor(user)} replace />;
-  const submit = async () => {
-    setBusy(true); setErr('');
-    try { go(await signIn(f.email, f.password)); } catch (e) {
-      if (e.code === 'email_not_verified') setVerify({ email: f.email.trim(), note: `${e.message} It went to ${f.email.trim()}.` });
-      else setErr(e.message);
-    } finally { setBusy(false); }
+  // Values are read from the form itself, so browser autofill (which may not fire change events) works too.
+  const submit = (form) => {
+    const email = String(new FormData(form).get('email') || '').trim();
+    const password = String(new FormData(form).get('password') || '');
+    setF({ email, password });
+    setEmailErr('');
+    if (!EMAIL_RE.test(email)) { setEmailErr(email ? 'Enter a valid email address, like name@example.com' : 'Enter your email'); return; }
+    if (!password) { setErr('Enter your password'); return; }
+    run(async () => {
+      try { go(await signIn(email, password)); } catch (e) {
+        if (e.code === 'email_not_verified') setVerify({ email, note: `${e.message} It went to ${email}.` });
+        else throw e;
+      }
+    });
   };
   const fill = (email) => setF({ ...f, email, password: SAMPLE_PASSWORD });
   return (
     <Shell title="Sign in" sub="Track your orders, edit your resumes and chat with your expert.">
-      <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); submit(); }}>
-        <Field id="li-e" label="Email" type="email" autoComplete="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
+      <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); submit(e.currentTarget); }}>
+        <Field id="li-e" name="email" label="Email" type="email" autoComplete="email" value={f.email} error={emailErr} onChange={(e) => { setF({ ...f, email: e.target.value }); setEmailErr(''); }} />
         <div className="stack g4">
-          <Field id="li-p" label="Password" type={show ? 'text' : 'password'} autoComplete="current-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />
+          <Field id="li-p" name="password" label="Password" type={show ? 'text' : 'password'} autoComplete="current-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />
           <span className="row between"><label className="row g4 xs"><input type="checkbox" checked={show} onChange={(e) => setShow(e.target.checked)} />Show password</label><Link to="/forgot-password" className="xs">Forgot password?</Link></span>
         </div>
         {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
-        <button type="submit" className="btn btn-ink btn-lg" disabled={busy || !f.email || !f.password}>{busy && <Spinner />}Sign in</button>
+        <Waking slow={slow} />
+        <button type="submit" className="btn btn-ink btn-lg" disabled={busy}>{busy && <Spinner />}Sign in</button>
       </form>
       <span className="small">New here? <Link to={`/signup${next ? `?next=${encodeURIComponent(next)}` : ''}`}>Create an account</Link> · Experts: <Link to="/signup?as=expert">join as an expert</Link></span>
       <Demo>
@@ -120,8 +153,7 @@ export function Signup() {
   const [showPw, setShowPw] = useState(false);
   const [touched, setTouched] = useState(false);
   const [pending, setPending] = useState(null); // { email } waiting for the email code
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState('');
+  const { busy, err, slow, run } = useRun();
   if (user && !pending) return <Navigate to={homeFor(user)} replace />;
   const errs = {
     name: f.name.trim().length < 2 && 'Enter your full name',
@@ -133,7 +165,6 @@ export function Signup() {
   };
   const ok = !Object.values(errs).some(Boolean);
   const e_ = (k) => (touched ? errs[k] || '' : '');
-  const run = async (fn) => { setBusy(true); setErr(''); try { await fn(); } catch (x) { setErr(x.message); } finally { setBusy(false); } };
 
   if (pending) {
     return <VerifyEmail email={pending.email} onDone={(u) => nav(u.role === 'expert' ? '/expert/profile' : next || '/me', { replace: true })} onBack={() => setPending(null)} />;
@@ -162,6 +193,7 @@ export function Signup() {
         </label>
         {e_('agree') && <span className="error">{e_('agree')}</span>}
         {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
+        <Waking slow={slow} />
         <button type="submit" className="btn btn-ink btn-lg" disabled={busy}>{busy && <Spinner />}Create account</button>
       </form>
       <span className="small">Already have an account? <Link to={`/login${next ? `?next=${encodeURIComponent(next)}` : ''}`}>Sign in</Link></span>
@@ -175,15 +207,14 @@ export function ForgotPassword() {
   const toast = useToast();
   const [step, setStep] = useState('email');
   const [f, setF] = useState({ email: '', code: '', password: '', confirm: '' });
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState('');
-  const run = async (fn) => { setBusy(true); setErr(''); try { await fn(); } catch (x) { setErr(x.message); } finally { setBusy(false); } };
+  const { busy, err, slow, run } = useRun();
   return (
     <Shell title="Reset your password" sub={step === 'email' ? 'We’ll email you a code.' : `If ${f.email} has an account, a code is on its way.`}>
       {step === 'email' ? (
         <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); run(async () => { await sendReset(f.email); setStep('code'); }); }}>
           <Field id="fp-e" label="Email" type="email" autoComplete="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
           {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
+          <Waking slow={slow} />
           <button type="submit" className="btn btn-ink btn-lg" disabled={busy || !EMAIL_RE.test(f.email.trim())}>{busy && <Spinner />}Send code</button>
         </form>
       ) : (
@@ -192,6 +223,7 @@ export function ForgotPassword() {
           <Field id="fp-p" label="New password" type="password" autoComplete="new-password" value={f.password} hint="8+ characters, with letters and a number" error={f.password && passwordIssue(f.password)} onChange={(e) => setF({ ...f, password: e.target.value })} />
           <Field id="fp-p2" label="Re-type new password" type="password" autoComplete="new-password" value={f.confirm} onPaste={(e) => e.preventDefault()} error={f.confirm && f.confirm !== f.password && f.confirm.length >= f.password.length ? 'Passwords don’t match' : ''} hint={f.confirm && f.confirm === f.password ? '✓ Passwords match' : ''} onChange={(e) => setF({ ...f, confirm: e.target.value })} />
           {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
+          <Waking slow={slow} />
           <button type="submit" className="btn btn-ink btn-lg" disabled={busy || f.code.length !== 6 || !!passwordIssue(f.password) || f.confirm !== f.password}>{busy && <Spinner />}Change password</button>
         </form>
       )}
@@ -210,10 +242,8 @@ export function AdminLogin() {
   const [step, setStep] = useState(null); // { userId } after the password
   const [f, setF] = useState({ email: '', password: '', code: '', trust: false });
   const [recovery, setRecovery] = useState(false); // lost phone: one-time recovery code instead
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState('');
+  const { busy, err, slow, run } = useRun();
   if (user?.role === 'admin' && session?.twoStep) return <Navigate to={next?.startsWith('/admin') ? next : '/admin'} replace />;
-  const run = async (fn) => { setBusy(true); setErr(''); try { await fn(); } catch (x) { setErr(x.message); } finally { setBusy(false); } };
   return (
     <Shell title="Admin sign in" sub="Two-step login is required for every admin account.">
       {!step ? (
@@ -222,6 +252,7 @@ export function AdminLogin() {
           <Field id="ad-e" label="Work email" type="email" autoComplete="username" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
           <Field id="ad-p" label="Password" type="password" autoComplete="current-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />
           {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
+          <Waking slow={slow} />
           <button type="submit" className="btn btn-ink btn-lg" disabled={busy || !f.email || !f.password}>{busy && <Spinner />}Continue</button>
         </form>
       ) : (
@@ -233,6 +264,7 @@ export function AdminLogin() {
             : <CodeInput id="ad-c" value={f.code} onChange={(code) => setF({ ...f, code })} label="Authenticator code" />}
           <label className="row g8 small"><input type="checkbox" checked={f.trust} onChange={(e) => setF({ ...f, trust: e.target.checked })} />Trust this device for 30 days</label>
           {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
+          <Waking slow={slow} />
           <button type="submit" className="btn btn-ink btn-lg" disabled={busy || (recovery ? f.code.replace(/[^A-Z0-9]/gi, '').length !== 8 : f.code.length !== 6)}>{busy && <Spinner />}Verify & open admin</button>
           <button type="button" className="link-btn small" style={{ alignSelf: 'flex-start' }} onClick={() => { setStep(null); setF({ ...f, code: '' }); }}>← Use a different account</button>
           <span className="xs faint">Lost your phone? <button type="button" className="link-btn xs" onClick={() => { setRecovery(!recovery); setF({ ...f, code: '' }); }}>{recovery ? 'Use the authenticator code' : 'Use a recovery code'}</button> or ask the owner to reset your two-step login.</span>
@@ -263,14 +295,26 @@ export function AdminSetup() {
   const [done, setDone] = useState(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
+  const [open, setOpen] = useState(null); // null while asking the server whether setup is still possible
+  const flight = useRef(false);
   const toast = useToast();
+  useEffect(() => { if (LIVE) adminSetupStatus().then((r) => setOpen(r.open), () => setOpen(false)); }, []);
   if (!LIVE) return <Navigate to="/admin/login" replace />;
+  if (open === null && !setup && !done) return <Shell title="Admin setup"><div className="row g12 muted" role="status"><Spinner /> Checking…</div></Shell>;
+  if (open === false && !setup && !done) {
+    return (
+      <Shell title="Page not available" sub="Admin setup is closed.">
+        <Link to="/" className="btn btn-ink" style={{ alignSelf: 'flex-start' }}>Go to home</Link>
+      </Shell>
+    );
+  }
   const run = async (fn) => {
-    setBusy(true); setErr('');
+    if (flight.current) return;
+    flight.current = true; setBusy(true); setErr('');
     try { await fn(); } catch (x) {
       setErr(x.status === 404 ? 'Setup is closed: an admin already exists, or ADMIN_SETUP_TOKEN isn’t set on the server. Sign in at /admin/login.' : x.message);
       if (x.code === 'setup_expired') { setSetup(null); setCode(''); setSaved(false); }
-    } finally { setBusy(false); }
+    } finally { flight.current = false; setBusy(false); }
   };
   const pwIssue = f.password && passwordIssue(f.password);
   const ready = f.token.trim() && EMAIL_RE.test(f.email.trim()) && f.name.trim().length >= 2 && !passwordIssue(f.password) && f.confirm === f.password;

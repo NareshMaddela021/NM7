@@ -264,3 +264,11 @@ textarea.input { height: auto; padding: 12px 14px; line-height: 1.55; resize: ve
   .me-tabs .dot { position: absolute; top: 8px; right: calc(50% - 16px); width: 8px; height: 8px; border-radius: 50%; background: var(--danger); }
 }
 @media (max-width: 900px) { body:has(.me-tabs) .toast { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); } }
+
+/* Footer and legal links: at least 24 × 24 px to tap (WCAG 2.2 target size). */
+.site-footer a, .legal a { display: inline-flex; align-items: center; min-height: 24px; min-width: 24px; }
+.site-footer nav, .site-footer .row { row-gap: 8px; }
+
+/* Skip link: hidden until focused with the keyboard. */
+.skip-link { position: absolute; left: 8px; top: -60px; z-index: 1000; padding: 10px 14px; border-radius: 8px; background: var(--ink); color: var(--onink); font-weight: 600; text-decoration: none; }
+.skip-link:focus { top: 8px; }
