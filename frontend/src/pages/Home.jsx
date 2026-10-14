@@ -196,7 +196,7 @@ function Templates() {
         {list.map((k) => (
           <button key={k} type="button" className="h-tpl" onClick={() => nav('/builder', { state: { open: 'build', template: k } })} aria-label={`Use the ${TEMPLATE_PRESETS[k].name} template`}>
             <div className="thumb" style={{ width: 220, height: 311, borderRadius: 10, overflow: 'hidden', background: '#fff', border: '1px solid var(--border)' }} aria-hidden="true">
-              <div style={{ width: 220, pointerEvents: 'none' }}><ResumePreview data={datas[k]} design={{ ...DEFAULT_DESIGN, ...datas[k].design }} photo={datas[k].showPhoto ? PHOTO_PLACEHOLDER : null} /></div>
+              <div style={{ width: 220, pointerEvents: 'none' }}><ResumePreview loadFonts={false} data={datas[k]} design={{ ...DEFAULT_DESIGN, ...datas[k].design }} photo={datas[k].showPhoto ? PHOTO_PLACEHOLDER : null} /></div>
             </div>
             <span className="row between g8"><strong>{TEMPLATE_PRESETS[k].name}</strong><span className="xs faint">Use →</span></span>
             <span className="xs muted" style={{ lineHeight: 1.4 }}>{TEMPLATE_PRESETS[k].desc}</span>
@@ -238,8 +238,8 @@ function BeforeAfter() {
           {[['before', 'Before'], ['after', 'After expert rewrite']].map(([k, l]) => <button key={k} type="button" role="tab" aria-selected={view === k} onClick={() => { setView(k); setAuto(false); }}>{l}</button>)}
         </div>
         <div className="h-ba" style={{ width: 'min(520px, 100%)' }}>
-          <div style={{ opacity: view === 'before' ? 1 : 0, transition: 'opacity 500ms var(--ease)' }} aria-hidden={view !== 'before'}><ResumePreview data={BEFORE} design={dsB} /></div>
-          <div className="h-after" style={{ opacity: view === 'after' ? 1 : 0, transition: 'opacity 500ms var(--ease)', background: '#fff' }} aria-hidden={view !== 'after'}><ResumePreview data={AFTER} design={dsA} /></div>
+          <div style={{ opacity: view === 'before' ? 1 : 0, transition: 'opacity 500ms var(--ease)' }} aria-hidden={view !== 'before'}><ResumePreview loadFonts={false} data={BEFORE} design={dsB} /></div>
+          <div className="h-after" style={{ opacity: view === 'after' ? 1 : 0, transition: 'opacity 500ms var(--ease)', background: '#fff' }} aria-hidden={view !== 'after'}><ResumePreview loadFonts={false} data={AFTER} design={dsA} /></div>
           <span className="h-lbl" style={{ right: 12, background: view === 'after' ? 'var(--successbg)' : 'var(--dangerbg)', color: view === 'after' ? 'var(--success)' : 'var(--danger)' }}>{view === 'after' ? `After · ATS ${a.score}` : `Before · ATS ${b.score}`}</span>
         </div>
       </div>
@@ -329,7 +329,7 @@ function Audiences() {
       </div>
       <div className="reveal" style={{ display: 'flex', justifyContent: 'center' }}>
         <div style={{ width: 'min(400px, 100%)', borderRadius: 12, overflow: 'hidden', boxShadow: 'var(--shadow)', border: '1px solid var(--border)', background: '#fff', maxHeight: 520 }} aria-hidden="true">
-          <ResumePreview key={a.tpl} data={data} design={{ ...DEFAULT_DESIGN, ...data.design }} />
+          <ResumePreview loadFonts={false} key={a.tpl} data={data} design={{ ...DEFAULT_DESIGN, ...data.design }} />
         </div>
       </div>
     </div>

@@ -203,7 +203,7 @@ textarea.input { height: auto; padding: 12px 14px; line-height: 1.55; resize: ve
 
 /* ---------- resume preview ---------- */
 .resume { background: #FFFFFF; color: #1A1A1A; border-radius: 4px; box-shadow: var(--shadow); padding: 40px 44px; font-size: 12.5px; line-height: 1.55; display: flex; flex-direction: column; gap: 14px; }
-.resume h4 { margin: 0; font-size: 10.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.resume h3, .resume h4 { margin: 0; font-size: 10.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
 .resume .rhead { display: flex; justify-content: space-between; gap: 8px; }
 .resume .rsub { color: #555; font-style: italic; }
 .resume .muted-ph { color: #9A9A9A; font-style: italic; }

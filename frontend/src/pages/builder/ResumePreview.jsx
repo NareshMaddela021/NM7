@@ -1,4 +1,5 @@
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { ensureFonts } from './fontLoader';
 import ContactLine from './ContactLine';
 import { buildSections, isNumWord } from './resumeModel';
 import { FONTS, PAGE, headFontOf, marginOf, tint } from './design';
@@ -10,12 +11,12 @@ function Heading({ title, ds, s }) {
   const line = ds.accentOn.lines ? ds.accent : '#B8B8B8';
   const base = { fontFamily: FONTS[headFontOf(ds)].css, fontSize: ds.headSize * s, fontWeight: ds.headWeight, color, textTransform: 'uppercase', letterSpacing: ds.headingStyle === 'caps' ? '0.16em' : '0.06em', margin: 0, lineHeight: 1.2 };
   if (ds.headingStyle === 'rule') {
-    return <h4 style={{ ...base, display: 'flex', alignItems: 'center', gap: 6 * s }}>{title}<span aria-hidden="true" style={{ flex: 1, height: Math.max(1, 0.8 * s), background: line }} /></h4>;
+    return <h3 style={{ ...base, display: 'flex', alignItems: 'center', gap: 6 * s }}>{title}<span aria-hidden="true" style={{ flex: 1, height: Math.max(1, 0.8 * s), background: line }} /></h3>;
   }
-  if (ds.headingStyle === 'bar') return <h4 style={{ ...base, background: tint(ds.accentOn.lines ? ds.accent : '#777777', 0.12), padding: `${2.5 * s}px ${6 * s}px`, borderRadius: 2 * s }}>{title}</h4>;
-  if (ds.headingStyle === 'caps') return <h4 style={base}>{title}</h4>;
-  if (ds.headingStyle === 'left') return <h4 style={{ ...base, borderLeft: `${3 * s}px solid ${line}`, paddingLeft: 6 * s }}>{title}</h4>;
-  return <h4 style={{ ...base, borderBottom: `${Math.max(1, 0.8 * s)}px solid ${line}`, paddingBottom: 2.5 * s }}>{title}</h4>;
+  if (ds.headingStyle === 'bar') return <h3 style={{ ...base, background: tint(ds.accentOn.lines ? ds.accent : '#777777', 0.12), padding: `${2.5 * s}px ${6 * s}px`, borderRadius: 2 * s }}>{title}</h3>;
+  if (ds.headingStyle === 'caps') return <h3 style={base}>{title}</h3>;
+  if (ds.headingStyle === 'left') return <h3 style={{ ...base, borderLeft: `${3 * s}px solid ${line}`, paddingLeft: 6 * s }}>{title}</h3>;
+  return <h3 style={{ ...base, borderBottom: `${Math.max(1, 0.8 * s)}px solid ${line}`, paddingBottom: 2.5 * s }}>{title}</h3>;
 }
 
 function Rich({ t, ds }) {
@@ -111,9 +112,10 @@ function CoverBody({ c, ds, s }) {
  * True-to-scale preview: every size is the PDF size in points × (preview width / page width).
  * Reports the page count via onPages and marks where each new page starts.
  */
-export default function ResumePreview({ data: d, design: ds, photo, onPages, cover }) {
+export default function ResumePreview({ data: d, design: ds, photo, onPages, cover, loadFonts = true }) {
   const ref = useRef();
   const [box, setBox] = useState({ w: 595, h: 842 });
+  useEffect(() => { if (loadFonts) ensureFonts([ds.font, headFontOf(ds)]); }, [loadFonts, ds.font, ds.headFont]); // eslint-disable-line react-hooks/exhaustive-deps
   const page = PAGE[ds.pageSize] || PAGE.a4;
   const s = box.w / page.w;
   const pageH = page.h * s;
