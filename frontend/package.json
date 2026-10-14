@@ -1,0 +1,25 @@
+{
+  "name": "nm7-resume-services",
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "build:preview": "SINGLE=1 VITE_HASH_ROUTER=1 VITE_PREVIEW=1 vite build"
+  },
+  "dependencies": {
+    "fflate": "^0.8.2",
+    "jspdf": "^2.5.1",
+    "pdfjs-dist": "^3.11.174",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.2",
+    "vite": "^5.4.8",
+    "vite-plugin-singlefile": "^2.0.2"
+  },
+  "private": true,
+  "type": "module"
+}

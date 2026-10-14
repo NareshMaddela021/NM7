@@ -1,0 +1,96 @@
+/* Ink & Highlighter — design tokens.
+   Yellow (--signal) means one thing only: "a recruiter would notice this". */
+:root {
+  --viz-1: #2a78d6; --viz-2: #eb6834; --viz-3: #1baf7a; --viz-grid: #e4e3df;
+  --bg: #F7F6F2;
+  --surface: #FFFFFF;
+  --sunken: #EFEDE6;
+  --text: #121316;
+  --text2: #4E4F55;
+  --text3: #68696F;
+  --border: #E2DFD6;
+  --border2: #C9C5B9;
+  --ink: #121316;
+  --onink: #F7F6F2;
+  --signal: #FFE14D;
+  --signalink: #3A3000;
+  --accent: #2E46D8;
+  --success: #0E7A52;
+  --successbg: #DFF3EA;
+  --warning: #8A5200;
+  --warningbg: #FFF0D6;
+  --danger: #B42D1B;
+  --dangerbg: #FCE6E2;
+  --paper: #FFFFFF;
+  --shadow: 0 30px 60px -24px rgba(18, 19, 22, .22), 0 2px 6px rgba(18, 19, 22, .06);
+  --shadow-sm: 0 8px 24px -8px rgba(18, 19, 22, .2);
+
+  --font-display: 'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'Instrument Sans', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-serif: 'Source Serif 4', Georgia, serif;
+
+  --r-chip: 6px;
+  --r-control: 12px;
+  --r-card: 16px;
+  --r-panel: 20px;
+
+  --ease: cubic-bezier(.2, .8, .2, 1);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --viz-1: #3987e5; --viz-2: #d95926; --viz-3: #199e70; --viz-grid: #34332f;
+  --bg: #0D0E10;
+  --surface: #15171A;
+  --sunken: #0A0B0C;
+  --text: #F1F0EC;
+  --text2: #B4B3AD;
+  --text3: #94938D;
+  --border: #2A2D32;
+  --border2: #3A3E44;
+  --ink: #F1F0EC;
+  --onink: #0D0E10;
+  --signal: #FFE14D;
+  --signalink: #2B2400;
+  --accent: #8EA0FF;
+  --success: #4FD1A1;
+  --successbg: #10261E;
+  --warning: #FFC266;
+  --warningbg: #2A2010;
+  --danger: #FF8A78;
+  --dangerbg: #2C1512;
+  --paper: #1C1F23;
+  --shadow: 0 30px 60px -24px rgba(0, 0, 0, .6), 0 0 0 1px #2A2D32;
+  --shadow-sm: 0 0 0 1px #2A2D32;
+  color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --viz-1: #3987e5; --viz-2: #d95926; --viz-3: #199e70; --viz-grid: #34332f;
+  --bg: #0D0E10;
+  --surface: #15171A;
+  --sunken: #0A0B0C;
+  --text: #F1F0EC;
+  --text2: #B4B3AD;
+  --text3: #94938D;
+  --border: #2A2D32;
+  --border2: #3A3E44;
+  --ink: #F1F0EC;
+  --onink: #0D0E10;
+  --signal: #FFE14D;
+  --signalink: #2B2400;
+  --accent: #8EA0FF;
+  --success: #4FD1A1;
+  --successbg: #10261E;
+  --warning: #FFC266;
+  --warningbg: #2A2010;
+  --danger: #FF8A78;
+  --dangerbg: #2C1512;
+  --paper: #1C1F23;
+  --shadow: 0 30px 60px -24px rgba(0, 0, 0, .6), 0 0 0 1px #2A2D32;
+  --shadow-sm: 0 0 0 1px #2A2D32;
+  color-scheme: dark;
+}
