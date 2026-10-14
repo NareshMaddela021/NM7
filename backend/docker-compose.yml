@@ -1,0 +1,28 @@
+# Local development: Postgres + the API.  `docker compose up`  →  http://localhost:8000/health
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: nm7
+      POSTGRES_PASSWORD: nm7
+      POSTGRES_DB: nm7
+    ports: ["5432:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./scripts/create-test-db.sql:/docker-entrypoint-initdb.d/create-test-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nm7"]
+      interval: 2s
+      retries: 15
+
+  api:
+    build: .
+    env_file: [.env.example]
+    environment:
+      DATABASE_URL: postgresql+asyncpg://nm7:nm7@db:5432/nm7
+    ports: ["8000:8000"]
+    depends_on:
+      db: { condition: service_healthy }
+
+volumes:
+  pgdata:
