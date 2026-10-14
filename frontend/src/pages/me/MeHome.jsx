@@ -5,6 +5,8 @@ import { useMe, activeResume, orderView, openInBuilder, APP_STAGES } from '../..
 import { useExpertOrders } from '../../lib/expertStore';
 import { atsScore } from '../../lib/atsScore';
 import { PLANS } from '../../lib/pricing';
+import { useJobProfile } from '../../lib/profileStore';
+import { profileCompleteness } from '../../lib/jobProfile';
 import { Kpi } from '../admin/AdminUI';
 import { ResumeThumb, downloadResume, countdown, templateName, ago } from './shared';
 
@@ -22,6 +24,8 @@ export default function MeHome() {
   const first = me.account.name.split(' ')[0];
   const followUps = me.apps.filter((a) => a.status === 'applied' && Date.now() - a.date > 7 * 864e5 && !a.followed);
   const edit = () => { openInBuilder(r.id); nav('/builder', { state: { open: 'build' } }); };
+  const jp = useJobProfile();
+  const setUp = jp.available && jp.data && profileCompleteness(jp.data).pct < 40; // new users: the Job Profile first
   const dl = async (f) => { await downloadResume(r.data, f); toast(f === 'pdf' ? 'PDF ready' : 'Word file ready'); };
 
   return (
@@ -36,6 +40,11 @@ export default function MeHome() {
             {next.live && next.deadline && <span className="small" style={{ opacity: 0.8 }}>{countdown(next.deadline).late ? 'Past the deadline — an automatic refund starts if nothing arrives.' : `Delivery promise: ${countdown(next.deadline).text}`}</span>}
           </div>
           <Link to={next.action.to} className="btn btn-signal btn-lg">{next.action.cta}</Link>
+        </div>
+      ) : me.orders.length === 0 && score < 60 && setUp ? (
+        <div className="card-ink row between g16">
+          <div className="stack g4"><span className="mono" style={{ opacity: 0.75, fontSize: 12 }}>GET STARTED</span><strong style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 600 }}>Set up your Job Profile (3 min)</strong><span className="small" style={{ opacity: 0.8 }}>Fill it once — every resume and cover letter starts from it.</span></div>
+          <span className="row g8"><Link to="/me/profile" className="btn btn-signal btn-lg">Set up my Job Profile</Link><button type="button" className="btn btn-outline btn-lg" style={{ background: 'transparent', color: 'inherit' }} onClick={edit}>Open the builder</button></span>
         </div>
       ) : me.orders.length === 0 && score < 60 ? (
         <div className="card-ink row between g16">

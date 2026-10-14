@@ -1,13 +1,14 @@
-// Profile & settings (auto-fills the builder), notifications per channel, privacy (download data, delete account).
+// Profile & settings: account details (career details live in the Job Profile), notifications per channel, privacy (download data, delete account).
 // Also Help & referral.
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Dialog, Spinner, useToast } from '../../components/ui';
-import { useMe, setMe, getMe, resetMe, activeResume, setResumeData, saveProfile, raiseIssue } from '../../lib/customerStore';
+import { useMe, setMe, getMe, resetMe, saveProfile, raiseIssue } from '../../lib/customerStore';
 import { LIVE, changePassword, passwordIssue } from '../../lib/auth';
 import { useExpertOrders } from '../../lib/expertStore';
-import { EXP_LEVELS } from '../builder/schema';
 import { savePdf } from '../builder/resumePdf';
 import { PROMISES, REFERRAL, inr } from '../../lib/pricing';
+import { getJobProfile } from '../../lib/profileStore';
 import { MeHead } from './MeLayout';
 import { fmtDay } from './shared';
 
@@ -32,15 +33,9 @@ export function MeSettings() {
     setBusy(true); setError('');
     try { await saveProfile({ ...f, email: me.account.email }); toast('Saved'); } catch (err) { setError(err.message || 'Not saved. Please try again.'); } finally { setBusy(false); }
   };
-  const fillResume = () => {
-    const r = activeResume(getMe());
-    const d = { ...r.data, personal: { ...r.data.personal, name: f.name, email: f.email, phone: f.phone, level: f.level, headline: r.data.personal.headline || f.targetRole }, prefs: { ...r.data.prefs, locations: f.cities } };
-    setResumeData(r.id, d);
-    toast(`Filled into “${r.name}”`);
-  };
   const exportAll = async () => {
     const s = getMe();
-    const data = { exportedAt: new Date().toISOString(), account: s.account, orders: s.orders, expertOrders: all.filter((x) => s.orders.some((o) => o.id === x.id)).map(({ id, status, versions, messages, comments }) => ({ id, status, versions, messages, comments })), resumes: s.resumes, coverLetters: s.covers, applications: s.apps, atsChecks: s.checks, shareLink: s.share, issues: s.issues };
+    const data = { exportedAt: new Date().toISOString(), account: s.account, orders: s.orders, expertOrders: all.filter((x) => s.orders.some((o) => o.id === x.id)).map(({ id, status, versions, messages, comments }) => ({ id, status, versions, messages, comments })), resumes: s.resumes, coverLetters: s.covers, applications: s.apps, atsChecks: s.checks, shareLink: s.share, issues: s.issues, jobProfile: getJobProfile().data };
     await savePdf(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }), 'my-asuraa-data.json');
     toast('Your data file is ready');
   };
@@ -56,13 +51,8 @@ export function MeSettings() {
           <div className="field" style={{ flex: '1 1 220px' }}><label htmlFor="p-e" className="label">Email</label><input id="p-e" type="email" className="input" style={{ height: 42 }} value={me.account.email} readOnly aria-describedby="p-e-h" /><span id="p-e-h" className="xs faint">This is your sign-in email. To change it, write to info@nm7.si from this address.</span>{errs.email && <span className="xs" style={{ color: 'var(--danger)' }}>{errs.email}</span>}</div>
           <div className="field" style={{ flex: '1 1 220px' }}><label htmlFor="p-p" className="label">Mobile (WhatsApp)</label><input id="p-p" className="input" style={{ height: 42 }} value={f.phone} onChange={set('phone')} aria-invalid={!!errs.phone} />{errs.phone && <span className="xs" style={{ color: 'var(--danger)' }}>{errs.phone}</span>}</div>
         </div>
-        <div className="row g12">
-          <div className="field" style={{ flex: '1 1 220px' }}><label htmlFor="p-r" className="label">Target role</label><input id="p-r" className="input" style={{ height: 42 }} value={f.targetRole} onChange={set('targetRole')} /></div>
-          <div className="field" style={{ flex: '1 1 220px' }}><label htmlFor="p-c" className="label">Preferred cities</label><input id="p-c" className="input" style={{ height: 42 }} value={f.cities} onChange={set('cities')} /></div>
-          <div className="field" style={{ flex: '1 1 220px' }}><label htmlFor="p-l" className="label">Experience</label><select id="p-l" className="input" style={{ height: 42 }} value={f.level} onChange={set('level')}>{EXP_LEVELS.map((l) => <option key={l}>{l}</option>)}</select></div>
-        </div>
         {error && <span className="small" role="alert" style={{ color: 'var(--danger)' }}>{error}</span>}
-        <div className="row g8"><button type="submit" className="btn btn-ink" disabled={busy}>{busy ? <Spinner /> : 'Save'}</button><button type="button" className="btn btn-outline" onClick={fillResume}>Fill these into my resume</button></div>
+        <div className="row g8"><button type="submit" className="btn btn-ink" disabled={busy}>{busy ? <Spinner /> : 'Save'}</button><Link to="/me/profile" className="btn btn-outline">Target role, cities &amp; career details → Job Profile</Link></div>
       </form>
 
       <section className="card stack g12" aria-label="Notifications">

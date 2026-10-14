@@ -7,10 +7,11 @@ from pymongo import DESCENDING
 
 from app.admin.roles import can
 from app.auth.deps import CurrentAuth
-from app.core.db import DB, ORDER_WORK, ORDERS
+from app.core.db import DB, JOB_PROFILES, ORDER_WORK, ORDERS
 from app.core.errors import ApiError
 from app.orders.models import Order
 from app.orders.service import get_order
+from app.profile.service import privacy_of, strip_private
 from app.work.service import NOT_FOUND, apply_patch, load_work, side_of, view
 
 router = APIRouter(prefix="/api/work", tags=["work"])
@@ -47,6 +48,23 @@ async def one(order_id: str, auth: CurrentAuth, db: DB) -> dict[str, Any]:
     work = await load_work(db, order.id)
     side = side_of(auth.user, order, work, _is_admin(auth))
     return await view(db, order, work, side)
+
+
+@router.get("/{order_id}/profile")
+async def customer_profile(order_id: str, auth: CurrentAuth, db: DB) -> dict[str, Any]:
+    """The assigned expert (or an admin) sees the customer's Job Profile only if the customer allowed it.
+    Salary and personal information are left out unless the customer switched those on too."""
+    order = await get_order(db, order_id)
+    if order is None or order.plan not in EXPERT_PLANS:
+        raise NOT_FOUND
+    side = side_of(auth.user, order, await load_work(db, order.id), _is_admin(auth))
+    if side == "customer":
+        raise ApiError(403, "not_allowed", "Open your Job Profile from your dashboard.")
+    doc = await db[JOB_PROFILES].find_one({"_id": order.customer_id})
+    p = privacy_of(doc)
+    if not doc or not p["experts"]:
+        raise ApiError(404, "no_consent", "The customer hasn’t shared their Job Profile.")
+    return {"data": strip_private(doc["data"], salary=p["salary"], personal=p["personal"]), "privacy": p}
 
 
 @router.patch("/{order_id}")

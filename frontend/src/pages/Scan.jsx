@@ -8,6 +8,11 @@ import { useFlow } from '../lib/flow';
 import { scanResume } from '../services/api';
 import { MESSAGES } from '../lib/scan';
 import { PLANS, PROMISES, inr } from '../lib/pricing';
+import { currentUser } from '../lib/auth';
+import { blankResume } from '../lib/customerStore';
+import { applyImport } from '../lib/import/apply';
+import { mergeIntoProfile, resumeToProfileParts } from '../lib/jobProfile';
+import { setJobProfile, useJobProfile } from '../lib/profileStore';
 
 const SEV = { 'Blocks ATS': 'b-danger', High: 'b-warning', Medium: 'b-neutral', Low: 'b-neutral' };
 const wrap = { overflowWrap: 'anywhere', wordBreak: 'break-word' };
@@ -45,6 +50,26 @@ function Rewrite({ text }) {
       <span className="xs muted">Suggested rewrite — a template built from your line. Replace the [brackets] with your real details; don’t invent numbers.</span>
       <span className="small" style={{ whiteSpace: 'pre-wrap', ...wrap }}>{text}</span>
       <button type="button" className="link-btn xs" style={{ alignSelf: 'flex-start' }} onClick={copy}>Copy</button>
+    </div>
+  );
+}
+
+/** Signed-in customers: put what the scan read into the Job Profile (only adds what's missing). */
+function SaveScanToProfile({ report }) {
+  const jp = useJobProfile();
+  const toast = useToast();
+  const [done, setDone] = useState(false);
+  if (report.sample || !report.resume || currentUser()?.role !== 'customer' || !jp.available || !jp.data) return null;
+  const save = () => {
+    const { profile, added } = mergeIntoProfile(jp.data, resumeToProfileParts(applyImport(blankResume(), report.resume, 'replace')));
+    if (added) setJobProfile(profile);
+    setDone(true);
+    toast(added ? `Added ${added} item${added === 1 ? '' : 's'} to your Job Profile` : 'Your Job Profile already has all of this');
+  };
+  return (
+    <div className="well row between g8" style={{ padding: '10px 14px' }}>
+      <span className="small">Keep these details for every future resume.</span>
+      {done ? <Link to="/me/profile" className="btn btn-outline" style={{ minHeight: 36 }}>Open my Job Profile</Link> : <button type="button" className="btn btn-outline" style={{ minHeight: 36 }} onClick={save}>Save this to my Job Profile</button>}
     </div>
   );
 }
@@ -111,6 +136,7 @@ function Report({ report }) {
           ))}
         </article>
         <p className="xs faint">{report.sample ? 'Sample text.' : `Read on your device from ${report.file} — the file was never uploaded.`} Text as our reader sees it; your file’s styling isn’t shown.</p>
+        <SaveScanToProfile report={report} />
       </section>
 
       <aside className="side stack g20 sticky" aria-label="Scan results" style={{ minWidth: 0 }}>

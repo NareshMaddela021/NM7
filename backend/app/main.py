@@ -25,6 +25,7 @@ from app.me.router import public as public_router
 from app.me.router import router as me_router
 from app.orders.router import router as orders_router
 from app.payments.router import router as payments_router
+from app.profile.router import router as profile_router
 from app.work.router import router as work_router
 
 
@@ -91,6 +92,7 @@ def create_app() -> FastAPI:
     app.include_router(admin_console_router)
     app.include_router(orders_router)
     app.include_router(payments_router)
+    app.include_router(profile_router)  # before me_router: /api/me/job-profile
     app.include_router(me_router)
     app.include_router(public_router)
     app.include_router(work_router)

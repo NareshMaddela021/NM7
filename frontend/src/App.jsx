@@ -45,6 +45,7 @@ const OrdersList = named(meOrders, 'OrdersList');
 const OrderDetail = named(meOrders, 'OrderDetail');
 const MeMessages = lazy(() => import('./pages/me/MeMessages'));
 const MeResumes = lazy(() => import('./pages/me/MeResumes'));
+const MeProfile = lazy(() => import('./pages/me/MeProfile'));
 const MeAts = lazy(() => import('./pages/me/MeAts'));
 const MeCovers = lazy(() => import('./pages/me/MeCovers'));
 const MeJobs = lazy(() => import('./pages/me/MeJobs'));
@@ -99,7 +100,7 @@ function ScrollToTop() {
 const SCREENS = [
   ['/', 'Home · free scan'], ['/scan', 'Scan report'], ['/checkout', 'Checkout'], 
   ['/login', 'Sign in'], ['/signup', 'Sign up'], ['/admin/login', 'Admin login (two-step)'], ['/orders/RS-1117/intake', 'Intake questions'], ['/orders/RS-1117/refund', 'Refund request'], ['/editor', 'Editor'],
-  ['/builder', 'Resume builder'], ['/me', 'Customer · dashboard'], ['/me/orders/RS-1117', 'Customer · order'], ['/me/resumes', 'Customer · my resumes'], ['/me/jobs', 'Customer · applications'], ['/me/ats', 'Customer · ATS & job match'], ['/me/launch', 'Customer · Career Launch'], ['/r/sai-varsha', 'Public resume link'], ['/expert', 'Expert home'], ['/expert/orders', 'Expert orders'], ['/expert/orders/RS-1117', 'Expert workspace · builder'], ['/orders/RS-1117/review', 'Customer · review draft'], ['/expert/earnings', 'Expert earnings'], ['/expert/profile', 'Expert profile · join'], ['/admin', 'Admin · dashboard'], ['/admin/orders', 'Admin · orders'], ['/admin/experts?tab=applications', 'Admin · expert applications'], ['/admin/payments?tab=payouts', 'Admin · payouts'], ['/expert/test', 'Expert · test task (sign in as Ravi)'], ['/terms', 'Terms'], ['/privacy', 'Privacy policy'], ['/refund-policy', 'Refund policy'], ['/expert-terms', 'Expert terms'], ['/contact', 'Contact us'],
+  ['/builder', 'Resume builder'], ['/me', 'Customer · dashboard'], ['/me/orders/RS-1117', 'Customer · order'], ['/me/resumes', 'Customer · my resumes'], ['/me/profile', 'Customer · Job Profile'], ['/me/jobs', 'Customer · applications'], ['/me/ats', 'Customer · ATS & job match'], ['/me/launch', 'Customer · Career Launch'], ['/r/sai-varsha', 'Public resume link'], ['/expert', 'Expert home'], ['/expert/orders', 'Expert orders'], ['/expert/orders/RS-1117', 'Expert workspace · builder'], ['/orders/RS-1117/review', 'Customer · review draft'], ['/expert/earnings', 'Expert earnings'], ['/expert/profile', 'Expert profile · join'], ['/admin', 'Admin · dashboard'], ['/admin/orders', 'Admin · orders'], ['/admin/experts?tab=applications', 'Admin · expert applications'], ['/admin/payments?tab=payouts', 'Admin · payouts'], ['/expert/test', 'Expert · test task (sign in as Ravi)'], ['/terms', 'Terms'], ['/privacy', 'Privacy policy'], ['/refund-policy', 'Refund policy'], ['/expert-terms', 'Expert terms'], ['/contact', 'Contact us'],
 ];
 
 /** Shown only in the shareable preview build: says it's sample data and lets you jump to any screen. */
@@ -206,6 +207,7 @@ export default function App() {
           <Route path="orders" element={<OrdersList />} />
           <Route path="orders/:id" element={<OrderDetail />} />
           <Route path="messages" element={<MeMessages />} />
+          <Route path="profile" element={<MeProfile />} />
           <Route path="resumes" element={<MeResumes />} />
           <Route path="ats" element={<MeAts />} />
           <Route path="covers" element={<MeCovers />} />
