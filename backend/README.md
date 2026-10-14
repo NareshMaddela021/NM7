@@ -35,6 +35,18 @@ uv run alembic upgrade head
 
 New model modules must be imported in `app/models.py` so Alembic sees them. CI fails if the models and migrations drift (`alembic check`).
 
+## Admin accounts
+
+Admins can't sign up on the website. Create them on the server (Render → Shell):
+
+```bash
+python -m app.cli create-admin --email admin@nm7.si --name "Naresh" --role owner   # owner/ops/finance/support/quality
+python -m app.cli reset-admin-password --email admin@nm7.si
+python -m app.cli reset-admin-2fa --email admin@nm7.si    # lost phone: new authenticator key + recovery codes
+```
+
+`create-admin` prints an `otpauth://` link (scan as a QR code or type the key) and 10 one-time recovery codes.
+
 ## Deploy (Render, Singapore)
 
 `render.yaml` is a Render Blueprint for the API web service and its Postgres database.

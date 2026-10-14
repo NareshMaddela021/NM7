@@ -68,3 +68,21 @@ def new_code() -> str:
 
 def same(a: str, b: str) -> bool:
     return hmac.compare_digest(a.encode(), b.encode())
+
+
+def _fernet():
+    import base64
+
+    from cryptography.fernet import Fernet
+
+    s = get_settings()
+    raw = hashlib.sha256(("nm7-encryption:" + (s.encryption_key or s.secret_key)).encode()).digest()
+    return Fernet(base64.urlsafe_b64encode(raw))
+
+
+def encrypt(value: str) -> str:
+    return _fernet().encrypt(value.encode()).decode()
+
+
+def decrypt(token: str) -> str:
+    return _fernet().decrypt(token.encode()).decode()

@@ -8,6 +8,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
+from app.admin.router import router as admin_router
+from app.auth.admin_router import router as admin_auth_router
 from app.auth.router import router as auth_router
 from app.auth.sessions import SESSION_COOKIE
 from app.core import errors
@@ -61,6 +63,8 @@ def create_app() -> FastAPI:
         return JSONResponse({"status": "ok", "db": "ok"})
 
     app.include_router(auth_router)
+    app.include_router(admin_auth_router)
+    app.include_router(admin_router)
     return app
 
 

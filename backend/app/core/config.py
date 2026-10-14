@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     app_env: Literal["dev", "test", "prod"] = "dev"
     database_url: str = "postgresql+asyncpg://nm7:nm7@localhost:5432/nm7"
     secret_key: str = "dev-only-secret-change-me"
+    # Encrypts authenticator secrets. Falls back to SECRET_KEY; changing it breaks existing admin authenticators.
+    encryption_key: str = ""
     cors_origins: Annotated[list[str], NoDecode] = ["http://localhost:5173"]
     cookie_domain: str | None = None
 

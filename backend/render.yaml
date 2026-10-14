@@ -16,6 +16,8 @@ services:
         fromDatabase: { name: nm7-db, property: connectionString }
       - key: SECRET_KEY
         generateValue: true
+      - key: ENCRYPTION_KEY # encrypts admin authenticator secrets; never change it after admins are set up
+        generateValue: true
       - key: CORS_ORIGINS
         value: https://nm7.si,https://www.nm7.si
       - key: COOKIE_DOMAIN
