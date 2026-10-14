@@ -76,7 +76,7 @@ test('dashboard data is saved on the server and only shown to its owner', async 
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   await expect(page.getByText('Saved')).toBeVisible();
   await page.reload();
-  await expect(page.getByLabel('Mobile (WhatsApp)')).toHaveValue('98765 43210');
+  await expect(page.getByLabel('Mobile (WhatsApp)')).toHaveValue('+91 98765 43210'); // stored in one format
 
   // Raise an issue → stored on the server and emailed to info@nm7.si
   await page.goto('/me/help');
