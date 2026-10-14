@@ -234,3 +234,30 @@ async def test_change_password_signs_out_other_browsers(client, outbox, make_cli
         await fresh.post("/api/auth/login", json={"email": "sai@example.com", "password": PASSWORD})
     ).status_code == 401
     assert (await fresh.post("/api/auth/login", json={"email": "sai@example.com", "password": new})).status_code == 200
+
+
+async def test_public_link_leaves_out_switched_off_entries(client, outbox, make_client):
+    await signup(client, outbox, name="Asha Rao")
+    data = {
+        "personal": {"name": "Asha Rao"},
+        "edu": [{"institution": "DAV School"}, {"institution": "IIT Madras", "off": True}],
+        "custom": [
+            {
+                "id": "c_x",
+                "title": "Extracurricular",
+                "items": [{"title": "NSS"}, {"title": "Secret club", "off": True}],
+            }
+        ],
+        "skillGroups": [{"id": "core", "value": "SQL"}, {"id": "x", "value": "Hidden skill", "off": True}],
+        "hobbies": "Reading\nChess",
+        "offLines": {"hobbies": ["Chess"]},
+    }
+    await add_resume(client, "r1", data=data)
+    await client.put("/api/me/share", json={"on": True, "slug": "asha-rao", "resumeId": "r1"})
+    body = (await make_client().get("/api/public/resumes/asha-rao")).json()
+    text = str(body)
+    assert "IIT Madras" not in text and "Secret club" not in text and "Hidden skill" not in text and "Chess" not in text
+    assert [e["institution"] for e in body["data"]["edu"]] == ["DAV School"] and body["data"]["hobbies"] == "Reading"
+    # the owner's own copy keeps everything
+    own = (await client.get("/api/me/resumes/r1")).json()["data"]
+    assert own["edu"][1] == {"institution": "IIT Madras", "off": True} and own["offLines"] == {"hobbies": ["Chess"]}

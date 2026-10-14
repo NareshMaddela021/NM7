@@ -3,6 +3,7 @@
 // Windows and Mac computer has, so the file looks right wherever HR opens it.
 import { zipSync, strToU8 } from 'fflate';
 import { buildSections } from './resumeModel';
+import { visibleResume } from './entries';
 import { contactItems } from './ContactLine';
 import { iconColor, iconPng } from './icons';
 import { FONTS, PAGE, headFontOf, marginOf } from './design';
@@ -16,7 +17,8 @@ const isNum = (w) => /[\d₹%]/.test(w) && !/^\(?(19|20)\d{2}\)?[.,;:]?$/.test(w
 const b64ToBytes = (dataUrl) => { const bin = atob(dataUrl.split(',')[1]); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; };
 
 /** photoPng: the photo already cut to its shape (PNG data URL), or null. */
-export async function buildDocx({ data: d, design: ds, cover, photoPng }) {
+export async function buildDocx({ data, design: ds, cover, photoPng }) {
+  const d = visibleResume(data); // switched-off entries are not printed
   const page = PAGE[ds.pageSize] || PAGE.a4;
   const M = marginOf(ds);
   const contentW = Math.round((page.w - 2 * M) * 20);

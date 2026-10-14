@@ -278,3 +278,20 @@ textarea.input { height: auto; padding: 12px 14px; line-height: 1.55; resize: ve
 /* Skip link: hidden until focused with the keyboard. */
 .skip-link { position: absolute; left: 8px; top: -60px; z-index: 1000; padding: 10px 14px; border-radius: 8px; background: var(--ink); color: var(--onink); font-weight: 600; text-decoration: none; }
 .skip-link:focus { top: 8px; }
+
+/* ---------- builder: entry cards (move / on-off / remove) ---------- */
+.entry-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.entry-title { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0; }
+.entry-title strong:focus { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 4px; }
+.entry-tools { display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; }
+.entry-btn { min-height: 36px; min-width: 36px; }
+.entry-switch { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.entry-switch input { width: 24px; height: 24px; margin: 0; }
+.entry-remove { gap: 6px; }
+.entry-card[data-off="true"] { background: var(--sunken); border-style: dashed; }
+.entry-card[data-off="true"] .entry-body { color: var(--text2); }
+@media (max-width: 560px) {
+  /* phones: the controls stay on one row (arrows, switch, trash icon) under the title */
+  .entry-tools { width: 100%; justify-content: flex-end; }
+  .entry-remove-text, .entry-switch-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+}

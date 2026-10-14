@@ -82,3 +82,36 @@ async def add_check(db: AsyncDatabase, user_id: str, fields: dict[str, Any]) -> 
     if old:
         await db[ATS_CHECKS].delete_many({"_id": {"$in": [o["_id"] for o in old]}})
     return doc
+
+
+ENTRY_LISTS = ("exp", "edu", "proj", "certs", "ach", "langs", "skillGroups", "linkExtras")
+LINE_SECTIONS = ("hobbies", "strengths")
+
+
+def _lines(text: Any) -> list[str]:
+    if not isinstance(text, str):
+        return []
+    return [x.strip() for x in re.split(r"\n|,", text) if x.strip()]
+
+
+def visible_resume(data: dict[str, Any]) -> dict[str, Any]:
+    """The resume as printed: entries the owner switched off (`off: true`, or lines listed in `offLines`) are
+    removed, so a public link never sends them (same rule as frontend/src/pages/builder/entries.js)."""
+    out = dict(data)
+    for k in ENTRY_LISTS:
+        if isinstance(data.get(k), list):
+            out[k] = [x for x in data[k] if not (isinstance(x, dict) and x.get("off") is True)]
+    if isinstance(data.get("custom"), list):
+        out["custom"] = [
+            {**c, "items": [x for x in c.get("items") or [] if not (isinstance(x, dict) and x.get("off") is True)]}
+            if isinstance(c, dict)
+            else c
+            for c in data["custom"]
+        ]
+    off_lines = data.get("offLines") if isinstance(data.get("offLines"), dict) else {}
+    for k in LINE_SECTIONS:
+        hidden = {str(x).strip().lower() for x in off_lines.get(k) or []}
+        if hidden:
+            out[k] = "\n".join(x for x in _lines(data.get(k)) if x.lower() not in hidden)
+    out.pop("offLines", None)
+    return out

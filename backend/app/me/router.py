@@ -44,7 +44,7 @@ from app.me.schemas import (
     TicketIn,
     TicketOut,
 )
-from app.me.service import add_check, ms, referral_code, referrals, share_of
+from app.me.service import add_check, ms, referral_code, referrals, share_of, visible_resume
 from app.site import get_site
 
 router = APIRouter(prefix="/api/me", tags=["me"])
@@ -348,7 +348,7 @@ async def public_resume(slug: str, request: Request, auth: MaybeAuth, db: DB) ->
     r = r or await db[RESUMES].find_one({**q, "active": True}) or await db[RESUMES].find_one(q)
     if not r or not await db[USERS].find_one({"_id": s["_id"], "disabled_at": None}):
         raise off
-    data = dict(r["data"])
+    data = visible_resume(r["data"])  # switched-off entries are not sent
     if s.get("hide_phone"):
         data["personal"] = {**(data.get("personal") or {}), "phone": ""}
         if isinstance(data.get("pinfo"), dict):

@@ -1,5 +1,6 @@
 // Builder sections, field definitions and starting data.
 // Fields: [key, label, type, options]; types: text | email | tel | url | month | date | select | area | check | chips
+import { migrateEntries } from './entries';
 
 export const EXP_LEVELS = ['Fresher (0–1 yr)', 'Junior (1–3 yrs)', 'Mid (3–6 yrs)', 'Senior (6–10 yrs)', 'Lead/Principal (10+ yrs)'];
 const EMP = ['Full-time', 'Part-time', 'Contract', 'Internship', 'Freelance'];
@@ -91,7 +92,7 @@ export function migrateLinks(d) {
     const { credentialUrl, ...rest } = c;
     return { ...rest, links: credentialUrl ? [{ url: credentialUrl, label: 'Link' }] : [] };
   });
-  return { ...d, proj, certs };
+  return migrateEntries({ ...d, proj, certs }); // and entry on/off flags (old resumes: everything visible)
 }
 
 export const PERSONAL_FIELDS = [
