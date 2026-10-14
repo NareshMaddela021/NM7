@@ -1,6 +1,7 @@
 """Nm7 API — app factory."""
 
 import asyncio
+import os
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
@@ -76,6 +77,12 @@ def create_app() -> FastAPI:
         except Exception:
             return JSONResponse({"status": "error", "db": "down"}, status_code=503)
         return JSONResponse({"status": "ok", "db": "ok"})
+
+    @app.get("/version", tags=["ops"])
+    async def version() -> dict[str, str]:
+        """The git commit this server was built from (Render sets RENDER_GIT_COMMIT), to confirm a deploy."""
+        commit = os.environ.get("RENDER_GIT_COMMIT") or os.environ.get("GIT_COMMIT") or "unknown"
+        return {"commit": commit}
 
     app.include_router(auth_router)
     app.include_router(admin_auth_router)
