@@ -86,3 +86,22 @@ def encrypt(value: str) -> str:
 
 def decrypt(token: str) -> str:
     return _fernet().decrypt(token.encode()).decode()
+
+
+def seal(data: dict) -> str:
+    """Encrypts and signs a small JSON payload (for short-lived state kept in a cookie)."""
+    import json
+
+    return _fernet().encrypt(json.dumps(data).encode()).decode()
+
+
+def unseal(token: str, max_age_seconds: int) -> dict | None:
+    """Reverses seal(); None if the token was changed, made with another key, or is older than max_age_seconds."""
+    import json
+
+    from cryptography.fernet import InvalidToken
+
+    try:
+        return json.loads(_fernet().decrypt(token.encode(), ttl=max_age_seconds))
+    except (InvalidToken, ValueError):
+        return None

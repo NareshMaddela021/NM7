@@ -30,6 +30,10 @@ class Settings(BaseSettings):
     zeptomail_url: str = "https://api.zeptomail.in/v1.1/email"  # India data centre
     email_from: str = "noreply@nm7.si"
 
+    # One-time owner setup from the website (POST /api/admin/setup) for hosts without a shell. Only works while no
+    # admin exists and the token is at least 24 characters. Remove it after use.
+    admin_setup_token: str = ""
+
     # Razorpay — empty until keys exist
     razorpay_key_id: str = ""
     razorpay_key_secret: str = ""

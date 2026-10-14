@@ -1,11 +1,11 @@
 // Sign in, sign up (customer or expert, confirmed with an email code), forgot password, admin two-step login, and route guards.
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Logo, ThemeToggle } from '../../components/Header';
 import { Spinner, useToast } from '../../components/ui';
 import {
   useAuth, signIn, signUp, verifyEmail, resendCode, sendReset, resetPassword, adminPassword, adminVerify, signOut,
-  homeFor, passwordIssue, EMAIL_RE, PHONE_RE, DEMO_CODE, SAMPLE_PASSWORD,
+  homeFor, passwordIssue, EMAIL_RE, PHONE_RE, DEMO_CODE, SAMPLE_PASSWORD, LIVE, adminSetupStart, adminSetupVerify,
 } from '../../lib/auth';
 import SiteFooter from '../../components/SiteFooter';
 
@@ -239,6 +239,96 @@ export function AdminLogin() {
         </form>
       )}
       <Demo>email <code>admin@nm7.si</code>, password <code>{SAMPLE_PASSWORD}</code>, code <code>{DEMO_CODE}</code>. <button type="button" className="link-btn xs" onClick={() => setF({ ...f, email: 'admin@nm7.si', password: SAMPLE_PASSWORD })}>Fill in</button></Demo>
+    </Shell>
+  );
+}
+
+/* ---------- one-time owner setup: /admin/setup (live only) ---------- */
+function QrCode({ text, size = 200 }) {
+  const [src, setSrc] = useState('');
+  useEffect(() => {
+    let on = true;
+    // Made in the browser: the authenticator secret never goes to another website.
+    import('qrcode').then((m) => m.default.toDataURL(text, { width: size, margin: 1 })).then((u) => on && setSrc(u)).catch(() => {});
+    return () => { on = false; };
+  }, [text, size]);
+  return src ? <img src={src} width={size} height={size} alt="QR code for your authenticator app" style={{ background: '#fff', borderRadius: 8, padding: 6 }} /> : <div style={{ width: size, height: size }} aria-busy="true" />;
+}
+
+export function AdminSetup() {
+  const [f, setF] = useState({ token: '', email: '', name: '', password: '', confirm: '' });
+  const [setup, setSetup] = useState(null); // { otpauthUri, secret, recoveryCodes, expiresInMinutes }
+  const [code, setCode] = useState('');
+  const [saved, setSaved] = useState(false);
+  const [done, setDone] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  const toast = useToast();
+  if (!LIVE) return <Navigate to="/admin/login" replace />;
+  const run = async (fn) => {
+    setBusy(true); setErr('');
+    try { await fn(); } catch (x) {
+      setErr(x.status === 404 ? 'Setup is closed: an admin already exists, or ADMIN_SETUP_TOKEN isn’t set on the server. Sign in at /admin/login.' : x.message);
+      if (x.code === 'setup_expired') { setSetup(null); setCode(''); setSaved(false); }
+    } finally { setBusy(false); }
+  };
+  const pwIssue = f.password && passwordIssue(f.password);
+  const ready = f.token.trim() && EMAIL_RE.test(f.email.trim()) && f.name.trim().length >= 2 && !passwordIssue(f.password) && f.confirm === f.password;
+  const copyCodes = async () => { try { await navigator.clipboard.writeText(setup.recoveryCodes.join('\n')); toast('Recovery codes copied'); } catch { /* ignore */ } };
+
+  if (done) {
+    return (
+      <Shell title="Owner account ready" sub={`${done.email} is the owner admin. Setup is now closed for good.`}>
+        <div className="card stack g12">
+          <span className="small">Sign in with your email, password and the 6-digit code from your authenticator app.</span>
+          <span className="small muted">On Render, delete <code>ADMIN_SETUP_TOKEN</code> from the API’s environment now.</span>
+          <Link to="/admin/login" className="btn btn-ink btn-lg" style={{ alignSelf: 'flex-start' }}>Go to admin sign in</Link>
+        </div>
+      </Shell>
+    );
+  }
+  if (setup) {
+    return (
+      <Shell title="Set up two-step login" sub={`Finish within ${setup.expiresInMinutes} minutes. Nothing is saved until you confirm the code.`} wide>
+        <div className="card stack g16">
+          <span className="mono xs muted">1 · SCAN WITH YOUR AUTHENTICATOR APP</span>
+          <div className="row g16" style={{ alignItems: 'center', flexWrap: 'wrap' }}>
+            <QrCode text={setup.otpauthUri} />
+            <span className="stack g8 small" style={{ flex: '1 1 220px' }}>
+              <span>Open Google Authenticator, Microsoft Authenticator or Authy and scan this code.</span>
+              <span className="muted">Can’t scan? Add the key by hand:</span>
+              <code style={{ wordBreak: 'break-all' }}>{setup.secret}</code>
+            </span>
+          </div>
+        </div>
+        <div className="card stack g12">
+          <span className="mono xs muted">2 · SAVE YOUR RECOVERY CODES</span>
+          <span className="small">Each works once if you lose your phone. They are shown only now.</span>
+          <ol className="mono small" style={{ columns: 2, margin: 0, paddingLeft: 24 }}>{setup.recoveryCodes.map((c) => <li key={c}>{c}</li>)}</ol>
+          <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} onClick={copyCodes}>Copy codes</button>
+          <label className="row g8 small"><input type="checkbox" checked={saved} onChange={(e) => setSaved(e.target.checked)} />I saved them somewhere safe</label>
+        </div>
+        <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); run(async () => setDone(await adminSetupVerify(code))); }}>
+          <span className="mono xs muted">3 · CONFIRM</span>
+          <CodeInput id="as-c" value={code} onChange={setCode} label="6-digit code from the app" />
+          {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
+          <button type="submit" className="btn btn-ink btn-lg" disabled={busy || !saved || code.length !== 6}>{busy && <Spinner />}Create owner account</button>
+        </form>
+      </Shell>
+    );
+  }
+  return (
+    <Shell title="Set up the owner admin" sub="One time only. This page stops working as soon as an admin account exists.">
+      <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); if (ready) run(async () => setSetup(await adminSetupStart(f))); }}>
+        <Field id="as-t" label="Setup token" type="password" autoComplete="off" value={f.token} hint="The ADMIN_SETUP_TOKEN value from the API’s environment on Render" onChange={(e) => setF({ ...f, token: e.target.value })} />
+        <Field id="as-e" label="Work email" type="email" autoComplete="username" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
+        <Field id="as-n" label="Your name" autoComplete="name" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} />
+        <Field id="as-p" label="Password" type="password" autoComplete="new-password" value={f.password} hint="8+ characters, with letters and a number" error={pwIssue || ''} onChange={(e) => setF({ ...f, password: e.target.value })} />
+        <Field id="as-p2" label="Re-type password" type="password" autoComplete="new-password" value={f.confirm} onPaste={(e) => e.preventDefault()} error={f.confirm && f.confirm !== f.password && f.confirm.length >= f.password.length ? 'Passwords don’t match' : ''} hint={f.confirm && f.confirm === f.password ? '✓ Passwords match' : ''} onChange={(e) => setF({ ...f, confirm: e.target.value })} />
+        {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
+        <button type="submit" className="btn btn-ink btn-lg" disabled={busy || !ready}>{busy && <Spinner />}Continue</button>
+      </form>
+      <Link to="/admin/login" className="small">← Admin sign in</Link>
     </Shell>
   );
 }

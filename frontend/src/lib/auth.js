@@ -178,3 +178,15 @@ export function previewSignIn(userId) {
   if (u) start(u, u.role === 'admin' ? { twoStep: true } : {});
 }
 export const previewUsers = () => (LIVE ? [] : getUsers());
+
+/* ---------- one-time owner setup (live only; the server closes it once an admin exists) ---------- */
+/** Step 1: returns { otpauthUri, secret, recoveryCodes, expiresInMinutes }. Nothing is saved yet. */
+export async function adminSetupStart({ token, email, name, password, confirm }) {
+  if (!LIVE) throw fail('Admin setup only works on the live site.', 'not_live');
+  return http('/api/admin/setup', { method: 'POST', body: { token: token.trim(), email: email.trim(), name: name.trim(), password, passwordConfirm: confirm } });
+}
+/** Step 2: the 6-digit code from the authenticator app creates the owner account. */
+export async function adminSetupVerify(code) {
+  if (!LIVE) throw fail('Admin setup only works on the live site.', 'not_live');
+  return http('/api/admin/setup/verify', { method: 'POST', body: { code } });
+}

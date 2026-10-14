@@ -41,7 +41,7 @@ import MeShare, { PublicResume } from './pages/me/MeShare';
 import MeLaunch from './pages/me/MeLaunch';
 import { MePayments, MeUpgrade } from './pages/me/MeMoney';
 import { MeSettings, MeHelp } from './pages/me/MeSettings';
-import { Login, Signup, ForgotPassword, AdminLogin, RequireAuth } from './pages/auth/Auth';
+import { Login, Signup, ForgotPassword, AdminLogin, AdminSetup, RequireAuth } from './pages/auth/Auth';
 import { Terms, Privacy, RefundPolicy, DeliveryPolicy, ExpertTerms, Contact } from './pages/legal/Legal';
 import TestTask from './pages/expert/TestTask';
 import { useAuth, previewSignIn, previewUsers } from './lib/auth';
@@ -145,6 +145,7 @@ export default function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/setup" element={<AdminSetup />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/refund-policy" element={<RefundPolicy />} />

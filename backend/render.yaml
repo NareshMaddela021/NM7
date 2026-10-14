@@ -21,11 +21,13 @@ services:
       - key: ENCRYPTION_KEY # encrypts admin authenticator secrets; never change it after admins are set up
         generateValue: true
       - key: CORS_ORIGINS # the frontend's production address (comma-separated list, no trailing slash)
-        value: https://nm7.vercel.app
-      - key: CORS_ORIGIN_REGEX # Vercel preview deployments, e.g. ^https://nm7-[a-z0-9-]+-<team-slug>\.vercel\.app$
-        sync: false
+        value: https://nm7-omega.vercel.app
+      - key: CORS_ORIGIN_REGEX # Vercel preview deployments of project nm7, team nm-8
+        value: ^https://nm7-[a-z0-9-]+-nm-8\.vercel\.app$
       - key: COOKIE_SAMESITE # site (vercel.app) and API (onrender.com) are different sites while testing
         value: none
+      - key: ADMIN_SETUP_TOKEN # one-time owner setup at /admin/setup; delete after use (it stops working anyway)
+        sync: false
       - key: EMAIL_FROM
         value: noreply@nm7.si
       - key: ZEPTOMAIL_TOKEN

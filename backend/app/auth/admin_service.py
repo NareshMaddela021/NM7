@@ -19,6 +19,10 @@ RECOVERY_COUNT = 10
 _ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"  # no 0/O/1/I
 
 
+def recovery_hash(user: User, code: str) -> str:
+    return _recovery_hash(user, _norm(code))
+
+
 def _recovery_hash(user: User, code: str) -> str:
     return keyed_hash("recovery", str(user.id), code)
 

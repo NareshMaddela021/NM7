@@ -75,5 +75,8 @@ Point `api.nm7.si` at the service with a CNAME record.
 preview deployments (tie it to your own project and team slug — never all of `*.vercel.app`).
 With `ZEPTOMAIL_TOKEN` and `RAZORPAY_*` empty the API still runs: emails are skipped (logged, without codes) and
 ordering answers `payments_unavailable`.
-The free web service has no Shell: create the first admin from your computer with the database's
-**External Database URL**: `DATABASE_URL=<external url> uv run python -m app.cli create-admin …`.
+The free web service has no Shell. Create the first owner on the website instead:
+set `ADMIN_SETUP_TOKEN` (24+ random characters) on the API, open `/admin/setup` on the site, enter the token and the
+owner's details, scan the QR code, save the recovery codes and confirm a 6-digit code. Setup closes for good once an
+admin exists (404); then delete `ADMIN_SETUP_TOKEN`. Alternatively run `create-admin` from your computer with the
+database's External Database URL: `DATABASE_URL=<external url> uv run python -m app.cli create-admin …`.
