@@ -8,5 +8,7 @@ describe('page titles', () => {
     expect(metaFor('/privacy')).toMatchObject({ title: 'Privacy policy', noindex: false });
     expect(metaFor('/me/orders')).toMatchObject({ title: 'My orders', noindex: true });
     expect(metaFor('/nope')).toMatchObject({ title: 'Page not found', noindex: true });
+    expect(metaFor('/expert-terms')).toMatchObject({ title: 'Expert terms', noindex: false });
+    expect(metaFor('/expert/orders')).toMatchObject({ title: 'Expert workspace', noindex: true });
   });
 });

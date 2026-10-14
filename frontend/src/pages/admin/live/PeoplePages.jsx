@@ -269,7 +269,7 @@ export function LiveReports() {
             <Kpi label="Money in" value={rupees(r.moneyIn)} />
             <Kpi label="Refunded" value={rupees(r.refunded)} />
             <Kpi label="Paid orders" value={r.daily.reduce((t, x) => t + x.orders, 0)} sub={Object.entries(r.byPlan).map(([k, n]) => `${PLANS[k]?.name || k}: ${n}`).join(' · ') || 'none'} />
-            <Kpi label="New customers" value={r.newCustomers} />
+            <Kpi label="Sign-ups" value={r.newCustomers} sub="new customer accounts in this period, incl. email not confirmed yet" />
           </div>
           {r.daily.length ? (
             <section className="card"><BarChart title="Revenue per day" data={r.daily.map((x) => ({ label: x.date.slice(5), revenue: x.revenue / 100 }))} series={[{ key: 'revenue', label: 'Revenue (₹)', color: 'var(--viz-1)' }]} fmt={(v) => `₹${Math.round(v).toLocaleString('en-IN')}`} height={180} /></section>

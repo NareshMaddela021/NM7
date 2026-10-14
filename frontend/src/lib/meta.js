@@ -26,7 +26,7 @@ export const ROUTE_META = [
   [/^\/me\/settings/, 'Profile & settings', 'Your profile, notifications, password and privacy.'],
   [/^\/me\/help/, 'Help & referral', 'Questions, support and your referral link.'],
   [/^\/me/, 'My dashboard', 'Your resumes, orders and applications in one place.'],
-  [/^\/expert/, 'Expert workspace', 'Nm7 expert workspace.'],
+  [/^\/expert(\/|$)/, 'Expert workspace', 'Nm7 expert workspace.'],
   [/^\/orders\/[^/]+\/intake/, 'Tell your expert about your goals', 'Four quick questions for your resume expert.'],
   [/^\/orders\/[^/]+\/refund/, 'Ask for a refund', 'Refund request for your order.'],
   [/^\/orders\/[^/]+\/review/, 'Review your draft', 'Review the draft from your resume expert.'],
@@ -39,7 +39,8 @@ export const ROUTE_META = [
   [/^\/contact/, 'Contact us', 'How to reach Nm7.'],
 ];
 
-const PRIVATE = /^\/(me|admin|expert|orders|checkout|login|signup|forgot-password|r\/)/;
+// whole path segments only: /expert-terms is a public page, /expert/orders is not
+const PRIVATE = /^\/(me|admin|expert|orders|checkout|login|signup|forgot-password|r)(\/|$)/;
 
 function setMeta(name, content) {
   let el = document.head.querySelector(`meta[name="${name}"]`);
