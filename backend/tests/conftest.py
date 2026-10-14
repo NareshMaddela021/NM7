@@ -5,6 +5,9 @@ os.environ["APP_ENV"] = "test"
 os.environ["DATABASE_URL"] = os.environ.get("TEST_DATABASE_URL", "postgresql+asyncpg://nm7:nm7@localhost:5432/nm7_test")
 os.environ["CORS_ORIGINS"] = "http://localhost:5173"
 os.environ["SECRET_KEY"] = "test-secret"
+os.environ["RAZORPAY_KEY_ID"] = "rzp_test_key"
+os.environ["RAZORPAY_KEY_SECRET"] = "rzp_test_secret"
+os.environ["RAZORPAY_WEBHOOK_SECRET"] = "whsec_test"
 
 import re  # noqa: E402
 from pathlib import Path  # noqa: E402
@@ -40,6 +43,7 @@ async def clean_tables():
     names = ", ".join(t.name for t in Base.metadata.sorted_tables)
     async with get_sessionmaker()() as s:
         await s.execute(text(f"TRUNCATE {names} RESTART IDENTITY CASCADE"))
+        await s.execute(text("ALTER SEQUENCE order_no_seq RESTART"))
         await s.commit()
 
 
@@ -110,3 +114,110 @@ async def signup(client, outbox, email="sai@example.com", role="customer", name=
         r = await client.post("/api/auth/verify-email", json={"email": email, "code": outbox.last_code(email)})
         assert r.status_code == 200, r.text
     return r.json()
+
+
+# ---------- Razorpay (mocked) ----------
+
+import hashlib  # noqa: E402
+import hmac  # noqa: E402
+import itertools  # noqa: E402
+import json  # noqa: E402
+
+import httpx  # noqa: E402
+import respx  # noqa: E402
+
+from app.payments.razorpay import BASE_URL  # noqa: E402
+
+
+class FakeRazorpay:
+    def __init__(self, router: respx.MockRouter):
+        self.router = router
+        self._ids = itertools.count(1)
+        self.orders = router.post(f"{BASE_URL}/orders").mock(side_effect=self._create_order)
+        self.refunds = router.post(url__regex=rf"{BASE_URL}/payments/(?P<pid>[^/]+)/refund").mock(
+            side_effect=self._refund
+        )
+
+    def _create_order(self, request):
+        body = json.loads(request.content)
+        return httpx.Response(
+            200,
+            json={
+                "id": f"order_T{next(self._ids):04d}",
+                "entity": "order",
+                "amount": body["amount"],
+                "currency": body["currency"],
+                "receipt": body["receipt"],
+                "status": "created",
+            },
+        )
+
+    def _refund(self, request, pid):
+        body = json.loads(request.content)
+        return httpx.Response(
+            200,
+            json={
+                "id": f"rfnd_T{next(self._ids):04d}",
+                "entity": "refund",
+                "payment_id": pid,
+                "amount": body["amount"],
+                "status": "pending",
+            },
+        )
+
+    def last_json(self, route):
+        return json.loads(route.calls.last.request.content)
+
+
+@pytest.fixture
+def razorpay():
+    with respx.mock(assert_all_called=False) as router:
+        yield FakeRazorpay(router)
+
+
+def checkout_signature(order_id: str, payment_id: str) -> str:
+    msg = f"{order_id}|{payment_id}".encode()
+    return hmac.new(os.environ["RAZORPAY_KEY_SECRET"].encode(), msg, hashlib.sha256).hexdigest()
+
+
+async def send_webhook(client, event: dict, event_id: str | None = None, secret: str | None = None):
+    body = json.dumps(event).encode()
+    sig = hmac.new((secret or os.environ["RAZORPAY_WEBHOOK_SECRET"]).encode(), body, hashlib.sha256).hexdigest()
+    headers = {"X-Razorpay-Signature": sig, "Content-Type": "application/json", "Origin": ""}
+    if event_id:
+        headers["X-Razorpay-Event-Id"] = event_id
+    return await client.post("/api/payments/webhook", content=body, headers=headers)
+
+
+def payment_event(kind: str, razorpay_order_id: str, payment_id: str, amount: int, method: str = "upi", **extra):
+    entity = {
+        "id": payment_id,
+        "entity": "payment",
+        "order_id": razorpay_order_id,
+        "amount": amount,
+        "currency": "INR",
+        "method": method,
+        "status": "captured" if kind != "payment.failed" else "failed",
+        **extra,
+    }
+    return {"entity": "event", "event": kind, "payload": {"payment": {"entity": entity}}}
+
+
+async def buy(client, plan="expert", role="Data Analyst", addons=None, pay=True):
+    """Creates an order and (optionally) completes checkout. Returns (create_response_json, order_json)."""
+    r = await client.post("/api/orders", json={"planId": plan, "role": role, "addons": addons or []})
+    assert r.status_code == 201, r.text
+    created = r.json()
+    if not pay:
+        return created, None
+    pid = f"pay_{created['orderId'].replace('-', '')}"
+    r = await client.post(
+        "/api/payments/verify",
+        json={
+            "razorpay_order_id": created["razorpayOrderId"],
+            "razorpay_payment_id": pid,
+            "razorpay_signature": checkout_signature(created["razorpayOrderId"], pid),
+        },
+    )
+    assert r.status_code == 200, r.text
+    return created, r.json()

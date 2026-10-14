@@ -1,8 +1,6 @@
 """Sign-up, email verification, login, logout and password reset for customers and experts."""
 
-from typing import Annotated
-
-from fastapi import APIRouter, Depends, Request, Response
+from fastapi import APIRouter, Request, Response
 from sqlalchemy.exc import IntegrityError
 
 from app.auth import emails
@@ -24,13 +22,12 @@ from app.auth.service import (
 from app.auth.sessions import SESSION_COOKIE, clear_cookie, client_ip, revoke_all, start_session
 from app.core import rate_limit
 from app.core.db import DB
-from app.core.email import Mailer, get_mailer, send_safely
+from app.core.email import MailerDep, send_safely
 from app.core.errors import ApiError
 from app.core.security import hash_password, needs_rehash, verify_password
 from app.core.time import now
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
-MailerDep = Annotated[Mailer, Depends(get_mailer)]
 
 EMAIL_TAKEN = ApiError(409, "email_taken", "An account with this email already exists — sign in instead.")
 

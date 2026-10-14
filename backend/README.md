@@ -47,6 +47,21 @@ python -m app.cli reset-admin-2fa --email admin@nm7.si    # lost phone: new auth
 
 `create-admin` prints an `otpauth://` link (scan as a QR code or type the key) and 10 one-time recovery codes.
 
+## Razorpay (when the keys arrive)
+
+1. Razorpay Dashboard → Account & Settings → API keys: put the key id and secret in `RAZORPAY_KEY_ID` /
+   `RAZORPAY_KEY_SECRET` (test keys `rzp_test_…` first, live keys later).
+2. Payment capture: **automatic**.
+3. Webhooks → add `https://api.nm7.si/api/payments/webhook` with a secret (→ `RAZORPAY_WEBHOOK_SECRET`) and the events
+   `payment.captured`, `payment.failed`, `order.paid`, `refund.processed`, `refund.failed`.
+
+Until the keys are set, ordering answers `503 payments_unavailable`. Tests never call Razorpay (replies are mocked).
+Prices live in `app/orders/pricing.py` and must match `frontend/src/lib/pricing.js`.
+
+## Scheduled job
+
+Run `python -m app.cli expire-orders` every hour (Render Cron Job) so orders left unpaid for 24 hours show as expired.
+
 ## Deploy (Render, Singapore)
 
 `render.yaml` is a Render Blueprint for the API web service and its Postgres database.

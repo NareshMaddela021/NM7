@@ -3,6 +3,7 @@
     python -m app.cli create-admin --email admin@nm7.si --name "Naresh" --role owner
     python -m app.cli reset-admin-password --email admin@nm7.si
     python -m app.cli reset-admin-2fa --email admin@nm7.si
+    python -m app.cli expire-orders        # unpaid orders older than 24 h → expired (run hourly as a cron job)
 
 Passwords are asked for on the terminal (or read from NM7_ADMIN_PASSWORD for scripts).
 """
@@ -19,6 +20,7 @@ from app.auth.service import find_user
 from app.auth.sessions import revoke_all
 from app.core.db import dispose_engine, get_sessionmaker
 from app.core.security import hash_password, password_issue
+from app.orders.service import expire_unpaid
 
 
 def _password() -> str:
@@ -55,6 +57,7 @@ async def run(argv: list[str]) -> None:
     c.add_argument("--role", default="owner", help="owner / ops / finance / support / quality")
     for name in ("reset-admin-password", "reset-admin-2fa"):
         sub.add_parser(name).add_argument("--email", required=True)
+    sub.add_parser("expire-orders", help="mark orders unpaid for 24 hours as expired")
     args = p.parse_args(argv)
 
     try:
@@ -68,6 +71,10 @@ async def run(argv: list[str]) -> None:
                 await db.commit()
                 print(f"Admin {user.email} ({args.role}) created.")
                 _print_two_step(user, secret, codes)
+            elif args.cmd == "expire-orders":
+                n = await expire_unpaid(db)
+                await db.commit()
+                print(f"{n} unpaid order(s) marked expired.")
             elif args.cmd == "reset-admin-password":
                 user = await _admin(db, args.email)
                 pw = _password()

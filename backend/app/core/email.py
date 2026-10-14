@@ -2,9 +2,10 @@
 
 import logging
 from dataclasses import dataclass
-from typing import Protocol
+from typing import Annotated, Protocol
 
 import httpx
+from fastapi import Depends
 
 from app.core.config import get_settings
 
@@ -71,3 +72,6 @@ async def send_safely(mailer: Mailer, msg: Email) -> bool:
     except Exception:
         log.exception("Could not send email %r to %s", msg.subject, msg.to)
         return False
+
+
+MailerDep = Annotated[Mailer, Depends(get_mailer)]

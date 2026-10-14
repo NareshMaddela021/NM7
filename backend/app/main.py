@@ -15,6 +15,8 @@ from app.auth.sessions import SESSION_COOKIE
 from app.core import errors
 from app.core.config import get_settings
 from app.core.db import DB, dispose_engine
+from app.orders.router import router as orders_router
+from app.payments.router import router as payments_router
 
 
 @asynccontextmanager
@@ -65,6 +67,8 @@ def create_app() -> FastAPI:
     app.include_router(auth_router)
     app.include_router(admin_auth_router)
     app.include_router(admin_router)
+    app.include_router(orders_router)
+    app.include_router(payments_router)
     return app
 
 
