@@ -1,0 +1,236 @@
+"""Customer dashboard API: owner-only data, share links, tickets, referrals, profile and password change."""
+
+import pytest
+
+from app.core.db import SESSIONS, SHARES
+from tests.conftest import PASSWORD, signup
+
+RESUME = {"personal": {"name": "Sai Varsha", "phone": "+91 98765 43210", "email": "sai@example.com"}, "summary": "Hi"}
+
+
+def err(r):
+    return r.json()["error"]["code"]
+
+
+async def two_customers(client, outbox, make_client):
+    await signup(client, outbox, "a@example.com", name="Asha Rao")
+    b = make_client()
+    await signup(b, outbox, "b@example.com", name="Bala K")
+    return client, b
+
+
+async def add_resume(c, key="r1", **extra):
+    r = await c.post("/api/me/resumes", json={"id": key, "name": "Main", "data": RESUME, **extra})
+    assert r.status_code == 201, r.text
+    return r.json()
+
+
+async def test_needs_a_signed_in_customer(client, outbox, make_client):
+    assert (await client.get("/api/me/state")).status_code == 401
+    expert = make_client()
+    await signup(expert, outbox, "ex@example.com", role="expert", name="Ravi")
+    r = await expert.get("/api/me/state")
+    assert r.status_code == 403 and err(r) == "wrong_role"
+    assert (await expert.post("/api/me/tickets", json={"topic": "x", "text": "y"})).status_code == 403
+
+
+async def test_state_starts_empty_with_profile(client, outbox):
+    await signup(client, outbox, name="Asha Rao")
+    s = (await client.get("/api/me/state")).json()
+    assert s["profile"]["name"] == "Asha Rao" and s["profile"]["email"] == "sai@example.com"
+    assert s["resumes"] == [] and s["apps"] == [] and s["covers"] == [] and s["tickets"] == []
+    assert s["share"]["on"] is False and s["share"]["slug"] == "asha-rao"
+    assert s["referral"]["code"].startswith("ASHA") and s["referral"]["referrals"] == []
+
+
+async def test_resumes_crud_and_active(client, outbox):
+    await signup(client, outbox)
+    first = await add_resume(client, "r1")
+    assert first["active"] is True  # the first one is the builder's draft
+    second = await add_resume(client, "r2")
+    assert second["active"] is False
+    assert (await client.post("/api/me/resumes", json={"id": "r2", "name": "x", "data": {}})).status_code == 409
+
+    r = await client.patch("/api/me/resumes/r2", json={"active": True, "data": {"summary": "new"}, "name": "Two"})
+    assert r.status_code == 200 and r.json()["active"] and r.json()["data"] == {"summary": "new"}
+    rs = (await client.get("/api/me/resumes")).json()
+    assert [x["active"] for x in rs] == [False, True]
+
+    assert (await client.delete("/api/me/resumes/r2")).status_code == 204
+    rs = (await client.get("/api/me/resumes")).json()
+    assert [(x["id"], x["active"]) for x in rs] == [("r1", True)]
+    r = await client.delete("/api/me/resumes/r1")
+    assert r.status_code == 400 and err(r) == "last_resume"
+
+
+async def test_resume_limits(client, outbox):
+    await signup(client, outbox)
+    big = {"x": "a" * 210_000}
+    assert (await client.post("/api/me/resumes", json={"id": "r1", "name": "x", "data": big})).status_code == 422
+    assert (await client.post("/api/me/resumes", json={"id": "bad id!", "name": "x", "data": {}})).status_code == 422
+    versions = [{"at": 1, "label": "v", "data": {}}] * 21
+    r = await client.post("/api/me/resumes", json={"id": "r1", "name": "x", "data": {}, "versions": versions})
+    assert r.status_code == 422
+
+
+async def test_other_customers_cannot_see_or_change_items(client, outbox, make_client):
+    a, b = await two_customers(client, outbox, make_client)
+    await add_resume(a, "r1")
+    assert (
+        await a.post("/api/me/cover-letters", json={"id": "c1", "company": "Zoho", "body": "Dear"})
+    ).status_code == 201
+    assert (await a.post("/api/me/applications", json={"id": "a1", "company": "Zoho"})).status_code == 201
+    assert (await a.post("/api/me/tickets", json={"topic": "Payment", "text": "Help"})).status_code == 201
+
+    for path in ("/api/me/resumes/r1", "/api/me/cover-letters/c1", "/api/me/applications/a1"):
+        if path.startswith("/api/me/resumes"):
+            assert (await b.get(path)).status_code == 404
+        assert (await b.patch(path, json={"company": "Hacked", "name": "Hacked"})).status_code == 404
+        assert (await b.delete(path)).status_code == 404
+    # B can't publish A's resume through the share link either
+    r = await b.put("/api/me/share", json={"on": True, "slug": "bala-k", "resumeId": "r1"})
+    assert r.status_code == 404
+
+    s = (await b.get("/api/me/state")).json()
+    assert s["resumes"] == [] and s["covers"] == [] and s["apps"] == [] and s["tickets"] == []
+    assert (await b.get("/api/me/tickets")).json() == []
+    # B using the same browser ids makes B's own items; A's are untouched
+    await add_resume(b, "r1")
+    a_resume = (await a.get("/api/me/resumes/r1")).json()
+    assert a_resume["data"] == RESUME
+    a_state = (await a.get("/api/me/state")).json()
+    assert a_state["covers"][0]["company"] == "Zoho" and a_state["apps"][0]["company"] == "Zoho"
+
+
+async def test_cover_letters_and_applications(client, outbox):
+    await signup(client, outbox)
+    r = await client.post("/api/me/cover-letters", json={"id": "c1", "company": "Zoho", "role": "Analyst"})
+    assert r.status_code == 201 and r.json()["at"] > 0
+    r = await client.patch("/api/me/cover-letters/c1", json={"body": "Dear team"})
+    assert r.json()["body"] == "Dear team" and r.json()["company"] == "Zoho"
+    assert (await client.delete("/api/me/cover-letters/c1")).status_code == 204
+    assert (await client.delete("/api/me/cover-letters/c1")).status_code == 404
+
+    app = {"id": "a1", "company": "Swiggy", "role": "BA", "status": "applied", "date": 1_700_000_000_000}
+    assert (await client.post("/api/me/applications", json=app)).status_code == 201
+    r = await client.patch("/api/me/applications/a1", json={"status": "interview", "notes": "HR round"})
+    assert r.json()["status"] == "interview" and r.json()["date"] == 1_700_000_000_000
+    assert (await client.patch("/api/me/applications/a1", json={"status": "hired"})).status_code == 422
+
+
+async def test_profile_save_keeps_email(client, outbox):
+    await signup(client, outbox)
+    body = {
+        "name": " Sai  V ",
+        "phone": "98765 43210",
+        "targetRole": "Data Analyst",
+        "email": "evil@example.com",
+        "notify": {"email": {"order": True, "tips": False}},
+        "ui": {"calls": {"picked": "mon"}},
+    }
+    r = await client.patch("/api/me/profile", json=body)
+    assert r.status_code == 200, r.text
+    p = r.json()
+    assert p["name"] == "Sai V" and p["email"] == "sai@example.com" and p["targetRole"] == "Data Analyst"
+    assert p["phone"] == "+91 98765 43210" and p["notify"]["email"]["order"] is True
+    assert (await client.get("/api/auth/me")).json()["email"] == "sai@example.com"
+    assert (await client.patch("/api/me/profile", json={"notify": {"pigeon": {"order": True}}})).status_code == 422
+
+
+async def test_share_link_public_view_and_counts(client, outbox, make_client, db):
+    await signup(client, outbox, name="Asha Rao")
+    await add_resume(client, "r1")
+    viewer = make_client()
+    assert (await viewer.get("/api/public/resumes/asha-rao")).status_code == 404  # not published yet
+
+    r = await client.put("/api/me/share", json={"on": True, "slug": "asha-rao", "resumeId": "r1", "hidePhone": True})
+    assert r.status_code == 200 and r.json()["on"]
+    r = await viewer.get("/api/public/resumes/asha-rao")
+    assert r.status_code == 200
+    assert r.json()["data"]["personal"]["phone"] == "" and r.json()["data"]["summary"] == "Hi"
+    await viewer.get("/api/public/resumes/asha-rao")  # same visitor within the hour: counted once
+    await client.get("/api/public/resumes/asha-rao")  # the owner looking: not counted
+    share = (await client.get("/api/me/share")).json()
+    assert share["viewCount"] == 1 and len(share["views"]) == 1
+
+    await client.put("/api/me/share", json={"on": True, "slug": "asha-rao", "resumeId": "r1", "hidePhone": False})
+    assert (await viewer.get("/api/public/resumes/asha-rao")).json()["data"]["personal"]["phone"].startswith("+91")
+
+    other = make_client()
+    await signup(other, outbox, "b@example.com", name="Bala")
+    r = await other.put("/api/me/share", json={"on": True, "slug": "asha-rao"})
+    assert r.status_code == 409 and err(r) == "slug_taken"
+    assert (await other.put("/api/me/share", json={"on": True, "slug": "Bad Slug"})).status_code == 422
+
+    await client.put("/api/me/share", json={"on": False, "slug": "asha-rao", "resumeId": "r1"})
+    assert (await viewer.get("/api/public/resumes/asha-rao")).status_code == 404
+    assert (await db[SHARES].find_one({"slug": "asha-rao"}))["view_count"] == 1
+
+
+async def test_ticket_is_stored_and_emailed_to_support(client, outbox):
+    await signup(client, outbox, name="Asha Rao")
+    r = await client.post("/api/me/tickets", json={"topic": "Payment", "orderId": "RS-1001", "text": "Charged twice"})
+    assert r.status_code == 201
+    t = r.json()
+    assert t["id"].startswith("T-") and t["status"] == "open" and t["emailed"] is True
+    mail = outbox.sent[-1]
+    assert mail.to == "info@nm7.si" and mail.reply_to == "sai@example.com"
+    assert "Charged twice" in mail.text and t["id"] in mail.subject
+    assert [x["id"] for x in (await client.get("/api/me/tickets")).json()] == [t["id"]]
+
+
+async def test_ticket_rate_limit(client, outbox):
+    await signup(client, outbox)
+    for _ in range(5):
+        assert (await client.post("/api/me/tickets", json={"topic": "x", "text": "y"})).status_code == 201
+    assert (await client.post("/api/me/tickets", json={"topic": "x", "text": "y"})).status_code == 429
+
+
+async def test_referral_signup(client, outbox, make_client):
+    await signup(client, outbox, name="Asha Rao")
+    code = (await client.get("/api/me/referral")).json()["code"]
+    friend = make_client()
+    await signup(friend, outbox, "f@example.com", name="Kiran Kumar", ref=code.lower())
+    refs = (await client.get("/api/me/referral")).json()["referrals"]
+    assert refs == [{"name": "Kiran", "at": refs[0]["at"], "status": "joined"}]
+
+
+async def test_ats_checks_are_kept(client, outbox):
+    await signup(client, outbox)
+    for score in (40, 62):
+        assert (await client.post("/api/me/ats-checks", json={"score": score, "resumeId": "r1"})).status_code == 201
+    assert [c["score"] for c in (await client.get("/api/me/state")).json()["checks"]] == [40, 62]
+    assert (await client.post("/api/me/ats-checks", json={"score": 101})).status_code == 422
+
+
+@pytest.mark.parametrize("wrong", [True, False])
+async def test_change_password_signs_out_other_browsers(client, outbox, make_client, db, wrong):
+    await signup(client, outbox)
+    other = make_client()
+    assert (
+        await other.post("/api/auth/login", json={"email": "sai@example.com", "password": PASSWORD})
+    ).status_code == 200
+    new = "Brand-new#Pass9"
+    if wrong:
+        r = await client.post(
+            "/api/auth/password/change", json={"currentPassword": "nope", "password": new, "passwordConfirm": new}
+        )
+        assert r.status_code == 400 and err(r) == "wrong_password"
+        assert (await other.get("/api/auth/me")).status_code == 200
+        return
+    r = await client.post(
+        "/api/auth/password/change", json={"currentPassword": PASSWORD, "password": new, "passwordConfirm": new + "x"}
+    )
+    assert r.status_code == 400
+    r = await client.post(
+        "/api/auth/password/change", json={"currentPassword": PASSWORD, "password": new, "passwordConfirm": new}
+    )
+    assert r.status_code == 200, r.text
+    assert (await client.get("/api/auth/me")).status_code == 200  # this browser stays signed in
+    assert (await other.get("/api/auth/me")).status_code == 401  # the other one is signed out
+    assert await db[SESSIONS].count_documents({"revoked_at": None}) == 1
+    fresh = make_client()
+    assert (
+        await fresh.post("/api/auth/login", json={"email": "sai@example.com", "password": PASSWORD})
+    ).status_code == 401
+    assert (await fresh.post("/api/auth/login", json={"email": "sai@example.com", "password": new})).status_code == 200

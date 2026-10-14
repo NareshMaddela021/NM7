@@ -35,6 +35,13 @@ ORDERS = "orders"
 PAYMENTS = "payments"
 WEBHOOK_EVENTS = "webhook_events"
 REFUNDS = "refunds"
+# Customer dashboard (one owner each: user_id)
+RESUMES = "resumes"
+COVER_LETTERS = "cover_letters"
+APPLICATIONS = "applications"
+ATS_CHECKS = "ats_checks"
+SHARES = "shares"
+TICKETS = "tickets"
 COLLECTIONS = (
     USERS,
     EMAIL_CODES,
@@ -50,6 +57,12 @@ COLLECTIONS = (
     PAYMENTS,
     WEBHOOK_EVENTS,
     REFUNDS,
+    RESUMES,
+    COVER_LETTERS,
+    APPLICATIONS,
+    ATS_CHECKS,
+    SHARES,
+    TICKETS,
 )
 
 DAY = 86_400
@@ -74,7 +87,12 @@ def _str(field: str) -> dict:
 
 
 INDEXES: dict[str, list[IndexModel]] = {
-    USERS: [IndexModel("email_lc", unique=True), IndexModel("role")],
+    USERS: [
+        IndexModel("email_lc", unique=True),
+        IndexModel("role"),
+        IndexModel("referral_code", unique=True, partialFilterExpression=_str("referral_code")),
+        IndexModel("referred_by"),
+    ],
     EMAIL_CODES: [
         IndexModel([("user_id", ASCENDING), ("purpose", ASCENDING), ("used_at", ASCENDING)]),
         IndexModel("expires_at", expireAfterSeconds=DAY),  # cleaned up a day after expiry
@@ -110,6 +128,16 @@ INDEXES: dict[str, list[IndexModel]] = {
         # At most one open refund (review / approved / processed) per order.
         IndexModel("order_id", name="one_open_refund_per_order", unique=True, partialFilterExpression={"open": True}),
         IndexModel("razorpay_refund_id", unique=True, partialFilterExpression=_str("razorpay_refund_id")),
+        IndexModel([("status", ASCENDING), ("created_at", DESCENDING)]),
+    ],
+    # Each item has a per-owner `key` (the id the browser uses); every lookup includes user_id.
+    RESUMES: [IndexModel([("user_id", ASCENDING), ("key", ASCENDING)], unique=True)],
+    COVER_LETTERS: [IndexModel([("user_id", ASCENDING), ("key", ASCENDING)], unique=True)],
+    APPLICATIONS: [IndexModel([("user_id", ASCENDING), ("key", ASCENDING)], unique=True)],
+    ATS_CHECKS: [IndexModel([("user_id", ASCENDING), ("at", DESCENDING)])],
+    SHARES: [IndexModel("slug", unique=True)],  # _id is the owner's user id
+    TICKETS: [
+        IndexModel([("user_id", ASCENDING), ("created_at", DESCENDING)]),
         IndexModel([("status", ASCENDING), ("created_at", DESCENDING)]),
     ],
 }

@@ -15,6 +15,13 @@ class SignupIn(CamelModel):
     password: str = Field(max_length=200)
     password_confirm: str = Field(max_length=200)
     terms_accepted: bool = False
+    ref: str | None = Field(default=None, max_length=20)  # a friend's referral code
+
+
+class ChangePasswordIn(CamelModel):
+    current_password: str = Field(max_length=200)
+    password: str = Field(max_length=200)
+    password_confirm: str = Field(max_length=200)
 
 
 class EmailIn(CamelModel):

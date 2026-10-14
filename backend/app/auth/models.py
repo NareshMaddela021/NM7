@@ -2,6 +2,7 @@
 
 import uuid
 from datetime import datetime
+from typing import Any
 
 from pydantic import Field
 
@@ -31,6 +32,15 @@ class User(Doc):
     email_verified_at: datetime | None = None
     terms_accepted_at: datetime | None = None
     disabled_at: datetime | None = None
+    # Customer profile (dashboard settings)
+    target_role: str = ""
+    cities: str = ""
+    level: str = ""
+    notify: dict[str, Any] = Field(default_factory=dict)  # {channel: {topic: bool}}
+    ui: dict[str, Any] = Field(default_factory=dict)  # small per-user screen state: call picks, messages seen
+    referral_code: str | None = None
+    referred_by: str | None = None  # user id of the friend who referred them
+    password_changed_at: datetime | None = None
     created_at: datetime = Field(default_factory=now)
     updated_at: datetime = Field(default_factory=now)
 

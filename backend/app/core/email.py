@@ -22,6 +22,7 @@ class Email:
     subject: str
     text: str
     html: str
+    reply_to: str | None = None  # e.g. the customer, for support tickets sent to our inbox
 
 
 class Mailer(Protocol):
@@ -45,7 +46,7 @@ class ResendMailer:
             "subject": msg.subject,
             "html": msg.html,
             "text": msg.text,
-            **({"reply_to": self.reply_to} if self.reply_to else {}),
+            **({"reply_to": msg.reply_to or self.reply_to} if msg.reply_to or self.reply_to else {}),
         }
         headers = {"Authorization": f"Bearer {self.api_key}", "Accept": "application/json"}
         async with httpx.AsyncClient(timeout=TIMEOUT) as client:
@@ -67,7 +68,7 @@ class ZeptoMailer:
             "subject": msg.subject,
             "textbody": msg.text,
             "htmlbody": msg.html,
-            **({"reply_to": [{"address": self.reply_to}]} if self.reply_to else {}),
+            **({"reply_to": [{"address": msg.reply_to or self.reply_to}]} if msg.reply_to or self.reply_to else {}),
         }
         headers = {"Authorization": f"Zoho-enczapikey {self.token}", "Accept": "application/json"}
         async with httpx.AsyncClient(timeout=TIMEOUT) as client:

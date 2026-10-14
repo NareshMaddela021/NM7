@@ -32,6 +32,8 @@ class Settings(BaseSettings):
     email_provider: Literal["resend", "zeptomail"] = "resend"
     email_from: str = "Nm7 <no-reply@nm7.si>"
     email_reply_to: str = "info@nm7.si"
+    support_inbox: str = "info@nm7.si"  # support tickets are emailed here
+    site_url: str = "https://nm7.si"  # links in emails
     resend_api_key: str = ""
     resend_url: str = "https://api.resend.com/emails"
     zeptomail_token: str = ""
