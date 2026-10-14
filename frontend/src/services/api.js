@@ -1,26 +1,14 @@
 /**
- * API layer — the ONLY file that talks to a backend.
+ * API layer — the ONLY file (with src/lib/auth.js) that talks to the backend.
  *
- * Right now every function returns sample data after a short delay, so the
- * whole frontend works on its own. When the FastAPI backend is ready, replace
- * each function body with the real call shown in its comment. No screen needs
- * to change.
+ * With VITE_API_BASE set, orders, payments (Razorpay) and refunds go to the FastAPI backend.
+ * Without it the app runs in preview mode on sample data. Functions whose backend isn't built yet
+ * (scan, expert, admin queue, …) still return sample data; their comment shows the future endpoint.
  */
 import { SAMPLE_REPORT, MATCHED_JOBS, ADMIN_ORDERS, EXPERTS, EXPERT_ORDERS, EARNINGS } from '../data/mock';
+import { http, LIVE } from './http';
 
-const API_BASE = import.meta.env.VITE_API_BASE || ''; // e.g. https://nm7.onrender.com
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
-
-// eslint-disable-next-line no-unused-vars
-async function http(path, options = {}) {
-  const res = await fetch(API_BASE + path, {
-    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
-    credentials: 'include',
-    ...options,
-  });
-  if (!res.ok) throw new Error((await res.text()) || res.statusText);
-  return res.json();
-}
 
 /* ---------- Scan ---------- */
 // Real: POST /api/resume/scan  (multipart: file, role)  → report
@@ -30,24 +18,57 @@ export async function scanResume({ file, role }) {
 }
 
 /* ---------- Orders & payment ---------- */
-// Real: POST /api/orders { planId, role, addon } → { orderId, razorpayOrderId, amount }
-export async function createOrder({ planId, role, addon }) {
+/** POST /api/orders { planId, role, addons } → { orderId, razorpayOrderId, amount (paise), currency, keyId, … } */
+export async function createOrder({ planId, role, addons = [] }) {
+  if (LIVE) return http('/api/orders', { method: 'POST', body: { planId, role: role || null, addons } });
   await wait(400);
-  return { orderId: 'RS-1051', planId, role, addon, razorpayOrderId: 'order_TEST123' };
+  return { orderId: null, planId, role, razorpayOrderId: 'order_TEST123' };
 }
+
+let checkoutScript = null;
+function loadRazorpay() {
+  if (window.Razorpay) return Promise.resolve();
+  checkoutScript ||= new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    s.onload = resolve;
+    s.onerror = () => { checkoutScript = null; reject(new Error('We couldn’t open the payment window. Check your internet and try again.')); };
+    document.body.appendChild(s);
+  });
+  return checkoutScript;
+}
+const METHOD = { upi: 'UPI', card: 'Card', netbanking: 'Netbanking', wallet: 'Wallet', emi: 'EMI' };
 
 /**
- * Real: load https://checkout.razorpay.com/v1/checkout.js and open
- *   new window.Razorpay({ key: VITE_RAZORPAY_KEY, order_id, amount, handler })
- * then POST /api/payments/verify { razorpay_payment_id, razorpay_order_id, razorpay_signature }
+ * Opens Razorpay's own checkout window (UPI, card, netbanking…) for an order from createOrder(),
+ * then has the server confirm the payment (POST /api/payments/verify).
+ * Resolves with { orderId, method, invoiceNo, paymentId }. Closing the window rejects with code 'dismissed'.
  */
-export async function pay({ orderId, method, upi }) {
-  await wait(1600);
-  return { ok: true, orderId, method, upi };
+export async function pay(order) {
+  if (!LIVE) { await wait(1600); return { orderId: null, method: 'UPI', invoiceNo: null, paymentId: null }; }
+  await loadRazorpay();
+  const result = await new Promise((resolve, reject) => {
+    const rzp = new window.Razorpay({
+      key: order.keyId,
+      order_id: order.razorpayOrderId,
+      amount: order.amount,
+      currency: order.currency,
+      name: order.name || 'Nm7',
+      description: order.description,
+      prefill: { name: order.prefill?.name, email: order.prefill?.email, ...(order.prefill?.contact ? { contact: order.prefill.contact } : {}) },
+      theme: { color: '#111111' },
+      handler: resolve,
+      modal: { ondismiss: () => reject(Object.assign(new Error('You closed the payment window. Nothing was charged.'), { code: 'dismissed' })) },
+    });
+    rzp.open();
+  });
+  const o = await http('/api/payments/verify', { method: 'POST', body: result });
+  return { orderId: o.id, method: METHOD[o.paymentMethod] || 'Razorpay', invoiceNo: o.invoiceNo, paymentId: o.paymentId, order: o };
 }
 
-// Real: GET /api/orders/:id
+// GET /api/orders/:id
 export async function getOrder(id) {
+  if (LIVE) return http(`/api/orders/${encodeURIComponent(id)}`);
   await wait(200);
   return { id, plan: 'Expert rewrite', price: 999, role: 'Data Analyst', paidAt: '[date]', dueInHours: 30, overdue: false };
 }
@@ -58,10 +79,15 @@ export async function submitIntake(id, answers) {
   return { ok: true, id, answers };
 }
 
-// Real: POST /api/orders/:id/refund { reason, details }
-export async function requestRefund(id, { reason }) {
-  await wait(700);
-  return { ok: true, refundId: 'RF-2041', autoApproved: reason === 'late' };
+/**
+ * POST /api/orders/:id/refund { reason, details } — the server decides (late → refunded at once, else reviewed).
+ * Live: resolves with { ref, autoApproved, amount (₹) }. Preview: null (the browser decides, see askRefund).
+ */
+export async function requestRefund(id, { reason, details }) {
+  if (!LIVE) { await wait(700); return null; }
+  const o = await http(`/api/orders/${encodeURIComponent(id)}/refund`, { method: 'POST', body: { reason, details } });
+  const r = o.refunds[o.refunds.length - 1];
+  return { ref: r.id, autoApproved: r.auto, amount: r.amount / 100 };
 }
 
 /* ---------- Builder / profile ---------- */

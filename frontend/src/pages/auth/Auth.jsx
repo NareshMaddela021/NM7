@@ -1,10 +1,10 @@
-// Sign in, sign up (customer or expert, with mobile OTP), forgot password, admin two-step login, and route guards.
+// Sign in, sign up (customer or expert, confirmed with an email code), forgot password, admin two-step login, and route guards.
 import { useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Logo, ThemeToggle } from '../../components/Header';
 import { Spinner, useToast } from '../../components/ui';
 import {
-  useAuth, signIn, sendOtp, signInOtp, signUp, verifyPhone, sendReset, resetPassword, adminPassword, adminVerify, signOut,
+  useAuth, signIn, signUp, verifyEmail, resendCode, sendReset, resetPassword, adminPassword, adminVerify, signOut,
   homeFor, passwordIssue, EMAIL_RE, PHONE_RE, DEMO_CODE, SAMPLE_PASSWORD,
 } from '../../lib/auth';
 import SiteFooter from '../../components/SiteFooter';
@@ -41,50 +41,68 @@ function CodeInput({ value, onChange, id = 'otp', label = '6-digit code' }) {
   return <Field id={id} label={label} inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={value} onChange={(e) => onChange(e.target.value.replace(/\D/g, '').slice(0, 6))} style={{ height: 46, letterSpacing: '0.3em', fontFamily: 'var(--font-mono)' }} />;
 }
 
+/* ---------- confirm email with the 6-digit code ---------- */
+function VerifyEmail({ email, note, onDone, onBack }) {
+  const [code, setCode] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  const [info, setInfo] = useState('');
+  const run = async (fn) => { setBusy(true); setErr(''); setInfo(''); try { await fn(); } catch (x) { setErr(x.message); } finally { setBusy(false); } };
+  return (
+    <Shell title="Confirm your email" sub={note || `We sent a 6-digit code to ${email}. It works for 10 minutes.`}>
+      <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); run(async () => onDone(await verifyEmail(email, code))); }}>
+        <CodeInput value={code} onChange={setCode} />
+        {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
+        {info && <p role="status" className="help" style={{ margin: 0 }}>{info}</p>}
+        <button type="submit" className="btn btn-ink btn-lg" disabled={busy || code.length !== 6}>{busy && <Spinner />}Confirm & continue</button>
+        <span className="row g12 small">
+          <button type="button" className="link-btn small" disabled={busy} onClick={() => run(async () => { await resendCode(email); setInfo('A new code is on its way. Check your spam folder too.'); })}>Send the code again</button>
+          {onBack && <button type="button" className="link-btn small" onClick={onBack}>Use a different email</button>}
+        </span>
+      </form>
+      <Demo>the code is <code>{DEMO_CODE}</code>.</Demo>
+    </Shell>
+  );
+}
+
 /* ---------- sign in ---------- */
 export function Login() {
   const nav = useNavigate();
   const [params] = useSearchParams();
   const next = safeNext(params.get('next'));
   const { user } = useAuth();
-  const [tab, setTab] = useState('email');
-  const [f, setF] = useState({ email: '', password: '', phone: '', code: '' });
-  const [sent, setSent] = useState(null);
+  const [f, setF] = useState({ email: '', password: '' });
+  const [verify, setVerify] = useState(null); // { email, note } when the account still needs its email code
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   const [show, setShow] = useState(false);
-  if (user && user.role !== 'admin') return <Navigate to={next || homeFor(user)} replace />;
   const go = (u) => nav(next && !(u.role === 'expert' && next.startsWith('/me')) && !(u.role === 'customer' && next.startsWith('/expert')) ? next : homeFor(u), { replace: true });
-  const run = async (fn) => { setBusy(true); setErr(''); try { await fn(); } catch (e) { setErr(e.message); } finally { setBusy(false); } };
+  if (verify) return <VerifyEmail email={verify.email} note={verify.note} onDone={go} onBack={() => setVerify(null)} />;
+  if (user && user.role !== 'admin') return <Navigate to={next || homeFor(user)} replace />;
+  const submit = async () => {
+    setBusy(true); setErr('');
+    try { go(await signIn(f.email, f.password)); } catch (e) {
+      if (e.code === 'email_not_verified') setVerify({ email: f.email.trim(), note: `${e.message} It went to ${f.email.trim()}.` });
+      else setErr(e.message);
+    } finally { setBusy(false); }
+  };
   const fill = (email) => setF({ ...f, email, password: SAMPLE_PASSWORD });
   return (
     <Shell title="Sign in" sub="Track your orders, edit your resumes and chat with your expert.">
-      <div className="segmented" role="tablist" aria-label="Sign in with" style={{ alignSelf: 'flex-start' }}>
-        {[['email', 'Email & password'], ['otp', 'Mobile OTP']].map(([k, l]) => <button key={k} type="button" role="tab" aria-selected={tab === k} onClick={() => { setTab(k); setErr(''); }}>{l}</button>)}
-      </div>
-      {tab === 'email' ? (
-        <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); run(async () => go(await signIn(f.email, f.password))); }}>
-          <Field id="li-e" label="Email" type="email" autoComplete="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
-          <div className="stack g4">
-            <Field id="li-p" label="Password" type={show ? 'text' : 'password'} autoComplete="current-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />
-            <span className="row between"><label className="row g4 xs"><input type="checkbox" checked={show} onChange={(e) => setShow(e.target.checked)} />Show password</label><Link to="/forgot-password" className="xs">Forgot password?</Link></span>
-          </div>
-          {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
-          <button type="submit" className="btn btn-ink btn-lg" disabled={busy || !f.email || !f.password}>{busy && <Spinner />}Sign in</button>
-        </form>
-      ) : (
-        <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); run(async () => { if (!sent) { const r = await sendOtp(f.phone); setSent(r.sentTo); } else go(await signInOtp(f.phone, f.code)); }); }}>
-          <Field id="li-ph" label="Mobile number" type="tel" inputMode="tel" autoComplete="tel" placeholder="98765 43210" value={f.phone} disabled={!!sent} onChange={(e) => setF({ ...f, phone: e.target.value })} />
-          {sent && <><span className="small muted">We sent a code to {sent} by SMS and WhatsApp. <button type="button" className="link-btn small" onClick={() => { setSent(null); setF({ ...f, code: '' }); }}>Change number</button></span><CodeInput value={f.code} onChange={(code) => setF({ ...f, code })} /></>}
-          {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
-          <button type="submit" className="btn btn-ink btn-lg" disabled={busy || (!sent ? !PHONE_RE.test(f.phone.trim()) : f.code.length !== 6)}>{busy && <Spinner />}{sent ? 'Verify & sign in' : 'Send code'}</button>
-        </form>
-      )}
+      <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); submit(); }}>
+        <Field id="li-e" label="Email" type="email" autoComplete="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
+        <div className="stack g4">
+          <Field id="li-p" label="Password" type={show ? 'text' : 'password'} autoComplete="current-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />
+          <span className="row between"><label className="row g4 xs"><input type="checkbox" checked={show} onChange={(e) => setShow(e.target.checked)} />Show password</label><Link to="/forgot-password" className="xs">Forgot password?</Link></span>
+        </div>
+        {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
+        <button type="submit" className="btn btn-ink btn-lg" disabled={busy || !f.email || !f.password}>{busy && <Spinner />}Sign in</button>
+      </form>
       <span className="small">New here? <Link to={`/signup${next ? `?next=${encodeURIComponent(next)}` : ''}`}>Create an account</Link> · Experts: <Link to="/signup?as=expert">join as an expert</Link></span>
       <Demo>
-        sample accounts use password <code>{SAMPLE_PASSWORD}</code> and OTP <code>{DEMO_CODE}</code>.{' '}
-        <button type="button" className="link-btn xs" onClick={() => { setTab('email'); fill('saivarsha@example.com'); }}>Customer · Sai Varsha</button>{' · '}
-        <button type="button" className="link-btn xs" onClick={() => { setTab('email'); fill('naresh@example.com'); }}>Expert · Naresh</button>{' · '}
+        sample accounts use password <code>{SAMPLE_PASSWORD}</code>; every email code is <code>{DEMO_CODE}</code>.{' '}
+        <button type="button" className="link-btn xs" onClick={() => fill('saivarsha@example.com')}>Customer · Sai Varsha</button>{' · '}
+        <button type="button" className="link-btn xs" onClick={() => fill('naresh@example.com')}>Expert · Naresh</button>{' · '}
         <Link to="/admin/login" className="xs">Admin login</Link>
       </Demo>
     </Shell>
@@ -101,8 +119,7 @@ export function Signup() {
   const [f, setF] = useState({ name: '', email: '', phone: '', password: '', confirm: '', agree: false });
   const [showPw, setShowPw] = useState(false);
   const [touched, setTouched] = useState(false);
-  const [pending, setPending] = useState(null); // user waiting for OTP
-  const [code, setCode] = useState('');
+  const [pending, setPending] = useState(null); // { email } waiting for the email code
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   if (user && !pending) return <Navigate to={homeFor(user)} replace />;
@@ -119,28 +136,18 @@ export function Signup() {
   const run = async (fn) => { setBusy(true); setErr(''); try { await fn(); } catch (x) { setErr(x.message); } finally { setBusy(false); } };
 
   if (pending) {
-    return (
-      <Shell title="Verify your mobile" sub={`We sent a 6-digit code to ${pending.phone} by SMS and WhatsApp.`}>
-        <form className="card stack g16" onSubmit={(e) => { e.preventDefault(); run(async () => { const u = await verifyPhone(pending.id, code); nav(u.role === 'expert' ? '/expert/profile' : next || '/me', { replace: true }); }); }}>
-          <CodeInput value={code} onChange={setCode} />
-          {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
-          <button type="submit" className="btn btn-ink btn-lg" disabled={busy || code.length !== 6}>{busy && <Spinner />}Verify & continue</button>
-          <button type="button" className="link-btn small" style={{ alignSelf: 'flex-start' }} onClick={() => run(async () => { await sendOtp(pending.phone); })}>Send the code again</button>
-        </form>
-        <Demo>the code is <code>{DEMO_CODE}</code>.</Demo>
-      </Shell>
-    );
+    return <VerifyEmail email={pending.email} onDone={(u) => nav(u.role === 'expert' ? '/expert/profile' : next || '/me', { replace: true })} onBack={() => setPending(null)} />;
   }
   return (
     <Shell title="Create your account" sub={role === 'expert' ? 'Experts write resumes for job seekers and get paid per order.' : 'Free to join. You only pay when you order a service.'} wide>
       <div className="segmented" role="radiogroup" aria-label="I want to" style={{ alignSelf: 'flex-start' }}>
         {[['customer', 'Get my resume done'], ['expert', 'Work as an expert']].map(([k, l]) => <button key={k} type="button" role="radio" aria-checked={role === k} aria-pressed={role === k} onClick={() => setRole(k)}>{l}</button>)}
       </div>
-      <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); setTouched(true); if (!ok) return; run(async () => { const { confirm: _c, ...data } = f; const u = await signUp({ role, ...data }); await sendOtp(f.phone); setPending(u); }); }}>
+      <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); setTouched(true); if (!ok) return; run(async () => setPending(await signUp({ role, ...f }))); }}>
         <Field id="su-n" label="Full name" autoComplete="name" value={f.name} error={e_('name')} onChange={(e) => setF({ ...f, name: e.target.value })} />
         <div className="row g12" style={{ alignItems: 'flex-start' }}>
           <div style={{ flex: '1 1 220px' }}><Field id="su-e" label="Email" type="email" autoComplete="email" value={f.email} error={e_('email')} onChange={(e) => setF({ ...f, email: e.target.value })} /></div>
-          <div style={{ flex: '1 1 200px' }}><Field id="su-p" label="Mobile (WhatsApp)" type="tel" inputMode="tel" autoComplete="tel" placeholder="98765 43210" value={f.phone} error={e_('phone')} onChange={(e) => setF({ ...f, phone: e.target.value })} /></div>
+          <div style={{ flex: '1 1 200px' }}><Field id="su-p" label="Mobile (WhatsApp)" hint="For order updates from your expert" type="tel" inputMode="tel" autoComplete="tel" placeholder="98765 43210" value={f.phone} error={e_('phone')} onChange={(e) => setF({ ...f, phone: e.target.value })} /></div>
         </div>
         <div className="row g12" style={{ alignItems: 'flex-start' }}>
           <div style={{ flex: '1 1 220px' }}><Field id="su-pw" label="Password" type={showPw ? 'text' : 'password'} autoComplete="new-password" value={f.password} error={e_('password')} hint="8+ characters, with letters and a number" onChange={(e) => setF({ ...f, password: e.target.value })} /></div>
@@ -176,10 +183,11 @@ export function ForgotPassword() {
       {step === 'email' ? (
         <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); run(async () => { await sendReset(f.email); setStep('code'); }); }}>
           <Field id="fp-e" label="Email" type="email" autoComplete="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
+          {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
           <button type="submit" className="btn btn-ink btn-lg" disabled={busy || !EMAIL_RE.test(f.email.trim())}>{busy && <Spinner />}Send code</button>
         </form>
       ) : (
-        <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); run(async () => { await resetPassword(f.email, f.code, f.password); toast('Password changed — sign in with the new one'); nav('/login'); }); }}>
+        <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); run(async () => { await resetPassword(f.email, f.code, f.password, f.confirm); toast('Password changed — sign in with the new one'); nav('/login'); }); }}>
           <CodeInput value={f.code} onChange={(code) => setF({ ...f, code })} />
           <Field id="fp-p" label="New password" type="password" autoComplete="new-password" value={f.password} hint="8+ characters, with letters and a number" error={f.password && passwordIssue(f.password)} onChange={(e) => setF({ ...f, password: e.target.value })} />
           <Field id="fp-p2" label="Re-type new password" type="password" autoComplete="new-password" value={f.confirm} onPaste={(e) => e.preventDefault()} error={f.confirm && f.confirm !== f.password && f.confirm.length >= f.password.length ? 'Passwords don’t match' : ''} hint={f.confirm && f.confirm === f.password ? '✓ Passwords match' : ''} onChange={(e) => setF({ ...f, confirm: e.target.value })} />
@@ -201,6 +209,7 @@ export function AdminLogin() {
   const { user, session } = useAuth();
   const [step, setStep] = useState(null); // { userId } after the password
   const [f, setF] = useState({ email: '', password: '', code: '', trust: false });
+  const [recovery, setRecovery] = useState(false); // lost phone: one-time recovery code instead
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   if (user?.role === 'admin' && session?.twoStep) return <Navigate to={next?.startsWith('/admin') ? next : '/admin'} replace />;
@@ -208,7 +217,7 @@ export function AdminLogin() {
   return (
     <Shell title="Admin sign in" sub="Two-step login is required for every admin account.">
       {!step ? (
-        <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); run(async () => setStep(await adminPassword(f.email, f.password))); }}>
+        <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); run(async () => { const r = await adminPassword(f.email, f.password); if (r.signedIn) nav(next?.startsWith('/admin') ? next : '/admin', { replace: true }); else setStep(r); }); }}>
           <span className="mono xs muted">STEP 1 OF 2 · PASSWORD</span>
           <Field id="ad-e" label="Work email" type="email" autoComplete="username" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
           <Field id="ad-p" label="Password" type="password" autoComplete="current-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />
@@ -219,12 +228,14 @@ export function AdminLogin() {
         <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); run(async () => { await adminVerify(step.userId, f.code, f.trust); nav(next?.startsWith('/admin') ? next : '/admin', { replace: true }); }); }}>
           <span className="mono xs muted">STEP 2 OF 2 · AUTHENTICATOR</span>
           <span className="small muted">Open Google Authenticator, Microsoft Authenticator or Authy and enter the 6-digit code for Nm7 admin.</span>
-          <CodeInput id="ad-c" value={f.code} onChange={(code) => setF({ ...f, code })} label="Authenticator code" />
+          {recovery
+            ? <Field id="ad-r" label="Recovery code" autoComplete="one-time-code" placeholder="ABCD-EFGH" maxLength={9} value={f.code} onChange={(e) => setF({ ...f, code: e.target.value.toUpperCase() })} hint="Each recovery code works once." />
+            : <CodeInput id="ad-c" value={f.code} onChange={(code) => setF({ ...f, code })} label="Authenticator code" />}
           <label className="row g8 small"><input type="checkbox" checked={f.trust} onChange={(e) => setF({ ...f, trust: e.target.checked })} />Trust this device for 30 days</label>
           {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
-          <button type="submit" className="btn btn-ink btn-lg" disabled={busy || f.code.length !== 6}>{busy && <Spinner />}Verify & open admin</button>
+          <button type="submit" className="btn btn-ink btn-lg" disabled={busy || (recovery ? f.code.replace(/[^A-Z0-9]/gi, '').length !== 8 : f.code.length !== 6)}>{busy && <Spinner />}Verify & open admin</button>
           <button type="button" className="link-btn small" style={{ alignSelf: 'flex-start' }} onClick={() => { setStep(null); setF({ ...f, code: '' }); }}>← Use a different account</button>
-          <span className="xs faint">Lost your phone? Another owner can reset your two-step login from Team & audit log.</span>
+          <span className="xs faint">Lost your phone? <button type="button" className="link-btn xs" onClick={() => { setRecovery(!recovery); setF({ ...f, code: '' }); }}>{recovery ? 'Use the authenticator code' : 'Use a recovery code'}</button> or ask the owner to reset your two-step login.</span>
         </form>
       )}
       <Demo>email <code>admin@nm7.si</code>, password <code>{SAMPLE_PASSWORD}</code>, code <code>{DEMO_CODE}</code>. <button type="button" className="link-btn xs" onClick={() => setF({ ...f, email: 'admin@nm7.si', password: SAMPLE_PASSWORD })}>Fill in</button></Demo>
@@ -235,9 +246,10 @@ export function AdminLogin() {
 /* ---------- guards ---------- */
 /** role: 'customer' | 'expert' | 'admin'. approved: expert must be approved (orders, earnings…). */
 export function RequireAuth({ role, approved, children }) {
-  const { user, session } = useAuth();
+  const { user, session, ready } = useAuth();
   const { pathname, search } = useLocation();
   const here = encodeURIComponent(pathname + search);
+  if (!ready) return <main className="container row g8" style={{ padding: 40 }} aria-busy="true"><Spinner /><span className="muted">Loading…</span></main>;
   if (role === 'admin') {
     if (!user || user.role !== 'admin' || !session?.twoStep) return <Navigate to={`/admin/login?next=${here}`} replace />;
     return children;
@@ -253,7 +265,7 @@ function WrongAccount({ user, need }) {
   return (
     <Shell title="Different account needed" sub={`You’re signed in as ${user.name} (${label[user.role]} account). This page is for ${label[need]} account.`}>
       <div className="row g8">
-        <button type="button" className="btn btn-ink" onClick={() => { signOut(); nav(`/login`); }}>Sign out and switch</button>
+        <button type="button" className="btn btn-ink" onClick={async () => { await signOut(); nav(`/login`); }}>Sign out and switch</button>
         <Link to={homeFor(user)} className="btn btn-outline">Go to my home</Link>
       </div>
     </Shell>

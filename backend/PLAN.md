@@ -133,7 +133,7 @@ Signature checks are tested with known HMAC vectors.
 3. ✅ **Admin login** — password + TOTP, trusted devices, recovery codes, `create-admin`, role guards, audit log.
 4. ✅ **Orders & Razorpay** — create, verify, webhook, invoice numbers (mocked Razorpay).
 5. ✅ **Refunds & admin lists** — refund rules, approve/reject, admin orders / payments / refunds.
-6. **Connect the frontend** — the screens listed above.
+6. ✅ **Connect the frontend** — the screens listed above (live when `VITE_API_BASE` is set, preview otherwise).
 
 ## As built — differences from the plan above
 
@@ -149,3 +149,7 @@ Signature checks are tested with known HMAC vectors.
 - The checkout handler (`/verify`) doesn't know the payment method; the `payment.captured` webhook fills it in.
 - Admins can't reset their password by email (only from the command line), so a stolen inbox can't take over an admin.
 - Extra endpoints: `POST /api/auth/admin/forget-device`, `GET /api/admin/audit-log`.
+- Frontend: closing Razorpay's window and paying again reuses the same unpaid order instead of making a new one.
+- Still browser-only after milestone 6 (next phase): the customer dashboard's order details/timeline, intake answers,
+  the expert area and the admin console screens. They need `/api/me/*`, `/api/expert/*` and the admin screens wired to
+  the `/api/admin/*` endpoints that already exist.

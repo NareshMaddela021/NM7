@@ -61,21 +61,18 @@ You can point a subdomain like `resume.Nm7` at it.
 | Sample data | `src/data/mock.js` |
 | **Connecting the real backend** | `src/services/api.js` |
 
-### Connecting the backend later
+### Connecting to the backend
 
-`src/services/api.js` is the only file that talks to a server. Each function has a comment showing the real endpoint, for example:
+The app has two modes:
 
-```
-scanResume   → POST /api/resume/scan
-createOrder  → POST /api/orders
-pay          → Razorpay checkout + POST /api/payments/verify
-requestRefund→ POST /api/orders/:id/refund
-withdraw     → POST /api/expert/withdraw
-```
+- **Live** — `VITE_API_BASE` is set (e.g. `https://api.nm7.si`, or `http://localhost:8000` with the backend running locally).
+  Sign-up / sign-in / email codes / password reset / admin two-step login (`src/lib/auth.js`), checkout through
+  **Razorpay's own window**, and refund requests (`src/services/api.js`) go to the FastAPI backend in `../backend`.
+- **Preview** — `VITE_API_BASE` is not set. Everything runs in the browser on sample data (every code is `246810`).
 
-Set your API address in a `.env` file (see `.env.example`), replace each function body with a real `fetch`, and every screen keeps working.
-
----
+`src/services/http.js` is the only place that calls `fetch`. Still on sample data in both modes (their backend comes
+later): resume scan, intake answers, expert area, the admin console screens, and the customer dashboard's own copy of
+orders (checkout writes the server's order id, invoice number and payment id into it).
 
 ## Still to fill in
 
@@ -133,9 +130,9 @@ Set your API address in a `.env` file (see `.env.example`), replace each functio
 - Code: `src/lib/customerStore.js` (replace with `/api/me/*`), `src/pages/me/`.
 
 ## Accounts, legal pages, expert test task
-- **Sign in / sign up** (`/login`, `/signup`, `/forgot-password`): email + password or mobile OTP; sign-up for customers or experts with mobile verification and terms consent. **Admin** (`/admin/login`): password + 6-digit authenticator code, "trust this device 30 days".
+- **Sign in / sign up** (`/login`, `/signup`, `/forgot-password`): email + password; sign-up (customers or experts) asks for the password twice and confirms the email with a 6-digit code; forgot password uses an email code. **Admin** (`/admin/login`): password + 6-digit authenticator code (or a one-time recovery code), "trust this device 30 days".
 - Pages are protected by role: `/me/*` and order pages → customer; `/expert/*` → expert (orders, earnings etc. only once approved); `/admin/*` → admin with two-step login.
-- Each customer has their own dashboard data and builder draft; new accounts start blank. Code: `src/lib/auth.js`, `src/pages/auth/Auth.jsx`. Live app: replace with FastAPI auth (hashed passwords, httpOnly cookies, real OTP/TOTP).
+- Each customer has their own dashboard data and builder draft; new accounts start blank. Code: `src/lib/auth.js`, `src/pages/auth/Auth.jsx`. Live mode uses the FastAPI backend (hashed passwords, httpOnly cookies, email codes, TOTP).
 - **Legal pages**: `/terms`, `/privacy`, `/refund-policy`, `/delivery-policy`, `/expert-terms`, `/contact` — DRAFT for a lawyer to review. Fill `src/lib/legal.js` (address, legal form, phone, Grievance Officer). Lines tagged "To confirm" are decisions still open.
 - **Expert test task**: admin → Experts → Applications → "Send test task" → expert rewrites a sample resume at `/expert/test` (48 h) → admin scores 5 criteria (pass: average 3.5+, none below 3) → approve / second try / reject.
 - **Orders**: checkout now creates the order in the customer's dashboard and as an offer for experts; intake answers go to the expert; refunds (late = instant, otherwise reviewed in Admin → Customers → Support inbox); cancel before an expert accepts = full refund. Old `/orders/<id>` links open the dashboard order page.

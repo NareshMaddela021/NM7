@@ -246,25 +246,29 @@ export function markSeen(orderId) { setMe((s) => ({ seen: { ...(s.seen || {}), [
 /* ---------- placing an order and asking for a refund ---------- */
 let nextNo = 1130;
 /** Called after a successful payment at checkout. Creates the customer's order and the offer experts see. */
-export function placeOrder({ plan, role, method }) {
+/** Live app: pass the server's order id, invoice number and Razorpay payment id. */
+export function placeOrder({ plan, role, method, id: serverId, invoice: serverInvoice, payId: serverPayId }) {
   const s = get(); const u = currentUser();
   const used = new Set(s.orders.map((o) => o.id));
-  let id; do { id = `RS-${nextNo++}`; } while (used.has(id) || findOrder(id));
+  let id = serverId;
+  if (!id) do { id = `RS-${nextNo++}`; } while (used.has(id) || findOrder(id));
   const a = activeResume(s);
   const t = Date.now();
   const yy = new Date().getFullYear() % 100; const fy = new Date().getMonth() >= 3 ? `${yy}-${yy + 1}` : `${yy - 1}-${yy}`;
-  setMe((x) => ({ orders: [{ id, plan, price: PLANS[plan].price, paidAt: t, method, payId: uid('pay_'), invoice: `NM7/${fy}/${id.slice(3)}`, addons: [], linked: true, resumeId: a.id }, ...x.orders] }));
+  const invoice = serverInvoice || `NM7/${fy}/${id.slice(3)}`;
+  setMe((x) => ({ orders: [{ id, plan, price: PLANS[plan].price, paidAt: t, method, payId: serverPayId || uid('pay_'), invoice, addons: [], linked: true, resumeId: a.id }, ...x.orders.filter((o) => o.id !== id)] }));
   addExpertOrder({ id, customer: u?.name || s.account.name, customerId: u?.id || SAMPLE_USER_ID, plan, price: PLANS[plan].price, role: role || s.account.targetRole || 'Not set', domain: '', level: s.account.level || 'Fresher', createdAt: t, deadline: t + PROMISES.deliveryHours * H, status: 'offer', offerExpires: t + 30 * 60 * 1000, intake: {}, jd: '', original: a.data, versions: [], comments: [], messages: [], linkedin: null, call: null, rating: null });
   return id;
 }
 /** Late → refunded at once; otherwise our team reviews it within 24 hours (it shows in the admin support inbox). */
-export function askRefund(orderId, { reason, details }) {
+/** `decided` (live app) is the server's answer { ref, autoApproved, amount }; without it the browser decides. */
+export function askRefund(orderId, { reason, details }, decided = null) {
   const o = get().orders.find((x) => x.id === orderId);
   if (!o) return null;
   const x = findOrder(orderId);
-  const late = !!x && x.deadline < Date.now() && !(x.versions || []).some((v) => v.sent);
-  const ref = `RF-${String(Date.now()).slice(-5)}`;
-  const total = o.price + o.addons.reduce((t, a) => t + a.price, 0);
+  const late = decided ? decided.autoApproved : !!x && x.deadline < Date.now() && !(x.versions || []).some((v) => v.sent);
+  const ref = decided?.ref || `RF-${String(Date.now()).slice(-5)}`;
+  const total = decided?.amount ?? o.price + o.addons.reduce((t, a) => t + a.price, 0);
   if (late) {
     setMe((s) => ({ orders: s.orders.map((y) => (y.id === orderId ? { ...y, status: 'refunded', refund: { amount: total, reason: 'Late delivery — automatic refund', at: Date.now(), done: null, ref } } : y)) }));
     if (x) updateExpertOrder(orderId, (y) => ({ status: 'cancelled', messages: [...(y.messages || []), { from: 'system', text: 'Order refunded — delivery was late.', at: Date.now() }] }));
