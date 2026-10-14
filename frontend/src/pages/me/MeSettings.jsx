@@ -1,8 +1,9 @@
 // Profile & settings (auto-fills the builder), notifications per channel, privacy (download data, delete account).
 // Also Help & referral.
 import { useState } from 'react';
-import { Dialog, useToast } from '../../components/ui';
-import { useMe, setMe, getMe, resetMe, activeResume, setResumeData } from '../../lib/customerStore';
+import { Dialog, Spinner, useToast } from '../../components/ui';
+import { useMe, setMe, getMe, resetMe, activeResume, setResumeData, saveProfile, raiseIssue } from '../../lib/customerStore';
+import { LIVE, changePassword, passwordIssue } from '../../lib/auth';
 import { useExpertOrders } from '../../lib/expertStore';
 import { EXP_LEVELS } from '../builder/schema';
 import { savePdf } from '../builder/resumePdf';
@@ -22,12 +23,14 @@ export function MeSettings() {
   const [f, setF] = useState(me.account);
   const [del, setDel] = useState(false);
   const [confirm, setConfirm] = useState('');
-  const errs = { email: !EMAIL_RE.test(f.email) && 'Enter a valid email', phone: f.phone && !PHONE_RE.test(f.phone.trim()) && 'Enter a 10-digit Indian mobile number' };
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const errs = { name: !f.name.trim() && 'Enter your name', email: !EMAIL_RE.test(f.email) && 'Enter a valid email', phone: f.phone && !PHONE_RE.test(f.phone.trim()) && 'Enter a 10-digit Indian mobile number' };
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
-  const save = (e) => {
-    e.preventDefault(); if (errs.email || errs.phone) return;
-    setMe(() => ({ account: f }));
-    toast('Saved');
+  const save = async (e) => {
+    e.preventDefault(); if (errs.name || errs.email || errs.phone || busy) return;
+    setBusy(true); setError('');
+    try { await saveProfile({ ...f, email: me.account.email }); toast('Saved'); } catch (err) { setError(err.message || 'Not saved. Please try again.'); } finally { setBusy(false); }
   };
   const fillResume = () => {
     const r = activeResume(getMe());
@@ -50,7 +53,7 @@ export function MeSettings() {
         <strong>Profile</strong>
         <div className="row g12">
           <div className="field" style={{ flex: '1 1 220px' }}><label htmlFor="p-n" className="label">Full name</label><input id="p-n" className="input" style={{ height: 42 }} value={f.name} onChange={set('name')} /></div>
-          <div className="field" style={{ flex: '1 1 220px' }}><label htmlFor="p-e" className="label">Email</label><input id="p-e" type="email" className="input" style={{ height: 42 }} value={f.email} onChange={set('email')} aria-invalid={!!errs.email} />{errs.email && <span className="xs" style={{ color: 'var(--danger)' }}>{errs.email}</span>}</div>
+          <div className="field" style={{ flex: '1 1 220px' }}><label htmlFor="p-e" className="label">Email</label><input id="p-e" type="email" className="input" style={{ height: 42 }} value={me.account.email} readOnly aria-describedby="p-e-h" /><span id="p-e-h" className="xs faint">This is your sign-in email. To change it, write to info@nm7.si from this address.</span>{errs.email && <span className="xs" style={{ color: 'var(--danger)' }}>{errs.email}</span>}</div>
           <div className="field" style={{ flex: '1 1 220px' }}><label htmlFor="p-p" className="label">Mobile (WhatsApp)</label><input id="p-p" className="input" style={{ height: 42 }} value={f.phone} onChange={set('phone')} aria-invalid={!!errs.phone} />{errs.phone && <span className="xs" style={{ color: 'var(--danger)' }}>{errs.phone}</span>}</div>
         </div>
         <div className="row g12">
@@ -58,7 +61,8 @@ export function MeSettings() {
           <div className="field" style={{ flex: '1 1 220px' }}><label htmlFor="p-c" className="label">Preferred cities</label><input id="p-c" className="input" style={{ height: 42 }} value={f.cities} onChange={set('cities')} /></div>
           <div className="field" style={{ flex: '1 1 220px' }}><label htmlFor="p-l" className="label">Experience</label><select id="p-l" className="input" style={{ height: 42 }} value={f.level} onChange={set('level')}>{EXP_LEVELS.map((l) => <option key={l}>{l}</option>)}</select></div>
         </div>
-        <div className="row g8"><button type="submit" className="btn btn-ink">Save</button><button type="button" className="btn btn-outline" onClick={fillResume}>Fill these into my resume</button></div>
+        {error && <span className="small" role="alert" style={{ color: 'var(--danger)' }}>{error}</span>}
+        <div className="row g8"><button type="submit" className="btn btn-ink" disabled={busy}>{busy ? <Spinner /> : 'Save'}</button><button type="button" className="btn btn-outline" onClick={fillResume}>Fill these into my resume</button></div>
       </form>
 
       <section className="card stack g12" aria-label="Notifications">
@@ -68,6 +72,8 @@ export function MeSettings() {
         <span className="xs faint">Order emails stay on — they carry your receipts and refund updates.</span>
       </section>
 
+      <ChangePassword />
+
       <section className="card stack g12" aria-label="Privacy">
         <strong>Privacy</strong>
         <div className="row between g8"><span className="small">Download everything we hold about you — resumes, orders, messages, applications.</span><button type="button" className="btn btn-outline" onClick={exportAll}>Download my data</button></div>
@@ -76,7 +82,11 @@ export function MeSettings() {
       </section>
       {del && (
         <Dialog showTitle title="Delete your account?" onClose={() => setDel(false)}>
-          <form className="stack g12" onSubmit={(e) => { e.preventDefault(); resetMe(); setDel(false); setConfirm(''); toast('Deletion requested — we confirm by email. (Preview: sample data reset.)'); }}>
+          <form className="stack g12" onSubmit={async (e) => {
+            e.preventDefault();
+            if (!LIVE) { resetMe(); setDel(false); setConfirm(''); toast('Deletion requested — we confirm by email. (Preview: sample data reset.)'); return; }
+            try { await raiseIssue({ topic: 'Account', text: 'Please delete my account and all my data.' }); setDel(false); setConfirm(''); toast('Deletion requested — our team confirms by email within 7 days.'); } catch (err) { toast(err.message); }
+          }}>
             <span className="small muted">This deletes your resumes, cover letters, applications and messages. Invoices are kept as the law requires. Download your data first if you want a copy.</span>
             <label htmlFor="del" className="label">Type DELETE to confirm</label>
             <input id="del" className="input" style={{ height: 42 }} value={confirm} onChange={(e) => setConfirm(e.target.value)} />
@@ -85,6 +95,40 @@ export function MeSettings() {
         </Dialog>
       )}
     </>
+  );
+}
+
+/** Current password + new password twice. Signs out every other browser. */
+function ChangePassword() {
+  const toast = useToast();
+  const [p, setP] = useState({ current: '', next: '', again: '' });
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const issue = p.next && passwordIssue(p.next);
+  const mismatch = p.again && p.next !== p.again;
+  const set = (k) => (e) => setP({ ...p, [k]: e.target.value });
+  const submit = async (e) => {
+    e.preventDefault();
+    if (busy || !p.current || issue || mismatch || !p.next) return;
+    setBusy(true); setError('');
+    try {
+      await changePassword(p.current, p.next, p.again);
+      setP({ current: '', next: '', again: '' });
+      toast('Password changed — other devices are signed out');
+    } catch (err) { setError(err.message || 'Not changed. Please try again.'); } finally { setBusy(false); }
+  };
+  return (
+    <form className="card stack g12" onSubmit={submit} aria-label="Change password" noValidate>
+      <strong>Change password</strong>
+      <div className="row g12">
+        <div className="field" style={{ flex: '1 1 200px' }}><label htmlFor="pw-c" className="label">Current password</label><input id="pw-c" type="password" autoComplete="current-password" className="input" style={{ height: 42 }} value={p.current} onChange={set('current')} /></div>
+        <div className="field" style={{ flex: '1 1 200px' }}><label htmlFor="pw-n" className="label">New password</label><input id="pw-n" type="password" autoComplete="new-password" className="input" style={{ height: 42 }} value={p.next} onChange={set('next')} aria-invalid={!!issue} aria-describedby="pw-n-h" /><span id="pw-n-h" className="xs" style={{ color: issue ? 'var(--danger)' : 'var(--text3)' }}>{issue || 'At least 8 characters, with letters and a number.'}</span></div>
+        <div className="field" style={{ flex: '1 1 200px' }}><label htmlFor="pw-a" className="label">Re-type new password</label><input id="pw-a" type="password" autoComplete="new-password" className="input" style={{ height: 42 }} value={p.again} onChange={set('again')} aria-invalid={!!mismatch} />{mismatch && <span className="xs" style={{ color: 'var(--danger)' }}>The two passwords don’t match.</span>}</div>
+      </div>
+      {error && <span className="small" role="alert" style={{ color: 'var(--danger)' }}>{error}</span>}
+      <span className="xs faint">Changing it signs you out on every other device.</span>
+      <button type="submit" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} disabled={busy || !p.current || !p.next || !!issue || p.next !== p.again}>{busy ? <Spinner /> : 'Change password'}</button>
+    </form>
   );
 }
 
@@ -101,6 +145,8 @@ export function MeHelp() {
   const me = useMe();
   const toast = useToast();
   const [t, setT] = useState({ topic: 'Order', order: me.orders[0]?.id || '', text: '' });
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState('');
   const link = `nm7.si/?ref=${me.account.referralCode}`;
   return (
     <>
@@ -110,14 +156,20 @@ export function MeHelp() {
         {FAQ.map(([q, a]) => <details key={q} className="well"><summary className="small" style={{ fontWeight: 600, cursor: 'pointer' }}>{q}</summary><p className="small muted" style={{ margin: '8px 0 0' }}>{a}</p></details>)}
       </section>
       <div className="row g16" style={{ alignItems: 'flex-start' }}>
-        <form className="card stack g12" style={{ flex: '1 1 340px' }} aria-label="Raise an issue" onSubmit={(e) => { e.preventDefault(); setMe((s) => ({ issues: [{ id: `T-${200 + s.issues.length + 5}`, ...t, text: t.text.trim(), at: Date.now(), status: 'open' }, ...s.issues] })); setT({ ...t, text: '' }); toast('Sent — our team replies within 24 hours'); }}>
+        <form className="card stack g12" style={{ flex: '1 1 340px' }} aria-label="Raise an issue" onSubmit={async (e) => {
+          e.preventDefault();
+          if (sending || t.text.trim().length < 10) return;
+          setSending(true); setSendError('');
+          try { await raiseIssue({ topic: t.topic, order: t.order || null, text: t.text.trim() }); setT({ ...t, text: '' }); toast('Sent — our team replies by email within 24 hours'); } catch (err) { setSendError(err.message || 'Not sent. Please try again.'); } finally { setSending(false); }
+        }}>
           <strong>Raise an issue</strong>
           <div className="row g8">
             <div className="field" style={{ flex: 1 }}><label htmlFor="is-t" className="label">About</label><select id="is-t" className="input" style={{ height: 42 }} value={t.topic} onChange={(e) => setT({ ...t, topic: e.target.value })}>{['Order', 'Payment', 'Refund', 'Expert', 'Builder', 'Account', 'Other'].map((x) => <option key={x}>{x}</option>)}</select></div>
             <div className="field" style={{ flex: 1 }}><label htmlFor="is-o" className="label">Order</label><select id="is-o" className="input" style={{ height: 42 }} value={t.order} onChange={(e) => setT({ ...t, order: e.target.value })}><option value="">None</option>{me.orders.map((o) => <option key={o.id}>{o.id}</option>)}</select></div>
           </div>
           <div className="field"><label htmlFor="is-x" className="label">What happened?</label><textarea id="is-x" className="input" rows={4} value={t.text} onChange={(e) => setT({ ...t, text: e.target.value })} /></div>
-          <button type="submit" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={t.text.trim().length < 10}>Send to support</button>
+          {sendError && <span className="small" role="alert" style={{ color: 'var(--danger)' }}>{sendError}</span>}
+          <button type="submit" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={sending || t.text.trim().length < 10}>{sending ? <Spinner /> : 'Send to support'}</button>
           {me.issues.map((i) => (
             <div key={i.id} className="well stack g4">
               <span className="row between g8"><strong className="small">{i.id} · {i.topic}{i.order ? ` · ${i.order}` : ''}</strong><span className={`badge ${i.status === 'resolved' ? 'b-success' : 'b-warning'}`}>{i.status === 'resolved' ? 'Resolved' : 'Open'}</span></span>

@@ -109,6 +109,13 @@ function ScanDemo() {
 function Upload({ start, role, setRole, compact }) {
   const fileRef = useRef();
   const [drag, setDrag] = useState(false);
+  // Closing the file picker without a file: say what to do (instead of silently scanning nothing).
+  useEffect(() => {
+    const el = fileRef.current;
+    const cancel = () => start(null);
+    el?.addEventListener('cancel', cancel);
+    return () => el?.removeEventListener('cancel', cancel);
+  }, [start]);
   return (
     <div className="h-drop">
       <div data-drag={drag} onDragOver={(e) => { e.preventDefault(); setDrag(true); }} onDragLeave={() => setDrag(false)} onDrop={(e) => { e.preventDefault(); setDrag(false); start(e.dataTransfer.files[0]); }} className="stack g12">
@@ -121,11 +128,12 @@ function Upload({ start, role, setRole, compact }) {
             <label htmlFor={compact ? 'role2' : 'role'} className="label">Role you’re applying for</label>
             <input id={compact ? 'role2' : 'role'} className="input" style={{ height: 48 }} value={role} maxLength={ROLE_MAX} onChange={(e) => setRole(e.target.value)} onBlur={(e) => setRole(e.target.value.replace(/\s+/g, ' ').trim())} placeholder="e.g. Data Analyst" />
           </div>
-          <input ref={fileRef} type="file" accept=".pdf,.docx" className="sr-only" tabIndex={-1} onChange={(e) => start(e.target.files[0])} />
+          <input ref={fileRef} type="file" accept=".pdf,.docx" className="sr-only" tabIndex={-1} aria-label={compact ? 'Resume file to scan (bottom of page)' : 'Resume file to scan'}
+            onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ''; start(f || null); }} />
           <button type="button" className="btn btn-ink btn-lg" style={{ flex: '1 1 160px', minHeight: 48 }} onClick={() => fileRef.current.click()}>Scan my resume — free</button>
         </div>
         <span className="row between g8 xs">
-          <button type="button" className="link-btn xs" onClick={() => start(null)}>No resume handy? Try a sample</button>
+          <button type="button" className="link-btn xs" onClick={() => start('sample')}>No resume handy? Try a sample</button>
           <span className="faint">Read on your device — never uploaded</span>
         </span>
       </div>
@@ -150,7 +158,7 @@ function TryIt() {
       <div className="card stack g16 reveal" style={{ padding: 24, borderRadius: 22, boxShadow: 'var(--shadow)' }}>
         <div className="field">
           <label htmlFor="try" className="label row between"><span>Your line</span><span className="faint">Line score {before}/100</span></label>
-          <textarea id="try" className="input" rows={2} value={text} maxLength={220} onChange={(e) => { setText(e.target.value); setOut(null); }} />
+          <textarea id="try" aria-label="Your resume line" className="input" rows={2} value={text} maxLength={220} onChange={(e) => { setText(e.target.value); setOut(null); }} />
         </div>
         <button type="button" className="btn btn-ink btn-lg" disabled={!text.trim()} onClick={() => setOut(improveBullet(text))}><Icon name="spark" size={16} />Improve this line</button>
         {out && (
@@ -196,7 +204,7 @@ function Templates() {
         {list.map((k) => (
           <button key={k} type="button" className="h-tpl" onClick={() => nav('/builder', { state: { open: 'build', template: k } })} aria-label={`Use the ${TEMPLATE_PRESETS[k].name} template`}>
             <div className="thumb" style={{ width: 220, height: 311, borderRadius: 10, overflow: 'hidden', background: '#fff', border: '1px solid var(--border)' }} aria-hidden="true">
-              <div style={{ width: 220, pointerEvents: 'none' }}><ResumePreview data={datas[k]} design={{ ...DEFAULT_DESIGN, ...datas[k].design }} photo={datas[k].showPhoto ? PHOTO_PLACEHOLDER : null} /></div>
+              <div style={{ width: 220, pointerEvents: 'none' }}><ResumePreview loadFonts={false} data={datas[k]} design={{ ...DEFAULT_DESIGN, ...datas[k].design }} photo={datas[k].showPhoto ? PHOTO_PLACEHOLDER : null} /></div>
             </div>
             <span className="row between g8"><strong>{TEMPLATE_PRESETS[k].name}</strong><span className="xs faint">Use →</span></span>
             <span className="xs muted" style={{ lineHeight: 1.4 }}>{TEMPLATE_PRESETS[k].desc}</span>
@@ -238,8 +246,8 @@ function BeforeAfter() {
           {[['before', 'Before'], ['after', 'After expert rewrite']].map(([k, l]) => <button key={k} type="button" role="tab" aria-selected={view === k} onClick={() => { setView(k); setAuto(false); }}>{l}</button>)}
         </div>
         <div className="h-ba" style={{ width: 'min(520px, 100%)' }}>
-          <div style={{ opacity: view === 'before' ? 1 : 0, transition: 'opacity 500ms var(--ease)' }} aria-hidden={view !== 'before'}><ResumePreview data={BEFORE} design={dsB} /></div>
-          <div className="h-after" style={{ opacity: view === 'after' ? 1 : 0, transition: 'opacity 500ms var(--ease)', background: '#fff' }} aria-hidden={view !== 'after'}><ResumePreview data={AFTER} design={dsA} /></div>
+          <div style={{ opacity: view === 'before' ? 1 : 0, transition: 'opacity 500ms var(--ease)' }} aria-hidden={view !== 'before'}><ResumePreview loadFonts={false} data={BEFORE} design={dsB} /></div>
+          <div className="h-after" style={{ opacity: view === 'after' ? 1 : 0, transition: 'opacity 500ms var(--ease)', background: '#fff' }} aria-hidden={view !== 'after'}><ResumePreview loadFonts={false} data={AFTER} design={dsA} /></div>
           <span className="h-lbl" style={{ right: 12, background: view === 'after' ? 'var(--successbg)' : 'var(--dangerbg)', color: view === 'after' ? 'var(--success)' : 'var(--danger)' }}>{view === 'after' ? `After · ATS ${a.score}` : `Before · ATS ${b.score}`}</span>
         </div>
       </div>
@@ -329,7 +337,7 @@ function Audiences() {
       </div>
       <div className="reveal" style={{ display: 'flex', justifyContent: 'center' }}>
         <div style={{ width: 'min(400px, 100%)', borderRadius: 12, overflow: 'hidden', boxShadow: 'var(--shadow)', border: '1px solid var(--border)', background: '#fff', maxHeight: 520 }} aria-hidden="true">
-          <ResumePreview key={a.tpl} data={data} design={{ ...DEFAULT_DESIGN, ...data.design }} />
+          <ResumePreview loadFonts={false} key={a.tpl} data={data} design={{ ...DEFAULT_DESIGN, ...data.design }} />
         </div>
       </div>
     </div>
@@ -399,12 +407,13 @@ export default function Home() {
   }, [location.state]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const start = (file, at = 'top') => {
-    if (file) {
+    if (!file) { setErr({ msg: 'Choose a PDF or DOCX first.', at }); return; } // e.g. the file picker was closed
+    if (file !== 'sample') {
       try { checkFile(file); } catch (e) { setErr({ msg: e.message, at }); return; }
     }
     setErr(null);
     setRole(role.replace(/\s+/g, ' ').trim());
-    setUpload(file || 'sample'); // read in the browser on the next page; nothing is uploaded
+    setUpload(file); // a File or 'sample' — read in the browser on the next page; nothing is uploaded
     nav('/scan');
   };
   const goPlan = (k) => { if (k === 'diy') nav('/builder'); else { setAddon(k === 'launch'); nav('/checkout'); } };
@@ -432,12 +441,12 @@ export default function Home() {
           </div>
         </section>
 
-        {/* stats */}
-        <section className="h-wrap" aria-label="In numbers" style={{ paddingBottom: 24 }}>
+        {/* stats: only when there are real numbers to show (a promise alone isn't a stat) */}
+        {stats.some((s) => !s.promise) && <section className="h-wrap" aria-label="In numbers" style={{ paddingBottom: 24 }}>
           <div className="h-stats reveal">
             {stats.map((s) => <div key={s.label} style={{ position: 'relative' }}>{s.placeholder && <Sample />}<strong className="display" style={{ fontSize: 34 }}>{s.value}</strong><span className="small muted">{s.label}</span></div>)}
           </div>
-        </section>
+        </section>}
 
         {/* 2 · how it works */}
         <section id="how" className="h-pad" aria-labelledby="how-t">

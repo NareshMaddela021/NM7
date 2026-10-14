@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../../components/Header';
 import { useExpertOrders, resetExpertOrders } from '../../lib/expertStore';
+import { LIVE } from '../../services/http';
 import { expertPayout, inr, PLANS } from '../../lib/pricing';
 import { timeLeft } from './OrderWorkspace';
 
@@ -11,7 +12,8 @@ const LABEL = { offer: ['New offer', 'b-warning'], progress: ['Writing', 'b-neut
 
 export default function ExpertOrders() {
   const orders = useExpertOrders();
-  const [tab, setTab] = useState('progress');
+  const [picked, setTab] = useState(null);
+  const tab = picked || (orders.some((o) => o.status === 'offer') ? 'new' : 'progress'); // open on new offers when there are any
   const list = orders.filter((o) => TABS.find(([k]) => k === tab)[2].includes(o.status)).sort((a, b) => a.deadline - b.deadline);
   return (
     <>
@@ -19,7 +21,7 @@ export default function ExpertOrders() {
       <main className="container stack g16" style={{ maxWidth: 1100, padding: '24px 24px 64px' }}>
         <div className="row between g12" style={{ alignItems: 'flex-end' }}>
           <h1 className="display" style={{ fontSize: 32 }}>Orders</h1>
-          <button type="button" className="btn btn-ghost xs" onClick={resetExpertOrders} title="Preview only">Reset sample orders</button>
+          {!LIVE && <button type="button" className="btn btn-ghost xs" onClick={resetExpertOrders} title="Preview only">Reset sample orders</button>}
         </div>
         <div className="row g8" role="tablist" aria-label="Order status">
           {TABS.map(([k, l, st]) => { const n = orders.filter((o) => st.includes(o.status)).length; return <button key={k} type="button" role="tab" aria-selected={tab === k} className="chip" aria-pressed={tab === k} style={{ minHeight: 36, fontSize: 13 }} onClick={() => setTab(k)}>{l} <span className="mono xs" style={{ opacity: 0.7 }}>{n}</span></button>; })}

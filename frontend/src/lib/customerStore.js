@@ -5,12 +5,16 @@ import { useSyncExternalStore } from 'react';
 import { INITIAL, migrateLinks } from '../pages/builder/schema';
 import { TEMPLATE_PRESETS } from '../pages/builder/design';
 import { atsScore } from './atsScore';
-import { findOrder, updateOrder as updateExpertOrder, addExpertOrder } from './expertStore';
+import { findOrder, updateOrder as updateExpertOrder, addExpertOrder, reloadExpertOrders } from './expertStore';
+import { requestRefund } from '../services/api';
 import { PLANS, ADDONS, PROMISES } from './pricing';
-import { currentUser, draftKey, SAMPLE_USER_ID } from './auth';
+import { currentUser, draftKey, draftKeyFor, SAMPLE_USER_ID, onSignOut, updateUser } from './auth';
+import { LIVE, http, reportSaveError } from '../services/http';
+import * as live from './meLive';
 
 // One store per signed-in customer. The sample customer (Sai Varsha) keeps the original key and sample data.
-const custId = () => (currentUser()?.role === 'customer' ? currentUser().id : SAMPLE_USER_ID);
+// Live app: no sample data and nothing personal in localStorage — the store is filled from the API.
+const custId = () => (currentUser()?.role === 'customer' ? currentUser().id : LIVE ? null : SAMPLE_USER_ID);
 const keyOf = (id) => (id === SAMPLE_USER_ID ? 'asuraa-me-v2' : `asuraa-me-v2:${id}`);
 const H = 3600 * 1000; const D = 24 * H;
 const uid = (p) => `${p}${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`;
@@ -29,7 +33,16 @@ export function blankResume(u = currentUser()) {
 }
 /** The starting resume for whoever is signed in (sample data only for guests and the sample customer). */
 export const defaultResume = () => (currentUser()?.role === 'customer' && currentUser().id !== SAMPLE_USER_ID ? blankResume() : structuredClone(INITIAL));
+/** Live: a resume built before signing in (not the sample) becomes the new account's first resume. */
+function guestDraft() {
+  try {
+    const s = localStorage.getItem(draftKeyFor(null));
+    const d = s && migrateLinks({ ...INITIAL, ...JSON.parse(s) });
+    return d && !(d.personal?.name === INITIAL.personal.name && d.personal?.email === INITIAL.personal.email) ? d : null;
+  } catch { return null; }
+}
 const builderDraft = () => {
+  if (LIVE && currentUser()?.role === 'customer') { const a = state && !state.loading ? activeResume(state) : null; return a ? a.data : blankResume(); }
   try { const s = localStorage.getItem(draftKey()); if (s) return migrateLinks({ ...INITIAL, ...JSON.parse(s) }); } catch { /* ignore */ }
   return migrateLinks(defaultResume());
 };
@@ -102,12 +115,92 @@ const load = (id) => {
   s.checks = s.checks.map((c) => ({ ...c, score: atsScore(c.data).score, data: undefined }));
   return s;
 };
-const get = () => { const id = custId(); if (!state || stateFor !== id) { state = load(id); stateFor = id; } return state; };
-const emit = () => { try { localStorage.setItem(keyOf(stateFor), JSON.stringify(state)); } catch { /* ignore */ } subs.forEach((f) => f()); };
+const notify = () => subs.forEach((f) => f());
+
+/* live: load from the API for this customer; ignore answers that arrive after they signed out or switched */
+async function loadLive(id) {
+  try {
+    const s = await live.fetchState();
+    if (stateFor !== id) return;
+    if (!s.resumes.length) {
+      // first visit: start from the resume they built before signing in (if any), else a blank one
+      const r = { id: uid('r'), name: 'My resume', active: true, data: guestDraft() || blankResume(), jd: '', versions: [] };
+      const saved = await live.createResume(r);
+      if (stateFor !== id) return;
+      s.resumes = [saved];
+    }
+    state = s;
+  } catch (e) {
+    if (stateFor !== id) return;
+    state = { ...state, error: e.message || 'We couldn’t load your dashboard.' };
+  }
+  notify();
+}
+live.setErrorHandler((e) => {
+  if (!stateFor) return;
+  reportSaveError(e);
+  loadLive(stateFor); // show what the server really has
+});
+
+const get = () => {
+  const id = custId();
+  if (!state || stateFor !== id) {
+    stateFor = id;
+    if (LIVE) {
+      state = live.emptyState(currentUser());
+      if (id) loadLive(id); else state = { ...state, loading: false };
+    } else state = load(id);
+  }
+  return state;
+};
+const emit = () => { if (!LIVE) { try { localStorage.setItem(keyOf(stateFor), JSON.stringify(state)); } catch { /* ignore */ } } notify(); };
+/** Every change goes through here: saved in this browser (preview) or sent to the API (live). */
+function commit(next) {
+  const prev = get();
+  state = next;
+  emit();
+  if (LIVE && stateFor && !prev.loading) live.persist(prev, next);
+}
 export const useMe = () => useSyncExternalStore((f) => { subs.add(f); return () => subs.delete(f); }, get);
 export const getMe = get;
-export function setMe(fn) { state = { ...get(), ...fn(get()) }; emit(); }
+export function setMe(fn) { const cur = get(); commit({ ...cur, ...fn(cur) }); }
 export function resetMe() { const id = custId(); state = null; try { localStorage.removeItem(keyOf(id)); localStorage.removeItem(draftKey()); } catch { /* ignore */ } get(); emit(); }
+/** Live: reload everything from the server (after a payment or refund). */
+export function reloadMe() { if (LIVE && stateFor) { if (state?.loading) { state = { ...state, error: null }; notify(); } loadLive(stateFor); } }
+/** Sign-out / account switch: forget everything in memory and send any unsaved resume edits first. */
+export async function forgetMe() {
+  if (LIVE) await live.flush();
+  state = null; stateFor = null;
+  notify();
+}
+onSignOut(forgetMe);
+/** Profile & settings → Save. Live: saved on the server first (the email can't be changed here). */
+export async function saveProfile(account) {
+  if (!LIVE) { setMe(() => ({ account })); return; }
+  const p = await http('/api/me/profile', { method: 'PATCH', body: { name: account.name, phone: account.phone || null, targetRole: account.targetRole || '', cities: account.cities || '', level: account.level || '' } });
+  state = { ...get(), account: { ...get().account, name: p.name, phone: p.phone || '', targetRole: p.targetRole, cities: p.cities, level: p.level } };
+  notify();
+  updateUser(currentUser().id, { name: p.name, phone: p.phone || '' });
+}
+/** Share link settings. Live: saved on the server first (a link name can be taken by someone else). */
+export async function saveShare(patch) {
+  const next = { ...get().share, ...patch };
+  if (!next.resumeId) next.resumeId = activeResume()?.id || null;
+  if (!LIVE) { setMe(() => ({ share: next })); return; }
+  const before = get().share;
+  state = { ...get(), share: next }; notify(); // shown at once; put back if the server says no
+  let r;
+  try { r = await http('/api/me/share', { method: 'PUT', body: { on: !!next.on, slug: next.slug, resumeId: next.resumeId, hidePhone: !!next.hidePhone } }); } catch (e) { state = { ...get(), share: before }; notify(); throw e; }
+  state = { ...get(), share: { on: r.on, slug: r.slug, resumeId: r.resumeId, hidePhone: r.hidePhone, views: r.views, viewCount: r.viewCount } };
+  notify();
+}
+/** Live: a support ticket (saved and emailed by the server); preview: kept in this browser. */
+export async function raiseIssue({ topic, order, text }) {
+  if (!LIVE) { const t = { id: `T-${String(Date.now()).slice(-3)}`, topic, order, text, at: Date.now(), status: 'open' }; setMe((s) => ({ issues: [t, ...s.issues] })); return t; }
+  const t = await live.sendTicket({ topic, order, text });
+  state = { ...get(), issues: [t, ...get().issues] }; notify();
+  return t;
+}
 
 /* ---------- resumes ---------- */
 export const activeResume = (s = get()) => s.resumes.find((r) => r.active) || s.resumes[0];
@@ -115,14 +208,13 @@ export const activeResume = (s = get()) => s.resumes.find((r) => r.active) || s.
 /** The builder keeps editing the active resume. Called by the builder on every save and when the dashboard opens. */
 export function syncFromBuilder(data) {
   const s = get(); const a = activeResume(s);
-  if (!a) return;
+  if (!a || s.loading) return;
   const d = data || builderDraft();
   if (JSON.stringify(d) === JSON.stringify(a.data)) return;
   const last = a.versions[a.versions.length - 1];
   // keep an automatic snapshot at most every 30 minutes (up to 20)
   const versions = !last || Date.now() - last.at > 30 * 60 * 1000 ? [...a.versions, { at: Date.now(), label: 'Auto-saved', data: a.data }].slice(-20) : a.versions;
-  state = { ...s, resumes: s.resumes.map((r) => (r.id === a.id ? { ...r, data: d, updated: Date.now(), versions } : r)) };
-  emit();
+  commit({ ...s, resumes: s.resumes.map((r) => (r.id === a.id ? { ...r, data: d, updated: Date.now(), versions } : r)) });
 }
 
 /** Make a resume the one the builder edits. */
@@ -130,9 +222,8 @@ export function openInBuilder(id) {
   syncFromBuilder();
   const s = get(); const r = s.resumes.find((x) => x.id === id);
   if (!r) return;
-  try { localStorage.setItem(draftKey(), JSON.stringify(r.data)); } catch { /* ignore */ }
-  state = { ...s, resumes: s.resumes.map((x) => ({ ...x, active: x.id === id })) };
-  emit();
+  if (!LIVE) { try { localStorage.setItem(draftKey(), JSON.stringify(r.data)); } catch { /* ignore */ } }
+  commit({ ...s, resumes: s.resumes.map((x) => ({ ...x, active: x.id === id })) });
 }
 
 export function addResume(name, data, extra = {}) {
@@ -155,14 +246,14 @@ export function setResumeData(id, data) {
   const r = get().resumes.find((x) => x.id === id);
   if (!r) return;
   updateResume(id, { data });
-  if (r.active) { try { localStorage.setItem(draftKey(), JSON.stringify(data)); } catch { /* ignore */ } }
+  if (r.active && !LIVE) { try { localStorage.setItem(draftKey(), JSON.stringify(data)); } catch { /* ignore */ } }
 }
 export function restoreVersion(id, data) {
   syncFromBuilder();
   const r = get().resumes.find((x) => x.id === id);
   if (!r) return;
   updateResume(id, { data: structuredClone(data), versions: [...r.versions, { at: Date.now(), label: 'Before restore', data: r.data }].slice(-20) });
-  if (r.active) { try { localStorage.setItem(draftKey(), JSON.stringify(data)); } catch { /* ignore */ } }
+  if (r.active && !LIVE) { try { localStorage.setItem(draftKey(), JSON.stringify(data)); } catch { /* ignore */ } }
 }
 
 /** Expert drafts that belong to a resume (from the linked expert order). */
@@ -248,6 +339,7 @@ let nextNo = 1130;
 /** Called after a successful payment at checkout. Creates the customer's order and the offer experts see. */
 /** Live app: pass the server's order id, invoice number and Razorpay payment id. */
 export function placeOrder({ plan, role, method, id: serverId, invoice: serverInvoice, payId: serverPayId }) {
+  if (LIVE) { reloadMe(); reloadExpertOrders(); return serverId; } // the server already has it
   const s = get(); const u = currentUser();
   const used = new Set(s.orders.map((o) => o.id));
   let id = serverId;
@@ -263,6 +355,7 @@ export function placeOrder({ plan, role, method, id: serverId, invoice: serverIn
 /** Late → refunded at once; otherwise our team reviews it within 24 hours (it shows in the admin support inbox). */
 /** `decided` (live app) is the server's answer { ref, autoApproved, amount }; without it the browser decides. */
 export function askRefund(orderId, { reason, details }, decided = null) {
+  if (LIVE) { reloadMe(); reloadExpertOrders(); return decided; } // the server decided and saved it
   const o = get().orders.find((x) => x.id === orderId);
   if (!o) return null;
   const x = findOrder(orderId);
@@ -318,6 +411,7 @@ export function decideRefund(key, orderId, approve, reply) {
 
 /** Cancel before an expert accepts → full refund at once. */
 export function cancelOrder(orderId) {
+  if (LIVE) return requestRefund(orderId, { reason: 'cancel', details: '' }).then(() => { reloadMe(); reloadExpertOrders(); return true; });
   const o = get().orders.find((x) => x.id === orderId); const x = findOrder(orderId);
   if (!o || !x || x.status !== 'offer') return false;
   const total = o.price + o.addons.reduce((t, a) => t + a.price, 0);

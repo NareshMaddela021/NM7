@@ -10,7 +10,7 @@ import { PLANS, PROMISES, inr } from '../lib/pricing';
 
 export default function Checkout() {
   const nav = useNavigate();
-  const { role, addon, setAddon, setOrderId } = useFlow();
+  const { role, addon, setAddon, setOrderId, report } = useFlow();
   const { user } = useAuth();
   const [paying, setPaying] = useState(false);
   const [err, setErr] = useState('');
@@ -44,8 +44,8 @@ export default function Checkout() {
       <Header variant="flow" />
       <main className="container split rise" style={{ maxWidth: 1040, padding: '48px 24px 96px' }}>
         <section className="main stack g20" aria-label="Your order">
-          <button type="button" className="btn btn-ghost" style={{ alignSelf: 'flex-start', paddingLeft: 0 }} onClick={() => nav('/scan')}>← Back to your report</button>
-          <h1 className="display" style={{ fontSize: 36 }}>Expert rewrite</h1>
+          {report && <button type="button" className="btn btn-ghost" style={{ alignSelf: 'flex-start', paddingLeft: 0 }} onClick={() => nav('/scan')}>← Back to your report</button>}
+          <h1 className="display" style={{ fontSize: 36 }}>{PLANS[addon ? 'launch' : 'expert'].name}</h1>
           <div className="card stack g16">
             <div className="row between"><span>Expert rewrite · {role || 'your target role'}</span><strong>{inr(PLANS.expert.price)}</strong></div>
             <label className="option" data-on={addon}>

@@ -4,7 +4,9 @@ import { useState } from 'react';
 import Header from '../../components/Header';
 import { Meter, useToast } from '../../components/ui';
 import { useExpertOrders } from '../../lib/expertStore';
-import { loadExpert, saveExpert } from '../../lib/expert';
+import { loadExpert, saveExpert, useExpertReady } from '../../lib/expert';
+import { Spinner } from '../../components/ui';
+import { LIVE } from '../../services/http';
 import { expertPayout, inr } from '../../lib/pricing';
 import { timeLeft } from './OrderWorkspace';
 
@@ -18,11 +20,18 @@ export function expertStats(orders) {
   const revisions = done.length ? +(done.reduce((s, o) => s + Math.max(0, (o.versions?.length || 1) - 1), 0) / done.length).toFixed(1) : 0;
   const rating = rated.length ? +(rated.reduce((s, o) => s + o.rating, 0) / rated.length).toFixed(1) : null;
   const earned = done.reduce((s, o) => s + expertPayout(o.price).net, 0);
-  // history before this preview (sample): 24 delivered orders, 4.7★, 93% on time
+  if (LIVE) return { delivered: done.length, rating: rating ?? '—', onTime: done.length ? onTime : '—', revisions, earned };
+  // preview only: sample history before this preview — 24 delivered orders, 4.7★, 93% on time
   return { delivered: done.length + 24, rating: rating ? +(((rating * rated.length) + 4.7 * 24) / (rated.length + 24)).toFixed(1) : 4.7, onTime: Math.round((onTime * done.length + 93 * 24) / (done.length + 24)), revisions, earned };
 }
 
 export default function ExpertHome() {
+  const ready = useExpertReady();
+  if (!ready) return <><Header variant="expert" /><main className="container row g12 muted" role="status" style={{ padding: 48 }}><Spinner /> Loading…</main></>;
+  return <ExpertHomePage />;
+}
+
+function ExpertHomePage() {
   const toast = useToast();
   const orders = useExpertOrders();
   const [prof, setProf] = useState(loadExpert);

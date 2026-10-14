@@ -2,7 +2,8 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import Header from '../../components/Header';
-import { useMe, unreadCount, syncFromBuilder } from '../../lib/customerStore';
+import { useMe, unreadCount, syncFromBuilder, reloadMe } from '../../lib/customerStore';
+import { Spinner } from '../../components/ui';
 import { useExpertOrders } from '../../lib/expertStore';
 
 export const ME_NAV = [
@@ -55,7 +56,14 @@ export default function MeLayout() {
           {ME_NAV.map((n) => link(n))}
         </nav>
         <main className="stack g20" style={{ flex: '1 1 600px', minWidth: 0 }}>
-          <Outlet />
+          {me.loading && !me.error && <div className="row g12 muted" role="status" style={{ padding: '48px 0' }}><Spinner /> Loading your dashboard…</div>}
+          {me.loading && me.error && (
+            <div className="card stack g12" role="alert">
+              <strong>We couldn’t load your dashboard.</strong><span className="small muted">{me.error}</span>
+              <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} onClick={reloadMe}>Try again</button>
+            </div>
+          )}
+          {!me.loading && <Outlet />}
         </main>
       </div>
       {/* phones: bottom tabs */}

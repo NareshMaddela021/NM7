@@ -5,13 +5,7 @@ import { ORDERS, EXPERTS_FULL, CUSTOMERS, PAYMENTS, PAYOUTS, REFUNDS, AUDITS, DE
 const Ctx = createContext(null);
 export const useAdmin = () => useContext(Ctx);
 
-export const ROLES = {
-  owner: { label: 'Owner', can: ['dashboard', 'orders', 'experts', 'refunds', 'payments', 'customers', 'quality', 'reports', 'settings', 'automation', 'team'] },
-  ops: { label: 'Operations', can: ['dashboard', 'orders', 'experts', 'quality', 'automation'] },
-  finance: { label: 'Finance', can: ['dashboard', 'payments', 'refunds', 'reports'] },
-  support: { label: 'Support', can: ['orders', 'customers', 'refunds'] },
-  quality: { label: 'Quality reviewer', can: ['orders', 'quality'] },
-};
+export { ROLES } from './roles';
 
 export const hoursLeft = (o) => (o.deadline && !o.deliveredAt && !['Refunded', 'Cancelled'].includes(o.stage) ? (o.deadline - NOW_MS) / 3600000 : null);
 export const atRisk = (o) => { const h = hoursLeft(o); return h !== null && h < 6; };

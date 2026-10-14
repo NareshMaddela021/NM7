@@ -1,0 +1,14 @@
+# Nm7 — https://nm7.si
+User-agent: *
+Allow: /
+Disallow: /me
+Disallow: /admin
+Disallow: /expert
+Disallow: /checkout
+Disallow: /orders
+Disallow: /r/
+Disallow: /login
+Disallow: /signup
+Disallow: /forgot-password
+
+Sitemap: https://nm7.si/sitemap.xml

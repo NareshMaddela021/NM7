@@ -1,3 +1,4 @@
+import { LEGAL } from './legal';
 // Single source of truth for prices, fees and promises.
 // Change a number here and every screen updates.
 
@@ -33,7 +34,7 @@ export function expertPayout(price, fees = FEES) {
   return { price, platform, gst, tx, net: price - platform - gst - tx };
 }
 
-export const inr = (n) => '₹' + Math.round(n).toLocaleString('en-IN');
+export const inr = (n) => '₹' + (Math.round(n) || 0).toLocaleString('en-IN'); // `|| 0`: never “₹-0”
 
 // Customer add-ons (sample prices — change here).
 export const ADDONS = {
@@ -49,9 +50,17 @@ export const upgradePrice = (from, to) => Math.max(0, PLANS[to].price - PLANS[fr
 export const REFERRAL = { reward: null, friendOff: null };
 
 // Customer invoices. Prices are shown as GST-inclusive — confirm the GST treatment and GSTIN with your CA.
-export const INVOICE = { gstPct: 18, inclusive: true, gstin: '', company: 'AsuraaX AI', brand: 'Nm7 · nm7.si', sacCode: '' } // gstin & sacCode: fill in from your CA;
+export const INVOICE = { gstPct: 18, inclusive: true, gstin: LEGAL.gstin, company: LEGAL.company, brand: 'Nm7 · nm7.si', sacCode: LEGAL.sacCode }; // GSTIN & SAC: src/lib/legal.js
 export function gstSplit(amount, inv = INVOICE) {
   const taxable = inv.inclusive ? amount / (1 + inv.gstPct / 100) : amount;
   const gst = inv.inclusive ? amount - taxable : amount * inv.gstPct / 100;
   return { taxable, gst, total: taxable + gst };
+}
+
+/** Live: the owner sets prices in the admin console; load them into PLANS / ADDONS (rupees) at start-up. */
+export async function syncPrices(http) {
+  const r = await http('/api/public/prices');
+  Object.entries(r.plans || {}).forEach(([k, v]) => { if (PLANS[k]) Object.assign(PLANS[k], { price: v.price, active: v.active }); });
+  Object.entries(r.addons || {}).forEach(([k, v]) => { if (ADDONS[k]) Object.assign(ADDONS[k], { price: v.price, active: v.active }); });
+  if (r.deliveryHours && PROMISES.deliveryHours !== undefined) PROMISES.deliveryHours = r.deliveryHours;
 }

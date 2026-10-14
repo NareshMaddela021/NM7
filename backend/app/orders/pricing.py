@@ -17,19 +17,23 @@ DELIVERY_HOURS = 48
 CURRENCY = "INR"
 
 
-def price(plan: str, addons: list[str]) -> list[tuple[str, str, str, int]]:
-    """Line items (kind, code, name, amount) for a new order."""
-    if plan not in PLANS:
+def price(plan: str, addons: list[str], site: dict | None = None) -> list[tuple[str, str, str, int]]:
+    """Line items (kind, code, name, amount) for a new order. `site` holds the owner's prices (app/site.py)."""
+    plans = {k: (v["name"], v["amount"], v["active"]) for k, v in site["plans"].items()} if site else None
+    extras = {k: (v["name"], v["amount"], v["active"]) for k, v in site["addons"].items()} if site else None
+    plans = plans or {k: (n, a, True) for k, (n, a) in PLANS.items()}
+    extras = extras or {k: (n, a, True) for k, (n, a) in ADDONS.items()}
+    if plan not in plans or not plans[plan][2]:
         raise ApiError(400, "unknown_plan", "Pick one of the plans.")
     if len(set(addons)) != len(addons):
         raise ApiError(400, "duplicate_addon", "Each add-on can be added once.")
     if addons and plan == "diy":
         raise ApiError(400, "addon_not_allowed", "Add-ons are for expert plans.")
     for a in addons:
-        if a not in ADDONS:
+        if a not in extras or not extras[a][2]:
             raise ApiError(400, "unknown_addon", f"Unknown add-on: {a}.")
     if plan == "launch" and "linkedin" in addons:
         raise ApiError(400, "addon_not_allowed", "Career Launch already includes the LinkedIn makeover.")
-    items = [("plan", plan, *PLANS[plan])]
-    items += [("addon", a, *ADDONS[a]) for a in addons]
+    items = [("plan", plan, *plans[plan][:2])]
+    items += [("addon", a, *extras[a][:2]) for a in addons]
     return items

@@ -2,6 +2,8 @@
 // Preview: kept in this browser (localStorage). Live app: GET/PUT /api/expert/orders/{id}, /api/orders/{id}/drafts, etc.
 import { useSyncExternalStore } from 'react';
 import { INITIAL } from '../pages/builder/schema';
+import { LIVE, http, reportSaveError } from '../services/http';
+import { currentUser, onSignOut } from './auth';
 
 const KEY = 'asuraa-expert-orders-v3';
 const SNIP_KEY = 'asuraa-expert-snippets-v1';
@@ -78,16 +80,54 @@ function withDraft1(list) {
 }
 
 /* ---------- tiny store ---------- */
+// Live app: GET /api/work (the customer's expert orders, or the orders offered to / taken by this expert);
+// each change is a PATCH /api/work/{id} with the fields this side may change. Nothing is kept in localStorage.
 let state = null;
+let liveFor;
 const subs = new Set();
+const notify = () => subs.forEach((f) => f());
 const load = () => { try { const s = localStorage.getItem(KEY); return s ? JSON.parse(s) : withDraft1(SAMPLE()); } catch { return withDraft1(SAMPLE()); } };
-const get = () => { if (!state) state = load(); return state; };
-const emit = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { /* ignore */ } subs.forEach((f) => f()); };
-export function updateOrder(id, fn) { state = get().map((o) => (o.id === id ? { ...o, ...fn(o) } : o)); emit(); }
-export function resetExpertOrders() { state = withDraft1(SAMPLE()); emit(); }
+async function loadLive(id) {
+  try { const list = await http('/api/work'); if (liveFor === id) { state = list; notify(); } } catch (e) { if (liveFor === id) reportSaveError(e); }
+}
+const get = () => {
+  if (LIVE) {
+    const u = currentUser();
+    const id = u && (u.role === 'customer' || u.role === 'expert') ? u.id : null;
+    if (liveFor !== id || !state) { liveFor = id; state = []; if (id) loadLive(id); }
+    return state;
+  }
+  if (!state) state = load();
+  return state;
+};
+const emit = () => { if (!LIVE) { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { /* ignore */ } } notify(); };
+// What each side may send (the server checks the same rules).
+const SENDS = {
+  customer: ['intake', 'jd', 'original', 'role', 'level', 'domain', 'comments', 'call', 'rating', 'review', 'status', 'messages'],
+  expert: ['versions', 'comments', 'linkedin', 'call', 'status', 'messages'],
+};
+export function updateOrder(id, fn) {
+  const cur = get().find((o) => o.id === id);
+  if (!cur) return;
+  const patch = fn(cur);
+  state = get().map((o) => (o.id === id ? { ...o, ...patch } : o));
+  emit();
+  if (!LIVE) return;
+  const body = Object.fromEntries(Object.entries(patch).filter(([k]) => (SENDS[currentUser()?.role] || []).includes(k)));
+  if (!Object.keys(body).length) return;
+  http(`/api/work/${encodeURIComponent(id)}`, { method: 'PATCH', body })
+    .then((saved) => { state = get().map((o) => (o.id === id ? saved : o)); notify(); if (patch.status === 'declined') reloadExpertOrders(); })
+    .catch((e) => { reportSaveError(e); reloadExpertOrders(); });
+}
+export function resetExpertOrders() { if (LIVE) { reloadExpertOrders(); return; } state = withDraft1(SAMPLE()); emit(); }
 export function useExpertOrders() { return useSyncExternalStore((f) => { subs.add(f); return () => subs.delete(f); }, get); }
 export const findOrder = (id) => get().find((o) => o.id === id);
 export function addExpertOrder(o) { state = [o, ...get()]; emit(); }
+/** Live: fetch again (after a payment, refund or assignment). */
+export function reloadExpertOrders() { if (LIVE && liveFor) loadLive(liveFor); }
+/** Sign-out / account switch. */
+export function forgetExpertOrders() { state = null; liveFor = undefined; snips = null; notify(); }
+onSignOut(forgetExpertOrders);
 
 /* ---------- snippets ---------- */
 const SNIP_DEFAULT = [

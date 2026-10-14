@@ -10,10 +10,11 @@ from app.auth.models import User
 from app.core.db import ORDERS, PAYMENTS, REFUNDS, Session, next_number, transaction
 from app.core.time import IST, now
 from app.orders.models import ORDER_NO_START, Order, OrderItem
-from app.orders.pricing import CURRENCY, DELIVERY_HOURS, price
+from app.orders.pricing import CURRENCY, price
 from app.orders.schemas import OrderOut
 from app.payments.models import Payment
 from app.refunds.models import Refund
+from app.site import get_site
 
 log = logging.getLogger("nm7.orders")
 
@@ -35,7 +36,7 @@ async def next_invoice_no(db: AsyncDatabase, at: datetime, session: Session = No
 
 async def build_order(db: AsyncDatabase, customer: User, plan: str, role: str | None, addons: list[str]) -> Order:
     """Prices the order and reserves its number. Not saved yet (the caller saves it with its payment)."""
-    items = price(plan, addons)
+    items = price(plan, addons, await get_site(db))
     n = await next_number(db, "order_no", ORDER_NO_START)
     return Order(
         _id=f"RS-{n}",
@@ -79,7 +80,8 @@ async def mark_paid(
         else:
             order.status = "offer"  # paid; finding an expert
             express = any(i.code == "express" for i in order.items)
-            order.deadline_at = at + timedelta(hours=24 if express else DELIVERY_HOURS)
+            hours = (await get_site(db, session=s))["delivery_hours"]
+            order.deadline_at = at + timedelta(hours=min(24, hours) if express else hours)
         await db[PAYMENTS].update_one(
             {"_id": payment.id},
             {

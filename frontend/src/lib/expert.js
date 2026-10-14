@@ -1,6 +1,8 @@
 // Expert profile: fields, auto-fill from an asuraa.ai profile or an uploaded document, strength and checks.
+import { useSyncExternalStore } from 'react';
 import { isUpi } from './format';
-import { currentUser, updateUser } from './auth';
+import { currentUser, updateUser, onSignOut } from './auth';
+import { LIVE, http, reportSaveError } from '../services/http';
 
 export const DOMAINS = ['Data & analytics', 'Software engineering', 'Product', 'Design', 'Finance', 'Marketing & HR', 'Sales', 'Operations & supply chain', 'Management', 'Healthcare', 'Education', 'Govt / PSU', 'Core engineering'];
 export const LEVELS = [['fresher', 'Freshers / students'], ['early', '0–3 years'], ['mid', '3+ years']];
@@ -50,14 +52,71 @@ export const BLANK = {
   note: '',
 };
 
-export const loadExpert = () => { try { const s = localStorage.getItem(myKey()); return s ? { ...BLANK, ...JSON.parse(s) } : null; } catch { return null; } };
+/* ---------- live: the profile is stored on the server (GET/PUT /api/expert/profile) ---------- */
+let live = { for: null, loaded: false, p: null, saved: '' };
+const liveSubs = new Set();
+const liveNotify = () => liveSubs.forEach((f) => f());
+const EDITABLE = ['draft', 'changes', 'approved', 'test'];
+const fromServer = (r) => (r ? { ...BLANK, ...r, about: { ...BLANK.about, ...r.about }, expertise: { ...BLANK.expertise, ...r.expertise }, proof: { ...BLANK.proof, ...r.proof }, services: { ...BLANK.services, ...r.services }, payout: { ...BLANK.payout, ...r.payout } } : null);
+const keep = (p) => { const { status, note, test, userId, ...rest } = p; return JSON.stringify(rest); }; // eslint-disable-line no-unused-vars
+async function fetchLive(uid) {
+  try {
+    const r = fromServer(await http('/api/expert/profile'));
+    if (live.for !== uid) return;
+    live = { for: uid, loaded: true, p: r, saved: r ? keep(r) : '' };
+    if (r?.status && currentUser()?.expertStatus !== r.status) updateUser(uid, { expertStatus: r.status });
+  } catch (e) { if (live.for === uid) { live = { ...live, loaded: true }; reportSaveError(e); } }
+  liveNotify();
+}
+/** Live: true once this expert's profile has come from the server (pages wait for it). Preview: always true. */
+export function useExpertReady() {
+  const snap = useSyncExternalStore((f) => { liveSubs.add(f); return () => liveSubs.delete(f); }, () => live);
+  if (!LIVE) return true;
+  const uid = currentUser()?.role === 'expert' ? currentUser().id : null;
+  if (uid && live.for !== uid) { live = { for: uid, loaded: false, p: null, saved: '' }; fetchLive(uid); }
+  return snap.for === uid && snap.loaded;
+}
+onSignOut(() => { live = { for: null, loaded: false, p: null, saved: '' }; liveNotify(); });
+let saveTimer;
+function saveLive(p) {
+  live = { ...live, p };
+  if (!EDITABLE.includes(p.status) || keep(p) === live.saved) return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    try { const r = fromServer(await http('/api/expert/profile', { method: 'PUT', body: p })); live = { ...live, saved: keep(r) }; } catch (e) { reportSaveError(e); }
+  }, 800);
+}
+/** Live: save now, then submit for review. Returns the profile as the server has it. */
+export async function submitExpert(p) {
+  clearTimeout(saveTimer);
+  await http('/api/expert/profile', { method: 'PUT', body: p });
+  const r = fromServer(await http('/api/expert/profile/submit', { method: 'POST' }));
+  live = { ...live, p: r, saved: keep(r) };
+  updateUser(currentUser().id, { expertStatus: r.status });
+  liveNotify();
+  return r;
+}
+/** Live: hand in the test task. */
+export async function submitTest(data, note) {
+  const r = fromServer(await http('/api/expert/test', { method: 'POST', body: { data, note } }));
+  live = { ...live, p: r, saved: keep(r) };
+  updateUser(currentUser().id, { expertStatus: r.status });
+  liveNotify();
+  return r;
+}
+
+export const loadExpert = () => {
+  if (LIVE) return live.p ? structuredClone(live.p) : null;
+  try { const s = localStorage.getItem(myKey()); return s ? { ...BLANK, ...JSON.parse(s) } : null; } catch { return null; }
+};
 export const saveExpert = (p) => {
+  if (LIVE) { saveLive(p); return; }
   const u = currentUser();
   const next = u?.role === 'expert' ? { ...p, userId: u.id } : p;
   try { localStorage.setItem(myKey(), JSON.stringify(next)); } catch { /* ignore */ }
   if (u?.role === 'expert' && u.expertStatus !== next.status && !(u.expertStatus === 'approved' && next.status === 'draft')) updateUser(u.id, { expertStatus: next.status });
 };
-export const clearExpert = () => { try { localStorage.removeItem(myKey()); } catch { /* ignore */ } };
+export const clearExpert = () => { if (LIVE) { live = { ...live, p: null }; return; } try { localStorage.removeItem(myKey()); } catch { /* ignore */ } };
 
 /* ---------- domain suggestions from experience / headline ---------- */
 const DOMAIN_WORDS = [

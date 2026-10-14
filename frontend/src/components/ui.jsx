@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { onSaveError } from '../services/http';
 
 /* ---------- Icons (24px grid, 2px stroke) ---------- */
 const P = {
@@ -68,6 +69,8 @@ export function ToastProvider({ children }) {
     timer.current = setTimeout(() => setT(null), 5000);
   }, []);
   useEffect(() => () => clearTimeout(timer.current), []);
+  // changes saved in the background (dashboard, order chat) that the server refused
+  useEffect(() => onSaveError((e) => show(e?.message ? `Not saved: ${e.message}` : 'A change wasn’t saved. Please try again.')), [show]);
   return (
     <ToastCtx.Provider value={show}>
       {children}

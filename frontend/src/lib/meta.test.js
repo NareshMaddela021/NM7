@@ -1,0 +1,12 @@
+import { describe, expect, it } from 'vitest';
+import { ROUTE_META, metaFor } from './meta';
+
+describe('page titles', () => {
+  it('every public page has its own title and description', () => {
+    const titles = new Set(ROUTE_META.map(([, t]) => t));
+    expect(titles.size).toBe(ROUTE_META.length);
+    expect(metaFor('/privacy')).toMatchObject({ title: 'Privacy policy', noindex: false });
+    expect(metaFor('/me/orders')).toMatchObject({ title: 'My orders', noindex: true });
+    expect(metaFor('/nope')).toMatchObject({ title: 'Page not found', noindex: true });
+  });
+});

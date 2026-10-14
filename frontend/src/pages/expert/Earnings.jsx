@@ -7,12 +7,48 @@ import { downloadCsv } from '../admin/AdminUI';
 import { useExpertOrders } from '../../lib/expertStore';
 import { expertStats } from './ExpertHome';
 
+import { LIVE } from '../../services/http';
+import { Link } from 'react-router-dom';
+
+/** Live: earnings from this expert's own delivered orders. Payouts are sent by bank/UPI transfer (no online withdraw yet). */
+function LiveEarnings() {
+  const orders = useExpertOrders();
+  const done = orders.filter((o) => ['delivered', 'approved'].includes(o.status));
+  const approved = done.filter((o) => o.status === 'approved');
+  const pending = done.filter((o) => o.status === 'delivered');
+  const sum = (list) => list.reduce((t, o) => t + expertPayout(o.price).net, 0);
+  return (
+    <>
+      <Header variant="expert" />
+      <main id="main" className="container stack g24" style={{ maxWidth: 1100, padding: '28px 24px 64px' }}>
+        <div className="stack g4"><h1 className="display" style={{ fontSize: 32 }}>Earnings</h1><span className="small muted">You keep everything after a {FEES.platformPct}% platform fee (+ GST) and payment charges.</span></div>
+        <div className="grid-auto g16" style={{ '--min': '220px' }}>
+          <div className="card-ink stack g4"><span className="xs" style={{ opacity: 0.75 }}>Earned · approved orders, after fees</span><span className="display" style={{ fontSize: 40 }}>{inr(sum(approved))}</span><span className="xs" style={{ opacity: 0.7 }}>{approved.length} order(s)</span></div>
+          <div className="card stack g4"><span className="xs muted">Pending · delivered, awaiting approval</span><span className="display" style={{ fontSize: 32 }}>{inr(sum(pending))}</span><span className="xs faint">{pending.length} order(s)</span></div>
+        </div>
+        <section className="card stack g8">
+          <strong>Orders</strong>
+          {done.length ? (
+            <div className="table-wrap"><table className="table"><thead><tr><th>Order</th><th>Plan</th><th>Status</th><th>You get</th></tr></thead>
+              <tbody>{done.map((o) => <tr key={o.id}><td className="mono small"><Link to={`/expert/orders/${o.id}`}>{o.id}</Link></td><td className="small">{PLANS[o.plan]?.name}</td><td className="small">{o.status === 'approved' ? 'Approved' : 'Delivered'}</td><td className="small">{inr(expertPayout(o.price).net)}</td></tr>)}</tbody></table></div>
+          ) : <span className="small muted">No delivered orders yet. Your earnings show here once you deliver.</span>}
+        </section>
+        <p className="small muted">Payouts are sent by bank or UPI transfer to the details in your profile, {PROMISES.payoutDays ? `within ${PROMISES.payoutDays}` : 'after approval'}. Questions: <a href="mailto:info@nm7.si">info@nm7.si</a>.</p>
+      </main>
+    </>
+  );
+}
+
 const PAYOUT_HISTORY = [['14 Oct', 5614, 'Processing', '—'], ['02 Oct', 8020, 'Paid', 'UTR4419920013'], ['18 Sep', 6416, 'Paid', 'UTR4418810457'], ['01 Sep', 4812, 'Paid', 'UTR4417700921']];
 
 const STATUS = { available: ['Available', 'b-success'], pending: ['Pending', 'b-warning'], refunded: ['Refunded', 'b-danger'] };
 const NAMES = { aug: 'August', sep: 'September', oct: 'October' };
 
 export default function Earnings() {
+  return LIVE ? <LiveEarnings /> : <PreviewEarnings />;
+}
+
+function PreviewEarnings() {
   const [data, setData] = useState(null);
   const [month, setMonth] = useState('oct');
   const [state, setState] = useState('idle'); // idle | sending | done

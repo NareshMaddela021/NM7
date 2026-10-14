@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { Link, useLocation, useParams, useSearchParams } from 'react-router-dom';
 import { Dialog, Spinner, useToast } from '../../components/ui';
+import { LIVE } from '../../services/http';
 import { useMe, orderView, buyAddon, upgradeOrder, retentionLeft, getMe, cancelOrder } from '../../lib/customerStore';
 import { useExpertOrders, updateOrder } from '../../lib/expertStore';
 import { PLANS, ADDONS, PROMISES, inr, upgradePrice } from '../../lib/pricing';
@@ -12,6 +13,16 @@ import { countdown, fmtDay, fmtWhen, invoicePdf } from './shared';
 export function PayDialog({ title, amount, onPaid, onClose }) {
   const [m, setM] = useState('UPI');
   const [busy, setBusy] = useState(false);
+  if (LIVE) {
+    return (
+      <Dialog showTitle title={title} onClose={onClose}>
+        <div className="stack g12">
+          <span className="small">Adding to a paid order isn’t available online yet. Write to <a href="mailto:info@nm7.si">info@nm7.si</a> with your order number and we’ll set it up for you.</span>
+          <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} onClick={onClose}>OK</button>
+        </div>
+      </Dialog>
+    );
+  }
   return (
     <Dialog showTitle title={title} onClose={onClose}>
       <div className="stack g16">
@@ -32,6 +43,7 @@ export function OrdersList() {
     <>
       <MeHead title="My orders" sub="Every order, its status and its invoices." right={<Link to="/" className="btn btn-outline">New order</Link>} />
       <div className="stack g12">
+        {!orders.length && <div className="card stack g8"><strong>No orders yet</strong><span className="small muted">Scan your resume for free, then pick a plan if you want an expert to rewrite it.</span><Link to="/" className="btn btn-ink" style={{ alignSelf: 'flex-start' }}>Scan my resume</Link></div>}
         {orders.map((o) => (
           <Link key={o.id} to={`/me/orders/${o.id}`} className="card row between g12" style={{ textDecoration: 'none', color: 'inherit' }}>
             <div className="stack g4">
@@ -59,6 +71,7 @@ export function OrderDetail() {
   const { state: navState } = useLocation();
   const [redo, setRedo] = useState(params.get('redo') === '1');
   const [redoText, setRedoText] = useState('');
+  const [cancelling, setCancelling] = useState(false);
   const raw = me.orders.find((o) => o.id === id);
   if (!raw) return <><MeHead title="Order not found" /><Link to="/me/orders">Back to my orders</Link></>;
   const o = orderView(raw);
@@ -96,7 +109,7 @@ export function OrderDetail() {
             <Link to={`/me/messages?order=${o.id}`} className="btn btn-outline">Message your expert</Link>
             {o.sent.length > 0 && <Link to={`/orders/${o.id}/review`} className="btn btn-ghost">See latest draft</Link>}
             {o.sent.length > 0 && <button type="button" className="btn btn-ghost" onClick={() => setRedo(true)}>Not happy? Free re-do</button>}
-            {o.x?.status === 'offer' ? <button type="button" className="btn btn-ghost" onClick={() => { if (cancelOrder(o.id)) toast('Order cancelled — full refund on its way'); }}>Cancel order (full refund)</button>
+            {o.x?.status === 'offer' ? <button type="button" className="btn btn-ghost" disabled={cancelling} onClick={async () => { setCancelling(true); try { if (await cancelOrder(o.id)) toast('Order cancelled — full refund on its way'); } catch (e) { toast(e.message); } finally { setCancelling(false); } }}>{cancelling ? <Spinner /> : 'Cancel order (full refund)'}</button>
               : <Link to={`/orders/${o.id}/refund`} className="btn btn-ghost">Refund</Link>}
           </div>
           {left != null && <span className="xs muted">Expert files are kept for {PROMISES.retentionDays} days — {left > 0 ? `${left} days left` : 'expired'}. Your copy in “My resumes” stays as long as your account.</span>}

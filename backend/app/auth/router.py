@@ -6,7 +6,7 @@ from pymongo.errors import DuplicateKeyError
 from app.auth import emails
 from app.auth.deps import CurrentAuth, MaybeAuth
 from app.auth.models import User
-from app.auth.schemas import EmailCodeIn, EmailIn, LoginIn, Ok, ResetIn, SignupIn, SignupOut, UserOut
+from app.auth.schemas import ChangePasswordIn, EmailCodeIn, EmailIn, LoginIn, Ok, ResetIn, SignupIn, SignupOut, UserOut
 from app.auth.service import (
     INVALID_CODE,
     LOGIN_FAIL_EMAIL,
@@ -56,6 +56,10 @@ async def signup(body: SignupIn, request: Request, db: DB, mailer: MailerDep) ->
         terms_accepted_at=now(),
         expert_status="draft" if body.role == "expert" else None,
     )
+    if body.ref and body.role == "customer":
+        friend = await db[USERS].find_one({"referral_code": body.ref.strip().upper()}, {"_id": 1})
+        if friend and (not user or friend["_id"] != user.id):
+            fields["referred_by"] = friend["_id"]
     if user:  # never verified (e.g. a typo in the first try) — the email owner still has to confirm the code
         await db[USERS].update_one({"_id": user.id}, {"$set": {**fields, "updated_at": now()}})
         user = user.model_copy(update=fields)
@@ -161,6 +165,32 @@ async def reset_password(body: ResetIn, db: DB) -> Ok:
         },
     )
     await revoke_all(db, user.id)  # sign out everywhere
+    return Ok()
+
+
+@router.post("/password/change")
+async def change_password(body: ChangePasswordIn, auth: CurrentAuth, request: Request, db: DB) -> Ok:
+    """Signed in: current password + new one twice. Signs out every other browser (this one stays signed in)."""
+    user = auth.user
+    if user.role == "admin" and not auth.session.two_step:
+        raise ApiError(403, "two_step_required", "Finish two-step login first.")
+    key = f"pwchange:{user.id}"
+    await rate_limit.check(db, key, [LOGIN_FAIL_EMAIL])
+    if not await verify_password(user.password_hash, body.current_password):
+        await rate_limit.record(db, key)
+        raise ApiError(400, "wrong_password", "Your current password is wrong.")
+    check_new_password(body.password, body.password_confirm)
+    if body.password == body.current_password:
+        raise ApiError(400, "same_password", "Choose a password different from your current one.")
+    await rate_limit.clear(db, key)
+    t = now()
+    await db[USERS].update_one(
+        {"_id": user.id},
+        {"$set": {"password_hash": await hash_password(body.password), "password_changed_at": t, "updated_at": t}},
+    )
+    await db[SESSIONS].update_many(
+        {"user_id": user.id, "_id": {"$ne": auth.session.id}, "revoked_at": None}, {"$set": {"revoked_at": t}}
+    )
     return Ok()
 
 

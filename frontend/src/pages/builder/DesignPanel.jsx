@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { ensureAllFonts } from './fontLoader';
 import { ACCENTS, BULLETS, FONTS, HEADING_STYLES, MARGINS, PAGE, TEMPLATE_PRESETS, TEXT_COLORS, atsCheck, contrastOnWhite } from './design';
 import { PRINTABLE, sectionLabel, resolveOrder } from './schema';
 
@@ -39,6 +40,7 @@ function Toggle({ label, checked, onChange }) {
 }
 
 export default function DesignPanel({ d, ds, set, applyPreset, setTitle, fit, fitting, pages, history, savedStyles, saveStyle, applySaved, deleteSaved, reset }) {
+  useEffect(() => { ensureAllFonts(); }, []); // the font list shows each font in its own face
   const ats = atsCheck(ds, d);
   const [styleName, setStyleName] = useState('');
   const fontOpts = Object.entries(FONTS);
