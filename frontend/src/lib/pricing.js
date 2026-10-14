@@ -33,7 +33,7 @@ export function expertPayout(price, fees = FEES) {
   return { price, platform, gst, tx, net: price - platform - gst - tx };
 }
 
-export const inr = (n) => '₹' + Math.round(n).toLocaleString('en-IN');
+export const inr = (n) => '₹' + (Math.round(n) || 0).toLocaleString('en-IN'); // `|| 0`: never “₹-0”
 
 // Customer add-ons (sample prices — change here).
 export const ADDONS = {

@@ -14,7 +14,7 @@ export function MePayments() {
   const me = useMe();
   const rows = payments(me);
   const paid = rows.filter((r) => r.kind === 'payment').reduce((t, r) => t + r.amount, 0);
-  const refunded = -rows.filter((r) => r.kind === 'refund').reduce((t, r) => t + r.amount, 0);
+  const refunded = rows.filter((r) => r.kind === 'refund').reduce((t, r) => t - r.amount, 0);
   return (
     <>
       <MeHead title="Payments & refunds" sub={`All payments go through ${PROMISES.paymentProvider}. Prices include GST.`} />
@@ -24,7 +24,7 @@ export function MePayments() {
       </div>
       <div className="card table-wrap" style={{ padding: 0 }}>
         <table className="table"><thead><tr><th>Date</th><th>What</th><th>Amount</th><th>Method</th><th>Status</th><th /></tr></thead>
-          <tbody>{rows.map((r, i) => (
+          <tbody>{!rows.length && <tr><td colSpan={6} className="small muted" style={{ padding: 20 }}>No payments yet. When you buy a plan, the payment and its GST invoice show here.</td></tr>}{rows.map((r, i) => (
             <tr key={i}>
               <td className="small">{fmtDay(r.at)}</td>
               <td className="small"><Link to={`/me/orders/${r.orderId}`}>{r.what}</Link><div className="xs faint mono">{r.payId}</div></td>

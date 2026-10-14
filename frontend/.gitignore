@@ -3,3 +3,6 @@ dist
 .env
 .DS_Store
 dist-preview
+e2e-live/.api.log
+test-results
+playwright-report

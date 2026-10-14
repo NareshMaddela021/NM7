@@ -25,13 +25,45 @@ const subs = new Set();
 let snap = null;
 const notify = () => { snap = null; subs.forEach((f) => f()); };
 
+/* ---------- personal data in this browser: cleared on sign-out and when another account signs in ---------- */
+const KEEP = new Set(['asuraa-theme', USERS_KEY, SESSION_KEY]); // preferences, and the preview's own sample accounts
+const LAST_USER_KEY = 'asuraa-last-user';
+const signOutHooks = new Set();
+/** Stores register a function that forgets what they hold in memory (see customerStore / expertStore). */
+export const onSignOut = (fn) => { signOutHooks.add(fn); return () => signOutHooks.delete(fn); };
+/** Removes every Nm7 key from localStorage/sessionStorage except preferences, and empties the in-memory stores. */
+export async function clearUserData() {
+  for (const fn of signOutHooks) { try { await fn(); } catch { /* ignore */ } }
+  for (const store of [localStorage, sessionStorage]) {
+    try {
+      const keys = [];
+      for (let i = 0; i < store.length; i++) { const k = store.key(i); if (k && (k.startsWith('asuraa-') || k.startsWith('nm7-')) && !KEEP.has(k)) keys.push(k); }
+      keys.forEach((k) => store.removeItem(k));
+    } catch { /* ignore */ }
+  }
+}
+/** Whoever was signed in last in this browser; data left from someone else is wiped before showing anything. */
+function noteUser(id) {
+  let last = null;
+  try { last = localStorage.getItem(LAST_USER_KEY); } catch { /* ignore */ }
+  if (last && last !== id) clearUserData();
+  try { localStorage.setItem(LAST_USER_KEY, id); } catch { /* ignore */ }
+}
+
 /* ---------- live state: the signed-in user from the API ---------- */
 let live = { user: null, ready: false };
 const fromApi = (u) => ({
   id: u.id, role: u.role, name: u.name, email: u.email, phone: u.phone || '', verified: u.verified,
   expertStatus: u.expertStatus || undefined, adminRole: u.adminRole || undefined, createdAt: Date.parse(u.createdAt),
 });
-const setLive = (user) => { live = { user: user ? fromApi(user) : null, ready: true }; notify(); return live.user; };
+const setLive = (user) => {
+  const prev = live.user;
+  if (user && prev && prev.id !== user.id) clearUserData(); // account switch in the same tab
+  if (user) noteUser(user.id);
+  live = { user: user ? fromApi(user) : null, ready: true };
+  notify();
+  return live.user;
+};
 if (LIVE) http('/api/auth/me').then(setLive, () => setLive(null)); // restore the session on page load
 
 /* ---------- preview state: accounts in this browser ---------- */
@@ -69,7 +101,7 @@ export function passwordIssue(p) {
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const byEmail = (e) => getUsers().find((u) => u.email.toLowerCase() === (e || '').trim().toLowerCase());
 const byPhone = (p) => getUsers().find((u) => normPhone(u.phone) === normPhone(p));
-const start = (u, extra = {}) => { session = { userId: u.id, at: Date.now(), ...extra }; emit(); return u; };
+const start = (u, extra = {}) => { if (getSession()?.userId && getSession().userId !== u.id) clearUserData(); session = { userId: u.id, at: Date.now(), ...extra }; emit(); return u; };
 const fail = (message, code) => Object.assign(new Error(message), { code });
 const WRONG_CODE = 'That code is wrong or expired.';
 
@@ -87,7 +119,9 @@ export async function signIn(email, password) {
 /** Creates the account and emails a 6-digit code. Returns { email }. */
 export async function signUp({ role, name, email, phone, password, confirm, agree }) {
   if (LIVE) {
-    return http('/api/auth/signup', { method: 'POST', body: { role, name: name.trim(), email: email.trim(), phone: phone?.trim() || null, password, passwordConfirm: confirm, termsAccepted: !!agree } });
+    let ref = null;
+    try { ref = sessionStorage.getItem('nm7-ref'); } catch { /* ignore */ }
+    return http('/api/auth/signup', { method: 'POST', body: { role, name: name.trim(), email: email.trim(), phone: phone?.trim() || null, password, passwordConfirm: confirm, termsAccepted: !!agree, ref } });
   }
   await wait(500);
   if (password !== confirm) throw fail('The two passwords don’t match.', 'password_mismatch');
@@ -125,12 +159,25 @@ export async function resetPassword(email, code, password, confirm) {
   users = getUsers().map((x) => (x.id === u.id ? { ...x, password, verified: true } : x)); emit();
 }
 export async function signOut() {
+  await clearUserData(); // sends unsaved edits first, then forgets everything personal in this browser
+  try { localStorage.removeItem(LAST_USER_KEY); } catch { /* ignore */ }
   if (LIVE) {
     setLive(null);
     await http('/api/auth/logout', { method: 'POST' }).catch(() => {});
     return;
   }
   session = null; emit();
+}
+/** Signed in: current password + new one twice. Other browsers are signed out; this one stays signed in. */
+export async function changePassword(current, password, confirm) {
+  if (LIVE) return http('/api/auth/password/change', { method: 'POST', body: { currentPassword: current, password, passwordConfirm: confirm } });
+  await wait(400);
+  const u = currentUser();
+  const me = getUsers().find((x) => x.id === u?.id);
+  if (!me || me.password !== current) throw fail('Your current password is wrong.', 'wrong_password');
+  if (password !== confirm) throw fail('The two passwords don’t match.', 'password_mismatch');
+  users = getUsers().map((x) => (x.id === me.id ? { ...x, password } : x)); emit();
+  return { ok: true };
 }
 /** Local change to the signed-in user (e.g. expert status after submitting a profile). */
 export function updateUser(id, patch) {
@@ -184,6 +231,11 @@ export const previewUsers = () => (LIVE ? [] : getUsers());
 export async function adminSetupStart({ token, email, name, password, confirm }) {
   if (!LIVE) throw fail('Admin setup only works on the live site.', 'not_live');
   return http('/api/admin/setup', { method: 'POST', body: { token: token.trim(), email: email.trim(), name: name.trim(), password, passwordConfirm: confirm } });
+}
+/** Whether the one-time setup page should be shown at all (false for good once an admin exists). */
+export async function adminSetupStatus() {
+  if (!LIVE) return { open: false };
+  return http('/api/admin/setup/status');
 }
 /** Step 2: the 6-digit code from the authenticator app creates the owner account. */
 export async function adminSetupVerify(code) {

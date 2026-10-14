@@ -36,3 +36,8 @@ export async function http(path, { method = 'GET', body } = {}) {
   }
   return data;
 }
+
+/* ---------- background save errors (shown as a toast by <SaveErrors/>) ---------- */
+const saveErrorSubs = new Set();
+export const onSaveError = (fn) => { saveErrorSubs.add(fn); return () => saveErrorSubs.delete(fn); };
+export const reportSaveError = (e) => saveErrorSubs.forEach((f) => f(e));

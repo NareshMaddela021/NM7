@@ -7,7 +7,8 @@
     "preview": "vite preview",
     "build:preview": "SINGLE=1 VITE_HASH_ROUTER=1 VITE_PREVIEW=1 vite build",
     "test": "vitest run",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:e2e:live": "playwright test -c playwright.live.config.mjs"
   },
   "dependencies": {
     "fflate": "^0.8.2",

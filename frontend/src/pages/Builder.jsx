@@ -4,8 +4,8 @@ import Header from '../components/Header';
 import { Dialog, Icon, Meter, useToast } from '../components/ui';
 import { getMatchedJobs, saveProfile } from '../services/api';
 import { PLANS, inr } from '../lib/pricing';
-import { syncFromBuilder, defaultResume } from '../lib/customerStore';
-import { draftKey } from '../lib/auth';
+import { syncFromBuilder, defaultResume, useMe, activeResume } from '../lib/customerStore';
+import { draftKey, currentUser, LIVE } from '../lib/auth';
 import { applyImport } from '../lib/import/apply';
 import { emptyResult } from '../lib/import/shared';
 
@@ -33,7 +33,10 @@ const DRAFT_KEY = () => draftKey(); // per signed-in customer (see lib/auth.js)
 const STYLES_KEY = 'asuraa-saved-styles';
 const loadStyles = () => { try { return JSON.parse(localStorage.getItem(STYLES_KEY) || '[]'); } catch { return []; } };
 const nextFrame = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(r, 40))));
+/** Live app, signed-in customer: the resume lives on the server (My resumes → the active one), not in this browser. */
+const serverCustomer = () => LIVE && currentUser()?.role === 'customer';
 const loadDraft = (key = DRAFT_KEY(), initial = defaultResume()) => {
+  if (serverCustomer() && key === DRAFT_KEY()) return migrateLinks({ ...INITIAL, ...initial });
   try {
     let s = localStorage.getItem(key);
     // drafts still holding the old sample person get the new sample name
@@ -118,7 +121,16 @@ export default function Builder({ embedded = null }) {
   const [stage, setStage] = useState(embedded || location.state?.open === 'build' ? 'build' : 'start');
   const [importMode, setImportMode] = useState('resume');
   const [suggest, setSuggest] = useState(null);
-  const [d, setD] = useState(() => (embedded ? loadDraft(embedded.storageKey, embedded.initial) : loadDraft()));
+  const [d, setD] = useState(() => (embedded ? loadDraft(embedded.storageKey, embedded.initial) : loadDraft(DRAFT_KEY(), serverCustomer() ? (activeResume()?.data || defaultResume()) : defaultResume())));
+  // Live customer: when their resumes arrive from the server, open the active one (unless a scan import is opening).
+  const me = useMe();
+  const fromServer = useRef(!serverCustomer() || !me.loading);
+  useEffect(() => {
+    if (embedded || fromServer.current || me.loading) return;
+    fromServer.current = true;
+    const a = activeResume(me);
+    if (a && !location.state?.scanImport) setD(migrateLinks({ ...INITIAL, ...a.data }));
+  }, [me.loading]); // eslint-disable-line react-hooks/exhaustive-deps
   const [sec, setSec] = useState('personal');
   const [picker, setPicker] = useState(false);
   const [customName, setCustomName] = useState('');
@@ -207,7 +219,7 @@ export default function Builder({ embedded = null }) {
 
   // Autosave: browser draft immediately, server (debounced).
   useEffect(() => {
-    try { localStorage.setItem(embedded?.storageKey || DRAFT_KEY(), JSON.stringify(d)); } catch { /* ignore */ }
+    if (embedded || !serverCustomer()) { try { localStorage.setItem(embedded?.storageKey || DRAFT_KEY(), JSON.stringify(d)); } catch { /* ignore */ } }
     if (embedded) { embedded.onChange?.(d); return undefined; }
     setSaved(false);
     const t = setTimeout(() => { syncFromBuilder(d); saveProfile(d).then(() => setSaved(true)); }, 800);
