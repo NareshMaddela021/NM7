@@ -49,6 +49,8 @@ EXPERT_PROFILES = "expert_profiles"
 # Admin: site settings (prices, rules), quality audits
 SETTINGS = "settings"
 QUALITY_AUDITS = "quality_audits"
+# One master career record per customer (_id = user id)
+JOB_PROFILES = "job_profiles"
 COLLECTIONS = (
     USERS,
     EMAIL_CODES,
@@ -74,6 +76,7 @@ COLLECTIONS = (
     EXPERT_PROFILES,
     SETTINGS,
     QUALITY_AUDITS,
+    JOB_PROFILES,
 )
 
 DAY = 86_400

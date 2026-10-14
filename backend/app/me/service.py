@@ -114,4 +114,8 @@ def visible_resume(data: dict[str, Any]) -> dict[str, Any]:
         if hidden:
             out[k] = "\n".join(x for x in _lines(data.get(k)) if x.lower() not in hidden)
     out.pop("offLines", None)
+    out.pop("prefs", None)  # job preferences (incl. salary) are never printed or shared
+    hidden = data.get("hidden") if isinstance(data.get("hidden"), dict) else {}
+    if hidden.get("pinfo"):
+        out.pop("pinfo", None)  # personal information only when the owner prints it
     return out

@@ -11,11 +11,12 @@ from typing import Any
 from pymongo.asynchronous.database import AsyncDatabase
 
 from app.auth.models import User
-from app.core.db import ORDER_WORK, ORDERS, USERS
+from app.core.db import JOB_PROFILES, ORDER_WORK, ORDERS, USERS
 from app.core.errors import ApiError
 from app.core.time import now
 from app.me.service import ms
 from app.orders.models import Order
+from app.profile.service import privacy_of, strip_private
 from app.site import get_site
 
 # What each side may change (whole-field replace). Messages are append-only and handled separately.
@@ -101,6 +102,10 @@ async def view(db: AsyncDatabase, order: Order, work: dict[str, Any], side: str)
         "rating": d.get("rating"),
         "review": d.get("review"),
     }
+    if side == "expert" and isinstance(out["original"], dict):  # salary / personal info only with consent
+        p = privacy_of(await db[JOB_PROFILES].find_one({"_id": order.customer_id}, {"privacy": 1}))
+        printed = not (out["original"].get("hidden") or {}).get("pinfo")  # on the resume itself: the expert needs it
+        out["original"] = strip_private(out["original"], salary=p["salary"], personal=p["personal"] or printed)
     if side == "customer":  # drafts the expert hasn't sent yet stay private
         out["versions"] = [v for v in out["versions"] if isinstance(v, dict) and v.get("sent")]
     return out
