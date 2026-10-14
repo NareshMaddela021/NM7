@@ -18,6 +18,9 @@ import Import from './builder/Import';
 import TemplatePicker, { layoutOf } from './builder/TemplatePicker';
 import CoverPanel from './builder/CoverPanel';
 import { buildDocx } from './builder/resumeDocx';
+import { EntryHeader, focusMoved } from './builder/EntryControls';
+import LineEntries from './builder/LineEntries';
+import { hiddenCount, lineItems, linesPatch, moveItem, removeItem, toggleItem } from './builder/entries';
 import { shorten, atsFriendly } from './builder/aiTools';
 import LinksEditor, { Logo } from './builder/LinksEditor';
 import PhotoEditor, { DEFAULT_ADJ, shapePhoto } from './builder/PhotoEditor';
@@ -317,18 +320,21 @@ export default function Builder({ embedded = null }) {
     return '';
   };
 
+  // "Education 2", "Extracurricular Activities 1": custom sections use their own title for the entry name
+  const itemName = (k, schema) => (k.startsWith('c_') ? d.custom.find((c) => c.id === k)?.title || schema.item : schema.item);
   const listEditor = (k, schema) => {
     const list = getList(k);
     return (
       <div className="stack g12">
-        {list.map((obj, i) => (
-          <div key={i} className="card stack g16 rise" style={{ padding: 20 }}>
-            <div className="row between g8">
-              <strong>{schema.item} {i + 1}</strong>
-              {(list.length > 1 || k.startsWith('c_')) && (
-                <button type="button" className="btn btn-danger-soft" aria-label={`Remove ${schema.item} ${i + 1}`} onClick={() => { withUndo(`${schema.item} ${i + 1} removed`); setList(k, list.filter((_, j) => j !== i)); }}>Remove</button>
-              )}
-            </div>
+        {list.map((obj, i) => {
+          const label = `${itemName(k, schema)} ${i + 1}`;
+          return (
+          <div key={i} className="card stack g16 rise entry-card" data-off={!!obj.off} style={{ padding: 20 }}>
+            <EntryHeader list={k} index={i} count={list.length} label={label} off={!!obj.off}
+              onMove={(dir) => { setList(k, moveItem(list, i, dir)); focusMoved(k, i + dir, dir); }}
+              onToggle={() => setList(k, toggleItem(list, i))}
+              onRemove={() => { withUndo(`${label} removed`); setList(k, removeItem(list, i)); }} />
+            <div className="entry-body">
             <FieldGrid>
               {schema.fields.map((f, fi) => {
                 const kind = k.startsWith('c_') ? 'custom' : k;
@@ -343,8 +349,10 @@ export default function Builder({ embedded = null }) {
                   error={(u) => fieldError('url', u)} onChange={(v) => setItem(k, i, 'links', v)} />];
               })}
             </FieldGrid>
+            </div>
           </div>
-        ))}
+          );
+        })}
         <button type="button" className="btn btn-outline btn-lg" style={{ borderStyle: 'dashed' }} onClick={() => setList(k, [...list, { ...schema.blank }])}>+ Add another {schema.item.toLowerCase()}</button>
       </div>
     );
@@ -410,13 +418,14 @@ export default function Builder({ embedded = null }) {
               const printable = order.includes(s.id);
               const hidden = !!d.hidden?.[s.id];
               const oi = order.indexOf(s.id);
+              const offN = hiddenCount(d, s.id); // entries switched off inside this section
               const label = sectionLabel(d, s.id) && printable ? sectionLabel(d, s.id) : s.label;
               return (
                 <div key={s.id} className="row" style={{ flexWrap: 'nowrap', borderRadius: 10, background: a ? 'var(--surface)' : 'transparent', opacity: hidden ? 0.6 : 1 }}>
                   <button type="button" onClick={() => { setTab('content'); go(s.id); }} aria-current={a ? 'step' : undefined} className="row g8"
                     style={{ flex: 1, minWidth: 0, flexWrap: 'nowrap', minHeight: 40, padding: '0 8px 0 10px', border: 0, background: 'transparent', color: a || ok ? 'var(--text)' : 'var(--text2)', fontWeight: a ? 600 : 500, fontSize: 14, textAlign: 'left' }}>
                     <span style={{ width: 20, height: 20, flex: 'none', borderRadius: '50%', boxSizing: 'border-box', border: `2px solid ${ok ? 'var(--success)' : a ? 'var(--ink)' : 'var(--border2)'}`, background: ok ? 'var(--success)' : 'transparent', color: 'var(--onink)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{ok && <Icon name="check" size={11} stroke={3} />}</span>
-                    <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textDecoration: hidden ? 'line-through' : 'none' }}>{label}</span>
+                    <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textDecoration: hidden ? 'line-through' : 'none' }}>{label}{offN > 0 && <span className="xs muted" style={{ fontWeight: 500 }}> · {offN} hidden</span>}</span>
                     {!printable && count !== null && <span className="mono faint">{count}</span>}
                   </button>
                   {printable && (
@@ -493,22 +502,10 @@ export default function Builder({ embedded = null }) {
               </>
             )}
 
-            {(cur.id === 'hobbies' || cur.id === 'strengths') && (() => {
-              const k = cur.id;
-              const items = splitList(d[k]);
-              const ideas = (k === 'hobbies' ? HOBBY_IDEAS : STRENGTH_IDEAS).filter((x) => !items.some((y) => y.toLowerCase() === x.toLowerCase()));
-              return (
-                <div className="card stack g12" style={{ padding: 20 }}>
-                  <label htmlFor={`ta-${k}`} className="label">Your {k} · one per line</label>
-                  <textarea id={`ta-${k}`} className="input" rows={5} value={d[k] || ''} onChange={(e) => setD({ ...d, [k]: e.target.value })} placeholder={k === 'hobbies' ? 'Reading\nPlaying cricket' : 'Quick learner\nTeam player'} />
-                  <span className="xs faint">{items.length} added{items.length > 6 ? ' · 3–5 is usually enough' : ''}</span>
-                  <span className="label">Quick add</span>
-                  <div className="row g8">
-                    {ideas.map((x) => <button key={x} type="button" className="chip" style={{ minHeight: 36, fontWeight: 500, fontSize: 13 }} onClick={() => setD((p) => ({ ...p, [k]: [...splitList(p[k]), x].join('\n') }))}>+ {x}</button>)}
-                  </div>
-                </div>
-              );
-            })()}
+            {(cur.id === 'hobbies' || cur.id === 'strengths') && (
+              <LineEntries key={cur.id} d={d} setD={setD} k={cur.id} item={cur.id === 'hobbies' ? 'Hobby' : 'Strength'}
+                ideas={cur.id === 'hobbies' ? HOBBY_IDEAS : STRENGTH_IDEAS} placeholder={cur.id === 'hobbies' ? 'e.g. Playing cricket' : 'e.g. Team player'} />
+            )}
 
             {cur.id === 'pinfo' && objEditor('pinfo', PINFO_FIELDS)}
 
@@ -542,15 +539,18 @@ export default function Builder({ embedded = null }) {
                   const def = DEFAULT_SKILL_GROUPS.find((x) => x.id === g.id);
                   const setGroup = (patch) => setD((p) => ({ ...p, skillGroups: p.skillGroups.map((x, j) => (j === gi ? { ...x, ...patch } : x)) }));
                   return (
-                    <div key={g.id} className="stack g8">
-                      <div className="row between g8" style={{ flexWrap: 'nowrap' }}>
+                    <div key={g.id} className="stack g8 entry-card well" data-off={!!g.off} style={{ padding: 12 }}>
+                      <EntryHeader list="skills" index={gi} count={d.skillGroups.length} label={`Skills category ${gi + 1}`} title={g.label || `Category ${gi + 1}`} off={!!g.off}
+                        onMove={(dir) => { setD((p) => ({ ...p, skillGroups: moveItem(p.skillGroups, gi, dir) })); focusMoved('skills', gi + dir, dir); }}
+                        onToggle={() => setD((p) => ({ ...p, skillGroups: toggleItem(p.skillGroups, gi) }))}
+                        onRemove={def ? null : () => { withUndo(`“${g.label || 'Category'}” removed`); setD((p) => ({ ...p, skillGroups: removeItem(p.skillGroups, gi) })); }} />
+                      <div className="entry-body stack g8">
                         <label htmlFor={`sg-${g.id}-name`} className="sr-only">Category name</label>
                         <input id={`sg-${g.id}-name`} value={g.label} onChange={(e) => setGroup({ label: e.target.value })} placeholder="Category name"
                           style={{ flex: 1, minWidth: 0, border: 0, background: 'transparent', padding: '6px 0', fontSize: 12, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--text2)' }} />
-                        {!def && <button type="button" className="btn btn-danger-soft" onClick={() => { withUndo(`“${g.label || 'Category'}” removed`); setD((p) => ({ ...p, skillGroups: p.skillGroups.filter((_, j) => j !== gi) })); }}>Remove</button>}
-                      </div>
                       <label htmlFor={`sg-${g.id}`} className="sr-only">{g.label} — separate items with commas</label>
                       <input id={`sg-${g.id}`} className="input" value={g.value} onChange={(e) => setGroup({ value: e.target.value })} placeholder={def?.ph || 'e.g. item one, item two'} />
+                      </div>
                     </div>
                   );
                 })}

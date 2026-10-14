@@ -13,6 +13,9 @@ const P = {
   mic: <><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0014 0M12 18v3" /></>,
   clip: <path d="M21 11l-8.5 8.5a5 5 0 01-7-7L14 4a3.5 3.5 0 015 5l-8.5 8.5a2 2 0 01-3-3L15 7" />,
   x: <path d="M6 6l12 12M18 6L6 18" />,
+  up: <path d="M12 19V5M6 11l6-6 6 6" />,
+  down: <path d="M12 5v14M6 13l6 6 6-6" />,
+  trash: <><path d="M4 7h16M10 11v6M14 11v6" /><path d="M6 7l1 12a2 2 0 002 2h6a2 2 0 002-2l1-12M9 7V4h6v3" /></>,
 };
 export function Icon({ name, size = 18, stroke = 2, color = 'currentColor', ...rest }) {
   return (

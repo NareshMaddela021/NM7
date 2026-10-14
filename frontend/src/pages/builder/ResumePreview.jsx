@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ensureFonts } from './fontLoader';
+import { visibleResume } from './entries';
 import ContactLine from './ContactLine';
 import { buildSections, isNumWord } from './resumeModel';
 import { FONTS, PAGE, headFontOf, marginOf, tint } from './design';
@@ -112,7 +113,8 @@ function CoverBody({ c, ds, s }) {
  * True-to-scale preview: every size is the PDF size in points × (preview width / page width).
  * Reports the page count via onPages and marks where each new page starts.
  */
-export default function ResumePreview({ data: d, design: ds, photo, onPages, cover, loadFonts = true }) {
+export default function ResumePreview({ data, design: ds, photo, onPages, cover, loadFonts = true }) {
+  const d = visibleResume(data); // switched-off entries are hidden everywhere the resume is shown
   const ref = useRef();
   const [box, setBox] = useState({ w: 595, h: 842 });
   useEffect(() => { if (loadFonts) ensureFonts([ds.font, headFontOf(ds)]); }, [loadFonts, ds.font, ds.headFont]); // eslint-disable-line react-hooks/exhaustive-deps

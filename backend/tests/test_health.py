@@ -72,3 +72,10 @@ async def test_vercel_preview_origins_by_regex(monkeypatch):
             # Same rule for cookie-carrying changes (origin check).
             r = await c.post("/api/auth/logout", headers={"Origin": origin})
             assert (r.status_code != 403) is ok, origin
+
+
+async def test_version_reports_the_deployed_commit(client, monkeypatch):
+    monkeypatch.setenv("RENDER_GIT_COMMIT", "abc123")
+    assert (await client.get("/version")).json() == {"commit": "abc123"}
+    monkeypatch.delenv("RENDER_GIT_COMMIT")
+    assert (await client.get("/version")).json()["commit"] in ("unknown", __import__("os").environ.get("GIT_COMMIT"))

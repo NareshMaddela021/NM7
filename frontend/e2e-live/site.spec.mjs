@@ -41,6 +41,10 @@ test('each page has its own title and description', async ({ page }) => {
   await page.goto('/login');
   await expect(page).toHaveTitle('Sign in · Nm7');
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
+  await page.goto('/expert-terms');
+  await expect(page).toHaveTitle('Expert terms · Nm7');
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /index, follow/);
+  await expect(page.locator('main')).not.toContainText('[brackets]');
   await page.goto('/no-such-page');
   await expect(page).toHaveTitle('Page not found · Nm7');
 });
@@ -48,7 +52,7 @@ test('each page has its own title and description', async ({ page }) => {
 test('legal and contact pages show no [placeholders]', async ({ page }) => {
   for (const path of ['/contact', '/terms', '/privacy', '/refund-policy', '/delivery-policy', '/expert-terms']) {
     await page.goto(path);
-    const text = (await page.locator('main').innerText()).replace('use [brackets] and ask', '');
+    const text = await page.locator('main').innerText();
     expect(text, path).not.toMatch(/\[[A-Za-z][^\]]*\]/);
   }
 });

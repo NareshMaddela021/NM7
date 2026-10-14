@@ -2,6 +2,7 @@
 // so what you see is exactly what downloads.
 import { DECL_TEXT, PINFO_LABELS, resolveOrder, sectionLabel, splitList, splitSkills } from './schema';
 import { fmtDate, fmtDates } from './design';
+import { visibleResume } from './entries';
 
 const fullUrl = (u) => (/^https?:\/\//i.test(u) ? u : `https://${u}`);
 const shortUrl = (u) => u.replace(/^https?:\/\//i, '').replace(/^www\./i, '').replace(/\/+$/, '');
@@ -27,7 +28,8 @@ function bullets(text) {
  * section = { id, title, items: [{ head, date, sub, lines }] }
  * line = string | { t, bullet } | { bold, text } | { label, chips: [] } | { kv: [label, value], url? } | { sign: { left: [], right } }
  */
-export function buildSections(d, ds) {
+export function buildSections(data, ds) {
+  const d = visibleResume(data); // switched-off entries are never printed
   const f = ds.dateFormat;
   const by = {};
   if (d.summary) by.summary = [{ lines: [d.summary] }];

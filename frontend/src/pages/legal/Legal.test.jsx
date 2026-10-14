@@ -9,7 +9,7 @@ const PAGES = { Terms, Privacy, RefundPolicy, DeliveryPolicy, ExpertTerms, Conta
 
 describe('legal pages', () => {
   it.each(Object.entries(PAGES))('%s shows no [placeholder] brackets and no empty separators', (_, C) => {
-    const out = html(C).replace(/use \[brackets\] and ask/g, '');
+    const out = html(C);
     expect(out).not.toMatch(/\[[A-Z][^\]]*\]/);
     expect(out).not.toMatch(/\[(rate|provider|retention|48 hours|Phone|grievance)/i);
     expect(out).not.toMatch(/ · ·|· \.|\(\)/);

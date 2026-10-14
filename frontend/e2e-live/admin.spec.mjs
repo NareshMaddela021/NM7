@@ -16,6 +16,9 @@ test('admin console shows real data (no samples), and every action is saved and 
   await expect(page.getByText(/sample data/i)).toHaveCount(0);
   await expect(page.getByText('₹70,026')).toHaveCount(0);
   await expect(page.getByText('Paid orders')).toBeVisible();
+  // clear labels: verified customers (all time) vs sign-ups in the period
+  await expect(page.getByText('Verified customers')).toBeVisible();
+  await expect(page.getByText(/sign-up\(s\) in this period/)).toBeVisible();
   await expect(page.getByText(/paid order\(s\) without an expert/)).toBeVisible();
 
   // refunds: real empty state

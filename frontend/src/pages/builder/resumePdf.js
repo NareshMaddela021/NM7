@@ -1,6 +1,7 @@
 // Builds a real text PDF (selectable, ATS-readable) from the same model and design the preview uses.
 import { jsPDF } from 'jspdf';
 import { buildSections } from './resumeModel';
+import { visibleResume } from './entries';
 import { contactItems } from './ContactLine';
 import { iconColor, iconPng } from './icons';
 import { PAGE, headFontOf, marginOf } from './design';
@@ -13,7 +14,8 @@ const rgb = (hex) => { const n = parseInt(hex.replace('#', ''), 16); return [(n 
 const tintRgb = (hex, a) => rgb(hex).map((c) => Math.round(c * a + 255 * (1 - a)));
 const GREY = [90, 90, 90];
 
-export async function buildResumePdf({ data: d, design: ds, photo, cover }) {
+export async function buildResumePdf({ data, design: ds, photo, cover }) {
+  const d = visibleResume(data); // switched-off entries are not printed
   const page = PAGE[ds.pageSize] || PAGE.a4;
   const doc = new jsPDF({ unit: 'pt', format: [page.w, page.h] });
   const SERIF = ['source-serif-4', 'lora', 'merriweather'];

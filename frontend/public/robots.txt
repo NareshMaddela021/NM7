@@ -3,7 +3,8 @@ User-agent: *
 Allow: /
 Disallow: /me
 Disallow: /admin
-Disallow: /expert
+Disallow: /expert$
+Disallow: /expert/
 Disallow: /checkout
 Disallow: /orders
 Disallow: /r/

@@ -9,6 +9,8 @@ services:
     plan: free
     region: singapore
     rootDir: backend
+    branch: claude/fervent-albattani-wqmaoq # the branch Render deploys (same as Vercel's production branch)
+    autoDeployTrigger: commit # deploy every new commit on that branch (.github/workflows/deploy-check.yml verifies it)
     dockerfilePath: ./Dockerfile
     healthCheckPath: /health
     envVars:

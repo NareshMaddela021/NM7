@@ -2,12 +2,14 @@
 // Same rules for the original resume and the expert's draft, so "54 → 86" is a fair comparison.
 import { ALL_SKILLS, allSkills } from '../pages/builder/schema';
 import { atsCheck, DEFAULT_DESIGN } from '../pages/builder/design';
+import { visibleResume } from '../pages/builder/entries';
 
 const ACTION = /^(built|led|created|improved|reduced|increased|designed|automated|analy[sz]ed|delivered|launched|managed|developed|cut|grew|drove|owned|optimi[sz]ed|implemented|migrated|trained|mentored|negotiated|achieved|won|streamlined|planned|wrote|researched|tested|deployed|scaled|saved|resolved|coordinated|organi[sz]ed|presented|prepared|conducted|established|generated|handled|supported|collaborated|identified|elevated|utili[sz]ed|ran|made)\b/i;
 const EXTRA_TERMS = ['dashboard', 'dashboards', 'kpi', 'stakeholder', 'a/b testing', 'etl', 'data cleaning', 'data visualization', 'reporting', 'forecasting', 'excel', 'pivot', 'vlookup', 'communication', 'presentation', 'agile', 'api', 'rest', 'microservices', 'ci/cd', 'testing', 'unit testing', 'debugging', 'data structures', 'algorithms', 'customer', 'sales', 'operations', 'inventory', 'supply chain', 'recruitment', 'onboarding', 'payroll', 'accounting', 'gst', 'tally', 'figma', 'user research', 'wireframes', 'seo', 'content', 'social media', 'campaigns'];
 
 /** Every printed word of the resume, lower-case (for keyword search). */
-export function resumeText(d) {
+export function resumeText(data) {
+  const d = visibleResume(data);
   const parts = [d.personal?.headline, d.summary, ...allSkills(d.skillGroups || []),
     ...(d.exp || []).flatMap((e) => [e.role, e.company, e.description]), ...(d.proj || []).flatMap((p) => [p.title, p.tagline, p.description, p.tech]),
     ...(d.edu || []).flatMap((e) => [e.degree, e.field]), ...(d.certs || []).map((c) => c.name), ...(d.ach || []).flatMap((a) => [a.title, a.description]),
@@ -27,7 +29,8 @@ export function jobMatch(d, jd) {
   return { keywords, found, missing: keywords.filter((k) => !found.includes(k)) };
 }
 
-export function atsScore(d, jd = '') {
+export function atsScore(data, jd = '') {
+  const d = visibleResume(data); // the scan sees only what prints
   const ds = { ...DEFAULT_DESIGN, ...(d.design || {}) };
   const bullets = [...(d.exp || []), ...(d.proj || [])].flatMap((e) => (e.description || '').split('\n')).map((b) => b.replace(/^[•\-*▸–]\s*/, '').trim()).filter((b) => b.length > 12);
   const withNum = bullets.filter((b) => /\d/.test(b)).length;

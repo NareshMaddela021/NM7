@@ -21,7 +21,7 @@ export function LiveDashboard() {
           <div className="kpis">
             <Kpi label="Revenue (after refunds)" value={rupees(s.revenue)} sub={`${rupees(s.moneyIn)} in · ${rupees(s.refunded)} refunded`} />
             <Kpi label="Paid orders" value={s.ordersPaid} sub={Object.entries(s.ordersByPlan).map(([k, n]) => `${PLANS[k]?.name || k}: ${n}`).join(' · ') || 'none yet'} />
-            <Kpi label="Customers" value={s.customers} sub={`${s.newCustomers} new in this period`} />
+            <Kpi label="Verified customers" value={s.customers} sub={`all time, email confirmed · ${s.newCustomers} sign-up(s) in this period`} />
             <Kpi label="Experts approved" value={s.experts} sub={`${s.applicationsWaiting} application(s) waiting`} />
           </div>
           <section className="card stack g8" aria-label="Needs attention">
