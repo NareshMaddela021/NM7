@@ -218,3 +218,37 @@ async def buy(client, plan="expert", role="Data Analyst", addons=None, pay=True)
     )
     assert r.status_code == 200, r.text
     return created, r.json()
+
+
+# ---------- admins and experts ----------
+
+import pyotp  # noqa: E402
+
+from app.auth.admin_service import create_admin  # noqa: E402
+
+
+@pytest.fixture
+def admin_client(make_client, db):
+    """A browser signed in as an admin with two-step login done."""
+
+    async def make(role="owner", email=None):
+        email = email or f"{role}@nm7.si"
+        _, secret, _ = await create_admin(db, email, role.title(), role, PASSWORD)
+        c = make_client()
+        await c.post("/api/auth/admin/login", json={"email": email, "password": PASSWORD})
+        r = await c.post("/api/auth/admin/verify", json={"code": pyotp.TOTP(secret).now()})
+        assert r.status_code == 200, r.text
+        return c
+
+    return make
+
+
+async def approved_expert(make_client, outbox, db, email="ravi@example.com", name="Ravi Kumar"):
+    """A browser signed in as an approved expert. Returns (client, user_id)."""
+    c = make_client()
+    me = await signup(c, outbox, email, role="expert", name=name)
+    await db["users"].update_one({"_id": me["id"]}, {"$set": {"expert_status": "approved"}})
+    await db["expert_profiles"].update_one(
+        {"_id": me["id"]}, {"$set": {"status": "approved", "profile": {}}}, upsert=True
+    )
+    return c, me["id"]

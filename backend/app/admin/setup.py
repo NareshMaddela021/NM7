@@ -94,6 +94,20 @@ async def _fail(db: AsyncDatabase, ip_key: str, action: str, ip: str | None, err
     raise err
 
 
+class StatusOut(CamelModel):
+    open: bool
+
+
+@router.get("/status")
+async def setup_status(db: DB) -> StatusOut:
+    """Whether the one-time setup page should be shown (false for good once an admin exists)."""
+    try:
+        await _setup_open(db)
+    except ApiError:
+        return StatusOut(open=False)
+    return StatusOut(open=True)
+
+
 @router.post("")
 async def start_setup(body: SetupIn, request: Request, response: Response, db: DB) -> SetupOut:
     await _setup_open(db)

@@ -45,6 +45,7 @@ from app.me.schemas import (
     TicketOut,
 )
 from app.me.service import add_check, ms, referral_code, referrals, share_of
+from app.site import get_site
 
 router = APIRouter(prefix="/api/me", tags=["me"])
 public = APIRouter(prefix="/api/public", tags=["public"])
@@ -400,3 +401,18 @@ async def my_tickets(auth: CustomerAuth, db: DB) -> list[TicketOut]:
 @router.get("/referral")
 async def my_referral(auth: CustomerAuth, db: DB) -> ReferralOut:
     return ReferralOut(code=await referral_code(db, auth.user), referrals=await referrals(db, auth.user.id))
+
+
+# ---------- prices (the owner can change them in the admin console) ----------
+
+
+@public.get("/prices")
+async def prices(db: DB) -> dict[str, Any]:
+    site = await get_site(db)
+
+    def rupees(group: str) -> dict[str, Any]:
+        return {
+            k: {"name": v["name"], "price": v["amount"] / 100, "active": v["active"]} for k, v in site[group].items()
+        }
+
+    return {"plans": rupees("plans"), "addons": rupees("addons"), "deliveryHours": site["delivery_hours"]}

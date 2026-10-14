@@ -42,6 +42,13 @@ APPLICATIONS = "applications"
 ATS_CHECKS = "ats_checks"
 SHARES = "shares"
 TICKETS = "tickets"
+# Order fulfilment (intake, drafts, comments, chat) — _id is the order number
+ORDER_WORK = "order_work"
+# Experts: application form + test task (_id = user id)
+EXPERT_PROFILES = "expert_profiles"
+# Admin: site settings (prices, rules), quality audits
+SETTINGS = "settings"
+QUALITY_AUDITS = "quality_audits"
 COLLECTIONS = (
     USERS,
     EMAIL_CODES,
@@ -63,6 +70,10 @@ COLLECTIONS = (
     ATS_CHECKS,
     SHARES,
     TICKETS,
+    ORDER_WORK,
+    EXPERT_PROFILES,
+    SETTINGS,
+    QUALITY_AUDITS,
 )
 
 DAY = 86_400
@@ -136,6 +147,9 @@ INDEXES: dict[str, list[IndexModel]] = {
     APPLICATIONS: [IndexModel([("user_id", ASCENDING), ("key", ASCENDING)], unique=True)],
     ATS_CHECKS: [IndexModel([("user_id", ASCENDING), ("at", DESCENDING)])],
     SHARES: [IndexModel("slug", unique=True)],  # _id is the owner's user id
+    ORDER_WORK: [IndexModel("expert_id")],
+    EXPERT_PROFILES: [IndexModel([("status", ASCENDING), ("submitted_at", DESCENDING)])],
+    QUALITY_AUDITS: [IndexModel([("at", DESCENDING)]), IndexModel("expert_id")],
     TICKETS: [
         IndexModel([("user_id", ASCENDING), ("created_at", DESCENDING)]),
         IndexModel([("status", ASCENDING), ("created_at", DESCENDING)]),

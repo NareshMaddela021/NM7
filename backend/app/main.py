@@ -1,5 +1,6 @@
 """Nm7 API — app factory."""
 
+import asyncio
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
@@ -7,6 +8,8 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from app import automation
+from app.admin.console import router as admin_console_router
 from app.admin.router import router as admin_router
 from app.admin.setup import router as admin_setup_router
 from app.auth.admin_router import router as admin_auth_router
@@ -16,17 +19,22 @@ from app.core import errors
 from app.core.config import get_settings
 from app.core.db import DB, close_client, ensure_indexes, get_database
 from app.core.email import log_email_status
+from app.experts.router import router as expert_router
 from app.me.router import public as public_router
 from app.me.router import router as me_router
 from app.orders.router import router as orders_router
 from app.payments.router import router as payments_router
+from app.work.router import router as work_router
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     await ensure_indexes(get_database())  # collections + indexes; safe to run on every start
     log_email_status()
+    task = asyncio.create_task(automation.loop(get_database)) if get_settings().app_env != "test" else None
     yield
+    if task:
+        task.cancel()
     await close_client()
 
 
@@ -73,10 +81,13 @@ def create_app() -> FastAPI:
     app.include_router(admin_auth_router)
     app.include_router(admin_setup_router)  # before admin_router: /api/admin/setup is public
     app.include_router(admin_router)
+    app.include_router(admin_console_router)
     app.include_router(orders_router)
     app.include_router(payments_router)
     app.include_router(me_router)
     app.include_router(public_router)
+    app.include_router(work_router)
+    app.include_router(expert_router)
     return app
 
 
