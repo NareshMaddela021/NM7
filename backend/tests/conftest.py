@@ -44,6 +44,7 @@ async def clean_tables():
     async with get_sessionmaker()() as s:
         await s.execute(text(f"TRUNCATE {names} RESTART IDENTITY CASCADE"))
         await s.execute(text("ALTER SEQUENCE order_no_seq RESTART"))
+        await s.execute(text("ALTER SEQUENCE refund_no_seq RESTART"))
         await s.commit()
 
 

@@ -128,9 +128,24 @@ Signature checks are tested with known HMAC vectors.
 
 ## Milestones (one commit each on the working branch)
 
-1. **Skeleton** — app factory, settings, async DB, Alembic, docker-compose, `/health`, Dockerfile, CI.
-2. **Customer & expert accounts** — sign-up, email verification code, login, logout, me, forgot/reset password, rate limits, ZeptoMail sender.
-3. **Admin login** — password + TOTP, trusted devices, recovery codes, `create-admin`, role guards, audit log.
-4. **Orders & Razorpay** — create, verify, webhook, invoice numbers (mocked Razorpay).
-5. **Refunds & admin lists** — refund rules, approve/reject, admin orders / payments / refunds.
+1. ✅ **Skeleton** — app factory, settings, async DB, Alembic, docker-compose, `/health`, Dockerfile, CI.
+2. ✅ **Customer & expert accounts** — sign-up, email verification code, login, logout, me, forgot/reset password, rate limits, ZeptoMail sender.
+3. ✅ **Admin login** — password + TOTP, trusted devices, recovery codes, `create-admin`, role guards, audit log.
+4. ✅ **Orders & Razorpay** — create, verify, webhook, invoice numbers (mocked Razorpay).
+5. ✅ **Refunds & admin lists** — refund rules, approve/reject, admin orders / payments / refunds.
 6. **Connect the frontend** — the screens listed above.
+
+## As built — differences from the plan above
+
+- Order status `payment_failed` is not used: a failed attempt marks the **payment** `failed` and the order stays
+  `pending_payment`, so the customer can retry on the same Razorpay order.
+- Refund ids are `RF-2001…`. Reasons: `late`, `cancel`, `quality`, `other`. `late` is refused (`not_late`) if the order
+  isn't past its deadline; `cancel` is refused once an expert has started. Cancelled orders end as `cancelled`, others
+  as `refunded`. `quality` / `other` need a short explanation.
+- Admins may approve a **partial** amount; the order keeps going unless the full amount is refunded.
+- One open refund per order (a rejected or failed one can be asked for again).
+- The mobile number is stored as given (normalised) but **not unique** — it isn't verified, so uniqueness would let
+  anyone block someone else's number.
+- The checkout handler (`/verify`) doesn't know the payment method; the `payment.captured` webhook fills it in.
+- Admins can't reset their password by email (only from the command line), so a stolen inbox can't take over an admin.
+- Extra endpoints: `POST /api/auth/admin/forget-device`, `GET /api/admin/audit-log`.

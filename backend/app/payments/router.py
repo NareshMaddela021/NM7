@@ -27,6 +27,7 @@ from app.orders.schemas import OrderOut
 from app.orders.service import lock_order, mark_paid
 from app.payments.models import Payment, WebhookEvent
 from app.payments.razorpay import payment_signature_ok, webhook_signature_ok
+from app.refunds.service import on_refund_webhook
 
 router = APIRouter(prefix="/api/payments", tags=["payments"])
 log = logging.getLogger("nm7.payments")
@@ -153,6 +154,8 @@ async def handle_event(db: AsyncSession, event: dict[str, Any]) -> Order | None:
         return await _on_payment_captured(db, event)
     if kind == "payment.failed":
         await _on_payment_failed(db, event)
+    elif kind in ("refund.processed", "refund.failed"):
+        await on_refund_webhook(db, event)
     return None
 
 

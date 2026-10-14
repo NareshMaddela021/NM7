@@ -6,5 +6,6 @@ from app.core import rate_limit  # noqa: F401
 from app.core.db import Base
 from app.orders import models as order_models  # noqa: F401
 from app.payments import models as payment_models  # noqa: F401
+from app.refunds import models as refund_models  # noqa: F401
 
 __all__ = ["Base"]
