@@ -2,9 +2,9 @@ name: frontend
 
 on:
   push:
-    paths: ["frontend/**", ".github/workflows/frontend.yml"]
+    paths: ["frontend/**", "backend/**", ".github/workflows/frontend.yml"]
   pull_request:
-    paths: ["frontend/**", ".github/workflows/frontend.yml"]
+    paths: ["frontend/**", "backend/**", ".github/workflows/frontend.yml"]
 
 jobs:
   test:
@@ -12,6 +12,9 @@ jobs:
     defaults:
       run:
         working-directory: frontend
+    env:
+      # The live browser tests run the real API (backend/) on this MongoDB replica set.
+      TEST_MONGODB_URI: mongodb://localhost:27017/?directConnection=true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -23,4 +26,31 @@ jobs:
       - run: npm run build
       - run: npm test
       - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e
+      - name: Browser tests (preview build, sample data)
+        run: npm run test:e2e
+      - name: Start MongoDB 8.0 (replica set)
+        working-directory: .
+        run: |
+          docker run -d --name mongo -p 27017:27017 mongo:8.0 --replSet rs0 --bind_ip_all
+          for i in $(seq 1 30); do
+            docker exec mongo mongosh --quiet --eval "db.runCommand({ping: 1}).ok" && break
+            sleep 1
+          done
+          docker exec mongo mongosh --quiet --eval "rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'localhost:27017'}]})"
+          for i in $(seq 1 30); do
+            [ "$(docker exec mongo mongosh --quiet --eval 'db.hello().isWritablePrimary')" = "true" ] && break
+            sleep 1
+          done
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+      - name: Install the API
+        working-directory: backend
+        run: uv sync --frozen
+      - name: Browser tests against the real API
+        run: npm run test:e2e:live
+      - name: Production build with the vercel.json headers (CSP, 404)
+        run: npm run test:e2e:csp
+      - name: API log (on failure)
+        if: failure()
+        run: cat e2e-live/.api.log || true

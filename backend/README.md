@@ -28,6 +28,8 @@ uv run pytest            # TEST_MONGODB_URI (default: local replica set), databa
 ```
 
 Tests drop and recreate the `nm7_test` database on every run (they refuse any database not ending in `_test`).
+The browser tests in `frontend/e2e-live` start this API on a separate `nm7_e2e` database and seed it with
+`tests/e2e_seed.py`.
 
 ## Database
 
@@ -72,7 +74,24 @@ Prices live in `app/orders/pricing.py` and must match `frontend/src/lib/pricing.
 
 ## Scheduled job
 
-Run `python -m app.cli expire-orders` every hour (Render Cron Job) so orders left unpaid for 24 hours show as expired.
+The API runs its automation rules every 10 minutes while it is awake (expire unpaid checkouts, take back offers an
+expert didn't accept in time, email the support inbox about orders close to their deadline with no draft). Rules are
+switched on/off and tuned in the admin console (Automation), which also has "Run now". On Render's free plan the API
+sleeps when idle, so the rules run when the site is used. `python -m app.cli expire-orders` still works for a cron job.
+
+## API map
+
+| Area | Endpoints | Who |
+|---|---|---|
+| Accounts | `/api/auth/*` incl. `POST /password/change` (current + new + re-type; signs out other browsers) | anyone / signed in |
+| Customer dashboard | `GET /api/me/state`, `/api/me/profile`, `/resumes`, `/cover-letters`, `/applications`, `/ats-checks`, `/share`, `/tickets`, `/referral` | that customer only (other ids → 404, other roles → 403) |
+| Public | `GET /api/public/resumes/{slug}` (published resume, phone hidden on request, views counted), `GET /api/public/prices` | anyone |
+| Orders | `/api/orders`, `/api/payments/*` | customer |
+| Order work | `GET/PATCH /api/work/{order}` — intake, drafts, comments, chat, rating | the customer, the assigned expert, admins with "orders" |
+| Experts | `GET/PUT /api/expert/profile`, `POST /profile/submit`, `POST /test` | expert |
+| Admin | `/api/admin/stats`, `/orders` (+ `/{id}`, `/{id}/assign`), `/experts` (+ decision, pause), `/refunds`, `/payments`, `/invoices`, `/customers` (+ notes, block), `/tickets` (+ reply), `/quality`, `/reports` (+ `orders.csv`), `/settings`, `/automation`, `/team`, `/audit-log` | admins, by role (see `app/admin/roles.py`); every change is audit-logged |
+
+Support tickets are emailed to `SUPPORT_INBOX` (default `info@nm7.si`) with the customer as reply-to.
 
 ## Deploy (Render, Singapore)
 

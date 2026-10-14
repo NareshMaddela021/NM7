@@ -52,3 +52,15 @@ test('legal and contact pages show no [placeholders]', async ({ page }) => {
     expect(text, path).not.toMatch(/\[[A-Za-z][^\]]*\]/);
   }
 });
+
+test('slow server: sign-in says the server is waking up after 3 seconds', async ({ page }) => {
+  await page.route('**/api/auth/login', async (route) => { await new Promise((r) => setTimeout(r, 4500)); await route.continue(); });
+  await page.goto('/login');
+  await page.getByLabel('Email').fill('nobody@example.com');
+  await page.getByLabel('Password', { exact: true }).fill('whatever-123');
+  await page.getByRole('button', { name: 'Sign in' }).click();
+  await expect(page.getByText(/Waking up the server/)).toBeHidden();
+  await expect(page.getByText(/Waking up the server/)).toBeVisible({ timeout: 4000 });
+  await expect(page.getByText('Email or password is wrong.')).toBeVisible({ timeout: 10000 });
+  await expect(page.getByText(/Waking up the server/)).toBeHidden();
+});

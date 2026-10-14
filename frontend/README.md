@@ -105,10 +105,13 @@ orders (checkout writes the server's order id, invoice number and payment id int
 - Fill from a document reuses the resume/LinkedIn readers in `src/lib/import/`.
 
 ## Admin console (`/admin`)
+- **Live site** (`VITE_API_BASE` set): `src/pages/admin/live/` — every page reads `/api/admin/*`, shows real empty states,
+  and every action (assign, approve expert, refund decision, prices, rules, team) goes through the API and the audit log.
+- **Preview build**: the sample console below (sample data never ships in a live build).
 - Layout & navigation: `src/pages/admin/AdminLayout.jsx` (sidebar, Ctrl+K search, date range, alerts, role preview).
 - Shared state + actions + audit log: `AdminContext.jsx`; sample data: `src/data/adminData.js`.
 - Pages: Dashboard, Orders, ExpertsAdmin (+ Applications), Refunds, Payments, Customers, Quality, Reports, Settings, Automation, Team.
-- Roles & access are in `ROLES` (AdminContext.jsx). The backend must enforce the same rules — the screen only hides sections.
+- Roles & access are in `ROLES` (`src/pages/admin/roles.js`); the backend enforces the same table.
 
 ## Expert area (`/expert`)
 - **Home** — due today, new offers, revisions, earnings, tier progress, availability (holiday mode, orders per week, working days and hours).
@@ -116,8 +119,8 @@ orders (checkout writes the server's order id, invoice number and payment id int
 - **Order workspace** (`/expert/orders/:id`) — the full resume builder, pre-filled from the customer's resume. Top bar: ATS score (original → now), job-description match and the 5-point quality checklist. Drawers: Brief, Checks, Versions & compare, Messages & section comments, Snippets, LinkedIn & mentor call (Career Launch).
 - Send draft → customer reviews at `/orders/:id/review` (comments per section, ask for changes / looks good). Deliver final → PDF, Word and into the customer's own builder.
 - **Snippets, Earnings, Performance & reviews, Help & rules** pages.
-- Code: `src/lib/atsScore.js` (score rules), `src/lib/expertStore.js` (orders — replace with the API), `src/pages/expert/`.
-- Preview limits: data is kept in this browser only; the customer review page works in the same browser; AI buttons are samples.
+- Code: `src/lib/atsScore.js` (score rules), `src/lib/expertStore.js` (orders: `/api/work` on the live site), `src/lib/expert.js` (profile: `/api/expert/profile`), `src/pages/expert/`.
+- Preview build: data is kept in this browser only; AI buttons are samples.
 
 ## Customer dashboard (`/me`)
 - **Home** — "do this next" card, ATS score, active order countdown, current resume (edit / PDF / Word / share), orders, applications, share-link views.
@@ -127,7 +130,16 @@ orders (checkout writes the server's order id, invoice number and payment id int
 - **ATS & job match**, **Cover letters**, **Applications** board (follow-up reminders, weekly chart), **Share link** (`/r/<name>`, on/off, hide phone, view counter).
 - **Career Launch** (LinkedIn makeover with copy buttons, mentor-call booking + calendar file), **Payments & refunds**, **Upgrade & add-ons**, **Profile & settings** (notifications, download my data, delete account), **Help & referral** (FAQ, raise an issue → admin Customers page "Support inbox").
 - Settings to fill in `src/lib/pricing.js`: `ADDONS` prices (sample ₹199 / ₹299 / ₹499), `REFERRAL.reward` (null = "coming soon"), `INVOICE.gstin` and `sacCode` (from your CA).
-- Code: `src/lib/customerStore.js` (replace with `/api/me/*`), `src/pages/me/`.
+- Code: `src/lib/customerStore.js` + `src/lib/meLive.js` (live site: everything is loaded from and saved to `/api/me/*`
+  and `/api/orders`; nothing personal is kept in the browser, and signing out or switching accounts clears it), `src/pages/me/`.
+- Business details (company, address, phone, Grievance Officer, GSTIN…): `src/lib/legal.js` — empty values hide their line.
+
+## Tests
+- `npm test` — unit tests (scan, save layer, sign-out clearing, legal pages, vercel.json, titles).
+- `npm run test:e2e` — browser tests on the preview build (scan).
+- `npm run test:e2e:live` — browser tests against the real API (`backend/`, MongoDB replica set via `TEST_MONGODB_URI`):
+  sign-up, per-user data, sign-out clearing, share link, password change, admin console, expert portal, downloads.
+- `npm run test:e2e:csp` — the production build served with the `vercel.json` headers: no CSP violations, real 404s.
 
 ## Accounts, legal pages, expert test task
 - **Sign in / sign up** (`/login`, `/signup`, `/forgot-password`): email + password; sign-up (customers or experts) asks for the password twice and confirms the email with a 6-digit code; forgot password uses an email code. **Admin** (`/admin/login`): password + 6-digit authenticator code (or a one-time recovery code), "trust this device 30 days".
