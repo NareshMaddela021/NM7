@@ -2,53 +2,41 @@ from typing import Literal
 
 from fastapi import APIRouter, Request
 from pydantic import Field
-from sqlalchemy import select
+from pymongo import DESCENDING
 
 from app.admin.roles import can
 from app.audit import audit
 from app.auth.deps import CurrentAuth, CustomerAuth
 from app.auth.sessions import client_ip
-from app.core.db import DB
+from app.core.db import DB, ORDERS, PAYMENTS, transaction
 from app.core.email import MailerDep, send_safely
 from app.core.errors import ApiError
 from app.core.schemas import CamelModel
 from app.orders.models import Order
 from app.orders.pricing import PLANS
 from app.orders.schemas import CreateOrderIn, CreateOrderOut, OrderOut, Prefill
-from app.orders.service import lock_order, new_order
+from app.orders.service import build_order, get_order, order_view, order_views
 from app.payments.models import Payment
 from app.payments.razorpay import RazorpayError, get_razorpay
 from app.refunds import emails as refund_emails
-from app.refunds.service import (
-    REFUNDABLE,
-    captured_payment,
-    has_open_refund,
-    is_late,
-    new_refund,
-    refunds_by_order,
-    send_to_razorpay,
-)
+from app.refunds.service import REFUNDABLE, captured_payment, has_open_refund, is_late, new_refund, send_to_razorpay
 
 router = APIRouter(prefix="/api/orders", tags=["orders"])
 
 NOT_FOUND = ApiError(404, "not_found", "We couldn’t find that order.")
 
 
-async def refunds_for(db, order_id: str) -> list:
-    return (await refunds_by_order(db, [order_id]))[order_id]
-
-
 @router.post("", status_code=201)
 async def create_order(body: CreateOrderIn, auth: CustomerAuth, db: DB) -> CreateOrderOut:
     rzp = get_razorpay()  # 503 until keys are set
     user = auth.user
-    order = await new_order(db, user, body.plan_id, body.role, body.addons)
+    order = await build_order(db, user, body.plan_id, body.role, body.addons)
     try:
         r = await rzp.create_order(
             order.amount, order.currency, receipt=order.id, notes={"order_id": order.id, "customer_id": str(user.id)}
         )
     except RazorpayError:
-        await db.rollback()
+        # Nothing was saved (the reserved order number is simply skipped).
         raise ApiError(502, "payment_provider_error", "We couldn’t start the payment. Please try again.") from None
     payment = Payment(
         order_id=order.id,
@@ -58,8 +46,12 @@ async def create_order(body: CreateOrderIn, auth: CustomerAuth, db: DB) -> Creat
         status="created",
         raw={"order": r},
     )
-    db.add(payment)
-    await db.commit()
+
+    async def save(s):
+        await db[ORDERS].insert_one(order.to_mongo(), session=s)
+        await db[PAYMENTS].insert_one(payment.to_mongo(), session=s)
+
+    await transaction(save)
     return CreateOrderOut(
         order_id=order.id,
         razorpay_order_id=r["id"],
@@ -73,21 +65,20 @@ async def create_order(body: CreateOrderIn, auth: CustomerAuth, db: DB) -> Creat
 
 @router.get("")
 async def my_orders(auth: CustomerAuth, db: DB) -> list[OrderOut]:
-    rows = await db.execute(select(Order).where(Order.customer_id == auth.user.id).order_by(Order.created_at.desc()))
-    orders = list(rows.scalars())
-    refunds = await refunds_by_order(db, [o.id for o in orders])
-    return [OrderOut.of(o, refunds[o.id]) for o in orders]
+    cursor = db[ORDERS].find({"customer_id": auth.user.id}).sort([("created_at", DESCENDING), ("_id", DESCENDING)])
+    orders = [Order.load(raw) async for raw in cursor]
+    return await order_views(db, orders)
 
 
 @router.get("/{order_id}")
-async def get_order(order_id: str, auth: CurrentAuth, db: DB) -> OrderOut:
-    order = await db.get(Order, order_id)
+async def get_one_order(order_id: str, auth: CurrentAuth, db: DB) -> OrderOut:
+    order = await get_order(db, order_id)
     if order is None:
         raise NOT_FOUND
     is_admin = auth.user.role == "admin" and auth.session.two_step and can(auth.user.admin_role, "orders")
     if order.customer_id != auth.user.id and not is_admin:
         raise NOT_FOUND  # don't reveal other people's order numbers
-    return OrderOut.of(order, await refunds_for(db, order.id))
+    return await order_view(db, order)
 
 
 class RefundIn(CamelModel):
@@ -99,7 +90,7 @@ class RefundIn(CamelModel):
 async def request_refund(
     order_id: str, body: RefundIn, auth: CustomerAuth, db: DB, mailer: MailerDep, request: Request
 ) -> OrderOut:
-    order = await lock_order(db, order_id)
+    order = await get_order(db, order_id)
     if order is None or order.customer_id != auth.user.id:
         raise NOT_FOUND
     if order.status not in REFUNDABLE:
@@ -116,6 +107,7 @@ async def request_refund(
 
     payment = await captured_payment(db, order)
     auto = body.reason in ("late", "cancel")
+    rzp = get_razorpay() if auto else None  # 503 before anything is saved
     refund = await new_refund(
         db,
         order,
@@ -127,7 +119,9 @@ async def request_refund(
         auto=auto,
         requested_by=auth.user.id,
     )
-    audit(
+    if rzp:
+        await send_to_razorpay(db, rzp, refund, order, payment, actor_id=None, on_error="delete")
+    await audit(
         db,
         auth.user.id,
         "refund.requested",
@@ -135,10 +129,6 @@ async def request_refund(
         data={"order_id": order.id, "reason": body.reason, "auto": auto},
         ip=client_ip(request),
     )
-    if auto:
-        rzp = get_razorpay()
-        await send_to_razorpay(db, rzp, refund, order, payment, actor_id=None)
-    await db.commit()
     user = auth.user
     msg = (
         refund_emails.refund_started(user.email, user.name, order.id, refund.amount)
@@ -146,4 +136,4 @@ async def request_refund(
         else refund_emails.refund_under_review(user.email, user.name, order.id)
     )
     await send_safely(mailer, msg)
-    return OrderOut.of(order, await refunds_for(db, order.id))
+    return await order_view(db, await get_order(db, order.id))

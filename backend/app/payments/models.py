@@ -2,45 +2,37 @@ import uuid
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Integer, String, Uuid, func
-from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import Mapped, mapped_column
+from pydantic import Field
 
-from app.core.db import Base
+from app.core.db import Doc
+from app.core.time import now
 
 PAYMENT_STATUSES = ("created", "captured", "failed", "refunded")
 
 
-class Payment(Base):
-    """One row per Razorpay order. order_id is empty for money that arrived without a matching order."""
+class Payment(Doc):
+    """One document per Razorpay order. order_id is empty for money that arrived without a matching order."""
 
-    __tablename__ = "payments"
-    __table_args__ = (CheckConstraint(f"status IN {PAYMENT_STATUSES!r}", name="status"),)
-
-    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
-    order_id: Mapped[str | None] = mapped_column(ForeignKey("orders.id", ondelete="RESTRICT"), index=True)
-    razorpay_order_id: Mapped[str | None] = mapped_column(String(40), unique=True)
-    razorpay_payment_id: Mapped[str | None] = mapped_column(String(40), unique=True)
-    amount: Mapped[int] = mapped_column(Integer)  # paise
-    currency: Mapped[str] = mapped_column(String(3), default="INR")
-    status: Mapped[str] = mapped_column(String(10), index=True)
-    method: Mapped[str | None] = mapped_column(String(20))  # upi / card / netbanking / wallet …
-    error: Mapped[str | None] = mapped_column(String(300))
-    raw: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
-    )
-    captured_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias="_id")
+    order_id: str | None = None
+    razorpay_order_id: str | None = None
+    razorpay_payment_id: str | None = None
+    amount: int  # paise
+    currency: str = "INR"
+    status: str  # created / captured / failed / refunded
+    method: str | None = None  # upi / card / netbanking / wallet …
+    error: str | None = None
+    raw: dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime = Field(default_factory=now)
+    updated_at: datetime = Field(default_factory=now)
+    captured_at: datetime | None = None
 
 
-class WebhookEvent(Base):
+class WebhookEvent(Doc):
     """Every Razorpay webhook we accepted, so each event is handled once."""
 
-    __tablename__ = "webhook_events"
-
-    id: Mapped[str] = mapped_column(String(80), primary_key=True)  # x-razorpay-event-id
-    type: Mapped[str] = mapped_column(String(60))
-    payload: Mapped[dict[str, Any]] = mapped_column(JSONB)
-    received_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    processed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    id: str = Field(alias="_id")  # x-razorpay-event-id
+    type: str
+    payload: dict[str, Any]
+    received_at: datetime = Field(default_factory=now)
+    processed_at: datetime | None = None

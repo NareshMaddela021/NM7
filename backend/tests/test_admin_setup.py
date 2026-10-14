@@ -2,12 +2,11 @@ import re
 
 import pyotp
 import pytest
-from sqlalchemy import select
 
-from app.audit import AuditLog
 from app.auth.admin_service import create_admin
 from app.auth.models import User
 from app.core.config import get_settings
+from app.core.db import AUDIT_LOG, USERS
 from tests.conftest import PASSWORD, signup
 
 TOKEN = "setup-token-0123456789-abcdefghij"
@@ -28,7 +27,7 @@ def secret_from(uri: str) -> str:
 
 
 async def actions(db):
-    return [a for (a,) in await db.execute(select(AuditLog.action).order_by(AuditLog.id))]
+    return [a["action"] async for a in db[AUDIT_LOG].find({}).sort("_id", 1)]
 
 
 async def test_works_once(client, token_set, db, make_client):
@@ -39,14 +38,15 @@ async def test_works_once(client, token_set, db, make_client):
     assert len(out["recoveryCodes"]) == 10 and len(set(out["recoveryCodes"])) == 10
     assert out["secret"] == secret_from(out["otpauthUri"])
     # Nothing is saved until the authenticator is confirmed.
-    assert (await db.execute(select(User))).first() is None
+    assert await db[USERS].count_documents({}) == 0
 
     assert err(await client.post("/api/admin/setup/verify", json={"code": "000000"})) == "invalid_code"
     code = pyotp.TOTP(out["secret"]).now()
     r = await client.post("/api/admin/setup/verify", json={"code": code})
     assert r.status_code == 200 and r.json() == {"ok": True, "email": "owner@nm7.si"}
 
-    owner = (await db.execute(select(User))).scalar_one()
+    owner = User.load(await db[USERS].find_one({}))
+    assert await db[USERS].count_documents({}) == 1
     assert owner.role == "admin" and owner.admin_role == "owner" and owner.verified
     assert {"admin.setup_started", "admin.setup_bad_code", "admin.setup_completed"} <= set(await actions(db))
 
@@ -64,7 +64,6 @@ async def test_works_once(client, token_set, db, make_client):
 
 async def test_closed_when_an_admin_already_exists(client, token_set, db):
     await create_admin(db, "first@nm7.si", "First", "owner", PASSWORD)
-    await db.commit()
     r = await client.post("/api/admin/setup", json=BODY)
     assert r.status_code == 404 and err(r) == "not_found"
     assert (await client.post("/api/admin/setup/verify", json={"code": "123456"})).status_code == 404
@@ -73,10 +72,9 @@ async def test_closed_when_an_admin_already_exists(client, token_set, db):
 async def test_ticket_from_before_another_admin_appeared_is_refused(client, token_set, db):
     out = (await client.post("/api/admin/setup", json=BODY)).json()
     await create_admin(db, "first@nm7.si", "First", "owner", PASSWORD)
-    await db.commit()
     r = await client.post("/api/admin/setup/verify", json={"code": pyotp.TOTP(out["secret"]).now()})
     assert r.status_code == 404
-    assert (await db.execute(select(User.email).where(User.role == "admin"))).scalars().all() == ["first@nm7.si"]
+    assert [u["email"] async for u in db[USERS].find({"role": "admin"})] == ["first@nm7.si"]
 
 
 async def test_wrong_token(client, token_set, db):
@@ -94,7 +92,7 @@ async def test_missing_or_short_token_env(client, db, monkeypatch):
         r = await client.post("/api/admin/setup", json={**BODY, "token": value})
         assert r.status_code == 404
         assert (await client.post("/api/admin/setup/verify", json={"code": "123456"})).status_code == 404
-    assert (await db.execute(select(User))).first() is None
+    assert await db[USERS].count_documents({}) == 0
 
 
 async def test_input_checks(client, token_set, outbox):

@@ -1,14 +1,13 @@
 """Session cookies: create, read (with sliding expiry) and revoke."""
 
-import uuid
 from datetime import timedelta
 
 from fastapi import Request, Response
-from sqlalchemy import select, update
-from sqlalchemy.ext.asyncio import AsyncSession
+from pymongo.asynchronous.database import AsyncDatabase
 
 from app.auth.models import User, UserSession
 from app.core.config import get_settings
+from app.core.db import SESSIONS, USERS, Session
 from app.core.security import hash_token, new_token
 from app.core.time import now
 
@@ -45,7 +44,7 @@ def clear_cookie(response: Response, name: str, path: str = "/") -> None:
 
 
 async def start_session(
-    db: AsyncSession, request: Request, response: Response, user: User, two_step: bool = False
+    db: AsyncDatabase, request: Request, response: Response, user: User, two_step: bool = False
 ) -> UserSession:
     ttl = ADMIN_TTL if user.role == "admin" else USER_TTL
     token = new_token()
@@ -54,46 +53,37 @@ async def start_session(
         token_hash=hash_token(token),
         two_step=two_step,
         expires_at=now() + ttl,
-        last_seen_at=now(),
         ip=client_ip(request),
         user_agent=(request.headers.get("user-agent") or "")[:300] or None,
     )
-    db.add(session)
-    await db.commit()
+    await db[SESSIONS].insert_one(session.to_mongo())
     set_cookie(response, SESSION_COOKIE, token, ttl)
     return session
 
 
-async def load_session(db: AsyncSession, request: Request, response: Response) -> tuple[UserSession, User] | None:
+async def load_session(db: AsyncDatabase, request: Request, response: Response) -> tuple[UserSession, User] | None:
     token = request.cookies.get(SESSION_COOKIE)
     if not token:
         return None
-    row = (
-        await db.execute(
-            select(UserSession, User)
-            .join(User, User.id == UserSession.user_id)
-            .where(
-                UserSession.token_hash == hash_token(token),
-                UserSession.revoked_at.is_(None),
-                UserSession.expires_at > now(),
-                User.disabled_at.is_(None),
-            )
-        )
-    ).first()
-    if row is None:
+    session = UserSession.load(
+        await db[SESSIONS].find_one({"token_hash": hash_token(token), "revoked_at": None, "expires_at": {"$gt": now()}})
+    )
+    if session is None:
         return None
-    session, user = row
+    user = User.load(await db[USERS].find_one({"_id": session.user_id, "disabled_at": None}))
+    if user is None:
+        return None
     if user.role != "admin" and now() - session.last_seen_at > SLIDE_AFTER:
         session.last_seen_at = now()
         session.expires_at = now() + USER_TTL
-        await db.commit()
+        await db[SESSIONS].update_one(
+            {"_id": session.id}, {"$set": {"last_seen_at": session.last_seen_at, "expires_at": session.expires_at}}
+        )
         set_cookie(response, SESSION_COOKIE, token, USER_TTL)
     return session, user
 
 
-async def revoke_all(db: AsyncSession, user_id: uuid.UUID) -> None:
-    await db.execute(
-        update(UserSession)
-        .where(UserSession.user_id == user_id, UserSession.revoked_at.is_(None))
-        .values(revoked_at=now())
+async def revoke_all(db: AsyncDatabase, user_id: str, session: Session = None) -> None:
+    await db[SESSIONS].update_many(
+        {"user_id": user_id, "revoked_at": None}, {"$set": {"revoked_at": now()}}, session=session
     )

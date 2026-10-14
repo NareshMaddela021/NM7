@@ -18,9 +18,8 @@ from datetime import timedelta
 import pyotp
 from fastapi import APIRouter, Request, Response
 from pydantic import EmailStr, Field
-from sqlalchemy import select, text
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.asyncio import AsyncSession
+from pymongo.asynchronous.database import AsyncDatabase
+from pymongo.errors import DuplicateKeyError
 
 from app.audit import audit
 from app.auth.admin_service import ISSUER, check_totp, new_recovery_code, recovery_hash
@@ -29,7 +28,7 @@ from app.auth.service import check_new_password, find_user
 from app.auth.sessions import clear_cookie, client_ip, set_cookie
 from app.core import rate_limit
 from app.core.config import get_settings
-from app.core.db import DB
+from app.core.db import DB, LOCKS, RECOVERY_CODES, USERS, Session, transaction
 from app.core.errors import ApiError
 from app.core.schemas import CamelModel
 from app.core.security import encrypt, hash_password, seal, unseal
@@ -42,7 +41,6 @@ MIN_TOKEN_LENGTH = 24
 TICKET_COOKIE = "nm7_admin_setup"
 COOKIE_PATH = "/api/admin/setup"
 TICKET_TTL = timedelta(minutes=15)
-LOCK_ID = 7_310_001  # pg advisory lock: only one setup can finish at a time
 START_RULES = [(5, timedelta(minutes=15))]  # per IP
 VERIFY_RULES = [(10, timedelta(minutes=15))]  # wrong codes per IP
 GLOBAL_RULES = [(30, timedelta(hours=1))]  # all failures together, from anywhere
@@ -74,11 +72,11 @@ class VerifyOut(CamelModel):
     email: str
 
 
-async def _admin_exists(db: AsyncSession) -> bool:
-    return (await db.execute(select(User.id).where(User.role == "admin").limit(1))).first() is not None
+async def _admin_exists(db: AsyncDatabase, session: Session = None) -> bool:
+    return await db[USERS].find_one({"role": "admin"}, projection={"_id": 1}, session=session) is not None
 
 
-async def _setup_open(db: AsyncSession) -> None:
+async def _setup_open(db: AsyncDatabase, session: Session = None) -> None:
     """404 unless setup is switched on and nobody is admin yet — no hint which one failed."""
     token = get_settings().admin_setup_token
     if not token:
@@ -86,14 +84,13 @@ async def _setup_open(db: AsyncSession) -> None:
     if len(token) < MIN_TOKEN_LENGTH:
         log.warning("ADMIN_SETUP_TOKEN is shorter than %d characters; admin setup stays off", MIN_TOKEN_LENGTH)
         raise NOT_FOUND
-    if await _admin_exists(db):
+    if await _admin_exists(db, session):
         raise NOT_FOUND
 
 
-async def _fail(db: AsyncSession, ip_key: str, action: str, ip: str | None, err: ApiError) -> None:
+async def _fail(db: AsyncDatabase, ip_key: str, action: str, ip: str | None, err: ApiError) -> None:
     await rate_limit.record(db, ip_key, "admin-setup:all")
-    audit(db, None, action, ip=ip)
-    await db.commit()
+    await audit(db, None, action, ip=ip)
     raise err
 
 
@@ -117,20 +114,20 @@ async def start_setup(body: SetupIn, request: Request, response: Response, db: D
     if await find_user(db, body.email):
         raise ApiError(409, "email_taken", "This email already has an account. Use another email for the admin.")
 
-    user_id = uuid.uuid4()
+    user_id = str(uuid.uuid4())
     secret = pyotp.random_base32()
     codes = [new_recovery_code() for _ in range(10)]
-    holder = User(id=user_id)  # not saved; recovery hashes are tied to the future account id
+    # Not saved: recovery-code hashes are tied to the future account id.
+    holder = User(_id=user_id, email=body.email, name=name, role="customer", password_hash="")
     ticket = {
-        "uid": str(user_id),
+        "uid": user_id,
         "email": body.email.strip(),
         "name": name,
         "ph": await hash_password(body.password),
         "ts": secret,
         "rc": [recovery_hash(holder, c) for c in codes],
     }
-    audit(db, None, "admin.setup_started", data={"email": ticket["email"]}, ip=ip)
-    await db.commit()
+    await audit(db, None, "admin.setup_started", data={"email": ticket["email"]}, ip=ip)
     set_cookie(response, TICKET_COOKIE, seal(ticket), TICKET_TTL, path=COOKIE_PATH)
     uri = pyotp.TOTP(secret).provisioning_uri(name=ticket["email"], issuer_name=ISSUER)
     return SetupOut(
@@ -140,7 +137,6 @@ async def start_setup(body: SetupIn, request: Request, response: Response, db: D
 
 @router.post("/verify")
 async def verify_setup(body: VerifyIn, request: Request, response: Response, db: DB) -> VerifyOut:
-    await db.execute(text("SELECT pg_advisory_xact_lock(:id)"), {"id": LOCK_ID})
     await _setup_open(db)
     ip = client_ip(request)
     ip_key = f"admin-setup-verify:{ip}"
@@ -153,7 +149,7 @@ async def verify_setup(body: VerifyIn, request: Request, response: Response, db:
         raise ApiError(400, "setup_expired", "This setup has expired. Start again with the setup token.")
 
     user = User(
-        id=uuid.UUID(ticket["uid"]),
+        _id=ticket["uid"],
         email=ticket["email"],
         name=ticket["name"],
         role="admin",
@@ -171,17 +167,31 @@ async def verify_setup(body: VerifyIn, request: Request, response: Response, db:
             ApiError(400, "invalid_code", "That code is wrong. Use the 6-digit code from your authenticator app."),
         )
 
-    db.add(user)
+    async def create_owner(session):
+        # Every setup writes this lock document first, so two setups at the same moment conflict and only one
+        # commits; the loser is retried, sees the new admin and gets 404.
+        await db[LOCKS].update_one({"_id": "admin_setup"}, {"$inc": {"n": 1}}, upsert=True, session=session)
+        await _setup_open(db, session)
+        await db[USERS].insert_one(user.to_mongo(), session=session)
+        await db[RECOVERY_CODES].insert_many(
+            [RecoveryCode(user_id=user.id, code_hash=h).to_mongo() for h in ticket["rc"]], session=session
+        )
+        await audit(
+            db,
+            user.id,
+            "admin.setup_completed",
+            target=user.id,
+            data={"email": user.email, "role": "owner"},
+            ip=ip,
+            session=session,
+        )
+
     try:
-        await db.flush()  # the account row first: recovery codes point at it
-    except IntegrityError:
-        await db.rollback()
+        await transaction(create_owner)
+    except DuplicateKeyError:
         raise ApiError(
             409, "email_taken", "This email already has an account. Start again with another email."
         ) from None
-    db.add_all(RecoveryCode(user_id=user.id, code_hash=h) for h in ticket["rc"])
-    audit(db, user.id, "admin.setup_completed", target=str(user.id), data={"email": user.email, "role": "owner"}, ip=ip)
-    await db.commit()
     clear_cookie(response, TICKET_COOKIE, path=COOKIE_PATH)
     log.warning("First owner admin %s created through /api/admin/setup — remove ADMIN_SETUP_TOKEN now", user.email)
     return VerifyOut(email=user.email)

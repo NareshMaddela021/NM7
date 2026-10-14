@@ -1,36 +1,35 @@
 """Audit log: who did what, for the admin console."""
 
-import uuid
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import BigInteger, DateTime, ForeignKey, Identity, String, func
-from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Mapped, mapped_column
+from pydantic import Field
+from pymongo.asynchronous.database import AsyncDatabase
 
-from app.core.db import Base
-
-
-class AuditLog(Base):
-    __tablename__ = "audit_log"
-
-    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
-    actor_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), index=True)
-    action: Mapped[str] = mapped_column(String(60), index=True)
-    target: Mapped[str | None] = mapped_column(String(100))
-    data: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
-    ip: Mapped[str | None] = mapped_column(String(45))
-    at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), index=True)
+from app.core.db import AUDIT_LOG, Doc, Session, next_number
+from app.core.time import now
 
 
-def audit(
-    db: AsyncSession,
-    actor_id: uuid.UUID | None,
+class AuditLog(Doc):
+    id: int = Field(alias="_id")  # 1, 2, 3, … (shown in the admin console)
+    actor_id: str | None = None
+    action: str
+    target: str | None = None
+    data: dict[str, Any] = Field(default_factory=dict)
+    ip: str | None = None
+    at: datetime = Field(default_factory=now)
+
+
+async def audit(
+    db: AsyncDatabase,
+    actor_id: str | None,
     action: str,
     target: str | None = None,
     data: dict[str, Any] | None = None,
     ip: str | None = None,
+    session: Session = None,
 ) -> None:
-    """Adds an entry to the current transaction (saved with the caller's commit)."""
-    db.add(AuditLog(actor_id=actor_id, action=action, target=target, data=data or {}, ip=ip))
+    """Writes an entry. Pass `session` to make it part of a transaction (it then disappears if that aborts)."""
+    n = await next_number(db, "audit", 1, session=session)
+    entry = AuditLog(_id=n, actor_id=actor_id, action=action, target=target, data=data or {}, ip=ip)
+    await db[AUDIT_LOG].insert_one(entry.to_mongo(), session=session)

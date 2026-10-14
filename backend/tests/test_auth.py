@@ -3,9 +3,9 @@ from datetime import timedelta
 
 import httpx
 import respx
-from sqlalchemy import select, text, update
 
-from app.auth.models import EmailCode, User, UserSession
+from app.auth.models import User
+from app.core.db import EMAIL_CODES, RATE_EVENTS, SESSIONS, USERS
 from app.core.email import Email, ZeptoMailer
 from app.core.security import hash_password
 from app.core.time import now
@@ -19,8 +19,7 @@ def err(r):
 
 
 async def clear_limits(db):
-    await db.execute(text("DELETE FROM rate_events"))
-    await db.commit()
+    await db[RATE_EVENTS].delete_many({})
 
 
 # ---------- sign-up & email verification ----------
@@ -164,8 +163,7 @@ async def test_code_stops_working_after_five_wrong_tries(client, outbox):
 
 async def test_expired_code_is_refused(client, outbox, db):
     await signup(client, outbox, verify=False)
-    await db.execute(update(EmailCode).values(expires_at=now() - timedelta(seconds=1)))
-    await db.commit()
+    await db[EMAIL_CODES].update_many({}, {"$set": {"expires_at": now() - timedelta(seconds=1)}})
     r = await client.post(
         "/api/auth/verify-email", json={"email": "sai@example.com", "code": outbox.last_code("sai@example.com")}
     )
@@ -228,23 +226,20 @@ async def test_login_before_verifying_sends_a_new_code(client, outbox, db):
 
 
 async def test_admins_and_disabled_accounts_cannot_use_customer_login(client, outbox, db):
-    db.add(
-        User(
-            email="admin@nm7.si",
-            name="Owner",
-            role="admin",
-            admin_role="owner",
-            password_hash=await hash_password(PASSWORD),
-            email_verified_at=now(),
-        )
+    admin = User(
+        email="admin@nm7.si",
+        name="Owner",
+        role="admin",
+        admin_role="owner",
+        password_hash=await hash_password(PASSWORD),
+        email_verified_at=now(),
     )
-    await db.commit()
+    await db[USERS].insert_one(admin.to_mongo())
     r = await client.post("/api/auth/login", json={"email": "admin@nm7.si", "password": PASSWORD})
     assert r.status_code == 403 and err(r) == "use_admin_login"
 
     await signup(client, outbox)
-    await db.execute(update(User).where(User.email == "sai@example.com").values(disabled_at=now()))
-    await db.commit()
+    await db[USERS].update_one({"email_lc": "sai@example.com"}, {"$set": {"disabled_at": now()}})
     assert (await client.get("/api/auth/me")).status_code == 401  # existing session stops working
     r = await client.post("/api/auth/login", json={"email": "sai@example.com", "password": PASSWORD})
     assert r.status_code == 403 and err(r) == "account_disabled"
@@ -253,19 +248,16 @@ async def test_admins_and_disabled_accounts_cannot_use_customer_login(client, ou
 async def test_session_expiry_slides_for_customers(client, outbox, db):
     await signup(client, outbox)
     old = now() - timedelta(hours=2)
-    await db.execute(update(UserSession).values(last_seen_at=old, expires_at=now() + timedelta(days=1)))
-    await db.commit()
+    await db[SESSIONS].update_many({}, {"$set": {"last_seen_at": old, "expires_at": now() + timedelta(days=1)}})
     r = await client.get("/api/auth/me")
     assert r.status_code == 200 and "nm7_session" in r.headers.get("set-cookie", "")
-    db.expire_all()
-    s = (await db.execute(select(UserSession))).scalar_one()
-    assert s.expires_at > now() + timedelta(days=29)
+    s = await db[SESSIONS].find_one({})
+    assert s["expires_at"] > now() + timedelta(days=29)
 
 
 async def test_expired_session_is_signed_out(client, outbox, db):
     await signup(client, outbox)
-    await db.execute(update(UserSession).values(expires_at=now() - timedelta(seconds=1)))
-    await db.commit()
+    await db[SESSIONS].update_many({}, {"$set": {"expires_at": now() - timedelta(seconds=1)}})
     assert (await client.get("/api/auth/me")).status_code == 401
 
 

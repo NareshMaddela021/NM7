@@ -70,8 +70,8 @@ class OrderOut(CamelModel):
     refunds: list[RefundOut] = []
 
     @classmethod
-    def of(cls, o: Order, refunds: list | None = None) -> "OrderOut":
-        paid = next((p for p in o.payments if p.status in ("captured", "refunded")), None)
+    def of(cls, o: Order, payments: list | None = None, refunds: list | None = None) -> "OrderOut":
+        paid = next((p for p in payments or [] if p.status in ("captured", "refunded")), None)
         return cls(
             id=o.id,
             plan=o.plan,

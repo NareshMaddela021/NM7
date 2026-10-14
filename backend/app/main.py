@@ -6,7 +6,6 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from sqlalchemy import text
 
 from app.admin.router import router as admin_router
 from app.admin.setup import router as admin_setup_router
@@ -15,15 +14,16 @@ from app.auth.router import router as auth_router
 from app.auth.sessions import SESSION_COOKIE
 from app.core import errors
 from app.core.config import get_settings
-from app.core.db import DB, dispose_engine
+from app.core.db import DB, close_client, ensure_indexes, get_database
 from app.orders.router import router as orders_router
 from app.payments.router import router as payments_router
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    await ensure_indexes(get_database())  # collections + indexes; safe to run on every start
     yield
-    await dispose_engine()
+    await close_client()
 
 
 def create_app() -> FastAPI:
@@ -60,7 +60,7 @@ def create_app() -> FastAPI:
     @app.get("/health", tags=["ops"])
     async def health(db: DB) -> JSONResponse:
         try:
-            await db.execute(text("SELECT 1"))
+            await db.command("ping")
         except Exception:
             return JSONResponse({"status": "error", "db": "down"}, status_code=503)
         return JSONResponse({"status": "ok", "db": "ok"})

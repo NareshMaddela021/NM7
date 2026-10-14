@@ -12,7 +12,9 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     app_env: Literal["dev", "test", "prod"] = "dev"
-    database_url: str = "postgresql+asyncpg://nm7:nm7@localhost:5432/nm7"
+    # MongoDB (Atlas in production). Atlas gives a mongodb+srv:// URI; local tests use a one-node replica set.
+    mongodb_uri: str = "mongodb://127.0.0.1:27017/?replicaSet=rs0"
+    mongodb_db: str = "nm7"
     secret_key: str = "dev-only-secret-change-me"
     # Encrypts authenticator secrets. Falls back to SECRET_KEY; changing it breaks existing admin authenticators.
     encryption_key: str = ""
@@ -38,15 +40,6 @@ class Settings(BaseSettings):
     razorpay_key_id: str = ""
     razorpay_key_secret: str = ""
     razorpay_webhook_secret: str = ""
-
-    @field_validator("database_url")
-    @classmethod
-    def _asyncpg_url(cls, v: str) -> str:
-        # Render gives postgres://… or postgresql://…; SQLAlchemy async needs the asyncpg driver.
-        for prefix in ("postgres://", "postgresql://"):
-            if v.startswith(prefix):
-                return "postgresql+asyncpg://" + v[len(prefix) :]
-        return v
 
     @field_validator("cors_origins", mode="before")
     @classmethod

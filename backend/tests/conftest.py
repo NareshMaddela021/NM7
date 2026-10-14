@@ -2,7 +2,9 @@ import os
 
 # Point the app at the test database before anything imports the settings.
 os.environ["APP_ENV"] = "test"
-os.environ["DATABASE_URL"] = os.environ.get("TEST_DATABASE_URL", "postgresql+asyncpg://nm7:nm7@localhost:5432/nm7_test")
+# A MongoDB replica set (transactions need one): GitHub Actions starts one; locally see README.
+os.environ["MONGODB_URI"] = os.environ.get("TEST_MONGODB_URI", "mongodb://127.0.0.1:27017/?replicaSet=rs0")
+os.environ["MONGODB_DB"] = os.environ.get("TEST_MONGODB_DB", "nm7_test")
 os.environ["CORS_ORIGINS"] = "http://localhost:5173"
 os.environ["SECRET_KEY"] = "test-secret"
 os.environ["RAZORPAY_KEY_ID"] = "rzp_test_key"
@@ -10,48 +12,40 @@ os.environ["RAZORPAY_KEY_SECRET"] = "rzp_test_secret"
 os.environ["RAZORPAY_WEBHOOK_SECRET"] = "whsec_test"
 
 import re  # noqa: E402
-from pathlib import Path  # noqa: E402
 
 import pytest  # noqa: E402
-from alembic import command  # noqa: E402
-from alembic.config import Config  # noqa: E402
 from httpx import ASGITransport, AsyncClient  # noqa: E402
-from sqlalchemy import text  # noqa: E402
 
-from app.core.db import get_sessionmaker  # noqa: E402
+from app.core.db import COLLECTIONS, close_client, ensure_indexes, get_client, get_database  # noqa: E402
 from app.core.email import Email, get_mailer  # noqa: E402
 from app.main import create_app  # noqa: E402
-from app.models import Base  # noqa: E402
 
-ALEMBIC_INI = Path(__file__).resolve().parents[1] / "alembic.ini"
 ORIGIN = "http://localhost:5173"
 PASSWORD = "Nm7@2026x"
 
 
 @pytest.fixture(scope="session", autouse=True)
-def migrated_db() -> None:
-    """Start every test run from an empty schema migrated to the latest revision."""
-    cfg = Config(str(ALEMBIC_INI))
-    cfg.attributes["database_url"] = os.environ["DATABASE_URL"]
-    command.downgrade(cfg, "base")
-    command.upgrade(cfg, "head")
+async def fresh_database():
+    """Start every test run from an empty database with all collections and indexes."""
+    db_name = os.environ["MONGODB_DB"]
+    assert db_name.endswith("_test"), "refusing to drop a database that isn't a test database"
+    await get_client().drop_database(db_name)
+    await ensure_indexes(get_database())
+    yield
+    await close_client()
 
 
 @pytest.fixture(autouse=True)
-async def clean_tables():
+async def clean_collections():
     yield
-    names = ", ".join(t.name for t in Base.metadata.sorted_tables)
-    async with get_sessionmaker()() as s:
-        await s.execute(text(f"TRUNCATE {names} RESTART IDENTITY CASCADE"))
-        await s.execute(text("ALTER SEQUENCE order_no_seq RESTART"))
-        await s.execute(text("ALTER SEQUENCE refund_no_seq RESTART"))
-        await s.commit()
+    db = get_database()
+    for name in COLLECTIONS:
+        await db[name].delete_many({})
 
 
 @pytest.fixture
 async def db():
-    async with get_sessionmaker()() as s:
-        yield s
+    return get_database()
 
 
 class Outbox:
