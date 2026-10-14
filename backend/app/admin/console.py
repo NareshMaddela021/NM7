@@ -334,6 +334,15 @@ class DecisionIn(CamelModel):
     scores: dict[str, int] | None = None
 
 
+def _test_task(domains: set[str]) -> str:
+    """Which sample resume the expert rewrites (frontend/src/lib/expertTest.js TASKS)."""
+    if domains & {"Data & analytics", "Finance", "Product"}:
+        return "T-DATA"
+    if domains & {"Software engineering", "Core engineering"}:
+        return "T-SDE"
+    return "T-GEN"
+
+
 NEXT = {
     # action: (allowed from, new status)
     "changes": (("review",), "changes"),
@@ -364,7 +373,13 @@ async def expert_decision(
         raise ApiError(409, "bad_status", f"This application is “{prof['status']}”; it can’t be changed that way.")
     extra: dict[str, Any] = {"note": body.note.strip(), "decided_by": auth.user.id, "decided_at": now()}
     if body.action == "test":
-        extra["test"] = {"sentAt": ms(now()), "due": ms(now() + timedelta(hours=48)), "submitted": None}
+        domains = set(((prof.get("profile") or {}).get("expertise") or {}).get("domains") or [])
+        extra["test"] = {
+            "taskId": _test_task(domains),
+            "sentAt": ms(now()),
+            "due": ms(now() + timedelta(hours=48)),
+            "submitted": None,
+        }
     if body.action in ("pass", "fail") and prof.get("test"):
         extra["test"] = {**prof["test"], "scores": body.scores or {}, "result": body.action}
     await set_status(db, user_id, to, extra)

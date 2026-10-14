@@ -111,7 +111,8 @@ test('share link: public page from the server, phone hidden, views counted', asy
   seed('customer', a, 'Meena Iyer', PASSWORD);
   await login(page, a);
   await page.waitForURL('**/me');
-  await expect(page.getByText('Loading your dashboard')).toHaveCount(0); // first visit makes the first resume
+  // the first visit makes the first resume on the server
+  await expect.poll(() => page.evaluate(async (api) => (await (await fetch(`${api}/api/me/resumes`, { credentials: 'include' })).json()).length, API)).toBe(1);
   // put a phone number on the resume (through the API, as the builder would)
   await page.evaluate(async (api) => {
     const s = await (await fetch(`${api}/api/me/state`, { credentials: 'include' })).json();

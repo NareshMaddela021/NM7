@@ -42,7 +42,7 @@ async def test_apply_review_test_approve(make_client, outbox, db, admin_client):
     detail = (await admin.get(f"/api/admin/experts/{uid}")).json()
     assert detail["profile"]["payout"]["upi"].endswith("axis") and "ravi" not in detail["profile"]["payout"]["upi"]
     r = await admin.post(f"/api/admin/experts/{uid}/decision", json={"action": "test", "note": "Nice profile"})
-    assert r.json()["status"] == "test"
+    assert r.json()["status"] == "test" and r.json()["profile"]["test"]["taskId"] == "T-DATA"
     assert "test task" in outbox.sent[-1].text
 
     r = await c.post("/api/expert/test", json={"data": {"summary": "rewritten"}})

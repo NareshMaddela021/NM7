@@ -4,7 +4,9 @@ import { Meter } from '../../components/ui';
 import { useExpertOrders } from '../../lib/expertStore';
 import { expertStats } from './ExpertHome';
 
-const AUDITS = [['RS-1108', 5, 'Strong numbers in every bullet. Great LinkedIn headline.'], ['RS-1102', 4, 'Summary was generic in draft 1 — fixed in draft 2.'], ['RS-1089', 5, '—']];
+import { LIVE } from '../../services/http';
+
+const AUDITS = LIVE ? [] : [['RS-1108', 5, 'Strong numbers in every bullet. Great LinkedIn headline.'], ['RS-1102', 4, 'Summary was generic in draft 1 — fixed in draft 2.'], ['RS-1089', 5, '—']];
 
 export default function Performance() {
   const orders = useExpertOrders();
@@ -20,7 +22,7 @@ export default function Performance() {
     <>
       <Header variant="expert" />
       <main className="container stack g16" style={{ maxWidth: 1100, padding: '24px 24px 64px' }}>
-        <div className="stack g4"><h1 className="display" style={{ fontSize: 32 }}>Performance & reviews</h1><span className="small muted">Last 90 days · includes orders before this preview (sample).</span></div>
+        <div className="stack g4"><h1 className="display" style={{ fontSize: 32 }}>Performance & reviews</h1><span className="small muted">{LIVE ? 'From your delivered Nm7 orders.' : 'Last 90 days · includes orders before this preview (sample).'}</span></div>
         <div className="kpis">
           {[['Rating', `★ ${st.rating}`, st.rating * 20], ['On time', `${st.onTime}%`, st.onTime], ['Revisions / order', st.revisions, Math.max(0, 100 - st.revisions * 40)], ['Delivered', st.delivered, Math.min(100, st.delivered * 2.5)]].map(([l, v, pct]) => (
             <div key={l} className="card stack g8" style={{ padding: 16 }}><span className="xs muted">{l}</span><strong className="display" style={{ fontSize: 26 }}>{v}</strong><Meter value={pct} label={l} color={pct >= 80 ? 'var(--success)' : 'var(--warning)'} /></div>

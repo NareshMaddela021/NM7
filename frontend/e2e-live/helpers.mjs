@@ -13,7 +13,7 @@ export const PASSWORD = 'Strong-pass-123';
 export function seed(...args) {
   const out = execFileSync('uv', ['run', 'python', '-m', 'tests.e2e_seed', ...args], {
     cwd: backend,
-    env: { ...process.env, MONGODB_DB: 'nm7_e2e', MONGODB_URI: process.env.TEST_MONGODB_URI || 'mongodb://127.0.0.1:27017/?replicaSet=rs0' },
+    env: { ...process.env, MONGODB_DB: 'nm7_e2e', SECRET_KEY: 'e2e-only-secret', ENCRYPTION_KEY: '', APP_ENV: 'dev', MONGODB_URI: process.env.TEST_MONGODB_URI || 'mongodb://127.0.0.1:27017/?replicaSet=rs0' },
   }).toString();
   return JSON.parse(out.trim().split('\n').pop());
 }
