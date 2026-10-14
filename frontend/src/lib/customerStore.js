@@ -32,7 +32,7 @@ export function blankResume(u = currentUser()) {
   return d;
 }
 /** The starting resume for whoever is signed in (sample data only for guests and the sample customer). */
-export const defaultResume = () => (LIVE || (currentUser()?.role === 'customer' && currentUser().id !== SAMPLE_USER_ID) ? blankResume() : structuredClone(INITIAL));
+export const defaultResume = () => (currentUser()?.role === 'customer' && currentUser().id !== SAMPLE_USER_ID ? blankResume() : structuredClone(INITIAL));
 /** Live: a resume built before signing in (not the sample) becomes the new account's first resume. */
 function guestDraft() {
   try {

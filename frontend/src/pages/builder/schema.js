@@ -179,12 +179,12 @@ export const INITIAL = {
     { id: 'tools', label: 'Tools & Platforms', value: 'Power BI, Excel, Git' },
     { id: 'soft', label: 'Soft Skills / Domains', value: '' },
   ],
-  proj: [{ title: 'Sales Dashboard Revamp', tagline: 'Power BI dashboards for a college fest’s sponsor sales', type: 'Academic / Research', status: 'Completed', from: '2024-08', to: '2024-11', ongoing: false, description: '', tech: 'Power BI, SQL, Excel', links: [{ url: 'github.com/saivarsha/sales-dashboard', label: 'GitHub' }] }],
+  proj: [{ title: 'Sales Dashboard Revamp', tagline: 'Power BI dashboards for a college fest’s sponsor sales', type: 'Academic / Research', status: 'Completed', from: '2024-08', to: '2024-11', ongoing: false, description: '', tech: 'Power BI, SQL, Excel', links: [{ url: 'github.com/octocat/Hello-World', label: 'GitHub' }] }],
   certs: [{ name: 'Google Data Analytics Certificate', issuer: 'Google', issueDate: '2024-11', expiryDate: '', credentialId: '', noExpiry: true, links: [] }],
   ach: [{ title: '', type: '', date: '', issuer: '', description: '' }],
   langs: [{ name: 'English', level: 'Fluent' }, { name: 'Tamil', level: 'Native' }, { name: 'Hindi', level: 'Professional' }],
   prefs: { jobTypes: ['Full-time', 'Internship'], salary: 'Under ₹5 LPA', notice: 'Immediately', locations: 'Bengaluru, Chennai, Hyderabad', remote: true, relocation: true, industries: ['Technology', 'Finance / Fintech'] },
-  links: { linkedin: 'linkedin.com/in/saivarsha', github: 'github.com/saivarsha', portfolio: '', twitter: '', stackoverflow: '', medium: '', resume: '' },
+  links: { linkedin: 'linkedin.com/in/sai-varsha-example', github: 'github.com/octocat', portfolio: '', twitter: '', stackoverflow: '', medium: '', resume: '' },
   linkStyle: 'icon', // 'icon' = icon + handle, 'url' = full link
   linkExtras: [], // up to 3 more profile links: [{ url, label, icon: 'auto' | globe | briefcase | code | link | pen }]
   portfolioIcon: 'auto', // auto = platform logo if known (Kaggle, Behance…), else a globe

@@ -87,7 +87,7 @@ const snapshot = () => {
   return snap;
 };
 /** { user, session, ready } — `ready` is false while the live app is still asking the server who is signed in. */
-export const useAuth = () => useSyncExternalStore((f) => { subs.add(f); return () => subs.delete(f); }, snapshot);
+export const useAuth = () => useSyncExternalStore((f) => { subs.add(f); return () => subs.delete(f); }, snapshot, snapshot);
 export const currentUser = () => snapshot().user;
 
 /* ---------- validation (same rules as the server) ---------- */

@@ -3,7 +3,6 @@ import { Link, useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import { Dialog, Icon, Meter, useToast } from '../components/ui';
 import { getMatchedJobs, saveProfile } from '../services/api';
-import { PLANS, inr } from '../lib/pricing';
 import { syncFromBuilder, defaultResume, useMe, activeResume } from '../lib/customerStore';
 import { draftKey, currentUser, LIVE } from '../lib/auth';
 import { applyImport } from '../lib/import/apply';
@@ -41,6 +40,8 @@ const loadDraft = (key = DRAFT_KEY(), initial = defaultResume()) => {
     let s = localStorage.getItem(key);
     // drafts still holding the old sample person get the new sample name
     if (s && s.includes('"Priya Raman"')) s = s.replace(/Priya Raman/g, 'Sai Varsha').replace(/PRIYA RAMAN/g, 'SAI VARSHA').replace(/priyaraman/g, 'saivarsha').replace(/priya@example/g, 'saivarsha@example');
+    // older sample drafts linked to a real person's GitHub; point them at GitHub's demo account
+    if (s && s.includes('github.com/saivarsha')) s = s.replace(/github\.com\/saivarsha\/sales-dashboard/g, 'github.com/octocat/Hello-World').replace(/github\.com\/saivarsha/g, 'github.com/octocat');
     if (s) return migrateLinks({ ...INITIAL, ...JSON.parse(s) });
   } catch { /* ignore */ }
   return migrateLinks({ ...INITIAL, ...initial });
@@ -87,10 +88,9 @@ function Done({ name, score, onEdit, onDownload, onCover, pdfBusy }) {
         <h1 className="display" style={{ fontSize: 48 }}>Nice work, {(name || 'there').split(' ')[0]}. Recruiters can now find you.</h1>
         <p className="lead">Your Nm7 profile is live and your resume is ready to download.</p>
         <div className="stack g8" style={{ maxWidth: 420 }}>
-          <button type="button" className="btn btn-ink btn-xl" onClick={() => onDownload('pdf')} disabled={pdfBusy}>{pdfBusy ? 'Preparing…' : `Download PDF · ${inr(PLANS.diy.price)}`}</button>
+          <button type="button" className="btn btn-ink btn-xl" onClick={() => onDownload('pdf')} disabled={pdfBusy}>{pdfBusy ? 'Preparing…' : 'Download PDF'}</button>
           <button type="button" className="btn btn-outline btn-lg" onClick={() => onDownload('docx')} disabled={pdfBusy}>Also download as Word (.docx)</button>
           <button type="button" className="btn btn-outline btn-lg" onClick={onCover}>Write a matching cover letter</button>
-          <span className="xs faint">In the live app this runs after the {inr(PLANS.diy.price)} payment. In this preview it downloads straight away.</span>
           <Link to="/" className="btn btn-outline btn-lg">Scan it against a job · free</Link>
           <button type="button" className="btn btn-ghost" onClick={onEdit}>Keep editing</button>
         </div>

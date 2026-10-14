@@ -1,3 +1,4 @@
+import { LEGAL } from './legal';
 // Single source of truth for prices, fees and promises.
 // Change a number here and every screen updates.
 
@@ -49,7 +50,7 @@ export const upgradePrice = (from, to) => Math.max(0, PLANS[to].price - PLANS[fr
 export const REFERRAL = { reward: null, friendOff: null };
 
 // Customer invoices. Prices are shown as GST-inclusive — confirm the GST treatment and GSTIN with your CA.
-export const INVOICE = { gstPct: 18, inclusive: true, gstin: '', company: 'AsuraaX AI', brand: 'Nm7 · nm7.si', sacCode: '' } // gstin & sacCode: fill in from your CA;
+export const INVOICE = { gstPct: 18, inclusive: true, gstin: LEGAL.gstin, company: LEGAL.company, brand: 'Nm7 · nm7.si', sacCode: LEGAL.sacCode }; // GSTIN & SAC: src/lib/legal.js
 export function gstSplit(amount, inv = INVOICE) {
   const taxable = inv.inclusive ? amount / (1 + inv.gstPct / 100) : amount;
   const gst = inv.inclusive ? amount - taxable : amount * inv.gstPct / 100;

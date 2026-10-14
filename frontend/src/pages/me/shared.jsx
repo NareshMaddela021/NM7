@@ -45,11 +45,11 @@ export async function invoicePdf({ no, at, name, email, item, amount, payId, met
   doc.setFont('helvetica', 'bold'); doc.setFontSize(20); doc.text('Tax invoice', L, y);
   doc.setFontSize(11); doc.text(`${INVOICE.company} · ${INVOICE.brand}`, 540, y, { align: 'right' });
   doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
-  y += 18; doc.text(`GSTIN: ${INVOICE.gstin || '[to be added]'}`, 540, y, { align: 'right' });
+  if (INVOICE.gstin) { y += 18; doc.text(`GSTIN: ${INVOICE.gstin}`, 540, y, { align: 'right' }); }
   y += 30;
   [['Invoice no.', no], ['Date', fmtDay(at)], ['Billed to', `${name} · ${email}`], ['Payment', `${method} · ${payId} (Razorpay)`]].forEach(([k, v]) => { doc.setTextColor(110); doc.text(k, L, y); doc.setTextColor(20); doc.text(String(v), L + 90, y); y += 18; });
   y += 18; doc.setDrawColor(200); doc.line(L, y, 540, y); y += 20;
-  doc.setFont('helvetica', 'bold'); doc.text('Description', L, y); doc.text(`SAC ${INVOICE.sacCode || '—'}`, 360, y); doc.text('Amount', 540, y, { align: 'right' }); doc.setFont('helvetica', 'normal');
+  doc.setFont('helvetica', 'bold'); doc.text('Description', L, y); if (INVOICE.sacCode) doc.text(`SAC ${INVOICE.sacCode}`, 360, y); doc.text('Amount', 540, y, { align: 'right' }); doc.setFont('helvetica', 'normal');
   y += 22; doc.text(item, L, y, { maxWidth: 290 }); doc.text(rs(taxable), 540, y, { align: 'right' });
   y += 30; doc.line(L, y, 540, y); y += 20;
   [['Taxable value', rs(taxable)], [`GST @ ${INVOICE.gstPct}%`, rs(gst)]].forEach(([k, v]) => { doc.text(k, 360, y); doc.text(v, 540, y, { align: 'right' }); y += 18; });

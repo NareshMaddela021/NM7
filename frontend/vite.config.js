@@ -11,5 +11,5 @@ export default defineConfig({
   base: single ? './' : '/',
   build: { outDir: single ? 'dist-preview' : 'dist' },
   // Unit tests (vitest). The Playwright end-to-end tests live in e2e/ and run with `npm run test:e2e`.
-  test: { include: ['src/**/*.test.js'], environment: 'node' },
+  test: { include: ['src/**/*.test.{js,jsx}'], environment: 'node' },
 });

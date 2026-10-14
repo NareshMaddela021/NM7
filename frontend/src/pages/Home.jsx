@@ -432,12 +432,12 @@ export default function Home() {
           </div>
         </section>
 
-        {/* stats */}
-        <section className="h-wrap" aria-label="In numbers" style={{ paddingBottom: 24 }}>
+        {/* stats: only when there are real numbers to show (a promise alone isn't a stat) */}
+        {stats.some((s) => !s.promise) && <section className="h-wrap" aria-label="In numbers" style={{ paddingBottom: 24 }}>
           <div className="h-stats reveal">
             {stats.map((s) => <div key={s.label} style={{ position: 'relative' }}>{s.placeholder && <Sample />}<strong className="display" style={{ fontSize: 34 }}>{s.value}</strong><span className="small muted">{s.label}</span></div>)}
           </div>
-        </section>
+        </section>}
 
         {/* 2 · how it works */}
         <section id="how" className="h-pad" aria-labelledby="how-t">
