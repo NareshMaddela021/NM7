@@ -1,54 +1,81 @@
-import { useEffect } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 import { Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
 import Header from './components/Header';
 import Home from './pages/Home';
-import Scan from './pages/Scan';
-import Checkout from './pages/Checkout';
-import Intake from './pages/Intake';
-import Refund from './pages/Refund';
-import Editor from './pages/Editor';
-import Builder from './pages/Builder';
-import ExpertHome from './pages/expert/ExpertHome';
-import ExpertOrders from './pages/expert/ExpertOrders';
-import OrderWorkspace from './pages/expert/OrderWorkspace';
-import Snippets from './pages/expert/Snippets';
-import Performance from './pages/expert/Performance';
-import ExpertHelp from './pages/expert/Help';
-import DraftReview from './pages/DraftReview';
-import Earnings from './pages/expert/Earnings';
-import ExpertProfile from './pages/expert/Profile';
-import AdminLayout from './pages/admin/AdminLayout';
-import Dashboard from './pages/admin/Dashboard';
-import AdminOrders from './pages/admin/Orders';
-import ExpertsAdmin from './pages/admin/ExpertsAdmin';
-import Refunds from './pages/admin/Refunds';
-import Payments from './pages/admin/Payments';
-import Customers from './pages/admin/Customers';
-import Quality from './pages/admin/Quality';
-import Reports from './pages/admin/Reports';
-import AdminSettings from './pages/admin/Settings';
-import Automation from './pages/admin/Automation';
-import Team from './pages/admin/Team';
-import MeLayout from './pages/me/MeLayout';
-import MeHome from './pages/me/MeHome';
-import { OrdersList, OrderDetail } from './pages/me/MeOrders';
-import MeMessages from './pages/me/MeMessages';
-import MeResumes from './pages/me/MeResumes';
-import MeAts from './pages/me/MeAts';
-import MeCovers from './pages/me/MeCovers';
-import MeJobs from './pages/me/MeJobs';
-import MeShare, { PublicResume } from './pages/me/MeShare';
-import MeLaunch from './pages/me/MeLaunch';
-import { MePayments, MeUpgrade } from './pages/me/MeMoney';
-import { MeSettings, MeHelp } from './pages/me/MeSettings';
-import { Login, Signup, ForgotPassword, AdminLogin, AdminSetup, RequireAuth } from './pages/auth/Auth';
-import { Terms, Privacy, RefundPolicy, DeliveryPolicy, ExpertTerms, Contact } from './pages/legal/Legal';
-import TestTask from './pages/expert/TestTask';
-import { useAuth, previewSignIn, previewUsers } from './lib/auth';
-import { keyFor, BLANK } from './lib/expert';
-import { seedPreviewExpert } from './lib/expertTest';
+import { Spinner } from './components/ui';
+import { useAuth, previewSignIn, previewUsers, LIVE } from './lib/auth';
+import { RequireAuth } from './pages/auth/Auth';
+import { applyMeta, metaFor, usePageMeta } from './lib/meta';
 
-if (import.meta.env.VITE_PREVIEW === '1') seedPreviewExpert(keyFor, BLANK);
+// Every page except Home is its own chunk, loaded when first opened.
+const named = (load, name) => lazy(() => load().then((m) => ({ default: m[name] })));
+const Scan = lazy(() => import('./pages/Scan'));
+const Checkout = lazy(() => import('./pages/Checkout'));
+const Intake = lazy(() => import('./pages/Intake'));
+const Refund = lazy(() => import('./pages/Refund'));
+const Editor = lazy(() => import('./pages/Editor'));
+const Builder = lazy(() => import('./pages/Builder'));
+const DraftReview = lazy(() => import('./pages/DraftReview'));
+const ExpertHome = lazy(() => import('./pages/expert/ExpertHome'));
+const ExpertOrders = lazy(() => import('./pages/expert/ExpertOrders'));
+const OrderWorkspace = lazy(() => import('./pages/expert/OrderWorkspace'));
+const Snippets = lazy(() => import('./pages/expert/Snippets'));
+const Performance = lazy(() => import('./pages/expert/Performance'));
+const ExpertHelp = lazy(() => import('./pages/expert/Help'));
+const Earnings = lazy(() => import('./pages/expert/Earnings'));
+const ExpertProfile = lazy(() => import('./pages/expert/Profile'));
+const TestTask = lazy(() => import('./pages/expert/TestTask'));
+const auth = () => import('./pages/auth/Auth');
+const Login = named(auth, 'Login');
+const Signup = named(auth, 'Signup');
+const ForgotPassword = named(auth, 'ForgotPassword');
+const AdminLogin = named(auth, 'AdminLogin');
+const AdminSetup = named(auth, 'AdminSetup');
+const legal = () => import('./pages/legal/Legal');
+const Terms = named(legal, 'Terms');
+const Privacy = named(legal, 'Privacy');
+const RefundPolicy = named(legal, 'RefundPolicy');
+const DeliveryPolicy = named(legal, 'DeliveryPolicy');
+const ExpertTerms = named(legal, 'ExpertTerms');
+const Contact = named(legal, 'Contact');
+const MeLayout = lazy(() => import('./pages/me/MeLayout'));
+const MeHome = lazy(() => import('./pages/me/MeHome'));
+const meOrders = () => import('./pages/me/MeOrders');
+const OrdersList = named(meOrders, 'OrdersList');
+const OrderDetail = named(meOrders, 'OrderDetail');
+const MeMessages = lazy(() => import('./pages/me/MeMessages'));
+const MeResumes = lazy(() => import('./pages/me/MeResumes'));
+const MeAts = lazy(() => import('./pages/me/MeAts'));
+const MeCovers = lazy(() => import('./pages/me/MeCovers'));
+const MeJobs = lazy(() => import('./pages/me/MeJobs'));
+const meShare = () => import('./pages/me/MeShare');
+const MeShare = named(meShare, 'default');
+const PublicResume = named(meShare, 'PublicResume');
+const MeLaunch = lazy(() => import('./pages/me/MeLaunch'));
+const meMoney = () => import('./pages/me/MeMoney');
+const MePayments = named(meMoney, 'MePayments');
+const MeUpgrade = named(meMoney, 'MeUpgrade');
+const meSettings = () => import('./pages/me/MeSettings');
+const MeSettings = named(meSettings, 'MeSettings');
+const MeHelp = named(meSettings, 'MeHelp');
+
+// Admin console: real data on the live site; the sample console only in the preview build.
+const liveAdmin = { common: () => import('./pages/admin/live/common'), ops: () => import('./pages/admin/live/OpsPages'), people: () => import('./pages/admin/live/PeoplePages'), setup: () => import('./pages/admin/live/SetupPages') };
+const ADMIN = LIVE ? {
+  Layout: named(liveAdmin.common, 'LiveAdminLayout'), Dashboard: named(liveAdmin.ops, 'LiveDashboard'), Orders: named(liveAdmin.ops, 'LiveOrders'),
+  Experts: named(liveAdmin.people, 'LiveExperts'), Refunds: named(liveAdmin.ops, 'LiveRefunds'), Payments: named(liveAdmin.ops, 'LivePayments'),
+  Customers: named(liveAdmin.people, 'LiveCustomers'), Quality: named(liveAdmin.people, 'LiveQuality'), Reports: named(liveAdmin.people, 'LiveReports'),
+  Settings: named(liveAdmin.setup, 'LiveSettings'), Automation: named(liveAdmin.setup, 'LiveAutomation'), Team: named(liveAdmin.setup, 'LiveTeam'),
+} : {
+  Layout: lazy(() => import('./pages/admin/AdminLayout')), Dashboard: lazy(() => import('./pages/admin/Dashboard')), Orders: lazy(() => import('./pages/admin/Orders')),
+  Experts: lazy(() => import('./pages/admin/ExpertsAdmin')), Refunds: lazy(() => import('./pages/admin/Refunds')), Payments: lazy(() => import('./pages/admin/Payments')),
+  Customers: lazy(() => import('./pages/admin/Customers')), Quality: lazy(() => import('./pages/admin/Quality')), Reports: lazy(() => import('./pages/admin/Reports')),
+  Settings: lazy(() => import('./pages/admin/Settings')), Automation: lazy(() => import('./pages/admin/Automation')), Team: lazy(() => import('./pages/admin/Team')),
+};
+
+if (!LIVE && import.meta.env.VITE_PREVIEW === '1') {
+  Promise.all([import('./lib/expert'), import('./lib/expertTest')]).then(([e, t]) => t.seedPreviewExpert(e.keyFor, e.BLANK));
+}
 
 /** Old tracking links (/orders/RS-…) now open the order in the dashboard. */
 function OrderRedirect() {
@@ -61,6 +88,7 @@ const E = (el, approved = true) => <RequireAuth role="expert" approved={approved
 
 function ScrollToTop() {
   const { pathname, hash } = useLocation();
+  useEffect(() => { applyMeta(metaFor(pathname)); }, [pathname]);
   useEffect(() => {
     if (hash) document.getElementById(hash.slice(1))?.scrollIntoView();
     else window.scrollTo(0, 0);
@@ -76,10 +104,13 @@ const SCREENS = [
 
 /** Shown only in the shareable preview build: says it's sample data and lets you jump to any screen. */
 function PreviewBar() {
+  if (LIVE || import.meta.env.VITE_PREVIEW !== '1') return null;
+  return <PreviewBarInner />;
+}
+function PreviewBarInner() {
   const nav = useNavigate();
   const { pathname } = useLocation();
   const { user } = useAuth();
-  if (import.meta.env.VITE_PREVIEW !== '1') return null;
   const current = SCREENS.find(([p]) => p === pathname)?.[0] ?? '';
   return (
     <div role="note" style={{ background: 'var(--signal)', color: 'var(--signalink)', fontSize: 13 }}>
@@ -105,10 +136,11 @@ function PreviewBar() {
 }
 
 function NotFound() {
+  usePageMeta({ title: 'Page not found', description: 'This page doesn’t exist.', noindex: true });
   return (
     <>
       <Header />
-      <main className="container stack g16" style={{ padding: '96px 24px' }}>
+      <main id="main" className="container stack g16" style={{ padding: '96px 24px' }}>
         <h1 className="display h2">This page doesn’t exist.</h1>
         <p className="lead">The link may be old. Start with a free resume scan instead.</p>
         <Link to="/" className="btn btn-ink btn-lg" style={{ alignSelf: 'flex-start' }}>Go to home</Link>
@@ -117,11 +149,15 @@ function NotFound() {
   );
 }
 
+const Fallback = () => <div className="row g12 muted" role="status" style={{ padding: '96px 24px', justifyContent: 'center' }}><Spinner /> Loading…</div>;
+
 export default function App() {
   return (
     <>
+      <a href="#main" className="skip-link">Skip to content</a>
       <ScrollToTop />
       <PreviewBar />
+      <Suspense fallback={<Fallback />}>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/scan" element={<Scan />} />
@@ -152,18 +188,18 @@ export default function App() {
         <Route path="/delivery-policy" element={<DeliveryPolicy />} />
         <Route path="/expert-terms" element={<ExpertTerms />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/admin" element={<RequireAuth role="admin"><AdminLayout /></RequireAuth>}>
-          <Route index element={<Dashboard />} />
-          <Route path="orders" element={<AdminOrders />} />
-          <Route path="experts" element={<ExpertsAdmin />} />
-          <Route path="refunds" element={<Refunds />} />
-          <Route path="payments" element={<Payments />} />
-          <Route path="customers" element={<Customers />} />
-          <Route path="quality" element={<Quality />} />
-          <Route path="reports" element={<Reports />} />
-          <Route path="settings" element={<AdminSettings />} />
-          <Route path="automation" element={<Automation />} />
-          <Route path="team" element={<Team />} />
+        <Route path="/admin" element={<RequireAuth role="admin"><ADMIN.Layout /></RequireAuth>}>
+          <Route index element={<ADMIN.Dashboard />} />
+          <Route path="orders" element={<ADMIN.Orders />} />
+          <Route path="experts" element={<ADMIN.Experts />} />
+          <Route path="refunds" element={<ADMIN.Refunds />} />
+          <Route path="payments" element={<ADMIN.Payments />} />
+          <Route path="customers" element={<ADMIN.Customers />} />
+          <Route path="quality" element={<ADMIN.Quality />} />
+          <Route path="reports" element={<ADMIN.Reports />} />
+          <Route path="settings" element={<ADMIN.Settings />} />
+          <Route path="automation" element={<ADMIN.Automation />} />
+          <Route path="team" element={<ADMIN.Team />} />
         </Route>
         <Route path="/me" element={C(<MeLayout />)}>
           <Route index element={<MeHome />} />
@@ -184,6 +220,7 @@ export default function App() {
         <Route path="/r/:slug" element={<PublicResume />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      </Suspense>
     </>
   );
 }

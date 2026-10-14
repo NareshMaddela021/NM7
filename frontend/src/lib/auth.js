@@ -7,11 +7,12 @@ import { http, LIVE } from '../services/http';
 export { LIVE };
 const USERS_KEY = 'asuraa-users-v3';
 const SESSION_KEY = 'asuraa-session-v1';
-export const DEMO_CODE = '246810'; // preview only: every email / authenticator code
-export const SAMPLE_PASSWORD = 'Nm7@2026';
+// Preview only (empty in live builds, so the bundler leaves them out).
+export const DEMO_CODE = LIVE ? '' : '246810'; // every email / authenticator code
+export const SAMPLE_PASSWORD = LIVE ? '' : 'Nm7@2026';
 export const SAMPLE_USER_ID = 'u-sai';
 
-const SEED = [
+const SEED = LIVE ? [] : [
   { id: 'u-sai', role: 'customer', name: 'Sai Varsha', email: 'saivarsha@example.com', phone: '+91 98765 43210', password: SAMPLE_PASSWORD, verified: true, createdAt: Date.now() - 82 * 864e5 },
   { id: 'u-naresh', role: 'expert', name: 'Naresh Maddela', email: 'naresh@example.com', phone: '+91 90000 11111', password: SAMPLE_PASSWORD, verified: true, expertStatus: 'approved', createdAt: Date.now() - 120 * 864e5 },
   { id: 'u-ravi', role: 'expert', name: 'Ravi Kumar', email: 'ravi@example.com', phone: '+91 90000 33333', password: SAMPLE_PASSWORD, verified: true, expertStatus: 'test', createdAt: Date.now() - 3 * 864e5 },

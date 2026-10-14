@@ -3,7 +3,8 @@
  * (accounts and orders live in this browser) and nothing here is called.
  */
 export const API_BASE = (import.meta.env.VITE_API_BASE || '').replace(/\/+$/, '');
-export const LIVE = !!API_BASE;
+// A build-time constant (Vite writes the value in), so the bundler drops preview-only code from live builds.
+export const LIVE = !!import.meta.env.VITE_API_BASE;
 
 export class ApiError extends Error {
   constructor(status, code, message, fields) {

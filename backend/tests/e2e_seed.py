@@ -1,10 +1,10 @@
 """Test data for the browser end-to-end tests (frontend/e2e-live). Only touches a database whose name ends in _e2e.
 
-    MONGODB_DB=nm7_e2e uv run python -m tests.e2e_seed reset
-    ... admin EMAIL ROLE PASSWORD          → {"secret": "..."} (authenticator key)
-    ... customer EMAIL NAME PASSWORD       → {"id": "..."}
-    ... expert EMAIL NAME PASSWORD STATUS  → {"id": "..."}
-    ... paid-order EMAIL PLAN              → {"id": "RS-…"} (as if Razorpay had confirmed the payment)
+MONGODB_DB=nm7_e2e uv run python -m tests.e2e_seed reset
+... admin EMAIL ROLE PASSWORD          → {"secret": "..."} (authenticator key)
+... customer EMAIL NAME PASSWORD       → {"id": "..."}
+... expert EMAIL NAME PASSWORD STATUS  → {"id": "..."}
+... paid-order EMAIL PLAN              → {"id": "RS-…"} (as if Razorpay had confirmed the payment)
 """
 
 import asyncio
@@ -76,6 +76,7 @@ async def main(cmd: str, *args: str) -> dict:
 
 
 if __name__ == "__main__":
+
     async def run():
         try:
             print(json.dumps(await main(*sys.argv[1:])))
