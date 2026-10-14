@@ -30,15 +30,18 @@ def set_cookie(response: Response, name: str, value: str, max_age: timedelta, pa
         max_age=int(max_age.total_seconds()),
         path=path,
         domain=s.cookie_domain,
-        secure=s.is_prod,
+        secure=s.is_prod or s.cookie_samesite == "none",
         httponly=True,
-        samesite="lax",
+        samesite=s.cookie_samesite,
     )
 
 
 def clear_cookie(response: Response, name: str, path: str = "/") -> None:
     s = get_settings()
-    response.delete_cookie(name, path=path, domain=s.cookie_domain, secure=s.is_prod, httponly=True, samesite="lax")
+    secure = s.is_prod or s.cookie_samesite == "none"
+    response.delete_cookie(
+        name, path=path, domain=s.cookie_domain, secure=secure, httponly=True, samesite=s.cookie_samesite
+    )
 
 
 async def start_session(

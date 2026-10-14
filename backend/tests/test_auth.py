@@ -26,6 +26,18 @@ async def clear_limits(db):
 # ---------- sign-up & email verification ----------
 
 
+async def signup_raw(client, email="sai@example.com"):
+    body = {
+        "role": "customer",
+        "name": "Sai",
+        "email": email,
+        "password": PASSWORD,
+        "passwordConfirm": PASSWORD,
+        "termsAccepted": True,
+    }
+    return await client.post("/api/auth/signup", json=body)
+
+
 async def test_signup_sends_code_and_verify_signs_in(client, outbox):
     r = await client.post(
         "/api/auth/signup",
@@ -321,3 +333,24 @@ async def test_zeptomail_request_shape():
     assert body["from"]["address"] == "noreply@nm7.si"
     assert body["to"][0]["email_address"] == {"address": "sai@example.com", "name": "Sai"}
     assert body["subject"] == "Hello" and body["htmlbody"] == "<p>html</p>"
+
+
+async def test_cross_site_cookie_setting(client, outbox, monkeypatch):
+    from app.core.config import get_settings
+
+    monkeypatch.setattr(get_settings(), "cookie_samesite", "none")
+    await signup(client, outbox, verify=False)
+    code = outbox.last_code("sai@example.com")
+    r = await client.post("/api/auth/verify-email", json={"email": "sai@example.com", "code": code})
+    cookie = r.headers["set-cookie"].lower()
+    assert "samesite=none" in cookie and "secure" in cookie and "httponly" in cookie
+
+
+async def test_failed_email_never_logs_the_code(client, app, caplog):
+    from app.core.email import MissingMailer, get_mailer
+
+    app.dependency_overrides[get_mailer] = lambda: MissingMailer()
+    r = await signup_raw(client)
+    assert r.json()["codeSent"] is False
+    assert "Could not send an email to sai@example.com" in caplog.text
+    assert "Nm7 code" not in caplog.text and not any(c.isdigit() and len(c) == 6 for c in caplog.text.split())

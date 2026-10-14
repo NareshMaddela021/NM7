@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     encryption_key: str = ""
     cors_origins: Annotated[list[str], NoDecode] = ["http://localhost:5173"]
     cookie_domain: str | None = None
+    # "lax" when the site and API share a domain (nm7.si + api.nm7.si). "none" when they are different sites,
+    # e.g. testing on *.onrender.com (needs HTTPS; the origin check still blocks other sites).
+    cookie_samesite: Literal["lax", "none"] = "lax"
 
     # Email (Zoho ZeptoMail)
     zeptomail_token: str = ""

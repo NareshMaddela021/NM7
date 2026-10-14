@@ -70,7 +70,8 @@ async def send_safely(mailer: Mailer, msg: Email) -> bool:
         await mailer.send(msg)
         return True
     except Exception:
-        log.exception("Could not send email %r to %s", msg.subject, msg.to)
+        # Never log the subject or body: they can contain one-time codes.
+        log.exception("Could not send an email to %s", msg.to)
         return False
 
 
