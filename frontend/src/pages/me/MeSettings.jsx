@@ -26,10 +26,13 @@ export function MeSettings() {
   const [confirm, setConfirm] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [tried, setTried] = useState(false); // show field errors once Save was pressed
   const errs = { name: !f.name.trim() && 'Enter your name', email: !EMAIL_RE.test(f.email) && 'Enter a valid email', phone: f.phone && !PHONE_RE.test(f.phone.trim()) && 'Enter a 10-digit Indian mobile number' };
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
   const save = async (e) => {
-    e.preventDefault(); if (errs.name || errs.email || errs.phone || busy) return;
+    e.preventDefault(); setTried(true);
+    if (errs.name || errs.phone) { document.getElementById(errs.name ? 'p-n' : 'p-p')?.focus(); return; }
+    if (busy) return;
     setBusy(true); setError('');
     try { await saveProfile({ ...f, email: me.account.email }); toast('Saved'); } catch (err) { setError(err.message || 'Not saved. Please try again.'); } finally { setBusy(false); }
   };
@@ -47,9 +50,9 @@ export function MeSettings() {
       <form className="card stack g12" onSubmit={save} aria-label="Profile" noValidate>
         <strong>Profile</strong>
         <div className="row g12">
-          <div className="field" style={{ flex: '1 1 220px' }}><label htmlFor="p-n" className="label">Full name</label><input id="p-n" className="input" style={{ height: 42 }} value={f.name} onChange={set('name')} /></div>
-          <div className="field" style={{ flex: '1 1 220px' }}><label htmlFor="p-e" className="label">Email</label><input id="p-e" type="email" className="input" style={{ height: 42 }} value={me.account.email} readOnly aria-describedby="p-e-h" /><span id="p-e-h" className="xs faint">This is your sign-in email. To change it, write to info@nm7.si from this address.</span>{errs.email && <span className="xs" style={{ color: 'var(--danger)' }}>{errs.email}</span>}</div>
-          <div className="field" style={{ flex: '1 1 220px' }}><label htmlFor="p-p" className="label">Mobile (WhatsApp)</label><input id="p-p" className="input" style={{ height: 42 }} value={f.phone} onChange={set('phone')} aria-invalid={!!errs.phone} />{errs.phone && <span className="xs" style={{ color: 'var(--danger)' }}>{errs.phone}</span>}</div>
+          <div className="field" style={{ flex: '1 1 220px' }}><label htmlFor="p-n" className="label">Full name</label><input id="p-n" className="input" style={{ height: 42 }} value={f.name} onChange={set('name')} aria-invalid={tried && errs.name ? 'true' : undefined} aria-describedby={tried && errs.name ? 'p-n-err' : undefined} />{tried && errs.name && <span id="p-n-err" role="alert" className="error">{errs.name}</span>}</div>
+          <div className="field" style={{ flex: '1 1 220px' }}><label htmlFor="p-e" className="label">Email</label><input id="p-e" type="email" className="input" style={{ height: 42, background: 'var(--sunken)', color: 'var(--text2)', cursor: 'not-allowed' }} value={me.account.email} readOnly aria-readonly="true" aria-describedby="p-e-h" /><span id="p-e-h" className="xs faint">This is your sign-in email. To change it, write to info@nm7.si from this address.</span></div>
+          <div className="field" style={{ flex: '1 1 220px' }}><label htmlFor="p-p" className="label">Mobile (WhatsApp)</label><input id="p-p" className="input" style={{ height: 42 }} value={f.phone} onChange={set('phone')} aria-invalid={!!errs.phone} aria-describedby={errs.phone ? 'p-p-err' : undefined} />{errs.phone && <span id="p-p-err" className="error">{errs.phone}</span>}</div>
         </div>
         {error && <span className="small" role="alert" style={{ color: 'var(--danger)' }}>{error}</span>}
         <div className="row g8"><button type="submit" className="btn btn-ink" disabled={busy}>{busy ? <Spinner /> : 'Save'}</button><Link to="/me/profile" className="btn btn-outline">Target role, cities &amp; career details → Job Profile</Link></div>

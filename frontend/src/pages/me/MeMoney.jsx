@@ -1,6 +1,7 @@
 // Payments & refunds, and Upgrade & add-ons.
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useFlow } from '../../lib/flow';
 import { useToast } from '../../components/ui';
 import { useMe, payments, orderView, buyAddon, upgradeOrder, getMe } from '../../lib/customerStore';
 import { useExpertOrders } from '../../lib/expertStore';
@@ -51,6 +52,8 @@ export function MeUpgrade() {
   const me = useMe();
   useExpertOrders();
   const toast = useToast();
+  const nav = useNavigate();
+  const { setAddon } = useFlow();
   const [pay, setPay] = useState(null);
   const live = me.orders.map(orderView).filter((o) => o.live);
   const o = live[0];
@@ -68,7 +71,9 @@ export function MeUpgrade() {
               <span className="small muted" style={{ flex: 1 }}>{p.blurb}</span>
               {mine ? <span className="badge b-signal" style={{ alignSelf: 'flex-start' }}>Your plan</span>
                 : can ? <button type="button" className="btn btn-ink" onClick={() => setPay({ kind: 'upgrade', id: p.id, amount: upgradePrice(o.plan, p.id), title: `Upgrade ${o.id} to ${p.name}` })}>Upgrade · pay {inr(upgradePrice(o.plan, p.id))}</button>
-                  : <span className="xs faint">{o ? 'Included in your plan' : 'Start from the home page'}</span>}
+                  : o ? <span className="xs faint">Included in your plan</span>
+                  : p.id === 'diy' ? <Link to="/builder" className="btn btn-outline">Open the builder</Link>
+                  : <button type="button" className="btn btn-ink" onClick={() => { setAddon(p.id === 'launch'); nav('/checkout'); }}>Get {p.name} · {inr(p.price)}</button>}
             </section>
           );
         })}

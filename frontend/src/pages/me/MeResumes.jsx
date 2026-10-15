@@ -60,7 +60,7 @@ export default function MeResumes() {
           const s = atsScore(r.data).score;
           return (
             <article key={r.id} className="card row g16" style={{ flex: '1 1 420px', alignItems: 'flex-start' }} aria-label={r.name}>
-              <ResumeThumb data={r.data} width={120} />
+              <ResumeThumb data={r.data} width={120} label={`Preview of ${r.name} resume`} />
               <div className="stack g8" style={{ flex: 1, minWidth: 180 }}>
                 {renaming === r.id ? (
                   <form className="row g4" onSubmit={(e) => { e.preventDefault(); updateResume(r.id, { name: name.trim() || r.name }); setRenaming(null); }}>

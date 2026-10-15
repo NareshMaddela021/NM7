@@ -38,7 +38,7 @@ function Page({ title, intro, sections }) {
               : <p key={j} style={{ margin: 0, lineHeight: 1.65 }}>{typeof b === 'string' ? <T s={b} /> : b}</p>))}
           </section>
         ))}
-        <p className="small muted" style={{ margin: 0 }}>Questions? Write to {L.email} or see <Link to="/contact">Contact us</Link>.</p>
+        <p className="small muted" style={{ margin: 0 }}>Questions? Write to <a href={`mailto:${L.email}`}>{L.email}</a> or see <Link to="/contact">Contact us</Link>.</p>
       </main>
       <SiteFooter />
     </>
@@ -146,7 +146,7 @@ export function Contact() {
         <div className="row g16" style={{ alignItems: 'stretch' }}>
           <section className="card stack g8" style={{ flex: '1 1 300px' }}>
             <strong>Support</strong>
-            <span>Email: <span style={{ userSelect: 'all' }}>{L.email}</span></span>
+            <span>Email: <a href={`mailto:${L.email}`}>{L.email}</a></span>
             {L.phone && <span>Phone / WhatsApp: {L.phone}</span>}
             <span className="small muted">{L.hours}</span>
             <span className="small">Have an order? The fastest way is <Link to="/me/help">Help → Raise an issue</Link> in your dashboard.</span>
@@ -156,7 +156,9 @@ export function Contact() {
             <span>{join(' · ', L.company, L.entity)}</span>
             <span>{L.address || L.city}</span>
             <strong style={{ marginTop: 8 }}>{L.grievance.name ? 'Grievance Officer' : 'Complaints'}</strong>
-            <span>{L.grievance.name ? join(' · ', L.grievance.name, L.grievance.email, L.grievance.phone) : (L.grievance.email || L.email)}</span>
+            {L.grievance.name
+              ? <span>{join(' · ', L.grievance.name, L.grievance.phone)}{(L.grievance.email || L.email) && <> · <a href={`mailto:${L.grievance.email || L.email}`}>{L.grievance.email || L.email}</a></>}</span>
+              : <a href={`mailto:${L.grievance.email || L.email}`}>{L.grievance.email || L.email}</a>}
             <span className="small muted">We acknowledge complaints within 48 hours.</span>
           </section>
         </div>

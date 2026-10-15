@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { createContext, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ensureFonts } from './fontLoader';
 import { visibleResume } from './entries';
 import ContactLine from './ContactLine';
@@ -60,6 +60,12 @@ function Line({ l, ds, s }) {
   return <span><strong style={{ fontWeight: 700 }}>{l.bold}</strong> {l.text}</span>;
 }
 
+// Thumbnails and home-page samples are pictures: their links are plain text, not clickable or focusable.
+const LinksLive = createContext(true);
+function Link({ url, children, ...p }) {
+  return useContext(LinksLive) ? <a href={url} target="_blank" rel="noreferrer" {...p}>{children}</a> : <span {...p}>{children}</span>;
+}
+
 function Item({ it, ds, s }) {
   const dateEl = it.date && <span style={{ color: '#5A5A5A', whiteSpace: ds.datePos === 'right' ? 'nowrap' : 'normal', fontSize: (ds.bodySize - 0.5) * s }}>{it.date}</span>;
   return (
@@ -70,7 +76,7 @@ function Item({ it, ds, s }) {
             <strong style={{ fontWeight: 700 }}>{it.head}</strong>
             {it.links?.map((l) => (
               <span key={l.url + l.label}><span style={{ color: '#9A9A9A' }}> | </span>
-                <a href={l.url} target="_blank" rel="noreferrer" style={{ color: ds.accentOn.links ? ds.accent : ds.textColor, textDecoration: 'underline', textDecorationThickness: Math.max(1, 0.6 * s), textUnderlineOffset: 2 * s, fontWeight: 500 }}>{l.label}</a>
+                <Link url={l.url} style={{ color: ds.accentOn.links ? ds.accent : ds.textColor, textDecoration: 'underline', textDecorationThickness: Math.max(1, 0.6 * s), textUnderlineOffset: 2 * s, fontWeight: 500 }}>{l.label}</Link>
               </span>
             ))}
           </span>
@@ -113,7 +119,7 @@ function CoverBody({ c, ds, s }) {
  * True-to-scale preview: every size is the PDF size in points × (preview width / page width).
  * Reports the page count via onPages and marks where each new page starts.
  */
-export default function ResumePreview({ data, design: ds, photo, onPages, cover, loadFonts = true }) {
+export default function ResumePreview({ data, design: ds, photo, onPages, cover, loadFonts = true, decorative = false }) {
   const d = visibleResume(data); // switched-off entries are hidden everywhere the resume is shown
   const ref = useRef();
   const [box, setBox] = useState({ w: 595, h: 842 });
@@ -151,6 +157,7 @@ export default function ResumePreview({ data, design: ds, photo, onPages, cover,
   const empty = !main.length && !side.length;
 
   return (
+    <LinksLive.Provider value={!decorative}>
     <div style={{ position: 'relative' }}>
       <article ref={ref} aria-label={cover ? 'Cover letter preview' : 'Resume preview'}
         style={{ ...body, background: '#fff', borderRadius: 4, boxShadow: 'var(--shadow)', padding: m, minHeight: pageH, boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: ds.sectionGap * s }}>
@@ -176,11 +183,11 @@ export default function ResumePreview({ data, design: ds, photo, onPages, cover,
         ) : <Column sections={main} ds={ds} s={s} />}
         </>}
       </article>
-      {Array.from({ length: pages - 1 }, (_, i) => (
-        <div key={i} aria-hidden="true" style={{ position: 'absolute', left: -8, right: -8, top: pageH * (i + 1), borderTop: '2px dashed var(--danger)', pointerEvents: 'none' }}>
-          <span className="xs strong" style={{ position: 'absolute', right: 8, top: -22, background: 'var(--danger)', color: '#fff', borderRadius: 4, padding: '1px 6px' }}>Page {i + 2} starts</span>
-        </div>
+      {/* page-break markers are decorative: the label is CSS content (data-label), so it is never in the page text */}
+      {!decorative && Array.from({ length: pages - 1 }, (_, i) => (
+        <div key={i} aria-hidden="true" className="page-break" data-label={`Page ${i + 2} starts`} style={{ top: pageH * (i + 1) }} />
       ))}
     </div>
+    </LinksLive.Provider>
   );
 }

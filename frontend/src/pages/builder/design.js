@@ -12,7 +12,7 @@ export const FONTS = {
   merriweather: { label: 'Merriweather', kind: 'Serif', css: "'Merriweather', Georgia, serif" },
 };
 
-export const ACCENTS = ['#111827', '#1F3A8A', '#2E46D8', '#0F766E', '#0E7A52', '#7C2D12', '#9F1239', '#6D28D9', '#B45309', '#334155'];
+export const ACCENTS = ['#111827', '#1F3A8A', '#2E46D8', '#0F766E', '#0E7A52', '#7C2D12', '#9F1239', '#6D28D9', '#9A4508', '#334155'];
 export const TEXT_COLORS = [['#111111', 'Black'], ['#2D3139', 'Dark grey'], ['#4A4F59', 'Soft grey']];
 export const MARGINS = { narrow: 36, normal: 50, wide: 64 };
 export const PAGE = { a4: { w: 595.28, h: 841.89, label: 'A4' }, letter: { w: 612, h: 792, label: 'US Letter' } };
@@ -73,7 +73,7 @@ export const TEMPLATE_PRESETS = {
   stack: { name: 'Stack', level: 'all', ind: ['tech'], sections: 'stack', desc: 'Skills right under the summary, so tech recruiters see your stack first.', design: { ...D, font: 'ibm-plex-sans', accent: '#0F766E', headingStyle: 'left', accentOn: on({ name: true }) } },
   mono: { name: 'Minimal Mono', level: 'all', ind: ['tech', 'creative'], desc: 'Lots of white space, quiet grey headings. Calm and modern.', design: { ...D, logoColor: 'mono', font: 'roboto', accent: '#334155', headingStyle: 'caps', bodySize: 9.5, sectionGap: 14, margin: 'wide', marginPt: 64, headerStyle: 'none', accentOn: on({ lines: false }) } },
   compact: { name: 'Compact', level: 'experienced', ind: ['tech', 'mgmt'], desc: 'Tighter type and spacing to fit more on one page.', design: { ...D, font: 'roboto', bodySize: 9.5, headSize: 10, nameSize: 20, lineHeight: 1.25, sectionGap: 8, itemGap: 4, margin: 'narrow', marginPt: 36, accent: '#0E7A52', headingStyle: 'left' } },
-  impact: { name: 'Impact', level: 'experienced', ind: ['sales', 'mgmt'], desc: 'Numbers in your bullets are bolded, so results jump out. Sales and operations.', design: { ...D, font: 'open-sans', accent: '#B45309', headingStyle: 'bar', boldNumbers: true, bodySize: 9.5 } },
+  impact: { name: 'Impact', level: 'experienced', ind: ['sales', 'mgmt'], desc: 'Numbers in your bullets are bolded, so results jump out. Sales and operations.', design: { ...D, font: 'open-sans', accent: '#9A4508', headingStyle: 'bar', boldNumbers: true, bodySize: 9.5 } },
   executive: { name: 'Executive', level: 'experienced', ind: ['mgmt'], sections: 'executive', desc: 'Summary and core strengths up top, generous spacing. Managers and leads.', design: { ...D, logoColor: 'mono', font: 'source-serif-4', accent: '#1F3A8A', headingStyle: 'rule', nameSize: 24, accentOn: on({ name: true }) } },
   accent: { name: 'Accent', level: 'all', ind: ['creative', 'sales'], desc: 'A light colour band behind your name. Stands out, still ATS-safe.', design: { ...D, font: 'lato', accent: '#6D28D9', headerStyle: 'band', headingStyle: 'underline', accentOn: on({ name: true }) } },
   twocol: { name: 'Two Column Light', level: 'experienced', ind: ['tech', 'creative'], desc: 'Pale side panel for skills, languages and certificates. Prints cleanly.', design: { ...D, font: 'source-sans-3', layout: 'two', sideTint: true, accent: '#1F3A8A', headingStyle: 'caps', accentOn: on({ name: true }) } },

@@ -119,6 +119,8 @@ export const DECL_FIELDS = [
 export const HOBBY_IDEAS = ['Reading', 'Playing cricket', 'Listening to music', 'Travelling', 'Chess', 'Photography', 'Cooking', 'Drawing', 'Yoga', 'Blogging', 'Volunteering', 'Badminton'];
 export const STRENGTH_IDEAS = ['Quick learner', 'Hard working', 'Team player', 'Good communication skills', 'Positive attitude', 'Adaptable', 'Problem solving', 'Time management', 'Self-motivated', 'Leadership'];
 /** "a, b" or one per line → ['a', 'b'] */
+/** A typed value, or '' when it is empty or still a sample placeholder like “[College]”. */
+export const real = (v) => { const t = (v ?? '').toString().trim(); return !t || /\[[^\]]*\]/.test(t) ? '' : t; };
 export const splitList = (v) => (v || '').split(/\n|,/).map((x) => x.trim().replace(/^[•\-*▸–]\s*/, '')).filter(Boolean);
 export const PREF_FIELDS = [
   f('jobTypes', 'Preferred job types', 'chips', { options: JOB_TYPES, full: true }), f('salary', 'Expected salary', 'select', { options: SALARY }), f('notice', 'Notice period', 'select', { options: NOTICE }),
@@ -172,20 +174,20 @@ export const INITIAL = {
   pinfo: { father: 'R. Raman', mother: 'S. Lakshmi', dob: '2003-05-15', gender: '', marital: '', nationality: 'Indian', languages: 'English, Tamil, Hindi', address: '' },
   decl: { text: DECL_TEXT, place: '', date: '', name: '' },
   summary: '',
-  exp: [{ company: '[Company]', role: 'Data Analyst Intern', employmentType: 'Internship', from: '2025-01', to: '2025-06', current: false, description: 'made dashboards in power bi for sales team\ncleaned csv files in python' }],
-  edu: [{ institution: '[College]', degree: 'B.Tech', field: 'Computer Science', from: '2021-08', to: '2025-05', current: false, grade: '8.1 CGPA' }],
+  exp: [{ company: 'Northwind Retail', role: 'Data Analyst Intern', employmentType: 'Internship', from: '2025-01', to: '2025-06', current: false, description: 'made dashboards in power bi for sales team\ncleaned csv files in python' }],
+  edu: [{ institution: 'Lakeview Institute of Technology', degree: 'B.Tech', field: 'Computer Science', from: '2021-08', to: '2025-05', current: false, grade: '8.1 CGPA' }],
   skillGroups: [
     { id: 'core', label: 'Core Technologies / Languages', value: 'Python, SQL, Statistics' },
     { id: 'frameworks', label: 'Frameworks & Libraries', value: 'Pandas, NumPy' },
     { id: 'tools', label: 'Tools & Platforms', value: 'Power BI, Excel, Git' },
     { id: 'soft', label: 'Soft Skills / Domains', value: '' },
   ],
-  proj: [{ title: 'Sales Dashboard Revamp', tagline: 'Power BI dashboards for a college fest’s sponsor sales', type: 'Academic / Research', status: 'Completed', from: '2024-08', to: '2024-11', ongoing: false, description: '', tech: 'Power BI, SQL, Excel', links: [{ url: 'github.com/octocat/Hello-World', label: 'GitHub' }] }],
+  proj: [{ title: 'Sales Dashboard Revamp', tagline: 'Power BI dashboards for a college fest’s sponsor sales', type: 'Academic / Research', status: 'Completed', from: '2024-08', to: '2024-11', ongoing: false, description: '', tech: 'Power BI, SQL, Excel', links: [{ url: 'github.com/sai-varsha-example/sales-dashboard', label: 'GitHub' }] }],
   certs: [{ name: 'Google Data Analytics Certificate', issuer: 'Google', issueDate: '2024-11', expiryDate: '', credentialId: '', noExpiry: true, links: [] }],
   ach: [{ title: '', type: '', date: '', issuer: '', description: '' }],
   langs: [{ name: 'English', level: 'Fluent' }, { name: 'Tamil', level: 'Native' }, { name: 'Hindi', level: 'Professional' }],
   prefs: { jobTypes: ['Full-time', 'Internship'], salary: 'Under ₹5 LPA', notice: 'Immediately', locations: 'Bengaluru, Chennai, Hyderabad', remote: true, relocation: true, industries: ['Technology', 'Finance / Fintech'] },
-  links: { linkedin: 'linkedin.com/in/sai-varsha-example', github: 'github.com/octocat', portfolio: '', twitter: '', stackoverflow: '', medium: '', resume: '' },
+  links: { linkedin: 'linkedin.com/in/sai-varsha-example', github: 'github.com/sai-varsha-example', portfolio: '', twitter: '', stackoverflow: '', medium: '', resume: '' },
   linkStyle: 'icon', // 'icon' = icon + handle, 'url' = full link
   linkExtras: [], // up to 3 more profile links: [{ url, label, icon: 'auto' | globe | briefcase | code | link | pen }]
   portfolioIcon: 'auto', // auto = platform logo if known (Kaggle, Behance…), else a globe

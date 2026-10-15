@@ -235,7 +235,7 @@ function OrderWorkspace({ id }) {
           <CustomerProfile orderId={o.id} />
           <div className="stack g8">
             <strong className="small">Their original resume · ATS {orig.score}/100</strong>
-            <div style={{ height: 300, overflow: 'hidden', borderRadius: 6, border: '1px solid var(--border)' }} aria-hidden="true"><ResumePreview data={o.original} design={{ ...DEFAULT_DESIGN, ...TEMPLATE_PRESETS.starter.design }} /></div>
+            <div style={{ height: 300, overflow: 'hidden', borderRadius: 6, border: '1px solid var(--border)' }} aria-hidden="true"><ResumePreview decorative data={o.original} design={{ ...DEFAULT_DESIGN, ...TEMPLATE_PRESETS.starter.design }} /></div>
             <ul className="stack g4 xs" style={{ margin: 0, paddingLeft: 16 }}>{orig.checks.filter((c) => !c.ok).map((c) => <li key={c.label}><strong>{c.label}:</strong> {c.tip}</li>)}</ul>
           </div>
           <div className="row g8">

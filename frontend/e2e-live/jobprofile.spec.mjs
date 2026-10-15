@@ -142,8 +142,9 @@ test('start a resume from the Job Profile: every section copied, salary never; f
   await expect(page.getByRole('button', { name: /^Use / })).toBeVisible(); // the Template step
   await page.getByRole('button', { name: /^Use / }).click();
 
-  // a second resume, now the active one, holding every profile section
-  await expect.poll(async () => (await api(page, '/api/me/resumes')).length).toBe(2);
+  // the new account's untouched first resume is used (no empty copy left behind); it holds every profile section
+  await expect.poll(async () => (await activeResume(page)).name).toContain('from Job Profile');
+  expect((await api(page, '/api/me/resumes')).length).toBe(1);
   await expect.poll(async () => (await activeResume(page)).data.exp?.length).toBe(2);
   const { data: d, name } = await activeResume(page);
   expect(name).toContain('from Job Profile');

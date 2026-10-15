@@ -31,7 +31,9 @@ async def get_auth(auth: Annotated[Auth | None, Depends(optional_auth)]) -> Auth
 def require_role(*roles: str):
     async def guard(auth: Annotated[Auth, Depends(get_auth)]) -> Auth:
         if auth.user.role not in roles:
-            raise ApiError(403, "wrong_role", f"This needs a {' or '.join(roles)} account.")
+            names = " or ".join(roles)
+            article = "an" if names[:1] in "aeiou" else "a"
+            raise ApiError(403, "wrong_role", f"This needs {article} {names} account.")
         return auth
 
     return guard

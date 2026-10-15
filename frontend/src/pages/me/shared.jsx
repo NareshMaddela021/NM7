@@ -16,8 +16,8 @@ export const ago = (t) => { const m = (Date.now() - t) / 60000; return m < 60 ? 
 /** A small, non-interactive picture of the resume's first page. */
 export function ResumeThumb({ data, width = 150, label }) {
   return (
-    <div className="thumb" style={{ width, height: Math.round(width * 1.414), flex: 'none' }} role="img" aria-label={label || `Preview of ${data.personal?.name || 'resume'}`}>
-      <div style={{ width, pointerEvents: 'none' }} aria-hidden="true"><ResumePreview data={data} design={designOf(data)} /></div>
+    <div className="thumb" style={{ width, height: Math.round(width * 1.414), flex: 'none' }} role="img" aria-label={label || `Preview of ${data.personal?.name ? `${data.personal.name}’s` : 'your'} resume`}>
+      <div style={{ width, pointerEvents: 'none' }} aria-hidden="true"><ResumePreview data={data} design={designOf(data)} decorative /></div>
     </div>
   );
 }

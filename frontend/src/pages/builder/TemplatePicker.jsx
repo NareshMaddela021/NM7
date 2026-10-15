@@ -82,7 +82,7 @@ export default function TemplatePicker({ d, ds, suggest, photo, onPick, onNext }
               <button type="button" role="radio" aria-checked={chosen} aria-label={`${t.name} template`} onClick={() => onPick(k, { accent })}
                 style={{ padding: 0, border: 0, background: 'transparent', cursor: 'pointer', textAlign: 'left' }}>
                 <div aria-hidden="true" style={{ height: 300, overflow: 'hidden', borderRadius: 6, pointerEvents: 'none' }}>
-                  <ResumePreview data={{ ...d, ...layoutOf(k) }} design={design} photo={t.photo ? (photo || PHOTO_PLACEHOLDER) : photo} />
+                  <ResumePreview decorative data={{ ...d, ...layoutOf(k) }} design={design} photo={t.photo ? (photo || PHOTO_PLACEHOLDER) : photo} />
                 </div>
               </button>
               <div className="row g8" style={{ alignItems: 'center' }}>

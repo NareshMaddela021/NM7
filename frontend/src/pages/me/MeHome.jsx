@@ -67,7 +67,7 @@ export default function MeHome() {
 
       <div className="row g16" style={{ alignItems: 'stretch' }}>
         <section className="card row g16" style={{ flex: '3 1 440px', alignItems: 'flex-start' }} aria-label="Current resume">
-          <ResumeThumb data={r.data} width={140} />
+          <ResumeThumb data={r.data} width={140} label={`Preview of ${r.name} resume`} />
           <div className="stack g8" style={{ flex: 1, minWidth: 200 }}>
             <span className="xs muted">CURRENT RESUME</span>
             <strong style={{ fontSize: 18 }}>{r.name}</strong>
