@@ -1,6 +1,6 @@
 // Cover letter: a draft written from the profile (rule-based for now — the AI version comes with the backend),
 // plus a job-description check that lists skills the job asks for that the profile doesn't mention.
-import { ALL_SKILLS, allSkills, isFresher } from './schema';
+import { ALL_SKILLS, allSkills, isFresher, real } from './schema';
 import { monthsBetween } from '../../lib/import/dates';
 
 export const COVER_BLANK = { company: '', role: '', manager: '', jd: '', body: '', subject: true };
@@ -30,7 +30,16 @@ function bestLine(d) {
   return lines.find((l) => /\d/.test(l)) || lines[0] || '';
 }
 
-export function draftCover(d, c) {
+/** The resume with empty and placeholder (“[College]”) values blanked, so the draft never repeats them. */
+function cleaned(d) {
+  const strs = (o) => Object.fromEntries(Object.entries(o || {}).map(([k, v]) => [k, typeof v === 'string' ? real(v) : v]));
+  return { ...d, personal: strs(d.personal), exp: (d.exp || []).map(strs), edu: (d.edu || []).map(strs), proj: (d.proj || []).map(strs),
+    skillGroups: (d.skillGroups || []).map((g) => ({ ...g, value: allSkills([g]).filter((x) => real(x)).join(', ') })) };
+}
+
+export function draftCover(d0, c0) {
+  const d = cleaned(d0);
+  const c = { ...c0, role: real(c0.role), company: real(c0.company) };
   const P = d.personal;
   const role = c.role || (P.headline || '').split(/\s[·|@]\s/)[0].trim() || 'the open';
   const company = c.company || 'your company';

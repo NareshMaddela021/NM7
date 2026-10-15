@@ -31,6 +31,7 @@ async def test_needs_a_signed_in_customer(client, outbox, make_client):
     await signup(expert, outbox, "ex@example.com", role="expert", name="Ravi")
     r = await expert.get("/api/me/state")
     assert r.status_code == 403 and err(r) == "wrong_role"
+    assert r.json()["error"]["message"] == "This needs a customer account."
     assert (await expert.post("/api/me/tickets", json={"topic": "x", "text": "y"})).status_code == 403
 
 
@@ -261,3 +262,38 @@ async def test_public_link_leaves_out_switched_off_entries(client, outbox, make_
     # the owner's own copy keeps everything
     own = (await client.get("/api/me/resumes/r1")).json()["data"]
     assert own["edu"][1] == {"institution": "IIT Madras", "off": True} and own["offLines"] == {"hobbies": ["Chess"]}
+
+
+@pytest.mark.parametrize(
+    "bad",
+    [
+        "javascript:alert(1)",
+        "JavaScript:alert(1)",
+        "data:text/html,hi",
+        "ftp://x.com/a",
+        "//evil.com",
+        "not a link",
+        "https://",
+    ],
+)
+async def test_job_links_are_web_links_only(client, outbox, bad):
+    await signup(client, outbox)
+    r = await client.post("/api/me/applications", json={"id": "a1", "company": "Zoho", "url": bad})
+    assert r.status_code == 422, bad
+    ok = await client.post(
+        "/api/me/applications", json={"id": "a2", "company": "Zoho", "url": "careers.zoho.com/jobs/1"}
+    )
+    assert ok.json()["url"] == "https://careers.zoho.com/jobs/1"
+    assert (await client.patch("/api/me/applications/a2", json={"url": bad})).status_code == 422
+    r = await client.patch("/api/me/applications/a2", json={"url": "http://zoho.com/x"})
+    assert r.json()["url"] == "http://zoho.com/x"
+
+
+async def test_unsafe_links_saved_before_the_check_are_not_sent_back(client, outbox, db):
+    from app.core.db import APPLICATIONS
+
+    await signup(client, outbox)
+    await client.post("/api/me/applications", json={"id": "a1", "company": "Zoho", "url": "zoho.com"})
+    await db[APPLICATIONS].update_many({}, {"$set": {"url": "javascript:alert(1)"}})
+    apps = (await client.get("/api/me/state")).json()["apps"]
+    assert apps[0]["url"] == ""

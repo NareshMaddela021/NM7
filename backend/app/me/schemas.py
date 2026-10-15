@@ -2,6 +2,7 @@
 JavaScript's Date.now())."""
 
 import json
+import re
 from typing import Any, Literal
 
 from pydantic import Field, field_validator
@@ -105,6 +106,24 @@ class CoverOut(CoverIn):
 # ---------- job applications ----------
 
 AppStatus = Literal["saved", "applied", "interview", "offer", "rejected"]
+_SCHEME = re.compile(r"^[a-z][a-z0-9+.-]*:", re.I)
+_HOST = re.compile(r"^[a-z0-9-]+(\.[a-z0-9-]+)+([/:?#].*)?$", re.I)
+
+
+def job_link(v: str | None) -> str | None:
+    """Only web links: http(s), or a bare domain (gets https://). Anything else (javascript:, data:…) is refused."""
+    if v is None:
+        return v
+    v = v.strip()
+    if not v:
+        return ""
+    if _SCHEME.match(v):
+        if not re.match(r"^https?://[^\s/]+\.[^\s]+", v, re.I):
+            raise ValueError("Use a web link starting with http:// or https://")
+        return v
+    if v.startswith("//") or not _HOST.match(v) or any(c.isspace() for c in v):
+        raise ValueError("Use a web link like https://company.com/jobs/123")
+    return f"https://{v}"
 
 
 class ApplicationIn(CamelModel):
@@ -118,6 +137,11 @@ class ApplicationIn(CamelModel):
     notes: str = Field("", max_length=2_000)
     next: Ms | None = None
 
+    @field_validator("url")
+    @classmethod
+    def _url(cls, v: str) -> str:
+        return job_link(v)
+
 
 class ApplicationPatch(CamelModel):
     company: str | None = Field(None, min_length=1, max_length=120)
@@ -129,9 +153,20 @@ class ApplicationPatch(CamelModel):
     notes: str | None = Field(None, max_length=2_000)
     next: Ms | None = None
 
+    @field_validator("url")
+    @classmethod
+    def _url(cls, v: str | None) -> str | None:
+        return job_link(v)
+
 
 class ApplicationOut(ApplicationIn):
-    pass
+    @field_validator("url")
+    @classmethod
+    def _url(cls, v: str) -> str:
+        try:  # links saved before this check: unsafe ones are dropped, never sent back
+            return job_link(v)
+        except ValueError:
+            return ""
 
 
 # ---------- ATS checks ----------

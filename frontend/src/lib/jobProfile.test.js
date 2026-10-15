@@ -79,7 +79,7 @@ describe('Job Profile', () => {
     const { profile, added } = mergeIntoProfile(p, parts);
     expect(profile.personal.name).toBe('Asha K');
     expect(profile.exp).toHaveLength(1); // Zoho already there
-    expect(profile.intern.map((x) => x.company)).toEqual(['TCS', '[Company]']); // INITIAL's internship
+    expect(profile.intern.map((x) => x.company)).toEqual(['TCS', 'Northwind Retail']); // INITIAL's internship
     expect(profile.edu).toHaveLength(2);
     expect(profile.skillGroups.find((g) => g.id === 'frameworks').value).toBe('Pandas, NumPy'); // a group the profile didn't have
     expect(added).toBeGreaterThan(3);

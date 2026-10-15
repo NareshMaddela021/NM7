@@ -152,7 +152,7 @@ const AI_SAMPLE_PROFILES = LIVE ? {} : {
     username: 'saivarsha', url: 'asuraa.ai/saivarsha', name: 'Sai Varsha', headline: 'Senior Data Analyst · Resume coach', photo: null,
     bio: 'Data analyst with 6 years in e-commerce analytics. I have reviewed 300+ resumes for analyst roles and help freshers turn projects into results recruiters notice.',
     location: 'Chennai, India', languages: ['English', 'Tamil', 'Hindi'],
-    experience: [{ role: 'Senior Data Analyst', company: '[Company]', period: '2021–now', current: true }, { role: 'Data Analyst', company: '[Company]', period: '2019–2021', current: false }],
+    experience: [{ role: 'Senior Data Analyst', company: 'Northwind Retail', period: '2021–now', current: true }, { role: 'Data Analyst', company: 'Brightpath Logistics', period: '2019–2021', current: false }],
     links: { linkedin: 'linkedin.com/in/saivarsha-demo' }, rating: 4.9, reviews: 38,
     offerings: [{ title: 'Resume review for analysts', type: '1:1 call · 30 min', price: 499 }], maskedContact: 's••••••••@example.com',
   },

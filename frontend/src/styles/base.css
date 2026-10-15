@@ -295,3 +295,7 @@ textarea.input { height: auto; padding: 12px 14px; line-height: 1.55; resize: ve
   .entry-tools { width: 100%; justify-content: flex-end; }
   .entry-remove-text, .entry-switch-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 }
+
+/* Resume preview: where the next page starts (decorative — the label isn't in the page text) */
+.page-break { position: absolute; left: -8px; right: -8px; border-top: 2px dashed var(--danger); pointer-events: none; }
+.page-break::after { content: attr(data-label); position: absolute; right: 8px; top: -22px; background: var(--danger); color: #fff; border-radius: 4px; padding: 1px 6px; font-size: 12px; font-weight: 700; }

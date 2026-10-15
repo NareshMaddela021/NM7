@@ -2,9 +2,9 @@
 // Names in [brackets] are placeholders — real data will come from the API.
 
 export const MATCHED_JOBS = [
-  { id: 'j1', title: 'Data Analyst · [Company]', meta: 'Bengaluru · 0–1 yrs · verified' },
-  { id: 'j2', title: 'Business Analyst Intern · [Company]', meta: 'Remote · Internship · verified' },
-  { id: 'j3', title: 'Junior BI Analyst · [Company]', meta: 'Hyderabad · 0–2 yrs · verified' },
+  { id: 'j1', title: 'Data Analyst · Northwind Retail (sample)', meta: 'Bengaluru · 0–1 yrs · verified' },
+  { id: 'j2', title: 'Business Analyst Intern · Brightpath Logistics (sample)', meta: 'Remote · Internship · verified' },
+  { id: 'j3', title: 'Junior BI Analyst · Lakeview Analytics (sample)', meta: 'Hyderabad · 0–2 yrs · verified' },
 ];
 
 export const EXPERTS = [

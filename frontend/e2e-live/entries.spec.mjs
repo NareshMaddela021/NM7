@@ -64,7 +64,8 @@ async function openBuilder(page) {
   await page.goto('/builder');
   await page.evaluate(() => window.history.replaceState({ usr: { open: 'build' }, key: 'x' }, ''));
   await page.reload();
-  await expect(page.getByRole('article', { name: 'Resume preview' })).toContainText('Meera Nair');
+  // wait for the saved resume itself (a fresh browser first shows the account's empty one with the same name)
+  await expect(page.getByRole('article', { name: 'Resume preview' })).toContainText('Acme Corp');
 }
 const preview = (page) => page.getByRole('article', { name: 'Resume preview' });
 const goTo = (page, side) => page.getByRole('button', { name: new RegExp(`^.?\\s*${side}( · \\d+ hidden)?`) }).first().click();

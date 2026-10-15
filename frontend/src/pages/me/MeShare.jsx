@@ -16,6 +16,8 @@ const DAY = 864e5;
 const SLUG_RE = /^[a-z0-9](?:[a-z0-9-]{1,38}[a-z0-9])$/;
 const publicData = (d, share) => (share.hidePhone ? { ...d, personal: { ...d.personal, phone: '' } } : d);
 
+const times = (n) => (n === 1 ? 'once' : `${n} times`);
+
 export default function MeShare() {
   const me = useMe();
   const toast = useToast();
@@ -53,7 +55,7 @@ export default function MeShare() {
         )}
       </section>
       <section className="card stack g8">
-        <strong className="small">Viewed {sh.views.filter((t) => Date.now() - t < 7 * DAY).length} times this week · {sh.viewCount ?? sh.views.length} in total</strong>
+        <strong className="small">Viewed {times(sh.views.filter((t) => Date.now() - t < 7 * DAY).length)} this week · {sh.viewCount ?? sh.views.length} in total</strong>
         <BarChart title="Views per day · last 14 days" data={days} series={[{ key: 'views', label: 'Views', color: 'var(--viz-1)' }]} height={140} />
         <span className="xs faint">We count visits, not who visited.</span>
       </section>

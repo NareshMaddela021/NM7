@@ -3,7 +3,8 @@ import { Link, useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import { Dialog, Icon, Meter, useToast } from '../components/ui';
 import { getMatchedJobs, saveProfile } from '../services/api';
-import { syncFromBuilder, defaultResume, useMe, activeResume, addResume, openInBuilder, blankResume } from '../lib/customerStore';
+import { syncFromBuilder, defaultResume, useMe, activeResume, addResume, openInBuilder, blankResume, updateResume } from '../lib/customerStore';
+import { ago } from './me/shared';
 import { useJobProfile } from '../lib/profileStore';
 import { profileCompleteness, profileToResume, profileUpdates } from '../lib/jobProfile';
 import { FillFromProfile, ProfileHint, ProfileUpdates, SaveToProfile } from './builder/ProfileSync';
@@ -11,6 +12,14 @@ import { draftKey, currentUser, LIVE } from '../lib/auth';
 import { applyImport } from '../lib/import/apply';
 import { emptyResult } from '../lib/import/shared';
 
+const dayLabel = () => new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+/** "Name", or "Name (2)", "Name (3)"… so new resumes never share a name. */
+export const uniqueName = (name, resumes) => {
+  const taken = new Set((resumes || []).map((r) => r.name));
+  const base = name.slice(0, 54);
+  if (!taken.has(base)) return base;
+  for (let n = 2; ; n += 1) if (!taken.has(`${base} (${n})`)) return `${base} (${n})`;
+};
 /** The built-in sample person (shown to guests until they add their own details). */
 const isSampleDraft = (d) => d.personal?.name === INITIAL.personal.name && d.personal?.email === INITIAL.personal.email;
 import ResumePreview from './builder/ResumePreview';
@@ -31,7 +40,7 @@ import { DEFAULT_DESIGN, FIT_STEPS, TEMPLATE_PRESETS } from './builder/design';
 import {
   AI_SAMPLES, ALL_SKILLS, FIXED_SECTIONS, INITIAL, LINK_FIELDS, LISTS, PERSONAL_FIELDS, PINFO_FIELDS, DECL_FIELDS, DECL_TEXT,
   HOBBY_IDEAS, STRENGTH_IDEAS, splitList, SECTION_LAYOUTS, PREF_FIELDS, PRESET_SECTIONS, completeness, DEFAULT_SKILL_GROUPS, SKILL_GROUP_OF, splitSkills, allSkills,
-  PRINTABLE, resolveOrder, sectionLabel, fieldError, dateOrderError, collectIssues, LINK_SLOTS, LINK_WORDS, LINK_WORD_MAX, migrateLinks,
+  PRINTABLE, real, resolveOrder, sectionLabel, fieldError, dateOrderError, collectIssues, LINK_SLOTS, LINK_WORDS, LINK_WORD_MAX, migrateLinks,
 } from './builder/schema';
 
 const DRAFT_KEY = () => draftKey(); // per signed-in customer (see lib/auth.js)
@@ -46,8 +55,9 @@ const loadDraft = (key = DRAFT_KEY(), initial = defaultResume()) => {
     let s = localStorage.getItem(key);
     // drafts still holding the old sample person get the new sample name
     if (s && s.includes('"Priya Raman"')) s = s.replace(/Priya Raman/g, 'Sai Varsha').replace(/PRIYA RAMAN/g, 'SAI VARSHA').replace(/priyaraman/g, 'saivarsha').replace(/priya@example/g, 'saivarsha@example');
-    // older sample drafts linked to a real person's GitHub; point them at GitHub's demo account
-    if (s && s.includes('github.com/saivarsha')) s = s.replace(/github\.com\/saivarsha\/sales-dashboard/g, 'github.com/octocat/Hello-World').replace(/github\.com\/saivarsha/g, 'github.com/octocat');
+    // older sample drafts linked to real GitHub accounts and used “[Company]” / “[College]”: use the invented sample ones
+    if (s && /github\.com\/(saivarsha|octocat)/.test(s)) s = s.replace(/github\.com\/(saivarsha\/sales-dashboard|octocat\/Hello-World)/g, 'github.com/sai-varsha-example/sales-dashboard').replace(/github\.com\/(saivarsha|octocat)\b/g, 'github.com/sai-varsha-example');
+    if (s && s.includes('"Sai Varsha"')) s = s.replace(/"\[Company\]"/g, '"Northwind Retail"').replace(/"\[College\]"/g, '"Lakeview Institute of Technology"');
     if (s) return migrateLinks({ ...INITIAL, ...JSON.parse(s) });
   } catch { /* ignore */ }
   return migrateLinks({ ...INITIAL, ...initial });
@@ -58,7 +68,7 @@ function ProfileOnly() {
 }
 
 /* ---------- Start & template screens ---------- */
-function Start({ onNext, profilePct = null }) {
+function Start({ onNext, profilePct = null, resume = null, onContinue }) {
   const fromProfile = profilePct !== null;
   const opts = [
     ...(fromProfile ? [['profile', 'Start from my Job Profile', `A new resume filled from your Job Profile (${profilePct}% complete). You pick the look next.`, profilePct >= 40]] : []),
@@ -72,6 +82,20 @@ function Start({ onNext, profilePct = null }) {
         <h1 className="display h1" style={{ fontSize: 'clamp(36px,5vw,60px)' }}>Build a resume recruiters <span className="hl" style={{ padding: '0 4px' }}>actually read.</span></h1>
         <p className="lead">12 guided sections, plus any section you want to add. Your Nm7 profile and your resume are built together.</p>
       </div>
+      {resume && (
+        <section className="card row between g16" aria-labelledby="continue-h" style={{ padding: 24, border: '2px solid var(--ink)' }}>
+          <div className="stack g4" style={{ minWidth: 0 }}>
+            <span className="mono xs muted" id="continue-h">CONTINUE EDITING</span>
+            <strong className="display" style={{ fontSize: 22, overflowWrap: 'anywhere' }}>{resume.name}</strong>
+            <span className="small muted">{resume.updated ? `Edited ${ago(resume.updated)}` : 'Saved in this browser — sign in to keep it'}</span>
+          </div>
+          <div className="row g8">
+            <button type="button" className="btn btn-ink btn-lg" onClick={onContinue}>Continue</button>
+            {resume.updated && <Link to="/me/resumes" className="btn btn-outline btn-lg">See all resumes</Link>}
+          </div>
+        </section>
+      )}
+      {resume && <h2 style={{ fontSize: 22, margin: '8px 0 -12px' }}>Or start a new resume</h2>}
       <div className="grid-auto g16">
         {opts.map(([k, t, d, rec]) => (
           <button key={t} type="button" className="card stack g8 btn" onClick={() => onNext(k)} style={{ textAlign: 'left', alignItems: 'flex-start', whiteSpace: 'normal', height: 'auto', padding: 24, border: rec ? '2px solid var(--ink)' : undefined }}>
@@ -382,22 +406,43 @@ export default function Builder({ embedded = null }) {
     </div>
   );
 
+  // ready-made summaries from what the resume holds; a sentence is left out when its facts are missing
+  const sk = allSkills(d.skillGroups).filter((x) => real(x));
+  const edu0 = d.edu.find((e) => real(e.degree) || real(e.field)) || {};
+  const sentence = (...parts) => parts.filter(Boolean).join(' ');
   const summaryOptions = [
-    [`Data analyst fresher who turns raw sales data into dashboards teams actually use. Skilled in ${allSkills(d.skillGroups).slice(0, 3).join(', ')}. Cut a sales team’s weekly reporting from 5 hours to 30 minutes during my internship. Looking for a Data Analyst role in a product-led team.`, 'Role-first · recommended'],
-    [`${d.edu[0]?.degree || 'Graduate'} ${d.edu[0]?.field || ''} graduate with a 6-month analytics internship and hands-on ${allSkills(d.skillGroups).slice(0, 2).join(' and ')} projects. Looking for an entry-level analyst role.`, 'Education-first'],
+    [sentence('Data analyst fresher who turns raw sales data into dashboards teams actually use.', sk.length > 0 && `Skilled in ${sk.slice(0, 3).join(', ')}.`, 'Cut a sales team’s weekly reporting from 5 hours to 30 minutes during my internship. Looking for a Data Analyst role in a product-led team.'), 'Role-first · recommended'],
+    [sentence(`${[real(edu0.degree), real(edu0.field)].filter(Boolean).join(' ') || 'Recent'} graduate with a 6-month analytics internship${sk.length ? ` and hands-on ${sk.slice(0, 2).join(' and ')} projects` : ''}.`, 'Looking for an entry-level analyst role.'), 'Education-first'],
     ['Analytical problem-solver who learns tools fast and ships useful dashboards. Google Data Analytics certified. Seeking a junior analyst role in fintech or e-commerce.', 'Strengths-first'],
   ];
   const sumLen = d.summary.length;
 
-  // A new resume (kept next to the others) pre-filled from the Job Profile, then pick a look.
+  // Signed-in customers: "start a new resume" really makes a new one (kept next to the others). An untouched
+  // resume (a new account's empty first one) is reused instead, so no empty copies pile up.
+  const hasResumes = customer && !me.loading && me.resumes?.length > 0;
+  const latest = hasResumes ? [...me.resumes].sort((a, b) => (b.updated || 0) - (a.updated || 0))[0] : null;
+  const untouched = (x) => !real(x.summary) && !x.exp?.some((e) => real(e.company) || real(e.role)) && !x.proj?.some((p) => real(p.title)) && !x.edu?.some((e) => real(e.institution));
+  const openNew = (nd, name) => {
+    if (customer && !me.loading && me.resumes?.length) {
+      const a = activeResume(me);
+      if (a && untouched(a.data)) { if (name) updateResume(a.id, { name: uniqueName(name, me.resumes.filter((r) => r.id !== a.id)) }); } else {
+        syncFromBuilder(d); openInBuilder(addResume(uniqueName(name || `New resume · ${dayLabel()}`, me.resumes), nd));
+      }
+    }
+    setD(nd); setPast([]); setFuture([]); setSec('personal');
+  };
   const startFromProfile = () => {
-    const nd = migrateLinks(profileToResume(jp.data, blankResume()));
-    syncFromBuilder(d);
-    const id = addResume(`${jp.data.personal.headline || 'Resume'} · from Job Profile`.slice(0, 60), nd);
-    openInBuilder(id);
-    setD(nd); setPast([]); setFuture([]); setSuggest(null); setSec('personal'); setStage('templates');
+    openNew(migrateLinks(profileToResume(jp.data, blankResume())), `${jp.data.personal.headline || 'Resume'} · from Job Profile · ${dayLabel()}`);
+    setSuggest(null); setStage('templates');
     toast('New resume filled from your Job Profile — pick a look');
   };
+  const continueLatest = () => {
+    if (latest && !latest.active) openInBuilder(latest.id);
+    if (latest) setD(migrateLinks({ ...INITIAL, ...latest.data }));
+    setStage('build');
+  };
+  // guests: a draft kept in this browser (not the sample person) is offered back instead of a blank start
+  const guestDraft = !customer && !embedded && !isSampleDraft(d) && (real(d.personal?.name) || real(d.summary) || d.exp?.some((e) => real(e.company)));
   const STAGES = ['start', 'templates', 'build', 'done'];
   const stageIdx = stage === 'import' ? 0 : STAGES.indexOf(stage);
 
@@ -412,10 +457,13 @@ export default function Builder({ embedded = null }) {
         </ol>
       )}
 
-      {stage === 'start' && <Start profilePct={profileReady ? profileCompleteness(jp.data).pct : null} onNext={(k) => {
-        if (k === 'profile') { startFromProfile(); return; }
-        if (k === 'scratch') setStage('templates'); else { setImportMode(k); setStage('import'); }
-      }} />}
+      {stage === 'start' && <Start profilePct={profileReady ? profileCompleteness(jp.data).pct : null}
+        resume={latest ? { name: latest.name, updated: latest.updated, data: latest.data } : guestDraft ? { name: d.personal.name ? `${d.personal.name}’s draft` : 'Your draft', updated: null, data: d } : null}
+        onContinue={continueLatest}
+        onNext={(k) => {
+          if (k === 'profile') { startFromProfile(); return; }
+          if (k === 'scratch') { if (hasResumes) openNew(migrateLinks(blankResume()), null); setStage('templates'); } else { setImportMode(k); setStage('import'); }
+        }} />}
       {stage === 'import' && (
         <Import mode={importMode} d={d} onBack={() => setStage('start')} onDone={(nd, sug) => {
           // start from the suggested template; Kio brings its section order (empty sections simply don't print)
@@ -424,7 +472,8 @@ export default function Builder({ embedded = null }) {
           // the template's layout, but never hide a section the file actually had
           const has = { ...completeness(nd).has, decl: nd.hidden?.decl === false, pinfo: nd.hidden?.pinfo === false };
           const keep = (h) => Object.fromEntries(Object.entries(h).filter(([id]) => !has[id]));
-          setD({ ...nd, design: { ...TEMPLATE_PRESETS[preset].design, preset }, order: layout.order, hidden: { ...keep(layout.hidden), ...Object.fromEntries(Object.entries(nd.hidden || {}).filter(([id, v]) => v && !has[id])) }, titles: { ...layout.titles }, showPhoto: layout.showPhoto });
+          const name = `${(nd.personal?.name || '').trim() || 'Imported'} · ${importMode === 'linkedin' ? 'from LinkedIn' : 'from my file'} · ${dayLabel()}`;
+          openNew({ ...nd, design: { ...TEMPLATE_PRESETS[preset].design, preset }, order: layout.order, hidden: { ...keep(layout.hidden), ...Object.fromEntries(Object.entries(nd.hidden || {}).filter(([id, v]) => v && !has[id])) }, titles: { ...layout.titles }, showPhoto: layout.showPhoto }, name);
           setPast([]); setFuture([]);
           setSuggest(preset); setSec('personal'); setStage('templates');
           toast('Details added — pick a look, then check each section');

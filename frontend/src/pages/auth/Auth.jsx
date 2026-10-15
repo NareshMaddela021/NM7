@@ -154,10 +154,24 @@ export function Signup() {
   const [touched, setTouched] = useState(false);
   const [pending, setPending] = useState(null); // { email } waiting for the email code
   const { busy, err, slow, run } = useRun();
+  if (user && !pending && params.get('as') === 'expert' && user.role !== 'expert') {
+    // "Become an expert" while signed in as a customer: experts use a separate account
+    return (
+      <Shell title="Expert accounts are separate" sub={`You’re signed in as ${user.email || user.name}, a customer account.`}>
+        <div className="card stack g12" role="note">
+          <span className="small">To work as an expert, create a new account with a different email address. Your customer account and its resumes stay as they are.</span>
+          <div className="row g8">
+            <button type="button" className="btn btn-ink" onClick={async () => { await signOut(); nav('/signup?as=expert', { replace: true }); }}>Sign out and create an expert account</button>
+            <Link to={homeFor(user)} className="btn btn-outline">Back to my dashboard</Link>
+          </div>
+        </div>
+      </Shell>
+    );
+  }
   if (user && !pending) return <Navigate to={homeFor(user)} replace />;
   const errs = {
     name: f.name.trim().length < 2 && 'Enter your full name',
-    email: !EMAIL_RE.test(f.email.trim()) && 'Enter a valid email',
+    email: !EMAIL_RE.test(f.email.trim()) && 'Enter a valid email address',
     phone: !PHONE_RE.test(f.phone.trim()) && 'Enter a 10-digit Indian mobile number',
     password: passwordIssue(f.password),
     confirm: !f.confirm ? 'Type your password again' : f.confirm !== f.password ? 'Passwords don’t match' : '',
@@ -207,15 +221,20 @@ export function ForgotPassword() {
   const toast = useToast();
   const [step, setStep] = useState('email');
   const [f, setF] = useState({ email: '', code: '', password: '', confirm: '' });
+  const [emailErr, setEmailErr] = useState('');
   const { busy, err, slow, run } = useRun();
   return (
     <Shell title="Reset your password" sub={step === 'email' ? 'We’ll email you a code.' : `If ${f.email} has an account, a code is on its way.`}>
       {step === 'email' ? (
-        <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); run(async () => { await sendReset(f.email); setStep('code'); }); }}>
-          <Field id="fp-e" label="Email" type="email" autoComplete="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
+        <form className="card stack g16" noValidate onSubmit={(e) => {
+          e.preventDefault();
+          if (!EMAIL_RE.test(f.email.trim())) { setEmailErr('Enter a valid email address'); document.getElementById('fp-e')?.focus(); return; }
+          run(async () => { await sendReset(f.email.trim()); setStep('code'); });
+        }}>
+          <Field id="fp-e" label="Email" type="email" autoComplete="email" value={f.email} error={emailErr} onChange={(e) => { setF({ ...f, email: e.target.value }); setEmailErr(''); }} />
           {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
           <Waking slow={slow} />
-          <button type="submit" className="btn btn-ink btn-lg" disabled={busy || !EMAIL_RE.test(f.email.trim())}>{busy && <Spinner />}Send code</button>
+          <button type="submit" className="btn btn-ink btn-lg" disabled={busy}>{busy && <Spinner />}Send code</button>
         </form>
       ) : (
         <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); run(async () => { await resetPassword(f.email, f.code, f.password, f.confirm); toast('Password changed — sign in with the new one'); nav('/login'); }); }}>
