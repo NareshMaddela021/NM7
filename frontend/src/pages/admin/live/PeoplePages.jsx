@@ -141,7 +141,7 @@ function CustomerList({ initial }) {
       </form>
       <div className="row g16" style={{ alignItems: 'flex-start' }}>
         <div style={{ flex: '3 1 420px', minWidth: 0 }}>
-          <Loading st={st} empty={emptyIf((d) => !d.items.length, search ? 'No customers match.' : 'No customers yet.')}>{(d) => (
+          <Loading st={st} failText={search ? 'Search couldn’t run — try different words.' : undefined} empty={emptyIf((d) => !d.items.length, search ? 'No customers match.' : 'No customers yet.')}>{(d) => (
             <div className="card table-wrap" style={{ padding: 0 }}>
               <table className="table"><thead><tr><th>Name</th><th>Joined</th><th>Orders</th><th>Spent</th><th /></tr></thead>
                 <tbody>{d.items.map((c) => (

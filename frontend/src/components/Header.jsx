@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '../lib/theme';
 import { BRAND } from '../lib/brand';
-import { useAuth, signOut, homeFor } from '../lib/auth';
+import { useAuth, signOut, homeFor, LIVE } from '../lib/auth';
 import { Icon } from './ui';
 
 export function Logo({ suffix }) {
@@ -124,7 +124,8 @@ export default function Header({ variant = 'public', right }) {
           </nav>
         )}
 
-        {variant === 'admin' && (
+        {/* the sample console can hop to the sample expert view; on the live site an admin isn't an expert */}
+        {variant === 'admin' && !LIVE && (
           <nav className="nav" aria-label="Admin">
             <NavLink to="/expert" end>Expert view</NavLink>
           </nav>
