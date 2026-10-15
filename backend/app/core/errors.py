@@ -6,13 +6,18 @@ from fastapi.responses import JSONResponse
 
 
 class ApiError(Exception):
-    def __init__(self, status: int, code: str, message: str, headers: dict[str, str] | None = None):
+    def __init__(
+        self, status: int, code: str, message: str, headers: dict[str, str] | None = None, extra: dict | None = None
+    ):
         super().__init__(message)
         self.status, self.code, self.message, self.headers = status, code, message, headers
+        self.extra = extra or {}  # more fields in the error object, e.g. which photos
 
 
 async def _api_error(_: Request, exc: ApiError) -> JSONResponse:
-    return JSONResponse({"error": {"code": exc.code, "message": exc.message}}, exc.status, headers=exc.headers)
+    return JSONResponse(
+        {"error": {"code": exc.code, "message": exc.message, **exc.extra}}, exc.status, headers=exc.headers
+    )
 
 
 async def _validation_error(_: Request, exc: RequestValidationError) -> JSONResponse:

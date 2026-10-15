@@ -33,7 +33,9 @@ export async function http(path, { method = 'GET', body } = {}) {
     const e = data?.error;
     const fields = e?.fields?.map((f) => f.field).filter(Boolean);
     const msg = e?.code === 'invalid_input' && fields?.length ? `Please check: ${fields.join(', ')}.` : e?.message;
-    throw new ApiError(res.status, e?.code || 'error', msg || 'Something went wrong. Please try again.', e?.fields);
+    const err = new ApiError(res.status, e?.code || 'error', msg || 'Something went wrong. Please try again.', e?.fields);
+    if (Array.isArray(e?.photos)) err.photos = e.photos; // photo import: which photos look like ID cards
+    throw err;
   }
   return data;
 }

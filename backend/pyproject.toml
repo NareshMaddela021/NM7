@@ -13,6 +13,7 @@ dependencies = [
     "pyotp>=2.9",
     "cryptography>=43",
     "pymongo>=4.13",
+    "anthropic>=1.14.0",
 ]
 
 [dependency-groups]

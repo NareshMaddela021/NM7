@@ -133,7 +133,8 @@ function Upload({ start, role, setRole, compact }) {
           <button type="button" className="btn btn-ink btn-lg" style={{ flex: '1 1 160px', minHeight: 48 }} onClick={() => fileRef.current.click()}>Scan my resume — free</button>
         </div>
         <span className="row between g8 xs">
-          <button type="button" className="link-btn xs" onClick={() => start('sample')}>No resume handy? Try a sample</button>
+          <span className="row g12"><button type="button" className="link-btn xs" onClick={() => start('sample')}>No resume handy? Try a sample</button>
+            <Link to="/builder" state={{ open: 'photos' }} className="xs">No resume? Take photos instead</Link></span>
           <span className="faint">Read on your device — never uploaded</span>
         </span>
       </div>

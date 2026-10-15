@@ -43,6 +43,11 @@ class Settings(BaseSettings):
     # admin exists and the token is at least 24 characters. Remove it after use.
     admin_setup_token: str = ""
 
+    # "Snap photos": reading resume details from photos with the Claude API. Without a key the feature answers
+    # 503 feature_off and everything else works.
+    anthropic_api_key: str = ""
+    anthropic_model: str = "claude-opus-5-5"
+
     # Razorpay — empty until keys exist
     razorpay_key_id: str = ""
     razorpay_key_secret: str = ""
