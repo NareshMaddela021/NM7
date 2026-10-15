@@ -1,4 +1,4 @@
-// Header of one entry card (Education 2, Project 1, a hobby…): move up / down, on/off switch, remove (asks first).
+// Header of one entry card (Education 2, Project 1, a hobby…): move up / down, "Show this entry" switch, remove (asks first).
 // Off = kept in the builder but left out of the resume everywhere (preview, PDF, Word, share link, ATS).
 import { useState } from 'react';
 import { Dialog, Icon } from '../../components/ui';
@@ -25,10 +25,12 @@ export function EntryHeader({ list, index, count, label, off, onMove, onToggle, 
       <span className="entry-tools" role="group" aria-label={`${label} controls`}>
         <button type="button" id={entryId(list, index, 'up')} className="btn btn-icon entry-btn" aria-label={`Move ${label} up`} disabled={index === 0} onClick={() => onMove(-1)}><Icon name="up" size={16} /></button>
         <button type="button" id={entryId(list, index, 'down')} className="btn btn-icon entry-btn" aria-label={`Move ${label} down`} disabled={index === count - 1} onClick={() => onMove(1)}><Icon name="down" size={16} /></button>
-        <label className="entry-switch">
-          <input type="checkbox" role="switch" checked={!off} aria-label={off ? `Show ${label} on resume` : `Hide ${label} from resume`} onChange={onToggle} />
-          <span aria-hidden="true" className="entry-switch-text">{off ? 'Off' : 'On'}</span>
-        </label>
+        {/* green = on the resume, grey = hidden (the same switch as the section's "Show on resume"); a button, so
+            Space and Enter both flip it */}
+        <button type="button" role="switch" aria-checked={!off} aria-label={`Show this entry (${label})`} className="btn btn-outline entry-switch" onClick={onToggle}>
+          <span aria-hidden="true" className="entry-track"><span className="entry-knob" /></span>
+          <span aria-hidden="true" className="entry-switch-text">Show this entry</span>
+        </button>
         {onRemove && (
           <button type="button" className="btn btn-danger-soft entry-btn entry-remove" aria-label={`Remove ${label}`} onClick={() => setAsk(true)}>
             <Icon name="trash" size={16} /><span className="entry-remove-text">Remove</span>
@@ -38,7 +40,7 @@ export function EntryHeader({ list, index, count, label, off, onMove, onToggle, 
       {ask && (
         <Dialog title={`Remove ${label}?`} onClose={() => setAsk(false)}>
           <strong style={{ fontSize: 18 }}>Remove {label}?</strong>
-          <span className="small muted">Everything typed in it is deleted. To keep it but leave it off your resume, switch it off instead.</span>
+          <span className="small muted">Everything typed in it is deleted. To keep it but leave it off your resume, switch off “Show this entry” instead.</span>
           <div className="row g8">
             <button type="button" className="btn btn-outline" onClick={() => setAsk(false)}>Cancel</button>
             <button type="button" className="btn btn-ink" style={{ background: 'var(--danger)', borderColor: 'var(--danger)' }} onClick={() => { setAsk(false); onRemove(); }}>Remove</button>

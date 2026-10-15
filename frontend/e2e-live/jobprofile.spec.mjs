@@ -54,8 +54,8 @@ test('fill the Job Profile; it autosaves and survives a reload and another sign-
   await page.keyboard.press('Enter');
   await expect(page.locator('#pf-proj-0-title')).toHaveValue('Borealis App');
   await expect(page.locator('#entry-pf-proj-1-title')).toBeFocused();
-  await page.getByRole('switch', { name: 'Hide Project 1 from resume' }).click();
-  await expect(page.getByRole('switch', { name: 'Show Project 1 on resume' })).toBeVisible();
+  await page.getByRole('switch', { name: 'Show this entry (Project 1)' }).click();
+  await expect(page.getByRole('switch', { name: 'Show this entry (Project 1)' })).toHaveAttribute('aria-checked', 'false');
   await page.getByRole('button', { name: 'Remove Education 1' }).click();
   await expect(page.getByRole('dialog', { name: 'Remove Education 1?' })).toBeVisible();
   await page.getByRole('button', { name: 'Cancel' }).click();
