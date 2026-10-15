@@ -1,6 +1,7 @@
 // Live admin console: frame, data hooks and small parts. Every number comes from /api/admin/*; every change is a
 // request the server checks (role + two-step login) and writes to the audit log.
 import { useCallback, useEffect, useState } from 'react';
+import ErrorBoundary from '../../../components/ErrorBoundary';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import Header from '../../../components/Header';
 import { Spinner } from '../../../components/ui';
@@ -25,17 +26,20 @@ export const NAV = [
 
 /** GET a path; { data, error, loading, reload }. `path` null = don't load. */
 export function useApi(path) {
-  const [st, setSt] = useState({ data: null, error: null, loading: !!path });
+  // state remembers which path its data belongs to: after a tab switch the new tab never sees the old tab's data
+  // (or a not-yet-loading null) — it reads as loading until its own response arrives
+  const [st, setSt] = useState({ for: null, data: null, error: null, loading: false });
   const [n, setN] = useState(0);
   useEffect(() => {
-    if (!path) { setSt({ data: null, error: null, loading: false }); return undefined; }
+    if (!path) return undefined;
     let off = false;
-    setSt((s) => ({ ...s, loading: true, error: null }));
-    http(path).then((data) => !off && setSt({ data, error: null, loading: false }), (error) => !off && setSt({ data: null, error, loading: false }));
+    setSt((s) => (s.for === path ? { ...s, loading: true, error: null } : { for: path, data: null, error: null, loading: true }));
+    http(path).then((data) => !off && setSt({ for: path, data, error: null, loading: false }), (error) => !off && setSt({ for: path, data: null, error, loading: false }));
     return () => { off = true; };
   }, [path, n]);
   const reload = useCallback(() => setN((x) => x + 1), []);
-  return { ...st, reload };
+  const mine = !!path && st.for === path;
+  return { data: mine ? st.data : null, error: mine ? st.error : null, loading: !!path && (!mine || st.loading), reload };
 }
 
 /** Runs an admin action once at a time; returns [busy, run(fn, okText)]; shows errors via `onError`. */
@@ -49,13 +53,14 @@ export function useAction(toast) {
   return [busy, run];
 }
 
-export function Loading({ st, children, empty }) {
-  if (st.loading && !st.data) return <div className="row g12 muted" role="status" style={{ padding: 24 }}><Spinner /> Loading…</div>;
+/** failText: shown instead of the error message (e.g. a search the hosting edge refused); not for "No access". */
+export function Loading({ st, children, empty, failText }) {
+  if (!st.error && (st.loading || st.data == null)) return <div className="row g12 muted" role="status" style={{ padding: 24 }}><Spinner /> Loading…</div>;
   if (st.error) {
     return (
       <div className="card stack g8" role="alert">
         <strong>{st.error.status === 403 ? 'No access' : 'Couldn’t load this'}</strong>
-        <span className="small muted">{st.error.message}</span>
+        <span className="small muted">{st.error.status !== 403 && failText ? failText : st.error.message}</span>
         {st.error.status !== 403 && <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} onClick={st.reload}>Try again</button>}
       </div>
     );
@@ -78,7 +83,7 @@ export const tone = (s) => ({ refunded: 'neutral', expired: 'neutral', cancelled
 
 export function LiveAdminLayout() {
   const { user } = useAuth();
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const can = ROLES[user?.adminRole]?.can || [];
   const current = NAV.find(([, to]) => (to === '/admin' ? pathname === '/admin' || pathname === '/admin/' : pathname.startsWith(to)));
   const allowed = !current || can.includes(current[0]);
@@ -94,7 +99,7 @@ export function LiveAdminLayout() {
           <span className="xs faint" style={{ padding: '0 10px' }}>Signed in as {user?.name} · {ROLES[user?.adminRole]?.label || 'Admin'}</span>
         </nav>
         <main id="main" className="stack g20" style={{ flex: '1 1 600px', minWidth: 0 }}>
-          {allowed ? <Outlet /> : <div className="card stack g8"><strong>No access</strong><span className="small muted">Your role ({ROLES[user?.adminRole]?.label}) can’t open {current[2]}. Ask the owner.</span></div>}
+          {allowed ? <ErrorBoundary resetKey={`${pathname}${search}`}><Outlet /></ErrorBoundary> : <div className="card stack g8"><strong>No access</strong><span className="small muted">Your role ({ROLES[user?.adminRole]?.label}) can’t open {current[2]}. Ask the owner.</span></div>}
         </main>
       </div>
     </>
