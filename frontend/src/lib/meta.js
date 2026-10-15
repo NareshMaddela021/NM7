@@ -66,7 +66,17 @@ export function metaFor(path) {
   return m ? { title: m[1], description: m[2], noindex: PRIVATE.test(path), path } : { title: 'Page not found', description: 'This page doesn’t exist.', noindex: true, path };
 }
 
-/** For pages that know better than the route table (e.g. the 404 page). */
+// A page that knows better than the route table (the 404 page, a page in a special state) sets its own meta;
+// it wins over the route table for as long as that page is shown, whichever effect runs last.
+let override = null;
+/** The meta for a path: a page's own override when it is showing, else the route table. */
+export const currentMeta = (path) => (override && override.path === path ? override.meta : metaFor(path));
 export function usePageMeta(meta) {
-  useEffect(() => { applyMeta({ path: window.location.pathname, ...meta }); }, [meta.title, meta.description]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    const path = window.location.pathname;
+    const mine = { path, meta: { ...meta, path } };
+    override = mine;
+    applyMeta(mine.meta);
+    return () => { if (override === mine) { override = null; applyMeta(metaFor(window.location.pathname)); } };
+  }, [meta.title, meta.description]); // eslint-disable-line react-hooks/exhaustive-deps
 }

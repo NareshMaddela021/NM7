@@ -8,13 +8,20 @@ import {
   homeFor, passwordIssue, EMAIL_RE, PHONE_RE, DEMO_CODE, SAMPLE_PASSWORD, LIVE, adminSetupStart, adminSetupVerify, adminSetupStatus,
 } from '../../lib/auth';
 import SiteFooter from '../../components/SiteFooter';
+import { usePageMeta } from '../../lib/meta';
 
 const isPreview = import.meta.env.VITE_PREVIEW === '1';
 const safeNext = (n) => (n && n.startsWith('/') && !n.startsWith('//') ? n : null);
 
-function Shell({ title, sub, children, wide }) {
+/** This page's own tab title (when it differs from the route's). */
+function PageTitle({ title }) {
+  usePageMeta({ title, noindex: true });
+  return null;
+}
+function Shell({ title, sub, children, wide, meta }) {
   return (
     <>
+      {meta && <PageTitle title={title} />}
       <header className="site-header"><div className="bar"><Logo /><ThemeToggle /></div></header>
       <main className="container stack g20" style={{ maxWidth: wide ? 560 : 460, padding: '40px 20px 64px' }}>
         <div className="stack g4"><h1 className="display" style={{ fontSize: 32 }}>{title}</h1>{sub && <span className="muted">{sub}</span>}</div>
@@ -157,7 +164,7 @@ export function Signup() {
   if (user && !pending && params.get('as') === 'expert' && user.role !== 'expert') {
     // "Become an expert" while signed in as a customer: experts use a separate account
     return (
-      <Shell title="Expert accounts are separate" sub={`You’re signed in as ${user.email || user.name}, a customer account.`}>
+      <Shell meta title="Expert accounts are separate" sub={`You’re signed in as ${user.email || user.name}, a customer account.`}>
         <div className="card stack g12" role="note">
           <span className="small">To work as an expert, create a new account with a different email address. Your customer account and its resumes stay as they are.</span>
           <div className="row g8">

@@ -162,12 +162,16 @@ export default function Builder({ embedded = null }) {
   const profile = profileReady ? jp.data : null;
   const edited = useRef(new WeakSet()); // entries changed in this visit: they get "Save this change to my Job Profile"
   const fromServer = useRef(!serverCustomer() || !me.loading);
+  const [serverIn, setServerIn] = useState(fromServer.current); // the saved resume (if any) is in `d`
   useEffect(() => {
     if (embedded || fromServer.current || me.loading) return;
     fromServer.current = true;
+    setServerIn(true);
     const a = activeResume(me);
     if (a && !location.state?.scanImport) setD(migrateLinks({ ...INITIAL, ...a.data }));
   }, [me.loading]); // eslint-disable-line react-hooks/exhaustive-deps
+  // the signed-in customer's saved resume hasn't arrived yet: the preview shows no page count meanwhile
+  const dataLoading = !embedded && serverCustomer() && (me.loading || !serverIn);
   const [sec, setSec] = useState('personal');
   const [picker, setPicker] = useState(false);
   const [customName, setCustomName] = useState('');
@@ -177,7 +181,7 @@ export default function Builder({ embedded = null }) {
   const [editingPhoto, setEditingPhoto] = useState(null); // source being edited
   const [photoErr, setPhotoErr] = useState('');
   const [saved, setSaved] = useState(true);
-  const [pages, setPages] = useState(1);
+  const [pages, setPages] = useState(null); // null until the preview has measured the loaded resume
   const [showIssues, setShowIssues] = useState(false);
   const [pdfBusy, setPdfBusy] = useState(false);
   const [tab, setTab] = useState('content');
@@ -218,7 +222,7 @@ export default function Builder({ embedded = null }) {
     undo: () => { if (!past.length) return; setFuture((f) => [ds, ...f]); setD((p) => ({ ...p, design: past[past.length - 1] })); setPast((p) => p.slice(0, -1)); },
     redo: () => { if (!future.length) return; setPast((p) => [...p, ds]); setD((p) => ({ ...p, design: future[0] })); setFuture((f) => f.slice(1)); },
   };
-  const onPages = useMemo(() => (n) => { pagesRef.current = n; setPages(n); }, []);
+  const onPages = useMemo(() => (n) => { if (n !== null) pagesRef.current = n; setPages(n); }, []); // null = still measuring
   const fit = async () => {
     setFitting(true);
     let cur = ds;
@@ -740,7 +744,9 @@ export default function Builder({ embedded = null }) {
           <section aria-label="Live resume preview" className="stack g8 sticky" style={{ flex: '3 1 440px', minWidth: 0, top: 80 }}>
             <div className="row between g8 xs muted">
               <span className="row g8">{tab === 'cover' ? 'Cover letter · same design · ' : 'Live preview · '}{TEMPLATE_PRESETS[ds.preset]?.name ? `${TEMPLATE_PRESETS[ds.preset].name}${JSON.stringify({ ...TEMPLATE_PRESETS[ds.preset].design, preset: 0 }) === JSON.stringify({ ...ds, preset: 0 }) ? '' : ' (edited)'}` : 'Custom'}
-                {tab !== 'cover' && <span className={`badge ${pages > 1 ? 'b-warning' : 'b-success'}`}>{pages > 1 ? `${pages} pages · aim for 1` : '1 page ✓'}</span>}
+                {tab !== 'cover' && (pages === null
+                  ? <span className="badge b-neutral" data-testid="page-count">Measuring…</span>
+                  : <span className={`badge ${pages > 1 ? 'b-warning' : 'b-success'}`} data-testid="page-count">{pages > 1 ? `${pages} pages · aim for 1` : '1 page ✓'}</span>)}
               </span>
               <span className="row g8">
                 <button type="button" className="link-btn" style={{ minHeight: 32, textDecoration: 'none' }} onClick={() => setTab('design')}>Edit design</button>
@@ -748,7 +754,7 @@ export default function Builder({ embedded = null }) {
                 <button type="button" className="btn btn-outline" style={{ minHeight: 36, fontSize: 13 }} onClick={() => download('docx')} disabled={pdfBusy} title="Word file in one column with Calibri / Cambria">Word</button>
               </span>
             </div>
-            {tab === 'cover' ? <ResumePreview key="cover" data={d} design={ds} photo={photo} cover={d.cover || {}} /> : <ResumePreview data={d} design={ds} photo={photo} onPages={onPages} />}
+            {tab === 'cover' ? <ResumePreview key="cover" data={d} design={ds} photo={photo} cover={d.cover || {}} /> : <ResumePreview data={d} design={ds} photo={photo} onPages={onPages} loading={dataLoading} />}
             <span className="xs faint">Job preferences stay on your Nm7 profile — never printed. Personal information, declaration and your photo print only when you switch them on.</span>
           </section>
         </main>

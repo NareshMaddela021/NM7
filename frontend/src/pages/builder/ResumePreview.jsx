@@ -119,11 +119,22 @@ function CoverBody({ c, ds, s }) {
  * True-to-scale preview: every size is the PDF size in points × (preview width / page width).
  * Reports the page count via onPages and marks where each new page starts.
  */
-export default function ResumePreview({ data, design: ds, photo, onPages, cover, loadFonts = true, decorative = false }) {
+/**
+ * loading: the resume itself is still arriving — no page count or page breaks until it has, and until its fonts
+ * have loaded and the layout is measured (otherwise a fallback font can briefly show "2 pages" for a 1-page resume).
+ */
+export default function ResumePreview({ data, design: ds, photo, onPages, cover, loadFonts = true, decorative = false, loading = false }) {
   const d = visibleResume(data); // switched-off entries are hidden everywhere the resume is shown
   const ref = useRef();
   const [box, setBox] = useState({ w: 595, h: 842 });
-  useEffect(() => { if (loadFonts) ensureFonts([ds.font, headFontOf(ds)]); }, [loadFonts, ds.font, ds.headFont]); // eslint-disable-line react-hooks/exhaustive-deps
+  const [fontsOk, setFontsOk] = useState(!loadFonts);
+  useEffect(() => {
+    if (!loadFonts) return undefined;
+    let alive = true;
+    setFontsOk(false);
+    ensureFonts([ds.font, headFontOf(ds)]).then(() => { if (alive) setFontsOk(true); });
+    return () => { alive = false; };
+  }, [loadFonts, ds.font, ds.headFont]); // eslint-disable-line react-hooks/exhaustive-deps
   const page = PAGE[ds.pageSize] || PAGE.a4;
   const s = box.w / page.w;
   const pageH = page.h * s;
@@ -151,7 +162,10 @@ export default function ResumePreview({ data, design: ds, photo, onPages, cover,
   }, []);
 
   const pages = Math.max(1, Math.ceil((box.h - 2) / pageH));
-  useLayoutEffect(() => { onPages?.(pages); }, [pages, onPages]);
+  const settled = fontsOk && !loading;
+  // measure once more when the fonts are in (the size may not change, so the observer may not fire)
+  useLayoutEffect(() => { if (settled && ref.current) setBox({ w: ref.current.offsetWidth, h: ref.current.scrollHeight }); }, [settled]);
+  useLayoutEffect(() => { onPages?.(settled ? pages : null); }, [pages, settled, onPages]);
 
   const body = { fontFamily: FONTS[ds.font].css, fontSize: ds.bodySize * s, lineHeight: ds.lineHeight, fontWeight: ds.bodyWeight, color: ds.textColor };
   const empty = !main.length && !side.length;
@@ -184,7 +198,7 @@ export default function ResumePreview({ data, design: ds, photo, onPages, cover,
         </>}
       </article>
       {/* page-break markers are decorative: the label is CSS content (data-label), so it is never in the page text */}
-      {!decorative && Array.from({ length: pages - 1 }, (_, i) => (
+      {!decorative && settled && Array.from({ length: pages - 1 }, (_, i) => (
         <div key={i} aria-hidden="true" className="page-break" data-label={`Page ${i + 2} starts`} style={{ top: pageH * (i + 1) }} />
       ))}
     </div>

@@ -5,7 +5,7 @@ import Home from './pages/Home';
 import { Spinner } from './components/ui';
 import { useAuth, previewSignIn, previewUsers, LIVE } from './lib/auth';
 import { RequireAuth } from './pages/auth/Auth';
-import { applyMeta, metaFor, usePageMeta } from './lib/meta';
+import { applyMeta, currentMeta, usePageMeta } from './lib/meta';
 
 // Every page except Home is its own chunk, loaded when first opened.
 const named = (load, name) => lazy(() => load().then((m) => ({ default: m[name] })));
@@ -89,7 +89,7 @@ const E = (el, approved = true) => <RequireAuth role="expert" approved={approved
 
 function ScrollToTop() {
   const { pathname, hash } = useLocation();
-  useEffect(() => { applyMeta(metaFor(pathname)); }, [pathname]);
+  useEffect(() => { applyMeta(currentMeta(pathname)); }, [pathname]);
   useEffect(() => {
     if (hash) document.getElementById(hash.slice(1))?.scrollIntoView();
     else window.scrollTo(0, 0);
