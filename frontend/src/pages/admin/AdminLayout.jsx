@@ -1,5 +1,6 @@
 // Admin console frame: sidebar, global search (Ctrl/⌘ + K), date range, alerts bell, role preview.
 import { useEffect, useMemo, useRef, useState } from 'react';
+import ErrorBoundary from '../../components/ErrorBoundary';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Header from '../../components/Header';
 import { AdminProvider, ROLES, atRisk, isLate, useAdmin } from './AdminContext';
@@ -77,7 +78,7 @@ function Shell() {
   const alerts = useAlerts();
   const [search, setSearch] = useState(false);
   const [bell, setBell] = useState(false);
-  const { pathname } = useLocation();
+  const { pathname, search: query } = useLocation();
   const nav = useNavigate();
   const can = ROLES[role].can;
   const current = NAV.find(([, to]) => (to === '/admin' ? pathname === '/admin' || pathname === '/admin/' : pathname.startsWith(to)));
@@ -124,7 +125,7 @@ function Shell() {
           <span className="xs faint" style={{ padding: '0 10px' }}>Each team member only sees their sections.</span>
         </nav>
         <main className="stack g20" style={{ flex: '1 1 600px', minWidth: 0 }}>
-          {allowed ? <Outlet /> : <div className="card stack g8"><strong>No access</strong><span className="small muted">The {ROLES[role].label} role can’t open {current[2]}. Switch role or ask the owner.</span></div>}
+          {allowed ? <ErrorBoundary resetKey={`${pathname}${query}`}><Outlet /></ErrorBoundary> : <div className="card stack g8"><strong>No access</strong><span className="small muted">The {ROLES[role].label} role can’t open {current[2]}. Switch role or ask the owner.</span></div>}
         </main>
       </div>
       {search && <Search onClose={() => setSearch(false)} />}

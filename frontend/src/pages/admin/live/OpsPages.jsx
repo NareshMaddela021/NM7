@@ -47,6 +47,9 @@ export function LiveDashboard() {
 /* ---------- orders ---------- */
 const ORDER_FILTERS = [['', 'All'], ['offer', 'Finding expert'], ['in_progress', 'Writing'], ['waiting', 'With customer'], ['revision', 'Changes'], ['delivered', 'Delivered'], ['refunded', 'Refunded']];
 
+// a search the hosting edge refuses (e.g. text that looks like SQL) never reaches the API: say so plainly
+const SEARCH_FAIL = 'Search couldn’t run — try different words.';
+
 export function LiveOrders() {
   const [params, setParams] = useSearchParams();
   const status = params.get('status') || '';
@@ -70,7 +73,7 @@ export function LiveOrders() {
       </div>
       <div className="row g16" style={{ alignItems: 'flex-start' }}>
         <div style={{ flex: '3 1 480px', minWidth: 0 }}>
-          <Loading st={st} empty={emptyIf((d) => !d.items.length, status || late || params.get('q') ? 'No orders match.' : 'No orders yet. Paid orders appear here.')}>{(d) => (
+          <Loading st={st} failText={params.get('q') ? SEARCH_FAIL : undefined} empty={emptyIf((d) => !d.items.length, status || late || params.get('q') ? 'No orders match.' : 'No orders yet. Paid orders appear here.')}>{(d) => (
             <div className="card table-wrap" style={{ padding: 0 }}>
               <table className="table"><thead><tr><th>Order</th><th>Customer</th><th>Plan</th><th>Status</th><th>Deadline</th><th>Amount</th></tr></thead>
                 <tbody>{d.items.map((o) => (

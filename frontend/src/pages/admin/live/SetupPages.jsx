@@ -5,29 +5,58 @@ import { passwordIssue, useAuth } from '../../../lib/auth';
 import { PageHead } from '../AdminUI';
 import { ROLES } from '../roles';
 import { Loading, emptyIf, http, useAction, useApi, when } from './common';
+import { auditText } from './auditText';
 
 /* ---------- settings & prices ---------- */
+// same limits as the server (app/admin/console.py), which checks them again
+export const PRICE_MIN = 1;
+export const PRICE_MAX = 100000;
+/** { 'plans.expert': 'Enter a whole number of rupees', hours: 'Delivery must be 24–168 hours' } */
+export function settingsErrors(f) {
+  const out = {};
+  ['plans', 'addons'].forEach((g) => Object.entries(f[g] || {}).forEach(([k, v]) => {
+    const t = String(v.text ?? '').trim();
+    if (!/^\d+$/.test(t)) out[`${g}.${k}`] = 'Enter a whole number of rupees';
+    else if (Number(t) < PRICE_MIN || Number(t) > PRICE_MAX) out[`${g}.${k}`] = 'Price must be ₹1–₹1,00,000';
+  }));
+  const h = String(f.hoursText ?? '').trim();
+  if (!/^\d+$/.test(h)) out.hours = 'Enter a whole number of hours';
+  else if (Number(h) < 24 || Number(h) > 168) out.hours = 'Delivery must be 24–168 hours';
+  return out;
+}
 export function LiveSettings() {
   const toast = useToast();
   const st = useApi('/api/admin/settings');
   const [busy, run] = useAction(toast);
   const [f, setF] = useState(null);
-  useEffect(() => { if (st.data) setF(structuredClone(st.data)); }, [st.data]);
+  // the form keeps what was typed (text), so a bad value can be explained instead of silently becoming 0
+  const toForm = (d) => {
+    const g = (o) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, { ...v, text: String(Math.round(v.amount / 100)) }]));
+    return { ...d, plans: g(d.plans), addons: g(d.addons), hoursText: String(d.deliveryHours) };
+  };
+  useEffect(() => { if (st.data) setF(toForm(st.data)); }, [st.data]);
+  const errs = f ? settingsErrors(f) : {};
   const row = (group, k) => {
     const v = f[group][k];
     const set = (patch) => setF({ ...f, [group]: { ...f[group], [k]: { ...v, ...patch } } });
+    const err = errs[`${group}.${k}`];
     return (
       <tr key={k}>
         <td className="small">{v.name}</td>
-        <td><label className="sr-only" htmlFor={`pr-${k}`}>{v.name} price in rupees</label><input id={`pr-${k}`} className="input" inputMode="numeric" style={{ height: 38, width: 120 }} value={Math.round(v.amount / 100)} onChange={(e) => set({ amount: (Number(e.target.value.replace(/\D/g, '')) || 0) * 100 })} /></td>
+        <td>
+          <label className="sr-only" htmlFor={`pr-${k}`}>{v.name} price in rupees</label>
+          <input id={`pr-${k}`} className="input" type="number" inputMode="numeric" min={PRICE_MIN} max={PRICE_MAX} step={1} style={{ height: 38, width: 130 }} value={v.text}
+            aria-invalid={err ? 'true' : undefined} aria-describedby={err ? `pr-${k}-err` : undefined} onChange={(e) => set({ text: e.target.value })} />
+          {err && <div id={`pr-${k}-err`} className="error">{err}</div>}
+        </td>
         <td><label className="row g4 small"><input type="checkbox" checked={v.active} onChange={(e) => set({ active: e.target.checked })} />On sale</label></td>
       </tr>
     );
   };
   const save = () => run(async () => {
-    const pick = (g) => Object.fromEntries(Object.entries(f[g]).map(([k, v]) => [k, { amount: v.amount, active: v.active }]));
-    const r = await http('/api/admin/settings', { method: 'PUT', body: { plans: pick('plans'), addons: pick('addons'), deliveryHours: f.deliveryHours } });
-    setF(structuredClone(r)); st.reload();
+    const pick = (g) => Object.fromEntries(Object.entries(f[g]).map(([k, v]) => [k, { amount: Number(v.text) * 100, active: v.active }]));
+    const r = await http('/api/admin/settings', { method: 'PUT', body: { plans: pick('plans'), addons: pick('addons'), deliveryHours: Number(f.hoursText) } });
+    setF(toForm(r)); st.reload();
   }, 'Saved — new orders use these prices');
   return (
     <>
@@ -44,9 +73,12 @@ export function LiveSettings() {
           </section>
           <section className="card stack g12" aria-label="Delivery promise">
             <strong>Delivery promise</strong>
-            <label className="row g8 small">First draft within <input className="input" inputMode="numeric" aria-label="Delivery hours" style={{ height: 38, width: 80 }} value={f.deliveryHours} onChange={(e) => setF({ ...f, deliveryHours: Number(e.target.value.replace(/\D/g, '')) || 0 })} /> hours (24–168). Express add-on is always 24 hours.</label>
+            <label className="row g8 small">First draft within <input className="input" type="number" inputMode="numeric" min={24} max={168} step={1} aria-label="Delivery hours" style={{ height: 38, width: 90 }} value={f.hoursText}
+              aria-invalid={errs.hours ? 'true' : undefined} aria-describedby={errs.hours ? 'dh-err' : undefined} onChange={(e) => setF({ ...f, hoursText: e.target.value })} /> hours (24–168). Express add-on is always 24 hours.</label>
+            {errs.hours && <span id="dh-err" className="error">{errs.hours}</span>}
           </section>
-          <button type="button" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={busy || f.deliveryHours < 24 || f.deliveryHours > 168} onClick={save}>Save settings</button>
+          <button type="button" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={busy || Object.keys(errs).length > 0} onClick={save}>Save settings</button>
+          {Object.keys(errs).length > 0 && <span className="small" role="status" style={{ color: 'var(--danger)' }}>Fix the {Object.keys(errs).length === 1 ? 'value' : `${Object.keys(errs).length} values`} marked above to save.</span>}
         </>
       )}</Loading>
     </>
@@ -87,8 +119,10 @@ export function LiveTeam() {
   const [busy, run] = useAction(toast);
   const [f, setF] = useState({ name: '', email: '', role: 'support', password: '' });
   const [created, setCreated] = useState(null);
-  const [action, setAction] = useState('');
-  const log = useApi(`/api/admin/audit-log?limit=100${action ? `&action=${encodeURIComponent(action)}` : ''}`);
+  const [action, setAction] = useState(''); // what's typed
+  const [filter, setFilter] = useState(''); // what's asked for: 300 ms after typing stops, not on every key
+  useEffect(() => { const t = setTimeout(() => setFilter(action.trim()), 300); return () => clearTimeout(t); }, [action]);
+  const log = useApi(`/api/admin/audit-log?limit=100${filter ? `&action=${encodeURIComponent(filter)}` : ''}`);
   const patch = (id, body, ok) => run(async () => { await http(`/api/admin/team/${id}`, { method: 'PATCH', body }); st.reload(); log.reload(); }, ok);
   return (
     <>
@@ -133,11 +167,16 @@ export function LiveTeam() {
 
       <section className="card stack g12" aria-label="Audit log">
         <div className="row between g8"><strong>Audit log</strong>
-          <label className="row g8 small">Action <input className="input" style={{ height: 36, width: 200 }} placeholder="e.g. settings.changed" value={action} onChange={(e) => setAction(e.target.value.trim())} /></label></div>
-        <Loading st={log} empty={emptyIf((d) => !d.length, 'Nothing logged yet.')}>{(rows) => (
+          <label className="row g8 small">Action <input className="input" style={{ height: 36, width: 200 }} placeholder="e.g. settings.changed" value={action} onChange={(e) => setAction(e.target.value)} /></label></div>
+        {filter && log.data?.length === 0 ? (
+          <div className="well row between g8 small" role="status" style={{ padding: 16 }}>
+            <span>No entries match “{filter}”.</span>
+            <button type="button" className="btn btn-outline" style={{ minHeight: 34 }} onClick={() => { setAction(''); setFilter(''); }}>Clear</button>
+          </div>
+        ) : <Loading st={log} empty={emptyIf((d) => !d.length, 'Nothing logged yet.')}>{(rows) => (
           <div className="table-wrap"><table className="table"><thead><tr><th>#</th><th>When</th><th>Who</th><th>Action</th><th>Target</th><th>Details</th></tr></thead>
-            <tbody>{rows.map((a) => <tr key={a.id}><td className="xs mono">{a.id}</td><td className="small">{when(a.at)}</td><td className="small">{a.actorName || 'System / customer'}</td><td className="small mono">{a.action}</td><td className="small mono">{a.target || '—'}</td><td className="xs mono" style={{ maxWidth: 320, overflowWrap: 'anywhere' }}>{Object.keys(a.data || {}).length ? JSON.stringify(a.data) : ''}</td></tr>)}</tbody></table></div>
-        )}</Loading>
+            <tbody>{rows.map((a) => <tr key={a.id}><td className="xs mono">{a.id}</td><td className="small">{when(a.at)}</td><td className="small">{a.actorName || 'System / customer'}</td><td className="small mono">{a.action}</td><td className="small mono">{a.target || '—'}</td><td className="xs" style={{ maxWidth: 320, overflowWrap: 'anywhere' }}>{auditText(a.data)}</td></tr>)}</tbody></table></div>
+        )}</Loading>}
       </section>
     </>
   );

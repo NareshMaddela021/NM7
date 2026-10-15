@@ -10,6 +10,9 @@ describe('page titles', () => {
     expect(metaFor('/nope')).toMatchObject({ title: 'Page not found', noindex: true });
     expect(metaFor('/expert-terms')).toMatchObject({ title: 'Expert terms', noindex: false });
     expect(metaFor('/me/messages').title).toBe('Messages');
+    expect(metaFor('/admin').title).toBe('Dashboard · Admin');
+    expect(metaFor('/admin/payments').title).toBe('Payments & invoices · Admin');
+    expect(metaFor('/admin/team').title).toBe('Team & audit log · Admin');
     expect(metaFor('/me/launch').title).toBe('Career Launch');
     expect(metaFor('/me/upgrade').title).toBe('Upgrade & add-ons');
     expect(metaFor('/expert/orders')).toMatchObject({ title: 'Expert workspace', noindex: true });
