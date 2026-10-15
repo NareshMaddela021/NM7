@@ -1,6 +1,7 @@
 import { Suspense, lazy, useEffect } from 'react';
 import { Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
 import Header from './components/Header';
+import DownloadGateHost from './components/DownloadGate';
 import Home from './pages/Home';
 import { Spinner } from './components/ui';
 import { useAuth, previewSignIn, previewUsers, LIVE } from './lib/auth';
@@ -158,6 +159,7 @@ export default function App() {
       <a href="#main" className="skip-link">Skip to content</a>
       <ScrollToTop />
       <PreviewBar />
+      <DownloadGateHost />
       <Suspense fallback={<Fallback />}>
       <Routes>
         <Route path="/" element={<Home />} />

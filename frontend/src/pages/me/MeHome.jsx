@@ -26,7 +26,7 @@ export default function MeHome() {
   const edit = () => { openInBuilder(r.id); nav('/builder', { state: { open: 'build' } }); };
   const jp = useJobProfile();
   const setUp = jp.available && jp.data && profileCompleteness(jp.data).pct < 40; // new users: the Job Profile first
-  const dl = async (f) => { await downloadResume(r.data, f); toast(f === 'pdf' ? 'PDF ready' : 'Word file ready'); };
+  const dl = async (f) => { if (await downloadResume(r.data, f)) toast(f === 'pdf' ? 'PDF ready' : 'Word file ready'); };
 
   return (
     <>

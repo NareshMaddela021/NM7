@@ -3,11 +3,12 @@ import { Link, useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import { Dialog, Icon, Meter, useToast } from '../components/ui';
 import { getMatchedJobs, saveProfile } from '../services/api';
-import { syncFromBuilder, defaultResume, useMe, activeResume, addResume, openInBuilder, blankResume, updateResume } from '../lib/customerStore';
+import { syncFromBuilder, defaultResume, useMe, activeResume, addResume, openInBuilder, blankResume, updateResume, uniqueName } from '../lib/customerStore';
 import { ago } from './me/shared';
 import { useJobProfile } from '../lib/profileStore';
 import { profileCompleteness, profileToResume, profileUpdates } from '../lib/jobProfile';
 import { reviewToResume } from '../lib/photoImport';
+import { DownloadBlocked, exportFile, pendingDownload } from '../lib/downloads';
 import { monthsBetween } from '../lib/import/dates';
 import PhotoImport from './builder/PhotoImport';
 import { FillFromProfile, ProfileHint, ProfileUpdates, SaveToProfile } from './builder/ProfileSync';
@@ -16,23 +17,15 @@ import { applyImport } from '../lib/import/apply';
 import { emptyResult } from '../lib/import/shared';
 
 const dayLabel = () => new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
-/** "Name", or "Name (2)", "Name (3)"… so new resumes never share a name. */
-export const uniqueName = (name, resumes) => {
-  const taken = new Set((resumes || []).map((r) => r.name));
-  const base = name.slice(0, 54);
-  if (!taken.has(base)) return base;
-  for (let n = 2; ; n += 1) if (!taken.has(`${base} (${n})`)) return `${base} (${n})`;
-};
+export { uniqueName }; // kept here for older imports
 /** The built-in sample person (shown to guests until they add their own details). */
 const isSampleDraft = (d) => d.personal?.name === INITIAL.personal.name && d.personal?.email === INITIAL.personal.email;
 import ResumePreview from './builder/ResumePreview';
-import { buildResumePdf, savePdf } from './builder/resumePdf';
 import { FieldGrid, LinkFields, SchemaField } from './builder/Fields';
 import DesignPanel from './builder/DesignPanel';
 import Import from './builder/Import';
 import TemplatePicker, { layoutOf } from './builder/TemplatePicker';
 import CoverPanel from './builder/CoverPanel';
-import { buildDocx } from './builder/resumeDocx';
 import { EntryHeader, focusMoved } from './builder/EntryControls';
 import LineEntries from './builder/LineEntries';
 import { hiddenCount, lineItems, linesPatch, moveItem, removeItem, toggleItem } from './builder/entries';
@@ -85,6 +78,7 @@ function Start({ onNext, profilePct = null, resume = null, onContinue }) {
       <div className="stack g12" style={{ maxWidth: 720 }}>
         <h1 className="display h1" style={{ fontSize: 'clamp(36px,5vw,60px)' }}>Build a resume recruiters <span className="hl" style={{ padding: '0 4px' }}>actually read.</span></h1>
         <p className="lead">12 guided sections, plus any section you want to add. Your Nm7 profile and your resume are built together.</p>
+        <p className="small muted" style={{ margin: 0 }}><strong>Free to build. Account needed to download.</strong></p>
       </div>
       {resume && (
         <section className="card row between g16" aria-labelledby="continue-h" style={{ padding: 24, border: '2px solid var(--ink)' }}>
@@ -154,7 +148,9 @@ function Done({ name, score, onEdit, onDownload, onCover, pdfBusy }) {
 export default function Builder({ embedded = null }) {
   const toast = useToast();
   const location = useLocation();
-  const [stage, setStage] = useState(embedded || location.state?.open === 'build' ? 'build' : location.state?.open === 'photos' ? 'photos' : 'start');
+  // back from "Create a free account to download": straight to the editor, where the download starts by itself
+  const resumeDownload = useRef(!embedded && currentUser() ? pendingDownload() : null);
+  const [stage, setStage] = useState(embedded || resumeDownload.current || location.state?.open === 'build' ? 'build' : location.state?.open === 'photos' ? 'photos' : 'start');
   const [missing, setMissing] = useState(false); // after "Snap photos": point at what's still missing (e.g. phone)
   const [importMode, setImportMode] = useState('resume');
   const [suggest, setSuggest] = useState(null);
@@ -337,14 +333,22 @@ export default function Builder({ embedded = null }) {
     try {
       const cover = what === 'cover' ? (d.cover || {}) : undefined;
       const photoPng = format === 'docx' && d.showPhoto && photo && !cover ? await shapePhoto(photo, ds.photoShape || 'circle') : null;
-      const blob = format === 'docx' ? await buildDocx({ data: d, design: ds, cover, photoPng }) : await buildResumePdf({ data: d, design: ds, photo, cover });
-      const name = `${(d.personal.name || 'Resume').trim().replace(/\s+/g, '_')}_${cover ? 'Cover_Letter' : 'Resume'}.${format}`;
-      await savePdf(blob, name);
+      await exportFile({ data: d, design: ds, format, cover, photo, photoPng }); // asks the server first (account / plan)
       toast(`${cover ? 'Cover letter' : 'Resume'} ${format === 'docx' ? 'Word file' : 'PDF'} ready`);
     } catch (e) {
+      if (e instanceof DownloadBlocked) return; // the "create an account" / "unlock downloads" pop-up is open
       if (e?.code !== 'declined') toast(e?.code === 'unavailable' ? 'Downloads aren’t available in this view.' : 'Couldn’t create the PDF. Please try again.');
     } finally { setPdfBusy(false); }
   };
+  // the download a guest clicked before signing up / in: once their resume (carried over) is open
+  useEffect(() => {
+    const p = resumeDownload.current;
+    if (!p || !serverIn) return;
+    resumeDownload.current = null;
+    pendingDownload(true);
+    if (p.what === 'cover') setTab('cover');
+    download(p.format, p.what);
+  }, [serverIn]); // eslint-disable-line react-hooks/exhaustive-deps
   const issues = collectIssues(d);
   const order = resolveOrder(d);
   const moveSection = (id, dir) => {

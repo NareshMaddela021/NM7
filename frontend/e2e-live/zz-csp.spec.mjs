@@ -14,16 +14,16 @@ test('pages work under the Content-Security-Policy', async ({ page }) => {
     await page.waitForLoadState('networkidle');
   }
   await expect(page.getByRole('heading', { name: 'This page doesn’t exist.' })).toBeVisible();
-  await page.goto('/builder');
-  await page.evaluate(() => window.history.replaceState({ usr: { open: 'build' }, key: 'x' }, ''));
-  await page.reload();
-  const [dl] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Download PDF' }).first().click()]);
-  expect(dl.suggestedFilename()).toMatch(/\.pdf$/);
   const mail = email('csp');
   seed('customer', mail, 'Csp Check', PASSWORD);
   await login(page, mail);
   await page.waitForURL('**/me');
   await page.waitForLoadState('networkidle');
+  await page.goto('/builder'); // downloads need an account
+  await page.evaluate(() => window.history.replaceState({ usr: { open: 'build' }, key: 'x' }, ''));
+  await page.reload();
+  const [dl] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Download PDF' }).first().click()]);
+  expect(dl.suggestedFilename()).toMatch(/\.pdf$/);
   const v = await page.evaluate(() => window.__csp);
   expect(v.filter((x) => !x.includes('eval'))).toEqual([]);
 });

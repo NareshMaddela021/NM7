@@ -11,6 +11,7 @@ import { PLANS, ADDONS, PROMISES } from './pricing';
 import { currentUser, draftKey, draftKeyFor, SAMPLE_USER_ID, onSignOut, updateUser } from './auth';
 import { LIVE, http, reportSaveError } from '../services/http';
 import * as live from './meLive';
+import { pendingDownload } from './downloads';
 
 // One store per signed-in customer. The sample customer (Sai Varsha) keeps the original key and sample data.
 // Live app: no sample data and nothing personal in localStorage — the store is filled from the API.
@@ -33,14 +34,25 @@ export function blankResume(u = currentUser()) {
 }
 /** The starting resume for whoever is signed in (sample data only for guests and the sample customer). */
 export const defaultResume = () => (currentUser()?.role === 'customer' && currentUser().id !== SAMPLE_USER_ID ? blankResume() : structuredClone(INITIAL));
-/** Live: a resume built before signing in (not the sample) becomes the new account's first resume. */
-function guestDraft() {
+/** "Name", or "Name (2)", "Name (3)"… so new resumes never share a name. */
+export const uniqueName = (name, resumes) => {
+  const taken = new Set((resumes || []).map((r) => r.name));
+  const base = name.slice(0, 54);
+  if (!taken.has(base)) return base;
+  for (let n = 2; ; n += 1) if (!taken.has(`${base} (${n})`)) return `${base} (${n})`;
+};
+/** Live: the resume built in this browser before signing in (not the untouched sample, unless the person clicked
+ * Download on it). It moves into the account once: the first resume of a new account, or a new resume next to
+ * the ones they already have (never over them). */
+function guestDraft(force = false) {
   try {
     const s = localStorage.getItem(draftKeyFor(null));
     const d = s && migrateLinks({ ...INITIAL, ...JSON.parse(s) });
-    return d && !(d.personal?.name === INITIAL.personal.name && d.personal?.email === INITIAL.personal.email) ? d : null;
+    return d && (force || !(d.personal?.name === INITIAL.personal.name && d.personal?.email === INITIAL.personal.email)) ? d : null;
   } catch { return null; }
 }
+const forgetGuestDraft = () => { try { localStorage.removeItem(draftKeyFor(null)); } catch { /* ignore */ } };
+const dayLabel = () => new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
 const builderDraft = () => {
   if (LIVE && currentUser()?.role === 'customer') { const a = state && !state.loading ? activeResume(state) : null; return a ? a.data : blankResume(); }
   try { const s = localStorage.getItem(draftKey()); if (s) return migrateLinks({ ...INITIAL, ...JSON.parse(s) }); } catch { /* ignore */ }
@@ -122,12 +134,23 @@ async function loadLive(id) {
   try {
     const s = await live.fetchState();
     if (stateFor !== id) return;
+    const carried = guestDraft(!!pendingDownload());
     if (!s.resumes.length) {
       // first visit: start from the resume they built before signing in (if any), else a blank one
-      const r = { id: uid('r'), name: 'My resume', active: true, data: guestDraft() || blankResume(), jd: '', versions: [] };
+      const r = { id: uid('r'), name: 'My resume', active: true, data: carried || blankResume(), jd: '', versions: [] };
       const saved = await live.createResume(r);
       if (stateFor !== id) return;
       s.resumes = [saved];
+      if (carried) forgetGuestDraft();
+    } else if (carried) {
+      // signed in to an account that already has resumes: the draft becomes a new one (opened in the builder)
+      const name = uniqueName(`${carried.personal?.name?.trim() || 'My resume'} · from this browser · ${dayLabel()}`, s.resumes);
+      try {
+        const saved = await live.createResume({ id: uid('r'), name, active: true, data: carried, jd: '', versions: [] });
+        if (stateFor !== id) return;
+        s.resumes = [...s.resumes.map((r) => ({ ...r, active: false })), saved];
+        forgetGuestDraft();
+      } catch { /* e.g. the resume limit: the draft stays in this browser */ }
     }
     state = s;
   } catch (e) {

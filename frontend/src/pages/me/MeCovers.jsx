@@ -48,8 +48,8 @@ export default function MeCovers() {
             <div className="field"><label htmlFor="cv-b" className="label row between"><span>Letter</span><button type="button" className="link-btn xs" onClick={() => setCur({ ...cur, body: draftCover(resumeOf(cur).data, cur) })}>Re-draft from resume</button></label><textarea id="cv-b" className="input" rows={14} value={cur.body} onChange={(e) => setCur({ ...cur, body: e.target.value })} /></div>
             <div className="row g8">
               <button type="submit" className="btn btn-ink">Save</button>
-              <button type="button" className="btn btn-outline" onClick={async () => { await downloadResume(resumeOf(cur).data, 'pdf', cur); toast('PDF ready'); }}>PDF</button>
-              <button type="button" className="btn btn-outline" onClick={async () => { await downloadResume(resumeOf(cur).data, 'docx', cur); toast('Word file ready'); }}>Word</button>
+              <button type="button" className="btn btn-outline" onClick={async () => { if (await downloadResume(resumeOf(cur).data, 'pdf', cur)) toast('PDF ready'); }}>PDF</button>
+              <button type="button" className="btn btn-outline" onClick={async () => { if (await downloadResume(resumeOf(cur).data, 'docx', cur)) toast('Word file ready'); }}>Word</button>
               {me.covers.some((x) => x.id === cur.id) && <button type="button" className="btn btn-ghost" style={{ color: 'var(--danger)' }} onClick={() => { setMe((s) => ({ covers: s.covers.filter((x) => x.id !== cur.id) })); setCur(null); toast('Deleted'); }}>Delete</button>}
             </div>
           </form>

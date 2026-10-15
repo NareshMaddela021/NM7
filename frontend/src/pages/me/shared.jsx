@@ -1,8 +1,8 @@
 // Small pieces shared by the dashboard pages.
 import { jsPDF } from 'jspdf';
 import ResumePreview from '../builder/ResumePreview';
-import { buildResumePdf, savePdf } from '../builder/resumePdf';
-import { buildDocx } from '../builder/resumeDocx';
+import { savePdf } from '../builder/resumePdf';
+import { DownloadBlocked, exportFile } from '../../lib/downloads';
 import { DEFAULT_DESIGN, TEMPLATE_PRESETS } from '../builder/design';
 import { INVOICE, gstSplit } from '../../lib/pricing';
 
@@ -22,11 +22,15 @@ export function ResumeThumb({ data, width = 150, label }) {
   );
 }
 
-export async function downloadResume(data, format = 'pdf', cover) {
-  const ds = designOf(data);
-  const blob = format === 'docx' ? await buildDocx({ data, design: ds, cover }) : await buildResumePdf({ data, design: ds, cover });
-  const name = `${(data.personal?.name || 'Resume').trim().replace(/\s+/g, '_')}_${cover ? 'Cover_Letter' : 'Resume'}.${format}`;
-  await savePdf(blob, name);
+/** PDF / Word download (only once the server allows it — see lib/downloads). True when a file was saved. */
+export async function downloadResume(data, format = 'pdf', cover, share) {
+  try {
+    await exportFile({ data, design: designOf(data), format, cover, share });
+    return true;
+  } catch (e) {
+    if (e instanceof DownloadBlocked) return false;
+    throw e;
+  }
 }
 
 /** Time left to a deadline, in whole minutes (never "60m"). */

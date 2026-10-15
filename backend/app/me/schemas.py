@@ -201,6 +201,7 @@ class PublicResumeOut(CamelModel):
     name: str
     data: dict[str, Any]
     updated: Ms
+    can_download: bool = True  # the owner may download (so may anyone with the link)
 
 
 # ---------- profile ----------

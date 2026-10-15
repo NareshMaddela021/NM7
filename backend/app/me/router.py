@@ -20,6 +20,7 @@ from app.core.db import APPLICATIONS, ATS_CHECKS, COVER_LETTERS, DB, RESUMES, SH
 from app.core.email import MailerDep, send_safely
 from app.core.errors import ApiError
 from app.core.time import now
+from app.downloads.router import account_entitlement
 from app.me import emails
 from app.me.schemas import (
     ApplicationIn,
@@ -361,7 +362,19 @@ async def public_resume(slug: str, request: Request, auth: MaybeAuth, db: DB) ->
             {"_id": s["_id"]}, {"$inc": {"view_count": 1}, "$push": {"views": {"$each": [now()], "$slice": -500}}}
         )
     name = (data.get("personal") or {}).get("name") or ""
-    return PublicResumeOut(name=name, data=data, updated=ms(r["updated_at"]))
+    can, _ = await account_entitlement(db, s["_id"])
+    return PublicResumeOut(name=name, data=data, updated=ms(r["updated_at"]), can_download=can)
+
+
+@public.post("/resumes/{slug}/export")
+async def public_resume_export(slug: str, db: DB) -> dict[str, bool]:
+    """Run before a shared resume's PDF is made: allowed when its owner may download (see app/downloads)."""
+    s = await db[SHARES].find_one({"slug": slug.lower(), "on": True})
+    if not s:
+        raise ApiError(404, "not_found", "This resume link is turned off or doesn’t exist.")
+    if not (await account_entitlement(db, s["_id"]))[0]:
+        raise ApiError(402, "payment_required", "The owner of this resume hasn’t turned on downloads.")
+    return {"ok": True}
 
 
 # ---------- support tickets ----------
