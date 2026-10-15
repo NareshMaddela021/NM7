@@ -40,6 +40,11 @@ services:
         value: info@nm7.si
       - key: RESEND_API_KEY # Resend API key, "Sending access" for nm7.si — paste it in the dashboard
         sync: false
+      # Snap photos: reading resume details from photos (Claude API). Without it the feature says "being switched on".
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: ANTHROPIC_MODEL
+        value: claude-opus-5-5
       - key: RAZORPAY_KEY_ID
         sync: false
       - key: RAZORPAY_KEY_SECRET

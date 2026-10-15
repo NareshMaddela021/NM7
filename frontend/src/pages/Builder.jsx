@@ -7,6 +7,9 @@ import { syncFromBuilder, defaultResume, useMe, activeResume, addResume, openInB
 import { ago } from './me/shared';
 import { useJobProfile } from '../lib/profileStore';
 import { profileCompleteness, profileToResume, profileUpdates } from '../lib/jobProfile';
+import { reviewToResume } from '../lib/photoImport';
+import { monthsBetween } from '../lib/import/dates';
+import PhotoImport from './builder/PhotoImport';
 import { FillFromProfile, ProfileHint, ProfileUpdates, SaveToProfile } from './builder/ProfileSync';
 import { draftKey, currentUser, LIVE } from '../lib/auth';
 import { applyImport } from '../lib/import/apply';
@@ -38,7 +41,7 @@ import LinksEditor, { Logo } from './builder/LinksEditor';
 import PhotoEditor, { DEFAULT_ADJ, shapePhoto } from './builder/PhotoEditor';
 import { DEFAULT_DESIGN, FIT_STEPS, TEMPLATE_PRESETS } from './builder/design';
 import {
-  AI_SAMPLES, ALL_SKILLS, FIXED_SECTIONS, INITIAL, LINK_FIELDS, LISTS, PERSONAL_FIELDS, PINFO_FIELDS, DECL_FIELDS, DECL_TEXT,
+  AI_SAMPLES, ALL_SKILLS, EXP_LEVELS, FIXED_SECTIONS, INITIAL, LINK_FIELDS, LISTS, PERSONAL_FIELDS, PINFO_FIELDS, DECL_FIELDS, DECL_TEXT,
   HOBBY_IDEAS, STRENGTH_IDEAS, splitList, SECTION_LAYOUTS, PREF_FIELDS, PRESET_SECTIONS, completeness, DEFAULT_SKILL_GROUPS, SKILL_GROUP_OF, splitSkills, allSkills,
   PRINTABLE, real, resolveOrder, sectionLabel, fieldError, dateOrderError, collectIssues, LINK_SLOTS, LINK_WORDS, LINK_WORD_MAX, migrateLinks,
 } from './builder/schema';
@@ -75,6 +78,7 @@ function Start({ onNext, profilePct = null, resume = null, onContinue }) {
     ['scratch', 'Start from scratch', 'Guided, one section at a time.', !fromProfile || profilePct < 40],
     ['linkedin', 'Import LinkedIn', 'Upload your LinkedIn profile PDF. We fill every section we can, and you check it before saving.'],
     ['resume', 'Rebuild my old resume', 'Upload a PDF or Word resume in any layout. We sort it into clean sections and point out what to fix.'],
+    ['photos', 'Snap photos', 'Take photos of your Aadhaar, work papers or a handwritten note. We’ll read them and fill your resume.'],
   ];
   return (
     <main className="container stack g32 rise" style={{ maxWidth: 1100, padding: '72px 24px' }}>
@@ -98,7 +102,7 @@ function Start({ onNext, profilePct = null, resume = null, onContinue }) {
       {resume && <h2 style={{ fontSize: 22, margin: '8px 0 -12px' }}>Or start a new resume</h2>}
       <div className="grid-auto g16">
         {opts.map(([k, t, d, rec]) => (
-          <button key={t} type="button" className="card stack g8 btn" onClick={() => onNext(k)} style={{ textAlign: 'left', alignItems: 'flex-start', whiteSpace: 'normal', height: 'auto', padding: 24, border: rec ? '2px solid var(--ink)' : undefined }}>
+          <button key={t} type="button" className={`card stack g8 btn${k === 'photos' ? ' start-photos' : ''}`} onClick={() => onNext(k)} style={{ textAlign: 'left', alignItems: 'flex-start', whiteSpace: 'normal', height: 'auto', padding: 24, border: rec ? '2px solid var(--ink)' : undefined }}>
             {rec && <span className="badge b-signal">Recommended</span>}
             <strong className="display" style={{ fontSize: 22 }}>{t}</strong>
             <span className="muted" style={{ fontWeight: 400 }}>{d}</span>
@@ -150,7 +154,8 @@ function Done({ name, score, onEdit, onDownload, onCover, pdfBusy }) {
 export default function Builder({ embedded = null }) {
   const toast = useToast();
   const location = useLocation();
-  const [stage, setStage] = useState(embedded || location.state?.open === 'build' ? 'build' : 'start');
+  const [stage, setStage] = useState(embedded || location.state?.open === 'build' ? 'build' : location.state?.open === 'photos' ? 'photos' : 'start');
+  const [missing, setMissing] = useState(false); // after "Snap photos": point at what's still missing (e.g. phone)
   const [importMode, setImportMode] = useState('resume');
   const [suggest, setSuggest] = useState(null);
   const [d, setD] = useState(() => (embedded ? loadDraft(embedded.storageKey, embedded.initial) : loadDraft(DRAFT_KEY(), serverCustomer() ? (activeResume()?.data || defaultResume()) : defaultResume())));
@@ -440,6 +445,19 @@ export default function Builder({ embedded = null }) {
     setSuggest(null); setStage('templates');
     toast('New resume filled from your Job Profile — pick a look');
   };
+  // "Snap photos" → "Looks right": a new resume in the Work-first template, education off when none was found
+  const startFromPhotos = (review) => {
+    const nd = migrateLinks(reviewToResume(review, blankResume()));
+    const months = nd.exp.reduce((t, e) => t + monthsBetween(e.from, e.current ? '' : e.to), 0);
+    nd.personal.level = months >= 120 ? EXP_LEVELS[4] : months >= 72 ? EXP_LEVELS[3] : months >= 36 ? EXP_LEVELS[2] : months >= 12 ? EXP_LEVELS[1] : nd.personal.level;
+    const layout = layoutOf('work');
+    nd.design = { ...TEMPLATE_PRESETS.work.design, preset: 'work' };
+    nd.order = layout.order; nd.titles = { ...layout.titles }; nd.showPhoto = false;
+    nd.hidden = { ...layout.hidden, edu: nd.hidden.edu, certs: nd.hidden.certs, langs: nd.hidden.langs, pinfo: nd.hidden.pinfo };
+    openNew(nd, `${(nd.personal.name || 'My').split(' ')[0]} · from photos · ${dayLabel()}`);
+    setSuggest('work'); setMissing(true); setStage('templates');
+    toast('Your resume is filled in — pick a look');
+  };
   const continueLatest = () => {
     if (latest && !latest.active) openInBuilder(latest.id);
     if (latest) setD(migrateLinks({ ...INITIAL, ...latest.data }));
@@ -466,8 +484,10 @@ export default function Builder({ embedded = null }) {
         onContinue={continueLatest}
         onNext={(k) => {
           if (k === 'profile') { startFromProfile(); return; }
+          if (k === 'photos') { setStage('photos'); return; }
           if (k === 'scratch') { if (hasResumes) openNew(migrateLinks(blankResume()), null); setStage('templates'); } else { setImportMode(k); setStage('import'); }
         }} />}
+      {stage === 'photos' && <PhotoImport onBack={() => setStage('start')} onDone={startFromPhotos} />}
       {stage === 'import' && (
         <Import mode={importMode} d={d} onBack={() => setStage('start')} onDone={(nd, sug) => {
           // start from the suggested template; Kio brings its section order (empty sections simply don't print)
@@ -544,6 +564,12 @@ export default function Builder({ embedded = null }) {
                 reset={() => applyPreset(ds.preset && TEMPLATE_PRESETS[ds.preset] ? ds.preset : 'fresher')} />
             ) : (<>
             {profile && <ProfileUpdates d={d} setD={setD} updates={profileUpdates(d, profile)} />}
+            {missing && issues.length > 0 && (
+              <div className="well stack g8" role="status" style={{ borderLeft: '4px solid var(--warning)' }}>
+                <strong>Almost done — please add:</strong>
+                <ul className="stack g4" style={{ margin: 0, paddingLeft: 18 }}>{issues.slice(0, 5).map((x) => <li key={x.msg}><button type="button" className="link-btn" onClick={() => { setTab('content'); go(x.sec); }}>{x.msg}</button></li>)}</ul>
+              </div>
+            )}
             <div className="row between g12" style={{ alignItems: 'flex-end' }}>
               <div className="stack g4"><span className="mono faint">SECTION {idx + 1} OF {SECS.length}</span><h2 style={{ fontSize: 28 }}>{cur.label}</h2></div>
               <div className="row g8">

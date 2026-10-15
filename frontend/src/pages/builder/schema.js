@@ -104,12 +104,13 @@ export const PERSONAL_FIELDS = [
 // Personal Information section (common on Indian resumes). Blank fields are not printed.
 export const PINFO_FIELDS = [
   f('father', "Father's name", 'text', { ph: 'e.g. Sreeramulu B' }), f('mother', "Mother's name", 'text', { ph: 'e.g. Lakshmi Devi B' }),
+  f('spouse', "Husband's / wife's name", 'text', { ph: 'Optional' }),
   f('dob', 'Date of birth', 'date'), f('gender', 'Gender', 'select', { options: ['Male', 'Female', 'Other', 'Prefer not to say'] }),
   f('marital', 'Marital status', 'select', { options: ['Single', 'Married', 'Prefer not to say'] }), f('nationality', 'Nationality', 'text', { ph: 'Indian' }),
   f('languages', 'Languages known', 'text', { full: true, ph: 'English, Telugu, Hindi' }),
   f('address', 'Address', 'area', { full: true, ph: '2/87, Polepalli (V), Ramagiri (M), Anantapur (D), Andhra Pradesh – 515101' }),
 ];
-export const PINFO_LABELS = { father: "Father's Name", mother: "Mother's Name", dob: 'Date of Birth', gender: 'Gender', marital: 'Marital Status', nationality: 'Nationality', languages: 'Languages Known', address: 'Address' };
+export const PINFO_LABELS = { father: "Father's Name", mother: "Mother's Name", spouse: "Spouse's Name", dob: 'Date of Birth', gender: 'Gender', marital: 'Marital Status', nationality: 'Nationality', languages: 'Languages Known', address: 'Address' };
 export const DECL_TEXT = 'I hereby declare that the information given above is true and correct to the best of my knowledge and belief.';
 export const DECL_FIELDS = [
   f('text', 'Declaration text', 'area', { full: true }),
@@ -241,6 +242,8 @@ export const SECTION_LAYOUTS = {
   formal: { order: null, hidden: { hobbies: true, strengths: true } },
   executive: { order: ['summary', 'skills', 'exp', 'edu', 'certs', 'ach', 'proj', 'langs', 'hobbies', 'strengths', 'pinfo', 'decl'], hidden: { hobbies: true, strengths: true, pinfo: true, decl: true }, titles: { skills: 'Core Strengths' } },
   care: { order: ['summary', 'certs', 'exp', 'edu', 'skills', 'ach', 'proj', 'langs', 'hobbies', 'strengths', 'pinfo', 'decl'], hidden: { hobbies: true, strengths: true, pinfo: true, decl: true }, titles: { certs: 'Licences & Certifications' } },
+  // skills and work first, education last and small (switched off when there is none) — for trades and field jobs
+  work: { order: ['summary', 'skills', 'exp', 'certs', 'langs', 'edu', 'ach', 'proj', 'hobbies', 'strengths', 'pinfo', 'decl'], hidden: { proj: true, ach: true, hobbies: true, strengths: true, pinfo: true, decl: true }, titles: { exp: 'Work Experience', certs: 'Licences & Certificates' } },
   portrait: { order: null, hidden: { hobbies: true, strengths: true, pinfo: true, decl: true }, showPhoto: true },
 };
 // every layout sets these, so switching layouts never leaves stale renames or a stray photo

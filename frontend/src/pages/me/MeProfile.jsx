@@ -2,8 +2,10 @@
 // can be filled from it. Autosaved to the server. Job preferences (salary etc.) are private.
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Meter, Spinner, useToast } from '../../components/ui';
-import { useMe, activeResume, getMe, setResumeData } from '../../lib/customerStore';
+import { Dialog, Meter, Spinner, useToast } from '../../components/ui';
+import PhotoImport from '../builder/PhotoImport';
+import { reviewToResume } from '../../lib/photoImport';
+import { useMe, activeResume, getMe, setResumeData, blankResume } from '../../lib/customerStore';
 import { useJobProfile, setJobProfile, setPrivacy, reloadJobProfile } from '../../lib/profileStore';
 import { EXTRA_TITLE, mergeIntoProfile, newPid, profileCompleteness, resumeToProfileParts } from '../../lib/jobProfile';
 import { DECL_FIELDS, EXP_LEVELS, LINK_SLOTS, LINK_WORDS, LINK_WORD_MAX, LISTS, NOTICE, PINFO_FIELDS, fieldError } from '../builder/schema';
@@ -97,6 +99,7 @@ function Importer({ p }) {
   const [busy, setBusy] = useState('');
   const [pick, setPick] = useState('');
   const files = { resume: useRef(), linkedin: useRef() };
+  const [snap, setSnap] = useState(false); // "Import from photos" open
   const merge = (data, what) => {
     const { profile, added } = mergeIntoProfile(p, resumeToProfileParts(data));
     setJobProfile(profile);
@@ -122,7 +125,14 @@ function Importer({ p }) {
             <input ref={files[mode]} type="file" accept=".pdf,.docx,application/pdf" className="sr-only" aria-label={label} disabled={!!busy} onChange={(e) => { const fl = e.target.files?.[0]; e.target.value = ''; fromFile(fl, mode); }} />
           </label>
         ))}
+        <button type="button" className="btn btn-outline" onClick={() => setSnap(true)}>Import from photos</button>
       </div>
+      {snap && (
+        <Dialog wide showTitle title="Import from photos" onClose={() => setSnap(false)}>
+          <PhotoImport embedded title="Import from photos" doneLabel="Add to my Job Profile" onBack={() => setSnap(false)}
+            onDone={(review) => { merge(reviewToResume(review, blankResume()), 'your photos'); setSnap(false); }} />
+        </Dialog>
+      )}
       {me.resumes?.length > 0 && (
         <form className="row g8" style={{ alignItems: 'flex-end' }} onSubmit={(e) => { e.preventDefault(); const r = me.resumes.find((x) => x.id === pick); if (r) merge(r.data, `“${r.name}”`); }}>
           <div className="field" style={{ flex: '1 1 220px' }}>
