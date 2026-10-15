@@ -20,6 +20,7 @@ from app.core import errors
 from app.core.config import get_settings
 from app.core.db import DB, close_client, ensure_indexes, get_database
 from app.core.email import log_email_status
+from app.downloads.router import router as downloads_router
 from app.experts.router import router as expert_router
 from app.me.router import public as public_router
 from app.me.router import router as me_router
@@ -95,6 +96,7 @@ def create_app() -> FastAPI:
     app.include_router(payments_router)
     app.include_router(profile_router)  # before me_router: /api/me/job-profile
     app.include_router(photos_router)  # /api/me/photo-import
+    app.include_router(downloads_router)  # /api/me/entitlements, /api/me/exports
     app.include_router(me_router)
     app.include_router(public_router)
     app.include_router(work_router)

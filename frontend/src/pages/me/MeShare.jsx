@@ -81,7 +81,7 @@ function LivePublicResume({ slug }) {
       {st.r && (
         <>
           <div className="row between g8"><h1 className="display" style={{ fontSize: 26 }}>{st.r.name || 'Resume'}</h1>
-            <button type="button" className="btn btn-ink" onClick={async () => { await downloadResume(st.r.data, 'pdf'); toast('PDF ready'); }}>Download PDF</button></div>
+            {st.r.canDownload !== false && <button type="button" className="btn btn-ink" onClick={async () => { if (await downloadResume(st.r.data, 'pdf', undefined, slug)) toast('PDF ready'); }}>Download PDF</button>}</div>
           <ResumePreview data={st.r.data} design={designOf(st.r.data)} />
           <span className="xs faint" style={{ textAlign: 'center' }}>Made with Nm7 · <Link to="/">Build yours free</Link></span>
         </>
@@ -120,7 +120,7 @@ function PreviewPublicResume({ slug }) {
         ) : (
           <>
             <div className="row between g8"><h1 className="display" style={{ fontSize: 26 }}>{r.data.personal.name}</h1>
-              <button type="button" className="btn btn-ink" onClick={async () => { await downloadResume(publicData(r.data, getMe().share), 'pdf'); toast('PDF ready'); }}>Download PDF</button></div>
+              <button type="button" className="btn btn-ink" onClick={async () => { if (await downloadResume(publicData(r.data, getMe().share), 'pdf', undefined, slug)) toast('PDF ready'); }}>Download PDF</button></div>
             <ResumePreview data={publicData(r.data, sh)} design={designOf(r.data)} />
             <span className="xs faint" style={{ textAlign: 'center' }}>Made with Nm7 · <Link to="/">Build yours free</Link></span>
           </>

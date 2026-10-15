@@ -273,7 +273,7 @@ const FEATURES = [
 function Pricing({ goPlan }) {
   const [table, setTable] = useState(false);
   const plans = [
-    ['diy', 'Fix it yourself', 'For confident editors', ['Every template, PDF & Word', 'AI line fixes and live ATS score', 'Cover letters and share link'], 'Start building'],
+    ['diy', 'Fix it yourself', 'For confident editors', ['Every template, PDF & Word export', 'AI line fixes and live ATS score', 'Cover letters and share link'], 'Start building'],
     ['expert', 'Expert rewrite', 'Most freshers choose this', ['A verified expert from your field', `Draft in ${PROMISES.delivery}, revisions included`, 'Chat and comment on each section', 'Final lands in your builder'], 'Get an expert'],
     ['launch', 'Career Launch', 'For your first big move', ['Everything in Expert rewrite', 'LinkedIn headline, About & top role', 'Cover letter for your first target job', '30-min 1:1 mentor call'], 'Launch my career'],
   ];
@@ -282,6 +282,7 @@ function Pricing({ goPlan }) {
       <div className="stack g12 reveal" style={{ maxWidth: 680 }}>
         <span className="h-eyebrow">Pricing · GST included</span>
         <h2 className="h-sec-title">The scan is free. Pay only to fix it.</h2>
+        <p className="small muted" style={{ margin: 0 }}>Free to build. Account needed to download.</p>
       </div>
       <div className="h-plans">
         {plans.map(([k, name, tag, items, cta]) => (

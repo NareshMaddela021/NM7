@@ -1,4 +1,4 @@
-// Builder downloads (PDF and Word) for guests and signed-in customers, on the live setup.
+// Builder downloads (PDF and Word) for signed-in customers, on the live setup (guests: see downloads.spec.mjs).
 import { expect, test } from '@playwright/test';
 import { PASSWORD, email, login, seed } from './helpers.mjs';
 
@@ -19,10 +19,6 @@ async function downloadBoth(page) {
     expect(size).toBeGreaterThan(1500);
   }
 }
-
-test('guest can download PDF and Word', async ({ page }) => {
-  await downloadBoth(page);
-});
 
 test('signed-in customer can download PDF and Word', async ({ page }) => {
   const mail = email('dl');
