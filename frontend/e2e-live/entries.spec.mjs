@@ -118,14 +118,14 @@ test('move, hide and remove entries in every section; preview, PDF, Word, share 
     await expect.poll(() => page.evaluate(() => document.activeElement?.id), `${side}: focus follows the card`).toBe(`entry-${key}-0-title`);
 
     // switch the (now) first entry off: greyed card, sidebar count, gone from the preview — then back on
-    await page.getByRole('switch', { name: `Hide ${item} 1 from resume`, exact: true }).click();
+    await page.getByRole('switch', { name: `Show this entry (${item} 1)`, exact: true }).click();
     await expect(page.getByText('Hidden from resume').first()).toBeVisible();
     await expect(page.getByRole('button', { name: new RegExp(`${side} · 1 hidden`) }).first()).toBeVisible();
     await expect(preview(page)).not.toContainText(b);
-    await page.getByRole('switch', { name: `Show ${item} 1 on resume`, exact: true }).click();
+    await page.getByRole('switch', { name: `Show this entry (${item} 1)`, exact: true }).click();
     await expect(preview(page)).toContainText(b);
 
-    if (HIDE_AT_END.includes(key)) await page.getByRole('switch', { name: `Hide ${item} 2 from resume`, exact: true }).click();
+    if (HIDE_AT_END.includes(key)) await page.getByRole('switch', { name: `Show this entry (${item} 2)`, exact: true }).click();
   }
 
   // Remove asks first; Cancel keeps the entry
@@ -157,7 +157,7 @@ test('move, hide and remove entries in every section; preview, PDF, Word, share 
   checkPrinted(await preview(page).innerText(), 'after reload');
   await goTo(page, 'Education');
   await expect(page.getByRole('button', { name: /Education · 1 hidden/ }).first()).toBeVisible();
-  await expect(page.getByRole('switch', { name: 'Show Education 2 on resume', exact: true })).toBeVisible();
+  await expect(page.getByRole('switch', { name: 'Show this entry (Education 2)', exact: true })).toHaveAttribute('aria-checked', 'false');
 
   // the public share link
   await api(page, '/api/me/share', { method: 'PUT', body: JSON.stringify({ on: true, slug: `meera-${Date.now().toString(36)}`, resumeId: null, hidePhone: false }) });
@@ -187,7 +187,7 @@ test('phone width: arrows, switch and trash icon on one row', async ({ page }) =
   const boxes = await Promise.all([
     page.getByRole('button', { name: 'Move Education 1 up', exact: true }),
     page.getByRole('button', { name: 'Move Education 1 down', exact: true }),
-    page.getByRole('switch', { name: 'Hide Education 1 from resume', exact: true }),
+    page.getByRole('switch', { name: 'Show this entry (Education 1)', exact: true }),
     page.getByRole('button', { name: 'Remove Education 1', exact: true }),
   ].map(async (l) => { await expect(l).toBeVisible(); return l.boundingBox(); }));
   const ys = boxes.map((bx) => bx.y + bx.height / 2);
@@ -195,4 +195,41 @@ test('phone width: arrows, switch and trash icon on one row', async ({ page }) =
   expect(Math.max(...boxes.map((bx) => bx.x + bx.width))).toBeLessThanOrEqual(390); // no sideways scrolling
   await expect(page.getByRole('button', { name: 'Remove Education 1', exact: true }).locator('.entry-remove-text')).toHaveCSS('position', 'absolute'); // icon only
   for (const bx of boxes) expect(Math.min(bx.width, bx.height)).toBeGreaterThanOrEqual(24); // tap size
+});
+
+test('"Show this entry": a green switch, keyboard Space / Enter, focus ring; off hides the entry and shows the tag', async ({ page }) => {
+  await signInWithResume(page);
+  await openBuilder(page);
+  await goTo(page, 'Education');
+  const sw = page.getByRole('switch', { name: 'Show this entry (Education 1)', exact: true });
+  await expect(sw).toHaveAttribute('aria-checked', 'true');
+  await expect(sw).toContainText('Show this entry');
+  await expect(page.getByRole('checkbox', { name: /Education 1/ })).toHaveCount(0); // the old checkbox is gone
+  const track = sw.locator('.entry-track');
+  const green = await track.evaluate((e) => getComputedStyle(e).backgroundColor);
+  const card = page.locator('.entry-card', { has: sw });
+
+  // keyboard: Space switches it off
+  await sw.focus();
+  await page.keyboard.press('Space');
+  await expect(sw).toHaveAttribute('aria-checked', 'false');
+  await expect(sw).toBeFocused();
+  expect(await sw.evaluate((e) => getComputedStyle(e).outlineStyle)).not.toBe('none'); // visible focus
+  await expect(card.getByText('Hidden from resume')).toBeVisible();
+  await expect(preview(page)).not.toContainText('Alpha University');
+  await expect.poll(() => track.evaluate((e) => getComputedStyle(e).backgroundColor)).not.toBe(green); // grey
+
+  // Enter switches it back on
+  await page.keyboard.press('Enter');
+  await expect(sw).toHaveAttribute('aria-checked', 'true');
+  await expect(card.getByText('Hidden from resume')).toHaveCount(0);
+  await expect(preview(page)).toContainText('Alpha University');
+  await expect.poll(() => track.evaluate((e) => getComputedStyle(e).backgroundColor)).toBe(green);
+
+  // and with a click
+  await sw.click();
+  await expect(card.getByText('Hidden from resume')).toBeVisible();
+  await expect(preview(page)).not.toContainText('Alpha University');
+  await sw.click();
+  await expect(preview(page)).toContainText('Alpha University');
 });

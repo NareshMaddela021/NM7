@@ -285,15 +285,18 @@ textarea.input { height: auto; padding: 12px 14px; line-height: 1.55; resize: ve
 .entry-title strong:focus { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 4px; }
 .entry-tools { display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; }
 .entry-btn { min-height: 36px; min-width: 36px; }
-.entry-switch { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
-.entry-switch input { width: 24px; height: 24px; margin: 0; }
+.entry-switch { min-height: 36px; padding: 0 10px 0 6px; gap: 8px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+.entry-track { flex: none; width: 34px; height: 20px; border-radius: 999px; background: var(--success); position: relative; transition: background-color 200ms; }
+.entry-knob { position: absolute; top: 2px; left: 16px; width: 16px; height: 16px; border-radius: 50%; background: var(--surface); transition: left 200ms var(--ease); }
+.entry-switch[aria-checked="false"] .entry-track { background: var(--border2); }
+.entry-switch[aria-checked="false"] .entry-knob { left: 2px; }
 .entry-remove { gap: 6px; }
 .entry-card[data-off="true"] { background: var(--sunken); border-style: dashed; }
 .entry-card[data-off="true"] .entry-body { color: var(--text2); }
 @media (max-width: 560px) {
   /* phones: the controls stay on one row (arrows, switch, trash icon) under the title */
   .entry-tools { width: 100%; justify-content: flex-end; }
-  .entry-remove-text, .entry-switch-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .entry-remove-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 }
 
 /* Resume preview: where the next page starts (decorative — the label isn't in the page text) */
