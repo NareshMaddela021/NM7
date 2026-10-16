@@ -17,6 +17,7 @@ Exports only ever contain approved members.
 
 import csv
 import io
+import logging
 import secrets
 from datetime import date, timedelta
 from typing import Any, Literal
@@ -61,6 +62,7 @@ from app.orgs.service import (
     unique_names,
 )
 
+log = logging.getLogger("nm7.orgs")
 admin = APIRouter(prefix="/api/admin", tags=["organizations"])
 me = APIRouter(prefix="/api/me/groups", tags=["organizations"])
 public = APIRouter(prefix="/api/public/join", tags=["organizations"])
@@ -365,6 +367,7 @@ ORG_ACTIONS = [
     "view", "download", "print", "print_bulk", "export_zip", "export_csv", "group_create", "group_update",
     "org_create", "org_update", "remind", "approve", "reject", "review", "unprint",
     "staff_invite", "staff_update", "staff_remove", "staff_accept", "staff_resend",
+    "member_join", "member_update", "member_leave",
 ]  # fmt: skip
 
 
@@ -473,7 +476,15 @@ async def my_groups(auth: CustomerAuth, db: DB) -> list[dict[str, Any]]:
 
 
 @me.post("/join", status_code=201)
-async def join(body: JoinIn, auth: CustomerAuth, db: DB) -> dict[str, Any]:
+async def join(body: JoinIn, request: Request, auth: CustomerAuth, db: DB) -> dict[str, Any]:
+    try:
+        return await _join(body, request, auth, db)
+    except ApiError as e:  # a refused join is visible in the server log (no personal details)
+        log.warning("join refused: %s (code %s, user %s)", e.code, normalize_code(body.code), auth.user.id)
+        raise
+
+
+async def _join(body: JoinIn, request: Request, auth: CustomerAuth, db: DB) -> dict[str, Any]:
     uid = auth.user.id
     key = f"join:{uid}"
     await rate_limit.check(db, key, JOIN_RULES)
@@ -509,9 +520,20 @@ async def join(body: JoinIn, auth: CustomerAuth, db: DB) -> dict[str, Any]:
     fresh = {"joined_at": t, "approval": "pending" if g.get("settings", {}).get("require_approval") else "approved"}
     if mine:  # joining again after leaving (or updating answers): one membership per user and group
         await db[MEMBERSHIPS].update_one({"_id": mine["_id"]}, {"$set": {**doc, **({} if already else fresh)}})
+        mid = mine["_id"]
     else:
-        new = {"_id": new_id(), **doc, **fresh, "review_status": "none", "printed_at": None, "printed_count": 0}
+        mid = new_id()
+        new = {"_id": mid, **doc, **fresh, "review_status": "none", "printed_at": None, "printed_count": 0}
         await db[MEMBERSHIPS].insert_one(new)
+    action = "member_update" if already else "member_join"
+    data = {
+        "orgs": [o["_id"]],
+        "group": g["_id"],
+        "code": g["code"],
+        **({"rejoin": True} if mine and not already else {}),
+    }
+    await audit(db, uid, action, target=mid, data=data, ip=_ip(request))
+    log.info("%s: membership %s in group %s", action, mid, g["_id"])
     return next(x for x in await _my(db, uid) if x["code"] == g["code"])
 
 
@@ -532,13 +554,15 @@ async def change_membership(membership_id: str, body: MembershipPatch, auth: Cus
 
 
 @me.post("/{membership_id}/leave", status_code=204)
-async def leave(membership_id: str, auth: CustomerAuth, db: DB) -> Response:
+async def leave(membership_id: str, request: Request, auth: CustomerAuth, db: DB) -> Response:
     t = now()
-    r = await db[MEMBERSHIPS].update_one(
+    m = await db[MEMBERSHIPS].find_one_and_update(
         {"_id": membership_id, "user_id": auth.user.id, "left_at": None}, {"$set": {"left_at": t, "updated_at": t}}
     )
-    if not r.matched_count:
+    if not m:
         raise NOT_FOUND
+    data = {"orgs": [m["org_id"]], "group": m["group_id"]}
+    await audit(db, auth.user.id, "member_leave", target=membership_id, data=data, ip=_ip(request))
     return Response(status_code=204)
 
 
@@ -610,6 +634,58 @@ async def create_group(org_id: str, body: GroupIn, request: Request, db: DB, sco
 @admin.patch("/groups/{group_id}")
 async def update_group(group_id: str, body: GroupPatch, request: Request, db: DB, scope: AdminScope) -> dict[str, Any]:
     return await update_group_in(db, scope, await scope.group(db, group_id), body, _ip(request))
+
+
+@admin.get("/groups/{group_id}/membership-check")
+async def membership_check(group_id: str, db: DB, scope: AdminScope) -> dict[str, Any]:
+    """Read-only: every membership tied to this group or its organization (plus any join in the last 7 days), each
+    with the reason it is or isn't shown in the shared-resumes table. No emails; names as initials."""
+    g = await scope.group(db, group_id)
+    since = now() - timedelta(days=7)
+    q = {"$or": [{"group_id": group_id}, {"org_id": g["org_id"]}, {"joined_at": {"$gte": since}}]}
+    ms_ = await db[MEMBERSHIPS].find(q).sort("joined_at", -1).limit(200).to_list(None)
+    uids = list({m.get("user_id") for m in ms_})
+    users = {u["_id"]: u async for u in db[USERS].find({"_id": {"$in": uids}}, {"name": 1, "disabled_at": 1})}
+    resumes = {
+        (r["user_id"], r["key"]) async for r in db[RESUMES].find({"user_id": {"$in": uids}}, {"user_id": 1, "key": 1})
+    }
+    gids = list({m.get("group_id") for m in ms_})
+    names = {x["_id"]: x["name"] async for x in db[ORG_GROUPS].find({"_id": {"$in": gids}}, {"name": 1})}
+    initials = lambda n: "".join(w[0] for w in (n or "?").split()[:3]).upper()  # noqa: E731
+    out = []
+    for m in ms_:
+        u = users.get(m.get("user_id"))
+        reasons = []
+        if m.get("group_id") != group_id:
+            reasons.append("other_group")
+        if m.get("left_at") is not None:
+            reasons.append("left")
+        if not (m.get("consent") or {}).get("given"):
+            reasons.append("no_consent")
+        if not u:
+            reasons.append("account_missing")
+        elif u.get("disabled_at") is not None:
+            reasons.append("account_disabled")
+        if (m.get("user_id"), m.get("resume_id")) not in resumes:
+            reasons.append("resume_missing")
+        out.append(
+            {
+                "id": m["_id"],
+                "initials": initials((u or {}).get("name")),
+                "group": names.get(m.get("group_id"), "(deleted group)"),
+                "groupId": m.get("group_id"),
+                "joinedAt": ms(m.get("joined_at")),
+                "leftAt": ms(m.get("left_at")),
+                "approval": m.get("approval") or "approved",
+                "reasons": reasons,
+                "shown": not reasons,
+            }
+        )
+    raw = {
+        "inGroup": await db[MEMBERSHIPS].count_documents({"group_id": group_id}),
+        "activeInGroup": await _active_members(db, group_id),
+    }
+    return {"group": {"id": g["_id"], "name": g["name"], "code": g["code"]}, "counts": raw, "memberships": out}
 
 
 @admin.get("/org-audit")

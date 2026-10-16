@@ -118,6 +118,7 @@ export function Join() {
       }
     } catch (err) {
       setError(err.message);
+      toast(err.message); // on a phone the form's last line can be below the screen
     } finally { setBusy(false); }
   };
 
