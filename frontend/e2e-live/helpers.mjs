@@ -64,3 +64,31 @@ export async function adminLogin(page, mail, secret, password = PASSWORD) {
   await page.getByRole('button', { name: 'Verify & open admin' }).click();
   await page.waitForURL(/\/admin/);
 }
+
+/** A member made through the API: a verified account, one resume ("r1"), joined to the group with `code`. */
+export async function apiMember(playwright, mail, name, code, fields = {}, data = null) {
+  seed('customer', mail, name, PASSWORD);
+  const api = await playwright.request.newContext({ baseURL: API, extraHTTPHeaders: { Origin: 'http://localhost:5182' } });
+  const ok = async (r) => { if (!r.ok()) throw new Error(`${r.url()} ${r.status()} ${await r.text()}`); return r.json(); };
+  await ok(await api.post('/api/auth/login', { data: { email: mail, password: PASSWORD } }));
+  const resume = data || { // the shape the builder saves (every section present)
+    personal: { name, email: mail, phone: '+91 98765 43210', headline: 'ITI Electrician', location: 'Guntur', level: 'Fresher (0–1 yr)' },
+    summary: '', edu: [{ institution: 'Govt ITI Guntur', degree: 'ITI Electrician', field: '', from: '', to: '', current: false, grade: '' }],
+    skillGroups: [{ id: 'core', label: 'Skills', value: 'Wiring, Panel fitting' }],
+    exp: [{ company: 'Shown Co', role: 'Apprentice', links: [] }, { company: 'Hidden Co', role: 'Helper', off: true, links: [] }],
+    proj: [], certs: [], ach: [], custom: [], langs: [{ name: 'Telugu', level: 'Native' }], hobbies: '', strengths: '',
+    pinfo: {}, links: {}, hidden: {}, titles: {}, showPhoto: false,
+  };
+  await ok(await api.post('/api/me/resumes', { data: { id: 'r1', name: 'Main', data: resume, active: true } }));
+  const m = await ok(await api.post('/api/me/groups/join', { data: { code, consent: true, fields, resumeId: 'r1' } }));
+  return { api, membership: m };
+}
+
+/** All the text in a PDF (pdf.js), page by page. */
+export async function pdfText(bytes) {
+  const pdfjs = await import('pdfjs-dist/legacy/build/pdf.js');
+  const doc = await (pdfjs.default || pdfjs).getDocument({ data: new Uint8Array(bytes), isEvalSupported: false, verbosity: 0 }).promise;
+  const pages = [];
+  for (let p = 1; p <= doc.numPages; p++) pages.push((await (await doc.getPage(p)).getTextContent()).items.map((i) => i.str).join(' '));
+  return pages;
+}

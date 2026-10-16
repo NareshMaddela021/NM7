@@ -123,7 +123,9 @@ function CoverBody({ c, ds, s }) {
  * loading: the resume itself is still arriving — no page count or page breaks until it has, and until its fonts
  * have loaded and the layout is measured (otherwise a fallback font can briefly show "2 pages" for a 1-page resume).
  */
-export default function ResumePreview({ data, design: ds, photo, onPages, cover, loadFonts = true, decorative = false, loading = false }) {
+/** brand / stamp: organization copies (see lib/branding.js): a header strip with the logo and header line, and the
+ * footer line / stamp at the foot. */
+export default function ResumePreview({ data, design: ds, photo, onPages, cover, loadFonts = true, decorative = false, loading = false, brand = null, stamp = '' }) {
   const d = visibleResume(data); // switched-off entries are hidden everywhere the resume is shown
   const ref = useRef();
   const [box, setBox] = useState({ w: 595, h: 842 });
@@ -175,6 +177,12 @@ export default function ResumePreview({ data, design: ds, photo, onPages, cover,
     <div style={{ position: 'relative' }}>
       <article ref={ref} aria-label={cover ? 'Cover letter preview' : 'Resume preview'}
         style={{ ...body, background: '#fff', borderRadius: 4, boxShadow: 'var(--shadow)', padding: m, minHeight: pageH, boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: ds.sectionGap * s }}>
+        {brand && !cover && (
+          <div data-testid="brand-strip" style={{ display: 'flex', alignItems: 'center', gap: 10 * s, margin: `${-m * 0.4}px 0 0`, paddingBottom: 6 * s, borderBottom: `${1.2 * s}px solid ${brand.color}` }}>
+            {brand.logo && <img src={brand.logo} alt="" style={{ height: 26 * s, maxWidth: 170 * s, objectFit: 'contain' }} />}
+            {brand.header && <span style={{ color: brand.color, fontWeight: 700, fontSize: 10 * s, lineHeight: 1.2 }}>{brand.header}</span>}
+          </div>
+        )}
         <header style={{
           display: 'flex', flexDirection: pos === 'top' ? 'column' : 'row', alignItems: 'center', gap: (pos === 'top' ? 8 : 14) * s, paddingBottom: 8 * s,
           ...(ds.headerStyle === 'band' ? { background: tint(ds.accent, 0.1), margin: `${-m}px ${-m}px 0`, padding: `${m * 0.75}px ${m}px ${12 * s}px`, borderRadius: '4px 4px 0 0' }
@@ -196,6 +204,12 @@ export default function ResumePreview({ data, design: ds, photo, onPages, cover,
           </div>
         ) : <Column sections={main} ds={ds} s={s} />}
         </>}
+        {((brand?.footer && !cover) || stamp) && (
+          <div data-testid="page-foot" style={{ marginTop: 'auto', textAlign: 'center', fontSize: 7.5 * s, color: '#6E6E6E', lineHeight: 1.4 }}>
+            {brand?.footer && !cover && <div>{brand.footer}</div>}
+            {stamp && <div>{stamp}</div>}
+          </div>
+        )}
       </article>
       {/* page-break markers are decorative: the label is CSS content (data-label), so it is never in the page text */}
       {!decorative && settled && Array.from({ length: pages - 1 }, (_, i) => (

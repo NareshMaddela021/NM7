@@ -38,7 +38,8 @@ from app.core.schemas import CamelModel
 from app.core.time import IST, now
 from app.me.service import ms
 from app.orgs import emails
-from app.orgs.scope import NOT_FOUND, AdminScope, Scope
+from app.orgs.branding import brands_for
+from app.orgs.scope import FEATURES, NOT_FOUND, AdminScope, Scope, features_of, require_feature
 from app.orgs.service import (
     CODE,
     COMPLETE,
@@ -131,12 +132,14 @@ class GroupSettings(CamelModel):
     members_download_free: bool = False
     active: bool = True
     require_approval: bool = False
+    print_branded: bool = False  # Phase 3B: org-side copies in the organization's template (needs `branding`)
 
 
 class GroupSettingsPatch(CamelModel):  # only what's sent changes (e.g. a coordinator's open / close switch)
     members_download_free: bool | None = None
     active: bool | None = None
     require_approval: bool | None = None
+    print_branded: bool | None = None
 
 
 class GroupIn(CamelModel):
@@ -235,22 +238,7 @@ class FeaturesIn(CamelModel):  # Phase 3 switches; Nm7 (the super-admin) only. P
     recruiter_links: bool | None = None
 
 
-FEATURES = ("kiosk", "branding", "recruiter_links")
-
-
 # ---------- helpers ----------
-def features_of(o: dict[str, Any] | None) -> dict[str, bool]:
-    """Every Phase 3 feature is off until Nm7 switches it on for the organization."""
-    f = (o or {}).get("features") or {}
-    return {k: bool(f.get(k)) for k in FEATURES}
-
-
-def require_feature(o: dict[str, Any] | None, name: str) -> None:
-    """A switched-off feature doesn't exist for that organization: 404, like anything outside a scope."""
-    if not o or not features_of(o)[name]:
-        raise NOT_FOUND
-
-
 def org_out(o: dict[str, Any], groups: int = 0, members: int = 0) -> dict[str, Any]:
     return {
         "id": o["_id"],
@@ -287,6 +275,7 @@ def group_out(g: dict[str, Any], members: int = 0) -> dict[str, Any]:
             "membersDownloadFree": st.get("members_download_free", False),
             "active": st.get("active", True),
             "requireApproval": st.get("require_approval", False),
+            "printBranded": st.get("print_branded", False),
         },
         "members": members,
         "createdAt": ms(g["created_at"]),
@@ -335,6 +324,8 @@ FREE_ONLY_NM7 = ApiError(403, "nm7_only", "Only Nm7 can make downloads free for 
 async def create_group_in(db, scope: Scope, o: dict[str, Any], body: GroupIn, ip: str | None) -> dict[str, Any]:
     if scope.is_staff and body.settings.members_download_free:
         raise FREE_ONLY_NM7
+    if body.settings.print_branded:
+        require_feature(o, "branding")
     code = await _code_free(db, body.code) if body.code else await new_code(db, o["name"])
     starts, ends = _dates(body.starts_on, body.ends_on)
     t = now()
@@ -363,6 +354,8 @@ async def update_group_in(db, scope: Scope, g: dict[str, Any], body: GroupPatch,
     if scope.is_staff and body.settings and body.settings.members_download_free is not None:
         if body.settings.members_download_free != g.get("settings", {}).get("members_download_free", False):
             raise FREE_ONLY_NM7
+    if body.settings and body.settings.print_branded:
+        require_feature(await db[ORGANIZATIONS].find_one({"_id": g["org_id"]}), "branding")
     sets: dict[str, Any] = {}
     if "name" in given and body.name:
         sets["name"] = body.name
@@ -395,7 +388,7 @@ ORG_ACTIONS = [
     "org_create", "org_update", "remind", "approve", "reject", "review", "unprint",
     "staff_invite", "staff_update", "staff_remove", "staff_accept", "staff_resend",
     "member_join", "member_update", "member_leave", "org_features",
-    "kiosk_create", "kiosk_revoke", "kiosk_session", "kiosk_print",
+    "kiosk_create", "kiosk_revoke", "kiosk_session", "kiosk_print", "branding_update",
 ]  # fmt: skip
 
 
@@ -874,7 +867,8 @@ def register_shared(router: APIRouter, ScopeDep) -> None:  # noqa: N803 — a de
             raise NOT_FOUND
         data = scope.audit_data(_orgs(rows), count=1)
         await audit(db, scope.actor_id, "view", target=membership_id, data=data, ip=_ip(request))
-        return {**row_out(rows[0]), "data": printable(rows[0])}
+        brand = (await brands_for(db, [rows[0]["group_id"]])).get(rows[0]["group_id"])
+        return {**row_out(rows[0]), "data": printable(rows[0]), "brand": brand}
 
     @router.post("/shared-resumes/export.csv")
     async def export_csv(
@@ -948,14 +942,22 @@ def register_shared(router: APIRouter, ScopeDep) -> None:  # noqa: N803 — a de
         data = scope.audit_data(_orgs(rows), count=len(rows), memberships=job["membership_ids"][:200])
         await audit(db, scope.actor_id, body.kind, target=job["_id"], data=data, ip=_ip(request))
         groups = sorted({(r["org_name"], r["group_name"]) for r in rows})
+        brands = await brands_for(db, [r["group_id"] for r in rows])  # groups printing in the org's template
         return {
             "job": job["_id"],
             "kind": body.kind,
             "total": len(rows),
             "items": [
-                {"membershipId": r["membership_id"], "name": r["name"], "roll": r["roll"], "fileName": n}
+                {
+                    "membershipId": r["membership_id"],
+                    "name": r["name"],
+                    "roll": r["roll"],
+                    "fileName": n,
+                    "brand": r["group_id"] if r["group_id"] in brands else None,
+                }
                 for r, n in zip(rows, names, strict=True)
             ],
+            "brands": brands,
             "cover": {
                 "orgs": sorted({g[0] for g in groups}),
                 "groups": [f"{o} · {g}" for o, g in groups],
