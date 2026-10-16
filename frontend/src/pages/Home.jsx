@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import SiteFooter from '../components/SiteFooter';
+import { BlogStrip } from './blog/Blog';
 import { Icon } from '../components/ui';
 import { ROLE_MAX, useFlow } from '../lib/flow';
 import { checkFile } from '../lib/scan/extract';
@@ -547,6 +548,8 @@ export default function Home() {
             <div className="reveal"><Upload start={(f) => start(f, 'bottom')} role={role} setRole={setRole} compact />{err?.at === 'bottom' && <span role="alert" className="error">{err.msg}</span>}</div>
           </div>
         </section>
+        {/* 12 · from the blog (only when there are posts) */}
+        <BlogStrip />
       </main>
 
       {/* phones: sticky free-scan bar after the hero */}

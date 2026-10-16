@@ -3,6 +3,7 @@ import { Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } fr
 import Header from './components/Header';
 import DownloadGateHost from './components/DownloadGate';
 import Home from './pages/Home';
+import { BlogList, BlogPost } from './pages/blog/Blog'; // small, and the home page already uses it
 import { Spinner } from './components/ui';
 import { useAuth, previewSignIn, previewUsers, LIVE } from './lib/auth';
 import { RequireAuth } from './pages/auth/Auth';
@@ -191,6 +192,9 @@ export default function App() {
         <Route path="/delivery-policy" element={<DeliveryPolicy />} />
         <Route path="/expert-terms" element={<ExpertTerms />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/blog" element={<BlogList />} />
+        <Route path="/blog/category/:slug" element={<BlogList />} />
+        <Route path="/blog/:slug" element={<BlogPost />} />
         <Route path="/admin" element={<RequireAuth role="admin"><ADMIN.Layout /></RequireAuth>}>
           <Route index element={<ADMIN.Dashboard />} />
           <Route path="orders" element={<ADMIN.Orders />} />

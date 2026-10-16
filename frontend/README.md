@@ -139,7 +139,8 @@ orders (checkout writes the server's order id, invoice number and payment id int
 - `npm run test:e2e` — browser tests on the preview build (scan).
 - `npm run test:e2e:live` — browser tests against the real API (`backend/`, MongoDB replica set via `TEST_MONGODB_URI`):
   sign-up, per-user data, sign-out clearing, share link, password change, admin console, expert portal, downloads.
-- `npm run test:e2e:csp` — the production build served with the `vercel.json` headers: no CSP violations, real 404s.
+- `npm run test:e2e:csp` — the production build served with the `vercel.json` headers: no CSP violations, real 404s,
+  and the pre-rendered blog (built from a Hygraph stand-in, `e2e-live/hygraph-mock.mjs`).
 
 ## Accounts, legal pages, expert test task
 - **Sign in / sign up** (`/login`, `/signup`, `/forgot-password`): email + password; sign-up (customers or experts) asks for the password twice and confirms the email with a 6-digit code; forgot password uses an email code. **Admin** (`/admin/login`): password + 6-digit authenticator code (or a one-time recovery code), "trust this device 30 days".
@@ -154,3 +155,25 @@ orders (checkout writes the server's order id, invoice number and payment id int
 - Sections: hero (upload + animated scan demo), numbers, how it works, "Try it" line improver, templates rail (opens the builder with that template), before/after, experts, pricing (+ compare table, promise), reviews, who it's for, FAQ (searchable, with Google FAQ markup), final call to action.
 - Edit numbers, reviews, expert cards and social links in `src/lib/homeContent.js`. Items marked `placeholder: true` show a "Sample" tag in the preview and are hidden in the live build until you replace them with real ones.
 - Share preview (WhatsApp/LinkedIn): add `public/og-image.png` (1200×630).
+
+## Blog (`/blog`, content in Hygraph)
+- Posts, categories and authors are written in Hygraph (project **nm7-blog**). The site reads Hygraph's public
+  Content API (`VITE_HYGRAPH_ENDPOINT`, default in `src/lib/blog/hygraph.js`; read-only, published posts only, no token).
+- **Pre-rendered for search engines:** `npm run build` fetches every published post and writes real HTML pages
+  (`dist/blog/index.html`, `dist/blog/<slug>/index.html`, `dist/blog/category/<slug>/index.html`) with their own title,
+  description, canonical URL, OpenGraph/Twitter tags and JSON-LD, plus `dist/sitemap.xml` (`scripts/prerender-blog.mjs`).
+  The app then takes over in the browser. If Hygraph can't be reached the build still succeeds with a warning and the
+  blog loads from Hygraph in the browser instead.
+- Rich text is turned into HTML by `src/lib/blog/richtext.js`: text is always escaped and only known blocks become
+  tags (headings, lists, links, images, code, quotes, tables); video/iframe embeds are not shown.
+- The CSP in `vercel.json` allows images from `*.graphassets.com` and calls to `ap-south-1.cdn.hygraph.com`. If the
+  Hygraph project ever moves region, change `VITE_HYGRAPH_ENDPOINT` and that `connect-src` entry together.
+
+### New posts go live by themselves (rebuild on publish)
+Because the pages are built at deploy time, Vercel rebuilds the site whenever a post is published:
+1. Vercel → the **nm7** project → **Settings → Git → Deploy Hooks** → name `hygraph-publish`, branch = the production
+   branch → **Create Hook**. Copy the URL (it is a secret: never put it in the repository).
+2. Hygraph → **nm7-blog** → **Webhooks → Add webhook**: URL = that Deploy Hook URL, method POST, models
+   **Post, Category, Author**, stage **Published**, actions **Publish** and **Unpublish** (and Delete). Save.
+3. Publish a post: a new Vercel deployment starts within seconds and the post is live in about a minute.
+Until a rebuild finishes, a just-published post still opens (the site fetches it from Hygraph in the browser).

@@ -91,6 +91,7 @@ export default function Header({ variant = 'public', right }) {
             <Link to="/#templates">Templates</Link>
             <Link to="/#plans">Pricing</Link>
             <Link to="/#faq">FAQ</Link>
+            <NavLink to="/blog">Blog</NavLink>
           </nav>
         )}
 

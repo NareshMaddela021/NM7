@@ -10,6 +10,6 @@ export default defineConfig({
   use: { baseURL: 'http://localhost:5182', launchOptions: process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {} },
   webServer: [
     { command: 'sh e2e-live/api.sh', url: 'http://localhost:8001/health', reuseExistingServer: false, timeout: 120_000 },
-    { command: 'VITE_API_BASE=http://localhost:8001 npx vite build --logLevel error && node e2e-live/serve-dist.mjs dist', url: 'http://localhost:5182', reuseExistingServer: false, timeout: 180_000 },
+    { command: 'node e2e-live/build-with-blog.mjs && node e2e-live/serve-dist.mjs dist', url: 'http://localhost:5182', reuseExistingServer: false, timeout: 180_000 },
   ],
 });
