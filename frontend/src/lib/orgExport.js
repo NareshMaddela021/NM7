@@ -8,6 +8,7 @@ import { zipSync } from 'fflate';
 import { DEFAULT_DESIGN, TEMPLATE_PRESETS } from '../pages/builder/design';
 import { http } from '../services/http';
 import { brandDesign, prepareBrand } from './branding';
+import { freshImport } from './chunks';
 
 export const BATCH = 25;
 export const designOf = (d) => ({ ...DEFAULT_DESIGN, ...(d.design || TEMPLATE_PRESETS.fresher.design), preset: d.design?.preset ?? 'fresher' });
@@ -61,7 +62,7 @@ export async function runExport({ base = '/api/admin', kind, ids = null, filters
   const job = await http(`${base}/shared-resumes/exports`, { method: 'POST', body: { kind, ids, filters, sort, direction } });
   // groups printing in their organization's template: the brand comes with the job (logo drawn once)
   const brands = Object.fromEntries(await Promise.all(Object.entries(job.brands || {}).map(async ([k, b]) => [k, await prepareBrand(b)])));
-  const makePdf = build || (async (data, brand) => (await import('../pages/builder/resumePdf')).buildResumePdf({ data, design: brand ? brandDesign(brand) : designOf(data), brand }));
+  const makePdf = build || (async (data, brand) => (await freshImport(() => import('../pages/builder/resumePdf'))).buildResumePdf({ data, design: brand ? brandDesign(brand) : designOf(data), brand }));
   const files = [];
   let skipped = 0;
   onProgress({ done: 0, total: job.total, stage: 'Drawing resumes' });

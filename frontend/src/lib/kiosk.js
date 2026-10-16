@@ -61,13 +61,17 @@ export async function wipeDevice(win = globalThis) {
   } catch { /* not supported */ }
 }
 
-/** The coordinator's expiry choices: today, tomorrow, the day after (kiosk links last at most 3 days). */
-export function expiryOptions(today = new Date()) {
-  const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+/** Today's date in India (YYYY-MM-DD) — kiosk links end at midnight India time, wherever the browser is. */
+export const indiaDate = (now = new Date()) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' }).format(now);
+
+/** The coordinator's expiry choices: today, tomorrow, the day after, in India time (kiosk links last at most 3 days). */
+export function expiryOptions(now = new Date()) {
+  const [y, m, d] = indiaDate(now).split('-').map(Number);
   return [0, 1, 2].map((n) => {
-    const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + n);
-    const label = n === 0 ? 'End of today' : n === 1 ? 'End of tomorrow' : `End of ${d.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short' })}`;
-    return { value: iso(d), label };
+    const day = new Date(Date.UTC(y, m - 1, d + n));
+    const value = day.toISOString().slice(0, 10);
+    const label = n === 0 ? 'End of today' : n === 1 ? 'End of tomorrow' : `End of ${day.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short', timeZone: 'UTC' })}`;
+    return { value, label };
   });
 }
 

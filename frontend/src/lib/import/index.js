@@ -6,6 +6,7 @@ import { isLinkedInPdf, parseLinkedIn } from './linkedin';
 import { parseResume } from './resume';
 import { finish } from './shared';
 import { readDocx, readText } from './docxRead';
+import { freshImport } from '../chunks';
 
 export const MAX_MB = 5;
 const err = (code, msg) => Object.assign(new Error(msg), { code });
@@ -15,11 +16,10 @@ export async function loadPdfjs() {
   if (!pdfjsP) {
     pdfjsP = (async () => {
       // pdf.js runs on the main thread here (its "fake worker"), so no extra worker file is needed.
-      const worker = await import('pdfjs-dist/build/pdf.worker.js');
+      const [worker, lib] = await freshImport(() => Promise.all([import('pdfjs-dist/build/pdf.worker.js'), import('pdfjs-dist/build/pdf.js')]));
       globalThis.pdfjsWorker = worker.default || worker;
-      const lib = await import('pdfjs-dist/build/pdf.js');
       return lib.default || lib;
-    })();
+    })().catch((e) => { pdfjsP = null; throw e; }); // a failed load can be tried again
   }
   return pdfjsP;
 }

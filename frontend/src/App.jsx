@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect } from 'react';
+import { Suspense, lazy as reactLazy, useEffect } from 'react';
 import { Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
 import Header from './components/Header';
 import DownloadGateHost from './components/DownloadGate';
@@ -8,6 +8,10 @@ import { Spinner } from './components/ui';
 import { useAuth, previewSignIn, previewUsers, LIVE } from './lib/auth';
 import { RequireAuth } from './pages/auth/Auth';
 import { applyMeta, currentMeta, usePageMeta } from './lib/meta';
+import { lazyRetry } from './lib/chunks';
+
+// a page file missing after a deploy (tab opened on the old build) reloads onto the new build
+const lazy = (load) => reactLazy(lazyRetry(load));
 
 // Every page except Home is its own chunk, loaded when first opened.
 const named = (load, name) => lazy(() => load().then((m) => ({ default: m[name] })));

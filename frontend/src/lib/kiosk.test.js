@@ -68,8 +68,11 @@ describe('wipeDevice', () => {
 });
 
 describe('kiosk set-up rules', () => {
-  it('offers today and the next two days (3 days at most)', () => {
-    const o = expiryOptions(new Date(2026, 9, 31));
+  it('offers today and the next two days in India time (3 days at most), wherever the browser is', () => {
+    // 18:35 UTC on 16 Oct is already 00:05 on 17 Oct in India: "today" must be the 17th (the server's today)
+    expect(expiryOptions(new Date(Date.UTC(2026, 9, 16, 18, 35))).map((x) => x.value)).toEqual(['2026-10-17', '2026-10-18', '2026-10-19']);
+    expect(expiryOptions(new Date(Date.UTC(2026, 9, 16, 18, 25)))[0].value).toBe('2026-10-16'); // 23:55 India
+    const o = expiryOptions(new Date(Date.UTC(2026, 9, 31, 6)));
     expect(o.map((x) => x.value)).toEqual(['2026-10-31', '2026-11-01', '2026-11-02']);
     expect(o[0].label).toBe('End of today');
   });
