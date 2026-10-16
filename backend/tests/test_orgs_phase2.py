@@ -453,3 +453,78 @@ async def test_member_sees_status_and_switches_reminders(owner, make_client, out
     assert r.json()["remindersOptOut"] is True and r.json()["resumeId"] == "r1"
     info = (await make_client().get("/api/public/join/JNTUA26")).json()
     assert info["group"]["requireApproval"] is True
+
+
+# ---------- regression: production after Phase 2 showed 0 members ----------
+
+
+async def test_phase1_memberships_and_a_fresh_join_show_everywhere(owner, make_client, outbox, db):
+    """A membership written by Phase 1 (no approval / review / reminder fields) and a Phase 2 join both appear in the
+    member counts, the dashboard, the table and every export — also after the old member becomes a coordinator."""
+    org, g = await setup_group(owner)
+    old, old_me = await member(make_client, outbox, "angelin@example.com", "Angelin Elizabeth")
+    t = now()
+    await db[MEMBERSHIPS].insert_one(  # exactly what Phase 1 stored
+        {
+            "_id": "phase1-membership",
+            "user_id": old_me["id"],
+            "group_id": g["id"],
+            "org_id": org["id"],
+            "resume_id": "r1",
+            "field_values": {"roll": "123456", "branch": "CSE"},
+            "consent": {"given": True, "text": "My resume will be shared with JNTU Anantapur …", "at": t},
+            "left_at": None,
+            "updated_at": t,
+            "joined_at": t,
+            "printed_at": None,
+            "printed_count": 0,
+        }
+    )
+    new, _ = await member(make_client, outbox, "tamil@example.com", "Tamil Selvan")
+    assert (await join(new, roll="654321")).status_code == 201
+
+    # the old member accepts a coordinator invite: their own membership stays
+    s = await invite(owner, org["id"], "angelin@example.com")
+    assert (await old.post(f"/api/org-invites/{s['inviteUrl'].rsplit('/', 1)[1]}/accept")).status_code == 200
+    assert [x["code"] for x in (await old.get("/api/me/groups")).json()] == ["JNTUA26"]
+
+    detail = (await owner.get(f"/api/admin/orgs/{org['id']}")).json()
+    assert detail["members"] == 2 and detail["groupList"][0]["members"] == 2
+    assert (await owner.get("/api/admin/orgs")).json()[0]["members"] == 2
+    for base in ("/api/admin", f"/api/org/{org['id']}"):
+        client = owner if base == "/api/admin" else old
+        d = (await client.get(f"{base}/groups/{g['id']}/dashboard")).json()
+        assert d["counts"]["joined"] == 2 and d["counts"]["approved"] == 2 and d["group"]["members"] == 2, base
+        for approval in ("approved", "all"):
+            rows = (await client.get(f"{base}/shared-resumes", params={"approval": approval})).json()
+            assert sorted(r["fields"]["roll"] for r in rows["rows"]) == ["123456", "654321"], (base, approval)
+        lines = list(csv.reader(io.StringIO((await client.post(f"{base}/shared-resumes/export.csv", json={})).text)))
+        assert len(lines) == 3, base
+        job = (await client.post(f"{base}/shared-resumes/exports", json={"kind": "print_bulk"})).json()
+        assert job["total"] == 2, base
+        data = (await client.get(f"{base}/shared-resumes/exports/{job['job']}/data")).json()
+        assert all(x["data"] for x in data), base
+
+    # joins and leaves are in the audit log now (no emails in it)
+    entries = {e["action"] async for e in db[AUDIT_LOG].find({"action": {"$in": ["member_join", "member_leave"]}})}
+    assert entries == {"member_join"}
+    check = (await owner.get(f"/api/admin/groups/{g['id']}/membership-check")).json()
+    assert check["counts"] == {"inGroup": 2, "activeInGroup": 2}
+    assert all(m["shown"] for m in check["memberships"]) and {m["initials"] for m in check["memberships"]} == {
+        "AE",
+        "TS",
+    }
+    assert "@" not in str(check)
+
+
+async def test_membership_check_explains_why_someone_is_hidden(owner, make_client, outbox, db):
+    org, g = await setup_group(owner)
+    c, me = await member(make_client, outbox)
+    m = (await join(c)).json()
+    assert (await c.post(f"/api/me/groups/{m['id']}/leave")).status_code == 204
+    e = await db[AUDIT_LOG].find_one({"action": "member_leave"})
+    assert e["actor_id"] == me["id"] and e["data"]["orgs"] == [org["id"]] and "@" not in str(e["data"])
+    check = (await owner.get(f"/api/admin/groups/{g['id']}/membership-check")).json()
+    assert check["counts"] == {"inGroup": 1, "activeInGroup": 0}
+    assert check["memberships"][0]["reasons"] == ["left"] and check["memberships"][0]["leftAt"]
+    assert (await c.get(f"/api/admin/groups/{g['id']}/membership-check")).status_code == 403

@@ -119,8 +119,36 @@ function GroupForm({ initial = emptyGroup, onSave, onCancel, busy, label, ctx })
   );
 }
 
+const REASON = {
+  other_group: 'in another group', left: 'left the group', no_consent: 'no consent', account_missing: 'account deleted',
+  account_disabled: 'account switched off', resume_missing: 'shared resume deleted',
+};
+/** Admin only: every membership tied to this group (or its organization, or joined this week) and why it is or isn't
+ * listed. Read-only; no emails. */
+function MembershipCheck({ g, onClose }) {
+  const st = useApi(`/api/admin/groups/${g.id}/membership-check`);
+  return (
+    <Dialog showTitle wide title={`Check members · ${g.name}`} onClose={onClose}>
+      <Loading st={st}>{(d) => (
+        <div className="stack g12">
+          <span className="small">In this group: <strong>{d.counts.inGroup}</strong> membership record{d.counts.inGroup === 1 ? '' : 's'}, <strong>{d.counts.activeInGroup}</strong> not left.</span>
+          {d.memberships.length === 0 ? <span className="small muted">No membership records for this group or organization, and nobody joined any group in the last 7 days.</span> : (
+            <div className="table-wrap"><table className="table" aria-label="Membership check"><thead><tr><th>Member</th><th>Group</th><th>Joined</th><th>Left</th><th>Approval</th><th>Listed?</th></tr></thead>
+              <tbody>{d.memberships.map((m) => (
+                <tr key={m.id}><td className="small mono">{m.initials}</td><td className="small">{m.group}</td><td className="small">{when(m.joinedAt)}</td><td className="small">{m.leftAt ? when(m.leftAt) : '—'}</td><td className="small">{m.approval}</td>
+                  <td className="small">{m.shown ? <span className="badge b-success">Yes</span> : <span className="badge b-warning">No: {m.reasons.map((r) => REASON[r] || r).join(', ')}</span>}</td></tr>
+              ))}</tbody></table></div>
+          )}
+          <span className="xs faint">Joins and leaves are also in the audit log (member_join / member_leave).</span>
+        </div>
+      )}</Loading>
+    </Dialog>
+  );
+}
+
 export function GroupCard({ g, ctx, busy, run, reload, toast }) {
   const [editing, setEditing] = useState(false);
+  const [checking, setChecking] = useState(false);
   const link = joinLink(g.code);
   const state = !g.settings.active ? 'Closed' : g.endsOn && g.endsOn < new Date().toISOString().slice(0, 10) ? 'Ended' : 'Open';
   const patch = (body, ok) => run(async () => { await http(ctx.groupPatchUrl(g), { method: 'PATCH', body }); setEditing(false); reload(); }, ok);
@@ -139,10 +167,12 @@ export function GroupCard({ g, ctx, busy, run, reload, toast }) {
             <Link className="btn btn-outline" style={{ minHeight: 34 }} to={ctx.sharedUrl(ctx.orgId ? { group: g.id } : { org: g.orgId, group: g.id })}>Shared resumes</Link>
             {ctx.canManage && <button type="button" className="btn btn-outline" style={{ minHeight: 34 }} disabled={busy} onClick={() => patch({ settings: { active: !g.settings.active } }, g.settings.active ? 'Joining closed' : 'Joining open')}>{g.settings.active ? 'Close joining' : 'Open joining'}</button>}
             {ctx.canManage && <button type="button" className="link-btn small" onClick={() => setEditing(!editing)}>{editing ? 'Close' : 'Edit'}</button>}
+            {ctx.role === 'admin' && <button type="button" className="link-btn small" onClick={() => setChecking(true)}>Check members</button>}
           </div>
         </div>
         <QrImage code={g.code} />
       </div>
+      {checking && <MembershipCheck g={g} onClose={() => setChecking(false)} />}
       {editing && <GroupForm ctx={ctx} label={`Edit ${g.name}`} initial={g} busy={busy} onCancel={() => setEditing(false)} onSave={(body) => patch(body, 'Group saved')} />}
     </section>
   );
