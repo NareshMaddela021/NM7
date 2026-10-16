@@ -19,6 +19,12 @@ describe('vercel.json', () => {
     expect(header('Permissions-Policy')).toContain('camera=()');
   });
 
+  it('recruiter links and kiosks are never cached or indexed', () => {
+    const rule = vercel.headers.find((h) => new RegExp(`^${h.source}$`).test('/r/abc') && h.source !== '/(.*)');
+    expect(rule.headers).toEqual(expect.arrayContaining([{ key: 'Cache-Control', value: 'no-store' }, { key: 'X-Robots-Tag', value: 'noindex, nofollow' }]));
+    expect(new RegExp(`^${rule.source}$`).test('/kiosk/tok')).toBe(true);
+  });
+
   it('serves every route of the app and nothing else', () => {
     const routes = [...app.matchAll(/<Route path="([^"]+)"/g)].map((m) => m[1]).filter((p) => p.startsWith('/'));
     expect(routes.length).toBeGreaterThan(20);

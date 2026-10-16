@@ -12,6 +12,7 @@ import { savePdf } from '../../builder/resumePdf';
 import ResumePreview from '../../builder/ResumePreview';
 import { designOf, runExport } from '../../../lib/orgExport';
 import { brandDesign } from '../../../lib/branding';
+import { DAY_CHOICES, shortlistChoices } from '../../../lib/recruiter';
 import { APPROVAL_LABEL, REVIEW_LABEL, bucketRows, countTiles, exportFilters, exportNote, joinBars, remindSummary } from '../../../lib/orgDashboard';
 import { TEMPLATE_PRESETS } from '../../builder/design';
 import { API_BASE } from '../../../services/http';
@@ -20,6 +21,7 @@ import { Loading, day, emptyIf, http, useAction, useApi, when } from './common';
 import { auditText } from './auditText';
 import Kiosks from '../../org/Kiosks';
 import Branding from '../../org/Branding';
+import RecruiterLinks from '../../org/RecruiterLinks';
 
 export const ORG_TYPES = [
   ['college', 'College'], ['institute', 'Coaching / training institute'], ['job_fair', 'Job fair'], ['skill_centre', 'Skill centre'],
@@ -84,13 +86,14 @@ function FieldsEditor({ fields, set }) {
 const fieldsBody = (fields) => fields.filter((f) => f.label.trim()).map(({ key, label, type, options, required }) => ({ key, label: label.trim(), type, options: type === 'select' ? options : [], required }));
 
 /* ---------- group form (new and edit) ---------- */
-const emptyGroup = { name: '', code: '', startsOn: '', endsOn: '', memberLimit: '', customFields: [], settings: { membersDownloadFree: false, active: true, requireApproval: false, printBranded: false } };
+const emptyGroup = { name: '', code: '', startsOn: '', endsOn: '', memberLimit: '', customFields: [], settings: { membersDownloadFree: false, active: true, requireApproval: false, printBranded: false, shareWithRecruiters: false } };
 function GroupForm({ initial = emptyGroup, onSave, onCancel, busy, label, ctx }) {
   const [g, setG] = useState(() => ({ ...emptyGroup, ...initial, settings: { ...emptyGroup.settings, ...initial.settings }, startsOn: initial.startsOn || '', endsOn: initial.endsOn || '', memberLimit: initial.memberLimit ?? '', customFields: (initial.customFields || []).map((f) => ({ ...f, fixedKey: true })) }));
   const nm7 = ctx.role === 'admin';
   const body = () => {
-    const { membersDownloadFree, printBranded, ...rest } = g.settings;
-    const own = ctx.features?.branding ? { ...rest, printBranded } : rest; // the setting needs the branding feature
+    const { membersDownloadFree, printBranded, shareWithRecruiters, ...rest } = g.settings;
+    // settings that need a feature are only sent when it's on
+    const own = { ...rest, ...(ctx.features?.branding ? { printBranded } : {}), ...(ctx.features?.recruiterLinks ? { shareWithRecruiters } : {}) };
     return {
       name: g.name.trim(), ...(g.code.trim() ? { code: g.code.trim() } : {}), startsOn: g.startsOn || null, endsOn: g.endsOn || null,
       memberLimit: g.memberLimit ? Number(g.memberLimit) : null, customFields: fieldsBody(g.customFields),
@@ -114,6 +117,7 @@ function GroupForm({ initial = emptyGroup, onSave, onCancel, busy, label, ctx })
         <label className="row g8 small"><input type="checkbox" checked={g.settings.active} onChange={set('active')} /> Open for joining</label>
         <label className="row g8 small"><input type="checkbox" checked={g.settings.requireApproval} onChange={set('requireApproval')} /> Approve members before they’re shared</label>
         {ctx.features?.branding && <label className="row g8 small"><input type="checkbox" checked={g.settings.printBranded} onChange={set('printBranded')} /> Print with organization template</label>}
+        {ctx.features?.recruiterLinks && <label className="row g8 small"><input type="checkbox" checked={g.settings.shareWithRecruiters} onChange={set('shareWithRecruiters')} /> Share with recruiters (members choose to allow it)</label>}
         {nm7 && <label className="row g8 small"><input type="checkbox" checked={g.settings.membersDownloadFree} onChange={set('membersDownloadFree')} /> Members download free (no ₹99 unlock)</label>}
       </div>
       <div className="row g8">
@@ -162,7 +166,7 @@ export function GroupCard({ g, ctx, busy, run, reload, toast }) {
       <div className="row between g12" style={{ alignItems: 'flex-start' }}>
         <div className="stack g4" style={{ minWidth: 0, flex: '1 1 260px' }}>
           <strong>{g.name}</strong>
-          <span className="small muted">Code <strong className="mono" data-testid="join-code">{g.code}</strong> · {g.members}{g.memberLimit ? ` / ${g.memberLimit}` : ''} members · <span className={`badge ${state === 'Open' ? 'b-success' : 'b-neutral'}`}>{state}</span>{g.settings.requireApproval ? ' · approval on' : ''}{g.settings.membersDownloadFree ? ' · free downloads' : ''}{g.settings.printBranded && ctx.features?.branding ? ' · organization template' : ''}</span>
+          <span className="small muted">Code <strong className="mono" data-testid="join-code">{g.code}</strong> · {g.members}{g.memberLimit ? ` / ${g.memberLimit}` : ''} members · <span className={`badge ${state === 'Open' ? 'b-success' : 'b-neutral'}`}>{state}</span>{g.settings.requireApproval ? ' · approval on' : ''}{g.settings.membersDownloadFree ? ' · free downloads' : ''}{g.settings.printBranded && ctx.features?.branding ? ' · organization template' : ''}{g.settings.shareWithRecruiters && ctx.features?.recruiterLinks ? ' · recruiter sharing' : ''}</span>
           {(g.startsOn || g.endsOn) && <span className="xs faint">{g.startsOn ? `From ${day(Date.parse(g.startsOn))}` : ''}{g.endsOn ? ` until ${day(Date.parse(g.endsOn))}` : ''}</span>}
           <span className="small" style={{ overflowWrap: 'anywhere' }}>Join link: <a href={link} className="mono" data-testid="join-link">{link}</a></span>
           <div className="row g8">
@@ -312,6 +316,7 @@ function OrgDetail({ id, onBack }) {
         <Features o={o} reload={st.reload} />
         {o.features?.kiosk && <Kiosks orgId={id} groups={o.groupList} canManage />}
         {o.features?.branding && <><strong style={{ marginTop: 8 }}>Branding</strong><Branding orgId={id} canManage /></>}
+        {o.features?.recruiterLinks && <RecruiterLinks orgId={id} canManage />}
       </>
     ); }}</Loading>
   );
@@ -474,7 +479,7 @@ export function LiveOrgs() {
 }
 
 /* ---------- shared resumes ---------- */
-const FILTER_KEYS = ['org', 'group', 'q', 'joinedFrom', 'joinedTo', 'updatedFrom', 'updatedTo', 'fieldKey', 'fieldValue', 'incomplete', 'notPrinted', 'readyNotPrinted', 'approval', 'review'];
+const FILTER_KEYS = ['org', 'group', 'q', 'joinedFrom', 'joinedTo', 'updatedFrom', 'updatedTo', 'fieldKey', 'fieldValue', 'incomplete', 'notPrinted', 'readyNotPrinted', 'approval', 'review', 'shortlistedBy'];
 const BOOL_KEYS = ['incomplete', 'notPrinted', 'readyNotPrinted'];
 const PER_PAGE = 25;
 const COLS = [['name', 'Name'], ['org', 'Organization / group'], ['roll', 'Fields'], [null, 'Resume'], ['completeness', 'Complete'], [null, 'Status'], ['updated', 'Last updated'], ['printed', 'Printed']];
@@ -506,6 +511,52 @@ function openForPrint(blob, name) {
   const w = window.open(url, '_blank');
   if (!w) savePdf(blob, name);
   setTimeout(() => URL.revokeObjectURL(url), 60_000);
+}
+
+/** "Share with a recruiter…": a link for the chosen (or filtered) resumes. Only approved members who allowed sharing
+ * with recruiters are added — the server decides. The link and access code are shown once. */
+function ShareDialog({ base, ids, filters, count, fieldDefs, onClose, onMade }) {
+  const toast = useToast();
+  const [busy, run] = useAction(toast);
+  const [f, setF] = useState({ company: '', label: '', days: 14, allowDownloads: true, includeContact: false, accessCode: false, answerKeys: [] });
+  const [made, setMade] = useState(null);
+  const make = (e) => {
+    e.preventDefault();
+    run(async () => { const r = await http(`${base}/recruiter-links`, { method: 'POST', body: { ...f, ids, filters } }); setMade(r); onMade(); });
+  };
+  return (
+    <Dialog showTitle title={`Share with a recruiter (${count} ${ids ? 'selected' : 'matching'})`} onClose={onClose}>
+      {made ? (
+        <div className="stack g12" role="status">
+          <strong>Link for {made.company} is ready · {made.added} resume{made.added === 1 ? '' : 's'}{made.skipped ? ` (${made.skipped} left out: not approved or didn’t allow sharing)` : ''}</strong>
+          <span className="small">Send this link to the recruiter. It’s shown only once.</span>
+          <code style={{ userSelect: 'all', overflowWrap: 'anywhere' }} data-testid="recruiter-url">{made.url}</code>
+          {made.accessCode && <span className="small">Access code: <strong className="mono" data-testid="recruiter-code">{made.accessCode}</strong> — send it separately (e.g. by phone).</span>}
+          <span className="xs faint">Works until {day(made.expiresAt)}. Members who leave or stop sharing disappear from it at once. Manage it under Recruiter links.</span>
+          <div className="row g8"><button type="button" className="btn btn-outline" onClick={() => navigator.clipboard?.writeText(made.url).then(() => toast('Link copied'), () => toast('Copy the link by hand'))}>Copy link</button><button type="button" className="btn btn-ink" onClick={onClose}>Done</button></div>
+        </div>
+      ) : (
+        <form className="stack g12" aria-label="Share with a recruiter" onSubmit={make}>
+          <span className="xs faint">Only approved members who allowed {'"'}sharing with recruiters{'"'} are added. Pending, rejected and not-opted-in members are left out automatically.</span>
+          <div className="row g12">
+            <div className="field" style={{ flex: '2 1 200px' }}><label className="label" htmlFor="sh-co">Company</label><input id="sh-co" className="input" style={inputStyle} maxLength={80} value={f.company} onChange={(e) => setF({ ...f, company: e.target.value })} /></div>
+            <div className="field" style={{ flex: '1 1 160px' }}><label className="label" htmlFor="sh-label">Label (optional)</label><input id="sh-label" className="input" style={inputStyle} maxLength={60} placeholder="e.g. Campus drive" value={f.label} onChange={(e) => setF({ ...f, label: e.target.value })} /></div>
+            <div className="field" style={{ flex: '1 1 120px' }}><label className="label" htmlFor="sh-days">Expires after</label><select id="sh-days" className="input" style={inputStyle} value={f.days} onChange={(e) => setF({ ...f, days: Number(e.target.value) })}>{DAY_CHOICES.map((n) => <option key={n} value={n}>{n} days</option>)}</select></div>
+          </div>
+          <label className="row g8 small"><input type="checkbox" checked={f.allowDownloads} onChange={(e) => setF({ ...f, allowDownloads: e.target.checked })} /> Allow downloads</label>
+          <label className="row g8 small"><input type="checkbox" checked={f.includeContact} onChange={(e) => setF({ ...f, includeContact: e.target.checked })} /> Include contact details (email and phone)</label>
+          <label className="row g8 small"><input type="checkbox" checked={f.accessCode} onChange={(e) => setF({ ...f, accessCode: e.target.checked })} /> Protect with a 6-digit access code</label>
+          {fieldDefs.length > 0 && (
+            <fieldset className="stack g4" style={{ border: 0, padding: 0, margin: 0 }}>
+              <legend className="label">Group answers to show</legend>
+              <div className="row g12">{fieldDefs.map((d) => <label key={d.key} className="row g4 small"><input type="checkbox" checked={f.answerKeys.includes(d.key)} onChange={(e) => setF({ ...f, answerKeys: e.target.checked ? [...f.answerKeys, d.key] : f.answerKeys.filter((k) => k !== d.key) })} /> {d.label}</label>)}</div>
+            </fieldset>
+          )}
+          <div className="row g8"><button type="submit" className="btn btn-ink" disabled={busy || !f.company.trim()}>Make link</button><button type="button" className="btn btn-outline" onClick={onClose}>Cancel</button></div>
+        </form>
+      )}
+    </Dialog>
+  );
 }
 
 function NoteDialog({ count, onSave, onClose }) {
@@ -547,7 +598,12 @@ export function SharedResumes({ ctx = ADMIN_CTX, groups: portalGroups = null, ti
   const [cover, setCover] = useState(true);
   const [onlyReady, setOnlyReady] = useState(false);
   const [printSort, setPrintSort] = useState('roll');
-  const [dialog, setDialog] = useState(null); // 'remind' | 'note'
+  const [dialog, setDialog] = useState(null); // 'remind' | 'note' | 'share'
+  // Phase 3C: recruiter links belong to one organization — the portal's, or the one the admin filtered to
+  const linkBase = ctx.orgId ? (ctx.features?.recruiterLinks ? ctx.base : null) : (filters.org && org.data?.features?.recruiterLinks ? `/api/org/${filters.org}` : null);
+  const recruiting = !!linkBase;
+  const links = useApi(linkBase ? `${linkBase}/recruiter-links` : null);
+  const shortlists = shortlistChoices(links.data);
   const stop = useRef(null);
   const [busy, run] = useAction(toast);
 
@@ -620,6 +676,8 @@ export function SharedResumes({ ctx = ADMIN_CTX, groups: portalGroups = null, ti
               ? <select id="sf-fv" className="input" style={inputStyle} value={filters.fieldValue || ''} onChange={(e) => setFilter({ fieldValue: e.target.value })}><option value="">Any</option>{fieldDefs.find((f) => f.key === filters.fieldKey).options.map((o) => <option key={o}>{o}</option>)}</select>
               : <input id="sf-fv" className="input" style={inputStyle} disabled={!filters.fieldKey} defaultValue={filters.fieldValue || ''} key={filters.fieldKey || '-'} onBlur={(e) => setFilter({ fieldValue: e.target.value.trim() })} onKeyDown={(e) => { if (e.key === 'Enter') setFilter({ fieldValue: e.currentTarget.value.trim() }); }} />}
           </div>
+          {recruiting && <div className="field" style={{ flex: '1 1 180px' }}><label className="label" htmlFor="sf-short">Shortlisted by</label>
+            <select id="sf-short" className="input" style={inputStyle} value={filters.shortlistedBy || ''} onChange={(e) => setFilter({ shortlistedBy: e.target.value })}><option value="">Any</option>{shortlists.map((l) => <option key={l.id} value={l.id}>{l.label}</option>)}</select></div>}
           <label className="row g8 small"><input type="checkbox" checked={!!filters.incomplete} onChange={(e) => setFilter({ incomplete: e.target.checked })} /> Incomplete only</label>
           <label className="row g8 small"><input type="checkbox" checked={!!filters.notPrinted} onChange={(e) => setFilter({ notPrinted: e.target.checked })} /> Not printed yet</label>
           <label className="row g8 small"><input type="checkbox" checked={!!filters.readyNotPrinted} onChange={(e) => setFilter({ readyNotPrinted: e.target.checked })} /> Ready & not printed</label>
@@ -639,6 +697,7 @@ export function SharedResumes({ ctx = ADMIN_CTX, groups: portalGroups = null, ti
           <button type="button" className="btn btn-ink" disabled={!!job || !data?.total} onClick={() => exportJob('print_bulk', ids, 'Combined PDF')}>Combined PDF</button>
           {can(ctx, 'export') && <button type="button" className="btn btn-outline" disabled={!!job || !data?.total} onClick={() => exportJob('export_zip', ids, 'ZIP of PDFs')}>ZIP (one PDF each)</button>}
           {can(ctx, 'export') && <button type="button" className="btn btn-outline" disabled={busy || !data?.total} onClick={csv}>CSV</button>}
+          {recruiting && can(ctx, 'manage') && <button type="button" className="btn btn-outline" disabled={!data?.total} onClick={() => setDialog('share')}>Share with a recruiter…</button>}
         </div>
         {can(ctx, 'approve') && (
           <div className="row g8" style={{ alignItems: 'center' }} aria-label="Review actions">
@@ -667,7 +726,7 @@ export function SharedResumes({ ctx = ADMIN_CTX, groups: portalGroups = null, ti
             <table className="table" aria-label="Shared resumes">
               <thead><tr>
                 <th><input type="checkbox" aria-label="Select all on this page" checked={allOnPage} onChange={() => setSelected((s) => { const n = new Set(s); pageIds.forEach((i) => (allOnPage ? n.delete(i) : n.add(i))); return n; })} /></th>
-                {COLS.map(([k, l]) => <th key={l} aria-sort={k && sort === k ? (dir === 'asc' ? 'ascending' : 'descending') : undefined}>{k ? <button type="button" className="link-btn small" style={{ fontWeight: 600, textAlign: 'left' }} onClick={() => setSort(k)}>{l}{sort === k ? (dir === 'asc' ? ' ↑' : ' ↓') : ''}</button> : l}</th>)}
+                {(recruiting ? [...COLS, [null, 'Shortlisted']] : COLS).map(([k, l]) => <th key={l} aria-sort={k && sort === k ? (dir === 'asc' ? 'ascending' : 'descending') : undefined}>{k ? <button type="button" className="link-btn small" style={{ fontWeight: 600, textAlign: 'left' }} onClick={() => setSort(k)}>{l}{sort === k ? (dir === 'asc' ? ' ↑' : ' ↓') : ''}</button> : l}</th>)}
                 <th />
               </tr></thead>
               <tbody>{d.rows.map((r) => (
@@ -681,6 +740,7 @@ export function SharedResumes({ ctx = ADMIN_CTX, groups: portalGroups = null, ti
                   <td className="small" data-testid="status">{statusBadge(r)}</td>
                   <td className="small">{day(r.updatedAt)}</td>
                   <td className="small">{r.printedAt ? <>{day(r.printedAt)}{r.printedCount > 1 ? <div className="xs faint">{r.printedCount}×</div> : null}</> : <span className="muted">{r.printedCount ? `Reprint (${r.printedCount}×)` : 'Not yet'}</span>}</td>
+                  {recruiting && <td className="xs" data-testid="shortlisted">{r.shortlistedBy?.length ? r.shortlistedBy.map((x) => <div key={x.linkId}>Shortlisted by {x.company}</div>) : <span className="faint">—</span>}</td>}
                   <td><div className="row g8" style={{ flexWrap: 'nowrap' }}>
                     <button type="button" className="link-btn small" onClick={() => setViewing(r)}>View</button>
                     {r.approval === 'approved' && <button type="button" className="link-btn small" disabled={!!job} onClick={() => rowAction('download', r)}>PDF</button>}
@@ -701,6 +761,7 @@ export function SharedResumes({ ctx = ADMIN_CTX, groups: portalGroups = null, ti
       )}</Loading>
       {viewing && <ViewResume ctx={ctx} row={viewing} onClose={() => setViewing(null)} onAction={(k, r) => rowAction(k, r)} />}
       {dialog === 'remind' && <RemindDialog ctx={ctx} groups={groups} groupId={filters.group || null} ids={ids} onClose={() => setDialog(null)} onSent={() => st.reload()} />}
+      {dialog === 'share' && <ShareDialog base={linkBase} ids={ids} filters={exportFilters(filters)} count={selected.size || data?.total || 0} fieldDefs={fieldDefs} onClose={() => setDialog(null)} onMade={links.reload} />}
       {dialog === 'note' && <NoteDialog count={selected.size} onClose={() => setDialog(null)} onSave={(note) => { setDialog(null); act('review', { status: 'needs_changes', note }, 'Asked for changes'); }} />}
     </>
   );

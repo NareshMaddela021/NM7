@@ -216,3 +216,46 @@ Phase 3 adds tools for big events and placements. It ships in three parts, each 
 1. Open **Branding** in your portal.
 2. Upload your logo, pick your colour (if you see a contrast warning, choose a darker shade), type a header line such as "XYZ College · Placement Cell", optionally a footer line, and choose a base template. Check the live preview, then choose **Save branding**.
 3. For each group that should print this way, choose **Edit** on the group, tick **Print with organization template** and choose **Save group**. Views, PDFs, combined PDFs, ZIPs and kiosk prints for that group now use your template.
+
+### 3C · Recruiter share links
+
+**Consent first**
+- A group must have **Share with recruiters** on. This needs the `recruiter_links` feature.
+- Each member chooses **"Allow <Org> to share my resume with recruiters"**, on the join page or later in **My groups**. It is never ticked for them.
+- Members who joined earlier are not included until they tick it themselves.
+- Only **approved** members who opted in can be on a link.
+- Every recruiter request checks this again. Anyone who leaves, opts out or is rejected disappears from every link at once.
+
+**Making a link** (`POST /api/org/{org}/recruiter-links`, from Shared resumes → **Share with a recruiter…**)
+- Works on a selection or the current filters. Anyone who isn't eligible is left out, and the screen says how many.
+- Settings:
+  - company and label;
+  - expiry (default 14 days, max 90);
+  - **Allow downloads**;
+  - **Include contact details** (off by default; when off, email, phone and address are hidden);
+  - which group answers to show;
+  - an optional 6-digit **access code**.
+- The link (a 43-character token) and the code are shown once. Only their HMAC hashes are stored, in `recruiter_links`.
+
+**Managing links:** the **Recruiter links** tab lists each link with how many candidates are still on it, views, downloads and shortlisted people, plus **Extend** (`…/{id}/extend`) and **Revoke** (`…/{id}/revoke`).
+
+**The recruiter page `/r/:token`**
+- No account needed. The page is `noindex`; the API and Vercel send `no-store`. Short `/r/<name>` addresses are still members' own resume links.
+- The list shows name, chosen answers and completeness, with **View**. When downloads are allowed it also has **Download** and **Download all as one PDF**.
+- PDFs are drawn in the browser by the members' PDF maker, in the organization's template when the group prints branded. Each page carries a small footer: "Shared with <Company> via Nm7 · expires <date>".
+- The recruiter can tick **Interested**. The organization then sees a **Shortlisted by** filter and a **Shortlisted** column in Shared resumes.
+- Expired or revoked links show "This link has expired".
+- API: `GET /api/recruit/{token}`, `GET …/candidates/{id}`, `POST …/downloads`, `POST …/candidates/{id}/interest`. The access code goes in the `X-Access-Code` header.
+
+**Limits:** per link, 600 requests an hour; per address, 300 an hour (keyed by a hash of the address); 10 wrong access codes per 15 minutes.
+
+**Audit log:** `share_create`, `share_view`, `share_download`, `share_shortlist`, `share_extend` and `share_revoke`, with the link id. Recruiters' IP addresses are never logged.
+
+**Data rules:** candidates appear under ids that don't reveal membership ids, ID numbers are never included, and hidden entries stay hidden.
+
+#### Sharing with recruiters (when Nm7 has switched recruiter links on for you)
+
+1. Edit the group and tick **Share with recruiters**. Students then see "Allow <your organization> to share my resume with recruiters" when joining and in **My groups**. Anyone who joined before has to tick it themselves.
+2. In **Shared resumes**, filter or tick the students you want, then choose **Share with a recruiter…**. Fill in the company, how long the link should work, whether downloads and contact details are allowed, and which answers to show. Add an access code if you like. Choose **Make link**, then send the link to the recruiter. Send the code separately.
+3. The recruiter opens the link without an account, views or downloads resumes, and ticks **Interested**. You'll see **Shortlisted by <Company>** in Shared resumes, and you can filter by it.
+4. **Recruiter links** shows views, downloads and shortlists. **Extend** a link if the recruiter needs more time, or **Revoke** it to stop it at once.
