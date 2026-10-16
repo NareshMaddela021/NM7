@@ -61,3 +61,16 @@ export function memberStatus(m) {
   if (m.reviewStatus === 'ready') return { label: 'Ready', tone: 'b-success' };
   return { label: 'Approved', tone: 'b-success' };
 }
+
+/** "You help run <Org>": what this person can do there (the server enforces it; this only says it right). */
+export function staffSummary({ role, allGroups = true } = {}) {
+  const what = role === 'viewer' ? 'Viewer · view and print' : 'Coordinator · groups, approvals, reminders and printing';
+  return allGroups ? what : `${what} · some groups`;
+}
+
+/** The line under the export bar, by what this person's buttons can do. */
+export function exportNote(role, showsUnapproved = false) {
+  const left = showsUnapproved ? ' — the pending / rejected rows shown here are left out' : '';
+  const marks = role === 'viewer' ? 'Combined PDF marks those resumes as printed.' : 'Combined PDF and ZIP mark those resumes as printed.';
+  return `Exports include approved members only${left}. ${marks} Exports never include ID numbers.`;
+}

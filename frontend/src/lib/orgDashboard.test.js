@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { apiBase, bucketRows, countTiles, exportFilters, joinBars, memberStatus, remindSummary } from './orgDashboard';
+import { apiBase, bucketRows, countTiles, exportFilters, exportNote, joinBars, memberStatus, remindSummary, staffSummary } from './orgDashboard';
 
 describe('organization dashboard helpers', () => {
   it('api base: admin console vs one organization', () => {
@@ -42,5 +42,17 @@ describe('organization dashboard helpers', () => {
     expect(memberStatus({ approval: 'approved', reviewStatus: 'ready' }).label).toBe('Ready');
     expect(memberStatus({ approval: 'approved', reviewStatus: 'none' }).label).toBe('Approved');
     expect(memberStatus({ approval: 'rejected' }).label).toBe('Not approved');
+  });
+
+  it('role-accurate texts: the "You help run" card and the export note', () => {
+    expect(staffSummary({ role: 'viewer', allGroups: true })).toBe('Viewer · view and print');
+    expect(staffSummary({ role: 'coordinator', allGroups: true })).toBe('Coordinator · groups, approvals, reminders and printing');
+    expect(staffSummary({ role: 'coordinator', allGroups: false })).toBe('Coordinator · groups, approvals, reminders and printing · some groups');
+    expect(staffSummary({ role: 'viewer', allGroups: false })).toBe('Viewer · view and print · some groups');
+    expect(staffSummary({ role: 'viewer' })).not.toMatch(/remind/);
+    expect(exportNote('viewer')).toBe('Exports include approved members only. Combined PDF marks those resumes as printed. Exports never include ID numbers.');
+    expect(exportNote('viewer')).not.toMatch(/ZIP/);
+    expect(exportNote('coordinator')).toMatch('Combined PDF and ZIP mark those resumes as printed.');
+    expect(exportNote('admin', true)).toMatch('the pending / rejected rows shown here are left out');
   });
 });

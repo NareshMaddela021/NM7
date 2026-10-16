@@ -43,7 +43,6 @@ export function PortalLayout() {
   const { orgId } = useParams();
   const st = useApi(`/api/org/${encodeURIComponent(orgId)}`);
   const { pathname } = useLocation();
-  usePageMeta({ title: st.data ? st.data.name : 'My organization', description: 'Run your organization’s resume drive on Nm7.', noindex: true });
   const ctx = useMemo(() => (st.data ? {
     base: apiBase(orgId),
     orgId,
@@ -75,8 +74,11 @@ export function PortalLayout() {
 }
 
 /** /org/:orgId — groups: join link, Copy, QR PNG, open / close joining, dashboard; coordinators add and edit. */
+const portalMeta = (title) => ({ title, description: 'Run your organization’s resume drive on Nm7.', noindex: true });
+
 export function PortalGroups() {
   const { ctx, home, reload } = useOutletContext();
+  usePageMeta(portalMeta(`My groups · ${home.name}`));
   const toast = useToast();
   const [busy, run] = useAction(toast);
   return (
@@ -91,19 +93,23 @@ export function PortalGroups() {
 /** /org/:orgId/resumes */
 export function PortalResumes() {
   const { ctx, home } = useOutletContext();
+  usePageMeta(portalMeta(`Shared resumes · ${home.name}`));
   return <SharedResumes ctx={ctx} groups={home.groupList} title="Shared resumes" sub={ctx.role === 'viewer' ? 'You can view and print. Prints are logged.' : 'Approve members, ask for changes, remind and print. Everything here is logged.'} />;
 }
 
 /** /org/:orgId/groups/:groupId */
 export function PortalDashboard() {
-  const { ctx } = useOutletContext();
+  const { ctx, home } = useOutletContext();
   const { groupId } = useParams();
+  const group = home.groupList.find((g) => g.id === groupId);
+  usePageMeta(portalMeta(group ? `${group.name} dashboard` : `Group dashboard · ${home.name}`));
   return <GroupDashboard ctx={ctx} groupId={groupId} onBack={<Link className="btn btn-outline" to={`/org/${ctx.orgId}`}>All groups</Link>} />;
 }
 
 /** /org/:orgId/activity */
 export function PortalActivity() {
-  const { ctx } = useOutletContext();
+  const { ctx, home } = useOutletContext();
+  usePageMeta(portalMeta(`Activity · ${home.name}`));
   return <AuditList url={`${ctx.base}/audit?limit=100`} sub="Everything done with your organization’s shared resumes, by your team and by Nm7." />;
 }
 

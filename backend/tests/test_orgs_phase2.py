@@ -93,7 +93,7 @@ async def test_invite_link_is_one_time_expires_and_needs_the_same_verified_email
     r = await c.post(f"/api/org-invites/{token}/accept")
     assert r.status_code == 200 and r.json()["orgId"] == org["id"]
     assert (await c.get("/api/me/orgs")).json() == [
-        {"orgId": org["id"], "orgName": "JNTU Anantapur", "role": "coordinator"}
+        {"orgId": org["id"], "orgName": "JNTU Anantapur", "role": "coordinator", "allGroups": True}
     ]
     # used: never again
     assert err(await c.post(f"/api/org-invites/{token}/accept")) == "invite_invalid"
@@ -193,6 +193,7 @@ async def test_group_restricted_coordinator_sees_only_their_groups(owner, make_c
     [m1] = await joined(make_client, outbox, g1["code"], 1, "x")
     [m2] = await joined(make_client, outbox, g2["code"], 1, "y")
     c, _ = await coordinator(owner, make_client, outbox, org["id"], group_ids=[g1["id"]])
+    assert (await c.get("/api/me/orgs")).json()[0]["allGroups"] is False
     base = f"/api/org/{org['id']}"
     home = (await c.get(base)).json()
     assert [g["id"] for g in home["groupList"]] == [g1["id"]] and home["canCreateGroups"] is False

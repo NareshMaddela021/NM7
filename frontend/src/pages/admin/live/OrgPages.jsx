@@ -11,7 +11,7 @@ import { Dialog, useToast } from '../../../components/ui';
 import { savePdf } from '../../builder/resumePdf';
 import ResumePreview from '../../builder/ResumePreview';
 import { designOf, runExport } from '../../../lib/orgExport';
-import { APPROVAL_LABEL, REVIEW_LABEL, bucketRows, countTiles, exportFilters, joinBars, remindSummary } from '../../../lib/orgDashboard';
+import { APPROVAL_LABEL, REVIEW_LABEL, bucketRows, countTiles, exportFilters, exportNote, joinBars, remindSummary } from '../../../lib/orgDashboard';
 import { TEMPLATE_PRESETS } from '../../builder/design';
 import { API_BASE } from '../../../services/http';
 import { BarChart, HBars, PageHead } from '../AdminUI';
@@ -625,7 +625,7 @@ export function SharedResumes({ ctx = ADMIN_CTX, groups: portalGroups = null, ti
             <span className="xs faint">Keep this tab open. The PDFs are drawn in this browser, so nothing times out.</span>
           </div>
         )}
-        <span className="xs faint">Exports include approved members only{showsUnapproved ? ' — the pending / rejected rows shown here are left out' : ''}. Combined PDF and ZIP mark those resumes as printed. Exports never include ID numbers.</span>
+        <span className="xs faint" data-testid="export-note">{exportNote(ctx.role, showsUnapproved)}</span>
       </section>
 
       <Loading st={st} empty={emptyIf((d) => d.total === 0, Object.keys(filters).length ? 'No shared resumes match these filters.' : 'No shared resumes yet. Share a group’s join link or QR code.')}>{(d) => (
