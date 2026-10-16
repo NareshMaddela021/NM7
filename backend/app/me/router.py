@@ -16,7 +16,18 @@ from app.auth.service import normalize_phone
 from app.auth.sessions import client_ip
 from app.core import rate_limit
 from app.core.config import get_settings
-from app.core.db import APPLICATIONS, ATS_CHECKS, COVER_LETTERS, DB, RESUMES, SHARES, TICKETS, USERS, next_number
+from app.core.db import (
+    APPLICATIONS,
+    ATS_CHECKS,
+    COVER_LETTERS,
+    DB,
+    MEMBERSHIPS,
+    RESUMES,
+    SHARES,
+    TICKETS,
+    USERS,
+    next_number,
+)
 from app.core.email import MailerDep, send_safely
 from app.core.errors import ApiError
 from app.core.time import now
@@ -210,11 +221,17 @@ async def get_resume(key: str, auth: CustomerAuth, db: DB) -> ResumeOut:
 @router.patch("/resumes/{key}")
 async def patch_resume(key: str, body: ResumePatch, auth: CustomerAuth, db: DB) -> ResumeOut:
     uid = auth.user.id
-    await _resume(db, uid, key)
+    old = await _resume(db, uid, key)
     f = _fields(body)
     if f.get("active"):
         await db[RESUMES].update_many({"user_id": uid, "key": {"$ne": key}}, {"$set": {"active": False}})
     touched = {} if f and set(f) <= {"pages"} else {"updated_at": now()}  # a page count alone isn't an edit
+    if "data" in f and f["data"] != old.get("data"):
+        # an organization asked for changes (or marked it ready): the edit sends it back for another look
+        await db[MEMBERSHIPS].update_many(
+            {"user_id": uid, "resume_id": key, "review_status": {"$in": ["needs_changes", "ready"]}},
+            {"$set": {"review_status": "none"}},
+        )
     d = await db[RESUMES].find_one_and_update(
         {"user_id": uid, "key": key}, {"$set": {**f, **touched}}, return_document=ReturnDocument.AFTER
     )

@@ -10,13 +10,14 @@ hang off the same documents: organizations.roles (reserved), groups.settings and
 
 import re
 import secrets
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import Any
 
 from pymongo.asynchronous.database import AsyncDatabase
 
 from app.core.db import MEMBERSHIPS, ORG_GROUPS, ORGANIZATIONS, RESUMES, USERS
 from app.core.errors import ApiError
+from app.core.security import keyed_hash, same
 from app.core.time import IST, now
 from app.me.service import ms, visible_resume
 from app.photos.scrub import EPIC, IFSC, LABEL, MASKED, PAN
@@ -223,6 +224,11 @@ async def shared_rows(db: AsyncDatabase, match: dict[str, Any]) -> list[dict[str
                 "updated_at": r.get("updated_at"),
                 "printed_at": m.get("printed_at"),
                 "printed_count": m.get("printed_count", 0),
+                "approval": m.get("approval") or "approved",  # Phase 1 members were never asked: approved
+                "review_status": m.get("review_status") or "none",
+                "review_note": m.get("review_note") or "",
+                "reminders_opt_out": bool(m.get("reminders_opt_out")),
+                "last_reminded_at": m.get("last_reminded_at"),
                 "_data": data,
             }
         )
@@ -231,7 +237,8 @@ async def shared_rows(db: AsyncDatabase, match: dict[str, Any]) -> list[dict[str
 
 async def group_downloads_free(db: AsyncDatabase, user_id: str) -> bool:
     """True when the user is (still) in an active group whose organization pays for its members' downloads."""
-    async for m in db[MEMBERSHIPS].find({"user_id": user_id, "left_at": None, "consent.given": True}, {"group_id": 1}):
+    q = {"user_id": user_id, "left_at": None, "consent.given": True, "approval": {"$nin": ["pending", "rejected"]}}
+    async for m in db[MEMBERSHIPS].find(q, {"group_id": 1}):
         g = await db[ORG_GROUPS].find_one({"_id": m["group_id"]}, {"settings": 1})
         st = (g or {}).get("settings") or {}
         if st.get("members_download_free") and st.get("active", True):
@@ -262,6 +269,11 @@ def row_out(r: dict[str, Any]) -> dict[str, Any]:
         "updatedAt": ms(r["updated_at"]),
         "printedAt": ms(r["printed_at"]),
         "printedCount": r["printed_count"],
+        "approval": r["approval"],
+        "reviewStatus": r["review_status"],
+        "reviewNote": r["review_note"],
+        "remindersOptOut": r["reminders_opt_out"],
+        "lastRemindedAt": ms(r["last_reminded_at"]),
     }
 
 
@@ -277,8 +289,18 @@ def _day(v: str | None, end: bool = False) -> datetime | None:
     return datetime(d.year, d.month, d.day, 23 if end else 0, 59 if end else 0, 59 if end else 0, tzinfo=IST)
 
 
+COMPLETE = 80  # "complete enough": the dashboard's ≥ 80 % (completeness moves in steps of 25)
+APPROVALS = ("approved", "pending", "rejected")
+REVIEWS = ("none", "needs_changes", "ready")
+
+
 def filter_rows(rows: list[dict[str, Any]], f: dict[str, Any]) -> list[dict[str, Any]]:
-    out = rows
+    """The table's filters. Pending and rejected members only show when asked for (approval "pending", "rejected"
+    or "all"); exports always pass approval="approved"."""
+    approval = f.get("approval") or "approved"
+    out = rows if approval == "all" else [r for r in rows if r["approval"] == approval]
+    if f.get("review"):
+        out = [r for r in out if r["review_status"] == f["review"]]
     if f.get("q"):
         q = f["q"].strip().lower()
         out = [r for r in out if q in r["name"].lower() or q in r["email"].lower() or q in r["roll"].lower()]
@@ -294,10 +316,68 @@ def filter_rows(rows: list[dict[str, Any]], f: dict[str, Any]) -> list[dict[str,
         want = f["field_value"].strip().lower()
         out = [r for r in out if str(r["fields"].get(f["field_key"], "")).strip().lower() == want]
     if f.get("incomplete"):
-        out = [r for r in out if r["completeness"] < 100]
+        out = [r for r in out if r["completeness"] < COMPLETE]
     if f.get("not_printed"):
         out = [r for r in out if not r["printed_at"]]
+    if f.get("ready_not_printed"):
+        out = [r for r in out if r["review_status"] == "ready" and not r["printed_at"]]
     return out
+
+
+def dashboard(rows: list[dict[str, Any]], days: int = 30, today: date | None = None) -> dict[str, Any]:
+    """One group's numbers from its rows (every consented member who hasn't left, whatever their approval)."""
+    today = today or now().astimezone(IST).date()
+    live = [r for r in rows if r["approval"] != "rejected"]
+    count = lambda pred: sum(1 for r in live if pred(r))  # noqa: E731
+    per_day = {(today - timedelta(days=i)).isoformat(): 0 for i in range(days - 1, -1, -1)}
+    for r in rows:
+        d = r["joined_at"].astimezone(IST).date().isoformat()
+        if d in per_day:
+            per_day[d] += 1
+    incomplete = sorted(
+        (r for r in live if r["completeness"] < COMPLETE), key=lambda r: (r["completeness"], r["name"].lower())
+    )
+    return {
+        "counts": {
+            "joined": len(rows),
+            "pending": sum(1 for r in rows if r["approval"] == "pending"),
+            "approved": sum(1 for r in rows if r["approval"] == "approved"),
+            "rejected": sum(1 for r in rows if r["approval"] == "rejected"),
+            "complete": count(lambda r: r["completeness"] >= COMPLETE),
+            "incomplete": len(incomplete),
+            "needsChanges": count(lambda r: r["review_status"] == "needs_changes"),
+            "ready": count(lambda r: r["review_status"] == "ready"),
+            "printed": count(lambda r: bool(r["printed_at"])),
+            "readyNotPrinted": count(lambda r: r["review_status"] == "ready" and not r["printed_at"]),
+        },
+        "joinsPerDay": [{"day": d, "n": n} for d, n in per_day.items()],
+        "buckets": {
+            "low": count(lambda r: r["completeness"] < 40),
+            "mid": count(lambda r: 40 <= r["completeness"] < COMPLETE),
+            "high": count(lambda r: r["completeness"] >= COMPLETE),
+        },
+        "incompleteMembers": [
+            {
+                "membershipId": r["membership_id"],
+                "name": r["name"],
+                "roll": r["roll"],
+                "completeness": r["completeness"],
+                "missing": r["missing"],
+                "approval": r["approval"],
+            }
+            for r in incomplete[:200]
+        ],
+    }
+
+
+# ---------- reminder opt-out links ----------
+def opt_out_token(membership_id: str) -> str:
+    return f"{membership_id}.{keyed_hash('reminders-opt-out', membership_id)[:32]}"
+
+
+def opt_out_membership(token: str) -> str | None:
+    mid, _, sig = (token or "").partition(".")
+    return mid if mid and sig and same(sig, keyed_hash("reminders-opt-out", mid)[:32]) else None
 
 
 def sort_rows(rows: list[dict[str, Any]], sort: str = "joined", direction: str = "desc") -> list[dict[str, Any]]:

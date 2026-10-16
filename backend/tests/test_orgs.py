@@ -317,7 +317,7 @@ async def test_csv_contents_safe_and_without_id_numbers(owner, make_client, outb
     r = await owner.post("/api/admin/shared-resumes/export.csv?sort=roll", json={})
     assert r.status_code == 200 and r.headers["content-type"].startswith("text/csv")
     rows = list(csv.reader(io.StringIO(r.text)))
-    head = "Name,Email,Phone,Organization,Group,Roll number,Branch,Completeness %,Last updated,Printed"
+    head = "Name,Email,Phone,Organization,Group,Roll number,Branch,Completeness %,Approval,Review,Last updated,Printed"
     assert rows[0] == head.split(",")
     assert [x[5] for x in rows[1:]] == ["21A01", "21A02", "21A03"]
     assert rows[2][0] == "'=Chitra"  # no spreadsheet formulas
@@ -330,7 +330,7 @@ async def test_csv_contents_safe_and_without_id_numbers(owner, make_client, outb
         "21A03",
         "CSE",
     ]
-    assert rows[3][7] == "100" and rows[3][9] == "No"
+    assert rows[3][7:10] == ["100", "Approved", ""] and rows[3][11] == "No"
     assert not any(holds_id_number(cell) for row in rows for cell in row)
     assert "user_id" not in r.text and "membership" not in r.text.lower()
     e = await db[AUDIT_LOG].find_one({"action": "export_csv"})

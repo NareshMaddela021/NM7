@@ -112,7 +112,7 @@ test('org + group → join link → consent, sign-up, questions, resume → Shar
   // CSV
   const csv = await saved(page, () => page.getByRole('button', { name: 'CSV' }).click(), '.csv');
   const text = csv.bytes.toString('utf8');
-  expect(text).toContain('Name,Email,Phone,Organization,Group,Roll number,Branch,Completeness %,Last updated,Printed');
+  expect(text).toContain('Name,Email,Phone,Organization,Group,Roll number,Branch,Completeness %,Approval,Review,Last updated,Printed');
   expect(text).toContain(`Asha Rao,${mail}`);
   expect(text).toContain('JNTU Anantapur,B.Tech 2026 placements,21A01,CSE');
 
