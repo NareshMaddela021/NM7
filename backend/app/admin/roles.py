@@ -14,6 +14,7 @@ ROLES: dict[str, set[str]] = {
         "settings",
         "automation",
         "team",
+        "organizations",
     },
     "ops": {"dashboard", "orders", "experts", "quality", "automation"},
     "finance": {"dashboard", "payments", "refunds", "reports"},

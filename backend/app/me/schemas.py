@@ -60,6 +60,7 @@ class ResumePatch(CamelModel):
     jd: str | None = Field(None, max_length=20_000)
     active: Literal[True] | None = None  # make this the one the builder edits
     versions: list[Version] | None = Field(None, max_length=MAX_VERSIONS)
+    pages: int | None = Field(None, ge=1, le=20)  # measured by the builder (for the organizations' print table)
 
     @field_validator("data")
     @classmethod
@@ -74,6 +75,7 @@ class ResumeOut(CamelModel):
     data: dict[str, Any]
     jd: str
     versions: list[Version]
+    pages: int | None = None
     created: Ms
     updated: Ms
 
