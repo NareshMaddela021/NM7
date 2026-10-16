@@ -1,7 +1,7 @@
 // Nm7 for Organizations: printing many shared resumes at once (admin → Shared resumes).
 // Each resume is drawn by the same PDF maker members download with (so it matches their template exactly), in the
 // admin's browser, in batches of 25. The server only hands out the data and records what was printed:
-//   POST /api/admin/shared-resumes/exports → GET …/exports/{job}/data?offset&limit → POST …/exports/{job}/done
+//   POST {base}/shared-resumes/exports → GET …/exports/{job}/data?offset&limit → POST …/exports/{job}/done
 import { jsPDF } from 'jspdf';
 import { PDFDocument } from 'pdf-lib';
 import { zipSync } from 'fflate';
@@ -53,18 +53,18 @@ const stamp = (d = new Date()) => d.toISOString().slice(0, 10);
 
 /**
  * Runs one export job. kind: 'print_bulk' (one combined PDF) | 'export_zip' (one PDF per person) | 'download' | 'print'
- * (one resume). `ids` = a selection, or null for everything matching `filters`. onProgress({ done, total, stage }).
+ * (one resume). `base`: '/api/admin' or '/api/org/<id>' (a coordinator). `ids` = a selection, or null for everything matching `filters`. onProgress({ done, total, stage }).
  * Returns { blob, fileName, pages?, total, skipped }.
  */
-export async function runExport({ kind, ids = null, filters = {}, sort = 'name', direction = 'asc', cover = false, onProgress = () => {}, signal, build }) {
-  const job = await http('/api/admin/shared-resumes/exports', { method: 'POST', body: { kind, ids, filters, sort, direction } });
+export async function runExport({ base = '/api/admin', kind, ids = null, filters = {}, sort = 'name', direction = 'asc', cover = false, onProgress = () => {}, signal, build }) {
+  const job = await http(`${base}/shared-resumes/exports`, { method: 'POST', body: { kind, ids, filters, sort, direction } });
   const makePdf = build || (async (data) => (await import('../pages/builder/resumePdf')).buildResumePdf({ data, design: designOf(data) }));
   const files = [];
   let skipped = 0;
   onProgress({ done: 0, total: job.total, stage: 'Drawing resumes' });
   for (let offset = 0; offset < job.total; offset += BATCH) {
     if (signal?.aborted) throw new DOMException('Stopped', 'AbortError');
-    const batch = await http(`/api/admin/shared-resumes/exports/${encodeURIComponent(job.job)}/data?offset=${offset}&limit=${BATCH}`);
+    const batch = await http(`${base}/shared-resumes/exports/${encodeURIComponent(job.job)}/data?offset=${offset}&limit=${BATCH}`);
     for (const [i, row] of batch.entries()) {
       if (signal?.aborted) throw new DOMException('Stopped', 'AbortError');
       if (!row.data) { skipped += 1; continue; } // left the group or deleted the resume since the job started
@@ -85,6 +85,6 @@ export async function runExport({ kind, ids = null, filters = {}, sort = 'name',
   } else {
     result = { blob: new Blob([files[0].bytes], { type: 'application/pdf' }), fileName: files[0].fileName };
   }
-  await http(`/api/admin/shared-resumes/exports/${encodeURIComponent(job.job)}/done`, { method: 'POST', body: {} });
+  await http(`${base}/shared-resumes/exports/${encodeURIComponent(job.job)}/done`, { method: 'POST', body: {} });
   return { ...result, total: files.length, skipped, job: job.job };
 }

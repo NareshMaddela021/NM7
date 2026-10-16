@@ -15,7 +15,10 @@
     { "source": "/(me|expert|admin)/:path*", "destination": "/index.html" },
     { "source": "/orders/:path*", "destination": "/index.html" },
     { "source": "/r/:slug", "destination": "/index.html" },
-    { "source": "/join/:code", "destination": "/index.html" }
+    { "source": "/join/:code", "destination": "/index.html" },
+    { "source": "/groups/stop", "destination": "/index.html" },
+    { "source": "/org", "destination": "/index.html" },
+    { "source": "/org/:path*", "destination": "/index.html" }
   ],
   "headers": [
     {

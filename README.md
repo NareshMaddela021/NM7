@@ -65,3 +65,71 @@ Any organization — a college, coaching or training institute, job fair, skill 
 No new environment variables are needed.
 
 Later phases (organization logins for coordinators, dashboards and reminders, approvals, kiosk mode, branded templates, recruiter links, pricing, WhatsApp, regional languages) fit onto the same `organizations`, `org_groups` and `memberships` collections.
+
+## Nm7 for Organizations (Phase 2)
+
+Phase 2 lets a college, job fair or NGO run its own resume drive. Their **coordinators** sign in with their own Nm7 account at **nm7.si/org**. There they see only their organization's people. They can approve members, ask for changes, send reminders and print. Nm7 doesn't need to be involved.
+
+**What's new**
+
+- **Coordinator logins** (`org_staff`). The Nm7 owner invites people by email from **Organizations → (organization) → Coordinators**. Each person gets a role:
+  - **Coordinator**: groups, approvals, reviews, reminders and every export.
+  - **Viewer**: view and print only.
+
+  Access covers either all of the organization's groups or only the groups you pick. The invite link:
+  - is emailed through Resend;
+  - works once and expires after 7 days;
+  - can only be accepted by a signed-in account whose verified email matches the invited address.
+
+  From the same panel you can resend an invite, change someone's role or groups, or remove their access. Removing someone takes effect on their very next click.
+- **Server-side scoping.** Everything a coordinator calls lives under `/api/org/{orgId}/…`. On every request the server re-checks:
+  - that the organization exists;
+  - that this account is an active staff member of it;
+  - which groups they may see.
+
+  Anything outside that answers **404**, so a coordinator can't even learn that another organization's group or member exists. Org and group ids from the browser are always intersected with the person's access. The admin console and the portal use the same endpoints, written once (`register_shared` in `backend/app/orgs/router.py`, rules in `backend/app/orgs/scope.py`).
+- **Group dashboard** (one request per group). It shows:
+  - counts: joined, pending, approved, ≥ 80% complete, incomplete, needs changes, ready, printed, and ready & not printed;
+  - joins per day over the last 30 days;
+  - completeness buckets;
+  - the incomplete members with their missing sections.
+
+  Quick actions: *Remind incomplete*, *Print ready & not printed*, *Download CSV*.
+- **Reminders** go by email only. You can remind a whole segment of a group (incomplete, needs changes, or not updated since a date) or members you've ticked. The email:
+  - uses a fixed template: the organization, what's missing, a link to the builder, and the coordinator's note (plain text, at most 300 characters);
+  - has a one-click **Stop reminders from this group** link.
+
+  Limits:
+  - one email per member per 24 hours;
+  - three sends per group per day;
+  - 500 emails per send (sent through Resend's batch API).
+
+  The result says who was skipped and why. The audit log records the counts but never member emails.
+- **Approval and review.** A group can require approval:
+  - New members start as *Pending*. Coordinators approve or reject them, one at a time or in bulk.
+  - Pending and rejected members are hidden from the table unless you filter for them, and are **never** exported.
+
+  Review status per member goes *Not reviewed → Needs changes* (with a note of up to 500 characters; the member is emailed and sees the note in **My groups**) *→ Ready*. When a member actually changes their resume, the status goes back to *Not reviewed* so you can check it again. On the export bar, **Export only Ready** limits PDFs and CSV to *Ready* resumes.
+- **Printed status:** **Mark not printed** (for reprints; the print count stays) and the **Ready & not printed** filter.
+- **For members:** **My groups** shows each group's status (Pending / Approved / Needs changes with the note / Ready), a **Reminder emails** switch and **Leave group**.
+- **Free downloads stay Nm7's call.** Coordinators can't turn on "Members download free"; the server refuses it.
+
+No new environment variables and no new paid services: emails use the existing Resend setup.
+
+### Coordinator guide (for the college or job-fair team)
+
+1. **Get access.** Nm7 sends you an invite email. Open the link, then sign in or create a free Nm7 account **with the same email address**, and tap **Accept the invite**. From then on, open **nm7.si/org** (or **My groups → Open organization** in your dashboard).
+2. **Set up the drive.** Under **My groups**, each group shows its join link, a **Copy link** button and a **QR code** you can download for a slide or a poster.
+   - Use **Close joining** / **Open joining** to control sign-ups.
+   - Coordinators with access to the whole organization can add new groups.
+   - Turn on **Approve members before they're shared** if you want to check who joins.
+3. **Run it.** Students scan the QR code, agree to share, answer your questions (roll number, branch…) and build their resume. Open a group's **Dashboard** to see who has joined and who is still incomplete.
+4. **Approve and review.** In **Shared resumes**:
+   - set **Approval → Pending**, tick the students and choose **Approve** (or **Reject**);
+   - open a resume with **View**;
+   - choose **Needs changes** with a short note, or **Mark ready**.
+5. **Remind.** On the dashboard, choose **Remind incomplete**, or use **Remind…** in the table. Add a note such as "Bring a printout on Friday". Each student gets at most one reminder a day and can switch reminders off.
+6. **Print.** Choose **Print ready & not printed** on the dashboard, or in the table tick **Export only Ready** and choose **Combined PDF** (one file, ordered by roll number, with a cover page). You can also download a **ZIP** with one PDF per student, or a **CSV**. Printed resumes are marked so that latecomers are easy to find. Use **Mark not printed** if you need to reprint.
+7. **Check the log.** **Activity** lists everything done with your organization's resumes, by your team and by Nm7.
+
+Viewers can view and print only.

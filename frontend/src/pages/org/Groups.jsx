@@ -13,6 +13,7 @@ import { usePageMeta } from '../../lib/meta';
 import { http } from '../../services/http';
 import { MeHead } from '../me/MeLayout';
 import { fmtDay } from '../me/shared';
+import { memberStatus } from '../../lib/orgDashboard';
 
 const NEW = '__new__';
 const consentKey = (code) => `nm7-join-consent:${code}`;
@@ -127,7 +128,7 @@ export function Join() {
         <h1 className="display h2">{j.org.name}</h1>
         <p className="lead">{j.group.name}</p>
       </div>
-      <p>{j.org.name} uses Nm7 to collect and print resumes{j.group.endsOn ? ` (until ${fmtDay(Date.parse(j.group.endsOn))})` : ''}. Build or pick your resume here — it’s free — and share it with them in one step. You can leave the group any time from your dashboard.</p>
+      <p>{j.org.name} uses Nm7 to collect and print resumes{j.group.endsOn ? ` (until ${fmtDay(Date.parse(j.group.endsOn))})` : ''}. Build or pick your resume here — it’s free — and share it with them in one step. You can leave the group any time from your dashboard.{j.group.requireApproval ? ` ${j.org.name} checks new members before their resume is shared.` : ''}</p>
       <form className="card stack g16" onSubmit={submit} aria-label="Join this group">
         <label className="row g8" style={{ alignItems: 'flex-start', flexWrap: 'nowrap' }}>
           <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} style={{ marginTop: 4 }} />
@@ -172,6 +173,7 @@ export function MeGroups() {
   const nav = useNavigate();
   const groups = useServer(LIVE ? '/api/me/groups' : null);
   const resumes = useServer(LIVE ? '/api/me/resumes' : null);
+  const staff = useServer(LIVE ? '/api/me/orgs' : null);
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
   const act = async (fn, ok) => { setBusy(true); try { await fn(); toast(ok); groups.reload(); } catch (e) { toast(e.message); } finally { setBusy(false); } };
@@ -186,6 +188,12 @@ export function MeGroups() {
         </div>
         <button type="submit" className="btn btn-ink" disabled={!cleanCode(code)}>Continue</button>
       </form>
+      {staff.data?.map((o) => (
+        <Link key={o.orgId} to={`/org/${o.orgId}`} className="card row between g8" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <span className="stack g4"><strong>You help run {o.orgName}</strong><span className="small muted">{o.role === 'viewer' ? 'Viewer' : 'Coordinator'} · groups, shared resumes, reminders and printing</span></span>
+          <span className="btn btn-ink">Open organization</span>
+        </Link>
+      ))}
       {!LIVE && <p className="muted small">Groups work on the live site only.</p>}
       {groups.loading && <div className="row g12 muted" role="status"><Spinner /> Loading…</div>}
       {groups.error && <div className="card" role="alert">{groups.error.message}</div>}
@@ -194,8 +202,15 @@ export function MeGroups() {
         <section key={g.id} className="card stack g12" aria-label={g.groupName}>
           <div className="row between g8">
             <div className="stack g4"><strong>{g.orgName}</strong><span className="small muted">{g.groupName} · joined {fmtDay(g.joinedAt)} · code <span className="mono">{g.code}</span></span></div>
-            {g.downloadsFree && <span className="badge b-success">Free downloads</span>}
+            <span className="row g8">
+              <span className={`badge ${memberStatus(g).tone}`} data-testid="group-status">{memberStatus(g).label}</span>
+              {g.downloadsFree && g.approval === 'approved' && <span className="badge b-success">Free downloads</span>}
+            </span>
           </div>
+          {g.approval === 'pending' && <span className="small muted">{g.orgName} checks new members first. Keep building your resume meanwhile.</span>}
+          {g.reviewStatus === 'needs_changes' && g.reviewNote && (
+            <div className="well stack g4 small" role="note"><strong>{g.orgName} asked for changes:</strong><span style={{ whiteSpace: 'pre-wrap' }}>{g.reviewNote}</span><Link to="/builder">Open my resume</Link></div>
+          )}
           {Object.keys(g.fields || {}).length > 0 && (
             <span className="small">{(g.customFields || []).filter((f) => g.fields[f.key]).map((f) => `${f.label}: ${g.fields[f.key]}`).join(' · ')}</span>
           )}
@@ -208,6 +223,11 @@ export function MeGroups() {
                 {!list.some((r) => r.id === g.resumeId) && <option value={g.resumeId || ''}>(deleted resume)</option>}
               </select>
             </div>
+            <label className="row g8 small" style={{ minHeight: 40 }}>
+              <input type="checkbox" checked={!g.remindersOptOut} disabled={busy}
+                onChange={(e) => act(() => http(`/api/me/groups/${g.id}`, { method: 'PATCH', body: { remindersOptOut: !e.target.checked } }), e.target.checked ? 'Reminders on' : 'Reminders off')} />
+              Reminder emails
+            </label>
             <button type="button" className="btn btn-outline" disabled={busy}
               onClick={() => { if (window.confirm(`Leave ${g.groupName}? ${g.orgName} will no longer see your resume.`)) act(() => http(`/api/me/groups/${g.id}/leave`, { method: 'POST', body: {} }), 'You left the group'); }}>Leave group</button>
           </div>

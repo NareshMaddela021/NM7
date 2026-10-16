@@ -300,7 +300,12 @@ def _dates(starts, ends) -> tuple[str | None, str | None]:
     return s, e
 
 
+FREE_ONLY_NM7 = ApiError(403, "nm7_only", "Only Nm7 can make downloads free for a group’s members.")
+
+
 async def create_group_in(db, scope: Scope, o: dict[str, Any], body: GroupIn, ip: str | None) -> dict[str, Any]:
+    if scope.is_staff and body.settings.members_download_free:
+        raise FREE_ONLY_NM7
     code = await _code_free(db, body.code) if body.code else await new_code(db, o["name"])
     starts, ends = _dates(body.starts_on, body.ends_on)
     t = now()
@@ -326,6 +331,9 @@ async def create_group_in(db, scope: Scope, o: dict[str, Any], body: GroupIn, ip
 
 async def update_group_in(db, scope: Scope, g: dict[str, Any], body: GroupPatch, ip: str | None) -> dict[str, Any]:
     given = body.model_dump(exclude_unset=True)
+    if scope.is_staff and body.settings and body.settings.members_download_free is not None:
+        if body.settings.members_download_free != g.get("settings", {}).get("members_download_free", False):
+            raise FREE_ONLY_NM7
     sets: dict[str, Any] = {}
     if "name" in given and body.name:
         sets["name"] = body.name

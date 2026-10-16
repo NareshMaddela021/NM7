@@ -208,6 +208,11 @@ async def test_group_restricted_coordinator_sees_only_their_groups(owner, make_c
     r = await c.patch(f"{base}/groups/{g1['id']}", json={"settings": {"active": False}})
     assert r.status_code == 200 and r.json()["settings"]["active"] is False
     assert r.json()["settings"]["membersDownloadFree"] is False  # other settings kept
+    # free downloads cost Nm7: only the super-admin decides
+    r = await c.patch(f"{base}/groups/{g1['id']}", json={"settings": {"membersDownloadFree": True}})
+    assert r.status_code == 403 and err(r) == "nm7_only"
+    r = await c.patch(f"{base}/groups/{g1['id']}", json={"settings": {"membersDownloadFree": False, "active": True}})
+    assert r.status_code == 200
 
 
 async def test_viewer_can_view_and_print_only(owner, make_client, outbox):
