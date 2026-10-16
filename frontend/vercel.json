@@ -18,7 +18,9 @@
     { "source": "/join/:code", "destination": "/index.html" },
     { "source": "/groups/stop", "destination": "/index.html" },
     { "source": "/org", "destination": "/index.html" },
-    { "source": "/org/:path*", "destination": "/index.html" }
+    { "source": "/org/:path*", "destination": "/index.html" },
+    { "source": "/kiosk/:token", "destination": "/index.html" },
+    { "source": "/continue", "destination": "/index.html" }
   ],
   "headers": [
     {

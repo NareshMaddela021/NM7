@@ -68,6 +68,10 @@ const PortalGroups = named(portal, 'PortalGroups');
 const PortalResumes = named(portal, 'PortalResumes');
 const PortalDashboard = named(portal, 'PortalDashboard');
 const PortalActivity = named(portal, 'PortalActivity');
+const PortalKiosks = named(portal, 'PortalKiosks');
+const kioskPages = () => import('./pages/kiosk/Kiosk');
+const KioskScreen = named(kioskPages, 'default');
+const ContinueHere = named(kioskPages, 'ContinueHere');
 const OrgInvite = named(portal, 'OrgInvite');
 const StopReminders = named(portal, 'StopReminders');
 const meSettings = () => import('./pages/me/MeSettings');
@@ -251,8 +255,11 @@ export default function App() {
           <Route index element={<PortalGroups />} />
           <Route path="resumes" element={<PortalResumes />} />
           <Route path="groups/:groupId" element={<PortalDashboard />} />
+          <Route path="kiosks" element={<PortalKiosks />} />
           <Route path="activity" element={<PortalActivity />} />
         </Route>
+        <Route path="/kiosk/:token" element={<KioskScreen />} />
+        <Route path="/continue" element={<ContinueHere />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       </Suspense>

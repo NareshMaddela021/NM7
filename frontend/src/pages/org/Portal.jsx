@@ -12,6 +12,7 @@ import { usePageMeta } from '../../lib/meta';
 import { http } from '../../services/http';
 import { Loading, useAction, useApi } from '../admin/live/common';
 import { AuditList, GroupCard, GroupDashboard, NewGroup, SharedResumes } from '../admin/live/OrgPages';
+import Kiosks from './Kiosks';
 
 const ROLE = { coordinator: 'Coordinator', viewer: 'Viewer (view and print)', admin: 'Nm7 admin' };
 
@@ -52,7 +53,7 @@ export function PortalLayout() {
     dashboardUrl: (g) => `/org/${orgId}/groups/${g.id}`,
     groupPatchUrl: (g) => `${apiBase(orgId)}/groups/${g.id}`,
   } : null), [st.data, orgId]);
-  const tabs = [['', 'My groups'], ['/resumes', 'Shared resumes'], ['/activity', 'Activity']];
+  const tabs = [['', 'My groups'], ['/resumes', 'Shared resumes'], ...(st.data?.features?.kiosk ? [['/kiosks', 'Kiosks']] : []), ['/activity', 'Activity']];
   return (
     <Frame wide>
       {st.error ? (
@@ -104,6 +105,14 @@ export function PortalDashboard() {
   const group = home.groupList.find((g) => g.id === groupId);
   usePageMeta(portalMeta(group ? `${group.name} dashboard` : `Group dashboard · ${home.name}`));
   return <GroupDashboard ctx={ctx} groupId={groupId} onBack={<Link className="btn btn-outline" to={`/org/${ctx.orgId}`}>All groups</Link>} />;
+}
+
+/** /org/:orgId/kiosks — only when Nm7 switched kiosks on for the organization */
+export function PortalKiosks() {
+  const { ctx, home } = useOutletContext();
+  usePageMeta(portalMeta(`Kiosks · ${home.name}`));
+  if (!home.features?.kiosk) return <Navigate to={`/org/${ctx.orgId}`} replace />;
+  return <Kiosks orgId={ctx.orgId} groups={home.groupList} canManage={home.canManage} />;
 }
 
 /** /org/:orgId/activity */

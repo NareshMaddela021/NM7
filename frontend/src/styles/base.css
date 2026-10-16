@@ -350,3 +350,12 @@ textarea.input { height: auto; padding: 12px 14px; line-height: 1.55; resize: ve
   .blog-cta span { display: none; }
   .blog { padding-bottom: 120px; }
 }
+
+/* Kiosk "Print now": only the resume's pages (drawn from its PDF) go to the printer */
+.kiosk-print { display: none; }
+@media print {
+  body:has(.kiosk-print) > *:not(.kiosk-print) { display: none !important; }
+  body:has(.kiosk-print) .kiosk-print { display: block; }
+  .kiosk-print img { display: block; width: 100%; break-after: page; }
+  .kiosk-print img:last-child { break-after: auto; }
+}

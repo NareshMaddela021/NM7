@@ -229,7 +229,28 @@ class StopIn(CamelModel):
     token: str = Field(max_length=200)
 
 
+class FeaturesIn(CamelModel):  # Phase 3 switches; Nm7 (the super-admin) only. Phase 4 makes them plan features.
+    kiosk: bool | None = None
+    branding: bool | None = None
+    recruiter_links: bool | None = None
+
+
+FEATURES = ("kiosk", "branding", "recruiter_links")
+
+
 # ---------- helpers ----------
+def features_of(o: dict[str, Any] | None) -> dict[str, bool]:
+    """Every Phase 3 feature is off until Nm7 switches it on for the organization."""
+    f = (o or {}).get("features") or {}
+    return {k: bool(f.get(k)) for k in FEATURES}
+
+
+def require_feature(o: dict[str, Any] | None, name: str) -> None:
+    """A switched-off feature doesn't exist for that organization: 404, like anything outside a scope."""
+    if not o or not features_of(o)[name]:
+        raise NOT_FOUND
+
+
 def org_out(o: dict[str, Any], groups: int = 0, members: int = 0) -> dict[str, Any]:
     return {
         "id": o["_id"],
@@ -242,7 +263,13 @@ def org_out(o: dict[str, Any], groups: int = 0, members: int = 0) -> dict[str, A
         "createdAt": ms(o["created_at"]),
         "groups": groups,
         "members": members,
+        "features": _features_out(o),
     }
+
+
+def _features_out(o: dict[str, Any]) -> dict[str, bool]:
+    f = features_of(o)
+    return {"kiosk": f["kiosk"], "branding": f["branding"], "recruiterLinks": f["recruiter_links"]}
 
 
 def group_out(g: dict[str, Any], members: int = 0) -> dict[str, Any]:
@@ -367,7 +394,8 @@ ORG_ACTIONS = [
     "view", "download", "print", "print_bulk", "export_zip", "export_csv", "group_create", "group_update",
     "org_create", "org_update", "remind", "approve", "reject", "review", "unprint",
     "staff_invite", "staff_update", "staff_remove", "staff_accept", "staff_resend",
-    "member_join", "member_update", "member_leave",
+    "member_join", "member_update", "member_leave", "org_features",
+    "kiosk_create", "kiosk_revoke", "kiosk_session", "kiosk_print",
 ]  # fmt: skip
 
 
@@ -484,7 +512,8 @@ async def join(body: JoinIn, request: Request, auth: CustomerAuth, db: DB) -> di
         raise
 
 
-async def _join(body: JoinIn, request: Request, auth: CustomerAuth, db: DB) -> dict[str, Any]:
+async def _join(body: JoinIn, request: Request, auth: CustomerAuth, db: DB, via: dict | None = None) -> dict[str, Any]:
+    """`via`: extra audit details, e.g. {"kiosk": id} for a join made at an event kiosk."""
     uid = auth.user.id
     key = f"join:{uid}"
     await rate_limit.check(db, key, JOIN_RULES)
@@ -531,6 +560,7 @@ async def _join(body: JoinIn, request: Request, auth: CustomerAuth, db: DB) -> d
         "group": g["_id"],
         "code": g["code"],
         **({"rejoin": True} if mine and not already else {}),
+        **(via or {}),
     }
     await audit(db, uid, action, target=mid, data=data, ip=_ip(request))
     log.info("%s: membership %s in group %s", action, mid, g["_id"])
@@ -622,6 +652,21 @@ async def update_org(org_id: str, body: OrgPatch, request: Request, db: DB, scop
     await db[ORGANIZATIONS].update_one({"_id": org_id}, {"$set": {**sets, "updated_at": now()}})
     await audit(
         db, scope.actor_id, "org_update", target=org_id, data=scope.audit_data([org_id], **sets), ip=_ip(request)
+    )
+    return await get_org(org_id, db, scope)
+
+
+@admin.put("/orgs/{org_id}/features")
+async def set_features(org_id: str, body: FeaturesIn, request: Request, db: DB, scope: AdminScope) -> dict[str, Any]:
+    """Admin → Organizations → (organization) → Features. Coordinators never reach this (it's /api/admin)."""
+    o = await _org(db, org_id)
+    sets = {f"features.{k}": v for k, v in body.model_dump(exclude_none=True).items()}
+    if sets:
+        await db[ORGANIZATIONS].update_one({"_id": org_id}, {"$set": {**sets, "updated_at": now()}})
+    after = features_of(await _org(db, org_id))
+    changed = {k: after[k] for k in FEATURES if after[k] != features_of(o)[k]}
+    await audit(
+        db, scope.actor_id, "org_features", target=org_id, data=scope.audit_data([org_id], **changed), ip=_ip(request)
     )
     return await get_org(org_id, db, scope)
 

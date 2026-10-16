@@ -66,6 +66,8 @@ const setLive = (user) => {
   return live.user;
 };
 if (LIVE) http('/api/auth/me').then(setLive, () => setLive(null)); // restore the session on page load
+/** Live: ask the server again who is signed in (after a sign-in made outside this file, e.g. at a kiosk). */
+export const reloadUser = () => (LIVE ? http('/api/auth/me').then(setLive, () => setLive(null)) : Promise.resolve(currentUser()));
 
 /* ---------- preview state: accounts in this browser ---------- */
 let users = null; let session;

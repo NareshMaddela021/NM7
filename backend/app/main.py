@@ -25,6 +25,7 @@ from app.experts.router import router as expert_router
 from app.me.router import public as public_router
 from app.me.router import router as me_router
 from app.orders.router import router as orders_router
+from app.orgs import kiosk as org_kiosk
 from app.orgs import router as orgs
 from app.orgs import staff as org_staff
 from app.payments.router import router as payments_router
@@ -99,6 +100,9 @@ def create_app() -> FastAPI:
     app.include_router(orgs.public_stop)
     app.include_router(org_staff.invites)
     app.include_router(org_staff.portal)
+    app.include_router(org_kiosk.staff)
+    app.include_router(org_kiosk.kiosk)
+    app.include_router(org_kiosk.cont)
     app.include_router(admin_console_router)
     app.include_router(orders_router)
     app.include_router(payments_router)

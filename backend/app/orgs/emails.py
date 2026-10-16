@@ -93,3 +93,31 @@ def needs_changes(to: str, name: str, org_name: str, group_name: str, note: str,
         + _stop(stop_url)
     )
     return Email(to, name, f"{org_name} asked for changes to your resume", text, html)
+
+
+def kiosk_code(to: str, code: str, org_name: str, group_name: str) -> Email:
+    text = (
+        f"Your Nm7 code is {code}\n\nType it on the kiosk screen at {org_name} ({group_name}) to sign in. "
+        "It works for 10 minutes.\n\nIf you're not at this event, ignore this email.\n\nNm7 · nm7.si"
+    )
+    html = (
+        f'<div style="{STYLE}"><p>Your Nm7 code is</p><p style="font-size:28px;font-weight:bold;letter-spacing:4px">'
+        f"{code}</p><p>Type it on the kiosk screen at <b>{escape(org_name)}</b> ({escape(group_name)}) to sign in. "
+        'It works for 10 minutes.</p><p style="color:#666">If you’re not at this event, ignore this email.</p></div>'
+    )
+    return Email(to, to, f"{code} is your Nm7 kiosk code", text, html)
+
+
+def kiosk_continue(to: str, name: str, url: str, org_name: str) -> Email:
+    text = (
+        f"Hi {name},\n\nKeep working on the resume you started at {org_name}'s kiosk. Open this link on your phone "
+        f"(it works once, for 24 hours):\n{url}\n\nLater you can sign in at nm7.si with this email — use "
+        "“Forgot password” once to set a password.\n\nNm7 · nm7.si"
+    )
+    html = (
+        f'<div style="{STYLE}"><p>Hi {escape(name)},</p><p>Keep working on the resume you started at '
+        f"<b>{escape(org_name)}</b>’s kiosk.</p>{_button(url, 'Continue on this phone')}"
+        '<p style="color:#666">The link works once, for 24 hours. Later you can sign in at nm7.si with this email — '
+        "use “Forgot password” once to set a password.</p></div>"
+    )
+    return Email(to, name, "Continue your resume on Nm7", text, html)
