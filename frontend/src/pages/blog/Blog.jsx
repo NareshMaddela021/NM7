@@ -7,7 +7,7 @@ import Header from '../../components/Header';
 import SiteFooter from '../../components/SiteFooter';
 import { Spinner } from '../../components/ui';
 import { usePageMeta } from '../../lib/meta';
-import { getIndex, getPost } from '../../lib/blog/data';
+import { getIndex, getPost, liveIndex, needsLive } from '../../lib/blog/data';
 import { PER_PAGE, fmtDate, relatedPosts } from '../../lib/blog/hygraph';
 import { richTextToHtml } from '../../lib/blog/richtext';
 import { BLOG_DESC, BLOG_TITLE, categoryMeta, postMeta } from '../../lib/blog/seo';
@@ -20,6 +20,22 @@ function useAsync(fn, deps) {
     fn().then((data) => !off && setSt({ data }), (error) => !off && setSt({ error }));
     return () => { off = true; };
   }, deps); // eslint-disable-line react-hooks/exhaustive-deps
+  return st;
+}
+
+/** The post list: what the build saw at once, then the live list from Hygraph when that one is empty or old. */
+function useBlogIndex() {
+  const [st, setSt] = useState({ loading: true });
+  useEffect(() => {
+    let off = false;
+    const goLive = (fallbackError) => liveIndex().then((data) => !off && setSt({ data }), (error) => !off && fallbackError && setSt({ error }));
+    getIndex().then((data) => {
+      if (off) return;
+      setSt({ data });
+      if (needsLive(data)) goLive(false);
+    }, () => goLive(true));
+    return () => { off = true; };
+  }, []);
   return st;
 }
 
@@ -60,7 +76,7 @@ export function BlogNotFound() {
 /** /blog and /blog/category/:slug */
 export function BlogList() {
   const { slug } = useParams();
-  const st = useAsync(getIndex, []);
+  const st = useBlogIndex();
   const [shown, setShown] = useState(PER_PAGE);
   useEffect(() => setShown(PER_PAGE), [slug]);
   const cat = slug && st.data?.categories.find((c) => c.slug === slug);
@@ -98,7 +114,7 @@ export function BlogList() {
 export function BlogPost() {
   const { slug } = useParams();
   const st = useAsync(async () => {
-    const [post, idx] = await Promise.all([getPost(slug), getIndex().catch(() => null)]);
+    const [post, idx] = await Promise.all([getPost(slug), getIndex().then((i) => (needsLive(i) ? liveIndex().catch(() => i) : i)).catch(() => null)]);
     return { post, related: post && idx ? relatedPosts(post, idx.posts) : [] };
   }, [slug]);
   const p = st.data?.post;
@@ -141,8 +157,7 @@ export function BlogPost() {
 
 /** Home page: the latest 3 posts, only when there are any. */
 export function BlogStrip() {
-  const [posts, setPosts] = useState([]);
-  useEffect(() => { let off = false; getIndex().then((d) => !off && setPosts(d.posts.slice(0, 3)), () => {}); return () => { off = true; }; }, []);
+  const posts = useBlogIndex().data?.posts.slice(0, 3) || [];
   if (!posts.length) return null;
   return (
     <section className="h-pad" aria-labelledby="blog-strip-t">

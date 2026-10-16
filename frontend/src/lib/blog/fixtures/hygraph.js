@@ -56,7 +56,8 @@ export function fakeHygraph({ posts = POSTS, categories = CATEGORIES, fail = fal
     const data = body.query.includes('post(where')
       ? { post: posts.find((p) => p.slug === body.variables.slug) || null }
       : { posts: posts.slice(body.variables.skip, body.variables.skip + body.variables.first), categories };
-    return { ok: true, status: 200, json: async () => ({ data }) };
+    const text = JSON.stringify({ data });
+    return { ok: true, status: 200, text: async () => text, json: async () => JSON.parse(text) };
   };
   fn.calls = calls;
   return fn;

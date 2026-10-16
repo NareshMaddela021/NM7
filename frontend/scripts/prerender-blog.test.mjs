@@ -21,9 +21,9 @@ describe('pre-rendering the blog at build time', async () => {
   const res = await prerenderBlog({ dist: d, endpoint: 'https://hygraph.test/content', fetchImpl, log: quiet });
 
   it('asks Hygraph for published posts, newest first', () => {
-    expect(res).toEqual({ ok: true, posts: 3, categories: 3 });
-    expect(fetchImpl.calls[0].url).toBe('https://hygraph.test/content');
-    expect(fetchImpl.calls[0].body.query).toContain('orderBy: publishedAt_DESC');
+    expect(res).toMatchObject({ ok: true, posts: 3, categories: 3, postsError: null, categoriesError: null });
+    expect(fetchImpl.calls.every((c) => c.url === 'https://hygraph.test/content')).toBe(true);
+    expect(fetchImpl.calls.find((c) => c.body.query.includes('posts(')).body.query).toContain('orderBy: publishedAt_DESC');
   });
 
   it('writes the article as real HTML with its own title, description, canonical and social tags', () => {
@@ -83,7 +83,9 @@ describe('pre-rendering the blog at build time', async () => {
     expect(ats).toContain('/blog/ats-keywords');
     expect(ats).not.toContain('href="/blog/first-resume-fresher"');
     expect(read(d, 'blog/category/interviews/index.html')).toContain('content="noindex, follow"'); // no posts yet
-    expect(JSON.parse(read(d, 'blog/data.json')).posts).toHaveLength(3);
+    const built = JSON.parse(read(d, 'blog/data.json'));
+    expect(built.posts).toHaveLength(3);
+    expect(Date.now() - Date.parse(built.builtAt)).toBeLessThan(60_000); // the browser goes live when it gets old
     expect(JSON.parse(read(d, 'blog/ats-keywords/post.json')).title).toBe('Which keywords does an ATS look for?');
   });
 
@@ -102,24 +104,50 @@ describe('no posts yet (6 categories)', () => {
     const d = dist();
     const six = ['resume-tips', 'ats', 'freshers', 'interviews', 'govt-psu-jobs', 'career-switch'].map((slug) => ({ name: slug, slug }));
     const res = await prerenderBlog({ dist: d, endpoint: 'https://hygraph.test/content', fetchImpl: fakeHygraph({ posts: [], categories: six }), log: quiet });
-    expect(res).toEqual({ ok: true, posts: 0, categories: 6 });
+    expect(res).toMatchObject({ ok: true, posts: 0, categories: 6 });
     expect(read(d, 'blog/index.html')).toContain('First articles coming soon.');
-    expect(JSON.parse(read(d, 'blog/data.json'))).toEqual({ posts: [], categories: six });
+    expect(JSON.parse(read(d, 'blog/data.json'))).toMatchObject({ posts: [], categories: six });
     expect(read(d, 'blog/category/ats/index.html')).toContain('content="noindex, follow"');
   });
 });
 
-describe('when Hygraph is down', () => {
-  it('the build still succeeds: a warning, an empty /blog shell and the sitemap', async () => {
+describe('when Hygraph fails', () => {
+  it('the build still succeeds and logs exactly why; data.json says posts: null (the app reads Hygraph)', async () => {
     const d = dist();
     const warnings = [];
     const res = await prerenderBlog({ dist: d, endpoint: 'https://hygraph.test/content', fetchImpl: fakeHygraph({ fail: true }), log: { warn: (m) => warnings.push(m), info: () => {} } });
     expect(res.ok).toBe(false);
-    expect(warnings[0]).toMatch(/Couldn’t load the blog from Hygraph/);
+    expect(warnings.join('\n')).toMatch(/the posts query failed: network error/);
+    expect(warnings.join('\n')).toMatch(/the categories query failed: network error/);
     expect(read(d, 'blog/index.html')).toContain('<link rel="canonical" href="https://nm7.si/blog" />');
     expect(read(d, 'blog/index.html')).not.toContain('nm7-blog-data'); // the app fetches in the browser
-    expect(JSON.parse(read(d, 'blog/data.json'))).toEqual({ posts: null, categories: null }); // no 404; the app asks Hygraph
+    expect(JSON.parse(read(d, 'blog/data.json'))).toMatchObject({ posts: null, categories: null }); // no 404
     expect(read(d, 'sitemap.xml')).toContain('<loc>https://nm7.si/blog</loc>');
+  });
+
+  it('a failing posts query is never written as an empty list, even when categories work', async () => {
+    const d = dist();
+    const warnings = [];
+    const fetchImpl = async (url, init) => {
+      const q = JSON.parse(init.body).query;
+      if (q.includes('posts(')) return { ok: false, status: 400, text: async () => JSON.stringify({ errors: [{ message: "field 'json' is not defined in 'RichText'" }] }) };
+      return { ok: true, status: 200, text: async () => JSON.stringify({ data: { categories: [{ name: 'ATS', slug: 'ats' }] } }) };
+    };
+    const res = await prerenderBlog({ dist: d, endpoint: 'https://hygraph.test/content', fetchImpl, log: { warn: (m) => warnings.push(m), info: () => {} } });
+    expect(res).toMatchObject({ ok: false, posts: 0, categories: 1, postsError: "HTTP 400 — field 'json' is not defined in 'RichText'", categoriesError: null });
+    expect(warnings[0]).toContain("[blog] WARNING: the posts query failed: HTTP 400 — field 'json' is not defined in 'RichText'");
+    expect(JSON.parse(read(d, 'blog/data.json')).posts).toBeNull(); // not []
+  });
+
+  it('logs the endpoint and the posts and categories it got', async () => {
+    const d = dist();
+    const info = [];
+    await prerenderBlog({ dist: d, endpoint: 'https://hygraph.test/content', fetchImpl: fakeHygraph(), log: { warn: () => {}, info: (m) => info.push(m) } });
+    expect(info).toEqual(expect.arrayContaining([
+      '[blog] reading Hygraph at https://hygraph.test/content',
+      '[blog] posts: 3 published (first-resume-fresher, ats-friendly-resume, ats-keywords)',
+      '[blog] categories: 3 (ats, freshers, interviews)',
+    ]));
   });
 });
 

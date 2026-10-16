@@ -4,11 +4,17 @@
 // never from the `html` field, so nothing typed into a post reaches the page as HTML.
 import { readingTime } from './richtext.js';
 
+// Browser: Hygraph's CDN (fast, cached). Build: the uncached Content API, so a build started by the publish webhook
+// sees the post that was just published (the CDN can keep serving its cached answer for the same query for a while).
 export const DEFAULT_ENDPOINT = 'https://ap-south-1.cdn.hygraph.com/content/cmup9f6ob0ktu06w8zze56jn9/master';
+export const DEFAULT_BUILD_ENDPOINT = 'https://api-ap-south-1.hygraph.com/v2/cmup9f6ob0ktu06w8zze56jn9/master';
 const fromEnv = () => {
   try { return import.meta.env?.VITE_HYGRAPH_ENDPOINT; } catch { return undefined; }
 };
-export const ENDPOINT = (fromEnv() || (typeof process !== 'undefined' && process.env?.VITE_HYGRAPH_ENDPOINT) || DEFAULT_ENDPOINT).trim();
+const env = (k) => (typeof process !== 'undefined' && process.env?.[k]) || '';
+export const ENDPOINT = (fromEnv() || env('VITE_HYGRAPH_ENDPOINT') || DEFAULT_ENDPOINT).trim();
+/** The endpoint the build reads (HYGRAPH_BUILD_ENDPOINT, else the uncached Content API). */
+export const buildEndpoint = () => (env('HYGRAPH_BUILD_ENDPOINT') || DEFAULT_BUILD_ENDPOINT).trim();
 export const PER_PAGE = 12;
 
 const POST_FIELDS = `id title slug excerpt publishedAt updatedAt createdAt seoTitle seoDescription
@@ -17,20 +23,39 @@ const POST_FIELDS = `id title slug excerpt publishedAt updatedAt createdAt seoTi
   category { name slug }
   author { name bio photo { url } }`;
 
-export const ALL_QUERY = `query Blog($first: Int!, $skip: Int!) {
+// One module, one set of queries: the build and the browser send exactly these.
+export const POSTS_QUERY = `query BlogPosts($first: Int!, $skip: Int!) {
   posts(orderBy: publishedAt_DESC, first: $first, skip: $skip) { ${POST_FIELDS} }
-  categories(first: 100) { name slug }
 }`;
+export const CATEGORIES_QUERY = 'query BlogCategories { categories(first: 100) { name slug } }';
 export const POST_QUERY = `query Post($slug: String!) { post(where: { slug: $slug }) { ${POST_FIELDS} } }`;
+
+/** A failed Hygraph request, with what the build log needs: HTTP status and the exact GraphQL errors. */
+export class HygraphError extends Error {
+  constructor(message, { status = 0, errors = [] } = {}) {
+    super(message);
+    this.status = status;
+    this.errors = errors;
+  }
+}
 
 export async function gql(query, variables, { endpoint = ENDPOINT, fetchImpl = fetch, timeout = 15000 } = {}) {
   const ctl = typeof AbortController !== 'undefined' ? new AbortController() : null;
   const t = ctl && setTimeout(() => ctl.abort(), timeout);
   try {
-    const res = await fetchImpl(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query, variables }), signal: ctl?.signal });
-    if (!res.ok) throw new Error(`Hygraph answered ${res.status}`);
-    const body = await res.json();
-    if (body.errors?.length) throw new Error(`Hygraph: ${body.errors.map((e) => e.message).join('; ')}`);
+    let res;
+    try {
+      res = await fetchImpl(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query, variables }), signal: ctl?.signal });
+    } catch (e) {
+      throw new HygraphError(`network error: ${e.cause?.code || e.cause?.message || e.message}`);
+    }
+    const text = await res.text();
+    let body = null;
+    try { body = JSON.parse(text); } catch { /* not JSON */ }
+    const errors = (body?.errors || []).map((e) => e.message);
+    if (!res.ok || errors.length || !body?.data) {
+      throw new HygraphError(`HTTP ${res.status}${errors.length ? ` — ${errors.join('; ')}` : body ? '' : ` — ${text.slice(0, 200)}`}`, { status: res.status, errors });
+    }
     return body.data;
   } finally { if (t) clearTimeout(t); }
 }
@@ -59,17 +84,26 @@ export const summary = ({ content, ...rest }) => rest; // eslint-disable-line no
 
 const newestFirst = (a, b) => String(b.publishedAt || '').localeCompare(String(a.publishedAt || ''));
 
+/** Every published post, newest first (all pages of 100). */
+export async function fetchPosts(opts = {}) {
+  const posts = [];
+  for (let skip = 0; ; skip += 100) {
+    const d = await gql(POSTS_QUERY, { first: 100, skip }, opts);
+    if (!Array.isArray(d.posts)) throw new HygraphError('the answer has no `posts` list');
+    posts.push(...d.posts.filter((p) => p?.slug).map(normalizePost));
+    if (d.posts.length < 100) break;
+  }
+  return posts.sort(newestFirst);
+}
+export async function fetchCategories(opts = {}) {
+  const d = await gql(CATEGORIES_QUERY, {}, opts);
+  if (!Array.isArray(d.categories)) throw new HygraphError('the answer has no `categories` list');
+  return d.categories.filter((c) => c?.slug);
+}
 /** Every published post (newest first) and every category. */
 export async function fetchBlog(opts = {}) {
-  const posts = [];
-  let categories = [];
-  for (let skip = 0; ; skip += 100) {
-    const d = await gql(ALL_QUERY, { first: 100, skip }, opts);
-    categories = d.categories || categories;
-    posts.push(...(d.posts || []).filter((p) => p?.slug).map(normalizePost));
-    if ((d.posts || []).length < 100) break;
-  }
-  return { posts: posts.sort(newestFirst), categories: categories.filter((c) => c?.slug) };
+  const [posts, categories] = await Promise.all([fetchPosts(opts), fetchCategories(opts)]);
+  return { posts, categories };
 }
 
 export async function fetchPost(slug, opts = {}) {

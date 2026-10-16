@@ -129,3 +129,18 @@ test('no posts yet: "First articles coming soon" and no blog strip on the home p
   await strip.getByRole('link', { name: 'All articles →' }).click();
   await expect(page).toHaveURL(/\/blog$/);
 });
+
+test('a missed build never hides posts: the built list says 0 posts, Hygraph has them → the live posts are shown', async ({ page }) => {
+  await blog(page);
+  await page.route('**/blog/data.json', (route) => route.fulfill({ json: { builtAt: new Date().toISOString(), posts: [], categories: CATEGORIES } }));
+  await page.goto('/blog');
+  await expect(cards(page)).toHaveCount(3);
+  await expect(page.getByText('First articles coming soon.')).toHaveCount(0);
+  // and an old built list (over 10 minutes) is refreshed from Hygraph too
+  await page.unroute('**/blog/data.json');
+  await page.route('**/blog/data.json', (route) => route.fulfill({ json: { builtAt: new Date(Date.now() - 11 * 60_000).toISOString(), posts: [{ ...POSTS[1], slug: 'old-built-post', title: 'Old built post', content: undefined }], categories: CATEGORIES } }));
+  await page.goto('/');
+  const strip = page.getByRole('region', { name: 'From the blog' });
+  await expect(strip.locator('.blog-card-title').first()).toHaveText('Your first resume as a fresher');
+  await expect(strip.getByText('Old built post')).toHaveCount(0);
+});

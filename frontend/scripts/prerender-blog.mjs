@@ -7,7 +7,7 @@
 // as an empty shell and the app reads the blog from Hygraph in the browser instead.
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { ENDPOINT, PER_PAGE, fetchBlog, fmtDate, relatedPosts, summary } from '../src/lib/blog/hygraph.js';
+import { PER_PAGE, buildEndpoint, fetchCategories, fetchPosts, fmtDate, relatedPosts, summary } from '../src/lib/blog/hygraph.js';
 import { esc, richTextToHtml } from '../src/lib/blog/richtext.js';
 import { BLOG_DESC, BLOG_TITLE, ORIGIN, categoryJsonLd, categoryMeta, listJsonLd, listMeta, postJsonLd, postMeta } from '../src/lib/blog/seo.js';
 
@@ -90,36 +90,45 @@ export function sitemap(posts, categories) {
 const write = (file, text) => { mkdirSync(join(file, '..'), { recursive: true }); writeFileSync(file, text); };
 const SLUG = /^[a-z0-9][a-z0-9-]*$/i; // only safe folder names
 
-/** Writes the blog pages and the sitemap into `dist`. Never throws on a Hygraph problem. */
-export async function prerenderBlog({ dist, endpoint = ENDPOINT, fetchImpl = globalThis.fetch, log = console } = {}) {
+/** Writes the blog pages and the sitemap into `dist`. Never throws on a Hygraph problem: it logs exactly what went
+ * wrong (endpoint, HTTP status, GraphQL errors) for posts and for categories separately. */
+export async function prerenderBlog({ dist, endpoint = buildEndpoint(), fetchImpl = globalThis.fetch, log = console, now = Date.now() } = {}) {
   const template = readFileSync(join(dist, 'index.html'), 'utf8');
-  let blog = null;
-  try {
-    blog = await fetchBlog({ endpoint, fetchImpl });
-  } catch (e) {
-    log.warn(`[blog] Couldn’t load the blog from Hygraph (${e.message}). Building without pre-rendered articles; the site will load them in the browser.`);
-  }
-  const posts = (blog?.posts || []).filter((p) => SLUG.test(p.slug));
-  const categories = (blog?.categories || []).filter((c) => SLUG.test(c.slug));
-  const list = posts.map(summary);
+  const opts = { endpoint, fetchImpl };
+  const why = (e) => e.message;
+  log.info?.(`[blog] reading Hygraph at ${endpoint}`);
+  const [postsRes, catsRes] = await Promise.allSettled([fetchPosts(opts), fetchCategories(opts)]);
+  if (postsRes.status === 'fulfilled') log.info?.(`[blog] posts: ${postsRes.value.length} published (${postsRes.value.map((p) => p.slug).join(', ') || 'none'})`);
+  else log.warn(`[blog] WARNING: the posts query failed: ${why(postsRes.reason)}. No articles were pre-rendered; /blog/data.json says posts: null so the site reads Hygraph in the browser.`);
+  if (catsRes.status === 'fulfilled') log.info?.(`[blog] categories: ${catsRes.value.length} (${catsRes.value.map((c) => c.slug).join(', ') || 'none'})`);
+  else log.warn(`[blog] WARNING: the categories query failed: ${why(catsRes.reason)}. Category pages were not written.`);
 
-  write(join(dist, 'blog', 'index.html'), page(template, listMeta(), blog ? listBody(posts, categories) : shell(''), { jsonLd: listJsonLd(), data: blog ? { posts: list, categories } : null }));
+  const ok = postsRes.status === 'fulfilled';
+  const posts = (ok ? postsRes.value : []).filter((p) => SLUG.test(p.slug));
+  const skipped = (ok ? postsRes.value : []).filter((p) => !SLUG.test(p.slug));
+  if (skipped.length) log.warn(`[blog] WARNING: skipped posts whose slug isn’t a-z, 0-9 and dashes: ${skipped.map((p) => JSON.stringify(p.slug)).join(', ')}`);
+  const categories = (catsRes.status === 'fulfilled' ? catsRes.value : []).filter((c) => SLUG.test(c.slug));
+  const list = posts.map(summary);
+  const builtAt = new Date(now).toISOString();
+  const data = ok ? { builtAt, posts: list, categories } : null;
+
+  write(join(dist, 'blog', 'index.html'), page(template, listMeta(), ok ? listBody(posts, categories) : shell(''), { jsonLd: listJsonLd(), data }));
   // always there (no 404): `posts: null` tells the app to read the blog from Hygraph itself
-  write(join(dist, 'blog', 'data.json'), JSON.stringify(blog ? { posts: list, categories } : { posts: null, categories: null }));
-  if (blog) {
+  write(join(dist, 'blog', 'data.json'), JSON.stringify(data || { builtAt, posts: null, categories: categories.length ? categories : null }));
+  if (ok) {
     for (const c of categories) {
       const mine = posts.filter((p) => p.category?.slug === c.slug);
-      write(join(dist, 'blog', 'category', c.slug, 'index.html'), page(template, categoryMeta(c, mine.length), listBody(mine, categories, c.slug), { jsonLd: categoryJsonLd(c), data: { posts: list, categories } }));
+      write(join(dist, 'blog', 'category', c.slug, 'index.html'), page(template, categoryMeta(c, mine.length), listBody(mine, categories, c.slug), { jsonLd: categoryJsonLd(c), data }));
     }
     for (const p of posts) {
       const related = relatedPosts(p, posts);
-      write(join(dist, 'blog', p.slug, 'index.html'), page(template, postMeta(p), postBody(p, related), { jsonLd: postJsonLd(p), data: { post: p, posts: list, categories } }));
+      write(join(dist, 'blog', p.slug, 'index.html'), page(template, postMeta(p), postBody(p, related), { jsonLd: postJsonLd(p), data: { ...data, post: p } }));
       write(join(dist, 'blog', p.slug, 'post.json'), JSON.stringify(p));
     }
   }
   write(join(dist, 'sitemap.xml'), sitemap(posts, categories));
-  log.info?.(`[blog] ${blog ? `pre-rendered ${posts.length} post${posts.length === 1 ? '' : 's'} and ${categories.length} categories` : 'no posts pre-rendered'}; sitemap written`);
-  return { ok: !!blog, posts: posts.length, categories: categories.length };
+  log.info?.(`[blog] ${ok ? `pre-rendered ${posts.length} post${posts.length === 1 ? '' : 's'} and ${categories.length} categories` : 'no posts pre-rendered'}; sitemap written`);
+  return { ok, posts: posts.length, categories: categories.length, postsError: ok ? null : postsRes.reason.message, categoriesError: catsRes.status === 'fulfilled' ? null : catsRes.reason.message };
 }
 
 export { PER_PAGE };
