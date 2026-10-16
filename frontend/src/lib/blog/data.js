@@ -1,7 +1,7 @@
-// The blog in the browser. First what the build wrote (the data the pre-rendered page carries, /blog/data.json,
-// /blog/<slug>/post.json) so the page shows at once; then, when that list is empty or over 10 minutes old, the live
-// list from Hygraph's CDN replaces it (posts published after the last build, a build that couldn't reach Hygraph,
-// local development).
+// The blog in the browser. The build's data is the primary source: the data the pre-rendered page carries, then
+// the same-origin /blog/data.json and /blog/<slug>/post.json. Hygraph's CDN is only asked when that list is missing,
+// empty or over 10 minutes old, and its answer is MERGED in by slug: it can add newer posts, never remove or hide
+// the built ones (a stale CDN answer once said `posts: []` while 30 posts were published).
 import { fetchBlog, fetchPost, summary } from './hygraph';
 
 let embedded;
@@ -36,10 +36,30 @@ const STALE_MS = 10 * 60 * 1000;
 export const needsLive = (idx, now = Date.now()) => !idx?.live && (!idx?.posts?.length || !idx.builtAt || now - Date.parse(idx.builtAt) > STALE_MS);
 
 let live = null;
-/** The list straight from Hygraph's CDN. */
+/** The list straight from Hygraph's CDN (cache-busted, see hygraph.js). */
 export function liveIndex() {
-  live ||= fetchBlog().then((b) => ({ live: true, posts: b.posts.map(summary), categories: b.categories })).catch((e) => { live = null; throw e; });
+  live ||= fetchBlog({ cacheBust: true }).then((b) => ({ live: true, posts: b.posts.map(summary), categories: b.categories })).catch((e) => { live = null; throw e; });
   return live;
+}
+
+const bySlug = (list) => new Map((list || []).map((x) => [x.slug, x]));
+const newestFirst = (a, b) => String(b.publishedAt || '').localeCompare(String(a.publishedAt || ''));
+/** The built list plus whatever the live list adds (by slug). Never fewer posts or categories than were built. */
+export function mergeIndex(built, fresh) {
+  if (!fresh?.posts) return built;
+  if (!built?.posts?.length) return { ...fresh, categories: fresh.categories?.length ? fresh.categories : built?.categories || [] };
+  const posts = bySlug(built.posts);
+  for (const p of fresh.posts) if (!posts.has(p.slug)) posts.set(p.slug, p);
+  const cats = bySlug(built.categories);
+  for (const c of fresh.categories || []) if (!cats.has(c.slug)) cats.set(c.slug, c);
+  return { ...built, live: true, posts: [...posts.values()].sort(newestFirst), categories: [...cats.values()] };
+}
+/** The best list we can get: the built one, topped up from Hygraph when it is empty or old. */
+export async function freshIndex() {
+  let built = null;
+  try { built = await getIndex(); } catch { /* no built list: live only */ }
+  if (built && !needsLive(built)) return built;
+  try { return mergeIndex(built, await liveIndex()); } catch (e) { if (built) return built; throw e; }
 }
 
 const posts = new Map();
@@ -51,11 +71,13 @@ export async function getPost(slug) {
   p ||= await staticJson(`/blog/${encodeURIComponent(slug)}/post.json`);
   if (!p?.slug) {
     try {
-      p = await fetchPost(slug); // published after the last build?
+      p = await fetchPost(slug, { cacheBust: true }); // published after the last build?
+      // a live "no such post" never beats the build: if the built list has it, this is a CDN hiccup, not a 404
+      if (!p && (d?.posts || (await staticJson('/blog/data.json'))?.posts || []).some((x) => x.slug === slug)) throw new Error('Hygraph didn’t return a post the build has');
     } catch (e) {
       // Hygraph unreachable: if the built list is here and doesn't have it, there is no such post
       const built = d?.posts ? d : await staticJson('/blog/data.json');
-      if (built?.posts && !built.posts.some((x) => x.slug === slug)) p = null;
+      if (Array.isArray(built?.posts) && !built.posts.some((x) => x.slug === slug)) p = null;
       else throw e;
     }
   }

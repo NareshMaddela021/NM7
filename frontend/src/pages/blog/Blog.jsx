@@ -7,7 +7,7 @@ import Header from '../../components/Header';
 import SiteFooter from '../../components/SiteFooter';
 import { Spinner } from '../../components/ui';
 import { usePageMeta } from '../../lib/meta';
-import { getIndex, getPost, liveIndex, needsLive } from '../../lib/blog/data';
+import { freshIndex, getIndex, getPost, liveIndex, mergeIndex, needsLive } from '../../lib/blog/data';
 import { PER_PAGE, fmtDate, relatedPosts } from '../../lib/blog/hygraph';
 import { richTextToHtml } from '../../lib/blog/richtext';
 import { BLOG_DESC, BLOG_TITLE, categoryMeta, postMeta } from '../../lib/blog/seo';
@@ -23,17 +23,17 @@ function useAsync(fn, deps) {
   return st;
 }
 
-/** The post list: what the build saw at once, then the live list from Hygraph when that one is empty or old. */
+/** The post list: what the build saw at once; when that is empty or old, topped up (merged by slug) from Hygraph.
+ * A live answer never removes built posts, so a stale or empty CDN answer can't turn the page into "coming soon". */
 function useBlogIndex() {
   const [st, setSt] = useState({ loading: true });
   useEffect(() => {
     let off = false;
-    const goLive = (fallbackError) => liveIndex().then((data) => !off && setSt({ data }), (error) => !off && fallbackError && setSt({ error }));
-    getIndex().then((data) => {
+    getIndex().then((built) => {
       if (off) return;
-      setSt({ data });
-      if (needsLive(data)) goLive(false);
-    }, () => goLive(true));
+      setSt({ data: built });
+      if (needsLive(built)) liveIndex().then((fresh) => !off && setSt({ data: mergeIndex(built, fresh) }), () => {});
+    }, () => liveIndex().then((data) => !off && setSt({ data }), (error) => !off && setSt({ error })));
     return () => { off = true; };
   }, []);
   return st;
@@ -114,7 +114,7 @@ export function BlogList() {
 export function BlogPost() {
   const { slug } = useParams();
   const st = useAsync(async () => {
-    const [post, idx] = await Promise.all([getPost(slug), getIndex().then((i) => (needsLive(i) ? liveIndex().catch(() => i) : i)).catch(() => null)]);
+    const [post, idx] = await Promise.all([getPost(slug), freshIndex().catch(() => null)]);
     return { post, related: post && idx ? relatedPosts(post, idx.posts) : [] };
   }, [slug]);
   const p = st.data?.post;

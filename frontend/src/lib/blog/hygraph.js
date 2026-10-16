@@ -39,7 +39,14 @@ export class HygraphError extends Error {
   }
 }
 
-export async function gql(query, variables, { endpoint = ENDPOINT, fetchImpl = fetch, timeout = 15000 } = {}) {
+// Hygraph's CDN caches each request by its exact body (query text + variables). A cached answer for one exact body
+// can outlive a publish: on nm7.si the CDN kept answering the list query with `posts: []` for hours while the same
+// query with a different page size returned every post. The browser therefore adds a GraphQL comment that changes
+// every 5 minutes (`cacheBust`): the server ignores comments, but the request body — and so the cache key — is new.
+export const cacheBustComment = (now = Date.now()) => `\n# nm7 cache key ${Math.floor(now / 300000)}`;
+
+export async function gql(query, variables, { endpoint = ENDPOINT, fetchImpl = fetch, timeout = 15000, cacheBust = false } = {}) {
+  if (cacheBust) query += cacheBustComment();
   const ctl = typeof AbortController !== 'undefined' ? new AbortController() : null;
   const t = ctl && setTimeout(() => ctl.abort(), timeout);
   try {
