@@ -61,6 +61,15 @@ const MeUpgrade = named(meMoney, 'MeUpgrade');
 const groups = () => import('./pages/org/Groups');
 const Join = named(groups, 'Join');
 const MeGroups = named(groups, 'MeGroups');
+const portal = () => import('./pages/org/Portal');
+const OrgHome = named(portal, 'OrgHome');
+const PortalLayout = named(portal, 'PortalLayout');
+const PortalGroups = named(portal, 'PortalGroups');
+const PortalResumes = named(portal, 'PortalResumes');
+const PortalDashboard = named(portal, 'PortalDashboard');
+const PortalActivity = named(portal, 'PortalActivity');
+const OrgInvite = named(portal, 'OrgInvite');
+const StopReminders = named(portal, 'StopReminders');
 const meSettings = () => import('./pages/me/MeSettings');
 const MeSettings = named(meSettings, 'MeSettings');
 const MeHelp = named(meSettings, 'MeHelp');
@@ -235,6 +244,15 @@ export default function App() {
         </Route>
         <Route path="/r/:slug" element={<PublicResume />} />
         <Route path="/join/:code" element={<Join />} />
+        <Route path="/groups/stop" element={<StopReminders />} />
+        <Route path="/org/invite/:token" element={<OrgInvite />} />
+        <Route path="/org" element={C(<OrgHome />)} />
+        <Route path="/org/:orgId" element={C(<PortalLayout />)}>
+          <Route index element={<PortalGroups />} />
+          <Route path="resumes" element={<PortalResumes />} />
+          <Route path="groups/:groupId" element={<PortalDashboard />} />
+          <Route path="activity" element={<PortalActivity />} />
+        </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
       </Suspense>

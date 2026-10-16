@@ -112,15 +112,15 @@ test('org + group → join link → consent, sign-up, questions, resume → Shar
   // CSV
   const csv = await saved(page, () => page.getByRole('button', { name: 'CSV' }).click(), '.csv');
   const text = csv.bytes.toString('utf8');
-  expect(text).toContain('Name,Email,Phone,Organization,Group,Roll number,Branch,Completeness %,Last updated,Printed');
+  expect(text).toContain('Name,Email,Phone,Organization,Group,Roll number,Branch,Completeness %,Approval,Review,Last updated,Printed');
   expect(text).toContain(`Asha Rao,${mail}`);
   expect(text).toContain('JNTU Anantapur,B.Tech 2026 placements,21A01,CSE');
 
   // audit log lists the print and the export
   await page.getByRole('navigation', { name: 'Admin sections' }).getByRole('link', { name: 'Organizations' }).click();
   const audit = page.getByRole('region', { name: 'Audit log' });
-  await expect(audit.getByText('print_bulk')).toBeVisible();
-  await expect(audit.getByText('export_csv')).toBeVisible();
+  await expect(audit.getByText('print_bulk').first()).toBeVisible();
+  await expect(audit.getByText('export_csv').first()).toBeVisible();
 
   // 5. the member leaves the group → gone from Shared resumes
   await m.goto('/me/groups');
@@ -130,7 +130,9 @@ test('org + group → join link → consent, sign-up, questions, resume → Shar
   await expect(m.getByText('You left the group')).toBeVisible();
   await expect(m.getByText('You’re not in any group yet.', { exact: false })).toBeVisible();
   await page.getByRole('navigation', { name: 'Admin sections' }).getByRole('link', { name: 'Shared resumes' }).click();
-  await expect(page.getByText(/No shared resumes yet/)).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Shared resumes' })).toBeVisible();
+  await expect(page.getByText('Loading…')).toHaveCount(0);
+  await expect(page.getByText(mail)).toHaveCount(0); // gone (other tests' members may still be listed)
   await ctx.close();
 });
 

@@ -26,6 +26,7 @@ from app.me.router import public as public_router
 from app.me.router import router as me_router
 from app.orders.router import router as orders_router
 from app.orgs import router as orgs
+from app.orgs import staff as org_staff
 from app.payments.router import router as payments_router
 from app.photos.router import router as photos_router
 from app.profile.router import router as profile_router
@@ -93,7 +94,11 @@ def create_app() -> FastAPI:
     app.include_router(admin_setup_router)  # before admin_router: /api/admin/setup is public
     app.include_router(admin_router)
     app.include_router(orgs.admin)
+    app.include_router(org_staff.admin_staff)
     app.include_router(orgs.public)
+    app.include_router(orgs.public_stop)
+    app.include_router(org_staff.invites)
+    app.include_router(org_staff.portal)
     app.include_router(admin_console_router)
     app.include_router(orders_router)
     app.include_router(payments_router)
@@ -101,6 +106,7 @@ def create_app() -> FastAPI:
     app.include_router(photos_router)  # /api/me/photo-import
     app.include_router(downloads_router)  # /api/me/entitlements, /api/me/exports
     app.include_router(orgs.me)  # before me_router: /api/me/groups
+    app.include_router(org_staff.my_orgs)  # /api/me/orgs
     app.include_router(me_router)
     app.include_router(public_router)
     app.include_router(work_router)

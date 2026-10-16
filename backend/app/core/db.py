@@ -55,6 +55,7 @@ JOB_PROFILES = "job_profiles"
 ORGANIZATIONS = "organizations"
 ORG_GROUPS = "org_groups"
 MEMBERSHIPS = "memberships"
+ORG_STAFF = "org_staff"  # coordinators / viewers of an organization (invited by email)
 EXPORT_JOBS = "export_jobs"  # admin bulk print / ZIP jobs: which memberships, so "done" can mark them printed
 COLLECTIONS = (
     USERS,
@@ -86,6 +87,7 @@ COLLECTIONS = (
     ORG_GROUPS,
     MEMBERSHIPS,
     EXPORT_JOBS,
+    ORG_STAFF,
 )
 
 DAY = 86_400
@@ -141,6 +143,11 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel([("org_id", ASCENDING), ("left_at", ASCENDING)]),
     ],
     EXPORT_JOBS: [IndexModel("created_at", expireAfterSeconds=DAY)],
+    ORG_STAFF: [
+        IndexModel([("org_id", ASCENDING), ("email_lc", ASCENDING)], unique=True),
+        IndexModel([("user_id", ASCENDING), ("status", ASCENDING)]),
+        IndexModel("invite_token_hash", sparse=True),
+    ],
     AUDIT_LOG: [IndexModel([("at", DESCENDING)]), IndexModel("action"), IndexModel("actor_id")],
     ORDERS: [
         # _id is the order number (RS-1001…), unique by definition.

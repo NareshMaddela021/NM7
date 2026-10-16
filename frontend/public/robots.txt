@@ -9,6 +9,8 @@ Disallow: /checkout
 Disallow: /orders
 Disallow: /r/
 Disallow: /join/
+Disallow: /org
+Disallow: /groups/
 Disallow: /login
 Disallow: /signup
 Disallow: /forgot-password

@@ -147,3 +147,34 @@ async def send_safely(mailer: Mailer, msg: Email) -> bool:
 
 
 MailerDep = Annotated[Mailer, Depends(get_mailer)]
+
+
+async def send_batch(mailer: Mailer, msgs: list[Email]) -> list[bool]:
+    """Many emails at once (organization reminders): Resend's batch API, 100 per call, so a few hundred reminders
+    take a few requests and stay inside Resend's rate limit. Other mailers send one by one. Never raises."""
+    if not isinstance(mailer, ResendMailer):
+        return [await send_safely(mailer, m) for m in msgs]
+    out: list[bool] = []
+    headers = {"Authorization": f"Bearer {mailer.api_key}", "Accept": "application/json"}
+    async with httpx.AsyncClient(timeout=httpx.Timeout(30.0)) as client:
+        for i in range(0, len(msgs), 100):
+            chunk = msgs[i : i + 100]
+            body = [
+                {
+                    "from": mailer.sender,
+                    "to": [m.to],
+                    "subject": m.subject,
+                    "html": m.html,
+                    "text": m.text,
+                    **({"reply_to": m.reply_to or mailer.reply_to} if m.reply_to or mailer.reply_to else {}),
+                }
+                for m in chunk
+            ]
+            try:
+                r = await client.post(f"{mailer.url.rstrip('/')}/batch", json=body, headers=headers)
+                r.raise_for_status()
+                out += [True] * len(chunk)
+            except Exception:
+                log.exception("A batch of %d emails could not be sent", len(chunk))
+                out += [False] * len(chunk)
+    return out
