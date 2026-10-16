@@ -51,6 +51,11 @@ test('kiosk: switch on → kiosk link → code sign-in → build → print → w
   const kctx = await browser.newContext();
   const k = await kctx.newPage();
   await k.addInitScript(() => { window.print = () => { window.__printed = (window.__printed || 0) + 1; }; });
+  // a deploy during the event: the PDF maker's file of this (old) build is gone (404, served as HTML) until the
+  // kiosk reloads onto the new build
+  let loads = 0;
+  k.on('load', () => { loads += 1; });
+  await k.route(/\/src\/pages\/builder\/resumePdf\.js/, (r) => (loads < 2 ? r.fulfill({ status: 404, contentType: 'text/html', body: '<!doctype html><title>404</title>' }) : r.continue()));
   await k.goto(kioskPath);
   await expect(k.getByRole('heading', { name: 'Make your resume here' })).toBeVisible();
   await expect(k).toHaveTitle('Kiosk · Mega Job Mela Guntur · Nm7');
@@ -78,9 +83,28 @@ test('kiosk: switch on → kiosk link → code sign-in → build → print → w
   await expect(k.getByRole('heading', { name: 'Check & finish' })).toBeVisible();
   await expect(k.getByRole('article', { name: 'Resume preview' })).toContainText('Govt ITI Guntur');
   await k.getByRole('button', { name: 'My resume is ready' }).click();
-  await k.getByRole('button', { name: 'Print now' }).click();
-  await expect(k.getByText('Sent to the printer.')).toBeVisible();
+  // nothing on the finish screen moves when Send / Print change their labels and messages (tablet, then phone)
+  const boxes = async () => { await k.mouse.move(1, 1); return Promise.all(['k-print', 'k-mail', 'k-status', 'k-edit', 'k-finish'].map((id) => k.getByTestId(id).boundingBox())); }; // (the mouse away: buttons lift 1px on hover)
+  const same = (a, b) => a.forEach((x, i) => ['x', 'y', 'width', 'height'].forEach((p) => expect(Math.abs(x[p] - b[i][p]), `box ${i} ${p}`).toBeLessThan(1)));
+  await k.setViewportSize({ width: 820, height: 1180 });
+  await expect(k.getByTestId('k-print')).toBeVisible();
+  const tablet = await boxes();
+  await k.getByTestId('k-mail').click();
+  await expect(k.getByTestId('k-status')).toHaveText('Check your email for a link to keep going on your phone.');
+  same(await boxes(), tablet);
+  await k.setViewportSize({ width: 390, height: 844 });
+  const phone = await boxes();
+  // Print: the stale file fails → a friendly message (not the raw error) → the kiosk reloads onto the new build,
+  // comes back to this screen still signed in, and prints
+  await k.getByTestId('k-print').click();
+  await expect(k.getByTestId('k-status')).toContainText('Nm7 was just updated');
+  await expect(k.getByTestId('k-status')).not.toContainText('Failed to fetch');
+  await expect(k.getByTestId('k-status')).toHaveText('Sent to the printer. Collect your copy from the printer.', { timeout: 20_000 });
+  expect(loads).toBe(2);
+  await expect(k.getByRole('heading', { name: 'Your resume is ready' })).toBeVisible();
+  same(await boxes(), phone);
   expect(await k.evaluate(() => window.__printed)).toBe(1);
+  await k.setViewportSize({ width: 1280, height: 720 });
   expect(await k.locator('.kiosk-print img').count()).toBeGreaterThan(0); // the PDF's pages, drawn for the printer
   // something personal in this browser's storage (as any page might leave), then Finish
   await k.evaluate(() => new Promise((res) => { localStorage.setItem('nm7-test', 'x'); sessionStorage.setItem('s', 'y'); const r = indexedDB.open('nm7-kiosk-test'); r.onsuccess = () => { r.result.close(); res(); }; }));

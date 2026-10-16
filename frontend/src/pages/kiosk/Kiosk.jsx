@@ -9,6 +9,7 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Dialog, Spinner } from '../../components/ui';
 import { reloadUser, signOut, useAuth } from '../../lib/auth';
 import { HEARTBEAT_MS, KIOSK_STEPS, createIdleTimer, wipeDevice } from '../../lib/kiosk';
+import { BUILD_CHECK_MS, freshImport, newBuildLive } from '../../lib/chunks';
 import { designOf } from '../../lib/orgExport';
 import { brandDesign, prepareBrand } from '../../lib/branding';
 import { loadPdfjs } from '../../lib/import';
@@ -66,6 +67,24 @@ async function printPdf(blob) {
   return doc.numPages;
 }
 
+/** The files Print needs (PDF maker, pdf.js and the resume's fonts), loaded as soon as someone signs in — so a
+ * deploy during the event can't leave Print needing a file the new build no longer has. */
+const printModules = () => Promise.all([import('../builder/resumePdf'), loadPdfjs()]);
+async function preloadPrint(d) {
+  try {
+    await printModules();
+    const { loadFont } = await import('../builder/pdfFonts');
+    const ds = designOf(d || {});
+    await Promise.all([ds.font, ds.headFont].filter(Boolean).map((f) => loadFont(f).catch(() => {})));
+  } catch { /* Print tries again (and recovers) if this didn't work */ }
+}
+
+// Where a signed-in candidate is, kept in this tab only: after a reload onto a new build they come back to the same
+// step (their resume is saved in their account). Wiped with everything else at Finish / idle / sign-out.
+const markerKey = (token) => `nm7-kiosk:${token.slice(0, 12)}`;
+const readMarker = (token) => { try { return JSON.parse(sessionStorage.getItem(markerKey(token)) || 'null'); } catch { return null; } };
+const writeMarker = (token, m) => { try { sessionStorage.setItem(markerKey(token), JSON.stringify(m)); } catch { /* ignore */ } };
+
 export default function KioskScreen() {
   const { token } = useParams();
   const nav = useNavigate();
@@ -82,11 +101,12 @@ export default function KioskScreen() {
   const [warn, setWarn] = useState(null);
   const [exiting, setExiting] = useState(false);
   const [note, setNote] = useState('');
+  const [autoPrint, setAutoPrint] = useState(false);
   usePageMeta({ title: info ? `Kiosk · ${info.org.name}` : 'Kiosk', description: 'Build and print your resume at this event.', noindex: true });
 
   // the welcome details, and a check-in every minute (the coordinator sees the kiosk as active; a revoked or
   // expired link shows "ended" and wipes the device)
-  const check = useCallback(() => http(base).then(setInfo, (e) => { if (e.status === 404 || e.status === 410) setEnded(e.message || 'This kiosk link has ended.'); }), [base]);
+  const check = useCallback(() => http(base).then((next) => setInfo((cur) => (JSON.stringify(cur) === JSON.stringify(next) ? cur : next)), (e) => { if (e.status === 404 || e.status === 410) setEnded(e.message || 'This kiosk link has ended.'); }), [base]);
   useEffect(() => { check(); const t = setInterval(check, HEARTBEAT_MS); return () => clearInterval(t); }, [check]);
 
   // saving: the resume is the candidate's own (in their account); changes are sent shortly after typing stops
@@ -113,9 +133,58 @@ export default function KioskScreen() {
   }, [save]);
 
   useEffect(() => { if (ended) reset(); }, [ended]); // eslint-disable-line react-hooks/exhaustive-deps
-  // someone already signed in on this browser (e.g. the coordinator who opened the link): signed out and wiped first
+  // On load: a candidate signed in at this kiosk (the page reloaded onto a new build) comes back to their step;
+  // anyone else signed in on this browser (e.g. the coordinator who opened the link) is signed out and wiped first.
   const { user, ready } = useAuth();
-  useEffect(() => { if (ready && user && !who) reset(); }, [ready]); // eslint-disable-line react-hooks/exhaustive-deps
+  const checkedLoad = useRef(false);
+  useEffect(() => {
+    if (!ready || checkedLoad.current) return;
+    checkedLoad.current = true;
+    if (!user) return;
+    const m = readMarker(token);
+    if (!m || m.userId !== user.id) { reset(); return; }
+    (async () => {
+      try {
+        const st = await http('/api/me/state');
+        const r = st.resumes.find((x) => x.id === m.resumeId);
+        if (!r) throw new Error('resume');
+        const data = migrateLinks({ ...INITIAL, ...r.data });
+        setWho(m.who); setResumeId(r.id); setD(data); setApproval(m.approval || null);
+        setAutoPrint(!!m.printAfter);
+        setStep(m.step);
+        preloadPrint(data);
+      } catch {
+        reset('Please sign in again — your resume is saved in your account.');
+      }
+    })();
+  }, [ready]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!who || !resumeId || !user) return;
+    const keep = { photos: 'start', email: null, code: null, welcome: null }[step];
+    if (keep === null) return;
+    writeMarker(token, { userId: user.id, who, resumeId, approval, step: keep || step });
+  }, [who, resumeId, approval, step, user, token]);
+
+  // Nobody signed in: check every few minutes whether a new build is live, and reload onto it quietly.
+  useEffect(() => {
+    if (step !== 'welcome' || who) return undefined;
+    const t = setInterval(async () => {
+      try {
+        const html = await (await fetch('/', { cache: 'no-store' })).text();
+        if (newBuildLive(html, document)) window.location.reload();
+      } catch { /* offline: try again later */ }
+    }, BUILD_CHECK_MS);
+    return () => clearInterval(t);
+  }, [step, who]);
+
+  // No sideways jumps when the page grows or shrinks: the scrollbar's space is always kept.
+  useEffect(() => {
+    const el = document.documentElement;
+    const before = [el.style.scrollbarGutter, el.style.overflowY];
+    el.style.scrollbarGutter = 'stable';
+    el.style.overflowY = 'scroll';
+    return () => { [el.style.scrollbarGutter, el.style.overflowY] = before; };
+  }, []);
 
   // nobody touched the screen for 2 minutes: a 20-second warning, then everything is wiped
   useEffect(() => {
@@ -153,7 +222,9 @@ export default function KioskScreen() {
       r = await http('/api/me/resumes', { method: 'POST', body: fresh });
     }
     setResumeId(r.id);
-    setD(migrateLinks({ ...INITIAL, ...r.data }));
+    const data = migrateLinks({ ...INITIAL, ...r.data });
+    setD(data);
+    preloadPrint(data);
     if (me.membership) { setApproval(me.membership.approval); setStep('start'); } else setStep(info.closed ? 'start' : 'consent');
   };
 
@@ -179,7 +250,7 @@ export default function KioskScreen() {
         </span>
         {who && <button type="button" className="btn btn-outline" onClick={() => reset('Signed out. Your resume is saved in your account.')}>Sign out</button>}
       </header>
-      <main id="main" className="container stack g20" style={{ flex: 1, padding: '28px 20px 40px', maxWidth: step === 'build' || step === 'finish' ? 1100 : 720 }}>
+      <main id="main" className="container stack g20" style={{ flex: 1, width: '100%', boxSizing: 'border-box', padding: '28px 20px 40px', maxWidth: step === 'build' || step === 'finish' ? 1100 : 720 }}>
         {step === 'welcome' && (
           <div className="stack g20" style={{ textAlign: 'center', paddingTop: '8vh' }}>
             <h1 className="display" style={{ fontSize: 'clamp(32px,5vw,52px)' }}>Make your resume here</h1>
@@ -211,7 +282,8 @@ export default function KioskScreen() {
         )}
         {step === 'photos' && <PhotoImport embedded title="Snap photos of your papers" onBack={() => setStep('start')} onDone={(review) => { setD((cur) => migrateLinks(reviewToResume(review, cur))); setStep('build'); }} />}
         {step === 'build' && d && <GuidedBuilder d={d} setD={setD} onDone={() => setStep('finish')} />}
-        {step === 'finish' && d && <Finish base={base} d={d} brand={info.brand} approval={approval} org={info.org.name} save={save} onEdit={() => setStep('build')} onFinish={() => reset('Done! You’re signed out and this screen is clear. Your resume is saved in your Nm7 account.')} />}
+        {step === 'finish' && d && <Finish base={base} d={d} brand={info.brand} autoPrint={autoPrint} onAutoPrinted={() => setAutoPrint(false)}
+          beforeReload={async () => { await save(); const m = readMarker(token); if (m) writeMarker(token, { ...m, step: 'finish', printAfter: true }); }} approval={approval} org={info.org.name} save={save} onEdit={() => setStep('build')} onFinish={() => reset('Done! You’re signed out and this screen is clear. Your resume is saved in your Nm7 account.')} />}
       </main>
       <footer className="row between g8" style={{ padding: '10px 20px', borderTop: '1px solid var(--border)' }}>
         <span className="xs faint">Nm7 · your resume is saved in your own account · never asks for Aadhaar, PAN or bank numbers</span>
@@ -365,37 +437,52 @@ export function GuidedBuilder({ d, setD, onDone }) {
   );
 }
 
-function Finish({ base, d, brand, approval, org, save, onEdit, onFinish }) {
-  const [busy, setBusy] = useState('');
-  const [done, setDone] = useState({});
-  const [error, setError] = useState('');
+/** "Your resume is ready". Nothing moves when a button is pressed: labels change inside fixed-size buttons and every
+ * message goes into one status area of fixed height. Print and Send don't block each other. */
+function Finish({ base, d, brand, approval, org, save, onEdit, onFinish, autoPrint, onAutoPrinted, beforeReload }) {
+  const [printing, setPrinting] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [mailed, setMailed] = useState(false);
+  const [status, setStatus] = useState({ text: '', error: false });
   const design = useMemo(() => (brand ? brandDesign(brand) : designOf(d)), [d, brand]); // a branded group prints in the org's template
   const print = async () => {
-    setBusy('print'); setError('');
+    if (printing) return;
+    setPrinting(true); setStatus({ text: 'Preparing your print…', error: false });
     try {
       await save();
-      const { buildResumePdf } = await import('../builder/resumePdf');
+      const [{ buildResumePdf }] = await freshImport(printModules, { beforeReload });
       await printPdf(await buildResumePdf({ data: d, design, photo: null, brand: await prepareBrand(brand) }));
       await http(`${base}/print`, { method: 'POST', body: {} });
-      setDone((x) => ({ ...x, print: true }));
-    } catch (e) { setError(e.message || 'Printing didn’t start. Please try again.'); } finally { setBusy(''); }
+      setStatus({ text: 'Sent to the printer. Collect your copy from the printer.', error: false });
+    } catch (e) {
+      setStatus({ text: e.message || 'Printing didn’t start. Please try again.', error: e.code !== 'stale_build' });
+    } finally { setPrinting(false); }
   };
   const mail = async () => {
-    setBusy('mail'); setError('');
-    try { await save(); const r = await http(`${base}/send-link`, { method: 'POST', body: {} }); setDone((x) => ({ ...x, mail: r.sent ? 'sent' : 'failed' })); } catch (e) { setError(e.message); } finally { setBusy(''); }
+    if (sending) return;
+    setSending(true); setStatus({ text: 'Sending the link to your email…', error: false });
+    try {
+      await save();
+      const r = await http(`${base}/send-link`, { method: 'POST', body: {} });
+      setMailed(!!r.sent);
+      setStatus(r.sent ? { text: 'Check your email for a link to keep going on your phone.', error: false } : { text: 'The email didn’t go out. You can sign in at nm7.si later with this email.', error: true });
+    } catch (e) { setStatus({ text: e.message, error: true }); } finally { setSending(false); }
   };
+  // back from a reload onto a new build in the middle of Print: print straight away
+  const autoDone = useRef(false); // once, even when React runs mount effects twice
+  useEffect(() => { if (autoPrint && !autoDone.current) { autoDone.current = true; onAutoPrinted(); print(); } }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const fixed = { minHeight: 72, fontSize: 22, width: '100%', gap: 10 };
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(360px, 100%), 1fr))', gap: 24, alignItems: 'start' }}>
+    <div style={{ display: 'grid', width: '100%', gridTemplateColumns: 'repeat(auto-fit, minmax(min(360px, 100%), 1fr))', gap: 24, alignItems: 'start' }}>
       <div className="stack g16" style={{ minWidth: 0 }}>
         <h1 className="display h2">Your resume is ready</h1>
         {approval === 'pending' && <p className="well small">{org} checks new members first. Your own copy prints now.</p>}
-        <button type="button" className="btn btn-ink btn-xl" style={{ minHeight: 72, fontSize: 22 }} disabled={!!busy} onClick={print}>{busy === 'print' ? 'Preparing…' : 'Print now'}</button>
-        {done.print && <p className="small" role="status">Sent to the printer. Collect your copy from the printer.</p>}
-        <button type="button" className="btn btn-outline btn-xl" disabled={!!busy || done.mail === 'sent'} onClick={mail}>{busy === 'mail' ? 'Sending…' : 'Send to my email'}</button>
-        {done.mail && <p className="small" role="status">{done.mail === 'sent' ? 'Check your email for a link to keep going on your phone.' : 'The email didn’t go out. You can sign in at nm7.si later with this email.'}</p>}
-        {error && <p className="error" role="alert">{error}</p>}
-        <button type="button" className="btn btn-outline btn-lg" onClick={onEdit}>Make changes</button>
-        <button type="button" className="btn btn-ink btn-lg" onClick={onFinish}>Finish and sign out</button>
+        <button type="button" className="btn btn-ink btn-xl" data-testid="k-print" style={fixed} aria-busy={printing} onClick={print}>{printing && <Spinner />}Print now</button>
+        <button type="button" className="btn btn-outline btn-xl" data-testid="k-mail" style={{ ...fixed, minHeight: 56, fontSize: 18 }} aria-busy={sending} disabled={mailed} onClick={mail}>{sending && <Spinner />}{mailed ? 'Link sent to your email' : 'Send to my email'}</button>
+        <p data-testid="k-status" role={status.error ? 'alert' : 'status'} aria-live="polite" className={status.error ? 'error' : 'small'}
+          style={{ margin: 0, minHeight: '3em', lineHeight: 1.5, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{status.text}</p>
+        <button type="button" className="btn btn-outline btn-lg" data-testid="k-edit" style={{ width: '100%' }} onClick={onEdit}>Make changes</button>
+        <button type="button" className="btn btn-ink btn-lg" data-testid="k-finish" style={{ width: '100%' }} onClick={onFinish}>Finish and sign out</button>
       </div>
       <div className="card" style={{ padding: 12, minWidth: 0 }}><ResumePreview data={d} design={design} brand={brand} /></div>
     </div>

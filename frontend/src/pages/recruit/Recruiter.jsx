@@ -11,6 +11,7 @@ import { brandDesign, prepareBrand } from '../../lib/branding';
 import { usePageMeta } from '../../lib/meta';
 import { designOf, mergePdfs } from '../../lib/orgExport';
 import { filterCandidates, isRecruiterToken, pdfName } from '../../lib/recruiter';
+import { freshImport } from '../../lib/chunks';
 import { API_BASE, ApiError } from '../../services/http';
 import { PublicResume } from '../me/MeShare';
 import ResumePreview from '../builder/ResumePreview';
@@ -40,7 +41,7 @@ async function rq(path, code, { method = 'GET', body } = {}) {
 }
 
 async function pdfOf(item, stamp) {
-  const { buildResumePdf } = await import('../builder/resumePdf');
+  const { buildResumePdf } = await freshImport(() => import('../builder/resumePdf'));
   const brand = await prepareBrand(item.brand);
   return buildResumePdf({ data: item.data, design: brand ? brandDesign(brand) : designOf(item.data), brand, stamp });
 }

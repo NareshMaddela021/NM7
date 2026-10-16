@@ -192,6 +192,14 @@ Phase 3 adds tools for big events and placements. It ships in three parts, each 
 
 **Rules:** the kiosk never asks for Aadhaar, PAN or bank numbers. Group questions still refuse them, and Snap photos still drops ID numbers.
 
+**Deploys during an event (stale builds).** A tab opened before a deploy (a kiosk, the portal, the builder) still runs the old build, and the old build's lazily loaded files are gone from the new deploy. `frontend/src/lib/chunks.js` handles this in four ways:
+- **Pages:** a page whose file is missing reloads once onto the new build. This is guarded to once a minute in `sessionStorage`, so it can't loop, and it also covers `vite:preloadError`.
+- **Actions** (Print, Export, Download): show "Nm7 was just updated…" instead of the raw error, then reload.
+- **The kiosk, signed in:** it loads its print files (PDF maker, pdf.js, fonts) as soon as someone signs in. If it does reload, it brings the candidate back to the same step, still signed in. A reload in the middle of Print finishes the print by itself afterwards.
+- **The kiosk, idle on the welcome screen:** it checks every 5 minutes whether a new build is live and reloads quietly.
+
+Vercel's own fix for this (keeping the previous deploy's files reachable, called "Skew Protection") needs a paid Vercel plan, so it is not switched on. The steps above cover the same cases.
+
 ### 3B · Branded templates
 
 **Organization branding**
