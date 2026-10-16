@@ -8,6 +8,7 @@ Disallow: /expert/
 Disallow: /checkout
 Disallow: /orders
 Disallow: /r/
+Disallow: /join/
 Disallow: /login
 Disallow: /signup
 Disallow: /forgot-password

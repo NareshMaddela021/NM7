@@ -250,6 +250,7 @@ def row_out(r: dict[str, Any]) -> dict[str, Any]:
         "groupId": r["group_id"],
         "groupName": r["group_name"],
         "fields": r["fields"],
+        "fieldDefs": [{"key": d["key"], "label": d["label"]} for d in r["field_defs"]],
         "roll": r["roll"],
         "resumeId": r["resume_id"],
         "resumeTitle": r["resume_title"],

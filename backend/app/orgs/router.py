@@ -26,7 +26,7 @@ from app.auth.deps import CustomerAuth
 from app.auth.models import new_id
 from app.auth.sessions import client_ip
 from app.core import rate_limit
-from app.core.db import AUDIT_LOG, DB, EXPORT_JOBS, MEMBERSHIPS, ORG_GROUPS, ORGANIZATIONS, RESUMES
+from app.core.db import AUDIT_LOG, DB, EXPORT_JOBS, MEMBERSHIPS, ORG_GROUPS, ORGANIZATIONS, RESUMES, USERS
 from app.core.errors import ApiError
 from app.core.schemas import CamelModel
 from app.core.time import IST, now
@@ -705,15 +705,22 @@ async def org_audit(db: DB, _: Admin, limit: int = Query(100, ge=1, le=500)) -> 
         "org_create",
         "org_update",
     ]
+    entries = await db[AUDIT_LOG].find({"action": {"$in": actions}}).sort("_id", -1).limit(limit).to_list(None)
+    names = {
+        u["_id"]: u.get("name", "")
+        async for u in db[USERS].find({"_id": {"$in": list({e.get("actor_id") for e in entries})}}, {"name": 1})
+    }
     out = []
-    async for e in db[AUDIT_LOG].find({"action": {"$in": actions}}).sort("at", -1).limit(limit):
+    for e in entries:
+        data = e.get("data") or {}
         out.append(
             {
                 "id": e["_id"],
-                "actorId": e.get("actor_id"),
+                "actorName": names.get(e.get("actor_id"), ""),
                 "action": e["action"],
                 "target": e.get("target"),
-                "count": (e.get("data") or {}).get("count"),
+                "count": data.get("count"),
+                "details": {k: v for k, v in data.items() if k not in ("memberships", "count")},
                 "at": ms(e["at"]),
             }
         )

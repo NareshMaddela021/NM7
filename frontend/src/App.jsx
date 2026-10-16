@@ -58,22 +58,27 @@ const MeLaunch = lazy(() => import('./pages/me/MeLaunch'));
 const meMoney = () => import('./pages/me/MeMoney');
 const MePayments = named(meMoney, 'MePayments');
 const MeUpgrade = named(meMoney, 'MeUpgrade');
+const groups = () => import('./pages/org/Groups');
+const Join = named(groups, 'Join');
+const MeGroups = named(groups, 'MeGroups');
 const meSettings = () => import('./pages/me/MeSettings');
 const MeSettings = named(meSettings, 'MeSettings');
 const MeHelp = named(meSettings, 'MeHelp');
 
 // Admin console: real data on the live site; the sample console only in the preview build.
-const liveAdmin = { common: () => import('./pages/admin/live/common'), ops: () => import('./pages/admin/live/OpsPages'), people: () => import('./pages/admin/live/PeoplePages'), setup: () => import('./pages/admin/live/SetupPages') };
+const liveAdmin = { orgs: () => import('./pages/admin/live/OrgPages'), common: () => import('./pages/admin/live/common'), ops: () => import('./pages/admin/live/OpsPages'), people: () => import('./pages/admin/live/PeoplePages'), setup: () => import('./pages/admin/live/SetupPages') };
 const ADMIN = LIVE ? {
   Layout: named(liveAdmin.common, 'LiveAdminLayout'), Dashboard: named(liveAdmin.ops, 'LiveDashboard'), Orders: named(liveAdmin.ops, 'LiveOrders'),
   Experts: named(liveAdmin.people, 'LiveExperts'), Refunds: named(liveAdmin.ops, 'LiveRefunds'), Payments: named(liveAdmin.ops, 'LivePayments'),
   Customers: named(liveAdmin.people, 'LiveCustomers'), Quality: named(liveAdmin.people, 'LiveQuality'), Reports: named(liveAdmin.people, 'LiveReports'),
   Settings: named(liveAdmin.setup, 'LiveSettings'), Automation: named(liveAdmin.setup, 'LiveAutomation'), Team: named(liveAdmin.setup, 'LiveTeam'),
+  Orgs: named(liveAdmin.orgs, 'LiveOrgs'), Shared: named(liveAdmin.orgs, 'LiveShared'),
 } : {
   Layout: lazy(() => import('./pages/admin/AdminLayout')), Dashboard: lazy(() => import('./pages/admin/Dashboard')), Orders: lazy(() => import('./pages/admin/Orders')),
   Experts: lazy(() => import('./pages/admin/ExpertsAdmin')), Refunds: lazy(() => import('./pages/admin/Refunds')), Payments: lazy(() => import('./pages/admin/Payments')),
   Customers: lazy(() => import('./pages/admin/Customers')), Quality: lazy(() => import('./pages/admin/Quality')), Reports: lazy(() => import('./pages/admin/Reports')),
   Settings: lazy(() => import('./pages/admin/Settings')), Automation: lazy(() => import('./pages/admin/Automation')), Team: lazy(() => import('./pages/admin/Team')),
+  Orgs: named(liveAdmin.orgs, 'LiveOrgs'), Shared: named(liveAdmin.orgs, 'LiveShared'), // live API only
 };
 
 if (!LIVE && import.meta.env.VITE_PREVIEW === '1') {
@@ -207,6 +212,8 @@ export default function App() {
           <Route path="settings" element={<ADMIN.Settings />} />
           <Route path="automation" element={<ADMIN.Automation />} />
           <Route path="team" element={<ADMIN.Team />} />
+          <Route path="orgs" element={<ADMIN.Orgs />} />
+          <Route path="shared-resumes" element={<ADMIN.Shared />} />
         </Route>
         <Route path="/me" element={C(<MeLayout />)}>
           <Route index element={<MeHome />} />
@@ -219,6 +226,7 @@ export default function App() {
           <Route path="covers" element={<MeCovers />} />
           <Route path="jobs" element={<MeJobs />} />
           <Route path="share" element={<MeShare />} />
+          <Route path="groups" element={<MeGroups />} />
           <Route path="launch" element={<MeLaunch />} />
           <Route path="payments" element={<MePayments />} />
           <Route path="upgrade" element={<MeUpgrade />} />
@@ -226,6 +234,7 @@ export default function App() {
           <Route path="help" element={<MeHelp />} />
         </Route>
         <Route path="/r/:slug" element={<PublicResume />} />
+        <Route path="/join/:code" element={<Join />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       </Suspense>

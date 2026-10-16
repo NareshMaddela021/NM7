@@ -22,6 +22,8 @@ export const NAV = [
   ['settings', '/admin/settings', 'Settings & prices', '⚙'],
   ['automation', '/admin/automation', 'Automation', '⚡'],
   ['team', '/admin/team', 'Team & audit log', '⚿'],
+  ['organizations', '/admin/orgs', 'Organizations', '⌂'],
+  ['organizations', '/admin/shared-resumes', 'Shared resumes', '▤'],
 ];
 
 /** GET a path; { data, error, loading, reload }. `path` null = don't load. */
@@ -93,7 +95,7 @@ export function LiveAdminLayout() {
       <div className="container-wide row g24" style={{ padding: '20px 24px 64px', alignItems: 'flex-start' }}>
         <nav aria-label="Admin sections" className="stack sticky admin-side" style={{ flex: '0 0 220px', top: 88, gap: 2 }}>
           {NAV.filter(([k]) => can.includes(k)).map(([k, to, l, ic]) => (
-            <NavLink key={k} to={to} end={to === '/admin'} className="admin-link"><span aria-hidden="true" style={{ width: 18, textAlign: 'center' }}>{ic}</span>{l}</NavLink>
+            <NavLink key={to} to={to} end={to === '/admin'} className="admin-link"><span aria-hidden="true" style={{ width: 18, textAlign: 'center' }}>{ic}</span>{l}</NavLink>
           ))}
           <hr className="divider" />
           <span className="xs faint" style={{ padding: '0 10px' }}>Signed in as {user?.name} · {ROLES[user?.adminRole]?.label || 'Admin'}</span>

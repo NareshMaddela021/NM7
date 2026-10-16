@@ -240,6 +240,13 @@ export function syncFromBuilder(data) {
   commit({ ...s, resumes: s.resumes.map((r) => (r.id === a.id ? { ...r, data: d, updated: Date.now(), versions } : r)) });
 }
 
+/** The builder's measured page count for the active resume (live accounts: shown to organizations it's shared with). */
+export function setResumePages(n) {
+  const s = get(); const a = activeResume(s);
+  if (!LIVE || !a || s.loading || !n || a.pages === n) return;
+  commit({ ...s, resumes: s.resumes.map((r) => (r.id === a.id ? { ...r, pages: n } : r)) });
+}
+
 /** Make a resume the one the builder edits. */
 export function openInBuilder(id) {
   syncFromBuilder();

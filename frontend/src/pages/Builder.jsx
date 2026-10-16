@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import { Dialog, Icon, Meter, useToast } from '../components/ui';
 import { getMatchedJobs, saveProfile } from '../services/api';
-import { syncFromBuilder, defaultResume, useMe, activeResume, addResume, openInBuilder, blankResume, updateResume, uniqueName } from '../lib/customerStore';
+import { syncFromBuilder, defaultResume, useMe, activeResume, addResume, openInBuilder, blankResume, updateResume, uniqueName, setResumePages } from '../lib/customerStore';
 import { ago } from './me/shared';
 import { useJobProfile } from '../lib/profileStore';
 import { profileCompleteness, profileToResume, profileUpdates } from '../lib/jobProfile';
@@ -224,6 +224,8 @@ export default function Builder({ embedded = null }) {
     redo: () => { if (!future.length) return; setPast((p) => [...p, ds]); setD((p) => ({ ...p, design: future[0] })); setFuture((f) => f.slice(1)); },
   };
   const onPages = useMemo(() => (n) => { if (n !== null) pagesRef.current = n; setPages(n); }, []); // null = still measuring
+  // the page count goes with the saved resume (organizations it's shared with see it in their print list)
+  useEffect(() => { if (!pages || embedded || dataLoading || tab === 'cover') return undefined; const t = setTimeout(() => setResumePages(pages), 1500); return () => clearTimeout(t); }, [pages, embedded, dataLoading, tab]);
   const fit = async () => {
     setFitting(true);
     let cur = ds;
