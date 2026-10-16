@@ -69,6 +69,7 @@ const PortalResumes = named(portal, 'PortalResumes');
 const PortalDashboard = named(portal, 'PortalDashboard');
 const PortalActivity = named(portal, 'PortalActivity');
 const PortalKiosks = named(portal, 'PortalKiosks');
+const PortalBranding = named(portal, 'PortalBranding');
 const kioskPages = () => import('./pages/kiosk/Kiosk');
 const KioskScreen = named(kioskPages, 'default');
 const ContinueHere = named(kioskPages, 'ContinueHere');
@@ -256,6 +257,7 @@ export default function App() {
           <Route path="resumes" element={<PortalResumes />} />
           <Route path="groups/:groupId" element={<PortalDashboard />} />
           <Route path="kiosks" element={<PortalKiosks />} />
+          <Route path="branding" element={<PortalBranding />} />
           <Route path="activity" element={<PortalActivity />} />
         </Route>
         <Route path="/kiosk/:token" element={<KioskScreen />} />

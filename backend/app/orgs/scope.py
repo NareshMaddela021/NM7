@@ -38,6 +38,21 @@ ACTION_TEXT = {
 }
 
 
+FEATURES = ("kiosk", "branding", "recruiter_links")  # Phase 3 switches, per organization; Nm7 sets them
+
+
+def features_of(o: dict[str, Any] | None) -> dict[str, bool]:
+    """Every Phase 3 feature is off until Nm7 switches it on for the organization."""
+    f = (o or {}).get("features") or {}
+    return {k: bool(f.get(k)) for k in FEATURES}
+
+
+def require_feature(o: dict[str, Any] | None, name: str) -> None:
+    """A switched-off feature doesn't exist for that organization: 404, like anything outside a scope."""
+    if not o or not features_of(o)[name]:
+        raise NOT_FOUND
+
+
 @dataclass
 class Scope:
     actor_id: str

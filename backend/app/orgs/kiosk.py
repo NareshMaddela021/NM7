@@ -35,8 +35,9 @@ from app.core.security import hash_password, keyed_hash, new_code, new_token, sa
 from app.core.time import IST, now
 from app.me.service import ms
 from app.orgs import emails
-from app.orgs.router import JoinIn, _join, require_feature
-from app.orgs.scope import NOT_FOUND, OrgScope
+from app.orgs.branding import brands_for
+from app.orgs.router import JoinIn, _join
+from app.orgs.scope import NOT_FOUND, OrgScope, require_feature
 from app.orgs.service import ORG_TYPE_NAMES, consent_text, group_problem
 
 staff = APIRouter(prefix="/api/org/{org_id}/kiosks", tags=["kiosk"])
@@ -266,6 +267,7 @@ async def kiosk_info(token: str, request: Request, db: DB) -> dict[str, Any]:
     k, g, o = await _kiosk(db, token, request, seen=True)
     count = await db[MEMBERSHIPS].count_documents({"group_id": g["_id"], "left_at": None})
     problem = group_problem(g, o, count)
+    brand = (await brands_for(db, [g["_id"]])).get(g["_id"])
     return {
         "kioskId": k["_id"],
         "label": k["label"],
@@ -278,6 +280,7 @@ async def kiosk_info(token: str, request: Request, db: DB) -> dict[str, Any]:
         },
         "consentText": consent_text(o["name"]),
         "closed": problem[1] if problem else None,  # joining is closed: candidates can still build and print
+        "brand": brand,  # Print now uses the organization's template when the group prints branded
     }
 
 

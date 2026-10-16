@@ -191,3 +191,28 @@ Phase 3 adds tools for big events and placements. It ships in three parts, each 
 - Per account: 3 "continue" emails an hour.
 
 **Rules:** the kiosk never asks for Aadhaar, PAN or bank numbers. Group questions still refuse them, and Snap photos still drops ID numbers.
+
+### 3B · Branded templates
+
+**Organization branding**
+- Endpoints: `GET/PUT /api/org/{org}/branding`, `PUT/DELETE …/branding/logo`. Everyone on the team can read it; coordinators and Nm7 can change it. It needs the `branding` feature (otherwise 404) and is audited as `branding_update`.
+- **Logo:** PNG, JPG or SVG, up to 300 KB, stored with the organization in MongoDB (no new storage service).
+  - PNG and JPG are checked by their file signature.
+  - SVGs are cleaned to plain drawing elements and attributes: no scripts, event handlers, outside links, embedded HTML, `data:` / `javascript:` values, DTDs or entities (`backend/app/orgs/branding.py`).
+- **Colour:** one colour. The screen warns below 4.5:1 contrast on white.
+- **Lines:** a header line and an optional footer line.
+- **Base template:** one of the single-column ATS-safe templates (Fresher First, Campus, Starter, Work-first, Classic, Formal, Care).
+- The portal's **Branding** tab shows a live preview on a sample resume.
+
+**Group setting: "Print with organization template"** (off by default; needs the feature)
+- When it's on, every org-side copy uses the branded template: View, PDF, Print, Combined PDF, ZIP, kiosk **Print now** and (Phase 3C) recruiter links.
+- Each copy is the member's content (hidden entries still removed by the server) in the base template.
+- The logo, header line and colour go in a header strip; the footer line goes at the foot of every page. Everything stays real, selectable text.
+- Members' own resumes and downloads never change.
+- Switching the feature off stops branding at once.
+
+#### Setting your branding (when Nm7 has switched branding on for you)
+
+1. Open **Branding** in your portal.
+2. Upload your logo, pick your colour (if you see a contrast warning, choose a darker shade), type a header line such as "XYZ College · Placement Cell", optionally a footer line, and choose a base template. Check the live preview, then choose **Save branding**.
+3. For each group that should print this way, choose **Edit** on the group, tick **Print with organization template** and choose **Save group**. Views, PDFs, combined PDFs, ZIPs and kiosk prints for that group now use your template.

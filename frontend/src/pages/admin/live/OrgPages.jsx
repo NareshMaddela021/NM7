@@ -11,6 +11,7 @@ import { Dialog, useToast } from '../../../components/ui';
 import { savePdf } from '../../builder/resumePdf';
 import ResumePreview from '../../builder/ResumePreview';
 import { designOf, runExport } from '../../../lib/orgExport';
+import { brandDesign } from '../../../lib/branding';
 import { APPROVAL_LABEL, REVIEW_LABEL, bucketRows, countTiles, exportFilters, exportNote, joinBars, remindSummary } from '../../../lib/orgDashboard';
 import { TEMPLATE_PRESETS } from '../../builder/design';
 import { API_BASE } from '../../../services/http';
@@ -18,6 +19,7 @@ import { BarChart, HBars, PageHead } from '../AdminUI';
 import { Loading, day, emptyIf, http, useAction, useApi, when } from './common';
 import { auditText } from './auditText';
 import Kiosks from '../../org/Kiosks';
+import Branding from '../../org/Branding';
 
 export const ORG_TYPES = [
   ['college', 'College'], ['institute', 'Coaching / training institute'], ['job_fair', 'Job fair'], ['skill_centre', 'Skill centre'],
@@ -82,16 +84,17 @@ function FieldsEditor({ fields, set }) {
 const fieldsBody = (fields) => fields.filter((f) => f.label.trim()).map(({ key, label, type, options, required }) => ({ key, label: label.trim(), type, options: type === 'select' ? options : [], required }));
 
 /* ---------- group form (new and edit) ---------- */
-const emptyGroup = { name: '', code: '', startsOn: '', endsOn: '', memberLimit: '', customFields: [], settings: { membersDownloadFree: false, active: true, requireApproval: false } };
+const emptyGroup = { name: '', code: '', startsOn: '', endsOn: '', memberLimit: '', customFields: [], settings: { membersDownloadFree: false, active: true, requireApproval: false, printBranded: false } };
 function GroupForm({ initial = emptyGroup, onSave, onCancel, busy, label, ctx }) {
   const [g, setG] = useState(() => ({ ...emptyGroup, ...initial, settings: { ...emptyGroup.settings, ...initial.settings }, startsOn: initial.startsOn || '', endsOn: initial.endsOn || '', memberLimit: initial.memberLimit ?? '', customFields: (initial.customFields || []).map((f) => ({ ...f, fixedKey: true })) }));
   const nm7 = ctx.role === 'admin';
   const body = () => {
-    const { membersDownloadFree, ...rest } = g.settings;
+    const { membersDownloadFree, printBranded, ...rest } = g.settings;
+    const own = ctx.features?.branding ? { ...rest, printBranded } : rest; // the setting needs the branding feature
     return {
       name: g.name.trim(), ...(g.code.trim() ? { code: g.code.trim() } : {}), startsOn: g.startsOn || null, endsOn: g.endsOn || null,
       memberLimit: g.memberLimit ? Number(g.memberLimit) : null, customFields: fieldsBody(g.customFields),
-      settings: nm7 ? g.settings : rest, // free downloads are Nm7's decision
+      settings: nm7 ? { ...own, membersDownloadFree } : own, // free downloads are Nm7's decision
     };
   };
   const set = (k) => (e) => setG({ ...g, settings: { ...g.settings, [k]: e.target.checked } });
@@ -110,6 +113,7 @@ function GroupForm({ initial = emptyGroup, onSave, onCancel, busy, label, ctx })
       <div className="row g16">
         <label className="row g8 small"><input type="checkbox" checked={g.settings.active} onChange={set('active')} /> Open for joining</label>
         <label className="row g8 small"><input type="checkbox" checked={g.settings.requireApproval} onChange={set('requireApproval')} /> Approve members before they’re shared</label>
+        {ctx.features?.branding && <label className="row g8 small"><input type="checkbox" checked={g.settings.printBranded} onChange={set('printBranded')} /> Print with organization template</label>}
         {nm7 && <label className="row g8 small"><input type="checkbox" checked={g.settings.membersDownloadFree} onChange={set('membersDownloadFree')} /> Members download free (no ₹99 unlock)</label>}
       </div>
       <div className="row g8">
@@ -158,7 +162,7 @@ export function GroupCard({ g, ctx, busy, run, reload, toast }) {
       <div className="row between g12" style={{ alignItems: 'flex-start' }}>
         <div className="stack g4" style={{ minWidth: 0, flex: '1 1 260px' }}>
           <strong>{g.name}</strong>
-          <span className="small muted">Code <strong className="mono" data-testid="join-code">{g.code}</strong> · {g.members}{g.memberLimit ? ` / ${g.memberLimit}` : ''} members · <span className={`badge ${state === 'Open' ? 'b-success' : 'b-neutral'}`}>{state}</span>{g.settings.requireApproval ? ' · approval on' : ''}{g.settings.membersDownloadFree ? ' · free downloads' : ''}</span>
+          <span className="small muted">Code <strong className="mono" data-testid="join-code">{g.code}</strong> · {g.members}{g.memberLimit ? ` / ${g.memberLimit}` : ''} members · <span className={`badge ${state === 'Open' ? 'b-success' : 'b-neutral'}`}>{state}</span>{g.settings.requireApproval ? ' · approval on' : ''}{g.settings.membersDownloadFree ? ' · free downloads' : ''}{g.settings.printBranded && ctx.features?.branding ? ' · organization template' : ''}</span>
           {(g.startsOn || g.endsOn) && <span className="xs faint">{g.startsOn ? `From ${day(Date.parse(g.startsOn))}` : ''}{g.endsOn ? ` until ${day(Date.parse(g.endsOn))}` : ''}</span>}
           <span className="small" style={{ overflowWrap: 'anywhere' }}>Join link: <a href={link} className="mono" data-testid="join-link">{link}</a></span>
           <div className="row g8">
@@ -289,9 +293,8 @@ function OrgDetail({ id, onBack }) {
   const st = useApi(`/api/admin/orgs/${id}`);
   const [busy, run] = useAction(toast);
   const [edit, setEdit] = useState(null);
-  const ctx = { ...ADMIN_CTX, orgId: null };
   return (
-    <Loading st={st}>{(o) => (
+    <Loading st={st}>{(o) => { const ctx = { ...ADMIN_CTX, orgId: null, features: o.features || {} }; return (
       <>
         <PageHead title={o.name} sub={`${o.typeName}${o.city ? ` · ${o.city}` : ''} · ${o.groups} group${o.groups === 1 ? '' : 's'} · ${o.members} member${o.members === 1 ? '' : 's'}${o.status === 'archived' ? ' · archived' : ''}`}
           right={<><button type="button" className="btn btn-outline" onClick={() => setEdit(edit ? null : { name: o.name, type: o.type, city: o.city, logoUrl: o.logoUrl, status: o.status })}>Edit organization</button><button type="button" className="btn btn-outline" onClick={onBack}>All organizations</button></>} />
@@ -308,8 +311,9 @@ function OrgDetail({ id, onBack }) {
         <Coordinators orgId={id} groups={o.groupList} />
         <Features o={o} reload={st.reload} />
         {o.features?.kiosk && <Kiosks orgId={id} groups={o.groupList} canManage />}
+        {o.features?.branding && <><strong style={{ marginTop: 8 }}>Branding</strong><Branding orgId={id} canManage /></>}
       </>
-    )}</Loading>
+    ); }}</Loading>
   );
 }
 
@@ -487,9 +491,9 @@ function ViewResume({ ctx, row, onClose, onAction }) {
     <Dialog showTitle wide title={`${row.name} · ${row.groupName}`} onClose={onClose}>
       <Loading st={st}>{(r) => (
         <div className="stack g12">
-          <div className="row g8">{row.approval === 'approved' && <><button type="button" className="btn btn-ink" onClick={() => onAction('download', row)}>Download PDF</button><button type="button" className="btn btn-outline" onClick={() => onAction('print', row)}>Print</button></>}<span className="xs faint">Read-only · exactly as the member’s template prints it (hidden entries stay hidden)</span></div>
+          <div className="row g8">{row.approval === 'approved' && <><button type="button" className="btn btn-ink" onClick={() => onAction('download', row)}>Download PDF</button><button type="button" className="btn btn-outline" onClick={() => onAction('print', row)}>Print</button></>}<span className="xs faint">{r.brand ? 'Read-only · in your organization’s template (hidden entries stay hidden)' : 'Read-only · exactly as the member’s template prints it (hidden entries stay hidden)'}</span></div>
           {r.reviewNote && <div className="well small">Asked for changes: {r.reviewNote}</div>}
-          <ResumePreview data={r.data} design={designOf(r.data)} />
+          <ResumePreview data={r.data} design={r.brand ? brandDesign(r.brand) : designOf(r.data)} brand={r.brand} />
         </div>
       )}</Loading>
     </Dialog>

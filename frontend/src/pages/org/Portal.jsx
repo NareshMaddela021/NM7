@@ -13,6 +13,7 @@ import { http } from '../../services/http';
 import { Loading, useAction, useApi } from '../admin/live/common';
 import { AuditList, GroupCard, GroupDashboard, NewGroup, SharedResumes } from '../admin/live/OrgPages';
 import Kiosks from './Kiosks';
+import Branding from './Branding';
 
 const ROLE = { coordinator: 'Coordinator', viewer: 'Viewer (view and print)', admin: 'Nm7 admin' };
 
@@ -49,11 +50,12 @@ export function PortalLayout() {
     orgId,
     role: st.data.role,
     canManage: st.data.canManage,
+    features: st.data.features || {},
     sharedUrl: (params = {}) => `/org/${orgId}/resumes?${new URLSearchParams(params)}`,
     dashboardUrl: (g) => `/org/${orgId}/groups/${g.id}`,
     groupPatchUrl: (g) => `${apiBase(orgId)}/groups/${g.id}`,
   } : null), [st.data, orgId]);
-  const tabs = [['', 'My groups'], ['/resumes', 'Shared resumes'], ...(st.data?.features?.kiosk ? [['/kiosks', 'Kiosks']] : []), ['/activity', 'Activity']];
+  const tabs = [['', 'My groups'], ['/resumes', 'Shared resumes'], ...(st.data?.features?.kiosk ? [['/kiosks', 'Kiosks']] : []), ...(st.data?.features?.branding ? [['/branding', 'Branding']] : []), ['/activity', 'Activity']];
   return (
     <Frame wide>
       {st.error ? (
@@ -113,6 +115,14 @@ export function PortalKiosks() {
   usePageMeta(portalMeta(`Kiosks · ${home.name}`));
   if (!home.features?.kiosk) return <Navigate to={`/org/${ctx.orgId}`} replace />;
   return <Kiosks orgId={ctx.orgId} groups={home.groupList} canManage={home.canManage} />;
+}
+
+/** /org/:orgId/branding — only when Nm7 switched branding on for the organization */
+export function PortalBranding() {
+  const { ctx, home } = useOutletContext();
+  usePageMeta(portalMeta(`Branding · ${home.name}`));
+  if (!home.features?.branding) return <Navigate to={`/org/${ctx.orgId}`} replace />;
+  return <Branding orgId={ctx.orgId} canManage={home.canManage} />;
 }
 
 /** /org/:orgId/activity */

@@ -10,6 +10,7 @@ import { Dialog, Spinner } from '../../components/ui';
 import { reloadUser, signOut, useAuth } from '../../lib/auth';
 import { HEARTBEAT_MS, KIOSK_STEPS, createIdleTimer, wipeDevice } from '../../lib/kiosk';
 import { designOf } from '../../lib/orgExport';
+import { brandDesign, prepareBrand } from '../../lib/branding';
 import { loadPdfjs } from '../../lib/import';
 import { reviewToResume } from '../../lib/photoImport';
 import { usePageMeta } from '../../lib/meta';
@@ -210,7 +211,7 @@ export default function KioskScreen() {
         )}
         {step === 'photos' && <PhotoImport embedded title="Snap photos of your papers" onBack={() => setStep('start')} onDone={(review) => { setD((cur) => migrateLinks(reviewToResume(review, cur))); setStep('build'); }} />}
         {step === 'build' && d && <GuidedBuilder d={d} setD={setD} onDone={() => setStep('finish')} />}
-        {step === 'finish' && d && <Finish base={base} d={d} approval={approval} org={info.org.name} save={save} onEdit={() => setStep('build')} onFinish={() => reset('Done! You’re signed out and this screen is clear. Your resume is saved in your Nm7 account.')} />}
+        {step === 'finish' && d && <Finish base={base} d={d} brand={info.brand} approval={approval} org={info.org.name} save={save} onEdit={() => setStep('build')} onFinish={() => reset('Done! You’re signed out and this screen is clear. Your resume is saved in your Nm7 account.')} />}
       </main>
       <footer className="row between g8" style={{ padding: '10px 20px', borderTop: '1px solid var(--border)' }}>
         <span className="xs faint">Nm7 · your resume is saved in your own account · never asks for Aadhaar, PAN or bank numbers</span>
@@ -364,17 +365,17 @@ export function GuidedBuilder({ d, setD, onDone }) {
   );
 }
 
-function Finish({ base, d, approval, org, save, onEdit, onFinish }) {
+function Finish({ base, d, brand, approval, org, save, onEdit, onFinish }) {
   const [busy, setBusy] = useState('');
   const [done, setDone] = useState({});
   const [error, setError] = useState('');
-  const design = useMemo(() => designOf(d), [d]);
+  const design = useMemo(() => (brand ? brandDesign(brand) : designOf(d)), [d, brand]); // a branded group prints in the org's template
   const print = async () => {
     setBusy('print'); setError('');
     try {
       await save();
       const { buildResumePdf } = await import('../builder/resumePdf');
-      await printPdf(await buildResumePdf({ data: d, design, photo: null }));
+      await printPdf(await buildResumePdf({ data: d, design, photo: null, brand: await prepareBrand(brand) }));
       await http(`${base}/print`, { method: 'POST', body: {} });
       setDone((x) => ({ ...x, print: true }));
     } catch (e) { setError(e.message || 'Printing didn’t start. Please try again.'); } finally { setBusy(''); }
@@ -396,7 +397,7 @@ function Finish({ base, d, approval, org, save, onEdit, onFinish }) {
         <button type="button" className="btn btn-outline btn-lg" onClick={onEdit}>Make changes</button>
         <button type="button" className="btn btn-ink btn-lg" onClick={onFinish}>Finish and sign out</button>
       </div>
-      <div className="card" style={{ padding: 12, minWidth: 0 }}><ResumePreview data={d} design={design} /></div>
+      <div className="card" style={{ padding: 12, minWidth: 0 }}><ResumePreview data={d} design={design} brand={brand} /></div>
     </div>
   );
 }

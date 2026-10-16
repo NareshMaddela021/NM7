@@ -7,6 +7,7 @@ import { PDFDocument } from 'pdf-lib';
 import { zipSync } from 'fflate';
 import { DEFAULT_DESIGN, TEMPLATE_PRESETS } from '../pages/builder/design';
 import { http } from '../services/http';
+import { brandDesign, prepareBrand } from './branding';
 
 export const BATCH = 25;
 export const designOf = (d) => ({ ...DEFAULT_DESIGN, ...(d.design || TEMPLATE_PRESETS.fresher.design), preset: d.design?.preset ?? 'fresher' });
@@ -58,7 +59,9 @@ const stamp = (d = new Date()) => d.toISOString().slice(0, 10);
  */
 export async function runExport({ base = '/api/admin', kind, ids = null, filters = {}, sort = 'name', direction = 'asc', cover = false, onProgress = () => {}, signal, build }) {
   const job = await http(`${base}/shared-resumes/exports`, { method: 'POST', body: { kind, ids, filters, sort, direction } });
-  const makePdf = build || (async (data) => (await import('../pages/builder/resumePdf')).buildResumePdf({ data, design: designOf(data) }));
+  // groups printing in their organization's template: the brand comes with the job (logo drawn once)
+  const brands = Object.fromEntries(await Promise.all(Object.entries(job.brands || {}).map(async ([k, b]) => [k, await prepareBrand(b)])));
+  const makePdf = build || (async (data, brand) => (await import('../pages/builder/resumePdf')).buildResumePdf({ data, design: brand ? brandDesign(brand) : designOf(data), brand }));
   const files = [];
   let skipped = 0;
   onProgress({ done: 0, total: job.total, stage: 'Drawing resumes' });
@@ -68,7 +71,8 @@ export async function runExport({ base = '/api/admin', kind, ids = null, filters
     for (const [i, row] of batch.entries()) {
       if (signal?.aborted) throw new DOMException('Stopped', 'AbortError');
       if (!row.data) { skipped += 1; continue; } // left the group or deleted the resume since the job started
-      files.push({ fileName: job.items[offset + i].fileName, bytes: await bytesOf(await makePdf(row.data)) });
+      const item = job.items[offset + i];
+      files.push({ fileName: item.fileName, bytes: await bytesOf(await makePdf(row.data, item.brand ? brands[item.brand] : null)) });
       onProgress({ done: offset + i + 1, total: job.total, stage: 'Drawing resumes' });
     }
   }

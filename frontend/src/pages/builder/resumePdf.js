@@ -14,7 +14,12 @@ const rgb = (hex) => { const n = parseInt(hex.replace('#', ''), 16); return [(n 
 const tintRgb = (hex, a) => rgb(hex).map((c) => Math.round(c * a + 255 * (1 - a)));
 const GREY = [90, 90, 90];
 
-export async function buildResumePdf({ data, design: ds, photo, cover }) {
+/**
+ * brand (organization copies, see lib/branding.js prepareBrand): { img: { data, format, ratio } | null, header,
+ * footer, color } — a header strip with the logo and header line, and the footer line on every page.
+ * stamp: one more small line at the foot of every page (e.g. "Shared with … via Nm7 · expires …").
+ */
+export async function buildResumePdf({ data, design: ds, photo, cover, brand = null, stamp = '' }) {
   const d = visibleResume(data); // switched-off entries are not printed
   const page = PAGE[ds.pageSize] || PAGE.a4;
   const doc = new jsPDF({ unit: 'pt', format: [page.w, page.h] });
@@ -129,15 +134,31 @@ export async function buildResumePdf({ data, design: ds, photo, cover }) {
     if (withPhoto && pos !== 'top') y = Math.max(y, top + PS + 4);
     return y + 4;
   };
+  // the organization's strip: logo + header line in its colour, above the resume (all text stays selectable)
+  let top = M;
+  if (brand && !cover) {
+    const sy = M * 0.6;
+    const LH = 26;
+    let x = M;
+    if (brand.img) {
+      const w = Math.min(LH * brand.img.ratio, 170);
+      const h = w / brand.img.ratio;
+      try { doc.addImage(brand.img.data, brand.img.format, M, sy + (LH - h) / 2, w, h, undefined, 'FAST'); x = M + w + 10; } catch { /* drawn without the logo */ }
+    }
+    const bc = rgb(brand.color || '#1F3A8A');
+    if (brand.header) { set(10, 'bold', bc); doc.text(doc.splitTextToSize(brand.header, page.w - M - x)[0], x, sy + LH / 2 + 3.5); }
+    doc.setDrawColor(...bc); doc.setLineWidth(1.2); doc.line(M, sy + LH + 6, page.w - M, sy + LH + 6);
+    top = sy + LH + 16;
+  }
   let y;
-  if (band) {
+  if (band && top === M) {
     const top = M * 0.75;
     const bottom = header(false, top) + 6;
     doc.setFillColor(...tintRgb(ds.accent, 0.1)); doc.rect(0, 0, page.w, bottom, 'F');
     header(true, top);
     y = bottom + 4;
   } else {
-    y = header(true, M);
+    y = header(true, top);
     if (ds.headerStyle !== 'none') {
       doc.setDrawColor(...(ds.accentOn.lines ? accent : [207, 207, 207])); doc.setLineWidth(ds.accentOn.lines ? 1.5 : 1);
       doc.line(M, y, page.w - M, y);
@@ -376,6 +397,15 @@ export async function buildResumePdf({ data, design: ds, photo, cover }) {
     run({ x: M, w: W, y, page: 1 }, main);
   }
 
+  // foot of every page: the organization's footer line and / or a stamp, small and grey
+  const feet = [!cover && brand?.footer, stamp].filter(Boolean);
+  if (feet.length) {
+    for (let p = 1; p <= doc.getNumberOfPages(); p++) {
+      doc.setPage(p);
+      set(7.5, 'normal', [110, 110, 110]);
+      feet.forEach((t, i) => doc.text(doc.splitTextToSize(t, W)[0], page.w / 2, page.h - M / 2 - (feet.length - 1 - i) * 9, { align: 'center' }));
+    }
+  }
   doc.setProperties({ title: `${d.personal.name || 'Resume'} — Resume`, creator: 'Nm7 Resume Builder' });
   return doc.output('blob');
 }
