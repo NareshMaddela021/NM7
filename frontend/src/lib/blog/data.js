@@ -1,6 +1,7 @@
-// The blog in the browser. In order: the data the pre-rendered page carries, the build's JSON files
-// (/blog/data.json, /blog/<slug>/post.json), then Hygraph itself (new posts before the next rebuild, a build that
-// couldn't reach Hygraph, local development).
+// The blog in the browser. First what the build wrote (the data the pre-rendered page carries, /blog/data.json,
+// /blog/<slug>/post.json) so the page shows at once; then, when that list is empty or over 10 minutes old, the live
+// list from Hygraph's CDN replaces it (posts published after the last build, a build that couldn't reach Hygraph,
+// local development).
 import { fetchBlog, fetchPost, summary } from './hygraph';
 
 let embedded;
@@ -18,17 +19,27 @@ async function staticJson(path) {
 }
 
 let index = null;
-/** { posts (newest first, without bodies), categories } */
+/** What the build saw: { builtAt, posts (newest first, without bodies), categories }; the live list if there is none. */
 export function getIndex() {
   index ||= (async () => {
     const d = pageData();
-    if (d?.posts && d?.categories) return { posts: d.posts, categories: d.categories };
+    if (Array.isArray(d?.posts) && d?.categories) return { builtAt: d.builtAt, posts: d.posts, categories: d.categories };
     const j = await staticJson('/blog/data.json');
-    if (j?.posts) return j;
-    const live = await fetchBlog();
-    return { posts: live.posts.map(summary), categories: live.categories };
+    if (Array.isArray(j?.posts)) return j;
+    return liveIndex();
   })().catch((e) => { index = null; throw e; });
   return index;
+}
+
+const STALE_MS = 10 * 60 * 1000;
+/** A missed or old build must never hide posts: no posts, no date, or built over 10 minutes ago → ask Hygraph too. */
+export const needsLive = (idx, now = Date.now()) => !idx?.live && (!idx?.posts?.length || !idx.builtAt || now - Date.parse(idx.builtAt) > STALE_MS);
+
+let live = null;
+/** The list straight from Hygraph's CDN. */
+export function liveIndex() {
+  live ||= fetchBlog().then((b) => ({ live: true, posts: b.posts.map(summary), categories: b.categories })).catch((e) => { live = null; throw e; });
+  return live;
 }
 
 const posts = new Map();

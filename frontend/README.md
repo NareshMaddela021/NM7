@@ -157,23 +157,39 @@ orders (checkout writes the server's order id, invoice number and payment id int
 - Share preview (WhatsApp/LinkedIn): add `public/og-image.png` (1200×630).
 
 ## Blog (`/blog`, content in Hygraph)
-- Posts, categories and authors are written in Hygraph (project **nm7-blog**). The site reads Hygraph's public
-  Content API (`VITE_HYGRAPH_ENDPOINT`, default in `src/lib/blog/hygraph.js`; read-only, published posts only, no token).
+- Posts, categories and authors are written in Hygraph (project **nm7-blog**). One module (`src/lib/blog/hygraph.js`)
+  holds the queries the build and the browser both send; rich text is read as `content { raw }` (Hygraph's AST).
+- **Two endpoints:** the **build** reads the uncached Content API
+  `https://api-ap-south-1.hygraph.com/v2/cmup9f6ob0ktu06w8zze56jn9/master` (override: `HYGRAPH_BUILD_ENDPOINT`), so a build
+  started by the publish webhook sees the post that was just published. The **browser** reads the CDN
+  `https://ap-south-1.cdn.hygraph.com/content/cmup9f6ob0ktu06w8zze56jn9/master` (override: `VITE_HYGRAPH_ENDPOINT`). Both are
+  public and read-only (published content only, no token).
 - **Pre-rendered for search engines:** `npm run build` fetches every published post and writes real HTML pages
   (`dist/blog/index.html`, `dist/blog/<slug>/index.html`, `dist/blog/category/<slug>/index.html`) with their own title,
-  description, canonical URL, OpenGraph/Twitter tags and JSON-LD, plus `dist/sitemap.xml` (`scripts/prerender-blog.mjs`).
-  The app then takes over in the browser. If Hygraph can't be reached the build still succeeds with a warning and the
-  blog loads from Hygraph in the browser instead.
+  description, canonical URL, OpenGraph/Twitter tags and JSON-LD, plus `dist/sitemap.xml` and `dist/blog/data.json`
+  (`scripts/prerender-blog.mjs`). The build log says what it got, e.g.
+  `[blog] reading Hygraph at …`, `[blog] posts: 1 published (my-post)`, `[blog] categories: 6 (…)`,
+  `[blog] pre-rendered 1 post and 6 categories`. If a query fails the build still succeeds and logs
+  `[blog] WARNING: the posts query failed: HTTP 400 — <the GraphQL error>`; `data.json` then says `posts: null`.
+- **A missed build never hides posts:** in the browser, when the built list has no posts or is more than 10 minutes
+  old, the blog also asks Hygraph's CDN and shows the live list. A post published after the last build still opens
+  (fetched live).
 - Rich text is turned into HTML by `src/lib/blog/richtext.js`: text is always escaped and only known blocks become
-  tags (headings, lists, links, images, code, quotes, tables); video/iframe embeds are not shown.
-- The CSP in `vercel.json` allows images from `*.graphassets.com` and calls to `ap-south-1.cdn.hygraph.com`. If the
-  Hygraph project ever moves region, change `VITE_HYGRAPH_ENDPOINT` and that `connect-src` entry together.
+  tags (headings, lists, links, images, code, quotes, tables); Hygraph's `html` field is never used.
+- The CSP in `vercel.json` allows images from `*.graphassets.com` and browser calls to `ap-south-1.cdn.hygraph.com`. If the
+  Hygraph project ever moves region, change both endpoints and that `connect-src` entry together.
+- CI runs a contract test against the live Hygraph APIs (`scripts/hygraph-contract.test.mjs`): the queries must be
+  valid and the build step must pre-render every published post.
 
 ### New posts go live by themselves (rebuild on publish)
-Because the pages are built at deploy time, Vercel rebuilds the site whenever a post is published:
 1. Vercel → the **nm7** project → **Settings → Git → Deploy Hooks** → name `hygraph-publish`, branch = the production
    branch → **Create Hook**. Copy the URL (it is a secret: never put it in the repository).
-2. Hygraph → **nm7-blog** → **Webhooks → Add webhook**: URL = that Deploy Hook URL, method POST, models
-   **Post, Category, Author**, stage **Published**, actions **Publish** and **Unpublish** (and Delete). Save.
+2. Hygraph → **nm7-blog** → **Webhooks → Add webhook**: URL = that Deploy Hook URL, method POST, stage **Published**,
+   actions **Publish**, **Unpublish** and **Delete**. Save.
 3. Publish a post: a new Vercel deployment starts within seconds and the post is live in about a minute.
-Until a rebuild finishes, a just-published post still opens (the site fetches it from Hygraph in the browser).
+
+**Several deploys per publish:** publishing a post can also fire events for the Category and Author it references, so
+one publish may start ~4 deploys. Neither Hygraph webhooks nor Vercel Deploy Hooks can wait and merge them (no
+debounce), and it is harmless on the Hobby plan (the last build wins). To cut it down, limit the webhook to the
+**Post** model only; after changing a category name or an author, redeploy once by hand (Vercel → Deployments →
+Redeploy) or republish any post.
