@@ -81,6 +81,7 @@ class UserSession(Doc):
     ip: str | None = None
     user_agent: str | None = None
     revoked_at: datetime | None = None
+    kiosk_id: str | None = None  # signed in at an event kiosk: short, fixed expiry; ends when the kiosk is revoked
 
 
 class AdminChallenge(Doc):

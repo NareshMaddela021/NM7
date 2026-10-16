@@ -133,3 +133,61 @@ No new environment variables and no new paid services: emails use the existing R
 7. **Check the log.** **Activity** lists everything done with your organization's resumes, by your team and by Nm7.
 
 Viewers can view and print only.
+
+#### Running kiosks at an event (when Nm7 has switched kiosks on for you)
+
+1. **Make a kiosk link.** Open **Kiosks** in your portal. Choose the group, a label such as "Stall 1", how long it works (end of today, tomorrow or the day after; 3 days at most) and a 4–6 digit **exit PIN**. Choose **Make kiosk link**. The link and its QR code are shown **once**, so open it on the kiosk device straight away.
+2. **Set up the device.** Open the link on a tablet or laptop that's connected to a printer and tap **Start** once (the screen goes full-screen). There is no site menu on a kiosk, and leaving the kiosk screen needs the exit PIN (**Staff: exit kiosk**, at the bottom).
+3. **What candidates do.**
+   - They type their email and enter the 6-digit code sent to it. This signs them into their own free Nm7 account, which is created if they don't have one.
+   - They agree to share and answer your questions.
+   - They fill six short steps, or use **Snap photos** of their papers.
+   - They tap **Print now**. **Send to my email** gives them a one-time link to keep going on their phone.
+   - In a group that approves members, they show as **Pending** for you, but can still print their own copy.
+4. **Privacy.** After **Finish and sign out**, or 2 minutes without a touch (with a 20-second warning), the kiosk signs out and clears everything stored in the browser. Resumes are saved in the candidates' own accounts, never on the device.
+5. **Watch and stop.** The **Kiosks** list shows each kiosk as **Active now** or **Idle**, with today's sign-ins and prints. **Revoke** stops a kiosk at once and signs out whoever is using it. Every kiosk action is in **Activity** (`kiosk_create`, `kiosk_session`, `kiosk_print`, `kiosk_revoke`).
+
+## Nm7 for Organizations (Phase 3)
+
+Phase 3 adds tools for big events and placements. It ships in three parts, each behind a **per-organization feature switch**: `kiosk` (3A), `branding` (3B) and `recruiter_links` (3C).
+
+**Feature switches**
+- Every switch is **off** by default.
+- Only the Nm7 owner can switch them, under **Admin → Organizations → (organization) → Features** (`PUT /api/admin/orgs/{id}/features`, audited as `org_features`). Coordinators can't.
+- When a switch is off, the server answers 404 for that feature (staff endpoints and public links alike) and the screens hide it.
+- These switches become paid plan features in Phase 4.
+
+### 3A · Kiosk mode
+
+**Kiosk links**
+- Endpoints: `POST /api/org/{org}/kiosks` (coordinators, or the owner through the portal API), `GET …/kiosks` (viewers too) and `POST …/kiosks/{id}/revoke`.
+- Each link has:
+  - a label;
+  - an expiry at the end of a day, India time (default today; at most today plus two days);
+  - a 4–6 digit exit PIN.
+- Only HMAC hashes of the link token and the PIN are stored, in the `kiosks` collection.
+- Revoking, or expiry, ends the link at once. Any candidate signed in on it is signed out on their next request, because kiosk sessions are checked against their kiosk.
+
+**The kiosk screen (`/kiosk/:token`)**
+- Endpoints, all under `/api/kiosk/{token}`:
+  - `GET` (welcome details; also the once-a-minute heartbeat behind *Active now*)
+  - `/code` (a 6-digit code by Resend: 10 minutes, 5 tries, one use)
+  - `/verify` (signs in, creating the account if needed; also needs the name and the Terms box for a new account)
+  - `/join` (consent + the group's questions; the same rules as a join link, so approval groups give *Pending*)
+  - `/print` (logs `kiosk_print`)
+  - `/send-link` (emails a one-time link, valid 24 hours: `/continue` → `POST /api/public/continue`)
+  - `/exit` (checks the PIN)
+- A kiosk sign-in lasts at most 45 minutes, is never extended, and is tied to that kiosk.
+- An address that signed up earlier but never confirmed its email gets a fresh random password when the code proves it. This means nobody can claim someone else's email in advance.
+- The builder at the kiosk is a six-step simple mode of the normal builder (same resume data and templates). It also has the existing **Snap photos** option.
+- **Print now** draws the candidate's own PDF (the same PDF maker as downloads) and prints it with the browser's print dialog.
+
+**Wiping the device**
+- Finish, or 2 minutes idle with a 20-second warning, signs out and clears localStorage, sessionStorage, every IndexedDB database of the site and Cache Storage (`frontend/src/lib/kiosk.js`).
+
+**Limits**
+- Per kiosk: 600 requests, 120 codes and 200 sign-in tries an hour; 5 wrong exit PINs per 15 minutes.
+- Per email address: the existing code limits (1 a minute, 5 an hour).
+- Per account: 3 "continue" emails an hour.
+
+**Rules:** the kiosk never asks for Aadhaar, PAN or bank numbers. Group questions still refuse them, and Snap photos still drops ID numbers.

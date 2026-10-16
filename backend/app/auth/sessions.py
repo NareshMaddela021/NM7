@@ -7,7 +7,7 @@ from pymongo.asynchronous.database import AsyncDatabase
 
 from app.auth.models import User, UserSession
 from app.core.config import get_settings
-from app.core.db import SESSIONS, USERS, Session
+from app.core.db import KIOSKS, SESSIONS, USERS, Session
 from app.core.security import hash_token, new_token
 from app.core.time import now
 
@@ -15,6 +15,7 @@ SESSION_COOKIE = "nm7_session"
 USER_TTL = timedelta(days=30)  # customers and experts, extended while they use the site
 ADMIN_TTL = timedelta(hours=12)  # admins, fixed
 SLIDE_AFTER = timedelta(hours=1)  # refresh the expiry at most once an hour
+KIOSK_TTL = timedelta(minutes=45)  # signed in at an event kiosk: fixed, never extended
 
 
 def client_ip(request: Request) -> str | None:
@@ -44,9 +45,14 @@ def clear_cookie(response: Response, name: str, path: str = "/") -> None:
 
 
 async def start_session(
-    db: AsyncDatabase, request: Request, response: Response, user: User, two_step: bool = False
+    db: AsyncDatabase,
+    request: Request,
+    response: Response,
+    user: User,
+    two_step: bool = False,
+    kiosk_id: str | None = None,
 ) -> UserSession:
-    ttl = ADMIN_TTL if user.role == "admin" else USER_TTL
+    ttl = KIOSK_TTL if kiosk_id else ADMIN_TTL if user.role == "admin" else USER_TTL
     token = new_token()
     session = UserSession(
         user_id=user.id,
@@ -55,6 +61,7 @@ async def start_session(
         expires_at=now() + ttl,
         ip=client_ip(request),
         user_agent=(request.headers.get("user-agent") or "")[:300] or None,
+        kiosk_id=kiosk_id,
     )
     await db[SESSIONS].insert_one(session.to_mongo())
     set_cookie(response, SESSION_COOKIE, token, ttl)
@@ -73,6 +80,11 @@ async def load_session(db: AsyncDatabase, request: Request, response: Response) 
     user = User.load(await db[USERS].find_one({"_id": session.user_id, "disabled_at": None}))
     if user is None:
         return None
+    if session.kiosk_id:  # a kiosk sign-in ends with the kiosk (revoked or expired) and is never extended
+        k = await db[KIOSKS].find_one({"_id": session.kiosk_id}, {"revoked_at": 1, "expires_at": 1})
+        if not k or k.get("revoked_at") or k["expires_at"] <= now():
+            return None
+        return session, user
     if user.role != "admin" and now() - session.last_seen_at > SLIDE_AFTER:
         session.last_seen_at = now()
         session.expires_at = now() + USER_TTL

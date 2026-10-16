@@ -17,6 +17,7 @@ import { API_BASE } from '../../../services/http';
 import { BarChart, HBars, PageHead } from '../AdminUI';
 import { Loading, day, emptyIf, http, useAction, useApi, when } from './common';
 import { auditText } from './auditText';
+import Kiosks from '../../org/Kiosks';
 
 export const ORG_TYPES = [
   ['college', 'College'], ['institute', 'Coaching / training institute'], ['job_fair', 'Job fair'], ['skill_centre', 'Skill centre'],
@@ -257,6 +258,32 @@ function Coordinators({ orgId, groups }) {
   );
 }
 
+const FEATURES = [
+  ['kiosk', 'Kiosk mode', 'Event kiosks: candidates sign in with an emailed code, build and print on a tablet or laptop.'],
+  ['branding', 'Branded templates', 'The organization’s logo, colour and header on every org-side print and export.'],
+  ['recruiterLinks', 'Recruiter links', 'Safe links that send chosen (opted-in) resumes to a recruiter.'],
+];
+const FEATURE_KEY = { kiosk: 'kiosk', branding: 'branding', recruiterLinks: 'recruiter_links' };
+
+/** Admin → Organizations → (organization) → Features: Nm7 switches them on; coordinators can't. */
+function Features({ o, reload }) {
+  const toast = useToast();
+  const [busy, run] = useAction(toast);
+  const set = (k, on) => run(async () => { await http(`/api/admin/orgs/${o.id}/features`, { method: 'PUT', body: { [FEATURE_KEY[k]]: on } }); reload(); }, on ? 'Switched on' : 'Switched off');
+  return (
+    <section className="card stack g12" aria-label="Features">
+      <strong>Features</strong>
+      <span className="xs faint">Off by default. Only Nm7 can switch them; when one is off, its screens are hidden and its links stop working.</span>
+      {FEATURES.map(([k, l, d]) => (
+        <label key={k} className="row g12" style={{ alignItems: 'flex-start' }}>
+          <input type="checkbox" checked={!!o.features?.[k]} disabled={busy} onChange={(e) => set(k, e.target.checked)} style={{ marginTop: 4 }} />
+          <span className="stack g2"><span className="small" style={{ fontWeight: 600 }}>{l}</span><span className="xs faint">{d}</span></span>
+        </label>
+      ))}
+    </section>
+  );
+}
+
 function OrgDetail({ id, onBack }) {
   const toast = useToast();
   const st = useApi(`/api/admin/orgs/${id}`);
@@ -279,6 +306,8 @@ function OrgDetail({ id, onBack }) {
         {o.groupList.length === 0 && <div className="well small muted" style={{ textAlign: 'center', padding: 24 }}>No groups yet. A group is one batch, event or drive with its own join code.</div>}
         <NewGroup ctx={ctx} url={`/api/admin/orgs/${id}/groups`} busy={busy} run={run} reload={st.reload} />
         <Coordinators orgId={id} groups={o.groupList} />
+        <Features o={o} reload={st.reload} />
+        {o.features?.kiosk && <Kiosks orgId={id} groups={o.groupList} canManage />}
       </>
     )}</Loading>
   );

@@ -57,6 +57,7 @@ ORG_GROUPS = "org_groups"
 MEMBERSHIPS = "memberships"
 ORG_STAFF = "org_staff"  # coordinators / viewers of an organization (invited by email)
 EXPORT_JOBS = "export_jobs"  # admin bulk print / ZIP jobs: which memberships, so "done" can mark them printed
+KIOSKS = "kiosks"  # kiosk links for events (Phase 3A): token and exit PIN stored hashed
 COLLECTIONS = (
     USERS,
     EMAIL_CODES,
@@ -88,6 +89,7 @@ COLLECTIONS = (
     MEMBERSHIPS,
     EXPORT_JOBS,
     ORG_STAFF,
+    KIOSKS,
 )
 
 DAY = 86_400
@@ -148,7 +150,13 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel([("user_id", ASCENDING), ("status", ASCENDING)]),
         IndexModel("invite_token_hash", sparse=True),
     ],
-    AUDIT_LOG: [IndexModel([("at", DESCENDING)]), IndexModel("action"), IndexModel("actor_id")],
+    KIOSKS: [IndexModel("token_hash", unique=True), IndexModel([("org_id", ASCENDING), ("created_at", DESCENDING)])],
+    AUDIT_LOG: [
+        IndexModel([("at", DESCENDING)]),
+        IndexModel("action"),
+        IndexModel("actor_id"),
+        IndexModel([("target", ASCENDING), ("at", DESCENDING)]),
+    ],
     ORDERS: [
         # _id is the order number (RS-1001…), unique by definition.
         IndexModel("invoice_no", unique=True, partialFilterExpression=_str("invoice_no")),
