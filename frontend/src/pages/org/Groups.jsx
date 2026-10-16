@@ -13,7 +13,7 @@ import { usePageMeta } from '../../lib/meta';
 import { http } from '../../services/http';
 import { MeHead } from '../me/MeLayout';
 import { fmtDay } from '../me/shared';
-import { memberStatus } from '../../lib/orgDashboard';
+import { memberStatus, staffSummary } from '../../lib/orgDashboard';
 
 const NEW = '__new__';
 const consentKey = (code) => `nm7-join-consent:${code}`;
@@ -191,7 +191,7 @@ export function MeGroups() {
       </form>
       {staff.data?.map((o) => (
         <Link key={o.orgId} to={`/org/${o.orgId}`} className="card row between g8" style={{ textDecoration: 'none', color: 'inherit' }}>
-          <span className="stack g4"><strong>You help run {o.orgName}</strong><span className="small muted">{o.role === 'viewer' ? 'Viewer' : 'Coordinator'} · groups, shared resumes, reminders and printing</span></span>
+          <span className="stack g4"><strong>You help run {o.orgName}</strong><span className="small muted" data-testid="staff-summary">{staffSummary(o)}</span></span>
           <span className="btn btn-ink">Open organization</span>
         </Link>
       ))}

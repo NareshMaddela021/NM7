@@ -14,6 +14,12 @@ describe('page titles', () => {
     expect(metaFor('/admin/payments').title).toBe('Payments & invoices · Admin');
     expect(metaFor('/admin/team').title).toBe('Team & audit log · Admin');
     expect(metaFor('/me/launch').title).toBe('Career Launch');
+    // organization pages are never "Page not found" (the portal's pages add the organization / group name)
+    for (const [path, title] of [
+      ['/org', 'My organization'], ['/org/abc', 'My organization'], ['/org/abc/resumes', 'My organization'],
+      ['/org/abc/groups/g1', 'My organization'], ['/org/invite/tok', 'Organization invite'], ['/join/NTC26', 'Join a group'],
+      ['/groups/stop', 'Reminders stopped'], ['/admin/orgs', 'Organizations · Admin'], ['/admin/shared-resumes', 'Shared resumes · Admin'],
+    ]) expect(metaFor(path)).toMatchObject({ title, noindex: true });
     expect(metaFor('/me/upgrade').title).toBe('Upgrade & add-ons');
     expect(metaFor('/expert/orders')).toMatchObject({ title: 'Expert workspace', noindex: true });
   });

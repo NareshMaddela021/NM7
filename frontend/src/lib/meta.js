@@ -26,6 +26,8 @@ export const ROUTE_META = [
   [/^\/admin\/settings/, 'Settings & prices · Admin', 'Nm7 admin console.'],
   [/^\/admin\/automation/, 'Automation · Admin', 'Nm7 admin console.'],
   [/^\/admin\/team/, 'Team & audit log · Admin', 'Nm7 admin console.'],
+  [/^\/admin\/orgs/, 'Organizations · Admin', 'Nm7 admin console.'],
+  [/^\/admin\/shared-resumes/, 'Shared resumes · Admin', 'Nm7 admin console.'],
   [/^\/admin\/?$/, 'Dashboard · Admin', 'Nm7 admin console.'],
   [/^\/admin/, 'Admin console', 'Nm7 admin console.'],
   [/^\/me\/orders/, 'My orders', 'Your orders, their status and invoices.'],
@@ -47,6 +49,10 @@ export const ROUTE_META = [
   [/^\/orders\/[^/]+\/refund/, 'Ask for a refund', 'Refund request for your order.'],
   [/^\/orders\/[^/]+\/review/, 'Review your draft', 'Review the draft from your resume expert.'],
   [/^\/r\//, 'Resume', 'A resume shared via Nm7.'],
+  [/^\/org\/invite\//, 'Organization invite', 'Accept your invite to run resume drives on Nm7.'],
+  [/^\/org(\/|$)/, 'My organization', 'Run your organization’s resume drive on Nm7.'],
+  [/^\/join\//, 'Join a group', 'Share your resume with your organization for printing and placement support.'],
+  [/^\/groups\/stop/, 'Reminders stopped', 'Stop reminder emails from a group.'],
   [/^\/terms/, 'Terms of service', 'The terms for using Nm7.'],
   [/^\/privacy/, 'Privacy policy', 'How Nm7 collects, uses and protects your data.'],
   [/^\/refund-policy/, 'Refund & cancellation policy', 'When and how Nm7 refunds orders.'],
@@ -57,7 +63,7 @@ export const ROUTE_META = [
 ];
 
 // whole path segments only: /expert-terms is a public page, /expert/orders is not
-const PRIVATE = /^\/(me|admin|expert|orders|checkout|login|signup|forgot-password|r)(\/|$)/;
+const PRIVATE = /^\/(me|admin|expert|orders|checkout|login|signup|forgot-password|r|org|join|groups)(\/|$)/;
 
 function setMeta(name, content) {
   let el = document.head.querySelector(`meta[name="${name}"]`);

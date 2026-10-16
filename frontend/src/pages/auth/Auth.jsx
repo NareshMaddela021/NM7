@@ -423,7 +423,7 @@ function WrongAccount({ user, need }) {
   const nav = useNavigate();
   const label = { customer: 'a customer', expert: 'an expert', admin: 'an admin' };
   return (
-    <Shell title="Different account needed" sub={`You’re signed in as ${user.name} (${label[user.role]} account). This page is for ${label[need]} account.`}>
+    <Shell meta title="Different account needed" sub={`You’re signed in as ${user.name} (${label[user.role]} account). This page is for ${label[need]} account.`}>
       <div className="row g8">
         <button type="button" className="btn btn-ink" onClick={async () => { await signOut(); nav(`/login`); }}>Sign out and switch</button>
         <Link to={homeFor(user)} className="btn btn-outline">Go to my home</Link>

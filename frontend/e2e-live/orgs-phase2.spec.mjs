@@ -62,6 +62,11 @@ test('invite → accept → coordinator portal → approve → remind → export
   await c.getByRole('button', { name: 'Accept the invite' }).click();
   await c.waitForURL(/\/org\/[^/]+$/);
   const portalUrl = new URL(c.url()).pathname;
+  await expect(c).toHaveTitle('My groups · Govt Polytechnic Nellore · Nm7');
+  // the coordinator's own dashboard says what they can do there
+  await c.goto('/me/groups');
+  await expect(c.getByTestId('staff-summary')).toHaveText('Coordinator · groups, approvals, reminders and printing');
+  await c.goto(portalUrl);
   await expect(c.getByRole('heading', { name: 'Govt Polytechnic Nellore' })).toBeVisible();
   await expect(c.getByText('Coordinator', { exact: false }).first()).toBeVisible();
   await expect(c.getByRole('link', { name: 'Dashboard' })).toBeVisible(); // not the admin console
@@ -92,6 +97,7 @@ test('invite → accept → coordinator portal → approve → remind → export
   // 4. the coordinator approves them
   await c.goto(portalUrl);
   await c.getByRole('navigation', { name: 'Organization' }).getByRole('link', { name: 'Shared resumes' }).click();
+  await expect(c).toHaveTitle('Shared resumes · Govt Polytechnic Nellore · Nm7');
   await expect(c.getByText('No shared resumes yet.', { exact: false })).toBeVisible(); // pending: hidden by default
   await c.getByLabel('Approval').selectOption('pending');
   const table = c.getByRole('table', { name: 'Shared resumes' });
@@ -109,6 +115,7 @@ test('invite → accept → coordinator portal → approve → remind → export
   await c.getByRole('navigation', { name: 'Organization' }).getByRole('link', { name: 'My groups' }).click();
   await card.getByRole('link', { name: 'Dashboard' }).click();
   await expect(c.getByRole('heading', { name: 'Diploma 2026' })).toBeVisible();
+  await expect(c).toHaveTitle('Diploma 2026 dashboard · Nm7');
   await expect(c.getByRole('link', { name: 'Joined: 1' })).toBeVisible();
   await expect(c.getByRole('region', { name: 'Incomplete members' })).toContainText('Ravi Teja');
   await c.getByRole('button', { name: 'Remind incomplete' }).click();
@@ -126,6 +133,8 @@ test('invite → accept → coordinator portal → approve → remind → export
 
   // 6. export: combined PDF (cover + resume) and CSV
   await c.getByRole('link', { name: 'Open the table' }).click();
+  await expect(c).toHaveTitle('Shared resumes · Govt Polytechnic Nellore · Nm7');
+  await expect(c.getByTestId('export-note')).toHaveText('Exports include approved members only. Combined PDF and ZIP mark those resumes as printed. Exports never include ID numbers.');
   const pdf = await saved(c, () => c.getByRole('button', { name: 'Combined PDF' }).click(), '.pdf');
   expect((await PDFDocument.load(pdf.bytes)).getPageCount()).toBeGreaterThanOrEqual(2);
   const csv = await saved(c, () => c.getByRole('button', { name: 'CSV' }).click(), '.csv');
@@ -134,6 +143,7 @@ test('invite → accept → coordinator portal → approve → remind → export
 
   // 7. the activity log shows the coordinator's actions; the admin sees them too
   await c.getByRole('navigation', { name: 'Organization' }).getByRole('link', { name: 'Activity' }).click();
+  await expect(c).toHaveTitle('Activity · Govt Polytechnic Nellore · Nm7');
   const log = c.getByRole('region', { name: 'Audit log' });
   for (const a of ['approve', 'remind', 'print_bulk', 'export_csv', 'staff_accept']) await expect(log.getByText(a, { exact: true }).first()).toBeVisible();
   await adminNav.getByRole('link', { name: 'Shared resumes' }).click();
@@ -147,5 +157,16 @@ test('invite → accept → coordinator portal → approve → remind → export
   await expect(page.getByText('Access removed')).toBeVisible();
   await c.reload();
   await expect(c.getByText('You don’t have access to this organization')).toBeVisible();
+  // an account that isn't a customer gets "Different account needed" — with that tab title
+  const ex = email('expert2');
+  seed('expert', ex, 'Ravi Kumar', PASSWORD, 'approved');
+  const ectx = await browser.newContext();
+  const e = await ectx.newPage();
+  await login(e, ex);
+  await e.waitForURL('**/expert**');
+  await e.goto('/org');
+  await expect(e.getByRole('heading', { name: 'Different account needed' })).toBeVisible();
+  await expect(e).toHaveTitle('Different account needed · Nm7');
+  await ectx.close();
   await cctx.close(); await sctx.close();
 });

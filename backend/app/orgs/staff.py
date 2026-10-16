@@ -271,7 +271,12 @@ async def mine(db: DB, auth: CustomerAuth) -> list[dict[str, Any]]:
         )
     }
     return [
-        {"orgId": s["org_id"], "orgName": orgs[s["org_id"]]["name"], "role": s["role"]}
+        {
+            "orgId": s["org_id"],
+            "orgName": orgs[s["org_id"]]["name"],
+            "role": s["role"],
+            "allGroups": s.get("group_ids") is None,
+        }
         for s in rows
         if s["org_id"] in orgs
     ]
