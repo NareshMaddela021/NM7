@@ -229,6 +229,8 @@ async def shared_rows(db: AsyncDatabase, match: dict[str, Any]) -> list[dict[str
                 "review_note": m.get("review_note") or "",
                 "reminders_opt_out": bool(m.get("reminders_opt_out")),
                 "last_reminded_at": m.get("last_reminded_at"),
+                "recruiter_opt_in": bool(m.get("recruiter_opt_in")),  # Phase 3C: never assumed, only ticked
+                "shortlisted_by": [],  # filled by with_shortlists()
                 "_data": data,
             }
         )
@@ -274,7 +276,26 @@ def row_out(r: dict[str, Any]) -> dict[str, Any]:
         "reviewNote": r["review_note"],
         "remindersOptOut": r["reminders_opt_out"],
         "lastRemindedAt": ms(r["last_reminded_at"]),
+        "recruiterOptIn": r["recruiter_opt_in"],
+        "shortlistedBy": r["shortlisted_by"],
     }
+
+
+async def with_shortlists(db: AsyncDatabase, rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Adds "Shortlisted by <Company>" to each row from the organizations' recruiter links (any state)."""
+    from app.core.db import RECRUITER_LINKS
+
+    orgs = list({r["org_id"] for r in rows})
+    if not orgs:
+        return rows
+    by: dict[str, list[dict[str, str]]] = {}
+    q = {"org_id": {"$in": orgs}, "shortlist": {"$ne": {}}}
+    async for link in db[RECRUITER_LINKS].find(q, {"company": 1, "shortlist": 1}):
+        for mid in link.get("shortlist") or {}:
+            by.setdefault(mid, []).append({"linkId": link["_id"], "company": link["company"]})
+    for r in rows:
+        r["shortlisted_by"] = by.get(r["membership_id"], [])
+    return rows
 
 
 def printable(r: dict[str, Any]) -> dict[str, Any]:
@@ -301,6 +322,8 @@ def filter_rows(rows: list[dict[str, Any]], f: dict[str, Any]) -> list[dict[str,
     out = rows if approval == "all" else [r for r in rows if r["approval"] == approval]
     if f.get("review"):
         out = [r for r in out if r["review_status"] == f["review"]]
+    if f.get("shortlisted_by"):
+        out = [r for r in out if any(s["linkId"] == f["shortlisted_by"] for s in r["shortlisted_by"])]
     if f.get("q"):
         q = f["q"].strip().lower()
         out = [r for r in out if q in r["name"].lower() or q in r["email"].lower() or q in r["roll"].lower()]

@@ -66,7 +66,7 @@ export async function adminLogin(page, mail, secret, password = PASSWORD) {
 }
 
 /** A member made through the API: a verified account, one resume ("r1"), joined to the group with `code`. */
-export async function apiMember(playwright, mail, name, code, fields = {}, data = null) {
+export async function apiMember(playwright, mail, name, code, fields = {}, data = null, joinExtra = {}) {
   seed('customer', mail, name, PASSWORD);
   const api = await playwright.request.newContext({ baseURL: API, extraHTTPHeaders: { Origin: 'http://localhost:5182' } });
   const ok = async (r) => { if (!r.ok()) throw new Error(`${r.url()} ${r.status()} ${await r.text()}`); return r.json(); };
@@ -80,7 +80,7 @@ export async function apiMember(playwright, mail, name, code, fields = {}, data 
     pinfo: {}, links: {}, hidden: {}, titles: {}, showPhoto: false,
   };
   await ok(await api.post('/api/me/resumes', { data: { id: 'r1', name: 'Main', data: resume, active: true } }));
-  const m = await ok(await api.post('/api/me/groups/join', { data: { code, consent: true, fields, resumeId: 'r1' } }));
+  const m = await ok(await api.post('/api/me/groups/join', { data: { code, consent: true, fields, resumeId: 'r1', ...joinExtra } }));
   return { api, membership: m };
 }
 

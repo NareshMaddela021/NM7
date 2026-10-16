@@ -66,6 +66,7 @@ export function Join() {
   const customer = user?.role === 'customer';
   const resumes = useServer(LIVE && customer ? '/api/me/resumes' : null);
   const [consent, setConsent] = useState(() => remembered(code));
+  const [recruit, setRecruit] = useState(() => remembered(`${code}:recruiters`)); // never ticked for them
   const [values, setValues] = useState({});
   const [pick, setPick] = useState('');
   const [busy, setBusy] = useState(false);
@@ -73,6 +74,7 @@ export function Join() {
   const nav = useNavigate();
   const toast = useToast();
   useEffect(() => { remember(code, consent); }, [code, consent]);
+  useEffect(() => { remember(`${code}:recruiters`, recruit); }, [code, recruit]);
   const list = byUpdated(resumes.data);
   const chosen = pick || list[0]?.id || NEW;
 
@@ -107,8 +109,8 @@ export function Join() {
         resumeId = `r-${Date.now().toString(36)}`;
         await createResume({ id: resumeId, name: `${j.group.name}`.slice(0, 80), data: blankResume(), active: true });
       }
-      await http('/api/me/groups/join', { method: 'POST', body: { code, consent: true, fields: values, resumeId } });
-      remember(code, false);
+      await http('/api/me/groups/join', { method: 'POST', body: { code, consent: true, fields: values, resumeId, recruiterOptIn: !!(recruit && j.group.shareWithRecruiters) } });
+      remember(code, false); remember(`${code}:recruiters`, false);
       if (chosen === NEW) {
         window.location.assign('/builder'); // a fresh load: the builder opens the new (now active) resume
       } else {
@@ -135,6 +137,12 @@ export function Join() {
           <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} style={{ marginTop: 4 }} />
           <span>{j.consentText}</span>
         </label>
+        {j.group.shareWithRecruiters && (
+          <label className="row g8" style={{ alignItems: 'flex-start', flexWrap: 'nowrap' }}>
+            <input type="checkbox" checked={recruit} onChange={(e) => setRecruit(e.target.checked)} style={{ marginTop: 4 }} />
+            <span>Allow {j.org.name} to share my resume with recruiters <span className="small muted">(optional — you can change this any time in My groups)</span></span>
+          </label>
+        )}
         {!user && (
           <div className="stack g8">
             <span className="small muted">Next: create a free account (or sign in) so your resume is saved.</span>
@@ -229,6 +237,13 @@ export function MeGroups() {
                 onChange={(e) => act(() => http(`/api/me/groups/${g.id}`, { method: 'PATCH', body: { remindersOptOut: !e.target.checked } }), e.target.checked ? 'Reminders on' : 'Reminders off')} />
               Reminder emails
             </label>
+            {g.shareWithRecruiters && (
+              <label className="row g8 small" style={{ minHeight: 40 }}>
+                <input type="checkbox" checked={!!g.recruiterOptIn} disabled={busy}
+                  onChange={(e) => act(() => http(`/api/me/groups/${g.id}`, { method: 'PATCH', body: { recruiterOptIn: e.target.checked } }), e.target.checked ? 'Recruiters can see your resume when shared' : 'Removed from recruiter links')} />
+                Allow {g.orgName} to share my resume with recruiters
+              </label>
+            )}
             <button type="button" className="btn btn-outline" disabled={busy}
               onClick={() => { if (window.confirm(`Leave ${g.groupName}? ${g.orgName} will no longer see your resume.`)) act(() => http(`/api/me/groups/${g.id}/leave`, { method: 'POST', body: {} }), 'You left the group'); }}>Leave group</button>
           </div>

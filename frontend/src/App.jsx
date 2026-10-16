@@ -53,7 +53,7 @@ const MeCovers = lazy(() => import('./pages/me/MeCovers'));
 const MeJobs = lazy(() => import('./pages/me/MeJobs'));
 const meShare = () => import('./pages/me/MeShare');
 const MeShare = named(meShare, 'default');
-const PublicResume = named(meShare, 'PublicResume');
+const ShareRoute = lazy(() => import('./pages/recruit/Recruiter')); // /r/<name> resume links and /r/<token> recruiter links
 const MeLaunch = lazy(() => import('./pages/me/MeLaunch'));
 const meMoney = () => import('./pages/me/MeMoney');
 const MePayments = named(meMoney, 'MePayments');
@@ -70,6 +70,7 @@ const PortalDashboard = named(portal, 'PortalDashboard');
 const PortalActivity = named(portal, 'PortalActivity');
 const PortalKiosks = named(portal, 'PortalKiosks');
 const PortalBranding = named(portal, 'PortalBranding');
+const PortalRecruiters = named(portal, 'PortalRecruiters');
 const kioskPages = () => import('./pages/kiosk/Kiosk');
 const KioskScreen = named(kioskPages, 'default');
 const ContinueHere = named(kioskPages, 'ContinueHere');
@@ -247,7 +248,7 @@ export default function App() {
           <Route path="settings" element={<MeSettings />} />
           <Route path="help" element={<MeHelp />} />
         </Route>
-        <Route path="/r/:slug" element={<PublicResume />} />
+        <Route path="/r/:slug" element={<ShareRoute />} />
         <Route path="/join/:code" element={<Join />} />
         <Route path="/groups/stop" element={<StopReminders />} />
         <Route path="/org/invite/:token" element={<OrgInvite />} />
@@ -258,6 +259,7 @@ export default function App() {
           <Route path="groups/:groupId" element={<PortalDashboard />} />
           <Route path="kiosks" element={<PortalKiosks />} />
           <Route path="branding" element={<PortalBranding />} />
+          <Route path="recruiters" element={<PortalRecruiters />} />
           <Route path="activity" element={<PortalActivity />} />
         </Route>
         <Route path="/kiosk/:token" element={<KioskScreen />} />

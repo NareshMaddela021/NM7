@@ -61,6 +61,7 @@ from app.orgs.service import (
     shared_rows,
     sort_rows,
     unique_names,
+    with_shortlists,
 )
 
 log = logging.getLogger("nm7.orgs")
@@ -133,6 +134,7 @@ class GroupSettings(CamelModel):
     active: bool = True
     require_approval: bool = False
     print_branded: bool = False  # Phase 3B: org-side copies in the organization's template (needs `branding`)
+    share_with_recruiters: bool = False  # Phase 3C: members may opt in to recruiter links (needs `recruiter_links`)
 
 
 class GroupSettingsPatch(CamelModel):  # only what's sent changes (e.g. a coordinator's open / close switch)
@@ -140,6 +142,7 @@ class GroupSettingsPatch(CamelModel):  # only what's sent changes (e.g. a coordi
     active: bool | None = None
     require_approval: bool | None = None
     print_branded: bool | None = None
+    share_with_recruiters: bool | None = None
 
 
 class GroupIn(CamelModel):
@@ -165,6 +168,7 @@ class GroupPatch(CamelModel):
 class JoinIn(CamelModel):
     code: str = Field(max_length=20)
     consent: bool = False
+    recruiter_opt_in: bool = False  # "Allow <Org> to share my resume with recruiters" (groups that use it)
     fields: dict[str, Any] = Field(default_factory=dict)
     resume_id: str = Field(max_length=64)
 
@@ -172,6 +176,7 @@ class JoinIn(CamelModel):
 class MembershipPatch(CamelModel):
     resume_id: str | None = Field(None, max_length=64)
     reminders_opt_out: bool | None = None
+    recruiter_opt_in: bool | None = None
 
 
 Approval = Literal["approved", "pending", "rejected", "all"]
@@ -193,6 +198,7 @@ class Filters(CamelModel):
     ready_not_printed: bool = False
     approval: Approval = "approved"
     review: Review | None = None
+    shortlisted_by: str | None = Field(None, max_length=64)  # a recruiter link id
     only_ready: bool = False  # exports: only resumes marked Ready
 
 
@@ -276,6 +282,7 @@ def group_out(g: dict[str, Any], members: int = 0) -> dict[str, Any]:
             "active": st.get("active", True),
             "requireApproval": st.get("require_approval", False),
             "printBranded": st.get("print_branded", False),
+            "shareWithRecruiters": st.get("share_with_recruiters", False),
         },
         "members": members,
         "createdAt": ms(g["created_at"]),
@@ -326,6 +333,8 @@ async def create_group_in(db, scope: Scope, o: dict[str, Any], body: GroupIn, ip
         raise FREE_ONLY_NM7
     if body.settings.print_branded:
         require_feature(o, "branding")
+    if body.settings.share_with_recruiters:
+        require_feature(o, "recruiter_links")
     code = await _code_free(db, body.code) if body.code else await new_code(db, o["name"])
     starts, ends = _dates(body.starts_on, body.ends_on)
     t = now()
@@ -354,8 +363,12 @@ async def update_group_in(db, scope: Scope, g: dict[str, Any], body: GroupPatch,
     if scope.is_staff and body.settings and body.settings.members_download_free is not None:
         if body.settings.members_download_free != g.get("settings", {}).get("members_download_free", False):
             raise FREE_ONLY_NM7
-    if body.settings and body.settings.print_branded:
-        require_feature(await db[ORGANIZATIONS].find_one({"_id": g["org_id"]}), "branding")
+    if body.settings and (body.settings.print_branded or body.settings.share_with_recruiters):
+        o = await db[ORGANIZATIONS].find_one({"_id": g["org_id"]})
+        if body.settings.print_branded:
+            require_feature(o, "branding")
+        if body.settings.share_with_recruiters:
+            require_feature(o, "recruiter_links")
     sets: dict[str, Any] = {}
     if "name" in given and body.name:
         sets["name"] = body.name
@@ -389,6 +402,7 @@ ORG_ACTIONS = [
     "staff_invite", "staff_update", "staff_remove", "staff_accept", "staff_resend",
     "member_join", "member_update", "member_leave", "org_features",
     "kiosk_create", "kiosk_revoke", "kiosk_session", "kiosk_print", "branding_update",
+    "share_create", "share_view", "share_download", "share_shortlist", "share_revoke", "share_extend",
 ]  # fmt: skip
 
 
@@ -444,6 +458,7 @@ async def join_info(code: str, request: Request, db: DB) -> dict[str, Any]:
             "customFields": g.get("custom_fields", []),
             "endsOn": g.get("ends_on"),
             "requireApproval": g.get("settings", {}).get("require_approval", False),
+            "shareWithRecruiters": recruiters_on(g, o),
         },
         "consentText": consent_text(o["name"]),
     }
@@ -466,6 +481,11 @@ async def stop_reminders(body: StopIn, request: Request, db: DB) -> dict[str, An
 
 
 # ---------- members ----------
+def recruiters_on(g: dict[str, Any] | None, o: dict[str, Any] | None) -> bool:
+    """The group asks members whether its organization may share their resume with recruiters."""
+    return bool(g and o and g.get("settings", {}).get("share_with_recruiters") and features_of(o)["recruiter_links"])
+
+
 def membership_out(m: dict[str, Any], g: dict[str, Any] | None, o: dict[str, Any] | None) -> dict[str, Any]:
     return {
         "id": m["_id"],
@@ -481,6 +501,8 @@ def membership_out(m: dict[str, Any], g: dict[str, Any] | None, o: dict[str, Any
         "reviewStatus": m.get("review_status") or "none",
         "reviewNote": m.get("review_note") or "",
         "remindersOptOut": bool(m.get("reminders_opt_out")),
+        "shareWithRecruiters": recruiters_on(g, o),
+        "recruiterOptIn": bool(m.get("recruiter_opt_in")),
     }
 
 
@@ -535,6 +557,7 @@ async def _join(body: JoinIn, request: Request, auth: CustomerAuth, db: DB, via:
         "resume_id": body.resume_id,
         "field_values": values,
         "consent": {"given": True, "text": consent_text(o["name"]), "at": t},  # no IP stored
+        "recruiter_opt_in": bool(body.recruiter_opt_in and recruiters_on(g, o)),
         "left_at": None,
         "updated_at": t,
     }
@@ -570,9 +593,16 @@ async def change_membership(membership_id: str, body: MembershipPatch, auth: Cus
         sets["resume_id"] = body.resume_id
     if body.reminders_opt_out is not None:
         sets["reminders_opt_out"] = body.reminders_opt_out
-    r = await db[MEMBERSHIPS].update_one({"_id": membership_id, "user_id": uid, "left_at": None}, {"$set": sets})
-    if not r.matched_count:
+    if body.recruiter_opt_in is not None:
+        sets["recruiter_opt_in"] = body.recruiter_opt_in  # opting out removes them from every link at once
+    m = await db[MEMBERSHIPS].find_one_and_update(
+        {"_id": membership_id, "user_id": uid, "left_at": None}, {"$set": sets}
+    )
+    if not m:
         raise NOT_FOUND
+    if body.recruiter_opt_in is not None and bool(m.get("recruiter_opt_in")) != body.recruiter_opt_in:
+        data = {"orgs": [m["org_id"]], "group": m["group_id"], "recruiterOptIn": body.recruiter_opt_in}
+        await audit(db, uid, "member_update", target=membership_id, data=data)
     return next(x for x in await _my(db, uid) if x["id"] == membership_id)
 
 
@@ -756,7 +786,7 @@ async def _rows(db, scope: Scope, f: Filters, sort: str = "joined", direction: s
         if f.only_ready:
             fd["review"] = "ready"
     try:
-        return sort_rows(filter_rows(await shared_rows(db, match), fd), sort, direction)
+        return sort_rows(filter_rows(await with_shortlists(db, await shared_rows(db, match)), fd), sort, direction)
     except ValueError:
         raise ApiError(400, "bad_date", "Dates must look like 2026-10-16.") from None
 
@@ -828,6 +858,7 @@ def register_shared(router: APIRouter, ScopeDep) -> None:  # noqa: N803 — a de
         ready_not_printed: bool = Query(False, alias="readyNotPrinted"),
         approval: Approval = "approved",
         review: Review | None = None,
+        shortlisted_by: str | None = Query(None, alias="shortlistedBy", max_length=64),
         sort: str = "joined",
         direction: Literal["asc", "desc"] = Query("desc", alias="dir"),
         page: int = Query(1, ge=1),
@@ -837,6 +868,7 @@ def register_shared(router: APIRouter, ScopeDep) -> None:  # noqa: N803 — a de
             org=org, group=group, q=q, joined_from=joined_from, joined_to=joined_to, updated_from=updated_from,
             updated_to=updated_to, field_key=field_key, field_value=field_value, incomplete=incomplete,
             not_printed=not_printed, ready_not_printed=ready_not_printed, approval=approval, review=review,
+            shortlisted_by=shortlisted_by,
         )  # fmt: skip
         rows = await _rows(db, scope, f, sort, direction)
         start = (page - 1) * per_page

@@ -27,6 +27,7 @@ from app.me.router import router as me_router
 from app.orders.router import router as orders_router
 from app.orgs import branding as org_branding
 from app.orgs import kiosk as org_kiosk
+from app.orgs import recruiter as org_recruiter
 from app.orgs import router as orgs
 from app.orgs import staff as org_staff
 from app.payments.router import router as payments_router
@@ -63,7 +64,7 @@ def create_app() -> FastAPI:
         allow_origin_regex=settings.cors_origin_regex or None,
         allow_credentials=True,  # session cookies
         allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
-        allow_headers=["Content-Type"],
+        allow_headers=["Content-Type", "X-Access-Code"],  # the access code of a recruiter link
     )
     errors.install(app)
 
@@ -103,6 +104,8 @@ def create_app() -> FastAPI:
     app.include_router(org_staff.portal)
     app.include_router(org_kiosk.staff)
     app.include_router(org_branding.router)
+    app.include_router(org_recruiter.staff)
+    app.include_router(org_recruiter.public)
     app.include_router(org_kiosk.kiosk)
     app.include_router(org_kiosk.cont)
     app.include_router(admin_console_router)

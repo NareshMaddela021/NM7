@@ -14,6 +14,7 @@ import { Loading, useAction, useApi } from '../admin/live/common';
 import { AuditList, GroupCard, GroupDashboard, NewGroup, SharedResumes } from '../admin/live/OrgPages';
 import Kiosks from './Kiosks';
 import Branding from './Branding';
+import RecruiterLinks from './RecruiterLinks';
 
 const ROLE = { coordinator: 'Coordinator', viewer: 'Viewer (view and print)', admin: 'Nm7 admin' };
 
@@ -55,7 +56,7 @@ export function PortalLayout() {
     dashboardUrl: (g) => `/org/${orgId}/groups/${g.id}`,
     groupPatchUrl: (g) => `${apiBase(orgId)}/groups/${g.id}`,
   } : null), [st.data, orgId]);
-  const tabs = [['', 'My groups'], ['/resumes', 'Shared resumes'], ...(st.data?.features?.kiosk ? [['/kiosks', 'Kiosks']] : []), ...(st.data?.features?.branding ? [['/branding', 'Branding']] : []), ['/activity', 'Activity']];
+  const tabs = [['', 'My groups'], ['/resumes', 'Shared resumes'], ...(st.data?.features?.kiosk ? [['/kiosks', 'Kiosks']] : []), ...(st.data?.features?.branding ? [['/branding', 'Branding']] : []), ...(st.data?.features?.recruiterLinks ? [['/recruiters', 'Recruiter links']] : []), ['/activity', 'Activity']];
   return (
     <Frame wide>
       {st.error ? (
@@ -123,6 +124,14 @@ export function PortalBranding() {
   usePageMeta(portalMeta(`Branding · ${home.name}`));
   if (!home.features?.branding) return <Navigate to={`/org/${ctx.orgId}`} replace />;
   return <Branding orgId={ctx.orgId} canManage={home.canManage} />;
+}
+
+/** /org/:orgId/recruiters — only when Nm7 switched recruiter links on for the organization */
+export function PortalRecruiters() {
+  const { ctx, home } = useOutletContext();
+  usePageMeta(portalMeta(`Recruiter links · ${home.name}`));
+  if (!home.features?.recruiterLinks) return <Navigate to={`/org/${ctx.orgId}`} replace />;
+  return <RecruiterLinks orgId={ctx.orgId} canManage={home.canManage} sharedUrl={ctx.sharedUrl} />;
 }
 
 /** /org/:orgId/activity */
