@@ -1,5 +1,7 @@
 // Reading the blog from Hygraph's public Content API (read-only, published content only, no token).
 // Plain JS: used in the browser and by the build-time pre-render (scripts/prerender-blog.mjs).
+// Rich text is read as `content { raw }` (Hygraph's AST; there is no `json` field) and rendered by ./richtext.js —
+// never from the `html` field, so nothing typed into a post reaches the page as HTML.
 import { readingTime } from './richtext.js';
 
 export const DEFAULT_ENDPOINT = 'https://ap-south-1.cdn.hygraph.com/content/cmup9f6ob0ktu06w8zze56jn9/master';
@@ -11,7 +13,7 @@ export const PER_PAGE = 12;
 
 const POST_FIELDS = `id title slug excerpt publishedAt updatedAt createdAt seoTitle seoDescription
   coverImage { url width height }
-  content { json }
+  content { raw }
   category { name slug }
   author { name bio photo { url } }`;
 
@@ -35,7 +37,7 @@ export async function gql(query, variables, { endpoint = ENDPOINT, fetchImpl = f
 
 /** A post from the API → what the pages use (reading time worked out, dates as ISO strings). */
 export function normalizePost(p) {
-  const content = p.content?.json ?? p.content?.raw ?? p.content ?? { children: [] };
+  const content = p.content?.raw ?? p.content ?? { children: [] }; // Hygraph's Rich Text AST is the `raw` field
   return {
     id: p.id,
     title: p.title || '',

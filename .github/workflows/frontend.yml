@@ -25,6 +25,8 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm test
+      - name: Blog contract test against the live Hygraph API (same queries and build step as Vercel)
+        run: HYGRAPH_CONTRACT=1 npx vitest run scripts/hygraph-contract.test.mjs
       - run: npx playwright install --with-deps chromium
       - name: Browser tests (preview build, sample data)
         run: npm run test:e2e

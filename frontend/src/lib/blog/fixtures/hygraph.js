@@ -1,4 +1,5 @@
-// A made-up Hygraph answer for tests (two categories, three posts; one has HTML typed into its text).
+// A made-up Hygraph answer for tests, shaped like the real schema (rich text in `content.raw`):
+// three categories, three posts; one has HTML typed into its text.
 const t = (text, marks = {}) => ({ text, ...marks });
 const words = (n) => Array.from({ length: n }, (_, i) => `word${i}`).join(' ');
 
@@ -34,7 +35,7 @@ const post = (o) => ({
   id: o.slug, slug: o.slug, title: o.title, excerpt: o.excerpt, seoTitle: o.seoTitle || null, seoDescription: o.seoDescription || null,
   publishedAt: o.publishedAt, updatedAt: o.updatedAt || o.publishedAt, createdAt: o.publishedAt,
   coverImage: o.cover === false ? null : { url: `https://ap-south-1.graphassets.com/abc/${o.slug}.jpg`, width: 1200, height: 630 },
-  content: { json: o.content || { children: [{ type: 'paragraph', children: [t(o.excerpt)] }] } },
+  content: { raw: o.content || { children: [{ type: 'paragraph', children: [t(o.excerpt)] }] } },
   category: o.category, author: { name: 'Nm7 Team', bio: 'The team behind Nm7.', photo: null },
 });
 

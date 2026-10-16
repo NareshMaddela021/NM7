@@ -1,4 +1,4 @@
-// Hygraph Rich Text (the `content { json }` AST) → safe HTML, plain text and reading time.
+// Hygraph Rich Text (the `content { raw }` AST) → safe HTML, plain text and reading time.
 // Used by the browser and by the build-time pre-render (plain JS, no JSX). Every piece of text is escaped and
 // only known node types become tags, so HTML typed into a post can never reach the page as HTML.
 
@@ -60,16 +60,16 @@ function node(n) {
   }
 }
 
-/** The post body as HTML. Accepts `{ children: [...] }`, the `raw` / `json` field, or an array of nodes. */
+/** The post body as HTML. Accepts the `raw` AST (`{ children: [...] }`), `{ raw }` or an array of nodes. */
 export function richTextToHtml(doc) {
-  const kids = Array.isArray(doc) ? doc : doc?.children || doc?.json?.children || doc?.raw?.children || [];
+  const kids = Array.isArray(doc) ? doc : doc?.children || doc?.raw?.children || [];
   return kids.map(node).join('');
 }
 
 export function plainText(doc) {
   const out = [];
   const walk = (n) => { if (!n) return; if (typeof n.text === 'string') out.push(n.text); (n.children || []).forEach(walk); };
-  (Array.isArray(doc) ? doc : doc?.children || doc?.json?.children || doc?.raw?.children || []).forEach((n) => { walk(n); out.push(' '); });
+  (Array.isArray(doc) ? doc : doc?.children || doc?.raw?.children || []).forEach((n) => { walk(n); out.push(' '); });
   return out.join(' ').replace(/\s+/g, ' ').trim();
 }
 

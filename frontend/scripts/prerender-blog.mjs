@@ -104,8 +104,9 @@ export async function prerenderBlog({ dist, endpoint = ENDPOINT, fetchImpl = glo
   const list = posts.map(summary);
 
   write(join(dist, 'blog', 'index.html'), page(template, listMeta(), blog ? listBody(posts, categories) : shell(''), { jsonLd: listJsonLd(), data: blog ? { posts: list, categories } : null }));
+  // always there (no 404): `posts: null` tells the app to read the blog from Hygraph itself
+  write(join(dist, 'blog', 'data.json'), JSON.stringify(blog ? { posts: list, categories } : { posts: null, categories: null }));
   if (blog) {
-    write(join(dist, 'blog', 'data.json'), JSON.stringify({ posts: list, categories }));
     for (const c of categories) {
       const mine = posts.filter((p) => p.category?.slug === c.slug);
       write(join(dist, 'blog', 'category', c.slug, 'index.html'), page(template, categoryMeta(c, mine.length), listBody(mine, categories, c.slug), { jsonLd: categoryJsonLd(c), data: { posts: list, categories } }));

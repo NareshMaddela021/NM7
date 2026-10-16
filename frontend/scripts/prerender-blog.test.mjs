@@ -1,5 +1,5 @@
 // The blog build step with a made-up Hygraph answer: static pages, SEO tags, JSON-LD, sitemap, and the CSP.
-import { mkdtempSync, readFileSync, existsSync, copyFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, copyFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -97,6 +97,18 @@ describe('pre-rendering the blog at build time', async () => {
   });
 });
 
+describe('no posts yet (6 categories)', () => {
+  it('/blog says "First articles coming soon" and data.json lists the categories', async () => {
+    const d = dist();
+    const six = ['resume-tips', 'ats', 'freshers', 'interviews', 'govt-psu-jobs', 'career-switch'].map((slug) => ({ name: slug, slug }));
+    const res = await prerenderBlog({ dist: d, endpoint: 'https://hygraph.test/content', fetchImpl: fakeHygraph({ posts: [], categories: six }), log: quiet });
+    expect(res).toEqual({ ok: true, posts: 0, categories: 6 });
+    expect(read(d, 'blog/index.html')).toContain('First articles coming soon.');
+    expect(JSON.parse(read(d, 'blog/data.json'))).toEqual({ posts: [], categories: six });
+    expect(read(d, 'blog/category/ats/index.html')).toContain('content="noindex, follow"');
+  });
+});
+
 describe('when Hygraph is down', () => {
   it('the build still succeeds: a warning, an empty /blog shell and the sitemap', async () => {
     const d = dist();
@@ -106,7 +118,7 @@ describe('when Hygraph is down', () => {
     expect(warnings[0]).toMatch(/Couldn’t load the blog from Hygraph/);
     expect(read(d, 'blog/index.html')).toContain('<link rel="canonical" href="https://nm7.si/blog" />');
     expect(read(d, 'blog/index.html')).not.toContain('nm7-blog-data'); // the app fetches in the browser
-    expect(existsSync(join(d, 'blog/data.json'))).toBe(false);
+    expect(JSON.parse(read(d, 'blog/data.json'))).toEqual({ posts: null, categories: null }); // no 404; the app asks Hygraph
     expect(read(d, 'sitemap.xml')).toContain('<loc>https://nm7.si/blog</loc>');
   });
 });
