@@ -53,6 +53,7 @@ export const ROUTE_META = [
   [/^\/delivery-policy/, 'Delivery policy', 'How and when Nm7 delivers your resume.'],
   [/^\/expert-terms/, 'Expert terms', 'Terms for resume experts working with Nm7.'],
   [/^\/contact/, 'Contact us', 'How to reach Nm7.'],
+  [/^\/blog(\/|$)/, 'Resume & job-search blog', 'Practical resume, ATS and interview advice for India from the Nm7 team.'],
 ];
 
 // whole path segments only: /expert-terms is a public page, /expert/orders is not

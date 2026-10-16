@@ -27,3 +27,32 @@ test('pages work under the Content-Security-Policy', async ({ page }) => {
   const v = await page.evaluate(() => window.__csp);
   expect(v.filter((x) => !x.includes('eval'))).toEqual([]);
 });
+
+test('blog: pre-rendered static pages are served (not the app shell), real 404s, sitemap, and no CSP violations', async ({ page }) => {
+  // the build pre-rendered the test posts (e2e-live/build-with-blog.mjs)
+  const r = await page.request.get('/blog/ats-friendly-resume');
+  expect(r.status()).toBe(200);
+  const html = await r.text();
+  expect(html).toContain('<title>How to make an ATS-friendly resume · Nm7</title>');
+  expect(html).toContain('<link rel="canonical" href="https://nm7.si/blog/ats-friendly-resume" />');
+  expect(html).toContain('ATS software reads your resume before a person does.');
+  expect(html).toContain('"@type":"BlogPosting"');
+  expect(r.headers()['content-security-policy']).toContain('https://*.graphassets.com');
+  for (const p of ['/blog', '/blog/category/ats']) expect((await page.request.get(p)).status()).toBe(200);
+  expect((await page.request.get('/blog/no-such-post')).status()).toBe(404);
+  expect((await page.request.get('/blog/category/no-such-category')).status()).toBe(404);
+  const sitemap = await (await page.request.get('/sitemap.xml')).text();
+  expect(sitemap).toContain('<loc>https://nm7.si/blog/ats-friendly-resume</loc><lastmod>2026-10-12T08:30:00.000Z</lastmod>');
+
+  await page.addInitScript(() => { window.__csp = []; document.addEventListener('securitypolicyviolation', (e) => window.__csp.push(`${e.violatedDirective} ${e.blockedURI}`)); });
+  await page.goto('/blog');
+  await expect(page.locator('main .blog-card')).toHaveCount(3);
+  await page.getByRole('link', { name: /How to make an ATS-friendly resume/ }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'How to make an ATS-friendly resume' })).toBeVisible();
+  await page.goto('/blog/ats-keywords'); // straight in: the app takes over the static page
+  await expect(page.getByRole('complementary', { name: 'Free resume scan' })).toBeVisible();
+  await page.goto('/blog/no-such-post');
+  await expect(page.getByRole('heading', { name: 'This page doesn’t exist.' })).toBeVisible();
+  await page.waitForLoadState('networkidle');
+  expect((await page.evaluate(() => window.__csp)).filter((x) => !x.includes('eval'))).toEqual([]);
+});

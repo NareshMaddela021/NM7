@@ -10,7 +10,8 @@ export default function SiteFooter() {
     <footer className="site-footer" style={{ borderTop: '1px solid var(--border)' }}>
       <div className="container row between g12 small faint" style={{ padding: '24px', alignItems: 'flex-start' }}>
         <span className="stack g4"><span>Nm7 · nm7.si — a brand of {LEGAL.company} · Bengaluru</span><a href={`mailto:${LEGAL.email}`}>{LEGAL.email}</a></span>
-        <nav aria-label="Policies" className="row g16">
+        <nav aria-label="Site links" className="row g16">
+          <Link to="/blog">Blog</Link>
           <Link to="/contact">Contact us</Link>
           <Link to="/terms">Terms</Link>
           <Link to="/privacy">Privacy</Link>
