@@ -136,11 +136,28 @@ test('a missed build never hides posts: the built list says 0 posts, Hygraph has
   await page.goto('/blog');
   await expect(cards(page)).toHaveCount(3);
   await expect(page.getByText('First articles coming soon.')).toHaveCount(0);
-  // and an old built list (over 10 minutes) is refreshed from Hygraph too
+  // and an old built list (over 10 minutes) is topped up from Hygraph: live posts are added, built ones stay
   await page.unroute('**/blog/data.json');
-  await page.route('**/blog/data.json', (route) => route.fulfill({ json: { builtAt: new Date(Date.now() - 11 * 60_000).toISOString(), posts: [{ ...POSTS[1], slug: 'old-built-post', title: 'Old built post', content: undefined }], categories: CATEGORIES } }));
+  await page.route('**/blog/data.json', (route) => route.fulfill({ json: { builtAt: new Date(Date.now() - 11 * 60_000).toISOString(), posts: [{ ...POSTS[1], slug: 'old-built-post', title: 'Old built post', publishedAt: '2026-10-01T05:00:00.000Z', content: undefined }], categories: CATEGORIES } }));
+  await page.goto('/blog');
+  await expect(cards(page)).toHaveCount(4);
+  await expect(cards(page).last()).toContainText('Old built post');
+  await expect(cards(page).first()).toContainText('Your first resume as a fresher');
+});
+
+test('live Hygraph answers posts: [] (stale CDN) but the build has posts → list, category page and home keep the posts', async ({ page }) => {
+  const calls = await blog(page, { posts: [] }); // the CDN's stale answer
+  const built = POSTS.map(({ content, ...rest }) => ({ ...rest, cover: null, category: rest.category, minutes: 1 })); // eslint-disable-line no-unused-vars
+  await page.route('**/blog/data.json', (route) => route.fulfill({ json: { builtAt: new Date(Date.now() - 60 * 60_000).toISOString(), posts: built, categories: CATEGORIES } }));
+  await page.goto('/blog');
+  await expect(cards(page)).toHaveCount(3);
+  await expect.poll(() => calls.length).toBeGreaterThan(0); // Hygraph was asked (the built list is old)…
+  expect(calls[0].query).toMatch(/# nm7 cache key \d+$/); // …with a rotating cache key
+  await page.waitForTimeout(500);
+  await expect(cards(page)).toHaveCount(3); // …and its empty answer didn't replace the posts
+  await expect(page.getByText('First articles coming soon.')).toHaveCount(0);
+  await page.getByRole('navigation', { name: 'Categories' }).getByRole('link', { name: 'ATS' }).click();
+  await expect(cards(page)).toHaveCount(2);
   await page.goto('/');
-  const strip = page.getByRole('region', { name: 'From the blog' });
-  await expect(strip.locator('.blog-card-title').first()).toHaveText('Your first resume as a fresher');
-  await expect(strip.getByText('Old built post')).toHaveCount(0);
+  await expect(page.getByRole('region', { name: 'From the blog' }).locator('.blog-card')).toHaveCount(3);
 });

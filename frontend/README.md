@@ -171,9 +171,12 @@ orders (checkout writes the server's order id, invoice number and payment id int
   `[blog] reading Hygraph at …`, `[blog] posts: 1 published (my-post)`, `[blog] categories: 6 (…)`,
   `[blog] pre-rendered 1 post and 6 categories`. If a query fails the build still succeeds and logs
   `[blog] WARNING: the posts query failed: HTTP 400 — <the GraphQL error>`; `data.json` then says `posts: null`.
-- **A missed build never hides posts:** in the browser, when the built list has no posts or is more than 10 minutes
-  old, the blog also asks Hygraph's CDN and shows the live list. A post published after the last build still opens
-  (fetched live).
+- **The build's data comes first:** the browser shows what the build wrote (the page's embedded data, then the
+  same-origin `/blog/data.json`). Only when that list is missing, empty or more than 10 minutes old does it also ask
+  Hygraph's CDN, and the answer is **merged by slug**: it can add posts published since the build, never remove or
+  hide built ones (a stale CDN answer once said `posts: []` while 30 posts were published). Browser requests carry a
+  GraphQL comment that changes every 5 minutes, so a stale CDN cache entry can't stick. A post published after the
+  last build still opens (fetched live).
 - Rich text is turned into HTML by `src/lib/blog/richtext.js`: text is always escaped and only known blocks become
   tags (headings, lists, links, images, code, quotes, tables); Hygraph's `html` field is never used.
 - The CSP in `vercel.json` allows images from `*.graphassets.com` and browser calls to `ap-south-1.cdn.hygraph.com`. If the
