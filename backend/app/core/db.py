@@ -51,6 +51,11 @@ SETTINGS = "settings"
 QUALITY_AUDITS = "quality_audits"
 # One master career record per customer (_id = user id)
 JOB_PROFILES = "job_profiles"
+# Nm7 for Organizations: organizations → groups (join codes) → memberships (who shared which resume, with consent)
+ORGANIZATIONS = "organizations"
+ORG_GROUPS = "org_groups"
+MEMBERSHIPS = "memberships"
+EXPORT_JOBS = "export_jobs"  # admin bulk print / ZIP jobs: which memberships, so "done" can mark them printed
 COLLECTIONS = (
     USERS,
     EMAIL_CODES,
@@ -77,6 +82,10 @@ COLLECTIONS = (
     SETTINGS,
     QUALITY_AUDITS,
     JOB_PROFILES,
+    ORGANIZATIONS,
+    ORG_GROUPS,
+    MEMBERSHIPS,
+    EXPORT_JOBS,
 )
 
 DAY = 86_400
@@ -124,6 +133,14 @@ INDEXES: dict[str, list[IndexModel]] = {
     ],
     RECOVERY_CODES: [IndexModel([("user_id", ASCENDING), ("code_hash", ASCENDING)])],
     RATE_EVENTS: [IndexModel([("key", ASCENDING), ("at", ASCENDING)]), IndexModel("at", expireAfterSeconds=DAY)],
+    ORGANIZATIONS: [IndexModel("name"), IndexModel([("created_at", DESCENDING)])],
+    ORG_GROUPS: [IndexModel("code", unique=True), IndexModel("org_id")],
+    MEMBERSHIPS: [
+        IndexModel([("user_id", ASCENDING), ("group_id", ASCENDING)], unique=True),
+        IndexModel([("group_id", ASCENDING), ("left_at", ASCENDING)]),
+        IndexModel([("org_id", ASCENDING), ("left_at", ASCENDING)]),
+    ],
+    EXPORT_JOBS: [IndexModel("created_at", expireAfterSeconds=DAY)],
     AUDIT_LOG: [IndexModel([("at", DESCENDING)]), IndexModel("action"), IndexModel("actor_id")],
     ORDERS: [
         # _id is the order number (RS-1001…), unique by definition.

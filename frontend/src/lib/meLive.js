@@ -115,7 +115,7 @@ export function persist(prev, next) {
     const old = a.get(id);
     if (!old) { send(createResume(r)); return; }
     const patch = {};
-    ['name', 'data', 'jd', 'versions'].forEach((k) => { if (!same(old[k], r[k])) patch[k] = r[k]; });
+    ['name', 'data', 'jd', 'versions', 'pages'].forEach((k) => { if (!same(old[k], r[k])) patch[k] = r[k]; });
     if (r.active && !old.active) patch.active = true;
     if (Object.keys(patch).length) saveResumeSoon(id, patch);
   });

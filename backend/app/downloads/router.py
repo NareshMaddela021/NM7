@@ -10,7 +10,8 @@ Rules:
 - approved experts: always (they check the files they deliver in the order workspace);
 - while payments are off (no Razorpay keys): every signed-in account, free;
 - once payments are on: an account with a paid, not refunded order for any plan (Fix it yourself, Expert rewrite,
-  Career Launch) — unlocked for good after the first payment.
+  Career Launch) — unlocked for good after the first payment;
+- a member of an active group whose organization made downloads free for its members (reason "group").
 """
 
 from typing import Literal
@@ -23,11 +24,12 @@ from app.core.config import get_settings
 from app.core.db import DB, ORDERS
 from app.core.errors import ApiError
 from app.core.schemas import CamelModel
+from app.orgs.service import group_downloads_free
 from app.site import get_site
 
 router = APIRouter(prefix="/api/me", tags=["downloads"])
 
-Reason = Literal["guest", "unpaid", "paid", "plan", "admin", "expert", "payments_off"]
+Reason = Literal["guest", "unpaid", "paid", "plan", "admin", "expert", "payments_off", "group"]
 PLAN_NAMES = {"diy": "paid", "expert": "plan", "launch": "plan"}
 LOST = ("refunded", "cancelled")
 
@@ -73,6 +75,8 @@ async def account_entitlement(db, user_id) -> tuple[bool, str]:
         return True, "plan"
     if "diy" in plans:
         return True, "paid"
+    if await group_downloads_free(db, user_id):
+        return True, "group"
     return False, "unpaid"
 
 

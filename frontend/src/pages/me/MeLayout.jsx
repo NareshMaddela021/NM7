@@ -16,6 +16,7 @@ export const ME_NAV = [
   ['covers', '/me/covers', 'Cover letters', '✎'],
   ['jobs', '/me/jobs', 'Applications', '▥'],
   ['share', '/me/share', 'Share link', '↗'],
+  ['groups', '/me/groups', 'My groups', '⚑'],
   ['launch', '/me/launch', 'Career Launch', '★'],
   ['payments', '/me/payments', 'Payments & refunds', '₹'],
   ['upgrade', '/me/upgrade', 'Upgrade & add-ons', '⇧'],

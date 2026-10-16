@@ -72,6 +72,7 @@ def resume_out(d: dict[str, Any]) -> ResumeOut:
         data=d["data"],
         jd=d.get("jd", ""),
         versions=d.get("versions", []),
+        pages=d.get("pages"),
         created=ms(d["created_at"]),
         updated=ms(d["updated_at"]),
     )
@@ -213,8 +214,9 @@ async def patch_resume(key: str, body: ResumePatch, auth: CustomerAuth, db: DB) 
     f = _fields(body)
     if f.get("active"):
         await db[RESUMES].update_many({"user_id": uid, "key": {"$ne": key}}, {"$set": {"active": False}})
+    touched = {} if f and set(f) <= {"pages"} else {"updated_at": now()}  # a page count alone isn't an edit
     d = await db[RESUMES].find_one_and_update(
-        {"user_id": uid, "key": key}, {"$set": {**f, "updated_at": now()}}, return_document=ReturnDocument.AFTER
+        {"user_id": uid, "key": key}, {"$set": {**f, **touched}}, return_document=ReturnDocument.AFTER
     )
     if not d:
         raise _not_found("resume")

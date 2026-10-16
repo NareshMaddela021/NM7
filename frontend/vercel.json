@@ -14,7 +14,8 @@
     { "source": "/(me|expert|admin)", "destination": "/index.html" },
     { "source": "/(me|expert|admin)/:path*", "destination": "/index.html" },
     { "source": "/orders/:path*", "destination": "/index.html" },
-    { "source": "/r/:slug", "destination": "/index.html" }
+    { "source": "/r/:slug", "destination": "/index.html" },
+    { "source": "/join/:code", "destination": "/index.html" }
   ],
   "headers": [
     {
