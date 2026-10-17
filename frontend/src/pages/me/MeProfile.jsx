@@ -7,7 +7,8 @@ import PhotoImport from '../builder/PhotoImport';
 import { reviewToResume } from '../../lib/photoImport';
 import { useMe, activeResume, getMe, setResumeData, blankResume } from '../../lib/customerStore';
 import { useJobProfile, setJobProfile, setPrivacy, reloadJobProfile } from '../../lib/profileStore';
-import { EXTRA_TITLE, mergeIntoProfile, newPid, profileCompleteness, resumeToProfileParts } from '../../lib/jobProfile';
+import { EXTRA_TITLE, mergeIntoProfile, newPid, profileCompleteness, profileToResume, resumeToProfileParts } from '../../lib/jobProfile';
+import SummaryWriter from '../builder/SummaryWriter';
 import { DECL_FIELDS, EXP_LEVELS, LINK_SLOTS, LINK_WORDS, LINK_WORD_MAX, LISTS, NOTICE, PINFO_FIELDS, fieldError } from '../builder/schema';
 import { FieldGrid, LinkFields, SchemaField } from '../builder/Fields';
 import { EntryHeader, focusMoved } from '../builder/EntryControls';
@@ -191,6 +192,12 @@ export default function MeProfile() {
       <Section id="basics" title="Basics"><ObjFields k="personal" fields={BASICS} p={p} /><ObjFields k="links" fields={LINKS} p={p} /></Section>
 
       <Section id="summary" title="Summary" sub="Keep 2–3 versions for different roles. The first one that’s on is used for new resumes.">
+        <div className="well stack g8" style={{ padding: 16 }} aria-label="About me">
+          <strong>About me</strong>
+          <SummaryWriter resume={profileToResume(p)} note={p.about || ''} onNote={(v) => setJobProfile((x) => ({ ...x, about: v }))}
+            value={(p.summaries.find((s) => !s.off) || p.summaries[0])?.text || ''}
+            onUse={(t) => setJobProfile((x) => { const i = Math.max(0, x.summaries.findIndex((s) => !s.off)); return { ...x, summaries: x.summaries.map((s, j) => (j === i ? { ...s, text: t } : s)) }; })} />
+        </div>
         {p.summaries.map((s, i) => (
           <div key={s.id} className="well stack g8 entry-card" data-off={!!s.off} style={{ padding: 16 }}>
             <EntryHeader list="pf-summary" index={i} count={p.summaries.length} label={`Summary ${i + 1}`} title={s.name || `Summary ${i + 1}`} off={!!s.off}

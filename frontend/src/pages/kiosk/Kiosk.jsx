@@ -18,6 +18,7 @@ import { usePageMeta } from '../../lib/meta';
 import { http } from '../../services/http';
 import { FieldGrid, SchemaField } from '../builder/Fields';
 import PhotoImport from '../builder/PhotoImport';
+import SummaryWriter from '../builder/SummaryWriter';
 import ResumePreview from '../builder/ResumePreview';
 import { EXP_LEVELS, INITIAL, LISTS, PERSONAL_FIELDS, migrateLinks, real } from '../builder/schema';
 
@@ -414,8 +415,11 @@ export function GuidedBuilder({ d, setD, onDone }) {
       </div>
     ),
     summary: (
-      <div className="field"><label className="label" htmlFor="k-sum">Two or three lines about you (optional)</label>
+      <div className="stack g16">
+        <SummaryWriter big resume={d} note={d.about || ''} onNote={(v) => setD((p) => ({ ...p, about: v }))} value={d.summary} onUse={(t) => setD((p) => ({ ...p, summary: t }))} />
+        <div className="field"><label className="label" htmlFor="k-sum">Two or three lines about you (optional)</label>
         <textarea id="k-sum" className="input" rows={4} style={big} maxLength={600} placeholder="e.g. Diploma holder in Mechanical Engineering looking for a production trainee role. Good with machines and quick to learn." value={d.summary} onChange={(e) => setD((p) => ({ ...p, summary: e.target.value }))} />
+        </div>
       </div>
     ),
     review: <div className="card" style={{ padding: 12 }}><ResumePreview data={d} design={designOf(d)} /></div>,
