@@ -7,7 +7,9 @@ An option that fails is dropped; the browser fills that slot with its own templa
 stored or logged.
 """
 
+import logging
 import re
+import time
 from typing import Any
 
 import anthropic
@@ -24,6 +26,7 @@ from app.photos.scrub import looks_like_id
 from app.summary import writer
 
 router = APIRouter(prefix="/api/me/summary", tags=["summary"])
+log = logging.getLogger("nm7.summary")
 
 NOTE_MAX = 1000
 MAX_CHARS = 400
@@ -96,6 +99,7 @@ async def generate(body: GenerateIn, auth: CustomerAuth, db: DB) -> dict[str, An
     except ai_quota.CapReached as e:
         raise ApiError(503, "ai_busy", "AI is busy today - here are quick suggestions instead.") from e
     stats: dict[str, Any] = {}
+    t0 = time.monotonic()
     try:
         options = await writer.call_model(facts, note, body.mode, " ".join(body.current.split()), stats)
     except claude.Unusable as e:
@@ -108,6 +112,16 @@ async def generate(body: GenerateIn, auth: CustomerAuth, db: DB) -> dict[str, An
         await ai_quota.note(db, "summary", "fallback")
     kept = [{"style": o["style"], "text": trim(o["text"])} for o in options if allowed(o["text"], facts, note)]
     dropped = len(options) - len(kept)
+    # one line per call for the Render logs - counts and timing only, never the facts, the note or the text
+    log.info(
+        "summary ai: ok model=%s ms=%d options=%d dropped=%d fallback=%s mode=%s",
+        stats.get("model", ""),
+        int((time.monotonic() - t0) * 1000),
+        len(kept),
+        dropped,
+        str(bool(stats.get("fallback"))).lower(),
+        body.mode,
+    )
     return {
         "options": kept,
         "dropped": dropped,

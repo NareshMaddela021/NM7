@@ -1,6 +1,7 @@
 """Nm7 API — app factory."""
 
 import asyncio
+import logging
 import os
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
@@ -35,6 +36,11 @@ from app.photos.router import router as photos_router
 from app.profile.router import router as profile_router
 from app.summary.router import router as summary_router
 from app.work.router import router as work_router
+
+# Our own loggers ("nm7.*") speak at INFO - one line per AI call, deploy notes - while libraries stay at WARNING.
+# Uvicorn configures only its own loggers, so without this nothing below WARNING would reach the Render logs.
+logging.basicConfig(level=logging.WARNING, format="%(levelname)s %(name)s: %(message)s")
+logging.getLogger("nm7").setLevel(logging.INFO)
 
 
 @asynccontextmanager

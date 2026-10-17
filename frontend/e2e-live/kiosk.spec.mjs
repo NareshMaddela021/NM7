@@ -84,7 +84,9 @@ test('kiosk: switch on → kiosk link → code sign-in → build → print → w
   await expect(k.getByRole('article', { name: 'Resume preview' })).toContainText('Govt ITI Guntur');
   await k.getByRole('button', { name: 'My resume is ready' }).click();
   // nothing on the finish screen moves when Send / Print change their labels and messages (tablet, then phone)
-  const boxes = async () => { await k.mouse.move(1, 1); return Promise.all(['k-print', 'k-mail', 'k-status', 'k-edit', 'k-finish'].map((id) => k.getByTestId(id).boundingBox())); }; // (the mouse away: buttons lift 1px on hover)
+  // (the mouse away, and the 160 ms un-hover transition finished: buttons lift 1px on hover)
+  const settled = () => k.evaluate(() => Promise.all(document.getAnimations().filter((a) => a instanceof CSSTransition).map((a) => a.finished.catch(() => {}))));
+  const boxes = async () => { await k.mouse.move(1, 1); await settled(); return Promise.all(['k-print', 'k-mail', 'k-status', 'k-edit', 'k-finish'].map((id) => k.getByTestId(id).boundingBox())); };
   const same = (a, b) => a.forEach((x, i) => ['x', 'y', 'width', 'height'].forEach((p) => expect(Math.abs(x[p] - b[i][p]), `box ${i} ${p}`).toBeLessThan(1)));
   await k.setViewportSize({ width: 820, height: 1180 });
   await expect(k.getByTestId('k-print')).toBeVisible();

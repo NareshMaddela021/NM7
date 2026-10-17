@@ -75,7 +75,7 @@ for (const [label, size] of [['desktop', { width: 1280, height: 900 }], ['phone'
       expect(sent[2]).toMatchObject({ mode: 'professional', current: AI.simple });
       await expect(writer.getByTestId('sw-simpler')).toBeVisible();
       if (label === 'phone') {
-        for (const id of ['sw-ai', 'sw-shorter', 'sw-professional', 'sw-simpler', 'sw-again']) expect((await writer.getByTestId(id).boundingBox()).height).toBeGreaterThanOrEqual(44);
+        for (const id of ['sw-ai', 'sw-shorter', 'sw-professional', 'sw-simpler', 'sw-again']) expect(Math.round((await writer.getByTestId(id).boundingBox()).height)).toBeGreaterThanOrEqual(44); // whole pixels: CI measured 43.99997
         expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
       }
       // edit by hand; the summary is printed, the note is not; both survive a reload
