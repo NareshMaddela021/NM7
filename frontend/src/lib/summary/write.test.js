@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { writeSummaries, writeOne, problems, numbersCovered, shorter, fillTemplate, STYLES, MAX_CHARS } from './write';
-import { article, joinList, trimTo, dropLastSentence, sentences } from './grammar';
+import { writeSummaries, writeOne, problems, numbersCovered, shorter, fillTemplate, blanksOf, STYLES, MAX_CHARS } from './write';
+import { article, bareRole, graduateOf, joinList, roleNoun, trimTo, dropLastSentence, sentences } from './grammar';
 import { gatherFacts } from './facts';
 import templates from './templates.json';
 import dictionary from './dictionary.json';
@@ -120,5 +120,69 @@ describe('grammar helpers', () => {
     expect(trimTo('First one. Second one. Third one.', 24)).toBe('First one. Second one.');
     expect(trimTo('A'.repeat(500), 100).length).toBeLessThanOrEqual(100);
     expect(dropLastSentence('A. B. C.')).toBe('A. B.');
+  });
+});
+
+describe('job titles read as roles, degrees read as graduates', () => {
+  const FULL = {
+    degreeFull: 'B.Tech in Computer Science', degree: 'B.Tech', field: 'Computer Science', eduLabel: 'B.Tech', eduYear: '2024',
+    years: '3 years', role: 'Sales Executive', company: 'Zoho', target: 'Data Analyst',
+    skills: ['Python', 'SQL', 'Excel'], strengths: ['clear reporting', 'accuracy'], cert: 'Google Data Analytics', achievement: 'Cut reporting time by 40%', languages: ['English', 'Telugu'],
+  };
+  const everyTemplate = Object.values(templates.personas).flatMap((p) => Object.values(p).flat());
+
+  it('roleNoun adds role/job/work unless the title already says so', () => {
+    expect(roleNoun('Data Analyst')).toBe('Data Analyst role');
+    expect(roleNoun('driver', 'job')).toBe('driver job');
+    expect(roleNoun('driver', 'work')).toBe('driver work');
+    expect(roleNoun('Data Analyst role')).toBe('Data Analyst role');
+    expect(roleNoun('cab driver job', 'work')).toBe('cab driver job');
+    expect(roleNoun('Sales Position', 'job')).toBe('Sales Position');
+    expect(roleNoun('')).toBe('');
+    expect(bareRole('Data Analyst role')).toBe('Data Analyst');
+    expect(bareRole('Data Analyst')).toBe('Data Analyst');
+    expect(blanksOf(FULL)).toMatchObject({ aTarget: 'a Data Analyst', aTargetRole: 'a Data Analyst role', targetWork: 'Data Analyst work' });
+    expect(blanksOf({ target: 'HR executive role' })).toMatchObject({ aTarget: 'an HR executive', aTargetRole: 'an HR executive role', targetWork: 'HR executive role' });
+  });
+
+  it('every template: "a Data Analyst role", "as a Data Analyst" or "Data Analyst work" — never a bare title after looking for / seeking', () => {
+    const blanks = blanksOf(FULL);
+    let seen = 0;
+    for (const tpl of everyTemplate) {
+      for (const s of fillTemplate(tpl, blanks)) {
+        if (!s.includes('Data Analyst')) continue;
+        seen += 1;
+        expect(s).toMatch(/Data Analyst (?:role|work)|as a Data Analyst|(?:to|into) Data Analyst\.|^Data Analyst with/);
+        expect(s).not.toMatch(/(?:for|seeking) a Data Analyst[.,]/);
+      }
+    }
+    expect(seen).toBeGreaterThan(20);
+  });
+
+  it('a title that already ends in role/job never doubles up', () => {
+    for (const target of ['Data Analyst role', 'cab driver job']) {
+      const blanks = blanksOf({ ...FULL, target });
+      for (const tpl of everyTemplate) {
+        for (const s of fillTemplate(tpl, blanks)) {
+          expect(s).not.toMatch(/\b(role|job|work) (role|job|work)\b/i);
+          expect(s).not.toMatch(/as an? \w[\w ]* (?:role|job)\b/i); // "work as a Data Analyst", not "as a Data Analyst role"
+        }
+      }
+    }
+  });
+
+  it('"Computer Science graduate (B.Tech)" rather than "B.Tech in Computer Science graduate"', () => {
+    expect(graduateOf(FULL)).toBe('Computer Science graduate (B.Tech)');
+    expect(graduateOf(FULL, '2024')).toBe('Computer Science graduate (B.Tech, 2024)');
+    expect(graduateOf({ degree: 'MBA', degreeFull: 'MBA' })).toBe('MBA graduate');
+    expect(graduateOf({ degree: 'MBA', degreeFull: 'MBA' }, '2023')).toBe('MBA graduate (2023)');
+    expect(graduateOf({})).toBe('');
+    const blanks = blanksOf(FULL);
+    for (const tpl of everyTemplate) for (const s of fillTemplate(tpl, blanks)) expect(s).not.toMatch(/ in [A-Z][\w ]* graduate\b/);
+    expect(fillTemplate(templates.personas.fresher_grad.role_first[0], blanks)[0]).toBe('Computer Science graduate (B.Tech) looking for a Data Analyst role.');
+    // the sample resume, end to end
+    const all = writeSummaries(INITIAL, 'I am a fresher, I want a data analyst job').options.map((o) => o.text).join(' ');
+    expect(all).not.toMatch(/ in [A-Z][\w ]* graduate\b/);
+    expect(all).toMatch(/Data Analyst role|as a Data Analyst|Data Analyst work/);
   });
 });

@@ -33,6 +33,7 @@ from app.orgs import staff as org_staff
 from app.payments.router import router as payments_router
 from app.photos.router import router as photos_router
 from app.profile.router import router as profile_router
+from app.summary.router import router as summary_router
 from app.work.router import router as work_router
 
 
@@ -113,6 +114,7 @@ def create_app() -> FastAPI:
     app.include_router(payments_router)
     app.include_router(profile_router)  # before me_router: /api/me/job-profile
     app.include_router(photos_router)  # /api/me/photo-import
+    app.include_router(summary_router)  # /api/me/summary/generate
     app.include_router(downloads_router)  # /api/me/entitlements, /api/me/exports
     app.include_router(orgs.me)  # before me_router: /api/me/groups
     app.include_router(org_staff.my_orgs)  # /api/me/orgs
