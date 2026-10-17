@@ -1,0 +1,3668 @@
+{
+ "_about": "Word lists for the summary writer (Layer A). Everything is matched case-insensitively as whole words in the note the person typed or spoke. Add words here; no code change needed. Transliterations (Telugu, Hindi…) and common misspellings are included on purpose. Short abbreviations that are also ordinary words (be, me, ma, it, get, sales, bank…) are left out on purpose: they match too often. Add the full phrase instead.",
+ "education": [
+  {
+   "level": "10th",
+   "label": "10th class",
+   "words": [
+    "10th",
+    "tenth",
+    "ssc",
+    "10th class",
+    "10 th",
+    "class 10",
+    "matric",
+    "matriculation",
+    "padava",
+    "padhava",
+    "10vi",
+    "dasvi",
+    "x class",
+    "sslc"
+   ]
+  },
+  {
+   "level": "12th",
+   "label": "Intermediate (12th)",
+   "words": [
+    "12th",
+    "twelfth",
+    "inter",
+    "intermediate",
+    "12 th",
+    "class 12",
+    "hsc",
+    "plus two",
+    "+2",
+    "puc",
+    "12vi",
+    "barvi",
+    "xii"
+   ]
+  },
+  {
+   "level": "iti",
+   "label": "ITI",
+   "words": [
+    "iti",
+    "i.t.i",
+    "industrial training",
+    "itc"
+   ]
+  },
+  {
+   "level": "diploma",
+   "label": "Diploma",
+   "words": [
+    "diploma",
+    "polytechnic",
+    "diplomo",
+    "deploma",
+    "dca",
+    "pgdca"
+   ]
+  },
+  {
+   "level": "degree",
+   "label": "Bachelor's degree",
+   "words": [
+    "degree",
+    "graduate",
+    "graduation",
+    "graduated",
+    "bsc",
+    "b.sc",
+    "b sc",
+    "bcom",
+    "b.com",
+    "b com",
+    "b.a",
+    "bba",
+    "b.b.a",
+    "bca",
+    "b.c.a",
+    "btech",
+    "b.tech",
+    "b tech",
+    "b.e",
+    "bpharm",
+    "b.pharm",
+    "bed",
+    "b.ed",
+    "llb",
+    "bachelor",
+    "bachelors",
+    "bachelor's",
+    "bsc nursing",
+    "b.sc nursing",
+    "bds",
+    "mbbs",
+    "bhm",
+    "bjmc",
+    "chaduvu"
+   ]
+  },
+  {
+   "level": "pg",
+   "label": "Master's degree",
+   "words": [
+    "mba",
+    "m.b.a",
+    "mca",
+    "m.c.a",
+    "msc",
+    "m.sc",
+    "m sc",
+    "mcom",
+    "m.com",
+    "m.a",
+    "mtech",
+    "m.tech",
+    "m tech",
+    "m.e",
+    "mpharm",
+    "med",
+    "m.ed",
+    "llm",
+    "post graduate",
+    "postgraduate",
+    "masters",
+    "master's",
+    "pgdm",
+    "ca",
+    "chartered accountant",
+    "cma",
+    "phd",
+    "ph.d"
+   ]
+  }
+ ],
+ "educationFields": [
+  [
+   "computer science",
+   "cse",
+   "cs",
+   "computers",
+   "computer"
+  ],
+  [
+   "information technology"
+  ],
+  [
+   "electronics",
+   "ece",
+   "eee",
+   "electrical"
+  ],
+  [
+   "mechanical",
+   "mech"
+  ],
+  [
+   "civil"
+  ],
+  [
+   "commerce",
+   "accounts",
+   "accounting"
+  ],
+  [
+   "arts"
+  ],
+  [
+   "science",
+   "maths",
+   "mathematics",
+   "physics",
+   "chemistry",
+   "biology"
+  ],
+  [
+   "nursing"
+  ],
+  [
+   "pharmacy",
+   "pharma"
+  ],
+  [
+   "business",
+   "management"
+  ],
+  [
+   "data science",
+   "data analytics"
+  ],
+  [
+   "electrician",
+   "fitter",
+   "welder",
+   "turner",
+   "machinist",
+   "plumber",
+   "copa",
+   "stenographer"
+  ],
+  [
+   "hotel management",
+   "hospitality"
+  ],
+  [
+   "education",
+   "teaching"
+  ],
+  [
+   "law"
+  ],
+  [
+   "agriculture"
+  ],
+  [
+   "fashion",
+   "design"
+  ]
+ ],
+ "experience": {
+  "yearWords": [
+   "years",
+   "year",
+   "yrs",
+   "yr",
+   "saal",
+   "sal",
+   "samvatsaralu",
+   "samvatsaram",
+   "sanvatsaralu",
+   "ella",
+   "varsh",
+   "varsham",
+   "varushangal",
+   "varshangal"
+  ],
+  "monthWords": [
+   "months",
+   "month",
+   "mahine",
+   "mahina",
+   "nelalu",
+   "nela",
+   "maasam",
+   "maasalu",
+   "masam"
+  ],
+  "fresher": [
+   "fresher",
+   "fressure",
+   "freshar",
+   "no experience",
+   "no work experience",
+   "not worked",
+   "never worked",
+   "experience ledu",
+   "anubhav nahi",
+   "anubhavam ledu",
+   "just completed",
+   "just passed",
+   "recently completed",
+   "new to work",
+   "first job"
+  ],
+  "returning": [
+   "returning",
+   "return to work",
+   "back to work",
+   "career break",
+   "after a break",
+   "after break",
+   "gap",
+   "homemaker",
+   "housewife",
+   "house wife",
+   "maternity",
+   "after marriage",
+   "after my kids",
+   "raising kids",
+   "took a break",
+   "restart",
+   "re-start",
+   "rejoin"
+  ],
+  "changing": [
+   "changing",
+   "switch",
+   "switching",
+   "career change",
+   "change my field",
+   "change field",
+   "new field",
+   "different field",
+   "move into",
+   "move to",
+   "transition",
+   "shift to",
+   "shifting to"
+  ],
+  "workedAfter": [
+   "pani chesanu",
+   "pani chesa",
+   "pani chestunna",
+   "pani chestunnanu",
+   "chesanu",
+   "chesa",
+   "chestunnanu",
+   "chestunna",
+   "kaam kiya",
+   "kaam karta",
+   "kaam karti",
+   "kiya hai",
+   "kiya",
+   "karta hu",
+   "karti hu",
+   "karta hoon",
+   "karti hoon",
+   "karta tha",
+   "karti thi",
+   "experience",
+   "exp",
+   "anubhavam",
+   "anubhav",
+   "velai senjen",
+   "kelasa maadide",
+   "ga pani",
+   "ga work",
+   "work chesanu"
+  ],
+  "_note": "workedAfter: words that follow a role and mean the person DID that work ('delivery boy ga pani chesanu', 'electrician ka kaam kiya')"
+ },
+ "wantedRole": {
+  "triggers": [
+   "looking for",
+   "want",
+   "wants",
+   "wanted",
+   "need",
+   "needs",
+   "seeking",
+   "seek",
+   "apply for",
+   "applying for",
+   "interested in",
+   "aim",
+   "aiming for",
+   "job as",
+   "work as",
+   "role as",
+   "position as",
+   "wanna be",
+   "want to be",
+   "want to become",
+   "become",
+   "join as",
+   "get into"
+  ],
+  "_note": "triggers come BEFORE the role (English: 'want a driver job'); triggersAfter come AFTER it (Telugu / Hindi / Tamil / Kannada word order: 'driver job kavali', 'AC technician banna chahta hu')",
+  "triggersAfter": [
+   "kavali",
+   "kaavali",
+   "kavalanukuntunna",
+   "kavalanukuntunnanu",
+   "kavalani",
+   "chahiye",
+   "chahta hu",
+   "chahti hu",
+   "chahta hoon",
+   "chahti hoon",
+   "chahta",
+   "chahti",
+   "chahata",
+   "banna",
+   "banna hai",
+   "banna chahta",
+   "avvalani",
+   "avvali",
+   "avvalani undi",
+   "cheyali",
+   "cheyyali",
+   "cheyalani",
+   "karna hai",
+   "karna chahta",
+   "karna chahti",
+   "vendum",
+   "venum",
+   "beku",
+   "aagbeku",
+   "aaga beku",
+   "hona chahta",
+   "job kavali",
+   "job chahiye",
+   "udyogam kavali",
+   "naukri chahiye"
+  ]
+ },
+ "titles": [
+  {
+   "t": "driver",
+   "syn": [
+    "car driver",
+    "cab driver",
+    "taxi driver",
+    "lmv driver",
+    "hmv driver",
+    "truck driver",
+    "lorry driver",
+    "bus driver",
+    "auto driver",
+    "chauffeur",
+    "personal driver",
+    "ola driver",
+    "uber driver"
+   ],
+   "s": [
+    "safe driving",
+    "route knowledge",
+    "punctuality",
+    "vehicle care"
+   ]
+  },
+  {
+   "t": "delivery partner",
+   "syn": [
+    "delivery boy",
+    "delivery executive",
+    "delivery agent",
+    "swiggy",
+    "zomato",
+    "zepto",
+    "blinkit",
+    "dunzo",
+    "food delivery",
+    "parcel delivery"
+   ],
+   "s": [
+    "on-time delivery",
+    "route planning",
+    "customer handling",
+    "two-wheeler riding"
+   ]
+  },
+  {
+   "t": "electrician",
+   "syn": [
+    "electrical technician",
+    "wireman",
+    "electrical work",
+    "house wiring",
+    "electrical fitter"
+   ],
+   "s": [
+    "wiring",
+    "fault finding",
+    "electrical safety",
+    "panel work"
+   ]
+  },
+  {
+   "t": "plumber",
+   "syn": [
+    "plumbing",
+    "pipe fitter",
+    "pipe fitting"
+   ],
+   "s": [
+    "pipe fitting",
+    "leak repair",
+    "bathroom fittings",
+    "site work"
+   ]
+  },
+  {
+   "t": "welder",
+   "syn": [
+    "welding",
+    "arc welder",
+    "gas welder",
+    "fabricator",
+    "fabrication"
+   ],
+   "s": [
+    "arc and gas welding",
+    "fabrication",
+    "reading drawings",
+    "safety practices"
+   ]
+  },
+  {
+   "t": "fitter",
+   "syn": [
+    "mechanical fitter",
+    "fitter trade",
+    "turner",
+    "machinist",
+    "cnc operator",
+    "lathe operator",
+    "machine operator"
+   ],
+   "s": [
+    "machine operation",
+    "reading drawings",
+    "precision work",
+    "tool handling"
+   ]
+  },
+  {
+   "t": "mechanic",
+   "syn": [
+    "auto mechanic",
+    "bike mechanic",
+    "car mechanic",
+    "two wheeler mechanic",
+    "vehicle mechanic",
+    "garage work",
+    "automobile technician",
+    "service technician"
+   ],
+   "s": [
+    "engine repair",
+    "fault diagnosis",
+    "servicing",
+    "customer explanation"
+   ]
+  },
+  {
+   "t": "ac technician",
+   "syn": [
+    "ac mechanic",
+    "hvac technician",
+    "refrigeration technician",
+    "fridge mechanic",
+    "ac repair",
+    "ac service",
+    "hvac"
+   ],
+   "s": [
+    "AC installation",
+    "gas charging",
+    "fault repair",
+    "customer service"
+   ]
+  },
+  {
+   "t": "mobile technician",
+   "syn": [
+    "mobile repair",
+    "phone repair",
+    "mobile mechanic",
+    "mobile servicing"
+   ],
+   "s": [
+    "mobile repair",
+    "chip-level work",
+    "software flashing",
+    "customer handling"
+   ]
+  },
+  {
+   "t": "computer technician",
+   "syn": [
+    "hardware technician",
+    "computer repair",
+    "laptop repair",
+    "hardware networking",
+    "system technician",
+    "desktop support",
+    "it support",
+    "it technician",
+    "network technician"
+   ],
+   "s": [
+    "hardware repair",
+    "OS installation",
+    "networking basics",
+    "troubleshooting"
+   ]
+  },
+  {
+   "t": "carpenter",
+   "syn": [
+    "carpentry",
+    "wood work",
+    "furniture work",
+    "modular kitchen"
+   ],
+   "s": [
+    "furniture making",
+    "measurements",
+    "finishing",
+    "tool handling"
+   ]
+  },
+  {
+   "t": "painter",
+   "syn": [
+    "house painter",
+    "wall painting",
+    "painting work",
+    "putty work",
+    "spray painter"
+   ],
+   "s": [
+    "wall painting",
+    "putty and finishing",
+    "colour mixing",
+    "neat work"
+   ]
+  },
+  {
+   "t": "mason",
+   "syn": [
+    "masonry",
+    "construction worker",
+    "construction",
+    "building work",
+    "centering",
+    "bar bender",
+    "tile work",
+    "tiles work",
+    "tiler"
+   ],
+   "s": [
+    "masonry",
+    "site work",
+    "reading plans",
+    "teamwork on site"
+   ]
+  },
+  {
+   "t": "helper",
+   "syn": [
+    "general helper",
+    "site helper",
+    "shop helper",
+    "office helper",
+    "office boy",
+    "peon",
+    "attender",
+    "labour",
+    "labor",
+    "worker",
+    "daily wage",
+    "coolie"
+   ],
+   "s": [
+    "reliability",
+    "hard physical work",
+    "following instructions",
+    "teamwork"
+   ]
+  },
+  {
+   "t": "housekeeping staff",
+   "syn": [
+    "housekeeping",
+    "cleaner",
+    "sweeper",
+    "janitor",
+    "house keeping",
+    "room attendant",
+    "maid",
+    "domestic help"
+   ],
+   "s": [
+    "cleanliness standards",
+    "time management",
+    "attention to detail",
+    "reliability"
+   ]
+  },
+  {
+   "t": "security guard",
+   "syn": [
+    "watchman",
+    "gunman",
+    "bouncer",
+    "security supervisor",
+    "security officer"
+   ],
+   "s": [
+    "vigilance",
+    "visitor management",
+    "night duty",
+    "discipline"
+   ]
+  },
+  {
+   "t": "cook",
+   "syn": [
+    "chef",
+    "kitchen helper",
+    "commis",
+    "kitchen staff",
+    "home cook",
+    "tiffin",
+    "catering",
+    "baker",
+    "bakery"
+   ],
+   "s": [
+    "cooking",
+    "kitchen hygiene",
+    "menu preparation",
+    "working under pressure"
+   ]
+  },
+  {
+   "t": "waiter",
+   "syn": [
+    "steward",
+    "server",
+    "restaurant staff",
+    "hotel staff",
+    "captain",
+    "f&b",
+    "food and beverage",
+    "service staff",
+    "busboy"
+   ],
+   "s": [
+    "guest service",
+    "order taking",
+    "table service",
+    "teamwork"
+   ]
+  },
+  {
+   "t": "housekeeping supervisor",
+   "syn": [
+    "hotel housekeeping",
+    "floor supervisor"
+   ],
+   "s": [
+    "team supervision",
+    "room standards",
+    "inventory",
+    "guest satisfaction"
+   ]
+  },
+  {
+   "t": "receptionist",
+   "syn": [
+    "front desk",
+    "front office",
+    "reception",
+    "front office executive",
+    "guest relations"
+   ],
+   "s": [
+    "front-desk handling",
+    "phone etiquette",
+    "appointment scheduling",
+    "visitor management"
+   ]
+  },
+  {
+   "t": "office assistant",
+   "syn": [
+    "office admin",
+    "admin assistant",
+    "administrative assistant",
+    "office executive",
+    "office work",
+    "clerk",
+    "clerical",
+    "back office",
+    "back office executive",
+    "office staff"
+   ],
+   "s": [
+    "record keeping",
+    "MS Office",
+    "filing",
+    "coordination"
+   ]
+  },
+  {
+   "t": "data entry operator",
+   "syn": [
+    "data entry",
+    "computer operator",
+    "typist",
+    "typing",
+    "data operator",
+    "data entry work",
+    "excel work"
+   ],
+   "s": [
+    "fast and accurate typing",
+    "MS Excel",
+    "data accuracy",
+    "deadlines"
+   ]
+  },
+  {
+   "t": "accountant",
+   "syn": [
+    "accounts",
+    "accounting",
+    "accounts executive",
+    "accounts assistant",
+    "junior accountant",
+    "tally",
+    "tally operator",
+    "bookkeeper",
+    "book keeping",
+    "gst",
+    "accounts work"
+   ],
+   "s": [
+    "Tally",
+    "GST filing",
+    "bookkeeping",
+    "reconciliation"
+   ]
+  },
+  {
+   "t": "cashier",
+   "syn": [
+    "billing",
+    "billing executive",
+    "billing staff",
+    "counter staff",
+    "pos operator",
+    "cash counter"
+   ],
+   "s": [
+    "billing",
+    "cash handling",
+    "accuracy",
+    "customer service"
+   ]
+  },
+  {
+   "t": "sales executive",
+   "syn": [
+    "salesman",
+    "sales man",
+    "sales boy",
+    "sales girl",
+    "sales person",
+    "salesperson",
+    "sales associate",
+    "sales officer",
+    "field sales",
+    "marketing executive",
+    "business development",
+    "sales representative"
+   ],
+   "s": [
+    "customer conversations",
+    "target achievement",
+    "product knowledge",
+    "follow-ups"
+   ]
+  },
+  {
+   "t": "retail store staff",
+   "syn": [
+    "shop keeper",
+    "shopkeeper",
+    "shop assistant",
+    "store staff",
+    "store executive",
+    "retail",
+    "retail staff",
+    "store keeper",
+    "storekeeper",
+    "store incharge",
+    "store manager",
+    "supermarket",
+    "mall staff",
+    "floor staff",
+    "shop work"
+   ],
+   "s": [
+    "customer service",
+    "stock handling",
+    "billing",
+    "display and merchandising"
+   ]
+  },
+  {
+   "t": "telecaller",
+   "syn": [
+    "tele caller",
+    "telecalling",
+    "tele calling",
+    "telesales",
+    "tele sales",
+    "call center",
+    "call centre",
+    "bpo",
+    "customer support",
+    "customer care",
+    "customer service executive",
+    "voice process",
+    "non voice process",
+    "chat support",
+    "inbound",
+    "outbound"
+   ],
+   "s": [
+    "clear communication",
+    "call handling",
+    "patience with customers",
+    "CRM tools"
+   ]
+  },
+  {
+   "t": "customer support executive",
+   "syn": [
+    "support executive",
+    "helpdesk",
+    "help desk",
+    "service desk",
+    "technical support",
+    "tech support",
+    "customer relationship"
+   ],
+   "s": [
+    "issue resolution",
+    "clear communication",
+    "ticketing tools",
+    "patience"
+   ]
+  },
+  {
+   "t": "hr executive",
+   "syn": [
+    "hr",
+    "human resources",
+    "recruiter",
+    "recruitment",
+    "talent acquisition",
+    "hr assistant",
+    "hr generalist",
+    "payroll",
+    "hr intern"
+   ],
+   "s": [
+    "recruitment",
+    "onboarding",
+    "employee records",
+    "communication"
+   ]
+  },
+  {
+   "t": "teacher",
+   "syn": [
+    "teaching",
+    "school teacher",
+    "primary teacher",
+    "tutor",
+    "tuition",
+    "home tuition",
+    "lecturer",
+    "faculty",
+    "trainer",
+    "instructor",
+    "educator",
+    "montessori",
+    "pre primary teacher",
+    "pgt",
+    "tgt",
+    "prt"
+   ],
+   "s": [
+    "lesson planning",
+    "classroom management",
+    "clear explanation",
+    "patience with students"
+   ]
+  },
+  {
+   "t": "nurse",
+   "syn": [
+    "nursing",
+    "staff nurse",
+    "gnm",
+    "anm",
+    "bsc nursing",
+    "home nurse",
+    "nursing assistant",
+    "ward boy",
+    "ward attendant",
+    "patient care",
+    "caretaker",
+    "care taker",
+    "caregiver"
+   ],
+   "s": [
+    "patient care",
+    "medication handling",
+    "hygiene and safety",
+    "calm under pressure"
+   ]
+  },
+  {
+   "t": "pharmacist",
+   "syn": [
+    "pharmacy",
+    "medical shop",
+    "chemist",
+    "d.pharm",
+    "b.pharm",
+    "dispensing"
+   ],
+   "s": [
+    "dispensing medicines",
+    "stock management",
+    "prescription reading",
+    "customer advice"
+   ]
+  },
+  {
+   "t": "lab technician",
+   "syn": [
+    "lab tech",
+    "dmlt",
+    "laboratory",
+    "pathology",
+    "sample collection",
+    "phlebotomist"
+   ],
+   "s": [
+    "sample handling",
+    "lab equipment",
+    "accurate reporting",
+    "safety protocols"
+   ]
+  },
+  {
+   "t": "beautician",
+   "syn": [
+    "beauty parlour",
+    "beauty parlor",
+    "parlour",
+    "salon",
+    "hair stylist",
+    "hairdresser",
+    "makeup artist",
+    "makeup",
+    "mehendi",
+    "nail artist",
+    "cosmetology",
+    "barber"
+   ],
+   "s": [
+    "hair and skin care",
+    "makeup",
+    "client consultation",
+    "hygiene"
+   ]
+  },
+  {
+   "t": "tailor",
+   "syn": [
+    "tailoring",
+    "stitching",
+    "sewing",
+    "embroidery",
+    "boutique",
+    "fashion designer",
+    "dress making",
+    "garment",
+    "garments",
+    "cutting master",
+    "sewing machine operator"
+   ],
+   "s": [
+    "stitching",
+    "measurements and cutting",
+    "finishing",
+    "working to deadlines"
+   ]
+  },
+  {
+   "t": "photographer",
+   "syn": [
+    "photography",
+    "videographer",
+    "video editor",
+    "editing",
+    "video editing",
+    "cameraman",
+    "photo editing",
+    "wedding photography"
+   ],
+   "s": [
+    "camera work",
+    "photo and video editing",
+    "composition",
+    "client coordination"
+   ]
+  },
+  {
+   "t": "graphic designer",
+   "syn": [
+    "graphic design",
+    "designer",
+    "photoshop",
+    "canva",
+    "illustrator",
+    "coreldraw",
+    "dtp",
+    "dtp operator",
+    "visual designer",
+    "logo design",
+    "poster design"
+   ],
+   "s": [
+    "Photoshop and Illustrator",
+    "layout and typography",
+    "brand visuals",
+    "working to a brief"
+   ]
+  },
+  {
+   "t": "ui ux designer",
+   "syn": [
+    "ui designer",
+    "ux designer",
+    "ui/ux",
+    "ui ux",
+    "figma",
+    "product designer",
+    "web designer",
+    "web design"
+   ],
+   "s": [
+    "Figma",
+    "wireframing",
+    "user research",
+    "design systems"
+   ]
+  },
+  {
+   "t": "software developer",
+   "syn": [
+    "software engineer",
+    "developer",
+    "programmer",
+    "coder",
+    "coding",
+    "sde",
+    "software development",
+    "application developer",
+    "software",
+    "it job",
+    "it field",
+    "software job"
+   ],
+   "s": [
+    "problem solving",
+    "clean code",
+    "debugging",
+    "version control"
+   ]
+  },
+  {
+   "t": "web developer",
+   "syn": [
+    "website developer",
+    "frontend developer",
+    "front end developer",
+    "front-end",
+    "frontend",
+    "backend developer",
+    "back end developer",
+    "backend",
+    "full stack developer",
+    "full stack",
+    "fullstack",
+    "react developer",
+    "html css",
+    "javascript developer",
+    "php developer",
+    "wordpress"
+   ],
+   "s": [
+    "HTML, CSS and JavaScript",
+    "responsive layouts",
+    "APIs",
+    "debugging"
+   ]
+  },
+  {
+   "t": "mobile app developer",
+   "syn": [
+    "app developer",
+    "android developer",
+    "ios developer",
+    "flutter developer",
+    "flutter",
+    "react native",
+    "android",
+    "kotlin"
+   ],
+   "s": [
+    "mobile UI",
+    "app performance",
+    "APIs",
+    "store releases"
+   ]
+  },
+  {
+   "t": "java developer",
+   "syn": [
+    "java",
+    "spring boot",
+    "core java",
+    "j2ee"
+   ],
+   "s": [
+    "Java",
+    "Spring Boot",
+    "REST APIs",
+    "SQL"
+   ]
+  },
+  {
+   "t": "python developer",
+   "syn": [
+    "python",
+    "django",
+    "flask",
+    "fastapi"
+   ],
+   "s": [
+    "Python",
+    "APIs",
+    "automation scripts",
+    "databases"
+   ]
+  },
+  {
+   "t": "data analyst",
+   "syn": [
+    "data analysis",
+    "data analytics",
+    "business analyst",
+    "analyst",
+    "mis executive",
+    "reporting analyst",
+    "excel analyst",
+    "power bi",
+    "tableau",
+    "sql analyst"
+   ],
+   "s": [
+    "SQL",
+    "Excel",
+    "dashboards",
+    "turning data into decisions"
+   ]
+  },
+  {
+   "t": "data scientist",
+   "syn": [
+    "data science",
+    "machine learning",
+    "ml engineer",
+    "ai engineer",
+    "ai ml",
+    "deep learning",
+    "nlp"
+   ],
+   "s": [
+    "Python",
+    "statistics",
+    "machine learning models",
+    "data storytelling"
+   ]
+  },
+  {
+   "t": "data engineer",
+   "syn": [
+    "etl developer",
+    "etl",
+    "big data",
+    "spark",
+    "hadoop",
+    "pipelines"
+   ],
+   "s": [
+    "data pipelines",
+    "SQL",
+    "Spark",
+    "data quality"
+   ]
+  },
+  {
+   "t": "software tester",
+   "syn": [
+    "qa engineer",
+    "quality analyst",
+    "testing",
+    "test engineer",
+    "manual testing",
+    "automation testing",
+    "selenium",
+    "sdet"
+   ],
+   "s": [
+    "test case design",
+    "bug reporting",
+    "Selenium",
+    "attention to detail"
+   ]
+  },
+  {
+   "t": "devops engineer",
+   "syn": [
+    "devops",
+    "cloud engineer",
+    "site reliability",
+    "docker",
+    "kubernetes",
+    "linux admin",
+    "system admin",
+    "sysadmin",
+    "system administrator"
+   ],
+   "s": [
+    "CI/CD",
+    "cloud infrastructure",
+    "Linux",
+    "monitoring"
+   ]
+  },
+  {
+   "t": "network engineer",
+   "syn": [
+    "networking",
+    "ccna",
+    "network admin",
+    "network administrator",
+    "noc engineer",
+    "network support"
+   ],
+   "s": [
+    "routing and switching",
+    "troubleshooting",
+    "network security",
+    "documentation"
+   ]
+  },
+  {
+   "t": "cyber security analyst",
+   "syn": [
+    "cyber security",
+    "cybersecurity",
+    "security analyst",
+    "ethical hacking",
+    "ethical hacker",
+    "soc analyst",
+    "information security",
+    "infosec"
+   ],
+   "s": [
+    "threat monitoring",
+    "vulnerability assessment",
+    "security tools",
+    "incident response"
+   ]
+  },
+  {
+   "t": "database administrator",
+   "syn": [
+    "dba",
+    "sql developer",
+    "oracle dba",
+    "mysql",
+    "sql server",
+    "database"
+   ],
+   "s": [
+    "SQL",
+    "backups and recovery",
+    "performance tuning",
+    "data integrity"
+   ]
+  },
+  {
+   "t": "digital marketer",
+   "syn": [
+    "digital marketing",
+    "social media",
+    "social media manager",
+    "social media marketing",
+    "performance marketing",
+    "google ads",
+    "meta ads",
+    "content marketing",
+    "email marketing"
+   ],
+   "s": [
+    "SEO",
+    "social media campaigns",
+    "Google Ads",
+    "analytics"
+   ]
+  },
+  {
+   "t": "content writer",
+   "syn": [
+    "content writing",
+    "copywriter",
+    "copywriting",
+    "blogger",
+    "blog writing",
+    "writer",
+    "technical writer",
+    "editor",
+    "proofreader",
+    "proof reading",
+    "transcription",
+    "transcriptionist",
+    "translator",
+    "translation"
+   ],
+   "s": [
+    "clear writing",
+    "research",
+    "editing",
+    "meeting deadlines"
+   ]
+  },
+  {
+   "t": "video editor",
+   "syn": [
+    "premiere pro",
+    "after effects",
+    "motion graphics",
+    "animator",
+    "animation",
+    "youtube editor",
+    "reels editor"
+   ],
+   "s": [
+    "Premiere Pro",
+    "storytelling through edits",
+    "motion graphics",
+    "fast turnaround"
+   ]
+  },
+  {
+   "t": "project manager",
+   "syn": [
+    "project management",
+    "scrum master",
+    "agile",
+    "project lead",
+    "program manager",
+    "delivery manager"
+   ],
+   "s": [
+    "planning and delivery",
+    "stakeholder communication",
+    "risk management",
+    "team coordination"
+   ]
+  },
+  {
+   "t": "product manager",
+   "syn": [
+    "product management",
+    "product owner",
+    "associate product manager"
+   ],
+   "s": [
+    "roadmaps",
+    "user research",
+    "prioritisation",
+    "cross-team collaboration"
+   ]
+  },
+  {
+   "t": "operations executive",
+   "syn": [
+    "operations",
+    "operations manager",
+    "operations executive",
+    "process executive",
+    "process associate",
+    "operations associate",
+    "fleet manager",
+    "dispatcher"
+   ],
+   "s": [
+    "process management",
+    "coordination",
+    "problem solving",
+    "reporting"
+   ]
+  },
+  {
+   "t": "supply chain executive",
+   "syn": [
+    "supply chain",
+    "logistics",
+    "logistics executive",
+    "warehouse",
+    "warehouse executive",
+    "warehouse staff",
+    "inventory",
+    "procurement",
+    "purchase",
+    "purchase executive",
+    "store assistant",
+    "dispatch",
+    "packing",
+    "packer",
+    "picker",
+    "loader",
+    "loading unloading"
+   ],
+   "s": [
+    "inventory control",
+    "dispatch coordination",
+    "vendor follow-ups",
+    "record keeping"
+   ]
+  },
+  {
+   "t": "quality inspector",
+   "syn": [
+    "quality control",
+    "quality inspector",
+    "quality engineer",
+    "inspection",
+    "qa qc",
+    "quality check"
+   ],
+   "s": [
+    "inspection",
+    "quality standards",
+    "documentation",
+    "attention to detail"
+   ]
+  },
+  {
+   "t": "production operator",
+   "syn": [
+    "production",
+    "production worker",
+    "production operator",
+    "line operator",
+    "assembly",
+    "assembler",
+    "factory worker",
+    "factory",
+    "manufacturing",
+    "shop floor",
+    "plant operator",
+    "packing operator",
+    "production trainee",
+    "diploma trainee",
+    "apprentice"
+   ],
+   "s": [
+    "machine operation",
+    "safety on the shop floor",
+    "shift work",
+    "meeting production targets"
+   ]
+  },
+  {
+   "t": "maintenance technician",
+   "syn": [
+    "maintenance",
+    "maintenance engineer",
+    "plant maintenance",
+    "preventive maintenance",
+    "breakdown maintenance",
+    "utility technician"
+   ],
+   "s": [
+    "preventive maintenance",
+    "breakdown repair",
+    "safety procedures",
+    "record keeping"
+   ]
+  },
+  {
+   "t": "site engineer",
+   "syn": [
+    "civil engineer",
+    "civil site engineer",
+    "site supervisor",
+    "construction supervisor",
+    "supervisor",
+    "site incharge",
+    "quantity surveyor",
+    "autocad",
+    "draftsman",
+    "draughtsman",
+    "surveyor",
+    "billing engineer",
+    "structural engineer"
+   ],
+   "s": [
+    "site supervision",
+    "AutoCAD",
+    "quantity estimation",
+    "coordination with contractors"
+   ]
+  },
+  {
+   "t": "mechanical engineer",
+   "syn": [
+    "mechanical",
+    "design engineer",
+    "solidworks",
+    "catia",
+    "creo",
+    "ansys",
+    "production engineer",
+    "mechanical design",
+    "automobile engineer",
+    "automotive engineer"
+   ],
+   "s": [
+    "CAD design",
+    "manufacturing processes",
+    "problem solving",
+    "quality focus"
+   ]
+  },
+  {
+   "t": "electrical engineer",
+   "syn": [
+    "electrical",
+    "power systems",
+    "electrical design",
+    "automation engineer",
+    "instrumentation",
+    "instrumentation engineer",
+    "control engineer",
+    "embedded engineer",
+    "embedded systems",
+    "electronics engineer",
+    "pcb design",
+    "hardware engineer"
+   ],
+   "s": [
+    "circuit design",
+    "PLC and automation",
+    "testing",
+    "safety standards"
+   ]
+  },
+  {
+   "t": "chemical engineer",
+   "syn": [
+    "chemical",
+    "process engineer",
+    "chemist",
+    "lab chemist",
+    "quality chemist",
+    "r&d chemist",
+    "pharma production",
+    "formulation"
+   ],
+   "s": [
+    "process control",
+    "lab analysis",
+    "safety compliance",
+    "documentation"
+   ]
+  },
+  {
+   "t": "architect",
+   "syn": [
+    "architecture",
+    "interior designer",
+    "interior design",
+    "interiors",
+    "3d visualizer",
+    "3ds max",
+    "sketchup",
+    "revit"
+   ],
+   "s": [
+    "design concepts",
+    "AutoCAD and 3D tools",
+    "client presentations",
+    "site coordination"
+   ]
+  },
+  {
+   "t": "bank officer",
+   "syn": [
+    "banking",
+    "bank job",
+    "bank clerk",
+    "probationary officer",
+    "bank po",
+    "relationship manager",
+    "relationship officer",
+    "loan officer",
+    "credit officer",
+    "insurance agent",
+    "insurance",
+    "lic agent",
+    "financial advisor",
+    "wealth manager",
+    "mutual funds",
+    "collection executive",
+    "collections",
+    "recovery agent",
+    "field officer"
+   ],
+   "s": [
+    "customer relationships",
+    "financial products",
+    "KYC and compliance",
+    "target achievement"
+   ]
+  },
+  {
+   "t": "finance executive",
+   "syn": [
+    "financial analyst",
+    "fp&a",
+    "investment banking",
+    "equity research",
+    "auditor",
+    "internal audit",
+    "taxation",
+    "income tax",
+    "ca article",
+    "articleship",
+    "costing",
+    "treasury",
+    "accounts payable",
+    "accounts receivable",
+    "payroll executive"
+   ],
+   "s": [
+    "financial analysis",
+    "Excel modelling",
+    "compliance",
+    "accuracy with numbers"
+   ]
+  },
+  {
+   "t": "lawyer",
+   "syn": [
+    "advocate",
+    "legal",
+    "legal advisor",
+    "legal executive",
+    "paralegal",
+    "legal assistant",
+    "company secretary",
+    "compliance officer"
+   ],
+   "s": [
+    "legal research",
+    "drafting",
+    "case preparation",
+    "attention to detail"
+   ]
+  },
+  {
+   "t": "doctor",
+   "syn": [
+    "physician",
+    "medical officer",
+    "mbbs",
+    "bds",
+    "dentist",
+    "bams",
+    "bhms",
+    "ayurvedic",
+    "homeopathy",
+    "veterinary",
+    "vet",
+    "physiotherapist",
+    "physiotherapy",
+    "bpt",
+    "dietician",
+    "nutritionist",
+    "optometrist",
+    "radiographer",
+    "x-ray technician",
+    "dental assistant",
+    "ot technician",
+    "medical representative",
+    "medical coding",
+    "medical coder",
+    "medical billing",
+    "medical transcription"
+   ],
+   "s": [
+    "patient care",
+    "clinical knowledge",
+    "clear communication",
+    "ethics and accuracy"
+   ]
+  },
+  {
+   "t": "fitness trainer",
+   "syn": [
+    "gym trainer",
+    "personal trainer",
+    "yoga trainer",
+    "yoga teacher",
+    "zumba",
+    "aerobics",
+    "sports coach",
+    "physical education",
+    "pet",
+    "swimming coach"
+   ],
+   "s": [
+    "training plans",
+    "motivating clients",
+    "safety and form",
+    "consistency"
+   ]
+  },
+  {
+   "t": "farmer",
+   "syn": [
+    "farming",
+    "agriculture",
+    "agri",
+    "dairy",
+    "poultry",
+    "farm worker",
+    "gardener",
+    "gardening",
+    "mali",
+    "nursery",
+    "landscaping",
+    "horticulture",
+    "agriculture officer",
+    "agronomist"
+   ],
+   "s": [
+    "crop and animal care",
+    "hard outdoor work",
+    "seasonal planning",
+    "tool and equipment handling"
+   ]
+  },
+  {
+   "t": "event coordinator",
+   "syn": [
+    "event management",
+    "event manager",
+    "wedding planner",
+    "anchor",
+    "emcee",
+    "hostess",
+    "promoter",
+    "brand promoter",
+    "promotion"
+   ],
+   "s": [
+    "event planning",
+    "vendor coordination",
+    "working under pressure",
+    "guest handling"
+   ]
+  },
+  {
+   "t": "travel executive",
+   "syn": [
+    "travel agent",
+    "tourism",
+    "tour guide",
+    "ticketing",
+    "ticketing executive",
+    "airline",
+    "ground staff",
+    "cabin crew",
+    "air hostess",
+    "flight attendant",
+    "airport staff",
+    "visa executive"
+   ],
+   "s": [
+    "itinerary planning",
+    "customer service",
+    "booking systems",
+    "calm communication"
+   ]
+  },
+  {
+   "t": "real estate agent",
+   "syn": [
+    "real estate",
+    "property consultant",
+    "property dealer",
+    "broker",
+    "realtor",
+    "site visit",
+    "channel partner"
+   ],
+   "s": [
+    "client relationships",
+    "property knowledge",
+    "negotiation",
+    "follow-ups"
+   ]
+  },
+  {
+   "t": "fashion designer",
+   "syn": [
+    "fashion designing",
+    "fashion design",
+    "apparel designer",
+    "merchandiser",
+    "fashion merchandising",
+    "textile designer",
+    "pattern master",
+    "fashion stylist",
+    "stylist"
+   ],
+   "s": [
+    "design sketching",
+    "fabric knowledge",
+    "pattern making",
+    "trend awareness"
+   ]
+  },
+  {
+   "t": "journalist",
+   "syn": [
+    "journalism",
+    "reporter",
+    "news reporter",
+    "news anchor",
+    "mass communication",
+    "pr executive",
+    "public relations",
+    "content creator",
+    "youtuber",
+    "influencer",
+    "podcaster",
+    "radio jockey",
+    "voice over",
+    "voice artist",
+    "dubbing artist"
+   ],
+   "s": [
+    "storytelling",
+    "research and interviews",
+    "deadlines",
+    "clear communication"
+   ]
+  },
+  {
+   "t": "librarian",
+   "syn": [
+    "library",
+    "library assistant",
+    "library science",
+    "archivist",
+    "documentation officer"
+   ],
+   "s": [
+    "cataloguing",
+    "record keeping",
+    "helping readers",
+    "organisation"
+   ]
+  },
+  {
+   "t": "social worker",
+   "syn": [
+    "social work",
+    "msw",
+    "ngo",
+    "ngo worker",
+    "community worker",
+    "asha worker",
+    "anganwadi",
+    "anganwadi worker",
+    "counsellor",
+    "counselor",
+    "counselling",
+    "psychologist",
+    "psychology",
+    "field coordinator",
+    "volunteer",
+    "volunteering"
+   ],
+   "s": [
+    "community outreach",
+    "empathy",
+    "documentation",
+    "coordination with families"
+   ]
+  },
+  {
+   "t": "government job aspirant",
+   "syn": [
+    "government job",
+    "govt job",
+    "sarkari naukri",
+    "railway",
+    "constable",
+    "sub inspector",
+    "air force",
+    "defence",
+    "agniveer",
+    "forest department",
+    "postal",
+    "gramin dak sevak",
+    "anganwadi",
+    "village secretary",
+    "panchayat secretary"
+   ],
+   "s": [
+    "discipline",
+    "exam preparation",
+    "general awareness",
+    "physical fitness"
+   ]
+  },
+  {
+   "t": "police constable",
+   "syn": [
+    "constable",
+    "police job",
+    "home guard",
+    "traffic police",
+    "ex-serviceman",
+    "ex serviceman",
+    "army retired",
+    "jawan",
+    "soldier",
+    "havildar",
+    "sepoy"
+   ],
+   "s": [
+    "discipline",
+    "physical fitness",
+    "public safety",
+    "following procedures"
+   ]
+  },
+  {
+   "t": "sports person",
+   "syn": [
+    "athlete",
+    "cricketer",
+    "cricket",
+    "football",
+    "kabaddi",
+    "volleyball",
+    "badminton",
+    "state player",
+    "national player",
+    "sports quota"
+   ],
+   "s": [
+    "discipline",
+    "teamwork",
+    "fitness",
+    "performance under pressure"
+   ]
+  },
+  {
+   "t": "musician",
+   "syn": [
+    "singer",
+    "music teacher",
+    "guitarist",
+    "keyboard player",
+    "sound engineer",
+    "audio engineer",
+    "dancer",
+    "dance teacher",
+    "choreographer",
+    "painting artist",
+    "art teacher",
+    "actor",
+    "theatre",
+    "modelling"
+   ],
+   "s": [
+    "performance",
+    "practice discipline",
+    "creativity",
+    "stage presence"
+   ]
+  },
+  {
+   "t": "business owner",
+   "syn": [
+    "own business",
+    "self employed",
+    "self-employed",
+    "shop owner",
+    "entrepreneur",
+    "startup",
+    "founder",
+    "freelancer",
+    "freelancing",
+    "own shop",
+    "small business",
+    "vyaparam",
+    "vyapar",
+    "kirana",
+    "general store",
+    "street vendor",
+    "hawker",
+    "vendor"
+   ],
+   "s": [
+    "running daily operations",
+    "customer relationships",
+    "cash and stock management",
+    "problem solving"
+   ]
+  },
+  {
+   "t": "customer relationship executive",
+   "syn": [
+    "client servicing",
+    "client relations",
+    "account executive",
+    "account manager",
+    "key account manager",
+    "client success",
+    "customer success"
+   ],
+   "s": [
+    "client communication",
+    "relationship building",
+    "follow-ups",
+    "CRM tools"
+   ]
+  },
+  {
+   "t": "team leader",
+   "syn": [
+    "team lead",
+    "supervisor",
+    "shift incharge",
+    "shift supervisor",
+    "incharge",
+    "in-charge",
+    "floor manager",
+    "assistant manager",
+    "manager",
+    "branch manager",
+    "area manager",
+    "regional manager",
+    "zonal manager"
+   ],
+   "s": [
+    "team supervision",
+    "target tracking",
+    "training juniors",
+    "reporting to management"
+   ]
+  },
+  {
+   "t": "executive assistant",
+   "syn": [
+    "personal assistant",
+    "secretary",
+    "steno",
+    "stenographer",
+    "office coordinator",
+    "coordinator",
+    "admin executive",
+    "administration",
+    "facility executive",
+    "facilities",
+    "front office admin"
+   ],
+   "s": [
+    "calendar and travel management",
+    "correspondence",
+    "MS Office",
+    "confidentiality"
+   ]
+  },
+  {
+   "t": "intern",
+   "syn": [
+    "internship",
+    "management trainee",
+    "summer intern",
+    "apprenticeship",
+    "apprentice"
+   ],
+   "s": [
+    "quick learning",
+    "following instructions",
+    "teamwork",
+    "curiosity"
+   ]
+  },
+  {
+   "t": "student",
+   "syn": [
+    "studying",
+    "final year",
+    "final year student",
+    "pursuing",
+    "ongoing",
+    "currently studying",
+    "college student",
+    "school student",
+    "last year",
+    "3rd year",
+    "2nd year"
+   ],
+   "s": [
+    "quick learning",
+    "fresh knowledge",
+    "adaptability",
+    "enthusiasm"
+   ]
+  },
+  {
+   "t": "homemaker",
+   "syn": [
+    "housewife",
+    "house wife",
+    "home maker",
+    "stay at home",
+    "at home",
+    "household",
+    "housework",
+    "home manager"
+   ],
+   "s": [
+    "time management",
+    "budgeting",
+    "multitasking",
+    "responsibility"
+   ]
+  },
+  {
+   "t": "cleaning supervisor",
+   "syn": [
+    "facility supervisor",
+    "housekeeping incharge",
+    "sanitation",
+    "sanitation worker",
+    "waste management"
+   ],
+   "s": [
+    "team supervision",
+    "hygiene standards",
+    "scheduling",
+    "supplies management"
+   ]
+  },
+  {
+   "t": "gym attendant",
+   "syn": [
+    "swimming pool attendant",
+    "lifeguard",
+    "pool attendant",
+    "club attendant"
+   ],
+   "s": [
+    "safety awareness",
+    "member service",
+    "equipment upkeep",
+    "alertness"
+   ]
+  },
+  {
+   "t": "lift operator",
+   "syn": [
+    "elevator operator",
+    "crane operator",
+    "forklift operator",
+    "forklift",
+    "jcb operator",
+    "excavator operator",
+    "heavy equipment operator",
+    "machine driver",
+    "tractor driver"
+   ],
+   "s": [
+    "equipment operation",
+    "safety procedures",
+    "load handling",
+    "basic maintenance"
+   ]
+  },
+  {
+   "t": "printing operator",
+   "syn": [
+    "printing press",
+    "printing",
+    "offset printing",
+    "screen printing",
+    "flex printing",
+    "binder",
+    "book binding",
+    "lamination",
+    "xerox",
+    "photocopy",
+    "dtp operator"
+   ],
+   "s": [
+    "machine operation",
+    "print quality checks",
+    "colour matching",
+    "deadlines"
+   ]
+  },
+  {
+   "t": "goldsmith",
+   "syn": [
+    "jewellery",
+    "jewelry",
+    "jewellery designer",
+    "gold work",
+    "polishing",
+    "gem setting",
+    "cad jewellery"
+   ],
+   "s": [
+    "fine handwork",
+    "design detail",
+    "quality finishing",
+    "trust and care with valuables"
+   ]
+  },
+  {
+   "t": "pandit",
+   "syn": [
+    "priest",
+    "purohit",
+    "pujari",
+    "astrologer",
+    "astrology",
+    "temple"
+   ],
+   "s": [
+    "ritual knowledge",
+    "Sanskrit",
+    "community trust",
+    "punctuality"
+   ]
+  },
+  {
+   "t": "school administrator",
+   "syn": [
+    "school admin",
+    "principal",
+    "vice principal",
+    "headmaster",
+    "academic coordinator",
+    "academic counsellor",
+    "admission counsellor",
+    "admissions",
+    "education counsellor",
+    "career counsellor"
+   ],
+   "s": [
+    "academic coordination",
+    "parent communication",
+    "admissions",
+    "planning"
+   ]
+  },
+  {
+   "t": "bpo associate",
+   "syn": [
+    "back office associate",
+    "kpo",
+    "data processing",
+    "email support",
+    "chat process",
+    "international process",
+    "domestic process",
+    "night shift",
+    "us shift",
+    "uk shift"
+   ],
+   "s": [
+    "process accuracy",
+    "written communication",
+    "shift flexibility",
+    "targets"
+   ]
+  },
+  {
+   "t": "hotel manager",
+   "syn": [
+    "hotel management",
+    "hospitality",
+    "hotelier",
+    "duty manager",
+    "guest service agent",
+    "concierge",
+    "bell boy",
+    "doorman",
+    "valet"
+   ],
+   "s": [
+    "guest satisfaction",
+    "team coordination",
+    "problem solving",
+    "standards"
+   ]
+  },
+  {
+   "t": "pest control technician",
+   "syn": [
+    "pest control",
+    "fumigation",
+    "termite treatment"
+   ],
+   "s": [
+    "chemical safety",
+    "site inspection",
+    "customer explanation",
+    "schedules"
+   ]
+  },
+  {
+   "t": "two wheeler technician",
+   "syn": [
+    "bike service",
+    "scooter mechanic",
+    "two-wheeler service",
+    "service advisor",
+    "service advisor automobile",
+    "showroom",
+    "showroom staff",
+    "car sales",
+    "bike sales",
+    "automobile sales"
+   ],
+   "s": [
+    "vehicle knowledge",
+    "servicing",
+    "customer explanation",
+    "upselling"
+   ]
+  },
+  {
+   "t": "solar technician",
+   "syn": [
+    "solar",
+    "solar installer",
+    "solar panel",
+    "renewable energy",
+    "wind energy",
+    "energy auditor"
+   ],
+   "s": [
+    "panel installation",
+    "electrical safety",
+    "site survey",
+    "maintenance"
+   ]
+  },
+  {
+   "t": "cctv technician",
+   "syn": [
+    "cctv installation",
+    "security systems",
+    "biometric",
+    "access control",
+    "fire alarm",
+    "fire safety",
+    "fire fighter",
+    "firefighter",
+    "fireman",
+    "safety officer",
+    "nebosh",
+    "iosh"
+   ],
+   "s": [
+    "installation and configuration",
+    "fault repair",
+    "site survey",
+    "safety compliance"
+   ]
+  },
+  {
+   "t": "water purifier technician",
+   "syn": [
+    "ro technician",
+    "ro service",
+    "water purifier",
+    "appliance technician",
+    "washing machine repair",
+    "home appliance",
+    "appliance repair",
+    "tv repair",
+    "led tv repair"
+   ],
+   "s": [
+    "appliance repair",
+    "customer visits",
+    "parts replacement",
+    "service records"
+   ]
+  },
+  {
+   "t": "spa therapist",
+   "syn": [
+    "massage therapist",
+    "spa",
+    "wellness",
+    "ayurveda therapist",
+    "physio assistant"
+   ],
+   "s": [
+    "therapy techniques",
+    "client comfort",
+    "hygiene",
+    "gentle communication"
+   ]
+  },
+  {
+   "t": "petrol pump attendant",
+   "syn": [
+    "petrol bunk",
+    "petrol pump",
+    "fuel attendant",
+    "toll plaza",
+    "toll collector",
+    "parking attendant",
+    "ticket collector",
+    "conductor",
+    "bus conductor"
+   ],
+   "s": [
+    "cash handling",
+    "customer service",
+    "shift discipline",
+    "honesty"
+   ]
+  },
+  {
+   "t": "bank cashier",
+   "syn": [
+    "cash officer",
+    "teller",
+    "cash executive",
+    "gold loan",
+    "gold appraiser",
+    "appraiser"
+   ],
+   "s": [
+    "cash handling",
+    "accuracy",
+    "customer service",
+    "compliance"
+   ]
+  },
+  {
+   "t": "ecommerce executive",
+   "syn": [
+    "e-commerce",
+    "ecommerce",
+    "amazon seller",
+    "flipkart seller",
+    "online selling",
+    "catalog executive",
+    "cataloguing",
+    "listing",
+    "product listing",
+    "order processing",
+    "marketplace"
+   ],
+   "s": [
+    "product listings",
+    "order processing",
+    "customer messages",
+    "Excel"
+   ]
+  },
+  {
+   "t": "research assistant",
+   "syn": [
+    "researcher",
+    "research scholar",
+    "phd scholar",
+    "research associate",
+    "jrf",
+    "srf",
+    "project fellow",
+    "lab assistant",
+    "scientist",
+    "biotech",
+    "biotechnology",
+    "microbiology",
+    "microbiologist",
+    "life sciences",
+    "zoology",
+    "botany"
+   ],
+   "s": [
+    "research methods",
+    "data collection and analysis",
+    "report writing",
+    "attention to detail"
+   ]
+  },
+  {
+   "t": "statistician",
+   "syn": [
+    "statistics",
+    "actuary",
+    "actuarial",
+    "economist",
+    "economics",
+    "quant",
+    "risk analyst",
+    "credit analyst",
+    "underwriter",
+    "claims executive",
+    "claims"
+   ],
+   "s": [
+    "statistical analysis",
+    "Excel and R or Python",
+    "modelling",
+    "clear reporting"
+   ]
+  },
+  {
+   "t": "animator",
+   "syn": [
+    "2d animator",
+    "3d animator",
+    "game developer",
+    "game design",
+    "game development",
+    "unity",
+    "unreal",
+    "ar vr",
+    "blender",
+    "maya"
+   ],
+   "s": [
+    "animation tools",
+    "storytelling",
+    "attention to detail",
+    "deadlines"
+   ]
+  },
+  {
+   "t": "erp consultant",
+   "syn": [
+    "sap consultant",
+    "sap fico",
+    "sap mm",
+    "sap abap",
+    "oracle",
+    "oracle apps",
+    "salesforce",
+    "salesforce developer",
+    "servicenow",
+    "workday",
+    "crm consultant",
+    "functional consultant",
+    "technical consultant",
+    "it consultant"
+   ],
+   "s": [
+    "ERP configuration",
+    "requirement gathering",
+    "client support",
+    "documentation"
+   ]
+  },
+  {
+   "t": "business analyst",
+   "syn": [
+    "requirements",
+    "process analyst",
+    "functional analyst",
+    "systems analyst",
+    "pre sales",
+    "presales",
+    "solution consultant"
+   ],
+   "s": [
+    "requirement analysis",
+    "stakeholder communication",
+    "documentation",
+    "data analysis"
+   ]
+  },
+  {
+   "t": "technical support engineer",
+   "syn": [
+    "support engineer",
+    "l1 support",
+    "l2 support",
+    "application support",
+    "production support",
+    "implementation engineer",
+    "field engineer",
+    "service engineer",
+    "field service",
+    "installation engineer",
+    "commissioning"
+   ],
+   "s": [
+    "troubleshooting",
+    "customer communication",
+    "ticket handling",
+    "documentation"
+   ]
+  },
+  {
+   "t": "embedded engineer",
+   "syn": [
+    "firmware",
+    "firmware engineer",
+    "microcontroller",
+    "arduino",
+    "raspberry pi",
+    "robotics",
+    "robotics engineer",
+    "drone",
+    "mechatronics",
+    "automation"
+   ],
+   "s": [
+    "C and microcontrollers",
+    "hardware debugging",
+    "sensors and interfaces",
+    "testing"
+   ]
+  },
+  {
+   "t": "quality assurance manager",
+   "syn": [
+    "qa manager",
+    "quality manager",
+    "iso auditor",
+    "six sigma",
+    "lean",
+    "kaizen"
+   ],
+   "s": [
+    "quality systems",
+    "audits",
+    "process improvement",
+    "training teams"
+   ]
+  },
+  {
+   "t": "purchase manager",
+   "syn": [
+    "procurement manager",
+    "sourcing",
+    "vendor management",
+    "buyer",
+    "merchandiser",
+    "import export",
+    "export import",
+    "customs",
+    "shipping",
+    "freight",
+    "documentation executive"
+   ],
+   "s": [
+    "vendor negotiation",
+    "cost control",
+    "documentation",
+    "follow-ups"
+   ]
+  },
+  {
+   "t": "storekeeper",
+   "syn": [
+    "store keeper",
+    "stores",
+    "stores incharge",
+    "godown",
+    "godown keeper",
+    "inventory executive",
+    "stock keeper",
+    "stock taking"
+   ],
+   "s": [
+    "stock records",
+    "issue and receipt",
+    "inventory accuracy",
+    "housekeeping of stores"
+   ]
+  },
+  {
+   "t": "dietitian",
+   "syn": [
+    "dietitian",
+    "nutrition",
+    "clinical nutrition",
+    "food technologist",
+    "food technology",
+    "food safety",
+    "quality food"
+   ],
+   "s": [
+    "diet planning",
+    "nutrition knowledge",
+    "client counselling",
+    "food safety"
+   ]
+  },
+  {
+   "t": "hospital administrator",
+   "syn": [
+    "hospital administration",
+    "hospital management",
+    "medical records",
+    "front office hospital",
+    "billing hospital",
+    "insurance desk",
+    "hospital receptionist",
+    "patient coordinator",
+    "op coordinator"
+   ],
+   "s": [
+    "patient coordination",
+    "records and billing",
+    "insurance processes",
+    "calm communication"
+   ]
+  },
+  {
+   "t": "paramedic",
+   "syn": [
+    "emergency medical technician",
+    "ambulance",
+    "ambulance driver",
+    "first aid",
+    "first aider",
+    "ot assistant",
+    "icu technician",
+    "dialysis technician",
+    "anaesthesia technician",
+    "ecg technician",
+    "cath lab"
+   ],
+   "s": [
+    "emergency response",
+    "patient monitoring",
+    "equipment handling",
+    "calm under pressure"
+   ]
+  },
+  {
+   "t": "school counsellor",
+   "syn": [
+    "special educator",
+    "special education",
+    "speech therapist",
+    "occupational therapist",
+    "shadow teacher",
+    "nanny",
+    "babysitter",
+    "child care",
+    "childcare",
+    "creche",
+    "daycare",
+    "day care",
+    "ayah"
+   ],
+   "s": [
+    "patience with children",
+    "safety and care",
+    "communication with parents",
+    "routine management"
+   ]
+  },
+  {
+   "t": "elderly caregiver",
+   "syn": [
+    "elder care",
+    "old age care",
+    "attendant",
+    "home attendant",
+    "patient attendant",
+    "bedside attendant",
+    "home care"
+   ],
+   "s": [
+    "patient care",
+    "medication reminders",
+    "hygiene",
+    "compassion"
+   ]
+  },
+  {
+   "t": "data collector",
+   "syn": [
+    "surveyor field",
+    "field investigator",
+    "enumerator",
+    "field executive",
+    "market research",
+    "mystery shopper",
+    "verification executive",
+    "kyc verification",
+    "background verification",
+    "field verification"
+   ],
+   "s": [
+    "field work",
+    "accurate data collection",
+    "meeting people",
+    "reporting"
+   ]
+  },
+  {
+   "t": "loan collection executive",
+   "syn": [
+    "field collection",
+    "tele collection",
+    "debt collection",
+    "emi collection"
+   ],
+   "s": [
+    "follow-ups",
+    "customer negotiation",
+    "field visits",
+    "record keeping"
+   ]
+  },
+  {
+   "t": "insurance advisor",
+   "syn": [
+    "insurance sales",
+    "policy advisor",
+    "health insurance",
+    "general insurance",
+    "bancassurance",
+    "claims processing"
+   ],
+   "s": [
+    "product knowledge",
+    "client trust",
+    "follow-ups",
+    "documentation"
+   ]
+  },
+  {
+   "t": "cab operator",
+   "syn": [
+    "fleet owner",
+    "transport business",
+    "travels",
+    "tours and travels",
+    "car rental",
+    "transporter"
+   ],
+   "s": [
+    "fleet handling",
+    "route planning",
+    "customer service",
+    "vehicle upkeep"
+   ]
+  },
+  {
+   "t": "courier executive",
+   "syn": [
+    "courier boy",
+    "courier delivery",
+    "logistics delivery",
+    "parcel",
+    "dtdc",
+    "bluedart",
+    "delhivery",
+    "ecom express",
+    "india post",
+    "postman"
+   ],
+   "s": [
+    "on-time delivery",
+    "route knowledge",
+    "parcel handling",
+    "customer interaction"
+   ]
+  },
+  {
+   "t": "machine learning intern",
+   "syn": [
+    "ai intern",
+    "data science intern",
+    "analytics intern"
+   ],
+   "s": [
+    "Python",
+    "data handling",
+    "model building",
+    "learning fast"
+   ]
+  },
+  {
+   "t": "typist",
+   "syn": [
+    "english typing",
+    "telugu typing",
+    "hindi typing",
+    "typewriting",
+    "shorthand",
+    "lower typing",
+    "higher typing"
+   ],
+   "s": [
+    "typing speed and accuracy",
+    "MS Word",
+    "document formatting",
+    "deadlines"
+   ]
+  },
+  {
+   "t": "legal clerk",
+   "syn": [
+    "court clerk",
+    "notary",
+    "document writer",
+    "documentation",
+    "stamp vendor",
+    "registration office",
+    "meeseva",
+    "mee seva",
+    "csc",
+    "common service centre",
+    "internet centre",
+    "net centre",
+    "cyber cafe",
+    "xerox shop"
+   ],
+   "s": [
+    "document processing",
+    "government portals",
+    "customer service",
+    "accuracy"
+   ]
+  },
+  {
+   "t": "tourist guide",
+   "syn": [
+    "tour operator",
+    "travel guide",
+    "heritage walk"
+   ],
+   "s": [
+    "local knowledge",
+    "communication in several languages",
+    "group handling",
+    "punctuality"
+   ]
+  },
+  {
+   "t": "news presenter",
+   "syn": [
+    "anchor",
+    "presenter",
+    "television",
+    "broadcast",
+    "video journalist",
+    "camera operator"
+   ],
+   "s": [
+    "clear speech",
+    "composure on camera",
+    "scripting",
+    "research"
+   ]
+  },
+  {
+   "t": "garment worker",
+   "syn": [
+    "garment factory",
+    "textile",
+    "textile mill",
+    "spinning",
+    "weaving",
+    "handloom",
+    "power loom",
+    "dyeing",
+    "printing textile",
+    "checker",
+    "quality checker garment",
+    "finishing garment",
+    "ironing",
+    "pressman"
+   ],
+   "s": [
+    "machine operation",
+    "quality checking",
+    "speed with accuracy",
+    "shift work"
+   ]
+  },
+  {
+   "t": "cable technician",
+   "syn": [
+    "cable operator",
+    "dish installation",
+    "broadband technician",
+    "fiber technician",
+    "fibre technician",
+    "telecom technician",
+    "tower technician",
+    "telecom"
+   ],
+   "s": [
+    "installation",
+    "fault repair",
+    "customer visits",
+    "safety at heights"
+   ]
+  },
+  {
+   "t": "dj and sound technician",
+   "syn": [
+    "sound",
+    "light and sound",
+    "stage setup",
+    "event technician",
+    "av technician",
+    "projector",
+    "audio visual"
+   ],
+   "s": [
+    "equipment setup",
+    "troubleshooting",
+    "event timing",
+    "teamwork"
+   ]
+  },
+  {
+   "t": "quality control chemist",
+   "syn": [
+    "qc chemist",
+    "qa chemist",
+    "analytical chemist",
+    "wet analysis",
+    "pharma qc",
+    "pharma qa",
+    "regulatory affairs",
+    "pharmacovigilance",
+    "clinical research",
+    "clinical data"
+   ],
+   "s": [
+    "lab analysis",
+    "GMP documentation",
+    "instrument handling",
+    "accuracy"
+   ]
+  },
+  {
+   "t": "fisherman",
+   "syn": [
+    "fishing",
+    "fisheries",
+    "aquaculture",
+    "prawn farming",
+    "fish farming",
+    "boat"
+   ],
+   "s": [
+    "outdoor work",
+    "equipment handling",
+    "early hours",
+    "teamwork"
+   ]
+  },
+  {
+   "t": "miner",
+   "syn": [
+    "mining",
+    "mine worker",
+    "quarry",
+    "blasting",
+    "mining engineer",
+    "geologist",
+    "geology",
+    "surveyor mining"
+   ],
+   "s": [
+    "safety procedures",
+    "heavy equipment",
+    "shift work",
+    "teamwork"
+   ]
+  },
+  {
+   "t": "shipping crew",
+   "syn": [
+    "merchant navy",
+    "seaman",
+    "deck cadet",
+    "marine engineer",
+    "marine",
+    "port worker",
+    "dock worker",
+    "crane operator port"
+   ],
+   "s": [
+    "safety at sea",
+    "equipment maintenance",
+    "discipline",
+    "teamwork"
+   ]
+  },
+  {
+   "t": "aviation technician",
+   "syn": [
+    "aircraft maintenance",
+    "aeronautical",
+    "aerospace",
+    "airport ground handling",
+    "ramp agent",
+    "baggage handler"
+   ],
+   "s": [
+    "maintenance procedures",
+    "safety compliance",
+    "documentation",
+    "teamwork"
+   ]
+  },
+  {
+   "t": "pilot",
+   "syn": [
+    "commercial pilot",
+    "drone pilot",
+    "drone operator"
+   ],
+   "s": [
+    "flight operations",
+    "safety procedures",
+    "situational awareness",
+    "discipline"
+   ]
+  },
+  {
+   "t": "scientist",
+   "syn": [
+    "isro",
+    "drdo",
+    "csir",
+    "research scientist",
+    "junior scientist"
+   ],
+   "s": [
+    "research",
+    "analysis",
+    "technical writing",
+    "teamwork"
+   ]
+  },
+  {
+   "t": "linguist",
+   "syn": [
+    "language teacher",
+    "english teacher",
+    "english speaking",
+    "spoken english",
+    "ielts trainer",
+    "german teacher",
+    "french teacher",
+    "japanese",
+    "korean",
+    "language expert",
+    "interpreter"
+   ],
+   "s": [
+    "language fluency",
+    "teaching methods",
+    "patience",
+    "clear communication"
+   ]
+  },
+  {
+   "t": "data privacy officer",
+   "syn": [
+    "governance",
+    "audit compliance",
+    "fraud analyst",
+    "fraud",
+    "kyc analyst",
+    "transaction monitoring"
+   ],
+   "s": [
+    "compliance checks",
+    "risk assessment",
+    "documentation",
+    "attention to detail"
+   ]
+  },
+  {
+   "t": "shop floor supervisor",
+   "syn": [
+    "line leader",
+    "line incharge",
+    "production supervisor",
+    "shift engineer",
+    "plant supervisor",
+    "foreman",
+    "mistri",
+    "mestri",
+    "maistry",
+    "contractor",
+    "labour contractor",
+    "site contractor"
+   ],
+   "s": [
+    "team supervision",
+    "production targets",
+    "safety",
+    "shift planning"
+   ]
+  },
+  {
+   "t": "vehicle inspector",
+   "syn": [
+    "vehicle inspection",
+    "insurance surveyor",
+    "motor surveyor",
+    "loss assessor"
+   ],
+   "s": [
+    "inspection",
+    "report writing",
+    "vehicle knowledge",
+    "honesty"
+   ]
+  },
+  {
+   "t": "wedding planner",
+   "syn": [
+    "decorator",
+    "decoration",
+    "flower decoration",
+    "balloon decoration",
+    "stage decoration",
+    "mandap",
+    "tent house",
+    "catering business",
+    "caterer"
+   ],
+   "s": [
+    "event setup",
+    "creativity",
+    "vendor coordination",
+    "working to time"
+   ]
+  },
+  {
+   "t": "bike taxi rider",
+   "syn": [
+    "rapido",
+    "bike taxi",
+    "porter",
+    "porter driver",
+    "mini truck",
+    "goods vehicle",
+    "tata ace",
+    "pickup driver",
+    "transport driver"
+   ],
+   "s": [
+    "route knowledge",
+    "on-time service",
+    "customer interaction",
+    "vehicle care"
+   ]
+  },
+  {
+   "t": "online tutor",
+   "syn": [
+    "online teaching",
+    "online tutor",
+    "byjus",
+    "vedantu",
+    "unacademy",
+    "edtech",
+    "academic content",
+    "content developer",
+    "subject matter expert",
+    "question writer",
+    "doubt solver"
+   ],
+   "s": [
+    "subject knowledge",
+    "clear explanation",
+    "online tools",
+    "patience"
+   ]
+  },
+  {
+   "t": "quality auditor",
+   "syn": [
+    "call auditor",
+    "quality analyst bpo",
+    "qa bpo",
+    "process trainer",
+    "trainer bpo",
+    "soft skills trainer",
+    "corporate trainer",
+    "voice and accent",
+    "v&a"
+   ],
+   "s": [
+    "call evaluation",
+    "feedback and coaching",
+    "process knowledge",
+    "reporting"
+   ]
+  },
+  {
+   "t": "founder",
+   "syn": [
+    "co-founder",
+    "cofounder",
+    "proprietor",
+    "managing director",
+    "md",
+    "ceo",
+    "coo",
+    "cto"
+   ],
+   "s": [
+    "leadership",
+    "decision making",
+    "customer focus",
+    "resourcefulness"
+   ]
+  },
+  {
+   "t": "receptionist hotel",
+   "syn": [
+    "front office associate",
+    "gsa",
+    "reservations",
+    "reservation executive",
+    "night auditor"
+   ],
+   "s": [
+    "check-in and check-out",
+    "guest service",
+    "booking systems",
+    "composure"
+   ]
+  },
+  {
+   "t": "forest guard",
+   "syn": [
+    "wildlife",
+    "ranger",
+    "forest beat officer",
+    "fbo",
+    "environment",
+    "environmental science",
+    "ehs officer",
+    "pollution control"
+   ],
+   "s": [
+    "field work",
+    "observation",
+    "safety",
+    "record keeping"
+   ]
+  },
+  {
+   "t": "postal assistant",
+   "syn": [
+    "post office",
+    "postal assistant",
+    "sorting assistant",
+    "multi tasking staff",
+    "group d",
+    "group c",
+    "lower division clerk",
+    "upper division clerk"
+   ],
+   "s": [
+    "record keeping",
+    "customer service",
+    "accuracy",
+    "discipline"
+   ]
+  }
+ ],
+ "banned": [
+  "hardworking team player",
+  "hard working team player",
+  "go-getter",
+  "go getter",
+  "synergy",
+  "synergies",
+  "think outside the box",
+  "thinking outside the box",
+  "results-driven",
+  "results driven",
+  "self-starter",
+  "self starter",
+  "dynamic professional",
+  "seeking a challenging role",
+  "challenging position",
+  "reputed organisation",
+  "reputed organization",
+  "esteemed organisation",
+  "esteemed organization",
+  "utilize my skills",
+  "utilise my skills",
+  "to the best of my ability",
+  "best of my knowledge",
+  "rockstar",
+  "ninja",
+  "guru",
+  "passionate team player",
+  "detail-oriented self-starter",
+  "proven track record",
+  "value add",
+  "value-add",
+  "leverage",
+  "world-class",
+  "cutting-edge",
+  "best in class",
+  "out of the box",
+  "win-win",
+  "move the needle",
+  "low hanging fruit",
+  "circle back",
+  "touch base",
+  "team player with",
+  "highly motivated individual"
+ ],
+ "chips": [
+  {
+   "id": "fresher",
+   "label": "I’m a fresher",
+   "text": "I am a fresher. I completed "
+  },
+  {
+   "id": "experienced",
+   "label": "I have work experience",
+   "text": "I have worked as "
+  },
+  {
+   "id": "returning",
+   "label": "Returning after a break",
+   "text": "I am returning to work after a break. Before that I worked as "
+  },
+  {
+   "id": "changing",
+   "label": "Changing my field",
+   "text": "I want to change my field. I have worked as "
+  }
+ ],
+ "speechLanguages": [
+  [
+   "en-IN",
+   "English"
+  ],
+  [
+   "te-IN",
+   "Telugu"
+  ],
+  [
+   "hi-IN",
+   "Hindi"
+  ],
+  [
+   "ta-IN",
+   "Tamil"
+  ],
+  [
+   "kn-IN",
+   "Kannada"
+  ],
+  [
+   "ml-IN",
+   "Malayalam"
+  ],
+  [
+   "mr-IN",
+   "Marathi"
+  ],
+  [
+   "bn-IN",
+   "Bengali"
+  ]
+ ],
+ "workerTitles": [
+  "driver",
+  "delivery partner",
+  "electrician",
+  "plumber",
+  "welder",
+  "fitter",
+  "mechanic",
+  "ac technician",
+  "mobile technician",
+  "computer technician",
+  "carpenter",
+  "painter",
+  "mason",
+  "helper",
+  "housekeeping staff",
+  "security guard",
+  "cook",
+  "waiter",
+  "housekeeping supervisor",
+  "tailor",
+  "beautician",
+  "production operator",
+  "maintenance technician",
+  "retail store staff",
+  "cashier",
+  "data entry operator",
+  "telecaller",
+  "petrol pump attendant",
+  "lift operator",
+  "printing operator",
+  "goldsmith",
+  "garment worker",
+  "cable technician",
+  "water purifier technician",
+  "solar technician",
+  "cctv technician",
+  "pest control technician",
+  "two wheeler technician",
+  "courier executive",
+  "bike taxi rider",
+  "cab operator",
+  "farmer",
+  "fisherman",
+  "miner",
+  "gym attendant",
+  "cleaning supervisor",
+  "storekeeper",
+  "elderly caregiver",
+  "spa therapist",
+  "wedding planner",
+  "dj and sound technician",
+  "shop floor supervisor",
+  "loan collection executive",
+  "data collector",
+  "typist",
+  "nurse",
+  "paramedic",
+  "police constable",
+  "security guard",
+  "forest guard",
+  "postal assistant",
+  "homemaker",
+  "business owner"
+ ]
+}

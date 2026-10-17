@@ -30,6 +30,7 @@ import { EntryHeader, focusMoved } from './builder/EntryControls';
 import LineEntries from './builder/LineEntries';
 import { hiddenCount, lineItems, linesPatch, moveItem, removeItem, toggleItem } from './builder/entries';
 import { shorten, atsFriendly } from './builder/aiTools';
+import SummaryWriter from './builder/SummaryWriter';
 import LinksEditor, { Logo } from './builder/LinksEditor';
 import PhotoEditor, { DEFAULT_ADJ, shapePhoto } from './builder/PhotoEditor';
 import { DEFAULT_DESIGN, FIT_STEPS, TEMPLATE_PRESETS } from './builder/design';
@@ -639,6 +640,7 @@ export default function Builder({ embedded = null }) {
 
             {cur.id === 'summary' && (
               <div className="card stack g12" style={{ padding: 20 }}>
+                <SummaryWriter resume={d} note={d.about || ''} onNote={(v) => setD((p) => ({ ...p, about: v }))} value={d.summary} onUse={(t) => setD((p) => ({ ...p, summary: t }))} />
                 <label htmlFor="sum" className="label">Your summary</label>
                 <textarea id="sum" className="input" rows={5} value={d.summary} onChange={(e) => setD({ ...d, summary: e.target.value })} placeholder="Who you are, your strongest skills, one result with a number, and the role you want." />
                 {profile && <ProfileHint value={profile.summaries.find((x) => !x.off && x.text.trim())?.text} current={d.summary} label="summary" onUse={(v) => setD((p) => ({ ...p, summary: v }))} />}

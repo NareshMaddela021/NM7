@@ -20,6 +20,31 @@ Details, settings and what's left: see [`frontend/README.md`](frontend/README.md
 - `main` — what goes live
 - `dev` — work in progress; merge into `main` when tested
 
+## Summary writer
+
+On the builder's **Summary** step, in **Job Profile → Summary → About me** and in the kiosk builder, anyone can get a
+resume summary in under a minute:
+
+1. **Tell us about yourself** (optional): type or **Speak** in any language — English, Telugu, Hindi, Tamil, Kannada,
+   Malayalam, Marathi or Bengali — e.g. *"Nenu inter chadivanu, 2 samvatsaralu delivery boy ga pani chesanu, driver
+   job kavali"*. Speaking uses the browser's own speech recognition (free; the button is hidden where the browser
+   has none). Chips start the note: *I'm a fresher*, *I have work experience*, *Returning after a break*, *Changing my
+   field*. The note is saved with the draft and **never printed** on the resume.
+2. **Make my summary** (Layer A, no network, always available): three cards — **Role-first**, **Skills-first**,
+   **Simple** — built from the resume's own sections (highest education, total experience, latest role, top skills,
+   target role, certificates, one achievement with a number, languages) plus what the note says (education words,
+   years of experience, about 150 common Indian job titles with synonyms, the role wanted). The resume wins when the
+   two disagree. Tap a card to fill the summary box, then edit it. **Shorter** drops the last sentence; **Try again**
+   gives the next variant. Templates and word lists are plain data: `frontend/src/lib/summary/templates.json`
+   (about six templates per persona: fresher graduate, fresher school/ITI, experienced, skilled worker, career
+   changer, returning after a break, unknown) and `dictionary.json`.
+3. **Write with AI** (Layer B, Claude Haiku 5.5) is the next step; when AI is off, busy or over its daily limit, the
+   cards above are what people get.
+
+Rules for both layers: nothing is invented (no numbers, companies, degrees or certificates that aren't in the resume
+or the note), a sentence whose facts are missing is left out rather than printed with a blank, no *I / me / my*, no
+clichés ("hardworking team player", "go-getter", …), and never an ID number, phone, email or address.
+
 ## AI features and their daily limits
 
 Snap photos (reading resume details from photos) and the summary writer's "Write with AI" use the Claude API
@@ -148,6 +173,12 @@ No new environment variables and no new paid services: emails use the existing R
 5. **Remind.** On the dashboard, choose **Remind incomplete**, or use **Remind…** in the table. Add a note such as "Bring a printout on Friday". Each student gets at most one reminder a day and can switch reminders off.
 6. **Print.** Choose **Print ready & not printed** on the dashboard, or in the table tick **Export only Ready** and choose **Combined PDF** (one file, ordered by roll number, with a cover page). You can also download a **ZIP** with one PDF per student, or a **CSV**. Printed resumes are marked so that latecomers are easy to find. Use **Mark not printed** if you need to reprint.
 7. **Check the log.** **Activity** lists everything done with your organization's resumes, by your team and by Nm7.
+8. **Helping candidates write a summary at a kiosk.** On the kiosk builder's **Summary** step, ask the candidate to
+   tap **Speak** and say, in their own language, what they studied, what work they have done and for how long, and
+   what job they want (or type it for them in the **Tell us about yourself** box — it is never printed). Tap **Make
+   my summary**, read the three cards out, and let them pick one. **Shorter** and **Try again** adjust it; they can
+   also edit the text. Where AI is on, **Write with AI** gives a more tailored version; if it says *AI is busy*, the
+   cards still work. Never type ID numbers, phone numbers or addresses into the note.
 
 Viewers can view and print only.
 
