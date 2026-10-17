@@ -1,10 +1,13 @@
 // Template screen: filters (level, industry, columns, photo, ATS-safe), a colour row on every card,
-// an ATS badge and a "Suggested for you" badge.
-import { useMemo, useState } from 'react';
+// an ATS badge and a "Suggested for you" badge. Continuing never needs a scroll back up: the selected card has its
+// own "Use <Template>" button, and from the first pick a bar stays at the bottom of the screen. Double-click a card,
+// or press Enter / Space on it, to use it straight away. Every "Use" button does what the top one does (onNext).
+import { useEffect, useMemo, useReducer, useState } from 'react';
 import { Icon } from '../../components/ui';
 import ResumePreview from './ResumePreview';
 import { ACCENTS, DEFAULT_DESIGN, INDUSTRY_TAGS, TEMPLATE_PRESETS, atsCheck } from './design';
 import { SECTION_LAYOUTS } from './schema';
+import { isUseKey, pickState, selectionText } from './templatePick';
 
 export const layoutOf = (k) => SECTION_LAYOUTS[TEMPLATE_PRESETS[k]?.sections || 'standard'];
 // grey silhouette so photo templates show where the photo goes
@@ -40,12 +43,20 @@ export default function TemplatePicker({ d, ds, suggest, photo, onPick, onNext }
   const filtered = level !== 'all' || ind || cols || photoOnly || atsOnly;
   const clear = () => { setLevel('all'); setInd(null); setCols(null); setPhotoOnly(false); setAtsOnly(false); };
   const cur = TEMPLATE_PRESETS[ds.preset];
+  const [pick, dispatch] = useReducer(pickState, { selected: ds.preset, touched: false });
+  useEffect(() => { dispatch({ type: 'sync', key: ds.preset }); }, [ds.preset]);
+  const sel = all.find((x) => x.k === pick.selected) || all.find((x) => x.k === ds.preset);
+  const text = selectionText(sel?.t || cur, { ats: sel?.ats, two: sel?.two });
+  const choose = (k, accent) => { dispatch({ type: 'pick', key: k }); onPick(k, { accent }); };
+  const useNow = (k, accent) => { if (ds.preset !== k) onPick(k, { accent }); onNext(); }; // same as the top button
+  const bar = pick.touched && sel;
 
   return (
-    <main className="container stack g20 rise" style={{ padding: '48px 24px 72px', maxWidth: 1320 }}>
+    <main className="container stack g20 rise" style={{ padding: '48px 24px 72px', paddingBottom: bar ? 'calc(var(--tp-bar-h) + 40px + env(safe-area-inset-bottom, 0px))' : 72, maxWidth: 1320 }}>
+      <span className="sr-only" aria-live="polite" data-testid="tp-announce">{pick.touched ? text.announce : ''}</span>
       <div className="row between g16" style={{ alignItems: 'flex-end' }}>
         <div className="stack g8"><h1 className="display" style={{ fontSize: 40 }}>Pick a starting look</h1><span className="muted">{Object.keys(TEMPLATE_PRESETS).length} templates. Every font, colour and spacing can be changed later in the Design tab.</span></div>
-        <button type="button" className="btn btn-ink btn-lg" onClick={onNext}>Use {cur?.name || 'this'} <Icon name="arrow" /></button>
+        <button type="button" className="btn btn-ink btn-lg" onClick={onNext}>{text.use} <Icon name="arrow" /></button>
       </div>
 
       {/* filters */}
@@ -78,12 +89,16 @@ export default function TemplatePicker({ d, ds, suggest, photo, onPick, onNext }
         {list.map(({ k, t, design, accent, ats, two }) => {
           const chosen = ds.preset === k;
           return (
-            <div key={k} className="card stack g8" style={{ padding: 12, border: chosen ? '2px solid var(--ink)' : undefined }}>
-              <button type="button" role="radio" aria-checked={chosen} aria-label={`${t.name} template`} onClick={() => onPick(k, { accent })}
-                style={{ padding: 0, border: 0, background: 'transparent', cursor: 'pointer', textAlign: 'left' }}>
+            <div key={k} className="card stack g8 tp-card" data-testid={`tp-card-${k}`} data-selected={chosen || undefined}
+              style={{ padding: 11, border: `2px solid ${chosen ? 'var(--ink)' : 'var(--border)'}` }}>
+              <button type="button" role="radio" aria-checked={chosen} aria-label={`${t.name} template`}
+                onClick={() => choose(k, accent)} onDoubleClick={() => useNow(k, accent)}
+                onKeyDown={(e) => { if (isUseKey(e)) { e.preventDefault(); useNow(k, accent); } }}
+                style={{ padding: 0, border: 0, background: 'transparent', cursor: 'pointer', textAlign: 'left', position: 'relative' }}>
                 <div aria-hidden="true" style={{ height: 300, overflow: 'hidden', borderRadius: 6, pointerEvents: 'none' }}>
                   <ResumePreview decorative data={{ ...d, ...layoutOf(k) }} design={design} photo={t.photo ? (photo || PHOTO_PLACEHOLDER) : photo} />
                 </div>
+                <span aria-hidden="true" className="tp-check" style={{ visibility: chosen ? 'visible' : 'hidden' }}>✓</span>
               </button>
               <div className="row g8" style={{ alignItems: 'center' }}>
                 <strong>{t.name}</strong>
@@ -103,10 +118,26 @@ export default function TemplatePicker({ d, ds, suggest, photo, onPick, onNext }
                     style={{ width: 26, height: 26, borderRadius: '50%', background: c, border: accent === c ? '3px solid var(--surface)' : '2px solid transparent', boxShadow: accent === c ? '0 0 0 2px var(--ink)' : 'none', cursor: 'pointer', padding: 0 }} />
                 ))}
               </div>
+              {/* the space is kept on every card, so selecting one never moves anything */}
+              <button type="button" className="btn btn-ink tp-use" data-testid="tp-use-card" onClick={() => useNow(k, accent)}
+                style={{ visibility: chosen ? 'visible' : 'hidden' }}>Use {t.name} <Icon name="arrow" /></button>
             </div>
           );
         })}
       </div>
+
+      {bar && (
+        <div className="tp-bar" role="region" aria-label="Selected template" data-testid="tp-bar">
+          <div className="tp-bar-in">
+            <span className="tp-bar-thumb" aria-hidden="true"><ResumePreview decorative loadFonts={false} data={{ ...d, ...layoutOf(sel.k) }} design={sel.design} /></span>
+            <span className="stack" style={{ minWidth: 0, flex: '1 1 auto' }}>
+              <strong className="tp-bar-name">{text.name}</strong>
+              <span className="xs muted" data-testid="tp-bar-meta">{text.meta}</span>
+            </span>
+            <button type="button" className="btn btn-ink btn-lg tp-bar-use" data-testid="tp-use-bar" onClick={() => useNow(sel.k, sel.accent)}>{text.use} <Icon name="arrow" /></button>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
