@@ -4,6 +4,7 @@ import base64
 import json
 import re
 
+import anthropic
 import pytest
 
 from app.core.config import get_settings
@@ -291,36 +292,81 @@ async def test_five_imports_a_day(client, outbox, key_on, model):
     assert len(model.calls) == 5
 
 
-async def test_reader_sends_images_and_asks_for_strict_json(monkeypatch):
-    """The real call, HTTP mocked: image blocks, the JSON schema, the configured model, a no-ID-numbers prompt."""
-    import httpx2
-
-    monkeypatch.setattr(get_settings(), "anthropic_api_key", "sk-test")
-    monkeypatch.setattr(get_settings(), "anthropic_model", "claude-opus-5-5")
-    reply = {
+def reply(stop="end_turn", text=None, model="claude-haiku-5-5", thinking=False):
+    content = [{"type": "thinking", "thinking": "", "signature": "sig"}] if thinking else []
+    if text is not None:
+        content.append({"type": "text", "text": text})
+    return {
         "id": "msg_1",
         "type": "message",
         "role": "assistant",
-        "model": "claude-opus-5-5",
-        "content": [{"type": "text", "text": json.dumps(model_output())}],
-        "stop_reason": "end_turn",
+        "model": model,
+        "content": content,
+        "stop_reason": stop,
         "stop_sequence": None,
         "usage": {"input_tokens": 10, "output_tokens": 10},
     }
-    sent = []
+
+
+GOOD = json.dumps(model_output())
+EMPTY = json.dumps(
+    {
+        "photos": [{"index": 0, "kind": "other", "readable": False}],
+        "personal": {k: {"value": "", "confidence": "low", "fromId": False} for k in ("name", "city")},
+        "headline": "",
+        "experience": [],
+        "skills": [],
+        "certifications": [],
+        "education": [],
+        "languages": [],
+    }
+)
+
+
+@pytest.fixture
+def api(monkeypatch):
+    """The real reader with Anthropic's HTTP API mocked. `api.replies` per model: a reply dict, an int (HTTP
+    status) or an exception; `api.sent` the requests."""
+    import httpx2
+
+    monkeypatch.setattr(get_settings(), "anthropic_api_key", "sk-test")
+    monkeypatch.setattr(get_settings(), "anthropic_model", "claude-haiku-5-5")
+
+    class A:
+        replies: dict = {}
+        sent: list = []
+
+        @staticmethod
+        def bodies():
+            return [json.loads(r.content) for r in A.sent]
 
     def handler(request):
-        sent.append(request)
-        return httpx2.Response(200, json=reply)
+        A.sent.append(request)
+        r = A.replies[json.loads(request.content)["model"]]
+        if isinstance(r, Exception):
+            raise r
+        if isinstance(r, int):
+            return httpx2.Response(r, json={"type": "error", "error": {"type": "x", "message": "no"}})
+        return httpx2.Response(200, json=r)
 
+    A.sent = []
     monkeypatch.setattr(reader, "HTTP_CLIENT", httpx2.AsyncClient(transport=httpx2.MockTransport(handler)))
+    return A
+
+
+async def test_reader_on_haiku_sends_images_strict_json_and_no_fallback_param(api):
+    """Claude Haiku 5.5: image blocks, the JSON schema, effort medium - and no `fallbacks` (Haiku has none)."""
+    api.replies = {"claude-haiku-5-5": reply(text=GOOD, thinking=True)}  # the answer after a thinking block
     out = await reader.call_model([("image/jpeg", b64(JPEG)), ("image/png", b64(PNG))])
     assert out["headline"] == "Light Commercial Vehicle Driver"
-    req = sent[0]
+    assert len(api.sent) == 1
+    req = api.sent[0]
     assert str(req.url).startswith("https://api.anthropic.com/v1/messages")
-    assert "server-side-fallback-2026-07-01" in req.headers["anthropic-beta"]
+    assert "server-side-fallback" not in req.headers.get("anthropic-beta", "")
     body = json.loads(req.content)
-    assert body["model"] == "claude-opus-5-5"
+    assert body["model"] == "claude-haiku-5-5" and "fallbacks" not in body
+    assert body["max_tokens"] == 16000 and "temperature" not in body and "thinking" not in body
+    assert body["output_config"]["effort"] == "medium"
     images = [c for c in body["messages"][0]["content"] if c["type"] == "image"]
     assert [i["source"]["media_type"] for i in images] == ["image/jpeg", "image/png"]
     assert body["output_config"]["format"]["type"] == "json_schema"
@@ -330,21 +376,80 @@ async def test_reader_sends_images_and_asks_for_strict_json(monkeypatch):
     assert req.headers["x-api-key"] == "sk-test"
 
 
-async def test_reader_refusal_is_reported(monkeypatch):
-    import httpx2
+@pytest.mark.parametrize(
+    "haiku",
+    [reply("refusal"), reply(text=EMPTY), reply(text="not json"), reply(text='{"photos": "x"}'), reply("max_tokens")],
+    ids=["refused", "empty", "bad_json", "invalid", "cut_off"],
+)
+async def test_unusable_haiku_answer_is_read_again_once_on_sonnet(api, haiku, caplog):
+    api.replies = {"claude-haiku-5-5": haiku, "claude-sonnet-5-5": reply(text=GOOD, model="claude-sonnet-5-5")}
+    out = await reader.call_model([("image/jpeg", b64(JPEG))])
+    assert out["headline"] == "Light Commercial Vehicle Driver"
+    assert [b["model"] for b in api.bodies()] == ["claude-haiku-5-5", "claude-sonnet-5-5"]
+    sonnet = api.bodies()[1]
+    assert sonnet["fallbacks"] == "default"  # Sonnet 5.5 takes the server-side refusal fallback
+    assert "server-side-fallback-2026-07-01" in api.sent[1].headers["anthropic-beta"]
+    assert "trying claude-sonnet-5-5" in caplog.text
 
-    monkeypatch.setattr(get_settings(), "anthropic_api_key", "sk-test")
-    reply = {
-        "id": "msg_2",
-        "type": "message",
-        "role": "assistant",
-        "model": "claude-opus-5-5",
-        "content": [],
-        "stop_reason": "refusal",
-        "stop_sequence": None,
-        "usage": {"input_tokens": 1, "output_tokens": 0},
-    }
-    transport = httpx2.MockTransport(lambda request: httpx2.Response(200, json=reply))
-    monkeypatch.setattr(reader, "HTTP_CLIENT", httpx2.AsyncClient(transport=transport))
+
+async def test_both_models_unusable_is_one_read_failure(api, caplog):
+    api.replies = {"claude-haiku-5-5": reply(text="nope"), "claude-sonnet-5-5": reply("refusal")}
+    with pytest.raises(reader.ReadFailed) as e:
+        await reader.call_model([("image/jpeg", b64(JPEG))])
+    assert e.value.reason == "refused" and len(api.sent) == 2
+    assert "bad_json on claude-haiku-5-5" in caplog.text and "refused on claude-sonnet-5-5" in caplog.text
+
+
+async def test_sonnet_configured_is_not_read_twice(api, monkeypatch):
+    monkeypatch.setattr(get_settings(), "anthropic_model", "claude-sonnet-5-5")
+    api.replies = {"claude-sonnet-5-5": reply("refusal")}
     with pytest.raises(reader.ReadFailed):
         await reader.call_model([("image/jpeg", b64(JPEG))])
+    assert len(api.sent) == 1
+
+
+async def test_wrong_key_is_logged_as_auth_error_without_the_key_or_content(api, caplog):
+    api.replies = {"claude-haiku-5-5": 401}
+    with pytest.raises(anthropic.AuthenticationError):
+        await reader.call_model([("image/jpeg", b64(JPEG))])
+    assert len(api.sent) == 1  # not retried, and no second model for an API error
+    assert "photo reader: auth_error on claude-haiku-5-5" in caplog.text
+    assert "sk-test" not in caplog.text and "NEVER output" not in caplog.text and b64(JPEG) not in caplog.text
+
+
+@pytest.mark.parametrize(("status", "kind"), [(429, "rate_limited"), (400, "bad_request"), (529, "api_error_529")])
+async def test_api_errors_are_logged_by_type(api, caplog, status, kind):
+    api.replies = {"claude-haiku-5-5": status}
+    with pytest.raises(anthropic.APIError):
+        await reader.call_model([("image/jpeg", b64(JPEG))])
+    assert f"photo reader: {kind} on claude-haiku-5-5" in caplog.text
+
+
+async def test_timeout_is_75_seconds_with_one_retry(api, caplog):
+    import httpx2
+
+    assert 60 <= reader.TIMEOUT <= 90 and reader.RETRIES == 1
+    api.replies = {"claude-haiku-5-5": httpx2.ReadTimeout("slow")}
+    with pytest.raises(anthropic.APITimeoutError):
+        await reader.call_model([("image/jpeg", b64(JPEG))])
+    assert len(api.sent) == 2  # the first try and one retry
+    assert "photo reader: timeout on claude-haiku-5-5" in caplog.text
+
+
+async def test_fallback_read_counts_as_one_of_the_five(client, outbox, api, db):
+    await signup(client, outbox)
+    api.replies = {
+        "claude-haiku-5-5": reply("refusal"),
+        "claude-sonnet-5-5": reply(text=GOOD, model="claude-sonnet-5-5"),
+    }
+    r = await post(client, [photo()])
+    assert r.status_code == 200 and r.json()["headline"] == "Light Commercial Vehicle Driver"
+    assert len(api.sent) == 2
+    assert await db["rate_events"].count_documents({"key": {"$regex": "^photo-import:"}}) == 1
+
+
+async def test_wrong_key_tells_the_customer_to_try_later(client, outbox, api):
+    await signup(client, outbox)
+    api.replies = {"claude-haiku-5-5": 401}
+    r = await post(client, [photo()])
+    assert r.status_code == 502 and r.json()["error"]["code"] == "reader_unavailable"

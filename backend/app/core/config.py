@@ -46,7 +46,7 @@ class Settings(BaseSettings):
     # "Snap photos": reading resume details from photos with the Claude API. Without a key the feature answers
     # 503 feature_off and everything else works.
     anthropic_api_key: str = ""
-    anthropic_model: str = "claude-opus-5-5"
+    anthropic_model: str = "claude-haiku-5-5"  # an unusable answer is retried once on claude-sonnet-5-5
 
     # Razorpay — empty until keys exist
     razorpay_key_id: str = ""

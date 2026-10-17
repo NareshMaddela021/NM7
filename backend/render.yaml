@@ -43,8 +43,8 @@ services:
       # Snap photos: reading resume details from photos (Claude API). Without it the feature says "being switched on".
       - key: ANTHROPIC_API_KEY
         sync: false
-      - key: ANTHROPIC_MODEL
-        value: claude-opus-5-5
+      - key: ANTHROPIC_MODEL # cheapest model for reading photos; an unusable answer is retried once on claude-sonnet-5-5
+        value: claude-haiku-5-5
       - key: RAZORPAY_KEY_ID
         sync: false
       - key: RAZORPAY_KEY_SECRET

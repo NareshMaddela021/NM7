@@ -5,6 +5,7 @@ Tests replace `call_model`.
 """
 
 import json
+import logging
 from typing import Any
 
 import anthropic
@@ -113,35 +114,115 @@ Strict privacy rules, no exceptions:
 
 HTTP_CLIENT = None  # tests put a mock transport here; production uses the SDK's own client
 
+# If the configured model's answer is unusable (declined, cut off, not JSON, or empty), the photos are read once more
+# with this model, as part of the same attempt.
+FALLBACK_MODEL = "claude-sonnet-5-5"
+# Models that take Anthropic's server-side refusal fallback (`fallbacks: "default"`). Claude Haiku 5.5 has none -
+# the parameter must not be sent to it.
+SERVER_FALLBACK = {"claude-fable-5-1", "claude-opus-5-5", "claude-opus-5", "claude-sonnet-5-5"}
+TIMEOUT = 75  # seconds per try
+RETRIES = 1  # the SDK retries timeouts, 429 and 5xx once
 
-async def call_model(images: list[tuple[str, str]]) -> dict[str, Any]:
-    """images: [(media_type, base64 data)]. Returns the parsed JSON (not yet scrubbed)."""
-    s = get_settings()
-    extra = {"http_client": HTTP_CLIENT} if HTTP_CLIENT is not None else {}
-    client = anthropic.AsyncAnthropic(api_key=s.anthropic_api_key, max_retries=2, timeout=180, **extra)
-    content: list[dict[str, Any]] = []
-    for i, (media_type, data) in enumerate(images):
-        content.append({"type": "text", "text": f"Photo {i}:"})
-        content.append({"type": "image", "source": {"type": "base64", "media_type": media_type, "data": data}})
-    content.append({"type": "text", "text": PROMPT})
+log = logging.getLogger("nm7.photos")
+
+
+def error_kind(e: BaseException) -> str:
+    """A short label for the logs - never the message, the content or the key."""
+    if isinstance(e, ReadFailed):
+        return e.reason
+    if isinstance(e, anthropic.AuthenticationError):
+        return "auth_error"  # wrong or revoked ANTHROPIC_API_KEY
+    if isinstance(e, anthropic.PermissionDeniedError):
+        return "permission_denied"
+    if isinstance(e, anthropic.RateLimitError):
+        return "rate_limited"  # also: out of credit / spend limit reached
+    if isinstance(e, anthropic.BadRequestError):
+        return "bad_request"
+    if isinstance(e, anthropic.NotFoundError):
+        return "model_not_found"
+    if isinstance(e, anthropic.APITimeoutError):
+        return "timeout"
+    if isinstance(e, anthropic.APIConnectionError):
+        return "connection_error"
+    if isinstance(e, anthropic.APIStatusError):
+        return f"api_error_{e.status_code}"
+    return type(e).__name__
+
+
+def _params(model: str) -> dict[str, Any]:
+    """What this model accepts: the refusal fallback only where Anthropic offers it."""
+    if model in SERVER_FALLBACK:
+        return {"betas": ["server-side-fallback-2026-07-01"], "fallbacks": "default"}
+    return {}
+
+
+def _empty(out: Any) -> bool:
+    """Nothing usable came back: not the expected object, or every field blank."""
+    if not isinstance(out, dict) or not isinstance(out.get("photos"), list):
+        return True
+    personal = out.get("personal") or {}
+    has_personal = any(isinstance(v, dict) and str(v.get("value", "")).strip() for v in personal.values())
+    lists = ("experience", "skills", "certifications", "education", "languages")
+    return not (has_personal or str(out.get("headline", "")).strip() or any(out.get(k) for k in lists))
+
+
+async def _read(client: anthropic.AsyncAnthropic, model: str, content: list[dict[str, Any]]) -> dict[str, Any]:
     response = await client.beta.messages.create(
-        model=s.anthropic_model,
+        model=model,
         max_tokens=16000,
-        betas=["server-side-fallback-2026-07-01"],
-        fallbacks="default",  # a declined request is re-run on Anthropic's recommended fallback model
         output_config={"effort": "medium", "format": {"type": "json_schema", "schema": SCHEMA}},
         messages=[{"role": "user", "content": content}],
+        **_params(model),
     )
     if response.stop_reason == "refusal":
         raise ReadFailed("refused")
     if response.stop_reason == "max_tokens":
         raise ReadFailed("too_long")
+    # read by type: the answer may follow thinking blocks
     text = next((b.text for b in response.content if b.type == "text"), "")
     try:
-        return json.loads(text)
+        out = json.loads(text)
     except ValueError as e:
         raise ReadFailed("bad_json") from e
+    if _empty(out):
+        raise ReadFailed("empty")
+    return out
+
+
+async def call_model(images: list[tuple[str, str]]) -> dict[str, Any]:
+    """images: [(media_type, base64 data)]. Returns the parsed JSON (not yet scrubbed).
+
+    Raises ReadFailed when neither model gave usable data, or the SDK's APIError (logged by type only)."""
+    s = get_settings()
+    extra = {"http_client": HTTP_CLIENT} if HTTP_CLIENT is not None else {}
+    client = anthropic.AsyncAnthropic(api_key=s.anthropic_api_key, max_retries=RETRIES, timeout=TIMEOUT, **extra)
+    content: list[dict[str, Any]] = []
+    for i, (media_type, data) in enumerate(images):
+        content.append({"type": "text", "text": f"Photo {i}:"})
+        content.append({"type": "image", "source": {"type": "base64", "media_type": media_type, "data": data}})
+    content.append({"type": "text", "text": PROMPT})
+    models = [s.anthropic_model] + ([FALLBACK_MODEL] if s.anthropic_model != FALLBACK_MODEL else [])
+    for n, model in enumerate(models):
+        try:
+            out = await _read(client, model, content)
+        except ReadFailed as e:
+            last = n == len(models) - 1
+            log.warning("photo reader: %s on %s%s", e.reason, model, "" if last else f", trying {models[n + 1]}")
+            if last:
+                raise
+            continue
+        except anthropic.APIError as e:
+            log.warning("photo reader: %s on %s", error_kind(e), model)
+            raise
+        if n:
+            log.info("photo reader: read with fallback %s", model)
+        return out
+    raise ReadFailed("no_model")  # not reached
 
 
 class ReadFailed(Exception):
-    """The model answered but not with usable data (refused, cut off, not JSON)."""
+    """The model answered but not with usable data (refused, cut off, not JSON, empty)."""
+
+    def __init__(self, reason: str = "unusable"):
+        super().__init__(reason)
+        self.reason = reason
