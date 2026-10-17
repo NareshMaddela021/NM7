@@ -179,7 +179,7 @@ export function mergeFacts(fromResume, fromNote, hints = {}) {
   const role = r.role || n.role || '';
   const target = r.target || n.target || '';
   const facts = {
-    degreeFull, eduLabel, eduYear: r.eduYear || '', eduLevel,
+    degreeFull, degree, field, eduLabel, eduYear: r.eduYear || '', eduLevel,
     years: yearsText, months, role, company: r.company || '', target,
     skills: r.skills || [], strengths: n.strengths || [], cert: r.certs?.[0] || '', achievement: r.achievement || '',
     languages: r.languages || [],

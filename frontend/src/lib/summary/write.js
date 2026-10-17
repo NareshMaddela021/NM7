@@ -4,7 +4,7 @@
 import templates from './templates.json';
 import dictionary from './dictionary.json';
 import { gatherFacts, CONTACT_RE } from './facts';
-import { hasFirstPerson, joinList, sentences, tidy, trimTo, withArticle, dropLastSentence } from './grammar';
+import { bareRole, dropLastSentence, graduateOf, hasFirstPerson, joinList, roleNoun, sentences, tidy, trimTo, withArticle } from './grammar';
 
 export const STYLES = Object.keys(templates.styles); // role_first, skills_first, simple
 export const STYLE_LABEL = templates.styles;
@@ -17,12 +17,16 @@ const BLANK_RE = /\{\??(\w+)\}/g;
 export function blanksOf(f) {
   const roleText = f.role || '';
   const target = f.target || '';
+  const targetRole = roleNoun(target, 'role');
   return {
     degreeFull: f.degreeFull || '', eduLabel: f.eduLabel || '', eduYear: f.eduYear || '',
-    years: f.years || '', role: roleText, aRole: withArticle(roleText), prevRole: roleText,
+    gradOf: graduateOf(f), gradOfYear: f.eduYear ? graduateOf(f, f.eduYear) : '',
+    years: f.years || '', role: roleText, aRole: withArticle(bareRole(roleText)), prevRole: roleText,
     company: f.company || '', atCompanyComma: f.company ? `, most recently at ${f.company}` : '', atCompanyPlain: f.company ? ` at ${f.company}` : '',
     skills: joinList((f.skills || []).slice(0, 3)), skills2: joinList((f.skills || []).slice(0, 2)),
-    target, aTarget: withArticle(target), strengths: joinList((f.strengths || []).slice(0, 3)),
+    // "as {aTarget}" (a Data Analyst) · "looking for {aTargetRole}" (a Data Analyst role) · "{targetWork}" (driver work)
+    target, aTarget: withArticle(bareRole(target)), aTargetRole: withArticle(targetRole), targetWork: roleNoun(target, 'work'),
+    strengths: joinList((f.strengths || []).slice(0, 3)),
     cert: f.cert || '', achievement: f.achievement || '', languages: joinList((f.languages || []).slice(0, 3)),
   };
 }

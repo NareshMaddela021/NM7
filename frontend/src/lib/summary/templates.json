@@ -1,7 +1,7 @@
 {
   "_about": "Summary templates for Layer A. One list of sentences per template; {blank} is filled from the facts and a sentence whose blank is missing is left out. {?blank} is optional (left empty). No numbers, companies, degrees or certificates are written here: they only ever come from the facts. Add a template by adding a list; keep sentences short and free of I / me / my.",
   "styles": { "role_first": "Role-first", "skills_first": "Skills-first", "simple": "Simple" },
-  "blanks": ["degreeFull", "eduLabel", "eduYear", "years", "role", "aRole", "prevRole", "company", "atCompanyComma", "atCompanyPlain", "skills", "skills2", "target", "aTarget", "strengths", "cert", "achievement", "languages"],
+  "blanks": ["degreeFull", "gradOf", "gradOfYear", "eduLabel", "eduYear", "years", "role", "aRole", "prevRole", "company", "atCompanyComma", "atCompanyPlain", "skills", "skills2", "target", "aTarget", "aTargetRole", "targetWork", "strengths", "cert", "achievement", "languages"],
   "closers": [
     "Reliable, punctual and quick to learn.",
     "Learns new work quickly and takes responsibility.",
@@ -11,100 +11,100 @@
   "personas": {
     "fresher_grad": {
       "role_first": [
-        ["{degreeFull} graduate looking for {aTarget}.", "Skilled in {skills}.", "{achievement}.", "Comfortable in {languages}."],
-        ["Recent {degreeFull} graduate ({eduYear}) seeking {aTarget}.", "Hands-on with {skills2}.", "Holds {cert}.", "Keen to learn fast and contribute from day one."]
+        ["{gradOf} looking for {aTargetRole}.", "Skilled in {skills}.", "{achievement}.", "Comfortable in {languages}."],
+        ["Recent {gradOfYear} seeking {aTargetRole}.", "Hands-on with {skills2}.", "Holds {cert}.", "Keen to learn fast and contribute from day one."]
       ],
       "skills_first": [
-        ["Strong in {skills}, with {degreeFull} completed in {eduYear}.", "{achievement}.", "Looking for {aTarget} where these skills are put to use."],
-        ["Fresher with {degreeFull} and working knowledge of {skills}.", "Holds {cert}.", "Seeking {aTarget}."]
+        ["Strong in {skills}, with {degreeFull} completed in {eduYear}.", "{achievement}.", "Looking for {aTargetRole} where these skills are put to use."],
+        ["Fresher with {degreeFull} and working knowledge of {skills}.", "Holds {cert}.", "Seeking {aTargetRole}."]
       ],
       "simple": [
-        ["{degreeFull} fresher.", "Knows {skills}.", "Wants to work as {aTarget}.", "Speaks {languages}."],
-        ["Completed {degreeFull} in {eduYear}.", "Good at {skills2}.", "Looking for {aTarget}.", "Ready to learn and work hard."]
+        ["{gradOf}.", "Knows {skills}.", "Wants to work as {aTarget}.", "Speaks {languages}."],
+        ["Completed {degreeFull} in {eduYear}.", "Good at {skills2}.", "Looking for {aTargetRole}.", "Ready to learn and work hard."]
       ]
     },
     "fresher_school": {
       "role_first": [
-        ["{eduLabel} pass-out looking for {target} work.", "Good at {strengths}.", "Speaks {languages}.", "Ready to learn on the job."],
+        ["{eduLabel} pass-out looking for {targetWork}.", "Good at {strengths}.", "Speaks {languages}.", "Ready to learn on the job."],
         ["Completed {degreeFull} in {eduYear}.", "Looking for work as {aTarget}.", "Knows {skills}.", "Honest, punctual and quick to learn."]
       ],
       "skills_first": [
-        ["Good at {skills}.", "Completed {degreeFull}.", "Looking for {target} work.", "Speaks {languages}."],
-        ["Skills: {skills}.", "{eduLabel} completed in {eduYear}.", "Wants {target} work and learns new tasks quickly."]
+        ["Good at {skills}.", "Completed {degreeFull}.", "Looking for {targetWork}.", "Speaks {languages}."],
+        ["Skills: {skills}.", "{eduLabel} completed in {eduYear}.", "Wants {targetWork} and learns new tasks quickly."]
       ],
       "simple": [
-        ["Finished {eduLabel}.", "Can do {skills}.", "Looking for {target} work.", "Speaks {languages}."],
+        ["Finished {eduLabel}.", "Can do {skills}.", "Looking for {targetWork}.", "Speaks {languages}."],
         ["{eduLabel} pass.", "Knows {skills2}.", "Wants to work as {aTarget}.", "Will work with care and on time."]
       ]
     },
     "experienced": {
       "role_first": [
-        ["{role} with {years} of experience{?atCompanyComma}.", "Skilled in {skills}.", "{achievement}.", "Looking for {aTarget}."],
-        ["Experienced {role} ({years}) seeking {aTarget}.", "Strong in {skills}.", "{achievement}.", "Holds {cert}."]
+        ["{role} with {years} of experience{?atCompanyComma}.", "Skilled in {skills}.", "{achievement}.", "Looking for {aTargetRole}."],
+        ["Experienced {role} ({years}) seeking {aTargetRole}.", "Strong in {skills}.", "{achievement}.", "Holds {cert}."]
       ],
       "skills_first": [
-        ["Skilled in {skills}, with {years} as {aRole}{?atCompanyComma}.", "{achievement}.", "Looking for {aTarget}."],
-        ["Brings {skills2} and {years} of hands-on experience as {aRole}.", "Holds {cert}.", "Seeking {aTarget}."]
+        ["Skilled in {skills}, with {years} as {aRole}{?atCompanyComma}.", "{achievement}.", "Looking for {aTargetRole}."],
+        ["Brings {skills2} and {years} of hands-on experience as {aRole}.", "Holds {cert}.", "Seeking {aTargetRole}."]
       ],
       "simple": [
-        ["{role} for {years}{?atCompanyComma}.", "Good at {skills}.", "{achievement}.", "Looking for {aTarget}."],
-        ["Worked as {aRole} for {years}.", "Knows {skills2}.", "Wants {target} work.", "Speaks {languages}."]
+        ["{role} for {years}{?atCompanyComma}.", "Good at {skills}.", "{achievement}.", "Looking for {aTargetRole}."],
+        ["Worked as {aRole} for {years}.", "Knows {skills2}.", "Wants {targetWork}.", "Speaks {languages}."]
       ]
     },
     "skilled": {
       "role_first": [
-        ["{role} with {years} of experience{?atCompanyComma}.", "Strengths: {strengths}.", "Speaks {languages}.", "Looking for {target} work."],
-        ["Experienced {role} looking for {target} work.", "Known for {strengths}.", "{achievement}.", "Completed {eduLabel}."]
+        ["{role} with {years} of experience{?atCompanyComma}.", "Strengths: {strengths}.", "Speaks {languages}.", "Looking for {targetWork}."],
+        ["Experienced {role} looking for {targetWork}.", "Known for {strengths}.", "{achievement}.", "Completed {eduLabel}."]
       ],
       "skills_first": [
-        ["{strengths} — {years} of work as {aRole}.", "Knows {skills}.", "Looking for {target} work.", "Speaks {languages}."],
-        ["Skills: {skills}.", "Worked as {aRole} for {years}{?atCompanyComma}.", "Reliable, with {strengths}.", "Wants {target} work."]
+        ["{strengths} — {years} of work as {aRole}.", "Knows {skills}.", "Looking for {targetWork}.", "Speaks {languages}."],
+        ["Skills: {skills}.", "Worked as {aRole} for {years}{?atCompanyComma}.", "Reliable, with {strengths}.", "Wants {targetWork}."]
       ],
       "simple": [
-        ["{role} for {years}.", "Good at {strengths}.", "Speaks {languages}.", "Wants {target} work."],
-        ["Worked as {aRole}{?atCompanyPlain}.", "Can do {skills}.", "{eduLabel} pass.", "Looking for {target} work."]
+        ["{role} for {years}.", "Good at {strengths}.", "Speaks {languages}.", "Wants {targetWork}."],
+        ["Worked as {aRole}{?atCompanyPlain}.", "Can do {skills}.", "{eduLabel} pass.", "Looking for {targetWork}."]
       ]
     },
     "changer": {
       "role_first": [
-        ["{prevRole} with {years} of experience moving into {target}.", "Brings {strengths} from previous work.", "Skilled in {skills}.", "Holds {cert}."],
-        ["Looking to move from {prevRole} work into {target} role.", "{years} of experience built {strengths}.", "Knows {skills}.", "{achievement}."]
+        ["{prevRole} with {years} of experience moving into {aTargetRole}.", "Brings {strengths} from previous work.", "Skilled in {skills}.", "Holds {cert}."],
+        ["Looking to move from {prevRole} work into {aTargetRole}.", "{years} of experience built {strengths}.", "Knows {skills}.", "{achievement}."]
       ],
       "skills_first": [
         ["Skilled in {skills} and ready for a change of field into {target}.", "{years} as {aRole} built {strengths}.", "Holds {cert}."],
-        ["Strengths in {strengths} and {skills2}, carried over from {years} as {aRole}.", "Now seeking {aTarget}."]
+        ["Strengths in {strengths} and {skills2}, carried over from {years} as {aRole}.", "Now seeking {aTargetRole}."]
       ],
       "simple": [
-        ["Worked as {aRole} for {years}.", "Now wants {target} work.", "Good at {skills}.", "Learns new work quickly."],
+        ["Worked as {aRole} for {years}.", "Now wants {targetWork}.", "Good at {skills}.", "Learns new work quickly."],
         ["Changing field from {prevRole} to {target}.", "Knows {skills2}.", "Completed {degreeFull}.", "Ready to start from the basics and grow."]
       ]
     },
     "returning": {
       "role_first": [
-        ["{prevRole} returning to work after a break, seeking {aTarget}.", "Previous experience of {years}{?atCompanyComma}.", "Skilled in {skills}.", "Holds {cert}."],
+        ["{prevRole} returning to work after a break, seeking {aTargetRole}.", "Previous experience of {years}{?atCompanyComma}.", "Skilled in {skills}.", "Holds {cert}."],
         ["Returning to work as {aTarget} after a career break.", "Earlier worked as {aRole} for {years}.", "Strengths: {strengths}.", "Speaks {languages}."]
       ],
       "skills_first": [
-        ["Skilled in {skills}, returning to work after a break.", "Earlier experience: {years} as {aRole}{?atCompanyComma}.", "Looking for {aTarget}."],
+        ["Skilled in {skills}, returning to work after a break.", "Earlier experience: {years} as {aRole}{?atCompanyComma}.", "Looking for {aTargetRole}."],
         ["Brings {strengths} and {skills2} from earlier work as {aRole}.", "Ready to return to work as {aTarget}.", "Completed {degreeFull}."]
       ],
       "simple": [
-        ["Returning to work after a break.", "Worked before as {aRole} for {years}.", "Good at {skills}.", "Wants {target} work."],
+        ["Returning to work after a break.", "Worked before as {aRole} for {years}.", "Good at {skills}.", "Wants {targetWork}."],
         ["Ready to work again as {aTarget}.", "Knows {skills2}.", "Earlier: {prevRole}{?atCompanyPlain}.", "Speaks {languages}."]
       ]
     },
     "unknown": {
       "role_first": [
-        ["Looking for {aTarget}.", "Skilled in {skills}.", "{achievement}.", "Speaks {languages}.", "Reliable and quick to learn."],
+        ["Looking for {aTargetRole}.", "Skilled in {skills}.", "{achievement}.", "Speaks {languages}.", "Reliable and quick to learn."],
         ["{target} with strengths in {strengths}.", "Knows {skills2}.", "Completed {degreeFull}.", "Keen to take on responsibility and grow."]
       ],
       "skills_first": [
-        ["Skilled in {skills}.", "Looking for {aTarget}.", "Completed {degreeFull}.", "Learns new tools quickly and works well with others."],
-        ["Good at {skills2} and {strengths}.", "Open to {target} work.", "Speaks {languages}."]
+        ["Skilled in {skills}.", "Looking for {aTargetRole}.", "Completed {degreeFull}.", "Learns new tools quickly and works well with others."],
+        ["Good at {skills2} and {strengths}.", "Open to {targetWork}.", "Speaks {languages}."]
       ],
       "simple": [
-        ["Looking for {target} work.", "Knows {skills}.", "Speaks {languages}.", "Honest and on time."],
-        ["Can do {skills2}.", "Completed {eduLabel}.", "Wants {target} work.", "Ready to learn and work hard."]
+        ["Looking for {targetWork}.", "Knows {skills}.", "Speaks {languages}.", "Honest and on time."],
+        ["Can do {skills2}.", "Completed {eduLabel}.", "Wants {targetWork}.", "Ready to learn and work hard."]
       ]
     }
   }

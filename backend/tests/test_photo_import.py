@@ -8,6 +8,7 @@ from unittest.mock import ANY
 import anthropic
 import pytest
 
+from app.core import claude
 from app.core.config import get_settings
 from app.photos import reader
 from app.photos.scrub import looks_like_id, scrub
@@ -378,7 +379,7 @@ def api(monkeypatch):
         return httpx2.Response(200, json=r)
 
     A.sent = []
-    monkeypatch.setattr(reader, "NO_GRAMMAR", set())
+    monkeypatch.setattr(claude, "NO_GRAMMAR", set())
     monkeypatch.setattr(reader, "HTTP_CLIENT", httpx2.AsyncClient(transport=httpx2.MockTransport(handler)))
     return A
 
@@ -701,7 +702,7 @@ async def test_other_400s_are_not_treated_as_grammar_errors(api, caplog):
     }
     with pytest.raises(anthropic.BadRequestError):
         await reader.call_model([("image/jpeg", b64(JPEG))])
-    assert len(api.sent) == 1 and reader.NO_GRAMMAR == set()
+    assert len(api.sent) == 1 and claude.NO_GRAMMAR == set()
 
 
 async def test_the_endpoint_returns_the_same_shape_as_before(client, outbox, api):

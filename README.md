@@ -38,8 +38,18 @@ resume summary in under a minute:
    gives the next variant. Templates and word lists are plain data: `frontend/src/lib/summary/templates.json`
    (about six templates per persona: fresher graduate, fresher school/ITI, experienced, skilled worker, career
    changer, returning after a break, unknown) and `dictionary.json`.
-3. **Write with AI** (Layer B, Claude Haiku 5.5) is the next step; when AI is off, busy or over its daily limit, the
-   cards above are what people get.
+3. **Write with AI** (Layer B, signed in; kiosk sign-ins too): the same three cards written by Claude Haiku 5.5 from
+   the facts and the note (`POST /api/me/summary/generate`, `backend/app/summary/`). "Writing… (about 5 seconds)"
+   with a **Cancel** button; then **Shorter**, **More professional**, **Simpler words** and **Try again** rewrite the
+   text with AI (each counts as one use). What leaves the browser is only what the templates use — education, years,
+   role, company, target role, skills, strengths, certificate, achievement, languages, persona — never the name,
+   phone, email, address, date of birth or an ID number; the note is wrapped as data, never as instructions. The
+   server checks every option (length, no contact details or IDs, every number must be in the facts or the note) and
+   the browser checks again; a dropped slot is filled by a template card marked *quick suggestion*. Haiku → Sonnet
+   once → templates: when AI is off, busy, over its limit or gives nothing usable, people see the template cards
+   with one line, *"AI is busy, here are quick suggestions"* — never an error screen. About 600 output tokens, a
+   30-second timeout and one retry: roughly Rs 0.05 a generation. `backend/scripts/summary_smoke.py` runs eight
+   sample notes through the real API.
 
 Rules for both layers: nothing is invented (no numbers, companies, degrees or certificates that aren't in the resume
 or the note), a sentence whose facts are missing is left out rather than printed with a blank, no *I / me / my*, no

@@ -22,6 +22,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import anthropic  # noqa: E402
 
+from app.core import claude  # noqa: E402
 from app.photos import reader  # noqa: E402
 from app.photos.router import _kind  # noqa: E402
 
@@ -56,18 +57,25 @@ async def main(raw: bytes) -> int:
     if kind not in ("image/jpeg", "image/png", "image/webp"):
         print("Use a JPG, PNG or WebP photo.")
         return 2
-    content = [
-        {"type": "text", "text": "Photo 0:"},
-        {"type": "image", "source": {"type": "base64", "media_type": kind, "data": base64.b64encode(raw).decode()}},
-        {"type": "text", "text": reader.PROMPT},
-    ]
-    client = anthropic.AsyncAnthropic(api_key=key, max_retries=reader.RETRIES, timeout=reader.TIMEOUT)
+    content = reader.content_for([(kind, base64.b64encode(raw).decode())])
     ok = True
     for model in MODELS:
         for strict in (True, False):
             mode = "strict (schema as grammar)" if strict else "loose (schema in prompt)"
             try:
-                out = await reader._read(client, model, content, strict=strict)
+                out = reader.check(
+                    await claude.ask(
+                        "photo reader",
+                        model,
+                        content,
+                        reader.SCHEMA,
+                        max_tokens=16000,
+                        effort="medium",
+                        timeout_s=reader.TIMEOUT,
+                        retries=reader.RETRIES,
+                        modes=(strict,),
+                    )
+                )
                 print(f"OK    {model:20} {mode:28} {summary(out)}")
             except reader.GrammarTooLarge:
                 print(f"NO    {model:20} {mode:28} grammar too large for this model")
