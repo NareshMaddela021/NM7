@@ -6,6 +6,7 @@ Tests replace `call_model`.
 
 import json
 import logging
+import re
 from typing import Any
 
 import anthropic
@@ -149,6 +150,23 @@ def error_kind(e: BaseException) -> str:
     return type(e).__name__
 
 
+_KEY = re.compile(r"sk-ant-[A-Za-z0-9_\-]*")
+_BLOB = re.compile(r"[A-Za-z0-9+/=]{80,}")  # anything that looks like base64 data
+
+
+def error_detail(e: BaseException) -> str:
+    """Anthropic's own error type, message and request id - safe to log (the API's error message never echoes the
+    prompt, the photos or the key); key-like and base64-like strings are removed anyway, and it is kept short."""
+    if not isinstance(e, anthropic.APIStatusError):
+        return ""
+    body = e.body if isinstance(e.body, dict) else {}
+    err = body.get("error") if isinstance(body.get("error"), dict) else {}
+    message = str(err.get("message") or "")
+    message = _BLOB.sub("[data]", _KEY.sub("[key]", " ".join(message.split())))[:300]
+    request_id = e.request_id or body.get("request_id") or "-"
+    return f" (type={e.type or err.get('type') or '-'}, request_id={request_id}, message={message!r})"
+
+
 def _params(model: str) -> dict[str, Any]:
     """What this model accepts: the refusal fallback only where Anthropic offers it."""
     if model in SERVER_FALLBACK:
@@ -212,7 +230,7 @@ async def call_model(images: list[tuple[str, str]]) -> dict[str, Any]:
                 raise
             continue
         except anthropic.APIError as e:
-            log.warning("photo reader: %s on %s", error_kind(e), model)
+            log.warning("photo reader: %s on %s%s", error_kind(e), model, error_detail(e))
             raise
         if n:
             log.info("photo reader: read with fallback %s", model)

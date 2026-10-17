@@ -347,6 +347,8 @@ def api(monkeypatch):
             raise r
         if isinstance(r, int):
             return httpx2.Response(r, json={"type": "error", "error": {"type": "x", "message": "no"}})
+        if isinstance(r, tuple):  # (status, error body, headers)
+            return httpx2.Response(r[0], json=r[1], headers=r[2])
         return httpx2.Response(200, json=r)
 
     A.sent = []
@@ -453,3 +455,74 @@ async def test_wrong_key_tells_the_customer_to_try_later(client, outbox, api):
     api.replies = {"claude-haiku-5-5": 401}
     r = await post(client, [photo()])
     assert r.status_code == 502 and r.json()["error"]["code"] == "reader_unavailable"
+
+
+async def test_a_400_logs_anthropics_error_type_message_and_request_id(api, caplog):
+    """e.g. "credit balance too low" is a 400 invalid_request_error: the log line must say so."""
+    body = {
+        "type": "error",
+        "error": {
+            "type": "invalid_request_error",
+            "message": "Your credit balance is too low to access the Anthropic API. Key sk-ant-api03-SECRETxyz "
+            + "A" * 120,
+        },
+        "request_id": "req_body_1",
+    }
+    api.replies = {"claude-haiku-5-5": (400, body, {"request-id": "req_011CSHoEeqs5C35K2UUqR7Fy"})}
+    with pytest.raises(anthropic.BadRequestError):
+        await reader.call_model([("image/jpeg", b64(JPEG))])
+    line = next(r.getMessage() for r in caplog.records if "photo reader:" in r.getMessage())
+    assert line.startswith("photo reader: bad_request on claude-haiku-5-5 (type=invalid_request_error")
+    assert "request_id=req_011CSHoEeqs5C35K2UUqR7Fy" in line
+    assert "Your credit balance is too low" in line
+    assert "sk-ant" not in line and "SECRET" not in line and "A" * 80 not in line and "[key]" in line
+    assert "sk-test" not in caplog.text and b64(JPEG) not in caplog.text
+
+
+DOCUMENTED_TOP = {"model", "max_tokens", "messages", "output_config"}  # what we send; all are Messages API fields
+UNSUPPORTED_ON_HAIKU_5_5 = {"temperature", "top_p", "top_k", "fallbacks", "thinking"}  # 400s or not offered
+UNSUPPORTED_SCHEMA_KEYS = {"minimum", "maximum", "multipleOf", "minLength", "maxLength", "pattern", "format", "$ref"}
+
+
+def _check_schema(node, path="schema"):
+    """Structured outputs' documented limits: additionalProperties false on every object, no optional or union
+    parameters (we use none), no numeric/string constraints, enums of plain strings, minItems only 0 or 1."""
+    assert not (UNSUPPORTED_SCHEMA_KEYS & set(node)), path
+    assert "anyOf" not in node and not isinstance(node.get("type"), list), path
+    if "enum" in node:
+        assert all(isinstance(v, str) for v in node["enum"]), path
+    assert node.get("minItems", 0) in (0, 1), path
+    if node.get("type") == "object":
+        assert node.get("additionalProperties") is False, path
+        assert set(node.get("required", [])) == set(node["properties"]), f"{path}: optional parameters"
+        for k, v in node["properties"].items():
+            _check_schema(v, f"{path}.{k}")
+    if node.get("type") == "array":
+        _check_schema(node["items"], f"{path}[]")
+
+
+async def test_haiku_request_has_only_haiku_supported_fields(api):
+    api.replies = {"claude-haiku-5-5": reply(text=GOOD)}
+    await reader.call_model([("image/jpeg", b64(JPEG))] * 6)  # the most photos a customer can send
+    req = api.sent[0]
+    body = json.loads(req.content)
+    assert set(body) == DOCUMENTED_TOP
+    assert not (UNSUPPORTED_ON_HAIKU_5_5 & set(body))
+    assert "anthropic-beta" not in req.headers  # no beta features on Haiku
+    assert body["model"] == "claude-haiku-5-5"
+    assert 1 <= body["max_tokens"] <= 16000  # non-streaming: keep under the SDK's timeout guard (Haiku allows 128K)
+    assert set(body["output_config"]) == {"effort", "format"}
+    assert body["output_config"]["effort"] in {"low", "medium", "high"}  # thinking stays adaptive (the default)
+    fmt = body["output_config"]["format"]
+    assert set(fmt) == {"type", "schema"} and fmt["type"] == "json_schema"
+    _check_schema(fmt["schema"])
+    [msg] = body["messages"]
+    assert msg["role"] == "user"  # ends on a user turn: no prefill
+    for block in msg["content"]:
+        assert block["type"] in {"text", "image"} and "cache_control" not in block
+        if block["type"] == "image":
+            src = block["source"]
+            assert set(src) == {"type", "media_type", "data"} and src["type"] == "base64"
+            assert src["media_type"] in {"image/jpeg", "image/png", "image/gif", "image/webp"}
+            assert len(src["data"]) <= 10 * 1024 * 1024  # 10 MB base64 per image on the Claude API
+    assert len(req.content) < 32 * 1024 * 1024  # Messages API request limit
