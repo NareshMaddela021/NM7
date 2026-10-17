@@ -19,7 +19,8 @@ for (const [label, size] of [['desktop', { width: 1280, height: 900 }], ['phone'
     test('pick a lower card → the bottom bar → Use opens the builder with it; nothing moves; the bar covers nothing', async ({ page }) => {
       await openPicker(page);
       await expect(page.getByTestId('tp-bar')).toHaveCount(0); // not before a pick
-      await page.evaluate(() => { document.documentElement.style.scrollBehavior = 'auto'; });
+      // let the page settle first (web fonts, the screen's entry animation) so only a pick could move anything
+      await page.evaluate(async () => { document.documentElement.style.scrollBehavior = 'auto'; await document.fonts.ready; await Promise.all(document.getAnimations().map((a) => a.finished.catch(() => {}))); });
       const first = await Promise.all([0, 1, 2].map((i) => cards(page).nth(i).boundingBox()));
       const card = cards(page).last();
       const name = await nameOf(card);

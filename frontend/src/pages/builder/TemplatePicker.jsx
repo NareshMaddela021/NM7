@@ -56,7 +56,7 @@ export default function TemplatePicker({ d, ds, suggest, photo, onPick, onNext }
       <span className="sr-only" aria-live="polite" data-testid="tp-announce">{pick.touched ? text.announce : ''}</span>
       <div className="row between g16" style={{ alignItems: 'flex-end' }}>
         <div className="stack g8"><h1 className="display" style={{ fontSize: 40 }}>Pick a starting look</h1><span className="muted">{Object.keys(TEMPLATE_PRESETS).length} templates. Every font, colour and spacing can be changed later in the Design tab.</span></div>
-        <button type="button" className="btn btn-ink btn-lg" onClick={onNext}>{text.use} <Icon name="arrow" /></button>
+        <button type="button" className="btn btn-ink btn-lg" data-testid="tp-use-top" onClick={onNext}>{text.use} <Icon name="arrow" /></button>
       </div>
 
       {/* filters */}
