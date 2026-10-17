@@ -1,6 +1,7 @@
 // The summary writer, above the summary box on the builder's Summary step, in Job Profile → Summary and in the kiosk
 // builder. Layer A (smart templates, no network) and Layer B ("Write with AI", lib/summary/ai.js) share the cards.
-//   note:   "Tell us about yourself" — typed or spoken, saved as a draft with the resume, never printed on it
+//   note:   "Tell us about yourself" — typed or spoken (lib/summary/speech.js: keeps listening until Stop, interim text
+//           shown live, final words appended), saved as a draft with the resume, never printed on it
 //   chips:  a starter sentence for the note
 //   Make my summary → three cards (Role-first, Skills-first, Simple) from the templates; tap one to fill the box
 //   Write with AI (signed in) → the same three cards written by Claude, "Writing… (about 5 seconds)" with Cancel;
@@ -10,7 +11,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { Icon } from '../../components/ui';
 import dictionary from '../../lib/summary/dictionary.json';
 import { BUSY_TEXT, FIX_LABEL, WRITING_TEXT, aiAvailable, fallbackNotice, fillSlots, writeWithAi } from '../../lib/summary/ai';
-import { DEFAULT_SPEECH_LANG, SPEECH_LANGUAGES, useSpeech } from '../../lib/summary/speech';
+import { KEYBOARD_TIP, MIXED_HINT, SPEECH_LANGUAGES, appendSpeech, defaultSpeechLang, rememberSpeechLang, useSpeech } from '../../lib/summary/speech';
 import { shorter, writeSummaries } from '../../lib/summary/write';
 
 export const NOTE_MAX = 1000;
@@ -18,7 +19,7 @@ const HINT = 'Write or speak in any language. e.g. I am Angelin, I completed BSc
 
 export default function SummaryWriter({ resume, note = '', onNote, value = '', onUse, big = false, extra = null }) {
   const id = useId();
-  const [lang, setLang] = useState(DEFAULT_SPEECH_LANG);
+  const [lang, setLang] = useState(() => defaultSpeechLang());
   const [cards, setCards] = useState(null); // { options: [{ style, label, text, ai }], seed, ai }
   const [status, setStatus] = useState('');
   const [notice, setNotice] = useState('');
@@ -26,7 +27,14 @@ export default function SummaryWriter({ resume, note = '', onNote, value = '', o
   const [chip, setChip] = useState('');
   const noteRef = useRef(null);
   const abortRef = useRef(null);
-  const speech = useSpeech({ lang, onText: (words) => onNote?.(`${note ? `${note.trim()} ` : ''}${words}`.slice(0, NOTE_MAX)) });
+  // speech appends to the note as it stands now (results can arrive faster than a render)
+  const noteNow = useRef(note);
+  noteNow.current = note;
+  const speech = useSpeech({ lang, onText: (words) => { const next = appendSpeech(noteNow.current, words).slice(0, NOTE_MAX); noteNow.current = next; onNote?.(next); } });
+  const [spoke, setSpoke] = useState(false); // a session has ended: show "Stopped"
+  useEffect(() => { if (speech.listening) setSpoke(true); }, [speech.listening]);
+  const pickLang = (code) => { setLang(code); rememberSpeechLang(code); };
+  const mmss = (n) => `${Math.floor(n / 60)}:${String(n % 60).padStart(2, '0')}`;
   const fontSize = big ? 18 : 15;
   const btn = big ? 'btn btn-xl' : 'btn btn-lg';
   const ai = aiAvailable();
@@ -112,21 +120,35 @@ export default function SummaryWriter({ resume, note = '', onNote, value = '', o
         </div>
       </div>
 
-      {speech.supported && (
-        <div className="row g8" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
-          <button type="button" className={`${btn} ${speech.listening ? 'btn-ink' : 'btn-outline'}`} aria-pressed={speech.listening} data-testid="sw-speak"
-            onClick={() => (speech.listening ? speech.stop() : speech.start())} style={{ minHeight: big ? 60 : 48, fontSize: big ? 18 : 15 }}>
-            <Icon name="mic" size={big ? 22 : 18} /> {speech.listening ? 'Listening… tap to stop' : 'Speak'}
-          </button>
-          <label className="row g8 small" style={{ minHeight: 44 }}>
-            <span className="muted">Language</span>
-            <select className="input" aria-label="Speaking language" value={lang} onChange={(e) => setLang(e.target.value)} style={{ height: big ? 48 : 40, width: 'auto', fontSize }}>
-              {SPEECH_LANGUAGES.map(([code, label]) => <option key={code} value={code}>{label}</option>)}
-            </select>
-          </label>
-          {speech.error && <span className="xs" role="alert" style={{ color: 'var(--danger)' }}>{speech.error}</span>}
+      {speech.supported ? (
+        <div className="stack g8" data-testid="sw-speech">
+          <div className="row g8" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
+            <button type="button" className={`${btn} ${speech.listening ? 'btn-ink' : 'btn-outline'}`} aria-pressed={speech.listening} data-testid="sw-speak"
+              onClick={() => (speech.listening ? speech.stop() : speech.start())}
+              style={{ minHeight: big ? 64 : 52, minWidth: big ? 240 : 190, fontSize: big ? 20 : 16, gap: 10 }}>
+              {speech.listening ? <span className="pulse-dot" aria-hidden="true" /> : <Icon name="mic" size={big ? 24 : 20} />}
+              {speech.listening ? 'Stop' : 'Speak'}
+            </button>
+            <span className="row g8" style={{ alignItems: 'center', fontSize, minHeight: 44 }} data-testid="sw-speech-state" aria-live="polite">
+              {speech.listening ? (
+                <><strong>Listening</strong> <span className="muted" data-testid="sw-timer">{mmss(speech.seconds)}</span> <span className="xs muted">· talk, then tap Stop</span></>
+              ) : spoke ? (
+                <><strong className="muted">Stopped</strong> <span className="muted" data-testid="sw-timer">{mmss(speech.seconds)}</span></>
+              ) : null}
+            </span>
+            <label className="row g8 small" style={{ minHeight: 44 }}>
+              <span className="muted">Language</span>
+              <select className="input" aria-label="Speaking language" value={lang} onChange={(e) => pickLang(e.target.value)} disabled={speech.listening} style={{ height: big ? 48 : 40, width: 'auto', fontSize }}>
+                {SPEECH_LANGUAGES.map(([code, label]) => <option key={code} value={code}>{label}</option>)}
+              </select>
+            </label>
+          </div>
+          {speech.interim && <p className="muted" data-testid="sw-interim" style={{ margin: 0, fontStyle: 'italic', fontSize, lineHeight: 1.5 }}>{speech.interim}…</p>}
+          {speech.error && <span className="small" role="alert" data-testid="sw-speech-error" style={{ color: 'var(--danger)' }}>{speech.error}</span>}
+          <span className="xs muted">{MIXED_HINT}</span>
         </div>
-      )}
+      ) : null}
+      <span className="xs muted" data-testid="sw-tip">{KEYBOARD_TIP}</span>
 
       <div className="row g8" role="group" aria-label="Starter sentences" style={{ flexWrap: 'wrap' }}>
         {dictionary.chips.map((c) => (

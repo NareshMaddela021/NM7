@@ -24,6 +24,7 @@ for (const [label, size] of [['desktop', { width: 1280, height: 900 }], ['phone'
       // the Speak button only when the browser has speech recognition (headless Chromium doesn't)
       const speech = await page.evaluate(() => !!(window.SpeechRecognition || window.webkitSpeechRecognition));
       await expect(writer.getByTestId('sw-speak')).toHaveCount(speech ? 1 : 0);
+      await expect(writer.getByTestId('sw-tip')).toBeVisible();
       // a chip starts the note; the note has a 1,000-character limit
       await writer.getByRole('button', { name: 'I have work experience' }).click();
       await expect(page.getByLabel(/Tell us about yourself/)).toHaveValue(/^I have worked as/);
@@ -89,4 +90,99 @@ test('with the resume emptied, the note alone carries the summary (a Telugu-tran
   expect(text).toMatch(/driver/i);
   expect(text).toMatch(/2 years/);
   expect(text).not.toMatch(/\bI\b|\bmy\b|\{|\[/);
+});
+
+// Speak, with the browser's SpeechRecognition replaced by a fake the test drives: results accumulate within a run
+// the way Chrome's do (an interim replaces the last interim, a final is appended), `end()` ends a run.
+const FAKE_SPEECH = `
+  window.__speech = { instances: [] };
+  class FakeRecognition {
+    constructor() { this.results = []; this.started = false; window.__speech.instances.push(this); }
+    start() { this.started = true; }
+    stop() { this.started = false; setTimeout(() => this.onend && this.onend(), 0); }
+    abort() { this.started = false; this.aborted = true; }
+  }
+  window.SpeechRecognition = FakeRecognition;
+  window.webkitSpeechRecognition = FakeRecognition;
+  window.__speech.last = () => window.__speech.instances[window.__speech.instances.length - 1];
+  window.__speech.say = (alts, isFinal) => {
+    const r = window.__speech.last();
+    const result = alts.map(([transcript, confidence]) => ({ transcript, confidence }));
+    result.isFinal = isFinal;
+    const last = r.results[r.results.length - 1];
+    const index = last && !last.isFinal ? r.results.length - 1 : r.results.length;
+    r.results[index] = result;
+    r.onresult({ resultIndex: index, results: r.results });
+  };
+  window.__speech.end = () => { const r = window.__speech.last(); r.started = false; r.onend(); };
+  window.__speech.error = (code) => window.__speech.last().onerror({ error: code });
+`;
+
+for (const [label, size] of [['desktop', { width: 1280, height: 900 }], ['phone', { width: 390, height: 844 }]]) {
+  test(`Speak (${label}): keeps listening, shows interim text, appends final words to the typed note, Stop`, async ({ page }) => {
+    await page.addInitScript(FAKE_SPEECH);
+    await page.setViewportSize(size);
+    await openSummaryStep(page);
+    const writer = page.getByTestId('summary-writer');
+    const noteBox = page.getByLabel(/Tell us about yourself/);
+    await noteBox.fill('I am Angelin');
+    // the tip and the language picker (full locale codes, English + mixed first)
+    await expect(writer.getByTestId('sw-tip')).toHaveText('Tip: you can also use your phone keyboard’s mic 🎤');
+    const picker = writer.getByLabel('Speaking language');
+    await expect(picker).toHaveValue('en-IN');
+    expect(await picker.locator('option').evaluateAll((os) => os.map((o) => [o.value, o.textContent]))).toEqual([
+      ['en-IN', 'English + mixed'], ['te-IN', 'Telugu'], ['hi-IN', 'Hindi'], ['ta-IN', 'Tamil'], ['kn-IN', 'Kannada'], ['ml-IN', 'Malayalam'], ['mr-IN', 'Marathi'], ['bn-IN', 'Bengali'],
+    ]);
+    await picker.selectOption('te-IN');
+    expect(await page.evaluate(() => localStorage.getItem('nm7.speechLang'))).toBe('te-IN');
+
+    const speak = writer.getByTestId('sw-speak');
+    if (label === 'phone') expect((await speak.boundingBox()).height).toBeGreaterThanOrEqual(52);
+    await speak.click();
+    await expect(speak).toHaveText(/Stop/);
+    await expect(speak).toHaveAttribute('aria-pressed', 'true');
+    await expect(writer.getByTestId('sw-speech-state')).toContainText('Listening');
+    await expect(writer.getByTestId('sw-timer')).toHaveText(/^\d:\d\d$/);
+    await expect(writer.locator('.pulse-dot')).toBeVisible();
+    expect(await page.evaluate(() => { const r = window.__speech.last(); return [r.lang, r.continuous, r.interimResults, r.maxAlternatives, r.started]; })).toEqual(['te-IN', true, true, 3, true]);
+
+    // interim words show in grey and are not in the note yet
+    await page.evaluate(() => window.__speech.say([['nenu inter', 0.4]], false));
+    await expect(writer.getByTestId('sw-interim')).toHaveText('nenu inter…');
+    await expect(noteBox).toHaveValue('I am Angelin');
+    // a final result is appended after what was typed, with a full stop, keeping the best alternative
+    await page.evaluate(() => window.__speech.say([['nenu inter chadivanu', 0.6], ['nenu inter chadivaanu', 0.9]], true));
+    await expect(noteBox).toHaveValue('I am Angelin. Nenu inter chadivaanu');
+    await expect(writer.getByTestId('sw-interim')).toHaveCount(0);
+    // the browser ends the run after a pause: a new run starts on its own, still listening
+    await page.evaluate(() => window.__speech.end());
+    await expect.poll(() => page.evaluate(() => window.__speech.instances.length)).toBe(2);
+    await expect(speak).toHaveText(/Stop/);
+    await page.evaluate(() => window.__speech.say([['driver job kavali', 0.8]], true));
+    await expect(noteBox).toHaveValue('I am Angelin. Nenu inter chadivaanu. Driver job kavali');
+    // Stop: no more runs, the state says Stopped, typed text is untouched
+    await speak.click();
+    await expect(speak).toHaveText(/Speak/);
+    await expect(writer.getByTestId('sw-speech-state')).toContainText('Stopped');
+    expect(await page.evaluate(() => window.__speech.instances.length)).toBe(2);
+    await expect(noteBox).toHaveValue('I am Angelin. Nenu inter chadivaanu. Driver job kavali');
+    // the language choice survives a reload
+    await page.evaluate(() => window.history.replaceState({ usr: { open: 'build' }, key: 'x' }, ''));
+    await page.reload();
+    await page.getByRole('navigation', { name: 'Sections' }).getByRole('button', { name: /^Summary/ }).click();
+    await expect(page.getByLabel('Speaking language')).toHaveValue('te-IN');
+    // a blocked microphone gets a plain message
+    await page.getByTestId('sw-speak').click();
+    await page.evaluate(() => { window.__speech.error('not-allowed'); window.__speech.end(); });
+    await expect(page.getByTestId('sw-speech-error')).toHaveText('Allow microphone in your browser settings');
+    await expect(page.getByTestId('sw-speak')).toHaveText(/Speak/);
+  });
+}
+
+test('without speech recognition the Speak button is gone and the keyboard tip stays', async ({ page }) => {
+  await page.addInitScript(() => { delete window.SpeechRecognition; delete window.webkitSpeechRecognition; });
+  await openSummaryStep(page);
+  const writer = page.getByTestId('summary-writer');
+  await expect(writer.getByTestId('sw-speak')).toHaveCount(0);
+  await expect(writer.getByTestId('sw-tip')).toBeVisible();
 });

@@ -192,7 +192,7 @@ export default function KioskScreen() {
     if (step === 'welcome') return undefined;
     const timer = createIdleTimer({ onWarn: setWarn, onIdle: () => reset('Signed out after 2 minutes without a touch. Your resume is saved in your account.') });
     const poke = () => timer.poke();
-    const evs = ['pointerdown', 'keydown', 'touchstart', 'wheel'];
+    const evs = ['pointerdown', 'keydown', 'touchstart', 'wheel', 'nm7-activity']; // nm7-activity: someone is speaking
     evs.forEach((e) => window.addEventListener(e, poke, { passive: true }));
     return () => { timer.stop(); evs.forEach((e) => window.removeEventListener(e, poke)); };
   }, [step === 'welcome', reset]); // eslint-disable-line react-hooks/exhaustive-deps

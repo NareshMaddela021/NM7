@@ -27,9 +27,15 @@ resume summary in under a minute:
 
 1. **Tell us about yourself** (optional): type or **Speak** in any language — English, Telugu, Hindi, Tamil, Kannada,
    Malayalam, Marathi or Bengali — e.g. *"Nenu inter chadivanu, 2 samvatsaralu delivery boy ga pani chesanu, driver
-   job kavali"*. Speaking uses the browser's own speech recognition (free; the button is hidden where the browser
-   has none). Chips start the note: *I'm a fresher*, *I have work experience*, *Returning after a break*, *Changing my
-   field*. The note is saved with the draft and **never printed** on the resume.
+   job kavali"*. Speaking uses the browser's own speech recognition (free, `lib/summary/speech.js`): it keeps
+   listening until **Stop** (restarting itself when the browser pauses, until 20 seconds of silence), shows the
+   words being heard in grey and adds only the final ones to the note — after what was typed, never over it — with
+   a timer and plain messages when the mic is blocked or nothing was heard. The language picker remembers the last
+   choice and starts from the phone's own Indian locale; *English + mixed* (en-IN) usually hears Telugu or Hindi
+   mixed with English best. Where the browser has no speech recognition (Firefox, some iOS browsers) the button is
+   hidden and a tip points to the phone keyboard's mic, which is often more accurate anyway. Chips start the note:
+   *I'm a fresher*, *I have work experience*, *Returning after a break*, *Changing my field*. The note is saved with
+   the draft and **never printed** on the resume.
 2. **Make my summary** (Layer A, no network, always available): three cards — **Role-first**, **Skills-first**,
    **Simple** — built from the resume's own sections (highest education, total experience, latest role, top skills,
    target role, certificates, one achievement with a number, languages) plus what the note says (education words,
@@ -185,7 +191,8 @@ No new environment variables and no new paid services: emails use the existing R
 7. **Check the log.** **Activity** lists everything done with your organization's resumes, by your team and by Nm7.
 8. **Helping candidates write a summary at a kiosk.** On the kiosk builder's **Summary** step, ask the candidate to
    tap **Speak** and say, in their own language, what they studied, what work they have done and for how long, and
-   what job they want (or type it for them in the **Tell us about yourself** box — it is never printed). Tap **Make
+   what job they want; it keeps listening until they tap **Stop**, and the words are added to the box (or type it for
+   them in the **Tell us about yourself** box — it is never printed; the phone keyboard's mic works too). Tap **Make
    my summary**, read the three cards out, and let them pick one. **Shorter** and **Try again** adjust it; they can
    also edit the text. Where AI is on, **Write with AI** gives a more tailored version; if it says *AI is busy*, the
    cards still work. Never type ID numbers, phone numbers or addresses into the note.

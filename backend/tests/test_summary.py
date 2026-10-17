@@ -2,6 +2,8 @@
 
 import asyncio
 import json
+import logging
+import re
 
 import httpx2
 import pytest
@@ -109,11 +111,18 @@ async def test_needs_sign_in(client, outbox, api):
     assert (await post(client)).status_code == 401
 
 
-async def test_generate_sends_no_personal_data_and_wraps_the_note(client, outbox, api):
+async def test_generate_sends_no_personal_data_and_wraps_the_note(client, outbox, api, caplog):
     await signup(client, outbox)
     api.replies = {"claude-haiku-5-5": reply(GOOD)}
+    caplog.set_level(logging.INFO, logger="nm7.summary")
     r = await post(client)
     assert r.status_code == 200, r.text
+    # one info line per call, with counts only
+    line = next(m for m in caplog.messages if m.startswith("summary ai: ok"))
+    assert re.fullmatch(
+        r"summary ai: ok model=claude-haiku-5-5 ms=\d+ options=3 dropped=0 fallback=false mode=generate", line
+    )
+    assert "Angelin" not in caplog.text and "Python" not in caplog.text
     d = r.json()
     assert [o["style"] for o in d["options"]] == ["role_first", "skills_first", "simple"]
     assert d["dropped"] == 0 and d["fallback"] is False and d["model"] == "claude-haiku-5-5"
