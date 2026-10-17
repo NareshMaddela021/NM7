@@ -3,6 +3,7 @@
 import base64
 import json
 import re
+from unittest.mock import ANY
 
 import anthropic
 import pytest
@@ -68,7 +69,7 @@ def model(monkeypatch):
         out = model_output()
         calls: list = []
 
-    async def fake(images):
+    async def fake(images, stats=None):
         M.calls.append(images)
         if isinstance(M.out, Exception):
             raise M.out
@@ -473,7 +474,7 @@ async def test_fallback_read_counts_as_one_of_the_five(client, outbox, api, db):
     r = await post(client, [photo()])
     assert r.status_code == 200 and r.json()["headline"] == "Light Commercial Vehicle Driver"
     assert len(api.sent) == 2
-    assert await db["rate_events"].count_documents({"key": {"$regex": "^photo-import:"}}) == 1
+    assert await db["ai_usage"].find_one({"_id": {"$regex": r"\|person\|photos\|"}}, {"n": 1}) == {"_id": ANY, "n": 1}
 
 
 async def test_wrong_key_tells_the_customer_to_try_later(client, outbox, api):

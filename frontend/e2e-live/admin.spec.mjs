@@ -13,6 +13,10 @@ test('admin console shows real data (no samples), and every action is saved and 
 
   await adminLogin(page, owner, secret);
   await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
+  // AI usage: today's counts against the site-wide daily cap, 7 days
+  const ai = page.getByRole('region', { name: 'AI usage' });
+  await expect(ai).toContainText('of 2000 AI calls');
+  await expect(ai.getByTestId('ai-day')).toHaveCount(7);
   await expect(page.getByText(/sample data/i)).toHaveCount(0);
   await expect(page.getByText('₹70,026')).toHaveCount(0);
   await expect(page.getByText('Paid orders')).toBeVisible();

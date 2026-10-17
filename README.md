@@ -20,6 +20,23 @@ Details, settings and what's left: see [`frontend/README.md`](frontend/README.md
 - `main` — what goes live
 - `dev` — work in progress; merge into `main` when tested
 
+## AI features and their daily limits
+
+Snap photos (reading resume details from photos) and the summary writer's "Write with AI" use the Claude API
+(`ANTHROPIC_API_KEY` on Render; Claude Haiku 5.5, with one retry on Claude Sonnet 5.5). Every AI attempt is counted
+**before** the call, failed ones included, so requests sent at the same time can't get past a limit
+(`backend/app/core/ai_quota.py`, counters reset at midnight India time):
+
+| Limit | Snap photos | Summary writer |
+|---|---|---|
+| per person, per day | 5 | 10 (each quick fix counts 1) |
+| per kiosk link, per day (all candidates at that screen) | 300 | 600 |
+| the whole site, per day | 2,000 AI calls, both features together | |
+
+When the site-wide cap is reached, Snap photos says it is busy today and the summary writer quietly uses its free
+smart templates. Admin → Dashboard → **AI usage** shows each day's calls, fallbacks, failures and refusals, and
+"AI daily cap reached" when it happens. The limits are constants in code (no environment variables).
+
 ## Nm7 for Organizations (Phase 1)
 
 Any organization — a college, coaching or training institute, job fair, skill centre, NGO, placement agency or company hiring drive — can get its people to build resumes on nm7.si. The Nm7 super-admin (the **Owner** role, with two-step login) then sees, prints and exports all of them from the admin console.

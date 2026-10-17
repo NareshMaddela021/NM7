@@ -40,7 +40,38 @@ export function LiveDashboard() {
           </section>
         </>
       )}</Loading>
+      <AiUsage />
     </>
+  );
+}
+
+const AI_FEATURES = [['photos', 'Snap photos'], ['summary', 'Summary writer']];
+
+/** AI calls per day (Claude API): counted before each call, failed ones included; the site-wide cap is in code. */
+function AiUsage() {
+  const st = useApi('/api/admin/ai-usage?days=7');
+  return (
+    <Loading st={st}>{(u) => (
+      <section className="card stack g8" aria-label="AI usage">
+        <div className="row between g8" style={{ flexWrap: 'wrap' }}>
+          <strong>AI usage</strong>
+          <span className="xs muted">Today {u.days[0].total} of {u.cap} AI calls · per person a day: Snap photos {u.perPerson.photos}, summary writer {u.perPerson.summary}</span>
+        </div>
+        {u.capReachedToday && <div className="well small" role="status" style={{ color: 'var(--danger)' }}><strong>AI daily cap reached.</strong> AI features are using their free fallback until midnight (India time).</div>}
+        <div className="table-wrap">
+          <table className="table">
+            <thead><tr><th>Day</th>{AI_FEATURES.map(([k, l]) => <th key={k}>{l}: calls · fallbacks · failed · refused</th>)}<th>All AI calls</th></tr></thead>
+            <tbody>{u.days.map((d) => (
+              <tr key={d.date} data-testid="ai-day">
+                <td className="small">{d.date}</td>
+                {AI_FEATURES.map(([k]) => <td key={k} className="small mono">{d[k].calls} · {d[k].fallback} · {d[k].failed} · {d[k].limited + d[k].capped}</td>)}
+                <td className="small mono">{d.total}{d.capReached ? ' (cap reached)' : ''}</td>
+              </tr>
+            ))}</tbody>
+          </table>
+        </div>
+      </section>
+    )}</Loading>
   );
 }
 

@@ -59,6 +59,7 @@ ORG_STAFF = "org_staff"  # coordinators / viewers of an organization (invited by
 EXPORT_JOBS = "export_jobs"  # admin bulk print / ZIP jobs: which memberships, so "done" can mark them printed
 KIOSKS = "kiosks"  # kiosk links for events (Phase 3A): token and exit PIN stored hashed
 RECRUITER_LINKS = "recruiter_links"  # Phase 3C: resumes shared with a recruiter (token / access code hashed)
+AI_USAGE = "ai_usage"  # daily AI call counters (core/ai_quota.py): per person, per kiosk link, site-wide, outcomes
 COLLECTIONS = (
     USERS,
     EMAIL_CODES,
@@ -92,6 +93,7 @@ COLLECTIONS = (
     ORG_STAFF,
     KIOSKS,
     RECRUITER_LINKS,
+    AI_USAGE,
 )
 
 DAY = 86_400
@@ -116,6 +118,7 @@ def _str(field: str) -> dict:
 
 
 INDEXES: dict[str, list[IndexModel]] = {
+    AI_USAGE: [IndexModel("day"), IndexModel("expires_at", expireAfterSeconds=0)],
     USERS: [
         IndexModel("email_lc", unique=True),
         IndexModel("role"),
