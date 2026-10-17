@@ -308,18 +308,43 @@ def reply(stop="end_turn", text=None, model="claude-haiku-5-5", thinking=False):
     }
 
 
-GOOD = json.dumps(model_output())
-EMPTY = json.dumps(
-    {
-        "photos": [{"index": 0, "kind": "other", "readable": False}],
-        "personal": {k: {"value": "", "confidence": "low", "fromId": False} for k in ("name", "city")},
-        "headline": "",
-        "experience": [],
-        "skills": [],
+def wire_output(**over):
+    """What the model sends back (the small, flat schema)."""
+    out = {
+        "photos": [{"index": 0, "kind": "handwritten_note", "readable": True}],
+        **dict.fromkeys(reader.PERSONAL, ""),
+        "from_id": [],
+        "unsure": ["Hindi"],
+        "headline": "Light Commercial Vehicle Driver",
+        "jobs": [
+            {
+                "role": "Driver",
+                "company": "Sri Sai Transports",
+                "from": "2020",
+                "to": "Present",
+                "lines": ["Drove light commercial vehicles for 4 years across Hyderabad with no accidents"],
+                "unsure": False,
+            }
+        ],
+        "skills": ["LMV driving licence"],
         "certifications": [],
         "education": [],
-        "languages": [],
+        "languages": ["Telugu", "Hindi"],
     }
+    out.update(over)
+    return out
+
+
+GOOD = json.dumps(wire_output())
+EMPTY = json.dumps(
+    wire_output(
+        photos=[{"index": 0, "kind": "other", "readable": False}],
+        headline="",
+        jobs=[],
+        skills=[],
+        languages=[],
+        unsure=[],
+    )
 )
 
 
@@ -352,6 +377,7 @@ def api(monkeypatch):
         return httpx2.Response(200, json=r)
 
     A.sent = []
+    monkeypatch.setattr(reader, "NO_GRAMMAR", set())
     monkeypatch.setattr(reader, "HTTP_CLIENT", httpx2.AsyncClient(transport=httpx2.MockTransport(handler)))
     return A
 
@@ -526,3 +552,167 @@ async def test_haiku_request_has_only_haiku_supported_fields(api):
             assert src["media_type"] in {"image/jpeg", "image/png", "image/gif", "image/webp"}
             assert len(src["data"]) <= 10 * 1024 * 1024  # 10 MB base64 per image on the Claude API
     assert len(req.content) < 32 * 1024 * 1024  # Messages API request limit
+
+
+def test_normalize_turns_the_flat_answer_into_the_api_shape():
+    out = reader.normalize(
+        wire_output(
+            name="Ramesh Kumar",
+            dob="05/06/1990",
+            from_id=["name", "dob"],
+            unsure=["dob", "Hindi"],
+            photos=[{"index": 0, "kind": "ID Card", "readable": True}, {"index": "x", "kind": "selfie"}],
+        )
+    )
+    assert out["personal"]["name"] == {"value": "Ramesh Kumar", "confidence": "high", "fromId": True}
+    assert out["personal"]["dob"] == {"value": "05/06/1990", "confidence": "low", "fromId": True}
+    assert out["personal"]["city"] == {"value": "", "confidence": "high", "fromId": False}
+    assert out["photos"] == [
+        {"index": 0, "kind": "id_card", "readable": True},
+        {"index": 1, "kind": "other", "readable": True},  # bad index → position, unknown kind → other
+    ]
+    assert out["experience"][0]["confidence"] == "high" and out["experience"][0]["lines"][0].startswith("Drove")
+    assert out["skills"] == [{"value": "LMV driving licence", "confidence": "high"}]
+    assert out["languages"] == [{"value": "Telugu", "confidence": "high"}, {"value": "Hindi", "confidence": "low"}]
+    # wrong types are dropped, not trusted
+    odd = reader.normalize(wire_output(skills=["Wiring", 5, None, ""], jobs=["x", {"role": 3, "lines": "a"}]))
+    assert odd["skills"] == [{"value": "Wiring", "confidence": "high"}]
+    assert odd["experience"] == [{"role": "", "company": "", "from": "", "to": "", "lines": [], "confidence": "high"}]
+    with pytest.raises(reader.ReadFailed):
+        reader.normalize({"name": "no photos list"})
+
+
+def test_schema_is_small():
+    """Kept well under structured outputs' grammar limits: no enums, few objects, no optional or union fields."""
+    nodes = []
+
+    def walk(n):
+        nodes.append(n)
+        for v in n.get("properties", {}).values():
+            walk(v)
+        if "items" in n:
+            walk(n["items"])
+
+    walk(reader.SCHEMA)
+    assert not any("enum" in n for n in nodes)
+    assert sum(n.get("type") == "object" for n in nodes) <= 5
+    assert len(json.dumps(reader.SCHEMA)) < 2500
+    _check_schema(reader.SCHEMA)
+
+
+GRAMMAR_400 = {
+    "type": "error",
+    "error": {
+        "type": "invalid_request_error",
+        "message": "The compiled grammar is too large, which would cause performance issues. Simplify your tool "
+        "schemas or reduce the number of strict tools.",
+    },
+    "request_id": "req_g",
+}
+
+
+async def test_grammar_too_large_reads_again_on_the_same_model_without_the_grammar(api, caplog, monkeypatch):
+    calls = []
+
+    def by_mode(request):
+        body = json.loads(request.content)
+        calls.append(body)
+        if "format" in body["output_config"]:
+            return (400, GRAMMAR_400, {"request-id": "req_g"})
+        return reply(text="Here you go:\n```json\n" + GOOD + "\n```")
+
+    api.replies = {"claude-haiku-5-5": None}
+    import httpx2
+
+    def handler(request):
+        api.sent.append(request)
+        r = by_mode(request)
+        if isinstance(r, tuple):
+            return httpx2.Response(r[0], json=r[1], headers=r[2])
+        return httpx2.Response(200, json=r)
+
+    monkeypatch.setattr(reader, "HTTP_CLIENT", httpx2.AsyncClient(transport=httpx2.MockTransport(handler)))
+    out = await reader.call_model([("image/jpeg", b64(JPEG))])
+    assert out["headline"] == "Light Commercial Vehicle Driver"
+    assert [("format" in b["output_config"], b["model"]) for b in calls] == [
+        (True, "claude-haiku-5-5"),
+        (False, "claude-haiku-5-5"),
+    ]
+    loose_prompt = calls[1]["messages"][0]["content"][-1]["text"]
+    assert "Reply with ONE JSON object" in loose_prompt and '"from_id"' in loose_prompt
+    assert calls[1]["output_config"] == {"effort": "medium"}
+    assert "grammar_too_large on claude-haiku-5-5" in caplog.text
+    # the next read goes straight to the loose mode (one request, not two)
+    calls.clear()
+    await reader.call_model([("image/jpeg", b64(JPEG))])
+    assert [("format" in b["output_config"]) for b in calls] == [False]
+
+
+async def test_grammar_too_large_and_a_bad_loose_answer_moves_on_to_sonnet(api, monkeypatch):
+    import httpx2
+
+    def handler(request):
+        api.sent.append(request)
+        body = json.loads(request.content)
+        if body["model"] == "claude-haiku-5-5":
+            if "format" in body["output_config"]:
+                return httpx2.Response(400, json=GRAMMAR_400)
+            return httpx2.Response(200, json=reply(text="Sorry, I can only describe this."))
+        return httpx2.Response(200, json=reply(text=GOOD, model="claude-sonnet-5-5"))
+
+    monkeypatch.setattr(reader, "HTTP_CLIENT", httpx2.AsyncClient(transport=httpx2.MockTransport(handler)))
+    out = await reader.call_model([("image/jpeg", b64(JPEG))])
+    assert out["headline"] == "Light Commercial Vehicle Driver"
+    bodies = [json.loads(r.content) for r in api.sent]
+    assert [(b["model"], "format" in b["output_config"]) for b in bodies] == [
+        ("claude-haiku-5-5", True),
+        ("claude-haiku-5-5", False),
+        ("claude-sonnet-5-5", True),  # Sonnet gets the same schema as a grammar, with its refusal fallback
+    ]
+    assert bodies[2]["fallbacks"] == "default"
+
+
+async def test_grammar_too_large_on_both_models_still_reads(api, monkeypatch):
+    import httpx2
+
+    def handler(request):
+        api.sent.append(request)
+        body = json.loads(request.content)
+        if "format" in body["output_config"]:
+            return httpx2.Response(400, json=GRAMMAR_400)
+        if body["model"] == "claude-haiku-5-5":
+            return httpx2.Response(200, json=reply(text="{not json"))
+        return httpx2.Response(200, json=reply(text=GOOD, model="claude-sonnet-5-5"))
+
+    monkeypatch.setattr(reader, "HTTP_CLIENT", httpx2.AsyncClient(transport=httpx2.MockTransport(handler)))
+    out = await reader.call_model([("image/jpeg", b64(JPEG))])
+    assert out["personal"]["name"]["value"] == "" and out["skills"][0]["value"] == "LMV driving licence"
+    assert len(api.sent) == 4
+
+
+async def test_other_400s_are_not_treated_as_grammar_errors(api, caplog):
+    api.replies = {
+        "claude-haiku-5-5": (
+            400,
+            {"type": "error", "error": {"type": "invalid_request_error", "message": "max_tokens: too big"}},
+            {},
+        )
+    }
+    with pytest.raises(anthropic.BadRequestError):
+        await reader.call_model([("image/jpeg", b64(JPEG))])
+    assert len(api.sent) == 1 and reader.NO_GRAMMAR == set()
+
+
+async def test_the_endpoint_returns_the_same_shape_as_before(client, outbox, api):
+    """End to end with the real reader: the browser still gets personal {value, confidence, fromId}."""
+    await signup(client, outbox)
+    api.replies = {
+        "claude-haiku-5-5": reply(
+            text=json.dumps(wire_output(name="Ramesh Kumar", from_id=["name"], unsure=["name", "Hindi"]))
+        )
+    }
+    r = await post(client, [photo()])
+    assert r.status_code == 200, r.text
+    d = r.json()
+    assert d["personal"]["name"] == {"value": "Ramesh Kumar", "confidence": "low", "fromId": True}
+    assert d["experience"][0]["role"] == "Driver" and d["languages"][1] == {"value": "Hindi", "confidence": "low"}
