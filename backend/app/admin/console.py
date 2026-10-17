@@ -18,6 +18,7 @@ from app.auth.models import User
 from app.auth.service import find_user
 from app.auth.sessions import client_ip
 from app.automation import run_rules
+from app.core import ai_quota
 from app.core.db import (
     DB,
     EXPERT_PROFILES,
@@ -103,6 +104,12 @@ async def stats(db: DB, _: AdminAuth("dashboard"), days: int = Query(30, ge=1, l
         "applicationsWaiting": await db[EXPERT_PROFILES].count_documents({"status": {"$in": ["review", "testReview"]}}),
         "experts": await db[USERS].count_documents({"role": "expert", "expert_status": "approved"}),
     }
+
+
+@router.get("/ai-usage")
+async def ai_usage(db: DB, _: AdminAuth("dashboard"), days: int = Query(7, ge=1, le=30)) -> dict[str, Any]:
+    """AI calls per day (Snap photos, summary writer): calls, fallbacks, failures, refused by a limit."""
+    return await ai_quota.usage(db, days)
 
 
 async def _unassigned_count(db) -> int:

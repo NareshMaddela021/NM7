@@ -7,7 +7,6 @@ the browser saves only what they keep.
 
 import base64
 import binascii
-from datetime import timedelta
 from typing import Any
 
 import anthropic
@@ -15,7 +14,7 @@ from fastapi import APIRouter
 from pydantic import Field
 
 from app.auth.deps import CustomerAuth
-from app.core import rate_limit
+from app.core import ai_quota
 from app.core.config import get_settings
 from app.core.db import DB
 from app.core.errors import ApiError
@@ -27,8 +26,6 @@ router = APIRouter(prefix="/api/me/photo-import", tags=["photo import"])
 
 MAX_PHOTOS = 6
 MAX_BYTES = 10 * 1024 * 1024
-PER_DAY = 5
-DAILY = [(PER_DAY, timedelta(days=1))]
 
 
 class Photo(CamelModel):
@@ -95,21 +92,29 @@ async def photo_import(body: ImportIn, auth: CustomerAuth, db: DB) -> dict[str, 
             "consent_required",
             "Please tick the box to let Nm7 read your name, address and date of birth from the ID card.",
         )
-    key = f"photo-import:{auth.user.id}"
-    await rate_limit.check(
-        db,
-        key,
-        DAILY,
-        f"You can read photos {PER_DAY} times a day. Please try again tomorrow, or type your details in the builder.",
-    )
+    # counted before the call, failed attempts included (core/ai_quota.py): 5 a day per person, per kiosk link,
+    # and the site-wide AI cap
     try:
-        raw = await reader.call_model(images)
+        await ai_quota.take(db, "photos", str(auth.user.id), auth.session.kiosk_id)
+    except ai_quota.CapReached as e:
+        raise ApiError(
+            503,
+            "ai_busy",
+            "Photo reading is busy today. Please try again tomorrow, or type your details in the builder.",
+        ) from e
+    stats: dict[str, Any] = {}
+    try:
+        raw = await reader.call_model(images, stats)
     except reader.ReadFailed as e:
+        await ai_quota.note(db, "photos", "failed")
         raise ApiError(422, "unreadable", "We couldn't read these photos - try again in better light.") from e
     except anthropic.APIError as e:
+        await ai_quota.note(db, "photos", "failed")
         raise ApiError(
             502, "reader_unavailable", "We couldn't read the photos right now. Please try again in a minute."
         ) from e
+    if stats.get("fallback"):
+        await ai_quota.note(db, "photos", "fallback")
 
     out = scrub(raw if isinstance(raw, dict) else {})
     photos = [p for p in out.get("photos", []) if isinstance(p, dict)]
@@ -122,7 +127,6 @@ async def photo_import(body: ImportIn, auth: CustomerAuth, db: DB) -> dict[str, 
             "One of these photos looks like an ID card. Please tick the box to let Nm7 read it.",
             extra={"photos": detected},
         )
-    await rate_limit.record(db, key)
     return {
         "photos": [
             {"index": int(p.get("index", i)), "kind": p.get("kind", "other"), "readable": bool(p.get("readable", True))}

@@ -322,7 +322,7 @@ async def _read_model(client: anthropic.AsyncAnthropic, model: str, content: lis
     return await _read(client, model, content, strict=False)
 
 
-async def call_model(images: list[tuple[str, str]]) -> dict[str, Any]:
+async def call_model(images: list[tuple[str, str]], stats: dict[str, Any] | None = None) -> dict[str, Any]:
     """images: [(media_type, base64 data)]. Returns the answer in the API's shape (not yet scrubbed).
 
     Raises ReadFailed when neither model gave usable data, or the SDK's APIError (logged by type and Anthropic's
@@ -350,6 +350,8 @@ async def call_model(images: list[tuple[str, str]]) -> dict[str, Any]:
             raise
         if n:
             log.info("photo reader: read with fallback %s", model)
+        if stats is not None:
+            stats.update(model=model, fallback=n > 0)
         return out
     raise ReadFailed("no_model")  # not reached
 
