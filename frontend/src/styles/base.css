@@ -148,7 +148,9 @@ textarea.input { height: auto; padding: 12px 14px; line-height: 1.55; resize: ve
 }
 
 /* ---------- motion ---------- */
-.rise { animation: rise 420ms var(--ease) both; }
+/* backwards, not both: once done, no transform is left on the element (a kept transform makes it the box that
+   position:fixed children stick to) */
+.rise { animation: rise 420ms var(--ease) backwards; }
 .spin { width: 16px; height: 16px; border-radius: 50%; border: 2px solid rgba(127, 127, 127, .45); border-top-color: currentColor; animation: spin 700ms linear infinite; display: inline-block; }
 .scanline { position: absolute; left: 0; right: 0; height: 56px; background: linear-gradient(180deg, transparent, rgba(255, 225, 77, .55), transparent); animation: scan 1.6s cubic-bezier(.45, 0, .55, 1) infinite alternate; pointer-events: none; }
 .shimmer { background: linear-gradient(90deg, var(--sunken) 25%, var(--border) 50%, var(--sunken) 75%); background-size: 200% 100%; animation: shimmer 1.4s ease-in-out infinite; border-radius: 4px; }

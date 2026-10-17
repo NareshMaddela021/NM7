@@ -41,12 +41,24 @@ for (const [label, size] of [['desktop', { width: 1280, height: 900 }], ['phone'
       await page.waitForFunction(() => window.scrollY === 0);
       const after = await Promise.all([0, 1, 2].map((i) => cards(page).nth(i).boundingBox()));
       after.forEach((b, i) => ['x', 'y', 'width', 'height'].forEach((p) => expect(Math.abs(b[p] - first[i][p]), `card ${i} ${p}`).toBeLessThan(1)));
-      // scrolled to the very bottom, the last card ends above the bar
-      await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-      await page.waitForTimeout(300);
-      const lastBox = await card.boundingBox();
-      const barBox = await bar.boundingBox();
-      expect(lastBox.y + lastBox.height).toBeLessThanOrEqual(barBox.y + 1);
+      // the bar is on the screen (inside the viewport) at the top, middle and bottom of the page — not pinned to the
+      // bottom of the page by a transformed wrapper
+      await expect(bar.locator('xpath=..')).toHaveJSProperty('tagName', 'BODY');
+      const vh = page.viewportSize().height;
+      for (const at of [0, 0.5, 1]) {
+        await page.evaluate((f) => window.scrollTo(0, f * (document.documentElement.scrollHeight - innerHeight)), at);
+        await page.waitForTimeout(300);
+        const r = await bar.evaluate((el) => el.getBoundingClientRect().toJSON());
+        expect(r.y, `bar top at ${at}`).toBeGreaterThanOrEqual(0);
+        expect(r.y + r.height, `bar bottom at ${at}`).toBeLessThanOrEqual(vh + 0.5);
+        expect(r.y + r.height, `bar sits on the screen's bottom edge at ${at}`).toBeGreaterThan(vh - 1);
+      }
+      // scrolled to the very bottom, the last card and its Use button end above the bar
+      const barTop = await bar.evaluate((el) => el.getBoundingClientRect().top);
+      const lastBox = await card.evaluate((el) => el.getBoundingClientRect().bottom);
+      const lastUse = await card.getByTestId('tp-use-card').evaluate((el) => el.getBoundingClientRect().bottom);
+      expect(lastUse).toBeLessThanOrEqual(barTop + 1);
+      expect(lastBox).toBeLessThanOrEqual(barTop + 1);
       const use = page.getByTestId('tp-use-bar');
       expect((await use.boundingBox()).height).toBeGreaterThanOrEqual(44);
       if (label === 'phone') expect((await use.boundingBox()).width).toBeGreaterThan(300); // full width on a phone
