@@ -3,6 +3,7 @@
 // own "Use <Template>" button, and from the first pick a bar stays at the bottom of the screen. Double-click a card,
 // or press Enter / Space on it, to use it straight away. Every "Use" button does what the top one does (onNext).
 import { useEffect, useMemo, useReducer, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Icon } from '../../components/ui';
 import ResumePreview from './ResumePreview';
 import { ACCENTS, DEFAULT_DESIGN, INDUSTRY_TAGS, TEMPLATE_PRESETS, atsCheck } from './design';
@@ -126,7 +127,8 @@ export default function TemplatePicker({ d, ds, suggest, photo, onPick, onNext }
         })}
       </div>
 
-      {bar && (
+      {/* on <body>: a transformed ancestor (an entry animation) would pin a fixed bar to itself, not the screen */}
+      {bar && createPortal(
         <div className="tp-bar" role="region" aria-label="Selected template" data-testid="tp-bar">
           <div className="tp-bar-in">
             <span className="tp-bar-thumb" aria-hidden="true"><ResumePreview decorative loadFonts={false} data={{ ...d, ...layoutOf(sel.k) }} design={sel.design} /></span>
@@ -136,7 +138,8 @@ export default function TemplatePicker({ d, ds, suggest, photo, onPick, onNext }
             </span>
             <button type="button" className="btn btn-ink btn-lg tp-bar-use" data-testid="tp-use-bar" onClick={() => useNow(sel.k, sel.accent)}>{text.use} <Icon name="arrow" /></button>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </main>
   );
