@@ -359,3 +359,20 @@ textarea.input { height: auto; padding: 12px 14px; line-height: 1.55; resize: ve
   .kiosk-print img { display: block; width: 100%; break-after: page; }
   .kiosk-print img:last-child { break-after: auto; }
 }
+
+/* Template picker: the selected card's tick, its own "Use" button, and the bar at the bottom of the screen */
+:root { --tp-bar-h: 76px; }
+.tp-check { position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; border-radius: 50%; background: var(--ink); color: var(--surface); display: grid; place-items: center; font-weight: 700; font-size: 15px; box-shadow: 0 0 0 2px var(--surface); }
+.tp-use { width: 100%; min-height: 44px; }
+.tp-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; background: var(--surface); border-top: 1px solid var(--border); box-shadow: 0 -6px 24px rgba(0, 0, 0, .08); padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); animation: tp-up .22s ease-out; }
+.tp-bar-in { max-width: 1320px; margin: 0 auto; display: flex; align-items: center; gap: 14px; min-height: 52px; }
+.tp-bar-thumb { flex: none; width: 40px; height: 52px; overflow: hidden; border-radius: 4px; border: 1px solid var(--border); background: #fff; }
+.tp-bar-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tp-bar-use { flex: none; min-height: 48px; }
+@keyframes tp-up { from { transform: translateY(100%); } to { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .tp-bar { animation: none; } }
+@media (max-width: 560px) {
+  :root { --tp-bar-h: 136px; }
+  .tp-bar-in { flex-wrap: wrap; gap: 10px; }
+  .tp-bar-use { flex: 1 1 100%; min-height: 48px; }
+}

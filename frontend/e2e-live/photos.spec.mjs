@@ -100,8 +100,8 @@ test('photos → consent for the ID card → review (address/DOB hidden) → Wor
   await page.getByRole('button', { name: 'Looks right' }).click();
 
   // a new resume in the Work-first template
-  await expect(page.getByRole('button', { name: 'Use Work-first' })).toBeVisible();
-  await page.getByRole('button', { name: 'Use Work-first' }).click();
+  await expect(page.getByTestId('tp-use-top')).toBeVisible();
+  await page.getByTestId('tp-use-top').click();
   const preview = page.getByRole('article', { name: 'Resume preview' });
   await expect(preview).toContainText('Ramesh Kumar');
   await expect(preview).toContainText('Hyderabad, Telangana');

@@ -139,8 +139,8 @@ test('start a resume from the Job Profile: every section copied, salary never; f
   await expect(card).toContainText('Recommended');
   await expect(page.getByRole('button', { name: /Start from scratch/ })).not.toContainText('Recommended');
   await card.click();
-  await expect(page.getByRole('button', { name: /^Use / })).toBeVisible(); // the Template step
-  await page.getByRole('button', { name: /^Use / }).click();
+  await expect(page.getByTestId('tp-use-top')).toBeVisible(); // the Template step
+  await page.getByTestId('tp-use-top').click();
 
   // the new account's untouched first resume is used (no empty copy left behind); it holds every profile section
   await expect.poll(async () => (await activeResume(page)).name).toContain('from Job Profile');
@@ -216,7 +216,7 @@ test('a resume is a copy: edits stay out of the profile until saved; profile upd
   await putProfile(page, PROFILE, 0);
   await page.goto('/builder');
   await page.getByRole('button', { name: /Start from my Job Profile/ }).click();
-  await page.getByRole('button', { name: /^Use / }).click();
+  await page.getByTestId('tp-use-top').click();
   await expect.poll(async () => (await activeResume(page))?.data.exp?.length).toBe(2);
 
   // edit a project on the resume: the profile is unchanged until "Save this change to my Job Profile"
@@ -296,7 +296,7 @@ test('new users are pointed at the Job Profile; scans and cover letters use it; 
   await expect(page.getByRole('button', { name: /Start from scratch/ })).toContainText('Recommended');
   await expect(page.getByRole('button', { name: /Start from my Job Profile/ })).toHaveCount(0);
   await page.getByRole('button', { name: /Start from scratch/ }).click();
-  await page.getByRole('button', { name: /^Use / }).click();
+  await page.getByTestId('tp-use-top').click();
   await expect(page.getByRole('button', { name: 'Fill from profile' })).toHaveCount(0);
 });
 

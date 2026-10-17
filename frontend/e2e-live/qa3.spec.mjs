@@ -37,7 +37,7 @@ test('builder start: continue the latest resume; new resumes are new and never s
   for (let i = 0; i < 2; i += 1) {
     await page.goto('/builder');
     await page.getByRole('button', { name: /Start from my Job Profile/ }).click();
-    await expect(page.getByRole('button', { name: /^Use / })).toBeVisible();
+    await expect(page.getByTestId('tp-use-top')).toBeVisible();
   }
   await expect.poll(async () => (await api(page, '/api/me/resumes')).body.length).toBe(3);
   const names = (await api(page, '/api/me/resumes')).body.map((x) => x.name);
