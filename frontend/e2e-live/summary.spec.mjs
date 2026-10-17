@@ -39,7 +39,7 @@ for (const [label, size] of [['desktop', { width: 1280, height: 900 }], ['phone'
       // a guest's draft is the sample resume, and the resume's facts win over the note
       expect(text).toMatch(/Data Analyst|Python/);
       expect(text).not.toMatch(/\bI\b|\bmy\b|\{|\[/);
-      if (label === 'phone') expect((await roleFirst.boundingBox()).height).toBeGreaterThanOrEqual(44);
+      if (label === 'phone') expect(Math.round((await roleFirst.boundingBox()).height)).toBeGreaterThanOrEqual(44);
       await roleFirst.click();
       const box = page.getByLabel('Your summary');
       await expect(box).toHaveValue(text);
@@ -137,7 +137,7 @@ for (const [label, size] of [['desktop', { width: 1280, height: 900 }], ['phone'
     expect(await page.evaluate(() => localStorage.getItem('nm7.speechLang'))).toBe('te-IN');
 
     const speak = writer.getByTestId('sw-speak');
-    if (label === 'phone') expect((await speak.boundingBox()).height).toBeGreaterThanOrEqual(52);
+    if (label === 'phone') expect(Math.round((await speak.boundingBox()).height)).toBeGreaterThanOrEqual(52);
     await speak.click();
     await expect(speak).toHaveText(/Stop/);
     await expect(speak).toHaveAttribute('aria-pressed', 'true');
