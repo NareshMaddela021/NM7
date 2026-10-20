@@ -24,7 +24,7 @@ from app.orders.models import Order
 from app.orders.schemas import OrderOut
 from app.orders.service import get_order, mark_paid, order_view
 from app.payments.models import Payment, WebhookEvent
-from app.payments.razorpay import payment_signature_ok, webhook_signature_ok
+from app.payments.razorpay import RazorpayError, get_razorpay, payment_signature_ok, webhook_signature_ok
 from app.refunds.service import on_refund_webhook
 
 router = APIRouter(prefix="/api/payments", tags=["payments"])
@@ -59,6 +59,42 @@ async def _send_receipt(db: AsyncDatabase, mailer: Mailer, order: Order) -> None
         await send_safely(mailer, emails.payment_receipt(user.email, user.name, order))
 
 
+PAYMENT_OK = ("authorized", "captured")
+
+
+async def _check_with_razorpay(db: AsyncDatabase, order: Order, razorpay_order_id: str, payment_id: str) -> dict:
+    """The checkout signature only proves the ids came from Razorpay; the payment itself is checked there: it must
+    be authorized or captured, for this order, for the order's amount in rupees. 409 on a mismatch (the order stays
+    unpaid), 503 when Razorpay can't be reached (the webhook completes the order on its own)."""
+    try:
+        p = await get_razorpay().fetch_payment(payment_id)
+    except RazorpayError as e:
+        log.warning("Could not fetch payment %s (order %s): %s", payment_id, order.id, e)
+        raise ApiError(
+            503,
+            "payments_unavailable",
+            "We couldn’t confirm the payment just now. It will be confirmed automatically in a few minutes.",
+        ) from None
+    problems = {
+        "status": p.get("status") not in PAYMENT_OK,
+        "amount": int(p.get("amount") or 0) != order.amount,
+        "currency": (p.get("currency") or "") != "INR",
+        "order": p.get("order_id") != razorpay_order_id,
+    }
+    if any(problems.values()):
+        what = ", ".join(k for k, bad in problems.items() if bad)
+        log.warning("Payment %s doesn't match order %s (%s)", payment_id, order.id, what)
+        data = {"payment_id": payment_id, "mismatch": what, "status": p.get("status"), "amount": p.get("amount")}
+        await audit(db, None, "payment.mismatch", target=order.id, data=data)
+        raise ApiError(
+            409,
+            "payment_mismatch",
+            "This payment doesn’t match the order. If money left your account, "
+            "it will be confirmed automatically or refunded.",
+        )
+    return p
+
+
 @router.post("/verify")
 async def verify_payment(body: VerifyIn, auth: CustomerAuth, db: DB, mailer: MailerDep) -> OrderOut:
     secret = _secret("razorpay_key_secret")
@@ -74,7 +110,11 @@ async def verify_payment(body: VerifyIn, auth: CustomerAuth, db: DB, mailer: Mai
             "We couldn’t confirm this payment. If money left your account, "
             "it will be confirmed automatically or refunded.",
         )
-    order, first = await mark_paid(db, payment.id, body.razorpay_payment_id)
+    first = False
+    if not (payment.status == "captured" and payment.razorpay_payment_id == body.razorpay_payment_id):
+        # (else the webhook got here first and already checked the payment)
+        p = await _check_with_razorpay(db, order, body.razorpay_order_id, body.razorpay_payment_id)
+        order, first = await mark_paid(db, payment.id, body.razorpay_payment_id, p.get("method"), raw=p)
     if first:
         await _send_receipt(db, mailer, order)
     return await order_view(db, await get_order(db, order.id))
@@ -160,7 +200,12 @@ async def razorpay_webhook(request: Request, db: DB, mailer: MailerDep) -> dict[
     body = await request.body()
     if not webhook_signature_ok(body, request.headers.get("x-razorpay-signature", ""), secret):
         raise ApiError(400, "invalid_signature", "Bad signature.")
-    event = json.loads(body)
+    try:
+        event = json.loads(body)
+    except ValueError:
+        event = None
+    if not isinstance(event, dict):
+        raise ApiError(400, "bad_payload", "The body isn’t a JSON object.")
     event_id = request.headers.get("x-razorpay-event-id") or "sha256:" + hashlib.sha256(body).hexdigest()
 
     try:

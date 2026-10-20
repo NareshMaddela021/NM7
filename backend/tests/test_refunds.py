@@ -167,6 +167,94 @@ async def test_partial_refund_keeps_the_order_going(customer, razorpay, admin_cl
     assert (await customer.get(f"/api/orders/{order['id']}")).json()["status"] == "offer"
 
 
+def processed_event(rzp_id, **entity):
+    entity = {"id": rzp_id, "status": "processed", **entity}
+    return {"event": "refund.processed", "payload": {"refund": {"entity": entity}}}
+
+
+async def test_partial_refund_processed_allows_a_second_refund(customer, razorpay, admin_client, db, make_client):
+    """A processed partial refund is closed (`open` False), so the rest of the order can be refunded later — but
+    never more than what's left of the total."""
+    _, order = await buy(customer)
+    await customer.post(f"/api/orders/{order['id']}/refund", json=QUALITY)
+    owner = await admin_client()
+    r = await owner.post("/api/admin/refunds/RF-2001/approve", json={"amount": 50000})
+    assert r.status_code == 200
+    assert (await db[REFUNDS].find_one({"_id": "RF-2001"}))["open"] is True  # approved: still in flight
+    await send_webhook(make_client(), processed_event(r.json()["razorpayRefundId"], amount=50000), "evt_p1")
+    first = await db[REFUNDS].find_one({"_id": "RF-2001"})
+    assert first["status"] == "processed" and first["open"] is False
+    assert (await db[PAYMENTS].find_one({}))["status"] == "captured"  # half the money is still with us
+    view = (await customer.get(f"/api/orders/{order['id']}")).json()
+    assert view["status"] == "offer" and view["refunds"][0]["status"] == "processed"
+
+    # the rest: a new request for what's left (never the full amount again)
+    r = await customer.post(f"/api/orders/{order['id']}/refund", json=QUALITY)
+    assert r.status_code == 200, r.text
+    assert [x["id"] for x in r.json()["refunds"]] == ["RF-2001", "RF-2002"]
+    assert r.json()["refunds"][1] | {"createdAt": None} == {
+        "id": "RF-2002", "amount": 49900, "reason": "quality", "status": "review", "auto": False,
+        "createdAt": None, "processedAt": None,
+    }  # fmt: skip
+    r = await owner.post("/api/admin/refunds/RF-2002/approve", json={"amount": 60000})
+    assert r.status_code == 400 and err(r) == "amount_too_high"
+    r = await owner.post("/api/admin/refunds/RF-2002/approve", json={})
+    assert r.status_code == 200 and r.json()["amount"] == 49900
+    assert razorpay.last_json(razorpay.refunds)["amount"] == 49900
+    assert (await customer.get(f"/api/orders/{order['id']}")).json()["status"] == "refunded"  # now in full
+    await send_webhook(make_client(), processed_event(r.json()["razorpayRefundId"]), "evt_p2")
+    assert (await db[PAYMENTS].find_one({}))["status"] == "refunded"
+    r = await customer.post(f"/api/orders/{order['id']}/refund", json=QUALITY)
+    assert r.status_code == 409
+
+
+async def test_full_refund_processed_blocks_a_second_refund(customer, razorpay, db, make_client):
+    _, order = await buy(customer)
+    await set_order(db, order["id"], deadline_at=now() - timedelta(minutes=1))
+    r = await customer.post(f"/api/orders/{order['id']}/refund", json={"reason": "late"})
+    assert r.status_code == 200 and r.json()["status"] == "refunded"
+    rid = (await db[REFUNDS].find_one({"_id": "RF-2001"}))["razorpay_refund_id"]
+    await send_webhook(make_client(), processed_event(rid), "evt_f1")
+    assert (await db[REFUNDS].find_one({"_id": "RF-2001"}))["open"] is False
+    r = await customer.post(f"/api/orders/{order['id']}/refund", json={"reason": "late"})
+    assert r.status_code == 409 and err(r) == "not_refundable"  # the order is refunded
+    # even if the order were somehow back in a refundable state, the money is gone: nothing more to refund
+    await set_order(db, order["id"], status="delivered")
+    r = await customer.post(f"/api/orders/{order['id']}/refund", json=QUALITY)
+    assert r.status_code == 409 and err(r) == "already_refunded"
+    assert await db[REFUNDS].count_documents({}) == 1
+
+
+async def test_refund_webhook_reconciles_by_receipt_when_id_was_never_saved(customer, razorpay, db, make_client):
+    """Razorpay accepted the refund but the process died before `record()` saved its id: the refund.processed
+    webhook finds the refund by the receipt / note we sent (our refund number) and completes it."""
+    _, order = await buy(customer)
+    await set_order(db, order["id"], deadline_at=now() - timedelta(minutes=1))
+    assert (await customer.post(f"/api/orders/{order['id']}/refund", json={"reason": "late"})).status_code == 200
+    sent = razorpay.last_json(razorpay.refunds)
+    assert sent["receipt"] == "RF-2001" and sent["notes"] == {"order_id": order["id"], "refund_id": "RF-2001"}
+    await db[REFUNDS].update_one({"_id": "RF-2001"}, {"$set": {"razorpay_refund_id": None}})
+
+    # a webhook for another refund number (or the wrong amount) changes nothing
+    await send_webhook(make_client(), processed_event("rfnd_X", receipt="RF-9999"), "evt_r0")
+    await send_webhook(make_client(), processed_event("rfnd_X", receipt="RF-2001", amount=1), "evt_r0b")
+    assert (await db[REFUNDS].find_one({"_id": "RF-2001"}))["status"] == "approved"
+    event = processed_event("rfnd_X", payment_id="pay_RS1001", amount=99900, notes={"refund_id": "RF-2001"})
+    await send_webhook(make_client(), event, "evt_r1")
+    doc = await db[REFUNDS].find_one({"_id": "RF-2001"})
+    assert doc["status"] == "processed" and doc["open"] is False and doc["razorpay_refund_id"] == "rfnd_X"
+    assert (await db[PAYMENTS].find_one({}))["status"] == "refunded"
+    # the failed case reconciles the same way
+    _, second = await buy(customer)
+    await set_order(db, second["id"], deadline_at=now() - timedelta(minutes=1))
+    await customer.post(f"/api/orders/{second['id']}/refund", json={"reason": "late"})
+    await db[REFUNDS].update_one({"_id": "RF-2002"}, {"$set": {"razorpay_refund_id": None}})
+    failed = {"event": "refund.failed", "payload": {"refund": {"entity": {"id": "rfnd_Y", "receipt": "RF-2002"}}}}
+    await send_webhook(make_client(), failed, "evt_r2")
+    doc = await db[REFUNDS].find_one({"_id": "RF-2002"})
+    assert doc["status"] == "failed" and doc["open"] is False and doc["razorpay_refund_id"] == "rfnd_Y"
+
+
 async def test_admin_rejects_and_customer_can_ask_again(customer, razorpay, admin_client, outbox):
     _, order = await buy(customer)
     await customer.post(f"/api/orders/{order['id']}/refund", json=QUALITY)
@@ -244,4 +332,4 @@ async def test_admin_payments_list(customer, razorpay, admin_client, make_client
     assert len(unmatched) == 1 and unmatched[0]["razorpayPaymentId"] == "pay_ORPHAN"
     assert unmatched[0]["orderId"] is None and unmatched[0]["error"] == "Paid, but no matching order"
     named = [p for p in page["items"] if p["orderId"] == "RS-1001"][0]
-    assert named["customerName"] == "Sai Varsha" and named["method"] is None
+    assert named["customerName"] == "Sai Varsha" and named["method"] == "upi"  # /verify asked Razorpay

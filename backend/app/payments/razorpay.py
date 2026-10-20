@@ -1,4 +1,4 @@
-"""Small async Razorpay client (orders, refunds) and signature checks."""
+"""Small async Razorpay client (orders, payments, refunds) and signature checks."""
 
 import hashlib
 import hmac
@@ -36,6 +36,10 @@ class Razorpay:
         return await self._call(
             "POST", "/orders", {"amount": amount, "currency": currency, "receipt": receipt, "notes": notes}
         )
+
+    async def fetch_payment(self, payment_id: str) -> dict[str, Any]:
+        """The payment as Razorpay sees it (status, amount, currency, order_id, method)."""
+        return await self._call("GET", f"/payments/{payment_id}")
 
     async def refund(self, payment_id: str, amount: int, receipt: str, notes: dict[str, str]) -> dict[str, Any]:
         body = {"amount": amount, "speed": "normal", "receipt": receipt, "notes": notes}

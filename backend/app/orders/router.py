@@ -19,7 +19,16 @@ from app.orders.service import build_order, get_order, order_view, order_views
 from app.payments.models import Payment
 from app.payments.razorpay import RazorpayError, get_razorpay
 from app.refunds import emails as refund_emails
-from app.refunds.service import REFUNDABLE, captured_payment, has_open_refund, is_late, new_refund, send_to_razorpay
+from app.refunds.service import (
+    ALREADY_REFUNDED,
+    REFUNDABLE,
+    captured_payment,
+    has_open_refund,
+    is_late,
+    new_refund,
+    refundable_amount,
+    send_to_razorpay,
+)
 
 router = APIRouter(prefix="/api/orders", tags=["orders"])
 
@@ -97,6 +106,9 @@ async def request_refund(
         raise ApiError(409, "not_refundable", "This order can’t be refunded now.")
     if await has_open_refund(db, order.id):
         raise ApiError(409, "refund_exists", "You’ve already asked for a refund on this order.")
+    remaining = await refundable_amount(db, order)  # a partly refunded order: the rest
+    if remaining <= 0:
+        raise ALREADY_REFUNDED
     details = body.details.strip()
     if body.reason in ("quality", "other") and len(details) < 10:
         raise ApiError(400, "details_required", "Tell us a little more (at least 10 characters).")
@@ -112,7 +124,7 @@ async def request_refund(
         db,
         order,
         payment,
-        amount=order.amount,
+        amount=remaining,
         reason=body.reason,
         details=details or None,
         status="approved" if auto else "review",

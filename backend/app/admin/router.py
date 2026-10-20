@@ -26,7 +26,7 @@ from app.payments.models import Payment
 from app.payments.razorpay import get_razorpay
 from app.refunds import emails as refund_emails
 from app.refunds.models import Refund
-from app.refunds.service import captured_payment, send_to_razorpay
+from app.refunds.service import captured_payment, refundable_amount, send_to_razorpay
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
@@ -316,9 +316,12 @@ async def approve_refund(
 ) -> AdminRefundOut:
     rzp = get_razorpay()
     before, order, user = await _refund_in_review(db, refund_id)
-    amount = body.amount or before.amount
-    if amount > order.amount:
-        raise ApiError(400, "amount_too_high", "The refund can’t be more than the order total.")
+    remaining = await refundable_amount(db, order)  # the order total less earlier refunds
+    amount = body.amount or min(before.amount, remaining)
+    if amount > remaining:
+        raise ApiError(400, "amount_too_high", "The refund can’t be more than what’s left of the order total.")
+    if amount <= 0:
+        raise ApiError(409, "already_refunded", "This order has already been refunded in full.")
     payment = await captured_payment(db, order)
     # Claim it atomically: if two admins approve at the same moment, only one sends money.
     claimed = await db[REFUNDS].find_one_and_update(

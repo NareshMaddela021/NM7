@@ -127,27 +127,45 @@ from app.payments.razorpay import BASE_URL  # noqa: E402
 
 
 class FakeRazorpay:
+    """Razorpay's API, mocked: orders are created, a payment fetched by /verify is captured for the order created
+    last (tests make the payment id up), refunds are accepted. `payment_overrides` changes what a fetch returns."""
+
     def __init__(self, router: respx.MockRouter):
         self.router = router
         self._ids = itertools.count(1)
+        self.last_order: dict | None = None
+        self.payment_overrides: dict = {}
         self.orders = router.post(f"{BASE_URL}/orders").mock(side_effect=self._create_order)
+        self.payments = router.get(url__regex=rf"{BASE_URL}/payments/(?P<pid>[^/]+)$").mock(side_effect=self._payment)
         self.refunds = router.post(url__regex=rf"{BASE_URL}/payments/(?P<pid>[^/]+)/refund").mock(
             side_effect=self._refund
         )
 
     def _create_order(self, request):
         body = json.loads(request.content)
-        return httpx.Response(
-            200,
-            json={
-                "id": f"order_T{next(self._ids):04d}",
-                "entity": "order",
-                "amount": body["amount"],
-                "currency": body["currency"],
-                "receipt": body["receipt"],
-                "status": "created",
-            },
-        )
+        self.last_order = {
+            "id": f"order_T{next(self._ids):04d}",
+            "entity": "order",
+            "amount": body["amount"],
+            "currency": body["currency"],
+            "receipt": body["receipt"],
+            "status": "created",
+        }
+        return httpx.Response(200, json=self.last_order)
+
+    def _payment(self, request, pid):
+        o = self.last_order or {}
+        payment = {
+            "id": pid,
+            "entity": "payment",
+            "amount": o.get("amount", 0),
+            "currency": o.get("currency", "INR"),
+            "status": "captured",
+            "order_id": o.get("id"),
+            "method": "upi",
+            **self.payment_overrides,
+        }
+        return httpx.Response(200, json=payment)
 
     def _refund(self, request, pid):
         body = json.loads(request.content)
