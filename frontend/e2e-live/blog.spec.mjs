@@ -4,6 +4,13 @@ import { expect, test } from '@playwright/test';
 import { CATEGORIES, POSTS } from '../src/lib/blog/fixtures/hygraph.js';
 import { answer } from './hygraph-mock.mjs';
 
+/** The home page, scrolled to the bottom: the blog cards load only when someone gets near them. */
+async function homeBottom(page) {
+  await page.goto('/');
+  await page.locator('#faq').scrollIntoViewIfNeeded();
+  await page.locator('footer').scrollIntoViewIfNeeded();
+}
+
 const HYGRAPH = 'https://ap-south-1.cdn.hygraph.com/**';
 async function blog(page, data = {}) {
   const calls = [];
@@ -115,14 +122,14 @@ test('no posts yet: "First articles coming soon" and no blog strip on the home p
   await page.goto('/blog');
   await expect(page.getByText('First articles coming soon.')).toBeVisible();
   await expect(cards(page)).toHaveCount(0);
-  await page.goto('/');
-  await expect(page.getByRole('heading', { level: 1, name: /Resumes for every job seeker/ })).toBeVisible();
-  await page.waitForTimeout(500);
+  await homeBottom(page);
+  await expect(page.getByRole('heading', { level: 1, name: /Resumes for every job seeker/ })).toBeAttached();
+  await page.waitForTimeout(800);
   await expect(page.getByRole('heading', { name: 'From the blog' })).toHaveCount(0);
 
   await page.unroute(HYGRAPH);
   await blog(page);
-  await page.goto('/');
+  await homeBottom(page);
   const strip = page.getByRole('region', { name: 'From the blog' });
   await expect(strip.locator('.blog-card')).toHaveCount(3);
   await expect(strip.locator('.blog-card-title').first()).toHaveText('Your first resume as a fresher');
@@ -158,6 +165,6 @@ test('live Hygraph answers posts: [] (stale CDN) but the build has posts → lis
   await expect(page.getByText('First articles coming soon.')).toHaveCount(0);
   await page.getByRole('navigation', { name: 'Categories' }).getByRole('link', { name: 'ATS' }).click();
   await expect(cards(page)).toHaveCount(2);
-  await page.goto('/');
+  await homeBottom(page);
   await expect(page.getByRole('region', { name: 'From the blog' }).locator('.blog-card')).toHaveCount(3);
 });

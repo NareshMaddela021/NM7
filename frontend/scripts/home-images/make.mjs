@@ -11,7 +11,7 @@ const PORT = 5199;
 const OUT = 'public/home';
 const PY = process.env.PYTHON || '../backend/.venv/bin/python';
 mkdirSync(OUT, { recursive: true });
-const dev = spawn('npx', ['vite', '--port', String(PORT), '--strictPort'], { stdio: 'ignore' });
+const dev = spawn('npx', ['vite', '--port', String(PORT), '--strictPort'], { stdio: 'ignore', detached: true });
 await new Promise((r) => setTimeout(r, 4000));
 const browser = await chromium.launch({ executablePath: process.env.PW_CHROMIUM || undefined });
 const page = await browser.newPage({ viewport: { width: 700, height: 1000 }, deviceScaleFactor: 2 });
@@ -47,5 +47,5 @@ for (const k of ['before', 'after']) sizes.push(await shot(`demo=${k}`, `expert-
 for (const k of Object.keys(TEMPLATE_PRESETS)) sizes.push(await shot(`tpl=${k}`, `tpl-${k}`, 200));
 writeFileSync(`${OUT}/README.txt`, 'Made by scripts/home-images/make.mjs from scripts/home-images/samples.mjs (invented people). Re-run it after a template changes.\n');
 await browser.close();
-dev.kill();
+process.kill(-dev.pid); // the dev server and its children
 for (const [f, kb] of sizes) console.log(kb.padStart(6), 'KB', f);

@@ -1,6 +1,8 @@
 // Home page languages (phase 1): English, Telugu, Hindi. Strings live in src/i18n/home.json; a missing string falls
 // back to English. The choice is remembered in this browser; the first visit follows the phone's language
-// (te-IN → Telugu, hi-IN → Hindi), else English. Noto Sans Telugu / Devanagari load only when that language is picked.
+// (te-IN → Telugu, hi-IN → Hindi), else English. Noto Sans Telugu / Devanagari load only when that language is picked,
+// with font-display: optional — the text never re-flows when the font arrives (it would shift the whole hero); until it
+// is cached, the phone's own Telugu / Devanagari font is used (Android ships Noto itself).
 import { useSyncExternalStore } from 'react';
 import STRINGS from '../i18n/home.json';
 
@@ -8,8 +10,8 @@ export const LANGS = [['en', 'English'], ['te', 'తెలుగు'], ['hi', '�
 export const STORE_KEY = 'nm7-lang';
 const CODES = LANGS.map(([c]) => c);
 const FONTS = {
-  te: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@400;600;700&display=swap',
-  hi: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap',
+  te: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@400;600;700&display=optional',
+  hi: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=optional',
 };
 
 /** The language to show: a saved choice wins; else the browser's (te / hi, with or without -IN); else English. */
