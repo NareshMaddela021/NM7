@@ -21,6 +21,7 @@ from app.core import ai_quota, claude
 from app.core.config import get_settings
 from app.core.db import DB
 from app.core.errors import ApiError
+from app.core.pii import scrub_id_numbers, tidy
 from app.core.schemas import CamelModel
 from app.photos.scrub import looks_like_id
 from app.summary import writer
@@ -34,6 +35,7 @@ MIN_CHARS = 40  # shorter than this is not a summary (the 150-character target i
 CONTACT = re.compile(
     r"(?<!\d)(?:\+?91[\s-]?)?[6-9]\d{4}[\s-]?\d{5}(?!\d)|[\w.+-]+@[\w-]+\.[\w.]+|\bwww\.|https?://", re.IGNORECASE
 )
+URL = re.compile(r"(?:https?://|www\.)\S+", re.IGNORECASE)
 NUMBER = re.compile(r"\d+(?:[.,]\d+)?")
 PERSONAL = re.compile(
     r"name|phone|mobile|email|address|dob|birth|aadhaar|aadhar|pan|passport|licen[cs]e|account|ifsc|id$", re.I
@@ -76,6 +78,12 @@ def allowed(text: str, facts: dict[str, Any], note: str) -> bool:
     return all(n in source for n in NUMBER.findall(text))
 
 
+def clean_note(note: str) -> str:
+    """The note as the model sees it: one line, without phone numbers, email addresses, links or ID numbers."""
+    note = scrub_id_numbers(" ".join(note.split()))[0]
+    return tidy(CONTACT.sub("", URL.sub("", note)))
+
+
 def trim(text: str) -> str:
     """Whole sentences within 400 characters."""
     if len(text) <= MAX_CHARS:
@@ -93,7 +101,7 @@ async def generate(body: GenerateIn, auth: CustomerAuth, db: DB) -> dict[str, An
     if not get_settings().anthropic_api_key:
         raise ApiError(503, "feature_off", "AI writing is being switched on - here are quick suggestions instead.")
     facts = clean_facts(body.facts)
-    note = " ".join(body.note.split())
+    note = clean_note(body.note)
     try:
         await ai_quota.take(db, "summary", str(auth.user.id), auth.session.kiosk_id)
     except ai_quota.CapReached as e:

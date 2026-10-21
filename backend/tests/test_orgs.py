@@ -7,6 +7,7 @@ from datetime import timedelta
 
 import pytest
 
+from app.core import rate_limit
 from app.core.config import get_settings
 from app.core.db import AUDIT_LOG, MEMBERSHIPS, ORG_GROUPS, RATE_EVENTS, RESUMES, USERS
 from app.core.time import IST, now
@@ -142,7 +143,8 @@ async def test_join_needs_sign_in_and_is_rate_limited(owner, client, make_client
     await setup_group(owner)
     assert (await join(client)).status_code == 401
     c, me = await member(make_client, outbox)
-    await db[RATE_EVENTS].insert_many([{"key": f"join:{me['id']}", "at": now()} for _ in range(10)])
+    key = rate_limit.stored(f"join:{me['id']}")
+    await db[RATE_EVENTS].insert_many([{"key": key, "at": now()} for _ in range(10)])
     assert (await join(c)).status_code == 429
 
 
@@ -403,8 +405,51 @@ async def test_combined_print_of_a_selection_and_downloads_dont_mark_printed(own
 
 async def test_exports_are_rate_limited(owner, db):
     me = await db[USERS].find_one({"role": "admin"})
-    await db[RATE_EVENTS].insert_many([{"key": f"org-export:{me['_id']}", "at": now()} for _ in range(30)])
+    key = rate_limit.stored(f"org-export:{me['_id']}")
+    await db[RATE_EVENTS].insert_many([{"key": key, "at": now()} for _ in range(30)])
     assert (await owner.post("/api/admin/shared-resumes/export.csv", json={})).status_code == 429
+
+
+async def test_id_numbers_never_reach_exports_or_recruiters(owner, make_client, outbox, db):
+    """The second lock: a resume that holds ID numbers in the database (saved before the save-time scrub, or
+    written some other way) is shown to organizations and recruiters without them."""
+    from tests.test_orgs_kiosk import features
+    from tests.test_orgs_recruiter import make_link, opted_in
+
+    org, g = await setup_group(owner)
+    await features(owner, org["id"], recruiter_links=True)
+    await owner.patch(f"/api/admin/groups/{g['id']}", json={"settings": {"shareWithRecruiters": True}})
+    c, m = await opted_in(make_client, outbox, "asha@example.com", "Asha Rao")
+    dirty = {
+        "data.summary": "Clerk. Aadhaar 2345 6789 0123, PAN ABCPE1234F, call 9876543210.",
+        "data.exp.0.role": "Intern (passport A1234567)",
+        "data.custom": [{"title": "IDs", "items": [{"value": "2345 6789 ABCPE1234F 0123"}, {"value": "fine"}]}],
+        "data.pinfo": {"father": "R Rao", "address": "A/c 123456789012, 1 Main Road"},
+    }
+    await db[RESUMES].update_one({"key": "r1"}, {"$set": dirty})
+    clean_summary = "Clerk. Aadhaar, PAN, call 9876543210."
+
+    def check(d):
+        assert d["summary"] == clean_summary and d["exp"][0]["role"] == "Intern (passport)"
+        assert d["custom"][0]["items"] == [{"value": ""}, {"value": "fine"}]
+        s = str(d)
+        assert not any(x in s for x in ("2345", "ABCPE", "A1234567", "123456789012"))
+
+    check((await owner.get(f"/api/admin/shared-resumes/{m['id']}")).json()["data"])
+    job = (await owner.post("/api/admin/shared-resumes/exports", json={"kind": "export_zip"})).json()
+    batch = (await owner.get(f"/api/admin/shared-resumes/exports/{job['job']}/data")).json()
+    check(batch[0]["data"])
+    assert batch[0]["data"]["pinfo"] == {"father": "R Rao", "address": "A/c, 1 Main Road"}
+    _, token = await make_link(owner, org["id"], includeContact=True)
+    rec = make_client()
+    cid = (await rec.get(f"/api/recruit/{token}")).json()["candidates"][0]["id"]
+    one = (await rec.get(f"/api/recruit/{token}/candidates/{cid}")).json()["data"]
+    check(one)
+    assert one["pinfo"] == {"father": "R Rao", "address": ""}  # recruiters: a labelled line goes whole
+    items = (await rec.post(f"/api/recruit/{token}/downloads", json={})).json()["items"]
+    check(items[0]["data"])
+    csv_text = (await owner.post("/api/admin/shared-resumes/export.csv", json={})).text
+    assert "2345" not in csv_text and "ABCPE" not in csv_text
 
 
 async def test_left_or_unconsented_members_are_never_shown(owner, make_client, outbox, db):

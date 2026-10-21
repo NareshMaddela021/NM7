@@ -140,6 +140,23 @@ async def test_generate_sends_no_personal_data_and_wraps_the_note(client, outbox
     assert "name" not in text.split("<note>")[0].lower().replace("name,", "")  # no name field at all
 
 
+async def test_note_pii_is_stripped_before_the_model(client, outbox, api):
+    await signup(client, outbox)
+    api.replies = {"claude-haiku-5-5": reply(GOOD)}
+    note = (
+        "I am Angelin, call 98765 43210 or +91-91234-56789, mail a@b.com, see https://angelin.dev/cv and "
+        "www.example.com/me. Aadhaar 2345 6789 0123, PAN ABCPE1234F, passport A1234567. Graduated in 2024 "
+        "with 87.5%."
+    )
+    r = await post(client, note=note)
+    assert r.status_code == 200, r.text
+    text = api.bodies()[0]["messages"][0]["content"][0]["text"]
+    sent = text.split("<note>\n")[1].split("\n</note>")[0]
+    assert sent == "I am Angelin, call or, mail, see and Aadhaar, PAN, passport. Graduated in 2024 with 87.5%."
+    for private in ("98765", "91234", "a@b.com", "angelin.dev", "example.com", "2345", "ABCPE", "A1234567"):
+        assert private not in text, private
+
+
 async def test_the_number_check_drops_an_option_with_an_invented_number(client, outbox, api):
     await signup(client, outbox)
     invented = {

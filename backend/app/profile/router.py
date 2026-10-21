@@ -1,5 +1,6 @@
 """/api/me/job-profile: the customer's own Job Profile (owner only, autosaved by the dashboard)."""
 
+import logging
 from typing import Any
 
 from fastapi import APIRouter
@@ -10,6 +11,7 @@ from pymongo.errors import DuplicateKeyError
 from app.auth.deps import CustomerAuth
 from app.core.db import DB, JOB_PROFILES
 from app.core.errors import ApiError
+from app.core.pii import scrub_id_numbers
 from app.core.schemas import CamelModel
 from app.core.time import now
 from app.me.schemas import _limit
@@ -17,6 +19,7 @@ from app.me.service import ms
 from app.profile.service import privacy_of
 
 router = APIRouter(prefix="/api/me/job-profile", tags=["job profile"])
+log = logging.getLogger("nm7.profile")
 MAX_PROFILE = 400_000  # bytes of JSON; a full profile is ~20 KB
 
 
@@ -67,10 +70,13 @@ async def put_profile(body: ProfileIn, auth: CustomerAuth, db: DB) -> ProfileOut
             409, "profile_changed", "Your Job Profile was changed in another window. Reloading the latest copy."
         )
     privacy = body.privacy.model_dump() if body.privacy else privacy_of(cur)
+    data, removed = scrub_id_numbers(body.data)  # never an Aadhaar / PAN / passport / account number
+    if removed:
+        log.warning("job profile save: removed %d ID-like number(s) from the text", removed)
     try:
         doc = await db[JOB_PROFILES].find_one_and_update(
             {"_id": uid, "version": version},
-            {"$set": {"data": body.data, "privacy": privacy, "version": version + 1, "updated_at": now()}},
+            {"$set": {"data": data, "privacy": privacy, "version": version + 1, "updated_at": now()}},
             upsert=cur is None,
             return_document=ReturnDocument.AFTER,
         )

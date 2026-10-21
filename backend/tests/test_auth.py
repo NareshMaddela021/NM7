@@ -1,3 +1,4 @@
+import re
 from datetime import timedelta
 
 from app.auth.models import User
@@ -100,20 +101,46 @@ async def test_signup_rejects_bad_input(client):
     assert r.status_code == 422
 
 
-async def test_signup_with_verified_email_is_refused(client, outbox, make_client):
+async def test_signup_with_an_existing_email_looks_the_same_and_sends_a_reminder(client, outbox, make_client, db):
+    """Nobody can use sign-up to find out who has an account: the answer is the fresh sign-up's "code sent", while
+    the account's owner gets a sign-in reminder (no code), and nothing about the account changes."""
     await signup(client, outbox)
+    await clear_limits(db)
+    before = await db[USERS].find_one({"email_lc": "sai@example.com"})
+    codes = await db[EMAIL_CODES].count_documents({"user_id": before["_id"]})
+    r = await make_client().post(
+        "/api/auth/signup",
+        json={
+            "role": "expert",
+            "name": "X",
+            "email": "SAI@example.com",
+            "password": NEW_PW,
+            "passwordConfirm": NEW_PW,
+            "termsAccepted": True,
+        },
+    )
+    assert r.status_code == 201 and r.json() == {"email": "sai@example.com", "codeSent": True}
+    assert len(outbox.sent) == 2 and outbox.sent[-1].to == "sai@example.com"
+    reminder = outbox.sent[-1]
+    assert reminder.subject == "You already have an Nm7 account" and "/login" in reminder.text
+    assert "Hi Sai Varsha" in reminder.text and not re.search(r"\b\d{6}\b", reminder.text)  # no code
+    assert await db[EMAIL_CODES].count_documents({"user_id": before["_id"]}) == codes  # none made
+    assert await db[USERS].find_one({"email_lc": "sai@example.com"}) == before  # name, role, password unchanged
+    r = await client.post("/api/auth/login", json={"email": "sai@example.com", "password": PASSWORD})
+    assert r.status_code == 200
+    # the same per-email limit as a fresh sign-up (one a minute), so the reminders can't be used to spam anyone
     r = await make_client().post(
         "/api/auth/signup",
         json={
             "role": "customer",
             "name": "X",
-            "email": "SAI@example.com",
+            "email": "sai@example.com",
             "password": PASSWORD,
             "passwordConfirm": PASSWORD,
             "termsAccepted": True,
         },
     )
-    assert r.status_code == 409 and err(r) == "email_taken"
+    assert r.status_code == 429 and len(outbox.sent) == 2
 
 
 async def test_unverified_signup_can_be_redone(client, outbox, db):

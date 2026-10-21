@@ -143,7 +143,8 @@ export async function signIn(email, password) {
   if (!u.verified) throw fail('Please confirm your email first — we’ve sent you a code.', 'email_not_verified');
   return start(u);
 }
-/** Creates the account and emails a 6-digit code. Returns { email }. */
+/** Creates the account and emails a 6-digit code. Returns { email, codeSent }. An email that already has an account gets
+ *  the same answer (its owner is emailed a sign-in reminder instead of a code), so sign-up never reveals who has an account. */
 export async function signUp({ role, name, email, phone, password, confirm, agree }) {
   if (LIVE) {
     let ref = null;
@@ -153,7 +154,7 @@ export async function signUp({ role, name, email, phone, password, confirm, agre
   await wait(500);
   if (password !== confirm) throw fail('The two passwords don’t match.', 'password_mismatch');
   const existing = byEmail(email);
-  if (existing?.verified) throw fail('An account with this email already exists — sign in instead.', 'email_taken');
+  if (existing?.verified) return { email: existing.email, codeSent: true }; // a reminder email, no code
   if (phone && byPhone(phone) && byPhone(phone) !== existing) throw fail('This mobile number is already used by another account.', 'phone_taken');
   const u = { id: existing?.id || `u-${Date.now().toString(36)}`, role, name: name.trim(), email: email.trim(), phone: normPhone(phone), password, verified: false, createdAt: Date.now(), ...(role === 'expert' ? { expertStatus: 'draft' } : {}) };
   users = [...getUsers().filter((x) => x !== existing), u]; emit();

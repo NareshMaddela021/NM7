@@ -5,6 +5,7 @@ from datetime import timedelta
 
 import pytest
 
+from app.core import rate_limit
 from app.core.db import AUDIT_LOG, EMAIL_CODES, KIOSKS, MEMBERSHIPS, SESSIONS, USERS
 from app.core.security import keyed_hash
 from app.core.time import IST, now
@@ -204,13 +205,13 @@ async def test_code_expiry_tries_and_reuse(setup, owner, db, make_client, outbox
         assert err(await c.post(f"/api/kiosk/{token}/verify", json=wrong)) == "invalid_code"
     assert err(await c.post(f"/api/kiosk/{token}/verify", json=good)) == "invalid_code"  # 5 tries used up
 
-    await db["rate_events"].delete_many({"key": "code:asha@example.com"})
+    await db["rate_events"].delete_many({"key": rate_limit.stored("code:asha@example.com")})
     await c.post(f"/api/kiosk/{token}/code", json={"email": "asha@example.com"})
     good["code"] = outbox.last_code("asha@example.com")
     await db[EMAIL_CODES].update_many({"purpose": "kiosk", "used_at": None}, {"$set": {"expires_at": now()}})
     assert err(await c.post(f"/api/kiosk/{token}/verify", json=good)) == "invalid_code"  # expired
 
-    await db["rate_events"].delete_many({"key": "code:asha@example.com"})
+    await db["rate_events"].delete_many({"key": rate_limit.stored("code:asha@example.com")})
     await c.post(f"/api/kiosk/{token}/code", json={"email": "asha@example.com"})
     good["code"] = outbox.last_code("asha@example.com")
     r = await c.post(f"/api/kiosk/{token}/verify", json=good)
@@ -248,7 +249,8 @@ async def test_code_rate_limits_per_kiosk(setup, owner, db, make_client, outbox)
     org, g = setup
     k, token = await make_kiosk(owner, org["id"], g["id"])
     t = now()
-    await db["rate_events"].insert_many([{"key": f"kiosk-code:{k['id']}", "at": t} for _ in range(120)])
+    key = rate_limit.stored(f"kiosk-code:{k['id']}")
+    await db["rate_events"].insert_many([{"key": key, "at": t} for _ in range(120)])
     r = await make_client().post(f"/api/kiosk/{token}/code", json={"email": "a1@example.com"})
     assert r.status_code == 429
 
