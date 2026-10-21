@@ -8,6 +8,7 @@ const DEFAULT_DESC = 'Free ATS resume scan in seconds. Fix it in our builder wit
 export const ROUTE_META = [
   [/^\/$/, 'Free ATS Resume Scan, Builder & Expert Rewrite', DEFAULT_DESC],
   [/^\/scan/, 'Your ATS scan report', 'See how applicant tracking systems read your resume and what to fix first.'],
+  [/^\/for-orgs/, 'Nm7 for Organizations — plans for colleges, institutes and job fairs', 'Collect consent-based, ATS-safe resumes from your students or candidates, approve, print and share them with recruiters. Free plan, Drive and Campus plans.'],
   [/^\/builder/, 'Resume builder', 'Build an ATS-safe resume with live preview, then download PDF or Word.'],
   [/^\/editor/, 'Resume editor', 'Edit your scanned resume in the builder.'],
   [/^\/checkout/, 'Checkout', 'Pay securely for your resume service.'],
@@ -28,6 +29,8 @@ export const ROUTE_META = [
   [/^\/admin\/team/, 'Team & audit log · Admin', 'Nm7 admin console.'],
   [/^\/admin\/orgs/, 'Organizations · Admin', 'Nm7 admin console.'],
   [/^\/admin\/shared-resumes/, 'Shared resumes · Admin', 'Nm7 admin console.'],
+  [/^\/admin\/plans/, 'Organization plans · Admin', 'Nm7 admin console.'],
+  [/^\/admin\/billing-settings/, 'Billing settings · Admin', 'Nm7 admin console.'],
   [/^\/admin\/?$/, 'Dashboard · Admin', 'Nm7 admin console.'],
   [/^\/admin/, 'Admin console', 'Nm7 admin console.'],
   [/^\/me\/orders/, 'My orders', 'Your orders, their status and invoices.'],

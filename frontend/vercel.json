@@ -31,6 +31,10 @@
       "destination": "/contact/index.html"
     },
     {
+      "source": "/for-orgs",
+      "destination": "/for-orgs/index.html"
+    },
+    {
       "source": "/terms",
       "destination": "/terms/index.html"
     },

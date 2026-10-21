@@ -13,6 +13,7 @@ from pymongo.errors import DuplicateKeyError
 from app.audit import audit
 from app.auth.deps import CustomerAuth
 from app.auth.models import User
+from app.billing.checkout import send_org_receipt
 from app.core.config import get_settings
 from app.core.db import DB, PAYMENTS, USERS, WEBHOOK_EVENTS
 from app.core.email import Mailer, MailerDep, send_safely
@@ -54,6 +55,9 @@ async def _payment_for_razorpay_order(db: AsyncDatabase, razorpay_order_id: str)
 
 
 async def _send_receipt(db: AsyncDatabase, mailer: Mailer, order: Order) -> None:
+    if order.kind == "org":
+        await send_org_receipt(db, mailer, order)
+        return
     user = User.load(await db[USERS].find_one({"_id": order.customer_id}))
     if user:
         await send_safely(mailer, emails.payment_receipt(user.email, user.name, order))
@@ -97,11 +101,15 @@ async def _check_with_razorpay(db: AsyncDatabase, order: Order, razorpay_order_i
 
 @router.post("/verify")
 async def verify_payment(body: VerifyIn, auth: CustomerAuth, db: DB, mailer: MailerDep) -> OrderOut:
-    secret = _secret("razorpay_key_secret")
     found = await _payment_for_razorpay_order(db, body.razorpay_order_id)
     if found is None or found[1].customer_id != auth.user.id:
         raise ApiError(404, "not_found", "We couldn’t find that payment.")
     payment, order = found
+    if order.kind == "org":
+        # An organization's plan turns on only from Razorpay's verified webhook (never from the browser): the
+        # checkout page just waits for it (GET /api/org/{org_id}/billing shows the order once it is paid).
+        return await order_view(db, order)
+    secret = _secret("razorpay_key_secret")
     if not payment_signature_ok(body.razorpay_order_id, body.razorpay_payment_id, body.razorpay_signature, secret):
         log.warning("Bad payment signature for %s (order %s)", body.razorpay_payment_id, order.id)
         raise ApiError(

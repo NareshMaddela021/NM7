@@ -5,6 +5,8 @@ MONGODB_DB=nm7_e2e uv run python -m tests.e2e_seed reset
 ... customer EMAIL NAME PASSWORD       → {"id": "..."}
 ... expert EMAIL NAME PASSWORD STATUS  → {"id": "..."}
 ... paid-order EMAIL PLAN              → {"id": "RS-…"} (as if Razorpay had confirmed the payment)
+... org-order ORG_ID PLAN EMAIL        → the checkout answer (an org order waiting for Razorpay's webhook), made
+                                          without calling Razorpay (the browser tests run without Razorpay keys)
 """
 
 import asyncio
@@ -15,7 +17,8 @@ from datetime import timedelta
 
 from app.auth.admin_service import create_admin
 from app.auth.models import User
-from app.core.db import ORDERS, PAYMENTS, USERS, close_client, ensure_indexes, get_client, get_database
+from app.billing.checkout import new_org_order, quote, quote_out
+from app.core.db import ORDERS, ORGANIZATIONS, PAYMENTS, USERS, close_client, ensure_indexes, get_client, get_database
 from app.core.security import hash_password
 from app.core.time import now
 from app.orders.service import build_order, next_invoice_no
@@ -72,6 +75,27 @@ async def main(cmd: str, *args: str) -> dict:
         )
         await db[PAYMENTS].insert_one(pay.to_mongo())
         return {"id": order.id}
+    if cmd == "org-order":
+        org_id, plan, email = args
+        user = User.load(await db[USERS].find_one({"email_lc": email.lower()}))
+        o = await db[ORGANIZATIONS].find_one({"_id": org_id})
+        q = await quote(db, o, plan)
+        order = await new_org_order(db, o, user.id, q)
+        await db[ORDERS].insert_one(order.to_mongo())
+        rzp_order = f"order_E2E{order.id.replace('-', '')}"
+        pay = Payment(order_id=order.id, razorpay_order_id=rzp_order, amount=order.amount, status="created")
+        await db[PAYMENTS].insert_one(pay.to_mongo())
+        return {
+            "orderId": order.id,
+            "razorpayOrderId": rzp_order,
+            "amount": order.amount,
+            "currency": "INR",
+            "keyId": "rzp_test_e2e",
+            "name": "Nm7",
+            "description": f"{q['terms']['plan_name']} plan",
+            "prefill": {"name": user.name, "email": user.email},
+            "quote": quote_out(q),
+        }
     sys.exit(f"unknown command {cmd}")
 
 

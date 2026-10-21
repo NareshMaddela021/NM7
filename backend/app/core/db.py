@@ -63,6 +63,8 @@ EXPORT_JOBS = "export_jobs"  # admin bulk print / ZIP jobs: which memberships, s
 KIOSKS = "kiosks"  # kiosk links for events (Phase 3A): token and exit PIN stored hashed
 RECRUITER_LINKS = "recruiter_links"  # Phase 3C: resumes shared with a recruiter (token / access code hashed)
 AI_USAGE = "ai_usage"  # daily AI call counters (core/ai_quota.py): per person, per kiosk link, site-wide, outcomes
+# Phase 4: organization plans (admin-editable, versioned; _id = plan id)
+ORG_PLANS = "org_plans"
 COLLECTIONS = (
     USERS,
     EMAIL_CODES,
@@ -97,6 +99,7 @@ COLLECTIONS = (
     KIOSKS,
     RECRUITER_LINKS,
     AI_USAGE,
+    ORG_PLANS,
 )
 
 DAY = 86_400
@@ -148,7 +151,11 @@ INDEXES: dict[str, list[IndexModel]] = {
     ],
     RECOVERY_CODES: [IndexModel([("user_id", ASCENDING), ("code_hash", ASCENDING)])],
     RATE_EVENTS: [IndexModel([("key", ASCENDING), ("at", ASCENDING)]), IndexModel("at", expireAfterSeconds=DAY)],
-    ORGANIZATIONS: [IndexModel("name"), IndexModel([("created_at", DESCENDING)])],
+    ORGANIZATIONS: [
+        IndexModel("name"),
+        IndexModel([("created_at", DESCENDING)]),
+        IndexModel("subscription.ends_on"),  # renewals due, end-of-plan reminders
+    ],
     ORG_GROUPS: [IndexModel("code", unique=True), IndexModel("org_id")],
     MEMBERSHIPS: [
         IndexModel([("user_id", ASCENDING), ("group_id", ASCENDING)], unique=True),
@@ -180,6 +187,7 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel("status"),
         IndexModel("deadline_at"),
         IndexModel("paid_at"),  # invoices, reports and expert work lists sort / range on it
+        IndexModel([("org_id", ASCENDING), ("created_at", DESCENDING)], partialFilterExpression=_str("org_id")),
     ],
     WEBHOOK_EVENTS: [IndexModel("received_at", expireAfterSeconds=WEBHOOK_KEEP)],
     PAYMENTS: [

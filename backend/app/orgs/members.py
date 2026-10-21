@@ -11,6 +11,7 @@ from app.audit import audit
 from app.auth.deps import CustomerAuth
 from app.auth.models import new_id
 from app.auth.sessions import client_ip
+from app.billing.subscription import check_limit
 from app.core import rate_limit
 from app.core.db import DB, MEMBERSHIPS, ORG_GROUPS, ORGANIZATIONS, RESUMES
 from app.core.errors import ApiError
@@ -132,6 +133,8 @@ async def _join(body: JoinIn, request: Request, auth: CustomerAuth, db: DB, via:
         raise ApiError(
             400, "consent_required", "Please tick the box to agree to share your resume with this organization."
         )
+    if not already:  # a new member (or someone coming back) counts against the organization's plan
+        await check_limit(db, o, "members", member_side=True)
     if not await db[RESUMES].find_one({"user_id": uid, "key": body.resume_id}):
         raise ApiError(404, "resume_not_found", "Please choose one of your resumes to share.")
     values = clean_field_values(g.get("custom_fields", []), body.fields)

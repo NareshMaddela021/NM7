@@ -16,6 +16,8 @@ from app.admin.router import router as admin_router
 from app.admin.setup import router as admin_setup_router
 from app.auth.admin_router import router as admin_auth_router
 from app.auth.router import router as auth_router
+from app.billing import migrate as billing_migrate
+from app.billing import router as billing
 from app.core import errors
 from app.core.body_limit import BodyLimit
 from app.core.config import get_settings
@@ -47,6 +49,7 @@ logging.getLogger("nm7").setLevel(logging.INFO)
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     await ensure_indexes(get_database())  # collections + indexes; safe to run on every start
+    await billing_migrate.run(get_database())  # Phase 4: existing organizations keep working (runs once)
     log_email_status()
     task = asyncio.create_task(automation.loop(get_database)) if get_settings().app_env != "test" else None
     yield
@@ -127,6 +130,10 @@ def create_app() -> FastAPI:
     app.include_router(org_kiosk.kiosk)
     app.include_router(org_kiosk.cont)
     app.include_router(admin_console_router)
+    app.include_router(billing.public)
+    app.include_router(billing.me)
+    app.include_router(billing.portal)
+    app.include_router(billing.admin)
     app.include_router(orders_router)
     app.include_router(payments_router)
     app.include_router(profile_router)  # before me_router: /api/me/job-profile

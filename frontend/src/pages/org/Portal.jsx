@@ -15,8 +15,11 @@ import { AuditList, GroupCard, GroupDashboard, NewGroup, SharedResumes } from '.
 import Kiosks from './Kiosks';
 import Branding from './Branding';
 import RecruiterLinks from './RecruiterLinks';
+import Billing from './Billing';
+import Team from './Team';
+import { planBanners } from '../../lib/orgBilling';
 
-const ROLE = { coordinator: 'Coordinator', viewer: 'Viewer (view and print)', admin: 'Nm7 admin' };
+const ROLE = { owner: 'Owner', coordinator: 'Coordinator', viewer: 'Viewer (view and print)', admin: 'Nm7 admin' };
 
 function Frame({ children, wide }) {
   return (<><Header variant="me" /><main id="main" className={`${wide ? 'container-wide' : 'container'} stack g20`} style={{ padding: '24px 16px 72px', maxWidth: wide ? undefined : 720 }}>{children}</main></>);
@@ -33,7 +36,7 @@ export function OrgHome() {
         <>
           <h1 className="display h2">My organization</h1>
           {orgs.length === 0
-            ? <div className="card stack g8"><strong>You don’t run an organization on Nm7 yet.</strong><span className="small muted">Ask Nm7 (info@nm7.si) for an invite. It comes by email with a one-time link.</span></div>
+            ? <div className="card stack g8"><strong>You don’t run an organization on Nm7 yet.</strong><span className="small muted">Start one for free (you become its Owner), or ask your organization’s Owner for an invite — it comes by email with a one-time link.</span><Link to="/for-orgs?start=1#start" className="btn btn-ink" style={{ alignSelf: 'flex-start' }}>Start an organization</Link></div>
             : orgs.map((o) => <Link key={o.orgId} to={`/org/${o.orgId}`} className="card row between g8" style={{ textDecoration: 'none', color: 'inherit' }}><strong>{o.orgName}</strong><span className="small muted">{ROLE[o.role]}</span></Link>)}
         </>
       ))}</Loading>
@@ -56,7 +59,8 @@ export function PortalLayout() {
     dashboardUrl: (g) => `/org/${orgId}/groups/${g.id}`,
     groupPatchUrl: (g) => `${apiBase(orgId)}/groups/${g.id}`,
   } : null), [st.data, orgId]);
-  const tabs = [['', 'My groups'], ['/resumes', 'Shared resumes'], ...(st.data?.features?.kiosk ? [['/kiosks', 'Kiosks']] : []), ...(st.data?.features?.branding ? [['/branding', 'Branding']] : []), ...(st.data?.features?.recruiterLinks ? [['/recruiters', 'Recruiter links']] : []), ['/activity', 'Activity']];
+  const owner = !!st.data?.isOwner;
+  const tabs = [['', 'My groups'], ['/resumes', 'Shared resumes'], ...(st.data?.features?.kiosk ? [['/kiosks', 'Kiosks']] : []), ...(st.data?.features?.branding ? [['/branding', 'Branding']] : []), ...(st.data?.features?.recruiterLinks ? [['/recruiters', 'Recruiter links']] : []), ...(owner ? [['/team', 'Team'], ['/billing', 'Billing']] : []), ['/activity', 'Activity']];
   return (
     <Frame wide>
       {st.error ? (
@@ -64,9 +68,10 @@ export function PortalLayout() {
       ) : !st.data ? <div className="row g12 muted" role="status"><Spinner /> Loading…</div> : (
         <>
           <div className="stack g4">
-            <span className="xs muted">{st.data.typeName}{st.data.city ? ` · ${st.data.city}` : ''} · {ROLE[st.data.role]}{st.data.allGroups ? '' : ' · some groups'}</span>
+            <span className="xs muted">{st.data.typeName}{st.data.city ? ` · ${st.data.city}` : ''} · {ROLE[st.data.role]}{st.data.allGroups ? '' : ' · some groups'} · {st.data.billing?.planName || 'Free'} plan</span>
             <h1 className="display" style={{ fontSize: 28 }}>{st.data.name}</h1>
           </div>
+          <PlanBanners home={st.data} orgId={orgId} />
           <nav aria-label="Organization" className="row g8" style={{ flexWrap: 'wrap' }}>
             {tabs.map(([to, l]) => <NavLink key={l} to={`/org/${orgId}${to}`} end={to === ''} className={({ isActive }) => `btn ${isActive || (to === '' && pathname.includes('/groups/')) ? 'btn-ink' : 'btn-outline'}`} style={{ minHeight: 36 }}>{l}</NavLink>)}
           </nav>
@@ -75,6 +80,39 @@ export function PortalLayout() {
       )}
     </Frame>
   );
+}
+
+/** Plan banners (80% of a limit used, plan ending within 7 days, grace, back on Free). Everyone sees them; the
+ * Owner gets a link to Billing, the others are told to ask the Owner. */
+function PlanBanners({ home, orgId }) {
+  const items = planBanners(home.billing, home.isOwner);
+  if (!items.length) return null;
+  return (
+    <div className="stack g8" role="status">
+      {items.map((b) => (
+        <div key={b.text} className="well small row between g8" style={{ flexWrap: 'wrap', borderLeft: `4px solid var(--${b.tone === 'danger' ? 'danger' : 'warning'})` }}>
+          <span>{b.text}</span>
+          {home.isOwner && home.role !== 'admin' && <Link to={`/org/${orgId}/billing`} className="btn btn-outline" style={{ minHeight: 32 }}>Billing</Link>}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** /org/:orgId/billing — the Owner's plan, payments and billing details */
+export function PortalBilling() {
+  const { ctx, home } = useOutletContext();
+  usePageMeta(portalMeta(`Billing · ${home.name}`));
+  if (!home.isOwner) return <Navigate to={`/org/${ctx.orgId}`} replace />;
+  return <Billing orgId={ctx.orgId} />;
+}
+
+/** /org/:orgId/team — the Owner invites coordinators and viewers */
+export function PortalTeam() {
+  const { ctx, home } = useOutletContext();
+  usePageMeta(portalMeta(`Team · ${home.name}`));
+  if (!home.isOwner) return <Navigate to={`/org/${ctx.orgId}`} replace />;
+  return <Team orgId={ctx.orgId} groups={home.groupList} />;
 }
 
 /** /org/:orgId — groups: join link, Copy, QR PNG, open / close joining, dashboard; coordinators add and edit. */

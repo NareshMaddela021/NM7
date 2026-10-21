@@ -7,6 +7,7 @@ from fastapi import Request
 from pydantic import Field, field_validator
 
 from app.auth.sessions import client_ip
+from app.billing.subscription import in_effect, state_of
 from app.core.errors import ApiError
 from app.core.schemas import CamelModel
 from app.me.service import ms
@@ -185,10 +186,14 @@ class StopIn(CamelModel):
     token: str = Field(max_length=200)
 
 
-class FeaturesIn(CamelModel):  # Phase 3 switches; Nm7 (the super-admin) only. Phase 4 makes them plan features.
+class FeaturesIn(CamelModel):
+    """Nm7 (the super-admin) only: overrides on top of the plan. true / false forces a feature on or off for this
+    organization; null goes back to what the plan gives. Fields not sent stay as they are."""
+
     kiosk: bool | None = None
     branding: bool | None = None
     recruiter_links: bool | None = None
+    members_download_free: bool | None = None
 
 
 # ---------- helpers ----------
@@ -205,12 +210,42 @@ def org_out(o: dict[str, Any], groups: int = 0, members: int = 0) -> dict[str, A
         "groups": groups,
         "members": members,
         "features": _features_out(o),
+        "featureOverrides": overrides_out(o),
+        "plan": plan_brief(o),
     }
 
 
 def _features_out(o: dict[str, Any]) -> dict[str, bool]:
     f = features_of(o)
-    return {"kiosk": f["kiosk"], "branding": f["branding"], "recruiterLinks": f["recruiter_links"]}
+    return {
+        "kiosk": f["kiosk"],
+        "branding": f["branding"],
+        "recruiterLinks": f["recruiter_links"],
+        "membersDownloadFree": f["members_download_free"],
+    }
+
+
+def plan_brief(o: dict[str, Any]) -> dict[str, Any]:
+    sub = o.get("subscription") or {}
+    st = state_of(o)
+    return {
+        "id": in_effect(o).get("plan_id", "free"),
+        "name": in_effect(o).get("plan_name", "Free"),
+        "state": st,
+        "endsOn": sub.get("ends_on") if st != "free" else None,
+        "lastPlan": sub.get("plan_name") if st == "expired" else None,
+    }
+
+
+def overrides_out(o: dict[str, Any]) -> dict[str, bool | None]:
+    """The admin's per-organization switches: true / false, or None (follows the plan)."""
+    f = o.get("features") or {}
+    return {
+        "kiosk": f.get("kiosk"),
+        "branding": f.get("branding"),
+        "recruiterLinks": f.get("recruiter_links"),
+        "membersDownloadFree": f.get("members_download_free"),
+    }
 
 
 def group_out(g: dict[str, Any], members: int = 0) -> dict[str, Any]:

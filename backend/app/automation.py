@@ -8,6 +8,7 @@ from datetime import timedelta
 from pymongo.asynchronous.database import AsyncDatabase
 from pymongo.errors import DuplicateKeyError
 
+from app.billing.subscription import run_reminders
 from app.core.config import get_settings
 from app.core.db import LOCKS, ORDER_WORK, ORDERS
 from app.core.email import Email, Mailer, get_mailer, send_safely
@@ -87,7 +88,12 @@ async def _deadline_alert(db: AsyncDatabase, hours: int, mailer: Mailer) -> int:
     return n
 
 
-RUNNERS = {"expire_unpaid": _expire_unpaid, "offer_timeout": _offer_timeout, "deadline_alert": _deadline_alert}
+RUNNERS = {
+    "expire_unpaid": _expire_unpaid,
+    "offer_timeout": _offer_timeout,
+    "deadline_alert": _deadline_alert,
+    "org_plan_reminders": run_reminders,
+}
 
 
 async def run_rules(db: AsyncDatabase, mailer: Mailer | None = None) -> dict[str, int]:

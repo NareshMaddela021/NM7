@@ -22,6 +22,7 @@ import { auditText } from './auditText';
 import Kiosks from '../../org/Kiosks';
 import Branding from '../../org/Branding';
 import RecruiterLinks from '../../org/RecruiterLinks';
+import { OrgBilling } from './BillingPages';
 
 export const ORG_TYPES = [
   ['college', 'College'], ['institute', 'Coaching / training institute'], ['job_fair', 'Job fair'], ['skill_centre', 'Skill centre'],
@@ -90,6 +91,7 @@ const emptyGroup = { name: '', code: '', startsOn: '', endsOn: '', memberLimit: 
 function GroupForm({ initial = emptyGroup, onSave, onCancel, busy, label, ctx }) {
   const [g, setG] = useState(() => ({ ...emptyGroup, ...initial, settings: { ...emptyGroup.settings, ...initial.settings }, startsOn: initial.startsOn || '', endsOn: initial.endsOn || '', memberLimit: initial.memberLimit ?? '', customFields: (initial.customFields || []).map((f) => ({ ...f, fixedKey: true })) }));
   const nm7 = ctx.role === 'admin';
+  const canFree = nm7 || !!ctx.features?.membersDownloadFree; // Nm7, or a plan that includes free downloads
   const body = () => {
     const { membersDownloadFree, printBranded, shareWithRecruiters, ...rest } = g.settings;
     // settings that need a feature are only sent when it's on
@@ -97,7 +99,7 @@ function GroupForm({ initial = emptyGroup, onSave, onCancel, busy, label, ctx })
     return {
       name: g.name.trim(), ...(g.code.trim() ? { code: g.code.trim() } : {}), startsOn: g.startsOn || null, endsOn: g.endsOn || null,
       memberLimit: g.memberLimit ? Number(g.memberLimit) : null, customFields: fieldsBody(g.customFields),
-      settings: nm7 ? { ...own, membersDownloadFree } : own, // free downloads are Nm7's decision
+      settings: canFree ? { ...own, membersDownloadFree } : own, // Nm7's decision, or the plan's
     };
   };
   const set = (k) => (e) => setG({ ...g, settings: { ...g.settings, [k]: e.target.checked } });
@@ -118,7 +120,7 @@ function GroupForm({ initial = emptyGroup, onSave, onCancel, busy, label, ctx })
         <label className="row g8 small"><input type="checkbox" checked={g.settings.requireApproval} onChange={set('requireApproval')} /> Approve members before they’re shared</label>
         {ctx.features?.branding && <label className="row g8 small"><input type="checkbox" checked={g.settings.printBranded} onChange={set('printBranded')} /> Print with organization template</label>}
         {ctx.features?.recruiterLinks && <label className="row g8 small"><input type="checkbox" checked={g.settings.shareWithRecruiters} onChange={set('shareWithRecruiters')} /> Share with recruiters (members choose to allow it)</label>}
-        {nm7 && <label className="row g8 small"><input type="checkbox" checked={g.settings.membersDownloadFree} onChange={set('membersDownloadFree')} /> Members download free (no ₹99 unlock)</label>}
+        {canFree && <label className="row g8 small"><input type="checkbox" checked={g.settings.membersDownloadFree} onChange={set('membersDownloadFree')} /> Members download free (no ₹99 unlock)</label>}
       </div>
       <div className="row g8">
         <button type="submit" className="btn btn-ink" disabled={busy || g.name.trim().length < 2}>Save group</button>
@@ -213,7 +215,7 @@ function GroupPicker({ groups, value, onChange, idp }) {
   );
 }
 
-const ROLE_TEXT = { coordinator: 'Coordinator — groups, approvals, reminders, exports', viewer: 'Viewer — view and print only' };
+const ROLE_TEXT = { coordinator: 'Coordinator — groups, approvals, reminders, exports', viewer: 'Viewer — view and print only', owner: 'Owner — also buys the plan and invites coordinators' };
 function Coordinators({ orgId, groups }) {
   const toast = useToast();
   const st = useApi(`/api/admin/orgs/${orgId}/staff`);
@@ -233,8 +235,8 @@ function Coordinators({ orgId, groups }) {
             <tr key={s.id}>
               <td className="small">{s.name || s.email}{s.name && <div className="xs faint">{s.email}</div>}</td>
               <td className="small">{editing?.id === s.id
-                ? <select aria-label={`Role for ${s.email}`} className="input" style={{ height: 34 }} value={editing.role} onChange={(e) => setEditing({ ...editing, role: e.target.value })}><option value="coordinator">Coordinator</option><option value="viewer">Viewer</option></select>
-                : s.role === 'viewer' ? 'Viewer' : 'Coordinator'}</td>
+                ? <select aria-label={`Role for ${s.email}`} className="input" style={{ height: 34 }} value={editing.role} onChange={(e) => setEditing({ ...editing, role: e.target.value })}><option value="owner">Owner</option><option value="coordinator">Coordinator</option><option value="viewer">Viewer</option></select>
+                : s.role === 'viewer' ? 'Viewer' : s.role === 'owner' ? 'Owner' : 'Coordinator'}</td>
               <td className="xs">{editing?.id === s.id ? <GroupPicker idp={`e-${s.id}`} groups={groups} value={editing.groupIds} onChange={(groupIds) => setEditing({ ...editing, groupIds })} /> : gname(s.groupIds)}</td>
               <td className="small">{s.status === 'active' ? <span className="badge b-success">Active</span> : <span className="badge b-warning">Invited{s.expiresAt && s.expiresAt < Date.now() ? ' · expired' : ''}</span>}</td>
               <td><div className="row g8">
@@ -270,23 +272,28 @@ const FEATURES = [
   ['kiosk', 'Kiosk mode', 'Event kiosks: candidates sign in with an emailed code, build and print on a tablet or laptop.'],
   ['branding', 'Branded templates', 'The organization’s logo, colour and header on every org-side print and export.'],
   ['recruiterLinks', 'Recruiter links', 'Safe links that send chosen (opted-in) resumes to a recruiter.'],
+  ['membersDownloadFree', 'Free downloads for members', 'Members of its groups download their resume without paying (the group switch must be on too).'],
 ];
-const FEATURE_KEY = { kiosk: 'kiosk', branding: 'branding', recruiterLinks: 'recruiter_links' };
+const FEATURE_KEY = { kiosk: 'kiosk', branding: 'branding', recruiterLinks: 'recruiter_links', membersDownloadFree: 'members_download_free' };
+const OVERRIDE = { plan: null, on: true, off: false };
 
-/** Admin → Organizations → (organization) → Features: Nm7 switches them on; coordinators can't. */
+/** Admin → Organizations → (organization) → Features: the plan decides; Nm7 can force one on or off. */
 function Features({ o, reload }) {
   const toast = useToast();
   const [busy, run] = useAction(toast);
-  const set = (k, on) => run(async () => { await http(`/api/admin/orgs/${o.id}/features`, { method: 'PUT', body: { [FEATURE_KEY[k]]: on } }); reload(); }, on ? 'Switched on' : 'Switched off');
+  const set = (k, v) => run(async () => { await http(`/api/admin/orgs/${o.id}/features`, { method: 'PUT', body: { [FEATURE_KEY[k]]: OVERRIDE[v] } }); reload(); }, 'Saved');
+  const mode = (k) => { const v = o.featureOverrides?.[k]; return v === true ? 'on' : v === false ? 'off' : 'plan'; };
   return (
     <section className="card stack g12" aria-label="Features">
       <strong>Features</strong>
-      <span className="xs faint">Off by default. Only Nm7 can switch them; when one is off, its screens are hidden and its links stop working.</span>
+      <span className="xs faint">The organization’s plan ({o.plan?.name || 'Free'}) decides these. Force one on or off for this organization only; coordinators and Owners can’t change them.</span>
       {FEATURES.map(([k, l, d]) => (
-        <label key={k} className="row g12" style={{ alignItems: 'flex-start' }}>
-          <input type="checkbox" checked={!!o.features?.[k]} disabled={busy} onChange={(e) => set(k, e.target.checked)} style={{ marginTop: 4 }} />
-          <span className="stack g2"><span className="small" style={{ fontWeight: 600 }}>{l}</span><span className="xs faint">{d}</span></span>
-        </label>
+        <div key={k} className="row g12 between" style={{ alignItems: 'flex-start', flexWrap: 'wrap' }}>
+          <span className="stack g2" style={{ flex: '1 1 260px' }}><span className="small" style={{ fontWeight: 600 }}>{l} <span className={`badge ${o.features?.[k] ? 'b-success' : 'b-neutral'}`}>{o.features?.[k] ? 'On' : 'Off'}</span></span><span className="xs faint">{d}</span></span>
+          <select aria-label={l} className="input" style={{ height: 36, width: 'auto' }} value={mode(k)} disabled={busy} onChange={(e) => set(k, e.target.value)}>
+            <option value="plan">Follow the plan</option><option value="on">Always on</option><option value="off">Always off</option>
+          </select>
+        </div>
       ))}
     </section>
   );
@@ -313,6 +320,7 @@ function OrgDetail({ id, onBack }) {
         {o.groupList.length === 0 && <div className="well small muted" style={{ textAlign: 'center', padding: 24 }}>No groups yet. A group is one batch, event or drive with its own join code.</div>}
         <NewGroup ctx={ctx} url={`/api/admin/orgs/${id}/groups`} busy={busy} run={run} reload={st.reload} />
         <Coordinators orgId={id} groups={o.groupList} />
+        <OrgBilling orgId={id} />
         <Features o={o} reload={st.reload} />
         {o.features?.kiosk && <Kiosks orgId={id} groups={o.groupList} canManage />}
         {o.features?.branding && <><strong style={{ marginTop: 8 }}>Branding</strong><Branding orgId={id} canManage /></>}
@@ -459,11 +467,11 @@ export function LiveOrgs() {
       <PageHead title="Organizations" sub="Colleges, institutes, job fairs and other groups whose people share their resumes with Nm7." right={<Link className="btn btn-outline" to="/admin/shared-resumes">Shared resumes</Link>} />
       <Loading st={st} empty={emptyIf((d) => !d.length, 'No organizations yet. Add the first one below.')}>{(orgs) => (
         <div className="card table-wrap" style={{ padding: 0 }}>
-          <table className="table"><thead><tr><th>Organization</th><th>Type</th><th>Groups</th><th>Members</th><th>Added</th></tr></thead>
+          <table className="table"><thead><tr><th>Organization</th><th>Type</th><th>Plan</th><th>Groups</th><th>Members</th><th>Added</th></tr></thead>
             <tbody>{orgs.map((o) => (
               <tr key={o.id}>
                 <td><button type="button" className="link-btn" onClick={() => setParams({ org: o.id })}>{o.name}</button>{o.city && <div className="xs faint">{o.city}</div>}{o.status === 'archived' && <span className="badge b-neutral">Archived</span>}</td>
-                <td className="small">{o.typeName}</td><td className="small">{o.groups}</td><td className="small">{o.members}</td><td className="small">{day(o.createdAt)}</td>
+                <td className="small">{o.typeName}</td><td className="small">{o.plan?.name || 'Free'}{o.plan?.state === 'grace' ? ' (grace)' : o.plan?.state === 'expired' ? ` (${o.plan.lastPlan} ended)` : ''}</td><td className="small">{o.groups}</td><td className="small">{o.members}</td><td className="small">{day(o.createdAt)}</td>
               </tr>
             ))}</tbody></table>
         </div>

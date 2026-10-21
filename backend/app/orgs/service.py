@@ -22,6 +22,7 @@ from app.core.pii import scrub_id_numbers
 from app.core.security import keyed_hash, same
 from app.core.time import IST, now
 from app.me.service import ms, visible_resume
+from app.orgs.scope import features_of
 from app.photos.scrub import DL, EPIC, IFSC, LABEL, MASKED, PAN, PASSPORT
 
 ORG_TYPES = ("college", "institute", "job_fair", "skill_centre", "ngo", "agency", "company", "other")
@@ -323,11 +324,16 @@ async def group_downloads_free(db: AsyncDatabase, user_id: str) -> bool:
     gids = [m["group_id"] async for m in db[MEMBERSHIPS].find(q, {"group_id": 1})]
     if not gids:
         return False
-    async for g in db[ORG_GROUPS].find({"_id": {"$in": gids}}, {"settings": 1}):
-        st = g.get("settings") or {}
-        if st.get("members_download_free") and st.get("active", True):
-            return True
-    return False
+    groups = [
+        g
+        async for g in db[ORG_GROUPS].find({"_id": {"$in": gids}}, {"settings": 1, "org_id": 1})
+        if (g.get("settings") or {}).get("members_download_free") and (g.get("settings") or {}).get("active", True)
+    ]
+    if not groups:
+        return False
+    # only while the organization's plan (or Nm7) includes free downloads: an expired plan stops paying for them
+    orgs = db[ORGANIZATIONS].find({"_id": {"$in": list({g["org_id"] for g in groups})}})
+    return any([features_of(o)["members_download_free"] async for o in orgs])
 
 
 def row_out(r: dict[str, Any]) -> dict[str, Any]:

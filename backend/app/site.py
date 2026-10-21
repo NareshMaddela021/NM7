@@ -26,6 +26,13 @@ RULES: dict[str, dict[str, Any]] = {
         "unit": "hours",
         "label": "Email the support inbox when an order has no draft this close to its deadline",
     },
+    "org_plan_reminders": {
+        "on": True,
+        "value": 1,
+        "unit": "pass",
+        "label": "Email organization Owners before their plan ends (days set in Billing settings), then at the "
+        "grace period and when Free limits apply",
+    },
 }
 
 

@@ -159,7 +159,8 @@ async def test_group_downloads_free_reads_groups_once(owner, make_client, outbox
     assert (await join(c, code="WELD26", roll="", branch="")).status_code == 201
     cdb, counter = counted
     assert await group_downloads_free(cdb, me["id"]) is True
-    assert counter.reads == ["find:memberships", "find:org_groups"]  # not one group query per membership
+    # not one group query per membership; one read of the paying organizations (their plan must include it)
+    assert counter.reads == ["find:memberships", "find:org_groups", "find:organizations"]
     await db[MEMBERSHIPS].update_many({"user_id": me["id"]}, {"$set": {"left_at": now()}})
     assert await group_downloads_free(db, me["id"]) is False
 
