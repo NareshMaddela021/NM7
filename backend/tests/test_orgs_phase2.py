@@ -1,13 +1,14 @@
 """Nm7 for Organizations (Phase 2): coordinator logins and their server-side scope, invites, group dashboards,
 reminders (throttle and opt-out), approval, review and "mark as not printed"."""
 
+import asyncio
 import csv
 import io
 from datetime import timedelta
 
 import pytest
 
-from app.core.db import AUDIT_LOG, MEMBERSHIPS, ORG_STAFF
+from app.core.db import AUDIT_LOG, EXPORT_JOBS, MEMBERSHIPS, ORG_STAFF, USERS
 from app.core.time import now
 from app.orgs import router as orgs_router
 from tests.conftest import signup
@@ -292,6 +293,10 @@ async def test_pending_and_rejected_members_never_reach_exports(owner, make_clie
     assert (await c.post(f"{base}/approval", json={"ids": ids[:2], "action": "approve"})).json()["updated"] == 2
     assert (await c.post(f"{base}/approval", json={"ids": ids[2:], "action": "reject"})).json()["updated"] == 1
     assert (await c.get(base, params={"approval": "rejected"})).json()["total"] == 1
+    # the audit says who was approved / rejected, not only how many
+    approved = await db[AUDIT_LOG].find_one({"action": "approve"})
+    assert approved["data"]["count"] == 2 and sorted(approved["data"]["memberships"]) == sorted(ids[:2])
+    assert (await db[AUDIT_LOG].find_one({"action": "reject"}))["data"]["memberships"] == ids[2:]
     job = (await c.post(f"{base}/exports", json={"kind": "export_zip", "ids": ids})).json()
     assert sorted(i["membershipId"] for i in job["items"]) == sorted(ids[:2])
     lines = list(
@@ -306,6 +311,45 @@ async def test_pending_and_rejected_members_never_reach_exports(owner, make_clie
     assert [d["data"] is None for d in data].count(True) == 1
     # the member sees their status
     assert (await db[MEMBERSHIPS].find_one({"_id": ids[1]}))["approval"] == "approved"
+
+
+async def test_pending_member_without_resume_can_be_rejected(owner, make_client, outbox, db):
+    """A pending member who deleted their shared resume (or whose account was disabled) isn't in the shared-resumes
+    table, but approve / reject still work on their membership. Exports keep ignoring them."""
+    org, g = await setup_group(owner, settings={"requireApproval": True, "active": True})
+    c, _ = await member(make_client, outbox)
+    assert (await c.post("/api/me/resumes", json={"id": "r2", "name": "Spare", "data": RESUME})).status_code == 201
+    m = (await join(c)).json()
+    assert (await c.delete("/api/me/resumes/r1")).status_code == 204  # the shared one
+    other, other_me = await member(make_client, outbox, "gone@example.com", "Gone Person")
+    m2 = (await join(other, roll="21A02")).json()
+    await db[USERS].update_one({"_id": other_me["id"]}, {"$set": {"disabled_at": now()}})
+    co, _ = await coordinator(owner, make_client, outbox, org["id"])
+    base = f"/api/org/{org['id']}/shared-resumes"
+    assert (await co.get(base, params={"approval": "pending"})).json()["total"] == 0  # no resume: not shown
+    r = await co.post(f"{base}/approval", json={"ids": [m["id"]], "action": "reject"})
+    assert r.status_code == 200 and r.json()["updated"] == 1
+    r = await co.post(f"{base}/approval", json={"ids": [m2["id"]], "action": "approve"})
+    assert r.status_code == 200 and r.json()["updated"] == 1
+    assert (await db[MEMBERSHIPS].find_one({"_id": m["id"]}))["approval"] == "rejected"
+    assert (await db[MEMBERSHIPS].find_one({"_id": m2["id"]}))["approval"] == "approved"
+    assert (await c.get("/api/me/groups")).json()[0]["approval"] == "rejected"
+    r = await co.post(f"{base}/exports", json={"kind": "print_bulk", "ids": [m["id"], m2["id"]]})
+    assert r.status_code == 400 and err(r) == "nothing_selected"  # still nothing to print
+    # someone who left, or another organization's member, is still left out
+    assert (await c.post(f"/api/me/groups/{m['id']}/leave")).status_code == 204
+    assert (await co.post(f"{base}/approval", json={"ids": [m["id"]], "action": "approve"})).json()["updated"] == 0
+    assert (await db[MEMBERSHIPS].find_one({"_id": m["id"]}))["approval"] == "rejected"
+
+
+async def test_double_join_is_409_not_500(owner, make_client, outbox, db):
+    await setup_group(owner)
+    c, _ = await member(make_client, outbox)
+    results = await asyncio.gather(join(c), join(c))
+    statuses = sorted(r.status_code for r in results)
+    assert statuses[0] == 201 and all(s in (201, 409) for s in statuses), statuses
+    assert all(err(r) == "already_joined" for r in results if r.status_code == 409)
+    assert await db[MEMBERSHIPS].count_documents({}) == 1
 
 
 async def test_pending_members_dont_get_free_downloads(owner, make_client, outbox):
@@ -352,6 +396,42 @@ async def test_needs_changes_emails_the_member_and_an_edit_resets_it(owner, make
     await co.post(f"{base}/review", json={"ids": [m["id"]], "status": "ready"})
     rows = (await co.get(base, params={"readyNotPrinted": "true"})).json()
     assert rows["total"] == 1 and rows["rows"][0]["reviewStatus"] == "ready"
+
+
+async def test_needs_changes_email_ignores_the_24h_gap(owner, make_client, outbox, db):
+    """A review note is an explicit coordinator action: it is emailed even within 24 h of a reminder (the opt-out
+    still holds)."""
+    org, g = await setup_group(owner)
+    ids = await joined(make_client, outbox, g["code"], 2, "nc", data={"personal": {"name": "Thin"}})
+    co, _ = await coordinator(owner, make_client, outbox, org["id"])
+    base = f"/api/org/{org['id']}/shared-resumes"
+    assert (await co.post(f"{base}/remind", json={"segment": "selected", "ids": ids})).json()["sent"] == 2
+    assert (await co.post(f"{base}/remind", json={"segment": "selected", "ids": ids})).json()["reasons"]["recent"] == 2
+    await db[MEMBERSHIPS].update_one({"_id": ids[1]}, {"$set": {"reminders_opt_out": True}})
+    before = len(outbox.sent)
+    r = (await co.post(f"{base}/review", json={"ids": ids, "status": "needs_changes", "note": "Add dates"})).json()
+    assert r["updated"] == 2 and r["emailed"] == 1 and r["reasons"] == {
+        "optedOut": 1, "recent": 0, "overLimit": 0, "failed": 0,
+    }  # fmt: skip
+    assert len(outbox.sent) == before + 1 and outbox.sent[-1].to == "nc0@example.com"
+    e = await db[AUDIT_LOG].find_one({"action": "review"})
+    assert e["data"]["emailed"] == 1 and sorted(e["data"]["memberships"]) == sorted(ids)
+
+
+async def test_export_done_twice_counts_once(owner, make_client, outbox, db):
+    org, g = await setup_group(owner)
+    ids = await joined(make_client, outbox, g["code"], 2, "pr")
+    base = "/api/admin/shared-resumes"
+    job = (await owner.post(f"{base}/exports", json={"kind": "print_bulk"})).json()["job"]
+    results = await asyncio.gather(*(owner.post(f"{base}/exports/{job}/done") for _ in range(2)))  # a double click
+    assert sorted(r.json()["marked"] for r in results) == [0, 2]
+    assert (await owner.post(f"{base}/exports/{job}/done")).json() == {"ok": True, "marked": 0}
+    assert [m["printed_count"] async for m in db[MEMBERSHIPS].find({"_id": {"$in": ids}})] == [1, 1]
+    assert (await db[EXPORT_JOBS].find_one({"_id": job}))["done_at"]
+    assert (await owner.post(f"{base}/exports/nope/done")).status_code == 404
+    assert (await owner.post(f"{base}/unprint", json={"ids": ids})).json()["updated"] == 2
+    e = await db[AUDIT_LOG].find_one({"action": "unprint"})
+    assert sorted(e["data"]["memberships"]) == sorted(ids)
 
 
 async def test_export_only_ready_and_ready_not_printed(owner, make_client, outbox):
@@ -417,6 +497,45 @@ async def test_reminders_throttle_opt_out_cap_and_audit(owner, make_client, outb
     # the member can switch reminders back on (or off) from their dashboard
     m = await db[MEMBERSHIPS].find_one({"_id": ids[3]})
     assert m["reminders_opt_out"] is True
+
+
+async def test_concurrent_remind_sends_once(owner, make_client, outbox, db):
+    """Two coordinators (or a double click) reminding the same group at the same moment: every member is emailed
+    once — members are claimed in the database before any email goes out."""
+    org, g = await setup_group(owner)
+    thin = {"personal": {"name": "Thin"}}
+    ids = await joined(make_client, outbox, g["code"], 3, "cc", data=thin)
+    co, _ = await coordinator(owner, make_client, outbox, org["id"])
+    base = f"/api/org/{org['id']}/shared-resumes"
+    before = len(outbox.sent)
+    body = {"segment": "incomplete", "group": g["id"]}
+    results = await asyncio.gather(co.post(f"{base}/remind", json=body), co.post(f"{base}/remind", json=body))
+    assert [r.status_code for r in results] == [200, 200]
+    assert sum(r.json()["sent"] for r in results) == len(ids)
+    assert sorted(m.to for m in outbox.sent[before:]) == sorted(f"cc{i}@example.com" for i in range(3))
+    assert all([m["last_reminded_at"] async for m in db[MEMBERSHIPS].find({"_id": {"$in": ids}})])
+
+
+async def test_batch_failure_does_not_mark_last_reminded(owner, make_client, outbox, db, monkeypatch):
+    org, g = await setup_group(owner)
+    ids = await joined(make_client, outbox, g["code"], 2, "bf", data={"personal": {"name": "Thin"}})
+    co, _ = await coordinator(owner, make_client, outbox, org["id"])
+    base = f"/api/org/{org['id']}/shared-resumes"
+
+    async def broken(mailer, msgs):
+        return [False] * len(msgs)
+
+    monkeypatch.setattr(orgs_router, "send_batch", broken)
+    body = {"segment": "incomplete", "group": g["id"]}
+    for _ in range(3):
+        r = (await co.post(f"{base}/remind", json=body)).json()
+        assert r["sent"] == 0 and r["reasons"] == {"optedOut": 0, "recent": 0, "overLimit": 0, "failed": 2}
+    assert [m.get("last_reminded_at") async for m in db[MEMBERSHIPS].find({"_id": {"$in": ids}})] == [None, None]
+    # the failed sends didn't use up the group's 3 a day: with the mailer back, everyone gets their reminder
+    monkeypatch.undo()
+    r = await co.post(f"{base}/remind", json=body)
+    assert r.status_code == 200 and r.json()["sent"] == 2
+    assert all([m["last_reminded_at"] async for m in db[MEMBERSHIPS].find({"_id": {"$in": ids}})])
 
 
 # ---------- dashboard ----------

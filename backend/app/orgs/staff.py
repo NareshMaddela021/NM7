@@ -15,6 +15,7 @@ from typing import Any, Literal
 
 from fastapi import APIRouter, Query, Request, Response
 from pydantic import Field, field_validator
+from pymongo.errors import DuplicateKeyError
 
 from app.audit import audit
 from app.auth.deps import CustomerAuth
@@ -150,7 +151,10 @@ async def invite_staff(
         await db[ORG_STAFF].replace_one({"_id": old["_id"]}, s)
     else:
         s["_id"] = new_id()
-        await db[ORG_STAFF].insert_one(s)
+        try:
+            await db[ORG_STAFF].insert_one(s)
+        except DuplicateKeyError:  # the same address invited twice at the same moment
+            raise ApiError(409, "invite_exists", f"{body.email} was just invited to this organization.") from None
     inviter = (await db[USERS].find_one({"_id": scope.actor_id}, {"name": 1}) or {}).get("name") or "Nm7"
     out = await _send_invite(db, mailer, s, org, inviter)
     data = scope.audit_data([org_id], role=body.role, groups=len(group_ids) if group_ids else "all")

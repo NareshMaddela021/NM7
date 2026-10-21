@@ -36,7 +36,7 @@ from app.core.time import IST, now
 from app.me.service import ms
 from app.orgs import emails
 from app.orgs.branding import brands_for
-from app.orgs.router import JoinIn, _join
+from app.orgs.router import JoinIn, _join, recruiters_on
 from app.orgs.scope import NOT_FOUND, OrgScope, require_feature
 from app.orgs.service import ORG_TYPE_NAMES, consent_text, group_problem
 
@@ -90,6 +90,7 @@ class VerifyIn(EmailIn):
 
 class KioskJoinIn(CamelModel):
     consent: bool = False
+    recruiter_opt_in: bool = False  # only counts when the group shares with recruiters (see `recruiters_on`)
     fields: dict[str, Any] = Field(default_factory=dict)
     resume_id: str = Field(max_length=64)
 
@@ -277,6 +278,7 @@ async def kiosk_info(token: str, request: Request, db: DB) -> dict[str, Any]:
             "name": g["name"],
             "customFields": g.get("custom_fields", []),
             "requireApproval": g.get("settings", {}).get("require_approval", False),
+            "shareWithRecruiters": recruiters_on(g, o),  # the consent step then offers the recruiter opt-in
         },
         "consentText": consent_text(o["name"]),
         "closed": problem[1] if problem else None,  # joining is closed: candidates can still build and print
@@ -397,7 +399,13 @@ async def kiosk_join(token: str, body: KioskJoinIn, request: Request, db: DB, au
     """Consent and answers: the same join as the group's link (approval groups: Pending), logged as a kiosk join."""
     k, g, _ = await _kiosk(db, token, request)
     _signed_in_here(auth, k)
-    jb = JoinIn(code=g["code"], consent=body.consent, fields=body.fields, resume_id=body.resume_id)
+    jb = JoinIn(
+        code=g["code"],
+        consent=body.consent,
+        recruiter_opt_in=body.recruiter_opt_in,
+        fields=body.fields,
+        resume_id=body.resume_id,
+    )
     return await _join(jb, request, auth, db, via={"kiosk": k["_id"]})
 
 

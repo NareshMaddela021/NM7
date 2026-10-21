@@ -24,6 +24,7 @@ from typing import Any, Literal
 
 from fastapi import APIRouter, Query, Request, Response
 from pydantic import Field, field_validator
+from pymongo.errors import DuplicateKeyError
 
 from app.audit import audit
 from app.auth.deps import CustomerAuth
@@ -336,24 +337,31 @@ async def create_group_in(db, scope: Scope, o: dict[str, Any], body: GroupIn, ip
         require_feature(o, "branding")
     if body.settings.share_with_recruiters:
         require_feature(o, "recruiter_links")
-    code = await _code_free(db, body.code) if body.code else await new_code(db, o["name"])
     starts, ends = _dates(body.starts_on, body.ends_on)
-    t = now()
-    g = {
-        "_id": new_id(),
-        "org_id": o["_id"],
-        "name": body.name,
-        "code": code,
-        "starts_on": starts,
-        "ends_on": ends,
-        "member_limit": body.member_limit,
-        "custom_fields": _check_fields(body.custom_fields),
-        "settings": body.settings.model_dump(),
-        "created_by": scope.actor_id,
-        "created_at": t,
-        "updated_at": t,
-    }
-    await db[ORG_GROUPS].insert_one(g)
+    fields = _check_fields(body.custom_fields)
+    for attempt in range(3):  # two groups made at the same moment: a generated code is tried again
+        code = await _code_free(db, body.code) if body.code else await new_code(db, o["name"])
+        t = now()
+        g = {
+            "_id": new_id(),
+            "org_id": o["_id"],
+            "name": body.name,
+            "code": code,
+            "starts_on": starts,
+            "ends_on": ends,
+            "member_limit": body.member_limit,
+            "custom_fields": fields,
+            "settings": body.settings.model_dump(),
+            "created_by": scope.actor_id,
+            "created_at": t,
+            "updated_at": t,
+        }
+        try:
+            await db[ORG_GROUPS].insert_one(g)
+            break
+        except DuplicateKeyError:
+            if body.code or attempt == 2:
+                raise ApiError(409, "code_taken", f"The code {code} was just taken by another group.") from None
     data = scope.audit_data([o["_id"]], name=g["name"], code=code)
     await audit(db, scope.actor_id, "group_create", target=g["_id"], data=data, ip=ip)
     return group_out(g)
@@ -390,7 +398,10 @@ async def update_group_in(db, scope: Scope, g: dict[str, Any], body: GroupPatch,
             **g.get("settings", {}),
             **body.settings.model_dump(exclude_none=True),
         }
-    await db[ORG_GROUPS].update_one({"_id": g["_id"]}, {"$set": {**sets, "updated_at": now()}})
+    try:
+        await db[ORG_GROUPS].update_one({"_id": g["_id"]}, {"$set": {**sets, "updated_at": now()}})
+    except DuplicateKeyError:  # the code was taken between the check and the write
+        raise ApiError(409, "code_taken", f"The code {sets['code']} is already used by another group.") from None
     data = scope.audit_data([g["org_id"]], **{k: v for k, v in sets.items() if k != "custom_fields"})
     await audit(db, scope.actor_id, "group_update", target=g["_id"], data=data, ip=ip)
     g = await db[ORG_GROUPS].find_one({"_id": g["_id"]})
@@ -570,7 +581,10 @@ async def _join(body: JoinIn, request: Request, auth: CustomerAuth, db: DB, via:
     else:
         mid = new_id()
         new = {"_id": mid, **doc, **fresh, "review_status": "none", "printed_at": None, "printed_count": 0}
-        await db[MEMBERSHIPS].insert_one(new)
+        try:
+            await db[MEMBERSHIPS].insert_one(new)
+        except DuplicateKeyError:  # the same person joining twice at the same moment (a double tap)
+            raise ApiError(409, "already_joined", "You’ve already joined this group.") from None
     action = "member_update" if already else "member_join"
     data = {
         "orgs": [o["_id"]],
@@ -798,6 +812,13 @@ async def _selected(db, scope: Scope, ids: list[str], *, approved_only: bool = F
     return [r for r in rows if r["approval"] == "approved"] if approved_only else rows
 
 
+async def _memberships(db, scope: Scope, ids: list[str]) -> list[dict[str, Any]]:
+    """The chosen active memberships in the scope, resume or not: approving / rejecting works for a pending member
+    who deleted their shared resume (or whose account was disabled) too. Exports and reminders use `_selected`."""
+    q = {**scope.match(), "_id": {"$in": list(set(ids))}, "left_at": None, "consent.given": True}
+    return [{"membership_id": m["_id"], "org_id": m["org_id"]} async for m in db[MEMBERSHIPS].find(q, {"org_id": 1})]
+
+
 def _orgs(rows: list[dict[str, Any]]) -> list[str]:
     return sorted({r["org_id"] for r in rows})
 
@@ -815,26 +836,42 @@ def _recent(r: dict[str, Any], t) -> bool:
     return bool(r["last_reminded_at"] and t - r["last_reminded_at"] < REMIND_GAP)
 
 
-async def _email_members(db, mailer, rows, make) -> tuple[int, dict[str, int]]:
-    """Emails `rows` (skipping opted-out, reminded in the last 24 h and anything over 500); marks who was emailed."""
+async def _email_members(db, mailer, rows, make, *, gap: bool = True) -> tuple[int, dict[str, int]]:
+    """Emails `rows`, skipping opted-out members, (with `gap`) anyone reminded in the last 24 h, and anything over
+    500. Every member is claimed first — `last_reminded_at` is set atomically, with the gap in the query — so two
+    sends at the same moment never email the same person twice; a member whose email failed gets their previous
+    mark back and can be tried again. Review notes (`gap` False) are explicit coordinator actions: no gap."""
     t = now()
     skipped = {"optedOut": 0, "recent": 0, "overLimit": 0, "failed": 0}
     todo = []
     for r in rows:
         if r["reminders_opt_out"]:
             skipped["optedOut"] += 1
-        elif _recent(r, t):
+        elif gap and _recent(r, t):
             skipped["recent"] += 1
         elif len(todo) >= MAX_EMAILS:
             skipped["overLimit"] += 1
         else:
             todo.append(r)
+    if not todo:
+        return 0, skipped
+    ids = [r["membership_id"] for r in todo]
+    claim = new_id()
+    q: dict[str, Any] = {"_id": {"$in": ids}, "left_at": None, "reminders_opt_out": {"$ne": True}}
+    if gap:
+        q["$or"] = [{"last_reminded_at": None}, {"last_reminded_at": {"$lt": t - REMIND_GAP}}]
+    await db[MEMBERSHIPS].update_many(q, {"$set": {"last_reminded_at": t, "reminder_claim": claim}})
+    claimed = {m["_id"] async for m in db[MEMBERSHIPS].find({"_id": {"$in": ids}, "reminder_claim": claim}, {"_id": 1})}
+    skipped["recent"] += len(todo) - len(claimed)  # someone else just reminded (or they opted out / left)
+    todo = [r for r in todo if r["membership_id"] in claimed]
     results = await send_batch(mailer, [make(r) for r in todo]) if todo else []
-    sent = [r["membership_id"] for r, ok in zip(todo, results, strict=True) if ok]
-    skipped["failed"] = len(todo) - len(sent)
-    if sent:
-        await db[MEMBERSHIPS].update_many({"_id": {"$in": sent}}, {"$set": {"last_reminded_at": t}})
-    return len(sent), skipped
+    failed = [r for r, ok in zip(todo, results, strict=True) if not ok]
+    skipped["failed"] = len(failed)
+    for r in failed:  # give back the previous mark so they can be tried again
+        await db[MEMBERSHIPS].update_one(
+            {"_id": r["membership_id"], "reminder_claim": claim}, {"$set": {"last_reminded_at": r["last_reminded_at"]}}
+        )
+    return len(todo) - len(failed), skipped
 
 
 def register_shared(router: APIRouter, ScopeDep) -> None:  # noqa: N803 — a dependency type, like AdminScope
@@ -1018,15 +1055,20 @@ def register_shared(router: APIRouter, ScopeDep) -> None:  # noqa: N803 — a de
     @router.post("/shared-resumes/exports/{job_id}/done")
     async def export_done(job_id: str, db: DB, scope: ScopeDep) -> dict[str, Any]:
         """The browser finished the file: printed / ZIP'd resumes are marked printed (once per job)."""
-        j = await _job(db, job_id, scope)
+        # claimed atomically: a double click (or two tabs) marks the job done and counts the prints once
+        j = await db[EXPORT_JOBS].find_one_and_update(
+            {"_id": job_id, "actor_id": scope.actor_id, "done_at": None}, {"$set": {"done_at": now()}}
+        )
+        if j is None:
+            await _job(db, job_id, scope)  # 404 unless it exists (then: already done)
+            return {"ok": True, "marked": 0}
         marked = 0
-        if j["kind"] in ("print_bulk", "export_zip", "print") and not j.get("done_at"):
+        if j["kind"] in ("print_bulk", "export_zip", "print"):
             r = await db[MEMBERSHIPS].update_many(
                 {**scope.match(), "_id": {"$in": j["membership_ids"]}},
                 {"$set": {"printed_at": now()}, "$inc": {"printed_count": 1}},
             )
             marked = r.modified_count
-        await db[EXPORT_JOBS].update_one({"_id": job_id}, {"$set": {"done_at": j.get("done_at") or now()}})
         return {"ok": True, "marked": marked}
 
     @router.post("/shared-resumes/unprint")
@@ -1038,14 +1080,15 @@ def register_shared(router: APIRouter, ScopeDep) -> None:  # noqa: N803 — a de
         ids = [r["membership_id"] for r in rows]
         if ids:
             await db[MEMBERSHIPS].update_many({"_id": {"$in": ids}}, {"$set": {"printed_at": None}})
-        await audit(db, scope.actor_id, "unprint", data=scope.audit_data(_orgs(rows), count=len(ids)), ip=_ip(request))
+        data = scope.audit_data(_orgs(rows), count=len(ids), memberships=ids[:200])
+        await audit(db, scope.actor_id, "unprint", data=data, ip=_ip(request))
         return {"updated": len(ids)}
 
     @router.post("/shared-resumes/approval")
     async def approval(body: ApprovalIn, request: Request, db: DB, scope: ScopeDep) -> dict[str, Any]:
         scope.require("approve")
         await _limit(db, f"org-action:{scope.actor_id}", ACTION_RULES)
-        rows = await _selected(db, scope, body.ids)
+        rows = await _memberships(db, scope, body.ids)  # also a pending member whose resume is gone
         ids = [r["membership_id"] for r in rows]
         state = "approved" if body.action == "approve" else "rejected"
         if ids:
@@ -1053,7 +1096,7 @@ def register_shared(router: APIRouter, ScopeDep) -> None:  # noqa: N803 — a de
             await db[MEMBERSHIPS].update_many(
                 {"_id": {"$in": ids}}, {"$set": {"approval": state, "approved_by": scope.actor_id, "approved_at": t}}
             )
-        data = scope.audit_data(_orgs(rows), count=len(ids))
+        data = scope.audit_data(_orgs(rows), count=len(ids), memberships=ids[:200])
         await audit(db, scope.actor_id, body.action, data=data, ip=_ip(request))
         return {"updated": len(ids)}
 
@@ -1077,8 +1120,8 @@ def register_shared(router: APIRouter, ScopeDep) -> None:  # noqa: N803 — a de
             make = lambda r: emails.needs_changes(  # noqa: E731
                 r["email"], r["name"] or "there", r["org_name"], r["group_name"], note, _stop_url(r["membership_id"])
             )
-            emailed, skipped = await _email_members(db, mailer, rows, make)
-        data = scope.audit_data(_orgs(rows), count=len(ids), status=body.status, emailed=emailed)
+            emailed, skipped = await _email_members(db, mailer, rows, make, gap=False)  # an explicit note: no 24 h gap
+        data = scope.audit_data(_orgs(rows), count=len(ids), status=body.status, emailed=emailed, memberships=ids[:200])
         await audit(db, scope.actor_id, "review", data=data, ip=_ip(request))
         return {"updated": len(ids), "emailed": emailed, "skipped": sum(skipped.values()), "reasons": skipped}
 
@@ -1107,19 +1150,20 @@ def register_shared(router: APIRouter, ScopeDep) -> None:  # noqa: N803 — a de
                 rows = [r for r in rows if not r["updated_at"] or r["updated_at"] < since]
         rows = [r for r in rows if r["approval"] != "rejected"]
         groups = sorted({r["group_id"] for r in rows})
-        for gid in groups:  # check every group first, then count the send against each
+        for gid in groups:  # check every group first; the send counts against each once it went out
             await rate_limit.check(
                 db, f"remind-group:{gid}", GROUP_REMIND_RULES,
                 "This group already had 3 reminder sends today. Please try again tomorrow.",
             )  # fmt: skip
-        for gid in groups:
-            await rate_limit.record(db, f"remind-group:{gid}")
         note = body.note.strip()
         make = lambda r: emails.reminder(  # noqa: E731
             r["email"], r["name"] or "there", r["org_name"], r["group_name"], r["missing"], note,
             _stop_url(r["membership_id"]),
         )  # fmt: skip
         sent, skipped = await _email_members(db, mailer, rows, make)
+        if sent or not skipped["failed"]:  # a send that failed outright doesn't use up one of the group's 3 a day
+            for gid in groups:
+                await rate_limit.record(db, f"remind-group:{gid}")
         data = scope.audit_data(_orgs(rows), segment=body.segment, groups=groups, sent=sent, skipped=skipped)
         await audit(db, scope.actor_id, "remind", data=data, ip=_ip(request))
         return {"sent": sent, "skipped": sum(skipped.values()), "reasons": skipped}
