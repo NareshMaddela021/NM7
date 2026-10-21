@@ -206,7 +206,7 @@ export const INITIAL = {
 /** Which sections have meaningful content (drives ✓ marks and the score). */
 export function completeness(d) {
   const has = {
-    personal: !!(d.personal.name && d.personal.email && d.personal.phone),
+    personal: !!(d.personal.name && d.personal.email && d.personal.phone && d.personal.level), // the required fields
     summary: d.summary.length > 80,
     exp: d.exp.some((e) => e.company && e.role),
     edu: d.edu.some((e) => e.institution && e.degree),
@@ -223,11 +223,21 @@ export function completeness(d) {
     links: Object.values(d.links).some(Boolean) || (d.linkExtras || []).some((x) => x.url),
   };
   d.custom.forEach((c) => { has[c.id] = c.items.some((x) => x.title || x.description); });
-  let s = 0;
-  if (has.personal) s += 15; if (d.personal.location) s += 3; if (d.personal.level) s += 2;
-  if (has.summary) s += 10; if (has.exp) s += 15; if (has.edu) s += 10; if (has.skills) s += 10; if (has.proj) s += 10;
-  if (has.certs) s += 5; if (has.ach) s += 5; if (has.langs) s += 3; if (has.prefs) s += 7; if (has.links) s += 5;
-  return { has, score: Math.min(s, 100) };
+  has.review = !!d.reviewedAt; // "Submit profile & finish" passed its checks
+  return { has, score: strengthOf(has) };
+}
+
+/**
+ * Profile strength comes only from the ticks: the weights of the ticked steps over the weights of the steps shown,
+ * so 100% means every scored step is ticked and each unticked one visibly costs points. Steps without a weight
+ * (hobbies, strengths, personal information, declaration, own sections) are optional and marked so.
+ */
+export const SCORE_WEIGHTS = { personal: 17, summary: 10, exp: 15, edu: 10, skills: 10, proj: 10, certs: 5, ach: 5, langs: 3, prefs: 7, links: 5, review: 3 };
+export function strengthOf(has, steps = Object.keys(SCORE_WEIGHTS)) {
+  const ids = steps.filter((id) => id in SCORE_WEIGHTS);
+  const total = ids.reduce((n, id) => n + SCORE_WEIGHTS[id], 0);
+  const got = ids.reduce((n, id) => n + (has[id] ? SCORE_WEIGHTS[id] : 0), 0);
+  return total ? Math.floor((got / total) * 100) : 0;
 }
 
 /* ---------- Resume section order & visibility ---------- */
