@@ -12,16 +12,57 @@ export const MAX_MB = 5;
 const err = (code, msg) => Object.assign(new Error(msg), { code });
 
 let pdfjsP = null;
+/** Can this page run pdf.js in a real Web Worker? (Browsers only: Node tests pass the pdf.js module in themselves.) */
+export const canUseWorker = (g = globalThis) => typeof g.Worker === 'function' && typeof g.document !== 'undefined';
+
+/** Resolves once a freshly made pdf.js worker says it is ready; rejects when its file failed to load (an old build
+ * after a deploy, a blocked worker), so the caller can fall back. */
+export function workerReady(worker) {
+  return new Promise((resolve, reject) => {
+    const done = (ok) => {
+      worker.removeEventListener('message', onMessage); worker.removeEventListener('error', onError);
+      if (ok) resolve(worker); else reject(new Error('pdf.js worker did not start'));
+    };
+    const onMessage = (e) => { if (e.data?.action === 'ready') done(true); };
+    const onError = () => done(false);
+    worker.addEventListener('message', onMessage);
+    worker.addEventListener('error', onError);
+  });
+}
+
+async function startWorker() {
+  const { default: PdfWorker } = await freshImport(() => import('pdfjs-dist/build/pdf.worker.js?worker'));
+  const worker = new PdfWorker();
+  try { return await workerReady(worker); } catch (e) { worker.terminate(); throw e; }
+}
+
+/**
+ * Loads pdf.js with its worker as a real Web Worker (Vite bundles pdf.worker.js as its own file, served from this
+ * origin: the CSP allows worker-src 'self'), so parsing and rendering never block the page. When the worker can't
+ * start (an old browser, a blocked worker), pdf.js's "fake worker" on the main thread is used instead, as before.
+ */
 export async function loadPdfjs() {
   if (!pdfjsP) {
     pdfjsP = (async () => {
-      // pdf.js runs on the main thread here (its "fake worker"), so no extra worker file is needed.
-      const [worker, lib] = await freshImport(() => Promise.all([import('pdfjs-dist/build/pdf.worker.js'), import('pdfjs-dist/build/pdf.js')]));
-      globalThis.pdfjsWorker = worker.default || worker;
-      return lib.default || lib;
+      const lib = await freshImport(() => import('pdfjs-dist/build/pdf.js'));
+      const pdfjs = lib.default || lib;
+      if (!canUseWorker() || pdfjs.GlobalWorkerOptions.workerPort) return pdfjs;
+      try {
+        pdfjs.GlobalWorkerOptions.workerPort = await startWorker();
+      } catch (e) {
+        if (e?.code === 'stale_build') throw e;
+        const worker = await freshImport(() => import('pdfjs-dist/build/pdf.worker.js'));
+        globalThis.pdfjsWorker = worker.default || worker;
+      }
+      return pdfjs;
     })().catch((e) => { pdfjsP = null; throw e; }); // a failed load can be tried again
   }
   return pdfjsP;
+}
+
+/** Frees a pdf.js document (and the worker's copy of the file) once it has been read. */
+export async function closePdf(doc) {
+  try { await doc?.destroy?.(); } catch { /* already gone */ }
 }
 
 /** Small images of the first pages, for the side-by-side review. */
@@ -84,16 +125,20 @@ export async function importResume(input, mode, onStep = () => {}) {
     if (e?.name === 'PasswordException') throw err('password', 'This PDF is password-protected. Remove the password and upload it again.');
     throw err('unreadable', 'We couldn’t open this PDF. It may be damaged — try saving it again, or paste the text.');
   }
-  const chars = r.items.reduce((s, i) => s + i.str.trim().length, 0);
-  if (chars < 80) throw err('scanned', 'This PDF looks like a scanned image, so there’s no text to read. Take photos of its pages with “Snap photos”, which reads them for you, or paste the text instead.');
-  await tick(1);
-  const linkedin = isLinkedInPdf(r);
-  const R = linkedin ? parseLinkedIn(r) : parseResume(toLines(r.items), { links: r.links });
-  if (mode === 'linkedin' && !linkedin) R.notes.unshift({ kind: 'info', sec: 'review', msg: 'This isn’t LinkedIn’s profile PDF, so we read it as a regular resume.' });
-  if (mode === 'resume' && linkedin) R.notes.unshift({ kind: 'info', sec: 'review', msg: 'This is a LinkedIn profile PDF — we used our LinkedIn reader for it.' });
-  await tick(2);
-  finish(R, { pages: r.pages.length });
-  const thumbs = await thumbnails(r.doc);
-  await tick(3);
-  return { ...R, fileName: name, thumbs, pages: r.pages.length };
+  try {
+    const chars = r.items.reduce((s, i) => s + i.str.trim().length, 0);
+    if (chars < 80) throw err('scanned', 'This PDF looks like a scanned image, so there’s no text to read. Take photos of its pages with “Snap photos”, which reads them for you, or paste the text instead.');
+    await tick(1);
+    const linkedin = isLinkedInPdf(r);
+    const R = linkedin ? parseLinkedIn(r) : parseResume(toLines(r.items), { links: r.links });
+    if (mode === 'linkedin' && !linkedin) R.notes.unshift({ kind: 'info', sec: 'review', msg: 'This isn’t LinkedIn’s profile PDF, so we read it as a regular resume.' });
+    if (mode === 'resume' && linkedin) R.notes.unshift({ kind: 'info', sec: 'review', msg: 'This is a LinkedIn profile PDF — we used our LinkedIn reader for it.' });
+    await tick(2);
+    finish(R, { pages: r.pages.length });
+    const thumbs = await thumbnails(r.doc);
+    await tick(3);
+    return { ...R, fileName: name, thumbs, pages: r.pages.length };
+  } finally {
+    await closePdf(r.doc);
+  }
 }

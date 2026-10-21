@@ -9,12 +9,12 @@ import { Link, useParams } from 'react-router-dom';
 import { Dialog, Spinner, useToast } from '../../components/ui';
 import { brandDesign, prepareBrand } from '../../lib/branding';
 import { usePageMeta } from '../../lib/meta';
-import { designOf, mergePdfs } from '../../lib/orgExport';
 import { filterCandidates, isRecruiterToken, pdfName } from '../../lib/recruiter';
 import { freshImport } from '../../lib/chunks';
 import { API_BASE, ApiError } from '../../services/http';
 import { PublicResume } from '../me/MeShare';
 import ResumePreview from '../builder/ResumePreview';
+import { designOf } from '../builder/design';
 
 /** /r/:slug — a recruiter link (long token) or a member's public resume link (a short name). */
 export default function ShareRoute() {
@@ -95,6 +95,7 @@ function RecruiterPage({ token }) {
       else {
         const files = [];
         for (const item of r.items) files.push(await pdfOf(item, r.stamp));
+        const { mergePdfs } = await freshImport(() => import('../../lib/orgExport'));
         const { bytes } = await mergePdfs(files);
         save(new Blob([bytes], { type: 'application/pdf' }), `${d.company.replace(/[^\p{L}\p{N}]+/gu, '_')}_resumes.pdf`);
       }

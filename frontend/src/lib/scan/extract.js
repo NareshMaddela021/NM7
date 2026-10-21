@@ -1,6 +1,6 @@
 // Reads the user's resume in the browser (it is never uploaded) into plain lines + layout signals for the scan,
 // plus the builder-ready details for "keep fixing it myself".
-import { loadPdfjs, MAX_MB } from '../import/index';
+import { closePdf, loadPdfjs, MAX_MB } from '../import/index';
 import { readPdf, toLines } from '../import/pdfRead';
 import { readDocx } from '../import/docxRead';
 import { isLinkedInPdf, parseLinkedIn } from '../import/linkedin';
@@ -61,6 +61,7 @@ export async function extractPdf(buf, pdfjs) {
     if (e?.name === 'PasswordException') throw fail('password', MESSAGES.password);
     throw fail('unreadable', MESSAGES.unreadable);
   }
+  await closePdf(r.doc); // everything needed (text, positions, links, image count) is in `r` now
   const chars = r.items.reduce((s, i) => s + i.str.replace(/\s/g, '').length, 0);
   if (chars < MIN_PDF_CHARS) throw fail('scanned', MESSAGES.scanned);
   const layout = detectPdfLayout(r.items, r.pages);

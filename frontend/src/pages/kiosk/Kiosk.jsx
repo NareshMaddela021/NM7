@@ -10,7 +10,6 @@ import { Dialog, Spinner } from '../../components/ui';
 import { reloadUser, signOut, useAuth } from '../../lib/auth';
 import { HEARTBEAT_MS, KIOSK_STEPS, RETRY_MS, SAVE_FAILED, createIdleTimer, kioskLoadProblem, wipeDevice } from '../../lib/kiosk';
 import { BUILD_CHECK_MS, freshImport, newBuildLive } from '../../lib/chunks';
-import { designOf } from '../../lib/orgExport';
 import { brandDesign, prepareBrand } from '../../lib/branding';
 import { loadPdfjs } from '../../lib/import';
 import { reviewToResume } from '../../lib/photoImport';
@@ -20,6 +19,7 @@ import { FieldGrid, SchemaField } from '../builder/Fields';
 import PhotoImport from '../builder/PhotoImport';
 import SummaryWriter from '../builder/SummaryWriter';
 import ResumePreview from '../builder/ResumePreview';
+import { designOf } from '../builder/design';
 import { EXP_LEVELS, INITIAL, LISTS, PERSONAL_FIELDS, migrateLinks, real } from '../builder/schema';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -48,16 +48,21 @@ async function printPdf(blob) {
   const box = document.createElement('div');
   box.className = 'kiosk-print';
   box.dataset.kioskPrint = '1';
-  for (let n = 1; n <= doc.numPages; n++) {
-    const page = await doc.getPage(n);
-    const vp = page.getViewport({ scale: 2.5 });
-    const canvas = document.createElement('canvas');
-    canvas.width = vp.width; canvas.height = vp.height;
-    await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
-    const img = new Image();
-    img.alt = '';
-    img.src = canvas.toDataURL('image/png');
-    box.appendChild(img);
+  const pages = doc.numPages;
+  try {
+    for (let n = 1; n <= pages; n++) {
+      const page = await doc.getPage(n);
+      const vp = page.getViewport({ scale: 2.5 });
+      const canvas = document.createElement('canvas');
+      canvas.width = vp.width; canvas.height = vp.height;
+      await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+      const img = new Image();
+      img.alt = '';
+      img.src = canvas.toDataURL('image/png');
+      box.appendChild(img);
+    }
+  } finally {
+    await doc.destroy().catch(() => {}); // frees the worker's copy of the PDF (the next print starts clean)
   }
   document.querySelectorAll('[data-kiosk-print]').forEach((x) => x.remove());
   document.body.appendChild(box);
@@ -65,7 +70,7 @@ async function printPdf(blob) {
   const done = () => { box.remove(); window.removeEventListener('afterprint', done); };
   window.addEventListener('afterprint', done);
   window.print();
-  return doc.numPages;
+  return pages;
 }
 
 /** The files Print needs (PDF maker, pdf.js and the resume's fonts), loaded as soon as someone signs in — so a

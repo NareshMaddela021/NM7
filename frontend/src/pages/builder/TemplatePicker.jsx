@@ -7,12 +7,9 @@ import { createPortal } from 'react-dom';
 import { Icon } from '../../components/ui';
 import ResumePreview from './ResumePreview';
 import { ACCENTS, DEFAULT_DESIGN, INDUSTRY_TAGS, TEMPLATE_PRESETS, atsCheck } from './design';
-import { SECTION_LAYOUTS } from './schema';
-import { isUseKey, pickState, selectionText } from './templatePick';
+import { isUseKey, layoutOf, pickState, PHOTO_PLACEHOLDER, selectionText } from './templatePick';
 
-export const layoutOf = (k) => SECTION_LAYOUTS[TEMPLATE_PRESETS[k]?.sections || 'standard'];
-// grey silhouette so photo templates show where the photo goes
-export const PHOTO_PLACEHOLDER = `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="#D9DCE1"/><circle cx="32" cy="25" r="11" fill="#A9AFB8"/><path d="M10 60c2-12 11-18 22-18s20 6 22 18z" fill="#A9AFB8"/></svg>')}`;
+export { layoutOf, PHOTO_PLACEHOLDER } from './templatePick';
 
 const swatchesFor = (t) => [t.design.accent, ...ACCENTS.filter((c) => c.toLowerCase() !== t.design.accent.toLowerCase())].slice(0, 6);
 

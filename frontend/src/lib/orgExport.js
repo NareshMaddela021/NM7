@@ -5,13 +5,13 @@
 import { jsPDF } from 'jspdf';
 import { PDFDocument } from 'pdf-lib';
 import { zipSync } from 'fflate';
-import { DEFAULT_DESIGN, TEMPLATE_PRESETS } from '../pages/builder/design';
+import { designOf } from '../pages/builder/design';
 import { http } from '../services/http';
 import { brandDesign, prepareBrand } from './branding';
 import { freshImport } from './chunks';
 
 export const BATCH = 25;
-export const designOf = (d) => ({ ...DEFAULT_DESIGN, ...(d.design || TEMPLATE_PRESETS.fresher.design), preset: d.design?.preset ?? 'fresher' });
+export { designOf }; // kept here for callers that already have this file; pages import it from builder/design
 
 const bytesOf = async (b) => (b instanceof Uint8Array ? b : new Uint8Array(await b.arrayBuffer()));
 
