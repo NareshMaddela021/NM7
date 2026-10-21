@@ -111,6 +111,34 @@ Rules for both layers: nothing is invented (no numbers, companies, degrees or ce
 or the note), a sentence whose facts are missing is left out rather than printed with a blank, no *I / me / my*, no
 clichés ("hardworking team player", "go-getter", …), and never an ID number, phone, email or address.
 
+### "Write it from my resume" (no AI)
+
+- At the top of the Summary step. The summary is built only from what the resume says:
+  - target role (headline) and experience level;
+  - the latest job or internship (role + company);
+  - the top 3 skills, in the order added;
+  - the first project, a certification, and languages;
+  - the course, only when "Mention my course" is on (off by default).
+- Up to 3 sentences: who they are, one proof (project, else certification, else internship), and the goal
+  ("Looking for an entry-level … role."). A sentence whose facts are missing is left out.
+- It never leaves an empty blank, never invents anything, and uses numbers only as typed. The usual gate applies:
+  no I/me/my, no banned clichés, no contact details or ID numbers, at most 400 characters.
+- Three versions to pick from: Role-first, Skills-first, Simple.
+- Reaching the step with an empty summary fills it (Role-first) and labels it "Written from your resume, edit
+  anything".
+- If skills, role or experience change afterwards, the step asks "Your resume changed. Update the summary?" with
+  Update / Keep mine. A summary the person wrote or edited is never replaced without them tapping Update.
+- Code: `lib/summary/fromResume.js`. The resume stores `summaryFrom` (version, text, what it was written from) and
+  `summaryCourse`.
+
+### Profile strength
+
+- The score comes only from the ticks: the weights of the ticked steps over the weights of the steps shown
+  (`SCORE_WEIGHTS` in `builder/schema.js`, totalling 100).
+- 100% means every scored step is ticked. "Review & Submit" ticks when "Submit profile & finish" passes its checks.
+- Hobbies, Strengths, Personal Information, Declaration and own sections don't count and show "optional" until
+  filled.
+
 ### Ready summaries for freshers ("Pick a ready summary")
 
 - Shown on the builder's Summary step when the experience level is Fresher: 12 hand-picked summaries, each with

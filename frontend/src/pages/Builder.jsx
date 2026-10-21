@@ -42,13 +42,15 @@ import { hiddenCount, moveItem, removeItem, toggleItem } from './builder/entries
 import { shorten, atsFriendly } from './builder/aiTools';
 import SummaryWriter from './builder/SummaryWriter';
 import ReadySummaries from './builder/ReadySummaries';
+import FromResume from './builder/FromResume';
+import { summaryBasis, writeFromResume } from '../lib/summary/fromResume';
 import LinksEditor, { Logo } from './builder/LinksEditor';
 import PhotoEditor, { DEFAULT_ADJ, shapePhoto } from './builder/PhotoEditor';
 import { DEFAULT_DESIGN, FIT_STEPS, TEMPLATE_PRESETS } from './builder/design';
 import {
   AI_SAMPLES, ALL_SKILLS, EXP_LEVELS, FIXED_SECTIONS, INITIAL, LISTS, PERSONAL_FIELDS, PINFO_FIELDS, DECL_FIELDS, DECL_TEXT,
   HOBBY_IDEAS, STRENGTH_IDEAS, PREF_FIELDS, PRESET_SECTIONS, completeness, DEFAULT_SKILL_GROUPS, SKILL_GROUP_OF, splitSkills, allSkills,
-  PRINTABLE, real, resolveOrder, sectionLabel, fieldError, dateOrderError, collectIssues, LINK_SLOTS, LINK_WORDS, LINK_WORD_MAX, migrateLinks, isFresher,
+  PRINTABLE, real, resolveOrder, sectionLabel, fieldError, dateOrderError, collectIssues, LINK_SLOTS, LINK_WORDS, LINK_WORD_MAX, migrateLinks, isFresher, SCORE_WEIGHTS, strengthOf,
 } from './builder/schema';
 
 const DRAFT_KEY = () => draftKey(); // per signed-in customer (see lib/auth.js)
@@ -351,7 +353,8 @@ export default function Builder({ embedded = null }) {
   }, [d, embedded]);
   const idx = Math.max(0, SECS.findIndex((s) => s.id === sec));
   const cur = SECS[idx];
-  const { has, score } = completeness(d);
+  const { has } = completeness(d);
+  const score = strengthOf(has, SECS.map((s) => s.id)); // the ticks shown, nothing else
   const fresher = (d.personal.level || '').startsWith('Fresher');
   const go = (id) => { setSec(id); editorTop.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
 
@@ -494,6 +497,12 @@ export default function Builder({ embedded = null }) {
 
   // ready-made summaries written from what the resume holds, in the person's own line of work (the same
   // template engine as the summary writer's cards, without a note), so a driver or a nurse never sees fintech copy
+  // reaching the Summary step with an empty summary: write it from the resume (only ever into an empty box)
+  useEffect(() => {
+    if (embedded || cur.id !== 'summary' || d.summary?.trim()) return;
+    const text = writeFromResume(d, 'role_first', { course: !!d.summaryCourse });
+    if (text) setD((p) => (p.summary?.trim() ? p : { ...p, summary: text, summaryFrom: { style: 'role_first', text, basis: summaryBasis(p) } }));
+  }, [cur.id]); // eslint-disable-line react-hooks/exhaustive-deps
   const summaryOptions = useMemo(() => (cur.id === 'summary' ? writeSummaries(d, '').options.map((o) => [o.text, o.label]) : []), [cur.id, d]);
   const sumLen = charCount(d.summary); // characters as people count them, not UTF-16 units (Telugu, Hindi…)
   const sumNote = lengthNote(sumLen);
@@ -611,7 +620,7 @@ export default function Builder({ embedded = null }) {
                   <button type="button" onClick={() => { setTab('content'); go(s.id); }} aria-current={a ? 'step' : undefined} className="row g8"
                     style={{ flex: 1, minWidth: 0, flexWrap: 'nowrap', minHeight: 40, padding: '0 8px 0 10px', border: 0, background: 'transparent', color: a || ok ? 'var(--text)' : 'var(--text2)', fontWeight: a ? 600 : 500, fontSize: 14, textAlign: 'left' }}>
                     <span style={{ width: 20, height: 20, flex: 'none', borderRadius: '50%', boxSizing: 'border-box', border: `2px solid ${ok ? 'var(--success)' : a ? 'var(--ink)' : 'var(--border2)'}`, background: ok ? 'var(--success)' : 'transparent', color: 'var(--onink)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{ok && <Icon name="check" size={11} stroke={3} />}</span>
-                    <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textDecoration: hidden ? 'line-through' : 'none' }}>{label}{offN > 0 && <span className="xs muted" style={{ fontWeight: 500 }}> · {offN} hidden</span>}</span>
+                    <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textDecoration: hidden ? 'line-through' : 'none' }}>{label}{offN > 0 && <span className="xs muted" style={{ fontWeight: 500 }}> · {offN} hidden</span>}{!(s.id in SCORE_WEIGHTS) && !ok && <span className="xs faint" style={{ fontWeight: 500 }}> · optional</span>}</span>
                     {!printable && count !== null && <span className="mono faint">{count}</span>}
                   </button>
                   {printable && (
@@ -715,6 +724,7 @@ export default function Builder({ embedded = null }) {
 
             {cur.id === 'summary' && (
               <div className="card stack g12" style={{ padding: 20 }}>
+                {!embedded && <FromResume d={d} setD={setD} />}
                 <SummaryWriter resume={d} note={d.about || ''} onNote={(v) => setD((p) => ({ ...p, about: v }))} value={d.summary} onUse={(t) => setD((p) => ({ ...p, summary: t }))} />
                 <label htmlFor="sum" className="label">Your summary</label>
                 <textarea id="sum" className="input" rows={5} value={d.summary} onChange={(e) => setD({ ...d, summary: e.target.value })} placeholder="Who you are, your strongest skills, one result with a number, and the role you want." />
@@ -843,6 +853,7 @@ export default function Builder({ embedded = null }) {
               {!(embedded && cur.id === 'review') && <button type="button" className="btn btn-ink btn-lg" onClick={() => {
                 if (cur.id !== 'review') return go(SECS[idx + 1].id);
                 if (issues.length) { setShowIssues(true); editorTop.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); return undefined; }
+                setD((p) => ({ ...p, reviewedAt: p.reviewedAt || Date.now() })); // ticks Review & Submit
                 return setStage('done');
               }}>{cur.id === 'review' ? 'Submit profile & finish' : 'Save & continue'}</button>}
               {cur.id !== 'review' && cur.id !== 'personal' && <button type="button" className="btn btn-ghost" onClick={() => go(SECS[idx + 1].id)}>Skip for now</button>}
