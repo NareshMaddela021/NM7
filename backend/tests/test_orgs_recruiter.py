@@ -181,7 +181,9 @@ async def test_recruiter_hides_pinfo_and_location_without_include_contact(setup,
         "address": "1 Main Road, Anantapur",
     }
     personal = {**RESUME["personal"], "name": "Asha Rao", "location": "Anantapur, AP", "level": "Fresher (0–1 yr)"}
+    photo = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD"
     data = {**RESUME, "personal": personal, "pinfo": pinfo, "hidden": {"pinfo": False}}
+    data.update(photo=photo, showPhoto=True)
     await opted_in(make_client, outbox, "asha@example.com", "Asha Rao", data=data)
     rec = make_client()
     _, token = await make_link(owner, org["id"])
@@ -190,7 +192,7 @@ async def test_recruiter_hides_pinfo_and_location_without_include_contact(setup,
         (await rec.get(f"/api/recruit/{token}/candidates/{cid}")).json()["data"],
         (await rec.post(f"/api/recruit/{token}/downloads", json={})).json()["items"][0]["data"],
     ):
-        assert "pinfo" not in d
+        assert "pinfo" not in d and "photo" not in d and d["showPhoto"] is False  # a face is personal too
         assert d["personal"] == {**personal, "email": "", "phone": "", "location": ""}
         s = str(d)
         assert not any(v in s for v in ("R Rao", "Lakshmi", "2003", "Female", "Single", "Main Road", ", AP"))
@@ -199,6 +201,7 @@ async def test_recruiter_hides_pinfo_and_location_without_include_contact(setup,
     cid2 = (await rec.get(f"/api/recruit/{token2}")).json()["candidates"][0]["id"]
     d2 = (await rec.get(f"/api/recruit/{token2}/candidates/{cid2}")).json()["data"]
     assert d2["pinfo"] == pinfo and d2["personal"] == personal
+    assert d2["photo"] == photo and d2["showPhoto"] is True
 
 
 async def test_downloads_only_when_allowed(setup, owner, db, make_client, outbox):

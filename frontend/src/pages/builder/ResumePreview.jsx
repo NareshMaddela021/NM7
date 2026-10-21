@@ -125,8 +125,9 @@ function CoverBody({ c, ds, s }) {
  */
 /** brand / stamp: organization copies (see lib/branding.js): a header strip with the logo and header line, and the
  * footer line / stamp at the foot. */
-export default function ResumePreview({ data, design: ds, photo, onPages, cover, loadFonts = true, decorative = false, loading = false, brand = null, stamp = '' }) {
+export default function ResumePreview({ data, design: ds, photo: photoProp, onPages, cover, loadFonts = true, decorative = false, loading = false, brand = null, stamp = '' }) {
   const d = visibleResume(data); // switched-off entries are hidden everywhere the resume is shown
+  const photo = photoProp === undefined ? data?.photo || null : photoProp; // the photo saved with the resume
   const ref = useRef();
   const [box, setBox] = useState({ w: 595, h: 842 });
   const [fontsOk, setFontsOk] = useState(!loadFonts);

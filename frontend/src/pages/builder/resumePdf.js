@@ -22,8 +22,9 @@ const GREY = [90, 90, 90];
  * footer, color } — a header strip with the logo and header line, and the footer line on every page.
  * stamp: one more small line at the foot of every page (e.g. "Shared with … via Nm7 · expires …").
  */
-export async function buildResumePdf({ data, design: ds, photo, cover, brand = null, stamp = '', engine = null }) {
+export async function buildResumePdf({ data, design: ds, photo: photoArg, cover, brand = null, stamp = '', engine = null }) {
   const d = visibleResume(data); // switched-off entries are not printed
+  const photo = photoArg === undefined ? data?.photo || null : photoArg; // the photo saved with the resume
   const page = PAGE[ds.pageSize] || PAGE.a4;
   const scripts = scriptsIn([d, cover, brand?.header, brand?.footer, stamp]);
   const shaped = engine === 'pdflib' || (engine !== 'jspdf' && scripts.length > 0); // `engine` forces one (tests)

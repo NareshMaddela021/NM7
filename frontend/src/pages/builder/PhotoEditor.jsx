@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Dialog } from '../../components/ui';
 
-export const PHOTO_OUT = 600; // saved size in px
+export const PHOTO_OUT = 400; // saved size in px (≈ 35 mm at 290 dpi; small enough to save inside the resume)
 const FRAME = 300; // on-screen frame in px
 export const DEFAULT_ADJ = { zoom: 1, x: 0, y: 0, quarter: 0, fine: 0, flip: false, bright: 100, contrast: 100, gray: false };
 
@@ -108,7 +108,7 @@ export default function PhotoEditor({ src, initial, shape = 'circle', onSave, on
     const cv = document.createElement('canvas');
     cv.width = PHOTO_OUT; cv.height = PHOTO_OUT;
     drawAdjusted(cv.getContext('2d'), img, a, PHOTO_OUT);
-    onSave(cv.toDataURL('image/jpeg', 0.9), a);
+    onSave(cv.toDataURL('image/jpeg', 0.82), a); // ~30–70 KB: saved inside the resume
   };
   const lowRes = img && Math.min(img.width, img.height) < 300;
   const radius = shape === 'circle' ? '50%' : shape === 'rounded' ? '14%' : '0';

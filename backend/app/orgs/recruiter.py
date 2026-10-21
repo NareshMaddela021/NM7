@@ -174,6 +174,9 @@ def recruiter_data(r: dict[str, Any], include_contact: bool) -> dict[str, Any]:
         personal.update({k: "" for k in CONTACT_KEYS if k in personal})
         pinfo = {}
     out = {**d, "personal": personal}
+    if not include_contact:  # a face is personal information too: shared only with contact details
+        out.pop("photo", None)
+        out["showPhoto"] = False
     out.pop("pinfo", None)
     return {**out, **({"pinfo": pinfo} if pinfo else {})}
 

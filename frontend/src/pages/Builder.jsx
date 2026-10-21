@@ -205,8 +205,11 @@ export default function Builder({ embedded = null }) {
   const [sec, setSec] = useState('personal');
   const [picker, setPicker] = useState(false);
   const [customName, setCustomName] = useState('');
-  const [photo, setPhoto] = useState(null); // the adjusted 600×600 photo
-  const [photoOrig, setPhotoOrig] = useState(null); // the original, so it can be re-cropped
+  // The adjusted photo is part of the resume (`d.photo`, a small JPEG), so it is saved with it and survives a reload,
+  // and organisation and kiosk prints include it. The original stays in this tab only, for re-cropping.
+  const photo = d.photo || null;
+  const setPhoto = (p) => setD((x) => ({ ...x, photo: p || '' }));
+  const [photoOrig, setPhotoOrig] = useState(null);
   const [photoAdj, setPhotoAdj] = useState(DEFAULT_ADJ);
   const [editingPhoto, setEditingPhoto] = useState(null); // source being edited
   const [photoErr, setPhotoErr] = useState('');
@@ -654,7 +657,7 @@ export default function Builder({ embedded = null }) {
                     <span className="small muted">Shown to recruiters on your Nm7 profile. A clear, front-facing photo works best. JPG, PNG or WebP, up to 5 MB — you can crop and adjust it next.</span>
                     <div className="row g8">
                       <label className="btn btn-outline" style={{ cursor: 'pointer' }}>{photo ? 'Change photo' : 'Choose photo'}<input type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" onChange={pickPhoto} /></label>
-                      {photo && photoOrig && <button type="button" className="btn btn-outline" onClick={() => setEditingPhoto({ src: photoOrig, fresh: false })}>Adjust photo</button>}
+                      {photo && <button type="button" className="btn btn-outline" onClick={() => setEditingPhoto({ src: photoOrig || photo, fresh: false })}>Adjust photo</button>}
                       {photo && <button type="button" className="btn btn-ghost" style={{ color: 'var(--danger)' }} onClick={removePhoto}>Remove</button>}
                     </div>
                     {photoErr && <span role="alert" className="error">{photoErr}</span>}

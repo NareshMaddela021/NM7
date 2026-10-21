@@ -114,3 +114,10 @@ def test_masked_numbers_are_still_found():
         assert has_id_number(s), s
     for s in ("Box 1234", "max 1234 users", "Nexus 2019"):
         assert not has_id_number(s), s
+
+
+def test_a_photo_saved_with_the_resume_is_never_touched():
+    """A base64 photo can contain a run that looks like a PAN or Aadhaar number; it must come back byte for byte."""
+    photo = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQ" + "ABCDE1234F" + "234567890123" + "xyz=="
+    out, n = scrub_id_numbers({"photo": photo, "summary": "PAN ABCDE1234F"})
+    assert out["photo"] == photo and n == 1 and "ABCDE1234F" not in out["summary"]
