@@ -1,5 +1,7 @@
 """Sign-up, email verification, login, logout and password reset for customers and experts."""
 
+from datetime import timedelta
+
 from fastapi import APIRouter, Request, Response
 from pymongo.errors import DuplicateKeyError
 
@@ -11,6 +13,7 @@ from app.auth.service import (
     INVALID_CODE,
     LOGIN_FAIL_EMAIL,
     LOGIN_FAIL_IP,
+    UNVERIFIED_TTL,
     check_code,
     check_new_password,
     find_user,
@@ -19,28 +22,46 @@ from app.auth.service import (
     may_send_code,
     normalize_phone,
 )
-from app.auth.sessions import SESSION_COOKIE, clear_cookie, client_ip, revoke_all, start_session
+from app.auth.sessions import SESSION_COOKIE, clear_cookie, client_ip, revoke_all, set_cookie, start_session
 from app.core import rate_limit
 from app.core.db import DB, SESSIONS, USERS
 from app.core.email import MailerDep, require_email, send_safely
 from app.core.errors import ApiError
-from app.core.security import hash_password, needs_rehash, verify_password
+from app.core.security import hash_password, hash_token, needs_rehash, new_token, verify_password
 from app.core.time import now
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 
-async def _already_registered(db, mailer, user: User) -> SignupOut:
+async def _already_registered(db, mailer, user: User, ip: str | None) -> SignupOut:
     """Sign-up with an email that already has an account answers exactly like a fresh sign-up ("code sent"), so the
     page can't be used to find out who has an account. The account's owner gets a short reminder instead of a code
     (under the same per-email send limit)."""
-    await may_send_code(db, user.email)
+    await may_send_code(db, user.email, ip)
     sent = await send_safely(mailer, emails.account_exists(user.email, user.name))
     return SignupOut(email=user.email, code_sent=sent)
 
 
+# Only the browser that signed up (or signed in with the password) may confirm the email: a stranger who signed
+# up with someone else's address and their own password cannot have the real owner finish it for them (#32).
+SIGNUP_COOKIE = "nm7_signup"
+SIGNUP_TTL = timedelta(minutes=30)
+VERIFY_ELSEWHERE = ApiError(
+    400,
+    "verify_elsewhere",
+    "Please confirm the code in the browser you signed up from, or sign in with your password to get a new code.",
+)
+
+
+def _bind_signup(response: Response) -> str:
+    """A new confirmation token for this browser; returns its hash to store on the account."""
+    token = new_token()
+    set_cookie(response, SIGNUP_COOKIE, token, SIGNUP_TTL, path="/api/auth")
+    return hash_token(token)
+
+
 @router.post("/signup", status_code=201)
-async def signup(body: SignupIn, request: Request, db: DB, mailer: MailerDep) -> SignupOut:
+async def signup(body: SignupIn, request: Request, response: Response, db: DB, mailer: MailerDep) -> SignupOut:
     require_email(mailer)  # 503 rather than claim a code was sent
     name = " ".join(body.name.split())
     if not name:
@@ -52,8 +73,8 @@ async def signup(body: SignupIn, request: Request, db: DB, mailer: MailerDep) ->
 
     user = await find_user(db, body.email)
     if user and (user.verified or user.role == "admin"):
-        return await _already_registered(db, mailer, user)
-    await may_send_code(db, body.email)
+        return await _already_registered(db, mailer, user, client_ip(request))
+    await may_send_code(db, body.email, client_ip(request))
 
     fields = dict(
         role=body.role,
@@ -62,6 +83,8 @@ async def signup(body: SignupIn, request: Request, db: DB, mailer: MailerDep) ->
         password_hash=await hash_password(body.password),
         terms_accepted_at=now(),
         expert_status="draft" if body.role == "expert" else None,
+        unverified_expires_at=now() + UNVERIFIED_TTL,
+        signup_token_hash=_bind_signup(response),
     )
     if body.ref and body.role == "customer":
         friend = await db[USERS].find_one({"referral_code": body.ref.strip().upper()}, {"_id": 1})
@@ -87,10 +110,23 @@ async def signup(body: SignupIn, request: Request, db: DB, mailer: MailerDep) ->
 @router.post("/verify-email")
 async def verify_email(body: EmailCodeIn, request: Request, response: Response, db: DB) -> UserOut:
     user = await find_user(db, body.email)
-    if not user or user.verified or user.disabled_at or not await check_code(db, user, "verify_email", body.code):
+    if not user or user.verified or user.disabled_at:
+        raise INVALID_CODE
+    token = request.cookies.get(SIGNUP_COOKIE)
+    if not user.signup_token_hash or not token or hash_token(token) != user.signup_token_hash:
+        raise VERIFY_ELSEWHERE
+    if not await check_code(db, user, "verify_email", body.code):
         raise INVALID_CODE
     user.email_verified_at = now()
-    await db[USERS].update_one({"_id": user.id}, {"$set": {"email_verified_at": user.email_verified_at}})
+    user.unverified_expires_at = user.signup_token_hash = None
+    await db[USERS].update_one(
+        {"_id": user.id},
+        {
+            "$set": {"email_verified_at": user.email_verified_at},
+            "$unset": {"unverified_expires_at": "", "signup_token_hash": ""},
+        },
+    )
+    clear_cookie(response, SIGNUP_COOKIE, path="/api/auth")
     await start_session(db, request, response, user)
     return UserOut.model_validate(user)
 
@@ -98,7 +134,7 @@ async def verify_email(body: EmailCodeIn, request: Request, response: Response, 
 @router.post("/verify-email/resend")
 async def resend_verification(body: EmailIn, request: Request, db: DB, mailer: MailerDep) -> Ok:
     require_email(mailer)  # 503 rather than claim a code was sent
-    await may_send_code(db, body.email)
+    await may_send_code(db, body.email, client_ip(request))
     user = await find_user(db, body.email)
     code = None
     if user and not user.verified and not user.disabled_at:
@@ -125,12 +161,17 @@ async def login(body: LoginIn, request: Request, response: Response, db: DB, mai
     if user.role == "admin":
         raise ApiError(403, "use_admin_login", "Admins sign in at /admin/login (with two-step login).")
     if not user.verified:
+        # the password proved it is their sign-up: this browser may confirm the code (the cookie rides on the
+        # error answer, which is built by the error handler, not from `response`)
+        bound = Response()
+        await db[USERS].update_one({"_id": user.id}, {"$set": {"signup_token_hash": _bind_signup(bound)}})
         code = None
-        if await may_send_code(db, user.email, raise_if_limited=False):
+        if await may_send_code(db, user.email, client_ip(request), raise_if_limited=False):
             code = await issue_code(db, user, "verify_email", client_ip(request))
         if code:
             await send_safely(mailer, emails.verify_email(user.email, user.name, code))
-        raise ApiError(403, "email_not_verified", "Please confirm your email first — we’ve sent you a code.")
+        message = "Please confirm your email first — we’ve sent you a code."
+        raise ApiError(403, "email_not_verified", message, headers={"set-cookie": bound.headers["set-cookie"]})
 
     if needs_rehash(user.password_hash):
         user.password_hash = await hash_password(body.password)
@@ -144,7 +185,7 @@ async def login(body: LoginIn, request: Request, response: Response, db: DB, mai
 async def forgot_password(body: EmailIn, request: Request, db: DB, mailer: MailerDep) -> Ok:
     """Always answers OK, so it can't be used to find out who has an account."""
     require_email(mailer)  # 503 rather than claim a code was sent
-    await may_send_code(db, body.email)
+    await may_send_code(db, body.email, client_ip(request))
     user = await find_user(db, body.email)
     code = None
     if user and user.role != "admin" and not user.disabled_at:  # admins reset from the command line
@@ -171,7 +212,8 @@ async def reset_password(body: ResetIn, db: DB) -> Ok:
                 "password_hash": user.password_hash,
                 "email_verified_at": user.email_verified_at,
                 "updated_at": now(),
-            }
+            },
+            "$unset": {"unverified_expires_at": "", "signup_token_hash": ""},
         },
     )
     await revoke_all(db, user.id)  # sign out everywhere

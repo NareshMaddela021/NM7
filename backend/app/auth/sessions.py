@@ -19,6 +19,13 @@ KIOSK_TTL = timedelta(minutes=45)  # signed in at an event kiosk: fixed, never e
 
 
 def client_ip(request: Request) -> str | None:
+    """The caller's address as seen by our own proxy, never one the caller wrote into X-Forwarded-For itself."""
+    hops = get_settings().trusted_proxy_hops
+    forwarded = request.headers.get("x-forwarded-for") if hops > 0 else None
+    if forwarded:
+        chain = [h.strip() for h in forwarded.split(",") if h.strip()]
+        if chain:
+            return chain[max(0, len(chain) - hops)]
     return request.client.host if request.client else None
 
 

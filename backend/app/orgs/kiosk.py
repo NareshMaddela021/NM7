@@ -377,7 +377,8 @@ async def verify(token: str, body: VerifyIn, request: Request, response: Respons
     if not user.email_verified_at:  # signed up earlier but never confirmed: whoever chose that password didn't
         user.email_verified_at = now()  # prove the address, so it stops working (no account pre-hijacking)
         sets = {"email_verified_at": user.email_verified_at, "password_hash": await hash_password(new_token())}
-        await db[USERS].update_one({"_id": user.id}, {"$set": sets})
+        unset = {"unverified_expires_at": "", "signup_token_hash": ""}
+        await db[USERS].update_one({"_id": user.id}, {"$set": sets, "$unset": unset})
         await revoke_all(db, user.id)
     await start_session(db, request, response, user, kiosk_id=k["_id"])
     data = {"orgs": [o["_id"]], "group": g["_id"], "newAccount": created}

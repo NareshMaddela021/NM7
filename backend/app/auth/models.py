@@ -30,6 +30,8 @@ class User(Doc):
     totp_secret_enc: str | None = None  # admins: encrypted authenticator secret
     totp_last_step: int | None = None  # last accepted 30-second step (no reuse)
     email_verified_at: datetime | None = None
+    unverified_expires_at: datetime | None = None  # set at sign-up, removed on confirmation; TTL index
+    signup_token_hash: str | None = None  # the browser that signed up (or signed in) is the one that may confirm
     terms_accepted_at: datetime | None = None
     disabled_at: datetime | None = None
     # Customer profile (dashboard settings)
