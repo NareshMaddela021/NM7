@@ -80,6 +80,8 @@ const PortalRecruiters = named(portal, 'PortalRecruiters');
 const PortalBilling = named(portal, 'PortalBilling');
 const PortalTeam = named(portal, 'PortalTeam');
 const ForOrgs = lazy(() => import('./pages/org/ForOrgs'));
+const Partners = lazy(() => import('./pages/partners/Partners'));
+const PartnerHome = lazy(() => import('./pages/partners/PartnerHome'));
 const kioskPages = () => import('./pages/kiosk/Kiosk');
 const KioskScreen = named(kioskPages, 'default');
 const ContinueHere = named(kioskPages, 'ContinueHere');
@@ -90,21 +92,21 @@ const MeSettings = named(meSettings, 'MeSettings');
 const MeHelp = named(meSettings, 'MeHelp');
 
 // Admin console: real data on the live site; the sample console only in the preview build.
-const liveAdmin = { billing: () => import('./pages/admin/live/BillingPages'), orgs: () => import('./pages/admin/live/OrgPages'), common: () => import('./pages/admin/live/common'), ops: () => import('./pages/admin/live/OpsPages'), people: () => import('./pages/admin/live/PeoplePages'), setup: () => import('./pages/admin/live/SetupPages') };
+const liveAdmin = { billing: () => import('./pages/admin/live/BillingPages'), partners: () => import('./pages/admin/live/PartnerPages'), orgs: () => import('./pages/admin/live/OrgPages'), common: () => import('./pages/admin/live/common'), ops: () => import('./pages/admin/live/OpsPages'), people: () => import('./pages/admin/live/PeoplePages'), setup: () => import('./pages/admin/live/SetupPages') };
 const ADMIN = LIVE ? {
   Layout: named(liveAdmin.common, 'LiveAdminLayout'), Dashboard: named(liveAdmin.ops, 'LiveDashboard'), Orders: named(liveAdmin.ops, 'LiveOrders'),
   Experts: named(liveAdmin.people, 'LiveExperts'), Refunds: named(liveAdmin.ops, 'LiveRefunds'), Payments: named(liveAdmin.ops, 'LivePayments'),
   Customers: named(liveAdmin.people, 'LiveCustomers'), Quality: named(liveAdmin.people, 'LiveQuality'), Reports: named(liveAdmin.people, 'LiveReports'),
   Settings: named(liveAdmin.setup, 'LiveSettings'), Automation: named(liveAdmin.setup, 'LiveAutomation'), Team: named(liveAdmin.setup, 'LiveTeam'),
   Orgs: named(liveAdmin.orgs, 'LiveOrgs'), Shared: named(liveAdmin.orgs, 'LiveShared'),
-  Plans: named(liveAdmin.billing, 'LivePlans'), BillingSettings: named(liveAdmin.billing, 'LiveBillingSettings'), OrgInvoices: named(liveAdmin.billing, 'LiveOrgInvoices'),
+  Plans: named(liveAdmin.billing, 'LivePlans'), BillingSettings: named(liveAdmin.billing, 'LiveBillingSettings'), OrgInvoices: named(liveAdmin.billing, 'LiveOrgInvoices'), Partners: named(liveAdmin.partners, 'LivePartners'),
 } : {
   Layout: lazy(() => import('./pages/admin/AdminLayout')), Dashboard: lazy(() => import('./pages/admin/Dashboard')), Orders: lazy(() => import('./pages/admin/Orders')),
   Experts: lazy(() => import('./pages/admin/ExpertsAdmin')), Refunds: lazy(() => import('./pages/admin/Refunds')), Payments: lazy(() => import('./pages/admin/Payments')),
   Customers: lazy(() => import('./pages/admin/Customers')), Quality: lazy(() => import('./pages/admin/Quality')), Reports: lazy(() => import('./pages/admin/Reports')),
   Settings: lazy(() => import('./pages/admin/Settings')), Automation: lazy(() => import('./pages/admin/Automation')), Team: lazy(() => import('./pages/admin/Team')),
   Orgs: named(liveAdmin.orgs, 'LiveOrgs'), Shared: named(liveAdmin.orgs, 'LiveShared'), // live API only
-  Plans: named(liveAdmin.billing, 'LivePlans'), BillingSettings: named(liveAdmin.billing, 'LiveBillingSettings'), OrgInvoices: named(liveAdmin.billing, 'LiveOrgInvoices'),
+  Plans: named(liveAdmin.billing, 'LivePlans'), BillingSettings: named(liveAdmin.billing, 'LiveBillingSettings'), OrgInvoices: named(liveAdmin.billing, 'LiveOrgInvoices'), Partners: named(liveAdmin.partners, 'LivePartners'),
 };
 
 if (!LIVE && import.meta.env.VITE_PREVIEW === '1') {
@@ -317,6 +319,7 @@ export default function App() {
           <Route path="plans" element={<ADMIN.Plans />} />
           <Route path="billing-settings" element={<ADMIN.BillingSettings />} />
           <Route path="org-invoices" element={<ADMIN.OrgInvoices />} />
+          <Route path="partners" element={<ADMIN.Partners />} />
         </Route>
         <Route path="/me" element={C(<MeLayout />)}>
           <Route index element={<MeHome />} />
@@ -341,6 +344,8 @@ export default function App() {
         <Route path="/groups/stop" element={<StopReminders />} />
         <Route path="/org/invite/:token" element={<OrgInvite />} />
         <Route path="/for-orgs" element={<ForOrgs />} />
+        <Route path="/partners" element={<Partners />} />
+        <Route path="/partner" element={C(<PartnerHome />)} />
         <Route path="/org" element={C(<OrgHome />)} />
         <Route path="/org/:orgId" element={C(<PortalLayout />)}>
           <Route index element={<PortalGroups />} />

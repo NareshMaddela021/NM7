@@ -7,13 +7,13 @@ import { prerenderStatic, STATIC_ROUTES, staticMeta } from './prerender-static.m
 const TEMPLATE = '<!doctype html><html lang="en"><head><meta charset="UTF-8" /><meta name="description" content="home" /><meta property="og:title" content="home" /><link rel="canonical" href="https://nm7.si/" /><title>Home | Nm7</title></head><body><div id="root"></div><script type="module" src="/assets/index-abc.js"></script></body></html>';
 
 describe('static routes get their own head', () => {
-  it('covers the builder, contact, /for-orgs and the legal pages, never the home page or the blog', () => {
-    expect(STATIC_ROUTES).toEqual(['/builder', '/contact', '/for-orgs', '/terms', '/privacy', '/refund-policy', '/delivery-policy', '/expert-terms']);
+  it('covers the builder, contact, /for-orgs, /partners and the legal pages, never the home page or the blog', () => {
+    expect(STATIC_ROUTES).toEqual(['/builder', '/contact', '/for-orgs', '/partners', '/terms', '/privacy', '/refund-policy', '/delivery-policy', '/expert-terms']);
   });
   it('writes one file per route with that route’s title, description, canonical and OpenGraph tags', () => {
     const dist = mkdtempSync(join(tmpdir(), 'nm7-static-'));
     writeFileSync(join(dist, 'index.html'), TEMPLATE);
-    expect(prerenderStatic({ dist, log: {} })).toHaveLength(8);
+    expect(prerenderStatic({ dist, log: {} })).toHaveLength(9);
     const html = readFileSync(join(dist, 'builder', 'index.html'), 'utf8');
     expect(html).toContain('<title>Resume builder · Nm7</title>');
     expect(html).toContain('<link rel="canonical" href="https://nm7.si/builder" />');

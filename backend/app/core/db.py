@@ -66,6 +66,9 @@ AI_USAGE = "ai_usage"  # daily AI call counters (core/ai_quota.py): per person, 
 # Phase 4: organization plans (admin-editable, versioned; _id = plan id)
 ORG_PLANS = "org_plans"
 INVOICES = "invoices"  # tax invoices, credit notes, proformas (never edited or deleted)
+PARTNERS = "partners"  # referral partners (applications and approved partners)
+COMMISSIONS = "commissions"  # partner commission ledger: earned (+) and reversed (−) entries
+PARTNER_PAYOUTS = "partner_payouts"
 COLLECTIONS = (
     USERS,
     EMAIL_CODES,
@@ -102,6 +105,9 @@ COLLECTIONS = (
     AI_USAGE,
     ORG_PLANS,
     INVOICES,
+    PARTNERS,
+    COMMISSIONS,
+    PARTNER_PAYOUTS,
 )
 
 DAY = 86_400
@@ -191,6 +197,21 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel("paid_at"),  # invoices, reports and expert work lists sort / range on it
         IndexModel([("org_id", ASCENDING), ("created_at", DESCENDING)], partialFilterExpression=_str("org_id")),
     ],
+    PARTNERS: [
+        IndexModel("email_lc", unique=True),
+        IndexModel("code", unique=True, partialFilterExpression=_str("code")),
+        IndexModel("user_id", partialFilterExpression=_str("user_id")),
+        IndexModel([("status", ASCENDING), ("created_at", DESCENDING)]),
+    ],
+    COMMISSIONS: [
+        IndexModel(
+            "order_id", name="one_commission_per_order", unique=True, partialFilterExpression={"kind": "commission"}
+        ),
+        IndexModel("refund_id", unique=True, partialFilterExpression=_str("refund_id")),
+        IndexModel([("partner_id", ASCENDING), ("status", ASCENDING), ("payable_on", ASCENDING)]),
+        IndexModel("org_id"),
+    ],
+    PARTNER_PAYOUTS: [IndexModel([("partner_id", ASCENDING), ("created_at", DESCENDING)])],
     INVOICES: [
         IndexModel("number", unique=True),
         IndexModel([("org_id", ASCENDING), ("created_at", DESCENDING)]),

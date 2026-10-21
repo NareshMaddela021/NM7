@@ -9,6 +9,8 @@ export const ROUTE_META = [
   [/^\/$/, 'Free ATS Resume Scan, Builder & Expert Rewrite', DEFAULT_DESC],
   [/^\/scan/, 'Your ATS scan report', 'See how applicant tracking systems read your resume and what to fix first.'],
   [/^\/for-orgs/, 'Nm7 for Organizations — plans for colleges, institutes and job fairs', 'Collect consent-based, ATS-safe resumes from your students or candidates, approve, print and share them with recruiters. Free plan, Drive and Campus plans.'],
+  [/^\/partners/, 'Nm7 partner programme — earn by bringing colleges and job fairs', 'Refer colleges, training institutes and job fairs to Nm7 for Organizations and earn commission on their plans. Apply in a minute.'],
+  [/^\/partner(\/|$)/, 'Your partner page', 'Your Nm7 partner code, link, referred organizations and commission.'],
   [/^\/builder/, 'Resume builder', 'Build an ATS-safe resume with live preview, then download PDF or Word.'],
   [/^\/editor/, 'Resume editor', 'Edit your scanned resume in the builder.'],
   [/^\/checkout/, 'Checkout', 'Pay securely for your resume service.'],
@@ -32,6 +34,7 @@ export const ROUTE_META = [
   [/^\/admin\/plans/, 'Organization plans · Admin', 'Nm7 admin console.'],
   [/^\/admin\/billing-settings/, 'Billing settings · Admin', 'Nm7 admin console.'],
   [/^\/admin\/org-invoices/, 'Organization invoices · Admin', 'Nm7 admin console.'],
+  [/^\/admin\/partners/, 'Partners · Admin', 'Nm7 admin console.'],
   [/^\/admin\/?$/, 'Dashboard · Admin', 'Nm7 admin console.'],
   [/^\/admin/, 'Admin console', 'Nm7 admin console.'],
   [/^\/me\/orders/, 'My orders', 'Your orders, their status and invoices.'],
@@ -69,7 +72,7 @@ export const ROUTE_META = [
 ];
 
 // whole path segments only: /expert-terms is a public page, /expert/orders is not
-const PRIVATE = /^\/(me|admin|expert|orders|checkout|login|signup|forgot-password|r|org|join|groups|kiosk|continue)(\/|$)/;
+const PRIVATE = /^\/(me|admin|expert|orders|checkout|login|signup|forgot-password|r|org|join|groups|kiosk|continue|partner)(\/|$)/;
 
 function setMeta(name, content) {
   let el = document.head.querySelector(`meta[name="${name}"]`);

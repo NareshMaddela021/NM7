@@ -45,6 +45,7 @@ from app.core.time import now
 from app.me.service import ms
 from app.orgs.scope import NOT_FOUND, AdminScope, OrgScope
 from app.orgs.shapes import OrgType
+from app.partners.service import REF_COOKIE, checkout_ref, partner_discount_pct
 
 public = APIRouter(prefix="/api/public", tags=["billing"])
 me = APIRouter(prefix="/api/me/orgs", tags=["billing"])
@@ -258,14 +259,34 @@ async def save_details(body: BillingDetailsIn, request: Request, db: DB, scope: 
     return details_out(details)
 
 
+async def _ref(db, o: dict[str, Any], payer_id: str, request: Request, typed: str | None) -> dict[str, Any] | None:
+    """A partner code typed at checkout, else the partner link's cookie (first payment only; see partners)."""
+    return await checkout_ref(db, o, payer_id, typed, request.cookies.get(REF_COOKIE))
+
+
+def _with_ref(out: dict[str, Any], ref: dict[str, Any] | None) -> dict[str, Any]:
+    out["partnerCode"] = ref["partner"]["code"] if ref else None
+    return out
+
+
 @portal.get("/quote")
-async def price_quote(db: DB, scope: OrgScope, plan: str = Query(max_length=20)) -> dict[str, Any]:
+async def price_quote(
+    request: Request,
+    db: DB,
+    scope: OrgScope,
+    plan: str = Query(max_length=20),
+    ref: str | None = Query(None, max_length=20),
+) -> dict[str, Any]:
     scope.require("billing")
-    return quote_out(await quote(db, await _org(db, scope.org_id), plan))
+    o = await _org(db, scope.org_id)
+    r = await _ref(db, o, scope.actor_id, request, ref)
+    q = await quote(db, o, plan, extra_discount_pct=await partner_discount_pct(db, r))
+    return _with_ref(quote_out(q), r)
 
 
 class CheckoutIn(CamelModel):
     plan_id: Literal["drive", "campus", "custom"]
+    ref_code: str | None = Field(None, max_length=20)  # a partner code typed at checkout
 
 
 @portal.post("/checkout", status_code=201)
@@ -277,10 +298,14 @@ async def checkout(body: CheckoutIn, request: Request, auth: CustomerAuth, db: D
     await rate_limit.check(db, key, CHECKOUT_RULES)
     await rate_limit.record(db, key)
     o = await _org(db, scope.org_id)
-    out = await start_checkout(db, o, auth.user, body.plan_id)
-    data = scope.audit_data(plan=body.plan_id, order_id=out["orderId"], amount=out["amount"])
+    r = await _ref(db, o, auth.user.id, request, body.ref_code)
+    extra = {"ref_code": r["partner"]["code"], "ref_via": r["via"]} if r else {}
+    out = await start_checkout(
+        db, o, auth.user, body.plan_id, extra_discount_pct=await partner_discount_pct(db, r), **extra
+    )
+    data = scope.audit_data(plan=body.plan_id, order_id=out["orderId"], amount=out["amount"], ref=extra.get("ref_code"))
     await audit(db, scope.actor_id, "billing_checkout", target=scope.org_id, data=data, ip=client_ip(request))
-    return out
+    return _with_ref(out, r)
 
 
 # ---------- admin: billing settings ----------
@@ -456,6 +481,14 @@ async def org_billing(org_id: str, db: DB, _: AdminScope) -> dict[str, Any]:
         else None,
         "limitOverrides": o.get("limit_overrides"),
         "legacyUnlimited": bool(o.get("legacy_unlimited")),
+        "partner": {
+            "partnerId": o["partner"]["partner_id"],
+            "code": o["partner"].get("code"),
+            "via": o["partner"].get("via"),
+            "since": ms(o["partner"].get("since")),
+        }
+        if o.get("partner")
+        else None,
     }
 
 

@@ -5,7 +5,7 @@ MONGODB_DB=nm7_e2e uv run python -m tests.e2e_seed reset
 ... customer EMAIL NAME PASSWORD       → {"id": "..."}
 ... expert EMAIL NAME PASSWORD STATUS  → {"id": "..."}
 ... paid-order EMAIL PLAN              → {"id": "RS-…"} (as if Razorpay had confirmed the payment)
-... org-order ORG_ID PLAN EMAIL        → the checkout answer (an org order waiting for Razorpay's webhook), made
+... org-order ORG_ID PLAN EMAIL [REF]  → the checkout answer (an org order waiting for Razorpay's webhook), made
                                           without calling Razorpay (the browser tests run without Razorpay keys)
 """
 
@@ -76,11 +76,12 @@ async def main(cmd: str, *args: str) -> dict:
         await db[PAYMENTS].insert_one(pay.to_mongo())
         return {"id": order.id}
     if cmd == "org-order":
-        org_id, plan, email = args
+        org_id, plan, email, *ref = args
         user = User.load(await db[USERS].find_one({"email_lc": email.lower()}))
         o = await db[ORGANIZATIONS].find_one({"_id": org_id})
         q = await quote(db, o, plan)
-        order = await new_org_order(db, o, user.id, q)
+        extra = {"ref_code": ref[0], "ref_via": "link"} if ref else {}  # the partner code the page showed
+        order = await new_org_order(db, o, user.id, q, **extra)
         await db[ORDERS].insert_one(order.to_mongo())
         rzp_order = f"order_E2E{order.id.replace('-', '')}"
         pay = Payment(order_id=order.id, razorpay_order_id=rzp_order, amount=order.amount, status="created")

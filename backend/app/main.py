@@ -35,6 +35,7 @@ from app.orgs import kiosk as org_kiosk
 from app.orgs import recruiter as org_recruiter
 from app.orgs import router as orgs
 from app.orgs import staff as org_staff
+from app.partners import router as partners
 from app.payments.router import router as payments_router
 from app.photos.router import router as photos_router
 from app.profile.router import router as profile_router
@@ -137,6 +138,9 @@ def create_app() -> FastAPI:
     app.include_router(billing.admin)
     app.include_router(billing_docs.portal)
     app.include_router(billing_docs.admin)
+    app.include_router(partners.public)
+    app.include_router(partners.me)
+    app.include_router(partners.admin)
     app.include_router(orders_router)
     app.include_router(payments_router)
     app.include_router(profile_router)  # before me_router: /api/me/job-profile

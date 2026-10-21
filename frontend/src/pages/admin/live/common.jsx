@@ -26,6 +26,7 @@ export const NAV = [
   ['organizations', '/admin/shared-resumes', 'Shared resumes', '▤'],
   ['organizations', '/admin/plans', 'Organization plans', '◇'],
   ['payments', '/admin/org-invoices', 'Organization invoices', '№'],
+  ['payments', '/admin/partners', 'Partners', '⇄'],
   ['settings', '/admin/billing-settings', 'Billing settings', '§'],
 ];
 

@@ -26,6 +26,7 @@ from app.core.errors import ApiError
 from app.core.time import now
 from app.orders.models import Order
 from app.orders.service import PAYABLE, get_order, mark_paid
+from app.partners.service import reverse_commission
 from app.payments.models import Payment
 from app.payments.razorpay import RazorpayError, get_razorpay
 from app.refunds.models import SETTLED, Refund
@@ -241,17 +242,13 @@ async def settle_credit_notes(db: AsyncDatabase, order_id: str, actor_id: str | 
             data = {"orgs": [order.org_id], "order_id": order_id, "refund_id": refund.id, "number": note["number"],
                     "invoice": invoice["number"], "amount": refund.amount}  # fmt: skip
             await audit(db, actor_id, "credit_note_issued", target=order.org_id, data=data, session=s)
-            await on_refund(db, order, refund, session=s)
+            await reverse_commission(db, order, refund.id, note, session=s)  # the matching partner commission
             return note
 
         note = await transaction(run)
         if note:
             issued.append(note)
     return issued
-
-
-async def on_refund(db: AsyncDatabase, order: Order, refund: Refund, session: Session) -> None:
-    """Hook for what else a refund undoes (partner commission, Phase 4C)."""
 
 
 async def _adjust_plan(db: AsyncDatabase, order: Order, *, full: bool, session: Session) -> None:
