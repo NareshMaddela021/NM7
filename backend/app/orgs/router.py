@@ -19,7 +19,7 @@ import csv
 import io
 import logging
 import secrets
-from datetime import date, timedelta
+from datetime import UTC, date, datetime, time, timedelta
 from typing import Any, Literal
 
 from fastapi import APIRouter, Query, Request, Response
@@ -37,7 +37,7 @@ from app.core.email import MailerDep, send_batch
 from app.core.errors import ApiError
 from app.core.exports import CSV_BOM, csv_safe
 from app.core.schemas import CamelModel
-from app.core.time import IST, now
+from app.core.time import IST, ist_day, now
 from app.me.service import ms
 from app.orgs import emails
 from app.orgs.branding import brands_for
@@ -77,8 +77,9 @@ JOIN_RULES = [(10, timedelta(hours=1))]
 LOOKUP_RULES = [(60, timedelta(hours=1))]
 EXPORT_RULES = [(30, timedelta(hours=1))]
 ACTION_RULES = [(120, timedelta(hours=1))]  # approve / review / unprint clicks per person
-GROUP_REMIND_RULES = [(3, timedelta(days=1))]  # reminder sends per group per day
-REMIND_GAP = timedelta(hours=24)  # one reminder (or "needs changes" email) per member per day
+GROUP_REMIND_RULES = [(3, timedelta(days=1))]  # reminder sends per group per calendar day (IST; the key holds the day)
+# One reminder per member per calendar day in India: "today" and "tomorrow" in the copy mean the IST date, not a
+# rolling 24 h (a reminder at 23:30 may be followed by one at 09:00 the next morning).
 MAX_EMAILS = 500  # per send
 BATCH = 25
 
@@ -832,12 +833,17 @@ def _stop_url(membership_id: str) -> str:
     return f"{get_settings().site_url}/groups/stop?t={opt_out_token(membership_id)}"
 
 
+def _ist_midnight(t: datetime) -> datetime:
+    """The start of the current India day, as an aware UTC instant."""
+    return datetime.combine(t.astimezone(IST).date(), time.min, tzinfo=IST).astimezone(UTC)
+
+
 def _recent(r: dict[str, Any], t) -> bool:
-    return bool(r["last_reminded_at"] and t - r["last_reminded_at"] < REMIND_GAP)
+    return bool(r["last_reminded_at"] and ist_day(r["last_reminded_at"]) == ist_day(t))
 
 
 async def _email_members(db, mailer, rows, make, *, gap: bool = True) -> tuple[int, dict[str, int]]:
-    """Emails `rows`, skipping opted-out members, (with `gap`) anyone reminded in the last 24 h, and anything over
+    """Emails `rows`, skipping opted-out members, (with `gap`) anyone already reminded today (IST), and anything over
     500. Every member is claimed first — `last_reminded_at` is set atomically, with the gap in the query — so two
     sends at the same moment never email the same person twice; a member whose email failed gets their previous
     mark back and can be tried again. Review notes (`gap` False) are explicit coordinator actions: no gap."""
@@ -859,7 +865,7 @@ async def _email_members(db, mailer, rows, make, *, gap: bool = True) -> tuple[i
     claim = new_id()
     q: dict[str, Any] = {"_id": {"$in": ids}, "left_at": None, "reminders_opt_out": {"$ne": True}}
     if gap:
-        q["$or"] = [{"last_reminded_at": None}, {"last_reminded_at": {"$lt": t - REMIND_GAP}}]
+        q["$or"] = [{"last_reminded_at": None}, {"last_reminded_at": {"$lt": _ist_midnight(t)}}]
     await db[MEMBERSHIPS].update_many(q, {"$set": {"last_reminded_at": t, "reminder_claim": claim}})
     claimed = {m["_id"] async for m in db[MEMBERSHIPS].find({"_id": {"$in": ids}, "reminder_claim": claim}, {"_id": 1})}
     skipped["recent"] += len(todo) - len(claimed)  # someone else just reminded (or they opted out / left)
@@ -1120,7 +1126,7 @@ def register_shared(router: APIRouter, ScopeDep) -> None:  # noqa: N803 — a de
             make = lambda r: emails.needs_changes(  # noqa: E731
                 r["email"], r["name"] or "there", r["org_name"], r["group_name"], note, _stop_url(r["membership_id"])
             )
-            emailed, skipped = await _email_members(db, mailer, rows, make, gap=False)  # an explicit note: no 24 h gap
+            emailed, skipped = await _email_members(db, mailer, rows, make, gap=False)  # an explicit note: no day gap
         data = scope.audit_data(_orgs(rows), count=len(ids), status=body.status, emailed=emailed, memberships=ids[:200])
         await audit(db, scope.actor_id, "review", data=data, ip=_ip(request))
         return {"updated": len(ids), "emailed": emailed, "skipped": sum(skipped.values()), "reasons": skipped}
@@ -1128,7 +1134,7 @@ def register_shared(router: APIRouter, ScopeDep) -> None:  # noqa: N803 — a de
     @router.post("/shared-resumes/remind")
     async def remind(body: RemindIn, request: Request, db: DB, mailer: MailerDep, scope: ScopeDep) -> dict[str, Any]:
         """Email a segment of one group (incomplete / needs changes / not updated since a day) or chosen members.
-        At most one reminder per member per 24 h, 3 sends per group per day and 500 emails per send."""
+        At most one reminder per member per day (IST), 3 sends per group per day and 500 emails per send."""
         scope.require("remind")
         if body.segment == "selected":
             if not body.ids:
@@ -1150,9 +1156,10 @@ def register_shared(router: APIRouter, ScopeDep) -> None:  # noqa: N803 — a de
                 rows = [r for r in rows if not r["updated_at"] or r["updated_at"] < since]
         rows = [r for r in rows if r["approval"] != "rejected"]
         groups = sorted({r["group_id"] for r in rows})
+        day = ist_day()
         for gid in groups:  # check every group first; the send counts against each once it went out
             await rate_limit.check(
-                db, f"remind-group:{gid}", GROUP_REMIND_RULES,
+                db, f"remind-group:{gid}:{day}", GROUP_REMIND_RULES,
                 "This group already had 3 reminder sends today. Please try again tomorrow.",
             )  # fmt: skip
         note = body.note.strip()
@@ -1163,7 +1170,7 @@ def register_shared(router: APIRouter, ScopeDep) -> None:  # noqa: N803 — a de
         sent, skipped = await _email_members(db, mailer, rows, make)
         if sent or not skipped["failed"]:  # a send that failed outright doesn't use up one of the group's 3 a day
             for gid in groups:
-                await rate_limit.record(db, f"remind-group:{gid}")
+                await rate_limit.record(db, f"remind-group:{gid}:{day}")
         data = scope.audit_data(_orgs(rows), segment=body.segment, groups=groups, sent=sent, skipped=skipped)
         await audit(db, scope.actor_id, "remind", data=data, ip=_ip(request))
         return {"sent": sent, "skipped": sum(skipped.values()), "reasons": skipped}

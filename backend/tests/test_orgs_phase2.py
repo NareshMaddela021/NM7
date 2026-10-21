@@ -648,3 +648,18 @@ async def test_membership_check_explains_why_someone_is_hidden(owner, make_clien
     assert check["counts"] == {"inGroup": 1, "activeInGroup": 0}
     assert check["memberships"][0]["reasons"] == ["left"] and check["memberships"][0]["leftAt"]
     assert (await c.get(f"/api/admin/groups/{g['id']}/membership-check")).status_code == 403
+
+
+async def test_reminder_day_is_the_india_day(monkeypatch):
+    """A member reminded at 23:30 IST can be reminded again at 09:00 the next morning (audit #54)."""
+    from datetime import UTC, datetime
+
+    from app.core.time import IST
+    from app.orgs import router as orgs_router
+
+    late = datetime(2026, 10, 20, 23, 30, tzinfo=IST)
+    next_morning = datetime(2026, 10, 21, 9, 0, tzinfo=IST)
+    row = {"last_reminded_at": late.astimezone(UTC)}
+    assert orgs_router._recent(row, late.astimezone(UTC)) is True
+    assert orgs_router._recent(row, next_morning.astimezone(UTC)) is False  # a new day, though under 24 h later
+    assert orgs_router._ist_midnight(next_morning.astimezone(UTC)) == datetime(2026, 10, 21, 0, 0, tzinfo=IST)
