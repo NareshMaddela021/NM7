@@ -472,10 +472,11 @@ export default function Builder({ embedded = null }) {
   const sumLen = d.summary.length;
 
   // Signed-in customers: "start a new resume" really makes a new one (kept next to the others). An untouched
-  // resume (a new account's empty first one) is reused instead, so no empty copies pile up.
+  // resume (a new account's empty first one: no headline, summary, job, project or college) is reused instead,
+  // so no empty copies pile up; one already started from the Job Profile or a scan counts as touched.
   const hasResumes = customer && !me.loading && me.resumes?.length > 0;
   const latest = hasResumes ? [...me.resumes].sort((a, b) => (b.updated || 0) - (a.updated || 0))[0] : null;
-  const untouched = (x) => !real(x.summary) && !x.exp?.some((e) => real(e.company) || real(e.role)) && !x.proj?.some((p) => real(p.title)) && !x.edu?.some((e) => real(e.institution));
+  const untouched = (x) => !real(x.personal?.headline) && !real(x.summary) && !x.exp?.some((e) => real(e.company) || real(e.role)) && !x.proj?.some((p) => real(p.title)) && !x.edu?.some((e) => real(e.institution));
   const openNew = (nd, name) => {
     if (customer && !me.loading && me.resumes?.length) {
       const a = activeResume(me);
