@@ -65,7 +65,7 @@ export async function importResume(input, mode, onStep = () => {}) {
   const isPdf = /\.pdf$/i.test(name) || file.type === 'application/pdf';
   const isDocx = /\.docx$/i.test(name);
   if (/\.doc$/i.test(name)) throw err('doc', 'Old .doc files can’t be read here. In Word, use File → Save As → .docx or PDF, then upload again.');
-  if (/\.(png|jpe?g|webp|heic)$/i.test(name)) throw err('scanned', 'Photos of resumes need text recognition, which comes in the live app. For now, upload a PDF or Word file, or paste the text.');
+  if (/\.(png|jpe?g|webp|heic)$/i.test(name)) throw err('scanned', 'This is a photo. “Snap photos” reads photos of your resume or papers and fills the sections for you. Here, upload a PDF or Word file, or paste the text.');
   if (!isPdf && !isDocx) throw err('type', 'Please upload a PDF or Word (.docx) file.');
 
   if (isDocx) {
@@ -85,7 +85,7 @@ export async function importResume(input, mode, onStep = () => {}) {
     throw err('unreadable', 'We couldn’t open this PDF. It may be damaged — try saving it again, or paste the text.');
   }
   const chars = r.items.reduce((s, i) => s + i.str.trim().length, 0);
-  if (chars < 80) throw err('scanned', 'This PDF looks like a scanned image, so there’s no text to read. Text recognition comes in the live app — for now, paste the text instead.');
+  if (chars < 80) throw err('scanned', 'This PDF looks like a scanned image, so there’s no text to read. Take photos of its pages with “Snap photos”, which reads them for you, or paste the text instead.');
   await tick(1);
   const linkedin = isLinkedInPdf(r);
   const R = linkedin ? parseLinkedIn(r) : parseResume(toLines(r.items), { links: r.links });

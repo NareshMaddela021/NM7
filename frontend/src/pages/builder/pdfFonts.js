@@ -26,11 +26,7 @@ export async function loadFont(id) {
   return cache[id];
 }
 
-/** Registers a loaded family with a jsPDF document under the family name `id`. */
+/** Embeds a loaded family in a PdfDoc under the family name `id` (subset to the glyphs used when saved). */
 export function registerFont(doc, id, files) {
-  ['normal', 'bold', 'italic'].forEach((style) => {
-    const file = `${id}-${style}.ttf`;
-    doc.addFileToVFS(file, files[style]);
-    doc.addFont(file, id, style);
-  });
+  return doc.addFamily(id, files);
 }

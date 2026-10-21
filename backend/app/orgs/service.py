@@ -10,6 +10,7 @@ hang off the same documents: organizations.roles (reserved), groups.settings and
 
 import re
 import secrets
+import unicodedata
 from datetime import date, datetime, timedelta
 from typing import Any
 
@@ -150,21 +151,35 @@ def roll_key(defs: list[dict[str, Any]]) -> str | None:
 
 
 def safe_part(s: str) -> str:
-    return re.sub(r"_+", "_", re.sub(r"[^A-Za-z0-9]+", "_", s or "")).strip("_")[:60]
+    """A file-name slug that keeps names in any script: letters and digits (`str.isalnum()`), the combining marks
+    that Indic vowel signs and viramas are (category M) and the zero-width joiners inside a word stay; every other
+    run of characters becomes one underscore."""
+    keep = lambda c: c.isalnum() or unicodedata.category(c).startswith("M") or c in "\u200c\u200d"  # noqa: E731
+    out = re.sub(r"_+", "_", "".join(c if keep(c) else "_" for c in s or "")).strip("_\u200c\u200d")
+    return out[:60]
 
 
-def file_name(roll: str | None, name: str) -> str:
-    parts = [safe_part(roll or ""), safe_part(name), "Resume"]
-    return "_".join(p for p in parts if p) + ".pdf"
+def file_name(roll: str | None, name: str, fallback: str = "") -> str:
+    """`<roll>_<name>_Resume.pdf`; when neither the roll nor the name leaves a usable slug, the first 8 characters of
+    `fallback` (the membership id) keep the file identifiable instead of a bare `Resume.pdf`."""
+    parts = [safe_part(roll or ""), safe_part(name)]
+    if not any(parts):
+        parts = [safe_part(fallback)[:8]]
+    return "_".join(p for p in [*parts, "Resume"] if p) + ".pdf"
 
 
 def unique_names(names: list[str]) -> list[str]:
+    """Repeated names get `_2`, `_3`, … before the extension (case-insensitively, for Windows), whatever the name."""
     seen: dict[str, int] = {}
     out = []
     for n in names:
-        k = n.lower()
+        k = n.casefold()
         seen[k] = seen.get(k, 0) + 1
-        out.append(n if seen[k] == 1 else n.replace("_Resume.pdf", f"_{seen[k]}_Resume.pdf"))
+        if seen[k] == 1:
+            out.append(n)
+        else:
+            stem, dot, ext = n.rpartition(".")
+            out.append(f"{stem}_{seen[k]}{dot}{ext}" if dot else f"{n}_{seen[k]}")
     return out
 
 

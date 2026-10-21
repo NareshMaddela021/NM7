@@ -10,6 +10,8 @@ import { useJobProfile } from '../lib/profileStore';
 import { profileCompleteness, profileToResume, profileUpdates } from '../lib/jobProfile';
 import { reviewToResume } from '../lib/photoImport';
 import { DownloadBlocked, exportFile, pendingDownload } from '../lib/downloads';
+import { lengthNote, writeSummaries } from '../lib/summary/write';
+import { charCount } from '../lib/text';
 import { monthsBetween } from '../lib/import/dates';
 import PhotoImport from './builder/PhotoImport';
 import { FillFromProfile, ProfileHint, ProfileUpdates, SaveToProfile } from './builder/ProfileSync';
@@ -66,7 +68,7 @@ function ProfileOnly() {
 }
 
 /* ---------- Start & template screens ---------- */
-function Start({ onNext, profilePct = null, resume = null, onContinue }) {
+function Start({ onNext, profilePct = null, resume = null, onContinue, customer = false }) {
   const fromProfile = profilePct !== null;
   const opts = [
     ...(fromProfile ? [['profile', 'Start from my Job Profile', `A new resume filled from your Job Profile (${profilePct}% complete). You pick the look next.`, profilePct >= 40]] : []),
@@ -102,6 +104,7 @@ function Start({ onNext, profilePct = null, resume = null, onContinue }) {
             {rec && <span className="badge b-signal">Recommended</span>}
             <strong className="display" style={{ fontSize: 22 }}>{t}</strong>
             <span className="muted" style={{ fontWeight: 400 }}>{d}</span>
+            {k === 'photos' && !customer && <span className="xs muted" data-testid="start-photos-signin">Sign in needed — photos are read for your own account only.</span>}
           </button>
         ))}
       </div>
@@ -460,16 +463,11 @@ export default function Builder({ embedded = null }) {
     </div>
   );
 
-  // ready-made summaries from what the resume holds; a sentence is left out when its facts are missing
-  const sk = allSkills(d.skillGroups).filter((x) => real(x));
-  const edu0 = d.edu.find((e) => real(e.degree) || real(e.field)) || {};
-  const sentence = (...parts) => parts.filter(Boolean).join(' ');
-  const summaryOptions = [
-    [sentence('Data analyst fresher who turns raw sales data into dashboards teams actually use.', sk.length > 0 && `Skilled in ${sk.slice(0, 3).join(', ')}.`, 'Cut a sales team’s weekly reporting from 5 hours to 30 minutes during my internship. Looking for a Data Analyst role in a product-led team.'), 'Role-first · recommended'],
-    [sentence(`${[real(edu0.degree), real(edu0.field)].filter(Boolean).join(' ') || 'Recent'} graduate with a 6-month analytics internship${sk.length ? ` and hands-on ${sk.slice(0, 2).join(' and ')} projects` : ''}.`, 'Looking for an entry-level analyst role.'), 'Education-first'],
-    ['Analytical problem-solver who learns tools fast and ships useful dashboards. Google Data Analytics certified. Seeking a junior analyst role in fintech or e-commerce.', 'Strengths-first'],
-  ];
-  const sumLen = d.summary.length;
+  // ready-made summaries written from what the resume holds, in the person's own line of work (the same
+  // template engine as the summary writer's cards, without a note), so a driver or a nurse never sees fintech copy
+  const summaryOptions = useMemo(() => (cur.id === 'summary' ? writeSummaries(d, '').options.map((o) => [o.text, o.label]) : []), [cur.id, d]);
+  const sumLen = charCount(d.summary); // characters as people count them, not UTF-16 units (Telugu, Hindi…)
+  const sumNote = lengthNote(sumLen);
 
   // Signed-in customers: "start a new resume" really makes a new one (kept next to the others). An untouched
   // resume (a new account's empty first one: no headline, summary, job, project or college) is reused instead,
@@ -534,7 +532,7 @@ export default function Builder({ embedded = null }) {
           </div>
         </div>
       )}
-      {stage === 'start' && <Start profilePct={profileReady ? profileCompleteness(jp.data).pct : null}
+      {stage === 'start' && <Start profilePct={profileReady ? profileCompleteness(jp.data).pct : null} customer={!!customer}
         resume={latest ? { name: latest.name, updated: latest.updated, data: latest.data } : guestDraft ? { name: d.personal.name ? `${d.personal.name}’s draft` : 'Your draft', updated: null, data: d } : null}
         onContinue={continueLatest}
         onNext={(k) => {
@@ -544,7 +542,7 @@ export default function Builder({ embedded = null }) {
         }} />}
       {stage === 'photos' && <PhotoImport onBack={() => setStage('start')} onDone={startFromPhotos} />}
       {stage === 'import' && (
-        <Import mode={importMode} d={d} onBack={() => setStage('start')} onDone={(nd, sug) => {
+        <Import mode={importMode} d={d} onBack={() => setStage('start')} onPhotos={() => setStage('photos')} onDone={(nd, sug) => {
           // start from the suggested template; Kio brings its section order (empty sections simply don't print)
           const preset = TEMPLATE_PRESETS[sug] ? sug : 'fresher';
           const layout = layoutOf(preset);
@@ -692,7 +690,7 @@ export default function Builder({ embedded = null }) {
                 <label htmlFor="sum" className="label">Your summary</label>
                 <textarea id="sum" className="input" rows={5} value={d.summary} onChange={(e) => setD({ ...d, summary: e.target.value })} placeholder="Who you are, your strongest skills, one result with a number, and the role you want." />
                 {profile && <ProfileHint value={profile.summaries.find((x) => !x.off && x.text.trim())?.text} current={d.summary} label="summary" onUse={(v) => setD((p) => ({ ...p, summary: v }))} />}
-                <div className="row between xs"><span className="faint">{sumLen} chars</span><span className="strong" style={{ color: sumLen >= 150 && sumLen <= 400 ? 'var(--success)' : 'var(--warning)' }}>{sumLen < 150 ? `${150 - sumLen} more characters recommended` : sumLen > 400 ? 'Consider trimming' : '✓ Great length'}</span></div>
+                <div className="row between xs"><span className="faint" data-testid="summary-chars">{sumLen} chars</span><span className="strong" style={{ color: sumNote.ok ? 'var(--success)' : 'var(--warning)' }}>{sumNote.text}</span></div>
                 <span className="label" style={{ marginTop: 6 }}>Or start from one of these</span>
                 {summaryOptions.map(([t, n]) => (
                   <button key={n} type="button" className="option stack g4" onClick={() => setD({ ...d, summary: t })} style={{ fontSize: 14, lineHeight: 1.5 }}>

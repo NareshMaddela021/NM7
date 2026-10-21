@@ -46,7 +46,17 @@ export function coverPdf({ orgs = [], groups = [], count = 0, date = new Date() 
   return doc.output('blob');
 }
 
-/** A ZIP of { fileName, bytes } (PDFs are already compressed: stored, not deflated again). */
+/** The server's file-name rule, mirrored for a row that reaches the browser without one: letters and digits in any
+ * script (with their vowel signs) stay, everything else becomes one underscore; nothing usable → the membership id. */
+export function zipName({ fileName, name, membershipId }) {
+  if (fileName) return fileName;
+  const keep = (c) => /[\p{L}\p{N}\p{M}\u200c\u200d]/u.test(c);
+  const slug = [...(name || '')].map((c) => (keep(c) ? c : '_')).join('').replace(/_+/g, '_').replace(/^[_\u200c\u200d]+|[_\u200c\u200d]+$/g, '').slice(0, 60);
+  return `${slug || String(membershipId || '').slice(0, 8)}_Resume.pdf`.replace(/^_/, '');
+}
+
+/** A ZIP of { fileName, bytes } (PDFs are already compressed: stored, not deflated again). File names are stored
+ * as UTF-8 with the ZIP's UTF-8 flag set (fflate does this), so Telugu or Hindi names unpack as typed. */
 export function zipFiles(files) {
   return zipSync(Object.fromEntries(files.map((f) => [f.fileName, [f.bytes, { level: 0 }]])));
 }
@@ -73,7 +83,7 @@ export async function runExport({ base = '/api/admin', kind, ids = null, filters
       if (signal?.aborted) throw new DOMException('Stopped', 'AbortError');
       if (!row.data) { skipped += 1; continue; } // left the group or deleted the resume since the job started
       const item = job.items[offset + i];
-      files.push({ fileName: item.fileName, bytes: await bytesOf(await makePdf(row.data, item.brand ? brands[item.brand] : null)) });
+      files.push({ fileName: zipName(item), bytes: await bytesOf(await makePdf(row.data, item.brand ? brands[item.brand] : null)) });
       onProgress({ done: offset + i + 1, total: job.total, stage: 'Drawing resumes' });
     }
   }

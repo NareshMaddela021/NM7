@@ -34,6 +34,7 @@ from app.core.config import get_settings
 from app.core.db import AUDIT_LOG, DB, EXPORT_JOBS, MEMBERSHIPS, ORG_GROUPS, ORGANIZATIONS, RESUMES, USERS
 from app.core.email import MailerDep, send_batch
 from app.core.errors import ApiError
+from app.core.exports import CSV_BOM, csv_safe
 from app.core.schemas import CamelModel
 from app.core.time import IST, now
 from app.me.service import ms
@@ -921,7 +922,7 @@ def register_shared(router: APIRouter, ScopeDep) -> None:  # noqa: N803 — a de
         buf = io.StringIO()
         w = csv.writer(buf)
         w.writerow([*CSV_HEAD, *defs.values(), *CSV_TAIL])
-        safe = lambda v: ("'" + v) if isinstance(v, str) and v[:1] in "=+-@" else v  # noqa: E731 — no spreadsheet formulas
+        safe = csv_safe  # no spreadsheet formulas: a leading =, +, -, @, tab or carriage return is quoted
         for r in rows:
             head = (
                 r["name"],
@@ -945,7 +946,7 @@ def register_shared(router: APIRouter, ScopeDep) -> None:  # noqa: N803 — a de
         data = scope.audit_data(_orgs(rows), count=len(rows), filters=filters)
         await audit(db, scope.actor_id, "export_csv", data=data, ip=_ip(request))
         return Response(
-            buf.getvalue(),
+            CSV_BOM + buf.getvalue(),  # the BOM makes Excel open Telugu / Hindi names as UTF-8
             media_type="text/csv; charset=utf-8",
             headers={"Content-Disposition": 'attachment; filename="nm7-shared-resumes.csv"'},
         )
@@ -961,7 +962,7 @@ def register_shared(router: APIRouter, ScopeDep) -> None:  # noqa: N803 — a de
             rows = [r for r in rows if r["membership_id"] in wanted]
         if not rows:
             raise ApiError(400, "nothing_selected", "No shared resumes match. Change the filters or the selection.")
-        names = unique_names([file_name(r["roll"], r["name"]) for r in rows])
+        names = unique_names([file_name(r["roll"], r["name"], r["membership_id"]) for r in rows])
         job = {
             "_id": secrets.token_urlsafe(12),
             "kind": body.kind,

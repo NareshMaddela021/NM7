@@ -10,6 +10,7 @@ import pytest
 from app.core import rate_limit
 from app.core.config import get_settings
 from app.core.db import AUDIT_LOG, MEMBERSHIPS, ORG_GROUPS, RATE_EVENTS, RESUMES, USERS
+from app.core.exports import csv_safe
 from app.core.time import IST, now
 from app.orgs.service import completeness, file_name, holds_id_number, unique_names
 from tests.conftest import signup
@@ -317,8 +318,9 @@ async def test_deleted_resume_or_disabled_account_disappears(owner, make_client,
 async def test_csv_contents_safe_and_without_id_numbers(owner, make_client, outbox, db):
     await joined_three(owner, make_client, outbox, db)
     r = await owner.post("/api/admin/shared-resumes/export.csv?sort=roll", json={})
-    assert r.status_code == 200 and r.headers["content-type"].startswith("text/csv")
-    rows = list(csv.reader(io.StringIO(r.text)))
+    assert r.status_code == 200 and r.headers["content-type"] == "text/csv; charset=utf-8"
+    assert r.content.startswith(b"\xef\xbb\xbf")  # UTF-8 BOM, so Excel reads every script correctly
+    rows = list(csv.reader(io.StringIO(r.content.decode("utf-8-sig"))))
     head = "Name,Email,Phone,Organization,Group,Roll number,Branch,Completeness %,Approval,Review,Last updated,Printed"
     assert rows[0] == head.split(",")
     assert [x[5] for x in rows[1:]] == ["21A01", "21A02", "21A03"]
@@ -341,6 +343,57 @@ async def test_csv_contents_safe_and_without_id_numbers(owner, make_client, outb
         "/api/admin/shared-resumes/export.csv", json={"fieldKey": "branch", "fieldValue": "ECE"}
     )
     assert len(list(csv.reader(io.StringIO(filtered.text)))) == 2
+
+
+async def test_csv_has_bom_and_keeps_telugu_names(owner, make_client, outbox, db):
+    await setup_group(owner)
+    people = [
+        ("ramu@example.com", "రాము కుమార్", "21A01"),
+        ("neha@example.com", "नेहा शर्मा", "21A02"),
+    ]
+    for email, name, roll in people:
+        c, _ = await member(make_client, outbox, email, name, {**RESUME, "personal": {"name": name}})
+        assert (await join(c, roll=roll)).status_code == 201
+    r = await owner.post("/api/admin/shared-resumes/export.csv?sort=roll", json={})
+    assert r.status_code == 200 and r.headers["content-type"] == "text/csv; charset=utf-8"
+    assert r.content[:3] == b"\xef\xbb\xbf" and r.content.count(b"\xef\xbb\xbf") == 1
+    rows = list(csv.reader(io.StringIO(r.content.decode("utf-8-sig"))))
+    assert rows[0][0] == "Name"  # the BOM is not part of the first header
+    assert [x[0] for x in rows[1:]] == ["రాము కుమార్", "नेहा शर्मा"]
+    assert "రాము కుమార్".encode() in r.content
+    # the formula guard also covers the tab and carriage-return tricks (sign-up strips them from names, so direct)
+    assert [csv_safe(v) for v in ("\tcmd|' /C calc'!A0", "\r=1+1", "=SUM(A1)", "+1", "-1", "@x", "", "Asha", 7)] == [
+        "'\tcmd|' /C calc'!A0",
+        "'\r=1+1",
+        "'=SUM(A1)",
+        "'+1",
+        "'-1",
+        "'@x",
+        "",
+        "Asha",
+        7,
+    ]
+
+
+async def test_zip_names_unique_for_indic_names(owner, make_client, outbox, db):
+    await setup_group(owner)
+    people = [
+        ("ramu1@example.com", "రాము కుమార్", "-"),
+        ("ramu2@example.com", "రాము కుమార్", "-"),
+        ("dots@example.com", "...", "-"),  # no letters at all: the membership id names the file
+    ]
+    ids = []
+    for email, name, roll in people:
+        c, _ = await member(make_client, outbox, email, name, {**RESUME, "personal": {"name": name}})
+        r = await join(c, roll=roll)
+        assert r.status_code == 201, r.text
+        ids.append(r.json()["id"])
+    r = await owner.post("/api/admin/shared-resumes/exports", json={"kind": "export_zip", "sort": "name"})
+    assert r.status_code == 201, r.text
+    names = {i["membershipId"]: i["fileName"] for i in r.json()["items"]}
+    assert sorted(names[i] for i in ids[:2]) == ["రాము_కుమార్_Resume.pdf", "రాము_కుమార్_Resume_2.pdf"]
+    assert names[ids[2]] == f"{ids[2][:8]}_Resume.pdf"
+    assert len(set(names.values())) == 3
 
 
 async def test_export_job_zip_names_batches_and_printed_status(owner, make_client, outbox, db):
@@ -479,10 +532,18 @@ def test_file_names_and_completeness():
     assert file_name("21/A-01", "Asha  Rao!") == "21_A_01_Asha_Rao_Resume.pdf"
     assert file_name(None, "Bala") == "Bala_Resume.pdf"
     assert file_name("", "") == "Resume.pdf"
-    assert unique_names(["A_Resume.pdf", "A_Resume.pdf", "B_Resume.pdf"]) == [
+    assert file_name("", "", "mem_8f2k1x9qZ") == "mem_8f2k_Resume.pdf"  # nothing usable: the membership id
+    assert file_name("", "రాము కుమార్") == "రాము_కుమార్_Resume.pdf"  # vowel signs and viramas stay
+    assert file_name("21A01", "नेहा शर्मा") == "21A01_नेहा_शर्मा_Resume.pdf"
+    assert file_name("", "ಸಾಫ್ಟ್\u200cವೇರ್ ಕುಮಾರ್") == "ಸಾಫ್ಟ್\u200cವೇರ್_ಕುಮಾರ್_Resume.pdf"  # ZWNJ inside a word
+    assert file_name("", "../../etc/passwd") == "etc_passwd_Resume.pdf"
+    assert unique_names(["A_Resume.pdf", "a_resume.pdf", "B_Resume.pdf", "same.pdf", "same.pdf", "same.pdf"]) == [
         "A_Resume.pdf",
-        "A_2_Resume.pdf",
+        "a_resume_2.pdf",
         "B_Resume.pdf",
+        "same.pdf",
+        "same_2.pdf",
+        "same_3.pdf",
     ]
     assert completeness(RESUME)[0] == 100 and completeness({})[0] == 0
     assert holds_id_number("2345 6789 0123") and holds_id_number("ABCDE1234F") and not holds_id_number("21A01")

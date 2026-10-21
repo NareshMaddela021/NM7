@@ -33,6 +33,7 @@ from app.core.db import (
 )
 from app.core.email import Email, MailerDep, send_safely
 from app.core.errors import ApiError
+from app.core.exports import CSV_BOM, csv_safe
 from app.core.schemas import CamelModel
 from app.core.time import IST, now
 from app.experts.service import load_profile, profile_out, set_status
@@ -586,8 +587,7 @@ async def reports(db: DB, _: AdminAuth("reports"), days: int = Query(30, ge=1, l
 
 
 def _csv_safe(v: Any) -> str:
-    s = "" if v is None else str(v)
-    return "'" + s if s[:1] in ("=", "+", "-", "@") else s  # no formulas when opened in Excel
+    return csv_safe("" if v is None else str(v))  # no formulas when opened in Excel
 
 
 @router.get("/reports/orders.csv")
@@ -618,8 +618,8 @@ async def orders_csv(
         )
     await audit(db, auth.user.id, "report.exported", target="orders.csv", data={"days": days}, ip=_ip(request))
     return Response(
-        buf.getvalue(),
-        media_type="text/csv",
+        CSV_BOM + buf.getvalue(),
+        media_type="text/csv; charset=utf-8",
         headers={"Content-Disposition": f'attachment; filename="nm7-orders-{days}d.csv"'},
     )
 
