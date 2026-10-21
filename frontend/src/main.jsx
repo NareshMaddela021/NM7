@@ -8,6 +8,7 @@ import { ThemeProvider } from './lib/theme';
 import { FlowProvider } from './lib/flow';
 import { ToastProvider } from './components/ui';
 import { installChunkRecovery } from './lib/chunks';
+import { startMonitoring } from './lib/monitoring';
 import './styles/tokens.css';
 import './styles/base.css';
 
@@ -16,6 +17,8 @@ try { const ref = new URLSearchParams(window.location.search).get('ref'); if (re
 
 // A tab open across a deploy: a missing file of the old build reloads onto the new one (see lib/chunks.js)
 installChunkRecovery();
+// Error reporting (only with VITE_SENTRY_DSN; loaded after the first paint)
+setTimeout(() => { startMonitoring(); }, 2000);
 
 // Preview builds (no server rewrites) use hash URLs: /#/builder
 const Router = import.meta.env.VITE_HASH_ROUTER === '1' ? HashRouter : BrowserRouter;

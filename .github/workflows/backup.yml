@@ -1,0 +1,60 @@
+name: backup
+
+# Nightly copy of the MongoDB Atlas database (the free M0 tier has no automatic backups). Runs mongodump with a
+# read-only Atlas user, encrypts the archive with a passphrase and keeps it as a workflow artifact for 30 days.
+# Schedules run from the repository's default branch.
+#
+# Repository secrets (Settings → Secrets and variables → Actions):
+#   MONGODB_BACKUP_URI  mongodb+srv://<read-only user>:<password>@<cluster>/nm7  (Atlas → Database Access: a user
+#                       with the built-in "Only read any database" role; Network Access: allow 0.0.0.0/0 or the
+#                       GitHub runner ranges, since runners have no fixed address)
+#   BACKUP_PASSPHRASE   a long random passphrase; keep it in a password manager — without it a backup is useless
+#
+# Restore (on a machine with MongoDB Database Tools):
+#   openssl enc -d -aes-256-cbc -pbkdf2 -in nm7-YYYY-MM-DD.archive.gz.enc -out nm7.archive.gz -pass pass:<passphrase>
+#   mongorestore --uri "<admin uri>" --archive=nm7.archive.gz --gzip --nsFrom 'nm7.*' --nsTo 'nm7_restored.*'
+# (restore into a new database name first and check it, then switch MONGODB_DB or copy the collections over).
+on:
+  schedule:
+    - cron: "31 20 * * *" # 02:01 IST
+  workflow_dispatch:
+
+jobs:
+  dump:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check the secrets are set
+        env:
+          URI: ${{ secrets.MONGODB_BACKUP_URI }}
+          PASS: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          if [ -z "$URI" ] || [ -z "$PASS" ]; then
+            echo "::warning::MONGODB_BACKUP_URI and BACKUP_PASSPHRASE are not both set; nothing was backed up."
+            echo "skip=1" >> "$GITHUB_ENV"
+          fi
+      - name: Install MongoDB Database Tools
+        if: env.skip != '1'
+        run: |
+          curl -fsSL https://fastdl.mongodb.org/tools/db/mongodb-database-tools-ubuntu2404-x86_64-100.12.0.deb -o tools.deb
+          sudo dpkg -i tools.deb
+          mongodump --version | head -1
+      - name: Dump and encrypt
+        if: env.skip != '1'
+        env:
+          URI: ${{ secrets.MONGODB_BACKUP_URI }}
+          PASS: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          day=$(TZ=Asia/Kolkata date +%F)
+          mongodump --uri "$URI" --archive=dump.archive.gz --gzip --quiet
+          openssl enc -aes-256-cbc -pbkdf2 -salt -in dump.archive.gz -out "nm7-$day.archive.gz.enc" -pass env:PASS
+          rm -f dump.archive.gz
+          ls -l "nm7-$day.archive.gz.enc"
+          echo "name=nm7-$day" >> "$GITHUB_ENV"
+      - uses: actions/upload-artifact@v4
+        if: env.skip != '1'
+        with:
+          name: ${{ env.name }}
+          path: nm7-*.archive.gz.enc
+          retention-days: 30
+          if-no-files-found: error

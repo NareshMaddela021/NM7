@@ -1,0 +1,23 @@
+name: keep-alive
+
+# The API runs on Render's free plan, which puts it to sleep after 15 idle minutes; the next visitor then waits
+# 30–60 s. This pings /health every 10 minutes during Indian waking hours (05:30–23:30 IST) so the first visit of
+# the day is quick. Cost: about 100 short runs a day (free on a public repository; ~500 Actions minutes a month on
+# a private one, out of 2,000). A free external monitor (e.g. cron-job.org, UptimeRobot) does the same for nothing
+# and also alerts when the site is down — set one up and delete this file. Schedules run from the default branch.
+on:
+  schedule:
+    - cron: "*/10 0-17 * * *" # 05:30–23:30 IST
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Ping the API (and the staging API when it exists)
+        run: |
+          for url in https://nm7-api.onrender.com/health https://api.nm7.si/health; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 90 "$url" || true)
+            echo "$url -> $code"
+          done

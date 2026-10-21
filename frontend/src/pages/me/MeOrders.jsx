@@ -75,7 +75,6 @@ export function OrderDetail() {
   const raw = me.orders.find((o) => o.id === id);
   if (!raw) return <><MeHead title="Order not found" /><Link to="/me/orders">Back to my orders</Link></>;
   const o = orderView(raw);
-  const final = o.x && ['delivered', 'approved'].includes(o.x.status);
   const cd = o.live && o.deadline ? countdown(o.deadline) : null;
   const left = retentionLeft(o.deliveredAt);
   const owned = o.addons.map((a) => a.id);

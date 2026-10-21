@@ -1,0 +1,26 @@
+name: hygraph-contract
+
+# The blog's Hygraph queries, checked against the live content API once a day and on demand (not on every
+# commit: a third-party outage must not turn unrelated PRs red). Runs from the default branch, like every schedule.
+on:
+  schedule:
+    - cron: "17 2 * * *" # 07:47 IST
+  workflow_dispatch:
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: frontend/.nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - name: Blog contract test against the live Hygraph API (same queries and build step as Vercel)
+        run: HYGRAPH_CONTRACT=1 npx vitest run scripts/hygraph-contract.test.mjs

@@ -54,6 +54,9 @@ class Settings(BaseSettings):
     anthropic_api_key: str = ""
     anthropic_model: str = "claude-haiku-5-5"  # an unusable answer is retried once on claude-sonnet-5-5
 
+    # Error reporting (optional): a Sentry DSN. Without it errors are only logged (with a request id).
+    sentry_dsn: str = ""
+
     # Razorpay — empty until keys exist
     razorpay_key_id: str = ""
     razorpay_key_secret: str = ""

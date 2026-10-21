@@ -39,7 +39,7 @@ export function readDocx(buf) {
     });
     const heading = /heading|title/i.test(style);
     text.split('\n').forEach((t) => {
-      const clean = t.replace(/ /g, ' ').replace(/[ \t]{4,}/g, '   ').trim();
+      const clean = t.replace(/\u00a0/g, ' ').replace(/[ \t]{4,}/g, '   ').trim();
       y += 14;
       if (!clean) { y += 6; return; }
       lines.push({ text: (bullet ? '• ' : '') + clean, parts: clean.split(/\s{3,}/), size: size || (heading ? 14 : 11), bold: heading || boldChars >= clean.length * 0.6, x: ind, textX: ind, y, page: 1 });

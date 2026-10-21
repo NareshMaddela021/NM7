@@ -6,16 +6,37 @@ import logging
 from datetime import timedelta
 
 from pymongo.asynchronous.database import AsyncDatabase
+from pymongo.errors import DuplicateKeyError
 
 from app.core.config import get_settings
-from app.core.db import ORDER_WORK, ORDERS
+from app.core.db import LOCKS, ORDER_WORK, ORDERS
 from app.core.email import Email, Mailer, get_mailer, send_safely
 from app.core.time import now
 from app.site import get_site, save_site
 
 log = logging.getLogger("nm7.automation")
 EVERY = timedelta(minutes=10)
+LEASE = timedelta(minutes=8)  # one pass at a time across instances, admin "Run now" included
 OPEN = ("offer", "in_progress", "revision")
+
+
+async def take_lease(db: AsyncDatabase, name: str = "automation", for_: timedelta = LEASE) -> bool:
+    """True when this caller may run a pass now: the lease was free (or expired) and is now held until `for_`
+    passes. Two instances (or an instance and an admin click) can never both get it."""
+    t = now()
+    try:
+        await db[LOCKS].update_one(
+            {"_id": name, "$or": [{"until": {"$lt": t}}, {"until": None}]},
+            {"$set": {"until": t + for_, "taken_at": t}},
+            upsert=True,
+        )
+    except DuplicateKeyError:  # the document exists with a live lease: the filter did not match, the upsert tried
+        return False
+    return True
+
+
+async def release_lease(db: AsyncDatabase, name: str = "automation") -> None:
+    await db[LOCKS].update_one({"_id": name}, {"$set": {"until": None}})
 
 
 async def _expire_unpaid(db: AsyncDatabase, hours: int, _mailer: Mailer) -> int:
@@ -43,6 +64,17 @@ async def _deadline_alert(db: AsyncDatabase, hours: int, mailer: Mailer) -> int:
         sent = [v for v in (work.get("data") or {}).get("versions", []) if isinstance(v, dict) and v.get("sent")]
         if sent or work.get("alerted_at"):
             continue
+        # claim the alert before sending: a second pass running at the same time finds it taken and sends nothing
+        try:
+            claimed = await db[ORDER_WORK].update_one(
+                {"_id": o["_id"], "alerted_at": None},
+                {"$set": {"alerted_at": now()}, "$setOnInsert": {"data": {}}},
+                upsert=True,
+            )
+        except DuplicateKeyError:
+            continue
+        if not claimed.modified_count and not claimed.upserted_id:
+            continue
         late = o["deadline_at"] < now()
         text = (
             f"Order {o['_id']} has no draft yet and its deadline is "
@@ -51,9 +83,6 @@ async def _deadline_alert(db: AsyncDatabase, hours: int, mailer: Mailer) -> int:
         )
         inbox = get_settings().support_inbox
         await send_safely(mailer, Email(inbox, "Nm7 ops", f"[Deadline] {o['_id']} has no draft yet", text, text))
-        await db[ORDER_WORK].update_one(
-            {"_id": o["_id"]}, {"$set": {"alerted_at": now()}, "$setOnInsert": {"data": {}}}, upsert=True
-        )
         n += 1
     return n
 
@@ -62,18 +91,25 @@ RUNNERS = {"expire_unpaid": _expire_unpaid, "offer_timeout": _offer_timeout, "de
 
 
 async def run_rules(db: AsyncDatabase, mailer: Mailer | None = None) -> dict[str, int]:
-    """One pass over the rules that are on. Returns how many items each rule acted on."""
-    site = await get_site(db)
-    done: dict[str, int] = {}
-    runs = dict(site["rule_runs"])
-    for key, rule in site["rules"].items():
-        if not rule["on"] or key not in RUNNERS:
-            continue
-        done[key] = await RUNNERS[key](db, int(rule["value"]), mailer or get_mailer())
-        prev = runs.get(key, {})
-        runs[key] = {"last_run": now(), "acted": prev.get("acted", 0) + done[key]}
-    await save_site(db, {"rule_runs": runs})
-    return done
+    """One pass over the rules that are on. Returns how many items each rule acted on ({} when another pass is
+    running at the moment: a second instance, or the scheduler and an admin click at once)."""
+    if not await take_lease(db):
+        log.info("automation: another pass is running, skipping this one")
+        return {}
+    try:
+        site = await get_site(db)
+        done: dict[str, int] = {}
+        runs = dict(site["rule_runs"])
+        for key, rule in site["rules"].items():
+            if not rule["on"] or key not in RUNNERS:
+                continue
+            done[key] = await RUNNERS[key](db, int(rule["value"]), mailer or get_mailer())
+            prev = runs.get(key, {})
+            runs[key] = {"last_run": now(), "acted": prev.get("acted", 0) + done[key]}
+        await save_site(db, {"rule_runs": runs})
+        return done
+    finally:
+        await release_lease(db)
 
 
 async def loop(get_db) -> None:

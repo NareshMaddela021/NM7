@@ -162,7 +162,7 @@ export function SaveToProfile({ entry, section, profile, onSaved }) {
 
 const show = (x) => (typeof x === 'string' ? x : Object.entries(x || {}).filter(([k, v]) => !META.has(k) && typeof v === 'string' && v.trim()).map(([, v]) => v).join(' · '));
 /** "Your profile has N updates — review", with accept or skip for each. */
-export function ProfileUpdates({ d, setD, updates }) {
+export function ProfileUpdates({ setD, updates }) {
   const [open, setOpen] = useState(false);
   if (!updates.length) return null;
   const n = updates.length;

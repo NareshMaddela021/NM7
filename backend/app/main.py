@@ -4,7 +4,7 @@ import asyncio
 import logging
 import os
 from collections.abc import AsyncIterator
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -21,6 +21,7 @@ from app.core.body_limit import BodyLimit
 from app.core.config import get_settings
 from app.core.db import DB, close_client, ensure_indexes, get_database
 from app.core.email import log_email_status
+from app.core.observability import RequestContext, init_sentry
 from app.downloads.router import router as downloads_router
 from app.experts.router import router as expert_router
 from app.me.router import public as public_router
@@ -51,11 +52,15 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     yield
     if task:
         task.cancel()
+        with suppress(asyncio.CancelledError):
+            await task
     await close_client()
 
 
 def create_app() -> FastAPI:
     settings = get_settings()
+    if init_sentry(settings.sentry_dsn, settings.app_env):
+        logging.getLogger("nm7").info("Sentry error reporting is on")
     app = FastAPI(
         title="Nm7 API",
         version="0.1.0",
@@ -66,6 +71,7 @@ def create_app() -> FastAPI:
         openapi_url=None if settings.is_prod else "/openapi.json",
     )
     errors.install(app)
+    app.add_middleware(RequestContext)  # innermost: request ids and a JSON 500 for anything unexpected
     app.add_middleware(BodyLimit)
 
     @app.middleware("http")

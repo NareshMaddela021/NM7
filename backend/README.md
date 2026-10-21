@@ -112,3 +112,41 @@ set `ADMIN_SETUP_TOKEN` (24+ random characters) on the API, open `/admin/setup` 
 owner's details, scan the QR code, save the recovery codes and confirm a 6-digit code. Setup closes for good once an
 admin exists (404); then delete `ADMIN_SETUP_TOKEN`. Alternatively run `create-admin` from your computer with the
 Atlas connection string: `MONGODB_URI='<atlas uri>' MONGODB_DB=nm7 uv run python -m app.cli create-admin …`.
+## Operations: errors, backups, keep-alive, staging
+
+**Errors.** Every answer carries an `X-Request-Id`; an unexpected failure answers
+`{"error": {"code": "server_error", "requestId": "…"}}` (JSON, with the CORS headers, so the site can show it) and the
+log line for it starts with the same id. Set `SENTRY_DSN` (Render → nm7-api → Environment; a free Sentry project) and
+the same failures are reported to Sentry with no personal data (`send_default_pii=False`, no bodies or cookies).
+Without the variable nothing changes. The site does the same with `VITE_SENTRY_DSN` on Vercel (a separate Sentry
+project of type "Browser JavaScript"); the Sentry client is loaded as its own file only when the variable is set.
+
+**Backups** (`.github/workflows/backup.yml`). The free Atlas M0 tier keeps no backups, so a GitHub Actions job runs
+`mongodump` every night at 02:01 IST and keeps an encrypted archive for 30 days (Actions → backup → the run →
+Artifacts). It needs two repository secrets: `MONGODB_BACKUP_URI` (an Atlas database user with the built-in
+*Only read any database* role, in a `mongodb+srv://…/nm7` string) and `BACKUP_PASSPHRASE` (a long random
+passphrase, kept in a password manager). Until both are set the job only prints a warning. The restore commands are at
+the top of the workflow file. Scheduled workflows run from the repository's **default branch**, so that branch must
+carry the file.
+
+**Keep-alive** (`.github/workflows/keepalive.yml`) pings `/health` every 10 minutes between 05:30 and 23:30 IST so the
+free Render instance is awake when people arrive. A free external monitor (cron-job.org, UptimeRobot) does the same
+without Actions minutes and also alerts on downtime; once one is set up, delete the workflow.
+
+**Staging** (`render.yaml`, second service `nm7-api-staging`, database `nm7_staging` on the same cluster). Vercel
+preview deployments talk to it instead of production, so a branch under review can never touch live data:
+
+1. Render → Blueprints → the existing blueprint → *Sync*: it creates `nm7-api-staging`. Paste `MONGODB_URI` (the
+   same cluster is fine), set `ENCRYPTION_KEY` to a new random value, leave the Razorpay and Anthropic keys empty
+   unless staging needs them, set `RESEND_API_KEY` only for real emails from staging. Set `ADMIN_SETUP_TOKEN` once to
+   create a staging owner at `<preview>/admin/setup`, then delete it.
+2. Vercel → project nm7 → Settings → Environment Variables → `VITE_API_BASE`: keep the Production value
+   (`https://nm7-api.onrender.com`) and add a **Preview**-scoped value `https://nm7-api-staging.onrender.com`.
+   Redeploy one preview to pick it up.
+3. Render → nm7-api → Environment: delete `CORS_ORIGIN_REGEX` (production no longer needs to accept preview origins).
+   The staging service keeps the regex, and `CORS_ORIGINS` there names the `staging` branch preview if you use one.
+4. Rollback: Render → nm7-api → Manual Deploy → *Deploy a specific commit* (paste the SHA), or re-run the
+   deploy-check workflow by hand after the commit is back on the branch.
+
+The automation pass (`app/automation.py`) takes a short lease in the `locks` collection before it runs, so a second
+instance, or an admin's *Run now* during a scheduled pass, never emails twice.

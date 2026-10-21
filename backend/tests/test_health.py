@@ -79,3 +79,28 @@ async def test_version_reports_the_deployed_commit(client, monkeypatch):
     assert (await client.get("/version")).json() == {"commit": "abc123"}
     monkeypatch.delenv("RENDER_GIT_COMMIT")
     assert (await client.get("/version")).json()["commit"] in ("unknown", __import__("os").environ.get("GIT_COMMIT"))
+
+
+async def test_unhandled_exception_returns_json_error_shape(app, outbox):
+    """A bug in a handler answers in the API's own error shape, with a request id and the CORS headers, instead of
+    Starlette's plain-text 500 (which the browser cannot even read)."""
+    from httpx import ASGITransport, AsyncClient
+
+    @app.get("/api/boom")
+    async def boom():
+        raise RuntimeError("kaboom")
+
+    transport = ASGITransport(app=app, raise_app_exceptions=False)
+    origin = {"Origin": "http://localhost:5173"}
+    async with AsyncClient(transport=transport, base_url="http://test", headers=origin) as c:
+        r = await c.get("/api/boom")
+    assert r.status_code == 500
+    body = r.json()["error"]
+    assert body["code"] == "server_error" and "kaboom" not in body["message"]
+    assert body["requestId"] == r.headers["x-request-id"] and len(body["requestId"]) == 12
+    assert r.headers["access-control-allow-origin"] == "http://localhost:5173"
+
+
+async def test_every_answer_carries_a_request_id(client):
+    r = await client.get("/health")
+    assert len(r.headers["x-request-id"]) == 12

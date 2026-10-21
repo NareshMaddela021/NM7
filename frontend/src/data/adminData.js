@@ -24,7 +24,6 @@ export const EXPERTS_FULL = [
 ];
 
 /* ---------- orders (last 30 days) ---------- */
-const STAGES = ['Placed', 'Expert assigned', 'Draft 1', 'Revisions', 'Delivered', 'Approved'];
 export const ORDERS = [];
 for (let i = 0; i < 74; i++) {
   const r = rnd();
