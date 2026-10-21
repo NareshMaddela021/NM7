@@ -59,7 +59,7 @@ async def setup(owner):
 
 async def test_features_default_off_and_only_the_super_admin_switches_them(owner, admin_client, make_client, outbox):
     org, g = await setup_group(owner)
-    assert org["features"] == {"kiosk": False, "branding": False, "recruiterLinks": False}
+    assert org["features"] == {"kiosk": False, "branding": False, "recruiterLinks": False, "membersDownloadFree": False}
     c, _ = await coordinator(owner, make_client, outbox, org["id"])
     ops = await admin_client("ops")
     for who in (c, ops):

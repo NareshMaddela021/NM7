@@ -68,7 +68,8 @@ async def account_entitlement(db, user_id) -> tuple[bool, str]:
     if not payments_on():
         return True, "payments_off"
     paid = db[ORDERS].find(
-        {"customer_id": user_id, "paid_at": {"$ne": None}, "status": {"$nin": list(LOST)}}, {"plan": 1}
+        {"customer_id": user_id, "paid_at": {"$ne": None}, "status": {"$nin": list(LOST)}, "kind": {"$ne": "org"}},
+        {"plan": 1},
     )
     plans = {o["plan"] async for o in paid}
     if plans & {"expert", "launch"}:

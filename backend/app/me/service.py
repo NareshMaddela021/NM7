@@ -53,7 +53,7 @@ async def referral_code(db: AsyncDatabase, user: User) -> str:
 async def referrals(db: AsyncDatabase, user_id: str) -> list[dict[str, Any]]:
     out = []
     async for u in db[USERS].find({"referred_by": user_id}, {"name": 1, "created_at": 1}).sort("created_at", -1):
-        paid = {"customer_id": u["_id"], "paid_at": {"$ne": None}}
+        paid = {"customer_id": u["_id"], "paid_at": {"$ne": None}, "kind": {"$ne": "org"}}
         bought = await db[ORDERS].find_one(paid)
         status = "bought" if bought else "joined"
         out.append({"name": u["name"].split()[0], "at": ms(u["created_at"]), "status": status})

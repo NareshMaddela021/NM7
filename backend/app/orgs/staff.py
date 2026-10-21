@@ -21,6 +21,7 @@ from app.audit import audit
 from app.auth.deps import CustomerAuth
 from app.auth.models import new_id
 from app.auth.sessions import client_ip
+from app.billing.subscription import billing_summary, check_limit
 from app.core import rate_limit
 from app.core.config import get_settings
 from app.core.db import DB, ORG_GROUPS, ORG_STAFF, ORGANIZATIONS, USERS
@@ -32,7 +33,7 @@ from app.core.time import now
 from app.me.service import ms
 from app.orgs import emails
 from app.orgs.router import audit_list, create_group_in, groups_with_counts, update_group_in
-from app.orgs.scope import NOT_FOUND, AdminScope, OrgScope
+from app.orgs.scope import NOT_FOUND, AdminScope, OrgScope, Scope
 from app.orgs.shapes import LOOKUP_RULES, GroupIn, GroupPatch, org_out
 from app.orgs.shared import register_shared
 
@@ -44,7 +45,7 @@ portal = APIRouter(prefix="/api/org/{org_id}", tags=["organizations"])
 INVITE_DAYS = 7
 INVITE_RULES = [(50, timedelta(hours=1))]
 ACCEPT_RULES = [(20, timedelta(hours=1))]
-StaffRole = Literal["coordinator", "viewer"]
+StaffRole = Literal["owner", "coordinator", "viewer"]  # Owner: Phase 4 (billing), invited by Nm7 only
 
 
 class StaffIn(CamelModel):
@@ -118,6 +119,13 @@ async def invite_staff(
     org = await db[ORGANIZATIONS].find_one({"_id": org_id})
     if not org:
         raise NOT_FOUND
+    return await _invite_staff(db, mailer, org, body, scope, request)
+
+
+async def _invite_staff(db, mailer, org: dict[str, Any], body: StaffIn, scope: Scope, request: Request):
+    """Nm7's admins invite anyone (an Owner included) and may go over the plan's coordinator limit on purpose; an
+    Owner invites coordinators and viewers within the plan."""
+    org_id = org["_id"]
     key = f"staff-invite:{scope.actor_id}"
     await rate_limit.check(db, key, INVITE_RULES)
     await rate_limit.record(db, key)
@@ -126,6 +134,8 @@ async def invite_staff(
     old = await db[ORG_STAFF].find_one({"org_id": org_id, "email_lc": email_lc})
     if old and old["status"] == "active":
         raise ApiError(409, "already_staff", f"{body.email} already helps run this organization.")
+    if body.role != "owner" and not (old and old["status"] == "invited"):
+        await check_limit(db, org, "coordinators", bypass=not scope.is_staff)
     t = now()
     s = {
         "org_id": org_id,
@@ -293,6 +303,8 @@ async def portal_home(db: DB, scope: OrgScope) -> dict[str, Any]:
         "allGroups": scope.group_ids is None,
         "canManage": scope.role != "viewer",
         "canCreateGroups": scope.role != "viewer" and scope.group_ids is None,
+        "isOwner": scope.role in ("owner", "admin"),
+        "billing": await billing_summary(db, o),  # plan, usage and banners (80% used, ends soon, grace)
     }
 
 
@@ -312,6 +324,40 @@ async def portal_update_group(
     g = await scope.group(db, group_id)
     scope.require("manage")
     return await update_group_in(db, scope, g, body, client_ip(request))
+
+
+class TeamIn(StaffIn):
+    role: Literal["coordinator", "viewer"] = "coordinator"
+
+
+@portal.get("/team")
+async def portal_team(db: DB, scope: OrgScope) -> list[dict[str, Any]]:
+    """Owner: who helps run the organization (Owners, coordinators, viewers)."""
+    scope.require("team")
+    return await list_staff(scope.org_id, db, scope)
+
+
+@portal.post("/team", status_code=201)
+async def portal_invite(body: TeamIn, request: Request, db: DB, mailer: MailerDep, scope: OrgScope) -> dict[str, Any]:
+    scope.require("team")
+    org = await db[ORGANIZATIONS].find_one({"_id": scope.org_id})
+    return await _invite_staff(db, mailer, org, body, scope, request)
+
+
+@portal.delete("/team/{staff_id}", status_code=204)
+async def portal_remove(staff_id: str, request: Request, db: DB, scope: OrgScope) -> Response:
+    scope.require("team")
+    s = await _staff(db, staff_id)
+    if s["org_id"] != scope.org_id:
+        raise NOT_FOUND
+    if s["role"] == "owner":
+        raise ApiError(403, "owner_stays", "An Owner can only be removed by Nm7.")
+    await db[ORG_STAFF].update_one(
+        {"_id": staff_id}, {"$set": {"status": "removed", "invite_token_hash": None, "removed_at": now()}}
+    )
+    data = scope.audit_data([s["org_id"]], role=s["role"])
+    await audit(db, scope.actor_id, "staff_remove", target=staff_id, data=data, ip=client_ip(request))
+    return Response(status_code=204)
 
 
 @portal.get("/audit")

@@ -24,6 +24,8 @@ export const NAV = [
   ['team', '/admin/team', 'Team & audit log', '⚿'],
   ['organizations', '/admin/orgs', 'Organizations', '⌂'],
   ['organizations', '/admin/shared-resumes', 'Shared resumes', '▤'],
+  ['organizations', '/admin/plans', 'Organization plans', '◇'],
+  ['settings', '/admin/billing-settings', 'Billing settings', '§'],
 ];
 
 /** GET a path; { data, error, loading, reload }. `path` null = don't load. */

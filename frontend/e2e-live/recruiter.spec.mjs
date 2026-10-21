@@ -27,9 +27,9 @@ test('recruiter link: opt-in → create link → recruiter view, download, short
   await form.getByRole('button', { name: 'Save group' }).click();
   const group = page.getByRole('region', { name: 'Group MBA 2026' });
   await expect(group).toBeVisible();
-  const sw = page.getByRole('region', { name: 'Features' }).getByRole('checkbox', { name: /Recruiter links/ });
-  await sw.click();
-  await expect(sw).toBeChecked();
+  const sw = page.getByRole('region', { name: 'Features' }).getByRole('combobox', { name: /Recruiter links/ }); // plan-based, forced on by Nm7
+  await sw.selectOption('on');
+  await expect(sw).toHaveValue('on');
   await group.getByRole('button', { name: 'Edit' }).click();
   await group.getByLabel(/Share with recruiters/).check();
   await group.getByRole('button', { name: 'Save group' }).click();

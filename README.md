@@ -222,7 +222,7 @@ Phase 3 adds tools for big events and placements. It ships in three parts, each 
 - Every switch is **off** by default.
 - Only the Nm7 owner can switch them, under **Admin → Organizations → (organization) → Features** (`PUT /api/admin/orgs/{id}/features`, audited as `org_features`). Coordinators can't.
 - When a switch is off, the server answers 404 for that feature (staff endpoints and public links alike) and the screens hide it.
-- These switches become paid plan features in Phase 4.
+- Since Phase 4 the organization's **plan** decides them; the admin switches are overrides on top (see Phase 4).
 
 ### 3A · Kiosk mode
 
@@ -334,3 +334,81 @@ Vercel's own fix for this (keeping the previous deploy's files reachable, called
 2. In **Shared resumes**, filter or tick the students you want, then choose **Share with a recruiter…**. Fill in the company, how long the link should work, whether downloads and contact details are allowed, and which answers to show. Add an access code if you like. Choose **Make link**, then send the link to the recruiter. Send the code separately.
 3. The recruiter opens the link without an account, views or downloads resumes, and ticks **Interested**. You'll see **Shortlisted by <Company>** in Shared resumes, and you can filter by it.
 4. **Recruiter links** shows views, downloads and shortlists. **Extend** a link if the recruiter needs more time, or **Revoke** it to stop it at once.
+
+## Nm7 for Organizations (Phase 4)
+
+Phase 4 adds paid plans, GST invoices and partner referrals. **Every business value is an admin setting with a
+default** (nothing is hard-coded): Admin → **Organization plans** and Admin → **Billing settings**.
+
+### 4A · Plans and limits
+
+**Plans** (`org_plans`, edited in Admin → Organization plans; prices exclude GST):
+
+| Plan | Price | Members | Groups | Coordinators | Kiosk stalls | Branding · recruiter links · free downloads |
+|---|---|---|---|---|---|---|
+| Free | ₹0 | 50 | 1 | 1 | 0 | no |
+| Drive | ₹4,999 per 60 days | 500 | 5 | 3 | 3 | yes |
+| Campus | ₹24,999 per 12 months | 3,000 | unlimited | 10 | 10 | yes |
+| Custom | set per organization by the admin | | | | | |
+
+- Each save of a plan is a new **version** (old terms kept in `history`). A purchase copies the terms it was sold on into
+  the order and the organization's `subscription`, so editing a plan never changes what someone already bought.
+- **Subscription** (on the organization): plan, start / end (IST days, inclusive), price, discount, source (razorpay /
+  offline / admin). State: **active** → **grace** (Billing settings: 7 days) → **expired** = the Free limits apply.
+  Nothing is ever deleted; everything stays readable.
+- **Features** (kiosk, branding, recruiter links, members download free) come from the plan. The admin's per-organization
+  switches are overrides: *Follow the plan* / *Always on* / *Always off* (`PUT /api/admin/orgs/{id}/features`, `null` =
+  follow the plan).
+- **Limits are enforced on the server** on join (members), group create, coordinator invite and kiosk create. Over a
+  limit the action answers 409 with "ask your Owner to upgrade"; nothing is removed. Nm7's own admins may go over on
+  purpose (group create, invites); joins and kiosks never.
+- **Banners** in the portal at 80% of a limit (setting), when the plan ends within 7 days (setting), in grace and after.
+- **Reminders** (automation rule `org_plan_reminders`): emails to the Owners 14, 7 and 1 day before the end (setting),
+  when grace starts and when the Free limits apply — each once, claimed before sending; a missed one isn't sent late.
+- **Organizations created before Phase 4** keep working without plan limits (`limit_overrides`, flagged *legacy*) until
+  the admin assigns a plan. Their old feature switches that were *on* stay on. (One-time start-up migration.)
+
+**Owner role.** `org_staff.role = "owner"`: everything a coordinator can do, plus **Billing** and **Team** (invite /
+remove coordinators and viewers within the plan's limit). Owners are made by Nm7 (invite with role Owner) or by
+**Start free** on `/for-orgs` (the person who creates the organization).
+
+**Buying a plan** (`/org/{id}/billing`):
+1. The Owner fills **billing details** (legal name, address, state, optional GSTIN — format, check digit and state code are
+   validated).
+2. `GET /api/org/{id}/billing/quote?plan=drive` → plan price − discount (the organization's discount set by Nm7, and the
+   partner discount when on) → GST on the taxable value when GST is on.
+3. `POST /api/org/{id}/billing/checkout` creates an order (`orders.kind = "org"`) and a Razorpay order for the total.
+4. **The plan turns on only from Razorpay's verified webhook** (`payment.captured` / `order.paid`, signature checked,
+   amount checked) — or an admin-recorded offline payment. `/api/payments/verify` never activates an organization plan;
+   the page waits for the webhook and updates by itself. Renewing the same plan continues from the day after it ends.
+- Organization orders never appear in the Owner's personal orders and never unlock personal downloads.
+- **Test mode:** checkout refuses a live Razorpay key until Admin → Billing settings → *Live payments* is on (and a
+  test key once it is on).
+
+**Admin**
+- Admin → **Organization plans**: edit each plan (price, period, limits, features, on sale, shown on /for-orgs).
+- Admin → **Billing settings**: supplier details (legal name, address, state, GSTIN, signatory, SAC), GST rate, grace,
+  reminder days, banner thresholds, partner commission, referral cookie length, partner discount, live payments,
+  *Start free* open.
+- Admin → Organizations → (organization) → **Plan and billing**: assign a plan without payment (dates, price,
+  discount), extend, the organization's discount %, a custom plan only it can buy, per-organization limits.
+- Dashboard: organization revenue after refunds, active paid organizations, renewals due in 30 days.
+- API: `/api/public/org-plans`, `POST /api/me/orgs` (Start free), `/api/org/{id}/billing…`, `/api/org/{id}/team…`,
+  `/api/admin/billing/{settings,plans,summary}`, `/api/admin/orgs/{id}/billing…`.
+- Audit: `billing_details`, `billing_checkout`, `plan_activated`, `plan_assign`, `plan_extend`, `plan_reminder`,
+  `org_pricing`, `plan_edit`, `billing_settings`.
+
+#### Owner guide: plan and billing
+
+1. **Start.** On **nm7.si/for-orgs** choose **Start free**, sign in, and name your organization. You are its **Owner**,
+   on the Free plan (one group of up to 50 members, one coordinator).
+2. **Invite your team.** **Team** → enter an email and choose Coordinator or Viewer. Your plan sets how many you can have.
+3. **Upgrade.** **Billing** → fill your billing details once (legal name, address, state, GSTIN if you have one) →
+   **Upgrade** on Drive or Campus → check the total → **Pay**. The page shows *waiting for Razorpay* for a few seconds,
+   then your new plan. You also get an email.
+4. **Renew.** We email you 14, 7 and 1 day before the plan ends. **Renew** continues from the day after it ends. If it
+   lapses, everything keeps working for 7 more days, then the Free limits apply — nothing is deleted, but new joins,
+   groups, coordinators and kiosks over the Free limits wait until you renew.
+5. **Bank transfer or purchase order?** Use **Talk to us** on /for-orgs; Nm7 sends a proforma invoice.
+
+Coordinators and viewers see the plan banners too, with "ask your Owner to upgrade".

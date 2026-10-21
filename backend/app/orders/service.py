@@ -7,6 +7,7 @@ from pymongo import ASCENDING
 from pymongo.asynchronous.database import AsyncDatabase
 
 from app.auth.models import User
+from app.billing.subscription import activate_paid
 from app.core.db import ORDERS, PAYMENTS, REFUNDS, Session, next_number, transaction
 from app.core.time import IST, now
 from app.orders.models import ORDER_NO_START, Order, OrderItem
@@ -58,7 +59,12 @@ async def get_order(db: AsyncDatabase, order_id: str, session: Session = None) -
 
 
 async def mark_paid(
-    db: AsyncDatabase, payment_id: str, razorpay_payment_id: str, method: str | None = None, raw: dict | None = None
+    db: AsyncDatabase,
+    payment_id: str,
+    razorpay_payment_id: str | None,
+    method: str | None = None,
+    raw: dict | None = None,
+    source: str = "razorpay",
 ) -> tuple[Order, bool]:
     """Records a successful payment in one transaction (payment, order, invoice number). Safe to call more than
     once (checkout handler and webhook both do): returns (order, True) only the first time, so the receipt email
@@ -75,7 +81,10 @@ async def mark_paid(
         at = now()
         order.paid_at = at
         order.invoice_no = await next_invoice_no(db, at, session=s)
-        if order.plan == "diy":
+        if order.kind == "org":
+            order.status = "done"  # the organization's plan turns on in this same transaction
+            await activate_paid(db, order, source=source, session=s)
+        elif order.plan == "diy":
             order.status = "done"
         else:
             order.status = "offer"  # paid; finding an expert

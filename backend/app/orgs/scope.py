@@ -17,6 +17,7 @@ from fastapi import Depends, Path
 
 from app.admin.roles import can as admin_can
 from app.auth.deps import Auth, get_auth
+from app.billing.subscription import plan_features
 from app.core.db import DB, ORG_GROUPS, ORG_STAFF, ORGANIZATIONS
 from app.core.errors import ApiError
 
@@ -24,7 +25,33 @@ NOT_FOUND = ApiError(404, "not_found", "We couldn’t find that.")
 
 # what each kind of user may do (inside their scope)
 ACTIONS = {
-    "admin": {"view", "print", "export", "manage", "approve", "remind", "review", "unprint", "audit"},
+    "admin": {
+        "view",
+        "print",
+        "export",
+        "manage",
+        "approve",
+        "remind",
+        "review",
+        "unprint",
+        "audit",
+        "billing",
+        "team",
+    },
+    # Phase 4: the organization's Owner (one or more) also buys and renews the plan
+    "owner": {
+        "view",
+        "print",
+        "export",
+        "manage",
+        "approve",
+        "remind",
+        "review",
+        "unprint",
+        "audit",
+        "billing",
+        "team",
+    },
     "coordinator": {"view", "print", "export", "manage", "approve", "remind", "review", "unprint", "audit"},
     "viewer": {"view", "print", "audit"},
 }
@@ -35,16 +62,21 @@ ACTION_TEXT = {
     "remind": "send reminders",
     "review": "review resumes",
     "unprint": "change printed status",
+    "billing": "manage billing (ask your organization’s Owner)",
+    "team": "invite or remove coordinators (ask your organization’s Owner)",
 }
 
 
-FEATURES = ("kiosk", "branding", "recruiter_links")  # Phase 3 switches, per organization; Nm7 sets them
+# Per-organization features. Phase 4: the plan in effect decides them (app/billing/subscription.py); a switch the
+# admin sets on the organization (True / False) overrides the plan, and an unset switch follows the plan.
+FEATURES = ("kiosk", "branding", "recruiter_links", "members_download_free")
 
 
 def features_of(o: dict[str, Any] | None) -> dict[str, bool]:
-    """Every Phase 3 feature is off until Nm7 switches it on for the organization."""
-    f = (o or {}).get("features") or {}
-    return {k: bool(f.get(k)) for k in FEATURES}
+    """What the organization may use today: the plan's features with the admin's overrides on top."""
+    base = plan_features(o)
+    overrides = (o or {}).get("features") or {}
+    return {k: bool(overrides[k]) if overrides.get(k) is not None else base[k] for k in FEATURES}
 
 
 def require_feature(o: dict[str, Any] | None, name: str) -> None:
@@ -56,7 +88,7 @@ def require_feature(o: dict[str, Any] | None, name: str) -> None:
 @dataclass
 class Scope:
     actor_id: str
-    role: Literal["admin", "coordinator", "viewer"]
+    role: Literal["admin", "owner", "coordinator", "viewer"]
     org_id: str | None = None  # None: every organization (the admin console)
     group_ids: list[str] | None = None  # None: every group of the organization
     staff_id: str | None = None

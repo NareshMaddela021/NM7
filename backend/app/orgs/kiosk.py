@@ -25,6 +25,7 @@ from app.auth.deps import CustomerAuth
 from app.auth.models import EmailCode, User, new_id
 from app.auth.service import CODE_MAX_ATTEMPTS, CODE_TTL, find_user, may_send_code
 from app.auth.sessions import client_ip, revoke_all, start_session
+from app.billing.subscription import check_limit
 from app.core import rate_limit
 from app.core.config import get_settings
 from app.core.db import AUDIT_LOG, DB, EMAIL_CODES, KIOSKS, MEMBERSHIPS, ORG_GROUPS, ORGANIZATIONS, USERS
@@ -190,9 +191,10 @@ async def list_kiosks(db: DB, scope: OrgScope) -> list[dict[str, Any]]:
 @staff.post("", status_code=201)
 async def create_kiosk(body: KioskIn, request: Request, db: DB, scope: OrgScope) -> dict[str, Any]:
     """A new kiosk link for one group. The link (with its secret token) is shown once, here."""
-    await _org_with_kiosk(db, scope.org_id)
+    o = await _org_with_kiosk(db, scope.org_id)
     g = await scope.group(db, body.group_id)
     scope.require("manage")
+    await check_limit(db, o, "kiosks")
     key = f"kiosk-create:{scope.actor_id}"
     await rate_limit.check(db, key, CREATE_RULES)
     await rate_limit.record(db, key)

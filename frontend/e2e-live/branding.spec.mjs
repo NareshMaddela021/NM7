@@ -35,9 +35,9 @@ test('branding: set brand → group prints in it → branded combined PDF; membe
   await expect(group).toBeVisible();
 
   // switch on, then set the brand
-  const sw = page.getByRole('region', { name: 'Features' }).getByRole('checkbox', { name: /Branded templates/ });
-  await sw.click();
-  await expect(sw).toBeChecked();
+  const sw = page.getByRole('region', { name: 'Features' }).getByRole('combobox', { name: /Branded templates/ }); // plan-based, forced on by Nm7
+  await sw.selectOption('on');
+  await expect(sw).toHaveValue('on');
   const brand = page.getByRole('region', { name: 'Branding' });
   await brand.getByLabel('Upload logo').setInputFiles({ name: 'logo.png', mimeType: 'image/png', buffer: png() });
   await expect(brand.getByRole('img', { name: 'Organization logo' })).toBeVisible();

@@ -23,6 +23,7 @@ from pymongo.errors import DuplicateKeyError
 
 from app.audit import audit
 from app.auth.models import new_id
+from app.billing.subscription import check_limit
 from app.core.db import AUDIT_LOG, DB, MEMBERSHIPS, ORG_GROUPS, ORGANIZATIONS, RESUMES, USERS
 from app.core.errors import ApiError
 from app.core.time import now
@@ -84,12 +85,30 @@ def _dates(starts, ends) -> tuple[str | None, str | None]:
     return s, e
 
 
-FREE_ONLY_NM7 = ApiError(403, "nm7_only", "Only Nm7 can make downloads free for a group’s members.")
+FREE_ONLY_NM7 = ApiError(
+    403,
+    "nm7_only",
+    "Free downloads for members come with the Drive and Campus plans — ask your Owner to upgrade (Organization → "
+    "Billing), or ask Nm7.",
+)
+
+
+async def _nm7_grants_free_downloads(db, scope: Scope, o: dict[str, Any] | None, on: bool | None) -> None:
+    """Nm7 switching free downloads on for a group is also the grant for its organization (as before Phase 4):
+    the organization's override is set, so it keeps working whatever plan the organization is on."""
+    if on and o and not scope.is_staff and not features_of(o)["members_download_free"]:
+        await db[ORGANIZATIONS].update_one({"_id": o["_id"]}, {"$set": {"features.members_download_free": True}})
+
+
+def _free_downloads_allowed(scope: Scope, o: dict[str, Any] | None) -> bool:
+    """Nm7 always may; an organization's own staff when its plan (or Nm7) includes free downloads for members."""
+    return not scope.is_staff or features_of(o)["members_download_free"]
 
 
 async def create_group_in(db, scope: Scope, o: dict[str, Any], body: GroupIn, ip: str | None) -> dict[str, Any]:
-    if scope.is_staff and body.settings.members_download_free:
+    if body.settings.members_download_free and not _free_downloads_allowed(scope, o):
         raise FREE_ONLY_NM7
+    await check_limit(db, o, "groups", bypass=not scope.is_staff)
     if body.settings.print_branded:
         require_feature(o, "branding")
     if body.settings.share_with_recruiters:
@@ -119,6 +138,7 @@ async def create_group_in(db, scope: Scope, o: dict[str, Any], body: GroupIn, ip
         except DuplicateKeyError:
             if body.code or attempt == 2:
                 raise ApiError(409, "code_taken", f"The code {code} was just taken by another group.") from None
+    await _nm7_grants_free_downloads(db, scope, o, body.settings.members_download_free)
     data = scope.audit_data([o["_id"]], name=g["name"], code=code)
     await audit(db, scope.actor_id, "group_create", target=g["_id"], data=data, ip=ip)
     return group_out(g)
@@ -126,9 +146,10 @@ async def create_group_in(db, scope: Scope, o: dict[str, Any], body: GroupIn, ip
 
 async def update_group_in(db, scope: Scope, g: dict[str, Any], body: GroupPatch, ip: str | None) -> dict[str, Any]:
     given = body.model_dump(exclude_unset=True)
-    if scope.is_staff and body.settings and body.settings.members_download_free is not None:
-        if body.settings.members_download_free != g.get("settings", {}).get("members_download_free", False):
-            raise FREE_ONLY_NM7
+    if body.settings and body.settings.members_download_free:
+        if not g.get("settings", {}).get("members_download_free", False):
+            if not _free_downloads_allowed(scope, await db[ORGANIZATIONS].find_one({"_id": g["org_id"]})):
+                raise FREE_ONLY_NM7
     if body.settings and (body.settings.print_branded or body.settings.share_with_recruiters):
         o = await db[ORGANIZATIONS].find_one({"_id": g["org_id"]})
         if body.settings.print_branded:
@@ -159,6 +180,9 @@ async def update_group_in(db, scope: Scope, g: dict[str, Any], body: GroupPatch,
         await db[ORG_GROUPS].update_one({"_id": g["_id"]}, {"$set": {**sets, "updated_at": now()}})
     except DuplicateKeyError:  # the code was taken between the check and the write
         raise ApiError(409, "code_taken", f"The code {sets['code']} is already used by another group.") from None
+    if body.settings and body.settings.members_download_free:
+        o = await db[ORGANIZATIONS].find_one({"_id": g["org_id"]})
+        await _nm7_grants_free_downloads(db, scope, o, True)
     data = scope.audit_data([g["org_id"]], **{k: v for k, v in sets.items() if k != "custom_fields"})
     await audit(db, scope.actor_id, "group_update", target=g["_id"], data=data, ip=ip)
     g = await db[ORG_GROUPS].find_one({"_id": g["_id"]})
@@ -172,6 +196,8 @@ ORG_ACTIONS = [
     "member_join", "member_update", "member_leave", "org_features",
     "kiosk_create", "kiosk_revoke", "kiosk_session", "kiosk_print", "branding_update",
     "share_create", "share_view", "share_download", "share_shortlist", "share_revoke", "share_extend",
+    "billing_details", "billing_checkout", "plan_activated", "plan_assign", "plan_extend", "plan_reminder",
+    "org_pricing",
 ]  # fmt: skip
 
 
@@ -262,16 +288,22 @@ async def update_org(org_id: str, body: OrgPatch, request: Request, db: DB, scop
 
 @admin.put("/orgs/{org_id}/features")
 async def set_features(org_id: str, body: FeaturesIn, request: Request, db: DB, scope: AdminScope) -> dict[str, Any]:
-    """Admin → Organizations → (organization) → Features. Coordinators never reach this (it's /api/admin)."""
+    """Admin → Organizations → (organization) → Features: overrides on top of the plan (null = follow the plan).
+    Coordinators and Owners never reach this (it's /api/admin)."""
     o = await _org(db, org_id)
-    sets = {f"features.{k}": v for k, v in body.model_dump(exclude_none=True).items()}
-    if sets:
-        await db[ORGANIZATIONS].update_one({"_id": org_id}, {"$set": {**sets, "updated_at": now()}})
-    after = features_of(await _org(db, org_id))
+    given = body.model_dump(exclude_unset=True)
+    sets = {f"features.{k}": v for k, v in given.items() if v is not None}
+    unsets = {f"features.{k}": "" for k, v in given.items() if v is None}
+    update: dict[str, Any] = {"$set": {**sets, "updated_at": now()}}
+    if unsets:
+        update["$unset"] = unsets
+    await db[ORGANIZATIONS].update_one({"_id": org_id}, update)
+    after_doc = await _org(db, org_id)
+    after = features_of(after_doc)
     changed = {k: after[k] for k in FEATURES if after[k] != features_of(o)[k]}
-    await audit(
-        db, scope.actor_id, "org_features", target=org_id, data=scope.audit_data([org_id], **changed), ip=_ip(request)
-    )
+    reset = [k for k, v in given.items() if v is None]  # switches handed back to the plan
+    data = scope.audit_data([org_id], **changed, **({"follow_plan": reset} if reset else {}))
+    await audit(db, scope.actor_id, "org_features", target=org_id, data=data, ip=_ip(request))
     return await get_org(org_id, db, scope)
 
 

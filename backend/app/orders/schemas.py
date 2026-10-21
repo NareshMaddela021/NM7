@@ -75,7 +75,7 @@ class OrderOut(CamelModel):
         return cls(
             id=o.id,
             plan=o.plan,
-            plan_name=PLANS[o.plan][0],
+            plan_name=PLANS[o.plan][0] if o.plan in PLANS else (o.items[0].name if o.items else o.plan),
             target_role=o.target_role,
             status=o.status,
             amount=o.amount,

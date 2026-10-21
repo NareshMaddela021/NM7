@@ -24,7 +24,10 @@ def _button(url: str, label: str) -> str:
 
 def staff_invite(to: str, org_name: str, role: str, token: str, inviter: str) -> Email:
     url = f"{get_settings().site_url}/org/invite/{token}"
-    what = "manage groups, approve members, send reminders and print" if role == "coordinator" else "view and print"
+    what = {
+        "owner": "choose and pay for the plan, invite coordinators, manage groups, approve members and print",
+        "coordinator": "manage groups, approve members, send reminders and print",
+    }.get(role, "view and print")
     text = (
         f"Hello,\n\n{inviter} invited you to help run resume drives for {org_name} on Nm7.\n"
         f"As a {role} you can {what} your organization's shared resumes.\n\n"

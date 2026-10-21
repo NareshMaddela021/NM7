@@ -121,7 +121,7 @@ async def test_prices_change_checkout_and_are_logged(client, outbox, razorpay, d
 async def test_automation_rules(client, outbox, razorpay, db, admin_client):
     ops = await admin_client("ops")
     rules = (await ops.get("/api/admin/automation")).json()
-    assert [r["id"] for r in rules] == ["expire_unpaid", "offer_timeout", "deadline_alert"]
+    assert [r["id"] for r in rules] == ["expire_unpaid", "offer_timeout", "deadline_alert", "org_plan_reminders"]
     await signup(client, outbox)
     created, _ = await buy(client, pay=False)
     await db[ORDERS].update_one({"_id": created["orderId"]}, {"$set": {"created_at": now() - timedelta(hours=30)}})

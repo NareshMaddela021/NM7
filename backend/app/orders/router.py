@@ -74,7 +74,11 @@ async def create_order(body: CreateOrderIn, auth: CustomerAuth, db: DB) -> Creat
 
 @router.get("")
 async def my_orders(auth: CustomerAuth, db: DB) -> list[OrderOut]:
-    cursor = db[ORDERS].find({"customer_id": auth.user.id}).sort([("created_at", DESCENDING), ("_id", DESCENDING)])
+    cursor = (
+        db[ORDERS]
+        .find({"customer_id": auth.user.id, "kind": {"$ne": "org"}})
+        .sort([("created_at", DESCENDING), ("_id", DESCENDING)])
+    )
     orders = [Order.load(raw) async for raw in cursor]
     return await order_views(db, orders)
 

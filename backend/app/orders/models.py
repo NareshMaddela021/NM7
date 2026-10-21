@@ -1,6 +1,7 @@
 """Order documents. `_id` is the order number (RS-1001, RS-1002, …) from an atomic counter."""
 
 from datetime import datetime
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -36,6 +37,11 @@ class OrderItem(BaseModel):
 
 class Order(Doc):
     id: str = Field(alias="_id")
+    # "customer": a resume order (the plans in orders/pricing.py). "org": an organization buying or renewing a plan
+    # (Phase 4); `org_id` is the organization and `billing` holds the frozen terms, price, discount and GST lines.
+    kind: str = "customer"
+    org_id: str | None = None
+    billing: dict[str, Any] | None = None
     customer_id: str
     plan: str
     target_role: str | None = None
