@@ -93,3 +93,24 @@ def test_holds_id_number_covers_passport_and_licence():
     assert holds_id_number("A1234567") and holds_id_number("AP09 20120001234")
     assert holds_id_number("Passport no A1234567") and holds_id_number("driving licence no.")
     assert not holds_id_number("LMV and HMV driving licence") and not holds_id_number("Passport ready")
+
+
+@pytest.mark.parametrize(
+    "text",
+    ["x" * 50_000, "X " * 25_000, "•" * 50_000, "xx-" * 15_000, "1" * 50_000, "Ab12" * 12_000, "aadhaar " * 6_000],
+)
+def test_scrubbing_long_text_takes_linear_time(text):
+    """A long run of mask characters made the masked-number pattern backtrack for minutes: one request could stall
+    the API. Every pattern must run in about linear time."""
+    import time
+
+    started = time.perf_counter()
+    scrub_text(text)
+    assert time.perf_counter() - started < 1.0
+
+
+def test_masked_numbers_are_still_found():
+    for s in ("Aadhaar XXXX XXXX 1234", "acct xxxxxxxx5678", "card **** **** 9012", "••••3456"):
+        assert has_id_number(s), s
+    for s in ("Box 1234", "max 1234 users", "Nexus 2019"):
+        assert not has_id_number(s), s
