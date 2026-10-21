@@ -49,8 +49,11 @@ jobs:
         with:
           ref: ${{ github.event_name == 'schedule' && 'claude/fervent-albattani-wqmaoq' || '' }}
       - run: docker build --tag nm7-api:ci backend
+      # The API creates its collections and indexes at start-up, so it needs a database to boot.
+      - name: Start MongoDB
+        run: bash "$GITHUB_WORKSPACE/.github/scripts/start-mongo.sh"
       - name: The container starts and answers /version
         run: |
-          docker run -d --name api -p 8000:8000 -e APP_ENV=prod -e SECRET_KEY=ci-only-secret-0123456789 \
-            -e MONGODB_URI=mongodb://127.0.0.1:1/?serverSelectionTimeoutMS=500 nm7-api:ci
+          docker run -d --name api --network host -e APP_ENV=prod -e SECRET_KEY=ci-only-secret-0123456789 \
+            -e MONGODB_URI='mongodb://localhost:27017/?directConnection=true' -e MONGODB_DB=nm7_ci nm7-api:ci
           curl -fsS --retry 10 --retry-delay 2 --retry-all-errors http://localhost:8000/version || (docker logs api; exit 1)
