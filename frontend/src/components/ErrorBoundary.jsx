@@ -11,7 +11,7 @@ export default class ErrorBoundary extends Component {
     return props.resetKey !== state.key ? { error: null, key: props.resetKey } : null;
   }
 
-  componentDidCatch(error, info) { console.error('Page crashed:', error, info?.componentStack); } // eslint-disable-line no-console
+  componentDidCatch(error, info) { console.error('Page crashed:', error, info?.componentStack); }
 
   render() {
     if (!this.state.error) return this.props.children;

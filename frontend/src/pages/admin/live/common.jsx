@@ -94,7 +94,7 @@ export function LiveAdminLayout() {
       <Header variant="admin" />
       <div className="container-wide row g24" style={{ padding: '20px 24px 64px', alignItems: 'flex-start' }}>
         <nav aria-label="Admin sections" className="stack sticky admin-side" style={{ flex: '0 0 220px', top: 88, gap: 2 }}>
-          {NAV.filter(([k]) => can.includes(k)).map(([k, to, l, ic]) => (
+          {NAV.filter(([k]) => can.includes(k)).map(([_k, to, l, ic]) => (
             <NavLink key={to} to={to} end={to === '/admin'} className="admin-link"><span aria-hidden="true" style={{ width: 18, textAlign: 'center' }}>{ic}</span>{l}</NavLink>
           ))}
           <hr className="divider" />

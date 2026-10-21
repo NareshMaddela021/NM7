@@ -1,0 +1,68 @@
+name: e2e
+
+# The full browser suite against the real API (and the production build with the vercel.json headers). It is the
+# slowest check (~9 min), so it runs only on pull requests into the production branch, once per commit (a newer
+# commit cancels the older run), plus nightly on the production branch and by hand.
+on:
+  pull_request:
+    branches: ["claude/fervent-albattani-wqmaoq"]
+    paths: ["frontend/**", "backend/**", ".github/workflows/e2e.yml", ".github/scripts/**"]
+  schedule:
+    - cron: "41 21 * * *" # 03:11 IST
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: frontend
+    env:
+      TEST_MONGODB_URI: mongodb://localhost:27017/?directConnection=true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # the nightly run tests the production branch (schedules start from the default branch)
+          ref: ${{ github.event_name == 'schedule' && 'claude/fervent-albattani-wqmaoq' || '' }}
+      - name: Start MongoDB (replica set)
+        run: bash "$GITHUB_WORKSPACE/.github/scripts/start-mongo.sh"
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: frontend/.nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+      - run: npm ci
+      - name: Install the API
+        working-directory: backend
+        run: uv sync --frozen
+      - name: Cache the Playwright browser
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}
+      - run: npx playwright install --with-deps chromium
+      - name: Browser tests against the real API (a failed test is retried once)
+        run: npx playwright test -c playwright.live.config.mjs --retries=1
+      - name: Production build with the vercel.json headers (CSP, 404)
+        run: npm run test:e2e:csp
+      - name: API log (on failure)
+        if: failure()
+        run: cat e2e-live/.api.log || true
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-live-results
+          path: |
+            frontend/test-results
+            frontend/e2e-live/.api.log
+          retention-days: 7

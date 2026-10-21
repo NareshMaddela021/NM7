@@ -14,10 +14,12 @@ dependencies = [
     "cryptography>=43",
     "pymongo>=4.13",
     "anthropic>=1.14.0",
+    "sentry-sdk[fastapi]>=2.30",
 ]
 
 [dependency-groups]
 dev = [
+    "pip-audit>=2.8",
     "pytest>=8.3",
     "pytest-asyncio>=0.24",
     "respx>=0.21",

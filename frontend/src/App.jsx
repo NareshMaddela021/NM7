@@ -10,6 +10,7 @@ import { RequireAuth } from './pages/auth/Auth';
 import { applyMeta, currentMeta, usePageMeta } from './lib/meta';
 import { StaleBuildPage, isChunkError, lazyRetry, reloadOnce } from './lib/chunks';
 import { onSlow } from './services/http';
+import { reportError } from './lib/monitoring';
 
 // a page file missing after a deploy (tab opened on the old build) reloads onto the new build
 const lazy = (load) => reactLazy(lazyRetry(load));
@@ -201,8 +202,9 @@ class RouteBoundary extends Component {
   static getDerivedStateFromProps(props, state) { return props.resetKey !== state.key ? { error: null, key: props.resetKey } : null; }
 
   componentDidCatch(error, info) {
-    console.error('Page crashed:', error, info?.componentStack); // eslint-disable-line no-console
+    console.error('Page crashed:', error, info?.componentStack);
     if (isChunkError(error)) reloadOnce();
+    else reportError(error, { componentStack: info?.componentStack });
   }
 
   render() {

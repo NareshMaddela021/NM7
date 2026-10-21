@@ -1,48 +1,45 @@
 name: frontend
 
+# The site's lint, unit tests, build and sample-data browser tests, once per pull-request commit that touches
+# frontend/ (a newer commit cancels the older run). The browser tests against the real API are in e2e.yml.
 on:
-  push:
-    paths: ["frontend/**", "backend/**", ".github/workflows/frontend.yml", ".github/scripts/**"]
   pull_request:
-    paths: ["frontend/**", "backend/**", ".github/workflows/frontend.yml", ".github/scripts/**"]
+    paths: ["frontend/**", ".github/workflows/frontend.yml"]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  test:
+  unit:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: frontend
-    env:
-      # The live browser tests run the real API (backend/) on this MongoDB replica set.
-      TEST_MONGODB_URI: mongodb://localhost:27017/?directConnection=true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: frontend/.nvmrc
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
-      - run: npm run build
+      - run: npm run lint
       - run: npm test
-      - name: Blog contract test against the live Hygraph API (same queries and build step as Vercel)
-        run: HYGRAPH_CONTRACT=1 npx vitest run scripts/hygraph-contract.test.mjs
+      - run: npm run build
+      - name: Cache the Playwright browser
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}
       - run: npx playwright install --with-deps chromium
       - name: Browser tests (preview build, sample data)
         run: npm run test:e2e
-      - name: Start MongoDB 8.0 (replica set)
-        working-directory: .
-        run: bash "$GITHUB_WORKSPACE/.github/scripts/start-mongo.sh"
-      - uses: astral-sh/setup-uv@v5
-        with:
-          python-version: "3.12"
-      - name: Install the API
-        working-directory: backend
-        run: uv sync --frozen
-      - name: Browser tests against the real API
-        run: npm run test:e2e:live
-      - name: Production build with the vercel.json headers (CSP, 404)
-        run: npm run test:e2e:csp
-      - name: API log (on failure)
+      - uses: actions/upload-artifact@v4
         if: failure()
-        run: cat e2e-live/.api.log || true
+        with:
+          name: playwright-preview-results
+          path: frontend/test-results
+          retention-days: 7

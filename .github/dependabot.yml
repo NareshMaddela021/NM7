@@ -1,0 +1,21 @@
+# Monthly dependency updates, grouped so they arrive as a few PRs, not dozens. Each PR runs the normal CI.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule: { interval: monthly, time: "03:00", timezone: Asia/Kolkata }
+    groups:
+      npm-minor-and-patch: { update-types: [minor, patch] }
+    open-pull-requests-limit: 5
+  - package-ecosystem: uv
+    directory: /backend
+    schedule: { interval: monthly, time: "03:00", timezone: Asia/Kolkata }
+    groups:
+      python-minor-and-patch: { update-types: [minor, patch] }
+    open-pull-requests-limit: 5
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: monthly }
+  - package-ecosystem: docker
+    directory: /backend
+    schedule: { interval: monthly }

@@ -70,7 +70,7 @@ export default function MeLayout() {
       </div>
       {/* phones: bottom tabs */}
       <nav aria-label="My dashboard (tabs)" className="me-tabs">
-        {ME_NAV.filter(([k]) => TABS.includes(k)).map(([k, to, l, ic]) => (
+        {ME_NAV.filter(([k]) => TABS.includes(k)).map(([k, to, _l, ic]) => (
           <NavLink key={k} to={to} end={to === '/me'}><span aria-hidden="true">{ic}</span>{SHORT[k]}</NavLink>
         ))}
         <button type="button" aria-expanded={more} onClick={() => setMore(!more)}><span aria-hidden="true">⋯</span>More{unread > 0 && <span className="dot" aria-label={`${unread} unread messages`} />}</button>

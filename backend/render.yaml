@@ -57,3 +57,62 @@ services:
       - key: RAZORPAY_WEBHOOK_SECRET
         sync: false
 
+
+  # ---------------------------------------------------------------------------------------------------------------
+  # Staging: the same image, a separate database, for Vercel preview deployments (so an unmerged branch can never
+  # write production data). Deploys every commit of the production branch like nm7-api, so it is always the same
+  # code one step ahead of a preview. Free plan (sleeps when idle; add it to the external uptime monitor too).
+  # Dashboard steps once (see README → Staging): paste MONGODB_URI (the same cluster is fine: the database name
+  # differs), set ENCRYPTION_KEY to any new value, leave the Razorpay and Anthropic keys empty (payments and AI
+  # answer "not configured" on staging), set RESEND_API_KEY only if you want real emails from staging.
+  - type: web
+    name: nm7-api-staging
+    runtime: docker
+    plan: free
+    region: singapore
+    rootDir: backend
+    branch: claude/fervent-albattani-wqmaoq
+    autoDeployTrigger: commit
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: APP_ENV
+        value: prod # production rules (Secure cookies, no /docs, no codes in the log) with staging data
+      - key: MONGODB_URI
+        sync: false
+      - key: MONGODB_DB
+        value: nm7_staging
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ENCRYPTION_KEY
+        sync: false
+      - key: CORS_ORIGINS # the preview deployments only; production stays on nm7-api
+        value: https://nm7-git-staging-nm-8.vercel.app
+      - key: CORS_ORIGIN_REGEX
+        value: ^https://nm7-[a-z0-9-]+-nm-8\.vercel\.app$
+      - key: COOKIE_SAMESITE
+        value: none
+      - key: TRUSTED_PROXY_HOPS
+        value: "1"
+      - key: EMAIL_PROVIDER
+        value: resend
+      - key: EMAIL_FROM
+        value: Nm7 staging <no-reply@nm7.si>
+      - key: EMAIL_REPLY_TO
+        value: info@nm7.si
+      - key: SITE_URL # links in emails point at the preview, not the live site
+        value: https://nm7-git-staging-nm-8.vercel.app
+      - key: RESEND_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: ANTHROPIC_MODEL
+        value: claude-haiku-5-5
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false
+      - key: SENTRY_DSN
+        sync: false

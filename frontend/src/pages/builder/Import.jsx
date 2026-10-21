@@ -5,7 +5,6 @@ import { FieldGrid, SchemaField } from './Fields';
 import { EXP_LEVELS, LISTS, PINFO_FIELDS, DECL_FIELDS } from './schema';
 import { TEMPLATE_PRESETS, fmtDate } from './design';
 import { applyImport, counts } from '../../lib/import/apply';
-import { PROMISES } from '../../lib/pricing';
 
 const STEPS = ['Reading your file', 'Finding sections', 'Sorting skills into categories', 'Checking dates and details'];
 const COPY = {

@@ -1,27 +1,34 @@
 name: backend
 
+# The API's lint and tests, once per pull-request commit that touches backend/ (a newer commit cancels the older
+# run). Nothing runs again after the merge: the squash commit is the code the PR already tested.
 on:
-  push:
-    paths: ["backend/**", ".github/workflows/backend.yml", ".github/scripts/**"]
   pull_request:
     paths: ["backend/**", ".github/workflows/backend.yml", ".github/scripts/**"]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: backend
     env:
-      # One-node replica set (transactions need a replica set, like Atlas).
       TEST_MONGODB_URI: mongodb://localhost:27017/?directConnection=true
     steps:
       - uses: actions/checkout@v4
-      - name: Start MongoDB 8.0 (replica set)
+      - name: Start MongoDB (replica set; 8.0 like Atlas, newer when the runner kernel refuses 8.0)
         run: bash "$GITHUB_WORKSPACE/.github/scripts/start-mongo.sh"
       - uses: astral-sh/setup-uv@v5
         with:
           python-version: "3.12"
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
       - run: uv sync --frozen
       - run: uv run ruff check .
       - run: uv run ruff format --check .

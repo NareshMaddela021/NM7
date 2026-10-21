@@ -8,6 +8,6 @@ export function charCount(s) {
   const str = String(s ?? '');
   if (!segmenter) return [...str].length;
   let n = 0;
-  for (const _ of segmenter.segment(str)) n += 1; // eslint-disable-line no-unused-vars
+  for (const _ of segmenter.segment(str)) n += 1;
   return n;
 }

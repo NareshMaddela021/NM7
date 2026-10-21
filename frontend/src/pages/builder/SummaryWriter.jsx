@@ -98,7 +98,7 @@ export default function SummaryWriter({ resume, note = '', onNote, value = '', o
   };
   const fix = (mode) => (ai && (cards?.ai || mode === 'professional' || mode === 'simpler') ? writeAi(mode) : quickFix(mode));
 
-  const useChip = (c) => {
+  const pickChip = (c) => {
     setChip(c.id);
     if (!note.trim()) onNote?.(c.text);
     else if (!note.toLowerCase().includes(c.text.trim().toLowerCase().slice(0, 12))) onNote?.(`${c.text}${note}`.slice(0, NOTE_MAX));
@@ -153,7 +153,7 @@ export default function SummaryWriter({ resume, note = '', onNote, value = '', o
 
       <div className="row g8" role="group" aria-label="Starter sentences" style={{ flexWrap: 'wrap' }}>
         {dictionary.chips.map((c) => (
-          <button key={c.id} type="button" className="chip" aria-pressed={chip === c.id} onClick={() => useChip(c)} style={{ minHeight: 44, fontSize: big ? 16 : 14 }}>{c.label}</button>
+          <button key={c.id} type="button" className="chip" aria-pressed={chip === c.id} onClick={() => pickChip(c)} style={{ minHeight: 44, fontSize: big ? 16 : 14 }}>{c.label}</button>
         ))}
       </div>
 

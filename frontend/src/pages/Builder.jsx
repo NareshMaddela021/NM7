@@ -31,15 +31,15 @@ import TemplatePicker, { layoutOf } from './builder/TemplatePicker';
 import CoverPanel from './builder/CoverPanel';
 import { EntryHeader, focusMoved } from './builder/EntryControls';
 import LineEntries from './builder/LineEntries';
-import { hiddenCount, lineItems, linesPatch, moveItem, removeItem, toggleItem } from './builder/entries';
+import { hiddenCount, moveItem, removeItem, toggleItem } from './builder/entries';
 import { shorten, atsFriendly } from './builder/aiTools';
 import SummaryWriter from './builder/SummaryWriter';
 import LinksEditor, { Logo } from './builder/LinksEditor';
 import PhotoEditor, { DEFAULT_ADJ, shapePhoto } from './builder/PhotoEditor';
 import { DEFAULT_DESIGN, FIT_STEPS, TEMPLATE_PRESETS } from './builder/design';
 import {
-  AI_SAMPLES, ALL_SKILLS, EXP_LEVELS, FIXED_SECTIONS, INITIAL, LINK_FIELDS, LISTS, PERSONAL_FIELDS, PINFO_FIELDS, DECL_FIELDS, DECL_TEXT,
-  HOBBY_IDEAS, STRENGTH_IDEAS, splitList, SECTION_LAYOUTS, PREF_FIELDS, PRESET_SECTIONS, completeness, DEFAULT_SKILL_GROUPS, SKILL_GROUP_OF, splitSkills, allSkills,
+  AI_SAMPLES, ALL_SKILLS, EXP_LEVELS, FIXED_SECTIONS, INITIAL, LISTS, PERSONAL_FIELDS, PINFO_FIELDS, DECL_FIELDS, DECL_TEXT,
+  HOBBY_IDEAS, STRENGTH_IDEAS, PREF_FIELDS, PRESET_SECTIONS, completeness, DEFAULT_SKILL_GROUPS, SKILL_GROUP_OF, splitSkills, allSkills,
   PRINTABLE, real, resolveOrder, sectionLabel, fieldError, dateOrderError, collectIssues, LINK_SLOTS, LINK_WORDS, LINK_WORD_MAX, migrateLinks,
 } from './builder/schema';
 
@@ -321,7 +321,7 @@ export default function Builder({ embedded = null }) {
       return c ? { id, label: c.title, help: 'Add as many entries as you like. Leave any field blank.', custom: true } : fixed[id];
     });
     return [fixed.personal, ...printed, ...(embedded ? [] : [fixed.prefs]), fixed.links, { id: 'review', label: 'Review & Submit', help: 'Check each section, set the order and fix anything flagged.' }];
-  }, [d]);
+  }, [d, embedded]);
   const idx = Math.max(0, SECS.findIndex((s) => s.id === sec));
   const cur = SECS[idx];
   const { has, score } = completeness(d);
@@ -750,7 +750,7 @@ export default function Builder({ embedded = null }) {
                 <div className="card stack g12" style={{ padding: 20 }}>
                   <span id="ls-l" className="strong small">How links show on your resume</span>
                   <div role="radiogroup" aria-labelledby="ls-l" className="grid-auto g8" style={{ '--min': '220px' }}>
-                    {[['icon', 'Icon + handle', 'Clean and short. Recommended.', <span className="row g4" style={{ alignItems: 'center' }}><Logo k="linkedin" size={14} /> saivarsha</span>],
+                    {[['icon', 'Icon + handle', 'Clean and short. Recommended.', <span key="icon" className="row g4" style={{ alignItems: 'center' }}><Logo k="linkedin" size={14} /> saivarsha</span>],
                       ['url', 'Full link', 'Shows the complete address.', <>linkedin.com/in/saivarsha</>]].map(([v, l, h, ex]) => (
                       <label key={v} className="option" data-on={(d.linkStyle || 'icon') === v}>
                         <input type="radio" name="linkStyle" checked={(d.linkStyle || 'icon') === v} onChange={() => setD({ ...d, linkStyle: v })} />

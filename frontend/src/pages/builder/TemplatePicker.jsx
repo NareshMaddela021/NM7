@@ -49,7 +49,7 @@ export default function TemplatePicker({ d, ds, suggest, photo, onPick, onNext }
   const sel = all.find((x) => x.k === pick.selected) || all.find((x) => x.k === ds.preset);
   const text = selectionText(sel?.t || cur, { ats: sel?.ats, two: sel?.two });
   const choose = (k, accent) => { dispatch({ type: 'pick', key: k }); onPick(k, { accent }); };
-  const useNow = (k, accent) => { if (ds.preset !== k) onPick(k, { accent }); onNext(); }; // same as the top button
+  const pickNow = (k, accent) => { if (ds.preset !== k) onPick(k, { accent }); onNext(); }; // same as the top button
   const bar = pick.touched && sel;
 
   return (
@@ -93,8 +93,8 @@ export default function TemplatePicker({ d, ds, suggest, photo, onPick, onNext }
             <div key={k} className="card stack g8 tp-card" data-testid={`tp-card-${k}`} data-selected={chosen || undefined}
               style={{ padding: 11, border: `2px solid ${chosen ? 'var(--ink)' : 'var(--border)'}` }}>
               <button type="button" role="radio" aria-checked={chosen} aria-label={`${t.name} template`}
-                onClick={() => choose(k, accent)} onDoubleClick={() => useNow(k, accent)}
-                onKeyDown={(e) => { if (isUseKey(e)) { e.preventDefault(); useNow(k, accent); } }}
+                onClick={() => choose(k, accent)} onDoubleClick={() => pickNow(k, accent)}
+                onKeyDown={(e) => { if (isUseKey(e)) { e.preventDefault(); pickNow(k, accent); } }}
                 style={{ padding: 0, border: 0, background: 'transparent', cursor: 'pointer', textAlign: 'left', position: 'relative' }}>
                 <div aria-hidden="true" style={{ height: 300, overflow: 'hidden', borderRadius: 6, pointerEvents: 'none' }}>
                   <ResumePreview decorative data={{ ...d, ...layoutOf(k) }} design={design} photo={t.photo ? (photo || PHOTO_PLACEHOLDER) : photo} />
@@ -120,7 +120,7 @@ export default function TemplatePicker({ d, ds, suggest, photo, onPick, onNext }
                 ))}
               </div>
               {/* the space is kept on every card, so selecting one never moves anything */}
-              <button type="button" className="btn btn-ink tp-use" data-testid="tp-use-card" onClick={() => useNow(k, accent)}
+              <button type="button" className="btn btn-ink tp-use" data-testid="tp-use-card" onClick={() => pickNow(k, accent)}
                 style={{ visibility: chosen ? 'visible' : 'hidden' }}>Use {t.name} <Icon name="arrow" /></button>
             </div>
           );
@@ -136,7 +136,7 @@ export default function TemplatePicker({ d, ds, suggest, photo, onPick, onNext }
               <strong className="tp-bar-name">{text.name}</strong>
               <span className="xs muted" data-testid="tp-bar-meta">{text.meta}</span>
             </span>
-            <button type="button" className="btn btn-ink btn-lg tp-bar-use" data-testid="tp-use-bar" onClick={() => useNow(sel.k, sel.accent)}>{text.use} <Icon name="arrow" /></button>
+            <button type="button" className="btn btn-ink btn-lg tp-bar-use" data-testid="tp-use-bar" onClick={() => pickNow(sel.k, sel.accent)}>{text.use} <Icon name="arrow" /></button>
           </div>
         </div>,
         document.body,

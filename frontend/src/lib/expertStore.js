@@ -71,7 +71,7 @@ const SAMPLE = () => {
 function withDraft1(list) {
   return list.map((o) => {
     if (!o.draft1) return o;
-    const { draft1, ...rest } = o;
+    const { draft1: _draft1, ...rest } = o;
     const data = structuredClone(o.original);
     data.summary = 'Business analyst with an MIS internship behind me, where I built the weekly management reports in Excel and SQL for a 40-person sales team. I turn messy spreadsheets into clear reports and dashboards, and I am comfortable presenting numbers to managers. Looking for a Business Analyst role in consulting or IT services where I can grow into requirement gathering and stakeholder work.';
     data.exp = data.exp.map((e) => ({ ...e, description: 'Prepared weekly MIS reports in Excel and SQL for a 40-person sales team\nMaintained 12 shared Excel trackers with pivot tables and VLOOKUP checks' }));
