@@ -166,7 +166,7 @@ function Templates() {
           </button>
         ))}
       </div>
-      <Link to="/builder?start=templates" className="btn btn-outline" style={{ alignSelf: 'flex-start' }}>See all {TEMPLATE_COUNT} →</Link>
+      <Link to="/templates" className="btn btn-outline" style={{ alignSelf: 'flex-start' }}>See all {TEMPLATE_COUNT} →</Link>
       {open && (
         <Suspense fallback={<div className="overlay" aria-busy="true" />}>
           <TemplatePreview id={open} onClose={() => setOpen(null)} onUse={() => nav('/builder', { state: { open: 'build', template: open } })} />

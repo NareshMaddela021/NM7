@@ -62,6 +62,9 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     await close_client()
 
 
+PRIVATE_PREFIXES = ("/api/me", "/api/auth", "/api/orders", "/api/org", "/api/admin", "/api/expert")
+
+
 def create_app() -> FastAPI:
     settings = get_settings()
     if init_sentry(settings.sentry_dsn, settings.app_env):
@@ -88,7 +91,11 @@ def create_app() -> FastAPI:
                 return JSONResponse(
                     {"error": {"code": "bad_origin", "message": "Request blocked: unknown origin."}}, 403
                 )
-        return await call_next(request)
+        response = await call_next(request)
+        # A person's own data (their resumes, account, sign-in answers) is never kept by a shared cache or CDN.
+        if request.url.path.startswith(PRIVATE_PREFIXES) and "cache-control" not in response.headers:
+            response.headers["Cache-Control"] = "private, no-store"
+        return response
 
     # Added last so it is outermost: every answer, the 403s and 413s above included, carries the CORS headers
     # and the browser shows the message instead of a CORS error.

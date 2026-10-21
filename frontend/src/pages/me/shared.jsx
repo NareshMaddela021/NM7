@@ -11,7 +11,7 @@ export const templateName = (d) => TEMPLATE_PRESETS[d.design?.preset || 'fresher
 export const fmtDay = (t) => new Date(t).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 export const fmtShort = (t) => new Date(t).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
 export const fmtWhen = (t) => new Date(t).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
-export const ago = (t) => { const m = (Date.now() - t) / 60000; return m < 60 ? `${Math.max(1, Math.round(m))} min ago` : m < 1440 ? `${Math.round(m / 60)} h ago` : `${Math.round(m / 1440)} d ago`; };
+export { ago } from '../../lib/text';
 
 /** A small, non-interactive picture of the resume's first page. */
 export function ResumeThumb({ data, width = 150, label }) {

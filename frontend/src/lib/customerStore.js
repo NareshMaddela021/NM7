@@ -12,6 +12,7 @@ import { currentUser, draftKey, draftKeyFor, SAMPLE_USER_ID, onSignOut, updateUs
 import { LIVE, http, reportSaveError } from '../services/http';
 import * as live from './meLive';
 import { pendingDownload } from './downloads';
+import { announceResume } from './resumeChannel';
 
 // One store per signed-in customer. The sample customer (Sai Varsha) keeps the original key and sample data.
 // Live app: no sample data and nothing personal in localStorage — the store is filled from the API.
@@ -279,6 +280,7 @@ export function syncFromBuilder(data) {
   // keep an automatic snapshot at most every 30 minutes (up to 20)
   const versions = !last || Date.now() - last.at > 30 * 60 * 1000 ? [...a.versions, { at: Date.now(), label: 'Auto-saved', data: withoutPhoto(a.data) }].slice(-20) : a.versions;
   commit({ ...s, resumes: s.resumes.map((r) => (r.id === a.id ? { ...r, data: d, updated: Date.now(), versions } : r)) });
+  announceResume(a.id, d); // an open Templates tab shows the edit
 }
 
 /** The builder's measured page count for the active resume (live accounts: shown to organizations it's shared with). */

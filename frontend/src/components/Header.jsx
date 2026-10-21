@@ -95,7 +95,7 @@ export default function Header({ variant = 'public', right, labels, lang }) {
         {variant === 'public' && (
           <nav id="main-nav" className="nav nav-public" data-open={menu} aria-label="Main" lang={lang}>
             <NavLink to="/builder">{L.build}</NavLink>
-            <Link to="/#templates">{L.templates}</Link>
+            <Link to="/templates">{L.templates}</Link>
             <Link to="/#pricing">{L.pricing}</Link>
             <NavLink to="/for-orgs" onClick={() => track('to_for_orgs')}>{L.orgs}</NavLink>
             <NavLink to="/blog">{L.blog}</NavLink>

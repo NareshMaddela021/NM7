@@ -8,7 +8,9 @@ import { Icon } from '../../components/ui';
 import ResumePreview from './ResumePreview';
 import TemplatePreview from './TemplatePreview';
 import { ACCENTS, DEFAULT_DESIGN, INDUSTRY_TAGS, TEMPLATE_PRESETS, atsCheck } from './design';
-import { isUseKey, layoutOf, pickState, PHOTO_PLACEHOLDER, selectionText } from './templatePick';
+import { INITIAL } from './schema';
+import { hasOwnDetails, isUseKey, layoutOf, pickState, PHOTO_PLACEHOLDER, readView, saveView, selectionText, startView } from './templatePick';
+import { InView, NoDetails, ViewSwitch } from './ViewSwitch';
 
 export { layoutOf, PHOTO_PLACEHOLDER } from './templatePick';
 
@@ -18,7 +20,13 @@ function Chip({ on, onClick, children }) {
   return <button type="button" className="chip" aria-pressed={on} onClick={onClick} style={{ minHeight: 36, fontSize: 13 }}>{children}</button>;
 }
 
-export default function TemplatePicker({ d, ds, suggest, photo, onPick, onNext }) {
+export default function TemplatePicker({ d, ds, suggest, photo, onPick, onNext, initialView }) {
+  // "Sample resume | My details": the cards show the example person or this resume (Change template opens on My details)
+  const [view, setViewState] = useState(() => initialView || startView(readView(), d));
+  const setView = (v) => { setViewState(v); saveView(v); };
+  const mine = view === 'mine';
+  const own = hasOwnDetails(d);
+  const shownData = mine ? d : INITIAL;
   const [level, setLevel] = useState('all');
   const [ind, setInd] = useState(null);
   const [cols, setCols] = useState(null);
@@ -56,7 +64,7 @@ export default function TemplatePicker({ d, ds, suggest, photo, onPick, onNext }
     <main className="container stack g20 rise" style={{ padding: '48px 24px 72px', paddingBottom: bar ? 'calc(var(--tp-bar-h) + 40px + env(safe-area-inset-bottom, 0px))' : 72, maxWidth: 1320 }}>
       <span className="sr-only" aria-live="polite" data-testid="tp-announce">{pick.touched ? text.announce : ''}</span>
       <div className="row between g16" style={{ alignItems: 'flex-end' }}>
-        <div className="stack g8"><h1 className="display" style={{ fontSize: 40 }}>Pick a starting look</h1><span className="muted">{Object.keys(TEMPLATE_PRESETS).length} templates. Every font, colour and spacing can be changed later in the Design tab.</span></div>
+        <div className="stack g8"><h1 className="display" style={{ fontSize: 40 }}>{initialView ? 'Change template' : 'Pick a starting look'}</h1><span className="muted">{Object.keys(TEMPLATE_PRESETS).length} templates. {initialView ? 'Your content stays exactly as it is.' : 'Every font, colour and spacing can be changed later in the Design tab.'}</span></div>
         <button type="button" className="btn btn-ink btn-lg" data-testid="tp-use-top" onClick={onNext}>{text.use} <Icon name="arrow" /></button>
       </div>
 
@@ -80,7 +88,11 @@ export default function TemplatePicker({ d, ds, suggest, photo, onPick, onNext }
           {filtered && <button type="button" className="btn btn-ghost" style={{ minHeight: 36, fontSize: 13 }} onClick={clear}>Clear filters</button>}
         </div>
       </section>
-      <span className="xs muted" aria-live="polite">Showing {list.length} of {all.length}</span>
+      <div className="row between g12" style={{ alignItems: 'center' }}>
+        <ViewSwitch view={view} onChange={setView} />
+        <span className="xs muted" aria-live="polite">Showing {list.length} of {all.length}</span>
+      </div>
+      {mine && !own && <NoDetails onStart={onNext} />}
 
       {list.length === 0 && (
         <div className="card stack g8" style={{ alignItems: 'flex-start' }}><strong>No template matches all of these filters.</strong><button type="button" className="btn btn-outline" onClick={clear}>Clear filters</button></div>
@@ -96,14 +108,17 @@ export default function TemplatePicker({ d, ds, suggest, photo, onPick, onNext }
                 onClick={() => choose(k, accent)} onDoubleClick={() => pickNow(k, accent)}
                 onKeyDown={(e) => { if (isUseKey(e)) { e.preventDefault(); pickNow(k, accent); } }}
                 style={{ padding: 0, border: 0, background: 'transparent', cursor: 'pointer', textAlign: 'left', position: 'relative' }}>
-                <div aria-hidden="true" style={{ height: 300, overflow: 'hidden', borderRadius: 6, pointerEvents: 'none' }}>
-                  <ResumePreview decorative data={{ ...d, ...layoutOf(k) }} design={design} photo={t.photo ? (photo || PHOTO_PLACEHOLDER) : photo} />
+                <div aria-hidden="true" style={{ pointerEvents: 'none' }}>
+                  <InView height={300}>
+                    <ResumePreview decorative data={{ ...shownData, ...layoutOf(k) }} design={design} photo={t.photo ? ((mine ? photo : null) || PHOTO_PLACEHOLDER) : (mine ? photo : null)} />
+                  </InView>
                 </div>
                 <span aria-hidden="true" className="tp-check" style={{ visibility: chosen ? 'visible' : 'hidden' }}>✓</span>
               </button>
               <div className="row g8" style={{ alignItems: 'center' }}>
                 <strong>{t.name}</strong>
                 {suggest === k && <span className="badge b-signal">Suggested for you</span>}
+                {!mine && <span className="badge b-neutral">Sample</span>}
                 <button type="button" className="btn btn-ghost tp-preview" aria-haspopup="dialog" aria-label={`Preview ${t.name}`} onClick={() => setPreview(k)}>Preview</button>
               </div>
               <div className="row g4">
@@ -128,7 +143,7 @@ export default function TemplatePicker({ d, ds, suggest, photo, onPick, onNext }
         })}
       </div>
 
-      {big && <TemplatePreview id={big.k} data={d} design={big.design} photo={photo} onClose={() => setPreview(null)} onUse={() => { setPreview(null); pickNow(big.k, big.accent); }} />}
+      {big && <TemplatePreview id={big.k} view={view} onView={setView} data={own ? d : null} accent={big.accent} onStart={() => { setPreview(null); onNext(); }} onClose={() => setPreview(null)} onUse={() => { setPreview(null); pickNow(big.k, big.accent); }} />}
 
       {/* on <body>: a transformed ancestor (an entry animation) would pin a fixed bar to itself, not the screen */}
       {bar && createPortal(

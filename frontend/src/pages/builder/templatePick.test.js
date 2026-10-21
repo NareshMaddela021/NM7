@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { audienceOf, isUseKey, pickState, selectionText } from './templatePick';
+import { audienceOf, hasOwnDetails, isUseKey, pickState, selectionText, startView, withTemplate } from './templatePick';
+import { INITIAL } from './schema';
 import { TEMPLATE_PRESETS } from './design';
 
 describe('template picker selection', () => {
@@ -33,5 +34,33 @@ describe('template picker selection', () => {
     expect(isUseKey({ key: ' ' })).toBe(true);
     expect(isUseKey({ key: 'Tab' })).toBe(false);
     expect(isUseKey({ key: 'ArrowDown' })).toBe(false);
+  });
+});
+
+describe('Sample resume | My details', () => {
+  const mine = { ...INITIAL, personal: { ...INITIAL.personal, name: 'Ravi Teja', email: 'ravi@example.com' }, design: { preset: 'fresher' }, hidden: { decl: false, pinfo: false, hobbies: true }, showPhoto: false };
+
+  it('opens on My details when the resume has a name, else Sample; a saved choice wins', () => {
+    expect(startView(null, mine)).toBe('mine');
+    expect(startView(null, { ...mine, personal: { ...mine.personal, name: '  ' } })).toBe('sample');
+    expect(startView(null, INITIAL)).toBe('sample'); // the built-in sample is not "my details"
+    expect(startView(null, null)).toBe('sample');
+    expect(startView('sample', mine)).toBe('sample');
+    expect(startView('mine', null)).toBe('mine');
+    expect(startView('junk', mine)).toBe('mine');
+    expect(hasOwnDetails(mine)).toBe(true);
+  });
+
+  it('a look-only template keeps the person\'s hidden sections and print switches; a new layout brings its own, as the builder does', () => {
+    const look = withTemplate(mine, 'modern'); // same standard layout as Fresher First
+    expect(look.data).toBe(mine);
+    expect(look.design).toMatchObject({ preset: 'modern', font: 'lato' });
+    const kio = withTemplate(mine, 'kio'); // the Kio layout: its own order and switches
+    expect(kio.data.order[0]).toBe('summary');
+    expect(kio.data.hidden).toEqual({ proj: true, skills: true, certs: true, ach: true, langs: true });
+    expect(kio.data.personal).toBe(mine.personal); // content is never touched
+    expect(kio.data.exp).toBe(mine.exp);
+    expect(withTemplate(mine, 'portrait').data.showPhoto).toBe(true);
+    expect(withTemplate(mine, 'nope').design).toBeNull();
   });
 });
