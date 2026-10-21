@@ -111,6 +111,23 @@ Rules for both layers: nothing is invented (no numbers, companies, degrees or ce
 or the note), a sentence whose facts are missing is left out rather than printed with a blank, no *I / me / my*, no
 clichés ("hardworking team player", "go-getter", …), and never an ID number, phone, email or address.
 
+### Ready summaries for freshers ("Pick a ready summary")
+
+- Shown on the builder's Summary step when the experience level is Fresher: 12 hand-picked summaries, each with
+  its heading.
+- Edit them in `frontend/src/lib/summary/summaries.json` (heading, text, tags, role keywords) without code changes.
+- Order: the card whose role keywords appear in the person's headline (target role) comes first, e.g.
+  "Data Analyst" → #3. Otherwise #1 is first.
+- Chips: All, Tech, Data, Business, Non-technical.
+- A tap fills the summary box, which stays freely editable. A tip under the panel asks people to make it their own.
+- Personal touches, only where the resume has the data:
+  - #11: "English and Hindi" becomes the resume's languages.
+  - #3, #4, #8 and #12: the listed tools become the person's own skills, in the order added.
+  - Otherwise the text is used exactly as written.
+- These texts are hand-picked, so they skip the summary writer's automatic banned-phrase check.
+- Headings follow the page language: **Telugu / Hindi headings — NEED NATIVE REVIEW**. The summary text stays
+  English, like the resume.
+
 ## AI features and their daily limits
 
 Snap photos (reading resume details from photos) and the summary writer's "Write with AI" use the Claude API

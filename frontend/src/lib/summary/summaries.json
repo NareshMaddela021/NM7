@@ -1,0 +1,118 @@
+{
+  "_about": "Ready summaries for freshers (the builder's Summary step, 'Pick a ready summary'). Edit the texts here; no code change is needed. heading_te / heading_hi NEED NATIVE REVIEW. tags: tech, data, business, nontech. roles: words that put a card first when the person's headline mentions them. personalize (optional): 'find' is replaced, on tap, by the person's own skills or languages when they added any; join: oxford ('A, B, and C'), and ('A, B and C') or comma ('A, B'); count: how many skills at most.",
+  "summaries": [
+    {
+      "id": 1,
+      "heading": "Best Overall Resume Summary",
+      "heading_te": "అన్నింటికీ సరిపోయే సమ్మరీ",
+      "heading_hi": "सबसे अच्छा सामान्य सारांश",
+      "text": "Motivated and detail-oriented graduate with a strong willingness to learn, adapt, and contribute to organizational success. Possess good analytical, problem-solving, and communication skills, with the ability to work collaboratively in a team environment. Eager to apply academic knowledge, develop professional expertise, and contribute to business growth.",
+      "tags": ["business", "nontech"],
+      "roles": []
+    },
+    {
+      "id": 2,
+      "heading": "Software Developer / IT Fresher",
+      "heading_te": "సాఫ్ట్‌వేర్ డెవలపర్ / IT ఫ్రెషర్",
+      "heading_hi": "सॉफ़्टवेयर डेवलपर / IT फ्रेशर",
+      "text": "Aspiring software developer with a strong foundation in programming fundamentals, logical thinking, and problem-solving. Eager to apply technical knowledge to real-world projects, learn modern technologies, and contribute to building efficient, scalable, and reliable software solutions.",
+      "tags": ["tech"],
+      "roles": ["software", "developer", "programmer", "web developer", "frontend", "front end", "backend", "back end", "full stack", "java", "python developer", "it fresher", "software engineer", "sde", "app developer"]
+    },
+    {
+      "id": 3,
+      "heading": "Data Analyst Fresher",
+      "heading_te": "డేటా అనలిస్ట్ ఫ్రెషర్",
+      "heading_hi": "डेटा एनालिस्ट फ्रेशर",
+      "text": "Detail-oriented graduate with an interest in data analytics, statistical analysis, and data-driven decision-making. Familiar with data analysis concepts and eager to develop practical skills in Excel, SQL, Python, and data visualization tools to transform raw data into meaningful business insights.",
+      "tags": ["data", "tech"],
+      "roles": ["data analyst", "data analytics", "analytics", "mis", "reporting analyst", "power bi", "tableau"],
+      "personalize": { "kind": "skills", "find": "Excel, SQL, Python, and data visualization tools", "count": 4, "join": "oxford" }
+    },
+    {
+      "id": 4,
+      "heading": "Data Science / AI Fresher",
+      "heading_te": "డేటా సైన్స్ / AI ఫ్రెషర్",
+      "heading_hi": "डेटा साइंस / AI फ्रेशर",
+      "text": "Aspiring Data Science and AI professional with a foundation in analytical thinking, statistics, and problem-solving. Eager to apply knowledge of Python, SQL, machine learning, and data visualization to real-world challenges while continuously developing technical expertise and delivering data-driven solutions.",
+      "tags": ["data", "tech"],
+      "roles": ["data scientist", "data science", "machine learning", "ml engineer", "ai engineer", "artificial intelligence", "deep learning", "nlp"],
+      "personalize": { "kind": "skills", "find": "Python, SQL, machine learning, and data visualization", "count": 4, "join": "oxford" }
+    },
+    {
+      "id": 5,
+      "heading": "Electronics and Communication Engineering Fresher",
+      "heading_te": "ఎలక్ట్రానిక్స్ అండ్ కమ్యూనికేషన్ ఇంజినీరింగ్ ఫ్రెషర్",
+      "heading_hi": "इलेक्ट्रॉनिक्स और कम्युनिकेशन इंजीनियरिंग फ्रेशर",
+      "text": "Recent Electronics and Communication Engineering graduate with a strong interest in technology, troubleshooting, and problem-solving. Eager to apply engineering fundamentals, analytical abilities, and technical knowledge to practical projects while contributing to team objectives and continuous improvement.",
+      "tags": ["tech"],
+      "roles": ["ece", "electronics", "communication engineer", "embedded", "vlsi", "telecom", "hardware engineer", "network engineer"]
+    },
+    {
+      "id": 6,
+      "heading": "Non-Technical / Any Graduate Fresher",
+      "heading_te": "నాన్-టెక్నికల్ / ఏ డిగ్రీ ఫ్రెషర్ అయినా",
+      "heading_hi": "नॉन-टेक्निकल / कोई भी ग्रेजुएट फ्रेशर",
+      "text": "Enthusiastic and responsible graduate seeking an entry-level opportunity to begin a professional career. Strong willingness to learn new skills, take ownership of responsibilities, and work effectively with diverse teams. Committed to maintaining a positive attitude, meeting organizational goals, and growing through continuous learning.",
+      "tags": ["nontech"],
+      "roles": ["customer support", "customer service", "back office", "office assistant", "admin", "administration", "operations", "bpo", "telecaller", "receptionist"]
+    },
+    {
+      "id": 7,
+      "heading": "HR / Recruitment Fresher",
+      "heading_te": "HR / రిక్రూట్‌మెంట్ ఫ్రెషర్",
+      "heading_hi": "HR / रिक्रूटमेंट फ्रेशर",
+      "text": "People-oriented graduate with an interest in human resources, talent acquisition, and employee engagement. Possess strong organizational abilities, interpersonal skills, and a willingness to learn recruitment processes, candidate screening, and HR operations while supporting effective workforce management.",
+      "tags": ["business", "nontech"],
+      "roles": ["hr", "human resources", "recruiter", "recruitment", "talent acquisition", "hr executive", "hr intern"]
+    },
+    {
+      "id": 8,
+      "heading": "Business Analyst Fresher",
+      "heading_te": "బిజినెస్ అనలిస్ట్ ఫ్రెషర్",
+      "heading_hi": "बिज़नेस एनालिस्ट फ्रेशर",
+      "text": "Analytical and solution-oriented graduate interested in business analysis, process improvement, and data-driven decision-making. Eager to develop skills in requirements gathering, documentation, Excel, SQL, and stakeholder communication to help organizations identify problems and improve business outcomes.",
+      "tags": ["business", "data"],
+      "roles": ["business analyst", "business analysis", "product analyst", "process analyst", "operations analyst"],
+      "personalize": { "kind": "skills", "find": "Excel, SQL", "count": 2, "join": "comma" }
+    },
+    {
+      "id": 9,
+      "heading": "Sales and Marketing Fresher",
+      "heading_te": "సేల్స్ అండ్ మార్కెటింగ్ ఫ్రెషర్",
+      "heading_hi": "सेल्स और मार्केटिंग फ्रेशर",
+      "text": "Proactive and goal-oriented graduate with an interest in sales, marketing, customer engagement, and business development. Eager to apply communication, research, and relationship-building skills to understand customer needs, support marketing initiatives, and contribute to revenue growth.",
+      "tags": ["business", "nontech"],
+      "roles": ["sales", "marketing", "business development", "bde", "digital marketing", "seo", "social media", "brand", "field sales", "inside sales"]
+    },
+    {
+      "id": 10,
+      "heading": "Finance / Accounts Fresher",
+      "heading_te": "ఫైనాన్స్ / అకౌంట్స్ ఫ్రెషర్",
+      "heading_hi": "फ़ाइनेंस / अकाउंट्स फ्रेशर",
+      "text": "Detail-oriented graduate interested in finance, accounting, and financial analysis. Eager to apply numerical, organizational, and analytical skills to financial reporting, account reconciliation, and record management while developing practical knowledge of accounting principles and financial tools.",
+      "tags": ["business"],
+      "roles": ["finance", "accounts", "accountant", "accounting", "financial analyst", "audit", "tally", "gst", "taxation", "banking"]
+    },
+    {
+      "id": 11,
+      "heading": "General Fresher (no course mentioned)",
+      "heading_te": "సాధారణ ఫ్రెషర్ (కోర్సు పేరు లేకుండా)",
+      "heading_hi": "सामान्य फ्रेशर (कोर्स का नाम नहीं)",
+      "text": "Recent graduate who learns new tools quickly and works well with people. Comfortable with MS Office, email and online research, and communicates clearly in English and Hindi. Looking for an entry-level role to build practical skills and grow with the team.",
+      "tags": ["nontech"],
+      "roles": [],
+      "personalize": { "kind": "languages", "find": "English and Hindi", "count": 3, "join": "and" }
+    },
+    {
+      "id": 12,
+      "heading": "Skills and Project Fresher (no course mentioned)",
+      "heading_te": "స్కిల్స్ అండ్ ప్రాజెక్ట్ ఫ్రెషర్ (కోర్సు పేరు లేకుండా)",
+      "heading_hi": "स्किल्स और प्रोजेक्ट फ्रेशर (कोर्स का नाम नहीं)",
+      "text": "Fresher with hands-on practice in Excel, data entry and report preparation through college projects and short online courses. Careful with details and meets deadlines. Looking for a first job where these skills can support daily operations.",
+      "tags": ["nontech", "data"],
+      "roles": ["data entry", "mis executive", "back office executive"],
+      "personalize": { "kind": "skills", "find": "Excel, data entry and report preparation", "count": 3, "join": "and" }
+    }
+  ]
+}
