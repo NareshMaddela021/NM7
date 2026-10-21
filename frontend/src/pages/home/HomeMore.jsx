@@ -15,6 +15,7 @@ import { EXAMPLES, bulletScore, improveBullet } from './lineFixer';
 import { TEMPLATES, TEMPLATE_COUNT } from './templateMeta';
 
 const MAX_MB = 5;
+const TemplatePreview = lazy(lazyRetry(() => import('../builder/TemplatePreview'))); // loads on the first card tap
 const BlogStrip = lazy(lazyRetry(() => import('../blog/Blog').then((m) => ({ default: m.BlogStrip }))));
 
 /** The blog cards at the very bottom: loaded only when someone scrolls near them. */
@@ -145,6 +146,8 @@ const TPL_FILTERS = [['all', 'All'], ['fresher', 'Freshers'], ['tech', 'Tech'], 
 const FIRST = ['fresher', 'campus', 'work', 'kio', 'modern', 'care'];
 function Templates() {
   const [f, setF] = useState('all');
+  const [open, setOpen] = useState(null); // the template shown large (a card tap); never a download
+  const nav = useNavigate();
   const pick = f === 'all' ? FIRST.map((id) => TEMPLATES.find((x) => x.id === id)) : TEMPLATES.filter((t) => (f === 'fresher' ? t.level === 'fresher' : f === 'photo' ? t.photo : t.ind.includes(f)));
   return (
     <div className="stack g24">
@@ -157,13 +160,18 @@ function Templates() {
       </div>
       <div className="hx-tpls">
         {pick.slice(0, 6).map((t) => (
-          <Link key={t.id} to="/builder" state={{ open: 'build', template: t.id }} className="hx-tpl" aria-label={`Use the ${t.name} template`}>
+          <button key={t.id} type="button" className="hx-tpl" aria-label={`Preview the ${t.name} template`} aria-haspopup="dialog" onClick={() => setOpen(t.id)}>
             <img src={`/home/tpl-${t.id}.webp`} width="200" height="283" loading="lazy" decoding="async" alt="" />
-            <span className="row between g8"><strong>{t.name}</strong><span className="xs faint">Use →</span></span>
-          </Link>
+            <span className="row between g8"><strong>{t.name}</strong><span className="xs faint">Preview</span></span>
+          </button>
         ))}
       </div>
       <Link to="/builder?start=templates" className="btn btn-outline" style={{ alignSelf: 'flex-start' }}>See all {TEMPLATE_COUNT} →</Link>
+      {open && (
+        <Suspense fallback={<div className="overlay" aria-busy="true" />}>
+          <TemplatePreview id={open} onClose={() => setOpen(null)} onUse={() => nav('/builder', { state: { open: 'build', template: open } })} />
+        </Suspense>
+      )}
     </div>
   );
 }
