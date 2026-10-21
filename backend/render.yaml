@@ -61,7 +61,7 @@ services:
   # ---------------------------------------------------------------------------------------------------------------
   # Staging: the same image, a separate database, for Vercel preview deployments (so an unmerged branch can never
   # write production data). Deploys every commit of the production branch like nm7-api, so it is always the same
-  # code one step ahead of a preview. Free plan (sleeps when idle; keep-alive pings it too).
+  # code one step ahead of a preview. Free plan (sleeps when idle; add it to the external uptime monitor too).
   # Dashboard steps once (see README → Staging): paste MONGODB_URI (the same cluster is fine: the database name
   # differs), set ENCRYPTION_KEY to any new value, leave the Razorpay and Anthropic keys empty (payments and AI
   # answer "not configured" on staging), set RESEND_API_KEY only if you want real emails from staging.

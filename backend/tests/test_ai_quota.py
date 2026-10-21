@@ -166,8 +166,8 @@ async def test_photos_fallback_and_failures_are_counted(client, outbox, key_on, 
         raise RuntimeError("x")
 
     monkeypatch.setattr(reader, "call_model", boom)
-    with pytest.raises(RuntimeError):  # the test transport re-raises what the server answers with a 500
-        await post(client, [photo()])
+    r = await post(client, [photo()])  # an unexpected failure answers in the API's error shape
+    assert r.status_code == 500 and r.json()["error"]["code"] == "server_error"
     photos = (await ai_quota.usage(db, 1))["days"][0]["photos"]
     assert photos["calls"] == 2 and photos["failed"] == 1
 

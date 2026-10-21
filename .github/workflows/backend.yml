@@ -1,27 +1,24 @@
 name: backend
 
-# Runs once per change: on pull requests, and on pushes to the deployed branch (a PR commit is not also run as a
-# push). A newer commit on the same branch cancels the older run.
+# The API's lint and tests, once per pull-request commit that touches backend/ (a newer commit cancels the older
+# run). Nothing runs again after the merge: the squash commit is the code the PR already tested.
 on:
-  push:
-    branches: ["claude/fervent-albattani-wqmaoq", "main"]
-    paths: ["backend/**", ".github/workflows/backend.yml", ".github/scripts/**"]
   pull_request:
     paths: ["backend/**", ".github/workflows/backend.yml", ".github/scripts/**"]
+  workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: backend
     env:
-      # One-node replica set (transactions need a replica set, like Atlas).
       TEST_MONGODB_URI: mongodb://localhost:27017/?directConnection=true
     steps:
       - uses: actions/checkout@v4
@@ -30,39 +27,9 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           python-version: "3.12"
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
       - run: uv sync --frozen
       - run: uv run ruff check .
       - run: uv run ruff format --check .
       - run: uv run pytest -q
-
-  audit:
-    # Known vulnerabilities in the locked Python dependencies (advisory data from PyPI / OSV).
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    defaults:
-      run:
-        working-directory: backend
-    steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
-        with:
-          python-version: "3.12"
-      - run: uv sync --frozen
-      - run: uv run pip-audit --strict --desc on -r <(uv export --frozen --no-dev --no-hashes --no-emit-project)
-        shell: bash
-
-  docker:
-    # The image Render builds, built here first: a broken Dockerfile is seen on the PR, not on deploy.
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v4
-      - run: docker build --tag nm7-api:ci backend
-      - name: The container starts and answers /version
-        run: |
-          docker run -d --name api -p 8000:8000 -e APP_ENV=prod -e SECRET_KEY=ci-only-secret-0123456789 \
-            -e MONGODB_URI=mongodb://127.0.0.1:1/?serverSelectionTimeoutMS=500 nm7-api:ci
-          sleep 8
-          docker logs api | tail -20
-          # without a database the app logs the failure and keeps serving; /version needs no database
-          curl -fsS --retry 5 --retry-delay 2 --retry-all-errors http://localhost:8000/version || (docker logs api; exit 1)

@@ -271,8 +271,8 @@ async def test_unexpected_exception_is_counted_as_failed(client, outbox, api, db
 
     monkeypatch.setattr(writer, "call_model", boom)
     await signup(client, outbox)
-    with pytest.raises(RuntimeError):  # the test transport re-raises what the server answers with a 500
-        await post(client)
+    r = await post(client)  # an unexpected failure answers in the API's error shape, with a request id
+    assert r.status_code == 500 and r.json()["error"]["code"] == "server_error" and r.json()["error"]["requestId"]
     day = (await ai_quota.usage(db, 1))["days"][0]["summary"]
     assert day["calls"] == 1 and day["failed"] == 1
 

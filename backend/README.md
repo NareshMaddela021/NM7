@@ -112,7 +112,7 @@ set `ADMIN_SETUP_TOKEN` (24+ random characters) on the API, open `/admin/setup` 
 owner's details, scan the QR code, save the recovery codes and confirm a 6-digit code. Setup closes for good once an
 admin exists (404); then delete `ADMIN_SETUP_TOKEN`. Alternatively run `create-admin` from your computer with the
 Atlas connection string: `MONGODB_URI='<atlas uri>' MONGODB_DB=nm7 uv run python -m app.cli create-admin …`.
-## Operations: errors, backups, keep-alive, staging
+## Operations: errors, backups, keep-alive, staging, CI minutes
 
 **Errors.** Every answer carries an `X-Request-Id`; an unexpected failure answers
 `{"error": {"code": "server_error", "requestId": "…"}}` (JSON, with the CORS headers, so the site can show it) and the
@@ -129,9 +129,20 @@ passphrase, kept in a password manager). Until both are set the job only prints 
 the top of the workflow file. Scheduled workflows run from the repository's **default branch**, so that branch must
 carry the file.
 
-**Keep-alive** (`.github/workflows/keepalive.yml`) pings `/health` every 10 minutes between 05:30 and 23:30 IST so the
-free Render instance is awake when people arrive. A free external monitor (cron-job.org, UptimeRobot) does the same
-without Actions minutes and also alerts on downtime; once one is set up, delete the workflow.
+**Keep-alive.** The free Render instance sleeps after 15 idle minutes. A GitHub Actions ping every 10 minutes
+would cost about 3,000 Actions minutes a month on a private repository (each run bills a whole minute), so use a free
+external monitor instead: cron-job.org or UptimeRobot, `GET https://nm7-api.onrender.com/health` every 10 minutes
+(UptimeRobot also emails when the API is down).
+
+**CI minutes** (private repository: 2,000 free minutes a month; each job bills whole minutes).
+- `backend.yml` (~4 min) runs on pull requests that touch `backend/`; `frontend.yml` (~4 min) on pull requests that
+  touch `frontend/`. One run per commit; a newer commit cancels the older run. Nothing re-runs after the merge.
+- `e2e.yml` (~9 min, the browser suite against the real API + the CSP check) runs only on pull requests into the
+  production branch, plus nightly and by hand.
+- `deps.yml` (pip-audit, npm audit, Docker build) runs when dependency files or the Dockerfile change, and weekly.
+- `deploy-check.yml` runs after a merge that changes `backend/` (~3–5 min while Render deploys).
+- Scheduled workflows (nightly e2e, backup, Hygraph check, weekly deps) run from the repository's **default
+  branch**: set it to `claude/fervent-albattani-wqmaoq` (Settings → General → Default branch), or they never run.
 
 **Staging** (`render.yaml`, second service `nm7-api-staging`, database `nm7_staging` on the same cluster). Vercel
 preview deployments talk to it instead of production, so a branch under review can never touch live data:

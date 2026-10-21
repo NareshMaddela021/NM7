@@ -1,23 +1,20 @@
 name: frontend
 
-# Runs once per change: on pull requests, and on pushes to the deployed branch. The unit/preview checks and the
-# live browser tests run as two parallel jobs; the live job retries a flaky browser test once and keeps the
-# traces of any failure as an artifact.
+# The site's lint, unit tests, build and sample-data browser tests, once per pull-request commit that touches
+# frontend/ (a newer commit cancels the older run). The browser tests against the real API are in e2e.yml.
 on:
-  push:
-    branches: ["claude/fervent-albattani-wqmaoq", "main"]
-    paths: ["frontend/**", "backend/**", ".github/workflows/frontend.yml", ".github/scripts/**"]
   pull_request:
-    paths: ["frontend/**", "backend/**", ".github/workflows/frontend.yml", ".github/scripts/**"]
+    paths: ["frontend/**", ".github/workflows/frontend.yml"]
+  workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
   unit:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: frontend
@@ -30,59 +27,19 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - run: npm run lint
-      - name: Known vulnerabilities in the shipped dependencies (dev tools are reported, not blocking)
-        run: npm audit --omit=dev --audit-level=high
-      - run: npm run build
       - run: npm test
+      - run: npm run build
+      - name: Cache the Playwright browser
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}
       - run: npx playwright install --with-deps chromium
       - name: Browser tests (preview build, sample data)
         run: npm run test:e2e
-      - name: Production build with the vercel.json headers (CSP, 404)
-        run: npm run test:e2e:csp
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: playwright-unit-results
+          name: playwright-preview-results
           path: frontend/test-results
-          retention-days: 7
-
-  live:
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    defaults:
-      run:
-        working-directory: frontend
-    env:
-      # The live browser tests run the real API (backend/) on this MongoDB replica set.
-      TEST_MONGODB_URI: mongodb://localhost:27017/?directConnection=true
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: frontend/.nvmrc
-          cache: npm
-          cache-dependency-path: frontend/package-lock.json
-      - run: npm ci
-      - run: npx playwright install --with-deps chromium
-      - name: Start MongoDB (replica set; 8.0 like Atlas, newer when the runner kernel refuses 8.0)
-        working-directory: .
-        run: bash "$GITHUB_WORKSPACE/.github/scripts/start-mongo.sh"
-      - uses: astral-sh/setup-uv@v5
-        with:
-          python-version: "3.12"
-      - name: Install the API
-        working-directory: backend
-        run: uv sync --frozen
-      - name: Browser tests against the real API
-        run: npm run test:e2e:live
-      - name: API log (on failure)
-        if: failure()
-        run: cat e2e-live/.api.log || true
-      - uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: playwright-live-results
-          path: |
-            frontend/test-results
-            frontend/e2e-live/.api.log
           retention-days: 7
