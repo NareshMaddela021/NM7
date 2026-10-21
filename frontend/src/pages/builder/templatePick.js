@@ -1,7 +1,7 @@
 // The template picker's selection logic (TemplatePicker.jsx), kept plain so it can be unit tested.
 // Also the small template helpers the home page needs, so it doesn't have to load the picker (and the preview).
-import { TEMPLATE_PRESETS } from './design';
-import { SECTION_LAYOUTS } from './schema';
+import { DEFAULT_DESIGN, TEMPLATE_PRESETS } from './design';
+import { INITIAL, SECTION_LAYOUTS } from './schema';
 
 export const layoutOf = (k) => SECTION_LAYOUTS[TEMPLATE_PRESETS[k]?.sections || 'standard'];
 // grey silhouette so photo templates show where the photo goes
@@ -35,3 +35,31 @@ export function pickState(prev, action) {
     default: return prev;
   }
 }
+
+/* ---------- "Sample resume | My details" (template gallery, the builder's picker, the large preview) ---------- */
+
+/**
+ * A resume shown in template `k`, the way the builder applies it: the template's look, and its section layout only
+ * when that layout differs from the current template's (look-only switches keep the person's own order and on/off
+ * choices — hidden sections, personal information, declaration and photo stay exactly as they set them).
+ */
+export function withTemplate(data, k) {
+  const t = TEMPLATE_PRESETS[k];
+  if (!t || !data) return { data, design: null };
+  const cur = data.design?.preset;
+  const from = layoutOf(cur in TEMPLATE_PRESETS ? cur : 'fresher');
+  const to = layoutOf(k);
+  const laid = from === to ? data : { ...data, order: to.order, hidden: { ...to.hidden }, titles: { ...to.titles }, showPhoto: to.showPhoto };
+  return { data: laid, design: { ...DEFAULT_DESIGN, ...t.design, preset: k } };
+}
+
+export const VIEW_KEY = 'nm7-template-view';
+/** True when a resume has the person's own details to show (at least a name, and not the built-in sample). */
+export const hasOwnDetails = (data) => !!data?.personal?.name?.trim() && !(data.personal.name === INITIAL.personal.name && data.personal.email === INITIAL.personal.email);
+/** Which view to open: the choice saved on this device, else My details when there is a name to show, else Sample. */
+export function startView(saved, data) {
+  if (saved === 'sample' || saved === 'mine') return saved;
+  return hasOwnDetails(data) ? 'mine' : 'sample';
+}
+export function readView() { try { return localStorage.getItem(VIEW_KEY); } catch { return null; } }
+export function saveView(v) { try { localStorage.setItem(VIEW_KEY, v); } catch { /* private mode: this visit only */ } }

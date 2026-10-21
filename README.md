@@ -47,6 +47,28 @@ expert rewrite are supporting features further down ("Make it stronger").
   /for-orgs and /partners, and the language switch post `{name}` to `POST /api/public/events` — no cookies, no user
   or IP stored, only a per-day count. Admin → Dashboard shows the last 7 days ("Home page taps").
 
+## Templates page (nm7.si/templates)
+
+- All 18 templates with a **Sample resume | My details** switch, above the grid and inside the large preview.
+  Sample shows the example person. My details shows the signed-in person's own saved resume, the same one the
+  builder edits. With more than one resume, a "Showing:" picker chooses which.
+- Default: My details when the resume has a name, else Sample. The choice is remembered on the device
+  (`nm7-template-view` in localStorage).
+- Signed out, or a resume without a name: My details shows "Add your details to see them here" and
+  "Start my resume".
+- A builder save is announced on a same-origin `BroadcastChannel` (`nm7-resume`), so an open Templates tab shows
+  the edit within about a second.
+- Tapping a card opens the large preview and never makes a file. "Use this template" applies it and opens the
+  builder, the way the builder applies a template (`withTemplate` in `builder/templatePick.js`): a look-only
+  switch keeps the person's hidden sections, personal information, declaration and photo choices.
+  "Download PDF" (own resume only) is the one button here that makes a file, through the usual account/plan check.
+- In the builder, "Change template" next to the template name opens the picker on My details. Content is kept
+  and the 1-page check carries on.
+- Privacy: own details are drawn only in the owner's browser. The page's HTML, share image and caches never
+  hold them. The API answers personal routes (`/api/me`, `/api/auth`, …) with `Cache-Control: private, no-store`.
+- Speed: thumbnails are HTML, drawn only as they come on screen. No PDF code loads until Download is tapped, on
+  this page or in the builder.
+
 ## Summary writer
 
 On the builder's **Summary** step, in **Job Profile → Summary → About me** and in the kiosk builder, anyone can get a

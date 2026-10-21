@@ -5,13 +5,12 @@ import { Dialog, Icon, Meter, useToast } from '../components/ui';
 import { getMatchedJobs } from '../services/api';
 import { flushKeepalive, onSaveState } from '../lib/meLive';
 import { syncFromBuilder, defaultResume, useMe, activeResume, addResume, openInBuilder, blankResume, updateResume, uniqueName, setResumePages, acceptGuestDraft, discardGuestDraft } from '../lib/customerStore';
-import { ago } from './me/shared';
 import { useJobProfile } from '../lib/profileStore';
 import { profileCompleteness, profileToResume, profileUpdates } from '../lib/jobProfile';
 import { reviewToResume } from '../lib/photoImport';
 import { DownloadBlocked, exportFile, forgetPendingDownload, mayFinishDownload, pendingDownload } from '../lib/downloads';
 import { lengthNote, writeSummaries } from '../lib/summary/write';
-import { charCount } from '../lib/text';
+import { ago, charCount } from '../lib/text'; // not from me/shared: that file loads the PDF library
 import { monthsBetween } from '../lib/import/dates';
 import PhotoImport from './builder/PhotoImport';
 import { FillFromProfile, ProfileHint, ProfileUpdates, SaveToProfile } from './builder/ProfileSync';
@@ -182,6 +181,7 @@ export default function Builder({ embedded = null }) {
   const [missing, setMissing] = useState(false); // after "Snap photos": point at what's still missing (e.g. phone)
   const [importMode, setImportMode] = useState(startAt?.importMode || 'resume');
   const [suggest, setSuggest] = useState(null);
+  const [changing, setChanging] = useState(false); // "Change template" from the live preview: the picker on My details
   const [d, setD] = useState(() => (embedded ? loadDraft(embedded.storageKey, embedded.initial) : loadDraft(DRAFT_KEY(), serverCustomer() ? (activeResume()?.data || defaultResume()) : defaultResume())));
   // Live customer: when their resumes arrive from the server, open the active one (unless a scan import is opening).
   const auth = useAuth(); // re-render when the sign-in answer arrives (it can come after this page on a cold start)
@@ -584,7 +584,7 @@ export default function Builder({ embedded = null }) {
           toast('Details added — pick a look, then check each section');
         }} />
       )}
-      {stage === 'templates' && <TemplatePicker d={d} ds={ds} suggest={suggest} photo={photo} onPick={applyTemplate} onNext={() => setStage('build')} />}
+      {stage === 'templates' && <TemplatePicker d={d} ds={ds} suggest={suggest} photo={photo} onPick={applyTemplate} initialView={changing ? 'mine' : undefined} onNext={() => { setChanging(false); setStage('build'); }} />}
       {stage === 'done' && <Done name={d.personal.name} score={score} onEdit={() => setStage('build')} onDownload={(f) => download(f, 'resume')} onCover={() => { setTab('cover'); setStage('build'); }} pdfBusy={pdfBusy} />}
 
       {stage === 'build' && (
@@ -852,6 +852,7 @@ export default function Builder({ embedded = null }) {
           <section aria-label="Live resume preview" className="stack g8 sticky" style={{ flex: '3 1 440px', minWidth: 0, top: 80 }}>
             <div className="row between g8 xs muted">
               <span className="row g8">{tab === 'cover' ? 'Cover letter · same design · ' : 'Live preview · '}{TEMPLATE_PRESETS[ds.preset]?.name ? `${TEMPLATE_PRESETS[ds.preset].name}${JSON.stringify({ ...TEMPLATE_PRESETS[ds.preset].design, preset: 0 }) === JSON.stringify({ ...ds, preset: 0 }) ? '' : ' (edited)'}` : 'Custom'}
+                {tab !== 'cover' && <button type="button" className="link-btn" style={{ minHeight: 32 }} onClick={() => { setChanging(true); setStage('templates'); window.scrollTo(0, 0); }}>Change template</button>}
                 {tab !== 'cover' && (pages === null
                   ? <span className="badge b-neutral" data-testid="page-count">Measuring…</span>
                   : <span className={`badge ${pages > 1 ? 'b-warning' : 'b-success'}`} data-testid="page-count">{pages > 1 ? `${pages} pages · aim for 1` : '1 page ✓'}</span>)}
