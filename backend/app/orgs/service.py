@@ -507,3 +507,8 @@ def sort_rows(rows: list[dict[str, Any]], sort: str = "joined", direction: str =
     else:
         key = keys.get(sort, keys["joined"])
     return sorted(rows, key=key, reverse=direction == "desc")
+
+
+async def active_members(db, group_id: str) -> int:
+    """Members who have not left the group."""
+    return await db[MEMBERSHIPS].count_documents({"group_id": group_id, "left_at": None})

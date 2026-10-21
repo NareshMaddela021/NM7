@@ -37,9 +37,10 @@ from app.core.security import keyed_hash, new_code, same
 from app.core.time import IST, now
 from app.me.service import ms
 from app.orgs.branding import brands_for
-from app.orgs.router import Filters, _rows
 from app.orgs.scope import NOT_FOUND, OrgScope, features_of, require_feature
 from app.orgs.service import holds_id_number, printable, shared_rows
+from app.orgs.shapes import Filters
+from app.orgs.shared import _rows
 
 staff = APIRouter(prefix="/api/org/{org_id}/recruiter-links", tags=["recruiter links"])
 public = APIRouter(prefix="/api/recruit/{token}", tags=["recruiter links"])

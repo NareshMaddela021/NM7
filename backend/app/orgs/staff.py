@@ -31,18 +31,10 @@ from app.core.security import hash_token, new_token
 from app.core.time import now
 from app.me.service import ms
 from app.orgs import emails
-from app.orgs.router import (
-    LOOKUP_RULES,
-    GroupIn,
-    GroupPatch,
-    audit_list,
-    create_group_in,
-    groups_with_counts,
-    org_out,
-    register_shared,
-    update_group_in,
-)
+from app.orgs.router import audit_list, create_group_in, groups_with_counts, update_group_in
 from app.orgs.scope import NOT_FOUND, AdminScope, OrgScope
+from app.orgs.shapes import LOOKUP_RULES, GroupIn, GroupPatch, org_out
+from app.orgs.shared import register_shared
 
 admin_staff = APIRouter(prefix="/api/admin", tags=["organizations"])
 invites = APIRouter(prefix="/api/org-invites", tags=["organizations"])
