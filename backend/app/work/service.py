@@ -70,6 +70,49 @@ def side_of(user: User, order: Order, work: dict[str, Any], admin_ok: bool) -> s
 async def view(db: AsyncDatabase, order: Order, work: dict[str, Any], side: str) -> dict[str, Any]:
     customer = await db[USERS].find_one({"_id": order.customer_id}, {"name": 1})
     expert = await db[USERS].find_one({"_id": work["expert_id"]}, {"name": 1}) if work.get("expert_id") else None
+    privacy = None
+    if side == "expert" and isinstance(work.get("data", {}).get("original"), dict):
+        privacy = privacy_of(await db[JOB_PROFILES].find_one({"_id": order.customer_id}, {"privacy": 1}))
+    return _view(order, work, side, customer, expert, privacy)
+
+
+async def views(db: AsyncDatabase, orders: list[Order], side: str) -> list[dict[str, Any]]:
+    """`view()` for many orders (a work list), the same output, from one query per collection instead of a few
+    per order: the work documents, the customers' and experts' names and (for an expert) the privacy settings."""
+    if not orders:
+        return []
+    works = {w["_id"]: w async for w in db[ORDER_WORK].find({"_id": {"$in": [o.id for o in orders]}})}
+    works = {o.id: works.get(o.id) or {"_id": o.id, "data": {}} for o in orders}
+    ids = {o.customer_id for o in orders} | {w["expert_id"] for w in works.values() if w.get("expert_id")}
+    users = {u["_id"]: u async for u in db[USERS].find({"_id": {"$in": list(ids)}}, {"name": 1})}
+    privacy: dict[str, dict[str, Any]] = {}
+    if side == "expert":
+        need = [o.customer_id for o in orders if isinstance(works[o.id].get("data", {}).get("original"), dict)]
+        if need:
+            async for j in db[JOB_PROFILES].find({"_id": {"$in": need}}, {"privacy": 1}):
+                privacy[j["_id"]] = j
+            privacy = {cid: privacy_of(privacy.get(cid)) for cid in need}
+    return [
+        _view(
+            o,
+            works[o.id],
+            side,
+            users.get(o.customer_id),
+            users.get(works[o.id].get("expert_id")) if works[o.id].get("expert_id") else None,
+            privacy.get(o.customer_id),
+        )
+        for o in orders
+    ]
+
+
+def _view(
+    order: Order,
+    work: dict[str, Any],
+    side: str,
+    customer: dict[str, Any] | None,
+    expert: dict[str, Any] | None,
+    privacy: dict[str, Any] | None,
+) -> dict[str, Any]:
     d = work.get("data", {})
     addons = [i.code for i in order.items if i.kind == "addon"]
     out = {
@@ -103,7 +146,7 @@ async def view(db: AsyncDatabase, order: Order, work: dict[str, Any], side: str)
         "review": d.get("review"),
     }
     if side == "expert" and isinstance(out["original"], dict):  # salary / personal info only with consent
-        p = privacy_of(await db[JOB_PROFILES].find_one({"_id": order.customer_id}, {"privacy": 1}))
+        p = privacy or privacy_of(None)
         printed = not (out["original"].get("hidden") or {}).get("pinfo")  # on the resume itself: the expert needs it
         out["original"] = strip_private(out["original"], salary=p["salary"], personal=p["personal"] or printed)
     if side == "customer":  # drafts the expert hasn't sent yet stay private

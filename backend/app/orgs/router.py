@@ -54,6 +54,7 @@ from app.orgs.service import (
     file_name,
     filter_rows,
     group_problem,
+    membership_match,
     new_code,
     normalize_code,
     opt_out_membership,
@@ -802,14 +803,17 @@ async def _rows(db, scope: Scope, f: Filters, sort: str = "joined", direction: s
         if f.only_ready:
             fd["review"] = "ready"
     try:
-        return sort_rows(filter_rows(await with_shortlists(db, await shared_rows(db, match)), fd), sort, direction)
+        rows = await shared_rows(db, {**match, **membership_match(fd)})  # a first cut in Mongo: fewer resumes read
+        return sort_rows(filter_rows(await with_shortlists(db, rows), fd), sort, direction)
     except ValueError:
         raise ApiError(400, "bad_date", "Dates must look like 2026-10-16.") from None
 
 
-async def _selected(db, scope: Scope, ids: list[str], *, approved_only: bool = False) -> list[dict[str, Any]]:
-    """The chosen memberships that are in the scope (others are silently left out)."""
-    rows = await shared_rows(db, {**scope.match(), "_id": {"$in": list(set(ids))}})
+async def _selected(
+    db, scope: Scope, ids: list[str], *, approved_only: bool = False, with_data: bool = False
+) -> list[dict[str, Any]]:
+    """The chosen memberships that are in the scope (others are silently left out). `with_data`: with the resume."""
+    rows = await shared_rows(db, {**scope.match(), "_id": {"$in": list(set(ids))}}, with_data=with_data)
     return [r for r in rows if r["approval"] == "approved"] if approved_only else rows
 
 
@@ -938,7 +942,7 @@ def register_shared(router: APIRouter, ScopeDep) -> None:  # noqa: N803 — a de
 
     @router.get("/shared-resumes/{membership_id}")
     async def shared_resume(membership_id: str, request: Request, db: DB, scope: ScopeDep) -> dict[str, Any]:
-        rows = await _selected(db, scope, [membership_id])
+        rows = await _selected(db, scope, [membership_id], with_data=True)
         if not rows:
             raise NOT_FOUND
         data = scope.audit_data(_orgs(rows), count=1)
@@ -1055,7 +1059,7 @@ def register_shared(router: APIRouter, ScopeDep) -> None:  # noqa: N803 — a de
         Re-checked against the scope and approval now: someone who left or was rejected since comes back empty."""
         j = await _job(db, job_id, scope)
         ids = j["membership_ids"][offset : offset + limit]
-        rows = {r["membership_id"]: r for r in await _selected(db, scope, ids, approved_only=True)}
+        rows = {r["membership_id"]: r for r in await _selected(db, scope, ids, approved_only=True, with_data=True)}
         return [{"membershipId": i, "data": printable(rows[i]) if i in rows else None} for i in ids]
 
     @router.post("/shared-resumes/exports/{job_id}/done")

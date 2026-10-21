@@ -9,7 +9,7 @@ from typing import Any
 
 from pymongo.asynchronous.database import AsyncDatabase
 
-from app.core.db import EXPERT_PROFILES, USERS
+from app.core.db import EXPERT_PROFILES, ORDER_WORK, USERS
 from app.core.errors import ApiError
 from app.core.security import decrypt, encrypt
 from app.core.time import now
@@ -74,6 +74,22 @@ def issues(p: dict[str, Any], payout: dict[str, Any]) -> list[str]:
 
 async def load_profile(db: AsyncDatabase, user_id: str) -> dict[str, Any] | None:
     return await db[EXPERT_PROFILES].find_one({"_id": user_id})
+
+
+async def load_profiles(db: AsyncDatabase, user_ids: list[str]) -> list[dict[str, Any]]:
+    """The profiles of many experts in one query (the admin's experts page); missing ones are simply absent."""
+    return await db[EXPERT_PROFILES].find({"_id": {"$in": list(user_ids)}}).to_list(None) if user_ids else []
+
+
+async def active_order_counts(db: AsyncDatabase, user_ids: list[str]) -> dict[str, int]:
+    """Accepted orders per expert, for many experts in one query: {expert_id: n} (experts with none are absent)."""
+    if not user_ids:
+        return {}
+    pipeline = [
+        {"$match": {"expert_id": {"$in": list(user_ids)}, "accepted_at": {"$ne": None}}},
+        {"$group": {"_id": "$expert_id", "n": {"$sum": 1}}},
+    ]
+    return {d["_id"]: d["n"] async for d in await db[ORDER_WORK].aggregate(pipeline)}
 
 
 def profile_out(doc: dict[str, Any] | None, *, for_admin: bool) -> dict[str, Any] | None:

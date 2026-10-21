@@ -5,6 +5,7 @@ writes with explicit updates. Indexes are created at start-up (idempotent). Anyt
 writes runs in a multi-document transaction (Atlas clusters are replica sets).
 """
 
+import logging
 from collections.abc import Awaitable, Callable
 from datetime import UTC
 from typing import Annotated, Any, Self
@@ -15,9 +16,11 @@ from pydantic import BaseModel, ConfigDict, Field
 from pymongo import ASCENDING, DESCENDING, AsyncMongoClient, IndexModel, ReturnDocument
 from pymongo.asynchronous.client_session import AsyncClientSession
 from pymongo.asynchronous.database import AsyncDatabase
+from pymongo.errors import OperationFailure
 
 from app.core.config import get_settings
 
+log = logging.getLogger("nm7.db")
 Session = AsyncClientSession | None
 
 # Collection names
@@ -97,6 +100,7 @@ COLLECTIONS = (
 )
 
 DAY = 86_400
+WEBHOOK_KEEP = 90 * DAY  # provider webhook payloads are kept 90 days (duplicates are only replayed within that)
 
 
 class Doc(BaseModel):
@@ -128,6 +132,7 @@ INDEXES: dict[str, list[IndexModel]] = {
     ],
     EMAIL_CODES: [
         IndexModel([("user_id", ASCENDING), ("purpose", ASCENDING), ("used_at", ASCENDING)]),
+        IndexModel("code_hash"),  # the public "continue on your phone" link is looked up by its hash alone
         IndexModel("expires_at", expireAfterSeconds=DAY),  # cleaned up a day after expiry
     ],
     SESSIONS: [
@@ -166,6 +171,7 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel("action"),
         IndexModel("actor_id"),
         IndexModel([("target", ASCENDING), ("at", DESCENDING)]),
+        IndexModel([("data.orgs", ASCENDING), ("_id", DESCENDING)]),  # an organization's audit page (newest first)
     ],
     ORDERS: [
         # _id is the order number (RS-1001…), unique by definition.
@@ -173,7 +179,9 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel([("customer_id", ASCENDING), ("created_at", DESCENDING)]),
         IndexModel("status"),
         IndexModel("deadline_at"),
+        IndexModel("paid_at"),  # invoices, reports and expert work lists sort / range on it
     ],
+    WEBHOOK_EVENTS: [IndexModel("received_at", expireAfterSeconds=WEBHOOK_KEEP)],
     PAYMENTS: [
         IndexModel("razorpay_order_id", unique=True, partialFilterExpression=_str("razorpay_order_id")),
         IndexModel("razorpay_payment_id", unique=True, partialFilterExpression=_str("razorpay_payment_id")),
@@ -238,13 +246,48 @@ async def get_db() -> AsyncDatabase:
 DB = Annotated[AsyncDatabase, Depends(get_db)]
 
 
+INDEX_CONFLICT = (
+    85,
+    86,
+)  # IndexOptionsConflict (same name, other options) / IndexKeySpecsConflict (same name, other keys)
+
+
+async def _replace_index(db: AsyncDatabase, name: str, index: IndexModel) -> None:
+    """An index exists under this name (other keys or options) or these keys (other name): drop it, make ours."""
+    spec = index.document
+    want = list(spec["key"].items())
+    info = await db[name].index_information()
+    for existing, meta in info.items():
+        if existing == "_id_":
+            continue
+        if existing == spec["name"] or [tuple(k) for k in meta.get("key", [])] == want:
+            log.warning("index %s.%s conflicts with the current definition: dropping and recreating it", name, existing)
+            await db[name].drop_index(existing)
+    await db[name].create_indexes([index])
+
+
 async def ensure_indexes(db: AsyncDatabase) -> None:
+    """Creates collections and indexes (safe on every start). An index whose definition changed since the last
+    deploy (a TTL, uniqueness, different keys under the same name) is dropped and recreated instead of failing
+    the start-up with IndexOptionsConflict / IndexKeySpecsConflict."""
     existing = set(await db.list_collection_names())
     for name in COLLECTIONS:
         if name not in existing:
             await db.create_collection(name)  # transactions can't create collections, so make them all up front
     for name, indexes in INDEXES.items():
-        await db[name].create_indexes(indexes)
+        try:
+            await db[name].create_indexes(indexes)
+            continue
+        except OperationFailure as e:
+            if e.code not in INDEX_CONFLICT:
+                raise
+        for index in indexes:  # one at a time: only the conflicting one is replaced
+            try:
+                await db[name].create_indexes([index])
+            except OperationFailure as e:
+                if e.code not in INDEX_CONFLICT:
+                    raise
+                await _replace_index(db, name, index)
 
 
 async def transaction[T](fn: Callable[[AsyncClientSession], Awaitable[T]]) -> T:

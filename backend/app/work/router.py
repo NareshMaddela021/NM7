@@ -12,7 +12,7 @@ from app.core.errors import ApiError
 from app.orders.models import Order
 from app.orders.service import get_order
 from app.profile.service import privacy_of, strip_private
-from app.work.service import NOT_FOUND, apply_patch, load_work, side_of, view
+from app.work.service import NOT_FOUND, apply_patch, load_work, side_of, view, views
 
 router = APIRouter(prefix="/api/work", tags=["work"])
 
@@ -37,7 +37,7 @@ async def my_work(auth: CurrentAuth, db: DB) -> list[dict[str, Any]]:
         side = "expert"
     else:
         raise ApiError(403, "wrong_role", "This is for customers and experts.")
-    return [await view(db, o, await load_work(db, o.id), side) for o in orders]
+    return await views(db, orders, side)
 
 
 @router.get("/{order_id}")

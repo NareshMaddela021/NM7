@@ -128,12 +128,32 @@ async def _context(db, rows: list[dict[str, Any]]) -> tuple[dict, dict]:
     return groups, orgs
 
 
-async def live_rows(db, link: dict[str, Any]) -> list[dict[str, Any]]:
-    """The link's candidates as of now: whoever left, opted out or was rejected since is gone."""
-    rows = await shared_rows(db, {"_id": {"$in": link["membership_ids"]}, "org_id": link["org_id"]})
+async def live_rows(db, link: dict[str, Any], *, with_data: bool = False) -> list[dict[str, Any]]:
+    """The link's candidates as of now: whoever left, opted out or was rejected since is gone.
+    `with_data`: with the resumes (viewing / downloading); the list only needs the row fields."""
+    q = {"_id": {"$in": link["membership_ids"]}, "org_id": link["org_id"]}
+    rows = await shared_rows(db, q, with_data=with_data)
     groups, orgs = await _context(db, rows)
     order = {m: i for i, m in enumerate(link["membership_ids"])}
     return sorted((r for r in rows if eligible(r, groups, orgs)), key=lambda r: order.get(r["membership_id"], 0))
+
+
+async def live_counts(db, links: list[dict[str, Any]]) -> dict[str, int]:
+    """How many candidates each link shows right now (0 for expired / revoked links), the same as
+    `len(live_rows(link))` for each, but from one set of queries for all the links instead of one set per link."""
+    active = [lk for lk in links if _state(lk) == "active"]
+    ids = sorted({m for lk in active for m in lk["membership_ids"]})
+    if not ids:
+        return {lk["_id"]: 0 for lk in links}
+    q = {"_id": {"$in": ids}, "org_id": {"$in": sorted({lk["org_id"] for lk in active})}}
+    rows = await shared_rows(db, q)
+    groups, orgs = await _context(db, rows)
+    live = {r["membership_id"]: r["org_id"] for r in rows if eligible(r, groups, orgs)}
+    active_ids = {lk["_id"] for lk in active}
+    return {
+        lk["_id"]: sum(1 for m in lk["membership_ids"] if live.get(m) == lk["org_id"]) if lk["_id"] in active_ids else 0
+        for lk in links
+    }
 
 
 def _clean(v: Any) -> str:
@@ -261,10 +281,8 @@ async def list_links(db: DB, scope: OrgScope) -> list[dict[str, Any]]:
     links = await db[RECRUITER_LINKS].find({"org_id": scope.org_id}).sort("created_at", -1).limit(200).to_list(None)
     if scope.group_ids is not None:
         links = [lk for lk in links if set(lk.get("group_ids") or []) <= set(scope.group_ids)]
-    out = []
-    for lk in links:
-        out.append(link_out(lk, len(await live_rows(db, lk)) if _state(lk) == "active" else 0))
-    return out
+    counts = await live_counts(db, links)
+    return [link_out(lk, counts[lk["_id"]]) for lk in links]
 
 
 @staff.post("/{link_id}/extend")
@@ -360,7 +378,7 @@ async def recruiter_list(
             {
                 "id": _cid(link["_id"], r["membership_id"]),
                 "name": r["name"],
-                "headline": _clean((r["_data"].get("personal") or {}).get("headline")),
+                "headline": _clean(r["headline"]),
                 **({"email": r["email"], "phone": r["phone"]} if link["include_contact"] else {}),
                 "answers": _answers(r, link["answer_keys"]),
                 "completeness": r["completeness"],
@@ -371,8 +389,10 @@ async def recruiter_list(
     }
 
 
-async def _candidates(db, link: dict[str, Any], cids: list[str] | None) -> list[dict[str, Any]]:
-    rows = await live_rows(db, link)
+async def _candidates(
+    db, link: dict[str, Any], cids: list[str] | None, *, with_data: bool = False
+) -> list[dict[str, Any]]:
+    rows = await live_rows(db, link, with_data=with_data)
     if cids is None:
         return rows
     want = set(cids)
@@ -398,7 +418,7 @@ async def recruiter_view(
 ) -> dict[str, Any]:
     response.headers.update(NO_STORE)
     link = await _open(db, token, request, x_access_code)
-    rows = await _candidates(db, link, [cid])
+    rows = await _candidates(db, link, [cid], with_data=True)
     if not rows:
         raise NOT_FOUND
     return {**(await _payload(db, link, rows))[0], "stamp": _stamp(link)}
@@ -413,7 +433,7 @@ async def recruiter_download(
     link = await _open(db, token, request, x_access_code)
     if not link["allow_downloads"]:
         raise ApiError(403, "downloads_off", "Downloads are switched off for this link. You can view the resumes.")
-    rows = await _candidates(db, link, body.ids)
+    rows = await _candidates(db, link, body.ids, with_data=True)
     if not rows:
         raise NOT_FOUND
     await db[RECRUITER_LINKS].update_one({"_id": link["_id"]}, {"$inc": {"downloads": 1}})
