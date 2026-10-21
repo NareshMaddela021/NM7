@@ -153,8 +153,8 @@ async def test_reports_csv_and_invoices(client, outbox, razorpay, db, admin_clie
     rep = (await owner.get("/api/admin/reports", params={"days": 7})).json()
     assert rep["byPlan"] == {"expert": 1} and rep["moneyIn"] == 99900 and len(rep["daily"]) == 1
     r = await owner.get("/api/admin/reports/orders.csv", params={"days": 7})
-    assert r.headers["content-type"].startswith("text/csv")
-    lines = r.text.strip().splitlines()
+    assert r.headers["content-type"] == "text/csv; charset=utf-8" and r.content[:3] == b"\xef\xbb\xbf"
+    lines = r.content.decode("utf-8-sig").strip().splitlines()  # the BOM is only a byte-order mark, not a column
     assert lines[0].startswith("order,invoice") and "'=HYPERLINK(evil)" in lines[1]
     inv = (await owner.get("/api/admin/invoices")).json()
     assert inv["total"] == 1 and inv["items"][0]["invoiceNo"].startswith("NM7/")

@@ -5,7 +5,7 @@ import { unzipSync } from 'fflate';
 
 vi.mock('../services/http', () => ({ http: vi.fn() }));
 const { http } = await import('../services/http');
-const { coverPdf, mergePdfs, runExport, zipFiles } = await import('./orgExport');
+const { coverPdf, mergePdfs, runExport, zipFiles, zipName } = await import('./orgExport');
 
 /** A test resume PDF with `n` pages. */
 function pdfOf(n, name = 'x') {
@@ -77,6 +77,24 @@ describe('organization exports', () => {
   it('zipFiles stores the given names', () => {
     const z = unzipSync(zipFiles([{ fileName: 'a.pdf', bytes: new Uint8Array([1, 2]) }]));
     expect([...z['a.pdf']]).toEqual([1, 2]);
+  });
+
+  it('ZIP keeps Indic file names', async () => {
+    const names = ['21A01_రాము_కుమార్_Resume.pdf', 'नेहा_शर्मा_Resume.pdf', 'ಸಾಫ್ಟ್\u200cವೇರ್_Resume_2.pdf'];
+    const bytes = zipFiles(names.map((fileName, i) => ({ fileName, bytes: new Uint8Array([i]) })));
+    expect(Object.keys(unzipSync(bytes))).toEqual(names); // UTF-8 names round-trip (flag bit 11 set)
+    const people = [{ name: 'రాము కుమార్', fileName: 'రాము_కుమార్_Resume.pdf', pages: 1 }, { name: 'నేహా', fileName: '', pages: 1 }];
+    fakeServer(people, 'export_zip');
+    const r = await runExport({ kind: 'export_zip', build });
+    expect(Object.keys(unzipSync(new Uint8Array(await r.blob.arrayBuffer())))).toEqual(['రాము_కుమార్_Resume.pdf', 'నేహా_Resume.pdf']);
+  });
+
+  it('zipName mirrors the server rule when a row has no file name', () => {
+    expect(zipName({ fileName: 'x.pdf', name: 'y' })).toBe('x.pdf');
+    expect(zipName({ name: 'Asha  Rao!', membershipId: 'm1' })).toBe('Asha_Rao_Resume.pdf');
+    expect(zipName({ name: 'రాము కుమార్', membershipId: 'm1' })).toBe('రాము_కుమార్_Resume.pdf');
+    expect(zipName({ name: '...', membershipId: 'abcdefghijkl' })).toBe('abcdefgh_Resume.pdf');
+    expect(zipName({ name: '', membershipId: '' })).toBe('Resume.pdf');
   });
 
   it('stops when asked', async () => {

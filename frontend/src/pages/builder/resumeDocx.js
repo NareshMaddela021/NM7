@@ -9,6 +9,7 @@ import { iconColor, iconPng } from './icons';
 import { FONTS, PAGE, headFontOf, marginOf } from './design';
 import { coverParts } from './cover';
 
+const CS_FONT = 'Nirmala UI';
 const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const hex = (c) => c.replace('#', '').toUpperCase();
 const mix = (c, a) => { const n = parseInt(c.replace('#', ''), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => Math.round(v * a + 255 * (1 - a)).toString(16).padStart(2, '0')).join('').toUpperCase(); };
@@ -29,7 +30,9 @@ export async function buildDocx({ data, design: ds, cover, photoPng }) {
   const lineCol = ds.accentOn.lines ? accent : 'B8B8B8';
   const bandFill = ds.headerStyle === 'band' ? mix(ds.accent, 0.1) : null;
 
-  const run = (t, o = {}) => `<w:r><w:rPr><w:rFonts w:ascii="${o.font || font}" w:hAnsi="${o.font || font}" w:cs="${o.font || font}"/>${o.b ? '<w:b/>' : ''}${o.i ? '<w:i/>' : ''}${o.caps ? '<w:caps/>' : ''}<w:color w:val="${o.color || text}"/>${o.spacing ? `<w:spacing w:val="${o.spacing}"/>` : ''}<w:sz w:val="${Math.round((o.sz || ds.bodySize) * 2)}"/><w:szCs w:val="${Math.round((o.sz || ds.bodySize) * 2)}"/>${o.u ? '<w:u w:val="single"/>' : ''}</w:rPr><w:t xml:space="preserve">${esc(t)}</w:t></w:r>`;
+  // w:cs is the font Word uses for complex-script characters (Telugu, Hindi, Tamil…): Nirmala UI ships with Windows
+  // and covers every Indian script; Word for Mac substitutes its own Indic fonts for it. Latin text keeps `font`.
+  const run = (t, o = {}) => `<w:r><w:rPr><w:rFonts w:ascii="${o.font || font}" w:hAnsi="${o.font || font}" w:cs="${CS_FONT}"/>${o.b ? '<w:b/>' : ''}${o.i ? '<w:i/>' : ''}${o.caps ? '<w:caps/>' : ''}<w:color w:val="${o.color || text}"/>${o.spacing ? `<w:spacing w:val="${o.spacing}"/>` : ''}<w:sz w:val="${Math.round((o.sz || ds.bodySize) * 2)}"/><w:szCs w:val="${Math.round((o.sz || ds.bodySize) * 2)}"/>${o.u ? '<w:u w:val="single"/>' : ''}</w:rPr><w:t xml:space="preserve">${esc(t)}</w:t></w:r>`;
   const tab = '<w:r><w:tab/></w:r>';
   const P = (runs, o = {}) => {
     const pPr = [

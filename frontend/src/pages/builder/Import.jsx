@@ -58,12 +58,13 @@ function LinkedInGuide() {
 }
 
 /* ---------- main ---------- */
-export default function Import({ mode, d, onBack, onDone }) {
+export default function Import({ mode, d, onBack, onDone, onPhotos = null }) {
   const c = COPY[mode];
   const [tab, setTab] = useState('file');
   const [phase, setPhase] = useState('upload');
   const [step, setStep] = useState(0);
   const [error, setError] = useState('');
+  const [errCode, setErrCode] = useState(''); // 'scanned' = a photo or scanned PDF: Snap photos reads those
   const [drag, setDrag] = useState(false);
   const [paste, setPaste] = useState('');
   const [R, setR] = useState(null);
@@ -76,7 +77,7 @@ export default function Import({ mode, d, onBack, onDone }) {
   useEffect(() => { window.scrollTo(0, 0); }, [phase]);
 
   const run = async (input) => {
-    setError(''); setPhase('reading'); setStep(0);
+    setError(''); setErrCode(''); setPhase('reading'); setStep(0);
     try {
       const { importResume } = await import('../../lib/import/index');
       const res = await importResume(input, mode, setStep);
@@ -86,6 +87,7 @@ export default function Import({ mode, d, onBack, onDone }) {
     } catch (e) {
       if (!e?.code) console.error('[import]', e);
       setError(e?.message && e.code ? e.message : 'Something went wrong while reading this file. Try another copy, or paste the text instead.');
+      setErrCode(e?.code || '');
       setPhase('upload');
     }
   };
@@ -124,7 +126,12 @@ export default function Import({ mode, d, onBack, onDone }) {
                 <button type="button" className="btn btn-ink btn-lg" style={{ alignSelf: 'flex-start' }} disabled={paste.trim().length < 40} onClick={() => run({ text: paste })}>Read my text <Icon name="arrow" /></button>
               </div>
             )}
-            {error && <p role="alert" className="card small" style={{ borderColor: 'var(--danger)', color: 'var(--danger)', padding: 16 }}>{error}</p>}
+            {error && (
+              <div role="alert" className="card small stack g8" style={{ borderColor: 'var(--danger)', color: 'var(--danger)', padding: 16 }}>
+                <span>{error}</span>
+                {errCode === 'scanned' && onPhotos && <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} onClick={onPhotos} data-testid="import-snap-photos">Snap photos instead</button>}
+              </div>
+            )}
             <div className="well stack g4 small">
               <strong>Your file stays private</strong>
               <span className="muted">Read on your device — never uploaded. Only the details you accept are added to your resume.</span>
@@ -137,7 +144,7 @@ export default function Import({ mode, d, onBack, onDone }) {
                 {[['One or two columns', 'Sidebars are read in the right order.'], ['Any section names', '“Academic Details” → Education, “Key Skills” → Skills, and so on.'], ['Indian formats', 'Class 10/12, CGPA or %, personal details and declaration.'], ['Dates in any style', 'Jun’23, 06/2023, 2021 – Present…']].map(([t, s]) => (
                   <span key={t} className="row g8" style={{ flexWrap: 'nowrap', alignItems: 'flex-start' }}><Icon name="check" size={16} color="var(--success)" stroke={3} /><span className="stack"><strong className="small">{t}</strong><span className="xs muted">{s}</span></span></span>
                 ))}
-                <span className="xs faint">Photo or scanned resumes need text recognition — that comes in the live app. For now, paste the text.</span>
+                <span className="xs faint">Photo or scanned resumes: use “Snap photos” on the start screen, which reads photos. Here, paste the text.</span>
               </div>
             )}
           </div>

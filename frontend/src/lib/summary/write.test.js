@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { writeSummaries, writeOne, problems, numbersCovered, shorter, fillTemplate, blanksOf, STYLES, MAX_CHARS } from './write';
+import { writeSummaries, writeOne, problems, numbersCovered, shorter, fillTemplate, blanksOf, lengthNote, STYLES, MAX_CHARS } from './write';
 import { article, bareRole, graduateOf, joinList, roleNoun, trimTo, dropLastSentence, sentences } from './grammar';
 import { gatherFacts } from './facts';
 import templates from './templates.json';
@@ -184,5 +184,17 @@ describe('job titles read as roles, degrees read as graduates', () => {
     const all = writeSummaries(INITIAL, 'I am a fresher, I want a data analyst job').options.map((o) => o.text).join(' ');
     expect(all).not.toMatch(/ in [A-Z][\w ]* graduate\b/);
     expect(all).toMatch(/Data Analyst role|as a Data Analyst|Data Analyst work/);
+  });
+});
+
+describe('length meter with Indian scripts', () => {
+  it('counts characters as people see them (Intl.Segmenter graphemes), not UTF-16 units', async () => {
+    const { charCount } = await import('../text');
+    const telugu = 'నేను డేటా విశ్లేషకుడిని. పైథాన్ మరియు SQL లో మూడు సంవత్సరాల అనుభవం ఉంది. హైదరాబాద్‌లో డేటా విశ్లేషకుడి ఉద్యోగం కోసం చూస్తున్నాను.';
+    expect(telugu.length).toBeGreaterThan(charCount(telugu) * 1.4); // many vowel signs and viramas
+    expect(charCount(telugu)).toBe([...new Intl.Segmenter(undefined, { granularity: 'grapheme' }).segment(telugu)].length);
+    expect(lengthNote(charCount(telugu)).ok).toBe(false); // short, as a reader would judge it
+    expect(lengthNote(charCount(telugu)).text).toMatch(/more characters recommended$/);
+    expect(lengthNote(charCount('అ'.repeat(150))).ok).toBe(true);
   });
 });

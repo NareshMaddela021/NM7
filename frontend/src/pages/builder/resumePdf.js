@@ -1,5 +1,8 @@
 // Builds a real text PDF (selectable, ATS-readable) from the same model and design the preview uses.
-import { jsPDF } from 'jspdf';
+// Two drawing engines behind one small surface: jsPDF for resumes in Latin script (light, unchanged output), and
+// pdf-lib + fontkit (pdfDoc.js) as soon as the text holds an Indian script — it shapes conjuncts and vowel signs and
+// prints them with the Noto Sans font of that script, fetched from our origin only when a resume needs it.
+import { loadScriptFonts, scriptsIn } from './indicFonts';
 import { buildSections } from './resumeModel';
 import { visibleResume } from './entries';
 import { contactItems } from './ContactLine';
@@ -19,17 +22,24 @@ const GREY = [90, 90, 90];
  * footer, color } — a header strip with the logo and header line, and the footer line on every page.
  * stamp: one more small line at the foot of every page (e.g. "Shared with … via Nm7 · expires …").
  */
-export async function buildResumePdf({ data, design: ds, photo, cover, brand = null, stamp = '' }) {
+export async function buildResumePdf({ data, design: ds, photo, cover, brand = null, stamp = '', engine = null }) {
   const d = visibleResume(data); // switched-off entries are not printed
   const page = PAGE[ds.pageSize] || PAGE.a4;
-  const doc = new jsPDF({ unit: 'pt', format: [page.w, page.h] });
+  const scripts = scriptsIn([d, cover, brand?.header, brand?.footer, stamp]);
+  const shaped = engine === 'pdflib' || (engine !== 'jspdf' && scripts.length > 0); // `engine` forces one (tests)
+  const { createDoc } = await (shaped ? import('./pdfDoc') : import('./jsPdfDoc'));
+  const doc = await createDoc(page.w, page.h);
   const SERIF = ['source-serif-4', 'lora', 'merriweather'];
   const safeFont = async (id) => {
-    try { registerFont(doc, id, await loadFont(id)); return id; } catch { return SERIF.includes(id) ? 'times' : 'helvetica'; } // built-in fallback
+    try { await registerFont(doc, id, await loadFont(id)); return id; } catch { return doc.addStandard(SERIF.includes(id) ? 'times' : 'helvetica'); } // built-in fallback
   };
   const bodyFont = await safeFont(ds.font);
   const headId = headFontOf(ds);
   const headFont = headId === ds.font ? bodyFont : await safeFont(headId);
+  // Telugu, Hindi, … anywhere in the text: the Noto Sans font of each script, loaded on demand (a script whose
+  // font cannot be fetched is drawn with the template font instead, so the download still works)
+  const scriptFonts = shaped ? await loadScriptFonts(scripts) : {};
+  for (const [k, files] of Object.entries(scriptFonts)) { try { await doc.addScript(k, files); } catch { /* template font */ } }
 
   const M = marginOf(ds);
   const W = page.w - M * 2;
@@ -41,7 +51,7 @@ export async function buildResumePdf({ data, design: ds, photo, cover, brand = n
 
   /* ---------- page-aware column cursor ---------- */
   let onNewPage = () => {};
-  const goto = (col) => { while (doc.getNumberOfPages() < col.page) { doc.addPage([page.w, page.h]); onNewPage(doc.getNumberOfPages()); } doc.setPage(col.page); };
+  const goto = (col) => { while (doc.getNumberOfPages() < col.page) { doc.addPage(); onNewPage(doc.getNumberOfPages()); } doc.setPage(col.page); };
   const ensure = (col, h) => { if (col.y + h > page.h - M) { col.page += 1; col.y = M; } goto(col); };
 
   /* ---------- header (drawn twice when it has a colour band: once to measure, once to draw) ---------- */
@@ -49,9 +59,9 @@ export async function buildResumePdf({ data, design: ds, photo, cover, brand = n
   const tintRgbA = tintRgb(ds.accent, 0.07);
   goto({ page: 1 });
   // photo: baked into its shape (transparent corners) so it looks the same in every PDF viewer
-  let shaped = null;
-  if (d.showPhoto && photo && !cover) { try { shaped = await shapePhoto(photo, ds.photoShape || 'circle'); } catch { shaped = null; } }
-  const withPhoto = !!shaped;
+  let portrait = null;
+  if (d.showPhoto && photo && !cover) { try { portrait = await doc.image(await shapePhoto(photo, ds.photoShape || 'circle'), 'PNG'); } catch { portrait = null; } }
+  const withPhoto = !!portrait;
   const pos = withPhoto ? ds.photoPos || 'left' : null;
   const PS = ds.photoSize || 62;
   const center = pos === 'top' || (ds.headerAlign === 'center' && !withPhoto);
@@ -63,7 +73,7 @@ export async function buildResumePdf({ data, design: ds, photo, cover, brand = n
   const icons = {};
   if (ds.icons) {
     await Promise.all(contactRows.flat().map(async (it) => {
-      try { icons[it.kind] = await iconPng(it.kind, iconColor(it.kind, ds, monoIcon), 96); } catch { /* draw without icon */ }
+      try { icons[it.kind] = await doc.image(await iconPng(it.kind, iconColor(it.kind, ds, monoIcon), 96), 'PNG'); } catch { /* draw without icon */ }
     }));
   }
   const header = (draw, top) => {
@@ -73,7 +83,7 @@ export async function buildResumePdf({ data, design: ds, photo, cover, brand = n
     if (withPhoto) {
       const px = pos === 'right' ? page.w - M - PS : pos === 'top' ? (page.w - PS) / 2 : M;
       if (draw) {
-        doc.addImage(shaped, 'PNG', px, y, PS, PS, undefined, 'FAST');
+        doc.addImage(portrait, px, y, PS, PS);
         const bw = { none: 0, thin: 1, thick: 2.5 }[ds.photoBorder || 'none'];
         if (bw) {
           doc.setDrawColor(...(ds.photoBorderColor === 'grey' ? [184, 184, 184] : accent)); doc.setLineWidth(bw);
@@ -120,7 +130,7 @@ export async function buildResumePdf({ data, design: ds, photo, cover, brand = n
           const start = x;
           if (ds.icons) {
             const sz = cSize * 1.1;
-            if (draw && icons[it.kind]) doc.addImage(icons[it.kind], 'PNG', x, base - sz + 1.2, sz, sz, undefined, 'FAST');
+            if (draw && icons[it.kind]) doc.addImage(icons[it.kind], x, base - sz + 1.2, sz, sz);
             x += sz + 3;
           }
           set(cSize, 'normal', it.link ? linkCol : [74, 74, 74]);
@@ -143,7 +153,7 @@ export async function buildResumePdf({ data, design: ds, photo, cover, brand = n
     if (brand.img) {
       const w = Math.min(LH * brand.img.ratio, 170);
       const h = w / brand.img.ratio;
-      try { doc.addImage(brand.img.data, brand.img.format, M, sy + (LH - h) / 2, w, h, undefined, 'FAST'); x = M + w + 10; } catch { /* drawn without the logo */ }
+      try { doc.addImage(await doc.image(brand.img.data, brand.img.format), M, sy + (LH - h) / 2, w, h); x = M + w + 10; } catch { /* drawn without the logo */ }
     }
     const bc = rgb(brand.color || '#1F3A8A');
     if (brand.header) { set(10, 'bold', bc); doc.text(doc.splitTextToSize(brand.header, page.w - M - x)[0], x, sy + LH / 2 + 3.5); }
@@ -387,7 +397,7 @@ export async function buildResumePdf({ data, design: ds, photo, cover, brand = n
     para(col, c.close, bs, 'normal', text, 0, bs * 0.4);
     para(col, c.name, bs, 'bold', text);
     doc.setProperties({ title: `${d.personal.name || ''} — Cover letter`, creator: 'Nm7 Resume Builder' });
-    return doc.output('blob');
+    return doc.output();
   }
   if (ds.layout === 'two') {
     const sw = SIDE_W;
@@ -407,7 +417,7 @@ export async function buildResumePdf({ data, design: ds, photo, cover, brand = n
     }
   }
   doc.setProperties({ title: `${d.personal.name || 'Resume'} — Resume`, creator: 'Nm7 Resume Builder' });
-  return doc.output('blob');
+  return doc.output();
 }
 
 /** Saves the PDF. Inside a Claude artifact preview it goes through the viewer's save prompt; elsewhere a normal download. */

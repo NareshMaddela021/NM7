@@ -13,6 +13,7 @@ import dictionary from '../../lib/summary/dictionary.json';
 import { BUSY_TEXT, FIX_LABEL, WRITING_TEXT, aiAvailable, fallbackNotice, fillSlots, writeWithAi } from '../../lib/summary/ai';
 import { KEYBOARD_TIP, MIXED_HINT, SPEECH_LANGUAGES, appendSpeech, defaultSpeechLang, rememberSpeechLang, useSpeech } from '../../lib/summary/speech';
 import { shorter, writeSummaries } from '../../lib/summary/write';
+import { charCount } from '../../lib/text';
 
 export const NOTE_MAX = 1000;
 const HINT = 'Write or speak in any language. e.g. I am Angelin, I completed BSc Computer Science, I like working with data';
@@ -116,7 +117,7 @@ export default function SummaryWriter({ resume, note = '', onNote, value = '', o
           onChange={(e) => onNote?.(e.target.value)} aria-describedby={`${id}-hint`} />
         <div className="row between g8" style={{ flexWrap: 'wrap' }}>
           <span id={`${id}-hint`} className="xs muted" style={{ flex: '1 1 200px' }}>{HINT}</span>
-          <span className="xs faint">{note.length}/{NOTE_MAX}</span>
+          <span className="xs faint">{charCount(note)}/{NOTE_MAX}</span>
         </div>
       </div>
 
