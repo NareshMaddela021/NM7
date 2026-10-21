@@ -119,9 +119,11 @@ const E = (el, approved = true) => <RequireAuth role="expert" approved={approved
  * on the link they pressed somewhere in the old page. The first render is left alone. */
 function RouteFocus() {
   const { pathname } = useLocation();
-  const first = useRef(true);
+  // Compare with the last path rather than a "first render" flag: StrictMode runs effects twice on load.
+  const last = useRef(pathname);
   useEffect(() => {
-    if (first.current) { first.current = false; return; }
+    if (last.current === pathname) return;
+    last.current = pathname;
     const id = requestAnimationFrame(() => focusMain());
     return () => cancelAnimationFrame(id);
   }, [pathname]);
