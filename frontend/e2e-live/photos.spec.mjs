@@ -141,10 +141,10 @@ test('Job Profile: import from photos only adds what is missing', async ({ page 
   await expect(page.locator('#pf-exp-0-company')).toHaveValue('Sri Sai Transports');
 });
 
-test('home: "No resume? Take photos instead" opens the photo flow; guests are asked to sign in', async ({ page }) => {
+test('home: "Snap my papers" opens the photo flow; guests are asked to sign in', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('link', { name: 'No resume? Take photos instead' }).first().click();
-  await expect(page).toHaveURL(/\/builder$/);
+  await page.getByRole('link', { name: 'Snap my papers' }).click();
+  await expect(page).toHaveURL(/\/builder\?start=photos$/);
   await expect(page.getByRole('heading', { name: 'Snap photos of your papers' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Sign in' }).first()).toBeVisible();
 });

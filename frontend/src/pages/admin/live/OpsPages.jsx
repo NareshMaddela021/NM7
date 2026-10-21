@@ -6,7 +6,7 @@ import { PLANS } from '../../../lib/pricing';
 import { Kpi, PageHead, Panel, Tabs } from '../AdminUI';
 import { Loading, STATUS_LABEL, day, emptyIf, http, rupees, tone, useAction, useApi, when } from './common';
 import { aiDetail } from './aiUsageText';
-import { OrgRevenue } from './BillingPages';
+import { HomeClicks, OrgRevenue } from './BillingPages';
 
 /* ---------- dashboard ---------- */
 export function LiveDashboard() {
@@ -43,6 +43,7 @@ export function LiveDashboard() {
         </>
       )}</Loading>
       <OrgRevenue days={days} />
+      <HomeClicks />
       <AiUsage />
     </>
   );

@@ -3,14 +3,17 @@ import { Link } from 'react-router-dom';
 import { LEGAL } from '../lib/legal';
 import { SOCIAL, SISTER_SITE } from '../lib/homeContent';
 import { homeFor, useAuth } from '../lib/auth';
+import { track } from '../lib/track';
 
 export default function SiteFooter() {
   const { user } = useAuth();
   return (
     <footer className="site-footer" style={{ borderTop: '1px solid var(--border)' }}>
       <div className="container row between g12 small faint" style={{ padding: '24px', alignItems: 'flex-start' }}>
-        <span className="stack g4"><span>Nm7 · nm7.si — a brand of {LEGAL.company} · Bengaluru</span><a href={`mailto:${LEGAL.email}`}>{LEGAL.email}</a></span>
+        <span className="stack g4"><span>Nm7 · nm7.si — a brand of {LEGAL.company} · Bengaluru</span><a href={`mailto:${LEGAL.email}`}>{LEGAL.email}</a><span>Made in Bengaluru by AsuraaX AI</span></span>
         <nav aria-label="Site links" className="row g16">
+          <Link to="/for-orgs" onClick={() => track('to_for_orgs')}>For organizations</Link>
+          <Link to="/partners" onClick={() => track('to_partners')}>Partner programme</Link>
           <Link to="/blog">Blog</Link>
           <Link to="/contact">Contact us</Link>
           <Link to="/terms">Terms</Link>

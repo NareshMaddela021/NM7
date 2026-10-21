@@ -111,7 +111,7 @@ function Report({ report }) {
         {report.sample && (
           <div className="well row between g12" role="note" style={{ borderLeft: '3px solid var(--signal)' }}>
             <span className="small"><strong>Sample resume</strong> — this is not your resume. Upload your own to see your real score.</span>
-            <button type="button" className="btn btn-outline" onClick={() => { setUpload(null); nav('/'); }}>Scan my resume</button>
+            <button type="button" className="btn btn-outline" onClick={() => { setUpload(null); nav('/#scan'); }}>Scan my resume</button>
           </div>
         )}
         <div className="row between g12">
@@ -220,7 +220,7 @@ export default function Scan() {
     return () => { alive = false; };
   }, [upload]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!upload && !report) return <Navigate to="/" replace />; // nothing scanned yet → back to the upload box
+  if (!upload && !report) return <Navigate to="/#scan" replace />; // nothing scanned yet → back to the upload box
   return (
     <>
       <Header variant="flow" />

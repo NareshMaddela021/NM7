@@ -1,17 +1,19 @@
 // Smaller site fixes, checked in the browser.
 import { expect, test } from '@playwright/test';
 
-test('phones: Pricing and FAQ are behind a Menu button', async ({ page }) => {
+test('phones: the logo and "Build free" stay in view; the other links are behind a Menu button', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 800 });
   await page.goto('/');
+  await expect(page.getByRole('banner').getByRole('link', { name: 'Build free' })).toBeVisible();
   const pricing = page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Pricing' });
   await expect(pricing).toBeHidden();
   await page.getByRole('button', { name: 'Menu' }).click();
   await expect(pricing).toBeVisible();
-  await expect(page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'FAQ' })).toBeVisible();
+  await expect(page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'For organizations' })).toBeVisible();
   await pricing.click();
-  await expect(page).toHaveURL(/#plans$/);
+  await expect(page).toHaveURL(/#pricing$/);
   await expect(pricing).toBeHidden(); // closes after choosing
+  await expect(page.getByRole('heading', { name: 'Free to build. Pay only for what you need.' })).toBeInViewport();
 });
 
 test('home: no unbacked stats; closing the file picker asks for a file; labelled inputs; skip link', async ({ page }) => {

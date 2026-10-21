@@ -69,6 +69,7 @@ INVOICES = "invoices"  # tax invoices, credit notes, proformas (never edited or 
 PARTNERS = "partners"  # referral partners (applications and approved partners)
 COMMISSIONS = "commissions"  # partner commission ledger: earned (+) and reversed (−) entries
 PARTNER_PAYOUTS = "partner_payouts"
+HOME_EVENTS = "home_events"  # home page tap counters, per day (no personal data)
 COLLECTIONS = (
     USERS,
     EMAIL_CODES,
@@ -108,6 +109,7 @@ COLLECTIONS = (
     PARTNERS,
     COMMISSIONS,
     PARTNER_PAYOUTS,
+    HOME_EVENTS,
 )
 
 DAY = 86_400
@@ -211,6 +213,7 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel([("partner_id", ASCENDING), ("status", ASCENDING), ("payable_on", ASCENDING)]),
         IndexModel("org_id"),
     ],
+    HOME_EVENTS: [IndexModel("day")],
     PARTNER_PAYOUTS: [IndexModel([("partner_id", ASCENDING), ("created_at", DESCENDING)])],
     INVOICES: [
         IndexModel("number", unique=True),

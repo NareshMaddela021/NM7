@@ -10,7 +10,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app import automation
+from app import automation, home_events
 from app.admin.console import router as admin_console_router
 from app.admin.router import router as admin_router
 from app.admin.setup import router as admin_setup_router
@@ -141,6 +141,8 @@ def create_app() -> FastAPI:
     app.include_router(partners.public)
     app.include_router(partners.me)
     app.include_router(partners.admin)
+    app.include_router(home_events.public)
+    app.include_router(home_events.admin)
     app.include_router(orders_router)
     app.include_router(payments_router)
     app.include_router(profile_router)  # before me_router: /api/me/job-profile

@@ -97,7 +97,7 @@ test('article: content rendered safely, sticky scan CTA (side on desktop, bottom
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   await cta.getByRole('link', { name: 'Scan your resume free' }).click();
   await expect(page).toHaveURL(/\/$/);
-  await expect(page.getByRole('heading', { level: 1, name: /Get your resume past the/ })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: /Resumes for every job seeker/ })).toBeVisible();
 });
 
 test('unknown article or category: "This page doesn’t exist" (not indexed)', async ({ page }) => {
@@ -116,7 +116,7 @@ test('no posts yet: "First articles coming soon" and no blog strip on the home p
   await expect(page.getByText('First articles coming soon.')).toBeVisible();
   await expect(cards(page)).toHaveCount(0);
   await page.goto('/');
-  await expect(page.getByRole('heading', { level: 1, name: /Get your resume past the/ })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: /Resumes for every job seeker/ })).toBeVisible();
   await page.waitForTimeout(500);
   await expect(page.getByRole('heading', { name: 'From the blog' })).toHaveCount(0);
 

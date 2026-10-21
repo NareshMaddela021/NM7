@@ -22,6 +22,14 @@ import { emptyResult } from '../lib/import/shared';
 const dayLabel = () => new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
 export { uniqueName }; // kept here for older imports
 /** The built-in sample person (shown to guests until they add their own details). */
+const START_MODES = {
+  resume: { stage: 'import', importMode: 'resume' },
+  linkedin: { stage: 'import', importMode: 'linkedin' },
+  photos: { stage: 'photos' },
+  scratch: { stage: 'templates', blank: true },
+  templates: { stage: 'templates' },
+  summary: { stage: 'build', sec: 'summary' },
+};
 const isSampleDraft = (d) => d.personal?.name === INITIAL.personal.name && d.personal?.email === INITIAL.personal.email;
 import ResumePreview from './builder/ResumePreview';
 import { FieldGrid, LinkFields, SchemaField } from './builder/Fields';
@@ -167,9 +175,11 @@ export default function Builder({ embedded = null }) {
   const location = useLocation();
   // back from "Create a free account to download": straight to the editor, where the download starts by itself
   // (the download itself starts once the account and its resume are in: see the effect below)
-  const [stage, setStage] = useState(embedded || (!embedded && pendingDownload()) || location.state?.open === 'build' ? 'build' : location.state?.open === 'photos' ? 'photos' : 'start');
+  // /builder?start=resume|linkedin|photos|scratch|summary opens that mode directly (links from the home page).
+  const startAt = embedded ? null : START_MODES[new URLSearchParams(location.search).get('start')] || null;
+  const [stage, setStage] = useState(embedded || (!embedded && pendingDownload()) || location.state?.open === 'build' ? 'build' : location.state?.open === 'photos' ? 'photos' : startAt?.stage || 'start');
   const [missing, setMissing] = useState(false); // after "Snap photos": point at what's still missing (e.g. phone)
-  const [importMode, setImportMode] = useState('resume');
+  const [importMode, setImportMode] = useState(startAt?.importMode || 'resume');
   const [suggest, setSuggest] = useState(null);
   const [d, setD] = useState(() => (embedded ? loadDraft(embedded.storageKey, embedded.initial) : loadDraft(DRAFT_KEY(), serverCustomer() ? (activeResume()?.data || defaultResume()) : defaultResume())));
   // Live customer: when their resumes arrive from the server, open the active one (unless a scan import is opening).
@@ -202,7 +212,7 @@ export default function Builder({ embedded = null }) {
   }, [me.loading]); // eslint-disable-line react-hooks/exhaustive-deps
   // the signed-in customer's saved resume hasn't arrived yet: the preview shows no page count meanwhile
   const dataLoading = !embedded && serverCustomer() && (me.loading || !serverIn);
-  const [sec, setSec] = useState('personal');
+  const [sec, setSec] = useState(startAt?.sec || 'personal');
   const [picker, setPicker] = useState(false);
   const [customName, setCustomName] = useState('');
   // The adjusted photo is part of the resume (`d.photo`, a small JPEG), so it is saved with it and survives a reload,
@@ -283,6 +293,10 @@ export default function Builder({ embedded = null }) {
   // From the scan report ("keep fixing it myself"): load the scanned resume, or start empty instead of the sample.
   useEffect(() => {
     const st = location.state;
+    if (startAt?.blank && !st?.scanImport) {
+      if (isSampleDraft(d)) setD(applyImport(d, emptyResult('blank').data, 'replace')); // "I have nothing": an empty resume
+      return;
+    }
     if (embedded || !st || (!st.scanImport && !st.blank)) return;
     const snapshot = d;
     if (st.scanImport) {

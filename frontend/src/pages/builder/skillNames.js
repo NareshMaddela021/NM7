@@ -1,0 +1,2 @@
+// Skill names the builder suggests and the line fixer capitalises (re-exported by schema.js).
+export const ALL_SKILLS = ['Statistics', 'Pandas', 'Scikit-learn', 'PyTorch', 'JavaScript', 'TypeScript', 'React', 'Next.js', 'Node.js', 'Python', 'FastAPI', 'Django', 'PostgreSQL', 'MongoDB', 'Redis', 'Docker', 'Kubernetes', 'AWS', 'GCP', 'Azure', 'Git', 'GraphQL', 'REST API', 'Java', 'C++', 'Go', 'Figma', 'Product Management', 'Agile/Scrum', 'Machine Learning', 'Data Analysis', 'SQL', 'Tableau', 'Excel', 'Power BI', 'Communication', 'Leadership', 'Problem Solving'];

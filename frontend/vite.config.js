@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { viteSingleFile } from 'vite-plugin-singlefile';
-import { copyFileSync } from 'node:fs';
+import { copyFileSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 // After the build:
@@ -10,16 +10,22 @@ import { resolve } from 'node:path';
 // - the blog is pre-rendered from Hygraph into static pages, and dist/sitemap.xml is written (scripts/prerender-blog.mjs);
 //   the public static routes get their own head tags (scripts/prerender-static.mjs).
 //   A Hygraph problem only logs a warning: the build still succeeds.
+export const withoutHomePreload = (html) => html.replace(/[^\n]*<!-- The home page's first hero image[^\n]*\n/, '').replace(/[^\n]*data-home-only[^\n]*\n/, '');
+
 const afterBuild = () => ({
   name: 'nm7-after-build',
   apply: 'build',
   async closeBundle() {
     if (single) return;
+    // the hero image preload is for the home page only: every page made from index.html below is made without it
+    const home = readFileSync(resolve('dist/index.html'), 'utf8');
+    writeFileSync(resolve('dist/index.html'), withoutHomePreload(home));
     copyFileSync(resolve('dist/index.html'), resolve('dist/404.html'));
     const { prerenderBlog } = await import('./scripts/prerender-blog.mjs');
     await prerenderBlog({ dist: resolve('dist') });
     const { prerenderStatic } = await import('./scripts/prerender-static.mjs');
     prerenderStatic({ dist: resolve('dist') });
+    writeFileSync(resolve('dist/index.html'), home);
   },
 });
 
