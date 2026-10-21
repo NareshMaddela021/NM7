@@ -7,7 +7,8 @@ import { resolve } from 'node:path';
 // After the build:
 // - Vercel serves dist/404.html with a real 404 status for paths that aren't app routes (see vercel.json); it's the
 //   app itself, which then shows its "page doesn't exist" screen.
-// - the blog is pre-rendered from Hygraph into static pages, and dist/sitemap.xml is written (scripts/prerender-blog.mjs).
+// - the blog is pre-rendered from Hygraph into static pages, and dist/sitemap.xml is written (scripts/prerender-blog.mjs);
+//   the public static routes get their own head tags (scripts/prerender-static.mjs).
 //   A Hygraph problem only logs a warning: the build still succeeds.
 const afterBuild = () => ({
   name: 'nm7-after-build',
@@ -17,6 +18,8 @@ const afterBuild = () => ({
     copyFileSync(resolve('dist/index.html'), resolve('dist/404.html'));
     const { prerenderBlog } = await import('./scripts/prerender-blog.mjs');
     await prerenderBlog({ dist: resolve('dist') });
+    const { prerenderStatic } = await import('./scripts/prerender-static.mjs');
+    prerenderStatic({ dist: resolve('dist') });
   },
 });
 

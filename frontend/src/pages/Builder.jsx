@@ -78,7 +78,7 @@ function Start({ onNext, profilePct = null, resume = null, onContinue, customer 
     ['photos', 'Snap photos', 'Take photos of your Aadhaar, work papers or a handwritten note. We’ll read them and fill your resume.'],
   ];
   return (
-    <main className="container stack g32 rise" style={{ maxWidth: 1100, padding: '72px 24px' }}>
+    <main id="main" className="container stack g32 rise" style={{ maxWidth: 1100, padding: '72px 24px' }}>
       <div className="stack g12" style={{ maxWidth: 720 }}>
         <h1 className="display h1" style={{ fontSize: 'clamp(36px,5vw,60px)' }}>Build a resume recruiters <span className="hl" style={{ padding: '0 4px' }}>actually read.</span></h1>
         <p className="lead">12 guided sections, plus any section you want to add. Your Nm7 profile and your resume are built together.</p>
@@ -117,7 +117,7 @@ function Done({ name, score, onEdit, onDownload, onCover, pdfBusy }) {
   const [jobs, setJobs] = useState([]);
   useEffect(() => { getMatchedJobs().then(setJobs); }, []);
   return (
-    <main className="container row g48 rise" style={{ maxWidth: 1100, padding: '64px 24px', alignItems: 'center' }}>
+    <main id="main" className="container row g48 rise" style={{ maxWidth: 1100, padding: '64px 24px', alignItems: 'center' }}>
       <div className="stack g20" style={{ flex: '1 1 420px' }}>
         <span className="mono" style={{ color: 'var(--success)', fontSize: 13 }}>PROFILE {score}% · RESUME READY</span>
         <h1 className="display" style={{ fontSize: 48 }}>Nice work, {(name || 'there').split(' ')[0]}. Recruiters can now find you.</h1>
@@ -560,7 +560,7 @@ export default function Builder({ embedded = null }) {
       {stage === 'done' && <Done name={d.personal.name} score={score} onEdit={() => setStage('build')} onDownload={(f) => download(f, 'resume')} onCover={() => { setTab('cover'); setStage('build'); }} pdfBusy={pdfBusy} />}
 
       {stage === 'build' && (
-        <main className={embedded ? 'row g24' : 'container-wide row g24'} style={{ padding: embedded ? '4px 0 32px' : '20px 24px 64px', alignItems: 'flex-start' }}>
+        <main id={embedded ? undefined : 'main'} className={embedded ? 'row g24' : 'container-wide row g24'} style={{ padding: embedded ? '4px 0 32px' : '20px 24px 64px', alignItems: 'flex-start' }}>
           {/* Section nav */}
           <nav aria-label="Sections" className="stack" style={{ flex: '1 1 210px', maxWidth: 250, gap: 2 }}>
             <div className="card-sm stack g8" style={{ marginBottom: 10 }}>
