@@ -9,6 +9,12 @@ test('pages work under the Content-Security-Policy', async ({ page }) => {
   expect((await page.request.get('/nope')).status()).toBe(404); // unknown paths: real 404 (still shows the app)
   expect((await page.request.get('/robots.txt')).status()).toBe(200);
   expect((await page.request.get('/me/orders')).status()).toBe(200);
+  // home: the language switch loads Noto Sans Telugu / Devanagari from Google Fonts; tap counters post to the API
+  await page.goto('/');
+  await page.getByRole('group', { name: 'Language' }).getByRole('button', { name: 'తెలుగు' }).click();
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('రెజ్యూమ్');
+  await page.getByRole('group', { name: 'భాష' }).getByRole('button', { name: 'English' }).click();
+  await page.waitForLoadState('networkidle');
   for (const path of ['/', '/privacy', '/contact', '/login', '/nope']) {
     await page.goto(path);
     await page.waitForLoadState('networkidle');

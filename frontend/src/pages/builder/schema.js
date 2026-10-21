@@ -1,4 +1,5 @@
 // Builder sections, field definitions and starting data.
+import { ALL_SKILLS } from './skillNames';
 // Fields: [key, label, type, options]; types: text | email | tel | url | month | date | select | area | check | chips
 import { migrateEntries } from './entries';
 
@@ -11,7 +12,7 @@ export const JOB_TYPES = ['Full-time', 'Part-time', 'Contract', 'Freelance', 'In
 export const SALARY = ['Under ₹5 LPA', '₹5–10 LPA', '₹10–20 LPA', '₹20–35 LPA', '₹35–50 LPA', '₹50+ LPA'];
 export const NOTICE = ['Immediately', '15 days', '1 month', '2 months', '3 months'];
 export const INDUSTRIES = ['Technology', 'Finance / Fintech', 'Healthcare', 'E-commerce', 'EdTech', 'SaaS / B2B', 'Gaming', 'Media / Content', 'Government / PSU', 'Consulting', 'Manufacturing', 'Other'];
-export const ALL_SKILLS = ['Statistics', 'Pandas', 'Scikit-learn', 'PyTorch', 'JavaScript', 'TypeScript', 'React', 'Next.js', 'Node.js', 'Python', 'FastAPI', 'Django', 'PostgreSQL', 'MongoDB', 'Redis', 'Docker', 'Kubernetes', 'AWS', 'GCP', 'Azure', 'Git', 'GraphQL', 'REST API', 'Java', 'C++', 'Go', 'Figma', 'Product Management', 'Agile/Scrum', 'Machine Learning', 'Data Analysis', 'SQL', 'Tableau', 'Excel', 'Power BI', 'Communication', 'Leadership', 'Problem Solving'];
+export { ALL_SKILLS }; // in skillNames.js, so the home page's line fixer can use it without the whole schema
 // Skills are grouped like a real resume. Each group is a comma-separated list the user types.
 export const DEFAULT_SKILL_GROUPS = [
   { id: 'core', label: 'Core Technologies / Languages', ph: 'e.g. Python, SQL, Java, Statistics' },

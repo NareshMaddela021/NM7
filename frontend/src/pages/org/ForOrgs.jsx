@@ -5,22 +5,14 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Header from '../../components/Header';
 import SiteFooter from '../../components/SiteFooter';
-import { Spinner } from '../../components/ui';
 import { LIVE, useAuth } from '../../lib/auth';
 import { usePageMeta } from '../../lib/meta';
-import { LIMITS, PLAN_FEATURES, limitText, periodText, refFromSearch, rupees } from '../../lib/orgBilling';
+import { refFromSearch } from '../../lib/orgBilling';
+import { ORG_FAQ, PlansSkeleton, PlansTable, useOrgPlans } from './OrgPlans';
 import { http } from '../../services/http';
 
 const ORG_TYPES = [['college', 'College / university'], ['institute', 'Training institute'], ['job_fair', 'Job fair / event'], ['skill_centre', 'Skill centre'], ['ngo', 'NGO'], ['agency', 'Placement agency'], ['company', 'Company'], ['other', 'Other']];
 
-const FAQ = [
-  ['What is Nm7 for Organizations?', 'Your students or candidates build ATS-safe resumes on Nm7 and share them with you, with their consent. You see every shared resume in one table, approve, remind, print and export them — and run kiosks at events.'],
-  ['Can we try it first?', 'Yes. The Free plan needs no payment: one group of up to 50 members and one coordinator. Upgrade any time from Organization → Billing.'],
-  ['What happens when a plan ends?', 'We email the Owner 14, 7 and 1 day before. After the end there is a grace period; then the Free limits apply. Nothing is ever deleted — your groups and shared resumes stay readable, and new joins over the Free limits wait until you renew.'],
-  ['Do you give GST invoices?', 'Yes. Add your organization’s legal name, address and GSTIN (optional) in Billing; every payment gets an invoice you can download.'],
-  ['How do we pay?', 'Online through Razorpay (UPI, cards, netbanking), or by bank transfer / purchase order — use “Talk to us” and we’ll send a proforma invoice.'],
-  ['Is candidate data safe?', 'Members choose what to share and can leave any time. Aadhaar, PAN and similar numbers are removed from shared resumes, and every view, print and export is logged.'],
-];
 
 /** A partner link (?ref=CODE): the server checks the code and remembers it in a first-party cookie (Billing
  * settings: 90 days), so it is credited when the organization first pays — even if they sign up later. */
@@ -33,36 +25,6 @@ function useRef90() {
     http('/api/public/referral', { method: 'POST', body: { code: asked } }).then((r) => setRef(r.code ? r : null), () => setRef(null));
   }, [asked]);
   return ref;
-}
-
-function Plans({ data }) {
-  const plans = data.plans;
-  return (
-    <div className="table-wrap" style={{ overflowX: 'auto' }}>
-      <table className="table" style={{ minWidth: 640 }}>
-        <caption className="sr-only">Plans for organizations</caption>
-        <thead>
-          <tr><th scope="col">Plan</th>{plans.map((p) => <th key={p.id} scope="col">{p.name}</th>)}</tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th scope="row">Price</th>
-            {plans.map((p) => (
-              <td key={p.id}>
-                {p.id === 'custom' ? <strong>Talk to us</strong> : p.price ? <><strong>{rupees(p.price)}</strong> <span className="small muted">{periodText(p)}{data.gstOn ? ' + GST' : ''}</span></> : <strong>₹0</strong>}
-              </td>
-            ))}
-          </tr>
-          {LIMITS.map(([k, label]) => (
-            <tr key={k}><th scope="row">{label}</th>{plans.map((p) => <td key={p.id}>{p.id === 'custom' ? 'Your choice' : limitText(p.limits[k])}</td>)}</tr>
-          ))}
-          {PLAN_FEATURES.filter(([k]) => k !== 'kiosk').map(([k, label]) => (
-            <tr key={k}><th scope="row">{label}</th>{plans.map((p) => <td key={p.id}>{p.features[k] ? 'Yes' : '—'}</td>)}</tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
 }
 
 function StartFree({ open }) {
@@ -138,11 +100,7 @@ export default function ForOrgs() {
   const { search } = useLocation();
   const refCode = useRef90();
   const [start, setStart] = useState(() => new URLSearchParams(search).get('start') === '1');
-  const [st, setSt] = useState({ loading: true });
-  useEffect(() => {
-    if (!LIVE) { setSt({}); return; }
-    http('/api/public/org-plans').then((data) => setSt({ data }), (error) => setSt({ error }));
-  }, []);
+  const st = useOrgPlans();
   return (
     <>
       <Header />
@@ -160,16 +118,16 @@ export default function ForOrgs() {
         <section id="start" className="stack g12"><StartFree open={start} /></section>
         <section className="stack g12" aria-labelledby="plans-h">
           <h2 id="plans-h" className="display h3">Plans</h2>
-          {st.loading ? <div className="row g12 muted" role="status"><Spinner /> Loading plans…</div>
+          {st.loading ? <PlansSkeleton />
             : st.error || !st.data ? <p className="small muted">Plans load on the live site. Email <a href="mailto:info@nm7.si">info@nm7.si</a> for prices.</p>
               : <>
-                <Plans data={st.data} />
+                <PlansTable data={st.data} />
                 <span className="xs muted">{st.data.gstOn ? `Prices exclude GST (${st.data.gstRatePct}%), added at checkout.` : 'Prices in Indian rupees.'} Paid plans keep working for {st.data.graceDays} days after they end, then the Free limits apply — nothing is deleted.</span>
               </>}
         </section>
         <section className="stack g12" aria-labelledby="faq-h">
           <h2 id="faq-h" className="display h3">Questions</h2>
-          {FAQ.map(([q, a]) => <details key={q} className="card"><summary style={{ fontWeight: 600, cursor: 'pointer' }}>{q}</summary><p className="small" style={{ marginTop: 8 }}>{a}</p></details>)}
+          {ORG_FAQ.map(([q, a]) => <details key={q} className="card"><summary style={{ fontWeight: 600, cursor: 'pointer' }}>{q}</summary><p className="small" style={{ marginTop: 8 }}>{a}</p></details>)}
         </section>
         <p className="small muted">Work with colleges or job fairs? <Link to="/partners">Become an Nm7 partner</Link> and earn commission on organizations you bring.</p>
         <section id="talk" className="card stack g12" aria-labelledby="talk-h">

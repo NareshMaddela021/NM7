@@ -180,7 +180,9 @@ textarea.input { height: auto; padding: 12px 14px; line-height: 1.55; resize: ve
 .nav a { padding: 12px; color: var(--text2); text-decoration: none; font-weight: 500; font-size: 15px; border-radius: 8px; }
 .nav a:hover { color: var(--text); }
 .nav a[aria-current="page"] { color: var(--text); box-shadow: inset 0 -2px 0 var(--ink); border-radius: 0; }
-.nav-toggle { display: none; min-height: 40px; gap: 6px; }
+.nav-toggle { display: none; min-height: 44px; gap: 6px; }
+.show-sm { display: none; }
+.hdr-scan { min-height: 40px; font-size: 14px; }
 .steps { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 6px; font-size: 14px; font-weight: 500; }
 .steps li { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; color: var(--text3); }
 .steps li[data-state="done"] { color: var(--success); }
@@ -221,10 +223,22 @@ textarea.input { height: auto; padding: 12px 14px; line-height: 1.55; resize: ve
   .site-header .nav a { white-space: nowrap; padding: 10px 12px; }
   .site-header .steps li { white-space: nowrap; }
   /* public pages: links behind a Menu button, shown as a list when open */
-  .nav-toggle { display: inline-flex; margin-left: auto; }
+  .nav-toggle { display: inline-flex; }
+  .hdr-quick { margin-left: auto; }
+  .show-sm { display: inline-flex; }
+  .hdr-build { min-height: 44px; padding: 0 14px; }
+  .hdr-scan { display: none; }
   .site-header .nav-public { display: none; }
   .site-header .nav-public[data-open="true"] { display: flex; flex-direction: column; order: 4; width: 100%; padding: 4px 0 8px; }
   .site-header .nav-public[data-open="true"] a { padding: 12px 8px; border-bottom: 1px solid var(--border); border-radius: 0; }
+}
+@media (max-width: 440px) {
+  /* phones: logo + Build free + Menu stay on one line; theme and account move into the open menu */
+  .site-header[data-variant="public"] .hdr-right { display: none; }
+  .site-header[data-variant="public"][data-menu="true"] .hdr-right { display: flex; order: 5; width: 100%; justify-content: flex-end; }
+  .nav-toggle-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .nav-toggle { width: 44px; padding: 0; justify-content: center; }
+  .site-header .bar { gap: 8px; }
 }
 @media (max-width: 640px) {
   .container, .container-wide { padding-left: max(16px, env(safe-area-inset-left, 0px)) !important; padding-right: max(16px, env(safe-area-inset-right, 0px)) !important; }
@@ -382,3 +396,14 @@ textarea.input { height: auto; padding: 12px 14px; line-height: 1.55; resize: ve
   .tp-bar-in { flex-wrap: wrap; gap: 10px; }
   .tp-bar-use { flex: 1 1 100%; min-height: 48px; }
 }
+
+/* Telugu / Hindi text (home page phase 1): Noto Sans for the script, loaded only when picked (lib/i18n.js) */
+[lang="te"] { font-family: 'Noto Sans Telugu', var(--font-body); letter-spacing: 0; }
+[lang="hi"], [lang="mr"] { font-family: 'Noto Sans Devanagari', var(--font-body); letter-spacing: 0; }
+
+/* plans table placeholder (home page and /for-orgs): the table's shape while the server answers */
+.plans-skel { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px 14px; padding: 16px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); }
+.plans-skel span { height: 18px; border-radius: 6px; background: var(--sunken); animation: skel 1.4s ease-in-out infinite; }
+.plans-skel span:nth-child(5n + 1) { width: 70%; }
+@keyframes skel { 50% { opacity: .45; } }
+@media (prefers-reduced-motion: reduce) { .plans-skel span { animation: none; } }

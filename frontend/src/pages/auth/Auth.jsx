@@ -1,6 +1,6 @@
 // Sign in, sign up (customer or expert, confirmed with an email code), forgot password, admin two-step login, and route guards.
 import { useEffect, useRef, useState } from 'react';
-import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { Logo, ThemeToggle } from '../../components/Header';
 import { Spinner, useToast } from '../../components/ui';
 import {
@@ -393,22 +393,10 @@ export function AdminSetup() {
 }
 
 /* ---------- guards ---------- */
-/** role: 'customer' | 'expert' | 'admin'. approved: expert must be approved (orders, earnings…). */
-export function RequireAuth({ role, approved, children }) {
-  const { user, session, ready } = useAuth();
-  const { pathname, search } = useLocation();
-  const here = encodeURIComponent(pathname + search);
-  if (!ready) return <main className="container row g8" style={{ padding: 40 }} aria-busy="true"><Spinner /><span className="muted">Loading…</span></main>;
-  if (role === 'admin') {
-    if (!user || user.role !== 'admin' || !session?.twoStep) return <Navigate to={`/admin/login?next=${here}`} replace />;
-    return children;
-  }
-  if (!user) return <Navigate to={`/login?next=${here}`} replace />;
-  if (user.role !== role) return <WrongAccount user={user} need={role} />;
-  if (approved && user.expertStatus !== 'approved') return <Navigate to="/expert/profile" replace />;
-  return children;
-}
-function WrongAccount({ user, need }) {
+export { RequireAuth } from './RequireAuth'; // kept here for older imports
+
+/** Signed in with the wrong kind of account for the page (loaded by RequireAuth only when needed). */
+export function WrongAccount({ user, need }) {
   const nav = useNavigate();
   const label = { customer: 'a customer', expert: 'an expert', admin: 'an admin' };
   return (

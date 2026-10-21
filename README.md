@@ -20,6 +20,33 @@ Details, settings and what's left: see [`frontend/README.md`](frontend/README.md
 - `main` — what goes live
 - `dev` — work in progress; merge into `main` when tested
 
+## Home page (nm7.si/)
+
+Two equal pillars: **job seekers** (build a resume) and **Nm7 for Organizations** (resume drives). The ATS scan and the
+expert rewrite are supporting features further down ("Make it stronger").
+
+- **Sections:** split hero → Start from where you are → Speak it, we write it → resumes for every kind of job →
+  templates → Make it stronger (line fixer, free ATS score, expert before/after) → pricing for job seekers → run your
+  resume drive → kiosks → plans for organizations (from `GET /api/public/org-plans`, same table as /for-orgs) →
+  partner band → FAQ (job seekers / organizations) → final call → blog.
+- **Builder links:** `/builder?start=resume|linkedin|photos|scratch|templates|summary` opens that mode directly.
+- **Speed:** `src/pages/Home.jsx` is only the hero and section 2; `home/HomeMore.jsx` loads just after the first
+  paint, the blog cards only near the bottom. No builder, PDF or resume-preview code loads on the home page.
+- **Images** are static WebP files in `frontend/public/home/` (each under 40 KB; lazy-loaded except the first hero
+  image, which `index.html` preloads on the home page only). They are drawn from the real templates with invented
+  sample people: after changing a template or a sample, run `node scripts/home-images/make.mjs` (and
+  `scripts/home-images/og.mjs` for the link-preview image) from `frontend/`.
+- **Template count** comes from `src/pages/home/templateMeta.js`, which a unit test keeps identical to the builder's
+  templates, so "{n} templates" is always right.
+- **Languages (phase 1):** English / తెలుగు / हिन्दी switch on the home page for the hero, "Start from where you are",
+  the "Speak it" labels, the header links and the final call. Strings: `frontend/src/i18n/home.json` (a missing string
+  falls back to English). The choice is kept in the browser (`localStorage nm7-lang`); the first visit follows the
+  phone's language (te-IN → Telugu, hi-IN → Hindi). Noto Sans Telugu / Devanagari load only when picked.
+  **The Telugu and Hindi strings NEED NATIVE REVIEW** before they are promoted.
+- **Tap counters** (no third-party trackers): hero buttons, "Start from" cards, the summary-writer demo, links to
+  /for-orgs and /partners, and the language switch post `{name}` to `POST /api/public/events` — no cookies, no user
+  or IP stored, only a per-day count. Admin → Dashboard shows the last 7 days ("Home page taps").
+
 ## Summary writer
 
 On the builder's **Summary** step, in **Job Profile → Summary → About me** and in the kiosk builder, anyone can get a

@@ -43,7 +43,7 @@ export function OrdersList() {
     <>
       <MeHead title="My orders" sub="Every order, its status and its invoices." right={<Link to="/" className="btn btn-outline">New order</Link>} />
       <div className="stack g12">
-        {!orders.length && <div className="card stack g8"><strong>No orders yet</strong><span className="small muted">Scan your resume for free, then pick a plan if you want an expert to rewrite it.</span><Link to="/" className="btn btn-ink" style={{ alignSelf: 'flex-start' }}>Scan my resume</Link></div>}
+        {!orders.length && <div className="card stack g8"><strong>No orders yet</strong><span className="small muted">Scan your resume for free, then pick a plan if you want an expert to rewrite it.</span><Link to="/#scan" className="btn btn-ink" style={{ alignSelf: 'flex-start' }}>Scan my resume</Link></div>}
         {orders.map((o) => (
           <Link key={o.id} to={`/me/orders/${o.id}`} className="card row between g12" style={{ textDecoration: 'none', color: 'inherit' }}>
             <div className="stack g4">

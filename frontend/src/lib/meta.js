@@ -6,7 +6,7 @@ const DEFAULT_DESC = 'Free ATS resume scan in seconds. Fix it in our builder wit
 
 /** [path pattern, title, description] — first match wins. */
 export const ROUTE_META = [
-  [/^\/$/, 'Free ATS Resume Scan, Builder & Expert Rewrite', DEFAULT_DESC],
+  [/^\/$/, 'Nm7 — Resume builder for every job seeker, resume drives for every campus', 'Build a job-ready resume free — from photos, your own words or an old file, in 8 Indian languages. Colleges and job fairs run whole resume drives on Nm7: approvals, kiosks, printing and GST invoices.'],
   [/^\/scan/, 'Your ATS scan report', 'See how applicant tracking systems read your resume and what to fix first.'],
   [/^\/for-orgs/, 'Nm7 for Organizations — plans for colleges, institutes and job fairs', 'Collect consent-based, ATS-safe resumes from your students or candidates, approve, print and share them with recruiters. Free plan, Drive and Campus plans.'],
   [/^\/partners/, 'Nm7 partner programme — earn by bringing colleges and job fairs', 'Refer colleges, training institutes and job fairs to Nm7 for Organizations and earn commission on their plans. Apply in a minute.'],
@@ -81,7 +81,7 @@ function setMeta(name, content) {
 }
 
 export function applyMeta({ title, description = DEFAULT_DESC, noindex = false, path = '/' }) {
-  document.title = path === '/' ? `${title} | ${SITE}` : `${title} · ${SITE}`;
+  document.title = path === '/' ? title : `${title} · ${SITE}`; // the home title already starts with the name
   setMeta('description', description);
   setMeta('robots', noindex ? 'noindex, nofollow' : 'index, follow');
   const canonical = document.head.querySelector('link[rel="canonical"]');

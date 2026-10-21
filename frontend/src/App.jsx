@@ -1,12 +1,11 @@
 import { Component, Suspense, lazy as reactLazy, useEffect, useRef, useState } from 'react';
 import { Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
 import Header from './components/Header';
-import DownloadGateHost from './components/DownloadGate';
+import { onGate } from './lib/downloads';
 import Home from './pages/Home';
-import { BlogList, BlogPost } from './pages/blog/Blog'; // small, and the home page already uses it
 import { Spinner } from './components/ui';
 import { useAuth, previewSignIn, previewUsers, LIVE } from './lib/auth';
-import { RequireAuth } from './pages/auth/Auth';
+import { RequireAuth } from './pages/auth/RequireAuth';
 import { applyMeta, currentMeta, usePageMeta } from './lib/meta';
 import { StaleBuildPage, isChunkError, lazyRetry, reloadOnce } from './lib/chunks';
 import { onSlow } from './services/http';
@@ -18,6 +17,16 @@ const lazy = (load) => reactLazy(lazyRetry(load));
 // Every page except Home is its own chunk, loaded when first opened.
 const named = (load, name) => lazy(() => load().then((m) => ({ default: m[name] })));
 const Scan = lazy(() => import('./pages/Scan'));
+const blog = () => import('./pages/blog/Blog');
+const BlogList = named(blog, 'BlogList');
+const BlogPost = named(blog, 'BlogPost');
+// The download pop-ups (and the account code they need) load only when a download is blocked.
+const DownloadGate = lazy(() => import('./components/DownloadGate'));
+function DownloadGateHost() {
+  const [opened, setOpened] = useState(false);
+  useEffect(() => onGate((g) => { if (g) setOpened(true); }), []);
+  return opened ? <Suspense fallback={null}><DownloadGate /></Suspense> : null;
+}
 const Checkout = lazy(() => import('./pages/Checkout'));
 const Intake = lazy(() => import('./pages/Intake'));
 const Refund = lazy(() => import('./pages/Refund'));

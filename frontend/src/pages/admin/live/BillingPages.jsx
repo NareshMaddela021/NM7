@@ -363,6 +363,26 @@ export function LiveOrgInvoices() {
   );
 }
 
+/** Dashboard card: taps on the home page, per day (first-party counters; no personal data). */
+export function HomeClicks() {
+  const st = useApi('/api/admin/home-clicks?days=7');
+  if (!st.data) return null;
+  const { days, events } = st.data;
+  const used = events.filter((e) => e.total > 0);
+  return (
+    <section className="card stack g8" aria-label="Home page taps">
+      <strong>Home page taps · last 7 days</strong>
+      {used.length === 0 ? <span className="small muted">No taps counted yet.</span> : (
+        <div className="table-wrap"><table className="table">
+          <thead><tr><th>Button or link</th>{days.map((d) => <th key={d}>{day(d)}</th>)}<th>Total</th></tr></thead>
+          <tbody>{used.map((e) => <tr key={e.name}><td className="small">{e.label}</td>{days.map((d) => <td key={d} className="small">{e.byDay[d] || '—'}</td>)}<td className="small"><strong>{e.total}</strong></td></tr>)}</tbody>
+        </table></div>
+      )}
+      <span className="xs faint">Counted on our own server: no cookies, no tracking pixels, nothing tied to a person.</span>
+    </section>
+  );
+}
+
 /** Dashboard card: organization revenue after refunds, active paid organizations, renewals due in 30 days. */
 export function OrgRevenue({ days }) {
   const st = useApi(`/api/admin/billing/summary?days=${days}`);
