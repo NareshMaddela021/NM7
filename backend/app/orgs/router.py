@@ -1,12 +1,11 @@
-"""Nm7 for Organizations — API.
+"""Nm7 for Organizations — admin API: organizations and their groups (super-admin = "owner" role), the
+organization audit view, and the group helpers the coordinator portal reuses (app/orgs/staff.py).
 
-Public:  GET  /api/public/join/{code}                 what a join link opens (organization + group)
-         POST /api/public/reminders/stop               one-click "stop reminders from this group" (signed link)
-Member:  /api/me/groups …                             join (with consent), list, change shared resume, opt out, leave
-Admin:   /api/admin/orgs …, /api/admin/groups/{id}     organizations and groups (super-admin = "owner" role)
-Shared:  {base}/shared-resumes …, {base}/groups/{id}/dashboard
-         mounted twice by `register_shared`: base /api/admin (every organization) and /api/org/{org_id} (one
-         organization, for its coordinators and viewers — see app/orgs/staff.py and app/orgs/scope.py).
+The rest of the organizations API lives next to this file:
+  app/orgs/members.py  public join page, one-click "stop reminders", /api/me/groups (join with consent, leave …)
+  app/orgs/shared.py   shared-resumes table, exports, approvals, reviews, reminders and group dashboards, mounted
+                       on /api/admin (every organization) and /api/org/{org_id} (one organization)
+  app/orgs/shapes.py   limits, request bodies and the JSON shapes answered
 
 Bulk print / ZIP: the browser draws the PDFs with the same code members download with (so every page matches the
 member's template exactly) and asks the server for the data in small batches of one export job:
