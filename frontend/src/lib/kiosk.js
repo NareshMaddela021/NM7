@@ -4,6 +4,19 @@
 export const IDLE_MS = 2 * 60 * 1000; // no touch for 2 minutes…
 export const WARN_MS = 20 * 1000; // …then a 20-second "Are you still there?" before everything is wiped
 export const HEARTBEAT_MS = 60 * 1000; // the screen checks in every minute (the coordinator sees "active")
+export const RETRY_MS = 10 * 1000; // the welcome screen tries again this often while it can't load
+
+/**
+ * What a failed kiosk load means: `{ ended }` when the link is gone (404) or over (410) — the device is wiped —
+ * or `{ error }` with the message to show next to a Retry button (no internet, a 5xx, a rate limit…).
+ */
+export function kioskLoadProblem(err) {
+  const status = err?.status;
+  if (status === 404 || status === 410) return { ended: err.message || 'This kiosk link has ended.' };
+  return { error: err?.message || 'We can’t reach Nm7 right now. Check the internet connection.' };
+}
+
+export const SAVE_FAILED = 'Couldn’t save — check the internet. Your last changes are only on this screen until it reconnects.';
 
 /**
  * An idle timer. `poke()` on every touch / key; after `idleMs` without one, `onWarn(secondsLeft)` is called each

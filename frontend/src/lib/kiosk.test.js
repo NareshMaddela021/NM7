@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createIdleTimer, expiryOptions, PIN_RE, wipeDevice } from './kiosk';
+import { createIdleTimer, expiryOptions, kioskLoadProblem, PIN_RE, wipeDevice } from './kiosk';
 
 describe('kiosk idle timer', () => {
   beforeEach(() => vi.useFakeTimers());
@@ -79,5 +79,16 @@ describe('kiosk set-up rules', () => {
   it('PINs are 4 to 6 digits', () => {
     expect(['1234', '123456'].every((p) => PIN_RE.test(p))).toBe(true);
     expect(['123', '1234567', '12a4', ''].some((p) => PIN_RE.test(p))).toBe(false);
+  });
+});
+
+describe('kiosk load problems', () => {
+  it('a missing or finished link ends the kiosk; anything else is shown with Retry', () => {
+    expect(kioskLoadProblem({ status: 410, message: 'This kiosk link has ended. Ask the organizer for a new one.' })).toEqual({ ended: 'This kiosk link has ended. Ask the organizer for a new one.' });
+    expect(kioskLoadProblem({ status: 404, message: '' })).toEqual({ ended: 'This kiosk link has ended.' });
+    expect(kioskLoadProblem({ status: 0, code: 'network', message: 'We can’t reach the server. Check your internet and try again.' })).toEqual({ error: 'We can’t reach the server. Check your internet and try again.' });
+    expect(kioskLoadProblem({ status: 500, message: 'Something went wrong. Please try again.' })).toEqual({ error: 'Something went wrong. Please try again.' });
+    expect(kioskLoadProblem({ status: 429, message: 'Too many tries. Please wait a little and try again.' }).error).toMatch(/Too many/);
+    expect(kioskLoadProblem(undefined)).toEqual({ error: 'We can’t reach Nm7 right now. Check the internet connection.' });
   });
 });

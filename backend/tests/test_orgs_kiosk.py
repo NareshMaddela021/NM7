@@ -287,6 +287,70 @@ async def test_kiosk_join_print_and_approval_rules(owner, db, make_client, outbo
     assert {"kiosk_create", "kiosk_session", "kiosk_print", "member_join"} <= acts
 
 
+async def test_kiosk_join_records_recruiter_opt_in(setup, owner, db, make_client, outbox):
+    org, g = setup
+    _, token = await make_kiosk(owner, org["id"], g["id"])
+    c = make_client()
+    await kiosk_login(c, outbox, token)
+    await c.post("/api/me/resumes", json={"id": "k1", "name": "Kiosk", "data": RESUME})
+    body = {"consent": True, "fields": {"roll": "21A01", "branch": "CSE"}, "resumeId": "k1", "recruiterOptIn": True}
+    assert (await c.get(f"/api/kiosk/{token}")).json()["group"]["shareWithRecruiters"] is False
+    assert (await c.post(f"/api/kiosk/{token}/join", json=body)).status_code == 201
+    assert (await db[MEMBERSHIPS].find_one({}))["recruiter_opt_in"] is False  # the group doesn't share: never on
+
+    await features(owner, org["id"], kiosk=True, recruiter_links=True)
+    await owner.patch(f"/api/admin/groups/{g['id']}", json={"settings": {"shareWithRecruiters": True}})
+    assert (await c.get(f"/api/kiosk/{token}")).json()["group"]["shareWithRecruiters"] is True
+    assert (await c.post(f"/api/kiosk/{token}/join", json=body)).status_code == 201  # answers updated in place
+    assert (await db[MEMBERSHIPS].find_one({}))["recruiter_opt_in"] is True
+    assert (await c.post(f"/api/kiosk/{token}/join", json={**body, "recruiterOptIn": False})).status_code == 201
+    assert (await db[MEMBERSHIPS].find_one({}))["recruiter_opt_in"] is False
+
+
+async def test_kiosk_session_cannot_reach_non_kiosk_routes(setup, owner, make_client, outbox, razorpay):
+    """A kiosk sign-in is a stranger's 45 minutes on a shared screen: only the kiosk flow's routes work; the rest
+    of the account (profile, share link, orders, groups, deleting resumes) answers 403 kiosk_only."""
+    org, g = setup
+    _, token = await make_kiosk(owner, org["id"], g["id"])
+    c = make_client()
+    await kiosk_login(c, outbox, token)
+    denied = [
+        ("patch", "/api/me/profile", {"name": "Someone Else"}),
+        ("put", "/api/me/share", {"on": True, "slug": "asha-rao", "resumeId": None, "hidePhone": False}),
+        ("post", "/api/orders", {"planId": "expert", "role": "Data Analyst"}),
+        ("get", "/api/orders", None),
+        ("get", "/api/me/groups", None),
+        ("post", "/api/me/groups/join", {"code": g["code"], "consent": True, "resumeId": "k1"}),
+        ("delete", "/api/me/resumes/k1", None),
+        ("get", "/api/me/resumes", None),
+        ("post", "/api/auth/password/change", {"currentPassword": "x", "password": "Nm7@2026y", "passwordConfirm": "Nm7@2026y"}),  # noqa: E501
+    ]  # fmt: skip
+    for method, url, body in denied:
+        r = await getattr(c, method)(url, **({"json": body} if body is not None else {}))
+        assert r.status_code == 403 and err(r) == "kiosk_only", (method, url, r.status_code, r.text)
+    # what the kiosk screen calls still works
+    assert (await c.get("/api/auth/me")).status_code == 200
+    assert (await c.get("/api/me/state")).status_code == 200
+    assert (await c.post("/api/me/resumes", json={"id": "k1", "name": "Kiosk", "data": RESUME})).status_code == 201
+    assert (await c.get("/api/me/resumes/k1")).status_code == 200
+    assert (await c.patch("/api/me/resumes/k1", json={"data": {**RESUME, "summary": "Hi"}})).status_code == 200
+    r = await c.post("/api/me/summary/generate", json={})
+    assert r.status_code not in (401, 403), r.text
+    r = await c.post("/api/me/photo-import", json={"photos": [], "idConsent": False})
+    assert r.status_code not in (401, 403), r.text
+    body = {"consent": True, "fields": {"roll": "21A01", "branch": "CSE"}, "resumeId": "k1"}
+    assert (await c.post(f"/api/kiosk/{token}/join", json=body)).status_code == 201
+    assert (await c.post(f"/api/kiosk/{token}/print")).status_code == 200
+    assert (await c.post(f"/api/kiosk/{token}/send-link")).json() == {"sent": True}
+    # the emailed link gives a normal session on their own phone: everything works there
+    link = outbox.sent[-1].text.split("/continue?t=")[1].split()[0]
+    phone = make_client()
+    assert (await phone.post("/api/public/continue", json={"token": link})).status_code == 200
+    assert (await phone.patch("/api/me/profile", json={"name": "Asha R"})).status_code == 200
+    assert (await c.post("/api/auth/logout")).status_code == 200
+    assert (await c.get("/api/auth/me")).status_code == 401
+
+
 async def test_kiosk_actions_need_a_sign_in_at_that_kiosk(setup, owner, make_client, outbox):
     org, g = setup
     _, token = await make_kiosk(owner, org["id"], g["id"])

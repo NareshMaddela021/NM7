@@ -8,7 +8,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Dialog, Spinner } from '../../components/ui';
 import { reloadUser, signOut, useAuth } from '../../lib/auth';
-import { HEARTBEAT_MS, KIOSK_STEPS, createIdleTimer, wipeDevice } from '../../lib/kiosk';
+import { HEARTBEAT_MS, KIOSK_STEPS, RETRY_MS, SAVE_FAILED, createIdleTimer, kioskLoadProblem, wipeDevice } from '../../lib/kiosk';
 import { BUILD_CHECK_MS, freshImport, newBuildLive } from '../../lib/chunks';
 import { designOf } from '../../lib/orgExport';
 import { brandDesign, prepareBrand } from '../../lib/branding';
@@ -91,6 +91,7 @@ export default function KioskScreen() {
   const nav = useNavigate();
   const base = `/api/kiosk/${encodeURIComponent(token)}`;
   const [info, setInfo] = useState(null);
+  const [loadError, setLoadError] = useState(null); // the welcome details couldn't load (no internet, a 5xx…)
   const [ended, setEnded] = useState(null);
   const [step, setStep] = useState('welcome'); // welcome · email · code · consent · start · photos · build · finish
   const [email, setEmail] = useState('');
@@ -106,17 +107,36 @@ export default function KioskScreen() {
   usePageMeta({ title: info ? `Kiosk · ${info.org.name}` : 'Kiosk', description: 'Build and print your resume at this event.', noindex: true });
 
   // the welcome details, and a check-in every minute (the coordinator sees the kiosk as active; a revoked or
-  // expired link shows "ended" and wipes the device)
-  const check = useCallback(() => http(base).then((next) => setInfo((cur) => (JSON.stringify(cur) === JSON.stringify(next) ? cur : next)), (e) => { if (e.status === 404 || e.status === 410) setEnded(e.message || 'This kiosk link has ended.'); }), [base]);
+  // expired link shows "ended" and wipes the device). Any other failure before the details loaded (no internet, a
+  // 5xx) is shown with Retry, and tried again every 10 seconds; once loaded, a failed check-in changes nothing.
+  const check = useCallback(() => http(base).then((next) => { setLoadError(null); setInfo((cur) => (JSON.stringify(cur) === JSON.stringify(next) ? cur : next)); }, (e) => {
+    const problem = kioskLoadProblem(e);
+    if (problem.ended) setEnded(problem.ended); else setLoadError(problem.error);
+  }), [base]);
   useEffect(() => { check(); const t = setInterval(check, HEARTBEAT_MS); return () => clearInterval(t); }, [check]);
+  useEffect(() => {
+    if (info || !loadError) return undefined;
+    const t = setInterval(check, RETRY_MS);
+    return () => clearInterval(t);
+  }, [info, loadError, check]);
 
-  // saving: the resume is the candidate's own (in their account); changes are sent shortly after typing stops
+  // saving: the resume is the candidate's own (in their account); changes are sent shortly after typing stops.
+  // A failed save keeps the changes here (so Retry, the next edit, Print and Finish send them again) and says so.
   const pending = useRef(null);
+  const [saveFailed, setSaveFailed] = useState(false);
   const save = useCallback(async () => {
     const p = pending.current;
-    if (!p) return;
-    clearTimeout(p.t); pending.current = null;
-    await http(`/api/me/resumes/${encodeURIComponent(p.id)}`, { method: 'PATCH', body: { data: p.data } }).catch(() => {});
+    if (!p) return true;
+    clearTimeout(p.t);
+    try {
+      await http(`/api/me/resumes/${encodeURIComponent(p.id)}`, { method: 'PATCH', body: { data: p.data } });
+      if (pending.current === p) pending.current = null; // (newer edits may be waiting already)
+      setSaveFailed(false);
+      return true;
+    } catch {
+      setSaveFailed(true);
+      return false;
+    }
   }, []);
   useEffect(() => {
     if (!resumeId || !d) return;
@@ -124,13 +144,16 @@ export default function KioskScreen() {
     pending.current = { id: resumeId, data: d, t: setTimeout(save, 800) };
   }, [d, resumeId, save]);
 
-  const reset = useCallback(async (msg = '') => {
-    if (pending.current) await save();
+  // `ifUnsaved`: the note when the last changes couldn't be saved even after one more try (never "saved")
+  const reset = useCallback(async (msg = '', ifUnsaved = null) => {
+    let saved = true;
+    for (let n = 0; pending.current && saved && n < 3; n++) saved = await save(); // the last edits, one more try
     document.querySelectorAll('[data-kiosk-print]').forEach((x) => x.remove());
+    pending.current = null;
     await signOut().catch(() => {});
     await wipeDevice();
-    setStep('welcome'); setEmail(''); setNewAccount(false); setWho(null); setResumeId(null); setD(null); setApproval(null); setWarn(null);
-    setNote(msg);
+    setStep('welcome'); setEmail(''); setNewAccount(false); setWho(null); setResumeId(null); setD(null); setApproval(null); setWarn(null); setSaveFailed(false);
+    setNote(saved || !ifUnsaved ? msg : ifUnsaved);
   }, [save]);
 
   useEffect(() => { if (ended) reset(); }, [ended]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -190,7 +213,7 @@ export default function KioskScreen() {
   // nobody touched the screen for 2 minutes: a 20-second warning, then everything is wiped
   useEffect(() => {
     if (step === 'welcome') return undefined;
-    const timer = createIdleTimer({ onWarn: setWarn, onIdle: () => reset('Signed out after 2 minutes without a touch. Your resume is saved in your account.') });
+    const timer = createIdleTimer({ onWarn: setWarn, onIdle: () => reset('Signed out after 2 minutes without a touch. Your resume is saved in your account.', 'Signed out after 2 minutes without a touch. Your last changes couldn’t be saved (no internet) — your account has the earlier version of your resume.') });
     const poke = () => timer.poke();
     const evs = ['pointerdown', 'keydown', 'touchstart', 'wheel', 'nm7-activity']; // nm7-activity: someone is speaking
     evs.forEach((e) => window.addEventListener(e, poke, { passive: true }));
@@ -240,7 +263,26 @@ export default function KioskScreen() {
       </main></div>
     );
   }
-  if (!info) return <div style={shell}><div className="row g12 muted" role="status" style={{ padding: '30vh 24px', justifyContent: 'center' }}><Spinner /> Loading…</div></div>;
+  if (!info) {
+    return (
+      <div style={shell}>
+        {loadError ? (
+          <main id="main" className="container stack g16" role="alert" data-testid="k-load-error" style={{ padding: '15vh 24px', maxWidth: 640, textAlign: 'center' }}>
+            <h1 className="display h2">Can’t load this kiosk</h1>
+            <p className="lead">{loadError}</p>
+            <p className="small muted">Trying again every 10 seconds.</p>
+            <button type="button" className="btn btn-ink btn-xl" style={{ alignSelf: 'center' }} onClick={check}>Retry</button>
+          </main>
+        ) : <div className="row g12 muted" role="status" style={{ padding: '30vh 24px', justifyContent: 'center' }}><Spinner /> Loading…</div>}
+      </div>
+    );
+  }
+  const saveNotice = saveFailed && (
+    <p className="error row g12" role="alert" data-testid="k-save-failed" style={{ margin: 0, alignItems: 'center' }}>
+      <span>{SAVE_FAILED}</span>
+      <button type="button" className="btn btn-outline" onClick={save}>Retry</button>
+    </p>
+  );
 
   return (
     <div style={shell} className="kiosk">
@@ -249,7 +291,7 @@ export default function KioskScreen() {
           {info.org.logoUrl && <img src={info.org.logoUrl} alt="" height={36} style={{ maxWidth: 120, objectFit: 'contain' }} />}
           <span className="stack" style={{ minWidth: 0 }}><strong style={{ fontSize: 18 }}>{info.org.name}</strong><span className="small muted">{info.group.name} · {info.label}</span></span>
         </span>
-        {who && <button type="button" className="btn btn-outline" onClick={() => reset('Signed out. Your resume is saved in your account.')}>Sign out</button>}
+        {who && <button type="button" className="btn btn-outline" onClick={() => reset('Signed out. Your resume is saved in your account.', 'Signed out. Your last changes couldn’t be saved (no internet) — your account has the earlier version of your resume.')}>Sign out</button>}
       </header>
       <main id="main" className="container stack g20" style={{ flex: 1, width: '100%', boxSizing: 'border-box', padding: '28px 20px 40px', maxWidth: step === 'build' || step === 'finish' ? 1100 : 720 }}>
         {step === 'welcome' && (
@@ -282,9 +324,11 @@ export default function KioskScreen() {
           </div>
         )}
         {step === 'photos' && <PhotoImport embedded title="Snap photos of your papers" onBack={() => setStep('start')} onDone={(review) => { setD((cur) => migrateLinks(reviewToResume(review, cur))); setStep('build'); }} />}
+        {(step === 'start' || step === 'build' || step === 'finish') && saveNotice}
         {step === 'build' && d && <GuidedBuilder d={d} setD={setD} onDone={() => setStep('finish')} />}
         {step === 'finish' && d && <Finish base={base} d={d} brand={info.brand} autoPrint={autoPrint} onAutoPrinted={() => setAutoPrint(false)}
-          beforeReload={async () => { await save(); const m = readMarker(token); if (m) writeMarker(token, { ...m, step: 'finish', printAfter: true }); }} approval={approval} org={info.org.name} save={save} onEdit={() => setStep('build')} onFinish={() => reset('Done! You’re signed out and this screen is clear. Your resume is saved in your Nm7 account.')} />}
+          beforeReload={async () => { await save(); const m = readMarker(token); if (m) writeMarker(token, { ...m, step: 'finish', printAfter: true }); }} approval={approval} org={info.org.name} save={save} onEdit={() => setStep('build')}
+          onFinish={() => reset('Done! You’re signed out and this screen is clear. Your resume is saved in your Nm7 account.', 'Done! You’re signed out and this screen is clear. Your last changes couldn’t be saved (no internet) — your Nm7 account has the earlier version of your resume.')} />}
       </main>
       <footer className="row between g8" style={{ padding: '10px 20px', borderTop: '1px solid var(--border)' }}>
         <span className="xs faint">Nm7 · your resume is saved in your own account · never asks for Aadhaar, PAN or bank numbers</span>
@@ -353,6 +397,7 @@ function CodeStep({ base, email, newAccount, onDone, onBack }) {
 
 function ConsentStep({ base, info, resumeId, onDone }) {
   const [consent, setConsent] = useState(false);
+  const [recruit, setRecruit] = useState(false); // never ticked for them (same as the join page)
   const [fields, setFields] = useState({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -361,7 +406,7 @@ function ConsentStep({ base, info, resumeId, onDone }) {
   const join = async (e) => {
     e.preventDefault();
     setBusy(true); setError('');
-    try { onDone(await http(`${base}/join`, { method: 'POST', body: { consent, fields, resumeId } })); } catch (err) { setError(err.message); setBusy(false); }
+    try { onDone(await http(`${base}/join`, { method: 'POST', body: { consent, fields, resumeId, recruiterOptIn: !!(recruit && info.group.shareWithRecruiters) } })); } catch (err) { setError(err.message); setBusy(false); }
   };
   return (
     <form className="stack g16" onSubmit={join}>
@@ -375,6 +420,9 @@ function ConsentStep({ base, info, resumeId, onDone }) {
         </div>
       ))}
       <label className="check card" style={{ ...big, padding: 16 }}><input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />{info.consentText}</label>
+      {info.group.shareWithRecruiters && (
+        <label className="check card" style={{ ...big, padding: 16 }}><input type="checkbox" checked={recruit} onChange={(e) => setRecruit(e.target.checked)} />Allow {info.org.name} to share my resume with recruiters <span className="small muted">(optional — you can change this any time in My groups at nm7.si)</span></label>
+      )}
       {info.group.requireApproval && <p className="small muted">{info.org.name} checks new members before printing. You can still print your own copy here.</p>}
       {error && <p className="error" role="alert">{error}</p>}
       <button type="submit" className="btn btn-ink btn-xl" style={{ alignSelf: 'flex-start' }} disabled={busy || !consent || missing}>{busy ? 'Saving…' : 'Agree and continue'}</button>
@@ -466,7 +514,10 @@ function Finish({ base, d, brand, approval, org, save, onEdit, onFinish, autoPri
     if (sending) return;
     setSending(true); setStatus({ text: 'Sending the link to your email…', error: false });
     try {
-      await save();
+      if (!await save()) { // the link opens the account's copy: the latest changes must be there first
+        setStatus({ text: 'Couldn’t save your latest changes — check the internet, then try again.', error: true });
+        return;
+      }
       const r = await http(`${base}/send-link`, { method: 'POST', body: {} });
       setMailed(!!r.sent);
       setStatus(r.sent ? { text: 'Check your email for a link to keep going on your phone.', error: false } : { text: 'The email didn’t go out. You can sign in at nm7.si later with this email.', error: true });

@@ -130,6 +130,51 @@ async def test_verify_rejects_a_bad_signature(customer, razorpay, db):
     assert (await customer.get(f"/api/orders/{created['orderId']}")).json()["status"] == "pending_payment"
 
 
+async def _verify(client, created, pid):
+    rid = created["razorpayOrderId"]
+    body = {"razorpay_order_id": rid, "razorpay_payment_id": pid, "razorpay_signature": checkout_signature(rid, pid)}
+    return await client.post("/api/payments/verify", json=body)
+
+
+async def test_verify_checks_payment_status_and_amount(customer, razorpay, db, outbox):
+    """A valid checkout signature isn't enough: the payment is fetched from Razorpay and must be authorized or
+    captured, in INR, for this order. Razorpay down: 503 and nothing changes (the webhook will finish it)."""
+    created, _ = await buy(customer, pay=False)
+    pid = "pay_CHECK"
+    razorpay.payment_overrides = {"status": "failed"}
+    r = await _verify(customer, created, pid)
+    assert r.status_code == 409 and err(r) == "payment_mismatch"
+    razorpay.payment_overrides = {"currency": "USD"}
+    assert err(await _verify(customer, created, pid)) == "payment_mismatch"
+    razorpay.payment_overrides = {"order_id": "order_OTHER"}
+    assert err(await _verify(customer, created, pid)) == "payment_mismatch"
+    razorpay.payments.mock(return_value=httpx.Response(500, json={"error": {"description": "down"}}))
+    r = await _verify(customer, created, pid)
+    assert r.status_code == 503 and err(r) == "payments_unavailable"
+    assert (await customer.get(f"/api/orders/{created['orderId']}")).json()["status"] == "pending_payment"
+    assert outbox.sent == []
+    assert await db["audit_log"].count_documents({"action": "payment.mismatch", "target": created["orderId"]}) == 3
+
+    razorpay.payments.mock(side_effect=razorpay._payment)
+    razorpay.payment_overrides = {"status": "authorized", "method": "card"}
+    r = await _verify(customer, created, pid)
+    assert r.status_code == 200 and r.json()["status"] == "offer" and r.json()["paymentMethod"] == "card"
+    assert razorpay.payments.calls.last.request.url.path == f"/v1/payments/{pid}"
+    assert len(outbox.sent) == 1
+    p = Payment.load(await db[PAYMENTS].find_one({}))
+    assert p.status == "captured" and p.raw["payment"]["status"] == "authorized"
+
+
+async def test_verify_rejects_amount_mismatch(customer, razorpay, db, outbox):
+    created, _ = await buy(customer, pay=False)
+    razorpay.payment_overrides = {"amount": 100}
+    r = await _verify(customer, created, "pay_SMALL")
+    assert r.status_code == 409 and err(r) == "payment_mismatch"
+    assert (await customer.get(f"/api/orders/{created['orderId']}")).json()["status"] == "pending_payment"
+    assert Payment.load(await db[PAYMENTS].find_one({})).status == "created"
+    assert outbox.sent == []
+
+
 async def test_cannot_verify_someone_elses_order(customer, razorpay, make_client, outbox):
     created, _ = await buy(customer, pay=False)
     other = make_client()
@@ -164,6 +209,25 @@ async def test_diy_is_done_at_once_and_express_is_24h(customer, razorpay):
 
 async def test_webhook_needs_a_valid_signature(client, razorpay):
     r = await send_webhook(client, {"event": "payment.captured"}, secret="wrong")
+    assert r.status_code == 400 and err(r) == "invalid_signature"
+
+
+async def test_webhook_malformed_json_with_valid_signature_is_400(client, razorpay, db):
+    import hashlib
+    import hmac
+    import os
+
+    for body in (b"{not json", b"[1, 2]", b'"text"'):
+        sig = hmac.new(os.environ["RAZORPAY_WEBHOOK_SECRET"].encode(), body, hashlib.sha256).hexdigest()
+        headers = {"X-Razorpay-Signature": sig, "Content-Type": "application/json", "Origin": ""}
+        r = await client.post("/api/payments/webhook", content=body, headers=headers)
+        assert r.status_code == 400 and err(r) == "bad_payload", body
+    assert await db["webhook_events"].count_documents({}) == 0
+
+
+async def test_webhook_without_signature_header_is_400(client, razorpay):
+    body = b'{"event": "payment.captured"}'
+    r = await client.post("/api/payments/webhook", content=body, headers={"Content-Type": "application/json"})
     assert r.status_code == 400 and err(r) == "invalid_signature"
 
 
