@@ -6,6 +6,7 @@ import { useEffect, useMemo, useReducer, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Icon } from '../../components/ui';
 import ResumePreview from './ResumePreview';
+import TemplatePreview from './TemplatePreview';
 import { ACCENTS, DEFAULT_DESIGN, INDUSTRY_TAGS, TEMPLATE_PRESETS, atsCheck } from './design';
 import { isUseKey, layoutOf, pickState, PHOTO_PLACEHOLDER, selectionText } from './templatePick';
 
@@ -48,6 +49,8 @@ export default function TemplatePicker({ d, ds, suggest, photo, onPick, onNext }
   const choose = (k, accent) => { dispatch({ type: 'pick', key: k }); onPick(k, { accent }); };
   const pickNow = (k, accent) => { if (ds.preset !== k) onPick(k, { accent }); onNext(); }; // same as the top button
   const bar = pick.touched && sel;
+  const [preview, setPreview] = useState(null); // the card shown large (Preview): only shows it, never a download
+  const big = preview && all.find((x) => x.k === preview);
 
   return (
     <main className="container stack g20 rise" style={{ padding: '48px 24px 72px', paddingBottom: bar ? 'calc(var(--tp-bar-h) + 40px + env(safe-area-inset-bottom, 0px))' : 72, maxWidth: 1320 }}>
@@ -101,6 +104,7 @@ export default function TemplatePicker({ d, ds, suggest, photo, onPick, onNext }
               <div className="row g8" style={{ alignItems: 'center' }}>
                 <strong>{t.name}</strong>
                 {suggest === k && <span className="badge b-signal">Suggested for you</span>}
+                <button type="button" className="btn btn-ghost tp-preview" aria-haspopup="dialog" aria-label={`Preview ${t.name}`} onClick={() => setPreview(k)}>Preview</button>
               </div>
               <div className="row g4">
                 <span className={`badge ${ats >= 90 ? 'b-success' : ats >= 75 ? 'b-warning' : 'b-danger'}`} title="How safely tracking systems can read it">ATS {ats}</span>
@@ -123,6 +127,8 @@ export default function TemplatePicker({ d, ds, suggest, photo, onPick, onNext }
           );
         })}
       </div>
+
+      {big && <TemplatePreview id={big.k} data={d} design={big.design} photo={photo} onClose={() => setPreview(null)} onUse={() => { setPreview(null); pickNow(big.k, big.accent); }} />}
 
       {/* on <body>: a transformed ancestor (an entry animation) would pin a fixed bar to itself, not the screen */}
       {bar && createPortal(

@@ -9,7 +9,7 @@ import { ago } from './me/shared';
 import { useJobProfile } from '../lib/profileStore';
 import { profileCompleteness, profileToResume, profileUpdates } from '../lib/jobProfile';
 import { reviewToResume } from '../lib/photoImport';
-import { DownloadBlocked, exportFile, pendingDownload } from '../lib/downloads';
+import { DownloadBlocked, exportFile, forgetPendingDownload, mayFinishDownload, pendingDownload } from '../lib/downloads';
 import { lengthNote, writeSummaries } from '../lib/summary/write';
 import { charCount } from '../lib/text';
 import { monthsBetween } from '../lib/import/dates';
@@ -177,7 +177,8 @@ export default function Builder({ embedded = null }) {
   // (the download itself starts once the account and its resume are in: see the effect below)
   // /builder?start=resume|linkedin|photos|scratch|summary opens that mode directly (links from the home page).
   const startAt = embedded ? null : START_MODES[new URLSearchParams(location.search).get('start')] || null;
-  const [stage, setStage] = useState(embedded || (!embedded && pendingDownload()) || location.state?.open === 'build' ? 'build' : location.state?.open === 'photos' ? 'photos' : startAt?.stage || 'start');
+  const [fromSignIn] = useState(() => !embedded && mayFinishDownload()); // straight back from the download's sign-in
+  const [stage, setStage] = useState(embedded || (fromSignIn && pendingDownload()) || location.state?.open === 'build' ? 'build' : location.state?.open === 'photos' ? 'photos' : startAt?.stage || 'start');
   const [missing, setMissing] = useState(false); // after "Snap photos": point at what's still missing (e.g. phone)
   const [importMode, setImportMode] = useState(startAt?.importMode || 'resume');
   const [suggest, setSuggest] = useState(null);
@@ -288,8 +289,16 @@ export default function Builder({ embedded = null }) {
   const deleteSaved = (i) => persistStyles(savedStyles.filter((_, j) => j !== i));
   const setTitle = (id, v) => setD((p) => ({ ...p, titles: { ...p.titles, [id]: v } }));
 
-  // Opened from the home page with a template picked: apply it once.
-  useEffect(() => { const k = location.state?.template; if (!embedded && k && TEMPLATE_PRESETS[k]) { applyTemplate(k); toast(`${TEMPLATE_PRESETS[k].name} template applied`); } }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // Opened with a template picked (home gallery "Use this template"): apply it once — for a signed-in customer only
+  // after their saved resume is in, so loading it doesn't put the old template back.
+  const templateAsked = useRef(embedded ? null : location.state?.template);
+  useEffect(() => {
+    const k = templateAsked.current;
+    if (!k || !TEMPLATE_PRESETS[k] || (serverCustomer() && !serverIn)) return;
+    templateAsked.current = null;
+    applyTemplate(k);
+    toast(`${TEMPLATE_PRESETS[k].name} template applied`);
+  }, [serverIn]); // eslint-disable-line react-hooks/exhaustive-deps
   // From the scan report ("keep fixing it myself"): load the scanned resume, or start empty instead of the sample.
   useEffect(() => {
     const st = location.state;
@@ -403,7 +412,9 @@ export default function Builder({ embedded = null }) {
   // also when the sign-in answer only arrives after a reload on a cold start
   const downloadClaimed = useRef(false);
   useEffect(() => {
-    if (embedded || !customer || !serverIn || downloadClaimed.current) return;
+    if (embedded || downloadClaimed.current) return;
+    if (!fromSignIn) { forgetPendingDownload(); return; } // opened some other way: never start a download by itself
+    if (!customer || !serverIn) return;
     const p = pendingDownload(true);
     if (!p) return;
     downloadClaimed.current = true;

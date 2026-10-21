@@ -1,7 +1,7 @@
 import { Component, Suspense, lazy as reactLazy, useEffect, useRef, useState } from 'react';
 import { Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
 import Header from './components/Header';
-import { onGate } from './lib/downloads';
+import { notePage, onGate } from './lib/downloads';
 import Home from './pages/Home';
 import { Spinner } from './components/ui';
 import { useAuth, previewSignIn, previewUsers, LIVE } from './lib/auth';
@@ -137,6 +137,7 @@ function RouteFocus() {
   const { pathname } = useLocation();
   // Compare with the last path rather than a "first render" flag: StrictMode runs effects twice on load.
   const last = useRef(pathname);
+  useEffect(() => { notePage(pathname); }, [pathname]); // a guest's pending download lives only through its sign-in
   useEffect(() => {
     if (last.current === pathname) return;
     last.current = pathname;

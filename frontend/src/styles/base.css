@@ -198,6 +198,10 @@ textarea.input { height: auto; padding: 12px 14px; line-height: 1.55; resize: ve
 
 /* ---------- dialog ---------- */
 .overlay { position: fixed; inset: 0; z-index: 40; background: rgba(13, 14, 16, .45); display: flex; align-items: center; justify-content: center; padding: 16px; }
+/* the large template preview: the page scrolls inside the window, the buttons stay in reach */
+.tpv-page { max-height: min(68vh, 900px); overflow: auto; border: 1px solid var(--border); border-radius: 10px; background: var(--sunken); padding: 8px; }
+.tpv-actions .btn { flex: 1 1 180px; }
+.tp-preview { margin-left: auto; min-height: 44px; padding: 0 12px; font-size: 13px; }
 .dialog { width: 100%; max-width: 560px; background: var(--surface); color: var(--text); border-radius: 20px; padding: 24px; box-shadow: var(--shadow); }
 
 /* ---------- table ---------- */

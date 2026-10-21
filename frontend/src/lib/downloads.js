@@ -45,6 +45,21 @@ const PENDING_MAX_AGE = 60 * 60 * 1000;
 export function rememberDownload(format, what) {
   try { sessionStorage.setItem(PENDING, JSON.stringify({ format, what, at: Date.now() })); } catch { /* ignore */ }
 }
+// It belongs to the sign-in / sign-up it started: it is kept while the person is on those pages and is finished only
+// when the builder opens straight from them (or is reloaded). Any other page forgets it, so a later visit to the
+// builder (e.g. from a template card) never starts a download nobody just asked for.
+const SIGN_IN_PAGES = ['/login', '/signup', '/forgot-password'];
+let shownPage = null; // the last page noted (null until the first one: a fresh load or a reload)
+export function forgetPendingDownload() {
+  try { sessionStorage.removeItem(PENDING); } catch { /* ignore */ }
+}
+/** Called on every page change (App). */
+export function notePage(path) {
+  if (!SIGN_IN_PAGES.includes(path) && path !== '/builder') forgetPendingDownload();
+  shownPage = path;
+}
+/** Read when the builder first renders: may it finish a pending download? (opened from sign-in / sign-up, or reloaded) */
+export const mayFinishDownload = () => shownPage === null || shownPage === '/builder' || SIGN_IN_PAGES.includes(shownPage);
 /** The download a guest clicked before creating an account (or null). `take` also forgets it. */
 export function pendingDownload(take = false) {
   try {

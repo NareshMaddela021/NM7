@@ -10,7 +10,7 @@ class Mem {
 }
 globalThis.localStorage = new Mem();
 globalThis.sessionStorage = new Mem();
-const { DownloadBlocked, exportFile, getEntitlement, onGate, closeGate, rememberDownload, pendingDownload } = await import('./downloads');
+const { DownloadBlocked, exportFile, getEntitlement, onGate, closeGate, rememberDownload, pendingDownload, notePage, mayFinishDownload } = await import('./downloads');
 
 describe('download gating (preview build: no payments)', () => {
   beforeEach(() => { sessionStorage.m.clear(); closeGate(); });
@@ -30,6 +30,24 @@ describe('download gating (preview build: no payments)', () => {
     expect(pendingDownload(true)).toMatchObject({ format: 'pdf' });
     expect(pendingDownload()).toBeNull();
     sessionStorage.setItem('nm7-pending-download', JSON.stringify({ format: 'pdf', what: 'resume', at: Date.now() - 2 * 60 * 60 * 1000 }));
+    expect(pendingDownload()).toBeNull();
+  });
+
+  it('a pending download lives only through its sign-in: any other page forgets it', () => {
+    expect(mayFinishDownload()).toBe(true); // a fresh load / reload of the builder
+    notePage('/builder');
+    rememberDownload('pdf', 'resume');
+    notePage('/login');
+    notePage('/signup');
+    expect(pendingDownload()).not.toBeNull(); // still on the sign-in pages
+    expect(mayFinishDownload()).toBe(true); // the builder opening now comes straight from sign-up
+    notePage('/builder');
+    expect(pendingDownload()).not.toBeNull();
+    notePage('/');
+    expect(pendingDownload()).toBeNull(); // left for the home page: forgotten
+    expect(mayFinishDownload()).toBe(false); // a builder opened from here may not start one
+    rememberDownload('docx', 'resume');
+    notePage('/me');
     expect(pendingDownload()).toBeNull();
   });
 });

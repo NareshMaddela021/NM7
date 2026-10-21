@@ -21,6 +21,9 @@ for (const [label, size] of [['desktop', { width: 1280, height: 900 }], ['phone'
       await expect(page.getByTestId('tp-bar')).toHaveCount(0); // not before a pick
       // let the page settle first (web fonts, the screen's entry animation) so only a pick could move anything
       await page.evaluate(async () => { document.documentElement.style.scrollBehavior = 'auto'; await document.fonts.ready; await Promise.all(document.getAnimations().map((a) => a.finished.catch(() => {}))); });
+      // measure from the top, as after the pick below (boxes are relative to the screen)
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await page.waitForFunction(() => window.scrollY === 0);
       const first = await Promise.all([0, 1, 2].map((i) => cards(page).nth(i).boundingBox()));
       const card = cards(page).last();
       const name = await nameOf(card);
