@@ -12,7 +12,9 @@ from typing import Any
 # digit run, allowing one space or hyphen between digits. Dates (15/05/2003) and years (2019-2023) are shorter.
 LONG_DIGITS = re.compile(r"(?<!\d)\d(?:[ \-.]?\d){8,}(?!\d)")
 # masked Aadhaar / account numbers: XXXX XXXX 1234, xxxxxxxx1234, **** **** 1234, ••••1234
-MASKED = re.compile(r"(?:[Xx*•●]{2,}[ \-]?){1,3}\d{4}\b")
+# A masked number ("XXXX XXXX 1234"): starts only where a run of mask characters starts, and the groups are split
+# by a separator, so the pattern runs in linear time (the old nested repeat took minutes on a long run of x's).
+MASKED = re.compile(r"(?<![Xx*•●])[Xx*•●]{2,}(?:[ \-][Xx*•●]{2,}){0,2}[ \-]?\d{4}\b")
 PAN = re.compile(r"\b[A-Za-z]{5}\s?\d{4}\s?[A-Za-z]\b")
 EPIC = re.compile(r"\b[A-Za-z]{3}\s?\d{7}\b")  # voter ID
 # driving licence: state code + RTO code + year + number, e.g. TS09 20110012345, MH-12-2011-0012345, DL0420110149646
