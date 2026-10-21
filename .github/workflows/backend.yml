@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Start MongoDB 8.0 (replica set)
-        run: bash .github/scripts/start-mongo.sh
+        run: bash "$GITHUB_WORKSPACE/.github/scripts/start-mongo.sh"
       - uses: astral-sh/setup-uv@v5
         with:
           python-version: "3.12"

@@ -32,7 +32,7 @@ jobs:
         run: npm run test:e2e
       - name: Start MongoDB 8.0 (replica set)
         working-directory: .
-        run: bash .github/scripts/start-mongo.sh
+        run: bash "$GITHUB_WORKSPACE/.github/scripts/start-mongo.sh"
       - uses: astral-sh/setup-uv@v5
         with:
           python-version: "3.12"
