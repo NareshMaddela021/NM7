@@ -76,10 +76,13 @@ export async function getOrder(id) {
   return { id, plan: 'Expert rewrite', price: 999, role: 'Data Analyst', paidAt: '[date]', dueInHours: 30, overdue: false };
 }
 
-// Real: POST /api/orders/:id/intake
-export async function submitIntake(id, answers) {
-  await wait(500);
-  return { ok: true, id, answers };
+/**
+ * The intake answers for an order. Live: saved on the order's work record (PATCH /api/work/:id) and only reported
+ * done once the server has them, so a slow or failed save is never shown as sent. Preview: kept in the browser.
+ */
+export async function submitIntake(id, intake, role) {
+  if (!LIVE) { await wait(500); return { ok: true, id, intake }; }
+  return http(`/api/work/${encodeURIComponent(id)}`, { method: 'PATCH', body: { intake, ...(role ? { role } : {}) } });
 }
 
 /**

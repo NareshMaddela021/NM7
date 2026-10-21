@@ -3,7 +3,8 @@ import { Link, useParams } from 'react-router-dom';
 import Header from '../components/Header';
 import { Icon, Spinner, TextField } from '../components/ui';
 import { submitIntake } from '../services/api';
-import { findOrder, updateOrder } from '../lib/expertStore';
+import { findOrder, reloadExpertOrders, updateOrder } from '../lib/expertStore';
+import { LIVE } from '../services/http';
 import { PROMISES } from '../lib/pricing';
 
 const ROLES = ['Data Analyst', 'Business Analyst', 'Software Engineer', 'Product', 'Marketing', 'Finance', 'HR', 'Design', 'Operations', 'Sales'];
@@ -21,6 +22,7 @@ export default function Intake() {
   const [a, setA] = useState({ roles: ['Data Analyst'], companies: '', story: '', n1: '', n2: '', n3: '', n4: '', length: 'one', avoid: '' });
   const [sending, setSending] = useState(false);
   const [done, setDone] = useState(false);
+  const [sendErr, setSendErr] = useState('');
   const set = (k) => (e) => setA({ ...a, [k]: e.target.value });
 
   const storyLen = a.story.trim().length;
@@ -29,14 +31,26 @@ export default function Intake() {
     e.preventDefault();
     if (blocked) return;
     if (step < 3) return setStep(step + 1);
-    setSending(true);
-    await submitIntake(id, a);
-    if (findOrder(id)) { // the delivery promise counts from the finished intake
-      const nums = [a.n1, a.n2, a.n3, a.n4].filter((x) => x.trim()).join('; ');
-      updateOrder(id, (x) => ({ intake: { target: a.roles.join(', '), wins: a.story.trim(), numbers: nums, avoid: a.avoid.trim() || '—', companies: a.companies.trim(), length: a.length }, role: x.role === 'Not set' ? a.roles[0] : x.role, deadline: x.intake?.target ? x.deadline : (x.addons || []).includes('express') ? Math.min(x.deadline, Date.now() + 24 * 3600 * 1000) : Date.now() + 48 * 3600 * 1000, messages: [...(x.messages || []), { from: 'system', text: 'Customer completed the intake questions.', at: Date.now() }] }));
+    setSending(true); setSendErr('');
+    const nums = [a.n1, a.n2, a.n3, a.n4].filter((x) => x.trim()).join('; ');
+    const intake = { target: a.roles.join(', '), wins: a.story.trim(), numbers: nums, avoid: a.avoid.trim() || '—', companies: a.companies.trim(), length: a.length };
+    try {
+      if (LIVE) {
+        // the server has it before we say so; the order list then reloads with it
+        await submitIntake(id, intake, findOrder(id)?.role === 'Not set' ? a.roles[0] : undefined);
+        reloadExpertOrders();
+      } else {
+        await submitIntake(id, intake);
+        if (findOrder(id)) { // the delivery promise counts from the finished intake
+          updateOrder(id, (x) => ({ intake, role: x.role === 'Not set' ? a.roles[0] : x.role, deadline: x.intake?.target ? x.deadline : (x.addons || []).includes('express') ? Math.min(x.deadline, Date.now() + 24 * 3600 * 1000) : Date.now() + 48 * 3600 * 1000, messages: [...(x.messages || []), { from: 'system', text: 'Customer completed the intake questions.', at: Date.now() }] }));
+        }
+      }
+      setDone(true);
+    } catch (err) {
+      setSendErr(`${err.message || 'Not sent.'} Your answers are still here — please try again.`);
+    } finally {
+      setSending(false);
     }
-    setSending(false);
-    setDone(true);
   };
   const toggleRole = (r) => setA({ ...a, roles: a.roles.includes(r) ? a.roles.filter((x) => x !== r) : [...a.roles, r] });
   const q = Q[step];
@@ -121,6 +135,7 @@ export default function Intake() {
               </div>
             )}
 
+            {sendErr && <p className="error" role="alert" data-testid="intake-error">{sendErr}</p>}
             <div className="row g12">
               {step > 0 && <button type="button" className="btn btn-outline btn-lg" onClick={() => setStep(step - 1)}>Back</button>}
               <button type="submit" className="btn btn-ink btn-lg" disabled={blocked || sending}>{sending && <Spinner />}{step === 3 ? 'Send to my expert' : step === 2 ? 'Next · or skip' : 'Next'}</button>
