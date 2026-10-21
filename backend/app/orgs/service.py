@@ -17,10 +17,11 @@ from pymongo.asynchronous.database import AsyncDatabase
 
 from app.core.db import MEMBERSHIPS, ORG_GROUPS, ORGANIZATIONS, RESUMES, USERS
 from app.core.errors import ApiError
+from app.core.pii import scrub_id_numbers
 from app.core.security import keyed_hash, same
 from app.core.time import IST, now
 from app.me.service import ms, visible_resume
-from app.photos.scrub import EPIC, IFSC, LABEL, MASKED, PAN
+from app.photos.scrub import DL, EPIC, IFSC, LABEL, MASKED, PAN, PASSPORT
 
 ORG_TYPES = ("college", "institute", "job_fair", "skill_centre", "ngo", "agency", "company", "other")
 ORG_TYPE_NAMES = {
@@ -47,7 +48,7 @@ ID_FIELD = re.compile(
 
 
 def holds_id_number(text: str) -> bool:
-    return any(p.search(text) for p in (AADHAAR, VID, PAN, EPIC, IFSC, MASKED, LABEL))
+    return any(p.search(text) for p in (AADHAAR, VID, PAN, EPIC, DL, PASSPORT, IFSC, MASKED, LABEL))
 
 
 def consent_text(org_name: str) -> str:
@@ -299,8 +300,10 @@ async def with_shortlists(db: AsyncDatabase, rows: list[dict[str, Any]]) -> list
 
 
 def printable(r: dict[str, Any]) -> dict[str, Any]:
-    """What the admin's browser renders: the resume exactly as the member prints it (hidden entries removed)."""
-    return visible_resume(r["_data"])
+    """What the admin's browser renders: the resume exactly as the member prints it (hidden entries removed).
+    ID numbers were removed when the resume was saved; this is the second lock, for anything saved before that or
+    missed then: the number goes, and a string that still holds one goes whole."""
+    return scrub_id_numbers(visible_resume(r["_data"]), strict=True)[0]
 
 
 def _day(v: str | None, end: bool = False) -> datetime | None:

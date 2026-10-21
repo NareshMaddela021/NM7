@@ -6,6 +6,7 @@ from datetime import timedelta
 
 import pytest
 
+from app.core import rate_limit
 from app.core.db import AUDIT_LOG, MEMBERSHIPS, RECRUITER_LINKS
 from app.core.security import keyed_hash
 from app.core.time import now
@@ -156,7 +157,7 @@ async def test_contact_hidden_by_default_answers_chosen_no_id_numbers(setup, own
     one = (await rec.get(f"/api/recruit/{token}/candidates/{c['id']}")).json()
     p = one["data"]["personal"]
     assert p["email"] == "" and p["phone"] == "" and p["headline"] == ""
-    assert one["data"]["pinfo"]["address"] == "" and one["data"]["pinfo"]["father"] == "R Rao"
+    assert "pinfo" not in one["data"]  # the whole section, not only the address
     assert [e["company"] for e in one["data"]["exp"]] == ["Infosys"]  # hidden entries stay hidden
     assert one["stamp"].startswith("Shared with Acme Hiring via Nm7 · expires ")
     # with contact details included
@@ -165,6 +166,39 @@ async def test_contact_hidden_by_default_answers_chosen_no_id_numbers(setup, own
     assert c2["email"] == "asha@example.com"
     d2 = (await rec.get(f"/api/recruit/{token2}/candidates/{c2['id']}")).json()["data"]["personal"]
     assert d2["phone"] == "+91 98765 43210"
+
+
+async def test_recruiter_hides_pinfo_and_location_without_include_contact(setup, owner, make_client, outbox):
+    org, _ = setup
+    pinfo = {
+        "father": "R Rao",
+        "mother": "S Lakshmi",
+        "dob": "2003-05-15",
+        "gender": "Female",
+        "marital": "Single",
+        "nationality": "Indian",
+        "languages": "Telugu, English",
+        "address": "1 Main Road, Anantapur",
+    }
+    personal = {**RESUME["personal"], "name": "Asha Rao", "location": "Anantapur, AP", "level": "Fresher (0–1 yr)"}
+    data = {**RESUME, "personal": personal, "pinfo": pinfo, "hidden": {"pinfo": False}}
+    await opted_in(make_client, outbox, "asha@example.com", "Asha Rao", data=data)
+    rec = make_client()
+    _, token = await make_link(owner, org["id"])
+    cid = (await rec.get(f"/api/recruit/{token}")).json()["candidates"][0]["id"]
+    for d in (
+        (await rec.get(f"/api/recruit/{token}/candidates/{cid}")).json()["data"],
+        (await rec.post(f"/api/recruit/{token}/downloads", json={})).json()["items"][0]["data"],
+    ):
+        assert "pinfo" not in d
+        assert d["personal"] == {**personal, "email": "", "phone": "", "location": ""}
+        s = str(d)
+        assert not any(v in s for v in ("R Rao", "Lakshmi", "2003", "Female", "Single", "Main Road", ", AP"))
+    # with contact details included, everything the member prints is there
+    _, token2 = await make_link(owner, org["id"], includeContact=True)
+    cid2 = (await rec.get(f"/api/recruit/{token2}")).json()["candidates"][0]["id"]
+    d2 = (await rec.get(f"/api/recruit/{token2}/candidates/{cid2}")).json()["data"]
+    assert d2["pinfo"] == pinfo and d2["personal"] == personal
 
 
 async def test_downloads_only_when_allowed(setup, owner, db, make_client, outbox):
@@ -228,7 +262,7 @@ async def test_rate_limit_per_link(setup, owner, db, make_client, outbox):
     org, _ = setup
     await opted_in(make_client, outbox, "asha@example.com", "Asha Rao")
     _, token = await make_link(owner, org["id"])
-    key = f"recruit:{keyed_hash('recruiter', token)[:24]}"
+    key = rate_limit.stored(f"recruit:{keyed_hash('recruiter', token)[:24]}")
     await db["rate_events"].insert_many([{"key": key, "at": now()} for _ in range(600)])
     assert (await make_client().get(f"/api/recruit/{token}")).status_code == 429
 

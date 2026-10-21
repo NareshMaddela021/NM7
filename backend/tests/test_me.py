@@ -1,8 +1,10 @@
 """Customer dashboard API: owner-only data, share links, tickets, referrals, profile and password change."""
 
+import logging
+
 import pytest
 
-from app.core.db import SESSIONS, SHARES
+from app.core.db import RESUMES, SESSIONS, SHARES
 from tests.conftest import PASSWORD, signup
 
 RESUME = {"personal": {"name": "Sai Varsha", "phone": "+91 98765 43210", "email": "sai@example.com"}, "summary": "Hi"}
@@ -62,6 +64,44 @@ async def test_resumes_crud_and_active(client, outbox):
     assert [(x["id"], x["active"]) for x in rs] == [("r1", True)]
     r = await client.delete("/api/me/resumes/r1")
     assert r.status_code == 400 and err(r) == "last_resume"
+
+
+async def test_aadhaar_pan_in_resume_text_are_removed_on_save(client, outbox, db, caplog):
+    await signup(client, outbox)
+    caplog.set_level(logging.WARNING, logger="nm7.me")
+    data = {
+        **RESUME,
+        "summary": "Clerk with 3 years of experience. Aadhaar 2345 6789 0123, PAN ABCPE1234F. Call 9876543210.",
+        "exp": [{"company": "Infosys", "role": "Clerk", "desc": "Handled A/c no 123456789012 and 2019-2023 audits"}],
+        "pinfo": {"dob": "2003-05-15", "address": "H.No 4-12, Ameerpet, Hyderabad 500016"},
+    }
+    r = await client.post("/api/me/resumes", json={"id": "r1", "name": "Main", "data": data})
+    assert r.status_code == 201, r.text
+    saved = r.json()["data"]
+    assert saved["summary"] == "Clerk with 3 years of experience. Aadhaar, PAN. Call 9876543210."
+    assert saved["exp"][0]["desc"] == "Handled A/c no and 2019-2023 audits"
+    assert saved["pinfo"] == data["pinfo"] and saved["personal"] == RESUME["personal"]
+    stored = await db[RESUMES].find_one({"key": "r1"})
+    assert stored["data"] == saved and "2345" not in str(stored) and "ABCPE" not in str(stored)
+    assert (await client.get("/api/me/resumes/r1")).json()["data"] == saved
+    # the log says how many, never what
+    assert caplog.messages == ["resume save: removed 3 ID-like number(s) from the text"]
+    # an edit, and the version snapshots the builder keeps
+    r = await client.patch(
+        "/api/me/resumes/r1",
+        json={
+            "data": {**saved, "summary": "Passport A1234567, DL AP09 20120001234"},
+            "versions": [{"at": 1, "label": "v1", "data": {"summary": "VID 1234 5678 9012 3456"}}],
+        },
+    )
+    assert r.status_code == 200, r.text
+    assert r.json()["data"]["summary"] == "Passport, DL"
+    assert (await db[RESUMES].find_one({"key": "r1"}))["versions"][0]["data"] == {"summary": "VID"}
+    assert caplog.messages[-1] == "resume save: removed 3 ID-like number(s) from the text"
+    # a save without any is not logged
+    caplog.clear()
+    assert (await client.patch("/api/me/resumes/r1", json={"data": RESUME})).status_code == 200
+    assert caplog.messages == []
 
 
 async def test_resume_limits(client, outbox):

@@ -12,8 +12,9 @@ Recruiter: GET /api/recruit/{token} (the list), GET …/candidates/{cid} (one re
            (allowed links only), POST …/candidates/{cid}/interest (Interested). The access code goes in the
            X-Access-Code header. Responses are no-store; the page is noindex.
 
-Contact details (email, phone, address) are hidden unless the coordinator chose to include them; group answers are
-only the ones chosen; ID numbers are never included. Branded groups use the organization's template. The audit log
+Contact details (email, phone, location and the whole Personal Information section: address, date of birth,
+parents…) are hidden unless the coordinator chose to include them; group answers are only the ones chosen; ID numbers
+are never included. Branded groups use the organization's template. The audit log
 records the link id only — never the recruiter's IP address.
 """
 
@@ -140,15 +141,21 @@ def _clean(v: Any) -> str:
     return "" if holds_id_number(s) else s
 
 
+CONTACT_KEYS = ("email", "phone", "location", "address")  # in `personal`
+
+
 def recruiter_data(r: dict[str, Any], include_contact: bool) -> dict[str, Any]:
-    """The resume as the member prints it, without contact details unless included, and never an ID number."""
-    d = printable(r)
+    """The resume as the member prints it, without contact details unless included, and never an ID number.
+    Without contact details the Personal Information section (date of birth, parents, address…) is left out whole."""
+    d = printable(r)  # already without ID numbers (the second lock); the fields below are checked once more
     personal = {k: _clean(v) for k, v in (d.get("personal") or {}).items()}
     pinfo = {k: _clean(v) for k, v in (d.get("pinfo") or {}).items()} if isinstance(d.get("pinfo"), dict) else {}
     if not include_contact:
-        personal.update(email="", phone="")
-        pinfo["address"] = ""
-    return {**d, "personal": personal, **({"pinfo": pinfo} if pinfo else {})}
+        personal.update({k: "" for k in CONTACT_KEYS if k in personal})
+        pinfo = {}
+    out = {**d, "personal": personal}
+    out.pop("pinfo", None)
+    return {**out, **({"pinfo": pinfo} if pinfo else {})}
 
 
 def _answers(r: dict[str, Any], keys: list[str]) -> dict[str, str]:

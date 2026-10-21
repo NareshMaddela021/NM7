@@ -181,7 +181,8 @@ export function Signup() {
   const e_ = (k) => (touched ? errs[k] || '' : '');
 
   if (pending) {
-    return <VerifyEmail email={pending.email} onDone={(u) => nav(u.role === 'expert' ? '/expert/profile' : next || '/me', { replace: true })} onBack={() => setPending(null)} />;
+    // The API answers the same way whether or not the address already has an account (nobody can use sign-up to find out).
+    return <VerifyEmail email={pending.email} note={`We sent a 6-digit code to ${pending.email}. It works for 10 minutes. If you already have an account, we sent a sign-in reminder instead.`} onDone={(u) => nav(u.role === 'expert' ? '/expert/profile' : next || '/me', { replace: true })} onBack={() => setPending(null)} />;
   }
   return (
     <Shell title="Create your account" sub={role === 'expert' ? 'Experts write resumes for job seekers and get paid per order.' : 'Free to join. You only pay when you order a service.'} wide>

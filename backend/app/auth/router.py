@@ -29,7 +29,14 @@ from app.core.time import now
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
-EMAIL_TAKEN = ApiError(409, "email_taken", "An account with this email already exists — sign in instead.")
+
+async def _already_registered(db, mailer, user: User) -> SignupOut:
+    """Sign-up with an email that already has an account answers exactly like a fresh sign-up ("code sent"), so the
+    page can't be used to find out who has an account. The account's owner gets a short reminder instead of a code
+    (under the same per-email send limit)."""
+    await may_send_code(db, user.email)
+    sent = await send_safely(mailer, emails.account_exists(user.email, user.name))
+    return SignupOut(email=user.email, code_sent=sent)
 
 
 @router.post("/signup", status_code=201)
@@ -45,7 +52,7 @@ async def signup(body: SignupIn, request: Request, db: DB, mailer: MailerDep) ->
 
     user = await find_user(db, body.email)
     if user and (user.verified or user.role == "admin"):
-        raise EMAIL_TAKEN
+        return await _already_registered(db, mailer, user)
     await may_send_code(db, body.email)
 
     fields = dict(
@@ -67,8 +74,11 @@ async def signup(body: SignupIn, request: Request, db: DB, mailer: MailerDep) ->
         user = User(email=body.email.strip(), **fields)
         try:
             await db[USERS].insert_one(user.to_mongo())
-        except DuplicateKeyError:
-            raise EMAIL_TAKEN from None
+        except DuplicateKeyError:  # the same address signed up at the same moment
+            existing = await find_user(db, body.email)
+            if existing is None:
+                raise ApiError(409, "exists", "Please try again.") from None
+            return await _already_registered(db, mailer, existing)
     code = await issue_code(db, user, "verify_email", client_ip(request))
     sent = await send_safely(mailer, emails.verify_email(user.email, user.name, code))
     return SignupOut(email=user.email, code_sent=sent)

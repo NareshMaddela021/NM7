@@ -1,6 +1,7 @@
 """Customer dashboard API (/api/me/*): owner-only. Every query includes the signed-in user's id, so another
 customer's item ids simply don't exist (404); experts and admins get 403."""
 
+import logging
 from datetime import timedelta
 from typing import Any
 
@@ -30,6 +31,7 @@ from app.core.db import (
 )
 from app.core.email import MailerDep, send_safely
 from app.core.errors import ApiError
+from app.core.pii import scrub_id_numbers
 from app.core.time import now
 from app.downloads.router import account_entitlement
 from app.me import emails
@@ -61,6 +63,7 @@ from app.site import get_site
 
 router = APIRouter(prefix="/api/me", tags=["me"])
 public = APIRouter(prefix="/api/public", tags=["public"])
+log = logging.getLogger("nm7.me")
 
 MAX_RESUMES = 20
 MAX_COVERS = 100
@@ -127,6 +130,19 @@ async def profile_out(db: AsyncDatabase, u: User) -> ProfileOut:
 
 def _fields(body: BaseModel, *, exclude: set[str] | None = None) -> dict[str, Any]:
     return body.model_dump(exclude_unset=True, exclude=exclude)
+
+
+def without_id_numbers(fields: dict[str, Any], what: str) -> dict[str, Any]:
+    """Resume text with an Aadhaar / PAN / passport / licence / account number in it is saved without the number
+    (`data`, and the `versions` snapshots). Logged as a count only, never the text."""
+    n = 0
+    for k in ("data", "versions"):
+        if fields.get(k) is not None:
+            fields[k], m = scrub_id_numbers(fields[k])
+            n += m
+    if n:
+        log.warning("%s save: removed %d ID-like number(s) from the text", what, n)
+    return fields
 
 
 # ---------- everything at once (opening the dashboard) ----------
@@ -197,7 +213,7 @@ async def add_resume(body: ResumeIn, auth: CustomerAuth, db: DB) -> ResumeOut:
     t = now()
     active = body.active or count == 0
     doc = {
-        **body.model_dump(exclude={"id"}),
+        **without_id_numbers(body.model_dump(exclude={"id"}), "resume"),
         "key": body.id,
         "user_id": uid,
         "active": active,
@@ -222,7 +238,7 @@ async def get_resume(key: str, auth: CustomerAuth, db: DB) -> ResumeOut:
 async def patch_resume(key: str, body: ResumePatch, auth: CustomerAuth, db: DB) -> ResumeOut:
     uid = auth.user.id
     old = await _resume(db, uid, key)
-    f = _fields(body)
+    f = without_id_numbers(_fields(body), "resume")
     if_updated = f.pop("if_updated", None)
     if if_updated is not None and ms(old["updated_at"]) > if_updated and "data" in f:
         raise ApiError(409, "stale", "This resume was changed somewhere else. Reloading the latest copy.")

@@ -18,17 +18,21 @@ EPIC = re.compile(r"\b[A-Za-z]{3}\s?\d{7}\b")  # voter ID
 # driving licence: state code + RTO code + year + number, e.g. TS09 20110012345, MH-12-2011-0012345, DL0420110149646
 DL = re.compile(r"\b[A-Za-z]{2}[ \-]?\d{2}[ \-]?(?:\d{4}[ \-]?\d{7}|\d{11})\b")
 IFSC = re.compile(r"\b[A-Za-z]{4}0[A-Za-z0-9]{6}\b")
-# "Aadhaar no: …", "A/c 1234…" — the label alone is enough to drop the line
+# passport: one letter + 7 digits, e.g. A1234567 (the first digit is never 0)
+PASSPORT = re.compile(r"\b[A-Za-z][1-9]\d{6}\b")
+# "Aadhaar no: …", "A/c 1234…" — the label alone is enough to drop the line ("driving licence" on its own is a
+# skill on a driver's resume, so that one needs "no"/"number" after it)
 LABEL = re.compile(
     r"\b(aadh?aa?r|uidai|vid\b|virtual id|pan\s*(no|number|card)|epic\s*(no|number)|voter\s*id\s*(no|number)|"
-    r"licen[cs]e\s*(no|number)|dl\s*no|a/c\b|ac\s*(no|number)\b|account\s*(no|number)|ifsc|enrol?ment\s*no)",
+    r"passport\s*(no|number)|(driving\s*)?licen[cs]e\s*(no|number)|dl\s*(no|number)|a/c\b|ac\s*(no|number)\b|"
+    r"account\s*(no|number)|ifsc|enrol?ment\s*no)",
     re.IGNORECASE,
 )
-PATTERNS = (LONG_DIGITS, MASKED, PAN, EPIC, DL, IFSC)
+PATTERNS = (LONG_DIGITS, MASKED, PAN, EPIC, DL, PASSPORT, IFSC)
 
 ID_KEY = re.compile(
-    r"(aadh?aa?r|^vid$|virtual_?id|^pan$|pan_?(no|number)|epic|voter_?id|licen[cs]e_?(no|number)|dl_?(no|number)|"
-    r"account|ifsc|id_?(no|number)|uid)",
+    r"(aadh?aa?r|^vid$|virtual_?id|^pan$|pan_?(no|number)|epic|voter_?id|passport|licen[cs]e_?(no|number)|"
+    r"dl_?(no|number)|account|ifsc|id_?(no|number)|uid)",
     re.IGNORECASE,
 )
 PHONE = re.compile(r"^\+?(91[ \-]?)?[6-9]\d{4}[ \-]?\d{5}$|^0\d{2,4}[ \-]?\d{6,8}$")
