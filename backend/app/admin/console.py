@@ -36,7 +36,7 @@ from app.core.errors import ApiError
 from app.core.exports import CSV_BOM, csv_safe
 from app.core.schemas import CamelModel
 from app.core.time import IST, now
-from app.experts.service import load_profile, profile_out, set_status
+from app.experts.service import active_order_counts, load_profile, load_profiles, profile_out, set_status
 from app.me import emails as me_emails
 from app.me.router import ticket_out
 from app.me.service import ms
@@ -299,11 +299,15 @@ async def experts(
     match: dict[str, Any] = {"role": "expert"}
     if status:
         match["expert_status"] = status
+    users = await db[USERS].find(match).sort("created_at", DESCENDING).to_list(None)
+    ids = [u["_id"] for u in users]
+    profiles = {p["_id"]: p for p in await load_profiles(db, ids)}
+    active_orders = await active_order_counts(db, ids)
     out = []
-    async for u in db[USERS].find(match).sort("created_at", DESCENDING):
-        prof = await load_profile(db, u["_id"])
+    for u in users:
+        prof = profiles.get(u["_id"])
         p = (prof or {}).get("profile") or {}
-        active = await db[ORDER_WORK].count_documents({"expert_id": u["_id"], "accepted_at": {"$ne": None}})
+        active = active_orders.get(u["_id"], 0)
         out.append(
             {
                 "id": u["_id"],

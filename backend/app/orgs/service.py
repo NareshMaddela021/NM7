@@ -183,23 +183,86 @@ def unique_names(names: list[str]) -> list[str]:
     return out
 
 
-async def shared_rows(db: AsyncDatabase, match: dict[str, Any]) -> list[dict[str, Any]]:
+# What a table row needs from the resume: name / contact, the template and the four completeness checks. The rest
+# of the document (bullets, projects, cover letters…) can run to 200 KB per member, so it is only fetched for the
+# paths that print or export it (`with_data=True`).
+ROW_FIELDS = ("name", "pages", "updated_at", "key", "user_id")
+ROW_DATA_FIELDS = (
+    "personal.name",
+    "personal.email",
+    "personal.phone",
+    "personal.headline",
+    "design.preset",
+    "edu.institution",
+    "edu.degree",
+    "skillGroups.value",
+    "skills",
+    "exp.company",
+    "exp.role",
+    "proj.title",
+)
+ROW_PROJECTION = {**dict.fromkeys(ROW_FIELDS, 1), **{f"data.{f}": 1 for f in ROW_DATA_FIELDS}}
+FULL_PROJECTION = {**dict.fromkeys(ROW_FIELDS, 1), "data": 1}
+# Membership filters that live on the membership document itself; they are applied in Mongo so that fewer rows
+# (and resumes) are loaded, and again in filter_rows() so the behaviour is one place's.
+_MEMBERSHIP_MATCH = {
+    "approved": {"approval": {"$in": ["approved", None]}},  # Phase 1 members were never asked: approved
+    "pending": {"approval": "pending"},
+    "rejected": {"approval": "rejected"},
+}
+
+
+def membership_match(f: dict[str, Any] | None) -> dict[str, Any]:
+    """The part of the table's filters that Mongo can apply to memberships before anything is joined."""
+    f = f or {}
+    out: dict[str, Any] = dict(_MEMBERSHIP_MATCH.get(f.get("approval") or "approved", {}))
+    if f.get("review"):
+        out["review_status"] = {"$in": ["none", None]} if f["review"] == "none" else f["review"]
+    joined: dict[str, Any] = {}
+    if f.get("joined_from"):
+        joined["$gte"] = _day(f["joined_from"])
+    if f.get("joined_to"):
+        joined["$lte"] = _day(f["joined_to"], end=True)
+    if joined:
+        out["joined_at"] = joined
+    if f.get("not_printed") or f.get("ready_not_printed"):
+        out["printed_at"] = None
+    if f.get("ready_not_printed") and not f.get("review"):
+        out["review_status"] = "ready"
+    return out
+
+
+async def shared_rows(db: AsyncDatabase, match: dict[str, Any], *, with_data: bool = False) -> list[dict[str, Any]]:
     """Every membership matching `match` that the organization may see, joined with user, group, org and resume.
-    Members who left, never consented, were disabled or deleted their shared resume are left out."""
+    Members who left, never consented, were disabled or deleted their shared resume are left out.
+    `with_data=True` also carries the whole resume (for printing / viewing: `printable()`); the default loads
+    only the fields a table row needs."""
     q = {**match, "left_at": None, "consent.given": True}
     ms_ = [m async for m in db[MEMBERSHIPS].find(q)]
     if not ms_:
         return []
     users = {
         u["_id"]: u
-        async for u in db[USERS].find({"_id": {"$in": list({m["user_id"] for m in ms_})}, "disabled_at": None})
+        async for u in db[USERS].find(
+            {"_id": {"$in": list({m["user_id"] for m in ms_})}, "disabled_at": None},
+            {"name": 1, "email": 1, "phone": 1},
+        )
     }
-    groups = {g["_id"]: g async for g in db[ORG_GROUPS].find({"_id": {"$in": list({m["group_id"] for m in ms_})}})}
-    orgs = {o["_id"]: o async for o in db[ORGANIZATIONS].find({"_id": {"$in": list({m["org_id"] for m in ms_})}})}
+    groups = {
+        g["_id"]: g
+        async for g in db[ORG_GROUPS].find(
+            {"_id": {"$in": list({m["group_id"] for m in ms_})}}, {"name": 1, "custom_fields": 1}
+        )
+    }
+    orgs = {
+        o["_id"]: o
+        async for o in db[ORGANIZATIONS].find({"_id": {"$in": list({m["org_id"] for m in ms_})}}, {"name": 1})
+    }
     resumes = {
         (r["user_id"], r["key"]): r
         async for r in db[RESUMES].find(
-            {"user_id": {"$in": list(users)}, "key": {"$in": list({m.get("resume_id") for m in ms_})}}
+            {"user_id": {"$in": list(users)}, "key": {"$in": list({m.get("resume_id") for m in ms_})}},
+            FULL_PROJECTION if with_data else ROW_PROJECTION,
         )
     }
     rows = []
@@ -223,6 +286,7 @@ async def shared_rows(db: AsyncDatabase, match: dict[str, Any]) -> list[dict[str
                 "name": (personal.get("name") or u["name"] or "").strip(),
                 "email": u["email"],
                 "phone": u.get("phone") or personal.get("phone") or "",
+                "headline": str(personal.get("headline") or ""),
                 "org_id": o["_id"],
                 "org_name": o["name"],
                 "group_id": g["_id"],
@@ -247,7 +311,7 @@ async def shared_rows(db: AsyncDatabase, match: dict[str, Any]) -> list[dict[str
                 "last_reminded_at": m.get("last_reminded_at"),
                 "recruiter_opt_in": bool(m.get("recruiter_opt_in")),  # Phase 3C: never assumed, only ticked
                 "shortlisted_by": [],  # filled by with_shortlists()
-                "_data": data,
+                **({"_data": data} if with_data else {}),
             }
         )
     return rows
@@ -256,9 +320,11 @@ async def shared_rows(db: AsyncDatabase, match: dict[str, Any]) -> list[dict[str
 async def group_downloads_free(db: AsyncDatabase, user_id: str) -> bool:
     """True when the user is (still) in an active group whose organization pays for its members' downloads."""
     q = {"user_id": user_id, "left_at": None, "consent.given": True, "approval": {"$nin": ["pending", "rejected"]}}
-    async for m in db[MEMBERSHIPS].find(q, {"group_id": 1}):
-        g = await db[ORG_GROUPS].find_one({"_id": m["group_id"]}, {"settings": 1})
-        st = (g or {}).get("settings") or {}
+    gids = [m["group_id"] async for m in db[MEMBERSHIPS].find(q, {"group_id": 1})]
+    if not gids:
+        return False
+    async for g in db[ORG_GROUPS].find({"_id": {"$in": gids}}, {"settings": 1}):
+        st = g.get("settings") or {}
         if st.get("members_download_free") and st.get("active", True):
             return True
     return False
@@ -317,7 +383,10 @@ async def with_shortlists(db: AsyncDatabase, rows: list[dict[str, Any]]) -> list
 def printable(r: dict[str, Any]) -> dict[str, Any]:
     """What the admin's browser renders: the resume exactly as the member prints it (hidden entries removed).
     ID numbers were removed when the resume was saved; this is the second lock, for anything saved before that or
-    missed then: the number goes, and a string that still holds one goes whole."""
+    missed then: the number goes, and a string that still holds one goes whole.
+    Only rows from `shared_rows(…, with_data=True)` carry the resume."""
+    if "_data" not in r:
+        raise RuntimeError("printable() needs a row loaded with shared_rows(..., with_data=True)")
     return scrub_id_numbers(visible_resume(r["_data"]), strict=True)[0]
 
 

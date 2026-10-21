@@ -8,6 +8,12 @@ import { ThemeProvider } from './lib/theme';
 import { FlowProvider } from './lib/flow';
 import { ToastProvider } from './components/ui';
 import { installChunkRecovery } from './lib/chunks';
+
+// The font stylesheet is linked with media="print" so it doesn't block the first paint; switch it on here.
+// (An inline onload="" handler would do the same, but the Content-Security-Policy forbids inline handlers.)
+document.querySelectorAll('link[data-async-css]').forEach((link) => {
+  link.media = 'all';
+});
 import { startMonitoring } from './lib/monitoring';
 import './styles/tokens.css';
 import './styles/base.css';

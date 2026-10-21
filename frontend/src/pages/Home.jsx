@@ -1,6 +1,6 @@
 // Home / landing page: hero with upload + live scan demo, how it works, try-it bullet improver, templates,
 // before/after slider, experts, pricing, reviews, who it's for, FAQ and a final call to action.
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import SiteFooter from '../components/SiteFooter';
@@ -11,15 +11,37 @@ import { checkFile } from '../lib/scan/extract';
 import { PLANS, PROMISES, ADDONS, inr } from '../lib/pricing';
 import { STATS, REVIEWS, EXPERTS, visible } from '../lib/homeContent';
 import { atsScore } from '../lib/atsScore';
-import ResumePreview from './builder/ResumePreview';
-import { TEMPLATE_PRESETS, DEFAULT_DESIGN } from './builder/design';
+import { TEMPLATE_PRESETS, DEFAULT_DESIGN, PAGE } from './builder/design';
 import { INITIAL } from './builder/schema';
-import { layoutOf, PHOTO_PLACEHOLDER } from './builder/TemplatePicker';
+import { layoutOf, PHOTO_PLACEHOLDER } from './builder/templatePick';
+import { lazyRetry } from '../lib/chunks';
 import { BEFORE, AFTER, DEMO_JD, improveBullet, bulletScore, EXAMPLES } from './home/demoData';
 import '../styles/home.css';
 
 const MAX_MB = 5;
 const reduced = () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
+// The resume renderer is the builder's: it is loaded on its own (not with every page) and each preview on this page
+// mounts only when it is about to scroll into view, so the first paint doesn't wait for 13 live resumes.
+const ResumePreview = lazy(lazyRetry(() => import('./builder/ResumePreview')));
+const PAGE_RATIO = `${PAGE.a4.w} / ${PAGE.a4.h}`; // the box keeps a page's shape until the preview is drawn
+function LazyPreview(props) {
+  const ref = useRef();
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || show) return undefined;
+    if (!('IntersectionObserver' in window)) { setShow(true); return undefined; }
+    const io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { setShow(true); io.disconnect(); } }, { rootMargin: '400px 0px' });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [show]);
+  return (
+    <div ref={ref} style={show ? undefined : { aspectRatio: PAGE_RATIO, background: '#fff' }}>
+      {show && <Suspense fallback={null}><ResumePreview {...props} /></Suspense>}
+    </div>
+  );
+}
 
 /* ---------- small pieces ---------- */
 function Check({ color = 'var(--success)' }) { return <Icon name="check" size={16} stroke={2.6} color={color} />; }
@@ -208,7 +230,7 @@ function Templates() {
         {list.map((k) => (
           <button key={k} type="button" className="h-tpl" onClick={() => nav('/builder', { state: { open: 'build', template: k } })} aria-label={`Use the ${TEMPLATE_PRESETS[k].name} template`}>
             <div className="thumb" style={{ width: 220, height: 311, borderRadius: 10, overflow: 'hidden', background: '#fff', border: '1px solid var(--border)' }} aria-hidden="true">
-              <div style={{ width: 220, pointerEvents: 'none' }}><ResumePreview loadFonts={false} decorative data={datas[k]} design={{ ...DEFAULT_DESIGN, ...datas[k].design }} photo={datas[k].showPhoto ? PHOTO_PLACEHOLDER : null} /></div>
+              <div style={{ width: 220, pointerEvents: 'none' }}><LazyPreview loadFonts={false} decorative data={datas[k]} design={{ ...DEFAULT_DESIGN, ...datas[k].design }} photo={datas[k].showPhoto ? PHOTO_PLACEHOLDER : null} /></div>
             </div>
             <span className="row between g8"><strong>{TEMPLATE_PRESETS[k].name}</strong><span className="xs faint">Use →</span></span>
             <span className="xs muted" style={{ lineHeight: 1.4 }}>{TEMPLATE_PRESETS[k].desc}</span>
@@ -250,8 +272,8 @@ function BeforeAfter() {
           {[['before', 'Before'], ['after', 'After expert rewrite']].map(([k, l]) => <button key={k} type="button" role="tab" aria-selected={view === k} onClick={() => { setView(k); setAuto(false); }}>{l}</button>)}
         </div>
         <div className="h-ba" style={{ width: 'min(520px, 100%)' }}>
-          <div style={{ opacity: view === 'before' ? 1 : 0, transition: 'opacity 500ms var(--ease)' }} aria-hidden={view !== 'before'}><ResumePreview loadFonts={false} decorative data={BEFORE} design={dsB} /></div>
-          <div className="h-after" style={{ opacity: view === 'after' ? 1 : 0, transition: 'opacity 500ms var(--ease)', background: '#fff' }} aria-hidden={view !== 'after'}><ResumePreview loadFonts={false} decorative data={AFTER} design={dsA} /></div>
+          <div style={{ opacity: view === 'before' ? 1 : 0, transition: 'opacity 500ms var(--ease)' }} aria-hidden={view !== 'before'}><LazyPreview loadFonts={false} decorative data={BEFORE} design={dsB} /></div>
+          <div className="h-after" style={{ opacity: view === 'after' ? 1 : 0, transition: 'opacity 500ms var(--ease)', background: '#fff' }} aria-hidden={view !== 'after'}><LazyPreview loadFonts={false} decorative data={AFTER} design={dsA} /></div>
           <span className="h-lbl" style={{ right: 12, background: view === 'after' ? 'var(--successbg)' : 'var(--dangerbg)', color: view === 'after' ? 'var(--success)' : 'var(--danger)' }}>{view === 'after' ? `After · ATS ${a.score}` : `Before · ATS ${b.score}`}</span>
         </div>
       </div>
@@ -342,7 +364,7 @@ function Audiences() {
       </div>
       <div className="reveal" style={{ display: 'flex', justifyContent: 'center' }}>
         <div style={{ width: 'min(400px, 100%)', borderRadius: 12, overflow: 'hidden', boxShadow: 'var(--shadow)', border: '1px solid var(--border)', background: '#fff', maxHeight: 520 }} aria-hidden="true">
-          <ResumePreview loadFonts={false} decorative key={a.tpl} data={data} design={{ ...DEFAULT_DESIGN, ...data.design }} />
+          <LazyPreview loadFonts={false} decorative key={a.tpl} data={data} design={{ ...DEFAULT_DESIGN, ...data.design }} />
         </div>
       </div>
     </div>

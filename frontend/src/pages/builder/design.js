@@ -83,6 +83,8 @@ export const TEMPLATE_PRESETS = {
   portrait: { name: 'Portrait', level: 'all', ind: ['creative', 'care', 'sales'], sections: 'portrait', photo: true, desc: 'Photo beside your name. For aviation, hospitality, media and front-office roles.', design: { ...D, font: 'lato', accent: '#9F1239', headerStyle: 'band', headerAlign: 'left', accentOn: on({ name: true }) } },
 };
 
+/** A shared / exported resume's full design: its own settings over the defaults (the fresher preset when it has none). */
+export const designOf = (d) => ({ ...DEFAULT_DESIGN, ...(d.design || TEMPLATE_PRESETS.fresher.design), preset: d.design?.preset ?? 'fresher' });
 export const marginOf = (ds) => (ds.margin === 'custom' ? ds.marginPt : MARGINS[ds.margin] ?? 50);
 export const headFontOf = (ds) => (ds.headFont === 'same' ? ds.font : ds.headFont);
 
