@@ -1,5 +1,21 @@
 /* Ink & Highlighter — design tokens.
    Yellow (--signal) means one thing only: "a recruiter would notice this". */
+/* Fallback faces sized to match the web fonts (width, ascent, descent), so text does not move when Instrument Sans
+   and Bricolage Grotesque arrive. One per common system font: Arial or Liberation Sans (Windows, Mac, Linux), Roboto
+   (Android), DejaVu Sans (Linux). The numbers come from comparing text widths and line metrics in Chromium. */
+@font-face { font-family: 'Body Fallback Arial'; src: local('Arial'), local('ArialMT'), local('Liberation Sans'), local('LiberationSans'); font-weight: 400 500; size-adjust: 100.60%; ascent-override: 96.43%; descent-override: 24.85%; line-gap-override: 0%; }
+@font-face { font-family: 'Body Fallback Arial'; src: local('Arial Bold'), local('Arial-BoldMT'), local('Liberation Sans Bold'), local('LiberationSans-Bold'); font-weight: 600 800; size-adjust: 96.46%; ascent-override: 100.56%; descent-override: 25.92%; line-gap-override: 0%; }
+@font-face { font-family: 'Body Fallback Roboto'; src: local('Roboto'), local('Roboto-Regular'), local('Roboto Regular'); font-weight: 400 500; size-adjust: 101.54%; ascent-override: 95.53%; descent-override: 24.62%; line-gap-override: 0%; }
+@font-face { font-family: 'Body Fallback Roboto'; src: local('Roboto Bold'), local('Roboto-Bold'); font-weight: 600 800; size-adjust: 102.81%; ascent-override: 94.34%; descent-override: 24.32%; line-gap-override: 0%; }
+@font-face { font-family: 'Body Fallback DejaVu'; src: local('DejaVu Sans'), local('DejaVuSans'); font-weight: 400 500; size-adjust: 88.89%; ascent-override: 109.12%; descent-override: 28.12%; line-gap-override: 0%; }
+@font-face { font-family: 'Body Fallback DejaVu'; src: local('DejaVu Sans Bold'), local('DejaVuSans-Bold'); font-weight: 600 800; size-adjust: 81.19%; ascent-override: 119.47%; descent-override: 30.79%; line-gap-override: 0%; }
+@font-face { font-family: 'Display Fallback Arial'; src: local('Arial'), local('ArialMT'), local('Liberation Sans'), local('LiberationSans'); font-weight: 400 500; size-adjust: 94.75%; ascent-override: 98.15%; descent-override: 28.49%; line-gap-override: 0%; }
+@font-face { font-family: 'Display Fallback Arial'; src: local('Arial Bold'), local('Arial-BoldMT'), local('Liberation Sans Bold'), local('LiberationSans-Bold'); font-weight: 600 800; size-adjust: 90.13%; ascent-override: 103.19%; descent-override: 29.96%; line-gap-override: 0%; }
+@font-face { font-family: 'Display Fallback Roboto'; src: local('Roboto'), local('Roboto-Regular'), local('Roboto Regular'); font-weight: 400 500; size-adjust: 95.64%; ascent-override: 97.24%; descent-override: 28.23%; line-gap-override: 0%; }
+@font-face { font-family: 'Display Fallback Roboto'; src: local('Roboto Bold'), local('Roboto-Bold'); font-weight: 600 800; size-adjust: 96.06%; ascent-override: 96.81%; descent-override: 28.11%; line-gap-override: 0%; }
+@font-face { font-family: 'Display Fallback DejaVu'; src: local('DejaVu Sans'), local('DejaVuSans'); font-weight: 400 500; size-adjust: 83.73%; ascent-override: 111.07%; descent-override: 32.25%; line-gap-override: 0%; }
+@font-face { font-family: 'Display Fallback DejaVu'; src: local('DejaVu Sans Bold'), local('DejaVuSans-Bold'); font-weight: 600 800; size-adjust: 75.86%; ascent-override: 122.59%; descent-override: 35.59%; line-gap-override: 0%; }
+
 :root {
   --viz-1: #2a78d6; --viz-2: #eb6834; --viz-3: #1baf7a; --viz-grid: #e4e3df;
   --bg: #F7F6F2;
@@ -25,8 +41,8 @@
   --shadow: 0 30px 60px -24px rgba(18, 19, 22, .22), 0 2px 6px rgba(18, 19, 22, .06);
   --shadow-sm: 0 8px 24px -8px rgba(18, 19, 22, .2);
 
-  --font-display: 'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
-  --font-body: 'Instrument Sans', 'Segoe UI', system-ui, sans-serif;
+  --font-display: 'Bricolage Grotesque', 'Display Fallback Arial', 'Display Fallback Roboto', 'Display Fallback DejaVu', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'Instrument Sans', 'Body Fallback Arial', 'Body Fallback Roboto', 'Body Fallback DejaVu', 'Segoe UI', system-ui, sans-serif;
   --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
   --font-serif: Georgia, 'Times New Roman', serif;
 
