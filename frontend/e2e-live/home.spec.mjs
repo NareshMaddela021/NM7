@@ -44,7 +44,8 @@ for (const [label, size] of SIZES) {
       await page.getByRole('group', { name: 'Language' }).getByRole('button', { name: 'తెలుగు' }).click();
       await expect(h1).toContainText('ఉద్యోగం వెతికే ప్రతి ఒక్కరికీ రెజ్యూమ్');
       await expect(page.locator('section[aria-labelledby="hero-title"]')).toHaveAttribute('lang', 'te');
-      await expect(page.locator('html')).toHaveAttribute('lang', 'en'); // the rest of the page is still English
+      await expect(page.locator('html')).toHaveAttribute('lang', 'te');
+      await expect(page.locator('main')).toHaveAttribute('lang', 'en'); // the parts still in English say so
       await expect(page.getByRole('link', { name: 'నా రెజ్యూమ్ తయారు చేయండి — ఉచితం' }).first()).toBeVisible();
       await expect(page.locator('link[data-lang-font="te"]')).toHaveCount(1); // Noto Sans Telugu, only now
       await page.reload();
@@ -56,6 +57,27 @@ for (const [label, size] of SIZES) {
       await expect(h1).toContainText('रिज़्यूमे');
       await page.getByRole('group', { name: 'भाषा' }).getByRole('button', { name: 'English' }).click();
       await expect(h1).toHaveText('Resumes for every job seeker. Resume drives for every campus.');
+    });
+
+    test('<html lang> follows the language: on every switch, on first load from the saved choice, and back to en elsewhere', async ({ page }) => {
+      const html = page.locator('html');
+      const group = page.locator('.hx-lang');
+      await page.goto('/');
+      await expect(html).toHaveAttribute('lang', 'en');
+      for (const [label, code] of [['తెలుగు', 'te'], ['हिन्दी', 'hi'], ['English', 'en']]) {
+        await group.getByRole('button', { name: label }).click();
+        await expect(html, label).toHaveAttribute('lang', code);
+      }
+      // a saved choice applies on first load, before any tap
+      for (const code of ['hi', 'te']) {
+        await page.evaluate((c) => localStorage.setItem('nm7-lang', c), code);
+        await page.reload();
+        await expect(html, `saved ${code}`).toHaveAttribute('lang', code);
+      }
+      // the rest of the site is English: leaving the home page puts it back
+      await page.getByRole('main').getByRole('link', { name: /^నా రెజ్యూమ్ తయారు చేయండి/ }).first().click();
+      await expect(page).toHaveURL(/\/builder$/);
+      await expect(html).toHaveAttribute('lang', 'en');
     });
 
     test('nothing shifts while the page loads; the hero image is preloaded and sized; no builder code on the page', async ({ page }) => {

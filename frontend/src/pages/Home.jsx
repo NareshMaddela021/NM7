@@ -76,6 +76,13 @@ export default function Home() {
     if (io && sentinel.current) io.observe(sentinel.current);
     return () => { io?.disconnect(); if (window.cancelIdleCallback) window.cancelIdleCallback(idle); else clearTimeout(idle); };
   }, [more]);
+  // <html lang> follows the chosen language while the home page is open (first load included, from the saved
+  // nm7-lang choice); the rest of the site is English, so it goes back to "en" on leaving. Parts of this page that
+  // stay in English carry lang="en" themselves (main, header, footer).
+  useEffect(() => {
+    document.documentElement.lang = lang;
+    return () => { document.documentElement.lang = 'en'; };
+  }, [lang]);
   // Opened at /#pricing (header links) or sent back from a failed scan: load the rest and go there.
   useEffect(() => {
     if (location.state?.scanError) { setScanError(location.state.scanError); setMore(true); nav('/#scan', { replace: true, state: null }); return; }
@@ -86,7 +93,7 @@ export default function Home() {
   return (
     <>
       <Header labels={labels} lang={lang} />
-      <main id="main" className="home" data-lang={lang}>
+      <main id="main" className="home" data-lang={lang} lang="en">
         {/* 1 · two equal pillars */}
         <section className="hx-hero" aria-labelledby="hero-title" lang={lang}>
           <div className="h-wrap">
