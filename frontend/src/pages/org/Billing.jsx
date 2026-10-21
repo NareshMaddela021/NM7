@@ -4,9 +4,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { Spinner, useToast } from '../../components/ui';
 import { LIMITS, PLAN_FEATURES, gstinProblem, limitText, periodText, rupees, usagePct } from '../../lib/orgBilling';
+import { downloadFrom } from '../../lib/fileDownload';
 import { pay } from '../../services/api';
 import { http } from '../../services/http';
-import { Loading, day, useApi } from '../admin/live/common';
+import { Loading, day, useAction, useApi } from '../admin/live/common';
 
 const STATE = { free: ['Free', 'b-neutral'], active: ['Active', 'b-success'], grace: ['Ended — grace period', 'b-warning'], expired: ['Ended', 'b-neutral'] };
 const ORDER_STATUS = { done: 'Paid', pending_payment: 'Waiting for payment', expired: 'Not paid', refunded: 'Refunded', cancelled: 'Cancelled' };
@@ -120,6 +121,34 @@ function useWaitForPayment(reload) {
   return [waiting, start];
 }
 
+const DOC_KIND = { invoice: 'Tax invoice', credit_note: 'Credit note', proforma: 'Proforma' };
+
+/** Billing → Invoices: every invoice, credit note and proforma of this organization, to download as PDF. */
+function Invoices({ orgId }) {
+  const toast = useToast();
+  const st = useApi(`/api/org/${orgId}/billing/invoices`);
+  const [busy, run] = useAction(toast);
+  return (
+    <section className="card stack g8" aria-label="Invoices">
+      <strong>Invoices</strong>
+      <Loading st={st}>{(rows) => rows.length === 0 ? <span className="small muted">Your invoices appear here after a payment.</span> : (
+        <div className="table-wrap"><table className="table">
+          <thead><tr><th>Number</th><th>Date</th><th>Type</th><th>Amount</th><th /></tr></thead>
+          <tbody>{rows.map((d) => (
+            <tr key={d.id}>
+              <td className="mono small">{d.number}{d.against ? <div className="xs faint">against {d.against}</div> : null}</td>
+              <td className="small">{day(d.date)}</td>
+              <td className="small">{d.kind === 'invoice' && !d.gstOn ? 'Invoice' : DOC_KIND[d.kind]}</td>
+              <td className="small">{d.kind === 'credit_note' ? '−' : ''}{rupees(d.total)}</td>
+              <td><button type="button" className="link-btn small" disabled={busy} aria-label={`Download ${d.number}`} onClick={() => run(() => downloadFrom(`/api/org/${orgId}/billing/invoices/${d.id}/pdf`, d.fileName))}>Download PDF</button></td>
+            </tr>
+          ))}</tbody>
+        </table></div>
+      )}</Loading>
+    </section>
+  );
+}
+
 export default function Billing({ orgId }) {
   const st = useApi(`/api/org/${orgId}/billing`);
   const reload = async () => { const d = await http(`/api/org/${orgId}/billing`); st.reload(); return d; };
@@ -160,6 +189,7 @@ export default function Billing({ orgId }) {
               </table></div>
             )}
           </section>
+          <Invoices key={data.orders.filter((o) => o.invoiceNo).length} orgId={orgId} />
         </div>
       );
     }}</Loading>

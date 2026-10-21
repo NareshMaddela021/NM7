@@ -97,14 +97,14 @@ const ADMIN = LIVE ? {
   Customers: named(liveAdmin.people, 'LiveCustomers'), Quality: named(liveAdmin.people, 'LiveQuality'), Reports: named(liveAdmin.people, 'LiveReports'),
   Settings: named(liveAdmin.setup, 'LiveSettings'), Automation: named(liveAdmin.setup, 'LiveAutomation'), Team: named(liveAdmin.setup, 'LiveTeam'),
   Orgs: named(liveAdmin.orgs, 'LiveOrgs'), Shared: named(liveAdmin.orgs, 'LiveShared'),
-  Plans: named(liveAdmin.billing, 'LivePlans'), BillingSettings: named(liveAdmin.billing, 'LiveBillingSettings'),
+  Plans: named(liveAdmin.billing, 'LivePlans'), BillingSettings: named(liveAdmin.billing, 'LiveBillingSettings'), OrgInvoices: named(liveAdmin.billing, 'LiveOrgInvoices'),
 } : {
   Layout: lazy(() => import('./pages/admin/AdminLayout')), Dashboard: lazy(() => import('./pages/admin/Dashboard')), Orders: lazy(() => import('./pages/admin/Orders')),
   Experts: lazy(() => import('./pages/admin/ExpertsAdmin')), Refunds: lazy(() => import('./pages/admin/Refunds')), Payments: lazy(() => import('./pages/admin/Payments')),
   Customers: lazy(() => import('./pages/admin/Customers')), Quality: lazy(() => import('./pages/admin/Quality')), Reports: lazy(() => import('./pages/admin/Reports')),
   Settings: lazy(() => import('./pages/admin/Settings')), Automation: lazy(() => import('./pages/admin/Automation')), Team: lazy(() => import('./pages/admin/Team')),
   Orgs: named(liveAdmin.orgs, 'LiveOrgs'), Shared: named(liveAdmin.orgs, 'LiveShared'), // live API only
-  Plans: named(liveAdmin.billing, 'LivePlans'), BillingSettings: named(liveAdmin.billing, 'LiveBillingSettings'),
+  Plans: named(liveAdmin.billing, 'LivePlans'), BillingSettings: named(liveAdmin.billing, 'LiveBillingSettings'), OrgInvoices: named(liveAdmin.billing, 'LiveOrgInvoices'),
 };
 
 if (!LIVE && import.meta.env.VITE_PREVIEW === '1') {
@@ -316,6 +316,7 @@ export default function App() {
           <Route path="shared-resumes" element={<ADMIN.Shared />} />
           <Route path="plans" element={<ADMIN.Plans />} />
           <Route path="billing-settings" element={<ADMIN.BillingSettings />} />
+          <Route path="org-invoices" element={<ADMIN.OrgInvoices />} />
         </Route>
         <Route path="/me" element={C(<MeLayout />)}>
           <Route index element={<MeHome />} />

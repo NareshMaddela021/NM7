@@ -44,16 +44,28 @@ def _wrap(paras: list[str], url: str, label: str) -> str:
     return f'<div style="{STYLE}">{body}{button}<p style="color:#666;font-size:13px">Nm7 · nm7.si</p></div>'
 
 
-def plan_active(to: str, name: str, org: dict[str, Any], sub: dict[str, Any], amount: int) -> Email:
+def plan_active(
+    to: str,
+    name: str,
+    org: dict[str, Any],
+    sub: dict[str, Any],
+    amount: int,
+    invoice: tuple[str, str, bytes] | None = None,
+) -> Email:
+    """`invoice`: (number, file name, PDF) — attached, so the Owner has it without signing in."""
     url = _billing_url(org["_id"])
     hi = f"Hi {name}," if name else "Hello,"
     line = (
         f"Thank you — we received {rupees(amount)} for {org['name']}. The {sub['plan_name']} plan is active from "
         f"{nice_day(sub['starts_on'])} to {nice_day(sub['ends_on'])}."
     )
-    text = f"{hi}\n\n{line}\n\nBilling and invoices: {url}\n\nNm7 · nm7.si"
-    html = _wrap([escape(hi), escape(line)], url, "Open billing")
-    return Email(to, name or to, f"{sub['plan_name']} plan active for {org['name']}", text, html)
+    lines = [hi, line]
+    if invoice:
+        lines.append(f"Invoice {invoice[0]} is attached. You can download it again any time from Billing → Invoices.")
+    text = "\n\n".join(lines) + f"\n\nBilling and invoices: {url}\n\nNm7 · nm7.si"
+    html = _wrap([escape(x) for x in lines], url, "Open billing")
+    files = [(invoice[1], "application/pdf", invoice[2])] if invoice else []
+    return Email(to, name or to, f"{sub['plan_name']} plan active for {org['name']}", text, html, attachments=files)
 
 
 def plan_reminder(to: str, name: str, org: dict[str, Any], due: str) -> Email:

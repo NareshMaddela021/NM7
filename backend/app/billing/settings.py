@@ -41,6 +41,7 @@ DEFAULTS: dict[str, Any] = {
     "partner_discount_pct": 0,
     "razorpay_live": False,  # test mode until Naresh switches it
     "org_signup_open": True,  # "Start free" on /for-orgs creates an organization
+    "payment_link_days": 15,  # a proforma's Razorpay payment link stays payable this long
 }
 
 

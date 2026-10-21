@@ -17,6 +17,7 @@ class Payment(Doc):
     order_id: str | None = None
     razorpay_order_id: str | None = None
     razorpay_payment_id: str | None = None
+    razorpay_link_id: str | None = None  # a payment link sent with a proforma (organization plans)
     amount: int  # paise
     currency: str = "INR"
     status: str  # created / captured / failed / refunded

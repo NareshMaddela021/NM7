@@ -201,6 +201,11 @@ No new environment variables and no new paid services: emails use the existing R
 
 Viewers can view and print only.
 
+**Plan limits (since Phase 4).** Your organization's plan sets how many members, groups, coordinators and kiosks it
+can have. A banner shows when 80% of a limit is used or the plan is about to end. When a limit is reached, new joins,
+groups, invites or kiosks are paused with *ask your Owner to upgrade* — nothing already there is removed. Plans,
+payments and invoices are handled by your organization's **Owner** (Billing).
+
 #### Running kiosks at an event (when Nm7 has switched kiosks on for you)
 
 1. **Make a kiosk link.** Open **Kiosks** in your portal. Choose the group, a label such as "Stall 1", how long it works (end of today, tomorrow or the day after; 3 days at most) and a 4–6 digit **exit PIN**. Choose **Make kiosk link**. The link and its QR code are shown **once**, so open it on the kiosk device straight away.
@@ -410,5 +415,47 @@ remove coordinators and viewers within the plan's limit). Owners are made by Nm7
    lapses, everything keeps working for 7 more days, then the Free limits apply — nothing is deleted, but new joins,
    groups, coordinators and kiosks over the Free limits wait until you renew.
 5. **Bank transfer or purchase order?** Use **Talk to us** on /for-orgs; Nm7 sends a proforma invoice.
+6. **Invoices.** **Billing → Invoices** lists every tax invoice and credit note (and proformas) — **Download PDF** any
+   time. The invoice is also attached to the "plan active" email.
 
 Coordinators and viewers see the plan banners too, with "ask your Owner to upgrade".
+
+### 4B · Invoices, credit notes, offline payments
+
+**Numbering** (atomic counters per Indian financial year, April–March IST; consecutive, never reused, edited or deleted;
+at most 16 characters):
+
+| Document | Format | Notes |
+|---|---|---|
+| Tax invoice / invoice | `NM7/26-27/0001` | the same series as resume orders (`orders.invoice_no`), allocated in the payment's own transaction |
+| Credit note | `NM7CN/26-27/0001` | `NM7-CN/26-27/0001` would be 17 characters, over the GST limit of 16 |
+| Proforma | `NM7PF/26-27/0001` | a request for payment, not a tax document |
+
+- **GST off** (no supplier GSTIN in Billing settings): a plain **Invoice** — no GSTIN, SAC, place of supply or tax lines.
+  **GST on**: a **Tax Invoice** with the GST rule 46 fields — supplier name, address, GSTIN, state; recipient name,
+  address, GSTIN (if any) and state; number and date; place of supply; SAC; quantity, rate, discount and taxable value;
+  CGST + SGST (same state) or IGST (other state) with rate and amount; total in figures and words (Indian system);
+  reverse charge "No"; authorised signatory. Fields for a future IRN / acknowledgement / QR are kept (empty).
+- GST is decided once, at checkout, and stored with the order (integer paise, computed once per line). Each document
+  stores a **frozen JSON snapshot** and the **PDF drawn from it** (fpdf2 with HarfBuzz shaping; DejaVu Sans for ₹ and
+  Latin, Noto Sans for Devanagari, Bengali, Tamil, Telugu, Kannada, Malayalam — fonts and their licences in
+  `backend/app/billing/fonts/`). Editing a plan, the billing settings or the organization's details never changes an
+  issued document.
+- **Offline payment** (Admin → Organization → Plan and billing → *Record offline payment*): method, reference (UTR /
+  cheque / PO no.), date received, amount (must equal the order total). Uses the same `mark_paid()` as Razorpay: plan on +
+  tax invoice in one transaction, invoice emailed. Logged as `payment_offline`.
+- **Proforma** (*Proforma invoice*): for a plan with an optional extra discount, optionally with a **Razorpay payment
+  link** (valid for the days in Billing settings). When the link is paid, Razorpay's signed `payment_link.paid` webhook
+  pays the order (same checks as checkout) → plan on → tax invoice. Paying the proforma by bank instead: record an offline
+  payment against it; its link is cancelled. **Razorpay dashboard: add the `payment_link.paid` event to the webhook.**
+- **Refunds** (*Refund* on a paid order): through the existing refund records (`refunds`, one open refund per order) —
+  Razorpay refund for Razorpay payments, or an offline refund with the bank reference. Each refund issues a **credit
+  note** against the original invoice (GST split in the same proportion). A full refund of the order that bought the
+  current plan takes the plan back (to the plan it was renewing if that is still running, else Free); a part refund
+  keeps the plan.
+- Admin → **Organization invoices**: by financial year, totals, PDF download, **GSTR-1 CSV** (one line per invoice /
+  credit note: B2B, B2CL, B2CS, CDNR, CDNUR; invoices issued while GST was off are marked `NOT_GST`).
+- API: `/api/org/{id}/billing/invoices[/{doc}/pdf]` (the Owner's organization only),
+  `/api/admin/org-invoices[?fy=&kind=&orgId=]`, `/api/admin/org-invoices/{doc}/pdf`, `/api/admin/org-invoices/gstr1.csv?fy=`,
+  `POST /api/admin/orgs/{id}/billing/{proforma,offline-payment,orders/{order}/refund}`.
+- Audit: `proforma_issued`, `payment_offline`, `refund.sent` / `refund.offline`, `credit_note_issued`, `plan_refunded`.

@@ -1,4 +1,4 @@
-"""Small async Razorpay client (orders, payments, refunds) and signature checks."""
+"""Small async Razorpay client (orders, payments, refunds, payment links) and signature checks."""
 
 import hashlib
 import hmac
@@ -44,6 +44,32 @@ class Razorpay:
     async def refund(self, payment_id: str, amount: int, receipt: str, notes: dict[str, str]) -> dict[str, Any]:
         body = {"amount": amount, "speed": "normal", "receipt": receipt, "notes": notes}
         return await self._call("POST", f"/payments/{payment_id}/refund", body)
+
+    async def create_payment_link(
+        self,
+        amount: int,
+        reference_id: str,
+        description: str,
+        customer: dict[str, str],
+        notes: dict[str, str],
+        expire_by: int,
+    ) -> dict[str, Any]:
+        """A Razorpay-hosted page to pay `amount` (for a proforma). Paid → webhook "payment_link.paid"."""
+        body = {
+            "amount": amount,
+            "currency": "INR",
+            "reference_id": reference_id,
+            "description": description[:2048],
+            "customer": customer,
+            "notify": {"sms": False, "email": False},
+            "reminder_enable": False,
+            "notes": notes,
+            "expire_by": expire_by,
+        }
+        return await self._call("POST", "/payment_links", body)
+
+    async def cancel_payment_link(self, link_id: str) -> dict[str, Any]:
+        return await self._call("POST", f"/payment_links/{link_id}/cancel")
 
 
 def get_razorpay() -> Razorpay:
