@@ -80,7 +80,7 @@ export default function Header({ variant = 'public', right, labels, lang }) {
   useEffect(() => { setMenu(false); }, [pathname, hash]);
 
   return (
-    <header className="site-header" data-variant={variant} data-menu={menu}>
+    <header className="site-header" data-variant={variant} data-menu={menu} lang="en">
       <div className="bar">
         <Logo suffix={variant === 'expert' ? '/expert' : variant === 'admin' ? '/admin' : variant === 'builder' ? '/builder' : variant === 'me' ? '/me' : '/resume'} />
 
