@@ -53,6 +53,8 @@ async def test_attempts_sent_at_once_cannot_get_past_the_limit(db):
         "failed": 0,
         "limited": 15,
         "capped": 0,
+        "dropped": 0,
+        "unusable": {},
     }
 
 
@@ -78,6 +80,45 @@ async def test_a_kiosk_link_has_its_own_limit_across_candidates(db, monkeypatch)
     # the refused candidate's own count was rolled back too; another kiosk is unaffected
     assert (await db["ai_usage"].find_one({"_id": f"{ai_quota.today()}|person|summary|d"}))["n"] == 0
     await ai_quota.take(db, "summary", "d", kiosk_id="k2")
+
+
+async def test_quota_rollback_when_a_later_inc_fails(db, monkeypatch):
+    """A database error after the first counter was incremented: that counter is taken back, nothing stays."""
+    real = ai_quota._inc
+    calls = []
+
+    async def flaky(db_, key, day, by=1, keep_days=2):
+        calls.append((key, by))
+        if by > 0 and "|kiosk|" in key:  # the second counter: the server never applied it
+            raise ConnectionError("lost")
+        return await real(db_, key, day, by=by, keep_days=keep_days)
+
+    monkeypatch.setattr(ai_quota, "_inc", flaky)
+    with pytest.raises(ConnectionError):
+        await ai_quota.take(db, "summary", "rb", kiosk_id="k-rb")
+    person = await db["ai_usage"].find_one({"_id": f"{ai_quota.today()}|person|summary|rb"})
+    assert person["n"] == 0  # incremented, then taken back
+    assert [k for k, by in calls if by < 0] == [
+        f"{ai_quota.today()}|person|summary|rb",
+        f"{ai_quota.today()}|kiosk|summary|k-rb",  # noted before the failed increment: taken back too
+    ]
+    assert not await db["ai_usage"].find_one({"_id": f"{ai_quota.today()}|all"})  # never reached
+    assert (await ai_quota.usage(db, 1))["days"][0]["summary"]["calls"] == 0
+    monkeypatch.setattr(ai_quota, "_inc", real)
+    await ai_quota.take(db, "summary", "rb", kiosk_id="k-rb")  # works again, with the person's full allowance
+    assert (await db["ai_usage"].find_one({"_id": f"{ai_quota.today()}|person|summary|rb"}))["n"] == 1
+
+
+async def test_note_takes_any_outcome_and_usage_lists_the_unusable_reasons(db):
+    await ai_quota.note(db, "photos", "fallback")
+    await ai_quota.note(db, "photos", "unusable:too_long")
+    await ai_quota.note(db, "photos", "unusable:too_long")
+    await ai_quota.note(db, "photos", "unusable:empty")
+    await ai_quota.note(db, "summary", "dropped", by=3)
+    day = (await ai_quota.usage(db, 1))["days"][0]
+    assert day["photos"]["fallback"] == 1 and day["photos"]["unusable"] == {"empty": 1, "too_long": 2}
+    assert day["summary"]["dropped"] == 3 and day["summary"]["unusable"] == {}
+    assert day["photos"]["dropped"] == 0
 
 
 async def test_the_site_wide_cap(db, monkeypatch):
@@ -112,14 +153,23 @@ async def test_photos_at_the_cap_say_busy_and_never_call_the_model(client, outbo
 
 async def test_photos_fallback_and_failures_are_counted(client, outbox, key_on, monkeypatch, db):
     async def fake(images, stats=None):
-        stats.update(model="claude-sonnet-5-5", fallback=True)
+        stats.update(model="claude-sonnet-5-5", fallback=True, reason="bad_json")
         return model_output()
 
     monkeypatch.setattr(reader, "call_model", fake)
     await signup(client, outbox)
     assert (await post(client, [photo()])).status_code == 200
     photos = (await ai_quota.usage(db, 1))["days"][0]["photos"]
-    assert photos["calls"] == 1 and photos["fallback"] == 1
+    assert photos["calls"] == 1 and photos["fallback"] == 1 and photos["unusable"] == {"bad_json": 1}
+
+    async def boom(images, stats=None):
+        raise RuntimeError("x")
+
+    monkeypatch.setattr(reader, "call_model", boom)
+    with pytest.raises(RuntimeError):  # the test transport re-raises what the server answers with a 500
+        await post(client, [photo()])
+    photos = (await ai_quota.usage(db, 1))["days"][0]["photos"]
+    assert photos["calls"] == 2 and photos["failed"] == 1
 
 
 def test_the_day_is_the_india_day():
@@ -141,4 +191,6 @@ async def test_admin_sees_daily_ai_counts(admin_client, make_client, db, monkeyp
     today = d["days"][0]
     assert today["date"] == ai_quota.today() and today["total"] == 2
     assert today["photos"]["calls"] == 1 and today["summary"]["fallback"] == 1
+    assert today["summary"]["dropped"] == 0 and today["summary"]["unusable"] == {}
+    assert set(today["photos"]) == {"calls", "fallback", "failed", "limited", "capped", "dropped", "unusable"}
     assert (await make_client().get("/api/admin/ai-usage")).status_code == 401

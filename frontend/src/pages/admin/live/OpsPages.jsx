@@ -5,6 +5,7 @@ import { useToast } from '../../../components/ui';
 import { PLANS } from '../../../lib/pricing';
 import { Kpi, PageHead, Panel, Tabs } from '../AdminUI';
 import { Loading, STATUS_LABEL, day, emptyIf, http, rupees, tone, useAction, useApi, when } from './common';
+import { aiDetail } from './aiUsageText';
 
 /* ---------- dashboard ---------- */
 export function LiveDashboard() {
@@ -47,7 +48,9 @@ export function LiveDashboard() {
 
 const AI_FEATURES = [['photos', 'Snap photos'], ['summary', 'Summary writer']];
 
-/** AI calls per day (Claude API): counted before each call, failed ones included; the site-wide cap is in code. */
+/** AI calls per day (Claude API): counted before each call, failed ones included; the site-wide cap is in code.
+ *  Under each day's counts: why the first model's answer was unusable (the fallback did the work) and, for the
+ *  summary writer, how many options the server's checks dropped. */
 function AiUsage() {
   const st = useApi('/api/admin/ai-usage?days=7');
   return (
@@ -64,7 +67,12 @@ function AiUsage() {
             <tbody>{u.days.map((d) => (
               <tr key={d.date} data-testid="ai-day">
                 <td className="small">{d.date}</td>
-                {AI_FEATURES.map(([k]) => <td key={k} className="small mono">{d[k].calls} · {d[k].fallback} · {d[k].failed} · {d[k].limited + d[k].capped}</td>)}
+                {AI_FEATURES.map(([k]) => (
+                  <td key={k} className="small mono">
+                    {d[k].calls} · {d[k].fallback} · {d[k].failed} · {d[k].limited + d[k].capped}
+                    {aiDetail(d[k]) && <div className="xs faint" data-testid={`ai-${k}-detail`}>{aiDetail(d[k])}</div>}
+                  </td>
+                ))}
                 <td className="small mono">{d.total}{d.capReached ? ' (cap reached)' : ''}</td>
               </tr>
             ))}</tbody>

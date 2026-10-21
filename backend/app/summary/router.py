@@ -116,10 +116,17 @@ async def generate(body: GenerateIn, auth: CustomerAuth, db: DB) -> dict[str, An
     except anthropic.APIError as e:
         await ai_quota.note(db, "summary", "failed")
         raise ApiError(502, "writer_unavailable", "AI is busy right now - here are quick suggestions instead.") from e
+    except Exception:  # anything else (a bug, a lost connection): still counted, then the generic 500
+        await ai_quota.note(db, "summary", "failed")
+        raise
     if stats.get("fallback"):
         await ai_quota.note(db, "summary", "fallback")
+        if stats.get("reason"):  # why the configured model's answer was unusable, e.g. unusable:too_long
+            await ai_quota.note(db, "summary", f"unusable:{stats['reason']}")
     kept = [{"style": o["style"], "text": trim(o["text"])} for o in options if allowed(o["text"], facts, note)]
     dropped = len(options) - len(kept)
+    if dropped:
+        await ai_quota.note(db, "summary", "dropped", by=dropped)
     # one line per call for the Render logs - counts and timing only, never the facts, the note or the text
     log.info(
         "summary ai: ok model=%s ms=%d options=%d dropped=%d fallback=%s mode=%s",

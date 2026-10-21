@@ -128,7 +128,7 @@ async def test_generate_sends_no_personal_data_and_wraps_the_note(client, outbox
     assert d["dropped"] == 0 and d["fallback"] is False and d["model"] == "claude-haiku-5-5"
     body = api.bodies()[0]
     assert (
-        body["model"] == "claude-haiku-5-5" and body["max_tokens"] == 600 and body["output_config"]["effort"] == "low"
+        body["model"] == "claude-haiku-5-5" and body["max_tokens"] == 2500 and body["output_config"]["effort"] == "low"
     )
     assert body["output_config"]["format"]["schema"] == writer.SCHEMA and "fallbacks" not in body
     text = body["messages"][0]["content"][0]["text"]
@@ -207,6 +207,74 @@ async def test_unusable_or_failed_haiku_goes_once_to_sonnet(client, outbox, api,
     assert r.status_code == 200 and d["fallback"] is True and d["model"] == "claude-sonnet-5-5"
     assert [b["model"] for b in api.bodies()] == ["claude-haiku-5-5", "claude-sonnet-5-5"]
     assert api.bodies()[1]["fallbacks"] == "default"
+
+
+async def test_haiku_request_disables_thinking_and_uses_a_2500_token_budget(client, outbox, api):
+    """Thinking tokens count toward max_tokens: the writer turns thinking off on Haiku (which accepts it) and gives
+    the answer a 2,500-token budget, for the generation and the quick fixes alike."""
+    await signup(client, outbox)
+    api.replies = {"claude-haiku-5-5": reply(GOOD)}
+    assert (await post(client)).status_code == 200
+    assert (await post(client, mode="shorter", current=GOOD[2]["text"])).status_code == 200
+    for body in api.bodies():
+        assert body["model"] == "claude-haiku-5-5"
+        assert body["thinking"] == {"type": "disabled"}
+        assert body["max_tokens"] == writer.MAX_TOKENS == 2500
+        assert body["output_config"]["effort"] == "low"  # thinking off is accepted at effort high or below
+        assert "fallbacks" not in body and "betas" not in body
+
+
+async def test_sonnet_fallback_request_has_no_thinking_disabled(client, outbox, api):
+    """Claude Sonnet 5.5 returns 400 for thinking disabled: the fallback request goes without the parameter."""
+    await signup(client, outbox)
+    api.replies = {"claude-haiku-5-5": reply([]), "claude-sonnet-5-5": reply(GOOD, model="claude-sonnet-5-5")}
+    r = await post(client)
+    assert r.status_code == 200 and r.json()["fallback"] is True
+    haiku, sonnet = api.bodies()
+    assert haiku["thinking"] == {"type": "disabled"}
+    assert "thinking" not in sonnet and sonnet["max_tokens"] == 2500 and sonnet["fallbacks"] == "default"
+
+
+async def test_cut_off_answer_logs_stop_reason_and_notes_the_reason(client, outbox, api, db, caplog):
+    await signup(client, outbox)
+    cut = reply(GOOD[:1], stop="max_tokens") | {"usage": {"input_tokens": 10, "output_tokens": 2500}}
+    api.replies = {"claude-haiku-5-5": cut, "claude-sonnet-5-5": reply(GOOD, model="claude-sonnet-5-5")}
+    r = await post(client)
+    assert r.status_code == 200 and r.json()["fallback"] is True and r.json()["model"] == "claude-sonnet-5-5"
+    assert (
+        "summary writer: too_long on claude-haiku-5-5 (stop=max_tokens, out=2500), trying claude-sonnet-5-5"
+        in caplog.messages
+    )
+    day = (await ai_quota.usage(db, 1))["days"][0]["summary"]
+    assert day["calls"] == 1 and day["fallback"] == 1 and day["failed"] == 0
+    assert day["unusable"] == {"too_long": 1}
+
+
+async def test_admin_usage_shows_the_unusable_reason_and_dropped_options(admin_client, client, outbox, api, db):
+    await signup(client, outbox)
+    invented = {"style": "simple", "text": "B.Sc graduate with 3 years across 12 projects. Wants a data analyst job."}
+    api.replies = {
+        "claude-haiku-5-5": reply(None, stop="refusal"),
+        "claude-sonnet-5-5": reply([GOOD[0], invented, invented], model="claude-sonnet-5-5"),
+    }
+    r = await post(client)
+    assert r.status_code == 200 and r.json()["dropped"] == 2
+    admin = await admin_client()
+    today = (await admin.get("/api/admin/ai-usage?days=1")).json()["days"][0]["summary"]
+    assert today["calls"] == 1 and today["fallback"] == 1 and today["dropped"] == 2
+    assert today["unusable"] == {"refused": 1}
+
+
+async def test_unexpected_exception_is_counted_as_failed(client, outbox, api, db, monkeypatch):
+    async def boom(*a, **kw):
+        raise RuntimeError("x")
+
+    monkeypatch.setattr(writer, "call_model", boom)
+    await signup(client, outbox)
+    with pytest.raises(RuntimeError):  # the test transport re-raises what the server answers with a 500
+        await post(client)
+    day = (await ai_quota.usage(db, 1))["days"][0]["summary"]
+    assert day["calls"] == 1 and day["failed"] == 1
 
 
 async def test_both_models_unusable_is_422_and_counted_as_failed(client, outbox, api, db):

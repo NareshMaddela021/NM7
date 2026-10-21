@@ -108,7 +108,8 @@ async def stats(db: DB, _: AdminAuth("dashboard"), days: int = Query(30, ge=1, l
 
 @router.get("/ai-usage")
 async def ai_usage(db: DB, _: AdminAuth("dashboard"), days: int = Query(7, ge=1, le=30)) -> dict[str, Any]:
-    """AI calls per day (Snap photos, summary writer): calls, fallbacks, failures, refused by a limit."""
+    """AI calls per day (Snap photos, summary writer): calls, fallbacks (with why the first model's answer was
+    unusable), failures, refused by a limit, summary options dropped by the server's checks."""
     return await ai_quota.usage(db, days)
 
 

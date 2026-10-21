@@ -4,6 +4,9 @@
 - the server-side refusal fallback only for the models that take it (Claude Haiku 5.5 has none);
 - "grammar too large": a model that can't compile a structured-output schema is remembered and read in the loose
   mode (the schema in the prompt, the answer checked here) from then on;
+- thinking off (`thinking: {"type": "disabled"}`) only for the models that accept it: a short, well-specified task
+  like the summary writer saves the thinking tokens (they count toward max_tokens) on Claude Haiku 5.5, while the
+  fallback model gets the request without the parameter;
 - logging by error type and Anthropic's own message, never the prompt, the content or the key.
 """
 
@@ -20,6 +23,10 @@ FALLBACK_MODEL = "claude-sonnet-5-5"  # an unusable answer from the configured m
 # Models that take Anthropic's server-side refusal fallback (`fallbacks: "default"`). Claude Haiku 5.5 has none -
 # the parameter must not be sent to it.
 SERVER_FALLBACK = {"claude-fable-5-1", "claude-opus-5-5", "claude-opus-5", "claude-sonnet-5-5"}
+# Models that accept `thinking: {"type": "disabled"}` (at effort low / medium / high). Claude Sonnet 5.5 and the
+# Opus models return 400 for it, so a caller asking for thinking off gets it only on these; the others run their
+# default (adaptive) thinking.
+THINKING_OFF = {"claude-haiku-5-5"}
 
 log = logging.getLogger("nm7.claude")
 
@@ -34,11 +41,20 @@ class GrammarTooLarge(Exception):
 
 
 class Unusable(Exception):
-    """The model answered but not with usable data (refused, cut off, not JSON, invalid, empty)."""
+    """The model answered but not with usable data (refused, cut off, not JSON, invalid, empty). `stop` and
+    `output_tokens` (the answer's stop_reason and usage.output_tokens, when known) say why - numbers only."""
 
-    def __init__(self, reason: str = "unusable"):
+    def __init__(self, reason: str = "unusable", *, stop: str | None = None, output_tokens: int | None = None):
         super().__init__(reason)
         self.reason = reason
+        self.stop = stop
+        self.output_tokens = output_tokens
+
+    def detail(self) -> str:
+        """For the logs: " (stop=max_tokens, out=600)", or "" when the answer's numbers aren't known."""
+        if self.stop is None and self.output_tokens is None:
+            return ""
+        return f" (stop={self.stop or '-'}, out={self.output_tokens if self.output_tokens is not None else '-'})"
 
 
 def grammar_too_large(e: anthropic.APIError) -> bool:
@@ -88,11 +104,15 @@ def error_detail(e: BaseException) -> str:
     return f" (type={e.type or err.get('type') or '-'}, request_id={request_id}, message={message!r})"
 
 
-def params(model: str) -> dict[str, Any]:
-    """What this model accepts: the refusal fallback only where Anthropic offers it."""
+def params(model: str, thinking: dict[str, Any] | None = None) -> dict[str, Any]:
+    """What this model accepts: the refusal fallback only where Anthropic offers it; `thinking` as asked, except
+    that thinking off goes only to the models that take it (THINKING_OFF)."""
+    out: dict[str, Any] = {}
     if model in SERVER_FALLBACK:
-        return {"betas": ["server-side-fallback-2026-07-01"], "fallbacks": "default"}
-    return {}
+        out.update(betas=["server-side-fallback-2026-07-01"], fallbacks="default")
+    if thinking and (thinking.get("type") != "disabled" or model in THINKING_OFF):
+        out["thinking"] = thinking
+    return out
 
 
 def client(timeout_s: float, retries: int, http_client: Any = None) -> anthropic.AsyncAnthropic:
@@ -116,12 +136,19 @@ def loose_suffix(schema: dict[str, Any]) -> str:
     )
 
 
+def output_tokens(response: Any) -> int | None:
+    usage = getattr(response, "usage", None)
+    n = getattr(usage, "output_tokens", None)
+    return int(n) if isinstance(n, int) else None
+
+
 def answer_text(response: Any) -> str:
-    """The answer, read by block type (it may follow thinking blocks); raises Unusable for a refusal or a cut-off."""
+    """The answer, read by block type (it may follow thinking blocks); raises Unusable for a refusal or a cut-off,
+    with the stop reason and the output token count for the logs."""
     if response.stop_reason == "refusal":
-        raise Unusable("refused")
+        raise Unusable("refused", stop="refusal", output_tokens=output_tokens(response))
     if response.stop_reason == "max_tokens":
-        raise Unusable("too_long")
+        raise Unusable("too_long", stop="max_tokens", output_tokens=output_tokens(response))
     return next((b.text for b in response.content if b.type == "text"), "")
 
 
@@ -150,10 +177,12 @@ async def ask(
     retries: int,
     http_client: Any = None,
     modes: tuple[bool, ...] | None = None,
+    thinking: dict[str, Any] | None = None,
 ) -> Any:
     """One structured answer from `model`: strict first (the schema as a grammar); if this model can't compile it,
-    the loose mode on the same model. `modes` pins the mode(s) to try (the smoke scripts). Returns the parsed JSON
-    (not yet checked). Raises Unusable or the SDK's APIError."""
+    the loose mode on the same model. `modes` pins the mode(s) to try (the smoke scripts). `thinking` is the API's
+    thinking configuration; `{"type": "disabled"}` is sent only to the models that accept it (THINKING_OFF).
+    Returns the parsed JSON (not yet checked). Raises Unusable or the SDK's APIError."""
     c = client(timeout_s, retries, http_client)
     key = f"{feature}:{model}"
     for strict in modes or ((True, False) if key not in NO_GRAMMAR else (False,)):
@@ -169,7 +198,7 @@ async def ask(
                 max_tokens=max_tokens,
                 output_config=output_config,
                 messages=[{"role": "user", "content": sent}],
-                **params(model),
+                **params(model, thinking),
             )
         except anthropic.APIError as e:
             if strict and grammar_too_large(e):
@@ -179,22 +208,32 @@ async def ask(
                 log.warning("%s: grammar_too_large on %s, reading without the schema grammar", feature, model)
                 continue
             raise
-        return parse_json(answer_text(response), strict)
+        try:
+            return parse_json(answer_text(response), strict)
+        except Unusable as e:
+            if e.stop is None:  # not JSON: say how the answer ended and how long it was
+                e.stop, e.output_tokens = response.stop_reason, output_tokens(response)
+            raise
     raise Unusable("no_mode")  # not reached
 
 
 async def ask_models(feature: str, content, schema, check, *, stats=None, **opts) -> Any:
     """`ask` on the configured model, then once on the fallback model when the answer is unusable (`check` raises
-    Unusable). API errors are logged by type and Anthropic's message, then raised. `stats` gets model / fallback."""
+    Unusable). API errors are logged by type and Anthropic's message, then raised. `stats` gets model / fallback,
+    and `reason` (why the configured model's answer was unusable) when the fallback model answered."""
     ms = models()
     for n, model in enumerate(ms):
         last = n == len(ms) - 1
         try:
             out = check(await ask(feature, model, content, schema, **opts))
         except Unusable as e:
-            log.warning("%s: %s on %s%s", feature, e.reason, model, "" if last else f", trying {ms[n + 1]}")
+            log.warning(
+                "%s: %s on %s%s%s", feature, e.reason, model, e.detail(), "" if last else f", trying {ms[n + 1]}"
+            )
             if last:
                 raise
+            if stats is not None:
+                stats["reason"] = e.reason
             continue
         except anthropic.APIError as e:
             log.warning("%s: %s on %s%s", feature, error_kind(e), model, error_detail(e))
