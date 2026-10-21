@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { RELOAD_KEY, StaleBuildError, freshImport, isChunkError, lazyRetry, newBuildLive, reloadOnce } from './chunks';
+import { RELOAD_KEY, StaleBuildError, StaleBuildPage, freshImport, isChunkError, lazyRetry, newBuildLive, reloadOnce } from './chunks';
 
 const store = () => { const m = new Map(); return { getItem: (k) => m.get(k) ?? null, setItem: (k, v) => m.set(k, v), m }; };
 const stale = new TypeError('Failed to fetch dynamically imported module: https://nm7.si/assets/resumePdf-CYEBoQc5.js');
@@ -24,16 +24,29 @@ describe('stale-build chunk errors', () => {
     expect(s.m.get(RELOAD_KEY)).toBe('1061000');
   });
 
-  it('lazy pages reload on a stale chunk, other errors still throw', async () => {
+  it('lazy pages reload on a stale chunk and show the "updated" page meanwhile; other errors still throw', async () => {
     const reload = vi.fn(() => true);
-    const pending = lazyRetry(() => Promise.reject(stale), reload)();
-    let settled = false; pending.then(() => { settled = true; }, () => { settled = true; });
-    await new Promise((r) => setTimeout(r, 10));
+    const mod = await lazyRetry(() => Promise.reject(stale), reload)();
     expect(reload).toHaveBeenCalledTimes(1);
-    expect(settled).toBe(false); // nothing shown while the page reloads
+    expect(typeof mod.default).toBe('function'); // a component, never a promise that hangs the spinner
+    const el = mod.default();
+    expect(el.type).toBe(StaleBuildPage);
+    expect(el.props.reloading).toBe(true);
+    // a reload already happened a moment ago: the page says to reload by hand
+    const noReload = vi.fn(() => false);
+    const again = await lazyRetry(() => Promise.reject(stale), noReload)();
+    expect(again.default().props.reloading).toBe(false);
     await expect(lazyRetry(() => Promise.reject(new Error('boom')), reload)()).rejects.toThrow('boom');
     expect(reload).toHaveBeenCalledTimes(1);
     await expect(lazyRetry(() => Promise.resolve('page'), reload)()).resolves.toBe('page');
+  });
+
+  it('the stale page renders a heading and a Reload button', () => {
+    const el = StaleBuildPage({ reloading: false });
+    const text = JSON.stringify(el);
+    expect(text).toMatch(/Nm7 was just updated/);
+    expect(text).toMatch(/Please reload this page/);
+    expect(text).toMatch(/Reload now/);
   });
 });
 

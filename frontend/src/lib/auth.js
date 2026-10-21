@@ -65,9 +65,33 @@ const setLive = (user) => {
   notify();
   return live.user;
 };
-if (LIVE) http('/api/auth/me').then(setLive, () => setLive(null)); // restore the session on page load
-/** Live: ask the server again who is signed in (after a sign-in made outside this file, e.g. at a kiosk). */
-export const reloadUser = () => (LIVE ? http('/api/auth/me').then(setLive, () => setLive(null)) : Promise.resolve(currentUser()));
+// Restoring the session on page load. A 401 means signed out; a network error, a timeout or a 5xx (the API waking
+// up on the free plan) means "don't know yet": keep `ready: false` and ask again, so nobody is treated as signed out
+// — and no page overwrites a saved resume with a guest draft — just because the server was slow. After the last
+// try the app carries on as signed out (`offline: true`) and asks again when the browser comes back online.
+const BOOT_WAITS = [2_000, 5_000, 10_000, 20_000, 30_000];
+let bootTry = 0;
+export const authFailed = () => !!live.offline;
+async function bootstrap() {
+  try {
+    setLive(await http('/api/auth/me', { retry: 0 }));
+    live.offline = false;
+  } catch (e) {
+    if (e?.status && e.status < 500) { setLive(null); return; } // 401: nobody is signed in
+    if (bootTry < BOOT_WAITS.length) { setTimeout(bootstrap, BOOT_WAITS[bootTry++]); return; }
+    live = { user: null, ready: true, offline: true }; // give up for now; `online` tries again
+    notify();
+  }
+}
+if (LIVE) {
+  bootstrap();
+  try { window.addEventListener('online', () => { if (live.offline) { bootTry = 0; live = { ...live, ready: false }; notify(); bootstrap(); } }); } catch { /* no window */ }
+}
+/** Live: ask the server again who is signed in (after a sign-in made outside this file, e.g. at a kiosk). A
+ * network error keeps whoever is signed in now; only the server saying 401 signs them out. */
+export const reloadUser = () => (LIVE
+  ? http('/api/auth/me').then(setLive, (e) => (e?.status && e.status < 500 ? setLive(null) : currentUser()))
+  : Promise.resolve(currentUser()));
 
 /* ---------- preview state: accounts in this browser ---------- */
 let users = null; let session;
@@ -80,7 +104,7 @@ const snapshot = () => {
     if (LIVE) {
       // Admin sessions from the server always passed two-step login.
       const u = live.user;
-      snap = { user: u, session: u ? { userId: u.id, twoStep: u.role === 'admin' } : null, ready: live.ready };
+      snap = { user: u, session: u ? { userId: u.id, twoStep: u.role === 'admin' } : null, ready: live.ready, offline: !!live.offline };
     } else {
       const s = getSession(); const u = s ? getUsers().find((x) => x.id === s.userId) : null;
       snap = { user: u || null, session: u ? s : null, ready: true };

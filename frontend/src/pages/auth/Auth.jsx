@@ -40,23 +40,18 @@ function Field({ id, label, error, hint, ...p }) {
     </div>
   );
 }
-/** Runs one request at a time: a second click while it runs does nothing (no double sign-ups), and after 3 s
- * on the live site it says the server is waking up (the free plan sleeps when idle). */
+/** Runs one request at a time: a second click while it runs does nothing (no double sign-ups). A request that
+ * takes long (the free plan sleeps when idle) shows the site-wide "server is waking up" notice in the header. */
 function useRun() {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
-  const [slow, setSlow] = useState(false);
   const flight = useRef(false);
   const run = async (fn) => {
     if (flight.current) return;
-    flight.current = true; setBusy(true); setErr(''); setSlow(false);
-    const t = LIVE ? setTimeout(() => setSlow(true), 3000) : null;
-    try { await fn(); } catch (x) { setErr(x.message); } finally { clearTimeout(t); flight.current = false; setBusy(false); setSlow(false); }
+    flight.current = true; setBusy(true); setErr('');
+    try { await fn(); } catch (x) { setErr(x.message); } finally { flight.current = false; setBusy(false); }
   };
-  return { busy, err, setErr, slow, run };
-}
-function Waking({ slow }) {
-  return slow ? <p role="status" className="help" style={{ margin: 0 }}>Waking up the server — the first request after a quiet spell can take up to 30 seconds. Please keep this page open.</p> : null;
+  return { busy, err, setErr, run };
 }
 /** Seconds left before "Send the code again" works (60 s after each send). */
 function useCountdown(start = 60) {
@@ -75,7 +70,7 @@ function CodeInput({ value, onChange, id = 'otp', label = '6-digit code' }) {
 /* ---------- confirm email with the 6-digit code ---------- */
 function VerifyEmail({ email, note, onDone, onBack }) {
   const [code, setCode] = useState('');
-  const { busy, err, slow, run } = useRun();
+  const { busy, err, run } = useRun();
   const [info, setInfo] = useState('');
   const [left, restart] = useCountdown();
   return (
@@ -84,7 +79,6 @@ function VerifyEmail({ email, note, onDone, onBack }) {
         <CodeInput value={code} onChange={setCode} />
         {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
         {info && <p role="status" className="help" style={{ margin: 0 }}>{info}</p>}
-        <Waking slow={slow} />
         <button type="submit" className="btn btn-ink btn-lg" disabled={busy || code.length !== 6}>{busy && <Spinner />}Confirm & continue</button>
         <span className="row g12 small">
           <button type="button" className="link-btn small" disabled={busy || left > 0} onClick={() => run(async () => { setInfo(''); await resendCode(email); restart(); setInfo('A new code is on its way. Check your spam folder too.'); })}>{left > 0 ? `Send the code again in ${left} s` : 'Send the code again'}</button>
@@ -104,7 +98,7 @@ export function Login() {
   const { user } = useAuth();
   const [f, setF] = useState({ email: '', password: '' });
   const [verify, setVerify] = useState(null); // { email, note } when the account still needs its email code
-  const { busy, err, setErr, slow, run } = useRun();
+  const { busy, err, setErr, run } = useRun();
   const [emailErr, setEmailErr] = useState('');
   const [show, setShow] = useState(false);
   const go = (u) => nav(next && !(u.role === 'expert' && next.startsWith('/me')) && !(u.role === 'customer' && next.startsWith('/expert')) ? next : homeFor(u), { replace: true });
@@ -135,7 +129,6 @@ export function Login() {
           <span className="row between"><label className="row g4 xs"><input type="checkbox" checked={show} onChange={(e) => setShow(e.target.checked)} />Show password</label><Link to="/forgot-password" className="xs">Forgot password?</Link></span>
         </div>
         {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
-        <Waking slow={slow} />
         <button type="submit" className="btn btn-ink btn-lg" disabled={busy}>{busy && <Spinner />}Sign in</button>
       </form>
       <span className="small">New here? <Link to={`/signup${next ? `?next=${encodeURIComponent(next)}` : ''}`}>Create an account</Link> · Experts: <Link to="/signup?as=expert">join as an expert</Link></span>
@@ -160,7 +153,7 @@ export function Signup() {
   const [showPw, setShowPw] = useState(false);
   const [touched, setTouched] = useState(false);
   const [pending, setPending] = useState(null); // { email } waiting for the email code
-  const { busy, err, slow, run } = useRun();
+  const { busy, err, run } = useRun();
   if (user && !pending && params.get('as') === 'expert' && user.role !== 'expert') {
     // "Become an expert" while signed in as a customer: experts use a separate account
     return (
@@ -179,7 +172,7 @@ export function Signup() {
   const errs = {
     name: f.name.trim().length < 2 && 'Enter your full name',
     email: !EMAIL_RE.test(f.email.trim()) && 'Enter a valid email address',
-    phone: !PHONE_RE.test(f.phone.trim()) && 'Enter a 10-digit Indian mobile number',
+    phone: !!f.phone.trim() && !PHONE_RE.test(f.phone.trim()) && 'Enter a 10-digit Indian mobile number',
     password: passwordIssue(f.password),
     confirm: !f.confirm ? 'Type your password again' : f.confirm !== f.password ? 'Passwords don’t match' : '',
     agree: !f.agree && 'Please accept the terms to continue',
@@ -199,11 +192,11 @@ export function Signup() {
         <Field id="su-n" label="Full name" autoComplete="name" value={f.name} error={e_('name')} onChange={(e) => setF({ ...f, name: e.target.value })} />
         <div className="row g12" style={{ alignItems: 'flex-start' }}>
           <div style={{ flex: '1 1 220px' }}><Field id="su-e" label="Email" type="email" autoComplete="email" value={f.email} error={e_('email')} onChange={(e) => setF({ ...f, email: e.target.value })} /></div>
-          <div style={{ flex: '1 1 200px' }}><Field id="su-p" label="Mobile (WhatsApp)" hint="For order updates from your expert" type="tel" inputMode="tel" autoComplete="tel" placeholder="98765 43210" value={f.phone} error={e_('phone')} onChange={(e) => setF({ ...f, phone: e.target.value })} /></div>
+          <div style={{ flex: '1 1 200px' }}><Field id="su-p" label="Mobile (WhatsApp) — optional" hint="Only for order updates from your expert" type="tel" inputMode="tel" autoComplete="tel" placeholder="98765 43210" value={f.phone} error={e_('phone')} onChange={(e) => setF({ ...f, phone: e.target.value })} /></div>
         </div>
         <div className="row g12" style={{ alignItems: 'flex-start' }}>
           <div style={{ flex: '1 1 220px' }}><Field id="su-pw" label="Password" type={showPw ? 'text' : 'password'} autoComplete="new-password" value={f.password} error={e_('password')} hint="8+ characters, with letters and a number" onChange={(e) => setF({ ...f, password: e.target.value })} /></div>
-          <div style={{ flex: '1 1 220px' }}><Field id="su-pw2" label="Re-type password" type={showPw ? 'text' : 'password'} autoComplete="new-password" value={f.confirm} onPaste={(e) => e.preventDefault()}
+          <div style={{ flex: '1 1 220px' }}><Field id="su-pw2" label="Re-type password" type={showPw ? 'text' : 'password'} autoComplete="new-password" value={f.confirm}
             error={e_('confirm') || (f.confirm && f.confirm !== f.password && f.confirm.length >= f.password.length ? 'Passwords don’t match' : '')}
             hint={f.confirm && f.confirm === f.password ? '✓ Passwords match' : 'Type it again to be sure'} onChange={(e) => setF({ ...f, confirm: e.target.value })} /></div>
         </div>
@@ -214,7 +207,6 @@ export function Signup() {
         </label>
         {e_('agree') && <span className="error">{e_('agree')}</span>}
         {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
-        <Waking slow={slow} />
         <button type="submit" className="btn btn-ink btn-lg" disabled={busy}>{busy && <Spinner />}Create account</button>
       </form>
       <span className="small">Already have an account? <Link to={`/login${next ? `?next=${encodeURIComponent(next)}` : ''}`}>Sign in</Link></span>
@@ -229,7 +221,7 @@ export function ForgotPassword() {
   const [step, setStep] = useState('email');
   const [f, setF] = useState({ email: '', code: '', password: '', confirm: '' });
   const [emailErr, setEmailErr] = useState('');
-  const { busy, err, slow, run } = useRun();
+  const { busy, err, run } = useRun();
   return (
     <Shell title="Reset your password" sub={step === 'email' ? 'We’ll email you a code.' : `If ${f.email} has an account, a code is on its way.`}>
       {step === 'email' ? (
@@ -240,17 +232,15 @@ export function ForgotPassword() {
         }}>
           <Field id="fp-e" label="Email" type="email" autoComplete="email" value={f.email} error={emailErr} onChange={(e) => { setF({ ...f, email: e.target.value }); setEmailErr(''); }} />
           {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
-          <Waking slow={slow} />
-          <button type="submit" className="btn btn-ink btn-lg" disabled={busy}>{busy && <Spinner />}Send code</button>
+            <button type="submit" className="btn btn-ink btn-lg" disabled={busy}>{busy && <Spinner />}Send code</button>
         </form>
       ) : (
         <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); run(async () => { await resetPassword(f.email, f.code, f.password, f.confirm); toast('Password changed — sign in with the new one'); nav('/login'); }); }}>
           <CodeInput value={f.code} onChange={(code) => setF({ ...f, code })} />
           <Field id="fp-p" label="New password" type="password" autoComplete="new-password" value={f.password} hint="8+ characters, with letters and a number" error={f.password && passwordIssue(f.password)} onChange={(e) => setF({ ...f, password: e.target.value })} />
-          <Field id="fp-p2" label="Re-type new password" type="password" autoComplete="new-password" value={f.confirm} onPaste={(e) => e.preventDefault()} error={f.confirm && f.confirm !== f.password && f.confirm.length >= f.password.length ? 'Passwords don’t match' : ''} hint={f.confirm && f.confirm === f.password ? '✓ Passwords match' : ''} onChange={(e) => setF({ ...f, confirm: e.target.value })} />
+          <Field id="fp-p2" label="Re-type new password" type="password" autoComplete="new-password" value={f.confirm} error={f.confirm && f.confirm !== f.password && f.confirm.length >= f.password.length ? 'Passwords don’t match' : ''} hint={f.confirm && f.confirm === f.password ? '✓ Passwords match' : ''} onChange={(e) => setF({ ...f, confirm: e.target.value })} />
           {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
-          <Waking slow={slow} />
-          <button type="submit" className="btn btn-ink btn-lg" disabled={busy || f.code.length !== 6 || !!passwordIssue(f.password) || f.confirm !== f.password}>{busy && <Spinner />}Change password</button>
+            <button type="submit" className="btn btn-ink btn-lg" disabled={busy || f.code.length !== 6 || !!passwordIssue(f.password) || f.confirm !== f.password}>{busy && <Spinner />}Change password</button>
         </form>
       )}
       <Demo>the code is <code>{DEMO_CODE}</code>.</Demo>
@@ -268,7 +258,7 @@ export function AdminLogin() {
   const [step, setStep] = useState(null); // { userId } after the password
   const [f, setF] = useState({ email: '', password: '', code: '', trust: false });
   const [recovery, setRecovery] = useState(false); // lost phone: one-time recovery code instead
-  const { busy, err, slow, run } = useRun();
+  const { busy, err, run } = useRun();
   if (user?.role === 'admin' && session?.twoStep) return <Navigate to={next?.startsWith('/admin') ? next : '/admin'} replace />;
   return (
     <Shell title="Admin sign in" sub="Two-step login is required for every admin account.">
@@ -278,8 +268,7 @@ export function AdminLogin() {
           <Field id="ad-e" label="Work email" type="email" autoComplete="username" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
           <Field id="ad-p" label="Password" type="password" autoComplete="current-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />
           {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
-          <Waking slow={slow} />
-          <button type="submit" className="btn btn-ink btn-lg" disabled={busy || !f.email || !f.password}>{busy && <Spinner />}Continue</button>
+            <button type="submit" className="btn btn-ink btn-lg" disabled={busy || !f.email || !f.password}>{busy && <Spinner />}Continue</button>
         </form>
       ) : (
         <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); run(async () => { await adminVerify(step.userId, f.code, f.trust); nav(next?.startsWith('/admin') ? next : '/admin', { replace: true }); }); }}>
@@ -290,8 +279,7 @@ export function AdminLogin() {
             : <CodeInput id="ad-c" value={f.code} onChange={(code) => setF({ ...f, code })} label="Authenticator code" />}
           <label className="row g8 small"><input type="checkbox" checked={f.trust} onChange={(e) => setF({ ...f, trust: e.target.checked })} />Trust this device for 30 days</label>
           {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
-          <Waking slow={slow} />
-          <button type="submit" className="btn btn-ink btn-lg" disabled={busy || (recovery ? f.code.replace(/[^A-Z0-9]/gi, '').length !== 8 : f.code.length !== 6)}>{busy && <Spinner />}Verify & open admin</button>
+            <button type="submit" className="btn btn-ink btn-lg" disabled={busy || (recovery ? f.code.replace(/[^A-Z0-9]/gi, '').length !== 8 : f.code.length !== 6)}>{busy && <Spinner />}Verify & open admin</button>
           <button type="button" className="link-btn small" style={{ alignSelf: 'flex-start' }} onClick={() => { setStep(null); setF({ ...f, code: '' }); }}>← Use a different account</button>
           <span className="xs faint">Lost your phone? <button type="button" className="link-btn xs" onClick={() => { setRecovery(!recovery); setF({ ...f, code: '' }); }}>{recovery ? 'Use the authenticator code' : 'Use a recovery code'}</button> or ask the owner to reset your two-step login.</span>
         </form>
@@ -394,7 +382,7 @@ export function AdminSetup() {
         <Field id="as-e" label="Work email" type="email" autoComplete="username" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
         <Field id="as-n" label="Your name" autoComplete="name" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} />
         <Field id="as-p" label="Password" type="password" autoComplete="new-password" value={f.password} hint="8+ characters, with letters and a number" error={pwIssue || ''} onChange={(e) => setF({ ...f, password: e.target.value })} />
-        <Field id="as-p2" label="Re-type password" type="password" autoComplete="new-password" value={f.confirm} onPaste={(e) => e.preventDefault()} error={f.confirm && f.confirm !== f.password && f.confirm.length >= f.password.length ? 'Passwords don’t match' : ''} hint={f.confirm && f.confirm === f.password ? '✓ Passwords match' : ''} onChange={(e) => setF({ ...f, confirm: e.target.value })} />
+        <Field id="as-p2" label="Re-type password" type="password" autoComplete="new-password" value={f.confirm} error={f.confirm && f.confirm !== f.password && f.confirm.length >= f.password.length ? 'Passwords don’t match' : ''} hint={f.confirm && f.confirm === f.password ? '✓ Passwords match' : ''} onChange={(e) => setF({ ...f, confirm: e.target.value })} />
         {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
         <button type="submit" className="btn btn-ink btn-lg" disabled={busy || !ready}>{busy && <Spinner />}Continue</button>
       </form>

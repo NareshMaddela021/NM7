@@ -76,3 +76,66 @@ describe('orderFromApi', () => {
     expect(review.refundRequest).toMatchObject({ status: 'review', ref: 'RF-2' });
   });
 });
+
+describe('resume saves reach the server in order, carry the stamp we last saw, and retry once', () => {
+  it('a second edit waits for the first PATCH; each PATCH sends ifUpdated and learns the new stamp', async () => {
+    vi.useFakeTimers();
+    const { noteServerStamps } = await import('./meLive');
+    noteServerStamps([{ id: 'r1', updated: 100 }]);
+    let release;
+    let n = 0;
+    globalThis.fetch = vi.fn((url, opts) => {
+      n += 1;
+      calls.push({ url: url.replace(/^.*?(\/api\/)/, '/api/'), method: opts.method, body: JSON.parse(opts.body) });
+      if (n === 1) return new Promise((r) => { release = () => r({ ok: true, status: 200, json: async () => ({ id: 'r1', updated: 200 }) }); });
+      return Promise.resolve({ ok: true, status: 200, json: async () => ({ id: 'r1', updated: 300 }) });
+    });
+    const a = base();
+    const b = { ...a, resumes: [{ ...a.resumes[0], data: { a: 2 } }] };
+    persist(a, b);
+    await vi.advanceTimersByTimeAsync(800); // the first PATCH is in flight (held)
+    const c = { ...b, resumes: [{ ...b.resumes[0], data: { a: 3 } }] };
+    persist(b, c);
+    await vi.advanceTimersByTimeAsync(800);
+    expect(calls).toHaveLength(1); // the second waits for the first
+    expect(calls[0].body).toEqual({ data: { a: 2 }, ifUpdated: 100 });
+    release();
+    await vi.advanceTimersByTimeAsync(10);
+    expect(calls).toHaveLength(2);
+    expect(calls[1].body).toEqual({ data: { a: 3 }, ifUpdated: 200 }); // the stamp the first answer gave
+  });
+
+  it('a network error is retried once after 3 s; a 409 is not retried and is reported', async () => {
+    vi.useFakeTimers();
+    const { onSaveState } = await import('./meLive');
+    const states = [];
+    const off = onSaveState((s) => states.push({ ...s }));
+    let n = 0;
+    globalThis.fetch = vi.fn(async (url, opts) => {
+      n += 1;
+      calls.push({ url: url.replace(/^.*?(\/api\/)/, '/api/'), method: opts.method, body: JSON.parse(opts.body) });
+      if (n === 1) throw new TypeError('Failed to fetch');
+      return { ok: true, status: 200, json: async () => ({ id: 'r1', updated: 1 }) };
+    });
+    const a = base();
+    persist(a, { ...a, resumes: [{ ...a.resumes[0], data: { a: 9 } }] });
+    await vi.advanceTimersByTimeAsync(800);
+    expect(calls).toHaveLength(1);
+    await vi.advanceTimersByTimeAsync(3_100);
+    expect(calls).toHaveLength(2);
+    expect(states[states.length - 1]).toEqual({ pending: 0, failed: null });
+
+    calls.length = 0;
+    const errors = [];
+    const { setErrorHandler } = await import('./meLive');
+    setErrorHandler((e) => errors.push(e));
+    globalThis.fetch = vi.fn(async (url, opts) => { calls.push({ url, method: opts.method }); return { ok: false, status: 409, json: async () => ({ error: { code: 'stale', message: 'changed elsewhere' } }) }; });
+    persist(a, { ...a, resumes: [{ ...a.resumes[0], data: { a: 10 } }] });
+    await vi.advanceTimersByTimeAsync(800);
+    await vi.advanceTimersByTimeAsync(5_000);
+    expect(calls).toHaveLength(1); // no retry on a 409
+    expect(errors[0]?.code).toBe('stale');
+    expect(states[states.length - 1].failed?.code).toBe('stale');
+    off();
+  });
+});

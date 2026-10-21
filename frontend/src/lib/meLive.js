@@ -1,6 +1,6 @@
 // Live app: the customer dashboard's data comes from the API (/api/me/*, /api/orders) and every change is saved
 // there. Nothing personal is kept in this browser; the store holds it in memory for the signed-in customer only.
-import { http } from '../services/http';
+import { API_BASE, http, isTransient } from '../services/http';
 
 const PLAN_KINDS = new Set(['plan']);
 const ts = (v) => (v ? Date.parse(v) : null);
@@ -43,6 +43,7 @@ const ticketFromApi = (t) => ({ id: t.id, topic: t.topic, order: t.orderId || un
 /** GET everything for the dashboard and turn it into the store's shape. */
 export async function fetchState() {
   const [s, orders] = await Promise.all([http('/api/me/state'), http('/api/orders')]);
+  noteServerStamps(s.resumes);
   const active = s.resumes.find((r) => r.active) || s.resumes[0];
   const p = s.profile;
   return {
@@ -61,39 +62,101 @@ export async function fetchState() {
   };
 }
 
-export const createResume = (r) => http('/api/me/resumes', { method: 'POST', body: { id: r.id, name: r.name, data: r.data, jd: r.jd || '', active: !!r.active, versions: r.versions || [] } });
+export const createResume = (r) => http('/api/me/resumes', { method: 'POST', body: { id: r.id, name: r.name, data: r.data, jd: r.jd || '', active: !!r.active, versions: r.versions || [] } }).then((saved) => { noteServerStamps([saved]); return saved; });
 
 /* ---------- saving changes: compare before/after and send only what changed ---------- */
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 const byId = (list) => new Map((list || []).map((x) => [x.id, x]));
 const pending = new Map(); // debounced resume saves: id -> { timer, patch }
+const chains = new Map(); // resume id -> the promise of its last PATCH, so saves reach the server in order
+const serverUpdated = new Map(); // resume id -> the server's `updated` stamp we last saw (sent back as ifUpdated)
 let onError = () => {};
 /** The store passes a function that shows save errors (e.g. a toast) and reloads. */
 export const setErrorHandler = (fn) => { onError = fn; };
 const send = (p) => p.catch((e) => onError(e));
 
+/* ---------- what the "Saved" indicator shows: requests still waiting or in flight, and the last failure ---------- */
+const saveSubs = new Set();
+let inFlight = 0;
+let failed = null; // the last save error, until the next successful save
+const saveState = () => ({ pending: inFlight + pending.size + (profilePatch ? 1 : 0), failed });
+const notifySave = () => saveSubs.forEach((f) => f(saveState()));
+/** `fn({ pending, failed })` now and whenever a save starts, finishes or fails. */
+export const onSaveState = (fn) => { saveSubs.add(fn); fn(saveState()); return () => saveSubs.delete(fn); };
+export const getSaveState = saveState;
+/** Remember the server's `updated` stamp of each resume (from GET /api/me/state or a PATCH answer). */
+export function noteServerStamps(resumes) { (resumes || []).forEach((r) => { if (r?.id && r.updated) serverUpdated.set(r.id, r.updated); }); }
+
+const RETRY_AFTER_MS = 3_000;
+/**
+ * One PATCH of a resume: queued behind the previous one for the same resume (so an older edit can never land after
+ * a newer one), sent with the server stamp we last saw (`ifUpdated`: another tab or device that saved since gets a
+ * 409 `stale`, and the store reloads instead of overwriting), retried once on a network error / timeout / 5xx.
+ */
+function patchResume(id, patch, { retry = true } = {}) {
+  const prev = chains.get(id) || Promise.resolve();
+  const run = prev.catch(() => {}).then(async () => {
+    inFlight += 1; notifySave();
+    try {
+      for (let attempt = 0; ; attempt += 1) {
+        try {
+          const body = serverUpdated.has(id) ? { ...patch, ifUpdated: serverUpdated.get(id) } : patch;
+          const saved = await http(`/api/me/resumes/${encodeURIComponent(id)}`, { method: 'PATCH', body, retry: 0 });
+          if (saved?.updated) serverUpdated.set(id, saved.updated);
+          failed = null;
+          return saved;
+        } catch (e) {
+          if (attempt === 0 && retry && isTransient(e)) { await new Promise((r) => setTimeout(r, RETRY_AFTER_MS)); continue; }
+          failed = e;
+          throw e;
+        }
+      }
+    } finally {
+      inFlight -= 1; notifySave();
+    }
+  });
+  chains.set(id, run);
+  run.catch(() => {}).finally(() => { if (chains.get(id) === run) chains.delete(id); });
+  return run;
+}
+
 function saveResumeSoon(id, patch) {
   const cur = pending.get(id) || { patch: {} };
   clearTimeout(cur.timer);
   const merged = { ...cur.patch, ...patch };
-  const timer = setTimeout(() => { pending.delete(id); send(http(`/api/me/resumes/${encodeURIComponent(id)}`, { method: 'PATCH', body: merged })); }, 700);
+  const timer = setTimeout(() => { pending.delete(id); send(patchResume(id, merged)); }, 700);
   pending.set(id, { timer, patch: merged });
+  notifySave();
 }
 let profilePatch = null; let profileTimer;
 function saveProfileSoon(patch) {
   profilePatch = { ...(profilePatch || {}), ...patch };
   clearTimeout(profileTimer);
-  profileTimer = setTimeout(() => { const body = profilePatch; profilePatch = null; send(http('/api/me/profile', { method: 'PATCH', body })); }, 600);
+  profileTimer = setTimeout(() => { const body = profilePatch; profilePatch = null; inFlight += 1; notifySave(); send(http('/api/me/profile', { method: 'PATCH', body }).finally(() => { inFlight -= 1; notifySave(); })); }, 600);
+  notifySave();
 }
 /** Sends any resume/profile saves still waiting (e.g. before signing out). */
 export async function flush() {
   clearTimeout(profileTimer);
   if (profilePatch) { const body = profilePatch; profilePatch = null; await http('/api/me/profile', { method: 'PATCH', body }).catch(() => {}); }
-  const jobs = [...pending.entries()].map(([id, { timer, patch }]) => { clearTimeout(timer); return http(`/api/me/resumes/${encodeURIComponent(id)}`, { method: 'PATCH', body: patch }).catch(() => {}); });
+  const jobs = [...pending.entries()].map(([id, { timer, patch }]) => { clearTimeout(timer); return patchResume(id, patch, { retry: false }).catch(() => {}); });
   pending.clear();
-  await Promise.all(jobs);
+  await Promise.all([...jobs, ...chains.values()].map((p) => p.catch(() => {})));
+  notifySave();
 }
-export function cancelPending() { pending.forEach(({ timer }) => clearTimeout(timer)); pending.clear(); clearTimeout(profileTimer); profilePatch = null; }
+/**
+ * The tab is being closed or hidden: send what is still waiting with `keepalive`, which the browser finishes even
+ * after the page is gone (a normal fetch would be cancelled). No answer is read.
+ */
+export function flushKeepalive() {
+  clearTimeout(profileTimer);
+  const beacon = (path, body) => { try { fetch(API_BASE + path, { method: 'PATCH', credentials: 'include', keepalive: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).catch(() => {}); } catch { /* ignore */ } };
+  if (profilePatch) { beacon('/api/me/profile', profilePatch); profilePatch = null; }
+  pending.forEach(({ timer, patch }, id) => { clearTimeout(timer); beacon(`/api/me/resumes/${encodeURIComponent(id)}`, serverUpdated.has(id) ? { ...patch, ifUpdated: serverUpdated.get(id) } : patch); });
+  pending.clear();
+  notifySave();
+}
+export function cancelPending() { pending.forEach(({ timer }) => clearTimeout(timer)); pending.clear(); clearTimeout(profileTimer); profilePatch = null; notifySave(); }
 
 function syncList(prev, next, path, toBody, { patchable = true } = {}) {
   const a = byId(prev); const b = byId(next);
