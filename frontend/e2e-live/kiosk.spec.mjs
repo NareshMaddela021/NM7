@@ -36,9 +36,9 @@ test('kiosk: switch on → kiosk link → code sign-in → build → print → w
   await form.getByRole('button', { name: 'Save group' }).click();
   await expect(page.getByRole('region', { name: 'Group Walk-in drive' })).toBeVisible();
   await expect(page.getByRole('region', { name: 'Kiosks' })).toHaveCount(0); // off by default
-  const kioskSwitch = page.getByRole('region', { name: 'Features' }).getByRole('checkbox', { name: /Kiosk mode/ });
-  await kioskSwitch.click();
-  await expect(kioskSwitch).toBeChecked();
+  const kioskSwitch = page.getByRole('region', { name: 'Features' }).getByRole('combobox', { name: /Kiosk mode/ }); // plan-based, forced on by Nm7
+  await kioskSwitch.selectOption('on');
+  await expect(kioskSwitch).toHaveValue('on');
   const kiosks = page.getByRole('region', { name: 'Kiosks' });
   await expect(kiosks).toBeVisible();
   await kiosks.getByLabel('Label').fill('Stall 1');
