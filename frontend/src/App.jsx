@@ -1,4 +1,4 @@
-import { Component, Suspense, lazy as reactLazy, useEffect, useState } from 'react';
+import { Component, Suspense, lazy as reactLazy, useEffect, useRef, useState } from 'react';
 import { Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
 import Header from './components/Header';
 import DownloadGateHost from './components/DownloadGate';
@@ -114,6 +114,29 @@ function OrderRedirect() {
 }
 const C = (el) => <RequireAuth role="customer">{el}</RequireAuth>;
 const E = (el, approved = true) => <RequireAuth role="expert" approved={approved}>{el}</RequireAuth>;
+
+/** After a route change, keyboard and screen-reader users land on the new page's main content instead of staying
+ * on the link they pressed somewhere in the old page. The first render is left alone. */
+function RouteFocus() {
+  const { pathname } = useLocation();
+  // Compare with the last path rather than a "first render" flag: StrictMode runs effects twice on load.
+  const last = useRef(pathname);
+  useEffect(() => {
+    if (last.current === pathname) return;
+    last.current = pathname;
+    const id = requestAnimationFrame(() => focusMain());
+    return () => cancelAnimationFrame(id);
+  }, [pathname]);
+  return null;
+}
+/** Moves focus to the page's main content (the skip link and route changes). */
+export function focusMain() {
+  const main = document.getElementById('main') || document.querySelector('main');
+  if (!main) return false;
+  if (!main.hasAttribute('tabindex')) main.setAttribute('tabindex', '-1');
+  main.focus({ preventScroll: true });
+  return true;
+}
 
 function ScrollToTop() {
   const { pathname, hash } = useLocation();
@@ -231,8 +254,9 @@ function Pages({ children }) {
 export default function App() {
   return (
     <>
-      <a href="#main" className="skip-link">Skip to content</a>
+      <a href="#main" className="skip-link" onClick={(e) => { if (focusMain()) e.preventDefault(); }}>Skip to content</a>
       <ScrollToTop />
+      <RouteFocus />
       <PreviewBar />
       <DownloadGateHost />
       <ServerWaking />

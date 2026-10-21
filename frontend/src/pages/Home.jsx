@@ -450,7 +450,7 @@ export default function Home() {
   return (
     <>
       <Header right={<button type="button" className="btn btn-ink h-hdr-cta hide-sm" data-show={past} tabIndex={past ? 0 : -1} style={{ minHeight: 40 }} onClick={toTop}>Free scan</button>} />
-      <main className="home home-pad-bottom">
+      <main id="main" className="home home-pad-bottom">
         {/* 1 · hero */}
         <section className="h-hero" ref={heroRef} aria-labelledby="hero-title">
           <div className="h-wrap h-grid">

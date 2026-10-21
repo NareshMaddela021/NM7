@@ -508,7 +508,7 @@ function Finish({ base, d, brand, approval, org, save, onEdit, onFinish, autoPri
     try {
       await save();
       const [{ buildResumePdf }] = await freshImport(printModules, { beforeReload });
-      await printPdf(await buildResumePdf({ data: d, design, photo: null, brand: await prepareBrand(brand) }));
+      await printPdf(await buildResumePdf({ data: d, design, brand: await prepareBrand(brand) }));
       await http(`${base}/print`, { method: 'POST', body: {} });
       setStatus({ text: 'Sent to the printer. Collect your copy from the printer.', error: false });
     } catch (e) {

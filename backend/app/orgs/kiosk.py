@@ -36,9 +36,10 @@ from app.core.time import IST, now
 from app.me.service import ms
 from app.orgs import emails
 from app.orgs.branding import brands_for
-from app.orgs.router import JoinIn, _join, recruiters_on
+from app.orgs.members import _join
 from app.orgs.scope import NOT_FOUND, OrgScope, require_feature
 from app.orgs.service import ORG_TYPE_NAMES, consent_text, group_problem
+from app.orgs.shapes import JoinIn, recruiters_on
 
 staff = APIRouter(prefix="/api/org/{org_id}/kiosks", tags=["kiosk"])
 kiosk = APIRouter(prefix="/api/kiosk/{token}", tags=["kiosk"])

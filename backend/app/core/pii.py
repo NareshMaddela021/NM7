@@ -105,6 +105,8 @@ def scrub_id_numbers(obj: Any, *, strict: bool = False) -> tuple[Any, int]:
             items.append(v2)
         return items, n
     if isinstance(obj, str):
+        if obj.startswith("data:image/"):  # a photo saved with the resume: base64 can look like a number
+            return obj, 0
         out, n = scrub_text(obj)
         if strict and n and has_id_number(out):
             return "", n + 1

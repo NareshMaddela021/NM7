@@ -10,7 +10,7 @@ import pytest
 
 from app.core.db import AUDIT_LOG, EXPORT_JOBS, MEMBERSHIPS, ORG_STAFF, USERS
 from app.core.time import now
-from app.orgs import router as orgs_router
+from app.orgs import shared as orgs_shared
 from tests.conftest import signup
 from tests.test_orgs import RESUME, join, member, setup_group
 
@@ -472,7 +472,7 @@ async def test_reminders_throttle_opt_out_cap_and_audit(owner, make_client, outb
     ).status_code == 404
 
     before = len(outbox.sent)
-    monkeypatch.setattr(orgs_router, "MAX_EMAILS", 2)
+    monkeypatch.setattr(orgs_shared, "MAX_EMAILS", 2)
     note = "Bring a printout <script>"
     r = (await co.post(f"{base}/remind", json={"segment": "incomplete", "group": g["id"], "note": note})).json()
     assert r["sent"] == 2 and r["reasons"] == {"optedOut": 1, "recent": 0, "overLimit": 1, "failed": 0}
@@ -481,7 +481,7 @@ async def test_reminders_throttle_opt_out_cap_and_audit(owner, make_client, outb
     assert all("&lt;script&gt;" in m.html and "<script>" not in m.html for m in sent)
     assert "Still missing" in sent[0].html and "education" in sent[0].text
 
-    monkeypatch.setattr(orgs_router, "MAX_EMAILS", 500)
+    monkeypatch.setattr(orgs_shared, "MAX_EMAILS", 500)
     r = (await co.post(f"{base}/remind", json={"segment": "selected", "ids": ids})).json()
     assert r["sent"] == 1 and r["reasons"]["recent"] == 2 and r["reasons"]["optedOut"] == 1  # 24 h per member
     r = await co.post(f"{base}/remind", json={"segment": "stale", "group": g["id"]})
@@ -525,7 +525,7 @@ async def test_batch_failure_does_not_mark_last_reminded(owner, make_client, out
     async def broken(mailer, msgs):
         return [False] * len(msgs)
 
-    monkeypatch.setattr(orgs_router, "send_batch", broken)
+    monkeypatch.setattr(orgs_shared, "send_batch", broken)
     body = {"segment": "incomplete", "group": g["id"]}
     for _ in range(3):
         r = (await co.post(f"{base}/remind", json=body)).json()
@@ -655,11 +655,11 @@ async def test_reminder_day_is_the_india_day(monkeypatch):
     from datetime import UTC, datetime
 
     from app.core.time import IST
-    from app.orgs import router as orgs_router
+    from app.orgs import shared as orgs_shared
 
     late = datetime(2026, 10, 20, 23, 30, tzinfo=IST)
     next_morning = datetime(2026, 10, 21, 9, 0, tzinfo=IST)
     row = {"last_reminded_at": late.astimezone(UTC)}
-    assert orgs_router._recent(row, late.astimezone(UTC)) is True
-    assert orgs_router._recent(row, next_morning.astimezone(UTC)) is False  # a new day, though under 24 h later
-    assert orgs_router._ist_midnight(next_morning.astimezone(UTC)) == datetime(2026, 10, 21, 0, 0, tzinfo=IST)
+    assert orgs_shared._recent(row, late.astimezone(UTC)) is True
+    assert orgs_shared._recent(row, next_morning.astimezone(UTC)) is False  # a new day, though under 24 h later
+    assert orgs_shared._ist_midnight(next_morning.astimezone(UTC)) == datetime(2026, 10, 21, 0, 0, tzinfo=IST)

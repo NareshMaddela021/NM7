@@ -89,6 +89,7 @@ export function ToastProvider({ children }) {
 export const useToast = () => useContext(ToastCtx);
 
 /* ---------- Dialog ---------- */
+const FOCUSABLE = 'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])';
 export function Dialog({ title, children, onClose, wide, showTitle }) {
   const ref = useRef();
   const closeRef = useRef(onClose);
@@ -97,7 +98,16 @@ export function Dialog({ title, children, onClose, wide, showTitle }) {
     const prev = document.activeElement;
     const node = ref.current;
     node?.querySelector('button, input, [href]')?.focus();
-    const onKey = (e) => { if (e.key === 'Escape') closeRef.current(); };
+    const onKey = (e) => {
+      if (e.key === 'Escape') { closeRef.current(); return; }
+      if (e.key !== 'Tab' || !node) return;
+      // keep Tab inside the dialog (a modal must not let focus wander to the page behind it)
+      const items = [...node.querySelectorAll(FOCUSABLE)].filter((el) => !el.disabled && el.getAttribute('aria-hidden') !== 'true' && el.offsetParent !== null);
+      if (!items.length) { e.preventDefault(); return; }
+      const first = items[0]; const last = items[items.length - 1];
+      if (e.shiftKey && (document.activeElement === first || !node.contains(document.activeElement))) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
     node?.addEventListener('keydown', onKey);
     return () => { node?.removeEventListener('keydown', onKey); prev?.focus?.(); };
   }, []);

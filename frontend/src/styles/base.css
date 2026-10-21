@@ -37,11 +37,11 @@ p { margin: 0; }
 .h1 { font-size: clamp(36px, 5.4vw, 72px); }
 .h2 { font-size: clamp(28px, 3.6vw, 44px); line-height: 1.08; }
 .h3 { font-size: 24px; font-weight: 600; }
-.mono { font-family: var(--font-mono); font-size: 12px; letter-spacing: .02em; }
+.mono { font-family: var(--font-mono); font-size: 13px; letter-spacing: .02em; }
 .muted { color: var(--text2); }
 .faint { color: var(--text3); }
 .small { font-size: 14px; }
-.xs { font-size: 13px; }
+.xs { font-size: 14px; }
 .lead { font-size: 18px; line-height: 1.6; color: var(--text2); }
 .strong { font-weight: 600; }
 
@@ -74,7 +74,7 @@ p { margin: 0; }
 .btn-ghost:hover { color: var(--text); background: var(--sunken); }
 .btn-danger { background: var(--danger); color: #fff; }
 .btn-danger:hover { color: #fff; }
-.btn-danger-soft { background: var(--dangerbg); color: var(--danger); min-height: 36px; font-size: 13px; padding: 0 10px; }
+.btn-danger-soft { background: var(--dangerbg); color: var(--danger); min-height: 36px; font-size: 14px; padding: 0 10px; }
 .btn-lg { min-height: 52px; padding: 0 24px; font-size: 16px; }
 .btn-xl { min-height: 56px; padding: 0 28px; font-size: 17px; }
 .btn-block { width: 100%; }
@@ -83,7 +83,7 @@ p { margin: 0; }
 
 /* ---------- forms ---------- */
 .field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-.label { font-size: 13px; font-weight: 600; color: var(--text2); }
+.label { font-size: 14px; font-weight: 600; color: var(--text2); }
 .input {
   height: 48px; padding: 0 14px; border-radius: var(--r-control);
   border: 1px solid var(--border2); background: var(--surface); color: var(--text);
@@ -93,8 +93,8 @@ p { margin: 0; }
 .input:disabled { background: var(--sunken); color: var(--text3); }
 .input[aria-invalid="true"] { border-color: var(--danger); }
 textarea.input { height: auto; padding: 12px 14px; line-height: 1.55; resize: vertical; }
-.help { font-size: 13px; color: var(--text3); }
-.error { font-size: 13px; color: var(--danger); }
+.help { font-size: 14px; color: var(--text3); }
+.error { font-size: 14px; color: var(--danger); }
 .check { display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: 15px; cursor: pointer; }
 .check input { width: 18px; height: 18px; margin: 0; accent-color: var(--ink); }
 .option {
@@ -112,7 +112,7 @@ textarea.input { height: auto; padding: 12px 14px; line-height: 1.55; resize: ve
 }
 .chip[aria-pressed="true"] { background: var(--ink); color: var(--onink); border-color: var(--ink); }
 .chip:disabled { opacity: .45; cursor: not-allowed; }
-.badge { display: inline-flex; align-items: center; font-size: 12px; font-weight: 600; padding: 4px 9px; border-radius: var(--r-chip); white-space: nowrap; }
+.badge { display: inline-flex; align-items: center; font-size: 13px; font-weight: 600; padding: 4px 9px; border-radius: var(--r-chip); white-space: nowrap; }
 .b-danger { background: var(--dangerbg); color: var(--danger); }
 .b-warning { background: var(--warningbg); color: var(--warning); }
 .b-success { background: var(--successbg); color: var(--success); }
@@ -143,7 +143,7 @@ textarea.input { height: auto; padding: 12px 14px; line-height: 1.55; resize: ve
 .undim { opacity: 1; transition: opacity 300ms, filter 300ms; }
 .num-dot {
   width: 24px; height: 24px; flex: none; border-radius: 50%; border: 0;
-  background: var(--ink); color: var(--onink); font-family: var(--font-mono); font-size: 12px;
+  background: var(--ink); color: var(--onink); font-family: var(--font-mono); font-size: 13px;
   display: inline-flex; align-items: center; justify-content: center;
 }
 
@@ -201,7 +201,7 @@ textarea.input { height: auto; padding: 12px 14px; line-height: 1.55; resize: ve
 /* ---------- table ---------- */
 .table-wrap { overflow-x: auto; }
 .table { width: 100%; border-collapse: collapse; font-size: 14px; }
-.table th { text-align: left; font-family: var(--font-mono); font-size: 12px; font-weight: 500; color: var(--text3); padding: 12px 8px; }
+.table th { text-align: left; font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--text3); padding: 12px 8px; }
 .table th:first-child, .table td:first-child { padding-left: 20px; }
 .table th:last-child, .table td:last-child { padding-right: 20px; }
 .table td { padding: 14px 8px; border-top: 1px solid var(--border); vertical-align: middle; }
@@ -256,7 +256,7 @@ textarea.input { height: auto; padding: 12px 14px; line-height: 1.55; resize: ve
 /* ---------- customer dashboard ---------- */
 .me-tabs { display: none; }
 .tl { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0; }
-.tl li { flex: 1 1 0; min-width: 84px; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; font-size: 12px; position: relative; padding-top: 2px; }
+.tl li { flex: 1 1 0; min-width: 84px; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; font-size: 13px; position: relative; padding-top: 2px; }
 .tl li::before { content: ''; position: absolute; top: 13px; left: -50%; width: 100%; height: 2px; background: var(--border); z-index: 0; }
 .tl li:first-child::before { display: none; }
 .tl li[data-state="done"]::before, .tl li[data-state="now"]::before { background: var(--success); }
@@ -270,7 +270,7 @@ textarea.input { height: auto; padding: 12px 14px; line-height: 1.55; resize: ve
   .me-side { display: none !important; }
   .me-wrap { padding-bottom: 96px !important; }
   .me-tabs { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 35; background: var(--surface); border-top: 1px solid var(--border); padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px)); }
-  .me-tabs a, .me-tabs button { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; min-height: 52px; justify-content: center; font-size: 11px; font-weight: 600; color: var(--text2); text-decoration: none; border: 0; background: transparent; border-radius: 10px; position: relative; }
+  .me-tabs a, .me-tabs button { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; min-height: 52px; justify-content: center; font-size: 12px; font-weight: 600; color: var(--text2); text-decoration: none; border: 0; background: transparent; border-radius: 10px; position: relative; }
   .me-tabs a span, .me-tabs button > span:first-child { font-size: 18px; line-height: 1; }
   .me-tabs a.active { color: var(--text); background: var(--sunken); }
   .me-tabs .dot { position: absolute; top: 8px; right: calc(50% - 16px); width: 8px; height: 8px; border-radius: 50%; background: var(--danger); }
@@ -291,7 +291,7 @@ textarea.input { height: auto; padding: 12px 14px; line-height: 1.55; resize: ve
 .entry-title strong:focus { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 4px; }
 .entry-tools { display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; }
 .entry-btn { min-height: 36px; min-width: 36px; }
-.entry-switch { min-height: 36px; padding: 0 10px 0 6px; gap: 8px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+.entry-switch { min-height: 36px; padding: 0 10px 0 6px; gap: 8px; font-size: 14px; font-weight: 600; white-space: nowrap; }
 .entry-track { flex: none; width: 34px; height: 20px; border-radius: 999px; background: var(--success); position: relative; transition: background-color 200ms; }
 .entry-knob { position: absolute; top: 2px; left: 16px; width: 16px; height: 16px; border-radius: 50%; background: var(--surface); transition: left 200ms var(--ease); }
 .entry-switch[aria-checked="false"] .entry-track { background: var(--border2); }
@@ -325,7 +325,7 @@ textarea.input { height: auto; padding: 12px 14px; line-height: 1.55; resize: ve
 .blog-card-body { display: flex; flex-direction: column; gap: 8px; padding: 18px; flex: 1; align-items: flex-start; }
 .blog-card-title { font-size: 19px; line-height: 1.3; margin: 0; }
 .blog-card-excerpt { margin: 0; color: var(--text2); font-size: 15px; line-height: 1.5; }
-.blog-meta, .blog-byline { font-size: 13px; color: var(--text2); margin-top: auto; }
+.blog-meta, .blog-byline { font-size: 14px; color: var(--text2); margin-top: auto; }
 .blog-byline { margin: 0; }
 .blog-empty { padding: 48px 0; font-size: 18px; color: var(--text2); }
 .blog-layout { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 40px; align-items: start; }

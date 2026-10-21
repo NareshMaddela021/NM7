@@ -268,6 +268,8 @@ export async function raiseIssue({ topic, order, text }) {
 export const activeResume = (s = get()) => s.resumes.find((r) => r.active) || s.resumes[0];
 
 /** The builder keeps editing the active resume. Called by the builder on every save and when the dashboard opens. */
+/** Version snapshots leave the photo out (it is kept on the resume itself): 20 copies of it would not fit. */
+export const withoutPhoto = (data) => { if (!data?.photo) return data; const { photo: _photo, ...rest } = data; return rest; };
 export function syncFromBuilder(data) {
   const s = get(); const a = activeResume(s);
   if (!a || s.loading) return;
@@ -275,7 +277,7 @@ export function syncFromBuilder(data) {
   if (JSON.stringify(d) === JSON.stringify(a.data)) return;
   const last = a.versions[a.versions.length - 1];
   // keep an automatic snapshot at most every 30 minutes (up to 20)
-  const versions = !last || Date.now() - last.at > 30 * 60 * 1000 ? [...a.versions, { at: Date.now(), label: 'Auto-saved', data: a.data }].slice(-20) : a.versions;
+  const versions = !last || Date.now() - last.at > 30 * 60 * 1000 ? [...a.versions, { at: Date.now(), label: 'Auto-saved', data: withoutPhoto(a.data) }].slice(-20) : a.versions;
   commit({ ...s, resumes: s.resumes.map((r) => (r.id === a.id ? { ...r, data: d, updated: Date.now(), versions } : r)) });
 }
 
@@ -321,7 +323,8 @@ export function restoreVersion(id, data) {
   syncFromBuilder();
   const r = get().resumes.find((x) => x.id === id);
   if (!r) return;
-  updateResume(id, { data: structuredClone(data), versions: [...r.versions, { at: Date.now(), label: 'Before restore', data: r.data }].slice(-20) });
+  const photo = r.data?.photo ? { photo: r.data.photo } : {}; // snapshots have no photo: keep the current one
+  updateResume(id, { data: { ...structuredClone(data), ...photo }, versions: [...r.versions, { at: Date.now(), label: 'Before restore', data: withoutPhoto(r.data) }].slice(-20) });
   if (r.active && !LIVE) { try { localStorage.setItem(draftKey(), JSON.stringify(data)); } catch { /* ignore */ } }
 }
 
