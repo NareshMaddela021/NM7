@@ -22,8 +22,13 @@ services:
         value: nm7
       - key: SECRET_KEY
         generateValue: true
-      - key: ENCRYPTION_KEY # encrypts admin authenticator secrets; never change it after admins are set up
-        generateValue: true
+      # Encrypts admin authenticator secrets. Set by hand (sync: false) and kept in a password manager: were Render to
+      # generate it again (a new service from this blueprint), every admin's two-step login would stop working.
+      # Moving an existing service: copy its current value from the dashboard and paste the same one.
+      - key: ENCRYPTION_KEY
+        sync: false
+      - key: TRUSTED_PROXY_HOPS # proxies in front of the API that append to X-Forwarded-For (Render: 1)
+        value: "1"
       - key: CORS_ORIGINS # the frontend's production address (comma-separated list, no trailing slash)
         value: https://nm7-omega.vercel.app,https://nm7.si,https://www.nm7.si
       - key: CORS_ORIGIN_REGEX # Vercel preview deployments of project nm7, team nm-8

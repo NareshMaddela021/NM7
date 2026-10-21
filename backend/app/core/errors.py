@@ -3,6 +3,9 @@
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException
+
+HTTP_CODES = {404: "not_found", 405: "method_not_allowed", 413: "too_large", 415: "unsupported_type"}
 
 
 class ApiError(Exception):
@@ -26,6 +29,14 @@ async def _validation_error(_: Request, exc: RequestValidationError) -> JSONResp
     return JSONResponse(body, 422)
 
 
+async def _http_error(_: Request, exc: HTTPException) -> JSONResponse:
+    """Starlette's own errors (unknown route, wrong method, a body over the limit) in the same shape."""
+    code = HTTP_CODES.get(exc.status_code, "http_error")
+    message = exc.detail if isinstance(exc.detail, str) and exc.detail else "Something went wrong."
+    return JSONResponse({"error": {"code": code, "message": message}}, exc.status_code, headers=exc.headers)
+
+
 def install(app: FastAPI) -> None:
     app.add_exception_handler(ApiError, _api_error)
     app.add_exception_handler(RequestValidationError, _validation_error)
+    app.add_exception_handler(HTTPException, _http_error)

@@ -11,7 +11,13 @@ from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    app_env: Literal["dev", "test", "prod"] = "dev"
+    # Fails closed: a service created without APP_ENV is production (no /docs, Secure cookies, no codes in the
+    # log). Local development sets APP_ENV=dev in .env (see .env.example); the tests set "test".
+    app_env: Literal["dev", "test", "prod"] = "prod"
+    # How many proxies sit in front of the API and append the caller's address to X-Forwarded-For (Render: 1).
+    # The client IP used for rate limits and audit entries is the entry that many from the right, so a caller
+    # cannot choose its own by sending the header. 0 = no proxy: use the socket address.
+    trusted_proxy_hops: int = 1
     # MongoDB (Atlas in production). Atlas gives a mongodb+srv:// URI; local tests use a one-node replica set.
     mongodb_uri: str = "mongodb://127.0.0.1:27017/?replicaSet=rs0"
     mongodb_db: str = "nm7"

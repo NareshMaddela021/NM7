@@ -16,3 +16,9 @@ def test_cors_origins_from_comma_list(monkeypatch):
 def test_blank_cookie_domain_is_none(monkeypatch):
     monkeypatch.setenv("COOKIE_DOMAIN", "")
     assert Settings().cookie_domain is None
+
+
+def test_app_env_fails_closed_to_prod(monkeypatch):
+    monkeypatch.delenv("APP_ENV", raising=False)
+    s = Settings(_env_file=None)
+    assert s.app_env == "prod" and s.is_prod and s.trusted_proxy_hops == 1

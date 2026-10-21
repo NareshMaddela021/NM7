@@ -16,8 +16,8 @@ from app.admin.router import router as admin_router
 from app.admin.setup import router as admin_setup_router
 from app.auth.admin_router import router as admin_auth_router
 from app.auth.router import router as auth_router
-from app.auth.sessions import SESSION_COOKIE
 from app.core import errors
+from app.core.body_limit import BodyLimit
 from app.core.config import get_settings
 from app.core.db import DB, close_client, ensure_indexes, get_database
 from app.core.email import log_email_status
@@ -65,6 +65,22 @@ def create_app() -> FastAPI:
         redoc_url=None,
         openapi_url=None if settings.is_prod else "/openapi.json",
     )
+    errors.install(app)
+    app.add_middleware(BodyLimit)
+
+    @app.middleware("http")
+    async def origin_check(request: Request, call_next):
+        # Cookie-authenticated changes must come from our own site (CSRF protection on top of SameSite). Every
+        # Nm7 cookie counts: the session, the admin two-step challenge, a trusted device, the owner-setup ticket.
+        if request.method not in ("GET", "HEAD", "OPTIONS") and any(c.startswith("nm7_") for c in request.cookies):
+            if not settings.origin_allowed(request.headers.get("origin") or ""):
+                return JSONResponse(
+                    {"error": {"code": "bad_origin", "message": "Request blocked: unknown origin."}}, 403
+                )
+        return await call_next(request)
+
+    # Added last so it is outermost: every answer, the 403s and 413s above included, carries the CORS headers
+    # and the browser shows the message instead of a CORS error.
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,
@@ -73,17 +89,6 @@ def create_app() -> FastAPI:
         allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
         allow_headers=["Content-Type", "X-Access-Code"],  # the access code of a recruiter link
     )
-    errors.install(app)
-
-    @app.middleware("http")
-    async def origin_check(request: Request, call_next):
-        # Cookie-authenticated changes must come from our own site (CSRF protection on top of SameSite).
-        if request.method not in ("GET", "HEAD", "OPTIONS") and SESSION_COOKIE in request.cookies:
-            if not settings.origin_allowed(request.headers.get("origin") or ""):
-                return JSONResponse(
-                    {"error": {"code": "bad_origin", "message": "Request blocked: unknown origin."}}, 403
-                )
-        return await call_next(request)
 
     @app.get("/health", tags=["ops"])
     async def health(db: DB) -> JSONResponse:

@@ -80,9 +80,15 @@ async def test_two_owner_setups_at_once_make_one_owner(make_client, db, monkeypa
 async def test_one_email_code_signs_in_once(client, outbox, make_client, tries):
     await signup(client, outbox, verify=False)
     code = outbox.last_code("sai@example.com")
+
+    def same_browser():  # parallel requests from the browser that signed up (it holds the sign-up cookie)
+        c = make_client()
+        c.cookies.set("nm7_signup", client.cookies["nm7_signup"])
+        return c
+
     results = await asyncio.gather(
         *(
-            make_client().post("/api/auth/verify-email", json={"email": "sai@example.com", "code": code})
+            same_browser().post("/api/auth/verify-email", json={"email": "sai@example.com", "code": code})
             for _ in range(tries)
         )
     )

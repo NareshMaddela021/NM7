@@ -15,6 +15,11 @@ from app.core.time import now
 CODE_TTL = timedelta(minutes=10)
 CODE_MAX_ATTEMPTS = 5
 CODE_SEND_RULES = [(1, timedelta(minutes=1)), (5, timedelta(hours=1))]  # per email address
+# One client must not make the site email unlimited addresses (Resend quota, reputation, junk accounts). The per-IP
+# numbers leave room for a whole college on one Wi-Fi address; the global ones are an abuse brake, not a budget.
+CODE_SEND_IP_RULES = [(30, timedelta(minutes=10)), (120, timedelta(hours=1)), (400, timedelta(days=1))]
+CODE_SEND_ALL_RULES = [(300, timedelta(hours=1)), (2000, timedelta(days=1))]
+UNVERIFIED_TTL = timedelta(days=7)  # a sign-up never confirmed is dropped after this
 LOGIN_FAIL_EMAIL = (10, timedelta(minutes=15))
 LOGIN_FAIL_IP = (30, timedelta(minutes=15))
 
@@ -89,15 +94,20 @@ async def check_code(db: AsyncDatabase, user: User, purpose: str, code: str) -> 
     return False
 
 
-async def may_send_code(db: AsyncDatabase, email: str, *, raise_if_limited: bool = True) -> bool:
-    """Applies the per-email send limit (whether or not the account exists) and records the send."""
+async def may_send_code(db: AsyncDatabase, email: str, ip: str | None = None, *, raise_if_limited: bool = True) -> bool:
+    """Applies the send limits (per email address whether or not the account exists, per caller address, and for
+    the site as a whole) and records the send."""
+    keys = [code_key(email), "code:all"] + ([f"code-ip:{ip}"] if ip else [])
     try:
         await rate_limit.check(
             db, code_key(email), CODE_SEND_RULES, "Please wait a minute before asking for another code."
         )
+        if ip:
+            await rate_limit.check(db, f"code-ip:{ip}", CODE_SEND_IP_RULES)
+        await rate_limit.check(db, "code:all", CODE_SEND_ALL_RULES)
     except ApiError:
         if raise_if_limited:
             raise
         return False
-    await rate_limit.record(db, code_key(email))
+    await rate_limit.record(db, *keys)
     return True

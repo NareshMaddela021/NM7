@@ -4,7 +4,7 @@ import logging
 
 import pytest
 
-from app.core.db import RESUMES, SESSIONS, SHARES
+from app.core.db import COVER_LETTERS, RESUMES, SESSIONS, SHARES
 from tests.conftest import PASSWORD, signup
 
 RESUME = {"personal": {"name": "Sai Varsha", "phone": "+91 98765 43210", "email": "sai@example.com"}, "summary": "Hi"}
@@ -358,3 +358,26 @@ async def test_resume_patch_with_a_stale_stamp_is_409(client, outbox):
     # a page count alone never conflicts, and no stamp means no check
     assert (await client.patch("/api/me/resumes/r1", json={"pages": 2, "ifUpdated": stamp})).status_code == 200
     assert (await client.patch("/api/me/resumes/r1", json={"data": {"summary": "three"}})).status_code == 200
+
+
+async def test_cover_letters_and_the_public_link_never_carry_id_numbers(client, outbox, make_client, db):
+    """The scrub also covers cover letters (saved text) and the public share link (a second lock)."""
+    await signup(client, outbox)
+    body = "Dear team, my Aadhaar is 2345 6789 0123 and PAN ABCDE1234F. I built 12 dashboards."
+    cover = {"id": "c9", "company": "Zoho", "role": "Analyst", "body": body}
+    assert (await client.post("/api/me/cover-letters", json=cover)).status_code == 201
+    saved = await db[COVER_LETTERS].find_one({"key": "c9"})
+    assert "2345 6789 0123" not in saved["body"] and "ABCDE1234F" not in saved["body"]
+    assert "12 dashboards" in saved["body"]
+    r = await client.patch("/api/me/cover-letters/c9", json={"jd": "Send your PAN ABCDE1234F with the application"})
+    assert r.status_code == 200
+    assert "ABCDE1234F" not in (await db[COVER_LETTERS].find_one({"key": "c9"}))["jd"]
+
+    # an ID written straight into the stored resume (saved before the scrub existed) never reaches a public viewer
+    await add_resume(client, "r9")
+    await db[RESUMES].update_one({"key": "r9"}, {"$set": {"data.summary": "Analyst. Aadhaar 2345 6789 0123."}})
+    r = await client.put("/api/me/share", json={"on": True, "slug": "asha-rao-9", "resumeId": "r9", "hidePhone": False})
+    assert r.status_code == 200
+    page = (await make_client().get("/api/public/resumes/asha-rao-9")).json()
+    text = str(page)
+    assert "2345 6789 0123" not in text and "234567890123" not in text and "Analyst." in text

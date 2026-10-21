@@ -334,3 +334,113 @@ async def test_reset_also_verifies_an_unverified_email(client, outbox, db):
 
 
 # ---------- ZeptoMail ----------
+
+
+# ---------- security hardening (audit #28, #30, #32, #33) ----------
+
+
+async def test_verify_from_another_browser_is_refused_until_the_password_is_given(client, outbox, db, make_client):
+    """A stranger signing up with someone else's address cannot have the real owner confirm it for them."""
+    await signup(client, outbox, verify=False)
+    code = outbox.last_code("sai@example.com")
+    other = make_client()
+    r = await other.post("/api/auth/verify-email", json={"email": "sai@example.com", "code": code})
+    assert r.status_code == 400 and err(r) == "verify_elsewhere"
+    # the code was not used up by that: the browser that signed up can still confirm it
+    assert "nm7_signup" in client.cookies
+    # …and another browser can, once it proves the password (sign-in sends a fresh code and binds the browser)
+    await clear_limits(db)
+    r = await other.post("/api/auth/login", json={"email": "sai@example.com", "password": PASSWORD})
+    assert r.status_code == 403 and err(r) == "email_not_verified" and "nm7_signup" in other.cookies
+    code = outbox.last_code("sai@example.com")
+    r = await other.post("/api/auth/verify-email", json={"email": "sai@example.com", "code": code})
+    assert r.status_code == 200 and r.json()["verified"] is True
+
+
+async def test_unverified_signup_expires_and_confirming_clears_the_timer(client, outbox, db):
+    await signup(client, outbox, verify=False)
+    row = await db[USERS].find_one({"email_lc": "sai@example.com"})
+    assert row["unverified_expires_at"] > now() + timedelta(days=6) and row["signup_token_hash"]
+    code = outbox.last_code("sai@example.com")
+    r = await client.post("/api/auth/verify-email", json={"email": "sai@example.com", "code": code})
+    assert r.status_code == 200
+    row = await db[USERS].find_one({"email_lc": "sai@example.com"})
+    assert "unverified_expires_at" not in row and "signup_token_hash" not in row
+    assert "nm7_signup" not in client.cookies
+
+
+async def test_signup_rate_limit_per_ip(client, outbox, db, monkeypatch):
+    from app.auth import service
+
+    monkeypatch.setattr(service, "CODE_SEND_IP_RULES", [(2, timedelta(hours=1))])
+    assert (await signup_raw(client, "a@example.com")).status_code == 201
+    assert (await signup_raw(client, "b@example.com")).status_code == 201
+    r = await signup_raw(client, "c@example.com")
+    assert r.status_code == 429 and err(r) == "rate_limited" and len(outbox.sent) == 2
+    # the forgot-password form shares the same cap
+    r = await client.post("/api/auth/password/forgot", json={"email": "d@example.com"})
+    assert r.status_code == 429
+    # a different address (behind the proxy) is not affected
+    r = await client.post(
+        "/api/auth/signup",
+        headers={"X-Forwarded-For": "203.0.113.9"},
+        json={
+            "role": "customer",
+            "name": "D",
+            "email": "d@example.com",
+            "password": PASSWORD,
+            "passwordConfirm": PASSWORD,
+            "termsAccepted": True,
+        },
+    )
+    assert r.status_code == 201
+
+
+async def test_site_wide_send_cap(client, outbox, monkeypatch):
+    from app.auth import service
+
+    monkeypatch.setattr(service, "CODE_SEND_ALL_RULES", [(1, timedelta(hours=1))])
+    assert (await signup_raw(client, "a@example.com")).status_code == 201
+    r = await client.post(
+        "/api/auth/signup",
+        headers={"X-Forwarded-For": "203.0.113.9"},
+        json={
+            "role": "customer",
+            "name": "B",
+            "email": "b@example.com",
+            "password": PASSWORD,
+            "passwordConfirm": PASSWORD,
+            "termsAccepted": True,
+        },
+    )
+    assert r.status_code == 429
+
+
+def test_client_ip_is_the_entry_our_proxy_added(monkeypatch):
+    """A caller cannot pick its own address by writing X-Forwarded-For: the proxy appends the real one last."""
+    from starlette.requests import Request
+
+    from app.auth.sessions import client_ip
+
+    def req(xff=None):
+        headers = [(b"x-forwarded-for", xff.encode())] if xff else []
+        return Request({"type": "http", "headers": headers, "client": ("10.0.0.2", 1234)})
+
+    assert client_ip(req()) == "10.0.0.2"
+    assert client_ip(req("198.51.100.7")) == "198.51.100.7"
+    assert client_ip(req("1.2.3.4, 198.51.100.7")) == "198.51.100.7"  # 1.2.3.4 was written by the caller
+    from app.core import config
+
+    monkeypatch.setattr(config.get_settings(), "trusted_proxy_hops", 2)
+    assert client_ip(req("1.2.3.4, 198.51.100.7, 203.0.113.1")) == "198.51.100.7"
+    monkeypatch.setattr(config.get_settings(), "trusted_proxy_hops", 0)
+    assert client_ip(req("1.2.3.4")) == "10.0.0.2"
+
+
+async def test_every_nm7_cookie_is_origin_checked(client):
+    """The admin two-step challenge, trusted-device and setup-ticket cookies are not session cookies, but a
+    cross-site form must not be able to spend them either."""
+    for name in ("nm7_2fa", "nm7_trust", "nm7_admin_setup"):
+        evil = {"Origin": "https://evil.example"}
+        r = await client.post("/api/auth/admin/verify", json={"code": "123456"}, cookies={name: "x"}, headers=evil)
+        assert r.status_code == 403 and err(r) == "bad_origin", name

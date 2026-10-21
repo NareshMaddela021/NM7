@@ -306,14 +306,28 @@ async def _delete(db, collection: str, uid: str, key: str, what: str) -> Respons
     return Response(status_code=204)
 
 
+def _clean_cover(body: CoverIn | CoverPatch) -> CoverIn | CoverPatch:
+    """A cover letter is saved without ID numbers too (the body and the pasted job description)."""
+    n = 0
+    for k in ("body", "jd"):
+        v = getattr(body, k, None)
+        if v:
+            cleaned, m = scrub_id_numbers(v)
+            setattr(body, k, cleaned)
+            n += m
+    if n:
+        log.warning("cover letter saved without %d ID number(s)", n)
+    return body
+
+
 @router.post("/cover-letters", status_code=201)
 async def add_cover(body: CoverIn, auth: CustomerAuth, db: DB) -> CoverOut:
-    return cover_out(await _add(db, COVER_LETTERS, auth.user.id, body, MAX_COVERS, "cover letter"))
+    return cover_out(await _add(db, COVER_LETTERS, auth.user.id, _clean_cover(body), MAX_COVERS, "cover letter"))
 
 
 @router.patch("/cover-letters/{key}")
 async def patch_cover(key: str, body: CoverPatch, auth: CustomerAuth, db: DB) -> CoverOut:
-    return cover_out(await _patch(db, COVER_LETTERS, auth.user.id, key, body, "cover letter"))
+    return cover_out(await _patch(db, COVER_LETTERS, auth.user.id, key, _clean_cover(body), "cover letter"))
 
 
 @router.delete("/cover-letters/{key}", status_code=204)
@@ -387,7 +401,7 @@ async def public_resume(slug: str, request: Request, auth: MaybeAuth, db: DB) ->
     r = r or await db[RESUMES].find_one({**q, "active": True}) or await db[RESUMES].find_one(q)
     if not r or not await db[USERS].find_one({"_id": s["_id"], "disabled_at": None}):
         raise off
-    data = visible_resume(r["data"])  # switched-off entries are not sent
+    data, _ = scrub_id_numbers(visible_resume(r["data"]), strict=True)  # switched-off entries and IDs are not sent
     if s.get("hide_phone"):
         data["personal"] = {**(data.get("personal") or {}), "phone": ""}
         if isinstance(data.get("pinfo"), dict):

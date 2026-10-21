@@ -122,6 +122,7 @@ INDEXES: dict[str, list[IndexModel]] = {
     USERS: [
         IndexModel("email_lc", unique=True),
         IndexModel("role"),
+        IndexModel("unverified_expires_at", expireAfterSeconds=0),  # sign-ups never confirmed are dropped
         IndexModel("referral_code", unique=True, partialFilterExpression=_str("referral_code")),
         IndexModel("referred_by"),
     ],
