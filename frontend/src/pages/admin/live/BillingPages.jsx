@@ -8,6 +8,7 @@ import { useToast } from '../../../components/ui';
 import { LIMITS, PLAN_FEATURES, limitText, periodText, rupees } from '../../../lib/orgBilling';
 import { downloadFrom } from '../../../lib/fileDownload';
 import { Kpi, PageHead } from '../AdminUI';
+import { OrgPartner } from './PartnerPages';
 import { Loading, day, emptyIf, http, useAction, useApi } from './common';
 
 const inputStyle = { height: 40 };
@@ -238,6 +239,7 @@ export function OrgBilling({ orgId }) {
               <button type="submit" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={busy}>Save</button>
             </form>
           )}
+          <OrgPartner orgId={orgId} partner={b.partner} reload={st.reload} />
           <OrgMoney orgId={orgId} b={b} reload={st.reload} />
           {b.history.length > 0 && <details><summary className="small">Earlier plans ({b.history.length})</summary><ul className="small">{b.history.map((h, i) => <li key={i}>{h.planName} · {h.startsOn ? `${day(h.startsOn)} – ${day(h.endsOn)}` : ''} · {h.source || ''} · replaced {day(h.replacedAt)}</li>)}</ul></details>}
         </section>
@@ -315,7 +317,7 @@ function OrgMoney({ orgId, b, reload }) {
             <label className="small" style={{ flex: '1 1 220px' }}>Reason (printed on the credit note) <input required minLength={3} maxLength={300} className="input" style={inputStyle} value={rf.note} onChange={(e) => setRf({ ...rf, note: e.target.value })} /></label>
             <label className="small">Bank reference, if paid offline <input minLength={3} maxLength={80} className="input" style={inputStyle} value={rf.offline} onChange={(e) => setRf({ ...rf, offline: e.target.value })} /></label>
           </div>
-          <span className="xs muted">Razorpay payments are refunded through Razorpay; offline payments need the reference of the money you sent back. A full refund takes the plan back (Free, or the plan it renewed).</span>
+          <span className="xs muted">Razorpay payments are refunded through Razorpay; offline payments need the reference of the money you sent back. A full refund takes the plan back (Free, or the plan it renewed). The partner commission on it is reversed.</span>
           <button type="submit" className="btn btn-danger" style={{ alignSelf: 'flex-start' }} disabled={busy}>Refund</button>
         </form>
       )}

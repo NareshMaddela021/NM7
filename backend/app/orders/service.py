@@ -14,6 +14,7 @@ from app.core.time import financial_year, now
 from app.orders.models import ORDER_NO_START, Order, OrderItem
 from app.orders.pricing import CURRENCY, price
 from app.orders.schemas import OrderOut
+from app.partners.service import on_org_paid
 from app.payments.models import Payment
 from app.refunds.models import Refund
 from app.site import get_site
@@ -80,6 +81,7 @@ async def mark_paid(
             order.status = "done"  # the organization's plan turns on in this same transaction
             await activate_paid(db, order, source=source, session=s)
             await issue_invoice(db, order, at, session=s)  # its tax invoice, under the same number
+            await on_org_paid(db, order, at, session=s)  # partner tie (first payment) and commission
         elif order.plan == "diy":
             order.status = "done"
         else:

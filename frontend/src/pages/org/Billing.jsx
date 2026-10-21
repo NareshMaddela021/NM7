@@ -58,19 +58,23 @@ function Details({ data, onSaved }) {
   );
 }
 
-function Buy({ data, plan, onPaid }) {
+function Buy({ data, plan, onPaid, refCode }) {
   const [q, setQ] = useState(null);
   const [st, setSt] = useState({});
+  const [code, setCode] = useState(null); // typed partner code; null = the remembered one (partner link)
   const s = data.summary;
   const renew = s.planId === plan.id && (s.state === 'active' || s.state === 'grace');
-  const open = async () => {
+  const firstPayment = !data.orders.some((o) => o.paidAt);
+  const typed = (code ?? '').trim();
+  const quote = async (ref) => {
     setSt({ busy: true });
-    try { setQ(await http(`/api/org/${data.orgId}/billing/quote?plan=${plan.id}`)); setSt({}); } catch (err) { setSt({ error: err.message }); }
+    try { setQ(await http(`/api/org/${data.orgId}/billing/quote?plan=${plan.id}${ref ? `&ref=${encodeURIComponent(ref)}` : ''}`)); setSt({}); } catch (err) { setSt({ error: err.message }); }
   };
+  const open = () => quote(typed);
   const go = async () => {
     setSt({ busy: true });
     try {
-      const order = await http(`/api/org/${data.orgId}/billing/checkout`, { method: 'POST', body: { planId: plan.id } });
+      const order = await http(`/api/org/${data.orgId}/billing/checkout`, { method: 'POST', body: { planId: plan.id, refCode: typed || null } });
       await pay(order);
       setSt({ waiting: true });
       onPaid(order.orderId);
@@ -89,6 +93,15 @@ function Buy({ data, plan, onPaid }) {
           {q.discount > 0 && <span className="row between"><span>{q.discountLabel || 'Discount'}</span><span>−{rupees(q.discount)}</span></span>}
           {q.taxLines.map((t) => <span key={t.label} className="row between"><span>{t.label} {t.ratePct}%</span><span>{rupees(t.amount)}</span></span>)}
           <span className="row between" style={{ fontWeight: 700 }}><span>Total</span><span>{rupees(q.total)}</span></span>
+          {firstPayment && (
+            <form className="row g8" style={{ alignItems: 'flex-end', flexWrap: 'wrap' }} onSubmit={(e) => { e.preventDefault(); quote(typed); }}>
+              <label className="xs muted" style={{ flex: '1 1 140px' }}>Partner code (optional)
+                <input className="input mono" style={{ height: 34 }} maxLength={16} value={code ?? q.partnerCode ?? refCode ?? ''} placeholder="ASX-…" onChange={(e) => setCode(e.target.value.toUpperCase())} />
+              </label>
+              <button type="submit" className="btn btn-outline btn-sm" disabled={st.busy}>Apply</button>
+            </form>
+          )}
+          {q.partnerCode && <span className="xs muted">Referred by partner <span className="mono">{q.partnerCode}</span>.</span>}
           <div className="row g8" style={{ marginTop: 6 }}>
             <button type="button" className="btn btn-ink" disabled={st.busy || st.waiting} onClick={go}>{st.busy ? 'Opening…' : `Pay ${rupees(q.total)}`}</button>
             <button type="button" className="btn btn-outline" onClick={() => setQ(null)}>Cancel</button>
@@ -153,6 +166,8 @@ export default function Billing({ orgId }) {
   const st = useApi(`/api/org/${orgId}/billing`);
   const reload = async () => { const d = await http(`/api/org/${orgId}/billing`); st.reload(); return d; };
   const [waiting, startWaiting] = useWaitForPayment(reload);
+  const [refCode, setRefCode] = useState(null);
+  useEffect(() => { http('/api/public/referral').then((r) => setRefCode(r.code), () => {}); }, []);
   return (
     <Loading st={st}>{(data) => {
       const s = data.summary;
@@ -173,7 +188,7 @@ export default function Billing({ orgId }) {
           <section className="stack g8" aria-label="Plans">
             <strong>{s.state === 'free' ? 'Upgrade' : 'Renew or change plan'}</strong>
             <div className="row g12" style={{ flexWrap: 'wrap', alignItems: 'stretch' }}>
-              {data.plans.map((p) => <Buy key={p.id} data={data} plan={p} onPaid={startWaiting} />)}
+              {data.plans.map((p) => <Buy key={p.id} data={data} plan={p} onPaid={startWaiting} refCode={refCode} />)}
             </div>
             <span className="xs muted">{data.gstOn ? `GST (${data.gstRatePct}%) is added at checkout. ` : ''}Paying by bank transfer or purchase order? Use “Talk to us” on nm7.si/for-orgs and we’ll send a proforma invoice.</span>
           </section>

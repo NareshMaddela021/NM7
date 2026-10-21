@@ -22,9 +22,17 @@ const FAQ = [
   ['Is candidate data safe?', 'Members choose what to share and can leave any time. Aadhaar, PAN and similar numbers are removed from shared resumes, and every view, print and export is logged.'],
 ];
 
+/** A partner link (?ref=CODE): the server checks the code and remembers it in a first-party cookie (Billing
+ * settings: 90 days), so it is credited when the organization first pays — even if they sign up later. */
 function useRef90() {
   const { search } = useLocation();
-  return refFromSearch(search);
+  const asked = refFromSearch(search);
+  const [ref, setRef] = useState(null);
+  useEffect(() => {
+    if (!asked || !LIVE) return;
+    http('/api/public/referral', { method: 'POST', body: { code: asked } }).then((r) => setRef(r.code ? r : null), () => setRef(null));
+  }, [asked]);
+  return ref;
 }
 
 function Plans({ data }) {
@@ -147,7 +155,7 @@ export default function ForOrgs() {
             <button type="button" className="btn btn-ink btn-lg" onClick={() => setStart(true)}>Start free</button>
             <a className="btn btn-outline btn-lg" href="#talk">Talk to us</a>
           </div>
-          {refCode && <span className="xs muted">Referred by partner code <strong className="mono">{refCode}</strong>.</span>}
+          {refCode && <span className="xs muted" role="status">Referred by partner code <strong className="mono">{refCode.code}</strong>{refCode.discountPct ? ` — ${refCode.discountPct}% off your first plan` : ''}.</span>}
         </section>
         <section id="start" className="stack g12"><StartFree open={start} /></section>
         <section className="stack g12" aria-labelledby="plans-h">
@@ -163,9 +171,10 @@ export default function ForOrgs() {
           <h2 id="faq-h" className="display h3">Questions</h2>
           {FAQ.map(([q, a]) => <details key={q} className="card"><summary style={{ fontWeight: 600, cursor: 'pointer' }}>{q}</summary><p className="small" style={{ marginTop: 8 }}>{a}</p></details>)}
         </section>
+        <p className="small muted">Work with colleges or job fairs? <Link to="/partners">Become an Nm7 partner</Link> and earn commission on organizations you bring.</p>
         <section id="talk" className="card stack g12" aria-labelledby="talk-h">
           <h2 id="talk-h" className="display h3">Talk to us</h2>
-          <TalkToUs refCode={refCode} />
+          <TalkToUs refCode={refCode?.code || ''} />
         </section>
       </main>
       <SiteFooter />

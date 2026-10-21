@@ -414,7 +414,8 @@ remove coordinators and viewers within the plan's limit). Owners are made by Nm7
 4. **Renew.** We email you 14, 7 and 1 day before the plan ends. **Renew** continues from the day after it ends. If it
    lapses, everything keeps working for 7 more days, then the Free limits apply — nothing is deleted, but new joins,
    groups, coordinators and kiosks over the Free limits wait until you renew.
-5. **Bank transfer or purchase order?** Use **Talk to us** on /for-orgs; Nm7 sends a proforma invoice.
+5. **Bank transfer or purchase order?** Use **Talk to us** on /for-orgs; Nm7 sends a proforma invoice (with a
+   Razorpay payment link if you like). Referred by an Nm7 partner? Enter their code under *Partner code* when you pay.
 6. **Invoices.** **Billing → Invoices** lists every tax invoice and credit note (and proformas) — **Download PDF** any
    time. The invoice is also attached to the "plan active" email.
 
@@ -459,3 +460,39 @@ at most 16 characters):
   `/api/admin/org-invoices[?fy=&kind=&orgId=]`, `/api/admin/org-invoices/{doc}/pdf`, `/api/admin/org-invoices/gstr1.csv?fy=`,
   `POST /api/admin/orgs/{id}/billing/{proforma,offline-payment,orders/{order}/refund}`.
 - Audit: `proforma_issued`, `payment_offline`, `refund.sent` / `refund.offline`, `credit_note_issued`, `plan_refunded`.
+
+### 4C · Partner referrals
+
+- **Apply** at **nm7.si/partners**: name, organisation, email, phone — nothing else (no PAN or bank details; those
+  are asked by email before the first payout and never stored). Admin → **Partners** → *Review* → **Approve** gives a
+  code like `ASX-RAVI` (editable) and emails it with the link `/for-orgs?ref=ASX-RAVI`.
+- **Link and code.** Opening the link remembers the code in a first-party cookie (`nm7_ref`, HttpOnly; Billing
+  settings: 90 days). The code can also be typed at checkout (*Partner code*). A wrong typed code is an error; a stale
+  cookie is ignored.
+- **Attribution.** An organization is tied to one partner at its **first payment** (the code on that order, recorded in
+  `organizations.partner`), never later. **Self-referral is blocked**: the partner can't be the payer or an Owner /
+  coordinator / viewer of the organization (by account or email). Admin → Organization → Plan and billing →
+  *Partner: Change* corrects the tie (logged; commission already booked stays where it is).
+- **Commission ledger** (`commissions`; Billing settings: 20% for 12 months, payable after 30 days): on every payment
+  in the organization's first 12 months, `pct × taxable value` (before GST, integer paise, half-up), payable 30 days
+  after the payment. A refund adds a negative entry for the matching part (by the credit note's taxable value), taken
+  off the next payout. Optional partner discount for organizations (Billing settings, off by default).
+- **Payouts.** Admin → Partners → partner → **Mark paid** records everything payable today with the transfer reference
+  and a TDS note (`partner_payouts`). Send the money by bank first; this only records it.
+- **Partner page** (**nm7.si/partner**, signed in with the approved email): code, link, referred organizations (**name
+  and plan only**), commission earned / pending / payable / paid. Partners get no access to organizations, members or
+  resumes.
+- API: `POST /api/public/partners/apply`, `GET /api/public/partner-terms`, `POST|GET /api/public/referral`,
+  `GET /api/partner`, `/api/admin/partners[/{id}[/approve|/status|/payouts]]`, `PUT /api/admin/orgs/{id}/partner`;
+  checkout and quote take `refCode` / `ref`.
+- Audit: `partner_apply`, `partner_approve`, `partner_status`, `partner_attributed`, `commission_earned`,
+  `commission_reversed`, `commission_payout`, `org_partner_set`.
+
+#### Before going live (Admin → Billing settings)
+
+1. **Supplier**: GSTIN, address, state, authorised signatory, SAC code (GST invoices start the moment GSTIN and state
+   are saved; until then invoices print without tax lines).
+2. **Razorpay live keys** in Render (`RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET`), then switch
+   **Live payments** on. In the Razorpay dashboard the webhook needs `payment.captured`, `payment.failed`,
+   `refund.processed`, `refund.failed` and `payment_link.paid`.
+3. Assign plans to organizations created before Phase 4 (they have no limits until then).

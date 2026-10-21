@@ -35,6 +35,10 @@
       "destination": "/for-orgs/index.html"
     },
     {
+      "source": "/partners",
+      "destination": "/partners/index.html"
+    },
+    {
       "source": "/terms",
       "destination": "/terms/index.html"
     },
@@ -80,6 +84,10 @@
     },
     {
       "source": "/groups/stop",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/partner",
       "destination": "/index.html"
     },
     {
