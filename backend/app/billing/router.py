@@ -310,6 +310,7 @@ class BillingSettingsIn(CamelModel):
     partner_discount_pct: int = Field(ge=0, le=50)
     razorpay_live: bool
     org_signup_open: bool
+    payment_link_days: int = Field(15, ge=1, le=90)
 
 
 def settings_out(b: dict[str, Any]) -> dict[str, Any]:

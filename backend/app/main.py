@@ -16,6 +16,7 @@ from app.admin.router import router as admin_router
 from app.admin.setup import router as admin_setup_router
 from app.auth.admin_router import router as admin_auth_router
 from app.auth.router import router as auth_router
+from app.billing import invoice_router as billing_docs
 from app.billing import migrate as billing_migrate
 from app.billing import router as billing
 from app.core import errors
@@ -134,6 +135,8 @@ def create_app() -> FastAPI:
     app.include_router(billing.me)
     app.include_router(billing.portal)
     app.include_router(billing.admin)
+    app.include_router(billing_docs.portal)
+    app.include_router(billing_docs.admin)
     app.include_router(orders_router)
     app.include_router(payments_router)
     app.include_router(profile_router)  # before me_router: /api/me/job-profile

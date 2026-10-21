@@ -7,9 +7,10 @@ from pymongo import ASCENDING
 from pymongo.asynchronous.database import AsyncDatabase
 
 from app.auth.models import User
+from app.billing.invoices import issue_invoice
 from app.billing.subscription import activate_paid
 from app.core.db import ORDERS, PAYMENTS, REFUNDS, Session, next_number, transaction
-from app.core.time import IST, now
+from app.core.time import financial_year, now
 from app.orders.models import ORDER_NO_START, Order, OrderItem
 from app.orders.pricing import CURRENCY, price
 from app.orders.schemas import OrderOut
@@ -21,12 +22,6 @@ log = logging.getLogger("nm7.orders")
 
 PAYABLE = ("pending_payment", "expired")  # a late payment for an expired order still counts
 UNPAID_EXPIRES_AFTER = timedelta(hours=24)
-
-
-def financial_year(at: datetime) -> str:
-    d = at.astimezone(IST)
-    start = d.year if d.month >= 4 else d.year - 1
-    return f"{start % 100:02d}-{(start + 1) % 100:02d}"
 
 
 async def next_invoice_no(db: AsyncDatabase, at: datetime, session: Session = None) -> str:
@@ -84,6 +79,7 @@ async def mark_paid(
         if order.kind == "org":
             order.status = "done"  # the organization's plan turns on in this same transaction
             await activate_paid(db, order, source=source, session=s)
+            await issue_invoice(db, order, at, session=s)  # its tax invoice, under the same number
         elif order.plan == "diy":
             order.status = "done"
         else:

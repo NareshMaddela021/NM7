@@ -1,7 +1,8 @@
 """Sending email. Production uses Resend (or Zoho ZeptoMail); dev prints to the log; tests collect messages."""
 
 import logging
-from dataclasses import dataclass
+from base64 import b64encode
+from dataclasses import dataclass, field
 from email.utils import parseaddr
 from typing import Annotated, Protocol
 
@@ -23,6 +24,8 @@ class Email:
     text: str
     html: str
     reply_to: str | None = None  # e.g. the customer, for support tickets sent to our inbox
+    # (file name, MIME type, bytes) — e.g. an invoice PDF. Kept small: providers cap the whole email (~10 MB).
+    attachments: list[tuple[str, str, bytes]] = field(default_factory=list)
 
 
 class Mailer(Protocol):
@@ -47,6 +50,11 @@ class ResendMailer:
             "html": msg.html,
             "text": msg.text,
             **({"reply_to": msg.reply_to or self.reply_to} if msg.reply_to or self.reply_to else {}),
+            **(
+                {"attachments": [{"filename": n, "content": b64encode(b).decode()} for n, _, b in msg.attachments]}
+                if msg.attachments
+                else {}
+            ),
         }
         headers = {"Authorization": f"Bearer {self.api_key}", "Accept": "application/json"}
         async with httpx.AsyncClient(timeout=TIMEOUT) as client:
@@ -69,6 +77,15 @@ class ZeptoMailer:
             "textbody": msg.text,
             "htmlbody": msg.html,
             **({"reply_to": [{"address": msg.reply_to or self.reply_to}]} if msg.reply_to or self.reply_to else {}),
+            **(
+                {
+                    "attachments": [
+                        {"name": n, "mime_type": t, "content": b64encode(b).decode()} for n, t, b in msg.attachments
+                    ]
+                }
+                if msg.attachments
+                else {}
+            ),
         }
         headers = {"Authorization": f"Zoho-enczapikey {self.token}", "Accept": "application/json"}
         async with httpx.AsyncClient(timeout=TIMEOUT) as client:
@@ -82,7 +99,8 @@ class ConsoleMailer:
     available = True
 
     async def send(self, msg: Email) -> None:
-        log.warning("EMAIL to %s — %s\n%s", msg.to, msg.subject, msg.text)
+        files = "".join(f"\n[attached: {n}, {len(b)} bytes]" for n, _, b in msg.attachments)
+        log.warning("EMAIL to %s — %s\n%s%s", msg.to, msg.subject, msg.text, files)
 
 
 class MissingMailer:

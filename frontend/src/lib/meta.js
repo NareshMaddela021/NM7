@@ -31,6 +31,7 @@ export const ROUTE_META = [
   [/^\/admin\/shared-resumes/, 'Shared resumes · Admin', 'Nm7 admin console.'],
   [/^\/admin\/plans/, 'Organization plans · Admin', 'Nm7 admin console.'],
   [/^\/admin\/billing-settings/, 'Billing settings · Admin', 'Nm7 admin console.'],
+  [/^\/admin\/org-invoices/, 'Organization invoices · Admin', 'Nm7 admin console.'],
   [/^\/admin\/?$/, 'Dashboard · Admin', 'Nm7 admin console.'],
   [/^\/admin/, 'Admin console', 'Nm7 admin console.'],
   [/^\/me\/orders/, 'My orders', 'Your orders, their status and invoices.'],

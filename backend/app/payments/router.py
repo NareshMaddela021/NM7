@@ -23,7 +23,7 @@ from app.core.time import now
 from app.orders import emails
 from app.orders.models import Order
 from app.orders.schemas import OrderOut
-from app.orders.service import get_order, mark_paid, order_view
+from app.orders.service import PAYABLE, get_order, mark_paid, order_view
 from app.payments.models import Payment, WebhookEvent
 from app.payments.razorpay import RazorpayError, get_razorpay, payment_signature_ok, webhook_signature_ok
 from app.refunds.service import on_refund_webhook
@@ -141,6 +141,9 @@ async def _on_payment_captured(db: AsyncDatabase, event: dict[str, Any]) -> Orde
         return None
     found = await _payment_for_razorpay_order(db, p.get("order_id") or "")
     if found is None:
+        link = await _link_payment(db, (p.get("notes") or {}).get("order_id"))
+        if link is not None:  # a proforma's payment link (Razorpay copies the link's notes to the payment)
+            return await _pay_by_link(db, link, p)
         # Money with no order of ours (e.g. paid through a link) — keep it so admins can match or refund it.
         orphan = Payment(
             order_id=None,
@@ -171,6 +174,59 @@ async def _on_payment_captured(db: AsyncDatabase, event: dict[str, Any]) -> Orde
     return order if first else None
 
 
+async def _link_payment(db: AsyncDatabase, order_id: str | None, link_id: str | None = None) -> Payment | None:
+    if link_id:
+        q: dict[str, Any] = {"razorpay_link_id": link_id}
+    elif order_id:
+        q = {"order_id": order_id, "razorpay_link_id": {"$type": "string"}}
+    else:
+        return None
+    return Payment.load(await db[PAYMENTS].find_one(q))
+
+
+async def _pay_by_link(db: AsyncDatabase, payment: Payment, p: dict[str, Any]) -> Order | None:
+    """A payment link (sent with a proforma) was paid: the same checks and mark_paid() as a checkout payment."""
+    order = await get_order(db, payment.order_id)
+    if order is None:
+        return None
+    # payment.captured may have arrived first and kept it as money without an order: it is this order's
+    await db[PAYMENTS].update_one(
+        {"razorpay_payment_id": p["id"], "order_id": None},
+        {"$set": {"order_id_matched": order.id, "error": f"Matched to payment link of {order.id}"},
+         "$unset": {"razorpay_payment_id": "", "razorpay_order_id": ""}},
+    )  # fmt: skip
+    if int(p.get("amount") or 0) != payment.amount:
+        await db[PAYMENTS].update_one(
+            {"_id": payment.id},
+            {"$set": {"error": f"Amount mismatch: Razorpay {p.get('amount')} vs order {payment.amount}"}},
+        )
+        await audit(db, None, "payment.amount_mismatch", target=order.id, data={"payment_id": p["id"]})
+        return None
+    if order.status not in PAYABLE and payment.status != "captured":  # already paid another way (offline)
+        await db[PAYMENTS].update_one(
+            {"_id": payment.id},
+            {"$set": {"error": "Paid after the order was already paid — refund this payment", "raw.payment": p}},
+        )
+        await audit(db, None, "payment.duplicate", target=order.id, data={"payment_id": p["id"]})
+        return None
+    if p.get("order_id"):
+        await db[PAYMENTS].update_one(
+            {"_id": payment.id, "razorpay_order_id": None}, {"$set": {"razorpay_order_id": p["order_id"]}}
+        )
+    order, first = await mark_paid(db, payment.id, p["id"], p.get("method"), raw=p)
+    return order if first else None
+
+
+async def _on_link_paid(db: AsyncDatabase, event: dict[str, Any]) -> Order | None:
+    link, p = _entity(event, "payment_link"), _entity(event, "payment")
+    if not link.get("id") or not p.get("id"):
+        return None
+    payment = await _link_payment(db, None, link["id"])
+    if payment is None or payment.order_id is None:
+        return None
+    return await _pay_by_link(db, payment, p)
+
+
 async def _on_payment_failed(db: AsyncDatabase, event: dict[str, Any]) -> None:
     p = _entity(event, "payment")
     # Only while unpaid: the customer can try again on the same Razorpay order.
@@ -195,6 +251,8 @@ async def handle_event(db: AsyncDatabase, event: dict[str, Any]) -> Order | None
     kind = event.get("event")
     if kind in ("payment.captured", "order.paid"):
         return await _on_payment_captured(db, event)
+    if kind == "payment_link.paid":
+        return await _on_link_paid(db, event)
     if kind == "payment.failed":
         await _on_payment_failed(db, event)
     elif kind in ("refund.processed", "refund.failed"):

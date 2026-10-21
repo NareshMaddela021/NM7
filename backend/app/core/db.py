@@ -65,6 +65,7 @@ RECRUITER_LINKS = "recruiter_links"  # Phase 3C: resumes shared with a recruiter
 AI_USAGE = "ai_usage"  # daily AI call counters (core/ai_quota.py): per person, per kiosk link, site-wide, outcomes
 # Phase 4: organization plans (admin-editable, versioned; _id = plan id)
 ORG_PLANS = "org_plans"
+INVOICES = "invoices"  # tax invoices, credit notes, proformas (never edited or deleted)
 COLLECTIONS = (
     USERS,
     EMAIL_CODES,
@@ -100,6 +101,7 @@ COLLECTIONS = (
     RECRUITER_LINKS,
     AI_USAGE,
     ORG_PLANS,
+    INVOICES,
 )
 
 DAY = 86_400
@@ -189,10 +191,18 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel("paid_at"),  # invoices, reports and expert work lists sort / range on it
         IndexModel([("org_id", ASCENDING), ("created_at", DESCENDING)], partialFilterExpression=_str("org_id")),
     ],
+    INVOICES: [
+        IndexModel("number", unique=True),
+        IndexModel([("org_id", ASCENDING), ("created_at", DESCENDING)]),
+        IndexModel([("fy", ASCENDING), ("kind", ASCENDING), ("number", ASCENDING)]),
+        IndexModel("order_id"),
+        IndexModel("refund_id", unique=True, partialFilterExpression=_str("refund_id")),  # one credit note a refund
+    ],
     WEBHOOK_EVENTS: [IndexModel("received_at", expireAfterSeconds=WEBHOOK_KEEP)],
     PAYMENTS: [
         IndexModel("razorpay_order_id", unique=True, partialFilterExpression=_str("razorpay_order_id")),
         IndexModel("razorpay_payment_id", unique=True, partialFilterExpression=_str("razorpay_payment_id")),
+        IndexModel("razorpay_link_id", unique=True, partialFilterExpression=_str("razorpay_link_id")),
         IndexModel("order_id"),
         IndexModel([("status", ASCENDING), ("created_at", DESCENDING)]),
     ],

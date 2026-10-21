@@ -140,6 +140,23 @@ class FakeRazorpay:
         self.refunds = router.post(url__regex=rf"{BASE_URL}/payments/(?P<pid>[^/]+)/refund").mock(
             side_effect=self._refund
         )
+        self.links = router.post(f"{BASE_URL}/payment_links").mock(side_effect=self._create_link)
+        self.link_cancels = router.post(url__regex=rf"{BASE_URL}/payment_links/(?P<lid>[^/]+)/cancel").mock(
+            return_value=httpx.Response(200, json={"status": "cancelled"})
+        )
+
+    def _create_link(self, request):
+        body = json.loads(request.content)
+        n = next(self._ids)
+        self.last_link = {
+            "id": f"plink_T{n:04d}",
+            "amount": body["amount"],
+            "reference_id": body["reference_id"],
+            "short_url": f"https://rzp.io/i/T{n:04d}",
+            "status": "created",
+            "notes": body["notes"],
+        }
+        return httpx.Response(200, json=self.last_link)
 
     def _create_order(self, request):
         body = json.loads(request.content)

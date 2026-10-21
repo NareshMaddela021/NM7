@@ -6,8 +6,9 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useToast } from '../../../components/ui';
 import { LIMITS, PLAN_FEATURES, limitText, periodText, rupees } from '../../../lib/orgBilling';
+import { downloadFrom } from '../../../lib/fileDownload';
 import { Kpi, PageHead } from '../AdminUI';
-import { Loading, day, http, useAction, useApi } from './common';
+import { Loading, day, emptyIf, http, useAction, useApi } from './common';
 
 const inputStyle = { height: 40 };
 const FEATURE_EDIT = PLAN_FEATURES.filter(([k]) => k !== 'kiosk'); // kiosks come from the kiosk-stall limit
@@ -107,6 +108,7 @@ const SETTINGS_FIELDS = [
   ['commissionPayableDays', 'Commission payable after (days)', 0, 365],
   ['referralDays', 'Referral link remembered for (days)', 1, 365],
   ['partnerDiscountPct', 'Partner-code discount for organizations (%)', 0, 50],
+  ['paymentLinkDays', 'Proforma payment link valid for (days)', 1, 90],
 ];
 
 function SettingsForm({ s, states, reload }) {
@@ -236,16 +238,126 @@ export function OrgBilling({ orgId }) {
               <button type="submit" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={busy}>Save</button>
             </form>
           )}
-          {b.orders.length > 0 && (
-            <div className="table-wrap"><table className="table">
-              <thead><tr><th>Order</th><th>Plan</th><th>Amount</th><th>Status</th><th>Paid</th><th>Invoice</th></tr></thead>
-              <tbody>{b.orders.map((o) => <tr key={o.id}><td className="mono small">{o.id}</td><td>{o.planName}</td><td>{rupees(o.amount)}</td><td>{o.status}</td><td>{day(o.paidAt)}</td><td className="mono small">{o.invoiceNo || '—'}</td></tr>)}</tbody>
-            </table></div>
-          )}
+          <OrgMoney orgId={orgId} b={b} reload={st.reload} />
           {b.history.length > 0 && <details><summary className="small">Earlier plans ({b.history.length})</summary><ul className="small">{b.history.map((h, i) => <li key={i}>{h.planName} · {h.startsOn ? `${day(h.startsOn)} – ${day(h.endsOn)}` : ''} · {h.source || ''} · replaced {day(h.replacedAt)}</li>)}</ul></details>}
         </section>
       );
     }}</Loading>
+  );
+}
+
+const METHODS = [['bank_transfer', 'Bank transfer (NEFT/RTGS/IMPS)'], ['upi', 'UPI'], ['cheque', 'Cheque'], ['purchase_order', 'Purchase order'], ['cash', 'Cash'], ['other', 'Other']];
+const DOC_KIND = { invoice: 'Invoice', credit_note: 'Credit note', proforma: 'Proforma' };
+const today = () => new Date(Date.now() + 5.5 * 3600_000).toISOString().slice(0, 10); // IST
+
+/** Admin → Organization → Billing: proforma (with an optional Razorpay payment link), offline payment, refunds,
+ * and this organization's invoices and credit notes. The server does all the money arithmetic. */
+function OrgMoney({ orgId, b, reload }) {
+  const toast = useToast();
+  const [busy, run] = useAction(toast);
+  const docs = useApi(`/api/admin/org-invoices?orgId=${orgId}`);
+  const [pf, setPf] = useState(null);
+  const [made, setMade] = useState(null);
+  const [off, setOff] = useState(null);
+  const [rf, setRf] = useState(null);
+  const again = () => { reload(); docs.reload(); };
+  const paidOrders = new Set(b.orders.filter((o) => o.paidAt).map((o) => o.id));
+  const openProformas = (docs.data?.rows || []).filter((d) => d.kind === 'proforma' && !paidOrders.has(d.orderId));
+  return (
+    <div className="stack g12">
+      <div className="row g8" style={{ flexWrap: 'wrap' }}>
+        <button type="button" className="btn btn-outline" onClick={() => { setMade(null); setPf(pf ? null : { planId: 'drive', extraDiscountPct: 0, paymentLink: true }); }}>Proforma invoice</button>
+        <button type="button" className="btn btn-outline" onClick={() => setOff(off ? null : { orderId: openProformas[0]?.orderId || '', planId: 'drive', method: 'bank_transfer', reference: '', paidOn: today(), amount: openProformas[0] ? String(openProformas[0].total / 100) : '' })}>Record offline payment</button>
+      </div>
+      {!b.details && (pf || off) && <span className="xs" role="note">Add the organization’s billing details first (the Owner does it under Billing).</span>}
+      {pf && (
+        <form className="well stack g8" aria-label="Proforma invoice" onSubmit={(e) => { e.preventDefault(); run(async () => { const d = await http(`/api/admin/orgs/${orgId}/billing/proforma`, { method: 'POST', body: { ...pf, extraDiscountPct: Number(pf.extraDiscountPct) || 0 } }); setMade(d); setPf(null); again(); }, 'Proforma issued'); }}>
+          <div className="row g8" style={{ flexWrap: 'wrap' }}>
+            <select aria-label="Proforma plan" className="input" style={inputStyle} value={pf.planId} onChange={(e) => setPf({ ...pf, planId: e.target.value })}><option value="drive">Drive</option><option value="campus">Campus</option>{b.customPlan && <option value="custom">Custom</option>}</select>
+            <label className="small">Extra discount % <input type="number" min={0} max={100} className="input" style={{ ...inputStyle, width: 80 }} value={pf.extraDiscountPct} onChange={(e) => setPf({ ...pf, extraDiscountPct: e.target.value })} /></label>
+            <label className="row g8 small"><input type="checkbox" checked={pf.paymentLink} onChange={(e) => setPf({ ...pf, paymentLink: e.target.checked })} /> With a Razorpay payment link</label>
+          </div>
+          <span className="xs muted">A request for payment, not a tax invoice. Paid through the link, the plan turns on by itself; paid by bank, record it below.</span>
+          <button type="submit" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={busy}>Issue proforma</button>
+        </form>
+      )}
+      {made && <div className="well small" role="status">Proforma <span className="mono">{made.number}</span> for {rupees(made.total)}.{made.paymentLink ? <> Payment link: <a href={made.paymentLink} target="_blank" rel="noreferrer" className="mono">{made.paymentLink}</a></> : ''} Download it below and send it to the organization.</div>}
+      {off && (
+        <form className="well stack g8" aria-label="Offline payment" onSubmit={(e) => { e.preventDefault(); run(async () => { await http(`/api/admin/orgs/${orgId}/billing/offline-payment`, { method: 'POST', body: { orderId: off.orderId || null, planId: off.orderId ? null : off.planId, method: off.method, reference: off.reference, paidOn: off.paidOn, amount: Math.round(Number(off.amount) * 100) } }); setOff(null); again(); }, 'Payment recorded · plan on · invoice issued'); }}>
+          <div className="row g8" style={{ flexWrap: 'wrap' }}>
+            <select aria-label="Paid for" className="input" style={inputStyle} value={off.orderId} onChange={(e) => { const d = openProformas.find((x) => x.orderId === e.target.value); setOff({ ...off, orderId: e.target.value, amount: d ? String(d.total / 100) : off.amount }); }}>
+              {openProformas.map((d) => <option key={d.id} value={d.orderId}>Proforma {d.number} · {rupees(d.total)}</option>)}
+              <option value="">A plan, without a proforma</option>
+            </select>
+            {!off.orderId && <select aria-label="Plan paid for" className="input" style={inputStyle} value={off.planId} onChange={(e) => setOff({ ...off, planId: e.target.value })}><option value="drive">Drive</option><option value="campus">Campus</option>{b.customPlan && <option value="custom">Custom</option>}</select>}
+            <select aria-label="Method" className="input" style={inputStyle} value={off.method} onChange={(e) => setOff({ ...off, method: e.target.value })}>{METHODS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select>
+          </div>
+          <div className="row g8" style={{ flexWrap: 'wrap' }}>
+            <label className="small">Reference (UTR / cheque / PO no.) <input required minLength={3} maxLength={80} className="input" style={inputStyle} value={off.reference} onChange={(e) => setOff({ ...off, reference: e.target.value })} /></label>
+            <label className="small">Received on <input type="date" required className="input" style={inputStyle} max={today()} value={off.paidOn} onChange={(e) => setOff({ ...off, paidOn: e.target.value })} /></label>
+            <label className="small">Amount received ₹ (GST included) <input type="number" required min={1} step="0.01" className="input" style={{ ...inputStyle, width: 140 }} value={off.amount} onChange={(e) => setOff({ ...off, amount: e.target.value })} /></label>
+          </div>
+          <span className="xs muted">Only once the money is in the bank. The plan turns on now and the tax invoice is emailed to the Owner. The amount must match the order total.</span>
+          <button type="submit" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={busy}>Record payment</button>
+        </form>
+      )}
+      {b.orders.length > 0 && (
+        <div className="table-wrap"><table className="table">
+          <thead><tr><th>Order</th><th>Plan</th><th>Amount</th><th>Status</th><th>Paid</th><th>Invoice</th><th /></tr></thead>
+          <tbody>{b.orders.map((o) => <tr key={o.id}><td className="mono small">{o.id}</td><td>{o.planName}</td><td>{rupees(o.amount)}</td><td>{o.status}</td><td>{day(o.paidAt)}</td><td className="mono small">{o.invoiceNo || '—'}</td><td>{o.paidAt && o.status !== 'refunded' && <button type="button" className="link-btn small" onClick={() => setRf(rf?.orderId === o.id ? null : { orderId: o.id, amount: '', note: '', offline: '' })}>Refund</button>}</td></tr>)}</tbody>
+        </table></div>
+      )}
+      {rf && (
+        <form className="well stack g8" aria-label="Refund" onSubmit={(e) => { e.preventDefault(); if (!window.confirm('Send this refund? A credit note is issued and cannot be undone.')) return; run(async () => { await http(`/api/admin/orgs/${orgId}/billing/orders/${rf.orderId}/refund`, { method: 'POST', body: { amount: rf.amount ? Math.round(Number(rf.amount) * 100) : null, note: rf.note, offlineReference: rf.offline || null } }); setRf(null); again(); }, 'Refunded · credit note issued'); }}>
+          <strong className="small">Refund order <span className="mono">{rf.orderId}</span></strong>
+          <div className="row g8" style={{ flexWrap: 'wrap' }}>
+            <label className="small">Amount ₹ (empty = all that’s left) <input type="number" min={1} step="0.01" className="input" style={{ ...inputStyle, width: 130 }} value={rf.amount} onChange={(e) => setRf({ ...rf, amount: e.target.value })} /></label>
+            <label className="small" style={{ flex: '1 1 220px' }}>Reason (printed on the credit note) <input required minLength={3} maxLength={300} className="input" style={inputStyle} value={rf.note} onChange={(e) => setRf({ ...rf, note: e.target.value })} /></label>
+            <label className="small">Bank reference, if paid offline <input minLength={3} maxLength={80} className="input" style={inputStyle} value={rf.offline} onChange={(e) => setRf({ ...rf, offline: e.target.value })} /></label>
+          </div>
+          <span className="xs muted">Razorpay payments are refunded through Razorpay; offline payments need the reference of the money you sent back. A full refund takes the plan back (Free, or the plan it renewed).</span>
+          <button type="submit" className="btn btn-danger" style={{ alignSelf: 'flex-start' }} disabled={busy}>Refund</button>
+        </form>
+      )}
+      <Loading st={docs}>{(d) => d.rows.length > 0 && (
+        <div className="table-wrap"><table className="table" aria-label="Invoices and credit notes">
+          <thead><tr><th>Document</th><th>Date</th><th>Taxable</th><th>Total</th><th /></tr></thead>
+          <tbody>{d.rows.map((x) => <tr key={x.id}><td className="small"><span className="mono">{x.number}</span><div className="xs faint">{DOC_KIND[x.kind]}{x.against ? ` · against ${x.against}` : ''}</div></td><td className="small">{day(x.date)}</td><td className="small">{rupees(x.taxable)}</td><td className="small">{rupees(x.total)}</td><td><button type="button" className="link-btn small" disabled={busy} onClick={() => run(() => downloadFrom(`/api/admin/org-invoices/${x.id}/pdf`, x.fileName))}>PDF</button></td></tr>)}</tbody>
+        </table></div>
+      )}</Loading>
+    </div>
+  );
+}
+
+/** /admin/org-invoices — invoices and credit notes by financial year, with the GSTR-1-style register as CSV. */
+export function LiveOrgInvoices() {
+  const toast = useToast();
+  const [fy, setFy] = useState('');
+  const st = useApi(`/api/admin/org-invoices${fy ? `?fy=${fy}` : ''}`);
+  const [busy, run] = useAction(toast);
+  return (
+    <>
+      <PageHead title="Organization invoices" sub="Tax invoices and credit notes for organization plans, by financial year (April–March)." right={st.data && (
+        <span className="row g8">
+          <select aria-label="Financial year" className="input" style={inputStyle} value={st.data.fy} onChange={(e) => setFy(e.target.value)}>{st.data.years.map((y) => <option key={y} value={y}>FY 20{y.slice(0, 2)}–{y.slice(3)}</option>)}</select>
+          <button type="button" className="btn btn-outline" disabled={busy} onClick={() => run(() => downloadFrom(`/api/admin/org-invoices/gstr1.csv?fy=${st.data.fy}`, `nm7-gstr1-${st.data.fy}.csv`), 'CSV downloaded')}>GSTR-1 CSV</button>
+        </span>
+      )} />
+      <Loading st={st} empty={emptyIf((d) => d.rows.length === 0, 'No invoices in this financial year yet.')}>{(d) => (
+        <div className="stack g12">
+          <div className="kpis">
+            <Kpi label="Invoices" value={d.totals.invoice.count} sub={`${rupees(d.totals.invoice.taxable)} taxable · ${rupees(d.totals.invoice.total)} with GST`} />
+            <Kpi label="Credit notes" value={d.totals.credit_note.count} sub={`${rupees(d.totals.credit_note.taxable)} taxable · ${rupees(d.totals.credit_note.total)} with GST`} />
+          </div>
+          <div className="card table-wrap" style={{ padding: 0 }}>
+            <table className="table"><thead><tr><th>Number</th><th>Date</th><th>Organization</th><th>Taxable</th><th>GST</th><th>Total</th><th /></tr></thead>
+              <tbody>{d.rows.map((x) => (
+                <tr key={x.id}><td className="small"><span className="mono">{x.number}</span><div className="xs faint">{DOC_KIND[x.kind]}{x.against ? ` · against ${x.against}` : ''}</div></td><td className="small">{day(x.date)}</td><td className="small"><Link to={`/admin/orgs/${x.orgId}`}>{x.recipient}</Link>{x.gstin ? <div className="xs faint mono">{x.gstin}</div> : null}</td><td className="small">{rupees(x.taxable)}</td><td className="small">{x.gstOn ? rupees(x.tax) : '—'}</td><td className="small">{rupees(x.total)}</td><td><button type="button" className="link-btn small" disabled={busy} onClick={() => run(() => downloadFrom(`/api/admin/org-invoices/${x.id}/pdf`, x.fileName))}>PDF</button></td></tr>
+              ))}</tbody></table>
+          </div>
+        </div>
+      )}</Loading>
+    </>
   );
 }
 

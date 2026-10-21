@@ -14,11 +14,12 @@ from pymongo.asynchronous.database import AsyncDatabase
 
 from app.billing.emails import plan_active
 from app.billing.gst import STATES, gstin_problem, tax_label, tax_lines
+from app.billing.invoices import file_name, pdf_of
 from app.billing.plans import get_plans, terms_of
 from app.billing.settings import get_billing, gst_on
 from app.billing.subscription import owner_emails
 from app.core.config import get_settings
-from app.core.db import ORDERS, ORGANIZATIONS, PAYMENTS, USERS, next_number, transaction
+from app.core.db import INVOICES, ORDERS, ORGANIZATIONS, PAYMENTS, USERS, next_number, transaction
 from app.core.email import Mailer, send_safely
 from app.core.errors import ApiError
 from app.core.schemas import CamelModel
@@ -245,8 +246,15 @@ async def send_org_receipt(db: AsyncDatabase, mailer: Mailer, order: Order) -> N
     bill_to = (o.get("billing_details") or {}).get("email")
     if bill_to:
         to.setdefault(bill_to, "")
+    invoice = None
+    doc = await db[INVOICES].find_one({"order_id": order.id, "kind": "invoice"})
+    if doc:
+        try:
+            invoice = (doc["number"], file_name(doc), await pdf_of(db, doc))
+        except Exception:  # never lose the email over the PDF; it stays downloadable from Billing → Invoices
+            log.exception("invoice PDF for order %s", order.id)
     for email, name in to.items():
-        await send_safely(mailer, plan_active(email, name, o, o["subscription"], order.amount))
+        await send_safely(mailer, plan_active(email, name, o, o["subscription"], order.amount, invoice))
     log.info("org %s: plan %s active (order %s)", o["_id"], o["subscription"].get("plan_id"), order.id)
 
 

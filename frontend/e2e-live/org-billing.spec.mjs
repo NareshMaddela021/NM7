@@ -3,8 +3,9 @@
 // The browser tests run without Razorpay keys (no secrets in CI), so the Razorpay order is seeded on the server and
 // Razorpay's own window is replaced by a stand-in that "pays"; the webhook is a real signed request to the API.
 import { createHmac } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
-import { API, PASSWORD, adminLogin, email, login, seed } from './helpers.mjs';
+import { API, PASSWORD, adminLogin, email, login, pdfText, seed } from './helpers.mjs';
 
 const WEBHOOK_SECRET = 'e2e-webhook-secret'; // e2e-live/api.sh
 
@@ -77,6 +78,15 @@ test('an Owner starts free, buys Drive, and the plan turns on only from the veri
   // a forged webhook (wrong secret) is refused
   const forged = await request.post(`${API}/api/payments/webhook`, { data: '{}', headers: { 'Content-Type': 'application/json', 'X-Razorpay-Signature': 'bad' } });
   expect(forged.status()).toBe(400);
+  // the invoice (GST off until a supplier GSTIN is set: a plain "Invoice") downloads as a PDF
+  await page.getByRole('link', { name: 'Billing' }).click();
+  const invoices = page.getByRole('region', { name: 'Invoices' });
+  await expect(invoices).toContainText(/NM7\/\d{2}-\d{2}\/\d{4}/);
+  const [file] = await Promise.all([page.waitForEvent('download'), invoices.getByRole('button', { name: /^Download NM7/ }).click()]);
+  expect(file.suggestedFilename()).toMatch(/^NM7-\d{2}-\d{2}-\d{4}\.pdf$/);
+  const pdf = readFileSync(await file.path());
+  expect(pdf.subarray(0, 5).toString()).toBe('%PDF-');
+  expect((await pdfText(pdf)).join(' ')).toContain('Rupees Four Thousand Nine Hundred Ninety Nine Only');
 });
 
 test('the Free plan pauses a second group with an upgrade message, and nothing is deleted', async ({ page }) => {
