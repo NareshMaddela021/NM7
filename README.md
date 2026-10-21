@@ -53,9 +53,10 @@ resume summary in under a minute:
    server checks every option (length, no contact details or IDs, every number must be in the facts or the note) and
    the browser checks again; a dropped slot is filled by a template card marked *quick suggestion*. Haiku → Sonnet
    once → templates: when AI is off, busy, over its limit or gives nothing usable, people see the template cards
-   with one line, *"AI is busy, here are quick suggestions"* — never an error screen. About 600 output tokens, a
-   30-second timeout and one retry: roughly Rs 0.05 a generation. `backend/scripts/summary_smoke.py` runs eight
-   sample notes through the real API.
+   with one line, *"AI is busy, here are quick suggestions"* — never an error screen. A 2,500-token answer budget
+   with thinking switched off on Haiku (thinking tokens count toward the budget; the Sonnet retry runs with its
+   default thinking), a 30-second timeout and one retry: a fraction of a rupee a generation.
+   `backend/scripts/summary_smoke.py` runs eight sample notes through the real API.
 
 Rules for both layers: nothing is invented (no numbers, companies, degrees or certificates that aren't in the resume
 or the note), a sentence whose facts are missing is left out rather than printed with a blank, no *I / me / my*, no
@@ -75,8 +76,9 @@ Snap photos (reading resume details from photos) and the summary writer's "Write
 | the whole site, per day | 2,000 AI calls, both features together | |
 
 When the site-wide cap is reached, Snap photos says it is busy today and the summary writer quietly uses its free
-smart templates. Admin → Dashboard → **AI usage** shows each day's calls, fallbacks, failures and refusals, and
-"AI daily cap reached" when it happens. The limits are constants in code (no environment variables).
+smart templates. Admin → Dashboard → **AI usage** shows each day's calls, fallbacks (with why the first model's
+answer was unusable, e.g. `too_long 2, empty 1`), failures, refusals and the summary options dropped by the server's
+checks, and "AI daily cap reached" when it happens. The limits are constants in code (no environment variables).
 
 ## Nm7 for Organizations (Phase 1)
 

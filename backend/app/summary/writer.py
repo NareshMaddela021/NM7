@@ -10,8 +10,12 @@ from app.core import claude
 
 TIMEOUT = 30  # seconds per try
 RETRIES = 1
-MAX_TOKENS = 600
+# Thinking tokens count toward max_tokens: a budget sized for the three summaries alone (about 450 tokens) was
+# used up by the model's own thinking, the answer was cut off (stop_reason max_tokens) and every call went to the
+# fallback model. One budget for the generation and the quick fixes, with thinking off where the model takes it.
+MAX_TOKENS = 2500
 EFFORT = "low"  # a short, well-specified writing task
+THINKING = {"type": "disabled"}  # sent only to the models that accept it (core/claude.py THINKING_OFF)
 HTTP_CLIENT = None  # tests put a mock transport here
 
 STYLES = ("role_first", "skills_first", "simple")
@@ -140,4 +144,5 @@ async def call_model(
         timeout_s=TIMEOUT,
         retries=RETRIES,
         http_client=HTTP_CLIENT,
+        thinking=THINKING,
     )

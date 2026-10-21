@@ -113,8 +113,13 @@ async def photo_import(body: ImportIn, auth: CustomerAuth, db: DB) -> dict[str, 
         raise ApiError(
             502, "reader_unavailable", "We couldn't read the photos right now. Please try again in a minute."
         ) from e
+    except Exception:  # anything else (a bug, a lost connection): still counted, then the generic 500
+        await ai_quota.note(db, "photos", "failed")
+        raise
     if stats.get("fallback"):
         await ai_quota.note(db, "photos", "fallback")
+        if stats.get("reason"):  # why the configured model's answer was unusable, e.g. unusable:too_long
+            await ai_quota.note(db, "photos", f"unusable:{stats['reason']}")
 
     out = scrub(raw if isinstance(raw, dict) else {})
     photos = [p for p in out.get("photos", []) if isinstance(p, dict)]
