@@ -1,4 +1,4 @@
-import { Suspense, lazy as reactLazy, useEffect } from 'react';
+import { Component, Suspense, lazy as reactLazy, useEffect, useState } from 'react';
 import { Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
 import Header from './components/Header';
 import DownloadGateHost from './components/DownloadGate';
@@ -8,7 +8,8 @@ import { Spinner } from './components/ui';
 import { useAuth, previewSignIn, previewUsers, LIVE } from './lib/auth';
 import { RequireAuth } from './pages/auth/Auth';
 import { applyMeta, currentMeta, usePageMeta } from './lib/meta';
-import { lazyRetry } from './lib/chunks';
+import { StaleBuildPage, isChunkError, lazyRetry, reloadOnce } from './lib/chunks';
+import { onSlow } from './services/http';
 
 // a page file missing after a deploy (tab opened on the old build) reloads onto the new build
 const lazy = (load) => reactLazy(lazyRetry(load));
@@ -178,6 +179,53 @@ function NotFound() {
 
 const Fallback = () => <div className="row g12 muted" role="status" style={{ padding: '96px 24px', justifyContent: 'center' }}><Spinner /> Loading…</div>;
 
+/** "Waking up the server": shown while any API request has been running for more than 3 s (the free plan sleeps
+ * when idle and the first request takes up to a minute). */
+function ServerWaking() {
+  const [slow, setSlow] = useState(false);
+  useEffect(() => onSlow(setSlow), []);
+  if (!slow) return null;
+  return <div role="status" className="small" data-testid="server-waking" style={{ position: 'fixed', left: 12, right: 12, bottom: 12, zIndex: 60, padding: '10px 14px', borderRadius: 12, background: 'var(--ink)', color: 'var(--onink)', textAlign: 'center' }}>Waking up the server — the first request after a quiet spell can take up to a minute. Please keep this page open.</div>;
+}
+
+/**
+ * Catches anything a page throws while rendering, so the app never goes blank: an old build's missing file shows
+ * "Nm7 was just updated" (and reloads once), anything else a short message with a Reload button. Clears itself
+ * when the URL changes.
+ */
+class RouteBoundary extends Component {
+  constructor(props) { super(props); this.state = { error: null, key: props.resetKey }; }
+
+  static getDerivedStateFromError(error) { return { error }; }
+
+  static getDerivedStateFromProps(props, state) { return props.resetKey !== state.key ? { error: null, key: props.resetKey } : null; }
+
+  componentDidCatch(error, info) {
+    console.error('Page crashed:', error, info?.componentStack); // eslint-disable-line no-console
+    if (isChunkError(error)) reloadOnce();
+  }
+
+  render() {
+    const { error } = this.state;
+    if (!error) return this.props.children;
+    if (isChunkError(error)) return <StaleBuildPage reloading={false} />;
+    return (
+      <main className="container stack g12" role="alert" style={{ padding: '96px 24px', maxWidth: 520 }}>
+        <h1 className="h3" style={{ margin: 0 }}>Something went wrong on this page.</h1>
+        <p className="muted" style={{ margin: 0 }}>Your work is saved as you type. Reloading usually fixes it; if not, write to us from the contact page.</p>
+        <div className="row g8">
+          <button type="button" className="btn btn-ink" onClick={() => window.location.reload()}>Reload</button>
+          <Link to="/" className="btn btn-outline">Go to home</Link>
+        </div>
+      </main>
+    );
+  }
+}
+function Pages({ children }) {
+  const { pathname } = useLocation();
+  return <RouteBoundary resetKey={pathname}>{children}</RouteBoundary>;
+}
+
 export default function App() {
   return (
     <>
@@ -185,6 +233,8 @@ export default function App() {
       <ScrollToTop />
       <PreviewBar />
       <DownloadGateHost />
+      <ServerWaking />
+      <Pages>
       <Suspense fallback={<Fallback />}>
       <Routes>
         <Route path="/" element={<Home />} />
@@ -271,6 +321,7 @@ export default function App() {
         <Route path="*" element={<NotFound />} />
       </Routes>
       </Suspense>
+      </Pages>
     </>
   );
 }

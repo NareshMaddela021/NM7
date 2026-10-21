@@ -52,6 +52,30 @@ function guestDraft(force = false) {
   } catch { return null; }
 }
 const forgetGuestDraft = () => { try { localStorage.removeItem(draftKeyFor(null)); } catch { /* ignore */ } };
+const norm = (s) => (s || '').trim().toLowerCase().replace(/\s+/g, ' ');
+/** A guest draft is taken as this person's when it has no name, or their own name or email. */
+export function draftLooksMine(draft, account) {
+  const n = norm(draft?.personal?.name); const e = norm(draft?.personal?.email);
+  return (!n && !e) || (!!n && n === norm(account?.name)) || (!!e && e === norm(account?.email));
+}
+/** The draft found in this browser that may belong to someone else: add it to the account, or forget it. */
+export async function acceptGuestDraft() {
+  const s = get(); const d = s.pendingGuestDraft;
+  if (!d || !LIVE) return null;
+  const name = uniqueName(`${d.personal?.name?.trim() || 'My resume'} · from this browser · ${dayLabel()}`, s.resumes);
+  try {
+    const saved = await live.createResume({ id: uid('r'), name, active: true, data: d, jd: '', versions: [] });
+    forgetGuestDraft();
+    state = { ...get(), resumes: [...get().resumes.map((r) => ({ ...r, active: false })), saved], pendingGuestDraft: null };
+    notify();
+    return saved.id;
+  } catch (e) { reportSaveError(e); return null; }
+}
+export function discardGuestDraft() {
+  forgetGuestDraft();
+  state = { ...get(), pendingGuestDraft: null };
+  notify();
+}
 const dayLabel = () => new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
 const builderDraft = () => {
   if (LIVE && currentUser()?.role === 'customer') { const a = state && !state.loading ? activeResume(state) : null; return a ? a.data : blankResume(); }
@@ -134,24 +158,32 @@ async function loadLive(id) {
   try {
     const s = await live.fetchState();
     if (stateFor !== id) return;
-    const carried = guestDraft(!!pendingDownload());
+    const downloading = !!pendingDownload(); // they clicked Download on this draft and signed in to get it
+    const carried = guestDraft(downloading);
+    // The draft built in this browser before signing in moves into the account only when it is clearly this
+    // person's: the one they just asked to download, or a draft without a name or with their own name. On a shared
+    // phone the draft may be someone else's, so otherwise it is offered (see pendingGuestDraft) and never added
+    // silently — and never over a resume they already have.
+    const mine = carried && (downloading || draftLooksMine(carried, s.account));
+    let imported = false;
     if (!s.resumes.length) {
-      // first visit: start from the resume they built before signing in (if any), else a blank one
-      const r = { id: uid('r'), name: 'My resume', active: true, data: carried || blankResume(), jd: '', versions: [] };
+      // first visit: start from the resume they built before signing in (if it is theirs), else a blank one
+      const r = { id: uid('r'), name: 'My resume', active: true, data: mine ? carried : blankResume(), jd: '', versions: [] };
       const saved = await live.createResume(r);
       if (stateFor !== id) return;
       s.resumes = [saved];
-      if (carried) forgetGuestDraft();
-    } else if (carried) {
-      // signed in to an account that already has resumes: the draft becomes a new one (opened in the builder)
+      if (mine) { forgetGuestDraft(); imported = true; }
+    } else if (mine) {
+      // an account that already has resumes: the draft becomes a new one next to them (opened in the builder)
       const name = uniqueName(`${carried.personal?.name?.trim() || 'My resume'} · from this browser · ${dayLabel()}`, s.resumes);
       try {
         const saved = await live.createResume({ id: uid('r'), name, active: true, data: carried, jd: '', versions: [] });
         if (stateFor !== id) return;
         s.resumes = [...s.resumes.map((r) => ({ ...r, active: false })), saved];
-        forgetGuestDraft();
-      } catch { /* e.g. the resume limit: the draft stays in this browser */ }
+        forgetGuestDraft(); imported = true;
+      } catch { /* e.g. the resume limit: the draft stays in this browser and is offered below */ }
     }
+    if (carried && !imported) s.pendingGuestDraft = carried; // ask first
     state = s;
   } catch (e) {
     if (stateFor !== id) return;
@@ -162,8 +194,15 @@ async function loadLive(id) {
 live.setErrorHandler((e) => {
   if (!stateFor) return;
   reportSaveError(e);
-  loadLive(stateFor); // show what the server really has
+  // only when the server holds something newer or the resume is gone: a network blip must not replace what the
+  // person is typing with an older copy (the save itself is retried in meLive)
+  if (e?.status === 409 || e?.status === 404) loadLive(stateFor);
 });
+// the tab is closed or hidden with saves still waiting: send them with keepalive
+try {
+  if (LIVE) window.addEventListener('pagehide', () => { if (stateFor) live.flushKeepalive(); });
+  if (LIVE) document.addEventListener('visibilitychange', () => { if (stateFor && document.visibilityState === 'hidden') live.flushKeepalive(); });
+} catch { /* no window */ }
 
 const get = () => {
   const id = custId();

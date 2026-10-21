@@ -3,6 +3,8 @@
 // "Failed to fetch dynamically imported module". This file turns that into one automatic reload onto the new build
 // (at most once a minute, so a real outage can't loop) and, for actions like Print or Export, a friendly message.
 
+import { createElement } from 'react';
+
 export const RELOAD_KEY = 'nm7-chunk-reload';
 export const RELOAD_GAP = 60_000; // at most one automatic reload a minute
 export const STALE_TEXT = 'Nm7 was just updated. Updating this page — please try again in a moment.';
@@ -35,11 +37,24 @@ export function reloadOnce({ store = session(), reload = () => window.location.r
   return true;
 }
 
-/** For React.lazy: a page whose file is gone reloads onto the new build (and shows nothing meanwhile). */
+/** What a lazily loaded page shows while the new build is being loaded (React.lazy needs a component). */
+export function StaleBuildPage({ reloading = true }) {
+  return createElement('main', { className: 'container stack g12', role: 'alert', style: { padding: '96px 24px', maxWidth: 520 } },
+    createElement('h1', { className: 'h3', style: { margin: 0 } }, 'Nm7 was just updated'),
+    createElement('p', { className: 'muted', style: { margin: 0 } }, reloading ? 'Loading the new version… this takes a few seconds.' : 'Please reload this page to get the new version.'),
+    createElement('button', { type: 'button', className: 'btn btn-ink', style: { alignSelf: 'flex-start' }, onClick: () => window.location.reload() }, 'Reload now'));
+}
+
+/**
+ * For React.lazy: a page whose file is gone (an older build) triggers one reload onto the new build and, instead of
+ * a spinner that never ends, shows "Nm7 was just updated" with a Reload button until the new page arrives. Other
+ * errors are thrown so the route error boundary shows them.
+ */
 export function lazyRetry(load, reload = reloadOnce) {
   return () => load().catch((e) => {
-    if (isChunkError(e) && reload()) return new Promise(() => {});
-    throw e;
+    if (!isChunkError(e)) throw e;
+    const reloading = reload();
+    return { default: () => createElement(StaleBuildPage, { reloading }) };
   });
 }
 
@@ -60,9 +75,10 @@ export async function freshImport(load, { beforeReload, reload = reloadOnce, del
   }
 }
 
-/** Vite's own signal that a preloaded file failed: reload onto the new build (once a minute at most). */
+/** Vite's own signal that a preloaded file failed: reload onto the new build (once a minute at most). The event is
+ * not cancelled, so the import still fails and `lazyRetry` / the error boundary can show the "updated" page. */
 export function installChunkRecovery(win = window, reload = reloadOnce) {
-  win.addEventListener('vite:preloadError', (ev) => { if (reload()) ev.preventDefault(); });
+  win.addEventListener('vite:preloadError', () => { reload(); });
 }
 
 export const BUILD_CHECK_MS = 5 * 60_000; // an idle kiosk looks for a new build every 5 minutes

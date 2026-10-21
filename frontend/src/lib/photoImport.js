@@ -33,7 +33,8 @@ export async function preparePhoto(file) {
 /** Sends the photos to be read. Throws ApiError (code feature_off / consent_required / id_consent_required / rate_limited / …). */
 export async function readPhotos(photos, idConsent) {
   if (!LIVE) throw new ApiError(503, 'feature_off', 'Photo reading is being switched on - try again soon.');
-  return http('/api/me/photo-import', { method: 'POST', body: { photos: photos.map((p) => ({ name: p.name, data: p.data, isId: !!p.isId })), idConsent } });
+  // reading can take a while (two model tries of 75 s each on the server): a long limit, never a retry (it's counted)
+  return http('/api/me/photo-import', { method: 'POST', body: { photos: photos.map((p) => ({ name: p.name, data: p.data, isId: !!p.isId })), idConsent }, timeout: 180_000 });
 }
 
 /* ---------- review ---------- */

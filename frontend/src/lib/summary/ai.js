@@ -66,7 +66,7 @@ export function acceptOptions(res, body) {
 export async function writeWithAi(resume, note, mode = 'generate', current = '', { signal, hints } = {}) {
   if (!aiAvailable()) throw new ApiError(401, 'sign_in', 'Sign in to write with AI.');
   const body = aiRequest(resume, note, mode, current, hints);
-  const res = await http('/api/me/summary/generate', { method: 'POST', body, signal });
+  const res = await http('/api/me/summary/generate', { method: 'POST', body, signal, timeout: 120_000 }); // two models × 30 s + retries
   const options = acceptOptions(res, body);
   return { options, dropped: (res.options?.length || 0) - options.length + (res.dropped || 0), fallback: !!res.fallback, model: res.model || '' };
 }

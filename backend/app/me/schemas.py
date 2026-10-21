@@ -61,6 +61,9 @@ class ResumePatch(CamelModel):
     active: Literal[True] | None = None  # make this the one the builder edits
     versions: list[Version] | None = Field(None, max_length=MAX_VERSIONS)
     pages: int | None = Field(None, ge=1, le=20)  # measured by the builder (for the organizations' print table)
+    # the `updated` stamp the browser last saw: when the server's is newer (another tab or device saved since) the
+    # edit is refused with 409 `stale` instead of overwriting it
+    if_updated: int | None = Field(None, ge=0)
 
     @field_validator("data")
     @classmethod

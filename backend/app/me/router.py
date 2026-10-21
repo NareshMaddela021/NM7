@@ -223,6 +223,9 @@ async def patch_resume(key: str, body: ResumePatch, auth: CustomerAuth, db: DB) 
     uid = auth.user.id
     old = await _resume(db, uid, key)
     f = _fields(body)
+    if_updated = f.pop("if_updated", None)
+    if if_updated is not None and ms(old["updated_at"]) > if_updated and "data" in f:
+        raise ApiError(409, "stale", "This resume was changed somewhere else. Reloading the latest copy.")
     if f.get("active"):
         await db[RESUMES].update_many({"user_id": uid, "key": {"$ne": key}}, {"$set": {"active": False}})
     touched = {} if f and set(f) <= {"pages"} else {"updated_at": now()}  # a page count alone isn't an edit

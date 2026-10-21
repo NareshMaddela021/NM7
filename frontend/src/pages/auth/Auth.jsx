@@ -179,7 +179,7 @@ export function Signup() {
   const errs = {
     name: f.name.trim().length < 2 && 'Enter your full name',
     email: !EMAIL_RE.test(f.email.trim()) && 'Enter a valid email address',
-    phone: !PHONE_RE.test(f.phone.trim()) && 'Enter a 10-digit Indian mobile number',
+    phone: !!f.phone.trim() && !PHONE_RE.test(f.phone.trim()) && 'Enter a 10-digit Indian mobile number',
     password: passwordIssue(f.password),
     confirm: !f.confirm ? 'Type your password again' : f.confirm !== f.password ? 'Passwords don’t match' : '',
     agree: !f.agree && 'Please accept the terms to continue',
@@ -199,11 +199,11 @@ export function Signup() {
         <Field id="su-n" label="Full name" autoComplete="name" value={f.name} error={e_('name')} onChange={(e) => setF({ ...f, name: e.target.value })} />
         <div className="row g12" style={{ alignItems: 'flex-start' }}>
           <div style={{ flex: '1 1 220px' }}><Field id="su-e" label="Email" type="email" autoComplete="email" value={f.email} error={e_('email')} onChange={(e) => setF({ ...f, email: e.target.value })} /></div>
-          <div style={{ flex: '1 1 200px' }}><Field id="su-p" label="Mobile (WhatsApp)" hint="For order updates from your expert" type="tel" inputMode="tel" autoComplete="tel" placeholder="98765 43210" value={f.phone} error={e_('phone')} onChange={(e) => setF({ ...f, phone: e.target.value })} /></div>
+          <div style={{ flex: '1 1 200px' }}><Field id="su-p" label="Mobile (WhatsApp) — optional" hint="Only for order updates from your expert" type="tel" inputMode="tel" autoComplete="tel" placeholder="98765 43210" value={f.phone} error={e_('phone')} onChange={(e) => setF({ ...f, phone: e.target.value })} /></div>
         </div>
         <div className="row g12" style={{ alignItems: 'flex-start' }}>
           <div style={{ flex: '1 1 220px' }}><Field id="su-pw" label="Password" type={showPw ? 'text' : 'password'} autoComplete="new-password" value={f.password} error={e_('password')} hint="8+ characters, with letters and a number" onChange={(e) => setF({ ...f, password: e.target.value })} /></div>
-          <div style={{ flex: '1 1 220px' }}><Field id="su-pw2" label="Re-type password" type={showPw ? 'text' : 'password'} autoComplete="new-password" value={f.confirm} onPaste={(e) => e.preventDefault()}
+          <div style={{ flex: '1 1 220px' }}><Field id="su-pw2" label="Re-type password" type={showPw ? 'text' : 'password'} autoComplete="new-password" value={f.confirm}
             error={e_('confirm') || (f.confirm && f.confirm !== f.password && f.confirm.length >= f.password.length ? 'Passwords don’t match' : '')}
             hint={f.confirm && f.confirm === f.password ? '✓ Passwords match' : 'Type it again to be sure'} onChange={(e) => setF({ ...f, confirm: e.target.value })} /></div>
         </div>
@@ -247,7 +247,7 @@ export function ForgotPassword() {
         <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); run(async () => { await resetPassword(f.email, f.code, f.password, f.confirm); toast('Password changed — sign in with the new one'); nav('/login'); }); }}>
           <CodeInput value={f.code} onChange={(code) => setF({ ...f, code })} />
           <Field id="fp-p" label="New password" type="password" autoComplete="new-password" value={f.password} hint="8+ characters, with letters and a number" error={f.password && passwordIssue(f.password)} onChange={(e) => setF({ ...f, password: e.target.value })} />
-          <Field id="fp-p2" label="Re-type new password" type="password" autoComplete="new-password" value={f.confirm} onPaste={(e) => e.preventDefault()} error={f.confirm && f.confirm !== f.password && f.confirm.length >= f.password.length ? 'Passwords don’t match' : ''} hint={f.confirm && f.confirm === f.password ? '✓ Passwords match' : ''} onChange={(e) => setF({ ...f, confirm: e.target.value })} />
+          <Field id="fp-p2" label="Re-type new password" type="password" autoComplete="new-password" value={f.confirm} error={f.confirm && f.confirm !== f.password && f.confirm.length >= f.password.length ? 'Passwords don’t match' : ''} hint={f.confirm && f.confirm === f.password ? '✓ Passwords match' : ''} onChange={(e) => setF({ ...f, confirm: e.target.value })} />
           {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
           <Waking slow={slow} />
           <button type="submit" className="btn btn-ink btn-lg" disabled={busy || f.code.length !== 6 || !!passwordIssue(f.password) || f.confirm !== f.password}>{busy && <Spinner />}Change password</button>
@@ -394,7 +394,7 @@ export function AdminSetup() {
         <Field id="as-e" label="Work email" type="email" autoComplete="username" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
         <Field id="as-n" label="Your name" autoComplete="name" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} />
         <Field id="as-p" label="Password" type="password" autoComplete="new-password" value={f.password} hint="8+ characters, with letters and a number" error={pwIssue || ''} onChange={(e) => setF({ ...f, password: e.target.value })} />
-        <Field id="as-p2" label="Re-type password" type="password" autoComplete="new-password" value={f.confirm} onPaste={(e) => e.preventDefault()} error={f.confirm && f.confirm !== f.password && f.confirm.length >= f.password.length ? 'Passwords don’t match' : ''} hint={f.confirm && f.confirm === f.password ? '✓ Passwords match' : ''} onChange={(e) => setF({ ...f, confirm: e.target.value })} />
+        <Field id="as-p2" label="Re-type password" type="password" autoComplete="new-password" value={f.confirm} error={f.confirm && f.confirm !== f.password && f.confirm.length >= f.password.length ? 'Passwords don’t match' : ''} hint={f.confirm && f.confirm === f.password ? '✓ Passwords match' : ''} onChange={(e) => setF({ ...f, confirm: e.target.value })} />
         {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
         <button type="submit" className="btn btn-ink btn-lg" disabled={busy || !ready}>{busy && <Spinner />}Continue</button>
       </form>

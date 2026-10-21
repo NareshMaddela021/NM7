@@ -2,8 +2,9 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import { Dialog, Icon, Meter, useToast } from '../components/ui';
-import { getMatchedJobs, saveProfile } from '../services/api';
-import { syncFromBuilder, defaultResume, useMe, activeResume, addResume, openInBuilder, blankResume, updateResume, uniqueName, setResumePages } from '../lib/customerStore';
+import { getMatchedJobs } from '../services/api';
+import { flushKeepalive, onSaveState } from '../lib/meLive';
+import { syncFromBuilder, defaultResume, useMe, activeResume, addResume, openInBuilder, blankResume, updateResume, uniqueName, setResumePages, acceptGuestDraft, discardGuestDraft } from '../lib/customerStore';
 import { ago } from './me/shared';
 import { useJobProfile } from '../lib/profileStore';
 import { profileCompleteness, profileToResume, profileUpdates } from '../lib/jobProfile';
@@ -12,7 +13,7 @@ import { DownloadBlocked, exportFile, pendingDownload } from '../lib/downloads';
 import { monthsBetween } from '../lib/import/dates';
 import PhotoImport from './builder/PhotoImport';
 import { FillFromProfile, ProfileHint, ProfileUpdates, SaveToProfile } from './builder/ProfileSync';
-import { draftKey, currentUser, LIVE } from '../lib/auth';
+import { draftKey, currentUser, LIVE, useAuth } from '../lib/auth';
 import { applyImport } from '../lib/import/apply';
 import { emptyResult } from '../lib/import/shared';
 
@@ -146,25 +147,49 @@ function Done({ name, score, onEdit, onDownload, onCover, pdfBusy }) {
  *   { storageKey, initial, onChange(d), replace: { n, data }, focus: { n, id } }
  * Embedded mode skips the start/template screens, the header and the job-preference step.
  */
+/** The header's save note. Signed in: what the server has (saving / saved / a failure being retried). Guests: this browser. */
+function SaveStatus({ customer, serverIn, save, dirty }) {
+  let text = 'Saved in this browser';
+  if (customer) {
+    if (!serverIn) text = 'Loading your resume…';
+    else if (dirty || save.pending > 0) text = 'Saving…';
+    else if (save.failed) text = 'Not saved yet — retrying';
+    else text = 'All changes saved';
+  }
+  return <span className="xs faint" aria-live="polite" data-testid="save-status" style={save.failed && customer ? { color: 'var(--danger)' } : undefined}>{text}</span>;
+}
+
 export default function Builder({ embedded = null }) {
   const toast = useToast();
   const location = useLocation();
   // back from "Create a free account to download": straight to the editor, where the download starts by itself
-  const resumeDownload = useRef(!embedded && currentUser() ? pendingDownload() : null);
-  const [stage, setStage] = useState(embedded || resumeDownload.current || location.state?.open === 'build' ? 'build' : location.state?.open === 'photos' ? 'photos' : 'start');
+  // (the download itself starts once the account and its resume are in: see the effect below)
+  const [stage, setStage] = useState(embedded || (!embedded && pendingDownload()) || location.state?.open === 'build' ? 'build' : location.state?.open === 'photos' ? 'photos' : 'start');
   const [missing, setMissing] = useState(false); // after "Snap photos": point at what's still missing (e.g. phone)
   const [importMode, setImportMode] = useState('resume');
   const [suggest, setSuggest] = useState(null);
   const [d, setD] = useState(() => (embedded ? loadDraft(embedded.storageKey, embedded.initial) : loadDraft(DRAFT_KEY(), serverCustomer() ? (activeResume()?.data || defaultResume()) : defaultResume())));
   // Live customer: when their resumes arrive from the server, open the active one (unless a scan import is opening).
+  const auth = useAuth(); // re-render when the sign-in answer arrives (it can come after this page on a cold start)
   const me = useMe();
   const jp = useJobProfile();
-  const customer = !embedded && currentUser()?.role === 'customer';
+  const customer = !embedded && auth.user?.role === 'customer';
   const profileReady = customer && jp.available && !!jp.data;
   const profile = profileReady ? jp.data : null;
   const edited = useRef(new WeakSet()); // entries changed in this visit: they get "Save this change to my Job Profile"
   const fromServer = useRef(!serverCustomer() || !me.loading);
   const [serverIn, setServerIn] = useState(fromServer.current); // the saved resume (if any) is in `d`
+  const unsent = useRef(null); // an edit the autosave wait hasn't handed to the store yet
+  const [dirty, setDirty] = useState(false);
+  // The sign-in answer arrived after this page opened (the API was waking up): the saved resume must be loaded
+  // now, and until it is, nothing from this screen is sent to the server (it would overwrite it).
+  const hadCustomer = useRef(!!serverCustomer());
+  useEffect(() => {
+    if (embedded || hadCustomer.current || !customer) return;
+    hadCustomer.current = true;
+    fromServer.current = false;
+    setServerIn(false);
+  }, [customer]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (embedded || fromServer.current || me.loading) return;
     fromServer.current = true;
@@ -182,7 +207,8 @@ export default function Builder({ embedded = null }) {
   const [photoAdj, setPhotoAdj] = useState(DEFAULT_ADJ);
   const [editingPhoto, setEditingPhoto] = useState(null); // source being edited
   const [photoErr, setPhotoErr] = useState('');
-  const [saved, setSaved] = useState(true);
+  const [save, setSave] = useState({ pending: 0, failed: null }); // what the server really has (lib/meLive)
+  useEffect(() => (LIVE ? onSaveState(setSave) : undefined), []);
   const [pages, setPages] = useState(null); // null until the preview has measured the loaded resume
   const [showIssues, setShowIssues] = useState(false);
   const [pdfBusy, setPdfBusy] = useState(false);
@@ -266,10 +292,20 @@ export default function Builder({ embedded = null }) {
   useEffect(() => {
     if (embedded || !serverCustomer()) { try { localStorage.setItem(embedded?.storageKey || DRAFT_KEY(), JSON.stringify(d)); } catch { /* ignore */ } }
     if (embedded) { embedded.onChange?.(d); return undefined; }
-    setSaved(false);
-    const t = setTimeout(() => { syncFromBuilder(d); saveProfile(d).then(() => setSaved(true)); }, 800);
+    if (serverCustomer() && !serverIn) return undefined; // the saved resume hasn't arrived yet: never send the draft over it
+    if (serverCustomer()) { unsent.current = d; setDirty(true); } // the "Saved" note counts this wait too
+    const t = setTimeout(() => { unsent.current = null; setDirty(false); syncFromBuilder(d); }, 800);
     return () => clearTimeout(t);
-  }, [d]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [d, serverIn]); // eslint-disable-line react-hooks/exhaustive-deps
+  // the tab is closed or hidden before that wait is over: hand the edit to the store now and send it with keepalive
+  useEffect(() => {
+    if (embedded || !LIVE) return undefined;
+    const flushNow = () => { if (unsent.current && serverCustomer()) { syncFromBuilder(unsent.current); unsent.current = null; flushKeepalive(); } };
+    const onHide = () => { if (document.visibilityState === 'hidden') flushNow(); };
+    window.addEventListener('pagehide', flushNow);
+    document.addEventListener('visibilitychange', onHide);
+    return () => { window.removeEventListener('pagehide', flushNow); document.removeEventListener('visibilitychange', onHide); };
+  }, [embedded]);
   // workspace controls: replace the whole resume (restore a version / reset), or jump to a section
   useEffect(() => { if (embedded?.replace?.n) setD(migrateLinks({ ...INITIAL, ...embedded.replace.data })); }, [embedded?.replace?.n]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (embedded?.focus?.n) { setTab('content'); setSec(embedded.focus.id); } }, [embedded?.focus?.n]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -343,15 +379,17 @@ export default function Builder({ embedded = null }) {
       if (e?.code !== 'declined') toast(e?.code === 'unavailable' ? 'Downloads aren’t available in this view.' : 'Couldn’t create the PDF. Please try again.');
     } finally { setPdfBusy(false); }
   };
-  // the download a guest clicked before signing up / in: once their resume (carried over) is open
+  // the download a guest clicked before signing up / in: once the account and its resume (carried over) are in —
+  // also when the sign-in answer only arrives after a reload on a cold start
+  const downloadClaimed = useRef(false);
   useEffect(() => {
-    const p = resumeDownload.current;
-    if (!p || !serverIn) return;
-    resumeDownload.current = null;
-    pendingDownload(true);
+    if (embedded || !customer || !serverIn || downloadClaimed.current) return;
+    const p = pendingDownload(true);
+    if (!p) return;
+    downloadClaimed.current = true;
     if (p.what === 'cover') setTab('cover');
     download(p.format, p.what);
-  }, [serverIn]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [customer, serverIn]); // eslint-disable-line react-hooks/exhaustive-deps
   const issues = collectIssues(d);
   const order = resolveOrder(d);
   const moveSection = (id, dir) => {
@@ -477,7 +515,7 @@ export default function Builder({ embedded = null }) {
 
   return (
     <>
-      {!embedded && <Header variant="builder" right={stage === 'build' && <span className="xs faint" aria-live="polite">{saved ? 'All changes saved' : 'Saving…'}</span>} />}
+      {!embedded && <Header variant="builder" right={stage === 'build' && <SaveStatus customer={customer} serverIn={serverIn} save={save} dirty={dirty} />} />}
       {!embedded && (
         <ol className="steps container-wide" aria-label="Builder steps" style={{ padding: '12px 24px 0' }}>
           {['Start', 'Template', 'Build', 'Done'].map((l, i) => (
@@ -486,6 +524,15 @@ export default function Builder({ embedded = null }) {
         </ol>
       )}
 
+      {customer && me.pendingGuestDraft && !embedded && (
+        <div className="container-wide" style={{ padding: '12px 24px 0' }}>
+          <div className="card row g12" role="region" aria-label="A draft from this browser" data-testid="guest-draft-ask" style={{ alignItems: 'center', flexWrap: 'wrap', padding: '12px 16px' }}>
+            <span className="small" style={{ flex: '1 1 260px' }}>A resume{me.pendingGuestDraft.personal?.name ? ` for “${me.pendingGuestDraft.personal.name}”` : ''} was built on this phone before signing in. Is it yours?</span>
+            <button type="button" className="btn btn-ink" style={{ minHeight: 40 }} onClick={async () => { const id = await acceptGuestDraft(); if (id) { openInBuilder(id); setD(migrateLinks({ ...INITIAL, ...me.pendingGuestDraft })); setStage('build'); } }}>Yes, add it to my account</button>
+            <button type="button" className="btn btn-outline" style={{ minHeight: 40 }} onClick={discardGuestDraft}>No, forget it</button>
+          </div>
+        </div>
+      )}
       {stage === 'start' && <Start profilePct={profileReady ? profileCompleteness(jp.data).pct : null}
         resume={latest ? { name: latest.name, updated: latest.updated, data: latest.data } : guestDraft ? { name: d.personal.name ? `${d.personal.name}’s draft` : 'Your draft', updated: null, data: d } : null}
         onContinue={continueLatest}

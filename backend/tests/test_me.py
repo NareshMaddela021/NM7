@@ -297,3 +297,24 @@ async def test_unsafe_links_saved_before_the_check_are_not_sent_back(client, out
     await db[APPLICATIONS].update_many({}, {"$set": {"url": "javascript:alert(1)"}})
     apps = (await client.get("/api/me/state")).json()["apps"]
     assert apps[0]["url"] == ""
+
+
+async def test_resume_patch_with_a_stale_stamp_is_409(client, outbox):
+    """`ifUpdated` is the `updated` stamp the browser last saw: an edit on top of an older copy is refused."""
+    await signup(client, outbox)
+    r = await add_resume(client, "r1")
+    stamp = r["updated"]
+    ok = await client.patch("/api/me/resumes/r1", json={"data": {"summary": "one"}, "ifUpdated": stamp})
+    assert ok.status_code == 200
+    newer = ok.json()["updated"]
+    assert newer >= stamp
+    # another tab still holds the old stamp
+    stale = await client.patch("/api/me/resumes/r1", json={"data": {"summary": "two"}, "ifUpdated": stamp})
+    if newer == stamp:  # same millisecond: not distinguishable, the edit is taken
+        assert stale.status_code == 200
+    else:
+        assert stale.status_code == 409 and err(stale) == "stale"
+        assert (await client.get("/api/me/resumes")).json()[0]["data"] == {"summary": "one"}
+    # a page count alone never conflicts, and no stamp means no check
+    assert (await client.patch("/api/me/resumes/r1", json={"pages": 2, "ifUpdated": stamp})).status_code == 200
+    assert (await client.patch("/api/me/resumes/r1", json={"data": {"summary": "three"}})).status_code == 200
