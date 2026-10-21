@@ -41,13 +41,14 @@ import LineEntries from './builder/LineEntries';
 import { hiddenCount, moveItem, removeItem, toggleItem } from './builder/entries';
 import { shorten, atsFriendly } from './builder/aiTools';
 import SummaryWriter from './builder/SummaryWriter';
+import ReadySummaries from './builder/ReadySummaries';
 import LinksEditor, { Logo } from './builder/LinksEditor';
 import PhotoEditor, { DEFAULT_ADJ, shapePhoto } from './builder/PhotoEditor';
 import { DEFAULT_DESIGN, FIT_STEPS, TEMPLATE_PRESETS } from './builder/design';
 import {
   AI_SAMPLES, ALL_SKILLS, EXP_LEVELS, FIXED_SECTIONS, INITIAL, LISTS, PERSONAL_FIELDS, PINFO_FIELDS, DECL_FIELDS, DECL_TEXT,
   HOBBY_IDEAS, STRENGTH_IDEAS, PREF_FIELDS, PRESET_SECTIONS, completeness, DEFAULT_SKILL_GROUPS, SKILL_GROUP_OF, splitSkills, allSkills,
-  PRINTABLE, real, resolveOrder, sectionLabel, fieldError, dateOrderError, collectIssues, LINK_SLOTS, LINK_WORDS, LINK_WORD_MAX, migrateLinks,
+  PRINTABLE, real, resolveOrder, sectionLabel, fieldError, dateOrderError, collectIssues, LINK_SLOTS, LINK_WORDS, LINK_WORD_MAX, migrateLinks, isFresher,
 } from './builder/schema';
 
 const DRAFT_KEY = () => draftKey(); // per signed-in customer (see lib/auth.js)
@@ -719,6 +720,7 @@ export default function Builder({ embedded = null }) {
                 <textarea id="sum" className="input" rows={5} value={d.summary} onChange={(e) => setD({ ...d, summary: e.target.value })} placeholder="Who you are, your strongest skills, one result with a number, and the role you want." />
                 {profile && <ProfileHint value={profile.summaries.find((x) => !x.off && x.text.trim())?.text} current={d.summary} label="summary" onUse={(v) => setD((p) => ({ ...p, summary: v }))} />}
                 <div className="row between xs"><span className="faint" data-testid="summary-chars">{sumLen} chars</span><span className="strong" style={{ color: sumNote.ok ? 'var(--success)' : 'var(--warning)' }}>{sumNote.text}</span></div>
+                {isFresher(d) && <ReadySummaries d={d} onPick={(t, s) => { setD((p) => ({ ...p, summary: t })); toast(`“${s.heading}” is in your summary — edit anything`); const box = document.getElementById('sum'); box?.focus({ preventScroll: true }); box?.scrollIntoView({ block: 'center', behavior: 'smooth' }); }} />}
                 <span className="label" style={{ marginTop: 6 }}>Or start from one of these</span>
                 {summaryOptions.map(([t, n]) => (
                   <button key={n} type="button" className="option stack g4" onClick={() => setD({ ...d, summary: t })} style={{ fontSize: 14, lineHeight: 1.5 }}>
