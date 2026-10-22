@@ -1,7 +1,7 @@
 // Expert orders, drafts, comments, messages and snippets — shared by the expert workspace and the customer's review page.
 // Preview: kept in this browser (localStorage). Live app: GET/PUT /api/expert/orders/{id}, /api/orders/{id}/drafts, etc.
 import { useSyncExternalStore } from 'react';
-import { INITIAL } from '../pages/builder/schema';
+import { emptyResume } from '../pages/builder/schema';
 import { LIVE, http, reportSaveError } from '../services/http';
 import { currentUser, onSignOut } from './auth';
 
@@ -13,7 +13,7 @@ const now = () => Date.now();
 /* ---------- sample customer resumes (as read from their uploaded files) ---------- */
 export function original({ name, email, headline = '', role, company, desc, degree, field, inst, grade, skills, proj, summary = '' }) {
   return {
-    ...structuredClone(INITIAL),
+    ...emptyResume(),
     personal: { name, headline, email, phone: '+91 90000 00000', location: 'Bengaluru, Karnataka', level: 'Fresher (0–1 yr)' },
     summary,
     exp: role ? [{ company, role, employmentType: 'Internship', from: '2025-01', to: '2025-06', current: false, description: desc, links: [] }] : [],
@@ -21,7 +21,7 @@ export function original({ name, email, headline = '', role, company, desc, degr
     skillGroups: [{ id: 'core', label: 'Core Technologies / Languages', value: skills }, { id: 'frameworks', label: 'Frameworks & Libraries', value: '' }, { id: 'tools', label: 'Tools & Platforms', value: '' }, { id: 'soft', label: 'Soft Skills / Domains', value: '' }],
     proj: proj ? [{ title: proj.title, tagline: '', type: 'Academic / Research', status: 'Completed', from: '2024-08', to: '2024-11', ongoing: false, description: proj.desc, tech: proj.tech, links: [] }] : [],
     certs: [], ach: [], langs: [{ name: 'English', level: 'Fluent' }],
-    links: { ...INITIAL.links, linkedin: '', github: '' },
+    links: emptyResume().links,
     design: null,
   };
 }

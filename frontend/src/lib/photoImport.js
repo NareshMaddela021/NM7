@@ -3,7 +3,7 @@
 // person reviews; nothing is saved until they press "Looks right". ID numbers never come back (the server drops them).
 import { http, LIVE, ApiError } from '../services/http';
 import { normDate } from './import/dates';
-import { INITIAL } from '../pages/builder/schema';
+import { emptyResume } from '../pages/builder/schema';
 
 export const MAX_PHOTOS = 6;
 export const MAX_BYTES = 10 * 1024 * 1024;
@@ -84,7 +84,7 @@ function guardianParts(text) {
 }
 
 /** Kept review items → builder resume data, on top of `base` (a blank resume). */
-export function reviewToResume(r, base = INITIAL) {
+export function reviewToResume(r, base = emptyResume()) {
   const d = structuredClone(base);
   const about = Object.fromEntries(r.about.filter((x) => x.keep && x.value.trim()).map((x) => [x.key, x.value.trim()]));
   const id = Object.fromEntries(r.fromId.filter((x) => x.keep && x.value.trim()).map((x) => [x.key, x]));

@@ -20,7 +20,7 @@ import PhotoImport from '../builder/PhotoImport';
 import SummaryWriter from '../builder/SummaryWriter';
 import ResumePreview from '../builder/ResumePreview';
 import { designOf } from '../builder/design';
-import { EXP_LEVELS, INITIAL, LISTS, PERSONAL_FIELDS, migrateLinks, real } from '../builder/schema';
+import { EXP_LEVELS, LISTS, PERSONAL_FIELDS, completeResume, emptyResume, migrateLinks, real } from '../builder/schema';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const big = { fontSize: 18 };
@@ -29,11 +29,9 @@ const shell = { minHeight: '100vh', background: 'var(--bg)', display: 'flex', fl
 
 /** A fresh resume for the candidate (their own name and email; no sample person). */
 function blank(who) {
-  const d = structuredClone(INITIAL);
-  d.personal = { name: who?.name || '', headline: '', email: who?.email || '', phone: '', location: '', level: EXP_LEVELS[0] };
-  Object.assign(d, { summary: '', exp: [], proj: [], certs: [], ach: [], custom: [], hobbies: '', strengths: '', langs: [{ name: 'English', level: 'Fluent' }] });
+  const d = emptyResume();
+  d.personal = { ...d.personal, name: who?.name || '', email: who?.email || '', level: EXP_LEVELS[0] };
   d.edu = [{ ...LISTS.edu.blank }];
-  d.skillGroups = d.skillGroups.map((g) => ({ ...g, value: '' }));
   d.pinfo = { father: '', mother: '', dob: '', gender: '', marital: '', nationality: 'Indian', languages: '', address: '' };
   d.links = { linkedin: '', github: '', portfolio: '', twitter: '', stackoverflow: '', medium: '', resume: '' };
   return migrateLinks(d);
@@ -177,7 +175,7 @@ export default function KioskScreen() {
         const st = await http('/api/me/state');
         const r = st.resumes.find((x) => x.id === m.resumeId);
         if (!r) throw new Error('resume');
-        const data = migrateLinks({ ...INITIAL, ...r.data });
+        const data = completeResume(r.data);
         setWho(m.who); setResumeId(r.id); setD(data); setApproval(m.approval || null);
         setAutoPrint(!!m.printAfter);
         setStep(m.step);
@@ -251,7 +249,7 @@ export default function KioskScreen() {
       r = await http('/api/me/resumes', { method: 'POST', body: fresh });
     }
     setResumeId(r.id);
-    const data = migrateLinks({ ...INITIAL, ...r.data });
+    const data = completeResume(r.data);
     setD(data);
     preloadPrint(data);
     if (me.membership) { setApproval(me.membership.approval); setStep('start'); } else setStep(info.closed ? 'start' : 'consent');

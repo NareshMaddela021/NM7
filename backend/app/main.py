@@ -27,6 +27,7 @@ from app.core.email import log_email_status
 from app.core.observability import RequestContext, init_sentry
 from app.downloads.router import router as downloads_router
 from app.experts.router import router as expert_router
+from app.maintenance.router import router as maintenance_router
 from app.me.router import public as public_router
 from app.me.router import router as me_router
 from app.orders.router import router as orders_router
@@ -139,6 +140,7 @@ def create_app() -> FastAPI:
     app.include_router(org_kiosk.kiosk)
     app.include_router(org_kiosk.cont)
     app.include_router(admin_console_router)
+    app.include_router(maintenance_router)
     app.include_router(billing.public)
     app.include_router(billing.me)
     app.include_router(billing.portal)

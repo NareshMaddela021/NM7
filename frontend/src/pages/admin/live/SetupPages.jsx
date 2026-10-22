@@ -27,6 +27,7 @@ export function settingsErrors(f) {
 export function LiveSettings() {
   const toast = useToast();
   const st = useApi('/api/admin/settings');
+  const owner = useAuth().user?.adminRole === 'owner';
   const [busy, run] = useAction(toast);
   const [f, setF] = useState(null);
   // the form keeps what was typed (text), so a bad value can be explained instead of silently becoming 0
@@ -79,9 +80,34 @@ export function LiveSettings() {
           </section>
           <button type="button" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={busy || Object.keys(errs).length > 0} onClick={save}>Save settings</button>
           {Object.keys(errs).length > 0 && <span className="small" role="status" style={{ color: 'var(--danger)' }}>Fix the {Object.keys(errs).length === 1 ? 'value' : `${Object.keys(errs).length} values`} marked above to save.</span>}
+          {owner && <SampleCleanup />}
         </>
       )}</Loading>
     </>
+  );
+}
+
+/* ---------- one-time sample-data cleanup (owner only) ---------- */
+// Older builder versions saved the example person's details (Sai Varsha) into real resumes. "Check" is a dry run:
+// it lists the resumes and the fields it would clear. "Remove sample values" clears exactly those values, nothing else.
+export function SampleCleanup() {
+  const toast = useToast();
+  const [busy, run] = useAction(toast);
+  const [found, setFound] = useState(null);
+  const [done, setDone] = useState(null);
+  const call = (dryRun) => http('/api/admin/maintenance/sample-cleanup', { method: 'POST', body: { dryRun, ids: dryRun ? undefined : found.resumes.map((r) => r.id) } });
+  return (
+    <section className="card stack g12" aria-label="Sample data cleanup" data-testid="sample-cleanup">
+      <strong>Sample data cleanup</strong>
+      <span className="small muted">Finds resumes that still hold the example person’s details (Sai Varsha) from an older version of the builder. Check first; removing clears only those exact values.</span>
+      <div className="row g8">
+        <button type="button" className="btn btn-outline" disabled={busy} onClick={() => run(async () => { setDone(null); setFound(await call(true)); })}>Check (dry run)</button>
+        {found?.count > 0 && !done && <button type="button" className="btn btn-ink" disabled={busy} onClick={() => run(async () => { setDone(await call(false)); setFound(null); }, 'Sample values removed')}>Remove sample values from {found.count} resume{found.count === 1 ? '' : 's'}</button>}
+      </div>
+      {found && <div role="status" className="small" data-testid="sample-scan">{found.count === 0 ? 'No resumes hold sample data.' : `${found.count} resume${found.count === 1 ? '' : 's'} hold sample data:`}
+        {found.count > 0 && <ul className="xs mono">{found.resumes.map((r) => <li key={r.id}>{r.id} · {r.fields.join(', ')}</li>)}</ul>}</div>}
+      {done && <div role="status" className="small" data-testid="sample-done">Cleaned {done.count} resume{done.count === 1 ? '' : 's'}.</div>}
+    </section>
   );
 }
 

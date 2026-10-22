@@ -46,3 +46,9 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(tree());
 // Live: prices come from the server (the owner can change them); show them once loaded.
 if (LIVE) syncPrices(http).then(() => root.render(tree()), () => {});
+// Once per browser: older versions saved the example person (Sai Varsha) into the builder's browser draft.
+try {
+  if (!localStorage.getItem('nm7-sample-drafts-cleared') && Array.from({ length: localStorage.length }, (_, i) => localStorage.key(i)).some((k) => k?.startsWith('asuraa-builder-draft-v6'))) {
+    import('./lib/sampleData').then((m) => m.scrubSampleDrafts(), () => {});
+  }
+} catch { /* storage blocked: nothing saved there either */ }

@@ -3,7 +3,8 @@
 // Every list entry has a `pid` (stable id) and `pu` (last changed, ms); a resume entry copied from the profile
 // keeps that `pid` and the `pv` it was copied at, which is how "Save this change to my Job Profile" and
 // "Your profile has N updates" work.
-import { DEFAULT_SKILL_GROUPS, DECL_TEXT, INITIAL, splitList } from '../pages/builder/schema';
+import { DEFAULT_SKILL_GROUPS, DECL_TEXT, emptyResume, splitList } from '../pages/builder/schema';
+import { stripSample } from './sampleData';
 
 export const PROFILE_LISTS = ['exp', 'intern', 'proj', 'edu', 'certs', 'ach', 'langs', 'extra'];
 export const EXTRA_TITLE = 'Extracurricular Activities';
@@ -87,7 +88,7 @@ export function sourcesFor(p, section) {
 export const toResumeEntry = (src) => (src.list === 'intern' ? internAsExp(src.x) : copyEntry(src.x));
 
 /** A full new resume pre-filled from the profile (job preferences stay private: salary is never copied). */
-export function profileToResume(p, base = INITIAL) {
+export function profileToResume(p, base = emptyResume()) {
   const d = structuredClone(base);
   const summary = p.summaries.find((s) => s.text.trim()) || p.summaries[0];
   d.personal = { ...d.personal, ...p.personal, level: p.prefs.level || d.personal?.level || '' };
@@ -114,7 +115,8 @@ const KEY = {
 const hasContent = (k, x) => !!KEY[k](x).replace(/\|/g, '');
 
 /** Builder-shaped data (a resume, an imported file) as profile sections. */
-export function resumeToProfileParts(d) {
+export function resumeToProfileParts(input) {
+  const d = stripSample(input); // the sample person never goes into a Job Profile
   const exp = (d.exp || []).filter((e) => !/intern/i.test(e.employmentType || ''));
   const intern = (d.exp || []).filter((e) => /intern/i.test(e.employmentType || ''));
   const extra = (d.custom || []).filter((c) => /extra|activit|volunt|club|responsib/i.test(c.title || '')).flatMap((c) => c.items || []);

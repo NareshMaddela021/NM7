@@ -92,3 +92,18 @@ export async function pdfText(bytes) {
   for (let p = 1; p <= doc.numPages; p++) pages.push((await (await doc.getPage(p)).getTextContent()).items.map((i) => i.str).join(' '));
   return pages;
 }
+
+/**
+ * A guest whose browser draft is a filled-in test person (same text as the sample resume, but none of the values
+ * only the sample has, so it is the person's own data). The builder no longer starts from the sample, so tests that
+ * need a full resume start from this one. Set before every page load, only while no draft exists yet.
+ */
+export const TEST_PERSON = JSON.parse(readFileSync(join(here, 'testPerson.json'), 'utf8'));
+export async function asTestPerson(page, patch = {}) {
+  await page.addInitScript(([d]) => {
+    try {
+      localStorage.setItem('nm7-sample-drafts-cleared', '1');
+      if (!localStorage.getItem('asuraa-builder-draft-v6')) localStorage.setItem('asuraa-builder-draft-v6', JSON.stringify(d));
+    } catch { /* storage blocked */ }
+  }, [{ ...TEST_PERSON, ...patch }]);
+}

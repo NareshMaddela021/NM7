@@ -2,10 +2,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, useToast } from '../../components/ui';
-import { useMe, openInBuilder, addResume, updateResume, deleteResume, restoreVersion, expertDrafts, retentionLeft } from '../../lib/customerStore';
+import { useMe, openInBuilder, addResume, updateResume, deleteResume, restoreVersion, expertDrafts, retentionLeft, blankResume } from '../../lib/customerStore';
 import { useExpertOrders } from '../../lib/expertStore';
 import { atsScore } from '../../lib/atsScore';
-import { INITIAL } from '../builder/schema';
 import Compare from '../builder/Compare';
 import { MeHead } from './MeLayout';
 import { ResumeThumb, downloadResume, templateName, ago, fmtWhen } from './shared';
@@ -49,7 +48,7 @@ export default function MeResumes() {
   const [name, setName] = useState('');
   const [confirmDel, setConfirmDel] = useState(null);
   const edit = (id) => { openInBuilder(id); nav('/builder', { state: { open: 'build' } }); };
-  const blank = () => { const d = structuredClone(INITIAL); d.personal = { ...d.personal, name: me.account.name, email: me.account.email, phone: me.account.phone, headline: '' }; d.summary = ''; d.exp = []; d.proj = []; d.certs = []; return d; };
+  const blank = () => blankResume(me.account); // truly empty: only the account's name, email and phone
 
   return (
     <>

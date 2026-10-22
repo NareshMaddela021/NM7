@@ -34,6 +34,7 @@ from app.core.errors import ApiError
 from app.core.pii import scrub_id_numbers
 from app.core.time import now
 from app.downloads.router import account_entitlement
+from app.maintenance.sample_data import strip_sample
 from app.me import emails
 from app.me.schemas import (
     ApplicationIn,
@@ -212,8 +213,11 @@ async def add_resume(body: ResumeIn, auth: CustomerAuth, db: DB) -> ResumeOut:
         raise ApiError(400, "too_many", f"You can keep up to {MAX_RESUMES} resumes. Delete one first.")
     t = now()
     active = body.active or count == 0
+    f = without_id_numbers(body.model_dump(exclude={"id"}), "resume")
+    if isinstance(f.get("data"), dict):
+        f["data"], _ = strip_sample(f["data"])  # a new resume never starts with the example person's values
     doc = {
-        **without_id_numbers(body.model_dump(exclude={"id"}), "resume"),
+        **f,
         "key": body.id,
         "user_id": uid,
         "active": active,

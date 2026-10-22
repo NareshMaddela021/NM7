@@ -10,13 +10,13 @@ import Header from '../components/Header';
 import SiteFooter from '../components/SiteFooter';
 import { useToast } from '../components/ui';
 import { useAuth } from '../lib/auth';
-import { activeResume, blankResume, openInBuilder, useMe } from '../lib/customerStore';
+import { activeResume, openInBuilder, useMe } from '../lib/customerStore';
 import { DownloadBlocked, exportFile } from '../lib/downloads';
 import { onResumeSaved } from '../lib/resumeChannel';
 import ResumePreview from './builder/ResumePreview';
 import TemplatePreview from './builder/TemplatePreview';
 import { TEMPLATE_PRESETS } from './builder/design';
-import { INITIAL, migrateLinks } from './builder/schema';
+import { INITIAL, completeResume } from './builder/schema';
 import { audienceOf, hasOwnDetails, layoutOf, PHOTO_PLACEHOLDER, readView, saveView, startView, withTemplate } from './builder/templatePick';
 import { InView, NoDetails, ViewSwitch } from './builder/ViewSwitch';
 
@@ -37,7 +37,7 @@ export default function Templates() {
   const [latest, setLatest] = useState({});
   useEffect(() => onResumeSaved(({ id, data }) => setLatest((p) => ({ ...p, [id]: data }))), []);
   const raw = resume ? latest[resume.id] || resume.data : null;
-  const mineData = useMemo(() => (raw ? migrateLinks({ ...blankResume(), ...raw }) : null), [raw]); // every section present, as in the builder
+  const mineData = useMemo(() => (raw ? completeResume(raw) : null), [raw]); // every section present, as in the builder
   const own = hasOwnDetails(mineData) ? mineData : null;
   const loadingMine = !auth.ready || (customer && me.loading);
 
