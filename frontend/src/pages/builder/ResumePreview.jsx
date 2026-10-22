@@ -90,6 +90,9 @@ function Item({ it, ds, s }) {
   );
 }
 
+// what the "My resume" view shows, in grey, for a core section with nothing in it yet
+const HINT_SECTIONS = [['exp', 'Experience', 'Add your first job'], ['edu', 'Education', 'Add your school or college'], ['skills', 'Skills', 'Add your skills']];
+
 function Column({ sections, ds, s }) {
   return sections.map((sec) => (
     <section key={sec.id} className="stack" style={{ gap: ds.itemGap * s }}>
@@ -125,7 +128,9 @@ function CoverBody({ c, ds, s }) {
  */
 /** brand / stamp: organization copies (see lib/branding.js): a header strip with the logo and header line, and the
  * footer line / stamp at the foot. */
-export default function ResumePreview({ data, design: ds, photo: photoProp, onPages, cover, loadFonts = true, decorative = false, loading = false, brand = null, stamp = '' }) {
+/** hints: the builder's "My resume" view — light grey placeholders ("Your name", "Add your first job") where nothing is
+ * typed yet. They are only on screen: downloads never use this component, and empty sections are never printed. */
+export default function ResumePreview({ data, design: ds, photo: photoProp, onPages, cover, loadFonts = true, decorative = false, loading = false, brand = null, stamp = '', hints = false }) {
   const d = visibleResume(data); // switched-off entries are hidden everywhere the resume is shown
   const photo = photoProp === undefined ? data?.photo || null : photoProp; // the photo saved with the resume
   const ref = useRef();
@@ -172,6 +177,9 @@ export default function ResumePreview({ data, design: ds, photo: photoProp, onPa
 
   const body = { fontFamily: FONTS[ds.font].css, fontSize: ds.bodySize * s, lineHeight: ds.lineHeight, fontWeight: ds.bodyWeight, color: ds.textColor };
   const empty = !main.length && !side.length;
+  const shown = new Set([...main, ...side].map((x) => x.id));
+  const HINT = '#ABABAB';
+  const hintSecs = hints && !cover ? HINT_SECTIONS.filter(([id]) => !shown.has(id) && !data?.hidden?.[id]) : [];
 
   return (
     <LinksLive.Provider value={!decorative}>
@@ -191,19 +199,26 @@ export default function ResumePreview({ data, design: ds, photo: photoProp, onPa
         }}>
           {photoEl}
           <div className="stack" style={{ flex: 1, minWidth: 0, width: pos === 'top' ? '100%' : undefined, gap: 3 * s, textAlign: align }}>
-            <span style={{ fontFamily: FONTS[headFontOf(ds)].css, fontSize: ds.nameSize * s, fontWeight: 700, lineHeight: 1.1, color: ds.accentOn.name ? ds.accent : ds.textColor }}>{d.personal.name || 'Your Name'}</span>
+            <span style={{ fontFamily: FONTS[headFontOf(ds)].css, fontSize: ds.nameSize * s, fontWeight: 700, lineHeight: 1.1, color: ds.accentOn.name ? ds.accent : ds.textColor }}>{d.personal.name || (hints ? <span data-testid="hint" style={{ color: HINT }}>Your name</span> : 'Your Name')}</span>
+            {hints && !d.personal.headline && !cover && <span data-testid="hint" style={{ fontSize: (ds.bodySize + 1.5) * s, color: HINT }}>Your job title</span>}
             {d.personal.headline && <span style={{ fontSize: (ds.bodySize + 1.5) * s, color: ds.accentOn.name ? ds.accent : '#444', fontWeight: 500 }}>{d.personal.headline}</span>}
             <ContactLine d={d} ds={ds} s={s} align={align} />
           </div>
         </header>
         {cover ? <CoverBody c={coverParts(d, cover)} ds={ds} s={s} /> : <>
-        {empty && <span style={{ color: '#9A9A9A', fontStyle: 'italic' }}>Your sections appear here as you fill them in.</span>}
+        {empty && !hints && <span style={{ color: '#9A9A9A', fontStyle: 'italic' }}>Your sections appear here as you fill them in.</span>}
         {ds.layout === 'two' ? (
           <div style={{ display: 'grid', gridTemplateColumns: '32% minmax(0, 1fr)', gap: 18 * s }}>
             <div className="stack" style={{ gap: ds.sectionGap * s, ...(ds.sideTint ? { background: tint(ds.accent, 0.07), padding: 8 * s, margin: -8 * s, borderRadius: 4 * s, alignSelf: 'stretch' } : {}) }}><Column sections={side} ds={ds} s={s} /></div>
             <div className="stack" style={{ gap: ds.sectionGap * s }}><Column sections={main} ds={ds} s={s} /></div>
           </div>
         ) : <Column sections={main} ds={ds} s={s} />}
+        {hintSecs.map(([id, title, text]) => (
+          <section key={id} data-testid="hint" className="stack" style={{ gap: ds.itemGap * s, color: HINT }}>
+            <strong style={{ fontSize: ds.headSize * s, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{title}</strong>
+            <span>{text}</span>
+          </section>
+        ))}
         </>}
         {((brand?.footer && !cover) || stamp) && (
           <div data-testid="page-foot" style={{ marginTop: 'auto', textAlign: 'center', fontSize: 7.5 * s, color: '#6E6E6E', lineHeight: 1.4 }}>
