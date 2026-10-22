@@ -110,7 +110,7 @@ export default function TemplatePicker({ d, ds, suggest, photo, onPick, onNext, 
                 style={{ padding: 0, border: 0, background: 'transparent', cursor: 'pointer', textAlign: 'left', position: 'relative' }}>
                 <div aria-hidden="true" style={{ pointerEvents: 'none' }}>
                   <InView height={300}>
-                    <ResumePreview decorative data={{ ...shownData, ...layoutOf(k) }} design={design} photo={t.photo ? ((mine ? photo : null) || PHOTO_PLACEHOLDER) : (mine ? photo : null)} />
+                    <ResumePreview decorative data={mine ? shownData : { ...shownData, ...layoutOf(k) }} design={design} photo={t.photo ? ((mine ? photo : null) || PHOTO_PLACEHOLDER) : (mine ? photo : null)} />
                   </InView>
                 </div>
                 <span aria-hidden="true" className="tp-check" style={{ visibility: chosen ? 'visible' : 'hidden' }}>✓</span>
@@ -149,7 +149,7 @@ export default function TemplatePicker({ d, ds, suggest, photo, onPick, onNext, 
       {bar && createPortal(
         <div className="tp-bar" role="region" aria-label="Selected template" data-testid="tp-bar">
           <div className="tp-bar-in">
-            <span className="tp-bar-thumb" aria-hidden="true"><ResumePreview decorative loadFonts={false} data={{ ...d, ...layoutOf(sel.k) }} design={sel.design} /></span>
+            <span className="tp-bar-thumb" aria-hidden="true"><ResumePreview decorative loadFonts={false} data={d} design={sel.design} /></span>
             <span className="stack" style={{ minWidth: 0, flex: '1 1 auto' }}>
               <strong className="tp-bar-name">{text.name}</strong>
               <span className="xs muted" data-testid="tp-bar-meta">{text.meta}</span>

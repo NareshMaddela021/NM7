@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { audienceOf, hasOwnDetails, isUseKey, pickState, selectionText, startView, withTemplate } from './templatePick';
+import { audienceOf, hasOwnDetails, isUseKey, listText, pickState, selectionText, startView, templateSuggests, withTemplate } from './templatePick';
 import { INITIAL } from './schema';
 import { TEMPLATE_PRESETS } from './design';
 
@@ -51,16 +51,26 @@ describe('Sample resume | My details', () => {
     expect(hasOwnDetails(mine)).toBe(true);
   });
 
-  it('a look-only template keeps the person\'s hidden sections and print switches; a new layout brings its own, as the builder does', () => {
-    const look = withTemplate(mine, 'modern'); // same standard layout as Fresher First
-    expect(look.data).toBe(mine);
-    expect(look.design).toMatchObject({ preset: 'modern', font: 'lato' });
-    const kio = withTemplate(mine, 'kio'); // the Kio layout: its own order and switches
-    expect(kio.data.order[0]).toBe('summary');
-    expect(kio.data.hidden).toEqual({ proj: true, skills: true, certs: true, ach: true, langs: true });
-    expect(kio.data.personal).toBe(mine.personal); // content is never touched
-    expect(kio.data.exp).toBe(mine.exp);
-    expect(withTemplate(mine, 'portrait').data.showPhoto).toBe(true);
+  it('a template changes only the look: every section switch, order, title, photo and all content stay (all 18)', () => {
+    const before = JSON.stringify(mine);
+    const keys = Object.keys(TEMPLATE_PRESETS);
+    expect(keys).toHaveLength(18);
+    for (const k of keys) {
+      const shown = withTemplate(mine, k);
+      expect(shown.data).toBe(mine); // not a copy with other switches: the same resume
+      expect(shown.design.preset).toBe(k);
+    }
+    expect(JSON.stringify(mine)).toBe(before);
+    expect(withTemplate(mine, 'modern').design).toMatchObject({ preset: 'modern', font: 'lato' });
     expect(withTemplate(mine, 'nope').design).toBeNull();
+  });
+
+  it('what a template usually shows is only suggested: Kio, Formal and the photo template', () => {
+    const d = { ...mine, hidden: { hobbies: true, strengths: true, pinfo: true, decl: true }, showPhoto: false };
+    expect(listText(templateSuggests(d, 'kio'))).toBe('Hobbies, Strengths, Personal information and Declaration');
+    expect(listText(templateSuggests(d, 'formal'))).toBe('Personal information and Declaration');
+    expect(templateSuggests(d, 'portrait').map((x) => x.id)).toEqual(['photo']);
+    expect(templateSuggests(d, 'modern')).toEqual([]);
+    expect(templateSuggests({ ...d, hidden: {} }, 'kio')).toEqual([]); // already on: nothing to suggest
   });
 });

@@ -92,6 +92,14 @@ Older versions seeded new resumes and browser drafts from the sample, so some sa
   Settings → **Sample data cleanup**: *Check (dry run)* lists the same; *Remove sample values* clears exactly the
   listed resumes. Both are in the audit log. Resume versions (history) are not changed.
 
+### Templates change only the look
+
+Picking a template (builder, Change template, Edit design, /templates "Use this template") changes fonts, colours
+and columns only. Which sections show, their order, titles, the photo switch and all content stay as the person set
+them. When a template usually shows a section that is off (Kio: hobbies, strengths, personal information,
+declaration; Formal: personal information, declaration; Portrait: a photo), the builder asks "This template usually
+shows … Turn it on?" with **Turn on** / **No thanks**; nothing changes until Turn on.
+
 ## Summary writer
 
 On the builder's **Summary** step, in **Job Profile → Summary → About me** and in the kiosk builder, anyone can get a

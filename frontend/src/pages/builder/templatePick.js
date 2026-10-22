@@ -39,19 +39,29 @@ export function pickState(prev, action) {
 /* ---------- "Sample resume | My details" (template gallery, the builder's picker, the large preview) ---------- */
 
 /**
- * A resume shown in template `k`, the way the builder applies it: the template's look, and its section layout only
- * when that layout differs from the current template's (look-only switches keep the person's own order and on/off
- * choices — hidden sections, personal information, declaration and photo stay exactly as they set them).
+ * A resume shown in template `k`: the template's look (fonts, colours, columns) and nothing else. Section on/off,
+ * order, titles, the photo switch and all content stay exactly as the person set them.
  */
 export function withTemplate(data, k) {
   const t = TEMPLATE_PRESETS[k];
   if (!t || !data) return { data, design: null };
-  const cur = data.design?.preset;
-  const from = layoutOf(cur in TEMPLATE_PRESETS ? cur : 'fresher');
-  const to = layoutOf(k);
-  const laid = from === to ? data : { ...data, order: to.order, hidden: { ...to.hidden }, titles: { ...to.titles }, showPhoto: to.showPhoto };
-  return { data: laid, design: { ...DEFAULT_DESIGN, ...t.design, preset: k } };
+  return { data, design: { ...DEFAULT_DESIGN, ...t.design, preset: k } };
 }
+
+const OPTIONAL = { hobbies: 'Hobbies', strengths: 'Strengths', pinfo: 'Personal information', decl: 'Declaration' };
+/**
+ * What template `k` usually shows that this resume has switched off: [{ id, label }] (sections, and 'photo').
+ * Only a suggestion ("Turn it on?"); picking a template never switches anything by itself.
+ */
+export function templateSuggests(data, k) {
+  if (!TEMPLATE_PRESETS[k] || !data) return [];
+  const l = layoutOf(k);
+  const out = Object.entries(OPTIONAL).filter(([id]) => !l.hidden[id] && data.hidden?.[id]).map(([id, label]) => ({ id, label }));
+  if (l.showPhoto && !data.showPhoto) out.push({ id: 'photo', label: 'a photo' });
+  return out;
+}
+/** "Personal information", "Hobbies and Strengths", "Hobbies, Strengths and Declaration". */
+export const listText = (items) => (items.length < 2 ? items[0]?.label || '' : `${items.slice(0, -1).map((x) => x.label).join(', ')} and ${items[items.length - 1].label}`);
 
 export const VIEW_KEY = 'nm7-template-view';
 /** True when a resume has the person's own details to show (at least a name, and not the built-in sample). */
