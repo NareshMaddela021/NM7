@@ -1,7 +1,10 @@
 // "Pick a ready summary" on the Summary step (freshers): 12 cards with headings, the one matching the target role
 // first; a tap fills the summary box, which can be edited and is saved; small personal touches (languages in #11,
-// skills in #3). Desktop and a 390 px phone. The guest draft is the sample resume (Data Analyst headline, fresher).
+// skills in #3). Desktop and a 390 px phone. The guest draft is a filled-in test person (helpers TEST_PERSON: Data Analyst headline, fresher).
 import { expect, test } from '@playwright/test';
+import { asTestPerson } from './helpers.mjs';
+
+test.beforeEach(({ page }) => asTestPerson(page)); // the builder no longer starts from the sample person
 
 const HEADINGS = ['Best Overall Resume Summary', 'Software Developer / IT Fresher', 'Data Analyst Fresher', 'Data Science / AI Fresher', 'Electronics and Communication Engineering Fresher', 'Non-Technical / Any Graduate Fresher', 'HR / Recruitment Fresher', 'Business Analyst Fresher', 'Sales and Marketing Fresher', 'Finance / Accounts Fresher', 'General Fresher (no course mentioned)', 'Skills and Project Fresher (no course mentioned)'];
 const BEST = 'Motivated and detail-oriented graduate with a strong willingness to learn, adapt, and contribute to organizational success. Possess good analytical, problem-solving, and communication skills, with the ability to work collaboratively in a team environment. Eager to apply academic knowledge, develop professional expertise, and contribute to business growth.';

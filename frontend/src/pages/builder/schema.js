@@ -203,6 +203,29 @@ export const INITIAL = {
   cover: { company: '', role: '', manager: '', jd: '', body: '', subject: true }, // cover letter (see cover.js)
 };
 
+/**
+ * A truly empty resume: every field present, nothing filled in. New resumes start from this (with only the
+ * account's name, email and phone), and anything loaded is completed with it — never with the sample person
+ * (INITIAL is only for "how this template looks when filled" views and demos, and is never saved).
+ */
+export const EMPTY = {
+  personal: { name: '', headline: '', email: '', phone: '', location: '', level: '' },
+  hobbies: '', strengths: '',
+  pinfo: { father: '', mother: '', dob: '', gender: '', marital: '', nationality: '', languages: '', address: '' },
+  decl: { text: DECL_TEXT, place: '', date: '', name: '' },
+  summary: '', exp: [], edu: [],
+  skillGroups: DEFAULT_SKILL_GROUPS.map((g) => ({ id: g.id, label: g.label, value: '' })),
+  proj: [], certs: [], ach: [], langs: [],
+  prefs: { jobTypes: [], salary: '', notice: '', locations: '', remote: false, relocation: false, industries: [] },
+  links: { linkedin: '', github: '', portfolio: '', twitter: '', stackoverflow: '', medium: '', resume: '' },
+  linkStyle: 'icon', linkExtras: [], portfolioIcon: 'auto', portfolioLabel: '',
+  custom: [], order: null, hidden: { hobbies: true, strengths: true, pinfo: true, decl: true }, showPhoto: false, titles: {},
+  design: null, cover: { company: '', role: '', manager: '', jd: '', body: '', subject: true },
+};
+export const emptyResume = () => structuredClone(EMPTY);
+/** A stored or imported resume with every field present: missing fields are empty, never the sample's. */
+export const completeResume = (d) => migrateLinks({ ...emptyResume(), ...(d || {}) });
+
 /** Which sections have meaningful content (drives ✓ marks and the score). */
 export function completeness(d) {
   const has = {

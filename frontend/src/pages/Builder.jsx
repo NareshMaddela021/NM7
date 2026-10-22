@@ -16,6 +16,7 @@ import PhotoImport from './builder/PhotoImport';
 import { FillFromProfile, ProfileHint, ProfileUpdates, SaveToProfile } from './builder/ProfileSync';
 import { draftKey, currentUser, LIVE, useAuth } from '../lib/auth';
 import { applyImport } from '../lib/import/apply';
+import { hasSample, isEmptyResume, stripSample } from '../lib/sampleData';
 import { emptyResult } from '../lib/import/shared';
 
 const dayLabel = () => new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
@@ -50,7 +51,7 @@ import { DEFAULT_DESIGN, FIT_STEPS, TEMPLATE_PRESETS } from './builder/design';
 import {
   AI_SAMPLES, ALL_SKILLS, EXP_LEVELS, FIXED_SECTIONS, INITIAL, LISTS, PERSONAL_FIELDS, PINFO_FIELDS, DECL_FIELDS, DECL_TEXT,
   HOBBY_IDEAS, STRENGTH_IDEAS, PREF_FIELDS, PRESET_SECTIONS, completeness, DEFAULT_SKILL_GROUPS, SKILL_GROUP_OF, splitSkills, allSkills,
-  PRINTABLE, real, resolveOrder, sectionLabel, fieldError, dateOrderError, collectIssues, LINK_SLOTS, LINK_WORDS, LINK_WORD_MAX, migrateLinks, isFresher, SCORE_WEIGHTS, strengthOf,
+  PRINTABLE, real, completeResume, resolveOrder, sectionLabel, fieldError, dateOrderError, collectIssues, LINK_SLOTS, LINK_WORDS, LINK_WORD_MAX, migrateLinks, isFresher, SCORE_WEIGHTS, strengthOf,
 } from './builder/schema';
 
 const DRAFT_KEY = () => draftKey(); // per signed-in customer (see lib/auth.js)
@@ -60,17 +61,13 @@ const nextFrame = () => new Promise((r) => requestAnimationFrame(() => requestAn
 /** Live app, signed-in customer: the resume lives on the server (My resumes → the active one), not in this browser. */
 const serverCustomer = () => LIVE && currentUser()?.role === 'customer';
 const loadDraft = (key = DRAFT_KEY(), initial = defaultResume()) => {
-  if (serverCustomer() && key === DRAFT_KEY()) return migrateLinks({ ...INITIAL, ...initial });
+  if (serverCustomer() && key === DRAFT_KEY()) return completeResume(initial);
   try {
-    let s = localStorage.getItem(key);
-    // drafts still holding the old sample person get the new sample name
-    if (s && s.includes('"Priya Raman"')) s = s.replace(/Priya Raman/g, 'Sai Varsha').replace(/PRIYA RAMAN/g, 'SAI VARSHA').replace(/priyaraman/g, 'saivarsha').replace(/priya@example/g, 'saivarsha@example');
-    // older sample drafts linked to real GitHub accounts and used “[Company]” / “[College]”: use the invented sample ones
-    if (s && /github\.com\/(saivarsha|octocat)/.test(s)) s = s.replace(/github\.com\/(saivarsha\/sales-dashboard|octocat\/Hello-World)/g, 'github.com/sai-varsha-example/sales-dashboard').replace(/github\.com\/(saivarsha|octocat)\b/g, 'github.com/sai-varsha-example');
-    if (s && s.includes('"Sai Varsha"')) s = s.replace(/"\[Company\]"/g, '"Northwind Retail"').replace(/"\[College\]"/g, '"Lakeview Institute of Technology"');
-    if (s) return migrateLinks({ ...INITIAL, ...JSON.parse(s) });
+    const s = localStorage.getItem(key);
+    // a draft from older versions may still hold the sample person: drop exactly those values (never save them)
+    if (s) { const d = stripSample(completeResume(JSON.parse(s))); if (!isEmptyResume(d) || !hasSample(JSON.parse(s))) return d; }
   } catch { /* ignore */ }
-  return migrateLinks({ ...INITIAL, ...initial });
+  return completeResume(initial);
 };
 
 function ProfileOnly() {
@@ -212,7 +209,7 @@ export default function Builder({ embedded = null }) {
     fromServer.current = true;
     setServerIn(true);
     const a = activeResume(me);
-    if (a && !location.state?.scanImport) setD(migrateLinks({ ...INITIAL, ...a.data }));
+    if (a && !location.state?.scanImport) setD(completeResume(a.data));
   }, [me.loading]); // eslint-disable-line react-hooks/exhaustive-deps
   // the signed-in customer's saved resume hasn't arrived yet: the preview shows no page count meanwhile
   const dataLoading = !embedded && serverCustomer() && (me.loading || !serverIn);
@@ -339,7 +336,7 @@ export default function Builder({ embedded = null }) {
     return () => { window.removeEventListener('pagehide', flushNow); document.removeEventListener('visibilitychange', onHide); };
   }, [embedded]);
   // workspace controls: replace the whole resume (restore a version / reset), or jump to a section
-  useEffect(() => { if (embedded?.replace?.n) setD(migrateLinks({ ...INITIAL, ...embedded.replace.data })); }, [embedded?.replace?.n]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (embedded?.replace?.n) setD(completeResume(embedded.replace.data)); }, [embedded?.replace?.n]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (embedded?.focus?.n) { setTab('content'); setSec(embedded.focus.id); } }, [embedded?.focus?.n]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Steps follow the resume order, so moving a section moves its step too.
@@ -542,7 +539,7 @@ export default function Builder({ embedded = null }) {
   };
   const continueLatest = () => {
     if (latest && !latest.active) openInBuilder(latest.id);
-    if (latest) setD(migrateLinks({ ...INITIAL, ...latest.data }));
+    if (latest) setD(completeResume(latest.data));
     setStage('build');
   };
   // guests: a draft kept in this browser (not the sample person) is offered back instead of a blank start
@@ -565,7 +562,7 @@ export default function Builder({ embedded = null }) {
         <div className="container-wide" style={{ padding: '12px 24px 0' }}>
           <div className="card row g12" role="region" aria-label="A draft from this browser" data-testid="guest-draft-ask" style={{ alignItems: 'center', flexWrap: 'wrap', padding: '12px 16px' }}>
             <span className="small" style={{ flex: '1 1 260px' }}>A resume{me.pendingGuestDraft.personal?.name ? ` for “${me.pendingGuestDraft.personal.name}”` : ''} was built on this phone before signing in. Is it yours?</span>
-            <button type="button" className="btn btn-ink" style={{ minHeight: 40 }} onClick={async () => { const id = await acceptGuestDraft(); if (id) { openInBuilder(id); setD(migrateLinks({ ...INITIAL, ...me.pendingGuestDraft })); setStage('build'); } }}>Yes, add it to my account</button>
+            <button type="button" className="btn btn-ink" style={{ minHeight: 40 }} onClick={async () => { const id = await acceptGuestDraft(); if (id) { openInBuilder(id); setD(completeResume(me.pendingGuestDraft)); setStage('build'); } }}>Yes, add it to my account</button>
             <button type="button" className="btn btn-outline" style={{ minHeight: 40 }} onClick={discardGuestDraft}>No, forget it</button>
           </div>
         </div>

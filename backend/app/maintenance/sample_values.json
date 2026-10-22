@@ -1,0 +1,79 @@
+{
+ "_note": "The exact values of the example person (frontend schema INITIAL). Only these exact values are ever removed; frontend/src/lib/sampleData.test.js checks this file still matches INITIAL.",
+ "personal": {
+  "name": "Sai Varsha",
+  "headline": "Data Analyst · SQL · Power BI",
+  "email": "saivarsha@example.com",
+  "phone": "+91 98765 43210",
+  "location": "Chennai, Tamil Nadu"
+ },
+ "pinfo": {
+  "father": "R. Raman",
+  "mother": "S. Lakshmi",
+  "dob": "2003-05-15",
+  "languages": "English, Tamil, Hindi"
+ },
+ "links": {
+  "linkedin": "linkedin.com/in/sai-varsha-example",
+  "github": "github.com/sai-varsha-example"
+ },
+ "hobbies": "Reading\nPlaying chess\nVolunteering at NSS camps",
+ "strengths": "Quick learner\nTeam player\nGood communication skills",
+ "edu": {
+  "institution": "Lakeview Institute of Technology",
+  "degree": "B.Tech",
+  "field": "Computer Science",
+  "from": "2021-08",
+  "to": "2025-05",
+  "grade": "8.1 CGPA"
+ },
+ "exp": {
+  "company": "Northwind Retail",
+  "role": "Data Analyst Intern",
+  "from": "2025-01",
+  "to": "2025-06"
+ },
+ "proj": {
+  "title": "Sales Dashboard Revamp",
+  "tagline": "Power BI dashboards for a college fest’s sponsor sales"
+ },
+ "cert": {
+  "name": "Google Data Analytics Certificate",
+  "issuer": "Google",
+  "issueDate": "2024-11"
+ },
+ "langs": [
+  {
+   "name": "English",
+   "level": "Fluent"
+  },
+  {
+   "name": "Tamil",
+   "level": "Native"
+  },
+  {
+   "name": "Hindi",
+   "level": "Professional"
+  }
+ ],
+ "skillGroups": {
+  "core": "Python, SQL, Statistics",
+  "frameworks": "Pandas, NumPy",
+  "tools": "Power BI, Excel, Git"
+ },
+ "prefs": {
+  "jobTypes": [
+   "Full-time",
+   "Internship"
+  ],
+  "salary": "Under ₹5 LPA",
+  "notice": "Immediately",
+  "locations": "Bengaluru, Chennai, Hyderabad",
+  "remote": true,
+  "relocation": true,
+  "industries": [
+   "Technology",
+   "Finance / Fintech"
+  ]
+ }
+}

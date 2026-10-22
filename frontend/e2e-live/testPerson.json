@@ -1,0 +1,173 @@
+{
+ "personal": {
+  "name": "Sai Varsha",
+  "headline": "Data Analyst · SQL · Power BI",
+  "email": "testperson@example.com",
+  "phone": "+91 98765 43210",
+  "location": "Chennai, Tamil Nadu",
+  "level": "Fresher (0–1 yr)"
+ },
+ "hobbies": "Reading\nPlaying chess\nVolunteering at NSS camps",
+ "strengths": "Quick learner\nTeam player\nGood communication skills",
+ "pinfo": {
+  "father": "K. Rao",
+  "mother": "M. Rao",
+  "dob": "2003-05-15",
+  "gender": "",
+  "marital": "",
+  "nationality": "Indian",
+  "languages": "English, Tamil, Hindi",
+  "address": ""
+ },
+ "decl": {
+  "text": "I hereby declare that the information given above is true and correct to the best of my knowledge and belief.",
+  "place": "",
+  "date": "",
+  "name": ""
+ },
+ "summary": "",
+ "exp": [
+  {
+   "company": "Northwind Retail",
+   "role": "Data Analyst Intern",
+   "employmentType": "Internship",
+   "from": "2025-01",
+   "to": "2025-07",
+   "current": false,
+   "description": "made dashboards in power bi for sales team\ncleaned csv files in python"
+  }
+ ],
+ "edu": [
+  {
+   "institution": "Lakeview Institute of Technology",
+   "degree": "B.Tech",
+   "field": "Computer Science",
+   "from": "2021-08",
+   "to": "2025-05",
+   "current": false,
+   "grade": "8.2 CGPA"
+  }
+ ],
+ "skillGroups": [
+  {
+   "id": "core",
+   "label": "Core Technologies / Languages",
+   "value": "Python, SQL, Statistics"
+  },
+  {
+   "id": "frameworks",
+   "label": "Frameworks & Libraries",
+   "value": "Pandas, NumPy"
+  },
+  {
+   "id": "tools",
+   "label": "Tools & Platforms",
+   "value": "Power BI, Excel, Git"
+  },
+  {
+   "id": "soft",
+   "label": "Soft Skills / Domains",
+   "value": ""
+  }
+ ],
+ "proj": [
+  {
+   "title": "Sales Dashboard Revamp",
+   "tagline": "Power BI dashboards for a college fest’s sponsor sales",
+   "type": "Academic / Research",
+   "status": "Completed",
+   "from": "2024-08",
+   "to": "2024-11",
+   "ongoing": false,
+   "description": "",
+   "tech": "Power BI, SQL, Excel",
+   "links": [
+    {
+     "url": "github.com/sai-varsha-example/sales-dashboard",
+     "label": "GitHub"
+    }
+   ]
+  }
+ ],
+ "certs": [
+  {
+   "name": "Google Data Analytics Certificate",
+   "issuer": "Google",
+   "issueDate": "2024-11",
+   "expiryDate": "",
+   "credentialId": "",
+   "noExpiry": true,
+   "links": []
+  }
+ ],
+ "ach": [
+  {
+   "title": "",
+   "type": "",
+   "date": "",
+   "issuer": "",
+   "description": ""
+  }
+ ],
+ "langs": [
+  {
+   "name": "English",
+   "level": "Fluent"
+  },
+  {
+   "name": "Tamil",
+   "level": "Native"
+  },
+  {
+   "name": "Hindi",
+   "level": "Professional"
+  }
+ ],
+ "prefs": {
+  "jobTypes": [
+   "Full-time",
+   "Internship"
+  ],
+  "salary": "Under ₹5 LPA",
+  "notice": "Immediately",
+  "locations": "Bengaluru, Chennai, Hyderabad",
+  "remote": true,
+  "relocation": true,
+  "industries": [
+   "Technology",
+   "Finance / Fintech"
+  ]
+ },
+ "links": {
+  "linkedin": "linkedin.com/in/test-person",
+  "github": "github.com/test-person",
+  "portfolio": "",
+  "twitter": "",
+  "stackoverflow": "",
+  "medium": "",
+  "resume": ""
+ },
+ "linkStyle": "icon",
+ "linkExtras": [],
+ "portfolioIcon": "auto",
+ "portfolioLabel": "",
+ "custom": [],
+ "order": null,
+ "hidden": {
+  "hobbies": true,
+  "strengths": true,
+  "pinfo": true,
+  "decl": true
+ },
+ "showPhoto": false,
+ "titles": {},
+ "design": null,
+ "cover": {
+  "company": "",
+  "role": "",
+  "manager": "",
+  "jd": "",
+  "body": "",
+  "subject": true
+ }
+}

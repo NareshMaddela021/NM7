@@ -2,7 +2,8 @@
 // ATS checks, share link, support issues and referrals.
 // Preview: kept in this browser (localStorage). Live app: /api/me/* endpoints (one per block below).
 import { useSyncExternalStore } from 'react';
-import { INITIAL, migrateLinks } from '../pages/builder/schema';
+import { INITIAL, completeResume, emptyResume } from '../pages/builder/schema';
+import { isEmptyResume, stripSample } from './sampleData';
 import { TEMPLATE_PRESETS } from '../pages/builder/design';
 import { atsScore } from './atsScore';
 import { findOrder, updateOrder as updateExpertOrder, addExpertOrder, reloadExpertOrders } from './expertStore';
@@ -23,18 +24,12 @@ const uid = (p) => `${p}${Date.now().toString(36)}${Math.random().toString(36).s
 
 /** A blank resume with the person's own details (new accounts don't start from the sample). */
 export function blankResume(u = currentUser()) {
-  const d = structuredClone(INITIAL);
-  d.personal = { name: u?.name || '', headline: '', email: u?.email || '', phone: u?.phone || '', location: '', level: 'Fresher (0–1 yr)' };
-  Object.assign(d, { summary: '', exp: [], proj: [], certs: [], ach: [], custom: [], hobbies: '', strengths: '', langs: [{ name: 'English', level: 'Fluent' }] });
-  d.edu = [{ institution: '', degree: '', field: '', from: '', to: '', current: false, grade: '' }];
-  d.skillGroups = d.skillGroups.map((g) => ({ ...g, value: '' }));
-  d.pinfo = { father: '', mother: '', dob: '', gender: '', marital: '', nationality: 'Indian', languages: '', address: '' };
-  d.links = { linkedin: '', github: '', portfolio: '', twitter: '', stackoverflow: '', medium: '', resume: '' };
-  d.prefs = { ...d.prefs, locations: '' };
+  const d = emptyResume(); // truly empty: only the account's name, email and phone
+  d.personal = { ...d.personal, name: u?.name || '', email: u?.email || '', phone: u?.phone || '' };
   return d;
 }
 /** The starting resume for whoever is signed in (sample data only for guests and the sample customer). */
-export const defaultResume = () => (currentUser()?.role === 'customer' && currentUser().id !== SAMPLE_USER_ID ? blankResume() : structuredClone(INITIAL));
+export const defaultResume = () => (currentUser()?.role === 'customer' && currentUser().id === SAMPLE_USER_ID && !LIVE ? structuredClone(INITIAL) : currentUser()?.role === 'customer' ? blankResume() : emptyResume()); // the sample only for the preview build's demo customer
 /** "Name", or "Name (2)", "Name (3)"… so new resumes never share a name. */
 export const uniqueName = (name, resumes) => {
   const taken = new Set((resumes || []).map((r) => r.name));
@@ -48,8 +43,8 @@ export const uniqueName = (name, resumes) => {
 function guestDraft(force = false) {
   try {
     const s = localStorage.getItem(draftKeyFor(null));
-    const d = s && migrateLinks({ ...INITIAL, ...JSON.parse(s) });
-    return d && (force || !(d.personal?.name === INITIAL.personal.name && d.personal?.email === INITIAL.personal.email)) ? d : null;
+    const d = s && stripSample(completeResume(JSON.parse(s))); // never carry the sample person into an account
+    return d && !isEmptyResume(d) ? d : force ? d : null;
   } catch { return null; }
 }
 const forgetGuestDraft = () => { try { localStorage.removeItem(draftKeyFor(null)); } catch { /* ignore */ } };
@@ -80,8 +75,8 @@ export function discardGuestDraft() {
 const dayLabel = () => new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
 const builderDraft = () => {
   if (LIVE && currentUser()?.role === 'customer') { const a = state && !state.loading ? activeResume(state) : null; return a ? a.data : blankResume(); }
-  try { const s = localStorage.getItem(draftKey()); if (s) return migrateLinks({ ...INITIAL, ...JSON.parse(s) }); } catch { /* ignore */ }
-  return migrateLinks(defaultResume());
+  try { const s = localStorage.getItem(draftKey()); if (s) return stripSample(completeResume(JSON.parse(s))); } catch { /* ignore */ }
+  return completeResume(defaultResume());
 };
 function blankSeed(u) {
   const t = Date.now();

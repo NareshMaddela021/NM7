@@ -743,7 +743,7 @@ export function SharedResumes({ ctx = ADMIN_CTX, groups: portalGroups = null, ti
                   <td className="small"><strong>{r.name}</strong><div className="xs faint">{r.email}{r.phone ? ` · ${r.phone}` : ''}</div></td>
                   <td className="small">{r.orgName}<div className="xs faint">{r.groupName}</div></td>
                   <td className="xs">{(r.fieldDefs || []).filter((f) => r.fields[f.key]).map((f) => <div key={f.key}>{f.label}: {r.fields[f.key]}</div>)}</td>
-                  <td className="small">{r.resumeTitle}<div className="xs faint">{TEMPLATE_PRESETS[r.template]?.name || 'Custom'}{r.pages ? ` · ${r.pages} page${r.pages > 1 ? 's' : ''}` : ''}</div></td>
+                  <td className="small">{r.resumeTitle}{r.sample && <span className="badge b-warning" style={{ marginLeft: 6 }} data-testid="sample-badge" title="Still holds the example person’s details (Sai Varsha) from an older version of the builder">Contains sample data</span>}<div className="xs faint">{TEMPLATE_PRESETS[r.template]?.name || 'Custom'}{r.pages ? ` · ${r.pages} page${r.pages > 1 ? 's' : ''}` : ''}</div></td>
                   <td className="small"><span className={`badge ${r.completeness === 100 ? 'b-success' : 'b-warning'}`} title={r.missing.length ? `Missing: ${r.missing.join(', ')}` : 'Complete'}>{r.completeness}%</span></td>
                   <td className="small" data-testid="status">{statusBadge(r)}</td>
                   <td className="small">{day(r.updatedAt)}</td>

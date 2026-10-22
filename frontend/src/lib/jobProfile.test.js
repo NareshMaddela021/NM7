@@ -75,11 +75,14 @@ describe('Job Profile', () => {
 
   it('import adds only what is new and never overwrites', () => {
     const p = full();
-    const parts = resumeToProfileParts({ ...INITIAL, personal: { ...INITIAL.personal, name: 'Someone Else' }, exp: [...INITIAL.exp, { company: 'Zoho', role: 'Analyst' }] });
+    // a real resume shaped like the sample (the sample person itself never reaches the Job Profile)
+    const own = { ...structuredClone(INITIAL), links: { ...INITIAL.links, linkedin: 'linkedin.com/in/someone', github: '' }, pinfo: { ...INITIAL.pinfo, father: 'K. Rao', mother: 'L. Rao' },
+      edu: [{ ...INITIAL.edu[0], institution: 'JNTU Anantapur' }], exp: [{ ...INITIAL.exp[0], company: 'Northwind Traders' }] };
+    const parts = resumeToProfileParts({ ...own, personal: { ...INITIAL.personal, name: 'Someone Else', email: 'someone@example.com' }, exp: [...own.exp, { company: 'Zoho', role: 'Analyst' }] });
     const { profile, added } = mergeIntoProfile(p, parts);
     expect(profile.personal.name).toBe('Asha K');
     expect(profile.exp).toHaveLength(1); // Zoho already there
-    expect(profile.intern.map((x) => x.company)).toEqual(['TCS', 'Northwind Retail']); // INITIAL's internship
+    expect(profile.intern.map((x) => x.company)).toEqual(['TCS', 'Northwind Traders']); // the resume's internship
     expect(profile.edu).toHaveLength(2);
     expect(profile.skillGroups.find((g) => g.id === 'frameworks').value).toBe('Pandas, NumPy'); // a group the profile didn't have
     expect(added).toBeGreaterThan(3);

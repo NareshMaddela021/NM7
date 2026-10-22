@@ -21,6 +21,7 @@ from app.core.errors import ApiError
 from app.core.pii import scrub_id_numbers
 from app.core.security import keyed_hash, same
 from app.core.time import IST, now
+from app.maintenance.sample_data import has_sample
 from app.me.service import ms, visible_resume
 from app.orgs.scope import features_of
 from app.photos.scrub import DL, EPIC, IFSC, LABEL, MASKED, PAN, PASSPORT
@@ -201,6 +202,17 @@ ROW_DATA_FIELDS = (
     "exp.company",
     "exp.role",
     "proj.title",
+    # the example person's markers (the "Contains sample data" badge)
+    "links.linkedin",
+    "links.github",
+    "pinfo.father",
+    "pinfo.mother",
+    "edu.field",
+    "edu.from",
+    "edu.to",
+    "edu.grade",
+    "exp.from",
+    "exp.to",
 )
 ROW_PROJECTION = {**dict.fromkeys(ROW_FIELDS, 1), **{f"data.{f}": 1 for f in ROW_DATA_FIELDS}}
 FULL_PROJECTION = {**dict.fromkeys(ROW_FIELDS, 1), "data": 1}
@@ -312,6 +324,7 @@ async def shared_rows(db: AsyncDatabase, match: dict[str, Any], *, with_data: bo
                 "last_reminded_at": m.get("last_reminded_at"),
                 "recruiter_opt_in": bool(m.get("recruiter_opt_in")),  # Phase 3C: never assumed, only ticked
                 "shortlisted_by": [],  # filled by with_shortlists()
+                "sample": has_sample(data),  # still holds the example person's values (older builder versions)
                 **({"_data": data} if with_data else {}),
             }
         )
@@ -366,6 +379,7 @@ def row_out(r: dict[str, Any]) -> dict[str, Any]:
         "lastRemindedAt": ms(r["last_reminded_at"]),
         "recruiterOptIn": r["recruiter_opt_in"],
         "shortlistedBy": r["shortlisted_by"],
+        "sample": r.get("sample", False),
     }
 
 

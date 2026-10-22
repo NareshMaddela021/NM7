@@ -1,8 +1,9 @@
 // "Write it from my resume" on the Summary step (no AI): an empty summary is filled from the resume when the step
 // opens and labelled; a full resume gives 3 sentences, skills only 1–2; never an empty blank; the course only with
 // "Mention my course"; changed skills ask "Update the summary?"; an edited summary is never replaced without asking.
-// Also: Profile strength comes only from the ticks. Desktop and a 390 px phone; the guest draft is the sample resume.
+// Also: Profile strength comes only from the ticks. Desktop and a 390 px phone; the guest draft is a filled-in test person (helpers TEST_PERSON).
 import { expect, test } from '@playwright/test';
+import { asTestPerson } from './helpers.mjs';
 
 const DRAFT = 'asuraa-builder-draft-v6';
 const nav = (page) => page.getByRole('navigation', { name: 'Sections' });
@@ -21,7 +22,7 @@ async function openEditor(page, patch = null) {
   await page.reload();
   await expect(page.getByText(/Live preview ·/)).toBeVisible();
 }
-async function ensureDraft(page) { // the first visit writes the sample draft to this browser
+async function ensureDraft(page) { // the first visit writes the test person's draft to this browser
   await openEditor(page);
   await page.waitForFunction((k) => !!localStorage.getItem(k), DRAFT);
 }
@@ -30,6 +31,7 @@ const toSummary = (page) => nav(page).getByRole('button', { name: /^Summary/ }).
 for (const [label, size] of [['desktop', { width: 1280, height: 900 }], ['phone', { width: 390, height: 844 }]]) {
   test.describe(label, () => {
     test.use({ viewport: size });
+    test.beforeEach(({ page }) => asTestPerson(page));
 
     test('a full resume: the empty summary is written on arrival — three sentences, labelled, no blanks', async ({ page }) => {
       await openEditor(page);
@@ -96,6 +98,7 @@ for (const [label, size] of [['desktop', { width: 1280, height: 900 }], ['phone'
 }
 
 test('profile strength comes only from the ticks: Review & Submit unticked keeps it under 100%', async ({ page }) => {
+  await asTestPerson(page);
   await ensureDraft(page);
   await openEditor(page, { hobbies: '' });
   const strength = async () => Number((await page.locator('[aria-live="polite"].display').first().innerText()).replace('%', ''));

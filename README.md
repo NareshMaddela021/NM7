@@ -69,6 +69,29 @@ expert rewrite are supporting features further down ("Make it stronger").
 - Speed: thumbnails are HTML, drawn only as they come on screen. No PDF code loads until Download is tapped, on
   this page or in the builder.
 
+## The sample person is never saved
+
+"Sai Varsha" (the example resume, `INITIAL` in `frontend/src/pages/builder/schema.js`) is only shown — in template
+previews and demos. A new resume starts empty: **New blank** fills in only the account's name, email and phone, and
+the Job Profile is used only when the person picks **Start from my Job Profile**. Saved resumes are completed with
+`completeResume()` (empty values), never with the sample.
+
+Older versions seeded new resumes and browser drafts from the sample, so some saved resumes still hold its values.
+
+- **Exact values only.** `frontend/src/lib/sampleData.js` and `backend/app/maintenance/sample_data.py` use the same
+  list (`backend/app/maintenance/sample_values.json`; a unit test checks it still matches the sample). A resume counts
+  as holding sample data only when it has a value nobody else has (the sample LinkedIn/GitHub links, the parents
+  "R. Raman"/"S. Lakshmi", the sample email, or the exact sample education/internship entry); then only fields that
+  still equal the sample exactly are cleared. A real "Lakeview" college on its own is never touched.
+- **Browser drafts** are cleaned once per browser on the next visit (`nm7-sample-drafts-cleared`); a draft with
+  nothing of the person's own left is removed.
+- **The server** strips the sample from any new resume it is sent.
+- **Shared-resume lists** (admin and coordinator) show **Contains sample data** next to a resume that still has it.
+- **Cleanup of saved resumes (owner only):** the `sample-scan` workflow prints a read-only dry run (count, resume
+  ids, field names; never names or text) using the backup workflow's read-only `MONGODB_BACKUP_URI`. Admin →
+  Settings → **Sample data cleanup**: *Check (dry run)* lists the same; *Remove sample values* clears exactly the
+  listed resumes. Both are in the audit log. Resume versions (history) are not changed.
+
 ## Summary writer
 
 On the builder's **Summary** step, in **Job Profile → Summary → About me** and in the kiosk builder, anyone can get a
