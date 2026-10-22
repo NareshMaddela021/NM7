@@ -100,6 +100,15 @@ them. When a template usually shows a section that is off (Kio: hobbies, strengt
 declaration; Formal: personal information, declaration; Portrait: a photo), the builder asks "This template usually
 shows … Turn it on?" with **Turn on** / **No thanks**; nothing changes until Turn on.
 
+### Live preview: "My resume | Sample"
+
+Above the builder's live preview, next to Edit design / Download PDF / Word. **My resume** (the default) shows only
+what the person typed: a new resume shows light grey hints ("Your name", "Your job title", "Add your first job") that
+are never printed, typing shows at once, and empty sections are left out. **Sample** shows the example person in the
+chosen template ("Sample: how this template looks when filled"), read-only and never saved, with **Back to my
+resume**. Download PDF / Word always make the person's own resume: from Sample it switches back and says
+"Downloading your resume, not the sample". With no name, download is off: "Add your name to download".
+
 ## Summary writer
 
 On the builder's **Summary** step, in **Job Profile → Summary → About me** and in the kiosk builder, anyone can get a

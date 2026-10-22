@@ -3,7 +3,7 @@
 // signed-in accounts download free while payments are off; with payments on (mocked) unpaid accounts see the
 // "Unlock downloads" pop-up and no file is made, and paying unlocks the download they clicked.
 import { expect, test } from '@playwright/test';
-import { API, PASSWORD, email, lastCode, login, seed } from './helpers.mjs';
+import { API, PASSWORD, asTestPerson, email, lastCode, login, seed } from './helpers.mjs';
 
 const api = (page, path) => page.evaluate(async ([base, p]) => (await fetch(`${base}${p}`, { credentials: 'include' })).json(), [API, path]);
 const preview = (page) => page.getByRole('article', { name: 'Resume preview' });
@@ -30,6 +30,7 @@ async function expectFile(page, click, ext) {
 const guestModal = (page) => page.getByRole('dialog', { name: 'Create a free account to download your resume' });
 
 test('guest: every download button opens "Create a free account" and no file is made; building stays open', async ({ page }) => {
+  await asTestPerson(page); // a guest with a name (download needs one)
   const files = downloads(page);
   await page.goto('/builder');
   await expect(page.getByText('Free to build. Account needed to download.')).toBeVisible();

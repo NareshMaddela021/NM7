@@ -35,7 +35,7 @@ import ResumePreview from './builder/ResumePreview';
 import { FieldGrid, LinkFields, SchemaField } from './builder/Fields';
 import DesignPanel from './builder/DesignPanel';
 import Import from './builder/Import';
-import TemplatePicker, { layoutOf } from './builder/TemplatePicker';
+import TemplatePicker, { layoutOf, PHOTO_PLACEHOLDER } from './builder/TemplatePicker';
 import { listText, templateSuggests } from './builder/templatePick';
 import CoverPanel from './builder/CoverPanel';
 import { EntryHeader, focusMoved } from './builder/EntryControls';
@@ -408,6 +408,18 @@ export default function Builder({ embedded = null }) {
     toast('Photo saved');
   };
   const removePhoto = () => { setPhoto(null); setPhotoOrig(null); setPhotoAdj(DEFAULT_ADJ); };
+  // "My resume | Sample" above the live preview: Sample shows the example person in the chosen template, read-only
+  // and never saved; a download always makes the person's own resume.
+  const [pview, setPview] = useState('mine');
+  const sampleView = pview === 'sample' && tab !== 'cover';
+  const sampleData = useMemo(() => ({ ...INITIAL, ...layoutOf(ds.preset) }), [ds.preset]);
+  const noName = !real(d.personal?.name);
+  const [fromSample, setFromSample] = useState(false); // "Downloading your resume, not the sample", for a few seconds
+  useEffect(() => { if (!fromSample) return undefined; const t = setTimeout(() => setFromSample(false), 6000); return () => clearTimeout(t); }, [fromSample]);
+  const downloadMine = (format) => {
+    if (sampleView) { setPview('mine'); setFromSample(true); }
+    return download(format);
+  };
   const download = async (format = 'pdf', what = tab === 'cover' ? 'cover' : 'resume') => {
     setPdfBusy(true);
     try {
@@ -878,14 +890,33 @@ export default function Builder({ embedded = null }) {
                   ? <span className="badge b-neutral" data-testid="page-count">Measuring…</span>
                   : <span className={`badge ${pages > 1 ? 'b-warning' : 'b-success'}`} data-testid="page-count">{pages > 1 ? `${pages} pages · aim for 1` : '1 page ✓'}</span>)}
               </span>
-              <span className="row g8">
+              <span className="row g8" style={{ alignItems: 'center' }}>
+                {tab !== 'cover' && (
+                  <span role="group" aria-label="Preview shows" className="row" style={{ gap: 0 }}>
+                    {[['mine', 'My resume'], ['sample', 'Sample']].map(([v, l]) => (
+                      <button key={v} type="button" className="chip" aria-pressed={pview === v} onClick={() => setPview(v)} style={{ minHeight: 36, borderRadius: v === 'mine' ? '999px 0 0 999px' : '0 999px 999px 0' }}>{l}</button>
+                    ))}
+                  </span>
+                )}
                 <button type="button" className="link-btn" style={{ minHeight: 32, textDecoration: 'none' }} onClick={() => setTab('design')}>Edit design</button>
-                <button type="button" className="btn btn-ink" style={{ minHeight: 36, fontSize: 13 }} onClick={() => download('pdf')} disabled={pdfBusy}>{pdfBusy ? 'Preparing…' : 'Download PDF'}</button>
-                <button type="button" className="btn btn-outline" style={{ minHeight: 36, fontSize: 13 }} onClick={() => download('docx')} disabled={pdfBusy} title="Word file in one column with Calibri / Cambria">Word</button>
+                <button type="button" className="btn btn-ink" style={{ minHeight: 36, fontSize: 13 }} onClick={() => downloadMine('pdf')} disabled={pdfBusy || noName} title={noName ? 'Add your name to download' : undefined}>{pdfBusy ? 'Preparing…' : 'Download PDF'}</button>
+                <button type="button" className="btn btn-outline" style={{ minHeight: 36, fontSize: 13 }} onClick={() => downloadMine('docx')} disabled={pdfBusy || noName} title={noName ? 'Add your name to download' : 'Word file in one column with Calibri / Cambria'}>Word</button>
               </span>
             </div>
+            {noName && <span className="xs muted" data-testid="need-name" style={{ alignSelf: 'flex-end' }}>Add your name to download</span>}
+            {fromSample && <span role="status" className="small" data-testid="download-note" style={{ alignSelf: 'flex-end', fontWeight: 600 }}>Downloading your resume, not the sample</span>}
             {tab !== 'cover' && hintBox}
-            {tab === 'cover' ? <ResumePreview key="cover" data={d} design={ds} photo={photo} cover={d.cover || {}} /> : <ResumePreview data={d} design={ds} photo={photo} onPages={onPages} loading={dataLoading} />}
+            {tab === 'cover' ? <ResumePreview key="cover" data={d} design={ds} photo={photo} cover={d.cover || {}} />
+              : sampleView ? (
+                <div className="stack g8" data-testid="sample-view">
+                  <div className="card row between g8" style={{ padding: '8px 12px', alignItems: 'center' }}>
+                    <strong className="small">Sample: how this template looks when filled</strong>
+                    <button type="button" className="btn btn-outline" style={{ minHeight: 36 }} onClick={() => setPview('mine')}>Back to my resume</button>
+                  </div>
+                  {/* the example person in the chosen template: shown only, never saved or downloaded */}
+                  <ResumePreview decorative data={sampleData} design={ds} photo={TEMPLATE_PRESETS[ds.preset]?.photo ? PHOTO_PLACEHOLDER : null} />
+                </div>
+              ) : <ResumePreview data={d} design={ds} photo={photo} onPages={onPages} loading={dataLoading} hints />}
             <span className="xs faint">Job preferences stay on your Nm7 profile — never printed. Personal information, declaration and your photo print only when you switch them on.</span>
           </section>
         </main>

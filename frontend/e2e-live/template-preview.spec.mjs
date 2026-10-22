@@ -3,7 +3,7 @@
 // template cards — and after a guest's "download after sign-in" was left unfinished (the bug: the builder used to
 // start that old download the next time it opened, e.g. from a template card). Any download event fails the test.
 import { expect, test } from '@playwright/test';
-import { PASSWORD, email, login, seed } from './helpers.mjs';
+import { PASSWORD, asTestPerson, email, login, seed } from './helpers.mjs';
 
 const SIZES = [['desktop', { width: 1280, height: 900 }], ['phone', { width: 390, height: 844 }]];
 
@@ -72,6 +72,7 @@ for (const [label, size] of SIZES) {
 
   test(`${label}: a guest's unfinished "download after sign-in" never starts later from a template card`, async ({ page }) => {
     await page.setViewportSize(size);
+    await asTestPerson(page); // a guest with a name (download needs one)
     const dl = noDownloads(page);
     // a guest taps Download, picks "Sign in" in the pop-up, then leaves the sign-in page without signing in
     await page.goto('/builder');
