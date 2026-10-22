@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
 import { useToast } from '../../components/ui';
 import { KIOSK_STATE, PIN_RE, expiryOptions } from '../../lib/kiosk';
+import { downloadQrPng, qrFileName } from '../../lib/qr';
 import { Loading, emptyIf, http, useAction, useApi, when } from '../admin/live/common';
 
 const inputStyle = { height: 40 };
@@ -63,6 +64,7 @@ export default function Kiosks({ orgId, groups, canManage }) {
               <span className="xs faint">Works until {when(made.expiresAt)}. Leaving the kiosk screen needs the exit PIN you chose.</span>
               <div className="row g8">
                 <button type="button" className="btn btn-outline" style={{ minHeight: 34 }} onClick={() => navigator.clipboard?.writeText(made.url).then(() => toast('Link copied'), () => toast('Copy the link by hand'))}>Copy link</button>
+                <button type="button" className="btn btn-outline" style={{ minHeight: 34 }} onClick={() => downloadQrPng(made.url, qrFileName(made.label, 'kiosk')).catch((e) => toast(e.message))}>Download QR (PNG)</button>
                 <button type="button" className="link-btn xs" onClick={() => setMade(null)}>Hide</button>
               </div>
             </div>

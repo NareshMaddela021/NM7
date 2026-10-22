@@ -4,7 +4,7 @@
 import { readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
 import { PDFDocument } from 'pdf-lib';
-import { PASSWORD, adminLogin, email, emailsTo, lastCode, login, seed } from './helpers.mjs';
+import { PASSWORD, adminLogin, email, emailsTo, lastCode, login, readQrPng, seed } from './helpers.mjs';
 
 async function saved(page, click, ext) {
   const [file] = await Promise.all([page.waitForEvent('download', { timeout: 60_000 }), click()]);
@@ -74,6 +74,12 @@ test('invite → accept → coordinator portal → approve → remind → export
   const card = c.getByRole('region', { name: 'Group Diploma 2026' });
   await expect(card.getByTestId('join-code')).toHaveText(code);
   await expect(card.getByRole('button', { name: 'Download QR code (PNG)' })).toBeVisible();
+  // the coordinator's QR download (it once did nothing): <org>_<group>_QR.png, decodes to the join link
+  const qrFile = await saved(c, () => card.getByRole('button', { name: 'Download QR code (PNG)' }).click(), '.png');
+  expect(qrFile.name).toBe('Govt_Polytechnic_Nellore_Diploma_2026_QR.png');
+  const qr = await readQrPng(qrFile.bytes);
+  expect(qr.width).toBeGreaterThanOrEqual(1024);
+  expect(qr.text).toBe(`${new URL(c.url()).origin}/join/${code}`);
   // the used invite link no longer works
   await c.goto(new URL(inviteUrl).pathname);
   await expect(c.getByRole('heading', { name: 'This invite doesn’t work' })).toBeVisible();

@@ -1,6 +1,6 @@
 // Runs only against a production build served with the vercel.json headers (CSP_CHECK=1): no CSP violations.
 import { expect, test } from '@playwright/test';
-import { PASSWORD, email, login, seed } from './helpers.mjs';
+import { PASSWORD, adminLogin, email, login, readQrPng, seed } from './helpers.mjs';
 
 test.skip(!process.env.CSP_CHECK, 'needs the production build with headers (npm run test:e2e:csp)');
 
@@ -61,4 +61,32 @@ test('blog: pre-rendered static pages are served (not the app shell), real 404s,
   await expect(page.getByRole('heading', { name: 'This page doesn’t exist.' })).toBeVisible();
   await page.waitForLoadState('networkidle');
   expect((await page.evaluate(() => window.__csp)).filter((x) => !x.includes('eval'))).toEqual([]);
+});
+
+test('a group\'s "Download QR code (PNG)" works under the CSP (it once fetched a data: URL and did nothing)', async ({ page }) => {
+  await page.addInitScript(() => { window.__csp = []; document.addEventListener('securitypolicyviolation', (e) => window.__csp.push(`${e.violatedDirective} ${e.blockedURI}`)); });
+  const errors = [];
+  page.on('console', (m) => { if (m.type() === 'error' && /Failed to fetch|Content Security Policy/.test(m.text())) errors.push(m.text()); });
+  const owner = email('csp-qr');
+  const { secret } = seed('admin', owner, 'owner', PASSWORD);
+  const code = `CQ${Date.now().toString(36).slice(-6).toUpperCase()}`;
+  await adminLogin(page, owner, secret);
+  await page.getByRole('navigation', { name: 'Admin sections' }).getByRole('link', { name: 'Organizations' }).click();
+  const newOrg = page.getByRole('form', { name: 'New organization' });
+  await newOrg.getByLabel('Organization name').fill('AsuraaX');
+  await newOrg.getByRole('button', { name: 'Add organization' }).click();
+  await page.getByRole('button', { name: 'New group' }).click();
+  const form = page.getByRole('form', { name: 'New group' });
+  await form.getByLabel('Group name').fill('Job Drive 2026');
+  await form.getByLabel('Join code').fill(code);
+  await form.getByRole('button', { name: 'Save group' }).click();
+  const card = page.getByRole('region', { name: 'Group Job Drive 2026' });
+  const [dl] = await Promise.all([page.waitForEvent('download', { timeout: 15_000 }), card.getByRole('button', { name: 'Download QR code (PNG)' }).click()]);
+  expect(dl.suggestedFilename()).toBe('AsuraaX_Job_Drive_2026_QR.png');
+  const qr = await readQrPng((await import('node:fs')).readFileSync(await dl.path()));
+  expect(qr.text).toMatch(new RegExp(`/join/${code}$`));
+  const [poster] = await Promise.all([page.waitForEvent('download', { timeout: 15_000 }), card.getByRole('button', { name: 'Download QR poster (PDF)' }).click()]);
+  expect(poster.suggestedFilename()).toBe('AsuraaX_Job_Drive_2026_QR_poster.pdf');
+  expect((await page.evaluate(() => window.__csp)).filter((x) => !x.includes('eval'))).toEqual([]);
+  expect(errors).toEqual([]);
 });

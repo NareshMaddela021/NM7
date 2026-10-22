@@ -107,3 +107,25 @@ export async function asTestPerson(page, patch = {}) {
     } catch { /* storage blocked */ }
   }, [{ ...TEST_PERSON, ...patch }]);
 }
+
+/** A downloaded QR PNG: { width, height, text } (pngjs decodes the file, jsQR reads the code). */
+export async function readQrPng(bytes) {
+  const { PNG } = await import('pngjs');
+  const jsQR = (await import('jsqr')).default;
+  const png = PNG.sync.read(Buffer.from(bytes));
+  const found = jsQR(new Uint8ClampedArray(png.data), png.width, png.height);
+  return { width: png.width, height: png.height, text: found?.data || null, corner: [...png.data.subarray(0, 4)] };
+}
+/** Fails the page's fetch() of any data: URL (the site's CSP blocks those); returns a getter for what was tried. */
+export async function watchDataFetches(page) {
+  await page.addInitScript(() => {
+    window.__dataFetches = [];
+    const orig = window.fetch;
+    window.fetch = (input, ...rest) => {
+      const u = typeof input === 'string' ? input : input?.url || '';
+      if (u.startsWith('data:')) { window.__dataFetches.push(u.slice(0, 30)); return Promise.reject(new TypeError('Failed to fetch (data: URL)')); }
+      return orig(input, ...rest);
+    };
+  });
+  return () => page.evaluate(() => window.__dataFetches || []);
+}

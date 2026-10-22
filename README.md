@@ -122,6 +122,15 @@ resume**. Download PDF / Word always make the person's own resume: from Sample i
 - "Write it from my resume" picks the job that matches the target role first, and mentions a certificate together
   with a project when there are both.
 
+### QR codes (join links, kiosk links)
+
+"Download QR code (PNG)" on a group card saves `<org>_<group>_QR.png` (same file-name rule as resume files): 1024 px,
+black on white with a 4-module white quiet zone, made in the browser (`lib/qr.js`) with `canvas.toBlob()` — never by
+fetching a `data:` URL, which the CSP's connect-src blocks (that once made the button do nothing; a unit test now
+fails if any code fetches a `data:` URL). "Download QR poster (PDF)" makes an A4 page with the QR, the group's name,
+its join code and "Scan to share your resume". A new kiosk link has the same PNG download. If the browser can't make
+the file, the page says: "Couldn't download the QR. Long-press or right-click the QR to save it."
+
 ## Summary writer
 
 On the builder's **Summary** step, in **Job Profile → Summary → About me** and in the kiosk builder, anyone can get a

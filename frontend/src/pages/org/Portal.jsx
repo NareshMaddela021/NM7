@@ -52,6 +52,7 @@ export function PortalLayout() {
   const ctx = useMemo(() => (st.data ? {
     base: apiBase(orgId),
     orgId,
+    orgName: st.data.name || '',
     role: st.data.role,
     canManage: st.data.canManage,
     features: st.data.features || {},
