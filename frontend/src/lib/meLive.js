@@ -84,6 +84,8 @@ const notifySave = () => saveSubs.forEach((f) => f(saveState()));
 /** `fn({ pending, failed })` now and whenever a save starts, finishes or fails. */
 export const onSaveState = (fn) => { saveSubs.add(fn); fn(saveState()); return () => saveSubs.delete(fn); };
 export const getSaveState = saveState;
+/** The failed save was answered (the latest copy was reloaded after a 409): stop showing "Not saved yet". */
+export function clearSaveError() { failed = null; notifySave(); }
 /** Remember the server's `updated` stamp of each resume (from GET /api/me/state or a PATCH answer). */
 export function noteServerStamps(resumes) { (resumes || []).forEach((r) => { if (r?.id && r.updated) serverUpdated.set(r.id, r.updated); }); }
 

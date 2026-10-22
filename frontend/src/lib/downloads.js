@@ -12,6 +12,7 @@ import { http, LIVE } from '../services/http';
 import { currentUser } from './auth';
 import { PLANS } from './pricing';
 import { freshImport } from './chunks';
+import { resumeFileName } from './fileName';
 
 export class DownloadBlocked extends Error {
   constructor(reason, price, message) {
@@ -106,7 +107,7 @@ export async function exportFile(opts) {
   // loaded on first use: the PDF / Word makers are large
   const [{ buildResumePdf, savePdf }, { buildDocx }] = await freshImport(() => Promise.all([import('../pages/builder/resumePdf'), import('../pages/builder/resumeDocx')]));
   const blob = format === 'docx' ? await buildDocx({ data, design, cover, photoPng }) : await buildResumePdf({ data, design, photo, cover });
-  const name = `${(data.personal?.name || 'Resume').trim().replace(/\s+/g, '_')}_${cover ? 'Cover_Letter' : 'Resume'}.${format}`;
+  const name = resumeFileName(data.personal?.name, { kind: cover ? 'Cover_Letter' : 'Resume', ext: format }); // same rule as organization exports
   await savePdf(blob, name);
   return name;
 }

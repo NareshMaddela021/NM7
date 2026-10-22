@@ -147,3 +147,19 @@ describe('indicFonts', () => {
     expect(charCount('👍🏽')).toBe(1);
   });
 });
+
+describe('rupee sign and emoji (QA)', () => {
+  it('₹ prints as ₹ (drawn with a Noto Sans font), emoji are left out, and job preferences never decide the font', async () => {
+    expect(scriptsIn('Saved ₹2 lakh a year')).toEqual(['devanagari']);
+    expect(splitRuns('Saved ₹2 lakh').map((r) => [r.text, r.script])).toEqual([['Saved ', null], ['₹', 'devanagari'], ['2 lakh', null]]);
+    const data = { ...structuredClone(INITIAL), summary: 'Cut costs by ₹2,00,000 a year 🚀 and won 🏆 twice ✅.', exp: [{ ...INITIAL.exp[0], description: 'Handled ₹5 lakh in daily sales 💰' }] };
+    const r = await read(await buildResumePdf({ data, design: design('fresher'), photo: null, cover: null }));
+    expect(r.text).toContain('Cut costs by ₹2,00,000 a year and won twice.');
+    expect(r.text).toContain('Handled ₹5 lakh in daily sales');
+    expect(r.text).not.toMatch(/[\u{1F300}-\u{1FAFF}✅]|�/u);
+    expect(r.meta.Producer || '').not.toMatch(/jsPDF/i); // the shaping engine, with the Noto font
+    // "Under ₹5 LPA" is only a job preference (never printed): a plain resume stays on the light engine
+    const plain = await read(await buildResumePdf({ data: INITIAL, design: design('fresher'), photo: null, cover: null }));
+    expect(plain.meta.Producer).toMatch(/jsPDF/i);
+  });
+});
