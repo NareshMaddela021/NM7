@@ -1,8 +1,8 @@
 // "Write it from my resume" (the builder's Summary step): a summary built only from what the resume already says.
 // No AI, no network. Reads, in this order: target role (headline), experience level, the latest internship or job
 // (role + company), the top 3 skills (in the order added), the first project, a certification, languages, and
-// the course only when "Mention my course" is on. Three sentences at most — who they are, one proof (project,
-// certification or internship, whichever exists first), the goal — and a sentence whose facts are missing is left
+// the course only when "Mention my course" is on. Three sentences at most — who they are, the proof (a project
+// and a certification when both exist, else an internship), the goal — and a sentence whose facts are missing is left
 // out: never an empty blank, nothing invented, numbers only as the person typed them. Same quality gate as the
 // summary writer: no I / me / my, no banned clichés, no phone, email, address or ID numbers, at most 400 characters.
 import { real } from '../../pages/builder/schema';
@@ -23,13 +23,18 @@ const safe = (v) => {
 };
 const on = (d, list, section) => (d.hidden?.[section] ? [] : (d[list] || []).filter((x) => x && !x.off));
 const latest = (a, b) => (b.current ? '9999' : b.to || b.from || '').localeCompare(a.current ? '9999' : a.to || a.from || '');
+const words = (t) => new Set(String(t || '').toLowerCase().match(/[a-z0-9+#]{2,}/g) || []);
+/** How well a job's role matches the target role: shared words (Data Analyst Intern ~ Data Analyst → 2). */
+const fit = (role, target) => { const w = words(target); return [...words(role)].filter((x) => w.has(x)).length; };
 
 /** The facts, in the order the summary uses them. */
 export function resumeFacts(d, { course = false } = {}) {
   if (!d) return {};
   const target = safe(bareRole(real(d.personal?.headline).split(/\s*[·|•,/]\s*/)[0]));
   const level = real(d.personal?.level);
-  const jobs = on(d, 'exp', 'exp').map((e) => ({ role: safe(e.role), company: safe(e.company), from: e.from, to: e.to, current: e.current })).filter((e) => e.role && e.company).sort(latest);
+  // the job that matches the target role first (a Data Analyst internship over a volunteer tutor role), then the latest
+  const jobs = on(d, 'exp', 'exp').map((e) => ({ role: safe(e.role), company: safe(e.company), from: e.from, to: e.to, current: e.current })).filter((e) => e.role && e.company)
+    .sort((a, b) => fit(b.role, target) - fit(a.role, target) || latest(a, b));
   const job = jobs[0] || null;
   const proj = on(d, 'proj', 'proj').map((p) => safe(p.title)).find(Boolean) || '';
   const cert = on(d, 'certs', 'certs').map((c) => safe(c.name)).find(Boolean) || '';
@@ -51,8 +56,10 @@ export const summaryBasis = (d) => {
 
 const sentence = (s) => (s ? `${s.charAt(0).toUpperCase()}${s.slice(1)}.` : '');
 const goal = (f) => (f.target ? `Looking for ${f.fresher || f.intern || !f.job ? 'an entry-level' : 'a'} ${f.target} role` : '');
-// the one proof: a project, else a certification, else an internship (unless the first sentence already names it)
+// the proof: a project and a certification (both when there are both), else an internship (unless the first
+// sentence already names it)
 function proof(f, jobUsed) {
+  if (f.project && f.cert) return `Completed ${f.cert}, with project work including ${f.project}`;
   if (f.project) return `Project work includes ${f.project}`;
   if (f.cert) return `Completed ${f.cert}`;
   if (f.job && f.intern && !jobUsed) return `Interned as ${f.job.role} at ${f.job.company}`;

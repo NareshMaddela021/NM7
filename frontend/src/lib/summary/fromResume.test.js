@@ -22,10 +22,18 @@ const clean = (t) => {
 describe('summary written from the resume (no AI)', () => {
   it('a full resume: three sentences — who, proof, goal', () => {
     const t = writeFromResume(full, 'role_first');
-    expect(t).toBe('Data Analyst intern at Northwind Retail, skilled in Python, SQL and Power BI. Project work includes Sales dashboard for 3 stores. Looking for an entry-level Data Analyst role.');
+    expect(t).toBe('Data Analyst intern at Northwind Retail, skilled in Python, SQL and Power BI. Completed Google Data Analytics Certificate, with project work including Sales dashboard for 3 stores. Looking for an entry-level Data Analyst role.'); // project and certificate both
     expect(sentences(t)).toHaveLength(3);
     clean(t);
     expect(numbersCovered(t, full)).toBe(true); // the 3 is the person's own
+  });
+
+  it('picks the job matching the target role over a later unrelated one, and still mentions the certificate (QA)', () => {
+    const d = { ...full, exp: [{ company: 'NSS', role: 'Volunteer Tutor', from: '2025-07', current: true }, ...full.exp] };
+    const t = writeFromResume(d, 'role_first');
+    expect(t).toMatch(/^Data Analyst intern at Northwind Retail/);
+    expect(t).not.toContain('Volunteer Tutor');
+    expect(t).toContain('Google Data Analytics Certificate');
   });
 
   it('three versions to pick from, all clean', () => {

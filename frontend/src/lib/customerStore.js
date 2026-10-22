@@ -192,7 +192,16 @@ live.setErrorHandler((e) => {
   reportSaveError(e);
   // only when the server holds something newer or the resume is gone: a network blip must not replace what the
   // person is typing with an older copy (the save itself is retried in meLive)
-  if (e?.status === 409 || e?.status === 404) loadLive(stateFor);
+  if (e?.status === 404) loadLive(stateFor);
+  if (e?.status === 409) { // saved in another tab or device: reload the latest copy, then let the builder ask
+    const id = stateFor;
+    loadLive(id).then(() => {
+      if (stateFor !== id) return;
+      live.clearSaveError();
+      state = { ...state, conflict: (state.conflict || 0) + 1 };
+      notify();
+    });
+  }
 });
 // the tab is closed or hidden with saves still waiting: send them with keepalive
 try {

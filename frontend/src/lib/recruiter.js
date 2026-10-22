@@ -1,5 +1,6 @@
 // Recruiter share links (Nm7 for Organizations, Phase 3C): plain logic shared by the recruiter page (/r/:token),
 // the coordinator's link list and the "Share with a recruiter" dialog.
+import { resumeFileName } from './fileName';
 
 /** Resume share links (/r/<name>) are at most 40 lowercase letters, digits and dashes; recruiter link tokens are
  * 43 random characters — so the same /r/ address serves both. */
@@ -20,7 +21,7 @@ export function filterCandidates(list, { q = '', interestedOnly = false } = {}) 
 }
 
 /** A file name for one candidate's PDF. */
-export const pdfName = (name) => `${(name || 'Resume').replace(/[^\p{L}\p{N} ._-]+/gu, '').trim().replace(/\s+/g, '_').slice(0, 60) || 'Resume'}_Resume.pdf`;
+export const pdfName = (name) => resumeFileName(name); // the same rule as every resume file
 
 /** The links that have shortlisted someone, for the coordinator's "Shortlisted by" filter (newest first). */
 export const shortlistChoices = (links) => (links || []).filter((l) => l.shortlisted > 0).map((l) => ({ id: l.id, label: `${l.company}${l.label ? ` · ${l.label}` : ''}` }));

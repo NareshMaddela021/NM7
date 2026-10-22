@@ -136,7 +136,7 @@ export default function TemplatePicker({ d, ds, suggest, photo, onPick, onNext, 
                 ))}
               </div>
               {/* the space is kept on every card, so selecting one never moves anything */}
-              <button type="button" className="btn btn-ink tp-use" data-testid="tp-use-card" onClick={() => pickNow(k, accent)}
+              <button type="button" className="btn btn-ink tp-use" data-testid="tp-use-card" aria-label={`Use ${t.name}`} onClick={() => pickNow(k, accent)}
                 style={{ visibility: chosen ? 'visible' : 'hidden' }}>Use {t.name} <Icon name="arrow" /></button>
             </div>
           );

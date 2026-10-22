@@ -2,7 +2,7 @@
 // Two drawing engines behind one small surface: jsPDF for resumes in Latin script (light, unchanged output), and
 // pdf-lib + fontkit (pdfDoc.js) as soon as the text holds an Indian script — it shapes conjuncts and vowel signs and
 // prints them with the Noto Sans font of that script, fetched from our origin only when a resume needs it.
-import { loadScriptFonts, scriptsIn } from './indicFonts';
+import { loadScriptFonts, scriptsIn, withoutEmoji } from './indicFonts';
 import { buildSections } from './resumeModel';
 import { visibleResume } from './entries';
 import { contactItems } from './ContactLine';
@@ -23,10 +23,14 @@ const GREY = [90, 90, 90];
  * stamp: one more small line at the foot of every page (e.g. "Shared with … via Nm7 · expires …").
  */
 export async function buildResumePdf({ data, design: ds, photo: photoArg, cover, brand = null, stamp = '', engine = null }) {
-  const d = visibleResume(data); // switched-off entries are not printed
+  // switched-off entries are not printed; emoji are left out (no PDF font here can draw them)
+  const d = withoutEmoji({ ...visibleResume(data), prefs: undefined, photo: undefined }); // job preferences are never printed
+  cover = withoutEmoji(cover);
+  brand = brand && { ...brand, header: withoutEmoji(brand.header), footer: withoutEmoji(brand.footer) };
+  stamp = withoutEmoji(stamp);
   const photo = photoArg === undefined ? data?.photo || null : photoArg; // the photo saved with the resume
   const page = PAGE[ds.pageSize] || PAGE.a4;
-  const scripts = scriptsIn([d, cover, brand?.header, brand?.footer, stamp]);
+  const scripts = scriptsIn([d, cover, brand?.header, brand?.footer, stamp]); // ₹ counts: it is drawn with a Noto font
   const shaped = engine === 'pdflib' || (engine !== 'jspdf' && scripts.length > 0); // `engine` forces one (tests)
   const { createDoc } = await (shaped ? import('./pdfDoc') : import('./jsPdfDoc'));
   const doc = await createDoc(page.w, page.h);

@@ -9,6 +9,7 @@ import { designOf } from '../pages/builder/design';
 import { http } from '../services/http';
 import { brandDesign, prepareBrand } from './branding';
 import { freshImport } from './chunks';
+import { resumeFileName } from './fileName';
 
 export const BATCH = 25;
 export { designOf }; // kept here for callers that already have this file; pages import it from builder/design
@@ -46,13 +47,11 @@ export function coverPdf({ orgs = [], groups = [], count = 0, date = new Date() 
   return doc.output('blob');
 }
 
-/** The server's file-name rule, mirrored for a row that reaches the browser without one: letters and digits in any
- * script (with their vowel signs) stay, everything else becomes one underscore; nothing usable → the membership id. */
+/** The server's file-name rule (lib/fileName.js), for a row that reaches the browser without one; nothing usable →
+ * the membership id. */
 export function zipName({ fileName, name, membershipId }) {
   if (fileName) return fileName;
-  const keep = (c) => /[\p{L}\p{N}\p{M}\u200c\u200d]/u.test(c);
-  const slug = [...(name || '')].map((c) => (keep(c) ? c : '_')).join('').replace(/_+/g, '_').replace(/^[_\u200c\u200d]+|[_\u200c\u200d]+$/g, '').slice(0, 60);
-  return `${slug || String(membershipId || '').slice(0, 8)}_Resume.pdf`.replace(/^_/, '');
+  return resumeFileName(name, { fallback: String(membershipId || '').slice(0, 8) });
 }
 
 /** A ZIP of { fileName, bytes } (PDFs are already compressed: stored, not deflated again). File names are stored

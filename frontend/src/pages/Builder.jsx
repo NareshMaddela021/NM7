@@ -212,6 +212,18 @@ export default function Builder({ embedded = null }) {
     const a = activeResume(me);
     if (a && !location.state?.scanImport) setD(completeResume(a.data));
   }, [me.loading]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Saved in another tab or device (the server said 409 and the store reloaded the latest copy): this tab asks
+  // "Use latest" (take the other copy) or "Keep mine" (save this tab's copy over it). Same content: nothing to ask.
+  const [conflict, setConflict] = useState(null); // the latest copy's data
+  useEffect(() => {
+    if (embedded || !me.conflict) return;
+    const a = activeResume(me);
+    if (!a) return;
+    if (JSON.stringify(completeResume(a.data)) === JSON.stringify(d)) { setConflict(null); return; }
+    setConflict(a.data);
+  }, [me.conflict]); // eslint-disable-line react-hooks/exhaustive-deps
+  const useLatest = () => { setD(completeResume(conflict)); setConflict(null); toast('Showing the latest copy'); };
+  const keepMine = () => { setConflict(null); syncFromBuilder(d); toast('Your copy is saved'); };
   // the signed-in customer's saved resume hasn't arrived yet: the preview shows no page count meanwhile
   const dataLoading = !embedded && serverCustomer() && (me.loading || !serverIn);
   const [sec, setSec] = useState(startAt?.sec || 'personal');
@@ -614,6 +626,17 @@ export default function Builder({ embedded = null }) {
           toast('Details added — pick a look, then check each section');
         }} />
       )}
+      {conflict && stage === 'build' && (
+        <div className={embedded ? '' : 'container-wide'} style={{ paddingTop: 12 }}>
+          <div className="card row between g8" role="alert" data-testid="save-conflict" style={{ padding: '10px 14px', alignItems: 'center', borderColor: 'var(--warning, #B45309)' }}>
+            <span className="small">This resume was changed in another tab or device. Which copy do you want?</span>
+            <span className="row g8">
+              <button type="button" className="btn btn-ink" style={{ minHeight: 40 }} onClick={useLatest}>Use latest</button>
+              <button type="button" className="btn btn-outline" style={{ minHeight: 40 }} onClick={keepMine}>Keep mine</button>
+            </span>
+          </div>
+        </div>
+      )}
       {stage === 'templates' && <TemplatePicker d={d} ds={ds} suggest={suggest} photo={photo} onPick={applyTemplate} initialView={changing ? 'mine' : undefined} onNext={() => { setChanging(false); setStage('build'); }} />}
       {stage === 'done' && <Done name={d.personal.name} score={score} onEdit={() => setStage('build')} onDownload={(f) => download(f, 'resume')} onCover={() => { setTab('cover'); setStage('build'); }} pdfBusy={pdfBusy} />}
 
@@ -698,7 +721,7 @@ export default function Builder({ embedded = null }) {
             </div>
             {d.hidden?.[cur.id] && <p className="well small muted">This section is hidden from your resume. It stays saved on your profile.</p>}
             <p className="muted" style={{ lineHeight: 1.55 }}>{cur.help}</p>
-            {cur.fresherTip && fresher && <p className="well small muted">{cur.fresherTip}</p>}
+            {cur.fresherTip && fresher && !(d[cur.id] || []).some((e) => real(e.company) || real(e.role)) && <p className="well small muted" data-testid="fresher-tip">{cur.fresherTip}</p>}
 
             {cur.id === 'personal' && (
               <>

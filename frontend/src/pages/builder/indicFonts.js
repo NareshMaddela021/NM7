@@ -14,6 +14,9 @@ export const SCRIPTS = {
 const ORDER = Object.keys(SCRIPTS);
 const DANDA = [0x0964, 0x0965]; // shared by every Indic script, in the Devanagari block
 const JOINERS = [0x200c, 0x200d]; // ZWNJ / ZWJ: part of a word's shaping, kept inside the surrounding run
+// ₹: the template fonts have no glyph for it; every Noto Sans Indic font does, so it is drawn with one of them
+// (the Indic run it is in, else Devanagari)
+export const RUPEE = 0x20b9;
 
 /** The script key of one code point, or null for everything that is not Indic. */
 export function scriptOf(cp) {
@@ -25,7 +28,7 @@ export function scriptOf(cp) {
 export function scriptsIn(text) {
   const s = typeof text === 'string' ? text : JSON.stringify(text ?? '');
   const found = new Set();
-  for (const ch of s) { const k = scriptOf(ch.codePointAt(0)); if (k) found.add(k); }
+  for (const ch of s) { const cp = ch.codePointAt(0); const k = cp === RUPEE ? 'devanagari' : scriptOf(cp); if (k) found.add(k); }
   return ORDER.filter((k) => found.has(k));
 }
 
@@ -34,18 +37,33 @@ export function scriptsIn(text) {
  * Common characters (spaces, digits, punctuation) go to the template's font; a danda or joiner stays with the
  * Indic run it follows so conjuncts keep their shape.
  */
-export function splitRuns(text) {
+export function splitRuns(text, defaultScript = 'devanagari') {
   const runs = [];
   let cur = null;
   for (const ch of String(text ?? '')) {
     const cp = ch.codePointAt(0);
     let k = scriptOf(cp);
-    if (DANDA.includes(cp)) k = cur?.script || 'devanagari';
+    if (DANDA.includes(cp) || cp === RUPEE) k = cur?.script || defaultScript;
     else if (JOINERS.includes(cp)) { if (!cur?.script) continue; k = cur.script; } // a joiner means nothing in Latin
     if (cur && cur.script === k) cur.text += ch;
     else { cur = { text: ch, script: k }; runs.push(cur); }
   }
   return runs;
+}
+
+// Emoji (and the selectors/joiners that build them): no PDF font here can draw them, so they are left out of the PDF
+const EMOJI = /(?:[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}](?:\uFE0F|\u20E3)?\u200D?)+|[\uFE0F\u20E3]/gu;
+/** Text without emoji; a gap left behind is closed ("Done ✅ fast" → "Done fast"). */
+const HAS_EMOJI = new RegExp(EMOJI.source, 'u');
+const SPACED_EMOJI = new RegExp(` ?(?:${EMOJI.source})`, 'gu'); // with the space before it
+/** Text without emoji, and without the space each one leaves ("won 🏆 twice ✅." → "won twice."). */
+export const noEmoji = (t) => (typeof t === 'string' && HAS_EMOJI.test(t) ? t.replace(SPACED_EMOJI, '').replace(/^ +/gm, '') : t);
+/** The same for every string in an object or array (a copy; the resume itself is not changed). */
+export function withoutEmoji(v) {
+  if (typeof v === 'string') return noEmoji(v);
+  if (Array.isArray(v)) return v.map(withoutEmoji);
+  if (v && typeof v === 'object') return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, withoutEmoji(x)]));
+  return v;
 }
 
 const WEIGHTS = ['Regular', 'Bold'];

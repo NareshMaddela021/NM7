@@ -36,7 +36,7 @@ for (const [label, size] of [['desktop', { width: 1280, height: 900 }], ['phone'
     test('a full resume: the empty summary is written on arrival — three sentences, labelled, no blanks', async ({ page }) => {
       await openEditor(page);
       await toSummary(page);
-      await expect(box(page)).toHaveValue('Data Analyst Intern at Northwind Retail, skilled in Python, SQL and Statistics. Project work includes Sales Dashboard Revamp. Looking for an entry-level Data Analyst role.');
+      await expect(box(page)).toHaveValue('Data Analyst Intern at Northwind Retail, skilled in Python, SQL and Statistics. Completed Google Data Analytics Certificate, with project work including Sales Dashboard Revamp. Looking for an entry-level Data Analyst role.');
       expect(sentences(await box(page).inputValue())).toHaveLength(3);
       await expect(page.getByTestId('written-note')).toHaveText('Written from your resume, edit anything');
       // three versions to pick from; the course only with "Mention my course"

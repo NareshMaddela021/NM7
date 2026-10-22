@@ -109,6 +109,19 @@ chosen template ("Sample: how this template looks when filled"), read-only and n
 resume**. Download PDF / Word always make the person's own resume: from Sample it switches back and says
 "Downloading your resume, not the sample". With no name, download is off: "Add your name to download".
 
+### Small QA fixes (PDFs, two tabs, file names)
+
+- **₹ and emoji in PDFs** (builder downloads and organization exports use the same maker): ₹ is drawn with the Noto
+  Sans font already shipped for Indian scripts (public/fonts, all of them have it); emoji are left out of the PDF
+  (no font here can draw them). Job preferences are never printed, so they never decide the font.
+- **The same resume in two tabs:** when the other tab saved first, this tab no longer stays on "Not saved yet —
+  retrying": it asks **Use latest** (take the other copy) or **Keep mine** (save this tab's copy over it).
+- **File names:** one rule for builder PDF / Word, organization exports and recruiter links (lib/fileName.js, the
+  same as the server's): letters and digits stay (in any script), every other run of characters — spaces, dashes,
+  en dashes, dots, emoji — becomes one underscore. `Asha – Data Analyst` → `Asha_Data_Analyst_Resume.pdf`.
+- "Write it from my resume" picks the job that matches the target role first, and mentions a certificate together
+  with a project when there are both.
+
 ## Summary writer
 
 On the builder's **Summary** step, in **Job Profile → Summary → About me** and in the kiosk builder, anyone can get a
