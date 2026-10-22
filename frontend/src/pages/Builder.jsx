@@ -36,6 +36,7 @@ import { FieldGrid, LinkFields, SchemaField } from './builder/Fields';
 import DesignPanel from './builder/DesignPanel';
 import Import from './builder/Import';
 import TemplatePicker, { layoutOf } from './builder/TemplatePicker';
+import { listText, templateSuggests } from './builder/templatePick';
 import CoverPanel from './builder/CoverPanel';
 import { EntryHeader, focusMoved } from './builder/EntryControls';
 import LineEntries from './builder/LineEntries';
@@ -250,18 +251,28 @@ export default function Builder({ embedded = null }) {
   };
   const setDesign = (patch) => commitDesign({ ...ds, ...patch, preset: ds.preset === 'custom' ? 'custom' : ds.preset }, Object.keys(patch).join());
   const applyPreset = (k, patch = {}) => commitDesign({ ...TEMPLATE_PRESETS[k].design, ...patch, preset: k });
-  // Picking a template also brings its section layout (e.g. Kio) — only when the layout actually changes,
-  // so switching between look-only templates keeps your own section order and on/off choices.
+  // Picking a template changes only the look (fonts, colours, columns): never which sections show, their order,
+  // titles or content. When the template usually shows a section this resume has off, it is only suggested.
+  const [hint, setHint] = useState(null); // { k, items } — shown beside the live preview (never above the picker: picking a card moves nothing)
   const applyTemplate = (k, patch = {}) => {
-    const from = layoutOf(ds.preset);
-    const to = layoutOf(k);
-    const snapshot = d;
     applyPreset(k, patch);
-    if (from !== to) {
-      setD((p) => ({ ...p, order: to.order, hidden: { ...to.hidden }, titles: { ...to.titles }, showPhoto: to.showPhoto }));
-      if (stage === 'build') toast(`${TEMPLATE_PRESETS[k].name} applied — sections rearranged`, () => setD(snapshot));
-    }
+    const items = templateSuggests(d, k);
+    setHint(items.length ? { k, items } : null);
   };
+  const acceptHint = () => {
+    const on = hint.items.map((x) => x.id);
+    setD((p) => ({ ...p, hidden: { ...p.hidden, ...Object.fromEntries(on.filter((id) => id !== 'photo').map((id) => [id, false])) }, ...(on.includes('photo') ? { showPhoto: true } : {}) }));
+    setHint(null);
+  };
+  const hintBox = hint && TEMPLATE_PRESETS[hint.k] && (
+    <div className="card row between g8" role="status" data-testid="template-hint" style={{ padding: '10px 14px', alignItems: 'center' }}>
+      <span className="small">This template usually shows {listText(hint.items)}. Turn {hint.items.length > 1 ? 'them' : 'it'} on?</span>
+      <span className="row g8">
+        <button type="button" className="btn btn-ink" style={{ minHeight: 40 }} onClick={acceptHint}>Turn on</button>
+        <button type="button" className="btn btn-outline" style={{ minHeight: 40 }} onClick={() => setHint(null)}>No thanks</button>
+      </span>
+    </div>
+  );
   const history = {
     canUndo: past.length > 0, canRedo: future.length > 0,
     undo: () => { if (!past.length) return; setFuture((f) => [ds, ...f]); setD((p) => ({ ...p, design: past[past.length - 1] })); setPast((p) => p.slice(0, -1)); },
@@ -873,6 +884,7 @@ export default function Builder({ embedded = null }) {
                 <button type="button" className="btn btn-outline" style={{ minHeight: 36, fontSize: 13 }} onClick={() => download('docx')} disabled={pdfBusy} title="Word file in one column with Calibri / Cambria">Word</button>
               </span>
             </div>
+            {tab !== 'cover' && hintBox}
             {tab === 'cover' ? <ResumePreview key="cover" data={d} design={ds} photo={photo} cover={d.cover || {}} /> : <ResumePreview data={d} design={ds} photo={photo} onPages={onPages} loading={dataLoading} />}
             <span className="xs faint">Job preferences stay on your Nm7 profile — never printed. Personal information, declaration and your photo print only when you switch them on.</span>
           </section>
