@@ -9,6 +9,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import QRCode from 'qrcode';
 import { Dialog, useToast } from '../../../components/ui';
 import { savePdf } from '../../builder/resumePdf';
+import { QR_FAILED, downloadQrPng, qrFileName, qrPosterPdf } from '../../../lib/qr';
 import ResumePreview from '../../builder/ResumePreview';
 import { designOf, runExport } from '../../../lib/orgExport';
 import { brandDesign } from '../../../lib/branding';
@@ -43,10 +44,16 @@ export const ADMIN_CTX = {
 };
 const can = (ctx, action) => ctx.role !== 'viewer' || ['view', 'print'].includes(action);
 
-/** The QR code for a join link as a PNG file (made in the browser — no outside QR service). */
-export async function qrPng(code) {
-  const url = await QRCode.toDataURL(joinLink(code), { width: 768, margin: 2, errorCorrectionLevel: 'M' });
-  return (await fetch(url)).blob();
+/** A group's join QR as a print-size PNG (1024 px, white quiet zone), "<org>_<group>_QR.png"; made without fetch. */
+async function saveGroupQr(g, ctx, toast) {
+  try { await downloadQrPng(joinLink(g.code), qrFileName(ctx.orgName, g.name)); } catch (e) { toast(e.message || QR_FAILED); }
+}
+/** An A4 poster: the QR, the group's name, its join code and "Scan to share your resume". */
+async function saveGroupPoster(g, ctx, toast) {
+  try {
+    const blob = await qrPosterPdf({ text: joinLink(g.code), title: g.name, subtitle: ctx.orgName || '', code: g.code });
+    await savePdf(blob, qrFileName(ctx.orgName, g.name).replace(/_QR\.png$/, '_QR_poster.pdf'));
+  } catch { toast('Couldn’t make the poster. Please try again.'); }
 }
 
 function QrImage({ code, size = 120 }) {
@@ -173,7 +180,8 @@ export function GroupCard({ g, ctx, busy, run, reload, toast }) {
           <span className="small" style={{ overflowWrap: 'anywhere' }}>Join link: <a href={link} className="mono" data-testid="join-link">{link}</a></span>
           <div className="row g8">
             <button type="button" className="btn btn-outline" style={{ minHeight: 34 }} onClick={async () => { try { await navigator.clipboard.writeText(link); toast('Join link copied'); } catch { toast(link); } }}>Copy link</button>
-            <button type="button" className="btn btn-outline" style={{ minHeight: 34 }} onClick={async () => savePdf(await qrPng(g.code), `Nm7_join_${g.code}_QR.png`)}>Download QR code (PNG)</button>
+            <button type="button" className="btn btn-outline" style={{ minHeight: 34 }} onClick={() => saveGroupQr(g, ctx, toast)}>Download QR code (PNG)</button>
+            <button type="button" className="btn btn-outline" style={{ minHeight: 34 }} onClick={() => saveGroupPoster(g, ctx, toast)}>Download QR poster (PDF)</button>
             <Link className="btn btn-outline" style={{ minHeight: 34 }} to={ctx.dashboardUrl(g)}>Dashboard</Link>
             <Link className="btn btn-outline" style={{ minHeight: 34 }} to={ctx.sharedUrl(ctx.orgId ? { group: g.id } : { org: g.orgId, group: g.id })}>Shared resumes</Link>
             {ctx.canManage && <button type="button" className="btn btn-outline" style={{ minHeight: 34 }} disabled={busy} onClick={() => patch({ settings: { active: !g.settings.active } }, g.settings.active ? 'Joining closed' : 'Joining open')}>{g.settings.active ? 'Close joining' : 'Open joining'}</button>}
@@ -305,7 +313,7 @@ function OrgDetail({ id, onBack }) {
   const [busy, run] = useAction(toast);
   const [edit, setEdit] = useState(null);
   return (
-    <Loading st={st}>{(o) => { const ctx = { ...ADMIN_CTX, orgId: null, features: o.features || {} }; return (
+    <Loading st={st}>{(o) => { const ctx = { ...ADMIN_CTX, orgId: null, orgName: o.name, features: o.features || {} }; return (
       <>
         <PageHead title={o.name} sub={`${o.typeName}${o.city ? ` · ${o.city}` : ''} · ${o.groups} group${o.groups === 1 ? '' : 's'} · ${o.members} member${o.members === 1 ? '' : 's'}${o.status === 'archived' ? ' · archived' : ''}`}
           right={<><button type="button" className="btn btn-outline" onClick={() => setEdit(edit ? null : { name: o.name, type: o.type, city: o.city, logoUrl: o.logoUrl, status: o.status })}>Edit organization</button><button type="button" className="btn btn-outline" onClick={onBack}>All organizations</button></>} />
