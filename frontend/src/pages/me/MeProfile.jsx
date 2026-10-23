@@ -11,6 +11,7 @@ import { EXTRA_TITLE, mergeIntoProfile, newPid, profileCompleteness, profileToRe
 import SummaryWriter from '../builder/SummaryWriter';
 import { DECL_FIELDS, EXP_LEVELS, LINK_SLOTS, LINK_WORDS, LINK_WORD_MAX, LISTS, PINFO_FIELDS, fieldError } from '../builder/schema';
 import { FieldGrid, LinkFields, SchemaField } from '../builder/Fields';
+import { SkillBox } from '../builder/GrowArea';
 import { EntryHeader, focusMoved } from '../builder/EntryControls';
 import LineEntries from '../builder/LineEntries';
 import { moveItem, removeItem, toggleItem } from '../builder/entries';
@@ -222,7 +223,7 @@ export default function MeProfile() {
               onRemove={() => setJobProfile((x) => ({ ...x, skillGroups: removeItem(x.skillGroups, gi) }))} />
             <div className="entry-body row g8">
               <div className="field" style={{ flex: '1 1 160px' }}><label htmlFor={`pf-sg-l-${gi}`} className="label">Category</label><input id={`pf-sg-l-${gi}`} className="input" value={g.label} onChange={(e) => setJobProfile((x) => ({ ...x, skillGroups: x.skillGroups.map((y, j) => (j === gi ? touch({ ...y, label: e.target.value }) : y)) }))} /></div>
-              <div className="field" style={{ flex: '3 1 260px' }}><label htmlFor={`pf-sg-${gi}`} className="label">Skills</label><input id={`pf-sg-${gi}`} className="input" value={g.value} placeholder="Python, SQL, Excel" onChange={(e) => setJobProfile((x) => ({ ...x, skillGroups: x.skillGroups.map((y, j) => (j === gi ? touch({ ...y, value: e.target.value }) : y)) }))} /></div>
+              <div className="field" style={{ flex: '3 1 260px' }}><label htmlFor={`pf-sg-${gi}`} className="label">Skills</label><SkillBox id={`pf-sg-${gi}`} label={g.label || 'Skills'} value={g.value} placeholder="Python, SQL, Excel" onChange={(v) => setJobProfile((x) => ({ ...x, skillGroups: x.skillGroups.map((y, j) => (j === gi ? touch({ ...y, value: v }) : y)) }))} /></div>
             </div>
           </div>
         ))}

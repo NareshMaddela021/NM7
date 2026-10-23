@@ -50,17 +50,17 @@ export const LISTS = {
     f('type', 'Project type', 'select', { options: ['Personal / Side Project', 'Open Source', 'Freelance / Client Work', 'Startup / Product', 'Academic / Research', 'Hackathon'] }),
     f('status', 'Status', 'select', { options: ['Live / Production', 'In Development', 'Beta', 'Completed', 'On Hold', 'Archived'] }),
     f('description', 'Description & impact', 'area', { full: true, rich: true, ai: 'proj', ph: 'What you built, for whom, and the result' }),
-    f('tech', 'Tech stack', 'text', { full: true, ph: 'React, FastAPI, PostgreSQL (comma-separated)' }),
+    f('tech', 'Tech stack', 'text', { full: true, grow: 'list', ph: 'React, FastAPI, PostgreSQL (comma-separated)' }),
   ] },
   certs: { item: 'Certification', blank: { name: '', issuer: '', issueDate: '', expiryDate: '', credentialId: '', noExpiry: false, links: [] }, fields: [
-    f('name', 'Certification name *', 'text', { full: true, ph: 'AWS Certified Cloud Practitioner' }), f('issuer', 'Issuing organisation', 'select', { options: CERT_ISSUERS }), f('credentialId', 'Credential ID'),
+    f('name', 'Certification name *', 'text', { full: true, grow: 'line', ph: 'AWS Certified Cloud Practitioner' }), f('issuer', 'Issuing organisation', 'select', { options: CERT_ISSUERS }), f('credentialId', 'Credential ID'),
     f('issueDate', 'Issue date', 'month'), f('expiryDate', 'Expiry date', 'month', { disabledBy: 'noExpiry' }), f('noExpiry', 'No expiry / lifetime valid', 'check', { full: true }),
   ] },
   ach: { item: 'Achievement', blank: { title: '', type: '', date: '', issuer: '', description: '', links: [] }, fields: [
-    f('title', 'Title *', 'text', { full: true, ph: '1st Place — Smart India Hackathon 2024' }), f('type', 'Type', 'select', { options: ACH }), f('issuer', 'Issuer / organisation'),
+    f('title', 'Title *', 'text', { full: true, grow: 'line', ph: '1st Place — Smart India Hackathon 2024' }), f('type', 'Type', 'select', { options: ACH }), f('issuer', 'Issuer / organisation'),
     f('date', 'Date', 'month', { full: true }), f('description', 'Description (optional)', 'area', { full: true, rich: true, ai: 'ach' }),
   ] },
-  langs: { item: 'Language', blank: { name: '', level: '' }, fields: [f('name', 'Language', 'text', { ph: 'Tamil, Hindi, English' }), f('level', 'Proficiency', 'select', { options: LANG })] },
+  langs: { item: 'Language', blank: { name: '', level: '' }, fields: [f('name', 'Language', 'text', { grow: 'list', ph: 'Tamil, Hindi, English' }), f('level', 'Proficiency', 'select', { options: LANG })] },
   custom: { item: 'Entry', blank: { title: '', subtitle: '', date: '', description: '', links: [] }, fields: [
     f('title', 'Title / role', 'text', { ph: 'e.g. NSS Volunteer' }), f('subtitle', 'Organisation / place'), f('date', 'Dates', 'text', { full: true, ph: 'e.g. Aug 2023 – Present' }),
     f('description', 'Details', 'area', { full: true, rich: true, ai: 'custom' }),
@@ -95,7 +95,7 @@ export function migrateLinks(d) {
 
 export const PERSONAL_FIELDS = [
   f('name', 'Full name *', 'text', { full: true }),
-  f('headline', 'Headline / target role · optional', 'text', { full: true, ph: 'e.g. Data Analyst · SQL · Power BI' }),
+  f('headline', 'Headline / target role · optional', 'text', { full: true, grow: 'line', ph: 'e.g. Data Analyst · SQL · Power BI' }),
   f('email', 'Email *', 'email'), f('phone', 'Phone *', 'tel'),
   f('location', 'City / location'), f('level', 'Experience level *', 'select', { options: EXP_LEVELS }),
 ];

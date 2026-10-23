@@ -199,6 +199,15 @@ Operating Systems, Computer Networks, OOP, AI/ML) are added only when tapped; B 
   without experience; resume, LinkedIn and photo imports fill it from a "Courses / Coursework" line; the organization
   CSV has one "Courses" column (semicolon-separated, switched-off entries left out).
 
+### Long skill lists are easy to see
+
+Each skill group is an auto-growing box (starts at 2 lines, grows to about 6, then scrolls inside, and wraps instead
+of scrolling sideways); Enter types ", " and the saved value never holds a line break. Under each box: Edit as text |
+Edit as chips (× removes, drag reorders, a repeated skill is flagged, e.g. "SQL appears twice"; both views save the
+same text), a counter ("14 skills · about 2 lines on your resume"), a tip above 15 skills and a hint for a skill
+longer than 40 characters. The same box is used for the headline, a project's tech line, a certification name, an
+achievement title, languages and the Relevant courses box (builder, Job Profile and kiosk). Printing is unchanged.
+
 ### A browser draft moves into an account at most once
 
 The resume built in a browser before signing in is added to the account once. Each import is noted in that browser
