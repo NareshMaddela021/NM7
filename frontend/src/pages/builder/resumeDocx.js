@@ -120,6 +120,11 @@ export async function buildDocx({ data, design: ds, cover, photoPng }) {
       return paras.filter((r) => r.length).forEach((r) => out.push(P(r.join(''), { after: 1 })));
     }
     if (l.bullet) return out.push(bullet ? P(run(bullet) + tab + rich(l.t), { ind: [300 + extra, 220], tabs: [[300 + extra, 'left']], after: 1 }) : P(rich(l.t), { after: 1, ind: extra ? [extra, 0] : undefined }));
+    if (l.courses) { // bold label, the list (italic in Academic) with a hanging indent
+      const hang = Math.round((l.courses.label.length + 1) * ds.bodySize * 0.55 * 20);
+      const list = parseBold(l.courses.text).map((p) => run(p.t, { b: p.b, i: l.courses.italic })).join('');
+      return out.push(P(run(`${l.courses.label} `, { b: true }) + list, { ind: [hang + extra, hang], after: 1 }));
+    }
     if (l.chips) return out.push(P((l.label ? run(`${l.label}: `, { b: true }) : '') + run(l.chips.join(', ')), { after: 1 }));
     if (l.kv) return out.push(P(run(l.kv[0]) + tab + run(`:  ${l.kv[1].replace(/\n/g, ', ')}`), { tabs: [[Math.round(ds.bodySize * 9.5 * 20), 'left']], after: 1 }));
     if (l.sign) {

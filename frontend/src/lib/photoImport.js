@@ -2,6 +2,7 @@
 // The photos are shrunk in the browser, read on the server (POST /api/me/photo-import) and come back as items the
 // person reviews; nothing is saved until they press "Looks right". ID numbers never come back (the server drops them).
 import { http, LIVE, ApiError } from '../services/http';
+import { addCourses } from './courses';
 import { normDate } from './import/dates';
 import { emptyResume } from '../pages/builder/schema';
 
@@ -64,7 +65,7 @@ export function toReview(res) {
     experience: (res.experience || []).filter((e) => e.role || e.company || e.lines?.length).map((e) => item({ role: e.role || '', company: e.company || '', from: e.from || '', to: e.to || '', text: (e.lines || []).join('\n'), confidence: e.confidence })),
     skills: (res.skills || []).filter((s) => v(s)).map((s) => item({ text: v(s), confidence: s.confidence })),
     certifications: (res.certifications || []).filter((c) => c.name).map((c) => item({ text: [c.name, c.issuer, c.year].filter(Boolean).join(' · '), name: c.name, issuer: c.issuer || '', year: c.year || '', confidence: c.confidence })),
-    education: (res.education || []).filter((e) => e.degree || e.institution).map((e) => item({ text: [e.degree, e.institution, e.year].filter(Boolean).join(' · '), degree: e.degree || '', institution: e.institution || '', year: e.year || '', grade: e.grade || '', confidence: e.confidence })),
+    education: (res.education || []).filter((e) => e.degree || e.institution).map((e) => item({ text: [e.degree, e.institution, e.year].filter(Boolean).join(' · '), degree: e.degree || '', institution: e.institution || '', year: e.year || '', grade: e.grade || '', courses: Array.isArray(e.courses) ? e.courses : [], confidence: e.confidence })),
     languages: (res.languages || []).filter((l) => v(l)).map((l) => item({ text: v(l), confidence: l.confidence })),
     photos: res.photos || [],
   };
@@ -109,7 +110,7 @@ export function reviewToResume(r, base = emptyResume()) {
   const skills = r.skills.filter((s) => s.keep && s.text.trim()).map((s) => s.text.trim());
   d.skillGroups = (d.skillGroups || []).map((g, i) => ({ ...g, value: i === 0 ? skills.join(', ') : '' }));
   d.certs = r.certifications.filter((c) => c.keep && c.text.trim()).map((c) => ({ name: c.name && c.text.startsWith(c.name) ? c.name : c.text.trim(), issuer: c.issuer || '', issueDate: normDate(c.year), expiryDate: '', credentialId: '', noExpiry: true, links: [] }));
-  d.edu = r.education.filter((e) => e.keep && e.text.trim()).map((e) => ({ institution: e.institution, degree: e.degree || (e.institution ? '' : e.text.trim()), field: '', from: '', to: normDate(e.year), current: false, grade: e.grade }));
+  d.edu = r.education.filter((e) => e.keep && e.text.trim()).map((e) => ({ institution: e.institution, degree: e.degree || (e.institution ? '' : e.text.trim()), field: '', from: '', to: normDate(e.year), current: false, grade: e.grade, ...(e.courses?.length ? { courses: addCourses([], e.courses) } : {}) }));
   d.langs = r.languages.filter((l) => l.keep && l.text.trim()).map((l) => ({ name: l.text.trim(), level: '' }));
   d.summary = d.summary || '';
   d.hidden = { ...(d.hidden || {}), pinfo: !pinfoOn.length, edu: !d.edu.length, certs: !d.certs.length, langs: !d.langs.length };

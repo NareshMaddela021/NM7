@@ -497,7 +497,7 @@ export default function Builder({ embedded = null }) {
               {schema.fields.map((f, fi) => {
                 const kind = k.startsWith('c_') ? 'custom' : k;
                 const field = (
-                  <SchemaField key={f.key} field={f} idBase={`${k}-${i}`} value={obj[f.key]} disabled={f.disabledBy ? !!obj[f.disabledBy] : false}
+                  <SchemaField key={f.key} field={f} idBase={`${k}-${i}`} value={obj[f.key]} entry={obj} disabled={f.disabledBy ? !!obj[f.disabledBy] : false}
                     error={errorFor(k, obj, f)} onChange={(v) => setItem(k, i, f.key, v)} onAi={(kind) => { const was = obj[f.key] || ''; const plain = stripBold(was); const v = carryBold(was, kind === 'shorten' ? shorten(plain) : kind === 'ats' ? atsFriendly(plain) : AI_SAMPLES[f.ai]); /* bold stays on the words that survive */ withUndo(kind === 'rewrite' ? 'Sample rewrite added (AI in the live app)' : kind === 'shorten' ? 'Bullets shortened' : 'Made ATS-friendly'); setItem(k, i, f.key, v); }} />
                 );
                 // the link + clickable word sits right after the title field

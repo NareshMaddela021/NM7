@@ -1,6 +1,7 @@
 // Reader for any resume layout (PDF, Word or pasted text). It works on "lines":
 // { text, size, bold, x, textX, y, page } — PDFs give real positions; Word and pasted text give estimates.
 import { findDates, stripDate, normDate } from './dates';
+import { addCourses, coursesLine } from '../courses';
 import {
   headingId, ROLE_RE, ORG_RE, DEGREE_RE, SCHOOL_RE, GRADE_RE, EMAIL_RE, PHONE_RE, URL_RE, INDIAN_PLACE_RE,
   langLevel, linkSlot, cleanUrl,
@@ -188,7 +189,11 @@ function toExp(b) {
 
 function toEdu(b) {
   const d = dateOf(b);
-  const hs = strip(b, d);
+  // a "Relevant coursework: A, B" line becomes the entry's courses (and is not read as the degree or school)
+  let courses = [];
+  const notCourses = (x) => { const c = coursesLine(x); if (c) { courses = addCourses(courses, c); return false; } return true; };
+  const hs = strip(b, d).filter(notCourses);
+  (b.bullets || []).forEach(notCourses);
   let grade = '';
   const cleaned = hs.map((h) => {
     const g = h.match(GRADE_RE);
@@ -204,7 +209,7 @@ function toEdu(b) {
   if (ip.length > 1 && INDIAN_PLACE_RE.test(ip[ip.length - 1])) inst = ip.slice(0, -1).join(', ');
   const { degree, field } = splitDegree(degLine);
   const yearsOnly = d && d.from && !d.from.includes('-');
-  return flag({ institution: inst, degree, field, from: d?.from || '', to: d?.to || '', current: !!d?.current, grade },
+  return flag({ institution: inst, degree, field, from: d?.from || '', to: d?.to || '', current: !!d?.current, grade, ...(courses.length ? { courses } : {}) },
     !d ? 'Dates not found.' : !inst ? 'Institution not found.' : yearsOnly ? '' : '');
 }
 

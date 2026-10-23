@@ -7,6 +7,7 @@
 // summary writer: no I / me / my, no banned clichés, no phone, email, address or ID numbers, at most 400 characters.
 import { real } from '../../pages/builder/schema';
 import { plainResume } from '../bold';
+import { coursesOf } from '../courses';
 import { CONTACT_RE } from './facts';
 import { bareRole, joinList, trimTo } from './grammar';
 import { languagesOf, skillsOf } from './library';
@@ -42,11 +43,14 @@ export function resumeFacts(raw, { course = false } = {}) {
   const cert = on(d, 'certs', 'certs').map((c) => safe(c.name)).find(Boolean) || '';
   const edu = on(d, 'edu', 'edu').filter((e) => real(e.degree)).sort(latest)[0];
   const degree = course && edu ? [safe(edu.degree), safe(edu.field)].filter(Boolean).join(' in ') : '';
+  // a fresher without experience: up to 2 key courses from the latest education that lists them
+  const withCourses = on(d, 'edu', 'edu').filter((e) => coursesOf(e).length).sort(latest)[0];
+  const courses = !job && withCourses ? coursesOf(withCourses).map(safe).filter(Boolean).slice(0, 2) : [];
   return {
     target, level, fresher: level.startsWith('Fresher'), job,
     intern: !!job && /\bintern(ship)?\b|\btrainee\b|\bapprentice\b/i.test(job.role),
     skills: skillsOf(d).map(safe).filter(Boolean).slice(0, 3),
-    project: proj, cert, languages: languagesOf(d).map(safe).filter(Boolean).slice(0, 3), degree,
+    project: proj, cert, languages: languagesOf(d).map(safe).filter(Boolean).slice(0, 3), degree, courses,
   };
 }
 
@@ -65,6 +69,7 @@ function proof(f, jobUsed) {
   if (f.project) return `Project work includes ${f.project}`;
   if (f.cert) return `Completed ${f.cert}`;
   if (f.job && f.intern && !jobUsed) return `Interned as ${f.job.role} at ${f.job.company}`;
+  if (f.courses?.length) return `Coursework includes ${joinList(f.courses)}`;
   return '';
 }
 const withLangs = (f) => (f.languages.length > 1 ? `communicates in ${joinList(f.languages)}` : '');

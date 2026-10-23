@@ -45,7 +45,9 @@ SCHEMA = _obj(
         "jobs": _list(_obj({"role": STR, "company": STR, "from": STR, "to": STR, "lines": _list(STR), "unsure": BOOL})),
         "skills": _list(STR),
         "certifications": _list(_obj({"name": STR, "issuer": STR, "year": STR, "unsure": BOOL})),
-        "education": _list(_obj({"degree": STR, "institution": STR, "year": STR, "grade": STR, "unsure": BOOL})),
+        "education": _list(
+            _obj({"degree": STR, "institution": STR, "year": STR, "grade": STR, "courses": _list(STR), "unsure": BOOL})
+        ),
         "languages": _list(STR),
     }
 )
@@ -72,7 +74,8 @@ Fill these fields:
   across Hyderabad with no accidents". Do not invent numbers or facts. unsure=true if you had to guess.
 - skills: practical skills, tools and licences, e.g. "LMV driving licence", "HMV driving licence", "Wiring and
   fault finding", "Two-wheeler delivery", "Billing and cash handling".
-- certifications, education (empty is fine; unsure=true if you had to guess), languages the person speaks or
+- certifications, education (empty is fine; unsure=true if you had to guess; courses = the subjects or courses
+  a marksheet or resume lists for that education, at most 12, else []), languages the person speaks or
   writes.
 
 Strict privacy rules, no exceptions:
@@ -155,6 +158,7 @@ def normalize(raw: Any) -> dict[str, Any]:
                 "institution": _s(e.get("institution")),
                 "year": _s(e.get("year")),
                 "grade": _s(e.get("grade")),
+                "courses": _strs(e.get("courses"))[:12],
                 "confidence": _conf(e.get("unsure")),
             }
             for e in _items(raw.get("education"))

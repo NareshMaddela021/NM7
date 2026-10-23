@@ -1,9 +1,11 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import { Icon } from '../../components/ui';
 import { BOLD_TIP, htmlToRich, sanitizeRich, toggleBold, tooMuchBold } from '../../lib/bold';
+import { COURSES_HINT, COURSES_PH, MAX_COURSES, addCourses, coursesOf, suggestCourses } from '../../lib/courses';
+import ChipList from './ChipList';
 
 /** Renders one schema field. `value` / `onChange(value)` are plain values. */
-export function SchemaField({ field, value, onChange, disabled, onAi, idBase, error }) {
+export function SchemaField({ field, value, onChange, disabled, onAi, idBase, error, entry }) {
   const id = `${idBase}-${field.key}`;
   const style = { gridColumn: field.full ? '1 / -1' : 'auto' };
   const t = field.type;
@@ -12,6 +14,15 @@ export function SchemaField({ field, value, onChange, disabled, onAi, idBase, er
     return (
       <div style={style}>
         <label className="check"><input type="checkbox" checked={!!value} onChange={(e) => onChange(e.target.checked)} />{field.label}</label>
+      </div>
+    );
+  }
+  if (t === 'courses') {
+    return (
+      <div className="field" style={style}>
+        <label htmlFor={id} className="label">{field.label}</label>
+        <ChipList id={id} label={field.label} value={coursesOf({ courses: value })} onChange={onChange} add={addCourses} max={MAX_COURSES}
+          placeholder={COURSES_PH} hint={COURSES_HINT} suggestions={suggestCourses({ ...entry, courses: value })} />
       </div>
     );
   }
