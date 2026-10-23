@@ -390,6 +390,27 @@ Code: `frontend/src/lib/linkedin/` (checks, headlines, guide) and `backend/app/l
 - **Testing before Razorpay is live**: Admin → Customers → pick the customer → LinkedIn pack → **Grant LinkedIn
   pack**. That account (only) sees the full pack on /linkedin; "Take back" locks it again.
 
+## Payments: Off, WhatsApp or Razorpay
+
+Admin → Settings → Payments chooses how Nm7 takes money (`backend/app/wapay/`):
+
+- **Off**: nothing can be bought; paid buttons show "Coming soon" and downloads stay free.
+- **WhatsApp**: every paid button becomes "Buy on WhatsApp". A pending order is made first (NM7-24001, …, status
+  `awaiting_payment`), then WhatsApp opens with "Hi Nm7, I want to buy <item> (Rs <price>). Order <number>." (only the
+  item, price and order number in the link). Naresh shares the UPI ID in the chat (it is never stored or shown on the
+  site). An Owner or Finance admin then marks it paid in Admin → Orders → WhatsApp payments (method, UTR / reference,
+  amount, date; a different amount needs a reason; a UTR is used once; never twice; never a cancelled order), and
+  the same `mark_paid()` as Razorpay unlocks it (pack, downloads, expert order, organization plan). Unpaid orders
+  are cancelled after the hours set there (default 72). Refunds there too (method + reference; a full refund removes
+  access). Every action is in the audit log.
+- **Razorpay**: the checkout as before (needs the Razorpay keys on the server). If no mode has been saved yet, the old
+  rule applies: Razorpay when its keys are set, else Off.
+- The WhatsApp number is entered in Admin only and stored in the database (never in the code). Until business details
+  (Admin → Billing settings: legal name, address, GSTIN) are set, a WhatsApp payment gets a receipt from "Nm7"
+  (NM7R/…) and no GST invoice.
+- Reports: money in by method (WhatsApp / Razorpay), pending / paid / cancelled, and a CSV (order, customer, item,
+  amount, method, UTR, date): `GET /api/admin/whatsapp/report(.csv)`.
+
 ## Nm7 for Organizations (Phase 1)
 
 Any organization — a college, coaching or training institute, job fair, skill centre, NGO, placement agency or company hiring drive — can get its people to build resumes on nm7.si. The Nm7 super-admin (the **Owner** role, with two-step login) then sees, prints and exports all of them from the admin console.

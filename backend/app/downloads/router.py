@@ -8,9 +8,9 @@ Rules:
 - guests: never (they create a free account first);
 - admins (two-step login done): always, for checking files;
 - approved experts: always (they check the files they deliver in the order workspace);
-- while payments are off (no Razorpay keys): every signed-in account, free;
-- once payments are on: an account with a paid, not refunded order for any plan (Fix it yourself, Expert rewrite,
-  Career Launch) — unlocked for good after the first payment;
+- while payments are off (Admin → Settings → Payments: Off): every signed-in account, free;
+- once payments are on (WhatsApp or Razorpay): an account with a paid, not refunded order for any plan (Fix it
+  yourself, Expert rewrite, Career Launch) — unlocked for good after the first payment;
 - a member of an active group whose organization made downloads free for its members (reason "group").
 """
 
@@ -20,12 +20,12 @@ from fastapi import APIRouter
 from pydantic import Field
 
 from app.auth.deps import Auth, MaybeAuth
-from app.core.config import get_settings
 from app.core.db import DB, ORDERS
 from app.core.errors import ApiError
 from app.core.schemas import CamelModel
 from app.orgs.service import group_downloads_free
 from app.site import get_site
+from app.wapay.settings import payments_on as _payments_on
 
 router = APIRouter(prefix="/api/me", tags=["downloads"])
 
@@ -48,9 +48,9 @@ class ExportIn(CamelModel):
     name: str = Field("", max_length=200)
 
 
-def payments_on() -> bool:
-    s = get_settings()
-    return bool(s.razorpay_key_id and s.razorpay_key_secret)
+async def payments_on(db) -> bool:
+    """WhatsApp or Razorpay is on (Admin → Settings → Payments; see app/wapay/settings.py)."""
+    return await _payments_on(db)
 
 
 async def entitlement(db, auth: Auth | None) -> tuple[bool, str]:
@@ -65,7 +65,7 @@ async def entitlement(db, auth: Auth | None) -> tuple[bool, str]:
 
 async def account_entitlement(db, user_id) -> tuple[bool, str]:
     """A signed-in account's downloads (also used for a shared resume: its owner's)."""
-    if not payments_on():
+    if not await payments_on(db):
         return True, "payments_off"
     paid = db[ORDERS].find(
         {"customer_id": user_id, "paid_at": {"$ne": None}, "status": {"$nin": list(LOST)}, "kind": {"$ne": "org"}},
@@ -85,7 +85,7 @@ async def account_entitlement(db, user_id) -> tuple[bool, str]:
 async def entitlements(auth: MaybeAuth, db: DB) -> EntitlementsOut:
     ok, reason = await entitlement(db, auth)
     diy = (await get_site(db))["plans"]["diy"]
-    return EntitlementsOut(can_download=ok, reason=reason, payments_on=payments_on(), price=diy["amount"] / 100)
+    return EntitlementsOut(can_download=ok, reason=reason, payments_on=await payments_on(db), price=diy["amount"] / 100)
 
 
 @router.post("/exports")

@@ -30,7 +30,7 @@ def is_late(order: Order) -> bool:
 
 async def captured_payment(db: AsyncDatabase, order: Order) -> Payment:
     p = Payment.load(await db[PAYMENTS].find_one({"order_id": order.id, "status": "captured"}))
-    if p is None or not p.razorpay_payment_id:
+    if p is None or not (p.razorpay_payment_id or p.reference):  # Razorpay, or a WhatsApp payment (its UTR)
         raise ApiError(409, "not_refundable", "This order has no completed payment to refund.")
     return p
 

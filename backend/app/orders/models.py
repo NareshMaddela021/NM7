@@ -12,8 +12,11 @@ ORDER_NO_START = 1001
 
 # pending_payment → offer (paid, finding an expert) → in_progress → waiting → revision → delivered → approved.
 # DIY orders go pending_payment → done. Side exits: expired (unpaid 24 h), cancelled, refunded.
+# Paid on WhatsApp: awaiting_payment until an admin marks it paid (then as above), or cancelled (by an admin, or
+# after the hours set in Admin → Settings → Payments).
 STATUSES = (
     "pending_payment",
+    "awaiting_payment",
     "offer",
     "in_progress",
     "waiting",
@@ -50,6 +53,8 @@ class Order(Doc):
     currency: str = "INR"
     items: list[OrderItem] = Field(default_factory=list)
     invoice_no: str | None = None  # NM7/26-27/0001, unique
+    receipt_no: str | None = None  # NM7R/26-27/0001: a WhatsApp payment before business details are set (no GST)
+    method: str | None = None  # "whatsapp": paid in a WhatsApp chat and marked paid by an admin; else Razorpay
     created_at: datetime = Field(default_factory=now)
     updated_at: datetime = Field(default_factory=now)
     paid_at: datetime | None = None

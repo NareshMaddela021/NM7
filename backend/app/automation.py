@@ -14,6 +14,7 @@ from app.core.db import LOCKS, ORDER_WORK, ORDERS
 from app.core.email import Email, Mailer, get_mailer, send_safely
 from app.core.time import now
 from app.site import get_site, save_site
+from app.wapay.service import cancel_stale
 
 log = logging.getLogger("nm7.automation")
 EVERY = timedelta(minutes=10)
@@ -112,6 +113,7 @@ async def run_rules(db: AsyncDatabase, mailer: Mailer | None = None) -> dict[str
             done[key] = await RUNNERS[key](db, int(rule["value"]), mailer or get_mailer())
             prev = runs.get(key, {})
             runs[key] = {"last_run": now(), "acted": prev.get("acted", 0) + done[key]}
+        done["whatsapp_cancel"] = await cancel_stale(db)  # hours from Admin → Settings → Payments
         await save_site(db, {"rule_runs": runs})
         return done
     finally:

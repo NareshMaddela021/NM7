@@ -22,7 +22,7 @@ from app.site import get_site
 
 log = logging.getLogger("nm7.orders")
 
-PAYABLE = ("pending_payment", "expired")  # a late payment for an expired order still counts
+PAYABLE = ("pending_payment", "expired", "awaiting_payment")  # a late payment for an expired order still counts
 UNPAID_EXPIRES_AFTER = timedelta(hours=24)
 
 
@@ -30,6 +30,13 @@ async def next_invoice_no(db: AsyncDatabase, at: datetime, session: Session = No
     fy = financial_year(at)
     n = await next_number(db, f"invoice:{fy}", 1, session=session)
     return f"NM7/{fy}/{n:04d}"
+
+
+async def next_receipt_no(db: AsyncDatabase, at: datetime, session: Session = None) -> str:
+    """A payment receipt (not a tax invoice): WhatsApp payments while business details aren't set."""
+    fy = financial_year(at)
+    n = await next_number(db, f"receipt:{fy}", 1, session=session)
+    return f"NM7R/{fy}/{n:04d}"
 
 
 async def build_order(db: AsyncDatabase, customer: User, plan: str, role: str | None, addons: list[str]) -> Order:
@@ -62,10 +69,13 @@ async def mark_paid(
     method: str | None = None,
     raw: dict | None = None,
     source: str = "razorpay",
+    invoice: bool = True,
 ) -> tuple[Order, bool]:
     """Records a successful payment in one transaction (payment, order, invoice number). Safe to call more than
     once (checkout handler and webhook both do): returns (order, True) only the first time, so the receipt email
-    goes out once. Two callers at the same moment conflict and one is retried, then sees it already paid."""
+    goes out once. Two callers at the same moment conflict and one is retried, then sees it already paid.
+    `invoice=False` (a WhatsApp payment before business details are set): a receipt number instead of a tax
+    invoice, and no invoice document for an organization."""
 
     async def run(s):
         payment = Payment.load(await db[PAYMENTS].find_one({"_id": payment_id}, session=s))
@@ -77,11 +87,15 @@ async def mark_paid(
             return order, False
         at = now()
         order.paid_at = at
-        order.invoice_no = await next_invoice_no(db, at, session=s)
+        if invoice:
+            order.invoice_no = await next_invoice_no(db, at, session=s)
+        else:
+            order.receipt_no = await next_receipt_no(db, at, session=s)
         if order.kind == "org":
             order.status = "done"  # the organization's plan turns on in this same transaction
             await activate_paid(db, order, source=source, session=s)
-            await issue_invoice(db, order, at, session=s)  # its tax invoice, under the same number
+            if invoice:
+                await issue_invoice(db, order, at, session=s)  # its tax invoice, under the same number
             await on_org_paid(db, order, at, session=s)  # partner tie (first payment) and commission
         elif order.plan in SELF_SERVE:
             order.status = "done"  # unlocked at once: downloads (diy) or the LinkedIn pack
@@ -111,6 +125,7 @@ async def mark_paid(
                     "status": order.status,
                     "paid_at": at,
                     "invoice_no": order.invoice_no,
+                    "receipt_no": order.receipt_no,
                     "deadline_at": order.deadline_at,
                     "updated_at": at,
                 }

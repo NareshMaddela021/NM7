@@ -26,6 +26,7 @@ from app.core.schemas import CamelModel
 from app.orders.models import ORDER_NO_START, Order, OrderItem
 from app.payments.models import Payment
 from app.payments.razorpay import RazorpayError, get_razorpay
+from app.wapay.settings import payment_mode
 
 log = logging.getLogger("nm7.billing")
 
@@ -200,6 +201,8 @@ async def start_checkout(
     db: AsyncDatabase, o: dict[str, Any], payer: Any, plan_id: str, *, extra_discount_pct: int = 0, **extra
 ) -> dict[str, Any]:
     b = await get_billing(db)
+    if await payment_mode(db) != "razorpay":  # off, or paid through WhatsApp (app/wapay)
+        raise ApiError(503, "payments_unavailable", "Payments aren’t switched on yet.")
     rzp = get_razorpay()  # 503 until keys are set
     _check_mode(rzp.key_id, bool(b["razorpay_live"]))
     q = await quote(db, o, plan_id, extra_discount_pct=extra_discount_pct)

@@ -46,6 +46,7 @@ from app.me.service import ms
 from app.orgs.scope import NOT_FOUND, AdminScope, OrgScope
 from app.orgs.shapes import OrgType
 from app.partners.service import REF_COOKIE, checkout_ref, partner_discount_pct
+from app.wapay.service import create_org_order as wa_create_org_order
 
 public = APIRouter(prefix="/api/public", tags=["billing"])
 me = APIRouter(prefix="/api/me/orgs", tags=["billing"])
@@ -228,7 +229,8 @@ async def billing_page(db: DB, scope: OrgScope) -> dict[str, Any]:
         custom["features"] = {**plans["custom"]["features"], **(c.get("features") or {})}
         buyable.append({**plan_out(custom), "onSale": True})
     pending = await db[ORDERS].find_one(
-        {"org_id": o["_id"], "kind": "org", "status": "pending_payment"}, sort=[("created_at", -1)]
+        {"org_id": o["_id"], "kind": "org", "status": {"$in": ["pending_payment", "awaiting_payment"]}},
+        sort=[("created_at", -1)],
     )
     return {
         "orgId": o["_id"],
@@ -306,6 +308,29 @@ async def checkout(body: CheckoutIn, request: Request, auth: CustomerAuth, db: D
     data = scope.audit_data(plan=body.plan_id, order_id=out["orderId"], amount=out["amount"], ref=extra.get("ref_code"))
     await audit(db, scope.actor_id, "billing_checkout", target=scope.org_id, data=data, ip=client_ip(request))
     return _with_ref(out, r)
+
+
+@portal.post("/whatsapp", status_code=201)
+async def checkout_whatsapp(
+    body: CheckoutIn, request: Request, auth: CustomerAuth, db: DB, scope: OrgScope
+) -> dict[str, Any]:
+    """The same plan, price and discount as checkout, paid on WhatsApp: a pending order and the wa.me link."""
+    scope.require("billing")
+    if scope.role == "admin":
+        raise ApiError(403, "owner_only", "Only the organization’s Owner pays. Nm7 can assign a plan instead.")
+    key = f"org-checkout:{scope.org_id}"
+    await rate_limit.check(db, key, CHECKOUT_RULES)
+    await rate_limit.record(db, key)
+    o = await _org(db, scope.org_id)
+    r = await _ref(db, o, auth.user.id, request, body.ref_code)
+    extra = {"ref_code": r["partner"]["code"], "ref_via": r["via"]} if r else {}
+    q = await quote(db, o, body.plan_id, extra_discount_pct=await partner_discount_pct(db, r))
+    if q["total"] <= 0:
+        raise ApiError(409, "nothing_to_pay", "This plan costs nothing after the discount — ask Nm7 to assign it.")
+    order, out = await wa_create_org_order(db, o, auth.user, q, **extra)
+    data = scope.audit_data(plan=body.plan_id, order_id=order.id, amount=order.amount, via="whatsapp")
+    await audit(db, scope.actor_id, "billing_checkout", target=scope.org_id, data=data, ip=client_ip(request))
+    return _with_ref({**out, "quote": quote_out(q)}, r)
 
 
 # ---------- admin: billing settings ----------

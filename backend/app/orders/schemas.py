@@ -61,6 +61,8 @@ class OrderOut(CamelModel):
     currency: str
     items: list[ItemOut]
     invoice_no: str | None
+    receipt_no: str | None = None  # a WhatsApp payment before business details are set (no GST invoice)
+    method: str | None = None  # "whatsapp" or None (Razorpay)
     payment_method: str | None
     payment_id: str | None
     created_at: datetime
@@ -83,6 +85,8 @@ class OrderOut(CamelModel):
             currency=o.currency,
             items=[ItemOut.model_validate(i) for i in o.items],
             invoice_no=o.invoice_no,
+            receipt_no=o.receipt_no,
+            method=o.method,
             payment_method=paid.method if paid else None,
             payment_id=paid.razorpay_payment_id if paid else None,
             created_at=o.created_at,

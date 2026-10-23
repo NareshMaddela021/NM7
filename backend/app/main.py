@@ -43,6 +43,7 @@ from app.payments.router import router as payments_router
 from app.photos.router import router as photos_router
 from app.profile.router import router as profile_router
 from app.summary.router import router as summary_router
+from app.wapay.router import router as wapay_router
 from app.work.router import router as work_router
 
 # Our own loggers ("nm7.*") speak at INFO - one line per AI call, deploy notes - while libraries stay at WARNING.
@@ -154,6 +155,7 @@ def create_app() -> FastAPI:
     app.include_router(partners.admin)
     app.include_router(home_events.public)
     app.include_router(home_events.admin)
+    app.include_router(wapay_router)  # pay via WhatsApp (before /api/orders/{id})
     app.include_router(orders_router)
     app.include_router(payments_router)
     app.include_router(profile_router)  # before me_router: /api/me/job-profile

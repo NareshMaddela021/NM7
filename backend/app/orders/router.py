@@ -29,6 +29,7 @@ from app.refunds.service import (
     refundable_amount,
     send_to_razorpay,
 )
+from app.wapay.settings import payment_mode
 
 router = APIRouter(prefix="/api/orders", tags=["orders"])
 
@@ -37,6 +38,8 @@ NOT_FOUND = ApiError(404, "not_found", "We couldn’t find that order.")
 
 @router.post("", status_code=201)
 async def create_order(body: CreateOrderIn, auth: CustomerAuth, db: DB) -> CreateOrderOut:
+    if await payment_mode(db) != "razorpay":  # off, or paid through WhatsApp (POST /api/orders/whatsapp)
+        raise ApiError(503, "payments_unavailable", "Payments aren’t switched on yet.")
     rzp = get_razorpay()  # 503 until keys are set
     user = auth.user
     order = await build_order(db, user, body.plan_id, body.role, body.addons)
@@ -122,7 +125,8 @@ async def request_refund(
         raise ApiError(409, "cannot_cancel", "An expert has already started. Choose another reason instead.")
 
     payment = await captured_payment(db, order)
-    auto = body.reason in ("late", "cancel")
+    # paid on WhatsApp: always reviewed, and the admin sends the money back by UPI / bank (app/wapay)
+    auto = body.reason in ("late", "cancel") and order.method != "whatsapp"
     rzp = get_razorpay() if auto else None  # 503 before anything is saved
     refund = await new_refund(
         db,
