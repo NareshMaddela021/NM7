@@ -33,7 +33,7 @@ const f = (key, label, type = 'text', extra = {}) => ({ key, label, type, ...ext
 export const LISTS = {
   exp: { item: 'Experience', blank: { company: '', role: '', employmentType: '', from: '', to: '', current: false, description: '', links: [] }, fields: [
     f('company', 'Company *', 'text', { ph: 'Google India' }), f('role', 'Job title *', 'text', { ph: 'Data Analyst Intern' }),
-    f('employmentType', 'Employment type', 'select', { options: EMP, full: true }), f('from', 'From', 'month'), f('to', 'To', 'month', { disabledBy: 'current' }),
+    f('employmentType', 'Employment type', 'select', { options: EMP }), f('location', 'Location (optional)', 'text', { ph: 'Hybrid - Hyderabad' }), f('from', 'From', 'month'), f('to', 'To', 'month', { disabledBy: 'current' }),
     f('current', 'I currently work here', 'check', { full: true }),
     f('description', 'Responsibilities & achievements', 'area', { full: true, rich: true, ai: 'exp', ph: '• What you did — and what changed because of it' }),
   ] },
@@ -41,7 +41,7 @@ export const LISTS = {
     f('institution', 'Institution *', 'text', { full: true, ph: 'IIT Madras / Anna University / school name' }), f('degree', 'Degree *', 'text', { ph: 'B.Tech / MBA / Class 12' }), f('field', 'Field of study / board', 'text', { ph: 'Computer Science / CBSE' }),
     f('from', 'Start', 'month'), f('to', 'End (or expected graduation)', 'month'),
     f('current', 'I’m currently studying here', 'check', { full: true }),
-    f('grade', 'Grade / CGPA / %', 'text', { full: true, ph: '8.5 CGPA / 85%' }),
+    f('grade', 'Grade / CGPA / %', 'text', { ph: '8.5 CGPA / 85%' }), f('location', 'City (optional)', 'text', { ph: 'Hyderabad' }),
   ] },
   proj: { item: 'Project', blank: { title: '', tagline: '', type: '', status: '', from: '', to: '', ongoing: false, description: '', tech: '', links: [] }, fields: [
     f('title', 'Project title *', 'text', { full: true }), f('tagline', 'One-line tagline', 'text', { full: true }),

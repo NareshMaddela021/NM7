@@ -4,10 +4,10 @@
 
 /** Unicode blocks → { file: Noto Sans family file prefix }. Order does not matter. */
 export const SCRIPTS = {
-  devanagari: { from: 0x0900, to: 0x097f, file: 'NotoSansDevanagari', label: 'Hindi / Marathi' },
+  devanagari: { from: 0x0900, to: 0x097f, file: 'NotoSansDevanagari', serifFile: 'NotoSerifDevanagari', label: 'Hindi / Marathi' },
   bengali: { from: 0x0980, to: 0x09ff, file: 'NotoSansBengali', label: 'Bengali' },
   tamil: { from: 0x0b80, to: 0x0bff, file: 'NotoSansTamil', label: 'Tamil' },
-  telugu: { from: 0x0c00, to: 0x0c7f, file: 'NotoSansTelugu', label: 'Telugu' },
+  telugu: { from: 0x0c00, to: 0x0c7f, file: 'NotoSansTelugu', serifFile: 'NotoSerifTelugu', label: 'Telugu' },
   kannada: { from: 0x0c80, to: 0x0cff, file: 'NotoSansKannada', label: 'Kannada' },
   malayalam: { from: 0x0d00, to: 0x0d7f, file: 'NotoSansMalayalam', label: 'Malayalam' },
 };
@@ -70,10 +70,12 @@ const WEIGHTS = ['Regular', 'Bold'];
 const cache = {}; // script → promise of { normal, bold } (Uint8Array)
 
 /** Where a font file lives: next to the app (dist/fonts/…), so the CSP's connect-src 'self' allows it. */
-export const fontUrl = (script, weight) => `${import.meta.env.BASE_URL || '/'}fonts/${SCRIPTS[script].file}-${weight}.ttf`;
+// serif: the Noto Serif face where there is one (Telugu, Devanagari — the Academic template), else Noto Sans
+const fileOf = (script, serif) => (serif && SCRIPTS[script].serifFile) || SCRIPTS[script].file;
+export const fontUrl = (script, weight, serif = false) => `${import.meta.env.BASE_URL || '/'}fonts/${fileOf(script, serif)}-${weight}.ttf`;
 
-async function fetchFont(script, weight) {
-  const r = await fetch(fontUrl(script, weight));
+async function fetchFont(script, weight, serif) {
+  const r = await fetch(fontUrl(script, weight, serif));
   if (!r.ok) throw new Error(`font ${script} ${weight}: ${r.status}`);
   return new Uint8Array(await r.arrayBuffer());
 }
@@ -83,14 +85,15 @@ async function fetchFont(script, weight) {
  * { [script]: { normal, bold } }; a script whose files cannot be fetched is left out (its text then falls back to
  * the template font, as before), so a download never fails because of a font.
  */
-export async function loadScriptFonts(scripts) {
+export async function loadScriptFonts(scripts, { serif = false } = {}) {
   const out = {};
   await Promise.all(scripts.filter((k) => SCRIPTS[k]).map(async (k) => {
-    if (!cache[k]) {
-      cache[k] = Promise.all(WEIGHTS.map((w) => fetchFont(k, w))).then(([normal, bold]) => ({ normal, bold }))
-        .catch((e) => { delete cache[k]; throw e; });
+    const c = fileOf(k, serif);
+    if (!cache[c]) {
+      cache[c] = Promise.all(WEIGHTS.map((w) => fetchFont(k, w, serif))).then(([normal, bold]) => ({ normal, bold }))
+        .catch((e) => { delete cache[c]; throw e; });
     }
-    try { out[k] = await cache[k]; } catch { /* left out */ }
+    try { out[k] = await cache[c]; } catch { /* left out */ }
   }));
   return out;
 }

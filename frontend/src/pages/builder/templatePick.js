@@ -8,7 +8,7 @@ export const layoutOf = (k) => SECTION_LAYOUTS[TEMPLATE_PRESETS[k]?.sections || 
 export const PHOTO_PLACEHOLDER = `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="#D9DCE1"/><circle cx="32" cy="25" r="11" fill="#A9AFB8"/><path d="M10 60c2-12 11-18 22-18s20 6 22 18z" fill="#A9AFB8"/></svg>')}`;
 
 /** "Freshers" / "Experienced" / "Any level". */
-export const audienceOf = (t) => (t?.level === 'fresher' ? 'Freshers' : t?.level === 'experienced' ? 'Experienced' : 'Any level');
+export const audienceOf = (t) => (t?.audience ? t.audience : t?.level === 'fresher' ? 'Freshers' : t?.level === 'experienced' ? 'Experienced' : 'Any level');
 
 /** What the selected-template bar and the under-card button say. */
 export function selectionText(t, { ats, two } = {}) {

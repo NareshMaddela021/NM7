@@ -51,10 +51,10 @@ describe('Sample resume | My details', () => {
     expect(hasOwnDetails(mine)).toBe(true);
   });
 
-  it('a template changes only the look: every section switch, order, title, photo and all content stay (all 18)', () => {
+  it('a template changes only the look: every section switch, order, title, photo and all content stay (all 19)', () => {
     const before = JSON.stringify(mine);
     const keys = Object.keys(TEMPLATE_PRESETS);
-    expect(keys).toHaveLength(18);
+    expect(keys).toHaveLength(19);
     for (const k of keys) {
       const shown = withTemplate(mine, k);
       expect(shown.data).toBe(mine); // not a copy with other switches: the same resume

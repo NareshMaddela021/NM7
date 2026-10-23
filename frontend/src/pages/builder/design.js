@@ -10,6 +10,8 @@ export const FONTS = {
   'source-serif-4': { label: 'Source Serif', kind: 'Serif', css: "'Source Serif 4', Georgia, serif" },
   lora: { label: 'Lora', kind: 'Serif', css: "'Lora', Georgia, serif" },
   merriweather: { label: 'Merriweather', kind: 'Serif', css: "'Merriweather', Georgia, serif" },
+  // LaTeX's Computer Modern (OFL, served from our own origin); Telugu, Hindi and ₹ fall back to the Noto Serif fonts
+  'cmu-serif': { label: 'CMU Serif (LaTeX)', kind: 'Serif', css: "'CMU Serif', 'Noto Serif Telugu', 'Noto Serif Devanagari', 'Latin Modern Roman', Georgia, serif" },
 };
 
 export const ACCENTS = ['#111827', '#1F3A8A', '#2E46D8', '#0F766E', '#0E7A52', '#7C2D12', '#9F1239', '#6D28D9', '#9A4508', '#334155'];
@@ -55,6 +57,11 @@ export const DEFAULT_DESIGN = {
   photoBorder: 'none', // none | thin | thick
   photoBorderColor: 'accent', // accent | grey
   printLinks: false, // also print the web address under entries that have a clickable word (paper copies)
+  // Academic template (LaTeX look): 'academic' = each entry on two lines (bold name · place, italic role · dates)
+  // with the bullets indented under it; the contact line phone | email | links | city
+  entryStyle: 'standard',
+  contactSep: '·',
+  contactOrder: 'standard',
 };
 
 // Template tags drive the filters on the template screen.
@@ -80,6 +87,7 @@ export const TEMPLATE_PRESETS = {
   twocol: { name: 'Two Column Light', level: 'experienced', ind: ['tech', 'creative'], desc: 'Pale side panel for skills, languages and certificates. Prints cleanly.', design: { ...D, font: 'source-sans-3', layout: 'two', sideTint: true, accent: '#1F3A8A', headingStyle: 'caps', accentOn: on({ name: true }) } },
   sidebar: { name: 'Sidebar', level: 'experienced', ind: ['tech'], desc: 'Two columns: skills, languages and certificates on the side.', design: { ...D, font: 'ibm-plex-sans', layout: 'two', accent: '#0F766E', headingStyle: 'caps', accentOn: on({ name: true }) } },
   care: { name: 'Care', level: 'all', ind: ['care'], sections: 'care', desc: 'Licences and certifications near the top. Nurses, pharmacists, teachers.', design: { ...D, font: 'open-sans', accent: '#0E7A52', headingStyle: 'rule' } },
+  academic: { name: 'Academic', level: 'all', audience: 'Experienced + Freshers', ind: ['tech', 'mgmt', 'govt'], desc: 'The LaTeX look recruiters know (like Jake’s resume): Computer Modern serif, centred name, thin rules under headings, two-line entries. Tight, aims for one page.', design: { ...D, logoColor: 'mono', font: 'cmu-serif', accent: '#111111', textColor: '#111111', headingStyle: 'underline', headerAlign: 'center', headerStyle: 'none', icons: false, contactSep: '|', contactOrder: 'phone-first', entryStyle: 'academic', nameSize: 24, headSize: 11, bodySize: 10.5, lineHeight: 1.2, sectionGap: 9, itemGap: 5, margin: 'narrow', marginPt: 36, accentOn: on({ headings: true, lines: true }) } },
   portrait: { name: 'Portrait', level: 'all', ind: ['creative', 'care', 'sales'], sections: 'portrait', photo: true, desc: 'Photo beside your name. For aviation, hospitality, media and front-office roles.', design: { ...D, font: 'lato', accent: '#9F1239', headerStyle: 'band', headerAlign: 'left', accentOn: on({ name: true }) } },
 };
 

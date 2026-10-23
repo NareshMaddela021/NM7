@@ -159,6 +159,31 @@ at once. A bullet that is more than about 30% bold gets a tip: "Bold a few key w
   the compare view, the LinkedIn text and the org CSV. "Shorten" / "Make ATS-friendly" / the sample rewrite keep bold
   on the words that survive and drop it otherwise.
 
+### Academic template (LaTeX look)
+
+A 19th template, "Academic", in the style of LaTeX resumes (like Jake's resume): CMU Serif (Computer Modern, OFL,
+served from our own origin), the name large and centred, phone | email | links | city on one line, uppercase
+headings with a thin full-width rule, and each entry on two lines: Company (bold) · location on the right, then
+Role (Employment type) · dates in italic; education and projects follow the same pattern (institution · city, degree
+· dates; project name + links · dates, then the tech line). Empty parts are left out, so there is never a "()" or a
+stray dash. Small round bullets sit indented under each entry; 10.5 pt, narrow margins, aims for one page.
+
+- Look-only like every template; ATS-safe (real text, no layout tables, clickable links). Bold words work here too.
+- Experience and education have a new optional Location / City field (printed by the other templates too, only when
+  filled, so existing resumes look the same).
+- Telugu and Hindi print with Noto Serif Telugu / Devanagari (hinted builds, public/fonts/; the rupee sign comes from
+  them too, since CMU Serif has none); other Indian scripts use Noto Sans as before. Word uses Cambria (CMU Serif is
+  not installed on most computers) with the same two-line layout. Font notices: public/fonts/CMU-SERIF-NOTICE.txt.
+
+### A browser draft moves into an account at most once
+
+The resume built in a browser before signing in is added to the account once. Each import is noted in that browser
+(a fingerprint of the text, kept through sign-outs, nothing personal), so the same draft is never added again after a
+reload, a second tab or another sign-in; a draft identical to one of the account's resumes is not added; after one
+import, a later draft in the same browser is only offered ("Is it yours?") unless the person clicked Download on it;
+an empty draft, or one holding only the sample person, is never imported. Admins, experts and coordinators now keep
+their own builder draft, so they never write the guest draft.
+
 ## Summary writer
 
 On the builder's **Summary** step, in **Job Profile → Summary → About me** and in the kiosk builder, anyone can get a

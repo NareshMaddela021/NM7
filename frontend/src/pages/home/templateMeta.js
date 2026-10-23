@@ -19,6 +19,7 @@ export const TEMPLATES = [
   { id: "twocol", name: "Two Column Light", level: "experienced", ind: ["tech", "creative"], photo: false },
   { id: "sidebar", name: "Sidebar", level: "experienced", ind: ["tech"], photo: false },
   { id: "care", name: "Care", level: "all", ind: ["care"], photo: false },
+  { id: "academic", name: "Academic", level: "all", ind: ["tech", "mgmt", "govt"], photo: false },
   { id: "portrait", name: "Portrait", level: "all", ind: ["creative", "care", "sales"], photo: true },
 ];
 export const TEMPLATE_COUNT = TEMPLATES.length;

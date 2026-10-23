@@ -9,7 +9,7 @@ import { atsScore } from './atsScore';
 import { findOrder, updateOrder as updateExpertOrder, addExpertOrder, reloadExpertOrders } from './expertStore';
 import { requestRefund } from '../services/api';
 import { PLANS, ADDONS, PROMISES } from './pricing';
-import { currentUser, draftKey, draftKeyFor, SAMPLE_USER_ID, onSignOut, updateUser } from './auth';
+import { IMPORTED_DRAFTS_KEY, currentUser, draftKey, draftKeyFor, SAMPLE_USER_ID, onSignOut, updateUser } from './auth';
 import { LIVE, http, reportSaveError } from '../services/http';
 import * as live from './meLive';
 import { pendingDownload } from './downloads';
@@ -40,14 +40,42 @@ export const uniqueName = (name, resumes) => {
 /** Live: the resume built in this browser before signing in (not the untouched sample, unless the person clicked
  * Download on it). It moves into the account once: the first resume of a new account, or a new resume next to
  * the ones they already have (never over them). */
-function guestDraft(force = false) {
+function guestDraft() {
   try {
     const s = localStorage.getItem(draftKeyFor(null));
     const d = s && stripSample(completeResume(JSON.parse(s))); // never carry the sample person into an account
-    return d && !isEmptyResume(d) ? d : force ? d : null;
+    return d && !isEmptyResume(d) ? d : null; // an empty draft, or one that only held the sample, is never imported
   } catch { return null; }
 }
 const forgetGuestDraft = () => { try { localStorage.removeItem(draftKeyFor(null)); } catch { /* ignore */ } };
+
+/* A browser draft moves into an account at most once. Each import is noted in this browser (a fingerprint of the
+ * resume's text, kept through sign-outs; nothing personal): the same draft is never imported again (another tab, a
+ * reload, a second sign-in), a draft identical to a resume the account already has is not added, and after one
+ * import any later draft found in this browser is only offered ("Is it yours?"), never added by itself, unless the
+ * person clicked Download on it. */
+const CONTENT_KEYS = ['personal', 'summary', 'exp', 'edu', 'proj', 'certs', 'ach', 'langs', 'custom', 'skillGroups', 'hobbies', 'strengths', 'pinfo', 'links'];
+export function draftFingerprint(d) {
+  const c = completeResume(d || {});
+  const s = JSON.stringify(CONTENT_KEYS.map((k) => c[k] ?? null));
+  let h = 5381;
+  for (let i = 0; i < s.length; i += 1) h = ((h * 33) ^ s.charCodeAt(i)) >>> 0;
+  return `${h.toString(36)}.${s.length.toString(36)}`;
+}
+const importedDrafts = () => { try { return JSON.parse(localStorage.getItem(IMPORTED_DRAFTS_KEY) || '[]'); } catch { return []; } };
+const noteImported = (fp, add = true) => {
+  try {
+    const list = importedDrafts().filter((x) => x !== fp);
+    localStorage.setItem(IMPORTED_DRAFTS_KEY, JSON.stringify(add ? [...list, fp].slice(-20) : list));
+  } catch { /* storage blocked */ }
+};
+/** 'new' | 'seen' (imported from this browser before) | 'exists' (the account already has a resume with this text). */
+function draftStatus(d, resumes) {
+  const fp = draftFingerprint(d);
+  if (importedDrafts().includes(fp)) return 'seen';
+  if ((resumes || []).some((r) => r.data && draftFingerprint(r.data) === fp)) return 'exists';
+  return 'new';
+}
 const norm = (s) => (s || '').trim().toLowerCase().replace(/\s+/g, ' ');
 /** A guest draft is taken as this person's when it has no name, or their own name or email. */
 export function draftLooksMine(draft, account) {
@@ -58,14 +86,23 @@ export function draftLooksMine(draft, account) {
 export async function acceptGuestDraft() {
   const s = get(); const d = s.pendingGuestDraft;
   if (!d || !LIVE) return null;
+  const fp = draftFingerprint(d);
+  const same = (s.resumes || []).find((r) => r.data && draftFingerprint(r.data) === fp);
+  if (same || importedDrafts().includes(fp)) { // already in the account: open it instead of adding a copy
+    forgetGuestDraft(); noteImported(fp);
+    state = { ...get(), pendingGuestDraft: null };
+    notify();
+    return same?.id || activeResume(state)?.id || null;
+  }
   const name = uniqueName(`${d.personal?.name?.trim() || 'My resume'} · from this browser · ${dayLabel()}`, s.resumes);
+  noteImported(fp); // claimed before the request, so another tab or a second load never adds it too
   try {
     const saved = await live.createResume({ id: uid('r'), name, active: true, data: d, jd: '', versions: [] });
     forgetGuestDraft();
     state = { ...get(), resumes: [...get().resumes.map((r) => ({ ...r, active: false })), saved], pendingGuestDraft: null };
     notify();
     return saved.id;
-  } catch (e) { reportSaveError(e); return null; }
+  } catch (e) { noteImported(fp, false); reportSaveError(e); return null; }
 }
 export function discardGuestDraft() {
   forgetGuestDraft();
@@ -155,17 +192,23 @@ async function loadLive(id) {
     const s = await live.fetchState();
     if (stateFor !== id) return;
     const downloading = !!pendingDownload(); // they clicked Download on this draft and signed in to get it
-    const carried = guestDraft(downloading);
+    let carried = guestDraft();
+    const status = carried ? draftStatus(carried, s.resumes) : 'new';
+    if (status !== 'new') { forgetGuestDraft(); carried = null; } // already imported, or already in the account
+    const firstImport = !importedDrafts().length; // after one import in this browser, later drafts are only offered
+    const fp = carried && draftFingerprint(carried);
     // The draft built in this browser before signing in moves into the account only when it is clearly this
     // person's: the one they just asked to download, or a draft without a name or with their own name. On a shared
     // phone the draft may be someone else's, so otherwise it is offered (see pendingGuestDraft) and never added
     // silently — and never over a resume they already have.
-    const mine = carried && (downloading || draftLooksMine(carried, s.account));
+    const mine = carried && (downloading || (firstImport && draftLooksMine(carried, s.account)));
+    if (mine) noteImported(fp); // claimed first: a second tab or a reload that reads the same draft skips it
     let imported = false;
     if (!s.resumes.length) {
       // first visit: start from the resume they built before signing in (if it is theirs), else a blank one
       const r = { id: uid('r'), name: 'My resume', active: true, data: mine ? carried : blankResume(), jd: '', versions: [] };
-      const saved = await live.createResume(r);
+      let saved;
+      try { saved = await live.createResume(r); } catch (e) { if (mine) noteImported(fp, false); throw e; }
       if (stateFor !== id) return;
       s.resumes = [saved];
       if (mine) { forgetGuestDraft(); imported = true; }
@@ -177,7 +220,7 @@ async function loadLive(id) {
         if (stateFor !== id) return;
         s.resumes = [...s.resumes.map((r) => ({ ...r, active: false })), saved];
         forgetGuestDraft(); imported = true;
-      } catch { /* e.g. the resume limit: the draft stays in this browser and is offered below */ }
+      } catch { noteImported(fp, false); /* e.g. the resume limit: the draft stays in this browser and is offered below */ }
     }
     if (carried && !imported) s.pendingGuestDraft = carried; // ask first
     state = s;

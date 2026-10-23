@@ -26,8 +26,9 @@ export const portfolioIcon = (d) => (d.portfolioIcon && d.portfolioIcon !== 'aut
 /** Icon for an extra link. */
 export const extraIcon = (x) => (x.icon && x.icon !== 'auto' ? x.icon : detectBrand(x.url) || 'link');
 
-/** [[line1 items], [line2 items]] — each item { kind (icon key), text, url?, link? } */
-export function contactItems(d, contactLines, styleOverride) {
+/** [[line1 items], [line2 items]] — each item { kind (icon key), text, url?, link? }. order 'phone-first' (Academic):
+ * phone | email | links | city. */
+export function contactItems(d, contactLines, styleOverride, order = 'standard') {
   const personal = d.personal || {};
   const links = d.links || {};
   const linkStyle = styleOverride || d.linkStyle || 'icon';
@@ -43,6 +44,11 @@ export function contactItems(d, contactLines, styleOverride) {
   (d.linkExtras || []).filter((x) => x.url && x.url.trim()).slice(0, MAX_EXTRA_LINKS).forEach((x) => {
     linkItems.push({ kind: extraIcon(x), link: true, url: fullUrl(x.url.trim()), text: x.label?.trim() || show('extra', x.url) });
   });
+  if (order === 'phone-first') {
+    const city = basics.filter((x) => x.kind === 'location');
+    const rest = basics.filter((x) => x.kind !== 'location');
+    return contactLines === 'two' && linkItems.length ? [rest, [...linkItems, ...city]] : [[...rest, ...linkItems, ...city]];
+  }
   return contactLines === 'two' && linkItems.length ? [basics, linkItems] : [[...basics, ...linkItems]];
 }
 
@@ -51,7 +57,7 @@ function Glyph({ kind, color, size }) {
 }
 
 export default function ContactLine({ d, ds, s, align }) {
-  const rows = contactItems(d, ds.contactLines);
+  const rows = contactItems(d, ds.contactLines, undefined, ds.contactOrder);
   const size = (ds.bodySize - 1) * s;
   const monoColor = ds.accentOn.links || ds.accentOn.headings ? ds.accent : '#444';
   const linkColor = ds.accentOn.links ? ds.accent : ds.textColor;
@@ -64,7 +70,7 @@ export default function ContactLine({ d, ds, s, align }) {
           <span style={it.link ? { color: linkColor } : undefined}>{it.text}</span>
         </span>
       ) : (
-        <span key={it.kind} style={{ overflowWrap: 'anywhere', color: it.link ? linkColor : undefined }}>{i > 0 && <span style={{ padding: `0 ${4 * s}px`, color: '#999' }}>·</span>}{it.text}</span>
+        <span key={it.kind} style={{ overflowWrap: 'anywhere', color: it.link ? linkColor : undefined }}>{i > 0 && <span style={{ padding: `0 ${4 * s}px`, color: '#999' }}>{ds.contactSep || '·'}</span>}{it.text}</span>
       )))}
     </span>
   ));
