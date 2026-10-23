@@ -35,7 +35,7 @@ export const LISTS = {
     f('company', 'Company *', 'text', { ph: 'Google India' }), f('role', 'Job title *', 'text', { ph: 'Data Analyst Intern' }),
     f('employmentType', 'Employment type', 'select', { options: EMP, full: true }), f('from', 'From', 'month'), f('to', 'To', 'month', { disabledBy: 'current' }),
     f('current', 'I currently work here', 'check', { full: true }),
-    f('description', 'Responsibilities & achievements', 'area', { full: true, ai: 'exp', ph: '• What you did — and what changed because of it' }),
+    f('description', 'Responsibilities & achievements', 'area', { full: true, rich: true, ai: 'exp', ph: '• What you did — and what changed because of it' }),
   ] },
   edu: { item: 'Education', blank: { institution: '', degree: '', field: '', from: '', to: '', current: false, grade: '' }, fields: [
     f('institution', 'Institution *', 'text', { full: true, ph: 'IIT Madras / Anna University / school name' }), f('degree', 'Degree *', 'text', { ph: 'B.Tech / MBA / Class 12' }), f('field', 'Field of study / board', 'text', { ph: 'Computer Science / CBSE' }),
@@ -48,7 +48,7 @@ export const LISTS = {
     f('from', 'Start', 'month'), f('to', 'End', 'month', { disabledBy: 'ongoing' }), f('ongoing', 'Still working on it', 'check', { full: true }),
     f('type', 'Project type', 'select', { options: ['Personal / Side Project', 'Open Source', 'Freelance / Client Work', 'Startup / Product', 'Academic / Research', 'Hackathon'] }),
     f('status', 'Status', 'select', { options: ['Live / Production', 'In Development', 'Beta', 'Completed', 'On Hold', 'Archived'] }),
-    f('description', 'Description & impact', 'area', { full: true, ai: 'proj', ph: 'What you built, for whom, and the result' }),
+    f('description', 'Description & impact', 'area', { full: true, rich: true, ai: 'proj', ph: 'What you built, for whom, and the result' }),
     f('tech', 'Tech stack', 'text', { full: true, ph: 'React, FastAPI, PostgreSQL (comma-separated)' }),
   ] },
   certs: { item: 'Certification', blank: { name: '', issuer: '', issueDate: '', expiryDate: '', credentialId: '', noExpiry: false, links: [] }, fields: [
@@ -57,12 +57,12 @@ export const LISTS = {
   ] },
   ach: { item: 'Achievement', blank: { title: '', type: '', date: '', issuer: '', description: '', links: [] }, fields: [
     f('title', 'Title *', 'text', { full: true, ph: '1st Place — Smart India Hackathon 2024' }), f('type', 'Type', 'select', { options: ACH }), f('issuer', 'Issuer / organisation'),
-    f('date', 'Date', 'month', { full: true }), f('description', 'Description (optional)', 'area', { full: true, ai: 'ach' }),
+    f('date', 'Date', 'month', { full: true }), f('description', 'Description (optional)', 'area', { full: true, rich: true, ai: 'ach' }),
   ] },
   langs: { item: 'Language', blank: { name: '', level: '' }, fields: [f('name', 'Language', 'text', { ph: 'Tamil, Hindi, English' }), f('level', 'Proficiency', 'select', { options: LANG })] },
   custom: { item: 'Entry', blank: { title: '', subtitle: '', date: '', description: '', links: [] }, fields: [
     f('title', 'Title / role', 'text', { ph: 'e.g. NSS Volunteer' }), f('subtitle', 'Organisation / place'), f('date', 'Dates', 'text', { full: true, ph: 'e.g. Aug 2023 – Present' }),
-    f('description', 'Details', 'area', { full: true, ai: 'custom' }),
+    f('description', 'Details', 'area', { full: true, rich: true, ai: 'custom' }),
   ] },
 };
 
@@ -116,6 +116,8 @@ export const DECL_FIELDS = [
 ];
 export const HOBBY_IDEAS = ['Reading', 'Playing cricket', 'Listening to music', 'Travelling', 'Chess', 'Photography', 'Cooking', 'Drawing', 'Yoga', 'Blogging', 'Volunteering', 'Badminton'];
 export const STRENGTH_IDEAS = ['Quick learner', 'Hard working', 'Team player', 'Good communication skills', 'Positive attitude', 'Adaptable', 'Problem solving', 'Time management', 'Self-motivated', 'Leadership'];
+// the fields that print as running text and can hold **bold** words (lib/bold.js)
+export const RICH_FIELDS = { exp: 'description', proj: 'description', ach: 'description', custom: 'description' };
 /** "a, b" or one per line → ['a', 'b'] */
 /** A typed value, or '' when it is empty or still a sample placeholder like “[College]”. */
 export const real = (v) => { const t = (v ?? '').toString().trim(); return !t || /\[[^\]]*\]/.test(t) ? '' : t; };

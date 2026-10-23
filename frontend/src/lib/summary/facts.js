@@ -2,6 +2,7 @@
 // ("Tell us about yourself", any language, transliteration and misspellings included). The resume wins when the two
 // disagree. Everything the note contributes comes from the word lists in dictionary.json.
 import dictionary from './dictionary.json';
+import { plainResume } from '../bold';
 import { allSkills, real } from '../../pages/builder/schema';
 
 const WORD_NUMBERS = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, ek: 1, do: 2, teen: 3, char: 4, paanch: 5, panch: 5, oka: 1, rendu: 2, moodu: 3, mudu: 3, nalugu: 4, aidu: 5 };
@@ -49,8 +50,9 @@ const clean = (s) => (s || '').toString().replace(/\s+/g, ' ').trim();
 const lc = (s) => clean(s).toLowerCase();
 
 /** From the resume's own sections. Entries switched off, and sections hidden from the resume, are left out. */
-export function factsFromResume(d) {
-  if (!d) return {};
+export function factsFromResume(raw) {
+  if (!raw) return {};
+  const d = plainResume(raw); // bold markers are formatting, not words
   const on = (list, section) => (d.hidden?.[section] ? [] : (list || []).filter((x) => x && !x.off));
   const exp = on(d.exp, 'exp').filter((e) => real(e.company) || real(e.role));
   const edu = on(d.edu, 'edu').filter((e) => real(e.degree) || real(e.institution));

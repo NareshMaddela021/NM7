@@ -381,3 +381,30 @@ async def test_cover_letters_and_the_public_link_never_carry_id_numbers(client, 
     page = (await make_client().get("/api/public/resumes/asha-rao-9")).json()
     text = str(page)
     assert "2345 6789 0123" not in text and "234567890123" not in text and "Analyst." in text
+
+
+async def test_resume_text_keeps_bold_markers_and_drops_other_markup_on_save(client, outbox, db):
+    await signup(client, outbox)
+    data = {
+        **RESUME,
+        "summary": "Analyst who built **Power BI** dashboards <span style='color:red'>fast</span>",
+        "exp": [
+            {"company": "Zoho", "role": "Analyst", "description": "Cut costs by <b>20%</b><br>Built <Button> parts"}
+        ],
+        "proj": [{"title": "Sales", "description": "<p>Used <strong>SQL</strong></p>"}],
+        "custom": [
+            {"id": "c1", "title": "Volunteering", "items": [{"title": "NSS", "description": "<i>Led</i> **12** camps"}]}
+        ],
+        "personal": {**RESUME["personal"], "headline": "Data <b>Analyst</b>"},  # not a rich field: left as typed
+    }
+    r = await client.post("/api/me/resumes", json={"id": "r1", "name": "Main", "data": data})
+    assert r.status_code == 201, r.text
+    saved = r.json()["data"]
+    assert saved["summary"] == "Analyst who built **Power BI** dashboards fast"
+    assert saved["exp"][0]["description"] == "Cut costs by **20%**\nBuilt <Button> parts"
+    assert saved["proj"][0]["description"] == "Used **SQL**"
+    assert saved["custom"][0]["items"][0]["description"] == "Led **12** camps"
+    assert saved["personal"]["headline"] == "Data <b>Analyst</b>"
+    # old resumes (no markup) are saved exactly as sent
+    r = await client.patch("/api/me/resumes/r1", json={"data": RESUME})
+    assert r.json()["data"] == RESUME

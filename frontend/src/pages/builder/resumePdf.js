@@ -8,7 +8,8 @@ import { visibleResume } from './entries';
 import { contactItems } from './ContactLine';
 import { iconColor, iconPng } from './icons';
 import { PAGE, headFontOf, marginOf } from './design';
-import { isNumWord } from './resumeModel';
+import { isNumWord, printable } from './resumeModel';
+import { hasBold, parseBold, stripBold } from '../../lib/bold';
 import { coverParts } from './cover';
 import { shapePhoto } from './PhotoEditor';
 import { loadFont, registerFont } from './pdfFonts';
@@ -24,7 +25,7 @@ const GREY = [90, 90, 90];
  */
 export async function buildResumePdf({ data, design: ds, photo: photoArg, cover, brand = null, stamp = '', engine = null }) {
   // switched-off entries are not printed; emoji are left out (no PDF font here can draw them)
-  const d = withoutEmoji({ ...visibleResume(data), prefs: undefined, photo: undefined }); // job preferences are never printed
+  const d = withoutEmoji({ ...printable(visibleResume(data)), prefs: undefined, photo: undefined }); // job preferences are never printed
   cover = withoutEmoji(cover);
   brand = brand && { ...brand, header: withoutEmoji(brand.header), footer: withoutEmoji(brand.footer) };
   stamp = withoutEmoji(stamp);
@@ -231,26 +232,50 @@ export async function buildResumePdf({ data, design: ds, photo: photoArg, cover,
     if (ds.bullet === 'none') return;
     if (ds.bullet === '▸') { doc.setFillColor(...text); const cy = col.y + bs * 0.55; doc.triangle(col.x + 1, cy - 2.4, col.x + 1, cy + 2.4, col.x + 5, cy, 'F'); } else { set(bs, 'normal', text); doc.text(ds.bullet, col.x, col.y + bs * 0.9); }
   };
-  const richBullet = (col, t) => {
+  // text with bold words: the **bold** pieces, and numbers in templates like Impact; wrapped word by word, where a
+  // word can change weight inside it ("**Power BI**," keeps its comma regular). A paragraph break starts a new row.
+  const richRows = (col, raw, ind, numbers) => {
     const bs = ds.bodySize;
-    const ind = ds.bullet === 'none' ? 0 : 10;
-    const words = t.split(/\s+/).filter(Boolean).map((w) => ({ w, b: isNumWord(w) }));
-    const widthOf = (x) => { set(bs, x.b ? 'bold' : 'normal', text); return doc.getTextWidth(x.w); };
+    const segs = parseBold(raw);
     set(bs, 'normal', text);
     const space = doc.getTextWidth(' ');
-    const rows = [[]];
-    let w = 0;
-    words.forEach((x) => {
-      const ww = widthOf(x);
-      if (rows[rows.length - 1].length && w + space + ww > col.w - ind) { rows.push([]); w = 0; }
-      w += (rows[rows.length - 1].length ? space : 0) + ww;
-      rows[rows.length - 1].push({ ...x, ww });
+    const paras = [[[]]]; // paragraphs → words → [{ t, b }]
+    segs.forEach(({ t, b }) => {
+      t.split(/(\n|[ \t]+)/).forEach((tok) => {
+        if (!tok) return;
+        const words = paras[paras.length - 1];
+        if (tok === '\n') { paras.push([[]]); return; }
+        if (/^[ \t]+$/.test(tok)) { if (words[words.length - 1].length) words.push([]); return; }
+        const parts = numbers && !b ? [{ t: tok, b: isNumWord(tok) }] : [{ t: tok, b }];
+        words[words.length - 1].push(...parts);
+      });
     });
-    rows.forEach((r, i) => {
+    const widthOf = (w) => w.reduce((n, x) => { set(bs, x.b ? 'bold' : 'normal', text); return n + doc.getTextWidth(x.t); }, 0);
+    return paras.map((words) => {
+      const rows = [[]];
+      let w = 0;
+      words.filter((x) => x.length).forEach((x) => {
+        const ww = widthOf(x);
+        if (rows[rows.length - 1].length && w + space + ww > col.w - ind) { rows.push([]); w = 0; }
+        w += (rows[rows.length - 1].length ? space : 0) + ww;
+        rows[rows.length - 1].push({ parts: x, ww });
+      });
+      return rows;
+    }).flat().filter((r, i, all) => r.length || all.length === 1);
+  };
+  const richLine = (col, raw, { bullet = false, numbers = false } = {}) => {
+    const bs = ds.bodySize;
+    const ind = bullet && ds.bullet !== 'none' ? 10 : 0;
+    set(bs, 'normal', text);
+    const space = doc.getTextWidth(' ');
+    richRows(col, raw, ind, numbers).forEach((r, i) => {
       ensure(col, lh(bs));
-      if (i === 0) drawBulletMark(col);
+      if (i === 0 && ind) drawBulletMark(col);
       let x = col.x + ind;
-      r.forEach((x2) => { set(bs, x2.b ? 'bold' : 'normal', text); doc.text(x2.w, x, col.y + bs * 0.9); x += x2.ww + space; });
+      r.forEach((wd) => {
+        wd.parts.forEach((p) => { set(bs, p.b ? 'bold' : 'normal', text); doc.text(p.t, x, col.y + bs * 0.9); x += doc.getTextWidth(p.t); });
+        x += space;
+      });
       col.y += lh(bs);
     });
     return undefined;
@@ -258,10 +283,11 @@ export async function buildResumePdf({ data, design: ds, photo: photoArg, cover,
 
   const line = (col, l) => {
     const bs = ds.bodySize;
-    if (typeof l === 'string') return para(col, l, bs, 'normal', text);
+    if (typeof l === 'string') return hasBold(l) ? richLine(col, l) : para(col, stripBold(l), bs, 'normal', text);
     if (l.bullet) {
-      if (ds.bullet === 'none') return para(col, l.t, bs, 'normal', text);
-      if (ds.boldNumbers) return richBullet(col, l.t);
+      if (ds.bullet === 'none') return hasBold(l.t) ? richLine(col, l.t) : para(col, stripBold(l.t), bs, 'normal', text);
+      if (ds.boldNumbers || hasBold(l.t)) return richLine(col, l.t, { bullet: true, numbers: ds.boldNumbers });
+      l = { ...l, t: stripBold(l.t) }; // a stray ** is never printed
       set(bs, 'normal', text);
       const parts = doc.splitTextToSize(l.t, col.w - 10);
       parts.forEach((p, i) => {

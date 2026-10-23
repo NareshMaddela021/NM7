@@ -6,6 +6,7 @@
 import { ApiError, http, LIVE } from '../../services/http';
 import { currentUser } from '../auth';
 import { gatherFacts } from './facts';
+import { stripBold } from '../bold';
 import { trimTo } from './grammar';
 import { MAX_CHARS, STYLE_LABEL, STYLES, numbersCovered, problems, writeOne } from './write';
 
@@ -39,7 +40,7 @@ export function aiRequest(resume, note = '', mode = 'generate', current = '', hi
     facts: factsForAi(gatherFacts(resume, note, hints)),
     note: note.trim().slice(0, NOTE_MAX),
     mode: MODES.includes(mode) ? mode : 'generate',
-    current: (current || '').trim().slice(0, 1200),
+    current: (stripBold(current) || '').trim().slice(0, 1200), // the AI never sees bold markers
   };
 }
 

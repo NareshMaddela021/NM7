@@ -32,7 +32,7 @@ const START_MODES = {
 };
 const isSampleDraft = (d) => d.personal?.name === INITIAL.personal.name && d.personal?.email === INITIAL.personal.email;
 import ResumePreview from './builder/ResumePreview';
-import { FieldGrid, LinkFields, SchemaField } from './builder/Fields';
+import { FieldGrid, LinkFields, RichArea, SchemaField } from './builder/Fields';
 import DesignPanel from './builder/DesignPanel';
 import Import from './builder/Import';
 import TemplatePicker, { layoutOf, PHOTO_PLACEHOLDER } from './builder/TemplatePicker';
@@ -42,6 +42,7 @@ import { EntryHeader, focusMoved } from './builder/EntryControls';
 import LineEntries from './builder/LineEntries';
 import { hiddenCount, moveItem, removeItem, toggleItem } from './builder/entries';
 import { shorten, atsFriendly } from './builder/aiTools';
+import { carryBold, stripBold } from '../lib/bold';
 import SummaryWriter from './builder/SummaryWriter';
 import ReadySummaries from './builder/ReadySummaries';
 import FromResume from './builder/FromResume';
@@ -496,7 +497,7 @@ export default function Builder({ embedded = null }) {
                 const kind = k.startsWith('c_') ? 'custom' : k;
                 const field = (
                   <SchemaField key={f.key} field={f} idBase={`${k}-${i}`} value={obj[f.key]} disabled={f.disabledBy ? !!obj[f.disabledBy] : false}
-                    error={errorFor(k, obj, f)} onChange={(v) => setItem(k, i, f.key, v)} onAi={(kind) => { const v = kind === 'shorten' ? shorten(obj[f.key]) : kind === 'ats' ? atsFriendly(obj[f.key]) : AI_SAMPLES[f.ai]; withUndo(kind === 'rewrite' ? 'Sample rewrite added (AI in the live app)' : kind === 'shorten' ? 'Bullets shortened' : 'Made ATS-friendly'); setItem(k, i, f.key, v); }} />
+                    error={errorFor(k, obj, f)} onChange={(v) => setItem(k, i, f.key, v)} onAi={(kind) => { const was = obj[f.key] || ''; const plain = stripBold(was); const v = carryBold(was, kind === 'shorten' ? shorten(plain) : kind === 'ats' ? atsFriendly(plain) : AI_SAMPLES[f.ai]); /* bold stays on the words that survive */ withUndo(kind === 'rewrite' ? 'Sample rewrite added (AI in the live app)' : kind === 'shorten' ? 'Bullets shortened' : 'Made ATS-friendly'); setItem(k, i, f.key, v); }} />
                 );
                 // the link + clickable word sits right after the title field
                 const titleIdx = kind === 'exp' ? 1 : 0;
@@ -536,7 +537,7 @@ export default function Builder({ embedded = null }) {
     if (text) setD((p) => (p.summary?.trim() ? p : { ...p, summary: text, summaryFrom: { style: 'role_first', text, basis: summaryBasis(p) } }));
   }, [cur.id]); // eslint-disable-line react-hooks/exhaustive-deps
   const summaryOptions = useMemo(() => (cur.id === 'summary' ? writeSummaries(d, '').options.map((o) => [o.text, o.label]) : []), [cur.id, d]);
-  const sumLen = charCount(d.summary); // characters as people count them, not UTF-16 units (Telugu, Hindi…)
+  const sumLen = charCount(stripBold(d.summary)); // characters as people count them, not UTF-16 units (Telugu, Hindi…)
   const sumNote = lengthNote(sumLen);
 
   // Signed-in customers: "start a new resume" really makes a new one (kept next to the others). An untouched
@@ -770,7 +771,7 @@ export default function Builder({ embedded = null }) {
                 {!embedded && <FromResume d={d} setD={setD} />}
                 <SummaryWriter resume={d} note={d.about || ''} onNote={(v) => setD((p) => ({ ...p, about: v }))} value={d.summary} onUse={(t) => setD((p) => ({ ...p, summary: t }))} />
                 <label htmlFor="sum" className="label">Your summary</label>
-                <textarea id="sum" className="input" rows={5} value={d.summary} onChange={(e) => setD({ ...d, summary: e.target.value })} placeholder="Who you are, your strongest skills, one result with a number, and the role you want." />
+                <RichArea id="sum" rows={5} value={d.summary} onChange={(v) => setD({ ...d, summary: v })} placeholder="Who you are, your strongest skills, one result with a number, and the role you want." label="Summary formatting" />
                 {profile && <ProfileHint value={profile.summaries.find((x) => !x.off && x.text.trim())?.text} current={d.summary} label="summary" onUse={(v) => setD((p) => ({ ...p, summary: v }))} />}
                 <div className="row between xs"><span className="faint" data-testid="summary-chars">{sumLen} chars</span><span className="strong" style={{ color: sumNote.ok ? 'var(--success)' : 'var(--warning)' }}>{sumNote.text}</span></div>
                 {isFresher(d) && <ReadySummaries d={d} onPick={(t, s) => { setD((p) => ({ ...p, summary: t })); toast(`“${s.heading}” is in your summary — edit anything`); const box = document.getElementById('sum'); box?.focus({ preventScroll: true }); box?.scrollIntoView({ block: 'center', behavior: 'smooth' }); }} />}

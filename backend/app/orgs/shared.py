@@ -18,6 +18,7 @@ from app.core.db import DB, EXPORT_JOBS, MEMBERSHIPS, ORG_GROUPS
 from app.core.email import MailerDep, send_batch
 from app.core.errors import ApiError
 from app.core.exports import CSV_BOM, csv_safe
+from app.core.richtext import plain
 from app.core.time import IST, ist_day, now
 from app.orgs import emails
 from app.orgs.branding import brands_for
@@ -258,7 +259,7 @@ def register_shared(router: APIRouter, ScopeDep) -> None:  # noqa: N803 — a de
                 *[r["fields"].get(k, "") for k in defs],
             )
             w.writerow(
-                [safe(x) for x in head]
+                [safe(plain(x)) for x in head]  # never a bold marker in the sheet
                 + [
                     r["completeness"],
                     APPROVAL_TEXT[r["approval"]],

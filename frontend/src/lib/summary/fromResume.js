@@ -6,6 +6,7 @@
 // out: never an empty blank, nothing invented, numbers only as the person typed them. Same quality gate as the
 // summary writer: no I / me / my, no banned clichés, no phone, email, address or ID numbers, at most 400 characters.
 import { real } from '../../pages/builder/schema';
+import { plainResume } from '../bold';
 import { CONTACT_RE } from './facts';
 import { bareRole, joinList, trimTo } from './grammar';
 import { languagesOf, skillsOf } from './library';
@@ -28,8 +29,9 @@ const words = (t) => new Set(String(t || '').toLowerCase().match(/[a-z0-9+#]{2,}
 const fit = (role, target) => { const w = words(target); return [...words(role)].filter((x) => w.has(x)).length; };
 
 /** The facts, in the order the summary uses them. */
-export function resumeFacts(d, { course = false } = {}) {
-  if (!d) return {};
+export function resumeFacts(raw, { course = false } = {}) {
+  if (!raw) return {};
+  const d = plainResume(raw); // bold markers are formatting, not words
   const target = safe(bareRole(real(d.personal?.headline).split(/\s*[·|•,/]\s*/)[0]));
   const level = real(d.personal?.level);
   // the job that matches the target role first (a Data Analyst internship over a volunteer tutor role), then the latest

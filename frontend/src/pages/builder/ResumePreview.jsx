@@ -2,7 +2,8 @@ import { createContext, useContext, useEffect, useLayoutEffect, useRef, useState
 import { ensureFonts } from './fontLoader';
 import { visibleResume } from './entries';
 import ContactLine from './ContactLine';
-import { buildSections, isNumWord } from './resumeModel';
+import { buildSections, isNumWord, printable } from './resumeModel';
+import { parseBold } from '../../lib/bold';
 import { FONTS, PAGE, headFontOf, marginOf, tint } from './design';
 import { coverParts } from './cover';
 
@@ -20,13 +21,16 @@ function Heading({ title, ds, s }) {
   return <h3 style={{ ...base, borderBottom: `${Math.max(1, 0.8 * s)}px solid ${line}`, paddingBottom: 2.5 * s }}>{title}</h3>;
 }
 
+const B = { fontWeight: 700 };
+/** Text with its **bold** words (and, in templates like Impact, numbers) in bold. Text without either is unchanged. */
 function Rich({ t, ds }) {
-  if (!ds.boldNumbers) return t;
-  return t.split(/(\s+)/).map((w, i) => (isNumWord(w) ? <strong key={i} style={{ fontWeight: 700 }}>{w}</strong> : w));
+  const num = (x, k) => (ds.boldNumbers ? x.split(/(\s+)/).map((w, i) => (isNumWord(w) ? <strong key={`${k}.${i}`} style={B}>{w}</strong> : w)) : x);
+  if (!t.includes('**')) return num(t, 0);
+  return parseBold(t).map((p, i) => (p.b ? <strong key={i} style={B}>{p.t}</strong> : num(p.t, i)));
 }
 
 function Line({ l, ds, s }) {
-  if (typeof l === 'string') return <span style={{ overflowWrap: 'anywhere' }}>{l}</span>;
+  if (typeof l === 'string') return <span style={{ overflowWrap: 'anywhere' }}>{l.includes('**') ? <Rich t={l} ds={{ ...ds, boldNumbers: false }} /> : l}</span>;
   if (l.bullet) {
     if (ds.bullet === 'none') return <span style={{ overflowWrap: 'anywhere' }}><Rich t={l.t} ds={ds} /></span>;
     return <span style={{ display: 'grid', gridTemplateColumns: `${9 * s}px minmax(0,1fr)` }}><span aria-hidden="true">{ds.bullet}</span><span style={{ overflowWrap: 'anywhere' }}><Rich t={l.t} ds={ds} /></span></span>;
@@ -131,7 +135,7 @@ function CoverBody({ c, ds, s }) {
 /** hints: the builder's "My resume" view — light grey placeholders ("Your name", "Add your first job") where nothing is
  * typed yet. They are only on screen: downloads never use this component, and empty sections are never printed. */
 export default function ResumePreview({ data, design: ds, photo: photoProp, onPages, cover, loadFonts = true, decorative = false, loading = false, brand = null, stamp = '', hints = false }) {
-  const d = visibleResume(data); // switched-off entries are hidden everywhere the resume is shown
+  const d = printable(visibleResume(data)); // switched-off entries are hidden everywhere the resume is shown; no stray **
   const photo = photoProp === undefined ? data?.photo || null : photoProp; // the photo saved with the resume
   const ref = useRef();
   const [box, setBox] = useState({ w: 595, h: 842 });

@@ -2,7 +2,8 @@
 // preview and PDF. Word gets one column (safest for tracking systems) and Calibri / Cambria, which every
 // Windows and Mac computer has, so the file looks right wherever HR opens it.
 import { zipSync, strToU8 } from 'fflate';
-import { buildSections } from './resumeModel';
+import { buildSections, printable } from './resumeModel';
+import { hasBold, parseBold, stripBold } from '../../lib/bold';
 import { visibleResume } from './entries';
 import { contactItems } from './ContactLine';
 import { iconColor, iconPng } from './icons';
@@ -19,7 +20,7 @@ const b64ToBytes = (dataUrl) => { const bin = atob(dataUrl.split(',')[1]); const
 
 /** photoPng: the photo already cut to its shape (PNG data URL), or null. */
 export async function buildDocx({ data, design: ds, cover, photoPng }) {
-  const d = visibleResume(data); // switched-off entries are not printed
+  const d = printable(visibleResume(data)); // switched-off entries are not printed; ** only where bold prints
   const page = PAGE[ds.pageSize] || PAGE.a4;
   const M = marginOf(ds);
   const contentW = Math.round((page.w - 2 * M) * 20);
@@ -98,11 +99,18 @@ export async function buildDocx({ data, design: ds, cover, photoPng }) {
     if (ds.headingStyle === 'left') p.border = `<w:left w:val="single" w:sz="18" w:space="6" w:color="${lineCol}"/>`;
     out.push(P(run(title.toUpperCase(), o), p));
   };
-  const rich = (t) => (ds.boldNumbers ? t.split(/(\s+)/).map((w) => (w ? run(w, { b: isNum(w) }) : '')).join('') : run(t));
+  const nums = (t) => (ds.boldNumbers ? t.split(/(\s+)/).map((w) => (w ? run(w, { b: isNum(w) }) : '')).join('') : run(t));
+  // **bold** words as bold runs (and numbers in templates like Impact); text without markers is unchanged
+  const rich = (t) => (hasBold(t) ? parseBold(t).map((p) => (p.b ? run(p.t, { b: true }) : nums(p.t))).join('') : nums(stripBold(t)));
   const bullet = ds.bullet === 'none' ? '' : ds.bullet === '▸' ? '›' : ds.bullet;
 
   const line = (l) => {
-    if (typeof l === 'string') return out.push(P(run(l), { after: 1 }));
+    if (typeof l === 'string') {
+      if (!hasBold(l)) return out.push(P(run(stripBold(l)), { after: 1 }));
+      const paras = [[]]; // one Word paragraph per line, each with its bold and regular runs
+      parseBold(l).forEach((p) => p.t.split('\n').forEach((t, i) => { if (i) paras.push([]); if (t) paras[paras.length - 1].push(run(t, { b: p.b })); }));
+      return paras.filter((r) => r.length).forEach((r) => out.push(P(r.join(''), { after: 1 })));
+    }
     if (l.bullet) return out.push(bullet ? P(run(bullet) + tab + rich(l.t), { ind: [300, 220], tabs: [[300, 'left']], after: 1 }) : P(rich(l.t), { after: 1 }));
     if (l.chips) return out.push(P((l.label ? run(`${l.label}: `, { b: true }) : '') + run(l.chips.join(', ')), { after: 1 }));
     if (l.kv) return out.push(P(run(l.kv[0]) + tab + run(`:  ${l.kv[1].replace(/\n/g, ', ')}`), { tabs: [[Math.round(ds.bodySize * 9.5 * 20), 'left']], after: 1 }));
