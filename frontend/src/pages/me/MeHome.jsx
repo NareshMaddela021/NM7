@@ -9,6 +9,7 @@ import { useJobProfile } from '../../lib/profileStore';
 import { profileCompleteness } from '../../lib/jobProfile';
 import { Kpi } from '../admin/AdminUI';
 import { ResumeThumb, downloadResume, countdown, templateName, ago } from './shared';
+import LinkedInCard from './LinkedInCard';
 
 export default function MeHome() {
   const me = useMe();
@@ -101,6 +102,7 @@ export default function MeHome() {
           <div className="row g8">{APP_STAGES.map(([k, l]) => <span key={k} className="badge b-neutral">{l} · {me.apps.filter((a) => a.status === k).length}</span>)}</div>
           {followUps.length > 0 && <div className="well small">⏰ {followUps.length} application{followUps.length > 1 ? 's' : ''} sent over a week ago — time to follow up. <Link to="/me/jobs">See which</Link></div>}
         </section>
+        <LinkedInCard />
         <section className="card stack g12" style={{ flex: '1 1 300px' }} aria-label="Share link">
           <div className="row between"><strong>Share link</strong><Link to="/me/share" className="small">Settings →</Link></div>
           {me.share.on ? <><span className="small mono">nm7.si/r/{me.share.slug}</span><span className="small muted">Viewed <strong>{me.share.views.filter((t) => Date.now() - t < 7 * 864e5).length}</strong> times this week</span></> : <span className="small muted">Off — turn it on to share your resume as a link.</span>}

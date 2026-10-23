@@ -31,6 +31,7 @@ const START_MODES = {
   summary: { stage: 'build', sec: 'summary' },
 };
 const isSampleDraft = (d) => d.personal?.name === INITIAL.personal.name && d.personal?.email === INITIAL.personal.email;
+import LinkedInNudge from './builder/LinkedInNudge';
 import ResumePreview from './builder/ResumePreview';
 import { FieldGrid, LinkFields, RichArea, SchemaField } from './builder/Fields';
 import DesignPanel from './builder/DesignPanel';
@@ -124,7 +125,7 @@ function Start({ onNext, profilePct = null, resume = null, onContinue, customer 
 }
 
 /* ---------- Done ---------- */
-function Done({ name, score, onEdit, onDownload, onCover, pdfBusy }) {
+function Done({ name, score, onEdit, onDownload, onCover, pdfBusy, nudge }) {
   const [jobs, setJobs] = useState([]);
   useEffect(() => { getMatchedJobs().then(setJobs); }, []);
   return (
@@ -139,6 +140,7 @@ function Done({ name, score, onEdit, onDownload, onCover, pdfBusy }) {
           <button type="button" className="btn btn-outline btn-lg" onClick={onCover}>Write a matching cover letter</button>
           <Link to="/" className="btn btn-outline btn-lg">Scan it against a job · free</Link>
           <button type="button" className="btn btn-ghost" onClick={onEdit}>Keep editing</button>
+          <LinkedInNudge show={nudge} />
         </div>
       </div>
       <div className="card stack g12" style={{ flex: '1 1 360px' }}>
@@ -429,6 +431,7 @@ export default function Builder({ embedded = null }) {
   const sampleView = pview === 'sample' && tab !== 'cover';
   const sampleData = useMemo(() => ({ ...INITIAL, ...layoutOf(ds.preset) }), [ds.preset]);
   const noName = !real(d.personal?.name);
+  const [liNudge, setLiNudge] = useState(false); // "Check your LinkedIn for free" after a resume download
   const [fromSample, setFromSample] = useState(false); // "Downloading your resume, not the sample", for a few seconds
   useEffect(() => { if (!fromSample) return undefined; const t = setTimeout(() => setFromSample(false), 6000); return () => clearTimeout(t); }, [fromSample]);
   const downloadMine = (format) => {
@@ -442,6 +445,7 @@ export default function Builder({ embedded = null }) {
       const photoPng = format === 'docx' && d.showPhoto && photo && !cover ? await shapePhoto(photo, ds.photoShape || 'circle') : null;
       await exportFile({ data: d, design: ds, format, cover, photo, photoPng }); // asks the server first (account / plan)
       toast(`${cover ? 'Cover letter' : 'Resume'} ${format === 'docx' ? 'Word file' : 'PDF'} ready`);
+      if (!cover && !embedded) setLiNudge(true);
     } catch (e) {
       if (e instanceof DownloadBlocked) return; // the "create an account" / "unlock downloads" pop-up is open
       if (e?.code !== 'declined') toast(e?.code === 'unavailable' ? 'Downloads aren’t available in this view.' : 'Couldn’t create the PDF. Please try again.');
@@ -641,7 +645,7 @@ export default function Builder({ embedded = null }) {
         </div>
       )}
       {stage === 'templates' && <TemplatePicker d={d} ds={ds} suggest={suggest} photo={photo} onPick={applyTemplate} initialView={changing ? 'mine' : undefined} onNext={() => { setChanging(false); setStage('build'); }} />}
-      {stage === 'done' && <Done name={d.personal.name} score={score} onEdit={() => setStage('build')} onDownload={(f) => download(f, 'resume')} onCover={() => { setTab('cover'); setStage('build'); }} pdfBusy={pdfBusy} />}
+      {stage === 'done' && <Done name={d.personal.name} score={score} onEdit={() => setStage('build')} onDownload={(f) => download(f, 'resume')} onCover={() => { setTab('cover'); setStage('build'); }} pdfBusy={pdfBusy} nudge={liNudge} />}
 
       {stage === 'build' && (
         <main id={embedded ? undefined : 'main'} className={embedded ? 'row g24' : 'container-wide row g24'} style={{ padding: embedded ? '4px 0 32px' : '20px 24px 64px', alignItems: 'flex-start' }}>
@@ -939,6 +943,7 @@ export default function Builder({ embedded = null }) {
               </span>
             </div>
             {noName && <span className="xs muted" data-testid="need-name" style={{ alignSelf: 'flex-end' }}>Add your name to download</span>}
+            <LinkedInNudge show={liNudge} />
             {fromSample && <span role="status" className="small" data-testid="download-note" style={{ alignSelf: 'flex-end', fontWeight: 600 }}>Downloading your resume, not the sample</span>}
             {tab !== 'cover' && hintBox}
             {tab === 'cover' ? <ResumePreview key="cover" data={d} design={ds} photo={photo} cover={d.cover || {}} />

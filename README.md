@@ -346,7 +346,12 @@ Code: `frontend/src/lib/linkedin/` (checks, headlines, guide) and `backend/app/l
   text and the banner.
 - **Data**: the link, the PDF / pasted text and the latest result are kept on the person's account only
   (`linkedin_profiles`, one per person, ID numbers removed before saving), never shared with an organization, and
-  deleted with "Delete my LinkedIn data" (`DELETE /api/me/linkedin`).
+  deleted with "Delete my LinkedIn data" in Profile & settings (`DELETE /api/me/linkedin`). Asking to delete the
+  account deletes the LinkedIn data at once too, and "Download my data" includes it.
+- **My dashboard** has a LinkedIn card: the latest score, the top 3 fixes and Re-check (the saved PDF text or pasted
+  sections come back, no new upload needed), or "Create your LinkedIn" for a new profile.
+- **Builder**: after a resume download, a small "Your resume is ready. Check your LinkedIn for free" prompt
+  (once per browser session; × hides it).
 
 ## Nm7 for Organizations (Phase 1)
 
