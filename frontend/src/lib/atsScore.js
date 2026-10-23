@@ -4,6 +4,7 @@ import { ALL_SKILLS, allSkills } from '../pages/builder/schema';
 import { atsCheck, DEFAULT_DESIGN } from '../pages/builder/design';
 import { visibleResume } from '../pages/builder/entries';
 import { plainResume } from './bold';
+import { coursesOf } from './courses';
 
 const ACTION = /^(built|led|created|improved|reduced|increased|designed|automated|analy[sz]ed|delivered|launched|managed|developed|cut|grew|drove|owned|optimi[sz]ed|implemented|migrated|trained|mentored|negotiated|achieved|won|streamlined|planned|wrote|researched|tested|deployed|scaled|saved|resolved|coordinated|organi[sz]ed|presented|prepared|conducted|established|generated|handled|supported|collaborated|identified|elevated|utili[sz]ed|ran|made)\b/i;
 const EXTRA_TERMS = ['dashboard', 'dashboards', 'kpi', 'stakeholder', 'a/b testing', 'etl', 'data cleaning', 'data visualization', 'reporting', 'forecasting', 'excel', 'pivot', 'vlookup', 'communication', 'presentation', 'agile', 'api', 'rest', 'microservices', 'ci/cd', 'testing', 'unit testing', 'debugging', 'data structures', 'algorithms', 'customer', 'sales', 'operations', 'inventory', 'supply chain', 'recruitment', 'onboarding', 'payroll', 'accounting', 'gst', 'tally', 'figma', 'user research', 'wireframes', 'seo', 'content', 'social media', 'campaigns'];
@@ -13,7 +14,7 @@ export function resumeText(data) {
   const d = plainResume(visibleResume(data)); // bold markers are not words
   const parts = [d.personal?.headline, d.summary, ...allSkills(d.skillGroups || []),
     ...(d.exp || []).flatMap((e) => [e.role, e.company, e.description]), ...(d.proj || []).flatMap((p) => [p.title, p.tagline, p.description, p.tech]),
-    ...(d.edu || []).flatMap((e) => [e.degree, e.field]), ...(d.certs || []).map((c) => c.name), ...(d.ach || []).flatMap((a) => [a.title, a.description]),
+    ...(d.edu || []).flatMap((e) => [e.degree, e.field, ...coursesOf(e)]), ...(d.certs || []).map((c) => c.name), ...(d.ach || []).flatMap((a) => [a.title, a.description]),
     ...(d.custom || []).flatMap((c) => c.items.flatMap((x) => [x.title, x.description]))];
   return parts.filter(Boolean).join(' \n ').toLowerCase();
 }

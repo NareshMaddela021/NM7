@@ -198,6 +198,9 @@ ROW_DATA_FIELDS = (
     "design.preset",
     "edu.institution",
     "edu.degree",
+    "edu.courses",
+    "edu.off",
+    "hidden.edu",
     "skillGroups.value",
     "skills",
     "exp.company",
@@ -215,6 +218,26 @@ ROW_DATA_FIELDS = (
     "exp.from",
     "exp.to",
 )
+
+
+def courses_of(data: dict[str, Any]) -> str:
+    """Education's relevant courses (switched-off entries and a hidden section left out), "A; B; C", no bold marks."""
+    if (data.get("hidden") or {}).get("edu"):
+        return ""
+    out: list[str] = []
+    seen: set[str] = set()
+    for e in data.get("edu") or []:
+        if not isinstance(e, dict) or e.get("off"):
+            continue
+        cs = e.get("courses")
+        for c in cs if isinstance(cs, list) else str(cs or "").split(","):
+            name = " ".join(plain(str(c)).split())
+            if name and name.lower() not in seen:
+                seen.add(name.lower())
+                out.append(name)
+    return "; ".join(out)
+
+
 ROW_PROJECTION = {**dict.fromkeys(ROW_FIELDS, 1), **{f"data.{f}": 1 for f in ROW_DATA_FIELDS}}
 FULL_PROJECTION = {**dict.fromkeys(ROW_FIELDS, 1), "data": 1}
 # Membership filters that live on the membership document itself; they are applied in Mongo so that fewer rows
@@ -301,6 +324,7 @@ async def shared_rows(db: AsyncDatabase, match: dict[str, Any], *, with_data: bo
                 "email": u["email"],
                 "phone": u.get("phone") or personal.get("phone") or "",
                 "headline": str(personal.get("headline") or ""),
+                "courses": courses_of(data),
                 "org_id": o["_id"],
                 "org_name": o["name"],
                 "group_id": g["_id"],

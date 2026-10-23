@@ -184,6 +184,21 @@ shows icons, small and on the text baseline, with the | separators kept). In the
 (no pictures, emoji or icon fonts); each item, icon and text, is one link (tel:, mailto:, https) in the preview, the
 PDF and the Word file, and the text stays real text for tracking systems.
 
+### Relevant courses in Education
+
+Each Education entry (builder and Job Profile) has "Relevant courses (optional)": Enter or a comma makes a chip (a
+pasted comma list works too), × removes, drag (mouse or finger) or Alt+←/→ reorders, duplicates are ignored, at most
+12 courses of 60 characters. Quick-add ideas from the field of study (e.g. Computer Science: Data Structures, DBMS,
+Operating Systems, Computer Networks, OOP, AI/ML) are added only when tapped; B bolds a course. Stored as
+`edu[].courses` (a list of strings; lib/courses.js).
+
+- Printed under the entry, after the grade: bold "Courses:" and the comma list with a hanging indent (italic in
+  Academic), in all 19 templates, the Word file and the organization PDFs; an empty list prints nothing. The label is
+  set in Design › Style details (Courses / Relevant coursework / Coursework).
+- Counted by the ATS score and the job match; "Write it from my resume" may mention up to 2 courses for a fresher
+  without experience; resume, LinkedIn and photo imports fill it from a "Courses / Coursework" line; the organization
+  CSV has one "Courses" column (semicolon-separated, switched-off entries left out).
+
 ### A browser draft moves into an account at most once
 
 The resume built in a browser before signing in is added to the account once. Each import is noted in that browser

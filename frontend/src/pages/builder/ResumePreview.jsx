@@ -35,6 +35,14 @@ function Line({ l, ds, s }) {
     if (ds.bullet === 'none') return <span style={{ overflowWrap: 'anywhere' }}><Rich t={l.t} ds={ds} /></span>;
     return <span style={{ display: 'grid', gridTemplateColumns: `${9 * s}px minmax(0,1fr)` }}><span aria-hidden="true">{ds.bullet}</span><span style={{ overflowWrap: 'anywhere' }}><Rich t={l.t} ds={ds} /></span></span>;
   }
+  if (l.courses) { // bold label, then the list with a hanging indent
+    return (
+      <span style={{ display: 'grid', gridTemplateColumns: 'auto minmax(0,1fr)', columnGap: 4 * s }} data-line="courses">
+        <strong style={B}>{l.courses.label}</strong>
+        <span style={{ overflowWrap: 'anywhere', fontStyle: l.courses.italic ? 'italic' : undefined }}><Rich t={l.courses.text} ds={{ ...ds, boldNumbers: false }} /></span>
+      </span>
+    );
+  }
   if (l.kv) {
     const val = <span style={{ overflowWrap: 'anywhere', whiteSpace: 'pre-line', color: l.url && ds.accentOn.links ? ds.accent : undefined }}>{l.kv[1]}</span>;
     return (

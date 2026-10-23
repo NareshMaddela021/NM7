@@ -62,6 +62,7 @@ export const DEFAULT_DESIGN = {
   entryStyle: 'standard',
   contactSep: '·',
   contactOrder: 'standard',
+  coursesLabel: 'Courses', // the label before Education's relevant courses
 };
 
 // Template tags drive the filters on the template screen.

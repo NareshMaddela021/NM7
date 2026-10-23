@@ -64,3 +64,19 @@ describe('contact links in Word', () => {
     }
   });
 });
+
+describe('relevant courses in Word', () => {
+  it('bold label and the list (italic in Academic), with a hanging indent; none when empty', async () => {
+    const data = { ...structuredClone(INITIAL), hidden: {}, edu: [{ ...INITIAL.edu[0], courses: ['Data Structures', 'DBMS'] }] };
+    const xmlOf = async (design) => strFromU8(unzipSync(new Uint8Array(await (await buildDocx({ data, design, cover: null, photoPng: null })).arrayBuffer()))['word/document.xml']);
+    const acad = await xmlOf({ ...DEFAULT_DESIGN, ...TEMPLATE_PRESETS.academic.design });
+    expect(acad).toMatch(/<w:b\/>(?:(?!<\/w:rPr>).)*<\/w:rPr><w:t xml:space="preserve">Courses: <\/w:t>/);
+    expect(acad).toMatch(/<w:i\/>(?:(?!<\/w:rPr>).)*<\/w:rPr><w:t xml:space="preserve">Data Structures, DBMS<\/w:t>/);
+    expect(acad).toMatch(/w:hanging="\d+"\/>(?:(?!<\/w:p>).)*Courses: /);
+    const plain = await xmlOf(DEFAULT_DESIGN);
+    expect(plain).toContain('Data Structures, DBMS');
+    expect(plain).not.toMatch(/<w:i\/>(?:(?!<\/w:rPr>).)*<\/w:rPr><w:t xml:space="preserve">Data Structures, DBMS/);
+    const none = strFromU8(unzipSync(new Uint8Array(await (await buildDocx({ data: { ...data, edu: [INITIAL.edu[0]] }, design: DEFAULT_DESIGN, cover: null, photoPng: null })).arrayBuffer()))['word/document.xml']);
+    expect(none).not.toContain('Courses:');
+  });
+});

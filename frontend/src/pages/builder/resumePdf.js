@@ -238,7 +238,7 @@ export async function buildResumePdf({ data, design: ds, photo: photoArg, cover,
   };
   // text with bold words: the **bold** pieces, and numbers in templates like Impact; wrapped word by word, where a
   // word can change weight inside it ("**Power BI**," keeps its comma regular). A paragraph break starts a new row.
-  const richRows = (col, raw, ind, numbers) => {
+  const richRows = (col, raw, ind, numbers, base = 'normal') => {
     const bs = ds.bodySize;
     const segs = parseBold(raw);
     set(bs, 'normal', text);
@@ -254,7 +254,7 @@ export async function buildResumePdf({ data, design: ds, photo: photoArg, cover,
         words[words.length - 1].push(...parts);
       });
     });
-    const widthOf = (w) => w.reduce((n, x) => { set(bs, x.b ? 'bold' : 'normal', text); return n + doc.getTextWidth(x.t); }, 0);
+    const widthOf = (w) => w.reduce((n, x) => { set(bs, x.b ? 'bold' : base, text); return n + doc.getTextWidth(x.t); }, 0);
     return paras.map((words) => {
       const rows = [[]];
       let w = 0;
@@ -267,17 +267,17 @@ export async function buildResumePdf({ data, design: ds, photo: photoArg, cover,
       return rows;
     }).flat().filter((r, i, all) => r.length || all.length === 1);
   };
-  const richLine = (col, raw, { bullet = false, numbers = false } = {}) => {
+  const richLine = (col, raw, { bullet = false, numbers = false, base = 'normal' } = {}) => {
     const bs = ds.bodySize;
     const ind = bullet && ds.bullet !== 'none' ? 10 : 0;
     set(bs, 'normal', text);
     const space = doc.getTextWidth(' ');
-    richRows(col, raw, ind, numbers).forEach((r, i) => {
+    richRows(col, raw, ind, numbers, base).forEach((r, i) => {
       ensure(col, lh(bs));
       if (i === 0 && ind) drawBulletMark(col);
       let x = col.x + ind;
       r.forEach((wd) => {
-        wd.parts.forEach((p) => { set(bs, p.b ? 'bold' : 'normal', text); doc.text(p.t, x, col.y + bs * 0.9); x += doc.getTextWidth(p.t); });
+        wd.parts.forEach((p) => { set(bs, p.b ? 'bold' : base, text); doc.text(p.t, x, col.y + bs * 0.9); x += doc.getTextWidth(p.t); });
         x += space;
       });
       col.y += lh(bs);
@@ -303,6 +303,16 @@ export async function buildResumePdf({ data, design: ds, photo: photoArg, cover,
         doc.text(p, col.x + 10, col.y + bs * 0.9);
         col.y += lh(bs);
       });
+      return undefined;
+    }
+    if (l.courses) { // bold "Courses:", then the list wrapping with a hanging indent
+      ensure(col, lh(bs));
+      set(bs, 'bold', text);
+      const lw = doc.getTextWidth(`${l.courses.label} `);
+      doc.text(l.courses.label, col.x, col.y + bs * 0.9);
+      const sub = { ...col, x: col.x + lw, w: col.w - lw };
+      richLine(sub, l.courses.text, { base: l.courses.italic ? 'italic' : 'normal' });
+      col.y = sub.y; col.page = sub.page;
       return undefined;
     }
     if (l.kv) {

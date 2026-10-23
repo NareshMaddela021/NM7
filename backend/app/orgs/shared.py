@@ -60,7 +60,7 @@ from app.orgs.shapes import (
 log = logging.getLogger("nm7.orgs")
 
 CSV_HEAD = ["Name", "Email", "Phone", "Organization", "Group"]
-CSV_TAIL = ["Completeness %", "Approval", "Review", "Last updated", "Printed"]
+CSV_TAIL = ["Courses", "Completeness %", "Approval", "Review", "Last updated", "Printed"]
 APPROVAL_TEXT = {"approved": "Approved", "pending": "Pending", "rejected": "Rejected"}
 REVIEW_TEXT = {"none": "", "needs_changes": "Needs changes", "ready": "Ready"}
 
@@ -261,6 +261,7 @@ def register_shared(router: APIRouter, ScopeDep) -> None:  # noqa: N803 — a de
             w.writerow(
                 [safe(plain(x)) for x in head]  # never a bold marker in the sheet
                 + [
+                    safe(r["courses"]),
                     r["completeness"],
                     APPROVAL_TEXT[r["approval"]],
                     REVIEW_TEXT[r["review_status"]],

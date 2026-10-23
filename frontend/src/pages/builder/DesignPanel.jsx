@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { CONTACT_MODES, contactMode } from './ContactLine';
+import { COURSE_LABELS } from '../../lib/courses';
 import { ensureAllFonts } from './fontLoader';
 import { ACCENTS, BULLETS, FONTS, HEADING_STYLES, MARGINS, PAGE, TEMPLATE_PRESETS, TEXT_COLORS, atsCheck, contrastOnWhite } from './design';
 import { PRINTABLE, sectionLabel, resolveOrder } from './schema';
@@ -162,6 +163,7 @@ export default function DesignPanel({ d, ds, set, setResume, applyPreset, setTit
         <Choice name="bl" label="Bullets" value={ds.bullet} onChange={(v) => set({ bullet: v })} options={BULLETS} />
         <Choice name="df" label="Date format" value={ds.dateFormat} onChange={(v) => set({ dateFormat: v })} options={[['mon', 'Jan 2025'], ['num', '01/2025'], ['year', '2025']]} />
         <Choice name="dp" label="Date position" value={ds.datePos} onChange={(v) => set({ datePos: v })} options={[['right', 'Right side'], ['below', 'Under the title']]} />
+        <Choice name="crs" label="Label for relevant courses (Education)" value={ds.coursesLabel || 'Courses'} onChange={(v) => set({ coursesLabel: v })} options={COURSE_LABELS.map((x) => [x, x])} />
         <Choice name="sk" label="Skills style" value={ds.skillsStyle} onChange={(v) => set({ skillsStyle: v })} options={[['lines', 'One category per line'], ['comma', 'One comma list'], ['chips', 'Chips']]} />
         <Toggle label="Bold the numbers in bullets (20%, ₹2L, 3x) so results stand out" checked={!!ds.boldNumbers} onChange={(v) => set({ boldNumbers: v })} />
         <Toggle label="Also print the full link under projects, certificates and other entries (for paper copies)" checked={!!ds.printLinks} onChange={(v) => set({ printLinks: v })} />

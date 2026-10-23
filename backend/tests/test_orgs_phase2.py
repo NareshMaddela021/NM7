@@ -304,7 +304,8 @@ async def test_pending_and_rejected_members_never_reach_exports(owner, make_clie
             io.StringIO((await owner.post("/api/admin/shared-resumes/export.csv", json={"approval": "all"})).text)
         )
     )
-    assert len(lines) == 3 and all(line[8] == "Approved" for line in lines[1:])
+    col = lines[0].index("Approval")
+    assert len(lines) == 3 and all(line[col] == "Approved" for line in lines[1:])
     # rejected later: dropped from a running job's data too
     await c.post(f"{base}/approval", json={"ids": [ids[0]], "action": "reject"})
     data = (await c.get(f"{base}/exports/{job['job']}/data")).json()

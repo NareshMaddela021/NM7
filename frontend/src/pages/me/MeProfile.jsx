@@ -69,7 +69,7 @@ function EntryList({ p, k }) {
             <div className="entry-body">
               <FieldGrid>
                 {schema.fields.map((fd, fi) => {
-                  const field = <SchemaField key={fd.key} field={fd} idBase={`pf-${k}-${i}`} value={obj[fd.key]} disabled={fd.disabledBy ? !!obj[fd.disabledBy] : false} onChange={(v) => setItem(i, fd.key, v)} />;
+                  const field = <SchemaField key={fd.key} field={fd} idBase={`pf-${k}-${i}`} value={obj[fd.key]} entry={obj} disabled={fd.disabledBy ? !!obj[fd.disabledBy] : false} onChange={(v) => setItem(i, fd.key, v)} />;
                   const titleIdx = kind === 'exp' ? 1 : 0;
                   if (!LINK_SLOTS[kind] || fi !== titleIdx) return field;
                   return [field, <LinkFields key="links" idBase={`pf-${k}-${i}`} links={obj.links} slots={LINK_SLOTS[kind]} words={LINK_WORDS[kind]} max={LINK_WORD_MAX} error={(u) => fieldError('url', u)} onChange={(v) => setItem(i, 'links', v)} />];

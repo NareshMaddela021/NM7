@@ -331,3 +331,43 @@ describe('contact icons follow the resume setting in every template (vector shap
     for (const t of ['saivarsha-portfolio.example.com', 'saivarsha-writes', 'saivarsha-answers', 'saivarsha_tweets', 'saivarsha-kaggle']) expect(contact.filter((l) => l.text.includes(t))).toHaveLength(1);
   });
 });
+
+describe('relevant courses under Education', () => {
+  const SIX = ['Data Structures', 'Operating Systems', 'DBMS', 'Computer Networks', 'OOP', '**AI/ML**'];
+  const withCourses = (courses) => ({ ...structuredClone(INITIAL), hidden: {}, edu: [{ ...INITIAL.edu[0], courses }] });
+  it.each(['academic', 'fresher', 'classic', 'twocol'])('%s: bold "Courses:" then the comma list under the entry', async (k) => {
+    const r = await read(await buildResumePdf({ data: withCourses(SIX), design: design(k), photo: null, cover: null, engine: 'pdflib' }));
+    const label = r.items.find((i) => i.str === 'Courses:');
+    // the main column only (two-column templates have the side column on the same lines)
+    const col = toLines(r.items, { minX: label.x - 1 }).filter((l) => l.y >= label.y - 1 && l.y < label.y + 40).map((l) => l.text).join(' ');
+    expect(col).toMatch(/^Courses: Data Structures, Operating Systems, DBMS, Computer Networks, OOP, AI\/ML/);
+    expect(r.text).not.toContain('**');
+    expect(label.bold).toBe(true);
+    const ds = r.items.find((i) => i.str === 'Data' && Math.abs(i.y - label.y) < 1);
+    expect(ds.italic).toBe(k === 'academic'); // italic in Academic, the template's own style elsewhere
+    expect(r.items.find((i) => i.str === 'AI/ML').bold).toBe(true); // bold works in course names
+    const grade = r.items.find((i) => /CGPA/.test(i.str));
+    expect(label.y).toBeGreaterThan(grade.y); // after the grade line
+  });
+  it('a long list wraps with a hanging indent; an empty list prints no label; the label follows Design', async () => {
+    const long = Array.from({ length: 12 }, (_, i) => `Advanced Course Number ${i + 1}`);
+    const r = await read(await buildResumePdf({ data: withCourses(long), design: design('academic'), photo: null, cover: null, engine: 'pdflib' }));
+    const label = r.items.find((i) => i.str === 'Courses:');
+    const rows = r.lines.filter((l) => l.y >= label.y - 1 && /Advanced|Number|\d/.test(l.text) && l.y < label.y + 60);
+    expect(rows.length).toBeGreaterThan(1);
+    const firstWord = r.items.find((i) => i.str === 'Advanced' && Math.abs(i.y - label.y) < 1);
+    for (const l of rows.slice(1)) expect(l.textX).toBeCloseTo(firstWord.x, 0); // wrapped lines start under the list, not under the label
+    for (const k of ['academic', 'fresher']) {
+      const empty = await read(await buildResumePdf({ data: withCourses([]), design: design(k), photo: null, cover: null }));
+      expect(empty.text).not.toMatch(/Courses:|Coursework/);
+    }
+    const relabelled = await read(await buildResumePdf({ data: withCourses(SIX), design: design('fresher', { coursesLabel: 'Relevant coursework' }), photo: null, cover: null }));
+    expect(relabelled.text).toContain('Relevant coursework: Data Structures');
+  });
+  it('Telugu and Hindi course names print', async () => {
+    const r = await read(await buildResumePdf({ data: withCourses(['తెలుగు సాహిత్యం', 'हिंदी व्याकरण', 'DBMS']), design: design('academic'), photo: null, cover: null }));
+    expect(r.items.map((i) => i.str).join('').normalize('NFC')).toMatch(/సాహిత్యం/);
+    expect(r.text).toContain('DBMS');
+    expect(r.text).not.toMatch(/�/);
+  });
+});

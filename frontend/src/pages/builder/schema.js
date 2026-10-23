@@ -42,6 +42,7 @@ export const LISTS = {
     f('from', 'Start', 'month'), f('to', 'End (or expected graduation)', 'month'),
     f('current', 'I’m currently studying here', 'check', { full: true }),
     f('grade', 'Grade / CGPA / %', 'text', { ph: '8.5 CGPA / 85%' }), f('location', 'City (optional)', 'text', { ph: 'Hyderabad' }),
+    f('courses', 'Relevant courses (optional)', 'courses', { full: true }),
   ] },
   proj: { item: 'Project', blank: { title: '', tagline: '', type: '', status: '', from: '', to: '', ongoing: false, description: '', tech: '', links: [] }, fields: [
     f('title', 'Project title *', 'text', { full: true }), f('tagline', 'One-line tagline', 'text', { full: true }),

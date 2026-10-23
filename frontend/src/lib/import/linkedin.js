@@ -2,6 +2,7 @@
 // left sidebar (Contact, Top Skills, Languages, Certifications, Honors-Awards), right column (name, headline,
 // location, Summary, Experience, Education).
 import { toLines } from './pdfRead';
+import { coursesLine } from '../courses';
 import { findDates, stripDate } from './dates';
 import { cleanUrl, langLevel, linkSlot, PHONE_RE, EMAIL_RE } from './vocab';
 import { emptyResult, groupSkills, splitDegree, noteLongHeadline } from './shared';
@@ -152,6 +153,7 @@ function education(lines) {
   let cur = null;
   lines.forEach((l) => {
     if (l.size >= 11.8) { if (cur) out.push(cur); cur = { institution: l.text.replace(/,\s*$/, ''), _deg: [] }; return; }
+    if (cur && coursesLine(l.text)) { cur._courses = coursesLine(l.text); return; } // "Courses: …"
     cur?._deg.push(l.text);
   });
   if (cur) out.push(cur);
@@ -160,7 +162,7 @@ function education(lines) {
     const d = findDates(txt);
     const rest = stripDate(txt, d).replace(/[·(]\s*$/, '').replace(/\s*·\s*$/, '').trim();
     const { degree, field } = splitDegree(rest);
-    return { institution: c.institution, degree, field, from: d?.from || '', to: d?.to || '', current: !!d?.current, grade: '', _conf: d ? 'ok' : 'check', _why: d ? '' : 'Dates not found.' };
+    return { institution: c.institution, degree, field, from: d?.from || '', to: d?.to || '', current: !!d?.current, grade: '', ...(c._courses ? { courses: c._courses } : {}), _conf: d ? 'ok' : 'check', _why: d ? '' : 'Dates not found.' };
   });
 }
 

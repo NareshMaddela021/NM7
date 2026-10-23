@@ -448,7 +448,7 @@ export function GuidedBuilder({ d, setD, onDone }) {
         {list.map((obj, n) => (
           <div key={n} className="card stack g12" style={{ padding: 18 }}>
             <div className="row between"><strong>{schema.item} {n + 1}</strong><button type="button" className="link-btn small" onClick={() => setList(k, list.filter((_, j) => j !== n))}>Remove</button></div>
-            <FieldGrid>{fields.map((f) => <SchemaField key={f.key} field={{ ...f, ai: undefined }} idBase={`k-${k}-${n}`} value={obj[f.key]} disabled={f.disabledBy ? !!obj[f.disabledBy] : false} onChange={(v) => setList(k, list.map((x, j) => (j === n ? { ...x, [f.key]: v } : x)))} />)}</FieldGrid>
+            <FieldGrid>{fields.map((f) => <SchemaField key={f.key} field={{ ...f, ai: undefined }} idBase={`k-${k}-${n}`} value={obj[f.key]} entry={obj} disabled={f.disabledBy ? !!obj[f.disabledBy] : false} onChange={(v) => setList(k, list.map((x, j) => (j === n ? { ...x, [f.key]: v } : x)))} />)}</FieldGrid>
           </div>
         ))}
         {list.length < max && <button type="button" className="btn btn-outline btn-lg" style={{ borderStyle: 'dashed' }} onClick={() => setList(k, [...list, { ...schema.blank }])}>+ Add {list.length ? 'another' : 'a'} {schema.item.toLowerCase()}</button>}

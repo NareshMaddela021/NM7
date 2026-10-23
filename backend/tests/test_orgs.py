@@ -321,7 +321,8 @@ async def test_csv_contents_safe_and_without_id_numbers(owner, make_client, outb
     assert r.status_code == 200 and r.headers["content-type"] == "text/csv; charset=utf-8"
     assert r.content.startswith(b"\xef\xbb\xbf")  # UTF-8 BOM, so Excel reads every script correctly
     rows = list(csv.reader(io.StringIO(r.content.decode("utf-8-sig"))))
-    head = "Name,Email,Phone,Organization,Group,Roll number,Branch,Completeness %,Approval,Review,Last updated,Printed"
+    head = "Name,Email,Phone,Organization,Group,Roll number,Branch,Courses,Completeness %,Approval,Review,"
+    head += "Last updated,Printed"
     assert rows[0] == head.split(",")
     assert [x[5] for x in rows[1:]] == ["21A01", "21A02", "21A03"]
     assert rows[2][0] == "'=Chitra"  # no spreadsheet formulas
@@ -334,7 +335,7 @@ async def test_csv_contents_safe_and_without_id_numbers(owner, make_client, outb
         "21A03",
         "CSE",
     ]
-    assert rows[3][7:10] == ["100", "Approved", ""] and rows[3][11] == "No"
+    assert rows[3][8:11] == ["100", "Approved", ""] and rows[3][12] == "No"
     assert not any(holds_id_number(cell) for row in rows for cell in row)
     assert "user_id" not in r.text and "membership" not in r.text.lower()
     e = await db[AUDIT_LOG].find_one({"action": "export_csv"})
@@ -563,3 +564,24 @@ async def test_csv_and_list_names_never_carry_bold_markers(owner, make_client, o
     assert "**" not in r.content.decode("utf-8-sig")
     assert list(csv.reader(io.StringIO(r.content.decode("utf-8-sig"))))[1][0] == "Bala K"
     assert "**" not in str((await owner.get("/api/admin/shared-resumes")).json()["rows"])
+
+
+async def test_csv_lists_relevant_courses_in_one_column(owner, make_client, outbox, db):
+    await joined_three(owner, make_client, outbox, db)
+    await db[RESUMES].update_many(
+        {"data.personal.name": "Bala K"},
+        {
+            "$set": {
+                "data.edu": [
+                    {"institution": "JNTU", "degree": "B.Tech", "courses": ["Data Structures", "**DBMS**", "dbms"]},
+                    {"institution": "Old school", "degree": "Class 12", "courses": ["Physics"], "off": True},
+                ]
+            }
+        },
+    )
+    r = await owner.post("/api/admin/shared-resumes/export.csv?sort=roll", json={})
+    rows = list(csv.reader(io.StringIO(r.content.decode("utf-8-sig"))))
+    col = rows[0].index("Courses")
+    bala = next(x for x in rows if x[0] == "Bala K")
+    assert bala[col] == "Data Structures; DBMS"  # no bold marks, no duplicates, switched-off entries left out
+    assert all(x[col] == "" for x in rows[1:] if x[0] != "Bala K")

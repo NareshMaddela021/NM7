@@ -4,6 +4,7 @@ import { DECL_TEXT, PINFO_LABELS, resolveOrder, sectionLabel, splitList, splitSk
 import { fmtDate, fmtDates } from './design';
 import { visibleResume } from './entries';
 import { plainResume } from '../../lib/bold';
+import { coursesOf } from '../../lib/courses';
 
 const fullUrl = (u) => (/^https?:\/\//i.test(u) ? u : `https://${u}`);
 const shortUrl = (u) => u.replace(/^https?:\/\//i, '').replace(/^www\./i, '').replace(/\/+$/, '');
@@ -34,6 +35,7 @@ export function printable(data) {
   const keep = (list, plain) => (Array.isArray(list) ? list.map((x, i) => ({ ...plain[i], description: x?.description })) : plain);
   if (typeof data.summary === 'string') out.summary = data.summary;
   ['exp', 'proj', 'ach'].forEach((k) => { out[k] = keep(data[k], out[k]); });
+  if (Array.isArray(data.edu)) out.edu = data.edu.map((x, i) => ({ ...out.edu[i], courses: x?.courses })); // course names may be bold
   if (Array.isArray(data.custom)) out.custom = data.custom.map((c, i) => ({ ...out.custom[i], items: keep(c.items, out.custom[i].items) }));
   return out;
 }
@@ -69,8 +71,11 @@ export function buildSections(data, ds) {
   by.edu = d.edu.filter((e) => e.institution || e.degree).map((e) => {
     const degree = [e.degree, e.field].map(t).filter(Boolean).join(', ');
     const date = fmtDates(e.from, e.to, e.current, f, true);
+    const courses = coursesOf(e);
     return {
       head: [e.degree, e.field].filter(Boolean).join(', '), date, sub: [e.institution, t(e.location), e.grade].filter(Boolean).join(' · '),
+      // "Courses: A, B, C" under the entry (italic in Academic); nothing at all when empty
+      lines: courses.length ? [{ courses: { label: `${ds.coursesLabel || 'Courses'}:`, text: courses.join(', '), italic: ds.entryStyle === 'academic' } }] : undefined,
       acad: t(e.institution) ? [[t(e.institution), t(e.location)], [[degree, t(e.grade)].filter(Boolean).join(' · '), date]] : [[degree, t(e.location)], [t(e.grade), date]],
     };
   });
