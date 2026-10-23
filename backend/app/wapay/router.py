@@ -2,6 +2,7 @@
 
   GET  /api/public/payment-mode                      mode (off / whatsapp / razorpay) and the reply hours
   POST /api/orders/whatsapp                          a signed-in customer: a pending order + the wa.me link
+  POST /api/orders/{id}/whatsapp-addon               an add-on / upgrade for a paid order: the chat link only
   GET  /api/admin/payment-settings · PUT             Admin → Settings → Payments ("settings" permission)
   GET  /api/admin/whatsapp/orders?status=            Admin → Orders → WhatsApp payments ("payments": Owner, Finance)
   POST /api/admin/whatsapp/orders/{id}/paid          mark paid (method, UTR, amount, date; reason if the amount differs)
@@ -51,6 +52,15 @@ async def whatsapp_order(body: CreateOrderIn, auth: CustomerAuth, db: DB) -> dic
         db, auth.user.id, "whatsapp.ordered", target=order.id, data={"order_id": order.id, "amount": order.amount}
     )
     return out
+
+
+class AddonChatIn(CamelModel):
+    item: str = Field(min_length=1, max_length=40)  # an add-on code, or "upgrade:expert" / "upgrade:launch"
+
+
+@router.post("/api/orders/{order_id}/whatsapp-addon")
+async def whatsapp_addon(order_id: str, body: AddonChatIn, auth: CustomerAuth, db: DB) -> dict[str, Any]:
+    return await service.addon_chat(db, auth.user, order_id, body.item)
 
 
 # ---------- settings ----------

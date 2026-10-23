@@ -40,8 +40,32 @@ export function countdown(deadline) {
   return { late: false, text: mins < 60 ? `${mins} min left` : `${Math.floor(mins / 60)}h ${mins % 60}m left`, hours: mins / 60 };
 }
 
-/** A GST invoice as a PDF (Helvetica — "Rs." because the built-in PDF font has no ₹ sign). */
-export async function invoicePdf({ no, at, name, email, item, amount, payId, method }) {
+/**
+ * A payment receipt for a WhatsApp payment made before Nm7's business details are set: from "Nm7" only, no company
+ * name, no GSTIN and no GST lines (it is not a tax invoice).
+ */
+async function receiptPdf({ no, at, name, email, item, amount, method }) {
+  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+  const rs = (n) => `Rs. ${n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const L = 56; let y = 70;
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(20); doc.text('Payment receipt', L, y);
+  doc.setFontSize(11); doc.text('Nm7', 540, y, { align: 'right' });
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
+  y += 48;
+  [['Receipt no.', no], ['Date', fmtDay(at)], ['Received from', `${name} · ${email}`], ['Payment', method || '—']].forEach(([k, v]) => { doc.setTextColor(110); doc.text(k, L, y); doc.setTextColor(20); doc.text(String(v), L + 90, y); y += 18; });
+  y += 18; doc.setDrawColor(200); doc.line(L, y, 540, y); y += 20;
+  doc.setFont('helvetica', 'bold'); doc.text('Description', L, y); doc.text('Amount', 540, y, { align: 'right' }); doc.setFont('helvetica', 'normal');
+  y += 22; doc.text(item, L, y, { maxWidth: 290 }); doc.text(rs(amount), 540, y, { align: 'right' });
+  y += 30; doc.line(L, y, 540, y); y += 20;
+  doc.setFont('helvetica', 'bold'); doc.text('Total received', 360, y + 4); doc.text(rs(amount), 540, y + 4, { align: 'right' });
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(120);
+  doc.text('This is a payment receipt, not a GST invoice. It is computer-generated and needs no signature.', L, 780);
+  await savePdf(doc.output('blob'), `Receipt_${no.replace(/\//g, '-')}.pdf`);
+}
+
+/** A GST invoice as a PDF (Helvetica — "Rs." because the built-in PDF font has no ₹ sign). `receipt`: a receipt instead. */
+export async function invoicePdf({ no, at, name, email, item, amount, payId, method, receipt }) {
+  if (receipt) return receiptPdf({ no, at, name, email, item, amount, method });
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
   const rs = (n) => `Rs. ${n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const { taxable, gst } = gstSplit(amount);

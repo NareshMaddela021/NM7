@@ -8,6 +8,7 @@ import { useExpertOrders } from '../../lib/expertStore';
 import { PLANS, ADDONS, PROMISES, RESUME_PLANS, inr, upgradePrice } from '../../lib/pricing';
 import { Kpi } from '../admin/AdminUI';
 import { COMING_SOON, buyPack, packStatus } from '../../lib/linkedin/pack';
+import { BUY_WA } from '../../lib/waPay';
 import { MeHead } from './MeLayout';
 import { PayDialog } from './MeOrders';
 import { fmtDay, invoicePdf } from './shared';
@@ -33,7 +34,7 @@ export function MePayments() {
               <td className="small" style={{ color: r.amount < 0 ? 'var(--success)' : undefined }}>{r.amount < 0 ? `+ ${inr(-r.amount)}` : inr(r.amount)}</td>
               <td className="small">{r.method}</td>
               <td>{r.kind === 'refund' ? (r.done ? <span className="badge b-success">Refunded {fmtDay(r.done)}</span> : <span className="badge b-warning">On the way · {PROMISES.refundDays}</span>) : <span className="badge b-neutral">Paid</span>}</td>
-              <td>{r.invoice && <button type="button" className="link-btn small" onClick={() => invoicePdf({ no: r.invoice, at: r.at, item: r.what, amount: r.amount, payId: r.payId, method: r.method, name: getMe().account.name, email: getMe().account.email })}>Invoice</button>}</td>
+              <td>{r.invoice && <button type="button" className="link-btn small" onClick={() => invoicePdf({ no: r.invoice, at: r.at, item: r.what, amount: r.amount, payId: r.payId, method: r.method, receipt: r.receipt, name: getMe().account.name, email: getMe().account.email })}>{r.receipt ? 'Receipt' : 'Invoice'}</button>}</td>
             </tr>
           ))}</tbody></table>
       </div>
@@ -92,7 +93,7 @@ export function MeUpgrade() {
           ))}
         </section>
       )}
-      {pay && <PayDialog title={pay.title} amount={pay.amount} onClose={() => setPay(null)} onPaid={() => { if (pay.kind === 'addon') buyAddon(o.id, pay.id); else upgradeOrder(o.id, pay.id); setPay(null); toast(pay.kind === 'addon' ? `${pay.title} added — your expert is told` : `Upgraded to ${PLANS[pay.id].name}`); }} />}
+      {pay && <PayDialog title={pay.title} amount={pay.amount} orderId={o.id} item={pay.kind === 'addon' ? pay.id : `upgrade:${pay.id}`} onClose={() => setPay(null)} onPaid={() => { if (pay.kind === 'addon') buyAddon(o.id, pay.id); else upgradeOrder(o.id, pay.id); setPay(null); toast(pay.kind === 'addon' ? `${pay.title} added — your expert is told` : `Upgraded to ${PLANS[pay.id].name}`); }} />}
     </>
   );
 }
@@ -106,7 +107,7 @@ function PackCard() {
   if (!st) return null;
   const buy = async () => {
     setBusy(true);
-    try { await buyPack(); toast('LinkedIn pack unlocked'); setSt(await packStatus()); } catch (e) { toast(e.message || 'Payment didn’t go through. You haven’t been charged.'); } finally { setBusy(false); }
+    try { const r = await buyPack(st.mode); if (!r?.whatsapp) { toast('LinkedIn pack unlocked'); setSt(await packStatus()); } } catch (e) { toast(e.message || 'Payment didn’t go through. You haven’t been charged.'); } finally { setBusy(false); }
   };
   return (
     <section className="card row between g12" aria-label="LinkedIn pack" data-testid="up-li-pack" style={{ alignItems: 'center', flexWrap: 'wrap' }}>
@@ -115,7 +116,7 @@ function PackCard() {
         <span className="small muted">Headlines, About in 3 styles, experience, skills, a banner and URL ideas, from your own details. Included in Career Launch.</span>
       </span>
       {st.owned ? <Link to="/linkedin#pack" className="btn btn-ink">Open my LinkedIn pack</Link>
-        : st.onSale ? <button type="button" className="btn btn-ink" onClick={buy} disabled={busy}>{busy ? 'Waiting for your payment…' : `Buy ${inr(st.price)}`}</button>
+        : st.onSale ? <button type="button" className="btn btn-ink" onClick={buy} disabled={busy}>{st.mode === 'whatsapp' ? (busy ? 'Opening WhatsApp…' : BUY_WA) : busy ? 'Waiting for your payment…' : `Buy ${inr(st.price)}`}</button>
           : <span className="btn btn-outline" aria-disabled="true" style={{ opacity: 0.7, cursor: 'not-allowed' }}>{COMING_SOON}</span>}
     </section>
   );

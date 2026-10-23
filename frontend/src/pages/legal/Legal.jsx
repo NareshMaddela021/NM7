@@ -112,6 +112,7 @@ export function RefundPolicy() {
     [`${PLANS.diy.name} (${inr(PLANS.diy.price)})`, [`?? The DIY plan unlocks tools straight away, so it is refunded only if a problem on our side stops you using them and we can’t fix it${L.diyFixTime ? ` within ${L.diyFixTime}` : ''}.`]],
     ['Add-ons and upgrades', [`?? Express delivery (${inr(ADDONS.express.price)}): refunded if your first draft misses the 24-hour promise.`, 'Upgrades and other add-ons follow the same rules as the order they were added to.']],
     ['How and when you get the money', [`Refunds go back to the account or card you paid from, through ${PROMISES.paymentProvider}. They usually reach you in ${PROMISES.refundDays} after approval. You can see the status under Payments & refunds.`]],
+    ['Paid on WhatsApp', ['If you paid by UPI through the Nm7 WhatsApp chat, the refund goes back to the same UPI ID or bank account you paid from, within 5–7 working days after approval.', 'For WhatsApp payments, delivery times are counted from when we confirm your payment.']],
     ['Contact', [`Write to ${L.email} with your order number, or use Help → Raise an issue in your dashboard.`, ...grievance]],
   ]} />;
 }
@@ -119,7 +120,7 @@ export function RefundPolicy() {
 export function DeliveryPolicy() {
   return <Page title="Delivery Policy" intro="Nm7 sells digital services. Nothing is shipped to a physical address." sections={[
     ['How you receive your order', ['Everything is delivered in your dashboard on Nm7, and we notify you by WhatsApp and email. Final resumes can be downloaded as PDF and Word and stay in My resumes.']],
-    ['Timelines', [[`${PLANS.diy.name}: tools unlock immediately after payment.`, `${PLANS.expert.name} and ${PLANS.launch.name}: first draft within ${PROMISES.delivery} of completing the intake questions; revisions usually within 24 hours of your comments.`, `${ADDONS.express.name}: first draft within 24 hours of buying it.`, `Mentor calls (${PLANS.launch.name}): booked at a time you pick from three your expert offers.`]]],
+    ['Timelines', [[`${PLANS.diy.name}: tools unlock immediately after payment.`, `${PLANS.expert.name} and ${PLANS.launch.name}: first draft within ${PROMISES.delivery} of completing the intake questions; revisions usually within 24 hours of your comments.`, `${ADDONS.express.name}: first draft within 24 hours of buying it.`, `Mentor calls (${PLANS.launch.name}): booked at a time you pick from three your expert offers.`, 'Paid by UPI through WhatsApp: every time above is counted from when we confirm your payment.']]],
     ['If we are late', [<>You get a full refund automatically — see our <Link key="r" to="/refund-policy">Refund &amp; Cancellation Policy</Link>.</>]],
     ['Contact', [join(' · ', L.email, L.phone, L.hours)]],
   ]} />;

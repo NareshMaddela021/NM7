@@ -2,6 +2,7 @@ import { Component, Suspense, lazy as reactLazy, useEffect, useRef, useState } f
 import { Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
 import Header from './components/Header';
 import { notePage, onGate } from './lib/downloads';
+import { onPlaced } from './lib/waPay';
 import Home from './pages/Home';
 import { Spinner } from './components/ui';
 import { useAuth, previewSignIn, previewUsers, LIVE } from './lib/auth';
@@ -26,6 +27,13 @@ function DownloadGateHost() {
   const [opened, setOpened] = useState(false);
   useEffect(() => onGate((g) => { if (g) setOpened(true); }), []);
   return opened ? <Suspense fallback={null}><DownloadGate /></Suspense> : null;
+}
+// "Buy on WhatsApp": the order number and the chat link, shown once an order is placed.
+const WaPlaced = lazy(() => import('./components/WaPlaced'));
+function WaPlacedHost() {
+  const [opened, setOpened] = useState(false);
+  useEffect(() => onPlaced((p) => { if (p) setOpened(true); }), []);
+  return opened ? <Suspense fallback={null}><WaPlaced /></Suspense> : null;
 }
 const Checkout = lazy(() => import('./pages/Checkout'));
 const Intake = lazy(() => import('./pages/Intake'));
@@ -280,6 +288,7 @@ export default function App() {
       <RouteFocus />
       <PreviewBar />
       <DownloadGateHost />
+      <WaPlacedHost />
       <ServerWaking />
       <Pages>
       <Suspense fallback={<Fallback />}>

@@ -27,11 +27,11 @@ from app.core.errors import ApiError
 from app.core.pii import scrub_id_numbers
 from app.core.schemas import CamelModel
 from app.core.time import now
-from app.downloads.router import payments_on
 from app.linkedin import pack_rules, pack_writer
 from app.linkedin.pack import pack_status
 from app.photos.scrub import looks_like_id
 from app.site import get_site
+from app.wapay.settings import payment_mode
 
 router = APIRouter(prefix="/api/me/linkedin/pack", tags=["linkedin"])
 log = logging.getLogger("nm7.linkedin")
@@ -45,6 +45,7 @@ class PackStatusOut(CamelModel):
     payments_on: bool
     on_sale: bool  # payments on and the plan active in Admin > Settings & prices
     price: float  # rupees
+    mode: Literal["off", "whatsapp", "razorpay"] = "off"  # how it is bought: Buy on WhatsApp or Razorpay's checkout
 
 
 def _ms(dt: datetime | None) -> int | None:
@@ -54,7 +55,8 @@ def _ms(dt: datetime | None) -> int | None:
 @router.get("/status")
 async def status(auth: MaybeAuth, db: DB) -> PackStatusOut:
     plan = (await get_site(db))["plans"]["linkedin_pack"]
-    on = await payments_on(db)
+    mode = await payment_mode(db)
+    on = mode != "off"
     st = await pack_status(db, auth.user.id) if auth and auth.user.role == "customer" else None
     return PackStatusOut(
         owned=st is not None,
@@ -64,6 +66,7 @@ async def status(auth: MaybeAuth, db: DB) -> PackStatusOut:
         payments_on=on,
         on_sale=on and plan["active"],
         price=plan["amount"] / 100,
+        mode=mode,
     )
 
 

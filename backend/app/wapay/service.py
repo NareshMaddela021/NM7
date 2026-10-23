@@ -100,6 +100,32 @@ def checkout_out(order: Order, p: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+async def addon_chat(db: AsyncDatabase, user: User, order_id: str, item: str) -> dict[str, Any]:
+    """An add-on or an upgrade for a paid order the customer owns: the chat link only (Nm7 adds it after payment,
+    as before). Only the item, the price and the order number go in the message."""
+    p = await _whatsapp_on(db)
+    order = await get_order(db, order_id)
+    if order.customer_id != user.id or order.kind == "org" or not order.paid_at or order.status == "refunded":
+        raise ApiError(404, "not_found", "Order not found.")
+    site = await get_site(db)
+    if item.startswith("upgrade:"):
+        to = item.split(":", 1)[1]
+        plans = site["plans"]
+        if to not in ("expert", "launch") or to == order.plan or not plans.get(to, {}).get("active"):
+            raise ApiError(400, "bad_item", "That upgrade isn’t available.")
+        name, amount = f"Upgrade to {plans[to]['name']}", plans[to]["amount"] - plans[order.plan]["amount"]
+    else:
+        a = site["addons"].get(item)
+        if not a or not a.get("active"):
+            raise ApiError(400, "bad_item", "That add-on isn’t available.")
+        name, amount = a["name"], a["amount"]
+    if amount <= 0:
+        raise ApiError(400, "bad_item", "That upgrade isn’t available.")
+    text = f"Hi Nm7, I want to add {name} (Rs {rupees(amount)}) to order {order.id}."
+    return {"orderId": order.id, "item": name, "amount": amount, "message": text,
+            "waUrl": wa_url(p["whatsapp_number"], text), "replyHours": p["reply_hours"]}  # fmt: skip
+
+
 async def create_customer_order(db: AsyncDatabase, user: User, plan: str, role: str | None, addons: list[str]):
     p = await _whatsapp_on(db)
     await _limit_open(db, user.id)
