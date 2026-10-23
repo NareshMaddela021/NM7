@@ -314,8 +314,10 @@ async def _refund_in_review(db: AsyncDatabase, refund_id: str) -> tuple[Refund, 
 async def approve_refund(
     refund_id: str, body: ApproveIn, request: Request, db: DB, mailer: MailerDep, auth: AdminAuth("refunds")
 ) -> AdminRefundOut:
-    rzp = get_razorpay()
     before, order, user = await _refund_in_review(db, refund_id)
+    if order.method == "whatsapp":
+        raise ApiError(409, "whatsapp_order", "Paid on WhatsApp: refund it from Orders → WhatsApp payments.")
+    rzp = get_razorpay()
     remaining = await refundable_amount(db, order)  # the order total less earlier refunds
     amount = body.amount or min(before.amount, remaining)
     if amount > remaining:

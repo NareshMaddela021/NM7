@@ -231,6 +231,7 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel("razorpay_order_id", unique=True, partialFilterExpression=_str("razorpay_order_id")),
         IndexModel("razorpay_payment_id", unique=True, partialFilterExpression=_str("razorpay_payment_id")),
         IndexModel("razorpay_link_id", unique=True, partialFilterExpression=_str("razorpay_link_id")),
+        IndexModel("reference", unique=True, partialFilterExpression=_str("reference")),  # UTR of a WhatsApp payment
         IndexModel("order_id"),
         IndexModel([("status", ASCENDING), ("created_at", DESCENDING)]),
     ],

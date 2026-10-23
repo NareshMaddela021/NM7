@@ -54,7 +54,7 @@ def _ms(dt: datetime | None) -> int | None:
 @router.get("/status")
 async def status(auth: MaybeAuth, db: DB) -> PackStatusOut:
     plan = (await get_site(db))["plans"]["linkedin_pack"]
-    on = payments_on()
+    on = await payments_on(db)
     st = await pack_status(db, auth.user.id) if auth and auth.user.role == "customer" else None
     return PackStatusOut(
         owned=st is not None,

@@ -21,7 +21,8 @@ class Payment(Doc):
     amount: int  # paise
     currency: str = "INR"
     status: str  # created / captured / failed / refunded
-    method: str | None = None  # upi / card / netbanking / wallet …
+    method: str | None = None  # upi / card / netbanking / wallet … (WhatsApp payments: upi / bank / cash)
+    reference: str | None = None  # a WhatsApp payment's UTR / reference, upper case, no spaces; unique
     error: str | None = None
     raw: dict[str, Any] = Field(default_factory=dict)
     created_at: datetime = Field(default_factory=now)
