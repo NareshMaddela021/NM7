@@ -36,7 +36,7 @@ UNUSABLE = "unusable:"  # `note(..., "unusable:<reason>")`: why the configured m
 PERSON_MESSAGE = {
     "photos": "You can read photos 5 times a day. Please try again tomorrow, or type your details in the builder.",
     "summary": "You can write with AI 10 times a day. Here are quick suggestions instead.",
-    "linkedin": "You can write LinkedIn headlines with AI 10 times a day. Here are quick suggestions instead.",
+    "linkedin": "You can use AI for LinkedIn 10 times a day. Here are quick suggestions instead.",
 }
 KIOSK_MESSAGE = "This kiosk has used today's AI limit. Please type your details instead."
 
