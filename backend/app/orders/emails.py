@@ -13,10 +13,12 @@ def _inr(paise: int) -> str:
 def payment_receipt(to: str, name: str, order: Order) -> Email:
     plan = PLANS[order.plan][0]
     lines = [f"{i.name}: {_inr(i.amount)}" for i in order.items]
-    next_step = (
-        "Your expert will be assigned shortly. Answer the 4 quick questions in your dashboard so they can start."
-        if order.plan != "diy"
-        else "Your exports are unlocked in the builder."
+    next_step = {
+        "diy": "Your exports are unlocked in the builder.",
+        "linkedin_pack": "Your LinkedIn pack is unlocked: open nm7.si/linkedin to see it.",
+    }.get(
+        order.plan,
+        "Your expert will be assigned shortly. Answer the 4 quick questions in your dashboard so they can start.",
     )
     text = (
         f"Hi {name},\n\nThanks for your payment. Order {order.id} — {plan}.\n\n"

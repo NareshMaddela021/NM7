@@ -11,8 +11,9 @@ from app.billing.invoices import issue_invoice
 from app.billing.subscription import activate_paid
 from app.core.db import ORDERS, PAYMENTS, REFUNDS, Session, next_number, transaction
 from app.core.time import financial_year, now
+from app.linkedin.pack import on_order_paid as pack_paid
 from app.orders.models import ORDER_NO_START, Order, OrderItem
-from app.orders.pricing import CURRENCY, price
+from app.orders.pricing import CURRENCY, SELF_SERVE, price
 from app.orders.schemas import OrderOut
 from app.partners.service import on_org_paid
 from app.payments.models import Payment
@@ -82,8 +83,8 @@ async def mark_paid(
             await activate_paid(db, order, source=source, session=s)
             await issue_invoice(db, order, at, session=s)  # its tax invoice, under the same number
             await on_org_paid(db, order, at, session=s)  # partner tie (first payment) and commission
-        elif order.plan == "diy":
-            order.status = "done"
+        elif order.plan in SELF_SERVE:
+            order.status = "done"  # unlocked at once: downloads (diy) or the LinkedIn pack
         else:
             order.status = "offer"  # paid; finding an expert
             express = any(i.code == "express" for i in order.items)
@@ -116,6 +117,7 @@ async def mark_paid(
             },
             session=s,
         )
+        await pack_paid(db, order, at, session=s)  # the LinkedIn pack (its own order, or Career Launch)
         return order, True
 
     order, first = await transaction(run)

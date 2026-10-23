@@ -6,7 +6,11 @@ export const PLANS = {
   diy: { id: 'diy', name: 'Fix it yourself', price: 99, blurb: 'AI rewrites, ATS-safe templates, PDF & DOCX export' },
   expert: { id: 'expert', name: 'Expert rewrite', price: 999, blurb: 'A verified expert from your field rewrites it' },
   launch: { id: 'launch', name: 'Career Launch', price: 2999, blurb: 'Expert rewrite + LinkedIn makeover, cover letters and a 1:1 mentor call' },
+  // self-serve, unlocked at once (not an expert plan); Career Launch includes it
+  linkedin_pack: { id: 'linkedin_pack', name: 'LinkedIn pack', price: 149, blurb: 'Headline, About, experience, skills, banner and more, written from your own details' },
 };
+/** The resume plans (expert / DIY), without the LinkedIn pack. */
+export const RESUME_PLANS = ['diy', 'expert', 'launch'];
 
 export const PROMISES = {
   delivery: '24–48 hours',

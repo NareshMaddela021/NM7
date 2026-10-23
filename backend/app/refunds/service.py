@@ -13,6 +13,7 @@ from app.audit import audit
 from app.core.db import ORDERS, PAYMENTS, REFUNDS, next_number, transaction
 from app.core.errors import ApiError
 from app.core.time import now
+from app.linkedin.pack import on_order_refunded as pack_refunded
 from app.orders.models import Order
 from app.payments.models import Payment
 from app.payments.razorpay import Razorpay, RazorpayError
@@ -120,6 +121,7 @@ async def send_to_razorpay(
             await db[ORDERS].update_one(
                 {"_id": order.id}, {"$set": {"status": order.status, "updated_at": now()}}, session=s
             )
+            await pack_refunded(db, order, session=s)  # a refunded LinkedIn pack / Career Launch: access goes
         await audit(
             db,
             actor_id,
