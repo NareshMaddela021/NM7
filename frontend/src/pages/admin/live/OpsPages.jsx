@@ -49,7 +49,7 @@ export function LiveDashboard() {
   );
 }
 
-const AI_FEATURES = [['photos', 'Snap photos'], ['summary', 'Summary writer']];
+const AI_FEATURES = [['photos', 'Snap photos'], ['summary', 'Summary writer'], ['linkedin', 'LinkedIn headlines']];
 
 /** AI calls per day (Claude API): counted before each call, failed ones included; the site-wide cap is in code.
  *  Under each day's counts: why the first model's answer was unusable (the fallback did the work) and, for the
@@ -61,7 +61,7 @@ function AiUsage() {
       <section className="card stack g8" aria-label="AI usage">
         <div className="row between g8" style={{ flexWrap: 'wrap' }}>
           <strong>AI usage</strong>
-          <span className="xs muted">Today {u.days[0].total} of {u.cap} AI calls · per person a day: Snap photos {u.perPerson.photos}, summary writer {u.perPerson.summary}</span>
+          <span className="xs muted">Today {u.days[0].total} of {u.cap} AI calls · per person a day: Snap photos {u.perPerson.photos}, summary writer {u.perPerson.summary}, LinkedIn headlines {u.perPerson.linkedin ?? 10}</span>
         </div>
         {u.capReachedToday && <div className="well small" role="status" style={{ color: 'var(--danger)' }}><strong>AI daily cap reached.</strong> AI features are using their free fallback until midnight (India time).</div>}
         <div className="table-wrap">
