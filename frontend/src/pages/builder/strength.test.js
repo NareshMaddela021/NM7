@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { INITIAL, SCORE_WEIGHTS, completeness, strengthOf } from './schema';
 
-const STEPS = ['personal', 'summary', 'exp', 'proj', 'edu', 'skills', 'certs', 'ach', 'langs', 'hobbies', 'strengths', 'pinfo', 'decl', 'prefs', 'links', 'review'];
+const STEPS = ['personal', 'summary', 'exp', 'proj', 'edu', 'skills', 'certs', 'ach', 'langs', 'hobbies', 'strengths', 'pinfo', 'decl', 'links', 'review'];
 
 describe('profile strength matches the ticks', () => {
   it('weights add up to 100 and only scored steps carry one', () => {
@@ -18,9 +18,9 @@ describe('profile strength matches the ticks', () => {
     expect(strengthOf({}, STEPS)).toBe(0);
     // optional steps never change the score
     expect(strengthOf({ ...all, hobbies: false, decl: false }, STEPS)).toBe(100);
-    // a step that isn't shown (prefs in the expert workspace) isn't counted either way
-    const noPrefs = STEPS.filter((s) => s !== 'prefs');
-    expect(strengthOf({ ...all, prefs: false }, noPrefs)).toBe(100);
+    // job preferences were removed: not a step, not scored, and 100% is reachable without them
+    expect('prefs' in SCORE_WEIGHTS).toBe(false);
+    expect(strengthOf({ ...all, prefs: false }, STEPS)).toBe(100);
   });
 
   it('the sample resume: score equals the weights of its ticks; Review ticks only after submit', () => {

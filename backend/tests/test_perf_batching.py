@@ -217,9 +217,8 @@ async def test_work_list_equals_one_view_per_order(client, outbox, make_client, 
     assert [w["id"] for w in mine] == sorted(orders[:2], reverse=True) or len(mine) == 2
     assert mine[-1]["original"] == {
         "personal": {"name": "Sai"},
-        "prefs": {},
         "hidden": {"pinfo": True},
-    }  # consent rules still apply
+    }  # consent rules still apply; job preferences never reach the expert
     assert (await client.get("/api/work")).json() == await views(
         db,
         [Order.load(o) for o in await db[ORDERS].find({"_id": {"$in": orders}}).sort("paid_at", -1).to_list(None)],

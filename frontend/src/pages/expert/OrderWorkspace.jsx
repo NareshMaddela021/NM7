@@ -17,7 +17,7 @@ import { PLANS, ADDONS, expertPayout, inr } from '../../lib/pricing';
 import { LIVE, http } from '../../services/http';
 import { entryLabel } from '../../lib/jobProfile';
 
-/** The customer's Job Profile, only when they allowed it (salary / personal details only if they allowed those too). */
+/** The customer's Job Profile, only when they allowed it (personal details only if they allowed those too). */
 function CustomerProfile({ orderId }) {
   const [st, setSt] = useState({ loading: LIVE });
   useEffect(() => {
@@ -29,13 +29,10 @@ function CustomerProfile({ orderId }) {
   if (st.loading) return null;
   if (!st.data) return <span className="xs faint">{st.error && st.error !== 'none' ? st.error : 'The customer hasn’t shared their Job Profile with you.'}</span>;
   const p = st.data;
-  const pr = p.prefs || {};
   const lists = [['Experience', p.exp], ['Internships', p.intern], ['Projects', p.proj], ['Education', p.edu], ['Certifications', p.certs], ['Achievements', p.ach], ['Extracurricular', p.extra]];
   return (
     <div className="well stack g4 small" aria-label="Customer’s Job Profile">
       <strong>Their Job Profile (shared with you)</strong>
-      {(pr.targetRoles || pr.cities) && <span><strong>Wants:</strong> {[pr.targetRoles, pr.cities, pr.level, pr.notice && `notice ${pr.notice}`].filter(Boolean).join(' · ')}</span>}
-      {(pr.salaryMin || pr.salaryMax) && <span><strong>Expected salary:</strong> ₹{pr.salaryMin || '?'}–{pr.salaryMax || '?'} LPA</span>}
       {(p.summaries || []).filter((x) => x.text?.trim()).map((x) => <span key={x.id}><strong>{x.name || 'Summary'}:</strong> {x.text}</span>)}
       {lists.filter(([, l]) => l?.length).map(([t, l]) => <span key={t}><strong>{t}:</strong> {l.map(entryLabel).join(' · ')}</span>)}
       {(p.skillGroups || []).some((g) => g.value) && <span><strong>Skills:</strong> {p.skillGroups.map((g) => g.value).filter(Boolean).join(', ')}</span>}

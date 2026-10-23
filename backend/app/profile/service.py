@@ -1,18 +1,17 @@
-"""The Job Profile: one master career record per customer (same sections as a resume, plus private job preferences).
-Resumes are copies made from it. Salary and personal information are private: never on a share link and only
-shown to the customer's expert when the customer switches that on."""
+"""The Job Profile: one master career record per customer (same sections as a resume). Personal information is
+private: never on a share link and only shown to the customer's expert when the customer switches that on.
+
+Job preferences (target roles, cities, notice period, salary) were removed in October 2026. Old values stay stored,
+unused, until they are cleared after a dry run; nobody else ever sees them (experts included)."""
 
 from typing import Any
 
-PRIVATE_PREFS = ("salaryMin", "salaryMax", "salary")
-
 
 def strip_private(data: dict[str, Any], *, salary: bool = False, personal: bool = False) -> dict[str, Any]:
-    """A copy without the salary range (unless `salary`) and personal information (unless `personal`)."""
+    """A copy without job preferences (always: they were removed, salary included; `salary` is no longer used) and
+    without personal information (unless `personal`)."""
     out = dict(data or {})
-    prefs = out.get("prefs")
-    if isinstance(prefs, dict) and not salary:
-        out["prefs"] = {k: v for k, v in prefs.items() if k not in PRIVATE_PREFS}
+    out.pop("prefs", None)
     if not personal:
         out.pop("pinfo", None)
     return out

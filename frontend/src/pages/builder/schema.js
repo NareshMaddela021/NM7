@@ -8,10 +8,6 @@ const EMP = ['Full-time', 'Part-time', 'Contract', 'Internship', 'Freelance'];
 const CERT_ISSUERS = ['AWS', 'Google', 'Microsoft', 'Meta', 'Coursera', 'Udemy', 'NPTEL', 'IIT', 'LinkedIn Learning', 'HackerRank', 'Other'];
 const ACH = ['Hackathon', 'Award / Recognition', 'Publication / Paper', 'Patent', 'Open Source Contribution', 'Rank / Leaderboard', 'Scholarship', 'Other'];
 const LANG = ['Native', 'Fluent', 'Professional', 'Basic'];
-export const JOB_TYPES = ['Full-time', 'Part-time', 'Contract', 'Freelance', 'Internship', 'Remote'];
-export const SALARY = ['Under ₹5 LPA', '₹5–10 LPA', '₹10–20 LPA', '₹20–35 LPA', '₹35–50 LPA', '₹50+ LPA'];
-export const NOTICE = ['Immediately', '15 days', '1 month', '2 months', '3 months'];
-export const INDUSTRIES = ['Technology', 'Finance / Fintech', 'Healthcare', 'E-commerce', 'EdTech', 'SaaS / B2B', 'Gaming', 'Media / Content', 'Government / PSU', 'Consulting', 'Manufacturing', 'Other'];
 export { ALL_SKILLS }; // in skillNames.js, so the home page's line fixer can use it without the whole schema
 // Skills are grouped like a real resume. Each group is a comma-separated list the user types.
 export const DEFAULT_SKILL_GROUPS = [
@@ -124,11 +120,6 @@ export const STRENGTH_IDEAS = ['Quick learner', 'Hard working', 'Team player', '
 /** A typed value, or '' when it is empty or still a sample placeholder like “[College]”. */
 export const real = (v) => { const t = (v ?? '').toString().trim(); return !t || /\[[^\]]*\]/.test(t) ? '' : t; };
 export const splitList = (v) => (v || '').split(/\n|,/).map((x) => x.trim().replace(/^[•\-*▸–]\s*/, '')).filter(Boolean);
-export const PREF_FIELDS = [
-  f('jobTypes', 'Preferred job types', 'chips', { options: JOB_TYPES, full: true }), f('salary', 'Expected salary', 'select', { options: SALARY }), f('notice', 'Notice period', 'select', { options: NOTICE }),
-  f('locations', 'Preferred locations', 'text', { full: true, ph: 'Bengaluru, Mumbai, Hyderabad' }), f('remote', 'Open to remote', 'check'), f('relocation', 'Willing to relocate', 'check'),
-  f('industries', 'Industries of interest', 'chips', { options: INDUSTRIES, full: true }),
-];
 export const LINK_FIELDS = [
   f('linkedin', 'LinkedIn · optional', 'url', { full: true, ph: 'linkedin.com/in/yourname' }), f('github', 'GitHub · optional', 'url', { full: true, ph: 'github.com/yourusername' }),
   f('portfolio', 'Portfolio / website · optional', 'url', { full: true, ph: 'yourname.dev' }), f('twitter', 'X / Twitter · optional', 'url', { ph: 'x.com/yourhandle' }),
@@ -150,7 +141,6 @@ export const FIXED_SECTIONS = [
   { id: 'strengths', label: 'Strengths', help: 'Three to five strengths. One per line, or separate with commas. Back them up in your experience and projects if you can.' },
   { id: 'pinfo', label: 'Personal Information', help: 'Common on Indian resumes for government, PSU and many local employers. Private companies and MNCs usually don’t need it — leaving it off also protects your privacy. Blank fields are not printed.' },
   { id: 'decl', label: 'Declaration', help: 'The closing statement with place, date and your name. Leave place and date blank to fill them in by hand after printing.' },
-  { id: 'prefs', label: 'Preferences', help: 'Used to match you with jobs on Nm7. Never printed on your resume.' },
   { id: 'links', label: 'Links', help: 'All links are optional. LinkedIn and GitHub are the two recruiters click most. Choose how they appear on your resume.' },
 ];
 
@@ -188,6 +178,7 @@ export const INITIAL = {
   certs: [{ name: 'Google Data Analytics Certificate', issuer: 'Google', issueDate: '2024-11', expiryDate: '', credentialId: '', noExpiry: true, links: [] }],
   ach: [{ title: '', type: '', date: '', issuer: '', description: '' }],
   langs: [{ name: 'English', level: 'Fluent' }, { name: 'Tamil', level: 'Native' }, { name: 'Hindi', level: 'Professional' }],
+  // legacy: the sample's old job preferences, kept only so sampleData.js recognises them in old saved resumes
   prefs: { jobTypes: ['Full-time', 'Internship'], salary: 'Under ₹5 LPA', notice: 'Immediately', locations: 'Bengaluru, Chennai, Hyderabad', remote: true, relocation: true, industries: ['Technology', 'Finance / Fintech'] },
   links: { linkedin: 'linkedin.com/in/sai-varsha-example', github: 'github.com/sai-varsha-example', portfolio: '', twitter: '', stackoverflow: '', medium: '', resume: '' },
   linkStyle: 'icon', // 'icon' = icon + handle, 'url' = full link
@@ -216,7 +207,6 @@ export const EMPTY = {
   summary: '', exp: [], edu: [],
   skillGroups: DEFAULT_SKILL_GROUPS.map((g) => ({ id: g.id, label: g.label, value: '' })),
   proj: [], certs: [], ach: [], langs: [],
-  prefs: { jobTypes: [], salary: '', notice: '', locations: '', remote: false, relocation: false, industries: [] },
   links: { linkedin: '', github: '', portfolio: '', twitter: '', stackoverflow: '', medium: '', resume: '' },
   linkStyle: 'icon', linkExtras: [], portfolioIcon: 'auto', portfolioLabel: '',
   custom: [], order: null, hidden: { hobbies: true, strengths: true, pinfo: true, decl: true }, showPhoto: false, titles: {},
@@ -242,7 +232,6 @@ export function completeness(d) {
     strengths: splitList(d.strengths).length > 0,
     pinfo: Object.values(d.pinfo || {}).some(Boolean),
     decl: !!d.decl?.text,
-    prefs: d.prefs.jobTypes.length > 0 && !!d.prefs.salary,
     links: Object.values(d.links).some(Boolean) || (d.linkExtras || []).some((x) => x.url),
   };
   d.custom.forEach((c) => { has[c.id] = c.items.some((x) => x.title || x.description); });
@@ -255,7 +244,7 @@ export function completeness(d) {
  * so 100% means every scored step is ticked and each unticked one visibly costs points. Steps without a weight
  * (hobbies, strengths, personal information, declaration, own sections) are optional and marked so.
  */
-export const SCORE_WEIGHTS = { personal: 17, summary: 10, exp: 15, edu: 10, skills: 10, proj: 10, certs: 5, ach: 5, langs: 3, prefs: 7, links: 5, review: 3 };
+export const SCORE_WEIGHTS = { personal: 20, summary: 12, exp: 17, edu: 10, skills: 10, proj: 10, certs: 5, ach: 5, langs: 3, links: 5, review: 3 }; // job preferences removed (Oct 2026): their 7 points moved to personal, summary, experience
 export function strengthOf(has, steps = Object.keys(SCORE_WEIGHTS)) {
   const ids = steps.filter((id) => id in SCORE_WEIGHTS);
   const total = ids.reduce((n, id) => n + SCORE_WEIGHTS[id], 0);

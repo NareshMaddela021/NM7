@@ -1,5 +1,5 @@
 // Job Profile: the customer's master career record. Every resume can start from it, and each builder section
-// can be filled from it. Autosaved to the server. Job preferences (salary etc.) are private.
+// can be filled from it. Autosaved to the server.
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Dialog, Meter, Spinner, useToast } from '../../components/ui';
@@ -9,7 +9,7 @@ import { useMe, activeResume, getMe, setResumeData, blankResume } from '../../li
 import { useJobProfile, setJobProfile, setPrivacy, reloadJobProfile } from '../../lib/profileStore';
 import { EXTRA_TITLE, mergeIntoProfile, newPid, profileCompleteness, profileToResume, resumeToProfileParts } from '../../lib/jobProfile';
 import SummaryWriter from '../builder/SummaryWriter';
-import { DECL_FIELDS, EXP_LEVELS, LINK_SLOTS, LINK_WORDS, LINK_WORD_MAX, LISTS, NOTICE, PINFO_FIELDS, fieldError } from '../builder/schema';
+import { DECL_FIELDS, EXP_LEVELS, LINK_SLOTS, LINK_WORDS, LINK_WORD_MAX, LISTS, PINFO_FIELDS, fieldError } from '../builder/schema';
 import { FieldGrid, LinkFields, SchemaField } from '../builder/Fields';
 import { EntryHeader, focusMoved } from '../builder/EntryControls';
 import LineEntries from '../builder/LineEntries';
@@ -20,18 +20,13 @@ import { MeHead } from './MeLayout';
 const f = (key, label, type = 'text', extra = {}) => ({ key, label, type, ...extra });
 const BASICS = [
   f('name', 'Full name', 'text', { full: true }), f('headline', 'Headline / target role', 'text', { full: true, ph: 'e.g. Data Analyst · SQL · Power BI' }),
-  f('email', 'Email', 'email'), f('phone', 'Phone', 'tel'), f('location', 'City'),
+  f('email', 'Email', 'email'), f('phone', 'Phone', 'tel'), f('location', 'City'), f('level', 'Experience level', 'select', { options: EXP_LEVELS }),
 ];
 const LINKS = [f('linkedin', 'LinkedIn', 'url', { ph: 'linkedin.com/in/you' }), f('github', 'GitHub', 'url', { ph: 'github.com/you' }), f('portfolio', 'Portfolio / website', 'url', { ph: 'yourname.dev' })];
-const PREFS = [
-  f('targetRoles', 'Target roles', 'text', { full: true, ph: 'Data Analyst, Business Analyst' }), f('cities', 'Preferred cities', 'text', { full: true, ph: 'Bengaluru, Pune, Remote' }),
-  f('level', 'Experience level', 'select', { options: EXP_LEVELS }), f('notice', 'Notice period', 'select', { options: NOTICE }),
-  f('salaryMin', 'Expected salary from (₹ LPA)', 'text', { ph: 'e.g. 6' }), f('salaryMax', 'Expected salary to (₹ LPA)', 'text', { ph: 'e.g. 9' }),
-];
 const SECTIONS = [
   ['basics', 'Basics'], ['summary', 'Summary'], ['exp', 'Experience'], ['intern', 'Internships'], ['proj', 'Projects'], ['edu', 'Education'],
   ['certs', 'Certifications'], ['skills', 'Skills'], ['ach', 'Achievements'], ['langs', 'Languages'], ['extra', 'Extracurricular'],
-  ['hobbies', 'Hobbies'], ['strengths', 'Strengths'], ['pinfo', 'Personal information'], ['decl', 'Declaration'], ['prefs', 'Job preferences'], ['privacy', 'Privacy'],
+  ['hobbies', 'Hobbies'], ['strengths', 'Strengths'], ['pinfo', 'Personal information'], ['decl', 'Declaration'], ['privacy', 'Privacy'],
 ];
 const LIST_DEF = {
   exp: { schema: LISTS.exp, item: 'Experience', kind: 'exp' },
@@ -170,7 +165,7 @@ export default function MeProfile() {
     const r = activeResume(getMe());
     if (!r) return;
     const d = r.data;
-    const next = { ...d, personal: { ...d.personal, name: p.personal.name || d.personal.name, email: p.personal.email || d.personal.email, phone: p.personal.phone || d.personal.phone, location: p.personal.location || d.personal.location, headline: d.personal.headline || p.personal.headline, level: p.prefs.level || d.personal.level }, links: { ...d.links, ...Object.fromEntries(Object.entries(p.links).filter(([, v]) => v)) }, prefs: { ...d.prefs, locations: p.prefs.cities || d.prefs?.locations } };
+    const next = { ...d, personal: { ...d.personal, name: p.personal.name || d.personal.name, email: p.personal.email || d.personal.email, phone: p.personal.phone || d.personal.phone, location: p.personal.location || d.personal.location, headline: d.personal.headline || p.personal.headline, level: p.personal.level || d.personal.level }, links: { ...d.links, ...Object.fromEntries(Object.entries(p.links).filter(([, v]) => v)) }, prefs: { ...d.prefs, locations: p.prefs.cities || d.prefs?.locations } };
     setResumeData(r.id, next);
     toast(`Filled your contact details into “${r.name}”`);
   };
@@ -240,10 +235,8 @@ export default function MeProfile() {
       <Section id="strengths" title="Strengths"><LineEntries d={p} setD={setJobProfile} k="strengths" item="Strength" ideas={STRENGTH_IDEAS} placeholder="e.g. Team player" /></Section>
       <Section id="pinfo" title="Personal information" badge="Private" sub="Only used on resumes where you switch on “Personal Information”. Never sent to experts unless you allow it below."><ObjFields k="pinfo" fields={PINFO_FIELDS} p={p} /></Section>
       <Section id="decl" title="Declaration"><ObjFields k="decl" fields={DECL_FIELDS} p={p} /></Section>
-      <Section id="prefs" title="Job preferences" badge="Private" sub="For job matching only — never printed on a resume, never on your share link."><ObjFields k="prefs" fields={PREFS} p={p} /></Section>
       <Section id="privacy" title="Privacy" sub="Experts only see what you allow here.">
-        <label className="row g8 small"><input type="checkbox" role="switch" checked={pr.privacy.experts} onChange={(e) => setPrivacy({ experts: e.target.checked, ...(e.target.checked ? {} : { salary: false, personal: false }) })} />Let my expert see my Job Profile while they work on my order</label>
-        <label className="row g8 small" style={{ paddingLeft: 24, opacity: pr.privacy.experts ? 1 : 0.5 }}><input type="checkbox" role="switch" disabled={!pr.privacy.experts} checked={pr.privacy.salary} onChange={(e) => setPrivacy({ salary: e.target.checked })} />…including my expected salary</label>
+        <label className="row g8 small"><input type="checkbox" role="switch" checked={pr.privacy.experts} onChange={(e) => setPrivacy({ experts: e.target.checked, ...(e.target.checked ? {} : { personal: false }) })} />Let my expert see my Job Profile while they work on my order</label>
         <label className="row g8 small" style={{ paddingLeft: 24, opacity: pr.privacy.experts ? 1 : 0.5 }}><input type="checkbox" role="switch" disabled={!pr.privacy.experts} checked={pr.privacy.personal} onChange={(e) => setPrivacy({ personal: e.target.checked })} />…including my personal information</label>
       </Section>
     </>

@@ -38,10 +38,13 @@ describe('Job Profile', () => {
     expect(profileCompleteness(full())).toEqual({ pct: 100, missing: [] });
     const c = profileCompleteness(emptyProfile(user));
     expect(c.missing).toContain('Phone');
-    expect(c.missing).toContain('Job preferences');
+    expect(c.missing).not.toContain('Job preferences'); // removed: a profile reaches 100% without them
+    const { prefs, ...noPrefs } = full();
+    expect(prefs).toBeTruthy();
+    expect(profileCompleteness(normalizeProfile(noPrefs, user)).pct).toBe(100);
   });
 
-  it('a new resume from the profile copies every section, never the salary', () => {
+  it('a new resume from the profile copies every section, and no job preferences', () => {
     const p = full();
     const d = profileToResume(p, INITIAL);
     expect(d.personal).toMatchObject({ name: 'Asha K', headline: 'Data Analyst', phone: '98765 43210', location: 'Chennai', level: 'Fresher (0–1 yr)' });
@@ -60,8 +63,9 @@ describe('Job Profile', () => {
     expect(d.hidden.strengths).toBe(true);
     expect(d.pinfo.father).toBe('K. Raman');
     expect(d.links.linkedin).toBe('linkedin.com/in/asha');
-    expect(d.prefs.locations).toBe('Chennai, Bengaluru');
-    expect(JSON.stringify(d)).not.toMatch(/salaryMin|salaryMax/);
+    expect(d.prefs).toEqual(INITIAL.prefs); // nothing of the profile's old job preferences is copied in
+    expect(profileToResume(p).prefs).toBeUndefined(); // and a new resume has none
+    expect(JSON.stringify(d)).not.toMatch(/salaryMin|salaryMax|30 days|Chennai, Bengaluru/);
     expect(d.proj[0].pu).toBeUndefined();
     expect(JSON.stringify(d.fromProfile)).not.toContain('98765'); // fingerprints, not the values
   });

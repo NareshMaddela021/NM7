@@ -1,6 +1,5 @@
 // Puts reviewed import results into the builder draft — either replacing it or adding to it.
 import { emptyResume, splitSkills } from '../../pages/builder/schema';
-import { stripSample } from '../sampleData';
 
 const LIST_KEYS = ['exp', 'edu', 'proj', 'certs', 'ach', 'langs'];
 const strip = (o) => { const { _conf, _why, _on, _open, ...rest } = o; return rest; };
@@ -14,9 +13,9 @@ const KEY = {
   langs: (l) => low(l.name),
 };
 
-/** An empty profile that keeps the user's design and job preferences. */
+/** An empty profile that keeps the user's design. */
 function blankFrom(d) {
-  return { ...emptyResume(), prefs: stripSample(d).prefs || emptyResume().prefs, design: d.design, linkStyle: d.linkStyle || 'icon' };
+  return { ...emptyResume(), design: d.design, linkStyle: d.linkStyle || 'icon' };
 }
 
 /**
