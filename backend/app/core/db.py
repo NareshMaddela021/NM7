@@ -70,6 +70,7 @@ PARTNERS = "partners"  # referral partners (applications and approved partners)
 COMMISSIONS = "commissions"  # partner commission ledger: earned (+) and reversed (−) entries
 PARTNER_PAYOUTS = "partner_payouts"
 LINKEDIN = "linkedin_profiles"  # LinkedIn services: the link, PDF / pasted text and the latest check, per user (_id)
+LINKEDIN_PACKS = "linkedin_packs"  # who owns the LinkedIn pack (_id = user id): the paying order or an admin grant
 HOME_EVENTS = "home_events"  # home page tap counters, per day (no personal data)
 COLLECTIONS = (
     USERS,
@@ -111,6 +112,7 @@ COLLECTIONS = (
     COMMISSIONS,
     PARTNER_PAYOUTS,
     LINKEDIN,
+    LINKEDIN_PACKS,
     HOME_EVENTS,
 )
 

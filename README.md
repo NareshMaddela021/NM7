@@ -353,6 +353,20 @@ Code: `frontend/src/lib/linkedin/` (checks, headlines, guide) and `backend/app/l
 - **Builder**: after a resume download, a small "Your resume is ready. Check your LinkedIn for free" prompt
   (once per browser session; × hides it).
 
+### LinkedIn pack (Phase 2, Rs 149)
+
+- A self-serve plan `linkedin_pack` (price and on/off in Admin → Settings & prices, like the other plans). Paid →
+  the order is done at once (no expert) with its GST invoice number, like "Fix it yourself". It does not unlock
+  resume downloads. **Career Launch includes it.**
+- Who owns it (`backend/app/linkedin/pack.py`): a paid, not refunded `linkedin_pack` or Career Launch order, or an
+  admin grant. `linkedin_packs` keeps one record per account (order, date, source); it is written when the order
+  is paid and removed by a full refund, and access is always checked against the order itself.
+- **While payments are off** (no Razorpay keys) nothing can be bought (`POST /api/orders` is 503) and the pack shows
+  "Coming soon". To test it, an admin grants it: Admin → Customers → a customer → **Grant LinkedIn pack** (and
+  "Take back"), written to the audit log (`linkedin_pack.granted` / `.revoked`). A paid pack is never taken back
+  there: refund its order instead.
+- `GET /api/me/linkedin/pack/status` → owned, source (order / launch / grant), price, paymentsOn, onSale.
+
 ## Nm7 for Organizations (Phase 1)
 
 Any organization — a college, coaching or training institute, job fair, skill centre, NGO, placement agency or company hiring drive — can get its people to build resumes on nm7.si. The Nm7 super-admin (the **Owner** role, with two-step login) then sees, prints and exports all of them from the admin console.

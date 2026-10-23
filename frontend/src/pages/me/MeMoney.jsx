@@ -5,7 +5,7 @@ import { useFlow } from '../../lib/flow';
 import { useToast } from '../../components/ui';
 import { useMe, payments, orderView, buyAddon, upgradeOrder, getMe } from '../../lib/customerStore';
 import { useExpertOrders } from '../../lib/expertStore';
-import { PLANS, ADDONS, PROMISES, inr, upgradePrice } from '../../lib/pricing';
+import { PLANS, ADDONS, PROMISES, RESUME_PLANS, inr, upgradePrice } from '../../lib/pricing';
 import { Kpi } from '../admin/AdminUI';
 import { MeHead } from './MeLayout';
 import { PayDialog } from './MeOrders';
@@ -62,7 +62,7 @@ export function MeUpgrade() {
     <>
       <MeHead title="Upgrade & add-ons" sub={o ? `For your active order ${o.id}. Pay only the difference.` : 'Add-ons work with an order in progress.'} />
       <div className="row g16" style={{ alignItems: 'stretch' }}>
-        {Object.values(PLANS).map((p) => {
+        {RESUME_PLANS.map((id) => PLANS[id]).map((p) => {
           const mine = o?.plan === p.id;
           const can = o && p.price > PLANS[o.plan].price;
           return (

@@ -7,12 +7,14 @@ PLANS: dict[str, tuple[str, int]] = {
     "diy": ("Fix it yourself", 99_00),
     "expert": ("Expert rewrite", 999_00),
     "launch": ("Career Launch", 2999_00),
+    "linkedin_pack": ("LinkedIn pack", 149_00),  # self-serve, unlocked at once (app/linkedin/pack.py)
 }
 ADDONS: dict[str, tuple[str, int]] = {
     "revision": ("Extra revision round", 199_00),
     "express": ("Express delivery (24h)", 299_00),
     "linkedin": ("LinkedIn makeover", 499_00),
 }
+SELF_SERVE = ("diy", "linkedin_pack")  # paid → done at once, no expert
 DELIVERY_HOURS = 48
 CURRENCY = "INR"
 
@@ -27,7 +29,7 @@ def price(plan: str, addons: list[str], site: dict | None = None) -> list[tuple[
         raise ApiError(400, "unknown_plan", "Pick one of the plans.")
     if len(set(addons)) != len(addons):
         raise ApiError(400, "duplicate_addon", "Each add-on can be added once.")
-    if addons and plan == "diy":
+    if addons and plan in SELF_SERVE:
         raise ApiError(400, "addon_not_allowed", "Add-ons are for expert plans.")
     for a in addons:
         if a not in extras or not extras[a][2]:

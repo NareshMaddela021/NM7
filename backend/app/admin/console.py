@@ -37,6 +37,9 @@ from app.core.exports import CSV_BOM, csv_safe
 from app.core.schemas import CamelModel
 from app.core.time import IST, now
 from app.experts.service import active_order_counts, load_profile, load_profiles, profile_out, set_status
+from app.linkedin.pack import grant as pack_grant
+from app.linkedin.pack import pack_status
+from app.linkedin.pack import revoke as pack_revoke
 from app.me import emails as me_emails
 from app.me.router import ticket_out
 from app.me.service import ms
@@ -199,6 +202,7 @@ async def customer_detail(user_id: str, db: DB, _: AdminAuth("customers")) -> di
         "targetRole": u.target_role,
         "notes": (raw or {}).get("admin_notes", ""),
         "orders": [o.model_dump(by_alias=True, mode="json") for o in await order_views(db, orders)],
+        "linkedinPack": await _pack_out(db, u.id),
         "tickets": [
             ticket_out(t).model_dump(by_alias=True)
             async for t in db[TICKETS].find({"user_id": u.id}).sort("created_at", DESCENDING)
@@ -233,6 +237,34 @@ async def customer_notes(user_id: str, body: NotesIn, request: Request, db: DB, 
     await db[USERS].update_one({"_id": u.id}, {"$set": {"admin_notes": body.notes}})
     await audit(db, auth.user.id, "customer.notes", target=u.id, data={"email": u.email}, ip=_ip(request))
     return {"ok": True}
+
+
+class PackGrantIn(CamelModel):
+    granted: bool
+    note: str = Field("", max_length=500)
+
+
+async def _pack_out(db, user_id: str) -> dict[str, Any] | None:
+    st = await pack_status(db, user_id)
+    return {"source": st["source"], "orderId": st["order_id"], "purchasedAt": ms(st["purchased_at"])} if st else None
+
+
+@router.post("/customers/{user_id}/linkedin-pack")
+async def grant_linkedin_pack(
+    user_id: str, body: PackGrantIn, request: Request, db: DB, auth: AdminAuth("customers")
+) -> dict[str, Any]:
+    """Grant (or take back) the LinkedIn pack by hand, e.g. to test it before payments are on. A paid pack is
+    never taken back here: refund its order instead."""
+    u = await _customer(db, user_id)
+    if body.granted:
+        if not await pack_grant(db, u.id, auth.user.id, body.note.strip()):
+            raise ApiError(409, "already_paid", "This customer already bought the LinkedIn pack.")
+        action = "linkedin_pack.granted"
+    else:
+        await pack_revoke(db, u.id)
+        action = "linkedin_pack.revoked"
+    await audit(db, auth.user.id, action, target=u.id, data={"email": u.email, "note": body.note}, ip=_ip(request))
+    return {"linkedinPack": await _pack_out(db, u.id)}
 
 
 # ---------- support tickets ----------
@@ -637,7 +669,7 @@ class PriceIn(CamelModel):
 
 
 class SettingsIn(CamelModel):
-    plans: dict[Literal["diy", "expert", "launch"], PriceIn] | None = None
+    plans: dict[Literal["diy", "expert", "launch", "linkedin_pack"], PriceIn] | None = None
     addons: dict[Literal["revision", "express", "linkedin"], PriceIn] | None = None
     delivery_hours: int | None = Field(None, ge=24, le=168)
 

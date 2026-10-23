@@ -24,6 +24,7 @@ from app.billing.subscription import _set_subscription, today_ist
 from app.core.db import INVOICES, ORDERS, ORG_STAFF, ORGANIZATIONS, PAYMENTS, REFUNDS, Session, transaction
 from app.core.errors import ApiError
 from app.core.time import now
+from app.linkedin.pack import on_order_refunded as pack_refunded
 from app.orders.models import Order
 from app.orders.service import PAYABLE, get_order, mark_paid
 from app.partners.service import reverse_commission
@@ -210,6 +211,7 @@ async def refund_org_order(
                 await db[PAYMENTS].update_one(
                     {"_id": payment.id}, {"$set": {"status": "refunded", "updated_at": t}}, session=s
                 )
+                await pack_refunded(db, order, session=s)
             data = {"order_id": order.id, "amount": amount, "reference": offline_reference}
             await audit(db, admin_id, "refund.offline", target=refund.id, data=data, session=s)
 
