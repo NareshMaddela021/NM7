@@ -9,6 +9,7 @@ export const ROUTE_META = [
   [/^\/$/, 'Nm7 — Resume builder for every job seeker, resume drives for every campus', 'Build a job-ready resume free — from photos, your own words or an old file, in 8 Indian languages. Colleges and job fairs run whole resume drives on Nm7: approvals, kiosks, printing and GST invoices.'],
   [/^\/scan/, 'Your ATS scan report', 'See how applicant tracking systems read your resume and what to fix first.'],
   [/^\/templates/, 'Resume templates — 18 free, ATS-safe designs · see them with your own details', 'Browse 18 ATS-safe resume templates for freshers, tech, govt and healthcare jobs. Preview each with a sample or with your own resume, then use it free in the Nm7 builder.'],
+  [/^\/linkedin/, 'LinkedIn profile check and headlines, free', 'Get a free score for your LinkedIn profile with a fix for each section, or create a new profile with 5 headline options and a step-by-step guide in English, Telugu and Hindi.'],
   [/^\/for-orgs/, 'Nm7 for Organizations — plans for colleges, institutes and job fairs', 'Collect consent-based, ATS-safe resumes from your students or candidates, approve, print and share them with recruiters. Free plan, Drive and Campus plans.'],
   [/^\/partners/, 'Nm7 partner programme — earn by bringing colleges and job fairs', 'Refer colleges, training institutes and job fairs to Nm7 for Organizations and earn commission on their plans. Apply in a minute.'],
   [/^\/partner(\/|$)/, 'Your partner page', 'Your Nm7 partner code, link, referred organizations and commission.'],

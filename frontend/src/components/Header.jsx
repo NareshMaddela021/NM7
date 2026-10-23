@@ -67,7 +67,7 @@ const FLOW = [
 ];
 
 // Public header links. The home page passes them translated (labels), with the language code (lang).
-const LABELS = { build: 'Build a resume', templates: 'Templates', pricing: 'Pricing', orgs: 'For organizations', blog: 'Blog', scan: 'Free scan', buildFree: 'Build free', menu: 'Menu' };
+const LABELS = { build: 'Build a resume', templates: 'Templates', linkedin: 'LinkedIn', pricing: 'Pricing', orgs: 'For organizations', blog: 'Blog', scan: 'Free scan', buildFree: 'Build free', menu: 'Menu' };
 
 /** variant: public | flow | expert | admin | builder | me */
 export default function Header({ variant = 'public', right, labels, lang }) {
@@ -96,6 +96,7 @@ export default function Header({ variant = 'public', right, labels, lang }) {
           <nav id="main-nav" className="nav nav-public" data-open={menu} aria-label="Main" lang={lang}>
             <NavLink to="/builder">{L.build}</NavLink>
             <Link to="/templates">{L.templates}</Link>
+            <NavLink to="/linkedin">{L.linkedin}</NavLink>
             <Link to="/#pricing">{L.pricing}</Link>
             <NavLink to="/for-orgs" onClick={() => track('to_for_orgs')}>{L.orgs}</NavLink>
             <NavLink to="/blog">{L.blog}</NavLink>
