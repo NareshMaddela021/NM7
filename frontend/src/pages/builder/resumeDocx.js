@@ -5,7 +5,7 @@ import { zipSync, strToU8 } from 'fflate';
 import { ACAD_INDENT, acadRows, buildSections, printable } from './resumeModel';
 import { hasBold, parseBold, stripBold } from '../../lib/bold';
 import { visibleResume } from './entries';
-import { contactItems } from './ContactLine';
+import { contactItems, contactMode, showsText } from './ContactLine';
 import { iconColor, iconPng } from './icons';
 import { FONTS, PAGE, headFontOf, marginOf } from './design';
 import { coverParts } from './cover';
@@ -72,7 +72,8 @@ export async function buildDocx({ data, design: ds, cover, photoPng }) {
   const rows = contactItems(d, ds.contactLines, 'url', ds.contactOrder);
   // small logo / icon before each contact item (inline pictures)
   const media = {};
-  if (ds.icons) {
+  const cMode = contactMode(d, ds); // icon + text, text only, or icon only for links — the same as the PDF
+  if (cMode !== 'text') {
     const mono = ds.accentOn.links || ds.accentOn.headings ? ds.accent : '#444444';
     await Promise.all([...new Set(rows.flat().map((it) => it.kind))].map(async (k) => {
       try { media[k] = await iconPng(k, iconColor(k, ds, mono), 64); } catch { /* skip icon */ }
@@ -88,7 +89,13 @@ export async function buildDocx({ data, design: ds, cover, photoPng }) {
   rows.forEach((items, i) => {
     const last = i === rows.length - 1;
     const border = last && !bandFill && ds.headerStyle !== 'none' ? `<w:bottom w:val="single" w:sz="${ds.accentOn.lines ? 12 : 6}" w:space="6" w:color="${ds.accentOn.lines ? accent : 'CFCFCF'}"/>` : '';
-    out.push(P(items.map((it, j) => (j ? run('  |  ', { color: '999999', sz: ds.bodySize - 1 }) : '') + iconRun(it.kind) + (media[it.kind] ? run(' ', { sz: ds.bodySize - 1 }) : '') + run(it.text, { sz: ds.bodySize - 1, color: it.link && ds.accentOn.links ? accent : '4A4A4A' })).join(''), { align, fill: bandFill, border, before: 2, after: last ? (bandFill ? 6 : 4) : 0 }));
+    // each item (icon and text) is one link: tel:, mailto:, https; in icon-only mode a link is just its icon
+    const item = (it) => {
+      const txt = showsText(it, cMode) || !media[it.kind];
+      const inner = iconRun(it.kind) + (media[it.kind] && txt ? run(' ', { sz: ds.bodySize - 1 }) : '') + (txt ? run(it.text, { sz: ds.bodySize - 1, color: it.link && ds.accentOn.links ? accent : '4A4A4A' }) : '');
+      return it.url ? hyper(it.url, inner) : inner;
+    };
+    out.push(P(items.map((it, j) => (j ? run('  |  ', { color: '999999', sz: ds.bodySize - 1 }) : '') + item(it)).join(''), { align, fill: bandFill, border, before: 2, after: last ? (bandFill ? 6 : 4) : 0 }));
   });
 
   const heading = (title) => {

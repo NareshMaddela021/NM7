@@ -277,3 +277,57 @@ describe('Academic template (LaTeX look)', () => {
     expect(raw).toContain(`/ActualText ${PDFHexString.fromText('विश्लेषक').toString()}`);
   });
 });
+
+describe('contact icons follow the resume setting in every template (vector shapes)', () => {
+  const WITH_LINKS = {
+    ...structuredClone(INITIAL), hidden: {},
+    personal: { ...INITIAL.personal, phone: '+91 98765 43210', email: 'saivarsha@example.com', location: 'Chennai' },
+    links: { ...INITIAL.links, linkedin: 'linkedin.com/in/saivarsha', github: 'github.com/saivarsha' },
+  };
+  /** How many path-painting operations a PDF draws (icons are paths; headings' rules are too). */
+  const paths = async (blob) => {
+    const doc = await pdfjs.getDocument({ data: new Uint8Array(await blob.arrayBuffer()), isEvalSupported: false, verbosity: 0 }).promise;
+    const ops = await (await doc.getPage(1)).getOperatorList();
+    const paint = new Set([pdfjs.OPS.fill, pdfjs.OPS.stroke, pdfjs.OPS.eoFill, pdfjs.OPS.fillStroke, pdfjs.OPS.closeStroke]);
+    return { n: ops.fnArray.filter((f) => paint.has(f) || f === pdfjs.OPS.constructPath).length, images: ops.fnArray.filter((f) => f === pdfjs.OPS.paintImageXObject).length };
+  };
+  it.each(Object.keys(TEMPLATE_PRESETS))('%s: icon + text, text only and icon only', async (k) => {
+    const make = async (mode) => { const blob = await buildResumePdf({ data: { ...WITH_LINKS, contactIcons: mode }, design: design(k), photo: null, cover: null }); return { blob, r: await read(blob), p: await paths(blob) }; };
+    const both = await make('both'); const textOnly = await make('text'); const iconOnly = await make('icon');
+    for (const { r } of [both, textOnly]) {
+      for (const t of ['+91 98765 43210', 'saivarsha@example.com', 'Chennai']) expect(r.text).toContain(t);
+      expect(r.text).toMatch(/(^|[\s|·])saivarsha([\s|·]|$)/m); // the profile handles stay real text
+    }
+    expect(iconOnly.r.text).toContain('+91 98765 43210'); // phone and email keep their text
+    expect(iconOnly.r.text).toContain('saivarsha@example.com');
+    expect(iconOnly.r.text).not.toMatch(/(^|[\s|·])saivarsha([\s|·]|$)/m); // links show only their icon
+    for (const { r } of [both, textOnly, iconOnly]) {
+      const urls = r.links.map((l) => l.url);
+      expect(urls).toEqual(expect.arrayContaining(['tel:+919876543210', 'mailto:saivarsha@example.com', 'https://linkedin.com/in/saivarsha', 'https://github.com/saivarsha']));
+      expect(r.text).not.toMatch(/�/);
+    }
+    expect(both.p.n).toBeGreaterThan(textOnly.p.n + 5); // the icons are vector paths…
+    expect(both.p.images).toBe(0); // …not pictures
+    expect(iconOnly.p.n).toBe(both.p.n);
+  });
+  it('Academic: small icons on the baseline, | kept between items, icon and text one link; a long line wraps between items', async () => {
+    const r = await read(await buildResumePdf({ data: WITH_LINKS, design: design('academic'), photo: null, cover: null }));
+    const line = r.lines.find((l) => l.text.includes('saivarsha@example.com'));
+    expect(line.text).toMatch(/\+91 98765 43210 \| saivarsha@example\.com \| saivarsha \| saivarsha \| Chennai/);
+    const email = r.items.find((i) => i.str === 'saivarsha@example.com');
+    const link = r.links.find((l) => l.url === 'mailto:saivarsha@example.com');
+    expect(link.x).toBeLessThan(email.x - 5); // the link starts at the icon
+    expect(link.x + link.w).toBeGreaterThanOrEqual(email.x + email.w - 0.5);
+    // many links: the contact line wraps between items, centred, never inside one
+    const many = { ...WITH_LINKS, links: { ...WITH_LINKS.links, portfolio: 'saivarsha-portfolio.example.com', medium: 'medium.com/@saivarsha-writes', stackoverflow: 'stackoverflow.com/users/123/saivarsha-answers' }, linkExtras: [{ url: 'x.com/saivarsha_tweets', label: '' }, { url: 'kaggle.com/saivarsha-kaggle', label: '' }] };
+    const r2 = await read(await buildResumePdf({ data: many, design: design('academic'), photo: null, cover: null }));
+    const contact = r2.lines.filter((l) => /saivarsha/.test(l.text) && l.y < 120);
+    expect(contact.length).toBeGreaterThan(1);
+    const mid = 595.28 / 2;
+    for (const l of contact) {
+      expect(Math.abs((l.x + l.xEnd) / 2 - mid)).toBeLessThan(14); // centred
+      expect(l.text).not.toMatch(/^\||\|$/);
+    }
+    for (const t of ['saivarsha-portfolio.example.com', 'saivarsha-writes', 'saivarsha-answers', 'saivarsha_tweets', 'saivarsha-kaggle']) expect(contact.filter((l) => l.text.includes(t))).toHaveLength(1);
+  });
+});

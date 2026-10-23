@@ -2,6 +2,7 @@
 // (points, y from the top, text by its baseline), so the resume maker draws on either without knowing which.
 // jsPDF cannot shape Telugu, Hindi, … (no OpenType substitution), so any such text switches the maker to pdfDoc.js.
 import { jsPDF } from 'jspdf';
+import { iconSegments } from './vectorIcons';
 
 class JsPdfDoc {
   constructor(w, h) { this.doc = new jsPDF({ unit: 'pt', format: [w, h] }); this.w = w; this.h = h; }
@@ -39,6 +40,24 @@ class JsPdfDoc {
   circle(cx, cy, r, style = 'S') { this.doc.circle(cx, cy, r, style); }
   triangle(x1, y1, x2, y2, x3, y3, style = 'F') { this.doc.triangle(x1, y1, x2, y2, x3, y3, style); }
   line(x1, y1, x2, y2) { this.doc.line(x1, y1, x2, y2); }
+
+  /** A contact icon as vector shapes: `size` points square, top-left at (x, y), in one colour. */
+  vectorIcon(key, x, y, size, color) {
+    const { fill, paths } = iconSegments(key);
+    const k = size / 24; const X = (v) => x + v * k; const Y = (v) => y + v * k;
+    const d = this.doc;
+    if (fill) d.setFillColor(...color); else { d.setDrawColor(...color); d.setLineWidth(2 * k); d.setLineCap('round'); d.setLineJoin('round'); }
+    paths.forEach((segs) => {
+      segs.forEach((s) => {
+        if (s[0] === 'M') d.moveTo(X(s[1]), Y(s[2]));
+        else if (s[0] === 'L') d.lineTo(X(s[1]), Y(s[2]));
+        else if (s[0] === 'C') d.curveTo(X(s[1]), Y(s[2]), X(s[3]), Y(s[4]), X(s[5]), Y(s[6]));
+        else d.close();
+      });
+      if (fill) d.fill(); else d.stroke();
+    });
+    if (!fill) { d.setLineCap('butt'); d.setLineJoin('miter'); }
+  }
 
   /* ---------- images and links ---------- */
   async image(data, format = 'PNG') { return { data, format }; }

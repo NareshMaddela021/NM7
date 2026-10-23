@@ -175,6 +175,15 @@ stray dash. Small round bullets sit indented under each entry; 10.5 pt, narrow m
   them too, since CMU Serif has none); other Indian scripts use Noto Sans as before. Word uses Cambria (CMU Serif is
   not installed on most computers) with the same two-line layout. Font notices: public/fonts/CMU-SERIF-NOTICE.txt.
 
+### Contact details and links: Icon + text, Text only, Icon only
+
+One setting per resume (Design › Style details, and the Links step), kept when the template changes, followed by all
+19 templates: Icon + text (the default), Text only, or Icon only (for LinkedIn, GitHub, portfolio and other links;
+phone, email and city always keep their text). Resumes that never chose keep their template's look (Academic now
+shows icons, small and on the text baseline, with the | separators kept). In the PDF the icons are vector shapes
+(no pictures, emoji or icon fonts); each item, icon and text, is one link (tel:, mailto:, https) in the preview, the
+PDF and the Word file, and the text stays real text for tracking systems.
+
 ### A browser draft moves into an account at most once
 
 The resume built in a browser before signing in is added to the account once. Each import is noted in that browser

@@ -51,3 +51,16 @@ describe('Academic template in Word', () => {
     expect(xml).toContain('w:ascii="Cambria"');
   });
 });
+
+describe('contact links in Word', () => {
+  it('phone, email and profiles are working links; icon only keeps the links', async () => {
+    const data = { ...structuredClone(INITIAL), hidden: {}, personal: { ...INITIAL.personal, phone: '+91 98765 43210', email: 'saivarsha@example.com' }, links: { ...INITIAL.links, linkedin: 'linkedin.com/in/saivarsha' } };
+    for (const mode of ['both', 'text', 'icon']) {
+      const files = unzipSync(new Uint8Array(await (await buildDocx({ data: { ...data, contactIcons: mode }, design: { ...DEFAULT_DESIGN, ...TEMPLATE_PRESETS.academic.design }, cover: null, photoPng: null })).arrayBuffer()));
+      const rels = strFromU8(files['word/_rels/document.xml.rels']);
+      for (const u of ['tel:+919876543210', 'mailto:saivarsha@example.com', 'https://linkedin.com/in/saivarsha']) expect(rels).toContain(`Target="${u}"`);
+      const xml = strFromU8(files['word/document.xml']);
+      expect(xml).toMatch(/<w:hyperlink r:id="rIdL\d+" w:history="1">(?:(?!<\/w:hyperlink>).)*saivarsha@example\.com/);
+    }
+  });
+});
