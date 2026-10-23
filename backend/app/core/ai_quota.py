@@ -5,7 +5,7 @@ attempt that would go over a limit is rolled back and refused. Requests sent at 
 past a limit (each one sees the count after its own increment).
 
 Limits (per India calendar day):
-- per person: Snap photos 5, summary writer 10 (each quick fix counts 1);
+- per person: Snap photos 5, summary writer 10 (each quick fix counts 1), LinkedIn headlines 10;
 - per kiosk link (all candidates at one event screen together): Snap photos 300, summary writer 600;
 - the whole site: 2,000 AI calls. When it is reached, AI features say so quietly and the summary writer uses its
   smart templates; the admin dashboard shows "AI daily cap reached".
@@ -25,10 +25,10 @@ from app.core.db import AI_USAGE
 from app.core.errors import ApiError
 from app.core.time import IST, now
 
-Feature = Literal["photos", "summary"]
-FEATURES: tuple[Feature, ...] = ("photos", "summary")
-PER_PERSON: dict[str, int] = {"photos": 5, "summary": 10}
-PER_KIOSK: dict[str, int] = {"photos": 300, "summary": 600}
+Feature = Literal["photos", "summary", "linkedin"]
+FEATURES: tuple[Feature, ...] = ("photos", "summary", "linkedin")
+PER_PERSON: dict[str, int] = {"photos": 5, "summary": 10, "linkedin": 10}
+PER_KIOSK: dict[str, int] = {"photos": 300, "summary": 600, "linkedin": 600}
 DAILY_CAP = 2000  # every AI call on the site, all features together
 OUTCOMES = ("fallback", "failed", "limited", "capped", "dropped")  # always present per feature in usage()
 UNUSABLE = "unusable:"  # `note(..., "unusable:<reason>")`: why the configured model's answer was unusable
@@ -36,6 +36,7 @@ UNUSABLE = "unusable:"  # `note(..., "unusable:<reason>")`: why the configured m
 PERSON_MESSAGE = {
     "photos": "You can read photos 5 times a day. Please try again tomorrow, or type your details in the builder.",
     "summary": "You can write with AI 10 times a day. Here are quick suggestions instead.",
+    "linkedin": "You can write LinkedIn headlines with AI 10 times a day. Here are quick suggestions instead.",
 }
 KIOSK_MESSAGE = "This kiosk has used today's AI limit. Please type your details instead."
 

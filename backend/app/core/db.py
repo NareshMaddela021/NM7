@@ -69,6 +69,7 @@ INVOICES = "invoices"  # tax invoices, credit notes, proformas (never edited or 
 PARTNERS = "partners"  # referral partners (applications and approved partners)
 COMMISSIONS = "commissions"  # partner commission ledger: earned (+) and reversed (−) entries
 PARTNER_PAYOUTS = "partner_payouts"
+LINKEDIN = "linkedin_profiles"  # LinkedIn services: the link, PDF / pasted text and the latest check, per user (_id)
 HOME_EVENTS = "home_events"  # home page tap counters, per day (no personal data)
 COLLECTIONS = (
     USERS,
@@ -109,6 +110,7 @@ COLLECTIONS = (
     PARTNERS,
     COMMISSIONS,
     PARTNER_PAYOUTS,
+    LINKEDIN,
     HOME_EVENTS,
 )
 

@@ -306,21 +306,47 @@ clichés ("hardworking team player", "go-getter", …), and never an ID number, 
 
 ## AI features and their daily limits
 
-Snap photos (reading resume details from photos) and the summary writer's "Write with AI" use the Claude API
+Snap photos (reading resume details from photos), the summary writer's "Write with AI" and the LinkedIn headlines use the Claude API
 (`ANTHROPIC_API_KEY` on Render; Claude Haiku 5.5, with one retry on Claude Sonnet 5.5). Every AI attempt is counted
 **before** the call, failed ones included, so requests sent at the same time can't get past a limit
 (`backend/app/core/ai_quota.py`, counters reset at midnight India time):
 
-| Limit | Snap photos | Summary writer |
-|---|---|---|
-| per person, per day | 5 | 10 (each quick fix counts 1) |
-| per kiosk link, per day (all candidates at that screen) | 300 | 600 |
-| the whole site, per day | 2,000 AI calls, both features together | |
+| Limit | Snap photos | Summary writer | LinkedIn headlines |
+|---|---|---|---|
+| per person, per day | 5 | 10 (each quick fix counts 1) | 10 |
+| per kiosk link, per day (all candidates at that screen) | 300 | 600 | 600 |
+| the whole site, per day | 2,000 AI calls, all features together | | |
 
 When the site-wide cap is reached, Snap photos says it is busy today and the summary writer quietly uses its free
-smart templates. Admin → Dashboard → **AI usage** shows each day's calls, fallbacks (with why the first model's
+smart templates (and the LinkedIn page its rules-based headlines). Admin → Dashboard → **AI usage** shows each day's calls, fallbacks (with why the first model's
 answer was unusable, e.g. `too_long 2, empty 1`), failures, refusals and the summary options dropped by the server's
 checks, and "AI daily cap reached" when it happens. The limits are constants in code (no environment variables).
+
+## LinkedIn services (Phase 1, free)
+
+Code: `frontend/src/lib/linkedin/` (checks, headlines, guide) and `backend/app/linkedin/` (`/api/me/linkedin`).
+
+- **Never** opens linkedin.com, logs in to LinkedIn or asks for a LinkedIn password. A pasted profile link
+  (`linkedin.com/in/...` only) is stored and shown, nothing more. The profile content comes from the person's
+  LinkedIn PDF (Profile > More > Save to PDF, read by the same reader as the resume import) or the sections they
+  paste.
+- **Check** (rules, no AI): a score out of 100 — headline 20, About 20, experience 15, skills 15, education 10,
+  Featured 5, photo and banner 5, custom URL 5, Open to Work 5 — with what is wrong, why and the fix per section,
+  and "Keep as it is" for a section with full points. Photo, banner, Featured and Open to Work are ticked by the
+  person (the PDF doesn't show them). The keyword match uses the role box, else the headline ("Data Analyst:
+  missing Excel, Dashboards").
+- **LinkedIn's limits**: headline 220 characters, About 2,600, each experience 2,000.
+- **Headlines**: role first, 2-4 skills the person has, one proof point from their own facts; never a number,
+  company, degree or certificate they didn't give, and never a phone, email or ID number. AI writes them when it
+  is on (checked on the server and again in the browser); the rules write them when AI is off, busy or over the
+  limit — never an error page.
+- **Create**: 5 headline options and a step-by-step guide in English, Telugu and Hindi (Telugu and Hindi are marked
+  NEED NATIVE REVIEW). Profile text to paste is always English.
+- **Locked, "Coming soon"** (Phase 2, no checkout): the full About and experience rewrites, the complete profile
+  text and the banner.
+- **Data**: the link, the PDF / pasted text and the latest result are kept on the person's account only
+  (`linkedin_profiles`, one per person, ID numbers removed before saving), never shared with an organization, and
+  deleted with "Delete my LinkedIn data" (`DELETE /api/me/linkedin`).
 
 ## Nm7 for Organizations (Phase 1)
 

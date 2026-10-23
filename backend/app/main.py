@@ -27,6 +27,7 @@ from app.core.email import log_email_status
 from app.core.observability import RequestContext, init_sentry
 from app.downloads.router import router as downloads_router
 from app.experts.router import router as expert_router
+from app.linkedin.router import router as linkedin_router
 from app.maintenance.router import router as maintenance_router
 from app.me.router import public as public_router
 from app.me.router import router as me_router
@@ -157,6 +158,7 @@ def create_app() -> FastAPI:
     app.include_router(profile_router)  # before me_router: /api/me/job-profile
     app.include_router(photos_router)  # /api/me/photo-import
     app.include_router(summary_router)  # /api/me/summary/generate
+    app.include_router(linkedin_router)  # /api/me/linkedin
     app.include_router(downloads_router)  # /api/me/entitlements, /api/me/exports
     app.include_router(orgs.me)  # before me_router: /api/me/groups
     app.include_router(org_staff.my_orgs)  # /api/me/orgs
