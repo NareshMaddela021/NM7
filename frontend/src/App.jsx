@@ -90,6 +90,7 @@ const PortalBilling = named(portal, 'PortalBilling');
 const PortalTeam = named(portal, 'PortalTeam');
 const ForOrgs = lazy(() => import('./pages/org/ForOrgs'));
 const Templates = lazy(() => import('./pages/Templates'));
+const LinkedInPage = lazy(() => import('./pages/linkedin/LinkedIn'));
 const Partners = lazy(() => import('./pages/partners/Partners'));
 const PartnerHome = lazy(() => import('./pages/partners/PartnerHome'));
 const kioskPages = () => import('./pages/kiosk/Kiosk');
@@ -290,6 +291,7 @@ export default function App() {
         <Route path="/editor" element={<Editor />} />
         <Route path="/builder" element={<Builder />} />
         <Route path="/templates" element={<Templates />} />
+        <Route path="/linkedin" element={<LinkedInPage />} />
         <Route path="/expert" element={E(<ExpertHome />)} />
         <Route path="/expert/orders" element={E(<ExpertOrders />)} />
         <Route path="/expert/orders/:id" element={E(<OrderWorkspace />)} />
