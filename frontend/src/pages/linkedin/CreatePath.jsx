@@ -3,12 +3,14 @@
 // and the banner are locked "Coming soon". Only the person's own facts are used; the output is always English.
 import { useState } from 'react';
 import { useAuth } from '../../lib/auth';
-import { useMe } from '../../lib/customerStore';
+import { activeResume, useMe } from '../../lib/customerStore';
 import { canSave, saveLinkedIn, writeHeadlines } from '../../lib/linkedin/api';
-import { LANGS, LOCKED, REVIEW_NOTE, guideSteps } from '../../lib/linkedin/guide';
+import { LANGS, REVIEW_NOTE, guideSteps } from '../../lib/linkedin/guide';
+import { packRequest } from '../../lib/linkedin/pack';
 import { headlineFacts } from '../../lib/linkedin/headlines';
 import { fromResumeData } from '../../lib/linkedin/profile';
-import { CopyButton, Locked, NoteBox } from './parts';
+import Pack from './Pack';
+import { CopyButton, NoteBox } from './parts';
 
 const EMPTY = { name: '', city: '', role: '', education: [{ degree: '', school: '', year: '' }], work: [], skills: '', projects: '', certs: '' };
 const NEED = 'Add the job you want, a few skills or your degree, or pick one of your resumes.';
@@ -35,6 +37,16 @@ export default function CreatePath({ saved }) {
   const [lang, setLang] = useState('en');
   const [msg, setMsg] = useState('');
   const set = (k) => (v) => setD({ ...d, [k]: v });
+  const accent = (activeResume(me)?.data?.design?.accent && resumes.length ? activeResume(me).data.design.accent : null) || '#111827';
+  /** What the LinkedIn pack is written from: the picked resume and / or the details, and the note. */
+  const packBody = () => {
+    const resume = resumes.find((r) => r.id === picked);
+    const details = { ...d, education: d.education.filter((e) => e.degree || e.school), work: d.work.filter((w) => w.title), name: d.name || auth.user?.name || '' };
+    const profile = resume ? fromResumeData(resume.data) : {};
+    const role = d.role || roleOf(resume);
+    if (!role && !d.skills && !details.education.length && !resume) return null;
+    return packRequest({ path: 'create', role, profile, details, note });
+  };
   const setEdu = (i, k, v) => setD({ ...d, education: d.education.map((e, j) => (j === i ? { ...e, [k]: v } : e)) });
   const setWork = (i, k, v) => setD({ ...d, work: d.work.map((e, j) => (j === i ? { ...e, [k]: v } : e)) });
 
@@ -159,14 +171,15 @@ export default function CreatePath({ saved }) {
                       <CopyButton text={s.copy} testid={`li-copy-${s.id}`} />
                     </div>
                   )}
-                  {s.locked && <span className="xs muted" lang="en">🔒 {s.locked.title}: Coming soon</span>}
+                  {s.locked && <span className="xs muted" lang="en">🔒 {s.locked.title}: in the LinkedIn pack below</span>}
                 </li>
               ))}
             </ol>
           </section>
-          <Locked items={LOCKED.filter((l) => l.id === 'profile' || l.id === 'banner' || l.id === 'about')} />
         </>
       )}
+
+      <Pack request={packBody} accent={accent} />
     </div>
   );
 }

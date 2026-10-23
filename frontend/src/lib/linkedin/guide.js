@@ -81,3 +81,52 @@ export function guideSteps(lang = 'en', content = {}) {
       copy: copyFor(id, content), locked: id === 'about' ? LOCKED[0] : null, review: !!NEEDS_REVIEW[l],
     }));
 }
+
+/* ---------- LinkedIn pack: where to paste each item (NEED NATIVE REVIEW for te / hi) ---------- */
+const WHERE = {
+  headline: {
+    en: 'Profile > the pencil next to your name > Headline.',
+    te: 'Profile > మీ పేరు పక్కన పెన్సిల్ > Headline.',
+    hi: 'Profile > अपने नाम के पास पेंसिल > Headline.',
+  },
+  about: {
+    en: 'Profile > About > the pencil (or Add profile section > About).',
+    te: 'Profile > About > పెన్సిల్ (లేదా Add profile section > About).',
+    hi: 'Profile > About > पेंसिल (या Add profile section > About).',
+  },
+  experience: {
+    en: 'Profile > Experience > the pencil on that job > Description.',
+    te: 'Profile > Experience > ఆ ఉద్యోగం మీద పెన్సిల్ > Description.',
+    hi: 'Profile > Experience > उस नौकरी पर पेंसिल > Description.',
+  },
+  education: {
+    en: 'Profile > Education > the pencil > Description.',
+    te: 'Profile > Education > పెన్సిల్ > Description.',
+    hi: 'Profile > Education > पेंसिल > Description.',
+  },
+  skills: {
+    en: 'Profile > Skills > + . Add them one by one; pin your top 5 first.',
+    te: 'Profile > Skills > + . ఒక్కొక్కటిగా జోడించండి; ముఖ్యమైన 5 ముందు పెట్టండి.',
+    hi: 'Profile > Skills > + . एक-एक करके जोड़ें; सबसे ज़रूरी 5 पहले रखें।',
+  },
+  featured: {
+    en: 'Profile > Add profile section > Recommended > Add featured > Add a link or media.',
+    te: 'Profile > Add profile section > Recommended > Add featured > లింక్ లేదా ఫైల్ జోడించండి.',
+    hi: 'Profile > Add profile section > Recommended > Add featured > लिंक या फ़ाइल जोड़ें।',
+  },
+  banner: {
+    en: 'Profile > the camera on the top banner > Upload photo. Choose the PNG you downloaded.',
+    te: 'Profile > పై బ్యానర్ మీద కెమెరా > Upload photo. మీరు డౌన్‌లోడ్ చేసిన PNG ఎంచుకోండి.',
+    hi: 'Profile > ऊपर बैनर पर कैमरा > Upload photo. डाउनलोड की हुई PNG चुनें।',
+  },
+  urls: {
+    en: 'Profile > Edit public profile & URL (top right) > Edit your custom URL.',
+    te: 'Profile > Edit public profile & URL (కుడి పైన) > Edit your custom URL.',
+    hi: 'Profile > Edit public profile & URL (ऊपर दाएँ) > Edit your custom URL.',
+  },
+};
+/** Where to paste a pack item, in a language; `review` is true for Telugu and Hindi (NEED NATIVE REVIEW). */
+export function pasteWhere(section, lang = 'en') {
+  const l = WHERE[section]?.[lang] ? lang : 'en';
+  return { text: WHERE[section]?.[l] || '', review: !!NEEDS_REVIEW[l] };
+}

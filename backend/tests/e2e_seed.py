@@ -5,6 +5,7 @@ MONGODB_DB=nm7_e2e uv run python -m tests.e2e_seed reset
 ... customer EMAIL NAME PASSWORD       → {"id": "..."}
 ... expert EMAIL NAME PASSWORD STATUS  → {"id": "..."}
 ... paid-order EMAIL PLAN              → {"id": "RS-…"} (as if Razorpay had confirmed the payment)
+... customer-order EMAIL PLAN         → the checkout answer (a customer order waiting for Razorpay's webhook)
 ... org-order ORG_ID PLAN EMAIL [REF]  → the checkout answer (an org order waiting for Razorpay's webhook), made
                                           without calling Razorpay (the browser tests run without Razorpay keys)
 """
@@ -75,6 +76,24 @@ async def main(cmd: str, *args: str) -> dict:
         )
         await db[PAYMENTS].insert_one(pay.to_mongo())
         return {"id": order.id}
+    if cmd == "customer-order":
+        email, plan = args
+        user = User.load(await db[USERS].find_one({"email_lc": email.lower()}))
+        order = await build_order(db, user, plan, None, [])
+        await db[ORDERS].insert_one(order.to_mongo())
+        rzp_order = f"order_E2E{order.id.replace('-', '')}"
+        pay = Payment(order_id=order.id, razorpay_order_id=rzp_order, amount=order.amount, status="created")
+        await db[PAYMENTS].insert_one(pay.to_mongo())
+        return {
+            "orderId": order.id,
+            "razorpayOrderId": rzp_order,
+            "amount": order.amount,
+            "currency": "INR",
+            "keyId": "rzp_test_e2e",
+            "name": "Nm7",
+            "description": f"{order.items[0].name} · {order.id}",
+            "prefill": {"name": user.name, "email": user.email},
+        }
     if cmd == "org-order":
         org_id, plan, email, *ref = args
         user = User.load(await db[USERS].find_one({"email_lc": email.lower()}))

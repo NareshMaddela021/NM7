@@ -151,8 +151,8 @@ for (const [label, opts] of SIZES) {
       await guide.getByRole('button', { name: 'हिन्दी' }).click();
       await expect(guide.getByTestId('li-step-skills')).toContainText('स्किल्स');
       await expect(guide.getByTestId('li-copy-skills')).toBeVisible();
-      await expect(page.getByTestId('li-locked-profile')).toContainText('Coming soon');
-      await expect(page.getByTestId('li-locked-banner')).toContainText('Coming soon');
+      await expect(page.getByTestId('li-locked')).toContainText('LinkedIn pack'); // the paid pack: Coming soon while payments are off
+      await expect(page.getByTestId('li-pack-soon')).toHaveText('Coming soon');
       await noCheckout(page);
       await expect.poll(async () => (await api(page, '/api/me/linkedin')).path).toBe('create');
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);

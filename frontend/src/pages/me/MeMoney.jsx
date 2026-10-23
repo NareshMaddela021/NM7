@@ -1,5 +1,5 @@
 // Payments & refunds, and Upgrade & add-ons.
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useFlow } from '../../lib/flow';
 import { useToast } from '../../components/ui';
@@ -7,6 +7,7 @@ import { useMe, payments, orderView, buyAddon, upgradeOrder, getMe } from '../..
 import { useExpertOrders } from '../../lib/expertStore';
 import { PLANS, ADDONS, PROMISES, RESUME_PLANS, inr, upgradePrice } from '../../lib/pricing';
 import { Kpi } from '../admin/AdminUI';
+import { COMING_SOON, buyPack, packStatus } from '../../lib/linkedin/pack';
 import { MeHead } from './MeLayout';
 import { PayDialog } from './MeOrders';
 import { fmtDay, invoicePdf } from './shared';
@@ -78,6 +79,7 @@ export function MeUpgrade() {
           );
         })}
       </div>
+      <PackCard />
       {o && (
         <section className="card stack g12" aria-label="Add-ons">
           <strong>Add-ons for {o.id}</strong>
@@ -92,5 +94,29 @@ export function MeUpgrade() {
       )}
       {pay && <PayDialog title={pay.title} amount={pay.amount} onClose={() => setPay(null)} onPaid={() => { if (pay.kind === 'addon') buyAddon(o.id, pay.id); else upgradeOrder(o.id, pay.id); setPay(null); toast(pay.kind === 'addon' ? `${pay.title} added — your expert is told` : `Upgraded to ${PLANS[pay.id].name}`); }} />}
     </>
+  );
+}
+
+/** The LinkedIn pack on Upgrade & add-ons: open it, buy it (payments on) or "Coming soon". */
+function PackCard() {
+  const toast = useToast();
+  const [st, setSt] = useState(null);
+  const [busy, setBusy] = useState(false);
+  useEffect(() => { packStatus().then(setSt); }, []);
+  if (!st) return null;
+  const buy = async () => {
+    setBusy(true);
+    try { await buyPack(); toast('LinkedIn pack unlocked'); setSt(await packStatus()); } catch (e) { toast(e.message || 'Payment didn’t go through. You haven’t been charged.'); } finally { setBusy(false); }
+  };
+  return (
+    <section className="card row between g12" aria-label="LinkedIn pack" data-testid="up-li-pack" style={{ alignItems: 'center', flexWrap: 'wrap' }}>
+      <span className="stack g4" style={{ flex: '1 1 260px' }}>
+        <strong>LinkedIn pack · {inr(st.price)}</strong>
+        <span className="small muted">Headlines, About in 3 styles, experience, skills, a banner and URL ideas, from your own details. Included in Career Launch.</span>
+      </span>
+      {st.owned ? <Link to="/linkedin#pack" className="btn btn-ink">Open my LinkedIn pack</Link>
+        : st.onSale ? <button type="button" className="btn btn-ink" onClick={buy} disabled={busy}>{busy ? 'Waiting for your payment…' : `Buy ${inr(st.price)}`}</button>
+          : <span className="btn btn-outline" aria-disabled="true" style={{ opacity: 0.7, cursor: 'not-allowed' }}>{COMING_SOON}</span>}
+    </section>
   );
 }

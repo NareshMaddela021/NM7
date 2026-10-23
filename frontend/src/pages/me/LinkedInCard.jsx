@@ -3,9 +3,12 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { canSave, getLinkedIn } from '../../lib/linkedin/api';
+import { COMING_SOON, packStatus } from '../../lib/linkedin/pack';
 
 export default function LinkedInCard() {
   const [rec, setRec] = useState(undefined);
+  const [pack, setPack] = useState(null);
+  useEffect(() => { packStatus().then(setPack); }, []);
   useEffect(() => {
     let off = false;
     if (!canSave()) { setRec(null); return undefined; }
@@ -40,6 +43,14 @@ export default function LinkedInCard() {
             <Link to="/linkedin?path=create" className="btn btn-ghost">Create your LinkedIn</Link>
           </span>
         </>
+      )}
+      {pack && (
+        <div className="well row between g8" data-testid="me-li-pack" style={{ alignItems: 'center', flexWrap: 'wrap' }}>
+          <span className="small"><strong>LinkedIn pack</strong> · {pack.owned ? 'unlocked' : `₹${pack.price}`}</span>
+          {pack.owned ? <Link to="/linkedin#pack" className="btn btn-ink" style={{ minHeight: 40 }}>Open my LinkedIn pack</Link>
+            : pack.onSale ? <Link to="/linkedin#pack" className="btn btn-outline" style={{ minHeight: 40 }}>Get it · ₹{pack.price}</Link>
+              : <span className="xs muted" data-testid="me-li-pack-soon">{COMING_SOON}</span>}
+        </div>
       )}
     </section>
   );
