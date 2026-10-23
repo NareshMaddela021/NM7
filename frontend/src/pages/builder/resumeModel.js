@@ -3,6 +3,7 @@
 import { DECL_TEXT, PINFO_LABELS, resolveOrder, sectionLabel, splitList, splitSkills } from './schema';
 import { fmtDate, fmtDates } from './design';
 import { visibleResume } from './entries';
+import { plainResume } from '../../lib/bold';
 
 const fullUrl = (u) => (/^https?:\/\//i.test(u) ? u : `https://${u}`);
 const shortUrl = (u) => u.replace(/^https?:\/\//i, '').replace(/^www\./i, '').replace(/\/+$/, '');
@@ -17,10 +18,23 @@ const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 
 const longDate = (v) => { const [y, m, day] = (v || '').split('-'); return y && m && day ? `${+day} ${MONTHS[+m - 1]} ${y}` : v; };
 
 
-/** Lines of a textarea → [{ t, bullet: true }] (leading •, -, * stripped). */
+/** Lines of a textarea → [{ t, bullet: true }] (a leading •, -, * stripped; a **bold** start is kept). */
 function bullets(text) {
   return (text || '').split('\n').map((s) => s.trim()).filter(Boolean)
-    .map((s) => ({ t: s.replace(/^[•\-*▸–]\s*/, ''), bullet: true }));
+    .map((s) => ({ t: s.replace(/^(?:[•\-▸–]|\*(?!\*))\s*/, ''), bullet: true }));
+}
+
+/** Only the text that prints as running text keeps its **bold** markers (the summary and the descriptions of
+ * experience, projects, achievements and custom sections; a stray marker is never printed); in every other field a
+ * typed ** is just left out. Old resumes have no markers, so they are unchanged. */
+export function printable(data) {
+  if (!data) return data;
+  const out = plainResume(data);
+  const keep = (list, plain) => (Array.isArray(list) ? list.map((x, i) => ({ ...plain[i], description: x?.description })) : plain);
+  if (typeof data.summary === 'string') out.summary = data.summary;
+  ['exp', 'proj', 'ach'].forEach((k) => { out[k] = keep(data[k], out[k]); });
+  if (Array.isArray(data.custom)) out.custom = data.custom.map((c, i) => ({ ...out.custom[i], items: keep(c.items, out.custom[i].items) }));
+  return out;
 }
 
 /**
@@ -29,7 +43,7 @@ function bullets(text) {
  * line = string | { t, bullet } | { bold, text } | { label, chips: [] } | { kv: [label, value], url? } | { sign: { left: [], right } }
  */
 export function buildSections(data, ds) {
-  const d = visibleResume(data); // switched-off entries are never printed
+  const d = printable(visibleResume(data)); // switched-off entries are never printed; ** only where bold prints
   const f = ds.dateFormat;
   const by = {};
   if (d.summary) by.summary = [{ lines: [d.summary] }];

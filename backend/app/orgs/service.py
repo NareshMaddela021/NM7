@@ -19,6 +19,7 @@ from pymongo.asynchronous.database import AsyncDatabase
 from app.core.db import MEMBERSHIPS, ORG_GROUPS, ORGANIZATIONS, RESUMES, USERS
 from app.core.errors import ApiError
 from app.core.pii import scrub_id_numbers
+from app.core.richtext import plain
 from app.core.security import keyed_hash, same
 from app.core.time import IST, now
 from app.maintenance.sample_data import has_sample
@@ -296,7 +297,7 @@ async def shared_rows(db: AsyncDatabase, match: dict[str, Any], *, with_data: bo
             {
                 "membership_id": m["_id"],
                 "user_id": u["_id"],
-                "name": (personal.get("name") or u["name"] or "").strip(),
+                "name": plain(personal.get("name") or u["name"] or "").strip(),  # no bold markers in lists or CSV
                 "email": u["email"],
                 "phone": u.get("phone") or personal.get("phone") or "",
                 "headline": str(personal.get("headline") or ""),

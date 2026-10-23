@@ -32,6 +32,7 @@ from app.core.db import (
 from app.core.email import MailerDep, send_safely
 from app.core.errors import ApiError
 from app.core.pii import scrub_id_numbers
+from app.core.richtext import clean_rich
 from app.core.time import now
 from app.downloads.router import account_entitlement
 from app.maintenance.sample_data import strip_sample
@@ -137,6 +138,8 @@ def without_id_numbers(fields: dict[str, Any], what: str) -> dict[str, Any]:
     """Resume text with an Aadhaar / PAN / passport / licence / account number in it is saved without the number
     (`data`, and the `versions` snapshots). Logged as a count only, never the text."""
     n = 0
+    if isinstance(fields.get("data"), dict):
+        fields["data"] = clean_rich(fields["data"])  # summary / descriptions: text + bold only, no other markup
     for k in ("data", "versions"):
         if fields.get(k) is not None:
             fields[k], m = scrub_id_numbers(fields[k])

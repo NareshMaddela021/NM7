@@ -143,6 +143,22 @@ Old saved values are left in the database, unused, for 30 days: nothing shows, s
 (experts no longer see them, even with the old salary switch on). Clearing them will be a separate change with a
 dry run first. The drive join form's "Preferred job / location" questions are a different thing and stay.
 
+### Bold words in resume text
+
+A small toolbar with a **B** button sits above every text box that prints as running text: the summary and the
+descriptions of experience, projects, achievements and custom sections. Select words and tap **B** (or press
+Ctrl+B / Cmd+B) to bold them; again to unbold. It works with a phone's long-press selection, and the preview shows it
+at once. A bullet that is more than about 30% bold gets a tip: "Bold a few key words, like results and tools."
+
+- Stored as `**word**` markers inside the same strings (lib/bold.js), so old resumes are unchanged and typing the
+  markers by hand works too. A stray, unpaired `**` is never printed. Bold only: no italic, underline or colour.
+- Pasting from Word, Google Docs or a website keeps text + bold only; on save the server also drops any other markup
+  from those fields (`<b>`/`<strong>` become markers; a word like `<Button>` in a bullet stays).
+- Printed bold in the preview, the PDF of all templates (Telugu, Hindi and ₹ use the bold Noto fonts), the Word file
+  and the organization exports. Everything else gets the plain text: ATS score, auto summary, anything sent to AI,
+  the compare view, the LinkedIn text and the org CSV. "Shorten" / "Make ATS-friendly" / the sample rewrite keep bold
+  on the words that survive and drop it otherwise.
+
 ## Summary writer
 
 On the builder's **Summary** step, in **Job Profile → Summary → About me** and in the kiosk builder, anyone can get a

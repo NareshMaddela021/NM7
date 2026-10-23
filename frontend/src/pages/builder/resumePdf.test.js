@@ -163,3 +163,64 @@ describe('rupee sign and emoji (QA)', () => {
     expect(plain.meta.Producer).toMatch(/jsPDF/i);
   });
 });
+
+describe('bold words (**word** markers)', () => {
+  const BOLD = {
+    ...structuredClone(INITIAL), hidden: {},
+    personal: { ...INITIAL.personal, headline: 'Data **Analyst**' }, // not a rich field: the marker is left out
+    summary: 'Analyst who built **Power BI** dashboards.',
+    exp: [{ ...INITIAL.exp[0], description: '**Cut costs by 20%** using SQL\nBuilt reports with **Power BI**, weekly\nA stray ** marker' }],
+  };
+  /** The weight of each word of `phrase` on the printed line that holds it (words are drawn one by one). */
+  const boldOf = (r, phrase) => {
+    const rows = {};
+    r.items.forEach((i) => { (rows[`${i.page}:${Math.round(i.y)}`] ||= []).push(i); });
+    const row = Object.values(rows).find((its) => its.sort((a, b) => a.x - b.x).map((i) => i.str.trim()).join(' ').includes(phrase)) || [];
+    const words = phrase.split(' ');
+    return row.filter((i) => words.includes(i.str.trim())).map((i) => i.bold);
+  };
+  it.each(Object.keys(TEMPLATE_PRESETS))('%s: bold words print bold, the rest regular, and no ** is ever printed', async (k) => {
+    // jsPDF (Latin resumes): the same text, never a marker (its font names hide bold from pdf.js, see above)
+    const light = await read(await buildResumePdf({ data: BOLD, design: design(k), photo: null, cover: null }));
+    expect(light.text).not.toContain('**');
+    expect(light.text).toContain('Cut costs by 20% using SQL');
+    // the shaping engine lays out the same lines (tested above) and names its bold fonts, so bold can be checked
+    const r = await read(await buildResumePdf({ data: BOLD, design: design(k), photo: null, cover: null, engine: 'pdflib' }));
+    expect(r.lines.map((l) => l.text)).toEqual(light.lines.map((l) => l.text));
+    expect(r.text).not.toContain('**');
+    expect(r.text).toContain('Data Analyst');
+    expect(r.text).toMatch(/Built reports with Power BI, weekly/);
+    expect(r.text).toContain('A stray marker');
+    expect(boldOf(r, 'Cut costs by 20% using SQL')).toEqual([true, true, true, true, false, false]);
+    expect(boldOf(r, 'Analyst who built Power BI dashboards.')).toEqual([false, false, false, true, true, false]);
+    // "**Power BI**," keeps its comma regular
+    expect(boldOf(r, 'Built reports with Power BI , weekly')).toEqual([false, false, false, true, true, false, false]);
+    const stray = r.items.filter((i) => Math.abs(i.y - (r.items.find((x) => x.str.startsWith('A stray') || x.str === 'stray')?.y ?? -1)) < 1);
+    expect(stray.length).toBeGreaterThan(0);
+    expect(stray.every((i) => !i.bold)).toBe(true);
+  });
+  it('bold Telugu and Hindi words print with the bold Noto fonts (and ₹)', async () => {
+    const data = { ...BOLD, summary: 'అనుభవం: **డేటా విశ్లేషణ** and **डेटा विश्लेषक** saved **₹2 lakh**.' };
+    const blob = await buildResumePdf({ data, design: design('fresher'), photo: null, cover: null });
+    const r = await read(blob);
+    expect(r.text).not.toContain('**');
+    // each word is drawn on its own; Indic words carry their text as ActualText (pdf.js reads glyph order)
+    const raw = contentOf(Buffer.from(await blob.arrayBuffer()));
+    const actual = (t) => `/ActualText ${PDFHexString.fromText(t).toString()}`;
+    for (const w of ['డేటా', 'విశ్లేషణ', 'डेटा', 'विश्लेषक', 'అనుభవం']) expect(raw).toContain(actual(w));
+    const weight = (t) => r.items.filter((i) => i.str.trim() === t).map((i) => i.bold);
+    expect(weight('డేటా')).toEqual([true]); // Noto Sans Telugu Bold
+    expect(weight('डेटा')).toEqual([true]); // Noto Sans Devanagari Bold
+    expect(weight('₹')).toEqual([true]);
+    expect(weight('lakh')).toEqual([true]);
+    expect(weight('అనుభవం')).toEqual([false]);
+    expect(weight('saved')).toEqual([false]);
+  });
+  it('the Impact template keeps bolding numbers next to bold words', async () => {
+    const data = { ...BOLD, exp: [{ ...INITIAL.exp[0], description: 'Grew sales 35% with **Tally**' }] };
+    const r = await read(await buildResumePdf({ data, design: design('impact'), photo: null, cover: null, engine: 'pdflib' }));
+    expect(boldOf(r, '35%')).toEqual([true]);
+    expect(r.items.filter((i) => i.str.trim() === 'Tally').map((i) => i.bold)).toEqual([true]);
+    expect(boldOf(r, 'Grew sales').every((b) => !b)).toBe(true);
+  });
+});

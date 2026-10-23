@@ -554,3 +554,12 @@ async def test_group_ids_never_leak_from_join_info(owner, client, db):
     j = (await client.get("/api/public/join/JNTUA26")).json()
     g = await db[ORG_GROUPS].find_one({})
     assert g["_id"] not in str(j) and g["org_id"] not in str(j)
+
+
+async def test_csv_and_list_names_never_carry_bold_markers(owner, make_client, outbox, db):
+    await joined_three(owner, make_client, outbox, db)
+    await db[RESUMES].update_many({"data.personal.name": "Bala K"}, {"$set": {"data.personal.name": "**Bala** K"}})
+    r = await owner.post("/api/admin/shared-resumes/export.csv?sort=roll", json={})
+    assert "**" not in r.content.decode("utf-8-sig")
+    assert list(csv.reader(io.StringIO(r.content.decode("utf-8-sig"))))[1][0] == "Bala K"
+    assert "**" not in str((await owner.get("/api/admin/shared-resumes")).json()["rows"])

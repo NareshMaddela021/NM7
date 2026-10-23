@@ -15,7 +15,7 @@ import { loadPdfjs } from '../../lib/import';
 import { reviewToResume } from '../../lib/photoImport';
 import { usePageMeta } from '../../lib/meta';
 import { http } from '../../services/http';
-import { FieldGrid, SchemaField } from '../builder/Fields';
+import { FieldGrid, RichArea, SchemaField } from '../builder/Fields';
 import PhotoImport from '../builder/PhotoImport';
 import SummaryWriter from '../builder/SummaryWriter';
 import ResumePreview from '../builder/ResumePreview';
@@ -469,7 +469,7 @@ export function GuidedBuilder({ d, setD, onDone }) {
       <div className="stack g16">
         <SummaryWriter big resume={d} note={d.about || ''} onNote={(v) => setD((p) => ({ ...p, about: v }))} value={d.summary} onUse={(t) => setD((p) => ({ ...p, summary: t }))} />
         <div className="field"><label className="label" htmlFor="k-sum">Two or three lines about you (optional)</label>
-        <textarea id="k-sum" className="input" rows={4} style={big} maxLength={600} placeholder="e.g. Diploma holder in Mechanical Engineering looking for a production trainee role. Good with machines and quick to learn." value={d.summary} onChange={(e) => setD((p) => ({ ...p, summary: e.target.value }))} />
+        <RichArea id="k-sum" rows={4} inputStyle={big} maxLength={600} label="Summary formatting" placeholder="e.g. Diploma holder in Mechanical Engineering looking for a production trainee role. Good with machines and quick to learn." value={d.summary} onChange={(v) => setD((p) => ({ ...p, summary: v }))} />
         </div>
       </div>
     ),

@@ -1,6 +1,7 @@
 // Expert order workspace: the full resume builder + brief, live checks, versions/compare, messages & comments,
 // snippets, Career Launch extras, send draft and final delivery (into the customer's own builder).
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { plainResume } from '../../lib/bold';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Header from '../../components/Header';
 import { Icon, useToast } from '../../components/ui';
@@ -66,7 +67,8 @@ function Drawer({ title, onClose, children }) {
 }
 
 /* ---------- Career Launch: LinkedIn makeover from the resume ---------- */
-function linkedinFrom(d) {
+function linkedinFrom(raw) {
+  const d = plainResume(raw); // LinkedIn gets plain text: no bold markers
   const skills = (d.skillGroups || []).flatMap((g) => g.value.split(',').map((x) => x.trim()).filter(Boolean));
   const role = d.personal?.headline?.split(/\s[·|]\s/)[0] || d.exp?.[0]?.role || 'Professional';
   return {
