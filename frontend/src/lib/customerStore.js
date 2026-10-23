@@ -392,7 +392,7 @@ export function orderView(o) {
   const x = o.linked ? findOrder(o.id) : null;
   if (o.refund && x) return { ...o, x, sent: [], label: 'Refunded', tone: 'neutral', steps: [], live: false };
   if (!x) {
-    const label = o.status === 'refunded' ? 'Refunded' : o.plan === 'diy' ? 'Unlocked' : 'Done';
+    const label = o.status === 'refunded' ? 'Refunded' : o.plan === 'diy' || o.plan === 'linkedin_pack' ? 'Unlocked' : 'Done';
     return { ...o, x: null, label, tone: o.status === 'refunded' ? 'neutral' : 'success', steps: [], live: false };
   }
   const sent = (x.versions || []).filter((v) => v.data && v.sent);

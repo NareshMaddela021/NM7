@@ -30,7 +30,7 @@ export function orderFromApi(o, resumeId) {
     id: o.id, plan: o.plan, price: (plan?.amount ?? o.amount) / 100, paidAt, method: o.paymentMethod ? o.paymentMethod.toUpperCase() === 'UPI' ? 'UPI' : o.paymentMethod[0].toUpperCase() + o.paymentMethod.slice(1) : '—',
     payId: o.paymentId || '', invoice: o.invoiceNo || '',
     addons: o.items.filter((i) => i.kind === 'addon').map((i) => ({ id: i.code, price: i.amount / 100, at: paidAt, payId: o.paymentId || '' })),
-    linked: o.plan !== 'diy', resumeId, serverStatus: o.status,
+    linked: !['diy', 'linkedin_pack'].includes(o.plan), resumeId, // self-serve plans have no expert order serverStatus: o.status,
     status: o.status === 'refunded' || done ? 'refunded' : o.status === 'done' ? 'done' : undefined,
     ...(done ? { refund: { amount: done.amount / 100, reason: done.reason === 'late' ? 'Late delivery — automatic refund' : done.reason === 'cancel' ? 'Cancelled before an expert started' : 'Refund approved after review', at: ts(done.createdAt), done: ts(done.processedAt), ref: done.id } } : {}),
     ...(review ? { refundRequest: { status: 'review', reason: review.reason, at: ts(review.createdAt), ref: review.id } } : {}),

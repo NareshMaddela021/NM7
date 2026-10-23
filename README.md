@@ -378,6 +378,17 @@ Code: `frontend/src/lib/linkedin/` (checks, headlines, guide) and `backend/app/l
   (`pack_rules.py`) fill in anything that fails, or everything when AI is off, busy or over the limit.
 - One free regenerate per written section (headline, About, experience, education). The person's own edits are
   kept; regenerating an edited section asks first.
+- **Where it shows**: /linkedin under both paths (what is in it, price, "Buy ₹149" only while payments are on, else
+  "Coming soon"; owners get "Make my LinkedIn pack" and then the pack), the dashboard LinkedIn card, Upgrade &
+  add-ons, and the home Pricing section. Buying uses the same Razorpay checkout as the other plans; the page unlocks
+  once the server has the payment (checkout confirmation or Razorpay's webhook). A closed window or a failed payment
+  never unlocks it.
+- **The page** (`frontend/src/pages/linkedin/Pack.jsx`): Copy on every item, where to paste each one (English,
+  తెలుగు, हिन्दी; the last two marked NEED NATIVE REVIEW), Regenerate (1 free) per written section, Edit (saved; a
+  regenerate asks before replacing your changes), and the banner: 1584 × 396 PNG with the name, role and top
+  skills in the resume's accent colour, drawn on a canvas and saved with `toBlob` (no `data:` URL is fetched).
+- **Testing before Razorpay is live**: Admin → Customers → pick the customer → LinkedIn pack → **Grant LinkedIn
+  pack**. That account (only) sees the full pack on /linkedin; "Take back" locks it again.
 
 ## Nm7 for Organizations (Phase 1)
 

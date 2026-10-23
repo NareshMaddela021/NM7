@@ -6,12 +6,15 @@ import { Link } from 'react-router-dom';
 import { Icon } from '../../components/ui';
 import { importResume } from '../../lib/import';
 import { canSave, saveLinkedIn, writeHeadlines } from '../../lib/linkedin/api';
-import { LOCKED } from '../../lib/linkedin/guide';
+import { useAuth } from '../../lib/auth';
+import { activeResume, useMe } from '../../lib/customerStore';
+import { packRequest } from '../../lib/linkedin/pack';
 import { headlineFacts, improveHeadline } from '../../lib/linkedin/headlines';
 import { roleFrom } from '../../lib/linkedin/keywords';
 import { LIMITS, URL_ERROR, emptySections, fromPaste, fromResumeData, hasContent, mergeSections, normalizeUrl } from '../../lib/linkedin/profile';
 import { CHECKLIST, checkProfile, scoreLabel } from '../../lib/linkedin/score';
-import { CopyButton, Locked, SavePdfPicture, ScoreRing } from './parts';
+import Pack from './Pack';
+import { CopyButton, SavePdfPicture, ScoreRing } from './parts';
 
 const NEED_CONTENT = 'To check your profile, upload your LinkedIn PDF or paste your sections. We never open LinkedIn, so a link alone isn’t enough.';
 
@@ -45,6 +48,17 @@ export default function FixPath({ saved }) {
   const [after, setAfter] = useState({ text: '', notice: '', busy: false });
   const [saveNote, setSaveNote] = useState('');
   const resultRef = useRef(null);
+  const auth = useAuth();
+  const me = useMe();
+  const accent = (auth.user?.role === 'customer' && !me.loading && me.resumes?.length ? activeResume(me)?.data?.design?.accent : null) || '#111827';
+  const [pdfName, setPdfName] = useState('');
+  /** What the LinkedIn pack is written from: the PDF or pasted sections, the role and the person's name. */
+  const packBody = () => {
+    const s = sectionsNow();
+    const r = roleFrom(role, s.headline);
+    if (!hasContent(s) && !r) return null;
+    return packRequest({ path: 'fix', role: r, profile: s, details: { name: pdfName || auth.user?.name || '' } });
+  };
 
   const onFile = async (file) => {
     if (!file) return;
@@ -52,6 +66,7 @@ export default function FixPath({ saved }) {
     try {
       const R = await importResume(file, 'linkedin');
       const sections = fromResumeData(R.data);
+      setPdfName(R.data.personal?.name || '');
       const notLinkedIn = R.notes?.find((n) => /isn’t LinkedIn’s profile PDF/.test(n.msg));
       setPdf({ name: file.name, sections, note: notLinkedIn ? 'This doesn’t look like LinkedIn’s “Save to PDF” file. We read it anyway; check the results.' : '' });
     } catch (e) {
@@ -215,10 +230,10 @@ export default function FixPath({ saved }) {
               </article>
             ))}
           </div>
-
-          <Locked items={LOCKED} />
         </section>
       )}
+
+      <Pack request={packBody} accent={accent} />
     </div>
   );
 }

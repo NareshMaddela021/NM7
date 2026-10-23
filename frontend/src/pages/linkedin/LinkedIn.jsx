@@ -1,7 +1,7 @@
 // /linkedin: free LinkedIn help. "I have a LinkedIn profile" → the check (FixPath); "I don't have one yet" → the
 // headlines and the guide (CreatePath). Signed-in customers keep their latest check on their account.
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import Header from '../../components/Header';
 import SiteFooter from '../../components/SiteFooter';
 import { useAuth } from '../../lib/auth';
@@ -22,8 +22,10 @@ export default function LinkedIn() {
     getLinkedIn().then((r) => { if (!off) setSaved(r?.updatedAt ? r : null); }).catch(() => { if (!off) setSaved(null); });
     return () => { off = true; };
   }, [auth.user?.id]);
+  const { hash } = useLocation();
   const pick = (p) => setParams(p ? { path: p } : {}, { replace: false });
-  const chosen = path || (saved?.path || '');
+  // the dashboard's "Open my LinkedIn pack" lands on #pack: the last path used, else the check
+  const chosen = path || (saved?.path || '') || (hash === '#pack' ? 'fix' : '');
 
   return (
     <>

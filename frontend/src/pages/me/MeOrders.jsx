@@ -122,7 +122,7 @@ export function OrderDetail() {
               <strong>Refunded {inr(o.refund.amount)}</strong>
               <span className="small muted">{o.refund.reason} · started {fmtDay(o.refund.at)} · reached your account {fmtDay(o.refund.done)} · ref {o.refund.ref}</span>
             </>
-          ) : <span className="small">{o.plan === 'diy' ? 'DIY tools unlocked for your account: AI rewrites, every template, PDF and Word download.' : 'Completed.'}</span>}
+          ) : <span className="small">{o.plan === 'diy' ? 'DIY tools unlocked for your account: AI rewrites, every template, PDF and Word download.' : o.plan === 'linkedin_pack' ? <>LinkedIn pack unlocked for your account. <Link to="/linkedin#pack">Open it</Link></> : 'Completed.'}</span>}
         </section>
       )}
 

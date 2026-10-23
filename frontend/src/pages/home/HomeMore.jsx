@@ -282,6 +282,7 @@ const FEATURES = [
   [`Delivered in ${PROMISES.delivery} · revisions included`, false, true, true],
   ['Chat & section comments with your expert', false, true, true],
   ['LinkedIn makeover', false, 'Add-on', true],
+  ['LinkedIn pack (headline, About, experience, skills, banner)', `${inr(PLANS.linkedin_pack.price)} extra`, `${inr(PLANS.linkedin_pack.price)} extra`, true],
   ['Cover letter for your target job', 'Self-serve', 'Self-serve', true],
   ['1:1 mentor call (30 min)', false, false, true],
 ];
@@ -290,7 +291,7 @@ function Pricing({ goPlan }) {
   const plans = [
     ['diy', 'Fix it yourself', 'For confident editors', ['Every template, PDF & Word export', 'AI line fixes and live ATS score', 'Cover letters and share link'], 'Start building'],
     ['expert', 'Expert rewrite', 'Most freshers choose this', ['A verified expert from your field', `Draft in ${PROMISES.delivery}, revisions included`, 'Chat and comment on each section', 'Final lands in your builder'], 'Get an expert'],
-    ['launch', 'Career Launch', 'For your first big move', ['Everything in Expert rewrite', 'LinkedIn headline, About & top role', 'Cover letter for your first target job', '30-min 1:1 mentor call'], 'Launch my career'],
+    ['launch', 'Career Launch', 'For your first big move', ['Everything in Expert rewrite', 'LinkedIn headline, About & top role', 'LinkedIn pack included', 'Cover letter for your first target job', '30-min 1:1 mentor call'], 'Launch my career'],
   ];
   return (
     <>
@@ -309,6 +310,13 @@ function Pricing({ goPlan }) {
             <button type="button" className={`btn btn-lg ${k === 'expert' ? 'btn-ink' : 'btn-outline'}`} style={{ marginTop: 'auto' }} onClick={() => goPlan(k)}>{cta}</button>
           </div>
         ))}
+      </div>
+      <div className="card row between g12" data-testid="home-linkedin-pack" style={{ alignItems: 'center', flexWrap: 'wrap' }}>
+        <span className="stack g4" style={{ flex: '1 1 320px' }}>
+          <strong>LinkedIn pack · {inr(PLANS.linkedin_pack.price)}</strong>
+          <span className="small muted">Headline options, About in 3 styles, experience, skills, a banner and URL ideas, written from your own details. Included in Career Launch.</span>
+        </span>
+        <Link to="/linkedin" className="btn btn-outline">See the LinkedIn pack</Link>
       </div>
       <div className="row between g16">
         <div className="row g12 well" style={{ flex: '1 1 420px', alignItems: 'center', flexWrap: 'nowrap', background: 'var(--successbg)' }}>

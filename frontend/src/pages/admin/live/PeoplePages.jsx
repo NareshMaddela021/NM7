@@ -174,6 +174,15 @@ function CustomerPanel({ id, onClose, onChanged }) {
           <span className="xs muted">Joined {day(c.joined)}{c.targetRole ? ` · target role ${c.targetRole}` : ''}{c.blocked ? ' · BLOCKED' : ''}</span>
           <strong className="small">Orders</strong>
           {c.orders.length ? c.orders.map((o) => <span key={o.id} className="small">{o.id} · {o.planName} · {rupees(o.amount)} · {STATUS_LABEL[o.status] || o.status}</span>) : <span className="xs muted">No orders.</span>}
+          <strong className="small">LinkedIn pack</strong>
+          <div className="row between g8 small" data-testid="admin-li-pack" style={{ alignItems: 'center', flexWrap: 'wrap' }}>
+            <span>{!c.linkedinPack ? 'Not unlocked' : c.linkedinPack.source === 'grant' ? `Granted by an admin · ${day(c.linkedinPack.purchasedAt)}` : `Paid · ${c.linkedinPack.orderId}${c.linkedinPack.source === 'launch' ? ' (Career Launch)' : ''}`}</span>
+            {!c.linkedinPack ? (
+              <button type="button" className="btn btn-outline" disabled={busy} onClick={() => run(async () => { await http(`/api/admin/customers/${id}/linkedin-pack`, { method: 'POST', body: { granted: true, note: notes || '' } }); st.reload(); }, 'LinkedIn pack granted')}>Grant LinkedIn pack</button>
+            ) : c.linkedinPack.source === 'grant' ? (
+              <button type="button" className="btn btn-ghost" disabled={busy} onClick={() => run(async () => { await http(`/api/admin/customers/${id}/linkedin-pack`, { method: 'POST', body: { granted: false } }); st.reload(); }, 'LinkedIn pack taken back')}>Take back</button>
+            ) : <span className="xs muted">Paid: refund the order to take it back</span>}
+          </div>
           <strong className="small">Support tickets</strong>
           {c.tickets.length ? c.tickets.map((t) => <span key={t.id} className="small">{t.id} · {t.topic} · {t.status} — {t.text.slice(0, 80)}</span>) : <span className="xs muted">No tickets.</span>}
           <div className="field"><label className="label" htmlFor="c-notes">Private notes (team only)</label><textarea id="c-notes" className="input" rows={3} value={notes ?? c.notes} onChange={(e) => setNotes(e.target.value)} /></div>
