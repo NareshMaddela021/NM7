@@ -185,13 +185,13 @@ for (const [label, opts] of SIZES) {
       seed('customer', mail, 'Kiran Rao', PASSWORD);
       await login(page, mail);
       await page.waitForURL('**/me');
-      await page.route(HEADLINES, (route) => route.fulfill(json(429, { error: { code: 'rate_limited', message: 'You can write LinkedIn headlines with AI 10 times a day. Here are quick suggestions instead.' } })));
+      await page.route(HEADLINES, (route) => route.fulfill(json(429, { error: { code: 'rate_limited', message: 'You can use AI for LinkedIn 10 times a day. Here are quick suggestions instead.' } })));
       await page.goto('/linkedin?path=create');
       await page.getByLabel('The job you want').fill('Web Developer');
       await page.getByLabel('Skills').fill('HTML, CSS, JavaScript, React');
       await page.getByTestId('li-make').click();
       await expect(page.getByTestId('li-option')).toHaveCount(5);
-      await expect(page.getByTestId('li-ai-notice')).toHaveText('You can write LinkedIn headlines with AI 10 times a day. Here are quick suggestions instead.');
+      await expect(page.getByTestId('li-ai-notice')).toHaveText('You can use AI for LinkedIn 10 times a day. Here are quick suggestions instead.');
     });
   });
 }

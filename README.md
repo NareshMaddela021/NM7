@@ -366,6 +366,18 @@ Code: `frontend/src/lib/linkedin/` (checks, headlines, guide) and `backend/app/l
   "Take back"), written to the audit log (`linkedin_pack.granted` / `.revoked`). A paid pack is never taken back
   there: refund its order instead.
 - `GET /api/me/linkedin/pack/status` → owned, source (order / launch / grant), price, paymentsOn, onSale.
+- **Contents** (owners only, checked on the server: `GET /api/me/linkedin/pack`, `POST …/generate`,
+  `POST …/regenerate`, `PUT …/edit`; 403 `pack_locked` for anyone else): 5 headlines (≤ 220), About in 3 styles
+  (simple, professional, story; ≤ 2,600), each job rewritten (≤ 2,000; freshers' projects become experience-style
+  entries), education lines, skills ranked for the target role (best 5 first, up to 50, plus the role's missing
+  ones to add only if true), a Featured plan (projects, certificates, the Nm7 resume link), the banner text and 3
+  custom URL ideas. Path 1 shows before → after and marks what is already good "Keep as it is" (never rewritten).
+- Written once and saved on the account (shown as often as the person likes). AI (Haiku) writes it when on and
+  within the daily limit (counted before the call, shared with the headlines: 10 a day); every AI piece is checked
+  (limits, no contact details / links / ID numbers / emoji, English, no number that wasn't given) and the rules
+  (`pack_rules.py`) fill in anything that fails, or everything when AI is off, busy or over the limit.
+- One free regenerate per written section (headline, About, experience, education). The person's own edits are
+  kept; regenerating an edited section asks first.
 
 ## Nm7 for Organizations (Phase 1)
 

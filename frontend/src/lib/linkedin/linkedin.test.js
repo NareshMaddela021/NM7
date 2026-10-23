@@ -221,7 +221,7 @@ describe('AI headlines', () => {
     expect(r.headlines.join('\n')).not.toMatch(/Infosys|5 years/);
     expect(r.headlines.length).toBeGreaterThan(1);
   });
-  it.each([[new ApiError(503, 'feature_off', 'off'), 'AI is busy. Here are quick suggestions.'], [new ApiError(429, 'rate_limited', 'You can write LinkedIn headlines with AI 10 times a day. Here are quick suggestions instead.'), 'You can write LinkedIn headlines with AI 10 times a day. Here are quick suggestions instead.'], [new ApiError(0, 'network', 'x'), 'AI is busy. Here are quick suggestions.']])('falls back to the rules, never an error (%s)', async (err, notice) => {
+  it.each([[new ApiError(503, 'feature_off', 'off'), 'AI is busy. Here are quick suggestions.'], [new ApiError(429, 'rate_limited', 'You can use AI for LinkedIn 10 times a day. Here are quick suggestions instead.'), 'You can use AI for LinkedIn 10 times a day. Here are quick suggestions instead.'], [new ApiError(0, 'network', 'x'), 'AI is busy. Here are quick suggestions.']])('falls back to the rules, never an error (%s)', async (err, notice) => {
     http.mockRejectedValue(err);
     const r = await writeHeadlines(f, { count: 5 });
     expect(r.ai).toBe(0);
