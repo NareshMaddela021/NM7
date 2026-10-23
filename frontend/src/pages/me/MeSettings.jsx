@@ -9,6 +9,7 @@ import { useExpertOrders } from '../../lib/expertStore';
 import { savePdf } from '../builder/resumePdf';
 import { PROMISES, REFERRAL, inr } from '../../lib/pricing';
 import { getJobProfile } from '../../lib/profileStore';
+import { canSave, deleteLinkedIn, getLinkedIn } from '../../lib/linkedin/api';
 import { MeHead } from './MeLayout';
 import { fmtDay } from './shared';
 
@@ -23,6 +24,7 @@ export function MeSettings() {
   const toast = useToast();
   const [f, setF] = useState(me.account);
   const [del, setDel] = useState(false);
+  const [liDel, setLiDel] = useState(false);
   const [confirm, setConfirm] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -38,7 +40,7 @@ export function MeSettings() {
   };
   const exportAll = async () => {
     const s = getMe();
-    const data = { exportedAt: new Date().toISOString(), account: s.account, orders: s.orders, expertOrders: all.filter((x) => s.orders.some((o) => o.id === x.id)).map(({ id, status, versions, messages, comments }) => ({ id, status, versions, messages, comments })), resumes: s.resumes, coverLetters: s.covers, applications: s.apps, atsChecks: s.checks, shareLink: s.share, issues: s.issues, jobProfile: getJobProfile().data };
+    const data = { exportedAt: new Date().toISOString(), account: s.account, orders: s.orders, expertOrders: all.filter((x) => s.orders.some((o) => o.id === x.id)).map(({ id, status, versions, messages, comments }) => ({ id, status, versions, messages, comments })), resumes: s.resumes, coverLetters: s.covers, applications: s.apps, atsChecks: s.checks, shareLink: s.share, issues: s.issues, jobProfile: getJobProfile().data, linkedin: canSave() ? await getLinkedIn().catch(() => null) : null };
     await savePdf(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }), 'my-asuraa-data.json');
     toast('Your data file is ready');
   };
@@ -71,16 +73,26 @@ export function MeSettings() {
         <strong>Privacy</strong>
         <div className="row between g8"><span className="small">Download everything we hold about you — resumes, orders, messages, applications.</span><button type="button" className="btn btn-outline" onClick={exportAll}>Download my data</button></div>
         <div className="row between g8"><span className="small">Expert files are kept for {PROMISES.retentionDays} days after delivery. Your own resumes stay until you delete them.</span></div>
+        {canSave() && <div className="row between g8"><span className="small">Your LinkedIn link, the text from your LinkedIn PDF or pasted sections, and your checks. Kept on your account only, never shared with organizations.</span><button type="button" className="btn btn-outline" onClick={() => setLiDel(true)}>Delete my LinkedIn data</button></div>}
         <div className="row between g8"><span className="small" style={{ color: 'var(--danger)' }}>Delete my account and all my data.</span><button type="button" className="btn btn-ghost" style={{ color: 'var(--danger)' }} onClick={() => setDel(true)}>Delete account</button></div>
       </section>
+      {liDel && (
+        <Dialog showTitle title="Delete your LinkedIn data?" onClose={() => setLiDel(false)}>
+          <div className="stack g12">
+            <span className="small muted">This removes your saved LinkedIn link, the PDF text or pasted sections, and your checks and headlines. Your LinkedIn account itself is not touched.</span>
+            <button type="button" className="btn btn-ink" style={{ background: 'var(--danger)', borderColor: 'var(--danger)' }}
+              onClick={async () => { try { await deleteLinkedIn(); setLiDel(false); toast('Your LinkedIn data is deleted.'); } catch (err) { toast(err.message || 'Not deleted. Please try again.'); } }}>Delete LinkedIn data</button>
+          </div>
+        </Dialog>
+      )}
       {del && (
         <Dialog showTitle title="Delete your account?" onClose={() => setDel(false)}>
           <form className="stack g12" onSubmit={async (e) => {
             e.preventDefault();
             if (!LIVE) { resetMe(); setDel(false); setConfirm(''); toast('Deletion requested — we confirm by email. (Preview: sample data reset.)'); return; }
-            try { await raiseIssue({ topic: 'Account', text: 'Please delete my account and all my data.' }); setDel(false); setConfirm(''); toast('Deletion requested — our team confirms by email within 7 days.'); } catch (err) { toast(err.message); }
+            try { await deleteLinkedIn().catch(() => {}); await raiseIssue({ topic: 'Account', text: 'Please delete my account and all my data.' }); setDel(false); setConfirm(''); toast('Deletion requested — our team confirms by email within 7 days.'); } catch (err) { toast(err.message); }
           }}>
-            <span className="small muted">This deletes your resumes, cover letters, applications and messages. Invoices are kept as the law requires. Download your data first if you want a copy.</span>
+            <span className="small muted">This deletes your resumes, cover letters, applications, messages, and your LinkedIn link, PDF text and checks (those go at once). Invoices are kept as the law requires. Download your data first if you want a copy.</span>
             <label htmlFor="del" className="label">Type DELETE to confirm</label>
             <input id="del" className="input" style={{ height: 42 }} value={confirm} onChange={(e) => setConfirm(e.target.value)} />
             <button type="submit" className="btn btn-ink" style={{ background: 'var(--danger)', borderColor: 'var(--danger)' }} disabled={confirm !== 'DELETE'}>Delete my account</button>

@@ -173,6 +173,12 @@ describe('headlines (rules)', () => {
     expect(headlineOk('Data Analyst | B.Tech (2024)', f)).toBe(true);
     expect(headlineOk('Data Analyst | call 98765 43210', { ...f, x: '98765 43210' })).toBe(false);
   });
+  it('a role and skills alone still give 5 different options', () => {
+    const hs = headlineOptions(headlineFacts({ details: { role: 'Accountant', skills: 'Tally, GST, Excel' } }), 5);
+    expect(hs).toHaveLength(5);
+    expect(new Set(hs).size).toBe(5);
+    for (const h of hs) expect(h).toMatch(/Accountant/);
+  });
   it('nothing to work with gives no options', () => {
     expect(headlineOptions({}, 5)).toEqual([]);
   });

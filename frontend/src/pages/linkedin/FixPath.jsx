@@ -9,7 +9,7 @@ import { canSave, saveLinkedIn, writeHeadlines } from '../../lib/linkedin/api';
 import { LOCKED } from '../../lib/linkedin/guide';
 import { headlineFacts, improveHeadline } from '../../lib/linkedin/headlines';
 import { roleFrom } from '../../lib/linkedin/keywords';
-import { LIMITS, URL_ERROR, fromPaste, fromResumeData, hasContent, mergeSections, normalizeUrl } from '../../lib/linkedin/profile';
+import { LIMITS, URL_ERROR, emptySections, fromPaste, fromResumeData, hasContent, mergeSections, normalizeUrl } from '../../lib/linkedin/profile';
 import { CHECKLIST, checkProfile, scoreLabel } from '../../lib/linkedin/score';
 import { CopyButton, Locked, SavePdfPicture, ScoreRing } from './parts';
 
@@ -34,7 +34,8 @@ export default function FixPath({ saved }) {
   const [urlErr, setUrlErr] = useState('');
   const [role, setRole] = useState(saved?.targetRole || '');
   const [mode, setMode] = useState(saved?.source === 'paste' ? 'paste' : 'pdf');
-  const [pdf, setPdf] = useState(null); // { name, sections, note }
+  // a Re-check uses the PDF text saved last time (no need to upload again)
+  const [pdf, setPdf] = useState(saved?.source === 'pdf' && saved.sections ? { name: 'your saved LinkedIn PDF', sections: { ...emptySections(), ...saved.sections }, note: '' } : null); // { name, sections, note }
   const [pdfErr, setPdfErr] = useState('');
   const [reading, setReading] = useState(false);
   const [paste, setPaste] = useState({ headline: '', about: '', experience: '', skills: '', ...(saved?.source === 'paste' ? saved.sections?.pasted : {}) });

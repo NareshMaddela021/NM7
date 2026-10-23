@@ -90,6 +90,10 @@ export function headlineOptions(facts, count = 5) {
     fit([R, sk.slice(0, 4).join(', '), f.target ? `Open to ${f.target} roles${f.city ? ` in ${f.city}` : ''}` : '']),
     fit([f.current || R, sk.slice(0, 3).join(' · ')]),
     fit([R, deg]),
+    // fewer facts: still 5 different ones, from the same facts
+    fit([sk.slice(0, 2).join(' & '), R]),
+    fit([`${fresher && f.target ? 'Aspiring ' : ''}${R}`, sk.slice(0, 3).join(' | ')]),
+    fit([`${R} skilled in ${sk.slice(0, 3).join(', ')}`]),
   ];
   const seen = new Set();
   const out = [];
