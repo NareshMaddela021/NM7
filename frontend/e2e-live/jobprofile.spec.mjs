@@ -44,10 +44,10 @@ test('fill the Job Profile; it autosaves and survives a reload and another sign-
   }
   await page.locator('#pf-exp-0-role').fill('Analyst');
   await page.locator('#pf-sg-0').fill('Python, SQL, Excel, Power BI, Statistics');
-  await page.locator('#pf-prefs-targetRoles').fill('Data Analyst');
-  await page.locator('#pf-prefs-cities').fill('Pune, Remote');
-  await page.locator('#pf-prefs-salaryMin').fill('6');
-  await page.locator('#pf-prefs-salaryMax').fill('9');
+  await page.locator('#pf-personal-level').selectOption('Fresher (0–1 yr)'); // Experience level now lives in Basics
+  // job preferences were removed: no card, no fields, nothing in the section list
+  await expect(page.getByRole('heading', { name: 'Job preferences' })).toHaveCount(0);
+  await expect(page.locator('[id^="pf-prefs-"]')).toHaveCount(0);
 
   // entry controls: keyboard move keeps focus on the moved card; switch off; remove asks first
   await page.getByRole('button', { name: 'Move Project 1 down', exact: true }).focus();
@@ -69,11 +69,12 @@ test('fill the Job Profile; it autosaves and survives a reload and another sign-
   const p = await serverProfile(page);
   expect(p.personal).toMatchObject({ name: 'Kiran Rao', headline: 'Data Analyst', phone: '98765 43210', location: 'Pune' });
   expect(p.proj.map((x) => [x.title, !!x.off])).toEqual([['Borealis App', true], ['Apollo Tracker', false]]);
-  expect(p.prefs).toMatchObject({ salaryMin: '6', salaryMax: '9' });
+  expect(p.personal.level).toBe('Fresher (0–1 yr)');
+  expect(p.prefs).toBeUndefined(); // nothing saved for job preferences any more
 
   await page.reload();
   await expect(page.locator('#pf-proj-1-title')).toHaveValue('Apollo Tracker');
-  await expect(page.locator('#pf-prefs-salaryMax')).toHaveValue('9');
+  await expect(page.locator('#pf-personal-level')).toHaveValue('Fresher (0–1 yr)');
 
   // another browser (another sign-in) sees the same profile
   const other = await browser.newContext({ viewport: { width: 375, height: 800 } });
@@ -129,7 +130,7 @@ const activeResume = async (page) => (await api(page, '/api/me/resumes')).find((
 const preview = (page) => page.getByRole('article', { name: 'Resume preview' });
 const goTo = (page, side) => page.getByRole('button', { name: new RegExp(`^.?\\s*${side}( · \\d+ hidden)?`) }).first().click();
 
-test('start a resume from the Job Profile: every section copied, salary never; fill sections (Add vs Replace); hints', async ({ page }) => {
+test('start a resume from the Job Profile: every section copied, old job preferences never; fill sections (Add vs Replace); hints', async ({ page }) => {
   await signIn(page);
   await expect.poll(async () => (await api(page, '/api/me/resumes')).length).toBe(1);
   await putProfile(page, PROFILE, 0);
@@ -163,8 +164,10 @@ test('start a resume from the Job Profile: every section copied, salary never; f
   expect(d.pinfo).toMatchObject({ father: 'R. Rao', dob: '2001-02-03' });
   expect(d.decl.place).toBe('Pune');
   expect(d.links).toMatchObject({ linkedin: 'linkedin.com/in/kiran-rao', github: 'github.com/kiranrao', portfolio: 'kiran.dev' });
-  expect(d.prefs.locations).toBe('Pune, Remote');
-  expect(JSON.stringify(d)).not.toMatch(/salaryMin|salaryMax/);
+  // PROFILE is an older record that still holds job preferences: only its experience level carries over (it moved
+  // to Personal info); cities, notice period and salary are never copied
+  expect(d.prefs).toBeUndefined();
+  expect(JSON.stringify(d)).not.toMatch(/salaryMin|salaryMax|Pune, Remote|1 month/);
   for (const t of ['Kiran Rao', 'Zoho', 'TCS', 'Apollo Tracker', 'Anna University', 'Google Data Analytics', 'Hackathon winner', 'Marathi', 'NSS volunteer', 'Power BI', 'Chess']) await expect(preview(page)).toContainText(t);
   // the profile's job preferences (salary) are never printed
   await expect(preview(page)).not.toContainText('LPA');
@@ -279,9 +282,9 @@ test('new users are pointed at the Job Profile; scans and cover letters use it; 
   expect(p.personal.name).toBe('Neha Joshi');
   expect(JSON.stringify(p.skillGroups)).toContain('Power BI');
 
-  // cover letters start with the target role from the profile
+  // cover letters start with the role from the headline (old stored target roles are ignored)
   const cur = await api(page, '/api/me/job-profile');
-  await putProfile(page, { ...cur.data, prefs: { ...cur.data.prefs, targetRoles: 'Business Analyst, Data Analyst' } }, cur.version);
+  await putProfile(page, { ...cur.data, personal: { ...cur.data.personal, headline: 'Business Analyst · SQL' }, prefs: { targetRoles: 'Product Manager' } }, cur.version);
   await page.goto('/me/covers');
   await page.getByRole('button', { name: 'New cover letter' }).click();
   await expect(page.locator('#cv-ro')).toHaveValue('Business Analyst');

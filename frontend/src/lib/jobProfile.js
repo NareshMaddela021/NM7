@@ -1,5 +1,5 @@
 // The Job Profile: one master career record per customer. Resumes are copies made from it.
-// Same sections as the builder (so copying is exact), plus job preferences that are never printed or shared.
+// Same sections as the builder (so copying is exact).
 // Every list entry has a `pid` (stable id) and `pu` (last changed, ms); a resume entry copied from the profile
 // keeps that `pid` and the `pv` it was copied at, which is how "Save this change to my Job Profile" and
 // "Your profile has N updates" work.
@@ -14,7 +14,7 @@ export const newPid = uid;
 
 export function emptyProfile(u) {
   return {
-    personal: { name: u?.name || '', headline: '', email: u?.email || '', phone: u?.phone || '', location: '' },
+    personal: { name: u?.name || '', headline: '', email: u?.email || '', phone: u?.phone || '', location: '', level: '' },
     links: { linkedin: '', github: '', portfolio: '' },
     summaries: [{ id: 's1', name: 'Main', text: '' }],
     exp: [], intern: [], proj: [], edu: [], certs: [], ach: [], langs: [], extra: [],
@@ -22,7 +22,6 @@ export function emptyProfile(u) {
     hobbies: '', strengths: '', offLines: {},
     pinfo: { father: '', mother: '', dob: '', gender: '', marital: '', nationality: 'Indian', languages: '', address: '' },
     decl: { text: DECL_TEXT, place: '', date: '', name: '' },
-    prefs: { targetRoles: '', cities: '', level: '', notice: '', salaryMin: '', salaryMax: '' }, // private
   };
 }
 
@@ -30,7 +29,10 @@ export function emptyProfile(u) {
 export function normalizeProfile(p, u) {
   const base = emptyProfile(u);
   const out = { ...base, ...(p || {}) };
-  ['personal', 'links', 'pinfo', 'decl', 'prefs'].forEach((k) => { out[k] = { ...base[k], ...(p?.[k] || {}) }; });
+  ['personal', 'links', 'pinfo', 'decl'].forEach((k) => { out[k] = { ...base[k], ...(p?.[k] || {}) }; });
+  // Job preferences were removed (Oct 2026). Old values stay stored, unused, until they are cleared; only the
+  // experience level moved to Personal info, so an old record keeps the level it had.
+  out.personal.level = out.personal.level || p?.prefs?.level || '';
   PROFILE_LISTS.forEach((k) => { out[k] = (Array.isArray(p?.[k]) ? p[k] : []).map((x) => (x.pid ? x : { ...x, pid: uid(), pu: Date.now() })); });
   out.skillGroups = (Array.isArray(p?.skillGroups) && p.skillGroups.length ? p.skillGroups : base.skillGroups).map((x) => (x.pid ? x : { ...x, pid: uid(), pu: Date.now() }));
   out.summaries = Array.isArray(p?.summaries) && p.summaries.length ? p.summaries : base.summaries;
@@ -41,7 +43,7 @@ export function normalizeProfile(p, u) {
 /* ---------- how complete is it ---------- */
 const CHECKS = [
   ['Your name', (p) => p.personal.name.trim()],
-  ['Headline / target role', (p) => p.personal.headline.trim() || p.prefs.targetRoles.trim()],
+  ['Headline / target role', (p) => p.personal.headline.trim()],
   ['Email', (p) => p.personal.email.trim()],
   ['Phone', (p) => p.personal.phone.trim()],
   ['City', (p) => p.personal.location.trim()],
@@ -53,7 +55,6 @@ const CHECKS = [
   ['At least 5 skills', (p) => p.skillGroups.flatMap((g) => (g.value || '').split(',').map((x) => x.trim()).filter(Boolean)).length >= 5],
   ['A certification or achievement', (p) => p.certs.some((c) => c.name) || p.ach.some((a) => a.title)],
   ['Languages', (p) => p.langs.some((l) => l.name)],
-  ['Job preferences', (p) => p.prefs.targetRoles.trim() && p.prefs.cities.trim()],
 ];
 /** { pct, missing: ['Phone', …] } */
 export function profileCompleteness(p) {
@@ -87,11 +88,11 @@ export function sourcesFor(p, section) {
 /** The resume copy of a profile entry, ready for that resume section. */
 export const toResumeEntry = (src) => (src.list === 'intern' ? internAsExp(src.x) : copyEntry(src.x));
 
-/** A full new resume pre-filled from the profile (job preferences stay private: salary is never copied). */
+/** A full new resume pre-filled from the profile. */
 export function profileToResume(p, base = emptyResume()) {
   const d = structuredClone(base);
   const summary = p.summaries.find((s) => s.text.trim()) || p.summaries[0];
-  d.personal = { ...d.personal, ...p.personal, level: p.prefs.level || d.personal?.level || '' };
+  d.personal = { ...d.personal, ...p.personal, level: p.personal.level || d.personal?.level || '' };
   d.summary = summary?.text || '';
   d.exp = sourcesFor(p, 'exp').map(toResumeEntry);
   ['proj', 'edu', 'certs', 'ach', 'langs'].forEach((k) => { d[k] = p[k].map(copyEntry); });
@@ -100,7 +101,6 @@ export function profileToResume(p, base = emptyResume()) {
   d.pinfo = { ...d.pinfo, ...p.pinfo }; d.decl = { ...d.decl, ...p.decl };
   d.links = { ...(d.links || {}), linkedin: p.links.linkedin, github: p.links.github, portfolio: p.links.portfolio };
   d.custom = p.extra.length ? [{ id: 'c_extra', title: EXTRA_TITLE, items: p.extra.map(copyEntry) }] : [];
-  d.prefs = { ...(d.prefs || {}), locations: p.prefs.cities, notice: p.prefs.notice || d.prefs?.notice || '' }; // no salary
   d.hidden = { ...(d.hidden || {}), hobbies: !p.hobbies.trim(), strengths: !p.strengths.trim() };
   d.fromProfile = { personal: fingerprints(d.personal), at: Date.now() };
   return d;
@@ -164,7 +164,7 @@ export function mergeIntoProfile(p, parts) {
     if (fresh.length) { out[k] = [...splitList(out[k]), ...fresh].join('\n'); added += fresh.length; }
   });
   Object.entries(parts.pinfo || {}).forEach(([k, v]) => { if (v && !out.pinfo[k]) { out.pinfo[k] = v; added += 1; } });
-  if (parts.level && !out.prefs.level) out.prefs.level = parts.level;
+  if (parts.level && !out.personal.level) out.personal.level = parts.level;
   return { profile: out, added };
 }
 
@@ -239,8 +239,8 @@ export const entryLabel = (x) => x.title || x.name || [x.role, x.company].filter
 export { LIST_OF };
 
 /* ---------- cover letters ---------- */
-/** The role a cover letter is for, when the user hasn't typed one: first target role, else the headline. */
-export const targetRoleOf = (p) => (p ? (p.prefs.targetRoles.split(',')[0] || '').trim() || (p.personal.headline.split(/[·|]/)[0] || '').trim() : '');
+/** The role a cover letter is for, when the user hasn't typed one: the headline's first part ("Data Analyst · SQL" → "Data Analyst"). */
+export const targetRoleOf = (p) => (p ? (p.personal.headline.split(/[·|]/)[0] || '').trim() : '');
 /** Resume data whose empty name / contact fields are taken from the profile (for the cover letter header). */
 export function withProfileContact(d, p) {
   if (!p || !d) return d;

@@ -51,7 +51,7 @@ import PhotoEditor, { DEFAULT_ADJ, shapePhoto } from './builder/PhotoEditor';
 import { DEFAULT_DESIGN, FIT_STEPS, TEMPLATE_PRESETS } from './builder/design';
 import {
   AI_SAMPLES, ALL_SKILLS, EXP_LEVELS, FIXED_SECTIONS, INITIAL, LISTS, PERSONAL_FIELDS, PINFO_FIELDS, DECL_FIELDS, DECL_TEXT,
-  HOBBY_IDEAS, STRENGTH_IDEAS, PREF_FIELDS, PRESET_SECTIONS, completeness, DEFAULT_SKILL_GROUPS, SKILL_GROUP_OF, splitSkills, allSkills,
+  HOBBY_IDEAS, STRENGTH_IDEAS, PRESET_SECTIONS, completeness, DEFAULT_SKILL_GROUPS, SKILL_GROUP_OF, splitSkills, allSkills,
   PRINTABLE, real, completeResume, resolveOrder, sectionLabel, fieldError, dateOrderError, collectIssues, LINK_SLOTS, LINK_WORDS, LINK_WORD_MAX, migrateLinks, isFresher, SCORE_WEIGHTS, strengthOf,
 } from './builder/schema';
 
@@ -156,7 +156,7 @@ function Done({ name, score, onEdit, onDownload, onCover, pdfBusy }) {
 /**
  * embedded (optional) — used by the expert workspace:
  *   { storageKey, initial, onChange(d), replace: { n, data }, focus: { n, id } }
- * Embedded mode skips the start/template screens, the header and the job-preference step.
+ * Embedded mode skips the start/template screens and the header.
  */
 /** The header's save note. Signed in: what the server has (saving / saved / a failure being retried). Guests: this browser. */
 function SaveStatus({ customer, serverIn, save, dirty }) {
@@ -369,8 +369,8 @@ export default function Builder({ embedded = null }) {
       const c = d.custom.find((x) => x.id === id);
       return c ? { id, label: c.title, help: 'Add as many entries as you like. Leave any field blank.', custom: true } : fixed[id];
     });
-    return [fixed.personal, ...printed, ...(embedded ? [] : [fixed.prefs]), fixed.links, { id: 'review', label: 'Review & Submit', help: 'Check each section, set the order and fix anything flagged.' }];
-  }, [d, embedded]);
+    return [fixed.personal, ...printed, fixed.links, { id: 'review', label: 'Review & Submit', help: 'Check each section, set the order and fix anything flagged.' }];
+  }, [d]);
   const idx = Math.max(0, SECS.findIndex((s) => s.id === sec));
   const cur = SECS[idx];
   const { has } = completeness(d);
@@ -827,7 +827,6 @@ export default function Builder({ embedded = null }) {
               </div>
             )}
             {cur.custom && listEditor(cur.id, LISTS.custom)}
-            {cur.id === 'prefs' && <><div className="row g8"><strong>Job matching</strong><ProfileOnly /></div>{objEditor('prefs', PREF_FIELDS)}</>}
             {cur.id === 'links' && (
               <>
                 <div className="card stack g12" style={{ padding: 20 }}>
@@ -940,7 +939,7 @@ export default function Builder({ embedded = null }) {
                   <ResumePreview decorative data={sampleData} design={ds} photo={TEMPLATE_PRESETS[ds.preset]?.photo ? PHOTO_PLACEHOLDER : null} />
                 </div>
               ) : <ResumePreview data={d} design={ds} photo={photo} onPages={onPages} loading={dataLoading} hints />}
-            <span className="xs faint">Job preferences stay on your Nm7 profile — never printed. Personal information, declaration and your photo print only when you switch them on.</span>
+            <span className="xs faint">Personal information, declaration and your photo print only when you switch them on.</span>
           </section>
         </main>
       )}

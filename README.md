@@ -113,7 +113,7 @@ resume**. Download PDF / Word always make the person's own resume: from Sample i
 
 - **₹ and emoji in PDFs** (builder downloads and organization exports use the same maker): ₹ is drawn with the Noto
   Sans font already shipped for Indian scripts (public/fonts, all of them have it); emoji are left out of the PDF
-  (no font here can draw them). Job preferences are never printed, so they never decide the font.
+  (no font here can draw them).
 - **The same resume in two tabs:** when the other tab saved first, this tab no longer stays on "Not saved yet —
   retrying": it asks **Use latest** (take the other copy) or **Keep mine** (save this tab's copy over it).
 - **File names:** one rule for builder PDF / Word, organization exports and recruiter links (lib/fileName.js, the
@@ -130,6 +130,18 @@ fetching a `data:` URL, which the CSP's connect-src blocks (that once made the b
 fails if any code fetches a `data:` URL). "Download QR poster (PDF)" makes an A4 page with the QR, the group's name,
 its join code and "Scan to share your resume". A new kiosk link has the same PNG download. If the browser can't make
 the file, the page says: "Couldn't download the QR. Long-press or right-click the QR to save it."
+
+### Job preferences removed (October 2026)
+
+The Job Profile's "Job preferences" card (target roles, preferred cities, notice period, expected salary) and the
+builder's "Preferences" step are gone. Experience level now sits in the Job Profile's Basics (and stays in the
+builder's Personal info); ready-summary ordering, "Write it from my resume" and cover letters use the headline;
+fresher-only summary cards use the experience level. Job Profile completeness and Profile strength reach 100% without
+them (the step's 7 points moved to Personal info, Summary and Experience).
+
+Old saved values are left in the database, unused, for 30 days: nothing shows, saves, prints, exports or shares them
+(experts no longer see them, even with the old salary switch on). Clearing them will be a separate change with a
+dry run first. The drive join form's "Preferred job / location" questions are a different thing and stay.
 
 ## Summary writer
 

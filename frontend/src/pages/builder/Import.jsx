@@ -331,7 +331,7 @@ export default function Import({ mode, d, onBack, onDone, onPhotos = null }) {
           <section className="card stack g16" style={{ padding: 20 }}>
             <strong>How should we use this?</strong>
             <div role="radiogroup" aria-label="Replace or add" className="grid-auto g8" style={{ '--min': '240px' }}>
-              {[['replace', 'Start fresh with this file', 'Replaces what’s in the builder now (including the sample details). Your design and job preferences stay.'],
+              {[['replace', 'Start fresh with this file', 'Replaces what’s in the builder now. Your design stays.'],
                 ['merge', 'Add to what I already have', 'Keeps everything there, fills empty fields and adds new entries. Duplicates are skipped.']].map(([v, t, s]) => (
                 <label key={v} className="option" data-on={how === v}>
                   <input type="radio" name="imp-how" checked={how === v} onChange={() => setHow(v)} />

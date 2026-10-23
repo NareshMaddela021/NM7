@@ -47,7 +47,7 @@ describe('Fill a builder section from the Job Profile', () => {
     expect(fillSection(c, 'c_1', 'extra', picked('extra'), 'add').custom[0].items[0].title).toBe('NSS volunteer');
   });
   it('cover letters: role and empty contact details come from the profile', () => {
-    expect(targetRoleOf(p)).toBe('Business Analyst');
+    expect(targetRoleOf(p)).toBe('Data Analyst'); // the headline, never the old stored target roles
     const r = withProfileContact({ personal: { name: 'K. Rao', email: '', phone: '', location: '' } }, p);
     expect(r.personal).toMatchObject({ name: 'K. Rao', email: 'k@example.com', phone: '98765 43210', location: 'Pune' });
   });

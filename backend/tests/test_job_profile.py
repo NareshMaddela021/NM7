@@ -82,18 +82,19 @@ async def test_expert_sees_profile_only_with_consent_and_never_salary_by_default
     assert err(await expert.get(f"/api/work/{oid}/profile")) == "no_consent"
     await client.put("/api/me/job-profile", json={"data": PROFILE, "privacy": {"experts": True}})
     seen = (await expert.get(f"/api/work/{oid}/profile")).json()["data"]
-    assert seen["exp"][0]["company"] == "Acme" and "salaryMin" not in seen["prefs"] and "pinfo" not in seen
+    assert seen["exp"][0]["company"] == "Acme" and "prefs" not in seen and "pinfo" not in seen
     await client.put(
         "/api/me/job-profile", json={"data": PROFILE, "privacy": {"experts": True, "salary": True, "personal": True}}
     )
     seen = (await expert.get(f"/api/work/{oid}/profile")).json()["data"]
-    assert seen["prefs"]["salaryMax"] == "9" and seen["pinfo"]["father"] == "R. Rao"
+    # job preferences were removed: never shown, even with the old salary switch on
+    assert "prefs" not in seen and seen["pinfo"]["father"] == "R. Rao"
     # strangers and the customer themselves can't use the expert route
     other, _ = await approved_expert(make_client, outbox, db, "e2@example.com", "Other")
     assert (await other.get(f"/api/work/{oid}/profile")).status_code == 404
     assert (await client.get(f"/api/work/{oid}/profile")).status_code == 403
 
-    # the resume the customer ordered with: salary removed for the expert; personal info only if printed
+    # the resume the customer ordered with: job preferences never reach the expert; personal info only if printed
     original = {
         "personal": {"name": "Asha"},
         "prefs": {"salary": "₹5–10 LPA", "notice": "1 month"},
@@ -103,7 +104,7 @@ async def test_expert_sees_profile_only_with_consent_and_never_salary_by_default
     await client.put("/api/me/job-profile", json={"data": PROFILE, "privacy": {"experts": True}})
     await client.patch(f"/api/work/{oid}", json={"original": original})
     got = (await expert.get(f"/api/work/{oid}")).json()["original"]
-    assert "salary" not in got["prefs"] and got["prefs"]["notice"] == "1 month" and "pinfo" not in got
+    assert "prefs" not in got and "pinfo" not in got
     await db[ORDER_WORK].update_one({"_id": oid}, {"$set": {"data.original.hidden": {}}})
     assert (await expert.get(f"/api/work/{oid}")).json()["original"]["pinfo"] == {"father": "R"}
     assert (await client.get(f"/api/work/{oid}")).json()["original"]["prefs"]["salary"] == "₹5–10 LPA"  # owner: all
