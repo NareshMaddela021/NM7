@@ -232,7 +232,7 @@ export default function ResumePreview({ data, design: ds, photo: photoProp, onPa
             <span style={{ fontFamily: FONTS[headFontOf(ds)].css, fontSize: ds.nameSize * s, fontWeight: 700, lineHeight: 1.1, color: ds.accentOn.name ? ds.accent : ds.textColor }}>{d.personal.name || (hints ? <span data-testid="hint" style={{ color: HINT }}>Your name</span> : 'Your Name')}</span>
             {hints && !d.personal.headline && !cover && <span data-testid="hint" style={{ fontSize: (ds.bodySize + 1.5) * s, color: HINT }}>Your job title</span>}
             {d.personal.headline && <span style={{ fontSize: (ds.bodySize + 1.5) * s, color: ds.accentOn.name ? ds.accent : '#444', fontWeight: 500 }}>{d.personal.headline}</span>}
-            <ContactLine d={d} ds={ds} s={s} align={align} />
+            <ContactLine d={d} ds={ds} s={s} align={align} live={!decorative} />
           </div>
         </header>
         {cover ? <CoverBody c={coverParts(d, cover)} ds={ds} s={s} /> : <>

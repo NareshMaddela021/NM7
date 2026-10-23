@@ -5,8 +5,9 @@
 // script, everything else the template's font.
 import 'regenerator-runtime/runtime.js'; // fontkit's Indic shaper is compiled to generators that need it
 import fontkit from '@pdf-lib/fontkit';
-import { PDFDocument, PDFHexString, PDFName, PDFOperator, PDFOperatorNames, PDFString, StandardFonts, endMarkedContent, rgb, setCharacterSpacing } from 'pdf-lib';
+import { LineCapStyle, PDFDocument, PDFHexString, PDFName, PDFOperator, PDFOperatorNames, PDFString, StandardFonts, endMarkedContent, rgb, setCharacterSpacing } from 'pdf-lib';
 import { splitRuns } from './indicFonts';
+import { iconSegments } from './vectorIcons';
 
 // Glyph positions are not part of a PDF text string (viewers place glyphs by their advance widths), so the
 // positioning features are switched off: measuring then matches what is drawn, and the Noto fonts are designed so
@@ -152,6 +153,18 @@ class PdfDoc {
   circle(cx, cy, r, style = 'S') { this.page.drawCircle({ x: cx, y: this.h - cy, size: r, ...this.paint(style) }); }
   triangle(x1, y1, x2, y2, x3, y3, style = 'F') { this.page.drawSvgPath(`M ${x1} ${y1} L ${x2} ${y2} L ${x3} ${y3} Z`, { x: 0, y: this.h, ...this.paint(style) }); }
   line(x1, y1, x2, y2) { this.page.drawLine({ start: { x: x1, y: this.h - y1 }, end: { x: x2, y: this.h - y2 }, thickness: this.lineWidth, color: this.drawColor }); }
+
+  /** A contact icon as vector shapes: `size` points square, top-left at (x, y) from the top, in one colour. */
+  vectorIcon(key, x, y, size, color) {
+    const { fill, paths } = iconSegments(key);
+    const k = size / 24; const f = (n) => +n.toFixed(3);
+    const X = (v) => f(x + v * k); const Y = (v) => f(y + v * k);
+    paths.forEach((segs) => {
+      const d = segs.map((s) => (s[0] === 'M' ? `M${X(s[1])} ${Y(s[2])}` : s[0] === 'L' ? `L${X(s[1])} ${Y(s[2])}` : s[0] === 'C' ? `C${X(s[1])} ${Y(s[2])} ${X(s[3])} ${Y(s[4])} ${X(s[5])} ${Y(s[6])}` : 'Z')).join('');
+      this.page.drawSvgPath(d, fill ? { x: 0, y: this.h, color: col(color), borderWidth: 0 }
+        : { x: 0, y: this.h, borderColor: col(color), borderWidth: 2 * k, borderLineCap: LineCapStyle.Round });
+    });
+  }
 
   /* ---------- images and links ---------- */
   /** Embeds a PNG / JPEG (data URL, base64 or bytes) once; returns the handle `addImage` takes. */

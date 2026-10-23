@@ -5,8 +5,8 @@
 import { loadScriptFonts, scriptsIn, withoutEmoji } from './indicFonts';
 import { buildSections } from './resumeModel';
 import { visibleResume } from './entries';
-import { contactItems } from './ContactLine';
-import { iconColor, iconPng } from './icons';
+import { contactItems, contactMode, contactSepOf, iconScaleOf, showsText } from './ContactLine';
+import { iconColor } from './icons';
 import { PAGE, headFontOf, marginOf } from './design';
 import { ACAD_INDENT, acadRows, isNumWord, printable } from './resumeModel';
 import { hasBold, parseBold, stripBold } from '../../lib/bold';
@@ -72,16 +72,13 @@ export async function buildResumePdf({ data, design: ds, photo: photoArg, cover,
   const PS = ds.photoSize || 62;
   const center = pos === 'top' || (ds.headerAlign === 'center' && !withPhoto);
   const band = ds.headerStyle === 'band';
-  // contact icons as sharp PNGs (brand logos in brand colours or one colour)
-  const rgbHex = (c) => `#${c.map((v) => v.toString(16).padStart(2, '0')).join('')}`;
-  const monoIcon = rgbHex(ds.accentOn.links || ds.accentOn.headings ? accent : [68, 68, 68]);
+  // contact icons as vector shapes (brand logos in brand colours or one colour); how they show is the resume's own
+  // setting (icon + text, text only, icon only for links), the same in every template
+  const monoIcon = ds.accentOn.links || ds.accentOn.headings ? accent : [68, 68, 68];
   const contactRows = contactItems(d, ds.contactLines, undefined, ds.contactOrder);
-  const icons = {};
-  if (ds.icons) {
-    await Promise.all(contactRows.flat().map(async (it) => {
-      try { icons[it.kind] = await doc.image(await iconPng(it.kind, iconColor(it.kind, ds, monoIcon), 96), 'PNG'); } catch { /* draw without icon */ }
-    }));
-  }
+  const cMode = contactMode(d, ds);
+  const withIcons = cMode !== 'text';
+  const iconRgb = (k) => { const c = iconColor(k, ds, null); return c ? rgb(c) : monoIcon; };
   const header = (draw, top) => {
     let y = top;
     let x0 = M;
@@ -114,15 +111,20 @@ export async function buildResumePdf({ data, design: ds, photo: photoArg, cover,
     }
     const cSize = ds.bodySize - 1;
     const linkCol = ds.accentOn.links ? accent : text;
-    const sepTxt = ds.icons ? '' : `  ${ds.contactSep || '·'}  `;
-    const gap = ds.icons ? 10 : 0;
-    const itemW = (it) => { set(cSize); return (ds.icons ? cSize * 1.1 + 3 : 0) + doc.getTextWidth(it.text); };
+    const sepChar = contactSepOf(ds, cMode);
+    const sepTxt = sepChar ? `  ${sepChar}  ` : '';
+    const gap = withIcons && !sepChar ? 10 : 0;
+    const baseline = iconScaleOf(ds) < 1; // Academic: small icons sitting on the text baseline
+    const iSz = cSize * iconScaleOf(ds);
+    const iGap = baseline ? 2.5 : 3;
+    const hasText = (it) => showsText(it, cMode);
+    const itemW = (it) => { set(cSize); return (withIcons ? iSz + (hasText(it) ? iGap : 0) : 0) + (hasText(it) ? doc.getTextWidth(it.text) : 0); };
     contactRows.forEach((row) => {
       const lines = [[]];
       let w = 0;
       row.forEach((it) => {
         const add = itemW(it) + (lines[lines.length - 1].length ? gap + doc.getTextWidth(sepTxt) : 0);
-        if (w + add > hw && lines[lines.length - 1].length) { lines.push([]); w = 0; }
+        if (w + add > hw && lines[lines.length - 1].length) { lines.push([]); w = 0; } // wraps between items, never inside one
         w += itemW(it) + (lines[lines.length - 1].length ? gap + doc.getTextWidth(sepTxt) : 0);
         lines[lines.length - 1].push(it);
       });
@@ -134,14 +136,16 @@ export async function buildResumePdf({ data, design: ds, photo: photoArg, cover,
         ln.forEach((it, i) => {
           if (i) { if (sepTxt) { set(cSize, 'normal', [150, 150, 150]); if (draw) doc.text(sepTxt, x, base); x += doc.getTextWidth(sepTxt); } x += gap; }
           const start = x;
-          if (ds.icons) {
-            const sz = cSize * 1.1;
-            if (draw && icons[it.kind]) doc.addImage(icons[it.kind], x, base - sz + 1.2, sz, sz);
-            x += sz + 3;
+          if (withIcons) {
+            if (draw) doc.vectorIcon(it.kind, x, baseline ? base - iSz : base - iSz + 1.2, iSz, iconRgb(it.kind));
+            x += iSz + (hasText(it) ? iGap : 0);
           }
-          set(cSize, 'normal', it.link ? linkCol : [74, 74, 74]);
-          if (draw) doc.text(it.text, x, base);
-          x += doc.getTextWidth(it.text);
+          if (hasText(it)) {
+            set(cSize, 'normal', it.link ? linkCol : [74, 74, 74]);
+            if (draw) doc.text(it.text, x, base);
+            x += doc.getTextWidth(it.text);
+          }
+          // icon and text are one link
           if (draw && it.url) doc.link(start, base - cSize, x - start, cSize + 3, { url: it.url });
         });
         y += lh(cSize) + 1;

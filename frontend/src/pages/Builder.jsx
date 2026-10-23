@@ -48,6 +48,7 @@ import ReadySummaries from './builder/ReadySummaries';
 import FromResume from './builder/FromResume';
 import { summaryBasis, writeFromResume } from '../lib/summary/fromResume';
 import LinksEditor, { Logo } from './builder/LinksEditor';
+import { CONTACT_MODES, contactMode } from './builder/ContactLine';
 import PhotoEditor, { DEFAULT_ADJ, shapePhoto } from './builder/PhotoEditor';
 import { DEFAULT_DESIGN, FIT_STEPS, TEMPLATE_PRESETS } from './builder/design';
 import {
@@ -694,7 +695,7 @@ export default function Builder({ embedded = null }) {
             {tab === 'cover' ? (
               <CoverPanel d={d} profile={profile} setCover={(cover) => setD((p) => ({ ...p, cover }))} onAddSkill={(k) => { addSkill(k); toast(`Added “${k}” to your skills`); }} />
             ) : tab === 'design' ? (
-              <DesignPanel d={d} ds={ds} set={setDesign} applyPreset={applyTemplate} setTitle={setTitle} fit={fit} fitting={fitting} pages={pages}
+              <DesignPanel d={d} ds={ds} set={setDesign} setResume={(patch) => setD((p) => ({ ...p, ...patch }))} applyPreset={applyTemplate} setTitle={setTitle} fit={fit} fitting={fitting} pages={pages}
                 history={history} savedStyles={savedStyles} saveStyle={saveStyle} applySaved={applySaved} deleteSaved={deleteSaved}
                 reset={() => applyPreset(ds.preset && TEMPLATE_PRESETS[ds.preset] ? ds.preset : 'fresher')} />
             ) : (<>
@@ -841,6 +842,16 @@ export default function Builder({ embedded = null }) {
                       </label>
                     ))}
                   </div>
+                  <span id="ci-l" className="strong small">Icons next to contact details and links</span>
+                  <div role="radiogroup" aria-labelledby="ci-l" className="row g8" style={{ flexWrap: 'wrap' }}>
+                    {CONTACT_MODES.map(([v, l]) => (
+                      <label key={v} className="option" data-on={contactMode(d, ds) === v} style={{ flex: '1 1 140px' }}>
+                        <input type="radio" name="contactIcons" checked={contactMode(d, ds) === v} onChange={() => setD({ ...d, contactIcons: v })} />
+                        <strong className="small">{l}</strong>
+                      </label>
+                    ))}
+                  </div>
+                  <span className="xs muted">Phone and email always keep their text. Every template, Academic too, follows this.</span>
                 </div>
                 <LinksEditor d={d} setD={setD} />
               </>
