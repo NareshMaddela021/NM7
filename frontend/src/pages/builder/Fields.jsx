@@ -3,6 +3,7 @@ import { Icon } from '../../components/ui';
 import { BOLD_TIP, htmlToRich, sanitizeRich, toggleBold, tooMuchBold } from '../../lib/bold';
 import { COURSES_HINT, COURSES_PH, MAX_COURSES, addCourses, coursesOf, suggestCourses } from '../../lib/courses';
 import ChipList from './ChipList';
+import { GrowArea } from './GrowArea';
 
 /** Renders one schema field. `value` / `onChange(value)` are plain values. */
 export function SchemaField({ field, value, onChange, disabled, onAi, idBase, error, entry }) {
@@ -60,6 +61,9 @@ export function SchemaField({ field, value, onChange, disabled, onAi, idBase, er
             </span>
           )}
         </>
+      ) : field.grow && t === 'text' ? ( // short text that can run long: grows to about 6 lines, never scrolls sideways
+        <GrowArea id={id} list={field.grow === 'list'} value={value || ''} placeholder={field.ph} disabled={disabled} onChange={onChange}
+          invalid={!!error} describedBy={error ? `${id}-err` : undefined} />
       ) : (
         <input id={id} className="input" type={t} value={value || ''} placeholder={field.ph} disabled={disabled} onChange={(e) => onChange(e.target.value)}
           aria-invalid={error ? 'true' : undefined} aria-describedby={error ? `${id}-err` : undefined} />

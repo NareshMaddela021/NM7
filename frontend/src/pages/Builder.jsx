@@ -49,6 +49,7 @@ import FromResume from './builder/FromResume';
 import { summaryBasis, writeFromResume } from '../lib/summary/fromResume';
 import LinksEditor, { Logo } from './builder/LinksEditor';
 import { CONTACT_MODES, contactMode } from './builder/ContactLine';
+import { SkillBox } from './builder/GrowArea';
 import PhotoEditor, { DEFAULT_ADJ, shapePhoto } from './builder/PhotoEditor';
 import { DEFAULT_DESIGN, FIT_STEPS, TEMPLATE_PRESETS } from './builder/design';
 import {
@@ -801,7 +802,7 @@ export default function Builder({ embedded = null }) {
                         <input id={`sg-${g.id}-name`} value={g.label} onChange={(e) => setGroup({ label: e.target.value })} placeholder="Category name"
                           style={{ flex: 1, minWidth: 0, border: 0, background: 'transparent', padding: '6px 0', fontSize: 12, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--text2)' }} />
                       <label htmlFor={`sg-${g.id}`} className="sr-only">{g.label} — separate items with commas</label>
-                      <input id={`sg-${g.id}`} className="input" value={g.value} onChange={(e) => setGroup({ value: e.target.value })} placeholder={def?.ph || 'e.g. item one, item two'} />
+                      <SkillBox id={`sg-${g.id}`} label={g.label || `Category ${gi + 1}`} value={g.value} onChange={(v) => setGroup({ value: v })} placeholder={def?.ph || 'e.g. item one, item two'} />
                       {profile && edited.current.has(g) && <SaveToProfile entry={g} section="skills" profile={profile} onSaved={(pid, pv) => setD((p) => ({ ...p, skillGroups: p.skillGroups.map((x, j) => (j === gi ? { ...x, pid, pv } : x)) }))} />}
                       </div>
                     </div>

@@ -3,6 +3,7 @@
 // the selected chip (or the words selected in the box) with **markers**, like the rest of the resume text.
 import { useRef, useState } from 'react';
 import { parseBold, toggleBold } from '../../lib/bold';
+import { GrowArea } from './GrowArea';
 
 const Rich = ({ t }) => parseBold(t).map((p, i) => (p.b ? <strong key={i}>{p.t}</strong> : <span key={i}>{p.t}</span>));
 
@@ -14,7 +15,6 @@ export default function ChipList({ id, label, value, onChange, add, placeholder,
   const list = value || [];
   const [text, setText] = useState('');
   const [picked, setPicked] = useState(null); // index of the chip the B button works on
-  const inputRef = useRef(null);
   const drag = useRef(null);
   const full = max && list.length >= max;
 
@@ -33,7 +33,7 @@ export default function ChipList({ id, label, value, onChange, add, placeholder,
     setPicked((p) => (p === from ? to : p));
   };
   const bold = () => {
-    const el = inputRef.current;
+    const el = document.getElementById(id);
     if (text.trim()) { // words selected in the box (or the word at the cursor)
       const r = toggleBold(text, el.selectionStart, el.selectionEnd);
       setText(r.value);
@@ -85,9 +85,8 @@ export default function ChipList({ id, label, value, onChange, add, placeholder,
       <div className="row g8" style={{ alignItems: 'center' }}>
         <button type="button" className="btn btn-outline" aria-label="Bold (selected course or words)" data-testid={`${id}-bold`}
           onMouseDown={(e) => e.preventDefault()} onClick={bold} style={{ minHeight: 40, minWidth: 44, padding: '0 12px', fontWeight: 800 }}>B</button>
-        <input ref={inputRef} id={id} className="input" style={{ flex: 1, minWidth: 0 }} value={text} placeholder={full ? `${max} added (the most)` : placeholder} disabled={full}
-          enterKeyHint="enter" autoComplete="off"
-          onChange={(e) => { const v = e.target.value; if (/[,;]/.test(v)) commit(v); else setText(v); }}
+        <GrowArea id={id} style={{ flex: 1, minWidth: 0 }} value={text} placeholder={full ? `${max} added (the most)` : placeholder} disabled={full}
+          autoComplete="off" onChange={(v) => { if (/[,;]/.test(v)) commit(v); else setText(v); }}
           onKeyDown={(e) => {
             if (e.key === 'Enter') { e.preventDefault(); commit(); }
             if (e.key === 'Backspace' && !text && list.length) remove(list.length - 1);
