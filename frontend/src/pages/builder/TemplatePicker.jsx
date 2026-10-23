@@ -9,7 +9,7 @@ import ResumePreview from './ResumePreview';
 import TemplatePreview from './TemplatePreview';
 import { ACCENTS, DEFAULT_DESIGN, INDUSTRY_TAGS, TEMPLATE_PRESETS, atsCheck } from './design';
 import { INITIAL } from './schema';
-import { hasOwnDetails, isUseKey, layoutOf, pickState, PHOTO_PLACEHOLDER, readView, saveView, selectionText, startView } from './templatePick';
+import { audienceOf, hasOwnDetails, isUseKey, layoutOf, pickState, PHOTO_PLACEHOLDER, readView, saveView, selectionText, startView } from './templatePick';
 import { InView, NoDetails, ViewSwitch } from './ViewSwitch';
 
 export { layoutOf, PHOTO_PLACEHOLDER } from './templatePick';
@@ -125,7 +125,7 @@ export default function TemplatePicker({ d, ds, suggest, photo, onPick, onNext, 
                 <span className={`badge ${ats >= 90 ? 'b-success' : ats >= 75 ? 'b-warning' : 'b-danger'}`} title="How safely tracking systems can read it">ATS {ats}</span>
                 <span className="badge b-neutral">{two ? '2 columns' : '1 column'}</span>
                 {t.photo && <span className="badge b-neutral">Photo</span>}
-                <span className="badge b-neutral">{t.level === 'fresher' ? 'Freshers' : t.level === 'experienced' ? 'Experienced' : 'Any level'}</span>
+                <span className="badge b-neutral">{audienceOf(t)}</span>
               </div>
               <span className="xs muted" style={{ minHeight: 34 }}>{t.desc}</span>
               <div className="row g4" role="group" aria-label={`${t.name} colours`}>

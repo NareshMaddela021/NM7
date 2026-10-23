@@ -27,7 +27,10 @@ let snap = null;
 const notify = () => { snap = null; subs.forEach((f) => f()); };
 
 /* ---------- personal data in this browser: cleared on sign-out and when another account signs in ---------- */
-const KEEP = new Set(['asuraa-theme', USERS_KEY, SESSION_KEY]); // preferences, and the preview's own sample accounts
+// preferences, the preview's own sample accounts, and the note of which browser drafts were already moved into an
+// account (content fingerprints only, nothing personal), so a draft is never imported twice after a sign-out
+export const IMPORTED_DRAFTS_KEY = 'nm7-imported-drafts';
+const KEEP = new Set(['asuraa-theme', USERS_KEY, SESSION_KEY, IMPORTED_DRAFTS_KEY]);
 const LAST_USER_KEY = 'asuraa-last-user';
 const signOutHooks = new Set();
 /** Stores register a function that forgets what they hold in memory (see customerStore / expertStore). */
@@ -243,7 +246,9 @@ export const homeFor = (u) => (!u ? '/login' : u.role === 'admin' ? '/admin' : u
 
 /** Each signed-in customer has their own builder draft; guests and the sample customer share the original one. */
 export function draftKeyFor(userId) { return !userId || userId === SAMPLE_USER_ID ? 'asuraa-builder-draft-v6' : `asuraa-builder-draft-v6:${userId}`; }
-export const draftKey = () => draftKeyFor(currentUser()?.role === 'customer' ? currentUser().id : null);
+// anyone signed in (customer, admin, expert, coordinator) gets their own key: only a guest writes the guest draft that
+// may later move into an account
+export const draftKey = () => draftKeyFor(currentUser()?.id || null);
 
 /** Preview only: switch accounts from the yellow preview bar without typing passwords. */
 export function previewSignIn(userId) {

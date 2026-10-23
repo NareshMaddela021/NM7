@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useLayoutEffect, useRef, useState
 import { ensureFonts } from './fontLoader';
 import { visibleResume } from './entries';
 import ContactLine from './ContactLine';
-import { buildSections, isNumWord, printable } from './resumeModel';
+import { ACAD_INDENT, acadRows, buildSections, isNumWord, printable } from './resumeModel';
 import { parseBold } from '../../lib/bold';
 import { FONTS, PAGE, headFontOf, marginOf, tint } from './design';
 import { coverParts } from './cover';
@@ -70,7 +70,33 @@ function Link({ url, children, ...p }) {
   return useContext(LinksLive) ? <a href={url} target="_blank" rel="noreferrer" {...p}>{children}</a> : <span {...p}>{children}</span>;
 }
 
+/** Academic (LaTeX look): bold name and place on line 1, italic role and dates on line 2, bullets indented under it. */
+function AcadItem({ it, ds, s }) {
+  const rows = acadRows(it);
+  const links = it.links?.map((l) => (
+    <span key={l.url + l.label}><span style={{ color: '#9A9A9A' }}> | </span>
+      <Link url={l.url} style={{ color: ds.accentOn.links ? ds.accent : ds.textColor, textDecoration: 'underline', textDecorationThickness: Math.max(1, 0.6 * s), textUnderlineOffset: 2 * s }}>{l.label}</Link>
+    </span>
+  ));
+  return (
+    <div className="stack" data-entry="academic" style={{ gap: 0 }}>
+      {rows.map(([l, r], i) => (
+        <div key={i} style={{ display: 'flex', justifyContent: 'space-between', gap: 8 * s, fontStyle: i ? 'italic' : 'normal' }}>
+          <span style={{ minWidth: 0, overflowWrap: 'anywhere' }}>{i ? l : <><strong style={B}>{l}</strong>{links}</>}</span>
+          {r && <span style={{ whiteSpace: 'nowrap' }}>{r}</span>}
+        </div>
+      ))}
+      {!!it.lines?.length && (
+        <div className="stack" style={{ paddingLeft: ACAD_INDENT * s, marginTop: 1 * s }}>
+          {it.lines.map((l, i) => <Line key={i} l={l} ds={ds} s={s} />)}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Item({ it, ds, s }) {
+  if (ds.entryStyle === 'academic') return <AcadItem it={it} ds={ds} s={s} />;
   const dateEl = it.date && <span style={{ color: '#5A5A5A', whiteSpace: ds.datePos === 'right' ? 'nowrap' : 'normal', fontSize: (ds.bodySize - 0.5) * s }}>{it.date}</span>;
   return (
     <div className="stack" style={{ gap: 0.5 * s }}>

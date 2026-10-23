@@ -32,10 +32,10 @@ for (const [label, size] of SIZES) {
       await page.goto('/builder');
       await page.getByRole('button', { name: /Start from scratch/ }).click();
       const uses = page.locator('button.tp-use');
-      await expect(uses).toHaveCount(18);
+      await expect(uses).toHaveCount(19);
       const names = await uses.evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
       expect(names.every((n) => /^Use \S/.test(n || ''))).toBe(true);
-      expect(new Set(names).size).toBe(18);
+      expect(new Set(names).size).toBe(19);
     });
   });
 }

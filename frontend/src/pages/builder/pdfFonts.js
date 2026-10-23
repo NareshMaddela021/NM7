@@ -8,6 +8,7 @@ const LOADERS = import.meta.env.VITE_PREVIEW === '1' ? {} : {
   'source-serif-4': () => Promise.all([import('../../fonts/pdf/source-serif-4-normal.js'), import('../../fonts/pdf/source-serif-4-bold.js'), import('../../fonts/pdf/source-serif-4-italic.js')]),
   lora: () => Promise.all([import('../../fonts/pdf/lora-normal.js'), import('../../fonts/pdf/lora-bold.js'), import('../../fonts/pdf/lora-italic.js')]),
   merriweather: () => Promise.all([import('../../fonts/pdf/merriweather-normal.js'), import('../../fonts/pdf/merriweather-bold.js'), import('../../fonts/pdf/merriweather-italic.js')]),
+  'cmu-serif': () => Promise.all([import('../../fonts/pdf/cmu-serif-normal.js'), import('../../fonts/pdf/cmu-serif-bold.js'), import('../../fonts/pdf/cmu-serif-italic.js')]),
 };
 
 const cache = {};

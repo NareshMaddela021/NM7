@@ -2,7 +2,7 @@
 // preview and PDF. Word gets one column (safest for tracking systems) and Calibri / Cambria, which every
 // Windows and Mac computer has, so the file looks right wherever HR opens it.
 import { zipSync, strToU8 } from 'fflate';
-import { buildSections, printable } from './resumeModel';
+import { ACAD_INDENT, acadRows, buildSections, printable } from './resumeModel';
 import { hasBold, parseBold, stripBold } from '../../lib/bold';
 import { visibleResume } from './entries';
 import { contactItems } from './ContactLine';
@@ -69,7 +69,7 @@ export async function buildDocx({ data, design: ds, cover, photoPng }) {
   }
   out.push(P(run(d.personal.name || 'Your Name', { b: true, sz: ds.nameSize, font: headFont, color: ds.accentOn.name ? accent : text }), { align, fill: bandFill, before: bandFill ? 6 : 0 }));
   if (d.personal.headline) out.push(P(run(d.personal.headline, { sz: ds.bodySize + 1.5, color: ds.accentOn.name ? accent : '444444' }), { align, fill: bandFill, before: 2 }));
-  const rows = contactItems(d, ds.contactLines, 'url');
+  const rows = contactItems(d, ds.contactLines, 'url', ds.contactOrder);
   // small logo / icon before each contact item (inline pictures)
   const media = {};
   if (ds.icons) {
@@ -104,6 +104,7 @@ export async function buildDocx({ data, design: ds, cover, photoPng }) {
   const rich = (t) => (hasBold(t) ? parseBold(t).map((p) => (p.b ? run(p.t, { b: true }) : nums(p.t))).join('') : nums(stripBold(t)));
   const bullet = ds.bullet === 'none' ? '' : ds.bullet === '▸' ? '›' : ds.bullet;
 
+  let extra = 0; // twips: the Academic template indents the bullets under each entry
   const line = (l) => {
     if (typeof l === 'string') {
       if (!hasBold(l)) return out.push(P(run(stripBold(l)), { after: 1 }));
@@ -111,7 +112,7 @@ export async function buildDocx({ data, design: ds, cover, photoPng }) {
       parseBold(l).forEach((p) => p.t.split('\n').forEach((t, i) => { if (i) paras.push([]); if (t) paras[paras.length - 1].push(run(t, { b: p.b })); }));
       return paras.filter((r) => r.length).forEach((r) => out.push(P(r.join(''), { after: 1 })));
     }
-    if (l.bullet) return out.push(bullet ? P(run(bullet) + tab + rich(l.t), { ind: [300, 220], tabs: [[300, 'left']], after: 1 }) : P(rich(l.t), { after: 1 }));
+    if (l.bullet) return out.push(bullet ? P(run(bullet) + tab + rich(l.t), { ind: [300 + extra, 220], tabs: [[300 + extra, 'left']], after: 1 }) : P(rich(l.t), { after: 1, ind: extra ? [extra, 0] : undefined }));
     if (l.chips) return out.push(P((l.label ? run(`${l.label}: `, { b: true }) : '') + run(l.chips.join(', ')), { after: 1 }));
     if (l.kv) return out.push(P(run(l.kv[0]) + tab + run(`:  ${l.kv[1].replace(/\n/g, ', ')}`), { tabs: [[Math.round(ds.bodySize * 9.5 * 20), 'left']], after: 1 }));
     if (l.sign) {
@@ -139,6 +140,17 @@ export async function buildDocx({ data, design: ds, cover, photoPng }) {
       heading(sec.title);
       sec.items.forEach((it, i) => {
         const before = i ? ds.itemGap : 0;
+        if (ds.entryStyle === 'academic') {
+          // line 1: bold name (+ links) · place or dates at the right margin; line 2: italic role · dates
+          acadRows(it).forEach(([l, r], j) => {
+            const o = j ? { i: true } : { b: true };
+            out.push(P(run(l, o) + (j ? '' : linkRuns(it.links)) + (r ? tab + run(r, j ? { i: true } : {}) : ''), { tabs: [[contentW, 'right']], before: j ? 0 : before, keep: true }));
+          });
+          extra = Math.round(ACAD_INDENT * 20);
+          (it.lines || []).forEach(line);
+          extra = 0;
+          return;
+        }
         if (it.head || it.date) {
           out.push(P(run(it.head || '', { b: true }) + linkRuns(it.links) + (it.date ? tab + run(it.date, { color: '5A5A5A', sz: ds.bodySize - 0.5 }) : ''), { tabs: [[contentW, 'right']], before, keep: true }));
         }

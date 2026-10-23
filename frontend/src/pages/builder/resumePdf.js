@@ -8,7 +8,7 @@ import { visibleResume } from './entries';
 import { contactItems } from './ContactLine';
 import { iconColor, iconPng } from './icons';
 import { PAGE, headFontOf, marginOf } from './design';
-import { isNumWord, printable } from './resumeModel';
+import { ACAD_INDENT, acadRows, isNumWord, printable } from './resumeModel';
 import { hasBold, parseBold, stripBold } from '../../lib/bold';
 import { coverParts } from './cover';
 import { shapePhoto } from './PhotoEditor';
@@ -35,7 +35,7 @@ export async function buildResumePdf({ data, design: ds, photo: photoArg, cover,
   const shaped = engine === 'pdflib' || (engine !== 'jspdf' && scripts.length > 0); // `engine` forces one (tests)
   const { createDoc } = await (shaped ? import('./pdfDoc') : import('./jsPdfDoc'));
   const doc = await createDoc(page.w, page.h);
-  const SERIF = ['source-serif-4', 'lora', 'merriweather'];
+  const SERIF = ['source-serif-4', 'lora', 'merriweather', 'cmu-serif'];
   const safeFont = async (id) => {
     try { await registerFont(doc, id, await loadFont(id)); return id; } catch { return doc.addStandard(SERIF.includes(id) ? 'times' : 'helvetica'); } // built-in fallback
   };
@@ -44,7 +44,7 @@ export async function buildResumePdf({ data, design: ds, photo: photoArg, cover,
   const headFont = headId === ds.font ? bodyFont : await safeFont(headId);
   // Telugu, Hindi, … anywhere in the text: the Noto Sans font of each script, loaded on demand (a script whose
   // font cannot be fetched is drawn with the template font instead, so the download still works)
-  const scriptFonts = shaped ? await loadScriptFonts(scripts) : {};
+  const scriptFonts = shaped ? await loadScriptFonts(scripts, { serif: ds.font === 'cmu-serif' }) : {}; // Academic: Noto Serif
   for (const [k, files] of Object.entries(scriptFonts)) { try { await doc.addScript(k, files); } catch { /* template font */ } }
 
   const M = marginOf(ds);
@@ -75,7 +75,7 @@ export async function buildResumePdf({ data, design: ds, photo: photoArg, cover,
   // contact icons as sharp PNGs (brand logos in brand colours or one colour)
   const rgbHex = (c) => `#${c.map((v) => v.toString(16).padStart(2, '0')).join('')}`;
   const monoIcon = rgbHex(ds.accentOn.links || ds.accentOn.headings ? accent : [68, 68, 68]);
-  const contactRows = contactItems(d, ds.contactLines);
+  const contactRows = contactItems(d, ds.contactLines, undefined, ds.contactOrder);
   const icons = {};
   if (ds.icons) {
     await Promise.all(contactRows.flat().map(async (it) => {
@@ -114,7 +114,7 @@ export async function buildResumePdf({ data, design: ds, photo: photoArg, cover,
     }
     const cSize = ds.bodySize - 1;
     const linkCol = ds.accentOn.links ? accent : text;
-    const sepTxt = ds.icons ? '' : '  ·  ';
+    const sepTxt = ds.icons ? '' : `  ${ds.contactSep || '·'}  `;
     const gap = ds.icons ? 10 : 0;
     const itemW = (it) => { set(cSize); return (ds.icons ? cSize * 1.1 + 3 : 0) + doc.getTextWidth(it.text); };
     contactRows.forEach((row) => {
@@ -405,10 +405,58 @@ export async function buildResumePdf({ data, design: ds, photo: photoArg, cover,
     (it.lines || []).forEach((l) => line(col, l));
   };
 
+  // Academic (LaTeX look): line 1 bold name (+ clickable links) left, place or dates right; line 2 italic role or
+  // degree left, dates right; bullets indented under the entry
+  const acadItem = (col, it) => {
+    const bs = ds.bodySize;
+    const rows = acadRows(it);
+    ensure(col, lh(bs) * Math.min(2, rows.length || 1));
+    rows.forEach(([l, r], i) => {
+      const style = i ? 'italic' : 'bold';
+      set(bs, i ? 'italic' : 'normal', text);
+      const rw = r ? doc.getTextWidth(r) + 10 : 0;
+      const links = i ? [] : it.links || [];
+      const sep = ' | ';
+      set(bs, 'normal', text);
+      const sepW = doc.getTextWidth(sep);
+      const linksW = links.reduce((w, k) => w + sepW + doc.getTextWidth(k.label), 0);
+      set(bs, style, text);
+      const room = col.w - rw;
+      const inline = linksW < room * 0.45;
+      const parts = doc.splitTextToSize(l, room - (inline ? linksW : 0));
+      parts.forEach((p, j) => {
+        ensure(col, lh(bs));
+        set(bs, style, text);
+        if (p) doc.text(p, col.x, col.y + bs * 0.9); // left first: text readers and tracking systems read it in order
+        const pw = p ? doc.getTextWidth(p) : 0; // measured in its own (bold / italic) face
+        if (j === 0 && r) { set(bs, i ? 'italic' : 'normal', text); doc.text(r, col.x + col.w, col.y + bs * 0.9, { align: 'right' }); }
+        if (j === parts.length - 1 && links.length) {
+          let x = inline ? col.x + pw : col.x;
+          if (!inline) { col.y += lh(bs); ensure(col, lh(bs)); }
+          const linkCol = ds.accentOn.links ? accent : text;
+          links.forEach((k, n) => {
+            if ((inline && p) || n) { set(bs, 'normal', [154, 154, 154]); doc.text(sep, x, col.y + bs * 0.9); x += sepW; }
+            set(bs, 'normal', linkCol);
+            const w = doc.getTextWidth(k.label);
+            doc.text(k.label, x, col.y + bs * 0.9);
+            doc.setDrawColor(...linkCol); doc.setLineWidth(0.5); doc.line(x, col.y + bs * 1.02, x + w, col.y + bs * 1.02);
+            doc.link(x, col.y, w, bs * 1.1, { url: k.url });
+            x += w;
+          });
+        }
+        col.y += lh(bs);
+      });
+    });
+    if (!it.lines?.length) return;
+    const sub = { ...col, x: col.x + ACAD_INDENT, w: col.w - ACAD_INDENT, y: col.y + 1 };
+    it.lines.forEach((l) => line(sub, l));
+    col.y = sub.y; col.page = sub.page;
+  };
+
   const run = (col, sections) => sections.forEach((sec, si) => {
     if (si) col.y += ds.sectionGap;
     heading(col, sec.title);
-    sec.items.forEach((it, i) => { if (i) col.y += ds.itemGap; item(col, it); });
+    sec.items.forEach((it, i) => { if (i) col.y += ds.itemGap; (ds.entryStyle === 'academic' ? acadItem : item)(col, it); });
   });
 
   const { main, side } = buildSections(d, ds);

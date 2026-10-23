@@ -1,0 +1,12 @@
+CMU Serif (Computer Modern Unicode), used by the "Academic" resume template: Regular, Bold and Italic, cut down
+to Latin letters and punctuation (cmu-serif-*.woff2 here for the preview; the same cut in src/fonts/pdf/ for the
+PDF). From https://cm-unicode.sourceforge.io/ (via the npm package "computer-modern").
+
+Copyright (c) Andrey V. Panov, with Reserved Font Name "CMU".
+Licensed under the SIL Open Font License, Version 1.1 (full text in LICENSE-OFL.txt next to this file).
+
+Noto Serif Telugu and Noto Serif Devanagari (NotoSerif*-Regular/Bold.ttf, hinted builds from
+https://github.com/notofonts/notofonts.github.io, fonts/NotoSerif<Script>/hinted/ttf/; the unhinted builds lose
+Telugu letters when the PDF maker cuts them down): Copyright 2022 The Noto Project Authors
+(https://github.com/notofonts), SIL Open Font License, Version 1.1. They print Telugu, Hindi and the rupee sign in
+the Academic template.

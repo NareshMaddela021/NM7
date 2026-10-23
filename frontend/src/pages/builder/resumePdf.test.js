@@ -224,3 +224,56 @@ describe('bold words (**word** markers)', () => {
     expect(boldOf(r, 'Grew sales').every((b) => !b)).toBe(true);
   });
 });
+
+describe('Academic template (LaTeX look)', () => {
+  const person = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../../e2e-live/testPerson.json'), 'utf8'));
+  const ACAD = {
+    ...structuredClone(INITIAL), hidden: {},
+    exp: [{ company: 'Northwind Retail', role: 'Data Analyst Intern', employmentType: 'Internship', location: 'Hybrid-Hyderabad', from: '2024-04', to: '', current: true, description: 'Built **Power BI** dashboards for the sales team\nCleaned CSV files in Python', links: [] }],
+  };
+  const itemsOn = (r, re) => { const y = r.items.find((i) => re.test(i.str))?.y; return r.items.filter((i) => Math.abs(i.y - y) < 1).sort((a, b) => a.x - b.x); };
+  it('the standard test resume and the sample fit on one page', async () => {
+    for (const data of [{ ...person, hidden: {} }, ACAD]) {
+      const r = await read(await buildResumePdf({ data, design: design('academic'), photo: null, cover: null }));
+      expect(r.pages).toHaveLength(1);
+    }
+  });
+  it('line 1: company bold left, location right; line 2: role (type) and dates in italic; bullets indented', async () => {
+    const r = await read(await buildResumePdf({ data: ACAD, design: design('academic'), photo: null, cover: null, engine: 'pdflib' }));
+    const l1 = itemsOn(r, /^Northwind Retail$/);
+    expect(l1.map((i) => [i.str, i.bold, i.italic])).toEqual([['Northwind Retail', true, false], ['Hybrid-Hyderabad', false, false]]);
+    const l2 = itemsOn(r, /^Data Analyst Intern \(Internship\)$/);
+    expect(l2.map((i) => [i.str, i.italic])).toEqual([['Data Analyst Intern (Internship)', true], ['Apr 2024 – Present', true]]);
+    expect(l1[1].x + l1[1].w).toBeCloseTo(l2[1].x + l2[1].w, 0); // both right-aligned to the margin
+    const bullet = r.items.find((i) => i.str.startsWith('Built'));
+    expect(bullet.x).toBeGreaterThan(l1[0].x + 15); // indented under the entry
+    expect(r.items.filter((i) => ['Power', 'BI'].includes(i.str.trim())).map((i) => i.bold)).toEqual([true, true]); // bold words work here too
+    expect(r.meta.Producer || '').not.toMatch(/jsPDF/i);
+    // the light engine prints the same lines (CMU Serif embedded)
+    const light = await read(await buildResumePdf({ data: ACAD, design: design('academic'), photo: null, cover: null }));
+    expect(light.lines.map((l) => l.text)).toEqual(r.lines.map((l) => l.text));
+    expect(Buffer.from(await (await buildResumePdf({ data: ACAD, design: design('academic'), photo: null, cover: null })).arrayBuffer()).toString('latin1')).toMatch(/\/BaseFont \/cmu-serif/);
+  });
+  it('empty location, dates or employment type leave no stray "()", "–" or "|"', async () => {
+    const data = { ...ACAD, exp: [{ company: 'Zoho', role: 'Analyst', employmentType: '', location: '', from: '', to: '', current: false, description: '', links: [] }, { company: '', role: 'Volunteer tutor', employmentType: 'Part-time', location: '', from: '', to: '', current: false, description: '', links: [] }], edu: [{ institution: 'Osmania University', degree: 'B.Com', field: '', from: '', to: '', current: false, grade: '' }] };
+    const r = await read(await buildResumePdf({ data, design: design('academic'), photo: null, cover: null }));
+    const lines = r.lines.map((l) => l.text);
+    expect(lines).toContain('Zoho');
+    expect(lines).toContain('Analyst');
+    expect(lines).toContain('Volunteer tutor (Part-time)');
+    expect(lines).toContain('Osmania University');
+    expect(lines).toContain('B.Com');
+    for (const l of lines) expect(l).not.toMatch(/\(\s*\)|^[–\-|·]|[–\-|·]$|\s[–|]\s*$/);
+  });
+  it('Telugu, Hindi and ₹ print with the Noto Serif fonts', async () => {
+    const data = { ...ACAD, personal: { ...ACAD.personal, name: 'రాము కుమార్' }, summary: 'डेटा विश्लेषक. Saved ₹2 lakh a year.' };
+    const blob = await buildResumePdf({ data, design: design('academic'), photo: null, cover: null });
+    const r = await read(blob);
+    expect(r.text).toContain('రాము కుమార్');
+    expect(r.text).toContain('₹2 lakh');
+    expect(r.text).not.toMatch(/�/);
+    expect(fetched.map((u) => path.basename(u)).sort()).toEqual(['NotoSerifDevanagari-Bold.ttf', 'NotoSerifDevanagari-Regular.ttf', 'NotoSerifTelugu-Bold.ttf', 'NotoSerifTelugu-Regular.ttf']);
+    const raw = contentOf(Buffer.from(await blob.arrayBuffer()));
+    expect(raw).toContain(`/ActualText ${PDFHexString.fromText('विश्लेषक').toString()}`);
+  });
+});

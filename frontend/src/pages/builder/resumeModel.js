@@ -12,6 +12,7 @@ const linksOf = (o) => (o.links || []).filter((l) => l.url && l.url.trim()).map(
 /** Optional: also print the address itself, for paper copies. */
 const printed = (o, ds) => (ds.printLinks ? linksOf(o).map((l) => `${l.label}: ${shortUrl(l.url)}`) : []);
 
+const t = (v) => String(v ?? '').trim(); // a typed value, or ''
 const SIDE_IDS = ['skills', 'langs', 'certs', 'hobbies', 'strengths'];
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 /** "2001-05-15" → "15 May 2001" */
@@ -47,16 +48,32 @@ export function buildSections(data, ds) {
   const f = ds.dateFormat;
   const by = {};
   if (d.summary) by.summary = [{ lines: [d.summary] }];
-  by.exp = d.exp.filter((e) => e.company || e.role).map((e) => ({
-    head: [e.role, e.company].filter(Boolean).join(' · '), links: linksOf(e), date: fmtDates(e.from, e.to, e.current, f), sub: e.employmentType, lines: [...bullets(e.description), ...printed(e, ds)],
-  }));
-  by.proj = d.proj.filter((p) => p.title).map((p) => ({
-    head: p.title, links: linksOf(p), date: fmtDates(p.from, p.to, p.ongoing, f) || p.status, sub: [p.tagline, p.tech].filter(Boolean).join(' · '),
-    lines: [...bullets(p.description), ...printed(p, ds)],
-  }));
-  by.edu = d.edu.filter((e) => e.institution || e.degree).map((e) => ({
-    head: [e.degree, e.field].filter(Boolean).join(', '), date: fmtDates(e.from, e.to, e.current, f, true), sub: [e.institution, e.grade].filter(Boolean).join(' · '),
-  }));
+  by.exp = d.exp.filter((e) => e.company || e.role).map((e) => {
+    const role = t(e.role); const type = t(e.employmentType);
+    const roleLine = role && type ? `${role} (${type})` : role || type;
+    const date = fmtDates(e.from, e.to, e.current, f);
+    return {
+      head: [e.role, e.company].filter(Boolean).join(' · '), links: linksOf(e), date, sub: [e.employmentType, t(e.location)].filter(Boolean).join(' · '), lines: [...bullets(e.description), ...printed(e, ds)],
+      // Academic: Company · location / Role (Employment type) · dates
+      acad: t(e.company) ? [[t(e.company), t(e.location)], [roleLine, date]] : [[roleLine, t(e.location)], ['', date]],
+    };
+  });
+  by.proj = d.proj.filter((p) => p.title).map((p) => {
+    const date = fmtDates(p.from, p.to, p.ongoing, f) || p.status;
+    return {
+      head: p.title, links: linksOf(p), date, sub: [p.tagline, p.tech].filter(Boolean).join(' · '),
+      lines: [...bullets(p.description), ...printed(p, ds)],
+      acad: [[t(p.title), date], [[t(p.tagline), t(p.tech)].filter(Boolean).join(' · '), '']], // name + links / dates, tech line
+    };
+  });
+  by.edu = d.edu.filter((e) => e.institution || e.degree).map((e) => {
+    const degree = [e.degree, e.field].map(t).filter(Boolean).join(', ');
+    const date = fmtDates(e.from, e.to, e.current, f, true);
+    return {
+      head: [e.degree, e.field].filter(Boolean).join(', '), date, sub: [e.institution, t(e.location), e.grade].filter(Boolean).join(' · '),
+      acad: t(e.institution) ? [[t(e.institution), t(e.location)], [[degree, t(e.grade)].filter(Boolean).join(' · '), date]] : [[degree, t(e.location)], [t(e.grade), date]],
+    };
+  });
   const groups = d.skillGroups.filter((g) => splitSkills(g.value).length);
   if (groups.length) {
     if (ds.skillsStyle === 'comma') by.skills = [{ lines: [groups.flatMap((g) => splitSkills(g.value)).join(', ')] }];
@@ -92,3 +109,11 @@ export function buildSections(data, ds) {
 
 /** Words with a number (20%, ₹2L, 3x, 1,200) — bolded by templates like Impact. Years alone stay normal. */
 export const isNumWord = (w) => /[\d₹%]/.test(w) && !/^\(?(19|20)\d{2}\)?[.,;:]?$/.test(w);
+
+/** Academic template: an entry's two lines [[left, right], [left, right]]; empty parts and empty lines left out (never
+ * a stray "()" or "–"). Entries without their own pattern: title · date, then the subtitle. */
+export function acadRows(it) {
+  const rows = it.acad || [[it.head || '', it.date || ''], [it.sub || '', '']];
+  return rows.map(([l, r]) => [String(l || '').trim(), String(r || '').trim()]).filter(([l, r], i) => l || r || (i === 0 && it.links?.length));
+}
+export const ACAD_INDENT = 12; // pt: the bullets sit this far in under each entry

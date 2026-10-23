@@ -1,4 +1,4 @@
-// Templates are look-only: switching through all 18 templates in the builder changes fonts, colours and columns,
+// Templates are look-only: switching through all 19 templates in the builder changes fonts, colours and columns,
 // never which sections show, their order, titles, the photo switch or any content. A template that usually shows a
 // section that is off only suggests it ("Turn it on?"), and nothing changes until Turn on. Desktop + 390 px phone.
 import { expect, test } from '@playwright/test';
@@ -18,7 +18,7 @@ async function openDesign(page) {
   await page.getByRole('tab', { name: /^Design/ }).click();
   const group = page.locator('section.card').filter({ has: page.getByRole('button', { name: /^Template[−+]?$/ }) });
   const buttons = group.locator('button.option');
-  await expect(buttons).toHaveCount(18);
+  await expect(buttons).toHaveCount(19);
   return buttons;
 }
 
@@ -28,11 +28,11 @@ for (const [label, size] of SIZES) {
     // Projects, Skills, Certifications… on; Hobbies, Strengths, Personal information, Declaration off (the usual start)
     test.beforeEach(({ page }) => asTestPerson(page, { hidden: { hobbies: true, strengths: true, pinfo: true, decl: true }, showPhoto: false }));
 
-    test('switching through all 18 templates keeps every section switch, the order and all content', async ({ page }) => {
+    test('switching through all 19 templates keeps every section switch, the order and all content', async ({ page }) => {
       const buttons = await openDesign(page);
       const before = await content(page);
       const live = page.getByRole('region', { name: 'Live resume preview' });
-      for (let i = 0; i < 18; i += 1) {
+      for (let i = 0; i < 19; i += 1) {
         const b = buttons.nth(i);
         const name = (await b.locator('strong').innerText()).trim();
         await b.click();
