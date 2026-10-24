@@ -442,6 +442,12 @@ deletion).
   pack (Rs 99; included in Career Launch). Prices are in Admin → Settings & prices; buying follows the payment mode
   (Off: Coming soon; WhatsApp: a pending order). Admin → Customers can grant either pack for testing (audit log). A
   refund takes the pack away at once. Free: 3 job matches a day.
+- **Tailor this resume** (`tailor.py`, Tailor pack): a COPY named "<Role> - <Company> - <date>" (the original never
+  changes) and suggestions, each before → after with Accept / Skip: headline to the job title, summary for the role,
+  skills reordered must-haves first, bullets with the job's words only where the work already exists, the most
+  relevant projects first. Every AI line passes the fact check (`facts.py`: no number, skill, certificate, degree or
+  name that isn't on the resume) or the rules version is offered instead. The copy is scored again as suggestions
+  are accepted. Applications in My applications can carry the match, its score and the tailored copy.
 
 ## Nm7 for Organizations (Phase 1)
 
