@@ -1,0 +1,28 @@
+# Local development: MongoDB (one-node replica set, needed for transactions) + the API.
+# `docker compose up`  →  http://localhost:8000/health
+services:
+  db:
+    image: mongo:8.0
+    command: ["--replSet", "rs0", "--bind_ip_all"]
+    ports: ["27017:27017"]
+    volumes:
+      - mongodata:/data/db
+    healthcheck:
+      # Starts the replica set the first time, then just reports that it's up.
+      test: ["CMD", "mongosh", "--quiet", "--eval",
+             "try { rs.status().ok } catch (e) { rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'localhost:27017'}]}).ok }"]
+      interval: 2s
+      retries: 30
+
+  api:
+    build: .
+    env_file: [.env.example]
+    environment:
+      MONGODB_URI: mongodb://db:27017/?directConnection=true
+      MONGODB_DB: nm7
+    ports: ["8000:8000"]
+    depends_on:
+      db: { condition: service_healthy }
+
+volumes:
+  mongodata:

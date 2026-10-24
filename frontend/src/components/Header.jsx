@@ -2,8 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '../lib/theme';
 import { BRAND } from '../lib/brand';
-import { useAuth, signOut, homeFor } from '../lib/auth';
+import { useAuth, signOut, homeFor, LIVE } from '../lib/auth';
 import { Icon } from './ui';
+import { track } from '../lib/track';
 
 export function Logo({ suffix }) {
   return (
@@ -65,24 +66,40 @@ const FLOW = [
   ['track', 'Track', ['/orders']],
 ];
 
+// Public header links. The home page passes them translated (labels), with the language code (lang).
+const LABELS = { build: 'Build a resume', templates: 'Templates', linkedin: 'LinkedIn', pricing: 'Pricing', orgs: 'For organizations', blog: 'Blog', scan: 'Free scan', buildFree: 'Build free', menu: 'Menu' };
+
 /** variant: public | flow | expert | admin | builder | me */
-export default function Header({ variant = 'public', right }) {
+export default function Header({ variant = 'public', right, labels, lang }) {
+  const L = { ...LABELS, ...labels };
   const { pathname } = useLocation();
   const { user } = useAuth();
   const flowIdx = FLOW.findIndex(([, , paths]) => paths.some((p) => pathname.startsWith(p)));
+  const [menu, setMenu] = useState(false); // phones: the public links open from a Menu button
+  const { hash } = useLocation();
+  useEffect(() => { setMenu(false); }, [pathname, hash]);
 
   return (
-    <header className="site-header">
+    <header className="site-header" data-variant={variant} data-menu={menu} lang="en">
       <div className="bar">
         <Logo suffix={variant === 'expert' ? '/expert' : variant === 'admin' ? '/admin' : variant === 'builder' ? '/builder' : variant === 'me' ? '/me' : '/resume'} />
 
         {variant === 'public' && (
-          <nav className="nav" aria-label="Main">
-            <NavLink to="/builder">Build a resume</NavLink>
-            <Link to="/#how">How it works</Link>
-            <Link to="/#templates">Templates</Link>
-            <Link to="/#plans">Pricing</Link>
-            <Link to="/#faq">FAQ</Link>
+          <span className="row g8 hdr-quick" lang={lang}>
+            <Link to="/builder" className="btn btn-ink show-sm hdr-build">{L.buildFree}</Link>
+            <button type="button" className="btn btn-outline nav-toggle" aria-expanded={menu} aria-controls="main-nav" aria-label={L.menu} onClick={() => setMenu(!menu)}>
+              <span aria-hidden="true">{menu ? '✕' : '☰'}</span><span className="nav-toggle-text">{L.menu}</span>
+            </button>
+          </span>
+        )}
+        {variant === 'public' && (
+          <nav id="main-nav" className="nav nav-public" data-open={menu} aria-label="Main" lang={lang}>
+            <NavLink to="/builder">{L.build}</NavLink>
+            <Link to="/templates">{L.templates}</Link>
+            <NavLink to="/linkedin">{L.linkedin}</NavLink>
+            <Link to="/#pricing">{L.pricing}</Link>
+            <NavLink to="/for-orgs" onClick={() => track('to_for_orgs')}>{L.orgs}</NavLink>
+            <NavLink to="/blog">{L.blog}</NavLink>
           </nav>
         )}
 
@@ -116,13 +133,15 @@ export default function Header({ variant = 'public', right }) {
           </nav>
         )}
 
-        {variant === 'admin' && (
+        {/* the sample console can hop to the sample expert view; on the live site an admin isn't an expert */}
+        {variant === 'admin' && !LIVE && (
           <nav className="nav" aria-label="Admin">
             <NavLink to="/expert" end>Expert view</NavLink>
           </nav>
         )}
 
-        <div className="row g8">
+        <div className="row g8 hdr-right">
+          {variant === 'public' && <Link to="/#scan" className="btn btn-outline hide-sm hdr-scan" lang={lang}>{L.scan}</Link>}
           {right}
           <ThemeToggle />
           <AccountMenu />

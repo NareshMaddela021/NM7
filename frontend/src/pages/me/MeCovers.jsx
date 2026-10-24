@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { useToast } from '../../components/ui';
 import { useMe, setMe, newId } from '../../lib/customerStore';
 import { draftCover, COVER_BLANK } from '../builder/cover';
+import { useJobProfile } from '../../lib/profileStore';
+import { targetRoleOf, withProfileContact } from '../../lib/jobProfile';
 import { MeHead } from './MeLayout';
 import { downloadResume, fmtDay } from './shared';
 
@@ -10,14 +12,18 @@ export default function MeCovers() {
   const me = useMe();
   const toast = useToast();
   const [cur, setCur] = useState(null); // the letter being edited
-  const resumeOf = (c) => me.resumes.find((r) => r.id === c.resumeId) || me.resumes[0];
+  const jp = useJobProfile();
+  const profile = jp.available ? jp.data : null;
+  const found = (c) => me.resumes.find((r) => r.id === c.resumeId) || me.resumes[0];
+  // the letter's name and contact come from the resume; empty ones from the Job Profile
+  const resumeOf = (c) => { const r = found(c); return { ...r, data: withProfileContact(r.data, profile) }; };
   const save = (c) => setMe((s) => ({ covers: s.covers.some((x) => x.id === c.id) ? s.covers.map((x) => (x.id === c.id ? c : x)) : [c, ...s.covers] }));
   const open = (c) => { const full = { ...COVER_BLANK, ...c }; if (!full.body) full.body = draftCover(resumeOf(full).data, full); setCur(full); };
 
   return (
     <>
       <MeHead title="Cover letters" sub="Write one per job. It uses the design of the resume you pick."
-        right={<button type="button" className="btn btn-ink" onClick={() => open({ id: newId('c'), company: '', role: '', resumeId: me.resumes[0].id, at: Date.now(), jd: '', body: '' })}>New cover letter</button>} />
+        right={<button type="button" className="btn btn-ink" onClick={() => open({ id: newId('c'), company: '', role: targetRoleOf(profile), resumeId: me.resumes[0].id, at: Date.now(), jd: '', body: '' })}>New cover letter</button>} />
       <div className="row g16" style={{ alignItems: 'flex-start' }}>
         <div className="stack g8" style={{ flex: '1 1 260px', maxWidth: 360 }}>
           {me.covers.length === 0 && <span className="small muted">No cover letters yet.</span>}
@@ -42,8 +48,8 @@ export default function MeCovers() {
             <div className="field"><label htmlFor="cv-b" className="label row between"><span>Letter</span><button type="button" className="link-btn xs" onClick={() => setCur({ ...cur, body: draftCover(resumeOf(cur).data, cur) })}>Re-draft from resume</button></label><textarea id="cv-b" className="input" rows={14} value={cur.body} onChange={(e) => setCur({ ...cur, body: e.target.value })} /></div>
             <div className="row g8">
               <button type="submit" className="btn btn-ink">Save</button>
-              <button type="button" className="btn btn-outline" onClick={async () => { await downloadResume(resumeOf(cur).data, 'pdf', cur); toast('PDF ready'); }}>PDF</button>
-              <button type="button" className="btn btn-outline" onClick={async () => { await downloadResume(resumeOf(cur).data, 'docx', cur); toast('Word file ready'); }}>Word</button>
+              <button type="button" className="btn btn-outline" onClick={async () => { if (await downloadResume(resumeOf(cur).data, 'pdf', cur)) toast('PDF ready'); }}>PDF</button>
+              <button type="button" className="btn btn-outline" onClick={async () => { if (await downloadResume(resumeOf(cur).data, 'docx', cur)) toast('Word file ready'); }}>Word</button>
               {me.covers.some((x) => x.id === cur.id) && <button type="button" className="btn btn-ghost" style={{ color: 'var(--danger)' }} onClick={() => { setMe((s) => ({ covers: s.covers.filter((x) => x.id !== cur.id) })); setCur(null); toast('Deleted'); }}>Delete</button>}
             </div>
           </form>

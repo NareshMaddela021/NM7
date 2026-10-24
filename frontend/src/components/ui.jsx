@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { onSaveError } from '../services/http';
 
 /* ---------- Icons (24px grid, 2px stroke) ---------- */
 const P = {
@@ -12,6 +13,11 @@ const P = {
   mic: <><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0014 0M12 18v3" /></>,
   clip: <path d="M21 11l-8.5 8.5a5 5 0 01-7-7L14 4a3.5 3.5 0 015 5l-8.5 8.5a2 2 0 01-3-3L15 7" />,
   x: <path d="M6 6l12 12M18 6L6 18" />,
+  up: <path d="M12 19V5M6 11l6-6 6 6" />,
+  down: <path d="M12 5v14M6 13l6 6 6-6" />,
+  copy: <><rect x="9" y="9" width="11" height="11" rx="2" /><path d="M5 15V5a2 2 0 012-2h8" /></>,
+  lock: <><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V7a4 4 0 018 0v4" /></>,
+  trash: <><path d="M4 7h16M10 11v6M14 11v6" /><path d="M6 7l1 12a2 2 0 002 2h6a2 2 0 002-2l1-12M9 7V4h6v3" /></>,
 };
 export function Icon({ name, size = 18, stroke = 2, color = 'currentColor', ...rest }) {
   return (
@@ -68,6 +74,8 @@ export function ToastProvider({ children }) {
     timer.current = setTimeout(() => setT(null), 5000);
   }, []);
   useEffect(() => () => clearTimeout(timer.current), []);
+  // changes saved in the background (dashboard, order chat) that the server refused
+  useEffect(() => onSaveError((e) => show(e?.message ? `Not saved: ${e.message}` : 'A change wasn’t saved. Please try again.')), [show]);
   return (
     <ToastCtx.Provider value={show}>
       {children}
@@ -83,6 +91,7 @@ export function ToastProvider({ children }) {
 export const useToast = () => useContext(ToastCtx);
 
 /* ---------- Dialog ---------- */
+const FOCUSABLE = 'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])';
 export function Dialog({ title, children, onClose, wide, showTitle }) {
   const ref = useRef();
   const closeRef = useRef(onClose);
@@ -91,7 +100,16 @@ export function Dialog({ title, children, onClose, wide, showTitle }) {
     const prev = document.activeElement;
     const node = ref.current;
     node?.querySelector('button, input, [href]')?.focus();
-    const onKey = (e) => { if (e.key === 'Escape') closeRef.current(); };
+    const onKey = (e) => {
+      if (e.key === 'Escape') { closeRef.current(); return; }
+      if (e.key !== 'Tab' || !node) return;
+      // keep Tab inside the dialog (a modal must not let focus wander to the page behind it)
+      const items = [...node.querySelectorAll(FOCUSABLE)].filter((el) => !el.disabled && el.getAttribute('aria-hidden') !== 'true' && el.offsetParent !== null);
+      if (!items.length) { e.preventDefault(); return; }
+      const first = items[0]; const last = items[items.length - 1];
+      if (e.shiftKey && (document.activeElement === first || !node.contains(document.activeElement))) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
     node?.addEventListener('keydown', onKey);
     return () => { node?.removeEventListener('keydown', onKey); prev?.focus?.(); };
   }, []);

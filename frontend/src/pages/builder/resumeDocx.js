@@ -2,12 +2,15 @@
 // preview and PDF. Word gets one column (safest for tracking systems) and Calibri / Cambria, which every
 // Windows and Mac computer has, so the file looks right wherever HR opens it.
 import { zipSync, strToU8 } from 'fflate';
-import { buildSections } from './resumeModel';
-import { contactItems } from './ContactLine';
+import { ACAD_INDENT, acadRows, buildSections, printable } from './resumeModel';
+import { hasBold, parseBold, stripBold } from '../../lib/bold';
+import { visibleResume } from './entries';
+import { contactItems, contactMode, showsText } from './ContactLine';
 import { iconColor, iconPng } from './icons';
 import { FONTS, PAGE, headFontOf, marginOf } from './design';
 import { coverParts } from './cover';
 
+const CS_FONT = 'Nirmala UI';
 const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const hex = (c) => c.replace('#', '').toUpperCase();
 const mix = (c, a) => { const n = parseInt(c.replace('#', ''), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => Math.round(v * a + 255 * (1 - a)).toString(16).padStart(2, '0')).join('').toUpperCase(); };
@@ -16,7 +19,8 @@ const isNum = (w) => /[\d₹%]/.test(w) && !/^\(?(19|20)\d{2}\)?[.,;:]?$/.test(w
 const b64ToBytes = (dataUrl) => { const bin = atob(dataUrl.split(',')[1]); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; };
 
 /** photoPng: the photo already cut to its shape (PNG data URL), or null. */
-export async function buildDocx({ data: d, design: ds, cover, photoPng }) {
+export async function buildDocx({ data, design: ds, cover, photoPng }) {
+  const d = printable(visibleResume(data)); // switched-off entries are not printed; ** only where bold prints
   const page = PAGE[ds.pageSize] || PAGE.a4;
   const M = marginOf(ds);
   const contentW = Math.round((page.w - 2 * M) * 20);
@@ -27,7 +31,9 @@ export async function buildDocx({ data: d, design: ds, cover, photoPng }) {
   const lineCol = ds.accentOn.lines ? accent : 'B8B8B8';
   const bandFill = ds.headerStyle === 'band' ? mix(ds.accent, 0.1) : null;
 
-  const run = (t, o = {}) => `<w:r><w:rPr><w:rFonts w:ascii="${o.font || font}" w:hAnsi="${o.font || font}" w:cs="${o.font || font}"/>${o.b ? '<w:b/>' : ''}${o.i ? '<w:i/>' : ''}${o.caps ? '<w:caps/>' : ''}<w:color w:val="${o.color || text}"/>${o.spacing ? `<w:spacing w:val="${o.spacing}"/>` : ''}<w:sz w:val="${Math.round((o.sz || ds.bodySize) * 2)}"/><w:szCs w:val="${Math.round((o.sz || ds.bodySize) * 2)}"/>${o.u ? '<w:u w:val="single"/>' : ''}</w:rPr><w:t xml:space="preserve">${esc(t)}</w:t></w:r>`;
+  // w:cs is the font Word uses for complex-script characters (Telugu, Hindi, Tamil…): Nirmala UI ships with Windows
+  // and covers every Indian script; Word for Mac substitutes its own Indic fonts for it. Latin text keeps `font`.
+  const run = (t, o = {}) => `<w:r><w:rPr><w:rFonts w:ascii="${o.font || font}" w:hAnsi="${o.font || font}" w:cs="${CS_FONT}"/>${o.b ? '<w:b/>' : ''}${o.i ? '<w:i/>' : ''}${o.caps ? '<w:caps/>' : ''}<w:color w:val="${o.color || text}"/>${o.spacing ? `<w:spacing w:val="${o.spacing}"/>` : ''}<w:sz w:val="${Math.round((o.sz || ds.bodySize) * 2)}"/><w:szCs w:val="${Math.round((o.sz || ds.bodySize) * 2)}"/>${o.u ? '<w:u w:val="single"/>' : ''}</w:rPr><w:t xml:space="preserve">${esc(t)}</w:t></w:r>`;
   const tab = '<w:r><w:tab/></w:r>';
   const P = (runs, o = {}) => {
     const pPr = [
@@ -63,10 +69,11 @@ export async function buildDocx({ data: d, design: ds, cover, photoPng }) {
   }
   out.push(P(run(d.personal.name || 'Your Name', { b: true, sz: ds.nameSize, font: headFont, color: ds.accentOn.name ? accent : text }), { align, fill: bandFill, before: bandFill ? 6 : 0 }));
   if (d.personal.headline) out.push(P(run(d.personal.headline, { sz: ds.bodySize + 1.5, color: ds.accentOn.name ? accent : '444444' }), { align, fill: bandFill, before: 2 }));
-  const rows = contactItems(d, ds.contactLines, 'url');
+  const rows = contactItems(d, ds.contactLines, 'url', ds.contactOrder);
   // small logo / icon before each contact item (inline pictures)
   const media = {};
-  if (ds.icons) {
+  const cMode = contactMode(d, ds); // icon + text, text only, or icon only for links — the same as the PDF
+  if (cMode !== 'text') {
     const mono = ds.accentOn.links || ds.accentOn.headings ? ds.accent : '#444444';
     await Promise.all([...new Set(rows.flat().map((it) => it.kind))].map(async (k) => {
       try { media[k] = await iconPng(k, iconColor(k, ds, mono), 64); } catch { /* skip icon */ }
@@ -82,7 +89,13 @@ export async function buildDocx({ data: d, design: ds, cover, photoPng }) {
   rows.forEach((items, i) => {
     const last = i === rows.length - 1;
     const border = last && !bandFill && ds.headerStyle !== 'none' ? `<w:bottom w:val="single" w:sz="${ds.accentOn.lines ? 12 : 6}" w:space="6" w:color="${ds.accentOn.lines ? accent : 'CFCFCF'}"/>` : '';
-    out.push(P(items.map((it, j) => (j ? run('  |  ', { color: '999999', sz: ds.bodySize - 1 }) : '') + iconRun(it.kind) + (media[it.kind] ? run(' ', { sz: ds.bodySize - 1 }) : '') + run(it.text, { sz: ds.bodySize - 1, color: it.link && ds.accentOn.links ? accent : '4A4A4A' })).join(''), { align, fill: bandFill, border, before: 2, after: last ? (bandFill ? 6 : 4) : 0 }));
+    // each item (icon and text) is one link: tel:, mailto:, https; in icon-only mode a link is just its icon
+    const item = (it) => {
+      const txt = showsText(it, cMode) || !media[it.kind];
+      const inner = iconRun(it.kind) + (media[it.kind] && txt ? run(' ', { sz: ds.bodySize - 1 }) : '') + (txt ? run(it.text, { sz: ds.bodySize - 1, color: it.link && ds.accentOn.links ? accent : '4A4A4A' }) : '');
+      return it.url ? hyper(it.url, inner) : inner;
+    };
+    out.push(P(items.map((it, j) => (j ? run('  |  ', { color: '999999', sz: ds.bodySize - 1 }) : '') + item(it)).join(''), { align, fill: bandFill, border, before: 2, after: last ? (bandFill ? 6 : 4) : 0 }));
   });
 
   const heading = (title) => {
@@ -93,12 +106,25 @@ export async function buildDocx({ data: d, design: ds, cover, photoPng }) {
     if (ds.headingStyle === 'left') p.border = `<w:left w:val="single" w:sz="18" w:space="6" w:color="${lineCol}"/>`;
     out.push(P(run(title.toUpperCase(), o), p));
   };
-  const rich = (t) => (ds.boldNumbers ? t.split(/(\s+)/).map((w) => (w ? run(w, { b: isNum(w) }) : '')).join('') : run(t));
+  const nums = (t) => (ds.boldNumbers ? t.split(/(\s+)/).map((w) => (w ? run(w, { b: isNum(w) }) : '')).join('') : run(t));
+  // **bold** words as bold runs (and numbers in templates like Impact); text without markers is unchanged
+  const rich = (t) => (hasBold(t) ? parseBold(t).map((p) => (p.b ? run(p.t, { b: true }) : nums(p.t))).join('') : nums(stripBold(t)));
   const bullet = ds.bullet === 'none' ? '' : ds.bullet === '▸' ? '›' : ds.bullet;
 
+  let extra = 0; // twips: the Academic template indents the bullets under each entry
   const line = (l) => {
-    if (typeof l === 'string') return out.push(P(run(l), { after: 1 }));
-    if (l.bullet) return out.push(bullet ? P(run(bullet) + tab + rich(l.t), { ind: [300, 220], tabs: [[300, 'left']], after: 1 }) : P(rich(l.t), { after: 1 }));
+    if (typeof l === 'string') {
+      if (!hasBold(l)) return out.push(P(run(stripBold(l)), { after: 1 }));
+      const paras = [[]]; // one Word paragraph per line, each with its bold and regular runs
+      parseBold(l).forEach((p) => p.t.split('\n').forEach((t, i) => { if (i) paras.push([]); if (t) paras[paras.length - 1].push(run(t, { b: p.b })); }));
+      return paras.filter((r) => r.length).forEach((r) => out.push(P(r.join(''), { after: 1 })));
+    }
+    if (l.bullet) return out.push(bullet ? P(run(bullet) + tab + rich(l.t), { ind: [300 + extra, 220], tabs: [[300 + extra, 'left']], after: 1 }) : P(rich(l.t), { after: 1, ind: extra ? [extra, 0] : undefined }));
+    if (l.courses) { // bold label, the list (italic in Academic) with a hanging indent
+      const hang = Math.round((l.courses.label.length + 1) * ds.bodySize * 0.55 * 20);
+      const list = parseBold(l.courses.text).map((p) => run(p.t, { b: p.b, i: l.courses.italic })).join('');
+      return out.push(P(run(`${l.courses.label} `, { b: true }) + list, { ind: [hang + extra, hang], after: 1 }));
+    }
     if (l.chips) return out.push(P((l.label ? run(`${l.label}: `, { b: true }) : '') + run(l.chips.join(', ')), { after: 1 }));
     if (l.kv) return out.push(P(run(l.kv[0]) + tab + run(`:  ${l.kv[1].replace(/\n/g, ', ')}`), { tabs: [[Math.round(ds.bodySize * 9.5 * 20), 'left']], after: 1 }));
     if (l.sign) {
@@ -126,6 +152,17 @@ export async function buildDocx({ data: d, design: ds, cover, photoPng }) {
       heading(sec.title);
       sec.items.forEach((it, i) => {
         const before = i ? ds.itemGap : 0;
+        if (ds.entryStyle === 'academic') {
+          // line 1: bold name (+ links) · place or dates at the right margin; line 2: italic role · dates
+          acadRows(it).forEach(([l, r], j) => {
+            const o = j ? { i: true } : { b: true };
+            out.push(P(run(l, o) + (j ? '' : linkRuns(it.links)) + (r ? tab + run(r, j ? { i: true } : {}) : ''), { tabs: [[contentW, 'right']], before: j ? 0 : before, keep: true }));
+          });
+          extra = Math.round(ACAD_INDENT * 20);
+          (it.lines || []).forEach(line);
+          extra = 0;
+          return;
+        }
         if (it.head || it.date) {
           out.push(P(run(it.head || '', { b: true }) + linkRuns(it.links) + (it.date ? tab + run(it.date, { color: '5A5A5A', sz: ds.bodySize - 0.5 }) : ''), { tabs: [[contentW, 'right']], before, keep: true }));
         }

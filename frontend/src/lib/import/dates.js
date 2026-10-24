@@ -39,7 +39,7 @@ export function findDates(text) {
 /** Removes a found date (and any brackets / separators left around it). */
 export function stripDate(text, found) {
   if (!found) return text;
-  return text.replace(found.raw, ' ').replace(/[(\[]\s*[)\]]/g, ' ').replace(/\s*[·|,–-]\s*$/g, '').replace(/^\s*[·|,–-]\s*/g, '').replace(/\s+/g, ' ').trim();
+  return text.replace(found.raw, ' ').replace(/[([]\s*[)\]]/g, ' ').replace(/\s*[·|,–-]\s*$/g, '').replace(/^\s*[·|,–-]\s*/g, '').replace(/\s+/g, ' ').trim();
 }
 
 /** Months between two YYYY-MM values (to = today when current). */

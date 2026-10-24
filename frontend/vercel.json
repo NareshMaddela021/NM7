@@ -1,0 +1,176 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "installCommand": "npm ci",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "cleanUrls": false,
+  "rewrites": [
+    {
+      "source": "/blog",
+      "destination": "/blog/index.html"
+    },
+    {
+      "source": "/blog/category/:slug",
+      "destination": "/blog/category/:slug/index.html"
+    },
+    {
+      "source": "/blog/:slug",
+      "destination": "/blog/:slug/index.html"
+    },
+    {
+      "source": "/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/builder",
+      "destination": "/builder/index.html"
+    },
+    {
+      "source": "/templates",
+      "destination": "/templates/index.html"
+    },
+    {
+      "source": "/contact",
+      "destination": "/contact/index.html"
+    },
+    {
+      "source": "/for-orgs",
+      "destination": "/for-orgs/index.html"
+    },
+    {
+      "source": "/partners",
+      "destination": "/partners/index.html"
+    },
+    {
+      "source": "/terms",
+      "destination": "/terms/index.html"
+    },
+    {
+      "source": "/privacy",
+      "destination": "/privacy/index.html"
+    },
+    {
+      "source": "/refund-policy",
+      "destination": "/refund-policy/index.html"
+    },
+    {
+      "source": "/delivery-policy",
+      "destination": "/delivery-policy/index.html"
+    },
+    {
+      "source": "/expert-terms",
+      "destination": "/expert-terms/index.html"
+    },
+    {
+      "source": "/(scan|checkout|editor|login|signup|forgot-password|linkedin)",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/(me|expert|admin)",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/(me|expert|admin)/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/orders/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/r/:slug",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/join/:code",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/groups/stop",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/partner",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/org",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/org/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/kiosk/:token",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/continue",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' https://checkout.razorpay.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://*.razorpay.com https://media.graphassets.com https://*.graphassets.com; connect-src 'self' https://ap-south-1.cdn.hygraph.com https://nm7-api.onrender.com https://nm7-api-staging.onrender.com https://api.nm7.si https://api.razorpay.com https://lumberjack.razorpay.com https://*.ingest.sentry.io https://*.ingest.de.sentry.io; frame-src https://api.razorpay.com https://checkout.razorpay.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(self), geolocation=(), usb=(), payment=(self \"https://checkout.razorpay.com\" \"https://api.razorpay.com\")"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains"
+        }
+      ]
+    },
+    {
+      "source": "/blog/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/(r|kiosk)/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ]
+}

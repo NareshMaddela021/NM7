@@ -1,44 +1,48 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
 import { placeOrder } from '../lib/customerStore';
 import Header from '../components/Header';
 import { Spinner } from '../components/ui';
 import { useFlow } from '../lib/flow';
-import { isUpi } from '../lib/format';
 import { createOrder, pay } from '../services/api';
 import { PLANS, PROMISES, inr } from '../lib/pricing';
+import { BUY_WA, WA_DELIVERY, WA_PAY_TEXT, WA_SAFETY, buyOnWhatsApp, usePayMode } from '../lib/waPay';
 
 export default function Checkout() {
   const nav = useNavigate();
-  const { role, addon, setAddon, setOrderId } = useFlow();
+  const { role, addon, setAddon, setOrderId, report } = useFlow();
   const { user } = useAuth();
-  const [method, setMethod] = useState('upi');
-  const [upi, setUpi] = useState('');
-  const [touched, setTouched] = useState(false);
   const [paying, setPaying] = useState(false);
   const [err, setErr] = useState('');
+  const unpaid = useRef({}); // plan → order created but not paid yet (e.g. the window was closed), reused on retry
 
   const total = addon ? PLANS.launch.price : PLANS.expert.price;
-  const upiOk = isUpi(upi);
-  const showUpiErr = method === 'upi' && touched && !upiOk;
-  const disabled = paying || (method === 'upi' && !upiOk) || user?.role !== 'customer';
+  const pm = usePayMode();
+  const mode = pm?.mode; // undefined while loading
+  const disabled = paying || user?.role !== 'customer' || !mode || mode === 'off';
 
   const submit = async (e) => {
     e.preventDefault();
-    setTouched(true);
     if (disabled) return;
     setPaying(true);
     setErr('');
+    const plan = addon ? 'launch' : 'expert';
+    if (mode === 'whatsapp') {
+      try { await buyOnWhatsApp({ planId: plan, role: role || null }); } catch (x) { setErr(x.message || 'Something went wrong. Please try again.'); }
+      setPaying(false);
+      return;
+    }
     try {
-      const plan = addon ? 'launch' : 'expert';
-      const order = await createOrder({ planId: plan, role, addon });
-      await pay({ orderId: order.orderId, method, upi });
-      const id = placeOrder({ plan, role, method: method === 'upi' ? 'UPI' : 'Card' }); // live app: the server returns the order id
+      const order = unpaid.current[plan] || (unpaid.current[plan] = await createOrder({ planId: plan, role })); // the server sets the price
+      const paid = await pay(order); // Razorpay's own window (UPI, card, netbanking), then the server confirms it
+      // Live: the dashboard copy uses the server's order id, invoice and payment id. Preview: made up here.
+      const id = placeOrder({ plan, role, method: paid.method, id: paid.orderId, invoice: paid.invoiceNo, payId: paid.paymentId });
+      unpaid.current = {};
       setOrderId(id);
       nav(`/me/orders/${id}`, { state: { justPaid: true } });
-    } catch {
-      setErr('Payment didn’t go through. You haven’t been charged — please try again.');
+    } catch (x) {
+      setErr(x.code ? x.message : 'Payment didn’t go through. You haven’t been charged — please try again.');
       setPaying(false);
     }
   };
@@ -48,8 +52,8 @@ export default function Checkout() {
       <Header variant="flow" />
       <main className="container split rise" style={{ maxWidth: 1040, padding: '48px 24px 96px' }}>
         <section className="main stack g20" aria-label="Your order">
-          <button type="button" className="btn btn-ghost" style={{ alignSelf: 'flex-start', paddingLeft: 0 }} onClick={() => nav('/scan')}>← Back to your report</button>
-          <h1 className="display" style={{ fontSize: 36 }}>Expert rewrite</h1>
+          {report && <button type="button" className="btn btn-ghost" style={{ alignSelf: 'flex-start', paddingLeft: 0 }} onClick={() => nav('/scan')}>← Back to your report</button>}
+          <h1 className="display" style={{ fontSize: 36 }}>{PLANS[addon ? 'launch' : 'expert'].name}</h1>
           <div className="card stack g16">
             <div className="row between"><span>Expert rewrite · {role || 'your target role'}</span><strong>{inr(PLANS.expert.price)}</strong></div>
             <label className="option" data-on={addon}>
@@ -61,43 +65,39 @@ export default function Checkout() {
             <div className="row between" style={{ fontSize: 18 }}><strong>Total</strong><strong>{inr(total)}</strong></div>
           </div>
           <ul className="stack g8 small muted" style={{ margin: 0, paddingLeft: 18 }}>
-            <li>Delivered in {PROMISES.delivery}, revisions included</li>
+            <li>Delivered in {PROMISES.delivery}, revisions included{mode === 'whatsapp' ? ' — counted from when we confirm your payment' : ''}</li>
             <li>You approve before anything is final</li>
             <li>{PROMISES.refund}</li>
           </ul>
         </section>
 
         <form className="side card stack g20" aria-label="Payment" onSubmit={submit} noValidate>
-          <fieldset className="stack g8" style={{ border: 0, margin: 0, padding: 0 }}>
-            <legend className="strong" style={{ marginBottom: 10 }}>Pay with</legend>
-            {[['upi', 'UPI', 'GPay · PhonePe · Paytm'], ['card', 'Card or netbanking', 'Visa · RuPay · Mastercard']].map(([id, label, hint]) => (
-              <label key={id} className="option" data-on={method === id} style={{ alignItems: 'center' }}>
-                <input type="radio" name="method" checked={method === id} onChange={() => setMethod(id)} style={{ marginTop: 0 }} />
-                <strong style={{ flex: 1 }}>{label}</strong><span className="xs faint">{hint}</span>
-              </label>
-            ))}
-          </fieldset>
-          {method === 'upi' ? (
-            <div className="field">
-              <label htmlFor="upi" className="label">UPI ID</label>
-              <input id="upi" className="input" value={upi} placeholder="name@bank" autoComplete="off" inputMode="email"
-                onChange={(e) => setUpi(e.target.value)} onBlur={() => setTouched(true)}
-                aria-invalid={showUpiErr ? 'true' : undefined} aria-describedby="upi-msg" />
-              <span id="upi-msg" className={showUpiErr ? 'error' : 'help'}>
-                {showUpiErr ? 'That doesn’t look like a UPI ID. It should look like name@bank.' : upiOk ? 'We’ll send a payment request to your UPI app.' : 'Example: saivarsha@okaxis'}
-              </span>
+          {mode === 'whatsapp' ? (
+            <div className="stack g8" data-testid="checkout-wa">
+              <strong>Pay by UPI on WhatsApp</strong>
+              <p className="small muted" style={{ margin: 0 }}>{WA_PAY_TEXT} When you press {BUY_WA}, we save your order and open a WhatsApp chat with your order number.</p>
+              <p className="small muted" style={{ margin: 0 }}>{WA_SAFETY} {WA_DELIVERY}</p>
+            </div>
+          ) : mode === 'off' ? (
+            <div className="stack g8" data-testid="checkout-soon">
+              <strong>Coming soon</strong>
+              <p className="small muted" style={{ margin: 0 }}>Online orders open soon. Nothing can be bought yet.</p>
             </div>
           ) : (
-            <p className="small muted">You’ll enter card details on {PROMISES.paymentProvider}’s secure checkout.</p>
+            <div className="stack g8">
+              <strong>Pay with UPI, card or netbanking</strong>
+              <p className="small muted" style={{ margin: 0 }}>When you press Pay, {PROMISES.paymentProvider}’s secure window opens. Choose GPay, PhonePe, Paytm or any UPI app, a Visa / RuPay / Mastercard card, or netbanking there. We never see your card or UPI PIN.</p>
+            </div>
           )}
           {err && <p role="alert" className="error">{err}</p>}
           {!user && <div className="well small">Sign in or create a free account first — your order, drafts and invoices live in your dashboard. <Link to="/login?next=%2Fcheckout">Sign in</Link> · <Link to="/signup?next=%2Fcheckout">Create account</Link></div>}
           {user && user.role !== 'customer' && <div className="well small">You’re signed in with an {user.role} account. Orders need a customer account.</div>}
           <button type="submit" className="btn btn-ink btn-xl" disabled={disabled} aria-busy={paying}>
-            {paying && <Spinner />}{paying ? 'Waiting for your UPI app…' : `Pay ${inr(total)}`}
+            {paying && <Spinner />}{mode === 'off' ? 'Coming soon' : mode === 'whatsapp' ? (paying ? 'Opening WhatsApp…' : `${BUY_WA} · ${inr(total)}`) : paying ? 'Waiting for your payment…' : `Pay ${inr(total)}`}
           </button>
-          <span className="xs muted" style={{ textAlign: 'center' }}>By paying you agree to our <Link to="/terms">Terms</Link> and <Link to="/refund-policy">Refund policy</Link>.</span>
-          <span className="xs faint" style={{ textAlign: 'center' }}>Secured by {PROMISES.paymentProvider} · GST invoice emailed · full refund if we don’t deliver</span>
+          {mode !== 'off' && <span className="xs muted" style={{ textAlign: 'center' }}>By paying you agree to our <Link to="/terms">Terms</Link> and <Link to="/refund-policy">Refund policy</Link>.</span>}
+          {mode === 'razorpay' && <span className="xs faint" style={{ textAlign: 'center' }}>Secured by {PROMISES.paymentProvider} · GST invoice emailed · full refund if we don’t deliver</span>}
+          {mode === 'whatsapp' && <span className="xs faint" style={{ textAlign: 'center' }}>Receipt emailed when we confirm your payment · full refund if we don’t deliver</span>}
         </form>
       </main>
     </>

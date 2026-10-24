@@ -2,10 +2,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, useToast } from '../../components/ui';
-import { useMe, openInBuilder, addResume, updateResume, deleteResume, restoreVersion, expertDrafts, retentionLeft } from '../../lib/customerStore';
+import { useMe, openInBuilder, addResume, updateResume, deleteResume, restoreVersion, expertDrafts, retentionLeft, blankResume } from '../../lib/customerStore';
 import { useExpertOrders } from '../../lib/expertStore';
 import { atsScore } from '../../lib/atsScore';
-import { INITIAL } from '../builder/schema';
 import Compare from '../builder/Compare';
 import { MeHead } from './MeLayout';
 import { ResumeThumb, downloadResume, templateName, ago, fmtWhen } from './shared';
@@ -49,7 +48,7 @@ export default function MeResumes() {
   const [name, setName] = useState('');
   const [confirmDel, setConfirmDel] = useState(null);
   const edit = (id) => { openInBuilder(id); nav('/builder', { state: { open: 'build' } }); };
-  const blank = () => { const d = structuredClone(INITIAL); d.personal = { ...d.personal, name: me.account.name, email: me.account.email, phone: me.account.phone, headline: '' }; d.summary = ''; d.exp = []; d.proj = []; d.certs = []; return d; };
+  const blank = () => blankResume(me.account); // truly empty: only the account's name, email and phone
 
   return (
     <>
@@ -60,7 +59,7 @@ export default function MeResumes() {
           const s = atsScore(r.data).score;
           return (
             <article key={r.id} className="card row g16" style={{ flex: '1 1 420px', alignItems: 'flex-start' }} aria-label={r.name}>
-              <ResumeThumb data={r.data} width={120} />
+              <ResumeThumb data={r.data} width={120} label={`Preview of ${r.name} resume`} />
               <div className="stack g8" style={{ flex: 1, minWidth: 180 }}>
                 {renaming === r.id ? (
                   <form className="row g4" onSubmit={(e) => { e.preventDefault(); updateResume(r.id, { name: name.trim() || r.name }); setRenaming(null); }}>
@@ -73,8 +72,8 @@ export default function MeResumes() {
                 <span className="xs muted">{templateName(r.data)} · edited {ago(r.updated)} · {r.versions.length + expertDrafts(r.id).length} versions</span>
                 <div className="row g8">
                   <button type="button" className="btn btn-ink" style={{ minHeight: 36 }} onClick={() => edit(r.id)}>Edit</button>
-                  <button type="button" className="btn btn-outline" style={{ minHeight: 36 }} onClick={async () => { await downloadResume(r.data, 'pdf'); toast('PDF ready'); }}>PDF</button>
-                  <button type="button" className="btn btn-outline" style={{ minHeight: 36 }} onClick={async () => { await downloadResume(r.data, 'docx'); toast('Word file ready'); }}>Word</button>
+                  <button type="button" className="btn btn-outline" style={{ minHeight: 36 }} onClick={async () => { if (await downloadResume(r.data, 'pdf')) toast('PDF ready'); }}>PDF</button>
+                  <button type="button" className="btn btn-outline" style={{ minHeight: 36 }} onClick={async () => { if (await downloadResume(r.data, 'docx')) toast('Word file ready'); }}>Word</button>
                 </div>
                 <div className="row g12 small">
                   <button type="button" className="link-btn small" onClick={() => setVersions(r)}>Versions</button>

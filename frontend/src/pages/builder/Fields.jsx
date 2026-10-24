@@ -1,7 +1,12 @@
+import { useLayoutEffect, useRef, useState } from 'react';
 import { Icon } from '../../components/ui';
+import { BOLD_TIP, htmlToRich, sanitizeRich, toggleBold, tooMuchBold } from '../../lib/bold';
+import { COURSES_HINT, COURSES_PH, MAX_COURSES, addCourses, coursesOf, suggestCourses } from '../../lib/courses';
+import ChipList from './ChipList';
+import { GrowArea } from './GrowArea';
 
 /** Renders one schema field. `value` / `onChange(value)` are plain values. */
-export function SchemaField({ field, value, onChange, disabled, onAi, idBase, error }) {
+export function SchemaField({ field, value, onChange, disabled, onAi, idBase, error, entry }) {
   const id = `${idBase}-${field.key}`;
   const style = { gridColumn: field.full ? '1 / -1' : 'auto' };
   const t = field.type;
@@ -10,6 +15,15 @@ export function SchemaField({ field, value, onChange, disabled, onAi, idBase, er
     return (
       <div style={style}>
         <label className="check"><input type="checkbox" checked={!!value} onChange={(e) => onChange(e.target.checked)} />{field.label}</label>
+      </div>
+    );
+  }
+  if (t === 'courses') {
+    return (
+      <div className="field" style={style}>
+        <label htmlFor={id} className="label">{field.label}</label>
+        <ChipList id={id} label={field.label} value={coursesOf({ courses: value })} onChange={onChange} add={addCourses} max={MAX_COURSES}
+          placeholder={COURSES_PH} hint={COURSES_HINT} suggestions={suggestCourses({ ...entry, courses: value })} />
       </div>
     );
   }
@@ -37,7 +51,8 @@ export function SchemaField({ field, value, onChange, disabled, onAi, idBase, er
         </select>
       ) : t === 'area' ? (
         <>
-          <textarea id={id} className="input" rows={4} value={value || ''} placeholder={field.ph} onChange={(e) => onChange(e.target.value)} />
+          {field.rich ? <RichArea id={id} rows={4} value={value || ''} placeholder={field.ph} onChange={onChange} />
+            : <textarea id={id} className="input" rows={4} value={value || ''} placeholder={field.ph} onChange={(e) => onChange(e.target.value)} />}
           {field.ai && (
             <span className="row g8">
               <button type="button" className="btn btn-signal" style={{ minHeight: 38, fontSize: 13 }} onClick={() => onAi('rewrite')}><Icon name="spark" size={14} />Rewrite with results</button>
@@ -46,6 +61,9 @@ export function SchemaField({ field, value, onChange, disabled, onAi, idBase, er
             </span>
           )}
         </>
+      ) : field.grow && t === 'text' ? ( // short text that can run long: grows to about 6 lines, never scrolls sideways
+        <GrowArea id={id} list={field.grow === 'list'} value={value || ''} placeholder={field.ph} disabled={disabled} onChange={onChange}
+          invalid={!!error} describedBy={error ? `${id}-err` : undefined} />
       ) : (
         <input id={id} className="input" type={t} value={value || ''} placeholder={field.ph} disabled={disabled} onChange={(e) => onChange(e.target.value)}
           aria-invalid={error ? 'true' : undefined} aria-describedby={error ? `${id}-err` : undefined} />
@@ -95,6 +113,64 @@ export function LinkFields({ idBase, links = [], slots = 1, words = ['Link'], ma
           </div>
         );
       })}
+    </div>
+  );
+}
+
+/**
+ * A text box for resume text that can hold **bold** words: a small toolbar with B above it (or Ctrl/Cmd+B). Works
+ * with a long-press selection on a phone: the button never takes the focus, and the last selection is remembered.
+ * Pasting from Word, Google Docs or a website keeps the text and its bold only; any other markup is removed when the
+ * box is left. Bold only — no italic, underline or colour.
+ */
+export function RichArea({ id, value, onChange, rows = 4, placeholder, style, inputStyle, maxLength, label = 'Formatting' }) {
+  const ref = useRef(null);
+  const selRef = useRef({ start: 0, end: 0 });
+  const [restore, setRestore] = useState(null);
+  useLayoutEffect(() => {
+    if (!restore || !ref.current) return;
+    ref.current.focus();
+    ref.current.setSelectionRange(restore.start, restore.end);
+    selRef.current = restore;
+    setRestore(null);
+  }, [restore, value]);
+  const remember = () => { const el = ref.current; if (el) selRef.current = { start: el.selectionStart, end: el.selectionEnd }; };
+  const bold = () => {
+    const el = ref.current;
+    const { start, end } = document.activeElement === el ? { start: el.selectionStart, end: el.selectionEnd } : selRef.current;
+    const r = toggleBold(value || '', start, end);
+    if (r.value !== (value || '')) onChange(r.value);
+    setRestore({ start: r.start, end: r.end });
+  };
+  const onKeyDown = (e) => {
+    if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === 'b') { e.preventDefault(); bold(); }
+  };
+  const onPaste = (e) => {
+    const html = e.clipboardData?.getData('text/html');
+    if (!html) return; // plain text: the browser pastes it as it is (hand-typed ** stays)
+    e.preventDefault();
+    const el = ref.current;
+    const text = htmlToRich(html);
+    const v = value || '';
+    const next = v.slice(0, el.selectionStart) + text + v.slice(el.selectionEnd);
+    onChange(next);
+    const at = el.selectionStart + text.length;
+    setRestore({ start: at, end: at });
+  };
+  const keep = (e) => e.preventDefault(); // the B button never takes the focus (keeps a phone's selection)
+  return (
+    <div className="stack g4" style={style}>
+      <div role="toolbar" aria-label={label} aria-controls={id} className="row g8" style={{ alignItems: 'center' }}>
+        <button type="button" className="btn btn-outline" aria-label="Bold (Ctrl+B)" title="Bold (Ctrl+B)" data-testid={`${id}-bold`}
+          onMouseDown={keep} onPointerDown={keep} onClick={bold}
+          style={{ minHeight: 36, minWidth: 44, padding: '0 12px', fontWeight: 800, fontSize: 15 }}>B</button>
+        <span className="xs faint">Select words, then B to make them bold</span>
+      </div>
+      <textarea ref={ref} id={id} className="input" rows={rows} value={value} placeholder={placeholder} style={inputStyle} maxLength={maxLength}
+        onChange={(e) => onChange(e.target.value)} onKeyDown={onKeyDown} onPaste={onPaste}
+        onSelect={remember} onKeyUp={remember} onMouseUp={remember} onTouchEnd={remember}
+        onBlur={() => { remember(); const clean = sanitizeRich(value || ''); if (clean !== (value || '')) onChange(clean); }} />
+      {tooMuchBold(value) && <span className="xs" role="status" data-testid={`${id}-bold-tip`} style={{ color: 'var(--warning)' }}>{BOLD_TIP}</span>}
     </div>
   );
 }

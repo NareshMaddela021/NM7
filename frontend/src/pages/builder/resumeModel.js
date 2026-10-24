@@ -2,6 +2,9 @@
 // so what you see is exactly what downloads.
 import { DECL_TEXT, PINFO_LABELS, resolveOrder, sectionLabel, splitList, splitSkills } from './schema';
 import { fmtDate, fmtDates } from './design';
+import { visibleResume } from './entries';
+import { plainResume } from '../../lib/bold';
+import { coursesOf } from '../../lib/courses';
 
 const fullUrl = (u) => (/^https?:\/\//i.test(u) ? u : `https://${u}`);
 const shortUrl = (u) => u.replace(/^https?:\/\//i, '').replace(/^www\./i, '').replace(/\/+$/, '');
@@ -10,16 +13,31 @@ const linksOf = (o) => (o.links || []).filter((l) => l.url && l.url.trim()).map(
 /** Optional: also print the address itself, for paper copies. */
 const printed = (o, ds) => (ds.printLinks ? linksOf(o).map((l) => `${l.label}: ${shortUrl(l.url)}`) : []);
 
+const t = (v) => String(v ?? '').trim(); // a typed value, or ''
 const SIDE_IDS = ['skills', 'langs', 'certs', 'hobbies', 'strengths'];
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 /** "2001-05-15" → "15 May 2001" */
 const longDate = (v) => { const [y, m, day] = (v || '').split('-'); return y && m && day ? `${+day} ${MONTHS[+m - 1]} ${y}` : v; };
 
 
-/** Lines of a textarea → [{ t, bullet: true }] (leading •, -, * stripped). */
+/** Lines of a textarea → [{ t, bullet: true }] (a leading •, -, * stripped; a **bold** start is kept). */
 function bullets(text) {
   return (text || '').split('\n').map((s) => s.trim()).filter(Boolean)
-    .map((s) => ({ t: s.replace(/^[•\-*▸–]\s*/, ''), bullet: true }));
+    .map((s) => ({ t: s.replace(/^(?:[•\-▸–]|\*(?!\*))\s*/, ''), bullet: true }));
+}
+
+/** Only the text that prints as running text keeps its **bold** markers (the summary and the descriptions of
+ * experience, projects, achievements and custom sections; a stray marker is never printed); in every other field a
+ * typed ** is just left out. Old resumes have no markers, so they are unchanged. */
+export function printable(data) {
+  if (!data) return data;
+  const out = plainResume(data);
+  const keep = (list, plain) => (Array.isArray(list) ? list.map((x, i) => ({ ...plain[i], description: x?.description })) : plain);
+  if (typeof data.summary === 'string') out.summary = data.summary;
+  ['exp', 'proj', 'ach'].forEach((k) => { out[k] = keep(data[k], out[k]); });
+  if (Array.isArray(data.edu)) out.edu = data.edu.map((x, i) => ({ ...out.edu[i], courses: x?.courses })); // course names may be bold
+  if (Array.isArray(data.custom)) out.custom = data.custom.map((c, i) => ({ ...out.custom[i], items: keep(c.items, out.custom[i].items) }));
+  return out;
 }
 
 /**
@@ -27,20 +45,40 @@ function bullets(text) {
  * section = { id, title, items: [{ head, date, sub, lines }] }
  * line = string | { t, bullet } | { bold, text } | { label, chips: [] } | { kv: [label, value], url? } | { sign: { left: [], right } }
  */
-export function buildSections(d, ds) {
+export function buildSections(data, ds) {
+  const d = printable(visibleResume(data)); // switched-off entries are never printed; ** only where bold prints
   const f = ds.dateFormat;
   const by = {};
   if (d.summary) by.summary = [{ lines: [d.summary] }];
-  by.exp = d.exp.filter((e) => e.company || e.role).map((e) => ({
-    head: [e.role, e.company].filter(Boolean).join(' · '), links: linksOf(e), date: fmtDates(e.from, e.to, e.current, f), sub: e.employmentType, lines: [...bullets(e.description), ...printed(e, ds)],
-  }));
-  by.proj = d.proj.filter((p) => p.title).map((p) => ({
-    head: p.title, links: linksOf(p), date: fmtDates(p.from, p.to, p.ongoing, f) || p.status, sub: [p.tagline, p.tech].filter(Boolean).join(' · '),
-    lines: [...bullets(p.description), ...printed(p, ds)],
-  }));
-  by.edu = d.edu.filter((e) => e.institution || e.degree).map((e) => ({
-    head: [e.degree, e.field].filter(Boolean).join(', '), date: fmtDates(e.from, e.to, e.current, f, true), sub: [e.institution, e.grade].filter(Boolean).join(' · '),
-  }));
+  by.exp = d.exp.filter((e) => e.company || e.role).map((e) => {
+    const role = t(e.role); const type = t(e.employmentType);
+    const roleLine = role && type ? `${role} (${type})` : role || type;
+    const date = fmtDates(e.from, e.to, e.current, f);
+    return {
+      head: [e.role, e.company].filter(Boolean).join(' · '), links: linksOf(e), date, sub: [e.employmentType, t(e.location)].filter(Boolean).join(' · '), lines: [...bullets(e.description), ...printed(e, ds)],
+      // Academic: Company · location / Role (Employment type) · dates
+      acad: t(e.company) ? [[t(e.company), t(e.location)], [roleLine, date]] : [[roleLine, t(e.location)], ['', date]],
+    };
+  });
+  by.proj = d.proj.filter((p) => p.title).map((p) => {
+    const date = fmtDates(p.from, p.to, p.ongoing, f) || p.status;
+    return {
+      head: p.title, links: linksOf(p), date, sub: [p.tagline, p.tech].filter(Boolean).join(' · '),
+      lines: [...bullets(p.description), ...printed(p, ds)],
+      acad: [[t(p.title), date], [[t(p.tagline), t(p.tech)].filter(Boolean).join(' · '), '']], // name + links / dates, tech line
+    };
+  });
+  by.edu = d.edu.filter((e) => e.institution || e.degree).map((e) => {
+    const degree = [e.degree, e.field].map(t).filter(Boolean).join(', ');
+    const date = fmtDates(e.from, e.to, e.current, f, true);
+    const courses = coursesOf(e);
+    return {
+      head: [e.degree, e.field].filter(Boolean).join(', '), date, sub: [e.institution, t(e.location), e.grade].filter(Boolean).join(' · '),
+      // "Courses: A, B, C" under the entry (italic in Academic); nothing at all when empty
+      lines: courses.length ? [{ courses: { label: `${ds.coursesLabel || 'Courses'}:`, text: courses.join(', '), italic: ds.entryStyle === 'academic' } }] : undefined,
+      acad: t(e.institution) ? [[t(e.institution), t(e.location)], [[degree, t(e.grade)].filter(Boolean).join(' · '), date]] : [[degree, t(e.location)], [t(e.grade), date]],
+    };
+  });
   const groups = d.skillGroups.filter((g) => splitSkills(g.value).length);
   if (groups.length) {
     if (ds.skillsStyle === 'comma') by.skills = [{ lines: [groups.flatMap((g) => splitSkills(g.value)).join(', ')] }];
@@ -76,3 +114,11 @@ export function buildSections(d, ds) {
 
 /** Words with a number (20%, ₹2L, 3x, 1,200) — bolded by templates like Impact. Years alone stay normal. */
 export const isNumWord = (w) => /[\d₹%]/.test(w) && !/^\(?(19|20)\d{2}\)?[.,;:]?$/.test(w);
+
+/** Academic template: an entry's two lines [[left, right], [left, right]]; empty parts and empty lines left out (never
+ * a stray "()" or "–"). Entries without their own pattern: title · date, then the subtitle. */
+export function acadRows(it) {
+  const rows = it.acad || [[it.head || '', it.date || ''], [it.sub || '', '']];
+  return rows.map(([l, r]) => [String(l || '').trim(), String(r || '').trim()]).filter(([l, r], i) => l || r || (i === 0 && it.links?.length));
+}
+export const ACAD_INDENT = 12; // pt: the bullets sit this far in under each entry

@@ -2,7 +2,8 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import Header from '../../components/Header';
-import { useMe, unreadCount, syncFromBuilder } from '../../lib/customerStore';
+import { useMe, unreadCount, syncFromBuilder, reloadMe } from '../../lib/customerStore';
+import { Spinner } from '../../components/ui';
 import { useExpertOrders } from '../../lib/expertStore';
 
 export const ME_NAV = [
@@ -10,10 +11,12 @@ export const ME_NAV = [
   ['orders', '/me/orders', 'My orders', '☰'],
   ['messages', '/me/messages', 'Messages', '✉'],
   ['resumes', '/me/resumes', 'My resumes', '▤'],
+  ['profile', '/me/profile', 'Job Profile', '◉'],
   ['ats', '/me/ats', 'ATS & job match', '◎'],
   ['covers', '/me/covers', 'Cover letters', '✎'],
   ['jobs', '/me/jobs', 'Applications', '▥'],
   ['share', '/me/share', 'Share link', '↗'],
+  ['groups', '/me/groups', 'My groups', '⚑'],
   ['launch', '/me/launch', 'Career Launch', '★'],
   ['payments', '/me/payments', 'Payments & refunds', '₹'],
   ['upgrade', '/me/upgrade', 'Upgrade & add-ons', '⇧'],
@@ -55,12 +58,19 @@ export default function MeLayout() {
           {ME_NAV.map((n) => link(n))}
         </nav>
         <main className="stack g20" style={{ flex: '1 1 600px', minWidth: 0 }}>
-          <Outlet />
+          {me.loading && !me.error && <div className="row g12 muted" role="status" style={{ padding: '48px 0' }}><Spinner /> Loading your dashboard…</div>}
+          {me.loading && me.error && (
+            <div className="card stack g12" role="alert">
+              <strong>We couldn’t load your dashboard.</strong><span className="small muted">{me.error}</span>
+              <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} onClick={reloadMe}>Try again</button>
+            </div>
+          )}
+          {!me.loading && <Outlet />}
         </main>
       </div>
       {/* phones: bottom tabs */}
       <nav aria-label="My dashboard (tabs)" className="me-tabs">
-        {ME_NAV.filter(([k]) => TABS.includes(k)).map(([k, to, l, ic]) => (
+        {ME_NAV.filter(([k]) => TABS.includes(k)).map(([k, to, _l, ic]) => (
           <NavLink key={k} to={to} end={to === '/me'}><span aria-hidden="true">{ic}</span>{SHORT[k]}</NavLink>
         ))}
         <button type="button" aria-expanded={more} onClick={() => setMore(!more)}><span aria-hidden="true">⋯</span>More{unread > 0 && <span className="dot" aria-label={`${unread} unread messages`} />}</button>

@@ -23,6 +23,7 @@ export default function Refund() {
   const [step, setStep] = useState('form');
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState(null);
+  const [err, setErr] = useState('');
 
   if (!o) return <><Header variant="flow" /><main className="container stack g12" style={{ maxWidth: 720, padding: 40 }}><h1 className="display" style={{ fontSize: 28 }}>Order not found</h1><Link to="/me/orders">My orders</Link></main></>;
   const total = o.price + o.addons.reduce((t, a) => t + a.price, 0);
@@ -41,10 +42,14 @@ export default function Refund() {
   const needDetails = reason !== 'late';
   const cantContinue = needDetails && details.trim().length < 10;
   const submit = async () => {
-    setBusy(true);
-    await requestRefund(id, { reason, details }); // live app: the server decides
-    setResult(askRefund(id, { reason, details: details.trim() }));
-    setBusy(false); setStep('done');
+    setBusy(true); setErr('');
+    try {
+      const decided = await requestRefund(id, { reason, details: details.trim() }); // live app: the server decides
+      setResult(askRefund(id, { reason, details: details.trim() }, decided));
+      setStep('done');
+    } catch (e) {
+      setErr(e.message);
+    } finally { setBusy(false); }
   };
 
   return (
@@ -98,6 +103,7 @@ export default function Refund() {
             <li>You keep the free scan, your resumes and the builder.</li>
             <li>If approved, {amount} goes back to the account you paid from in {PROMISES.refundDays}.</li>
           </ul>
+          {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
           <div className="row g12">
             <button type="button" className="btn btn-danger btn-lg" onClick={submit} disabled={busy}>{busy && <Spinner />}{reason === 'late' ? `Yes, refund ${amount}` : 'Send request'}</button>
             <button type="button" className="btn btn-outline btn-lg" onClick={() => setStep('form')}>Go back</button>

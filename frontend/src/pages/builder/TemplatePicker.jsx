@@ -1,14 +1,18 @@
 // Template screen: filters (level, industry, columns, photo, ATS-safe), a colour row on every card,
-// an ATS badge and a "Suggested for you" badge.
-import { useMemo, useState } from 'react';
+// an ATS badge and a "Suggested for you" badge. Continuing never needs a scroll back up: the selected card has its
+// own "Use <Template>" button, and from the first pick a bar stays at the bottom of the screen. Double-click a card,
+// or press Enter / Space on it, to use it straight away. Every "Use" button does what the top one does (onNext).
+import { useEffect, useMemo, useReducer, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Icon } from '../../components/ui';
 import ResumePreview from './ResumePreview';
+import TemplatePreview from './TemplatePreview';
 import { ACCENTS, DEFAULT_DESIGN, INDUSTRY_TAGS, TEMPLATE_PRESETS, atsCheck } from './design';
-import { SECTION_LAYOUTS } from './schema';
+import { INITIAL } from './schema';
+import { audienceOf, hasOwnDetails, isUseKey, layoutOf, pickState, PHOTO_PLACEHOLDER, readView, saveView, selectionText, startView } from './templatePick';
+import { InView, NoDetails, ViewSwitch } from './ViewSwitch';
 
-export const layoutOf = (k) => SECTION_LAYOUTS[TEMPLATE_PRESETS[k]?.sections || 'standard'];
-// grey silhouette so photo templates show where the photo goes
-export const PHOTO_PLACEHOLDER = `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="#D9DCE1"/><circle cx="32" cy="25" r="11" fill="#A9AFB8"/><path d="M10 60c2-12 11-18 22-18s20 6 22 18z" fill="#A9AFB8"/></svg>')}`;
+export { layoutOf, PHOTO_PLACEHOLDER } from './templatePick';
 
 const swatchesFor = (t) => [t.design.accent, ...ACCENTS.filter((c) => c.toLowerCase() !== t.design.accent.toLowerCase())].slice(0, 6);
 
@@ -16,7 +20,13 @@ function Chip({ on, onClick, children }) {
   return <button type="button" className="chip" aria-pressed={on} onClick={onClick} style={{ minHeight: 36, fontSize: 13 }}>{children}</button>;
 }
 
-export default function TemplatePicker({ d, ds, suggest, photo, onPick, onNext }) {
+export default function TemplatePicker({ d, ds, suggest, photo, onPick, onNext, initialView }) {
+  // "Sample resume | My details": the cards show the example person or this resume (Change template opens on My details)
+  const [view, setViewState] = useState(() => initialView || startView(readView(), d));
+  const setView = (v) => { setViewState(v); saveView(v); };
+  const mine = view === 'mine';
+  const own = hasOwnDetails(d);
+  const shownData = mine ? d : INITIAL;
   const [level, setLevel] = useState('all');
   const [ind, setInd] = useState(null);
   const [cols, setCols] = useState(null);
@@ -40,12 +50,22 @@ export default function TemplatePicker({ d, ds, suggest, photo, onPick, onNext }
   const filtered = level !== 'all' || ind || cols || photoOnly || atsOnly;
   const clear = () => { setLevel('all'); setInd(null); setCols(null); setPhotoOnly(false); setAtsOnly(false); };
   const cur = TEMPLATE_PRESETS[ds.preset];
+  const [pick, dispatch] = useReducer(pickState, { selected: ds.preset, touched: false });
+  useEffect(() => { dispatch({ type: 'sync', key: ds.preset }); }, [ds.preset]);
+  const sel = all.find((x) => x.k === pick.selected) || all.find((x) => x.k === ds.preset);
+  const text = selectionText(sel?.t || cur, { ats: sel?.ats, two: sel?.two });
+  const choose = (k, accent) => { dispatch({ type: 'pick', key: k }); onPick(k, { accent }); };
+  const pickNow = (k, accent) => { if (ds.preset !== k) onPick(k, { accent }); onNext(); }; // same as the top button
+  const bar = pick.touched && sel;
+  const [preview, setPreview] = useState(null); // the card shown large (Preview): only shows it, never a download
+  const big = preview && all.find((x) => x.k === preview);
 
   return (
-    <main className="container stack g20 rise" style={{ padding: '48px 24px 72px', maxWidth: 1320 }}>
+    <main className="container stack g20 rise" style={{ padding: '48px 24px 72px', paddingBottom: bar ? 'calc(var(--tp-bar-h) + 40px + env(safe-area-inset-bottom, 0px))' : 72, maxWidth: 1320 }}>
+      <span className="sr-only" aria-live="polite" data-testid="tp-announce">{pick.touched ? text.announce : ''}</span>
       <div className="row between g16" style={{ alignItems: 'flex-end' }}>
-        <div className="stack g8"><h1 className="display" style={{ fontSize: 40 }}>Pick a starting look</h1><span className="muted">{Object.keys(TEMPLATE_PRESETS).length} templates. Every font, colour and spacing can be changed later in the Design tab.</span></div>
-        <button type="button" className="btn btn-ink btn-lg" onClick={onNext}>Use {cur?.name || 'this'} <Icon name="arrow" /></button>
+        <div className="stack g8"><h1 className="display" style={{ fontSize: 40 }}>{initialView ? 'Change template' : 'Pick a starting look'}</h1><span className="muted">{Object.keys(TEMPLATE_PRESETS).length} templates. {initialView ? 'Your content stays exactly as it is.' : 'Every font, colour and spacing can be changed later in the Design tab.'}</span></div>
+        <button type="button" className="btn btn-ink btn-lg" data-testid="tp-use-top" onClick={onNext}>{text.use} <Icon name="arrow" /></button>
       </div>
 
       {/* filters */}
@@ -68,7 +88,11 @@ export default function TemplatePicker({ d, ds, suggest, photo, onPick, onNext }
           {filtered && <button type="button" className="btn btn-ghost" style={{ minHeight: 36, fontSize: 13 }} onClick={clear}>Clear filters</button>}
         </div>
       </section>
-      <span className="xs muted" aria-live="polite">Showing {list.length} of {all.length}</span>
+      <div className="row between g12" style={{ alignItems: 'center' }}>
+        <ViewSwitch view={view} onChange={setView} />
+        <span className="xs muted" aria-live="polite">Showing {list.length} of {all.length}</span>
+      </div>
+      {mine && !own && <NoDetails onStart={onNext} />}
 
       {list.length === 0 && (
         <div className="card stack g8" style={{ alignItems: 'flex-start' }}><strong>No template matches all of these filters.</strong><button type="button" className="btn btn-outline" onClick={clear}>Clear filters</button></div>
@@ -78,22 +102,30 @@ export default function TemplatePicker({ d, ds, suggest, photo, onPick, onNext }
         {list.map(({ k, t, design, accent, ats, two }) => {
           const chosen = ds.preset === k;
           return (
-            <div key={k} className="card stack g8" style={{ padding: 12, border: chosen ? '2px solid var(--ink)' : undefined }}>
-              <button type="button" role="radio" aria-checked={chosen} aria-label={`${t.name} template`} onClick={() => onPick(k, { accent })}
-                style={{ padding: 0, border: 0, background: 'transparent', cursor: 'pointer', textAlign: 'left' }}>
-                <div aria-hidden="true" style={{ height: 300, overflow: 'hidden', borderRadius: 6, pointerEvents: 'none' }}>
-                  <ResumePreview data={{ ...d, ...layoutOf(k) }} design={design} photo={t.photo ? (photo || PHOTO_PLACEHOLDER) : photo} />
+            <div key={k} className="card stack g8 tp-card" data-testid={`tp-card-${k}`} data-selected={chosen || undefined}
+              style={{ padding: 11, border: `2px solid ${chosen ? 'var(--ink)' : 'var(--border)'}` }}>
+              <button type="button" role="radio" aria-checked={chosen} aria-label={`${t.name} template`}
+                onClick={() => choose(k, accent)} onDoubleClick={() => pickNow(k, accent)}
+                onKeyDown={(e) => { if (isUseKey(e)) { e.preventDefault(); pickNow(k, accent); } }}
+                style={{ padding: 0, border: 0, background: 'transparent', cursor: 'pointer', textAlign: 'left', position: 'relative' }}>
+                <div aria-hidden="true" style={{ pointerEvents: 'none' }}>
+                  <InView height={300}>
+                    <ResumePreview decorative data={mine ? shownData : { ...shownData, ...layoutOf(k) }} design={design} photo={t.photo ? ((mine ? photo : null) || PHOTO_PLACEHOLDER) : (mine ? photo : null)} />
+                  </InView>
                 </div>
+                <span aria-hidden="true" className="tp-check" style={{ visibility: chosen ? 'visible' : 'hidden' }}>✓</span>
               </button>
               <div className="row g8" style={{ alignItems: 'center' }}>
                 <strong>{t.name}</strong>
                 {suggest === k && <span className="badge b-signal">Suggested for you</span>}
+                {!mine && <span className="badge b-neutral">Sample</span>}
+                <button type="button" className="btn btn-ghost tp-preview" aria-haspopup="dialog" aria-label={`Preview ${t.name}`} onClick={() => setPreview(k)}>Preview</button>
               </div>
               <div className="row g4">
                 <span className={`badge ${ats >= 90 ? 'b-success' : ats >= 75 ? 'b-warning' : 'b-danger'}`} title="How safely tracking systems can read it">ATS {ats}</span>
                 <span className="badge b-neutral">{two ? '2 columns' : '1 column'}</span>
                 {t.photo && <span className="badge b-neutral">Photo</span>}
-                <span className="badge b-neutral">{t.level === 'fresher' ? 'Freshers' : t.level === 'experienced' ? 'Experienced' : 'Any level'}</span>
+                <span className="badge b-neutral">{audienceOf(t)}</span>
               </div>
               <span className="xs muted" style={{ minHeight: 34 }}>{t.desc}</span>
               <div className="row g4" role="group" aria-label={`${t.name} colours`}>
@@ -103,10 +135,30 @@ export default function TemplatePicker({ d, ds, suggest, photo, onPick, onNext }
                     style={{ width: 26, height: 26, borderRadius: '50%', background: c, border: accent === c ? '3px solid var(--surface)' : '2px solid transparent', boxShadow: accent === c ? '0 0 0 2px var(--ink)' : 'none', cursor: 'pointer', padding: 0 }} />
                 ))}
               </div>
+              {/* the space is kept on every card, so selecting one never moves anything */}
+              <button type="button" className="btn btn-ink tp-use" data-testid="tp-use-card" aria-label={`Use ${t.name}`} onClick={() => pickNow(k, accent)}
+                style={{ visibility: chosen ? 'visible' : 'hidden' }}>Use {t.name} <Icon name="arrow" /></button>
             </div>
           );
         })}
       </div>
+
+      {big && <TemplatePreview id={big.k} view={view} onView={setView} data={own ? d : null} accent={big.accent} onStart={() => { setPreview(null); onNext(); }} onClose={() => setPreview(null)} onUse={() => { setPreview(null); pickNow(big.k, big.accent); }} />}
+
+      {/* on <body>: a transformed ancestor (an entry animation) would pin a fixed bar to itself, not the screen */}
+      {bar && createPortal(
+        <div className="tp-bar" role="region" aria-label="Selected template" data-testid="tp-bar">
+          <div className="tp-bar-in">
+            <span className="tp-bar-thumb" aria-hidden="true"><ResumePreview decorative loadFonts={false} data={d} design={sel.design} /></span>
+            <span className="stack" style={{ minWidth: 0, flex: '1 1 auto' }}>
+              <strong className="tp-bar-name">{text.name}</strong>
+              <span className="xs muted" data-testid="tp-bar-meta">{text.meta}</span>
+            </span>
+            <button type="button" className="btn btn-ink btn-lg tp-bar-use" data-testid="tp-use-bar" onClick={() => pickNow(sel.k, sel.accent)}>{text.use} <Icon name="arrow" /></button>
+          </div>
+        </div>,
+        document.body,
+      )}
     </main>
   );
 }

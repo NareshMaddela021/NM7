@@ -1,6 +1,7 @@
 // Expert order workspace: the full resume builder + brief, live checks, versions/compare, messages & comments,
 // snippets, Career Launch extras, send draft and final delivery (into the customer's own builder).
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { plainResume } from '../../lib/bold';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Header from '../../components/Header';
 import { Icon, useToast } from '../../components/ui';
@@ -14,6 +15,31 @@ import { atsScore } from '../../lib/atsScore';
 import { useExpertOrders, updateOrder, useSnippets } from '../../lib/expertStore';
 import { applyImport } from '../../lib/import/apply';
 import { PLANS, ADDONS, expertPayout, inr } from '../../lib/pricing';
+import { LIVE, http } from '../../services/http';
+import { entryLabel } from '../../lib/jobProfile';
+
+/** The customer's Job Profile, only when they allowed it (personal details only if they allowed those too). */
+function CustomerProfile({ orderId }) {
+  const [st, setSt] = useState({ loading: LIVE });
+  useEffect(() => {
+    if (!LIVE) return undefined;
+    let on = true;
+    http(`/api/work/${orderId}/profile`).then((r) => on && setSt({ data: r.data, privacy: r.privacy }), (e) => on && setSt({ error: e.status === 404 || e.status === 405 ? 'none' : e.message }));
+    return () => { on = false; };
+  }, [orderId]);
+  if (st.loading) return null;
+  if (!st.data) return <span className="xs faint">{st.error && st.error !== 'none' ? st.error : 'The customer hasn’t shared their Job Profile with you.'}</span>;
+  const p = st.data;
+  const lists = [['Experience', p.exp], ['Internships', p.intern], ['Projects', p.proj], ['Education', p.edu], ['Certifications', p.certs], ['Achievements', p.ach], ['Extracurricular', p.extra]];
+  return (
+    <div className="well stack g4 small" aria-label="Customer’s Job Profile">
+      <strong>Their Job Profile (shared with you)</strong>
+      {(p.summaries || []).filter((x) => x.text?.trim()).map((x) => <span key={x.id}><strong>{x.name || 'Summary'}:</strong> {x.text}</span>)}
+      {lists.filter(([, l]) => l?.length).map(([t, l]) => <span key={t}><strong>{t}:</strong> {l.map(entryLabel).join(' · ')}</span>)}
+      {(p.skillGroups || []).some((g) => g.value) && <span><strong>Skills:</strong> {p.skillGroups.map((g) => g.value).filter(Boolean).join(', ')}</span>}
+    </div>
+  );
+}
 
 const QA = ['ATS-safe layout (one column, no tables or text boxes)', 'Numbers / results in most bullets', 'No spelling or grammar mistakes', 'Matches the target role and job description', 'One page for 0–3 years (two only if truly needed)'];
 const H = 3600000;
@@ -41,7 +67,8 @@ function Drawer({ title, onClose, children }) {
 }
 
 /* ---------- Career Launch: LinkedIn makeover from the resume ---------- */
-function linkedinFrom(d) {
+function linkedinFrom(raw) {
+  const d = plainResume(raw); // LinkedIn gets plain text: no bold markers
   const skills = (d.skillGroups || []).flatMap((g) => g.value.split(',').map((x) => x.trim()).filter(Boolean));
   const role = d.personal?.headline?.split(/\s[·|]\s/)[0] || d.exp?.[0]?.role || 'Professional';
   return {
@@ -204,9 +231,10 @@ function OrderWorkspace({ id }) {
             <span><strong>Companies:</strong> {o.intake.companies}</span>
           </div>
           {o.jd && <div className="well stack g4 small"><strong>Job description</strong><span>{o.jd}</span></div>}
+          <CustomerProfile orderId={o.id} />
           <div className="stack g8">
             <strong className="small">Their original resume · ATS {orig.score}/100</strong>
-            <div style={{ height: 300, overflow: 'hidden', borderRadius: 6, border: '1px solid var(--border)' }} aria-hidden="true"><ResumePreview data={o.original} design={{ ...DEFAULT_DESIGN, ...TEMPLATE_PRESETS.starter.design }} /></div>
+            <div style={{ height: 300, overflow: 'hidden', borderRadius: 6, border: '1px solid var(--border)' }} aria-hidden="true"><ResumePreview decorative data={o.original} design={{ ...DEFAULT_DESIGN, ...TEMPLATE_PRESETS.starter.design }} /></div>
             <ul className="stack g4 xs" style={{ margin: 0, paddingLeft: 16 }}>{orig.checks.filter((c) => !c.ok).map((c) => <li key={c.label}><strong>{c.label}:</strong> {c.tip}</li>)}</ul>
           </div>
           <div className="row g8">

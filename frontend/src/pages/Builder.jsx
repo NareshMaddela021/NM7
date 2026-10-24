@@ -2,40 +2,77 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import { Dialog, Icon, Meter, useToast } from '../components/ui';
-import { getMatchedJobs, saveProfile } from '../services/api';
-import { PLANS, inr } from '../lib/pricing';
-import { syncFromBuilder, defaultResume } from '../lib/customerStore';
-import { draftKey } from '../lib/auth';
+import { getMatchedJobs } from '../services/api';
+import { flushKeepalive, onSaveState } from '../lib/meLive';
+import { syncFromBuilder, defaultResume, useMe, activeResume, addResume, openInBuilder, blankResume, updateResume, uniqueName, setResumePages, acceptGuestDraft, discardGuestDraft } from '../lib/customerStore';
+import { useJobProfile } from '../lib/profileStore';
+import { profileCompleteness, profileToResume, profileUpdates } from '../lib/jobProfile';
+import { reviewToResume } from '../lib/photoImport';
+import { DownloadBlocked, exportFile, forgetPendingDownload, mayFinishDownload, pendingDownload } from '../lib/downloads';
+import { lengthNote, writeSummaries } from '../lib/summary/write';
+import { ago, charCount } from '../lib/text'; // not from me/shared: that file loads the PDF library
+import { monthsBetween } from '../lib/import/dates';
+import PhotoImport from './builder/PhotoImport';
+import { FillFromProfile, ProfileHint, ProfileUpdates, SaveToProfile } from './builder/ProfileSync';
+import { draftKey, currentUser, LIVE, useAuth } from '../lib/auth';
+import { applyImport } from '../lib/import/apply';
+import { hasSample, isEmptyResume, stripSample } from '../lib/sampleData';
+import { emptyResult } from '../lib/import/shared';
+
+const dayLabel = () => new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+export { uniqueName }; // kept here for older imports
+/** The built-in sample person (shown to guests until they add their own details). */
+const START_MODES = {
+  resume: { stage: 'import', importMode: 'resume' },
+  linkedin: { stage: 'import', importMode: 'linkedin' },
+  photos: { stage: 'photos' },
+  scratch: { stage: 'templates', blank: true },
+  templates: { stage: 'templates' },
+  summary: { stage: 'build', sec: 'summary' },
+};
+const isSampleDraft = (d) => d.personal?.name === INITIAL.personal.name && d.personal?.email === INITIAL.personal.email;
+import LinkedInNudge from './builder/LinkedInNudge';
 import ResumePreview from './builder/ResumePreview';
-import { buildResumePdf, savePdf } from './builder/resumePdf';
-import { FieldGrid, LinkFields, SchemaField } from './builder/Fields';
+import { FieldGrid, LinkFields, RichArea, SchemaField } from './builder/Fields';
 import DesignPanel from './builder/DesignPanel';
 import Import from './builder/Import';
-import TemplatePicker, { layoutOf } from './builder/TemplatePicker';
+import TemplatePicker, { layoutOf, PHOTO_PLACEHOLDER } from './builder/TemplatePicker';
+import { listText, templateSuggests } from './builder/templatePick';
 import CoverPanel from './builder/CoverPanel';
-import { buildDocx } from './builder/resumeDocx';
+import { EntryHeader, focusMoved } from './builder/EntryControls';
+import LineEntries from './builder/LineEntries';
+import { hiddenCount, moveItem, removeItem, toggleItem } from './builder/entries';
 import { shorten, atsFriendly } from './builder/aiTools';
+import { carryBold, stripBold } from '../lib/bold';
+import SummaryWriter from './builder/SummaryWriter';
+import ReadySummaries from './builder/ReadySummaries';
+import FromResume from './builder/FromResume';
+import { summaryBasis, writeFromResume } from '../lib/summary/fromResume';
 import LinksEditor, { Logo } from './builder/LinksEditor';
+import { CONTACT_MODES, contactMode } from './builder/ContactLine';
+import { SkillBox } from './builder/GrowArea';
 import PhotoEditor, { DEFAULT_ADJ, shapePhoto } from './builder/PhotoEditor';
 import { DEFAULT_DESIGN, FIT_STEPS, TEMPLATE_PRESETS } from './builder/design';
 import {
-  AI_SAMPLES, ALL_SKILLS, FIXED_SECTIONS, INITIAL, LINK_FIELDS, LISTS, PERSONAL_FIELDS, PINFO_FIELDS, DECL_FIELDS, DECL_TEXT,
-  HOBBY_IDEAS, STRENGTH_IDEAS, splitList, SECTION_LAYOUTS, PREF_FIELDS, PRESET_SECTIONS, completeness, DEFAULT_SKILL_GROUPS, SKILL_GROUP_OF, splitSkills, allSkills,
-  PRINTABLE, resolveOrder, sectionLabel, fieldError, dateOrderError, collectIssues, LINK_SLOTS, LINK_WORDS, LINK_WORD_MAX, migrateLinks,
+  AI_SAMPLES, ALL_SKILLS, EXP_LEVELS, FIXED_SECTIONS, INITIAL, LISTS, PERSONAL_FIELDS, PINFO_FIELDS, DECL_FIELDS, DECL_TEXT,
+  HOBBY_IDEAS, STRENGTH_IDEAS, PRESET_SECTIONS, completeness, DEFAULT_SKILL_GROUPS, SKILL_GROUP_OF, splitSkills, allSkills,
+  PRINTABLE, real, completeResume, resolveOrder, sectionLabel, fieldError, dateOrderError, collectIssues, LINK_SLOTS, LINK_WORDS, LINK_WORD_MAX, migrateLinks, isFresher, SCORE_WEIGHTS, strengthOf,
 } from './builder/schema';
 
 const DRAFT_KEY = () => draftKey(); // per signed-in customer (see lib/auth.js)
 const STYLES_KEY = 'asuraa-saved-styles';
 const loadStyles = () => { try { return JSON.parse(localStorage.getItem(STYLES_KEY) || '[]'); } catch { return []; } };
 const nextFrame = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(r, 40))));
+/** Live app, signed-in customer: the resume lives on the server (My resumes → the active one), not in this browser. */
+const serverCustomer = () => LIVE && currentUser()?.role === 'customer';
 const loadDraft = (key = DRAFT_KEY(), initial = defaultResume()) => {
+  if (serverCustomer() && key === DRAFT_KEY()) return completeResume(initial);
   try {
-    let s = localStorage.getItem(key);
-    // drafts still holding the old sample person get the new sample name
-    if (s && s.includes('"Priya Raman"')) s = s.replace(/Priya Raman/g, 'Sai Varsha').replace(/PRIYA RAMAN/g, 'SAI VARSHA').replace(/priyaraman/g, 'saivarsha').replace(/priya@example/g, 'saivarsha@example');
-    if (s) return migrateLinks({ ...INITIAL, ...JSON.parse(s) });
+    const s = localStorage.getItem(key);
+    // a draft from older versions may still hold the sample person: drop exactly those values (never save them)
+    if (s) { const d = stripSample(completeResume(JSON.parse(s))); if (!isEmptyResume(d) || !hasSample(JSON.parse(s))) return d; }
   } catch { /* ignore */ }
-  return migrateLinks({ ...INITIAL, ...initial });
+  return completeResume(initial);
 };
 
 function ProfileOnly() {
@@ -43,24 +80,43 @@ function ProfileOnly() {
 }
 
 /* ---------- Start & template screens ---------- */
-function Start({ onNext }) {
+function Start({ onNext, profilePct = null, resume = null, onContinue, customer = false }) {
+  const fromProfile = profilePct !== null;
   const opts = [
-    ['scratch', 'Start from scratch', 'Guided, one section at a time.', true],
+    ...(fromProfile ? [['profile', 'Start from my Job Profile', `A new resume filled from your Job Profile (${profilePct}% complete). You pick the look next.`, profilePct >= 40]] : []),
+    ['scratch', 'Start from scratch', 'Guided, one section at a time.', !fromProfile || profilePct < 40],
     ['linkedin', 'Import LinkedIn', 'Upload your LinkedIn profile PDF. We fill every section we can, and you check it before saving.'],
     ['resume', 'Rebuild my old resume', 'Upload a PDF or Word resume in any layout. We sort it into clean sections and point out what to fix.'],
+    ['photos', 'Snap photos', 'Take photos of your Aadhaar, work papers or a handwritten note. We’ll read them and fill your resume.'],
   ];
   return (
-    <main className="container stack g32 rise" style={{ maxWidth: 1100, padding: '72px 24px' }}>
+    <main id="main" className="container stack g32 rise" style={{ maxWidth: 1100, padding: '72px 24px' }}>
       <div className="stack g12" style={{ maxWidth: 720 }}>
         <h1 className="display h1" style={{ fontSize: 'clamp(36px,5vw,60px)' }}>Build a resume recruiters <span className="hl" style={{ padding: '0 4px' }}>actually read.</span></h1>
         <p className="lead">12 guided sections, plus any section you want to add. Your Nm7 profile and your resume are built together.</p>
+        <p className="small muted" style={{ margin: 0 }}><strong>Free to build. Account needed to download.</strong></p>
       </div>
+      {resume && (
+        <section className="card row between g16" aria-labelledby="continue-h" style={{ padding: 24, border: '2px solid var(--ink)' }}>
+          <div className="stack g4" style={{ minWidth: 0 }}>
+            <span className="mono xs muted" id="continue-h">CONTINUE EDITING</span>
+            <strong className="display" style={{ fontSize: 22, overflowWrap: 'anywhere' }}>{resume.name}</strong>
+            <span className="small muted">{resume.updated ? `Edited ${ago(resume.updated)}` : 'Saved in this browser — sign in to keep it'}</span>
+          </div>
+          <div className="row g8">
+            <button type="button" className="btn btn-ink btn-lg" onClick={onContinue}>Continue</button>
+            {resume.updated && <Link to="/me/resumes" className="btn btn-outline btn-lg">See all resumes</Link>}
+          </div>
+        </section>
+      )}
+      {resume && <h2 style={{ fontSize: 22, margin: '8px 0 -12px' }}>Or start a new resume</h2>}
       <div className="grid-auto g16">
         {opts.map(([k, t, d, rec]) => (
-          <button key={t} type="button" className="card stack g8 btn" onClick={() => onNext(k)} style={{ textAlign: 'left', alignItems: 'flex-start', whiteSpace: 'normal', height: 'auto', padding: 24, border: rec ? '2px solid var(--ink)' : undefined }}>
+          <button key={t} type="button" className={`card stack g8 btn${k === 'photos' ? ' start-photos' : ''}`} onClick={() => onNext(k)} style={{ textAlign: 'left', alignItems: 'flex-start', whiteSpace: 'normal', height: 'auto', padding: 24, border: rec ? '2px solid var(--ink)' : undefined }}>
             {rec && <span className="badge b-signal">Recommended</span>}
             <strong className="display" style={{ fontSize: 22 }}>{t}</strong>
             <span className="muted" style={{ fontWeight: 400 }}>{d}</span>
+            {k === 'photos' && !customer && <span className="xs muted" data-testid="start-photos-signin">Sign in needed — photos are read for your own account only.</span>}
           </button>
         ))}
       </div>
@@ -69,22 +125,22 @@ function Start({ onNext }) {
 }
 
 /* ---------- Done ---------- */
-function Done({ name, score, onEdit, onDownload, onCover, pdfBusy }) {
+function Done({ name, score, onEdit, onDownload, onCover, pdfBusy, nudge }) {
   const [jobs, setJobs] = useState([]);
   useEffect(() => { getMatchedJobs().then(setJobs); }, []);
   return (
-    <main className="container row g48 rise" style={{ maxWidth: 1100, padding: '64px 24px', alignItems: 'center' }}>
+    <main id="main" className="container row g48 rise" style={{ maxWidth: 1100, padding: '64px 24px', alignItems: 'center' }}>
       <div className="stack g20" style={{ flex: '1 1 420px' }}>
         <span className="mono" style={{ color: 'var(--success)', fontSize: 13 }}>PROFILE {score}% · RESUME READY</span>
         <h1 className="display" style={{ fontSize: 48 }}>Nice work, {(name || 'there').split(' ')[0]}. Recruiters can now find you.</h1>
         <p className="lead">Your Nm7 profile is live and your resume is ready to download.</p>
         <div className="stack g8" style={{ maxWidth: 420 }}>
-          <button type="button" className="btn btn-ink btn-xl" onClick={() => onDownload('pdf')} disabled={pdfBusy}>{pdfBusy ? 'Preparing…' : `Download PDF · ${inr(PLANS.diy.price)}`}</button>
+          <button type="button" className="btn btn-ink btn-xl" onClick={() => onDownload('pdf')} disabled={pdfBusy}>{pdfBusy ? 'Preparing…' : 'Download PDF'}</button>
           <button type="button" className="btn btn-outline btn-lg" onClick={() => onDownload('docx')} disabled={pdfBusy}>Also download as Word (.docx)</button>
           <button type="button" className="btn btn-outline btn-lg" onClick={onCover}>Write a matching cover letter</button>
-          <span className="xs faint">In the live app this runs after the {inr(PLANS.diy.price)} payment. In this preview it downloads straight away.</span>
           <Link to="/" className="btn btn-outline btn-lg">Scan it against a job · free</Link>
           <button type="button" className="btn btn-ghost" onClick={onEdit}>Keep editing</button>
+          <LinkedInNudge show={nudge} />
         </div>
       </div>
       <div className="card stack g12" style={{ flex: '1 1 360px' }}>
@@ -105,25 +161,90 @@ function Done({ name, score, onEdit, onDownload, onCover, pdfBusy }) {
 /**
  * embedded (optional) — used by the expert workspace:
  *   { storageKey, initial, onChange(d), replace: { n, data }, focus: { n, id } }
- * Embedded mode skips the start/template screens, the header and the job-preference step.
+ * Embedded mode skips the start/template screens and the header.
  */
+/** The header's save note. Signed in: what the server has (saving / saved / a failure being retried). Guests: this browser. */
+function SaveStatus({ customer, serverIn, save, dirty }) {
+  let text = 'Saved in this browser';
+  if (customer) {
+    if (!serverIn) text = 'Loading your resume…';
+    else if (dirty || save.pending > 0) text = 'Saving…';
+    else if (save.failed) text = 'Not saved yet — retrying';
+    else text = 'All changes saved';
+  }
+  return <span className="xs faint" aria-live="polite" data-testid="save-status" style={save.failed && customer ? { color: 'var(--danger)' } : undefined}>{text}</span>;
+}
+
 export default function Builder({ embedded = null }) {
   const toast = useToast();
   const location = useLocation();
-  const [stage, setStage] = useState(embedded || location.state?.open === 'build' ? 'build' : 'start');
-  const [importMode, setImportMode] = useState('resume');
+  // back from "Create a free account to download": straight to the editor, where the download starts by itself
+  // (the download itself starts once the account and its resume are in: see the effect below)
+  // /builder?start=resume|linkedin|photos|scratch|summary opens that mode directly (links from the home page).
+  const startAt = embedded ? null : START_MODES[new URLSearchParams(location.search).get('start')] || null;
+  const [fromSignIn] = useState(() => !embedded && mayFinishDownload()); // straight back from the download's sign-in
+  const [stage, setStage] = useState(embedded || (fromSignIn && pendingDownload()) || location.state?.open === 'build' ? 'build' : location.state?.open === 'photos' ? 'photos' : startAt?.stage || 'start');
+  const [missing, setMissing] = useState(false); // after "Snap photos": point at what's still missing (e.g. phone)
+  const [importMode, setImportMode] = useState(startAt?.importMode || 'resume');
   const [suggest, setSuggest] = useState(null);
-  const [d, setD] = useState(() => (embedded ? loadDraft(embedded.storageKey, embedded.initial) : loadDraft()));
-  const [sec, setSec] = useState('personal');
+  const [changing, setChanging] = useState(false); // "Change template" from the live preview: the picker on My details
+  const [d, setD] = useState(() => (embedded ? loadDraft(embedded.storageKey, embedded.initial) : loadDraft(DRAFT_KEY(), serverCustomer() ? (activeResume()?.data || defaultResume()) : defaultResume())));
+  // Live customer: when their resumes arrive from the server, open the active one (unless a scan import is opening).
+  const auth = useAuth(); // re-render when the sign-in answer arrives (it can come after this page on a cold start)
+  const me = useMe();
+  const jp = useJobProfile();
+  const customer = !embedded && auth.user?.role === 'customer';
+  const profileReady = customer && jp.available && !!jp.data;
+  const profile = profileReady ? jp.data : null;
+  const edited = useRef(new WeakSet()); // entries changed in this visit: they get "Save this change to my Job Profile"
+  const fromServer = useRef(!serverCustomer() || !me.loading);
+  const [serverIn, setServerIn] = useState(fromServer.current); // the saved resume (if any) is in `d`
+  const unsent = useRef(null); // an edit the autosave wait hasn't handed to the store yet
+  const [dirty, setDirty] = useState(false);
+  // The sign-in answer arrived after this page opened (the API was waking up): the saved resume must be loaded
+  // now, and until it is, nothing from this screen is sent to the server (it would overwrite it).
+  const hadCustomer = useRef(!!serverCustomer());
+  useEffect(() => {
+    if (embedded || hadCustomer.current || !customer) return;
+    hadCustomer.current = true;
+    fromServer.current = false;
+    setServerIn(false);
+  }, [customer]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (embedded || fromServer.current || me.loading) return;
+    fromServer.current = true;
+    setServerIn(true);
+    const a = activeResume(me);
+    if (a && !location.state?.scanImport) setD(completeResume(a.data));
+  }, [me.loading]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Saved in another tab or device (the server said 409 and the store reloaded the latest copy): this tab asks
+  // "Use latest" (take the other copy) or "Keep mine" (save this tab's copy over it). Same content: nothing to ask.
+  const [conflict, setConflict] = useState(null); // the latest copy's data
+  useEffect(() => {
+    if (embedded || !me.conflict) return;
+    const a = activeResume(me);
+    if (!a) return;
+    if (JSON.stringify(completeResume(a.data)) === JSON.stringify(d)) { setConflict(null); return; }
+    setConflict(a.data);
+  }, [me.conflict]); // eslint-disable-line react-hooks/exhaustive-deps
+  const useLatest = () => { setD(completeResume(conflict)); setConflict(null); toast('Showing the latest copy'); };
+  const keepMine = () => { setConflict(null); syncFromBuilder(d); toast('Your copy is saved'); };
+  // the signed-in customer's saved resume hasn't arrived yet: the preview shows no page count meanwhile
+  const dataLoading = !embedded && serverCustomer() && (me.loading || !serverIn);
+  const [sec, setSec] = useState(startAt?.sec || 'personal');
   const [picker, setPicker] = useState(false);
   const [customName, setCustomName] = useState('');
-  const [photo, setPhoto] = useState(null); // the adjusted 600×600 photo
-  const [photoOrig, setPhotoOrig] = useState(null); // the original, so it can be re-cropped
+  // The adjusted photo is part of the resume (`d.photo`, a small JPEG), so it is saved with it and survives a reload,
+  // and organisation and kiosk prints include it. The original stays in this tab only, for re-cropping.
+  const photo = d.photo || null;
+  const setPhoto = (p) => setD((x) => ({ ...x, photo: p || '' }));
+  const [photoOrig, setPhotoOrig] = useState(null);
   const [photoAdj, setPhotoAdj] = useState(DEFAULT_ADJ);
   const [editingPhoto, setEditingPhoto] = useState(null); // source being edited
   const [photoErr, setPhotoErr] = useState('');
-  const [saved, setSaved] = useState(true);
-  const [pages, setPages] = useState(1);
+  const [save, setSave] = useState({ pending: 0, failed: null }); // what the server really has (lib/meLive)
+  useEffect(() => (LIVE ? onSaveState(setSave) : undefined), []);
+  const [pages, setPages] = useState(null); // null until the preview has measured the loaded resume
   const [showIssues, setShowIssues] = useState(false);
   const [pdfBusy, setPdfBusy] = useState(false);
   const [tab, setTab] = useState('content');
@@ -147,24 +268,36 @@ export default function Builder({ embedded = null }) {
   };
   const setDesign = (patch) => commitDesign({ ...ds, ...patch, preset: ds.preset === 'custom' ? 'custom' : ds.preset }, Object.keys(patch).join());
   const applyPreset = (k, patch = {}) => commitDesign({ ...TEMPLATE_PRESETS[k].design, ...patch, preset: k });
-  // Picking a template also brings its section layout (e.g. Kio) — only when the layout actually changes,
-  // so switching between look-only templates keeps your own section order and on/off choices.
+  // Picking a template changes only the look (fonts, colours, columns): never which sections show, their order,
+  // titles or content. When the template usually shows a section this resume has off, it is only suggested.
+  const [hint, setHint] = useState(null); // { k, items } — shown beside the live preview (never above the picker: picking a card moves nothing)
   const applyTemplate = (k, patch = {}) => {
-    const from = layoutOf(ds.preset);
-    const to = layoutOf(k);
-    const snapshot = d;
     applyPreset(k, patch);
-    if (from !== to) {
-      setD((p) => ({ ...p, order: to.order, hidden: { ...to.hidden }, titles: { ...to.titles }, showPhoto: to.showPhoto }));
-      if (stage === 'build') toast(`${TEMPLATE_PRESETS[k].name} applied — sections rearranged`, () => setD(snapshot));
-    }
+    const items = templateSuggests(d, k);
+    setHint(items.length ? { k, items } : null);
   };
+  const acceptHint = () => {
+    const on = hint.items.map((x) => x.id);
+    setD((p) => ({ ...p, hidden: { ...p.hidden, ...Object.fromEntries(on.filter((id) => id !== 'photo').map((id) => [id, false])) }, ...(on.includes('photo') ? { showPhoto: true } : {}) }));
+    setHint(null);
+  };
+  const hintBox = hint && TEMPLATE_PRESETS[hint.k] && (
+    <div className="card row between g8" role="status" data-testid="template-hint" style={{ padding: '10px 14px', alignItems: 'center' }}>
+      <span className="small">This template usually shows {listText(hint.items)}. Turn {hint.items.length > 1 ? 'them' : 'it'} on?</span>
+      <span className="row g8">
+        <button type="button" className="btn btn-ink" style={{ minHeight: 40 }} onClick={acceptHint}>Turn on</button>
+        <button type="button" className="btn btn-outline" style={{ minHeight: 40 }} onClick={() => setHint(null)}>No thanks</button>
+      </span>
+    </div>
+  );
   const history = {
     canUndo: past.length > 0, canRedo: future.length > 0,
     undo: () => { if (!past.length) return; setFuture((f) => [ds, ...f]); setD((p) => ({ ...p, design: past[past.length - 1] })); setPast((p) => p.slice(0, -1)); },
     redo: () => { if (!future.length) return; setPast((p) => [...p, ds]); setD((p) => ({ ...p, design: future[0] })); setFuture((f) => f.slice(1)); },
   };
-  const onPages = useMemo(() => (n) => { pagesRef.current = n; setPages(n); }, []);
+  const onPages = useMemo(() => (n) => { if (n !== null) pagesRef.current = n; setPages(n); }, []); // null = still measuring
+  // the page count goes with the saved resume (organizations it's shared with see it in their print list)
+  useEffect(() => { if (!pages || embedded || dataLoading || tab === 'cover') return undefined; const t = setTimeout(() => setResumePages(pages), 1500); return () => clearTimeout(t); }, [pages, embedded, dataLoading, tab]);
   const fit = async () => {
     setFitting(true);
     let cur = ds;
@@ -184,19 +317,54 @@ export default function Builder({ embedded = null }) {
   const deleteSaved = (i) => persistStyles(savedStyles.filter((_, j) => j !== i));
   const setTitle = (id, v) => setD((p) => ({ ...p, titles: { ...p.titles, [id]: v } }));
 
-  // Opened from the home page with a template picked: apply it once.
-  useEffect(() => { const k = location.state?.template; if (!embedded && k && TEMPLATE_PRESETS[k]) { applyTemplate(k); toast(`${TEMPLATE_PRESETS[k].name} template applied`); } }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // Opened with a template picked (home gallery "Use this template"): apply it once — for a signed-in customer only
+  // after their saved resume is in, so loading it doesn't put the old template back.
+  const templateAsked = useRef(embedded ? null : location.state?.template);
+  useEffect(() => {
+    const k = templateAsked.current;
+    if (!k || !TEMPLATE_PRESETS[k] || (serverCustomer() && !serverIn)) return;
+    templateAsked.current = null;
+    applyTemplate(k);
+    toast(`${TEMPLATE_PRESETS[k].name} template applied`);
+  }, [serverIn]); // eslint-disable-line react-hooks/exhaustive-deps
+  // From the scan report ("keep fixing it myself"): load the scanned resume, or start empty instead of the sample.
+  useEffect(() => {
+    const st = location.state;
+    if (startAt?.blank && !st?.scanImport) {
+      if (isSampleDraft(d)) setD(applyImport(d, emptyResult('blank').data, 'replace')); // "I have nothing": an empty resume
+      return;
+    }
+    if (embedded || !st || (!st.scanImport && !st.blank)) return;
+    const snapshot = d;
+    if (st.scanImport) {
+      setD(applyImport(d, st.scanImport, 'replace'));
+      toast(`Loaded ${st.fileName || 'your resume'} — check each section`, () => setD(snapshot));
+    } else if (isSampleDraft(d)) {
+      setD(applyImport(d, emptyResult('blank').data, 'replace'));
+    }
+    window.history.replaceState({ ...window.history.state, usr: null }, ''); // a refresh shouldn't load it again
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Autosave: browser draft immediately, server (debounced).
   useEffect(() => {
-    try { localStorage.setItem(embedded?.storageKey || DRAFT_KEY(), JSON.stringify(d)); } catch { /* ignore */ }
+    if (embedded || !serverCustomer()) { try { localStorage.setItem(embedded?.storageKey || DRAFT_KEY(), JSON.stringify(d)); } catch { /* ignore */ } }
     if (embedded) { embedded.onChange?.(d); return undefined; }
-    setSaved(false);
-    const t = setTimeout(() => { syncFromBuilder(d); saveProfile(d).then(() => setSaved(true)); }, 800);
+    if (serverCustomer() && !serverIn) return undefined; // the saved resume hasn't arrived yet: never send the draft over it
+    if (serverCustomer()) { unsent.current = d; setDirty(true); } // the "Saved" note counts this wait too
+    const t = setTimeout(() => { unsent.current = null; setDirty(false); syncFromBuilder(d); }, 800);
     return () => clearTimeout(t);
-  }, [d]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [d, serverIn]); // eslint-disable-line react-hooks/exhaustive-deps
+  // the tab is closed or hidden before that wait is over: hand the edit to the store now and send it with keepalive
+  useEffect(() => {
+    if (embedded || !LIVE) return undefined;
+    const flushNow = () => { if (unsent.current && serverCustomer()) { syncFromBuilder(unsent.current); unsent.current = null; flushKeepalive(); } };
+    const onHide = () => { if (document.visibilityState === 'hidden') flushNow(); };
+    window.addEventListener('pagehide', flushNow);
+    document.addEventListener('visibilitychange', onHide);
+    return () => { window.removeEventListener('pagehide', flushNow); document.removeEventListener('visibilitychange', onHide); };
+  }, [embedded]);
   // workspace controls: replace the whole resume (restore a version / reset), or jump to a section
-  useEffect(() => { if (embedded?.replace?.n) setD(migrateLinks({ ...INITIAL, ...embedded.replace.data })); }, [embedded?.replace?.n]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (embedded?.replace?.n) setD(completeResume(embedded.replace.data)); }, [embedded?.replace?.n]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (embedded?.focus?.n) { setTab('content'); setSec(embedded.focus.id); } }, [embedded?.focus?.n]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Steps follow the resume order, so moving a section moves its step too.
@@ -206,18 +374,20 @@ export default function Builder({ embedded = null }) {
       const c = d.custom.find((x) => x.id === id);
       return c ? { id, label: c.title, help: 'Add as many entries as you like. Leave any field blank.', custom: true } : fixed[id];
     });
-    return [fixed.personal, ...printed, ...(embedded ? [] : [fixed.prefs]), fixed.links, { id: 'review', label: 'Review & Submit', help: 'Check each section, set the order and fix anything flagged.' }];
+    return [fixed.personal, ...printed, fixed.links, { id: 'review', label: 'Review & Submit', help: 'Check each section, set the order and fix anything flagged.' }];
   }, [d]);
   const idx = Math.max(0, SECS.findIndex((s) => s.id === sec));
   const cur = SECS[idx];
-  const { has, score } = completeness(d);
+  const { has } = completeness(d);
+  const score = strengthOf(has, SECS.map((s) => s.id)); // the ticks shown, nothing else
   const fresher = (d.personal.level || '').startsWith('Fresher');
   const go = (id) => { setSec(id); editorTop.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
 
   /* data helpers */
   const getList = (k) => (k.startsWith('c_') ? d.custom.find((c) => c.id === k)?.items || [] : d[k]);
   const setList = (k, arr) => setD((p) => (k.startsWith('c_') ? { ...p, custom: p.custom.map((c) => (c.id === k ? { ...c, items: arr } : c)) } : { ...p, [k]: arr }));
-  const setItem = (k, i, key, v) => { const a = getList(k).slice(); a[i] = { ...a[i], [key]: v }; setList(k, a); };
+  const setItem = (k, i, key, v) => { const a = getList(k).slice(); a[i] = { ...a[i], [key]: v }; edited.current.add(a[i]); setList(k, a); };
+  const markSaved = (k, i) => (pid, pv) => setList(k, getList(k).map((x, j) => (j === i ? { ...x, pid, pv } : x)));
   const setObj = (k, key, v) => setD((p) => ({ ...p, [k]: { ...p[k], [key]: v } }));
   const withUndo = (msg) => { const snapshot = d; toast(msg, () => setD(snapshot)); };
 
@@ -255,19 +425,45 @@ export default function Builder({ embedded = null }) {
     toast('Photo saved');
   };
   const removePhoto = () => { setPhoto(null); setPhotoOrig(null); setPhotoAdj(DEFAULT_ADJ); };
+  // "My resume | Sample" above the live preview: Sample shows the example person in the chosen template, read-only
+  // and never saved; a download always makes the person's own resume.
+  const [pview, setPview] = useState('mine');
+  const sampleView = pview === 'sample' && tab !== 'cover';
+  const sampleData = useMemo(() => ({ ...INITIAL, ...layoutOf(ds.preset) }), [ds.preset]);
+  const noName = !real(d.personal?.name);
+  const [liNudge, setLiNudge] = useState(false); // "Check your LinkedIn for free" after a resume download
+  const [fromSample, setFromSample] = useState(false); // "Downloading your resume, not the sample", for a few seconds
+  useEffect(() => { if (!fromSample) return undefined; const t = setTimeout(() => setFromSample(false), 6000); return () => clearTimeout(t); }, [fromSample]);
+  const downloadMine = (format) => {
+    if (sampleView) { setPview('mine'); setFromSample(true); }
+    return download(format);
+  };
   const download = async (format = 'pdf', what = tab === 'cover' ? 'cover' : 'resume') => {
     setPdfBusy(true);
     try {
       const cover = what === 'cover' ? (d.cover || {}) : undefined;
       const photoPng = format === 'docx' && d.showPhoto && photo && !cover ? await shapePhoto(photo, ds.photoShape || 'circle') : null;
-      const blob = format === 'docx' ? await buildDocx({ data: d, design: ds, cover, photoPng }) : await buildResumePdf({ data: d, design: ds, photo, cover });
-      const name = `${(d.personal.name || 'Resume').trim().replace(/\s+/g, '_')}_${cover ? 'Cover_Letter' : 'Resume'}.${format}`;
-      await savePdf(blob, name);
+      await exportFile({ data: d, design: ds, format, cover, photo, photoPng }); // asks the server first (account / plan)
       toast(`${cover ? 'Cover letter' : 'Resume'} ${format === 'docx' ? 'Word file' : 'PDF'} ready`);
+      if (!cover && !embedded) setLiNudge(true);
     } catch (e) {
+      if (e instanceof DownloadBlocked) return; // the "create an account" / "unlock downloads" pop-up is open
       if (e?.code !== 'declined') toast(e?.code === 'unavailable' ? 'Downloads aren’t available in this view.' : 'Couldn’t create the PDF. Please try again.');
     } finally { setPdfBusy(false); }
   };
+  // the download a guest clicked before signing up / in: once the account and its resume (carried over) are in —
+  // also when the sign-in answer only arrives after a reload on a cold start
+  const downloadClaimed = useRef(false);
+  useEffect(() => {
+    if (embedded || downloadClaimed.current) return;
+    if (!fromSignIn) { forgetPendingDownload(); return; } // opened some other way: never start a download by itself
+    if (!customer || !serverIn) return;
+    const p = pendingDownload(true);
+    if (!p) return;
+    downloadClaimed.current = true;
+    if (p.what === 'cover') setTab('cover');
+    download(p.format, p.what);
+  }, [customer, serverIn]); // eslint-disable-line react-hooks/exhaustive-deps
   const issues = collectIssues(d);
   const order = resolveOrder(d);
   const moveSection = (id, dir) => {
@@ -287,24 +483,27 @@ export default function Builder({ embedded = null }) {
     return '';
   };
 
+  // "Education 2", "Extracurricular Activities 1": custom sections use their own title for the entry name
+  const itemName = (k, schema) => (k.startsWith('c_') ? d.custom.find((c) => c.id === k)?.title || schema.item : schema.item);
   const listEditor = (k, schema) => {
     const list = getList(k);
     return (
       <div className="stack g12">
-        {list.map((obj, i) => (
-          <div key={i} className="card stack g16 rise" style={{ padding: 20 }}>
-            <div className="row between g8">
-              <strong>{schema.item} {i + 1}</strong>
-              {(list.length > 1 || k.startsWith('c_')) && (
-                <button type="button" className="btn btn-danger-soft" aria-label={`Remove ${schema.item} ${i + 1}`} onClick={() => { withUndo(`${schema.item} ${i + 1} removed`); setList(k, list.filter((_, j) => j !== i)); }}>Remove</button>
-              )}
-            </div>
+        {list.map((obj, i) => {
+          const label = `${itemName(k, schema)} ${i + 1}`;
+          return (
+          <div key={i} className="card stack g16 rise entry-card" data-off={!!obj.off} style={{ padding: 20 }}>
+            <EntryHeader list={k} index={i} count={list.length} label={label} off={!!obj.off}
+              onMove={(dir) => { setList(k, moveItem(list, i, dir)); focusMoved(k, i + dir, dir); }}
+              onToggle={() => setList(k, toggleItem(list, i))}
+              onRemove={() => { withUndo(`${label} removed`); setList(k, removeItem(list, i)); }} />
+            <div className="entry-body">
             <FieldGrid>
               {schema.fields.map((f, fi) => {
                 const kind = k.startsWith('c_') ? 'custom' : k;
                 const field = (
-                  <SchemaField key={f.key} field={f} idBase={`${k}-${i}`} value={obj[f.key]} disabled={f.disabledBy ? !!obj[f.disabledBy] : false}
-                    error={errorFor(k, obj, f)} onChange={(v) => setItem(k, i, f.key, v)} onAi={(kind) => { const v = kind === 'shorten' ? shorten(obj[f.key]) : kind === 'ats' ? atsFriendly(obj[f.key]) : AI_SAMPLES[f.ai]; withUndo(kind === 'rewrite' ? 'Sample rewrite added (AI in the live app)' : kind === 'shorten' ? 'Bullets shortened' : 'Made ATS-friendly'); setItem(k, i, f.key, v); }} />
+                  <SchemaField key={f.key} field={f} idBase={`${k}-${i}`} value={obj[f.key]} entry={obj} disabled={f.disabledBy ? !!obj[f.disabledBy] : false}
+                    error={errorFor(k, obj, f)} onChange={(v) => setItem(k, i, f.key, v)} onAi={(kind) => { const was = obj[f.key] || ''; const plain = stripBold(was); const v = carryBold(was, kind === 'shorten' ? shorten(plain) : kind === 'ats' ? atsFriendly(plain) : AI_SAMPLES[f.ai]); /* bold stays on the words that survive */ withUndo(kind === 'rewrite' ? 'Sample rewrite added (AI in the live app)' : kind === 'shorten' ? 'Bullets shortened' : 'Made ATS-friendly'); setItem(k, i, f.key, v); }} />
                 );
                 // the link + clickable word sits right after the title field
                 const titleIdx = kind === 'exp' ? 1 : 0;
@@ -313,31 +512,86 @@ export default function Builder({ embedded = null }) {
                   error={(u) => fieldError('url', u)} onChange={(v) => setItem(k, i, 'links', v)} />];
               })}
             </FieldGrid>
+            {profile && edited.current.has(obj) && <SaveToProfile entry={obj} section={k} profile={profile} onSaved={markSaved(k, i)} />}
+            </div>
           </div>
-        ))}
+          );
+        })}
         <button type="button" className="btn btn-outline btn-lg" style={{ borderStyle: 'dashed' }} onClick={() => setList(k, [...list, { ...schema.blank }])}>+ Add another {schema.item.toLowerCase()}</button>
       </div>
     );
   };
+  // personal and pinfo fields: an empty field shows its Job Profile value, one click fills it
+  const hintFrom = { personal: profile?.personal, pinfo: profile?.pinfo };
   const objEditor = (k, fields) => (
     <div className="card" style={{ padding: 20 }}>
-      <FieldGrid>{fields.map((f) => <SchemaField key={f.key} field={f} idBase={k} value={d[k][f.key]} error={errorFor(k, d[k], f)} onChange={(v) => setObj(k, f.key, v)} />)}</FieldGrid>
+      <FieldGrid>{fields.map((f) => {
+        const field = <SchemaField key={f.key} field={f} idBase={k} value={d[k][f.key]} error={errorFor(k, d[k], f)} onChange={(v) => setObj(k, f.key, v)} />;
+        const hint = hintFrom[k]?.[f.key];
+        if (!hint || (k === 'pinfo' && f.key === 'nationality')) return field; // (same wrapper while typing, so focus stays)
+        return <div key={f.key} className="stack g4" style={{ gridColumn: f.full ? '1 / -1' : 'auto' }}>{field}<ProfileHint value={hint} current={d[k][f.key]} label={f.label.replace(/\s*[*·].*$/, '')} onUse={(v) => setObj(k, f.key, v)} /></div>;
+      })}</FieldGrid>
     </div>
   );
 
-  const summaryOptions = [
-    [`Data analyst fresher who turns raw sales data into dashboards teams actually use. Skilled in ${allSkills(d.skillGroups).slice(0, 3).join(', ')}. Cut a sales team’s weekly reporting from 5 hours to 30 minutes during my internship. Looking for a Data Analyst role in a product-led team.`, 'Role-first · recommended'],
-    [`${d.edu[0]?.degree || 'Graduate'} ${d.edu[0]?.field || ''} graduate with a 6-month analytics internship and hands-on ${allSkills(d.skillGroups).slice(0, 2).join(' and ')} projects. Looking for an entry-level analyst role.`, 'Education-first'],
-    ['Analytical problem-solver who learns tools fast and ships useful dashboards. Google Data Analytics certified. Seeking a junior analyst role in fintech or e-commerce.', 'Strengths-first'],
-  ];
-  const sumLen = d.summary.length;
+  // ready-made summaries written from what the resume holds, in the person's own line of work (the same
+  // template engine as the summary writer's cards, without a note), so a driver or a nurse never sees fintech copy
+  // reaching the Summary step with an empty summary: write it from the resume (only ever into an empty box)
+  useEffect(() => {
+    if (embedded || cur.id !== 'summary' || d.summary?.trim()) return;
+    const text = writeFromResume(d, 'role_first', { course: !!d.summaryCourse });
+    if (text) setD((p) => (p.summary?.trim() ? p : { ...p, summary: text, summaryFrom: { style: 'role_first', text, basis: summaryBasis(p) } }));
+  }, [cur.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  const summaryOptions = useMemo(() => (cur.id === 'summary' ? writeSummaries(d, '').options.map((o) => [o.text, o.label]) : []), [cur.id, d]);
+  const sumLen = charCount(stripBold(d.summary)); // characters as people count them, not UTF-16 units (Telugu, Hindi…)
+  const sumNote = lengthNote(sumLen);
 
+  // Signed-in customers: "start a new resume" really makes a new one (kept next to the others). An untouched
+  // resume (a new account's empty first one: no headline, summary, job, project or college) is reused instead,
+  // so no empty copies pile up; one already started from the Job Profile or a scan counts as touched.
+  const hasResumes = customer && !me.loading && me.resumes?.length > 0;
+  const latest = hasResumes ? [...me.resumes].sort((a, b) => (b.updated || 0) - (a.updated || 0))[0] : null;
+  const untouched = (x) => !real(x.personal?.headline) && !real(x.summary) && !x.exp?.some((e) => real(e.company) || real(e.role)) && !x.proj?.some((p) => real(p.title)) && !x.edu?.some((e) => real(e.institution));
+  const openNew = (nd, name) => {
+    if (customer && !me.loading && me.resumes?.length) {
+      const a = activeResume(me);
+      if (a && untouched(a.data)) { if (name) updateResume(a.id, { name: uniqueName(name, me.resumes.filter((r) => r.id !== a.id)) }); } else {
+        syncFromBuilder(d); openInBuilder(addResume(uniqueName(name || `New resume · ${dayLabel()}`, me.resumes), nd));
+      }
+    }
+    setD(nd); setPast([]); setFuture([]); setSec('personal');
+  };
+  const startFromProfile = () => {
+    openNew(migrateLinks(profileToResume(jp.data, blankResume())), `${jp.data.personal.headline || 'Resume'} · from Job Profile · ${dayLabel()}`);
+    setSuggest(null); setStage('templates');
+    toast('New resume filled from your Job Profile — pick a look');
+  };
+  // "Snap photos" → "Looks right": a new resume in the Work-first template, education off when none was found
+  const startFromPhotos = (review) => {
+    const nd = migrateLinks(reviewToResume(review, blankResume()));
+    const months = nd.exp.reduce((t, e) => t + monthsBetween(e.from, e.current ? '' : e.to), 0);
+    nd.personal.level = months >= 120 ? EXP_LEVELS[4] : months >= 72 ? EXP_LEVELS[3] : months >= 36 ? EXP_LEVELS[2] : months >= 12 ? EXP_LEVELS[1] : nd.personal.level;
+    const layout = layoutOf('work');
+    nd.design = { ...TEMPLATE_PRESETS.work.design, preset: 'work' };
+    nd.order = layout.order; nd.titles = { ...layout.titles }; nd.showPhoto = false;
+    nd.hidden = { ...layout.hidden, edu: nd.hidden.edu, certs: nd.hidden.certs, langs: nd.hidden.langs, pinfo: nd.hidden.pinfo };
+    openNew(nd, `${(nd.personal.name || 'My').split(' ')[0]} · from photos · ${dayLabel()}`);
+    setSuggest('work'); setMissing(true); setStage('templates');
+    toast('Your resume is filled in — pick a look');
+  };
+  const continueLatest = () => {
+    if (latest && !latest.active) openInBuilder(latest.id);
+    if (latest) setD(completeResume(latest.data));
+    setStage('build');
+  };
+  // guests: a draft kept in this browser (not the sample person) is offered back instead of a blank start
+  const guestDraft = !customer && !embedded && !isSampleDraft(d) && (real(d.personal?.name) || real(d.summary) || d.exp?.some((e) => real(e.company)));
   const STAGES = ['start', 'templates', 'build', 'done'];
   const stageIdx = stage === 'import' ? 0 : STAGES.indexOf(stage);
 
   return (
     <>
-      {!embedded && <Header variant="builder" right={stage === 'build' && <span className="xs faint" aria-live="polite">{saved ? 'All changes saved' : 'Saving…'}</span>} />}
+      {!embedded && <Header variant="builder" right={stage === 'build' && <SaveStatus customer={customer} serverIn={serverIn} save={save} dirty={dirty} />} />}
       {!embedded && (
         <ol className="steps container-wide" aria-label="Builder steps" style={{ padding: '12px 24px 0' }}>
           {['Start', 'Template', 'Build', 'Done'].map((l, i) => (
@@ -346,26 +600,55 @@ export default function Builder({ embedded = null }) {
         </ol>
       )}
 
-      {stage === 'start' && <Start onNext={(k) => { if (k === 'scratch') setStage('templates'); else { setImportMode(k); setStage('import'); } }} />}
+      {customer && me.pendingGuestDraft && !embedded && (
+        <div className="container-wide" style={{ padding: '12px 24px 0' }}>
+          <div className="card row g12" role="region" aria-label="A draft from this browser" data-testid="guest-draft-ask" style={{ alignItems: 'center', flexWrap: 'wrap', padding: '12px 16px' }}>
+            <span className="small" style={{ flex: '1 1 260px' }}>A resume{me.pendingGuestDraft.personal?.name ? ` for “${me.pendingGuestDraft.personal.name}”` : ''} was built on this phone before signing in. Is it yours?</span>
+            <button type="button" className="btn btn-ink" style={{ minHeight: 40 }} onClick={async () => { const id = await acceptGuestDraft(); if (id) { openInBuilder(id); setD(completeResume(me.pendingGuestDraft)); setStage('build'); } }}>Yes, add it to my account</button>
+            <button type="button" className="btn btn-outline" style={{ minHeight: 40 }} onClick={discardGuestDraft}>No, forget it</button>
+          </div>
+        </div>
+      )}
+      {stage === 'start' && <Start profilePct={profileReady ? profileCompleteness(jp.data).pct : null} customer={!!customer}
+        resume={latest ? { name: latest.name, updated: latest.updated, data: latest.data } : guestDraft ? { name: d.personal.name ? `${d.personal.name}’s draft` : 'Your draft', updated: null, data: d } : null}
+        onContinue={continueLatest}
+        onNext={(k) => {
+          if (k === 'profile') { startFromProfile(); return; }
+          if (k === 'photos') { setStage('photos'); return; }
+          if (k === 'scratch') { if (hasResumes) openNew(migrateLinks(blankResume()), null); setStage('templates'); } else { setImportMode(k); setStage('import'); }
+        }} />}
+      {stage === 'photos' && <PhotoImport onBack={() => setStage('start')} onDone={startFromPhotos} />}
       {stage === 'import' && (
-        <Import mode={importMode} d={d} onBack={() => setStage('start')} onDone={(nd, sug) => {
+        <Import mode={importMode} d={d} onBack={() => setStage('start')} onPhotos={() => setStage('photos')} onDone={(nd, sug) => {
           // start from the suggested template; Kio brings its section order (empty sections simply don't print)
           const preset = TEMPLATE_PRESETS[sug] ? sug : 'fresher';
           const layout = layoutOf(preset);
           // the template's layout, but never hide a section the file actually had
           const has = { ...completeness(nd).has, decl: nd.hidden?.decl === false, pinfo: nd.hidden?.pinfo === false };
           const keep = (h) => Object.fromEntries(Object.entries(h).filter(([id]) => !has[id]));
-          setD({ ...nd, design: { ...TEMPLATE_PRESETS[preset].design, preset }, order: layout.order, hidden: { ...keep(layout.hidden), ...Object.fromEntries(Object.entries(nd.hidden || {}).filter(([id, v]) => v && !has[id])) }, titles: { ...layout.titles }, showPhoto: layout.showPhoto });
+          const name = `${(nd.personal?.name || '').trim() || 'Imported'} · ${importMode === 'linkedin' ? 'from LinkedIn' : 'from my file'} · ${dayLabel()}`;
+          openNew({ ...nd, design: { ...TEMPLATE_PRESETS[preset].design, preset }, order: layout.order, hidden: { ...keep(layout.hidden), ...Object.fromEntries(Object.entries(nd.hidden || {}).filter(([id, v]) => v && !has[id])) }, titles: { ...layout.titles }, showPhoto: layout.showPhoto }, name);
           setPast([]); setFuture([]);
           setSuggest(preset); setSec('personal'); setStage('templates');
           toast('Details added — pick a look, then check each section');
         }} />
       )}
-      {stage === 'templates' && <TemplatePicker d={d} ds={ds} suggest={suggest} photo={photo} onPick={applyTemplate} onNext={() => setStage('build')} />}
-      {stage === 'done' && <Done name={d.personal.name} score={score} onEdit={() => setStage('build')} onDownload={(f) => download(f, 'resume')} onCover={() => { setTab('cover'); setStage('build'); }} pdfBusy={pdfBusy} />}
+      {conflict && stage === 'build' && (
+        <div className={embedded ? '' : 'container-wide'} style={{ paddingTop: 12 }}>
+          <div className="card row between g8" role="alert" data-testid="save-conflict" style={{ padding: '10px 14px', alignItems: 'center', borderColor: 'var(--warning, #B45309)' }}>
+            <span className="small">This resume was changed in another tab or device. Which copy do you want?</span>
+            <span className="row g8">
+              <button type="button" className="btn btn-ink" style={{ minHeight: 40 }} onClick={useLatest}>Use latest</button>
+              <button type="button" className="btn btn-outline" style={{ minHeight: 40 }} onClick={keepMine}>Keep mine</button>
+            </span>
+          </div>
+        </div>
+      )}
+      {stage === 'templates' && <TemplatePicker d={d} ds={ds} suggest={suggest} photo={photo} onPick={applyTemplate} initialView={changing ? 'mine' : undefined} onNext={() => { setChanging(false); setStage('build'); }} />}
+      {stage === 'done' && <Done name={d.personal.name} score={score} onEdit={() => setStage('build')} onDownload={(f) => download(f, 'resume')} onCover={() => { setTab('cover'); setStage('build'); }} pdfBusy={pdfBusy} nudge={liNudge} />}
 
       {stage === 'build' && (
-        <main className={embedded ? 'row g24' : 'container-wide row g24'} style={{ padding: embedded ? '4px 0 32px' : '20px 24px 64px', alignItems: 'flex-start' }}>
+        <main id={embedded ? undefined : 'main'} className={embedded ? 'row g24' : 'container-wide row g24'} style={{ padding: embedded ? '4px 0 32px' : '20px 24px 64px', alignItems: 'flex-start' }}>
           {/* Section nav */}
           <nav aria-label="Sections" className="stack" style={{ flex: '1 1 210px', maxWidth: 250, gap: 2 }}>
             <div className="card-sm stack g8" style={{ marginBottom: 10 }}>
@@ -380,13 +663,14 @@ export default function Builder({ embedded = null }) {
               const printable = order.includes(s.id);
               const hidden = !!d.hidden?.[s.id];
               const oi = order.indexOf(s.id);
+              const offN = hiddenCount(d, s.id); // entries switched off inside this section
               const label = sectionLabel(d, s.id) && printable ? sectionLabel(d, s.id) : s.label;
               return (
                 <div key={s.id} className="row" style={{ flexWrap: 'nowrap', borderRadius: 10, background: a ? 'var(--surface)' : 'transparent', opacity: hidden ? 0.6 : 1 }}>
                   <button type="button" onClick={() => { setTab('content'); go(s.id); }} aria-current={a ? 'step' : undefined} className="row g8"
                     style={{ flex: 1, minWidth: 0, flexWrap: 'nowrap', minHeight: 40, padding: '0 8px 0 10px', border: 0, background: 'transparent', color: a || ok ? 'var(--text)' : 'var(--text2)', fontWeight: a ? 600 : 500, fontSize: 14, textAlign: 'left' }}>
                     <span style={{ width: 20, height: 20, flex: 'none', borderRadius: '50%', boxSizing: 'border-box', border: `2px solid ${ok ? 'var(--success)' : a ? 'var(--ink)' : 'var(--border2)'}`, background: ok ? 'var(--success)' : 'transparent', color: 'var(--onink)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{ok && <Icon name="check" size={11} stroke={3} />}</span>
-                    <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textDecoration: hidden ? 'line-through' : 'none' }}>{label}</span>
+                    <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textDecoration: hidden ? 'line-through' : 'none' }}>{label}{offN > 0 && <span className="xs muted" style={{ fontWeight: 500 }}> · {offN} hidden</span>}{!(s.id in SCORE_WEIGHTS) && !ok && <span className="xs faint" style={{ fontWeight: 500 }}> · optional</span>}</span>
                     {!printable && count !== null && <span className="mono faint">{count}</span>}
                   </button>
                   {printable && (
@@ -414,12 +698,19 @@ export default function Builder({ embedded = null }) {
               <button type="button" role="tab" aria-selected={tab === 'cover'} onClick={() => setTab('cover')}>Cover letter</button>
             </div>
             {tab === 'cover' ? (
-              <CoverPanel d={d} setCover={(cover) => setD((p) => ({ ...p, cover }))} onAddSkill={(k) => { addSkill(k); toast(`Added “${k}” to your skills`); }} />
+              <CoverPanel d={d} profile={profile} setCover={(cover) => setD((p) => ({ ...p, cover }))} onAddSkill={(k) => { addSkill(k); toast(`Added “${k}” to your skills`); }} />
             ) : tab === 'design' ? (
-              <DesignPanel d={d} ds={ds} set={setDesign} applyPreset={applyTemplate} setTitle={setTitle} fit={fit} fitting={fitting} pages={pages}
+              <DesignPanel d={d} ds={ds} set={setDesign} setResume={(patch) => setD((p) => ({ ...p, ...patch }))} applyPreset={applyTemplate} setTitle={setTitle} fit={fit} fitting={fitting} pages={pages}
                 history={history} savedStyles={savedStyles} saveStyle={saveStyle} applySaved={applySaved} deleteSaved={deleteSaved}
                 reset={() => applyPreset(ds.preset && TEMPLATE_PRESETS[ds.preset] ? ds.preset : 'fresher')} />
             ) : (<>
+            {profile && <ProfileUpdates d={d} setD={setD} updates={profileUpdates(d, profile)} />}
+            {missing && issues.length > 0 && (
+              <div className="well stack g8" role="status" style={{ borderLeft: '4px solid var(--warning)' }}>
+                <strong>Almost done — please add:</strong>
+                <ul className="stack g4" style={{ margin: 0, paddingLeft: 18 }}>{issues.slice(0, 5).map((x) => <li key={x.msg}><button type="button" className="link-btn" onClick={() => { setTab('content'); go(x.sec); }}>{x.msg}</button></li>)}</ul>
+              </div>
+            )}
             <div className="row between g12" style={{ alignItems: 'flex-end' }}>
               <div className="stack g4"><span className="mono faint">SECTION {idx + 1} OF {SECS.length}</span><h2 style={{ fontSize: 28 }}>{cur.label}</h2></div>
               <div className="row g8">
@@ -431,12 +722,13 @@ export default function Builder({ embedded = null }) {
                     Show on resume
                   </button>
                 )}
+                {profile && <FillFromProfile id={cur.id} label={cur.label} d={d} setD={setD} profile={profile} />}
                 {cur.custom && <button type="button" className="btn btn-outline" style={{ color: 'var(--danger)' }} onClick={removeSection}>Delete section</button>}
               </div>
             </div>
             {d.hidden?.[cur.id] && <p className="well small muted">This section is hidden from your resume. It stays saved on your profile.</p>}
             <p className="muted" style={{ lineHeight: 1.55 }}>{cur.help}</p>
-            {cur.fresherTip && fresher && <p className="well small muted">{cur.fresherTip}</p>}
+            {cur.fresherTip && fresher && !(d[cur.id] || []).some((e) => real(e.company) || real(e.role)) && <p className="well small muted" data-testid="fresher-tip">{cur.fresherTip}</p>}
 
             {cur.id === 'personal' && (
               <>
@@ -450,7 +742,7 @@ export default function Builder({ embedded = null }) {
                     <span className="small muted">Shown to recruiters on your Nm7 profile. A clear, front-facing photo works best. JPG, PNG or WebP, up to 5 MB — you can crop and adjust it next.</span>
                     <div className="row g8">
                       <label className="btn btn-outline" style={{ cursor: 'pointer' }}>{photo ? 'Change photo' : 'Choose photo'}<input type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" onChange={pickPhoto} /></label>
-                      {photo && photoOrig && <button type="button" className="btn btn-outline" onClick={() => setEditingPhoto({ src: photoOrig, fresh: false })}>Adjust photo</button>}
+                      {photo && <button type="button" className="btn btn-outline" onClick={() => setEditingPhoto({ src: photoOrig || photo, fresh: false })}>Adjust photo</button>}
                       {photo && <button type="button" className="btn btn-ghost" style={{ color: 'var(--danger)' }} onClick={removePhoto}>Remove</button>}
                     </div>
                     {photoErr && <span role="alert" className="error">{photoErr}</span>}
@@ -463,22 +755,10 @@ export default function Builder({ embedded = null }) {
               </>
             )}
 
-            {(cur.id === 'hobbies' || cur.id === 'strengths') && (() => {
-              const k = cur.id;
-              const items = splitList(d[k]);
-              const ideas = (k === 'hobbies' ? HOBBY_IDEAS : STRENGTH_IDEAS).filter((x) => !items.some((y) => y.toLowerCase() === x.toLowerCase()));
-              return (
-                <div className="card stack g12" style={{ padding: 20 }}>
-                  <label htmlFor={`ta-${k}`} className="label">Your {k} · one per line</label>
-                  <textarea id={`ta-${k}`} className="input" rows={5} value={d[k] || ''} onChange={(e) => setD({ ...d, [k]: e.target.value })} placeholder={k === 'hobbies' ? 'Reading\nPlaying cricket' : 'Quick learner\nTeam player'} />
-                  <span className="xs faint">{items.length} added{items.length > 6 ? ' · 3–5 is usually enough' : ''}</span>
-                  <span className="label">Quick add</span>
-                  <div className="row g8">
-                    {ideas.map((x) => <button key={x} type="button" className="chip" style={{ minHeight: 36, fontWeight: 500, fontSize: 13 }} onClick={() => setD((p) => ({ ...p, [k]: [...splitList(p[k]), x].join('\n') }))}>+ {x}</button>)}
-                  </div>
-                </div>
-              );
-            })()}
+            {(cur.id === 'hobbies' || cur.id === 'strengths') && (
+              <LineEntries key={cur.id} d={d} setD={setD} k={cur.id} item={cur.id === 'hobbies' ? 'Hobby' : 'Strength'}
+                ideas={cur.id === 'hobbies' ? HOBBY_IDEAS : STRENGTH_IDEAS} placeholder={cur.id === 'hobbies' ? 'e.g. Playing cricket' : 'e.g. Team player'} />
+            )}
 
             {cur.id === 'pinfo' && objEditor('pinfo', PINFO_FIELDS)}
 
@@ -494,9 +774,13 @@ export default function Builder({ embedded = null }) {
 
             {cur.id === 'summary' && (
               <div className="card stack g12" style={{ padding: 20 }}>
+                {!embedded && <FromResume d={d} setD={setD} />}
+                <SummaryWriter resume={d} note={d.about || ''} onNote={(v) => setD((p) => ({ ...p, about: v }))} value={d.summary} onUse={(t) => setD((p) => ({ ...p, summary: t }))} />
                 <label htmlFor="sum" className="label">Your summary</label>
-                <textarea id="sum" className="input" rows={5} value={d.summary} onChange={(e) => setD({ ...d, summary: e.target.value })} placeholder="Who you are, your strongest skills, one result with a number, and the role you want." />
-                <div className="row between xs"><span className="faint">{sumLen} chars</span><span className="strong" style={{ color: sumLen >= 150 && sumLen <= 400 ? 'var(--success)' : 'var(--warning)' }}>{sumLen < 150 ? `${150 - sumLen} more characters recommended` : sumLen > 400 ? 'Consider trimming' : '✓ Great length'}</span></div>
+                <RichArea id="sum" rows={5} value={d.summary} onChange={(v) => setD({ ...d, summary: v })} placeholder="Who you are, your strongest skills, one result with a number, and the role you want." label="Summary formatting" />
+                {profile && <ProfileHint value={profile.summaries.find((x) => !x.off && x.text.trim())?.text} current={d.summary} label="summary" onUse={(v) => setD((p) => ({ ...p, summary: v }))} />}
+                <div className="row between xs"><span className="faint" data-testid="summary-chars">{sumLen} chars</span><span className="strong" style={{ color: sumNote.ok ? 'var(--success)' : 'var(--warning)' }}>{sumNote.text}</span></div>
+                {isFresher(d) && <ReadySummaries d={d} onPick={(t, s) => { setD((p) => ({ ...p, summary: t })); toast(`“${s.heading}” is in your summary — edit anything`); const box = document.getElementById('sum'); box?.focus({ preventScroll: true }); box?.scrollIntoView({ block: 'center', behavior: 'smooth' }); }} />}
                 <span className="label" style={{ marginTop: 6 }}>Or start from one of these</span>
                 {summaryOptions.map(([t, n]) => (
                   <button key={n} type="button" className="option stack g4" onClick={() => setD({ ...d, summary: t })} style={{ fontSize: 14, lineHeight: 1.5 }}>
@@ -510,17 +794,21 @@ export default function Builder({ embedded = null }) {
               <div className="card stack g16" style={{ padding: 20 }}>
                 {d.skillGroups.map((g, gi) => {
                   const def = DEFAULT_SKILL_GROUPS.find((x) => x.id === g.id);
-                  const setGroup = (patch) => setD((p) => ({ ...p, skillGroups: p.skillGroups.map((x, j) => (j === gi ? { ...x, ...patch } : x)) }));
+                  const setGroup = (patch) => setD((p) => ({ ...p, skillGroups: p.skillGroups.map((x, j) => { if (j !== gi) return x; const y = { ...x, ...patch }; edited.current.add(y); return y; }) }));
                   return (
-                    <div key={g.id} className="stack g8">
-                      <div className="row between g8" style={{ flexWrap: 'nowrap' }}>
+                    <div key={g.id} className="stack g8 entry-card well" data-off={!!g.off} style={{ padding: 12 }}>
+                      <EntryHeader list="skills" index={gi} count={d.skillGroups.length} label={`Skills category ${gi + 1}`} title={g.label || `Category ${gi + 1}`} off={!!g.off}
+                        onMove={(dir) => { setD((p) => ({ ...p, skillGroups: moveItem(p.skillGroups, gi, dir) })); focusMoved('skills', gi + dir, dir); }}
+                        onToggle={() => setD((p) => ({ ...p, skillGroups: toggleItem(p.skillGroups, gi) }))}
+                        onRemove={def ? null : () => { withUndo(`“${g.label || 'Category'}” removed`); setD((p) => ({ ...p, skillGroups: removeItem(p.skillGroups, gi) })); }} />
+                      <div className="entry-body stack g8">
                         <label htmlFor={`sg-${g.id}-name`} className="sr-only">Category name</label>
                         <input id={`sg-${g.id}-name`} value={g.label} onChange={(e) => setGroup({ label: e.target.value })} placeholder="Category name"
                           style={{ flex: 1, minWidth: 0, border: 0, background: 'transparent', padding: '6px 0', fontSize: 12, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--text2)' }} />
-                        {!def && <button type="button" className="btn btn-danger-soft" onClick={() => { withUndo(`“${g.label || 'Category'}” removed`); setD((p) => ({ ...p, skillGroups: p.skillGroups.filter((_, j) => j !== gi) })); }}>Remove</button>}
-                      </div>
                       <label htmlFor={`sg-${g.id}`} className="sr-only">{g.label} — separate items with commas</label>
-                      <input id={`sg-${g.id}`} className="input" value={g.value} onChange={(e) => setGroup({ value: e.target.value })} placeholder={def?.ph || 'e.g. item one, item two'} />
+                      <SkillBox id={`sg-${g.id}`} label={g.label || `Category ${gi + 1}`} value={g.value} onChange={(v) => setGroup({ value: v })} placeholder={def?.ph || 'e.g. item one, item two'} />
+                      {profile && edited.current.has(g) && <SaveToProfile entry={g} section="skills" profile={profile} onSaved={(pid, pv) => setD((p) => ({ ...p, skillGroups: p.skillGroups.map((x, j) => (j === gi ? { ...x, pid, pv } : x)) }))} />}
+                      </div>
                     </div>
                   );
                 })}
@@ -546,13 +834,12 @@ export default function Builder({ embedded = null }) {
               </div>
             )}
             {cur.custom && listEditor(cur.id, LISTS.custom)}
-            {cur.id === 'prefs' && <><div className="row g8"><strong>Job matching</strong><ProfileOnly /></div>{objEditor('prefs', PREF_FIELDS)}</>}
             {cur.id === 'links' && (
               <>
                 <div className="card stack g12" style={{ padding: 20 }}>
                   <span id="ls-l" className="strong small">How links show on your resume</span>
                   <div role="radiogroup" aria-labelledby="ls-l" className="grid-auto g8" style={{ '--min': '220px' }}>
-                    {[['icon', 'Icon + handle', 'Clean and short. Recommended.', <span className="row g4" style={{ alignItems: 'center' }}><Logo k="linkedin" size={14} /> saivarsha</span>],
+                    {[['icon', 'Icon + handle', 'Clean and short. Recommended.', <span key="icon" className="row g4" style={{ alignItems: 'center' }}><Logo k="linkedin" size={14} /> saivarsha</span>],
                       ['url', 'Full link', 'Shows the complete address.', <>linkedin.com/in/saivarsha</>]].map(([v, l, h, ex]) => (
                       <label key={v} className="option" data-on={(d.linkStyle || 'icon') === v}>
                         <input type="radio" name="linkStyle" checked={(d.linkStyle || 'icon') === v} onChange={() => setD({ ...d, linkStyle: v })} />
@@ -560,6 +847,16 @@ export default function Builder({ embedded = null }) {
                       </label>
                     ))}
                   </div>
+                  <span id="ci-l" className="strong small">Icons next to contact details and links</span>
+                  <div role="radiogroup" aria-labelledby="ci-l" className="row g8" style={{ flexWrap: 'wrap' }}>
+                    {CONTACT_MODES.map(([v, l]) => (
+                      <label key={v} className="option" data-on={contactMode(d, ds) === v} style={{ flex: '1 1 140px' }}>
+                        <input type="radio" name="contactIcons" checked={contactMode(d, ds) === v} onChange={() => setD({ ...d, contactIcons: v })} />
+                        <strong className="small">{l}</strong>
+                      </label>
+                    ))}
+                  </div>
+                  <span className="xs muted">Phone and email always keep their text. Every template, Academic too, follows this.</span>
                 </div>
                 <LinksEditor d={d} setD={setD} />
               </>
@@ -615,6 +912,7 @@ export default function Builder({ embedded = null }) {
               {!(embedded && cur.id === 'review') && <button type="button" className="btn btn-ink btn-lg" onClick={() => {
                 if (cur.id !== 'review') return go(SECS[idx + 1].id);
                 if (issues.length) { setShowIssues(true); editorTop.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); return undefined; }
+                setD((p) => ({ ...p, reviewedAt: p.reviewedAt || Date.now() })); // ticks Review & Submit
                 return setStage('done');
               }}>{cur.id === 'review' ? 'Submit profile & finish' : 'Save & continue'}</button>}
               {cur.id !== 'review' && cur.id !== 'personal' && <button type="button" className="btn btn-ghost" onClick={() => go(SECS[idx + 1].id)}>Skip for now</button>}
@@ -626,16 +924,40 @@ export default function Builder({ embedded = null }) {
           <section aria-label="Live resume preview" className="stack g8 sticky" style={{ flex: '3 1 440px', minWidth: 0, top: 80 }}>
             <div className="row between g8 xs muted">
               <span className="row g8">{tab === 'cover' ? 'Cover letter · same design · ' : 'Live preview · '}{TEMPLATE_PRESETS[ds.preset]?.name ? `${TEMPLATE_PRESETS[ds.preset].name}${JSON.stringify({ ...TEMPLATE_PRESETS[ds.preset].design, preset: 0 }) === JSON.stringify({ ...ds, preset: 0 }) ? '' : ' (edited)'}` : 'Custom'}
-                {tab !== 'cover' && <span className={`badge ${pages > 1 ? 'b-warning' : 'b-success'}`}>{pages > 1 ? `${pages} pages · aim for 1` : '1 page ✓'}</span>}
+                {tab !== 'cover' && <button type="button" className="link-btn" style={{ minHeight: 32 }} onClick={() => { setChanging(true); setStage('templates'); window.scrollTo(0, 0); }}>Change template</button>}
+                {tab !== 'cover' && (pages === null
+                  ? <span className="badge b-neutral" data-testid="page-count">Measuring…</span>
+                  : <span className={`badge ${pages > 1 ? 'b-warning' : 'b-success'}`} data-testid="page-count">{pages > 1 ? `${pages} pages · aim for 1` : '1 page ✓'}</span>)}
               </span>
-              <span className="row g8">
+              <span className="row g8" style={{ alignItems: 'center' }}>
+                {tab !== 'cover' && (
+                  <span role="group" aria-label="Preview shows" className="row" style={{ gap: 0 }}>
+                    {[['mine', 'My resume'], ['sample', 'Sample']].map(([v, l]) => (
+                      <button key={v} type="button" className="chip" aria-pressed={pview === v} onClick={() => setPview(v)} style={{ minHeight: 36, borderRadius: v === 'mine' ? '999px 0 0 999px' : '0 999px 999px 0' }}>{l}</button>
+                    ))}
+                  </span>
+                )}
                 <button type="button" className="link-btn" style={{ minHeight: 32, textDecoration: 'none' }} onClick={() => setTab('design')}>Edit design</button>
-                <button type="button" className="btn btn-ink" style={{ minHeight: 36, fontSize: 13 }} onClick={() => download('pdf')} disabled={pdfBusy}>{pdfBusy ? 'Preparing…' : 'Download PDF'}</button>
-                <button type="button" className="btn btn-outline" style={{ minHeight: 36, fontSize: 13 }} onClick={() => download('docx')} disabled={pdfBusy} title="Word file in one column with Calibri / Cambria">Word</button>
+                <button type="button" className="btn btn-ink" style={{ minHeight: 36, fontSize: 13 }} onClick={() => downloadMine('pdf')} disabled={pdfBusy || noName} title={noName ? 'Add your name to download' : undefined}>{pdfBusy ? 'Preparing…' : 'Download PDF'}</button>
+                <button type="button" className="btn btn-outline" style={{ minHeight: 36, fontSize: 13 }} onClick={() => downloadMine('docx')} disabled={pdfBusy || noName} title={noName ? 'Add your name to download' : 'Word file in one column with Calibri / Cambria'}>Word</button>
               </span>
             </div>
-            {tab === 'cover' ? <ResumePreview key="cover" data={d} design={ds} photo={photo} cover={d.cover || {}} /> : <ResumePreview data={d} design={ds} photo={photo} onPages={onPages} />}
-            <span className="xs faint">Job preferences stay on your Nm7 profile — never printed. Personal information, declaration and your photo print only when you switch them on.</span>
+            {noName && <span className="xs muted" data-testid="need-name" style={{ alignSelf: 'flex-end' }}>Add your name to download</span>}
+            <LinkedInNudge show={liNudge} />
+            {fromSample && <span role="status" className="small" data-testid="download-note" style={{ alignSelf: 'flex-end', fontWeight: 600 }}>Downloading your resume, not the sample</span>}
+            {tab !== 'cover' && hintBox}
+            {tab === 'cover' ? <ResumePreview key="cover" data={d} design={ds} photo={photo} cover={d.cover || {}} />
+              : sampleView ? (
+                <div className="stack g8" data-testid="sample-view">
+                  <div className="card row between g8" style={{ padding: '8px 12px', alignItems: 'center' }}>
+                    <strong className="small">Sample: how this template looks when filled</strong>
+                    <button type="button" className="btn btn-outline" style={{ minHeight: 36 }} onClick={() => setPview('mine')}>Back to my resume</button>
+                  </div>
+                  {/* the example person in the chosen template: shown only, never saved or downloaded */}
+                  <ResumePreview decorative data={sampleData} design={ds} photo={TEMPLATE_PRESETS[ds.preset]?.photo ? PHOTO_PLACEHOLDER : null} />
+                </div>
+              ) : <ResumePreview data={d} design={ds} photo={photo} onPages={onPages} loading={dataLoading} hints />}
+            <span className="xs faint">Personal information, declaration and your photo print only when you switch them on.</span>
           </section>
         </main>
       )}

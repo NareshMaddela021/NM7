@@ -1,13 +1,14 @@
 // Side-by-side change list between two resume versions (removed lines red, added lines green).
 import { buildSections } from './resumeModel';
 import { DEFAULT_DESIGN, TEMPLATE_PRESETS } from './design';
+import { stripBold } from '../../lib/bold';
 
 /** Section → printed lines, for the compare view. */
 export function sectionLines(data) {
   const ds = { ...DEFAULT_DESIGN, ...(data.design || TEMPLATE_PRESETS.fresher.design), layout: 'one' };
   const { main } = buildSections(data, ds);
   const out = [{ title: 'Header', lines: [data.personal?.name, data.personal?.headline].filter(Boolean) }];
-  main.forEach((s) => out.push({ title: s.title, lines: s.items.flatMap((it) => [[it.head, it.date].filter(Boolean).join(' · '), it.sub, ...(it.lines || []).map((l) => (typeof l === 'string' ? l : l.t || (l.kv ? `${l.kv[0]}: ${l.kv[1]}` : l.bold ? `${l.bold} ${l.text}` : l.label ? `${l.label}: ${l.chips.join(', ')}` : '')))]).filter(Boolean) }));
+  main.forEach((s) => out.push({ title: s.title, lines: s.items.flatMap((it) => [[it.head, it.date].filter(Boolean).join(' · '), it.sub, ...(it.lines || []).map((l) => stripBold(typeof l === 'string' ? l : l.t || (l.kv ? `${l.kv[0]}: ${l.kv[1]}` : l.courses ? `${l.courses.label} ${l.courses.text}` : l.bold ? `${l.bold} ${l.text}` : l.label ? `${l.label}: ${l.chips.join(', ')}` : '')))]).filter(Boolean) })); // plain text: no bold markers
   return out;
 }
 export default function Compare({ a, b, aLabel, bLabel }) {
