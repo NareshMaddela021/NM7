@@ -7,6 +7,7 @@ import { savePdf } from '../../builder/resumePdf';
 import { BarChart, Kpi, PageHead, Panel, Tabs } from '../AdminUI';
 import { API_BASE } from '../../../services/http';
 import { Loading, STATUS_LABEL, day, emptyIf, http, rupees, useAction, useApi, when } from './common';
+import { WaReport } from './WaPages';
 
 /* ---------- experts and applications ---------- */
 const EXPERT_STATUS = { draft: 'Filling in profile', review: 'To review', changes: 'Asked for changes', test: 'Doing test task', testReview: 'Test to score', approved: 'Approved', rejected: 'Not approved' };
@@ -272,6 +273,7 @@ export function LiveReports() {
           <select aria-label="Period" className="input" style={{ height: 40, width: 'auto' }} value={days} onChange={(e) => setDays(+e.target.value)}><option value={7}>Last 7 days</option><option value={30}>Last 30 days</option><option value={90}>Last 90 days</option><option value={365}>Last 12 months</option></select>
           <button type="button" className="btn btn-outline" disabled={busy} onClick={csv}>Download orders CSV</button>
         </span>} />
+      <WaReport days={days} />
       <Loading st={st}>{(r) => (
         <>
           <div className="kpis">

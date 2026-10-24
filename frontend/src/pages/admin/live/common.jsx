@@ -13,6 +13,7 @@ export { http };
 export const NAV = [
   ['dashboard', '/admin', 'Dashboard', '▦'],
   ['orders', '/admin/orders', 'Orders', '☰'],
+  ['payments', '/admin/whatsapp-payments', 'WhatsApp payments', '✆'],
   ['experts', '/admin/experts', 'Experts', '✦'],
   ['refunds', '/admin/refunds', 'Refunds & disputes', '↺'],
   ['payments', '/admin/payments', 'Payments & invoices', '₹'],
@@ -82,7 +83,7 @@ export const when = (v) => (v ? new Date(typeof v === 'number' ? v : Date.parse(
 export const day = (v) => (v ? new Date(typeof v === 'number' ? v : Date.parse(v)).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—');
 
 export const STATUS_LABEL = {
-  pending_payment: 'Awaiting payment', offer: 'Finding expert', in_progress: 'Expert writing', waiting: 'Draft with customer', revision: 'Changes',
+  pending_payment: 'Awaiting payment', awaiting_payment: 'Waiting for payment (WhatsApp)', offer: 'Finding expert', in_progress: 'Expert writing', waiting: 'Draft with customer', revision: 'Changes',
   delivered: 'Delivered', approved: 'Approved', done: 'Done (DIY)', expired: 'Expired', cancelled: 'Cancelled', refunded: 'Refunded',
 };
 export const tone = (s) => ({ refunded: 'neutral', expired: 'neutral', cancelled: 'neutral', approved: 'success', done: 'success', delivered: 'success', offer: 'warning', revision: 'warning' }[s] || 'neutral');

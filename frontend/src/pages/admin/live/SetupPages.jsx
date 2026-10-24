@@ -6,6 +6,7 @@ import { PageHead } from '../AdminUI';
 import { ROLES } from '../roles';
 import { Loading, emptyIf, http, useAction, useApi, when } from './common';
 import { auditText } from './auditText';
+import { PaymentSettings } from './WaPages';
 
 /* ---------- settings & prices ---------- */
 // same limits as the server (app/admin/console.py), which checks them again
@@ -62,6 +63,7 @@ export function LiveSettings() {
   return (
     <>
       <PageHead title="Settings & prices" sub="Prices include GST. Changes apply to new checkouts at once and are written to the audit log." />
+      <PaymentSettings />
       <Loading st={st}>{() => f && (
         <>
           <section className="card stack g12" aria-label="Plans">
