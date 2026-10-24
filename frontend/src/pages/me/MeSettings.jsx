@@ -10,6 +10,7 @@ import { savePdf } from '../builder/resumePdf';
 import { PROMISES, REFERRAL, inr } from '../../lib/pricing';
 import { getJobProfile } from '../../lib/profileStore';
 import { canSave, deleteLinkedIn, getLinkedIn } from '../../lib/linkedin/api';
+import { deleteJobData } from '../../lib/jobs';
 import { MeHead } from './MeLayout';
 import { fmtDay } from './shared';
 
@@ -25,6 +26,7 @@ export function MeSettings() {
   const [f, setF] = useState(me.account);
   const [del, setDel] = useState(false);
   const [liDel, setLiDel] = useState(false);
+  const [jobDel, setJobDel] = useState(false);
   const [confirm, setConfirm] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -74,8 +76,21 @@ export function MeSettings() {
         <div className="row between g8"><span className="small">Download everything we hold about you — resumes, orders, messages, applications.</span><button type="button" className="btn btn-outline" onClick={exportAll}>Download my data</button></div>
         <div className="row between g8"><span className="small">Expert files are kept for {PROMISES.retentionDays} days after delivery. Your own resumes stay until you delete them.</span></div>
         {canSave() && <div className="row between g8"><span className="small">Your LinkedIn link, the text from your LinkedIn PDF or pasted sections, and your checks. Kept on your account only, never shared with organizations.</span><button type="button" className="btn btn-outline" onClick={() => setLiDel(true)}>Delete my LinkedIn data</button></div>}
+        {canSave() && <div className="row between g8"><span className="small">Job posts you matched, their scores, tailoring suggestions, cover letters and interview prep. Kept on your account only, never shared with organizations.</span><button type="button" className="btn btn-outline" onClick={() => setJobDel(true)}>Delete my job-search data</button></div>}
         <div className="row between g8"><span className="small" style={{ color: 'var(--danger)' }}>Delete my account and all my data.</span><button type="button" className="btn btn-ghost" style={{ color: 'var(--danger)' }} onClick={() => setDel(true)}>Delete account</button></div>
       </section>
+      {jobDel && (
+        <Dialog showTitle title="Delete your job-search data?" onClose={() => setJobDel(false)}>
+          <div className="stack g12">
+            <p className="small muted" style={{ margin: 0 }}>This deletes every job post you matched, the scores, tailoring suggestions, cover letters and interview prep. Tailored resume copies stay in My resumes until you delete them there. This can’t be undone.</p>
+            <div className="row g8">
+              <button type="button" className="btn btn-ink" style={{ background: 'var(--danger)', borderColor: 'var(--danger)' }}
+                onClick={async () => { try { await deleteJobData(); setJobDel(false); toast('Your job-search data is deleted.'); } catch (err) { toast(err.message || 'Not deleted. Please try again.'); } }}>Delete job-search data</button>
+              <button type="button" className="btn btn-outline" onClick={() => setJobDel(false)}>Keep it</button>
+            </div>
+          </div>
+        </Dialog>
+      )}
       {liDel && (
         <Dialog showTitle title="Delete your LinkedIn data?" onClose={() => setLiDel(false)}>
           <div className="stack g12">
@@ -90,7 +105,7 @@ export function MeSettings() {
           <form className="stack g12" onSubmit={async (e) => {
             e.preventDefault();
             if (!LIVE) { resetMe(); setDel(false); setConfirm(''); toast('Deletion requested — we confirm by email. (Preview: sample data reset.)'); return; }
-            try { await deleteLinkedIn().catch(() => {}); await raiseIssue({ topic: 'Account', text: 'Please delete my account and all my data.' }); setDel(false); setConfirm(''); toast('Deletion requested — our team confirms by email within 7 days.'); } catch (err) { toast(err.message); }
+            try { await deleteLinkedIn().catch(() => {}); await deleteJobData().catch(() => {}); await raiseIssue({ topic: 'Account', text: 'Please delete my account and all my data.' }); setDel(false); setConfirm(''); toast('Deletion requested — our team confirms by email within 7 days.'); } catch (err) { toast(err.message); }
           }}>
             <span className="small muted">This deletes your resumes, cover letters, applications, messages, and your LinkedIn link, PDF text and checks (those go at once). Invoices are kept as the law requires. Download your data first if you want a copy.</span>
             <label htmlFor="del" className="label">Type DELETE to confirm</label>

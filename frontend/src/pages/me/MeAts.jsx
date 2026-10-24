@@ -1,5 +1,7 @@
-// ATS & job match: score any resume, paste a job post for missing keywords, tailor a copy, see the score trend.
-import { useState } from 'react';
+// ATS & job match: "Match a job" (job post → score /100, what to fix, a tailored copy: JobMatch.jsx) and "ATS check"
+// (score any resume with the expert rules, missing keywords, the score trend).
+import { lazy, Suspense, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../components/ui';
 import { useMe, setMe, addResume, openInBuilder, activeResume } from '../../lib/customerStore';
@@ -7,7 +9,24 @@ import { atsScore } from '../../lib/atsScore';
 import { MeHead } from './MeLayout';
 import { ScoreTrend, fmtShort, fmtDay } from './shared';
 
+const JobMatch = lazy(() => import('./JobMatch'));
+const TABS = [['match', 'Match a job'], ['ats', 'ATS check']];
+
 export default function MeAts() {
+  const [params, setParams] = useSearchParams();
+  const tab = params.get('tab') === 'ats' ? 'ats' : 'match';
+  return (
+    <>
+      <MeHead title="ATS & job match" sub="Paste a job post to see how well your resume fits it and what to fix. Or check any resume with the rules our experts use." />
+      <div className="segmented" role="tablist" aria-label="ATS & job match" style={{ alignSelf: 'flex-start' }}>
+        {TABS.map(([k, l]) => <button key={k} type="button" role="tab" aria-selected={tab === k} onClick={() => setParams(k === 'match' ? {} : { tab: k }, { replace: true })}>{l}</button>)}
+      </div>
+      {tab === 'match' ? <Suspense fallback={null}><JobMatch /></Suspense> : <AtsCheck />}
+    </>
+  );
+}
+
+function AtsCheck() {
   const me = useMe();
   const nav = useNavigate();
   const toast = useToast();
@@ -31,7 +50,6 @@ export default function MeAts() {
 
   return (
     <>
-      <MeHead title="ATS & job match" sub="The same rules our experts use. Paste a job post to see what it asks for." />
       <div className="row g16" style={{ alignItems: 'flex-start' }}>
         <section className="card stack g12" style={{ flex: '2 1 340px' }} aria-label="Check">
           <div className="field"><label htmlFor="ats-r" className="label">Resume</label>
