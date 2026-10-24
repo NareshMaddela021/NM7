@@ -98,7 +98,10 @@ def match_out(d: dict[str, Any], full: bool = True) -> dict[str, Any]:
             "fixes": r.get("fixes", []),
             "note": d.get("note") or "",
             "covers": d.get("covers") or [],
-            "interview": d.get("interview"),
+            # the pack itself comes from GET …/interview (locked parts stay on the server)
+            "interview": {"practised": len((d.get("interview") or {}).get("practised") or {}), "total": 10}
+            if d.get("interview")
+            else None,
         }
     return out
 

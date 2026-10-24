@@ -455,6 +455,17 @@ deletion).
   an email with a subject line; a cold email / LinkedIn message under 300 characters. AI letters pass the same fact
   check and the length check, or the rules letter is used (rules letters run a little shorter than the AI target).
   Letters are saved with the job. Free: 1 a day; unlimited with the Tailor pack.
+- **Interview prep** (`interview.py`, `/me/interview/<match>`, from the match screen and My applications): 10
+  questions (about you 3, the person's own projects and work 3, the job's must-have skills 3, one situation question)
+  with model answers from the resume (STAR for the situation question) and "make it yours" tips; "Tell me about
+  yourself" in 60 seconds and 2 minutes; weak spots with honest answers (a missing skill is never claimed); 5
+  questions to ask; a company homework checklist. Missing details are left as [gaps] to fill in, never made up. AI
+  answers are checked one by one (fact check, plus: a skill they don't have may only be named in an answer that says
+  so). Practice mode: one question at a time, typed or spoken (Speak), with feedback on structure (STAR), a missing
+  result or number, length (about 140 words a minute) and filler words, and a better version that uses only what
+  they said and their resume. Progress is saved ("7 of 10 practised"). Free: the first 3 questions; the Interview
+  pack unlocks the rest.
+- **Fact check numbers** are compared as whole numbers ("5 years" is not backed by the "2025" in a date).
 
 ## Nm7 for Organizations (Phase 1)
 

@@ -72,6 +72,7 @@ const MeMessages = lazy(() => import('./pages/me/MeMessages'));
 const MeResumes = lazy(() => import('./pages/me/MeResumes'));
 const MeProfile = lazy(() => import('./pages/me/MeProfile'));
 const MeAts = lazy(() => import('./pages/me/MeAts'));
+const MeInterview = lazy(() => import('./pages/me/MeInterview'));
 const MeCovers = lazy(() => import('./pages/me/MeCovers'));
 const MeJobs = lazy(() => import('./pages/me/MeJobs'));
 const meShare = () => import('./pages/me/MeShare');
@@ -355,6 +356,7 @@ export default function App() {
           <Route path="profile" element={<MeProfile />} />
           <Route path="resumes" element={<MeResumes />} />
           <Route path="ats" element={<MeAts />} />
+          <Route path="interview/:id" element={<MeInterview />} />
           <Route path="covers" element={<MeCovers />} />
           <Route path="jobs" element={<MeJobs />} />
           <Route path="share" element={<MeShare />} />

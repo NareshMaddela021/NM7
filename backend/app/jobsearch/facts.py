@@ -18,6 +18,7 @@ from app.jobsearch import skills as dictionary
 from app.photos.scrub import looks_like_id
 
 NUMBER = re.compile(r"\d+(?:[.,]\d+)?")
+DATE = re.compile(r"\b((?:19|20)\d\d)-\d\d(?:-\d\d)?\b")  # builder dates "2025-05": only the year is a fact
 CONTACT = re.compile(
     r"(?<!\d)(?:\+?91[\s-]?)?[6-9]\d{4}[\s-]?\d{5}(?!\d)|[\w.+-]+@[\w-]+\.[\w.]+|https?://|\bwww\.", re.IGNORECASE
 )
@@ -307,6 +308,14 @@ def _present(word: str, sources_lower: str) -> bool:
     return re.search(rf"(?<![a-z0-9]){re.escape(word.lower())}(?![a-z0-9])", sources_lower) is not None
 
 
+def _num(n: str) -> str:
+    """'1,200' → '1200', '07' → '7', '8.50' → '8.5'."""
+    n = n.replace(",", "")
+    if "." in n:
+        n = n.rstrip("0").rstrip(".")
+    return n.lstrip("0") or "0"
+
+
 def problems(text: str, resume: str, allowed: str = "", typed: str = "") -> list[str]:
     """What in `text` isn't backed by the resume. `allowed`: the job's own words (title, company, location) that may
     appear as names; `typed`: what the person typed or said (their own words also count as facts)."""
@@ -314,8 +323,10 @@ def problems(text: str, resume: str, allowed: str = "", typed: str = "") -> list
     facts = f"{resume}\n{typed}"
     if CONTACT.search(text) or looks_like_id(text):
         issues.append("contact details or an ID number")
+    # whole numbers only: "5" is not backed by "2025", nor by the month in a "2025-05" date
+    known = {_num(n) for n in NUMBER.findall(DATE.sub(r"\1", facts))}
     for n in NUMBER.findall(text):
-        if n not in facts and n.replace(",", "") not in facts.replace(",", ""):
+        if _num(n) not in known:
             issues.append(f"the number {n}")
     have = set(dictionary.find(facts))
     allowed_skills = set(dictionary.find(allowed))
@@ -330,7 +341,10 @@ def problems(text: str, resume: str, allowed: str = "", typed: str = "") -> list
         for i, w in enumerate(words):
             if i == 0 and first and first.group(1) == w:
                 continue  # the first word of a sentence is capitalised anyway
-            if w.lower() in COMMON or _present(w, sources):
+            low = w.lower()
+            if low in COMMON or low in ("i'd", "i'm", "i've", "i'll") or _present(w, sources):
+                continue
+            if low.endswith("'s") and _present(w[:-2], sources):  # "Brightpath's"
                 continue
             issues.append(f"the name {w}")
     return issues
