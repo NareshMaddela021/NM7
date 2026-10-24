@@ -322,7 +322,8 @@ def problems(text: str, resume: str, allowed: str = "", typed: str = "") -> list
     for s in dictionary.find(text):
         if s not in have and s not in allowed_skills:
             issues.append(f"the skill {s}")
-    sources = f"{facts}\n{allowed}".lower()
+    # the dictionary names of skills that ARE on the resume count too ("Microsoft Excel" for "Excel")
+    sources = "\n".join([facts, allowed, *have, *allowed_skills]).lower()
     for sentence in re.split(r"(?<=[.!?:])\s+|\n+", text):
         words = NAME_WORD.findall(sentence)
         first = re.match(r"\W*([A-Za-z0-9&+#.\-']+)", sentence)
