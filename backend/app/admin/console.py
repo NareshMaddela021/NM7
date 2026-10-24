@@ -37,6 +37,7 @@ from app.core.exports import CSV_BOM, csv_safe
 from app.core.schemas import CamelModel
 from app.core.time import IST, now
 from app.experts.service import active_order_counts, load_profile, load_profiles, profile_out, set_status
+from app.jobsearch import access as job_access
 from app.linkedin.pack import grant as pack_grant
 from app.linkedin.pack import pack_status
 from app.linkedin.pack import revoke as pack_revoke
@@ -203,6 +204,7 @@ async def customer_detail(user_id: str, db: DB, _: AdminAuth("customers")) -> di
         "notes": (raw or {}).get("admin_notes", ""),
         "orders": [o.model_dump(by_alias=True, mode="json") for o in await order_views(db, orders)],
         "linkedinPack": await _pack_out(db, u.id),
+        "jobPacks": await _job_packs_out(db, u.id),
         "tickets": [
             ticket_out(t).model_dump(by_alias=True)
             async for t in db[TICKETS].find({"user_id": u.id}).sort("created_at", DESCENDING)
@@ -265,6 +267,37 @@ async def grant_linkedin_pack(
         action = "linkedin_pack.revoked"
     await audit(db, auth.user.id, action, target=u.id, data={"email": u.email, "note": body.note}, ip=_ip(request))
     return {"linkedinPack": await _pack_out(db, u.id)}
+
+
+async def _job_packs_out(db, user_id: str) -> dict[str, Any]:
+    out = {}
+    for f in ("tailor", "interview"):
+        st = await job_access.status(db, user_id, f)
+        out[f] = {"source": st["source"], "orderId": st["order_id"]} if st else None
+    return out
+
+
+class JobPackGrantIn(CamelModel):
+    feature: Literal["tailor", "interview"]
+    granted: bool
+    note: str = Field("", max_length=500)
+
+
+@router.post("/customers/{user_id}/job-pack")
+async def grant_job_pack(
+    user_id: str, body: JobPackGrantIn, request: Request, db: DB, auth: AdminAuth("customers")
+) -> dict[str, Any]:
+    """Grant (or take back) the Tailor pack or the Interview pack by hand, e.g. to test them before payments are on.
+    A paid pack is never taken back here: refund its order instead."""
+    u = await _customer(db, user_id)
+    if body.granted:
+        await job_access.grant(db, u.id, body.feature, auth.user.id, body.note.strip())
+        action = f"{body.feature}_pack.granted"
+    else:
+        await job_access.revoke(db, u.id, body.feature)
+        action = f"{body.feature}_pack.revoked"
+    await audit(db, auth.user.id, action, target=u.id, data={"email": u.email, "note": body.note}, ip=_ip(request))
+    return {"jobPacks": await _job_packs_out(db, u.id)}
 
 
 # ---------- support tickets ----------
@@ -669,7 +702,9 @@ class PriceIn(CamelModel):
 
 
 class SettingsIn(CamelModel):
-    plans: dict[Literal["diy", "expert", "launch", "linkedin_pack"], PriceIn] | None = None
+    plans: (
+        dict[Literal["diy", "expert", "launch", "linkedin_pack", "tailor_pack", "interview_pack"], PriceIn] | None
+    ) = None
     addons: dict[Literal["revision", "express", "linkedin"], PriceIn] | None = None
     delivery_hours: int | None = Field(None, ge=24, le=168)
 

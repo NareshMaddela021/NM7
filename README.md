@@ -421,6 +421,28 @@ Admin → Settings → Payments chooses how Nm7 takes money (`backend/app/wapay/
 **WhatsApp** → optionally the reply hours and the auto-cancel hours → **Save payments**. Confirm each payment in
 Admin → WhatsApp payments → **Mark as paid**. Choose **Off** to stop taking orders.
 
+## Job search: job match, tailored copies, cover letters, interview prep
+
+`backend/app/jobsearch/` (API under `/api/me/jobs`). Everything is saved on the person's account only, never shared
+with an organization, and deleted with `DELETE /api/me/jobs` (Settings → Delete my job-search data, and account
+deletion).
+
+- **Skills dictionary**: `jobsearch/skills.json`, about 2,100 common Indian job skills with synonyms (Power BI /
+  PowerBI, JS / JavaScript, MS Excel / Excel). Everyday words (Word, Spark, Go, CA) only count when written like the
+  skill. Used by every job-search feature.
+- **Reading a job post** (`parse.py`): fixed rules first (title, company, location, years, education, must-have vs
+  nice-to-have skills, tools, certifications, soft skills, languages, duties; Hindi-English posts too). A messy post
+  (or a screenshot, `POST /api/me/jobs/read-image`) is read by Claude Haiku, and only what the post really says is
+  kept (`ai.py`). Job links can't be opened: people paste the text. AI calls are counted before the call
+  (`core/ai_quota.py`, feature `jobs`, 20 a day per person); with AI off or over a limit the rules' reading is used.
+- **Score /100** (`score.py`): must-have skills 35, role/title 15, experience 15, nice-to-have 10, education 10,
+  duties in the bullets 10, ATS basics 5. Each skill is Found (proven in a bullet, a project or a certificate), Weak
+  (only listed) or Missing, with an honest next step ("Not something you've done? Leave it out.").
+- **Packs** (`access.py`): the Tailor pack (Rs 49; included in the Rs 99 plan and the expert plans) and the Interview
+  pack (Rs 99; included in Career Launch). Prices are in Admin → Settings & prices; buying follows the payment mode
+  (Off: Coming soon; WhatsApp: a pending order). Admin → Customers can grant either pack for testing (audit log). A
+  refund takes the pack away at once. Free: 3 job matches a day.
+
 ## Nm7 for Organizations (Phase 1)
 
 Any organization — a college, coaching or training institute, job fair, skill centre, NGO, placement agency or company hiring drive — can get its people to build resumes on nm7.si. The Nm7 super-admin (the **Owner** role, with two-step login) then sees, prints and exports all of them from the admin console.

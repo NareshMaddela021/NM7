@@ -72,6 +72,8 @@ PARTNER_PAYOUTS = "partner_payouts"
 LINKEDIN = "linkedin_profiles"  # LinkedIn services: the link, PDF / pasted text and the latest check, per user (_id)
 LINKEDIN_PACKS = "linkedin_packs"  # who owns the LinkedIn pack (_id = user id): the paying order or an admin grant
 HOME_EVENTS = "home_events"  # home page tap counters, per day (no personal data)
+JOB_MATCHES = "job_matches"  # job search: the pasted job post, its reading, the score, outputs (per user, never shared)
+FEATURE_GRANTS = "feature_grants"  # job search packs granted by an admin (_id = "<feature>:<user id>")
 COLLECTIONS = (
     USERS,
     EMAIL_CODES,
@@ -114,6 +116,8 @@ COLLECTIONS = (
     LINKEDIN,
     LINKEDIN_PACKS,
     HOME_EVENTS,
+    JOB_MATCHES,
+    FEATURE_GRANTS,
 )
 
 DAY = 86_400
@@ -218,6 +222,8 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel("org_id"),
     ],
     HOME_EVENTS: [IndexModel("day")],
+    JOB_MATCHES: [IndexModel([("user_id", ASCENDING), ("created_at", DESCENDING)])],
+    FEATURE_GRANTS: [IndexModel("user_id")],
     PARTNER_PAYOUTS: [IndexModel([("partner_id", ASCENDING), ("created_at", DESCENDING)])],
     INVOICES: [
         IndexModel("number", unique=True),
