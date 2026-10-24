@@ -141,6 +141,10 @@ class ApplicationIn(CamelModel):
     url: str = Field("", max_length=500)
     notes: str = Field("", max_length=2_000)
     next: Ms | None = None
+    # from a job match (Phase 1): the match, its score and the tailored copy sent
+    match_id: str | None = Field(None, max_length=40)
+    score: int | None = Field(None, ge=0, le=100)
+    tailored_resume_id: str | None = Field(None, max_length=40)
 
     @field_validator("url")
     @classmethod
@@ -157,6 +161,8 @@ class ApplicationPatch(CamelModel):
     url: str | None = Field(None, max_length=500)
     notes: str | None = Field(None, max_length=2_000)
     next: Ms | None = None
+    score: int | None = Field(None, ge=0, le=100)
+    tailored_resume_id: str | None = Field(None, max_length=40)
 
     @field_validator("url")
     @classmethod
