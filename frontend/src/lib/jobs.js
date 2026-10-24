@@ -30,6 +30,10 @@ export const decide = (id, sid, action) => http(`${J}/matches/${encodeURICompone
 export const writeCover = (id, body) => http(`${J}/matches/${encodeURIComponent(id)}/cover`, { method: 'POST', body, timeout: 90_000 });
 export const deleteCover = (id, cid) => http(`${J}/matches/${encodeURIComponent(id)}/cover/${encodeURIComponent(cid)}`, { method: 'DELETE' });
 
+export const makeInterview = (id, useAi = true) => http(`${J}/matches/${encodeURIComponent(id)}/interview`, { method: 'POST', body: { useAi }, timeout: 90_000 });
+export const getInterview = (id) => http(`${J}/matches/${encodeURIComponent(id)}/interview`);
+export const practise = (id, body) => http(`${J}/matches/${encodeURIComponent(id)}/interview/practice`, { method: 'POST', body, timeout: 60_000 });
+
 /** A screenshot of a job post → its text (read on the server; the picture isn't kept). */
 export async function readScreenshot(file) {
   const p = await preparePhoto(file);

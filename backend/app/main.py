@@ -28,6 +28,7 @@ from app.core.observability import RequestContext, init_sentry
 from app.downloads.router import router as downloads_router
 from app.experts.router import router as expert_router
 from app.jobsearch.cover_router import router as jobs_cover_router
+from app.jobsearch.interview_router import router as jobs_interview_router
 from app.jobsearch.router import router as jobs_router
 from app.jobsearch.tailor_router import router as jobs_tailor_router
 from app.linkedin.pack_router import router as linkedin_pack_router
@@ -169,6 +170,7 @@ def create_app() -> FastAPI:
     app.include_router(jobs_router)  # /api/me/jobs (job match, Phases 1-3)
     app.include_router(jobs_tailor_router)  # /api/me/jobs/matches/{id}/tailor
     app.include_router(jobs_cover_router)  # /api/me/jobs/matches/{id}/cover
+    app.include_router(jobs_interview_router)  # /api/me/jobs/matches/{id}/interview
     app.include_router(downloads_router)  # /api/me/entitlements, /api/me/exports
     app.include_router(orgs.me)  # before me_router: /api/me/groups
     app.include_router(org_staff.my_orgs)  # /api/me/orgs

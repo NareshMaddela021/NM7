@@ -134,6 +134,7 @@ function Tailor({ m, onScore }) {
 
 function Result({ m, acc, onChange, onBought }) {
   const me = useMe();
+  const nav = useNavigate();
   const toast = useToast();
   const [edit, setEdit] = useState(null);
   const [tailored, setTailored] = useState(null);
@@ -174,8 +175,9 @@ function Result({ m, acc, onChange, onBought }) {
       <div className="stack g8">
         {acc.tailor ? <Tailor m={m} onScore={setTailored} /> : <PackOffer kind="tailor" acc={acc} onBought={onBought} why="Want a copy of your resume tailored to this job?" />}
         <JobCover m={m} acc={acc} onUsed={onBought} offer={<PackOffer kind="tailor" acc={acc} onBought={onBought} why="Come back tomorrow for another free letter, or" />} />
-        <div className="row g8">
+        <div className="row g8" style={{ flexWrap: 'wrap' }}>
           <button type="button" className="btn btn-outline" data-testid="jm-save-app" disabled={!!saved} onClick={saveApp}>{saved ? 'Saved to My applications' : 'Save to My applications'}</button>
+          <button type="button" className="btn btn-outline" data-testid="jm-interview" onClick={() => nav(`/me/interview/${m.id}`)}>Interview prep{m.interview ? ` · ${m.interview.practised} of ${m.interview.total} practised` : ''}</button>
         </div>
       </div>
     </section>

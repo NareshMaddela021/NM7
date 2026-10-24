@@ -81,6 +81,7 @@ export default function MeJobs() {
                   <span className="xs faint">{fmtDay(a.date)} · {resumeName(a.resumeId)}</span>
                   {a.score != null && <span className="xs" data-testid="app-score">Job match {a.score}/100</span>}
                   {a.tailoredResumeId && me.resumes.some((r) => r.id === a.tailoredResumeId) && <button type="button" className="link-btn xs" style={{ textAlign: 'left' }} onClick={() => { openInBuilder(a.tailoredResumeId); nav('/builder', { state: { open: 'build' } }); }}>Open the tailored copy</button>}
+                  {a.matchId && <button type="button" className="link-btn xs" style={{ textAlign: 'left' }} onClick={() => nav(`/me/interview/${a.matchId}`)}>Interview prep</button>}
                   {a.next && <span className="xs" style={{ color: 'var(--text2)' }}>Next: {fmtShort(a.next)}</span>}
                   {due(a) && <span className="row g4 xs" style={{ color: 'var(--warning)' }}>⏰ Follow up? <button type="button" className="link-btn xs" onClick={() => { setMe((s) => ({ apps: s.apps.map((x) => (x.id === a.id ? { ...x, followed: Date.now(), notes: `${x.notes ? `${x.notes}\n` : ''}Followed up ${fmtDay(Date.now())}.` } : x)) })); toast('Marked as followed up'); }}>Done</button></span>}
                   <span className="row between" style={{ marginTop: 2 }}>
