@@ -1,0 +1,20 @@
+Senior Java Developer
+Acme Fintech is hiring a Senior Java Developer for our payments platform.
+Location: Bengaluru (Hybrid)
+Experience: 4-7 years
+
+Must have:
+* Core Java, Spring Boot, Microservices
+* REST APIs, Hibernate/JPA
+* MySQL or PostgreSQL
+* Git, Jenkins, Docker
+
+Nice to have:
+* Kafka, AWS, Kubernetes
+
+Key responsibilities:
+* Design and build REST APIs for UPI payments
+* Write unit tests with JUnit and review code
+* Improve performance of high-traffic services
+
+Education: B.E/B.Tech in any discipline

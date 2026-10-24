@@ -8,13 +8,16 @@ PLANS: dict[str, tuple[str, int]] = {
     "expert": ("Expert rewrite", 999_00),
     "launch": ("Career Launch", 2999_00),
     "linkedin_pack": ("LinkedIn pack", 149_00),  # self-serve, unlocked at once (app/linkedin/pack.py)
+    # job search (app/jobsearch/access.py): self-serve, unlocked at once
+    "tailor_pack": ("Tailor pack", 49_00),  # unlimited job matches, tailored copies, AI rewrites, cover letters
+    "interview_pack": ("Interview pack", 99_00),  # the full interview prep pack and practice mode
 }
 ADDONS: dict[str, tuple[str, int]] = {
     "revision": ("Extra revision round", 199_00),
     "express": ("Express delivery (24h)", 299_00),
     "linkedin": ("LinkedIn makeover", 499_00),
 }
-SELF_SERVE = ("diy", "linkedin_pack")  # paid → done at once, no expert
+SELF_SERVE = ("diy", "linkedin_pack", "tailor_pack", "interview_pack")  # paid → done at once, no expert
 DELIVERY_HOURS = 48
 CURRENCY = "INR"
 
