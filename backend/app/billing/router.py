@@ -47,6 +47,7 @@ from app.orgs.scope import NOT_FOUND, AdminScope, OrgScope
 from app.orgs.shapes import OrgType
 from app.partners.service import REF_COOKIE, checkout_ref, partner_discount_pct
 from app.wapay.service import create_org_order as wa_create_org_order
+from app.wapay.settings import payment_mode
 
 public = APIRouter(prefix="/api/public", tags=["billing"])
 me = APIRouter(prefix="/api/me/orgs", tags=["billing"])
@@ -242,6 +243,7 @@ async def billing_page(db: DB, scope: OrgScope) -> dict[str, Any]:
         "gstOn": gst_on(b),
         "gstRatePct": int(b["gst_rate_bp"]) / 100,
         "testMode": not b["razorpay_live"],
+        "paymentMode": await payment_mode(db),  # off: "Coming soon"; whatsapp: Buy on WhatsApp; razorpay: checkout
         "orders": await _org_orders(db, o["_id"]),
         "pendingOrderId": pending["_id"] if pending else None,
         "states": [{"code": c, "name": n} for c, n in STATES.items()],

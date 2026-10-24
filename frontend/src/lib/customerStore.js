@@ -389,6 +389,8 @@ export const retentionLeft = (deliveredAt) => (deliveredAt ? Math.ceil((delivere
 const STAGES = ['Paid', 'Expert assigned', 'Intake done', 'Draft 1', 'Changes', 'Final', 'Approved'];
 /** Merges the customer's order record with the live expert order (status, drafts, deadline, chat). */
 export function orderView(o) {
+  if (o.awaiting) return { ...o, x: null, label: 'Waiting for payment confirmation', tone: 'warning', steps: [], live: false };
+  if (o.waCancelled) return { ...o, x: null, label: 'Cancelled', tone: 'neutral', steps: [], live: false };
   const x = o.linked ? findOrder(o.id) : null;
   if (o.refund && x) return { ...o, x, sent: [], label: 'Refunded', tone: 'neutral', steps: [], live: false };
   if (!x) {
@@ -436,8 +438,9 @@ export function upgradeOrder(orderId, to) {
 export function payments(s = get()) {
   const rows = [];
   s.orders.forEach((o) => {
+    if (!o.paidAt) return; // a WhatsApp order still waiting for payment
     const basePrice = o.price - (o.upgrades || []).reduce((t, u) => t + u.price, 0);
-    rows.push({ at: o.paidAt, what: `${PLANS[(o.upgrades?.[0]?.from) || o.plan].name} · ${o.id}`, amount: basePrice, method: o.method, payId: o.payId, invoice: o.invoice, orderId: o.id, kind: 'payment' });
+    rows.push({ at: o.paidAt, what: `${PLANS[(o.upgrades?.[0]?.from) || o.plan].name} · ${o.id}`, amount: basePrice, method: o.method, payId: o.payId, invoice: o.invoice || o.receipt, receipt: !o.invoice && !!o.receipt, orderId: o.id, kind: 'payment' });
     (o.upgrades || []).forEach((u) => rows.push({ at: u.at, what: `Upgrade to ${PLANS[u.to].name} · ${o.id}`, amount: u.price, method: o.method, payId: u.payId, invoice: `${o.invoice}-U`, orderId: o.id, kind: 'payment' }));
     (o.addons || []).forEach((a, i) => rows.push({ at: a.at, what: `${ADDONS[a.id].name} · ${o.id}`, amount: a.price, method: o.method, payId: a.payId, invoice: `${o.invoice}-A${i + 1}`, orderId: o.id, kind: 'payment' }));
     if (o.refund) rows.push({ at: o.refund.at, what: `Refund · ${o.id} · ${o.refund.reason}`, amount: -o.refund.amount, method: o.method, payId: o.refund.ref, orderId: o.id, kind: 'refund', done: o.refund.done });

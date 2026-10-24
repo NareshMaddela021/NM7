@@ -28,9 +28,10 @@ export function orderFromApi(o, resumeId) {
   const declined = !done && !review ? refunds.find((r) => r.status === 'rejected') : null;
   return {
     id: o.id, plan: o.plan, price: (plan?.amount ?? o.amount) / 100, paidAt, method: o.paymentMethod ? o.paymentMethod.toUpperCase() === 'UPI' ? 'UPI' : o.paymentMethod[0].toUpperCase() + o.paymentMethod.slice(1) : '—',
-    payId: o.paymentId || '', invoice: o.invoiceNo || '',
+    payId: o.paymentId || '', invoice: o.invoiceNo || '', receipt: o.receiptNo || '', // receipt: paid on WhatsApp before a GST invoice could be made
+    ...(o.method === 'whatsapp' ? { wa: true, createdAt: ts(o.createdAt), awaiting: o.status === 'awaiting_payment', waCancelled: o.status === 'cancelled' } : {}),
     addons: o.items.filter((i) => i.kind === 'addon').map((i) => ({ id: i.code, price: i.amount / 100, at: paidAt, payId: o.paymentId || '' })),
-    linked: !['diy', 'linkedin_pack'].includes(o.plan), resumeId, // self-serve plans have no expert order serverStatus: o.status,
+    linked: !!paidAt && !['diy', 'linkedin_pack'].includes(o.plan), resumeId, // self-serve plans have no expert order serverStatus: o.status,
     status: o.status === 'refunded' || done ? 'refunded' : o.status === 'done' ? 'done' : undefined,
     ...(done ? { refund: { amount: done.amount / 100, reason: done.reason === 'late' ? 'Late delivery — automatic refund' : done.reason === 'cancel' ? 'Cancelled before an expert started' : 'Refund approved after review', at: ts(done.createdAt), done: ts(done.processedAt), ref: done.id } } : {}),
     ...(review ? { refundRequest: { status: 'review', reason: review.reason, at: ts(review.createdAt), ref: review.id } } : {}),
@@ -49,7 +50,8 @@ export async function fetchState() {
   return {
     loading: false, error: null,
     account: { name: p.name, email: p.email, phone: p.phone || '', targetRole: p.targetRole, cities: p.cities, level: p.level, notify: withDefaults(p.notify), joined: p.joined, referralCode: p.referralCode },
-    orders: orders.filter((o) => o.paidAt).map((o) => orderFromApi(o, active?.id)),
+    // paid orders, plus WhatsApp orders still waiting for payment (or cancelled unpaid) so My orders can show them
+    orders: orders.filter((o) => o.paidAt || (o.method === 'whatsapp' && ['awaiting_payment', 'cancelled'].includes(o.status))).map((o) => orderFromApi(o, active?.id)),
     resumes: s.resumes,
     checks: s.checks,
     covers: s.covers,

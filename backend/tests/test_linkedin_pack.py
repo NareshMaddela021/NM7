@@ -50,6 +50,7 @@ async def test_payments_off_nothing_on_sale_and_no_order(customer, payments_off)
         "paymentsOn": False,
         "onSale": False,
         "price": 149,
+        "mode": "off",
     }
     r = await customer.post("/api/orders", json={"planId": "linkedin_pack", "role": None, "addons": []})
     assert r.status_code == 503

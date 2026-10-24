@@ -6,6 +6,7 @@ import { Dialog, Spinner, useToast } from './ui';
 import { closeGate, onGate, rememberDownload } from '../lib/downloads';
 import { createOrder, pay } from '../services/api';
 import { reloadMe } from '../lib/customerStore';
+import { BUY_WA, WA_PAY_TEXT, buyOnWhatsApp, usePayMode } from '../lib/waPay';
 
 const rs = (n) => `Rs ${Number(n).toLocaleString('en-IN')}`;
 
@@ -37,7 +38,14 @@ function UnlockGate({ g }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   const price = g.price ?? 99;
+  const pm = usePayMode();
+  const wa = pm?.mode === 'whatsapp';
   const unlock = async () => {
+    if (wa) {
+      setBusy(true); setErr('');
+      try { await buyOnWhatsApp({ planId: 'diy' }); closeGate(); reloadMe(); } catch (e) { setErr(e.message || 'Something went wrong. Please try again.'); setBusy(false); }
+      return;
+    }
     setBusy(true); setErr('');
     try {
       const order = await createOrder({ planId: 'diy' }); // the server sets the price
@@ -62,10 +70,10 @@ function UnlockGate({ g }) {
       </ul>
       {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
       <div className="stack g8">
-        <button type="button" className="btn btn-ink btn-lg" onClick={unlock} disabled={busy} aria-busy={busy}>{busy && <Spinner />}{busy ? 'Waiting for your payment…' : `Pay ${rs(price)}`}</button>
+        <button type="button" className="btn btn-ink btn-lg" onClick={unlock} disabled={busy || !pm} aria-busy={busy}>{busy && <Spinner />}{wa ? (busy ? 'Opening WhatsApp…' : BUY_WA) : busy ? 'Waiting for your payment…' : `Pay ${rs(price)}`}</button>
         <button type="button" className="btn btn-outline" onClick={closeGate} disabled={busy}>Not now</button>
       </div>
-      <span className="xs faint" style={{ textAlign: 'center' }}>UPI, card or netbanking · GST invoice emailed</span>
+      <span className="xs faint" style={{ textAlign: 'center' }}>{wa ? WA_PAY_TEXT : 'UPI, card or netbanking · GST invoice emailed'}</span>
     </Dialog>
   );
 }

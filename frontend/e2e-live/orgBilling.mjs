@@ -33,6 +33,11 @@ export async function startFreeOrg(page, owner, name = 'Sri Venkateswara College
 }
 
 export async function buyDrive(page, request, owner, orgId, ref = null) {
+  // Razorpay mode for this page (the test API has no Razorpay keys, so its payment mode is Off)
+  await page.route(`${API}/api/org/${orgId}/billing`, async (r) => {
+    const res = await r.fetch();
+    await r.fulfill({ response: res, json: { ...(await res.json()), paymentMode: 'razorpay' } });
+  });
   await page.getByRole('link', { name: 'Billing' }).click();
   await expect(page.getByText('Free plan', { exact: true })).toBeVisible();
   await page.getByLabel('Legal name').fill('Sri Venkateswara College Trust');

@@ -257,6 +257,37 @@ async def test_career_launch_paid_on_whatsapp_includes_the_pack(customer, whatsa
     assert await owned(customer) is True
 
 
+async def test_add_on_for_a_paid_order_opens_the_chat_only(customer, whatsapp, owner, client, outbox):
+    e = await order(customer, plan="expert", role="Data Analyst")
+    url = f"/api/orders/{e['orderId']}/whatsapp-addon"
+    r = await customer.post(url, json={"item": "express"})
+    assert r.status_code == 404  # not paid yet
+    await paid(owner, e["orderId"], reference="UTR-ADD-1", amount=999_00)
+    r = await customer.post(url, json={"item": "express"})
+    assert r.status_code == 200, r.text
+    text = parse_qs(urlparse(r.json()["waUrl"]).query)["text"][0]
+    assert text.startswith("Hi Nm7, I want to add Express delivery") and text.endswith(f"to order {e['orderId']}.")
+    r = await customer.post(url, json={"item": "upgrade:launch"})
+    assert "Upgrade to Career Launch (Rs 2,000)" in r.json()["message"]
+    assert (await customer.post(url, json={"item": "upgrade:diy"})).status_code == 400
+    assert (await customer.post(url, json={"item": "nothing"})).status_code == 400
+    # another customer's order: not found
+    await signup(client, outbox, email="other-addon@example.com")
+    assert (await client.post(url, json={"item": "express"})).status_code == 404
+
+
+async def test_pages_know_the_mode(customer, owner, owner_org):  # noqa: F811
+    assert (await customer.get("/api/me/linkedin/pack/status")).json()["mode"] == "razorpay"
+    c, _, org_id = owner_org
+    assert (await c.get(f"/api/org/{org_id}/billing")).json()["paymentMode"] == "razorpay"
+    await owner.put("/api/admin/payment-settings", json={"mode": "whatsapp", "whatsappNumber": NUMBER})
+    assert (await customer.get("/api/me/linkedin/pack/status")).json()["mode"] == "whatsapp"
+    assert (await c.get(f"/api/org/{org_id}/billing")).json()["paymentMode"] == "whatsapp"
+    await owner.put("/api/admin/payment-settings", json={"mode": "off", "whatsappNumber": NUMBER})
+    st = (await customer.get("/api/me/linkedin/pack/status")).json()
+    assert st["mode"] == "off" and st["onSale"] is False
+
+
 # ---------- auto-cancel and refunds ----------
 
 

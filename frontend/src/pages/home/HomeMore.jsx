@@ -9,6 +9,7 @@ import { lazyRetry } from '../../lib/chunks';
 import { ROLE_MAX, useFlow } from '../../lib/flow';
 import { ADDONS, PLANS, PROMISES, inr } from '../../lib/pricing';
 import { track } from '../../lib/track';
+import { WA_PAY_TEXT, usePayMode } from '../../lib/waPay';
 import { ORG_FAQ, PlansSkeleton, PlansTable, useOrgPlans } from '../org/OrgPlans';
 import { EXPERT_DEMO } from './expertDemo';
 import { EXAMPLES, bulletScore, improveBullet } from './lineFixer';
@@ -287,6 +288,7 @@ const FEATURES = [
   ['1:1 mentor call (30 min)', false, false, true],
 ];
 function Pricing({ goPlan }) {
+  const pm = usePayMode();
   const [table, setTable] = useState(false);
   const plans = [
     ['diy', 'Fix it yourself', 'For confident editors', ['Every template, PDF & Word export', 'AI line fixes and live ATS score', 'Cover letters and share link'], 'Start building'],
@@ -299,6 +301,7 @@ function Pricing({ goPlan }) {
         <span className="h-eyebrow">Pricing for job seekers · GST included</span>
         <h2 id="pricing-h" className="h-sec-title">Free to build. Pay only for what you need.</h2>
         <p className="small muted" style={{ margin: 0 }}>Building is free. A free account is needed to download.</p>
+        {pm?.mode === 'whatsapp' && <p className="small" style={{ margin: 0 }} data-testid="home-wa-pay">{WA_PAY_TEXT}</p>}
       </div>
       <div className="h-plans">
         {plans.map(([k, name, tag, items, cta]) => (

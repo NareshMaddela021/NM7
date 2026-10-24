@@ -410,6 +410,16 @@ Admin → Settings → Payments chooses how Nm7 takes money (`backend/app/wapay/
   (NM7R/…) and no GST invoice.
 - Reports: money in by method (WhatsApp / Razorpay), pending / paid / cancelled, and a CSV (order, customer, item,
   amount, method, UTR, date): `GET /api/admin/whatsapp/report(.csv)`.
+- In the site (`frontend/src/lib/waPay.js`): the download unlock, checkout (Expert rewrite / Career Launch), the
+  LinkedIn pack, Upgrade & add-ons and an organization's Billing page all read the mode. After "Buy on WhatsApp" the
+  order number and a tappable WhatsApp link are always shown (in case the app didn't open). My orders and the order
+  page say "Waiting for payment confirmation", with the safety line about the UPI ID and that delivery time starts
+  after payment is confirmed. Adding an add-on or upgrade to a paid order opens the chat with the order number and the
+  item (`POST /api/orders/{id}/whatsapp-addon`); Nm7 adds it after payment, as before.
+
+**Switching WhatsApp on:** Admin → Settings & prices → Payments → type the WhatsApp number (+91) → choose
+**WhatsApp** → optionally the reply hours and the auto-cancel hours → **Save payments**. Confirm each payment in
+Admin → WhatsApp payments → **Mark as paid**. Choose **Off** to stop taking orders.
 
 ## Nm7 for Organizations (Phase 1)
 

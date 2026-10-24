@@ -7,10 +7,11 @@ import { LIMITS, PLAN_FEATURES, gstinProblem, limitText, periodText, rupees, usa
 import { downloadFrom } from '../../lib/fileDownload';
 import { pay } from '../../services/api';
 import { http } from '../../services/http';
+import { BUY_WA, WA_PAY_TEXT, WA_SAFETY, WA_WAITING, buyOnWhatsApp } from '../../lib/waPay';
 import { Loading, day, useAction, useApi } from '../admin/live/common';
 
 const STATE = { free: ['Free', 'b-neutral'], active: ['Active', 'b-success'], grace: ['Ended — grace period', 'b-warning'], expired: ['Ended', 'b-neutral'] };
-const ORDER_STATUS = { done: 'Paid', pending_payment: 'Waiting for payment', expired: 'Not paid', refunded: 'Refunded', cancelled: 'Cancelled' };
+const ORDER_STATUS = { done: 'Paid', pending_payment: 'Waiting for payment', awaiting_payment: WA_WAITING, expired: 'Not paid', refunded: 'Refunded', cancelled: 'Cancelled' };
 
 function Usage({ s }) {
   return (
@@ -58,7 +59,7 @@ function Details({ data, onSaved }) {
   );
 }
 
-function Buy({ data, plan, onPaid, refCode }) {
+function Buy({ data, plan, onPaid, onOrdered, refCode }) {
   const [q, setQ] = useState(null);
   const [st, setSt] = useState({});
   const [code, setCode] = useState(null); // typed partner code; null = the remembered one (partner link)
@@ -71,8 +72,13 @@ function Buy({ data, plan, onPaid, refCode }) {
     try { setQ(await http(`/api/org/${data.orgId}/billing/quote?plan=${plan.id}${ref ? `&ref=${encodeURIComponent(ref)}` : ''}`)); setSt({}); } catch (err) { setSt({ error: err.message }); }
   };
   const open = () => quote(typed);
+  const mode = data.paymentMode || 'razorpay';
   const go = async () => {
     setSt({ busy: true });
+    if (mode === 'whatsapp') {
+      try { await buyOnWhatsApp({ planId: plan.id, refCode: typed || null }, `/api/org/${data.orgId}/billing/whatsapp`, { orderLink: false }); setSt({}); setQ(null); onOrdered(); } catch (err) { setSt({ error: err.message }); }
+      return;
+    }
     try {
       const order = await http(`/api/org/${data.orgId}/billing/checkout`, { method: 'POST', body: { planId: plan.id, refCode: typed || null } });
       await pay(order);
@@ -103,9 +109,12 @@ function Buy({ data, plan, onPaid, refCode }) {
           )}
           {q.partnerCode && <span className="xs muted">Referred by partner <span className="mono">{q.partnerCode}</span>.</span>}
           <div className="row g8" style={{ marginTop: 6 }}>
-            <button type="button" className="btn btn-ink" disabled={st.busy || st.waiting} onClick={go}>{st.busy ? 'Opening…' : `Pay ${rupees(q.total)}`}</button>
+            {mode === 'off' ? <button type="button" className="btn btn-outline" disabled data-testid="org-pay-soon">Coming soon</button>
+              : <button type="button" className="btn btn-ink" disabled={st.busy || st.waiting} onClick={go}>{st.busy ? 'Opening…' : mode === 'whatsapp' ? `${BUY_WA} · ${rupees(q.total)}` : `Pay ${rupees(q.total)}`}</button>}
             <button type="button" className="btn btn-outline" onClick={() => setQ(null)}>Cancel</button>
           </div>
+          {mode === 'whatsapp' && <span className="xs muted">{WA_PAY_TEXT} {WA_SAFETY}</span>}
+          {mode === 'off' && <span className="xs muted">Online payment opens soon. To buy now, use “Talk to us” on nm7.si/for-orgs.</span>}
           {renew && <span className="xs muted">Renewing continues from the day after your current plan ends.</span>}
           {!renew && s.state === 'active' && <span className="xs muted">A new plan starts today and replaces the current one.</span>}
         </div>
@@ -188,7 +197,7 @@ export default function Billing({ orgId }) {
           <section className="stack g8" aria-label="Plans">
             <strong>{s.state === 'free' ? 'Upgrade' : 'Renew or change plan'}</strong>
             <div className="row g12" style={{ flexWrap: 'wrap', alignItems: 'stretch' }}>
-              {data.plans.map((p) => <Buy key={p.id} data={data} plan={p} onPaid={startWaiting} refCode={refCode} />)}
+              {data.plans.map((p) => <Buy key={p.id} data={data} plan={p} onPaid={startWaiting} onOrdered={st.reload} refCode={refCode} />)}
             </div>
             <span className="xs muted">{data.gstOn ? `GST (${data.gstRatePct}%) is added at checkout. ` : ''}Paying by bank transfer or purchase order? Use “Talk to us” on nm7.si/for-orgs and we’ll send a proforma invoice.</span>
           </section>
