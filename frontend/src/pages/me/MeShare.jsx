@@ -35,7 +35,7 @@ export default function MeShare() {
     <>
       <MeHead title="Share link" sub="One link that always shows your latest resume — for WhatsApp, emails and your LinkedIn." />
       <section className="card stack g16">
-        <label className="row between g12" style={{ cursor: 'pointer' }}>
+        <label className="row g12" style={{ cursor: 'pointer' }}>
           <span className="stack"><strong>Link is {sh.on ? 'on' : 'off'}</strong><span className="small muted">{sh.on ? 'Anyone with the link can view and download your resume.' : 'Nobody can open the link right now.'}</span></span>
           <input type="checkbox" role="switch" checked={sh.on} disabled={busy} onChange={(e) => set({ on: e.target.checked, slug: sh.slug || slug }, e.target.checked ? 'Link turned on' : 'Link turned off')} style={{ width: 22, height: 22 }} />
         </label>
@@ -49,7 +49,7 @@ export default function MeShare() {
             </form>
             <div className="row g12">
               <div className="field" style={{ flex: '1 1 220px' }}><label htmlFor="sr" className="label">Resume shown</label><select id="sr" className="input" style={{ height: 42 }} value={sh.resumeId || me.resumes.find((r) => r.active)?.id || ''} disabled={busy} onChange={(e) => set({ resumeId: e.target.value })}>{me.resumes.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}</select></div>
-              <label className="row g8 small" style={{ flex: '1 1 220px', alignSelf: 'flex-end', minHeight: 42 }}><input type="checkbox" checked={!!sh.hidePhone} disabled={busy} onChange={(e) => set({ hidePhone: e.target.checked })} />Hide my phone number on the link</label>
+              <label className="row g8 small" style={{ alignSelf: 'flex-end', minHeight: 42 }}><input type="checkbox" checked={!!sh.hidePhone} disabled={busy} onChange={(e) => set({ hidePhone: e.target.checked })} />Hide my phone number on the link</label>
             </div>
           </>
         )}
