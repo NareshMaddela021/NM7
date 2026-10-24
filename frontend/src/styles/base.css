@@ -97,6 +97,11 @@ textarea.input { height: auto; padding: 12px 14px; line-height: 1.55; resize: ve
 .error { font-size: 14px; color: var(--danger); }
 .check { display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: 15px; cursor: pointer; }
 .check input { width: 18px; height: 18px; margin: 0; accent-color: var(--ink); }
+/* A checkbox or switch is clickable only on the box and its own text: its label is as wide as its content (still at
+   least 44 px tall), so a click in the empty space beside it does nothing. Two rules, so a browser without :has()
+   still applies the first. .option tiles are whole clickable cards on purpose. */
+.check { width: fit-content; max-width: 100%; }
+label:has(> input[type="checkbox"]):not(.option) { width: fit-content; max-width: 100%; flex-grow: 0; min-height: 44px; }
 .option {
   display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 14px;
   border: 1px solid var(--border); cursor: pointer; background: transparent; text-align: left; width: 100%;
