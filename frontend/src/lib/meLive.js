@@ -172,7 +172,11 @@ function syncList(prev, next, path, toBody, { patchable = true } = {}) {
 }
 
 const coverBody = (c, patch) => ({ ...(patch ? {} : { id: c.id }), company: c.company || '', role: c.role || '', resumeId: c.resumeId || null, jd: c.jd || '', body: c.body || '' });
-const appBody = (x, patch) => ({ ...(patch ? {} : { id: x.id }), company: x.company || 'Company', role: x.role || '', status: x.status, date: x.date || null, resumeId: x.resumeId || null, url: x.url || '', notes: x.notes || '', next: x.next || null });
+// an application from a job match also carries the match, its score and the tailored copy (only sent when present)
+const appBody = (x, patch) => ({
+  ...(patch ? {} : { id: x.id, ...(x.matchId ? { matchId: x.matchId } : {}) }), company: x.company || 'Company', role: x.role || '', status: x.status, date: x.date || null, resumeId: x.resumeId || null, url: x.url || '', notes: x.notes || '', next: x.next || null,
+  ...(x.score != null ? { score: x.score } : {}), ...(x.tailoredResumeId ? { tailoredResumeId: x.tailoredResumeId } : {}),
+});
 
 /** Called after every change to the store (prev → next). Returns a promise for new support tickets. */
 export function persist(prev, next) {

@@ -1,7 +1,8 @@
 // Application tracker: Saved → Applied → Interview → Offer → Rejected, with follow-up reminders and simple stats.
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Dialog, useToast } from '../../components/ui';
-import { useMe, setMe, newId, APP_STAGES } from '../../lib/customerStore';
+import { useMe, setMe, newId, APP_STAGES, openInBuilder } from '../../lib/customerStore';
 import { BarChart, Kpi } from '../admin/AdminUI';
 import { MeHead } from './MeLayout';
 import { fmtShort, fmtDay } from './shared';
@@ -48,6 +49,7 @@ function AppForm({ app, resumes, onSave, onDelete, onClose }) {
 export default function MeJobs() {
   const me = useMe();
   const toast = useToast();
+  const nav = useNavigate();
   const [edit, setEdit] = useState(null);
   const apps = me.apps;
   const move = (a, dir) => { const i = APP_STAGES.findIndex(([k]) => k === a.status); const n = APP_STAGES[Math.min(APP_STAGES.length - 1, Math.max(0, i + dir))][0]; setMe((s) => ({ apps: s.apps.map((x) => (x.id === a.id ? { ...x, status: n } : x)) })); };
@@ -59,7 +61,7 @@ export default function MeJobs() {
 
   return (
     <>
-      <MeHead title="Applications" sub="Track every job you apply to and which resume you sent." right={<button type="button" className="btn btn-ink" onClick={() => setEdit({})}>Add application</button>} />
+      <MeHead title="Applications" sub="Track every job you apply to and which resume you sent. Job matches you save land here with their score." right={<button type="button" className="btn btn-ink" onClick={() => setEdit({})}>Add application</button>} />
       <div className="kpis">
         <Kpi label="Applied" value={sent.length} sub="excluding saved" />
         <Kpi label="Interview rate" value={sent.length ? `${Math.round((iv / sent.length) * 100)}%` : '—'} sub={`${iv} reached interview or offer`} />
@@ -77,6 +79,8 @@ export default function MeJobs() {
                   <span className="xs">{a.role}</span>
                   {webLink(a.url) && <a className="xs" href={webLink(a.url)} target="_blank" rel="noopener noreferrer" style={{ overflowWrap: 'anywhere' }}>Job post ↗<span className="sr-only"> for {a.company} (opens in a new tab)</span></a>}
                   <span className="xs faint">{fmtDay(a.date)} · {resumeName(a.resumeId)}</span>
+                  {a.score != null && <span className="xs" data-testid="app-score">Job match {a.score}/100</span>}
+                  {a.tailoredResumeId && me.resumes.some((r) => r.id === a.tailoredResumeId) && <button type="button" className="link-btn xs" style={{ textAlign: 'left' }} onClick={() => { openInBuilder(a.tailoredResumeId); nav('/builder', { state: { open: 'build' } }); }}>Open the tailored copy</button>}
                   {a.next && <span className="xs" style={{ color: 'var(--text2)' }}>Next: {fmtShort(a.next)}</span>}
                   {due(a) && <span className="row g4 xs" style={{ color: 'var(--warning)' }}>⏰ Follow up? <button type="button" className="link-btn xs" onClick={() => { setMe((s) => ({ apps: s.apps.map((x) => (x.id === a.id ? { ...x, followed: Date.now(), notes: `${x.notes ? `${x.notes}\n` : ''}Followed up ${fmtDay(Date.now())}.` } : x)) })); toast('Marked as followed up'); }}>Done</button></span>}
                   <span className="row between" style={{ marginTop: 2 }}>
