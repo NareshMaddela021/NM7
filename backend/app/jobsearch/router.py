@@ -97,6 +97,8 @@ def match_out(d: dict[str, Any], full: bool = True) -> dict[str, Any]:
             "soft": r.get("soft", []),
             "fixes": r.get("fixes", []),
             "note": d.get("note") or "",
+            "covers": d.get("covers") or [],
+            "interview": d.get("interview"),
         }
     return out
 

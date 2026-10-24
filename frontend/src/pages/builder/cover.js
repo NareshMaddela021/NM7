@@ -78,7 +78,7 @@ export function coverParts(d, c) {
     subject: c.subject !== false && c.role ? `Subject: Application for the ${c.role} position` : '',
     greeting: `Dear ${c.manager ? c.manager.trim() : 'Hiring Manager'},`,
     body: (c.body || '').split(/\n\s*\n/).map((p) => p.replace(/\s*\n\s*/g, ' ').trim()).filter(Boolean),
-    close: 'Yours sincerely,',
+    close: c.close || 'Yours sincerely,',
     name,
   };
 }

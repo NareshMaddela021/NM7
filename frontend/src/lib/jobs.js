@@ -27,6 +27,9 @@ export const startTailor = (id, useAi = true) => http(`${J}/matches/${encodeURIC
 export const getTailor = (id) => http(`${J}/matches/${encodeURIComponent(id)}/tailor`);
 export const decide = (id, sid, action) => http(`${J}/matches/${encodeURIComponent(id)}/suggestions/${encodeURIComponent(sid)}`, { method: 'POST', body: { action } });
 
+export const writeCover = (id, body) => http(`${J}/matches/${encodeURIComponent(id)}/cover`, { method: 'POST', body, timeout: 90_000 });
+export const deleteCover = (id, cid) => http(`${J}/matches/${encodeURIComponent(id)}/cover/${encodeURIComponent(cid)}`, { method: 'DELETE' });
+
 /** A screenshot of a job post → its text (read on the server; the picture isn't kept). */
 export async function readScreenshot(file) {
   const p = await preparePhoto(file);

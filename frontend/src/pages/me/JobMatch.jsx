@@ -10,6 +10,7 @@ import { BUY_WA, WA_PAY_TEXT } from '../../lib/waPay';
 import { inr } from '../../lib/pricing';
 import { PACKS, STATUS_TEXT, VERDICT_TONE, buyPack, decide, getMatch, getTailor, jobAccess, listMatches, matchJob, patchMatch, readPdfText, readScreenshot, startTailor } from '../../lib/jobs';
 import { fmtDay } from './shared';
+import JobCover from './JobCover';
 
 const KIND_LABEL = { tech: 'Skill', tool: 'Tool', cert: 'Certification', lang: 'Language' };
 
@@ -172,6 +173,7 @@ function Result({ m, acc, onChange, onBought }) {
       </div>
       <div className="stack g8">
         {acc.tailor ? <Tailor m={m} onScore={setTailored} /> : <PackOffer kind="tailor" acc={acc} onBought={onBought} why="Want a copy of your resume tailored to this job?" />}
+        <JobCover m={m} acc={acc} onUsed={onBought} offer={<PackOffer kind="tailor" acc={acc} onBought={onBought} why="Come back tomorrow for another free letter, or" />} />
         <div className="row g8">
           <button type="button" className="btn btn-outline" data-testid="jm-save-app" disabled={!!saved} onClick={saveApp}>{saved ? 'Saved to My applications' : 'Save to My applications'}</button>
         </div>

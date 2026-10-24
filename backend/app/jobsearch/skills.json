@@ -4114,7 +4114,7 @@
 "k":"tech",
 "s":[
 "lathe machine operation",
-"turning"
+"lathe turning"
 ]
 },
 {
@@ -7186,8 +7186,8 @@
 "n":"Charts and graphs",
 "k":"tech",
 "s":[
-"charts",
-"graphs"
+"charts and graphs",
+"data charts"
 ]
 },
 {

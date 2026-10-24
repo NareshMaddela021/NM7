@@ -181,6 +181,7 @@ label:has(> input[type="checkbox"]):not(.option) { width: fit-content; max-width
 .logo { display: inline-flex; align-items: baseline; gap: 8px; min-height: 44px; align-items: center; text-decoration: none; color: var(--text); }
 .logo b { font-family: var(--font-display); font-weight: 800; font-size: 25px; letter-spacing: -0.045em; line-height: 1; }
 .logo mark { background: var(--signal); color: var(--signalink); padding: 0 .08em; margin-left: .02em; border-radius: .06em; }
+mark.fact { background: color-mix(in srgb, var(--signal) 38%, transparent); color: inherit; padding: 0 .1em; border-radius: 3px; }
 .nav { display: flex; flex-wrap: wrap; gap: 2px; }
 .nav a { padding: 12px; color: var(--text2); text-decoration: none; font-weight: 500; font-size: 15px; border-radius: 8px; }
 .nav a:hover { color: var(--text); }

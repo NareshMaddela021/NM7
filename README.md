@@ -448,6 +448,13 @@ deletion).
   relevant projects first. Every AI line passes the fact check (`facts.py`: no number, skill, certificate, degree or
   name that isn't on the resume) or the rules version is offered instead. The copy is scored again as suggestions
   are accepted. Applications in My applications can carry the match, its score and the tailored copy.
+- **Write cover letter** (`cover.py`, from the match screen): short email (80-120 words), standard (200-250) or
+  formal; tones for a fresher, experienced, a career switch or returning after a break. Why this role, 2-3 proofs
+  taken from the person's own bullets, projects or certificates (marked on the page), and a call to action.
+  "[Hiring Manager]" stays with a reminder when the name isn't known. PDF and Word use the resume's template; copy as
+  an email with a subject line; a cold email / LinkedIn message under 300 characters. AI letters pass the same fact
+  check and the length check, or the rules letter is used (rules letters run a little shorter than the AI target).
+  Letters are saved with the job. Free: 1 a day; unlimited with the Tailor pack.
 
 ## Nm7 for Organizations (Phase 1)
 
