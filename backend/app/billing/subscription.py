@@ -87,6 +87,7 @@ def plan_features(o: dict[str, Any] | None, today: date | None = None) -> dict[s
         "recruiter_links": bool(f.get("recruiter_links")),
         "members_download_free": bool(f.get("members_download_free")),
         "placement_insights": later("placement_insights"),
+        "template_rules": later("template_rules"),
     }
 
 

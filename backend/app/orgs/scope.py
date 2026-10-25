@@ -69,7 +69,7 @@ ACTION_TEXT = {
 
 # Per-organization features. Phase 4: the plan in effect decides them (app/billing/subscription.py); a switch the
 # admin sets on the organization (True / False) overrides the plan, and an unset switch follows the plan.
-FEATURES = ("kiosk", "branding", "recruiter_links", "members_download_free", "placement_insights")
+FEATURES = ("kiosk", "branding", "recruiter_links", "members_download_free", "placement_insights", "template_rules")
 
 
 def features_of(o: dict[str, Any] | None) -> dict[str, bool]:

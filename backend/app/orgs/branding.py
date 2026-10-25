@@ -4,6 +4,13 @@ line and one ATS-safe base template. A group with "Print with organization templ
 entries stay hidden) in the base template, with the logo and colour in the header only. The member's own resume and
 downloads never change.
 
+Official placement template (colleges, Phase 2): the same branding also holds the college's placement format: the
+college name, a header style (logo left + name, or logo centred), the footer (page numbers are added), 1-3 allowed
+base templates out of all 19 (one on Drive; a member's own template is used when it is allowed, else the first), and
+on Campus (`template_rules`) the section order (required sections first), required sections (and CGPA), allowed
+optional sections, a page limit, photo yes / no and roll number shown / hidden. Only the layout changes: the content,
+and which sections the member switched on or off, never do. Unmet rules are shown to the member as a checklist.
+
 Staff:  GET /api/org/{org_id}/branding (everyone on the team), PUT …/branding (coordinators and Nm7),
         PUT …/branding/logo, DELETE …/branding/logo. Needs the organization's `branding` feature (else 404).
 
@@ -37,15 +44,44 @@ router = APIRouter(prefix="/api/org/{org_id}/branding", tags=["branding"])
 MAX_LOGO = 300 * 1024
 BASE_TEMPLATES = ("fresher", "campus", "starter", "work", "classic", "formal", "care")  # single-column, ATS-safe
 Template = Literal["fresher", "campus", "starter", "work", "classic", "formal", "care"]
+ALL_TEMPLATES = (
+    "fresher", "campus", "starter", "work", "kio", "classic", "formal", "modern", "stack", "mono", "compact", "impact",
+    "executive", "accent", "twocol", "sidebar", "care", "academic", "portrait",
+)  # fmt: skip
+AnyTemplate = Literal[
+    "fresher", "campus", "starter", "work", "kio", "classic", "formal", "modern", "stack", "mono", "compact", "impact",
+    "executive", "accent", "twocol", "sidebar", "care", "academic", "portrait",
+]  # fmt: skip
+SECTIONS = ("summary", "exp", "proj", "edu", "skills", "certs", "ach", "langs", "hobbies", "strengths", "pinfo", "decl")
+Section = Literal["summary", "exp", "proj", "edu", "skills", "certs", "ach", "langs", "hobbies", "strengths", "pinfo",
+                  "decl"]  # fmt: skip
 COLOR = r"^#[0-9A-Fa-f]{6}$"
 EDIT_RULES = [(60, timedelta(hours=1))]
 
 
+class RulesIn(CamelModel):
+    """Campus: the college's rules for the placement format (layout only; content is never changed)."""
+
+    order: list[Section] = Field(default_factory=list, max_length=12)  # sections in this order first, then the rest
+    required: list[Section] = Field(default_factory=list, max_length=12)  # must have content (checklist)
+    require_cgpa: bool = False  # education must show a CGPA / percentage (checklist)
+    optional: list[Section] | None = Field(None, max_length=12)  # other sections allowed; None = any
+    max_pages: Literal[1, 2] | None = None
+    photo: bool = False  # a photo may print
+    show_roll: bool = False  # the roll number prints in the header strip
+
+
 class BrandingIn(CamelModel):
     color: str = Field("#1F3A8A", pattern=COLOR)
-    header: str = Field("", max_length=90)
+    header: str = Field("", max_length=90)  # the placement cell line, e.g. "Training & Placement Cell"
     footer: str = Field("", max_length=120)
     template: Template = "fresher"
+    # placement template (None: keep what is stored)
+    college_name: str | None = Field(None, max_length=90)
+    header_style: Literal["left", "center"] | None = None
+    templates: list[AnyTemplate] | None = Field(None, min_length=1, max_length=3)
+    rules: RulesIn | None = None
+    clear_rules: bool = False
 
 
 class LogoIn(CamelModel):
@@ -142,14 +178,42 @@ def check_logo(data_url: str) -> tuple[str, bytes]:
 
 
 # ---------- what exports use ----------
+def _templates(b: dict[str, Any], rules_on: bool) -> list[str]:
+    ts = [t for t in b.get("templates") or [] if t in ALL_TEMPLATES]
+    if not ts:
+        ts = [b["template"] if b.get("template") in ALL_TEMPLATES else "fresher"]
+    return ts[: 3 if rules_on else 1]
+
+
+def rules_out(r: dict[str, Any] | None) -> dict[str, Any] | None:
+    if not r:
+        return None
+    return {
+        "order": [x for x in r.get("order") or [] if x in SECTIONS],
+        "required": [x for x in r.get("required") or [] if x in SECTIONS],
+        "requireCgpa": bool(r.get("require_cgpa")),
+        "optional": None if r.get("optional") is None else [x for x in r["optional"] if x in SECTIONS],
+        "maxPages": r.get("max_pages"),
+        "photo": bool(r.get("photo")),
+        "showRoll": bool(r.get("show_roll")),
+    }
+
+
 def brand_out(o: dict[str, Any]) -> dict[str, Any]:
     b = o.get("branding") or {}
     logo = b.get("logo")
+    rules_on = features_of(o)["template_rules"]
+    templates = _templates(b, rules_on)
     return {
         "color": b.get("color") or "#1F3A8A",
         "header": b.get("header") or "",
         "footer": b.get("footer") or "",
-        "template": b.get("template") if b.get("template") in BASE_TEMPLATES else "fresher",
+        "template": templates[0],
+        "templates": templates,
+        "collegeName": b.get("college_name") or "",
+        "headerStyle": b.get("header_style") or "left",
+        "rules": rules_out(b.get("rules")) if rules_on else None,
+        "rulesAllowed": rules_on,
         "logo": f"data:{logo['mime']};base64,{logo['data']}" if logo else None,
         "updatedAt": int(b["updated_at"].timestamp() * 1000) if b.get("updated_at") else None,
     }
@@ -203,15 +267,42 @@ async def set_branding(body: BrandingIn, request: Request, db: DB, scope: OrgSco
     o = await _org(db, scope)
     scope.require("manage")
     await _limit(db, scope)
-    sets = {
+    rules_on = features_of(o)["template_rules"]
+    if (body.rules is not None or (body.templates and len(body.templates) > 1)) and not rules_on:
+        raise ApiError(
+            402,
+            "plan_feature",
+            "More than one template, section order and college rules are in the Campus plan. "
+            "Ask your Owner to upgrade (Organization → Billing).",
+        )
+    sets: dict[str, Any] = {
         "branding.color": body.color.upper(),
         "branding.header": " ".join(body.header.split()),
         "branding.footer": " ".join(body.footer.split()),
         "branding.template": body.template,
         "branding.updated_at": now(),
     }
+    if body.college_name is not None:
+        sets["branding.college_name"] = " ".join(body.college_name.split())
+    if body.header_style is not None:
+        sets["branding.header_style"] = body.header_style
+    if body.templates is not None:
+        sets["branding.templates"] = list(dict.fromkeys(body.templates))
+        sets["branding.template"] = body.templates[0] if body.templates[0] in BASE_TEMPLATES else body.template
+    if body.rules is not None:
+        r = body.rules.model_dump()
+        r["order"] = list(dict.fromkeys(r["order"]))
+        r["required"] = list(dict.fromkeys(r["required"]))
+        sets["branding.rules"] = r
+    elif body.clear_rules:
+        sets["branding.rules"] = None
     await db[ORGANIZATIONS].update_one({"_id": o["_id"]}, {"$set": sets})
-    return await _changed(db, scope, request, o["_id"], color=sets["branding.color"], template=body.template)
+    what = {"color": sets["branding.color"], "template": body.template}
+    if body.templates is not None:
+        what["templates"] = sets["branding.templates"]
+    if "branding.rules" in sets:
+        what["rules"] = "set" if sets["branding.rules"] else "cleared"
+    return await _changed(db, scope, request, o["_id"], **what)
 
 
 @router.put("/logo")
