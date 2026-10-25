@@ -195,6 +195,7 @@ class FeaturesIn(CamelModel):
     recruiter_links: bool | None = None
     members_download_free: bool | None = None
     placement_insights: bool | None = None
+    template_rules: bool | None = None
 
 
 # ---------- helpers ----------
@@ -225,6 +226,7 @@ def _features_out(o: dict[str, Any]) -> dict[str, bool]:
         "recruiterLinks": f["recruiter_links"],
         "membersDownloadFree": f["members_download_free"],
         "placementInsights": f["placement_insights"],
+        "templateRules": f["template_rules"],
     }
 
 
@@ -249,6 +251,7 @@ def overrides_out(o: dict[str, Any]) -> dict[str, bool | None]:
         "recruiterLinks": f.get("recruiter_links"),
         "membersDownloadFree": f.get("members_download_free"),
         "placementInsights": f.get("placement_insights"),
+        "templateRules": f.get("template_rules"),
     }
 
 
@@ -298,4 +301,13 @@ def membership_out(m: dict[str, Any], g: dict[str, Any] | None, o: dict[str, Any
         "remindersOptOut": bool(m.get("reminders_opt_out")),
         "shareWithRecruiters": recruiters_on(g, o),
         "recruiterOptIn": bool(m.get("recruiter_opt_in")),
+        "format": _format(g, o),  # the college's official placement format, when the group prints in it
     }
+
+
+def _format(g: dict[str, Any] | None, o: dict[str, Any] | None) -> dict[str, Any] | None:
+    from app.orgs.branding import brand_out  # (branding imports this module's neighbours)
+
+    if not (g and o and g.get("settings", {}).get("print_branded") and features_of(o)["branding"]):
+        return None
+    return brand_out(o)

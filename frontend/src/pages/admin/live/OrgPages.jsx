@@ -282,9 +282,10 @@ const FEATURES = [
   ['branding', 'Branded templates', 'The organization’s logo, colour and header on every org-side print and export.'],
   ['recruiterLinks', 'Recruiter links', 'Safe links that send chosen (opted-in) resumes to a recruiter.'],
   ['membersDownloadFree', 'Free downloads for members', 'Members of its groups download their resume without paying (the group switch must be on too).'],
+  ['templateRules', 'Placement template rules', 'Section order, required sections, page limit, photo and roll-number rules in the official placement format.'],
   ['placementInsights', 'Placement dashboard insights', 'Charts, who’s-missing lists, reminders and roll lists on Org > Dashboard (tiles are on every plan).'],
 ];
-const FEATURE_KEY = { kiosk: 'kiosk', branding: 'branding', recruiterLinks: 'recruiter_links', membersDownloadFree: 'members_download_free', placementInsights: 'placement_insights' };
+const FEATURE_KEY = { kiosk: 'kiosk', branding: 'branding', recruiterLinks: 'recruiter_links', membersDownloadFree: 'members_download_free', placementInsights: 'placement_insights', templateRules: 'template_rules' };
 const OVERRIDE = { plan: null, on: true, off: false };
 
 /** Admin → Organizations → (organization) → Features: the plan decides; Nm7 can force one on or off. */

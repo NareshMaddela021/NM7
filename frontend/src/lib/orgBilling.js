@@ -15,6 +15,7 @@ export const PLAN_FEATURES = [
   ['recruiterLinks', 'Recruiter links'],
   ['membersDownloadFree', 'Members download their resume free'],
   ['placementInsights', 'Placement dashboard: charts, who’s missing, reminders, roll list'],
+  ['templateRules', 'Placement template: section order and college rules'],
 ];
 
 /** ₹4,999 · ₹4,499.10 (paise shown only when there are any). */

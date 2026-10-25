@@ -103,6 +103,12 @@ async def _memberships(db, scope: Scope, ids: list[str]) -> list[dict[str, Any]]
     return [{"membership_id": m["_id"], "org_id": m["org_id"]} async for m in db[MEMBERSHIPS].find(q, {"org_id": 1})]
 
 
+def _branch(r: dict[str, Any]) -> str:
+    from app.orgs.placement import _branch_key
+
+    return str(r["fields"].get(_branch_key(r["field_defs"]) or "", "") or "")
+
+
 def _orgs(rows: list[dict[str, Any]]) -> list[str]:
     return sorted({r["org_id"] for r in rows})
 
@@ -324,6 +330,12 @@ def register_shared(router: APIRouter, ScopeDep) -> None:  # noqa: N803 — a de
                 "orgs": sorted({g[0] for g in groups}),
                 "groups": [f"{o} · {g}" for o, g in groups],
                 "count": len(rows),
+                # the college format's cover page: its brand (one college), the batch(es) and branch(es) printed
+                "brand": next(iter({r["group_id"] for r in rows} & set(brands)), None)
+                if len({r["org_id"] for r in rows}) == 1
+                else None,
+                "batches": sorted({g for _, g in groups}),
+                "branches": sorted({b for r in rows if (b := _branch(r))}),
             },
         }
 

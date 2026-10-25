@@ -16,7 +16,7 @@ from app.core.db import ORG_PLANS, Session
 from app.core.time import now
 
 LIMIT_KEYS = ("members", "groups", "coordinators", "kiosks")
-FEATURE_KEYS = ("branding", "recruiter_links", "members_download_free", "placement_insights")
+FEATURE_KEYS = ("branding", "recruiter_links", "members_download_free", "placement_insights", "template_rules")
 PLAN_IDS = ("free", "drive", "campus", "custom")
 
 DEFAULT_PLANS: dict[str, dict[str, Any]] = {
@@ -32,6 +32,7 @@ DEFAULT_PLANS: dict[str, dict[str, Any]] = {
             "recruiter_links": False,
             "members_download_free": False,
             "placement_insights": False,  # placement dashboard charts, missing lists, reminders, roll list
+            "template_rules": False,  # placement template: section order and rules (Campus)
         },
         "on_sale": True,
         "public": True,
@@ -49,6 +50,7 @@ DEFAULT_PLANS: dict[str, dict[str, Any]] = {
             "recruiter_links": True,
             "members_download_free": True,
             "placement_insights": True,
+            "template_rules": False,
         },
         "on_sale": True,
         "public": True,
@@ -66,6 +68,7 @@ DEFAULT_PLANS: dict[str, dict[str, Any]] = {
             "recruiter_links": True,
             "members_download_free": True,
             "placement_insights": True,
+            "template_rules": True,
         },
         "on_sale": True,
         "public": True,
@@ -83,6 +86,7 @@ DEFAULT_PLANS: dict[str, dict[str, Any]] = {
             "recruiter_links": True,
             "members_download_free": True,
             "placement_insights": True,
+            "template_rules": True,
         },
         "on_sale": False,  # never bought at checkout: the admin assigns it
         "public": True,

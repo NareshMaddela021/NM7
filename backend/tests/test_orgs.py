@@ -412,6 +412,9 @@ async def test_export_job_zip_names_batches_and_printed_status(owner, make_clien
         "orgs": ["JNTU Anantapur"],
         "groups": ["JNTU Anantapur · B.Tech 2026 placements"],
         "count": 3,
+        "brand": None,  # the group doesn't print in the college format
+        "batches": ["B.Tech 2026 placements"],
+        "branches": ["CSE", "ECE"],
     }
     batch = (
         await owner.get(f"/api/admin/shared-resumes/exports/{job['job']}/data", params={"offset": 2, "limit": 5})

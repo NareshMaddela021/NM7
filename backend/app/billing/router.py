@@ -75,6 +75,7 @@ def plan_out(p: dict[str, Any], *, full: bool = False) -> dict[str, Any]:
             "recruiterLinks": bool(p["features"].get("recruiter_links")),
             "membersDownloadFree": bool(p["features"].get("members_download_free")),
             "placementInsights": bool(p["features"].get("placement_insights")),
+            "templateRules": bool(p["features"].get("template_rules")),
         },
         "onSale": bool(p.get("on_sale")),
         "public": bool(p.get("public")),
@@ -439,6 +440,7 @@ class FeaturesIn(CamelModel):
     recruiter_links: bool = False
     members_download_free: bool = False
     placement_insights: bool = False
+    template_rules: bool = False
 
 
 class PlanIn(CamelModel):
