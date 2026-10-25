@@ -15,7 +15,7 @@ Numbers:
 - ATS: the student's own ATS check score (app/orgs/ats.py) with bands < 60 / 60-79 / 80+
 - LinkedIn-ready: the resume has a LinkedIn link, or the student's LinkedIn check scored 70 or more (only this yes / no
   is used: nothing from the LinkedIn check itself is shown to the organization)
-- shortlisted: shortlisted by at least one recruiter link of the organization
+- shortlisted: shortlisted by at least one recruiter link or invite of the organization
 
 A roll list is matched to members by email or roll number when they join (worked out each time, so a late joiner
 counts at once). ID numbers are refused in roll lists, never stored and never shown.
@@ -38,7 +38,6 @@ from app.core.db import (
     MEMBERSHIPS,
     ORG_GROUPS,
     ORGANIZATIONS,
-    RECRUITER_LINKS,
     RESUMES,
     ROLL_LISTS,
     USERS,
@@ -54,7 +53,7 @@ from app.me.service import ms
 from app.orgs import emails
 from app.orgs.ats import all_skills, ats_score, band, bullets_of, printed
 from app.orgs.scope import NOT_FOUND, Scope, features_of
-from app.orgs.service import holds_id_number, opt_out_token, roll_key
+from app.orgs.service import holds_id_number, opt_out_token, roll_key, shortlists
 from app.orgs.shapes import ACTION_RULES, GROUP_REMIND_RULES, _ip
 
 MAX_ROLL_ROWS = 5000
@@ -250,11 +249,8 @@ async def students(db, groups: list[dict[str, Any]]) -> list[dict[str, Any]]:
     linkedin = {
         d["_id"]: d async for d in db[LINKEDIN].find({"_id": {"$in": uids}}, {"url": 1, "result.score": 1})
     }  # only these two fields: nothing else from the LinkedIn record is read
-    shortlisted: dict[str, list[str]] = {}
-    org_ids = list({g["org_id"] for g in groups})
-    async for link in db[RECRUITER_LINKS].find({"org_id": {"$in": org_ids}, "shortlist": {"$ne": {}}}):
-        for mid in link.get("shortlist") or {}:
-            shortlisted.setdefault(mid, []).append(link["company"])
+    by = await shortlists(db, list({g["org_id"] for g in groups}))
+    shortlisted = {mid: sorted({x["company"] for x in xs}) for mid, xs in by.items()}
     out = []
     for m in mems:
         u, g = users.get(m["user_id"]), gmap[m["group_id"]]

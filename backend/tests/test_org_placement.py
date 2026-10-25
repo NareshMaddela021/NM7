@@ -206,6 +206,8 @@ async def test_reminders_reach_members_without_a_resume(owner, make_client, outb
 
 async def test_demo_org(owner, db, outbox):
     made = (await owner.post("/api/admin/demo-org")).json()
+    path = made.pop("recruiterPath")  # the demo recruiter invite, signed in (tests/test_org_recruiter_portal.py)
+    assert path.startswith("/recruiter/") and "#s=" in path
     assert made == {"orgId": demo.ORG_ID, "name": "Demo Engineering College", "students": 48, "groups": 2}
     j = (await owner.get(f"/api/org/{demo.ORG_ID}/placement")).json()
     t = j["tiles"]

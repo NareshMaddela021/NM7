@@ -7,6 +7,7 @@ export const LIMITS = [
   ['groups', 'Groups', 'groups'],
   ['coordinators', 'Coordinators', 'coordinators'],
   ['kiosks', 'Kiosk stalls', 'kiosk stalls'],
+  ['recruiters', 'Recruiter invites', 'recruiter invites'],
 ];
 
 export const PLAN_FEATURES = [
@@ -16,6 +17,7 @@ export const PLAN_FEATURES = [
   ['membersDownloadFree', 'Members download their resume free'],
   ['placementInsights', 'Placement dashboard: charts, who’s missing, reminders, roll list'],
   ['templateRules', 'Placement template: section order and college rules'],
+  ['recruiterJobMatch', 'Recruiter portal: job match mode'],
 ];
 
 /** ₹4,999 · ₹4,499.10 (paise shown only when there are any). */

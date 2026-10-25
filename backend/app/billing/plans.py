@@ -15,8 +15,15 @@ from pymongo.asynchronous.database import AsyncDatabase
 from app.core.db import ORG_PLANS, Session
 from app.core.time import now
 
-LIMIT_KEYS = ("members", "groups", "coordinators", "kiosks")
-FEATURE_KEYS = ("branding", "recruiter_links", "members_download_free", "placement_insights", "template_rules")
+LIMIT_KEYS = ("members", "groups", "coordinators", "kiosks", "recruiters")  # recruiters: active recruiter invites
+FEATURE_KEYS = (
+    "branding",
+    "recruiter_links",
+    "members_download_free",
+    "placement_insights",
+    "template_rules",
+    "recruiter_job_match",
+)
 PLAN_IDS = ("free", "drive", "campus", "custom")
 
 DEFAULT_PLANS: dict[str, dict[str, Any]] = {
@@ -26,13 +33,14 @@ DEFAULT_PLANS: dict[str, dict[str, Any]] = {
         "price": 0,
         "period_days": None,
         "period_months": None,
-        "limits": {"members": 50, "groups": 1, "coordinators": 1, "kiosks": 0},
+        "limits": {"members": 50, "groups": 1, "coordinators": 1, "kiosks": 0, "recruiters": 0},
         "features": {
             "branding": False,
             "recruiter_links": False,
             "members_download_free": False,
             "placement_insights": False,  # placement dashboard charts, missing lists, reminders, roll list
             "template_rules": False,  # placement template: section order and rules (Campus)
+            "recruiter_job_match": False,  # recruiter portal: job match mode (Campus)
         },
         "on_sale": True,
         "public": True,
@@ -44,13 +52,14 @@ DEFAULT_PLANS: dict[str, dict[str, Any]] = {
         "price": 4999_00,
         "period_days": 60,
         "period_months": None,
-        "limits": {"members": 500, "groups": 5, "coordinators": 3, "kiosks": 3},
+        "limits": {"members": 500, "groups": 5, "coordinators": 3, "kiosks": 3, "recruiters": 1},
         "features": {
             "branding": True,
             "recruiter_links": True,
             "members_download_free": True,
             "placement_insights": True,
             "template_rules": False,
+            "recruiter_job_match": False,
         },
         "on_sale": True,
         "public": True,
@@ -62,13 +71,14 @@ DEFAULT_PLANS: dict[str, dict[str, Any]] = {
         "price": 24999_00,
         "period_days": None,
         "period_months": 12,
-        "limits": {"members": 3000, "groups": None, "coordinators": 10, "kiosks": 10},
+        "limits": {"members": 3000, "groups": None, "coordinators": 10, "kiosks": 10, "recruiters": None},
         "features": {
             "branding": True,
             "recruiter_links": True,
             "members_download_free": True,
             "placement_insights": True,
             "template_rules": True,
+            "recruiter_job_match": True,
         },
         "on_sale": True,
         "public": True,
@@ -80,13 +90,14 @@ DEFAULT_PLANS: dict[str, dict[str, Any]] = {
         "price": None,  # set per organization by the admin
         "period_days": None,
         "period_months": 12,
-        "limits": {"members": None, "groups": None, "coordinators": None, "kiosks": None},
+        "limits": {"members": None, "groups": None, "coordinators": None, "kiosks": None, "recruiters": None},
         "features": {
             "branding": True,
             "recruiter_links": True,
             "members_download_free": True,
             "placement_insights": True,
             "template_rules": True,
+            "recruiter_job_match": True,
         },
         "on_sale": False,  # never bought at checkout: the admin assigns it
         "public": True,

@@ -409,18 +409,32 @@ def row_out(r: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-async def with_shortlists(db: AsyncDatabase, rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Adds "Shortlisted by <Company>" to each row from the organizations' recruiter links (any state)."""
-    from app.core.db import RECRUITER_LINKS
+SHORTLIST_STAGES = ("shortlisted", "interview", "selected", "rejected")  # on a recruiter invite's board
 
-    orgs = list({r["org_id"] for r in rows})
-    if not orgs:
-        return rows
+
+async def shortlists(db: AsyncDatabase, org_ids: list[str]) -> dict[str, list[dict[str, str]]]:
+    """Who shortlisted whom: membership id → [{linkId, company}], from the organizations' recruiter links (any
+    state) and the boards of their recruiter invites (any stage, rejected too: it was a shortlist first)."""
+    from app.core.db import RECRUITER_INVITES, RECRUITER_LINKS
+
     by: dict[str, list[dict[str, str]]] = {}
-    q = {"org_id": {"$in": orgs}, "shortlist": {"$ne": {}}}
+    if not org_ids:
+        return by
+    q = {"org_id": {"$in": org_ids}, "shortlist": {"$ne": {}}}
     async for link in db[RECRUITER_LINKS].find(q, {"company": 1, "shortlist": 1}):
         for mid in link.get("shortlist") or {}:
             by.setdefault(mid, []).append({"linkId": link["_id"], "company": link["company"]})
+    q = {"org_id": {"$in": org_ids}, "board": {"$ne": {}}}
+    async for inv in db[RECRUITER_INVITES].find(q, {"company": 1, "board": 1}):
+        for mid, b in (inv.get("board") or {}).items():
+            if (b or {}).get("stage") in SHORTLIST_STAGES:
+                by.setdefault(mid, []).append({"linkId": inv["_id"], "company": inv["company"]})
+    return by
+
+
+async def with_shortlists(db: AsyncDatabase, rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Adds "Shortlisted by <Company>" to each row from the organizations' recruiter links and invites."""
+    by = await shortlists(db, list({r["org_id"] for r in rows}))
     for r in rows:
         r["shortlisted_by"] = by.get(r["membership_id"], [])
     return rows

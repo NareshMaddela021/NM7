@@ -22,7 +22,7 @@ from app.audit import audit
 from app.billing import emails
 from app.billing.plans import DEFAULT_PLANS, LIMIT_KEYS, free_plan, get_plans, period_end, terms_of
 from app.billing.settings import get_billing
-from app.core.db import KIOSKS, MEMBERSHIPS, ORG_GROUPS, ORG_STAFF, ORGANIZATIONS, USERS, Session
+from app.core.db import KIOSKS, MEMBERSHIPS, ORG_GROUPS, ORG_STAFF, ORGANIZATIONS, RECRUITER_INVITES, USERS, Session
 from app.core.email import Mailer, send_safely
 from app.core.errors import ApiError
 from app.core.time import ist_day, now
@@ -37,6 +37,7 @@ LIMIT_WORDS = {
     "groups": ("group", "groups"),
     "coordinators": ("coordinator", "coordinators"),
     "kiosks": ("kiosk stall", "kiosk stalls"),
+    "recruiters": ("recruiter invite", "recruiter invites"),
 }
 
 
@@ -88,11 +89,16 @@ def plan_features(o: dict[str, Any] | None, today: date | None = None) -> dict[s
         "members_download_free": bool(f.get("members_download_free")),
         "placement_insights": later("placement_insights"),
         "template_rules": later("template_rules"),
+        "recruiter_job_match": later("recruiter_job_match"),
     }
 
 
 def limits_of(o: dict[str, Any] | None, today: date | None = None) -> dict[str, int | None]:
-    lim = dict(in_effect(o, today).get("limits") or {})
+    terms = in_effect(o, today)
+    lim = dict(terms.get("limits") or {})
+    for k in LIMIT_KEYS:  # a limit added after these terms were frozen: what the same plan has by default
+        if k not in lim:
+            lim[k] = (DEFAULT_PLANS.get(terms.get("plan_id") or "free") or DEFAULT_PLANS["free"])["limits"].get(k)
     # Nm7 switched kiosks on for an organization whose plan has none: the switch is the grant, no stall limit
     if ((o or {}).get("features") or {}).get("kiosk") is True and lim.get("kiosks") == 0:
         lim["kiosks"] = None
@@ -108,6 +114,9 @@ async def usage(db: AsyncDatabase, org_id: str) -> dict[str, int]:
         "groups": await db[ORG_GROUPS].count_documents({"org_id": org_id}),
         "coordinators": await db[ORG_STAFF].count_documents(
             {"org_id": org_id, "status": {"$in": ["invited", "active"]}, "role": {"$in": list(STAFF_ROLES_COUNTED)}}
+        ),
+        "recruiters": await db[RECRUITER_INVITES].count_documents(
+            {"org_id": org_id, "revoked_at": None, "expires_at": {"$gt": now()}}
         ),
         "kiosks": await db[KIOSKS].count_documents(
             {"org_id": org_id, "revoked_at": None, "expires_at": {"$gt": now()}}

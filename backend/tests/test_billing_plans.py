@@ -58,7 +58,7 @@ async def test_start_free_makes_an_owner_on_the_free_plan(owner_org, db):
     home = (await c.get(f"/api/org/{org_id}")).json()
     assert home["role"] == "owner" and home["isOwner"] and home["canManage"]
     assert home["billing"]["planId"] == "free" and home["billing"]["state"] == "free"
-    assert home["billing"]["limits"] == {"members": 50, "groups": 1, "coordinators": 1, "kiosks": 0}
+    assert home["billing"]["limits"] == {"members": 50, "groups": 1, "coordinators": 1, "kiosks": 0, "recruiters": 0}
     assert home["features"]["kiosk"] is False and home["features"]["branding"] is False
     page = (await c.get(f"/api/org/{org_id}/billing")).json()
     assert [p["id"] for p in page["plans"]] == ["drive", "campus"]
@@ -400,6 +400,12 @@ async def test_old_organizations_keep_working_after_the_upgrade(admin_client, db
     assert await migrate.run(db) is True
     assert await migrate.run(db) is False  # once
     o = await db[ORGANIZATIONS].find_one({"_id": org["id"]})
-    assert subscription.limits_of(o) == {"members": None, "groups": None, "coordinators": None, "kiosks": None}
+    assert subscription.limits_of(o) == {
+        "members": None,
+        "groups": None,
+        "coordinators": None,
+        "kiosks": None,
+        "recruiters": None,
+    }
     assert o["features"] == {"branding": True}  # an old "off" now follows the plan; "on" stays
     _ = RESUME

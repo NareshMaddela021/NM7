@@ -199,6 +199,8 @@ ORG_ACTIONS = [
     "share_create", "share_view", "share_download", "share_shortlist", "share_revoke", "share_extend",
     "billing_details", "billing_checkout", "plan_activated", "plan_assign", "plan_extend", "plan_reminder",
     "org_pricing", "roll_list_upload", "roll_list_delete", "placement_export", "demo_org_reset",
+    "recruiter_invite", "recruiter_invite_extend", "recruiter_invite_revoke", "recruiter_login", "recruiter_search",
+    "recruiter_match", "recruiter_view", "recruiter_stage", "recruiter_download", "recruiter_settings",
 ]  # fmt: skip
 
 

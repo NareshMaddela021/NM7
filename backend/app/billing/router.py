@@ -76,6 +76,7 @@ def plan_out(p: dict[str, Any], *, full: bool = False) -> dict[str, Any]:
             "membersDownloadFree": bool(p["features"].get("members_download_free")),
             "placementInsights": bool(p["features"].get("placement_insights")),
             "templateRules": bool(p["features"].get("template_rules")),
+            "recruiterJobMatch": bool(p["features"].get("recruiter_job_match")),
         },
         "onSale": bool(p.get("on_sale")),
         "public": bool(p.get("public")),
@@ -433,6 +434,7 @@ class LimitsIn(CamelModel):
     groups: int | None = Field(None, ge=0, le=10_000)
     coordinators: int | None = Field(None, ge=0, le=1_000)
     kiosks: int | None = Field(None, ge=0, le=1_000)
+    recruiters: int | None = Field(None, ge=0, le=10_000)
 
 
 class FeaturesIn(CamelModel):
@@ -441,6 +443,7 @@ class FeaturesIn(CamelModel):
     members_download_free: bool = False
     placement_insights: bool = False
     template_rules: bool = False
+    recruiter_job_match: bool = False
 
 
 class PlanIn(CamelModel):

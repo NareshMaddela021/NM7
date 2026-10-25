@@ -11,6 +11,7 @@ can't sign in (no usable password), are never emailed (reminders skip them) and 
 """
 
 import random
+import secrets
 from datetime import timedelta
 from typing import Any
 
@@ -25,6 +26,7 @@ from app.core.db import (
     ORG_GROUPS,
     ORG_STAFF,
     ORGANIZATIONS,
+    RECRUITER_INVITES,
     RECRUITER_LINKS,
     RESUMES,
     ROLL_LISTS,
@@ -120,6 +122,7 @@ async def remove_demo(db: AsyncDatabase) -> int:
         (MEMBERSHIPS, {"$or": [{"org_id": ORG_ID}, {"user_id": {"$in": uids}}]}),
         (ROLL_LISTS, {"org_id": ORG_ID}),
         (RECRUITER_LINKS, {"org_id": ORG_ID}),
+        (RECRUITER_INVITES, {"org_id": ORG_ID}),
         (ORG_STAFF, {"org_id": ORG_ID}),
         (ORG_GROUPS, {"org_id": ORG_ID}),
         (ORGANIZATIONS, {"_id": ORG_ID}),
@@ -148,6 +151,7 @@ async def create_demo(db: AsyncDatabase, actor_id: str | None = None, seed: int 
             "city": "Demo City",
             "status": "active",
             "demo": True,
+            "recruiter_settings": {"show_shortlist": True},
             "subscription": sub,
             "created_at": t,
             "updated_at": t,
@@ -257,6 +261,56 @@ async def create_demo(db: AsyncDatabase, actor_id: str | None = None, seed: int 
                 "uploaded_by": actor_id,
             }  # fmt: skip
         )
+    recruiter_path = await _demo_invite(db, rng, actor_id)
     if actor_id:
         await audit(db, actor_id, "demo_org_reset", target=ORG_ID, data={"orgs": [ORG_ID], "students": students})
-    return {"orgId": ORG_ID, "name": ORG_NAME, "students": students, "groups": len(GROUPS)}
+    return {
+        "orgId": ORG_ID,
+        "name": ORG_NAME,
+        "students": students,
+        "groups": len(GROUPS),
+        "recruiterPath": recruiter_path,
+    }
+
+
+async def _demo_invite(db: AsyncDatabase, rng: random.Random, actor_id: str | None) -> str:
+    """A recruiter invite from a made-up company, with a few students on its board. Its sign-in code would go to a
+    made-up address, so the path returned carries a ready session (after #, never sent to a server log): only the
+    admin who reset the demo gets it, and only for this demo invite."""
+    from app.orgs.recruiter_portal import SESSION_HOURS, _hash
+
+    t = now()
+    token, session = secrets.token_urlsafe(32), secrets.token_urlsafe(32)
+    iid = "demo-recruiter-invite"
+    mids = [
+        m["_id"]
+        async for m in db[MEMBERSHIPS].find({"org_id": ORG_ID, "recruiter_opt_in": True, "approval": "approved"})
+    ]
+    picks = rng.sample(sorted(mids), min(6, len(mids)))
+    stages = ["shortlisted", "shortlisted", "interview", "interview", "selected", "rejected"]
+    board = {mid: {"stage": stages[i], "note": "Demo note", "at": t} for i, mid in enumerate(picks)}
+    await db[RECRUITER_INVITES].insert_one(
+        {
+            "_id": iid,
+            "org_id": ORG_ID,
+            "demo": True,
+            "company": "Demo Tech Pvt Ltd (demo)",
+            "recruiter_name": "Demo Recruiter",
+            "email": f"recruiter@{EMAIL_DOMAIN}",
+            "email_lc": f"recruiter@{EMAIL_DOMAIN}",
+            "group_ids": sorted(g[0] for g in GROUPS),
+            "branches": [],
+            "expires_at": t + timedelta(days=60),
+            "revoked_at": None,
+            "allow_pdf": True,
+            "contact": "after_shortlist",
+            "token_hash": _hash("token", token),
+            "board": board,
+            "views": 0,
+            "downloads": 0,
+            "sessions": [{"hash": _hash("session", iid, session), "exp": t + timedelta(hours=SESSION_HOURS)}],
+            "created_by": actor_id,
+            "created_at": t,
+        }
+    )
+    return f"/recruiter/{token}#s={session}"
