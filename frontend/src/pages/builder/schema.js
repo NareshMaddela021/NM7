@@ -274,10 +274,10 @@ export const SECTION_LAYOUTS = {
 };
 // every layout sets these, so switching layouts never leaves stale renames or a stray photo
 Object.values(SECTION_LAYOUTS).forEach((l) => { l.titles = l.titles || {}; l.showPhoto = !!l.showPhoto; });
-export const isFresher = (d) => (d.personal.level || '').startsWith('Fresher');
+export const isFresher = (d) => (d?.personal?.level || '').startsWith('Fresher');
 export function resolveOrder(d) {
   const base = isFresher(d) ? ['summary', 'proj', 'exp', 'edu', 'skills', 'certs', 'ach', 'langs'] : ['summary', 'exp', 'proj', 'edu', 'skills', 'certs', 'ach', 'langs'];
-  const valid = [...Object.keys(PRINTABLE), ...d.custom.map((c) => c.id)];
+  const valid = [...Object.keys(PRINTABLE), ...(d.custom || []).map((c) => c.id)];
   const start = (d.order || base).filter((id) => valid.includes(id));
   // new custom sections go before the closing sections (hobbies … declaration) when using the default order
   const rest = valid.filter((id) => !start.includes(id));
@@ -286,7 +286,7 @@ export function resolveOrder(d) {
   if (di >= 0) return [...start.slice(0, di), ...rest, ...start.slice(di)];
   return [...start, ...rest];
 }
-export const sectionLabel = (d, id) => d.titles?.[id] || PRINTABLE[id] || d.custom.find((c) => c.id === id)?.title || id;
+export const sectionLabel = (d, id) => d.titles?.[id] || PRINTABLE[id] || (d.custom || []).find((c) => c.id === id)?.title || id;
 
 /* ---------- Quality checks ---------- */
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;

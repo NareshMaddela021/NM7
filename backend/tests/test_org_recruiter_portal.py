@@ -454,3 +454,30 @@ async def test_demo_invite(owner, db, make_client):
     assert any(c["stage"] == "shortlisted" for c in page["candidates"])
     await demo.remove_demo(db)
     assert await db[RECRUITER_INVITES].count_documents({"org_id": demo.ORG_ID}) == 0
+
+
+async def test_job_match_ranks_by_each_students_own_score(campus, owner, make_client, outbox):
+    """A post pasted on one line: must-haves are read as must-haves and each student gets their own score."""
+    org, g = campus
+    people = [("a", "Python, SQL, Git, REST API, Django"), ("b", "Python, SQL"), ("c", "Django, AWS"), ("d", "Excel")]
+    for i, (who, skills) in enumerate(people):
+        mail = f"{who}@example.com"
+        await opted_in(
+            make_client,
+            outbox,
+            mail,
+            f"Person {who.upper()}",
+            roll=f"R{i}",
+            data=resume(f"Person {who.upper()}", mail, skills=skills),
+        )
+    _, token = await invite(owner, org["id"], [g["id"]])
+    rec = make_client()
+    h = await sign_in(rec, outbox, token)
+    jd = "Junior Python Developer... Required: Python, SQL, Git, REST API. Preferred: Django, Machine learning, AWS"
+    r = (await rec.post(f"/api/recruiter/{token}/match", headers=h, json={"jd": jd})).json()
+    assert r["must"] == ["Python", "SQL", "Git", "REST API"]
+    got = [(c["name"], c["match"]) for c in r["candidates"]]
+    assert [n for n, _ in got] == ["Person A", "Person B", "Person C", "Person D"]
+    scores = [m for _, m in got]
+    assert scores == sorted(scores, reverse=True) and len(set(scores)) == 4  # all different here
+    assert "_found" not in r["candidates"][0] and "_missing" not in r["candidates"][0]

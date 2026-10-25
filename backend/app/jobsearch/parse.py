@@ -273,6 +273,21 @@ def _education(text: str) -> tuple[list[str], int, list[str]]:
     return [n for _, n in sorted(found, reverse=True)], min(lv for lv, _ in found), fields[:4]
 
 
+# A heading that starts mid-line after a sentence ends ("Junior Python Developer... Required: Python, SQL.
+# Preferred: Django"): a post pasted as one line. The line is split there so each part keeps its own section.
+INLINE_HEAD = re.compile(
+    r"(?<=[.!?…;|])\s+(?=(?:requirements?|required|must[\s-]*haves?|mandatory|eligibility|qualifications?|"
+    r"(?:key |technical )?skills?(?: required| needed)?|preferred|preferable|desirable|bonus|optional|"
+    r"(?:good|nice)[\s-]*to[\s-]*have|responsibilities|duties|what you(?:'ll| will) do|benefits|perks|"
+    r"about (?:us|the company)|salary|ctc|how to apply)\s*:)",
+    re.I,
+)
+
+
+def _split_inline(lines: list[str]) -> list[str]:
+    return [part for ln in lines for part in INLINE_HEAD.split(ln)]
+
+
 def _heading(line: str) -> str | None:
     """'nice' / 'must' / 'duty' / 'other' when the line is a section heading, else None."""
     if BULLET.match(line):
@@ -510,7 +525,7 @@ COMMON_DUTY_FILLER = {
 
 def parse(text: str) -> Parsed:
     text = clean_text(text)
-    lines = [ln for ln in text.split("\n")]
+    lines = _split_inline(text.split("\n"))
     p = Parsed()
     p.title = _title([ln for ln in lines if ln.strip()])
     p.company = _company([ln for ln in lines if ln.strip()], text)

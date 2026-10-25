@@ -377,3 +377,19 @@ async def test_screenshot_reading(customer, monkeypatch):
     assert body[0]["type"] == "image" and body[0]["source"]["media_type"] == "image/png"
     r = await customer.post("/api/me/jobs/read-image", json={"images": [{"data": base64.b64encode(b"hello").decode()}]})
     assert r.status_code == 415
+
+
+def test_a_post_pasted_on_one_line_keeps_its_sections():
+    """ "Required: … Preferred: …" in the middle of one line: each part keeps its own section (it once made every
+    skill nice-to-have, so every resume got the full must-have points and the scores bunched together)."""
+    one = parse(
+        "Junior Python Developer... Required: Python, SQL, Git, REST API. Preferred: Django, Machine learning, AWS"
+    )
+    assert one.title == "Junior Python Developer"
+    assert one.must == ["Python", "SQL", "Git", "REST API"] and one.nice == ["Django", "Machine learning", "AWS"]
+    lines = parse(
+        "Junior Python Developer\nRequired: Python, SQL, Git, REST API.\nPreferred: Django, Machine learning, AWS"
+    )
+    assert (lines.must, lines.nice) == (one.must, one.nice)
+    # a colon inside a sentence is not a heading
+    assert parse("We use Python. Our stack: Django and SQL.").must == ["Python", "Django", "SQL"]
