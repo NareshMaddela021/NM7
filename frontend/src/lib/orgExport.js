@@ -8,6 +8,7 @@ import { zipSync } from 'fflate';
 import { designOf } from '../pages/builder/design';
 import { http } from '../services/http';
 import { brandDesign, prepareBrand } from './branding';
+import { brandFor } from './placementFormat';
 import { freshImport } from './chunks';
 import { resumeFileName } from './fileName';
 
@@ -27,6 +28,35 @@ export async function mergePdfs(files) {
   out.setTitle('Nm7 · shared resumes');
   out.setCreator('Nm7 Resume Builder');
   return { bytes: await out.save(), pages: out.getPageCount() };
+}
+
+/** The college format's first page: logo, college name, placement cell line, batch, branch, date and count. */
+export function collegeCoverPdf({ brand, batches = [], branches = [], count = 0, date = new Date() }) {
+  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+  const W = 595; const cx = W / 2;
+  const hex = (brand.color || '#1F3A8A').replace('#', '');
+  const color = [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16));
+  let y = 150;
+  if (brand.img) {
+    const h = 80; const w = Math.min(h * brand.img.ratio, 300);
+    try { doc.addImage(brand.img.data, brand.img.format, cx - w / 2, y - h, w, w / brand.img.ratio); } catch { /* drawn without the logo */ }
+    y += 30;
+  }
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(24); doc.setTextColor(...color);
+  doc.splitTextToSize(brand.collegeName || '', 480).forEach((l) => { doc.text(l, cx, y, { align: 'center' }); y += 28; });
+  if (brand.header) { doc.setFont('helvetica', 'normal'); doc.setFontSize(14); doc.text(doc.splitTextToSize(brand.header, 480)[0], cx, y, { align: 'center' }); y += 40; }
+  doc.setDrawColor(...color); doc.setLineWidth(1.5); doc.line(120, y, W - 120, y); y += 50;
+  doc.setTextColor(30, 30, 30); doc.setFont('helvetica', 'bold'); doc.setFontSize(20);
+  doc.text('Placement resumes', cx, y, { align: 'center' }); y += 40;
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(13);
+  const row = (k, v) => { if (!v) return; doc.setTextColor(110, 110, 110); doc.text(k, cx - 10, y, { align: 'right' }); doc.setTextColor(30, 30, 30); doc.text(doc.splitTextToSize(v, 240)[0], cx + 10, y); y += 24; };
+  row('Batch', batches.join(', '));
+  row('Branch', branches.join(', '));
+  row('Date', date.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }));
+  row('Resumes', String(count));
+  doc.setFontSize(9); doc.setTextColor(120, 120, 120);
+  doc.text('Shared by the students with their consent via Nm7 (nm7.si). For placement purposes only.', cx, 790, { align: 'center' });
+  return doc.output('blob');
 }
 
 /** The optional first page: organization, group, date and how many resumes follow. */
@@ -71,7 +101,7 @@ export async function runExport({ base = '/api/admin', kind, ids = null, filters
   const job = await http(`${base}/shared-resumes/exports`, { method: 'POST', body: { kind, ids, filters, sort, direction } });
   // groups printing in their organization's template: the brand comes with the job (logo drawn once)
   const brands = Object.fromEntries(await Promise.all(Object.entries(job.brands || {}).map(async ([k, b]) => [k, await prepareBrand(b)])));
-  const makePdf = build || (async (data, brand) => (await freshImport(() => import('../pages/builder/resumePdf'))).buildResumePdf({ data, design: brand ? brandDesign(brand) : designOf(data), brand }));
+  const makePdf = build || (async (data, brand) => (await freshImport(() => import('../pages/builder/resumePdf'))).buildResumePdf({ data, design: brand ? brandDesign(brand, data) : designOf(data), brand }));
   const files = [];
   let skipped = 0;
   onProgress({ done: 0, total: job.total, stage: 'Drawing resumes' });
@@ -82,7 +112,7 @@ export async function runExport({ base = '/api/admin', kind, ids = null, filters
       if (signal?.aborted) throw new DOMException('Stopped', 'AbortError');
       if (!row.data) { skipped += 1; continue; } // left the group or deleted the resume since the job started
       const item = job.items[offset + i];
-      files.push({ fileName: zipName(item), bytes: await bytesOf(await makePdf(row.data, item.brand ? brands[item.brand] : null)) });
+      files.push({ fileName: zipName(item), bytes: await bytesOf(await makePdf(row.data, item.brand ? brandFor(brands[item.brand], item.roll) : null)) });
       onProgress({ done: offset + i + 1, total: job.total, stage: 'Drawing resumes' });
     }
   }
@@ -90,10 +120,13 @@ export async function runExport({ base = '/api/admin', kind, ids = null, filters
   onProgress({ done: job.total, total: job.total, stage: kind === 'export_zip' ? 'Packing the ZIP' : 'Putting the pages together' });
   let result;
   if (kind === 'export_zip') {
+    const college = cover && job.cover?.brand && brands[job.cover.brand]?.collegeName ? brands[job.cover.brand] : null;
+    if (college) files.unshift({ fileName: '00_Cover.pdf', bytes: await bytesOf(collegeCoverPdf({ brand: college, batches: job.cover.batches, branches: job.cover.branches, count: files.length })) });
     result = { blob: new Blob([zipFiles(files)], { type: 'application/zip' }), fileName: `Nm7_resumes_${stamp()}.zip` };
   } else if (kind === 'print_bulk') {
     const parts = files.map((f) => f.bytes);
-    if (cover) parts.unshift(coverPdf({ ...job.cover, count: files.length }));
+    const college = job.cover?.brand && brands[job.cover.brand]?.collegeName ? brands[job.cover.brand] : null;
+    if (cover) parts.unshift(college ? collegeCoverPdf({ brand: college, batches: job.cover.batches, branches: job.cover.branches, count: files.length }) : coverPdf({ ...job.cover, count: files.length }));
     const { bytes, pages } = await mergePdfs(parts);
     result = { blob: new Blob([bytes], { type: 'application/pdf' }), fileName: `Nm7_resumes_${stamp()}.pdf`, pages };
   } else {

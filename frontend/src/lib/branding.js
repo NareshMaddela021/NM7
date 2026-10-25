@@ -5,6 +5,7 @@
 // go in the header strip only, and all resume text stays real, selectable text.
 import { DEFAULT_DESIGN, TEMPLATE_PRESETS } from '../pages/builder/design';
 import { INITIAL } from '../pages/builder/schema';
+import { formatDesign } from './placementFormat';
 
 /** The base templates an organization may choose: single column and ATS-safe. */
 export const BRAND_TEMPLATES = ['fresher', 'campus', 'starter', 'work', 'classic', 'formal', 'care'];
@@ -31,8 +32,10 @@ export function contrastWarning(hex) {
   return r < 4.5 ? `This colour is hard to read on white (contrast ${r.toFixed(1)}:1; aim for at least 4.5:1). Try a darker shade.` : null;
 }
 
-/** The design the member's content is drawn in: the base template, unchanged (colour only in the header strip). */
-export function brandDesign(brand) {
+/** The design the member's content is drawn in: the college's template (the member's own when it is one of the
+ * allowed ones — pass their resume as `data`), unchanged (colour only in the header strip). */
+export function brandDesign(brand, data) {
+  if (brand?.templates?.length) return formatDesign(brand, data);
   const k = BRAND_TEMPLATES.includes(brand?.template) ? brand.template : 'fresher';
   return { ...DEFAULT_DESIGN, ...TEMPLATE_PRESETS[k].design, preset: k };
 }

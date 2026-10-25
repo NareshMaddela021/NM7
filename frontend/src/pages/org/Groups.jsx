@@ -14,6 +14,9 @@ import { http } from '../../services/http';
 import { MeHead } from '../me/MeLayout';
 import { fmtDay } from '../me/shared';
 import { memberStatus, staffSummary } from '../../lib/orgDashboard';
+import { brandDesign } from '../../lib/branding';
+import { brandFor, checklist } from '../../lib/placementFormat';
+import ResumePreview from '../builder/ResumePreview';
 
 const NEW = '__new__';
 const consentKey = (code) => `nm7-join-consent:${code}`;
@@ -220,6 +223,7 @@ export function MeGroups() {
           {g.reviewStatus === 'needs_changes' && g.reviewNote && (
             <div className="well stack g4 small" role="note"><strong>{g.orgName} asked for changes:</strong><span style={{ whiteSpace: 'pre-wrap' }}>{g.reviewNote}</span><Link to="/builder">Open my resume</Link></div>
           )}
+          {g.format && <CollegeFormat g={g} resume={list.find((r) => r.id === g.resumeId)} />}
           {Object.keys(g.fields || {}).length > 0 && (
             <span className="small">{(g.customFields || []).filter((f) => g.fields[f.key]).map((f) => `${f.label}: ${g.fields[f.key]}`).join(' · ')}</span>
           )}
@@ -249,6 +253,34 @@ export function MeGroups() {
           </div>
         </section>
       ))}
+    </div>
+  );
+}
+
+/** "Your college uses an official placement format": the shared resume shown in it (layout only — nothing in the
+ * resume changes) and a checklist of the college's rules it doesn't meet yet. */
+function CollegeFormat({ g, resume }) {
+  const [pages, setPages] = useState(null);
+  const data = resume?.data;
+  const roll = (g.customFields || []).find((f) => /roll|reg|enrol/i.test(`${f.key} ${f.label}`));
+  const brand = brandFor(g.format, roll ? g.fields?.[roll.key] : '');
+  const items = checklist(data, g.format, pages);
+  const todo = items.filter((i) => !i.ok);
+  return (
+    <div className="well stack g12" data-testid="college-format">
+      <strong className="small">Your college uses an official placement format</strong>
+      <span className="xs muted">{g.orgName} prints and shares your resume in its own format: same content, their layout and header. Your own resume and downloads don’t change.</span>
+      {items.length > 0 && (
+        <ul className="stack g4" style={{ listStyle: 'none', margin: 0, padding: 0 }} aria-label="College rules" data-testid="format-checklist">
+          {items.map((i) => <li key={i.key} className="row g8 small" style={{ alignItems: 'baseline' }}><span aria-hidden="true" style={{ color: i.ok ? 'var(--success)' : 'var(--warning)' }}>{i.ok ? '✓' : '!'}</span><span>{i.text}</span><span className="sr-only">{i.ok ? 'done' : 'to fix'}</span></li>)}
+        </ul>
+      )}
+      {todo.length > 0 && <Link to="/builder" className="small">Fix these in my resume</Link>}
+      {data && (
+        <div style={{ maxWidth: 420, width: '100%' }} aria-label="Your resume in the college format">
+          <ResumePreview data={data} design={brandDesign(g.format, data)} brand={brand} onPages={setPages} decorative />
+        </div>
+      )}
     </div>
   );
 }
