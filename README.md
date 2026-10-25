@@ -926,3 +926,37 @@ resume quality, and a roll list of 60 (12 not joined), on the Campus plan.
   customers list, paid organizations, renewals).
 - **Safe:** demo students can't sign in, are never emailed (reminders skip them), and use `…@demo.nm7.invalid`
   addresses.
+
+### Official placement template (Org > Branding)
+
+The organization's branding (`app/orgs/branding.py`) also holds the college's official placement format, applied to
+every org-side copy of a group with "Print with organization template" on:
+- the view and PDF;
+- the combined PDF and ZIP;
+- kiosk prints;
+- recruiter links.
+
+What the format can set:
+- **Drive and Campus (`branding`):**
+  - logo (PNG / SVG / JPG) and colour;
+  - college name and placement cell line;
+  - header style: logo left with the name beside it, or logo centred;
+  - footer, plus "Page n of N" on every page once a college name is set;
+  - one base template out of all 19.
+- **Campus (`template_rules`, editable in Admin → Plans):**
+  - up to 3 allowed templates (a student's own template is used when it's allowed, else the first);
+  - section order (the college's order first, then the student's other sections);
+  - required sections, and CGPA required in Education;
+  - allowed optional sections;
+  - a page limit (1 or 2);
+  - photo yes / no;
+  - roll number in the header.
+
+How it behaves:
+- **Layout only** (`frontend/src/lib/placementFormat.js`): the content never changes, and a section the student
+  switched off stays off (one switched on stays on).
+- **Students** of the group see "Your college uses an official placement format" in My groups, with their resume in
+  it and a checklist of unmet rules ("CGPA required", "Keep to 1 page", a section the format doesn't include,
+  a photo that won't print).
+- **Cover page:** combined PDFs and ZIPs of one college start with a cover page: logo, college name, batch, branch,
+  date and count. In the ZIP it's `00_Cover.pdf`.

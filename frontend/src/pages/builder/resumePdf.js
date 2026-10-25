@@ -11,6 +11,7 @@ import { PAGE, headFontOf, marginOf } from './design';
 import { ACAD_INDENT, acadRows, isNumWord, printable } from './resumeModel';
 import { hasBold, parseBold, stripBold } from '../../lib/bold';
 import { coverParts } from './cover';
+import { formatData } from '../../lib/placementFormat';
 import { shapePhoto } from './PhotoEditor';
 import { loadFont, registerFont } from './pdfFonts';
 
@@ -25,13 +26,15 @@ const GREY = [90, 90, 90];
  */
 export async function buildResumePdf({ data, design: ds, photo: photoArg, cover, brand = null, stamp = '', engine = null }) {
   // switched-off entries are not printed; emoji are left out (no PDF font here can draw them)
-  const d = withoutEmoji({ ...printable(visibleResume(data)), prefs: undefined, photo: undefined }); // job preferences are never printed
+  // a college's placement format changes the layout only (section order, photo): lib/placementFormat.js
+  const laid = brand && !cover ? formatData(data, brand) : data;
+  const d = withoutEmoji({ ...printable(visibleResume(laid)), prefs: undefined, photo: undefined }); // job preferences are never printed
   cover = withoutEmoji(cover);
-  brand = brand && { ...brand, header: withoutEmoji(brand.header), footer: withoutEmoji(brand.footer) };
+  brand = brand && { ...brand, header: withoutEmoji(brand.header), footer: withoutEmoji(brand.footer), collegeName: withoutEmoji(brand.collegeName || ''), roll: withoutEmoji(brand.roll || '') };
   stamp = withoutEmoji(stamp);
   const photo = photoArg === undefined ? data?.photo || null : photoArg; // the photo saved with the resume
   const page = PAGE[ds.pageSize] || PAGE.a4;
-  const scripts = scriptsIn([d, cover, brand?.header, brand?.footer, stamp]); // ₹ counts: it is drawn with a Noto font
+  const scripts = scriptsIn([d, cover, brand?.header, brand?.footer, brand?.collegeName, brand?.roll, stamp]); // ₹ counts: it is drawn with a Noto font
   const shaped = engine === 'pdflib' || (engine !== 'jspdf' && scripts.length > 0); // `engine` forces one (tests)
   const { createDoc } = await (shaped ? import('./pdfDoc') : import('./jsPdfDoc'));
   const doc = await createDoc(page.w, page.h);
@@ -158,17 +161,38 @@ export async function buildResumePdf({ data, design: ds, photo: photoArg, cover,
   let top = M;
   if (brand && !cover) {
     const sy = M * 0.6;
-    const LH = 26;
-    let x = M;
-    if (brand.img) {
-      const w = Math.min(LH * brand.img.ratio, 170);
-      const h = w / brand.img.ratio;
-      try { doc.addImage(await doc.image(brand.img.data, brand.img.format), M, sy + (LH - h) / 2, w, h); x = M + w + 10; } catch { /* drawn without the logo */ }
-    }
     const bc = rgb(brand.color || '#1F3A8A');
-    if (brand.header) { set(10, 'bold', bc); doc.text(doc.splitTextToSize(brand.header, page.w - M - x)[0], x, sy + LH / 2 + 3.5); }
-    doc.setDrawColor(...bc); doc.setLineWidth(1.2); doc.line(M, sy + LH + 6, page.w - M, sy + LH + 6);
-    top = sy + LH + 16;
+    const lines = [brand.collegeName && [brand.collegeName, 11.5, 'bold'], brand.header && [brand.header, brand.collegeName ? 9 : 10, brand.collegeName ? 'normal' : 'bold']].filter(Boolean);
+    let bottom;
+    if (brand.headerStyle === 'center') {
+      // logo centred, the college name and the placement cell line under it
+      let y0 = sy;
+      if (brand.img) {
+        const h = 30; const w = Math.min(h * brand.img.ratio, 170);
+        try { doc.addImage(await doc.image(brand.img.data, brand.img.format), (page.w - w) / 2, y0, w, w / brand.img.ratio); y0 += w / brand.img.ratio + 4; } catch { /* drawn without the logo */ }
+      }
+      for (const [t, size, weight] of lines) { set(size, weight, bc); y0 += size; doc.text(doc.splitTextToSize(t, page.w - 2 * M)[0], page.w / 2, y0, { align: 'center' }); y0 += 3; }
+      bottom = Math.max(y0, sy + 26);
+    } else {
+      const LH = 26;
+      let x = M;
+      if (brand.img) {
+        const w = Math.min(LH * brand.img.ratio, 170);
+        const h = w / brand.img.ratio;
+        try { doc.addImage(await doc.image(brand.img.data, brand.img.format), M, sy + (LH - h) / 2, w, h); x = M + w + 10; } catch { /* drawn without the logo */ }
+      }
+      const room = page.w - M - x - (brand.roll ? 90 : 0);
+      if (lines.length === 2) {
+        set(lines[0][1], lines[0][2], bc); doc.text(doc.splitTextToSize(lines[0][0], room)[0], x, sy + LH / 2 - 1);
+        set(lines[1][1], lines[1][2], bc); doc.text(doc.splitTextToSize(lines[1][0], room)[0], x, sy + LH / 2 + 10);
+      } else if (lines.length === 1) {
+        set(lines[0][1], lines[0][2], bc); doc.text(doc.splitTextToSize(lines[0][0], room)[0], x, sy + LH / 2 + 3.5);
+      }
+      bottom = sy + LH;
+    }
+    if (brand.roll) { set(9, 'normal', [68, 68, 68]); doc.text(`Roll no. ${brand.roll}`, page.w - M, sy + 12, { align: 'right' }); }
+    doc.setDrawColor(...bc); doc.setLineWidth(1.2); doc.line(M, bottom + 6, page.w - M, bottom + 6);
+    top = bottom + 16;
   }
   let y;
   if (band && top === M) {
@@ -502,11 +526,15 @@ export async function buildResumePdf({ data, design: ds, photo: photoArg, cover,
 
   // foot of every page: the organization's footer line and / or a stamp, small and grey
   const feet = [!cover && brand?.footer, stamp].filter(Boolean);
-  if (feet.length) {
-    for (let p = 1; p <= doc.getNumberOfPages(); p++) {
+  const numbered = !cover && !!brand?.collegeName; // the college's placement format: "Page 1 of 2" on every page
+  if (feet.length || numbered) {
+    const n = doc.getNumberOfPages();
+    for (let p = 1; p <= n; p++) {
       doc.setPage(p);
       set(7.5, 'normal', [110, 110, 110]);
-      feet.forEach((t, i) => doc.text(doc.splitTextToSize(t, W)[0], page.w / 2, page.h - M / 2 - (feet.length - 1 - i) * 9, { align: 'center' }));
+      const lines = feet.map((t, i) => (i === 0 && numbered ? `${t} · Page ${p} of ${n}` : t));
+      if (numbered && !feet.length) lines.push(`Page ${p} of ${n}`);
+      lines.forEach((t, i) => doc.text(doc.splitTextToSize(t, W)[0], page.w / 2, page.h - M / 2 - (lines.length - 1 - i) * 9, { align: 'center' }));
     }
   }
   doc.setProperties({ title: `${d.personal.name || 'Resume'} — Resume`, creator: 'Nm7 Resume Builder' });

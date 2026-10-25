@@ -43,7 +43,7 @@ async function rq(path, code, { method = 'GET', body } = {}) {
 async function pdfOf(item, stamp) {
   const { buildResumePdf } = await freshImport(() => import('../builder/resumePdf'));
   const brand = await prepareBrand(item.brand);
-  return buildResumePdf({ data: item.data, design: brand ? brandDesign(brand) : designOf(item.data), brand, stamp });
+  return buildResumePdf({ data: item.data, design: brand ? brandDesign(brand, item.data) : designOf(item.data), brand, stamp });
 }
 
 function save(blob, name) {
@@ -172,7 +172,7 @@ function ViewOne({ base, code, c, onClose }) {
     <Dialog showTitle wide title={c.name} onClose={onClose}>
       {st.loading ? <div className="row g12 muted" role="status"><Spinner /> Loading…</div>
         : st.error ? <p role="alert">{st.error.status === 404 ? 'This candidate is no longer on the link.' : st.error.message}</p>
-          : <ResumePreview data={st.data.data} design={st.data.brand ? brandDesign(st.data.brand) : designOf(st.data.data)} brand={st.data.brand} stamp={st.data.stamp} />}
+          : <ResumePreview data={st.data.data} design={st.data.brand ? brandDesign(st.data.brand, st.data.data) : designOf(st.data.data)} brand={st.data.brand} stamp={st.data.stamp} />}
     </Dialog>
   );
 }

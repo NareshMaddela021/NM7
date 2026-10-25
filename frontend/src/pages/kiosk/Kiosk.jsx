@@ -499,7 +499,7 @@ function Finish({ base, d, brand, approval, org, save, onEdit, onFinish, autoPri
   const [sending, setSending] = useState(false);
   const [mailed, setMailed] = useState(false);
   const [status, setStatus] = useState({ text: '', error: false });
-  const design = useMemo(() => (brand ? brandDesign(brand) : designOf(d)), [d, brand]); // a branded group prints in the org's template
+  const design = useMemo(() => (brand ? brandDesign(brand, d) : designOf(d)), [d, brand]); // a branded group prints in the org's template
   const print = async () => {
     if (printing) return;
     setPrinting(true); setStatus({ text: 'Preparing your print…', error: false });

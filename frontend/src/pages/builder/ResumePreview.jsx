@@ -6,6 +6,7 @@ import { ACAD_INDENT, acadRows, buildSections, isNumWord, printable } from './re
 import { parseBold } from '../../lib/bold';
 import { FONTS, PAGE, headFontOf, marginOf, tint } from './design';
 import { coverParts } from './cover';
+import { formatData } from '../../lib/placementFormat';
 
 /** Section heading in the 5 styles. Sizes are pt × s (px per pt). */
 function Heading({ title, ds, s }) {
@@ -169,7 +170,9 @@ function CoverBody({ c, ds, s }) {
 /** hints: the builder's "My resume" view — light grey placeholders ("Your name", "Add your first job") where nothing is
  * typed yet. They are only on screen: downloads never use this component, and empty sections are never printed. */
 export default function ResumePreview({ data, design: ds, photo: photoProp, onPages, cover, loadFonts = true, decorative = false, loading = false, brand = null, stamp = '', hints = false }) {
-  const d = printable(visibleResume(data)); // switched-off entries are hidden everywhere the resume is shown; no stray **
+  // switched-off entries are hidden everywhere the resume is shown; no stray **. A college's placement format only
+  // changes the layout (section order, photo): lib/placementFormat.js
+  const d = printable(visibleResume(brand && !cover ? formatData(data, brand) : data));
   const photo = photoProp === undefined ? data?.photo || null : photoProp; // the photo saved with the resume
   const ref = useRef();
   const [box, setBox] = useState({ w: 595, h: 842 });
@@ -225,9 +228,15 @@ export default function ResumePreview({ data, design: ds, photo: photoProp, onPa
       <article ref={ref} aria-label={cover ? 'Cover letter preview' : 'Resume preview'}
         style={{ ...body, background: '#fff', borderRadius: 4, boxShadow: 'var(--shadow)', padding: m, minHeight: pageH, boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: ds.sectionGap * s }}>
         {brand && !cover && (
-          <div data-testid="brand-strip" style={{ display: 'flex', alignItems: 'center', gap: 10 * s, margin: `${-m * 0.4}px 0 0`, paddingBottom: 6 * s, borderBottom: `${1.2 * s}px solid ${brand.color}` }}>
-            {brand.logo && <img src={brand.logo} alt="" style={{ height: 26 * s, maxWidth: 170 * s, objectFit: 'contain' }} />}
-            {brand.header && <span style={{ color: brand.color, fontWeight: 700, fontSize: 10 * s, lineHeight: 1.2 }}>{brand.header}</span>}
+          <div data-testid="brand-strip" data-style={brand.headerStyle || 'left'} style={{ display: 'flex', flexDirection: brand.headerStyle === 'center' ? 'column' : 'row', alignItems: 'center', textAlign: brand.headerStyle === 'center' ? 'center' : 'left', gap: (brand.headerStyle === 'center' ? 3 : 10) * s, margin: `${-m * 0.4}px 0 0`, paddingBottom: 6 * s, borderBottom: `${1.2 * s}px solid ${brand.color}`, position: 'relative' }}>
+            {brand.logo && <img src={brand.logo} alt="" style={{ height: (brand.headerStyle === 'center' ? 30 : 26) * s, maxWidth: 170 * s, objectFit: 'contain' }} />}
+            {(brand.collegeName || brand.header) && (
+              <span style={{ display: 'flex', flexDirection: 'column', gap: 1 * s, flex: brand.headerStyle === 'center' ? undefined : 1, minWidth: 0 }}>
+                {brand.collegeName && <span data-testid="brand-college" style={{ color: brand.color, fontWeight: 700, fontSize: 11.5 * s, lineHeight: 1.2 }}>{brand.collegeName}</span>}
+                {brand.header && <span style={{ color: brand.color, fontWeight: brand.collegeName ? 500 : 700, fontSize: (brand.collegeName ? 9 : 10) * s, lineHeight: 1.2 }}>{brand.header}</span>}
+              </span>
+            )}
+            {brand.roll && <span data-testid="brand-roll" style={{ fontSize: 9 * s, color: '#444', ...(brand.headerStyle === 'center' ? { position: 'absolute', right: 0, top: 0 } : {}) }}>Roll no. {brand.roll}</span>}
           </div>
         )}
         <header style={{

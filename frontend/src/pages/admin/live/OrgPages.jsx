@@ -13,6 +13,7 @@ import { QR_FAILED, downloadQrPng, qrFileName, qrPosterPdf } from '../../../lib/
 import ResumePreview from '../../builder/ResumePreview';
 import { designOf, runExport } from '../../../lib/orgExport';
 import { brandDesign } from '../../../lib/branding';
+import { brandFor } from '../../../lib/placementFormat';
 import { DAY_CHOICES, shortlistChoices } from '../../../lib/recruiter';
 import { APPROVAL_LABEL, REVIEW_LABEL, bucketRows, countTiles, exportFilters, exportNote, joinBars, remindSummary } from '../../../lib/orgDashboard';
 import { TEMPLATE_PRESETS } from '../../builder/design';
@@ -535,7 +536,7 @@ function ViewResume({ ctx, row, onClose, onAction }) {
         <div className="stack g12">
           <div className="row g8">{row.approval === 'approved' && <><button type="button" className="btn btn-ink" onClick={() => onAction('download', row)}>Download PDF</button><button type="button" className="btn btn-outline" onClick={() => onAction('print', row)}>Print</button></>}<span className="xs faint">{r.brand ? 'Read-only · in your organization’s template (hidden entries stay hidden)' : 'Read-only · exactly as the member’s template prints it (hidden entries stay hidden)'}</span></div>
           {r.reviewNote && <div className="well small">Asked for changes: {r.reviewNote}</div>}
-          <ResumePreview data={r.data} design={r.brand ? brandDesign(r.brand) : designOf(r.data)} brand={r.brand} />
+          <ResumePreview data={r.data} design={r.brand ? brandDesign(r.brand, r.data) : designOf(r.data)} brand={brandFor(r.brand, r.roll)} />
         </div>
       )}</Loading>
     </Dialog>
