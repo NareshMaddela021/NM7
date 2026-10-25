@@ -9,6 +9,7 @@ import { LIVE, useAuth } from '../../lib/auth';
 import { usePageMeta } from '../../lib/meta';
 import { refFromSearch } from '../../lib/orgBilling';
 import { ORG_FAQ, PlansSkeleton, PlansTable, useOrgPlans } from './OrgPlans';
+import DemoVideo from './DemoVideo';
 import { http } from '../../services/http';
 
 const ORG_TYPES = [['college', 'College / university'], ['institute', 'Training institute'], ['job_fair', 'Job fair / event'], ['skill_centre', 'Skill centre'], ['ngo', 'NGO'], ['agency', 'Placement agency'], ['company', 'Company'], ['other', 'Other']];
@@ -116,6 +117,7 @@ export default function ForOrgs() {
           {refCode && <span className="xs muted" role="status">Referred by partner code <strong className="mono">{refCode.code}</strong>{refCode.discountPct ? ` — ${refCode.discountPct}% off your first plan` : ''}.</span>}
         </section>
         <section id="start" className="stack g12"><StartFree open={start} /></section>
+        <DemoVideo />
         <section className="stack g12" aria-labelledby="plans-h">
           <h2 id="plans-h" className="display h3">Plans</h2>
           {st.loading ? <PlansSkeleton />
