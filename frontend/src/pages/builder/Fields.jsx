@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import { Icon } from '../../components/ui';
-import { BOLD_TIP, htmlToRich, sanitizeRich, toggleBold, tooMuchBold } from '../../lib/bold';
+import { BOLD_TIP, editMask, fromMask, htmlToRich, insertRich, sanitizeRich, settleTyped, toMask, toggleMask, tooMuchBold } from '../../lib/bold';
 import { COURSES_HINT, COURSES_PH, MAX_COURSES, addCourses, coursesOf, suggestCourses } from '../../lib/courses';
 import ChipList from './ChipList';
 import { GrowArea } from './GrowArea';
@@ -118,46 +118,86 @@ export function LinkFields({ idBase, links = [], slots = 1, words = ['Link'], ma
 }
 
 /**
- * A text box for resume text that can hold **bold** words: a small toolbar with B above it (or Ctrl/Cmd+B). Works
- * with a long-press selection on a phone: the button never takes the focus, and the last selection is remembered.
- * Pasting from Word, Google Docs or a website keeps the text and its bold only; any other markup is removed when the
- * box is left. Bold only — no italic, underline or colour.
+ * A text box for resume text that can hold **bold** words: a small toolbar with B above it (or Ctrl/Cmd+B). The box
+ * shows the words without the ** markers and draws the bold words in a layer exactly behind the text (a faux-bold
+ * that doesn't change letter widths, so the caret and selection line up); the value saved is still marker text, so
+ * the preview, PDF, Word, ATS score and the college format don't change. Works with a long-press selection on a
+ * phone: the button never takes the focus, and the last selection is remembered. Pasting from Word, Google Docs or a
+ * website keeps the text and its bold only; pasted or typed **markers** become bold once they pair up. Bold only.
  */
+const MIRROR_PROPS = ['fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'fontVariant', 'letterSpacing', 'lineHeight', 'textTransform',
+  'wordSpacing', 'textIndent', 'tabSize', 'direction', 'paddingTop', 'paddingBottom', 'paddingLeft', 'borderTopWidth', 'borderRightWidth',
+  'borderBottomWidth', 'borderLeftWidth', 'boxSizing'];
+
 export function RichArea({ id, value, onChange, rows = 4, placeholder, style, inputStyle, maxLength, label = 'Formatting' }) {
   const ref = useRef(null);
+  const mirror = useRef(null);
   const selRef = useRef({ start: 0, end: 0 });
   const [restore, setRestore] = useState(null);
+  const raw = value || '';
+  // what the box shows: plain text + which letters are bold; re-read whenever the value changes from outside
+  const [box, setBox] = useState(() => ({ ...toMask(raw), raw }));
+  const shown = box.raw === raw ? box : { ...toMask(raw), raw };
+  if (shown !== box) setBox(shown);
+  const emit = (plain, mask, sel) => {
+    const settled = settleTyped(plain, mask); // **markers** typed or pasted by hand: bold once they pair up
+    const next = settled || { plain, mask };
+    const out = fromMask(next.plain, next.mask);
+    setBox({ ...next, raw: out });
+    if (out !== raw) onChange(out);
+    if (sel) setRestore(settled ? { start: next.plain.length, end: next.plain.length } : sel);
+  };
   useLayoutEffect(() => {
     if (!restore || !ref.current) return;
     ref.current.focus();
     ref.current.setSelectionRange(restore.start, restore.end);
     selRef.current = restore;
     setRestore(null);
-  }, [restore, value]);
+  }, [restore, box]);
+  // the bold layer copies the box's size, font, padding and scroll
+  const sync = () => {
+    const el = ref.current; const m = mirror.current;
+    if (!el || !m) return;
+    const cs = getComputedStyle(el);
+    MIRROR_PROPS.forEach((k) => { m.style[k] = cs[k]; });
+    const bl = parseFloat(cs.borderLeftWidth) || 0; const br = parseFloat(cs.borderRightWidth) || 0;
+    const bar = Math.max(0, el.offsetWidth - el.clientWidth - bl - br); // a scrollbar narrows the text
+    m.style.paddingRight = `${(parseFloat(cs.paddingRight) || 0) + bar}px`;
+    m.style.width = `${el.offsetWidth}px`;
+    m.style.height = `${el.offsetHeight}px`;
+    m.scrollTop = el.scrollTop;
+    m.scrollLeft = el.scrollLeft;
+  };
+  useLayoutEffect(sync);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return undefined;
+    const ro = new ResizeObserver(sync);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
   const remember = () => { const el = ref.current; if (el) selRef.current = { start: el.selectionStart, end: el.selectionEnd }; };
   const bold = () => {
     const el = ref.current;
     const { start, end } = document.activeElement === el ? { start: el.selectionStart, end: el.selectionEnd } : selRef.current;
-    const r = toggleBold(value || '', start, end);
-    if (r.value !== (value || '')) onChange(r.value);
-    setRestore({ start: r.start, end: r.end });
+    const r = toggleMask(shown.plain, shown.mask, start, end);
+    emit(shown.plain, r.mask, { start: r.start, end: r.end });
   };
   const onKeyDown = (e) => {
     if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === 'b') { e.preventDefault(); bold(); }
   };
   const onPaste = (e) => {
     const html = e.clipboardData?.getData('text/html');
-    if (!html) return; // plain text: the browser pastes it as it is (hand-typed ** stays)
+    const text = e.clipboardData?.getData('text/plain') || '';
+    if (!html && !text.includes('**')) return; // plain text: the browser pastes it as it is
     e.preventDefault();
     const el = ref.current;
-    const text = htmlToRich(html);
-    const v = value || '';
-    const next = v.slice(0, el.selectionStart) + text + v.slice(el.selectionEnd);
-    onChange(next);
-    const at = el.selectionStart + text.length;
-    setRestore({ start: at, end: at });
+    const r = insertRich(shown.plain, shown.mask, el.selectionStart, el.selectionEnd, html ? htmlToRich(html) : text);
+    emit(r.plain, r.mask, { start: r.at, end: r.at });
   };
   const keep = (e) => e.preventDefault(); // the B button never takes the focus (keeps a phone's selection)
+  const pieces = [];
+  shown.plain.split('').forEach((c, i) => { const b = !!shown.mask[i]; const last = pieces[pieces.length - 1]; if (last && last.b === b) last.t += c; else pieces.push({ t: c, b }); });
   return (
     <div className="stack g4" style={style}>
       <div role="toolbar" aria-label={label} aria-controls={id} className="row g8" style={{ alignItems: 'center' }}>
@@ -166,10 +206,15 @@ export function RichArea({ id, value, onChange, rows = 4, placeholder, style, in
           style={{ minHeight: 36, minWidth: 44, padding: '0 12px', fontWeight: 800, fontSize: 15 }}>B</button>
         <span className="xs faint">Select words, then B to make them bold</span>
       </div>
-      <textarea ref={ref} id={id} className="input" rows={rows} value={value} placeholder={placeholder} style={inputStyle} maxLength={maxLength}
-        onChange={(e) => onChange(e.target.value)} onKeyDown={onKeyDown} onPaste={onPaste}
-        onSelect={remember} onKeyUp={remember} onMouseUp={remember} onTouchEnd={remember}
-        onBlur={() => { remember(); const clean = sanitizeRich(value || ''); if (clean !== (value || '')) onChange(clean); }} />
+      <div className="rich-wrap">
+        <div ref={mirror} className="rich-mirror" aria-hidden="true" data-testid={`${id}-shown`}>
+          {pieces.map((p, i) => (p.b ? <b key={i} data-bold="">{p.t}</b> : <span key={i}>{p.t}</span>))}{'​'}
+        </div>
+        <textarea ref={ref} id={id} className="input rich-box" rows={rows} value={shown.plain} placeholder={placeholder} style={inputStyle} maxLength={maxLength}
+          onChange={(e) => emit(e.target.value, editMask(shown.plain, shown.mask, e.target.value))} onKeyDown={onKeyDown} onPaste={onPaste}
+          onScroll={sync} onSelect={remember} onKeyUp={remember} onMouseUp={remember} onTouchEnd={remember}
+          onBlur={() => { remember(); const clean = sanitizeRich(raw); if (clean !== raw) onChange(clean); }} />
+      </div>
       {tooMuchBold(value) && <span className="xs" role="status" data-testid={`${id}-bold-tip`} style={{ color: 'var(--warning)' }}>{BOLD_TIP}</span>}
     </div>
   );
