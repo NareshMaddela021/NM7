@@ -407,14 +407,17 @@ async def test_board_downloads_csv_and_shortlisted_by_for_students(campus, owner
         err(await rec.put(f"/api/recruiter/{token}/board/{cid_a}", headers=h, json={"stage": "hired"}))
         == "invalid_input"
     )
+    await rec.put(f"/api/recruiter/{token}/board/{cands[1]['id']}", headers=h, json={"stage": "rejected"})
     dl = (await rec.post(f"/api/recruiter/{token}/downloads", headers=h, json={})).json()
+    # the board without the rejected
     assert [i["name"] for i in dl["items"]] == ["A Person"] and dl["stamp"].startswith("Shared with Acme Analytics")
     assert dl["items"][0]["data"]["personal"]["email"] == "a@example.com"  # contact after shortlist
     assert "B Person" in str(
         (await rec.post(f"/api/recruiter/{token}/downloads", headers=h, json={"ids": [c["id"] for c in cands]})).json()
     )
     csv = await rec.get(f"/api/recruiter/{token}/board.csv", headers=h)
-    assert csv.status_code == 200 and "A Person" in csv.text and "selected" in csv.text and "B Person" not in csv.text
+    # the whole board
+    assert csv.status_code == 200 and "A Person" in csv.text and "selected" in csv.text and "rejected" in csv.text
     # the coordinator's table and the dashboard count it
     rows = (await owner.get("/api/admin/shared-resumes", params={"orgId": org["id"]})).json()
     rows = rows if isinstance(rows, list) else rows.get("rows", rows.get("items", []))

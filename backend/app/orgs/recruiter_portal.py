@@ -747,7 +747,7 @@ async def downloads(
     x_recruiter_session: str | None = Header(None),
 ) -> dict[str, Any]:
     """The resumes for a ZIP / combined PDF (drawn in the recruiter's browser, in the college format): the chosen
-    students, or everyone on the board. Rate-limited; only when the invite allows PDFs."""
+    students, or everyone on the board who isn't rejected. Rate-limited; only when the invite allows PDFs."""
     response.headers.update(NO_STORE)
     inv = await _signed_in(db, token, request, x_recruiter_session)
     if not inv["allow_pdf"]:
@@ -756,8 +756,8 @@ async def downloads(
     await rate_limit.check(db, key, DOWNLOAD_RULES, "Too many downloads. Please try again later.")
     board = inv.get("board") or {}
     rows = await visible(db, inv)
-    if body.ids is None:
-        rows = [r for r in rows if (board.get(r["membership_id"]) or {}).get("stage") in STAGES]
+    if body.ids is None:  # the board, without those marked rejected
+        rows = [r for r in rows if (board.get(r["membership_id"]) or {}).get("stage") in STAGES[:3]]
     else:
         want = set(body.ids)
         rows = [r for r in rows if _cid(inv["_id"], r["membership_id"]) in want]
