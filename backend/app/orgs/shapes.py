@@ -196,6 +196,7 @@ class FeaturesIn(CamelModel):
     members_download_free: bool | None = None
     placement_insights: bool | None = None
     template_rules: bool | None = None
+    recruiter_job_match: bool | None = None
 
 
 # ---------- helpers ----------
@@ -227,6 +228,7 @@ def _features_out(o: dict[str, Any]) -> dict[str, bool]:
         "membersDownloadFree": f["members_download_free"],
         "placementInsights": f["placement_insights"],
         "templateRules": f["template_rules"],
+        "recruiterJobMatch": f["recruiter_job_match"],
     }
 
 
@@ -252,6 +254,7 @@ def overrides_out(o: dict[str, Any]) -> dict[str, bool | None]:
         "membersDownloadFree": f.get("members_download_free"),
         "placementInsights": f.get("placement_insights"),
         "templateRules": f.get("template_rules"),
+        "recruiterJobMatch": f.get("recruiter_job_match"),
     }
 
 

@@ -25,6 +25,7 @@ from app.orgs.service import (
     group_problem,
     normalize_code,
     opt_out_membership,
+    shortlists,
 )
 from app.orgs.shapes import (
     BAD_CODE,
@@ -97,7 +98,17 @@ async def _my(db, uid: str) -> list[dict[str, Any]]:
     ms_ = [m async for m in db[MEMBERSHIPS].find({"user_id": uid, "left_at": None}).sort("joined_at", -1)]
     gs = {g["_id"]: g async for g in db[ORG_GROUPS].find({"_id": {"$in": [m["group_id"] for m in ms_]}})}
     os_ = {o["_id"]: o async for o in db[ORGANIZATIONS].find({"_id": {"$in": [m["org_id"] for m in ms_]}})}
-    return [membership_out(m, gs.get(m["group_id"]), os_.get(m["org_id"])) for m in ms_]
+    # "Shortlisted by <Company>": only when the organization shows it, and only while the member shares with recruiters
+    show = [oid for oid, o in os_.items() if (o.get("recruiter_settings") or {}).get("show_shortlist")]
+    by = await shortlists(db, show)
+    out = []
+    for m in ms_:
+        g, o = gs.get(m["group_id"]), os_.get(m["org_id"])
+        row = membership_out(m, g, o)
+        on = m["org_id"] in show and row["shareWithRecruiters"] and row["recruiterOptIn"]
+        row["shortlistedBy"] = sorted({x["company"] for x in by.get(m["_id"], [])}) if on else []
+        out.append(row)
+    return out
 
 
 @me.get("")

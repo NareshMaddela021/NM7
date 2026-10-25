@@ -61,6 +61,7 @@ MEMBERSHIPS = "memberships"
 ORG_STAFF = "org_staff"  # coordinators / viewers of an organization (invited by email)
 EXPORT_JOBS = "export_jobs"  # admin bulk print / ZIP jobs: which memberships, so "done" can mark them printed
 KIOSKS = "kiosks"  # kiosk links for events (Phase 3A): token and exit PIN stored hashed
+RECRUITER_INVITES = "recruiter_invites"  # recruiter portal: invites by group (token, email codes, sessions hashed)
 RECRUITER_LINKS = "recruiter_links"  # Phase 3C: resumes shared with a recruiter (token / access code hashed)
 AI_USAGE = "ai_usage"  # daily AI call counters (core/ai_quota.py): per person, per kiosk link, site-wide, outcomes
 # Phase 4: organization plans (admin-editable, versioned; _id = plan id)
@@ -109,6 +110,7 @@ COLLECTIONS = (
     ROLL_LISTS,
     KIOSKS,
     RECRUITER_LINKS,
+    RECRUITER_INVITES,
     AI_USAGE,
     ORG_PLANS,
     INVOICES,
@@ -190,6 +192,10 @@ INDEXES: dict[str, list[IndexModel]] = {
     ],
     ROLL_LISTS: [IndexModel("org_id")],
     KIOSKS: [IndexModel("token_hash", unique=True), IndexModel([("org_id", ASCENDING), ("created_at", DESCENDING)])],
+    RECRUITER_INVITES: [
+        IndexModel("token_hash", unique=True),
+        IndexModel([("org_id", ASCENDING), ("created_at", DESCENDING)]),
+    ],
     RECRUITER_LINKS: [
         IndexModel("token_hash", unique=True),
         IndexModel([("org_id", ASCENDING), ("created_at", DESCENDING)]),
