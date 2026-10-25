@@ -69,7 +69,8 @@ test('invite → accept → coordinator portal → approve → remind → export
   await c.goto(portalUrl);
   await expect(c.getByRole('heading', { name: 'Govt Polytechnic Nellore' })).toBeVisible();
   await expect(c.getByText('Coordinator', { exact: false }).first()).toBeVisible();
-  await expect(c.getByRole('link', { name: 'Dashboard' })).toBeVisible(); // not the admin console
+  // the coordinator portal's own navigation, not the admin console (each group card has a Dashboard link too)
+  await expect(c.getByRole('navigation', { name: 'Organization' }).getByRole('link', { name: 'Dashboard' })).toBeVisible();
   await expect(c.getByRole('navigation', { name: 'Admin sections' })).toHaveCount(0);
   const card = c.getByRole('region', { name: 'Group Diploma 2026' });
   await expect(card.getByTestId('join-code')).toHaveText(code);

@@ -90,6 +90,7 @@ const OrgHome = named(portal, 'OrgHome');
 const PortalLayout = named(portal, 'PortalLayout');
 const PortalGroups = named(portal, 'PortalGroups');
 const PortalResumes = named(portal, 'PortalResumes');
+const PortalPlacement = named(portal, 'PortalPlacement');
 const PortalDashboard = named(portal, 'PortalDashboard');
 const PortalActivity = named(portal, 'PortalActivity');
 const PortalKiosks = named(portal, 'PortalKiosks');
@@ -377,6 +378,7 @@ export default function App() {
         <Route path="/org" element={C(<OrgHome />)} />
         <Route path="/org/:orgId" element={C(<PortalLayout />)}>
           <Route index element={<PortalGroups />} />
+          <Route path="dashboard" element={<PortalPlacement />} />
           <Route path="resumes" element={<PortalResumes />} />
           <Route path="groups/:groupId" element={<PortalDashboard />} />
           <Route path="kiosks" element={<PortalKiosks />} />
