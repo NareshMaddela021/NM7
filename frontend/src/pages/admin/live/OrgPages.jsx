@@ -24,6 +24,7 @@ import Kiosks from '../../org/Kiosks';
 import Branding from '../../org/Branding';
 import RecruiterLinks from '../../org/RecruiterLinks';
 import { OrgBilling } from './BillingPages';
+import Placement from '../../org/Placement';
 
 export const ORG_TYPES = [
   ['college', 'College'], ['institute', 'Coaching / training institute'], ['job_fair', 'Job fair'], ['skill_centre', 'Skill centre'],
@@ -308,7 +309,7 @@ function Features({ o, reload }) {
   );
 }
 
-function OrgDetail({ id, onBack }) {
+function OrgDetail({ id, onBack, onPlacement }) {
   const toast = useToast();
   const st = useApi(`/api/admin/orgs/${id}`);
   const [busy, run] = useAction(toast);
@@ -317,7 +318,7 @@ function OrgDetail({ id, onBack }) {
     <Loading st={st}>{(o) => { const ctx = { ...ADMIN_CTX, orgId: null, orgName: o.name, features: o.features || {} }; return (
       <>
         <PageHead title={o.name} sub={`${o.typeName}${o.city ? ` · ${o.city}` : ''} · ${o.groups} group${o.groups === 1 ? '' : 's'} · ${o.members} member${o.members === 1 ? '' : 's'}${o.status === 'archived' ? ' · archived' : ''}`}
-          right={<><button type="button" className="btn btn-outline" onClick={() => setEdit(edit ? null : { name: o.name, type: o.type, city: o.city, logoUrl: o.logoUrl, status: o.status })}>Edit organization</button><button type="button" className="btn btn-outline" onClick={onBack}>All organizations</button></>} />
+          right={<><button type="button" className="btn btn-ink" onClick={onPlacement}>Placement dashboard</button><button type="button" className="btn btn-outline" onClick={() => setEdit(edit ? null : { name: o.name, type: o.type, city: o.city, logoUrl: o.logoUrl, status: o.status })}>Edit organization</button><button type="button" className="btn btn-outline" onClick={onBack}>All organizations</button></>} />
         {edit && (
           <form className="card stack g12" aria-label="Edit organization" onSubmit={(e) => { e.preventDefault(); run(async () => { await http(`/api/admin/orgs/${id}`, { method: 'PATCH', body: edit }); setEdit(null); st.reload(); }, 'Saved'); }}>
             <OrgFields f={edit} set={setEdit} idp="eo" />
@@ -460,6 +461,22 @@ async function csvBlob(ctx, body, sort = 'name') {
   return res.blob();
 }
 
+/** Admin → Organizations: the demo college with made-up students (sales demos and testing; not in real numbers). */
+function DemoOrg({ onOpen, reload }) {
+  const toast = useToast();
+  const [busy, run] = useAction(toast);
+  return (
+    <section className="card stack g8" aria-label="Demo organization" data-testid="demo-org">
+      <strong>Demo organization</strong>
+      <span className="xs muted">“Demo Engineering College”: two closed groups, 48 made-up students and a roll list, on the Campus plan. Marked Demo and left out of real numbers; demo students can’t sign in and are never emailed. Reset puts it back to the starting data.</span>
+      <div className="row g8" style={{ flexWrap: 'wrap' }}>
+        <button type="button" className="btn btn-ink" disabled={busy} onClick={() => run(async () => { const r = await http('/api/admin/demo-org', { method: 'POST' }); reload(); onOpen(r.orgId); }, 'Demo organization ready')}>Create / reset demo</button>
+        <button type="button" className="btn btn-outline" disabled={busy} onClick={() => run(async () => { await http('/api/admin/demo-org', { method: 'DELETE' }); reload(); }, 'Demo organization removed')}>Remove demo</button>
+      </div>
+    </section>
+  );
+}
+
 /** /admin/orgs */
 export function LiveOrgs() {
   const toast = useToast();
@@ -470,7 +487,8 @@ export function LiveOrgs() {
   const [busy, run] = useAction(toast);
   const [f, setF] = useState({ name: '', type: 'college', city: '', logoUrl: '' });
   if (open && group) return <GroupDashboard ctx={ADMIN_CTX} groupId={group} onBack={<button type="button" className="btn btn-outline" onClick={() => setParams({ org: open })}>Back to the organization</button>} />;
-  if (open) return <OrgDetail id={open} onBack={() => setParams({})} />;
+  if (open && params.get('view') === 'placement') return <><PageHead title="Placement dashboard" sub="What the organization’s coordinators see on Org > Dashboard." right={<button type="button" className="btn btn-outline" onClick={() => setParams({ org: open })}>Back to the organization</button>} /><Placement base={`/api/org/${encodeURIComponent(open)}`} role="admin" canManage /></>;
+  if (open) return <OrgDetail id={open} onBack={() => setParams({})} onPlacement={() => setParams({ org: open, view: 'placement' })} />;
   return (
     <>
       <PageHead title="Organizations" sub="Colleges, institutes, job fairs and other groups whose people share their resumes with Nm7." right={<Link className="btn btn-outline" to="/admin/shared-resumes">Shared resumes</Link>} />
@@ -479,12 +497,13 @@ export function LiveOrgs() {
           <table className="table"><thead><tr><th>Organization</th><th>Type</th><th>Plan</th><th>Groups</th><th>Members</th><th>Added</th></tr></thead>
             <tbody>{orgs.map((o) => (
               <tr key={o.id}>
-                <td><button type="button" className="link-btn" onClick={() => setParams({ org: o.id })}>{o.name}</button>{o.city && <div className="xs faint">{o.city}</div>}{o.status === 'archived' && <span className="badge b-neutral">Archived</span>}</td>
+                <td><button type="button" className="link-btn" onClick={() => setParams({ org: o.id })}>{o.name}</button>{o.city && <div className="xs faint">{o.city}</div>}{o.status === 'archived' && <span className="badge b-neutral">Archived</span>}{o.demo && <span className="badge b-warning">Demo</span>}</td>
                 <td className="small">{o.typeName}</td><td className="small">{o.plan?.name || 'Free'}{o.plan?.state === 'grace' ? ' (grace)' : o.plan?.state === 'expired' ? ` (${o.plan.lastPlan} ended)` : ''}</td><td className="small">{o.groups}</td><td className="small">{o.members}</td><td className="small">{day(o.createdAt)}</td>
               </tr>
             ))}</tbody></table>
         </div>
       )}</Loading>
+      <DemoOrg onOpen={(id) => setParams({ org: id, view: 'placement' })} reload={st.reload} />
       <form className="card stack g12" aria-label="New organization" onSubmit={(e) => { e.preventDefault(); run(async () => { const o = await http('/api/admin/orgs', { method: 'POST', body: f }); setF({ name: '', type: 'college', city: '', logoUrl: '' }); setParams({ org: o.id }); }, 'Organization added'); }}>
         <strong>New organization</strong>
         <OrgFields f={f} set={setF} idp="no" />

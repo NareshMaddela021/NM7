@@ -17,6 +17,7 @@ import Branding from './Branding';
 import RecruiterLinks from './RecruiterLinks';
 import Billing from './Billing';
 import Team from './Team';
+import Placement from './Placement';
 import { planBanners } from '../../lib/orgBilling';
 
 const ROLE = { owner: 'Owner', coordinator: 'Coordinator', viewer: 'Viewer (view and print)', admin: 'Nm7 admin' };
@@ -61,7 +62,7 @@ export function PortalLayout() {
     groupPatchUrl: (g) => `${apiBase(orgId)}/groups/${g.id}`,
   } : null), [st.data, orgId]);
   const owner = !!st.data?.isOwner;
-  const tabs = [['', 'My groups'], ['/resumes', 'Shared resumes'], ...(st.data?.features?.kiosk ? [['/kiosks', 'Kiosks']] : []), ...(st.data?.features?.branding ? [['/branding', 'Branding']] : []), ...(st.data?.features?.recruiterLinks ? [['/recruiters', 'Recruiter links']] : []), ...(owner ? [['/team', 'Team'], ['/billing', 'Billing']] : []), ['/activity', 'Activity']];
+  const tabs = [['', 'My groups'], ['/dashboard', 'Dashboard'], ['/resumes', 'Shared resumes'], ...(st.data?.features?.kiosk ? [['/kiosks', 'Kiosks']] : []), ...(st.data?.features?.branding ? [['/branding', 'Branding']] : []), ...(st.data?.features?.recruiterLinks ? [['/recruiters', 'Recruiter links']] : []), ...(owner ? [['/team', 'Team'], ['/billing', 'Billing']] : []), ['/activity', 'Activity']];
   return (
     <Frame wide>
       {st.error ? (
@@ -131,6 +132,13 @@ export function PortalGroups() {
       {home.canCreateGroups && <NewGroup ctx={ctx} url={`${ctx.base}/groups`} busy={busy} run={run} reload={reload} />}
     </>
   );
+}
+
+/** /org/:orgId/dashboard — the placement dashboard (whole organization or one group) */
+export function PortalPlacement() {
+  const { ctx, home } = useOutletContext();
+  usePageMeta(portalMeta(`Dashboard · ${home.name}`));
+  return <Placement base={ctx.base} role={ctx.role} canManage={home.canManage} billingUrl={home.isOwner ? `/org/${ctx.orgId}/billing` : null} />;
 }
 
 /** /org/:orgId/resumes */
