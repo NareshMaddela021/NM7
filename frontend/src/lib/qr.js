@@ -3,7 +3,7 @@
 // fetch() a data: URL — the site's CSP (connect-src) blocks it, and that is how "Download QR code" once did nothing.
 import QRCode from 'qrcode';
 import { saveBlob } from './fileDownload';
-import { fileSlug } from './fileName';
+import { fileName, fileSlug } from './fileName';
 
 export const QR_PRINT_SIZE = 1024; // px, enough for an A4 poster
 export const QR_FAILED = 'Couldn’t download the QR. Long-press or right-click the QR to save it.';
@@ -37,7 +37,10 @@ export function canvasToPng(canvas) {
 export const qrPngBlob = async (text, size = QR_PRINT_SIZE) => canvasToPng(await qrCanvas(text, size));
 
 /** "<org>_<group>_QR.png" with the same rule as resume files (letters and digits stay, the rest one underscore). */
-export const qrFileName = (...parts) => `${fileSlug(parts.filter(Boolean).join(' ')) || 'Nm7'}_QR.png`;
+const named = (parts) => (parts.some((p) => fileSlug(p)) ? parts : ['Nm7']);
+export const qrFileName = (...parts) => fileName([...named(parts), 'QR'], 'png');
+/** The A4 poster: the same name with _QR_poster.pdf. */
+export const qrPosterFileName = (...parts) => fileName([...named(parts), 'QR', 'poster'], 'pdf');
 
 /** Saves the QR of `text` as a PNG; throws with QR_FAILED when the browser won't make or save it. */
 export async function downloadQrPng(text, filename) {

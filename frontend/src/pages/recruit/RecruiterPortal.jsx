@@ -12,8 +12,8 @@ import { brandDesign, prepareBrand } from '../../lib/branding';
 import { brandFor } from '../../lib/placementFormat';
 import { usePageMeta } from '../../lib/meta';
 import { freshImport } from '../../lib/chunks';
-import { resumeFileName } from '../../lib/fileName';
-import { STAGES, STAGE_LABEL, boardColumns, cardLine, fileSafe, filterCount, searchQuery, sessionFromHash } from '../../lib/recruiterPortal';
+import { fileName, resumeFileName } from '../../lib/fileName';
+import { STAGES, STAGE_LABEL, boardColumns, cardLine, filterCount, searchQuery, sessionFromHash } from '../../lib/recruiterPortal';
 import { API_BASE, ApiError } from '../../services/http';
 import ResumePreview from '../builder/ResumePreview';
 import ErrorBoundary from '../../components/ErrorBoundary';
@@ -164,7 +164,7 @@ function Workspace({ base, session, onSignedOut }) {
     try {
       if (kind === 'csv') {
         const res = await rq(`${base}/board.csv`, session, { raw: true });
-        save(await res.blob(), `${fileSafe(d.company)}_shortlist.csv`);
+        save(await res.blob(), fileName([d.company, 'shortlist'], 'csv'));
         return;
       }
       const r = await rq(`${base}/downloads`, session, { method: 'POST', body: {} });
@@ -180,12 +180,12 @@ function Workspace({ base, session, onSignedOut }) {
       }
       const college = r.cover?.brand && brands[r.cover.brand]?.collegeName ? brands[r.cover.brand] : null;
       const cover = college ? await bytes(collegeCoverPdf({ brand: college, batches: r.cover.batches, branches: r.cover.branches, count: files.length })) : null;
-      const name = `${fileSafe(d.company)}_shortlist`;
+      const name = (ext) => fileName([d.company, 'shortlist'], ext);
       if (kind === 'zip') {
-        save(new Blob([zipFiles(cover ? [{ fileName: '00_Cover.pdf', bytes: cover }, ...files] : files)], { type: 'application/zip' }), `${name}.zip`);
+        save(new Blob([zipFiles(cover ? [{ fileName: '00_Cover.pdf', bytes: cover }, ...files] : files)], { type: 'application/zip' }), name('zip'));
       } else {
         const out = await mergePdfs(cover ? [cover, ...files.map((f) => f.bytes)] : files.map((f) => f.bytes));
-        save(new Blob([out.bytes], { type: 'application/pdf' }), `${name}.pdf`);
+        save(new Blob([out.bytes], { type: 'application/pdf' }), name('pdf'));
       }
       toast(kind === 'zip' ? 'ZIP ready' : 'PDF ready');
     } catch (e) { fail(e); } finally { setBusy(''); }

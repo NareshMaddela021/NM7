@@ -10,7 +10,6 @@ hang off the same documents: organizations.roles (reserved), groups.settings and
 
 import re
 import secrets
-import unicodedata
 from datetime import date, datetime, timedelta
 from typing import Any
 
@@ -18,6 +17,8 @@ from pymongo.asynchronous.database import AsyncDatabase
 
 from app.core.db import MEMBERSHIPS, ORG_GROUPS, ORGANIZATIONS, RESUMES, USERS
 from app.core.errors import ApiError
+from app.core.filenames import file_name as build_file_name
+from app.core.filenames import slug
 from app.core.pii import scrub_id_numbers
 from app.core.richtext import plain
 from app.core.security import keyed_hash, same
@@ -154,21 +155,18 @@ def roll_key(defs: list[dict[str, Any]]) -> str | None:
 
 
 def safe_part(s: str) -> str:
-    """A file-name slug that keeps names in any script: letters and digits (`str.isalnum()`), the combining marks
-    that Indic vowel signs and viramas are (category M) and the zero-width joiners inside a word stay; every other
-    run of characters becomes one underscore."""
-    keep = lambda c: c.isalnum() or unicodedata.category(c).startswith("M") or c in "\u200c\u200d"  # noqa: E731
-    out = re.sub(r"_+", "_", "".join(c if keep(c) else "_" for c in s or "")).strip("_\u200c\u200d")
-    return out[:60]
+    """A file-name slug that keeps names in any script (app/core/filenames.py)."""
+    return slug(s)
 
 
 def file_name(roll: str | None, name: str, fallback: str = "") -> str:
-    """`<roll>_<name>_Resume.pdf`; when neither the roll nor the name leaves a usable slug, the first 8 characters of
-    `fallback` (the membership id) keep the file identifiable instead of a bare `Resume.pdf`."""
-    parts = [safe_part(roll or ""), safe_part(name)]
-    if not any(parts):
-        parts = [safe_part(fallback)[:8]]
-    return "_".join(p for p in [*parts, "Resume"] if p) + ".pdf"
+    """`<roll>_<name>_Resume.pdf` (repeats dropped: a roll already in the name isn't said twice); when neither the
+    roll nor the name leaves a usable slug, the first 8 characters of `fallback` (the membership id) keep the file
+    identifiable instead of a bare `Resume.pdf`."""
+    parts = [roll or "", name]
+    if not any(slug(p) for p in parts):
+        parts = [slug(fallback)[:8]]
+    return build_file_name([*parts, "Resume"], "pdf", fallback="Resume")
 
 
 def unique_names(names: list[str]) -> list[str]:

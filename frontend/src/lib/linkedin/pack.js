@@ -5,7 +5,7 @@ import { createOrder, pay } from '../../services/api';
 import { buyOnWhatsApp } from '../waPay';
 import { canvasToPng } from '../qr';
 import { saveBlob } from '../fileDownload';
-import { fileSlug } from '../fileName';
+import { fileName, fileSlug } from '../fileName';
 
 export const PACK_ITEMS = [
   '5 headline options',
@@ -92,7 +92,7 @@ export function drawBanner(canvas, { name = '', role = '', line = '' }, accent =
   return canvas;
 }
 
-export const bannerFileName = (name) => `${fileSlug(name || '') || 'My'}_LinkedIn_Banner.png`;
+export const bannerFileName = (name) => fileName([fileSlug(name || '') || 'My', 'LinkedIn', 'Banner'], 'png');
 
 /** Draws and saves the banner as a PNG (toBlob, never a fetch of a data: URL; the same as the QR download). */
 export async function downloadBanner(banner, accent) {

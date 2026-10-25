@@ -1,5 +1,7 @@
 // Recruiter portal (colleges, Phase 3): plain logic for the recruiter's page (/recruiter/:token) and the
 // coordinator's invite list. The server decides who is visible; this only shapes requests and the board.
+import { fileName } from './fileName';
+
 
 export const STAGES = ['shortlisted', 'interview', 'selected', 'rejected'];
 export const STAGE_LABEL = { none: 'Not on the board', shortlisted: 'Shortlisted', interview: 'Interview', selected: 'Selected', rejected: 'Rejected' };
@@ -53,4 +55,4 @@ export function cardLine(c) {
 }
 
 /** A safe file-name piece from a company name. */
-export const fileSafe = (s) => String(s || '').replace(/[^\p{L}\p{N}]+/gu, '_').replace(/^_+|_+$/g, '') || 'Shortlist';
+export const fileSafe = (s) => fileName([s], '', { fallback: 'Shortlist' }); // kept for callers; names come from lib/fileName

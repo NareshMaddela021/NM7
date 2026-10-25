@@ -1,5 +1,5 @@
 // QR downloads, on a desktop and a 390 px phone: a group's "Download QR code (PNG)" saves a print-size PNG
-// (≥ 1024 px, white quiet zone) named <org>_<group>_QR.png that decodes to the group's join link; the A4 poster PDF
+// (≥ 1024 px, white quiet zone) named <org>_<group>_QR.png (the org name once, even when the group's name has it) that decodes to the group's join link; the A4 poster PDF
 // downloads; the kiosk link's QR downloads and decodes to the kiosk link. No data: URL is ever fetched (the site's
 // CSP blocks that — the bug that made the button do nothing) and nothing fails in the console.
 import { readFileSync } from 'node:fs';
@@ -57,6 +57,15 @@ for (const [label, size] of SIZES) {
     expect(doc.getPageCount()).toBe(1);
     const { width, height } = doc.getPage(0).getSize();
     expect([Math.round(width), Math.round(height)]).toEqual([595, 842]);
+
+    // a group whose name already holds the organization's name: "AsuraaX" is said once
+    await page.getByRole('button', { name: 'New group' }).click();
+    await form.getByLabel('Group name').fill('AsuraaX Campus Drive');
+    await form.getByLabel('Join code').fill(`${code}B`);
+    await form.getByRole('button', { name: 'Save group' }).click();
+    const card2 = page.getByRole('region', { name: 'Group AsuraaX Campus Drive' });
+    expect((await saved(page, () => card2.getByRole('button', { name: 'Download QR code (PNG)' }).click())).name).toBe('AsuraaX_Campus_Drive_QR.png');
+    expect((await saved(page, () => card2.getByRole('button', { name: 'Download QR poster (PDF)' }).click())).name).toBe('AsuraaX_Campus_Drive_QR_poster.pdf');
 
     // the kiosk link's QR (kiosks switched on for this organization)
     const kioskSwitch = page.getByRole('region', { name: 'Features' }).getByRole('combobox', { name: /Kiosk mode/ });
