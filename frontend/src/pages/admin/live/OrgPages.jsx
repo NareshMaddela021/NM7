@@ -24,6 +24,7 @@ import { auditText } from './auditText';
 import Kiosks from '../../org/Kiosks';
 import Branding from '../../org/Branding';
 import RecruiterLinks from '../../org/RecruiterLinks';
+import RecruiterInvites from '../../org/RecruiterInvites';
 import { OrgBilling } from './BillingPages';
 import Placement from '../../org/Placement';
 
@@ -283,10 +284,11 @@ const FEATURES = [
   ['branding', 'Branded templates', 'The organization’s logo, colour and header on every org-side print and export.'],
   ['recruiterLinks', 'Recruiter links', 'Safe links that send chosen (opted-in) resumes to a recruiter.'],
   ['membersDownloadFree', 'Free downloads for members', 'Members of its groups download their resume without paying (the group switch must be on too).'],
+  ['recruiterJobMatch', 'Recruiter job match', 'Recruiters paste a job description and every visible student gets a match score.'],
   ['templateRules', 'Placement template rules', 'Section order, required sections, page limit, photo and roll-number rules in the official placement format.'],
   ['placementInsights', 'Placement dashboard insights', 'Charts, who’s-missing lists, reminders and roll lists on Org > Dashboard (tiles are on every plan).'],
 ];
-const FEATURE_KEY = { kiosk: 'kiosk', branding: 'branding', recruiterLinks: 'recruiter_links', membersDownloadFree: 'members_download_free', placementInsights: 'placement_insights', templateRules: 'template_rules' };
+const FEATURE_KEY = { kiosk: 'kiosk', branding: 'branding', recruiterLinks: 'recruiter_links', membersDownloadFree: 'members_download_free', placementInsights: 'placement_insights', templateRules: 'template_rules', recruiterJobMatch: 'recruiter_job_match' };
 const OVERRIDE = { plan: null, on: true, off: false };
 
 /** Admin → Organizations → (organization) → Features: the plan decides; Nm7 can force one on or off. */
@@ -336,7 +338,7 @@ function OrgDetail({ id, onBack, onPlacement }) {
         <Features o={o} reload={st.reload} />
         {o.features?.kiosk && <Kiosks orgId={id} groups={o.groupList} canManage />}
         {o.features?.branding && <><strong style={{ marginTop: 8 }}>Branding</strong><Branding orgId={id} canManage /></>}
-        {o.features?.recruiterLinks && <RecruiterLinks orgId={id} canManage />}
+        {o.features?.recruiterLinks && <><RecruiterInvites orgId={id} groups={o.groupList} canManage /><RecruiterLinks orgId={id} canManage /></>}
       </>
     ); }}</Loading>
   );
@@ -470,9 +472,10 @@ function DemoOrg({ onOpen, reload }) {
   return (
     <section className="card stack g8" aria-label="Demo organization" data-testid="demo-org">
       <strong>Demo organization</strong>
-      <span className="xs muted">“Demo Engineering College”: two closed groups, 48 made-up students and a roll list, on the Campus plan. Marked Demo and left out of real numbers; demo students can’t sign in and are never emailed. Reset puts it back to the starting data.</span>
+      <span className="xs muted">“Demo Engineering College”: two closed groups, 48 made-up students and a roll list, on the Campus plan, with a recruiter invite from a made-up company (“Reset and open as a recruiter” signs you straight in to it, no email code). Marked Demo and left out of real numbers; demo students can’t sign in and are never emailed. Reset puts it back to the starting data.</span>
       <div className="row g8" style={{ flexWrap: 'wrap' }}>
         <button type="button" className="btn btn-ink" disabled={busy} onClick={() => run(async () => { const r = await http('/api/admin/demo-org', { method: 'POST' }); reload(); onOpen(r.orgId); }, 'Demo organization ready')}>Create / reset demo</button>
+        <button type="button" className="btn btn-outline" disabled={busy} onClick={() => run(async () => { const r = await http('/api/admin/demo-org', { method: 'POST' }); window.location.assign(r.recruiterPath); })}>Reset and open as a recruiter</button>
         <button type="button" className="btn btn-outline" disabled={busy} onClick={() => run(async () => { await http('/api/admin/demo-org', { method: 'DELETE' }); reload(); }, 'Demo organization removed')}>Remove demo</button>
       </div>
     </section>

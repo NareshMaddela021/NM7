@@ -15,6 +15,7 @@ import { AuditList, GroupCard, GroupDashboard, NewGroup, SharedResumes } from '.
 import Kiosks from './Kiosks';
 import Branding from './Branding';
 import RecruiterLinks from './RecruiterLinks';
+import RecruiterInvites from './RecruiterInvites';
 import Billing from './Billing';
 import Team from './Team';
 import Placement from './Placement';
@@ -178,7 +179,7 @@ export function PortalRecruiters() {
   const { ctx, home } = useOutletContext();
   usePageMeta(portalMeta(`Recruiter links · ${home.name}`));
   if (!home.features?.recruiterLinks) return <Navigate to={`/org/${ctx.orgId}`} replace />;
-  return <RecruiterLinks orgId={ctx.orgId} canManage={home.canManage} sharedUrl={ctx.sharedUrl} />;
+  return <><RecruiterInvites orgId={ctx.orgId} groups={home.groupList} canManage={home.canManage} /><RecruiterLinks orgId={ctx.orgId} canManage={home.canManage} sharedUrl={ctx.sharedUrl} /></>;
 }
 
 /** /org/:orgId/activity */
