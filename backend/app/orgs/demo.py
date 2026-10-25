@@ -109,6 +109,17 @@ def _resume(rng: random.Random, name: str, branch: str, email: str, quality: int
         "langs": [{"name": "English", "level": "Fluent"}],
         "links": {"linkedin": f"linkedin.com/in/{name.lower().replace(' ', '-')}-demo"} if quality == 3 else {},
         "design": {"preset": "fresher"},
+        # the rest of what the builder saves, empty, so every screen gets a complete resume
+        "ach": [],
+        "custom": [],
+        "linkExtras": [],
+        "hobbies": "",
+        "strengths": "",
+        "pinfo": {},
+        "hidden": {},
+        "titles": {},
+        "offLines": {},
+        "showPhoto": False,
     }
     return d
 

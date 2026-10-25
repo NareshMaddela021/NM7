@@ -8,6 +8,7 @@
 // doesn't follow the college's rules is listed for the member to fix (`checklist`).
 import { DEFAULT_DESIGN, TEMPLATE_PRESETS } from '../pages/builder/design';
 import { PRINTABLE, resolveOrder } from '../pages/builder/schema';
+import { resumeShape } from '../pages/builder/entries';
 
 export const SECTION_NAMES = PRINTABLE; // summary, exp, proj, edu, skills, certs, ach, langs, hobbies, strengths, pinfo, decl
 export const ALL_TEMPLATES = Object.keys(TEMPLATE_PRESETS);
@@ -52,7 +53,7 @@ export function formatDesign(brand, data) {
 export function formatData(data, brand) {
   const rules = brand?.rules;
   if (!data || !rules) return data;
-  const own = resolveOrder({ custom: [], ...data });
+  const own = resolveOrder(resumeShape(data)); // an old resume may miss lists the order reads
   const first = (rules.order || []).filter((id) => own.includes(id));
   return {
     ...data,
@@ -73,6 +74,7 @@ export function checklist(data, brand, pages = null) {
   const rules = brand?.rules;
   const items = [];
   if (!data || !rules) return items;
+  data = resumeShape(data); // an old resume may miss lists the rules read
   const name = (id) => SECTION_NAMES[id] || id;
   for (const id of rules.required || []) {
     items.push({ key: `req-${id}`, ok: sectionFilled(data, id), text: `${name(id)} is required` });

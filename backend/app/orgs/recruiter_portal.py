@@ -673,9 +673,12 @@ async def job_match(
             | {
                 "found": [i["name"] for i in s["items"] if i["status"] in ("found", "weak")][:6],
                 "missing": [i["name"] for i in s["items"] if i["status"] == "missing"][:6],
+                "_found": sum(1 for i in s["items"] if i["group"] == "must" and i["status"] == "found"),
+                "_missing": sum(1 for i in s["items"] if i["status"] == "missing"),
             }
         )
-    scored.sort(key=lambda c: (-(c["match"] or 0), c["name"].lower()))
+    # best first; a tie goes to more must-haves found, then fewer missing, then the ATS score
+    scored.sort(key=lambda c: (-(c["match"] or 0), -c.pop("_found"), c.pop("_missing"), -c["ats"], c["name"].lower()))
     await audit(db, None, "recruiter_match", target=inv["_id"], data=_audit(inv, count=len(scored)), ip=None)
     return {"title": p.title, "company": p.company, "must": p.must, "candidates": scored}
 

@@ -16,6 +16,7 @@ import { resumeFileName } from '../../lib/fileName';
 import { STAGES, STAGE_LABEL, boardColumns, cardLine, fileSafe, filterCount, searchQuery, sessionFromHash } from '../../lib/recruiterPortal';
 import { API_BASE, ApiError } from '../../services/http';
 import ResumePreview from '../builder/ResumePreview';
+import ErrorBoundary from '../../components/ErrorBoundary';
 import { designOf } from '../builder/design';
 
 const storeKey = (token) => `nm7-recruiter:${token.slice(0, 16)}`;
@@ -336,7 +337,7 @@ function QuickView({ base, session, c, onClose, onStage, onFail }) {
       </div>
       {st.loading ? <div className="row g12 muted" role="status"><Spinner /> Loading…</div>
         : st.error ? <p role="alert">{st.error.status === 404 ? 'This student is no longer shared with you.' : st.error.message}</p>
-          : <ResumePreview data={st.data.data} design={brand ? brandDesign(brand, st.data.data) : designOf(st.data.data)} brand={brand} stamp={st.data.stamp} />}
+          : <ErrorBoundary title="This resume couldn’t be shown." text="Something in it couldn’t be drawn. Try again, or ask the student to open and save it once."><ResumePreview data={st.data.data} design={brand ? brandDesign(brand, st.data.data) : designOf(st.data.data)} brand={brand} stamp={st.data.stamp} /></ErrorBoundary>}
     </Dialog>
   );
 }

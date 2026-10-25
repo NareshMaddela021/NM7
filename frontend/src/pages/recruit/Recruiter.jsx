@@ -14,6 +14,7 @@ import { freshImport } from '../../lib/chunks';
 import { API_BASE, ApiError } from '../../services/http';
 import { PublicResume } from '../me/MeShare';
 import ResumePreview from '../builder/ResumePreview';
+import ErrorBoundary from '../../components/ErrorBoundary';
 import { designOf } from '../builder/design';
 
 /** /r/:slug — a recruiter link (long token) or a member's public resume link (a short name). */
@@ -172,7 +173,7 @@ function ViewOne({ base, code, c, onClose }) {
     <Dialog showTitle wide title={c.name} onClose={onClose}>
       {st.loading ? <div className="row g12 muted" role="status"><Spinner /> Loading…</div>
         : st.error ? <p role="alert">{st.error.status === 404 ? 'This candidate is no longer on the link.' : st.error.message}</p>
-          : <ResumePreview data={st.data.data} design={st.data.brand ? brandDesign(st.data.brand, st.data.data) : designOf(st.data.data)} brand={st.data.brand} stamp={st.data.stamp} />}
+          : <ErrorBoundary title="This resume couldn’t be shown." text="Something in it couldn’t be drawn. Try again, or ask the student to open and save it once."><ResumePreview data={st.data.data} design={st.data.brand ? brandDesign(st.data.brand, st.data.data) : designOf(st.data.data)} brand={st.data.brand} stamp={st.data.stamp} /></ErrorBoundary>}
     </Dialog>
   );
 }

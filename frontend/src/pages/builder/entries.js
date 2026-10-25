@@ -48,9 +48,29 @@ export function hiddenCount(d, id) {
   return c ? c.items.filter((x) => x.off).length : 0;
 }
 
+const LISTS = [...ENTRY_LISTS, 'skillGroups', 'linkExtras', 'custom'];
+const TEXTS = ['summary', 'hobbies', 'strengths'];
+const OBJECTS = ['personal', 'links', 'hidden', 'titles', 'pinfo', 'offLines'];
+const isObj = (v) => !!v && typeof v === 'object' && !Array.isArray(v);
+
+/** Every list, text and group a renderer reads, present and of the right kind: resumes saved by older builders,
+ * the demo college's made-up resumes or a hand-made API resume can leave some out (or hold null). Nothing that is
+ * there is changed: a missing list becomes [], a missing text '', a missing group {}; list entries that aren't
+ * objects are dropped, and a custom section without items gets []. */
+export function resumeShape(d) {
+  if (!isObj(d)) return d;
+  const out = { ...d };
+  LISTS.forEach((k) => { out[k] = Array.isArray(d[k]) ? d[k].filter(isObj) : []; });
+  out.custom = out.custom.map((c) => ({ ...c, items: Array.isArray(c.items) ? c.items.filter(isObj) : [] }));
+  TEXTS.forEach((k) => { if (typeof d[k] !== 'string') out[k] = d[k] == null ? '' : String(d[k]); });
+  OBJECTS.forEach((k) => { if (!isObj(d[k])) out[k] = {}; });
+  return out;
+}
+
 /** The resume as printed: switched-off entries removed. Used by the preview, PDF, Word, ATS score and share link. */
-export function visibleResume(d) {
-  if (!d) return d;
+export function visibleResume(d0) {
+  if (!d0) return d0;
+  const d = resumeShape(d0);
   const out = { ...d };
   ENTRY_LISTS.forEach((k) => { if (Array.isArray(d[k])) out[k] = d[k].filter(on); });
   if (Array.isArray(d.skillGroups)) out.skillGroups = d.skillGroups.filter(on);

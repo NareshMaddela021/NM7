@@ -17,6 +17,7 @@ import { memberStatus, staffSummary } from '../../lib/orgDashboard';
 import { brandDesign } from '../../lib/branding';
 import { brandFor, checklist } from '../../lib/placementFormat';
 import ResumePreview from '../builder/ResumePreview';
+import ErrorBoundary from '../../components/ErrorBoundary';
 
 const NEW = '__new__';
 const consentKey = (code) => `nm7-join-consent:${code}`;
@@ -283,7 +284,7 @@ function CollegeFormat({ g, resume }) {
       {todo.length > 0 && <Link to="/builder" className="small">Fix these in my resume</Link>}
       {data && (
         <div style={{ maxWidth: 420, width: '100%' }} aria-label="Your resume in the college format">
-          <ResumePreview data={data} design={brandDesign(g.format, data)} brand={brand} onPages={setPages} decorative />
+          <ErrorBoundary title="This resume couldn’t be shown." text="Something in it couldn’t be drawn. Try again, or ask the student to open and save it once."><ResumePreview data={data} design={brandDesign(g.format, data)} brand={brand} onPages={setPages} decorative /></ErrorBoundary>
         </div>
       )}
     </div>

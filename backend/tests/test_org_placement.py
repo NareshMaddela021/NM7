@@ -233,3 +233,16 @@ async def test_demo_org(owner, db, outbox):
     assert (await owner.delete("/api/admin/demo-org")).status_code == 204
     assert await db[USERS].count_documents({"demo": True}) == 0
     assert await db[ORGANIZATIONS].count_documents({"_id": demo.ORG_ID}) == 0
+
+
+def test_demo_resumes_have_everything_the_builder_saves():
+    """The screens read every list of a resume; the demo's made-up resumes carry them all (empty when unused)."""
+    import random
+
+    d = demo._resume(random.Random(1), "Lakshmi Rao", "CSE", "lakshmi@demo.nm7.invalid", 0)
+    for k in ("exp", "edu", "proj", "certs", "ach", "langs", "custom", "skillGroups", "linkExtras"):
+        assert isinstance(d[k], list), k
+    for k in ("personal", "links", "hidden", "titles", "pinfo", "offLines"):
+        assert isinstance(d[k], dict), k
+    for k in ("summary", "hobbies", "strengths"):
+        assert isinstance(d[k], str), k
