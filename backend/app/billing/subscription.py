@@ -20,7 +20,7 @@ from pymongo.asynchronous.database import AsyncDatabase
 
 from app.audit import audit
 from app.billing import emails
-from app.billing.plans import LIMIT_KEYS, free_plan, get_plans, period_end, terms_of
+from app.billing.plans import DEFAULT_PLANS, LIMIT_KEYS, free_plan, get_plans, period_end, terms_of
 from app.billing.settings import get_billing
 from app.core.db import KIOSKS, MEMBERSHIPS, ORG_GROUPS, ORG_STAFF, ORGANIZATIONS, USERS, Session
 from app.core.email import Mailer, send_safely
@@ -74,11 +74,19 @@ def plan_features(o: dict[str, Any] | None, today: date | None = None) -> dict[s
     t = in_effect(o, today)
     kiosks = (t.get("limits") or {}).get("kiosks", 0)
     f = t.get("features") or {}
+
+    def later(key: str) -> bool:
+        """A switch added after these terms were frozen: what the same plan gives by default (Free: off)."""
+        if key in f:
+            return bool(f[key])
+        return bool((DEFAULT_PLANS.get(t.get("plan_id") or "free") or DEFAULT_PLANS["free"])["features"].get(key))
+
     return {
         "kiosk": kiosks is None or kiosks > 0,
         "branding": bool(f.get("branding")),
         "recruiter_links": bool(f.get("recruiter_links")),
         "members_download_free": bool(f.get("members_download_free")),
+        "placement_insights": later("placement_insights"),
     }
 
 

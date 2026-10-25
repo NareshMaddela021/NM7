@@ -18,12 +18,13 @@ import logging
 from datetime import date, timedelta
 from typing import Any
 
-from fastapi import APIRouter, Query, Request
+from fastapi import APIRouter, Query, Request, Response
 from pymongo.errors import DuplicateKeyError
 
 from app.audit import audit
 from app.auth.models import new_id
 from app.billing.subscription import check_limit
+from app.core import rate_limit
 from app.core.db import AUDIT_LOG, DB, MEMBERSHIPS, ORG_GROUPS, ORGANIZATIONS, RESUMES, USERS
 from app.core.errors import ApiError
 from app.core.time import now
@@ -248,6 +249,26 @@ async def list_orgs(db: DB, _: AdminScope) -> list[dict[str, Any]]:
         )
     }
     return [org_out(o, groups.get(o["_id"], 0), members.get(o["_id"], 0)) for o in orgs]
+
+
+@admin.post("/demo-org")
+async def make_demo_org(request: Request, db: DB, scope: AdminScope) -> dict[str, Any]:
+    """Creates (or resets to its starting data) the demo organization with made-up students."""
+    from app.orgs.demo import create_demo
+
+    await rate_limit.check(db, f"demo-org:{scope.actor_id}", [(10, timedelta(hours=1))])
+    await rate_limit.record(db, f"demo-org:{scope.actor_id}")
+    return await create_demo(db, scope.actor_id)
+
+
+@admin.delete("/demo-org", status_code=204)
+async def delete_demo_org(request: Request, db: DB, scope: AdminScope) -> Response:
+    from app.orgs.demo import ORG_ID, remove_demo
+
+    n = await remove_demo(db)
+    await audit(db, scope.actor_id, "demo_org_remove", target=ORG_ID, data={"orgs": [ORG_ID], "students": n},
+                ip=_ip(request))  # fmt: skip
+    return Response(status_code=204)
 
 
 @admin.post("/orgs", status_code=201)

@@ -74,6 +74,7 @@ def plan_out(p: dict[str, Any], *, full: bool = False) -> dict[str, Any]:
             "branding": bool(p["features"].get("branding")),
             "recruiterLinks": bool(p["features"].get("recruiter_links")),
             "membersDownloadFree": bool(p["features"].get("members_download_free")),
+            "placementInsights": bool(p["features"].get("placement_insights")),
         },
         "onSale": bool(p.get("on_sale")),
         "public": bool(p.get("public")),
@@ -437,6 +438,7 @@ class FeaturesIn(CamelModel):
     branding: bool = False
     recruiter_links: bool = False
     members_download_free: bool = False
+    placement_insights: bool = False
 
 
 class PlanIn(CamelModel):
@@ -635,7 +637,9 @@ async def billing_dashboard(db: DB, _: AdminAuth("dashboard"), days: int = Query
             )
         ]
     )
-    orgs = await db[ORGANIZATIONS].find({"subscription.ends_on": {"$type": "string"}}).to_list(None)
+    orgs = (
+        await db[ORGANIZATIONS].find({"subscription.ends_on": {"$type": "string"}, "demo": {"$ne": True}}).to_list(None)
+    )
     today = today_ist()
     soon = (today + timedelta(days=30)).isoformat()
     active = [o for o in orgs if state_of(o, today) in PAID_STATES]

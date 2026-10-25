@@ -97,8 +97,12 @@ async def stats(db: DB, _: AdminAuth("dashboard"), days: int = Query(30, ge=1, l
         "refunded": refunded,
         "ordersPaid": sum(by_plan.values()),
         "ordersByPlan": by_plan,
-        "customers": await db[USERS].count_documents({"role": "customer", "email_verified_at": {"$ne": None}}),
-        "newCustomers": await db[USERS].count_documents({"role": "customer", "created_at": {"$gte": since}}),
+        "customers": await db[USERS].count_documents(
+            {"role": "customer", "email_verified_at": {"$ne": None}, "demo": {"$ne": True}}
+        ),
+        "newCustomers": await db[USERS].count_documents(
+            {"role": "customer", "created_at": {"$gte": since}, "demo": {"$ne": True}}
+        ),
         "openOrders": await db[ORDERS].count_documents({"status": {"$in": OPEN_ORDER}}),
         "lateOrders": await db[ORDERS].count_documents(
             {"status": {"$in": OPEN_ORDER}, "delivered_at": None, "deadline_at": {"$lt": now()}}
@@ -147,7 +151,7 @@ async def customers(
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
 ) -> dict[str, Any]:
-    match: dict[str, Any] = {"role": "customer"}
+    match: dict[str, Any] = {"role": "customer", "demo": {"$ne": True}}  # the demo organization's students: not real
     if q:
         match["$or"] = [{"name": _like(q)}, {"email": _like(q)}, {"phone": _like(q)}]
     total = await db[USERS].count_documents(match)
@@ -650,7 +654,7 @@ async def reports(db: DB, _: AdminAuth("reports"), days: int = Query(30, ge=1, l
         "moneyIn": money_in,
         "refunded": refunded,
         "newCustomers": await db[USERS].count_documents(
-            {"role": "customer", "created_at": {"$gte": now() - timedelta(days=days)}}
+            {"role": "customer", "created_at": {"$gte": now() - timedelta(days=days)}, "demo": {"$ne": True}}
         ),
     }
 

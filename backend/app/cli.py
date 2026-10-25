@@ -4,6 +4,7 @@
     python -m app.cli reset-admin-password --email admin@nm7.si
     python -m app.cli reset-admin-2fa --email admin@nm7.si
     python -m app.cli expire-orders        # unpaid orders older than 24 h → expired (run hourly as a cron job)
+    python -m app.cli demo-org [--remove]  # the demo organization "Demo Engineering College" (made-up students)
 
 Passwords are asked for on the terminal (or read from NM7_ADMIN_PASSWORD for scripts).
 """
@@ -22,6 +23,7 @@ from app.core.db import USERS, close_client, ensure_indexes, get_database, trans
 from app.core.security import hash_password, password_issue
 from app.core.time import now
 from app.orders.service import expire_unpaid
+from app.orgs.demo import create_demo, remove_demo
 
 
 def _password() -> str:
@@ -59,6 +61,8 @@ async def run(argv: list[str]) -> None:
     for name in ("reset-admin-password", "reset-admin-2fa"):
         sub.add_parser(name).add_argument("--email", required=True)
     sub.add_parser("expire-orders", help="mark orders unpaid for 24 hours as expired")
+    d = sub.add_parser("demo-org", help="create or reset the demo organization (Demo Engineering College)")
+    d.add_argument("--remove", action="store_true", help="delete it and every demo student instead")
     args = p.parse_args(argv)
 
     db = get_database()
@@ -71,6 +75,15 @@ async def run(argv: list[str]) -> None:
         await audit(db, None, "admin.created", target=user.id, data={"email": user.email, "role": args.role})
         print(f"Admin {user.email} ({args.role}) created.")
         _print_two_step(user, secret, codes)
+    elif args.cmd == "demo-org":
+        if args.remove:
+            print(f"Demo organization removed ({await remove_demo(db)} demo students).")
+        else:
+            made = await create_demo(db)
+            print(
+                f"{made['name']} ready: {made['students']} demo students in {made['groups']} groups "
+                f"(id {made['orgId']})."
+            )
     elif args.cmd == "expire-orders":
         n = await expire_unpaid(db)
         print(f"{n} unpaid order(s) marked expired.")

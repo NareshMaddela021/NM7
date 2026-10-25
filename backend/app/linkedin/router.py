@@ -4,7 +4,8 @@
   organization): the profile link they pasted (stored and shown, never fetched: we never open linkedin.com, never log
   in and never ask for a LinkedIn password), the text of their LinkedIn PDF or the sections they pasted, the target
   role, and the latest check (score, fixes, keywords, headline before / after) or the headlines made for a new
-  profile. ID numbers are removed before anything is saved. DELETE removes all of it.
+  profile. An organization the person joined sees only one yes / no from it on its placement dashboard
+  ("LinkedIn-ready": a link added, or a check score of 70+), never the record itself (app/orgs/placement.py). ID numbers are removed before anything is saved. DELETE removes all of it.
 - POST /api/me/linkedin/headlines: headlines written by Claude from the facts the browser sends (counted against the
   daily AI limits before the call). Every headline is checked: at most 220 characters, no phone / email / link / ID
   number, and every number must be in the facts, the note or the current headline. The browser keeps its own

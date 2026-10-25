@@ -883,3 +883,46 @@ at most 16 characters):
    **Live payments** on. In the Razorpay dashboard the webhook needs `payment.captured`, `payment.failed`,
    `refund.processed`, `refund.failed` and `payment_link.paid`.
 3. Assign plans to organizations created before Phase 4 (they have no limits until then).
+
+## Colleges: placement dashboard, placement template, recruiter portal
+
+### Placement dashboard (Org > Dashboard)
+
+`backend/app/orgs/placement.py`, under `/api/org/{org_id}/placement` (staff scope: a coordinator sees only their own
+organization and groups; only members who joined, consented and haven't left; rejected members aren't counted).
+
+- **Tiles (every plan):**
+  - joined (vs invited when a roll list was uploaded);
+  - resumes shared (%);
+  - approved / ready;
+  - average ATS score with bands (< 60, 60-79, 80+);
+  - LinkedIn-ready (a LinkedIn link on the resume, or the student's LinkedIn check scored 70+; only this yes / no is
+    used, nothing else from the LinkedIn check);
+  - printed vs ready;
+  - shortlisted by recruiters.
+- **Drive / Campus** (plan switch `placement_insights`, editable in Admin → Plans, or per organization in Admin →
+  Organizations):
+  - charts: readiness funnel, ATS bands by branch (or group), top missing items, skills cloud, weekly progress;
+  - "who's missing" tabs: Not joined, Joined no resume, Low ATS, Not LinkedIn-ready, Needs changes, Not printed;
+  - bulk reminder email, mark needs changes, CSV per tab;
+  - roll list upload (CSV: name, roll number, branch, email).
+- **ATS score** is computed on the server with the same rules as the student's ATS check (`app/orgs/ats.py`). The
+  parity cases live in `backend/tests/fixtures/ats_cases.json`, checked by both pytest and vitest.
+- **Roll lists** are matched to members by email or roll number each time the dashboard is read, so a late joiner
+  counts at once. A roll list with an ID number (Aadhaar, PAN…) in any column is refused.
+- **Activity log:** roll-list uploads and deletes, CSV downloads and reminders are written to the organization's
+  Activity log.
+
+### Demo organization
+
+`Demo Engineering College` (`backend/app/orgs/demo.py`): two closed groups (CSE, ECE), 48 made-up students of mixed
+resume quality, and a roll list of 60 (12 not joined), on the Campus plan.
+
+- **Create or reset:**
+  - Admin → Organizations → Demo organization;
+  - or `python -m app.cli demo-org`;
+  - `--remove` (or the Remove button) deletes it and every demo student.
+- **Marked as demo:** everything has `demo: true`, and is left out of real numbers (admin customer counts, the
+  customers list, paid organizations, renewals).
+- **Safe:** demo students can't sign in, are never emailed (reminders skip them), and use `…@demo.nm7.invalid`
+  addresses.

@@ -16,7 +16,7 @@ from app.core.db import ORG_PLANS, Session
 from app.core.time import now
 
 LIMIT_KEYS = ("members", "groups", "coordinators", "kiosks")
-FEATURE_KEYS = ("branding", "recruiter_links", "members_download_free")
+FEATURE_KEYS = ("branding", "recruiter_links", "members_download_free", "placement_insights")
 PLAN_IDS = ("free", "drive", "campus", "custom")
 
 DEFAULT_PLANS: dict[str, dict[str, Any]] = {
@@ -27,7 +27,12 @@ DEFAULT_PLANS: dict[str, dict[str, Any]] = {
         "period_days": None,
         "period_months": None,
         "limits": {"members": 50, "groups": 1, "coordinators": 1, "kiosks": 0},
-        "features": {"branding": False, "recruiter_links": False, "members_download_free": False},
+        "features": {
+            "branding": False,
+            "recruiter_links": False,
+            "members_download_free": False,
+            "placement_insights": False,  # placement dashboard charts, missing lists, reminders, roll list
+        },
         "on_sale": True,
         "public": True,
         "sort": 0,
@@ -39,7 +44,12 @@ DEFAULT_PLANS: dict[str, dict[str, Any]] = {
         "period_days": 60,
         "period_months": None,
         "limits": {"members": 500, "groups": 5, "coordinators": 3, "kiosks": 3},
-        "features": {"branding": True, "recruiter_links": True, "members_download_free": True},
+        "features": {
+            "branding": True,
+            "recruiter_links": True,
+            "members_download_free": True,
+            "placement_insights": True,
+        },
         "on_sale": True,
         "public": True,
         "sort": 1,
@@ -51,7 +61,12 @@ DEFAULT_PLANS: dict[str, dict[str, Any]] = {
         "period_days": None,
         "period_months": 12,
         "limits": {"members": 3000, "groups": None, "coordinators": 10, "kiosks": 10},
-        "features": {"branding": True, "recruiter_links": True, "members_download_free": True},
+        "features": {
+            "branding": True,
+            "recruiter_links": True,
+            "members_download_free": True,
+            "placement_insights": True,
+        },
         "on_sale": True,
         "public": True,
         "sort": 2,
@@ -63,7 +78,12 @@ DEFAULT_PLANS: dict[str, dict[str, Any]] = {
         "period_days": None,
         "period_months": 12,
         "limits": {"members": None, "groups": None, "coordinators": None, "kiosks": None},
-        "features": {"branding": True, "recruiter_links": True, "members_download_free": True},
+        "features": {
+            "branding": True,
+            "recruiter_links": True,
+            "members_download_free": True,
+            "placement_insights": True,
+        },
         "on_sale": False,  # never bought at checkout: the admin assigns it
         "public": True,
         "sort": 3,

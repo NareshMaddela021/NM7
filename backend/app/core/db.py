@@ -69,6 +69,7 @@ INVOICES = "invoices"  # tax invoices, credit notes, proformas (never edited or 
 PARTNERS = "partners"  # referral partners (applications and approved partners)
 COMMISSIONS = "commissions"  # partner commission ledger: earned (+) and reversed (−) entries
 PARTNER_PAYOUTS = "partner_payouts"
+ROLL_LISTS = "roll_lists"  # placement dashboard: a group's roll list (_id = group id; name, roll, branch, email)
 LINKEDIN = "linkedin_profiles"  # LinkedIn services: the link, PDF / pasted text and the latest check, per user (_id)
 LINKEDIN_PACKS = "linkedin_packs"  # who owns the LinkedIn pack (_id = user id): the paying order or an admin grant
 HOME_EVENTS = "home_events"  # home page tap counters, per day (no personal data)
@@ -105,6 +106,7 @@ COLLECTIONS = (
     MEMBERSHIPS,
     EXPORT_JOBS,
     ORG_STAFF,
+    ROLL_LISTS,
     KIOSKS,
     RECRUITER_LINKS,
     AI_USAGE,
@@ -186,6 +188,7 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel([("user_id", ASCENDING), ("status", ASCENDING)]),
         IndexModel("invite_token_hash", sparse=True),
     ],
+    ROLL_LISTS: [IndexModel("org_id")],
     KIOSKS: [IndexModel("token_hash", unique=True), IndexModel([("org_id", ASCENDING), ("created_at", DESCENDING)])],
     RECRUITER_LINKS: [
         IndexModel("token_hash", unique=True),
