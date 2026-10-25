@@ -194,6 +194,7 @@ class FeaturesIn(CamelModel):
     branding: bool | None = None
     recruiter_links: bool | None = None
     members_download_free: bool | None = None
+    placement_insights: bool | None = None
 
 
 # ---------- helpers ----------
@@ -212,6 +213,7 @@ def org_out(o: dict[str, Any], groups: int = 0, members: int = 0) -> dict[str, A
         "features": _features_out(o),
         "featureOverrides": overrides_out(o),
         "plan": plan_brief(o),
+        "demo": bool(o.get("demo")),
     }
 
 
@@ -222,6 +224,7 @@ def _features_out(o: dict[str, Any]) -> dict[str, bool]:
         "branding": f["branding"],
         "recruiterLinks": f["recruiter_links"],
         "membersDownloadFree": f["members_download_free"],
+        "placementInsights": f["placement_insights"],
     }
 
 
@@ -245,6 +248,7 @@ def overrides_out(o: dict[str, Any]) -> dict[str, bool | None]:
         "branding": f.get("branding"),
         "recruiterLinks": f.get("recruiter_links"),
         "membersDownloadFree": f.get("members_download_free"),
+        "placementInsights": f.get("placement_insights"),
     }
 
 

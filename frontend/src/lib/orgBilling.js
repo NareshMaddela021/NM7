@@ -14,6 +14,7 @@ export const PLAN_FEATURES = [
   ['branding', 'Your logo on prints and exports'],
   ['recruiterLinks', 'Recruiter links'],
   ['membersDownloadFree', 'Members download their resume free'],
+  ['placementInsights', 'Placement dashboard: charts, who’s missing, reminders, roll list'],
 ];
 
 /** ₹4,999 · ₹4,499.10 (paise shown only when there are any). */

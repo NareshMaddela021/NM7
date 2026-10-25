@@ -282,7 +282,7 @@ async def shared_rows(db: AsyncDatabase, match: dict[str, Any], *, with_data: bo
         u["_id"]: u
         async for u in db[USERS].find(
             {"_id": {"$in": list({m["user_id"] for m in ms_})}, "disabled_at": None},
-            {"name": 1, "email": 1, "phone": 1},
+            {"name": 1, "email": 1, "phone": 1, "demo": 1},
         )
     }
     groups = {
@@ -320,6 +320,7 @@ async def shared_rows(db: AsyncDatabase, match: dict[str, Any], *, with_data: bo
             {
                 "membership_id": m["_id"],
                 "user_id": u["_id"],
+                "demo": bool(u.get("demo")),
                 "name": plain(personal.get("name") or u["name"] or "").strip(),  # no bold markers in lists or CSV
                 "email": u["email"],
                 "phone": u.get("phone") or personal.get("phone") or "",

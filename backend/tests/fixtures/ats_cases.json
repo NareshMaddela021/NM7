@@ -1,0 +1,281 @@
+[
+ {
+  "name": "jobs helper resume",
+  "data": {
+   "personal": {
+    "name": "Sai Varsha",
+    "headline": "Data Analyst · SQL · Power BI",
+    "email": "sai@example.com",
+    "phone": "+91 98765 43210",
+    "location": "Chennai, Tamil Nadu"
+   },
+   "summary": "Data Analyst Intern at Northwind Retail, skilled in Python, SQL and Statistics.",
+   "exp": [
+    {
+     "company": "Northwind Retail",
+     "role": "Data Analyst Intern",
+     "employmentType": "Internship",
+     "from": "2025-01",
+     "to": "2025-07",
+     "current": false,
+     "description": "Made dashboards in Power BI for the sales team\nCleaned CSV files in Python every week"
+    }
+   ],
+   "edu": [
+    {
+     "institution": "Lakeview Institute of Technology",
+     "degree": "B.Tech",
+     "field": "Computer Science",
+     "from": "2021-08",
+     "to": "2025-05",
+     "grade": "8.2 CGPA"
+    }
+   ],
+   "skillGroups": [
+    {
+     "id": "core",
+     "label": "Core",
+     "value": "Python, SQL, Statistics"
+    },
+    {
+     "id": "tools",
+     "label": "Tools",
+     "value": "Power BI, Excel, Git, Tableau"
+    }
+   ],
+   "proj": [
+    {
+     "title": "Sales Dashboard Revamp",
+     "tagline": "Power BI dashboards for a college fest's sponsor sales",
+     "description": "",
+     "tech": "Power BI, SQL, Excel"
+    }
+   ],
+   "certs": [
+    {
+     "name": "Google Data Analytics Certificate",
+     "issuer": "Google",
+     "issueDate": "2024-11"
+    }
+   ],
+   "langs": [
+    {
+     "name": "English",
+     "level": "Fluent"
+    },
+    {
+     "name": "Tamil",
+     "level": "Native"
+    }
+   ]
+  },
+  "score": 54
+ },
+ {
+  "name": "strong",
+  "data": {
+   "personal": {
+    "name": "Arjun Rao",
+    "email": "arjun@example.com",
+    "phone": "+91 90000 00001",
+    "headline": "Backend Developer"
+   },
+   "links": {
+    "linkedin": "linkedin.com/in/arjun-demo"
+   },
+   "summary": "Backend developer with two internships building REST APIs in Python and Django. Cut API response time by 40% at Acme Labs and shipped a payments module used by 2,000 students. Looking for a backend role where I can own services end to end.",
+   "exp": [
+    {
+     "company": "Acme Labs",
+     "role": "Backend Intern",
+     "from": "2025-01",
+     "to": "2025-06",
+     "description": "Built REST APIs in Django for 3 internal tools\nReduced API response time by 40% with Redis caching\nWrote 120 unit tests and raised coverage to 85%"
+    }
+   ],
+   "proj": [
+    {
+     "title": "Campus Pay",
+     "tagline": "Fee payments for a college",
+     "description": "Designed a payments module used by 2,000 students\nAutomated receipts, saving 10 hours a week",
+     "tech": "Python, Django, PostgreSQL"
+    }
+   ],
+   "edu": [
+    {
+     "institution": "Demo Institute of Technology",
+     "degree": "B.Tech",
+     "field": "Computer Science",
+     "from": "2021-08",
+     "to": "2025-05",
+     "grade": "8.6 CGPA",
+     "courses": "DBMS, Operating Systems"
+    }
+   ],
+   "skillGroups": [
+    {
+     "id": "core",
+     "label": "Core",
+     "value": "Python, Java, SQL, Django, REST API, Redis, PostgreSQL, Git, Docker"
+    }
+   ],
+   "certs": [
+    {
+     "name": "AWS Cloud Practitioner"
+    }
+   ]
+  },
+  "score": 100
+ },
+ {
+  "name": "weak",
+  "data": {
+   "personal": {
+    "name": "Meena"
+   },
+   "summary": "",
+   "edu": [
+    {
+     "degree": "BCom"
+    }
+   ],
+   "skillGroups": [
+    {
+     "value": "Tally, Excel"
+    }
+   ]
+  },
+  "score": 20
+ },
+ {
+  "name": "two columns, photo, chips, light accent",
+  "data": {
+   "personal": {
+    "name": "Arjun Rao",
+    "email": "arjun@example.com",
+    "phone": "+91 90000 00001",
+    "headline": "Backend Developer"
+   },
+   "links": {
+    "linkedin": "linkedin.com/in/arjun-demo"
+   },
+   "summary": "Backend developer with two internships building REST APIs in Python and Django. Cut API response time by 40% at Acme Labs and shipped a payments module used by 2,000 students. Looking for a backend role where I can own services end to end.",
+   "exp": [
+    {
+     "company": "Acme Labs",
+     "role": "Backend Intern",
+     "from": "2025-01",
+     "to": "2025-06",
+     "description": "Built REST APIs in Django for 3 internal tools\nReduced API response time by 40% with Redis caching\nWrote 120 unit tests and raised coverage to 85%"
+    }
+   ],
+   "proj": [
+    {
+     "title": "Campus Pay",
+     "tagline": "Fee payments for a college",
+     "description": "Designed a payments module used by 2,000 students\nAutomated receipts, saving 10 hours a week",
+     "tech": "Python, Django, PostgreSQL"
+    }
+   ],
+   "edu": [
+    {
+     "institution": "Demo Institute of Technology",
+     "degree": "B.Tech",
+     "field": "Computer Science",
+     "from": "2021-08",
+     "to": "2025-05",
+     "grade": "8.6 CGPA",
+     "courses": "DBMS, Operating Systems"
+    }
+   ],
+   "skillGroups": [
+    {
+     "id": "core",
+     "label": "Core",
+     "value": "Python, Java, SQL, Django, REST API, Redis, PostgreSQL, Git, Docker"
+    }
+   ],
+   "certs": [
+    {
+     "name": "AWS Cloud Practitioner"
+    }
+   ],
+   "design": {
+    "layout": "two",
+    "skillsStyle": "chips",
+    "accent": "#ffcc00",
+    "accentOn": {
+     "name": true,
+     "headings": true
+    },
+    "bodySize": 9
+   },
+   "showPhoto": true
+  },
+  "score": 89
+ },
+ {
+  "name": "bold markers and hidden entries",
+  "data": {
+   "personal": {
+    "name": "Arjun Rao",
+    "email": "arjun@example.com",
+    "phone": "+91 90000 00001",
+    "headline": "Backend Developer"
+   },
+   "links": {
+    "linkedin": "linkedin.com/in/arjun-demo"
+   },
+   "summary": "**Backend** developer who builds things. builds things. builds things. ",
+   "exp": [
+    {
+     "company": "Acme Labs",
+     "role": "Backend Intern",
+     "from": "2025-01",
+     "to": "2025-06",
+     "description": "Built REST APIs in Django for 3 internal tools\nReduced API response time by 40% with Redis caching\nWrote 120 unit tests and raised coverage to 85%",
+     "off": true
+    }
+   ],
+   "proj": [
+    {
+     "title": "Campus Pay",
+     "tagline": "Fee payments for a college",
+     "description": "Designed a payments module used by 2,000 students\nAutomated receipts, saving 10 hours a week",
+     "tech": "Python, Django, PostgreSQL"
+    }
+   ],
+   "edu": [
+    {
+     "institution": "Demo Institute of Technology",
+     "degree": "B.Tech",
+     "field": "Computer Science",
+     "from": "2021-08",
+     "to": "2025-05",
+     "grade": "8.6 CGPA",
+     "courses": "DBMS, Operating Systems"
+    }
+   ],
+   "skillGroups": [
+    {
+     "value": "Python, SQL",
+     "off": true
+    },
+    {
+     "value": "Git"
+    }
+   ],
+   "certs": [
+    {
+     "name": "AWS Cloud Practitioner"
+    }
+   ]
+  },
+  "score": 79
+ },
+ {
+  "name": "empty",
+  "data": {},
+  "score": 17
+ }
+]

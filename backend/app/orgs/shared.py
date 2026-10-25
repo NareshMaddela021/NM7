@@ -134,7 +134,9 @@ async def _email_members(db, mailer, rows, make, *, gap: bool = True) -> tuple[i
     skipped = {"optedOut": 0, "recent": 0, "overLimit": 0, "failed": 0}
     todo = []
     for r in rows:
-        if r["reminders_opt_out"]:
+        if r.get("demo"):  # the demo organization's made-up students are never emailed
+            skipped["demo"] = skipped.get("demo", 0) + 1
+        elif r["reminders_opt_out"]:
             skipped["optedOut"] += 1
         elif gap and _recent(r, t):
             skipped["recent"] += 1

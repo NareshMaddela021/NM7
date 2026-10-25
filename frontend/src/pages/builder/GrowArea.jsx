@@ -9,9 +9,14 @@ const oneLine = (v, list) => String(v ?? '').replace(/\s*\r?\n+\s*/g, list ? ', 
 
 export function GrowArea({ id, value, onChange, list = false, minRows = 2, maxRows = 6, placeholder, disabled, describedBy, invalid, style, ...rest }) {
   const ref = useRef(null);
+  const caret = useRef(null); // where the caret goes once the value from `insert` is on screen
   useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
+    // placed as the new value commits (before the next key is handled), so fast typing after Enter can't land
+    // in front of a late caret move
+    if (caret.current && el.value === caret.current.value) el.setSelectionRange(caret.current.at, caret.current.at);
+    caret.current = null;
     const cs = getComputedStyle(el);
     const line = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.4;
     const pad = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth);
@@ -32,9 +37,8 @@ export function GrowArea({ id, value, onChange, list = false, minRows = 2, maxRo
     const a = el.selectionStart; const b = el.selectionEnd;
     const before = v.slice(0, a).replace(/[\s,]+$/, '');
     const next = before + (before ? text : '') + v.slice(b).replace(/^[\s,]+/, '');
+    caret.current = { value: next, at: before.length + (before ? text.length : 0) };
     onChange(next);
-    const at = before.length + (before ? text.length : 0);
-    requestAnimationFrame(() => { el.setSelectionRange(at, at); });
   };
   return (
     <textarea ref={ref} id={id} className="input" rows={minRows} value={value ?? ''} placeholder={placeholder} disabled={disabled}
