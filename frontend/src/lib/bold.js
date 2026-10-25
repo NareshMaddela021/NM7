@@ -170,3 +170,74 @@ export function carryBold(oldRaw, newText) {
   [...plain].forEach((c, i) => { const last = pieces[pieces.length - 1]; if (last && last.b === marks[i]) last.t += c; else pieces.push({ t: c, b: marks[i] }); });
   return serializeBold(pieces);
 }
+
+/* ---------- the text box: plain text on screen, bold kept as a per-letter mask ---------- */
+// The box shows the words without markers (bold is drawn behind them); what is saved keeps the **markers**, so the
+// preview, PDF, Word, ATS score and the college format see exactly the same value as before.
+
+/** Marker text → { plain, mask } (mask[i]: is plain letter i bold). Every marker is hidden, as when printed. */
+export function toMask(raw) {
+  const pieces = parseBold(raw); // the same reading as printing (a stray marker never shows)
+  return { plain: pieces.map((p) => p.t).join(''), mask: pieces.flatMap((p) => p.t.split('').map(() => p.b)) };
+}
+
+/** { plain, mask } → marker text (the saved format). */
+export function fromMask(plain, mask) {
+  const pieces = [];
+  String(plain ?? '').split('').forEach((c, i) => { // UTF-16 units, as the text box counts
+    const b = !!mask[i];
+    const last = pieces[pieces.length - 1];
+    if (last && last.b === b) last.t += c; else pieces.push({ t: c, b });
+  });
+  return serializeBold(pieces);
+}
+
+/** After the box's text changed from oldPlain to newPlain (typing, deleting, autocorrect, a phone keyboard), the
+ * letters that stayed keep their weight; new letters are bold only when typed inside a bold word or phrase (both
+ * neighbours bold), never just because they follow one. */
+export function editMask(oldPlain, oldMask, newPlain) {
+  const a = String(oldPlain ?? ''); const b = String(newPlain ?? '');
+  let pre = 0;
+  while (pre < a.length && pre < b.length && a[pre] === b[pre]) pre += 1;
+  let suf = 0;
+  while (suf < a.length - pre && suf < b.length - pre && a[a.length - 1 - suf] === b[b.length - 1 - suf]) suf += 1;
+  const inside = pre > 0 && suf > 0 && !!oldMask[pre - 1] && !!oldMask[a.length - suf];
+  const added = b.length - pre - suf;
+  return [...oldMask.slice(0, pre), ...new Array(Math.max(0, added)).fill(inside), ...oldMask.slice(a.length - suf)].map(Boolean);
+}
+
+/** The B button / Ctrl+B on the box's selection [start, end) (plain offsets): the word at the cursor when nothing is
+ * selected; spaces at the edges are never bold; all bold → plain, else bold. Returns { mask, start, end }. */
+export function toggleMask(plain, mask, start, end) {
+  const s = String(plain ?? '');
+  let a = Math.min(start, end); let b = Math.max(start, end);
+  const isWord = (i) => i >= 0 && i < s.length && /\S/.test(s[i]);
+  if (a === b) { while (isWord(a - 1)) a -= 1; while (isWord(b)) b += 1; }
+  while (a < b && !/\S/.test(s[a])) a += 1;
+  while (b > a && !/\S/.test(s[b - 1])) b -= 1;
+  if (a === b) return { mask: mask.slice(), start, end };
+  const letters = [...Array(b - a).keys()].map((k) => a + k).filter((i) => /\S/.test(s[i]));
+  const allBold = letters.every((i) => mask[i]);
+  const out = mask.slice();
+  for (let i = a; i < b; i += 1) out[i] = !allBold;
+  return { mask: out, start: a, end: b };
+}
+
+/** Puts marker text (a paste: from Word / a website via htmlToRich, or plain text with **bold**) in place of the
+ * selection [start, end). Returns { plain, mask, at } (at: the cursor after the inserted text). */
+export function insertRich(plain, mask, start, end, raw) {
+  const ins = toMask(raw);
+  const s = String(plain ?? '');
+  return {
+    plain: s.slice(0, start) + ins.plain + s.slice(end),
+    mask: [...mask.slice(0, start), ...ins.mask, ...mask.slice(end)],
+    at: start + ins.plain.length,
+  };
+}
+
+/** Markers typed by hand ("**12 people**") become bold once they pair up; a lone "**" stays as typed until then. */
+export function settleTyped(plain, mask) {
+  const n = (String(plain).match(/\*\*/g) || []).length;
+  if (n < 2 || n % 2) return null;
+  return toMask(fromMask(plain, mask));
+}

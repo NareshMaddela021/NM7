@@ -1,4 +1,5 @@
-// Bold words in resume text, on a desktop and a 390 px phone (touch): the B button above the summary and the
+// Bold words in resume text, on a desktop and a 390 px phone (touch): the text box shows the words without "**" and
+// draws the bold ones bold (the saved value keeps the markers); the B button above the summary and the
 // experience bullets bolds the selected words and unbolds them again, Ctrl+B does the same, the preview shows it at
 // once, pasting from Word or a website keeps text + bold only, and a mostly-bold bullet gets a gentle tip. The PDF and
 // Word downloads print the words bold and never a "**"; the org Shared resumes view, combined PDF and CSV neither.
@@ -18,6 +19,10 @@ async function saved(page, click) {
   const [file] = await Promise.all([page.waitForEvent('download', { timeout: 30_000 }), click()]);
   return readFileSync(await file.path());
 }
+/** The bold words the box shows (drawn behind its text). */
+const boldShown = (page, id) => page.getByTestId(`${id}-shown`).locator('[data-bold]').allTextContents();
+/** What was saved for the active resume. */
+const savedData = async (page) => (await api(page, '/api/me/resumes')).find((r) => r.active).data;
 /** Selects `word` inside a textarea (what a mouse drag or a phone's long-press does). */
 const select = (box, word) => box.evaluate((el, w) => { const i = el.value.indexOf(w); el.focus(); el.setSelectionRange(i, i + w.length); el.dispatchEvent(new Event('select', { bubbles: true })); }, word);
 /** Pastes clipboard HTML (as Word / Google Docs / a website put it there) into a textarea. */
@@ -61,46 +66,76 @@ for (const [label, opts] of SIZES) {
       await expect(page.getByRole('toolbar', { name: 'Formatting' }).first()).toBeVisible();
       await select(box, 'Power BI');
       await tap(B);
-      await expect(box).toHaveValue('Built dashboards in **Power BI** for the sales team\nCleaned CSV files in Python every week');
+      // the box shows the words, never the markers; "Power BI" is drawn bold behind them
+      await expect(box).toHaveValue('Built dashboards in Power BI for the sales team\nCleaned CSV files in Python every week');
+      await expect.poll(() => boldShown(page, 'exp-0-description')).toEqual(['Power BI']);
+      await expect(page.getByTestId('exp-0-description-shown')).toHaveText('Built dashboards in Power BI for the sales team\nCleaned CSV files in Python every week\u200b');
       await expect(preview(page).locator('strong', { hasText: /^Power BI$/ })).toHaveCount(1);
       // the same words stay selected, so a second tap unbolds them
       expect(await box.evaluate((el) => el.value.slice(el.selectionStart, el.selectionEnd))).toBe('Power BI');
       await tap(B);
       await expect(box).toHaveValue('Built dashboards in Power BI for the sales team\nCleaned CSV files in Python every week');
+      await expect.poll(() => boldShown(page, 'exp-0-description')).toEqual([]);
       await expect(preview(page).locator('strong', { hasText: /^Power BI$/ })).toHaveCount(0);
 
       // Ctrl+B (Cmd+B on a Mac) toggles too
       await select(box, 'Python');
       await page.keyboard.press('Control+b');
-      await expect(box).toHaveValue('Built dashboards in Power BI for the sales team\nCleaned CSV files in **Python** every week');
+      await expect.poll(() => boldShown(page, 'exp-0-description')).toEqual(['Python']);
       await expect(preview(page).locator('strong', { hasText: /^Python$/ })).toHaveCount(1);
       await select(box, 'Power BI');
       await page.keyboard.press('Meta+b');
-      await expect(box).toHaveValue('Built dashboards in **Power BI** for the sales team\nCleaned CSV files in **Python** every week');
+      await expect.poll(() => boldShown(page, 'exp-0-description')).toEqual(['Power BI', 'Python']);
 
       // a mostly-bold bullet: the gentle tip
       await expect(page.getByTestId('exp-0-description-bold-tip')).toHaveCount(0);
-      await select(box, 'Built dashboards in **Power BI** for the sales');
+      await select(box, 'Built dashboards in Power BI for the sales');
       await tap(B);
       await expect(page.getByTestId('exp-0-description-bold-tip')).toHaveText('Bold a few key words, like results and tools.');
       await tap(B); // all bold → plain again
       await expect(page.getByTestId('exp-0-description-bold-tip')).toHaveCount(0);
       await select(box, 'Power BI');
       await tap(B);
-      await expect(box).toHaveValue('Built dashboards in **Power BI** for the sales team\nCleaned CSV files in **Python** every week');
+      await expect.poll(() => boldShown(page, 'exp-0-description')).toEqual(['Power BI', 'Python']);
+      await expect(box).not.toHaveValue(/\*\*/);
+      // typing next to a bold word types plain letters; typing inside it stays bold
+      await box.evaluate((el) => { const i = el.value.indexOf(' for the sales'); el.focus(); el.setSelectionRange(i, i); });
+      await page.keyboard.type(' (weekly)');
+      await expect.poll(() => boldShown(page, 'exp-0-description')).toEqual(['Power BI', 'Python']);
+      await box.evaluate((el) => { const i = el.value.indexOf('Power BI') + 5; el.focus(); el.setSelectionRange(i, i); });
+      await page.keyboard.type('X');
+      await expect.poll(() => boldShown(page, 'exp-0-description')).toEqual(['PowerX BI', 'Python']);
+      await page.keyboard.press('Backspace');
+      await expect.poll(async () => (await savedData(page)).exp[0].description, { timeout: 15_000 })
+        .toBe('Built dashboards in **Power BI** (weekly) for the sales team\nCleaned CSV files in **Python** every week');
+      // the layer behind the text wraps exactly like the text (same height, same lines)
+      const fit = await box.evaluate((el) => { const m = document.querySelector('[data-testid="exp-0-description-shown"]'); return [el.scrollHeight, m.scrollHeight, el.clientWidth, m.clientWidth]; });
+      expect(Math.abs(fit[0] - fit[1])).toBeLessThanOrEqual(2);
 
       // the summary: pasting from Word / a website keeps text + bold only
       await tap(page.getByRole('navigation', { name: 'Sections' }).getByRole('button', { name: /^Summary/ }));
       const sum = page.locator('#sum');
       await sum.fill('Data analyst.');
       await pasteHtml(sum, '<meta charset="utf-8"><b style="font-weight:normal" id="docs-internal-guid-1"><p><span style="font-weight:700;color:#c00">Reduced</span> <i>reporting</i> time by <strong>40%</strong> with <a href="https://x.example">SQL</a></p></b><script>alert(1)</script><style>p{color:red}</style>', ' Reduced reporting time by 40% with SQL');
-      await expect(sum).toHaveValue('Data analyst.**Reduced** reporting time by **40%** with SQL');
+      await expect(sum).toHaveValue('Data analyst.Reduced reporting time by 40% with SQL');
+      await expect.poll(() => boldShown(page, 'sum')).toEqual(['Reduced', '40%']);
       await expect(preview(page).locator('strong', { hasText: /^40%$/ })).toHaveCount(1);
       await expect(preview(page)).not.toContainText('**');
       await expect(preview(page)).not.toContainText('alert');
       await select(sum, 'analyst');
       await page.keyboard.press('Control+b');
-      await expect(sum).toHaveValue('Data **analyst**.**Reduced** reporting time by **40%** with SQL');
+      await expect.poll(() => boldShown(page, 'sum')).toEqual(['analyst', 'Reduced', '40%']);
+      // plain text with **markers** pasted (or typed): bold, and the markers never show
+      await pasteHtml(sum, '', ' Fluent in **Telugu**');
+      await expect(sum).toHaveValue('Data analyst.Reduced reporting time by 40% with SQL Fluent in Telugu');
+      await expect.poll(() => boldShown(page, 'sum')).toEqual(['analyst', 'Reduced', '40%', 'Telugu']);
+      await sum.evaluate((el) => { el.focus(); el.setSelectionRange(el.value.length, el.value.length); });
+      await page.keyboard.type(' and **Hindi');
+      await expect(sum).toHaveValue(/ and \*\*Hindi$/); // a lone ** stays as typed until it pairs up
+      await page.keyboard.type('**');
+      await expect(sum).toHaveValue('Data analyst.Reduced reporting time by 40% with SQL Fluent in Telugu and Hindi');
+      await expect.poll(() => boldShown(page, 'sum')).toEqual(['analyst', 'Reduced', '40%', 'Telugu', 'Hindi']);
+      await expect(preview(page)).not.toContainText('**');
       await expect(page.getByTestId('save-status')).toHaveText('All changes saved', { timeout: 15_000 });
 
       // PDF: the words, never a marker
@@ -111,11 +146,53 @@ for (const [label, opts] of SIZES) {
       // Word: bold runs, never a marker
       const xml = strFromU8(unzipSync(new Uint8Array(await saved(page, () => page.getByRole('button', { name: /Word/ }).first().click())))['word/document.xml']);
       expect(xml).not.toContain('**');
-      for (const w of ['Power BI', 'Python', '40%', 'Reduced', 'analyst']) expect(xml).toMatch(new RegExp(`<w:b/>(?:(?!</w:rPr>).)*</w:rPr><w:t xml:space="preserve">${w}</w:t>`));
-      expect(xml).toMatch(/<w:rPr>(?:(?!<w:b\/>)(?!<\/w:rPr>).)*<\/w:rPr><w:t xml:space="preserve"> for the sales team<\/w:t>/);
+      for (const w of ['Power BI', 'Python', '40%', 'Reduced', 'analyst', 'Telugu', 'Hindi']) expect(xml).toMatch(new RegExp(`<w:b/>(?:(?!</w:rPr>).)*</w:rPr><w:t xml:space="preserve">${w}</w:t>`));
+      expect(xml).toMatch(/<w:rPr>(?:(?!<w:b\/>)(?!<\/w:rPr>).)*<\/w:rPr><w:t xml:space="preserve"> \(weekly\) for the sales team<\/w:t>/); // typed after a bold word: plain
       // what was saved keeps the markers (text + bold only)
       const saved1 = (await api(page, '/api/me/resumes')).find((r) => r.active);
-      expect(saved1.data.summary).toBe('Data **analyst**.**Reduced** reporting time by **40%** with SQL');
+      expect(saved1.data.summary).toBe('Data **analyst**.**Reduced** reporting time by **40%** with SQL Fluent in **Telugu** and **Hindi**');
+    });
+  });
+}
+
+for (const [label, opts] of SIZES) {
+  test.describe(label, () => {
+    test.use(opts);
+
+    test('an older resume saved with **markers** opens with plain words in the box, bold drawn, nothing stray', async ({ page }) => {
+      const mail = email(`bold-old-${label}`);
+      seed('customer', mail, 'Old Marker', PASSWORD);
+      await login(page, mail);
+      await page.waitForURL('**/me');
+      const data = RESUME('Old Marker', mail);
+      data.summary = 'Analyst who cut report time by **40%** with **SQL**. A stray ** marker.';
+      data.exp[0].description = 'Built dashboards in **Power BI** for the sales team\nCleaned CSV files in Python every week';
+      const cur = await api(page, '/api/me/resumes');
+      if (cur.length) await api(page, `/api/me/resumes/${cur[0].id}`, { method: 'PATCH', body: JSON.stringify({ data }) });
+      else await api(page, '/api/me/resumes', { method: 'POST', body: JSON.stringify({ id: `r${Date.now()}`, name: 'Main', data, active: true }) });
+      await page.goto('/builder');
+      await page.evaluate(() => window.history.replaceState({ usr: { open: 'build' }, key: 'x' }, ''));
+      await page.reload();
+      await expect(page.getByTestId('save-status')).toHaveText('All changes saved', { timeout: 15_000 });
+      const sum = page.locator('#sum');
+      await page.getByRole('navigation', { name: 'Sections' }).getByRole('button', { name: /^Summary/ }).click();
+      await expect(sum).toHaveValue('Analyst who cut report time by 40% with SQL. A stray marker.');
+      await expect.poll(() => boldShown(page, 'sum')).toEqual(['40%', 'SQL']);
+      // what you copy out of the box is the words, without markers
+      expect(await sum.evaluate((el) => { el.focus(); el.select(); return el.value.slice(el.selectionStart, el.selectionEnd); })).not.toContain('*');
+      await expect(preview(page)).not.toContainText('**');
+      await expect(preview(page).locator('strong', { hasText: /^SQL$/ })).toHaveCount(1);
+      await page.getByRole('navigation', { name: 'Sections' }).getByRole('button', { name: /^Experience/ }).click();
+      await expect(page.locator('#exp-0-description')).toHaveValue('Built dashboards in Power BI for the sales team\nCleaned CSV files in Python every week');
+      await expect.poll(() => boldShown(page, 'exp-0-description')).toEqual(['Power BI']);
+      // opening it changes nothing that was saved (apart from the stray marker, which never printed)
+      await page.getByRole('navigation', { name: 'Sections' }).getByRole('button', { name: /^Summary/ }).click();
+      await sum.focus();
+      await sum.blur();
+      await expect(page.getByTestId('save-status')).toHaveText('All changes saved', { timeout: 15_000 });
+      const back = await savedData(page);
+      expect(back.exp[0].description).toBe(data.exp[0].description);
+      expect(back.summary.replace(/ \*\* /, ' ')).toMatch(/\*\*40%\*\* with \*\*SQL\*\*\. A stray (\*\* )?marker\./);
     });
   });
 }

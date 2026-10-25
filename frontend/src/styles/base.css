@@ -429,3 +429,15 @@ mark.fact { background: color-mix(in srgb, var(--signal) 38%, transparent); colo
 .plans-skel span:nth-child(5n + 1) { width: 70%; }
 @keyframes skel { 50% { opacity: .45; } }
 @media (prefers-reduced-motion: reduce) { .plans-skel span { animation: none; } }
+/* The bold text box (builder RichArea): the textarea's own letters are transparent and the same words are drawn
+   behind it, bold words with a faux-bold that keeps letter widths, so the caret and selection line up. */
+.rich-wrap { position: relative; border-radius: var(--r-control); background: var(--surface); }
+.rich-wrap .rich-box { position: relative; z-index: 1; background: transparent; color: transparent; -webkit-text-fill-color: transparent; caret-color: var(--text); }
+.rich-wrap .rich-box::placeholder { color: var(--text3); -webkit-text-fill-color: var(--text3); }
+.rich-mirror { position: absolute; top: 0; left: 0; z-index: 0; overflow: hidden; pointer-events: none; color: var(--text);
+  white-space: pre-wrap; overflow-wrap: break-word; word-break: normal; border-style: solid; border-color: transparent; }
+.rich-mirror b { font-weight: inherit; text-shadow: 0.45px 0 0 currentColor, -0.45px 0 0 currentColor, 0 0 0.3px currentColor; }
+@media (forced-colors: active) {
+  .rich-wrap .rich-box { color: CanvasText; -webkit-text-fill-color: CanvasText; }
+  .rich-mirror { display: none; }
+}
