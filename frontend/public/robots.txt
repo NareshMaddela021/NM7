@@ -8,6 +8,7 @@ Disallow: /expert/
 Disallow: /checkout
 Disallow: /orders
 Disallow: /r/
+Disallow: /recruiter/
 Disallow: /join/
 Disallow: /org
 Disallow: /groups/

@@ -83,6 +83,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/recruiter/:token",
+      "destination": "/index.html"
+    },
+    {
       "source": "/join/:code",
       "destination": "/index.html"
     },
@@ -151,7 +155,7 @@
       ]
     },
     {
-      "source": "/(r|kiosk)/(.*)",
+      "source": "/(r|kiosk|recruiter)/(.*)",
       "headers": [
         {
           "key": "Cache-Control",

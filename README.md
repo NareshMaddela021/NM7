@@ -960,3 +960,42 @@ How it behaves:
   a photo that won't print).
 - **Cover page:** combined PDFs and ZIPs of one college start with a cover page: logo, college name, batch, branch,
   date and count. In the ZIP it's `00_Cover.pdf`.
+
+### Recruiter portal (Org > Recruiters)
+
+`backend/app/orgs/recruiter_portal.py` (staff: `/api/org/{org_id}/recruiter-invites`; recruiter:
+`/api/recruiter/{token}`). It upgrades recruiter links, which stay as they were.
+
+The coordinator's invite:
+- company, recruiter name and email, which groups (only groups that share with recruiters) and branches, expiry date
+  (up to 120 days);
+- permissions: resume PDF downloads on / off; contact details hidden, shown, or shown only after the recruiter
+  shortlists that student;
+- extend, revoke, and per-invite activity (sign-ins, searches, views, stage changes, downloads);
+- "Show students Shortlisted by &lt;company&gt;" (an organization setting).
+
+The recruiter (no Nm7 account):
+- the emailed link plus a 6-digit code sent to the invited address (10 minutes, 5 codes a day, 8 tries per
+  15 minutes), then a 12-hour session sent in the `X-Recruiter-Session` header;
+- search: skills (the job match skills dictionary, with synonyms), branch, CGPA range, passing year, location
+  preference, ATS score, internship, projects, certifications, languages;
+- job match mode: paste a job description and every visible student gets a match score from the job match engine,
+  best first;
+- student cards (name, branch, CGPA, top skills, match score) with a quick view in the college format;
+- the shortlist board (Shortlisted → Interview → Selected / Rejected, with notes), downloaded as a ZIP or one
+  combined PDF in the college format with its cover page, or as CSV.
+
+Safety:
+- only students who ticked "Allow recruiter sharing", approved, in the groups (and branches) given; withdrawing
+  consent, leaving or being rejected removes a student at once;
+- invites expire; the link and codes are stored as keyed hashes; no ID numbers anywhere; contact details (and the
+  Personal Information section and photo) only when allowed;
+- every view and download is in the organization's Activity log (without IP addresses); downloads are rate-limited
+  (20 an hour, 60 a day per invite).
+
+Plans: recruiter invites come with recruiter links (Drive and Campus). Active invites: 1 on Drive, unlimited on Campus
+(the `recruiters` limit). Job match mode is Campus only (`recruiter_job_match`). Both are editable in Admin → Plans.
+
+The demo organization has a recruiter invite from "Demo Tech Pvt Ltd (demo)" with six students on its board. Admin →
+Organizations → Demo organization → **Reset and open as a recruiter** signs the admin straight in to it (the code
+email would go to a made-up address).

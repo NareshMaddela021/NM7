@@ -248,6 +248,11 @@ export function MeGroups() {
                 Allow {g.orgName} to share my resume with recruiters
               </label>
             )}
+            {g.shortlistedBy?.length > 0 && (
+              <div className="row g6" style={{ flexWrap: 'wrap' }} data-testid="shortlisted-by">
+                {g.shortlistedBy.map((c) => <span key={c} className="badge b-success">Shortlisted by {c}</span>)}
+              </div>
+            )}
             <button type="button" className="btn btn-outline" disabled={busy}
               onClick={() => { if (window.confirm(`Leave ${g.groupName}? ${g.orgName} will no longer see your resume.`)) act(() => http(`/api/me/groups/${g.id}/leave`, { method: 'POST', body: {} }), 'You left the group'); }}>Leave group</button>
           </div>
