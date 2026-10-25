@@ -82,7 +82,8 @@ for (const [label, size] of SIZES) {
       pdf = await pdfOf();
       expect(pdf).toContain(mail);
       expect(pdf).not.toContain('anjali-verma');
-      expect((await api(page, '/api/me/resumes'))[0].data.contactIcons).toBe('icon');
+      // "All changes saved" can still be showing from before the click: wait for the save itself
+      await expect.poll(async () => (await api(page, '/api/me/resumes'))[0].data.contactIcons, { timeout: 15_000 }).toBe('icon');
 
       // Word: the links work
       await choose('Icon + text');

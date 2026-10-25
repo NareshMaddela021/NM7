@@ -45,6 +45,8 @@ for (const [label, opts] of SIZES) {
       await expect(page.getByTestId('sg-core-tip')).toHaveText('Recruiters skim. Keep your strongest 8-12 here and move the rest to another group.');
 
       // Enter types ", " and never a line break; the phone keyboard leaves the box in view
+      // late animation frames (a busy phone or CI runner): typing straight after Enter must still land in order
+      await page.evaluate(() => { window.requestAnimationFrame = (f) => setTimeout(() => f(performance.now()), 200); });
       const fw = page.locator('#sg-frameworks');
       await fw.click();
       await page.waitForTimeout(500);
