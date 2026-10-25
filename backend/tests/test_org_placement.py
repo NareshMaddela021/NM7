@@ -83,7 +83,7 @@ async def test_free_plan_shows_tiles_only(owner, make_client, outbox, db):
     org, g, _ = await three(owner, make_client, outbox, db)
     coord, _ = await coordinator(owner, make_client, outbox, org["id"])
     j = (await coord.get(f"/api/org/{org['id']}/placement")).json()
-    assert j["insights"] is False and set(j) == {"tiles", "insights", "role", "group", "updatedAt"}
+    assert j["insights"] is False and set(j) == {"tiles", "insights", "role", "group", "groups", "updatedAt"}
     assert j["tiles"]["joined"] == 3 and j["tiles"]["shared"] == 2 and j["tiles"]["invited"] is None
     r = await coord.put(f"/api/org/{org['id']}/groups/{g['id']}/roll-list", json={"csv": ROLL_CSV})
     assert r.status_code == 402 and err(r) == "plan_feature"
@@ -154,6 +154,8 @@ async def test_numbers_match_the_data_and_roll_list_matching(owner, make_client,
     assert r.status_code == 200 and "Dev M,21A04,CSE" in r.text
     actions = {a["action"] async for a in db[AUDIT_LOG].find({"data.orgs": org["id"]})}
     assert {"roll_list_upload", "placement_export"} <= actions
+    shown = {a["action"] for a in (await coord.get(f"{base}/audit")).json()}  # the organization's Activity log
+    assert {"roll_list_upload", "placement_export"} <= shown
     # the roll list itself never takes an ID number
     r = await coord.put(f"{base}/groups/{g['id']}/roll-list", json={"csv": "Name,Roll,Aadhaar\nA,1,2345 6789 0123\n"})
     assert r.status_code == 400 and err(r) == "id_number"

@@ -198,7 +198,7 @@ ORG_ACTIONS = [
     "kiosk_create", "kiosk_revoke", "kiosk_session", "kiosk_print", "branding_update",
     "share_create", "share_view", "share_download", "share_shortlist", "share_revoke", "share_extend",
     "billing_details", "billing_checkout", "plan_activated", "plan_assign", "plan_extend", "plan_reminder",
-    "org_pricing",
+    "org_pricing", "roll_list_upload", "roll_list_delete", "placement_export", "demo_org_reset",
 ]  # fmt: skip
 
 

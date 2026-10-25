@@ -480,7 +480,15 @@ def register_placement(router: APIRouter, ScopeDep) -> None:  # noqa: N803 — a
         insights = _insights(o)
         if not insights:  # Free: the tiles only
             out = {"tiles": out["tiles"]}
-        return {**out, "insights": insights, "role": scope.role, "group": group, "updatedAt": ms(now())}
+        in_scope = await _groups(db, scope, None)
+        return {
+            **out,
+            "insights": insights,
+            "role": scope.role,
+            "group": group,
+            "groups": [{"id": g["_id"], "name": g["name"]} for g in sorted(in_scope, key=lambda g: g["name"].lower())],
+            "updatedAt": ms(now()),
+        }
 
     @router.get("/placement/missing.csv")
     async def missing_csv(
