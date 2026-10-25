@@ -45,6 +45,7 @@ from app.core.db import (
 from app.core.email import MailerDep
 from app.core.errors import ApiError
 from app.core.exports import CSV_BOM, csv_safe
+from app.core.filenames import file_name as build_file_name
 from app.core.richtext import plain
 from app.core.schemas import CamelModel
 from app.core.time import IST, ist_day, now
@@ -508,7 +509,7 @@ def register_placement(router: APIRouter, ScopeDep) -> None:  # noqa: N803 — a
         await audit(db, scope.actor_id, "placement_export", data=scope.audit_data(list=list_, group=group,
                                                                                   count=len(out["lists"][list_])),
                     ip=_ip(request))  # fmt: skip
-        name = f"{LIST_TITLES[list_].split(' (')[0].replace(' ', '_').replace(',', '')}_{ist_day()}.csv"
+        name = build_file_name([LIST_TITLES[list_].split(" (")[0], ist_day()], "csv")
         return Response(
             CSV_BOM + buf.getvalue(),
             media_type="text/csv; charset=utf-8",

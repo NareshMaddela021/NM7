@@ -10,6 +10,7 @@ import { Dialog, Spinner, useToast } from '../../components/ui';
 import { brandDesign, prepareBrand } from '../../lib/branding';
 import { usePageMeta } from '../../lib/meta';
 import { filterCandidates, isRecruiterToken, pdfName } from '../../lib/recruiter';
+import { fileName } from '../../lib/fileName';
 import { freshImport } from '../../lib/chunks';
 import { API_BASE, ApiError } from '../../services/http';
 import { PublicResume } from '../me/MeShare';
@@ -98,7 +99,7 @@ function RecruiterPage({ token }) {
         for (const item of r.items) files.push(await pdfOf(item, r.stamp));
         const { mergePdfs } = await freshImport(() => import('../../lib/orgExport'));
         const { bytes } = await mergePdfs(files);
-        save(new Blob([bytes], { type: 'application/pdf' }), `${d.company.replace(/[^\p{L}\p{N}]+/gu, '_')}_resumes.pdf`);
+        save(new Blob([bytes], { type: 'application/pdf' }), fileName([d.company, 'resumes'], 'pdf'));
       }
       toast('PDF ready');
     } catch (e) { toast(e.message); if (e.status === 404 || e.status === 410) load(); } finally { setBusy(''); }

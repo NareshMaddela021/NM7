@@ -10,7 +10,7 @@ import { http } from '../services/http';
 import { brandDesign, prepareBrand } from './branding';
 import { brandFor } from './placementFormat';
 import { freshImport } from './chunks';
-import { resumeFileName } from './fileName';
+import { fileName, resumeFileName } from './fileName';
 
 export const BATCH = 25;
 export { designOf }; // kept here for callers that already have this file; pages import it from builder/design
@@ -122,13 +122,13 @@ export async function runExport({ base = '/api/admin', kind, ids = null, filters
   if (kind === 'export_zip') {
     const college = cover && job.cover?.brand && brands[job.cover.brand]?.collegeName ? brands[job.cover.brand] : null;
     if (college) files.unshift({ fileName: '00_Cover.pdf', bytes: await bytesOf(collegeCoverPdf({ brand: college, batches: job.cover.batches, branches: job.cover.branches, count: files.length })) });
-    result = { blob: new Blob([zipFiles(files)], { type: 'application/zip' }), fileName: `Nm7_resumes_${stamp()}.zip` };
+    result = { blob: new Blob([zipFiles(files)], { type: 'application/zip' }), fileName: fileName(['Nm7', 'resumes', stamp()], 'zip') };
   } else if (kind === 'print_bulk') {
     const parts = files.map((f) => f.bytes);
     const college = job.cover?.brand && brands[job.cover.brand]?.collegeName ? brands[job.cover.brand] : null;
     if (cover) parts.unshift(college ? collegeCoverPdf({ brand: college, batches: job.cover.batches, branches: job.cover.branches, count: files.length }) : coverPdf({ ...job.cover, count: files.length }));
     const { bytes, pages } = await mergePdfs(parts);
-    result = { blob: new Blob([bytes], { type: 'application/pdf' }), fileName: `Nm7_resumes_${stamp()}.pdf`, pages };
+    result = { blob: new Blob([bytes], { type: 'application/pdf' }), fileName: fileName(['Nm7', 'resumes', stamp()], 'pdf'), pages };
   } else {
     result = { blob: new Blob([files[0].bytes], { type: 'application/pdf' }), fileName: files[0].fileName };
   }

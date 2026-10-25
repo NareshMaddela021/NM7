@@ -48,6 +48,7 @@ from app.core.db import AUDIT_LOG, DB, ORG_GROUPS, ORGANIZATIONS, RECRUITER_INVI
 from app.core.email import Email, MailerDep, send_safely
 from app.core.errors import ApiError
 from app.core.exports import CSV_BOM, csv_safe
+from app.core.filenames import file_name as build_file_name
 from app.core.schemas import CamelModel
 from app.core.security import keyed_hash, new_code, same
 from app.core.time import IST, now
@@ -812,9 +813,8 @@ async def board_csv(token: str, request: Request, db: DB, x_recruiter_session: s
     return Response(
         CSV_BOM + buf.getvalue(),
         media_type="text/csv; charset=utf-8",
-        headers={**NO_STORE, "Content-Disposition": f'attachment; filename="{_safe(inv["company"])}_shortlist.csv"'},
+        headers={
+            **NO_STORE,
+            "Content-Disposition": f'attachment; filename="{build_file_name([inv["company"], "shortlist"], "csv")}"',
+        },
     )
-
-
-def _safe(s: str) -> str:
-    return re.sub(r"[^A-Za-z0-9]+", "_", s).strip("_") or "Shortlist"

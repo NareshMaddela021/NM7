@@ -6,6 +6,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Dialog, Spinner, useToast } from '../../components/ui';
+import { fileName } from '../../lib/fileName';
 import { API_BASE } from '../../services/http';
 import { savePdf } from '../builder/resumePdf';
 import { BarChart, HBars } from '../admin/AdminUI';
@@ -139,7 +140,7 @@ function MissingTabs({ base, d, group, role, onChange }) {
     const res = await fetch(`${API_BASE}${base}/placement/missing.csv?${q}`, { credentials: 'include' });
     if (!res.ok) throw new Error((await res.json().catch(() => null))?.error?.message || 'The CSV couldn’t be made.');
     const day = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' }); // the server's IST day
-    await savePdf(await res.blob(), `${d.listTitles[tab].split(' (')[0].replace(/,/g, '').replace(/ /g, '_')}_${day}.csv`);
+    await savePdf(await res.blob(), fileName([d.listTitles[tab].split(' (')[0], day], 'csv'));
   }, 'CSV downloaded');
   const send = () => run(async () => {
     if (dialog === 'remind') {

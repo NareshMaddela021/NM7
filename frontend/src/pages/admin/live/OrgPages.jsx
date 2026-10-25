@@ -9,7 +9,8 @@ import { Link, useSearchParams } from 'react-router-dom';
 import QRCode from 'qrcode';
 import { Dialog, useToast } from '../../../components/ui';
 import { savePdf } from '../../builder/resumePdf';
-import { QR_FAILED, downloadQrPng, qrFileName, qrPosterPdf } from '../../../lib/qr';
+import { QR_FAILED, downloadQrPng, qrFileName, qrPosterFileName, qrPosterPdf } from '../../../lib/qr';
+import { fileName } from '../../../lib/fileName';
 import ResumePreview from '../../builder/ResumePreview';
 import ErrorBoundary from '../../../components/ErrorBoundary';
 import { designOf, runExport } from '../../../lib/orgExport';
@@ -56,7 +57,7 @@ async function saveGroupQr(g, ctx, toast) {
 async function saveGroupPoster(g, ctx, toast) {
   try {
     const blob = await qrPosterPdf({ text: joinLink(g.code), title: g.name, subtitle: ctx.orgName || '', code: g.code });
-    await savePdf(blob, qrFileName(ctx.orgName, g.name).replace(/_QR\.png$/, '_QR_poster.pdf'));
+    await savePdf(blob, qrPosterFileName(ctx.orgName, g.name));
   } catch { toast('Couldn’t make the poster. Please try again.'); }
 }
 
@@ -428,7 +429,7 @@ export function GroupDashboard({ ctx, groupId, onBack }) {
       st.reload();
     } catch (e) { toast(e.message); } finally { setJob(null); }
   };
-  const csv = () => run(async () => savePdf(await csvBlob(ctx, { group: groupId }), `Nm7_${st.data.group.code}_${new Date().toISOString().slice(0, 10)}.csv`), 'CSV downloaded');
+  const csv = () => run(async () => savePdf(await csvBlob(ctx, { group: groupId }), fileName(['Nm7', st.data.group.code, new Date().toISOString().slice(0, 10)], 'csv')), 'CSV downloaded');
   return (
     <Loading st={st}>{(d) => (
       <>
@@ -673,7 +674,7 @@ export function SharedResumes({ ctx = ADMIN_CTX, groups: portalGroups = null, ti
     } finally { setJob(null); stop.current = null; }
   }
   const rowAction = (kind, row) => exportJob(kind, [row.membershipId], kind === 'print' ? `Print · ${row.name}` : `PDF · ${row.name}`);
-  const csv = () => run(async () => savePdf(await csvBlob(ctx, body, printSort), `Nm7_shared_resumes_${new Date().toISOString().slice(0, 10)}.csv`), 'CSV downloaded');
+  const csv = () => run(async () => savePdf(await csvBlob(ctx, body, printSort), fileName(['Nm7', 'shared resumes', new Date().toISOString().slice(0, 10)], 'csv')), 'CSV downloaded');
   const act = (path, extra, ok) => run(async () => {
     const r = await http(`${ctx.base}/shared-resumes/${path}`, { method: 'POST', body: { ids: [...selected], ...extra } });
     setSelected(new Set()); st.reload();
