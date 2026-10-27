@@ -9,6 +9,7 @@ import { pay } from '../../services/api';
 import { http } from '../../services/http';
 import { BUY_WA, WA_PAY_TEXT, WA_SAFETY, WA_WAITING, buyOnWhatsApp } from '../../lib/waPay';
 import { Loading, day, useAction, useApi } from '../admin/live/common';
+import CodeBox from '../../components/CodeBox';
 
 const STATE = { free: ['Free', 'b-neutral'], active: ['Active', 'b-success'], grace: ['Ended — grace period', 'b-warning'], expired: ['Ended', 'b-neutral'] };
 const ORDER_STATUS = { done: 'Paid', pending_payment: 'Waiting for payment', awaiting_payment: WA_WAITING, expired: 'Not paid', refunded: 'Refunded', cancelled: 'Cancelled' };
@@ -63,24 +64,42 @@ function Buy({ data, plan, onPaid, onOrdered, refCode }) {
   const [q, setQ] = useState(null);
   const [st, setSt] = useState({});
   const [code, setCode] = useState(null); // typed partner code; null = the remembered one (partner link)
+  const [coupon, setCoupon] = useState(''); // a code from Admin → Codes, applied (instead of a partner discount)
   const s = data.summary;
   const renew = s.planId === plan.id && (s.state === 'active' || s.state === 'grace');
   const firstPayment = !data.orders.some((o) => o.paidAt);
   const typed = (code ?? '').trim();
+  const quoteUrl = (ref, c) => `/api/org/${data.orgId}/billing/quote?plan=${plan.id}${ref ? `&ref=${encodeURIComponent(ref)}` : ''}${c ? `&code=${encodeURIComponent(c)}` : ''}`;
   const quote = async (ref) => {
     setSt({ busy: true });
-    try { setQ(await http(`/api/org/${data.orgId}/billing/quote?plan=${plan.id}${ref ? `&ref=${encodeURIComponent(ref)}` : ''}`)); setSt({}); } catch (err) { setSt({ error: err.message }); }
+    try { setQ(await http(quoteUrl(ref, coupon))); setSt({}); } catch (err) { setSt({ error: err.message }); }
+  };
+  const canCode = plan.id === 'drive' || plan.id === 'campus';
+  // the code field: a free code turns the plan on now; a discount re-prices the quote and goes with the order
+  const applyCode = async (c) => {
+    const nq = await http(quoteUrl(null, c));
+    if (nq.free) {
+      const r = await http(`/api/org/${data.orgId}/billing/code`, { method: 'POST', body: { planId: plan.id, code: c } });
+      return r;
+    }
+    setQ(nq); setCoupon(c);
+    return { unlocked: false, code: nq.code, text: nq.codeText };
+  };
+  const dropCode = async (applied) => {
+    if (applied) return;
+    setCoupon('');
+    try { setQ(await http(quoteUrl(typed, ''))); } catch { /* keep the old quote */ }
   };
   const open = () => quote(typed);
   const mode = data.paymentMode || 'razorpay';
   const go = async () => {
     setSt({ busy: true });
     if (mode === 'whatsapp') {
-      try { await buyOnWhatsApp({ planId: plan.id, refCode: typed || null }, `/api/org/${data.orgId}/billing/whatsapp`, { orderLink: false }); setSt({}); setQ(null); onOrdered(); } catch (err) { setSt({ error: err.message }); }
+      try { await buyOnWhatsApp({ planId: plan.id, refCode: coupon ? null : typed || null, code: coupon || null }, `/api/org/${data.orgId}/billing/whatsapp`, { orderLink: false }); setSt({}); setQ(null); onOrdered(); } catch (err) { setSt({ error: err.message }); }
       return;
     }
     try {
-      const order = await http(`/api/org/${data.orgId}/billing/checkout`, { method: 'POST', body: { planId: plan.id, refCode: typed || null } });
+      const order = await http(`/api/org/${data.orgId}/billing/checkout`, { method: 'POST', body: { planId: plan.id, refCode: coupon ? null : typed || null, code: coupon || null } });
       await pay(order);
       setSt({ waiting: true });
       onPaid(order.orderId);
@@ -97,9 +116,11 @@ function Buy({ data, plan, onPaid, onOrdered, refCode }) {
         <div className="stack g4 well small">
           <span className="row between"><span>{q.planName} plan</span><span>{rupees(q.listPrice)}</span></span>
           {q.discount > 0 && <span className="row between"><span>{q.discountLabel || 'Discount'}</span><span>−{rupees(q.discount)}</span></span>}
+          {q.codeDiscount > 0 && <span className="row between"><span>Code {q.code}</span><span>−{rupees(q.codeDiscount)}</span></span>}
           {q.taxLines.map((t) => <span key={t.label} className="row between"><span>{t.label} {t.ratePct}%</span><span>{rupees(t.amount)}</span></span>)}
           <span className="row between" style={{ fontWeight: 700 }}><span>Total</span><span>{rupees(q.total)}</span></span>
-          {firstPayment && (
+          {canCode && <CodeBox apply={applyCode} onApplied={dropCode} disabled={st.busy || st.waiting} onUnlocked={() => { setQ(null); onOrdered(); }} />}
+          {firstPayment && !coupon && (
             <form className="row g8" style={{ alignItems: 'flex-end', flexWrap: 'wrap' }} onSubmit={(e) => { e.preventDefault(); quote(typed); }}>
               <label className="xs muted" style={{ flex: '1 1 140px' }}>Partner code (optional)
                 <input className="input mono" style={{ height: 34 }} maxLength={16} value={code ?? q.partnerCode ?? refCode ?? ''} placeholder="ASX-…" onChange={(e) => setCode(e.target.value.toUpperCase())} />

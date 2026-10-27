@@ -64,10 +64,10 @@ export const PACKS = {
  * Buy a pack following the payment mode: WhatsApp → a pending order and the chat (call straight from the click);
  * Razorpay → its checkout. Resolves { whatsapp } or the paid order. Off: never called (the page shows Coming soon).
  */
-export async function buyPack(kind, mode) {
+export async function buyPack(kind, mode, code) {
   const planId = PACKS[kind].plan;
-  if (mode === 'whatsapp') { await buyOnWhatsApp({ planId }); return { whatsapp: true }; }
-  const order = await createOrder({ planId });
+  if (mode === 'whatsapp') { const r = await buyOnWhatsApp({ planId, ...(code ? { code } : {}) }); return r?.unlocked ? r : { whatsapp: true }; }
+  const order = await createOrder({ planId, code });
   return pay(order);
 }
 

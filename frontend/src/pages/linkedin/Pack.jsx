@@ -12,6 +12,8 @@ import { LANGS, REVIEW_NOTE, pasteWhere } from '../../lib/linkedin/guide';
 import { BANNER_H, BANNER_W, COMING_SOON, LIMITS, PACK_ITEMS, REGEN_SECTIONS, SECTION_TITLE, buyPack, downloadBanner, drawBanner, editSection, generatePack, getPack, packStatus, regenerateSection } from '../../lib/linkedin/pack';
 import { BUY_WA, WA_PAY_TEXT } from '../../lib/waPay';
 import { CopyButton } from './parts';
+import CodeBox from '../../components/CodeBox';
+import { inrExact } from '../../lib/pricing';
 
 const inr = (n) => `₹${Number(n).toLocaleString('en-IN')}`;
 
@@ -21,6 +23,7 @@ export default function Pack({ request, accent = '#111827', onOwned }) {
   const [st, setSt] = useState(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
+  const [quote, setQuote] = useState(null); // a discount code applied
   const reload = () => packStatus().then((s) => { setSt(s); if (s.owned) onOwned?.(); });
   useEffect(() => { reload(); }, [auth.user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
@@ -30,10 +33,11 @@ export default function Pack({ request, accent = '#111827', onOwned }) {
   if (st.owned) return <div id="pack"><PackOwned request={request} accent={accent} /></div>;
 
   const signedIn = auth.user?.role === 'customer';
+  const price = quote ? quote.final / 100 : st.price;
   const buy = async () => {
     setBusy(true); setErr('');
     try {
-      const r = await buyPack(st.mode);
+      const r = await buyPack(st.mode, quote?.code);
       if (!r?.whatsapp) { toast('LinkedIn pack unlocked'); await reload(); }
     } catch (e) {
       setErr(e.code === 'dismissed' ? e.message : e.message || 'Payment didn’t go through. You haven’t been charged.');
@@ -54,13 +58,14 @@ export default function Pack({ request, accent = '#111827', onOwned }) {
       {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
       {st.onSale && signedIn ? (
         <button type="button" className="btn btn-ink btn-lg" data-testid="li-pack-buy" onClick={buy} disabled={busy} aria-busy={busy} style={{ alignSelf: 'flex-start' }}>
-          {busy && <Spinner />}{st.mode === 'whatsapp' ? (busy ? 'Opening WhatsApp…' : BUY_WA) : busy ? 'Waiting for your payment…' : `Buy ${inr(st.price)}`}
+          {busy && <Spinner />}{st.mode === 'whatsapp' ? (busy ? 'Opening WhatsApp…' : BUY_WA) : busy ? 'Waiting for your payment…' : `Buy ${inrExact(price)}`}
         </button>
       ) : st.onSale ? (
         <Link to="/login?next=%2Flinkedin" className="btn btn-ink" style={{ alignSelf: 'flex-start' }}>Sign in to buy</Link>
       ) : (
         <button type="button" className="btn btn-outline" aria-disabled="true" data-testid="li-pack-soon" style={{ minHeight: 44, opacity: 0.7, cursor: 'not-allowed', alignSelf: 'flex-start' }} onClick={(e) => e.preventDefault()}>{COMING_SOON}</button>
       )}
+      {signedIn && <CodeBox item="linkedin_pack" onApplied={setQuote} disabled={busy} onUnlocked={async () => { toast('LinkedIn pack unlocked'); await reload(); }} />}
       {st.onSale && <span className="xs faint">{st.mode === 'whatsapp' ? `${WA_PAY_TEXT} Included in Career Launch.` : 'UPI, card or netbanking · GST invoice emailed · Included in Career Launch'}</span>}
     </section>
   );

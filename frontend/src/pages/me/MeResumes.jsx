@@ -72,8 +72,8 @@ export default function MeResumes() {
                 <span className="xs muted">{templateName(r.data)} · edited {ago(r.updated)} · {r.versions.length + expertDrafts(r.id).length} versions</span>
                 <div className="row g8">
                   <button type="button" className="btn btn-ink" style={{ minHeight: 36 }} onClick={() => edit(r.id)}>Edit</button>
-                  <button type="button" className="btn btn-outline" style={{ minHeight: 36 }} onClick={async () => { if (await downloadResume(r.data, 'pdf')) toast('PDF ready'); }}>PDF</button>
-                  <button type="button" className="btn btn-outline" style={{ minHeight: 36 }} onClick={async () => { if (await downloadResume(r.data, 'docx')) toast('Word file ready'); }}>Word</button>
+                  <button type="button" className="btn btn-outline" style={{ minHeight: 36 }} onClick={async () => { if (await downloadResume(r.data, 'pdf', undefined, undefined, r.id)) toast('PDF ready'); }}>PDF</button>
+                  <button type="button" className="btn btn-outline" style={{ minHeight: 36 }} onClick={async () => { if (await downloadResume(r.data, 'docx', undefined, undefined, r.id)) toast('Word file ready'); }}>Word</button>
                 </div>
                 <div className="row g12 small">
                   <button type="button" className="link-btn small" onClick={() => setVersions(r)}>Versions</button>

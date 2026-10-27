@@ -6,7 +6,8 @@ import Header from '../components/Header';
 import { Spinner } from '../components/ui';
 import { useFlow } from '../lib/flow';
 import { createOrder, pay } from '../services/api';
-import { PLANS, PROMISES, inr } from '../lib/pricing';
+import { PLANS, PROMISES, inr, inrExact } from '../lib/pricing';
+import CodeBox from '../components/CodeBox';
 import { BUY_WA, WA_DELIVERY, WA_PAY_TEXT, WA_SAFETY, buyOnWhatsApp, usePayMode } from '../lib/waPay';
 
 export default function Checkout() {
@@ -15,9 +16,12 @@ export default function Checkout() {
   const { user } = useAuth();
   const [paying, setPaying] = useState(false);
   const [err, setErr] = useState('');
-  const unpaid = useRef({}); // plan → order created but not paid yet (e.g. the window was closed), reused on retry
+  const unpaid = useRef({}); // plan (+ code) → order created but not paid yet (e.g. the window was closed), reused on retry
+  const [quote, setQuote] = useState(null); // a discount code applied (for this plan)
 
-  const total = addon ? PLANS.launch.price : PLANS.expert.price;
+  const listTotal = addon ? PLANS.launch.price : PLANS.expert.price;
+  const total = quote ? quote.final / 100 : listTotal;
+  const code = quote?.code;
   const pm = usePayMode();
   const mode = pm?.mode; // undefined while loading
   const disabled = paying || user?.role !== 'customer' || !mode || mode === 'off';
@@ -29,12 +33,13 @@ export default function Checkout() {
     setErr('');
     const plan = addon ? 'launch' : 'expert';
     if (mode === 'whatsapp') {
-      try { await buyOnWhatsApp({ planId: plan, role: role || null }); } catch (x) { setErr(x.message || 'Something went wrong. Please try again.'); }
+      try { await buyOnWhatsApp({ planId: plan, role: role || null, ...(code ? { code } : {}) }); } catch (x) { setErr(x.message || 'Something went wrong. Please try again.'); }
       setPaying(false);
       return;
     }
     try {
-      const order = unpaid.current[plan] || (unpaid.current[plan] = await createOrder({ planId: plan, role })); // the server sets the price
+      const key = `${plan}:${code || ''}`;
+      const order = unpaid.current[key] || (unpaid.current[key] = await createOrder({ planId: plan, role, code })); // the server sets the price
       const paid = await pay(order); // Razorpay's own window (UPI, card, netbanking), then the server confirms it
       // Live: the dashboard copy uses the server's order id, invoice and payment id. Preview: made up here.
       const id = placeOrder({ plan, role, method: paid.method, id: paid.orderId, invoice: paid.invoiceNo, payId: paid.paymentId });
@@ -57,12 +62,13 @@ export default function Checkout() {
           <div className="card stack g16">
             <div className="row between"><span>Expert rewrite · {role || 'your target role'}</span><strong>{inr(PLANS.expert.price)}</strong></div>
             <label className="option" data-on={addon}>
-              <input type="checkbox" checked={addon} onChange={() => setAddon(!addon)} style={{ borderRadius: 4 }} />
+              <input type="checkbox" checked={addon} onChange={() => { setAddon(!addon); setQuote(null); }} style={{ borderRadius: 4 }} disabled={!!quote} />
               <span className="stack g4" style={{ flex: 1 }}><strong>Upgrade to Career Launch</strong><span className="small muted">Adds LinkedIn makeover, cover letters and a 1:1 mentor call.</span></span>
               <strong>+{inr(PLANS.launch.price - PLANS.expert.price)}</strong>
             </label>
             <hr className="divider" />
-            <div className="row between" style={{ fontSize: 18 }}><strong>Total</strong><strong>{inr(total)}</strong></div>
+            {quote && <div className="row between small"><span>Code {quote.code}</span><span>−{inrExact(quote.discount / 100)}</span></div>}
+            <div className="row between" style={{ fontSize: 18 }}><strong>Total</strong><strong>{inrExact(total)}</strong></div>
           </div>
           <ul className="stack g8 small muted" style={{ margin: 0, paddingLeft: 18 }}>
             <li>Delivered in {PROMISES.delivery}, revisions included{mode === 'whatsapp' ? ' — counted from when we confirm your payment' : ''}</li>
@@ -89,11 +95,13 @@ export default function Checkout() {
               <p className="small muted" style={{ margin: 0 }}>When you press Pay, {PROMISES.paymentProvider}’s secure window opens. Choose GPay, PhonePe, Paytm or any UPI app, a Visa / RuPay / Mastercard card, or netbanking there. We never see your card or UPI PIN.</p>
             </div>
           )}
+          {user?.role === 'customer' && mode && <CodeBox key={addon ? 'launch' : 'expert'} item={addon ? 'launch' : 'expert'} onApplied={setQuote} disabled={paying}
+            onUnlocked={(r) => { setOrderId(r.orderId); nav(`/me/orders/${r.orderId}`, { state: { justPaid: true } }); }} />}
           {err && <p role="alert" className="error">{err}</p>}
           {!user && <div className="well small">Sign in or create a free account first — your order, drafts and invoices live in your dashboard. <Link to="/login?next=%2Fcheckout">Sign in</Link> · <Link to="/signup?next=%2Fcheckout">Create account</Link></div>}
           {user && user.role !== 'customer' && <div className="well small">You’re signed in with an {user.role} account. Orders need a customer account.</div>}
           <button type="submit" className="btn btn-ink btn-xl" disabled={disabled} aria-busy={paying}>
-            {paying && <Spinner />}{mode === 'off' ? 'Coming soon' : mode === 'whatsapp' ? (paying ? 'Opening WhatsApp…' : `${BUY_WA} · ${inr(total)}`) : paying ? 'Waiting for your payment…' : `Pay ${inr(total)}`}
+            {paying && <Spinner />}{mode === 'off' ? 'Coming soon' : mode === 'whatsapp' ? (paying ? 'Opening WhatsApp…' : `${BUY_WA} · ${inrExact(total)}`) : paying ? 'Waiting for your payment…' : `Pay ${inrExact(total)}`}
           </button>
           {mode !== 'off' && <span className="xs muted" style={{ textAlign: 'center' }}>By paying you agree to our <Link to="/terms">Terms</Link> and <Link to="/refund-policy">Refund policy</Link>.</span>}
           {mode === 'razorpay' && <span className="xs faint" style={{ textAlign: 'center' }}>Secured by {PROMISES.paymentProvider} · GST invoice emailed · full refund if we don’t deliver</span>}

@@ -23,9 +23,9 @@ export function ResumeThumb({ data, width = 150, label }) {
 }
 
 /** PDF / Word download (only once the server allows it — see lib/downloads). True when a file was saved. */
-export async function downloadResume(data, format = 'pdf', cover, share) {
+export async function downloadResume(data, format = 'pdf', cover, share, resumeId) {
   try {
-    await exportFile({ data, design: designOf(data), format, cover, share });
+    await exportFile({ data, design: designOf(data), format, cover, share, resumeId });
     return true;
   } catch (e) {
     if (e instanceof DownloadBlocked) return false;

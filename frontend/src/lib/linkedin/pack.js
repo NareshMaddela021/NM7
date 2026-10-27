@@ -34,9 +34,9 @@ export async function packStatus() {
  * Pay for the pack: the server prices the order (503 while payments are off), Razorpay's window, server check.
  * WhatsApp mode: a pending order and the chat instead; resolves { whatsapp: true } (nothing unlocks until Nm7 confirms).
  */
-export async function buyPack(mode) {
-  if (mode === 'whatsapp') { await buyOnWhatsApp({ planId: 'linkedin_pack' }); return { whatsapp: true }; }
-  const order = await createOrder({ planId: 'linkedin_pack' });
+export async function buyPack(mode, code) {
+  if (mode === 'whatsapp') { const r = await buyOnWhatsApp({ planId: 'linkedin_pack', ...(code ? { code } : {}) }); return r?.unlocked ? r : { whatsapp: true }; }
+  const order = await createOrder({ planId: 'linkedin_pack', code });
   return pay(order);
 }
 
