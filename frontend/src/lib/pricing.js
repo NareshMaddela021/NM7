@@ -42,6 +42,8 @@ export function expertPayout(price, fees = FEES) {
 }
 
 export const inr = (n) => '₹' + (Math.round(n) || 0).toLocaleString('en-IN'); // `|| 0`: never “₹-0”
+/** Like inr, but keeps paise when there are any (a price after a percent-off code: ₹74.50). */
+export const inrExact = (n) => (Math.round(n * 100) % 100 ? `₹${Number(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : inr(n));
 
 // Customer add-ons (sample prices — change here).
 export const ADDONS = {

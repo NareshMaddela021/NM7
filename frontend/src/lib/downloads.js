@@ -71,7 +71,7 @@ export function pendingDownload(take = false) {
 }
 
 /** The server's go-ahead. Throws DownloadBlocked when the file may not be made. */
-async function allowed(format, what, share) {
+async function allowed(format, what, share, resumeId) {
   if (!LIVE) {
     if (share) return; // preview: no payments, so a shared resume can always be downloaded
     const e = await getEntitlement();
@@ -80,7 +80,7 @@ async function allowed(format, what, share) {
   }
   try {
     if (share) await http(`/api/public/resumes/${encodeURIComponent(share)}/export`, { method: 'POST', body: {} });
-    else await http('/api/me/exports', { method: 'POST', body: { format, what } });
+    else await http('/api/me/exports', { method: 'POST', body: { format, what, ...(resumeId ? { resumeId } : {}) } });
   } catch (e) {
     if (share && e.status === 402) throw new DownloadBlocked('owner', null, e.message);
     if (e.status === 401) throw new DownloadBlocked('guest');
@@ -93,15 +93,16 @@ async function allowed(format, what, share) {
  * Builds and saves a resume or cover letter — only after the server allows it. When it doesn't, the matching
  * modal opens (create an account / unlock downloads) and DownloadBlocked is thrown; after the account or payment
  * the same download runs again.
- *   { data, design, format: 'pdf'|'docx', cover?, photo?, photoPng?, share? (a share-link slug) }
+ *   { data, design, format: 'pdf'|'docx', cover?, photo?, photoPng?, share? (a share-link slug),
+ *     resumeId? (which saved resume; else the active one: a code can unlock one resume) }
  */
 export async function exportFile(opts) {
-  const { data, design, format = 'pdf', cover, photo, photoPng, share } = opts;
+  const { data, design, format = 'pdf', cover, photo, photoPng, share, resumeId } = opts;
   const what = cover ? 'cover' : 'resume';
   try {
-    await allowed(format, what, share);
+    await allowed(format, what, share, resumeId);
   } catch (e) {
-    if (e instanceof DownloadBlocked && e.reason !== 'owner') openGate({ reason: e.reason, price: e.price, format, what, retry: () => exportFile(opts) });
+    if (e instanceof DownloadBlocked && e.reason !== 'owner') openGate({ reason: e.reason, price: e.price, format, what, resumeId, retry: () => exportFile(opts) });
     throw e;
   }
   // loaded on first use: the PDF / Word makers are large

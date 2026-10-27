@@ -22,8 +22,8 @@ export async function scanResume(source, role, onStep) {
 
 /* ---------- Orders & payment ---------- */
 /** POST /api/orders { planId, role, addons } → { orderId, razorpayOrderId, amount (paise), currency, keyId, … } */
-export async function createOrder({ planId, role, addons = [] }) {
-  if (LIVE) return http('/api/orders', { method: 'POST', body: { planId, role: role || null, addons } });
+export async function createOrder({ planId, role, addons = [], code }) {
+  if (LIVE) return http('/api/orders', { method: 'POST', body: { planId, role: role || null, addons, ...(code ? { code } : {}) } });
   await wait(400);
   return { orderId: null, planId, role, razorpayOrderId: 'order_TEST123' };
 }

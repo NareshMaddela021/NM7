@@ -47,6 +47,7 @@ export async function buyOnWhatsApp(body, path = '/api/orders/whatsapp', { order
   try { win = window.open('', '_blank'); } catch { win = null; }
   try {
     const r = await http(path, { method: 'POST', body });
+    if (r.unlocked) { try { win?.close(); } catch { /* ignore */ } return r; } // a free code: unlocked, no chat
     let opened = false;
     if (win && !win.closed) {
       try { win.opener = null; win.location.href = r.waUrl; opened = true; } catch { opened = false; }

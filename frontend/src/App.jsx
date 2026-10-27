@@ -11,6 +11,7 @@ import { applyMeta, currentMeta, usePageMeta } from './lib/meta';
 import { StaleBuildPage, isChunkError, lazyRetry, reloadOnce } from './lib/chunks';
 import { onSlow } from './services/http';
 import { reportError } from './lib/monitoring';
+import { rememberCode } from './lib/codes';
 
 // a page file missing after a deploy (tab opened on the old build) reloads onto the new build
 const lazy = (load) => reactLazy(lazyRetry(load));
@@ -145,6 +146,14 @@ function OrderRedirect() {
 }
 const C = (el) => <RequireAuth role="customer">{el}</RequireAuth>;
 const E = (el, approved = true) => <RequireAuth role="expert" approved={approved}>{el}</RequireAuth>;
+
+/** A link like /builder?code=CAMPUS26 or /for-orgs?code=…: the code is kept for the pay step's "Have a code?" field
+ * (filled in there, never used by itself). */
+function CodeFromLink() {
+  const { search } = useLocation();
+  useEffect(() => { if (search.includes('code=')) rememberCode(search); }, [search]);
+  return null;
+}
 
 /** After a route change, keyboard and screen-reader users land on the new page's main content instead of staying
  * on the link they pressed somewhere in the old page. The first render is left alone. */
@@ -289,6 +298,7 @@ export default function App() {
       <a href="#main" className="skip-link" onClick={(e) => { if (focusMain()) e.preventDefault(); }}>Skip to content</a>
       <ScrollToTop />
       <RouteFocus />
+      <CodeFromLink />
       <PreviewBar />
       <DownloadGateHost />
       <WaPlacedHost />
