@@ -21,6 +21,7 @@ export const NAV = [
   ['quality', '/admin/quality', 'Quality', '✓'],
   ['reports', '/admin/reports', 'Reports', '⇩'],
   ['settings', '/admin/settings', 'Settings & prices', '⚙'],
+  ['settings', '/admin/codes', 'Codes', '%'],
   ['automation', '/admin/automation', 'Automation', '⚡'],
   ['team', '/admin/team', 'Team & audit log', '⚿'],
   ['organizations', '/admin/orgs', 'Organizations', '⌂'],
