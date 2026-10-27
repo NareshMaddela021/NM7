@@ -12,6 +12,7 @@ class CreateOrderIn(CamelModel):
     plan_id: Literal["diy", "expert", "launch", "linkedin_pack", "tailor_pack", "interview_pack"]
     role: str | None = Field(default=None, max_length=100)  # the job the resume is for
     addons: list[str] = Field(default_factory=list, max_length=5)
+    code: str | None = Field(default=None, max_length=40)  # a code (Admin → Codes); one per order
 
 
 class Prefill(CamelModel):
@@ -50,6 +51,14 @@ class RefundOut(CamelModel):
     processed_at: datetime | None
 
 
+class CouponOut(CamelModel):
+    code: str
+    type: str
+    original: int
+    discount: int
+    final: int
+
+
 class OrderOut(CamelModel):
     id: str
     plan: str
@@ -70,6 +79,8 @@ class OrderOut(CamelModel):
     deadline_at: datetime | None
     delivered_at: datetime | None
     refunds: list[RefundOut] = []
+    coupon: CouponOut | None = None  # the code used: original price, discount, final price (paise)
+    resume_id: str | None = None  # a free code that unlocked one resume's downloads
 
     @classmethod
     def of(cls, o: Order, payments: list | None = None, refunds: list | None = None) -> "OrderOut":
@@ -94,4 +105,6 @@ class OrderOut(CamelModel):
             deadline_at=o.deadline_at,
             delivered_at=o.delivered_at,
             refunds=[RefundOut.model_validate(r) for r in refunds or []],
+            coupon=CouponOut.model_validate(o.coupon) if o.coupon else None,
+            resume_id=o.resume_id,
         )

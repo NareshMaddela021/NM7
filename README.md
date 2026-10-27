@@ -421,6 +421,35 @@ Admin → Settings → Payments chooses how Nm7 takes money (`backend/app/wapay/
 **WhatsApp** → optionally the reply hours and the auto-cancel hours → **Save payments**. Confirm each payment in
 Admin → WhatsApp payments → **Mark as paid**. Choose **Off** to stop taking orders.
 
+## Codes (Admin → Codes)
+
+Codes work at every pay step: a resume download, the Tailor / Interview / LinkedIn packs, Career Launch, the expert
+rewrite, and an organization's Drive or Campus plan. Server side in `backend/app/coupons/`.
+
+- **Types**: Free unlock (100%), Percent off (1-99%), Flat Rs off. One code per order, no stacking.
+- **Free**: unlocks at once in any payment mode, no WhatsApp step; an order at Rs 0 is recorded (method `coupon`).
+  A free code on a resume download unlocks *that resume* for good (PDF and Word, any number of downloads), not the
+  whole account. A pack / Career Launch / organization plan unlocks exactly as a paid order does.
+- **Discounts**: the price updates ("Rs 99 -> Rs 49 with SAVE50"); the WhatsApp message carries the code and the new
+  price, and the admin marks it paid as usual. With Razorpay the lower amount is charged (same hook).
+  Payments Off: only free codes work (a discount answers `code_needs_payment`).
+- **Rules** (all on the server): codes are case- and space-insensitive and unique; status Active / Paused / Expired /
+  Scheduled / Used up; total uses (or unlimited) and uses per person (per organization for org plans), both taken
+  atomically, so two people can't take the last use; an order waiting for payment holds its use and gives it back
+  if cancelled; "Only for" one organization or group (an org plan: that organization); 10 wrong codes an hour per
+  person and per address, then a wait.
+- **Orders** keep `coupon: {code, type, value, original, discount, final}` and a "Code …" discount line; the WhatsApp
+  payments list, report (codes total) and CSV show it.
+- **Admin** (Owner only; everyone else gets 403): list with search and filters, create (typed or made-up code),
+  edit (past uses keep their record), pause / resume, delete only if never used, bulk one-time codes with a prefix
+  (`DRIVE-7KQ2`) and "Who used it" (+ CSV). Every create / edit / pause / delete / use goes to the activity log.
+- **Links**: `/builder?code=CAMPUS26` and `/for-orgs?code=…` fill in the code at the pay step (never used by itself).
+- **Account deletion**: `coupons.service.forget_user()` keeps the use counted but drops who it was.
+
+API: `POST /api/me/codes/apply`, `GET/POST /api/admin/coupons`, `POST …/bulk`, `PUT/DELETE …/{code}`,
+`POST …/{code}/pause|resume`, `GET …/{code}/uses(.csv)`; org plans: `GET …/billing/quote?code=`,
+`POST /api/org/{id}/billing/code`, and `code` on `…/checkout` / `…/whatsapp`; customer orders take `code` too.
+
 ## Job search: job match, tailored copies, cover letters, interview prep
 
 `backend/app/jobsearch/` (API under `/api/me/jobs`). Everything is saved on the person's account only, never shared

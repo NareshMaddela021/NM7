@@ -99,8 +99,12 @@ def discount_for(o: dict[str, Any], list_price: int, extra_pct: int = 0) -> tupl
     return min(list_price * pct // 100, list_price), f"Discount ({pct}%)"
 
 
-async def quote(db: AsyncDatabase, o: dict[str, Any], plan_id: str, *, extra_discount_pct: int = 0) -> dict[str, Any]:
-    """The full price breakdown for buying `plan_id` now. Raises when billing details are missing."""
+async def quote(
+    db: AsyncDatabase, o: dict[str, Any], plan_id: str, *, extra_discount_pct: int = 0, coupon: dict | None = None
+) -> dict[str, Any]:
+    """The full price breakdown for buying `plan_id` now. Raises when billing details are missing. `coupon`: a code
+    (app/coupons), taken off after the organization's own discount and before GST (one code per order: with a code,
+    callers pass no partner discount)."""
     plans = await get_plans(db)
     b = await get_billing(db)
     terms = _terms_for(o, plan_id, plans)
@@ -109,7 +113,12 @@ async def quote(db: AsyncDatabase, o: dict[str, Any], plan_id: str, *, extra_dis
         raise ApiError(409, "billing_details_required", "Add your organization’s billing details first.")
     list_price = int(terms["price"])
     discount, discount_label = discount_for(o, list_price, extra_discount_pct)
-    taxable = list_price - discount
+    code_off = 0
+    if coupon:
+        from app.coupons.service import discount_of  # (coupons imports billing's neighbours)
+
+        code_off = discount_of(coupon, list_price - discount)
+    taxable = list_price - discount - code_off
     on = gst_on(b)
     supplier_state = b["supplier"].get("state_code") or ""
     lines = tax_lines(taxable, on, int(b["gst_rate_bp"]), supplier_state, buyer["state_code"])
@@ -127,6 +136,9 @@ async def quote(db: AsyncDatabase, o: dict[str, Any], plan_id: str, *, extra_dis
         "supplier_state": supplier_state,
         "place_of_supply": buyer["state_code"],
         "buyer": dict(buyer),
+        "coupon": {"code": coupon["_id"], "type": coupon["type"], "value": coupon["value"], "discount": code_off}
+        if coupon
+        else None,
     }
 
 
@@ -145,6 +157,8 @@ def quote_out(q: dict[str, Any]) -> dict[str, Any]:
         ],
         "tax": q["tax"],
         "total": q["total"],
+        "code": q["coupon"]["code"] if q.get("coupon") else None,
+        "codeDiscount": q["coupon"]["discount"] if q.get("coupon") else 0,
     }
 
 
@@ -171,6 +185,8 @@ def order_items(q: dict[str, Any]) -> list[OrderItem]:
     ]
     if q["discount"]:
         items.append(("discount", "discount", q["discount_label"] or "Discount", -q["discount"]))
+    if q.get("coupon") and q["coupon"]["discount"]:
+        items.append(("discount", "coupon", f"Code {q['coupon']['code']}", -q["coupon"]["discount"]))
     items += [
         ("tax", t["kind"], f"{tax_label(t['kind'])} {t['rate_bp'] / 100:g}%", t["amount"]) for t in q["tax_lines"]
     ]
@@ -179,6 +195,10 @@ def order_items(q: dict[str, Any]) -> list[OrderItem]:
 
 async def new_org_order(db: AsyncDatabase, o: dict[str, Any], payer_id: str, q: dict[str, Any], **extra) -> Order:
     n = await next_number(db, "order_no", ORDER_NO_START)
+    c = q.get("coupon")
+    before = q["list_price"] - q["discount"]  # the code comes off this (GST is added after)
+    coupon = {"code": c["code"], "type": c["type"], "value": c["value"], "original": before,
+              "discount": c["discount"], "final": before - c["discount"]} if c else None  # fmt: skip
     return Order(
         _id=f"RS-{n}",
         kind="org",
@@ -189,23 +209,31 @@ async def new_org_order(db: AsyncDatabase, o: dict[str, Any], payer_id: str, q: 
         amount=q["total"],
         currency="INR",
         items=order_items(q),
+        coupon=coupon,
         billing={
             k: q[k]
             for k in ("terms", "list_price", "discount", "discount_label", "taxable", "gst_on", "rate_bp",
-                      "tax_lines", "tax", "total", "supplier_state", "place_of_supply", "buyer")
+                      "tax_lines", "tax", "total", "supplier_state", "place_of_supply", "buyer", "coupon")
         } | extra,
     )  # fmt: skip
 
 
 async def start_checkout(
-    db: AsyncDatabase, o: dict[str, Any], payer: Any, plan_id: str, *, extra_discount_pct: int = 0, **extra
+    db: AsyncDatabase,
+    o: dict[str, Any],
+    payer: Any,
+    plan_id: str,
+    *,
+    extra_discount_pct: int = 0,
+    coupon: dict | None = None,
+    **extra,
 ) -> dict[str, Any]:
     b = await get_billing(db)
     if await payment_mode(db) != "razorpay":  # off, or paid through WhatsApp (app/wapay)
         raise ApiError(503, "payments_unavailable", "Payments aren’t switched on yet.")
     rzp = get_razorpay()  # 503 until keys are set
     _check_mode(rzp.key_id, bool(b["razorpay_live"]))
-    q = await quote(db, o, plan_id, extra_discount_pct=extra_discount_pct)
+    q = await quote(db, o, plan_id, extra_discount_pct=extra_discount_pct, coupon=coupon)
     if q["total"] <= 0:
         raise ApiError(409, "nothing_to_pay", "This plan costs nothing after the discount — ask Nm7 to assign it.")
     order = await new_org_order(db, o, payer.id, q, **extra)
@@ -224,6 +252,10 @@ async def start_checkout(
         await db[PAYMENTS].insert_one(payment.to_mongo(), session=s)
 
     await transaction(save)
+    if coupon:
+        from app.coupons.flow import reserve_for
+
+        await reserve_for(db, order, coupon)
     return {
         "orderId": order.id,
         "razorpayOrderId": r["id"],

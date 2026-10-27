@@ -32,7 +32,7 @@ STATUSES = (
 
 class OrderItem(BaseModel):
     position: int
-    kind: str  # plan / addon / upgrade
+    kind: str  # plan / addon / upgrade / discount / tax
     code: str
     name: str
     amount: int  # paise
@@ -54,7 +54,12 @@ class Order(Doc):
     items: list[OrderItem] = Field(default_factory=list)
     invoice_no: str | None = None  # NM7/26-27/0001, unique
     receipt_no: str | None = None  # NM7R/26-27/0001: a WhatsApp payment before business details are set (no GST)
-    method: str | None = None  # "whatsapp": paid in a WhatsApp chat and marked paid by an admin; else Razorpay
+    method: str | None = None  # "whatsapp": paid in a WhatsApp chat and marked paid by an admin; "coupon": a free code;
+    # else Razorpay
+    # a code (app/coupons): {code, type, value, original, discount, final} (paise); the discount is also a line item
+    coupon: dict[str, Any] | None = None
+    # a free code on a resume download unlocks this resume only (its key), not the whole account
+    resume_id: str | None = None
     created_at: datetime = Field(default_factory=now)
     updated_at: datetime = Field(default_factory=now)
     paid_at: datetime | None = None
