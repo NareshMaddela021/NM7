@@ -37,12 +37,19 @@ NOT_FOUND = ApiError(404, "not_found", "We couldn’t find that order.")
 
 
 @router.post("", status_code=201)
-async def create_order(body: CreateOrderIn, auth: CustomerAuth, db: DB) -> CreateOrderOut:
+async def create_order(body: CreateOrderIn, request: Request, auth: CustomerAuth, db: DB) -> CreateOrderOut:
+    """Razorpay (not live yet). A code lowers the amount charged; a code that makes it free unlocks at once
+    (POST /api/me/codes/apply does that before this is called)."""
+    from app.coupons.flow import free_order, order_code, reserve_for
+
     if await payment_mode(db) != "razorpay":  # off, or paid through WhatsApp (POST /api/orders/whatsapp)
         raise ApiError(503, "payments_unavailable", "Payments aren’t switched on yet.")
     rzp = get_razorpay()  # 503 until keys are set
     user = auth.user
-    order = await build_order(db, user, body.plan_id, body.role, body.addons)
+    c = await order_code(db, user.id, body.code, body.plan_id, client_ip(request))
+    if await free_order(db, user.id, c, body.plan_id, body.addons, body.role):
+        raise ApiError(409, "unlocked_with_code", "Code applied - unlocked. Nothing to pay.")
+    order = await build_order(db, user, body.plan_id, body.role, body.addons, c)
     try:
         r = await rzp.create_order(
             order.amount, order.currency, receipt=order.id, notes={"order_id": order.id, "customer_id": str(user.id)}
@@ -64,6 +71,8 @@ async def create_order(body: CreateOrderIn, auth: CustomerAuth, db: DB) -> Creat
         await db[PAYMENTS].insert_one(payment.to_mongo(), session=s)
 
     await transaction(save)
+    if c:
+        await reserve_for(db, order, c)
     return CreateOrderOut(
         order_id=order.id,
         razorpay_order_id=r["id"],

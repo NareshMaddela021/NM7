@@ -25,6 +25,7 @@ from app.core.config import get_settings
 from app.core.db import DB, close_client, ensure_indexes, get_database
 from app.core.email import log_email_status
 from app.core.observability import RequestContext, init_sentry
+from app.coupons import router as coupons
 from app.downloads.router import router as downloads_router
 from app.experts.router import router as expert_router
 from app.jobsearch.cover_router import router as jobs_cover_router
@@ -162,6 +163,8 @@ def create_app() -> FastAPI:
     app.include_router(partners.admin)
     app.include_router(home_events.public)
     app.include_router(home_events.admin)
+    app.include_router(coupons.me)  # /api/me/codes (Admin → Codes)
+    app.include_router(coupons.admin)
     app.include_router(wapay_router)  # pay via WhatsApp (before /api/orders/{id})
     app.include_router(orders_router)
     app.include_router(payments_router)

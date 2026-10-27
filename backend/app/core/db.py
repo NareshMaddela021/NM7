@@ -76,6 +76,8 @@ LINKEDIN_PACKS = "linkedin_packs"  # who owns the LinkedIn pack (_id = user id):
 HOME_EVENTS = "home_events"  # home page tap counters, per day (no personal data)
 JOB_MATCHES = "job_matches"  # job search: the pasted job post, its reading, the score, outputs (per user, never shared)
 FEATURE_GRANTS = "feature_grants"  # job search packs granted by an admin (_id = "<feature>:<user id>")
+COUPONS = "coupons"  # admin-managed codes (_id = the code, upper case, no spaces): type, value, items, limits, dates
+COUPON_USES = "coupon_uses"  # one row per use of a code (_id = "<code>:<user or org>:<n>", n ≤ the per-person limit)
 COLLECTIONS = (
     USERS,
     EMAIL_CODES,
@@ -122,6 +124,8 @@ COLLECTIONS = (
     HOME_EVENTS,
     JOB_MATCHES,
     FEATURE_GRANTS,
+    COUPONS,
+    COUPON_USES,
 )
 
 DAY = 86_400
@@ -191,6 +195,8 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel("invite_token_hash", sparse=True),
     ],
     ROLL_LISTS: [IndexModel("org_id")],
+    COUPONS: [IndexModel([("created_at", DESCENDING)]), IndexModel("batch", sparse=True)],
+    COUPON_USES: [IndexModel([("code", ASCENDING), ("at", DESCENDING)]), IndexModel("user_id"), IndexModel("order_id")],
     KIOSKS: [IndexModel("token_hash", unique=True), IndexModel([("org_id", ASCENDING), ("created_at", DESCENDING)])],
     RECRUITER_INVITES: [
         IndexModel("token_hash", unique=True),

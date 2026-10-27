@@ -201,6 +201,7 @@ ORG_ACTIONS = [
     "org_pricing", "roll_list_upload", "roll_list_delete", "placement_export", "demo_org_reset",
     "recruiter_invite", "recruiter_invite_extend", "recruiter_invite_revoke", "recruiter_login", "recruiter_search",
     "recruiter_match", "recruiter_view", "recruiter_stage", "recruiter_download", "recruiter_settings",
+    "coupon.applied", "coupon.redeemed",
 ]  # fmt: skip
 
 

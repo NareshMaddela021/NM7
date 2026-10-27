@@ -11,6 +11,7 @@ from app.billing.invoices import issue_invoice
 from app.billing.subscription import activate_paid
 from app.core.db import ORDERS, PAYMENTS, REFUNDS, Session, next_number, transaction
 from app.core.time import financial_year, now
+from app.coupons.service import mark_used as coupon_used
 from app.linkedin.pack import on_order_paid as pack_paid
 from app.orders.models import ORDER_NO_START, Order, OrderItem
 from app.orders.pricing import CURRENCY, SELF_SERVE, price
@@ -39,9 +40,17 @@ async def next_receipt_no(db: AsyncDatabase, at: datetime, session: Session = No
     return f"NM7R/{fy}/{n:04d}"
 
 
-async def build_order(db: AsyncDatabase, customer: User, plan: str, role: str | None, addons: list[str]) -> Order:
-    """Prices the order and reserves its number. Not saved yet (the caller saves it with its payment)."""
+async def build_order(
+    db: AsyncDatabase, customer: User, plan: str, role: str | None, addons: list[str], coupon: dict | None = None
+) -> Order:
+    """Prices the order and reserves its number. Not saved yet (the caller saves it with its payment, then reserves
+    the code's use with app.coupons.flow.reserve_for). `coupon`: a checked code, its discount lowers the amount."""
+    from app.coupons.flow import coupon_doc, discounted
+
     items = price(plan, addons, await get_site(db))
+    original = d = 0
+    if coupon:
+        items, original, d = discounted(items, coupon)
     n = await next_number(db, "order_no", ORDER_NO_START)
     return Order(
         _id=f"RS-{n}",
@@ -55,6 +64,7 @@ async def build_order(db: AsyncDatabase, customer: User, plan: str, role: str | 
             OrderItem(position=pos, kind=kind, code=code, name=name, amount=amount)
             for pos, (kind, code, name, amount) in enumerate(items)
         ],
+        coupon=coupon_doc(coupon, original, d) if coupon else None,
     )
 
 
@@ -133,6 +143,7 @@ async def mark_paid(
             session=s,
         )
         await pack_paid(db, order, at, session=s)  # the LinkedIn pack (its own order, or Career Launch)
+        await coupon_used(db, order.id, session=s)  # a code reserved by this order now counts for good
         return order, True
 
     order, first = await transaction(run)
@@ -142,10 +153,13 @@ async def mark_paid(
 
 
 async def expire_unpaid(db: AsyncDatabase) -> int:
-    r = await db[ORDERS].update_many(
-        {"status": "pending_payment", "created_at": {"$lt": now() - UNPAID_EXPIRES_AFTER}},
-        {"$set": {"status": "expired", "updated_at": now()}},
-    )
+    from app.coupons.service import release
+
+    q = {"status": "pending_payment", "created_at": {"$lt": now() - UNPAID_EXPIRES_AFTER}}
+    with_code = [o["_id"] async for o in db[ORDERS].find({**q, "coupon": {"$ne": None}}, {"_id": 1})]
+    r = await db[ORDERS].update_many(q, {"$set": {"status": "expired", "updated_at": now()}})
+    if with_code:
+        await release(db, with_code)  # unpaid orders give their code's use back
     return r.modified_count
 
 

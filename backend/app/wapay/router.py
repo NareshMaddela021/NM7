@@ -46,8 +46,14 @@ async def public_mode(db: DB) -> dict[str, Any]:
 
 
 @router.post("/api/orders/whatsapp", status_code=201)
-async def whatsapp_order(body: CreateOrderIn, auth: CustomerAuth, db: DB) -> dict[str, Any]:
-    order, out = await service.create_customer_order(db, auth.user, body.plan_id, body.role, body.addons)
+async def whatsapp_order(body: CreateOrderIn, request: Request, auth: CustomerAuth, db: DB) -> dict[str, Any]:
+    from app.coupons.flow import free_order, free_out, order_code
+
+    c = await order_code(db, auth.user.id, body.code, body.plan_id, client_ip(request))
+    free = await free_order(db, auth.user.id, c, body.plan_id, body.addons, body.role)
+    if free:  # a free code: unlocked now, no WhatsApp step
+        return free_out(free)
+    order, out = await service.create_customer_order(db, auth.user, body.plan_id, body.role, body.addons, c)
     await audit(
         db, auth.user.id, "whatsapp.ordered", target=order.id, data={"order_id": order.id, "amount": order.amount}
     )

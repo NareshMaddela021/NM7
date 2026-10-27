@@ -42,6 +42,7 @@ async def status(db: AsyncDatabase, user_id: str, feature: Feature) -> dict[str,
             "plan": {"$in": list(PLANS_FOR[feature])},
             "paid_at": {"$ne": None},
             "status": {"$nin": list(LOST)},
+            "resume_id": None,  # a free code for one resume's download isn't a plan
         },
         {"plan": 1, "paid_at": 1},
         sort=[("paid_at", ASCENDING)],

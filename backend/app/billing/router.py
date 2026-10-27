@@ -7,6 +7,8 @@ admin's plan editor, billing settings and per-organization billing.
   PUT  /api/org/{org_id}/billing/details          Owner: legal name, address, state, optional GSTIN
   GET  /api/org/{org_id}/billing/quote?plan=      Owner: price − discount + GST, before paying
   POST /api/org/{org_id}/billing/checkout         Owner: a Razorpay order (the plan turns on from the webhook)
+  POST /api/org/{org_id}/billing/code             Owner: a code that makes the plan free turns it on now
+  (quote, checkout and WhatsApp take an optional code: Admin → Codes; one per order, instead of a partner code)
   GET/PUT  /api/admin/billing/settings            supplier details, GST rate, grace, commission, test/live …
   GET  /api/admin/billing/plans · PUT …/{plan}    the plans editor (each save is a new version)
   GET  /api/admin/billing/summary                 org revenue after refunds, active paid orgs, renewals due
@@ -276,39 +278,112 @@ def _with_ref(out: dict[str, Any], ref: dict[str, Any] | None) -> dict[str, Any]
     return out
 
 
+async def _priced(db, o: dict[str, Any], payer_id: str, request: Request, plan: str, ref: str | None,
+                  code: str | None) -> tuple[dict[str, Any], dict[str, Any] | None, dict[str, Any] | None]:  # fmt: skip
+    """(quote, partner ref, code). A code (Admin → Codes) takes the place of a partner discount: one per order. The
+    one field on the page takes either; a code is looked up first, then a partner code."""
+    from app.coupons.flow import org_code
+    from app.coupons.service import get as get_coupon
+
+    typed = code or ref
+    c = None
+    if code or (ref and await get_coupon(db, ref)):
+        c = await org_code(db, o, payer_id, typed, plan, client_ip(request))
+    r = await _ref(db, o, payer_id, request, None if c else ref)
+    q = await quote(db, o, plan, extra_discount_pct=0 if c else await partner_discount_pct(db, r), coupon=c)
+    return q, r, c
+
+
+def _code_out(out: dict[str, Any], q: dict[str, Any]) -> dict[str, Any]:
+    from app.coupons.flow import rs
+
+    c = q.get("coupon")
+    if c:
+        before = q["list_price"] - q["discount"]
+        out["codeText"] = ("Code applied - unlocked" if q["total"] <= 0
+                           else f"Rs {rs(before)} -> Rs {rs(before - c['discount'])} with {c['code']}")  # fmt: skip
+        out["free"] = q["total"] <= 0
+    return out
+
+
 @portal.get("/quote")
 async def price_quote(
     request: Request,
     db: DB,
     scope: OrgScope,
     plan: str = Query(max_length=20),
-    ref: str | None = Query(None, max_length=20),
+    ref: str | None = Query(None, max_length=40),
+    code: str | None = Query(None, max_length=40),
 ) -> dict[str, Any]:
     scope.require("billing")
     o = await _org(db, scope.org_id)
-    r = await _ref(db, o, scope.actor_id, request, ref)
-    q = await quote(db, o, plan, extra_discount_pct=await partner_discount_pct(db, r))
-    return _with_ref(quote_out(q), r)
+    q, r, _ = await _priced(db, o, scope.actor_id, request, plan, ref, code)
+    return _code_out(_with_ref(quote_out(q), r), q)
 
 
 class CheckoutIn(CamelModel):
     plan_id: Literal["drive", "campus", "custom"]
-    ref_code: str | None = Field(None, max_length=20)  # a partner code typed at checkout
+    ref_code: str | None = Field(None, max_length=40)  # a partner code typed at checkout (or a code)
+    code: str | None = Field(None, max_length=40)  # a code from Admin → Codes
+
+
+async def _redeem(db, o, auth, scope, request, q, c, r) -> dict[str, Any]:
+    """A code that makes the plan free: it turns on now, like a paid order (an order at Rs 0, no payment step)."""
+    from app.coupons.flow import redeem_org
+
+    extra = {"ref_code": r["partner"]["code"], "ref_via": r["via"]} if r else {}
+    order = await redeem_org(db, o, auth.user.id, c, q, **extra)
+    data = scope.audit_data(plan=q["terms"]["plan_id"], order_id=order.id, amount=0, code=c["_id"])
+    await audit(db, scope.actor_id, "billing_checkout", target=scope.org_id, data=data, ip=client_ip(request))
+    return {"orderId": order.id, "unlocked": True, "amount": 0, "code": c["_id"], "quote": quote_out(q),
+            "text": "Code applied - unlocked"}  # fmt: skip
+
+
+def _owner_pays(scope) -> None:
+    scope.require("billing")
+    if scope.role == "admin":
+        raise ApiError(403, "owner_only", "Only the organization’s Owner pays. Nm7 can assign a plan instead.")
+
+
+class CodeIn(CamelModel):
+    plan_id: Literal["drive", "campus"]
+    code: str = Field(min_length=1, max_length=40)
+
+
+@portal.post("/code", status_code=201)
+async def use_code(body: CodeIn, request: Request, auth: CustomerAuth, db: DB, scope: OrgScope) -> dict[str, Any]:
+    """A free code turns the plan on at once (in any payment mode); a discount code is only quoted here (it is used
+    when the order is placed)."""
+    from app.coupons.flow import mode_allows
+
+    _owner_pays(scope)
+    o = await _org(db, scope.org_id)
+    q, r, c = await _priced(db, o, auth.user.id, request, body.plan_id, None, body.code)
+    if q["total"] > 0:
+        await mode_allows(db, False)
+        return _code_out({"unlocked": False, "quote": quote_out(q)}, q)
+    return await _redeem(db, o, auth, scope, request, q, c, r)
 
 
 @portal.post("/checkout", status_code=201)
 async def checkout(body: CheckoutIn, request: Request, auth: CustomerAuth, db: DB, scope: OrgScope) -> dict[str, Any]:
-    scope.require("billing")
-    if scope.role == "admin":
-        raise ApiError(403, "owner_only", "Only the organization’s Owner pays. Nm7 can assign a plan instead.")
+    _owner_pays(scope)
     key = f"org-checkout:{scope.org_id}"
     await rate_limit.check(db, key, CHECKOUT_RULES)
     await rate_limit.record(db, key)
     o = await _org(db, scope.org_id)
-    r = await _ref(db, o, auth.user.id, request, body.ref_code)
+    q, r, c = await _priced(db, o, auth.user.id, request, body.plan_id, body.ref_code, body.code)
+    if c and q["total"] <= 0:
+        return await _redeem(db, o, auth, scope, request, q, c, r)
     extra = {"ref_code": r["partner"]["code"], "ref_via": r["via"]} if r else {}
     out = await start_checkout(
-        db, o, auth.user, body.plan_id, extra_discount_pct=await partner_discount_pct(db, r), **extra
+        db,
+        o,
+        auth.user,
+        body.plan_id,
+        extra_discount_pct=0 if c else await partner_discount_pct(db, r),
+        coupon=c,
+        **extra,
     )
     data = scope.audit_data(plan=body.plan_id, order_id=out["orderId"], amount=out["amount"], ref=extra.get("ref_code"))
     await audit(db, scope.actor_id, "billing_checkout", target=scope.org_id, data=data, ip=client_ip(request))
@@ -320,22 +395,21 @@ async def checkout_whatsapp(
     body: CheckoutIn, request: Request, auth: CustomerAuth, db: DB, scope: OrgScope
 ) -> dict[str, Any]:
     """The same plan, price and discount as checkout, paid on WhatsApp: a pending order and the wa.me link."""
-    scope.require("billing")
-    if scope.role == "admin":
-        raise ApiError(403, "owner_only", "Only the organization’s Owner pays. Nm7 can assign a plan instead.")
+    _owner_pays(scope)
     key = f"org-checkout:{scope.org_id}"
     await rate_limit.check(db, key, CHECKOUT_RULES)
     await rate_limit.record(db, key)
     o = await _org(db, scope.org_id)
-    r = await _ref(db, o, auth.user.id, request, body.ref_code)
+    q, r, c = await _priced(db, o, auth.user.id, request, body.plan_id, body.ref_code, body.code)
+    if c and q["total"] <= 0:
+        return await _redeem(db, o, auth, scope, request, q, c, r)
     extra = {"ref_code": r["partner"]["code"], "ref_via": r["via"]} if r else {}
-    q = await quote(db, o, body.plan_id, extra_discount_pct=await partner_discount_pct(db, r))
     if q["total"] <= 0:
         raise ApiError(409, "nothing_to_pay", "This plan costs nothing after the discount — ask Nm7 to assign it.")
     order, out = await wa_create_org_order(db, o, auth.user, q, **extra)
     data = scope.audit_data(plan=body.plan_id, order_id=order.id, amount=order.amount, via="whatsapp")
     await audit(db, scope.actor_id, "billing_checkout", target=scope.org_id, data=data, ip=client_ip(request))
-    return _with_ref({**out, "quote": quote_out(q)}, r)
+    return _code_out(_with_ref({**out, "quote": quote_out(q)}, r), q)
 
 
 # ---------- admin: billing settings ----------

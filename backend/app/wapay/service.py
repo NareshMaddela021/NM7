@@ -66,7 +66,12 @@ def item_text(order: Order) -> str:
 
 
 def wa_message(order: Order) -> str:
-    """Only the item, the price and the order number: no email, phone or other personal data in the link."""
+    """Only the item, the price, the code (if any) and the order number: no email, phone or other personal data in
+    the link."""
+    c = order.coupon
+    if c and c.get("discount"):
+        return (f"Hi Nm7, I want to buy {item_text(order)} (Rs {rupees(c['original'])} -> Rs {rupees(order.amount)} "
+                f"with code {c['code']}). Order {order.id}.")  # fmt: skip
     return f"Hi Nm7, I want to buy {item_text(order)} (Rs {rupees(order.amount)}). Order {order.id}."
 
 
@@ -126,10 +131,19 @@ async def addon_chat(db: AsyncDatabase, user: User, order_id: str, item: str) ->
             "waUrl": wa_url(p["whatsapp_number"], text), "replyHours": p["reply_hours"]}  # fmt: skip
 
 
-async def create_customer_order(db: AsyncDatabase, user: User, plan: str, role: str | None, addons: list[str]):
+async def create_customer_order(
+    db: AsyncDatabase, user: User, plan: str, role: str | None, addons: list[str], coupon: dict | None = None
+):
+    """`coupon`: a checked code (app/coupons); its discount comes off the order and its use is reserved until the
+    order is paid (given back if it is cancelled)."""
+    from app.coupons.flow import coupon_doc, discounted, reserve_for
+
     p = await _whatsapp_on(db)
     await _limit_open(db, user.id)
     items = price(plan, addons, await get_site(db))
+    original = d = 0
+    if coupon:
+        items, original, d = discounted(items, coupon)
     order = Order(
         _id=await new_order_id(db),
         customer_id=user.id,
@@ -143,14 +157,20 @@ async def create_customer_order(db: AsyncDatabase, user: User, plan: str, role: 
             OrderItem(position=pos, kind=kind, code=code, name=name, amount=amount)
             for pos, (kind, code, name, amount) in enumerate(items)
         ],
+        coupon=coupon_doc(coupon, original, d) if coupon else None,
     )
     await db[ORDERS].insert_one(order.to_mongo())
+    if coupon:
+        await reserve_for(db, order, coupon)
     return order, checkout_out(order, p)
 
 
 async def create_org_order(db: AsyncDatabase, o: dict[str, Any], payer: User, q: dict[str, Any], **extra):
-    """An organization's plan, paid on WhatsApp (the same quote, discount and GST as Razorpay's checkout)."""
+    """An organization's plan, paid on WhatsApp (the same quote, discount and GST as Razorpay's checkout; a code in
+    the quote is reserved until the order is paid)."""
     from app.billing.checkout import new_org_order  # (billing imports this package)
+    from app.coupons.flow import reserve_for
+    from app.coupons.service import get as get_coupon
 
     p = await _whatsapp_on(db)
     await _limit_open(db, payer.id)
@@ -159,6 +179,8 @@ async def create_org_order(db: AsyncDatabase, o: dict[str, Any], payer: User, q:
     order.status = "awaiting_payment"
     order.method = "whatsapp"
     await db[ORDERS].insert_one(order.to_mongo())
+    if order.coupon:
+        await reserve_for(db, order, await get_coupon(db, order.coupon["code"]))
     return order, checkout_out(order, p)
 
 
@@ -252,6 +274,7 @@ async def cancel(db: AsyncDatabase, order_id: str, actor_id: str | None, reason:
     )
     if not r.modified_count:
         raise ApiError(409, "not_cancellable", "Only an order waiting for payment can be cancelled.")
+    await release_codes(db, [order.id])
     await audit(db, actor_id, "whatsapp.cancelled", target=order.id, data={"order_id": order.id, "reason": reason})
     return await get_order(db, order.id)
 
@@ -271,11 +294,18 @@ async def cancel_stale(db: AsyncDatabase) -> int:
         {"_id": {"$in": stale}, "status": "awaiting_payment"},
         {"$set": {"status": "cancelled", "cancel_reason": f"Not paid within {hours} hours", "updated_at": now()}},
     )
+    await release_codes(db, stale)
     for oid in stale:
         await audit(
             db, None, "whatsapp.cancelled", target=oid, data={"order_id": oid, "reason": "auto", "hours": hours}
         )
     return r.modified_count
+
+
+async def release_codes(db: AsyncDatabase, order_ids: list[str]) -> None:
+    from app.coupons.service import release
+
+    await release(db, order_ids)
 
 
 async def refund(
@@ -369,6 +399,7 @@ async def order_rows(db: AsyncDatabase, status: str, limit: int = 200) -> list[d
             "customer": {"name": u.get("name", ""), "email": u.get("email", ""), "phone": u.get("phone") or ""},
             "item": item_text(o),
             "amount": o.amount,
+            "coupon": _coupon_out(o),
             "status": o.status,
             "createdAt": int(o.created_at.timestamp() * 1000),
             "ageHours": int((t - o.created_at).total_seconds() // 3600),
@@ -379,6 +410,11 @@ async def order_rows(db: AsyncDatabase, status: str, limit: int = 200) -> list[d
                         "paidOn": (p.get("raw") or {}).get("whatsapp", {}).get("paid_on")} if p else None,
         })  # fmt: skip
     return rows
+
+
+def _coupon_out(o: Order) -> dict[str, Any] | None:
+    c = o.coupon
+    return {"code": c["code"], "original": c["original"], "discount": c["discount"], "final": c["final"]} if c else None
 
 
 async def report(db: AsyncDatabase, days: int) -> dict[str, Any]:
@@ -394,7 +430,13 @@ async def report(db: AsyncDatabase, days: int) -> dict[str, Any]:
         ("cancelled", {"status": "cancelled"}),
     ):
         counts[name] = await db[ORDERS].count_documents({"method": "whatsapp", "created_at": {"$gte": since}, **q})
-    return {"days": days, "moneyIn": money, "counts": counts}
+    codes = {"orders": 0, "discount": 0, "free": 0}  # paid orders that used a code: how much the codes took off
+    q_codes = {"coupon": {"$ne": None}, "paid_at": {"$gte": since}, "status": {"$nin": ["refunded", "cancelled"]}}
+    async for o in db[ORDERS].find(q_codes, {"coupon": 1}):
+        codes["orders"] += 1
+        codes["discount"] += int(o["coupon"].get("discount") or 0)
+        codes["free"] += int(o["coupon"].get("final", 1) <= 0)
+    return {"days": days, "moneyIn": money, "counts": counts, "codes": codes}
 
 
 async def report_csv(db: AsyncDatabase, days: int) -> str:
@@ -402,7 +444,8 @@ async def report_csv(db: AsyncDatabase, days: int) -> str:
     since = now() - timedelta(days=days)
     buf = io.StringIO()
     w = csv.writer(buf)
-    w.writerow(["Order", "Customer", "Email", "Item", "Amount (Rs)", "Method", "UTR / reference", "Paid on", "Status"])
+    w.writerow(["Order", "Customer", "Email", "Item", "Amount (Rs)", "Method", "UTR / reference", "Paid on", "Status",
+                "Code", "Original (Rs)", "Discount (Rs)"])  # fmt: skip
     pays = [p async for p in db[PAYMENTS].find(
         {"status": {"$in": ["captured", "refunded"]}, "captured_at": {"$gte": since}, "order_id": {"$type": "string"}}
     ).sort("captured_at", 1)]  # fmt: skip
@@ -420,8 +463,14 @@ async def report_csv(db: AsyncDatabase, days: int) -> str:
             o.id, u.get("name", ""), u.get("email", ""), item_text(o), rupees(int(p["amount"])),
             f"WhatsApp · {p.get('method') or ''}" if wa else f"Razorpay · {p.get('method') or ''}",
             wa or p.get("razorpay_payment_id") or "", paid_on, o.status,
+            *_coupon_cells(o),
         )])  # fmt: skip
     return CSV_BOM + buf.getvalue()
+
+
+def _coupon_cells(o: Order) -> tuple[str, str, str]:
+    c = o.coupon
+    return (c["code"], rupees(c["original"]), rupees(c["discount"])) if c else ("", "", "")
 
 
 def _ist(dt: datetime | None) -> str:
