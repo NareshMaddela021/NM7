@@ -8,7 +8,10 @@ from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 MB = 1024 * 1024
 DEFAULT_LIMIT = 2 * MB
-LIMITS: list[tuple[str, int]] = [("/api/me/photo-import", 85 * MB)]  # longest prefix first when they overlap
+LIMITS: list[tuple[str, int]] = [
+    ("/api/me/photo-import", 85 * MB),
+    ("/api/me/certificates", 3 * MB),
+]  # longest prefix first when they overlap
 TOO_LARGE = "This request is too large."
 
 

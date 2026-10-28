@@ -61,7 +61,7 @@ export default function SkillGap({ m }) {
                   <span className="small">Nice work! We don’t add {i.name} to your resume by itself. Show it with something real:</span>
                   <span className="row g8" style={{ flexWrap: 'wrap' }}>
                     <Link className="btn btn-outline" style={{ minHeight: 36 }} to="/builder?start=section&sec=proj">Add a project that uses it</Link>
-                    <Link className="btn btn-outline" style={{ minHeight: 36 }} to="/builder?start=section&sec=certs">Add a certificate</Link>
+                    <Link className="btn btn-outline" style={{ minHeight: 36 }} to="/me/certificates">Add a certificate</Link>
                     <button type="button" className="link-btn xs" onClick={() => setAsk(null)}>Later</button>
                   </span>
                 </div>

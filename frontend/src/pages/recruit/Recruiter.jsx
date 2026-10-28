@@ -17,6 +17,8 @@ import { PublicResume } from '../me/MeShare';
 import ResumePreview from '../builder/ResumePreview';
 import ErrorBoundary from '../../components/ErrorBoundary';
 import { designOf } from '../builder/design';
+import SharedCerts from '../../components/SharedCerts';
+import { openCertFile } from '../../lib/certs';
 
 /** /r/:slug — a recruiter link (long token) or a member's public resume link (a short name). */
 export default function ShareRoute() {
@@ -175,6 +177,7 @@ function ViewOne({ base, code, c, onClose }) {
       {st.loading ? <div className="row g12 muted" role="status"><Spinner /> Loading…</div>
         : st.error ? <p role="alert">{st.error.status === 404 ? 'This candidate is no longer on the link.' : st.error.message}</p>
           : <ErrorBoundary title="This resume couldn’t be shown." text="Something in it couldn’t be drawn. Try again, or ask the student to open and save it once."><ResumePreview data={st.data.data} design={st.data.brand ? brandDesign(st.data.brand, st.data.data) : designOf(st.data.data)} brand={st.data.brand} stamp={st.data.stamp} /></ErrorBoundary>}
+      {st.data && <SharedCerts list={st.data.certificates} open={(x) => openCertFile(`${API_BASE}${base}/candidates/${c.id}/certificates/${x.id}`, { headers: code ? { 'X-Access-Code': code } : {}, credentials: 'omit', name: x.title })} />}
     </Dialog>
   );
 }
