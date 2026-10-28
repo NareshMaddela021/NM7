@@ -78,6 +78,7 @@ JOB_MATCHES = "job_matches"  # job search: the pasted job post, its reading, the
 FEATURE_GRANTS = "feature_grants"  # job search packs granted by an admin (_id = "<feature>:<user id>")
 COUPONS = "coupons"  # admin-managed codes (_id = the code, upper case, no spaces): type, value, items, limits, dates
 COUPON_USES = "coupon_uses"  # one row per use of a code (_id = "<code>:<user or org>:<n>", n ≤ the per-person limit)
+HEALTH = "resume_health"  # per user (_id = user id): dismissed resume health alerts, when the last alert email went
 COLLECTIONS = (
     USERS,
     EMAIL_CODES,
@@ -126,6 +127,7 @@ COLLECTIONS = (
     FEATURE_GRANTS,
     COUPONS,
     COUPON_USES,
+    HEALTH,
 )
 
 DAY = 86_400

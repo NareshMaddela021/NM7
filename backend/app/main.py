@@ -28,6 +28,7 @@ from app.core.observability import RequestContext, init_sentry
 from app.coupons import router as coupons
 from app.downloads.router import router as downloads_router
 from app.experts.router import router as expert_router
+from app.health import service as resume_health
 from app.jobsearch.cover_router import router as jobs_cover_router
 from app.jobsearch.interview_router import router as jobs_interview_router
 from app.jobsearch.router import router as jobs_router
@@ -180,6 +181,8 @@ def create_app() -> FastAPI:
     app.include_router(jobs_cover_router)  # /api/me/jobs/matches/{id}/cover
     app.include_router(jobs_interview_router)  # /api/me/jobs/matches/{id}/interview
     app.include_router(downloads_router)  # /api/me/entitlements, /api/me/exports
+    app.include_router(resume_health.router)  # /api/me/health (resume health alerts)
+    app.include_router(resume_health.public)  # /api/public/health/unsubscribe
     app.include_router(orgs.me)  # before me_router: /api/me/groups
     app.include_router(org_staff.my_orgs)  # /api/me/orgs
     app.include_router(me_router)
