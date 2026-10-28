@@ -1041,3 +1041,9 @@ aren't web addresses or aren't clickable in the PDF, bullets over 35 words, phot
 college format rules when the student is in a group with one. **Download anyway** is always there. Shared-link and
 organization copies skip the check. The PDF and Word files are the same in light and dark mode (e2e
 `print-check.spec.mjs` compares them).
+
+### Version compare (free)
+My resumes → **Versions**: pick any two versions (or a version and the current resume) and see the changes side by
+side, section by section — added lines green, removed red, changed lines with the changed words marked
+(`lib/versionDiff.js`). Template and design changes are listed separately. **Restore this version** works as before.
+On a phone the two sides stack (older line above newer).
