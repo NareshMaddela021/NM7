@@ -35,10 +35,13 @@ function Frame({ children, wide }) {
 export function OrgHome() {
   usePageMeta({ title: 'My organization', description: 'Run your organization’s resume drive on Nm7.', noindex: true });
   const st = useApi(LIVE ? '/api/me/orgs' : null);
+  const tr = useApi(LIVE ? '/api/me/org-transfers' : null);
+  const asked = tr.data || [];
   if (!LIVE) return <Frame><h1 className="display h2">My organization</h1><p className="muted">The organization portal works on the live site only.</p></Frame>;
   return (
     <Frame>
-      <Loading st={st}>{(orgs) => (orgs.length === 1 ? <Navigate to={orgs[0].role === 'reviewer' ? `/review/${orgs[0].orgId}` : `/org/${orgs[0].orgId}`} replace /> : (
+      {asked.length > 0 && <Link to="/org/transfer" className="card stack g4" style={{ textDecoration: 'none', color: 'inherit' }} data-testid="transfer-waiting"><strong>You’ve been asked to become the Owner of {asked.map((t) => t.orgName).join(', ')}</strong><span className="small muted">Enter the code from the email →</span></Link>}
+      <Loading st={st}>{(orgs) => (orgs.length === 1 && !asked.length && (tr.data !== null || tr.error) ? <Navigate to={orgs[0].role === 'reviewer' ? `/review/${orgs[0].orgId}` : `/org/${orgs[0].orgId}`} replace /> : (
         <>
           <h1 className="display h2">My organization</h1>
           {orgs.length === 0
