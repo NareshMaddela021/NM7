@@ -35,6 +35,7 @@ from app.core.db import (
     RECRUITER_INVITES,
     RECRUITER_LINKS,
     RESUMES,
+    REVIEW_COMMENTS,
     ROLL_LISTS,
     USERS,
 )
@@ -143,6 +144,7 @@ async def remove_demo(db: AsyncDatabase) -> int:
         (OFFERS, {"org_id": ORG_ID}),
         (ALUMNI, {"org_id": ORG_ID}),
         (ALUMNI_REQUESTS, {"org_id": ORG_ID}),
+        (REVIEW_COMMENTS, {"org_id": ORG_ID}),
         (RECRUITER_LINKS, {"org_id": ORG_ID}),
         (RECRUITER_INVITES, {"org_id": ORG_ID}),
         (ORG_STAFF, {"org_id": ORG_ID}),
@@ -297,6 +299,7 @@ async def create_demo(db: AsyncDatabase, actor_id: str | None = None, seed: int 
     await _demo_drive(db, rng)
     await _demo_offers(db, rng)
     await _demo_alumni(db, rng)
+    await _demo_reviewer(db)
     if actor_id:
         await audit(db, actor_id, "demo_org_reset", target=ORG_ID, data={"orgs": [ORG_ID], "students": students})
     return {
@@ -468,3 +471,47 @@ async def _demo_alumni(db: AsyncDatabase, rng: random.Random) -> None:
             r["replies"] = [{"by": to, "text": "Happy to — apply on the careers page and tell me the job id.", "at": t}]
             r["replied_at"] = t
         await db[ALUMNI_REQUESTS].insert_one(r)
+
+
+async def _demo_reviewer(db: AsyncDatabase) -> None:
+    """A made-up faculty reviewer (a demo account that can't sign in) with six students and a few comments."""
+    t = now()
+    uid = "demo-reviewer"
+    user = User(id=uid, email=f"reviewer@{EMAIL_DOMAIN}", name="Dr. Anitha Rao (demo)", role="customer",
+                password_hash=await hash_password(new_token()), email_verified_at=t, created_at=t)  # fmt: skip
+    await db[USERS].insert_one({**user.to_mongo(), "demo": True})
+    mids = [m["_id"] async for m in db[MEMBERSHIPS].find({"org_id": ORG_ID}).sort("_id", 1).limit(6)]
+    await db[ORG_STAFF].insert_one(
+        {
+            "_id": "demo-staff-reviewer",
+            "org_id": ORG_ID,
+            "email": user.email,
+            "email_lc": user.email,
+            "user_id": uid,
+            "role": "reviewer",
+            "group_ids": None,
+            "status": "active",
+            "member_ids": mids,
+            "created_at": t,
+            "accepted_at": t,
+        }  # fmt: skip
+    )
+    notes = [("proj", "Built a food ordering app", "Add what changed because of it — users, time saved, a number."),
+             ("summary", "", "Two lines are enough: role you want + your strongest skill."),
+             ("skills", "", "Group these: languages, tools, cloud.")]  # fmt: skip
+    for i, (sec, line, text) in enumerate(notes):
+        m = await db[MEMBERSHIPS].find_one({"_id": mids[i % len(mids)]})
+        await db[REVIEW_COMMENTS].insert_one(
+            {
+                "_id": f"demo-review-{i}",
+                "org_id": ORG_ID,
+                "membership_id": m["_id"],
+                "user_id": m["user_id"],
+                "reviewer_id": uid,
+                "section": sec,
+                "line": line,
+                "text": text,
+                "resolved_at": t if i == 2 else None,
+                "created_at": t - timedelta(days=i),
+            }  # fmt: skip
+        )

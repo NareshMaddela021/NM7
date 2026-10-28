@@ -64,6 +64,7 @@ export function memberStatus(m) {
 
 /** "You help run <Org>": what this person can do there (the server enforces it; this only says it right). */
 export function staffSummary({ role, allGroups = true } = {}) {
+  if (role === 'reviewer') return 'Reviewer · comment on and approve your assigned students’ resumes';
   const what = role === 'viewer' ? 'Viewer · view and print' : 'Coordinator · groups, approvals, reminders and printing';
   return allGroups ? what : `${what} · some groups`;
 }

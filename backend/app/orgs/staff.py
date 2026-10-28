@@ -46,7 +46,7 @@ portal = APIRouter(prefix="/api/org/{org_id}", tags=["organizations"])
 INVITE_DAYS = 7
 INVITE_RULES = [(50, timedelta(hours=1))]
 ACCEPT_RULES = [(20, timedelta(hours=1))]
-StaffRole = Literal["owner", "coordinator", "viewer"]  # Owner: Phase 4 (billing), invited by Nm7 only
+StaffRole = Literal["owner", "coordinator", "viewer", "reviewer"]  # Owner: Phase 4 (billing), invited by Nm7 only
 
 
 class StaffIn(CamelModel):
@@ -135,7 +135,7 @@ async def _invite_staff(db, mailer, org: dict[str, Any], body: StaffIn, scope: S
     old = await db[ORG_STAFF].find_one({"org_id": org_id, "email_lc": email_lc})
     if old and old["status"] == "active":
         raise ApiError(409, "already_staff", f"{body.email} already helps run this organization.")
-    if body.role != "owner" and not (old and old["status"] == "invited"):
+    if body.role not in ("owner", "reviewer") and not (old and old["status"] == "invited"):
         await check_limit(db, org, "coordinators", bypass=not scope.is_staff)
     t = now()
     s = {

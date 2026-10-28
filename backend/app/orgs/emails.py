@@ -27,6 +27,7 @@ def staff_invite(to: str, org_name: str, role: str, token: str, inviter: str) ->
     what = {
         "owner": "choose and pay for the plan, invite coordinators, manage groups, approve members and print",
         "coordinator": "manage groups, approve members, send reminders and print",
+        "reviewer": "read and comment on your assigned students among",
     }.get(role, "view and print")
     text = (
         f"Hello,\n\n{inviter} invited you to help run resume drives for {org_name} on Nm7.\n"

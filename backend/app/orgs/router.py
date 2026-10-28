@@ -206,7 +206,7 @@ ORG_ACTIONS = [
     "drive_export", "drive_checkin",
     "eligibility_rules", "eligibility_exception", "eligibility_share", "academic_verify",
     "offer_create", "offer_update", "offer_delete", "offer_export", "wa_batch", "wa_sent", "wa_phones_csv",
-    "alumni_invite",
+    "alumni_invite", "reviewer_assign", "review_comment",
 ]  # fmt: skip
 
 

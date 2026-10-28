@@ -229,7 +229,9 @@ async def test_demo_org(owner, db, outbox):
     assert r.status_code == 410 and r.json()["error"]["code"] == "group_inactive"
     # reset gives the same data; remove deletes it all
     assert (await owner.post("/api/admin/demo-org")).json()["students"] == 48
-    assert await db[USERS].count_documents({"demo": True}) == 48 + len(demo.ALUMNI_PEOPLE)  # students + demo alumni
+    assert (
+        await db[USERS].count_documents({"demo": True}) == 48 + len(demo.ALUMNI_PEOPLE) + 1
+    )  # students, demo alumni, demo reviewer
     assert (await owner.delete("/api/admin/demo-org")).status_code == 204
     assert await db[USERS].count_documents({"demo": True}) == 0
     assert await db[ORGANIZATIONS].count_documents({"_id": demo.ORG_ID}) == 0
