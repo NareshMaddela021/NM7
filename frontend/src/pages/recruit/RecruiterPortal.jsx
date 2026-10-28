@@ -18,6 +18,8 @@ import { API_BASE, ApiError } from '../../services/http';
 import ResumePreview from '../builder/ResumePreview';
 import ErrorBoundary from '../../components/ErrorBoundary';
 import { designOf } from '../builder/design';
+import SharedCerts from '../../components/SharedCerts';
+import { openCertFile } from '../../lib/certs';
 
 const storeKey = (token) => `nm7-recruiter:${token.slice(0, 16)}`;
 const readSession = (token) => { try { return sessionStorage.getItem(storeKey(token)) || ''; } catch { return ''; } };
@@ -338,6 +340,7 @@ function QuickView({ base, session, c, onClose, onStage, onFail }) {
       {st.loading ? <div className="row g12 muted" role="status"><Spinner /> Loading…</div>
         : st.error ? <p role="alert">{st.error.status === 404 ? 'This student is no longer shared with you.' : st.error.message}</p>
           : <ErrorBoundary title="This resume couldn’t be shown." text="Something in it couldn’t be drawn. Try again, or ask the student to open and save it once."><ResumePreview data={st.data.data} design={brand ? brandDesign(brand, st.data.data) : designOf(st.data.data)} brand={brand} stamp={st.data.stamp} /></ErrorBoundary>}
+      {st.data && <SharedCerts list={st.data.certificates} open={(x) => openCertFile(`${API_BASE}${base}/candidates/${c.id}/certificates/${x.id}`, { headers: session ? { 'X-Recruiter-Session': session } : {}, credentials: 'omit', name: x.title })} />}
     </Dialog>
   );
 }

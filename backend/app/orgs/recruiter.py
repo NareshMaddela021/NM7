@@ -28,6 +28,7 @@ from pydantic import Field, field_validator
 from app.audit import audit
 from app.auth.models import new_id
 from app.auth.sessions import client_ip
+from app.certs import service as certs_service
 from app.core import rate_limit
 from app.core.config import get_settings
 from app.core.db import DB, ORG_GROUPS, ORGANIZATIONS, RECRUITER_LINKS
@@ -425,7 +426,21 @@ async def recruiter_view(
     rows = await _candidates(db, link, [cid], with_data=True)
     if not rows:
         raise NOT_FOUND
-    return {**(await _payload(db, link, rows))[0], "stamp": _stamp(link)}
+    certs = await certs_service.shared_with_others(db, rows[0]["user_id"])
+    return {**(await _payload(db, link, rows))[0], "stamp": _stamp(link), "certificates": certs}
+
+
+@public.get("/candidates/{cid}/certificates/{cert_id}")
+async def recruiter_certificate(
+    token: str, cid: str, cert_id: str, request: Request, db: DB, x_access_code: str | None = Header(None)
+) -> Response:
+    link = await _open(db, token, request, x_access_code)
+    rows = await _candidates(db, link, [cid])
+    if not rows:
+        raise NOT_FOUND
+    res = await certs_service.shared_file_response(db, rows[0]["user_id"], cert_id)
+    res.headers.update(NO_STORE)
+    return res
 
 
 @public.post("/downloads")

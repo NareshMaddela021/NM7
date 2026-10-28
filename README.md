@@ -1074,3 +1074,14 @@ missing skill (`pages/me/SkillGap.jsx`, `GET /api/me/courses`). The list lives i
 Google, official docs, GCFGlobal, Khan Academy…); when no course fits, NPTEL and SWAYAM are suggested to search.
 Only free, active courses are shown, and a link with tracking or affiliate parts (utm_, ref, aff…) is refused. **I
 learned this** never adds the skill to the resume: it asks for a project or a certificate that proves it.
+
+### Certificate wallet (free)
+Profile → **Certificates** (`pages/me/MeCertificates.jsx`, `backend/app/certs/`): upload a PDF, JPG or PNG (up to
+10 per student, 2 MB each; photos are shrunk in the browser to about 150–400 KB) with title, issuer, date and an
+optional credential link. A clear warning says not to upload Aadhaar, PAN or other ID documents; titles or file
+names that look like ID documents are refused and ID numbers are removed. **Add to resume** puts it in the resume's
+Certifications in one tap. Files are stored in MongoDB next to their details (like organization logos and invoice
+PDFs); a site-wide cap (300 MB) pauses uploads before the database plan fills up. Only the owner can open a file —
+unless they switch on **Share certificates** (off by default) and tick certificates: then the college staff who see
+their shared resume and the recruiters invited to see it (recruiter portal and recruiter links) can open just those.
+Files are sent with `nosniff`, a sandboxing CSP and `no-store`. Deleted with the account (`backend/app/me/erase.py`).

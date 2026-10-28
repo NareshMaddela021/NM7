@@ -12,6 +12,7 @@ from fastapi import APIRouter, Query, Request, Response
 
 from app.audit import audit
 from app.auth.models import new_id
+from app.certs import service as certs_service
 from app.core import rate_limit
 from app.core.config import get_settings
 from app.core.db import DB, EXPORT_JOBS, MEMBERSHIPS, ORG_GROUPS
@@ -235,7 +236,21 @@ def register_shared(router: APIRouter, ScopeDep) -> None:  # noqa: N803 — a de
         data = scope.audit_data(_orgs(rows), count=1)
         await audit(db, scope.actor_id, "view", target=membership_id, data=data, ip=_ip(request))
         brand = (await brands_for(db, [rows[0]["group_id"]])).get(rows[0]["group_id"])
-        return {**row_out(rows[0]), "data": printable(rows[0]), "brand": brand}
+        certs = await certs_service.shared_with_others(db, rows[0]["user_id"])
+        return {**row_out(rows[0]), "data": printable(rows[0]), "brand": brand, "certificates": certs}
+
+    @router.get("/shared-resumes/{membership_id}/certificates/{cert_id}")
+    async def shared_certificate(
+        membership_id: str, cert_id: str, request: Request, db: DB, scope: ScopeDep
+    ) -> Response:
+        """A certificate the student chose to share with their shared resume (\"Share certificates\" on + ticked)."""
+        rows = await _selected(db, scope, [membership_id], with_data=False)
+        if not rows:
+            raise NOT_FOUND
+        res = await certs_service.shared_file_response(db, rows[0]["user_id"], cert_id)
+        data = scope.audit_data(_orgs(rows), count=1)
+        await audit(db, scope.actor_id, "view_certificate", target=membership_id, data=data, ip=_ip(request))
+        return res
 
     @router.post("/shared-resumes/export.csv")
     async def export_csv(
