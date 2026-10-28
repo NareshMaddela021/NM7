@@ -152,6 +152,7 @@ async def create_demo(db: AsyncDatabase, actor_id: str | None = None, seed: int 
     """Creates (or resets) the demo organization. Same data every time (fixed random seed)."""
     await remove_demo(db)
     rng = random.Random(seed)
+    marks = random.Random(seed + 1)  # its own sequence, so adding marks doesn't change the names and data above
     t = now()
     today = t.astimezone(IST).date()
     plans = await get_plans(db)
@@ -265,6 +266,15 @@ async def create_demo(db: AsyncDatabase, actor_id: str | None = None, seed: int 
                     "printed_count": 0,
                     "reminders_opt_out": False,
                     "last_reminded_at": None,
+                    "academic": {
+                        "cgpa": round(marks.uniform(5.6, 9.6), 2),
+                        "backlogs": marks.choices([0, 0, 0, 0, 1, 2])[0],
+                        "year": 2026,
+                        "tenth": round(marks.uniform(62, 97), 1),
+                        "twelfth": round(marks.uniform(58, 96), 1),
+                        "verified_at": t - timedelta(days=3) if marks.random() < 0.5 else None,
+                        "verified_by": None,
+                    },
                 }  # fmt: skip
             )
             students += 1
@@ -338,7 +348,10 @@ async def _demo_drive(db: AsyncDatabase, rng: random.Random) -> None:
     t = now()
     day = t.astimezone(IST).date().isoformat()
     mids = sorted([m["_id"] async for m in db[MEMBERSHIPS].find({"org_id": ORG_ID, "approval": "approved"})])
-    companies = [{"id": "demo-co-infosys", "name": "Infosys (demo)"}, {"id": "demo-co-tcs", "name": "TCS (demo)"}]
+    companies = [
+        {"id": "demo-co-infosys", "name": "Infosys (demo)", "rules": {"cgpa_min": 7.0, "backlogs_max": 0}},
+        {"id": "demo-co-tcs", "name": "TCS (demo)", "rules": {"cgpa_min": 6.0, "tenth_min": 60}},
+    ]
     slots = []
     half = len(mids) // 2
     for i, (room, start, end, part) in enumerate(

@@ -1121,3 +1121,12 @@ scanning (phone camera, or the in-page camera where the browser reads QR codes) 
 they are in, on the day, from an hour before it starts until it ends. No location tracking. Coordinators see live
 attendance (present, late after 10 minutes, absent after the slot, not yet), can mark present by hand, and download
 a CSV. The demo organization has a drive day for today.
+
+### Eligibility filters per company
+On a drive day, each company's **Eligibility** (`backend/app/college/eligibility.py`, `pages/org/Eligibility.jsx`)
+sets rules on marks only: CGPA at least, active backlogs at most, branch, passing year, 10th / 12th % at least
+(optional). There are no rules on gender, religion, caste or any other personal attribute. Students fill in **My
+marks for placements** under My groups (self-declared); a coordinator can tick them verified, and changing a number
+clears the tick. The list is built automatically with the reason a student isn't eligible ("CGPA 6.4 < 7.0");
+coordinators can add an exception with a note. The company's drive slots take students from this list, and **Share**
+makes it what a recruiter invite shows — still only students who allowed recruiter sharing.

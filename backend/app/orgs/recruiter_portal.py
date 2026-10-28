@@ -238,6 +238,8 @@ async def visible(db, inv: dict[str, Any]) -> list[dict[str, Any]]:
     for r in rows:
         if not eligible(r, groups, orgs):
             continue
+        if inv.get("member_ids") is not None and r["membership_id"] not in set(inv["member_ids"]):
+            continue  # shared from an eligibility list: only those students
         r["_profile"] = profile(r)
         if inv.get("branches") and r["_profile"]["branch"] not in inv["branches"]:
             continue

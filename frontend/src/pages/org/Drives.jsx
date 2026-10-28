@@ -7,6 +7,7 @@ import { Link, useParams } from 'react-router-dom';
 import { Dialog, Spinner, useToast } from '../../components/ui';
 import { API_BASE } from '../../services/http';
 import { Loading, emptyIf, http, useAction, useApi } from '../admin/live/common';
+import Eligibility from './Eligibility';
 
 export const ROUND_NAMES = { test: 'Test', gd: 'Group discussion', interview: 'Interview' };
 const STATUS = { present: ['Present', 'b-success'], late: ['Late', 'b-warning'], absent: ['Absent', 'b-danger'], waiting: ['Not yet', 'b-neutral'] };
@@ -129,13 +130,14 @@ function Attendance({ base, s, canManage, onClose }) {
   );
 }
 
-function DriveDetail({ base, orgId, id, canManage, onBack, onGone }) {
+function DriveDetail({ base, orgId, id, canManage, features, onBack, onGone }) {
   const toast = useToast();
   const [busy, run] = useAction(toast);
   const dbase = `${base}/${id}`;
   const st = useApi(dbase);
   const [students, setStudents] = useState(null);
   const [att, setAtt] = useState(null);
+  const [elig, setElig] = useState(null);
   const set = () => st.reload(); // the server answers with the drive; a reload keeps one source of truth
   const csv = () => run(async () => {
     const r = await fetch(`${API_BASE}${dbase}/attendance.csv`, { credentials: 'include' });
@@ -155,6 +157,12 @@ function DriveDetail({ base, orgId, id, canManage, onBack, onGone }) {
             {canManage && <button type="button" className="link-btn xs" onClick={del}>Delete</button>}
           </span>
         </div>
+        {features?.eligibility && (
+          <div className="row g8" style={{ flexWrap: 'wrap', alignItems: 'center' }} aria-label="Company eligibility">
+            <span className="xs muted">Eligibility:</span>
+            {d.companies.map((c) => <button key={c.id} type="button" className="btn btn-outline" style={{ minHeight: 30 }} onClick={() => setElig(c)} data-testid="drive-elig">{c.name}</button>)}
+          </div>
+        )}
         {canManage && <AddSlot base={dbase} d={d} onDone={set} />}
         {d.slots.length === 0 ? <p className="small muted">No slots yet. Add a time slot, room and round for each company.</p> : (
           <div className="table-wrap"><table className="table" aria-label="Slots"><thead><tr><th>Time</th><th>Company</th><th>Round</th><th>Room</th><th>Students</th><th>Present</th><th /></tr></thead>
@@ -172,17 +180,18 @@ function DriveDetail({ base, orgId, id, canManage, onBack, onGone }) {
             ))}</tbody></table></div>
         )}
         {students && <Students base={dbase} s={students} onClose={() => setStudents(null)} onSaved={set} />}
+        {elig && <Eligibility dbase={dbase} company={elig} canManage={canManage} onClose={() => { setElig(null); st.reload(); }} />}
         {att && <Attendance base={dbase} s={att} canManage={canManage} onClose={() => { setAtt(null); st.reload(); }} />}
       </section>
     )}</Loading>
   );
 }
 
-export default function Drives({ orgId, groups, canManage }) {
+export default function Drives({ orgId, groups, canManage, features }) {
   const base = `/api/org/${enc(orgId)}/drives`;
   const st = useApi(base);
   const [open, setOpen] = useState(null);
-  if (open) return <DriveDetail base={base} orgId={orgId} id={open} canManage={canManage} onBack={() => { setOpen(null); st.reload(); }} onGone={() => { setOpen(null); st.reload(); }} />;
+  if (open) return <DriveDetail base={base} orgId={orgId} id={open} canManage={canManage} features={features} onBack={() => { setOpen(null); st.reload(); }} onGone={() => { setOpen(null); st.reload(); }} />;
   return (
     <div className="stack g16">
       <span className="small muted">Plan a drive day: companies, time slots, rooms and rounds. Students see “My drive day” in their Nm7 account and check in by scanning the QR in their room (or typing its code). No location tracking.</span>

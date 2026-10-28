@@ -259,5 +259,5 @@ export function PortalDrives() {
   const { ctx, home } = useOutletContext();
   usePageMeta(portalMeta(`Drives · ${home.name}`));
   if (!home.features?.drives) return <Navigate to={`/org/${ctx.orgId}`} replace />;
-  return <Drives orgId={ctx.orgId} groups={home.groupList} canManage={home.canManage} />;
+  return <Drives orgId={ctx.orgId} groups={home.groupList} canManage={home.canManage} features={home.features} />;
 }
