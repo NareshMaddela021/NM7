@@ -87,7 +87,7 @@ export default function Offers({ orgId, groups, canManage }) {
         <label className="small">Batch <select className="input" value={group} onChange={(e) => setGroup(e.target.value)} data-testid="offers-group"><option value="">All batches</option>{groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}</select></label>
         {canManage && <button type="button" className="btn btn-ink" onClick={() => openForm()} data-testid="offer-add">Add an offer</button>}
         <button type="button" className="btn btn-outline" disabled={busy} onClick={() => download('offers.csv', 'offers.csv')} data-testid="offers-csv">CSV</button>
-        <button type="button" className="btn btn-outline" disabled={busy} onClick={() => download('report.pdf', 'placement_report.pdf')} data-testid="offers-pdf">Placement report (PDF)</button>
+        <button type="button" className="btn btn-outline" disabled={busy} onClick={() => download('report.pdf', 'placement_report.pdf')} data-testid="offers-pdf">Offers report (PDF)</button>
       </div>
       {canManage && sug.data?.length > 0 && (
         <div className="well stack g8" data-testid="offer-suggestions">
