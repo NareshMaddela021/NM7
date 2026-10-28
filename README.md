@@ -1047,3 +1047,13 @@ My resumes → **Versions**: pick any two versions (or a version and the current
 side, section by section — added lines green, removed red, changed lines with the changed words marked
 (`lib/versionDiff.js`). Template and design changes are listed separately. **Restore this version** works as before.
 On a phone the two sides stack (older line above newer).
+
+### Resume health alerts (free, opt-out)
+My dashboard shows a **Resume health** card (`pages/me/HealthCard.jsx`, `GET /api/me/health`, rules in
+`backend/app/health/alerts.py`): not updated in 90 days, ATS score under 60, no LinkedIn link, a saved job match never
+tailored, a new job in the profile that isn't on the resume, an empty Certifications section, and "currently
+studying" after the course end year. Each alert has one button that opens the exact builder section (or the job
+match) and a ✕ that dismisses it for good. A daily batch (inside the 10-minute automation pass, once per day under a
+lock) emails verified users at most once every 14 days, skips bounced addresses, and every email has a **Stop these
+emails** link (`/stop-alerts`, signed token, no login). Profile → Settings has the same switch. Alert data is deleted
+with the account (`backend/app/me/erase.py`).
