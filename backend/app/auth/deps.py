@@ -43,11 +43,24 @@ def kiosk_allowed(method: str, path: str) -> bool:
     return any((m == "*" or method in m.split("|")) and p.match(path) for m, p in KIOSK_ROUTES)
 
 
+def demo_allowed(path: str, org_id: str) -> bool:
+    """The demo coordinator reaches the demo college's portal, its college group and the sign-in basics. Nothing
+    else: not real organizations, not resumes, orders or payments."""
+    return (
+        path in ("/api/auth/me", "/api/auth/logout", "/api/me/orgs", "/api/me/org-transfers", "/api/me/college-groups")
+        or path == f"/api/org/{org_id}"
+        or path.startswith(f"/api/org/{org_id}/")
+        or path.startswith("/api/college-group/demo-college-group")
+    )
+
+
 async def get_auth(request: Request, auth: Annotated[Auth | None, Depends(optional_auth)]) -> Auth:
     if auth is None:
         raise ApiError(401, "not_signed_in", "Please sign in.")
     if auth.session.kiosk_id and not kiosk_allowed(request.method, request.url.path):
         raise ApiError(403, "kiosk_only", "This isn’t available at a kiosk. Sign in on your own device for it.")
+    if auth.session.demo_org_id and not demo_allowed(request.url.path, auth.session.demo_org_id):
+        raise ApiError(403, "demo_only", "The demo coordinator can only open the demo college. Sign out to go back.")
     return auth
 
 

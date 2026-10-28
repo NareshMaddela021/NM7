@@ -1178,3 +1178,11 @@ placement-template rules) to every campus, and share a drive day's schedule or a
 (each campus gets its own copy; the recruiter gets its own emailed link). Campus coordinators still see only their own
 campus. Only campuses with the `multiCampus` switch (Campus plan) count. The demo organization is in a demo college
 group — add your own email as its owner to see the roll-up.
+
+**Demo college as its coordinator.** Admin → Organizations → Demo organization → **Reset and open as coordinator**
+resets the demo college and signs that browser in as its made-up coordinator, with no email code (a one-time link,
+5 minutes, only a hash stored). The session lasts 3 hours and reaches only the demo college's portal and its demo
+college group: real organizations, resumes, orders, payments and the admin console answer 403. It replaces the admin
+session in that browser, so use a private window to keep both. A yellow **Demo** banner shows on every portal page,
+with "Sign out of the demo".
+

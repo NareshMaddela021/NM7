@@ -482,10 +482,11 @@ function DemoOrg({ onOpen, reload }) {
   return (
     <section className="card stack g8" aria-label="Demo organization" data-testid="demo-org">
       <strong>Demo organization</strong>
-      <span className="xs muted">“Demo Engineering College”: two closed groups, 48 made-up students and a roll list, on the Campus plan, with a recruiter invite from a made-up company (“Reset and open as a recruiter” signs you straight in to it, no email code). Marked Demo and left out of real numbers; demo students can’t sign in and are never emailed. Reset puts it back to the starting data.</span>
+      <span className="xs muted">“Demo Engineering College”: two closed groups, 48 made-up students and a roll list, on the Campus plan, with a recruiter invite from a made-up company (“Reset and open as a recruiter” signs you straight in to it, no email code). “Reset and open as coordinator” signs this browser in as the demo college’s coordinator, also with no code, to show drives, eligibility, offers, reminders, alumni, reviewers and the college group; that session can open only the demo college. Marked Demo and left out of real numbers; demo students can’t sign in and are never emailed. Reset puts it back to the starting data.</span>
       <div className="row g8" style={{ flexWrap: 'wrap' }}>
         <button type="button" className="btn btn-ink" disabled={busy} onClick={() => run(async () => { const r = await http('/api/admin/demo-org', { method: 'POST' }); reload(); onOpen(r.orgId); }, 'Demo organization ready')}>Create / reset demo</button>
         <button type="button" className="btn btn-outline" disabled={busy} onClick={() => run(async () => { const r = await http('/api/admin/demo-org', { method: 'POST' }); window.location.assign(r.recruiterPath); })}>Reset and open as a recruiter</button>
+        <button type="button" className="btn btn-outline" disabled={busy} data-testid="demo-as-coordinator" onClick={() => { if (!window.confirm('Reset the demo college and open it as its coordinator? This signs this browser out of the admin console — use a private window if you want to keep both.')) return; run(async () => { const r = await http('/api/admin/demo-org/coordinator', { method: 'POST' }); window.location.assign(r.path); }); }}>Reset and open as coordinator</button>
         <button type="button" className="btn btn-outline" disabled={busy} onClick={() => run(async () => { await http('/api/admin/demo-org', { method: 'DELETE' }); reload(); }, 'Demo organization removed')}>Remove demo</button>
       </div>
     </section>

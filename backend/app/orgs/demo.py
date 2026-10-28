@@ -45,6 +45,8 @@ from app.core.time import IST, now
 from app.orgs.service import consent_text
 
 ORG_ID = "demo-engineering-college"
+# The demo coordinator (Admin → Organizations → "Reset and open as coordinator"): a fixed UUID (account ids are UUIDs)
+COORDINATOR_ID = "d5cb15ab-e885-59d8-8bef-4cdc74a64177"
 ORG_NAME = "Demo Engineering College"
 EMAIL_DOMAIN = "demo.nm7.invalid"
 GROUPS = (
@@ -302,12 +304,13 @@ async def create_demo(db: AsyncDatabase, actor_id: str | None = None, seed: int 
     await _demo_offers(db, rng)
     await _demo_alumni(db, rng)
     await _demo_reviewer(db)
+    await _demo_coordinator(db)
     await db[COLLEGE_GROUPS].insert_one(
         {
             "_id": "demo-college-group",
             "name": "Demo College Group (demo)",
             "org_ids": [ORG_ID],
-            "owner_ids": [],
+            "owner_ids": [COORDINATOR_ID],  # the demo coordinator sees the roll-up
             "created_at": now(),
         }  # fmt: skip
     )  # Admin → College groups: add your own email as owner to see the roll-up
@@ -526,3 +529,17 @@ async def _demo_reviewer(db: AsyncDatabase) -> None:
                 "created_at": t - timedelta(days=i),
             }  # fmt: skip
         )
+
+
+async def _demo_coordinator(db: AsyncDatabase) -> None:
+    """A made-up coordinator of the demo college (all groups). It has no password anyone knows: an admin opens it
+    with "Reset and open as coordinator" (app/orgs/demo_login.py), and that session reaches only the demo college."""
+    t = now()
+    user = User(id=COORDINATOR_ID, email=f"coordinator@{EMAIL_DOMAIN}", name="Demo Coordinator (demo)", role="customer",
+                password_hash=await hash_password(new_token()), email_verified_at=t, created_at=t)  # fmt: skip
+    await db[USERS].insert_one({**user.to_mongo(), "demo": True})
+    await db[ORG_STAFF].insert_one(
+        {"_id": "demo-staff-coordinator", "org_id": ORG_ID, "email": user.email, "email_lc": user.email,
+         "user_id": COORDINATOR_ID, "role": "coordinator", "group_ids": None, "status": "active",
+         "created_at": t, "accepted_at": t}
+    )  # fmt: skip

@@ -51,6 +51,7 @@ from app.me.router import public as public_router
 from app.me.router import router as me_router
 from app.orders.router import router as orders_router
 from app.orgs import branding as org_branding
+from app.orgs import demo_login as org_demo_login
 from app.orgs import kiosk as org_kiosk
 from app.orgs import recruiter as org_recruiter
 from app.orgs import recruiter_portal as org_recruiter_portal
@@ -149,6 +150,8 @@ def create_app() -> FastAPI:
     app.include_router(admin_auth_router)
     app.include_router(admin_setup_router)  # before admin_router: /api/admin/setup is public
     app.include_router(admin_router)
+    app.include_router(org_demo_login.admin)  # /api/admin/demo-org/coordinator (before orgs.admin)
+    app.include_router(org_demo_login.public)  # /api/public/demo-coordinator
     app.include_router(orgs.admin)
     app.include_router(org_staff.admin_staff)
     app.include_router(orgs.public)
