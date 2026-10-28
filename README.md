@@ -1047,3 +1047,13 @@ My resumes → **Versions**: pick any two versions (or a version and the current
 side, section by section — added lines green, removed red, changed lines with the changed words marked
 (`lib/versionDiff.js`). Template and design changes are listed separately. **Restore this version** works as before.
 On a phone the two sides stack (older line above newer).
+
+### Fresher project helper (free: 3 AI uses a day, then rules)
+Builder → Projects → **Make this project stronger**: six short questions (what you built, tools, your part, team
+size, what it does, a real result or number — optional), typed or spoken in any language. 2-4 bullets come back
+(action + tools + result) written only from the answers, shown before → after with **Accept / Edit / Skip**.
+`POST /api/me/projects/strengthen` (`app/projects/`): Claude Haiku while today's 3 free AI uses last (core/ai_quota.py
+"projects"), each bullet fact-checked — a number, a tool (the skills dictionary) or a claim word (users, award,
+accuracy, deployed …) that isn't in the answers drops it; with fewer than 2 left, or after the 3 uses, or with AI off,
+rules write the bullets from the answers' own words. Never an error page. No number in the answers → no number in the
+bullets and a tip: "Add a number if you have one (users, accuracy, time saved)".

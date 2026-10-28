@@ -48,6 +48,7 @@ from app.partners import router as partners
 from app.payments.router import router as payments_router
 from app.photos.router import router as photos_router
 from app.profile.router import router as profile_router
+from app.projects.router import router as projects_router
 from app.summary.router import router as summary_router
 from app.wapay.router import router as wapay_router
 from app.work.router import router as work_router
@@ -171,6 +172,7 @@ def create_app() -> FastAPI:
     app.include_router(profile_router)  # before me_router: /api/me/job-profile
     app.include_router(photos_router)  # /api/me/photo-import
     app.include_router(summary_router)  # /api/me/summary/generate
+    app.include_router(projects_router)  # /api/me/projects/strengthen
     app.include_router(linkedin_router)  # /api/me/linkedin
     app.include_router(linkedin_pack_router)  # /api/me/linkedin/pack
     app.include_router(jobs_router)  # /api/me/jobs (job match, Phases 1-3)
