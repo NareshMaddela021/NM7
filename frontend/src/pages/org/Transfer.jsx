@@ -19,7 +19,7 @@ export function TransferOwnership({ base, team = [], admin = false }) {
     <section className="card stack g12" aria-label="Transfer ownership" data-testid="transfer">
       <strong>Transfer ownership</strong>
       <span className="xs muted">{admin ? 'On the Owner’s request.' : 'Hand the organization to someone else.'} The new owner gets a code by email and confirms it signed in with that address. The plan, invoices and payment reminders move with the organization. Written to the Activity log.</span>
-      <Loading st={st}>{(t) => (t ? (
+      <Loading st={st}>{({ transfer: t }) => (t ? (
         <div className="well stack g8" data-testid="transfer-pending">
           <span className="small">Waiting for <strong>{t.toEmail}</strong> to confirm (until {day(t.expiresAt)}). After that, {admin ? 'the old Owner' : 'you'} {t.oldOwner === 'leave' ? 'will leave the organization' : 'will stay as a coordinator'}.</span>
           <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start', minHeight: 36 }} disabled={busy} onClick={() => run(async () => { await http(base, { method: 'DELETE' }); st.reload(); }, 'Transfer cancelled')} data-testid="transfer-cancel">Cancel transfer</button>

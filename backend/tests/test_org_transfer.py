@@ -36,7 +36,7 @@ async def test_owner_to_coordinator_old_owner_stays_as_coordinator(owner, make_c
     t = r.json()
     assert t["status"] == "pending" and t["emailSent"] is True and t["by"] == "owner"
     assert (await own.post(base, json={"toEmail": "x@example.com"})).status_code == 409  # one at a time
-    assert (await own.get(base)).json()["toEmail"] == "tpo@example.com"
+    assert (await own.get(base)).json()["transfer"]["toEmail"] == "tpo@example.com"
     mail = outbox.sent[-1]
     assert mail.to == "tpo@example.com" and "Owner" in mail.subject
     code = outbox.last_code("tpo@example.com")
@@ -57,7 +57,7 @@ async def test_owner_to_coordinator_old_owner_stays_as_coordinator(owner, make_c
     # billing follows the Owner; the old Owner lost Owner-only pages
     assert [e for e, _ in await owner_emails(db, org["id"])] == ["tpo@example.com"]
     assert (await own.get(base)).status_code == 403
-    assert (await co.get(base)).json() is None
+    assert (await co.get(base)).json() == {"transfer": None}
     acts = [a["action"] async for a in db[AUDIT_LOG].find({"data.orgs": org["id"]}).sort("_id", 1)]
     assert acts[-2:] == ["owner_transfer_start", "owner_transfer_done"]
     log = (await co.get(f"/api/org/{org['id']}/audit")).json()
@@ -70,7 +70,7 @@ async def test_to_a_new_email_old_owner_leaves_cancel_and_tries(owner, make_clie
     # cancel
     await own.post(base, json={"toEmail": "new@example.com"})
     assert (await own.delete(base)).status_code == 204
-    assert (await own.get(base)).json() is None
+    assert (await own.get(base)).json() == {"transfer": None}
     # five wrong codes stop it
     await own.post(base, json={"toEmail": "new@example.com", "oldOwner": "leave"})
     new = make_client()
@@ -100,7 +100,7 @@ async def test_admin_transfers_on_request(owner, make_client, outbox, db):
     base = f"/api/admin/orgs/{org['id']}/transfer"
     r = await owner.post(base, json={"toEmail": "dean@example.com", "oldOwner": "coordinator"})
     assert r.status_code == 201 and r.json()["by"] == "admin"
-    assert (await owner.get(base)).json()["toEmail"] == "dean@example.com"
+    assert (await owner.get(base)).json()["transfer"]["toEmail"] == "dean@example.com"
     dean = make_client()
     await signup(dean, outbox, "dean@example.com", name="Dean")
     tid = (await dean.get("/api/me/org-transfers")).json()[0]["id"]

@@ -8,6 +8,7 @@ invoices and payment reminders move with it (they go to whoever is Owner). One o
 expires after 48 hours; 5 wrong codes stop it. Every step is in the organization's Activity log.
 
   Owner  GET/POST/DELETE /api/org/{org_id}/transfer              {toEmail, oldOwner: coordinator | leave}
+                                                                  GET answers {transfer: the open one or null}
   Admin  GET/POST/DELETE /api/admin/orgs/{org_id}/transfer        {toEmail, oldOwner, fromStaffId?}
   New    GET  /api/me/org-transfers                              transfers waiting for my email
          POST /api/me/org-transfers/{id}/accept {code}
@@ -165,9 +166,9 @@ async def _my_owner_row(db, scope: Scope) -> dict[str, Any]:
 
 # ---------- the Owner ----------
 @portal.get("")
-async def owner_view(db: DB, scope: OrgScope) -> dict[str, Any] | None:
+async def owner_view(db: DB, scope: OrgScope) -> dict[str, Any]:
     await _my_owner_row(db, scope)
-    return out(await _open(db, scope.org_id))
+    return {"transfer": out(await _open(db, scope.org_id))}
 
 
 @portal.post("", status_code=201)
@@ -184,8 +185,8 @@ async def owner_cancel(request: Request, db: DB, scope: OrgScope) -> Response:
 
 # ---------- Nm7's admin, on request ----------
 @admin.get("")
-async def admin_view(org_id: str, db: DB, _: AdminScope) -> dict[str, Any] | None:
-    return out(await _open(db, org_id))
+async def admin_view(org_id: str, db: DB, _: AdminScope) -> dict[str, Any]:
+    return {"transfer": out(await _open(db, org_id))}
 
 
 @admin.post("", status_code=201)
