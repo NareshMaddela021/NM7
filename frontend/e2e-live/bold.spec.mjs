@@ -6,7 +6,7 @@
 import { readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
 import { strFromU8, unzipSync } from 'fflate';
-import { API, PASSWORD, adminLogin, apiMember, email, login, pdfText, seed } from './helpers.mjs';
+import { API, PASSWORD, adminLogin, apiMember, email, login, pdfText, seed, downloadThrough } from './helpers.mjs';
 
 const SIZES = [['desktop', { viewport: { width: 1280, height: 900 } }], ['phone', { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true }]];
 const preview = (page) => page.getByRole('article', { name: 'Resume preview' });
@@ -16,7 +16,7 @@ const api = (page, path, init = {}) => page.evaluate(async ([base, p, i]) => {
   return r.status === 204 ? null : r.json();
 }, [API, path, init]);
 async function saved(page, click) {
-  const [file] = await Promise.all([page.waitForEvent('download', { timeout: 30_000 }), click()]);
+  const [file] = await downloadThrough(page, () => click(), { timeout: 30_000 });
   return readFileSync(await file.path());
 }
 /** The bold words the box shows (drawn behind its text). */

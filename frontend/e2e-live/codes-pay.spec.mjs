@@ -5,7 +5,7 @@
 //   discount is refused, a free pack code unlocks; an organization's Owner turns the Drive plan on with a free code.
 // Every test puts the payment mode back to Off (the other specs expect it).
 import { expect, test } from '@playwright/test';
-import { API, PASSWORD, adminLogin, email, login, seed } from './helpers.mjs';
+import { API, PASSWORD, adminLogin, email, login, seed, downloadThrough } from './helpers.mjs';
 
 const SIZES = [['desktop', { viewport: { width: 1280, height: 900 } }], ['phone', { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true }]];
 const NUMBER = '+91 90000 12345';
@@ -72,7 +72,7 @@ for (const [label, opts] of SIZES) {
       const gate = page.getByRole('dialog', { name: /Unlock downloads/ });
       await expect(gate).toBeVisible();
       await expect(gate.getByTestId('code-input')).toHaveValue(code); // filled in from the link
-      const [pdf] = await Promise.all([page.waitForEvent('download'), gate.getByTestId('code-apply').click()]);
+      const [pdf] = await downloadThrough(page, () => gate.getByTestId('code-apply').click());
       expect(pdf.suggestedFilename()).toMatch(/\.pdf$/);
       await expect(page.getByText('Code applied - unlocked')).toBeVisible();
       await expect(gate).toHaveCount(0);
@@ -80,9 +80,9 @@ for (const [label, opts] of SIZES) {
 
       // later: Word and PDF again, no gate
       await page.reload();
-      const [docx] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Word' }).first().click()]);
+      const [docx] = await downloadThrough(page, () => page.getByRole('button', { name: 'Word' }).first().click());
       expect(docx.suggestedFilename()).toMatch(/\.docx$/);
-      const [pdf2] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'PDF' }).first().click()]);
+      const [pdf2] = await downloadThrough(page, () => page.getByRole('button', { name: 'PDF' }).first().click());
       expect(pdf2.suggestedFilename()).toMatch(/\.pdf$/);
       await expect(page.getByRole('dialog', { name: /Unlock downloads/ })).toHaveCount(0);
       const orders = await call(page, '/api/orders');

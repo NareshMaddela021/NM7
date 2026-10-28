@@ -5,7 +5,7 @@
 import { readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
 import { strFromU8, unzipSync } from 'fflate';
-import { API, PASSWORD, TEST_PERSON, email, login, pdfText, seed } from './helpers.mjs';
+import { API, PASSWORD, TEST_PERSON, email, login, pdfText, seed, downloadThrough } from './helpers.mjs';
 
 const SIZES = [['desktop', { width: 1280, height: 900 }], ['phone', { width: 390, height: 844 }]];
 const live = (page) => page.getByRole('region', { name: 'Live resume preview' });
@@ -15,7 +15,7 @@ const api = (page, path, init = {}) => page.evaluate(async ([base, p, i]) => {
   return r.status === 204 ? null : r.json();
 }, [API, path, init]);
 async function saved(page, click) {
-  const [file] = await Promise.all([page.waitForEvent('download', { timeout: 30_000 }), click()]);
+  const [file] = await downloadThrough(page, () => click(), { timeout: 30_000 });
   return readFileSync(await file.path());
 }
 

@@ -1,7 +1,7 @@
 // LinkedIn on My dashboard (latest score, top 3 fixes, Re-check; "Create your LinkedIn" for Path 2), the prompt
 // after a resume download in the builder, and "Delete my LinkedIn data" in settings. Desktop and 390 px.
 import { expect, test } from '@playwright/test';
-import { API, PASSWORD, TEST_PERSON, email, login, seed } from './helpers.mjs';
+import { API, PASSWORD, TEST_PERSON, email, login, seed, downloadThrough } from './helpers.mjs';
 
 const SIZES = [['desktop', { viewport: { width: 1280, height: 900 } }], ['phone', { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true }]];
 const api = (page, path, init = {}) => page.evaluate(async ([base, p, i]) => {
@@ -80,7 +80,7 @@ for (const [label, opts] of SIZES) {
       await page.reload();
       await expect(page.getByTestId('save-status')).toHaveText('All changes saved', { timeout: 15_000 });
       await expect(page.getByTestId('li-nudge')).toHaveCount(0);
-      await Promise.all([page.waitForEvent('download', { timeout: 30_000 }), page.getByRole('button', { name: 'Download PDF' }).first().click()]);
+      await downloadThrough(page, () => page.getByRole('button', { name: 'Download PDF' }).first().click(), { timeout: 30_000 });
       const nudge = page.getByTestId('li-nudge');
       await expect(nudge).toContainText('Your resume is ready. Check your LinkedIn for free');
       await nudge.getByRole('link', { name: 'Check your LinkedIn for free' }).click();
