@@ -80,6 +80,7 @@ const OrderDetail = named(meOrders, 'OrderDetail');
 const MeMessages = lazy(() => import('./pages/me/MeMessages'));
 const MeResumes = lazy(() => import('./pages/me/MeResumes'));
 const MeProfile = lazy(() => import('./pages/me/MeProfile'));
+const MeCertificates = lazy(() => import('./pages/me/MeCertificates'));
 const MeAts = lazy(() => import('./pages/me/MeAts'));
 const MeInterview = lazy(() => import('./pages/me/MeInterview'));
 const MeCovers = lazy(() => import('./pages/me/MeCovers'));
@@ -378,6 +379,7 @@ export default function App() {
           <Route path="orders/:id" element={<OrderDetail />} />
           <Route path="messages" element={<MeMessages />} />
           <Route path="profile" element={<MeProfile />} />
+          <Route path="certificates" element={<MeCertificates />} />
           <Route path="resumes" element={<MeResumes />} />
           <Route path="ats" element={<MeAts />} />
           <Route path="interview/:id" element={<MeInterview />} />

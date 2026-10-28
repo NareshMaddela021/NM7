@@ -42,6 +42,7 @@ from app.audit import audit
 from app.auth.models import new_id
 from app.auth.sessions import client_ip
 from app.billing.subscription import check_limit
+from app.certs import service as certs_service
 from app.core import rate_limit
 from app.core.config import get_settings
 from app.core.db import AUDIT_LOG, DB, ORG_GROUPS, ORGANIZATIONS, RECRUITER_INVITES
@@ -706,7 +707,25 @@ async def view_one(
         "brand": brand,
         "roll": r["roll"],
         "stamp": _stamp(inv),
+        "certificates": await certs_service.shared_with_others(db, r["user_id"]),
     }
+
+
+@public.get("/candidates/{cid}/certificates/{cert_id}")
+async def view_certificate(
+    token: str,
+    cid: str,
+    cert_id: str,
+    request: Request,
+    db: DB,
+    x_recruiter_session: str | None = Header(None),
+) -> Response:
+    inv = await _signed_in(db, token, request, x_recruiter_session)
+    r = await _one(db, inv, cid)
+    res = await certs_service.shared_file_response(db, r["user_id"], cert_id)
+    await audit(db, None, "recruiter_certificate", target=inv["_id"], data=_audit(inv, count=1, student=cid), ip=None)
+    res.headers.update(NO_STORE)
+    return res
 
 
 def _stamp(inv: dict[str, Any]) -> str:

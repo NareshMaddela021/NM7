@@ -29,6 +29,8 @@ import RecruiterLinks from '../../org/RecruiterLinks';
 import RecruiterInvites from '../../org/RecruiterInvites';
 import { OrgBilling } from './BillingPages';
 import Placement from '../../org/Placement';
+import SharedCerts from '../../../components/SharedCerts';
+import { openCertFile } from '../../../lib/certs';
 
 export const ORG_TYPES = [
   ['college', 'College'], ['institute', 'Coaching / training institute'], ['job_fair', 'Job fair'], ['skill_centre', 'Skill centre'],
@@ -542,6 +544,7 @@ function ViewResume({ ctx, row, onClose, onAction }) {
           <div className="row g8">{row.approval === 'approved' && <><button type="button" className="btn btn-ink" onClick={() => onAction('download', row)}>Download PDF</button><button type="button" className="btn btn-outline" onClick={() => onAction('print', row)}>Print</button></>}<span className="xs faint">{r.brand ? 'Read-only · in your organization’s template (hidden entries stay hidden)' : 'Read-only · exactly as the member’s template prints it (hidden entries stay hidden)'}</span></div>
           {r.reviewNote && <div className="well small">Asked for changes: {r.reviewNote}</div>}
           <ErrorBoundary title="This resume couldn’t be shown." text="Something in it couldn’t be drawn. Try again, or ask the student to open and save it once."><ResumePreview data={r.data} design={r.brand ? brandDesign(r.brand, r.data) : designOf(r.data)} brand={brandFor(r.brand, r.roll)} /></ErrorBoundary>
+          <SharedCerts list={r.certificates} open={(c) => openCertFile(`${API_BASE}${ctx.base}/shared-resumes/${row.membershipId}/certificates/${c.id}`, { name: c.title })} />
         </div>
       )}</Loading>
     </Dialog>

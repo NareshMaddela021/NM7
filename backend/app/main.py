@@ -19,6 +19,7 @@ from app.auth.router import router as auth_router
 from app.billing import invoice_router as billing_docs
 from app.billing import migrate as billing_migrate
 from app.billing import router as billing
+from app.certs.router import router as certs_router
 from app.core import errors
 from app.core.body_limit import BodyLimit
 from app.core.config import get_settings
@@ -175,6 +176,7 @@ def create_app() -> FastAPI:
     app.include_router(photos_router)  # /api/me/photo-import
     app.include_router(summary_router)  # /api/me/summary/generate
     app.include_router(projects_router)  # /api/me/projects/strengthen
+    app.include_router(certs_router)  # /api/me/certificates (certificate wallet)
     app.include_router(courses.me)  # /api/me/courses (free courses for missing skills)
     app.include_router(courses.admin)  # /api/admin/courses
     app.include_router(linkedin_router)  # /api/me/linkedin
