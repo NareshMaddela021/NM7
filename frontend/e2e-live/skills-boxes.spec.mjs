@@ -4,7 +4,7 @@
 // hint show; the preview and the PDF print the same one clean line; the headline box grows too.
 import { readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
-import { API, PASSWORD, TEST_PERSON, email, login, pdfText, seed } from './helpers.mjs';
+import { API, PASSWORD, TEST_PERSON, email, login, pdfText, seed, downloadThrough } from './helpers.mjs';
 
 const SIZES = [['desktop', { viewport: { width: 1280, height: 900 } }], ['phone', { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true }]];
 const live = (page) => page.getByRole('region', { name: 'Live resume preview' });
@@ -93,7 +93,7 @@ for (const [label, opts] of SIZES) {
       expect(saved.skillGroups[1].value).toBe('Flask, Pandas');
       expect(JSON.stringify(saved.skillGroups)).not.toContain('\\n');
       await expect(live(page)).toContainText('Frameworks & Libraries: Flask, Pandas');
-      const [file] = await Promise.all([page.waitForEvent('download', { timeout: 30_000 }), page.getByRole('button', { name: 'Download PDF' }).first().click()]);
+      const [file] = await downloadThrough(page, () => page.getByRole('button', { name: 'Download PDF' }).first().click(), { timeout: 30_000 });
       const pdf = (await pdfText(readFileSync(await file.path()))).join(' ');
       expect(pdf).toMatch(/Frameworks & Libraries:\s+Flask, Pandas/);
       expect(pdf).toContain('Snowflake');

@@ -129,3 +129,17 @@ export async function watchDataFetches(page) {
   });
   return () => page.evaluate(() => window.__dataFetches || []);
 }
+
+/**
+ * A resume / cover letter download: the click opens "Check before you download" (the print preview and checklist,
+ * components/PrintCheck.jsx); this presses its Download button. Downloads that skip the check (a shared link, an
+ * organization copy) go straight through. Returns [file] like Promise.all([waitForEvent('download'), click()]).
+ */
+export async function downloadThrough(page, click, opts = {}) {
+  const dl = page.waitForEvent('download', { timeout: 30_000, ...opts });
+  const btn = page.getByTestId('check-download');
+  const pass = Promise.race([dl.then(() => 'file', () => 'file'), btn.waitFor({ state: 'visible', timeout: opts.timeout || 30_000 }).then(() => 'check', () => 'none')])
+    .then((w) => (w === 'check' ? btn.click() : undefined));
+  const [file] = await Promise.all([dl, click(), pass]);
+  return [file];
+}

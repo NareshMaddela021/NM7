@@ -1,6 +1,6 @@
 // Runs only against a production build served with the vercel.json headers (CSP_CHECK=1): no CSP violations.
 import { expect, test } from '@playwright/test';
-import { PASSWORD, adminLogin, email, login, readQrPng, seed } from './helpers.mjs';
+import { PASSWORD, adminLogin, email, login, readQrPng, seed, downloadThrough } from './helpers.mjs';
 
 test.skip(!process.env.CSP_CHECK, 'needs the production build with headers (npm run test:e2e:csp)');
 
@@ -28,7 +28,7 @@ test('pages work under the Content-Security-Policy', async ({ page }) => {
   await page.goto('/builder'); // downloads need an account
   await page.evaluate(() => window.history.replaceState({ usr: { open: 'build' }, key: 'x' }, ''));
   await page.reload();
-  const [dl] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Download PDF' }).first().click()]);
+  const [dl] = await downloadThrough(page, () => page.getByRole('button', { name: 'Download PDF' }).first().click());
   expect(dl.suggestedFilename()).toMatch(/\.pdf$/);
   const v = await page.evaluate(() => window.__csp);
   expect(v.filter((x) => !x.includes('eval'))).toEqual([]);

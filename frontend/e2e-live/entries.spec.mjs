@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { expect, test } from '@playwright/test';
 import { unzipSync, strFromU8 } from 'fflate';
-import { API, PASSWORD, email, login, seed } from './helpers.mjs';
+import { API, PASSWORD, email, login, seed, downloadThrough } from './helpers.mjs';
 
 const require = createRequire(import.meta.url);
 
@@ -80,7 +80,7 @@ async function pdfText(path) {
 const docxText = (path) => strFromU8(unzipSync(new Uint8Array(readFileSync(path)))['word/document.xml']).replace(/<[^>]+>/g, ' ');
 
 async function download(page, name) {
-  const [file] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name }).first().click()]);
+  const [file] = await downloadThrough(page, () => page.getByRole('button', { name }).first().click());
   return file.path();
 }
 

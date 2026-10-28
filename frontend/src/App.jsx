@@ -1,7 +1,7 @@
 import { Component, Suspense, lazy as reactLazy, useEffect, useRef, useState } from 'react';
 import { Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
 import Header from './components/Header';
-import { notePage, onGate } from './lib/downloads';
+import { notePage, onCheck, onGate } from './lib/downloads';
 import { onPlaced } from './lib/waPay';
 import Home from './pages/Home';
 import { Spinner } from './components/ui';
@@ -28,6 +28,13 @@ function DownloadGateHost() {
   const [opened, setOpened] = useState(false);
   useEffect(() => onGate((g) => { if (g) setOpened(true); }), []);
   return opened ? <Suspense fallback={null}><DownloadGate /></Suspense> : null;
+}
+// "Check before download": the print preview + checklist, loaded when a download starts.
+const PrintCheck = lazy(() => import('./components/PrintCheck'));
+function PrintCheckHost() {
+  const [opened, setOpened] = useState(false);
+  useEffect(() => onCheck((c) => { if (c) setOpened(true); }), []);
+  return opened ? <Suspense fallback={null}><PrintCheck /></Suspense> : null;
 }
 // "Buy on WhatsApp": the order number and the chat link, shown once an order is placed.
 const WaPlaced = lazy(() => import('./components/WaPlaced'));
@@ -301,6 +308,7 @@ export default function App() {
       <CodeFromLink />
       <PreviewBar />
       <DownloadGateHost />
+      <PrintCheckHost />
       <WaPlacedHost />
       <ServerWaking />
       <Pages>

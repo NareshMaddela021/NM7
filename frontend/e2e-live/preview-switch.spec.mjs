@@ -3,7 +3,7 @@
 // shows the example person in the chosen template, read-only and never saved. A download always makes the person's
 // own resume (from Sample it switches back and says so), and needs a name.
 import { expect, test } from '@playwright/test';
-import { API, PASSWORD, email, login, pdfText, seed } from './helpers.mjs';
+import { API, PASSWORD, email, login, pdfText, seed, downloadThrough } from './helpers.mjs';
 
 const SIZES = [['desktop', { width: 1280, height: 900 }], ['phone', { width: 390, height: 844 }]];
 const live = (page) => page.getByRole('region', { name: 'Live resume preview' });
@@ -71,7 +71,7 @@ test('Download from the Sample view makes the person’s own resume and says so;
   await expect(page.getByTestId('save-status')).toHaveText('All changes saved', { timeout: 15_000 });
   await show(page, 'Sample').click();
   await expect(page.getByTestId('sample-view')).toContainText('Sai Varsha');
-  const [file] = await Promise.all([page.waitForEvent('download', { timeout: 30_000 }), page.getByRole('button', { name: 'Download PDF' }).click()]);
+  const [file] = await downloadThrough(page, () => page.getByRole('button', { name: 'Download PDF' }).click(), { timeout: 30_000 });
   await expect(page.getByText('Downloading your resume, not the sample')).toBeVisible();
   await expect(show(page, 'My resume')).toHaveAttribute('aria-pressed', 'true');
   expect(file.suggestedFilename()).toBe('Kiran_Babu_Resume.pdf');

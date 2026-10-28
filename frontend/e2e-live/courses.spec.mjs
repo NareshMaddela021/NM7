@@ -4,7 +4,7 @@
 // "Courses: …" under the entry; the Job Profile has the same field.
 import { readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
-import { API, PASSWORD, TEST_PERSON, email, login, pdfText, seed } from './helpers.mjs';
+import { API, PASSWORD, TEST_PERSON, email, login, pdfText, seed, downloadThrough } from './helpers.mjs';
 
 const SIZES = [['desktop', { viewport: { width: 1280, height: 900 } }], ['phone', { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true }]];
 const live = (page) => page.getByRole('region', { name: 'Live resume preview' });
@@ -89,7 +89,7 @@ for (const [label, opts] of SIZES) {
       const savedEdu = (await api(page, '/api/me/resumes'))[0].data.edu[0];
       expect(savedEdu.courses).toHaveLength(12);
       expect(savedEdu.courses[0]).toBe('**Data Structures**');
-      const [file] = await Promise.all([page.waitForEvent('download', { timeout: 30_000 }), page.getByRole('button', { name: 'Download PDF' }).first().click()]);
+      const [file] = await downloadThrough(page, () => page.getByRole('button', { name: 'Download PDF' }).first().click(), { timeout: 30_000 });
       const pdf = (await pdfText(readFileSync(await file.path()))).join(' ');
       expect(pdf).toMatch(/Courses:\s+Data Structures ?, Operating Systems, DBMS, Computer Networks, Elective 1/); // pdf.js adds a space where the bold run ends
       expect(pdf).not.toContain('**');
