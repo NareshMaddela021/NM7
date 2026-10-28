@@ -42,6 +42,7 @@ def defaults() -> dict[str, Any]:
         "addons": {k: {"name": n, "amount": a, "active": True} for k, (n, a) in ADDONS.items()},
         "delivery_hours": DELIVERY_HOURS,
         "rules": {k: {"on": v["on"], "value": v["value"]} for k, v in RULES.items()},
+        "referral": {"on": True, "needed": 3},  # referral rewards (app/me/rewards.py)
     }
 
 
@@ -54,6 +55,7 @@ async def get_site(db: AsyncDatabase, session: Session = None) -> dict[str, Any]
                 out[group][k] = {**out[group][k], **v}
     if stored.get("delivery_hours"):
         out["delivery_hours"] = stored["delivery_hours"]
+    out["referral"] = {**out["referral"], **(stored.get("referral") or {})}
     out["rule_runs"] = stored.get("rule_runs", {})
     return out
 

@@ -45,6 +45,7 @@ from app.jobsearch.tailor_router import router as jobs_tailor_router
 from app.linkedin.pack_router import router as linkedin_pack_router
 from app.linkedin.router import router as linkedin_router
 from app.maintenance.router import router as maintenance_router
+from app.me import rewards as referral_rewards
 from app.me.router import public as public_router
 from app.me.router import router as me_router
 from app.orders.router import router as orders_router
@@ -193,6 +194,7 @@ def create_app() -> FastAPI:
     app.include_router(college_alumni.me)  # /api/me/alumni (opt in, browse, requests, inbox)
     app.include_router(college_alumni.staff)  # /api/org/{org_id}/alumni (invites, counts)
     app.include_router(college_campuses.admin)  # /api/admin/college-groups
+    app.include_router(referral_rewards.admin)  # /api/admin/referral-rewards (see, revoke)
     app.include_router(college_campuses.owner)  # /api/college-group/{id} (roll-up, shared format, drives, invites)
     app.include_router(college_campuses.me)  # /api/me/college-groups
     app.include_router(college_reviews.staff)  # /api/org/{org_id}/reviewers (invite, assign)

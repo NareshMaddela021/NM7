@@ -29,6 +29,7 @@ from app.core.email import MailerDep, require_email, send_safely
 from app.core.errors import ApiError
 from app.core.security import hash_password, hash_token, needs_rehash, new_token, verify_password
 from app.core.time import now
+from app.me.rewards import signup_flags
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -90,6 +91,7 @@ async def signup(body: SignupIn, request: Request, response: Response, db: DB, m
         friend = await db[USERS].find_one({"referral_code": body.ref.strip().upper()}, {"_id": 1})
         if friend and (not user or friend["_id"] != user.id):
             fields["referred_by"] = friend["_id"]
+            fields["ref_flags"] = await signup_flags(db, request, friend["_id"], body.email)
     if user:  # never verified (e.g. a typo in the first try) — the email owner still has to confirm the code
         await db[USERS].update_one({"_id": user.id}, {"$set": {**fields, "updated_at": now()}})
         user = user.model_copy(update=fields)

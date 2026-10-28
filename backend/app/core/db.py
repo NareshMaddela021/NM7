@@ -97,6 +97,7 @@ REVIEW_COMMENTS = (
 COLLEGE_GROUPS = (
     "college_groups"  # a parent college group: its campus organizations, owners (roll-up only), group price
 )
+REFERRAL_REWARDS = "referral_rewards"  # _id = the inviter: when the reward was given, by which friends, revoked
 HEALTH = "resume_health"  # per user (_id = user id): dismissed resume health alerts, when the last alert email went
 COLLECTIONS = (
     USERS,
@@ -158,6 +159,7 @@ COLLECTIONS = (
     ALUMNI_REQUESTS,
     REVIEW_COMMENTS,
     COLLEGE_GROUPS,
+    REFERRAL_REWARDS,
 )
 
 DAY = 86_400
