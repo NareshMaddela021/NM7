@@ -33,6 +33,7 @@ const START_MODES = {
 const isSampleDraft = (d) => d.personal?.name === INITIAL.personal.name && d.personal?.email === INITIAL.personal.email;
 import LinkedInNudge from './builder/LinkedInNudge';
 import ResumePreview from './builder/ResumePreview';
+import ProjectHelper from './builder/ProjectHelper';
 import { FieldGrid, LinkFields, RichArea, SchemaField } from './builder/Fields';
 import DesignPanel from './builder/DesignPanel';
 import Import from './builder/Import';
@@ -512,6 +513,7 @@ export default function Builder({ embedded = null }) {
                   error={(u) => fieldError('url', u)} onChange={(v) => setItem(k, i, 'links', v)} />];
               })}
             </FieldGrid>
+            {k === 'proj' && <ProjectHelper project={obj} onAccept={(text) => { withUndo('Project bullets updated'); setItem(k, i, 'description', text); }} />}
             {profile && edited.current.has(obj) && <SaveToProfile entry={obj} section={k} profile={profile} onSaved={markSaved(k, i)} />}
             </div>
           </div>
