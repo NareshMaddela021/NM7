@@ -21,6 +21,7 @@ from app.billing import migrate as billing_migrate
 from app.billing import router as billing
 from app.certs.router import router as certs_router
 from app.college import drives as college_drives
+from app.college import eligibility as college_eligibility
 from app.core import errors
 from app.core.body_limit import BodyLimit
 from app.core.config import get_settings
@@ -180,6 +181,8 @@ def create_app() -> FastAPI:
     app.include_router(certs_router)  # /api/me/certificates (certificate wallet)
     app.include_router(college_drives.staff)  # /api/org/{org_id}/drives (drive days, QR check-in)
     app.include_router(college_drives.me)  # /api/me/drives, /api/me/checkin
+    app.include_router(college_eligibility.staff)  # …/drives/{id}/companies/{id}/eligibility, rules, share
+    app.include_router(college_eligibility.me)  # /api/me/academic/{membership_id}
     app.include_router(courses.me)  # /api/me/courses (free courses for missing skills)
     app.include_router(courses.admin)  # /api/admin/courses
     app.include_router(linkedin_router)  # /api/me/linkedin

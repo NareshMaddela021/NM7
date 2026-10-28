@@ -324,10 +324,11 @@ async def _audience(db, scope, d: dict[str, Any]) -> list[dict[str, Any]]:
 
 async def audience_for(db, scope, d: dict[str, Any], company_id: str) -> list[dict[str, Any]]:
     """Who may sit a company's rounds: the eligible list when the company has one (Eligibility), else everyone."""
+    from app.college.eligibility import eligible_people
+
     people = await _audience(db, scope, d)
     comp = next((c for c in d["companies"] if c["id"] == company_id), None)
-    allowed = (comp or {}).get("eligible_ids")
-    return [p for p in people if allowed is None or p["id"] in set(allowed)]
+    return eligible_people(comp, people) if comp else []
 
 
 @staff.get("/{drive_id}/slots/{slot_id}/students")

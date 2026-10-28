@@ -204,6 +204,7 @@ ORG_ACTIONS = [
     "coupon.applied", "coupon.redeemed",
     "drive_create", "drive_update", "drive_delete", "drive_slot", "drive_slot_delete", "drive_assign", "drive_mark",
     "drive_export", "drive_checkin",
+    "eligibility_rules", "eligibility_exception", "eligibility_share", "academic_verify",
 ]  # fmt: skip
 
 

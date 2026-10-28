@@ -1,6 +1,7 @@
 // Nm7 for Organizations, the member side: /join/:code (what a group's QR code or link opens) and /me/groups.
 // Joining = consent + the group's questions + which resume to share. Leaving removes the resume from the
 // organization's view at once.
+import Marks from './Marks';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Header from '../../components/Header';
@@ -232,6 +233,7 @@ export function MeGroups() {
             <div className="well stack g4 small" role="note"><strong>{g.orgName} asked for changes:</strong><span style={{ whiteSpace: 'pre-wrap' }}>{g.reviewNote}</span><Link to="/builder">Open my resume</Link></div>
           )}
           {g.format && <CollegeFormat g={g} resume={list.find((r) => r.id === g.resumeId)} />}
+          {g.academic && <Marks g={g} />}
           {Object.keys(g.fields || {}).length > 0 && (
             <span className="small">{(g.customFields || []).filter((f) => g.fields[f.key]).map((f) => `${f.label}: ${g.fields[f.key]}`).join(' · ')}</span>
           )}

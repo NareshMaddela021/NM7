@@ -265,6 +265,15 @@ async def create_demo(db: AsyncDatabase, actor_id: str | None = None, seed: int 
                     "printed_count": 0,
                     "reminders_opt_out": False,
                     "last_reminded_at": None,
+                    "academic": {
+                        "cgpa": round(rng.uniform(5.6, 9.6), 2),
+                        "backlogs": rng.choices([0, 0, 0, 0, 1, 2])[0],
+                        "year": 2026,
+                        "tenth": round(rng.uniform(62, 97), 1),
+                        "twelfth": round(rng.uniform(58, 96), 1),
+                        "verified_at": t - timedelta(days=3) if rng.random() < 0.5 else None,
+                        "verified_by": None,
+                    },
                 }  # fmt: skip
             )
             students += 1
@@ -338,7 +347,10 @@ async def _demo_drive(db: AsyncDatabase, rng: random.Random) -> None:
     t = now()
     day = t.astimezone(IST).date().isoformat()
     mids = sorted([m["_id"] async for m in db[MEMBERSHIPS].find({"org_id": ORG_ID, "approval": "approved"})])
-    companies = [{"id": "demo-co-infosys", "name": "Infosys (demo)"}, {"id": "demo-co-tcs", "name": "TCS (demo)"}]
+    companies = [
+        {"id": "demo-co-infosys", "name": "Infosys (demo)", "rules": {"cgpa_min": 7.0, "backlogs_max": 0}},
+        {"id": "demo-co-tcs", "name": "TCS (demo)", "rules": {"cgpa_min": 6.0, "tenth_min": 60}},
+    ]
     slots = []
     half = len(mids) // 2
     for i, (room, start, end, part) in enumerate(

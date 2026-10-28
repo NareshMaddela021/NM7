@@ -16,7 +16,7 @@ from app.core import rate_limit
 from app.core.db import DB, MEMBERSHIPS, ORG_GROUPS, ORGANIZATIONS, RESUMES
 from app.core.errors import ApiError
 from app.core.time import now
-from app.orgs.scope import NOT_FOUND
+from app.orgs.scope import NOT_FOUND, features_of
 from app.orgs.service import (
     ORG_TYPE_NAMES,
     active_members,
@@ -107,6 +107,10 @@ async def _my(db, uid: str) -> list[dict[str, Any]]:
         row = membership_out(m, g, o)
         on = m["org_id"] in show and row["shareWithRecruiters"] and row["recruiterOptIn"]
         row["shortlistedBy"] = sorted({x["company"] for x in by.get(m["_id"], [])}) if on else []
+        if o and features_of(o)["eligibility"]:  # "My marks for placements" (self-declared; the college may verify)
+            from app.college.eligibility import academic_out
+
+            row["academic"] = academic_out(m.get("academic"))
         out.append(row)
     return out
 
