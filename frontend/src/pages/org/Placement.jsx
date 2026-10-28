@@ -3,6 +3,7 @@
 // needs changes, CSV) and the roll list upload. The server decides what this viewer may see (their organization,
 // their groups, consenting members only) and what the plan includes; this page only arranges it. It refreshes every
 // 30 seconds while open, so students' edits show up without a reload.
+import WaReminders from './WaReminders';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Dialog, Spinner, useToast } from '../../components/ui';
@@ -123,7 +124,7 @@ function RollList({ base, groups, canManage, onChange }) {
   );
 }
 
-function MissingTabs({ base, d, group, role, onChange }) {
+function MissingTabs({ base, d, group, role, onChange, wa }) {
   const toast = useToast();
   const [tab, setTab] = useState('noResume');
   const [sel, setSel] = useState([]);
@@ -161,6 +162,7 @@ function MissingTabs({ base, d, group, role, onChange }) {
       <div className="row g8" style={{ flexWrap: 'wrap' }}>
         {!viewer && <button type="button" className="btn btn-outline" disabled={busy || !sel.length} onClick={() => setDialog('remind')}>Send reminder{sel.length ? ` (${sel.length})` : ''}</button>}
         {!viewer && tab !== 'notJoined' && tab !== 'noResume' && <button type="button" className="btn btn-outline" disabled={busy || !sel.length} onClick={() => setDialog('changes')}>Mark needs changes</button>}
+        {!viewer && wa && <button type="button" className="btn btn-outline" disabled={busy || !sel.length} onClick={() => setDialog('wa')} data-testid="pl-wa">WhatsApp / SMS{sel.length ? ` (${sel.length})` : ''}</button>}
         {!viewer && <button type="button" className="btn btn-outline" disabled={busy || !rows.length} onClick={csv}>Download CSV</button>}
         {tab === 'notJoined' && <span className="xs muted" style={{ alignSelf: 'center' }}>They haven’t joined, so they can’t be emailed from here: share the group’s join link or QR code with them.</span>}
       </div>
@@ -182,7 +184,8 @@ function MissingTabs({ base, d, group, role, onChange }) {
           ))}</tbody>
         </table></div>
       )}
-      {dialog && (
+      {dialog === 'wa' && <WaReminders base={base} ids={sel} list={tab} defaultMessage={`Hi {name}, a reminder from the placement office: ${(d.listTitles[tab] || '').split(' (')[0].toLowerCase()} — please update your resume on Nm7 today.`} onClose={() => { setDialog(null); setSel([]); }} />}
+      {dialog && dialog !== 'wa' && (
         <Dialog title={dialog === 'remind' ? `Send a reminder to ${sel.length}` : `Mark ${sel.length} as needs changes`} onClose={() => setDialog(null)}>
           <div className="stack g12">
             <span className="small muted">{dialog === 'remind' ? 'One email per student per day; students who opted out are skipped. The email lists what their resume is missing.' : 'They get an email with your note, and see it in My groups.'}</span>
@@ -198,7 +201,7 @@ function MissingTabs({ base, d, group, role, onChange }) {
 /**
  * The placement dashboard. `base`: /api/org/<id> (staff or Nm7). `billingUrl`: where an Owner upgrades (portal only).
  */
-export default function Placement({ base, role, canManage, billingUrl }) {
+export default function Placement({ base, role, canManage, billingUrl, wa }) {
   const [group, setGroup] = useState('');
   const url = `${base}/placement${group ? `?group=${encodeURIComponent(group)}` : ''}`;
   const st = useApi(url);
@@ -248,7 +251,7 @@ export default function Placement({ base, role, canManage, billingUrl }) {
           <div className="card" style={{ padding: 16, minWidth: 0 }} data-testid="pl-weekly">
             <BarChart title="Weekly progress (last 8 weeks)" data={weekly} series={[{ key: 'joined', label: 'Joined', color: 'var(--viz-1)' }, { key: 'updated', label: 'Updated a resume', color: 'var(--viz-2)' }, { key: 'ready', label: 'Marked Ready', color: 'var(--viz-3)' }]} height={160} />
           </div>
-          <MissingTabs base={base} d={d} group={group} role={role} onChange={reload} />
+          <MissingTabs base={base} d={d} group={group} role={role} onChange={reload} wa={wa} />
           {groups.length > 0 && <RollList base={base} groups={groups} canManage={canManage && role !== 'viewer'} onChange={reload} />}
         </>
       )}

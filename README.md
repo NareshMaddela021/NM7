@@ -1139,3 +1139,13 @@ vs not placed by branch and batch (placed = a full-time or PPO offer that wasn't
 package, offers per company and students with more than one offer, with a CSV and a printable placement report (PDF).
 Packages are visible only to the college's coordinators and Owner; each student sees their own offers (My groups);
 recruiters and other students never see them. Offers are deleted with the student's account.
+
+### WhatsApp / SMS reminders (free links)
+No WhatsApp Business API or SMS gateway (both paid, both need keys). From any **who's missing** list (placement
+dashboard) or a drive slot's absent / not-yet list, **WhatsApp / SMS** makes a batch (`backend/app/college/
+reminders.py`, `pages/org/WaReminders.jsx`): a ready message (only `{name}` — the first name — is filled in), and per
+student a one-tap **Send on WhatsApp** link (`https://wa.me/<number>?text=<message>`) that opens the coordinator's own
+WhatsApp, or on phones an **SMS** link (`sms:`). Tick each sent: "18 of 40 sent". **Phone list (CSV)** is for a
+WhatsApp Business broadcast list. Only students who gave a mobile number and didn't switch reminders off are
+included. `Gateway` / `DisabledGateway` is the (disabled) interface a paid provider can be plugged into later. Email
+reminders work as before.

@@ -141,7 +141,7 @@ export function PortalGroups() {
 export function PortalPlacement() {
   const { ctx, home } = useOutletContext();
   usePageMeta(portalMeta(`Dashboard · ${home.name}`));
-  return <Placement base={ctx.base} role={ctx.role} canManage={home.canManage} billingUrl={home.isOwner ? `/org/${ctx.orgId}/billing` : null} />;
+  return <Placement base={ctx.base} role={ctx.role} canManage={home.canManage} billingUrl={home.isOwner ? `/org/${ctx.orgId}/billing` : null} wa={!!home.features?.waReminders} />;
 }
 
 /** /org/:orgId/resumes */
