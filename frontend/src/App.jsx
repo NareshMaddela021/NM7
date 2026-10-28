@@ -133,6 +133,7 @@ const KioskScreen = named(kioskPages, 'default');
 const ContinueHere = named(kioskPages, 'ContinueHere');
 const OrgInvite = named(portal, 'OrgInvite');
 const AcceptTransfer = lazy(() => import('./pages/org/Transfer'));
+const DemoLogin = lazy(() => import('./pages/org/DemoLogin'));
 const StopReminders = named(portal, 'StopReminders');
 const meSettings = () => import('./pages/me/MeSettings');
 const MeSettings = named(meSettings, 'MeSettings');
@@ -417,6 +418,7 @@ export default function App() {
         <Route path="/groups/stop" element={<StopReminders />} />
         <Route path="/org/invite/:token" element={<OrgInvite />} />
         <Route path="/org/transfer" element={C(<AcceptTransfer />)} />
+        <Route path="/org/demo-login" element={<DemoLogin />} />
         <Route path="/for-orgs" element={<ForOrgs />} />
         <Route path="/partners" element={<Partners />} />
         <Route path="/partner" element={C(<PartnerHome />)} />

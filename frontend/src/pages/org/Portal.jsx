@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, NavLink, Navigate, Outlet, useLocation, useNavigate, useOutletContext, useParams, useSearchParams } from 'react-router-dom';
 import Header from '../../components/Header';
 import { Spinner, useToast } from '../../components/ui';
-import { LIVE, useAuth } from '../../lib/auth';
+import { LIVE, signOut, useAuth } from '../../lib/auth';
 import { apiBase } from '../../lib/orgDashboard';
 import { usePageMeta } from '../../lib/meta';
 import { http } from '../../services/http';
@@ -81,6 +81,7 @@ export function PortalLayout() {
             <span className="xs muted">{st.data.typeName}{st.data.city ? ` · ${st.data.city}` : ''} · {ROLE[st.data.role]}{st.data.allGroups ? '' : ' · some groups'} · {st.data.billing?.planName || 'Free'} plan</span>
             <h1 className="display" style={{ fontSize: 28 }}>{st.data.name}</h1>
           </div>
+          {st.data.demo && <DemoBanner />}
           <PlanBanners home={st.data} orgId={orgId} />
           <nav aria-label="Organization" className="row g8" style={{ flexWrap: 'wrap' }}>
             {tabs.map(([to, l]) => <NavLink key={l} to={`/org/${orgId}${to}`} end={to === ''} className={({ isActive }) => `btn ${isActive || (to === '' && pathname.includes('/groups/')) ? 'btn-ink' : 'btn-outline'}`} style={{ minHeight: 36 }}>{l}</NavLink>)}
@@ -94,6 +95,17 @@ export function PortalLayout() {
 
 /** Plan banners (80% of a limit used, plan ending within 7 days, grace, back on Free). Everyone sees them; the
  * Owner gets a link to Billing, the others are told to ask the Owner. */
+/** The demo college: made-up data, and (for the demo coordinator) a session that can open nothing else. */
+function DemoBanner() {
+  const nav = useNavigate();
+  return (
+    <div className="well small row between g8" role="note" data-testid="demo-banner" style={{ flexWrap: 'wrap', borderLeft: '4px solid var(--warning)' }}>
+      <span><span className="badge b-warning">Demo</span> Made-up college and students, for demos and testing. Nothing here is real, and nobody is emailed. A demo coordinator can open only this college.</span>
+      <button type="button" className="btn btn-outline" style={{ minHeight: 32 }} onClick={async () => { await signOut(); nav('/login'); }} data-testid="demo-signout">Sign out of the demo</button>
+    </div>
+  );
+}
+
 function PlanBanners({ home, orgId }) {
   const items = planBanners(home.billing, home.isOwner);
   if (!items.length) return null;

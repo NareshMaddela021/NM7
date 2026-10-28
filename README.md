@@ -1208,3 +1208,11 @@ whether the old Owner stays as a coordinator or leaves. The new owner gets a 6-d
 `/org/transfer`, signed in with that address (48 hours, 5 tries; only a hash is stored). My organizations shows a
 waiting transfer. Billing belongs to the organization, so the plan, invoices and payment reminders follow the Owner.
 Start, cancel and done are in the Activity log.
+
+**Demo college as its coordinator.** Admin → Organizations → Demo organization → **Reset and open as coordinator**
+resets the demo college and signs that browser in as its made-up coordinator, with no email code (a one-time link,
+5 minutes, only a hash stored). The session lasts 3 hours and reaches only the demo college's portal and its demo
+college group: real organizations, resumes, orders, payments and the admin console answer 403. It replaces the admin
+session in that browser, so use a private window to keep both. A yellow **Demo** banner shows on every portal page,
+with "Sign out of the demo".
+

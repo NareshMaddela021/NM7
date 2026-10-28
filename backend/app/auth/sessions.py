@@ -15,6 +15,7 @@ SESSION_COOKIE = "nm7_session"
 USER_TTL = timedelta(days=30)  # customers and experts, extended while they use the site
 ADMIN_TTL = timedelta(hours=12)  # admins, fixed
 SLIDE_AFTER = timedelta(hours=1)  # refresh the expiry at most once an hour
+DEMO_TTL = timedelta(hours=3)  # the demo coordinator: a sales demo, then sign in again
 KIOSK_TTL = timedelta(minutes=45)  # signed in at an event kiosk: fixed, never extended
 
 
@@ -58,8 +59,9 @@ async def start_session(
     user: User,
     two_step: bool = False,
     kiosk_id: str | None = None,
+    demo_org_id: str | None = None,
 ) -> UserSession:
-    ttl = KIOSK_TTL if kiosk_id else ADMIN_TTL if user.role == "admin" else USER_TTL
+    ttl = KIOSK_TTL if kiosk_id else DEMO_TTL if demo_org_id else ADMIN_TTL if user.role == "admin" else USER_TTL
     token = new_token()
     session = UserSession(
         user_id=user.id,
@@ -69,6 +71,7 @@ async def start_session(
         ip=client_ip(request),
         user_agent=(request.headers.get("user-agent") or "")[:300] or None,
         kiosk_id=kiosk_id,
+        demo_org_id=demo_org_id,
     )
     await db[SESSIONS].insert_one(session.to_mongo())
     set_cookie(response, SESSION_COOKIE, token, ttl)
