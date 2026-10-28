@@ -28,7 +28,7 @@ export async function downloadResume(data, format = 'pdf', cover, share, resumeI
     await exportFile({ data, design: designOf(data), format, cover, share, resumeId });
     return true;
   } catch (e) {
-    if (e instanceof DownloadBlocked) return false;
+    if (e instanceof DownloadBlocked || e?.code === 'declined') return false;
     throw e;
   }
 }

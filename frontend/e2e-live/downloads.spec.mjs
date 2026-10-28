@@ -3,7 +3,7 @@
 // signed-in accounts download free while payments are off; with payments on (mocked) unpaid accounts see the
 // "Unlock downloads" pop-up and no file is made, and paying unlocks the download they clicked.
 import { expect, test } from '@playwright/test';
-import { API, PASSWORD, asTestPerson, email, lastCode, login, seed } from './helpers.mjs';
+import { API, PASSWORD, asTestPerson, email, lastCode, login, seed, downloadThrough } from './helpers.mjs';
 
 const api = (page, path) => page.evaluate(async ([base, p]) => (await fetch(`${base}${p}`, { credentials: 'include' })).json(), [API, path]);
 const preview = (page) => page.getByRole('article', { name: 'Resume preview' });
@@ -21,7 +21,7 @@ function downloads(page) {
   return files;
 }
 async function expectFile(page, click, ext) {
-  const [file] = await Promise.all([page.waitForEvent('download', { timeout: 30_000 }), click()]);
+  const [file] = await downloadThrough(page, () => click(), { timeout: 30_000 });
   expect(file.suggestedFilename()).toMatch(new RegExp(`\\${ext}$`));
   const head = (await import('node:fs')).readFileSync(await file.path()).subarray(0, 4).toString('latin1');
   expect(head).toBe(ext === '.pdf' ? '%PDF' : 'PK\u0003\u0004');

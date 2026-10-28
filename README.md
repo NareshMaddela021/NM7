@@ -1028,3 +1028,22 @@ Plans: recruiter invites come with recruiter links (Drive and Campus). Active in
 The demo organization has a recruiter invite from "Demo Tech Pvt Ltd (demo)" with six students on its board. Admin →
 Organizations → Demo organization → **Reset and open as a recruiter** signs the admin straight in to it (the code
 email would go to a made-up address).
+
+## Student tools
+
+### Check before download (free)
+Every resume / cover letter download from the builder, My resumes and Templates first opens **Check before you
+download** (`components/PrintCheck.jsx`, opened by `exportFile` in `lib/downloads.js`): the exact print preview —
+the very PDF that is saved, drawn page by page with pdf.js on white paper whatever the site theme — and a checklist
+(`lib/printCheck.js`): page count vs target (a college's page limit, else 1 page under 3 years of work, else 2), text
+running off the page edge, sections with a heading and nothing under it, missing name / phone / email, links that
+aren't web addresses or aren't clickable in the PDF, bullets over 35 words, photo switched on without a photo, and the
+college format rules when the student is in a group with one. **Download anyway** is always there. Shared-link and
+organization copies skip the check. The PDF and Word files are the same in light and dark mode (e2e
+`print-check.spec.mjs` compares them).
+
+### Version compare (free)
+My resumes → **Versions**: pick any two versions (or a version and the current resume) and see the changes side by
+side, section by section — added lines green, removed red, changed lines with the changed words marked
+(`lib/versionDiff.js`). Template and design changes are listed separately. **Restore this version** works as before.
+On a phone the two sides stack (older line above newer).

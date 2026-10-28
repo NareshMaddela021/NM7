@@ -5,33 +5,28 @@ import { Dialog, useToast } from '../../components/ui';
 import { useMe, openInBuilder, addResume, updateResume, deleteResume, restoreVersion, expertDrafts, retentionLeft, blankResume } from '../../lib/customerStore';
 import { useExpertOrders } from '../../lib/expertStore';
 import { atsScore } from '../../lib/atsScore';
-import Compare from '../builder/Compare';
+import VersionCompare from './VersionCompare';
 import { MeHead } from './MeLayout';
 import { ResumeThumb, downloadResume, templateName, ago, fmtWhen } from './shared';
 
 function Versions({ r, onClose }) {
   const toast = useToast();
   const list = [...r.versions, ...expertDrafts(r.id)].sort((a, b) => b.at - a.at);
-  const [pick, setPick] = useState(list[0] || null);
+  // "Current" first, then every saved version (newest first): pick any two to compare
+  const options = [{ key: 'current', label: 'Current', data: r.data }, ...list.map((v, i) => ({ key: `v${i}`, label: v.label, at: v.at, data: v.data, expert: v.expert, ats: atsScore(v.data).score }))];
   return (
     <Dialog showTitle title={`Versions · ${r.name}`} onClose={onClose} wide>
       {list.length === 0 ? <p className="muted small">No earlier versions yet. We keep an automatic copy as you edit (at most every 30 minutes) and every draft your expert sends.</p> : (
-        <div className="row g16" style={{ alignItems: 'flex-start' }}>
-          <div className="stack g4" style={{ flex: '1 1 220px', maxHeight: 460, overflow: 'auto' }}>
-            {list.map((v, i) => (
-              <button key={i} type="button" onClick={() => setPick(v)} className="stack" aria-pressed={pick === v}
-                style={{ border: '1px solid var(--border)', borderRadius: 10, padding: '8px 10px', textAlign: 'left', background: pick === v ? 'var(--sunken)' : 'var(--surface)' }}>
-                <strong className="small">{v.label}</strong><span className="xs muted">{fmtWhen(v.at)} · ATS {atsScore(v.data).score}</span>
-                {v.expert && retentionLeft(v.at) != null && <span className="xs faint">Expert copy kept {Math.max(0, retentionLeft(v.at))} more days</span>}
-              </button>
+        <div className="stack g12">
+          <ul className="row g8" style={{ listStyle: 'none', margin: 0, padding: 0, flexWrap: 'wrap' }} aria-label="Saved versions">
+            {options.slice(1).map((v) => (
+              <li key={v.key} className="xs" style={{ border: '1px solid var(--border)', borderRadius: 8, padding: '4px 8px' }}>
+                <strong>{v.label}</strong> · {fmtWhen(v.at)} · ATS {v.ats}
+                {v.expert && retentionLeft(v.at) != null && <span className="faint"> · kept {Math.max(0, retentionLeft(v.at))} more days</span>}
+              </li>
             ))}
-          </div>
-          {pick && (
-            <div className="stack g12" style={{ flex: '2 1 360px', maxHeight: 460, overflow: 'auto' }}>
-              <div className="row between g8"><strong className="small">{pick.label} → current</strong><button type="button" className="btn btn-outline" style={{ minHeight: 36 }} onClick={() => { restoreVersion(r.id, pick.data); toast('Restored — the current one is saved as a version too'); onClose(); }}>Restore this version</button></div>
-              <Compare a={pick.data} b={r.data} aLabel="that version" bLabel="current" />
-            </div>
-          )}
+          </ul>
+          <VersionCompare options={options} onRestore={(v) => { restoreVersion(r.id, v.data); toast('Restored — the current one is saved as a version too'); onClose(); }} />
         </div>
       )}
     </Dialog>

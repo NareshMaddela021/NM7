@@ -92,7 +92,7 @@ export const useToast = () => useContext(ToastCtx);
 
 /* ---------- Dialog ---------- */
 const FOCUSABLE = 'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])';
-export function Dialog({ title, children, onClose, wide, showTitle }) {
+export function Dialog({ title, children, onClose, wide, showTitle, top }) {
   const ref = useRef();
   const closeRef = useRef(onClose);
   closeRef.current = onClose;
@@ -114,7 +114,7 @@ export function Dialog({ title, children, onClose, wide, showTitle }) {
     return () => { node?.removeEventListener('keydown', onKey); prev?.focus?.(); };
   }, []);
   return (
-    <div className="overlay" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+    <div className="overlay" style={top ? { zIndex: 60 } : undefined} onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <div ref={ref} role="dialog" aria-modal="true" aria-label={title} className="dialog rise stack g16" style={wide ? { maxWidth: 780, maxHeight: 'calc(100vh - 32px)', overflow: 'auto' } : { maxHeight: 'calc(100vh - 32px)', overflow: 'auto' }}>
         {showTitle && <div className="row between g8"><strong style={{ fontSize: 18 }}>{title}</strong><button type="button" className="btn btn-icon" aria-label="Close" onClick={onClose}>✕</button></div>}
         {children}

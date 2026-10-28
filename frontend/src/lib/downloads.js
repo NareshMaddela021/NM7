@@ -40,6 +40,20 @@ export const onGate = (f) => { subs.add(f); f(gate); return () => subs.delete(f)
 export const closeGate = () => { gate = null; emit(); };
 function openGate(g) { gate = g; emit(); }
 
+/* ---------- "Check before download": the print preview + checklist (rendered by <PrintCheckHost/>) ---------- */
+let check = null;
+const checkSubs = new Set();
+const emitCheck = () => checkSubs.forEach((f) => f(check));
+export const onCheck = (f) => { checkSubs.add(f); f(check); return () => checkSubs.delete(f); };
+/** Opens the preview for a built PDF; resolves true (download) or false (back to editing). */
+function askCheck(c) {
+  return new Promise((resolve) => {
+    check = { ...c, done: (ok) => { check = null; emitCheck(); resolve(ok); } };
+    emitCheck();
+  });
+}
+export const declined = () => Object.assign(new Error('Back to editing'), { code: 'declined' });
+
 /* ---------- a guest's download, finished after they sign up or sign in ---------- */
 const PENDING = 'nm7-pending-download';
 const PENDING_MAX_AGE = 60 * 60 * 1000;
@@ -97,7 +111,7 @@ async function allowed(format, what, share, resumeId) {
  *     resumeId? (which saved resume; else the active one: a code can unlock one resume) }
  */
 export async function exportFile(opts) {
-  const { data, design, format = 'pdf', cover, photo, photoPng, share, resumeId } = opts;
+  const { data, design, format = 'pdf', cover, photo, photoPng, share, resumeId, check: wantCheck = true } = opts;
   const what = cover ? 'cover' : 'resume';
   try {
     await allowed(format, what, share, resumeId);
@@ -107,7 +121,14 @@ export async function exportFile(opts) {
   }
   // loaded on first use: the PDF / Word makers are large
   const [{ buildResumePdf, savePdf }, { buildDocx }] = await freshImport(() => Promise.all([import('../pages/builder/resumePdf'), import('../pages/builder/resumeDocx')]));
-  const blob = format === 'docx' ? await buildDocx({ data, design, cover, photoPng }) : await buildResumePdf({ data, design, photo, cover });
+  // the print preview + checks first (not for a shared resume or a kiosk/organization copy): the PDF built here is
+  // the one that is saved, so the preview is exactly what prints
+  let pdf = null;
+  if (wantCheck && !share && typeof window !== 'undefined') {
+    pdf = await buildResumePdf({ data, design, photo, cover });
+    if (!(await askCheck({ pdf, data, design, format, cover, photo }))) throw declined();
+  }
+  const blob = format === 'docx' ? await buildDocx({ data, design, cover, photoPng }) : pdf || await buildResumePdf({ data, design, photo, cover });
   const name = resumeFileName(data.personal?.name, { kind: cover ? 'Cover_Letter' : 'Resume', ext: format }); // same rule as organization exports
   await savePdf(blob, name);
   return name;
