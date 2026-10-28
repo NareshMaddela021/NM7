@@ -22,9 +22,10 @@ import Placement from './Placement';
 import Drives from './Drives';
 import Offers from './Offers';
 import Alumni from './Alumni';
+import Reviewers from './Reviewers';
 import { planBanners } from '../../lib/orgBilling';
 
-const ROLE = { owner: 'Owner', coordinator: 'Coordinator', viewer: 'Viewer (view and print)', admin: 'Nm7 admin' };
+const ROLE = { owner: 'Owner', coordinator: 'Coordinator', viewer: 'Viewer (view and print)', reviewer: 'Reviewer', admin: 'Nm7 admin' };
 
 function Frame({ children, wide }) {
   return (<><Header variant="me" /><main id="main" className={`${wide ? 'container-wide' : 'container'} stack g20`} style={{ padding: '24px 16px 72px', maxWidth: wide ? undefined : 720 }}>{children}</main></>);
@@ -37,12 +38,12 @@ export function OrgHome() {
   if (!LIVE) return <Frame><h1 className="display h2">My organization</h1><p className="muted">The organization portal works on the live site only.</p></Frame>;
   return (
     <Frame>
-      <Loading st={st}>{(orgs) => (orgs.length === 1 ? <Navigate to={`/org/${orgs[0].orgId}`} replace /> : (
+      <Loading st={st}>{(orgs) => (orgs.length === 1 ? <Navigate to={orgs[0].role === 'reviewer' ? `/review/${orgs[0].orgId}` : `/org/${orgs[0].orgId}`} replace /> : (
         <>
           <h1 className="display h2">My organization</h1>
           {orgs.length === 0
             ? <div className="card stack g8"><strong>You don’t run an organization on Nm7 yet.</strong><span className="small muted">Start one for free (you become its Owner), or ask your organization’s Owner for an invite — it comes by email with a one-time link.</span><Link to="/for-orgs?start=1#start" className="btn btn-ink" style={{ alignSelf: 'flex-start' }}>Start an organization</Link></div>
-            : orgs.map((o) => <Link key={o.orgId} to={`/org/${o.orgId}`} className="card row between g8" style={{ textDecoration: 'none', color: 'inherit' }}><strong>{o.orgName}</strong><span className="small muted">{ROLE[o.role]}</span></Link>)}
+            : orgs.map((o) => <Link key={o.orgId} to={o.role === 'reviewer' ? `/review/${o.orgId}` : `/org/${o.orgId}`} className="card row between g8" style={{ textDecoration: 'none', color: 'inherit' }}><strong>{o.orgName}</strong><span className="small muted">{ROLE[o.role]}</span></Link>)}
         </>
       ))}</Loading>
     </Frame>
@@ -66,7 +67,7 @@ export function PortalLayout() {
     groupPatchUrl: (g) => `${apiBase(orgId)}/groups/${g.id}`,
   } : null), [st.data, orgId]);
   const owner = !!st.data?.isOwner;
-  const tabs = [['', 'My groups'], ['/dashboard', 'Dashboard'], ['/resumes', 'Shared resumes'], ...(st.data?.features?.kiosk ? [['/kiosks', 'Kiosks']] : []), ...(st.data?.features?.branding ? [['/branding', 'Branding']] : []), ...(st.data?.features?.recruiterLinks ? [['/recruiters', 'Recruiter links']] : []), ...(st.data?.features?.drives ? [['/drives', 'Drives']] : []), ...(st.data?.features?.offers ? [['/offers', 'Offers']] : []), ...(st.data?.features?.alumni ? [['/alumni', 'Alumni']] : []), ...(owner ? [['/team', 'Team'], ['/billing', 'Billing']] : []), ['/activity', 'Activity']];
+  const tabs = [['', 'My groups'], ['/dashboard', 'Dashboard'], ['/resumes', 'Shared resumes'], ...(st.data?.features?.kiosk ? [['/kiosks', 'Kiosks']] : []), ...(st.data?.features?.branding ? [['/branding', 'Branding']] : []), ...(st.data?.features?.recruiterLinks ? [['/recruiters', 'Recruiter links']] : []), ...(st.data?.features?.drives ? [['/drives', 'Drives']] : []), ...(st.data?.features?.offers ? [['/offers', 'Offers']] : []), ...(st.data?.features?.alumni ? [['/alumni', 'Alumni']] : []), ...(st.data?.features?.facultyReview ? [['/reviewers', 'Reviewers']] : []), ...(owner ? [['/team', 'Team'], ['/billing', 'Billing']] : []), ['/activity', 'Activity']];
   return (
     <Frame wide>
       {st.error ? (
@@ -278,4 +279,12 @@ export function PortalAlumni() {
   usePageMeta(portalMeta(`Alumni · ${home.name}`));
   if (!home.features?.alumni) return <Navigate to={`/org/${ctx.orgId}`} replace />;
   return <Alumni orgId={ctx.orgId} canManage={home.canManage} />;
+}
+
+/** /org/:orgId/reviewers — faculty reviewers and their students (Drive and Campus plans) */
+export function PortalReviewers() {
+  const { ctx, home } = useOutletContext();
+  usePageMeta(portalMeta(`Reviewers · ${home.name}`));
+  if (!home.features?.facultyReview) return <Navigate to={`/org/${ctx.orgId}`} replace />;
+  return <Reviewers orgId={ctx.orgId} canManage={home.canManage} />;
 }

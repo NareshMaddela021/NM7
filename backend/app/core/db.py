@@ -91,6 +91,9 @@ ALUMNI_INVITES = "alumni_invites"  # a coordinator's email invites to the alumni
 ALUMNI_REQUESTS = (
     "alumni_requests"  # a student's referral / mentoring request and the replies (only the two of them see it)
 )
+REVIEW_COMMENTS = (
+    "review_comments"  # a faculty reviewer's comments on a student's shared resume (section, line, resolved)
+)
 HEALTH = "resume_health"  # per user (_id = user id): dismissed resume health alerts, when the last alert email went
 COLLECTIONS = (
     USERS,
@@ -150,6 +153,7 @@ COLLECTIONS = (
     ALUMNI,
     ALUMNI_INVITES,
     ALUMNI_REQUESTS,
+    REVIEW_COMMENTS,
 )
 
 DAY = 86_400
@@ -272,6 +276,7 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel("to_user"),
         IndexModel("org_id"),
     ],
+    REVIEW_COMMENTS: [IndexModel([("org_id", ASCENDING), ("membership_id", ASCENDING)]), IndexModel("user_id")],
     REMINDER_BATCHES: [IndexModel([("org_id", ASCENDING), ("created_at", DESCENDING)])],
     OFFERS: [IndexModel([("org_id", ASCENDING), ("membership_id", ASCENDING)]), IndexModel("user_id")],
     CERTIFICATES: [IndexModel([("user_id", ASCENDING), ("created_at", ASCENDING)])],

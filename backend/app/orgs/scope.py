@@ -173,8 +173,8 @@ async def org_scope(db: DB, auth: Annotated[Auth, Depends(get_auth)], org_id: st
     if _is_org_admin(auth):
         return Scope(actor_id=auth.user.id, role="admin", org_id=org_id)
     st = await active_staff(db, auth.user.id, org_id)
-    if not st or org.get("status") == "archived":
-        raise NOT_FOUND
+    if not st or org.get("status") == "archived" or st["role"] == "reviewer":
+        raise NOT_FOUND  # reviewers use /api/review/{org_id} only: their assigned students, nothing else
     return Scope(
         actor_id=auth.user.id, role=st["role"], org_id=org_id, group_ids=st.get("group_ids"), staff_id=st["_id"]
     )

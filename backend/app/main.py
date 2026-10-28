@@ -25,6 +25,7 @@ from app.college import drives as college_drives
 from app.college import eligibility as college_eligibility
 from app.college import offers as college_offers
 from app.college import reminders as college_reminders
+from app.college import reviews as college_reviews
 from app.core import errors
 from app.core.body_limit import BodyLimit
 from app.core.config import get_settings
@@ -190,6 +191,9 @@ def create_app() -> FastAPI:
     app.include_router(college_offers.me)  # /api/me/offers
     app.include_router(college_alumni.me)  # /api/me/alumni (opt in, browse, requests, inbox)
     app.include_router(college_alumni.staff)  # /api/org/{org_id}/alumni (invites, counts)
+    app.include_router(college_reviews.staff)  # /api/org/{org_id}/reviewers (invite, assign)
+    app.include_router(college_reviews.reviewer)  # /api/review/{org_id} (assigned students, comments, status)
+    app.include_router(college_reviews.me)  # /api/me/review-comments
     app.include_router(college_reminders.staff)  # /api/org/{org_id}/wa-reminders (wa.me / sms: links, no gateway)
     app.include_router(courses.me)  # /api/me/courses (free courses for missing skills)
     app.include_router(courses.admin)  # /api/admin/courses

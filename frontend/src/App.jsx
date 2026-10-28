@@ -112,6 +112,8 @@ const PortalTeam = named(portal, 'PortalTeam');
 const PortalDrives = named(portal, 'PortalDrives');
 const PortalOffers = named(portal, 'PortalOffers');
 const PortalAlumni = named(portal, 'PortalAlumni');
+const PortalReviewers = named(portal, 'PortalReviewers');
+const ReviewPage = lazy(() => import('./pages/review/Review'));
 const meAlumni = () => import('./pages/me/MeAlumni');
 const MeAlumni = named(meAlumni, 'default');
 const AlumniJoin = named(meAlumni, 'AlumniJoin');
@@ -428,11 +430,13 @@ export default function App() {
           <Route path="drives" element={<PortalDrives />} />
           <Route path="offers" element={<PortalOffers />} />
           <Route path="alumni" element={<PortalAlumni />} />
+          <Route path="reviewers" element={<PortalReviewers />} />
           <Route path="activity" element={<PortalActivity />} />
         </Route>
         <Route path="/org/:orgId/checkin-screen/:driveId/:slotId" element={C(<CheckinScreen />)} />
         <Route path="/checkin" element={C(<CheckinLink />)} />
         <Route path="/alumni/join/:token" element={C(<AlumniJoin />)} />
+        <Route path="/review/:orgId" element={C(<ReviewPage />)} />
         <Route path="/kiosk/:token" element={<KioskScreen />} />
         <Route path="/continue" element={<ContinueHere />} />
         <Route path="*" element={<NotFound />} />

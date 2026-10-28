@@ -40,6 +40,7 @@ const isSampleDraft = (d) => d.personal?.name === INITIAL.personal.name && d.per
 import LinkedInNudge from './builder/LinkedInNudge';
 import ResumePreview from './builder/ResumePreview';
 import ProjectHelper from './builder/ProjectHelper';
+import ReviewNotes from '../components/ReviewNotes';
 import { FieldGrid, LinkFields, RichArea, SchemaField } from './builder/Fields';
 import DesignPanel from './builder/DesignPanel';
 import Import from './builder/Import';
@@ -720,6 +721,7 @@ export default function Builder({ embedded = null }) {
                 <ul className="stack g4" style={{ margin: 0, paddingLeft: 18 }}>{issues.slice(0, 5).map((x) => <li key={x.msg}><button type="button" className="link-btn" onClick={() => { setTab('content'); go(x.sec); }}>{x.msg}</button></li>)}</ul>
               </div>
             )}
+            {serverCustomer() && <ReviewNotes sec={cur.id} first={idx === 0} />}
             <div className="row between g12" style={{ alignItems: 'flex-end' }}>
               <div className="stack g4"><span className="mono faint">SECTION {idx + 1} OF {SECS.length}</span><h2 style={{ fontSize: 28 }}>{cur.label}</h2></div>
               <div className="row g8">

@@ -227,7 +227,7 @@ export function MeGroups() {
         </section>
       )}
       {staff.data?.map((o) => (
-        <Link key={o.orgId} to={`/org/${o.orgId}`} className="card row between g8" style={{ textDecoration: 'none', color: 'inherit' }}>
+        <Link key={o.orgId} to={o.role === 'reviewer' ? `/review/${o.orgId}` : `/org/${o.orgId}`} className="card row between g8" style={{ textDecoration: 'none', color: 'inherit' }}>
           <span className="stack g4"><strong>You help run {o.orgName}</strong><span className="small muted" data-testid="staff-summary">{staffSummary(o)}</span></span>
           <span className="btn btn-ink">Open organization</span>
         </Link>

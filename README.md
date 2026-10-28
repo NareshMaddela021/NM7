@@ -1158,3 +1158,12 @@ browse them and send a request with a short note (5 a week); the alumnus is emai
 never shows an email address or phone number — an alumnus may write contact details in a reply if they choose.
 Alumni can pause or leave at any time. Org → **Alumni**: invite by email and see counts only, never the messages.
 Alumni profiles and requests are deleted with the account. The demo organization has four made-up alumni.
+
+### Faculty reviewers
+Org → **Reviewers** (`backend/app/college/reviews.py`, `pages/org/Reviewers.jsx`): coordinators invite faculty mentors
+by email (a new staff role, **Reviewer**, not counted against the coordinator limit) and assign students to each. A
+reviewer signs in with their own account and works at **/review/{org}**: only their assigned students, each one's
+shared resume in the college format, comments on a section (optionally quoting a line), and **Needs changes** /
+**Approve** — the same review status coordinators already see (needs changes / ready). Every other organization page
+answers 404 for a reviewer. Students see open comments in the builder above the section they're about and mark them
+resolved. Comments are deleted with the student's account. The demo organization has a reviewer with six students.
