@@ -26,6 +26,7 @@ from app.core.db import DB, close_client, ensure_indexes, get_database
 from app.core.email import log_email_status
 from app.core.observability import RequestContext, init_sentry
 from app.coupons import router as coupons
+from app.courses import router as courses
 from app.downloads.router import router as downloads_router
 from app.experts.router import router as expert_router
 from app.health import service as resume_health
@@ -174,6 +175,8 @@ def create_app() -> FastAPI:
     app.include_router(photos_router)  # /api/me/photo-import
     app.include_router(summary_router)  # /api/me/summary/generate
     app.include_router(projects_router)  # /api/me/projects/strengthen
+    app.include_router(courses.me)  # /api/me/courses (free courses for missing skills)
+    app.include_router(courses.admin)  # /api/admin/courses
     app.include_router(linkedin_router)  # /api/me/linkedin
     app.include_router(linkedin_pack_router)  # /api/me/linkedin/pack
     app.include_router(jobs_router)  # /api/me/jobs (job match, Phases 1-3)
