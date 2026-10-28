@@ -78,6 +78,7 @@ JOB_MATCHES = "job_matches"  # job search: the pasted job post, its reading, the
 FEATURE_GRANTS = "feature_grants"  # job search packs granted by an admin (_id = "<feature>:<user id>")
 COUPONS = "coupons"  # admin-managed codes (_id = the code, upper case, no spaces): type, value, items, limits, dates
 COUPON_USES = "coupon_uses"  # one row per use of a code (_id = "<code>:<user or org>:<n>", n ≤ the per-person limit)
+COURSES = "courses"  # free learning links per skill (Admin → Courses), shown for the skills a job match found missing
 HEALTH = "resume_health"  # per user (_id = user id): dismissed resume health alerts, when the last alert email went
 COLLECTIONS = (
     USERS,
@@ -128,6 +129,7 @@ COLLECTIONS = (
     COUPONS,
     COUPON_USES,
     HEALTH,
+    COURSES,
 )
 
 DAY = 86_400
@@ -240,6 +242,7 @@ INDEXES: dict[str, list[IndexModel]] = {
     ],
     HOME_EVENTS: [IndexModel("day")],
     JOB_MATCHES: [IndexModel([("user_id", ASCENDING), ("created_at", DESCENDING)])],
+    COURSES: [IndexModel("skill")],
     FEATURE_GRANTS: [IndexModel("user_id")],
     PARTNER_PAYOUTS: [IndexModel([("partner_id", ASCENDING), ("created_at", DESCENDING)])],
     INVOICES: [
