@@ -110,6 +110,7 @@ const PortalRecruiters = named(portal, 'PortalRecruiters');
 const PortalBilling = named(portal, 'PortalBilling');
 const PortalTeam = named(portal, 'PortalTeam');
 const PortalDrives = named(portal, 'PortalDrives');
+const PortalOffers = named(portal, 'PortalOffers');
 const drivesPages = () => import('./pages/org/Drives');
 const CheckinScreen = named(drivesPages, 'CheckinScreen');
 const meDrive = () => import('./pages/me/MeDrive');
@@ -420,6 +421,7 @@ export default function App() {
           <Route path="billing" element={<PortalBilling />} />
           <Route path="team" element={<PortalTeam />} />
           <Route path="drives" element={<PortalDrives />} />
+          <Route path="offers" element={<PortalOffers />} />
           <Route path="activity" element={<PortalActivity />} />
         </Route>
         <Route path="/org/:orgId/checkin-screen/:driveId/:slotId" element={C(<CheckinScreen />)} />

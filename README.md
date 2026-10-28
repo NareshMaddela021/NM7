@@ -1130,3 +1130,12 @@ marks for placements** under My groups (self-declared); a coordinator can tick t
 clears the tick. The list is built automatically with the reason a student isn't eligible ("CGPA 6.4 < 7.0");
 coordinators can add an exception with a note. The company's drive slots take students from this list, and **Share**
 makes it what a recruiter invite shows — still only students who allowed recruiter sharing.
+
+### Offer tracking
+Org → **Offers** (`backend/app/college/offers.py`, `pages/org/Offers.jsx`): record each offer — student, company,
+role, CTC (LPA), type (full-time / internship / PPO), date, status (offered / accepted / declined / joined). A student
+a recruiter marked **Selected** on the shortlist board shows up ready to pre-fill. The placement dashboard shows placed
+vs not placed by branch and batch (placed = a full-time or PPO offer that wasn't declined), highest / median / average
+package, offers per company and students with more than one offer, with a CSV and a printable placement report (PDF).
+Packages are visible only to the college's coordinators and Owner; each student sees their own offers (My groups);
+recruiters and other students never see them. Offers are deleted with the student's account.

@@ -82,6 +82,9 @@ COURSES = "courses"  # free learning links per skill (Admin → Courses), shown 
 CERTIFICATES = "certificates"  # certificate wallet: one file per document (PDF/JPG/PNG ≤ 2 MB, ≤ 10 per student)
 DRIVES = "drives"  # drive days: companies, slots (company, round, room, time, students) — per organization
 DRIVE_CHECKINS = "drive_checkins"  # one row per student present in a slot (_id = "<slot id>:<membership id>")
+OFFERS = (
+    "offers"  # offers recorded by a college: student, company, role, CTC, type, status (staff and the student only)
+)
 HEALTH = "resume_health"  # per user (_id = user id): dismissed resume health alerts, when the last alert email went
 COLLECTIONS = (
     USERS,
@@ -136,6 +139,7 @@ COLLECTIONS = (
     CERTIFICATES,
     DRIVES,
     DRIVE_CHECKINS,
+    OFFERS,
 )
 
 DAY = 86_400
@@ -251,6 +255,7 @@ INDEXES: dict[str, list[IndexModel]] = {
     COURSES: [IndexModel("skill")],
     DRIVES: [IndexModel([("org_id", ASCENDING), ("date", DESCENDING)]), IndexModel("slots.members")],
     DRIVE_CHECKINS: [IndexModel("drive_id"), IndexModel("slot_id")],
+    OFFERS: [IndexModel([("org_id", ASCENDING), ("membership_id", ASCENDING)]), IndexModel("user_id")],
     CERTIFICATES: [IndexModel([("user_id", ASCENDING), ("created_at", ASCENDING)])],
     FEATURE_GRANTS: [IndexModel("user_id")],
     PARTNER_PAYOUTS: [IndexModel([("partner_id", ASCENDING), ("created_at", DESCENDING)])],
