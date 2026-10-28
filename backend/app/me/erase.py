@@ -5,7 +5,7 @@ Kept for the records the law or other people need: code uses stay counted but no
 
 from pymongo.asynchronous.database import AsyncDatabase
 
-from app.core.db import CERTIFICATES, HEALTH, OFFERS
+from app.core.db import ALUMNI, ALUMNI_REQUESTS, CERTIFICATES, HEALTH, OFFERS
 
 
 async def erase_user_data(db: AsyncDatabase, user_id: str) -> dict[str, int]:
@@ -14,5 +14,8 @@ async def erase_user_data(db: AsyncDatabase, user_id: str) -> dict[str, int]:
     out = {"resume_health": (await db[HEALTH].delete_many({"_id": user_id})).deleted_count}
     out["certificates"] = (await db[CERTIFICATES].delete_many({"user_id": user_id})).deleted_count
     out["offers"] = (await db[OFFERS].delete_many({"user_id": user_id})).deleted_count
+    out["alumni"] = (await db[ALUMNI].delete_many({"user_id": user_id})).deleted_count
+    q = {"$or": [{"from_user": user_id}, {"to_user": user_id}]}
+    out["alumni_requests"] = (await db[ALUMNI_REQUESTS].delete_many(q)).deleted_count
     out["coupon_uses_anonymised"] = await forget_user(db, user_id)
     return out

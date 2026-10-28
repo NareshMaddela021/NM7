@@ -86,6 +86,11 @@ OFFERS = (
     "offers"  # offers recorded by a college: student, company, role, CTC, type, status (staff and the student only)
 )
 REMINDER_BATCHES = "reminder_batches"  # WhatsApp / SMS reminder batches: per student a link and "sent" (no gateway)
+ALUMNI = "alumni"  # alumni who opted in: company, role, city, open to referrals / mentoring (per college)
+ALUMNI_INVITES = "alumni_invites"  # a coordinator's email invites to the alumni network (token stored as a keyed hash)
+ALUMNI_REQUESTS = (
+    "alumni_requests"  # a student's referral / mentoring request and the replies (only the two of them see it)
+)
 HEALTH = "resume_health"  # per user (_id = user id): dismissed resume health alerts, when the last alert email went
 COLLECTIONS = (
     USERS,
@@ -142,6 +147,9 @@ COLLECTIONS = (
     DRIVE_CHECKINS,
     OFFERS,
     REMINDER_BATCHES,
+    ALUMNI,
+    ALUMNI_INVITES,
+    ALUMNI_REQUESTS,
 )
 
 DAY = 86_400
@@ -257,6 +265,13 @@ INDEXES: dict[str, list[IndexModel]] = {
     COURSES: [IndexModel("skill")],
     DRIVES: [IndexModel([("org_id", ASCENDING), ("date", DESCENDING)]), IndexModel("slots.members")],
     DRIVE_CHECKINS: [IndexModel("drive_id"), IndexModel("slot_id")],
+    ALUMNI: [IndexModel([("org_id", ASCENDING), ("user_id", ASCENDING)])],
+    ALUMNI_INVITES: [IndexModel("token_hash"), IndexModel("org_id")],
+    ALUMNI_REQUESTS: [
+        IndexModel([("from_user", ASCENDING), ("created_at", DESCENDING)]),
+        IndexModel("to_user"),
+        IndexModel("org_id"),
+    ],
     REMINDER_BATCHES: [IndexModel([("org_id", ASCENDING), ("created_at", DESCENDING)])],
     OFFERS: [IndexModel([("org_id", ASCENDING), ("membership_id", ASCENDING)]), IndexModel("user_id")],
     CERTIFICATES: [IndexModel([("user_id", ASCENDING), ("created_at", ASCENDING)])],

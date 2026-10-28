@@ -22,6 +22,8 @@ from app.audit import audit
 from app.auth.models import User
 from app.billing.plans import get_plans, terms_of
 from app.core.db import (
+    ALUMNI,
+    ALUMNI_REQUESTS,
     DRIVE_CHECKINS,
     DRIVES,
     LINKEDIN,
@@ -139,6 +141,8 @@ async def remove_demo(db: AsyncDatabase) -> int:
         (DRIVES, {"org_id": ORG_ID}),
         (DRIVE_CHECKINS, {"org_id": ORG_ID}),
         (OFFERS, {"org_id": ORG_ID}),
+        (ALUMNI, {"org_id": ORG_ID}),
+        (ALUMNI_REQUESTS, {"org_id": ORG_ID}),
         (RECRUITER_LINKS, {"org_id": ORG_ID}),
         (RECRUITER_INVITES, {"org_id": ORG_ID}),
         (ORG_STAFF, {"org_id": ORG_ID}),
@@ -291,6 +295,7 @@ async def create_demo(db: AsyncDatabase, actor_id: str | None = None, seed: int 
     recruiter_path = await _demo_invite(db, rng, actor_id)
     await _demo_drive(db, rng)
     await _demo_offers(db, rng)
+    await _demo_alumni(db, rng)
     if actor_id:
         await audit(db, actor_id, "demo_org_reset", target=ORG_ID, data={"orgs": [ORG_ID], "students": students})
     return {
@@ -414,3 +419,51 @@ async def _demo_offers(db: AsyncDatabase, rng: random.Random) -> None:
                          "created_by": None, "created_at": t, "updated_at": t})  # fmt: skip
     if rows:
         await db[OFFERS].insert_many(rows)
+
+
+ALUMNI_PEOPLE = (
+    ("Ravi Teja", "Infosys", "Senior Systems Engineer", "Pune", 2021, True, True),
+    ("Lakshmi Prasanna", "Zoho", "Member Technical Staff", "Chennai", 2022, True, False),
+    ("Harsha Vardhan", "Bosch", "Embedded Engineer", "Bengaluru", 2020, False, True),
+    ("Sneha Reddy", "TCS", "Data Analyst", "Hyderabad", 2023, True, True),
+)
+
+
+async def _demo_alumni(db: AsyncDatabase, rng: random.Random) -> None:
+    """Four made-up alumni (demo accounts that can't sign in) and two requests from demo students, one replied."""
+    t = now()
+    ids = []
+    pw = await hash_password(new_token())  # nobody knows it: demo alumni can't sign in
+    for i, (name, co, role, city, batch, ref, men) in enumerate(ALUMNI_PEOPLE):
+        uid = f"demo-alum-{i}"
+        user = User(id=uid, email=f"alumni{i}@{EMAIL_DOMAIN}", name=name, role="customer", password_hash=pw,
+                    email_verified_at=t, created_at=t)  # fmt: skip
+        await db[USERS].insert_one({**user.to_mongo(), "demo": True})
+        await db[ALUMNI].insert_one(
+            {
+                "_id": f"demo-alumni-{i}",
+                "org_id": ORG_ID,
+                "user_id": uid,
+                "company": co,
+                "role": role,
+                "city": city,
+                "batch": batch,
+                "referrals": ref,
+                "mentoring": men,
+                "paused": False,
+                "left_at": None,
+                "created_at": t,
+                "updated_at": t,
+            }  # fmt: skip
+        )
+        ids.append((f"demo-alumni-{i}", uid))
+    students = [m["user_id"] async for m in db[MEMBERSHIPS].find({"org_id": ORG_ID}).limit(2)]
+    for j, s in enumerate(students):
+        aid, to = ids[j]
+        r = {"_id": f"demo-alumni-req-{j}", "org_id": ORG_ID, "alumni_id": aid, "from_user": s, "to_user": to,
+             "kind": "referral", "note": "Could you refer me for the graduate role? I have two SQL projects.",
+             "replies": [], "created_at": t - timedelta(days=j + 1)}  # fmt: skip
+        if j == 0:
+            r["replies"] = [{"by": to, "text": "Happy to — apply on the careers page and tell me the job id.", "at": t}]
+            r["replied_at"] = t
+        await db[ALUMNI_REQUESTS].insert_one(r)

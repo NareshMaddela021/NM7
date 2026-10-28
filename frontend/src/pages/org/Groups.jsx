@@ -190,6 +190,7 @@ export function MeGroups() {
   const staff = useServer(LIVE ? '/api/me/orgs' : null);
   const drives = useServer(LIVE ? '/api/me/drives' : null);
   const offers = useServer(LIVE ? '/api/me/offers' : null);
+  const alumni = useServer(LIVE ? '/api/me/alumni' : null);
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
   const act = async (fn, ok) => { setBusy(true); try { await fn(); toast(ok); groups.reload(); } catch (e) { toast(e.message); } finally { setBusy(false); } };
@@ -207,6 +208,12 @@ export function MeGroups() {
       {drives.data?.length > 0 && (
         <Link to="/me/drive" className="card row between g8" style={{ textDecoration: 'none', color: 'inherit', flexWrap: 'wrap' }} data-testid="drive-link">
           <span className="stack g4"><strong>My drive day</strong><span className="small muted">{drives.data[0].name} · {drives.data[0].date} · {drives.data[0].slots.length} slot{drives.data[0].slots.length === 1 ? '' : 's'}</span></span>
+          <span className="btn btn-ink">Open</span>
+        </Link>
+      )}
+      {(alumni.data?.browse?.length > 0 || alumni.data?.canJoin?.length > 0 || alumni.data?.profiles?.length > 0) && (
+        <Link to="/me/alumni" className="card row between g8" style={{ textDecoration: 'none', color: 'inherit', flexWrap: 'wrap' }} data-testid="alumni-link">
+          <span className="stack g4"><strong>Alumni network</strong><span className="small muted">{alumni.data.canJoin.length ? 'Your batch has passed out: join your college’s alumni network.' : 'Ask alumni for a referral or mentoring.'}</span></span>
           <span className="btn btn-ink">Open</span>
         </Link>
       )}
