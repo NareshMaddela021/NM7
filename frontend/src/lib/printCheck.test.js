@@ -45,6 +45,13 @@ describe('print checks', () => {
     expect(cutOff(print)).toEqual([]);
   });
 
+  it('one link reads in the singular', () => {
+    const d = base();
+    d.links = { linkedin: d.links.linkedin };
+    const c = byKey(printChecks({ data: d, design, print: null }));
+    expect(c.links.text).toBe('1 link looks right and is clickable');
+  });
+
   it('flags missing contact details, broken links, long bullets and bare sections', async () => {
     const d = base();
     d.personal.phone = '';

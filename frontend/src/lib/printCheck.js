@@ -131,7 +131,7 @@ export function printChecks({ data, design, print, college = null, photo = null,
   items.push({ key: 'links', ok: !broken.length && !dead.length,
     text: broken.length ? `${broken[0].where} link ${broken[0].problem}${broken.length > 1 ? ` (and ${broken.length - 1} more)` : ''}`
       : dead.length ? `${dead[0].where} link won’t be clickable in the PDF${dead.length > 1 ? ` (and ${dead.length - 1} more)` : ''}`
-        : links.length ? `${links.length} link${links.length > 1 ? 's' : ''} look right and are clickable` : 'No links to check', fix: 'personal' });
+        : links.length ? (links.length === 1 ? '1 link looks right and is clickable' : `${links.length} links look right and are clickable`) : 'No links to check', fix: 'personal' });
   const long = longBullets(d);
   items.push({ key: 'bullets', ok: !long.length, text: long.length ? `${long.length} long bullet${long.length > 1 ? 's' : ''} (over ${LONG_BULLET_WORDS} words), e.g. ${long[0].where}: “${long[0].start}…”. Split into two or cut words.` : 'Bullets are short enough to skim' });
   const shows = !!d.showPhoto;

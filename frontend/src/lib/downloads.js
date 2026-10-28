@@ -112,6 +112,7 @@ async function allowed(format, what, share, resumeId) {
  */
 export async function exportFile(opts) {
   const { data, design, format = 'pdf', cover, photo, photoPng, share, resumeId, check: wantCheck = true } = opts;
+  const opener = typeof document !== 'undefined' ? document.activeElement : null; // focus goes back here after the check
   const what = cover ? 'cover' : 'resume';
   try {
     await allowed(format, what, share, resumeId);
@@ -126,7 +127,7 @@ export async function exportFile(opts) {
   let pdf = null;
   if (wantCheck && !share && typeof window !== 'undefined') {
     pdf = await buildResumePdf({ data, design, photo, cover });
-    if (!(await askCheck({ pdf, data, design, format, cover, photo }))) throw declined();
+    if (!(await askCheck({ pdf, data, design, format, cover, photo, opener }))) throw declined();
   }
   const blob = format === 'docx' ? await buildDocx({ data, design, cover, photoPng }) : pdf || await buildResumePdf({ data, design, photo, cover });
   const name = resumeFileName(data.personal?.name, { kind: cover ? 'Cover_Letter' : 'Resume', ext: format }); // same rule as organization exports

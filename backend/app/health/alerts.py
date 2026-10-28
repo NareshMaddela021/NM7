@@ -102,19 +102,33 @@ async def compute(db: AsyncDatabase, user_id: str, at: datetime | None = None) -
                 {"label": "Add LinkedIn", "path": _builder("personal")},
             )
         )
+    # one alert per job: two saved matches of the same title at the same company are one alert (the newest match)
+    tailored = {
+        (_norm(m.get("title")), _norm(m.get("company")))
+        async for m in db[JOB_MATCHES].find(
+            {"user_id": user_id, "tailored_key": {"$ne": None}}, {"title": 1, "company": 1}
+        )
+    }
+    jobs: dict[tuple[str, str], list[dict[str, Any]]] = {}
     async for m in (
         db[JOB_MATCHES]
         .find({"user_id": user_id, "tailored_key": None}, {"title": 1, "company": 1})
         .sort("created_at", DESCENDING)
-        .limit(3)
+        .limit(50)
     ):
+        key = (_norm(m.get("title")), _norm(m.get("company")))
+        if key not in tailored and (key in jobs or len(jobs) < 3):
+            jobs.setdefault(key, []).append(m)
+    for same in jobs.values():
+        m = same[0]
         name = " at ".join(x for x in (_t(m.get("title")), _t(m.get("company"))) if x) or "a saved job"
+        saved = "You saved this job match" if len(same) == 1 else f"You saved this job {len(same)} times"
         out.append(
             alert(
                 "untailored",
                 m["_id"],
                 f"Tailor your resume for {name}",
-                "You saved this job match but haven’t made a tailored copy yet.",
+                f"{saved} but haven’t made a tailored copy yet.",
                 {"label": "Tailor it", "path": f"/me/ats?match={m['_id']}"},
             )
         )

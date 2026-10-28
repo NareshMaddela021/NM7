@@ -130,3 +130,26 @@ async def test_erased_with_the_account(client, outbox, db):
     assert await db[HEALTH].count_documents({"_id": me["id"]}) == 1
     out = await erase_user_data(db, me["id"])
     assert out["resume_health"] == 1 and await db[HEALTH].count_documents({"_id": me["id"]}) == 0
+
+
+async def test_one_alert_per_job_when_the_same_job_is_saved_twice(client, outbox, db):
+    me = await make(client, db, outbox)
+    uid = me["id"]
+    t = now()
+    rows = [
+        ("j1", "Junior Data Analyst", "Brightpath", None, t - timedelta(days=2)),
+        ("j2", "Junior  data analyst", "BRIGHTPATH", None, t),  # same job, saved again
+        ("j3", "Python Developer", "Acme", None, t - timedelta(days=1)),
+        ("j4", "SQL Analyst", "Zoho", "r2", t),  # tailored already
+        ("j5", "SQL Analyst", "Zoho", None, t - timedelta(days=3)),  # the same job: covered by j4
+    ]
+    await db[JOB_MATCHES].insert_many(
+        [
+            {"_id": i, "user_id": uid, "title": ti, "company": c, "tailored_key": k, "created_at": at}
+            for i, ti, c, k, at in rows
+        ]
+    )
+    got = [a for a in (await client.get("/api/me/health")).json()["alerts"] if a["kind"] == "untailored"]
+    assert [a["fix"]["path"] for a in got] == ["/me/ats?match=j2", "/me/ats?match=j3"]  # newest of the pair
+    assert got[0]["text"] == "You saved this job 2 times but haven’t made a tailored copy yet."
+    assert got[1]["text"] == "You saved this job match but haven’t made a tailored copy yet."

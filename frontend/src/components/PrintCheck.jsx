@@ -67,9 +67,12 @@ function PrintCheck({ c }) {
   const n = problems(items);
   const what = c.format === 'docx' ? 'Word' : 'PDF';
   return (
-    <Dialog title="Check before you download" onClose={() => c.done(false)} wide top>
-      <div className="row between g8" style={{ alignItems: 'baseline', flexWrap: 'wrap' }}>
+    <Dialog title="Check before you download" onClose={() => c.done(false)} wide top returnTo={c.opener}>
+      <div className="row between g8" style={{ alignItems: 'center' }}>
         <strong style={{ fontSize: 20 }}>Check before you download</strong>
+        <button type="button" className="btn btn-icon" aria-label="Close" onClick={() => c.done(false)} data-testid="check-close">✕</button>
+      </div>
+      <div style={{ marginTop: -8 }}>
         <span className="small muted">{print ? `${print.count} page${print.count > 1 ? 's' : ''} · exactly as it prints` : 'Preparing the preview…'}</span>
       </div>
       <div className="print-check" data-testid="print-check" style={{ display: 'grid', gap: 16, gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', alignItems: 'start' }}>
