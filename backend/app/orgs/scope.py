@@ -77,6 +77,13 @@ FEATURES = (
     "placement_insights",
     "template_rules",
     "recruiter_job_match",
+    "drives",
+    "eligibility",
+    "offers",
+    "wa_reminders",
+    "alumni",
+    "faculty_review",
+    "multi_campus",
 )
 
 

@@ -187,6 +187,7 @@ export function MeGroups() {
   const groups = useServer(LIVE ? '/api/me/groups' : null);
   const resumes = useServer(LIVE ? '/api/me/resumes' : null);
   const staff = useServer(LIVE ? '/api/me/orgs' : null);
+  const drives = useServer(LIVE ? '/api/me/drives' : null);
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
   const act = async (fn, ok) => { setBusy(true); try { await fn(); toast(ok); groups.reload(); } catch (e) { toast(e.message); } finally { setBusy(false); } };
@@ -201,6 +202,12 @@ export function MeGroups() {
         </div>
         <button type="submit" className="btn btn-ink" disabled={!cleanCode(code)}>Continue</button>
       </form>
+      {drives.data?.length > 0 && (
+        <Link to="/me/drive" className="card row between g8" style={{ textDecoration: 'none', color: 'inherit', flexWrap: 'wrap' }} data-testid="drive-link">
+          <span className="stack g4"><strong>My drive day</strong><span className="small muted">{drives.data[0].name} · {drives.data[0].date} · {drives.data[0].slots.length} slot{drives.data[0].slots.length === 1 ? '' : 's'}</span></span>
+          <span className="btn btn-ink">Open</span>
+        </Link>
+      )}
       {staff.data?.map((o) => (
         <Link key={o.orgId} to={`/org/${o.orgId}`} className="card row between g8" style={{ textDecoration: 'none', color: 'inherit' }}>
           <span className="stack g4"><strong>You help run {o.orgName}</strong><span className="small muted" data-testid="staff-summary">{staffSummary(o)}</span></span>

@@ -109,6 +109,12 @@ const PortalBranding = named(portal, 'PortalBranding');
 const PortalRecruiters = named(portal, 'PortalRecruiters');
 const PortalBilling = named(portal, 'PortalBilling');
 const PortalTeam = named(portal, 'PortalTeam');
+const PortalDrives = named(portal, 'PortalDrives');
+const drivesPages = () => import('./pages/org/Drives');
+const CheckinScreen = named(drivesPages, 'CheckinScreen');
+const meDrive = () => import('./pages/me/MeDrive');
+const MeDrive = named(meDrive, 'default');
+const CheckinLink = named(meDrive, 'CheckinLink');
 const ForOrgs = lazy(() => import('./pages/org/ForOrgs'));
 const Templates = lazy(() => import('./pages/Templates'));
 const LinkedInPage = lazy(() => import('./pages/linkedin/LinkedIn'));
@@ -380,6 +386,7 @@ export default function App() {
           <Route path="messages" element={<MeMessages />} />
           <Route path="profile" element={<MeProfile />} />
           <Route path="certificates" element={<MeCertificates />} />
+          <Route path="drive" element={<MeDrive />} />
           <Route path="resumes" element={<MeResumes />} />
           <Route path="ats" element={<MeAts />} />
           <Route path="interview/:id" element={<MeInterview />} />
@@ -412,8 +419,11 @@ export default function App() {
           <Route path="recruiters" element={<PortalRecruiters />} />
           <Route path="billing" element={<PortalBilling />} />
           <Route path="team" element={<PortalTeam />} />
+          <Route path="drives" element={<PortalDrives />} />
           <Route path="activity" element={<PortalActivity />} />
         </Route>
+        <Route path="/org/:orgId/checkin-screen/:driveId/:slotId" element={C(<CheckinScreen />)} />
+        <Route path="/checkin" element={C(<CheckinLink />)} />
         <Route path="/kiosk/:token" element={<KioskScreen />} />
         <Route path="/continue" element={<ContinueHere />} />
         <Route path="*" element={<NotFound />} />

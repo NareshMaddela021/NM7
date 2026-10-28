@@ -1093,3 +1093,31 @@ text stays on screen with a note), and the student answers with **Speak** in the
 spoken answers), filler words, structure and a clear result. The better version uses only facts from the
 student's own answer and resume. Nothing about emotions or confidence is read from the voice, and the screen says so.
 Progress is saved per question. If the microphone is blocked, the page says how to allow it and typing still works.
+
+## College features
+
+Seven switches in **Admin → Plans** (and per organization in Admin → Organizations → Features), on by default as
+below. A switched-off feature doesn't exist for that organization (404). Every staff action is in the organization's
+**Activity** log; coordinators see only their own organization (and groups); students appear only after joining
+with consent.
+
+| Feature | Free | Drive | Campus |
+|---|---|---|---|
+| Drive days + QR check-in | – | ✓ | ✓ |
+| Eligibility filters | – | ✓ | ✓ |
+| Offer tracking + placement report | – | ✓ | ✓ |
+| WhatsApp / SMS reminder links | – | ✓ | ✓ |
+| Alumni network | – | – | ✓ |
+| Faculty reviewers | – | ✓ | ✓ |
+| Multiple campuses | – | – | ✓ |
+
+### Drive days and QR check-in
+Org → **Drives** (`backend/app/college/drives.py`, `pages/org/Drives.jsx`): a drive day has companies, time slots,
+rooms and rounds (test / group discussion / interview) for chosen groups. **Auto-assign** spreads each company-and-
+round's students over its rooms in roll-number order (or pick students per slot). Each slot's **Check-in QR** opens a
+full-screen room screen (a laptop, projector or kiosk tablet) with a QR and a 6-digit code that change every minute.
+Students see **My drive day** (`/me/drive`, also linked from My groups) and check in from their own account by
+scanning (phone camera, or the in-page camera where the browser reads QR codes) or typing the code — only for a slot
+they are in, on the day, from an hour before it starts until it ends. No location tracking. Coordinators see live
+attendance (present, late after 10 minutes, absent after the slot, not yet), can mark present by hand, and download
+a CSV. The demo organization has a drive day for today.

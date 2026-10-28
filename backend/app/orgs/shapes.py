@@ -197,6 +197,13 @@ class FeaturesIn(CamelModel):
     placement_insights: bool | None = None
     template_rules: bool | None = None
     recruiter_job_match: bool | None = None
+    drives: bool | None = None
+    eligibility: bool | None = None
+    offers: bool | None = None
+    wa_reminders: bool | None = None
+    alumni: bool | None = None
+    faculty_review: bool | None = None
+    multi_campus: bool | None = None
 
 
 # ---------- helpers ----------
@@ -229,6 +236,13 @@ def _features_out(o: dict[str, Any]) -> dict[str, bool]:
         "placementInsights": f["placement_insights"],
         "templateRules": f["template_rules"],
         "recruiterJobMatch": f["recruiter_job_match"],
+        "drives": f["drives"],
+        "eligibility": f["eligibility"],
+        "offers": f["offers"],
+        "waReminders": f["wa_reminders"],
+        "alumni": f["alumni"],
+        "facultyReview": f["faculty_review"],
+        "multiCampus": f["multi_campus"],
     }
 
 
@@ -255,6 +269,13 @@ def overrides_out(o: dict[str, Any]) -> dict[str, bool | None]:
         "placementInsights": f.get("placement_insights"),
         "templateRules": f.get("template_rules"),
         "recruiterJobMatch": f.get("recruiter_job_match"),
+        "drives": f.get("drives"),
+        "eligibility": f.get("eligibility"),
+        "offers": f.get("offers"),
+        "waReminders": f.get("wa_reminders"),
+        "alumni": f.get("alumni"),
+        "facultyReview": f.get("faculty_review"),
+        "multiCampus": f.get("multi_campus"),
     }
 
 
