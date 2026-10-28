@@ -233,7 +233,8 @@ async def test_referral_signup(client, outbox, make_client):
     friend = make_client()
     await signup(friend, outbox, "f@example.com", name="Kiran Kumar", ref=code.lower())
     refs = (await client.get("/api/me/referral")).json()["referrals"]
-    assert refs == [{"name": "Kiran", "at": refs[0]["at"], "status": "joined"}]
+    # both test browsers share one network address, so this friend wouldn't count towards a referral reward
+    assert refs == [{"name": "Kiran", "at": refs[0]["at"], "status": "joined", "counts": False, "why": "not_eligible"}]
 
 
 async def test_ats_checks_are_kept(client, outbox):
