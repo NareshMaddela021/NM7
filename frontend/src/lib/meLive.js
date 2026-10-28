@@ -7,13 +7,17 @@ const ts = (v) => (v ? Date.parse(v) : null);
 const NOTIFY = { whatsapp: { order: true, draft: true, jobs: true, tips: false }, email: { order: true, draft: true, jobs: true, tips: false }, sms: { order: true, draft: false, jobs: false, tips: false } };
 const withDefaults = (n = {}) => Object.fromEntries(Object.entries(NOTIFY).map(([ch, v]) => [ch, { ...v, ...(n[ch] || {}) }]));
 
+/** The share link as the dashboard keeps it, and what PUT /api/me/share takes. */
+export const shareFromApi = (r) => ({ on: r.on, slug: r.slug, short: r.short || null, resumeId: r.resumeId, views: r.views, viewCount: r.viewCount, hidePhone: r.hidePhone, hideEmail: !!r.hideEmail });
+export const shareBody = (s) => ({ on: !!s.on, slug: s.slug, resumeId: s.resumeId || null, hidePhone: !!s.hidePhone, hideEmail: !!s.hideEmail });
+
 /** What the dashboard shows before the server answers. */
 export function emptyState(u) {
   return {
     loading: true, error: null,
     account: { name: u?.name || '', email: u?.email || '', phone: u?.phone || '', targetRole: '', cities: '', level: '', notify: withDefaults(), joined: u?.createdAt || Date.now(), referralCode: '' },
     orders: [], resumes: [], checks: [], covers: [], apps: [],
-    share: { on: false, slug: '', resumeId: null, views: [], viewCount: 0, hidePhone: false },
+    share: { on: false, slug: '', short: null, resumeId: null, views: [], viewCount: 0, hidePhone: false, hideEmail: false },
     issues: [], referrals: [], calls: { picked: null, notes: '' }, seen: {},
   };
 }
@@ -56,7 +60,7 @@ export async function fetchState() {
     checks: s.checks,
     covers: s.covers,
     apps: s.apps,
-    share: { on: s.share.on, slug: s.share.slug, resumeId: s.share.resumeId, views: s.share.views, viewCount: s.share.viewCount, hidePhone: s.share.hidePhone },
+    share: shareFromApi(s.share),
     issues: s.tickets.map(ticketFromApi),
     referrals: s.referral.referrals,
     calls: p.ui?.calls || { picked: null, notes: '' },
@@ -206,7 +210,7 @@ export function persist(prev, next) {
 
   if (!same(prev.share, next.share) && next.share?.slug && !same({ ...prev.share, views: 0, viewCount: 0 }, { ...next.share, views: 0, viewCount: 0 })) {
     const s = next.share;
-    send(http('/api/me/share', { method: 'PUT', body: { on: !!s.on, slug: s.slug, resumeId: s.resumeId || null, hidePhone: !!s.hidePhone } }));
+    send(http('/api/me/share', { method: 'PUT', body: shareBody(s) }));
   }
 }
 

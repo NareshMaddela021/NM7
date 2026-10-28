@@ -201,9 +201,11 @@ class ShareIn(CamelModel):
     slug: str = Field(pattern=SLUG)
     resume_id: str | None = Field(None, max_length=40)
     hide_phone: bool = False
+    hide_email: bool = False
 
 
 class ShareOut(ShareIn):
+    short: str | None = None  # the short link nm7.si/r/<short>, made when the link is first turned on
     views: list[Ms]  # when the link was opened (latest 500)
     view_count: int
 

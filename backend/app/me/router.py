@@ -60,7 +60,7 @@ from app.me.schemas import (
     TicketIn,
     TicketOut,
 )
-from app.me.service import add_check, ms, referral_code, referrals, share_of, visible_resume
+from app.me.service import add_check, find_share, ms, new_short, referral_code, referrals, share_of, visible_resume
 from app.site import get_site
 
 router = APIRouter(prefix="/api/me", tags=["me"])
@@ -379,17 +379,23 @@ async def put_share(body: ShareIn, auth: CustomerAuth, db: DB) -> ShareOut:
     uid = auth.user.id
     if body.resume_id:
         await _resume(db, uid, body.resume_id)
+    taken = ApiError(409, "slug_taken", "That link name is taken. Try another.")
+    if await db[SHARES].find_one({"short": body.slug, "_id": {"$ne": uid}}, {"_id": 1}):
+        raise taken  # someone's short link
+    fields: dict[str, Any] = {**body.model_dump(), "updated_at": now()}
+    if body.on and not (await db[SHARES].find_one({"_id": uid}, {"short": 1}) or {}).get("short"):
+        fields["short"] = await new_short(db)
     try:
         await db[SHARES].update_one(
             {"_id": uid},
             {
-                "$set": {**body.model_dump(), "updated_at": now()},
+                "$set": fields,
                 "$setOnInsert": {"views": [], "view_count": 0, "created_at": now()},
             },
             upsert=True,
         )
     except DuplicateKeyError:
-        raise ApiError(409, "slug_taken", "That link name is taken. Try another.") from None
+        raise taken from None
     return await share_of(db, auth.user)
 
 
@@ -398,9 +404,10 @@ VIEW_RULE = [(1, timedelta(hours=1))]  # one counted view per visitor per hour
 
 @public.get("/resumes/{slug}")
 async def public_resume(slug: str, request: Request, auth: MaybeAuth, db: DB) -> PublicResumeOut:
-    """A published resume, for anyone with the link. The phone number is removed if the owner chose that."""
+    """A published resume, for anyone with the link (its name or its short code). The phone number and email are
+    removed if the owner chose that; ID numbers never go out."""
     off = ApiError(404, "not_found", "This resume link is turned off or doesn’t exist.")
-    s = await db[SHARES].find_one({"slug": slug.lower(), "on": True})
+    s = await find_share(db, slug)
     if not s:
         raise off
     q: dict[str, Any] = {"user_id": s["_id"]}
@@ -413,8 +420,10 @@ async def public_resume(slug: str, request: Request, auth: MaybeAuth, db: DB) ->
         data["personal"] = {**(data.get("personal") or {}), "phone": ""}
         if isinstance(data.get("pinfo"), dict):
             data["pinfo"] = {**data["pinfo"], "address": ""}
+    if s.get("hide_email"):
+        data["personal"] = {**(data.get("personal") or {}), "email": ""}
     is_owner = auth is not None and auth.user.id == s["_id"]
-    key = f"view:{slug}:{client_ip(request) or '-'}"
+    key = f"view:{s['_id']}:{client_ip(request) or '-'}"
     if not is_owner and not await rate_limit.count(db, key, VIEW_RULE[0][1]):
         await rate_limit.record(db, key)
         await db[SHARES].update_one(
@@ -428,7 +437,7 @@ async def public_resume(slug: str, request: Request, auth: MaybeAuth, db: DB) ->
 @public.post("/resumes/{slug}/export")
 async def public_resume_export(slug: str, db: DB) -> dict[str, bool]:
     """Run before a shared resume's PDF is made: allowed when its owner may download (see app/downloads)."""
-    s = await db[SHARES].find_one({"slug": slug.lower(), "on": True})
+    s = await find_share(db, slug)
     if not s:
         raise ApiError(404, "not_found", "This resume link is turned off or doesn’t exist.")
     if not (await account_entitlement(db, s["_id"]))[0]:

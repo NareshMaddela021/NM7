@@ -67,11 +67,30 @@ async def share_of(db: AsyncDatabase, user: User) -> ShareOut:
     return ShareOut(
         on=s["on"],
         slug=s["slug"],
+        short=s.get("short"),
         resume_id=s.get("resume_id"),
         hide_phone=s.get("hide_phone", False),
+        hide_email=s.get("hide_email", False),
         views=[ms(v) for v in s.get("views", [])],
         view_count=s.get("view_count", 0),
     )
+
+
+SHORT_ABC = "23456789abcdefghjkmnpqrstuvwxyz"  # no 0/o, 1/l/i: easy to read out or type from a printout
+
+
+async def new_short(db: AsyncDatabase) -> str:
+    """A 6-character code for the short resume link, unused as a short code or a link name."""
+    while True:
+        code = "".join(secrets.choice(SHORT_ABC) for _ in range(6))
+        if not await db[SHARES].find_one({"$or": [{"short": code}, {"slug": code}]}, {"_id": 1}):
+            return code
+
+
+async def find_share(db: AsyncDatabase, key: str) -> dict[str, Any] | None:
+    """A turned-on share by its link name or its short code (link names win; they can't take a used short code)."""
+    key = key.lower()
+    return await db[SHARES].find_one({"slug": key, "on": True}) or await db[SHARES].find_one({"short": key, "on": True})
 
 
 async def add_check(db: AsyncDatabase, user_id: str, fields: dict[str, Any]) -> dict[str, Any]:
