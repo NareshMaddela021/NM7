@@ -37,6 +37,7 @@ class PracticeIn(CamelModel):
     qid: str = Field(..., max_length=8)
     answer: str = Field(..., min_length=1, max_length=4000)
     use_ai: bool = True
+    spoken_seconds: float | None = Field(None, ge=0, le=1800)  # a voice answer: how long they spoke (pace)
 
 
 def _note(note: str) -> str:
@@ -123,7 +124,7 @@ async def practice(match_id: str, body: PracticeIn, auth: CustomerAuth, db: DB) 
     resume = await _resume(db, uid, pack.get("resume_key") or d.get("resume_key"))
     data = resume.get("data") or {}
     p = Parsed(**(d.get("parsed") or {}))
-    fb = interview.feedback(q, body.answer, data)
+    fb = interview.feedback(q, body.answer, data, body.spoken_seconds)
     note = ""
     if body.use_ai:
         ai, note = await _ai_read(db, auth, lambda stats: interview.call_feedback(q, body.answer, data, stats))

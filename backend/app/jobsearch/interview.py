@@ -424,11 +424,33 @@ def _fillers(text: str) -> dict[str, int]:
     return out
 
 
-def feedback(q: dict[str, Any], answer: str, data: dict[str, Any]) -> dict[str, Any]:
-    """Rules feedback on one practice answer."""
+PACE_SLOW, PACE_FAST = 100, 165  # words a minute: an easy pace for an interviewer to follow
+
+
+def pace_of(words: int, spoken_seconds: float | None) -> dict[str, Any] | None:
+    """Speaking pace from the time the person actually spoke (voice answers only): words a minute and a tip. This is
+    about clarity only; nothing about emotions or confidence is read from the voice."""
+    if not spoken_seconds or spoken_seconds < 3 or words < 5:
+        return None
+    wpm = round(words / (spoken_seconds / 60))
+    if wpm < PACE_SLOW:
+        text = f"{wpm} words a minute: a little slow. Speak a bit faster, but keep pausing between points."
+    elif wpm > PACE_FAST:
+        text = f"{wpm} words a minute: a little fast. Slow down and pause after each point."
+    else:
+        text = f"{wpm} words a minute: a clear, easy pace."
+    return {"wpm": wpm, "text": text}
+
+
+def feedback(
+    q: dict[str, Any], answer: str, data: dict[str, Any], spoken_seconds: float | None = None
+) -> dict[str, Any]:
+    """Rules feedback on one practice answer ("clarity" feedback: length, pace, filler words, structure, result).
+    `spoken_seconds`: how long they spoke (a voice answer) — gives the real pace and length in seconds."""
     text = " ".join(answer.split())
     n = len(text.split())
-    secs = round(n / WPM * 60)
+    pace = pace_of(n, spoken_seconds)
+    secs = round(spoken_seconds) if pace else round(n / WPM * 60)
     star = q.get("group") == "hr"
     intro_q = q.get("id") == "q1"
     lo, hi = (110, 180) if intro_q else (60, 200) if star else (40, 160)
@@ -473,8 +495,12 @@ def feedback(q: dict[str, Any], answer: str, data: dict[str, Any]) -> dict[str, 
     better = re.sub(r",\s*,", ",", better)
     if better and better[0].islower():
         better = better[0].upper() + better[1:]
+    from_resume = (q.get("star") or {}).get("result", "")
     if star and parts and not parts["result"]:
-        better += f" {RESULT_GAP[0].upper()}{RESULT_GAP[1:]}" if not better else f" {RESULT_GAP}"
+        if from_resume and not from_resume.startswith("["):  # their own result, from the resume
+            better += f" {from_resume}"
+        else:
+            better += f" {RESULT_GAP[0].upper()}{RESULT_GAP[1:]}" if not better else f" {RESULT_GAP}"
     elif not star and not has_number:
         better += " [Add what came out of it.]"
     return {
@@ -487,6 +513,8 @@ def feedback(q: dict[str, Any], answer: str, data: dict[str, Any]) -> dict[str, 
         "fillers": fill,
         "filler": filler,
         "better": better.strip(),
+        "pace": pace,
+        "kind": "clarity",
         "source": "rules",
     }
 

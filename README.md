@@ -1085,3 +1085,11 @@ PDFs); a site-wide cap (300 MB) pauses uploads before the database plan fills up
 unless they switch on **Share certificates** (off by default) and tick certificates: then the college staff who see
 their shared resume and the recruiters invited to see it (recruiter portal and recruiter links) can open just those.
 Files are sent with `nosniff`, a sandboxing CSP and `no-store`. Deleted with the account (`backend/app/me/erase.py`).
+### Mock interview by voice (Interview pack; the first 3 questions stay free)
+Interview prep → **Practise** (`pages/me/MeInterview.jsx`): **Read aloud** speaks the question with the browser's own
+voice (`lib/readAloud.js`; English (India) by default, Telugu or Hindi when the device has that voice, otherwise the
+text stays on screen with a note), and the student answers with **Speak** in their chosen language or by typing.
+**Clarity feedback** (`backend/app/jobsearch/interview.py`) covers length, speaking pace in words a minute (only for
+spoken answers), filler words, structure and a clear result. The better version uses only facts from the
+student's own answer and resume. Nothing about emotions or confidence is read from the voice, and the screen says so.
+Progress is saved per question. If the microphone is blocked, the page says how to allow it and typing still works.
