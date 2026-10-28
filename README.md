@@ -1178,3 +1178,33 @@ placement-template rules) to every campus, and share a drive day's schedule or a
 (each campus gets its own copy; the recruiter gets its own emailed link). Campus coordinators still see only their own
 campus. Only campuses with the `multiCampus` switch (Campus plan) count. The demo organization is in a demo college
 group — add your own email as its owner to see the roll-up.
+
+## Growth: sharing, referral rewards, placement report, ownership transfer
+
+**Share on WhatsApp and the short link.** My resumes, the builder's Done step, Share link and job match have a
+"Share on WhatsApp" button: a wa.me link with a short message and the resume link, nothing else (no phone, email or
+other details). The public resume link stays opt-in: when it is off, the button explains it and turns it on (hide
+phone and hide email are ticked by default). Turning the link on makes a 6-character short link `nm7.si/r/<code>` (no
+0/o or 1/l/i), which opens the same resume as the named link; Share link has a QR PNG of the short link. Public
+links never show ID numbers, are `noindex`, count views for the owner only, and stop when turned off. A link name
+can't take someone's short code.
+
+**Referral rewards.** Help & referral shows the invite link and "2 of 3". A friend counts once they sign up with the
+link, confirm their email and build a resume with their name. Friends signing up from the inviter's own browser or
+network, or with throwaway email addresses, don't count (worked out at sign-up; no address is stored). When enough
+friends count, the inviter's downloads unlock free: the same account-wide unlock as paying for the resume plan, with
+no order or invoice. One reward per account. Admin → Settings: on/off and the number (default 3), the rewards given,
+and Revoke (the downloads lock again; the reward isn't given again).
+
+**Placement report PDF** (Drive and Campus). Org → Drives: "Placement report for the year" (academic year June–May)
+and "Drive report (PDF)" on each drive day. Numbers only, by branch and by company: joined, ready, shortlisted,
+selected, offers, placed, attendance for a drive, and packages when offer tracking is on. The college's logo, colour
+and header line and the date are on top. It says it helps with NAAC / NIRF and management reports and is not an
+official NAAC or NIRF format. No student names or contact details.
+
+**Transfer ownership.** Org → Team → Transfer ownership (the Owner) or Admin → Organizations → the organization →
+Transfer ownership (Nm7's admin, on the Owner's request). Send to a coordinator or any email address and choose
+whether the old Owner stays as a coordinator or leaves. The new owner gets a 6-digit code by email and enters it at
+`/org/transfer`, signed in with that address (48 hours, 5 tries; only a hash is stored). My organizations shows a
+waiting transfer. Billing belongs to the organization, so the plan, invoices and payment reminders follow the Owner.
+Start, cancel and done are in the Activity log.
