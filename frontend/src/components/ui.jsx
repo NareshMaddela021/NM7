@@ -92,16 +92,27 @@ export const useToast = () => useContext(ToastCtx);
 
 /* ---------- Dialog ---------- */
 const FOCUSABLE = 'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])';
-export function Dialog({ title, children, onClose, wide, showTitle, top }) {
+const openDialogs = []; // the open dialogs, newest last: Escape closes only the top one
+
+/** A modal. Escape (wherever focus is) and the ✕ close it; focus goes back to the element that opened it
+ * (`returnTo`, else whatever had focus when it opened). */
+export function Dialog({ title, children, onClose, wide, showTitle, top, returnTo }) {
   const ref = useRef();
   const closeRef = useRef(onClose);
   closeRef.current = onClose;
   useEffect(() => {
-    const prev = document.activeElement;
+    const prev = returnTo || document.activeElement;
     const node = ref.current;
+    const me = {};
+    openDialogs.push(me);
     node?.querySelector('button, input, [href]')?.focus();
+    const onEsc = (e) => {
+      if (e.key !== 'Escape' || openDialogs[openDialogs.length - 1] !== me || e.defaultPrevented) return;
+      e.preventDefault();
+      closeRef.current();
+    };
+    document.addEventListener('keydown', onEsc);
     const onKey = (e) => {
-      if (e.key === 'Escape') { closeRef.current(); return; }
       if (e.key !== 'Tab' || !node) return;
       // keep Tab inside the dialog (a modal must not let focus wander to the page behind it)
       const items = [...node.querySelectorAll(FOCUSABLE)].filter((el) => !el.disabled && el.getAttribute('aria-hidden') !== 'true' && el.offsetParent !== null);
@@ -111,8 +122,16 @@ export function Dialog({ title, children, onClose, wide, showTitle, top }) {
       else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
     };
     node?.addEventListener('keydown', onKey);
-    return () => { node?.removeEventListener('keydown', onKey); prev?.focus?.(); };
-  }, []);
+    return () => {
+      node?.removeEventListener('keydown', onKey);
+      document.removeEventListener('keydown', onEsc);
+      openDialogs.splice(openDialogs.indexOf(me), 1);
+      if (prev && prev !== document.body) {
+        prev.focus?.();
+        if (document.activeElement !== prev) setTimeout(() => prev.isConnected && prev.focus?.(), 0); // was busy (disabled)
+      }
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <div className="overlay" style={top ? { zIndex: 60 } : undefined} onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <div ref={ref} role="dialog" aria-modal="true" aria-label={title} className="dialog rise stack g16" style={wide ? { maxWidth: 780, maxHeight: 'calc(100vh - 32px)', overflow: 'auto' } : { maxHeight: 'calc(100vh - 32px)', overflow: 'auto' }}>
