@@ -1149,3 +1149,12 @@ WhatsApp, or on phones an **SMS** link (`sms:`). Tick each sent: "18 of 40 sent"
 WhatsApp Business broadcast list. Only students who gave a mobile number and didn't switch reminders off are
 included. `Gateway` / `DisabledGateway` is the (disabled) interface a paid provider can be plugged into later. Email
 reminders work as before.
+
+### Alumni network (Campus)
+Students of a past batch (their group has ended, or their passing year is past) — or anyone a coordinator invited by
+email — opt in at **Alumni network** (`/me/alumni`, linked from My groups; `backend/app/college/alumni.py`) with
+company, role, city, batch and whether they're open to referrals / mentoring. Current students of the same college
+browse them and send a request with a short note (5 a week); the alumnus is emailed and replies inside Nm7. Nm7
+never shows an email address or phone number — an alumnus may write contact details in a reply if they choose.
+Alumni can pause or leave at any time. Org → **Alumni**: invite by email and see counts only, never the messages.
+Alumni profiles and requests are deleted with the account. The demo organization has four made-up alumni.

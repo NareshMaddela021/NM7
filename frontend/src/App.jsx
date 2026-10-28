@@ -111,6 +111,10 @@ const PortalBilling = named(portal, 'PortalBilling');
 const PortalTeam = named(portal, 'PortalTeam');
 const PortalDrives = named(portal, 'PortalDrives');
 const PortalOffers = named(portal, 'PortalOffers');
+const PortalAlumni = named(portal, 'PortalAlumni');
+const meAlumni = () => import('./pages/me/MeAlumni');
+const MeAlumni = named(meAlumni, 'default');
+const AlumniJoin = named(meAlumni, 'AlumniJoin');
 const drivesPages = () => import('./pages/org/Drives');
 const CheckinScreen = named(drivesPages, 'CheckinScreen');
 const meDrive = () => import('./pages/me/MeDrive');
@@ -388,6 +392,7 @@ export default function App() {
           <Route path="profile" element={<MeProfile />} />
           <Route path="certificates" element={<MeCertificates />} />
           <Route path="drive" element={<MeDrive />} />
+          <Route path="alumni" element={<MeAlumni />} />
           <Route path="resumes" element={<MeResumes />} />
           <Route path="ats" element={<MeAts />} />
           <Route path="interview/:id" element={<MeInterview />} />
@@ -422,10 +427,12 @@ export default function App() {
           <Route path="team" element={<PortalTeam />} />
           <Route path="drives" element={<PortalDrives />} />
           <Route path="offers" element={<PortalOffers />} />
+          <Route path="alumni" element={<PortalAlumni />} />
           <Route path="activity" element={<PortalActivity />} />
         </Route>
         <Route path="/org/:orgId/checkin-screen/:driveId/:slotId" element={C(<CheckinScreen />)} />
         <Route path="/checkin" element={C(<CheckinLink />)} />
+        <Route path="/alumni/join/:token" element={C(<AlumniJoin />)} />
         <Route path="/kiosk/:token" element={<KioskScreen />} />
         <Route path="/continue" element={<ContinueHere />} />
         <Route path="*" element={<NotFound />} />
