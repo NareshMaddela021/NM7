@@ -152,6 +152,7 @@ async def create_demo(db: AsyncDatabase, actor_id: str | None = None, seed: int 
     """Creates (or resets) the demo organization. Same data every time (fixed random seed)."""
     await remove_demo(db)
     rng = random.Random(seed)
+    marks = random.Random(seed + 1)  # its own sequence, so adding marks doesn't change the names and data above
     t = now()
     today = t.astimezone(IST).date()
     plans = await get_plans(db)
@@ -266,12 +267,12 @@ async def create_demo(db: AsyncDatabase, actor_id: str | None = None, seed: int 
                     "reminders_opt_out": False,
                     "last_reminded_at": None,
                     "academic": {
-                        "cgpa": round(rng.uniform(5.6, 9.6), 2),
-                        "backlogs": rng.choices([0, 0, 0, 0, 1, 2])[0],
+                        "cgpa": round(marks.uniform(5.6, 9.6), 2),
+                        "backlogs": marks.choices([0, 0, 0, 0, 1, 2])[0],
                         "year": 2026,
-                        "tenth": round(rng.uniform(62, 97), 1),
-                        "twelfth": round(rng.uniform(58, 96), 1),
-                        "verified_at": t - timedelta(days=3) if rng.random() < 0.5 else None,
+                        "tenth": round(marks.uniform(62, 97), 1),
+                        "twelfth": round(marks.uniform(58, 96), 1),
+                        "verified_at": t - timedelta(days=3) if marks.random() < 0.5 else None,
                         "verified_by": None,
                     },
                 }  # fmt: skip
