@@ -1067,6 +1067,13 @@ lock) emails verified users at most once every 14 days, skips bounced addresses,
 emails** link (`/stop-alerts`, signed token, no login). Profile → Settings has the same switch. Alert data is deleted
 with the account (`backend/app/me/erase.py`).
 
+### Skill gap courses (free)
+After a job match, the result shows **"N of M must-have skills missing"** with up to 3 free learning links per
+missing skill (`pages/me/SkillGap.jsx`, `GET /api/me/courses`). The list lives in **Admin → Courses** (Owner;
+`backend/app/courses/`), first filled from well-known free sources (Kaggle Learn, freeCodeCamp, Microsoft Learn,
+Google, official docs, GCFGlobal, Khan Academy…); when no course fits, NPTEL and SWAYAM are suggested to search.
+Only free, active courses are shown, and a link with tracking or affiliate parts (utm_, ref, aff…) is refused. **I
+learned this** never adds the skill to the resume: it asks for a project or a certificate that proves it.
 ### Mock interview by voice (Interview pack; the first 3 questions stay free)
 Interview prep → **Practise** (`pages/me/MeInterview.jsx`): **Read aloud** speaks the question with the browser's own
 voice (`lib/readAloud.js`; English (India) by default, Telugu or Hindi when the device has that voice, otherwise the
