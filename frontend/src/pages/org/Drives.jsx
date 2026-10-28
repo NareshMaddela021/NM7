@@ -14,6 +14,16 @@ export const ROUND_NAMES = { test: 'Test', gd: 'Group discussion', interview: 'I
 const STATUS = { present: ['Present', 'b-success'], late: ['Late', 'b-warning'], absent: ['Absent', 'b-danger'], waiting: ['Not yet', 'b-neutral'] };
 const enc = encodeURIComponent;
 const today = () => new Date(Date.now() + 5.5 * 3600e3).toISOString().slice(0, 10);
+/** The academic year (June to May) a date falls in, by its starting year. */
+export const academicYear = (iso = today()) => { const [y, m] = iso.split('-').map(Number); return m >= 6 ? y : y - 1; };
+export const yearLabel = (y) => `${y}–${String(y + 1).slice(-2)}`;
+async function saveFile(path, name) {
+  const r = await fetch(`${API_BASE}${path}`, { credentials: 'include' });
+  if (!r.ok) throw new Error('Couldn’t download it. Please try again.');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(await r.blob()); a.download = name; a.click();
+}
+const NAAC = 'Numbers only, by branch and company, on your college format — helps with NAAC / NIRF and management reports (not an official NAAC or NIRF format). No student names or contact details.';
 
 export function StatusBadge({ s }) {
   const [text, tone] = STATUS[s] || STATUS.waiting;
@@ -158,6 +168,7 @@ function DriveDetail({ base, orgId, id, canManage, features, onBack, onGone }) {
           <span className="row g8" style={{ flexWrap: 'wrap' }}>
             {canManage && <button type="button" className="btn btn-outline" style={{ minHeight: 36 }} disabled={busy || !d.slots.length} onClick={() => run(async () => set(await http(`${dbase}/auto-assign`, { method: 'POST', body: {} })), 'Students placed in slots')} data-testid="drive-auto">Auto-assign students</button>}
             <button type="button" className="btn btn-outline" style={{ minHeight: 36 }} disabled={busy} onClick={csv} data-testid="drive-csv">Attendance CSV</button>
+            <button type="button" className="btn btn-outline" style={{ minHeight: 36 }} disabled={busy} title={NAAC} onClick={() => run(() => saveFile(`${dbase}/report.pdf`, 'drive_report.pdf'), 'Drive report ready')} data-testid="drive-report">Drive report (PDF)</button>
             {canManage && <button type="button" className="link-btn xs" onClick={del}>Delete</button>}
           </span>
         </div>
@@ -199,6 +210,7 @@ export default function Drives({ orgId, groups, canManage, features }) {
   return (
     <div className="stack g16">
       <span className="small muted">Plan a drive day: companies, time slots, rooms and rounds. Students see “My drive day” in their Nm7 account and check in by scanning the QR in their room (or typing its code). No location tracking.</span>
+      <YearReport orgId={orgId} />
       {canManage && <NewDrive base={base} groups={groups} onMade={(d) => { st.reload(); setOpen(d.id); }} />}
       <Loading st={st} empty={emptyIf((x) => !x.length, 'No drive days yet.')}>{(rows) => (
         <ul className="stack g8" style={{ listStyle: 'none', margin: 0, padding: 0 }} aria-label="Drive days">
@@ -210,6 +222,24 @@ export default function Drives({ orgId, groups, canManage, features }) {
           ))}
         </ul>
       )}</Loading>
+    </div>
+  );
+}
+
+/** The placement report for a whole academic year (PDF): joined, ready, shortlisted, selected, offers, packages. */
+function YearReport({ orgId }) {
+  const toast = useToast();
+  const [busy, run] = useAction(toast);
+  const now = academicYear();
+  const [y, setY] = useState(now);
+  return (
+    <div className="well stack g8" data-testid="year-report">
+      <strong className="small">Placement report for the year</strong>
+      <span className="xs muted">{NAAC}</span>
+      <div className="row g8" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
+        <label className="small row g4">Academic year <select className="input" style={{ height: 36 }} value={y} onChange={(e) => setY(Number(e.target.value))} data-testid="year-report-year">{[0, 1, 2, 3].map((i) => <option key={i} value={now - i}>{yearLabel(now - i)}</option>)}</select></label>
+        <button type="button" className="btn btn-outline" style={{ minHeight: 36 }} disabled={busy} onClick={() => run(() => saveFile(`/api/org/${enc(orgId)}/report/year.pdf?year=${y}`, `placement_report_${y}-${String(y + 1).slice(-2)}.pdf`), 'Report ready')} data-testid="year-report-pdf">Download PDF</button>
+      </div>
     </div>
   );
 }
