@@ -23,6 +23,10 @@ export function settingsErrors(f) {
   const h = String(f.hoursText ?? '').trim();
   if (!/^\d+$/.test(h)) out.hours = 'Enter a whole number of hours';
   else if (Number(h) < 24 || Number(h) > 168) out.hours = 'Delivery must be 24–168 hours';
+  if (f.referral) {
+    const n = String(f.referral.text ?? '').trim();
+    if (!/^\d+$/.test(n) || Number(n) < 1 || Number(n) > 20) out.referral = 'Enter 1–20 friends';
+  }
   return out;
 }
 export function LiveSettings() {
@@ -34,7 +38,7 @@ export function LiveSettings() {
   // the form keeps what was typed (text), so a bad value can be explained instead of silently becoming 0
   const toForm = (d) => {
     const g = (o) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, { ...v, text: String(Math.round(v.amount / 100)) }]));
-    return { ...d, plans: g(d.plans), addons: g(d.addons), hoursText: String(d.deliveryHours) };
+    return { ...d, plans: g(d.plans), addons: g(d.addons), hoursText: String(d.deliveryHours), referral: { ...(d.referral || { on: true, needed: 3 }), text: String(d.referral?.needed ?? 3) } };
   };
   useEffect(() => { if (st.data) setF(toForm(st.data)); }, [st.data]);
   const errs = f ? settingsErrors(f) : {};
@@ -57,7 +61,7 @@ export function LiveSettings() {
   };
   const save = () => run(async () => {
     const pick = (g) => Object.fromEntries(Object.entries(f[g]).map(([k, v]) => [k, { amount: Number(v.text) * 100, active: v.active }]));
-    const r = await http('/api/admin/settings', { method: 'PUT', body: { plans: pick('plans'), addons: pick('addons'), deliveryHours: Number(f.hoursText) } });
+    const r = await http('/api/admin/settings', { method: 'PUT', body: { plans: pick('plans'), addons: pick('addons'), deliveryHours: Number(f.hoursText), referral: { on: f.referral.on, needed: Number(f.referral.text) } } });
     setF(toForm(r)); st.reload();
   }, 'Saved — new orders use these prices');
   return (
@@ -80,12 +84,52 @@ export function LiveSettings() {
               aria-invalid={errs.hours ? 'true' : undefined} aria-describedby={errs.hours ? 'dh-err' : undefined} onChange={(e) => setF({ ...f, hoursText: e.target.value })} /> hours (24–168). Express add-on is always 24 hours.</label>
             {errs.hours && <span id="dh-err" className="error">{errs.hours}</span>}
           </section>
+          <section className="card stack g12" aria-label="Referral rewards" data-testid="ref-settings">
+            <strong>Referral rewards</strong>
+            <span className="small muted">When enough invited friends sign up, confirm their email and build a resume with their name, the inviter’s downloads unlock free (the same unlock as paying for the resume plan). One reward per account; the inviter’s own device or network and throwaway emails don’t count.</span>
+            <label className="row g8 small"><input type="checkbox" checked={f.referral.on} onChange={(e) => setF({ ...f, referral: { ...f.referral, on: e.target.checked } })} data-testid="ref-on" />Give referral rewards</label>
+            <label className="row g8 small">Friends needed <input className="input" type="number" inputMode="numeric" min={1} max={20} step={1} style={{ height: 38, width: 80 }} value={f.referral.text} data-testid="ref-needed"
+              aria-invalid={errs.referral ? 'true' : undefined} aria-describedby={errs.referral ? 'rf-err' : undefined} onChange={(e) => setF({ ...f, referral: { ...f.referral, text: e.target.value } })} /></label>
+            {errs.referral && <span id="rf-err" className="error">{errs.referral}</span>}
+          </section>
           <button type="button" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={busy || Object.keys(errs).length > 0} onClick={save}>Save settings</button>
           {Object.keys(errs).length > 0 && <span className="small" role="status" style={{ color: 'var(--danger)' }}>Fix the {Object.keys(errs).length === 1 ? 'value' : `${Object.keys(errs).length} values`} marked above to save.</span>}
+          <ReferralRewards />
           {owner && <SampleCleanup />}
         </>
       )}</Loading>
     </>
+  );
+}
+
+/* ---------- referral rewards given (see, revoke) ---------- */
+export function ReferralRewards() {
+  const toast = useToast();
+  const st = useApi('/api/admin/referral-rewards');
+  const [busy, run] = useAction(toast);
+  const revoke = (r) => run(async () => {
+    const note = window.prompt(`Revoke ${r.name}’s referral reward? Their downloads lock again. Note (optional):`, '');
+    if (note === null) return;
+    await http(`/api/admin/referral-rewards/${r.userId}/revoke`, { method: 'POST', body: { note } });
+    st.reload();
+  }, 'Reward revoked');
+  return (
+    <section className="card stack g12" aria-label="Referral rewards given" data-testid="ref-rewards">
+      <strong>Referral rewards given</strong>
+      <Loading st={st}>{(rows) => (rows.length === 0 ? <span className="small muted">No rewards yet.</span> : (
+        <div style={{ overflowX: 'auto' }}>
+          <table className="table"><thead><tr><th>Customer</th><th>Given</th><th>Friends</th><th /></tr></thead>
+            <tbody>{rows.map((r) => (
+              <tr key={r.userId} data-testid="ref-row">
+                <td className="small">{r.name}<div className="xs muted" style={{ overflowWrap: 'anywhere' }}>{r.email}</div></td>
+                <td className="small">{new Date(r.at).toLocaleDateString('en-IN')}</td>
+                <td className="small">{r.friends}</td>
+                <td>{r.revokedAt ? <span className="badge b-neutral" title={r.note}>Revoked</span> : <button type="button" className="btn btn-outline" style={{ minHeight: 32 }} disabled={busy} onClick={() => revoke(r)} data-testid="ref-revoke">Revoke</button>}</td>
+              </tr>
+            ))}</tbody></table>
+        </div>
+      ))}</Loading>
+    </section>
   );
 }
 

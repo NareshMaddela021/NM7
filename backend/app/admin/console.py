@@ -711,10 +711,21 @@ class SettingsIn(CamelModel):
     ) = None
     addons: dict[Literal["revision", "express", "linkedin"], PriceIn] | None = None
     delivery_hours: int | None = Field(None, ge=24, le=168)
+    referral: "ReferralSettingsIn | None" = None
+
+
+class ReferralSettingsIn(CamelModel):
+    on: bool
+    needed: int = Field(ge=1, le=20)  # friends who must sign up, confirm their email and build a named resume
 
 
 def _settings_out(site: dict[str, Any]) -> dict[str, Any]:
-    return {"plans": site["plans"], "addons": site["addons"], "deliveryHours": site["delivery_hours"]}
+    return {
+        "plans": site["plans"],
+        "addons": site["addons"],
+        "deliveryHours": site["delivery_hours"],
+        "referral": site["referral"],
+    }
 
 
 @router.get("/settings")
@@ -739,6 +750,9 @@ async def put_settings(body: SettingsIn, request: Request, db: DB, auth: AdminAu
     if body.delivery_hours and body.delivery_hours != before["delivery_hours"]:
         changes["delivery_hours"] = body.delivery_hours
         diff["delivery_hours"] = {"from": before["delivery_hours"], "to": body.delivery_hours}
+    if body.referral and body.referral.model_dump() != before["referral"]:
+        changes["referral"] = body.referral.model_dump()
+        diff["referral"] = {"from": before["referral"], "to": changes["referral"]}
     if changes:
         await save_site(db, changes)
         await audit(db, auth.user.id, "settings.changed", target="site", data=diff, ip=_ip(request))

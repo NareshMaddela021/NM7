@@ -18,7 +18,7 @@ export function emptyState(u) {
     account: { name: u?.name || '', email: u?.email || '', phone: u?.phone || '', targetRole: '', cities: '', level: '', notify: withDefaults(), joined: u?.createdAt || Date.now(), referralCode: '' },
     orders: [], resumes: [], checks: [], covers: [], apps: [],
     share: { on: false, slug: '', short: null, resumeId: null, views: [], viewCount: 0, hidePhone: false, hideEmail: false },
-    issues: [], referrals: [], calls: { picked: null, notes: '' }, seen: {},
+    issues: [], referrals: [], referralReward: null, calls: { picked: null, notes: '' }, seen: {},
   };
 }
 
@@ -63,6 +63,7 @@ export async function fetchState() {
     share: shareFromApi(s.share),
     issues: s.tickets.map(ticketFromApi),
     referrals: s.referral.referrals,
+    referralReward: s.referral.reward || null,
     calls: p.ui?.calls || { picked: null, notes: '' },
     seen: p.ui?.seen || {},
   };

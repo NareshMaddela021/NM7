@@ -284,11 +284,23 @@ class Referred(CamelModel):
     name: str  # first name only
     at: Ms
     status: Literal["joined", "bought"]
+    counts: bool = False  # counts towards the referral reward
+    why: Literal["email_not_confirmed", "no_resume", "not_eligible"] | None = None
+
+
+class RewardOut(CamelModel):
+    on: bool
+    needed: int
+    counted: int
+    unlocked: bool
+    revoked: bool
+    at: Ms | None = None
 
 
 class ReferralOut(CamelModel):
     code: str
     referrals: list[Referred]
+    reward: RewardOut | None = None
 
 
 class MeState(CamelModel):

@@ -170,7 +170,8 @@ function seed() {
     ],
     share: { on: true, slug: 'sai-varsha', short: 'k7m2qa', resumeId: 'r1', views: [1, 1, 2, 3, 3, 4, 5, 5, 6, 6, 6, 9, 13].map((dd) => t - dd * D + 3 * H) },
     issues: [{ id: 'T-204', topic: 'Payment', text: 'Charged twice for the DIY plan?', at: t - 39 * D, status: 'resolved', reply: 'Only one charge went through — the second was a bank hold that dropped in 2 days.' }],
-    referrals: [{ name: 'Kiran', at: t - 15 * D, status: 'joined' }, { name: 'Meena', at: t - 4 * D, status: 'bought' }],
+    referrals: [{ name: 'Kiran', at: t - 15 * D, status: 'joined', counts: true }, { name: 'Meena', at: t - 4 * D, status: 'bought', counts: true }],
+    referralReward: { on: true, needed: 3, counted: 2, unlocked: false, revoked: false, at: null },
     calls: { picked: null, notes: '' },
   };
 }

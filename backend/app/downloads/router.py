@@ -25,13 +25,14 @@ from app.auth.deps import Auth, MaybeAuth
 from app.core.db import DB, ORDERS, RESUMES
 from app.core.errors import ApiError
 from app.core.schemas import CamelModel
+from app.me.rewards import reward_unlocks
 from app.orgs.service import group_downloads_free
 from app.site import get_site
 from app.wapay.settings import payments_on as _payments_on
 
 router = APIRouter(prefix="/api/me", tags=["downloads"])
 
-Reason = Literal["guest", "unpaid", "paid", "plan", "admin", "expert", "payments_off", "group", "resume"]
+Reason = Literal["guest", "unpaid", "paid", "plan", "admin", "expert", "payments_off", "group", "resume", "referral"]
 PLAN_NAMES = {"diy": "paid", "expert": "plan", "launch": "plan"}
 LOST = ("refunded", "cancelled")
 
@@ -87,6 +88,8 @@ async def account_entitlement(db, user_id) -> tuple[bool, str]:
         return True, "paid"
     if await group_downloads_free(db, user_id):
         return True, "group"
+    if await reward_unlocks(db, user_id):
+        return True, "referral"
     return False, "unpaid"
 
 

@@ -36,7 +36,7 @@ from app.core.richtext import clean_rich
 from app.core.time import now
 from app.downloads.router import account_entitlement
 from app.maintenance.sample_data import strip_sample
-from app.me import emails
+from app.me import emails, rewards
 from app.me.schemas import (
     ApplicationIn,
     ApplicationOut,
@@ -164,7 +164,7 @@ async def state(auth: CustomerAuth, db: DB) -> MeState:
         checks=[CheckOut.model_validate({**d, "at": ms(d["at"])}) async for d in db[ATS_CHECKS].find(q).sort("at", 1)],
         share=await share_of(db, auth.user),
         tickets=[ticket_out(d) async for d in db[TICKETS].find(q).sort("created_at", DESCENDING)],
-        referral=ReferralOut(code=await referral_code(db, auth.user), referrals=await referrals(db, uid)),
+        referral=await _referral(db, auth.user),
     )
 
 
@@ -481,7 +481,17 @@ async def my_tickets(auth: CustomerAuth, db: DB) -> list[TicketOut]:
 
 @router.get("/referral")
 async def my_referral(auth: CustomerAuth, db: DB) -> ReferralOut:
-    return ReferralOut(code=await referral_code(db, auth.user), referrals=await referrals(db, auth.user.id))
+    return await _referral(db, auth.user)
+
+
+async def _referral(db: AsyncDatabase, user: User) -> ReferralOut:
+    """The invite code, who joined with it, and the reward progress ("2 of 3")."""
+    fr = {f["id"]: f for f in await rewards.friends(db, user.id)}
+    return ReferralOut(
+        code=await referral_code(db, user),
+        referrals=await referrals(db, user.id, fr),
+        reward=await rewards.progress(db, user.id),
+    )
 
 
 # ---------- prices (the owner can change them in the admin console) ----------

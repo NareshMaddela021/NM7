@@ -7,7 +7,7 @@ import { useMe, setMe, getMe, resetMe, saveProfile, raiseIssue } from '../../lib
 import { LIVE, changePassword, passwordIssue } from '../../lib/auth';
 import { useExpertOrders } from '../../lib/expertStore';
 import { savePdf } from '../builder/resumePdf';
-import { PROMISES, REFERRAL, inr } from '../../lib/pricing';
+import { PROMISES } from '../../lib/pricing';
 import { getJobProfile } from '../../lib/profileStore';
 import { canSave, deleteLinkedIn, getLinkedIn } from '../../lib/linkedin/api';
 import { deleteJobData } from '../../lib/jobs';
@@ -217,14 +217,30 @@ export function MeHelp() {
         </form>
         <section className="card stack g12" style={{ flex: '1 1 300px' }} aria-label="Refer a friend">
           <strong>Refer a friend</strong>
-          <span className="small muted">{REFERRAL.reward ? `You get ${inr(REFERRAL.reward)} when a friend buys any plan.` : 'Share your link — we count every friend who joins. Rewards are announced soon and count from today.'}</span>
-          <div className="well row between g8"><span className="mono small">{link}</span><button type="button" className="btn btn-outline" style={{ minHeight: 34 }} onClick={async () => { try { await navigator.clipboard.writeText(`https://${link}`); toast('Link copied'); } catch { toast(`Copy this: https://${link}`); } }}>Copy</button></div>
+          <ReferralProgress reward={me.referralReward} />
+          <div className="well row between g8"><span className="mono small" style={{ overflowWrap: 'anywhere' }} data-testid="ref-link">{link}</span><button type="button" className="btn btn-outline" style={{ minHeight: 34 }} onClick={async () => { try { await navigator.clipboard.writeText(`https://${link}`); toast('Link copied'); } catch { toast(`Copy this: https://${link}`); } }}>Copy</button></div>
           <a className="btn btn-ghost" style={{ alignSelf: 'flex-start' }} href={`https://wa.me/?text=${encodeURIComponent(`I fixed my resume on Nm7 — try it: https://${link}`)}`} target="_blank" rel="noreferrer">Share on WhatsApp</a>
           <span className="small"><strong>{me.referrals.length}</strong> friends joined · <strong>{me.referrals.filter((r) => r.status === 'bought').length}</strong> bought a plan</span>
-          {me.referrals.map((r) => <span key={r.name + r.at} className="xs muted">{r.name} · {r.status === 'bought' ? 'bought a plan' : 'joined'} · {fmtDay(r.at)}</span>)}
+          {me.referrals.map((r) => <span key={r.name + r.at} className="xs muted" data-testid="ref-friend">{r.name} · {r.status === 'bought' ? 'bought a plan' : 'joined'} · {fmtDay(r.at)}{me.referralReward?.on ? ` · ${r.counts ? 'counts' : WHY[r.why] || 'doesn’t count yet'}` : ''}</span>)}
         </section>
       </div>
     </>
   );
 }
 
+const WHY = { email_not_confirmed: 'hasn’t confirmed their email yet', no_resume: 'hasn’t built a resume with their name yet', not_eligible: 'doesn’t count' };
+
+/** "2 of 3 friends" towards free downloads (the same unlock as paying for the resume plan). */
+function ReferralProgress({ reward }) {
+  if (!reward?.on && !reward?.unlocked) return <span className="small muted">Share your link with friends who need a resume.</span>;
+  if (reward.unlocked) return <span className="small" data-testid="ref-reward" style={{ color: 'var(--success)' }}><strong>Downloads unlocked.</strong> Thanks for inviting your friends — PDF and Word downloads are free for you now.</span>;
+  if (reward.revoked) return <span className="small muted" data-testid="ref-reward">Your referral reward was removed. Write to support if you think this is a mistake.</span>;
+  return (
+    <div className="stack g4" data-testid="ref-reward">
+      <span className="small">Invite {reward.needed} friends: when they sign up, confirm their email and build a resume with their name, your downloads unlock free.</span>
+      <span className="small"><strong>{reward.counted} of {reward.needed}</strong> friends done</span>
+      <div role="progressbar" aria-label="Friends who count" aria-valuemin={0} aria-valuemax={reward.needed} aria-valuenow={reward.counted} style={{ height: 6, background: 'var(--sunken)', borderRadius: 3 }}><div style={{ width: `${(100 * reward.counted) / reward.needed}%`, height: '100%', background: 'var(--success)', borderRadius: 3 }} /></div>
+      <span className="xs faint">One reward per account. Sign-ups from your own phone or Wi-Fi, or with throwaway email addresses, don’t count.</span>
+    </div>
+  );
+}

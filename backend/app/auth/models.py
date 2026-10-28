@@ -42,6 +42,7 @@ class User(Doc):
     ui: dict[str, Any] = Field(default_factory=dict)  # small per-user screen state: call picks, messages seen
     referral_code: str | None = None
     referred_by: str | None = None  # user id of the friend who referred them
+    ref_flags: list[str] = Field(default_factory=list)  # why this sign-up does not count for a referral reward
     partner_id: str | None = None  # an approved referral partner (Phase 4C): /partner
     password_changed_at: datetime | None = None
     created_at: datetime = Field(default_factory=now)
