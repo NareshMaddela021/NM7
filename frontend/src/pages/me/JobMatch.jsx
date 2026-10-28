@@ -202,6 +202,11 @@ export default function JobMatch() {
   const pdf = useRef(null);
   const refresh = () => { jobAccess().then(setAcc); listMatches().then(setHist).catch(() => {}); };
   useEffect(refresh, []);
+  // /me/ats?match=<id> (a resume health alert, "Tailor it"): open that saved match
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get('match');
+    if (id) getMatch(id).then((r) => { setM(r); setTimeout(() => document.querySelector('[data-testid="jm-result"]')?.scrollIntoView({ block: 'start' }), 50); }).catch(() => {});
+  }, []);
   const run = async () => {
     setBusy('match'); setErr('');
     try {

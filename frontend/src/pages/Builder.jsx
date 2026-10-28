@@ -30,6 +30,12 @@ const START_MODES = {
   templates: { stage: 'templates' },
   summary: { stage: 'build', sec: 'summary' },
 };
+const SECTION_IDS = new Set(['personal', 'summary', 'exp', 'edu', 'proj', 'skills', 'certs', 'ach', 'langs', 'links', 'hobbies', 'strengths', 'pinfo', 'decl']);
+function startModeOf(search) {
+  const q = new URLSearchParams(search);
+  if (q.get('start') === 'section') return SECTION_IDS.has(q.get('sec')) ? { stage: 'build', sec: q.get('sec') } : { stage: 'build' };
+  return START_MODES[q.get('start')] || null;
+}
 const isSampleDraft = (d) => d.personal?.name === INITIAL.personal.name && d.personal?.email === INITIAL.personal.email;
 import LinkedInNudge from './builder/LinkedInNudge';
 import ResumePreview from './builder/ResumePreview';
@@ -181,7 +187,8 @@ export default function Builder({ embedded = null }) {
   // back from "Create a free account to download": straight to the editor, where the download starts by itself
   // (the download itself starts once the account and its resume are in: see the effect below)
   // /builder?start=resume|linkedin|photos|scratch|summary opens that mode directly (links from the home page).
-  const startAt = embedded ? null : START_MODES[new URLSearchParams(location.search).get('start')] || null;
+  // ?start=section&sec=certs opens the editor at one section (links from resume health alerts and job match)
+  const startAt = embedded ? null : startModeOf(location.search);
   const [fromSignIn] = useState(() => !embedded && mayFinishDownload()); // straight back from the download's sign-in
   const [stage, setStage] = useState(embedded || (fromSignIn && pendingDownload()) || location.state?.open === 'build' ? 'build' : location.state?.open === 'photos' ? 'photos' : startAt?.stage || 'start');
   const [missing, setMissing] = useState(false); // after "Snap photos": point at what's still missing (e.g. phone)

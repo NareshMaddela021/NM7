@@ -9,6 +9,7 @@ import { useJobProfile } from '../../lib/profileStore';
 import { profileCompleteness } from '../../lib/jobProfile';
 import { Kpi } from '../admin/AdminUI';
 import { ResumeThumb, downloadResume, countdown, templateName, ago } from './shared';
+import HealthCard from './HealthCard';
 import LinkedInCard from './LinkedInCard';
 
 export default function MeHome() {
@@ -58,6 +59,8 @@ export default function MeHome() {
           <Link to="/me/jobs" className="btn btn-signal btn-lg">Track applications</Link>
         </div>
       )}
+
+      <HealthCard />
 
       <div className="kpis">
         <Kpi label="Resume ATS score" value={score} sub={score >= 80 ? 'Good — recruiters’ systems read it well' : 'Below 80 — see the tips'} tone={score >= 80 ? 'var(--success)' : 'var(--warning)'} />

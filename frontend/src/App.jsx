@@ -44,6 +44,7 @@ function WaPlacedHost() {
   return opened ? <Suspense fallback={null}><WaPlaced /></Suspense> : null;
 }
 const Checkout = lazy(() => import('./pages/Checkout'));
+const StopAlerts = lazy(() => import('./pages/StopAlerts'));
 const Intake = lazy(() => import('./pages/Intake'));
 const Refund = lazy(() => import('./pages/Refund'));
 const Editor = lazy(() => import('./pages/Editor'));
@@ -317,6 +318,7 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/scan" element={<Scan />} />
         <Route path="/checkout" element={<Checkout />} />
+        <Route path="/stop-alerts" element={<StopAlerts />} />
         <Route path="/orders/:id" element={<OrderRedirect />} />
         <Route path="/orders/:id/intake" element={C(<Intake />)} />
         <Route path="/orders/:id/refund" element={C(<Refund />)} />

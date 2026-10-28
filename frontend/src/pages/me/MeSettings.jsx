@@ -1,6 +1,6 @@
 // Profile & settings: account details (career details live in the Job Profile), notifications per channel, privacy (download data, delete account).
 // Also Help & referral.
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Dialog, Spinner, useToast } from '../../components/ui';
 import { useMe, setMe, getMe, resetMe, saveProfile, raiseIssue } from '../../lib/customerStore';
@@ -12,7 +12,22 @@ import { getJobProfile } from '../../lib/profileStore';
 import { canSave, deleteLinkedIn, getLinkedIn } from '../../lib/linkedin/api';
 import { deleteJobData } from '../../lib/jobs';
 import { MeHead } from './MeLayout';
+import { http } from '../../services/http';
 import { fmtDay } from './shared';
+
+/** Resume health alert emails (at most one every two weeks); the same switch as the email's "Stop these emails". */
+function HealthEmails() {
+  const [on, setOn] = useState(null);
+  useEffect(() => { if (LIVE) http('/api/me/health').then((d) => setOn(d.emails), () => {}); }, []);
+  if (on === null) return null;
+  const set = async (v) => { setOn(v); try { setOn((await http('/api/me/health/emails', { method: 'PUT', body: { on: v } })).emails); } catch { setOn(!v); } };
+  return (
+    <label className="row g8 small" style={{ alignItems: 'flex-start' }}>
+      <input type="checkbox" checked={on} onChange={(e) => set(e.target.checked)} data-testid="health-emails" style={{ marginTop: 3 }} />
+      <span><strong>Resume health emails</strong> — small fixes for your resume, at most once every two weeks.</span>
+    </label>
+  );
+}
 
 const EVENTS = [['order', 'Order updates'], ['draft', 'Drafts ready to review'], ['jobs', 'Matched jobs'], ['tips', 'Tips & offers']];
 const CHANNELS = [['whatsapp', 'WhatsApp'], ['email', 'Email'], ['sms', 'SMS']];
@@ -67,6 +82,7 @@ export function MeSettings() {
         <div className="table-wrap"><table className="table"><thead><tr><th>Event</th>{CHANNELS.map(([k, l]) => <th key={k}>{l}</th>)}</tr></thead>
           <tbody>{EVENTS.map(([ev, l]) => <tr key={ev}><td className="small">{l}</td>{CHANNELS.map(([ch, cl]) => <td key={ch}><input type="checkbox" aria-label={`${l} on ${cl}`} checked={!!me.account.notify[ch][ev]} disabled={ev === 'order' && ch === 'email'} onChange={(e) => notify(ch, ev, e.target.checked)} /></td>)}</tr>)}</tbody></table></div>
         <span className="xs faint">Order emails stay on — they carry your receipts and refund updates.</span>
+        <HealthEmails />
       </section>
 
       <ChangePassword />
