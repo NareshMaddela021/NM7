@@ -2,6 +2,7 @@
 // score /100 with its breakdown, what's Found / Weak / Missing with honest next steps, then "Tailor this resume"
 // (Tailor pack): a copy for the job with suggestions to accept or skip. Saved matches are listed below, and a match
 // can be saved to My applications.
+import ShareWhatsApp from '../../components/ShareWhatsApp';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Spinner, useToast } from '../../components/ui';
@@ -183,6 +184,7 @@ function Result({ m, acc, onChange, onBought }) {
         <JobCover m={m} acc={acc} onUsed={onBought} offer={<PackOffer kind="tailor" acc={acc} onBought={onBought} why="Come back tomorrow for another free letter, or" />} />
         <div className="row g8" style={{ flexWrap: 'wrap' }}>
           <button type="button" className="btn btn-outline" data-testid="jm-save-app" disabled={!!saved} onClick={saveApp}>{saved ? 'Saved to My applications' : 'Save to My applications'}</button>
+          <ShareWhatsApp job={{ role: m.title, company: m.company }} testid="jm-share-wa" />
           <button type="button" className="btn btn-outline" data-testid="jm-interview" onClick={() => nav(`/me/interview/${m.id}`)}>Interview prep{m.interview ? ` · ${m.interview.practised} of ${m.interview.total} practised` : ''}</button>
         </div>
       </div>

@@ -12,6 +12,7 @@ import { PLANS, ADDONS, PROMISES } from './pricing';
 import { IMPORTED_DRAFTS_KEY, currentUser, draftKey, draftKeyFor, SAMPLE_USER_ID, onSignOut, updateUser } from './auth';
 import { LIVE, http, reportSaveError } from '../services/http';
 import * as live from './meLive';
+import { shareBody, shareFromApi } from './meLive';
 import { pendingDownload } from './downloads';
 import { announceResume } from './resumeChannel';
 
@@ -167,7 +168,7 @@ function seed() {
       { id: 'a5', company: 'Freshworks', role: 'Product Analyst', status: 'rejected', date: t - 20 * D, resumeId: 'r2', url: '', notes: 'Needed 1+ year experience.' },
       { id: 'a6', company: 'Tiger Analytics', role: 'Junior Analyst', status: 'applied', date: t - 16 * D, resumeId: 'r1', url: '', notes: '' },
     ],
-    share: { on: true, slug: 'sai-varsha', resumeId: 'r1', views: [1, 1, 2, 3, 3, 4, 5, 5, 6, 6, 6, 9, 13].map((dd) => t - dd * D + 3 * H) },
+    share: { on: true, slug: 'sai-varsha', short: 'k7m2qa', resumeId: 'r1', views: [1, 1, 2, 3, 3, 4, 5, 5, 6, 6, 6, 9, 13].map((dd) => t - dd * D + 3 * H) },
     issues: [{ id: 'T-204', topic: 'Payment', text: 'Charged twice for the DIY plan?', at: t - 39 * D, status: 'resolved', reply: 'Only one charge went through — the second was a bank hold that dropped in 2 days.' }],
     referrals: [{ name: 'Kiran', at: t - 15 * D, status: 'joined' }, { name: 'Meena', at: t - 4 * D, status: 'bought' }],
     calls: { picked: null, notes: '' },
@@ -293,15 +294,16 @@ export async function saveProfile(account) {
   updateUser(currentUser().id, { name: p.name, phone: p.phone || '' });
 }
 /** Share link settings. Live: saved on the server first (a link name can be taken by someone else). */
+const previewShort = () => Array.from({ length: 6 }, () => '23456789abcdefghjkmnpqrstuvwxyz'[Math.floor(Math.random() * 31)]).join('');
 export async function saveShare(patch) {
   const next = { ...get().share, ...patch };
   if (!next.resumeId) next.resumeId = activeResume()?.id || null;
-  if (!LIVE) { setMe(() => ({ share: next })); return; }
+  if (!LIVE) { if (next.on && !next.short) next.short = previewShort(); setMe(() => ({ share: next })); return; }
   const before = get().share;
   state = { ...get(), share: next }; notify(); // shown at once; put back if the server says no
   let r;
-  try { r = await http('/api/me/share', { method: 'PUT', body: { on: !!next.on, slug: next.slug, resumeId: next.resumeId, hidePhone: !!next.hidePhone } }); } catch (e) { state = { ...get(), share: before }; notify(); throw e; }
-  state = { ...get(), share: { on: r.on, slug: r.slug, resumeId: r.resumeId, hidePhone: r.hidePhone, views: r.views, viewCount: r.viewCount } };
+  try { r = await http('/api/me/share', { method: 'PUT', body: shareBody(next) }); } catch (e) { state = { ...get(), share: before }; notify(); throw e; }
+  state = { ...get(), share: shareFromApi(r) };
   notify();
 }
 /** Live: a support ticket (saved and emailed by the server); preview: kept in this browser. */

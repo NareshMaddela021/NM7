@@ -7,6 +7,7 @@ import { useExpertOrders } from '../../lib/expertStore';
 import { atsScore } from '../../lib/atsScore';
 import VersionCompare from './VersionCompare';
 import { MeHead } from './MeLayout';
+import ShareWhatsApp from '../../components/ShareWhatsApp';
 import { ResumeThumb, downloadResume, templateName, ago, fmtWhen } from './shared';
 
 function Versions({ r, onClose }) {
@@ -48,7 +49,7 @@ export default function MeResumes() {
   return (
     <>
       <MeHead title="My resumes" sub="Keep a resume per job type. The builder edits the one marked “Editing now”."
-        right={<><button type="button" className="btn btn-outline" onClick={() => { const id = addResume('New resume', blank()); edit(id); }}>New blank</button></>} />
+        right={<><ShareWhatsApp testid="resumes-share-wa" /><button type="button" className="btn btn-outline" onClick={() => { const id = addResume('New resume', blank()); edit(id); }}>New blank</button></>} />
       <div className="row g16" style={{ alignItems: 'stretch' }}>
         {me.resumes.map((r) => {
           const s = atsScore(r.data).score;

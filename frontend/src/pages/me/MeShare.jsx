@@ -11,10 +11,13 @@ import { BarChart } from '../admin/AdminUI';
 import ResumePreview from '../builder/ResumePreview';
 import { MeHead } from './MeLayout';
 import { designOf, downloadResume, fmtShort } from './shared';
+import ShareWhatsApp from '../../components/ShareWhatsApp';
+import { downloadQrPng, qrFileName } from '../../lib/qr';
+import { namedUrl, shareUrl } from '../../lib/shareLink';
 
 const DAY = 864e5;
 const SLUG_RE = /^[a-z0-9](?:[a-z0-9-]{1,38}[a-z0-9])$/;
-const publicData = (d, share) => (share.hidePhone ? { ...d, personal: { ...d.personal, phone: '' } } : d);
+const publicData = (d, share) => ({ ...d, personal: { ...d.personal, ...(share.hidePhone ? { phone: '' } : {}), ...(share.hideEmail ? { email: '' } : {}) } });
 
 const times = (n) => (n === 1 ? 'once' : `${n} times`);
 
@@ -28,12 +31,15 @@ export default function MeShare() {
     setBusy(true);
     try { await saveShare(patch); if (done) toast(done); } catch (e) { toast(e.message || 'Not saved. Please try again.'); if (patch.slug) setSlug(sh.slug); } finally { setBusy(false); }
   };
-  const url = `nm7.si/r/${sh.slug}`;
+  const short = shareUrl(sh);
+  const named = namedUrl(sh);
+  const copy = async (u) => { try { await navigator.clipboard.writeText(u); toast('Link copied'); } catch { toast(`Copy this: ${u}`); } };
+  const saveQr = async () => { try { await downloadQrPng(short, qrFileName(me.account?.name || 'My', 'resume')); toast('QR saved'); } catch (e) { toast(e.message); } };
   const days = Array.from({ length: 14 }, (_, i) => { const start = new Date(); start.setHours(0, 0, 0, 0); const t0 = start.getTime() - (13 - i) * DAY; return { label: fmtShort(t0), views: sh.views.filter((t) => t >= t0 && t < t0 + DAY).length }; });
   const okSlug = SLUG_RE.test(slug);
   return (
     <>
-      <MeHead title="Share link" sub="One link that always shows your latest resume — for WhatsApp, emails and your LinkedIn." />
+      <MeHead title="Share link" sub="One link that always shows your latest resume — for WhatsApp, emails and your LinkedIn. Only you see the view count." />
       <section className="card stack g16">
         <label className="row g12" style={{ cursor: 'pointer' }}>
           <span className="stack"><strong>Link is {sh.on ? 'on' : 'off'}</strong><span className="small muted">{sh.on ? 'Anyone with the link can view and download your resume.' : 'Nobody can open the link right now.'}</span></span>
@@ -41,15 +47,27 @@ export default function MeShare() {
         </label>
         {sh.on && (
           <>
-            <div className="well row between g8"><span className="mono small" style={{ overflowWrap: 'anywhere' }}>{url}</span>
-              <span className="row g8"><button type="button" className="btn btn-outline" style={{ minHeight: 36 }} onClick={async () => { try { await navigator.clipboard.writeText(`https://${url}`); toast('Link copied'); } catch { toast(`Copy this: https://${url}`); } }}>Copy</button><Link to={`/r/${sh.slug}`} className="btn btn-ghost" style={{ minHeight: 36 }}>Open</Link></span></div>
+            <div className="well stack g8">
+              <span className="xs muted">Short link</span>
+              <div className="row between g8"><span className="mono small" style={{ overflowWrap: 'anywhere' }} data-testid="share-short">{short.replace('https://', '')}</span>
+                <span className="row g8"><button type="button" className="btn btn-outline" style={{ minHeight: 36 }} onClick={() => copy(short)}>Copy</button><Link to={`/r/${sh.short || sh.slug}`} className="btn btn-ghost" style={{ minHeight: 36 }}>Open</Link></span></div>
+              {sh.short && <span className="xs muted">Also works: <span className="mono">{named.replace('https://', '')}</span></span>}
+              <div className="row g8" style={{ flexWrap: 'wrap' }}>
+                <ShareWhatsApp testid="share-page-wa" style={{ minHeight: 36 }} />
+                <button type="button" className="btn btn-outline" style={{ minHeight: 36 }} onClick={saveQr} data-testid="share-qr">Download QR (PNG)</button>
+              </div>
+              <span className="xs faint">Search engines are asked not to list this page. ID numbers are never shown.</span>
+            </div>
             <form className="row g8" style={{ alignItems: 'flex-end' }} onSubmit={(e) => { e.preventDefault(); if (okSlug && !busy) set({ slug }, 'Link name changed — the old link stops working'); }}>
               <div className="field" style={{ flex: '1 1 220px' }}><label htmlFor="sl" className="label">Link name</label><input id="sl" className="input" style={{ height: 42 }} value={slug} onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))} aria-invalid={!okSlug} />{!okSlug && <span className="xs" style={{ color: 'var(--danger)' }}>3–40 letters, numbers or dashes.</span>}</div>
               <button type="submit" className="btn btn-outline" disabled={busy || !okSlug || slug === sh.slug}>{busy ? <Spinner /> : 'Change'}</button>
             </form>
             <div className="row g12">
               <div className="field" style={{ flex: '1 1 220px' }}><label htmlFor="sr" className="label">Resume shown</label><select id="sr" className="input" style={{ height: 42 }} value={sh.resumeId || me.resumes.find((r) => r.active)?.id || ''} disabled={busy} onChange={(e) => set({ resumeId: e.target.value })}>{me.resumes.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}</select></div>
-              <label className="row g8 small" style={{ alignSelf: 'flex-end', minHeight: 42 }}><input type="checkbox" checked={!!sh.hidePhone} disabled={busy} onChange={(e) => set({ hidePhone: e.target.checked })} />Hide my phone number on the link</label>
+              <span className="stack g4" style={{ alignSelf: 'flex-end' }}>
+                <label className="row g8 small"><input type="checkbox" checked={!!sh.hidePhone} disabled={busy} onChange={(e) => set({ hidePhone: e.target.checked })} />Hide my phone number on the link</label>
+                <label className="row g8 small"><input type="checkbox" checked={!!sh.hideEmail} disabled={busy} onChange={(e) => set({ hideEmail: e.target.checked })} data-testid="share-hide-email-page" />Hide my email on the link</label>
+              </span>
             </div>
           </>
         )}
@@ -108,7 +126,7 @@ function PreviewPublicResume({ slug }) {
   const me = useMe();
   const toast = useToast();
   const sh = me.share;
-  const ok = sh.on && sh.slug === slug;
+  const ok = sh.on && (sh.slug === slug || (!!sh.short && sh.short === slug));
   useEffect(() => { if (ok) setMe((s) => ({ share: { ...s.share, views: [...s.share.views, Date.now()] } })); }, [ok]); // count one view per visit
   const r = me.resumes.find((x) => x.id === sh.resumeId) || me.resumes[0];
   return (

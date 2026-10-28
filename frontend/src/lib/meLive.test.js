@@ -52,7 +52,7 @@ describe('persist: only what changed is sent, to the owner-scoped endpoints', ()
     await flush();
     expect(calls).toEqual(expect.arrayContaining([
       { url: '/api/me/profile', method: 'PATCH', body: { targetRole: 'Data Analyst', ui: { calls: a.calls, seen: { 'RS-1': 9 } } } },
-      { url: '/api/me/share', method: 'PUT', body: { on: true, slug: 'asha', resumeId: null, hidePhone: false } },
+      { url: '/api/me/share', method: 'PUT', body: { on: true, slug: 'asha', resumeId: null, hidePhone: false, hideEmail: false } },
     ]));
   });
 });

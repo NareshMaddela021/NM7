@@ -314,7 +314,8 @@ INDEXES: dict[str, list[IndexModel]] = {
     COVER_LETTERS: [IndexModel([("user_id", ASCENDING), ("key", ASCENDING)], unique=True)],
     APPLICATIONS: [IndexModel([("user_id", ASCENDING), ("key", ASCENDING)], unique=True)],
     ATS_CHECKS: [IndexModel([("user_id", ASCENDING), ("at", DESCENDING)])],
-    SHARES: [IndexModel("slug", unique=True)],  # _id is the owner's user id
+    # _id is the owner's user id; short is the code of the short link
+    SHARES: [IndexModel("slug", unique=True), IndexModel("short", unique=True, sparse=True)],
     ORDER_WORK: [IndexModel("expert_id")],
     EXPERT_PROFILES: [IndexModel([("status", ASCENDING), ("submitted_at", DESCENDING)])],
     QUALITY_AUDITS: [IndexModel([("at", DESCENDING)]), IndexModel("expert_id")],
