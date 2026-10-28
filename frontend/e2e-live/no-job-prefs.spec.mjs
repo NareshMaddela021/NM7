@@ -4,7 +4,7 @@
 // downloads normally (nothing of them printed); the drive join form still asks "Preferred job / location".
 import { readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
-import { API, PASSWORD, adminLogin, asTestPerson, email, login, pdfText, seed } from './helpers.mjs';
+import { API, PASSWORD, adminLogin, asTestPerson, email, login, pdfText, seed, downloadThrough } from './helpers.mjs';
 
 const SIZES = [['desktop', { width: 1280, height: 900 }], ['phone', { width: 390, height: 844 }]];
 const api = (page, path, init = {}) => page.evaluate(async ([base, p, i]) => {
@@ -73,7 +73,7 @@ for (const [label, size] of SIZES) {
       await openEditor(page);
       await expect(page.getByTestId('save-status')).toHaveText('All changes saved', { timeout: 15_000 });
       await expect(page.getByLabel('Full name')).toHaveValue('Meena Iyer');
-      const [file] = await Promise.all([page.waitForEvent('download', { timeout: 30_000 }), page.getByRole('button', { name: 'Download PDF' }).click()]);
+      const [file] = await downloadThrough(page, () => page.getByRole('button', { name: 'Download PDF' }).click(), { timeout: 30_000 });
       expect(file.suggestedFilename()).toBe('Meena_Iyer_Resume.pdf');
       const text = (await pdfText(readFileSync(await file.path()))).join(' ');
       expect(text).toContain('Meena Iyer');

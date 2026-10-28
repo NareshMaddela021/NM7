@@ -3,7 +3,7 @@
 // signed out, My details asks them to start a resume; "Use this template" and the builder's "Change template" keep
 // every bit of content. Nothing downloads unless Download is tapped.
 import { expect, test } from '@playwright/test';
-import { API, PASSWORD, email, login, seed } from './helpers.mjs';
+import { API, PASSWORD, email, login, seed, downloadThrough } from './helpers.mjs';
 
 const SIZES = [['desktop', { width: 1280, height: 900 }], ['phone', { width: 390, height: 844 }]];
 const card = (page, i = 0) => page.getByTestId('template-grid').getByRole('button', { name: /^Preview the .* template$/ }).nth(i);
@@ -127,7 +127,7 @@ test('the Download button in the preview window makes my resume in that template
   await card(page, 1).click();
   await expect(preview(page).getByTestId('template-preview')).toContainText('Divya Menon');
   expect(scripts.filter((s) => /resumePdf|jspdf|resumeDocx/i.test(s)), 'no PDF code yet').toEqual([]);
-  const [file] = await Promise.all([page.waitForEvent('download', { timeout: 30_000 }), preview(page).getByRole('button', { name: 'Download PDF' }).click()]);
+  const [file] = await downloadThrough(page, () => preview(page).getByRole('button', { name: 'Download PDF' }).click(), { timeout: 30_000 });
   expect(file.suggestedFilename()).toBe('Divya_Menon_Resume.pdf');
 });
 
