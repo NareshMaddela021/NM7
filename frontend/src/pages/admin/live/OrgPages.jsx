@@ -290,9 +290,15 @@ const FEATURES = [
   ['membersDownloadFree', 'Free downloads for members', 'Members of its groups download their resume without paying (the group switch must be on too).'],
   ['recruiterJobMatch', 'Recruiter job match', 'Recruiters paste a job description and every visible student gets a match score.'],
   ['templateRules', 'Placement template rules', 'Section order, required sections, page limit, photo and roll-number rules in the official placement format.'],
-  ['placementInsights', 'Placement dashboard insights', 'Charts, who’s-missing lists, reminders and roll lists on Org > Dashboard (tiles are on every plan).'],
+  ['placementInsights', 'Placement dashboard insights', 'Charts, who’s-missing lists, reminders and roll lists on Org > Dashboard (tiles are on every plan).'],  ['drives', 'Drive days', 'Drive day schedule, QR check-in, live attendance.'],
+  ['eligibility', 'Eligibility filters', 'Per-company rules (CGPA, backlogs, branch, year, 10th/12th %) and the eligible list.'],
+  ['offers', 'Offer tracking', 'Offers, packages and the placement report (coordinators and owner only).'],
+  ['waReminders', 'WhatsApp / SMS reminders', 'One-tap wa.me and sms: links from who’s-missing lists (no paid gateway).'],
+  ['alumni', 'Alumni network', 'Past students opt in; current students ask for referrals or mentoring.'],
+  ['facultyReview', 'Faculty reviewers', 'Reviewers comment on assigned students’ resumes and approve them.'],
+  ['multiCampus', 'Multiple campuses', 'A college group with roll-up dashboards across its campuses.'],
 ];
-const FEATURE_KEY = { kiosk: 'kiosk', branding: 'branding', recruiterLinks: 'recruiter_links', membersDownloadFree: 'members_download_free', placementInsights: 'placement_insights', templateRules: 'template_rules', recruiterJobMatch: 'recruiter_job_match' };
+const FEATURE_KEY = { kiosk: 'kiosk', branding: 'branding', recruiterLinks: 'recruiter_links', membersDownloadFree: 'members_download_free', placementInsights: 'placement_insights', templateRules: 'template_rules', recruiterJobMatch: 'recruiter_job_match', drives: 'drives', eligibility: 'eligibility', offers: 'offers', waReminders: 'wa_reminders', alumni: 'alumni', facultyReview: 'faculty_review', multiCampus: 'multi_campus' };
 const OVERRIDE = { plan: null, on: true, off: false };
 
 /** Admin → Organizations → (organization) → Features: the plan decides; Nm7 can force one on or off. */

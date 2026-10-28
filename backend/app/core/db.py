@@ -80,6 +80,8 @@ COUPONS = "coupons"  # admin-managed codes (_id = the code, upper case, no space
 COUPON_USES = "coupon_uses"  # one row per use of a code (_id = "<code>:<user or org>:<n>", n ≤ the per-person limit)
 COURSES = "courses"  # free learning links per skill (Admin → Courses), shown for the skills a job match found missing
 CERTIFICATES = "certificates"  # certificate wallet: one file per document (PDF/JPG/PNG ≤ 2 MB, ≤ 10 per student)
+DRIVES = "drives"  # drive days: companies, slots (company, round, room, time, students) — per organization
+DRIVE_CHECKINS = "drive_checkins"  # one row per student present in a slot (_id = "<slot id>:<membership id>")
 HEALTH = "resume_health"  # per user (_id = user id): dismissed resume health alerts, when the last alert email went
 COLLECTIONS = (
     USERS,
@@ -132,6 +134,8 @@ COLLECTIONS = (
     HEALTH,
     COURSES,
     CERTIFICATES,
+    DRIVES,
+    DRIVE_CHECKINS,
 )
 
 DAY = 86_400
@@ -245,6 +249,8 @@ INDEXES: dict[str, list[IndexModel]] = {
     HOME_EVENTS: [IndexModel("day")],
     JOB_MATCHES: [IndexModel([("user_id", ASCENDING), ("created_at", DESCENDING)])],
     COURSES: [IndexModel("skill")],
+    DRIVES: [IndexModel([("org_id", ASCENDING), ("date", DESCENDING)]), IndexModel("slots.members")],
+    DRIVE_CHECKINS: [IndexModel("drive_id"), IndexModel("slot_id")],
     CERTIFICATES: [IndexModel([("user_id", ASCENDING), ("created_at", ASCENDING)])],
     FEATURE_GRANTS: [IndexModel("user_id")],
     PARTNER_PAYOUTS: [IndexModel([("partner_id", ASCENDING), ("created_at", DESCENDING)])],

@@ -202,6 +202,8 @@ ORG_ACTIONS = [
     "recruiter_invite", "recruiter_invite_extend", "recruiter_invite_revoke", "recruiter_login", "recruiter_search",
     "recruiter_match", "recruiter_view", "recruiter_stage", "recruiter_download", "recruiter_settings",
     "coupon.applied", "coupon.redeemed",
+    "drive_create", "drive_update", "drive_delete", "drive_slot", "drive_slot_delete", "drive_assign", "drive_mark",
+    "drive_export", "drive_checkin",
 ]  # fmt: skip
 
 

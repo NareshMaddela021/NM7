@@ -79,6 +79,13 @@ def plan_out(p: dict[str, Any], *, full: bool = False) -> dict[str, Any]:
             "placementInsights": bool(p["features"].get("placement_insights")),
             "templateRules": bool(p["features"].get("template_rules")),
             "recruiterJobMatch": bool(p["features"].get("recruiter_job_match")),
+            "drives": bool(p["features"].get("drives")),
+            "eligibility": bool(p["features"].get("eligibility")),
+            "offers": bool(p["features"].get("offers")),
+            "waReminders": bool(p["features"].get("wa_reminders")),
+            "alumni": bool(p["features"].get("alumni")),
+            "facultyReview": bool(p["features"].get("faculty_review")),
+            "multiCampus": bool(p["features"].get("multi_campus")),
         },
         "onSale": bool(p.get("on_sale")),
         "public": bool(p.get("public")),
@@ -518,6 +525,13 @@ class FeaturesIn(CamelModel):
     placement_insights: bool = False
     template_rules: bool = False
     recruiter_job_match: bool = False
+    drives: bool = False
+    eligibility: bool = False
+    offers: bool = False
+    wa_reminders: bool = False
+    alumni: bool = False
+    faculty_review: bool = False
+    multi_campus: bool = False
 
 
 class PlanIn(CamelModel):

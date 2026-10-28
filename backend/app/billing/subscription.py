@@ -90,6 +90,13 @@ def plan_features(o: dict[str, Any] | None, today: date | None = None) -> dict[s
         "placement_insights": later("placement_insights"),
         "template_rules": later("template_rules"),
         "recruiter_job_match": later("recruiter_job_match"),
+        "drives": later("drives"),
+        "eligibility": later("eligibility"),
+        "offers": later("offers"),
+        "wa_reminders": later("wa_reminders"),
+        "alumni": later("alumni"),
+        "faculty_review": later("faculty_review"),
+        "multi_campus": later("multi_campus"),
     }
 
 

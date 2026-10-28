@@ -12,7 +12,8 @@ can't sign in (no usable password), are never emailed (reminders skip them) and 
 
 import random
 import secrets
-from datetime import timedelta
+from datetime import datetime, timedelta
+from datetime import time as dtime
 from typing import Any
 
 from pymongo.asynchronous.database import AsyncDatabase
@@ -21,6 +22,8 @@ from app.audit import audit
 from app.auth.models import User
 from app.billing.plans import get_plans, terms_of
 from app.core.db import (
+    DRIVE_CHECKINS,
+    DRIVES,
     LINKEDIN,
     MEMBERSHIPS,
     ORG_GROUPS,
@@ -132,6 +135,8 @@ async def remove_demo(db: AsyncDatabase) -> int:
         (LINKEDIN, {"_id": {"$in": uids}}),
         (MEMBERSHIPS, {"$or": [{"org_id": ORG_ID}, {"user_id": {"$in": uids}}]}),
         (ROLL_LISTS, {"org_id": ORG_ID}),
+        (DRIVES, {"org_id": ORG_ID}),
+        (DRIVE_CHECKINS, {"org_id": ORG_ID}),
         (RECRUITER_LINKS, {"org_id": ORG_ID}),
         (RECRUITER_INVITES, {"org_id": ORG_ID}),
         (ORG_STAFF, {"org_id": ORG_ID}),
@@ -273,6 +278,7 @@ async def create_demo(db: AsyncDatabase, actor_id: str | None = None, seed: int 
             }  # fmt: skip
         )
     recruiter_path = await _demo_invite(db, rng, actor_id)
+    await _demo_drive(db, rng)
     if actor_id:
         await audit(db, actor_id, "demo_org_reset", target=ORG_ID, data={"orgs": [ORG_ID], "students": students})
     return {
@@ -325,3 +331,48 @@ async def _demo_invite(db: AsyncDatabase, rng: random.Random, actor_id: str | No
         }
     )
     return f"/recruiter/{token}#s={session}"
+
+
+async def _demo_drive(db: AsyncDatabase, rng: random.Random) -> None:
+    """Drive day (today): two companies, test rooms and interview slots, students assigned, some checked in."""
+    t = now()
+    day = t.astimezone(IST).date().isoformat()
+    mids = sorted([m["_id"] async for m in db[MEMBERSHIPS].find({"org_id": ORG_ID, "approval": "approved"})])
+    companies = [{"id": "demo-co-infosys", "name": "Infosys (demo)"}, {"id": "demo-co-tcs", "name": "TCS (demo)"}]
+    slots = []
+    half = len(mids) // 2
+    for i, (room, start, end, part) in enumerate(
+        (("Lab 1", "09:30", "10:30", mids[:half]), ("Lab 2", "09:30", "10:30", mids[half:]))
+    ):
+        slots.append({"id": f"demo-slot-test-{i}", "company_id": "demo-co-infosys", "round": "test", "room": room,
+                      "start": start, "end": end, "members": part})  # fmt: skip
+    picks = rng.sample(mids, min(8, len(mids)))
+    slots.append({"id": "demo-slot-int-0", "company_id": "demo-co-infosys", "round": "interview",
+                  "room": "Seminar hall", "start": "14:00", "end": "16:00", "members": picks})  # fmt: skip
+    slots.append({"id": "demo-slot-gd-0", "company_id": "demo-co-tcs", "round": "gd", "room": "Room 204",
+                  "start": "11:00", "end": "12:00", "members": mids[:10]})  # fmt: skip
+    await db[DRIVES].insert_one(
+        {
+            "_id": "demo-drive",
+            "org_id": ORG_ID,
+            "name": "Campus drive (demo)",
+            "date": day,
+            "group_ids": [g[0] for g in GROUPS],
+            "companies": companies,
+            "slots": slots,
+            "created_by": None,
+            "created_at": t,
+        }  # fmt: skip
+    )
+    start = datetime.combine(t.astimezone(IST).date(), dtime(9, 30), tzinfo=IST)
+    rows = []
+    for s in slots[:2]:
+        for mid in s["members"]:
+            if rng.random() < 0.75:
+                late = rng.random() < 0.15
+                at = start + timedelta(minutes=rng.randint(12, 30) if late else rng.randint(-20, 8))
+                rows.append({"_id": f"{s['id']}:{mid}", "drive_id": "demo-drive", "slot_id": s["id"],
+                             "membership_id": mid, "org_id": ORG_ID, "at": at,
+                             "by": "self" if rng.random() < 0.85 else "staff", "actor_id": None})  # fmt: skip
+    if rows:
+        await db[DRIVE_CHECKINS].insert_many(rows)

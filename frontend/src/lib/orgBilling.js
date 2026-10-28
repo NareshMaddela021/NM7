@@ -18,6 +18,13 @@ export const PLAN_FEATURES = [
   ['placementInsights', 'Placement dashboard: charts, who’s missing, reminders, roll list'],
   ['templateRules', 'Placement template: section order and college rules'],
   ['recruiterJobMatch', 'Recruiter portal: job match mode'],
+  ['drives', 'Drive days + QR check-in'],
+  ['eligibility', 'Eligibility filters per company'],
+  ['offers', 'Offer tracking + placement report'],
+  ['waReminders', 'WhatsApp / SMS reminders (free links)'],
+  ['alumni', 'Alumni network'],
+  ['facultyReview', 'Faculty reviewers'],
+  ['multiCampus', 'Multiple campuses under one group'],
 ];
 
 /** ₹4,999 · ₹4,499.10 (paise shown only when there are any). */
