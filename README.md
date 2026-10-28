@@ -1066,3 +1066,12 @@ match) and a ✕ that dismisses it for good. A daily batch (inside the 10-minute
 lock) emails verified users at most once every 14 days, skips bounced addresses, and every email has a **Stop these
 emails** link (`/stop-alerts`, signed token, no login). Profile → Settings has the same switch. Alert data is deleted
 with the account (`backend/app/me/erase.py`).
+
+### Mock interview by voice (Interview pack; the first 3 questions stay free)
+Interview prep → **Practise** (`pages/me/MeInterview.jsx`): **Read aloud** speaks the question with the browser's own
+voice (`lib/readAloud.js`; English (India) by default, Telugu or Hindi when the device has that voice, otherwise the
+text stays on screen with a note), and the student answers with **Speak** in their chosen language or by typing.
+**Clarity feedback** (`backend/app/jobsearch/interview.py`) covers length, speaking pace in words a minute (only for
+spoken answers), filler words, structure and a clear result. The better version uses only facts from the
+student's own answer and resume. Nothing about emotions or confidence is read from the voice, and the screen says so.
+Progress is saved per question. If the microphone is blocked, the page says how to allow it and typing still works.

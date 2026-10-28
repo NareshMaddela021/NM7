@@ -6,7 +6,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Icon, Spinner, useToast } from '../../components/ui';
 import { getInterview, getMatch, jobAccess, makeInterview, practise } from '../../lib/jobs';
-import { KEYBOARD_TIP, appendSpeech, defaultSpeechLang, useSpeech } from '../../lib/summary/speech';
+import { KEYBOARD_TIP, SPEECH_LANGUAGES, appendSpeech, defaultSpeechLang, rememberSpeechLang, useSpeech } from '../../lib/summary/speech';
+import { READ_LANGS, canRead, readAloud, stopReading } from '../../lib/readAloud';
 import { MeHead } from './MeLayout';
 import { PackOffer } from './JobMatch';
 
@@ -51,11 +52,12 @@ function Question({ q, n, groups, onPractise }) {
 }
 
 function Feedback({ fb }) {
-  const rows = [['Structure', fb.structure], ['Result', fb.result], ['Length', fb.length], ['Filler words', fb.filler]];
+  const rows = [['Length', fb.length], ...(fb.pace ? [['Speaking pace', fb.pace.text]] : []), ['Filler words', fb.filler], ['Structure', fb.structure], ['Result', fb.result]];
   return (
     <div className="well stack g8" data-testid="iv-feedback" aria-live="polite">
-      <strong className="small">Feedback{fb.source === 'ai' ? ' (AI, checked)' : ''}</strong>
-      {rows.map(([k, v]) => <span key={k} className="small"><strong>{k}: </strong>{v}</span>)}
+      <strong className="small">Clarity feedback{fb.source === 'ai' ? ' (AI, checked)' : ''}</strong>
+      <span className="xs muted">About how clear your answer is: length, pace, filler words and structure. Nothing about your feelings or confidence is read from your voice.</span>
+      {rows.map(([k, v]) => <span key={k} className="small" data-testid={`iv-fb-${k.split(' ')[0].toLowerCase()}`}><strong>{k}: </strong>{v}</span>)}
       {fb.note && <span className="xs muted">{fb.note}</span>}
       <div className="stack g4"><strong className="small">A better version</strong><p className="small" style={{ margin: 0, lineHeight: 1.6 }} data-testid="iv-better"><Gaps text={fb.better} /></p></div>
     </div>
@@ -70,33 +72,75 @@ function Practice({ id, pack, start, onSaved, onClose }) {
   const [text, setText] = useState('');
   const [fb, setFb] = useState(q.practised?.feedback || null);
   const [busy, setBusy] = useState(false);
+  const [lang, setLang] = useState(defaultSpeechLang);
+  const [readLang, setReadLang] = useState('en-IN');
+  const [autoRead, setAutoRead] = useState(() => { try { return localStorage.getItem('nm7.readQuestions') === '1'; } catch { return false; } });
+  const [readNote, setReadNote] = useState('');
+  const spoken = useRef(0); // seconds actually spoken for this answer (for the pace)
   const now = useRef('');
   now.current = text;
-  const speech = useSpeech({ lang: defaultSpeechLang(), onText: (w) => setText(appendSpeech(now.current, w).slice(0, 4000)) });
-  useEffect(() => { setText(''); setFb(qs[i].practised?.feedback || null); }, [i]); // eslint-disable-line react-hooks/exhaustive-deps
+  const speech = useSpeech({ lang, onText: (w) => setText(appendSpeech(now.current, w).slice(0, 4000)) });
+  const last = useRef(0);
+  useEffect(() => { // add up the speaking time of each Speak session
+    if (speech.listening) last.current = 0;
+    else spoken.current += last.current;
+  }, [speech.listening]);
+  useEffect(() => { if (speech.listening) last.current = speech.seconds; }, [speech.seconds, speech.listening]);
+  const read = async () => {
+    setReadNote('');
+    const r = await readAloud(q.q, readLang);
+    if (!r.ok) setReadNote(r.reason === 'no_voice' ? 'This phone has no voice for that language. Read the question on screen, or pick English.' : 'Reading aloud isn’t available on this device. The question is on screen.');
+  };
+  useEffect(() => {
+    setText(''); setFb(qs[i].practised?.feedback || null); spoken.current = 0;
+    if (autoRead && canRead()) read();
+    return () => stopReading();
+  }, [i]); // eslint-disable-line react-hooks/exhaustive-deps
   const send = async () => {
     if (speech.listening) speech.stop();
     setBusy(true);
-    try { const r = await practise(id, { qid: q.id, answer: text }); setFb(r.feedback); onSaved(q.id, text, r); } catch (e) { toast(e.message); } finally { setBusy(false); }
+    const secs = Math.round(spoken.current + (speech.listening ? speech.seconds : 0));
+    try {
+      const r = await practise(id, { qid: q.id, answer: text, ...(secs >= 3 ? { spokenSeconds: secs } : {}) });
+      setFb(r.feedback); onSaved(q.id, text, r);
+    } catch (e) { toast(e.message); } finally { setBusy(false); }
   };
+  const toggleAuto = (on) => { setAutoRead(on); try { localStorage.setItem('nm7.readQuestions', on ? '1' : '0'); } catch { /* not remembered */ } };
   return (
     <section className="card stack g12" aria-label="Practice" data-testid="iv-practice">
-      <span className="row between g8"><span className="xs faint">Question {i + 1} of {qs.length}{pack.locked.length ? ` (${pack.locked.length} more in the Interview pack)` : ''}</span><button type="button" className="link-btn xs" onClick={onClose}>Close practice</button></span>
+      <span className="row between g8"><span className="xs faint">Question {i + 1} of {qs.length}{pack.locked.length ? ` (${pack.locked.length} more in the Interview pack)` : ''}</span><button type="button" className="link-btn xs" onClick={() => { stopReading(); onClose(); }}>Close practice</button></span>
       <strong style={{ fontSize: 18 }} data-testid="iv-practice-q">{q.q}</strong>
+      {canRead() && (
+        <div className="row g8" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
+          <button type="button" className="btn btn-outline" style={{ minHeight: 40 }} onClick={read} data-testid="iv-read">🔊 Read the question</button>
+          <label className="xs row g4" style={{ alignItems: 'center' }}>Voice
+            <select className="input" style={{ height: 32, width: 'auto' }} value={readLang} onChange={(e) => setReadLang(e.target.value)} data-testid="iv-read-lang">
+              {READ_LANGS.map(([c, l]) => <option key={c} value={c}>{l}</option>)}
+            </select>
+          </label>
+          <label className="xs row g4" style={{ alignItems: 'center' }}><input type="checkbox" checked={autoRead} onChange={(e) => toggleAuto(e.target.checked)} /> Read each question aloud</label>
+        </div>
+      )}
+      {readNote && <span className="xs muted" role="status" data-testid="iv-read-note">{readNote}</span>}
       <div className="field">
         <label htmlFor="iv-answer" className="label">Your answer (type it, or tap Speak and say it)</label>
-        <textarea id="iv-answer" className="input" rows={6} value={text} onChange={(e) => setText(e.target.value)} maxLength={4000} />
-        {speech.interim && <span className="xs muted" style={{ fontStyle: 'italic' }}>{speech.interim}…</span>}
+        <textarea id="iv-answer" className="input" rows={6} value={text} onChange={(e) => setText(e.target.value)} maxLength={4000} data-testid="iv-answer" />
+        {speech.interim && <span className="xs muted" style={{ fontStyle: 'italic' }} data-testid="iv-interim">{speech.interim}…</span>}
       </div>
       <div className="row g8" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
         {speech.supported ? (
-          <button type="button" className={`btn ${speech.listening ? 'btn-ink' : 'btn-outline'}`} aria-pressed={speech.listening} data-testid="iv-speak" onClick={() => (speech.listening ? speech.stop() : speech.start())}>
-            {speech.listening ? <span className="pulse-dot" aria-hidden="true" /> : <Icon name="mic" size={18} />}{speech.listening ? `Stop ${mmss(speech.seconds)}` : 'Speak'}
-          </button>
+          <>
+            <button type="button" className={`btn ${speech.listening ? 'btn-ink' : 'btn-outline'}`} aria-pressed={speech.listening} data-testid="iv-speak" onClick={() => (speech.listening ? speech.stop() : (stopReading(), speech.start()))}>
+              {speech.listening ? <span className="pulse-dot" aria-hidden="true" /> : <Icon name="mic" size={18} />}{speech.listening ? `Stop ${mmss(speech.seconds)}` : 'Speak'}
+            </button>
+            <select className="input" aria-label="Speaking language" style={{ height: 36, width: 'auto' }} value={lang} disabled={speech.listening} onChange={(e) => { setLang(e.target.value); rememberSpeechLang(e.target.value); }}>
+              {SPEECH_LANGUAGES.map(([c, l]) => <option key={c} value={c}>{l}</option>)}
+            </select>
+          </>
         ) : <span className="xs muted">{KEYBOARD_TIP}</span>}
         <button type="button" className="btn btn-ink" data-testid="iv-send" disabled={busy || !text.trim()} onClick={send}>{busy && <Spinner />}{busy ? 'Checking…' : 'Get feedback'}</button>
       </div>
-      {speech.error && <span className="small" role="alert" style={{ color: 'var(--danger)' }}>{speech.error}</span>}
+      {speech.error && <span className="small" role="alert" style={{ color: 'var(--danger)' }} data-testid="iv-mic-error">{speech.error} You can type your answer instead.</span>}
       {fb && <Feedback fb={fb} />}
       <div className="row between g8">
         <button type="button" className="btn btn-outline" disabled={i === 0} onClick={() => setI(i - 1)}>Previous</button>
