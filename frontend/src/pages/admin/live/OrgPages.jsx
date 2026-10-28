@@ -4,6 +4,7 @@
 //   the admin console — ctx.base '/api/admin', every organization;
 //   the coordinator portal (/org/:orgId, pages/org/Portal.jsx) — ctx.base '/api/org/<id>', one organization.
 // The server decides what each person may see and do (app/orgs/scope.py); the screens only hide what they can't use.
+import { TransferOwnership } from '../../org/Transfer';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import QRCode from 'qrcode';
@@ -279,6 +280,7 @@ function Coordinators({ orgId, groups }) {
           <button type="button" className="link-btn xs" style={{ alignSelf: 'flex-start' }} onClick={() => setLink(null)}>Hide</button>
         </div>
       )}
+      {(st.data || []).some((x) => x.role === 'owner' && x.status === 'active') && <TransferOwnership base={`/api/admin/orgs/${orgId}/transfer`} team={st.data} admin />}
     </section>
   );
 }

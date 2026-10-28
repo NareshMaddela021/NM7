@@ -97,6 +97,7 @@ REVIEW_COMMENTS = (
 COLLEGE_GROUPS = (
     "college_groups"  # a parent college group: its campus organizations, owners (roll-up only), group price
 )
+ORG_TRANSFERS = "org_transfers"  # an Owner handing the organization to someone else (code hashed, 48 hours)
 REFERRAL_REWARDS = "referral_rewards"  # _id = the inviter: when the reward was given, by which friends, revoked
 HEALTH = "resume_health"  # per user (_id = user id): dismissed resume health alerts, when the last alert email went
 COLLECTIONS = (
@@ -160,6 +161,7 @@ COLLECTIONS = (
     REVIEW_COMMENTS,
     COLLEGE_GROUPS,
     REFERRAL_REWARDS,
+    ORG_TRANSFERS,
 )
 
 DAY = 86_400
@@ -223,6 +225,7 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel([("org_id", ASCENDING), ("left_at", ASCENDING)]),
     ],
     EXPORT_JOBS: [IndexModel("created_at", expireAfterSeconds=DAY)],
+    ORG_TRANSFERS: [IndexModel([("org_id", ASCENDING), ("status", ASCENDING)]), IndexModel("to_email_lc")],
     ORG_STAFF: [
         IndexModel([("org_id", ASCENDING), ("email_lc", ASCENDING)], unique=True),
         IndexModel([("user_id", ASCENDING), ("status", ASCENDING)]),

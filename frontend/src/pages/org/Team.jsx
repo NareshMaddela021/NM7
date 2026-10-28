@@ -1,9 +1,10 @@
 // /org/:orgId/team — the Owner invites coordinators and viewers (within the plan's coordinator limit) and removes
-// them. Owners themselves are added or removed by Nm7.
+// them. Owners themselves are added or removed by Nm7; the Owner can transfer ownership (./Transfer).
 import { useState } from 'react';
 import { useToast } from '../../components/ui';
 import { http } from '../../services/http';
 import { Loading, day, emptyIf, useAction, useApi } from '../admin/live/common';
+import { TransferOwnership } from './Transfer';
 
 const ROLE = { owner: 'Owner', coordinator: 'Coordinator', viewer: 'Viewer (view and print)' };
 
@@ -49,6 +50,7 @@ export default function Team({ orgId, groups }) {
         <span className="xs muted">They get a one-time link by email (valid 7 days) and sign in with their own Nm7 account. Your plan sets how many coordinators you can have.</span>
         {link && <span className="small">The email couldn’t be sent — share this link with them: <span className="mono">{link}</span></span>}
       </form>
+      <TransferOwnership base={`/api/org/${orgId}/transfer`} team={st.data || []} />
     </div>
   );
 }

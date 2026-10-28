@@ -194,6 +194,7 @@ ORG_ACTIONS = [
     "view", "download", "print", "print_bulk", "export_zip", "export_csv", "group_create", "group_update",
     "org_create", "org_update", "remind", "approve", "reject", "review", "unprint",
     "demo_coordinator_open", "staff_invite", "staff_update", "staff_remove", "staff_accept", "staff_resend",
+    "owner_transfer_start", "owner_transfer_cancel", "owner_transfer_done",
     "member_join", "member_update", "member_leave", "org_features",
     "kiosk_create", "kiosk_revoke", "kiosk_session", "kiosk_print", "branding_update",
     "share_create", "share_view", "share_download", "share_shortlist", "share_revoke", "share_extend",

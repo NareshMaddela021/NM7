@@ -57,6 +57,7 @@ from app.orgs import recruiter as org_recruiter
 from app.orgs import recruiter_portal as org_recruiter_portal
 from app.orgs import router as orgs
 from app.orgs import staff as org_staff
+from app.orgs import transfer as org_transfer
 from app.partners import router as partners
 from app.payments.router import router as payments_router
 from app.photos.router import router as photos_router
@@ -157,6 +158,8 @@ def create_app() -> FastAPI:
     app.include_router(orgs.public)
     app.include_router(orgs.public_stop)
     app.include_router(org_staff.invites)
+    app.include_router(org_transfer.portal)  # /api/org/{org_id}/transfer (before the portal's catch-alls)
+    app.include_router(org_transfer.admin)  # /api/admin/orgs/{org_id}/transfer
     app.include_router(org_staff.portal)
     app.include_router(org_kiosk.staff)
     app.include_router(org_branding.router)
@@ -219,6 +222,7 @@ def create_app() -> FastAPI:
     app.include_router(resume_health.public)  # /api/public/health/unsubscribe
     app.include_router(orgs.me)  # before me_router: /api/me/groups
     app.include_router(org_staff.my_orgs)  # /api/me/orgs
+    app.include_router(org_transfer.me)  # /api/me/org-transfers (accept ownership with the emailed code)
     app.include_router(me_router)
     app.include_router(public_router)
     app.include_router(work_router)
