@@ -189,6 +189,7 @@ export function MeGroups() {
   const resumes = useServer(LIVE ? '/api/me/resumes' : null);
   const staff = useServer(LIVE ? '/api/me/orgs' : null);
   const drives = useServer(LIVE ? '/api/me/drives' : null);
+  const offers = useServer(LIVE ? '/api/me/offers' : null);
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
   const act = async (fn, ok) => { setBusy(true); try { await fn(); toast(ok); groups.reload(); } catch (e) { toast(e.message); } finally { setBusy(false); } };
@@ -208,6 +209,15 @@ export function MeGroups() {
           <span className="stack g4"><strong>My drive day</strong><span className="small muted">{drives.data[0].name} · {drives.data[0].date} · {drives.data[0].slots.length} slot{drives.data[0].slots.length === 1 ? '' : 's'}</span></span>
           <span className="btn btn-ink">Open</span>
         </Link>
+      )}
+      {offers.data?.length > 0 && (
+        <section className="card stack g8" aria-label="My offers" data-testid="my-offers">
+          <strong>My offers</strong>
+          <span className="xs muted">Recorded by your college’s placement office. Only you and your college see these.</span>
+          <ul className="stack g4" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+            {offers.data.map((o) => <li key={o.id} className="row between g8 small" style={{ flexWrap: 'wrap' }} data-testid="my-offer"><span><strong>{o.company}</strong>{o.role ? ` · ${o.role}` : ''}{o.ctcLpa != null ? ` · ${o.ctcLpa} LPA` : ''} · {o.typeName}</span><span className="badge b-neutral">{o.statusName}</span></li>)}
+          </ul>
+        </section>
       )}
       {staff.data?.map((o) => (
         <Link key={o.orgId} to={`/org/${o.orgId}`} className="card row between g8" style={{ textDecoration: 'none', color: 'inherit' }}>

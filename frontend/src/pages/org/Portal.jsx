@@ -20,6 +20,7 @@ import Billing from './Billing';
 import Team from './Team';
 import Placement from './Placement';
 import Drives from './Drives';
+import Offers from './Offers';
 import { planBanners } from '../../lib/orgBilling';
 
 const ROLE = { owner: 'Owner', coordinator: 'Coordinator', viewer: 'Viewer (view and print)', admin: 'Nm7 admin' };
@@ -64,7 +65,7 @@ export function PortalLayout() {
     groupPatchUrl: (g) => `${apiBase(orgId)}/groups/${g.id}`,
   } : null), [st.data, orgId]);
   const owner = !!st.data?.isOwner;
-  const tabs = [['', 'My groups'], ['/dashboard', 'Dashboard'], ['/resumes', 'Shared resumes'], ...(st.data?.features?.kiosk ? [['/kiosks', 'Kiosks']] : []), ...(st.data?.features?.branding ? [['/branding', 'Branding']] : []), ...(st.data?.features?.recruiterLinks ? [['/recruiters', 'Recruiter links']] : []), ...(st.data?.features?.drives ? [['/drives', 'Drives']] : []), ...(owner ? [['/team', 'Team'], ['/billing', 'Billing']] : []), ['/activity', 'Activity']];
+  const tabs = [['', 'My groups'], ['/dashboard', 'Dashboard'], ['/resumes', 'Shared resumes'], ...(st.data?.features?.kiosk ? [['/kiosks', 'Kiosks']] : []), ...(st.data?.features?.branding ? [['/branding', 'Branding']] : []), ...(st.data?.features?.recruiterLinks ? [['/recruiters', 'Recruiter links']] : []), ...(st.data?.features?.drives ? [['/drives', 'Drives']] : []), ...(st.data?.features?.offers ? [['/offers', 'Offers']] : []), ...(owner ? [['/team', 'Team'], ['/billing', 'Billing']] : []), ['/activity', 'Activity']];
   return (
     <Frame wide>
       {st.error ? (
@@ -260,4 +261,12 @@ export function PortalDrives() {
   usePageMeta(portalMeta(`Drives · ${home.name}`));
   if (!home.features?.drives) return <Navigate to={`/org/${ctx.orgId}`} replace />;
   return <Drives orgId={ctx.orgId} groups={home.groupList} canManage={home.canManage} features={home.features} />;
+}
+
+/** /org/:orgId/offers — offers and the placement report (Drive and Campus plans) */
+export function PortalOffers() {
+  const { ctx, home } = useOutletContext();
+  usePageMeta(portalMeta(`Offers · ${home.name}`));
+  if (!home.features?.offers) return <Navigate to={`/org/${ctx.orgId}`} replace />;
+  return <Offers orgId={ctx.orgId} groups={home.groupList} canManage={home.canManage} />;
 }

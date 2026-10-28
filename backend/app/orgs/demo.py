@@ -26,6 +26,7 @@ from app.core.db import (
     DRIVES,
     LINKEDIN,
     MEMBERSHIPS,
+    OFFERS,
     ORG_GROUPS,
     ORG_STAFF,
     ORGANIZATIONS,
@@ -137,6 +138,7 @@ async def remove_demo(db: AsyncDatabase) -> int:
         (ROLL_LISTS, {"org_id": ORG_ID}),
         (DRIVES, {"org_id": ORG_ID}),
         (DRIVE_CHECKINS, {"org_id": ORG_ID}),
+        (OFFERS, {"org_id": ORG_ID}),
         (RECRUITER_LINKS, {"org_id": ORG_ID}),
         (RECRUITER_INVITES, {"org_id": ORG_ID}),
         (ORG_STAFF, {"org_id": ORG_ID}),
@@ -289,6 +291,7 @@ async def create_demo(db: AsyncDatabase, actor_id: str | None = None, seed: int 
         )
     recruiter_path = await _demo_invite(db, rng, actor_id)
     await _demo_drive(db, rng)
+    await _demo_offers(db, rng)
     if actor_id:
         await audit(db, actor_id, "demo_org_reset", target=ORG_ID, data={"orgs": [ORG_ID], "students": students})
     return {
@@ -389,3 +392,26 @@ async def _demo_drive(db: AsyncDatabase, rng: random.Random) -> None:
                              "by": "self" if rng.random() < 0.85 else "staff", "actor_id": None})  # fmt: skip
     if rows:
         await db[DRIVE_CHECKINS].insert_many(rows)
+
+
+async def _demo_offers(db: AsyncDatabase, rng: random.Random) -> None:
+    """About a third of the demo students placed; a few with two offers; one declined; a few internships."""
+    t = now()
+    ms_ = [m async for m in db[MEMBERSHIPS].find({"org_id": ORG_ID}).sort("_id", 1)]
+    picks = rng.sample(ms_, max(1, len(ms_) // 3))
+    companies = [("Infosys (demo)", "Systems Engineer", 3.6), ("TCS (demo)", "Assistant System Engineer", 3.36),
+                 ("Wipro (demo)", "Project Engineer", 3.5), ("Zoho (demo)", "Member Technical Staff", 7.2),
+                 ("Bosch (demo)", "Graduate Engineer Trainee", 6.0)]  # fmt: skip
+    rows = []
+    for i, m in enumerate(picks):
+        for j in range(2 if i % 6 == 0 else 1):
+            co, role, ctc = companies[(i + j * 2) % len(companies)]
+            kind = "internship" if i % 9 == 4 else "full_time"
+            status = "declined" if i == 3 and j == 0 else rng.choice(["offered", "accepted", "accepted", "joined"])
+            rows.append({"_id": f"demo-offer-{i}-{j}", "org_id": ORG_ID, "membership_id": m["_id"],
+                         "user_id": m["user_id"], "group_id": m["group_id"], "company": co, "role": role,
+                         "ctc_lpa": None if kind == "internship" else ctc, "type": kind,
+                         "offer_date": (t - timedelta(days=rng.randint(1, 40))).date().isoformat(), "status": status,
+                         "created_by": None, "created_at": t, "updated_at": t})  # fmt: skip
+    if rows:
+        await db[OFFERS].insert_many(rows)
