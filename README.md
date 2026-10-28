@@ -1167,3 +1167,14 @@ shared resume in the college format, comments on a section (optionally quoting a
 **Approve** — the same review status coordinators already see (needs changes / ready). Every other organization page
 answers 404 for a reviewer. Students see open comments in the builder above the section they're about and mark them
 resolved. Comments are deleted with the student's account. The demo organization has a reviewer with six students.
+
+### Multiple campuses (college groups)
+Admin → **College groups** (`backend/app/college/campuses.py`): a parent group owning several campus organizations,
+with owners (existing Nm7 accounts) and, if agreed, a group price recorded for billing (each campus otherwise keeps
+its own Campus plan; the admin applies a group price to each campus as a custom plan). Owners open
+**/college-group/{id}** (linked from My groups): joined, ready, placed, offers and packages by campus and in total —
+numbers only, never a student's details. They can apply one campus's college format (logo, header, colours,
+placement-template rules) to every campus, and share a drive day's schedule or a recruiter invite with other campuses
+(each campus gets its own copy; the recruiter gets its own emailed link). Campus coordinators still see only their own
+campus. Only campuses with the `multiCampus` switch (Campus plan) count. The demo organization is in a demo college
+group — add your own email as its owner to see the roll-up.

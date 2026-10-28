@@ -21,6 +21,7 @@ from app.billing import migrate as billing_migrate
 from app.billing import router as billing
 from app.certs.router import router as certs_router
 from app.college import alumni as college_alumni
+from app.college import campuses as college_campuses
 from app.college import drives as college_drives
 from app.college import eligibility as college_eligibility
 from app.college import offers as college_offers
@@ -191,6 +192,9 @@ def create_app() -> FastAPI:
     app.include_router(college_offers.me)  # /api/me/offers
     app.include_router(college_alumni.me)  # /api/me/alumni (opt in, browse, requests, inbox)
     app.include_router(college_alumni.staff)  # /api/org/{org_id}/alumni (invites, counts)
+    app.include_router(college_campuses.admin)  # /api/admin/college-groups
+    app.include_router(college_campuses.owner)  # /api/college-group/{id} (roll-up, shared format, drives, invites)
+    app.include_router(college_campuses.me)  # /api/me/college-groups
     app.include_router(college_reviews.staff)  # /api/org/{org_id}/reviewers (invite, assign)
     app.include_router(college_reviews.reviewer)  # /api/review/{org_id} (assigned students, comments, status)
     app.include_router(college_reviews.me)  # /api/me/review-comments

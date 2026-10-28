@@ -94,6 +94,9 @@ ALUMNI_REQUESTS = (
 REVIEW_COMMENTS = (
     "review_comments"  # a faculty reviewer's comments on a student's shared resume (section, line, resolved)
 )
+COLLEGE_GROUPS = (
+    "college_groups"  # a parent college group: its campus organizations, owners (roll-up only), group price
+)
 HEALTH = "resume_health"  # per user (_id = user id): dismissed resume health alerts, when the last alert email went
 COLLECTIONS = (
     USERS,
@@ -154,6 +157,7 @@ COLLECTIONS = (
     ALUMNI_INVITES,
     ALUMNI_REQUESTS,
     REVIEW_COMMENTS,
+    COLLEGE_GROUPS,
 )
 
 DAY = 86_400
@@ -276,6 +280,7 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel("to_user"),
         IndexModel("org_id"),
     ],
+    COLLEGE_GROUPS: [IndexModel("owner_ids"), IndexModel("org_ids")],
     REVIEW_COMMENTS: [IndexModel([("org_id", ASCENDING), ("membership_id", ASCENDING)]), IndexModel("user_id")],
     REMINDER_BATCHES: [IndexModel([("org_id", ASCENDING), ("created_at", DESCENDING)])],
     OFFERS: [IndexModel([("org_id", ASCENDING), ("membership_id", ASCENDING)]), IndexModel("user_id")],

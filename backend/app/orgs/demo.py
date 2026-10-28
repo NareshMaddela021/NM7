@@ -24,6 +24,7 @@ from app.billing.plans import get_plans, terms_of
 from app.core.db import (
     ALUMNI,
     ALUMNI_REQUESTS,
+    COLLEGE_GROUPS,
     DRIVE_CHECKINS,
     DRIVES,
     LINKEDIN,
@@ -145,6 +146,7 @@ async def remove_demo(db: AsyncDatabase) -> int:
         (ALUMNI, {"org_id": ORG_ID}),
         (ALUMNI_REQUESTS, {"org_id": ORG_ID}),
         (REVIEW_COMMENTS, {"org_id": ORG_ID}),
+        (COLLEGE_GROUPS, {"_id": "demo-college-group"}),
         (RECRUITER_LINKS, {"org_id": ORG_ID}),
         (RECRUITER_INVITES, {"org_id": ORG_ID}),
         (ORG_STAFF, {"org_id": ORG_ID}),
@@ -299,6 +301,15 @@ async def create_demo(db: AsyncDatabase, actor_id: str | None = None, seed: int 
     await _demo_offers(db, rng)
     await _demo_alumni(db, rng)
     await _demo_reviewer(db)
+    await db[COLLEGE_GROUPS].insert_one(
+        {
+            "_id": "demo-college-group",
+            "name": "Demo College Group (demo)",
+            "org_ids": [ORG_ID],
+            "owner_ids": [],
+            "created_at": now(),
+        }  # fmt: skip
+    )  # Admin → College groups: add your own email as owner to see the roll-up
     if actor_id:
         await audit(db, actor_id, "demo_org_reset", target=ORG_ID, data={"orgs": [ORG_ID], "students": students})
     return {

@@ -191,6 +191,7 @@ export function MeGroups() {
   const drives = useServer(LIVE ? '/api/me/drives' : null);
   const offers = useServer(LIVE ? '/api/me/offers' : null);
   const alumni = useServer(LIVE ? '/api/me/alumni' : null);
+  const cgroups = useServer(LIVE ? '/api/me/college-groups' : null);
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
   const act = async (fn, ok) => { setBusy(true); try { await fn(); toast(ok); groups.reload(); } catch (e) { toast(e.message); } finally { setBusy(false); } };
@@ -226,6 +227,12 @@ export function MeGroups() {
           </ul>
         </section>
       )}
+      {cgroups.data?.map((g) => (
+        <Link key={g.id} to={`/college-group/${g.id}`} className="card row between g8" style={{ textDecoration: 'none', color: 'inherit', flexWrap: 'wrap' }} data-testid="cg-link">
+          <span className="stack g4"><strong>You run {g.name}</strong><span className="small muted">College group · {g.campuses} campuses · numbers by campus</span></span>
+          <span className="btn btn-ink">Open</span>
+        </Link>
+      ))}
       {staff.data?.map((o) => (
         <Link key={o.orgId} to={o.role === 'reviewer' ? `/review/${o.orgId}` : `/org/${o.orgId}`} className="card row between g8" style={{ textDecoration: 'none', color: 'inherit' }}>
           <span className="stack g4"><strong>You help run {o.orgName}</strong><span className="small muted" data-testid="staff-summary">{staffSummary(o)}</span></span>
