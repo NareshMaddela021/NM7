@@ -99,6 +99,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/college-group/:id",
+      "destination": "/index.html"
+    },
+    {
       "source": "/groups/stop",
       "destination": "/index.html"
     },

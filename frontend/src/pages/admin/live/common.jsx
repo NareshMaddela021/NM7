@@ -26,6 +26,7 @@ export const NAV = [
   ['automation', '/admin/automation', 'Automation', '⚡'],
   ['team', '/admin/team', 'Team & audit log', '⚿'],
   ['organizations', '/admin/orgs', 'Organizations', '⌂'],
+  ['organizations', '/admin/college-groups', 'College groups', '⌂'],
   ['organizations', '/admin/shared-resumes', 'Shared resumes', '▤'],
   ['organizations', '/admin/plans', 'Organization plans', '◇'],
   ['payments', '/admin/org-invoices', 'Organization invoices', '№'],
