@@ -8,6 +8,7 @@ import { Dialog, Spinner, useToast } from '../../components/ui';
 import { API_BASE } from '../../services/http';
 import { Loading, emptyIf, http, useAction, useApi } from '../admin/live/common';
 import Eligibility from './Eligibility';
+import WaReminders from './WaReminders';
 
 export const ROUND_NAMES = { test: 'Test', gd: 'Group discussion', interview: 'Interview' };
 const STATUS = { present: ['Present', 'b-success'], late: ['Late', 'b-warning'], absent: ['Absent', 'b-danger'], waiting: ['Not yet', 'b-neutral'] };
@@ -90,11 +91,12 @@ function Students({ base, s, onClose, onSaved }) {
   );
 }
 
-function Attendance({ base, s, canManage, onClose }) {
+function Attendance({ base, s, canManage, onClose, wa, orgBase }) {
   const toast = useToast();
   const [busy, run] = useAction(toast);
   const [data, setData] = useState(null);
   const [show, setShow] = useState('all');
+  const [msg, setMsg] = useState(null);
   const load = () => http(`${base}/slots/${s.id}/attendance`).then(setData, (e) => toast(e.message));
   useEffect(() => { load(); const t = setInterval(load, 15000); return () => clearInterval(t); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const mark = (r, present) => run(async () => setData(await http(`${base}/slots/${s.id}/mark`, { method: 'POST', body: { membershipId: r.id, present } })));
@@ -108,6 +110,8 @@ function Attendance({ base, s, canManage, onClose }) {
               <button key={k} type="button" className={`btn ${show === k ? 'btn-ink' : 'btn-outline'}`} style={{ minHeight: 32 }} aria-pressed={show === k} onClick={() => setShow(k)} data-testid={`att-${k}`}>{l}</button>
             ))}
           </div>
+          {wa && canManage && ['absent', 'waiting'].includes(show) && rows.length > 0 && <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start', minHeight: 32 }} onClick={() => setMsg(rows.map((r) => r.id))} data-testid="att-wa">WhatsApp these {rows.length}</button>}
+          {msg && <WaReminders base={orgBase} ids={msg} list={`drive-${show}`} defaultMessage={`Hi {name}, you're in ${s.company} ${s.roundName} today, ${s.room} at ${s.start}. Please come and check in.`} onClose={() => setMsg(null)} />}
           {rows.length === 0 ? <p className="small muted">No one here.</p> : (
             <ul className="stack g4" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
               {rows.map((r) => (
@@ -181,7 +185,7 @@ function DriveDetail({ base, orgId, id, canManage, features, onBack, onGone }) {
         )}
         {students && <Students base={dbase} s={students} onClose={() => setStudents(null)} onSaved={set} />}
         {elig && <Eligibility dbase={dbase} company={elig} canManage={canManage} onClose={() => { setElig(null); st.reload(); }} />}
-        {att && <Attendance base={dbase} s={att} canManage={canManage} onClose={() => { setAtt(null); st.reload(); }} />}
+        {att && <Attendance base={dbase} s={att} canManage={canManage} wa={!!features?.waReminders} orgBase={base.replace(/\/drives$/, '')} onClose={() => { setAtt(null); st.reload(); }} />}
       </section>
     )}</Loading>
   );

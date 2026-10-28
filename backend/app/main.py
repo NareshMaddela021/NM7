@@ -23,6 +23,7 @@ from app.certs.router import router as certs_router
 from app.college import drives as college_drives
 from app.college import eligibility as college_eligibility
 from app.college import offers as college_offers
+from app.college import reminders as college_reminders
 from app.core import errors
 from app.core.body_limit import BodyLimit
 from app.core.config import get_settings
@@ -186,6 +187,7 @@ def create_app() -> FastAPI:
     app.include_router(college_eligibility.me)  # /api/me/academic/{membership_id}
     app.include_router(college_offers.staff)  # /api/org/{org_id}/offers (offers, stats, CSV, report PDF)
     app.include_router(college_offers.me)  # /api/me/offers
+    app.include_router(college_reminders.staff)  # /api/org/{org_id}/wa-reminders (wa.me / sms: links, no gateway)
     app.include_router(courses.me)  # /api/me/courses (free courses for missing skills)
     app.include_router(courses.admin)  # /api/admin/courses
     app.include_router(linkedin_router)  # /api/me/linkedin

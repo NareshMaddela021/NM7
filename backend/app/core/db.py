@@ -85,6 +85,7 @@ DRIVE_CHECKINS = "drive_checkins"  # one row per student present in a slot (_id 
 OFFERS = (
     "offers"  # offers recorded by a college: student, company, role, CTC, type, status (staff and the student only)
 )
+REMINDER_BATCHES = "reminder_batches"  # WhatsApp / SMS reminder batches: per student a link and "sent" (no gateway)
 HEALTH = "resume_health"  # per user (_id = user id): dismissed resume health alerts, when the last alert email went
 COLLECTIONS = (
     USERS,
@@ -140,6 +141,7 @@ COLLECTIONS = (
     DRIVES,
     DRIVE_CHECKINS,
     OFFERS,
+    REMINDER_BATCHES,
 )
 
 DAY = 86_400
@@ -255,6 +257,7 @@ INDEXES: dict[str, list[IndexModel]] = {
     COURSES: [IndexModel("skill")],
     DRIVES: [IndexModel([("org_id", ASCENDING), ("date", DESCENDING)]), IndexModel("slots.members")],
     DRIVE_CHECKINS: [IndexModel("drive_id"), IndexModel("slot_id")],
+    REMINDER_BATCHES: [IndexModel([("org_id", ASCENDING), ("created_at", DESCENDING)])],
     OFFERS: [IndexModel([("org_id", ASCENDING), ("membership_id", ASCENDING)]), IndexModel("user_id")],
     CERTIFICATES: [IndexModel([("user_id", ASCENDING), ("created_at", ASCENDING)])],
     FEATURE_GRANTS: [IndexModel("user_id")],
