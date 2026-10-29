@@ -8,6 +8,8 @@ import {
   homeFor, passwordIssue, EMAIL_RE, PHONE_RE, DEMO_CODE, SAMPLE_PASSWORD, LIVE, adminSetupStart, adminSetupVerify, adminSetupStatus,
 } from '../../lib/auth';
 import SiteFooter from '../../components/SiteFooter';
+import LangSwitch from '../../components/LangSwitch';
+import { useLang } from '../../lib/i18n';
 import { usePageMeta } from '../../lib/meta';
 
 const isPreview = import.meta.env.VITE_PREVIEW === '1';
@@ -18,12 +20,14 @@ function PageTitle({ title }) {
   usePageMeta({ title, noindex: true });
   return null;
 }
-function Shell({ title, sub, children, wide, meta }) {
+/** lang / top: sign-in passes its language and the language switch (the other screens are English only). */
+function Shell({ title, sub, children, wide, meta, lang, top }) {
   return (
     <>
       {meta && <PageTitle title={title} />}
       <header className="site-header"><div className="bar"><Logo /><ThemeToggle /></div></header>
-      <main className="container stack g20" style={{ maxWidth: wide ? 560 : 460, padding: '40px 20px 64px' }}>
+      <main className="container stack g20" style={{ maxWidth: wide ? 560 : 460, padding: '40px 20px 64px' }} lang={lang} data-lang={lang}>
+        {top}
         <div className="stack g4"><h1 className="display" style={{ fontSize: 32 }}>{title}</h1>{sub && <span className="muted">{sub}</span>}</div>
         {children}
       </main>
@@ -101,6 +105,7 @@ export function Login() {
   const { busy, err, setErr, run } = useRun();
   const [emailErr, setEmailErr] = useState('');
   const [show, setShow] = useState(false);
+  const [t, lang] = useLang();
   const go = (u) => nav(next && !(u.role === 'expert' && next.startsWith('/me')) && !(u.role === 'customer' && next.startsWith('/expert')) ? next : homeFor(u), { replace: true });
   if (verify) return <VerifyEmail email={verify.email} note={verify.note} onDone={go} onBack={() => setVerify(null)} />;
   if (user && user.role !== 'admin') return <Navigate to={next || homeFor(user)} replace />;
@@ -110,8 +115,8 @@ export function Login() {
     const password = String(new FormData(form).get('password') || '');
     setF({ email, password });
     setEmailErr('');
-    if (!EMAIL_RE.test(email)) { setEmailErr(email ? 'Enter a valid email address, like name@example.com' : 'Enter your email'); return; }
-    if (!password) { setErr('Enter your password'); return; }
+    if (!EMAIL_RE.test(email)) { setEmailErr(email ? t('signin.err.emailBad', { example: 'name@example.com' }) : t('signin.err.email')); return; }
+    if (!password) { setErr(t('signin.err.password')); return; }
     run(async () => {
       try { go(await signIn(email, password)); } catch (e) {
         if (e.code === 'email_not_verified') setVerify({ email, note: `${e.message} It went to ${email}.` });
@@ -121,17 +126,18 @@ export function Login() {
   };
   const fill = (email) => setF({ ...f, email, password: SAMPLE_PASSWORD });
   return (
-    <Shell title="Sign in" sub="Track your orders, edit your resumes and chat with your expert.">
+    // A server message (wrong password, too many tries …) is shown as the server wrote it, in English.
+    <Shell title={t('signin.title')} sub={t('signin.sub')} lang={lang} top={<LangSwitch t={t} lang={lang} style={{ alignSelf: 'flex-end' }} />}>
       <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); submit(e.currentTarget); }}>
-        <Field id="li-e" name="email" label="Email" type="email" autoComplete="email" value={f.email} error={emailErr} onChange={(e) => { setF({ ...f, email: e.target.value }); setEmailErr(''); }} />
+        <Field id="li-e" name="email" label={t('signin.email')} type="email" autoComplete="email" value={f.email} error={emailErr} onChange={(e) => { setF({ ...f, email: e.target.value }); setEmailErr(''); }} />
         <div className="stack g4">
-          <Field id="li-p" name="password" label="Password" type={show ? 'text' : 'password'} autoComplete="current-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />
-          <span className="row between"><label className="row g4 xs"><input type="checkbox" checked={show} onChange={(e) => setShow(e.target.checked)} />Show password</label><Link to="/forgot-password" className="xs">Forgot password?</Link></span>
+          <Field id="li-p" name="password" label={t('signin.password')} type={show ? 'text' : 'password'} autoComplete="current-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />
+          <span className="row between"><label className="row g4 xs"><input type="checkbox" checked={show} onChange={(e) => setShow(e.target.checked)} />{t('signin.show')}</label><Link to="/forgot-password" className="xs">{t('signin.forgot')}</Link></span>
         </div>
         {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
-        <button type="submit" className="btn btn-ink btn-lg" disabled={busy}>{busy && <Spinner />}Sign in</button>
+        <button type="submit" className="btn btn-ink btn-lg" disabled={busy}>{busy && <Spinner />}{t('signin.button')}</button>
       </form>
-      <span className="small">New here? <Link to={`/signup${next ? `?next=${encodeURIComponent(next)}` : ''}`}>Create an account</Link> · Experts: <Link to="/signup?as=expert">join as an expert</Link></span>
+      <span className="small">{t('signin.new')} <Link to={`/signup${next ? `?next=${encodeURIComponent(next)}` : ''}`}>{t('signin.create')}</Link> · {t('signin.experts')} <Link to="/signup?as=expert">{t('signin.joinExpert')}</Link></span>
       <Demo>
         sample accounts use password <code>{SAMPLE_PASSWORD}</code>; every email code is <code>{DEMO_CODE}</code>.{' '}
         <button type="button" className="link-btn xs" onClick={() => fill('saivarsha@example.com')}>Customer · Sai Varsha</button>{' · '}

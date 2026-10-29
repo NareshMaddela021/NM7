@@ -1,18 +1,23 @@
 // The organization plans table and FAQ, shared by /for-orgs and the home page. Prices, limits and features come from
-// the server (Admin → Organization plans), so nothing here is hard-coded.
+// the server (Admin → Organization plans), so nothing here is hard-coded. Words around them follow the chosen language
+// (t from useLang; strings orgs.table.* and orgs.faq.* in src/i18n/pages.json); plan names stay as the server has them.
 import { useEffect, useState } from 'react';
 import { LIVE } from '../../lib/auth';
-import { LIMITS, PLAN_FEATURES, limitText, periodText, rupees } from '../../lib/orgBilling';
+import { translate } from '../../lib/i18n';
+import { LIMITS, PLAN_FEATURES, limitText, rupees } from '../../lib/orgBilling';
 import { http, onSlow } from '../../services/http';
 
-export const ORG_FAQ = [
-  ['What is Nm7 for Organizations?', 'Your students or candidates build ATS-safe resumes on Nm7 and share them with you, with their consent. You see every shared resume in one table, approve, remind, print and export them — and run kiosks at events.'],
-  ['Can we try it first?', 'Yes. The Free plan needs no payment: one group of up to 50 members and one coordinator. Upgrade any time from Organization → Billing.'],
-  ['What happens when a plan ends?', 'We email the Owner 14, 7 and 1 day before. After the end there is a grace period; then the Free limits apply. Nothing is ever deleted — your groups and shared resumes stay readable, and new joins over the Free limits wait until you renew.'],
-  ['Do you give GST invoices?', 'Yes. Add your organization’s legal name, address and GSTIN (optional) in Billing; every payment gets an invoice you can download.'],
-  ['How do we pay?', 'Online through Razorpay (UPI, cards, netbanking), or by bank transfer / purchase order — use “Talk to us” and we’ll send a proforma invoice.'],
-  ['Is candidate data safe?', 'Members choose what to share and can leave any time. Aadhaar, PAN and similar numbers are removed from shared resumes, and every view, print and export is logged.'],
-];
+const EN = (k, v) => translate('en', k, v);
+/** The organizations' FAQ (orgs.faq.1–6) in one language; tr = (key, values) → string. */
+export const orgFaq = (tr = EN) => [1, 2, 3, 4, 5, 6].map((i) => [tr(`orgs.faq.${i}.q`), tr(`orgs.faq.${i}.a`)]);
+export const ORG_FAQ = orgFaq(); // English: Google's FAQ rich results
+
+/** "per 12 months" / "per 3 months" / "per 30 days" (lib/orgBilling periodText, in the chosen language). */
+export function periodWords(plan, tr = EN) {
+  if (plan.periodMonths) return plan.periodMonths === 12 ? tr('orgs.table.per12') : tr('orgs.table.perMonths', { n: plan.periodMonths });
+  if (plan.periodDays) return tr('orgs.table.perDays', { n: plan.periodDays });
+  return '';
+}
 
 /** GET /api/public/org-plans once: { loading } → { data } or { error }. Without the API (preview builds): {}. */
 export function useOrgPlans() {
@@ -39,30 +44,33 @@ export function PlansSkeleton({ rows = 6 }) {
   );
 }
 
+/** The feature rows of the table (event kiosks show as the "Kiosk stalls" limit instead). */
+export const TABLE_FEATURES = PLAN_FEATURES.filter(([k]) => k !== 'kiosk');
+
 /** Free / Drive / Campus / Custom side by side (prices before GST), from GET /api/public/org-plans. */
-export function PlansTable({ data }) {
+export function PlansTable({ data, t = EN }) {
   const plans = data.plans;
   return (
     <div className="table-wrap" style={{ overflowX: 'auto' }}>
       <table className="table" style={{ minWidth: 640 }}>
-        <caption className="sr-only">Plans for organizations</caption>
+        <caption className="sr-only">{t('orgs.table.caption')}</caption>
         <thead>
-          <tr><th scope="col">Plan</th>{plans.map((p) => <th key={p.id} scope="col">{p.name}</th>)}</tr>
+          <tr><th scope="col">{t('orgs.table.plan')}</th>{plans.map((p) => <th key={p.id} scope="col" lang="en">{p.name}</th>)}</tr>
         </thead>
         <tbody>
           <tr>
-            <th scope="row">Price</th>
+            <th scope="row">{t('orgs.table.price')}</th>
             {plans.map((p) => (
               <td key={p.id}>
-                {p.id === 'custom' ? <strong>Talk to us</strong> : p.price ? <><strong>{rupees(p.price)}</strong> <span className="small muted">{periodText(p)}{data.gstOn ? ' + GST' : ''}</span></> : <strong>₹0</strong>}
+                {p.id === 'custom' ? <strong>{t('orgs.talk.title')}</strong> : p.price ? <><strong>{rupees(p.price)}</strong> <span className="small muted">{periodWords(p, t)}{data.gstOn ? ' + GST' : ''}</span></> : <strong>₹0</strong>}
               </td>
             ))}
           </tr>
-          {LIMITS.map(([k, label]) => (
-            <tr key={k}><th scope="row">{label}</th>{plans.map((p) => <td key={p.id}>{p.id === 'custom' ? 'Your choice' : limitText(p.limits[k])}</td>)}</tr>
+          {LIMITS.map(([k]) => (
+            <tr key={k}><th scope="row">{t(`orgs.table.l.${k}`)}</th>{plans.map((p) => <td key={p.id}>{p.id === 'custom' ? t('orgs.table.yourChoice') : p.limits[k] == null ? t('orgs.table.unlimited') : limitText(p.limits[k])}</td>)}</tr>
           ))}
-          {PLAN_FEATURES.filter(([k]) => k !== 'kiosk').map(([k, label]) => (
-            <tr key={k}><th scope="row">{label}</th>{plans.map((p) => <td key={p.id}>{p.features[k] ? 'Yes' : '—'}</td>)}</tr>
+          {TABLE_FEATURES.map(([k]) => (
+            <tr key={k}><th scope="row">{t(`orgs.table.f.${k}`)}</th>{plans.map((p) => <td key={p.id}>{p.features[k] ? t('orgs.table.yes') : '—'}</td>)}</tr>
           ))}
         </tbody>
       </table>
