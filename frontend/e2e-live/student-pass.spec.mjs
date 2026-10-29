@@ -48,7 +48,7 @@ for (const [label, opts] of SIZES) {
       await page.goto('/me?pass=1');
       const offer = page.getByTestId('pass-offer');
       await expect(offer).toContainText('Best value');
-      await expect(offer.getByTestId('pass-buy')).toContainText('annual pass');
+      await expect(offer.getByTestId('pass-buy')).toHaveText('Get the pass on WhatsApp');
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(opts.viewport.width);
       const o = await post(page, '/api/orders/whatsapp', { planId: 'annual_pass' });
       expect(o.status).toBe(201);

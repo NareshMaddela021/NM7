@@ -7,7 +7,7 @@ import { Spinner, useToast } from './ui';
 import CodeBox from './CodeBox';
 import { createOrder, pay } from '../services/api';
 import { http } from '../services/http';
-import { BUY_WA, WA_PAY_TEXT, buyOnWhatsApp } from '../lib/waPay';
+import { WA_PAY_TEXT, buyOnWhatsApp } from '../lib/waPay';
 import { reloadMe } from '../lib/customerStore';
 
 const rs = (n) => `Rs ${Number(n).toLocaleString('en-IN', Number.isInteger(Number(n)) ? {} : { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -62,7 +62,7 @@ export default function PassOffer({ onBought, compact = false }) {
       </div>
       <span className="xs muted">{PASS_WHAT}{compact ? '' : ' Things you buy separately stay yours after the year; your resumes are never locked.'}</span>
       <button type="button" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={busy} onClick={buy} data-testid="pass-buy">
-        {busy && <Spinner />}{st.mode === 'whatsapp' ? (busy ? 'Opening WhatsApp…' : `${BUY_WA}: annual pass`) : busy ? 'Waiting for your payment…' : `Get the pass ${rs(price)}`}
+        {busy && <Spinner />}{st.mode === 'whatsapp' ? (busy ? 'Opening WhatsApp…' : 'Get the pass on WhatsApp') : busy ? 'Waiting for your payment…' : `Get the pass ${rs(price)}`}
       </button>
       {!compact && <CodeBox item="annual_pass" onApplied={setQuote} disabled={busy} onUnlocked={done} />}
       {st.mode === 'whatsapp' && <span className="xs faint">{WA_PAY_TEXT}</span>}
