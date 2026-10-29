@@ -42,7 +42,7 @@ export default function Kiosks({ orgId, groups, canManage }) {
       <div className="row between g8"><strong>Kiosks</strong><button type="button" className="link-btn small" onClick={st.reload}>Refresh</button></div>
       <span className="xs faint">A kiosk is a tablet or laptop at your event. Candidates sign in with a code sent to their email, agree to share, build their resume step by step and print it. The screen wipes itself after each person.</span>
       <Loading st={st} empty={emptyIf((d) => !d.length, 'No kiosks yet.')}>{(rows) => (
-        <div className="table-wrap"><table className="table"><thead><tr><th>Kiosk</th><th>Group</th><th>Status</th><th>Today</th><th>Ends</th><th /></tr></thead>
+        <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table"><thead><tr><th>Kiosk</th><th>Group</th><th>Status</th><th>Today</th><th>Ends</th><th /></tr></thead>
           <tbody>{rows.map((k) => (
             <tr key={k.id} data-testid="kiosk-row">
               <td className="small"><strong>{k.label}</strong>{k.lastSeenAt && <div className="xs faint">last seen {when(k.lastSeenAt)}</div>}</td>

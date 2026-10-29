@@ -89,7 +89,7 @@ export function LiveWhatsAppPayments() {
       <PageHead title="WhatsApp payments" sub="Orders paid in a WhatsApp chat. Mark one paid only after the money has arrived." right={<Link to="/admin/orders" className="btn btn-outline">All orders</Link>} />
       <Tabs label="Show" tabs={VIEWS} value={view} onChange={setView} />
       <Loading st={st} empty={emptyIf((d) => !d.length, view === 'awaiting' ? 'No orders waiting for payment.' : 'Nothing here.')}>{(rows) => (
-        <div className="card table-wrap" style={{ padding: 0 }}>
+        <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ padding: 0 }}>
           <table className="table" data-testid="wa-table"><thead><tr><th>Order</th><th>Customer</th><th>Item</th><th>Amount</th><th>Age</th><th>Status</th><th /></tr></thead>
             <tbody>{rows.map((r) => (
               <tr key={r.id} data-testid="wa-row">

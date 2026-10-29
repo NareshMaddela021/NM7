@@ -192,7 +192,7 @@ export function OrderDetail() {
 
       <section className="card stack g8" aria-label={receipt ? 'Receipts' : 'Invoices'}>
         <strong>{receipt ? 'Receipts' : 'Invoices'}</strong>
-        <div className="table-wrap"><table className="table"><thead><tr><th>{receipt ? 'Receipt' : 'Invoice'}</th><th>Date</th><th>For</th><th>Amount</th><th /></tr></thead>
+        <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table"><thead><tr><th>{receipt ? 'Receipt' : 'Invoice'}</th><th>Date</th><th>For</th><th>Amount</th><th /></tr></thead>
           <tbody>{invoices.map((v) => <tr key={v.no}><td className="mono small">{v.no}</td><td className="small">{fmtDay(v.at)}</td><td className="small">{v.item}</td><td className="small">{inr(v.amount)}</td><td><button type="button" className="link-btn small" onClick={() => invoicePdf({ ...v, name: getMe().account.name, email: getMe().account.email, method: o.method })}>PDF</button></td></tr>)}</tbody></table></div>
         <span className="xs faint">{receipt ? 'A payment receipt from Nm7.' : 'Prices include GST.'}</span>
       </section>

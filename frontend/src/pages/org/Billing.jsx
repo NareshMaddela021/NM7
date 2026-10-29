@@ -175,7 +175,7 @@ function Invoices({ orgId }) {
     <section className="card stack g8" aria-label="Invoices">
       <strong>Invoices</strong>
       <Loading st={st}>{(rows) => rows.length === 0 ? <span className="small muted">Your invoices appear here after a payment.</span> : (
-        <div className="table-wrap"><table className="table">
+        <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table">
           <thead><tr><th>Number</th><th>Date</th><th>Type</th><th>Amount</th><th /></tr></thead>
           <tbody>{rows.map((d) => (
             <tr key={d.id}>
@@ -226,7 +226,7 @@ export default function Billing({ orgId }) {
           <section className="card stack g8" aria-label="Payments">
             <strong>Payments</strong>
             {data.orders.length === 0 ? <span className="small muted">No payments yet.</span> : (
-              <div className="table-wrap"><table className="table">
+              <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table">
                 <thead><tr><th>Date</th><th>Plan</th><th>Amount</th><th>Status</th><th>Invoice</th></tr></thead>
                 <tbody>{data.orders.map((o) => (
                   <tr key={o.id}><td>{day(o.paidAt || o.createdAt)}</td><td>{o.planName}</td><td>{rupees(o.amount)}</td><td>{ORDER_STATUS[o.status] || o.status}</td><td className="mono small">{o.invoiceNo || '—'}</td></tr>

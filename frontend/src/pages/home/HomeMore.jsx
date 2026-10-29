@@ -340,7 +340,7 @@ function Pricing({ goPlan, t }) {
         <button type="button" className="btn btn-ghost" aria-expanded={table} onClick={() => setTable(!table)}>{table ? t('pricing.hide') : t('pricing.compare')}</button>
       </div>
       {table && (
-        <div className="card table-wrap" style={{ padding: 0 }}>
+        <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ padding: 0 }}>
           <table className="table"><thead><tr><th>{t('pricing.feature')}</th>{Object.values(PLAN_NAMES).map((n) => <th key={n} lang="en">{n}</th>)}</tr></thead>
             <tbody>{FEATURES.map(([f, ...v]) => <tr key={f}><td className="small">{t(`pricing.f.${f}`, { n: TEMPLATE_COUNT, h: HOURS })}</td>{v.map((x, i) => <td key={i} className="small">{x === true ? <span aria-label={t('pricing.included')}><Check /></span> : x === false ? <span className="faint" aria-label={t('pricing.notIncluded')}>—</span> : cell(x)}</td>)}</tr>)}</tbody></table>
           <p className="xs muted" style={{ padding: '0 16px 14px', margin: 0 }}>{t('pricing.addons')} <span lang="en">{Object.values(ADDONS).map((a) => `${a.name} ${inr(a.price)}`).join(' · ')}</span></p>

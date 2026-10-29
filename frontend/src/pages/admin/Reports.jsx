@@ -31,7 +31,7 @@ export default function Reports() {
   return (
     <>
       <PageHead title="Reports" sub="Monthly numbers and downloads. CSV files open in Excel." />
-      <div className="card table-wrap" style={{ padding: 0 }}>
+      <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ padding: 0 }}>
         <table className="table">
           <thead><tr>{finance[0].map((h) => <th key={h}>{h}</th>)}</tr></thead>
           <tbody>{rows.map((m) => <tr key={m.month}><td><strong>{m.month}</strong></td><td>{m.orders}</td><td>{inr(m.sales)}</td><td>{inr(m.diy)}</td><td>{inr(m.expert)}</td><td>{inr(m.fee)}</td><td>{inr(m.gst)}</td><td>{inr(m.tx)}</td><td>{inr(m.expertNet)}</td><td style={{ color: m.refunds ? 'var(--danger)' : undefined }}>{inr(m.refunds)}</td></tr>)}</tbody>

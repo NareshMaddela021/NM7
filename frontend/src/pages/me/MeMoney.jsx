@@ -25,7 +25,7 @@ export function MePayments() {
         <Kpi label="Paid" value={inr(paid)} sub={`${rows.filter((r) => r.kind === 'payment').length} payments`} />
         <Kpi label="Refunded" value={inr(refunded)} sub={refunded ? 'to your original payment method' : 'no refunds'} />
       </div>
-      <div className="card table-wrap" style={{ padding: 0 }}>
+      <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ padding: 0 }}>
         <table className="table"><thead><tr><th>Date</th><th>What</th><th>Amount</th><th>Method</th><th>Status</th><th /></tr></thead>
           <tbody>{!rows.length && <tr><td colSpan={6} className="small muted" style={{ padding: 20 }}>No payments yet. When you buy a plan, the payment and its GST invoice show here.</td></tr>}{rows.map((r, i) => (
             <tr key={i}>

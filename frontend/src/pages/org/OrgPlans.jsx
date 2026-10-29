@@ -51,7 +51,7 @@ export const TABLE_FEATURES = PLAN_FEATURES.filter(([k]) => k !== 'kiosk');
 export function PlansTable({ data, t = EN }) {
   const plans = data.plans;
   return (
-    <div className="table-wrap" style={{ overflowX: 'auto' }}>
+    <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ overflowX: 'auto' }}>
       <table className="table" style={{ minWidth: 640 }}>
         <caption className="sr-only">{t('orgs.table.caption')}</caption>
         <thead>

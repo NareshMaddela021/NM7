@@ -180,7 +180,7 @@ function DriveDetail({ base, orgId, id, canManage, features, onBack, onGone }) {
         )}
         {canManage && <AddSlot base={dbase} d={d} onDone={set} />}
         {d.slots.length === 0 ? <p className="small muted">No slots yet. Add a time slot, room and round for each company.</p> : (
-          <div className="table-wrap"><table className="table" aria-label="Slots"><thead><tr><th>Time</th><th>Company</th><th>Round</th><th>Room</th><th>Students</th><th>Present</th><th /></tr></thead>
+          <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table" aria-label="Slots"><thead><tr><th>Time</th><th>Company</th><th>Round</th><th>Room</th><th>Students</th><th>Present</th><th /></tr></thead>
             <tbody>{d.slots.map((s) => (
               <tr key={s.id} data-testid="slot-row">
                 <td className="small mono">{s.start}–{s.end}</td><td className="small">{s.company}</td><td className="small">{s.roundName}</td><td className="small">{s.room}</td>

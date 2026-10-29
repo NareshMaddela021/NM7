@@ -452,3 +452,11 @@ mark.fact { background: color-mix(in srgb, var(--signal) 38%, transparent); colo
   .rich-wrap .rich-box { color: CanvasText; -webkit-text-fill-color: CanvasText; }
   .rich-mirror { display: none; }
 }
+
+/* 200% zoom on a phone (about 195 px wide): let the language switch and long buttons wrap instead of overflowing */
+@media (max-width: 260px) {
+  .hx-lang { display: flex; flex-wrap: wrap; flex: 1 1 auto; max-width: 100%; }
+  .hx-lang button { width: auto; flex: 1 1 56px; }
+  .btn { white-space: normal; text-align: center; height: auto; }
+  h1, h2, h3 { overflow-wrap: anywhere; hyphens: auto; }
+}

@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import ErrorBoundary from '../../components/ErrorBoundary';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Header from '../../components/Header';
+import { Dialog } from '../../components/ui';
 import { AdminProvider, ROLES, atRisk, isLate, useAdmin } from './AdminContext';
 
 export const NAV = [
@@ -53,11 +54,10 @@ function Search({ onClose }) {
   ];
   const go = (r) => { if (r) { nav(r.to); onClose(); } };
   return (
-    <div className="overlay" onMouseDown={(e) => e.target === e.currentTarget && onClose()} style={{ alignItems: 'flex-start', paddingTop: '12vh' }}>
-      <div role="dialog" aria-modal="true" aria-label="Search" className="dialog stack g8" style={{ maxWidth: 620 }}>
+    <Dialog title="Search" onClose={onClose} overlayStyle={{ alignItems: 'flex-start', paddingTop: '12vh' }} panelStyle={{ maxWidth: 620, gap: 8 }}>
         <input ref={ref} className="input" value={q} placeholder="Search orders, customers, experts, pages…" aria-label="Search"
           onChange={(e) => { setQ(e.target.value); setI(0); }}
-          onKeyDown={(e) => { if (e.key === 'Escape') onClose(); if (e.key === 'ArrowDown') { e.preventDefault(); setI((n) => Math.min(results.length - 1, n + 1)); } if (e.key === 'ArrowUp') { e.preventDefault(); setI((n) => Math.max(0, n - 1)); } if (e.key === 'Enter') go(results[i]); }} />
+          onKeyDown={(e) => { if (e.key === 'ArrowDown') { e.preventDefault(); setI((n) => Math.min(results.length - 1, n + 1)); } if (e.key === 'ArrowUp') { e.preventDefault(); setI((n) => Math.max(0, n - 1)); } if (e.key === 'Enter') go(results[i]); }} />
         <div role="listbox" aria-label="Results" className="stack" style={{ maxHeight: 360, overflow: 'auto' }}>
           {results.length === 0 && <span className="small muted" style={{ padding: 12 }}>Nothing found.</span>}
           {results.map((r, n) => (
@@ -68,8 +68,7 @@ function Search({ onClose }) {
           ))}
         </div>
         <span className="xs faint">↑ ↓ to move · Enter to open · Esc to close</span>
-      </div>
-    </div>
+    </Dialog>
   );
 }
 

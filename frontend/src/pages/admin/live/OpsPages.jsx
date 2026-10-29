@@ -88,7 +88,7 @@ function AiUsage() {
           <span className="xs muted">Today {u.days[0].total} of {u.cap} AI calls · per person a day: Snap photos {u.perPerson.photos}, summary writer {u.perPerson.summary}, LinkedIn headlines {u.perPerson.linkedin ?? 10}</span>
         </div>
         {u.capReachedToday && <div className="well small" role="status" style={{ color: 'var(--danger)' }}><strong>AI daily cap reached.</strong> AI features are using their free fallback until midnight (India time).</div>}
-        <div className="table-wrap">
+        <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns">
           <table className="table">
             <thead><tr><th>Day</th>{AI_FEATURES.map(([k, l]) => <th key={k}>{l}: calls · fallbacks · failed · refused</th>)}<th>All AI calls</th></tr></thead>
             <tbody>{u.days.map((d) => (
@@ -140,7 +140,7 @@ export function LiveOrders() {
       <div className="row g16" style={{ alignItems: 'flex-start' }}>
         <div style={{ flex: '3 1 480px', minWidth: 0 }}>
           <Loading st={st} failText={params.get('q') ? SEARCH_FAIL : undefined} empty={emptyIf((d) => !d.items.length, status || late || params.get('q') ? 'No orders match.' : 'No orders yet. Paid orders appear here.')}>{(d) => (
-            <div className="card table-wrap" style={{ padding: 0 }}>
+            <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ padding: 0 }}>
               <table className="table"><thead><tr><th>Order</th><th>Customer</th><th>Plan</th><th>Status</th><th>Deadline</th><th>Amount</th></tr></thead>
                 <tbody>{d.items.map((o) => (
                   <tr key={o.id} onClick={() => setOpen(o.id)} style={{ cursor: 'pointer', background: open === o.id ? 'var(--sunken)' : undefined }}>
@@ -255,7 +255,7 @@ export function LivePayments() {
       <Tabs label="View" tabs={[['payments', 'Payments'], ['invoices', 'Invoices'], ['payouts', 'Expert payouts']]} value={tab} onChange={(v) => setParams({ tab: v })} />
       {tab === 'payments' && (
         <Loading st={pays} empty={emptyIf((d) => !d.items.length, 'No payments yet. Online payments are switched off until the Razorpay keys are added.')}>{(d) => (
-          <div className="card table-wrap" style={{ padding: 0 }}>
+          <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ padding: 0 }}>
             <table className="table"><thead><tr><th>When</th><th>Order</th><th>Customer</th><th>Amount</th><th>Method</th><th>Status</th></tr></thead>
               <tbody>{d.items.map((p) => (
                 <tr key={p.id}><td className="small">{when(p.createdAt)}</td><td className="mono small">{p.orderId || <span style={{ color: 'var(--danger)' }}>no order</span>}</td><td className="small">{p.customerName || '—'}</td><td className="small">{rupees(p.amount)}</td><td className="small">{p.method || '—'}</td><td><span className={`badge b-${p.status === 'captured' ? 'success' : p.status === 'failed' ? 'danger' : 'neutral'}`}>{p.status}</span><div className="xs faint mono">{p.razorpayPaymentId || ''}</div></td></tr>
@@ -265,7 +265,7 @@ export function LivePayments() {
       )}
       {tab === 'invoices' && (
         <Loading st={invoices} empty={emptyIf((d) => !d.items.length, 'No invoices yet. An invoice number is given when a payment succeeds.')}>{(d) => (
-          <div className="card table-wrap" style={{ padding: 0 }}>
+          <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ padding: 0 }}>
             <table className="table"><thead><tr><th>Invoice</th><th>Date</th><th>Order</th><th>Customer</th><th>Amount</th><th>Status</th></tr></thead>
               <tbody>{d.items.map((v) => <tr key={v.invoiceNo}><td className="mono small">{v.invoiceNo}</td><td className="small">{day(v.paidAt)}</td><td className="mono small">{v.orderId}</td><td className="small">{v.customer}<div className="xs faint">{v.email}</div></td><td className="small">{rupees(v.amount)}</td><td className="small">{STATUS_LABEL[v.status] || v.status}</td></tr>)}</tbody></table>
             <div className="xs faint" style={{ padding: 12 }}>{d.total} invoice(s). Prices include GST.</div>

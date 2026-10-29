@@ -50,7 +50,7 @@ function Table({ label, head, rows, testid }) {
   if (!rows.length) return null;
   return (
     <div className="stack g8"><strong className="small">{label}</strong>
-      <div className="table-wrap"><table className="table" aria-label={label} data-testid={testid}><thead><tr>{head.map((h) => <th key={h}>{h}</th>)}</tr></thead>
+      <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table" aria-label={label} data-testid={testid}><thead><tr>{head.map((h) => <th key={h}>{h}</th>)}</tr></thead>
         <tbody>{rows.map((r) => <tr key={r[0]}>{r.map((v, i) => <td key={i} className="small">{v}</td>)}</tr>)}</tbody></table></div>
     </div>
   );
@@ -115,7 +115,7 @@ export default function Offers({ orgId, groups, canManage }) {
         </section>
       )}</Loading>
       <Loading st={list} empty={emptyIf((x) => !x.length, 'No offers recorded yet.')}>{(rows) => (
-        <div className="table-wrap"><table className="table" aria-label="Offers"><thead><tr><th>Student</th><th>Company</th><th>Role</th><th>CTC</th><th>Type</th><th>Status</th><th /></tr></thead>
+        <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table" aria-label="Offers"><thead><tr><th>Student</th><th>Company</th><th>Role</th><th>CTC</th><th>Type</th><th>Status</th><th /></tr></thead>
           <tbody>{rows.map((o) => (
             <tr key={o.id} data-testid="offer-row">
               <td className="small">{o.student?.roll ? <span className="mono">{o.student.roll} · </span> : null}{o.student?.name}</td>

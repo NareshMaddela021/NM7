@@ -167,7 +167,7 @@ function MissingTabs({ base, d, group, role, onChange, wa }) {
         {tab === 'notJoined' && <span className="xs muted" style={{ alignSelf: 'center' }}>They haven’t joined, so they can’t be emailed from here: share the group’s join link or QR code with them.</span>}
       </div>
       {rows.length === 0 ? <span className="small muted" data-testid="pl-missing-empty">No one here. 🎉</span> : (
-        <div className="table-wrap"><table className="table" data-testid="pl-missing-table">
+        <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table" data-testid="pl-missing-table">
           <thead><tr>
             {tab !== 'notJoined' && !viewer && <th style={{ width: 36 }}><input type="checkbox" aria-label="Select all" checked={all} onChange={() => setSel(all ? [] : selectable.map((r) => r.membershipId))} /></th>}
             <th>Name</th><th>Roll no.</th><th>Branch</th><th>What’s missing</th><th>Last active</th>

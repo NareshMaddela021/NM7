@@ -13,7 +13,7 @@ function Members() {
   const ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(inv.email) && !team.some((t) => t.email === inv.email);
   return (
     <>
-      <div className="card table-wrap" style={{ padding: 0 }}>
+      <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ padding: 0 }}>
         <table className="table"><thead><tr><th>Member</th><th>Role</th><th>Two-step login</th><th>Last login</th></tr></thead>
           <tbody>{team.map((t) => (
             <tr key={t.id}><td><strong>{t.name}</strong><div className="xs faint">{t.email}</div></td>
@@ -29,7 +29,7 @@ function Members() {
         <div className="field" style={{ flex: '1 1 160px' }}><label htmlFor="ir" className="label">Role</label><select id="ir" className="input" style={{ height: 42 }} value={inv.role} onChange={(e) => setInv({ ...inv, role: e.target.value })}>{Object.entries(ROLES).filter(([k]) => k !== 'owner').map(([k, r]) => <option key={k} value={k}>{r.label}</option>)}</select></div>
         <button type="submit" className="btn btn-ink" disabled={!ok}>Send invite</button>
       </form>
-      <div className="card table-wrap" style={{ padding: 0 }}>
+      <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ padding: 0 }}>
         <table className="table"><thead><tr><th>Section</th>{Object.values(ROLES).map((r) => <th key={r.label}>{r.label}</th>)}</tr></thead>
           <tbody>{NAV.map(([k, , l]) => <tr key={k}><td className="small">{l}</td>{Object.entries(ROLES).map(([rk, r]) => <td key={rk} aria-label={r.can.includes(k) ? 'Allowed' : 'No access'}>{r.can.includes(k) ? '✓' : <span className="faint">—</span>}</td>)}</tr>)}</tbody></table>
       </div>
@@ -51,7 +51,7 @@ function AuditLog() {
         <select aria-label="Person" className="input" style={{ height: 40, width: 'auto' }} value={who} onChange={(e) => setWho(e.target.value)}><option value="">Everyone</option>{people.map((a) => <option key={a}>{a}</option>)}</select>
         <button type="button" className="btn btn-outline" onClick={() => downloadCsv('audit-log.csv', [['Time', 'Who', 'Area', 'What', 'Before', 'After'], ...list.map((l) => [fmtDT(l.at), l.who, l.area, l.what, l.from, l.to])])}>Export CSV</button>
       </div>
-      <div className="card table-wrap" style={{ padding: 0 }}>
+      <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ padding: 0 }}>
         <table className="table"><thead><tr><th>When</th><th>Who</th><th>Area</th><th>What</th><th>Before → after</th></tr></thead>
           <tbody>{list.map((l, i) => <tr key={i}><td className="small">{fmtDT(l.at)}</td><td className="small">{l.who}</td><td><span className="badge b-neutral">{l.area}</span></td><td className="small">{l.what}</td><td className="xs muted" style={{ maxWidth: 260, overflowWrap: 'anywhere' }}>{l.from} → <strong>{l.to}</strong></td></tr>)}</tbody></table>
       </div>

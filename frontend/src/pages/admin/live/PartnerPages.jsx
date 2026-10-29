@@ -60,12 +60,12 @@ function Partner({ id, onChanged }) {
             )}
             <strong className="small">Referred organizations</strong>
             {p.referredOrgs.length === 0 ? <span className="small muted">None yet.</span> : (
-              <div className="table-wrap"><table className="table"><thead><tr><th>Organization</th><th>Plan</th><th>Since</th><th>How</th></tr></thead>
+              <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table"><thead><tr><th>Organization</th><th>Plan</th><th>Since</th><th>How</th></tr></thead>
                 <tbody>{p.referredOrgs.map((o) => <tr key={o.id}><td><Link to={`/admin/orgs/${o.id}`}>{o.name}</Link></td><td>{o.plan}</td><td className="small">{day(o.since)}</td><td className="small">{o.via}</td></tr>)}</tbody></table></div>
             )}
             <strong className="small">Ledger</strong>
             {p.entries.length === 0 ? <span className="small muted">No commission yet.</span> : (
-              <div className="table-wrap"><table className="table" aria-label="Commission ledger"><thead><tr><th>Date</th><th>Organization</th><th>Document</th><th>Base</th><th>Amount</th><th>Status</th></tr></thead>
+              <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table" aria-label="Commission ledger"><thead><tr><th>Date</th><th>Organization</th><th>Document</th><th>Base</th><th>Amount</th><th>Status</th></tr></thead>
                 <tbody>{p.entries.map((e) => <tr key={e.id}><td className="small">{day(e.earnedOn)}</td><td className="small">{e.orgName}</td><td className="mono small">{e.document}</td><td className="small">{e.pct}% of {rupees(e.base)}</td><td className="small">{e.amount < 0 ? '−' : ''}{rupees(Math.abs(e.amount))}</td><td className="small">{STATE[e.state]}{e.state === 'pending' ? ` · from ${day(e.payableOn)}` : ''}</td></tr>)}</tbody></table></div>
             )}
             {p.payouts.length > 0 && (
@@ -89,7 +89,7 @@ export function LivePartners() {
       <PageHead title="Partners" sub="Referral partners: applications, codes, referred organizations and commission." />
       <Loading st={st} empty={emptyIf((d) => !d.length, 'No applications yet. Partners apply at nm7.si/partners.')}>{(rows) => (
         <div className="stack g12">
-          <div className="card table-wrap" style={{ padding: 0 }}>
+          <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ padding: 0 }}>
             <table className="table"><thead><tr><th>Partner</th><th>Status</th><th>Code</th><th>Orgs</th><th>Payable</th><th>Paid</th><th /></tr></thead>
               <tbody>{rows.map((p) => (
                 <tr key={p.id}>

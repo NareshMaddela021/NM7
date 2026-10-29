@@ -159,7 +159,7 @@ function MembershipCheck({ g, onClose }) {
         <div className="stack g12">
           <span className="small">In this group: <strong>{d.counts.inGroup}</strong> membership record{d.counts.inGroup === 1 ? '' : 's'}, <strong>{d.counts.activeInGroup}</strong> not left.</span>
           {d.memberships.length === 0 ? <span className="small muted">No membership records for this group or organization, and nobody joined any group in the last 7 days.</span> : (
-            <div className="table-wrap"><table className="table" aria-label="Membership check"><thead><tr><th>Member</th><th>Group</th><th>Joined</th><th>Left</th><th>Approval</th><th>Listed?</th></tr></thead>
+            <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table" aria-label="Membership check"><thead><tr><th>Member</th><th>Group</th><th>Joined</th><th>Left</th><th>Approval</th><th>Listed?</th></tr></thead>
               <tbody>{d.memberships.map((m) => (
                 <tr key={m.id}><td className="small mono">{m.initials}</td><td className="small">{m.group}</td><td className="small">{when(m.joinedAt)}</td><td className="small">{m.leftAt ? when(m.leftAt) : '—'}</td><td className="small">{m.approval}</td>
                   <td className="small">{m.shown ? <span className="badge b-success">Yes</span> : <span className="badge b-warning">No: {m.reasons.map((r) => REASON[r] || r).join(', ')}</span>}</td></tr>
@@ -246,7 +246,7 @@ function Coordinators({ orgId, groups }) {
       <strong>Coordinators</strong>
       <span className="xs faint">People from the organization who run their own drives at nm7.si/org. They sign in with their own Nm7 account; removing someone ends their access at once.</span>
       <Loading st={st} empty={emptyIf((d) => !d.length, 'No coordinators yet.')}>{(rows) => (
-        <div className="table-wrap"><table className="table"><thead><tr><th>Person</th><th>Role</th><th>Groups</th><th>Status</th><th /></tr></thead>
+        <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table"><thead><tr><th>Person</th><th>Role</th><th>Groups</th><th>Status</th><th /></tr></thead>
           <tbody>{rows.map((s) => (
             <tr key={s.id}>
               <td className="small">{s.name || s.email}{s.name && <div className="xs faint">{s.email}</div>}</td>
@@ -375,7 +375,7 @@ export function AuditList({ url, sub }) {
       <div className="row between g8"><strong>Audit log</strong><button type="button" className="link-btn small" onClick={log.reload}>Refresh</button></div>
       <span className="xs faint">{sub || 'Every view, download, print, export, reminder and approval of a shared resume, and every organization / group change.'}</span>
       <Loading st={log} empty={emptyIf((d) => !d.length, 'Nothing logged yet.')}>{(rows) => (
-        <div className="table-wrap"><table className="table"><thead><tr><th>When</th><th>Who</th><th>Action</th><th>Count</th><th>Details</th></tr></thead>
+        <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table"><thead><tr><th>When</th><th>Who</th><th>Action</th><th>Count</th><th>Details</th></tr></thead>
           <tbody>{rows.map((a) => <tr key={a.id}><td className="small">{when(a.at)}</td><td className="small">{a.actorName || '—'}{a.byStaff && <div className="xs faint">coordinator</div>}</td><td className="small mono">{a.action}</td><td className="small">{a.count ?? '—'}</td><td className="xs" style={{ maxWidth: 320, overflowWrap: 'anywhere' }}>{auditText(a.details)}</td></tr>)}</tbody></table></div>
       )}</Loading>
     </section>
@@ -461,7 +461,7 @@ export function GroupDashboard({ ctx, groupId, onBack }) {
         <section className="card stack g8" aria-label="Incomplete members">
           <strong>Incomplete resumes ({d.counts.incomplete})</strong>
           {d.incompleteMembers.length === 0 ? <span className="small muted">Everyone’s resume is at least 80% complete.</span> : (
-            <div className="table-wrap"><table className="table"><thead><tr><th>Member</th><th>Complete</th><th>Missing</th></tr></thead>
+            <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table"><thead><tr><th>Member</th><th>Complete</th><th>Missing</th></tr></thead>
               <tbody>{d.incompleteMembers.map((m) => <tr key={m.membershipId}><td className="small">{m.name}{m.roll && <div className="xs faint">{m.roll}</div>}{m.approval === 'pending' && <span className="badge b-warning">Pending</span>}</td><td className="small">{m.completeness}%</td><td className="small">{m.missing.join(', ')}</td></tr>)}</tbody></table></div>
           )}
         </section>
@@ -511,7 +511,7 @@ export function LiveOrgs() {
     <>
       <PageHead title="Organizations" sub="Colleges, institutes, job fairs and other groups whose people share their resumes with Nm7." right={<Link className="btn btn-outline" to="/admin/shared-resumes">Shared resumes</Link>} />
       <Loading st={st} empty={emptyIf((d) => !d.length, 'No organizations yet. Add the first one below.')}>{(orgs) => (
-        <div className="card table-wrap" style={{ padding: 0 }}>
+        <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ padding: 0 }}>
           <table className="table"><thead><tr><th>Organization</th><th>Type</th><th>Plan</th><th>Groups</th><th>Members</th><th>Added</th></tr></thead>
             <tbody>{orgs.map((o) => (
               <tr key={o.id}>
@@ -777,7 +777,7 @@ export function SharedResumes({ ctx = ADMIN_CTX, groups: portalGroups = null, ti
 
       <Loading st={st} empty={emptyIf((d) => d.total === 0, Object.keys(filters).length ? 'No shared resumes match these filters.' : 'No shared resumes yet. Share a group’s join link or QR code.')}>{(d) => (
         <>
-          <div className="card table-wrap" style={{ padding: 0 }}>
+          <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ padding: 0 }}>
             <table className="table" aria-label="Shared resumes">
               <thead><tr>
                 <th><input type="checkbox" aria-label="Select all on this page" checked={allOnPage} onChange={() => setSelected((s) => { const n = new Set(s); pageIds.forEach((i) => (allOnPage ? n.delete(i) : n.add(i))); return n; })} /></th>

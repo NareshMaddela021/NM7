@@ -29,7 +29,7 @@ function LiveEarnings() {
         <section className="card stack g8">
           <strong>Orders</strong>
           {done.length ? (
-            <div className="table-wrap"><table className="table"><thead><tr><th>Order</th><th>Plan</th><th>Status</th><th>You get</th></tr></thead>
+            <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table"><thead><tr><th>Order</th><th>Plan</th><th>Status</th><th>You get</th></tr></thead>
               <tbody>{done.map((o) => <tr key={o.id}><td className="mono small"><Link to={`/expert/orders/${o.id}`}>{o.id}</Link></td><td className="small">{PLANS[o.plan]?.name}</td><td className="small">{o.status === 'approved' ? 'Approved' : 'Delivered'}</td><td className="small">{inr(expertPayout(o.price).net)}</td></tr>)}</tbody></table></div>
           ) : <span className="small muted">No delivered orders yet. Your earnings show here once you deliver.</span>}
         </section>
@@ -90,7 +90,7 @@ function PreviewEarnings() {
         <div className="split">
           <section className="main card" aria-label="Orders" style={{ padding: 0, overflow: 'hidden' }}>
             <div className="row between" style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)' }}><strong>Orders in {NAMES[month]}</strong><button type="button" className="btn btn-outline" style={{ minHeight: 40, fontSize: 13 }} onClick={() => downloadCsv(`asuraa-statement-${month}.csv`, [['Order', 'Customer', 'Plan', 'Price', `Platform fee ${FEES.platformPct}%`, `GST ${FEES.gstPct}% on fee`, `Transaction ${FEES.txPct}%`, 'TDS', 'You earn', 'Status'], ...rows.map((r) => { const b = expertPayout(r.price); return [r.id, r.name, r.plan, r.price, Math.round(b.platform), Math.round(b.gst), Math.round(b.tx), FEES.tdsPct == null ? 'rate pending' : Math.round(b.net * FEES.tdsPct / 100), Math.round(b.net), r.status]; })])}>Download statement</button></div>
-            <div className="table-wrap">
+            <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns">
               <table className="table" style={{ minWidth: 620 }}>
                 <thead><tr><th>ORDER</th><th>PLAN</th><th>DELIVERED</th><th>STATUS</th><th style={{ textAlign: 'right' }}>FEE + GST + TX</th><th style={{ textAlign: 'right' }}>YOU EARN</th></tr></thead>
                 <tbody>

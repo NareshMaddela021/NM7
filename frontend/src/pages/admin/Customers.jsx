@@ -97,7 +97,7 @@ export default function Customers() {
         {[['all', 'All'], ['paid', 'Paid'], ['free', 'Free only'], ['blocked', 'Blocked']].map(([v, l]) => <button key={v} type="button" className="chip" aria-pressed={f === v} style={{ minHeight: 36, fontSize: 13 }} onClick={() => setF(v)}>{l}</button>)}
       </div>
       <div className="row g16" style={{ alignItems: 'flex-start' }}>
-        <div className="card table-wrap" style={{ flex: '3 1 520px', padding: 0 }}>
+        <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ flex: '3 1 520px', padding: 0 }}>
           {list.length === 0 ? <Empty>No customers match.</Empty> : (
             <table className="table"><thead><tr><th>Customer</th><th>City</th><th>Scans</th><th>Spent</th><th>Joined</th></tr></thead>
               <tbody>{list.slice(0, 60).map((c) => (

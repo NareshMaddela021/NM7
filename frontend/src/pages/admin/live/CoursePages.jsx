@@ -55,7 +55,7 @@ export function LiveCourses() {
       <Loading st={st} empty={emptyIf((d) => !d.length, 'No courses yet.')}>{(rows) => {
         const shown = rows.filter((c) => !q.trim() || `${c.skill} ${c.title} ${c.provider}`.toLowerCase().includes(q.trim().toLowerCase()));
         return (
-          <div className="card table-wrap" style={{ padding: 0 }}>
+          <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ padding: 0 }}>
             <table className="table" aria-label="Courses"><thead><tr><th>Skill</th><th>Course</th><th>Language</th><th>Hours</th><th>Free</th><th>Active</th><th /></tr></thead>
               <tbody>{shown.map((c) => (
                 <tr key={c.id}>
