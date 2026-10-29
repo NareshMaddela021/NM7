@@ -9,7 +9,7 @@ const REMOVED = [
   'your resumes and their versions, cover letters and applications',
   'certificates, resume health alerts and ATS checks',
   'job posts you matched, tailoring and interview practice',
-  'your LinkedIn link, text and checks',
+  'your LinkedIn link, PDF text and checks',
   'your public resume link (it stops at once)',
   'group memberships, offers, alumni profile and messages',
   'your name on codes you used',
