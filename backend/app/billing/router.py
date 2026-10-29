@@ -87,6 +87,7 @@ def plan_out(p: dict[str, Any], *, full: bool = False) -> dict[str, Any]:
             "facultyReview": bool(p["features"].get("faculty_review")),
             "multiCampus": bool(p["features"].get("multi_campus")),
             "recruiterAccounts": bool(p["features"].get("recruiter_accounts")),
+            "recruiterCompare": bool(p["features"].get("recruiter_compare")),
         },
         "onSale": bool(p.get("on_sale")),
         "public": bool(p.get("public")),
@@ -534,6 +535,7 @@ class FeaturesIn(CamelModel):
     faculty_review: bool = False
     multi_campus: bool = False
     recruiter_accounts: bool = False
+    recruiter_compare: bool = False
 
 
 class PlanIn(CamelModel):

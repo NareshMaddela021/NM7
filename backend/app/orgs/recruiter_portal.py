@@ -127,6 +127,11 @@ class StageIn(CamelModel):
     note: str = Field("", max_length=500)
 
 
+class CompareIn(CamelModel):
+    ids: list[str] = Field(min_length=2, max_length=4)
+    jd: str | None = Field(None, max_length=20_000)  # the job post from job match mode: a match score each
+
+
 class DownloadIn(CamelModel):
     ids: list[str] | None = Field(None, max_length=DOWNLOAD_MAX)  # None: everyone on the shortlist board
 
@@ -665,6 +670,7 @@ async def search(
         "allowPdf": inv["allow_pdf"],
         "contact": inv["contact"],
         "jobMatch": features_of(inv["_org"])["recruiter_job_match"],
+        "compare": features_of(inv["_org"])["recruiter_compare"],
         "total": len(rows),
         "branches": branches,
         "candidates": sorted(cards, key=lambda c: c["name"].lower()),
@@ -706,6 +712,71 @@ async def job_match(
     scored.sort(key=lambda c: (-(c["match"] or 0), -c.pop("_found"), c.pop("_missing"), -c["ats"], c["name"].lower()))
     await audit(db, None, "recruiter_match", target=inv["_id"], data=_audit(inv, count=len(scored)), ip=None)
     return {"title": p.title, "company": p.company, "must": p.must, "candidates": scored}
+
+
+def _line(text: Any, n: int = 140) -> str:
+    """A short, clean line: the first sentence, never an ID number."""
+    t = _clean(" ".join(str(text or "").split()))
+    first = re.split(r"(?<=[.!?])\s", t, maxsplit=1)[0]
+    return first if len(first) <= n else first[: n - 1].rstrip() + "…"
+
+
+async def compare_item(db, inv: dict[str, Any], r: dict[str, Any], p) -> dict[str, Any]:
+    d = printed(r["_data"])
+    proj = [x for x in d.get("proj") or [] if isinstance(x, dict) and x.get("title")][:3]
+    exp = [e for e in d.get("exp") or [] if isinstance(e, dict) and (e.get("role") or e.get("company"))][:3]
+    wallet = [c["title"] for c in await certs_service.shared_with_others(db, r["user_id"]) if c.get("title")]
+    out = {
+        **card(inv, r),
+        "skills": r["_profile"]["skills"][:10],
+        "projects": [{"title": _line(x["title"], 80), "tech": _line(x.get("tech"), 80),
+                      "line": _line(x.get("description"))} for x in proj],
+        "internships": [{"role": _line(e.get("role"), 60), "company": _line(e.get("company"), 60),
+                         "when": " – ".join(str(v) for v in (e.get("from"), e.get("to")) if v)} for e in exp],
+        "certificates": r["_profile"]["certs"][:6],
+        "walletCertificates": [_line(t, 80) for t in wallet[:6]],  # files the student chose to share
+        "match": None,
+    }  # fmt: skip
+    if p is not None:
+        s = job_score(p, r["_data"])
+        out["match"] = s["score"]
+        out["mustFound"] = [i["name"] for i in s["items"] if i["group"] == "must" and i["status"] in ("found", "weak")]
+        out["mustMissing"] = [i["name"] for i in s["items"] if i["group"] == "must" and i["status"] == "missing"]
+    return out
+
+
+@public.post("/compare")
+async def compare(
+    token: str,
+    body: CompareIn,
+    request: Request,
+    response: Response,
+    db: DB,
+    x_recruiter_session: str | None = Header(None),
+) -> dict[str, Any]:
+    """2–4 students side by side (Campus): CGPA, branch, passing year, top skills, the job match score with must-haves
+    found and missing (when a job post is given), projects, internships, certificates (the wallet's only when the
+    student shares them) and the ATS score. Contact details follow the invite's rules, as everywhere."""
+    response.headers.update(NO_STORE)
+    inv = await _signed_in(db, token, request, x_recruiter_session)
+    if not features_of(inv["_org"])["recruiter_compare"]:
+        raise ApiError(402, "plan_feature", "Comparing candidates is in the Campus plan.")
+    want = list(dict.fromkeys(body.ids))
+    if len(want) < 2:
+        raise ApiError(400, "pick_two", "Pick 2 to 4 students to compare.")
+    by_cid = {_cid(inv["_id"], r["membership_id"]): r for r in await visible(db, inv)}
+    if any(c not in by_cid for c in want):
+        raise NOT_FOUND  # someone stopped sharing, or not this invite's student
+    p = None
+    if body.jd and len(body.jd.strip()) >= 30 and features_of(inv["_org"])["recruiter_job_match"]:
+        p = parse(body.jd)
+        if not (p.must or p.nice or p.title):
+            p = None
+    items = [await compare_item(db, inv, by_cid[c], p) for c in want]
+    await audit(
+        db, None, "recruiter_compare", target=inv["_id"], data=_audit(inv, count=len(items), students=want), ip=None
+    )
+    return {"must": p.must if p else [], "candidates": items}
 
 
 async def _one(db, inv: dict[str, Any], cid: str) -> dict[str, Any]:
