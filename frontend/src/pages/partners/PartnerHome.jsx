@@ -39,14 +39,14 @@ export default function PartnerHome() {
             <section className="card stack g8" aria-label="Referred organizations">
               <strong>Referred organizations</strong>
               {d.orgs.length === 0 ? <span className="small muted">None yet. Organizations appear here after their first payment.</span> : (
-                <div className="table-wrap"><table className="table"><thead><tr><th>Organization</th><th>Plan</th><th>Since</th></tr></thead>
+                <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table"><thead><tr><th>Organization</th><th>Plan</th><th>Since</th></tr></thead>
                   <tbody>{d.orgs.map((o, i) => <tr key={i}><td>{o.name}</td><td>{o.plan}</td><td className="small">{day(o.since)}</td></tr>)}</tbody></table></div>
               )}
             </section>
             <section className="card stack g8" aria-label="Commission entries">
               <strong>Commission</strong>
               {d.entries.length === 0 ? <span className="small muted">No commission yet.</span> : (
-                <div className="table-wrap"><table className="table"><thead><tr><th>Date</th><th>Organization</th><th>Document</th><th>Amount</th><th>Status</th></tr></thead>
+                <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table"><thead><tr><th>Date</th><th>Organization</th><th>Document</th><th>Amount</th><th>Status</th></tr></thead>
                   <tbody>{d.entries.map((e) => { const [l, c] = STATE[e.state]; return (
                     <tr key={e.id}><td className="small">{day(e.earnedOn)}</td><td>{e.orgName}</td><td className="mono small">{e.document}{e.kind === 'reversal' ? <div className="xs faint">refund</div> : null}</td><td className="small">{e.amount < 0 ? '−' : ''}{rupees(Math.abs(e.amount))}<div className="xs faint">{e.pct}% of {rupees(e.base)}</div></td><td><span className={`badge ${c}`}>{l}</span>{e.state === 'pending' ? <div className="xs faint">from {day(e.payableOn)}</div> : null}</td></tr>
                   ); })}</tbody></table></div>

@@ -121,7 +121,7 @@ function WhoUsed({ code, onClose }) {
         <span className="row g8"><button type="button" className="btn btn-outline" disabled={busy} onClick={csv}>Download CSV</button><button type="button" className="btn btn-outline" onClick={onClose}>Close</button></span>
       </span>
       <Loading st={st} empty={emptyIf((d) => !d.uses.length, 'Nobody has used this code yet.')}>{(d) => (
-        <div className="table-wrap"><table className="table"><thead><tr><th>Used by</th><th>Item</th><th>Date</th><th>Price</th><th>Discount</th><th>Paid</th><th>Order</th></tr></thead>
+        <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table"><thead><tr><th>Used by</th><th>Item</th><th>Date</th><th>Price</th><th>Discount</th><th>Paid</th><th>Order</th></tr></thead>
           <tbody>{d.uses.map((u, i) => (
             <tr key={`${u.orderId}-${i}`}>
               <td className="small">{u.name}{u.who === 'org' ? <span className="xs faint"> · organization</span> : null}{u.email ? <div className="xs faint">{u.email}</div> : null}</td>
@@ -175,7 +175,7 @@ export function LiveCodes() {
         <label className="small">Applies to <select className="input" style={inputStyle} value={filter.item} onChange={(e) => setFilter({ ...filter, item: e.target.value })}><option value="">Anything</option>{ITEMS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></label>
       </div>
       <Loading st={st} empty={emptyIf((d) => !d.codes.length, qs ? 'No codes match.' : 'No codes yet. Press New code to make the first one.')}>{(d) => (
-        <div className="card table-wrap" style={{ padding: 0 }}>
+        <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ padding: 0 }}>
           <table className="table" aria-label="Codes"><thead><tr><th>Code</th><th>Type</th><th>Applies to</th><th>Uses</th><th>Valid until</th><th>Status</th><th>Note</th><th>Created</th><th /></tr></thead>
             <tbody>{d.codes.map((c) => (
               <tr key={c.code} data-testid={`code-row-${c.code}`}>

@@ -54,7 +54,7 @@ export default function Refunds() {
       <PageHead title="Refunds & disputes" sub="Late = automatic refund · quality = free re-do first · decide within 24 hours." />
       <Tabs label="Filter" value={f} onChange={setF} tabs={[['open', `Open (${refunds.filter((r) => ['review', 'redo-offered'].includes(r.status)).length})`], ['closed', 'Closed'], ['all', 'All']]} />
       <div className="row g16" style={{ alignItems: 'flex-start' }}>
-        <div className="card table-wrap" style={{ flex: '3 1 520px', padding: 0 }}>
+        <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ flex: '3 1 520px', padding: 0 }}>
           {list.length === 0 ? <Empty>Nothing here.</Empty> : (
             <table className="table"><thead><tr><th>Case</th><th>Type</th><th>Amount</th><th>Opened</th><th>Status</th></tr></thead>
               <tbody>{list.map((r) => (

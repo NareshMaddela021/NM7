@@ -205,7 +205,7 @@ export function LiveTeam() {
     <>
       <PageHead title="Team & audit log" sub="Every admin uses two-step login. Role changes sign that person out." />
       <Loading st={st}>{(team) => (
-        <div className="card table-wrap" style={{ padding: 0 }}>
+        <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ padding: 0 }}>
           <table className="table"><thead><tr><th>Name</th><th>Role</th><th>Two-step</th><th>Last sign-in</th><th /></tr></thead>
             <tbody>{team.map((t) => (
               <tr key={t.id}>
@@ -251,7 +251,7 @@ export function LiveTeam() {
             <button type="button" className="btn btn-outline" style={{ minHeight: 34 }} onClick={() => { setAction(''); setFilter(''); }}>Clear</button>
           </div>
         ) : <Loading st={log} empty={emptyIf((d) => !d.length, 'Nothing logged yet.')}>{(rows) => (
-          <div className="table-wrap"><table className="table"><thead><tr><th>#</th><th>When</th><th>Who</th><th>Action</th><th>Target</th><th>Details</th></tr></thead>
+          <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table"><thead><tr><th>#</th><th>When</th><th>Who</th><th>Action</th><th>Target</th><th>Details</th></tr></thead>
             <tbody>{rows.map((a) => <tr key={a.id}><td className="xs mono">{a.id}</td><td className="small">{when(a.at)}</td><td className="small">{a.actorName || 'System / customer'}</td><td className="small mono">{a.action}</td><td className="small mono">{a.target || '—'}</td><td className="xs" style={{ maxWidth: 320, overflowWrap: 'anywhere' }}>{auditText(a.data)}</td></tr>)}</tbody></table></div>
         )}</Loading>}
       </section>

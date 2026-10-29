@@ -81,7 +81,7 @@ export function MeSettings() {
 
       <section className="card stack g12" aria-label="Notifications">
         <strong>Notifications</strong>
-        <div className="table-wrap"><table className="table"><thead><tr><th>Event</th>{CHANNELS.map(([k, l]) => <th key={k}>{l}</th>)}</tr></thead>
+        <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table"><thead><tr><th>Event</th>{CHANNELS.map(([k, l]) => <th key={k}>{l}</th>)}</tr></thead>
           <tbody>{EVENTS.map(([ev, l]) => <tr key={ev}><td className="small">{l}</td>{CHANNELS.map(([ch, cl]) => <td key={ch}><input type="checkbox" aria-label={`${l} on ${cl}`} checked={!!me.account.notify[ch][ev]} disabled={ev === 'order' && ch === 'email'} onChange={(e) => notify(ch, ev, e.target.checked)} /></td>)}</tr>)}</tbody></table></div>
         <span className="xs faint">Order emails stay on — they carry your receipts and refund updates.</span>
         <HealthEmails />

@@ -79,7 +79,7 @@ function PlanForm({ p, reload }) {
       <div className="row g8"><button type="submit" className="btn btn-ink" disabled={busy}>Save</button>{p.history?.length > 0 && <button type="button" className="btn btn-outline" onClick={() => setHist(!hist)}>{hist ? 'Hide' : 'Earlier versions'}</button>}</div>
       <span className="xs muted">Saving creates version {p.version + 1}. Plans already bought and invoices already issued keep the terms they were sold on.</span>
       {hist && (
-        <div className="table-wrap"><table className="table">
+        <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table">
           <thead><tr><th>Version</th><th>Price</th><th>Period</th><th>Members</th><th>Until</th></tr></thead>
           <tbody>{p.history.map((h) => <tr key={h.version}><td>{h.version}</td><td>{h.price === null ? '—' : rupees(h.price)}</td><td>{periodText(h) || '—'}</td><td>{limitText(h.limits?.members)}</td><td>{day(h.until)}</td></tr>)}</tbody>
         </table></div>
@@ -304,7 +304,7 @@ function OrgMoney({ orgId, b, reload }) {
         </form>
       )}
       {b.orders.length > 0 && (
-        <div className="table-wrap"><table className="table">
+        <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table">
           <thead><tr><th>Order</th><th>Plan</th><th>Amount</th><th>Status</th><th>Paid</th><th>Invoice</th><th /></tr></thead>
           <tbody>{b.orders.map((o) => <tr key={o.id}><td className="mono small">{o.id}</td><td>{o.planName}</td><td>{rupees(o.amount)}</td><td>{o.status}</td><td>{day(o.paidAt)}</td><td className="mono small">{o.invoiceNo || '—'}</td><td>{o.paidAt && o.status !== 'refunded' && <button type="button" className="link-btn small" onClick={() => setRf(rf?.orderId === o.id ? null : { orderId: o.id, amount: '', note: '', offline: '' })}>Refund</button>}</td></tr>)}</tbody>
         </table></div>
@@ -322,7 +322,7 @@ function OrgMoney({ orgId, b, reload }) {
         </form>
       )}
       <Loading st={docs}>{(d) => d.rows.length > 0 && (
-        <div className="table-wrap"><table className="table" aria-label="Invoices and credit notes">
+        <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table" aria-label="Invoices and credit notes">
           <thead><tr><th>Document</th><th>Date</th><th>Taxable</th><th>Total</th><th /></tr></thead>
           <tbody>{d.rows.map((x) => <tr key={x.id}><td className="small"><span className="mono">{x.number}</span><div className="xs faint">{DOC_KIND[x.kind]}{x.against ? ` · against ${x.against}` : ''}</div></td><td className="small">{day(x.date)}</td><td className="small">{rupees(x.taxable)}</td><td className="small">{rupees(x.total)}</td><td><button type="button" className="link-btn small" disabled={busy} onClick={() => run(() => downloadFrom(`/api/admin/org-invoices/${x.id}/pdf`, x.fileName))}>PDF</button></td></tr>)}</tbody>
         </table></div>
@@ -351,7 +351,7 @@ export function LiveOrgInvoices() {
             <Kpi label="Invoices" value={d.totals.invoice.count} sub={`${rupees(d.totals.invoice.taxable)} taxable · ${rupees(d.totals.invoice.total)} with GST`} />
             <Kpi label="Credit notes" value={d.totals.credit_note.count} sub={`${rupees(d.totals.credit_note.taxable)} taxable · ${rupees(d.totals.credit_note.total)} with GST`} />
           </div>
-          <div className="card table-wrap" style={{ padding: 0 }}>
+          <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ padding: 0 }}>
             <table className="table"><thead><tr><th>Number</th><th>Date</th><th>Organization</th><th>Taxable</th><th>GST</th><th>Total</th><th /></tr></thead>
               <tbody>{d.rows.map((x) => (
                 <tr key={x.id}><td className="small"><span className="mono">{x.number}</span><div className="xs faint">{DOC_KIND[x.kind]}{x.against ? ` · against ${x.against}` : ''}</div></td><td className="small">{day(x.date)}</td><td className="small"><Link to={`/admin/orgs/${x.orgId}`}>{x.recipient}</Link>{x.gstin ? <div className="xs faint mono">{x.gstin}</div> : null}</td><td className="small">{rupees(x.taxable)}</td><td className="small">{x.gstOn ? rupees(x.tax) : '—'}</td><td className="small">{rupees(x.total)}</td><td><button type="button" className="link-btn small" disabled={busy} onClick={() => run(() => downloadFrom(`/api/admin/org-invoices/${x.id}/pdf`, x.fileName))}>PDF</button></td></tr>
@@ -373,7 +373,7 @@ export function HomeClicks() {
     <section className="card stack g8" aria-label="Home page taps">
       <strong>Home page taps · last 7 days</strong>
       {used.length === 0 ? <span className="small muted">No taps counted yet.</span> : (
-        <div className="table-wrap"><table className="table">
+        <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table">
           <thead><tr><th>Button or link</th>{days.map((d) => <th key={d}>{day(d)}</th>)}<th>Total</th></tr></thead>
           <tbody>{used.map((e) => <tr key={e.name}><td className="small">{e.label}</td>{days.map((d) => <td key={d} className="small">{e.byDay[d] || '—'}</td>)}<td className="small"><strong>{e.total}</strong></td></tr>)}</tbody>
         </table></div>

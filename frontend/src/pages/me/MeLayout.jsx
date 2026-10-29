@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import Header from '../../components/Header';
 import { useMe, unreadCount, syncFromBuilder, reloadMe } from '../../lib/customerStore';
-import { Spinner } from '../../components/ui';
+import { Dialog, Spinner } from '../../components/ui';
 import { useExpertOrders } from '../../lib/expertStore';
 
 export const ME_NAV = [
@@ -77,11 +77,9 @@ export default function MeLayout() {
         <button type="button" aria-expanded={more} onClick={() => setMore(!more)}><span aria-hidden="true">⋯</span>More{unread > 0 && <span className="dot" aria-label={`${unread} unread messages`} />}</button>
       </nav>
       {more && (
-        <div className="overlay" onMouseDown={(e) => e.target === e.currentTarget && setMore(false)} style={{ alignItems: 'flex-end', padding: 0 }}>
-          <div role="dialog" aria-modal="true" aria-label="More" className="dialog stack g4" style={{ borderRadius: '20px 20px 0 0', maxWidth: '100%', margin: 0, paddingBottom: 88 }}>
-            {ME_NAV.filter(([k]) => !TABS.includes(k)).map((n) => link(n))}
-          </div>
-        </div>
+        <Dialog title="More" onClose={() => setMore(false)} overlayStyle={{ alignItems: 'flex-end', padding: 0 }} panelStyle={{ borderRadius: '20px 20px 0 0', maxWidth: '100%', margin: 0, paddingBottom: 88, gap: 4 }}>
+          {ME_NAV.filter(([k]) => !TABS.includes(k)).map((n) => link(n))}
+        </Dialog>
       )}
     </>
   );

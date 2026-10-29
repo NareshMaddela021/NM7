@@ -150,7 +150,7 @@ export default function Orders() {
         </div>
       )}
       <div className="row g16" style={{ alignItems: 'flex-start' }}>
-        <div className="card table-wrap" style={{ flex: '3 1 560px', padding: 0 }}>
+        <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ flex: '3 1 560px', padding: 0 }}>
           {list.length === 0 ? <Empty>No orders in this view.</Empty> : (
             <table className="table">
               <thead><tr><th><span className="sr-only">Select</span></th><th>Order</th><th>Plan</th><th>Expert</th><th>Stage</th><th>Deadline</th></tr></thead>

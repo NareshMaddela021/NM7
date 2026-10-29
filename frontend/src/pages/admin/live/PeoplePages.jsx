@@ -26,7 +26,7 @@ export function LiveExperts() {
       <div className="row g16" style={{ alignItems: 'flex-start' }}>
         <div style={{ flex: '3 1 420px', minWidth: 0 }}>
           <Loading st={st} empty={emptyIf((d) => !d.filter(show).length, tab === 'applications' ? 'No applications waiting.' : tab === 'experts' ? 'No approved experts yet.' : 'No expert accounts yet.')}>{(d) => (
-            <div className="card table-wrap" style={{ padding: 0 }}>
+            <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ padding: 0 }}>
               <table className="table"><thead><tr><th>Name</th><th>Domains</th><th>Status</th><th>Active orders</th><th>Joined</th></tr></thead>
                 <tbody>{d.filter(show).map((x) => (
                   <tr key={x.id} onClick={() => setOpen(x.id)} style={{ cursor: 'pointer', background: open === x.id ? 'var(--sunken)' : undefined }}>
@@ -137,7 +137,7 @@ function Deletions() {
       <strong>Deletion requests</strong>
       <span className="xs muted">People who chose Delete account. Erased automatically 7 days after they confirm with an email code, unless they undo it. Paid orders and invoices are kept for GST, without their name or email.</span>
       <Loading st={st} empty={emptyIf((d) => !d.length, 'No deletion requests.')}>{(rows) => (
-        <div className="table-wrap"><table className="table" data-testid="deletions">
+        <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table" data-testid="deletions">
           <thead><tr><th>Who</th><th>Asked</th><th>Erase on</th><th>Status</th></tr></thead>
           <tbody>{rows.map((r) => {
             const [label, tone] = DELETION[r.status] || [r.status, 'b-neutral'];
@@ -171,7 +171,7 @@ function CustomerList({ initial }) {
       <div className="row g16" style={{ alignItems: 'flex-start' }}>
         <div style={{ flex: '3 1 420px', minWidth: 0 }}>
           <Loading st={st} failText={search ? 'Search couldn’t run — try different words.' : undefined} empty={emptyIf((d) => !d.items.length, search ? 'No customers match.' : 'No customers yet.')}>{(d) => (
-            <div className="card table-wrap" style={{ padding: 0 }}>
+            <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ padding: 0 }}>
               <table className="table"><thead><tr><th>Name</th><th>Joined</th><th>Orders</th><th>Spent</th><th /></tr></thead>
                 <tbody>{d.items.map((c) => (
                   <tr key={c.id} onClick={() => setOpen(c.id)} style={{ cursor: 'pointer', background: open === c.id ? 'var(--sunken)' : undefined }}>
@@ -277,7 +277,7 @@ export function LiveQuality() {
     <>
       <PageHead title="Quality" sub="Score delivered resumes against the five checks. Scores are saved with who scored them." />
       <Loading st={st} empty={emptyIf((d) => !d.orders.length, 'No delivered orders to audit yet.')}>{(d) => (
-        <div className="card table-wrap" style={{ padding: 0 }}>
+        <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ padding: 0 }}>
           <table className="table"><thead><tr><th>Order</th><th>Delivered</th><th>Rating</th>{d.checks.map((c) => <th key={c} className="xs">{c}</th>)}<th /></tr></thead>
             <tbody>{d.orders.map((o) => {
               const cur = edit[o.orderId] || o.scores || d.checks.map(() => 0);

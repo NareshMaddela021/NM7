@@ -102,7 +102,7 @@ export default function RecruiterInvites({ orgId, groups = [], canManage }) {
           )}
           {!d.jobMatch && <span className="xs faint">Job match mode (recruiters paste a job description and get every student scored) is in the Campus plan.</span>}
           {d.invites.length === 0 ? <div className="well small muted" style={{ textAlign: 'center', padding: 16 }}>No recruiter invites yet.</div> : (
-            <div className="table-wrap"><table className="table"><thead><tr><th>Company</th><th>Status</th><th>Groups</th><th>Views · downloads</th><th>Shortlisted</th><th>Expires</th><th /></tr></thead>
+            <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table"><thead><tr><th>Company</th><th>Status</th><th>Groups</th><th>Views · downloads</th><th>Shortlisted</th><th>Expires</th><th /></tr></thead>
               <tbody>{d.invites.map((i) => (
                 <tr key={i.id} data-testid="recruiter-invite">
                   <td className="small"><strong>{i.company}</strong><div className="xs faint">{i.recruiterName} · {i.email}</div><div className="xs faint">{i.allowPdf ? 'PDF downloads' : 'view only'} · {CONTACT_LABEL[i.contact]}</div></td>

@@ -1216,3 +1216,38 @@ college group: real organizations, resumes, orders, payments and the admin conso
 session in that browser, so use a private window to keep both. A yellow **Demo** banner shows on every portal page,
 with "Sign out of the demo".
 
+## Trust and operations
+
+**Delete my account.** Profile & settings → Delete account lists what is removed, emails a 6-digit code and, once
+it is entered, schedules the erase for 7 days later. The public resume link stops at once; Undo (same place) keeps
+the account. After 7 days the automation pass erases everything personal (`backend/app/me/erase.py`: resumes and
+their versions, cover letters, applications, ATS checks, certificates, health alerts, job posts and interview data,
+LinkedIn data, group memberships with their check-ins, reminder rows and shortlists, offers, alumni profile and
+requests, reviewer comments, stories, referral rewards, public links, code-use names, sessions). Paid orders and
+invoices are kept for GST, no longer linked to the person (the invoice keeps a business's legal name only when it
+has a GSTIN). The account becomes a tombstone, so the email address can sign up again. Organization Owners transfer
+ownership first. Admin → Customers & support → Deletion requests lists them (name and email only while open).
+
+**Status page and uptime alerts.** `nm7.si/status` shows whether the website, the API (and its database) and email
+are working, as states only, refreshed every minute (footer link "Status"). `/health` on the API answers GET and
+HEAD for uptime monitors. Setup steps for a free UptimeRobot or Better Stack account with phone push alerts are in
+[docs/uptime-monitoring.md](docs/uptime-monitoring.md); a 5-minute check also keeps the free Render server awake.
+
+**Admin daily summary.** At 8:00 IST the automation pass emails the Owner admins yesterday's numbers: new users,
+resumes started, paid orders and revenue, codes used, new organizations and server errors (unexpected errors are
+counted per day). Admin → Dashboard has a "Today so far" card with the same numbers and a Share to WhatsApp button
+(wa.me with the text; automatic WhatsApp sending would need a paid API). Admin → Settings → Daily summary turns the
+email off.
+
+**Student stories.** Help & referral → Share your story: a short story (40–700 characters), the name to show, an
+optional photo (PNG/JPG up to 300 KB), company and role, and a consent tick for public use. Stories can't hold phone
+numbers, emails or ID numbers. Admin → Stories approves (typo fixes only: a bigger change is refused and the
+original is kept) or doesn't use it; "Take down" removes an approved one. Approved stories show on the home page and
+/for-orgs — nothing shows until there are real ones. The student can withdraw a story at any time and it is deleted.
+The demo college's two stories are marked demo and never public.
+
+**Accessibility.** We aim for WCAG 2.1 AA; the statement is at `nm7.si/accessibility` (footer link). Every dialog
+closes with Escape, keeps focus inside and returns it to the opener; focus is always visible. `e2e-live/a11y.spec.mjs`
+runs axe (WCAG 2.1 A and AA rules) on the public pages, a student's dashboard, a coordinator's portal and the admin
+console, in light and dark, on desktop and a 390 px phone; serious and critical problems fail CI. It also checks
+that the public pages don't scroll sideways at 390 px with 200% zoom.

@@ -125,6 +125,7 @@ const MeDrive = named(meDrive, 'default');
 const CheckinLink = named(meDrive, 'CheckinLink');
 const ForOrgs = lazy(() => import('./pages/org/ForOrgs'));
 const StatusPage = lazy(() => import('./pages/Status'));
+const AccessibilityPage = lazy(() => import('./pages/Accessibility'));
 const Templates = lazy(() => import('./pages/Templates'));
 const LinkedInPage = lazy(() => import('./pages/linkedin/LinkedIn'));
 const Partners = lazy(() => import('./pages/partners/Partners'));
@@ -423,6 +424,7 @@ export default function App() {
         <Route path="/org/demo-login" element={<DemoLogin />} />
         <Route path="/for-orgs" element={<ForOrgs />} />
         <Route path="/status" element={<StatusPage />} />
+        <Route path="/accessibility" element={<AccessibilityPage />} />
         <Route path="/partners" element={<Partners />} />
         <Route path="/partner" element={C(<PartnerHome />)} />
         <Route path="/org" element={C(<OrgHome />)} />

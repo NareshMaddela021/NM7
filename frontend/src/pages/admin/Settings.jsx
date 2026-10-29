@@ -41,7 +41,7 @@ function Coupons() {
   const save = (list, what) => actions.settings({ coupons: list }, what);
   return (
     <div className="stack g16">
-      <div className="card table-wrap" style={{ padding: 0 }}>
+      <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ padding: 0 }}>
         <table className="table"><thead><tr><th>Code</th><th>Discount</th><th>Plans</th><th>Expires</th><th>Used</th><th>On</th></tr></thead>
           <tbody>{settings.coupons.map((x) => (
             <tr key={x.code}><td className="mono strong">{x.code}</td><td>{x.type === '%' ? `${x.value}%` : inr(x.value)} off</td><td className="small">{x.plans.map((p) => settings.plans.find((pl) => pl.id === p)?.name).join(', ')}</td><td className="small">{x.expires}</td>
@@ -117,7 +117,7 @@ function Templates() {
   const { settings, actions } = useAdmin();
   const off = settings.templatesOff; const rec = settings.templatesRecommended;
   return (
-    <div className="card table-wrap" style={{ padding: 0 }}>
+    <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ padding: 0 }}>
       <table className="table"><thead><tr><th>Template</th><th>Shown to users</th><th>“Recommended” badge</th></tr></thead>
         <tbody>{Object.entries(TEMPLATE_PRESETS).map(([k, t]) => (
           <tr key={k}><td><strong>{t.name}</strong><div className="xs faint">{t.desc}</div></td>

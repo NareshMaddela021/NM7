@@ -96,7 +96,7 @@ const openDialogs = []; // the open dialogs, newest last: Escape closes only the
 
 /** A modal. Escape (wherever focus is) and the ✕ close it; focus goes back to the element that opened it
  * (`returnTo`, else whatever had focus when it opened). */
-export function Dialog({ title, children, onClose, wide, showTitle, top, returnTo }) {
+export function Dialog({ title, children, onClose, wide, showTitle, top, returnTo, overlayStyle, panelStyle }) {
   const ref = useRef();
   const closeRef = useRef(onClose);
   closeRef.current = onClose;
@@ -133,8 +133,8 @@ export function Dialog({ title, children, onClose, wide, showTitle, top, returnT
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   return (
-    <div className="overlay" style={top ? { zIndex: 60 } : undefined} onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div ref={ref} role="dialog" aria-modal="true" aria-label={title} className="dialog rise stack g16" style={wide ? { maxWidth: 780, maxHeight: 'calc(100vh - 32px)', overflow: 'auto' } : { maxHeight: 'calc(100vh - 32px)', overflow: 'auto' }}>
+    <div className="overlay" style={{ ...(top ? { zIndex: 60 } : {}), ...overlayStyle }} onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+      <div ref={ref} role="dialog" aria-modal="true" aria-label={title} className="dialog rise stack g16" style={{ ...(wide ? { maxWidth: 780 } : {}), maxHeight: 'calc(100vh - 32px)', overflow: 'auto', ...panelStyle }}>
         {showTitle && <div className="row between g8"><strong style={{ fontSize: 18 }}>{title}</strong><button type="button" className="btn btn-icon" aria-label="Close" onClick={onClose}>✕</button></div>}
         {children}
       </div>

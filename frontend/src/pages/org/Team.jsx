@@ -19,7 +19,7 @@ export default function Team({ orgId, groups }) {
       <section className="card stack g12" aria-label="Team">
         <strong>Who helps run your organization</strong>
         <Loading st={st} empty={emptyIf((d) => !d.length, 'Nobody yet.')}>{(rows) => (
-          <div className="table-wrap"><table className="table">
+          <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table">
             <thead><tr><th>Email</th><th>Role</th><th>Status</th><th /></tr></thead>
             <tbody>{rows.map((s) => (
               <tr key={s.id}>

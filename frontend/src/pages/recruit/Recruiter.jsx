@@ -146,7 +146,7 @@ function RecruiterPage({ token }) {
         {d.allowDownloads && d.candidates.length > 0 && <button type="button" className="btn btn-ink" disabled={!!busy} onClick={() => download(shown.map((c) => c.id), 'all')}>{busy === 'all' ? 'Preparing…' : `Download ${shown.length === d.candidates.length ? 'all' : shown.length} as one PDF`}</button>}
       </div>
       {d.candidates.length === 0 ? <div className="well small muted" style={{ textAlign: 'center', padding: 24 }}>No candidates on this link right now.</div> : (
-        <div className="card table-wrap" style={{ padding: 0 }}>
+        <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ padding: 0 }}>
           <table className="table">
             <thead><tr><th>Candidate</th>{d.answerLabels.map((l) => <th key={l}>{l}</th>)}<th>Complete</th><th>Interested</th><th /></tr></thead>
             <tbody>{shown.map((c) => (

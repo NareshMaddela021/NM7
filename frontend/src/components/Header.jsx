@@ -43,7 +43,7 @@ export function AccountMenu() {
   const homeLabel = { customer: 'My dashboard', expert: 'Expert home', admin: 'Admin console' }[user.role];
   return (
     <span ref={ref} style={{ position: 'relative' }}>
-      <button type="button" className="btn btn-outline" style={{ minHeight: 40, gap: 8 }} aria-expanded={open} aria-haspopup="menu" onClick={() => setOpen(!open)}>
+      <button type="button" className="btn btn-outline" style={{ minHeight: 40, gap: 8 }} aria-expanded={open} aria-haspopup="menu" aria-label={`Account menu: ${user.name}`} onClick={() => setOpen(!open)}>
         <span aria-hidden="true" style={{ width: 24, height: 24, borderRadius: '50%', background: 'var(--ink)', color: 'var(--onink)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700 }}>{user.name.trim()[0]?.toUpperCase()}</span>
         <span className="hide-sm">{user.name.split(' ')[0]}</span>
       </button>

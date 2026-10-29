@@ -219,7 +219,7 @@ export default function ResumePreview({ data, design: ds, photo: photoProp, onPa
   const body = { fontFamily: FONTS[ds.font].css, fontSize: ds.bodySize * s, lineHeight: ds.lineHeight, fontWeight: ds.bodyWeight, color: ds.textColor };
   const empty = !main.length && !side.length;
   const shown = new Set([...main, ...side].map((x) => x.id));
-  const HINT = '#ABABAB';
+  const HINT = '#767676'; // placeholder text: still lighter than real text, but 4.5:1 on white
   const hintSecs = hints && !cover ? HINT_SECTIONS.filter(([id]) => !shown.has(id) && !data?.hidden?.[id]) : [];
 
   return (
@@ -253,7 +253,7 @@ export default function ResumePreview({ data, design: ds, photo: photoProp, onPa
           </div>
         </header>
         {cover ? <CoverBody c={coverParts(d, cover)} ds={ds} s={s} /> : <>
-        {empty && !hints && <span style={{ color: '#9A9A9A', fontStyle: 'italic' }}>Your sections appear here as you fill them in.</span>}
+        {empty && !hints && <span style={{ color: '#666', fontStyle: 'italic' }}>Your sections appear here as you fill them in.</span>}
         {ds.layout === 'two' ? (
           <div style={{ display: 'grid', gridTemplateColumns: '32% minmax(0, 1fr)', gap: 18 * s }}>
             <div className="stack" style={{ gap: ds.sectionGap * s, ...(ds.sideTint ? { background: tint(ds.accent, 0.07), padding: 8 * s, margin: -8 * s, borderRadius: 4 * s, alignSelf: 'stretch' } : {}) }}><Column sections={side} ds={ds} s={s} /></div>

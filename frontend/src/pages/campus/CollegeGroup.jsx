@@ -44,7 +44,7 @@ export default function CollegeGroup() {
                 <div key={l} className="card stack g4" style={{ padding: 12, flex: '1 1 110px' }}><span className="xs muted">{l}</span><strong className="display" style={{ fontSize: 22 }}>{v}</strong></div>
               ))}
             </div>
-            <div className="table-wrap"><table className="table" aria-label="By campus" data-testid="cg-campuses"><thead><tr><th>Campus</th><th>Joined</th><th>Ready</th><th>Placed</th><th>Offers</th><th>Highest</th><th>Median</th><th>Average</th></tr></thead>
+            <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table" aria-label="By campus" data-testid="cg-campuses"><thead><tr><th>Campus</th><th>Joined</th><th>Ready</th><th>Placed</th><th>Offers</th><th>Highest</th><th>Median</th><th>Average</th></tr></thead>
               <tbody>{d.campuses.map((c) => <tr key={c.id}><td className="small">{c.name}</td><td className="small">{c.joined}</td><td className="small">{c.ready}</td><td className="small">{c.placed}</td><td className="small">{c.offers}</td><td className="small">{lpa(c.highest)}</td><td className="small">{lpa(c.median)}</td><td className="small">{lpa(c.average)}</td></tr>)}</tbody></table></div>
             <section className="card stack g8" aria-label="College format">
               <strong className="small">One college format for every campus</strong>

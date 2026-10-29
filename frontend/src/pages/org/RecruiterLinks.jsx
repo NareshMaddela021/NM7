@@ -25,7 +25,7 @@ export default function RecruiterLinks({ orgId, canManage, sharedUrl }) {
       <div className="row between g8"><strong>Recruiter links</strong><button type="button" className="link-btn small" onClick={st.reload}>Refresh</button></div>
       <span className="xs faint">Make a link from Shared resumes: tick the resumes (or filter) and choose “Share with a recruiter…”. Only approved members who allowed sharing with recruiters are on a link, and anyone who leaves or stops sharing disappears from it at once. Recruiters need no account.</span>
       <Loading st={st} empty={emptyIf((d) => !d.length, 'No recruiter links yet.')}>{(rows) => (
-        <div className="table-wrap"><table className="table"><thead><tr><th>Company</th><th>Status</th><th>Candidates</th><th>Views · downloads</th><th>Shortlisted</th><th>Expires</th><th /></tr></thead>
+        <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table"><thead><tr><th>Company</th><th>Status</th><th>Candidates</th><th>Views · downloads</th><th>Shortlisted</th><th>Expires</th><th /></tr></thead>
           <tbody>{rows.map((l) => (
             <tr key={l.id} data-testid="recruiter-link">
               <td className="small"><strong>{l.company}</strong>{l.label && <div className="xs faint">{l.label}</div>}<div className="xs faint">{l.allowDownloads ? 'downloads on' : 'view only'}{l.includeContact ? ' · contact details' : ''}{l.hasCode ? ' · access code' : ''}</div></td>
