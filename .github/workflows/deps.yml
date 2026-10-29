@@ -1,0 +1,63 @@
+name: deps
+
+# Slow or rarely-changing checks: known vulnerabilities in the locked dependencies, and the API's Docker image
+# building and starting. Run when the dependency files or the Dockerfile change, weekly, and by hand, instead of
+# on every commit.
+on:
+  pull_request:
+    paths:
+      - "backend/pyproject.toml"
+      - "backend/uv.lock"
+      - "backend/Dockerfile"
+      - "backend/start.sh"
+      - "frontend/package.json"
+      - "frontend/package-lock.json"
+      - ".github/workflows/deps.yml"
+  schedule:
+    - cron: "23 22 * * 0" # Monday 03:53 IST
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'schedule' && 'claude/fervent-albattani-wqmaoq' || '' }}
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+      - name: Python packages (PyPI advisory data)
+        working-directory: backend
+        shell: bash
+        run: uv run --with pip-audit pip-audit --strict --desc on -r <(uv export --frozen --no-dev --no-hashes --no-emit-project)
+      # Reported, not blocking, for now: what is left needs major upgrades (jspdf 2 -> 4, pdfjs-dist 3 -> 6) that
+      # change the PDF code paths and need their own PR. canvas/tar come from pdfjs-dist's optional Node-only
+      # dependency and never reach the browser. Make this blocking again once those upgrades land.
+      - name: npm packages shipped to the browser (reported, not blocking yet)
+        working-directory: frontend
+        continue-on-error: true
+        run: npm audit --omit=dev --audit-level=high || { echo "::warning::npm audit found advisories; see this step's log"; exit 1; }
+
+  docker:
+    # The image Render builds, built here first: a broken Dockerfile is seen on the PR, not on deploy.
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'schedule' && 'claude/fervent-albattani-wqmaoq' || '' }}
+      - run: docker build --tag nm7-api:ci backend
+      # The API creates its collections and indexes at start-up, so it needs a database to boot.
+      - name: Start MongoDB
+        run: bash "$GITHUB_WORKSPACE/.github/scripts/start-mongo.sh"
+      - name: The container starts and answers /version
+        run: |
+          docker run -d --name api --network host -e APP_ENV=prod -e SECRET_KEY=ci-only-secret-0123456789 \
+            -e MONGODB_URI='mongodb://localhost:27017/?directConnection=true' -e MONGODB_DB=nm7_ci nm7-api:ci
+          curl -fsS --retry 10 --retry-delay 2 --retry-all-errors http://localhost:8000/version || (docker logs api; exit 1)

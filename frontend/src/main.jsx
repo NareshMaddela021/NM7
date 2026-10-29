@@ -2,16 +2,34 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, HashRouter } from 'react-router-dom';
 import App from './App';
+import { LIVE, http } from './services/http';
+import { syncPrices } from './lib/pricing';
 import { ThemeProvider } from './lib/theme';
 import { FlowProvider } from './lib/flow';
 import { ToastProvider } from './components/ui';
+import { installChunkRecovery } from './lib/chunks';
+
+// The font stylesheet is linked with media="print" so it doesn't block the first paint; switch it on here.
+// (An inline onload="" handler would do the same, but the Content-Security-Policy forbids inline handlers.)
+document.querySelectorAll('link[data-async-css]').forEach((link) => {
+  link.media = 'all';
+});
+import { startMonitoring } from './lib/monitoring';
 import './styles/tokens.css';
 import './styles/base.css';
+
+// Referral links (nm7.si/?ref=CODE): remember the code for sign-up in this tab.
+try { const ref = new URLSearchParams(window.location.search).get('ref'); if (ref && /^[A-Za-z0-9]{4,12}$/.test(ref)) sessionStorage.setItem('nm7-ref', ref.toUpperCase()); } catch { /* ignore */ }
+
+// A tab open across a deploy: a missing file of the old build reloads onto the new one (see lib/chunks.js)
+installChunkRecovery();
+// Error reporting (only with VITE_SENTRY_DSN; loaded after the first paint)
+setTimeout(() => { startMonitoring(); }, 2000);
 
 // Preview builds (no server rewrites) use hash URLs: /#/builder
 const Router = import.meta.env.VITE_HASH_ROUTER === '1' ? HashRouter : BrowserRouter;
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+const tree = () => (
   <React.StrictMode>
     <Router>
       <ThemeProvider>
@@ -22,5 +40,15 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         </FlowProvider>
       </ThemeProvider>
     </Router>
-  </React.StrictMode>,
+  </React.StrictMode>
 );
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(tree());
+// Live: prices come from the server (the owner can change them); show them once loaded.
+if (LIVE) syncPrices(http).then(() => root.render(tree()), () => {});
+// Once per browser: older versions saved the example person (Sai Varsha) into the builder's browser draft.
+try {
+  if (!localStorage.getItem('nm7-sample-drafts-cleared') && Array.from({ length: localStorage.length }, (_, i) => localStorage.key(i)).some((k) => k?.startsWith('asuraa-builder-draft-v6'))) {
+    import('./lib/sampleData').then((m) => m.scrubSampleDrafts(), () => {});
+  }
+} catch { /* storage blocked: nothing saved there either */ }

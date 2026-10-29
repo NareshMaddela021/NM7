@@ -1,7 +1,9 @@
 // Admin console frame: sidebar, global search (Ctrl/⌘ + K), date range, alerts bell, role preview.
 import { useEffect, useMemo, useRef, useState } from 'react';
+import ErrorBoundary from '../../components/ErrorBoundary';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Header from '../../components/Header';
+import { Dialog } from '../../components/ui';
 import { AdminProvider, ROLES, atRisk, isLate, useAdmin } from './AdminContext';
 
 export const NAV = [
@@ -52,11 +54,10 @@ function Search({ onClose }) {
   ];
   const go = (r) => { if (r) { nav(r.to); onClose(); } };
   return (
-    <div className="overlay" onMouseDown={(e) => e.target === e.currentTarget && onClose()} style={{ alignItems: 'flex-start', paddingTop: '12vh' }}>
-      <div role="dialog" aria-modal="true" aria-label="Search" className="dialog stack g8" style={{ maxWidth: 620 }}>
+    <Dialog title="Search" onClose={onClose} overlayStyle={{ alignItems: 'flex-start', paddingTop: '12vh' }} panelStyle={{ maxWidth: 620, gap: 8 }}>
         <input ref={ref} className="input" value={q} placeholder="Search orders, customers, experts, pages…" aria-label="Search"
           onChange={(e) => { setQ(e.target.value); setI(0); }}
-          onKeyDown={(e) => { if (e.key === 'Escape') onClose(); if (e.key === 'ArrowDown') { e.preventDefault(); setI((n) => Math.min(results.length - 1, n + 1)); } if (e.key === 'ArrowUp') { e.preventDefault(); setI((n) => Math.max(0, n - 1)); } if (e.key === 'Enter') go(results[i]); }} />
+          onKeyDown={(e) => { if (e.key === 'ArrowDown') { e.preventDefault(); setI((n) => Math.min(results.length - 1, n + 1)); } if (e.key === 'ArrowUp') { e.preventDefault(); setI((n) => Math.max(0, n - 1)); } if (e.key === 'Enter') go(results[i]); }} />
         <div role="listbox" aria-label="Results" className="stack" style={{ maxHeight: 360, overflow: 'auto' }}>
           {results.length === 0 && <span className="small muted" style={{ padding: 12 }}>Nothing found.</span>}
           {results.map((r, n) => (
@@ -67,8 +68,7 @@ function Search({ onClose }) {
           ))}
         </div>
         <span className="xs faint">↑ ↓ to move · Enter to open · Esc to close</span>
-      </div>
-    </div>
+    </Dialog>
   );
 }
 
@@ -77,7 +77,7 @@ function Shell() {
   const alerts = useAlerts();
   const [search, setSearch] = useState(false);
   const [bell, setBell] = useState(false);
-  const { pathname } = useLocation();
+  const { pathname, search: query } = useLocation();
   const nav = useNavigate();
   const can = ROLES[role].can;
   const current = NAV.find(([, to]) => (to === '/admin' ? pathname === '/admin' || pathname === '/admin/' : pathname.startsWith(to)));
@@ -124,7 +124,7 @@ function Shell() {
           <span className="xs faint" style={{ padding: '0 10px' }}>Each team member only sees their sections.</span>
         </nav>
         <main className="stack g20" style={{ flex: '1 1 600px', minWidth: 0 }}>
-          {allowed ? <Outlet /> : <div className="card stack g8"><strong>No access</strong><span className="small muted">The {ROLES[role].label} role can’t open {current[2]}. Switch role or ask the owner.</span></div>}
+          {allowed ? <ErrorBoundary resetKey={`${pathname}${query}`}><Outlet /></ErrorBoundary> : <div className="card stack g8"><strong>No access</strong><span className="small muted">The {ROLES[role].label} role can’t open {current[2]}. Switch role or ask the owner.</span></div>}
         </main>
       </div>
       {search && <Search onClose={() => setSearch(false)} />}

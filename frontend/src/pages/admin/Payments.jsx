@@ -26,7 +26,7 @@ function PaymentsTab() {
         <Tabs label="Payments filter" value={f} onChange={setF} tabs={[['all', 'All'], ['flag', `Mismatches (${flagged.length})`], ['unsettled', 'Not settled']]} />
         <button type="button" className="btn btn-outline" onClick={() => downloadCsv('payments.csv', [['Payment', 'Order', 'Amount', 'Method', 'Status', 'Settled', 'Time'], ...list.map((p) => [p.id, p.orderId || 'NO ORDER', p.amount, p.method, p.status, p.settled ? 'yes' : 'no', fmtDT(p.at)])])}>Export CSV</button>
       </div>
-      <div className="card table-wrap" style={{ padding: 0 }}>
+      <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ padding: 0 }}>
         <table className="table"><thead><tr><th>Razorpay payment</th><th>Order</th><th>Amount</th><th>Method</th><th>Status</th><th>Settled</th></tr></thead>
           <tbody>{list.slice(0, 40).map((p) => (
             <tr key={p.id} style={!p.orderId ? { background: 'var(--warningbg)' } : undefined}>
@@ -64,7 +64,7 @@ function PayoutsTab() {
         <input id="utr" className="input" style={{ height: 40, width: 200 }} placeholder="UTR / reference no." value={utr} onChange={(e) => setUtr(e.target.value)} />
         <button type="button" className="btn btn-outline" disabled={!utr.trim() || !sel.some((id) => approved.find((p) => p.id === id))} onClick={() => { const ids = sel.filter((id) => approved.find((p) => p.id === id)); actions.payout(ids, 'paid', utr.trim()); setSel([]); setUtr(''); toast(`Marked ${ids.length} as paid`); }}>Mark selected as paid</button>
       </div>
-      <div className="card table-wrap" style={{ padding: 0 }}>
+      <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ padding: 0 }}>
         {payouts.length === 0 ? <Empty>No payout requests.</Empty> : (
           <table className="table"><thead><tr><th><span className="sr-only">Select</span></th><th>Request</th><th>Expert</th><th>Order value</th><th>− {f.platformPct}% fee</th><th>− GST</th><th>− Tx</th><th>TDS</th><th>Pay</th><th>Status</th></tr></thead>
             <tbody>{payouts.map((p) => {

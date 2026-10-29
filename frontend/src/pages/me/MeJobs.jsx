@@ -1,10 +1,12 @@
 // Application tracker: Saved → Applied → Interview → Offer → Rejected, with follow-up reminders and simple stats.
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Dialog, useToast } from '../../components/ui';
-import { useMe, setMe, newId, APP_STAGES } from '../../lib/customerStore';
+import { useMe, setMe, newId, APP_STAGES, openInBuilder } from '../../lib/customerStore';
 import { BarChart, Kpi } from '../admin/AdminUI';
 import { MeHead } from './MeLayout';
 import { fmtShort, fmtDay } from './shared';
+import { webLink } from '../../lib/links';
 
 const DAY = 864e5;
 const BLANK = { company: '', role: '', status: 'applied', url: '', notes: '', resumeId: '', next: '' };
@@ -12,9 +14,16 @@ const BLANK = { company: '', role: '', status: 'applied', url: '', notes: '', re
 function AppForm({ app, resumes, onSave, onDelete, onClose }) {
   const [f, setF] = useState({ ...BLANK, ...app, resumeId: app.resumeId || resumes[0].id, next: app.next ? new Date(app.next).toISOString().slice(0, 10) : '' });
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
+  const [linkErr, setLinkErr] = useState('');
+  const submit = (e) => {
+    e.preventDefault();
+    const url = webLink(f.url);
+    if (url === null) { setLinkErr('Enter a web link like https://company.com/jobs/123'); document.getElementById('ap-u')?.focus(); return; }
+    onSave({ ...f, url, next: f.next ? new Date(f.next).getTime() : null, date: app.date || Date.now(), id: app.id || newId('a') });
+  };
   return (
     <Dialog showTitle title={app.id ? `${app.company} · ${app.role}` : 'Add an application'} onClose={onClose}>
-      <form className="stack g12" onSubmit={(e) => { e.preventDefault(); onSave({ ...f, next: f.next ? new Date(f.next).getTime() : null, date: app.date || Date.now(), id: app.id || newId('a') }); }}>
+      <form className="stack g12" onSubmit={submit} noValidate>
         <div className="row g8">
           <div className="field" style={{ flex: 1 }}><label htmlFor="ap-c" className="label">Company *</label><input id="ap-c" className="input" style={{ height: 42 }} value={f.company} onChange={set('company')} /></div>
           <div className="field" style={{ flex: 1 }}><label htmlFor="ap-r" className="label">Role *</label><input id="ap-r" className="input" style={{ height: 42 }} value={f.role} onChange={set('role')} /></div>
@@ -24,7 +33,7 @@ function AppForm({ app, resumes, onSave, onDelete, onClose }) {
           <div className="field" style={{ flex: 1 }}><label htmlFor="ap-res" className="label">Resume sent</label><select id="ap-res" className="input" style={{ height: 42 }} value={f.resumeId} onChange={set('resumeId')}>{resumes.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}</select></div>
         </div>
         <div className="row g8">
-          <div className="field" style={{ flex: 2 }}><label htmlFor="ap-u" className="label">Job link · optional</label><input id="ap-u" className="input" style={{ height: 42 }} value={f.url} onChange={set('url')} placeholder="company.com/jobs/123" /></div>
+          <div className="field" style={{ flex: 2 }}><label htmlFor="ap-u" className="label">Job link · optional</label><input id="ap-u" className="input" style={{ height: 42 }} value={f.url} onChange={(e) => { setF({ ...f, url: e.target.value }); setLinkErr(''); }} placeholder="company.com/jobs/123" aria-invalid={linkErr ? 'true' : undefined} aria-describedby={linkErr ? 'ap-u-err' : undefined} />{linkErr && <span id="ap-u-err" role="alert" className="error">{linkErr}</span>}</div>
           <div className="field" style={{ flex: 1 }}><label htmlFor="ap-n" className="label">Next step date</label><input id="ap-n" type="date" className="input" style={{ height: 42 }} value={f.next} onChange={set('next')} /></div>
         </div>
         <div className="field"><label htmlFor="ap-no" className="label">Notes</label><textarea id="ap-no" className="input" rows={3} value={f.notes} onChange={set('notes')} placeholder="Who referred you, interview rounds, salary discussed…" /></div>
@@ -40,6 +49,7 @@ function AppForm({ app, resumes, onSave, onDelete, onClose }) {
 export default function MeJobs() {
   const me = useMe();
   const toast = useToast();
+  const nav = useNavigate();
   const [edit, setEdit] = useState(null);
   const apps = me.apps;
   const move = (a, dir) => { const i = APP_STAGES.findIndex(([k]) => k === a.status); const n = APP_STAGES[Math.min(APP_STAGES.length - 1, Math.max(0, i + dir))][0]; setMe((s) => ({ apps: s.apps.map((x) => (x.id === a.id ? { ...x, status: n } : x)) })); };
@@ -51,7 +61,7 @@ export default function MeJobs() {
 
   return (
     <>
-      <MeHead title="Applications" sub="Track every job you apply to and which resume you sent." right={<button type="button" className="btn btn-ink" onClick={() => setEdit({})}>Add application</button>} />
+      <MeHead title="Applications" sub="Track every job you apply to and which resume you sent. Job matches you save land here with their score." right={<button type="button" className="btn btn-ink" onClick={() => setEdit({})}>Add application</button>} />
       <div className="kpis">
         <Kpi label="Applied" value={sent.length} sub="excluding saved" />
         <Kpi label="Interview rate" value={sent.length ? `${Math.round((iv / sent.length) * 100)}%` : '—'} sub={`${iv} reached interview or offer`} />
@@ -67,7 +77,11 @@ export default function MeJobs() {
                 <article key={a.id} className="card stack g4" style={{ padding: 12 }}>
                   <button type="button" className="link-btn" style={{ textAlign: 'left', fontWeight: 700, color: 'var(--text)', textDecoration: 'none' }} onClick={() => setEdit(a)}>{a.company}</button>
                   <span className="xs">{a.role}</span>
+                  {webLink(a.url) && <a className="xs" href={webLink(a.url)} target="_blank" rel="noopener noreferrer" style={{ overflowWrap: 'anywhere' }}>Job post ↗<span className="sr-only"> for {a.company} (opens in a new tab)</span></a>}
                   <span className="xs faint">{fmtDay(a.date)} · {resumeName(a.resumeId)}</span>
+                  {a.score != null && <span className="xs" data-testid="app-score">Job match {a.score}/100</span>}
+                  {a.tailoredResumeId && me.resumes.some((r) => r.id === a.tailoredResumeId) && <button type="button" className="link-btn xs" style={{ textAlign: 'left' }} onClick={() => { openInBuilder(a.tailoredResumeId); nav('/builder', { state: { open: 'build' } }); }}>Open the tailored copy</button>}
+                  {a.matchId && <button type="button" className="link-btn xs" style={{ textAlign: 'left' }} onClick={() => nav(`/me/interview/${a.matchId}`)}>Interview prep</button>}
                   {a.next && <span className="xs" style={{ color: 'var(--text2)' }}>Next: {fmtShort(a.next)}</span>}
                   {due(a) && <span className="row g4 xs" style={{ color: 'var(--warning)' }}>⏰ Follow up? <button type="button" className="link-btn xs" onClick={() => { setMe((s) => ({ apps: s.apps.map((x) => (x.id === a.id ? { ...x, followed: Date.now(), notes: `${x.notes ? `${x.notes}\n` : ''}Followed up ${fmtDay(Date.now())}.` } : x)) })); toast('Marked as followed up'); }}>Done</button></span>}
                   <span className="row between" style={{ marginTop: 2 }}>

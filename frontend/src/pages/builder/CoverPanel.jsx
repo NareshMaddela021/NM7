@@ -1,8 +1,10 @@
 // Cover letter editor: job details, a job-description check, and a draft written from the profile.
 import { Icon } from '../../components/ui';
 import { draftCover, jdMatch } from './cover';
+import { targetRoleOf } from '../../lib/jobProfile';
+import { ProfileHint } from './ProfileSync';
 
-export default function CoverPanel({ d, setCover, onAddSkill }) {
+export default function CoverPanel({ d, setCover, onAddSkill, profile = null }) {
   const c = d.cover || {};
   const set = (k, v) => setCover({ ...c, [k]: v });
   const { matched, missing } = jdMatch(d, c.jd);
@@ -17,6 +19,7 @@ export default function CoverPanel({ d, setCover, onAddSkill }) {
             <div key={k} className="field">
               <label htmlFor={`cv-${k}`} className="label">{l}</label>
               <input id={`cv-${k}`} className="input" value={c[k] || ''} placeholder={`e.g. ${ph}`} onChange={(e) => set(k, e.target.value)} />
+              {k === 'role' && <ProfileHint value={targetRoleOf(profile)} current={c.role} label="job title" onUse={(v) => set('role', v)} />}
             </div>
           ))}
         </div>

@@ -1,10 +1,11 @@
 // Home page content you'll want to edit: numbers, reviews, expert cards, social links.
 // placeholder: true → shown with a "Sample" tag in the preview and HIDDEN in the live build until you replace it with real data.
 export const STATS = [
-  { value: '20,000+', label: 'job seekers on Nm7', placeholder: false },
+  // Only real, countable numbers. Each stays hidden on the live site until it's real (placeholder: false).
+  { value: '[N]', label: 'job seekers on Nm7', placeholder: true },
   { value: '[N]', label: 'resumes scanned', placeholder: true },
   { value: '+[N] pts', label: 'average ATS score jump after an expert rewrite', placeholder: true },
-  { value: '24–48 h', label: 'expert delivery, or your money back', placeholder: false },
+  { value: '24–48 h', label: 'expert delivery, or your money back', placeholder: false, promise: true },
 ];
 
 // Real reviews only, with the person's permission. Replace these samples before launch.
@@ -26,5 +27,6 @@ export const EXPERTS = [
 export const SOCIAL = { linkedin: '', instagram: '', youtube: '', x: '' };
 export const SISTER_SITE = { name: 'asuraa.ai', url: 'https://asuraa.ai', blurb: 'Learn from creators and mentors' };
 
-export const showPlaceholders = import.meta.env.VITE_PREVIEW === '1' || import.meta.env.DEV;
+// Placeholders show in the preview build and local preview-mode dev only — never when talking to the real API.
+export const showPlaceholders = !import.meta.env.VITE_API_BASE && (import.meta.env.VITE_PREVIEW === '1' || import.meta.env.DEV);
 export const visible = (list) => list.filter((x) => !x.placeholder || showPlaceholders);

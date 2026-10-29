@@ -64,7 +64,7 @@ export default function ExpertsAdmin() {
       <Tabs label="Experts" value={tab} onChange={(v) => set('tab', v === 'directory' ? '' : v)} tabs={[['directory', 'Directory'], ['applications', 'Applications']]} />
       {tab === 'applications' ? <ApplicationsPanel /> : (
         <div className="row g16" style={{ alignItems: 'flex-start' }}>
-          <div className="card table-wrap" style={{ flex: '3 1 560px', padding: 0 }}>
+          <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ flex: '3 1 560px', padding: 0 }}>
             <table className="table">
               <thead><tr><th>Expert</th><th>On time</th><th>Rating</th><th>Revisions</th><th>Refunds</th><th>Load</th><th>Tier</th><th>Status</th></tr></thead>
               <tbody>

@@ -1,0 +1,20 @@
+Data Analyst - Fresher
+Company: Brightpath Analytics
+Location: Chennai
+
+We are looking for a fresher Data Analyst to join our reporting team. Freshers (0-1 years) can apply.
+
+Requirements:
+- B.Tech / B.Sc in Computer Science, Statistics or Mathematics
+- Strong SQL and MS Excel (pivot tables, VLOOKUP)
+- Python for data cleaning
+- Good communication skills
+
+Good to have:
+- Power BI or Tableau
+- Google Data Analytics Certificate
+
+Responsibilities:
+- Build weekly sales dashboards for the business team
+- Clean and analyse data from CSV files and databases
+- Present insights to managers every week

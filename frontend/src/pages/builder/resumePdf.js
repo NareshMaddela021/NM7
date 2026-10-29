@@ -1,11 +1,17 @@
 // Builds a real text PDF (selectable, ATS-readable) from the same model and design the preview uses.
-import { jsPDF } from 'jspdf';
+// Two drawing engines behind one small surface: jsPDF for resumes in Latin script (light, unchanged output), and
+// pdf-lib + fontkit (pdfDoc.js) as soon as the text holds an Indian script — it shapes conjuncts and vowel signs and
+// prints them with the Noto Sans font of that script, fetched from our origin only when a resume needs it.
+import { loadScriptFonts, scriptsIn, withoutEmoji } from './indicFonts';
 import { buildSections } from './resumeModel';
-import { contactItems } from './ContactLine';
-import { iconColor, iconPng } from './icons';
+import { visibleResume } from './entries';
+import { contactItems, contactMode, contactSepOf, iconScaleOf, showsText } from './ContactLine';
+import { iconColor } from './icons';
 import { PAGE, headFontOf, marginOf } from './design';
-import { isNumWord } from './resumeModel';
+import { ACAD_INDENT, acadRows, isNumWord, printable } from './resumeModel';
+import { hasBold, parseBold, stripBold } from '../../lib/bold';
 import { coverParts } from './cover';
+import { formatData } from '../../lib/placementFormat';
 import { shapePhoto } from './PhotoEditor';
 import { loadFont, registerFont } from './pdfFonts';
 
@@ -13,16 +19,36 @@ const rgb = (hex) => { const n = parseInt(hex.replace('#', ''), 16); return [(n 
 const tintRgb = (hex, a) => rgb(hex).map((c) => Math.round(c * a + 255 * (1 - a)));
 const GREY = [90, 90, 90];
 
-export async function buildResumePdf({ data: d, design: ds, photo, cover }) {
+/**
+ * brand (organization copies, see lib/branding.js prepareBrand): { img: { data, format, ratio } | null, header,
+ * footer, color } — a header strip with the logo and header line, and the footer line on every page.
+ * stamp: one more small line at the foot of every page (e.g. "Shared with … via Nm7 · expires …").
+ */
+export async function buildResumePdf({ data, design: ds, photo: photoArg, cover, brand = null, stamp = '', engine = null }) {
+  // switched-off entries are not printed; emoji are left out (no PDF font here can draw them)
+  // a college's placement format changes the layout only (section order, photo): lib/placementFormat.js
+  const laid = brand && !cover ? formatData(data, brand) : data;
+  const d = withoutEmoji({ ...printable(visibleResume(laid)), prefs: undefined, photo: undefined }); // job preferences are never printed
+  cover = withoutEmoji(cover);
+  brand = brand && { ...brand, header: withoutEmoji(brand.header), footer: withoutEmoji(brand.footer), collegeName: withoutEmoji(brand.collegeName || ''), roll: withoutEmoji(brand.roll || '') };
+  stamp = withoutEmoji(stamp);
+  const photo = photoArg === undefined ? data?.photo || null : photoArg; // the photo saved with the resume
   const page = PAGE[ds.pageSize] || PAGE.a4;
-  const doc = new jsPDF({ unit: 'pt', format: [page.w, page.h] });
-  const SERIF = ['source-serif-4', 'lora', 'merriweather'];
+  const scripts = scriptsIn([d, cover, brand?.header, brand?.footer, brand?.collegeName, brand?.roll, stamp]); // ₹ counts: it is drawn with a Noto font
+  const shaped = engine === 'pdflib' || (engine !== 'jspdf' && scripts.length > 0); // `engine` forces one (tests)
+  const { createDoc } = await (shaped ? import('./pdfDoc') : import('./jsPdfDoc'));
+  const doc = await createDoc(page.w, page.h);
+  const SERIF = ['source-serif-4', 'lora', 'merriweather', 'cmu-serif'];
   const safeFont = async (id) => {
-    try { registerFont(doc, id, await loadFont(id)); return id; } catch { return SERIF.includes(id) ? 'times' : 'helvetica'; } // built-in fallback
+    try { await registerFont(doc, id, await loadFont(id)); return id; } catch { return doc.addStandard(SERIF.includes(id) ? 'times' : 'helvetica'); } // built-in fallback
   };
   const bodyFont = await safeFont(ds.font);
   const headId = headFontOf(ds);
   const headFont = headId === ds.font ? bodyFont : await safeFont(headId);
+  // Telugu, Hindi, … anywhere in the text: the Noto Sans font of each script, loaded on demand (a script whose
+  // font cannot be fetched is drawn with the template font instead, so the download still works)
+  const scriptFonts = shaped ? await loadScriptFonts(scripts, { serif: ds.font === 'cmu-serif' }) : {}; // Academic: Noto Serif
+  for (const [k, files] of Object.entries(scriptFonts)) { try { await doc.addScript(k, files); } catch { /* template font */ } }
 
   const M = marginOf(ds);
   const W = page.w - M * 2;
@@ -34,7 +60,7 @@ export async function buildResumePdf({ data: d, design: ds, photo, cover }) {
 
   /* ---------- page-aware column cursor ---------- */
   let onNewPage = () => {};
-  const goto = (col) => { while (doc.getNumberOfPages() < col.page) { doc.addPage([page.w, page.h]); onNewPage(doc.getNumberOfPages()); } doc.setPage(col.page); };
+  const goto = (col) => { while (doc.getNumberOfPages() < col.page) { doc.addPage(); onNewPage(doc.getNumberOfPages()); } doc.setPage(col.page); };
   const ensure = (col, h) => { if (col.y + h > page.h - M) { col.page += 1; col.y = M; } goto(col); };
 
   /* ---------- header (drawn twice when it has a colour band: once to measure, once to draw) ---------- */
@@ -42,23 +68,20 @@ export async function buildResumePdf({ data: d, design: ds, photo, cover }) {
   const tintRgbA = tintRgb(ds.accent, 0.07);
   goto({ page: 1 });
   // photo: baked into its shape (transparent corners) so it looks the same in every PDF viewer
-  let shaped = null;
-  if (d.showPhoto && photo && !cover) { try { shaped = await shapePhoto(photo, ds.photoShape || 'circle'); } catch { shaped = null; } }
-  const withPhoto = !!shaped;
+  let portrait = null;
+  if (d.showPhoto && photo && !cover) { try { portrait = await doc.image(await shapePhoto(photo, ds.photoShape || 'circle'), 'PNG'); } catch { portrait = null; } }
+  const withPhoto = !!portrait;
   const pos = withPhoto ? ds.photoPos || 'left' : null;
   const PS = ds.photoSize || 62;
   const center = pos === 'top' || (ds.headerAlign === 'center' && !withPhoto);
   const band = ds.headerStyle === 'band';
-  // contact icons as sharp PNGs (brand logos in brand colours or one colour)
-  const rgbHex = (c) => `#${c.map((v) => v.toString(16).padStart(2, '0')).join('')}`;
-  const monoIcon = rgbHex(ds.accentOn.links || ds.accentOn.headings ? accent : [68, 68, 68]);
-  const contactRows = contactItems(d, ds.contactLines);
-  const icons = {};
-  if (ds.icons) {
-    await Promise.all(contactRows.flat().map(async (it) => {
-      try { icons[it.kind] = await iconPng(it.kind, iconColor(it.kind, ds, monoIcon), 96); } catch { /* draw without icon */ }
-    }));
-  }
+  // contact icons as vector shapes (brand logos in brand colours or one colour); how they show is the resume's own
+  // setting (icon + text, text only, icon only for links), the same in every template
+  const monoIcon = ds.accentOn.links || ds.accentOn.headings ? accent : [68, 68, 68];
+  const contactRows = contactItems(d, ds.contactLines, undefined, ds.contactOrder);
+  const cMode = contactMode(d, ds);
+  const withIcons = cMode !== 'text';
+  const iconRgb = (k) => { const c = iconColor(k, ds, null); return c ? rgb(c) : monoIcon; };
   const header = (draw, top) => {
     let y = top;
     let x0 = M;
@@ -66,7 +89,7 @@ export async function buildResumePdf({ data: d, design: ds, photo, cover }) {
     if (withPhoto) {
       const px = pos === 'right' ? page.w - M - PS : pos === 'top' ? (page.w - PS) / 2 : M;
       if (draw) {
-        doc.addImage(shaped, 'PNG', px, y, PS, PS, undefined, 'FAST');
+        doc.addImage(portrait, px, y, PS, PS);
         const bw = { none: 0, thin: 1, thick: 2.5 }[ds.photoBorder || 'none'];
         if (bw) {
           doc.setDrawColor(...(ds.photoBorderColor === 'grey' ? [184, 184, 184] : accent)); doc.setLineWidth(bw);
@@ -91,15 +114,20 @@ export async function buildResumePdf({ data: d, design: ds, photo, cover }) {
     }
     const cSize = ds.bodySize - 1;
     const linkCol = ds.accentOn.links ? accent : text;
-    const sepTxt = ds.icons ? '' : '  ·  ';
-    const gap = ds.icons ? 10 : 0;
-    const itemW = (it) => { set(cSize); return (ds.icons ? cSize * 1.1 + 3 : 0) + doc.getTextWidth(it.text); };
+    const sepChar = contactSepOf(ds, cMode);
+    const sepTxt = sepChar ? `  ${sepChar}  ` : '';
+    const gap = withIcons && !sepChar ? 10 : 0;
+    const baseline = iconScaleOf(ds) < 1; // Academic: small icons sitting on the text baseline
+    const iSz = cSize * iconScaleOf(ds);
+    const iGap = baseline ? 2.5 : 3;
+    const hasText = (it) => showsText(it, cMode);
+    const itemW = (it) => { set(cSize); return (withIcons ? iSz + (hasText(it) ? iGap : 0) : 0) + (hasText(it) ? doc.getTextWidth(it.text) : 0); };
     contactRows.forEach((row) => {
       const lines = [[]];
       let w = 0;
       row.forEach((it) => {
         const add = itemW(it) + (lines[lines.length - 1].length ? gap + doc.getTextWidth(sepTxt) : 0);
-        if (w + add > hw && lines[lines.length - 1].length) { lines.push([]); w = 0; }
+        if (w + add > hw && lines[lines.length - 1].length) { lines.push([]); w = 0; } // wraps between items, never inside one
         w += itemW(it) + (lines[lines.length - 1].length ? gap + doc.getTextWidth(sepTxt) : 0);
         lines[lines.length - 1].push(it);
       });
@@ -111,14 +139,16 @@ export async function buildResumePdf({ data: d, design: ds, photo, cover }) {
         ln.forEach((it, i) => {
           if (i) { if (sepTxt) { set(cSize, 'normal', [150, 150, 150]); if (draw) doc.text(sepTxt, x, base); x += doc.getTextWidth(sepTxt); } x += gap; }
           const start = x;
-          if (ds.icons) {
-            const sz = cSize * 1.1;
-            if (draw && icons[it.kind]) doc.addImage(icons[it.kind], 'PNG', x, base - sz + 1.2, sz, sz, undefined, 'FAST');
-            x += sz + 3;
+          if (withIcons) {
+            if (draw) doc.vectorIcon(it.kind, x, baseline ? base - iSz : base - iSz + 1.2, iSz, iconRgb(it.kind));
+            x += iSz + (hasText(it) ? iGap : 0);
           }
-          set(cSize, 'normal', it.link ? linkCol : [74, 74, 74]);
-          if (draw) doc.text(it.text, x, base);
-          x += doc.getTextWidth(it.text);
+          if (hasText(it)) {
+            set(cSize, 'normal', it.link ? linkCol : [74, 74, 74]);
+            if (draw) doc.text(it.text, x, base);
+            x += doc.getTextWidth(it.text);
+          }
+          // icon and text are one link
           if (draw && it.url) doc.link(start, base - cSize, x - start, cSize + 3, { url: it.url });
         });
         y += lh(cSize) + 1;
@@ -127,15 +157,52 @@ export async function buildResumePdf({ data: d, design: ds, photo, cover }) {
     if (withPhoto && pos !== 'top') y = Math.max(y, top + PS + 4);
     return y + 4;
   };
+  // the organization's strip: logo + header line in its colour, above the resume (all text stays selectable)
+  let top = M;
+  if (brand && !cover) {
+    const sy = M * 0.6;
+    const bc = rgb(brand.color || '#1F3A8A');
+    const lines = [brand.collegeName && [brand.collegeName, 11.5, 'bold'], brand.header && [brand.header, brand.collegeName ? 9 : 10, brand.collegeName ? 'normal' : 'bold']].filter(Boolean);
+    let bottom;
+    if (brand.headerStyle === 'center') {
+      // logo centred, the college name and the placement cell line under it
+      let y0 = sy;
+      if (brand.img) {
+        const h = 30; const w = Math.min(h * brand.img.ratio, 170);
+        try { doc.addImage(await doc.image(brand.img.data, brand.img.format), (page.w - w) / 2, y0, w, w / brand.img.ratio); y0 += w / brand.img.ratio + 4; } catch { /* drawn without the logo */ }
+      }
+      for (const [t, size, weight] of lines) { set(size, weight, bc); y0 += size; doc.text(doc.splitTextToSize(t, page.w - 2 * M)[0], page.w / 2, y0, { align: 'center' }); y0 += 3; }
+      bottom = Math.max(y0, sy + 26);
+    } else {
+      const LH = 26;
+      let x = M;
+      if (brand.img) {
+        const w = Math.min(LH * brand.img.ratio, 170);
+        const h = w / brand.img.ratio;
+        try { doc.addImage(await doc.image(brand.img.data, brand.img.format), M, sy + (LH - h) / 2, w, h); x = M + w + 10; } catch { /* drawn without the logo */ }
+      }
+      const room = page.w - M - x - (brand.roll ? 90 : 0);
+      if (lines.length === 2) {
+        set(lines[0][1], lines[0][2], bc); doc.text(doc.splitTextToSize(lines[0][0], room)[0], x, sy + LH / 2 - 1);
+        set(lines[1][1], lines[1][2], bc); doc.text(doc.splitTextToSize(lines[1][0], room)[0], x, sy + LH / 2 + 10);
+      } else if (lines.length === 1) {
+        set(lines[0][1], lines[0][2], bc); doc.text(doc.splitTextToSize(lines[0][0], room)[0], x, sy + LH / 2 + 3.5);
+      }
+      bottom = sy + LH;
+    }
+    if (brand.roll) { set(9, 'normal', [68, 68, 68]); doc.text(`Roll no. ${brand.roll}`, page.w - M, sy + 12, { align: 'right' }); }
+    doc.setDrawColor(...bc); doc.setLineWidth(1.2); doc.line(M, bottom + 6, page.w - M, bottom + 6);
+    top = bottom + 16;
+  }
   let y;
-  if (band) {
+  if (band && top === M) {
     const top = M * 0.75;
     const bottom = header(false, top) + 6;
     doc.setFillColor(...tintRgb(ds.accent, 0.1)); doc.rect(0, 0, page.w, bottom, 'F');
     header(true, top);
     y = bottom + 4;
   } else {
-    y = header(true, M);
+    y = header(true, top);
     if (ds.headerStyle !== 'none') {
       doc.setDrawColor(...(ds.accentOn.lines ? accent : [207, 207, 207])); doc.setLineWidth(ds.accentOn.lines ? 1.5 : 1);
       doc.line(M, y, page.w - M, y);
@@ -193,26 +260,50 @@ export async function buildResumePdf({ data: d, design: ds, photo, cover }) {
     if (ds.bullet === 'none') return;
     if (ds.bullet === '▸') { doc.setFillColor(...text); const cy = col.y + bs * 0.55; doc.triangle(col.x + 1, cy - 2.4, col.x + 1, cy + 2.4, col.x + 5, cy, 'F'); } else { set(bs, 'normal', text); doc.text(ds.bullet, col.x, col.y + bs * 0.9); }
   };
-  const richBullet = (col, t) => {
+  // text with bold words: the **bold** pieces, and numbers in templates like Impact; wrapped word by word, where a
+  // word can change weight inside it ("**Power BI**," keeps its comma regular). A paragraph break starts a new row.
+  const richRows = (col, raw, ind, numbers, base = 'normal') => {
     const bs = ds.bodySize;
-    const ind = ds.bullet === 'none' ? 0 : 10;
-    const words = t.split(/\s+/).filter(Boolean).map((w) => ({ w, b: isNumWord(w) }));
-    const widthOf = (x) => { set(bs, x.b ? 'bold' : 'normal', text); return doc.getTextWidth(x.w); };
+    const segs = parseBold(raw);
     set(bs, 'normal', text);
     const space = doc.getTextWidth(' ');
-    const rows = [[]];
-    let w = 0;
-    words.forEach((x) => {
-      const ww = widthOf(x);
-      if (rows[rows.length - 1].length && w + space + ww > col.w - ind) { rows.push([]); w = 0; }
-      w += (rows[rows.length - 1].length ? space : 0) + ww;
-      rows[rows.length - 1].push({ ...x, ww });
+    const paras = [[[]]]; // paragraphs → words → [{ t, b }]
+    segs.forEach(({ t, b }) => {
+      t.split(/(\n|[ \t]+)/).forEach((tok) => {
+        if (!tok) return;
+        const words = paras[paras.length - 1];
+        if (tok === '\n') { paras.push([[]]); return; }
+        if (/^[ \t]+$/.test(tok)) { if (words[words.length - 1].length) words.push([]); return; }
+        const parts = numbers && !b ? [{ t: tok, b: isNumWord(tok) }] : [{ t: tok, b }];
+        words[words.length - 1].push(...parts);
+      });
     });
-    rows.forEach((r, i) => {
+    const widthOf = (w) => w.reduce((n, x) => { set(bs, x.b ? 'bold' : base, text); return n + doc.getTextWidth(x.t); }, 0);
+    return paras.map((words) => {
+      const rows = [[]];
+      let w = 0;
+      words.filter((x) => x.length).forEach((x) => {
+        const ww = widthOf(x);
+        if (rows[rows.length - 1].length && w + space + ww > col.w - ind) { rows.push([]); w = 0; }
+        w += (rows[rows.length - 1].length ? space : 0) + ww;
+        rows[rows.length - 1].push({ parts: x, ww });
+      });
+      return rows;
+    }).flat().filter((r, i, all) => r.length || all.length === 1);
+  };
+  const richLine = (col, raw, { bullet = false, numbers = false, base = 'normal' } = {}) => {
+    const bs = ds.bodySize;
+    const ind = bullet && ds.bullet !== 'none' ? 10 : 0;
+    set(bs, 'normal', text);
+    const space = doc.getTextWidth(' ');
+    richRows(col, raw, ind, numbers, base).forEach((r, i) => {
       ensure(col, lh(bs));
-      if (i === 0) drawBulletMark(col);
+      if (i === 0 && ind) drawBulletMark(col);
       let x = col.x + ind;
-      r.forEach((x2) => { set(bs, x2.b ? 'bold' : 'normal', text); doc.text(x2.w, x, col.y + bs * 0.9); x += x2.ww + space; });
+      r.forEach((wd) => {
+        wd.parts.forEach((p) => { set(bs, p.b ? 'bold' : base, text); doc.text(p.t, x, col.y + bs * 0.9); x += doc.getTextWidth(p.t); });
+        x += space;
+      });
       col.y += lh(bs);
     });
     return undefined;
@@ -220,10 +311,11 @@ export async function buildResumePdf({ data: d, design: ds, photo, cover }) {
 
   const line = (col, l) => {
     const bs = ds.bodySize;
-    if (typeof l === 'string') return para(col, l, bs, 'normal', text);
+    if (typeof l === 'string') return hasBold(l) ? richLine(col, l) : para(col, stripBold(l), bs, 'normal', text);
     if (l.bullet) {
-      if (ds.bullet === 'none') return para(col, l.t, bs, 'normal', text);
-      if (ds.boldNumbers) return richBullet(col, l.t);
+      if (ds.bullet === 'none') return hasBold(l.t) ? richLine(col, l.t) : para(col, stripBold(l.t), bs, 'normal', text);
+      if (ds.boldNumbers || hasBold(l.t)) return richLine(col, l.t, { bullet: true, numbers: ds.boldNumbers });
+      l = { ...l, t: stripBold(l.t) }; // a stray ** is never printed
       set(bs, 'normal', text);
       const parts = doc.splitTextToSize(l.t, col.w - 10);
       parts.forEach((p, i) => {
@@ -235,6 +327,16 @@ export async function buildResumePdf({ data: d, design: ds, photo, cover }) {
         doc.text(p, col.x + 10, col.y + bs * 0.9);
         col.y += lh(bs);
       });
+      return undefined;
+    }
+    if (l.courses) { // bold "Courses:", then the list wrapping with a hanging indent
+      ensure(col, lh(bs));
+      set(bs, 'bold', text);
+      const lw = doc.getTextWidth(`${l.courses.label} `);
+      doc.text(l.courses.label, col.x, col.y + bs * 0.9);
+      const sub = { ...col, x: col.x + lw, w: col.w - lw };
+      richLine(sub, l.courses.text, { base: l.courses.italic ? 'italic' : 'normal' });
+      col.y = sub.y; col.page = sub.page;
       return undefined;
     }
     if (l.kv) {
@@ -341,10 +443,58 @@ export async function buildResumePdf({ data: d, design: ds, photo, cover }) {
     (it.lines || []).forEach((l) => line(col, l));
   };
 
+  // Academic (LaTeX look): line 1 bold name (+ clickable links) left, place or dates right; line 2 italic role or
+  // degree left, dates right; bullets indented under the entry
+  const acadItem = (col, it) => {
+    const bs = ds.bodySize;
+    const rows = acadRows(it);
+    ensure(col, lh(bs) * Math.min(2, rows.length || 1));
+    rows.forEach(([l, r], i) => {
+      const style = i ? 'italic' : 'bold';
+      set(bs, i ? 'italic' : 'normal', text);
+      const rw = r ? doc.getTextWidth(r) + 10 : 0;
+      const links = i ? [] : it.links || [];
+      const sep = ' | ';
+      set(bs, 'normal', text);
+      const sepW = doc.getTextWidth(sep);
+      const linksW = links.reduce((w, k) => w + sepW + doc.getTextWidth(k.label), 0);
+      set(bs, style, text);
+      const room = col.w - rw;
+      const inline = linksW < room * 0.45;
+      const parts = doc.splitTextToSize(l, room - (inline ? linksW : 0));
+      parts.forEach((p, j) => {
+        ensure(col, lh(bs));
+        set(bs, style, text);
+        if (p) doc.text(p, col.x, col.y + bs * 0.9); // left first: text readers and tracking systems read it in order
+        const pw = p ? doc.getTextWidth(p) : 0; // measured in its own (bold / italic) face
+        if (j === 0 && r) { set(bs, i ? 'italic' : 'normal', text); doc.text(r, col.x + col.w, col.y + bs * 0.9, { align: 'right' }); }
+        if (j === parts.length - 1 && links.length) {
+          let x = inline ? col.x + pw : col.x;
+          if (!inline) { col.y += lh(bs); ensure(col, lh(bs)); }
+          const linkCol = ds.accentOn.links ? accent : text;
+          links.forEach((k, n) => {
+            if ((inline && p) || n) { set(bs, 'normal', [154, 154, 154]); doc.text(sep, x, col.y + bs * 0.9); x += sepW; }
+            set(bs, 'normal', linkCol);
+            const w = doc.getTextWidth(k.label);
+            doc.text(k.label, x, col.y + bs * 0.9);
+            doc.setDrawColor(...linkCol); doc.setLineWidth(0.5); doc.line(x, col.y + bs * 1.02, x + w, col.y + bs * 1.02);
+            doc.link(x, col.y, w, bs * 1.1, { url: k.url });
+            x += w;
+          });
+        }
+        col.y += lh(bs);
+      });
+    });
+    if (!it.lines?.length) return;
+    const sub = { ...col, x: col.x + ACAD_INDENT, w: col.w - ACAD_INDENT, y: col.y + 1 };
+    it.lines.forEach((l) => line(sub, l));
+    col.y = sub.y; col.page = sub.page;
+  };
+
   const run = (col, sections) => sections.forEach((sec, si) => {
     if (si) col.y += ds.sectionGap;
     heading(col, sec.title);
-    sec.items.forEach((it, i) => { if (i) col.y += ds.itemGap; item(col, it); });
+    sec.items.forEach((it, i) => { if (i) col.y += ds.itemGap; (ds.entryStyle === 'academic' ? acadItem : item)(col, it); });
   });
 
   const { main, side } = buildSections(d, ds);
@@ -364,7 +514,7 @@ export async function buildResumePdf({ data: d, design: ds, photo, cover }) {
     para(col, c.close, bs, 'normal', text, 0, bs * 0.4);
     para(col, c.name, bs, 'bold', text);
     doc.setProperties({ title: `${d.personal.name || ''} — Cover letter`, creator: 'Nm7 Resume Builder' });
-    return doc.output('blob');
+    return doc.output();
   }
   if (ds.layout === 'two') {
     const sw = SIDE_W;
@@ -374,8 +524,21 @@ export async function buildResumePdf({ data: d, design: ds, photo, cover }) {
     run({ x: M, w: W, y, page: 1 }, main);
   }
 
+  // foot of every page: the organization's footer line and / or a stamp, small and grey
+  const feet = [!cover && brand?.footer, stamp].filter(Boolean);
+  const numbered = !cover && !!brand?.collegeName; // the college's placement format: "Page 1 of 2" on every page
+  if (feet.length || numbered) {
+    const n = doc.getNumberOfPages();
+    for (let p = 1; p <= n; p++) {
+      doc.setPage(p);
+      set(7.5, 'normal', [110, 110, 110]);
+      const lines = feet.map((t, i) => (i === 0 && numbered ? `${t} · Page ${p} of ${n}` : t));
+      if (numbered && !feet.length) lines.push(`Page ${p} of ${n}`);
+      lines.forEach((t, i) => doc.text(doc.splitTextToSize(t, W)[0], page.w / 2, page.h - M / 2 - (lines.length - 1 - i) * 9, { align: 'center' }));
+    }
+  }
   doc.setProperties({ title: `${d.personal.name || 'Resume'} — Resume`, creator: 'Nm7 Resume Builder' });
-  return doc.output('blob');
+  return doc.output();
 }
 
 /** Saves the PDF. Inside a Claude artifact preview it goes through the viewer's save prompt; elsewhere a normal download. */

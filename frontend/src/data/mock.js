@@ -1,35 +1,10 @@
 // Sample data so every screen works before the backend exists.
 // Names in [brackets] are placeholders — real data will come from the API.
 
-export const SAMPLE_REPORT = {
-  file: 'Resume_Sai_Varsha.pdf',
-  baseScore: 54,
-  targetScore: 89,
-  sections: [
-    { id: 'name', title: 'Sai Varsha', isName: true, lines: [{ id: 'h1', text: 'Chennai · saivarsha@[email] · linkedin.com/in/[handle]', skim: true }] },
-    { id: 'obj', title: 'Objective', lines: [{ id: 'o1', text: 'Seeking a challenging role in a reputed organisation where I can grow my skills.', skim: true }] },
-    { id: 'sk', title: 'Skills', lines: [{ id: 's1', text: 'SKILLS | SQL | Python | Excel | (two-column table)', skim: true }] },
-    { id: 'exp', title: 'Experience', lines: [
-      { id: 'e0', text: 'Data Analyst Intern · [Company] · Jan–Jun 2025', skim: true },
-      { id: 'e1', text: 'Helped with dashboards for the sales team.', skim: false },
-      { id: 'e2', text: 'Cleaned weekly CSV exports in Python.', skim: false },
-    ] },
-    { id: 'prj', title: 'Projects', lines: [{ id: 'p1', text: 'Analysed website data for a college project.', skim: false }] },
-    { id: 'edu', title: 'Education', lines: [{ id: 'd1', text: 'B.Tech, Computer Science · [College] · 2025 · 8.1 CGPA', skim: true }] },
-  ],
-  issues: [
-    { id: 'tbl', n: 1, sev: 'Blocks ATS', line: 's1', pts: 9, title: 'Skills are inside a table', why: 'Most tracking systems read tables as one jumbled line, so your skills may never be indexed.', fix: 'Skills: SQL · Python (Pandas) · Excel · Power BI · Statistics' },
-    { id: 'met', n: 2, sev: 'High', line: 'e1', pts: 8, title: 'This bullet shows no result', why: 'Recruiters scan for numbers. “Helped with” reads as a duty, not an outcome.', fix: 'Built 6 Power BI dashboards that cut weekly sales reporting from 5 hours to 30 minutes.' },
-    { id: 'kw', n: 3, sev: 'High', line: 'p1', pts: 7, title: 'Missing keywords for this role', why: 'Data Analyst job descriptions commonly ask for A/B testing and dashboards. You mention neither.', fix: 'Ran an A/B test on 12K sessions for a college fest site; variant B lifted sign-ups 14%.' },
-    { id: 'obj', n: 4, sev: 'Medium', line: 'o1', pts: 6, title: 'Generic objective wastes the top line', why: 'The most-read line on the page says nothing specific about you.', fix: 'Data analyst fresher who turns messy sales data into decisions — SQL, Python, Power BI.' },
-    { id: 'lnk', n: 5, sev: 'Low', line: 'h1', pts: 2, title: 'LinkedIn link is plain text', why: 'Recruiters can’t click through to verify you.', fix: 'Chennai · saivarsha@[email] · linkedin.com/in/[handle] (clickable)' },
-  ],
-};
-
 export const MATCHED_JOBS = [
-  { id: 'j1', title: 'Data Analyst · [Company]', meta: 'Bengaluru · 0–1 yrs · verified' },
-  { id: 'j2', title: 'Business Analyst Intern · [Company]', meta: 'Remote · Internship · verified' },
-  { id: 'j3', title: 'Junior BI Analyst · [Company]', meta: 'Hyderabad · 0–2 yrs · verified' },
+  { id: 'j1', title: 'Data Analyst · Northwind Retail (sample)', meta: 'Bengaluru · 0–1 yrs · verified' },
+  { id: 'j2', title: 'Business Analyst Intern · Brightpath Logistics (sample)', meta: 'Remote · Internship · verified' },
+  { id: 'j3', title: 'Junior BI Analyst · Lakeview Analytics (sample)', meta: 'Hyderabad · 0–2 yrs · verified' },
 ];
 
 export const EXPERTS = [

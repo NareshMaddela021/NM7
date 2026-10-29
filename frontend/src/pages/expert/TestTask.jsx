@@ -4,13 +4,21 @@ import { Link } from 'react-router-dom';
 import Header from '../../components/Header';
 import { Dialog, useToast } from '../../components/ui';
 import Builder from '../Builder';
-import { loadExpert, saveExpert } from '../../lib/expert';
+import { loadExpert, saveExpert, submitTest, useExpertReady } from '../../lib/expert';
+import { LIVE } from '../../services/http';
+import { Spinner } from '../../components/ui';
 import { currentUser } from '../../lib/auth';
 import { taskById, RUBRIC, atsDelta, TEST_HOURS } from '../../lib/expertTest';
 import { atsScore } from '../../lib/atsScore';
 import { countdown } from '../me/shared';
 
 export default function TestTask() {
+  const ready = useExpertReady();
+  if (!ready) return <><Header variant="expert" /><main className="container row g12 muted" role="status" style={{ padding: 48 }}><Spinner /> Loading…</main></>;
+  return <TestTaskPage />;
+}
+
+function TestTaskPage() {
   const toast = useToast();
   const [p, setP] = useState(loadExpert);
   const [d, setD] = useState(null);
@@ -34,7 +42,11 @@ export default function TestTask() {
   const cd = countdown(p.test.due);
   const now = d ? atsScore(d, t.jd) : null;
   const { before } = atsDelta(t, t.original);
-  const submit = () => {
+  const submit = async () => {
+    if (LIVE) {
+      try { setP(await submitTest(d || t.original, note.trim())); setConfirm(false); toast('Test submitted — we’ll email you the result'); } catch (e) { toast(e.message || 'Not submitted. Please try again.'); }
+      return;
+    }
     const next = { ...p, status: 'testReview', test: { ...p.test, submitted: { data: d || t.original, at: Date.now(), note: note.trim(), late: cd.late } } };
     saveExpert(next); setP(next); setConfirm(false);
     toast('Test submitted — we’ll email you the result');

@@ -1,0 +1,12141 @@
+{
+"_about":"Common Indian job skills with synonyms (job match, cover letters, interview prep). n = name, k = kind (tech, tool, cert, soft, lang), s = synonyms matched in any case, cs = forms matched only exactly as written (everyday words like Word, Spark, Go and short codes like CA, PR). The name itself is matched in any case unless it is listed in cs. Source lists: one skill per line, kept outside the repo; edit this file directly for small changes.",
+"skills":[
+{
+"n":"Python",
+"k":"tech",
+"s":[
+"python3",
+"py"
+]
+},
+{
+"n":"Java",
+"k":"tech",
+"s":[
+"core java",
+"java se"
+]
+},
+{
+"n":"JavaScript",
+"k":"tech",
+"s":[
+"JS",
+"Java Script",
+"ECMAScript",
+"ES6"
+]
+},
+{
+"n":"TypeScript",
+"k":"tech",
+"s":[
+"TS"
+]
+},
+{
+"n":"C",
+"k":"tech",
+"s":[
+"C programming"
+],
+"cs":[
+"C",
+"C language"
+]
+},
+{
+"n":"C++",
+"k":"tech",
+"s":[
+"CPP",
+"C plus plus"
+]
+},
+{
+"n":"C#",
+"k":"tech",
+"s":[
+"C sharp",
+"csharp"
+]
+},
+{
+"n":"Go",
+"k":"tech",
+"s":[
+"Golang",
+"Go language"
+],
+"cs":[
+"Go"
+]
+},
+{
+"n":"Rust",
+"k":"tech",
+"cs":[
+"Rust"
+]
+},
+{
+"n":"Kotlin",
+"k":"tech"
+},
+{
+"n":"Swift",
+"k":"tech",
+"cs":[
+"Swift"
+]
+},
+{
+"n":"Objective-C",
+"k":"tech",
+"s":[
+"Objective C"
+]
+},
+{
+"n":"PHP",
+"k":"tech"
+},
+{
+"n":"Ruby",
+"k":"tech",
+"cs":[
+"Ruby"
+]
+},
+{
+"n":"Ruby on Rails",
+"k":"tech",
+"s":[
+"RoR"
+],
+"cs":[
+"Rails"
+]
+},
+{
+"n":"Perl",
+"k":"tech",
+"cs":[
+"Perl"
+]
+},
+{
+"n":"Scala",
+"k":"tech",
+"cs":[
+"Scala"
+]
+},
+{
+"n":"R",
+"k":"tech",
+"s":[
+"R language",
+"RStudio"
+],
+"cs":[
+"R",
+"R programming"
+]
+},
+{
+"n":"MATLAB",
+"k":"tech"
+},
+{
+"n":"Julia",
+"k":"tech",
+"cs":[
+"Julia"
+]
+},
+{
+"n":"Dart",
+"k":"tech",
+"cs":[
+"Dart"
+]
+},
+{
+"n":"Shell scripting",
+"k":"tech",
+"s":[
+"Bash",
+"bash scripting",
+"shell script",
+"Unix shell"
+]
+},
+{
+"n":"PowerShell",
+"k":"tech"
+},
+{
+"n":"VBA",
+"k":"tech",
+"s":[
+"Excel VBA",
+"Visual Basic for Applications"
+]
+},
+{
+"n":"Visual Basic",
+"k":"tech",
+"s":[
+"VB.NET",
+"VB"
+]
+},
+{
+"n":"COBOL",
+"k":"tech"
+},
+{
+"n":"Fortran",
+"k":"tech"
+},
+{
+"n":"Assembly language",
+"k":"tech",
+"cs":[
+"Assembly"
+]
+},
+{
+"n":"Groovy",
+"k":"tech",
+"cs":[
+"Groovy"
+]
+},
+{
+"n":"Lua",
+"k":"tech",
+"cs":[
+"Lua"
+]
+},
+{
+"n":"Haskell",
+"k":"tech"
+},
+{
+"n":"Elixir",
+"k":"tech"
+},
+{
+"n":"Solidity",
+"k":"tech"
+},
+{
+"n":"SQL",
+"k":"tech",
+"s":[
+"Structured Query Language",
+"SQL queries"
+]
+},
+{
+"n":"PL/SQL",
+"k":"tech",
+"s":[
+"PLSQL"
+]
+},
+{
+"n":"T-SQL",
+"k":"tech",
+"s":[
+"TSQL"
+]
+},
+{
+"n":"NoSQL",
+"k":"tech"
+},
+{
+"n":"HTML",
+"k":"tech",
+"s":[
+"HTML5"
+]
+},
+{
+"n":"CSS",
+"k":"tech",
+"s":[
+"CSS3"
+]
+},
+{
+"n":"SASS",
+"k":"tech",
+"s":[
+"SCSS"
+]
+},
+{
+"n":"!LESS",
+"k":"tech",
+"cs":[
+"LESS"
+]
+},
+{
+"n":"Bootstrap",
+"k":"tech",
+"cs":[
+"Bootstrap"
+]
+},
+{
+"n":"Tailwind CSS",
+"k":"tech",
+"s":[
+"Tailwind",
+"TailwindCSS"
+]
+},
+{
+"n":"Material UI",
+"k":"tech",
+"s":[
+"MUI"
+]
+},
+{
+"n":"jQuery",
+"k":"tech",
+"s":[
+"JQuery"
+]
+},
+{
+"n":"React",
+"k":"tech",
+"s":[
+"ReactJS",
+"React.js",
+"React JS"
+]
+},
+{
+"n":"Next.js",
+"k":"tech",
+"s":[
+"NextJS",
+"Next JS"
+]
+},
+{
+"n":"Angular",
+"k":"tech",
+"s":[
+"AngularJS",
+"Angular JS"
+]
+},
+{
+"n":"Vue.js",
+"k":"tech",
+"s":[
+"Vue",
+"VueJS",
+"Vue JS"
+]
+},
+{
+"n":"Nuxt.js",
+"k":"tech",
+"s":[
+"Nuxt"
+]
+},
+{
+"n":"Svelte",
+"k":"tech"
+},
+{
+"n":"Redux",
+"k":"tech",
+"s":[
+"Redux Toolkit"
+],
+"cs":[
+"Redux"
+]
+},
+{
+"n":"Node.js",
+"k":"tech",
+"s":[
+"NodeJS",
+"Node JS"
+],
+"cs":[
+"Node"
+]
+},
+{
+"n":"Express.js",
+"k":"tech",
+"s":[
+"ExpressJS"
+],
+"cs":[
+"Express"
+]
+},
+{
+"n":"NestJS",
+"k":"tech",
+"s":[
+"Nest.js"
+]
+},
+{
+"n":"Django",
+"k":"tech"
+},
+{
+"n":"Flask",
+"k":"tech"
+},
+{
+"n":"FastAPI",
+"k":"tech",
+"s":[
+"Fast API"
+]
+},
+{
+"n":"Spring",
+"k":"tech",
+"s":[
+"Spring Framework"
+],
+"cs":[
+"Spring"
+]
+},
+{
+"n":"Spring Boot",
+"k":"tech",
+"s":[
+"SpringBoot"
+]
+},
+{
+"n":"Hibernate",
+"k":"tech",
+"s":[
+"JPA"
+]
+},
+{
+"n":"Struts",
+"k":"tech"
+},
+{
+"n":"ASP.NET",
+"k":"tech",
+"s":[
+"ASP.NET Core",
+"ASP .NET"
+]
+},
+{
+"n":".NET",
+"k":"tech",
+"s":[
+"dotnet",
+".NET Core",
+".NET Framework",
+"dot net"
+]
+},
+{
+"n":"Entity Framework",
+"k":"tech"
+},
+{
+"n":"Laravel",
+"k":"tech"
+},
+{
+"n":"CodeIgniter",
+"k":"tech"
+},
+{
+"n":"Symfony",
+"k":"tech"
+},
+{
+"n":"WordPress",
+"k":"tech",
+"s":[
+"Word Press"
+]
+},
+{
+"n":"Drupal",
+"k":"tech"
+},
+{
+"n":"Joomla",
+"k":"tech"
+},
+{
+"n":"Shopify",
+"k":"tech"
+},
+{
+"n":"Magento",
+"k":"tech"
+},
+{
+"n":"GraphQL",
+"k":"tech"
+},
+{
+"n":"REST API",
+"k":"tech",
+"s":[
+"REST APIs",
+"RESTful API",
+"RESTful services",
+"RESTful"
+],
+"cs":[
+"REST"
+]
+},
+{
+"n":"SOAP web services",
+"k":"tech",
+"cs":[
+"SOAP"
+]
+},
+{
+"n":"Microservices",
+"k":"tech",
+"s":[
+"micro services",
+"microservice architecture"
+]
+},
+{
+"n":"Web services",
+"k":"tech"
+},
+{
+"n":"API development",
+"k":"tech",
+"s":[
+"API design"
+]
+},
+{
+"n":"API testing",
+"k":"tech"
+},
+{
+"n":"JSON",
+"k":"tech"
+},
+{
+"n":"XML",
+"k":"tech"
+},
+{
+"n":"WebSockets",
+"k":"tech",
+"s":[
+"WebSocket"
+]
+},
+{
+"n":"OAuth",
+"k":"tech",
+"s":[
+"OAuth2",
+"OAuth 2.0"
+]
+},
+{
+"n":"JWT",
+"k":"tech",
+"s":[
+"JSON Web Token"
+]
+},
+{
+"n":"Responsive design",
+"k":"tech",
+"s":[
+"responsive web design"
+]
+},
+{
+"n":"Web development",
+"k":"tech",
+"s":[
+"web developer"
+]
+},
+{
+"n":"Front-end development",
+"k":"tech",
+"s":[
+"frontend development",
+"front end development"
+]
+},
+{
+"n":"Back-end development",
+"k":"tech",
+"s":[
+"backend development",
+"back end development"
+]
+},
+{
+"n":"Full-stack development",
+"k":"tech",
+"s":[
+"full stack development",
+"fullstack"
+]
+},
+{
+"n":"Object-oriented programming",
+"k":"tech",
+"s":[
+"OOP",
+"OOPS",
+"OOPs concepts"
+]
+},
+{
+"n":"Data structures",
+"k":"tech",
+"s":[
+"DSA",
+"data structures and algorithms"
+]
+},
+{
+"n":"Algorithms",
+"k":"tech"
+},
+{
+"n":"Design patterns",
+"k":"tech"
+},
+{
+"n":"System design",
+"k":"tech"
+},
+{
+"n":"Software development life cycle",
+"k":"tech",
+"s":[
+"SDLC"
+]
+},
+{
+"n":"Agile",
+"k":"tech",
+"s":[
+"Agile methodology",
+"Agile methodologies"
+]
+},
+{
+"n":"Scrum",
+"k":"tech"
+},
+{
+"n":"Kanban",
+"k":"tech"
+},
+{
+"n":"Waterfall",
+"k":"tech"
+},
+{
+"n":"Test-driven development",
+"k":"tech",
+"s":[
+"TDD"
+]
+},
+{
+"n":"Unit testing",
+"k":"tech"
+},
+{
+"n":"Integration testing",
+"k":"tech"
+},
+{
+"n":"Debugging",
+"k":"tech"
+},
+{
+"n":"Code review",
+"k":"tech"
+},
+{
+"n":"Version control",
+"k":"tech"
+},
+{
+"n":"Git",
+"k":"tech",
+"s":[
+"GIT"
+]
+},
+{
+"n":"GitHub",
+"k":"tech"
+},
+{
+"n":"GitLab",
+"k":"tech"
+},
+{
+"n":"Bitbucket",
+"k":"tech"
+},
+{
+"n":"SVN",
+"k":"tech",
+"s":[
+"Subversion"
+]
+},
+{
+"n":"Android development",
+"k":"tech",
+"s":[
+"Android",
+"Android app development"
+]
+},
+{
+"n":"iOS development",
+"k":"tech",
+"s":[
+"iOS",
+"iOS app development"
+]
+},
+{
+"n":"React Native",
+"k":"tech"
+},
+{
+"n":"Flutter",
+"k":"tech"
+},
+{
+"n":"Xamarin",
+"k":"tech"
+},
+{
+"n":"Ionic",
+"k":"tech"
+},
+{
+"n":"Mobile app development",
+"k":"tech",
+"s":[
+"mobile development"
+]
+},
+{
+"n":"SwiftUI",
+"k":"tech"
+},
+{
+"n":"Jetpack Compose",
+"k":"tech"
+},
+{
+"n":"Firebase",
+"k":"tech"
+},
+{
+"n":"Unity",
+"k":"tech",
+"s":[
+"Unity3D",
+"Unity 3D"
+],
+"cs":[
+"Unity"
+]
+},
+{
+"n":"Unreal Engine",
+"k":"tech"
+},
+{
+"n":"Game development",
+"k":"tech"
+},
+{
+"n":"Blockchain",
+"k":"tech"
+},
+{
+"n":"Web3",
+"k":"tech"
+},
+{
+"n":"Smart contracts",
+"k":"tech"
+},
+{
+"n":"Embedded C",
+"k":"tech"
+},
+{
+"n":"Embedded systems",
+"k":"tech"
+},
+{
+"n":"Arduino",
+"k":"tech"
+},
+{
+"n":"Raspberry Pi",
+"k":"tech"
+},
+{
+"n":"Internet of Things",
+"k":"tech",
+"s":[
+"IoT"
+]
+},
+{
+"n":"RTOS",
+"k":"tech"
+},
+{
+"n":"Verilog",
+"k":"tech"
+},
+{
+"n":"VHDL",
+"k":"tech"
+},
+{
+"n":"FPGA",
+"k":"tech"
+},
+{
+"n":"PLC programming",
+"k":"tech",
+"s":[
+"PLC"
+]
+},
+{
+"n":"SCADA",
+"k":"tech"
+},
+{
+"n":"Microcontrollers",
+"k":"tech",
+"s":[
+"microcontroller"
+]
+},
+{
+"n":"8051 microcontroller",
+"k":"tech",
+"s":[
+"8051"
+]
+},
+{
+"n":"ARM",
+"k":"tech",
+"s":[
+"ARM Cortex"
+],
+"cs":[
+"ARM"
+]
+},
+{
+"n":"AUTOSAR",
+"k":"tech"
+},
+{
+"n":"CAN protocol",
+"k":"tech",
+"s":[
+"CAN bus"
+]
+},
+{
+"n":"Linux",
+"k":"tech",
+"s":[
+"Linux administration",
+"Unix",
+"Ubuntu"
+]
+},
+{
+"n":"Windows Server",
+"k":"tech"
+},
+{
+"n":"Active Directory",
+"k":"tech"
+},
+{
+"n":"Networking",
+"k":"tech",
+"s":[
+"computer networking",
+"computer networks"
+]
+},
+{
+"n":"TCP/IP",
+"k":"tech"
+},
+{
+"n":"DNS",
+"k":"tech"
+},
+{
+"n":"DHCP",
+"k":"tech"
+},
+{
+"n":"LAN/WAN",
+"k":"tech",
+"cs":[
+"LAN",
+"WAN"
+]
+},
+{
+"n":"Routing and switching",
+"k":"tech",
+"s":[
+"routing",
+"switching"
+]
+},
+{
+"n":"CCNA",
+"k":"tech"
+},
+{
+"n":"Firewall",
+"k":"tech"
+},
+{
+"n":"VPN",
+"k":"tech"
+},
+{
+"n":"Network security",
+"k":"tech"
+},
+{
+"n":"Cybersecurity",
+"k":"tech",
+"s":[
+"cyber security",
+"information security",
+"InfoSec"
+]
+},
+{
+"n":"Ethical hacking",
+"k":"tech",
+"s":[
+"penetration testing",
+"pen testing",
+"VAPT"
+]
+},
+{
+"n":"SIEM",
+"k":"tech"
+},
+{
+"n":"SOC",
+"k":"tech",
+"s":[
+"security operations"
+]
+},
+{
+"n":"Vulnerability assessment",
+"k":"tech"
+},
+{
+"n":"Incident response",
+"k":"tech"
+},
+{
+"n":"ISO 27001",
+"k":"tech"
+},
+{
+"n":"Cloud computing",
+"k":"tech",
+"s":[
+"cloud"
+]
+},
+{
+"n":"AWS",
+"k":"tech",
+"s":[
+"Amazon Web Services"
+]
+},
+{
+"n":"Microsoft Azure",
+"k":"tech",
+"s":[
+"Azure"
+]
+},
+{
+"n":"Google Cloud",
+"k":"tech",
+"s":[
+"GCP",
+"Google Cloud Platform"
+]
+},
+{
+"n":"AWS EC2",
+"k":"tech",
+"s":[
+"EC2"
+]
+},
+{
+"n":"AWS S3",
+"k":"tech",
+"s":[
+"S3"
+]
+},
+{
+"n":"AWS Lambda",
+"k":"tech",
+"cs":[
+"Lambda"
+]
+},
+{
+"n":"DevOps",
+"k":"tech"
+},
+{
+"n":"CI/CD",
+"k":"tech",
+"s":[
+"CI CD",
+"continuous integration",
+"continuous deployment"
+]
+},
+{
+"n":"Jenkins",
+"k":"tech",
+"cs":[
+"Jenkins"
+]
+},
+{
+"n":"Docker",
+"k":"tech",
+"s":[
+"Docker containers"
+]
+},
+{
+"n":"Kubernetes",
+"k":"tech",
+"s":[
+"K8s"
+]
+},
+{
+"n":"Terraform",
+"k":"tech"
+},
+{
+"n":"Ansible",
+"k":"tech"
+},
+{
+"n":"Puppet",
+"k":"tech",
+"cs":[
+"Puppet"
+]
+},
+{
+"n":"Chef",
+"k":"tech",
+"cs":[
+"Chef"
+]
+},
+{
+"n":"Helm",
+"k":"tech",
+"cs":[
+"Helm"
+]
+},
+{
+"n":"Prometheus",
+"k":"tech"
+},
+{
+"n":"Grafana",
+"k":"tech"
+},
+{
+"n":"ELK Stack",
+"k":"tech",
+"s":[
+"ELK",
+"Elasticsearch",
+"Logstash",
+"Kibana"
+]
+},
+{
+"n":"Nginx",
+"k":"tech"
+},
+{
+"n":"Apache",
+"k":"tech",
+"s":[
+"Apache HTTP Server"
+]
+},
+{
+"n":"Tomcat",
+"k":"tech",
+"s":[
+"Apache Tomcat"
+]
+},
+{
+"n":"Maven",
+"k":"tech",
+"cs":[
+"Maven"
+]
+},
+{
+"n":"Gradle",
+"k":"tech"
+},
+{
+"n":"npm",
+"k":"tech"
+},
+{
+"n":"Webpack",
+"k":"tech"
+},
+{
+"n":"Vite",
+"k":"tech"
+},
+{
+"n":"Babel",
+"k":"tech"
+},
+{
+"n":"SonarQube",
+"k":"tech"
+},
+{
+"n":"Jira",
+"k":"tech",
+"s":[
+"JIRA"
+]
+},
+{
+"n":"Confluence",
+"k":"tech"
+},
+{
+"n":"Trello",
+"k":"tech",
+"cs":[
+"Trello"
+]
+},
+{
+"n":"Postman",
+"k":"tech"
+},
+{
+"n":"Swagger",
+"k":"tech",
+"s":[
+"OpenAPI"
+]
+},
+{
+"n":"MySQL",
+"k":"tech",
+"s":[
+"My SQL"
+]
+},
+{
+"n":"PostgreSQL",
+"k":"tech",
+"s":[
+"Postgres"
+]
+},
+{
+"n":"Oracle",
+"k":"tech",
+"s":[
+"Oracle Database",
+"Oracle DB"
+]
+},
+{
+"n":"Microsoft SQL Server",
+"k":"tech",
+"s":[
+"SQL Server",
+"MS SQL",
+"MSSQL"
+]
+},
+{
+"n":"MongoDB",
+"k":"tech",
+"s":[
+"Mongo DB",
+"Mongo"
+]
+},
+{
+"n":"Redis",
+"k":"tech"
+},
+{
+"n":"Cassandra",
+"k":"tech"
+},
+{
+"n":"DynamoDB",
+"k":"tech"
+},
+{
+"n":"SQLite",
+"k":"tech"
+},
+{
+"n":"MariaDB",
+"k":"tech"
+},
+{
+"n":"Snowflake",
+"k":"tech"
+},
+{
+"n":"BigQuery",
+"k":"tech",
+"s":[
+"Google BigQuery"
+]
+},
+{
+"n":"Amazon Redshift",
+"k":"tech",
+"s":[
+"Redshift"
+]
+},
+{
+"n":"Databricks",
+"k":"tech"
+},
+{
+"n":"Hadoop",
+"k":"tech"
+},
+{
+"n":"Apache Spark",
+"k":"tech",
+"s":[
+"PySpark"
+],
+"cs":[
+"Spark"
+]
+},
+{
+"n":"Hive",
+"k":"tech",
+"cs":[
+"Hive"
+]
+},
+{
+"n":"Kafka",
+"k":"tech",
+"s":[
+"Apache Kafka"
+],
+"cs":[
+"Kafka"
+]
+},
+{
+"n":"Airflow",
+"k":"tech",
+"s":[
+"Apache Airflow"
+],
+"cs":[
+"Airflow"
+]
+},
+{
+"n":"ETL",
+"k":"tech",
+"s":[
+"ETL pipelines",
+"extract transform load"
+]
+},
+{
+"n":"Data warehousing",
+"k":"tech",
+"s":[
+"data warehouse"
+]
+},
+{
+"n":"Data modeling",
+"k":"tech",
+"s":[
+"data modelling"
+]
+},
+{
+"n":"Data engineering",
+"k":"tech"
+},
+{
+"n":"Data pipelines",
+"k":"tech"
+},
+{
+"n":"Data analysis",
+"k":"tech",
+"s":[
+"data analytics",
+"analysing data",
+"analyzing data"
+]
+},
+{
+"n":"Data visualization",
+"k":"tech",
+"s":[
+"data visualisation",
+"dashboards",
+"dashboarding"
+]
+},
+{
+"n":"Data cleaning",
+"k":"tech",
+"s":[
+"data cleansing",
+"data wrangling"
+]
+},
+{
+"n":"Data entry",
+"k":"tech"
+},
+{
+"n":"Data mining",
+"k":"tech"
+},
+{
+"n":"Data science",
+"k":"tech"
+},
+{
+"n":"Business intelligence",
+"k":"tech",
+"s":[
+"BI"
+]
+},
+{
+"n":"Statistics",
+"k":"tech",
+"s":[
+"statistical analysis"
+]
+},
+{
+"n":"Probability",
+"k":"tech"
+},
+{
+"n":"Hypothesis testing",
+"k":"tech",
+"s":[
+"A/B testing",
+"AB testing"
+]
+},
+{
+"n":"Regression analysis",
+"k":"tech",
+"s":[
+"regression"
+]
+},
+{
+"n":"Predictive modeling",
+"k":"tech",
+"s":[
+"predictive modelling"
+]
+},
+{
+"n":"Machine learning",
+"k":"tech",
+"cs":[
+"ML"
+]
+},
+{
+"n":"Deep learning",
+"k":"tech",
+"cs":[
+"DL"
+]
+},
+{
+"n":"Artificial intelligence",
+"k":"tech",
+"cs":[
+"AI"
+]
+},
+{
+"n":"Natural language processing",
+"k":"tech",
+"s":[
+"NLP"
+]
+},
+{
+"n":"Computer vision",
+"k":"tech"
+},
+{
+"n":"Generative AI",
+"k":"tech",
+"s":[
+"GenAI",
+"Gen AI"
+]
+},
+{
+"n":"Large language models",
+"k":"tech",
+"s":[
+"LLM",
+"LLMs"
+]
+},
+{
+"n":"Prompt engineering",
+"k":"tech"
+},
+{
+"n":"Neural networks",
+"k":"tech"
+},
+{
+"n":"TensorFlow",
+"k":"tech",
+"s":[
+"Tensor Flow"
+]
+},
+{
+"n":"PyTorch",
+"k":"tech"
+},
+{
+"n":"Keras",
+"k":"tech"
+},
+{
+"n":"scikit-learn",
+"k":"tech",
+"s":[
+"sklearn",
+"scikit learn"
+]
+},
+{
+"n":"Pandas",
+"k":"tech"
+},
+{
+"n":"NumPy",
+"k":"tech",
+"s":[
+"Numpy"
+]
+},
+{
+"n":"Matplotlib",
+"k":"tech"
+},
+{
+"n":"Seaborn",
+"k":"tech"
+},
+{
+"n":"Plotly",
+"k":"tech"
+},
+{
+"n":"SciPy",
+"k":"tech"
+},
+{
+"n":"OpenCV",
+"k":"tech"
+},
+{
+"n":"Hugging Face",
+"k":"tech",
+"s":[
+"HuggingFace"
+]
+},
+{
+"n":"LangChain",
+"k":"tech"
+},
+{
+"n":"Jupyter",
+"k":"tech",
+"s":[
+"Jupyter Notebook"
+]
+},
+{
+"n":"Time series analysis",
+"k":"tech",
+"s":[
+"time series"
+]
+},
+{
+"n":"Forecasting",
+"k":"tech"
+},
+{
+"n":"Excel modeling",
+"k":"tech",
+"s":[
+"financial modelling",
+"financial modeling"
+]
+},
+{
+"n":"Big data",
+"k":"tech"
+},
+{
+"n":"Web scraping",
+"k":"tech",
+"s":[
+"Beautiful Soup",
+"BeautifulSoup",
+"Scrapy"
+]
+},
+{
+"n":"Selenium",
+"k":"tech",
+"cs":[
+"Selenium"
+]
+},
+{
+"n":"Automation testing",
+"k":"tech",
+"s":[
+"test automation"
+]
+},
+{
+"n":"Manual testing",
+"k":"tech"
+},
+{
+"n":"Software testing",
+"k":"tech",
+"s":[
+"QA testing",
+"quality assurance testing"
+]
+},
+{
+"n":"Functional testing",
+"k":"tech"
+},
+{
+"n":"Regression testing",
+"k":"tech"
+},
+{
+"n":"Performance testing",
+"k":"tech",
+"s":[
+"load testing"
+]
+},
+{
+"n":"JMeter",
+"k":"tech",
+"s":[
+"Apache JMeter"
+]
+},
+{
+"n":"Cypress",
+"k":"tech",
+"cs":[
+"Cypress"
+]
+},
+{
+"n":"Playwright",
+"k":"tech",
+"cs":[
+"Playwright"
+]
+},
+{
+"n":"Appium",
+"k":"tech"
+},
+{
+"n":"TestNG",
+"k":"tech"
+},
+{
+"n":"JUnit",
+"k":"tech"
+},
+{
+"n":"PyTest",
+"k":"tech",
+"s":[
+"pytest"
+]
+},
+{
+"n":"Cucumber",
+"k":"tech",
+"s":[
+"BDD"
+]
+},
+{
+"n":"LoadRunner",
+"k":"tech"
+},
+{
+"n":"Test cases",
+"k":"tech",
+"s":[
+"test case design",
+"writing test cases"
+]
+},
+{
+"n":"Bug tracking",
+"k":"tech",
+"s":[
+"defect tracking"
+]
+},
+{
+"n":"UI design",
+"k":"tech"
+},
+{
+"n":"UX design",
+"k":"tech",
+"s":[
+"user experience"
+]
+},
+{
+"n":"UI/UX design",
+"k":"tech",
+"s":[
+"UI UX",
+"UI/UX"
+]
+},
+{
+"n":"Wireframing",
+"k":"tech",
+"s":[
+"wireframes"
+]
+},
+{
+"n":"Prototyping",
+"k":"tech"
+},
+{
+"n":"User research",
+"k":"tech"
+},
+{
+"n":"Interaction design",
+"k":"tech"
+},
+{
+"n":"Graphic design",
+"k":"tech",
+"s":[
+"graphics design"
+]
+},
+{
+"n":"Visual design",
+"k":"tech"
+},
+{
+"n":"Logo design",
+"k":"tech"
+},
+{
+"n":"Branding",
+"k":"tech"
+},
+{
+"n":"Illustration",
+"k":"tech"
+},
+{
+"n":"Motion graphics",
+"k":"tech"
+},
+{
+"n":"Video editing",
+"k":"tech"
+},
+{
+"n":"Animation",
+"k":"tech",
+"s":[
+"2D animation",
+"3D animation"
+]
+},
+{
+"n":"3D modeling",
+"k":"tech",
+"s":[
+"3D modelling"
+]
+},
+{
+"n":"Photography",
+"k":"tech"
+},
+{
+"n":"Photo editing",
+"k":"tech",
+"s":[
+"image editing"
+]
+},
+{
+"n":"Typography",
+"k":"tech"
+},
+{
+"n":"Print design",
+"k":"tech"
+},
+{
+"n":"Web design",
+"k":"tech"
+},
+{
+"n":"Microsoft Excel",
+"k":"tool",
+"s":[
+"MS Excel",
+"Excel",
+"Advanced Excel",
+"Excel sheets",
+"spreadsheet",
+"spreadsheets"
+]
+},
+{
+"n":"Microsoft Word",
+"k":"tool",
+"s":[
+"MS Word"
+],
+"cs":[
+"Word"
+]
+},
+{
+"n":"Microsoft PowerPoint",
+"k":"tool",
+"s":[
+"MS PowerPoint",
+"PowerPoint",
+"PPT"
+]
+},
+{
+"n":"Microsoft Office",
+"k":"tool",
+"s":[
+"MS Office",
+"Office 365",
+"Microsoft 365",
+"MS-Office"
+]
+},
+{
+"n":"Microsoft Outlook",
+"k":"tool",
+"s":[
+"MS Outlook"
+],
+"cs":[
+"Outlook"
+]
+},
+{
+"n":"Microsoft Access",
+"k":"tool",
+"s":[
+"MS Access"
+]
+},
+{
+"n":"Microsoft Teams",
+"k":"tool",
+"s":[
+"MS Teams"
+]
+},
+{
+"n":"Microsoft Project",
+"k":"tool",
+"s":[
+"MS Project"
+]
+},
+{
+"n":"Google Sheets",
+"k":"tool",
+"s":[
+"Google Spreadsheets"
+]
+},
+{
+"n":"Google Docs",
+"k":"tool"
+},
+{
+"n":"Google Workspace",
+"k":"tool",
+"s":[
+"G Suite",
+"GSuite"
+]
+},
+{
+"n":"Power BI",
+"k":"tool",
+"s":[
+"PowerBI",
+"MS Power BI",
+"Microsoft Power BI"
+]
+},
+{
+"n":"Tableau",
+"k":"tool",
+"cs":[
+"Tableau"
+]
+},
+{
+"n":"Looker",
+"k":"tool",
+"s":[
+"Looker Studio",
+"Google Data Studio",
+"Data Studio"
+],
+"cs":[
+"Looker"
+]
+},
+{
+"n":"Qlik",
+"k":"tool",
+"s":[
+"QlikView",
+"Qlik Sense"
+]
+},
+{
+"n":"SAS",
+"k":"tool"
+},
+{
+"n":"SPSS",
+"k":"tool",
+"s":[
+"IBM SPSS"
+]
+},
+{
+"n":"Stata",
+"k":"tool"
+},
+{
+"n":"Minitab",
+"k":"tool"
+},
+{
+"n":"Alteryx",
+"k":"tool"
+},
+{
+"n":"Power Query",
+"k":"tool"
+},
+{
+"n":"DAX",
+"k":"tool"
+},
+{
+"n":"Pivot tables",
+"k":"tool",
+"s":[
+"pivot table",
+"pivots"
+]
+},
+{
+"n":"VLOOKUP",
+"k":"tool",
+"s":[
+"vlookup",
+"XLOOKUP",
+"HLOOKUP",
+"lookups"
+]
+},
+{
+"n":"Macros",
+"k":"tool",
+"s":[
+"Excel macros"
+]
+},
+{
+"n":"Power Automate",
+"k":"tool",
+"s":[
+"Microsoft Power Automate"
+]
+},
+{
+"n":"Power Apps",
+"k":"tool",
+"s":[
+"PowerApps"
+]
+},
+{
+"n":"UiPath",
+"k":"tool"
+},
+{
+"n":"Automation Anywhere",
+"k":"tool"
+},
+{
+"n":"Blue Prism",
+"k":"tool"
+},
+{
+"n":"Robotic process automation",
+"k":"tool",
+"s":[
+"RPA"
+]
+},
+{
+"n":"Salesforce",
+"k":"tool",
+"s":[
+"SFDC"
+]
+},
+{
+"n":"Salesforce CRM",
+"k":"tool"
+},
+{
+"n":"Zoho",
+"k":"tool",
+"s":[
+"Zoho CRM",
+"Zoho Books"
+]
+},
+{
+"n":"HubSpot",
+"k":"tool",
+"s":[
+"Hubspot"
+]
+},
+{
+"n":"Freshdesk",
+"k":"tool"
+},
+{
+"n":"Freshworks",
+"k":"tool",
+"s":[
+"Freshsales"
+]
+},
+{
+"n":"Zendesk",
+"k":"tool"
+},
+{
+"n":"ServiceNow",
+"k":"tool"
+},
+{
+"n":"SAP",
+"k":"tool",
+"s":[
+"SAP ERP"
+]
+},
+{
+"n":"SAP FICO",
+"k":"tool",
+"s":[
+"SAP FI CO",
+"SAP FI/CO"
+]
+},
+{
+"n":"SAP MM",
+"k":"tool"
+},
+{
+"n":"SAP SD",
+"k":"tool"
+},
+{
+"n":"SAP HANA",
+"k":"tool",
+"s":[
+"S/4HANA",
+"S4 HANA"
+]
+},
+{
+"n":"SAP ABAP",
+"k":"tool",
+"s":[
+"ABAP"
+]
+},
+{
+"n":"SAP HCM",
+"k":"tool",
+"s":[
+"SAP HR"
+]
+},
+{
+"n":"SAP PP",
+"k":"tool"
+},
+{
+"n":"Oracle ERP",
+"k":"tool",
+"s":[
+"Oracle Fusion"
+]
+},
+{
+"n":"Oracle EBS",
+"k":"tool",
+"s":[
+"Oracle E-Business Suite"
+]
+},
+{
+"n":"Microsoft Dynamics",
+"k":"tool",
+"s":[
+"Dynamics 365"
+]
+},
+{
+"n":"Tally",
+"k":"tool",
+"s":[
+"Tally ERP",
+"Tally ERP 9",
+"Tally Prime",
+"TallyPrime"
+],
+"cs":[
+"Tally"
+]
+},
+{
+"n":"Busy accounting software",
+"k":"tool",
+"cs":[
+"Busy"
+]
+},
+{
+"n":"QuickBooks",
+"k":"tool",
+"s":[
+"Quick Books"
+]
+},
+{
+"n":"Xero",
+"k":"tool"
+},
+{
+"n":"Zoho Books",
+"k":"tool"
+},
+{
+"n":"Marg ERP",
+"k":"tool",
+"cs":[
+"Marg"
+]
+},
+{
+"n":"Odoo",
+"k":"tool"
+},
+{
+"n":"Adobe Photoshop",
+"k":"tool",
+"s":[
+"Photoshop"
+]
+},
+{
+"n":"Adobe Illustrator",
+"k":"tool",
+"s":[
+"Illustrator"
+]
+},
+{
+"n":"Adobe InDesign",
+"k":"tool",
+"s":[
+"InDesign"
+]
+},
+{
+"n":"Adobe Premiere Pro",
+"k":"tool",
+"s":[
+"Premiere Pro",
+"Premiere"
+]
+},
+{
+"n":"Adobe After Effects",
+"k":"tool",
+"s":[
+"After Effects"
+]
+},
+{
+"n":"Adobe XD",
+"k":"tool"
+},
+{
+"n":"Adobe Lightroom",
+"k":"tool",
+"s":[
+"Lightroom"
+]
+},
+{
+"n":"Adobe Acrobat",
+"k":"tool"
+},
+{
+"n":"CorelDRAW",
+"k":"tool",
+"s":[
+"Corel Draw",
+"Corel"
+]
+},
+{
+"n":"Figma",
+"k":"tool"
+},
+{
+"n":"Sketch",
+"k":"tool",
+"cs":[
+"Sketch"
+]
+},
+{
+"n":"InVision",
+"k":"tool"
+},
+{
+"n":"Canva",
+"k":"tool",
+"cs":[
+"Canva"
+]
+},
+{
+"n":"Final Cut Pro",
+"k":"tool"
+},
+{
+"n":"DaVinci Resolve",
+"k":"tool"
+},
+{
+"n":"Blender",
+"k":"tool"
+},
+{
+"n":"Maya",
+"k":"tool",
+"s":[
+"Autodesk Maya"
+],
+"cs":[
+"Maya"
+]
+},
+{
+"n":"3ds Max",
+"k":"tool",
+"s":[
+"3DS Max"
+]
+},
+{
+"n":"Cinema 4D",
+"k":"tool"
+},
+{
+"n":"AutoCAD",
+"k":"tool",
+"s":[
+"Auto CAD",
+"Autocad"
+]
+},
+{
+"n":"SolidWorks",
+"k":"tool",
+"s":[
+"Solid Works"
+]
+},
+{
+"n":"CATIA",
+"k":"tool"
+},
+{
+"n":"Creo",
+"k":"tool",
+"s":[
+"PTC Creo",
+"Pro/E",
+"Pro Engineer"
+],
+"cs":[
+"Creo"
+]
+},
+{
+"n":"Siemens NX",
+"k":"tool",
+"s":[
+"Unigraphics"
+],
+"cs":[
+"NX"
+]
+},
+{
+"n":"ANSYS",
+"k":"tool"
+},
+{
+"n":"Revit",
+"k":"tool",
+"s":[
+"Autodesk Revit"
+]
+},
+{
+"n":"STAAD Pro",
+"k":"tool",
+"s":[
+"STAAD.Pro",
+"STAAD"
+]
+},
+{
+"n":"ETABS",
+"k":"tool"
+},
+{
+"n":"SketchUp",
+"k":"tool",
+"s":[
+"Sketch Up"
+]
+},
+{
+"n":"Primavera",
+"k":"tool",
+"s":[
+"Primavera P6"
+]
+},
+{
+"n":"MS Project",
+"k":"tool"
+},
+{
+"n":"Fusion 360",
+"k":"tool"
+},
+{
+"n":"Inventor",
+"k":"tool",
+"s":[
+"Autodesk Inventor"
+],
+"cs":[
+"Inventor"
+]
+},
+{
+"n":"MATLAB Simulink",
+"k":"tool",
+"s":[
+"Simulink"
+]
+},
+{
+"n":"LabVIEW",
+"k":"tool"
+},
+{
+"n":"Proteus",
+"k":"tool"
+},
+{
+"n":"Multisim",
+"k":"tool"
+},
+{
+"n":"Eagle PCB",
+"k":"tool",
+"cs":[
+"Eagle"
+]
+},
+{
+"n":"Altium Designer",
+"k":"tool",
+"s":[
+"Altium"
+]
+},
+{
+"n":"KiCad",
+"k":"tool"
+},
+{
+"n":"Cadence",
+"k":"tool",
+"cs":[
+"Cadence"
+]
+},
+{
+"n":"Xilinx Vivado",
+"k":"tool",
+"s":[
+"Vivado"
+]
+},
+{
+"n":"Keil",
+"k":"tool",
+"cs":[
+"Keil"
+]
+},
+{
+"n":"Visual Studio",
+"k":"tool"
+},
+{
+"n":"VS Code",
+"k":"tool",
+"s":[
+"Visual Studio Code",
+"VSCode"
+]
+},
+{
+"n":"Eclipse",
+"k":"tool"
+},
+{
+"n":"IntelliJ IDEA",
+"k":"tool",
+"s":[
+"IntelliJ"
+]
+},
+{
+"n":"PyCharm",
+"k":"tool"
+},
+{
+"n":"Android Studio",
+"k":"tool"
+},
+{
+"n":"Xcode",
+"k":"tool"
+},
+{
+"n":"Google Analytics",
+"k":"tool",
+"s":[
+"GA4",
+"Google Analytics 4"
+]
+},
+{
+"n":"Google Tag Manager",
+"k":"tool",
+"s":[
+"GTM"
+]
+},
+{
+"n":"Google Ads",
+"k":"tool",
+"s":[
+"Google AdWords",
+"AdWords"
+]
+},
+{
+"n":"Meta Ads",
+"k":"tool",
+"s":[
+"Facebook Ads",
+"Facebook ads manager",
+"Instagram ads"
+]
+},
+{
+"n":"LinkedIn Ads",
+"k":"tool"
+},
+{
+"n":"Google Search Console",
+"k":"tool",
+"s":[
+"Search Console"
+]
+},
+{
+"n":"SEMrush",
+"k":"tool",
+"s":[
+"Semrush"
+]
+},
+{
+"n":"Ahrefs",
+"k":"tool"
+},
+{
+"n":"Moz",
+"k":"tool",
+"cs":[
+"Moz"
+]
+},
+{
+"n":"Mailchimp",
+"k":"tool"
+},
+{
+"n":"WordPress CMS",
+"k":"tool"
+},
+{
+"n":"Hootsuite",
+"k":"tool"
+},
+{
+"n":"Buffer",
+"k":"tool",
+"cs":[
+"Buffer"
+]
+},
+{
+"n":"Shopify admin",
+"k":"tool"
+},
+{
+"n":"Amazon Seller Central",
+"k":"tool",
+"s":[
+"Seller Central"
+]
+},
+{
+"n":"Flipkart Seller Hub",
+"k":"tool"
+},
+{
+"n":"WhatsApp Business",
+"k":"tool"
+},
+{
+"n":"Slack",
+"k":"tool",
+"cs":[
+"Slack"
+]
+},
+{
+"n":"Zoom",
+"k":"tool",
+"cs":[
+"Zoom"
+]
+},
+{
+"n":"Notion",
+"k":"tool",
+"cs":[
+"Notion"
+]
+},
+{
+"n":"Asana",
+"k":"tool",
+"cs":[
+"Asana"
+]
+},
+{
+"n":"Monday.com",
+"k":"tool"
+},
+{
+"n":"ClickUp",
+"k":"tool"
+},
+{
+"n":"Workday",
+"k":"tool"
+},
+{
+"n":"SuccessFactors",
+"k":"tool",
+"s":[
+"SAP SuccessFactors"
+]
+},
+{
+"n":"Darwinbox",
+"k":"tool"
+},
+{
+"n":"greytHR",
+"k":"tool",
+"s":[
+"Greyt HR"
+]
+},
+{
+"n":"Keka",
+"k":"tool"
+},
+{
+"n":"Naukri RMS",
+"k":"tool",
+"s":[
+"Naukri recruiter",
+"Naukri"
+]
+},
+{
+"n":"LinkedIn Recruiter",
+"k":"tool"
+},
+{
+"n":"Applicant tracking system",
+"k":"tool",
+"cs":[
+"ATS"
+]
+},
+{
+"n":"Bloomberg Terminal",
+"k":"tool",
+"s":[
+"Bloomberg"
+]
+},
+{
+"n":"Capital IQ",
+"k":"tool"
+},
+{
+"n":"Reuters",
+"k":"tool",
+"s":[
+"Refinitiv"
+]
+},
+{
+"n":"Kotak Neo",
+"k":"tool"
+},
+{
+"n":"NSE",
+"k":"tool"
+},
+{
+"n":"Tally GST",
+"k":"tool"
+},
+{
+"n":"GST portal",
+"k":"tool"
+},
+{
+"n":"Income Tax portal",
+"k":"tool"
+},
+{
+"n":"TDS software",
+"k":"tool"
+},
+{
+"n":"EPF portal",
+"k":"tool",
+"s":[
+"PF portal"
+]
+},
+{
+"n":"ESIC portal",
+"k":"tool"
+},
+{
+"n":"Practo",
+"k":"tool"
+},
+{
+"n":"HIS",
+"k":"tool",
+"s":[
+"hospital information system"
+],
+"cs":[
+"HIS"
+]
+},
+{
+"n":"EMR",
+"k":"tool",
+"s":[
+"electronic medical records",
+"EHR"
+]
+},
+{
+"n":"LIMS",
+"k":"tool"
+},
+{
+"n":"Epic EMR",
+"k":"tool"
+},
+{
+"n":"Cerner",
+"k":"tool"
+},
+{
+"n":"POS",
+"k":"tool",
+"s":[
+"point of sale",
+"POS system"
+],
+"cs":[
+"POS"
+]
+},
+{
+"n":"Barcode scanner",
+"k":"tool"
+},
+{
+"n":"WMS",
+"k":"tool",
+"s":[
+"warehouse management system"
+]
+},
+{
+"n":"SAP EWM",
+"k":"tool"
+},
+{
+"n":"ERP",
+"k":"tool",
+"s":[
+"ERP systems"
+]
+},
+{
+"n":"CRM",
+"k":"tool",
+"s":[
+"CRM software"
+]
+},
+{
+"n":"Ticketing tools",
+"k":"tool",
+"s":[
+"ticketing system"
+]
+},
+{
+"n":"Avaya",
+"k":"tool"
+},
+{
+"n":"Genesys",
+"k":"tool"
+},
+{
+"n":"Five9",
+"k":"tool"
+},
+{
+"n":"CMS",
+"k":"tool",
+"s":[
+"content management system"
+]
+},
+{
+"n":"Jenkins pipelines",
+"k":"tool"
+},
+{
+"n":"GitHub Actions",
+"k":"tool"
+},
+{
+"n":"Azure DevOps",
+"k":"tool"
+},
+{
+"n":"Bitbucket Pipelines",
+"k":"tool"
+},
+{
+"n":"Tableau Prep",
+"k":"tool"
+},
+{
+"n":"Excel dashboards",
+"k":"tool"
+},
+{
+"n":"Google Forms",
+"k":"tool"
+},
+{
+"n":"SurveyMonkey",
+"k":"tool"
+},
+{
+"n":"Typeform",
+"k":"tool"
+},
+{
+"n":"Zapier",
+"k":"tool"
+},
+{
+"n":"Airtable",
+"k":"tool"
+},
+{
+"n":"Metabase",
+"k":"tool"
+},
+{
+"n":"Superset",
+"k":"tool",
+"s":[
+"Apache Superset"
+],
+"cs":[
+"Superset"
+]
+},
+{
+"n":"dbt",
+"k":"tool"
+},
+{
+"n":"Fivetran",
+"k":"tool"
+},
+{
+"n":"Informatica",
+"k":"tool",
+"s":[
+"Informatica PowerCenter"
+]
+},
+{
+"n":"Talend",
+"k":"tool"
+},
+{
+"n":"SSIS",
+"k":"tool"
+},
+{
+"n":"SSRS",
+"k":"tool"
+},
+{
+"n":"SSAS",
+"k":"tool"
+},
+{
+"n":"Cognos",
+"k":"tool",
+"s":[
+"IBM Cognos"
+]
+},
+{
+"n":"MicroStrategy",
+"k":"tool"
+},
+{
+"n":"Pentaho",
+"k":"tool"
+},
+{
+"n":"AWS Certified Solutions Architect",
+"k":"cert",
+"s":[
+"AWS Solutions Architect",
+"AWS SAA"
+]
+},
+{
+"n":"AWS Certified Cloud Practitioner",
+"k":"cert",
+"s":[
+"AWS Cloud Practitioner"
+]
+},
+{
+"n":"AWS Certified Developer",
+"k":"cert"
+},
+{
+"n":"Microsoft Certified Azure Fundamentals",
+"k":"cert",
+"s":[
+"AZ-900",
+"Azure Fundamentals"
+]
+},
+{
+"n":"Azure Administrator",
+"k":"cert",
+"s":[
+"AZ-104"
+]
+},
+{
+"n":"Google Cloud Associate Cloud Engineer",
+"k":"cert",
+"s":[
+"Associate Cloud Engineer"
+]
+},
+{
+"n":"Google Data Analytics Certificate",
+"k":"cert",
+"s":[
+"Google Data Analytics",
+"Google Data Analytics Professional Certificate"
+]
+},
+{
+"n":"Google Project Management Certificate",
+"k":"cert",
+"s":[
+"Google Project Management"
+]
+},
+{
+"n":"Google UX Design Certificate",
+"k":"cert"
+},
+{
+"n":"Google IT Support Certificate",
+"k":"cert"
+},
+{
+"n":"Google Ads Certification",
+"k":"cert",
+"s":[
+"Google Ads certified"
+]
+},
+{
+"n":"HubSpot Inbound Marketing Certification",
+"k":"cert",
+"s":[
+"HubSpot certification"
+]
+},
+{
+"n":"Meta Certified Digital Marketing Associate",
+"k":"cert",
+"s":[
+"Meta Blueprint"
+]
+},
+{
+"n":"Certified Kubernetes Administrator",
+"k":"cert",
+"s":[
+"CKA"
+]
+},
+{
+"n":"Certified Kubernetes Application Developer",
+"k":"cert",
+"s":[
+"CKAD"
+]
+},
+{
+"n":"Docker Certified Associate",
+"k":"cert"
+},
+{
+"n":"Red Hat Certified System Administrator",
+"k":"cert",
+"s":[
+"RHCSA"
+]
+},
+{
+"n":"Red Hat Certified Engineer",
+"k":"cert",
+"s":[
+"RHCE"
+]
+},
+{
+"n":"Oracle Certified Java Programmer",
+"k":"cert",
+"s":[
+"OCJP",
+"Oracle Certified Professional Java"
+]
+},
+{
+"n":"CCNA certification",
+"k":"cert",
+"s":[
+"Cisco CCNA",
+"Cisco Certified Network Associate"
+]
+},
+{
+"n":"CCNP",
+"k":"cert",
+"s":[
+"Cisco CCNP"
+]
+},
+{
+"n":"CompTIA A+",
+"k":"cert",
+"s":[
+"A+ certification"
+]
+},
+{
+"n":"CompTIA Network+",
+"k":"cert",
+"s":[
+"Network+"
+]
+},
+{
+"n":"CompTIA Security+",
+"k":"cert",
+"s":[
+"Security+"
+]
+},
+{
+"n":"CEH",
+"k":"cert",
+"s":[
+"Certified Ethical Hacker"
+]
+},
+{
+"n":"CISSP",
+"k":"cert"
+},
+{
+"n":"CISA",
+"k":"cert"
+},
+{
+"n":"CISM",
+"k":"cert"
+},
+{
+"n":"OSCP",
+"k":"cert"
+},
+{
+"n":"ITIL",
+"k":"cert",
+"s":[
+"ITIL Foundation",
+"ITIL v4"
+]
+},
+{
+"n":"PMP",
+"k":"cert",
+"s":[
+"Project Management Professional"
+]
+},
+{
+"n":"PRINCE2",
+"k":"cert"
+},
+{
+"n":"Certified ScrumMaster",
+"k":"cert",
+"s":[
+"CSM",
+"Scrum Master certification"
+]
+},
+{
+"n":"PSM",
+"k":"cert",
+"s":[
+"Professional Scrum Master"
+]
+},
+{
+"n":"Six Sigma",
+"k":"cert",
+"s":[
+"Lean Six Sigma"
+]
+},
+{
+"n":"Six Sigma Green Belt",
+"k":"cert",
+"s":[
+"Green Belt"
+]
+},
+{
+"n":"Six Sigma Black Belt",
+"k":"cert",
+"s":[
+"Black Belt"
+]
+},
+{
+"n":"ISTQB",
+"k":"cert",
+"s":[
+"ISTQB Foundation"
+]
+},
+{
+"n":"Salesforce Administrator",
+"k":"cert",
+"s":[
+"Salesforce Certified Administrator"
+]
+},
+{
+"n":"Salesforce Platform Developer",
+"k":"cert"
+},
+{
+"n":"Tableau Desktop Specialist",
+"k":"cert",
+"s":[
+"Tableau certified"
+]
+},
+{
+"n":"Microsoft Certified Power BI Data Analyst",
+"k":"cert",
+"s":[
+"PL-300",
+"DA-100"
+]
+},
+{
+"n":"Microsoft Office Specialist",
+"k":"cert",
+"s":[
+"MOS"
+]
+},
+{
+"n":"CFA",
+"k":"cert",
+"s":[
+"Chartered Financial Analyst"
+]
+},
+{
+"n":"FRM",
+"k":"cert"
+},
+{
+"n":"CA",
+"k":"cert",
+"s":[
+"Chartered Accountant"
+],
+"cs":[
+"CA"
+]
+},
+{
+"n":"CA Inter",
+"k":"cert",
+"s":[
+"CA Intermediate",
+"IPCC"
+]
+},
+{
+"n":"CMA",
+"k":"cert",
+"s":[
+"Cost and Management Accountant",
+"ICWA"
+]
+},
+{
+"n":"CS",
+"k":"cert",
+"s":[
+"Company Secretary"
+],
+"cs":[
+"CS"
+]
+},
+{
+"n":"ACCA",
+"k":"cert"
+},
+{
+"n":"CPA",
+"k":"cert"
+},
+{
+"n":"NISM",
+"k":"cert",
+"s":[
+"NISM certification",
+"NISM Series"
+]
+},
+{
+"n":"NCFM",
+"k":"cert"
+},
+{
+"n":"IRDAI licence",
+"k":"cert",
+"s":[
+"IRDA certification",
+"insurance licence"
+]
+},
+{
+"n":"AMFI certification",
+"k":"cert",
+"s":[
+"AMFI",
+"ARN"
+]
+},
+{
+"n":"JAIIB",
+"k":"cert"
+},
+{
+"n":"CAIIB",
+"k":"cert"
+},
+{
+"n":"Tally certification",
+"k":"cert",
+"s":[
+"Tally certified"
+]
+},
+{
+"n":"GST certification",
+"k":"cert",
+"s":[
+"GST practitioner"
+]
+},
+{
+"n":"NPTEL",
+"k":"cert",
+"s":[
+"NPTEL certification"
+]
+},
+{
+"n":"NCC",
+"k":"cert",
+"s":[
+"NCC certificate"
+],
+"cs":[
+"NCC"
+]
+},
+{
+"n":"NSS",
+"k":"cert",
+"cs":[
+"NSS"
+]
+},
+{
+"n":"CCC",
+"k":"cert",
+"s":[
+"Course on Computer Concepts",
+"NIELIT CCC"
+],
+"cs":[
+"CCC"
+]
+},
+{
+"n":"O Level",
+"k":"cert",
+"s":[
+"NIELIT O Level"
+]
+},
+{
+"n":"DCA",
+"k":"cert",
+"s":[
+"Diploma in Computer Applications"
+],
+"cs":[
+"DCA"
+]
+},
+{
+"n":"PGDCA",
+"k":"cert"
+},
+{
+"n":"ADCA",
+"k":"cert"
+},
+{
+"n":"Typing certificate",
+"k":"cert",
+"s":[
+"typing certification"
+]
+},
+{
+"n":"Heavy driving licence",
+"k":"cert",
+"s":[
+"heavy vehicle licence",
+"HMV licence",
+"heavy licence",
+"HMV"
+]
+},
+{
+"n":"Light driving licence",
+"k":"cert",
+"s":[
+"LMV licence",
+"LMV",
+"light motor vehicle licence"
+]
+},
+{
+"n":"Two-wheeler licence",
+"k":"cert",
+"s":[
+"two wheeler licence",
+"bike licence"
+]
+},
+{
+"n":"Commercial driving licence",
+"k":"cert",
+"s":[
+"commercial licence",
+"transport licence",
+"driving badge"
+]
+},
+{
+"n":"Forklift licence",
+"k":"cert",
+"s":[
+"forklift certification"
+]
+},
+{
+"n":"First aid certification",
+"k":"cert",
+"s":[
+"first aid certificate",
+"First Aid"
+]
+},
+{
+"n":"BLS",
+"k":"cert",
+"s":[
+"Basic Life Support"
+],
+"cs":[
+"BLS"
+]
+},
+{
+"n":"ACLS",
+"k":"cert"
+},
+{
+"n":"CPR certification",
+"k":"cert",
+"s":[
+"CPR"
+]
+},
+{
+"n":"Food safety certification",
+"k":"cert",
+"s":[
+"FSSAI certification",
+"food handler certificate"
+]
+},
+{
+"n":"NEBOSH",
+"k":"cert"
+},
+{
+"n":"IOSH",
+"k":"cert"
+},
+{
+"n":"Fire safety certification",
+"k":"cert",
+"s":[
+"fire safety course"
+]
+},
+{
+"n":"Electrical supervisor licence",
+"k":"cert",
+"s":[
+"wireman licence",
+"electrician licence"
+]
+},
+{
+"n":"ITI certificate",
+"k":"cert",
+"s":[
+"NCVT",
+"SCVT"
+]
+},
+{
+"n":"Nursing council registration",
+"k":"cert",
+"s":[
+"nursing registration",
+"registered nurse"
+],
+"cs":[
+"RN"
+]
+},
+{
+"n":"Pharmacist registration",
+"k":"cert",
+"s":[
+"registered pharmacist"
+]
+},
+{
+"n":"TEFL",
+"k":"cert",
+"s":[
+"TESOL",
+"CELTA"
+]
+},
+{
+"n":"CTET",
+"k":"cert",
+"s":[
+"teacher eligibility test"
+],
+"cs":[
+"CTET",
+"TET"
+]
+},
+{
+"n":"B.Ed",
+"k":"cert",
+"s":[
+"Bachelor of Education"
+],
+"cs":[
+"BEd"
+]
+},
+{
+"n":"D.El.Ed",
+"k":"cert",
+"s":[
+"DElEd"
+],
+"cs":[
+"D.Ed"
+]
+},
+{
+"n":"IELTS",
+"k":"cert"
+},
+{
+"n":"TOEFL",
+"k":"cert"
+},
+{
+"n":"JLPT",
+"k":"cert",
+"s":[
+"Japanese language proficiency test"
+]
+},
+{
+"n":"Goethe certificate",
+"k":"cert",
+"s":[
+"German A1",
+"German B1"
+]
+},
+{
+"n":"DELF",
+"k":"cert",
+"s":[
+"French A1"
+]
+},
+{
+"n":"Accounting",
+"k":"tech",
+"s":[
+"accounts"
+]
+},
+{
+"n":"Bookkeeping",
+"k":"tech",
+"s":[
+"book keeping"
+]
+},
+{
+"n":"Accounts payable",
+"k":"tech",
+"cs":[
+"AP"
+]
+},
+{
+"n":"Accounts receivable",
+"k":"tech",
+"cs":[
+"AR"
+]
+},
+{
+"n":"General ledger",
+"k":"tech",
+"s":[
+"ledger posting"
+],
+"cs":[
+"GL"
+]
+},
+{
+"n":"Bank reconciliation",
+"k":"tech",
+"s":[
+"BRS",
+"bank reco"
+]
+},
+{
+"n":"Reconciliation",
+"k":"tech",
+"s":[
+"reconciliations"
+]
+},
+{
+"n":"Financial reporting",
+"k":"tech"
+},
+{
+"n":"Financial analysis",
+"k":"tech"
+},
+{
+"n":"Financial statements",
+"k":"tech",
+"s":[
+"balance sheet",
+"profit and loss",
+"P&L"
+]
+},
+{
+"n":"Budgeting",
+"k":"tech"
+},
+{
+"n":"Forecasting and budgeting",
+"k":"tech"
+},
+{
+"n":"Cost accounting",
+"k":"tech"
+},
+{
+"n":"Management accounting",
+"k":"tech"
+},
+{
+"n":"Auditing",
+"k":"tech",
+"s":[
+"audit"
+]
+},
+{
+"n":"Internal audit",
+"k":"tech"
+},
+{
+"n":"Statutory audit",
+"k":"tech"
+},
+{
+"n":"Tax audit",
+"k":"tech"
+},
+{
+"n":"Taxation",
+"k":"tech",
+"s":[
+"tax"
+]
+},
+{
+"n":"GST",
+"k":"tech",
+"s":[
+"Goods and Services Tax",
+"GST filing",
+"GST returns",
+"GSTR"
+]
+},
+{
+"n":"Income tax",
+"k":"tech",
+"s":[
+"income tax returns",
+"ITR filing",
+"ITR"
+]
+},
+{
+"n":"TDS",
+"k":"tech",
+"s":[
+"TDS returns",
+"tax deducted at source"
+]
+},
+{
+"n":"Payroll",
+"k":"tech",
+"s":[
+"payroll processing"
+]
+},
+{
+"n":"Invoicing",
+"k":"tech",
+"s":[
+"billing",
+"invoice processing"
+]
+},
+{
+"n":"Accounts finalisation",
+"k":"tech",
+"s":[
+"finalization of accounts",
+"books finalisation"
+]
+},
+{
+"n":"MIS reporting",
+"k":"tech",
+"s":[
+"MIS",
+"MIS reports"
+]
+},
+{
+"n":"Cash management",
+"k":"tech",
+"s":[
+"cash handling"
+]
+},
+{
+"n":"Treasury",
+"k":"tech"
+},
+{
+"n":"Credit analysis",
+"k":"tech"
+},
+{
+"n":"Credit control",
+"k":"tech",
+"s":[
+"collections"
+]
+},
+{
+"n":"Risk management",
+"k":"tech"
+},
+{
+"n":"Compliance",
+"k":"tech"
+},
+{
+"n":"Regulatory compliance",
+"k":"tech"
+},
+{
+"n":"KYC",
+"k":"tech",
+"s":[
+"Know Your Customer",
+"KYC verification"
+]
+},
+{
+"n":"AML",
+"k":"tech",
+"s":[
+"anti money laundering"
+]
+},
+{
+"n":"Underwriting",
+"k":"tech"
+},
+{
+"n":"Loan processing",
+"k":"tech",
+"s":[
+"loan documentation"
+]
+},
+{
+"n":"Banking operations",
+"k":"tech"
+},
+{
+"n":"Retail banking",
+"k":"tech"
+},
+{
+"n":"Investment banking",
+"k":"tech"
+},
+{
+"n":"Equity research",
+"k":"tech"
+},
+{
+"n":"Portfolio management",
+"k":"tech"
+},
+{
+"n":"Mutual funds",
+"k":"tech"
+},
+{
+"n":"Stock market",
+"k":"tech",
+"s":[
+"equity markets",
+"trading"
+]
+},
+{
+"n":"Wealth management",
+"k":"tech"
+},
+{
+"n":"Insurance",
+"k":"tech",
+"s":[
+"insurance sales"
+]
+},
+{
+"n":"Claims processing",
+"k":"tech"
+},
+{
+"n":"Valuation",
+"k":"tech"
+},
+{
+"n":"Mergers and acquisitions",
+"k":"tech",
+"s":[
+"M&A"
+]
+},
+{
+"n":"Due diligence",
+"k":"tech"
+},
+{
+"n":"Fixed assets",
+"k":"tech"
+},
+{
+"n":"Inventory management",
+"k":"tech",
+"s":[
+"stock management",
+"inventory control"
+]
+},
+{
+"n":"Costing",
+"k":"tech"
+},
+{
+"n":"Pricing",
+"k":"tech"
+},
+{
+"n":"Procurement",
+"k":"tech",
+"s":[
+"purchase",
+"purchasing"
+]
+},
+{
+"n":"Vendor management",
+"k":"tech",
+"s":[
+"supplier management"
+]
+},
+{
+"n":"Supply chain management",
+"k":"tech",
+"s":[
+"SCM",
+"supply chain"
+]
+},
+{
+"n":"Logistics",
+"k":"tech"
+},
+{
+"n":"Warehouse management",
+"k":"tech",
+"s":[
+"warehousing"
+]
+},
+{
+"n":"Dispatch",
+"k":"tech",
+"s":[
+"dispatching"
+]
+},
+{
+"n":"Material management",
+"k":"tech"
+},
+{
+"n":"Demand planning",
+"k":"tech"
+},
+{
+"n":"Production planning",
+"k":"tech",
+"s":[
+"PPC"
+]
+},
+{
+"n":"Order management",
+"k":"tech",
+"s":[
+"order processing"
+]
+},
+{
+"n":"Import export",
+"k":"tech",
+"s":[
+"EXIM",
+"export documentation",
+"import documentation"
+]
+},
+{
+"n":"Customs clearance",
+"k":"tech"
+},
+{
+"n":"Freight forwarding",
+"k":"tech"
+},
+{
+"n":"Fleet management",
+"k":"tech"
+},
+{
+"n":"Route planning",
+"k":"tech"
+},
+{
+"n":"Last-mile delivery",
+"k":"tech",
+"s":[
+"last mile delivery",
+"delivery executive work"
+]
+},
+{
+"n":"Shipping",
+"k":"tech"
+},
+{
+"n":"Packing",
+"k":"tech",
+"s":[
+"packaging"
+]
+},
+{
+"n":"Loading and unloading",
+"k":"tech",
+"s":[
+"loading unloading"
+]
+},
+{
+"n":"Stock keeping",
+"k":"tech",
+"s":[
+"stock taking",
+"stock audit"
+]
+},
+{
+"n":"Quality control",
+"k":"tech",
+"s":[
+"QC"
+]
+},
+{
+"n":"Quality assurance",
+"k":"tech",
+"s":[
+"QA"
+]
+},
+{
+"n":"Quality management",
+"k":"tech",
+"s":[
+"QMS"
+]
+},
+{
+"n":"ISO 9001",
+"k":"tech"
+},
+{
+"n":"Lean manufacturing",
+"k":"tech",
+"cs":[
+"lean"
+]
+},
+{
+"n":"5S",
+"k":"tech"
+},
+{
+"n":"Kaizen",
+"k":"tech"
+},
+{
+"n":"TPM",
+"k":"tech",
+"s":[
+"total productive maintenance"
+]
+},
+{
+"n":"Root cause analysis",
+"k":"tech",
+"s":[
+"RCA"
+]
+},
+{
+"n":"CAPA",
+"k":"tech"
+},
+{
+"n":"SPC",
+"k":"tech",
+"s":[
+"statistical process control"
+]
+},
+{
+"n":"Production",
+"k":"tech",
+"s":[
+"production management"
+]
+},
+{
+"n":"Manufacturing",
+"k":"tech"
+},
+{
+"n":"Assembly line",
+"k":"tech"
+},
+{
+"n":"CNC programming",
+"k":"tech",
+"s":[
+"CNC",
+"CNC machining"
+]
+},
+{
+"n":"CNC operator",
+"k":"tech",
+"s":[
+"VMC",
+"VMC operator"
+]
+},
+{
+"n":"Lathe",
+"k":"tech",
+"s":[
+"lathe machine operation",
+"lathe turning"
+]
+},
+{
+"n":"Milling",
+"k":"tech"
+},
+{
+"n":"Welding",
+"k":"tech",
+"s":[
+"arc welding",
+"MIG welding",
+"TIG welding",
+"gas welding"
+]
+},
+{
+"n":"Fabrication",
+"k":"tech",
+"s":[
+"sheet metal fabrication"
+]
+},
+{
+"n":"Fitting",
+"k":"tech",
+"s":[
+"fitter"
+]
+},
+{
+"n":"Machining",
+"k":"tech"
+},
+{
+"n":"Tool and die making",
+"k":"tech",
+"s":[
+"tool room"
+]
+},
+{
+"n":"Grinding",
+"k":"tech"
+},
+{
+"n":"Drilling",
+"k":"tech"
+},
+{
+"n":"Maintenance",
+"k":"tech",
+"s":[
+"preventive maintenance",
+"breakdown maintenance"
+]
+},
+{
+"n":"Mechanical maintenance",
+"k":"tech"
+},
+{
+"n":"Electrical maintenance",
+"k":"tech"
+},
+{
+"n":"Utility maintenance",
+"k":"tech"
+},
+{
+"n":"Boiler operation",
+"k":"tech",
+"s":[
+"boiler"
+]
+},
+{
+"n":"HVAC",
+"k":"tech"
+},
+{
+"n":"Refrigeration and air conditioning",
+"k":"tech",
+"s":[
+"RAC",
+"AC repair",
+"AC technician"
+]
+},
+{
+"n":"Pumps and compressors",
+"k":"tech"
+},
+{
+"n":"Hydraulics",
+"k":"tech"
+},
+{
+"n":"Pneumatics",
+"k":"tech"
+},
+{
+"n":"Mechanical design",
+"k":"tech"
+},
+{
+"n":"Machine design",
+"k":"tech"
+},
+{
+"n":"GD&T",
+"k":"tech",
+"s":[
+"geometric dimensioning and tolerancing"
+]
+},
+{
+"n":"Engineering drawing",
+"k":"tech",
+"s":[
+"technical drawing",
+"drawing reading",
+"blueprint reading"
+]
+},
+{
+"n":"Thermodynamics",
+"k":"tech"
+},
+{
+"n":"Heat transfer",
+"k":"tech"
+},
+{
+"n":"Fluid mechanics",
+"k":"tech"
+},
+{
+"n":"Strength of materials",
+"k":"tech"
+},
+{
+"n":"Automobile engineering",
+"k":"tech",
+"s":[
+"automotive"
+]
+},
+{
+"n":"Vehicle maintenance",
+"k":"tech",
+"s":[
+"vehicle servicing"
+]
+},
+{
+"n":"Two-wheeler mechanic",
+"k":"tech",
+"s":[
+"bike mechanic",
+"two wheeler repair"
+]
+},
+{
+"n":"Four-wheeler mechanic",
+"k":"tech",
+"s":[
+"car mechanic",
+"car repair"
+]
+},
+{
+"n":"Diesel mechanic",
+"k":"tech",
+"s":[
+"diesel engine"
+]
+},
+{
+"n":"Denting and painting",
+"k":"tech",
+"s":[
+"denting",
+"auto painting"
+]
+},
+{
+"n":"Electrical wiring",
+"k":"tech",
+"s":[
+"house wiring",
+"wiring",
+"electrical installation"
+]
+},
+{
+"n":"Electrical panels",
+"k":"tech",
+"s":[
+"panel wiring",
+"control panel wiring"
+]
+},
+{
+"n":"Motor winding",
+"k":"tech",
+"s":[
+"rewinding"
+]
+},
+{
+"n":"Electrician",
+"k":"tech"
+},
+{
+"n":"Electrical design",
+"k":"tech"
+},
+{
+"n":"Power systems",
+"k":"tech"
+},
+{
+"n":"Power distribution",
+"k":"tech"
+},
+{
+"n":"Transformers",
+"k":"tech",
+"s":[
+"transformer"
+]
+},
+{
+"n":"Switchgear",
+"k":"tech"
+},
+{
+"n":"Solar installation",
+"k":"tech",
+"s":[
+"solar PV",
+"solar panel installation",
+"rooftop solar"
+]
+},
+{
+"n":"Electronics",
+"k":"tech",
+"s":[
+"electronics repair"
+]
+},
+{
+"n":"PCB design",
+"k":"tech",
+"s":[
+"PCB"
+]
+},
+{
+"n":"Circuit design",
+"k":"tech",
+"s":[
+"circuit analysis"
+]
+},
+{
+"n":"Soldering",
+"k":"tech"
+},
+{
+"n":"Instrumentation",
+"k":"tech",
+"s":[
+"instrumentation and control"
+]
+},
+{
+"n":"Calibration",
+"k":"tech"
+},
+{
+"n":"Mobile repairing",
+"k":"tech",
+"s":[
+"mobile repair",
+"mobile phone repair"
+]
+},
+{
+"n":"Computer hardware",
+"k":"tech",
+"s":[
+"hardware troubleshooting"
+]
+},
+{
+"n":"Desktop support",
+"k":"tech"
+},
+{
+"n":"Laptop repair",
+"k":"tech"
+},
+{
+"n":"Printer repair",
+"k":"tech",
+"s":[
+"printer maintenance"
+]
+},
+{
+"n":"CCTV installation",
+"k":"tech",
+"s":[
+"CCTV"
+]
+},
+{
+"n":"Plumbing",
+"k":"tech",
+"s":[
+"plumber"
+]
+},
+{
+"n":"Carpentry",
+"k":"tech",
+"s":[
+"carpenter"
+]
+},
+{
+"n":"Masonry",
+"k":"tech",
+"s":[
+"mason"
+]
+},
+{
+"n":"Painting",
+"k":"tech",
+"s":[
+"wall painting"
+]
+},
+{
+"n":"Tiling",
+"k":"tech",
+"s":[
+"tile work"
+]
+},
+{
+"n":"Interior design",
+"k":"tech"
+},
+{
+"n":"Civil engineering",
+"k":"tech"
+},
+{
+"n":"Construction management",
+"k":"tech",
+"s":[
+"construction"
+]
+},
+{
+"n":"Site supervision",
+"k":"tech",
+"s":[
+"site engineer",
+"site execution"
+]
+},
+{
+"n":"Quantity surveying",
+"k":"tech",
+"s":[
+"billing engineer",
+"BOQ"
+]
+},
+{
+"n":"Estimation",
+"k":"tech",
+"s":[
+"costing and estimation",
+"estimating"
+]
+},
+{
+"n":"Surveying",
+"k":"tech",
+"s":[
+"land surveying",
+"total station"
+]
+},
+{
+"n":"Structural design",
+"k":"tech",
+"s":[
+"structural analysis"
+]
+},
+{
+"n":"RCC design",
+"k":"tech",
+"s":[
+"RCC"
+]
+},
+{
+"n":"Building materials",
+"k":"tech"
+},
+{
+"n":"Road construction",
+"k":"tech"
+},
+{
+"n":"Bar bending schedule",
+"k":"tech",
+"s":[
+"BBS"
+]
+},
+{
+"n":"Project planning",
+"k":"tech"
+},
+{
+"n":"Project management",
+"k":"tech",
+"s":[
+"project manager"
+]
+},
+{
+"n":"Program management",
+"k":"tech"
+},
+{
+"n":"Stakeholder management",
+"k":"tech"
+},
+{
+"n":"Risk assessment",
+"k":"tech"
+},
+{
+"n":"Resource planning",
+"k":"tech"
+},
+{
+"n":"Operations management",
+"k":"tech",
+"s":[
+"operations"
+]
+},
+{
+"n":"Process improvement",
+"k":"tech"
+},
+{
+"n":"Business analysis",
+"k":"tech",
+"s":[
+"business analyst"
+]
+},
+{
+"n":"Requirement gathering",
+"k":"tech",
+"s":[
+"requirements gathering",
+"requirement analysis"
+]
+},
+{
+"n":"Documentation",
+"k":"tech",
+"s":[
+"technical documentation"
+]
+},
+{
+"n":"Technical writing",
+"k":"tech"
+},
+{
+"n":"Report writing",
+"k":"tech"
+},
+{
+"n":"Process documentation",
+"k":"tech",
+"s":[
+"SOP writing",
+"SOPs"
+]
+},
+{
+"n":"Business process",
+"k":"tech"
+},
+{
+"n":"Product management",
+"k":"tech",
+"s":[
+"product manager"
+]
+},
+{
+"n":"Product roadmap",
+"k":"tech"
+},
+{
+"n":"Market research",
+"k":"tech"
+},
+{
+"n":"Competitive analysis",
+"k":"tech",
+"s":[
+"competitor analysis"
+]
+},
+{
+"n":"Strategic planning",
+"k":"tech",
+"s":[
+"strategy"
+]
+},
+{
+"n":"Business development",
+"k":"tech",
+"s":[
+"biz dev"
+],
+"cs":[
+"BD"
+]
+},
+{
+"n":"Sales",
+"k":"tech",
+"s":[
+"selling"
+]
+},
+{
+"n":"B2B sales",
+"k":"tech"
+},
+{
+"n":"B2C sales",
+"k":"tech"
+},
+{
+"n":"Inside sales",
+"k":"tech"
+},
+{
+"n":"Field sales",
+"k":"tech"
+},
+{
+"n":"Direct sales",
+"k":"tech"
+},
+{
+"n":"Retail sales",
+"k":"tech"
+},
+{
+"n":"Channel sales",
+"k":"tech",
+"s":[
+"channel management",
+"distributor management",
+"dealer management"
+]
+},
+{
+"n":"Key account management",
+"k":"tech",
+"s":[
+"account management",
+"KAM"
+]
+},
+{
+"n":"Lead generation",
+"k":"tech"
+},
+{
+"n":"Cold calling",
+"k":"tech",
+"s":[
+"cold calls"
+]
+},
+{
+"n":"Telesales",
+"k":"tech",
+"s":[
+"telecalling",
+"tele calling",
+"telecaller"
+]
+},
+{
+"n":"Sales targets",
+"k":"tech",
+"s":[
+"target achievement",
+"achieving targets"
+]
+},
+{
+"n":"Negotiation",
+"k":"tech",
+"s":[
+"negotiating"
+]
+},
+{
+"n":"Closing deals",
+"k":"tech",
+"s":[
+"deal closing"
+]
+},
+{
+"n":"Client acquisition",
+"k":"tech",
+"s":[
+"customer acquisition"
+]
+},
+{
+"n":"Client relationship management",
+"k":"tech",
+"s":[
+"client relationship",
+"relationship management"
+]
+},
+{
+"n":"Upselling",
+"k":"tech",
+"s":[
+"cross-selling",
+"cross selling"
+]
+},
+{
+"n":"Pre-sales",
+"k":"tech",
+"s":[
+"presales"
+]
+},
+{
+"n":"Sales forecasting",
+"k":"tech"
+},
+{
+"n":"Merchandising",
+"k":"tech",
+"s":[
+"visual merchandising"
+]
+},
+{
+"n":"Store operations",
+"k":"tech",
+"s":[
+"retail operations"
+]
+},
+{
+"n":"Billing counter",
+"k":"tech",
+"s":[
+"cashier",
+"cash counter"
+]
+},
+{
+"n":"Customer service",
+"k":"tech",
+"s":[
+"customer support",
+"customer care"
+]
+},
+{
+"n":"Customer handling",
+"k":"tech",
+"s":[
+"handling customers",
+"dealing with customers"
+]
+},
+{
+"n":"Complaint handling",
+"k":"tech",
+"s":[
+"complaint resolution",
+"grievance handling"
+]
+},
+{
+"n":"Call handling",
+"k":"tech",
+"s":[
+"inbound calls",
+"outbound calls",
+"inbound",
+"outbound"
+]
+},
+{
+"n":"Voice process",
+"k":"tech",
+"s":[
+"international voice",
+"domestic voice"
+]
+},
+{
+"n":"Non-voice process",
+"k":"tech",
+"s":[
+"non voice",
+"chat support",
+"email support"
+]
+},
+{
+"n":"Technical support",
+"k":"tech",
+"s":[
+"tech support",
+"IT support",
+"helpdesk",
+"help desk"
+]
+},
+{
+"n":"Customer experience",
+"k":"tech",
+"s":[
+"CX"
+]
+},
+{
+"n":"Customer retention",
+"k":"tech"
+},
+{
+"n":"Escalation handling",
+"k":"tech",
+"s":[
+"escalations"
+]
+},
+{
+"n":"CRM management",
+"k":"tech"
+},
+{
+"n":"Back office",
+"k":"tech",
+"s":[
+"back office operations"
+]
+},
+{
+"n":"Order fulfillment",
+"k":"tech",
+"s":[
+"order fulfilment"
+]
+},
+{
+"n":"Ticket handling",
+"k":"tech",
+"s":[
+"ticket resolution"
+]
+},
+{
+"n":"Digital marketing",
+"k":"tech",
+"s":[
+"online marketing"
+]
+},
+{
+"n":"SEO",
+"k":"tech",
+"s":[
+"search engine optimization",
+"search engine optimisation"
+]
+},
+{
+"n":"SEM",
+"k":"tech",
+"s":[
+"search engine marketing"
+]
+},
+{
+"n":"SMM",
+"k":"tech",
+"s":[
+"social media marketing"
+]
+},
+{
+"n":"Social media management",
+"k":"tech",
+"s":[
+"social media"
+]
+},
+{
+"n":"Content marketing",
+"k":"tech"
+},
+{
+"n":"Content writing",
+"k":"tech",
+"s":[
+"content writer"
+]
+},
+{
+"n":"Copywriting",
+"k":"tech",
+"s":[
+"copy writing"
+]
+},
+{
+"n":"Blogging",
+"k":"tech",
+"s":[
+"blog writing"
+]
+},
+{
+"n":"Email marketing",
+"k":"tech"
+},
+{
+"n":"Performance marketing",
+"k":"tech"
+},
+{
+"n":"PPC",
+"k":"tech",
+"s":[
+"pay per click",
+"paid ads",
+"paid advertising"
+]
+},
+{
+"n":"Affiliate marketing",
+"k":"tech"
+},
+{
+"n":"Influencer marketing",
+"k":"tech"
+},
+{
+"n":"Marketing strategy",
+"k":"tech"
+},
+{
+"n":"Brand management",
+"k":"tech",
+"s":[
+"brand marketing"
+]
+},
+{
+"n":"Product marketing",
+"k":"tech"
+},
+{
+"n":"Event management",
+"k":"tech",
+"s":[
+"events"
+]
+},
+{
+"n":"Public relations",
+"k":"tech",
+"cs":[
+"PR"
+]
+},
+{
+"n":"Advertising",
+"k":"tech"
+},
+{
+"n":"Campaign management",
+"k":"tech",
+"s":[
+"campaigns"
+]
+},
+{
+"n":"Marketing analytics",
+"k":"tech"
+},
+{
+"n":"Conversion rate optimization",
+"k":"tech",
+"cs":[
+"CRO"
+]
+},
+{
+"n":"Keyword research",
+"k":"tech"
+},
+{
+"n":"On-page SEO",
+"k":"tech",
+"s":[
+"on page SEO"
+]
+},
+{
+"n":"Off-page SEO",
+"k":"tech",
+"s":[
+"off page SEO",
+"link building"
+]
+},
+{
+"n":"E-commerce",
+"k":"tech",
+"s":[
+"ecommerce",
+"online selling"
+]
+},
+{
+"n":"Marketplace management",
+"k":"tech",
+"s":[
+"Amazon listing",
+"product listing"
+]
+},
+{
+"n":"Catalog management",
+"k":"tech",
+"s":[
+"cataloguing"
+]
+},
+{
+"n":"Recruitment",
+"k":"tech",
+"s":[
+"recruiting",
+"talent acquisition"
+],
+"cs":[
+"TA"
+]
+},
+{
+"n":"End-to-end recruitment",
+"k":"tech",
+"s":[
+"end to end recruitment",
+"full cycle recruitment"
+]
+},
+{
+"n":"Sourcing",
+"k":"tech",
+"s":[
+"candidate sourcing"
+]
+},
+{
+"n":"Screening",
+"k":"tech",
+"s":[
+"resume screening",
+"CV screening"
+]
+},
+{
+"n":"Interviewing",
+"k":"tech",
+"s":[
+"conducting interviews"
+]
+},
+{
+"n":"Onboarding",
+"k":"tech",
+"s":[
+"employee onboarding",
+"induction"
+]
+},
+{
+"n":"HR operations",
+"k":"tech",
+"s":[
+"HR ops"
+]
+},
+{
+"n":"Human resources",
+"k":"tech",
+"cs":[
+"HR"
+]
+},
+{
+"n":"HR generalist",
+"k":"tech"
+},
+{
+"n":"Employee relations",
+"k":"tech",
+"s":[
+"employee engagement"
+]
+},
+{
+"n":"Performance management",
+"k":"tech",
+"s":[
+"appraisals",
+"performance appraisal"
+]
+},
+{
+"n":"Compensation and benefits",
+"k":"tech",
+"s":[
+"C&B"
+]
+},
+{
+"n":"HR policies",
+"k":"tech"
+},
+{
+"n":"HRMS",
+"k":"tech",
+"s":[
+"HRIS"
+]
+},
+{
+"n":"Statutory compliance",
+"k":"tech",
+"s":[
+"PF and ESI",
+"labour law compliance"
+],
+"cs":[
+"PF",
+"ESI"
+]
+},
+{
+"n":"Labour laws",
+"k":"tech",
+"s":[
+"labor law"
+]
+},
+{
+"n":"Attendance management",
+"k":"tech",
+"s":[
+"leave management",
+"time office"
+]
+},
+{
+"n":"Training and development",
+"k":"tech",
+"s":[
+"L&D"
+]
+},
+{
+"n":"Talent management",
+"k":"tech"
+},
+{
+"n":"Exit interviews",
+"k":"tech",
+"s":[
+"exit formalities",
+"full and final settlement",
+"F&F"
+]
+},
+{
+"n":"Office administration",
+"k":"tech",
+"s":[
+"office admin"
+]
+},
+{
+"n":"Front office",
+"k":"tech",
+"s":[
+"front desk",
+"receptionist",
+"reception"
+]
+},
+{
+"n":"Facility management",
+"k":"tech",
+"s":[
+"facilities management"
+]
+},
+{
+"n":"Housekeeping",
+"k":"tech"
+},
+{
+"n":"Travel management",
+"k":"tech",
+"s":[
+"travel desk",
+"ticketing"
+]
+},
+{
+"n":"Event coordination",
+"k":"tech"
+},
+{
+"n":"Executive assistance",
+"k":"tech",
+"s":[
+"executive assistant",
+"personal assistant"
+],
+"cs":[
+"PA"
+]
+},
+{
+"n":"Calendar management",
+"k":"tech",
+"s":[
+"scheduling"
+]
+},
+{
+"n":"Typing",
+"k":"tech",
+"s":[
+"fast typing",
+"typing speed"
+]
+},
+{
+"n":"Shorthand",
+"k":"tech",
+"s":[
+"stenography"
+]
+},
+{
+"n":"Filing",
+"k":"tech",
+"s":[
+"record keeping",
+"records management"
+]
+},
+{
+"n":"Correspondence",
+"k":"tech",
+"s":[
+"drafting letters",
+"email drafting"
+]
+},
+{
+"n":"Legal research",
+"k":"tech"
+},
+{
+"n":"Legal drafting",
+"k":"tech",
+"s":[
+"drafting"
+]
+},
+{
+"n":"Contract management",
+"k":"tech",
+"s":[
+"contracts"
+]
+},
+{
+"n":"Litigation",
+"k":"tech"
+},
+{
+"n":"Corporate law",
+"k":"tech"
+},
+{
+"n":"Legal compliance",
+"k":"tech"
+},
+{
+"n":"Intellectual property",
+"k":"tech",
+"s":[
+"IPR",
+"trademark",
+"patent"
+]
+},
+{
+"n":"Conveyancing",
+"k":"tech"
+},
+{
+"n":"Company secretarial",
+"k":"tech",
+"s":[
+"ROC filing",
+"MCA filing"
+]
+},
+{
+"n":"Teaching",
+"k":"tech",
+"s":[
+"teacher"
+]
+},
+{
+"n":"Lesson planning",
+"k":"tech"
+},
+{
+"n":"Classroom management",
+"k":"tech"
+},
+{
+"n":"Curriculum development",
+"k":"tech",
+"s":[
+"curriculum design"
+]
+},
+{
+"n":"Tutoring",
+"k":"tech",
+"s":[
+"tuition",
+"home tuition"
+]
+},
+{
+"n":"Online teaching",
+"k":"tech"
+},
+{
+"n":"Student counselling",
+"k":"tech",
+"s":[
+"counselling",
+"career counselling"
+]
+},
+{
+"n":"Instructional design",
+"k":"tech"
+},
+{
+"n":"E-learning",
+"k":"tech",
+"s":[
+"elearning"
+]
+},
+{
+"n":"Training delivery",
+"k":"tech",
+"s":[
+"corporate training",
+"trainer"
+]
+},
+{
+"n":"Assessment",
+"k":"tech",
+"s":[
+"evaluation"
+]
+},
+{
+"n":"Mathematics teaching",
+"k":"tech",
+"s":[
+"maths teaching"
+]
+},
+{
+"n":"Science teaching",
+"k":"tech"
+},
+{
+"n":"English teaching",
+"k":"tech",
+"s":[
+"spoken English training"
+]
+},
+{
+"n":"Nursing",
+"k":"tech",
+"s":[
+"patient care"
+]
+},
+{
+"n":"ICU care",
+"k":"tech",
+"s":[
+"critical care"
+]
+},
+{
+"n":"Medication administration",
+"k":"tech",
+"s":[
+"drug administration"
+]
+},
+{
+"n":"Vital signs monitoring",
+"k":"tech",
+"s":[
+"vitals"
+]
+},
+{
+"n":"Wound care",
+"k":"tech",
+"s":[
+"dressing"
+]
+},
+{
+"n":"Injection",
+"k":"tech",
+"s":[
+"IV cannulation",
+"IV"
+]
+},
+{
+"n":"Patient counselling",
+"k":"tech"
+},
+{
+"n":"Clinical research",
+"k":"tech"
+},
+{
+"n":"Clinical data management",
+"k":"tech",
+"s":[
+"CDM"
+]
+},
+{
+"n":"Pharmacovigilance",
+"k":"tech",
+"s":[
+"drug safety"
+]
+},
+{
+"n":"Medical coding",
+"k":"tech",
+"s":[
+"ICD-10",
+"CPT coding"
+]
+},
+{
+"n":"Medical billing",
+"k":"tech"
+},
+{
+"n":"Medical transcription",
+"k":"tech"
+},
+{
+"n":"Phlebotomy",
+"k":"tech",
+"s":[
+"blood collection",
+"sample collection"
+]
+},
+{
+"n":"Laboratory testing",
+"k":"tech",
+"s":[
+"lab testing",
+"lab technician"
+]
+},
+{
+"n":"Radiology",
+"k":"tech",
+"s":[
+"X-ray",
+"MRI",
+"CT scan"
+]
+},
+{
+"n":"Physiotherapy",
+"k":"tech"
+},
+{
+"n":"Pharmacy",
+"k":"tech",
+"s":[
+"dispensing",
+"pharmacist"
+]
+},
+{
+"n":"Hospital administration",
+"k":"tech",
+"s":[
+"hospital management"
+]
+},
+{
+"n":"Healthcare",
+"k":"tech",
+"s":[
+"health care"
+]
+},
+{
+"n":"Elderly care",
+"k":"tech",
+"s":[
+"geriatric care",
+"caregiving",
+"caretaker"
+]
+},
+{
+"n":"Child care",
+"k":"tech",
+"s":[
+"babysitting",
+"nanny"
+]
+},
+{
+"n":"Diet planning",
+"k":"tech",
+"s":[
+"nutrition",
+"dietetics"
+]
+},
+{
+"n":"Fitness training",
+"k":"tech",
+"s":[
+"personal training",
+"gym trainer"
+]
+},
+{
+"n":"Yoga",
+"k":"tech",
+"s":[
+"yoga instruction"
+]
+},
+{
+"n":"First aid",
+"k":"tech"
+},
+{
+"n":"Infection control",
+"k":"tech"
+},
+{
+"n":"Pharmaceutical sales",
+"k":"tech",
+"s":[
+"medical representative"
+],
+"cs":[
+"MR"
+]
+},
+{
+"n":"GMP",
+"k":"tech",
+"s":[
+"good manufacturing practices"
+]
+},
+{
+"n":"Regulatory affairs",
+"k":"tech"
+},
+{
+"n":"Drug formulation",
+"k":"tech",
+"s":[
+"formulation"
+]
+},
+{
+"n":"Quality control lab",
+"k":"tech",
+"s":[
+"QC lab",
+"HPLC"
+]
+},
+{
+"n":"Microbiology",
+"k":"tech"
+},
+{
+"n":"Biotechnology",
+"k":"tech"
+},
+{
+"n":"Cooking",
+"k":"tech",
+"s":[
+"cook"
+]
+},
+{
+"n":"Continental cuisine",
+"k":"tech",
+"s":[
+"continental"
+]
+},
+{
+"n":"Indian cuisine",
+"k":"tech",
+"s":[
+"north Indian",
+"south Indian",
+"tandoor"
+]
+},
+{
+"n":"Chinese cuisine",
+"k":"tech",
+"s":[
+"Chinese"
+]
+},
+{
+"n":"Bakery",
+"k":"tech",
+"s":[
+"baking",
+"pastry"
+]
+},
+{
+"n":"Food preparation",
+"k":"tech",
+"s":[
+"food prep"
+]
+},
+{
+"n":"Kitchen management",
+"k":"tech"
+},
+{
+"n":"Food and beverage service",
+"k":"tech",
+"s":[
+"F&B service",
+"F&B"
+]
+},
+{
+"n":"Restaurant management",
+"k":"tech"
+},
+{
+"n":"Hotel management",
+"k":"tech",
+"s":[
+"hospitality"
+]
+},
+{
+"n":"Guest relations",
+"k":"tech",
+"s":[
+"guest handling"
+]
+},
+{
+"n":"Housekeeping operations",
+"k":"tech"
+},
+{
+"n":"Bartending",
+"k":"tech",
+"s":[
+"bartender"
+]
+},
+{
+"n":"Barista",
+"k":"tech",
+"s":[
+"coffee making"
+]
+},
+{
+"n":"Waiter",
+"k":"tech",
+"s":[
+"steward",
+"food serving"
+]
+},
+{
+"n":"Catering",
+"k":"tech"
+},
+{
+"n":"Food safety",
+"k":"tech",
+"s":[
+"food hygiene",
+"hygiene"
+]
+},
+{
+"n":"Travel and tourism",
+"k":"tech",
+"s":[
+"tourism",
+"tour operations"
+]
+},
+{
+"n":"Ticket booking",
+"k":"tech",
+"s":[
+"air ticketing",
+"Amadeus",
+"Galileo"
+],
+"cs":[
+"GDS"
+]
+},
+{
+"n":"Visa processing",
+"k":"tech"
+},
+{
+"n":"Driving",
+"k":"tech",
+"s":[
+"driver"
+]
+},
+{
+"n":"Safe driving",
+"k":"tech",
+"s":[
+"defensive driving"
+]
+},
+{
+"n":"Car driving",
+"k":"tech"
+},
+{
+"n":"Heavy vehicle driving",
+"k":"tech",
+"s":[
+"truck driving",
+"lorry driving",
+"bus driving"
+]
+},
+{
+"n":"Two-wheeler riding",
+"k":"tech",
+"s":[
+"bike riding"
+]
+},
+{
+"n":"Delivery driving",
+"k":"tech",
+"s":[
+"delivery boy",
+"delivery rider"
+]
+},
+{
+"n":"Navigation",
+"k":"tech",
+"s":[
+"GPS navigation",
+"Google Maps",
+"route knowledge"
+]
+},
+{
+"n":"Vehicle inspection",
+"k":"tech"
+},
+{
+"n":"Security guard",
+"k":"tech",
+"s":[
+"security services",
+"security officer"
+]
+},
+{
+"n":"Patrolling",
+"k":"tech"
+},
+{
+"n":"Access control",
+"k":"tech"
+},
+{
+"n":"Surveillance",
+"k":"tech",
+"s":[
+"CCTV monitoring"
+]
+},
+{
+"n":"Fire safety",
+"k":"tech",
+"s":[
+"fire fighting"
+]
+},
+{
+"n":"Safety management",
+"k":"tech",
+"s":[
+"EHS",
+"HSE",
+"health and safety"
+]
+},
+{
+"n":"Industrial safety",
+"k":"tech"
+},
+{
+"n":"Warehouse operations",
+"k":"tech"
+},
+{
+"n":"Forklift operation",
+"k":"tech",
+"s":[
+"forklift"
+]
+},
+{
+"n":"Picking and packing",
+"k":"tech",
+"s":[
+"pick and pack"
+]
+},
+{
+"n":"Inventory audit",
+"k":"tech"
+},
+{
+"n":"Material handling",
+"k":"tech"
+},
+{
+"n":"Store keeping",
+"k":"tech",
+"s":[
+"storekeeper",
+"store management"
+]
+},
+{
+"n":"GRN",
+"k":"tech",
+"s":[
+"goods receipt"
+]
+},
+{
+"n":"Beauty services",
+"k":"tech",
+"s":[
+"beautician",
+"beauty"
+]
+},
+{
+"n":"Hair styling",
+"k":"tech",
+"s":[
+"hairdressing",
+"hair cutting"
+]
+},
+{
+"n":"Makeup artistry",
+"k":"tech",
+"s":[
+"makeup",
+"bridal makeup"
+]
+},
+{
+"n":"Skin care",
+"k":"tech",
+"s":[
+"facial"
+]
+},
+{
+"n":"Nail art",
+"k":"tech"
+},
+{
+"n":"Spa therapy",
+"k":"tech",
+"s":[
+"massage"
+]
+},
+{
+"n":"Tailoring",
+"k":"tech",
+"s":[
+"stitching",
+"sewing"
+]
+},
+{
+"n":"Fashion design",
+"k":"tech"
+},
+{
+"n":"Garment manufacturing",
+"k":"tech",
+"s":[
+"garment production"
+]
+},
+{
+"n":"Textile",
+"k":"tech"
+},
+{
+"n":"Embroidery",
+"k":"tech"
+},
+{
+"n":"Pattern making",
+"k":"tech"
+},
+{
+"n":"Jewellery design",
+"k":"tech"
+},
+{
+"n":"Photography and videography",
+"k":"tech",
+"s":[
+"videography"
+]
+},
+{
+"n":"Content creation",
+"k":"tech",
+"s":[
+"content creator"
+]
+},
+{
+"n":"Video production",
+"k":"tech"
+},
+{
+"n":"Scriptwriting",
+"k":"tech",
+"s":[
+"script writing"
+]
+},
+{
+"n":"Journalism",
+"k":"tech",
+"s":[
+"news reporting",
+"news writing"
+]
+},
+{
+"n":"Editing",
+"k":"tech",
+"s":[
+"proofreading",
+"copy editing"
+]
+},
+{
+"n":"Translation",
+"k":"tech",
+"s":[
+"translator"
+]
+},
+{
+"n":"Interpretation",
+"k":"tech",
+"s":[
+"interpreter"
+]
+},
+{
+"n":"Voice over",
+"k":"tech",
+"s":[
+"voiceover"
+]
+},
+{
+"n":"Anchoring",
+"k":"tech",
+"s":[
+"hosting",
+"emcee"
+]
+},
+{
+"n":"Social media content",
+"k":"tech"
+},
+{
+"n":"YouTube",
+"k":"tech",
+"s":[
+"YouTube channel"
+]
+},
+{
+"n":"Agriculture",
+"k":"tech",
+"s":[
+"farming"
+]
+},
+{
+"n":"Dairy farming",
+"k":"tech",
+"s":[
+"dairy"
+]
+},
+{
+"n":"Poultry farming",
+"k":"tech",
+"s":[
+"poultry"
+]
+},
+{
+"n":"Horticulture",
+"k":"tech"
+},
+{
+"n":"Organic farming",
+"k":"tech"
+},
+{
+"n":"Irrigation",
+"k":"tech"
+},
+{
+"n":"Tractor driving",
+"k":"tech",
+"s":[
+"tractor operation"
+]
+},
+{
+"n":"Animal husbandry",
+"k":"tech"
+},
+{
+"n":"Fisheries",
+"k":"tech",
+"s":[
+"aquaculture"
+]
+},
+{
+"n":"Real estate",
+"k":"tech",
+"s":[
+"property sales"
+]
+},
+{
+"n":"Property management",
+"k":"tech"
+},
+{
+"n":"Facility operations",
+"k":"tech"
+},
+{
+"n":"Telecom",
+"k":"tech",
+"s":[
+"telecommunications"
+]
+},
+{
+"n":"Fibre optics",
+"k":"tech",
+"s":[
+"fiber optics",
+"OFC splicing"
+]
+},
+{
+"n":"Tower maintenance",
+"k":"tech",
+"s":[
+"BTS"
+]
+},
+{
+"n":"GIS",
+"k":"tech",
+"s":[
+"geographic information system",
+"ArcGIS",
+"QGIS"
+]
+},
+{
+"n":"Remote sensing",
+"k":"tech"
+},
+{
+"n":"Environmental science",
+"k":"tech"
+},
+{
+"n":"Waste management",
+"k":"tech"
+},
+{
+"n":"Water treatment",
+"k":"tech",
+"s":[
+"ETP",
+"STP",
+"WTP"
+]
+},
+{
+"n":"Chemistry lab",
+"k":"tech",
+"s":[
+"chemical analysis"
+]
+},
+{
+"n":"Analytical skills",
+"k":"tech",
+"s":[
+"analytical thinking"
+]
+},
+{
+"n":"Research",
+"k":"tech",
+"s":[
+"research skills"
+]
+},
+{
+"n":"Data interpretation",
+"k":"tech"
+},
+{
+"n":"Mathematics",
+"k":"tech",
+"s":[
+"maths",
+"math"
+]
+},
+{
+"n":"Physics",
+"k":"tech"
+},
+{
+"n":"Chemistry",
+"k":"tech"
+},
+{
+"n":"Biology",
+"k":"tech"
+},
+{
+"n":"Economics",
+"k":"tech"
+},
+{
+"n":"Psychology",
+"k":"tech"
+},
+{
+"n":"Sociology",
+"k":"tech"
+},
+{
+"n":"Statistics knowledge",
+"k":"tech"
+},
+{
+"n":"Cost reduction",
+"k":"tech"
+},
+{
+"n":"Vendor negotiation",
+"k":"tech"
+},
+{
+"n":"Tendering",
+"k":"tech",
+"s":[
+"tender management",
+"e-tendering",
+"GeM",
+"GeM portal"
+]
+},
+{
+"n":"Government liaison",
+"k":"tech",
+"s":[
+"liaisoning",
+"liaison"
+]
+},
+{
+"n":"Field work",
+"k":"tech",
+"s":[
+"field operations",
+"fieldwork"
+]
+},
+{
+"n":"Survey",
+"k":"tech",
+"s":[
+"field survey"
+]
+},
+{
+"n":"Data collection",
+"k":"tech"
+},
+{
+"n":"Market visits",
+"k":"tech",
+"s":[
+"beat plan",
+"market working"
+]
+},
+{
+"n":"Distribution",
+"k":"tech",
+"s":[
+"FMCG distribution"
+]
+},
+{
+"n":"FMCG sales",
+"k":"tech",
+"s":[
+"FMCG"
+]
+},
+{
+"n":"Pharma sales",
+"k":"tech"
+},
+{
+"n":"Real estate sales",
+"k":"tech"
+},
+{
+"n":"Automobile sales",
+"k":"tech",
+"s":[
+"car sales"
+]
+},
+{
+"n":"Insurance advisory",
+"k":"tech",
+"s":[
+"insurance advisor"
+]
+},
+{
+"n":"Loan sales",
+"k":"tech",
+"s":[
+"home loan sales",
+"personal loan sales"
+]
+},
+{
+"n":"Credit card sales",
+"k":"tech"
+},
+{
+"n":"Microfinance",
+"k":"tech"
+},
+{
+"n":"Collection",
+"k":"tech",
+"s":[
+"recovery",
+"debt collection"
+]
+},
+{
+"n":"Field collection",
+"k":"tech"
+},
+{
+"n":"Cash collection",
+"k":"tech"
+},
+{
+"n":"Communication skills",
+"k":"soft",
+"s":[
+"communication",
+"good communication",
+"excellent communication",
+"communication skill"
+]
+},
+{
+"n":"Verbal communication",
+"k":"soft",
+"s":[
+"spoken communication"
+]
+},
+{
+"n":"Written communication",
+"k":"soft",
+"s":[
+"writing skills"
+]
+},
+{
+"n":"English communication",
+"k":"soft",
+"s":[
+"spoken English",
+"fluent English",
+"good English"
+]
+},
+{
+"n":"Presentation skills",
+"k":"soft",
+"s":[
+"presentations",
+"presenting"
+]
+},
+{
+"n":"Public speaking",
+"k":"soft"
+},
+{
+"n":"Interpersonal skills",
+"k":"soft",
+"s":[
+"interpersonal"
+]
+},
+{
+"n":"Teamwork",
+"k":"soft",
+"s":[
+"team player",
+"team work",
+"working in teams",
+"collaboration"
+]
+},
+{
+"n":"Leadership",
+"k":"soft",
+"s":[
+"team leadership",
+"leading teams"
+]
+},
+{
+"n":"Team management",
+"k":"soft",
+"s":[
+"managing teams",
+"people management"
+]
+},
+{
+"n":"Problem solving",
+"k":"soft",
+"s":[
+"problem-solving",
+"troubleshooting"
+]
+},
+{
+"n":"Critical thinking",
+"k":"soft"
+},
+{
+"n":"Decision making",
+"k":"soft",
+"s":[
+"decision-making"
+]
+},
+{
+"n":"Time management",
+"k":"soft"
+},
+{
+"n":"Attention to detail",
+"k":"soft",
+"s":[
+"detail oriented",
+"detail-oriented",
+"eye for detail"
+]
+},
+{
+"n":"Multitasking",
+"k":"soft",
+"s":[
+"multi-tasking"
+]
+},
+{
+"n":"Adaptability",
+"k":"soft",
+"s":[
+"flexibility",
+"adaptable",
+"flexible"
+]
+},
+{
+"n":"Creativity",
+"k":"soft",
+"s":[
+"creative thinking",
+"creative"
+]
+},
+{
+"n":"Self-motivated",
+"k":"soft",
+"s":[
+"self motivated",
+"self-starter",
+"self starter"
+]
+},
+{
+"n":"Work ethic",
+"k":"soft",
+"s":[
+"hardworking",
+"hard working",
+"dedicated"
+]
+},
+{
+"n":"Punctuality",
+"k":"soft",
+"s":[
+"punctual"
+]
+},
+{
+"n":"Reliability",
+"k":"soft",
+"s":[
+"reliable",
+"dependable"
+]
+},
+{
+"n":"Honesty",
+"k":"soft",
+"s":[
+"integrity",
+"honest"
+]
+},
+{
+"n":"Patience",
+"k":"soft"
+},
+{
+"n":"Empathy",
+"k":"soft",
+"s":[
+"empathetic"
+]
+},
+{
+"n":"Customer focus",
+"k":"soft",
+"s":[
+"customer orientation",
+"customer-centric",
+"customer centric"
+]
+},
+{
+"n":"Conflict resolution",
+"k":"soft",
+"s":[
+"conflict management"
+]
+},
+{
+"n":"Stress management",
+"k":"soft",
+"s":[
+"working under pressure",
+"handle pressure"
+]
+},
+{
+"n":"Organisational skills",
+"k":"soft",
+"s":[
+"organizational skills",
+"organised",
+"organized",
+"planning and organising"
+]
+},
+{
+"n":"Planning",
+"k":"soft"
+},
+{
+"n":"Coordination",
+"k":"soft",
+"s":[
+"co-ordination",
+"coordinating"
+]
+},
+{
+"n":"Learning agility",
+"k":"soft",
+"s":[
+"quick learner",
+"fast learner",
+"eager to learn"
+]
+},
+{
+"n":"Takes initiative",
+"k":"soft",
+"s":[
+"taking initiative",
+"shows initiative"
+]
+},
+{
+"n":"Accountability",
+"k":"soft",
+"s":[
+"ownership"
+]
+},
+{
+"n":"Mentoring",
+"k":"soft",
+"s":[
+"coaching"
+]
+},
+{
+"n":"Persuasion",
+"k":"soft",
+"s":[
+"convincing skills",
+"convincing"
+]
+},
+{
+"n":"Listening skills",
+"k":"soft",
+"s":[
+"active listening"
+]
+},
+{
+"n":"Emotional intelligence",
+"k":"soft"
+},
+{
+"n":"Positive attitude",
+"k":"soft",
+"s":[
+"positive"
+]
+},
+{
+"n":"Self-discipline",
+"k":"soft",
+"s":[
+"disciplined"
+]
+},
+{
+"n":"Professionalism",
+"k":"soft",
+"s":[
+"professional attitude"
+]
+},
+{
+"n":"Cultural awareness",
+"k":"soft"
+},
+{
+"n":"Willingness to travel",
+"k":"soft",
+"s":[
+"ready to travel",
+"travelling",
+"field travel"
+]
+},
+{
+"n":"Night shifts",
+"k":"soft",
+"s":[
+"rotational shifts",
+"shift work",
+"rotational shift"
+]
+},
+{
+"n":"English",
+"k":"lang"
+},
+{
+"n":"Hindi",
+"k":"lang"
+},
+{
+"n":"Telugu",
+"k":"lang"
+},
+{
+"n":"Tamil",
+"k":"lang"
+},
+{
+"n":"Kannada",
+"k":"lang"
+},
+{
+"n":"Malayalam",
+"k":"lang"
+},
+{
+"n":"Marathi",
+"k":"lang"
+},
+{
+"n":"Bengali",
+"k":"lang",
+"s":[
+"Bangla"
+]
+},
+{
+"n":"Gujarati",
+"k":"lang"
+},
+{
+"n":"Punjabi",
+"k":"lang"
+},
+{
+"n":"Odia",
+"k":"lang",
+"s":[
+"Oriya"
+]
+},
+{
+"n":"Assamese",
+"k":"lang"
+},
+{
+"n":"Urdu",
+"k":"lang"
+},
+{
+"n":"Konkani",
+"k":"lang"
+},
+{
+"n":"Sanskrit",
+"k":"lang"
+},
+{
+"n":"French",
+"k":"lang"
+},
+{
+"n":"German",
+"k":"lang"
+},
+{
+"n":"Spanish",
+"k":"lang"
+},
+{
+"n":"Japanese",
+"k":"lang"
+},
+{
+"n":"Mandarin",
+"k":"lang",
+"s":[
+"Chinese language"
+]
+},
+{
+"n":"Arabic",
+"k":"lang"
+},
+{
+"n":"Korean",
+"k":"lang"
+},
+{
+"n":"Russian",
+"k":"lang"
+},
+{
+"n":"Italian",
+"k":"lang"
+},
+{
+"n":"Portuguese",
+"k":"lang"
+},
+{
+"n":"Spring MVC",
+"k":"tech"
+},
+{
+"n":"Spring Security",
+"k":"tech"
+},
+{
+"n":"Spring Cloud",
+"k":"tech"
+},
+{
+"n":"Spring Data",
+"k":"tech"
+},
+{
+"n":"JDBC",
+"k":"tech"
+},
+{
+"n":"Servlets",
+"k":"tech",
+"s":[
+"Java servlets"
+]
+},
+{
+"n":"JSP",
+"k":"tech"
+},
+{
+"n":"J2EE",
+"k":"tech",
+"s":[
+"Java EE",
+"JEE"
+]
+},
+{
+"n":"Multithreading",
+"k":"tech",
+"s":[
+"multi-threading",
+"concurrency"
+]
+},
+{
+"n":"Collections framework",
+"k":"tech",
+"s":[
+"Java collections"
+]
+},
+{
+"n":"Lambda expressions",
+"k":"tech",
+"s":[
+"Java 8 streams",
+"streams API"
+]
+},
+{
+"n":"Kafka Streams",
+"k":"tech"
+},
+{
+"n":"RabbitMQ",
+"k":"tech"
+},
+{
+"n":"ActiveMQ",
+"k":"tech"
+},
+{
+"n":"Message queues",
+"k":"tech",
+"s":[
+"message queue",
+"MQ"
+]
+},
+{
+"n":"gRPC",
+"k":"tech"
+},
+{
+"n":"Protocol Buffers",
+"k":"tech",
+"s":[
+"protobuf"
+]
+},
+{
+"n":"Celery",
+"k":"tech",
+"cs":[
+"Celery"
+]
+},
+{
+"n":"SQLAlchemy",
+"k":"tech"
+},
+{
+"n":"Pydantic",
+"k":"tech"
+},
+{
+"n":"Pytest fixtures",
+"k":"tech"
+},
+{
+"n":"NumPy arrays",
+"k":"tech"
+},
+{
+"n":"Asyncio",
+"k":"tech",
+"s":[
+"async programming",
+"asynchronous programming"
+]
+},
+{
+"n":"Django REST Framework",
+"k":"tech",
+"s":[
+"DRF"
+]
+},
+{
+"n":"Tkinter",
+"k":"tech"
+},
+{
+"n":"PyQt",
+"k":"tech"
+},
+{
+"n":"Streamlit",
+"k":"tech"
+},
+{
+"n":"Gradio",
+"k":"tech"
+},
+{
+"n":"OpenAI API",
+"k":"tech"
+},
+{
+"n":"Vector databases",
+"k":"tech",
+"s":[
+"vector database",
+"Pinecone",
+"FAISS",
+"Chroma"
+]
+},
+{
+"n":"RAG",
+"k":"tech",
+"s":[
+"retrieval augmented generation"
+]
+},
+{
+"n":"Fine-tuning",
+"k":"tech",
+"s":[
+"fine tuning"
+]
+},
+{
+"n":"MLOps",
+"k":"tech"
+},
+{
+"n":"MLflow",
+"k":"tech"
+},
+{
+"n":"Kubeflow",
+"k":"tech"
+},
+{
+"n":"Feature engineering",
+"k":"tech"
+},
+{
+"n":"Model deployment",
+"k":"tech"
+},
+{
+"n":"XGBoost",
+"k":"tech"
+},
+{
+"n":"LightGBM",
+"k":"tech"
+},
+{
+"n":"CatBoost",
+"k":"tech"
+},
+{
+"n":"Random forest",
+"k":"tech"
+},
+{
+"n":"Decision trees",
+"k":"tech"
+},
+{
+"n":"Logistic regression",
+"k":"tech"
+},
+{
+"n":"Linear regression",
+"k":"tech"
+},
+{
+"n":"Clustering",
+"k":"tech",
+"s":[
+"k-means",
+"KMeans"
+]
+},
+{
+"n":"Classification",
+"k":"tech"
+},
+{
+"n":"Recommendation systems",
+"k":"tech",
+"s":[
+"recommender systems"
+]
+},
+{
+"n":"Sentiment analysis",
+"k":"tech"
+},
+{
+"n":"Text classification",
+"k":"tech"
+},
+{
+"n":"Named entity recognition",
+"k":"tech",
+"s":[
+"NER"
+]
+},
+{
+"n":"Speech recognition",
+"k":"tech"
+},
+{
+"n":"Image processing",
+"k":"tech"
+},
+{
+"n":"Object detection",
+"k":"tech",
+"s":[
+"YOLO"
+]
+},
+{
+"n":"Image classification",
+"k":"tech"
+},
+{
+"n":"CNN",
+"k":"tech",
+"s":[
+"convolutional neural networks"
+]
+},
+{
+"n":"RNN",
+"k":"tech",
+"s":[
+"LSTM"
+]
+},
+{
+"n":"Transformer models",
+"k":"tech",
+"s":[
+"BERT",
+"GPT"
+]
+},
+{
+"n":"Reinforcement learning",
+"k":"tech"
+},
+{
+"n":"Optimization",
+"k":"tech",
+"s":[
+"operations research",
+"linear programming"
+]
+},
+{
+"n":"Excel formulas",
+"k":"tech",
+"s":[
+"formulas"
+]
+},
+{
+"n":"Conditional formatting",
+"k":"tech"
+},
+{
+"n":"Data validation",
+"k":"tech"
+},
+{
+"n":"Charts and graphs",
+"k":"tech",
+"s":[
+"charts and graphs",
+"data charts"
+]
+},
+{
+"n":"Report automation",
+"k":"tech"
+},
+{
+"n":"KPI tracking",
+"k":"tech",
+"s":[
+"KPI",
+"KPIs",
+"key performance indicators"
+]
+},
+{
+"n":"Dashboards in Excel",
+"k":"tech"
+},
+{
+"n":"Cohort analysis",
+"k":"tech"
+},
+{
+"n":"Funnel analysis",
+"k":"tech"
+},
+{
+"n":"Customer segmentation",
+"k":"tech",
+"s":[
+"segmentation"
+]
+},
+{
+"n":"Churn analysis",
+"k":"tech"
+},
+{
+"n":"Exploratory data analysis",
+"k":"tech",
+"s":[
+"EDA"
+]
+},
+{
+"n":"Descriptive statistics",
+"k":"tech"
+},
+{
+"n":"Inferential statistics",
+"k":"tech"
+},
+{
+"n":"Survey analysis",
+"k":"tech"
+},
+{
+"n":"Data quality",
+"k":"tech"
+},
+{
+"n":"Data governance",
+"k":"tech"
+},
+{
+"n":"Master data management",
+"k":"tech",
+"s":[
+"MDM"
+]
+},
+{
+"n":"Data migration",
+"k":"tech"
+},
+{
+"n":"Data integration",
+"k":"tech"
+},
+{
+"n":"Database administration",
+"k":"tech",
+"s":[
+"DBA"
+]
+},
+{
+"n":"Database design",
+"k":"tech",
+"s":[
+"schema design"
+]
+},
+{
+"n":"Query optimization",
+"k":"tech",
+"s":[
+"SQL optimization",
+"performance tuning"
+]
+},
+{
+"n":"Stored procedures",
+"k":"tech"
+},
+{
+"n":"Triggers",
+"k":"tech"
+},
+{
+"n":"Database indexing",
+"k":"tech"
+},
+{
+"n":"SQL joins",
+"k":"tech"
+},
+{
+"n":"Window functions",
+"k":"tech"
+},
+{
+"n":"Normalization",
+"k":"tech",
+"s":[
+"database normalization"
+]
+},
+{
+"n":"Backup and recovery",
+"k":"tech"
+},
+{
+"n":"Replication",
+"k":"tech"
+},
+{
+"n":"High availability",
+"k":"tech"
+},
+{
+"n":"Load balancing",
+"k":"tech"
+},
+{
+"n":"Caching",
+"k":"tech"
+},
+{
+"n":"Scalability",
+"k":"tech"
+},
+{
+"n":"Distributed systems",
+"k":"tech"
+},
+{
+"n":"Event-driven architecture",
+"k":"tech"
+},
+{
+"n":"Serverless",
+"k":"tech",
+"s":[
+"serverless architecture"
+]
+},
+{
+"n":"Infrastructure as code",
+"k":"tech",
+"s":[
+"IaC"
+]
+},
+{
+"n":"Configuration management",
+"k":"tech"
+},
+{
+"n":"Containerization",
+"k":"tech",
+"s":[
+"containers"
+]
+},
+{
+"n":"Container orchestration",
+"k":"tech"
+},
+{
+"n":"Site reliability engineering",
+"k":"tech",
+"s":[
+"SRE"
+]
+},
+{
+"n":"System monitoring",
+"k":"tech"
+},
+{
+"n":"Application logging",
+"k":"tech"
+},
+{
+"n":"Observability",
+"k":"tech"
+},
+{
+"n":"Incident management",
+"k":"tech"
+},
+{
+"n":"Change management",
+"k":"tech"
+},
+{
+"n":"Release management",
+"k":"tech"
+},
+{
+"n":"Build and release",
+"k":"tech",
+"s":[
+"build release"
+]
+},
+{
+"n":"Linux shell",
+"k":"tech",
+"s":[
+"command line",
+"CLI"
+]
+},
+{
+"n":"Cron jobs",
+"k":"tech",
+"s":[
+"cron"
+]
+},
+{
+"n":"System administration",
+"k":"tech",
+"s":[
+"sysadmin"
+]
+},
+{
+"n":"Server administration",
+"k":"tech",
+"s":[
+"server management"
+]
+},
+{
+"n":"Virtualization",
+"k":"tech",
+"s":[
+"VMware",
+"Hyper-V",
+"VirtualBox"
+]
+},
+{
+"n":"Storage administration",
+"k":"tech",
+"cs":[
+"SAN",
+"NAS"
+]
+},
+{
+"n":"Backup administration",
+"k":"tech"
+},
+{
+"n":"Email administration",
+"k":"tech",
+"s":[
+"Exchange Server",
+"Microsoft Exchange"
+]
+},
+{
+"n":"IT asset management",
+"k":"tech",
+"s":[
+"asset management"
+]
+},
+{
+"n":"IT infrastructure",
+"k":"tech",
+"s":[
+"infrastructure"
+]
+},
+{
+"n":"Network administration",
+"k":"tech"
+},
+{
+"n":"Wireless networking",
+"k":"tech",
+"s":[
+"WiFi",
+"Wi-Fi"
+]
+},
+{
+"n":"OSPF",
+"k":"tech"
+},
+{
+"n":"BGP",
+"k":"tech"
+},
+{
+"n":"VLAN",
+"k":"tech"
+},
+{
+"n":"MPLS",
+"k":"tech"
+},
+{
+"n":"Network troubleshooting",
+"k":"tech"
+},
+{
+"n":"Cisco",
+"k":"tech",
+"s":[
+"Cisco routers"
+]
+},
+{
+"n":"Juniper",
+"k":"tech"
+},
+{
+"n":"Fortinet",
+"k":"tech",
+"s":[
+"FortiGate"
+]
+},
+{
+"n":"Palo Alto",
+"k":"tech"
+},
+{
+"n":"Wireshark",
+"k":"tech"
+},
+{
+"n":"Nmap",
+"k":"tech"
+},
+{
+"n":"Burp Suite",
+"k":"tech"
+},
+{
+"n":"Metasploit",
+"k":"tech"
+},
+{
+"n":"Kali Linux",
+"k":"tech"
+},
+{
+"n":"OWASP",
+"k":"tech",
+"s":[
+"OWASP Top 10"
+]
+},
+{
+"n":"Identity and access management",
+"k":"tech",
+"s":[
+"IAM"
+]
+},
+{
+"n":"SSO",
+"k":"tech",
+"s":[
+"single sign-on"
+]
+},
+{
+"n":"Encryption",
+"k":"tech",
+"s":[
+"cryptography"
+]
+},
+{
+"n":"PKI",
+"k":"tech"
+},
+{
+"n":"Endpoint security",
+"k":"tech"
+},
+{
+"n":"Antivirus",
+"k":"tech"
+},
+{
+"n":"DLP",
+"k":"tech",
+"s":[
+"data loss prevention"
+]
+},
+{
+"n":"GDPR",
+"k":"tech"
+},
+{
+"n":"Data privacy",
+"k":"tech",
+"s":[
+"privacy"
+]
+},
+{
+"n":"Cloud security",
+"k":"tech"
+},
+{
+"n":"AWS IAM",
+"k":"tech"
+},
+{
+"n":"AWS RDS",
+"k":"tech",
+"s":[
+"RDS"
+]
+},
+{
+"n":"AWS CloudFormation",
+"k":"tech",
+"s":[
+"CloudFormation"
+]
+},
+{
+"n":"AWS ECS",
+"k":"tech",
+"s":[
+"ECS"
+]
+},
+{
+"n":"AWS EKS",
+"k":"tech",
+"s":[
+"EKS"
+]
+},
+{
+"n":"AWS VPC",
+"k":"tech",
+"s":[
+"VPC"
+]
+},
+{
+"n":"AWS CloudWatch",
+"k":"tech",
+"s":[
+"CloudWatch"
+]
+},
+{
+"n":"AWS SNS",
+"k":"tech",
+"s":[
+"SNS"
+]
+},
+{
+"n":"AWS SQS",
+"k":"tech",
+"s":[
+"SQS"
+]
+},
+{
+"n":"API Gateway",
+"k":"tech"
+},
+{
+"n":"Azure Functions",
+"k":"tech"
+},
+{
+"n":"Azure Data Factory",
+"k":"tech",
+"s":[
+"ADF"
+]
+},
+{
+"n":"Azure Synapse",
+"k":"tech",
+"s":[
+"Synapse"
+]
+},
+{
+"n":"Azure SQL",
+"k":"tech"
+},
+{
+"n":"Azure AD",
+"k":"tech",
+"s":[
+"Entra ID"
+]
+},
+{
+"n":"Google Kubernetes Engine",
+"k":"tech",
+"s":[
+"GKE"
+]
+},
+{
+"n":"Cloud Functions",
+"k":"tech"
+},
+{
+"n":"Cloud Run",
+"k":"tech"
+},
+{
+"n":"Firebase Authentication",
+"k":"tech"
+},
+{
+"n":"Firestore",
+"k":"tech"
+},
+{
+"n":"Supabase",
+"k":"tech"
+},
+{
+"n":"Heroku",
+"k":"tech"
+},
+{
+"n":"Netlify",
+"k":"tech"
+},
+{
+"n":"Vercel",
+"k":"tech"
+},
+{
+"n":"DigitalOcean",
+"k":"tech"
+},
+{
+"n":"Cloudflare",
+"k":"tech"
+},
+{
+"n":"CDN",
+"k":"tech"
+},
+{
+"n":"Web performance",
+"k":"tech",
+"s":[
+"page speed",
+"Core Web Vitals"
+]
+},
+{
+"n":"Accessibility",
+"k":"tech",
+"s":[
+"web accessibility",
+"WCAG",
+"a11y"
+]
+},
+{
+"n":"Cross-browser compatibility",
+"k":"tech",
+"s":[
+"cross browser"
+]
+},
+{
+"n":"Single page applications",
+"k":"tech",
+"s":[
+"SPA"
+]
+},
+{
+"n":"Progressive web apps",
+"k":"tech",
+"s":[
+"PWA"
+]
+},
+{
+"n":"Server-side rendering",
+"k":"tech",
+"s":[
+"SSR"
+]
+},
+{
+"n":"State management",
+"k":"tech"
+},
+{
+"n":"React hooks",
+"k":"tech"
+},
+{
+"n":"Context API",
+"k":"tech"
+},
+{
+"n":"React Router",
+"k":"tech"
+},
+{
+"n":"Formik",
+"k":"tech"
+},
+{
+"n":"Chart.js",
+"k":"tech"
+},
+{
+"n":"D3.js",
+"k":"tech",
+"s":[
+"D3"
+]
+},
+{
+"n":"Three.js",
+"k":"tech"
+},
+{
+"n":"WebGL",
+"k":"tech"
+},
+{
+"n":"Canvas API",
+"k":"tech"
+},
+{
+"n":"Storybook",
+"k":"tech",
+"cs":[
+"Storybook"
+]
+},
+{
+"n":"Jest",
+"k":"tech"
+},
+{
+"n":"Mocha",
+"k":"tech",
+"cs":[
+"Mocha"
+]
+},
+{
+"n":"Chai",
+"k":"tech",
+"cs":[
+"Chai"
+]
+},
+{
+"n":"Enzyme",
+"k":"tech",
+"cs":[
+"Enzyme"
+]
+},
+{
+"n":"React Testing Library",
+"k":"tech"
+},
+{
+"n":"Selenium WebDriver",
+"k":"tech"
+},
+{
+"n":"Katalon",
+"k":"tech"
+},
+{
+"n":"Robot Framework",
+"k":"tech"
+},
+{
+"n":"SoapUI",
+"k":"tech"
+},
+{
+"n":"Rest Assured",
+"k":"tech",
+"s":[
+"RestAssured"
+]
+},
+{
+"n":"Mobile testing",
+"k":"tech"
+},
+{
+"n":"Security testing",
+"k":"tech"
+},
+{
+"n":"Usability testing",
+"k":"tech"
+},
+{
+"n":"User acceptance testing",
+"k":"tech",
+"s":[
+"UAT"
+]
+},
+{
+"n":"Smoke testing",
+"k":"tech"
+},
+{
+"n":"Sanity testing",
+"k":"tech"
+},
+{
+"n":"Black box testing",
+"k":"tech"
+},
+{
+"n":"White box testing",
+"k":"tech"
+},
+{
+"n":"Test planning",
+"k":"tech",
+"s":[
+"test plan"
+]
+},
+{
+"n":"Test strategy",
+"k":"tech"
+},
+{
+"n":"Defect management",
+"k":"tech"
+},
+{
+"n":"Traceability matrix",
+"k":"tech",
+"s":[
+"RTM"
+]
+},
+{
+"n":"Kotlin Coroutines",
+"k":"tech"
+},
+{
+"n":"Retrofit",
+"k":"tech",
+"cs":[
+"Retrofit"
+]
+},
+{
+"n":"Room database",
+"k":"tech"
+},
+{
+"n":"MVVM",
+"k":"tech"
+},
+{
+"n":"MVP architecture",
+"k":"tech"
+},
+{
+"n":"Clean architecture",
+"k":"tech"
+},
+{
+"n":"Dependency injection",
+"k":"tech",
+"cs":[
+"Dagger",
+"Hilt"
+]
+},
+{
+"n":"Core Data",
+"k":"tech"
+},
+{
+"n":"Combine",
+"k":"tech",
+"cs":[
+"Combine"
+]
+},
+{
+"n":"Push notifications",
+"k":"tech"
+},
+{
+"n":"Google Play Store",
+"k":"tech",
+"s":[
+"Play Store publishing"
+]
+},
+{
+"n":"App Store publishing",
+"k":"tech",
+"s":[
+"App Store"
+]
+},
+{
+"n":"In-app purchases",
+"k":"tech"
+},
+{
+"n":"Payment gateway integration",
+"k":"tech",
+"s":[
+"payment gateway",
+"Razorpay integration",
+"Paytm integration"
+]
+},
+{
+"n":"UPI integration",
+"k":"tech",
+"s":[
+"UPI"
+]
+},
+{
+"n":"Maps integration",
+"k":"tech",
+"s":[
+"Google Maps API"
+]
+},
+{
+"n":"SMS gateway",
+"k":"tech"
+},
+{
+"n":"Chatbot development",
+"k":"tech",
+"s":[
+"chatbots",
+"chatbot"
+]
+},
+{
+"n":"Conversational AI",
+"k":"tech"
+},
+{
+"n":"Dialogflow",
+"k":"tech"
+},
+{
+"n":"Rasa",
+"k":"tech"
+},
+{
+"n":"Low-code",
+"k":"tech",
+"s":[
+"no-code"
+]
+},
+{
+"n":"Bubble",
+"k":"tech",
+"cs":[
+"Bubble"
+]
+},
+{
+"n":"Webflow",
+"k":"tech"
+},
+{
+"n":"Wix",
+"k":"tech",
+"cs":[
+"Wix"
+]
+},
+{
+"n":"Squarespace",
+"k":"tech"
+},
+{
+"n":"Elementor",
+"k":"tech"
+},
+{
+"n":"WooCommerce",
+"k":"tech"
+},
+{
+"n":"OpenCart",
+"k":"tech"
+},
+{
+"n":"PrestaShop",
+"k":"tech"
+},
+{
+"n":"Headless CMS",
+"k":"tech"
+},
+{
+"n":"Strapi",
+"k":"tech"
+},
+{
+"n":"Contentful",
+"k":"tech"
+},
+{
+"n":"Sanity",
+"k":"tech",
+"cs":[
+"Sanity"
+]
+},
+{
+"n":"SEO-friendly web development",
+"k":"tech"
+},
+{
+"n":"Google AMP",
+"k":"tech",
+"s":[
+"AMP"
+]
+},
+{
+"n":"Email templates",
+"k":"tech",
+"s":[
+"HTML email"
+]
+},
+{
+"n":"Landing pages",
+"k":"tech",
+"s":[
+"landing page design"
+]
+},
+{
+"n":"A/B testing tools",
+"k":"tech"
+},
+{
+"n":"Hotjar",
+"k":"tech"
+},
+{
+"n":"Mixpanel",
+"k":"tech"
+},
+{
+"n":"Amplitude",
+"k":"tech"
+},
+{
+"n":"CleverTap",
+"k":"tech"
+},
+{
+"n":"MoEngage",
+"k":"tech"
+},
+{
+"n":"WebEngage",
+"k":"tech"
+},
+{
+"n":"Branch.io",
+"k":"tech"
+},
+{
+"n":"AppsFlyer",
+"k":"tech"
+},
+{
+"n":"Adjust",
+"k":"tech",
+"cs":[
+"Adjust"
+]
+},
+{
+"n":"Firebase Analytics",
+"k":"tech"
+},
+{
+"n":"Google Merchant Center",
+"k":"tech",
+"s":[
+"Merchant Center"
+]
+},
+{
+"n":"YouTube Ads",
+"k":"tech"
+},
+{
+"n":"Programmatic advertising",
+"k":"tech"
+},
+{
+"n":"Media planning",
+"k":"tech",
+"s":[
+"media buying"
+]
+},
+{
+"n":"ORM",
+"k":"tech",
+"s":[
+"online reputation management"
+]
+},
+{
+"n":"Community management",
+"k":"tech"
+},
+{
+"n":"Copy editing",
+"k":"tech"
+},
+{
+"n":"Ghostwriting",
+"k":"tech"
+},
+{
+"n":"Technical content writing",
+"k":"tech"
+},
+{
+"n":"SEO content writing",
+"k":"tech",
+"s":[
+"SEO writing"
+]
+},
+{
+"n":"Product descriptions",
+"k":"tech"
+},
+{
+"n":"Press releases",
+"k":"tech"
+},
+{
+"n":"Newsletter writing",
+"k":"tech",
+"s":[
+"newsletters"
+]
+},
+{
+"n":"Storytelling",
+"k":"tech"
+},
+{
+"n":"Creative writing",
+"k":"tech"
+},
+{
+"n":"Social media strategy",
+"k":"tech"
+},
+{
+"n":"Instagram marketing",
+"k":"tech",
+"s":[
+"Instagram"
+]
+},
+{
+"n":"Facebook marketing",
+"k":"tech",
+"s":[
+"Facebook"
+]
+},
+{
+"n":"LinkedIn marketing",
+"k":"tech"
+},
+{
+"n":"Twitter marketing",
+"k":"tech",
+"s":[
+"X marketing"
+]
+},
+{
+"n":"WhatsApp marketing",
+"k":"tech"
+},
+{
+"n":"SMS marketing",
+"k":"tech"
+},
+{
+"n":"Marketing automation",
+"k":"tech"
+},
+{
+"n":"Lead nurturing",
+"k":"tech"
+},
+{
+"n":"Account-based marketing",
+"k":"tech",
+"s":[
+"ABM"
+]
+},
+{
+"n":"Growth hacking",
+"k":"tech",
+"s":[
+"growth marketing"
+]
+},
+{
+"n":"Go-to-market strategy",
+"k":"tech",
+"s":[
+"GTM strategy"
+]
+},
+{
+"n":"Trade marketing",
+"k":"tech"
+},
+{
+"n":"BTL marketing",
+"k":"tech",
+"s":[
+"BTL activities",
+"below the line"
+]
+},
+{
+"n":"ATL marketing",
+"k":"tech",
+"s":[
+"above the line"
+]
+},
+{
+"n":"Rural marketing",
+"k":"tech"
+},
+{
+"n":"Retail marketing",
+"k":"tech"
+},
+{
+"n":"Sales promotion",
+"k":"tech",
+"s":[
+"promotions"
+]
+},
+{
+"n":"Exhibitions",
+"k":"tech",
+"s":[
+"trade shows"
+]
+},
+{
+"n":"Brand activation",
+"k":"tech",
+"s":[
+"activations"
+]
+},
+{
+"n":"Sampling",
+"k":"tech"
+},
+{
+"n":"Field marketing",
+"k":"tech"
+},
+{
+"n":"Customer journey mapping",
+"k":"tech",
+"s":[
+"customer journey"
+]
+},
+{
+"n":"Personas",
+"k":"tech"
+},
+{
+"n":"Usability heuristics",
+"k":"tech"
+},
+{
+"n":"Design systems",
+"k":"tech",
+"s":[
+"design system"
+]
+},
+{
+"n":"Information architecture",
+"k":"tech"
+},
+{
+"n":"Accessibility design",
+"k":"tech"
+},
+{
+"n":"Mobile UI design",
+"k":"tech",
+"s":[
+"app design"
+]
+},
+{
+"n":"Dashboard design",
+"k":"tech"
+},
+{
+"n":"Icon design",
+"k":"tech",
+"s":[
+"iconography"
+]
+},
+{
+"n":"Packaging design",
+"k":"tech"
+},
+{
+"n":"Brochure design",
+"k":"tech",
+"s":[
+"flyer design",
+"pamphlet design"
+]
+},
+{
+"n":"Banner design",
+"k":"tech",
+"s":[
+"poster design"
+]
+},
+{
+"n":"Social media creatives",
+"k":"tech",
+"s":[
+"social media design"
+]
+},
+{
+"n":"Thumbnail design",
+"k":"tech"
+},
+{
+"n":"Infographics",
+"k":"tech"
+},
+{
+"n":"Presentation design",
+"k":"tech",
+"s":[
+"slide design"
+]
+},
+{
+"n":"Colour theory",
+"k":"tech",
+"s":[
+"color theory"
+]
+},
+{
+"n":"Layout design",
+"k":"tech"
+},
+{
+"n":"Photo retouching",
+"k":"tech",
+"s":[
+"retouching"
+]
+},
+{
+"n":"Colour grading",
+"k":"tech",
+"s":[
+"color grading"
+]
+},
+{
+"n":"Sound editing",
+"k":"tech",
+"s":[
+"audio editing"
+]
+},
+{
+"n":"Podcast production",
+"k":"tech",
+"s":[
+"podcasting"
+]
+},
+{
+"n":"Live streaming",
+"k":"tech"
+},
+{
+"n":"Camera operation",
+"k":"tech",
+"s":[
+"camera handling"
+]
+},
+{
+"n":"Lighting",
+"k":"tech",
+"s":[
+"studio lighting"
+]
+},
+{
+"n":"Drone operation",
+"k":"tech",
+"s":[
+"drone photography"
+]
+},
+{
+"n":"Financial planning",
+"k":"tech"
+},
+{
+"n":"Personal finance",
+"k":"tech"
+},
+{
+"n":"Tax planning",
+"k":"tech"
+},
+{
+"n":"Investment advisory",
+"k":"tech"
+},
+{
+"n":"Stock broking",
+"k":"tech",
+"s":[
+"broking"
+]
+},
+{
+"n":"Derivatives",
+"k":"tech",
+"s":[
+"futures and options",
+"F&O"
+]
+},
+{
+"n":"Technical analysis",
+"k":"tech"
+},
+{
+"n":"Fundamental analysis",
+"k":"tech"
+},
+{
+"n":"Fixed income",
+"k":"tech",
+"s":[
+"bond markets"
+]
+},
+{
+"n":"Forex",
+"k":"tech",
+"s":[
+"foreign exchange"
+]
+},
+{
+"n":"Trade finance",
+"k":"tech",
+"s":[
+"letters of credit"
+],
+"cs":[
+"LC"
+]
+},
+{
+"n":"Remittances",
+"k":"tech"
+},
+{
+"n":"NBFC operations",
+"k":"tech",
+"s":[
+"NBFC"
+]
+},
+{
+"n":"Gold loans",
+"k":"tech",
+"s":[
+"gold loan"
+]
+},
+{
+"n":"Home loans",
+"k":"tech",
+"s":[
+"housing finance"
+]
+},
+{
+"n":"Vehicle loans",
+"k":"tech",
+"s":[
+"auto loans"
+]
+},
+{
+"n":"Microfinance operations",
+"k":"tech"
+},
+{
+"n":"Credit appraisal",
+"k":"tech"
+},
+{
+"n":"Credit underwriting",
+"k":"tech"
+},
+{
+"n":"Credit risk",
+"k":"tech"
+},
+{
+"n":"Market risk",
+"k":"tech"
+},
+{
+"n":"Operational risk",
+"k":"tech"
+},
+{
+"n":"Fraud detection",
+"k":"tech",
+"s":[
+"fraud prevention",
+"fraud analysis"
+]
+},
+{
+"n":"Reconciliation of accounts",
+"k":"tech"
+},
+{
+"n":"Accounts reconciliation",
+"k":"tech"
+},
+{
+"n":"Vendor payments",
+"k":"tech"
+},
+{
+"n":"Expense management",
+"k":"tech",
+"s":[
+"expense reports"
+]
+},
+{
+"n":"Petty cash",
+"k":"tech",
+"s":[
+"petty cash management"
+]
+},
+{
+"n":"Cash flow management",
+"k":"tech",
+"s":[
+"cash flow"
+]
+},
+{
+"n":"Working capital management",
+"k":"tech",
+"s":[
+"working capital"
+]
+},
+{
+"n":"Fund raising",
+"k":"tech",
+"s":[
+"fundraising"
+]
+},
+{
+"n":"Investor relations",
+"k":"tech"
+},
+{
+"n":"Financial due diligence",
+"k":"tech"
+},
+{
+"n":"Audit support",
+"k":"tech"
+},
+{
+"n":"IFRS",
+"k":"tech"
+},
+{
+"n":"Ind AS",
+"k":"tech"
+},
+{
+"n":"GAAP",
+"k":"tech",
+"s":[
+"US GAAP"
+]
+},
+{
+"n":"Transfer pricing",
+"k":"tech"
+},
+{
+"n":"Indirect tax",
+"k":"tech",
+"s":[
+"indirect taxation"
+]
+},
+{
+"n":"Direct tax",
+"k":"tech",
+"s":[
+"direct taxation"
+]
+},
+{
+"n":"E-way bill",
+"k":"tech",
+"s":[
+"eway bill"
+]
+},
+{
+"n":"E-invoicing",
+"k":"tech",
+"s":[
+"e invoice"
+]
+},
+{
+"n":"TDS compliance",
+"k":"tech"
+},
+{
+"n":"ROC compliance",
+"k":"tech"
+},
+{
+"n":"FEMA",
+"k":"tech"
+},
+{
+"n":"Companies Act",
+"k":"tech"
+},
+{
+"n":"Income Tax Act",
+"k":"tech"
+},
+{
+"n":"Banking software",
+"k":"tech",
+"s":[
+"CBS",
+"core banking",
+"Finacle",
+"Flexcube"
+]
+},
+{
+"n":"Cheque clearing",
+"k":"tech",
+"s":[
+"clearing"
+]
+},
+{
+"n":"NEFT RTGS",
+"k":"tech",
+"s":[
+"NEFT",
+"RTGS",
+"IMPS"
+]
+},
+{
+"n":"Branch banking",
+"k":"tech"
+},
+{
+"n":"Teller operations",
+"k":"tech",
+"s":[
+"teller"
+]
+},
+{
+"n":"Relationship banking",
+"k":"tech",
+"s":[
+"relationship manager"
+]
+},
+{
+"n":"Priority banking",
+"k":"tech"
+},
+{
+"n":"Cross-selling banking products",
+"k":"tech"
+},
+{
+"n":"Customer onboarding",
+"k":"tech"
+},
+{
+"n":"Account opening",
+"k":"tech"
+},
+{
+"n":"Document verification",
+"k":"tech",
+"s":[
+"documents verification"
+]
+},
+{
+"n":"Field verification",
+"k":"tech"
+},
+{
+"n":"Insurance claims",
+"k":"tech"
+},
+{
+"n":"Policy servicing",
+"k":"tech"
+},
+{
+"n":"Health insurance",
+"k":"tech"
+},
+{
+"n":"Life insurance",
+"k":"tech"
+},
+{
+"n":"Motor insurance",
+"k":"tech"
+},
+{
+"n":"General insurance",
+"k":"tech"
+},
+{
+"n":"Actuarial science",
+"k":"tech",
+"s":[
+"actuarial"
+]
+},
+{
+"n":"Reinsurance",
+"k":"tech"
+},
+{
+"n":"Customer due diligence",
+"k":"tech",
+"s":[
+"CDD"
+]
+},
+{
+"n":"Sanctions screening",
+"k":"tech"
+},
+{
+"n":"Transaction monitoring",
+"k":"tech"
+},
+{
+"n":"Patient registration",
+"k":"tech",
+"s":[
+"patient admission"
+]
+},
+{
+"n":"OPD management",
+"k":"tech",
+"s":[
+"OPD"
+]
+},
+{
+"n":"IPD management",
+"k":"tech",
+"s":[
+"IPD"
+]
+},
+{
+"n":"OT assistance",
+"k":"tech",
+"s":[
+"operation theatre"
+],
+"cs":[
+"OT technician"
+]
+},
+{
+"n":"Dialysis",
+"k":"tech",
+"s":[
+"dialysis technician"
+]
+},
+{
+"n":"ECG",
+"k":"tech",
+"s":[
+"ECG technician"
+]
+},
+{
+"n":"Echo",
+"k":"tech",
+"s":[
+"echocardiography"
+],
+"cs":[
+"Echo"
+]
+},
+{
+"n":"Ultrasound",
+"k":"tech",
+"s":[
+"sonography"
+]
+},
+{
+"n":"Pathology",
+"k":"tech"
+},
+{
+"n":"Blood bank",
+"k":"tech"
+},
+{
+"n":"Anaesthesia assistance",
+"k":"tech",
+"s":[
+"anesthesia technician"
+]
+},
+{
+"n":"Emergency care",
+"k":"tech",
+"s":[
+"emergency medicine",
+"casualty"
+]
+},
+{
+"n":"Maternity care",
+"k":"tech",
+"s":[
+"obstetrics",
+"labour room"
+]
+},
+{
+"n":"Paediatric care",
+"k":"tech",
+"s":[
+"pediatric nursing"
+]
+},
+{
+"n":"Home nursing",
+"k":"tech",
+"s":[
+"home care"
+]
+},
+{
+"n":"Palliative care",
+"k":"tech"
+},
+{
+"n":"Mental health",
+"k":"tech",
+"s":[
+"psychiatric care"
+]
+},
+{
+"n":"Dental assistance",
+"k":"tech",
+"s":[
+"dental assistant"
+]
+},
+{
+"n":"Optometry",
+"k":"tech",
+"s":[
+"eye testing"
+]
+},
+{
+"n":"Ward management",
+"k":"tech"
+},
+{
+"n":"Bedside care",
+"k":"tech"
+},
+{
+"n":"Catheterisation",
+"k":"tech",
+"s":[
+"catheterization"
+]
+},
+{
+"n":"Nasogastric tube",
+"k":"tech",
+"s":[
+"Ryle's tube"
+]
+},
+{
+"n":"Oxygen therapy",
+"k":"tech"
+},
+{
+"n":"Ventilator care",
+"k":"tech",
+"s":[
+"ventilator management"
+]
+},
+{
+"n":"Medical equipment handling",
+"k":"tech",
+"s":[
+"biomedical equipment"
+]
+},
+{
+"n":"Biomedical engineering",
+"k":"tech"
+},
+{
+"n":"Sterilisation",
+"k":"tech",
+"s":[
+"sterilization",
+"CSSD"
+]
+},
+{
+"n":"Hospital billing",
+"k":"tech"
+},
+{
+"n":"Insurance desk",
+"k":"tech",
+"s":[
+"TPA coordination"
+],
+"cs":[
+"TPA"
+]
+},
+{
+"n":"Medical records",
+"k":"tech"
+},
+{
+"n":"Health check-ups",
+"k":"tech",
+"s":[
+"health camps"
+]
+},
+{
+"n":"Community health",
+"k":"tech",
+"s":[
+"public health"
+]
+},
+{
+"n":"Vaccination",
+"k":"tech",
+"s":[
+"immunisation",
+"immunization"
+]
+},
+{
+"n":"ANM duties",
+"k":"tech",
+"cs":[
+"ANM"
+]
+},
+{
+"n":"GNM nursing",
+"k":"tech",
+"cs":[
+"GNM"
+]
+},
+{
+"n":"ASHA work",
+"k":"tech",
+"cs":[
+"ASHA"
+]
+},
+{
+"n":"Sales of medical devices",
+"k":"tech"
+},
+{
+"n":"Medical devices",
+"k":"tech"
+},
+{
+"n":"Clinical trials",
+"k":"tech"
+},
+{
+"n":"GCP",
+"k":"tech",
+"s":[
+"good clinical practice"
+]
+},
+{
+"n":"Medical writing",
+"k":"tech"
+},
+{
+"n":"Scientific writing",
+"k":"tech"
+},
+{
+"n":"Regulatory submissions",
+"k":"tech"
+},
+{
+"n":"Quality audits",
+"k":"tech"
+},
+{
+"n":"Validation",
+"k":"tech",
+"s":[
+"process validation"
+]
+},
+{
+"n":"Documentation GDP",
+"k":"tech",
+"s":[
+"good documentation practice",
+"GDP"
+]
+},
+{
+"n":"Microbiology lab",
+"k":"tech"
+},
+{
+"n":"Tissue culture",
+"k":"tech"
+},
+{
+"n":"PCR",
+"k":"tech"
+},
+{
+"n":"ELISA",
+"k":"tech"
+},
+{
+"n":"Spectroscopy",
+"k":"tech",
+"s":[
+"UV spectroscopy"
+]
+},
+{
+"n":"Chromatography",
+"k":"tech",
+"s":[
+"gas chromatography"
+],
+"cs":[
+"GC"
+]
+},
+{
+"n":"Wet chemistry",
+"k":"tech"
+},
+{
+"n":"Titration",
+"k":"tech"
+},
+{
+"n":"Hotel front office",
+"k":"tech",
+"s":[
+"front office operations"
+]
+},
+{
+"n":"Room service",
+"k":"tech"
+},
+{
+"n":"Banquet operations",
+"k":"tech",
+"s":[
+"banquets"
+]
+},
+{
+"n":"Event catering",
+"k":"tech"
+},
+{
+"n":"Menu planning",
+"k":"tech"
+},
+{
+"n":"Food costing",
+"k":"tech"
+},
+{
+"n":"Kitchen hygiene",
+"k":"tech"
+},
+{
+"n":"Tandoor cooking",
+"k":"tech",
+"s":[
+"tandoori"
+]
+},
+{
+"n":"South Indian cooking",
+"k":"tech"
+},
+{
+"n":"North Indian cooking",
+"k":"tech"
+},
+{
+"n":"Chinese cooking",
+"k":"tech"
+},
+{
+"n":"Continental cooking",
+"k":"tech"
+},
+{
+"n":"Bakery and confectionery",
+"k":"tech",
+"s":[
+"confectionery"
+]
+},
+{
+"n":"Sweets making",
+"k":"tech",
+"s":[
+"halwai"
+]
+},
+{
+"n":"Snacks preparation",
+"k":"tech"
+},
+{
+"n":"Cleaning",
+"k":"tech",
+"s":[
+"deep cleaning"
+]
+},
+{
+"n":"Laundry",
+"k":"tech",
+"s":[
+"laundry operations"
+]
+},
+{
+"n":"Pest control",
+"k":"tech"
+},
+{
+"n":"Gardening",
+"k":"tech",
+"s":[
+"landscaping",
+"gardener"
+]
+},
+{
+"n":"Cab driving",
+"k":"tech",
+"s":[
+"taxi driving"
+],
+"cs":[
+"Ola",
+"Uber"
+]
+},
+{
+"n":"Auto rickshaw driving",
+"k":"tech",
+"s":[
+"auto driving"
+]
+},
+{
+"n":"School bus driving",
+"k":"tech"
+},
+{
+"n":"Ambulance driving",
+"k":"tech"
+},
+{
+"n":"Chauffeur",
+"k":"tech",
+"s":[
+"personal driver"
+]
+},
+{
+"n":"Valet parking",
+"k":"tech"
+},
+{
+"n":"Logistics coordination",
+"k":"tech"
+},
+{
+"n":"Courier operations",
+"k":"tech",
+"s":[
+"courier"
+]
+},
+{
+"n":"Shipment tracking",
+"k":"tech"
+},
+{
+"n":"Reverse logistics",
+"k":"tech"
+},
+{
+"n":"Cold chain",
+"k":"tech"
+},
+{
+"n":"3PL",
+"k":"tech",
+"s":[
+"third-party logistics"
+]
+},
+{
+"n":"Freight management",
+"k":"tech"
+},
+{
+"n":"Transport management",
+"k":"tech",
+"s":[
+"TMS"
+]
+},
+{
+"n":"Vehicle tracking",
+"k":"tech",
+"s":[
+"GPS tracking"
+]
+},
+{
+"n":"Trip planning",
+"k":"tech"
+},
+{
+"n":"Loading supervision",
+"k":"tech"
+},
+{
+"n":"Inventory reconciliation",
+"k":"tech"
+},
+{
+"n":"Cycle counting",
+"k":"tech"
+},
+{
+"n":"FIFO",
+"k":"tech",
+"s":[
+"FEFO"
+]
+},
+{
+"n":"Bin management",
+"k":"tech"
+},
+{
+"n":"Dispatch planning",
+"k":"tech"
+},
+{
+"n":"Packaging line",
+"k":"tech"
+},
+{
+"n":"Shop floor management",
+"k":"tech",
+"s":[
+"shop floor"
+]
+},
+{
+"n":"Line supervision",
+"k":"tech",
+"s":[
+"line supervisor"
+]
+},
+{
+"n":"Production supervision",
+"k":"tech",
+"s":[
+"production supervisor"
+]
+},
+{
+"n":"Operator training",
+"k":"tech"
+},
+{
+"n":"Machine operation",
+"k":"tech",
+"s":[
+"machine operator"
+]
+},
+{
+"n":"Injection moulding",
+"k":"tech",
+"s":[
+"injection molding"
+]
+},
+{
+"n":"Press shop",
+"k":"tech",
+"s":[
+"press operation"
+]
+},
+{
+"n":"Paint shop",
+"k":"tech"
+},
+{
+"n":"Heat treatment",
+"k":"tech"
+},
+{
+"n":"Foundry",
+"k":"tech",
+"s":[
+"casting"
+]
+},
+{
+"n":"Forging",
+"k":"tech"
+},
+{
+"n":"Sheet metal",
+"k":"tech"
+},
+{
+"n":"Welding inspection",
+"k":"tech"
+},
+{
+"n":"NDT",
+"k":"tech",
+"s":[
+"non destructive testing"
+]
+},
+{
+"n":"Quality inspection",
+"k":"tech",
+"s":[
+"inspection"
+]
+},
+{
+"n":"Measuring instruments",
+"k":"tech",
+"s":[
+"vernier caliper",
+"micrometer"
+]
+},
+{
+"n":"Metrology",
+"k":"tech"
+},
+{
+"n":"PPAP",
+"k":"tech"
+},
+{
+"n":"APQP",
+"k":"tech"
+},
+{
+"n":"FMEA",
+"k":"tech"
+},
+{
+"n":"MSA",
+"k":"tech"
+},
+{
+"n":"8D",
+"k":"tech",
+"s":[
+"8D problem solving"
+]
+},
+{
+"n":"Poka-yoke",
+"k":"tech",
+"s":[
+"poka yoke"
+]
+},
+{
+"n":"Value stream mapping",
+"k":"tech",
+"s":[
+"VSM"
+]
+},
+{
+"n":"OEE",
+"k":"tech"
+},
+{
+"n":"Line balancing",
+"k":"tech"
+},
+{
+"n":"Time and motion study",
+"k":"tech",
+"s":[
+"work study"
+]
+},
+{
+"n":"Industrial engineering",
+"k":"tech"
+},
+{
+"n":"Plant maintenance",
+"k":"tech"
+},
+{
+"n":"Electrical troubleshooting",
+"k":"tech"
+},
+{
+"n":"Motor control",
+"k":"tech",
+"s":[
+"starters",
+"DOL starter"
+]
+},
+{
+"n":"VFD",
+"k":"tech",
+"s":[
+"variable frequency drive"
+]
+},
+{
+"n":"HT/LT panels",
+"k":"tech",
+"s":[
+"HT panels",
+"LT panels"
+]
+},
+{
+"n":"DG sets",
+"k":"tech",
+"s":[
+"diesel generator",
+"DG operation"
+]
+},
+{
+"n":"UPS",
+"k":"tech",
+"s":[
+"UPS maintenance"
+]
+},
+{
+"n":"Earthing",
+"k":"tech"
+},
+{
+"n":"Cable laying",
+"k":"tech"
+},
+{
+"n":"Conduit wiring",
+"k":"tech"
+},
+{
+"n":"Lighting installation",
+"k":"tech"
+},
+{
+"n":"Inverter installation",
+"k":"tech"
+},
+{
+"n":"Elevator maintenance",
+"k":"tech",
+"s":[
+"lift maintenance",
+"lift technician"
+]
+},
+{
+"n":"Fire alarm systems",
+"k":"tech",
+"s":[
+"fire alarm"
+]
+},
+{
+"n":"Building management system",
+"k":"tech",
+"s":[
+"BMS"
+]
+},
+{
+"n":"Electrical safety",
+"k":"tech"
+},
+{
+"n":"Electrical testing",
+"k":"tech"
+},
+{
+"n":"Meter reading",
+"k":"tech",
+"s":[
+"electricity meter"
+]
+},
+{
+"n":"Substation operation",
+"k":"tech",
+"s":[
+"substation"
+]
+},
+{
+"n":"Transmission lines",
+"k":"tech"
+},
+{
+"n":"Power plant operation",
+"k":"tech",
+"s":[
+"power plant"
+]
+},
+{
+"n":"Thermal power",
+"k":"tech"
+},
+{
+"n":"Hydro power",
+"k":"tech"
+},
+{
+"n":"Wind energy",
+"k":"tech"
+},
+{
+"n":"Renewable energy",
+"k":"tech"
+},
+{
+"n":"Battery systems",
+"k":"tech",
+"s":[
+"EV batteries"
+]
+},
+{
+"n":"Electric vehicles",
+"k":"tech",
+"s":[
+"EV"
+]
+},
+{
+"n":"EV charging",
+"k":"tech"
+},
+{
+"n":"Automotive electrical",
+"k":"tech",
+"s":[
+"auto electrician"
+]
+},
+{
+"n":"Engine overhaul",
+"k":"tech",
+"s":[
+"engine repair"
+]
+},
+{
+"n":"Transmission repair",
+"k":"tech",
+"s":[
+"gearbox"
+]
+},
+{
+"n":"Brake systems",
+"k":"tech",
+"s":[
+"brakes"
+]
+},
+{
+"n":"Suspension",
+"k":"tech"
+},
+{
+"n":"Wheel alignment",
+"k":"tech",
+"s":[
+"wheel balancing"
+]
+},
+{
+"n":"Tyre fitting",
+"k":"tech",
+"s":[
+"tyre changing"
+]
+},
+{
+"n":"AC servicing",
+"k":"tech",
+"s":[
+"car AC"
+]
+},
+{
+"n":"Diagnostics",
+"k":"tech",
+"s":[
+"vehicle diagnostics",
+"OBD scanner"
+]
+},
+{
+"n":"Spare parts management",
+"k":"tech",
+"s":[
+"spare parts"
+]
+},
+{
+"n":"Service advisor",
+"k":"tech",
+"s":[
+"service advising"
+]
+},
+{
+"n":"Job card management",
+"k":"tech",
+"s":[
+"job cards"
+]
+},
+{
+"n":"Workshop management",
+"k":"tech"
+},
+{
+"n":"Two-wheeler servicing",
+"k":"tech",
+"s":[
+"bike servicing"
+]
+},
+{
+"n":"Tractor repair",
+"k":"tech"
+},
+{
+"n":"Heavy equipment operation",
+"k":"tech",
+"s":[
+"JCB operation",
+"JCB",
+"excavator operation",
+"crane operation"
+]
+},
+{
+"n":"Crane operation",
+"k":"tech"
+},
+{
+"n":"Earthmoving equipment",
+"k":"tech"
+},
+{
+"n":"Scaffolding",
+"k":"tech"
+},
+{
+"n":"Shuttering",
+"k":"tech",
+"s":[
+"formwork"
+]
+},
+{
+"n":"Steel fixing",
+"k":"tech",
+"s":[
+"bar bending"
+]
+},
+{
+"n":"Concrete work",
+"k":"tech",
+"s":[
+"concreting"
+]
+},
+{
+"n":"Brickwork",
+"k":"tech",
+"s":[
+"bricklaying"
+]
+},
+{
+"n":"Plastering",
+"k":"tech"
+},
+{
+"n":"Waterproofing",
+"k":"tech"
+},
+{
+"n":"False ceiling",
+"k":"tech"
+},
+{
+"n":"POP work",
+"k":"tech",
+"s":[
+"gypsum"
+]
+},
+{
+"n":"Flooring",
+"k":"tech"
+},
+{
+"n":"Glass work",
+"k":"tech",
+"s":[
+"glazing"
+]
+},
+{
+"n":"Aluminium fabrication",
+"k":"tech",
+"s":[
+"aluminium windows"
+]
+},
+{
+"n":"Modular kitchen installation",
+"k":"tech",
+"s":[
+"modular furniture"
+]
+},
+{
+"n":"Furniture making",
+"k":"tech"
+},
+{
+"n":"Wood polishing",
+"k":"tech",
+"s":[
+"polishing"
+]
+},
+{
+"n":"Upholstery",
+"k":"tech"
+},
+{
+"n":"Interior execution",
+"k":"tech",
+"s":[
+"interior fit-out",
+"fit out"
+]
+},
+{
+"n":"Site safety",
+"k":"tech"
+},
+{
+"n":"Labour management",
+"k":"tech",
+"s":[
+"labour supervision",
+"manpower management"
+]
+},
+{
+"n":"Contractor management",
+"k":"tech",
+"s":[
+"subcontractor management"
+]
+},
+{
+"n":"Material reconciliation",
+"k":"tech"
+},
+{
+"n":"Rate analysis",
+"k":"tech"
+},
+{
+"n":"Tender documents",
+"k":"tech",
+"s":[
+"tender preparation"
+]
+},
+{
+"n":"Auto level",
+"k":"tech",
+"s":[
+"levelling"
+]
+},
+{
+"n":"Theodolite",
+"k":"tech"
+},
+{
+"n":"Building drawings",
+"k":"tech"
+},
+{
+"n":"Architectural drafting",
+"k":"tech"
+},
+{
+"n":"Architecture",
+"k":"tech",
+"s":[
+"architectural design"
+]
+},
+{
+"n":"Urban planning",
+"k":"tech",
+"s":[
+"town planning"
+]
+},
+{
+"n":"Landscape architecture",
+"k":"tech"
+},
+{
+"n":"Vastu",
+"k":"tech"
+},
+{
+"n":"Real estate valuation",
+"k":"tech",
+"s":[
+"property valuation"
+]
+},
+{
+"n":"Admissions counselling",
+"k":"tech",
+"s":[
+"admissions"
+]
+},
+{
+"n":"Academic coordination",
+"k":"tech"
+},
+{
+"n":"School administration",
+"k":"tech"
+},
+{
+"n":"Exam coordination",
+"k":"tech",
+"s":[
+"examination"
+]
+},
+{
+"n":"Invigilation",
+"k":"tech"
+},
+{
+"n":"Answer sheet evaluation",
+"k":"tech"
+},
+{
+"n":"Question paper setting",
+"k":"tech"
+},
+{
+"n":"Online classes",
+"k":"tech",
+"s":[
+"virtual classes"
+]
+},
+{
+"n":"Smart class",
+"k":"tech"
+},
+{
+"n":"Phonics",
+"k":"tech"
+},
+{
+"n":"Montessori",
+"k":"tech",
+"s":[
+"Montessori teaching"
+]
+},
+{
+"n":"Early childhood education",
+"k":"tech",
+"s":[
+"preschool teaching",
+"nursery teaching"
+]
+},
+{
+"n":"Special education",
+"k":"tech"
+},
+{
+"n":"Spoken English",
+"k":"tech"
+},
+{
+"n":"Grammar",
+"k":"tech",
+"s":[
+"English grammar"
+]
+},
+{
+"n":"Hindi teaching",
+"k":"tech"
+},
+{
+"n":"Coding for kids",
+"k":"tech",
+"s":[
+"kids coding"
+]
+},
+{
+"n":"Abacus",
+"k":"tech",
+"s":[
+"vedic maths"
+]
+},
+{
+"n":"Music teaching",
+"k":"tech",
+"s":[
+"music"
+]
+},
+{
+"n":"Dance",
+"k":"tech",
+"s":[
+"dance teaching"
+]
+},
+{
+"n":"Drawing and painting",
+"k":"tech",
+"s":[
+"art teaching"
+]
+},
+{
+"n":"Sports coaching",
+"k":"tech",
+"s":[
+"coaching sports",
+"sports coach"
+]
+},
+{
+"n":"Physical education",
+"k":"tech",
+"s":[
+"PE teacher",
+"PT teacher"
+]
+},
+{
+"n":"Library management",
+"k":"tech",
+"s":[
+"librarian"
+]
+},
+{
+"n":"Lab assistance",
+"k":"tech",
+"s":[
+"lab assistant"
+]
+},
+{
+"n":"Career guidance",
+"k":"tech"
+},
+{
+"n":"Soft skills training",
+"k":"tech"
+},
+{
+"n":"Communication training",
+"k":"tech"
+},
+{
+"n":"Sales training",
+"k":"tech"
+},
+{
+"n":"Content development",
+"k":"tech",
+"s":[
+"content development for education"
+]
+},
+{
+"n":"Question bank creation",
+"k":"tech"
+},
+{
+"n":"Academic writing",
+"k":"tech"
+},
+{
+"n":"Research methodology",
+"k":"tech"
+},
+{
+"n":"Thesis writing",
+"k":"tech"
+},
+{
+"n":"Literature review",
+"k":"tech"
+},
+{
+"n":"SPSS analysis",
+"k":"tech"
+},
+{
+"n":"Survey design",
+"k":"tech",
+"s":[
+"questionnaire design"
+]
+},
+{
+"n":"Focus groups",
+"k":"tech"
+},
+{
+"n":"Field research",
+"k":"tech"
+},
+{
+"n":"Monitoring and evaluation",
+"k":"tech",
+"s":[
+"M&E"
+]
+},
+{
+"n":"Grant writing",
+"k":"tech",
+"s":[
+"proposal writing"
+]
+},
+{
+"n":"NGO operations",
+"k":"tech",
+"s":[
+"NGO"
+]
+},
+{
+"n":"CSR",
+"k":"tech",
+"s":[
+"corporate social responsibility"
+]
+},
+{
+"n":"Community mobilisation",
+"k":"tech",
+"s":[
+"community mobilization"
+]
+},
+{
+"n":"Social work",
+"k":"tech",
+"s":[
+"social worker"
+]
+},
+{
+"n":"Rural development",
+"k":"tech"
+},
+{
+"n":"Livelihoods",
+"k":"tech"
+},
+{
+"n":"Self help groups",
+"k":"tech",
+"s":[
+"SHG"
+]
+},
+{
+"n":"Women empowerment",
+"k":"tech"
+},
+{
+"n":"Child protection",
+"k":"tech"
+},
+{
+"n":"Advocacy",
+"k":"tech"
+},
+{
+"n":"Volunteer management",
+"k":"tech"
+},
+{
+"n":"Fund raising for NGOs",
+"k":"tech"
+},
+{
+"n":"Call centre operations",
+"k":"tech",
+"s":[
+"call center"
+]
+},
+{
+"n":"Quality monitoring",
+"k":"tech",
+"s":[
+"call quality",
+"call auditing"
+]
+},
+{
+"n":"Workforce management",
+"k":"tech",
+"s":[
+"WFM"
+]
+},
+{
+"n":"Process training",
+"k":"tech"
+},
+{
+"n":"Team leading",
+"k":"tech",
+"s":[
+"team leader"
+]
+},
+{
+"n":"Shift management",
+"k":"tech"
+},
+{
+"n":"SLA management",
+"k":"tech",
+"s":[
+"service level agreement"
+],
+"cs":[
+"SLA"
+]
+},
+{
+"n":"TAT management",
+"k":"tech",
+"s":[
+"turnaround time"
+],
+"cs":[
+"TAT"
+]
+},
+{
+"n":"Average handling time",
+"k":"tech",
+"s":[
+"AHT"
+]
+},
+{
+"n":"First call resolution",
+"k":"tech",
+"s":[
+"FCR"
+]
+},
+{
+"n":"CSAT",
+"k":"tech",
+"s":[
+"customer satisfaction"
+]
+},
+{
+"n":"NPS",
+"k":"tech",
+"s":[
+"net promoter score"
+],
+"cs":[
+"NPS"
+]
+},
+{
+"n":"Email handling",
+"k":"tech"
+},
+{
+"n":"Live chat",
+"k":"tech"
+},
+{
+"n":"Social media support",
+"k":"tech"
+},
+{
+"n":"KYC processing",
+"k":"tech"
+},
+{
+"n":"Data processing",
+"k":"tech"
+},
+{
+"n":"Document processing",
+"k":"tech"
+},
+{
+"n":"Invoice processing",
+"k":"tech"
+},
+{
+"n":"Claims adjudication",
+"k":"tech"
+},
+{
+"n":"Chargebacks",
+"k":"tech"
+},
+{
+"n":"Dispute resolution",
+"k":"tech"
+},
+{
+"n":"Payment processing",
+"k":"tech"
+},
+{
+"n":"Order entry",
+"k":"tech"
+},
+{
+"n":"Data verification",
+"k":"tech"
+},
+{
+"n":"Indexing documents",
+"k":"tech"
+},
+{
+"n":"Transcription",
+"k":"tech",
+"s":[
+"typing transcription"
+]
+},
+{
+"n":"Captioning",
+"k":"tech",
+"s":[
+"subtitling"
+]
+},
+{
+"n":"Content moderation",
+"k":"tech",
+"s":[
+"moderation"
+]
+},
+{
+"n":"Data annotation",
+"k":"tech",
+"s":[
+"data labelling",
+"data labeling",
+"annotation"
+]
+},
+{
+"n":"Image annotation",
+"k":"tech"
+},
+{
+"n":"Search evaluation",
+"k":"tech",
+"s":[
+"rating"
+]
+},
+{
+"n":"Lead qualification",
+"k":"tech"
+},
+{
+"n":"Appointment setting",
+"k":"tech",
+"s":[
+"appointment scheduling"
+]
+},
+{
+"n":"Collections calling",
+"k":"tech"
+},
+{
+"n":"Retention calling",
+"k":"tech"
+},
+{
+"n":"Survey calling",
+"k":"tech"
+},
+{
+"n":"Customer verification",
+"k":"tech"
+},
+{
+"n":"Hindi voice process",
+"k":"tech"
+},
+{
+"n":"Regional language process",
+"k":"tech",
+"s":[
+"regional language support"
+]
+},
+{
+"n":"Store management",
+"k":"tech",
+"s":[
+"store manager"
+]
+},
+{
+"n":"Inventory planning",
+"k":"tech"
+},
+{
+"n":"Category management",
+"k":"tech"
+},
+{
+"n":"Buying",
+"k":"tech",
+"s":[
+"retail buying"
+]
+},
+{
+"n":"Visual display",
+"k":"tech"
+},
+{
+"n":"Product knowledge",
+"k":"tech"
+},
+{
+"n":"Mall operations",
+"k":"tech"
+},
+{
+"n":"Showroom sales",
+"k":"tech"
+},
+{
+"n":"Jewellery sales",
+"k":"tech"
+},
+{
+"n":"Mobile sales",
+"k":"tech",
+"s":[
+"mobile phone sales"
+]
+},
+{
+"n":"Electronics sales",
+"k":"tech",
+"s":[
+"consumer electronics"
+]
+},
+{
+"n":"Apparel sales",
+"k":"tech",
+"s":[
+"garment sales"
+]
+},
+{
+"n":"Footwear sales",
+"k":"tech"
+},
+{
+"n":"Pharmacy sales",
+"k":"tech",
+"s":[
+"chemist shop"
+]
+},
+{
+"n":"Grocery",
+"k":"tech",
+"s":[
+"kirana"
+]
+},
+{
+"n":"Supermarket operations",
+"k":"tech"
+},
+{
+"n":"Billing software",
+"k":"tech"
+},
+{
+"n":"Cash reconciliation",
+"k":"tech",
+"s":[
+"cash tally"
+]
+},
+{
+"n":"Stock replenishment",
+"k":"tech",
+"s":[
+"replenishment"
+]
+},
+{
+"n":"Shrinkage control",
+"k":"tech",
+"s":[
+"loss prevention"
+]
+},
+{
+"n":"Planogram",
+"k":"tech"
+},
+{
+"n":"Promoter",
+"k":"tech",
+"s":[
+"brand promoter"
+]
+},
+{
+"n":"In-store promotions",
+"k":"tech"
+},
+{
+"n":"Customer feedback",
+"k":"tech"
+},
+{
+"n":"Return and exchange handling",
+"k":"tech",
+"s":[
+"returns"
+]
+},
+{
+"n":"Door-to-door sales",
+"k":"tech",
+"s":[
+"door to door"
+]
+},
+{
+"n":"Route sales",
+"k":"tech"
+},
+{
+"n":"Van sales",
+"k":"tech"
+},
+{
+"n":"Order booking",
+"k":"tech"
+},
+{
+"n":"Collection follow-up",
+"k":"tech"
+},
+{
+"n":"Retailer onboarding",
+"k":"tech"
+},
+{
+"n":"Distributor onboarding",
+"k":"tech"
+},
+{
+"n":"Secondary sales",
+"k":"tech"
+},
+{
+"n":"Primary sales",
+"k":"tech"
+},
+{
+"n":"Market expansion",
+"k":"tech"
+},
+{
+"n":"Territory management",
+"k":"tech",
+"s":[
+"territory sales"
+]
+},
+{
+"n":"Sales reporting",
+"k":"tech"
+},
+{
+"n":"Sales MIS",
+"k":"tech"
+},
+{
+"n":"Sales operations",
+"k":"tech"
+},
+{
+"n":"Sales planning",
+"k":"tech"
+},
+{
+"n":"Area sales management",
+"k":"tech",
+"s":[
+"area sales manager",
+"ASM"
+]
+},
+{
+"n":"Regional sales management",
+"k":"tech"
+},
+{
+"n":"Institutional sales",
+"k":"tech"
+},
+{
+"n":"Corporate sales",
+"k":"tech"
+},
+{
+"n":"Government sales",
+"k":"tech"
+},
+{
+"n":"Export sales",
+"k":"tech"
+},
+{
+"n":"International business",
+"k":"tech"
+},
+{
+"n":"Business correspondence",
+"k":"tech"
+},
+{
+"n":"Client servicing",
+"k":"tech"
+},
+{
+"n":"Account servicing",
+"k":"tech"
+},
+{
+"n":"Proposal writing for sales",
+"k":"tech"
+},
+{
+"n":"RFP responses",
+"k":"tech",
+"s":[
+"RFP"
+]
+},
+{
+"n":"Product demos",
+"k":"tech",
+"s":[
+"product demonstration"
+]
+},
+{
+"n":"Solution selling",
+"k":"tech"
+},
+{
+"n":"Consultative selling",
+"k":"tech"
+},
+{
+"n":"SaaS sales",
+"k":"tech"
+},
+{
+"n":"IT sales",
+"k":"tech",
+"s":[
+"software sales"
+]
+},
+{
+"n":"EdTech sales",
+"k":"tech",
+"s":[
+"education counselling sales"
+]
+},
+{
+"n":"Real estate brokering",
+"k":"tech"
+},
+{
+"n":"Travel sales",
+"k":"tech"
+},
+{
+"n":"Government schemes knowledge",
+"k":"tech"
+},
+{
+"n":"E-governance",
+"k":"tech"
+},
+{
+"n":"Common Service Centre",
+"k":"tech",
+"s":[
+"CSC"
+]
+},
+{
+"n":"Aadhaar services",
+"k":"tech"
+},
+{
+"n":"PAN card services",
+"k":"tech"
+},
+{
+"n":"Passport services",
+"k":"tech"
+},
+{
+"n":"DTP",
+"k":"tech",
+"s":[
+"desktop publishing"
+]
+},
+{
+"n":"Data entry operator",
+"k":"tech"
+},
+{
+"n":"Computer operator",
+"k":"tech"
+},
+{
+"n":"Photocopying",
+"k":"tech",
+"s":[
+"xerox"
+]
+},
+{
+"n":"Scanning documents",
+"k":"tech"
+},
+{
+"n":"Office equipment handling",
+"k":"tech"
+},
+{
+"n":"Courier handling",
+"k":"tech"
+},
+{
+"n":"Peon duties",
+"k":"tech",
+"s":[
+"office boy",
+"office assistant"
+]
+},
+{
+"n":"Pantry management",
+"k":"tech"
+},
+{
+"n":"Errands",
+"k":"tech"
+},
+{
+"n":"Mailroom",
+"k":"tech"
+},
+{
+"n":"Records digitisation",
+"k":"tech",
+"s":[
+"digitization"
+]
+},
+{
+"n":"Archiving",
+"k":"tech"
+},
+{
+"n":"Clerical work",
+"k":"tech",
+"s":[
+"clerical"
+]
+},
+{
+"n":"Stenography Hindi",
+"k":"tech",
+"s":[
+"Hindi typing"
+]
+},
+{
+"n":"English typing",
+"k":"tech"
+},
+{
+"n":"Telugu typing",
+"k":"tech"
+},
+{
+"n":"Tamil typing",
+"k":"tech"
+},
+{
+"n":"Kannada typing",
+"k":"tech"
+},
+{
+"n":"Marathi typing",
+"k":"tech"
+},
+{
+"n":"Bengali typing",
+"k":"tech"
+},
+{
+"n":"Gujarati typing",
+"k":"tech"
+},
+{
+"n":"Malayalam typing",
+"k":"tech"
+},
+{
+"n":"Material Design",
+"k":"tech"
+},
+{
+"n":"Responsive email",
+"k":"tech"
+},
+{
+"n":"Web scraping with Selenium",
+"k":"tech"
+},
+{
+"n":"Excel automation",
+"k":"tech"
+},
+{
+"n":"Google Apps Script",
+"k":"tech",
+"s":[
+"Apps Script"
+]
+},
+{
+"n":"Bash automation",
+"k":"tech"
+},
+{
+"n":"Python automation",
+"k":"tech",
+"s":[
+"Python scripting"
+]
+},
+{
+"n":"Data reporting",
+"k":"tech"
+},
+{
+"n":"Ad hoc reporting",
+"k":"tech",
+"s":[
+"ad-hoc analysis"
+]
+},
+{
+"n":"Business reporting",
+"k":"tech"
+},
+{
+"n":"Financial dashboards",
+"k":"tech"
+},
+{
+"n":"Sales dashboards",
+"k":"tech"
+},
+{
+"n":"HR analytics",
+"k":"tech",
+"s":[
+"people analytics"
+]
+},
+{
+"n":"Marketing dashboards",
+"k":"tech"
+},
+{
+"n":"Supply chain analytics",
+"k":"tech"
+},
+{
+"n":"Operations analytics",
+"k":"tech"
+},
+{
+"n":"Product analytics",
+"k":"tech"
+},
+{
+"n":"Web analytics",
+"k":"tech"
+},
+{
+"n":"Retail analytics",
+"k":"tech"
+},
+{
+"n":"Healthcare analytics",
+"k":"tech"
+},
+{
+"n":"Credit analytics",
+"k":"tech"
+},
+{
+"n":"Risk analytics",
+"k":"tech"
+},
+{
+"n":"Pricing analytics",
+"k":"tech"
+},
+{
+"n":"Fraud analytics",
+"k":"tech"
+},
+{
+"n":"Text analytics",
+"k":"tech"
+},
+{
+"n":"Geospatial analysis",
+"k":"tech"
+},
+{
+"n":"Spatial analysis",
+"k":"tech"
+},
+{
+"n":"Data storytelling",
+"k":"tech"
+},
+{
+"n":"Excel charts",
+"k":"tech"
+},
+{
+"n":"Data entry in Excel",
+"k":"tech"
+},
+{
+"n":"Excel reporting",
+"k":"tech"
+},
+{
+"n":"Data consolidation",
+"k":"tech"
+},
+{
+"n":"Data reconciliation",
+"k":"tech"
+},
+{
+"n":"Data audit",
+"k":"tech"
+},
+{
+"n":"Data extraction",
+"k":"tech"
+},
+{
+"n":"Report preparation",
+"k":"tech",
+"s":[
+"preparing reports"
+]
+},
+{
+"n":"Documentation control",
+"k":"tech",
+"s":[
+"document control"
+]
+},
+{
+"n":"Stores documentation",
+"k":"tech"
+},
+{
+"n":"Purchase orders",
+"k":"tech",
+"s":[
+"purchase order processing"
+],
+"cs":[
+"PO"
+]
+},
+{
+"n":"Quotations",
+"k":"tech",
+"s":[
+"quotation preparation"
+]
+},
+{
+"n":"Rate contracts",
+"k":"tech"
+},
+{
+"n":"Vendor development",
+"k":"tech"
+},
+{
+"n":"Vendor evaluation",
+"k":"tech",
+"s":[
+"supplier evaluation"
+]
+},
+{
+"n":"Sourcing strategy",
+"k":"tech",
+"s":[
+"strategic sourcing"
+]
+},
+{
+"n":"Indirect procurement",
+"k":"tech"
+},
+{
+"n":"Direct procurement",
+"k":"tech"
+},
+{
+"n":"Spend analysis",
+"k":"tech"
+},
+{
+"n":"Contract negotiation",
+"k":"tech"
+},
+{
+"n":"Import documentation",
+"k":"tech"
+},
+{
+"n":"Export documentation",
+"k":"tech"
+},
+{
+"n":"Letters of credit",
+"k":"tech"
+},
+{
+"n":"Incoterms",
+"k":"tech"
+},
+{
+"n":"HS codes",
+"k":"tech",
+"s":[
+"HS classification"
+]
+},
+{
+"n":"DGFT",
+"k":"tech"
+},
+{
+"n":"ICEGATE",
+"k":"tech"
+},
+{
+"n":"Shipping documents",
+"k":"tech",
+"s":[
+"bill of lading"
+]
+},
+{
+"n":"Port operations",
+"k":"tech"
+},
+{
+"n":"Container handling",
+"k":"tech"
+},
+{
+"n":"Air freight",
+"k":"tech"
+},
+{
+"n":"Ocean freight",
+"k":"tech",
+"s":[
+"sea freight"
+]
+},
+{
+"n":"Road freight",
+"k":"tech",
+"s":[
+"road transport"
+]
+},
+{
+"n":"Rail logistics",
+"k":"tech"
+},
+{
+"n":"Inventory optimisation",
+"k":"tech",
+"s":[
+"inventory optimization"
+]
+},
+{
+"n":"Safety stock",
+"k":"tech"
+},
+{
+"n":"ABC analysis",
+"k":"tech"
+},
+{
+"n":"MRP",
+"k":"tech",
+"s":[
+"material requirement planning"
+]
+},
+{
+"n":"S&OP",
+"k":"tech",
+"s":[
+"sales and operations planning"
+]
+},
+{
+"n":"Capacity planning",
+"k":"tech"
+},
+{
+"n":"Shift planning",
+"k":"tech"
+},
+{
+"n":"Manpower planning",
+"k":"tech"
+},
+{
+"n":"Production scheduling",
+"k":"tech"
+},
+{
+"n":"Maintenance planning",
+"k":"tech"
+},
+{
+"n":"Spare parts planning",
+"k":"tech"
+},
+{
+"n":"Energy management",
+"k":"tech",
+"s":[
+"energy audit"
+]
+},
+{
+"n":"Environmental compliance",
+"k":"tech"
+},
+{
+"n":"Pollution control",
+"k":"tech"
+},
+{
+"n":"Effluent treatment",
+"k":"tech"
+},
+{
+"n":"Hazardous waste management",
+"k":"tech"
+},
+{
+"n":"Occupational health",
+"k":"tech",
+"s":[
+"occupational safety"
+]
+},
+{
+"n":"Permit to work",
+"k":"tech",
+"s":[
+"work permits"
+]
+},
+{
+"n":"Safety audits",
+"k":"tech"
+},
+{
+"n":"Safety training",
+"k":"tech"
+},
+{
+"n":"Toolbox talks",
+"k":"tech"
+},
+{
+"n":"Risk assessment HIRA",
+"k":"tech",
+"s":[
+"HIRA"
+]
+},
+{
+"n":"Job safety analysis",
+"k":"tech",
+"s":[
+"JSA"
+]
+},
+{
+"n":"Emergency preparedness",
+"k":"tech",
+"s":[
+"emergency response"
+]
+},
+{
+"n":"Fire drills",
+"k":"tech"
+},
+{
+"n":"PPE",
+"k":"tech",
+"s":[
+"personal protective equipment"
+],
+"cs":[
+"PPE"
+]
+},
+{
+"n":"Accident investigation",
+"k":"tech",
+"s":[
+"incident investigation"
+]
+},
+{
+"n":"Security management",
+"k":"tech"
+},
+{
+"n":"Guard supervision",
+"k":"tech",
+"s":[
+"security supervisor"
+]
+},
+{
+"n":"Event security",
+"k":"tech"
+},
+{
+"n":"Bouncer",
+"k":"tech",
+"s":[
+"bouncers"
+]
+},
+{
+"n":"Executive protection",
+"k":"tech",
+"s":[
+"bodyguard",
+"PSO"
+]
+},
+{
+"n":"Frisking",
+"k":"tech"
+},
+{
+"n":"Visitor management",
+"k":"tech"
+},
+{
+"n":"Gate management",
+"k":"tech"
+},
+{
+"n":"Key management",
+"k":"tech"
+},
+{
+"n":"Alarm monitoring",
+"k":"tech"
+},
+{
+"n":"Control room operations",
+"k":"tech",
+"s":[
+"control room"
+]
+},
+{
+"n":"JIRA Service Management",
+"k":"tool"
+},
+{
+"n":"Freshservice",
+"k":"tool"
+},
+{
+"n":"ManageEngine",
+"k":"tool"
+},
+{
+"n":"SolarWinds",
+"k":"tool"
+},
+{
+"n":"Nagios",
+"k":"tool"
+},
+{
+"n":"Zabbix",
+"k":"tool",
+"cs":[
+"Zabbix"
+]
+},
+{
+"n":"Datadog",
+"k":"tool"
+},
+{
+"n":"New Relic",
+"k":"tool"
+},
+{
+"n":"Splunk",
+"k":"tool"
+},
+{
+"n":"PagerDuty",
+"k":"tool"
+},
+{
+"n":"Sentry",
+"k":"tool",
+"cs":[
+"Sentry"
+]
+},
+{
+"n":"Cloudflare Workers",
+"k":"tool"
+},
+{
+"n":"Kibana dashboards",
+"k":"tool"
+},
+{
+"n":"Grafana dashboards",
+"k":"tool"
+},
+{
+"n":"Excel Power Pivot",
+"k":"tool",
+"s":[
+"Power Pivot"
+]
+},
+{
+"n":"SharePoint",
+"k":"tool",
+"s":[
+"Microsoft SharePoint"
+]
+},
+{
+"n":"OneDrive",
+"k":"tool"
+},
+{
+"n":"Dropbox",
+"k":"tool"
+},
+{
+"n":"Google Drive",
+"k":"tool"
+},
+{
+"n":"Box",
+"k":"tool",
+"cs":[
+"Box"
+]
+},
+{
+"n":"Miro",
+"k":"tool",
+"cs":[
+"Miro"
+]
+},
+{
+"n":"Lucidchart",
+"k":"tool"
+},
+{
+"n":"Draw.io",
+"k":"tool",
+"s":[
+"diagrams.net"
+]
+},
+{
+"n":"Visio",
+"k":"tool",
+"s":[
+"Microsoft Visio"
+]
+},
+{
+"n":"Balsamiq",
+"k":"tool",
+"cs":[
+"Balsamiq"
+]
+},
+{
+"n":"Zeplin",
+"k":"tool"
+},
+{
+"n":"Framer",
+"k":"tool",
+"cs":[
+"Framer"
+]
+},
+{
+"n":"Principle",
+"k":"tool",
+"cs":[
+"Principle"
+]
+},
+{
+"n":"Procreate",
+"k":"tool",
+"cs":[
+"Procreate"
+]
+},
+{
+"n":"Krita",
+"k":"tool"
+},
+{
+"n":"GIMP",
+"k":"tool"
+},
+{
+"n":"Inkscape",
+"k":"tool"
+},
+{
+"n":"Audacity",
+"k":"tool"
+},
+{
+"n":"Adobe Audition",
+"k":"tool"
+},
+{
+"n":"OBS Studio",
+"k":"tool",
+"s":[
+"OBS"
+]
+},
+{
+"n":"Filmora",
+"k":"tool"
+},
+{
+"n":"CapCut",
+"k":"tool"
+},
+{
+"n":"VN editor",
+"k":"tool",
+"cs":[
+"VN"
+]
+},
+{
+"n":"KineMaster",
+"k":"tool"
+},
+{
+"n":"InShot",
+"k":"tool"
+},
+{
+"n":"Lightworks",
+"k":"tool"
+},
+{
+"n":"Avid Media Composer",
+"k":"tool",
+"cs":[
+"Avid"
+]
+},
+{
+"n":"Pro Tools",
+"k":"tool"
+},
+{
+"n":"FL Studio",
+"k":"tool"
+},
+{
+"n":"Ableton Live",
+"k":"tool",
+"cs":[
+"Ableton"
+]
+},
+{
+"n":"Logic Pro",
+"k":"tool"
+},
+{
+"n":"Unity Hub",
+"k":"tool"
+},
+{
+"n":"Godot",
+"k":"tool"
+},
+{
+"n":"GameMaker",
+"k":"tool"
+},
+{
+"n":"Roblox Studio",
+"k":"tool"
+},
+{
+"n":"Postgres pgAdmin",
+"k":"tool",
+"s":[
+"pgAdmin"
+]
+},
+{
+"n":"MySQL Workbench",
+"k":"tool"
+},
+{
+"n":"DBeaver",
+"k":"tool"
+},
+{
+"n":"SQL Developer",
+"k":"tool",
+"s":[
+"Oracle SQL Developer"
+]
+},
+{
+"n":"Toad",
+"k":"tool",
+"cs":[
+"Toad"
+]
+},
+{
+"n":"MongoDB Compass",
+"k":"tool"
+},
+{
+"n":"Redis Insight",
+"k":"tool"
+},
+{
+"n":"Robo 3T",
+"k":"tool"
+},
+{
+"n":"Insomnia",
+"k":"tool"
+},
+{
+"n":"Charles Proxy",
+"k":"tool"
+},
+{
+"n":"Fiddler",
+"k":"tool"
+},
+{
+"n":"BrowserStack",
+"k":"tool"
+},
+{
+"n":"Sauce Labs",
+"k":"tool"
+},
+{
+"n":"LambdaTest",
+"k":"tool"
+},
+{
+"n":"TestRail",
+"k":"tool"
+},
+{
+"n":"Zephyr",
+"k":"tool"
+},
+{
+"n":"qTest",
+"k":"tool"
+},
+{
+"n":"HP ALM",
+"k":"tool",
+"s":[
+"Quality Center",
+"ALM"
+]
+},
+{
+"n":"Bugzilla",
+"k":"tool"
+},
+{
+"n":"Mantis",
+"k":"tool",
+"s":[
+"MantisBT"
+],
+"cs":[
+"Mantis"
+]
+},
+{
+"n":"Redmine",
+"k":"tool"
+},
+{
+"n":"Basecamp",
+"k":"tool",
+"cs":[
+"Basecamp"
+]
+},
+{
+"n":"Wrike",
+"k":"tool"
+},
+{
+"n":"Smartsheet",
+"k":"tool"
+},
+{
+"n":"Zoho Projects",
+"k":"tool"
+},
+{
+"n":"Zoho People",
+"k":"tool"
+},
+{
+"n":"Zoho Recruit",
+"k":"tool"
+},
+{
+"n":"Zoho Desk",
+"k":"tool"
+},
+{
+"n":"Zoho Inventory",
+"k":"tool"
+},
+{
+"n":"Zoho Invoice",
+"k":"tool"
+},
+{
+"n":"Vyapar",
+"k":"tool"
+},
+{
+"n":"Khatabook",
+"k":"tool"
+},
+{
+"n":"myBillBook",
+"k":"tool"
+},
+{
+"n":"Busy Win",
+"k":"tool",
+"cs":[
+"Busy Win"
+]
+},
+{
+"n":"ClearTax",
+"k":"tool",
+"cs":[
+"Clear"
+]
+},
+{
+"n":"Winman",
+"k":"tool"
+},
+{
+"n":"Saral",
+"k":"tool"
+},
+{
+"n":"Computax",
+"k":"tool"
+},
+{
+"n":"Gen GST",
+"k":"tool"
+},
+{
+"n":"Spectrum",
+"k":"tool",
+"cs":[
+"Spectrum"
+]
+},
+{
+"n":"Tally.ERP",
+"k":"tool"
+},
+{
+"n":"Paytm for Business",
+"k":"tool"
+},
+{
+"n":"PhonePe Business",
+"k":"tool"
+},
+{
+"n":"Razorpay",
+"k":"tool"
+},
+{
+"n":"Cashfree",
+"k":"tool"
+},
+{
+"n":"PayU",
+"k":"tool"
+},
+{
+"n":"Instamojo",
+"k":"tool"
+},
+{
+"n":"Shiprocket",
+"k":"tool"
+},
+{
+"n":"Delhivery",
+"k":"tool"
+},
+{
+"n":"Unicommerce",
+"k":"tool"
+},
+{
+"n":"Easyecom",
+"k":"tool"
+},
+{
+"n":"Vinculum",
+"k":"tool"
+},
+{
+"n":"Swiggy partner app",
+"k":"tool",
+"s":[
+"Swiggy"
+]
+},
+{
+"n":"Zomato partner app",
+"k":"tool",
+"s":[
+"Zomato"
+]
+},
+{
+"n":"Dunzo",
+"k":"tool"
+},
+{
+"n":"Blinkit",
+"k":"tool"
+},
+{
+"n":"Zepto",
+"k":"tool",
+"cs":[
+"Zepto"
+]
+},
+{
+"n":"Uber driver app",
+"k":"tool"
+},
+{
+"n":"Ola driver app",
+"k":"tool"
+},
+{
+"n":"Rapido",
+"k":"tool"
+},
+{
+"n":"Porter",
+"k":"tool",
+"cs":[
+"Porter"
+]
+},
+{
+"n":"Urban Company",
+"k":"tool"
+},
+{
+"n":"Practo Ray",
+"k":"tool"
+},
+{
+"n":"Lybrate",
+"k":"tool"
+},
+{
+"n":"1mg",
+"k":"tool"
+},
+{
+"n":"PharmEasy",
+"k":"tool"
+},
+{
+"n":"Medlife",
+"k":"tool"
+},
+{
+"n":"Net banking",
+"k":"tool",
+"s":[
+"internet banking",
+"online banking",
+"netbanking"
+]
+},
+{
+"n":"BHIM",
+"k":"tool"
+},
+{
+"n":"Google Pay",
+"k":"tool",
+"s":[
+"GPay"
+]
+},
+{
+"n":"PhonePe",
+"k":"tool"
+},
+{
+"n":"Paytm",
+"k":"tool"
+}
+]
+}

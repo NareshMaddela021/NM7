@@ -1,0 +1,31 @@
+name: deploy-check
+
+# After each push to the deployed branch: ask Render to deploy (if a deploy hook is set) and wait until the
+# live API reports this exact commit at /version. Red = Render did not deploy this commit.
+# Optional repo secret RENDER_DEPLOY_HOOK_URL: Render → nm7-api → Settings → Deploy Hook.
+on:
+  push:
+    branches: ["claude/fervent-albattani-wqmaoq"]
+    paths: ["backend/**", ".github/workflows/deploy-check.yml"]
+  workflow_dispatch:
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Trigger the Render deploy hook
+        env:
+          HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -n "$HOOK" ]; then curl -fsS -X POST "$HOOK" >/dev/null && echo "Deploy hook called."; else echo "No RENDER_DEPLOY_HOOK_URL secret; relying on Render auto-deploy."; fi
+      - name: Wait for the API to run this commit
+        run: |
+          for i in $(seq 1 50); do
+            got=$(curl -fsS --max-time 60 https://nm7-api.onrender.com/version | sed -n 's/.*"commit":"\([^"]*\)".*/\1/p' || true)
+            echo "attempt $i: live commit ${got:-unreachable}"
+            if [ "$got" = "$GITHUB_SHA" ]; then echo "Render runs $GITHUB_SHA"; exit 0; fi
+            sleep 30
+          done
+          echo "::error::Render is not running $GITHUB_SHA after 25 minutes. Deploy it in the Render dashboard (Manual Deploy → Deploy latest commit)."
+          exit 1

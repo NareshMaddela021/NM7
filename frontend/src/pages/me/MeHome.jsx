@@ -5,8 +5,13 @@ import { useMe, activeResume, orderView, openInBuilder, APP_STAGES } from '../..
 import { useExpertOrders } from '../../lib/expertStore';
 import { atsScore } from '../../lib/atsScore';
 import { PLANS } from '../../lib/pricing';
+import { useJobProfile } from '../../lib/profileStore';
+import { profileCompleteness } from '../../lib/jobProfile';
 import { Kpi } from '../admin/AdminUI';
 import { ResumeThumb, downloadResume, countdown, templateName, ago } from './shared';
+import HealthCard from './HealthCard';
+import LinkedInCard from './LinkedInCard';
+import PassOffer, { PassActive } from '../../components/PassOffer';
 
 export default function MeHome() {
   const me = useMe();
@@ -22,11 +27,15 @@ export default function MeHome() {
   const first = me.account.name.split(' ')[0];
   const followUps = me.apps.filter((a) => a.status === 'applied' && Date.now() - a.date > 7 * 864e5 && !a.followed);
   const edit = () => { openInBuilder(r.id); nav('/builder', { state: { open: 'build' } }); };
-  const dl = async (f) => { await downloadResume(r.data, f); toast(f === 'pdf' ? 'PDF ready' : 'Word file ready'); };
+  const jp = useJobProfile();
+  const setUp = jp.available && jp.data && profileCompleteness(jp.data).pct < 40; // new users: the Job Profile first
+  const dl = async (f) => { if (await downloadResume(r.data, f)) toast(f === 'pdf' ? 'PDF ready' : 'Word file ready'); };
 
   return (
     <>
       <div className="stack g4"><span className="mono xs muted">MY DASHBOARD</span><h1 className="display" style={{ fontSize: 32 }}>Hi {first} 👋</h1></div>
+      <PassActive />
+      {typeof window !== 'undefined' && /[?&]pass=1/.test(window.location.search) && <PassOffer />}
 
       {next?.action ? (
         <div className="card-ink row between g16">
@@ -36,6 +45,11 @@ export default function MeHome() {
             {next.live && next.deadline && <span className="small" style={{ opacity: 0.8 }}>{countdown(next.deadline).late ? 'Past the deadline — an automatic refund starts if nothing arrives.' : `Delivery promise: ${countdown(next.deadline).text}`}</span>}
           </div>
           <Link to={next.action.to} className="btn btn-signal btn-lg">{next.action.cta}</Link>
+        </div>
+      ) : me.orders.length === 0 && score < 60 && setUp ? (
+        <div className="card-ink row between g16">
+          <div className="stack g4"><span className="mono" style={{ opacity: 0.75, fontSize: 12 }}>GET STARTED</span><strong style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 600 }}>Set up your Job Profile (3 min)</strong><span className="small" style={{ opacity: 0.8 }}>Fill it once — every resume and cover letter starts from it.</span></div>
+          <span className="row g8"><Link to="/me/profile" className="btn btn-signal btn-lg">Set up my Job Profile</Link><button type="button" className="btn btn-outline btn-lg" style={{ background: 'transparent', color: 'inherit' }} onClick={edit}>Open the builder</button></span>
         </div>
       ) : me.orders.length === 0 && score < 60 ? (
         <div className="card-ink row between g16">
@@ -49,6 +63,8 @@ export default function MeHome() {
         </div>
       )}
 
+      <HealthCard />
+
       <div className="kpis">
         <Kpi label="Resume ATS score" value={score} sub={score >= 80 ? 'Good — recruiters’ systems read it well' : 'Below 80 — see the tips'} tone={score >= 80 ? 'var(--success)' : 'var(--warning)'} />
         <Kpi label="Active order" value={live[0] ? live[0].id : '—'} sub={live[0] ? `${live[0].label} · ${countdown(live[0].deadline).text}` : 'No order in progress'} />
@@ -58,7 +74,7 @@ export default function MeHome() {
 
       <div className="row g16" style={{ alignItems: 'stretch' }}>
         <section className="card row g16" style={{ flex: '3 1 440px', alignItems: 'flex-start' }} aria-label="Current resume">
-          <ResumeThumb data={r.data} width={140} />
+          <ResumeThumb data={r.data} width={140} label={`Preview of ${r.name} resume`} />
           <div className="stack g8" style={{ flex: 1, minWidth: 200 }}>
             <span className="xs muted">CURRENT RESUME</span>
             <strong style={{ fontSize: 18 }}>{r.name}</strong>
@@ -92,6 +108,7 @@ export default function MeHome() {
           <div className="row g8">{APP_STAGES.map(([k, l]) => <span key={k} className="badge b-neutral">{l} · {me.apps.filter((a) => a.status === k).length}</span>)}</div>
           {followUps.length > 0 && <div className="well small">⏰ {followUps.length} application{followUps.length > 1 ? 's' : ''} sent over a week ago — time to follow up. <Link to="/me/jobs">See which</Link></div>}
         </section>
+        <LinkedInCard />
         <section className="card stack g12" style={{ flex: '1 1 300px' }} aria-label="Share link">
           <div className="row between"><strong>Share link</strong><Link to="/me/share" className="small">Settings →</Link></div>
           {me.share.on ? <><span className="small mono">nm7.si/r/{me.share.slug}</span><span className="small muted">Viewed <strong>{me.share.views.filter((t) => Date.now() - t < 7 * 864e5).length}</strong> times this week</span></> : <span className="small muted">Off — turn it on to share your resume as a link.</span>}

@@ -2,36 +2,119 @@
 // ATS checks, share link, support issues and referrals.
 // Preview: kept in this browser (localStorage). Live app: /api/me/* endpoints (one per block below).
 import { useSyncExternalStore } from 'react';
-import { INITIAL, migrateLinks } from '../pages/builder/schema';
+import { INITIAL, completeResume, emptyResume } from '../pages/builder/schema';
+import { isEmptyResume, stripSample } from './sampleData';
 import { TEMPLATE_PRESETS } from '../pages/builder/design';
 import { atsScore } from './atsScore';
-import { findOrder, updateOrder as updateExpertOrder, addExpertOrder } from './expertStore';
+import { findOrder, updateOrder as updateExpertOrder, addExpertOrder, reloadExpertOrders } from './expertStore';
+import { requestRefund } from '../services/api';
 import { PLANS, ADDONS, PROMISES } from './pricing';
-import { currentUser, draftKey, SAMPLE_USER_ID } from './auth';
+import { IMPORTED_DRAFTS_KEY, currentUser, draftKey, draftKeyFor, SAMPLE_USER_ID, onSignOut, updateUser } from './auth';
+import { LIVE, http, reportSaveError } from '../services/http';
+import * as live from './meLive';
+import { shareBody, shareFromApi } from './meLive';
+import { pendingDownload } from './downloads';
+import { announceResume } from './resumeChannel';
 
 // One store per signed-in customer. The sample customer (Sai Varsha) keeps the original key and sample data.
-const custId = () => (currentUser()?.role === 'customer' ? currentUser().id : SAMPLE_USER_ID);
+// Live app: no sample data and nothing personal in localStorage — the store is filled from the API.
+const custId = () => (currentUser()?.role === 'customer' ? currentUser().id : LIVE ? null : SAMPLE_USER_ID);
 const keyOf = (id) => (id === SAMPLE_USER_ID ? 'asuraa-me-v2' : `asuraa-me-v2:${id}`);
 const H = 3600 * 1000; const D = 24 * H;
 const uid = (p) => `${p}${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`;
 
 /** A blank resume with the person's own details (new accounts don't start from the sample). */
 export function blankResume(u = currentUser()) {
-  const d = structuredClone(INITIAL);
-  d.personal = { name: u?.name || '', headline: '', email: u?.email || '', phone: u?.phone || '', location: '', level: 'Fresher (0–1 yr)' };
-  Object.assign(d, { summary: '', exp: [], proj: [], certs: [], ach: [], custom: [], hobbies: '', strengths: '', langs: [{ name: 'English', level: 'Fluent' }] });
-  d.edu = [{ institution: '', degree: '', field: '', from: '', to: '', current: false, grade: '' }];
-  d.skillGroups = d.skillGroups.map((g) => ({ ...g, value: '' }));
-  d.pinfo = { father: '', mother: '', dob: '', gender: '', marital: '', nationality: 'Indian', languages: '', address: '' };
-  d.links = { linkedin: '', github: '', portfolio: '', twitter: '', stackoverflow: '', medium: '', resume: '' };
-  d.prefs = { ...d.prefs, locations: '' };
+  const d = emptyResume(); // truly empty: only the account's name, email and phone
+  d.personal = { ...d.personal, name: u?.name || '', email: u?.email || '', phone: u?.phone || '' };
   return d;
 }
 /** The starting resume for whoever is signed in (sample data only for guests and the sample customer). */
-export const defaultResume = () => (currentUser()?.role === 'customer' && currentUser().id !== SAMPLE_USER_ID ? blankResume() : structuredClone(INITIAL));
+export const defaultResume = () => (currentUser()?.role === 'customer' && currentUser().id === SAMPLE_USER_ID && !LIVE ? structuredClone(INITIAL) : currentUser()?.role === 'customer' ? blankResume() : emptyResume()); // the sample only for the preview build's demo customer
+/** "Name", or "Name (2)", "Name (3)"… so new resumes never share a name. */
+export const uniqueName = (name, resumes) => {
+  const taken = new Set((resumes || []).map((r) => r.name));
+  const base = name.slice(0, 54);
+  if (!taken.has(base)) return base;
+  for (let n = 2; ; n += 1) if (!taken.has(`${base} (${n})`)) return `${base} (${n})`;
+};
+/** Live: the resume built in this browser before signing in (not the untouched sample, unless the person clicked
+ * Download on it). It moves into the account once: the first resume of a new account, or a new resume next to
+ * the ones they already have (never over them). */
+function guestDraft() {
+  try {
+    const s = localStorage.getItem(draftKeyFor(null));
+    const d = s && stripSample(completeResume(JSON.parse(s))); // never carry the sample person into an account
+    return d && !isEmptyResume(d) ? d : null; // an empty draft, or one that only held the sample, is never imported
+  } catch { return null; }
+}
+const forgetGuestDraft = () => { try { localStorage.removeItem(draftKeyFor(null)); } catch { /* ignore */ } };
+
+/* A browser draft moves into an account at most once. Each import is noted in this browser (a fingerprint of the
+ * resume's text, kept through sign-outs; nothing personal): the same draft is never imported again (another tab, a
+ * reload, a second sign-in), a draft identical to a resume the account already has is not added, and after one
+ * import any later draft found in this browser is only offered ("Is it yours?"), never added by itself, unless the
+ * person clicked Download on it. */
+const CONTENT_KEYS = ['personal', 'summary', 'exp', 'edu', 'proj', 'certs', 'ach', 'langs', 'custom', 'skillGroups', 'hobbies', 'strengths', 'pinfo', 'links'];
+export function draftFingerprint(d) {
+  const c = completeResume(d || {});
+  const s = JSON.stringify(CONTENT_KEYS.map((k) => c[k] ?? null));
+  let h = 5381;
+  for (let i = 0; i < s.length; i += 1) h = ((h * 33) ^ s.charCodeAt(i)) >>> 0;
+  return `${h.toString(36)}.${s.length.toString(36)}`;
+}
+const importedDrafts = () => { try { return JSON.parse(localStorage.getItem(IMPORTED_DRAFTS_KEY) || '[]'); } catch { return []; } };
+const noteImported = (fp, add = true) => {
+  try {
+    const list = importedDrafts().filter((x) => x !== fp);
+    localStorage.setItem(IMPORTED_DRAFTS_KEY, JSON.stringify(add ? [...list, fp].slice(-20) : list));
+  } catch { /* storage blocked */ }
+};
+/** 'new' | 'seen' (imported from this browser before) | 'exists' (the account already has a resume with this text). */
+function draftStatus(d, resumes) {
+  const fp = draftFingerprint(d);
+  if (importedDrafts().includes(fp)) return 'seen';
+  if ((resumes || []).some((r) => r.data && draftFingerprint(r.data) === fp)) return 'exists';
+  return 'new';
+}
+const norm = (s) => (s || '').trim().toLowerCase().replace(/\s+/g, ' ');
+/** A guest draft is taken as this person's when it has no name, or their own name or email. */
+export function draftLooksMine(draft, account) {
+  const n = norm(draft?.personal?.name); const e = norm(draft?.personal?.email);
+  return (!n && !e) || (!!n && n === norm(account?.name)) || (!!e && e === norm(account?.email));
+}
+/** The draft found in this browser that may belong to someone else: add it to the account, or forget it. */
+export async function acceptGuestDraft() {
+  const s = get(); const d = s.pendingGuestDraft;
+  if (!d || !LIVE) return null;
+  const fp = draftFingerprint(d);
+  const same = (s.resumes || []).find((r) => r.data && draftFingerprint(r.data) === fp);
+  if (same || importedDrafts().includes(fp)) { // already in the account: open it instead of adding a copy
+    forgetGuestDraft(); noteImported(fp);
+    state = { ...get(), pendingGuestDraft: null };
+    notify();
+    return same?.id || activeResume(state)?.id || null;
+  }
+  const name = uniqueName(`${d.personal?.name?.trim() || 'My resume'} · from this browser · ${dayLabel()}`, s.resumes);
+  noteImported(fp); // claimed before the request, so another tab or a second load never adds it too
+  try {
+    const saved = await live.createResume({ id: uid('r'), name, active: true, data: d, jd: '', versions: [] });
+    forgetGuestDraft();
+    state = { ...get(), resumes: [...get().resumes.map((r) => ({ ...r, active: false })), saved], pendingGuestDraft: null };
+    notify();
+    return saved.id;
+  } catch (e) { noteImported(fp, false); reportSaveError(e); return null; }
+}
+export function discardGuestDraft() {
+  forgetGuestDraft();
+  state = { ...get(), pendingGuestDraft: null };
+  notify();
+}
+const dayLabel = () => new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
 const builderDraft = () => {
-  try { const s = localStorage.getItem(draftKey()); if (s) return migrateLinks({ ...INITIAL, ...JSON.parse(s) }); } catch { /* ignore */ }
-  return migrateLinks(defaultResume());
+  if (LIVE && currentUser()?.role === 'customer') { const a = state && !state.loading ? activeResume(state) : null; return a ? a.data : blankResume(); }
+  try { const s = localStorage.getItem(draftKey()); if (s) return stripSample(completeResume(JSON.parse(s))); } catch { /* ignore */ }
+  return completeResume(defaultResume());
 };
 function blankSeed(u) {
   const t = Date.now();
@@ -85,9 +168,10 @@ function seed() {
       { id: 'a5', company: 'Freshworks', role: 'Product Analyst', status: 'rejected', date: t - 20 * D, resumeId: 'r2', url: '', notes: 'Needed 1+ year experience.' },
       { id: 'a6', company: 'Tiger Analytics', role: 'Junior Analyst', status: 'applied', date: t - 16 * D, resumeId: 'r1', url: '', notes: '' },
     ],
-    share: { on: true, slug: 'sai-varsha', resumeId: 'r1', views: [1, 1, 2, 3, 3, 4, 5, 5, 6, 6, 6, 9, 13].map((dd) => t - dd * D + 3 * H) },
+    share: { on: true, slug: 'sai-varsha', short: 'k7m2qa', resumeId: 'r1', views: [1, 1, 2, 3, 3, 4, 5, 5, 6, 6, 6, 9, 13].map((dd) => t - dd * D + 3 * H) },
     issues: [{ id: 'T-204', topic: 'Payment', text: 'Charged twice for the DIY plan?', at: t - 39 * D, status: 'resolved', reply: 'Only one charge went through — the second was a bank hold that dropped in 2 days.' }],
-    referrals: [{ name: 'Kiran', at: t - 15 * D, status: 'joined' }, { name: 'Meena', at: t - 4 * D, status: 'bought' }],
+    referrals: [{ name: 'Kiran', at: t - 15 * D, status: 'joined', counts: true }, { name: 'Meena', at: t - 4 * D, status: 'bought', counts: true }],
+    referralReward: { on: true, needed: 3, counted: 2, unlocked: false, revoked: false, at: null },
     calls: { picked: null, notes: '' },
   };
 }
@@ -102,27 +186,158 @@ const load = (id) => {
   s.checks = s.checks.map((c) => ({ ...c, score: atsScore(c.data).score, data: undefined }));
   return s;
 };
-const get = () => { const id = custId(); if (!state || stateFor !== id) { state = load(id); stateFor = id; } return state; };
-const emit = () => { try { localStorage.setItem(keyOf(stateFor), JSON.stringify(state)); } catch { /* ignore */ } subs.forEach((f) => f()); };
+const notify = () => subs.forEach((f) => f());
+
+/* live: load from the API for this customer; ignore answers that arrive after they signed out or switched */
+async function loadLive(id) {
+  try {
+    const s = await live.fetchState();
+    if (stateFor !== id) return;
+    const downloading = !!pendingDownload(); // they clicked Download on this draft and signed in to get it
+    let carried = guestDraft();
+    const status = carried ? draftStatus(carried, s.resumes) : 'new';
+    if (status !== 'new') { forgetGuestDraft(); carried = null; } // already imported, or already in the account
+    const firstImport = !importedDrafts().length; // after one import in this browser, later drafts are only offered
+    const fp = carried && draftFingerprint(carried);
+    // The draft built in this browser before signing in moves into the account only when it is clearly this
+    // person's: the one they just asked to download, or a draft without a name or with their own name. On a shared
+    // phone the draft may be someone else's, so otherwise it is offered (see pendingGuestDraft) and never added
+    // silently — and never over a resume they already have.
+    const mine = carried && (downloading || (firstImport && draftLooksMine(carried, s.account)));
+    if (mine) noteImported(fp); // claimed first: a second tab or a reload that reads the same draft skips it
+    let imported = false;
+    if (!s.resumes.length) {
+      // first visit: start from the resume they built before signing in (if it is theirs), else a blank one
+      const r = { id: uid('r'), name: 'My resume', active: true, data: mine ? carried : blankResume(), jd: '', versions: [] };
+      let saved;
+      try { saved = await live.createResume(r); } catch (e) { if (mine) noteImported(fp, false); throw e; }
+      if (stateFor !== id) return;
+      s.resumes = [saved];
+      if (mine) { forgetGuestDraft(); imported = true; }
+    } else if (mine) {
+      // an account that already has resumes: the draft becomes a new one next to them (opened in the builder)
+      const name = uniqueName(`${carried.personal?.name?.trim() || 'My resume'} · from this browser · ${dayLabel()}`, s.resumes);
+      try {
+        const saved = await live.createResume({ id: uid('r'), name, active: true, data: carried, jd: '', versions: [] });
+        if (stateFor !== id) return;
+        s.resumes = [...s.resumes.map((r) => ({ ...r, active: false })), saved];
+        forgetGuestDraft(); imported = true;
+      } catch { noteImported(fp, false); /* e.g. the resume limit: the draft stays in this browser and is offered below */ }
+    }
+    if (carried && !imported) s.pendingGuestDraft = carried; // ask first
+    state = s;
+  } catch (e) {
+    if (stateFor !== id) return;
+    state = { ...state, error: e.message || 'We couldn’t load your dashboard.' };
+  }
+  notify();
+}
+live.setErrorHandler((e) => {
+  if (!stateFor) return;
+  reportSaveError(e);
+  // only when the server holds something newer or the resume is gone: a network blip must not replace what the
+  // person is typing with an older copy (the save itself is retried in meLive)
+  if (e?.status === 404) loadLive(stateFor);
+  if (e?.status === 409) { // saved in another tab or device: reload the latest copy, then let the builder ask
+    const id = stateFor;
+    loadLive(id).then(() => {
+      if (stateFor !== id) return;
+      live.clearSaveError();
+      state = { ...state, conflict: (state.conflict || 0) + 1 };
+      notify();
+    });
+  }
+});
+// the tab is closed or hidden with saves still waiting: send them with keepalive
+try {
+  if (LIVE) window.addEventListener('pagehide', () => { if (stateFor) live.flushKeepalive(); });
+  if (LIVE) document.addEventListener('visibilitychange', () => { if (stateFor && document.visibilityState === 'hidden') live.flushKeepalive(); });
+} catch { /* no window */ }
+
+const get = () => {
+  const id = custId();
+  if (!state || stateFor !== id) {
+    stateFor = id;
+    if (LIVE) {
+      state = live.emptyState(currentUser());
+      if (id) loadLive(id); else state = { ...state, loading: false };
+    } else state = load(id);
+  }
+  return state;
+};
+const emit = () => { if (!LIVE) { try { localStorage.setItem(keyOf(stateFor), JSON.stringify(state)); } catch { /* ignore */ } } notify(); };
+/** Every change goes through here: saved in this browser (preview) or sent to the API (live). */
+function commit(next) {
+  const prev = get();
+  state = next;
+  emit();
+  if (LIVE && stateFor && !prev.loading) live.persist(prev, next);
+}
 export const useMe = () => useSyncExternalStore((f) => { subs.add(f); return () => subs.delete(f); }, get);
 export const getMe = get;
-export function setMe(fn) { state = { ...get(), ...fn(get()) }; emit(); }
+export function setMe(fn) { const cur = get(); commit({ ...cur, ...fn(cur) }); }
 export function resetMe() { const id = custId(); state = null; try { localStorage.removeItem(keyOf(id)); localStorage.removeItem(draftKey()); } catch { /* ignore */ } get(); emit(); }
+/** Live: reload everything from the server (after a payment or refund). */
+export function reloadMe() { if (LIVE && stateFor) { if (state?.loading) { state = { ...state, error: null }; notify(); } loadLive(stateFor); } }
+/** Sign-out / account switch: forget everything in memory and send any unsaved resume edits first. */
+export async function forgetMe() {
+  if (LIVE) await live.flush();
+  state = null; stateFor = null;
+  notify();
+}
+onSignOut(forgetMe);
+/** Profile & settings → Save. Live: saved on the server first (the email can't be changed here). */
+export async function saveProfile(account) {
+  if (!LIVE) { setMe(() => ({ account })); return; }
+  const p = await http('/api/me/profile', { method: 'PATCH', body: { name: account.name, phone: account.phone || null, targetRole: account.targetRole || '', cities: account.cities || '', level: account.level || '' } });
+  state = { ...get(), account: { ...get().account, name: p.name, phone: p.phone || '', targetRole: p.targetRole, cities: p.cities, level: p.level } };
+  notify();
+  updateUser(currentUser().id, { name: p.name, phone: p.phone || '' });
+}
+/** Share link settings. Live: saved on the server first (a link name can be taken by someone else). */
+const previewShort = () => Array.from({ length: 6 }, () => '23456789abcdefghjkmnpqrstuvwxyz'[Math.floor(Math.random() * 31)]).join('');
+export async function saveShare(patch) {
+  const next = { ...get().share, ...patch };
+  if (!next.resumeId) next.resumeId = activeResume()?.id || null;
+  if (!LIVE) { if (next.on && !next.short) next.short = previewShort(); setMe(() => ({ share: next })); return; }
+  const before = get().share;
+  state = { ...get(), share: next }; notify(); // shown at once; put back if the server says no
+  let r;
+  try { r = await http('/api/me/share', { method: 'PUT', body: shareBody(next) }); } catch (e) { state = { ...get(), share: before }; notify(); throw e; }
+  state = { ...get(), share: shareFromApi(r) };
+  notify();
+}
+/** Live: a support ticket (saved and emailed by the server); preview: kept in this browser. */
+export async function raiseIssue({ topic, order, text }) {
+  if (!LIVE) { const t = { id: `T-${String(Date.now()).slice(-3)}`, topic, order, text, at: Date.now(), status: 'open' }; setMe((s) => ({ issues: [t, ...s.issues] })); return t; }
+  const t = await live.sendTicket({ topic, order, text });
+  state = { ...get(), issues: [t, ...get().issues] }; notify();
+  return t;
+}
 
 /* ---------- resumes ---------- */
 export const activeResume = (s = get()) => s.resumes.find((r) => r.active) || s.resumes[0];
 
 /** The builder keeps editing the active resume. Called by the builder on every save and when the dashboard opens. */
+/** Version snapshots leave the photo out (it is kept on the resume itself): 20 copies of it would not fit. */
+export const withoutPhoto = (data) => { if (!data?.photo) return data; const { photo: _photo, ...rest } = data; return rest; };
 export function syncFromBuilder(data) {
   const s = get(); const a = activeResume(s);
-  if (!a) return;
+  if (!a || s.loading) return;
   const d = data || builderDraft();
   if (JSON.stringify(d) === JSON.stringify(a.data)) return;
   const last = a.versions[a.versions.length - 1];
   // keep an automatic snapshot at most every 30 minutes (up to 20)
-  const versions = !last || Date.now() - last.at > 30 * 60 * 1000 ? [...a.versions, { at: Date.now(), label: 'Auto-saved', data: a.data }].slice(-20) : a.versions;
-  state = { ...s, resumes: s.resumes.map((r) => (r.id === a.id ? { ...r, data: d, updated: Date.now(), versions } : r)) };
-  emit();
+  const versions = !last || Date.now() - last.at > 30 * 60 * 1000 ? [...a.versions, { at: Date.now(), label: 'Auto-saved', data: withoutPhoto(a.data) }].slice(-20) : a.versions;
+  commit({ ...s, resumes: s.resumes.map((r) => (r.id === a.id ? { ...r, data: d, updated: Date.now(), versions } : r)) });
+  announceResume(a.id, d); // an open Templates tab shows the edit
+}
+
+/** The builder's measured page count for the active resume (live accounts: shown to organizations it's shared with). */
+export function setResumePages(n) {
+  const s = get(); const a = activeResume(s);
+  if (!LIVE || !a || s.loading || !n || a.pages === n) return;
+  commit({ ...s, resumes: s.resumes.map((r) => (r.id === a.id ? { ...r, pages: n } : r)) });
 }
 
 /** Make a resume the one the builder edits. */
@@ -130,9 +345,8 @@ export function openInBuilder(id) {
   syncFromBuilder();
   const s = get(); const r = s.resumes.find((x) => x.id === id);
   if (!r) return;
-  try { localStorage.setItem(draftKey(), JSON.stringify(r.data)); } catch { /* ignore */ }
-  state = { ...s, resumes: s.resumes.map((x) => ({ ...x, active: x.id === id })) };
-  emit();
+  if (!LIVE) { try { localStorage.setItem(draftKey(), JSON.stringify(r.data)); } catch { /* ignore */ } }
+  commit({ ...s, resumes: s.resumes.map((x) => ({ ...x, active: x.id === id })) });
 }
 
 export function addResume(name, data, extra = {}) {
@@ -155,14 +369,15 @@ export function setResumeData(id, data) {
   const r = get().resumes.find((x) => x.id === id);
   if (!r) return;
   updateResume(id, { data });
-  if (r.active) { try { localStorage.setItem(draftKey(), JSON.stringify(data)); } catch { /* ignore */ } }
+  if (r.active && !LIVE) { try { localStorage.setItem(draftKey(), JSON.stringify(data)); } catch { /* ignore */ } }
 }
 export function restoreVersion(id, data) {
   syncFromBuilder();
   const r = get().resumes.find((x) => x.id === id);
   if (!r) return;
-  updateResume(id, { data: structuredClone(data), versions: [...r.versions, { at: Date.now(), label: 'Before restore', data: r.data }].slice(-20) });
-  if (r.active) { try { localStorage.setItem(draftKey(), JSON.stringify(data)); } catch { /* ignore */ } }
+  const photo = r.data?.photo ? { photo: r.data.photo } : {}; // snapshots have no photo: keep the current one
+  updateResume(id, { data: { ...structuredClone(data), ...photo }, versions: [...r.versions, { at: Date.now(), label: 'Before restore', data: withoutPhoto(r.data) }].slice(-20) });
+  if (r.active && !LIVE) { try { localStorage.setItem(draftKey(), JSON.stringify(data)); } catch { /* ignore */ } }
 }
 
 /** Expert drafts that belong to a resume (from the linked expert order). */
@@ -177,10 +392,12 @@ export const retentionLeft = (deliveredAt) => (deliveredAt ? Math.ceil((delivere
 const STAGES = ['Paid', 'Expert assigned', 'Intake done', 'Draft 1', 'Changes', 'Final', 'Approved'];
 /** Merges the customer's order record with the live expert order (status, drafts, deadline, chat). */
 export function orderView(o) {
+  if (o.awaiting) return { ...o, x: null, label: 'Waiting for payment confirmation', tone: 'warning', steps: [], live: false };
+  if (o.waCancelled) return { ...o, x: null, label: 'Cancelled', tone: 'neutral', steps: [], live: false };
   const x = o.linked ? findOrder(o.id) : null;
   if (o.refund && x) return { ...o, x, sent: [], label: 'Refunded', tone: 'neutral', steps: [], live: false };
   if (!x) {
-    const label = o.status === 'refunded' ? 'Refunded' : o.plan === 'diy' ? 'Unlocked' : 'Done';
+    const label = o.status === 'refunded' ? 'Refunded' : o.plan === 'diy' || o.plan === 'linkedin_pack' ? 'Unlocked' : 'Done';
     return { ...o, x: null, label, tone: o.status === 'refunded' ? 'neutral' : 'success', steps: [], live: false };
   }
   const sent = (x.versions || []).filter((v) => v.data && v.sent);
@@ -224,8 +441,9 @@ export function upgradeOrder(orderId, to) {
 export function payments(s = get()) {
   const rows = [];
   s.orders.forEach((o) => {
+    if (!o.paidAt) return; // a WhatsApp order still waiting for payment
     const basePrice = o.price - (o.upgrades || []).reduce((t, u) => t + u.price, 0);
-    rows.push({ at: o.paidAt, what: `${PLANS[(o.upgrades?.[0]?.from) || o.plan].name} · ${o.id}`, amount: basePrice, method: o.method, payId: o.payId, invoice: o.invoice, orderId: o.id, kind: 'payment' });
+    rows.push({ at: o.paidAt, what: `${PLANS[(o.upgrades?.[0]?.from) || o.plan].name} · ${o.id}`, amount: basePrice, method: o.method, payId: o.payId, invoice: o.invoice || o.receipt, receipt: !o.invoice && !!o.receipt, orderId: o.id, kind: 'payment' });
     (o.upgrades || []).forEach((u) => rows.push({ at: u.at, what: `Upgrade to ${PLANS[u.to].name} · ${o.id}`, amount: u.price, method: o.method, payId: u.payId, invoice: `${o.invoice}-U`, orderId: o.id, kind: 'payment' }));
     (o.addons || []).forEach((a, i) => rows.push({ at: a.at, what: `${ADDONS[a.id].name} · ${o.id}`, amount: a.price, method: o.method, payId: a.payId, invoice: `${o.invoice}-A${i + 1}`, orderId: o.id, kind: 'payment' }));
     if (o.refund) rows.push({ at: o.refund.at, what: `Refund · ${o.id} · ${o.refund.reason}`, amount: -o.refund.amount, method: o.method, payId: o.refund.ref, orderId: o.id, kind: 'refund', done: o.refund.done });
@@ -246,25 +464,31 @@ export function markSeen(orderId) { setMe((s) => ({ seen: { ...(s.seen || {}), [
 /* ---------- placing an order and asking for a refund ---------- */
 let nextNo = 1130;
 /** Called after a successful payment at checkout. Creates the customer's order and the offer experts see. */
-export function placeOrder({ plan, role, method }) {
+/** Live app: pass the server's order id, invoice number and Razorpay payment id. */
+export function placeOrder({ plan, role, method, id: serverId, invoice: serverInvoice, payId: serverPayId }) {
+  if (LIVE) { reloadMe(); reloadExpertOrders(); return serverId; } // the server already has it
   const s = get(); const u = currentUser();
   const used = new Set(s.orders.map((o) => o.id));
-  let id; do { id = `RS-${nextNo++}`; } while (used.has(id) || findOrder(id));
+  let id = serverId;
+  if (!id) do { id = `RS-${nextNo++}`; } while (used.has(id) || findOrder(id));
   const a = activeResume(s);
   const t = Date.now();
   const yy = new Date().getFullYear() % 100; const fy = new Date().getMonth() >= 3 ? `${yy}-${yy + 1}` : `${yy - 1}-${yy}`;
-  setMe((x) => ({ orders: [{ id, plan, price: PLANS[plan].price, paidAt: t, method, payId: uid('pay_'), invoice: `NM7/${fy}/${id.slice(3)}`, addons: [], linked: true, resumeId: a.id }, ...x.orders] }));
+  const invoice = serverInvoice || `NM7/${fy}/${id.slice(3)}`;
+  setMe((x) => ({ orders: [{ id, plan, price: PLANS[plan].price, paidAt: t, method, payId: serverPayId || uid('pay_'), invoice, addons: [], linked: true, resumeId: a.id }, ...x.orders.filter((o) => o.id !== id)] }));
   addExpertOrder({ id, customer: u?.name || s.account.name, customerId: u?.id || SAMPLE_USER_ID, plan, price: PLANS[plan].price, role: role || s.account.targetRole || 'Not set', domain: '', level: s.account.level || 'Fresher', createdAt: t, deadline: t + PROMISES.deliveryHours * H, status: 'offer', offerExpires: t + 30 * 60 * 1000, intake: {}, jd: '', original: a.data, versions: [], comments: [], messages: [], linkedin: null, call: null, rating: null });
   return id;
 }
 /** Late → refunded at once; otherwise our team reviews it within 24 hours (it shows in the admin support inbox). */
-export function askRefund(orderId, { reason, details }) {
+/** `decided` (live app) is the server's answer { ref, autoApproved, amount }; without it the browser decides. */
+export function askRefund(orderId, { reason, details }, decided = null) {
+  if (LIVE) { reloadMe(); reloadExpertOrders(); return decided; } // the server decided and saved it
   const o = get().orders.find((x) => x.id === orderId);
   if (!o) return null;
   const x = findOrder(orderId);
-  const late = !!x && x.deadline < Date.now() && !(x.versions || []).some((v) => v.sent);
-  const ref = `RF-${String(Date.now()).slice(-5)}`;
-  const total = o.price + o.addons.reduce((t, a) => t + a.price, 0);
+  const late = decided ? decided.autoApproved : !!x && x.deadline < Date.now() && !(x.versions || []).some((v) => v.sent);
+  const ref = decided?.ref || `RF-${String(Date.now()).slice(-5)}`;
+  const total = decided?.amount ?? o.price + o.addons.reduce((t, a) => t + a.price, 0);
   if (late) {
     setMe((s) => ({ orders: s.orders.map((y) => (y.id === orderId ? { ...y, status: 'refunded', refund: { amount: total, reason: 'Late delivery — automatic refund', at: Date.now(), done: null, ref } } : y)) }));
     if (x) updateExpertOrder(orderId, (y) => ({ status: 'cancelled', messages: [...(y.messages || []), { from: 'system', text: 'Order refunded — delivery was late.', at: Date.now() }] }));
@@ -314,6 +538,7 @@ export function decideRefund(key, orderId, approve, reply) {
 
 /** Cancel before an expert accepts → full refund at once. */
 export function cancelOrder(orderId) {
+  if (LIVE) return requestRefund(orderId, { reason: 'cancel', details: '' }).then(() => { reloadMe(); reloadExpertOrders(); return true; });
   const o = get().orders.find((x) => x.id === orderId); const x = findOrder(orderId);
   if (!o || !x || x.status !== 'offer') return false;
   const total = o.price + o.addons.reduce((t, a) => t + a.price, 0);

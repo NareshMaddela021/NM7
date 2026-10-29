@@ -1,5 +1,5 @@
 // Puts reviewed import results into the builder draft — either replacing it or adding to it.
-import { DEFAULT_SKILL_GROUPS, DECL_TEXT, INITIAL, splitSkills } from '../../pages/builder/schema';
+import { emptyResume, splitSkills } from '../../pages/builder/schema';
 
 const LIST_KEYS = ['exp', 'edu', 'proj', 'certs', 'ach', 'langs'];
 const strip = (o) => { const { _conf, _why, _on, _open, ...rest } = o; return rest; };
@@ -13,17 +13,9 @@ const KEY = {
   langs: (l) => low(l.name),
 };
 
-/** An empty profile that keeps the user's design and job preferences. */
+/** An empty profile that keeps the user's design. */
 function blankFrom(d) {
-  return {
-    ...INITIAL,
-    personal: { name: '', headline: '', email: '', phone: '', location: '', level: '' },
-    summary: '', exp: [], edu: [], proj: [], certs: [], ach: [], langs: [], custom: [],
-    skillGroups: DEFAULT_SKILL_GROUPS.map((g) => ({ id: g.id, label: g.label, value: '' })),
-    links: Object.fromEntries(Object.keys(INITIAL.links).map((k) => [k, ''])),
-    hobbies: '', strengths: '', pinfo: { ...Object.fromEntries(Object.keys(INITIAL.pinfo).map((k) => [k, ''])), nationality: '' }, decl: { text: DECL_TEXT, place: '', date: '', name: '' },
-    prefs: d.prefs, design: d.design, linkStyle: d.linkStyle, hidden: { ...INITIAL.hidden }, order: null, titles: {},
-  };
+  return { ...emptyResume(), design: d.design, linkStyle: d.linkStyle || 'icon' };
 }
 
 /**

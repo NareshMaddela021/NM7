@@ -1,8 +1,8 @@
 // Small pieces shared by the dashboard pages.
 import { jsPDF } from 'jspdf';
 import ResumePreview from '../builder/ResumePreview';
-import { buildResumePdf, savePdf } from '../builder/resumePdf';
-import { buildDocx } from '../builder/resumeDocx';
+import { savePdf } from '../builder/resumePdf';
+import { DownloadBlocked, exportFile } from '../../lib/downloads';
 import { DEFAULT_DESIGN, TEMPLATE_PRESETS } from '../builder/design';
 import { INVOICE, gstSplit } from '../../lib/pricing';
 
@@ -11,22 +11,26 @@ export const templateName = (d) => TEMPLATE_PRESETS[d.design?.preset || 'fresher
 export const fmtDay = (t) => new Date(t).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 export const fmtShort = (t) => new Date(t).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
 export const fmtWhen = (t) => new Date(t).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
-export const ago = (t) => { const m = (Date.now() - t) / 60000; return m < 60 ? `${Math.max(1, Math.round(m))} min ago` : m < 1440 ? `${Math.round(m / 60)} h ago` : `${Math.round(m / 1440)} d ago`; };
+export { ago } from '../../lib/text';
 
 /** A small, non-interactive picture of the resume's first page. */
 export function ResumeThumb({ data, width = 150, label }) {
   return (
-    <div className="thumb" style={{ width, height: Math.round(width * 1.414), flex: 'none' }} role="img" aria-label={label || `Preview of ${data.personal?.name || 'resume'}`}>
-      <div style={{ width, pointerEvents: 'none' }} aria-hidden="true"><ResumePreview data={data} design={designOf(data)} /></div>
+    <div className="thumb" style={{ width, height: Math.round(width * 1.414), flex: 'none' }} role="img" aria-label={label || `Preview of ${data.personal?.name ? `${data.personal.name}’s` : 'your'} resume`}>
+      <div style={{ width, pointerEvents: 'none' }} aria-hidden="true"><ResumePreview data={data} design={designOf(data)} decorative /></div>
     </div>
   );
 }
 
-export async function downloadResume(data, format = 'pdf', cover) {
-  const ds = designOf(data);
-  const blob = format === 'docx' ? await buildDocx({ data, design: ds, cover }) : await buildResumePdf({ data, design: ds, cover });
-  const name = `${(data.personal?.name || 'Resume').trim().replace(/\s+/g, '_')}_${cover ? 'Cover_Letter' : 'Resume'}.${format}`;
-  await savePdf(blob, name);
+/** PDF / Word download (only once the server allows it — see lib/downloads). True when a file was saved. */
+export async function downloadResume(data, format = 'pdf', cover, share, resumeId) {
+  try {
+    await exportFile({ data, design: designOf(data), format, cover, share, resumeId });
+    return true;
+  } catch (e) {
+    if (e instanceof DownloadBlocked || e?.code === 'declined') return false;
+    throw e;
+  }
 }
 
 /** Time left to a deadline, in whole minutes (never "60m"). */
@@ -36,8 +40,32 @@ export function countdown(deadline) {
   return { late: false, text: mins < 60 ? `${mins} min left` : `${Math.floor(mins / 60)}h ${mins % 60}m left`, hours: mins / 60 };
 }
 
-/** A GST invoice as a PDF (Helvetica — "Rs." because the built-in PDF font has no ₹ sign). */
-export async function invoicePdf({ no, at, name, email, item, amount, payId, method }) {
+/**
+ * A payment receipt for a WhatsApp payment made before Nm7's business details are set: from "Nm7" only, no company
+ * name, no GSTIN and no GST lines (it is not a tax invoice).
+ */
+async function receiptPdf({ no, at, name, email, item, amount, method }) {
+  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+  const rs = (n) => `Rs. ${n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const L = 56; let y = 70;
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(20); doc.text('Payment receipt', L, y);
+  doc.setFontSize(11); doc.text('Nm7', 540, y, { align: 'right' });
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
+  y += 48;
+  [['Receipt no.', no], ['Date', fmtDay(at)], ['Received from', `${name} · ${email}`], ['Payment', method || '—']].forEach(([k, v]) => { doc.setTextColor(110); doc.text(k, L, y); doc.setTextColor(20); doc.text(String(v), L + 90, y); y += 18; });
+  y += 18; doc.setDrawColor(200); doc.line(L, y, 540, y); y += 20;
+  doc.setFont('helvetica', 'bold'); doc.text('Description', L, y); doc.text('Amount', 540, y, { align: 'right' }); doc.setFont('helvetica', 'normal');
+  y += 22; doc.text(item, L, y, { maxWidth: 290 }); doc.text(rs(amount), 540, y, { align: 'right' });
+  y += 30; doc.line(L, y, 540, y); y += 20;
+  doc.setFont('helvetica', 'bold'); doc.text('Total received', 360, y + 4); doc.text(rs(amount), 540, y + 4, { align: 'right' });
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(120);
+  doc.text('This is a payment receipt, not a GST invoice. It is computer-generated and needs no signature.', L, 780);
+  await savePdf(doc.output('blob'), `Receipt_${no.replace(/\//g, '-')}.pdf`);
+}
+
+/** A GST invoice as a PDF (Helvetica — "Rs." because the built-in PDF font has no ₹ sign). `receipt`: a receipt instead. */
+export async function invoicePdf({ no, at, name, email, item, amount, payId, method, receipt }) {
+  if (receipt) return receiptPdf({ no, at, name, email, item, amount, method });
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
   const rs = (n) => `Rs. ${n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const { taxable, gst } = gstSplit(amount);
@@ -45,11 +73,11 @@ export async function invoicePdf({ no, at, name, email, item, amount, payId, met
   doc.setFont('helvetica', 'bold'); doc.setFontSize(20); doc.text('Tax invoice', L, y);
   doc.setFontSize(11); doc.text(`${INVOICE.company} · ${INVOICE.brand}`, 540, y, { align: 'right' });
   doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
-  y += 18; doc.text(`GSTIN: ${INVOICE.gstin || '[to be added]'}`, 540, y, { align: 'right' });
+  if (INVOICE.gstin) { y += 18; doc.text(`GSTIN: ${INVOICE.gstin}`, 540, y, { align: 'right' }); }
   y += 30;
   [['Invoice no.', no], ['Date', fmtDay(at)], ['Billed to', `${name} · ${email}`], ['Payment', `${method} · ${payId} (Razorpay)`]].forEach(([k, v]) => { doc.setTextColor(110); doc.text(k, L, y); doc.setTextColor(20); doc.text(String(v), L + 90, y); y += 18; });
   y += 18; doc.setDrawColor(200); doc.line(L, y, 540, y); y += 20;
-  doc.setFont('helvetica', 'bold'); doc.text('Description', L, y); doc.text(`SAC ${INVOICE.sacCode || '—'}`, 360, y); doc.text('Amount', 540, y, { align: 'right' }); doc.setFont('helvetica', 'normal');
+  doc.setFont('helvetica', 'bold'); doc.text('Description', L, y); if (INVOICE.sacCode) doc.text(`SAC ${INVOICE.sacCode}`, 360, y); doc.text('Amount', 540, y, { align: 'right' }); doc.setFont('helvetica', 'normal');
   y += 22; doc.text(item, L, y, { maxWidth: 290 }); doc.text(rs(taxable), 540, y, { align: 'right' });
   y += 30; doc.line(L, y, 540, y); y += 20;
   [['Taxable value', rs(taxable)], [`GST @ ${INVOICE.gstPct}%`, rs(gst)]].forEach(([k, v]) => { doc.text(k, 360, y); doc.text(v, 540, y, { align: 'right' }); y += 18; });

@@ -6,10 +6,12 @@ import Header from '../../components/Header';
 import { Icon, Meter, useToast } from '../../components/ui';
 import PhotoEditor, { DEFAULT_ADJ } from '../builder/PhotoEditor';
 import { Logo } from '../builder/LinksEditor';
-import { getAsuraaAiProfile, sendAsuraaAiCode, verifyAsuraaAiCode, submitExpertProfile } from '../../services/api';
+import { getAsuraaAiProfile, sendAsuraaAiCode, verifyAsuraaAiCode, submitExpertProfile, ASURAA_AI_LINK } from '../../services/api';
+import { LIVE } from '../../services/http';
+import { Spinner } from '../../components/ui';
 import { PLANS, expertPayout, inr, FEES, PROMISES } from '../../lib/pricing';
 import {
-  BLANK, DOMAINS, LEVELS, LANGS, STATUS, loadExpert, saveExpert, clearExpert, fromAsuraaAi, fromDocument, suggestDomains,
+  BLANK, DOMAINS, LEVELS, LANGS, STATUS, loadExpert, saveExpert, clearExpert, useExpertReady, submitExpert, fromAsuraaAi, fromDocument, suggestDomains,
   expertIssues, expertStrength, payoutError, PAN_RE,
 } from '../../lib/expert';
 
@@ -50,15 +52,15 @@ function Start({ onAi, onDoc, onFresh, busy, error }) {
         <p className="lead">Rewrite resumes for freshers and early-career job seekers, delivered in {PROMISES.delivery}. Start from what you already have — no need to type it all again.</p>
       </div>
       <div className="grid-auto g16" style={{ '--min': '280px' }}>
-        <button type="button" className="card stack g8 btn" onClick={onAi} style={{ textAlign: 'left', alignItems: 'flex-start', whiteSpace: 'normal', height: 'auto', padding: 24, border: '2px solid var(--ink)' }}>
+        {ASURAA_AI_LINK && <button type="button" className="card stack g8 btn" onClick={onAi} style={{ textAlign: 'left', alignItems: 'flex-start', whiteSpace: 'normal', height: 'auto', padding: 24, border: '2px solid var(--ink)' }}>
           <span className="badge b-signal">Already on asuraa.ai? · Fastest</span>
           <strong className="display" style={{ fontSize: 22 }}>Use my asuraa.ai profile link</strong>
           <span className="muted" style={{ fontWeight: 400 }}>Paste asuraa.ai/yourname. We fill your name, bio, languages and experience — you confirm with a code.</span>
-        </button>
+        </button>}
         <button type="button" className="card stack g8 btn" onClick={() => fileRef.current?.click()} disabled={busy} style={{ textAlign: 'left', alignItems: 'flex-start', whiteSpace: 'normal', height: 'auto', padding: 24 }}>
           <strong className="display" style={{ fontSize: 22 }}>{busy ? 'Reading your file…' : 'Upload LinkedIn PDF or CV'}</strong>
           <span className="muted" style={{ fontWeight: 400 }}>PDF or Word. We read your experience, certifications, languages and links, and suggest your domains.</span>
-          <input ref={fileRef} type="file" accept=".pdf,.docx,application/pdf" className="sr-only" onChange={(e) => { onDoc(e.target.files?.[0]); e.target.value = ''; }} />
+          <input ref={fileRef} type="file" aria-label="Upload your LinkedIn PDF or CV" accept=".pdf,.docx,application/pdf" className="sr-only" onChange={(e) => { onDoc(e.target.files?.[0]); e.target.value = ''; }} />
         </button>
         <button type="button" className="card stack g8 btn" onClick={onFresh} style={{ textAlign: 'left', alignItems: 'flex-start', whiteSpace: 'normal', height: 'auto', padding: 24 }}>
           <strong className="display" style={{ fontSize: 22 }}>Start fresh</strong>
@@ -160,6 +162,12 @@ function AiLink({ onBack, onDone, initial = '' }) {
 
 /* ---------- main page ---------- */
 export default function Profile() {
+  const ready = useExpertReady();
+  if (!ready) return <><Header variant="expert" /><main className="container row g12 muted" role="status" style={{ padding: 48 }}><Spinner /> Loading your profile…</main></>;
+  return <ProfilePage />;
+}
+
+function ProfilePage() {
   const toast = useToast();
   const [p, setP] = useState(loadExpert);
   const [mode, setMode] = useState(() => (loadExpert() ? 'edit' : 'start'));
@@ -214,9 +222,11 @@ export default function Profile() {
   const submit = async () => {
     if (issues.length) { setShowIssues(true); go(issues[0].sec); return; }
     setBusy(true);
-    const r = await submitExpertProfile(p);
-    setP({ ...r, note: '' }); setBusy(false);
-    toast('Submitted — we’ll review it in 1–2 working days');
+    try {
+      const r = LIVE ? await submitExpert(p) : await submitExpertProfile(p);
+      setP({ ...r, note: '' });
+      toast('Submitted — we’ll review it in 1–2 working days');
+    } catch (e) { toast(e.message || 'Not submitted. Please try again.'); } finally { setBusy(false); }
   };
   const SecHead = ({ id, title, sub }) => (
     <div className="stack g4" id={`ex-${id}`} style={{ scrollMarginTop: 90 }}>
@@ -238,8 +248,8 @@ export default function Profile() {
               <span aria-hidden="true" style={{ width: 8, height: 8, borderRadius: '50%', background: bad ? 'var(--warning)' : 'var(--success)' }} />{l}</button>;
           })}
           <hr className="divider" />
-          <button type="button" className="btn btn-ghost" style={{ justifyContent: 'flex-start' }} onClick={() => setMode('ai')}><Icon name="spark" size={14} />{p.ai ? 'Refresh from asuraa.ai' : 'Fill from asuraa.ai'}</button>
-          <label className="btn btn-ghost" style={{ justifyContent: 'flex-start', cursor: 'pointer' }}><Icon name="upload" size={14} />{busy ? 'Reading…' : 'Fill from a document'}<input type="file" accept=".pdf,.docx,application/pdf" className="sr-only" onChange={(e) => { fromDoc(e.target.files?.[0]); e.target.value = ''; }} /></label>
+          {ASURAA_AI_LINK && <button type="button" className="btn btn-ghost" style={{ justifyContent: 'flex-start' }} onClick={() => setMode('ai')}><Icon name="spark" size={14} />{p.ai ? 'Refresh from asuraa.ai' : 'Fill from asuraa.ai'}</button>}
+          <label className="btn btn-ghost" style={{ justifyContent: 'flex-start', cursor: 'pointer' }}><Icon name="upload" size={14} />{busy ? 'Reading…' : 'Fill from a document'}<input type="file" aria-label="Fill from a document (PDF or Word)" accept=".pdf,.docx,application/pdf" className="sr-only" onChange={(e) => { fromDoc(e.target.files?.[0]); e.target.value = ''; }} /></label>
         </nav>
 
         {/* form */}
@@ -407,7 +417,7 @@ export default function Profile() {
               <span className="xs faint">Saved automatically as you type.</span>
             </div>
           )}
-          {p.status === 'review' && <button type="button" className="btn btn-outline" onClick={() => set('status', 'draft')}>Withdraw and edit</button>}
+          {p.status === 'review' && !LIVE && <button type="button" className="btn btn-outline" onClick={() => set('status', 'draft')}>Withdraw and edit</button>}
           <button type="button" className="btn btn-ghost xs" style={{ color: 'var(--danger)' }} onClick={() => { if (window.confirm?.('Start over? This clears your expert profile in this browser.') !== false) { clearExpert(); setP(null); setMode('start'); } }}>Start over</button>
         </aside>
       </main>

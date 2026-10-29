@@ -1,0 +1,99 @@
+// Indian scripts in the PDF: which script a character belongs to, how a string splits into script runs, and the
+// Noto Sans fonts (public/fonts/, OFL) that are fetched from our own origin only when a resume contains that
+// script. Latin, digits and punctuation stay in the template's own font.
+
+/** Unicode blocks → { file: Noto Sans family file prefix }. Order does not matter. */
+export const SCRIPTS = {
+  devanagari: { from: 0x0900, to: 0x097f, file: 'NotoSansDevanagari', serifFile: 'NotoSerifDevanagari', label: 'Hindi / Marathi' },
+  bengali: { from: 0x0980, to: 0x09ff, file: 'NotoSansBengali', label: 'Bengali' },
+  tamil: { from: 0x0b80, to: 0x0bff, file: 'NotoSansTamil', label: 'Tamil' },
+  telugu: { from: 0x0c00, to: 0x0c7f, file: 'NotoSansTelugu', serifFile: 'NotoSerifTelugu', label: 'Telugu' },
+  kannada: { from: 0x0c80, to: 0x0cff, file: 'NotoSansKannada', label: 'Kannada' },
+  malayalam: { from: 0x0d00, to: 0x0d7f, file: 'NotoSansMalayalam', label: 'Malayalam' },
+};
+const ORDER = Object.keys(SCRIPTS);
+const DANDA = [0x0964, 0x0965]; // shared by every Indic script, in the Devanagari block
+const JOINERS = [0x200c, 0x200d]; // ZWNJ / ZWJ: part of a word's shaping, kept inside the surrounding run
+// ₹: the template fonts have no glyph for it; every Noto Sans Indic font does, so it is drawn with one of them
+// (the Indic run it is in, else Devanagari)
+export const RUPEE = 0x20b9;
+
+/** The script key of one code point, or null for everything that is not Indic. */
+export function scriptOf(cp) {
+  for (const k of ORDER) { const s = SCRIPTS[k]; if (cp >= s.from && cp <= s.to) return k; }
+  return null;
+}
+
+/** The scripts used anywhere in `text` (a string, or anything JSON-serialisable), e.g. ['telugu']. */
+export function scriptsIn(text) {
+  const s = typeof text === 'string' ? text : JSON.stringify(text ?? '');
+  const found = new Set();
+  for (const ch of s) { const cp = ch.codePointAt(0); const k = cp === RUPEE ? 'devanagari' : scriptOf(cp); if (k) found.add(k); }
+  return ORDER.filter((k) => found.has(k));
+}
+
+/**
+ * Splits a line into runs that one font can draw: [{ text, script }], script null for the template's font.
+ * Common characters (spaces, digits, punctuation) go to the template's font; a danda or joiner stays with the
+ * Indic run it follows so conjuncts keep their shape.
+ */
+export function splitRuns(text, defaultScript = 'devanagari') {
+  const runs = [];
+  let cur = null;
+  for (const ch of String(text ?? '')) {
+    const cp = ch.codePointAt(0);
+    let k = scriptOf(cp);
+    if (DANDA.includes(cp) || cp === RUPEE) k = cur?.script || defaultScript;
+    else if (JOINERS.includes(cp)) { if (!cur?.script) continue; k = cur.script; } // a joiner means nothing in Latin
+    if (cur && cur.script === k) cur.text += ch;
+    else { cur = { text: ch, script: k }; runs.push(cur); }
+  }
+  return runs;
+}
+
+// Emoji (and the selectors/joiners that build them): no PDF font here can draw them, so they are left out of the PDF
+const EMOJI = /(?:[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}](?:\uFE0F|\u20E3)?\u200D?)+|[\uFE0F\u20E3]/gu;
+/** Text without emoji; a gap left behind is closed ("Done ✅ fast" → "Done fast"). */
+const HAS_EMOJI = new RegExp(EMOJI.source, 'u');
+const SPACED_EMOJI = new RegExp(` ?(?:${EMOJI.source})`, 'gu'); // with the space before it
+/** Text without emoji, and without the space each one leaves ("won 🏆 twice ✅." → "won twice."). */
+export const noEmoji = (t) => (typeof t === 'string' && HAS_EMOJI.test(t) ? t.replace(SPACED_EMOJI, '').replace(/^ +/gm, '') : t);
+/** The same for every string in an object or array (a copy; the resume itself is not changed). */
+export function withoutEmoji(v) {
+  if (typeof v === 'string') return noEmoji(v);
+  if (Array.isArray(v)) return v.map(withoutEmoji);
+  if (v && typeof v === 'object') return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, withoutEmoji(x)]));
+  return v;
+}
+
+const WEIGHTS = ['Regular', 'Bold'];
+const cache = {}; // script → promise of { normal, bold } (Uint8Array)
+
+/** Where a font file lives: next to the app (dist/fonts/…), so the CSP's connect-src 'self' allows it. */
+// serif: the Noto Serif face where there is one (Telugu, Devanagari — the Academic template), else Noto Sans
+const fileOf = (script, serif) => (serif && SCRIPTS[script].serifFile) || SCRIPTS[script].file;
+export const fontUrl = (script, weight, serif = false) => `${import.meta.env.BASE_URL || '/'}fonts/${fileOf(script, serif)}-${weight}.ttf`;
+
+async function fetchFont(script, weight, serif) {
+  const r = await fetch(fontUrl(script, weight, serif));
+  if (!r.ok) throw new Error(`font ${script} ${weight}: ${r.status}`);
+  return new Uint8Array(await r.arrayBuffer());
+}
+
+/**
+ * Loads the Regular and Bold Noto Sans files of these scripts (once per session). Returns
+ * { [script]: { normal, bold } }; a script whose files cannot be fetched is left out (its text then falls back to
+ * the template font, as before), so a download never fails because of a font.
+ */
+export async function loadScriptFonts(scripts, { serif = false } = {}) {
+  const out = {};
+  await Promise.all(scripts.filter((k) => SCRIPTS[k]).map(async (k) => {
+    const c = fileOf(k, serif);
+    if (!cache[c]) {
+      cache[c] = Promise.all(WEIGHTS.map((w) => fetchFont(k, w, serif))).then(([normal, bold]) => ({ normal, bold }))
+        .catch((e) => { delete cache[c]; throw e; });
+    }
+    try { out[k] = await cache[c]; } catch { /* left out */ }
+  }));
+  return out;
+}

@@ -12,6 +12,13 @@ export function readDocx(buf) {
   const relUrl = {};
   rels.replace(/<Relationship [^>]*Id="([^"]+)"[^>]*Target="([^"]+)"[^>]*TargetMode="External"/g, (_, id, t) => { relUrl[id] = t; return ''; });
   const links = Object.values(relUrl).filter((u) => /^https?:|^mailto:/i.test(u)).map((url) => ({ url, w: 0 }));
+  // Layout signals for the ATS scan: tables, text boxes, multi-column sections, pictures.
+  const layout = {
+    tables: (xml.match(/<w:tbl>/g) || []).length,
+    textBoxes: (xml.match(/<w:txbxContent>/g) || []).length,
+    columns: Math.max(1, ...[...xml.matchAll(/<w:cols [^>]*w:num="(\d+)"/g)].map((m) => +m[1])),
+    images: (rels.match(/relationships\/image"/g) || []).length,
+  };
 
   const lines = [];
   let y = 0;
@@ -32,13 +39,13 @@ export function readDocx(buf) {
     });
     const heading = /heading|title/i.test(style);
     text.split('\n').forEach((t) => {
-      const clean = t.replace(/ /g, ' ').replace(/[ \t]{4,}/g, '   ').trim();
+      const clean = t.replace(/\u00a0/g, ' ').replace(/[ \t]{4,}/g, '   ').trim();
       y += 14;
       if (!clean) { y += 6; return; }
       lines.push({ text: (bullet ? '• ' : '') + clean, parts: clean.split(/\s{3,}/), size: size || (heading ? 14 : 11), bold: heading || boldChars >= clean.length * 0.6, x: ind, textX: ind, y, page: 1 });
     });
   });
-  return { lines, links };
+  return { lines, links, layout };
 }
 
 export function readText(str) {

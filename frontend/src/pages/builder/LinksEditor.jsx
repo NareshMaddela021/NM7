@@ -1,4 +1,6 @@
 // Links step: each profile link with its logo, a smart Portfolio field, and up to 3 extra links.
+import { EntryHeader, focusMoved } from './EntryControls';
+import { moveItem, removeItem, toggleItem } from './entries';
 import { LINK_FIELDS, fieldError } from './schema';
 import { BRANDS } from './brands';
 import { PICKABLE, brandName, detectBrand, iconInner } from './icons';
@@ -80,9 +82,13 @@ export default function LinksEditor({ d, setD }) {
           const det = detectBrand(x.url);
           const err = x.url && fieldError('url', x.url);
           return (
-            <div key={i} className="well stack g8">
-              <div className="row between g8"><span className="row g8 strong small" style={{ alignItems: 'center' }}><Logo k={extraIcon(x)} />Link {i + 1}{det ? ` · ${brandName(det)}` : ''}</span>
-                <button type="button" className="btn btn-danger-soft" onClick={() => setD((p) => ({ ...p, linkExtras: p.linkExtras.filter((_, j) => j !== i) }))}>Remove</button></div>
+            <div key={i} className="well stack g8 entry-card" data-off={!!x.off}>
+              <EntryHeader list="links" index={i} count={extras.length} label={`Link ${i + 1}`} off={!!x.off}
+                title={<span className="row g8" style={{ alignItems: 'center' }}><Logo k={extraIcon(x)} />Link {i + 1}{det ? ` · ${brandName(det)}` : ''}</span>}
+                onMove={(dir) => { setD((p) => ({ ...p, linkExtras: moveItem(p.linkExtras, i, dir) })); focusMoved('links', i + dir, dir); }}
+                onToggle={() => setD((p) => ({ ...p, linkExtras: toggleItem(p.linkExtras, i) }))}
+                onRemove={() => setD((p) => ({ ...p, linkExtras: removeItem(p.linkExtras, i) }))} />
+              <div className="entry-body stack g8">
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 100%), 1fr))', gap: 10 }}>
                 <div className="field">
                   <label htmlFor={`lx-${i}`} className="label">Link</label>
@@ -95,6 +101,7 @@ export default function LinksEditor({ d, setD }) {
                 </div>
               </div>
               {!det && <IconPicker name={`Link ${i + 1}`} value={x.icon} detected={null} onChange={(v) => setExtra(i, { icon: v })} />}
+              </div>
             </div>
           );
         })}

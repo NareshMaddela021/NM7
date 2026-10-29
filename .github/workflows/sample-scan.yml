@@ -1,0 +1,42 @@
+name: sample-scan
+
+# Dry run of the one-time sample-data cleanup (QA: "Sai Varsha" values saved into real resumes by older builder
+# versions). Read-only: it connects with the backup workflow's read-only user (MONGODB_BACKUP_URI) and prints only
+# the count, resume ids and the field names it would clear — never names, emails or resume text. The cleanup
+# itself is run by the owner from the admin console (Settings → Maintenance), after reading this report.
+on:
+  push:
+    branches: [claude/fervent-albattani-wqmaoq]
+    paths: ["backend/app/maintenance/**", ".github/workflows/sample-scan.yml"]
+  workflow_dispatch:
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check the secret is set
+        env:
+          URI: ${{ secrets.MONGODB_BACKUP_URI }}
+        run: |
+          if [ -z "$URI" ]; then
+            echo "::warning::MONGODB_BACKUP_URI is not set; nothing was scanned."
+            echo "skip=1" >> "$GITHUB_ENV"
+          fi
+      - uses: astral-sh/setup-uv@v5
+        if: env.skip != '1'
+        with:
+          python-version: "3.12"
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+      - run: uv sync --frozen --no-dev
+        if: env.skip != '1'
+      - name: Dry run (read-only)
+        if: env.skip != '1'
+        env:
+          SCAN_URI: ${{ secrets.MONGODB_BACKUP_URI }}
+        run: uv run python -m app.maintenance.cleanup | tee -a "$GITHUB_STEP_SUMMARY"
