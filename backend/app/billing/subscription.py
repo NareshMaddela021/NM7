@@ -97,6 +97,7 @@ def plan_features(o: dict[str, Any] | None, today: date | None = None) -> dict[s
         "alumni": later("alumni"),
         "faculty_review": later("faculty_review"),
         "multi_campus": later("multi_campus"),
+        "recruiter_accounts": later("recruiter_accounts"),
     }
 
 

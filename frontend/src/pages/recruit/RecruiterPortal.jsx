@@ -1,5 +1,6 @@
 // The recruiter portal (colleges, Phase 3): /recruiter/:token. A recruiter a college invited signs in with a one-time
-// code emailed to the invited address (no Nm7 account), then searches the students who allowed recruiter sharing in
+// code emailed to the invited address (no password; on colleges with recruiter accounts the same sign-in also opens
+// My drives, and /recruiter/i.<invite id> opens an invite from there), then searches the students who allowed recruiter sharing in
 // the groups they were given: skills (with synonyms), branch, CGPA, passing year, location, ATS score, internship,
 // projects, certifications, languages. On Campus, job match mode scores every student against a pasted job post.
 // The shortlist board (Shortlisted → Interview → Selected / Rejected, with notes) downloads as a ZIP or one combined
@@ -13,13 +14,14 @@ import { brandFor } from '../../lib/placementFormat';
 import { usePageMeta } from '../../lib/meta';
 import { freshImport } from '../../lib/chunks';
 import { fileName, resumeFileName } from '../../lib/fileName';
-import { STAGES, STAGE_LABEL, boardColumns, cardLine, filterCount, searchQuery, sessionFromHash } from '../../lib/recruiterPortal';
+import { STAGES, STAGE_LABEL, accountFromHash, boardColumns, cardLine, filterCount, isAccountPath, keepAccount, readAccount, searchQuery, sessionFromHash } from '../../lib/recruiterPortal';
 import { API_BASE, ApiError } from '../../services/http';
 import ResumePreview from '../builder/ResumePreview';
 import ErrorBoundary from '../../components/ErrorBoundary';
 import { designOf } from '../builder/design';
 import SharedCerts from '../../components/SharedCerts';
 import { openCertFile } from '../../lib/certs';
+import Shell from './RecruiterShell';
 
 const storeKey = (token) => `nm7-recruiter:${token.slice(0, 16)}`;
 const readSession = (token) => { try { return sessionStorage.getItem(storeKey(token)) || ''; } catch { return ''; } };
@@ -30,7 +32,7 @@ async function rq(path, session, { method = 'GET', body, raw = false } = {}) {
   try {
     res = await fetch(API_BASE + path, {
       method,
-      headers: { ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}), ...(session ? { 'X-Recruiter-Session': session } : {}) },
+      headers: { ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}), ...(session ? { 'X-Recruiter-Session': session } : {}), ...(readAccount() ? { 'X-Recruiter-Account': readAccount() } : {}) },
       body: body !== undefined ? JSON.stringify(body) : undefined,
       cache: 'no-store',
     });
@@ -51,30 +53,23 @@ function save(blob, name) {
   setTimeout(() => URL.revokeObjectURL(url), 4000);
 }
 
-function Shell({ children }) {
-  return (
-    <>
-      <header className="container-wide row between g8" style={{ padding: '14px 16px', borderBottom: '1px solid var(--border)' }}>
-        <Link to="/" className="display" style={{ fontSize: 20, textDecoration: 'none', color: 'inherit' }}>Nm<mark>7</mark></Link>
-        <span className="xs muted">Recruiter portal · shared securely via Nm7</span>
-      </header>
-      <main id="main" className="container-wide stack g16" style={{ padding: '24px 16px 64px' }}>{children}</main>
-    </>
-  );
-}
-
 export default function RecruiterPortal() {
   const { token } = useParams();
   const base = `/api/recruiter/${encodeURIComponent(token)}`;
+  const byAccount = isAccountPath(token);
   const [session, setSession] = useState(() => {
-    const fromHash = sessionFromHash(typeof window !== 'undefined' ? window.location.hash : '');
-    if (fromHash) { keepSession(token, fromHash); window.history.replaceState(null, '', window.location.pathname); }
+    const hash = typeof window !== 'undefined' ? window.location.hash : '';
+    const fromHash = sessionFromHash(hash);
+    const account = accountFromHash(hash);
+    if (account) keepAccount(account);
+    if (fromHash) keepSession(token, fromHash);
+    if (fromHash || account) window.history.replaceState(null, '', window.location.pathname);
     return fromHash || readSession(token);
   });
   const [info, setInfo] = useState({ loading: true });
   useEffect(() => { rq(base).then((data) => setInfo({ data }), (error) => setInfo({ error })); }, [base]);
   usePageMeta({ title: info.data ? `Students for ${info.data.company}` : 'Recruiter portal', description: 'Student resumes shared with you via Nm7.', noindex: true });
-  const signOut = useCallback(() => { keepSession(token, ''); setSession(''); }, [token]);
+  const signOut = useCallback(() => { keepSession(token, ''); setSession(''); if (byAccount) { keepAccount(''); window.location.assign('/recruiter'); } }, [token, byAccount]);
 
   if (info.loading) return <Shell><div className="row g12 muted" role="status"><Spinner /> Loading…</div></Shell>;
   if (info.error) {
@@ -88,7 +83,18 @@ export default function RecruiterPortal() {
       </Shell>
     );
   }
-  if (!session) return <Shell><CodeGate base={base} info={info.data} onSession={(s) => { keepSession(token, s); setSession(s); }} /></Shell>;
+  if (byAccount && !readAccount()) {
+    return (
+      <Shell>
+        <div className="card stack g8" style={{ maxWidth: 560 }}>
+          <h1 className="display" style={{ fontSize: 26 }}>Sign in to open this drive</h1>
+          <p className="small">Sign in with your email to see My drives.</p>
+          <Link to="/recruiter" className="btn btn-ink" style={{ alignSelf: 'flex-start' }}>Recruiter sign-in</Link>
+        </div>
+      </Shell>
+    );
+  }
+  if (!session && !byAccount) return <Shell><CodeGate base={base} info={info.data} onSession={(r) => { if (r.account) keepAccount(r.account); keepSession(token, r.session); setSession(r.session); }} /></Shell>;
   return <Shell><Workspace base={base} session={session} onSignedOut={signOut} /></Shell>;
 }
 
@@ -103,13 +109,13 @@ function CodeGate({ base, info, onSession }) {
   };
   const verify = async (e) => {
     e.preventDefault(); setBusy(true); setError('');
-    try { onSession((await rq(`${base}/session`, '', { method: 'POST', body: { code } })).session); } catch (err) { setError(err.message); setBusy(false); }
+    try { onSession(await rq(`${base}/session`, '', { method: 'POST', body: { code } })); } catch (err) { setError(err.message); setBusy(false); }
   };
   return (
     <form className="card stack g12" style={{ maxWidth: 460 }} onSubmit={verify} aria-label="Sign in">
       <span className="xs muted">{info.orgName} invited {info.recruiterName}</span>
       <h1 className="display" style={{ fontSize: 26 }}>Students for {info.company}</h1>
-      <p className="small muted">For your security we email a one-time code to {info.emailHint}. No account needed.</p>
+      <p className="small muted">For your security we email a one-time code to {info.emailHint}. No password needed.{info.accounts ? ' Signing in also opens My drives: every college that invited this email.' : ''}</p>
       {!sent ? <button type="button" className="btn btn-ink" disabled={busy} onClick={send}>{busy ? 'Sending…' : 'Email me a code'}</button> : (
         <>
           <div className="field"><label className="label" htmlFor="rp-code">Code from the email</label>
@@ -340,7 +346,7 @@ function QuickView({ base, session, c, onClose, onStage, onFail }) {
       {st.loading ? <div className="row g12 muted" role="status"><Spinner /> Loading…</div>
         : st.error ? <p role="alert">{st.error.status === 404 ? 'This student is no longer shared with you.' : st.error.message}</p>
           : <ErrorBoundary title="This resume couldn’t be shown." text="Something in it couldn’t be drawn. Try again, or ask the student to open and save it once."><ResumePreview data={st.data.data} design={brand ? brandDesign(brand, st.data.data) : designOf(st.data.data)} brand={brand} stamp={st.data.stamp} /></ErrorBoundary>}
-      {st.data && <SharedCerts list={st.data.certificates} open={(x) => openCertFile(`${API_BASE}${base}/candidates/${c.id}/certificates/${x.id}`, { headers: session ? { 'X-Recruiter-Session': session } : {}, credentials: 'omit', name: x.title })} />}
+      {st.data && <SharedCerts list={st.data.certificates} open={(x) => openCertFile(`${API_BASE}${base}/candidates/${c.id}/certificates/${x.id}`, { headers: { ...(session ? { 'X-Recruiter-Session': session } : {}), ...(readAccount() ? { 'X-Recruiter-Account': readAccount() } : {}) }, credentials: 'omit', name: x.title })} />}
     </Dialog>
   );
 }

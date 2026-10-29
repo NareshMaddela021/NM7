@@ -447,7 +447,8 @@ async def test_board_downloads_csv_and_shortlisted_by_for_students(campus, owner
 async def test_demo_invite(owner, db, make_client):
     made = await demo.create_demo(db, None)
     path = made["recruiterPath"]
-    token, session = path.removeprefix("/recruiter/").split("#s=")
+    token, rest = path.removeprefix("/recruiter/").split("#s=")
+    session = rest.split("&a=")[0]  # then the demo recruiter's account session (tests/test_recruiter_accounts.py)
     rec = make_client()
     page = (await rec.get(f"/api/recruiter/{token}/candidates", headers={"X-Recruiter-Session": session})).json()
     assert page["company"].endswith("(demo)") and page["candidates"]

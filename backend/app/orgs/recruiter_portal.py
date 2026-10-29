@@ -61,6 +61,8 @@ from app.orgs.ats import all_skills, ats_score, printed
 from app.orgs.branding import brands_for
 from app.orgs.placement import _branch_key
 from app.orgs.recruiter import EXPIRED, NO_STORE, _clean, eligible, recruiter_data
+from app.orgs.recruiter_account import account_for, issue_session
+from app.orgs.recruiter_account import allowed as account_allowed
 from app.orgs.scope import NOT_FOUND, OrgScope, features_of, require_feature
 from app.orgs.service import shared_rows
 
@@ -109,6 +111,7 @@ class ExtendIn(CamelModel):
 
 class SettingsIn(CamelModel):
     show_shortlist: bool
+    names_after: bool | None = None  # recruiter accounts: names on past drives (None: unchanged)
 
 
 class CodeIn(CamelModel):
@@ -359,7 +362,9 @@ async def list_invites(db: DB, scope: OrgScope) -> dict[str, Any]:
     return {
         "invites": [invite_out(i, names) for i in invites],
         "showShortlist": bool((o.get("recruiter_settings") or {}).get("show_shortlist")),
+        "namesAfter": bool((o.get("recruiter_settings") or {}).get("names_after")),
         "jobMatch": features_of(o)["recruiter_job_match"],
+        "accounts": features_of(o)["recruiter_accounts"],
     }
 
 
@@ -470,18 +475,21 @@ async def invite_activity(invite_id: str, db: DB, scope: OrgScope) -> list[dict[
 async def recruiter_settings(body: SettingsIn, request: Request, db: DB, scope: OrgScope) -> dict[str, Any]:
     await _org(db, scope)
     scope.require("manage")
-    await db[ORGANIZATIONS].update_one(
-        {"_id": scope.org_id}, {"$set": {"recruiter_settings.show_shortlist": body.show_shortlist}}
-    )
+    sets = {"recruiter_settings.show_shortlist": body.show_shortlist}
+    if body.names_after is not None:
+        sets["recruiter_settings.names_after"] = body.names_after
+    await db[ORGANIZATIONS].update_one({"_id": scope.org_id}, {"$set": sets})
     await audit(
         db,
         scope.actor_id,
         "recruiter_settings",
         target=scope.org_id,
-        data=scope.audit_data(show_shortlist=body.show_shortlist),
+        data=scope.audit_data(show_shortlist=body.show_shortlist, names_after=body.names_after),
         ip=client_ip(request),
     )
-    return {"showShortlist": body.show_shortlist}
+    o = await db[ORGANIZATIONS].find_one({"_id": scope.org_id}, {"recruiter_settings": 1})
+    names_after = bool((o.get("recruiter_settings") or {}).get("names_after"))
+    return {"showShortlist": body.show_shortlist, "namesAfter": names_after}
 
 
 # ---------- the recruiter ----------
@@ -493,23 +501,34 @@ async def _open(db, token: str, request: Request) -> dict[str, Any]:
     for key, rules in ((f"rportal:{th[:24]}", REQUEST_RULES), (ip_key, IP_RULES)):
         await rate_limit.check(db, key, rules)
         await rate_limit.record(db, key)
-    inv = await db[RECRUITER_INVITES].find_one({"token_hash": th})
+    by_account = token.startswith("i.")  # /recruiter/i.<invite id>: opened from a recruiter account's My drives
+    inv = await db[RECRUITER_INVITES].find_one({"_id": token[2:]} if by_account else {"token_hash": th})
     if not inv:
         raise NOT_FOUND
     o = await db[ORGANIZATIONS].find_one({"_id": inv["org_id"]})
     if not o or not features_of(o)["recruiter_links"] or o.get("status") == "archived" or _state(inv) != "active":
         raise EXPIRED
+    if by_account and not account_allowed(o):
+        raise NOT_FOUND
     inv["_org"] = o
+    inv["_by_account"] = by_account
     return inv
 
 
 async def _signed_in(db, token: str, request: Request, session: str | None) -> dict[str, Any]:
+    """An invite session (the emailed link) or a recruiter account session for the invited address (My drives).
+    Either way the invite itself must still be active: revoking or expiry ends access on the next request."""
     inv = await _open(db, token, request)
     sh = _hash("session", inv["_id"], session or "")
     t = now()
-    if not session or not any(same(s["hash"], sh) and s["exp"] > t for s in inv.get("sessions") or []):
-        raise ApiError(401, "session_required", "Please sign in with the code we email you.")
-    return inv
+    live = [s for s in inv.get("sessions") or [] if s["exp"] > t]
+    if session and not inv["_by_account"] and any(same(s["hash"], sh) for s in live):
+        return inv
+    if account_allowed(inv["_org"]):
+        acc = await account_for(db, request.headers.get("x-recruiter-account"))
+        if acc and acc["email_lc"] == inv["email_lc"]:
+            return inv
+    raise ApiError(401, "session_required", "Please sign in with the code we email you.")
 
 
 def _audit(inv: dict[str, Any], **extra: Any) -> dict[str, Any]:
@@ -526,6 +545,7 @@ async def portal_info(token: str, request: Request, response: Response, db: DB) 
         "company": inv["company"],
         "recruiterName": inv["recruiter_name"],
         "orgName": inv["_org"]["name"],
+        "accounts": account_allowed(inv["_org"]),
         "emailHint": f"{user[:2]}{'•' * max(1, len(user) - 2)}@{domain}",
         "expiresAt": ms(inv["expires_at"]),
     }
@@ -583,7 +603,8 @@ async def start_session(token: str, body: CodeIn, request: Request, response: Re
         {"_id": inv["_id"]}, {"$set": {"sessions": sessions, "code_hash": None, "code_exp": None}}
     )
     await audit(db, None, "recruiter_login", target=inv["_id"], data=_audit(inv), ip=None)
-    return {"session": session, "expiresInHours": SESSION_HOURS}
+    account = await issue_session(db, inv["email_lc"], inv["recruiter_name"]) if account_allowed(inv["_org"]) else None
+    return {"session": session, "expiresInHours": SESSION_HOURS, "account": account}
 
 
 def _filters(**kw: Any) -> dict[str, Any]:

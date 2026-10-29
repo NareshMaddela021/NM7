@@ -1251,3 +1251,17 @@ closes with Escape, keeps focus inside and returns it to the opener; focus is al
 runs axe (WCAG 2.1 A and AA rules) on the public pages, a student's dashboard, a coordinator's portal and the admin
 console, in light and dark, on desktop and a 390 px phone; serious and critical problems fail CI. It also checks
 that the public pages don't scroll sideways at 390 px with 200% zoom.
+
+## Recruiters: accounts, compare, interviews, feedback
+
+**Recruiter accounts and My drives** (plan switch `recruiter_accounts`: Drive and Campus). A recruiter signs in at
+`nm7.si/recruiter` with the email a college invited and a one-time code (no password). One account per email across
+colleges: every invite sent to that address belongs to it, including invites made before accounts existed. Signing in
+on an invite link also opens the account. **My drives** lists every college and invite with students viewed,
+shortlisted, interviewed, selected and offers (offers recorded by the college for that company), plus the recruiter's
+own notes. An active invite opens its students at `/recruiter/i.<invite id>` without a second code. Each college
+stays in control: students are visible only while that college's invite is active, and revoking or expiry stops
+access on the next request. Past drives keep their counts and notes; student names appear on them only when the
+college ticks Org → Recruiters → "Show student names on a recruiter's past drives". Sign-ins and My drives views are in
+each college's Activity log. The demo college's recruiter shortcut also signs in the demo recruiter's account, with a
+past drive from another made-up company.
