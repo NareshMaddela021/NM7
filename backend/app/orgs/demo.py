@@ -38,6 +38,7 @@ from app.core.db import (
     RESUMES,
     REVIEW_COMMENTS,
     ROLL_LISTS,
+    STORIES,
     USERS,
 )
 from app.core.security import hash_password, new_token
@@ -148,6 +149,7 @@ async def remove_demo(db: AsyncDatabase) -> int:
         (ALUMNI, {"org_id": ORG_ID}),
         (ALUMNI_REQUESTS, {"org_id": ORG_ID}),
         (REVIEW_COMMENTS, {"org_id": ORG_ID}),
+        (STORIES, {"demo": True}),
         (COLLEGE_GROUPS, {"_id": "demo-college-group"}),
         (RECRUITER_LINKS, {"org_id": ORG_ID}),
         (RECRUITER_INVITES, {"org_id": ORG_ID}),
@@ -305,6 +307,7 @@ async def create_demo(db: AsyncDatabase, actor_id: str | None = None, seed: int 
     await _demo_alumni(db, rng)
     await _demo_reviewer(db)
     await _demo_coordinator(db)
+    await _demo_stories(db)
     await db[COLLEGE_GROUPS].insert_one(
         {
             "_id": "demo-college-group",
@@ -543,3 +546,23 @@ async def _demo_coordinator(db: AsyncDatabase) -> None:
          "user_id": COORDINATOR_ID, "role": "coordinator", "group_ids": None, "status": "active",
          "created_at": t, "accepted_at": t}
     )  # fmt: skip
+
+
+async def _demo_stories(db: AsyncDatabase) -> None:
+    """Two made-up placement stories for trying Admin > Stories. Marked demo: never shown on the public site."""
+    t = now()
+    uids = [m["user_id"] async for m in db[MEMBERSHIPS].find({"org_id": ORG_ID}).sort("_id", 1).limit(2)]
+    texts = [
+        ("Demo student A (demo)", "Infosys (demo)", "Systems Engineer",
+         "Demo story: the placement cell asked us to finish our resumes on Nm7 before the drive. The ATS check showed "
+         "what was missing and I was shortlisted in the first round."),
+        ("Demo student B (demo)", "TCS (demo)", "Assistant System Engineer",
+         "Demo story: I had never made a resume before. The builder asked simple questions and my faculty reviewer "
+         "left comments right next to my projects."),
+    ]  # fmt: skip
+    for i, (name, company, role, story) in enumerate(texts):
+        await db[STORIES].insert_one(
+            {"_id": f"demo-story-{i}", "user_id": uids[i % len(uids)] if uids else None, "story": story,
+             "display_name": name, "company": company, "role": role, "photo": None, "consent_at": t,
+             "status": "approved", "decided_at": t, "created_at": t, "demo": True}
+        )  # fmt: skip

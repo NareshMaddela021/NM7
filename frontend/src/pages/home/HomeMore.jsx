@@ -2,6 +2,7 @@
 // templates, "Make it stronger" (line fixer, free ATS scan, expert rewrite), pricing, resume drives, kiosks,
 // organization plans, partners, FAQ and the final call. Images are static WebP files (scripts/home-images/make.mjs);
 // no builder or resume-preview code is loaded here.
+import Stories from '../../components/Stories';
 import { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Icon } from '../../components/ui';
@@ -493,6 +494,7 @@ export default function HomeMore({ t, lang, scanError }) {
         </div>
       </section>
       {/* 12 */}
+      <Stories className="h-pad h-band" />
       <section id="faq" className="h-pad" aria-labelledby="faq-h"><div className="h-wrap"><Faq /></div></section>
       <section className="h-dark h-pad" aria-labelledby="cta-h" lang={lang}>
         <div className="h-wrap stack g20" style={{ alignItems: 'flex-start' }}>

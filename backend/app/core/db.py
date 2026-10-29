@@ -97,6 +97,7 @@ REVIEW_COMMENTS = (
 COLLEGE_GROUPS = (
     "college_groups"  # a parent college group: its campus organizations, owners (roll-up only), group price
 )
+STORIES = "stories"  # student testimonials and placement stories: consent, pending → approved / rejected
 OPS_DAILY = "ops_daily"  # per IST day counters for the admin summary, e.g. _id "errors:2026-10-28" → n
 DELETION_REQUESTS = "deletion_requests"  # self-serve account deletions: dates and status (name / email while open)
 ORG_TRANSFERS = "org_transfers"  # an Owner handing the organization to someone else (code hashed, 48 hours)
@@ -166,6 +167,7 @@ COLLECTIONS = (
     ORG_TRANSFERS,
     DELETION_REQUESTS,
     OPS_DAILY,
+    STORIES,
 )
 
 DAY = 86_400
@@ -229,6 +231,7 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel([("org_id", ASCENDING), ("left_at", ASCENDING)]),
     ],
     EXPORT_JOBS: [IndexModel("created_at", expireAfterSeconds=DAY)],
+    STORIES: [IndexModel([("status", ASCENDING), ("decided_at", DESCENDING)]), IndexModel("user_id")],
     ORG_TRANSFERS: [IndexModel([("org_id", ASCENDING), ("status", ASCENDING)]), IndexModel("to_email_lc")],
     ORG_STAFF: [
         IndexModel([("org_id", ASCENDING), ("email_lc", ASCENDING)], unique=True),

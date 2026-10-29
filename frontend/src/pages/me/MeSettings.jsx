@@ -1,5 +1,6 @@
 // Profile & settings: account details (career details live in the Job Profile), notifications per channel, privacy (download data, delete account).
 // Also Help & referral.
+import MyStories from './MyStories';
 import DeleteAccount from './DeleteAccount';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -215,6 +216,7 @@ export function MeHelp() {
             </div>
           ))}
         </form>
+        <MyStories name={me.account.name} />
         <section className="card stack g12" style={{ flex: '1 1 300px' }} aria-label="Refer a friend">
           <strong>Refer a friend</strong>
           <ReferralProgress reward={me.referralReward} />

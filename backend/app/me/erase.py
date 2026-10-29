@@ -3,9 +3,9 @@ window; see app/me/delete.py). Every feature that stores personal data adds it h
 
 `erase_user_data` removes what the person made or what is about them: resumes (with their versions), cover letters,
 applications, ATS checks, the job profile, job posts and interview practice, LinkedIn data, certificates, health
-alerts, the public resume link, offers, alumni profile and requests, reviewer comments, referral rewards, support
-tickets, organization memberships (and their drive check-ins, reminder rows and recruiter shortlists), sessions and
-email codes. Code uses stay counted but no longer point to the person (coupons.service.forget_user).
+alerts, the public resume link, stories, offers, alumni profile and requests, reviewer comments, referral rewards,
+support tickets, organization memberships (and their drive check-ins, reminder rows and recruiter shortlists),
+sessions and email codes. Code uses stay counted but no longer point to the person (coupons.service.forget_user).
 
 `erase_account` also keeps what the law needs for paid orders (GST): the order, its amounts and invoice stay, but the
 order no longer points to the person and the invoice's email (and name, unless it is a business with a GSTIN) are
@@ -48,6 +48,7 @@ from app.core.db import (
     REVIEW_COMMENTS,
     SESSIONS,
     SHARES,
+    STORIES,
     TICKETS,
     USERS,
     WEBHOOK_EVENTS,
@@ -95,6 +96,7 @@ async def erase_user_data(db: AsyncDatabase, user_id: str) -> dict[str, int]:
     out["job_posts"] = await gone(JOB_MATCHES, mine)  # the pasted posts, matches, tailoring and interview practice
     out["linkedin"] = await gone(LINKEDIN, {"_id": user_id})
     out["tickets"] = await gone(TICKETS, mine)
+    out["stories"] = await gone(STORIES, mine)
     out["memberships"] = await _memberships(db, user_id)
     out["coupon_uses_anonymised"] = await forget_user(db, user_id)
     return out
