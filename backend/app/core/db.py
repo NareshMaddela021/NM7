@@ -97,6 +97,7 @@ REVIEW_COMMENTS = (
 COLLEGE_GROUPS = (
     "college_groups"  # a parent college group: its campus organizations, owners (roll-up only), group price
 )
+OPS_DAILY = "ops_daily"  # per IST day counters for the admin summary, e.g. _id "errors:2026-10-28" → n
 DELETION_REQUESTS = "deletion_requests"  # self-serve account deletions: dates and status (name / email while open)
 ORG_TRANSFERS = "org_transfers"  # an Owner handing the organization to someone else (code hashed, 48 hours)
 REFERRAL_REWARDS = "referral_rewards"  # _id = the inviter: when the reward was given, by which friends, revoked
@@ -164,6 +165,7 @@ COLLECTIONS = (
     REFERRAL_REWARDS,
     ORG_TRANSFERS,
     DELETION_REQUESTS,
+    OPS_DAILY,
 )
 
 DAY = 86_400

@@ -712,6 +712,11 @@ class SettingsIn(CamelModel):
     addons: dict[Literal["revision", "express", "linkedin"], PriceIn] | None = None
     delivery_hours: int | None = Field(None, ge=24, le=168)
     referral: "ReferralSettingsIn | None" = None
+    daily_summary: "DailySummaryIn | None" = None
+
+
+class DailySummaryIn(CamelModel):
+    on: bool  # the 8:00 IST email to the Owner admins
 
 
 class ReferralSettingsIn(CamelModel):
@@ -725,6 +730,7 @@ def _settings_out(site: dict[str, Any]) -> dict[str, Any]:
         "addons": site["addons"],
         "deliveryHours": site["delivery_hours"],
         "referral": site["referral"],
+        "dailySummary": site["daily_summary"],
     }
 
 
@@ -753,6 +759,9 @@ async def put_settings(body: SettingsIn, request: Request, db: DB, auth: AdminAu
     if body.referral and body.referral.model_dump() != before["referral"]:
         changes["referral"] = body.referral.model_dump()
         diff["referral"] = {"from": before["referral"], "to": changes["referral"]}
+    if body.daily_summary and body.daily_summary.model_dump() != before["daily_summary"]:
+        changes["daily_summary"] = body.daily_summary.model_dump()
+        diff["daily_summary"] = {"from": before["daily_summary"], "to": changes["daily_summary"]}
     if changes:
         await save_site(db, changes)
         await audit(db, auth.user.id, "settings.changed", target="site", data=diff, ip=_ip(request))

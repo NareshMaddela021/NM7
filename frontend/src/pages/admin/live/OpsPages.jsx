@@ -9,6 +9,29 @@ import { aiDetail } from './aiUsageText';
 import { HomeClicks, OrgRevenue } from './BillingPages';
 
 /* ---------- dashboard ---------- */
+/** "Today so far" with a Share to WhatsApp button (wa.me with the text, sent from the admin's own phone). The same
+ * numbers for yesterday are emailed to the Owner admins at 8:00 IST (Admin › Settings turns that off). */
+export function TodayCard() {
+  const st = useApi('/api/admin/today');
+  return (
+    <section className="card stack g12" aria-label="Today" data-testid="today-card">
+      <Loading st={st}>{(t) => (
+        <>
+          <div className="row between g8" style={{ flexWrap: 'wrap' }}>
+            <strong>Today so far</strong>
+            <a className="btn btn-outline" style={{ minHeight: 36 }} href={`https://wa.me/?text=${encodeURIComponent(t.text)}`} target="_blank" rel="noopener noreferrer" data-testid="today-wa">Share to WhatsApp</a>
+          </div>
+          <div className="row g16 small" style={{ flexWrap: 'wrap' }}>
+            {[['New users today', t.newUsers], ['Resumes started', t.resumes], ['Orders paid today', t.ordersPaid], ['Revenue', rupees(t.revenue)], ['Codes used', t.codesUsed], ['New organizations', t.orgSignups], ['Server errors', t.errors]].map(([k, v]) => (
+              <span key={k} className="stack" style={{ minWidth: 110 }}><span className="xs muted">{k}</span><strong style={{ fontSize: 20, color: k === 'Server errors' && v ? 'var(--danger)' : undefined }}>{v}</strong></span>
+            ))}
+          </div>
+        </>
+      )}</Loading>
+    </section>
+  );
+}
+
 export function LiveDashboard() {
   const [days, setDays] = useState(30);
   const st = useApi(`/api/admin/stats?days=${days}`);
@@ -18,6 +41,7 @@ export function LiveDashboard() {
         <select aria-label="Period" className="input" style={{ height: 40, width: 'auto' }} value={days} onChange={(e) => setDays(+e.target.value)}>
           <option value={1}>Today</option><option value={7}>Last 7 days</option><option value={30}>Last 30 days</option><option value={365}>Last 12 months</option>
         </select>} />
+      <TodayCard />
       <Loading st={st}>{(s) => (
         <>
           <div className="kpis">
