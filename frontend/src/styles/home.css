@@ -59,11 +59,6 @@
 
 .home [lang="te"] .hx-title, .home .hx-title[lang="te"] { font-family: 'Noto Sans Telugu', var(--font-display); }
 .home [lang="hi"] .hx-title { font-family: 'Noto Sans Devanagari', var(--font-display); }
-.hx-lang { display: inline-flex; flex: none; gap: 2px; padding: 3px; border-radius: 12px; background: var(--sunken); border: 1px solid var(--border); }
-.hx-lang button { min-height: 44px; width: 76px; padding: 0 6px; border: 0; border-radius: 9px; background: transparent; color: var(--text2); font-weight: 600; font-size: 14px; cursor: pointer; }
-.hx-lang button[lang="te"] { font-family: 'Noto Sans Telugu', var(--font-body); }
-.hx-lang button[lang="hi"] { font-family: 'Noto Sans Devanagari', var(--font-body); }
-.hx-lang button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); }
 .hx-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 260px; gap: 20px; align-items: start; }
 .hx-card { background: var(--surface); border: 1px solid var(--border); border-radius: 22px; padding: 24px; display: flex; flex-direction: column; gap: 14px; box-shadow: var(--shadow-sm); border-top-width: 5px; }
 .hx-card[data-kind="seeker"] { border-top-color: var(--signal); }

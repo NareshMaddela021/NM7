@@ -6,6 +6,7 @@
 // opening frame as poster. Captions are burned into the videos. "Download for WhatsApp" saves the vertical file.
 import { useEffect, useRef, useState } from 'react';
 import { fileName } from '../../lib/fileName';
+import { translate } from '../../lib/i18n';
 
 export const DEMO = {
   wide: '/media/nm7-demo.mp4',
@@ -16,7 +17,8 @@ export const DEMO = {
 const PHONE = '(max-width: 599px)';
 const phoneNow = () => typeof window !== 'undefined' && !!window.matchMedia?.(PHONE).matches;
 
-export default function DemoVideo() {
+/** t / lang: the page's language (/for-orgs has the language switch); English when left out. */
+export default function DemoVideo({ t = (k) => translate('en', k), lang }) {
   const [phone, setPhone] = useState(phoneNow);
   const [playing, setPlaying] = useState(false);
   const video = useRef(null);
@@ -33,14 +35,14 @@ export default function DemoVideo() {
   const box = { position: 'relative', width: '100%', aspectRatio: phone ? '9 / 16' : '16 / 9', maxHeight: phone ? '80vh' : undefined, margin: phone ? '0 auto' : undefined, borderRadius: 16, overflow: 'hidden', background: '#0b1020' };
   if (phone) box.maxWidth = 'calc(80vh * 9 / 16)';
   return (
-    <section className="stack g12" aria-labelledby="demo-h" data-testid="demo-video">
-      <h2 id="demo-h" className="display h3">Watch the 2-minute demo</h2>
+    <section className="stack g12" aria-labelledby="demo-h" data-testid="demo-video" lang={lang}>
+      <h2 id="demo-h" className="display h3">{t('orgs.demo.title')}</h2>
       <div style={box}>
         {playing ? (
           <video key={src} ref={video} src={src} poster={poster} controls playsInline preload="none" data-testid="demo-player"
-            aria-label="Nm7 for Organizations: 2-minute demo (captions included)" style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block', background: '#0b1020' }} />
+            aria-label={t('orgs.demo.video')} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block', background: '#0b1020' }} />
         ) : (
-          <button type="button" onClick={() => setPlaying(true)} data-testid="demo-play" aria-label="Play the 2-minute demo"
+          <button type="button" onClick={() => setPlaying(true)} data-testid="demo-play" aria-label={t('orgs.demo.play')}
             style={{ all: 'unset', cursor: 'pointer', position: 'absolute', inset: 0, display: 'grid', placeItems: 'center' }}>
             <img src={poster} alt="" decoding="async" width={phone ? 720 : 1280} height={phone ? 1280 : 720}
               style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -51,8 +53,8 @@ export default function DemoVideo() {
         )}
       </div>
       <div className="row g12" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
-        <span className="xs muted">Captions are in the video. 2 minutes.</span>
-        <a className="btn btn-outline" href={DEMO.tall} download={fileName(['Nm7', 'demo', 'WhatsApp'], 'mp4')} data-testid="demo-whatsapp">Download for WhatsApp</a>
+        <span className="xs muted">{t('orgs.demo.note')}</span>
+        <a className="btn btn-outline" href={DEMO.tall} download={fileName(['Nm7', 'demo', 'WhatsApp'], 'mp4')} data-testid="demo-whatsapp">{t('orgs.demo.wa')}</a>
       </div>
     </section>
   );

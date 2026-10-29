@@ -6,7 +6,8 @@ import { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import SiteFooter from '../components/SiteFooter';
-import { LANGS, setLang, useLang } from '../lib/i18n';
+import LangSwitch from '../components/LangSwitch';
+import { headerLabels, useLang } from '../lib/i18n';
 import { lazyRetry } from '../lib/chunks';
 import { track } from '../lib/track';
 import { TEMPLATE_COUNT } from './home/templateMeta';
@@ -21,16 +22,6 @@ export const HERO_SAMPLES = [
   { src: '/home/hero-delivery.webp', name: 'Mohammed Irfan', role: 'Delivery partner, Bengaluru' },
   { src: '/home/hero-nurse.webp', name: 'Lalitha Kumari', role: 'Staff nurse, Kochi' },
 ];
-
-function LangSwitch({ t, lang }) {
-  return (
-    <div className="hx-lang" role="group" aria-label={t('lang.label')}>
-      {LANGS.map(([code, label]) => (
-        <button key={code} type="button" lang={code} aria-pressed={lang === code} onClick={() => { track(`lang_${code}`); setLang(code); }}>{label}</button>
-      ))}
-    </div>
-  );
-}
 
 const HIGH = { fetchpriority: 'high' }; // React 18 passes the lower-case attribute through to the browser
 
@@ -89,10 +80,9 @@ export default function Home() {
     if (location.hash) setMore(true);
   }, [location.hash, location.state]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const labels = { build: t('nav.build'), templates: t('nav.templates'), pricing: t('nav.pricing'), orgs: t('nav.orgs'), blog: t('nav.blog'), scan: t('nav.scan'), buildFree: t('nav.buildFree'), menu: t('nav.menu') };
   return (
     <>
-      <Header labels={labels} lang={lang} />
+      <Header labels={headerLabels(t)} lang={lang} />
       <main id="main" className="home" data-lang={lang} lang="en">
         {/* 1 · two equal pillars */}
         <section className="hx-hero" aria-labelledby="hero-title" lang={lang}>

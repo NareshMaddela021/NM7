@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Header from '../components/Header';
+import LangSwitch from '../components/LangSwitch';
+import { rich, useLang } from '../lib/i18n';
 import { Dialog, Icon, Meter, useToast } from '../components/ui';
 import { getMatchedJobs } from '../services/api';
 import { flushKeepalive, onSaveState } from '../lib/meLive';
@@ -11,7 +13,7 @@ import { reviewToResume } from '../lib/photoImport';
 import ShareWhatsApp from '../components/ShareWhatsApp';
 import { DownloadBlocked, exportFile, forgetPendingDownload, mayFinishDownload, pendingDownload } from '../lib/downloads';
 import { lengthNote, writeSummaries } from '../lib/summary/write';
-import { ago, charCount } from '../lib/text'; // not from me/shared: that file loads the PDF library
+import { charCount } from '../lib/text'; // not from me/shared: that file loads the PDF library
 import { monthsBetween } from '../lib/import/dates';
 import PhotoImport from './builder/PhotoImport';
 import { FillFromProfile, ProfileHint, ProfileUpdates, SaveToProfile } from './builder/ProfileSync';
@@ -89,43 +91,49 @@ function ProfileOnly() {
 }
 
 /* ---------- Start & template screens ---------- */
+/** "5 min ago" / "3 h ago" / "2 d ago" in the chosen language (lib/text ago). */
+const agoIn = (t, ts) => { const m = (Date.now() - ts) / 60000; return m < 60 ? t('builder.start.ago.min', { n: Math.max(1, Math.round(m)) }) : m < 1440 ? t('builder.start.ago.h', { n: Math.round(m / 60) }) : t('builder.start.ago.d', { n: Math.round(m / 1440) }); };
+/** The first screen: English, Telugu or Hindi (the switch at the top; strings builder.start.* in src/i18n/pages.json).
+ * The resume itself, and every later step of the builder, stays in English. */
 function Start({ onNext, profilePct = null, resume = null, onContinue, customer = false }) {
+  const [t, lang] = useLang();
   const fromProfile = profilePct !== null;
   const opts = [
-    ...(fromProfile ? [['profile', 'Start from my Job Profile', `A new resume filled from your Job Profile (${profilePct}% complete). You pick the look next.`, profilePct >= 40]] : []),
-    ['scratch', 'Start from scratch', 'Guided, one section at a time.', !fromProfile || profilePct < 40],
-    ['linkedin', 'Import LinkedIn', 'Upload your LinkedIn profile PDF. We fill every section we can, and you check it before saving.'],
-    ['resume', 'Rebuild my old resume', 'Upload a PDF or Word resume in any layout. We sort it into clean sections and point out what to fix.'],
-    ['photos', 'Snap photos', 'Take photos of your Aadhaar, work papers or a handwritten note. We’ll read them and fill your resume.'],
+    ...(fromProfile ? [['profile', profilePct >= 40]] : []),
+    ['scratch', !fromProfile || profilePct < 40],
+    ['linkedin'],
+    ['resume'],
+    ['photos'],
   ];
   return (
-    <main id="main" className="container stack g32 rise" style={{ maxWidth: 1100, padding: '72px 24px' }}>
+    <main id="main" className="container stack g32 rise" style={{ maxWidth: 1100, padding: '72px 24px' }} lang={lang} data-lang={lang}>
       <div className="stack g12" style={{ maxWidth: 720 }}>
-        <h1 className="display h1" style={{ fontSize: 'clamp(36px,5vw,60px)' }}>Build a resume recruiters <span className="hl" style={{ padding: '0 4px' }}>actually read.</span></h1>
-        <p className="lead">12 guided sections, plus any section you want to add. Your Nm7 profile and your resume are built together.</p>
-        <p className="small muted" style={{ margin: 0 }}><strong>Free to build. Account needed to download.</strong></p>
+        <LangSwitch t={t} lang={lang} style={{ alignSelf: 'flex-start' }} />
+        <h1 className="display h1" style={{ fontSize: 'clamp(36px,5vw,60px)' }}>{rich(t('builder.start.title'), { em: (w) => <span className="hl" style={{ padding: '0 4px' }}>{w}</span> })}</h1>
+        <p className="lead">{t('builder.start.lead')}</p>
+        <p className="small muted" style={{ margin: 0 }}><strong>{t('builder.start.free')}</strong></p>
       </div>
       {resume && (
         <section className="card row between g16" aria-labelledby="continue-h" style={{ padding: 24, border: '2px solid var(--ink)' }}>
           <div className="stack g4" style={{ minWidth: 0 }}>
-            <span className="mono xs muted" id="continue-h">CONTINUE EDITING</span>
-            <strong className="display" style={{ fontSize: 22, overflowWrap: 'anywhere' }}>{resume.name}</strong>
-            <span className="small muted">{resume.updated ? `Edited ${ago(resume.updated)}` : 'Saved in this browser — sign in to keep it'}</span>
+            <span className="mono xs muted" id="continue-h">{t('builder.start.continue.label')}</span>
+            <strong className="display" style={{ fontSize: 22, overflowWrap: 'anywhere' }} lang="en">{resume.name}</strong>
+            <span className="small muted">{resume.updated ? t('builder.start.continue.edited', { when: agoIn(t, resume.updated) }) : t('builder.start.continue.local')}</span>
           </div>
           <div className="row g8">
-            <button type="button" className="btn btn-ink btn-lg" onClick={onContinue}>Continue</button>
-            {resume.updated && <Link to="/me/resumes" className="btn btn-outline btn-lg">See all resumes</Link>}
+            <button type="button" className="btn btn-ink btn-lg" onClick={onContinue}>{t('builder.start.continue.button')}</button>
+            {resume.updated && <Link to="/me/resumes" className="btn btn-outline btn-lg">{t('builder.start.continue.all')}</Link>}
           </div>
         </section>
       )}
-      {resume && <h2 style={{ fontSize: 22, margin: '8px 0 -12px' }}>Or start a new resume</h2>}
+      {resume && <h2 style={{ fontSize: 22, margin: '8px 0 -12px' }}>{t('builder.start.new')}</h2>}
       <div className="grid-auto g16">
-        {opts.map(([k, t, d, rec]) => (
-          <button key={t} type="button" className={`card stack g8 btn${k === 'photos' ? ' start-photos' : ''}`} onClick={() => onNext(k)} style={{ textAlign: 'left', alignItems: 'flex-start', whiteSpace: 'normal', height: 'auto', padding: 24, border: rec ? '2px solid var(--ink)' : undefined }}>
-            {rec && <span className="badge b-signal">Recommended</span>}
-            <strong className="display" style={{ fontSize: 22 }}>{t}</strong>
-            <span className="muted" style={{ fontWeight: 400 }}>{d}</span>
-            {k === 'photos' && !customer && <span className="xs muted" data-testid="start-photos-signin">Sign in needed — photos are read for your own account only.</span>}
+        {opts.map(([k, rec]) => (
+          <button key={k} type="button" className={`card stack g8 btn${k === 'photos' ? ' start-photos' : ''}`} onClick={() => onNext(k)} style={{ textAlign: 'left', alignItems: 'flex-start', whiteSpace: 'normal', height: 'auto', padding: 24, border: rec ? '2px solid var(--ink)' : undefined }}>
+            {rec && <span className="badge b-signal">{t('builder.start.recommended')}</span>}
+            <strong className="display" style={{ fontSize: 22 }}>{t(`builder.start.${k}.title`)}</strong>
+            <span className="muted" style={{ fontWeight: 400 }}>{t(`builder.start.${k}.text`, { n: profilePct })}</span>
+            {k === 'photos' && !customer && <span className="xs muted" data-testid="start-photos-signin">{t('builder.start.photos.signin')}</span>}
           </button>
         ))}
       </div>
