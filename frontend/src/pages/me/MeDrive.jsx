@@ -7,6 +7,7 @@ import { Spinner } from '../../components/ui';
 import { StatusBadge } from '../org/Drives';
 import { http } from '../../services/http';
 import { MeHead } from './MeLayout';
+import MyInterviews from '../../components/MyInterviews';
 
 /** The camera, when the browser can read QR codes (Android Chrome can). Calls onCode(slotId, code) once. */
 function Scanner({ onCode, onClose }) {
@@ -81,6 +82,7 @@ export default function MeDrive() {
   return (
     <div className="stack g20">
       <MeHead title="My drive day" sub="Your placement drive slots from your college: company, round, room and time." />
+      <MyInterviews />
       {err && <p role="alert" className="error">{err}</p>}
       {!days ? <div className="row g8"><Spinner /> Loading…</div> : days.length === 0 ? <p className="small muted" data-testid="drive-none">No drive days for you yet. Your college adds them here.</p> : (
         <>

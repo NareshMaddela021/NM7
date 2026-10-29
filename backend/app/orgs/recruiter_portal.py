@@ -671,6 +671,7 @@ async def search(
         "contact": inv["contact"],
         "jobMatch": features_of(inv["_org"])["recruiter_job_match"],
         "compare": features_of(inv["_org"])["recruiter_compare"],
+        "interviews": features_of(inv["_org"])["interview_scheduling"],
         "total": len(rows),
         "branches": branches,
         "candidates": sorted(cards, key=lambda c: c["name"].lower()),

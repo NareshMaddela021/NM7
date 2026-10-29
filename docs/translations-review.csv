@@ -294,6 +294,7 @@
 "orgs.table.f.multiCampus","Home + /for-orgs","Multiple campuses under one group","ఒకే గ్రూప్ కింద అనేక క్యాంపస్‌లు","एक ग्रुप के अंदर कई कैंपस","needs native review"
 "orgs.table.f.recruiterAccounts","Home + /for-orgs","Recruiter accounts with drive history","రిక్రూటర్ ఖాతాలు, డ్రైవ్ చరిత్రతో","रिक्रूटर अकाउंट, ड्राइव इतिहास के साथ","needs native review"
 "orgs.table.f.recruiterCompare","Home + /for-orgs","Compare candidates side by side","అభ్యర్థులను పక్కపక్కనే పోల్చడం","उम्मीदवारों की आमने-सामने तुलना","needs native review"
+"orgs.table.f.interviewScheduling","Home + /for-orgs","Interview scheduling with calendar invites","క్యాలెండర్ ఆహ్వానాలతో ఇంటర్వ్యూ షెడ్యూలింగ్","कैलेंडर इनवाइट के साथ इंटरव्यू शेड्यूलिंग","needs native review"
 "builder.start.title","/builder (Start step)","Build a resume recruiters *actually read.*","రిక్రూటర్లు *నిజంగా చదివే* రెజ్యూమ్ తయారు చేయండి.","ऐसा रिज़्यूमे बनाएँ जिसे रिक्रूटर *सच में पढ़ें।*","needs native review"
 "builder.start.lead","/builder (Start step)","12 guided sections, plus any section you want to add. Your Nm7 profile and your resume are built together.","12 గైడెడ్ విభాగాలు, ఇంకా మీరు జోడించాలనుకునే ఏ విభాగమైనా. మీ Nm7 ప్రొఫైల్, మీ రెజ్యూమ్ కలిసే తయారవుతాయి.","12 गाइडेड सेक्शन, साथ में कोई भी सेक्शन जो आप जोड़ना चाहें। आपकी Nm7 प्रोफ़ाइल और आपका रिज़्यूमे साथ-साथ बनते हैं।","needs native review"
 "builder.start.free","/builder (Start step)","Free to build. Account needed to download.","తయారు చేయడం ఉచితం. డౌన్‌లోడ్‌కు అకౌంట్ కావాలి.","बनाना मुफ़्त। डाउनलोड के लिए अकाउंट ज़रूरी।","needs native review"

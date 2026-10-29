@@ -150,7 +150,7 @@ function Workspace({ base, session, onSignedOut }) {
   const d = st.data;
   const [board, setBoard] = useState(null);
   const loadBoard = useCallback(() => rq(`${base}/candidates?stage=`, session).then((data) => setBoard(data.candidates.filter((c) => c.stage !== 'none')), fail), [base, session, fail]);
-  useEffect(() => { if (tab === 'board') loadBoard(); }, [tab, loadBoard]);
+  useEffect(() => { if (tab === 'board' || tab === 'interviews') loadBoard(); }, [tab, loadBoard]);
   const cols = useMemo(() => boardColumns(board || []), [board]);
 
   const apply = (e) => { e?.preventDefault(); setApplied(filters); setSt((s) => ({ ...s, loading: !s.data })); load(filters); setShowFilters(false); };
@@ -227,7 +227,7 @@ function Workspace({ base, session, onSignedOut }) {
         <button type="button" className="link-btn small" onClick={onSignedOut}>Sign out</button>
       </div>
       <div className="segmented" role="tablist" aria-label="Views" style={{ display: 'flex', flexWrap: 'wrap' }}>
-        {[['search', `Students (${d.total})`], ...(d.jobMatch ? [['match', 'Job match']] : []), ['board', 'Shortlist board']].map(([k, l]) => (
+        {[['search', `Students (${d.total})`], ...(d.jobMatch ? [['match', 'Job match']] : []), ['board', 'Shortlist board'], ...(d.interviews ? [['interviews', 'Interviews']] : [])].map(([k, l]) => (
           <button key={k} type="button" role="tab" aria-selected={tab === k} onClick={() => setTab(k)}>{l}</button>
         ))}
       </div>
@@ -295,6 +295,7 @@ function Workspace({ base, session, onSignedOut }) {
           )}
         </div>
       )}
+      {tab === 'interviews' && <Interviews base={base} session={session} board={board} onFail={fail} onChanged={loadBoard} />}
       {canPick && picked.length > 0 && (
         <div className="card row between g8" role="region" aria-label="Compare" style={{ position: 'sticky', bottom: 12, flexWrap: 'wrap', zIndex: 5 }}>
           <span className="small">{picked.length} picked{picked.length < 2 ? ' · pick at least 2' : picked.length >= 4 ? ' · 4 at most' : ''}</span>
@@ -358,6 +359,97 @@ function BoardItem({ c, onStage, onView, pick }) {
       <StageSelect c={c} onStage={onStage} />
       <PickBox c={c} pick={pick} />
       <input className="input xs" aria-label={`Note for ${c.name}`} placeholder="Note" maxLength={500} value={note} onChange={(e) => setNote(e.target.value)} onBlur={() => { if (note !== (c.note || '')) onStage(c, c.stage, note); }} />
+    </div>
+  );
+}
+
+const ROUND = { round: '', date: '', time: '10:00', minutes: 30, place: '', link: '', interviewer: '', notes: '' };
+const STATUS_TONE = { confirmed: 'badge-success', reschedule: 'badge-warning', pending: '' };
+
+/** Interview rounds (R3): schedule from the shortlist board; students get an email with a calendar file and answer. */
+function Interviews({ base, session, board, onFail, onChanged }) {
+  const toast = useToast();
+  const [rounds, setRounds] = useState(null);
+  const [form, setForm] = useState(null); // { ...ROUND, ids, editing? }
+  const [busy, setBusy] = useState(false);
+  const load = useCallback(() => rq(`${base}/interviews`, session).then((r) => setRounds(r.rounds), onFail), [base, session, onFail]);
+  useEffect(() => { load(); }, [load]);
+  const people = (board || []).filter((c) => ['shortlisted', 'interview', 'selected'].includes(c.stage));
+  const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+  const save = async (e) => {
+    e.preventDefault(); setBusy(true);
+    const { editing, ids, ...round } = form;
+    try {
+      const r = editing
+        ? await rq(`${base}/interviews/${editing}`, session, { method: 'PUT', body: { ...round, minutes: Number(round.minutes) } })
+        : await rq(`${base}/interviews`, session, { method: 'POST', body: { ...round, minutes: Number(round.minutes), ids } });
+      toast(editing ? `New time sent to ${r.emailsSent} student${r.emailsSent === 1 ? '' : 's'}` : `Invites sent to ${r.emailsSent} student${r.emailsSent === 1 ? '' : 's'}`);
+      setForm(null); load(); onChanged();
+    } catch (err) { onFail(err); } finally { setBusy(false); }
+  };
+  const cancel = async (rd) => {
+    if (!window.confirm(`Cancel ${rd.round} on ${rd.when}? Students get an email.`)) return;
+    try { await rq(`${base}/interviews/${rd.id}/cancel`, session, { method: 'POST', body: {} }); toast('Interview cancelled'); load(); } catch (e) { onFail(e); }
+  };
+  return (
+    <div className="stack g12">
+      <div className="row between g8" style={{ flexWrap: 'wrap' }}>
+        <span className="small muted">Students get an email with a calendar file (Google Calendar, Outlook) and confirm or ask for another time. Times are in IST.</span>
+        {!form && <button type="button" className="btn btn-ink" disabled={people.length === 0} onClick={() => setForm({ ...ROUND, ids: [] })}>Schedule an interview</button>}
+      </div>
+      {!form && people.length === 0 && <span className="xs faint">Shortlist students first: interviews are scheduled from the shortlist board.</span>}
+      {form && (
+        <form className="card stack g12" aria-label={form.editing ? 'Change the interview time' : 'Schedule an interview'} onSubmit={save}>
+          <div className="row g12" style={{ flexWrap: 'wrap' }}>
+            <div className="field" style={{ flex: '2 1 200px' }}><label className="label" htmlFor="iv-round">Round name</label><input id="iv-round" className="input" required maxLength={60} placeholder="e.g. Technical round 1" value={form.round} onChange={(e) => set('round', e.target.value)} /></div>
+            <div className="field" style={{ flex: '1 1 150px' }}><label className="label" htmlFor="iv-date">Date</label><input id="iv-date" type="date" className="input" required value={form.date} onChange={(e) => set('date', e.target.value)} /></div>
+            <div className="field" style={{ flex: '1 1 110px' }}><label className="label" htmlFor="iv-time">Time (IST)</label><input id="iv-time" type="time" className="input" required value={form.time} onChange={(e) => set('time', e.target.value)} /></div>
+            <div className="field" style={{ flex: '1 1 110px' }}><label className="label" htmlFor="iv-min">Duration</label>
+              <select id="iv-min" className="input" value={form.minutes} onChange={(e) => set('minutes', e.target.value)}>{[15, 20, 30, 45, 60, 90, 120].map((m) => <option key={m} value={m}>{m} min</option>)}</select></div>
+          </div>
+          <div className="row g12" style={{ flexWrap: 'wrap' }}>
+            <div className="field" style={{ flex: '1 1 200px' }}><label className="label" htmlFor="iv-place">Place</label><input id="iv-place" className="input" maxLength={200} placeholder="e.g. Seminar hall, Block A" value={form.place} onChange={(e) => set('place', e.target.value)} /></div>
+            <div className="field" style={{ flex: '1 1 200px' }}><label className="label" htmlFor="iv-link">Online link</label><input id="iv-link" type="url" className="input" maxLength={500} placeholder="https://…" value={form.link} onChange={(e) => set('link', e.target.value)} /></div>
+            <div className="field" style={{ flex: '1 1 180px' }}><label className="label" htmlFor="iv-who">Interviewer name</label><input id="iv-who" className="input" required maxLength={80} value={form.interviewer} onChange={(e) => set('interviewer', e.target.value)} /></div>
+          </div>
+          <div className="field"><label className="label" htmlFor="iv-notes">Notes for students (optional)</label><input id="iv-notes" className="input" maxLength={500} placeholder="e.g. Bring your college ID" value={form.notes} onChange={(e) => set('notes', e.target.value)} /></div>
+          {!form.editing && (
+            <fieldset className="stack g6" style={{ border: 0, padding: 0, margin: 0 }}>
+              <legend className="label">Students ({form.ids.length})</legend>
+              {people.map((c) => (
+                <label key={c.id} className="row g8 small"><input type="checkbox" checked={form.ids.includes(c.id)} onChange={(e) => set('ids', e.target.checked ? [...form.ids, c.id] : form.ids.filter((x) => x !== c.id))} /> {c.name} <span className="xs faint">· {STAGE_LABEL[c.stage]}</span></label>
+              ))}
+            </fieldset>
+          )}
+          {form.editing && <span className="xs faint">Every student on this round gets the new time and a new calendar file, and is asked to confirm again.</span>}
+          <div className="row g8">
+            <button type="submit" className="btn btn-ink" disabled={busy || (!form.editing && form.ids.length === 0) || (!form.place.trim() && !form.link.trim())}>{busy ? 'Sending…' : form.editing ? 'Send the new time' : 'Send invites'}</button>
+            <button type="button" className="btn btn-outline" onClick={() => setForm(null)}>Back</button>
+          </div>
+        </form>
+      )}
+      {!rounds ? <div className="row g12 muted" role="status"><Spinner /> Loading…</div> : rounds.length === 0 ? <div className="well small muted">No interviews scheduled yet.</div> : rounds.map((rd) => (
+        <article key={rd.id} className="card stack g8" data-testid="round" aria-label={rd.round}>
+          <div className="row between g8" style={{ flexWrap: 'wrap', alignItems: 'flex-start' }}>
+            <div className="stack g2"><strong>{rd.round}</strong><span className="xs muted">{rd.when} · {rd.minutes} min · {[rd.place, rd.link].filter(Boolean).join(' · ')} · {rd.interviewer}</span></div>
+            {rd.cancelled ? <span className="badge badge-warning">Cancelled</span> : <span className="xs" data-testid="round-counts">{rd.counts.confirmed} confirmed · {rd.counts.pending} waiting · {rd.counts.reschedule} asked for another time</span>}
+          </div>
+          <ul className="stack g4" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+            {rd.students.map((s) => (
+              <li key={s.id} className="row between g8 small" style={{ flexWrap: 'wrap' }} data-testid="round-student">
+                <span>{s.name}{s.reason ? <span className="xs muted"> · “{s.reason}”</span> : null}</span>
+                <span className={`badge ${STATUS_TONE[s.status]}`}>{s.statusName}</span>
+              </li>
+            ))}
+          </ul>
+          {!rd.cancelled && rd.startsAt > Date.now() && (
+            <div className="row g8">
+              <button type="button" className="btn btn-outline" onClick={() => setForm({ round: rd.round, date: rd.date, time: rd.time, minutes: rd.minutes, place: rd.place, link: rd.link, interviewer: rd.interviewer, notes: rd.notes, ids: [], editing: rd.id })}>Change time</button>
+              <button type="button" className="link-btn small" onClick={() => cancel(rd)}>Cancel interview</button>
+            </div>
+          )}
+        </article>
+      ))}
     </div>
   );
 }

@@ -86,6 +86,7 @@ FEATURES = (
     "multi_campus",
     "recruiter_accounts",
     "recruiter_compare",
+    "interview_scheduling",
 )
 
 

@@ -30,6 +30,7 @@ from app.core.db import (
     EMAIL_CODES,
     FEATURE_GRANTS,
     HEALTH,
+    INTERVIEWS,
     INVOICES,
     JOB_MATCHES,
     JOB_PROFILES,
@@ -64,6 +65,9 @@ async def _memberships(db: AsyncDatabase, user_id: str) -> int:
     await db[DRIVE_CHECKINS].delete_many({"membership_id": {"$in": mids}})
     await db[DRIVES].update_many({"slots.members": {"$in": mids}}, {"$pull": {"slots.$[].members": {"$in": mids}}})
     await db[REMINDER_BATCHES].update_many({}, {"$pull": {"items": {"membership_id": {"$in": mids}}}})
+    await db[INTERVIEWS].update_many(
+        {"students.membership_id": {"$in": mids}}, {"$pull": {"students": {"membership_id": {"$in": mids}}}}
+    )
     unset = {f"board.{m}": "" for m in mids}
     q = {"$or": [{f"board.{m}": {"$exists": True}} for m in mids]}
     await db[RECRUITER_INVITES].update_many(q, {"$unset": unset})
