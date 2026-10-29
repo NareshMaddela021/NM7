@@ -11,7 +11,7 @@ const BEST = 'Motivated and detail-oriented graduate with a strong willingness t
 
 async function openSummaryStep(page) {
   await page.goto('/builder');
-  await page.getByRole('button', { name: /Start from scratch/ }).click();
+  await page.getByRole('button', { name: /Start from scratch|మొదటి నుంచి మొదలుపెట్టండి/ }).click();
   await page.getByTestId('tp-use-top').click();
   await expect(page.getByText(/Live preview ·/)).toBeVisible();
   await page.getByRole('navigation', { name: 'Sections' }).getByRole('button', { name: /^Summary/ }).click();
