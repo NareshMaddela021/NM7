@@ -12,6 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app import automation, home_events
+from app.admin import daily as admin_daily
 from app.admin.console import router as admin_console_router
 from app.admin.router import router as admin_router
 from app.admin.setup import router as admin_setup_router
@@ -216,6 +217,7 @@ def create_app() -> FastAPI:
     app.include_router(college_alumni.me)  # /api/me/alumni (opt in, browse, requests, inbox)
     app.include_router(college_alumni.staff)  # /api/org/{org_id}/alumni (invites, counts)
     app.include_router(college_campuses.admin)  # /api/admin/college-groups
+    app.include_router(admin_daily.router)  # /api/admin/today (Dashboard → Today, Share to WhatsApp)
     app.include_router(account_delete.admin)  # /api/admin/deletion-requests
     app.include_router(referral_rewards.admin)  # /api/admin/referral-rewards (see, revoke)
     app.include_router(college_campuses.owner)  # /api/college-group/{id} (roll-up, shared format, drives, invites)

@@ -74,6 +74,9 @@ class RequestContext:
         except Exception as exc:
             log.exception("request %s %s %s failed", request_id, scope.get("method"), scope.get("path"))
             _capture(exc, request_id)
+            from app.admin.daily import count_error  # late: the admin modules import this one
+
+            await count_error()
             if started:  # the answer was already on its way: nothing more can be said
                 raise
             body = json.dumps({"error": {"code": "server_error", "message": MESSAGE, "requestId": request_id}})
