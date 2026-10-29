@@ -1276,3 +1276,28 @@ recruiter ticks 2–4 students and presses Compare. For each student the compari
 
 Contact details follow the invite's rules (hidden, or shown only after the student is shortlisted). On a phone the
 students stack as cards. Each comparison is logged with who was compared.
+
+**Interview scheduling** (plan switch `interview_scheduling`: Campus). Recruiter portal → Interviews → "Schedule an
+interview". The recruiter picks students from the shortlist board and fills in:
+- round name, date and time (IST) and duration;
+- a place or an online link (https);
+- interviewer name and notes.
+
+Shortlisted students move to Interview on the board. Each student gets an email with `interview.ics`, which works
+with Google Calendar, Outlook and Apple Calendar. The file holds the time in UTC, so calendars show it correctly; the
+email text says IST. The interview appears on the student's My drive day and My groups, where they Confirm or "Ask
+for another time" with a reason (the recruiter gets an email).
+
+The recruiter and the college's coordinators (Org → Recruiters → "Interviews scheduled by recruiters", only their
+groups) see confirmed / waiting / asked for another time. "Change time" sends everyone a new email and an updated
+calendar file: same event, higher sequence, so calendars update it. Everyone is asked to confirm again. Cancel sends
+a cancelled calendar file.
+
+From 9:00 IST the day before, the automation pass sends one reminder per student per time. It is not sent to:
+- someone who asked for another time;
+- a bounced address;
+- someone who turned reminders off (the switch on My interviews, or the "Stop interview reminder emails" link →
+  `/stop-alerts#k=interviews`).
+
+Deleting an account takes the student off every round. The demo recruiter has a round tomorrow at 10:30 IST: one
+student confirmed, one asked for another time.

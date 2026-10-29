@@ -97,6 +97,7 @@ REVIEW_COMMENTS = (
 COLLEGE_GROUPS = (
     "college_groups"  # a parent college group: its campus organizations, owners (roll-up only), group price
 )
+INTERVIEWS = "interviews"  # interview rounds a recruiter scheduled: time (UTC), place / link, each student's answer
 RECRUITERS = "recruiters"  # recruiter accounts: one per email across colleges (sign-in code and sessions hashed)
 STORIES = "stories"  # student testimonials and placement stories: consent, pending → approved / rejected
 OPS_DAILY = "ops_daily"  # per IST day counters for the admin summary, e.g. _id "errors:2026-10-28" → n
@@ -170,6 +171,7 @@ COLLECTIONS = (
     OPS_DAILY,
     STORIES,
     RECRUITERS,
+    INTERVIEWS,
 )
 
 DAY = 86_400
@@ -233,6 +235,12 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel([("org_id", ASCENDING), ("left_at", ASCENDING)]),
     ],
     EXPORT_JOBS: [IndexModel("created_at", expireAfterSeconds=DAY)],
+    INTERVIEWS: [
+        IndexModel([("invite_id", ASCENDING), ("starts_at", ASCENDING)]),
+        IndexModel([("org_id", ASCENDING), ("starts_at", ASCENDING)]),
+        IndexModel("students.user_id"),
+        IndexModel([("cancelled_at", ASCENDING), ("starts_at", ASCENDING)]),
+    ],
     RECRUITERS: [IndexModel("email_lc", unique=True), IndexModel("sessions.hash")],
     STORIES: [IndexModel([("status", ASCENDING), ("decided_at", DESCENDING)]), IndexModel("user_id")],
     ORG_TRANSFERS: [IndexModel([("org_id", ASCENDING), ("status", ASCENDING)]), IndexModel("to_email_lc")],

@@ -27,6 +27,7 @@ from app.core.db import (
     COLLEGE_GROUPS,
     DRIVE_CHECKINS,
     DRIVES,
+    INTERVIEWS,
     LINKEDIN,
     MEMBERSHIPS,
     OFFERS,
@@ -155,6 +156,7 @@ async def remove_demo(db: AsyncDatabase) -> int:
         (RECRUITER_LINKS, {"org_id": ORG_ID}),
         (RECRUITER_INVITES, {"org_id": ORG_ID}),
         (RECRUITERS, {"email_lc": f"recruiter@{EMAIL_DOMAIN}"}),
+        (INTERVIEWS, {"org_id": ORG_ID}),
         (ORG_STAFF, {"org_id": ORG_ID}),
         (ORG_GROUPS, {"org_id": ORG_ID}),
         (ORGANIZATIONS, {"_id": ORG_ID}),
@@ -371,6 +373,39 @@ async def _demo_invite(db: AsyncDatabase, rng: random.Random, actor_id: str | No
             "created_at": t,
         }
     )
+    # an interview round tomorrow for the two students in "Interview": one confirmed, one asked for another time
+    two = [mid for mid in picks if board[mid]["stage"] == "interview"]
+    members = {m["_id"]: m async for m in db[MEMBERSHIPS].find({"_id": {"$in": two}})}
+    start = datetime.combine(t.astimezone(IST).date() + timedelta(days=1), dtime(10, 30), IST)
+    await db[INTERVIEWS].insert_one(
+        {
+            "_id": "demo-interview",
+            "org_id": ORG_ID,
+            "invite_id": iid,
+            "company": "Demo Tech Pvt Ltd (demo)",
+            "recruiter_email": f"recruiter@{EMAIL_DOMAIN}",
+            "group_ids": sorted({members[m]["group_id"] for m in two if m in members}),
+            "round": "Technical round 1 (demo)",
+            "minutes": 45,
+            "place": "Placement cell, Block A (demo)",
+            "link": "",
+            "interviewer": "Demo Interviewer",
+            "notes": "Bring your college ID.",
+            "starts_at": start,
+            "seq": 0,
+            "students": [
+                {"membership_id": m, "user_id": members[m]["user_id"], "group_id": members[m]["group_id"],
+                 "status": st, "reason": why, "at": t, "reminded_seq": 0}
+                for m, (st, why) in zip(two, [("confirmed", ""), ("reschedule", "University exam that morning (demo)")],
+                                        strict=False)
+                if m in members
+            ],
+            "demo": True,
+            "created_at": t,
+            "updated_at": t,
+            "cancelled_at": None,
+        }
+    )  # fmt: skip
     # a past drive (another made-up company, ended months ago): My drives shows its counts and notes, not students
     old = sorted(mids)[-3:]
     await db[RECRUITER_INVITES].insert_one(

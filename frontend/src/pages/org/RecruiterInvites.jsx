@@ -13,6 +13,8 @@ const ACTION = {
   recruiter_invite: 'Invite sent', recruiter_invite_extend: 'Extended', recruiter_invite_revoke: 'Revoked',
   recruiter_login: 'Signed in with the email code', recruiter_search: 'Searched', recruiter_match: 'Job match',
   recruiter_view: 'Viewed a resume', recruiter_stage: 'Moved on the board', recruiter_download: 'Downloaded',
+  recruiter_compare: 'Compared students', recruiter_interview: 'Scheduled an interview', recruiter_interview_change: 'Changed an interview time',
+  recruiter_interview_cancel: 'Cancelled an interview',
 };
 const dayISO = (n) => { const d = new Date(Date.now() + n * 864e5); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
 const blank = () => ({ company: '', recruiterName: '', email: '', groupIds: [], branches: '', expiresOn: dayISO(30), allowPdf: true, contact: 'hidden' });
@@ -129,6 +131,7 @@ export default function RecruiterInvites({ orgId, groups = [], canManage }) {
           )}
         </>
       )}</Loading>
+      <CollegeInterviews base={base} />
       {activity && (
         <Dialog showTitle title={`${activity.i.company}: activity`} onClose={() => setActivity(null)}>
           {activity.rows.length === 0 ? <p className="small muted">Nothing yet.</p> : (
@@ -141,5 +144,31 @@ export default function RecruiterInvites({ orgId, groups = [], canManage }) {
         </Dialog>
       )}
     </section>
+  );
+}
+
+const STATUS_TONE = { confirmed: 'b-success', reschedule: 'b-warning', pending: 'b-neutral' };
+
+/** Interviews recruiters scheduled (R3), with each student's answer (only this coordinator's groups). */
+function CollegeInterviews({ base }) {
+  const st = useApi(`${base}/interviews`);
+  if (!st.data || st.data.rounds.length === 0) return null;
+  return (
+    <div className="stack g8" aria-label="Interviews" role="region" data-testid="college-interviews">
+      <strong className="small">Interviews scheduled by recruiters</strong>
+      {st.data.rounds.map((rd) => (
+        <div key={rd.id} className="well stack g6" data-testid="college-round">
+          <div className="row between g8" style={{ flexWrap: 'wrap' }}>
+            <span className="small"><strong>{rd.company}</strong> · {rd.round} · {rd.when}</span>
+            <span className="xs">{rd.cancelled ? 'Cancelled' : `${rd.counts.confirmed} confirmed · ${rd.counts.pending} waiting · ${rd.counts.reschedule} asked for another time`}</span>
+          </div>
+          <ul className="stack g4" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+            {rd.students.map((s) => (
+              <li key={s.id} className="row between g8 xs" style={{ flexWrap: 'wrap' }}><span>{s.name}{s.reason ? ` · “${s.reason}”` : ''}</span><span className={`badge ${STATUS_TONE[s.status]}`}>{s.statusName}</span></li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
   );
 }

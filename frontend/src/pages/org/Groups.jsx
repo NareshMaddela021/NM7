@@ -19,6 +19,7 @@ import { brandDesign } from '../../lib/branding';
 import { brandFor, checklist } from '../../lib/placementFormat';
 import ResumePreview from '../builder/ResumePreview';
 import ErrorBoundary from '../../components/ErrorBoundary';
+import MyInterviews from '../../components/MyInterviews';
 
 const NEW = '__new__';
 const consentKey = (code) => `nm7-join-consent:${code}`;
@@ -206,6 +207,7 @@ export function MeGroups() {
         </div>
         <button type="submit" className="btn btn-ink" disabled={!cleanCode(code)}>Continue</button>
       </form>
+      {LIVE && <MyInterviews />}
       {drives.data?.length > 0 && (
         <Link to="/me/drive" className="card row between g8" style={{ textDecoration: 'none', color: 'inherit', flexWrap: 'wrap' }} data-testid="drive-link">
           <span className="stack g4"><strong>My drive day</strong><span className="small muted">{drives.data[0].name} · {drives.data[0].date} · {drives.data[0].slots.length} slot{drives.data[0].slots.length === 1 ? '' : 's'}</span></span>

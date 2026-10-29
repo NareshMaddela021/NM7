@@ -32,6 +32,7 @@ FEATURE_KEYS = (
     "multi_campus",
     "recruiter_accounts",
     "recruiter_compare",
+    "interview_scheduling",
 )
 PLAN_IDS = ("free", "drive", "campus", "custom")
 
@@ -59,6 +60,7 @@ DEFAULT_PLANS: dict[str, dict[str, Any]] = {
             "multi_campus": False,
             "recruiter_accounts": False,
             "recruiter_compare": False,
+            "interview_scheduling": False,
         },
         "on_sale": True,
         "public": True,
@@ -87,6 +89,7 @@ DEFAULT_PLANS: dict[str, dict[str, Any]] = {
             "multi_campus": False,
             "recruiter_accounts": True,
             "recruiter_compare": False,
+            "interview_scheduling": False,
         },
         "on_sale": True,
         "public": True,
@@ -115,6 +118,7 @@ DEFAULT_PLANS: dict[str, dict[str, Any]] = {
             "multi_campus": True,
             "recruiter_accounts": True,
             "recruiter_compare": True,
+            "interview_scheduling": True,
         },
         "on_sale": True,
         "public": True,
@@ -143,6 +147,7 @@ DEFAULT_PLANS: dict[str, dict[str, Any]] = {
             "multi_campus": True,
             "recruiter_accounts": True,
             "recruiter_compare": True,
+            "interview_scheduling": True,
         },
         "on_sale": False,  # never bought at checkout: the admin assigns it
         "public": True,
