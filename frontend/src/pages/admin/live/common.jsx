@@ -18,6 +18,7 @@ export const NAV = [
   ['refunds', '/admin/refunds', 'Refunds & disputes', '↺'],
   ['payments', '/admin/payments', 'Payments & invoices', '₹'],
   ['customers', '/admin/customers', 'Customers & support', '☺'],
+  ['customers', '/admin/stories', 'Stories', '❝'],
   ['quality', '/admin/quality', 'Quality', '✓'],
   ['reports', '/admin/reports', 'Reports', '⇩'],
   ['settings', '/admin/settings', 'Settings & prices', '⚙'],

@@ -11,7 +11,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app import automation, home_events
+from app import automation, home_events, stories
 from app.admin import daily as admin_daily
 from app.admin.console import router as admin_console_router
 from app.admin.router import router as admin_router
@@ -217,6 +217,8 @@ def create_app() -> FastAPI:
     app.include_router(college_alumni.me)  # /api/me/alumni (opt in, browse, requests, inbox)
     app.include_router(college_alumni.staff)  # /api/org/{org_id}/alumni (invites, counts)
     app.include_router(college_campuses.admin)  # /api/admin/college-groups
+    app.include_router(stories.admin)  # /api/admin/stories
+    app.include_router(stories.public)  # /api/public/stories
     app.include_router(admin_daily.router)  # /api/admin/today (Dashboard → Today, Share to WhatsApp)
     app.include_router(account_delete.admin)  # /api/admin/deletion-requests
     app.include_router(referral_rewards.admin)  # /api/admin/referral-rewards (see, revoke)
@@ -238,6 +240,7 @@ def create_app() -> FastAPI:
     app.include_router(resume_health.router)  # /api/me/health (resume health alerts)
     app.include_router(resume_health.public)  # /api/public/health/unsubscribe
     app.include_router(orgs.me)  # before me_router: /api/me/groups
+    app.include_router(stories.me)  # /api/me/stories (before me_router)
     app.include_router(account_delete.me)  # /api/me/account/deletion (before me_router)
     app.include_router(org_staff.my_orgs)  # /api/me/orgs
     app.include_router(org_transfer.me)  # /api/me/org-transfers (accept ownership with the emailed code)

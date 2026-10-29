@@ -1,6 +1,7 @@
 // /for-orgs — Nm7 for Organizations: the plans table (prices and limits come from the server, so Naresh can
 // change them in Admin → Plans), a short FAQ, "Start free" (creates an organization with you as its Owner) and
 // "Talk to us" (a support ticket). A ?ref=CODE link from a partner is remembered (Phase 4C).
+import Stories from '../../components/Stories';
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Header from '../../components/Header';
@@ -127,6 +128,7 @@ export default function ForOrgs() {
                 <span className="xs muted">{st.data.gstOn ? `Prices exclude GST (${st.data.gstRatePct}%), added at checkout.` : 'Prices in Indian rupees.'} Paid plans keep working for {st.data.graceDays} days after they end, then the Free limits apply — nothing is deleted.</span>
               </>}
         </section>
+        <Stories title="Students who used Nm7" limit={3} headingId="org-stories-h" />
         <section className="stack g12" aria-labelledby="faq-h">
           <h2 id="faq-h" className="display h3">Questions</h2>
           {ORG_FAQ.map(([q, a]) => <details key={q} className="card"><summary style={{ fontWeight: 600, cursor: 'pointer' }}>{q}</summary><p className="small" style={{ marginTop: 8 }}>{a}</p></details>)}
