@@ -48,6 +48,20 @@ export function sessionFromHash(hash) {
   return m ? m[1] : '';
 }
 
+/** The recruiter account session after the demo link's "&a=…". */
+export function accountFromHash(hash) {
+  const m = /(?:^#|&)a=([A-Za-z0-9_-]{20,100})/.exec(hash || '');
+  return m ? m[1] : '';
+}
+
+const ACCOUNT_KEY = 'nm7-recruiter-account';
+/** The recruiter account session (My drives), kept in this browser until sign-out. */
+export const readAccount = () => { try { return localStorage.getItem(ACCOUNT_KEY) || ''; } catch { return ''; } };
+export const keepAccount = (s) => { try { if (s) localStorage.setItem(ACCOUNT_KEY, s); else localStorage.removeItem(ACCOUNT_KEY); } catch { /* private window */ } };
+
+/** "/recruiter/i.<id>": an invite opened from My drives (the account session signs it in). */
+export const isAccountPath = (token) => /^i\.[A-Za-z0-9-]{4,64}$/.test(token || '');
+
 /** "Bharat · CSE · 8.4 CGPA · 2026": the short line under a candidate's name. */
 export function cardLine(c) {
   const grade = c.cgpa != null ? `${c.cgpa} CGPA` : c.percentage != null ? `${c.percentage}%` : '';

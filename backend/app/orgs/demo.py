@@ -35,6 +35,7 @@ from app.core.db import (
     ORGANIZATIONS,
     RECRUITER_INVITES,
     RECRUITER_LINKS,
+    RECRUITERS,
     RESUMES,
     REVIEW_COMMENTS,
     ROLL_LISTS,
@@ -153,6 +154,7 @@ async def remove_demo(db: AsyncDatabase) -> int:
         (COLLEGE_GROUPS, {"_id": "demo-college-group"}),
         (RECRUITER_LINKS, {"org_id": ORG_ID}),
         (RECRUITER_INVITES, {"org_id": ORG_ID}),
+        (RECRUITERS, {"email_lc": f"recruiter@{EMAIL_DOMAIN}"}),
         (ORG_STAFF, {"org_id": ORG_ID}),
         (ORG_GROUPS, {"org_id": ORG_ID}),
         (ORGANIZATIONS, {"_id": ORG_ID}),
@@ -332,6 +334,7 @@ async def _demo_invite(db: AsyncDatabase, rng: random.Random, actor_id: str | No
     """A recruiter invite from a made-up company, with a few students on its board. Its sign-in code would go to a
     made-up address, so the path returned carries a ready session (after #, never sent to a server log): only the
     admin who reset the demo gets it, and only for this demo invite."""
+    from app.orgs.recruiter_account import issue_session
     from app.orgs.recruiter_portal import SESSION_HOURS, _hash
 
     t = now()
@@ -368,7 +371,45 @@ async def _demo_invite(db: AsyncDatabase, rng: random.Random, actor_id: str | No
             "created_at": t,
         }
     )
-    return f"/recruiter/{token}#s={session}"
+    # a past drive (another made-up company, ended months ago): My drives shows its counts and notes, not students
+    old = sorted(mids)[-3:]
+    await db[RECRUITER_INVITES].insert_one(
+        {
+            "_id": "demo-recruiter-invite-past",
+            "org_id": ORG_ID,
+            "demo": True,
+            "company": "Demo Analytics LLP (demo)",
+            "recruiter_name": "Demo Recruiter",
+            "email": f"recruiter@{EMAIL_DOMAIN}",
+            "email_lc": f"recruiter@{EMAIL_DOMAIN}",
+            "group_ids": sorted(g[0] for g in GROUPS),
+            "branches": [],
+            "expires_at": t - timedelta(days=140),
+            "revoked_at": None,
+            "allow_pdf": False,
+            "contact": "hidden",
+            "token_hash": _hash("token", secrets.token_urlsafe(32)),
+            "board": {
+                mid: {"stage": st, "note": note, "at": t - timedelta(days=150 + i)}
+                for i, (mid, st, note) in enumerate(
+                    zip(
+                        old,
+                        ["selected", "interview", "rejected"],
+                        ["Strong SQL (demo)", "Good projects (demo)", ""],
+                        strict=False,
+                    )  # fmt: skip
+                )
+            },
+            "views": 4,
+            "downloads": 0,
+            "sessions": [],
+            "created_by": actor_id,
+            "created_at": t - timedelta(days=200),
+        }
+    )
+    # the demo recruiter's account (no code: the address is made up), so My drives opens from the same shortcut
+    account = await issue_session(db, f"recruiter@{EMAIL_DOMAIN}", "Demo Recruiter")
+    return f"/recruiter/{token}#s={session}&a={account}"
 
 
 async def _demo_drive(db: AsyncDatabase, rng: random.Random) -> None:

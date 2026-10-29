@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { boardColumns, cardLine, fileSafe, filterCount, isInviteToken, searchQuery, sessionFromHash } from './recruiterPortal';
+import { accountFromHash, boardColumns, cardLine, fileSafe, filterCount, isAccountPath, isInviteToken, searchQuery, sessionFromHash } from './recruiterPortal';
 
 describe('recruiter portal', () => {
   it('builds the search query from the filters that are set', () => {
@@ -30,5 +30,16 @@ describe('recruiter portal', () => {
     expect(fileSafe('Acme & Co. (India)')).toBe('Acme_Co_India');
     expect(isInviteToken('a'.repeat(43))).toBe(true);
     expect(isInviteToken('my-resume')).toBe(false);
+  });
+
+  it('reads the demo account session and the account path', () => {
+    const s = 'a'.repeat(43);
+    expect(accountFromHash(`#s=${'b'.repeat(43)}&a=${s}`)).toBe(s);
+    expect(sessionFromHash(`#s=${'b'.repeat(43)}&a=${s}`)).toBe('b'.repeat(43));
+    expect(accountFromHash('#s=abc')).toBe('');
+    expect(isAccountPath('i.demo-recruiter-invite')).toBe(true);
+    expect(isAccountPath('i.6f1c2b9e-1a2b-4c3d-8e9f-001122334455')).toBe(true);
+    expect(isAccountPath('a'.repeat(43))).toBe(false);
+    expect(isAccountPath('i.')).toBe(false);
   });
 });

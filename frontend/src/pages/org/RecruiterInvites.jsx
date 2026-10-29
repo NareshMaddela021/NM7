@@ -43,6 +43,7 @@ export default function RecruiterInvites({ orgId, groups = [], canManage }) {
     run(async () => { await http(`${base}/recruiter-invites/${i.id}/revoke`, { method: 'POST', body: {} }); st.reload(); }, 'Invite revoked');
   };
   const showShortlist = (on) => run(async () => { await http(`${base}/recruiter-settings`, { method: 'PUT', body: { showShortlist: on } }); st.reload(); }, on ? 'Students will see who shortlisted them' : 'Hidden from students');
+  const namesAfter = (d, on) => run(async () => { await http(`${base}/recruiter-settings`, { method: 'PUT', body: { showShortlist: d.showShortlist, namesAfter: on } }); st.reload(); }, on ? 'Recruiters see names on past drives' : 'Names hidden on past drives');
   const openActivity = async (i) => { try { setActivity({ i, rows: await http(`${base}/recruiter-invites/${i.id}/activity`) }); } catch (e) { toast(e.message); } };
 
   return (
@@ -100,6 +101,10 @@ export default function RecruiterInvites({ orgId, groups = [], canManage }) {
           {canManage && (
             <label className="row g8 small"><input type="checkbox" checked={d.showShortlist} disabled={busy} onChange={(e) => showShortlist(e.target.checked)} /> Show students “Shortlisted by &lt;company&gt;” in My groups</label>
           )}
+          {canManage && d.accounts && (
+            <label className="row g8 small"><input type="checkbox" checked={d.namesAfter} disabled={busy} onChange={(e) => namesAfter(d, e.target.checked)} /> Show student names on a recruiter’s past drives (after an invite ends; otherwise only counts and their own notes)</label>
+          )}
+          {d.accounts && <span className="xs faint">Recruiters can also sign in at nm7.si/recruiter with the same email to see My drives: every college that invited them. Your students are visible only while your invite is active; revoking stops access at once.</span>}
           {!d.jobMatch && <span className="xs faint">Job match mode (recruiters paste a job description and get every student scored) is in the Campus plan.</span>}
           {d.invites.length === 0 ? <div className="well small muted" style={{ textAlign: 'center', padding: 16 }}>No recruiter invites yet.</div> : (
             <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table"><thead><tr><th>Company</th><th>Status</th><th>Groups</th><th>Views · downloads</th><th>Shortlisted</th><th>Expires</th><th /></tr></thead>

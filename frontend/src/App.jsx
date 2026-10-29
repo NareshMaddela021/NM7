@@ -88,6 +88,7 @@ const MeJobs = lazy(() => import('./pages/me/MeJobs'));
 const meShare = () => import('./pages/me/MeShare');
 const MeShare = named(meShare, 'default');
 const RecruiterPortal = lazy(() => import('./pages/recruit/RecruiterPortal')); // /recruiter/<token>: college recruiter invites
+const RecruiterHome = lazy(() => import('./pages/recruit/RecruiterHome')); // /recruiter, /recruiter/drives: recruiter accounts
 const ShareRoute = lazy(() => import('./pages/recruit/Recruiter')); // /r/<name> resume links and /r/<token> recruiter links
 const MeLaunch = lazy(() => import('./pages/me/MeLaunch'));
 const meMoney = () => import('./pages/me/MeMoney');
@@ -416,6 +417,8 @@ export default function App() {
           <Route path="help" element={<MeHelp />} />
         </Route>
         <Route path="/r/:slug" element={<ShareRoute />} />
+        <Route path="/recruiter" element={<RecruiterHome />} />
+        <Route path="/recruiter/drives" element={<RecruiterHome />} />
         <Route path="/recruiter/:token" element={<RecruiterPortal />} />
         <Route path="/join/:code" element={<Join />} />
         <Route path="/groups/stop" element={<StopReminders />} />

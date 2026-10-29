@@ -83,6 +83,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/recruiter",
+      "destination": "/index.html"
+    },
+    {
       "source": "/recruiter/:token",
       "destination": "/index.html"
     },
@@ -168,6 +172,19 @@
     },
     {
       "source": "/(r|kiosk|recruiter)/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/recruiter",
       "headers": [
         {
           "key": "Cache-Control",

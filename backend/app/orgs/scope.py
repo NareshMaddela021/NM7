@@ -84,6 +84,7 @@ FEATURES = (
     "alumni",
     "faculty_review",
     "multi_campus",
+    "recruiter_accounts",
 )
 
 
