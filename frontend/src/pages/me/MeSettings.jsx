@@ -1,5 +1,6 @@
 // Profile & settings: account details (career details live in the Job Profile), notifications per channel, privacy (download data, delete account).
 // Also Help & referral.
+import DeleteAccount from './DeleteAccount';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Dialog, Spinner, useToast } from '../../components/ui';
@@ -93,7 +94,7 @@ export function MeSettings() {
         <div className="row between g8"><span className="small">Expert files are kept for {PROMISES.retentionDays} days after delivery. Your own resumes stay until you delete them.</span></div>
         {canSave() && <div className="row between g8"><span className="small">Your LinkedIn link, the text from your LinkedIn PDF or pasted sections, and your checks. Kept on your account only, never shared with organizations.</span><button type="button" className="btn btn-outline" onClick={() => setLiDel(true)}>Delete my LinkedIn data</button></div>}
         {canSave() && <div className="row between g8"><span className="small">Job posts you matched, their scores, tailoring suggestions, cover letters and interview prep. Kept on your account only, never shared with organizations.</span><button type="button" className="btn btn-outline" onClick={() => setJobDel(true)}>Delete my job-search data</button></div>}
-        <div className="row between g8"><span className="small" style={{ color: 'var(--danger)' }}>Delete my account and all my data.</span><button type="button" className="btn btn-ghost" style={{ color: 'var(--danger)' }} onClick={() => setDel(true)}>Delete account</button></div>
+        {LIVE ? <DeleteAccount /> : <div className="row between g8"><span className="small" style={{ color: 'var(--danger)' }}>Delete my account and all my data.</span><button type="button" className="btn btn-ghost" style={{ color: 'var(--danger)' }} onClick={() => setDel(true)}>Delete account</button></div>}
       </section>
       {jobDel && (
         <Dialog showTitle title="Delete your job-search data?" onClose={() => setJobDel(false)}>
@@ -120,8 +121,7 @@ export function MeSettings() {
         <Dialog showTitle title="Delete your account?" onClose={() => setDel(false)}>
           <form className="stack g12" onSubmit={async (e) => {
             e.preventDefault();
-            if (!LIVE) { resetMe(); setDel(false); setConfirm(''); toast('Deletion requested — we confirm by email. (Preview: sample data reset.)'); return; }
-            try { await deleteLinkedIn().catch(() => {}); await deleteJobData().catch(() => {}); await raiseIssue({ topic: 'Account', text: 'Please delete my account and all my data.' }); setDel(false); setConfirm(''); toast('Deletion requested — our team confirms by email within 7 days.'); } catch (err) { toast(err.message); }
+            resetMe(); setDel(false); setConfirm(''); toast('Preview: sample data reset. On the live site you confirm with an email code and have 7 days to undo.');
           }}>
             <span className="small muted">This deletes your resumes, cover letters, applications, messages, and your LinkedIn link, PDF text and checks (those go at once). Invoices are kept as the law requires. Download your data first if you want a copy.</span>
             <label htmlFor="del" className="label">Type DELETE to confirm</label>
