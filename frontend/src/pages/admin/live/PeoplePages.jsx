@@ -122,9 +122,37 @@ export function LiveCustomers() {
   return (
     <>
       <PageHead title="Customers & support" sub="Accounts, their orders, and support tickets from “Raise an issue”." />
-      <Tabs label="View" tabs={[['customers', 'Customers'], ['tickets', 'Support tickets']]} value={tab} onChange={(v) => setParams({ tab: v })} />
-      {tab === 'customers' ? <CustomerList initial={params.get('id')} /> : <Tickets />}
+      <Tabs label="View" tabs={[['customers', 'Customers'], ['tickets', 'Support tickets'], ['deletions', 'Deletion requests']]} value={tab} onChange={(v) => setParams({ tab: v })} />
+      {tab === 'customers' ? <CustomerList initial={params.get('id')} /> : tab === 'tickets' ? <Tickets /> : <Deletions />}
     </>
+  );
+}
+
+const DELETION = { pending: ['Waiting 7 days', 'b-warning'], undone: ['Undone', 'b-neutral'], erased: ['Erased', 'b-success'] };
+/** Self-serve account deletions: the name and email are shown only while the request is open. */
+function Deletions() {
+  const st = useApi('/api/admin/deletion-requests');
+  return (
+    <section className="card stack g12" aria-label="Deletion requests">
+      <strong>Deletion requests</strong>
+      <span className="xs muted">People who chose Delete account. Erased automatically 7 days after they confirm with an email code, unless they undo it. Paid orders and invoices are kept for GST, without their name or email.</span>
+      <Loading st={st} empty={emptyIf((d) => !d.length, 'No deletion requests.')}>{(rows) => (
+        <div className="table-wrap"><table className="table" data-testid="deletions">
+          <thead><tr><th>Who</th><th>Asked</th><th>Erase on</th><th>Status</th></tr></thead>
+          <tbody>{rows.map((r) => {
+            const [label, tone] = DELETION[r.status] || [r.status, 'b-neutral'];
+            return (
+              <tr key={r.userId}>
+                <td className="small">{r.name || r.email ? <>{r.name}<br /><span className="xs muted">{r.email}</span></> : <span className="muted">(removed)</span>}</td>
+                <td className="small">{day(r.requestedAt)}</td>
+                <td className="small">{r.erasedAt ? day(r.erasedAt) : day(r.eraseAt)}</td>
+                <td><span className={`badge ${tone}`}>{label}</span>{r.items ? <span className="xs muted"> · {r.items} items</span> : null}</td>
+              </tr>
+            );
+          })}</tbody>
+        </table></div>
+      )}</Loading>
+    </section>
   );
 }
 

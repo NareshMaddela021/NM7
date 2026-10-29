@@ -46,6 +46,7 @@ from app.jobsearch.tailor_router import router as jobs_tailor_router
 from app.linkedin.pack_router import router as linkedin_pack_router
 from app.linkedin.router import router as linkedin_router
 from app.maintenance.router import router as maintenance_router
+from app.me import delete as account_delete
 from app.me import rewards as referral_rewards
 from app.me.router import public as public_router
 from app.me.router import router as me_router
@@ -202,6 +203,7 @@ def create_app() -> FastAPI:
     app.include_router(college_alumni.me)  # /api/me/alumni (opt in, browse, requests, inbox)
     app.include_router(college_alumni.staff)  # /api/org/{org_id}/alumni (invites, counts)
     app.include_router(college_campuses.admin)  # /api/admin/college-groups
+    app.include_router(account_delete.admin)  # /api/admin/deletion-requests
     app.include_router(referral_rewards.admin)  # /api/admin/referral-rewards (see, revoke)
     app.include_router(college_campuses.owner)  # /api/college-group/{id} (roll-up, shared format, drives, invites)
     app.include_router(college_campuses.me)  # /api/me/college-groups
@@ -221,6 +223,7 @@ def create_app() -> FastAPI:
     app.include_router(resume_health.router)  # /api/me/health (resume health alerts)
     app.include_router(resume_health.public)  # /api/public/health/unsubscribe
     app.include_router(orgs.me)  # before me_router: /api/me/groups
+    app.include_router(account_delete.me)  # /api/me/account/deletion (before me_router)
     app.include_router(org_staff.my_orgs)  # /api/me/orgs
     app.include_router(org_transfer.me)  # /api/me/org-transfers (accept ownership with the emailed code)
     app.include_router(me_router)

@@ -14,6 +14,7 @@ from app.core.db import LOCKS, ORDER_WORK, ORDERS
 from app.core.email import Email, Mailer, get_mailer, send_safely
 from app.core.time import now
 from app.health.service import daily_batch as health_batch
+from app.me.delete import erase_due
 from app.site import get_site, save_site
 from app.wapay.service import cancel_stale
 
@@ -116,6 +117,7 @@ async def run_rules(db: AsyncDatabase, mailer: Mailer | None = None) -> dict[str
             runs[key] = {"last_run": now(), "acted": prev.get("acted", 0) + done[key]}
         done["whatsapp_cancel"] = await cancel_stale(db)  # hours from Admin → Settings → Payments
         done["health_emails"] = await health_batch(db, mailer or get_mailer())  # once a day; each person ≤ 1 / 14 days
+        done["accounts_erased"] = await erase_due(db)  # self-serve deletions whose 7-day undo window is over
         await save_site(db, {"rule_runs": runs})
         return done
     finally:
