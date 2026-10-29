@@ -28,6 +28,7 @@ ITEMS: dict[str, tuple[str, str]] = {
     "resume": ("Resume download", "diy"),
     "tailor_pack": ("Tailor pack", "tailor_pack"),
     "interview_pack": ("Interview pack", "interview_pack"),
+    "annual_pass": ("Annual pass", "annual_pass"),
     "launch": ("Career Launch", "launch"),
     "expert": ("Expert rewrite", "expert"),
     "linkedin_pack": ("LinkedIn pack", "linkedin_pack"),

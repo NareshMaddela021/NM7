@@ -3,7 +3,7 @@
 import { fileName } from './fileName';
 
 export const ITEMS = [
-  ['resume', 'Resume download'], ['tailor_pack', 'Tailor pack'], ['interview_pack', 'Interview pack'],
+  ['resume', 'Resume download'], ['tailor_pack', 'Tailor pack'], ['interview_pack', 'Interview pack'], ['annual_pass', 'Annual pass'],
   ['launch', 'Career Launch'], ['expert', 'Expert rewrite'], ['linkedin_pack', 'LinkedIn pack'],
   ['drive', 'Drive plan'], ['campus', 'Campus plan'],
 ];

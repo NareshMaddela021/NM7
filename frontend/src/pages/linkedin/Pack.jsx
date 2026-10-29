@@ -14,6 +14,7 @@ import { BUY_WA, WA_PAY_TEXT } from '../../lib/waPay';
 import { CopyButton } from './parts';
 import CodeBox from '../../components/CodeBox';
 import { inrExact } from '../../lib/pricing';
+import PassOffer from '../../components/PassOffer';
 
 const inr = (n) => `₹${Number(n).toLocaleString('en-IN')}`;
 
@@ -67,6 +68,7 @@ export default function Pack({ request, accent = '#111827', onOwned }) {
       )}
       {signedIn && <CodeBox item="linkedin_pack" onApplied={setQuote} disabled={busy} onUnlocked={async () => { toast('LinkedIn pack unlocked'); await reload(); }} />}
       {st.onSale && <span className="xs faint">{st.mode === 'whatsapp' ? `${WA_PAY_TEXT} Included in Career Launch.` : 'UPI, card or netbanking · GST invoice emailed · Included in Career Launch'}</span>}
+      {signedIn && <PassOffer compact onBought={reload} />}
     </section>
   );
 }

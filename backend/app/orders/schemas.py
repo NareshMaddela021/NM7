@@ -9,7 +9,7 @@ from app.orders.pricing import PLANS
 
 
 class CreateOrderIn(CamelModel):
-    plan_id: Literal["diy", "expert", "launch", "linkedin_pack", "tailor_pack", "interview_pack"]
+    plan_id: Literal["diy", "expert", "launch", "linkedin_pack", "tailor_pack", "interview_pack", "annual_pass"]
     role: str | None = Field(default=None, max_length=100)  # the job the resume is for
     addons: list[str] = Field(default_factory=list, max_length=5)
     code: str | None = Field(default=None, max_length=40)  # a code (Admin → Codes); one per order

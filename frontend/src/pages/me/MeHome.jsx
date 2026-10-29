@@ -11,6 +11,7 @@ import { Kpi } from '../admin/AdminUI';
 import { ResumeThumb, downloadResume, countdown, templateName, ago } from './shared';
 import HealthCard from './HealthCard';
 import LinkedInCard from './LinkedInCard';
+import PassOffer, { PassActive } from '../../components/PassOffer';
 
 export default function MeHome() {
   const me = useMe();
@@ -33,6 +34,8 @@ export default function MeHome() {
   return (
     <>
       <div className="stack g4"><span className="mono xs muted">MY DASHBOARD</span><h1 className="display" style={{ fontSize: 32 }}>Hi {first} 👋</h1></div>
+      <PassActive />
+      {typeof window !== 'undefined' && /[?&]pass=1/.test(window.location.search) && <PassOffer />}
 
       {next?.action ? (
         <div className="card-ink row between g16">

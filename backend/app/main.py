@@ -50,6 +50,7 @@ from app.linkedin.router import router as linkedin_router
 from app.maintenance.router import router as maintenance_router
 from app.me import delete as account_delete
 from app.me import rewards as referral_rewards
+from app.me import student_pass
 from app.me.router import public as public_router
 from app.me.router import router as me_router
 from app.orders.router import router as orders_router
@@ -191,6 +192,7 @@ def create_app() -> FastAPI:
     app.include_router(org_interviews.me)  # /api/me/interviews
     app.include_router(org_interviews.public)  # /api/public/interviews/stop-reminders
     app.include_router(org_interviews.staff)  # /api/org/{org_id}/interviews
+    app.include_router(student_pass.router)  # /api/me/pass (P1)
     app.include_router(org_feedback.portal)  # /api/recruiter/{token}/feedback (R4)
     app.include_router(org_feedback.account)  # /api/recruiter-account/drives/{id}/feedback
     app.include_router(org_feedback.staff)  # /api/org/{org_id}/recruiter-feedback

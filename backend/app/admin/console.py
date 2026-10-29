@@ -42,6 +42,7 @@ from app.linkedin.pack import grant as pack_grant
 from app.linkedin.pack import pack_status
 from app.linkedin.pack import revoke as pack_revoke
 from app.me import emails as me_emails
+from app.me import student_pass
 from app.me.router import ticket_out
 from app.me.service import ms
 from app.orders.models import Order
@@ -209,6 +210,7 @@ async def customer_detail(user_id: str, db: DB, _: AdminAuth("customers")) -> di
         "orders": [o.model_dump(by_alias=True, mode="json") for o in await order_views(db, orders)],
         "linkedinPack": await _pack_out(db, u.id),
         "jobPacks": await _job_packs_out(db, u.id),
+        "annualPass": await _pass_out(db, u.id),
         "tickets": [
             ticket_out(t).model_dump(by_alias=True)
             async for t in db[TICKETS].find({"user_id": u.id}).sort("created_at", DESCENDING)
@@ -302,6 +304,27 @@ async def grant_job_pack(
         action = f"{body.feature}_pack.revoked"
     await audit(db, auth.user.id, action, target=u.id, data={"email": u.email, "note": body.note}, ip=_ip(request))
     return {"jobPacks": await _job_packs_out(db, u.id)}
+
+
+async def _pass_out(db, user_id: str) -> dict[str, Any] | None:
+    p = await student_pass.active(db, user_id)
+    return {"source": p["source"], "orderId": p["order_id"], "until": ms(p["until"])} if p else None
+
+
+@router.post("/customers/{user_id}/annual-pass")
+async def grant_annual_pass(
+    user_id: str, body: PackGrantIn, request: Request, db: DB, auth: AdminAuth("customers")
+) -> dict[str, Any]:
+    """Grant (or take back) a 12-month annual pass by hand. A paid pass is never taken back here: refund its order."""
+    u = await _customer(db, user_id)
+    if body.granted:
+        await student_pass.grant(db, u.id, auth.user.id, body.note.strip())
+        action = "annual_pass.granted"
+    else:
+        await student_pass.revoke(db, u.id)
+        action = "annual_pass.revoked"
+    await audit(db, auth.user.id, action, target=u.id, data={"email": u.email, "note": body.note}, ip=_ip(request))
+    return {"annualPass": await _pass_out(db, u.id)}
 
 
 # ---------- support tickets ----------
@@ -707,7 +730,10 @@ class PriceIn(CamelModel):
 
 class SettingsIn(CamelModel):
     plans: (
-        dict[Literal["diy", "expert", "launch", "linkedin_pack", "tailor_pack", "interview_pack"], PriceIn] | None
+        dict[
+            Literal["diy", "expert", "launch", "linkedin_pack", "tailor_pack", "interview_pack", "annual_pass"], PriceIn
+        ]
+        | None
     ) = None
     addons: dict[Literal["revision", "express", "linkedin"], PriceIn] | None = None
     delivery_hours: int | None = Field(None, ge=24, le=168)

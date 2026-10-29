@@ -78,6 +78,11 @@ async def pack_status(db: AsyncDatabase, user_id: str) -> dict[str, Any] | None:
             "purchased_at": o["paid_at"],
             "source": "launch" if o["plan"] == "launch" else "order",
         }
+    from app.me.student_pass import active as pass_active
+
+    p = await pass_active(db, user_id)
+    if p:
+        return {"order_id": p["order_id"], "purchased_at": p["start"], "source": "pass", "until": p["until"]}
     rec = await db[LINKEDIN_PACKS].find_one({"_id": user_id, "source": "grant"})
     if rec:
         return {"order_id": None, "purchased_at": rec["purchased_at"], "source": "grant"}

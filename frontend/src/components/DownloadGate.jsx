@@ -8,6 +8,7 @@ import { createOrder, pay } from '../services/api';
 import { reloadMe } from '../lib/customerStore';
 import { BUY_WA, WA_PAY_TEXT, buyOnWhatsApp, usePayMode } from '../lib/waPay';
 import CodeBox from './CodeBox';
+import PassOffer from './PassOffer';
 
 const rs = (n) => `Rs ${Number(n).toLocaleString('en-IN', Number.isInteger(Number(n)) ? {} : { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
@@ -78,6 +79,7 @@ function UnlockGate({ g }) {
         <li>All templates</li>
         <li>AI line fixes</li>
       </ul>
+      <PassOffer compact onBought={async () => { closeGate(); await g.retry().catch(() => {}); }} />
       {g.what !== 'cover' && <CodeBox item="resume" resumeId={g.resumeId} onApplied={setQuote} onUnlocked={unlocked} disabled={busy} />}
       {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
       <div className="stack g8">

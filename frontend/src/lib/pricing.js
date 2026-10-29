@@ -11,6 +11,8 @@ export const PLANS = {
   // job search, self-serve: the Rs 99 plan includes the Tailor pack; Career Launch includes the Interview pack
   tailor_pack: { id: 'tailor_pack', name: 'Tailor pack', price: 49, blurb: 'Unlimited job matches, tailored resume copies, AI rewrites and cover letters' },
   interview_pack: { id: 'interview_pack', name: 'Interview pack', price: 99, blurb: '10 questions with answers from your resume, and practice with feedback' },
+  // best value: 12 months of downloads + the Tailor, Interview and LinkedIn packs (the price is set in Admin → Settings)
+  annual_pass: { id: 'annual_pass', name: 'Annual student pass', price: 199, blurb: 'For 12 months: unlimited PDF and Word downloads, the Tailor pack, the Interview pack (with voice practice) and the LinkedIn pack' },
 };
 /** The resume plans (expert / DIY), without the LinkedIn pack. */
 export const RESUME_PLANS = ['diy', 'expert', 'launch'];

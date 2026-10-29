@@ -12,6 +12,7 @@ Rules:
 - once payments are on (WhatsApp or Razorpay): an account with a paid, not refunded order for any plan (Fix it
   yourself, Expert rewrite, Career Launch) — unlocked for good after the first payment;
 - a member of an active group whose organization made downloads free for its members (reason "group");
+- an annual student pass in force (reason "pass"; app/me/student_pass.py): until it ends;
 - one resume unlocked for good by a free code (reason "resume"): an order at Rs 0 that names the resume; it
   unlocks that resume's PDF and Word only, not the whole account.
 """
@@ -26,13 +27,16 @@ from app.core.db import DB, ORDERS, RESUMES
 from app.core.errors import ApiError
 from app.core.schemas import CamelModel
 from app.me.rewards import reward_unlocks
+from app.me.student_pass import active as pass_active
 from app.orgs.service import group_downloads_free
 from app.site import get_site
 from app.wapay.settings import payments_on as _payments_on
 
 router = APIRouter(prefix="/api/me", tags=["downloads"])
 
-Reason = Literal["guest", "unpaid", "paid", "plan", "admin", "expert", "payments_off", "group", "resume", "referral"]
+Reason = Literal[
+    "guest", "unpaid", "paid", "plan", "admin", "expert", "payments_off", "group", "resume", "referral", "pass"
+]
 PLAN_NAMES = {"diy": "paid", "expert": "plan", "launch": "plan"}
 LOST = ("refunded", "cancelled")
 
@@ -86,6 +90,8 @@ async def account_entitlement(db, user_id) -> tuple[bool, str]:
         return True, "plan"
     if "diy" in plans:
         return True, "paid"
+    if await pass_active(db, user_id):
+        return True, "pass"
     if await group_downloads_free(db, user_id):
         return True, "group"
     if await reward_unlocks(db, user_id):

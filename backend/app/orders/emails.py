@@ -18,6 +18,8 @@ def payment_receipt(to: str, name: str, order: Order) -> Email:
         "linkedin_pack": "Your LinkedIn pack is unlocked: open nm7.si/linkedin to see it.",
         "tailor_pack": "Your Tailor pack is unlocked: open nm7.si/me/ats to match and tailor your resume.",
         "interview_pack": "Your Interview pack is unlocked: open nm7.si/me/interview to start.",
+        "annual_pass": "Your annual student pass is active for 12 months: unlimited downloads and the Tailor, "
+        "Interview and LinkedIn packs. Your dashboard shows the end date: nm7.si/me.",
     }.get(
         order.plan,
         "Your expert will be assigned shortly. Answer the 4 quick questions in your dashboard so they can start.",

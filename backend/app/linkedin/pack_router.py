@@ -39,7 +39,7 @@ log = logging.getLogger("nm7.linkedin")
 
 class PackStatusOut(CamelModel):
     owned: bool
-    source: Literal["order", "launch", "grant", ""] = ""
+    source: Literal["order", "launch", "grant", "pass", ""] = ""
     order_id: str | None = None
     purchased_at: int | None = None  # ms
     payments_on: bool
