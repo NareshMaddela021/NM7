@@ -21,6 +21,7 @@ export default function SiteFooter() {
           <Link to="/refund-policy">Refunds & cancellation</Link>
           <Link to="/delivery-policy">Delivery</Link>
           <Link to="/expert-terms">Expert terms</Link>
+          <Link to="/status">Status</Link>
         </nav>
         <span className="row g16">
           <a href={SISTER_SITE.url} target="_blank" rel="noreferrer" title={SISTER_SITE.blurb}>{SISTER_SITE.name} ↗</a>

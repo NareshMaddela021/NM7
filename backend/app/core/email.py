@@ -1,7 +1,9 @@
 """Sending email. Production uses Resend (or Zoho ZeptoMail); dev prints to the log; tests collect messages."""
 
 import logging
+import time
 from base64 import b64encode
+from collections import deque
 from dataclasses import dataclass, field
 from email.utils import parseaddr
 from typing import Annotated, Protocol
@@ -150,17 +152,32 @@ def log_email_status() -> None:
         log.error("Email is OFF: %s is not set (EMAIL_PROVIDER=%s).", mailer.setting, get_settings().email_provider)
 
 
+# The latest send results in this server process (when, ok), for the public status page: no addresses or content.
+RECENT: deque[tuple[float, bool]] = deque(maxlen=20)
+
+
+def email_health(mailer: Mailer) -> str:
+    """ "ok", "degraded" (most recent sends in the last hour failed) or "off" (no email key on the server)."""
+    if not mailer.available:
+        return "off"
+    hour = [ok for t, ok in RECENT if t > time.time() - 3600]
+    return "degraded" if len(hour) >= 3 and hour.count(False) > len(hour) / 2 else "ok"
+
+
 async def send_safely(mailer: Mailer, msg: Email) -> bool:
     """Email problems must not break sign-up or payments; they are logged and the user can ask again."""
     try:
         await mailer.send(msg)
+        RECENT.append((time.time(), True))
         return True
     except httpx.HTTPStatusError as e:
         # Status and provider message only — never the subject or body (they can contain one-time codes).
         log.error("Email to %s refused by provider: HTTP %s %s", msg.to, e.response.status_code, e.response.text[:300])
+        RECENT.append((time.time(), False))
         return False
     except Exception:
         log.exception("Could not send an email to %s", msg.to)
+        RECENT.append((time.time(), False))
         return False
 
 
