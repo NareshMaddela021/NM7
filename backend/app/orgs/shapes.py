@@ -205,6 +205,7 @@ class FeaturesIn(CamelModel):
     faculty_review: bool | None = None
     multi_campus: bool | None = None
     recruiter_accounts: bool | None = None
+    recruiter_compare: bool | None = None
 
 
 # ---------- helpers ----------
@@ -245,6 +246,7 @@ def _features_out(o: dict[str, Any]) -> dict[str, bool]:
         "facultyReview": f["faculty_review"],
         "multiCampus": f["multi_campus"],
         "recruiterAccounts": f["recruiter_accounts"],
+        "recruiterCompare": f["recruiter_compare"],
     }
 
 
@@ -279,6 +281,7 @@ def overrides_out(o: dict[str, Any]) -> dict[str, bool | None]:
         "facultyReview": f.get("faculty_review"),
         "multiCampus": f.get("multi_campus"),
         "recruiterAccounts": f.get("recruiter_accounts"),
+        "recruiterCompare": f.get("recruiter_compare"),
     }
 
 

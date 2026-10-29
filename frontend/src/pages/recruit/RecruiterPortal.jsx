@@ -142,6 +142,8 @@ function Workspace({ base, session, onSignedOut }) {
   const [viewing, setViewing] = useState(null);
   const [busy, setBusy] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  const [picked, setPicked] = useState([]); // compare: 2–4 students (Campus)
+  const [comparing, setComparing] = useState(null);
   const fail = useCallback((e) => { if (e.status === 401) { toast('Please sign in again.'); onSignedOut(); } else toast(e.message); }, [onSignedOut, toast]);
   const load = useCallback((f = applied) => rq(`${base}/candidates${searchQuery(f)}`, session).then((data) => setSt({ data }), (error) => { if (error.status === 401) onSignedOut(); else setSt({ error }); }), [base, session, applied, onSignedOut]);
   useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -166,6 +168,16 @@ function Workspace({ base, session, onSignedOut }) {
   const stage = async (c, next, note = c.note || '') => {
     try { updateCard(await rq(`${base}/board/${c.id}`, session, { method: 'PUT', body: { stage: next, note } })); } catch (e) { fail(e); }
   };
+
+  const pick = (c, on) => setPicked((p) => (on ? (p.includes(c.id) || p.length >= 4 ? p : [...p, c.id]) : p.filter((x) => x !== c.id)));
+  const runCompare = async () => {
+    setBusy('compare');
+    try {
+      const r = await rq(`${base}/compare`, session, { method: 'POST', body: { ids: picked, jd: match && jd.trim().length >= 30 ? jd : null } });
+      setComparing(r);
+    } catch (e) { fail(e); } finally { setBusy(''); }
+  };
+  const canPick = !!st.data?.compare;
 
   const download = async (kind) => {
     setBusy(kind);
@@ -259,7 +271,7 @@ function Workspace({ base, session, onSignedOut }) {
         ? <div className="well small muted" style={{ textAlign: 'center', padding: 24 }}>{tab === 'match' && !match ? 'Paste a job description to score the students.' : 'No students match. Try fewer filters.'}</div>
         : (tab === 'match' && !match) ? null : (
           <div className="grid" style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))' }}>
-            {list.map((c) => <Card key={c.id} c={c} onView={() => setViewing(c)} onStage={stage} />)}
+            {list.map((c) => <Card key={c.id} c={c} onView={() => setViewing(c)} onStage={stage} pick={canPick ? { on: picked.includes(c.id), full: picked.length >= 4, set: (on) => pick(c, on) } : null} />)}
           </div>
         ))}
 
@@ -276,13 +288,23 @@ function Workspace({ base, session, onSignedOut }) {
                 <section key={s} className="card stack g8" aria-label={STAGE_LABEL[s]} data-testid={`col-${s}`}>
                   <strong className="small">{STAGE_LABEL[s]} ({cols[s].length})</strong>
                   {cols[s].length === 0 && <span className="xs faint">Nobody yet.</span>}
-                  {cols[s].map((c) => <BoardItem key={c.id} c={c} onStage={stage} onView={() => setViewing(c)} />)}
+                  {cols[s].map((c) => <BoardItem key={c.id} c={c} onStage={stage} onView={() => setViewing(c)} pick={canPick ? { on: picked.includes(c.id), full: picked.length >= 4, set: (on) => pick(c, on) } : null} />)}
                 </section>
               ))}
             </div>
           )}
         </div>
       )}
+      {canPick && picked.length > 0 && (
+        <div className="card row between g8" role="region" aria-label="Compare" style={{ position: 'sticky', bottom: 12, flexWrap: 'wrap', zIndex: 5 }}>
+          <span className="small">{picked.length} picked{picked.length < 2 ? ' · pick at least 2' : picked.length >= 4 ? ' · 4 at most' : ''}</span>
+          <div className="row g8">
+            <button type="button" className="link-btn small" onClick={() => setPicked([])}>Clear</button>
+            <button type="button" className="btn btn-ink" disabled={picked.length < 2 || busy === 'compare'} onClick={runCompare}>{busy === 'compare' ? 'Comparing…' : `Compare ${picked.length}`}</button>
+          </div>
+        </div>
+      )}
+      {comparing && <CompareView data={comparing} onClose={() => setComparing(null)} />}
       {viewing && <QuickView base={base} session={session} c={viewing} onClose={() => setViewing(null)} onStage={stage} onFail={fail} />}
     </>
   );
@@ -296,7 +318,12 @@ function StageSelect({ c, onStage, label }) {
   );
 }
 
-function Card({ c, onView, onStage }) {
+function PickBox({ c, pick }) {
+  if (!pick) return null;
+  return <label className="row g6 xs" style={{ minHeight: 32 }}><input type="checkbox" checked={pick.on} disabled={!pick.on && pick.full} onChange={(e) => pick.set(e.target.checked)} aria-label={`Compare ${c.name}`} /> Compare</label>;
+}
+
+function Card({ c, onView, onStage, pick }) {
   return (
     <article className="card stack g8" data-testid="student-card" aria-label={c.name}>
       <div className="row between g8" style={{ alignItems: 'flex-start' }}>
@@ -315,12 +342,13 @@ function Card({ c, onView, onStage }) {
         {c.stage === 'none'
           ? <button type="button" className="btn btn-ink" onClick={() => onStage(c, 'shortlisted')}>Shortlist</button>
           : <StageSelect c={c} onStage={onStage} />}
+        <PickBox c={c} pick={pick} />
       </div>
     </article>
   );
 }
 
-function BoardItem({ c, onStage, onView }) {
+function BoardItem({ c, onStage, onView, pick }) {
   const [note, setNote] = useState(c.note || '');
   useEffect(() => { setNote(c.note || ''); }, [c.note]);
   return (
@@ -328,8 +356,43 @@ function BoardItem({ c, onStage, onView }) {
       <button type="button" className="link-btn small" style={{ textAlign: 'left' }} onClick={onView}><strong>{c.name}</strong></button>
       <span className="xs muted">{cardLine(c)}</span>
       <StageSelect c={c} onStage={onStage} />
+      <PickBox c={c} pick={pick} />
       <input className="input xs" aria-label={`Note for ${c.name}`} placeholder="Note" maxLength={500} value={note} onChange={(e) => setNote(e.target.value)} onBlur={() => { if (note !== (c.note || '')) onStage(c, c.stage, note); }} />
     </div>
+  );
+}
+
+/** 2–4 students side by side: columns on a wide screen, stacked cards on a phone. */
+function CompareView({ data, onClose }) {
+  const rows = [
+    ['Branch', (c) => c.branch || '—'],
+    ['CGPA', (c) => (c.cgpa != null ? c.cgpa : c.percentage != null ? `${c.percentage}%` : '—')],
+    ['Passing year', (c) => c.year || '—'],
+    ['ATS score', (c) => c.ats],
+    ...(data.must?.length ? [
+      ['Job match', (c) => (c.match != null ? `${c.match}%` : '—')],
+      ['Must-haves found', (c) => (c.mustFound?.length ? c.mustFound.join(', ') : 'None')],
+      ['Must-haves missing', (c) => (c.mustMissing?.length ? c.mustMissing.join(', ') : 'None')],
+    ] : []),
+    ['Top skills', (c) => (c.skills.length ? c.skills.join(', ') : '—')],
+    ['Projects', (c) => (c.projects.length ? <ul className="stack g4" style={{ margin: 0, paddingLeft: 16 }}>{c.projects.map((p, i) => <li key={i}><strong>{p.title}</strong>{p.tech ? ` · ${p.tech}` : ''}{p.line ? <div className="xs muted">{p.line}</div> : null}</li>)}</ul> : '—')],
+    ['Internships', (c) => (c.internships.length ? <ul className="stack g4" style={{ margin: 0, paddingLeft: 16 }}>{c.internships.map((e, i) => <li key={i}>{[e.role, e.company].filter(Boolean).join(' · ')}{e.when ? <div className="xs muted">{e.when}</div> : null}</li>)}</ul> : '—')],
+    ['Certificates', (c) => ([...c.certificates, ...c.walletCertificates.map((t) => `${t} (file shared)`)].join(', ') || '—')],
+    ['Contact', (c) => (c.email ? `${c.email}${c.phone ? ` · ${c.phone}` : ''}` : 'Through the college')],
+  ];
+  return (
+    <Dialog showTitle wide title={`Compare ${data.candidates.length} students`} onClose={onClose}>
+      <div style={{ display: 'grid', gap: 12, gridTemplateColumns: `repeat(auto-fit, minmax(min(100%, 200px), 1fr))` }} data-testid="compare">
+        {data.candidates.map((c) => (
+          <article key={c.id} className="well stack g8" aria-label={c.name} data-testid="compare-card">
+            <strong style={{ overflowWrap: 'anywhere' }}>{c.name}</strong>
+            <dl className="stack g6 small" style={{ margin: 0 }}>
+              {rows.map(([k, f]) => <div key={k} className="stack g2"><dt className="xs muted">{k}</dt><dd style={{ margin: 0, overflowWrap: 'anywhere' }}>{f(c)}</dd></div>)}
+            </dl>
+          </article>
+        ))}
+      </div>
+    </Dialog>
   );
 }
 

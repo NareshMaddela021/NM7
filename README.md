@@ -1265,3 +1265,14 @@ access on the next request. Past drives keep their counts and notes; student nam
 college ticks Org → Recruiters → "Show student names on a recruiter's past drives". Sign-ins and My drives views are in
 each college's Activity log. The demo college's recruiter shortcut also signs in the demo recruiter's account, with a
 past drive from another made-up company.
+
+**Compare candidates** (plan switch `recruiter_compare`: Campus). On search, job match or the shortlist board the
+recruiter ticks 2–4 students and presses Compare. For each student the comparison shows:
+- branch, CGPA, passing year and ATS score;
+- top skills;
+- after a job match: the match score with must-haves found and missing;
+- projects (title, tools, first line) and internships;
+- certificates from the resume, plus wallet files only when the student shares them.
+
+Contact details follow the invite's rules (hidden, or shown only after the student is shortlisted). On a phone the
+students stack as cards. Each comparison is logged with who was compared.

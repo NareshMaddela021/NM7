@@ -26,6 +26,7 @@ export const PLAN_FEATURES = [
   ['facultyReview', 'Faculty reviewers'],
   ['multiCampus', 'Multiple campuses under one group'],
   ['recruiterAccounts', 'Recruiter accounts with drive history'],
+  ['recruiterCompare', 'Compare candidates side by side'],
 ];
 
 /** ₹4,999 · ₹4,499.10 (paise shown only when there are any). */
