@@ -26,7 +26,17 @@ from app.audit import audit
 from app.auth.models import new_id
 from app.auth.sessions import client_ip
 from app.core import rate_limit
-from app.core.db import AUDIT_LOG, DB, MEMBERSHIPS, OFFERS, ORGANIZATIONS, RECRUITER_INVITES, RECRUITERS, USERS
+from app.core.db import (
+    AUDIT_LOG,
+    DB,
+    MEMBERSHIPS,
+    OFFERS,
+    ORGANIZATIONS,
+    RECRUITER_FEEDBACK,
+    RECRUITER_INVITES,
+    RECRUITERS,
+    USERS,
+)
 from app.core.email import Email, MailerDep, send_safely
 from app.core.errors import ApiError
 from app.core.schemas import CamelModel
@@ -246,6 +256,8 @@ async def drive_out(db, inv: dict[str, Any]) -> dict[str, Any]:
             "offers": offers,
         },
         "notes": notes,
+        "feedbackOn": features_of(inv["_org"])["recruiter_feedback"],
+        "feedbackGiven": bool(await db[RECRUITER_FEEDBACK].find_one({"_id": inv["_id"]}, {"_id": 1})),
         "demo": bool(inv.get("demo")),
     }
 

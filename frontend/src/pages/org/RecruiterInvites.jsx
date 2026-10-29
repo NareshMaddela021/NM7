@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { Dialog, useToast } from '../../components/ui';
 import { CONTACT_LABEL, INVITE_STATE, STAGE_LABEL } from '../../lib/recruiterPortal';
 import { Loading, http, useAction, useApi, when } from '../admin/live/common';
+import RecruiterFeedback from './RecruiterFeedback';
 
 const tone = { active: 'b-success', expired: 'b-neutral', revoked: 'b-warning' };
 const ACTION = {
@@ -132,6 +133,7 @@ export default function RecruiterInvites({ orgId, groups = [], canManage }) {
         </>
       )}</Loading>
       <CollegeInterviews base={base} />
+      {st.data?.feedback && <RecruiterFeedback base={base} />}
       {activity && (
         <Dialog showTitle title={`${activity.i.company}: activity`} onClose={() => setActivity(null)}>
           {activity.rows.length === 0 ? <p className="small muted">Nothing yet.</p> : (

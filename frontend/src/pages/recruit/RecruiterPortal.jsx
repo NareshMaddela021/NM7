@@ -22,6 +22,7 @@ import { designOf } from '../builder/design';
 import SharedCerts from '../../components/SharedCerts';
 import { openCertFile } from '../../lib/certs';
 import Shell from './RecruiterShell';
+import FeedbackForm from './FeedbackForm';
 
 const storeKey = (token) => `nm7-recruiter:${token.slice(0, 16)}`;
 const readSession = (token) => { try { return sessionStorage.getItem(storeKey(token)) || ''; } catch { return ''; } };
@@ -144,6 +145,7 @@ function Workspace({ base, session, onSignedOut }) {
   const [showFilters, setShowFilters] = useState(false);
   const [picked, setPicked] = useState([]); // compare: 2–4 students (Campus)
   const [comparing, setComparing] = useState(null);
+  const [feedback, setFeedback] = useState(false);
   const fail = useCallback((e) => { if (e.status === 401) { toast('Please sign in again.'); onSignedOut(); } else toast(e.message); }, [onSignedOut, toast]);
   const load = useCallback((f = applied) => rq(`${base}/candidates${searchQuery(f)}`, session).then((data) => setSt({ data }), (error) => { if (error.status === 401) onSignedOut(); else setSt({ error }); }), [base, session, applied, onSignedOut]);
   useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -224,7 +226,10 @@ function Workspace({ base, session, onSignedOut }) {
           <h1 className="display" style={{ fontSize: 28 }}>Students for {d.company}</h1>
           <span className="small muted">Only students who agreed to share their resume with recruiters are shown.{d.contact === 'hidden' ? ' Contact details go through the college.' : d.contact === 'after_shortlist' ? ' Contact details show once you shortlist a student.' : ''}</span>
         </div>
-        <button type="button" className="link-btn small" onClick={onSignedOut}>Sign out</button>
+        <div className="row g12" style={{ flexWrap: 'wrap' }}>
+          {d.feedback && <button type="button" className="btn btn-outline" onClick={() => setFeedback(true)}>Feedback for the college</button>}
+          <button type="button" className="link-btn small" onClick={onSignedOut}>Sign out</button>
+        </div>
       </div>
       <div className="segmented" role="tablist" aria-label="Views" style={{ display: 'flex', flexWrap: 'wrap' }}>
         {[['search', `Students (${d.total})`], ...(d.jobMatch ? [['match', 'Job match']] : []), ['board', 'Shortlist board'], ...(d.interviews ? [['interviews', 'Interviews']] : [])].map(([k, l]) => (
@@ -305,6 +310,7 @@ function Workspace({ base, session, onSignedOut }) {
           </div>
         </div>
       )}
+      {feedback && <FeedbackForm load={() => rq(`${base}/feedback`, session)} save={(body) => rq(`${base}/feedback`, session, { method: 'PUT', body })} onClose={() => setFeedback(false)} onSaved={() => toast('Thank you: the college sees your feedback')} />}
       {comparing && <CompareView data={comparing} onClose={() => setComparing(null)} />}
       {viewing && <QuickView base={base} session={session} c={viewing} onClose={() => setViewing(null)} onStage={stage} onFail={fail} />}
     </>

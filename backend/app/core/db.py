@@ -97,6 +97,7 @@ REVIEW_COMMENTS = (
 COLLEGE_GROUPS = (
     "college_groups"  # a parent college group: its campus organizations, owners (roll-up only), group price
 )
+RECRUITER_FEEDBACK = "recruiter_feedback"  # _id = the invite: a recruiter's rating, common gaps, visit again
 INTERVIEWS = "interviews"  # interview rounds a recruiter scheduled: time (UTC), place / link, each student's answer
 RECRUITERS = "recruiters"  # recruiter accounts: one per email across colleges (sign-in code and sessions hashed)
 STORIES = "stories"  # student testimonials and placement stories: consent, pending → approved / rejected
@@ -172,6 +173,7 @@ COLLECTIONS = (
     STORIES,
     RECRUITERS,
     INTERVIEWS,
+    RECRUITER_FEEDBACK,
 )
 
 DAY = 86_400
@@ -235,6 +237,7 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel([("org_id", ASCENDING), ("left_at", ASCENDING)]),
     ],
     EXPORT_JOBS: [IndexModel("created_at", expireAfterSeconds=DAY)],
+    RECRUITER_FEEDBACK: [IndexModel([("org_id", ASCENDING), ("updated_at", DESCENDING)])],
     INTERVIEWS: [
         IndexModel([("invite_id", ASCENDING), ("starts_at", ASCENDING)]),
         IndexModel([("org_id", ASCENDING), ("starts_at", ASCENDING)]),

@@ -9,6 +9,7 @@ import { usePageMeta } from '../../lib/meta';
 import { keepAccount, readAccount, STAGE_LABEL } from '../../lib/recruiterPortal';
 import { API_BASE, ApiError } from '../../services/http';
 import Shell from './RecruiterShell';
+import FeedbackForm from './FeedbackForm';
 
 async function rq(path, { method = 'GET', body } = {}) {
   let res;
@@ -92,14 +93,16 @@ function Drives({ onSignedOut }) {
       </div>
       <p className="xs faint">Each college decides who you can see. Students show only while that college’s invite is active; when it ends you keep the counts and your own notes.</p>
       {data.drives.length === 0 && <div className="well small muted">No drives yet. When a college invites this email, it shows here.</div>}
-      {active.length > 0 && <section className="stack g12" aria-label="Active drives"><h2 className="small">Active</h2>{active.map((d) => <Drive key={d.id} d={d} />)}</section>}
-      {past.length > 0 && <section className="stack g12" aria-label="Past drives"><h2 className="small">Past</h2>{past.map((d) => <Drive key={d.id} d={d} />)}</section>}
+      {active.length > 0 && <section className="stack g12" aria-label="Active drives"><h2 className="small">Active</h2>{active.map((d) => <Drive key={d.id} d={d} onChanged={load} />)}</section>}
+      {past.length > 0 && <section className="stack g12" aria-label="Past drives"><h2 className="small">Past</h2>{past.map((d) => <Drive key={d.id} d={d} onChanged={load} />)}</section>}
     </div>
   );
 }
 
-function Drive({ d }) {
+function Drive({ d, onChanged }) {
   const [label, tone] = STATE[d.state] || STATE.expired;
+  const [fb, setFb] = useState(false);
+  const path = `/api/recruiter-account/drives/${d.id}/feedback`;
   const c = d.counts;
   return (
     <article className="card stack g8" data-testid="my-drive">
@@ -120,7 +123,11 @@ function Drive({ d }) {
           </ul>
         </details>
       )}
-      {d.path ? <Link to={d.path} className="btn btn-ink" style={{ alignSelf: 'flex-start' }}>Open students</Link> : <span className="xs faint">This invite has ended: students are no longer shown.</span>}
+      <div className="row g8" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
+        {d.path ? <Link to={d.path} className="btn btn-ink">Open students</Link> : <span className="xs faint">This invite has ended: students are no longer shown.</span>}
+        {d.feedbackOn && <button type="button" className="btn btn-outline" onClick={() => setFb(true)}>{d.feedbackGiven ? 'Edit feedback' : 'Give feedback'}</button>}
+      </div>
+      {fb && <FeedbackForm load={() => rq(path)} save={(body) => rq(path, { method: 'PUT', body })} onClose={() => setFb(false)} onSaved={onChanged} />}
     </article>
   );
 }

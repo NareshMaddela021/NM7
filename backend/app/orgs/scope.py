@@ -87,6 +87,7 @@ FEATURES = (
     "recruiter_accounts",
     "recruiter_compare",
     "interview_scheduling",
+    "recruiter_feedback",
 )
 
 

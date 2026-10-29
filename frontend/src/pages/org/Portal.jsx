@@ -24,6 +24,7 @@ import Offers from './Offers';
 import Alumni from './Alumni';
 import Reviewers from './Reviewers';
 import { planBanners } from '../../lib/orgBilling';
+import RecruiterFeedback from './RecruiterFeedback';
 
 const ROLE = { owner: 'Owner', coordinator: 'Coordinator', viewer: 'Viewer (view and print)', reviewer: 'Reviewer', admin: 'Nm7 admin' };
 
@@ -158,7 +159,12 @@ export function PortalGroups() {
 export function PortalPlacement() {
   const { ctx, home } = useOutletContext();
   usePageMeta(portalMeta(`Dashboard · ${home.name}`));
-  return <Placement base={ctx.base} role={ctx.role} canManage={home.canManage} billingUrl={home.isOwner ? `/org/${ctx.orgId}/billing` : null} wa={!!home.features?.waReminders} />;
+  return (
+    <>
+      <Placement base={ctx.base} role={ctx.role} canManage={home.canManage} billingUrl={home.isOwner ? `/org/${ctx.orgId}/billing` : null} wa={!!home.features?.waReminders} />
+      {home.features?.recruiterFeedback && <RecruiterFeedback base={ctx.base} />}
+    </>
+  );
 }
 
 /** /org/:orgId/resumes */

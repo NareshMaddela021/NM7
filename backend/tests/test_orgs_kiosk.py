@@ -64,7 +64,8 @@ async def test_features_default_off_and_only_the_super_admin_switches_them(owner
                                "recruiterJobMatch": False, "drives": False, "eligibility": False, "offers": False,
                                "waReminders": False, "alumni": False, "facultyReview": False,
                                "multiCampus": False, "recruiterAccounts": False,
-                               "recruiterCompare": False, "interviewScheduling": False}  # fmt: skip
+                               "recruiterCompare": False, "interviewScheduling": False,
+                               "recruiterFeedback": False}  # fmt: skip
     c, _ = await coordinator(owner, make_client, outbox, org["id"])
     ops = await admin_client("ops")
     for who in (c, ops):

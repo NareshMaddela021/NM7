@@ -370,6 +370,7 @@ async def list_invites(db: DB, scope: OrgScope) -> dict[str, Any]:
         "namesAfter": bool((o.get("recruiter_settings") or {}).get("names_after")),
         "jobMatch": features_of(o)["recruiter_job_match"],
         "accounts": features_of(o)["recruiter_accounts"],
+        "feedback": features_of(o)["recruiter_feedback"],
     }
 
 
@@ -672,6 +673,7 @@ async def search(
         "jobMatch": features_of(inv["_org"])["recruiter_job_match"],
         "compare": features_of(inv["_org"])["recruiter_compare"],
         "interviews": features_of(inv["_org"])["interview_scheduling"],
+        "feedback": features_of(inv["_org"])["recruiter_feedback"],
         "total": len(rows),
         "branches": branches,
         "candidates": sorted(cards, key=lambda c: c["name"].lower()),
