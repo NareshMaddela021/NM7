@@ -16,6 +16,7 @@ from app.core.email import Email, Mailer, get_mailer, send_safely
 from app.core.time import now
 from app.health.service import daily_batch as health_batch
 from app.me.delete import erase_due
+from app.me.student_pass import send_reminders as pass_reminders
 from app.orgs.interviews import send_reminders as interview_reminders
 from app.site import get_site, save_site
 from app.wapay.service import cancel_stale
@@ -121,6 +122,7 @@ async def run_rules(db: AsyncDatabase, mailer: Mailer | None = None) -> dict[str
         done["health_emails"] = await health_batch(db, mailer or get_mailer())  # once a day; each person ≤ 1 / 14 days
         done["accounts_erased"] = await erase_due(db)  # self-serve deletions whose 7-day undo window is over
         done["daily_summary"] = await send_daily(db, mailer or get_mailer())  # 8:00 IST, once a day
+        done["pass_reminders"] = await pass_reminders(db, mailer or get_mailer())  # 7 days before a pass ends
         done["interview_reminders"] = await interview_reminders(db, mailer or get_mailer())  # the day before, 9:00 IST
         await save_site(db, {"rule_runs": runs})
         return done

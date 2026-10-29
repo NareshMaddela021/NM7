@@ -14,6 +14,7 @@ import { PACKS, STATUS_TEXT, VERDICT_TONE, buyPack, decide, getMatch, getTailor,
 import { fmtDay } from './shared';
 import JobCover from './JobCover';
 import SkillGap from './SkillGap';
+import PassOffer from '../../components/PassOffer';
 
 const KIND_LABEL = { tech: 'Skill', tool: 'Tool', cert: 'Certification', lang: 'Language' };
 
@@ -44,6 +45,7 @@ export function PackOffer({ kind, acc, onBought, why }) {
       ) : <span className="btn btn-outline" aria-disabled="true" data-testid={`pack-${kind}-soon`} style={{ alignSelf: 'flex-start', opacity: 0.7, cursor: 'not-allowed' }}>Coming soon</span>}
       {acc && <CodeBox item={pack.plan} onApplied={setQuote} disabled={busy} onUnlocked={() => { toast(`${pack.name} unlocked`); onBought?.(); }} />}
       {onSale && acc.mode === 'whatsapp' && <span className="xs faint">{WA_PAY_TEXT}</span>}
+      <PassOffer compact onBought={onBought} />
     </div>
   );
 }

@@ -63,7 +63,9 @@ from app.coupons.service import (
 me = APIRouter(prefix="/api/me/codes", tags=["codes"])
 admin = APIRouter(prefix="/api/admin/coupons", tags=["admin-codes"])
 
-Item = Literal["resume", "tailor_pack", "interview_pack", "launch", "expert", "linkedin_pack", "drive", "campus"]
+Item = Literal[
+    "resume", "tailor_pack", "interview_pack", "launch", "expert", "linkedin_pack", "annual_pass", "drive", "campus"
+]
 NOT_FOUND = ApiError(404, "not_found", "No such code.")
 
 

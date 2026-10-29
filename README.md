@@ -1316,3 +1316,28 @@ There is one answer per invite, and the recruiter can change it. The college's d
 gap links to free courses from Admin → Courses. Each drive's answer is listed too. Coordinators of some groups see
 only feedback on invites to their groups. The form never names a student, and students never see the feedback. The
 demo college has one past drive's feedback.
+
+## Annual student pass
+
+**Annual student pass** (Rs 199 a year; the price and on/off are in Admin → Settings & prices). One payment unlocks,
+for 12 months:
+- unlimited PDF and Word downloads;
+- the Tailor pack;
+- the Interview pack (with voice practice);
+- the LinkedIn pack.
+
+The single purchases stay on sale: Rs 99 downloads, and the Rs 49, Rs 99 and Rs 149 packs. The pass shows as "Best
+value" on the home pricing, the download pop-up, the Tailor and Interview pack offers and the LinkedIn pack. It follows
+the payment mode:
+- WhatsApp: an order the admin marks paid in Admin → WhatsApp payments;
+- Razorpay: its checkout, when it is switched on;
+- Off: not shown.
+
+Codes work on it: "Annual pass" is in a code's "Applies to" list (free, percent or flat). Admin → Customers → a
+customer → "Grant annual pass" gives 12 months by hand, and "Take back" removes a grant; a paid pass is refunded
+instead, which ends it at once. A second pass bought early starts when the first one ends. The dashboard shows "Pass
+active until <date>". The automation pass emails a reminder 7 days before the end, once per end date.
+
+When the pass ends, anything bought separately stays unlocked and only pass access stops. Resumes and data are never
+locked or deleted. Orders and invoices treat a pass like any other self-serve order. The daily summary and the Today
+card count "Annual passes sold".

@@ -325,6 +325,15 @@ function Pricing({ goPlan, t }) {
           </div>
         ))}
       </div>
+      {PLANS.annual_pass?.active !== false && (
+        <div className="card row between g12" data-testid="home-pass" style={{ alignItems: 'center', flexWrap: 'wrap', borderColor: 'var(--accent)' }}>
+          <span className="stack g4" style={{ flex: '1 1 320px' }}>
+            <span className="row g8" style={{ alignItems: 'center', flexWrap: 'wrap' }}><strong>{t('pricing.pass.title', { price: inr(PLANS.annual_pass.price) })}</strong><span className="badge b-success">{t('pricing.pass.badge')}</span></span>
+            <span className="small muted">{t('pricing.pass.text')}</span>
+          </span>
+          <Link to="/me?pass=1" className="btn btn-ink">{t('pricing.pass.cta')}</Link>
+        </div>
+      )}
       <div className="card row between g12" data-testid="home-linkedin-pack" style={{ alignItems: 'center', flexWrap: 'wrap' }}>
         <span className="stack g4" style={{ flex: '1 1 320px' }}>
           <strong>{t('pricing.lp.title', { price: inr(PLANS.linkedin_pack.price) })}</strong>

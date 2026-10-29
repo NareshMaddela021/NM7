@@ -4,7 +4,8 @@
                Included in the Rs 99 plan ("Fix it yourself") and in the expert plans.
     interview  the Interview pack (Rs 99): the full interview prep pack and practice mode. Included in Career Launch.
 
-An account has a feature when it paid for an order of one of those plans that is not refunded or cancelled (checked
+An account has a feature while its annual student pass is in force (app/me/student_pass.py), or when it paid for an
+order of one of those plans that is not refunded or cancelled (checked
 against the order itself, so a refund takes access away at once), or when an admin granted it by hand (Admin >
 Customers, written to the audit log) to test it before payments are on.
 
@@ -50,6 +51,11 @@ async def status(db: AsyncDatabase, user_id: str, feature: Feature) -> dict[str,
     if o:
         source = "order" if o["plan"] == PACK_PLAN[feature] else "plan"
         return {"source": source, "order_id": o["_id"], "plan": o["plan"]}
+    from app.me.student_pass import active as pass_active
+
+    p = await pass_active(db, user_id)
+    if p:
+        return {"source": "pass", "order_id": p["order_id"], "plan": "annual_pass", "until": p["until"]}
     g = await db[FEATURE_GRANTS].find_one({"_id": f"{feature}:{user_id}"})
     if g:
         return {"source": "grant", "order_id": None, "plan": None}

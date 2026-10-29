@@ -205,7 +205,7 @@ function CustomerPanel({ id, onClose, onChanged }) {
           {c.orders.length ? c.orders.map((o) => <span key={o.id} className="small">{o.id} · {o.planName} · {rupees(o.amount)} · {STATUS_LABEL[o.status] || o.status}</span>) : <span className="xs muted">No orders.</span>}
           <strong className="small">LinkedIn pack</strong>
           <div className="row between g8 small" data-testid="admin-li-pack" style={{ alignItems: 'center', flexWrap: 'wrap' }}>
-            <span>{!c.linkedinPack ? 'Not unlocked' : c.linkedinPack.source === 'grant' ? `Granted by an admin · ${day(c.linkedinPack.purchasedAt)}` : `Paid · ${c.linkedinPack.orderId}${c.linkedinPack.source === 'launch' ? ' (Career Launch)' : ''}`}</span>
+            <span>{!c.linkedinPack ? 'Not unlocked' : c.linkedinPack.source === 'grant' ? `Granted by an admin · ${day(c.linkedinPack.purchasedAt)}` : c.linkedinPack.source === 'pass' ? 'Included in the annual pass' : `Paid · ${c.linkedinPack.orderId}${c.linkedinPack.source === 'launch' ? ' (Career Launch)' : ''}`}</span>
             {!c.linkedinPack ? (
               <button type="button" className="btn btn-outline" disabled={busy} onClick={() => run(async () => { await http(`/api/admin/customers/${id}/linkedin-pack`, { method: 'POST', body: { granted: true, note: notes || '' } }); st.reload(); }, 'LinkedIn pack granted')}>Grant LinkedIn pack</button>
             ) : c.linkedinPack.source === 'grant' ? (
@@ -217,13 +217,20 @@ function CustomerPanel({ id, onClose, onChanged }) {
             const g = c.jobPacks?.[k];
             return (
               <div key={k} className="row between g8 small" data-testid={`admin-job-${k}`} style={{ alignItems: 'center', flexWrap: 'wrap' }}>
-                <span>{label}: {!g ? 'Not unlocked' : g.source === 'grant' ? 'Granted by an admin' : g.source === 'plan' ? `Included in a plan · ${g.orderId}` : `Paid · ${g.orderId}`}</span>
+                <span>{label}: {!g ? 'Not unlocked' : g.source === 'grant' ? 'Granted by an admin' : g.source === 'pass' ? 'Included in the annual pass' : g.source === 'plan' ? `Included in a plan · ${g.orderId}` : `Paid · ${g.orderId}`}</span>
                 {!g ? <button type="button" className="btn btn-outline" disabled={busy} onClick={() => run(async () => { await http(`/api/admin/customers/${id}/job-pack`, { method: 'POST', body: { feature: k, granted: true, note: notes || '' } }); st.reload(); }, `${label} granted`)}>Grant {label}</button>
                   : g.source === 'grant' ? <button type="button" className="btn btn-ghost" disabled={busy} onClick={() => run(async () => { await http(`/api/admin/customers/${id}/job-pack`, { method: 'POST', body: { feature: k, granted: false } }); st.reload(); }, `${label} taken back`)}>Take back</button>
                     : <span className="xs muted">Paid: refund the order to take it back</span>}
               </div>
             );
           })}
+          <strong className="small">Annual pass</strong>
+          <div className="row between g8 small" data-testid="admin-pass" style={{ alignItems: 'center', flexWrap: 'wrap' }}>
+            <span>{!c.annualPass ? 'No pass' : `${c.annualPass.source === 'grant' ? 'Granted by an admin' : `Paid · ${c.annualPass.orderId}`} · until ${day(c.annualPass.until)}`}</span>
+            {!c.annualPass ? <button type="button" className="btn btn-outline" disabled={busy} onClick={() => run(async () => { await http(`/api/admin/customers/${id}/annual-pass`, { method: 'POST', body: { granted: true, note: notes || '' } }); st.reload(); }, 'Annual pass granted for 12 months')}>Grant annual pass</button>
+              : c.annualPass.source === 'grant' ? <button type="button" className="btn btn-ghost" disabled={busy} onClick={() => run(async () => { await http(`/api/admin/customers/${id}/annual-pass`, { method: 'POST', body: { granted: false } }); st.reload(); }, 'Annual pass taken back')}>Take back</button>
+                : <span className="xs muted">Paid: refund the order to take it back</span>}
+          </div>
           <strong className="small">Support tickets</strong>
           {c.tickets.length ? c.tickets.map((t) => <span key={t.id} className="small">{t.id} · {t.topic} · {t.status} — {t.text.slice(0, 80)}</span>) : <span className="xs muted">No tickets.</span>}
           <div className="field"><label className="label" htmlFor="c-notes">Private notes (team only)</label><textarea id="c-notes" className="input" rows={3} value={notes ?? c.notes} onChange={(e) => setNotes(e.target.value)} /></div>

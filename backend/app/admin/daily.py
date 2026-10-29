@@ -78,6 +78,7 @@ async def numbers(db: AsyncDatabase, day: date, until: datetime | None = None) -
         "newUsers": await db[USERS].count_documents({"role": "customer", "created_at": w, "demo": {"$ne": True}}),
         "resumes": await db[RESUMES].count_documents({"created_at": w}),
         "ordersPaid": await db[ORDERS].count_documents({"paid_at": w}),
+        "passesSold": await db[ORDERS].count_documents({"paid_at": w, "plan": "annual_pass"}),
         "revenue": (paid[0]["n"] if paid else 0) - (refunded[0]["n"] if refunded else 0),  # paise
         "codesUsed": await db[COUPON_USES].count_documents({"at": w, "status": {"$ne": "reserved"}}),
         "orgSignups": await db[ORGANIZATIONS].count_documents({"created_at": w, "demo": {"$ne": True}}),
@@ -97,6 +98,7 @@ def message(n: dict[str, Any], title: str) -> str:
             f"New users: {n['newUsers']}",
             f"Resumes started: {n['resumes']}",
             f"Paid orders: {n['ordersPaid']} · Revenue: {rupees(n['revenue'])}",
+            f"Annual passes sold: {n['passesSold']}",
             f"Codes used: {n['codesUsed']}",
             f"New organizations: {n['orgSignups']}",
             f"Server errors: {n['errors']}",

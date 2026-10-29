@@ -22,7 +22,7 @@ export function TodayCard() {
             <a className="btn btn-outline" style={{ minHeight: 36 }} href={`https://wa.me/?text=${encodeURIComponent(t.text)}`} target="_blank" rel="noopener noreferrer" data-testid="today-wa">Share to WhatsApp</a>
           </div>
           <div className="row g16 small" style={{ flexWrap: 'wrap' }}>
-            {[['New users today', t.newUsers], ['Resumes started', t.resumes], ['Orders paid today', t.ordersPaid], ['Revenue', rupees(t.revenue)], ['Codes used', t.codesUsed], ['New organizations', t.orgSignups], ['Server errors', t.errors]].map(([k, v]) => (
+            {[['New users today', t.newUsers], ['Resumes started', t.resumes], ['Orders paid today', t.ordersPaid], ['Annual passes sold', t.passesSold ?? 0], ['Revenue', rupees(t.revenue)], ['Codes used', t.codesUsed], ['New organizations', t.orgSignups], ['Server errors', t.errors]].map(([k, v]) => (
               <span key={k} className="stack" style={{ minWidth: 110 }}><span className="xs muted">{k}</span><strong style={{ fontSize: 20, color: k === 'Server errors' && v ? 'var(--danger)' : undefined }}>{v}</strong></span>
             ))}
           </div>
