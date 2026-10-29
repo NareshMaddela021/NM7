@@ -3,6 +3,7 @@
 import asyncio
 import logging
 import os
+import time
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager, suppress
 
@@ -32,7 +33,7 @@ from app.core import errors
 from app.core.body_limit import BodyLimit
 from app.core.config import get_settings
 from app.core.db import DB, close_client, ensure_indexes, get_database
-from app.core.email import log_email_status
+from app.core.email import email_health, get_mailer, log_email_status
 from app.core.observability import RequestContext, init_sentry
 from app.coupons import router as coupons
 from app.courses import router as courses
@@ -134,13 +135,25 @@ def create_app() -> FastAPI:
         allow_headers=["Content-Type", "X-Access-Code", "X-Recruiter-Session"],  # recruiter link code, portal session
     )
 
-    @app.get("/health", tags=["ops"])
+    @app.api_route("/health", methods=["GET", "HEAD"], tags=["ops"])
     async def health(db: DB) -> JSONResponse:
+        """For uptime monitors (GET or HEAD; a ping every 5 minutes also keeps a free Render server awake)."""
         try:
             await db.command("ping")
         except Exception:
             return JSONResponse({"status": "error", "db": "down"}, status_code=503)
         return JSONResponse({"status": "ok", "db": "ok"})
+
+    @app.get("/api/public/status", tags=["ops"])
+    async def public_status(db: DB) -> JSONResponse:
+        """The public /status page: is the API up, can it reach its database, can it send email. States only."""
+        try:
+            await db.command("ping")
+            api = "ok"
+        except Exception:
+            api = "down"
+        body = {"api": api, "email": email_health(get_mailer()), "checkedAt": int(time.time() * 1000)}
+        return JSONResponse(body, headers={"Cache-Control": "no-store"}, status_code=200 if api == "ok" else 503)
 
     @app.get("/version", tags=["ops"])
     async def version() -> dict[str, str]:

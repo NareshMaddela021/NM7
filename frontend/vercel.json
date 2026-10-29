@@ -63,7 +63,7 @@
       "destination": "/expert-terms/index.html"
     },
     {
-      "source": "/(scan|checkout|editor|login|signup|forgot-password|linkedin|stop-alerts|checkin)",
+      "source": "/(scan|checkout|editor|login|signup|forgot-password|linkedin|stop-alerts|checkin|status)",
       "destination": "/index.html"
     },
     {
