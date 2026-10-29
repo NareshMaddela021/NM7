@@ -302,8 +302,9 @@ const FEATURES = [
   ['recruiterAccounts', 'Recruiter accounts', 'One sign-in per recruiter email across colleges, with a My drives history. Students stay visible only while this college’s invite is active.'],
   ['recruiterCompare', 'Compare candidates', 'Recruiters tick 2–4 students and compare CGPA, skills, match score, projects, internships and certificates side by side.'],
   ['interviewScheduling', 'Interview scheduling', 'Recruiters schedule interview rounds from the shortlist board; students get an email with a calendar file and confirm or ask for another time.'],
+  ['recruiterFeedback', 'Recruiter feedback', 'After a drive recruiters rate it and tick common gaps; the college sees What recruiters said, linked to free courses.'],
 ];
-const FEATURE_KEY = { kiosk: 'kiosk', branding: 'branding', recruiterLinks: 'recruiter_links', membersDownloadFree: 'members_download_free', placementInsights: 'placement_insights', templateRules: 'template_rules', recruiterJobMatch: 'recruiter_job_match', drives: 'drives', eligibility: 'eligibility', offers: 'offers', waReminders: 'wa_reminders', alumni: 'alumni', facultyReview: 'faculty_review', multiCampus: 'multi_campus', recruiterAccounts: 'recruiter_accounts', recruiterCompare: 'recruiter_compare', interviewScheduling: 'interview_scheduling' };
+const FEATURE_KEY = { kiosk: 'kiosk', branding: 'branding', recruiterLinks: 'recruiter_links', membersDownloadFree: 'members_download_free', placementInsights: 'placement_insights', templateRules: 'template_rules', recruiterJobMatch: 'recruiter_job_match', drives: 'drives', eligibility: 'eligibility', offers: 'offers', waReminders: 'wa_reminders', alumni: 'alumni', facultyReview: 'faculty_review', multiCampus: 'multi_campus', recruiterAccounts: 'recruiter_accounts', recruiterCompare: 'recruiter_compare', interviewScheduling: 'interview_scheduling', recruiterFeedback: 'recruiter_feedback' };
 const OVERRIDE = { plan: null, on: true, off: false };
 
 /** Admin → Organizations → (organization) → Features: the plan decides; Nm7 can force one on or off. */

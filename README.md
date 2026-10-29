@@ -1301,3 +1301,18 @@ From 9:00 IST the day before, the automation pass sends one reminder per student
 
 Deleting an account takes the student off every round. The demo recruiter has a round tomorrow at 10:30 IST: one
 student confirmed, one asked for another time.
+
+**Recruiter feedback** (plan switch `recruiter_feedback`: Drive and Campus). A one-minute form about a drive, opened
+from the recruiter portal ("Feedback for the college") or from My drives ("Give feedback"; it works for past drives
+too):
+- overall rating 1–5;
+- common gaps: skills from the skills dictionary (the ones Nm7 has free courses for, plus C, C++, data structures,
+  Linux), "basics of <skill>", projects without results, communication, and free text;
+- what went well;
+- would visit again (yes / maybe / no).
+
+There is one answer per invite, and the recruiter can change it. The college's dashboard and Recruiters page show
+"What recruiters said": average rating, how many would visit again, and the gaps seen most across drives. Each skill
+gap links to free courses from Admin → Courses. Each drive's answer is listed too. Coordinators of some groups see
+only feedback on invites to their groups. The form never names a student, and students never see the feedback. The
+demo college has one past drive's feedback.

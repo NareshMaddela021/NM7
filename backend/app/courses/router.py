@@ -85,15 +85,9 @@ def out(c: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-@me.get("")
-async def for_skills(
-    auth: CustomerAuth,
-    db: DB,
-    skills_: str = Query("", alias="skills", max_length=600),
-    language: str = Query("", max_length=30),
-) -> dict[str, Any]:
+async def courses_for(db: AsyncDatabase, asked: list[str], language: str = "", per: int = PER_SKILL) -> list[dict]:
+    """Up to `per` free, active courses for each skill (also used for "What recruiters said" at colleges)."""
     await ensure_seed(db)
-    asked = [x.strip() for x in skills_.split(",") if x.strip()][:12]
     result = []
     for s in asked:
         name = skill_name(s)
@@ -103,7 +97,19 @@ async def for_skills(
             .to_list(50)
         )
         rows.sort(key=lambda c: (c.get("language", "").lower() != language.lower(), c.get("hours") or 99, c["title"]))
-        result.append({"skill": name, "courses": [out(c) for c in rows[:PER_SKILL]]})
+        result.append({"skill": name, "courses": [out(c) for c in rows[:per]]})
+    return result
+
+
+@me.get("")
+async def for_skills(
+    auth: CustomerAuth,
+    db: DB,
+    skills_: str = Query("", alias="skills", max_length=600),
+    language: str = Query("", max_length=30),
+) -> dict[str, Any]:
+    asked = [x.strip() for x in skills_.split(",") if x.strip()][:12]
+    result = await courses_for(db, asked, language)
     catalogues = [{"title": t, "provider": p, "url": u} for t, p, u in CATALOGUES]
     return {"skills": result, "catalogues": catalogues}
 

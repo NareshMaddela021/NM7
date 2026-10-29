@@ -34,6 +34,7 @@ from app.core.db import (
     ORG_GROUPS,
     ORG_STAFF,
     ORGANIZATIONS,
+    RECRUITER_FEEDBACK,
     RECRUITER_INVITES,
     RECRUITER_LINKS,
     RECRUITERS,
@@ -157,6 +158,7 @@ async def remove_demo(db: AsyncDatabase) -> int:
         (RECRUITER_INVITES, {"org_id": ORG_ID}),
         (RECRUITERS, {"email_lc": f"recruiter@{EMAIL_DOMAIN}"}),
         (INTERVIEWS, {"org_id": ORG_ID}),
+        (RECRUITER_FEEDBACK, {"org_id": ORG_ID}),
         (ORG_STAFF, {"org_id": ORG_ID}),
         (ORG_GROUPS, {"org_id": ORG_ID}),
         (ORGANIZATIONS, {"_id": ORG_ID}),
@@ -442,6 +444,14 @@ async def _demo_invite(db: AsyncDatabase, rng: random.Random, actor_id: str | No
             "created_at": t - timedelta(days=200),
         }
     )
+    # the past drive's feedback: what "What recruiters said" shows on the demo college's dashboard
+    await db[RECRUITER_FEEDBACK].insert_one(
+        {"_id": "demo-recruiter-invite-past", "org_id": ORG_ID, "company": "Demo Analytics LLP (demo)",
+         "group_ids": sorted(g[0] for g in GROUPS), "rating": 4, "skills": ["SQL", "Power BI"], "basics": ["Python"],
+         "projects_no_results": True, "communication": False, "other": "", "went_well": "Punctual, well-prepared "
+         "students (demo).", "visit_again": "yes", "demo": True, "created_at": t - timedelta(days=139),
+         "updated_at": t - timedelta(days=139)}
+    )  # fmt: skip
     # the demo recruiter's account (no code: the address is made up), so My drives opens from the same shortcut
     account = await issue_session(db, f"recruiter@{EMAIL_DOMAIN}", "Demo Recruiter")
     return f"/recruiter/{token}#s={session}&a={account}"

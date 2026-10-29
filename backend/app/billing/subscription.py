@@ -100,6 +100,7 @@ def plan_features(o: dict[str, Any] | None, today: date | None = None) -> dict[s
         "recruiter_accounts": later("recruiter_accounts"),
         "recruiter_compare": later("recruiter_compare"),
         "interview_scheduling": later("interview_scheduling"),
+        "recruiter_feedback": later("recruiter_feedback"),
     }
 
 

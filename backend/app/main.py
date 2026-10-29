@@ -55,6 +55,7 @@ from app.me.router import router as me_router
 from app.orders.router import router as orders_router
 from app.orgs import branding as org_branding
 from app.orgs import demo_login as org_demo_login
+from app.orgs import feedback as org_feedback
 from app.orgs import interviews as org_interviews
 from app.orgs import kiosk as org_kiosk
 from app.orgs import recruiter as org_recruiter
@@ -190,6 +191,9 @@ def create_app() -> FastAPI:
     app.include_router(org_interviews.me)  # /api/me/interviews
     app.include_router(org_interviews.public)  # /api/public/interviews/stop-reminders
     app.include_router(org_interviews.staff)  # /api/org/{org_id}/interviews
+    app.include_router(org_feedback.portal)  # /api/recruiter/{token}/feedback (R4)
+    app.include_router(org_feedback.account)  # /api/recruiter-account/drives/{id}/feedback
+    app.include_router(org_feedback.staff)  # /api/org/{org_id}/recruiter-feedback
     app.include_router(org_kiosk.kiosk)
     app.include_router(org_kiosk.cont)
     app.include_router(admin_console_router)

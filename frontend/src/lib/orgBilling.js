@@ -28,6 +28,7 @@ export const PLAN_FEATURES = [
   ['recruiterAccounts', 'Recruiter accounts with drive history'],
   ['recruiterCompare', 'Compare candidates side by side'],
   ['interviewScheduling', 'Interview scheduling with calendar invites'],
+  ['recruiterFeedback', 'Recruiter feedback after drives'],
 ];
 
 /** ₹4,999 · ₹4,499.10 (paise shown only when there are any). */
