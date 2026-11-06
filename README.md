@@ -1658,3 +1658,29 @@ linked from My applications, the dashboard and the menu.
 - Defaults live in site settings `auto_apply` (off switch, match score, daily limit and its maximum, preview days,
   2 applications per company per 30 days, company trust 40, borderline band 5, ATS 60, site email cap); Admin edits
   them in Admin → Auto Apply. English, Telugu and Hindi (`aa.*`; Telugu and Hindi need native review).
+
+**Daily engine (A2).** `backend/app/autoapply/engine.py`, from 07:00 IST in the automation pass (a page of students
+each pass; `auto_runs` keeps the day's counts and errors).
+- Skips everything when the off switch is off; skips students who are paused (by themselves or Admin) or whose resume
+  dropped under the ATS gate.
+- Candidates: live jobs from the last 30 days whose title or skills match a role, in the cities (or remote), at the
+  chosen levels and job types, never applied to before (by hand or Auto) and never offered before.
+- Hard-rule skips: dead links, open reports, scam/AI flags, companies under the trust threshold (40), paused or
+  blocked companies, avoided companies, salary under the minimum, more than 2 applications to one company in 30
+  days. Ranked by the job board's match score (rules, cached): under the minimum → skipped; within 5 points under →
+  "Needs your answer" (borderline).
+- Each application gets a tailored copy (`auto_copies`): the resume's own facts only; AI lines (when there is a key
+  and today's AI allowance) are fact-checked, else the rules version; the summary is checked once more as a whole.
+- Jobs posted on Nm7 go straight into the company dashboard with the match score, the consent and the **Auto**
+  label (the company opens the exact copy sent). Screening questions are answered only from the student's saved
+  answers; saved answers that break a company's rule skip the job instead of sending a "Not a fit".
+- One item per (student, job) with a unique index: re-runs and crashes never apply twice; a per-student lock and a
+  "done today" mark make the run resumable. Stuck jobs never use up the daily limit.
+- Preview days (3): each application waits for Approve / Approve all on `/me/auto-apply`.
+
+**Needs your answer (A3).** On `/me/auto-apply` (`backend/app/autoapply/items.py`).
+- A job waits here when a screening question has no saved answer, or the match is borderline (Apply anyway / Skip).
+- Answering applies at once within today's limit (over it: first thing in the next run) and, with "Remember my
+  answers", saves them for the same question in later jobs; a stuck job whose questions all have saved answers goes
+  in the next run. Items expire when the job closes. Nothing is sent while the off switch is off or Admin paused the
+  student. My applications, Admin → Jobs and the company's Applicants tab show **Auto** or **Manual**.

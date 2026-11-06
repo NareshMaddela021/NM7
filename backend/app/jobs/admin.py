@@ -240,7 +240,8 @@ async def job_applications(job_id: str, request: Request, db: DB, auth: AdminAut
     return [
         {"user": a["user_id"], "id": a.get("key"), "name": (users.get(a["user_id"]) or {}).get("name", ""),
          "email": (users.get(a["user_id"]) or {}).get("email", ""), "status": a.get("status"),
-         "channel": a.get("channel", ""), "resume": a.get("resume_name", ""), "at": ms(a.get("created_at"))}
+         "channel": a.get("channel", ""), "resume": a.get("resume_name", ""), "at": ms(a.get("created_at")),
+         "origin": a.get("origin") or "manual"}
         for a in apps
     ]  # fmt: skip
 

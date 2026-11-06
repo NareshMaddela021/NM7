@@ -203,7 +203,7 @@ function AppRow({ job, a }) {
   };
   return (
     <li className="row g8 small" data-testid="admin-application" style={{ justifyContent: 'space-between' }}>
-      <span style={{ minWidth: 0, overflowWrap: 'anywhere' }}><strong>{a.name}</strong> · {a.email} · {CHANNEL[a.channel] || a.channel}{a.resume ? ` · resume “${a.resume}”` : ''} · {day(a.at)}</span>
+      <span style={{ minWidth: 0, overflowWrap: 'anywhere' }}><strong>{a.name}</strong> · {a.email} · {CHANNEL[a.channel] || a.channel}{a.origin === 'auto' ? ' · Auto' : ' · Manual'}{a.resume ? ` · resume “${a.resume}”` : ''} · {day(a.at)}</span>
       {a.channel === 'nm7' ? (
         <label className="row g4">
           <span className="sr-only">Status for {a.name}</span>

@@ -9,6 +9,7 @@ import { useToast } from '../../components/ui';
 import { useLang } from '../../lib/i18n';
 import { EXPERIENCE, JOB_TYPES } from '../../lib/jobBoard';
 import { http } from '../../services/http';
+import AutoItems from './AutoItems';
 import { MeHead } from './MeLayout';
 
 const list = (s) => String(s || '').split(',').map((x) => x.trim()).filter(Boolean);
@@ -83,6 +84,7 @@ export default function AutoApply() {
           <span className="small"><Link to="/me/jobs">{t('aa.seeApplications')}</Link></span>
         </section>
       )}
+      {s.setUp && <AutoItems t={t} toast={toast} />}
       {!g.ok && (
         <section className="card stack g8" aria-labelledby="aa-gate-h" data-testid="aa-gate">
           <strong id="aa-gate-h">{t('aa.gate.title')}</strong>

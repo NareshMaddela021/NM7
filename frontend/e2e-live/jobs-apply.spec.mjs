@@ -86,7 +86,7 @@ for (const [label, opts] of SIZES) {
       await admin.getByTestId('admin-job').filter({ hasText: `QA Trainee ${tag}` }).getByRole('button', { name: 'Applications' }).click();
       const row = admin.getByTestId('admin-application');
       await expect(row).toContainText('Sai Varsha');
-      await expect(row).toContainText('Applied on Nm7 · resume “Main”');
+      await expect(row).toContainText('Applied on Nm7 · Manual · resume “Main”');
       await expect(row.getByRole('combobox')).toHaveValue('viewed');
       await row.getByRole('combobox').selectOption('shortlisted');
       await expect(admin.getByText('Updated: the applicant sees it in My applications')).toBeVisible();
