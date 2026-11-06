@@ -54,6 +54,10 @@ class Settings(BaseSettings):
     anthropic_api_key: str = ""
     anthropic_model: str = "claude-haiku-5-5"  # an unusable answer is retried once on claude-sonnet-5-5
 
+    # Job board: the bearer key the morning job-collector sends to POST /api/jobs/ingest (JOB_INGEST_KEY, set in
+    # Render by the owner; at least 32 characters). Without it the upload answers 503 and nothing else changes.
+    job_ingest_key: str = ""
+
     # Error reporting (optional): a Sentry DSN. Without it errors are only logged (with a request id).
     sentry_dsn: str = ""
 
