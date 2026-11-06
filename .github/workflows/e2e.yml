@@ -1,14 +1,12 @@
 name: e2e
 
-# The full browser suite against the real API (and the production build with the vercel.json headers). It is the
-# slowest check (~9 min), so it runs only on pull requests into the production branch, once per commit (a newer
-# commit cancels the older run), plus nightly on the production branch and by hand.
+# The full browser suite against the real API, desktop + 390 px (and the production build with the vercel.json
+# headers, and the sample-data browser tests). It is the slowest check, so it runs nightly on the production branch
+# and by hand (Actions → e2e → Run workflow), not on every pull request: before each merge the affected live specs
+# are run locally instead. Schedules start from the default branch (main), which must have this file.
 on:
-  pull_request:
-    branches: ["claude/fervent-albattani-wqmaoq"]
-    paths: ["frontend/**", "backend/**", ".github/workflows/e2e.yml", ".github/scripts/**"]
   schedule:
-    - cron: "41 21 * * *" # 03:11 IST
+    - cron: "30 21 * * *" # 03:00 IST
   workflow_dispatch:
 
 concurrency:
@@ -18,7 +16,7 @@ concurrency:
 jobs:
   live:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     defaults:
       run:
         working-directory: frontend
@@ -55,6 +53,8 @@ jobs:
         run: npx playwright test -c playwright.live.config.mjs --retries=1
       - name: Production build with the vercel.json headers (CSP, 404)
         run: npm run test:e2e:csp
+      - name: Browser tests on the preview build (sample data)
+        run: npm run test:e2e
       - name: API log (on failure)
         if: failure()
         run: tail -n 400 e2e-live/.api.log || true  # the last lines only, so the test results above stay in the reachable log; the full log is in the artifact

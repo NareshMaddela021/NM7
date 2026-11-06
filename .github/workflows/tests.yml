@@ -1,0 +1,59 @@
+name: tests
+
+# The light check on every pull request and every push to main: the API's lint and tests, and the site's lint,
+# unit tests and build. No browser tests here: the full live browser suite (desktop + 390 px) is e2e.yml, nightly
+# and by hand, and the affected live specs are run locally before each merge. Docs-only changes skip it; a newer
+# commit on the same branch or PR cancels the older run.
+on:
+  pull_request:
+    paths-ignore: ["**/*.md", "docs/**"]
+  push:
+    branches: [main]
+    paths-ignore: ["**/*.md", "docs/**"]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      TEST_MONGODB_URI: mongodb://localhost:27017/?directConnection=true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start MongoDB (replica set; 8.0 like Atlas, newer when the runner kernel refuses 8.0)
+        run: bash "$GITHUB_WORKSPACE/.github/scripts/start-mongo.sh"
+      # uv is the project's pip: its download cache is kept between runs, keyed on the lockfile
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+      - run: uv sync --frozen
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run pytest -q
+
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: frontend/.nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build

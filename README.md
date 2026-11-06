@@ -1341,3 +1341,16 @@ active until <date>". The automation pass emails a reminder 7 days before the en
 When the pass ends, anything bought separately stays unlocked and only pass access stops. Resumes and data are never
 locked or deleted. Orders and invoices treat a pass like any other self-serve order. The daily summary and the Today
 card count "Annual passes sold".
+
+## CI (GitHub Actions)
+
+- **tests.yml** runs on every pull request and every push to `main`: the API's lint and tests (backend), and the
+  site's lint, unit tests and build (frontend). It has no browser tests, skips docs-only changes (`*.md`, `docs/`),
+  caches uv/npm downloads, and a newer commit cancels the older run (timeouts 20 / 15 minutes).
+- **e2e.yml** runs the full live browser suite (desktop + 390 px) plus the CSP and preview-build checks. It runs
+  nightly at 03:00 IST on the production branch, and by hand (Actions → e2e → Run workflow). The affected live
+  specs run locally before each merge.
+- **deps.yml** runs only when dependency files change, and weekly. **backup.yml** runs nightly. **hygraph.yml**
+  runs daily. **deploy-check.yml** runs after a backend change lands on the production branch.
+- Scheduled workflows run from the default branch (`main`), so `main` is kept level with the production branch
+  (`claude/fervent-albattani-wqmaoq`, which Vercel and Render deploy from).
