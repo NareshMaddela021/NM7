@@ -1460,3 +1460,15 @@ On phones the board shows one stage under another.
 "Follow up?" mark on My applications. The person also gets an email, sent at most once a day and listing every one
 that is due. It never goes to an unconfirmed or bounced address. People can stop these emails with the link in the
 email (`/stop-alerts#…&k=followups`) or with `PUT /api/me/job-followups`.
+
+**Jobs for you (J6).** My dashboard has a "Jobs for you" card (`frontend/src/pages/me/JobsForYouCard.jsx`,
+`GET /api/me/jobs-for-you`). It shows:
+- the three best matches among the newest 100 open jobs, with their scores and reasons, leaving out jobs already
+  applied to;
+- one big button to all jobs sorted by best match;
+- shortcuts to Saved jobs and My applications, with real counts.
+
+Without a resume, the card asks for one. It never shows an "AI matches" total.
+
+Sign-out now ends the server session before the page moves on: the request is sent with keepalive, and the header
+waits for it. Before this, a busy dashboard could leave the person signed in.

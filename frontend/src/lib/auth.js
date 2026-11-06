@@ -2,7 +2,7 @@
 // Live (VITE_API_BASE set): the FastAPI backend — hashed passwords, httpOnly session cookies, email codes, admin TOTP.
 // Preview (no VITE_API_BASE): accounts live in this browser, passwords are plain text and every code is 246810.
 import { useSyncExternalStore } from 'react';
-import { http, LIVE } from '../services/http';
+import { API_BASE, http, LIVE } from '../services/http';
 
 export { LIVE };
 const USERS_KEY = 'asuraa-users-v3';
@@ -189,12 +189,21 @@ export async function resetPassword(email, code, password, confirm) {
   const u = byEmail(email); if (!u) throw fail(WRONG_CODE, 'invalid_code');
   users = getUsers().map((x) => (x.id === u.id ? { ...x, password, verified: true } : x)); emit();
 }
+/** Ends the server session; survives a page change (keepalive). Never throws. */
+async function logoutRequest() {
+  try {
+    await fetch(`${API_BASE}/api/auth/logout`, { method: 'POST', credentials: 'include', keepalive: true });
+  } catch { /* offline: the session expires on its own */ }
+}
+
 export async function signOut() {
   await clearUserData(); // sends unsaved edits first, then forgets everything personal in this browser
   try { localStorage.removeItem(LAST_USER_KEY); } catch { /* ignore */ }
   if (LIVE) {
+    // keepalive: the browser finishes this request even if the page moves on (a plain request would be dropped and
+    // the next visit would still be signed in)
+    await logoutRequest();
     setLive(null);
-    await http('/api/auth/logout', { method: 'POST' }).catch(() => {});
     return;
   }
   session = null; emit();

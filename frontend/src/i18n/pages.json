@@ -405,7 +405,12 @@
     "jobs.app.interview": "Interview",
     "jobs.app.offer": "Offer",
     "jobs.app.rejected": "Not selected",
-    "jobs.app.saved": "Saved"
+    "jobs.app.saved": "Saved",
+    "jobs.foryou.title": "Jobs for you",
+    "jobs.foryou.all": "All jobs",
+    "jobs.foryou.cta": "See all jobs that fit you",
+    "jobs.foryou.none": "No open jobs match yet. New jobs are added every morning.",
+    "jobs.foryou.apps": "My applications ({n})"
   },
   "te": {
     "home.more.roles.eyebrow": "నిజమైనవిలా కనిపించే నమూనాలు · ఊహించిన వ్యక్తులు",
@@ -812,7 +817,12 @@
     "jobs.app.interview": "ఇంటర్వ్యూ",
     "jobs.app.offer": "ఆఫర్",
     "jobs.app.rejected": "ఎంపిక కాలేదు",
-    "jobs.app.saved": "సేవ్ చేశారు"
+    "jobs.app.saved": "సేవ్ చేశారు",
+    "jobs.foryou.title": "మీ కోసం ఉద్యోగాలు",
+    "jobs.foryou.all": "అన్ని ఉద్యోగాలు",
+    "jobs.foryou.cta": "మీకు సరిపోయే అన్ని ఉద్యోగాలు చూడండి",
+    "jobs.foryou.none": "ఇంకా సరిపోయే ఓపెన్ ఉద్యోగాలు లేవు. ప్రతి ఉదయం కొత్త ఉద్యోగాలు వస్తాయి.",
+    "jobs.foryou.apps": "నా దరఖాస్తులు ({n})"
   },
   "hi": {
     "home.more.roles.eyebrow": "असली जैसे दिखने वाले नमूने · काल्पनिक लोग",
@@ -1219,6 +1229,11 @@
     "jobs.app.interview": "इंटरव्यू",
     "jobs.app.offer": "ऑफ़र",
     "jobs.app.rejected": "चयन नहीं हुआ",
-    "jobs.app.saved": "सेव किया"
+    "jobs.app.saved": "सेव किया",
+    "jobs.foryou.title": "आपके लिए नौकरियाँ",
+    "jobs.foryou.all": "सभी नौकरियाँ",
+    "jobs.foryou.cta": "आपके लायक सभी नौकरियाँ देखें",
+    "jobs.foryou.none": "अभी कोई खुली नौकरी मेल नहीं खाती। हर सुबह नई नौकरियाँ जुड़ती हैं।",
+    "jobs.foryou.apps": "मेरे आवेदन ({n})"
   }
 }
