@@ -220,5 +220,6 @@ def company_out(c: dict[str, Any], me: str | None = None, full: bool = True) -> 
                         for m in c.get("members") or []],
             "myRole": mine["role"] if mine else None,
             "termsAccepted": bool(c.get("terms_at")),
+            "logo": c.get("logo") or "",
         }  # fmt: skip
     return out

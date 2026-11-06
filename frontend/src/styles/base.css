@@ -498,3 +498,7 @@ mark.fact { background: color-mix(in srgb, var(--signal) 38%, transparent); colo
 .co-review { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 12px; margin: 0; }
 .co-review dt { font-size: 13px; color: var(--text2); }
 .co-review dd { margin: 2px 0 0; font-weight: 600; overflow-wrap: anywhere; }
+.co-tabs { flex-wrap: wrap; align-self: flex-start; max-width: 100%; }
+.co-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr)); gap: 12px; }
+.co-num { font-size: 26px; }
+.co-logo { border-radius: 12px; object-fit: contain; background: #fff; border: 1px solid var(--border); }

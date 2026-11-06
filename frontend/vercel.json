@@ -83,6 +83,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/companies/:slug",
+      "destination": "/index.html"
+    },
+    {
       "source": "/(scan|checkout|editor|login|signup|forgot-password|linkedin|stop-alerts|checkin|status|accessibility)",
       "destination": "/index.html"
     },

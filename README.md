@@ -1534,3 +1534,21 @@ only, so the browser tests can run offline.
 - **Unusual sign-in:** a sign-in from a device + network pair the account hasn't used before emails the person and the
   main admin of each of their companies, and appears as an "unusual sign-in" flag in the queue. Nm7 has no location
   lookup, because that needs a paid IP database; "new network" stands in for "new city".
+
+**Company dashboard (C2).** `nm7.si/company` (`frontend/src/pages/company/CompanyHome.jsx`,
+`backend/app/companies/dashboard.py`) has these tabs:
+- **Overview:** trust level and review state, live jobs, applicants, posting allowance used, and a link to the public
+  page.
+- **Team:** invite, change roles, remove (in-page confirm). Main and full-access admins only; nobody changes the main
+  admin.
+- **Company page:** logo and about. The logo is shrunk to 256 px in the browser and stored with the company, because
+  the site's CSP only allows images from known hosts, so the page shows it inline.
+- **Settings:** the legal details. Once verified they are locked; "Request a change" unlocks them and starts a new
+  check, which returns the company to Basic.
+- **Security** and **Activity** (the company's activity log).
+
+Job postings, applicants and the talent pool are added in C3 and C5. A person on several company teams picks one.
+
+**Public company page:** `nm7.si/companies/<slug>` shows the logo, name, trust badge with a plain "why", about,
+website and open jobs. Only Basic and Verified companies have one; never demo, blocked or unconfirmed ones. The logo
+image is also served at `/api/companies/<slug>/logo` for search engines.
