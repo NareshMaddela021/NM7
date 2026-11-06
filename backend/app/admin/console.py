@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from typing import Any, Literal
 
 from fastapi import APIRouter, Query, Request, Response
-from pydantic import EmailStr, Field
+from pydantic import EmailStr, Field, field_validator
 from pymongo import DESCENDING
 
 from app.admin.deps import AdminAuth
@@ -740,6 +740,24 @@ class SettingsIn(CamelModel):
     referral: "ReferralSettingsIn | None" = None
     daily_summary: "DailySummaryIn | None" = None
     companies: "CompanyLimitsIn | None" = None
+    job_checks: "JobChecksIn | None" = None
+
+
+class JobChecksIn(CamelModel):
+    """Safe job posting (C3): phrases that block a company job, and scam signs that send it to review."""
+
+    blocked: list[str] = Field(max_length=300)
+    scam: list[str] = Field(max_length=300)
+
+    @field_validator("blocked", "scam")
+    @classmethod
+    def _clean(cls, v: list[str]) -> list[str]:
+        out = []
+        for p in v:
+            p = " ".join(str(p).split()).lower()[:80]
+            if len(p) >= 3 and p not in out:
+                out.append(p)
+        return out
 
 
 class CompanyLimitsIn(CamelModel):
@@ -767,6 +785,7 @@ def _settings_out(site: dict[str, Any]) -> dict[str, Any]:
         "deliveryHours": site["delivery_hours"],
         "referral": site["referral"],
         "dailySummary": site["daily_summary"],
+        "jobChecks": site["job_checks"],
         "companies": {
             "basicJobsPerWeek": site["companies"]["basic_jobs_per_week"],
             "verifiedLiveJobs": site["companies"]["verified_live_jobs"],
@@ -801,6 +820,9 @@ async def put_settings(body: SettingsIn, request: Request, db: DB, auth: AdminAu
     if body.referral and body.referral.model_dump() != before["referral"]:
         changes["referral"] = body.referral.model_dump()
         diff["referral"] = {"from": before["referral"], "to": changes["referral"]}
+    if body.job_checks and body.job_checks.model_dump() != before["job_checks"]:
+        changes["job_checks"] = body.job_checks.model_dump()
+        diff["job_checks"] = {"from": before["job_checks"], "to": changes["job_checks"]}
     if body.companies and body.companies.model_dump() != before["companies"]:
         changes["companies"] = body.companies.model_dump()
         diff["companies"] = {"from": before["companies"], "to": changes["companies"]}

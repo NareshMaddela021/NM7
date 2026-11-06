@@ -22,6 +22,7 @@ from app.admin.deps import AdminAuth
 from app.audit import audit
 from app.auth.sessions import client_ip
 from app.core.db import APPLICATIONS, DB, JOBS, USERS
+from app.core.email import MailerDep, send_safely
 from app.core.errors import ApiError
 from app.core.schemas import CamelModel
 from app.core.time import now
@@ -37,6 +38,7 @@ NOT_FOUND = ApiError(404, "not_found", "That job isn’t here any more.")
 
 def job_out(j: dict[str, Any], full: bool = False) -> dict[str, Any]:
     lc = j.get("link_check") or {}
+    rv = j.get("review") or {}
     out = {
         "id": j["_id"],
         "slug": j["slug"],
@@ -63,6 +65,7 @@ def job_out(j: dict[str, Any], full: bool = False) -> dict[str, Any]:
             "error": lc.get("error", ""),
         },  # fmt: skip
         "demo": bool(j.get("demo")),
+        "review": {"reasons": rv.get("reasons") or [], "note": rv.get("note", "")},
         "createdAt": ms(j.get("created_at")),
         "updatedAt": ms(j.get("updated_at")),
     }
@@ -260,3 +263,47 @@ async def set_application_status(
         await audit(db, auth.user.id, "job.application_status", target=job_id,
                     data={"user": user_id, "from": a.get("status"), "to": body.status}, ip=_ip(request))  # fmt: skip
     return {"status": body.status}
+
+
+class ReviewIn(CamelModel):
+    approve: bool
+    reason: str = Field("", max_length=300)
+
+
+@router.post("/{job_id}/review")
+async def review_job(
+    job_id: str, body: ReviewIn, request: Request, db: DB, mailer: MailerDep, auth: AdminAuth("jobs")
+) -> dict[str, Any]:
+    """A company job waiting for review (scam signs or the AI check): goes live, or is closed with the reason. The
+    company's main admin is emailed either way."""
+    j = await _job(db, job_id)
+    if j["status"] != "review":
+        raise ApiError(409, "not_in_review", "This job isn’t waiting for review.")
+    reason = body.reason.strip()
+    if not body.approve and len(reason) < 5:
+        raise ApiError(400, "reason", "Say why the job can’t go live (the company is told).")
+    t = now()
+    sets: dict[str, Any] = {"updated_at": t, "review.decided_at": t, "review.by": auth.user.id, "review.note": reason}
+    if body.approve:
+        sets["status"] = "active"
+    else:
+        sets |= {"status": "closed", "closed_reason": f"not approved: {reason}"}
+    await db[JOBS].update_one({"_id": job_id}, {"$set": sets})
+    data = {"approve": body.approve, "reason": reason, "title": j["title"]}
+    await audit(db, auth.user.id, "job.review", target=job_id, data=data, ip=_ip(request))
+    if j.get("company_id"):
+        from app.companies.admin import _mail, _main_admin
+        from app.core.db import COMPANIES
+
+        c = await db[COMPANIES].find_one({"_id": j["company_id"]})
+        to, name = _main_admin(c) if c else ("", "")
+        if to:
+            title = j["title"]
+            lines = (
+                [f"Your job “{title}” is now live on Nm7."]
+                if body.approve
+                else [f"Your job “{title}” can’t go live on Nm7.", f"Reason: {reason}"]
+            )
+            link = ("Open your company account", "/company")
+            await send_safely(mailer, _mail(to, name, f"Your job: {title}", lines, link))
+    return job_out(await _job(db, job_id), full=True)

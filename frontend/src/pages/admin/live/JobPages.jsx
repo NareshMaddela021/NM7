@@ -11,7 +11,7 @@ const TYPE = { full_time: 'Full-time', internship: 'Internship', contract: 'Cont
 const EXP = { internship: 'Internship', fresher: 'Fresher', '0_1': '0–1 years', '1_3': '1–3 years', '3_plus': '3+ years' };
 const APPLY = { link: 'Company website', email: 'By email', nm7: 'Apply on Nm7' };
 const SOURCE = { collector: 'Job collector', admin: 'Added here', bulk: 'Bulk import', company: 'Company' };
-const STATUS = { active: ['Active', 'b-success'], paused: ['Paused', 'b-neutral'], closed: ['Closed', 'b-warning'] };
+const STATUS = { active: ['Active', 'b-success'], paused: ['Paused', 'b-neutral'], closed: ['Closed', 'b-warning'], review: ['Waiting for review', 'b-danger'] };
 const inr = (n) => `₹${Number(n).toLocaleString('en-IN')}`;
 export const salaryText = (s) => (!s ? '' : `${s.min ? inr(s.min) : ''}${s.min && s.max ? ' – ' : ''}${s.max ? inr(s.max) : ''} ${s.period === 'monthly' ? 'a month' : 'a year'}`.trim());
 
@@ -103,7 +103,7 @@ function JobList() {
                       <button type="button" className="btn btn-outline" onClick={() => setConfirm(null)}>Cancel</button>
                     </div>
                   ) : (
-                    <div className="row g8" style={{ flexWrap: 'wrap' }}>
+                    j.status === 'review' ? <ReviewBox j={j} onDone={() => st.reload()} /> : <div className="row g8" style={{ flexWrap: 'wrap' }}>
                       <button type="button" className="link-btn small" onClick={() => setEditing(j.id)}>Edit</button>
                       {j.status !== 'active' && <button type="button" className="link-btn small" disabled={busy} onClick={() => setStatus(j, 'active')}>{j.status === 'closed' ? 'Reopen' : 'Make live'}</button>}
                       {j.status === 'active' && <button type="button" className="link-btn small" disabled={busy} onClick={() => setStatus(j, 'paused')}>Pause</button>}
@@ -302,5 +302,31 @@ function Expired() {
         ))}
       </ul>
     )}</Loading>
+  );
+}
+
+/** A company job waiting for review (scam signs / the AI check): why, then approve or reject with a reason typed here. */
+function ReviewBox({ j, onDone }) {
+  const toast = useToast();
+  const [busy, run] = useAction(toast);
+  const [rejecting, setRejecting] = useState(false);
+  const [reason, setReason] = useState('');
+  const decide = (approve) => run(async () => { await http(`/api/admin/jobs/${j.id}/review`, { method: 'POST', body: { approve, reason } }); onDone(); }, approve ? 'Approved: the job is live' : 'Rejected: the company was emailed');
+  return (
+    <div className="stack g8 well" data-testid="job-review">
+      <strong className="small">Why it is waiting</strong>
+      <ul className="stack g4" style={{ margin: 0, paddingLeft: 18 }}>{j.review.reasons.map((r, i) => <li key={i} className="small" style={{ color: 'var(--warning)' }}>{r}</li>)}</ul>
+      {rejecting ? (
+        <form className="stack g8" role="alert" onSubmit={(e) => { e.preventDefault(); decide(false); }}>
+          <label className="label" htmlFor={`rv-${j.id}`}>Why can’t it go live?</label>
+          <textarea id={`rv-${j.id}`} className="input" rows={2} maxLength={300} value={reason} onChange={(e) => setReason(e.target.value)} />
+          <div className="row g8"><button type="submit" className="btn btn-ink" disabled={busy || reason.trim().length < 5}>Reject</button>
+            <button type="button" className="link-btn small" onClick={() => setRejecting(false)}>Cancel</button></div>
+        </form>
+      ) : (
+        <div className="row g8"><button type="button" className="btn btn-ink" disabled={busy} onClick={() => decide(true)}>Approve</button>
+          <button type="button" className="btn btn-outline" disabled={busy} onClick={() => setRejecting(true)}>Reject</button></div>
+      )}
+    </div>
   );
 }
