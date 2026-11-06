@@ -63,8 +63,10 @@ def _iphash(request: Request) -> str:
 
 
 async def _code_email(mailer, to: str, name: str, code: str, what: str) -> None:
-    text = (f"Your Nm7 code: {code}\n\nIt {what} and works for {CODE_MINUTES} minutes. If you didn't ask for it, "
-            "ignore this email.\n\nNm7 · nm7.si")
+    text = (
+        f"Your Nm7 code: {code}\n\nIt {what} and works for {CODE_MINUTES} minutes. If you didn't ask for it, "
+        "ignore this email.\n\nNm7 · nm7.si"
+    )
     html = (f'<div style="{STYLE}"><p>Your Nm7 code:</p><p style="font-size:26px;font-weight:700;letter-spacing:4px">'
             f"{code}</p><p>It {what} and works for {CODE_MINUTES} minutes.</p></div>")  # fmt: skip
     await send_safely(mailer, Email(to, name, f"Your Nm7 code: {code}", text, html))

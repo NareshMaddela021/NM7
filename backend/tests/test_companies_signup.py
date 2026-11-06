@@ -56,9 +56,19 @@ def no_network(monkeypatch):
 
 
 def company(**over):
-    body = {"details": {"legalName": "Acme Analytics Pvt Ltd", "website": "acme.com", "category": "startup",
-                        "structure": "private_limited", "industry": "Software", "size": "11_50", "about": "We build dashboards."},
-            "registration": {"kind": "gstin", "number": GOOD_GSTIN}, "phone": "98765 43210"}  # fmt: skip
+    body = {
+        "details": {
+            "legalName": "Acme Analytics Pvt Ltd",
+            "website": "acme.com",
+            "category": "startup",
+            "structure": "private_limited",
+            "industry": "Software",
+            "size": "11_50",
+            "about": "We build dashboards.",
+        },
+        "registration": {"kind": "gstin", "number": GOOD_GSTIN},
+        "phone": "98765 43210",
+    }
     body.update(over)
     return body
 
@@ -67,8 +77,10 @@ async def sign_up(client, outbox, email="founder@gmail.com", **over):
     assert (await client.post("/api/company/signup/code", json={"email": email, "name": "Ravi Teja"})).json() == {
         "sent": True
     }
-    r = await client.post("/api/company/signup/start", json={"email": email, "name": "Ravi Teja",
-                                                            "code": outbox.last_code(email), "company": company(**over)})  # fmt: skip
+    r = await client.post(
+        "/api/company/signup/start",
+        json={"email": email, "name": "Ravi Teja", "code": outbox.last_code(email), "company": company(**over)},
+    )
     assert r.status_code == 201, r.text
     return r.json()["session"], r.json()["company"]
 
@@ -88,8 +100,10 @@ async def test_sign_up_flow_team_and_submit(client, outbox, db):
         err(await client.post("/api/company/signup/code", json={"email": "a@yopmail.com", "name": "Ravi"}))
         == "bad_email"
     )
-    r = await client.post("/api/company/signup/start", json={"email": "founder@gmail.com", "name": "Ravi Teja", "code": "000000",
-                                                            "company": company()})  # fmt: skip
+    r = await client.post(
+        "/api/company/signup/start",
+        json={"email": "founder@gmail.com", "name": "Ravi Teja", "code": "000000", "company": company()},
+    )
     assert err(r) == "wrong_code"
     session, c = await sign_up(client, outbox)
     assert c["trust"] == "unverified" and c["review"]["state"] == "draft" and c["myRole"] == "main"
@@ -137,8 +151,12 @@ async def test_sign_up_flow_team_and_submit(client, outbox, db):
     )
     # the posting admin signs in with a code (the recruiter-account sign-in), and the invite becomes active
     await client.post("/api/recruiter-account/code", json={"email": "posts@acme.com"})
-    s2 = (await client.post("/api/recruiter-account/session", json={"email": "posts@acme.com",
-                                                                   "code": outbox.last_code("posts@acme.com")})).json()["session"]  # fmt: skip
+    s2 = (
+        await client.post(
+            "/api/recruiter-account/session",
+            json={"email": "posts@acme.com", "code": outbox.last_code("posts@acme.com")},
+        )
+    ).json()["session"]
     mine = (await client.get("/api/company/mine", headers=H(s2))).json()
     assert [x["myRole"] for x in mine["companies"]] == ["posting"]
     # sub-admins can't manage the team; nobody touches the main admin
@@ -157,8 +175,13 @@ async def test_sign_up_flow_team_and_submit(client, outbox, db):
     r = await client.delete(f"/api/company/{cid}/team/viewer@acme.com", headers=H(s2))
     assert [m["email"] for m in r.json()["members"]] == ["founder@gmail.com", "posts@acme.com"]
     # someone else's company isn't visible
-    s3, _ = await sign_up(client, outbox, email="other@gmail.com", registration={"kind": "cin", "number": "U72900TG2019PTC123456"},
-                          phone="")  # fmt: skip
+    s3, _ = await sign_up(
+        client,
+        outbox,
+        email="other@gmail.com",
+        registration={"kind": "cin", "number": "U72900TG2019PTC123456"},
+        phone="",
+    )
     assert (await client.get(f"/api/company/{cid}", headers=H(s3))).status_code == 404
     # submit (terms needed) → the review queue
     assert (
@@ -171,8 +194,14 @@ async def test_sign_up_flow_team_and_submit(client, outbox, db):
         == "already"
     )
     actions = {a["action"] async for a in db[AUDIT_LOG].find({"target": cid})}
-    assert {"company.signup", "company.email_verified", "company.team_add", "company.team_role", "company.team_remove",
-            "company.submit"} <= actions  # fmt: skip
+    assert {
+        "company.signup",
+        "company.email_verified",
+        "company.team_add",
+        "company.team_role",
+        "company.team_remove",
+        "company.submit",
+    } <= actions
 
 
 async def test_flags_duplicates_and_same_address(client, outbox, db):
@@ -181,20 +210,39 @@ async def test_flags_duplicates_and_same_address(client, outbox, db):
     doc = await db[COMPANIES].find_one({"_id": c2["id"]})
     codes = {f["code"] for f in doc["flags"]}
     assert {"duplicate_registration", "duplicate_phone"} <= codes
-    _, c3 = await sign_up(client, outbox, email="a3@gmail.com", phone="", registration={"kind": "llpin", "number": "AAB-1234"},
-                          details={**company()["details"], "website": "fresh-startup.in"})  # fmt: skip
+    _, c3 = await sign_up(
+        client,
+        outbox,
+        email="a3@gmail.com",
+        phone="",
+        registration={"kind": "llpin", "number": "AAB-1234"},
+        details={**company()["details"], "website": "fresh-startup.in"},
+    )
     doc = await db[COMPANIES].find_one({"_id": c3["id"]})
     codes = {f["code"] for f in doc["flags"]}
     assert "ip_burst" in codes and "new_domain" in codes and "duplicate_registration" not in codes
-    _, c4 = await sign_up(client, outbox, email="a4@gmail.com", phone="", registration={"kind": "cin", "number": "U72900TG2019PTC654321"},
-                          details={**company()["details"], "website": "nomail-co.com"})  # fmt: skip
+    _, c4 = await sign_up(
+        client,
+        outbox,
+        email="a4@gmail.com",
+        phone="",
+        registration={"kind": "cin", "number": "U72900TG2019PTC654321"},
+        details={**company()["details"], "website": "nomail-co.com"},
+    )
     doc = await db[COMPANIES].find_one({"_id": c4["id"]})
     assert "no_mail" in {f["code"] for f in doc["flags"]}
 
 
 async def test_individual_recruiter_and_trust_levels(client, outbox, db):
-    ind = {"details": {"legalName": "Priya Sharma", "category": "individual", "website": "", "about": "Freelance IT recruiter"},
-           "individual": {"linkedin": "linkedin.com/in/priya-sharma-hr", "declared": True}}  # fmt: skip
+    ind = {
+        "details": {
+            "legalName": "Priya Sharma",
+            "category": "individual",
+            "website": "",
+            "about": "Freelance IT recruiter",
+        },
+        "individual": {"linkedin": "linkedin.com/in/priya-sharma-hr", "declared": True},
+    }
     r = await client.post(
         "/api/company/signup/check", json={**ind, "individual": {**ind["individual"], "declared": False}}
     )
