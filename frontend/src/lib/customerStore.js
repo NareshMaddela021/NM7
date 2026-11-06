@@ -453,7 +453,7 @@ export function payments(s = get()) {
 
 /* ---------- small helpers ---------- */
 export const newId = uid;
-export const APP_STAGES = [['saved', 'Saved'], ['applied', 'Applied'], ['interview', 'Interview'], ['offer', 'Offer'], ['rejected', 'Rejected']];
+export const APP_STAGES = [['saved', 'Saved'], ['applied', 'Applied'], ['viewed', 'Viewed'], ['shortlisted', 'Shortlisted'], ['interview', 'Interview'], ['offer', 'Offer'], ['rejected', 'Rejected']];
 export const unreadCount = (s = get()) => s.orders.filter((o) => o.linked).reduce((n, o) => {
   const x = findOrder(o.id); if (!x) return n;
   const seen = s.seen?.[o.id] || 0;

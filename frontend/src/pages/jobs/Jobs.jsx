@@ -10,9 +10,11 @@ import Header from '../../components/Header';
 import LangSwitch from '../../components/LangSwitch';
 import SiteFooter from '../../components/SiteFooter';
 import { useAuth } from '../../lib/auth';
+import { reloadMe } from '../../lib/customerStore';
+import { matchJob } from '../../lib/jobs';
 import { headerLabels, useLang } from '../../lib/i18n';
 import {
-  EXPERIENCE, JOB_TYPES, ORIGIN, POSTED, SALARIES, WORK_TYPES, fromQuery, getJob, jobPostingJsonLd, listSaved, loadSaved,
+  EXPERIENCE, JOB_TYPES, ORIGIN, applyToJob, mailtoLink, POSTED, SALARIES, WORK_TYPES, fromQuery, getJob, jobPostingJsonLd, listSaved, loadSaved,
   matchReasons, pageQuery, placeText, postedAgo, salaryText, searchJobs, toggleSaved, useJsonLd, useSaved,
 } from '../../lib/jobBoard';
 import { usePageMeta } from '../../lib/meta';
@@ -228,14 +230,68 @@ export function JobsList() {
 
 /* ---------------------------------------- /jobs/<slug> ---------------------------------------- */
 
-function ApplyBox({ job, t }) {
+function ApplyBox({ job, t, onApplied }) {
   const { user } = useAuth();
   const { pathname } = useLocation();
-  if (job.apply.method === 'link' && job.apply.url) {
-    return <a className="btn btn-ink" href={job.apply.url} target="_blank" rel="noopener noreferrer nofollow" data-testid="apply">{t('jobs.apply.link')} <span aria-hidden="true">↗</span></a>;
+  const nav = useNavigate();
+  const [busy, setBusy] = useState('');
+  const [err, setErr] = useState('');
+  const [mail, setMail] = useState(null);
+  const signedIn = user?.role === 'customer';
+  const go = async () => {
+    setBusy('apply'); setErr('');
+    try {
+      const r = await applyToJob(job.id);
+      if (r.method === 'email') setMail(r.email);
+      onApplied({ status: r.application.status, at: Date.now() });
+      reloadMe();
+    } catch (e) { setErr(e.message); } finally { setBusy(''); }
+  };
+  const fit = async () => {
+    setBusy('fit'); setErr('');
+    try {
+      const m = await matchJob({ text: `${job.title}\n${job.company.name}\n${job.description}`, title: job.title, company: job.company.name });
+      nav(`/me/ats?match=${encodeURIComponent(m.id)}`);
+    } catch (e) { setErr(e.message); setBusy(''); }
+  };
+  const applied = job.application;
+  if (!signedIn) {
+    return (
+      <>
+        {job.apply.method === 'link' && job.apply.url
+          ? <a className="btn btn-ink" href={job.apply.url} target="_blank" rel="noopener noreferrer nofollow" data-testid="apply">{t('jobs.apply.link')} <span aria-hidden="true">↗</span></a>
+          : <Link className="btn btn-ink" to={`/login?next=${encodeURIComponent(pathname)}`} data-testid="apply">{t('jobs.apply.signin')}</Link>}
+      </>
+    );
   }
-  if (!user) return <Link className="btn btn-ink" to={`/login?next=${encodeURIComponent(pathname)}`} data-testid="apply">{t('jobs.apply.signin')}</Link>;
-  return <p className="xs muted" style={{ margin: 0 }} data-testid="apply">{job.apply.method === 'email' ? t('jobs.apply.emailSoon') : t('jobs.apply.nm7Soon')}</p>;
+  return (
+    <div className="stack g8" style={{ flexBasis: '100%' }}>
+      <div className="row g8">
+        {applied ? (
+          <span className="badge b-success" data-testid="applied">{t('jobs.apply.done', { status: t(`jobs.app.${applied.status}`) })}</span>
+        ) : job.apply.method === 'link' && job.apply.url ? (
+          // the link opens straight away (no pop-up blocker); the application is saved alongside
+          <a className="btn btn-ink" href={job.apply.url} target="_blank" rel="noopener noreferrer nofollow" data-testid="apply" onClick={() => { go(); }}>{t('jobs.apply.link')} <span aria-hidden="true">↗</span></a>
+        ) : (
+          <button type="button" className="btn btn-ink" data-testid="apply" disabled={!!busy} onClick={go}>{job.apply.method === 'email' ? t('jobs.apply.email') : t('jobs.apply.nm7')}</button>
+        )}
+        <button type="button" className="btn btn-outline" disabled={!!busy} onClick={fit} data-testid="make-fit">{busy === 'fit' ? t('jobs.loading') : t('jobs.apply.fit')}</button>
+      </div>
+      <span className="xs muted">{t('jobs.apply.fitHint')}</span>
+      {applied && <Link className="xs" to="/me/jobs">{t('jobs.apply.track')}</Link>}
+      {mail && (
+        <div className="card-sm stack g8" data-testid="email-apply">
+          <strong>{t('jobs.apply.emailTitle')}</strong>
+          <ol className="stack g4" style={{ margin: 0, paddingLeft: 20 }}>
+            <li><Link to="/me/resumes">{t('jobs.apply.emailStep1')}</Link></li>
+            <li><a href={mailtoLink(mail)} data-testid="mailto">{t('jobs.apply.emailStep2', { to: mail.to })}</a></li>
+          </ol>
+          <span className="xs muted">{t('jobs.apply.emailHint')}</span>
+        </div>
+      )}
+      {err && <p role="alert" className="xs" style={{ color: 'var(--danger)', margin: 0 }}>{err}</p>}
+    </div>
+  );
 }
 
 export function JobPage() {
@@ -310,7 +366,7 @@ export function JobPage() {
                 <p className="card-sm" role="status" style={{ margin: 0 }} data-testid="job-closed-note">{t('jobs.closedNote')}</p>
               ) : (
                 <div className="row g8">
-                  <ApplyBox job={job} t={t} />
+                  <ApplyBox job={job} t={t} onApplied={(a) => setJob((x) => ({ ...x, application: a }))} />
                   <SaveButton job={job} t={t} />
                   <a className="btn btn-outline" href={share} target="_blank" rel="noopener noreferrer" data-testid="share-wa">{t('jobs.share')}</a>
                 </div>

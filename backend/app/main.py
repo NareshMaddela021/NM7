@@ -42,6 +42,7 @@ from app.downloads.router import router as downloads_router
 from app.experts.router import router as expert_router
 from app.health import service as resume_health
 from app.jobs import admin as jobs_admin
+from app.jobs import apply as jobs_apply
 from app.jobs import ingest as jobs_ingest
 from app.jobs import public as jobs_public
 from app.jobsearch.cover_router import router as jobs_cover_router
@@ -200,6 +201,9 @@ def create_app() -> FastAPI:
     app.include_router(jobs_ingest.router)  # /api/jobs/ingest (the job collector, J2)
     app.include_router(jobs_public.router)  # /api/jobs, /api/jobs/{slug}, the jobs sitemap (J3)
     app.include_router(jobs_public.me_router)  # /api/me/saved-jobs
+    app.include_router(jobs_apply.router)  # /api/jobs/{id}/apply (J5)
+    app.include_router(jobs_apply.me_router)  # /api/me/job-followups
+    app.include_router(jobs_apply.public)  # /api/public/jobs/stop-followups
     app.include_router(org_feedback.portal)  # /api/recruiter/{token}/feedback (R4)
     app.include_router(org_feedback.account)  # /api/recruiter-account/drives/{id}/feedback
     app.include_router(org_feedback.staff)  # /api/org/{org_id}/recruiter-feedback

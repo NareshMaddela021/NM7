@@ -110,7 +110,7 @@ class CoverOut(CoverIn):
 
 # ---------- job applications ----------
 
-AppStatus = Literal["saved", "applied", "interview", "offer", "rejected"]
+AppStatus = Literal["saved", "applied", "viewed", "shortlisted", "interview", "offer", "rejected"]
 _SCHEME = re.compile(r"^[a-z][a-z0-9+.-]*:", re.I)
 _HOST = re.compile(r"^[a-z0-9-]+(\.[a-z0-9-]+)+([/:?#].*)?$", re.I)
 
@@ -170,7 +170,19 @@ class ApplicationPatch(CamelModel):
         return job_link(v)
 
 
+class TimelineStep(CamelModel):
+    status: AppStatus
+    at: Ms
+
+
 class ApplicationOut(ApplicationIn):
+    # a job-board application (J5): the job, how it was sent, the resume name, its steps, a follow-up due
+    job_id: str | None = None
+    channel: str = ""
+    resume_name: str = ""
+    timeline: list[TimelineStep] = []
+    follow_up: bool = False
+
     @field_validator("url")
     @classmethod
     def _url(cls, v: str) -> str:
