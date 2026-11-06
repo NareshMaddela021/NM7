@@ -42,7 +42,7 @@ export function LiveSettings() {
   // the form keeps what was typed (text), so a bad value can be explained instead of silently becoming 0
   const toForm = (d) => {
     const g = (o) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, { ...v, text: String(Math.round(v.amount / 100)) }]));
-    return { ...d, plans: g(d.plans), addons: g(d.addons), hoursText: String(d.deliveryHours), referral: { ...(d.referral || { on: true, needed: 3 }), text: String(d.referral?.needed ?? 3) }, dailySummary: d.dailySummary || { on: true }, companies: Object.fromEntries(Object.entries(d.companies || { basicJobsPerWeek: 1, verifiedLiveJobs: 3, verifiedMonths: 12, ipBurst: 3 }).map(([k, v]) => [k, String(v)])) };
+    return { ...d, plans: g(d.plans), addons: g(d.addons), hoursText: String(d.deliveryHours), referral: { ...(d.referral || { on: true, needed: 3 }), text: String(d.referral?.needed ?? 3) }, dailySummary: d.dailySummary || { on: true }, jobChecks: { blocked: (d.jobChecks?.blocked || []).join('\n'), scam: (d.jobChecks?.scam || []).join('\n') }, companies: Object.fromEntries(Object.entries(d.companies || { basicJobsPerWeek: 1, verifiedLiveJobs: 3, verifiedMonths: 12, ipBurst: 3 }).map(([k, v]) => [k, String(v)])) };
   };
   useEffect(() => { if (st.data) setF(toForm(st.data)); }, [st.data]);
   const errs = f ? settingsErrors(f) : {};
@@ -65,7 +65,7 @@ export function LiveSettings() {
   };
   const save = () => run(async () => {
     const pick = (g) => Object.fromEntries(Object.entries(f[g]).map(([k, v]) => [k, { amount: Number(v.text) * 100, active: v.active }]));
-    const r = await http('/api/admin/settings', { method: 'PUT', body: { plans: pick('plans'), addons: pick('addons'), deliveryHours: Number(f.hoursText), referral: { on: f.referral.on, needed: Number(f.referral.text) }, dailySummary: f.dailySummary, companies: Object.fromEntries(Object.entries(f.companies).map(([k, v]) => [k, Number(v)])) } });
+    const r = await http('/api/admin/settings', { method: 'PUT', body: { plans: pick('plans'), addons: pick('addons'), deliveryHours: Number(f.hoursText), referral: { on: f.referral.on, needed: Number(f.referral.text) }, dailySummary: f.dailySummary, companies: Object.fromEntries(Object.entries(f.companies).map(([k, v]) => [k, Number(v)])), jobChecks: { blocked: f.jobChecks.blocked.split('\n').map((x) => x.trim()).filter(Boolean), scam: f.jobChecks.scam.split('\n').map((x) => x.trim()).filter(Boolean) } } });
     setF(toForm(r)); st.reload();
   }, 'Saved — new orders use these prices');
   return (
@@ -99,6 +99,14 @@ export function LiveSettings() {
             {[['basicJobsPerWeek', 'Basic: jobs a week', 0, 50], ['verifiedLiveJobs', 'Verified: live jobs at a time', 0, 500], ['verifiedMonths', 'Verified lasts (months)', 1, 36], ['ipBurst', 'Flag sign-ups from one address within 2 hours, from', 2, 50]].map(([k, label, lo, hi]) => (
               <label key={k} className="row g8 small">{label} <input className="input" type="number" inputMode="numeric" min={lo} max={hi} step={1} style={{ height: 38, width: 90 }} value={f.companies[k]} data-testid={`co-${k}`} onChange={(e) => setF({ ...f, companies: { ...f.companies, [k]: e.target.value } })} /></label>
             ))}
+          </section>
+          <section className="card stack g12" aria-label="Safe job posting" data-testid="job-checks">
+            <strong>Safe job posting</strong>
+            <span className="small muted">Checked on every job a company posts. One phrase per line; case and punctuation don’t matter.</span>
+            <label className="field"><span className="label">Unfair wording: the job can’t be posted</span>
+              <textarea className="input" rows={6} value={f.jobChecks.blocked} onChange={(e) => setF({ ...f, jobChecks: { ...f.jobChecks, blocked: e.target.value } })} data-testid="checks-blocked" /></label>
+            <label className="field"><span className="label">Scam signs: the job waits for review in Admin → Jobs</span>
+              <textarea className="input" rows={6} value={f.jobChecks.scam} onChange={(e) => setF({ ...f, jobChecks: { ...f.jobChecks, scam: e.target.value } })} data-testid="checks-scam" /></label>
           </section>
           <section className="card stack g12" aria-label="Referral rewards" data-testid="ref-settings">
             <strong>Referral rewards</strong>

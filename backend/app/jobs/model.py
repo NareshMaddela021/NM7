@@ -28,7 +28,7 @@ EXPERIENCE = {
     "3_plus": "3+ years",
 }
 APPLY = {"link": "Company website", "email": "By email", "nm7": "Apply on Nm7"}
-STATUSES = ("active", "paused", "closed")
+STATUSES = ("active", "paused", "closed", "review")  # review: a company job waiting for Admin (C3)
 SOURCES = ("collector", "admin", "bulk", "company")
 PERIODS = ("monthly", "yearly")
 URL_RE = re.compile(r"^https?://[^\s<>\"']{3,1990}$", re.I)

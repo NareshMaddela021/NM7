@@ -32,6 +32,7 @@ from app.college import report as college_report
 from app.college import reviews as college_reviews
 from app.companies import admin as company_admin
 from app.companies import dashboard as company_dashboard
+from app.companies import posting as company_posting
 from app.companies import security as company_security
 from app.companies import signup as company_signup
 from app.core import errors
@@ -215,6 +216,7 @@ def create_app() -> FastAPI:
     app.include_router(company_admin.router)  # /api/admin/companies (trust queue)
     app.include_router(company_dashboard.router)  # /api/company/{id}/overview, page, activity
     app.include_router(company_dashboard.public)  # /api/companies/{slug} (public company page)
+    app.include_router(company_posting.router)  # /api/company/{id}/jobs (safe posting, C3)
     app.include_router(org_feedback.portal)  # /api/recruiter/{token}/feedback (R4)
     app.include_router(org_feedback.account)  # /api/recruiter-account/drives/{id}/feedback
     app.include_router(org_feedback.staff)  # /api/org/{org_id}/recruiter-feedback

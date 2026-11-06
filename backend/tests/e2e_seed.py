@@ -8,6 +8,7 @@ MONGODB_DB=nm7_e2e uv run python -m tests.e2e_seed reset
 ... customer-order EMAIL PLAN         → the checkout answer (a customer order waiting for Razorpay's webhook)
 ... org-order ORG_ID PLAN EMAIL [REF]  → the checkout answer (an org order waiting for Razorpay's webhook), made
                                           without calling Razorpay (the browser tests run without Razorpay keys)
+... company-verify COMPANY_ID              → {"ok": true} (as if an admin approved it: Verified for a year)
 ... job JSON [STATUS] [AGE_HOURS]       → {"id", "slug"} (a job-board job, as an admin would add it)
 """
 
@@ -35,6 +36,13 @@ async def main(cmd: str, *args: str) -> dict:
     if cmd == "reset":
         await get_client().drop_database(name)
         await ensure_indexes(db)
+        return {"ok": True}
+    if cmd == "company-verify":
+        (cid,) = args
+        await db["companies"].update_one(
+            {"_id": cid},
+            {"$set": {"review.state": "approved", "verified_until": now() + timedelta(days=365), "trust": "verified"}},
+        )
         return {"ok": True}
     if cmd == "job":
         from app.jobs import service

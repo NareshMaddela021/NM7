@@ -36,6 +36,9 @@ RULES: dict[str, dict[str, Any]] = {
 }
 
 
+from app.companies.jobcheck import BLOCKED, SCAM  # noqa: E402  (plain lists, no import cycle)
+
+
 def defaults() -> dict[str, Any]:
     return {
         "plans": {k: {"name": n, "amount": a, "active": True} for k, (n, a) in PLANS.items()},
@@ -46,6 +49,8 @@ def defaults() -> dict[str, Any]:
         "daily_summary": {"on": True},  # 8:00 IST email to the Owner admins (app/admin/daily.py)
         # company accounts (Phase 2): what each trust level may post, how long Verified lasts, sign-up flags
         "companies": {"basic_jobs_per_week": 1, "verified_live_jobs": 3, "verified_months": 12, "ip_burst": 3},
+        # safe job posting (C3): phrases that block a company job / send it to Admin review (one per line in Settings)
+        "job_checks": {"blocked": list(BLOCKED), "scam": list(SCAM)},
     }
 
 
@@ -61,6 +66,7 @@ async def get_site(db: AsyncDatabase, session: Session = None) -> dict[str, Any]
     out["referral"] = {**out["referral"], **(stored.get("referral") or {})}
     out["daily_summary"] = {**out["daily_summary"], **(stored.get("daily_summary") or {})}
     out["companies"] = {**out["companies"], **(stored.get("companies") or {})}
+    out["job_checks"] = {**out["job_checks"], **(stored.get("job_checks") or {})}
     out["daily_summary_sent"] = stored.get("daily_summary_sent")
     out["rule_runs"] = stored.get("rule_runs", {})
     return out

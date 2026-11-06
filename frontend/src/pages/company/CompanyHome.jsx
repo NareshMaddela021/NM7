@@ -7,6 +7,7 @@ import Header from '../../components/Header';
 import LangSwitch from '../../components/LangSwitch';
 import SiteFooter from '../../components/SiteFooter';
 import { TEAM_ROLES, keepDraft, readDraft, rq } from '../../lib/company';
+import CompanyJobs from './CompanyJobs';
 import { headerLabels, useLang } from '../../lib/i18n';
 import { usePageMeta } from '../../lib/meta';
 import { keepAccount, readAccount } from '../../lib/recruiterPortal';
@@ -95,7 +96,7 @@ function Companies({ t, onSignedOut }) {
   );
 }
 
-const TABS = ['overview', 'team', 'page', 'settings', 'security', 'activity'];
+const TABS = ['overview', 'jobs', 'team', 'page', 'settings', 'security', 'activity'];
 
 function Dashboard({ t, c, onChanged, onSignedOut }) {
   const [tab, setTab] = useState('overview');
@@ -106,6 +107,7 @@ function Dashboard({ t, c, onChanged, onSignedOut }) {
         {TABS.map((k) => <button key={k} type="button" role="tab" aria-selected={tab === k} onClick={() => setTab(k)}>{t(`co.dash.tab.${k}`)}</button>)}
       </div>
       {tab === 'overview' && <Overview t={t} c={c} manage={manage} />}
+      {tab === 'jobs' && <CompanyJobs t={t} c={c} />}
       {tab === 'team' && <Team t={t} c={c} manage={manage} onChanged={onChanged} />}
       {tab === 'page' && <PageEditor t={t} c={c} manage={manage} onChanged={onChanged} />}
       {tab === 'settings' && <Settings t={t} c={c} manage={manage} onChanged={onChanged} />}

@@ -1552,3 +1552,21 @@ Job postings, applicants and the talent pool are added in C3 and C5. A person on
 **Public company page:** `nm7.si/companies/<slug>` shows the logo, name, trust badge with a plain "why", about,
 website and open jobs. Only Basic and Verified companies have one; never demo, blocked or unconfirmed ones. The logo
 image is also served at `/api/companies/<slug>/logo` for search engines.
+
+**Safe job posting (C3).** Companies post from the dashboard's Jobs tab into the job board's own jobs (source
+`company`, `company_id`); see `backend/app/companies/posting.py`, `jobcheck.py` and
+`frontend/src/pages/company/CompanyJobs.jsx`. Apply on Nm7 is the default apply method.
+- **Unfair wording blocks the job:** "male preferred", "age below 25", "young candidates only", "no disabilities"
+  and more, plus any age limit.
+- **Scam signs send it to Admin review:** "registration fee", "pay to apply", "contact only on WhatsApp/Telegram",
+  "guaranteed income", "no interview required" and more. So does an AI fake-job check, which runs once when the job
+  is first posted (rules first; never per view or edit; skipped when AI is off). A job waiting for review isn't
+  listed. Admin → Jobs → "Waiting for review" shows why, and Admin approves it or rejects it with a reason; the
+  company is emailed either way.
+- **Fresher fit:** a warning when a fresher or internship job asks for years of experience.
+- **Duplicates and edits:** the same title open in the same city is refused. A live job can be edited 2 times, then
+  support. Every action follows the trust level's limit and is in the activity log.
+- **Admin → Settings & prices → Safe job posting:** both phrase lists, one per line.
+- **"Write the description for me":** 3 lines (role, skills, city/salary) become a description. Any number, rupee
+  amount, perk or company-fact word the company didn't type sends it back to a plain draft built from the 3 lines, so
+  it never invents salary, benefits or company facts. Without an AI key it always uses the plain draft.
