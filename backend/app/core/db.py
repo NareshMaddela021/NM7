@@ -100,6 +100,7 @@ COLLEGE_GROUPS = (
 JOB_FIT = "job_fit"  # _id = user:job: the cached match score of one resume for one job (rules only)
 AUTO_ITEMS = "auto_items"  # Auto Apply: one per (user, job), unique: applied / needs answer / waiting approval / …
 AUTO_COPIES = "auto_copies"  # the tailored resume copy Auto Apply sent for one job (the version on the application)
+EMAIL_BLOCKS = "email_blocks"  # _id = an address or "@domain": no Auto Apply email after a bounce / a complaint
 AUTO_RUNS = "auto_runs"  # _id = IST day: the daily Auto Apply run log
 TALENT_POOL = "talent_pool"  # a company's saved applicants (company_id, user_id), kept as long as the application
 JOB_REPORTS = "job_reports"  # _id = user:job: a student's report of a job (3 from different people pause it)
@@ -192,6 +193,7 @@ COLLECTIONS = (
     AUTO_ITEMS,
     AUTO_COPIES,
     AUTO_RUNS,
+    EMAIL_BLOCKS,
 )
 
 DAY = 86_400

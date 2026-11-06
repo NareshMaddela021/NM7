@@ -14,13 +14,13 @@ words, never made up). Nothing is sent while Auto Apply is off for everyone or t
 
 from typing import Any
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Response
 from pydantic import Field
 
 from app.audit import audit
 from app.auth.deps import CustomerAuth
 from app.autoapply import engine
-from app.core.db import AUTO_COPIES, AUTO_ITEMS, DB, JOBS, USERS
+from app.core.db import APPLICATIONS, AUTO_COPIES, AUTO_ITEMS, DB, JOBS, USERS
 from app.core.errors import ApiError
 from app.core.schemas import CamelModel
 from app.core.time import now
@@ -29,7 +29,7 @@ from app.site import get_site
 
 router = APIRouter(prefix="/api/me/auto-apply/items", tags=["auto apply"])
 
-SHOWN_STATES = ("needs_answer", "waiting_approval", "queued", "applied")
+SHOWN_STATES = ("needs_answer", "waiting_approval", "queued", "applied", "sent", "ready")
 
 
 class AnswerIn(CamelModel):
@@ -50,6 +50,17 @@ def _out(it: dict[str, Any], j: dict[str, Any] | None, missing: set[str] | None 
         "channel": it.get("channel"),
         "job": {"id": it["job_id"], "title": it.get("title"), "company": it.get("company"), "slug": it.get("slug")},
         "questions": [q for q in qs if q["id"] in missing] if it.get("kind") == "questions" else [],
+        "sent": {
+            "to": it["sent"]["to"],
+            "subject": it["sent"]["subject"],
+            "text": it["sent"]["text"],
+            "at": ms(it["sent"]["at"]),
+        }
+        if it.get("sent")
+        else None,
+        "delivery": it.get("delivery"),
+        "hasCopy": bool(it.get("copy_id")),
+        "applyUrl": ((j or {}).get("apply") or {}).get("url", "") if it["state"] == "ready" else "",
         "at": ms(it.get("updated_at")),
     }
 
@@ -62,10 +73,20 @@ async def items(auth: CustomerAuth, db: DB) -> dict[str, Any]:
         .sort("updated_at", -1)
         .to_list(200)
     )
-    jobs = {j["_id"]: j async for j in db[JOBS].find({"_id": {"$in": [r["job_id"] for r in rows]}}, {"questions": 1})}
+    jobs = {
+        j["_id"]: j
+        async for j in db[JOBS].find({"_id": {"$in": [r["job_id"] for r in rows]}}, {"questions": 1, "apply": 1})
+    }
     u = await db[USERS].find_one({"_id": auth.user.id}, {"auto_apply": 1}) or {}
-    out = {"needsAnswer": [], "waiting": [], "queued": [], "applied": []}
-    key = {"needs_answer": "needsAnswer", "waiting_approval": "waiting", "queued": "queued", "applied": "applied"}
+    out = {"needsAnswer": [], "waiting": [], "queued": [], "applied": [], "ready": []}
+    key = {
+        "needs_answer": "needsAnswer",
+        "waiting_approval": "waiting",
+        "queued": "queued",
+        "applied": "applied",
+        "sent": "applied",
+        "ready": "ready",
+    }
     for r in rows:
         missing = None
         if r.get("kind") == "questions" and jobs.get(r["job_id"]):  # answers saved since then count
@@ -155,7 +176,7 @@ async def go(iid: str, auth: CustomerAuth, db: DB) -> dict[str, Any]:
 @router.post("/{iid}/skip")
 async def skip(iid: str, auth: CustomerAuth, db: DB) -> dict[str, Any]:
     it = await db[AUTO_ITEMS].find_one({"_id": iid, "user_id": auth.user.id})
-    if not it or it["state"] not in ("needs_answer", "waiting_approval", "queued"):
+    if not it or it["state"] not in ("needs_answer", "waiting_approval", "queued", "ready"):
         raise ApiError(404, "not_found", "This job isn’t waiting for you any more.")
     upd: dict[str, Any] = {"$set": {"state": "skipped", "reason": "student", "updated_at": now()}}
     if it["state"] != "waiting_approval":
@@ -171,12 +192,12 @@ async def _approve(db, u, it, j) -> str:
         return await engine.finish(
             db, {**it, "approved": True}, j, u, it.get("answers") or {}, engine.today(), await get_site(db)
         )
-    app = await engine.apply_nm7(db, it, j, u, copy, it.get("answers") or {})
-    state = "applied" if app else "skipped"
-    await db[AUTO_ITEMS].update_one(
-        {"_id": it["_id"]}, {"$set": {"state": state, "approved": True, "applied_at": now(), "updated_at": now()}}
-    )
-    return state
+    got = await engine.deliver(db, it, j, u, copy, it.get("answers") or {})
+    upd: dict[str, Any] = {"$set": {**got, "approved": True, "updated_at": now()}}
+    if got["state"] == "queued":
+        upd["$unset"] = {"counted_day": ""}
+    await db[AUTO_ITEMS].update_one({"_id": it["_id"]}, upd)
+    return got["state"]
 
 
 @router.post("/approve-all")
@@ -200,3 +221,69 @@ async def approve(iid: str, auth: CustomerAuth, db: DB) -> dict[str, Any]:
     state = await _approve(db, u, it, j)
     await audit(db, auth.user.id, "auto_apply.approve", target=j["_id"], data={"state": state})
     return {"state": state}
+
+
+# ---------- Ready to apply (A5): other websites, one tap by the student ----------
+
+
+@router.post("/{iid}/opened")
+async def opened(iid: str, auth: CustomerAuth, db: DB) -> dict[str, Any]:
+    """The student opened the company's site from "Ready to apply": saved as Applied (outside Nm7) with the tailored
+    resume version. Nm7 never fills in the company's form."""
+    from app.jobs.apply import FOLLOW_AFTER, app_key, job_page
+
+    it = await db[AUTO_ITEMS].find_one({"_id": iid, "user_id": auth.user.id, "state": "ready"})
+    if not it:
+        raise ApiError(404, "not_found", "This job isn’t waiting for you any more.")
+    j = await db[JOBS].find_one({"_id": it["job_id"]})
+    if not j or j.get("status") != "active":
+        await db[AUTO_ITEMS].update_one({"_id": iid}, {"$set": {"state": "expired", "updated_at": now()}})
+        raise ApiError(409, "closed", "This job has closed.")
+    copy = await db[AUTO_COPIES].find_one({"_id": it.get("copy_id")}) or {}
+    t = now()
+    doc = {
+        "key": app_key(j["_id"]),
+        "user_id": auth.user.id,
+        "company": (j.get("company") or {}).get("name", "")[:120],
+        "role": j["title"][:120],
+        "status": "applied",
+        "date": int(t.timestamp() * 1000),
+        "resume_id": copy.get("from_key"),
+        "resume_name": (copy.get("name") or "")[:120],
+        "url": job_page(j),
+        "notes": "",
+        "next": int((t + FOLLOW_AFTER).timestamp() * 1000),
+        "job_id": j["_id"],
+        "channel": "link",
+        "origin": "manual",
+        "auto_item_id": iid,
+        "copy_id": copy.get("_id"),
+        "timeline": [{"status": "applied", "at": t}],
+        "created_at": t,
+        "updated_at": t,
+    }
+    from pymongo.errors import DuplicateKeyError
+
+    try:
+        await db[APPLICATIONS].insert_one(doc)
+    except DuplicateKeyError:
+        pass  # already saved (by hand or an earlier tap)
+    await db[AUTO_ITEMS].update_one({"_id": iid}, {"$set": {"state": "opened", "updated_at": t}})
+    await audit(db, auth.user.id, "auto_apply.ready_opened", target=j["_id"], data={"copy": copy.get("_id")})
+    return {"url": (j.get("apply") or {}).get("url") or ""}
+
+
+@router.get("/{iid}/resume.pdf")
+async def resume_pdf(iid: str, auth: CustomerAuth, db: DB) -> Response:
+    from app.autoapply import pdf
+
+    it = await db[AUTO_ITEMS].find_one({"_id": iid, "user_id": auth.user.id})
+    copy = await db[AUTO_COPIES].find_one({"_id": (it or {}).get("copy_id"), "user_id": auth.user.id})
+    if not copy:
+        raise ApiError(404, "not_found", "No tailored resume for this job.")
+    name = pdf.file_name(copy["data"])
+    return Response(
+        pdf.render(copy["data"]),
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{name}"', "Cache-Control": "no-store"},
+    )

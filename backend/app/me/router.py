@@ -101,6 +101,15 @@ def cover_out(d: dict[str, Any]) -> CoverOut:
 def app_out(d: dict[str, Any]) -> ApplicationOut:
     steps = [{"status": s["status"], "at": ms(s["at"])} for s in d.get("timeline") or []]
     extra = {"to_company": bool(d.get("company_id")), "withdrawn": bool(d.get("withdrawn_at"))}
+    if d.get("sent_email"):
+        se = d["sent_email"]
+        extra["sent_email"] = {
+            "to": se.get("to"),
+            "subject": se.get("subject"),
+            "text": se.get("text"),
+            "at": ms(se.get("at")),
+            "attachment": se.get("attachment"),
+        }
     return ApplicationOut.model_validate({**d, "id": d["key"], "timeline": steps, **extra})
 
 

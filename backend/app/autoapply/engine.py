@@ -215,9 +215,17 @@ async def _ai(db, uid: str, run) -> dict[str, Any] | None:
 
 
 async def apply_nm7(
-    db, item: dict[str, Any], j: dict[str, Any], u: dict[str, Any], copy: dict[str, Any], answers: dict[str, Any]
+    db,
+    item: dict[str, Any],
+    j: dict[str, Any],
+    u: dict[str, Any],
+    copy: dict[str, Any],
+    answers: dict[str, Any],
+    channel: str = "nm7",
+    extra: dict[str, Any] | None = None,
 ) -> dict[str, Any] | None:
-    """The application in the company dashboard (or Admin → Jobs for an Nm7 job without a company), labelled Auto."""
+    """The application record, labelled Auto: in the company dashboard for an Nm7 job (or Admin → Jobs without a
+    company), or "Sent by email" with a copy of the email for an email job."""
     from app.companies import questions as qmod
 
     t = now()
@@ -236,7 +244,7 @@ async def apply_nm7(
         "notes": "",
         "next": int((t + FOLLOW_AFTER).timestamp() * 1000),
         "job_id": j["_id"],
-        "channel": "nm7",
+        "channel": channel,
         "origin": "auto",
         "auto_item_id": item["_id"],
         "copy_id": copy["_id"],
@@ -246,7 +254,8 @@ async def apply_nm7(
         "created_at": t,
         "updated_at": t,
     }
-    if j.get("company_id"):
+    doc |= extra or {}
+    if j.get("company_id") and channel == "nm7":
         why = qmod.knockout(j.get("questions") or [], answers)
         doc |= {
             "company_id": j["company_id"],
@@ -264,7 +273,7 @@ async def apply_nm7(
         "auto_apply.applied",
         target=j["_id"],
         data={
-            "channel": "nm7",
+            "channel": channel,
             "copy": copy["_id"],
             "resume": copy["from_key"],
             "score": item.get("score"),
@@ -286,6 +295,39 @@ async def saved_answers(u: dict[str, Any], j: dict[str, Any]) -> tuple[dict[str,
     return ok, missing
 
 
+async def deliver(
+    db,
+    item: dict[str, Any],
+    j: dict[str, Any],
+    u: dict[str, Any],
+    copy: dict[str, Any],
+    answers: dict[str, Any],
+    mailer=None,
+    site: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Send one application through its channel. → the item's new fields (state applied / sent / queued / skipped)."""
+    t = now()
+    if j["apply"]["method"] == "email":
+        from app.autoapply import emailing
+        from app.core.email import get_mailer
+
+        site = site or await get_site(db)
+        day = today(t)
+        if await emailing.sent_today(db, day) >= int(site["auto_apply"]["email_daily_cap"]):
+            return {"state": "queued", "reason": "email_cap"}  # the site's daily email cap: the next run sends it
+        sent = await emailing.send(db, mailer or get_mailer(), item, j, u, copy, item.get("found") or [])
+        if not sent:
+            return {"state": "skipped", "reason": "email_blocked_or_failed"}
+        app = await apply_nm7(db, item, j, u, copy, answers, channel="email", extra={"sent_email": sent})
+        return (
+            {"state": "sent", "sent": sent, "sent_day": day, "applied_at": t}
+            if app
+            else {"state": "skipped", "reason": "already"}
+        )
+    app = await apply_nm7(db, item, j, u, copy, answers)
+    return {"state": "applied", "applied_at": t} if app else {"state": "skipped", "reason": "already"}
+
+
 async def finish(
     db,
     item: dict[str, Any],
@@ -294,6 +336,7 @@ async def finish(
     answers: dict[str, Any],
     day: str,
     site: dict[str, Any],
+    mailer=None,
 ) -> str:
     """Apply one ready item now (or hold it for Approve in the preview days). Returns the new state."""
     r = await resume_for(db, u["_id"])
@@ -304,11 +347,10 @@ async def finish(
     if preview_left(u.get("auto_apply") or {}, site) > 0 and not item.get("approved"):
         sets["state"] = "waiting_approval"
     else:
-        app = await apply_nm7(db, item, j, u, copy, answers)
-        sets |= {"state": "applied" if app else "skipped", "applied_at": now(), "reason": None if app else "already"}
+        sets |= await deliver(db, item, j, u, copy, answers, mailer, site)
     upd: dict[str, Any] = {"$set": sets}
-    if sets["state"] == "skipped":
-        upd["$unset"] = {"counted_day": ""}  # never applied: it doesn't use up the daily limit
+    if sets["state"] in ("skipped", "queued"):
+        upd["$unset"] = {"counted_day": ""}  # not sent today: it doesn't use up today's limit
     else:
         sets["counted_day"] = item.get("counted_day") or day
     await db[AUTO_ITEMS].update_one({"_id": item["_id"]}, upd)
@@ -341,7 +383,7 @@ async def _item(db, u: dict[str, Any], j: dict[str, Any], state: str, **extra) -
     return doc
 
 
-async def run_user(db, u: dict[str, Any], site: dict[str, Any], day: str, counts: dict[str, Any]) -> None:
+async def run_user(db, u: dict[str, Any], site: dict[str, Any], day: str, counts: dict[str, Any], mailer=None) -> None:
     uid = u["_id"]
     a = u.get("auto_apply") or {}
     d = site["auto_apply"]
@@ -361,7 +403,7 @@ async def run_user(db, u: dict[str, Any], site: dict[str, Any], day: str, counts
             await db[AUTO_ITEMS].update_one({"_id": it["_id"]}, {"$set": {"state": "expired", "updated_at": t}})
             continue
         await db[AUTO_ITEMS].update_one({"_id": it["_id"]}, {"$set": {"counted_day": day}})
-        state = await finish(db, {**it, "counted_day": day}, j, u, it.get("answers") or {}, day, site)
+        state = await finish(db, {**it, "counted_day": day}, j, u, it.get("answers") or {}, day, site, mailer)
         counts[state] = counts.get(state, 0) + 1
         left -= state in ("applied", "waiting_approval")
     # stuck jobs whose questions are now all answered (saved for another job) go next
@@ -380,7 +422,7 @@ async def run_user(db, u: dict[str, Any], site: dict[str, Any], day: str, counts
             await db[AUTO_ITEMS].update_one({"_id": it["_id"]}, {"$set": {"state": "skipped", "reason": "not_a_fit"}})
             continue
         await db[AUTO_ITEMS].update_one({"_id": it["_id"]}, {"$set": {"counted_day": day}})
-        state = await finish(db, {**it, "counted_day": day}, j, u, answers, day, site)
+        state = await finish(db, {**it, "counted_day": day}, j, u, answers, day, site, mailer)
         counts[state] = counts.get(state, 0) + 1
         left -= state in ("applied", "waiting_approval")
     seen = {x["job_id"] async for x in db[AUTO_ITEMS].find({"user_id": uid}, {"job_id": 1})}
@@ -412,6 +454,7 @@ async def run_user(db, u: dict[str, Any], site: dict[str, Any], day: str, counts
     fits = await fitmod.fits(db, uid, p, jobs)
     ranked = sorted(jobs, key=lambda j: -fits[j["_id"]]["score"])
     stuck = 0
+    ready_left = limit - await db[AUTO_ITEMS].count_documents({"user_id": uid, "ready_day": day})
     for j in ranked:
         score = fits[j["_id"]]["score"]
         why = skip_reason(j, a, companies, site)
@@ -422,9 +465,16 @@ async def run_user(db, u: dict[str, Any], site: dict[str, Any], day: str, counts
         if why:
             counts[f"skip_{why}"] = counts.get(f"skip_{why}", 0) + 1
             continue
-        if j["apply"]["method"] != "nm7":
-            continue  # email (A4) and other websites (A5) are handled by their own channels
         mins = int(a.get("min_score", d["min_score"]))
+        if j["apply"]["method"] == "link":  # other websites: never a bot; "Ready to apply" for one tap (A5)
+            if score >= mins and ready_left > 0 and await company_count(db, uid, j, t) < int(d["company_cap"]):
+                it = await _item(db, u, j, "ready", score=score, ready_day=day)
+                if it:
+                    copy = await tailored_copy(db, uid, r, j)
+                    await db[AUTO_ITEMS].update_one({"_id": it["_id"]}, {"$set": {"copy_id": copy["_id"]}})
+                    ready_left -= 1
+                    counts["ready"] = counts.get("ready", 0) + 1
+            continue
         if score < mins - int(d["borderline"]):
             counts["skip_score"] = counts.get("skip_score", 0) + 1
             continue
@@ -451,10 +501,10 @@ async def run_user(db, u: dict[str, Any], site: dict[str, Any], day: str, counts
             continue  # the saved answers break the company's rules: not worth their time
         if left <= 0:
             continue  # today's limit is used; keep looking only for jobs that need an answer
-        it = await _item(db, u, j, "applying", score=score, counted_day=day)
+        it = await _item(db, u, j, "applying", score=score, counted_day=day, found=fits[j["_id"]].get("found") or [])
         if not it:
             continue
-        state = await finish(db, it, j, u, answers, day, site)
+        state = await finish(db, it, j, u, answers, day, site, mailer)
         counts[state] = counts.get(state, 0) + 1
         if state in ("applied", "waiting_approval"):
             left -= 1
@@ -498,6 +548,9 @@ async def run(db, mailer=None, force: bool = False, limit: int = PAGE) -> dict[s
         {"_id": day}, {"$setOnInsert": {"started_at": t, "counts": {}, "errors": [], "users": 0}}, upsert=True
     )
     expired = await expire_stale(db)
+    from app.autoapply.emailing import check_deliveries
+
+    deliveries = await check_deliveries(db)
     counts: dict[str, Any] = {"applied": 0, "waiting_approval": 0, "needs_answer": 0, "skipped_gate": 0}
     done = 0
     users = (
@@ -525,7 +578,7 @@ async def run(db, mailer=None, force: bool = False, limit: int = PAGE) -> dict[s
         if not got:
             continue
         try:
-            await run_user(db, got, site, day, counts)
+            await run_user(db, got, site, day, counts, mailer)
         except Exception as e:  # noqa: BLE001 — one student's problem never stops the others
             log.exception("auto apply: run failed for one student")
             await db[AUTO_RUNS].update_one(
@@ -542,6 +595,16 @@ async def run(db, mailer=None, force: bool = False, limit: int = PAGE) -> dict[s
         done += 1
     inc = {f"counts.{k}": v for k, v in counts.items() if v}
     await db[AUTO_RUNS].update_one(
-        {"_id": day}, {"$inc": {"users": done, "counts.expired": expired, **inc}, "$set": {"updated_at": now()}}
+        {"_id": day},
+        {
+            "$inc": {
+                "users": done,
+                "counts.expired": expired,
+                "counts.bounced": deliveries["bounced"],
+                "counts.complained": deliveries["complained"],
+                **inc,
+            },
+            "$set": {"updated_at": now()},
+        },
     )
     return {"users": done, **counts, "expired": expired}

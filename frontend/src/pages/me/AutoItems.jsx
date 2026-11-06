@@ -4,7 +4,7 @@
 // and what was applied. Answering applies at once. English, Telugu and Hindi (aa.items.*). No pop-up dialogs.
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { http } from '../../services/http';
+import { API_BASE, http } from '../../services/http';
 
 const BASE = '/api/me/auto-apply/items';
 
@@ -56,6 +56,18 @@ function Questions({ it, t, onDone }) {
       <button type="submit" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={busy}>{busy ? t('jobs.loading') : t('aa.items.answerApply')}</button>
     </form>
   );
+}
+
+/** The tailored resume for one job, as a PDF file (made on the server from the copy Nm7 prepared). */
+async function downloadPdf(id) {
+  const r = await fetch(`${API_BASE}${BASE}/${id}/resume.pdf`, { credentials: 'include' });
+  if (!r.ok) throw new Error('download');
+  const url = URL.createObjectURL(await r.blob());
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = (/filename="([^"]+)"/.exec(r.headers.get('content-disposition') || '') || [])[1] || 'Resume.pdf';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 export default function AutoItems({ t, toast, refreshKey }) {
@@ -115,6 +127,22 @@ export default function AutoItems({ t, toast, refreshKey }) {
           ))}
         </section>
       )}
+      <section className="card stack g12" aria-labelledby="aa-ready-h" data-testid="aa-ready">
+        <div className="row g8" style={{ justifyContent: 'space-between' }}><strong id="aa-ready-h">{t('aa.items.ready')}</strong><span className="badge b-neutral">{d.ready.length}</span></div>
+        <span className="small muted">{t('aa.items.readyHint')}</span>
+        {d.ready.map((it) => (
+          <article key={it.id} className="card-sm stack g8" data-testid="aa-ready-item">
+            <JobLine it={it} t={t} />
+            <div className="row g8" style={{ flexWrap: 'wrap' }}>
+              {it.applyUrl && <a className="btn btn-ink" href={it.applyUrl} target="_blank" rel="noopener noreferrer nofollow" data-testid="aa-open"
+                onClick={() => { http(`${BASE}/${it.id}/opened`, { method: 'POST' }).then(() => { toast(t('aa.items.openedToast')); load(); }, () => {}); }}>{t('aa.items.open')} <span aria-hidden="true">↗</span></a>}
+              {it.hasCopy && <button type="button" className="btn btn-outline" disabled={!!busy} onClick={() => downloadPdf(it.id).catch(() => setErr(t('aa.items.pdfError')))} data-testid="aa-pdf">{t('aa.items.pdf')}</button>}
+              <button type="button" className="link-btn small" disabled={!!busy} onClick={() => act(it.id, 'skip')}>{t('aa.items.skip')}</button>
+            </div>
+          </article>
+        ))}
+        {d.ready.length === 0 && <span className="small muted">{t('aa.items.readyNone')}</span>}
+      </section>
       {d.queued.length > 0 && (
         <section className="card-sm stack g8" aria-labelledby="aa-q-h" data-testid="aa-queued">
           <strong id="aa-q-h" className="small">{t('aa.items.queuedTitle')}</strong>
@@ -124,7 +152,12 @@ export default function AutoItems({ t, toast, refreshKey }) {
       <section className="card stack g8" aria-labelledby="aa-done-h" data-testid="aa-applied">
         <strong id="aa-done-h">{t('aa.items.appliedTitle')}</strong>
         {d.applied.length === 0 && <span className="small muted">{t('aa.items.appliedNone')}</span>}
-        {d.applied.map((it) => <JobLine key={it.id} it={it} t={t} />)}
+        {d.applied.map((it) => (
+          <div key={it.id} className="stack g4">
+            <JobLine it={it} t={t} />
+            {it.sent && <span className="xs muted" data-testid="aa-sent">{t('aa.items.sentTo', { to: it.sent.to })}{it.delivery === 'bounced' ? ` · ${t('aa.items.bounced')}` : ''}</span>}
+          </div>
+        ))}
         {d.applied.length > 0 && <Link to="/me/jobs" className="small">{t('aa.seeApplications')}</Link>}
       </section>
     </>

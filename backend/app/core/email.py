@@ -28,6 +28,7 @@ class Email:
     reply_to: str | None = None  # e.g. the customer, for support tickets sent to our inbox
     # (file name, MIME type, bytes) — e.g. an invoice PDF. Kept small: providers cap the whole email (~10 MB).
     attachments: list[tuple[str, str, bytes]] = field(default_factory=list)
+    provider_id: str | None = None  # set by the mailer when the provider returns one (Resend: the email id)
 
 
 class Mailer(Protocol):
@@ -62,6 +63,10 @@ class ResendMailer:
         async with httpx.AsyncClient(timeout=TIMEOUT) as client:
             r = await client.post(self.url, json=body, headers=headers)
             r.raise_for_status()
+            try:
+                msg.provider_id = (r.json() or {}).get("id")
+            except ValueError:
+                msg.provider_id = None
 
 
 class ZeptoMailer:
