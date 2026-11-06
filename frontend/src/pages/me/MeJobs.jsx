@@ -31,7 +31,7 @@ function AppForm({ app, resumes, onSave, onDelete, onClose }) {
           <div className="field" style={{ flex: 1 }}><label htmlFor="ap-r" className="label">Role *</label><input id="ap-r" className="input" style={{ height: 42 }} value={f.role} onChange={set('role')} /></div>
         </div>
         <div className="row g8">
-          <div className="field" style={{ flex: 1 }}><label htmlFor="ap-s" className="label">Stage</label><select id="ap-s" className="input" style={{ height: 42 }} value={f.status} onChange={set('status')}>{APP_STAGES.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
+          <div className="field" style={{ flex: 1 }}><label htmlFor="ap-s" className="label">Stage</label><select id="ap-s" className="input" style={{ height: 42 }} value={f.status} onChange={set('status')}>{APP_STAGES.filter(([k]) => !['viewed', 'no_reply'].includes(k) || app.status === k).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
           <div className="field" style={{ flex: 1 }}><label htmlFor="ap-res" className="label">Resume sent</label><select id="ap-res" className="input" style={{ height: 42 }} value={f.resumeId} onChange={set('resumeId')}>{resumes.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}</select></div>
         </div>
         <div className="row g8">
@@ -54,12 +54,13 @@ export default function MeJobs() {
   const nav = useNavigate();
   const [edit, setEdit] = useState(null);
   const apps = me.apps;
-  const stages = (a) => APP_STAGES.filter(([k]) => k !== 'viewed' || a.status === 'viewed'); // Viewed is set by the company
+  const stages = (a) => APP_STAGES.filter(([k]) => !['viewed', 'no_reply'].includes(k) || a.status === k); // set by the company / by Nm7
   const move = (a, dir) => { const st = stages(a); const i = st.findIndex(([k]) => k === a.status); const n = st[Math.min(st.length - 1, Math.max(0, i + dir))][0]; setMe((s) => ({ apps: s.apps.map((x) => (x.id === a.id ? { ...x, status: n } : x)) })); };
   const due = (a) => ['applied', 'viewed'].includes(a.status) && (a.followUp || Date.now() - a.date > 7 * DAY) && !a.followed;
   const sent = apps.filter((a) => a.status !== 'saved');
   const iv = apps.filter((a) => ['interview', 'offer'].includes(a.status)).length;
   const weeks = Array.from({ length: 6 }, (_, i) => { const end = Date.now() - (5 - i) * 7 * DAY; const start = end - 7 * DAY; return { label: i === 5 ? 'This wk' : fmtShort(start), sent: sent.filter((a) => a.date > start && a.date <= end).length }; });
+  const cols = APP_STAGES.filter(([k]) => k !== 'no_reply' || apps.some((a) => a.status === k)); // Closed (no reply) only when there are some
   const resumeName = (id) => me.resumes.find((r) => r.id === id)?.name || '—';
 
   return (
@@ -70,8 +71,8 @@ export default function MeJobs() {
         <Kpi label="Interview rate" value={sent.length ? `${Math.round((iv / sent.length) * 100)}%` : '—'} sub={`${iv} reached interview or offer`} />
         <Kpi label="Follow-ups due" value={apps.filter(due).length} sub="applied 7+ days ago" tone={apps.some(due) ? 'var(--warning)' : undefined} />
       </div>
-      <div className="board" role="list" aria-label="Application board">
-        {APP_STAGES.map(([k, l]) => {
+      <div className="board" role="list" aria-label="Application board" style={{ '--cols': cols.length }}>
+        {cols.map(([k, l]) => {
           const col = apps.filter((a) => a.status === k);
           return (
             <section key={k} className="stack g8" role="listitem" aria-label={`${l}: ${col.length}`} style={{ background: 'var(--sunken)', borderRadius: 14, padding: 10, minHeight: 160 }}>
@@ -89,10 +90,11 @@ export default function MeJobs() {
                   {a.matchId && <button type="button" className="link-btn xs" style={{ textAlign: 'left' }} onClick={() => nav(`/me/interview/${a.matchId}`)}>Interview prep</button>}
                   {a.next && <span className="xs" style={{ color: 'var(--text2)' }}>Next: {fmtShort(a.next)}</span>}
                   {due(a) && <span className="row g4 xs" style={{ color: 'var(--warning)' }}>⏰ Follow up? <button type="button" className="link-btn xs" onClick={() => { setMe((s) => ({ apps: s.apps.map((x) => (x.id === a.id ? { ...x, followed: Date.now(), notes: `${x.notes ? `${x.notes}\n` : ''}Followed up ${fmtDay(Date.now())}.` } : x)) })); toast('Marked as followed up'); }}>Done</button></span>}
+                  {a.status === 'no_reply' && <span className="xs" data-testid="no-reply-note">The company didn’t reply in time, so Nm7 closed this. It isn’t about you.</span>}
                   {a.channel === 'nm7' ? <span className="xs faint">Updated by the company</span> : (
                     <span className="row between" style={{ marginTop: 2 }}>
                       <button type="button" className="btn btn-icon" style={{ width: 30, height: 30, minHeight: 30 }} aria-label={`Move ${a.company} back`} disabled={k === stages(a)[0][0]} onClick={() => move(a, -1)}>←</button>
-                      <button type="button" className="btn btn-icon" style={{ width: 30, height: 30, minHeight: 30 }} aria-label={`Move ${a.company} forward`} disabled={k === APP_STAGES[APP_STAGES.length - 1][0]} onClick={() => move(a, 1)}>→</button>
+                      <button type="button" className="btn btn-icon" style={{ width: 30, height: 30, minHeight: 30 }} aria-label={`Move ${a.company} forward`} disabled={k === stages(a)[stages(a).length - 1][0]} onClick={() => move(a, 1)}>→</button>
                     </span>
                   )}
                 </article>

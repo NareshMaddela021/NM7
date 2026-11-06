@@ -10,6 +10,7 @@ import { headerLabels, useLang } from '../../lib/i18n';
 import { usePageMeta } from '../../lib/meta';
 import { http } from '../../services/http';
 import { JobCard } from '../jobs/Jobs';
+import { ReplyBadge, TrustWhy } from '../jobs/Trust';
 
 export default function CompanyPublic() {
   const [t, lang] = useLang();
@@ -42,6 +43,11 @@ export default function CompanyPublic() {
                 </div>
               </div>
               <p className="xs muted" style={{ margin: 0 }}>{t(`co.pub.why.${c.trust}`)}</p>
+              <span className="row g8 xs" style={{ flexWrap: 'wrap' }}>
+                {c.score != null && <span className="muted" data-testid="trust-score">{t('jobs.trust.score', { n: c.score })}</span>}
+                <ReplyBadge days={c.replyDays} t={t} />
+              </span>
+              <TrustWhy parts={c.parts} t={t} />
               {c.about && <p style={{ margin: 0, whiteSpace: 'pre-line' }}>{c.about}</p>}
               <p className="small muted" style={{ margin: 0 }}>{[c.industry, c.size && t(`co.size.${c.size}`), c.kind === 'individual' && t('co.cat.individual')].filter(Boolean).join(' · ')}</p>
               {c.website && <a href={c.website} target="_blank" rel="noopener noreferrer nofollow" className="small">{c.website.replace(/^https:\/\//, '')} ↗</a>}

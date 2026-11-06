@@ -1570,3 +1570,22 @@ image is also served at `/api/companies/<slug>/logo` for search engines.
 - **"Write the description for me":** 3 lines (role, skills, city/salary) become a description. Any number, rupee
   amount, perk or company-fact word the company didn't type sends it back to a plain draft built from the 3 lines, so
   it never invents salary, benefits or company facts. Without an AI key it always uses the plain draft.
+
+**Trust and student protection (C4).** `backend/app/companies/trust.py`, `backend/app/jobs/reports.py`,
+`frontend/src/pages/jobs/Trust.jsx`.
+- **Trust score 0–100,** shown on every company job card, the job page ("About this company", with "Why this score")
+  and the company page. Parts, in plain words: Verified by Nm7 45, or emails confirmed 20 (an individual recruiter
+  15); company email on the website's domain 10; website over a year old 10 (unknown 5, newer 0); working mail on
+  the domain 5; student reports 15, minus 5 for each in the last 90 days; answers applicants within 14 days up to 15
+  (8 until there are 3 applications to judge by). Blocked companies score 0. Worked out again on every company save,
+  admin decision and report, and once a day in the automation pass. Companies can't pay for it.
+- **"Usually replies in N days":** the median days from applying on Nm7 to the company's first answer, over the last
+  90 days, shown only with at least 3 answers. Never made up.
+- **Report this job:** signed-in students pick a reason (scam, fake, unfair, wrong details, already filled, other)
+  and may add a note; one report per person per job. Reports from 3 different students pause the job.
+  **Admin → Jobs → Reports** lists them with reasons and notes: Dismiss (a job the reports paused goes live again)
+  or Close the job with a note. Both are in the audit log; the company never sees who reported.
+- **No silent rejections:** an application sent on Nm7 that the company hasn't moved for 14 days becomes
+  **Closed (no reply)** in My applications, and the student gets one polite email a day at most (never when they
+  turned follow-up emails off, never to an unconfirmed or bounced address). The days are in
+  **Admin → Settings & prices → Company limits**. Jobs from the job collector are never auto-closed.

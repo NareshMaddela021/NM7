@@ -107,9 +107,23 @@ async def test_recheck_and_settings(client, outbox, db, admin_client):
     # limits are settings
     r = await owner.put(
         "/api/admin/settings",
-        json={"companies": {"basicJobsPerWeek": 2, "verifiedLiveJobs": 5, "verifiedMonths": 6, "ipBurst": 4}},
+        json={
+            "companies": {
+                "basicJobsPerWeek": 2,
+                "verifiedLiveJobs": 5,
+                "verifiedMonths": 6,
+                "ipBurst": 4,
+                "noReplyDays": 21,
+            }
+        },
     )
-    assert r.json()["companies"] == {"basicJobsPerWeek": 2, "verifiedLiveJobs": 5, "verifiedMonths": 6, "ipBurst": 4}
+    assert r.json()["companies"] == {
+        "basicJobsPerWeek": 2,
+        "verifiedLiveJobs": 5,
+        "verifiedMonths": 6,
+        "ipBurst": 4,
+        "noReplyDays": 21,
+    }
     assert (await posting_room(db, doc))["limit"] == 2
     await owner.post(f"/api/admin/companies/{cid}/approve")
     doc = await db[COMPANIES].find_one({"_id": cid})

@@ -159,6 +159,9 @@ async def _save(db, c: dict[str, Any]) -> dict[str, Any]:
     c["trust"] = trust_of(c)
     c["updated_at"] = now()
     await db[COMPANIES].replace_one({"_id": c["_id"]}, c, upsert=True)
+    from app.companies.trust import refresh
+
+    c["score"] = await refresh(db, c["_id"])
     return c
 
 

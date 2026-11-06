@@ -3,7 +3,7 @@
 // typed on the page (no pop-up), block and unblock; the company limits in Settings; the company admin turns on 2-step
 // sign-in with an authenticator code and sees their signed-in devices. No sideways scrolling.
 import { expect, test } from '@playwright/test';
-import { API, PASSWORD, adminLogin, lastCode, seed, totp } from './helpers.mjs';
+import { API, PASSWORD, adminLogin, lastCode, ownNetwork, seed, totp } from './helpers.mjs';
 
 const SIZES = [['desktop', { viewport: { width: 1280, height: 900 } }], ['phone', { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true }]];
 
@@ -11,8 +11,9 @@ async function signUp(request, tag, who, { companyEmail = true } = {}) {
   const site = `${who}${tag}.example`;
   const email = `${who}-${tag}@example.com`;
   const company = { details: { legalName: `${who} ${tag} Pvt Ltd`, website: site, category: 'startup', structure: 'private_limited', industry: 'Software', size: '11_50', about: 'We build software.' }, registration: { kind: 'gstin', number: '27AAPFU0939F1ZV' }, phone: '' };
-  await request.post(`${API}/api/company/signup/code`, { data: { email, name: 'Ravi' } });
-  const r = await (await request.post(`${API}/api/company/signup/start`, { data: { email, name: 'Ravi', code: lastCode(email), company } })).json();
+  const NET = ownNetwork();
+  await request.post(`${API}/api/company/signup/code`, { headers: NET, data: { email, name: 'Ravi' } });
+  const r = await (await request.post(`${API}/api/company/signup/start`, { headers: NET, data: { email, name: 'Ravi', code: lastCode(email), company } })).json();
   const H = { 'X-Recruiter-Account': r.session };
   if (companyEmail) {
     await request.post(`${API}/api/company/${r.company.id}/company-email/code`, { data: { email: `hr@${site}` }, headers: H });

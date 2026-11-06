@@ -2,7 +2,7 @@
 // trust level, upload a logo and write the about text, the public page at /companies/<slug> with the trust badge,
 // change a team admin's role, settings (details not locked yet) and the activity log. No sideways scrolling.
 import { expect, test } from '@playwright/test';
-import { API, lastCode } from './helpers.mjs';
+import { API, lastCode, ownNetwork } from './helpers.mjs';
 
 const SIZES = [['desktop', { viewport: { width: 1280, height: 900 } }], ['phone', { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true }]];
 const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFklEQVR4nGNgYGD4z8DAwMDEwMDAAAAJBAED6ZqXjgAAAABJRU5ErkJggg==', 'base64');
@@ -17,8 +17,9 @@ for (const [label, opts] of SIZES) {
       const site = `dash${tag}.example`;
       const email = `boss-${tag}@example.com`;
       const company = { details: { legalName: `Dash ${tag} Pvt Ltd`, website: site, category: 'sme', structure: 'private_limited', industry: 'Retail', size: '51_200', about: '' }, registration: { kind: 'cin', number: 'U72900TG2019PTC123456' }, phone: '' };
-      await request.post(`${API}/api/company/signup/code`, { data: { email, name: 'Boss' } });
-      const r = await (await request.post(`${API}/api/company/signup/start`, { data: { email, name: 'Boss', code: lastCode(email), company } })).json();
+      const NET = ownNetwork();
+      await request.post(`${API}/api/company/signup/code`, { headers: NET, data: { email, name: 'Boss' } });
+      const r = await (await request.post(`${API}/api/company/signup/start`, { headers: NET, data: { email, name: 'Boss', code: lastCode(email), company } })).json();
       const H = { 'X-Recruiter-Account': r.session };
       await request.post(`${API}/api/company/${r.company.id}/company-email/code`, { data: { email: `hr@${site}` }, headers: H });
       await request.post(`${API}/api/company/${r.company.id}/company-email/verify`, { data: { code: lastCode(`hr@${site}`) }, headers: H });

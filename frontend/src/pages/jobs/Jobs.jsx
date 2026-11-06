@@ -18,6 +18,7 @@ import {
   matchReasons, pageQuery, placeText, postedAgo, salaryText, searchJobs, toggleSaved, useJsonLd, useSaved,
 } from '../../lib/jobBoard';
 import { usePageMeta } from '../../lib/meta';
+import { ReportJob, TrustLine, TrustWhy } from './Trust';
 import { waShareUrl } from '../../lib/shareLink';
 
 const lakh = (n) => `₹${n / 100000} L`;
@@ -75,6 +76,7 @@ export function JobCard({ job, t, extra }) {
         <div className="stack g4" style={{ minWidth: 0, flex: 1 }}>
           <h2 className="job-card-title"><Link to={`/jobs/${job.slug}`}>{job.title}</Link></h2>
           <span className="job-company">{job.company?.name}</span>
+          <TrustLine trust={job.companyTrust} t={t} />
           <span className="xs muted job-facts">{facts(job, t)}</span>
           {job.skills?.length > 0 && (
             <ul className="job-skills" aria-label={t('jobs.skills')}>
@@ -339,6 +341,7 @@ export function JobPage() {
                   <span className="job-company">
                     {job.company.website ? <a href={job.company.website} target="_blank" rel="noopener noreferrer nofollow">{job.company.name}</a> : job.company.name}
                   </span>
+                  <TrustLine trust={job.companyTrust} t={t} />
                 </div>
               </div>
               <div className="row g8">
@@ -381,6 +384,15 @@ export function JobPage() {
                 <h2 id="job-desc-h" className="job-h2">{t('jobs.about')}</h2>
                 <div className="job-description" lang="en">{job.description}</div>
               </section>
+              {job.companyTrust && (
+                <section className="card-sm stack g8" aria-labelledby="job-trust-h" data-testid="job-trust">
+                  <h2 id="job-trust-h" className="job-h2">{t('jobs.trust.title')}</h2>
+                  <TrustLine trust={job.companyTrust} t={t} />
+                  <TrustWhy parts={job.companyTrust.parts} t={t} />
+                  {['verified', 'basic'].includes(job.companyTrust.level) && <Link className="xs" to={`/companies/${job.companyTrust.slug}`}>{t('jobs.trust.page', { name: job.company.name })}</Link>}
+                </section>
+              )}
+              {!closed && <ReportJob job={job} t={t} />}
             </article>
             {job.similar?.length > 0 && (
               <section className="stack g12" aria-labelledby="job-similar-h" data-testid="similar-jobs">
