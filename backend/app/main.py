@@ -33,6 +33,7 @@ from app.college import reviews as college_reviews
 from app.companies import admin as company_admin
 from app.companies import applicants as company_applicants
 from app.companies import dashboard as company_dashboard
+from app.companies import demo as company_demo
 from app.companies import posting as company_posting
 from app.companies import security as company_security
 from app.companies import signup as company_signup
@@ -223,6 +224,7 @@ def create_app() -> FastAPI:
     app.include_router(jobs_reports.router)  # /api/jobs/{id}/report (C4)
     app.include_router(company_applicants.router)  # /api/company/{id}/applicants, /pool (C5)
     app.include_router(company_applicants.me)  # /api/me/applications/{key}/withdraw
+    app.include_router(company_demo.router)  # /api/admin/demo-company (Phase 2 demo)
     app.include_router(jobs_reports.admin)  # /api/admin/job-reports
     app.include_router(jobs_alerts.me)  # /api/me/job-alerts (C6)
     app.include_router(jobs_alerts.public)  # /api/public/jobs/stop-alerts

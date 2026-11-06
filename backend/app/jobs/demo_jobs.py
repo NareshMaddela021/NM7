@@ -70,7 +70,7 @@ async def seed(db: AsyncDatabase) -> int:
 
 
 async def remove(db: AsyncDatabase) -> int:
-    return (await db[JOBS].delete_many({"demo": True})).deleted_count
+    return (await db[JOBS].delete_many({"demo": True, "company_id": None})).deleted_count  # not the demo company's
 
 
 def is_public(j: dict[str, Any]) -> bool:
