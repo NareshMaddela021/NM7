@@ -97,6 +97,7 @@ REVIEW_COMMENTS = (
 COLLEGE_GROUPS = (
     "college_groups"  # a parent college group: its campus organizations, owners (roll-up only), group price
 )
+JOB_FIT = "job_fit"  # _id = user:job: the cached match score of one resume for one job (rules only)
 SAVED_JOBS = "saved_jobs"  # _id = user:job: a job someone saved on the job board (removed with the account)
 JOBS = "jobs"  # the job board: one job post (company, places, type, experience, salary, apply, status, link check)
 RECRUITER_FEEDBACK = "recruiter_feedback"  # _id = the invite: a recruiter's rating, common gaps, visit again
@@ -178,6 +179,7 @@ COLLECTIONS = (
     RECRUITER_FEEDBACK,
     JOBS,
     SAVED_JOBS,
+    JOB_FIT,
 )
 
 DAY = 86_400
@@ -248,6 +250,7 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel([("source", ASCENDING), ("created_at", DESCENDING)]),
     ],
     SAVED_JOBS: [IndexModel([("user_id", ASCENDING), ("created_at", DESCENDING)])],
+    JOB_FIT: [IndexModel("user_id"), IndexModel("at", expireAfterSeconds=30 * DAY)],
     RECRUITER_FEEDBACK: [IndexModel([("org_id", ASCENDING), ("updated_at", DESCENDING)])],
     INTERVIEWS: [
         IndexModel([("invite_id", ASCENDING), ("starts_at", ASCENDING)]),

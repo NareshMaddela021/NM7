@@ -13,7 +13,7 @@ import { useAuth } from '../../lib/auth';
 import { headerLabels, useLang } from '../../lib/i18n';
 import {
   EXPERIENCE, JOB_TYPES, ORIGIN, POSTED, SALARIES, WORK_TYPES, fromQuery, getJob, jobPostingJsonLd, listSaved, loadSaved,
-  pageQuery, placeText, postedAgo, salaryText, searchJobs, toggleSaved, useJsonLd, useSaved,
+  matchReasons, pageQuery, placeText, postedAgo, salaryText, searchJobs, toggleSaved, useJsonLd, useSaved,
 } from '../../lib/jobBoard';
 import { usePageMeta } from '../../lib/meta';
 import { waShareUrl } from '../../lib/shareLink';
@@ -52,6 +52,19 @@ function SaveButton({ job, t }) {
   );
 }
 
+function MatchLine({ m, t }) {
+  if (!m) return null;
+  const { good, gaps } = matchReasons(m, t);
+  return (
+    <div className="job-match" data-testid="match">
+      <span className="badge b-signal">{t('jobs.match.pct', { n: m.score })}</span>
+      <span className="xs">{good.join(' · ')}</span>
+      {gaps.length > 0 && <span className="xs muted">{gaps.join(' · ')}</span>}
+      {m.missing?.length > 0 && <span className="xs muted">{t('jobs.match.missing', { list: m.missing.join(', ') })}</span>}
+    </div>
+  );
+}
+
 export function JobCard({ job, t, extra }) {
   return (
     <article className="card-sm job-card" data-testid="job-card">
@@ -66,6 +79,7 @@ export function JobCard({ job, t, extra }) {
               {job.skills.slice(0, 5).map((s) => <li key={s} className="badge b-neutral">{s}</li>)}
             </ul>
           )}
+          <MatchLine m={job.match} t={t} />
           {extra}
           <div className="row g8 job-card-foot">
             <span className="xs muted">{postedAgo(job.postedAt, t)}</span>
@@ -163,8 +177,18 @@ export function JobsList() {
                 options={[['', t('jobs.f.any')], ...SALARIES.map((n) => [String(n), t('jobs.f.salaryAtLeast', { amount: lakh(n) })])]} />
               <Select id="f-posted" label={t('jobs.f.posted')} value={filters.posted} onChange={(v) => set({ posted: v })}
                 options={[['', t('jobs.f.anyTime')], ...POSTED.map((x) => [x, t(`jobs.f.posted.${x}`)])]} />
+              {data?.match === 'on' && (
+                <Select id="f-sort" label={t('jobs.f.sort')} value={filters.sort} onChange={(v) => set({ sort: v })}
+                  options={[['', t('jobs.f.newest')], ['match', t('jobs.f.best')]]} />
+              )}
             </div>
           </form>
+        )}
+        {!showSaved && data?.match === 'signed_out' && (
+          <p className="card-sm xs" style={{ margin: 0 }} data-testid="match-prompt">{t('jobs.match.signin')} <Link to={`/login?next=${encodeURIComponent(`/jobs${key ? `?${key}` : ''}`)}`}>{t('jobs.match.signinLink')}</Link></p>
+        )}
+        {!showSaved && data?.match === 'no_resume' && (
+          <p className="card-sm xs" style={{ margin: 0 }} data-testid="match-prompt">{t('jobs.match.noResume')} <Link to="/builder">{t('jobs.match.noResumeLink')}</Link></p>
         )}
 
         <div className="row g12" style={{ justifyContent: 'space-between' }}>
@@ -273,6 +297,15 @@ export function JobPage() {
                 <div><dt>{t('jobs.f.workType')}</dt><dd>{t(`jobs.work.${job.workType}`)}</dd></div>
                 <div><dt>{t('jobs.salary')}</dt><dd>{salaryText(job.salary, t) || t('jobs.salaryNone')}</dd></div>
               </dl>
+              {job.match && (
+                <section className="card-sm stack g8" aria-labelledby="job-match-h" data-testid="job-match">
+                  <h2 id="job-match-h" className="job-h2">{t('jobs.match.title')}: {t('jobs.match.pct', { n: job.match.score })}</h2>
+                  {(() => { const { good, gaps } = matchReasons(job.match, t); return <><span>{good.join(' · ')}</span>{gaps.length > 0 && <span className="xs muted">{gaps.join(' · ')}</span>}</>; })()}
+                  {job.match.found.length > 0 && <span className="xs">{t('jobs.match.found', { list: job.match.found.join(', ') })}</span>}
+                  {job.match.missing.length > 0 && <span className="xs">{t('jobs.match.missing', { list: job.match.missing.join(', ') })}</span>}
+                  <span className="xs muted">{t('jobs.match.how')}</span>
+                </section>
+              )}
               {closed ? (
                 <p className="card-sm" role="status" style={{ margin: 0 }} data-testid="job-closed-note">{t('jobs.closedNote')}</p>
               ) : (

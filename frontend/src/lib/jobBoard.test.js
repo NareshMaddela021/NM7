@@ -2,7 +2,7 @@
 // Google's Rich Results test needs, remote jobs, salary in INR, closed jobs without the markup).
 import { describe, expect, it } from 'vitest';
 import { translate } from './i18n';
-import { descriptionHtml, fromQuery, jobPostingJsonLd, jobPostingProblems, pageQuery, placeText, postedAgo, salaryText, toQuery } from './jobBoard';
+import { descriptionHtml, fromQuery, matchReasons, jobPostingJsonLd, jobPostingProblems, pageQuery, placeText, postedAgo, salaryText, toQuery } from './jobBoard';
 import PAGES from '../i18n/pages.json';
 
 const t = (k, v) => translate('en', k, v);
@@ -93,5 +93,17 @@ describe('Google JobPosting', () => {
   });
   it('description HTML escapes everything', () => {
     expect(descriptionHtml('<script>alert(1)</script>')).toBe('<p>&lt;script&gt;alert(1)&lt;/script&gt;</p>');
+  });
+});
+
+describe('match reasons', () => {
+  it('plain words from the parts: skills, experience, place; gaps apart', () => {
+    const m = { score: 85, found: ['SQL', 'Power BI', 'Excel', 'Python'], missing: ['Snowflake'], experience: 'ok', level: 'fresher', place: 'city', city: 'Hyderabad' };
+    expect(matchReasons(m, t)).toEqual({ good: ['Matches 4 of 5 skills', 'Fresher OK', 'In Hyderabad'], gaps: [] });
+    expect(matchReasons({ ...m, experience: 'far', level: '3_plus', place: 'other' }, t)).toEqual({ good: ['Matches 4 of 5 skills'], gaps: ['Asks for 3+ years', 'Not in your city'] });
+    expect(matchReasons({ ...m, found: [], missing: ['Java'], place: 'remote' }, t)).toEqual({ good: ['Fresher OK', 'Remote'], gaps: ['Matches 0 of 1 skills'] });
+    expect(matchReasons({ ...m, found: [], missing: [], place: 'unknown' }, t)).toEqual({ good: ['Fresher OK'], gaps: [] });
+    expect(matchReasons(null, t)).toEqual({ good: [], gaps: [] });
+    expect(matchReasons(m, (k, v) => translate('hi', k, v, { hi: PAGES.hi, en: PAGES.en })).good[0]).toBe('5 में से 4 स्किल मेल खाते हैं');
   });
 });

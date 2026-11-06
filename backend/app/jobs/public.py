@@ -15,11 +15,12 @@ from xml.sax.saxutils import escape
 
 from fastapi import APIRouter, Query, Response
 
-from app.auth.deps import CustomerAuth
+from app.auth.deps import CustomerAuth, MaybeAuth
 from app.core.config import get_settings
 from app.core.db import DB, JOBS, SAVED_JOBS
 from app.core.errors import ApiError
 from app.core.time import now
+from app.jobs import fit as fitmod
 from app.jobs.model import EXPERIENCE, JOB_TYPES, WORK_TYPES
 from app.me.service import ms
 
@@ -76,9 +77,19 @@ def _csv(v: str | None, allowed: set[str] | frozenset[str] | tuple[str, ...]) ->
     return [x for x in (v or "").split(",") if x in allowed]
 
 
+async def _person(db, auth) -> tuple[str, fitmod.Person | None]:
+    """(signed_out / no_resume / on, the person's resume)."""
+    if not auth or auth.user.role != "customer":
+        return "signed_out", None
+    p = await fitmod.person_for(db, auth.user.id)
+    return ("on", p) if p else ("no_resume", None)
+
+
 @router.get("")
 async def search(
     db: DB,
+    auth: MaybeAuth,
+    sort: str = Query("", max_length=8),
     q: str = Query("", max_length=80),
     experience: str = Query("", max_length=80),
     city: str = Query("", max_length=60),
@@ -111,14 +122,22 @@ async def search(
     if posted in POSTED:
         and_.append({"posted_at": {"$gte": now() - POSTED[posted]}})
     query = {"$and": and_}
-    total = await db[JOBS].count_documents(query)
-    rows = await (
-        db[JOBS]
-        .find(query, {"description": 0})
-        .sort([("posted_at", -1), ("_id", 1)])
-        .skip((page - 1) * PAGE)
-        .limit(PAGE)
-    ).to_list(None)
+    state, person = await _person(db, auth)
+    newest = [("posted_at", -1), ("_id", 1)]
+    fits: dict[str, dict] = {}
+    if person and sort == "match":  # rank the newest jobs that pass the filters by their score
+        pool = await db[JOBS].find(query, {"description": 0}).sort(newest).limit(fitmod.MAX_RANKED).to_list(None)
+        scored = await fitmod.fits(db, auth.user.id, person, pool, save=False)
+        pool.sort(key=lambda j: -scored[j["_id"]]["score"])  # stable: newest first within a score
+        total = len(pool)
+        rows = pool[(page - 1) * PAGE : page * PAGE]
+    else:
+        total = await db[JOBS].count_documents(query)
+        rows = await (
+            db[JOBS].find(query, {"description": 0}).sort(newest).skip((page - 1) * PAGE).limit(PAGE)
+        ).to_list(None)
+    if person:
+        fits = await fitmod.fits(db, auth.user.id, person, rows)
     cities = await db[JOBS].aggregate(
         [
             {"$match": live_filter()},
@@ -129,7 +148,8 @@ async def search(
         ]  # fmt: skip
     )
     return {
-        "items": [public_out(j) for j in rows],
+        "items": [{**public_out(j), **({"match": fits[j["_id"]]} if j["_id"] in fits else {})} for j in rows],
+        "match": state,
         "total": total,
         "page": page,
         "pages": max(1, -(-total // PAGE)),
@@ -176,7 +196,7 @@ async def similar(db, j: dict[str, Any], n: int = SIMILAR) -> list[dict[str, Any
 
 
 @router.get("/{slug}")
-async def one(slug: str, db: DB) -> dict[str, Any]:
+async def one(slug: str, db: DB, auth: MaybeAuth) -> dict[str, Any]:
     j = await db[JOBS].find_one({"slug": slug[:120], "demo": {"$ne": True}})
     if not j:
         raise ApiError(404, "not_found", "This job isn’t on Nm7 any more.")
@@ -184,6 +204,10 @@ async def one(slug: str, db: DB) -> dict[str, Any]:
         j["status"] = "closed"  # the daily pass hasn't run yet
     out = public_out(j, full=True)
     out["similar"] = await similar(db, j)
+    state, person = await _person(db, auth)
+    out["matchState"] = state
+    if person:
+        out["match"] = (await fitmod.fits(db, auth.user.id, person, [j]))[j["_id"]]
     return out
 
 
