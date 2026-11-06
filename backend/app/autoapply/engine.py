@@ -579,6 +579,10 @@ async def run(db, mailer=None, force: bool = False, limit: int = PAGE) -> dict[s
             continue
         try:
             await run_user(db, got, site, day, counts, mailer)
+            from app.autoapply.summary import after_run
+
+            sent = await after_run(db, mailer, got, day)  # the daily summary / weekly report, when there is news
+            counts["summary_emails"] = counts.get("summary_emails", 0) + sent["daily"] + sent["weekly"]
         except Exception as e:  # noqa: BLE001 — one student's problem never stops the others
             log.exception("auto apply: run failed for one student")
             await db[AUTO_RUNS].update_one(

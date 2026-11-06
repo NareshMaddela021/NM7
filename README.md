@@ -1701,3 +1701,15 @@ each pass; `auto_runs` keeps the day's counts and errors).
 score, within the company cap, up to the daily limit a day) wait in "Ready to apply" with the tailored resume
 prepared: **Download the tailored resume (PDF)**, and **Apply on the company site** opens it in a new tab and saves
 Applied (outside Nm7) with the resume version. They don't use up the daily auto applications.
+
+**Summaries and preview days (A6).** `backend/app/autoapply/summary.py`, `frontend/src/pages/me/AutoSummaryCard.jsx`.
+- The **Auto Apply today** card (dashboard and Auto Apply page): "Applied 4 · 2 need your answer · 3 ready to
+  apply", with buttons to each list and the jobs waiting for Approve. Every number is counted from the student's own
+  records.
+- One summary email a day, after the student's part of the morning run, only when something happened that day;
+  the **weekly report** on Mondays: applied, viewed, shortlisted, interviews in the last 7 days, plus up to 2 tips from
+  real data (a skill several matched jobs asked for that the resume lacks; jobs waiting for an answer). Never to an
+  unconfirmed or bounced address; "Stop these emails" (`/stop-alerts#…&k=autoapply`) and the switch on the Auto Apply
+  page turn both off.
+- **Preview days:** for the first 3 days (Admin setting) each auto application waits for **Approve** /
+  **Approve all**; after that it's automatic.

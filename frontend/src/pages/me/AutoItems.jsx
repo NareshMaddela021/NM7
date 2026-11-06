@@ -89,7 +89,7 @@ export default function AutoItems({ t, toast, refreshKey }) {
   return (
     <>
       {err && <p className="error" role="alert" style={{ margin: 0 }}>{err}</p>}
-      <section className="card stack g12" aria-labelledby="aa-need-h" data-testid="aa-needs">
+      <section id="needs" className="card stack g12" aria-labelledby="aa-need-h" data-testid="aa-needs" style={{ scrollMarginTop: 96 }}>
         <div className="row g8" style={{ justifyContent: 'space-between' }}><strong id="aa-need-h">{t('aa.items.needs')}</strong><span className="badge b-warning">{d.needsAnswer.length}</span></div>
         {d.needsAnswer.length === 0 && <span className="small muted">{t('aa.items.needsNone')}</span>}
         {d.needsAnswer.map((it) => (
@@ -127,7 +127,7 @@ export default function AutoItems({ t, toast, refreshKey }) {
           ))}
         </section>
       )}
-      <section className="card stack g12" aria-labelledby="aa-ready-h" data-testid="aa-ready">
+      <section id="ready" className="card stack g12" aria-labelledby="aa-ready-h" data-testid="aa-ready" style={{ scrollMarginTop: 96 }}>
         <div className="row g8" style={{ justifyContent: 'space-between' }}><strong id="aa-ready-h">{t('aa.items.ready')}</strong><span className="badge b-neutral">{d.ready.length}</span></div>
         <span className="small muted">{t('aa.items.readyHint')}</span>
         {d.ready.map((it) => (

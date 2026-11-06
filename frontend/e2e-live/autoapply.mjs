@@ -26,3 +26,22 @@ export async function studentWith(page, label, data, who = 'auto') {
   return mail;
 }
 
+
+const DESC = 'Build weekly dashboards in SQL and Power BI for our retail stores. Freshers are welcome; training is given.';
+
+/** A verified company (its own made-up network for the sign-up), with a helper to post Nm7 jobs in Hyderabad. */
+export async function verifiedCompany(request, tag, name = 'Autoco') {
+  const { API, ownNetwork, seed } = await import('./helpers.mjs');
+  const site = `co${tag}.example`.toLowerCase();
+  const mail = `hr-${tag}@example.com`.toLowerCase();
+  const NET = ownNetwork();
+  const company = { details: { legalName: `${name} ${tag} Pvt Ltd`, website: site, category: 'startup', structure: 'private_limited', industry: 'Software', size: '11_50', about: '' }, registration: { kind: 'llpin', number: 'AAB-1234' }, phone: '' };
+  await request.post(`${API}/api/company/signup/code`, { headers: NET, data: { email: mail, name: 'Ira' } });
+  const r = await (await request.post(`${API}/api/company/signup/start`, { headers: NET, data: { email: mail, name: 'Ira', code: lastCode(mail), company } })).json();
+  const H = { 'X-Recruiter-Account': r.session };
+  await request.post(`${API}/api/company/${r.company.id}/company-email/code`, { data: { email: `jobs@${site}` }, headers: H });
+  await request.post(`${API}/api/company/${r.company.id}/company-email/verify`, { data: { code: lastCode(`jobs@${site}`) }, headers: H });
+  seed('company-verify', r.company.id);
+  const post = async (title, extra = {}) => (await (await request.post(`${API}/api/company/${r.company.id}/jobs`, { headers: H, data: { job: { title, description: DESC, locations: ['Hyderabad'], experience: 'fresher', skills: ['SQL', 'Power BI'], ...extra } } })).json());
+  return { session: r.session, id: r.company.id, name: `${name} ${tag} Pvt Ltd`, post };
+}
