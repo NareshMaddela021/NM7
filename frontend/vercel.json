@@ -7,6 +7,10 @@
   "cleanUrls": false,
   "rewrites": [
     {
+      "source": "/sitemap-jobs.xml",
+      "destination": "https://nm7-api.onrender.com/api/jobs/sitemap.xml"
+    },
+    {
       "source": "/blog",
       "destination": "/blog/index.html"
     },
@@ -61,6 +65,14 @@
     {
       "source": "/expert-terms",
       "destination": "/expert-terms/index.html"
+    },
+    {
+      "source": "/jobs",
+      "destination": "/jobs/index.html"
+    },
+    {
+      "source": "/jobs/:slug",
+      "destination": "/index.html"
     },
     {
       "source": "/(scan|checkout|editor|login|signup|forgot-password|linkedin|stop-alerts|checkin|status|accessibility)",

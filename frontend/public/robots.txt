@@ -17,3 +17,4 @@ Disallow: /signup
 Disallow: /forgot-password
 
 Sitemap: https://nm7.si/sitemap.xml
+Sitemap: https://nm7.si/sitemap-jobs.xml

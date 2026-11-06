@@ -15,7 +15,7 @@ export const STATUS = 'needs native review';
 /** Where a string is shown, for the reviewer (from its key). */
 export function pageOf(key, file) {
   if (key === 'lang.label') return 'All translated pages · language switch';
-  if (key.startsWith('nav.')) return 'Header (home, /for-orgs)';
+  if (key.startsWith('nav.')) return 'Header (home, /for-orgs, /jobs)';
   if (key === 'org.start') return 'Home + /for-orgs';
   if (file.endsWith('home.json')) return 'Home (top)';
   if (key.startsWith('pricing.')) return 'Home · pricing';
@@ -25,6 +25,7 @@ export function pageOf(key, file) {
   if (key.startsWith('orgs.')) return '/for-orgs';
   if (key.startsWith('builder.start.')) return '/builder (Start step)';
   if (key.startsWith('signin.')) return '/login (sign in)';
+  if (key.startsWith('jobs.')) return '/jobs (job board)';
   return '';
 }
 

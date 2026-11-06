@@ -3,6 +3,7 @@
   "en": {
     "lang.label": "Language",
     "nav.build": "Build a resume",
+    "nav.jobs": "Jobs",
     "nav.templates": "Templates",
     "nav.pricing": "Pricing",
     "nav.orgs": "For organizations",
@@ -55,6 +56,7 @@
   "te": {
     "lang.label": "భాష",
     "nav.build": "రెజ్యూమ్ తయారీ",
+    "nav.jobs": "ఉద్యోగాలు",
     "nav.templates": "టెంప్లేట్లు",
     "nav.pricing": "ధరలు",
     "nav.orgs": "సంస్థల కోసం",
@@ -107,6 +109,7 @@
   "hi": {
     "lang.label": "भाषा",
     "nav.build": "रिज़्यूमे बनाएँ",
+    "nav.jobs": "नौकरियाँ",
     "nav.templates": "टेम्पलेट",
     "nav.pricing": "कीमतें",
     "nav.orgs": "संस्थाओं के लिए",

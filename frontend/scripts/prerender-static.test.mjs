@@ -8,12 +8,12 @@ const TEMPLATE = '<!doctype html><html lang="en"><head><meta charset="UTF-8" /><
 
 describe('static routes get their own head', () => {
   it('covers the builder, /templates, contact, /for-orgs, /partners and the legal pages, never the home page or the blog', () => {
-    expect(STATIC_ROUTES).toEqual(['/builder', '/templates', '/contact', '/for-orgs', '/partners', '/terms', '/privacy', '/refund-policy', '/delivery-policy', '/expert-terms']);
+    expect(STATIC_ROUTES).toEqual(['/builder', '/templates', '/jobs', '/contact', '/for-orgs', '/partners', '/terms', '/privacy', '/refund-policy', '/delivery-policy', '/expert-terms']);
   });
   it('writes one file per route with that route’s title, description, canonical and OpenGraph tags', () => {
     const dist = mkdtempSync(join(tmpdir(), 'nm7-static-'));
     writeFileSync(join(dist, 'index.html'), TEMPLATE);
-    expect(prerenderStatic({ dist, log: {} })).toHaveLength(10);
+    expect(prerenderStatic({ dist, log: {} })).toHaveLength(11);
     const html = readFileSync(join(dist, 'builder', 'index.html'), 'utf8');
     expect(html).toContain('<title>Resume builder · Nm7</title>');
     expect(html).toContain('<link rel="canonical" href="https://nm7.si/builder" />');

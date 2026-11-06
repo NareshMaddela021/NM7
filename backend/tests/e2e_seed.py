@@ -8,6 +8,7 @@ MONGODB_DB=nm7_e2e uv run python -m tests.e2e_seed reset
 ... customer-order EMAIL PLAN         → the checkout answer (a customer order waiting for Razorpay's webhook)
 ... org-order ORG_ID PLAN EMAIL [REF]  → the checkout answer (an org order waiting for Razorpay's webhook), made
                                           without calling Razorpay (the browser tests run without Razorpay keys)
+... job JSON [STATUS] [AGE_HOURS]       → {"id", "slug"} (a job-board job, as an admin would add it)
 """
 
 import asyncio
@@ -35,6 +36,20 @@ async def main(cmd: str, *args: str) -> dict:
         await get_client().drop_database(name)
         await ensure_indexes(db)
         return {"ok": True}
+    if cmd == "job":
+        from app.jobs import service
+        from app.jobs.model import JobIn
+
+        body, *rest = args
+        _, doc = await service.save(db, JobIn.model_validate(json.loads(body)), "admin")
+        sets = {}
+        if rest and rest[0]:
+            sets["status"] = rest[0]
+        if len(rest) > 1:
+            sets["posted_at"] = now() - timedelta(hours=float(rest[1]))
+        if sets:
+            await db["jobs"].update_one({"_id": doc["_id"]}, {"$set": sets})
+        return {"id": doc["_id"], "slug": doc["slug"]}
     if cmd == "admin":
         email, role, password = args
         _, secret, _ = await create_admin(db, email, role.title(), role, password)
