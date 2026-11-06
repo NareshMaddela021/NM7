@@ -53,7 +53,7 @@ export function AccountMenu() {
           <Link role="menuitem" to={homeFor(user)} className="admin-link">{homeLabel}</Link>
           {user.role === 'customer' && <Link role="menuitem" to="/me/settings" className="admin-link">Profile & settings</Link>}
           {user.role === 'expert' && <Link role="menuitem" to="/expert/profile" className="admin-link">Expert profile</Link>}
-          <button role="menuitem" type="button" className="admin-link" style={{ border: 0, background: 'transparent', width: '100%', textAlign: 'left', cursor: 'pointer' }} onClick={() => { signOut(); nav(user.role === 'admin' ? '/admin/login' : '/'); }}>Sign out</button>
+          <button role="menuitem" type="button" className="admin-link" style={{ border: 0, background: 'transparent', width: '100%', textAlign: 'left', cursor: 'pointer' }} onClick={async () => { const to = user.role === 'admin' ? '/admin/login' : '/'; await signOut(); nav(to); }}>Sign out</button>
         </div>
       )}
     </span>

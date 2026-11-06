@@ -455,3 +455,8 @@
 "jobs.app.offer","/jobs (job board)","Offer","ఆఫర్","ऑफ़र","needs native review"
 "jobs.app.rejected","/jobs (job board)","Not selected","ఎంపిక కాలేదు","चयन नहीं हुआ","needs native review"
 "jobs.app.saved","/jobs (job board)","Saved","సేవ్ చేశారు","सेव किया","needs native review"
+"jobs.foryou.title","/jobs (job board)","Jobs for you","మీ కోసం ఉద్యోగాలు","आपके लिए नौकरियाँ","needs native review"
+"jobs.foryou.all","/jobs (job board)","All jobs","అన్ని ఉద్యోగాలు","सभी नौकरियाँ","needs native review"
+"jobs.foryou.cta","/jobs (job board)","See all jobs that fit you","మీకు సరిపోయే అన్ని ఉద్యోగాలు చూడండి","आपके लायक सभी नौकरियाँ देखें","needs native review"
+"jobs.foryou.none","/jobs (job board)","No open jobs match yet. New jobs are added every morning.","ఇంకా సరిపోయే ఓపెన్ ఉద్యోగాలు లేవు. ప్రతి ఉదయం కొత్త ఉద్యోగాలు వస్తాయి.","अभी कोई खुली नौकरी मेल नहीं खाती। हर सुबह नई नौकरियाँ जुड़ती हैं।","needs native review"
+"jobs.foryou.apps","/jobs (job board)","My applications ({n})","నా దరఖాస్తులు ({n})","मेरे आवेदन ({n})","needs native review"

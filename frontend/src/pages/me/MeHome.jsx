@@ -11,6 +11,7 @@ import { Kpi } from '../admin/AdminUI';
 import { ResumeThumb, downloadResume, countdown, templateName, ago } from './shared';
 import HealthCard from './HealthCard';
 import LinkedInCard from './LinkedInCard';
+import JobsForYouCard from './JobsForYouCard';
 import PassOffer, { PassActive } from '../../components/PassOffer';
 
 export default function MeHome() {
@@ -64,6 +65,8 @@ export default function MeHome() {
       )}
 
       <HealthCard />
+
+      <div className="row g16" style={{ alignItems: 'stretch' }}><JobsForYouCard /></div>
 
       <div className="kpis">
         <Kpi label="Resume ATS score" value={score} sub={score >= 80 ? 'Good — recruiters’ systems read it well' : 'Below 80 — see the tips'} tone={score >= 80 ? 'var(--success)' : 'var(--warning)'} />

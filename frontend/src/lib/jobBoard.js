@@ -216,3 +216,8 @@ export const applyToJob = (id, resumeId = null) => http(`/api/jobs/${encodeURICo
 
 /** The mailto: link for an email application (subject and letter filled in). */
 export const mailtoLink = ({ to, subject, body }) => `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+/* ---------- Jobs for you (J6) ---------- */
+
+/** The dashboard card: { state: on | no_resume, items (top 3 with match), saved, applications }. Offline: nothing. */
+export const jobsForYou = () => (LIVE ? http('/api/me/jobs-for-you') : Promise.resolve(null));
