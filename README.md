@@ -1341,3 +1341,20 @@ active until <date>". The automation pass emails a reminder 7 days before the en
 When the pass ends, anything bought separately stays unlocked and only pass access stops. Resumes and data are never
 locked or deleted. Orders and invoices treat a pass like any other self-serve order. The daily summary and the Today
 card count "Annual passes sold".
+
+## CI (GitHub Actions)
+
+- **tests.yml** runs on every pull request and every push to `main`: the API's lint and tests (backend), and the
+  site's lint, unit tests and build (frontend).
+- **e2e.yml** is the full live browser suite (desktop + 390 px), plus the CSP check and the preview-build browser
+  tests. It runs nightly at 03:00 IST, by hand (Actions → e2e → Run workflow), and on pull requests while the
+  repository variable `CI_MODE` is `full`. `full` is the default when the variable isn't set.
+- Both skip docs-only changes (`*.md`, `docs/`), cache uv/npm downloads, and cancel an older run when a newer commit
+  arrives. Timeouts: backend 20, frontend 15, e2e 60 minutes.
+- **Switching to light** (to save Actions minutes once the repository is private): Settings → Secrets and variables
+  → Actions → Variables → New repository variable `CI_MODE` = `light`. Pull requests then run only tests.yml, and the
+  live suite runs nightly and by hand. Delete the variable, or set it to `full`, to go back.
+- **deps.yml** runs only when dependency files change, and weekly. **backup.yml** runs nightly. **hygraph.yml**
+  runs daily. **deploy-check.yml** runs after a backend change lands on the production branch.
+- Scheduled workflows run from the default branch (`main`), so `main` is kept level with the production branch
+  (`claude/fervent-albattani-wqmaoq`, which Vercel and Render deploy from).
