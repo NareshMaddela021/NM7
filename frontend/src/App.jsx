@@ -28,6 +28,7 @@ const JobPage = named(jobBoard, 'JobPage');
 const CompanySignup = lazy(() => import('./pages/company/CompanySignup'));
 const CompanyHome = lazy(() => import('./pages/company/CompanyHome'));
 const CompanyPublic = lazy(() => import('./pages/company/CompanyPublic'));
+const Grievance = lazy(() => import('./pages/company/Grievance'));
 // The download pop-ups (and the account code they need) load only when a download is blocked.
 const DownloadGate = lazy(() => import('./components/DownloadGate'));
 function DownloadGateHost() {
@@ -357,6 +358,7 @@ export default function App() {
         <Route path="/for-companies" element={<CompanySignup />} />
         <Route path="/company" element={<CompanyHome />} />
         <Route path="/companies/:slug" element={<CompanyPublic />} />
+        <Route path="/grievance" element={<Grievance />} />
         <Route path="/expert" element={E(<ExpertHome />)} />
         <Route path="/expert/orders" element={E(<ExpertOrders />)} />
         <Route path="/expert/orders/:id" element={E(<OrderWorkspace />)} />

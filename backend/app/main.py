@@ -31,6 +31,7 @@ from app.college import reminders as college_reminders
 from app.college import report as college_report
 from app.college import reviews as college_reviews
 from app.companies import admin as company_admin
+from app.companies import applicants as company_applicants
 from app.companies import dashboard as company_dashboard
 from app.companies import posting as company_posting
 from app.companies import security as company_security
@@ -219,6 +220,8 @@ def create_app() -> FastAPI:
     app.include_router(company_dashboard.public)  # /api/companies/{slug} (public company page)
     app.include_router(company_posting.router)  # /api/company/{id}/jobs (safe posting, C3)
     app.include_router(jobs_reports.router)  # /api/jobs/{id}/report (C4)
+    app.include_router(company_applicants.router)  # /api/company/{id}/applicants, /pool (C5)
+    app.include_router(company_applicants.me)  # /api/me/applications/{key}/withdraw
     app.include_router(jobs_reports.admin)  # /api/admin/job-reports
     app.include_router(org_feedback.portal)  # /api/recruiter/{token}/feedback (R4)
     app.include_router(org_feedback.account)  # /api/recruiter-account/drives/{id}/feedback

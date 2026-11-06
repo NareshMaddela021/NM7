@@ -212,7 +212,7 @@ export function matchReasons(m, t) {
 /* ---------- Manual Apply (J5) ---------- */
 
 /** Applies (signed in). → { method, created, application, url? (link), email? {to, subject, body} } */
-export const applyToJob = (id, resumeId = null) => http(`/api/jobs/${encodeURIComponent(id)}/apply`, { method: 'POST', body: { resumeId } });
+export const applyToJob = (id, resumeId = null, extra = {}) => http(`/api/jobs/${encodeURIComponent(id)}/apply`, { method: 'POST', body: { resumeId, ...extra } }); // extra: {consent, answers} for company jobs (C5)
 
 /** The mailto: link for an email application (subject and letter filled in). */
 export const mailtoLink = ({ to, subject, body }) => `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;

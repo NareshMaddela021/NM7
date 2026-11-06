@@ -11,6 +11,7 @@ from pymongo.errors import DuplicateKeyError
 from app.admin.daily import send_daily
 from app.billing.subscription import run_reminders
 from app.companies.admin import recheck_reminders as company_rechecks
+from app.companies.applicants import remove_old as company_applicants_removed
 from app.companies.trust import close_silent
 from app.companies.trust import refresh_all as company_scores
 from app.core.config import get_settings
@@ -130,6 +131,7 @@ async def run_rules(db: AsyncDatabase, mailer: Mailer | None = None) -> dict[str
         done["job_links"] = (await job_links.run(db))["checked"]  # apply links ~daily; dead twice: closed
         done["company_scores"] = await company_scores(db)  # trust scores, once a day
         done["no_reply_closed"] = await close_silent(db, mailer or get_mailer())  # Nm7 applications silent 14 days
+        done["applicants_removed"] = await company_applicants_removed(db)  # 12 months on: out of the company's view
         done["company_rechecks"] = await company_rechecks(db, mailer or get_mailer())  # 30 days before Verified ends
         done["job_followups"] = await job_followups(db, mailer or get_mailer())  # a week on; ≤ 1 email a day
         done["pass_reminders"] = await pass_reminders(db, mailer or get_mailer())  # 7 days before a pass ends

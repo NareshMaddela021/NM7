@@ -61,6 +61,8 @@ def job_page(j: dict[str, Any]) -> str:
 
 class ApplyIn(CamelModel):
     resume_id: str | None = Field(None, max_length=40)
+    consent: bool = False  # company jobs on Nm7: "share my resume and answers with <company>" (C5)
+    answers: dict[str, str | int] = Field(default_factory=dict, max_length=5)
 
 
 async def _resume(db, user_id: str, key: str | None) -> dict[str, Any] | None:
@@ -96,6 +98,22 @@ async def apply(job_id: str, body: ApplyIn, auth: CustomerAuth, db: DB) -> dict[
     method = j["apply"]["method"]
     t = now()
     key = app_key(job_id)
+    company_job = bool(j.get("company_id")) and method == "nm7"
+    extra: dict[str, Any] = {}
+    if company_job and not await db[APPLICATIONS].find_one({"user_id": uid, "key": key}, {"_id": 1}):
+        from app.companies import questions
+
+        if not body.consent:
+            raise ApiError(400, "consent", f"Tick the box to share your resume with {j['company']['name']}.")
+        if not resume:
+            raise ApiError(400, "no_resume", "Make a resume first: the company sees the resume you apply with.")
+        qs = j.get("questions") or []
+        answers, problems = questions.answers_for(qs, body.answers)
+        if problems:
+            raise ApiError(400, "answers", " ".join(problems), extra={"problems": problems})
+        why = questions.knockout(qs, answers)
+        extra = {"consent_at": t, "answers": answers, "company_id": j["company_id"],
+                 "fit": {"ok": not why, "reasons": why}}  # fmt: skip
     doc = {
         "key": key,
         "user_id": uid,
@@ -113,6 +131,7 @@ async def apply(job_id: str, body: ApplyIn, auth: CustomerAuth, db: DB) -> dict[
         "timeline": [{"status": "applied", "at": t}],
         "created_at": t,
         "updated_at": t,
+        **extra,
     }
     try:
         await db[APPLICATIONS].insert_one(doc)

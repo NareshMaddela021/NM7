@@ -54,6 +54,7 @@ def defaults() -> dict[str, Any]:
             "verified_months": 12,
             "ip_burst": 3,
             "no_reply_days": 14,
+            "applicant_months": 12,
         },
         # safe job posting (C3): phrases that block a company job / send it to Admin review (one per line in Settings)
         "job_checks": {"blocked": list(BLOCKED), "scam": list(SCAM)},

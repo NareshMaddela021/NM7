@@ -53,6 +53,7 @@ from app.core.db import (
     SESSIONS,
     SHARES,
     STORIES,
+    TALENT_POOL,
     TICKETS,
     USERS,
     WEBHOOK_EVENTS,
@@ -104,6 +105,7 @@ async def erase_user_data(db: AsyncDatabase, user_id: str) -> dict[str, int]:
     out["saved_jobs"] = await gone(SAVED_JOBS, mine)
     out["job_fit"] = await gone(JOB_FIT, mine)  # cached match scores
     out["job_reports"] = await gone(JOB_REPORTS, mine)
+    out["talent_pool"] = await gone(TALENT_POOL, mine)  # companies' saved-applicant marks
     out["linkedin"] = await gone(LINKEDIN, {"_id": user_id})
     out["tickets"] = await gone(TICKETS, mine)
     out["stories"] = await gone(STORIES, mine)

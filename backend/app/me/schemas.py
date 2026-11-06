@@ -182,6 +182,8 @@ class ApplicationOut(ApplicationIn):
     resume_name: str = ""
     timeline: list[TimelineStep] = []
     follow_up: bool = False
+    to_company: bool = False  # sent on Nm7 to a company's own job (C5): the student can withdraw it
+    withdrawn: bool = False
 
     @field_validator("url")
     @classmethod
