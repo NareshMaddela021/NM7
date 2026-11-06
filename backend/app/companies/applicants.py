@@ -105,6 +105,7 @@ def _row(a, job, user, r, pooled: bool) -> dict[str, Any]:
         "appliedAt": ms(a.get("created_at")),
         "resume": a.get("resume_name", ""),
         "origin": a.get("origin") or "manual",  # Auto Apply or by hand: companies always see which
+        "irrelevant": bool(a.get("irrelevant_at")),
         "match": m
         and {k: m[k] for k in ("score", "found", "missing", "experience", "level", "years", "place", "city")},
         "fit": a.get("fit") or {"ok": True, "reasons": []},

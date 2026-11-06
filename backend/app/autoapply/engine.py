@@ -561,6 +561,7 @@ async def run(db, mailer=None, force: bool = False, limit: int = PAGE) -> dict[s
                 "auto_apply.admin_paused": {"$ne": True},
                 "auto_apply.run_day": {"$ne": day},
                 "disabled_at": None,
+                "demo": {"$ne": True},  # demo students never run (their jobs are demo-only; no email to them)
             },
             {"auto_apply": 1, "email": 1, "name": 1},
         )

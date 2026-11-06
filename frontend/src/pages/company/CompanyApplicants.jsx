@@ -100,10 +100,12 @@ function Applicant({ t, c, a, rank, can, picked, canPick, onPick, open, onOpen, 
       ) : <span className="xs muted">{t('co.ap.contactLater')}</span>}
       {a.interview && <span className="xs" data-testid="co-ap-interview">{t('co.ap.ivOn', { when: new Date(a.interview.at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) })}</span>}
       {a.pooled && <span className="xs">{t('co.ap.inPool')}</span>}
+      {a.irrelevant && <span className="xs muted" data-testid="co-ap-marked">{t('aa.co.marked')}</span>}
       <div className="row g8" style={{ flexWrap: 'wrap' }}>
         <button type="button" className="link-btn small" aria-expanded={open} onClick={onOpen}>{open ? t('co.ap.hideResume') : t('co.ap.resume')}</button>
         <label className="row g4 small"><input type="checkbox" checked={picked} disabled={!canPick} onChange={onPick} /> {t('co.ap.compare')}</label>
         {can && <button type="button" className="link-btn small" disabled={!!busy} onClick={pool}>{a.pooled ? t('co.ap.unpool') : t('co.ap.pool')}</button>}
+        {can && a.origin === 'auto' && <button type="button" className="link-btn small" disabled={!!busy} data-testid="co-ap-irrelevant" onClick={() => act('irr', () => rq(`/api/company/${c.id}/applicants/${a.id}/irrelevant`, { method: 'POST', body: { on: !a.irrelevant } }))}>{a.irrelevant ? t('aa.co.relevant') : t('aa.co.irrelevant')}</button>}
       </div>
       {can && (
         <div className="row g8" style={{ flexWrap: 'wrap' }} role="group" aria-label={t('co.ap.stage', { name: a.name })}>

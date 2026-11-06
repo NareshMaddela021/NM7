@@ -21,7 +21,7 @@ for (const [label, opts] of SIZES) {
       await request.post(`${API}/api/company/signup/code`, { headers: NET, data: { email, name: 'Boss' } });
       const r = await (await request.post(`${API}/api/company/signup/start`, { headers: NET, data: { email, name: 'Boss', code: lastCode(email), company } })).json();
       const H = { 'X-Recruiter-Account': r.session };
-      await request.post(`${API}/api/company/${r.company.id}/company-email/code`, { data: { email: `hr@${site}` }, headers: H });
+      await request.post(`${API}/api/company/${r.company.id}/company-email/code`, { data: { email: `hr@${site}` }, headers: { ...H, ...NET } });
       await request.post(`${API}/api/company/${r.company.id}/company-email/verify`, { data: { code: lastCode(`hr@${site}`) }, headers: H });
       await request.post(`${API}/api/company/${r.company.id}/team`, { data: { email: `ops@${site}`, role: 'view' }, headers: H });
       const wide = async () => expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(opts.viewport.width);

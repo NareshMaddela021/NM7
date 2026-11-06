@@ -1713,3 +1713,23 @@ Applied (outside Nm7) with the resume version. They don't use up the daily auto 
   page turn both off.
 - **Preview days:** for the first 3 days (Admin setting) each auto application waits for **Approve** /
   **Approve all**; after that it's automatic.
+
+**Admin → Auto Apply (A7).** `backend/app/autoapply/admin.py`, `frontend/src/pages/admin/live/AutoApplyPages.jsx`
+(permission "jobs": Owner, Operations).
+- Applications per day, Auto vs Manual by channel (Nm7 / email / website); emails sent, bounced and complaints;
+  students on and paused; jobs needing an answer and ready to apply; emails waiting for the site cap; blocked
+  addresses; company "Not relevant" marks; the run log with each day's counts and errors.
+- **Off switch** (in-page confirm): off means nothing is applied or sent for anyone; students' settings are kept.
+- Every default is editable: match score, daily limit and its maximum, preview days, company 30-day cap, trust
+  threshold, borderline band, ATS gate, site email cap, "Not relevant" marks before stopping.
+- Pause one student (with a reason; their answers and approvals can't send either) or one company. All in the
+  activity log.
+- Companies see **Not relevant** on each auto application; after 2 marks (setting) Auto Apply stops sending that
+  student's applications to that company, and Admin sees the marks.
+
+**Demo (Phase 3).** Admin → Auto Apply → **Reset and open as student (Auto Apply)** (`backend/app/autoapply/demo.py`):
+resets a made-up student "Kavya Reddy (demo)" with Auto Apply on and one of each against the demo company's jobs:
+applied on Nm7 (Auto in the company's Applicants tab), sent by email (a recorded copy; nothing is really sent), needs
+your answer (a screening question) and ready to apply (a website job). Three demo-college students get Auto Apply on
+for the admin numbers. The one-time link (5 minutes) signs that browser in as the student, so use a private window to
+keep the admin console. Demo jobs are never public and demo students never run, so no email goes to them.

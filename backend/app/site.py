@@ -49,6 +49,7 @@ AUTO_APPLY = {
     "borderline": 5,  # points below the user's minimum that go to "Needs your answer"
     "ats_min": 60,  # the resume's ATS score needed to turn Auto Apply on
     "email_daily_cap": 80,  # Auto Apply emails a day across the site (the Resend free plan sends 100)
+    "irrelevant_stop": 2,  # a company's "Not relevant" marks before one student's auto applications there stop
 }
 
 
