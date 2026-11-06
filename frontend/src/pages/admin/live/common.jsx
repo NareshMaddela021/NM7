@@ -19,6 +19,7 @@ export const NAV = [
   ['payments', '/admin/payments', 'Payments & invoices', '₹'],
   ['customers', '/admin/customers', 'Customers & support', '☺'],
   ['customers', '/admin/stories', 'Stories', '❝'],
+  ['jobs', '/admin/jobs', 'Jobs', '◎'],
   ['quality', '/admin/quality', 'Quality', '✓'],
   ['reports', '/admin/reports', 'Reports', '⇩'],
   ['settings', '/admin/settings', 'Settings & prices', '⚙'],

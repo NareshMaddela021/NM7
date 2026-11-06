@@ -1358,3 +1358,40 @@ card count "Annual passes sold".
   runs daily. **deploy-check.yml** runs after a backend change lands on the production branch.
 - Scheduled workflows run from the default branch (`main`), so `main` is kept level with the production branch
   (`claude/fervent-albattani-wqmaoq`, which Vercel and Render deploy from).
+
+## Job board
+
+Nm7's job board starts from zero: no data, users or redirects are taken from asuraa.in. It is for students,
+freshers and people with 0–3 years of experience. The board, the match score and Manual Apply are free.
+
+**Jobs (J1).** A job has:
+- title;
+- company: name, website, logo;
+- cities, or remote;
+- work type: on-site / hybrid / remote;
+- job type: full-time / internship / contract / part-time;
+- experience: internship / fresher / 0–1 / 1–3 / 3+;
+- salary in ₹ per month or year (optional);
+- skills (names from the skills dictionary);
+- description;
+- how to apply: company link / email / apply on Nm7;
+- status: active / paused / closed;
+- posted date and optional closing date;
+- source: collector / admin / bulk / company;
+- the last link check.
+
+The same job is recognised by a dedupe key: company + title + places + apply link, with case and punctuation ignored.
+Sending a job again updates it instead of adding a copy. Code: `backend/app/jobs/model.py`, `service.py`.
+
+**Admin → Jobs** (permission `jobs`: Owner and Operations):
+- list, search and filters (status, source, experience), with counts by source, experience and status;
+- add and edit;
+- pause, close (with a reason), reopen;
+- delete, confirmed on the page;
+- bulk import of a JSON array or a CSV. Preview first: each row shows new / update / unchanged / error with the
+  problems, and nothing is saved until Import;
+- the jobs whose apply link failed its check;
+- who applied to each job.
+
+Every change is in the audit log. The demo college comes with 30 jobs marked "(demo)": admin and tests only, never on
+the public job pages, and removed with the demo.
