@@ -1623,3 +1623,14 @@ image is also served at `/api/companies/<slug>/logo` for search engines.
   first without a resume), each with its link and a WhatsApp share link. No matches, no email.
 - Limits: at most one alert email a day; never to an unconfirmed or bounced address; "Stop these emails"
   (`/stop-alerts#…&k=alerts`) or the switch in settings turns them off. Deleting the account removes the alert.
+
+**Phase 2 demo.** `backend/app/companies/demo.py`; Admin → Companies → **Demo company**.
+- **Reset and open as company** makes a fresh "Demo Tech Solutions (demo)" (Verified; 2 admins, main and full; 5 live
+  jobs, two with screening questions; applicants from the demo college at different stages, some "Not a fit") and
+  signs this browser in as its main admin (a company sign-in, so the admin console stays signed in), then opens
+  `/company`. No pop-up confirm.
+- The trust queue gets 3 sample sign-ups: a clean one (no flags), one with the same GSTIN as the demo company
+  (duplicate registration) and one from a same-address burst on a new domain.
+- Everything is marked demo: never on the job board, a company page, search or the sitemap. Made-up people only
+  (`@demo.nm7.invalid` addresses can't receive email). **Remove demo company** deletes it all; resetting the demo
+  college no longer removes the demo company's jobs.

@@ -6,7 +6,8 @@
 import { useState } from 'react';
 import { useToast } from '../../../components/ui';
 import { PageHead, Panel, Tabs } from '../AdminUI';
-import { Loading, day, emptyIf, http, useApi } from './common';
+import { Loading, day, emptyIf, http, useAction, useApi } from './common';
+import { keepAccount } from '../../../lib/recruiterPortal';
 
 const STATES = [['pending', 'Waiting for review'], ['approved', 'Verified'], ['rejected', 'Rejected'], ['blocked', 'Blocked'], ['draft', 'Not finished'], ['all', 'All']];
 const TRUST = { verified: ['Verified', 'b-success'], basic: ['Basic', 'b-signal'], unverified: ['Unverified', 'b-warning'], blocked: ['Blocked', 'b-danger'] };
@@ -27,6 +28,7 @@ export function LiveCompanies() {
         <input id="co-q" className="input" style={{ flex: '1 1 220px', height: 40 }} placeholder="Name, email or registration number" value={q} onChange={(e) => setQ(e.target.value)} />
         <button type="submit" className="btn btn-outline">Search</button>
       </form>
+      <DemoCompany onChanged={() => st.reload()} />
       <Loading st={st} empty={emptyIf((d) => !d.items.length, 'No companies here.')}>{(d) => (
         <ul className="stack g12" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
           {d.items.map((c) => (
@@ -128,5 +130,24 @@ function CompanyReview({ id, onClose, onChanged }) {
         );
       }}</Loading>
     </Panel>
+  );
+}
+
+/** The demo company: reset it (2 admins, 5 jobs, demo-college applicants, 3 sample sign-ups) and open it as its
+ * main admin in this browser (a company sign-in; the admin console stays signed in), or remove it. Never public. */
+function DemoCompany({ onChanged }) {
+  const toast = useToast();
+  const [busy, run] = useAction(toast);
+  const open = () => run(async () => { const r = await http('/api/admin/demo-company/open', { method: 'POST' }); keepAccount(r.session); window.location.assign('/company'); });
+  const remove = () => run(async () => { await http('/api/admin/demo-company', { method: 'DELETE' }); onChanged(); }, 'Demo company removed');
+  return (
+    <section className="card-sm stack g8" aria-label="Demo company" data-testid="demo-company">
+      <strong className="small">Demo company</strong>
+      <span className="xs muted">“Demo Tech Solutions (demo)”: 2 admins, 5 jobs, applicants from the demo college, and 3 sample sign-ups here (clean, duplicate GSTIN, same-address burst). Never on the job board. Opening it starts a fresh copy and signs this browser in as its main admin.</span>
+      <div className="row g8">
+        <button type="button" className="btn btn-outline" disabled={busy} onClick={open} data-testid="demo-as-company">Reset and open as company</button>
+        <button type="button" className="link-btn small" disabled={busy} onClick={remove}>Remove demo company</button>
+      </div>
+    </section>
   );
 }
