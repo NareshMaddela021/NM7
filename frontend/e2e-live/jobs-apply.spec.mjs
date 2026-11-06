@@ -30,7 +30,10 @@ for (const [label, opts] of SIZES) {
       seed('customer', me, 'Sai Varsha', PASSWORD);
       await login(page, me);
       await expect(page).not.toHaveURL(/\/login/);
-      expect((await call(page, '/api/me/resumes', { method: 'POST', body: JSON.stringify({ id: 'r1', name: 'Main', data: RESUME, active: true }) })).status).toBe(201);
+      // the dashboard makes a starter resume on first visit: wait for it and use it, so the two never race
+      await expect.poll(async () => (await call(page, '/api/me/resumes')).body.length, { timeout: 15_000 }).toBeGreaterThan(0);
+      const [first] = (await call(page, '/api/me/resumes')).body;
+      expect((await call(page, `/api/me/resumes/${first.id}`, { method: 'PATCH', body: JSON.stringify({ name: 'Main', data: RESUME, active: true }) })).status).toBe(200);
 
       // on Nm7: one tap
       await page.goto(`/jobs/${onNm7.slug}`);

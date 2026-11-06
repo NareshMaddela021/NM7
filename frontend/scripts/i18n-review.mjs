@@ -28,6 +28,7 @@ export function pageOf(key, file) {
   if (key.startsWith('jobs.')) return '/jobs (job board)';
   if (key.startsWith('co.')) return '/for-companies, /company';
   if (key.startsWith('gr.')) return '/grievance';
+  if (key.startsWith('aa.')) return '/me/auto-apply (Auto Apply)';
   return '';
 }
 

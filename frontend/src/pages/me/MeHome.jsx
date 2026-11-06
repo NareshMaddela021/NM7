@@ -13,9 +13,11 @@ import HealthCard from './HealthCard';
 import LinkedInCard from './LinkedInCard';
 import JobsForYouCard from './JobsForYouCard';
 import PassOffer, { PassActive } from '../../components/PassOffer';
+import { useLang } from '../../lib/i18n';
 
 export default function MeHome() {
   const me = useMe();
+  const [t] = useLang();
   useExpertOrders();
   const nav = useNavigate();
   const toast = useToast();
@@ -107,7 +109,7 @@ export default function MeHome() {
 
       <div className="row g16" style={{ alignItems: 'stretch' }}>
         <section className="card stack g12" style={{ flex: '1 1 300px' }} aria-label="Applications">
-          <div className="row between"><strong>Applications</strong><Link to="/me/jobs" className="small">Board →</Link></div>
+          <div className="row between"><strong>Applications</strong><span className="row g12"><Link to="/me/auto-apply" className="small" data-testid="home-auto-apply">{t('aa.link')}</Link><Link to="/me/jobs" className="small">Board →</Link></span></div>
           <div className="row g8">{APP_STAGES.map(([k, l]) => <span key={k} className="badge b-neutral">{l} · {me.apps.filter((a) => a.status === k).length}</span>)}</div>
           {followUps.length > 0 && <div className="well small">⏰ {followUps.length} application{followUps.length > 1 ? 's' : ''} sent over a week ago — time to follow up. <Link to="/me/jobs">See which</Link></div>}
         </section>

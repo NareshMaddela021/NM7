@@ -38,6 +38,19 @@ RULES: dict[str, dict[str, Any]] = {
 
 from app.companies.jobcheck import BLOCKED, SCAM  # noqa: E402  (plain lists, no import cycle)
 
+AUTO_APPLY = {
+    "on": True,  # the global off switch: off = nothing is applied or sent
+    "min_score": 70,  # a new user's minimum match score
+    "daily_limit": 5,  # a new user's daily limit
+    "max_daily_limit": 10,  # the most a user may choose
+    "preview_days": 3,  # days each auto application waits for the user's Approve
+    "company_cap": 2,  # applications to one company per 30 days
+    "trust_min": 40,  # company trust score below this: skipped
+    "borderline": 5,  # points below the user's minimum that go to "Needs your answer"
+    "ats_min": 60,  # the resume's ATS score needed to turn Auto Apply on
+    "email_daily_cap": 80,  # Auto Apply emails a day across the site (the Resend free plan sends 100)
+}
+
 
 def defaults() -> dict[str, Any]:
     return {
@@ -58,6 +71,8 @@ def defaults() -> dict[str, Any]:
         },
         # safe job posting (C3): phrases that block a company job / send it to Admin review (one per line in Settings)
         "job_checks": {"blocked": list(BLOCKED), "scam": list(SCAM)},
+        # Auto Apply (Phase 3): the off switch and every default (Admin → Auto Apply)
+        "auto_apply": dict(AUTO_APPLY),
     }
 
 
@@ -74,6 +89,7 @@ async def get_site(db: AsyncDatabase, session: Session = None) -> dict[str, Any]
     out["daily_summary"] = {**out["daily_summary"], **(stored.get("daily_summary") or {})}
     out["companies"] = {**out["companies"], **(stored.get("companies") or {})}
     out["job_checks"] = {**out["job_checks"], **(stored.get("job_checks") or {})}
+    out["auto_apply"] = {**out["auto_apply"], **(stored.get("auto_apply") or {})}
     out["daily_summary_sent"] = stored.get("daily_summary_sent")
     out["rule_runs"] = stored.get("rule_runs", {})
     return out

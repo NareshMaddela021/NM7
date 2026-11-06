@@ -1634,3 +1634,27 @@ image is also served at `/api/companies/<slug>/logo` for search engines.
 - Everything is marked demo: never on the job board, a company page, search or the sitemap. Made-up people only
   (`@demo.nm7.invalid` addresses can't receive email). **Remove demo company** deletes it all; resetting the demo
   college no longer removes the demo company's jobs.
+
+## Auto Apply (Phase 3)
+
+Every morning Nm7 applies for a student to new jobs that fit their own rules. Manual Apply always works too.
+
+**Hard rules (never broken):** never the same job twice; never below the student's match score or over their daily
+limit; never a student's password or login on another site; never a bot filling in forms on other websites; never an
+invented fact in a resume, email or answer (server-side fact check, rules fallback); closed, dead-link, paused,
+reported, scam-flagged and low-trust jobs are skipped; every application is logged (time, job, resume version,
+channel, Auto or Manual) and companies see an "Auto" or "Manual" label.
+
+**Settings (A1).** `/me/auto-apply` (`backend/app/autoapply/settings.py`, `frontend/src/pages/me/AutoApply.jsx`),
+linked from My applications, the dashboard and the menu.
+- Roles or skills (ideas from job titles on the board and the student's own skills), cities or remote, experience
+  levels, job types, minimum salary (optional, lakh a year), minimum match score (default 70), applications a day
+  (default 5, at most the admin's maximum), companies to avoid. "What will happen" says it all in plain words.
+- **Gate:** the resume Auto Apply uses (the active one, else the latest) must score 60+ in the ATS check; below
+  that the page lists what to fix, each linking to the builder.
+- **Consent:** "Nm7 may apply for me and share my profile with these companies" must be ticked once. Then Auto
+  Apply is on until the student presses the big **Pause** button (Resume checks the gate again).
+- The first 3 days are preview days (each auto application waits for the student's Approve).
+- Defaults live in site settings `auto_apply` (off switch, match score, daily limit and its maximum, preview days,
+  2 applications per company per 30 days, company trust 40, borderline band 5, ATS 60, site email cap); Admin edits
+  them in Admin → Auto Apply. English, Telugu and Hindi (`aa.*`; Telugu and Hindi need native review).
