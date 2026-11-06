@@ -221,3 +221,7 @@ export const mailtoLink = ({ to, subject, body }) => `mailto:${encodeURIComponen
 
 /** The dashboard card: { state: on | no_resume, items (top 3 with match), saved, applications }. Offline: nothing. */
 export const jobsForYou = () => (LIVE ? http('/api/me/jobs-for-you') : Promise.resolve(null));
+
+/** "Report this job" (C4): one report per person per job; three from different people pause it for our team. */
+export const REPORT_REASONS = ['scam', 'fake', 'unfair', 'wrong_info', 'expired', 'other'];
+export const reportJob = (id, reason, note = '') => http(`/api/jobs/${encodeURIComponent(id)}/report`, { method: 'POST', body: { reason, note } });

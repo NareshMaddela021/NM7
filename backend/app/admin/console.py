@@ -767,6 +767,7 @@ class CompanyLimitsIn(CamelModel):
     verified_live_jobs: int = Field(ge=0, le=500)
     verified_months: int = Field(ge=1, le=36)
     ip_burst: int = Field(ge=2, le=50)
+    no_reply_days: int = Field(14, ge=7, le=60)  # an Nm7 application nobody moved for this long: Closed (no reply)
 
 
 class DailySummaryIn(CamelModel):
@@ -791,6 +792,7 @@ def _settings_out(site: dict[str, Any]) -> dict[str, Any]:
             "verifiedLiveJobs": site["companies"]["verified_live_jobs"],
             "verifiedMonths": site["companies"]["verified_months"],
             "ipBurst": site["companies"]["ip_burst"],
+            "noReplyDays": site["companies"].get("no_reply_days", 14),
         },
     }
 

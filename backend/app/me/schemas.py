@@ -110,7 +110,7 @@ class CoverOut(CoverIn):
 
 # ---------- job applications ----------
 
-AppStatus = Literal["saved", "applied", "viewed", "shortlisted", "interview", "offer", "rejected"]
+AppStatus = Literal["saved", "applied", "viewed", "shortlisted", "interview", "offer", "rejected", "no_reply"]
 _SCHEME = re.compile(r"^[a-z][a-z0-9+.-]*:", re.I)
 _HOST = re.compile(r"^[a-z0-9-]+(\.[a-z0-9-]+)+([/:?#].*)?$", re.I)
 

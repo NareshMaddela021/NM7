@@ -51,6 +51,7 @@ from app.jobs import apply as jobs_apply
 from app.jobs import foryou as jobs_foryou
 from app.jobs import ingest as jobs_ingest
 from app.jobs import public as jobs_public
+from app.jobs import reports as jobs_reports
 from app.jobsearch.cover_router import router as jobs_cover_router
 from app.jobsearch.interview_router import router as jobs_interview_router
 from app.jobsearch.router import router as jobs_router
@@ -217,6 +218,8 @@ def create_app() -> FastAPI:
     app.include_router(company_dashboard.router)  # /api/company/{id}/overview, page, activity
     app.include_router(company_dashboard.public)  # /api/companies/{slug} (public company page)
     app.include_router(company_posting.router)  # /api/company/{id}/jobs (safe posting, C3)
+    app.include_router(jobs_reports.router)  # /api/jobs/{id}/report (C4)
+    app.include_router(jobs_reports.admin)  # /api/admin/job-reports
     app.include_router(org_feedback.portal)  # /api/recruiter/{token}/feedback (R4)
     app.include_router(org_feedback.account)  # /api/recruiter-account/drives/{id}/feedback
     app.include_router(org_feedback.staff)  # /api/org/{org_id}/recruiter-feedback

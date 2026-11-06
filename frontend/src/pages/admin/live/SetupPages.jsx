@@ -24,7 +24,7 @@ export function settingsErrors(f) {
   if (!/^\d+$/.test(h)) out.hours = 'Enter a whole number of hours';
   else if (Number(h) < 24 || Number(h) > 168) out.hours = 'Delivery must be 24–168 hours';
   if (f.companies) {
-    const lim = { basicJobsPerWeek: [0, 50], verifiedLiveJobs: [0, 500], verifiedMonths: [1, 36], ipBurst: [2, 50] };
+    const lim = { basicJobsPerWeek: [0, 50], verifiedLiveJobs: [0, 500], verifiedMonths: [1, 36], ipBurst: [2, 50], noReplyDays: [7, 60] };
     if (Object.entries(lim).some(([k, [lo, hi]]) => !/^\d+$/.test(String(f.companies[k] ?? '').trim()) || Number(f.companies[k]) < lo || Number(f.companies[k]) > hi)) out.companies = 'Company limits must be whole numbers in range';
   }
   if (f.referral) {
@@ -42,7 +42,7 @@ export function LiveSettings() {
   // the form keeps what was typed (text), so a bad value can be explained instead of silently becoming 0
   const toForm = (d) => {
     const g = (o) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, { ...v, text: String(Math.round(v.amount / 100)) }]));
-    return { ...d, plans: g(d.plans), addons: g(d.addons), hoursText: String(d.deliveryHours), referral: { ...(d.referral || { on: true, needed: 3 }), text: String(d.referral?.needed ?? 3) }, dailySummary: d.dailySummary || { on: true }, jobChecks: { blocked: (d.jobChecks?.blocked || []).join('\n'), scam: (d.jobChecks?.scam || []).join('\n') }, companies: Object.fromEntries(Object.entries(d.companies || { basicJobsPerWeek: 1, verifiedLiveJobs: 3, verifiedMonths: 12, ipBurst: 3 }).map(([k, v]) => [k, String(v)])) };
+    return { ...d, plans: g(d.plans), addons: g(d.addons), hoursText: String(d.deliveryHours), referral: { ...(d.referral || { on: true, needed: 3 }), text: String(d.referral?.needed ?? 3) }, dailySummary: d.dailySummary || { on: true }, jobChecks: { blocked: (d.jobChecks?.blocked || []).join('\n'), scam: (d.jobChecks?.scam || []).join('\n') }, companies: Object.fromEntries(Object.entries({ noReplyDays: 14, ...(d.companies || { basicJobsPerWeek: 1, verifiedLiveJobs: 3, verifiedMonths: 12, ipBurst: 3 }) }).map(([k, v]) => [k, String(v)])) };
   };
   useEffect(() => { if (st.data) setF(toForm(st.data)); }, [st.data]);
   const errs = f ? settingsErrors(f) : {};
@@ -96,7 +96,7 @@ export function LiveSettings() {
           <section className="card stack g12" aria-label="Company limits" data-testid="company-limits">
             <strong>Company limits</strong>
             <span className="small muted">What companies may post by trust level (Admin → Companies). Basic: the emails are confirmed. Verified: approved by our team.</span>
-            {[['basicJobsPerWeek', 'Basic: jobs a week', 0, 50], ['verifiedLiveJobs', 'Verified: live jobs at a time', 0, 500], ['verifiedMonths', 'Verified lasts (months)', 1, 36], ['ipBurst', 'Flag sign-ups from one address within 2 hours, from', 2, 50]].map(([k, label, lo, hi]) => (
+            {[['basicJobsPerWeek', 'Basic: jobs a week', 0, 50], ['verifiedLiveJobs', 'Verified: live jobs at a time', 0, 500], ['verifiedMonths', 'Verified lasts (months)', 1, 36], ['ipBurst', 'Flag sign-ups from one address within 2 hours, from', 2, 50], ['noReplyDays', 'Close an Nm7 application the company hasn’t answered after (days)', 7, 60]].map(([k, label, lo, hi]) => (
               <label key={k} className="row g8 small">{label} <input className="input" type="number" inputMode="numeric" min={lo} max={hi} step={1} style={{ height: 38, width: 90 }} value={f.companies[k]} data-testid={`co-${k}`} onChange={(e) => setF({ ...f, companies: { ...f.companies, [k]: e.target.value } })} /></label>
             ))}
           </section>

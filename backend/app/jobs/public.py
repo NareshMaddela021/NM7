@@ -38,6 +38,23 @@ def live_filter() -> dict[str, Any]:
     return {"status": "active", "demo": {"$ne": True}, "$or": [{"closes_at": None}, {"closes_at": {"$gt": now()}}]}
 
 
+async def badges(db, jobs: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """company id → its trust badge, for the company jobs among these (C4)."""
+    from app.companies.trust import badge
+    from app.core.db import COMPANIES
+
+    ids = list({j["company_id"] for j in jobs if j.get("company_id")})
+    if not ids:
+        return {}
+    return {c["_id"]: b async for c in db[COMPANIES].find({"_id": {"$in": ids}}) if (b := badge(c))}
+
+
+def with_badge(out: dict[str, Any], j: dict[str, Any], marks: dict[str, dict[str, Any]]) -> dict[str, Any]:
+    if j.get("company_id") in marks:
+        out["companyTrust"] = marks[j["company_id"]]
+    return out
+
+
 def public_out(j: dict[str, Any], full: bool = False) -> dict[str, Any]:
     apply = j["apply"]
     out = {
@@ -147,8 +164,12 @@ async def search(
             {"$limit": 30},
         ]  # fmt: skip
     )
+    marks = await badges(db, rows)
     return {
-        "items": [{**public_out(j), **({"match": fits[j["_id"]]} if j["_id"] in fits else {})} for j in rows],
+        "items": [
+            with_badge({**public_out(j), **({"match": fits[j["_id"]]} if j["_id"] in fits else {})}, j, marks)
+            for j in rows
+        ],
         "match": state,
         "total": total,
         "page": page,
@@ -192,7 +213,8 @@ async def similar(db, j: dict[str, Any], n: int = SIMILAR) -> list[dict[str, Any
         return (-shared, x["experience"] != j["experience"])
 
     pool.sort(key=rank)  # stable: newest first within a rank
-    return [public_out(x) for x in pool[:n]]
+    marks = await badges(db, pool[:n])
+    return [with_badge(public_out(x), x, marks) for x in pool[:n]]
 
 
 @router.get("/{slug}")
@@ -204,6 +226,7 @@ async def one(slug: str, db: DB, auth: MaybeAuth) -> dict[str, Any]:
         j["status"] = "closed"  # the daily pass hasn't run yet
     out = public_out(j, full=True)
     out["similar"] = await similar(db, j)
+    with_badge(out, j, await badges(db, [j]))
     state, person = await _person(db, auth)
     out["matchState"] = state
     if auth and auth.user.role == "customer":  # already applied? (J5)

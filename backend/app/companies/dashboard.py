@@ -124,6 +124,9 @@ async def company_page(slug: str, db: DB) -> dict[str, Any]:
         "kind": c.get("kind", "company"),
         "logo": c.get("logo") or "",
         "trust": trust_of(c),
+        "score": (c.get("score") or {}).get("value"),
+        "parts": (c.get("score") or {}).get("parts") or [],
+        "replyDays": (c.get("score") or {}).get("replyDays"),
         "jobs": [public_out(j) for j in jobs],
     }
 

@@ -48,7 +48,13 @@ def defaults() -> dict[str, Any]:
         "referral": {"on": True, "needed": 3},  # referral rewards (app/me/rewards.py)
         "daily_summary": {"on": True},  # 8:00 IST email to the Owner admins (app/admin/daily.py)
         # company accounts (Phase 2): what each trust level may post, how long Verified lasts, sign-up flags
-        "companies": {"basic_jobs_per_week": 1, "verified_live_jobs": 3, "verified_months": 12, "ip_burst": 3},
+        "companies": {
+            "basic_jobs_per_week": 1,
+            "verified_live_jobs": 3,
+            "verified_months": 12,
+            "ip_burst": 3,
+            "no_reply_days": 14,
+        },
         # safe job posting (C3): phrases that block a company job / send it to Admin review (one per line in Settings)
         "job_checks": {"blocked": list(BLOCKED), "scam": list(SCAM)},
     }

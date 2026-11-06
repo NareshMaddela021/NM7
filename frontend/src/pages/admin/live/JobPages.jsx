@@ -1,6 +1,7 @@
 // Admin → Jobs (job board J1): every job on nm7.si/jobs. Search and filter, add or edit one, pause, close, reopen,
 // delete (confirmed here on the page), bulk import (JSON array or CSV, preview with per-row errors first), the jobs
-// whose apply link failed its check, and who applied. Every change is in the audit log.
+// whose apply link failed its check, who applied, and jobs students reported (3 reports pause a job). Every change is in
+// the audit log.
 import { useState } from 'react';
 import { useToast } from '../../../components/ui';
 import { Kpi, PageHead, Panel, Tabs } from '../AdminUI';
@@ -45,10 +46,11 @@ export function LiveJobs() {
   return (
     <>
       <PageHead title="Jobs" sub="Every job on nm7.si/jobs: from the morning job collector, added here, or bulk imported. Changes are in the audit log." />
-      <Tabs label="Show" tabs={[['jobs', 'Jobs'], ['import', 'Bulk import'], ['expired', 'Expired links']]} value={tab} onChange={setTab} />
+      <Tabs label="Show" tabs={[['jobs', 'Jobs'], ['reports', 'Reports'], ['import', 'Bulk import'], ['expired', 'Expired links']]} value={tab} onChange={setTab} />
       {tab === 'jobs' && <JobList />}
       {tab === 'import' && <BulkImport onDone={() => setTab('jobs')} />}
       {tab === 'expired' && <Expired />}
+      {tab === 'reports' && <Reports />}
     </>
   );
 }
@@ -328,5 +330,56 @@ function ReviewBox({ j, onDone }) {
           <button type="button" className="btn btn-outline" disabled={busy} onClick={() => setRejecting(true)}>Reject</button></div>
       )}
     </div>
+  );
+}
+
+const REASON = { scam: 'Asks for money / scam', fake: 'Fake or misleading', unfair: 'Unfair or discriminatory', wrong_info: 'Wrong details', expired: 'Already filled or closed', other: 'Something else' };
+
+/** Jobs students reported. Dismiss (the reports were wrong; a job they paused goes live again) or close with a note. */
+function Reports() {
+  const toast = useToast();
+  const [state, setState] = useState('open');
+  const st = useApi(`/api/admin/job-reports?state=${state}`);
+  return (
+    <>
+      <Tabs label="Reports" tabs={[['open', 'To check'], ['done', 'Done']]} value={state} onChange={setState} />
+      <Loading st={st} empty={emptyIf((d) => !d.length, state === 'open' ? 'No reported jobs to check. Reports from 3 different students pause a job until you check it here.' : 'No checked reports yet.')}>{(rows) => (
+        <ul className="stack g8" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+          {rows.map((r) => <ReportRow key={r.jobId} r={r} open={state === 'open'} toast={toast} onDone={() => st.reload()} />)}
+        </ul>
+      )}</Loading>
+    </>
+  );
+}
+
+function ReportRow({ r, open, toast, onDone }) {
+  const [busy, run] = useAction(toast);
+  const [closing, setClosing] = useState(false);
+  const [note, setNote] = useState('');
+  const resolve = (action) => run(async () => { await http(`/api/admin/job-reports/${r.jobId}/resolve`, { method: 'POST', body: { action, note } }); onDone(); }, action === 'close' ? 'Job closed' : 'Reports dismissed');
+  return (
+    <li className="card stack g8" data-testid="job-report">
+      <span className="row between g8" style={{ flexWrap: 'wrap' }}>
+        <strong className="small"><a href={`/jobs/${r.slug}`} target="_blank" rel="noopener noreferrer">{r.title}</a> · {r.company}</strong>
+        <span className="row g8"><span className={`badge ${STATUS[r.status]?.[1] || 'b-neutral'}`}>{STATUS[r.status]?.[0] || r.status}</span>{r.held && <span className="badge b-danger">Paused by reports</span>}</span>
+      </span>
+      <span className="xs muted">{r.count} report{r.count === 1 ? '' : 's'}</span>
+      <ul className="stack g4" style={{ margin: 0, paddingLeft: 18 }}>
+        {r.reports.map((x, i) => <li key={i} className="small"><strong>{REASON[x.reason] || x.reason}</strong> · {day(x.at)}{x.note ? <>: <span style={{ whiteSpace: 'pre-line' }}>{x.note}</span></> : null}</li>)}
+      </ul>
+      {open && (closing ? (
+        <form className="stack g8" onSubmit={(e) => { e.preventDefault(); resolve('close'); }}>
+          <label className="label" htmlFor={`rc-${r.jobId}`}>Why is the job closed?</label>
+          <textarea id={`rc-${r.jobId}`} className="input" rows={2} maxLength={300} value={note} onChange={(e) => setNote(e.target.value)} />
+          <div className="row g8"><button type="submit" className="btn btn-ink" disabled={busy || note.trim().length < 5}>Close the job</button>
+            <button type="button" className="link-btn small" onClick={() => setClosing(false)}>Cancel</button></div>
+        </form>
+      ) : (
+        <div className="row g8">
+          <button type="button" className="btn btn-outline" disabled={busy} onClick={() => resolve('dismiss')}>{r.held ? 'Dismiss and make live again' : 'Dismiss'}</button>
+          <button type="button" className="btn btn-ink" disabled={busy} onClick={() => setClosing(true)}>Close the job</button>
+        </div>
+      ))}
+    </li>
   );
 }
