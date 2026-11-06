@@ -20,6 +20,7 @@ from app.auth.admin_router import router as admin_auth_router
 from app.auth.router import router as auth_router
 from app.autoapply import items as auto_items
 from app.autoapply import settings as auto_settings
+from app.autoapply import summary as auto_summary
 from app.billing import invoice_router as billing_docs
 from app.billing import migrate as billing_migrate
 from app.billing import router as billing
@@ -232,6 +233,8 @@ def create_app() -> FastAPI:
     app.include_router(jobs_alerts.me)  # /api/me/job-alerts (C6)
     app.include_router(auto_settings.router)  # /api/me/auto-apply (Phase 3, A1)
     app.include_router(auto_items.router)  # /api/me/auto-apply/items (A2, A3)
+    app.include_router(auto_summary.router)  # /api/me/auto-apply/summary, /emails (A6)
+    app.include_router(auto_summary.public)  # /api/public/auto-apply/stop-emails
     app.include_router(jobs_alerts.public)  # /api/public/jobs/stop-alerts
     app.include_router(org_feedback.portal)  # /api/recruiter/{token}/feedback (R4)
     app.include_router(org_feedback.account)  # /api/recruiter-account/drives/{id}/feedback

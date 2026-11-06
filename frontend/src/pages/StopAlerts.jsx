@@ -9,10 +9,11 @@ const tokenOf = (hash) => (/(?:^#|&)t=([A-Za-z0-9._-]{10,200})/.exec(hash || '')
 const KINDS = {
   health: { title: 'Resume health emails', ask: 'Stop the emails about small fixes for your resume? The tips stay on your dashboard.', done: 'resume health emails', api: '/api/public/health/unsubscribe', where: <Link to="/me/settings">Settings</Link> },
   followups: { title: 'Follow-up reminder emails', ask: 'Stop the emails that remind you to follow up a week after you apply? The reminder still shows on My applications.', done: 'follow-up reminder emails', api: '/api/public/jobs/stop-followups', where: <Link to="/me/jobs">My applications</Link> },
+  autoapply: { title: 'Auto Apply summary emails', ask: 'Stop the daily Auto Apply summary and the weekly report? Auto Apply keeps working; you can see everything on the Auto Apply page.', done: 'Auto Apply summary emails', api: '/api/public/auto-apply/stop-emails', where: <Link to="/me/auto-apply">Auto Apply</Link> },
   alerts: { title: 'Job alert emails', ask: 'Stop the emails with new jobs that match your alert? You can turn them back on any time.', done: 'job alert emails', api: '/api/public/jobs/stop-alerts', where: <Link to="/me/settings#job-alerts">Profile & settings</Link> },
   interviews: { title: 'Interview reminder emails', ask: 'Stop the reminder emails the day before an interview? Interview invitations and changes still come.', done: 'interview reminder emails', api: '/api/public/interviews/stop-reminders', where: <Link to="/me/drive">My drive day</Link> },
 };
-const kindOf = (hash) => ((/(?:^#|&)k=(interviews|followups|alerts)(?:&|$)/.exec(hash || '') || [])[1] || 'health');
+const kindOf = (hash) => ((/(?:^#|&)k=(interviews|followups|alerts|autoapply)(?:&|$)/.exec(hash || '') || [])[1] || 'health');
 
 export default function StopAlerts() {
   const [token] = useState(() => tokenOf(typeof window !== 'undefined' ? window.location.hash : ''));

@@ -85,11 +85,11 @@ async def again(db, outbox, uid):
 async def test_email_application(client, outbox, db):
     j = await email_job(db, "Junior Data Analyst")
     uid = await student(client, outbox, db)
-    before = len(outbox.sent)
     out = await engine.run(db, outbox, force=True)
     assert out["sent"] == 1
-    mail = outbox.sent[-1]
-    assert len(outbox.sent) == before + 1
+    to_company = [m for m in outbox.sent if m.to == "hr@orbit.example"]
+    assert len(to_company) == 1
+    mail = to_company[0]
     assert mail.to == "hr@orbit.example" and mail.reply_to == "sai@example.com"
     assert mail.subject == "Application for Junior Data Analyst – Sai Varsha"
     assert "I would like to apply for the Junior Data Analyst role at Orbit Labs" in mail.text
@@ -106,7 +106,8 @@ async def test_email_application(client, outbox, db):
         st["origin"] == "auto" and st["sentEmail"]["subject"] == mail.subject and st["sentEmail"]["text"] == mail.text
     )
     # one email per job, whatever happens later
-    assert (await again(db, outbox, uid)).get("sent", 0) == 0 and len(outbox.sent) == before + 1
+    assert (await again(db, outbox, uid)).get("sent", 0) == 0
+    assert len([m for m in outbox.sent if m.to == "hr@orbit.example"]) == 1
 
 
 async def test_letter_keeps_to_the_facts():

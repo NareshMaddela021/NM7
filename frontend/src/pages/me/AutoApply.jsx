@@ -10,6 +10,7 @@ import { useLang } from '../../lib/i18n';
 import { EXPERIENCE, JOB_TYPES } from '../../lib/jobBoard';
 import { http } from '../../services/http';
 import AutoItems from './AutoItems';
+import AutoSummaryCard, { SummaryEmails } from './AutoSummaryCard';
 import { MeHead } from './MeLayout';
 
 const list = (s) => String(s || '').split(',').map((x) => x.trim()).filter(Boolean);
@@ -81,9 +82,11 @@ export default function AutoApply() {
             </div>
             <button type="button" className={`btn ${s.on ? 'btn-outline' : 'btn-ink'} aa-big`} disabled={!!busy} onClick={() => pause(s.on)} data-testid="aa-pause">{s.on ? t('aa.pause') : t('aa.resume')}</button>
           </div>
+          <SummaryEmails t={t} />
           <span className="small"><Link to="/me/jobs">{t('aa.seeApplications')}</Link></span>
         </section>
       )}
+      {s.setUp && <AutoSummaryCard week />}
       {s.setUp && <AutoItems t={t} toast={toast} />}
       {!g.ok && (
         <section className="card stack g8" aria-labelledby="aa-gate-h" data-testid="aa-gate">

@@ -883,7 +883,16 @@
     "aa.items.sentTo": "Sent by email to {to}",
     "aa.items.bounced": "the address didn't accept it",
     "aa.items.sentByEmail": "Sent by email",
-    "aa.items.whatSent": "See what was sent"
+    "aa.items.whatSent": "See what was sent",
+    "aa.sum.title": "Auto Apply today",
+    "aa.sum.today": "Applied {applied} · {needs} need your answer · {ready} ready to apply",
+    "aa.sum.applied": "Applied",
+    "aa.sum.waiting": "{n} waiting for your Approve (preview days)",
+    "aa.sum.week": "Last 7 days",
+    "aa.sum.weekLine": "Applied {applied} · viewed {viewed} · shortlisted {shortlisted} · interviews {interviews}",
+    "aa.sum.tipSkill": "Tip: {skill} was asked in {n} of the {of} jobs that matched you and isn't on your resume. If you know it, add it.",
+    "aa.sum.tipAnswers": "Tip: {n} job(s) are waiting for your answer.",
+    "aa.sum.emails": "Email me a short summary on days something happens, and a weekly report"
   },
   "te": {
     "home.more.roles.eyebrow": "నిజమైనవిలా కనిపించే నమూనాలు · ఊహించిన వ్యక్తులు",
@@ -1768,7 +1777,16 @@
     "aa.items.sentTo": "{to}కు ఈమెయిల్‌లో పంపాం",
     "aa.items.bounced": "ఆ చిరునామా దాన్ని తీసుకోలేదు",
     "aa.items.sentByEmail": "ఈమెయిల్‌లో పంపాం",
-    "aa.items.whatSent": "ఏం పంపామో చూడండి"
+    "aa.items.whatSent": "ఏం పంపామో చూడండి",
+    "aa.sum.title": "ఈరోజు ఆటో అప్లై",
+    "aa.sum.today": "{applied} అప్లై చేశాం · {needs} మీ జవాబు కోసం · {ready} అప్లై చేయడానికి సిద్ధం",
+    "aa.sum.applied": "అప్లై చేసినవి",
+    "aa.sum.waiting": "{n} మీ ఆమోదం కోసం ఆగుతున్నాయి (ప్రివ్యూ రోజులు)",
+    "aa.sum.week": "గత 7 రోజులు",
+    "aa.sum.weekLine": "{applied} అప్లై · {viewed} చూశారు · {shortlisted} షార్ట్‌లిస్ట్ · {interviews} ఇంటర్వ్యూలు",
+    "aa.sum.tipSkill": "సూచన: మీకు సరిపోయిన {of} ఉద్యోగాల్లో {n}లో {skill} అడిగారు, అది మీ రెజ్యూమ్‌లో లేదు. మీకు తెలిస్తే జోడించండి.",
+    "aa.sum.tipAnswers": "సూచన: {n} ఉద్యోగాలు మీ జవాబు కోసం ఆగుతున్నాయి.",
+    "aa.sum.emails": "ఏదైనా జరిగిన రోజుల్లో చిన్న సారాంశం, వారానికోసారి నివేదిక ఈమెయిల్ చేయండి"
   },
   "hi": {
     "home.more.roles.eyebrow": "असली जैसे दिखने वाले नमूने · काल्पनिक लोग",
@@ -2653,6 +2671,15 @@
     "aa.items.sentTo": "{to} को ईमेल से भेजा",
     "aa.items.bounced": "उस पते ने इसे नहीं लिया",
     "aa.items.sentByEmail": "ईमेल से भेजा",
-    "aa.items.whatSent": "क्या भेजा गया, देखें"
+    "aa.items.whatSent": "क्या भेजा गया, देखें",
+    "aa.sum.title": "आज का ऑटो अप्लाई",
+    "aa.sum.today": "{applied} अप्लाई किए · {needs} को आपका जवाब चाहिए · {ready} अप्लाई के लिए तैयार",
+    "aa.sum.applied": "अप्लाई किए",
+    "aa.sum.waiting": "{n} आपकी मंज़ूरी का इंतज़ार कर रहे हैं (प्रीव्यू दिन)",
+    "aa.sum.week": "पिछले 7 दिन",
+    "aa.sum.weekLine": "{applied} अप्लाई · {viewed} देखे गए · {shortlisted} शॉर्टलिस्ट · {interviews} इंटरव्यू",
+    "aa.sum.tipSkill": "सुझाव: आपसे मेल खाती {of} नौकरियों में से {n} में {skill} माँगा गया और यह आपके रिज़्यूमे में नहीं है। अगर आप जानते हैं तो जोड़ें।",
+    "aa.sum.tipAnswers": "सुझाव: {n} नौकरियाँ आपके जवाब का इंतज़ार कर रही हैं।",
+    "aa.sum.emails": "जिस दिन कुछ हो, उस दिन छोटा सारांश और हर हफ़्ते एक रिपोर्ट ईमेल करें"
   }
 }
