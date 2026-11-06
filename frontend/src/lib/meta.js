@@ -9,6 +9,8 @@ export const ROUTE_META = [
   [/^\/$/, 'Nm7 — Resume builder for every job seeker, resume drives for every campus', 'Build a job-ready resume free — from photos, your own words or an old file, in 8 Indian languages. Colleges and job fairs run whole resume drives on Nm7: approvals, kiosks, printing and GST invoices.'],
   [/^\/scan/, 'Your ATS scan report', 'See how applicant tracking systems read your resume and what to fix first.'],
   [/^\/templates/, 'Resume templates — 18 free, ATS-safe designs · see them with your own details', 'Browse 18 ATS-safe resume templates for freshers, tech, govt and healthcare jobs. Preview each with a sample or with your own resume, then use it free in the Nm7 builder.'],
+  [/^\/for-companies/, 'Post jobs on Nm7 — free for verified companies', 'Hire freshers, interns and early-career talent. Sign up your company in 5 steps: email check, GSTIN or CIN, your team. Verified companies post jobs free.'],
+  [/^\/company(\/|$)/, 'Company account', 'Your company on Nm7.'],
   [/^\/jobs\/?$/, 'Jobs for freshers, interns and 0–3 years experience', 'Find fresher jobs and internships in India by role, skill, company and city. Filter by experience, salary and remote work. Free on Nm7.'],
   [/^\/jobs\/./, 'Job', 'A job on the Nm7 job board.'],
   [/^\/linkedin/, 'LinkedIn profile check and headlines, free', 'Get a free score for your LinkedIn profile with a fix for each section, or create a new profile with 5 headline options and a step-by-step guide in English, Telugu and Hindi.'],
@@ -76,7 +78,7 @@ export const ROUTE_META = [
 ];
 
 // whole path segments only: /expert-terms is a public page, /expert/orders is not
-const PRIVATE = /^\/(me|admin|expert|orders|checkout|login|signup|forgot-password|r|org|join|groups|kiosk|continue|partner)(\/|$)/;
+const PRIVATE = /^\/(me|admin|expert|orders|checkout|login|signup|forgot-password|r|org|join|groups|kiosk|continue|partner|company)(\/|$)/;
 
 function setMeta(name, content) {
   let el = document.head.querySelector(`meta[name="${name}"]`);

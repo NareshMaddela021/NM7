@@ -67,11 +67,19 @@
       "destination": "/expert-terms/index.html"
     },
     {
+      "source": "/for-companies",
+      "destination": "/for-companies/index.html"
+    },
+    {
       "source": "/jobs",
       "destination": "/jobs/index.html"
     },
     {
       "source": "/jobs/:slug",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/company",
       "destination": "/index.html"
     },
     {

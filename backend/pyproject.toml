@@ -17,6 +17,7 @@ dependencies = [
     "sentry-sdk[fastapi]>=2.30",
     "fpdf2>=2.8.9",
     "uharfbuzz>=0.56.3",
+    "dnspython>=2.7",
 ]
 
 [dependency-groups]

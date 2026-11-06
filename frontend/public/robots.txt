@@ -11,6 +11,7 @@ Disallow: /r/
 Disallow: /recruiter/
 Disallow: /join/
 Disallow: /org
+Disallow: /company$
 Disallow: /groups/
 Disallow: /login
 Disallow: /signup

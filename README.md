@@ -1472,3 +1472,44 @@ Without a resume, the card asks for one. It never shows an "AI matches" total.
 
 Sign-out now ends the server session before the page moves on: the request is sent with keepalive, and the header
 waits for it. Before this, a busy dashboard could leave the person signed in.
+
+## Companies (Phase 2)
+
+**Company sign-up (C1).** `nm7.si/for-companies` has 5 steps (`frontend/src/pages/company/CompanySignup.jsx`,
+`backend/app/companies/`). Steps 1–2 are kept as a draft in the browser until the admin's email is confirmed:
+1. **Company details:** legal name, website, category (startup / SME / large company / NGO / government /
+   individual recruiter), legal structure, industry, size, about.
+2. **Registration:** GSTIN, CIN or LLPIN, checked for its format, and GSTIN for its check character. No paid registry
+   is called; an admin checks the number by hand on the government site. If the same number is on another account,
+   the company is flagged, not blocked. Individual recruiters give a LinkedIn link and a declaration instead. Nm7 never
+   asks for or stores Aadhaar, PAN or ID photos. A phone number is optional and only checked for duplicates; there are
+   no SMS codes.
+3. **Emails:** a code to the admin's own email creates the company (Unverified). Then a code to the company email.
+   The company email:
+   - can't be a free address (Gmail, Yahoo, Outlook and similar);
+   - can't be a throwaway address or @asuraa.in;
+   - must be on the website's domain (subdomains are fine);
+   - must be on a domain with a mail server (MX check, using the free `dnspython` library).
+4. **Team admins:** invite by email as full / posting only / view only. Sub-admins can't change or remove the main
+   admin.
+5. **Review:** accept the terms and send the company to Nm7's team.
+
+Company admins sign in at `nm7.si/company` with an emailed code. It is the same account and session recruiters use
+(header `X-Recruiter-Account`), and there is no password.
+
+**Trust levels** (`backend/app/companies/model.py`, `limits.py`):
+- **Unverified:** can't post.
+- **Basic:** emails confirmed; 1 job a week.
+- **Verified:** approved by an admin; 3 live jobs by default. Verified lasts 12 months, then the company falls back to
+  Basic until it is checked again.
+
+These numbers live in the site settings (`companies`) and are editable in Admin. Admin → Companies uses the automatic
+flags:
+- the same registration number or phone on another account;
+- 3 or more sign-ups from one address within 2 hours;
+- a website domain registered less than 90 days ago (from the free public RDAP registry);
+- a domain with no mail server;
+- an individual recruiter.
+
+Every change goes in the activity log. Reserved test domains (`.example`, `.test`) skip DNS lookups on a dev server
+only, so the browser tests can run offline.

@@ -28,6 +28,7 @@ from app.auth.sessions import client_ip
 from app.core import rate_limit
 from app.core.db import (
     AUDIT_LOG,
+    COMPANIES,
     DB,
     MEMBERSHIPS,
     OFFERS,
@@ -54,7 +55,10 @@ CODE_SEND_RULES = [(5, timedelta(days=1))]  # per address
 CODE_IP_RULES = [(20, timedelta(hours=1))]
 CODE_TRY_RULES = [(8, timedelta(minutes=15))]
 STAGES = ("shortlisted", "interview", "selected", "rejected")
-SENT = {"sent": True, "message": "If a college invited this address, a sign-in code is on its way."}
+SENT = {
+    "sent": True,
+    "message": "If a college invited this address or it is on a company team, a sign-in code is on its way.",
+}
 
 
 class EmailIn(CamelModel):
@@ -139,13 +143,18 @@ async def send_code(body: EmailIn, request: Request, response: Response, db: DB,
     await rate_limit.check(db, ip_key, CODE_IP_RULES, "Too many codes. Please try again later.")
     await rate_limit.record(db, ip_key)
     invites = await _invites(db, body.email)
-    if not invites:
-        return SENT  # the same answer: nobody learns which addresses were invited
+    company = None if invites else await db[COMPANIES].find_one({"members.email_lc": body.email}, {"members": 1})
+    if not invites and not company:
+        return SENT  # the same answer: nobody learns which addresses were invited or are on a company team
     key = f"raccount-code:{_hash('email', body.email)[:24]}"
     await rate_limit.check(db, key, CODE_SEND_RULES, "Too many codes today. Please try again tomorrow.")
     await rate_limit.record(db, key)
     code = new_code()
-    name = invites[0]["recruiter_name"]
+    name = (
+        invites[0]["recruiter_name"]
+        if invites
+        else next((m.get("name", "") for m in company["members"] if m["email_lc"] == body.email), "")
+    )
     await db[RECRUITERS].update_one(
         {"email_lc": body.email},
         {
