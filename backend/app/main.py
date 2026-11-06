@@ -30,6 +30,8 @@ from app.college import offers as college_offers
 from app.college import reminders as college_reminders
 from app.college import report as college_report
 from app.college import reviews as college_reviews
+from app.companies import admin as company_admin
+from app.companies import security as company_security
 from app.companies import signup as company_signup
 from app.core import errors
 from app.core.body_limit import BodyLimit
@@ -208,6 +210,8 @@ def create_app() -> FastAPI:
     app.include_router(jobs_apply.public)  # /api/public/jobs/stop-followups
     app.include_router(jobs_foryou.router)  # /api/me/jobs-for-you (J6)
     app.include_router(company_signup.router)  # /api/company/... sign-up and the company's own pages (Phase 2)
+    app.include_router(company_security.router)  # /api/company-account/... 2-step, devices
+    app.include_router(company_admin.router)  # /api/admin/companies (trust queue)
     app.include_router(org_feedback.portal)  # /api/recruiter/{token}/feedback (R4)
     app.include_router(org_feedback.account)  # /api/recruiter-account/drives/{id}/feedback
     app.include_router(org_feedback.staff)  # /api/org/{org_id}/recruiter-feedback

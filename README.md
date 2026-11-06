@@ -1513,3 +1513,24 @@ flags:
 
 Every change goes in the activity log. Reserved test domains (`.example`, `.test`) skip DNS lookups on a dev server
 only, so the browser tests can run offline.
+
+**Admin → Companies trust queue (C1).** Permission `companies` (Owner, Operations); see
+`backend/app/companies/admin.py` and `frontend/src/pages/admin/live/CompanyPages.jsx`.
+- Tabs by review state (waiting, verified, rejected, blocked, not finished), with search.
+- Each company shows its automatic flags first, then its details, the registration number with a link to check it by
+  hand on the GST portal or MCA site, the domain's age and mail server, the team and the activity log.
+- Approve (Verified for the months set in Settings), reject or re-verify with a reason, block (its jobs pause) and
+  unblock. Each decision is emailed to the main admin and logged. Reasons are typed on the page, never in a pop-up.
+- The automation pass emails the main admin 30 days before Verified ends. When it ends, the company goes back into the
+  queue for its 12-month re-check and is Basic until then.
+- **Settings & prices → Company limits:** Basic jobs a week, Verified live jobs, Verified months, and the same-address
+  sign-up flag threshold.
+
+**Company account security** (`backend/app/companies/security.py`, Security section on `/company`):
+- **2-step sign-in:** optional and free (TOTP in any authenticator app). With it on, the emailed-code sign-in also asks
+  for the app code, and each code works only once.
+- **Signed-in devices:** each session records its browser and system and a hashed network (never the IP itself). A
+  device can be signed out from the list.
+- **Unusual sign-in:** a sign-in from a device + network pair the account hasn't used before emails the person and the
+  main admin of each of their companies, and appears as an "unusual sign-in" flag in the queue. Nm7 has no location
+  lookup, because that needs a paid IP database; "new network" stands in for "new city".

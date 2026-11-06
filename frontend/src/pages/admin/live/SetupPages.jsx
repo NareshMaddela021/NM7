@@ -23,6 +23,10 @@ export function settingsErrors(f) {
   const h = String(f.hoursText ?? '').trim();
   if (!/^\d+$/.test(h)) out.hours = 'Enter a whole number of hours';
   else if (Number(h) < 24 || Number(h) > 168) out.hours = 'Delivery must be 24–168 hours';
+  if (f.companies) {
+    const lim = { basicJobsPerWeek: [0, 50], verifiedLiveJobs: [0, 500], verifiedMonths: [1, 36], ipBurst: [2, 50] };
+    if (Object.entries(lim).some(([k, [lo, hi]]) => !/^\d+$/.test(String(f.companies[k] ?? '').trim()) || Number(f.companies[k]) < lo || Number(f.companies[k]) > hi)) out.companies = 'Company limits must be whole numbers in range';
+  }
   if (f.referral) {
     const n = String(f.referral.text ?? '').trim();
     if (!/^\d+$/.test(n) || Number(n) < 1 || Number(n) > 20) out.referral = 'Enter 1–20 friends';
@@ -38,7 +42,7 @@ export function LiveSettings() {
   // the form keeps what was typed (text), so a bad value can be explained instead of silently becoming 0
   const toForm = (d) => {
     const g = (o) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, { ...v, text: String(Math.round(v.amount / 100)) }]));
-    return { ...d, plans: g(d.plans), addons: g(d.addons), hoursText: String(d.deliveryHours), referral: { ...(d.referral || { on: true, needed: 3 }), text: String(d.referral?.needed ?? 3) }, dailySummary: d.dailySummary || { on: true } };
+    return { ...d, plans: g(d.plans), addons: g(d.addons), hoursText: String(d.deliveryHours), referral: { ...(d.referral || { on: true, needed: 3 }), text: String(d.referral?.needed ?? 3) }, dailySummary: d.dailySummary || { on: true }, companies: Object.fromEntries(Object.entries(d.companies || { basicJobsPerWeek: 1, verifiedLiveJobs: 3, verifiedMonths: 12, ipBurst: 3 }).map(([k, v]) => [k, String(v)])) };
   };
   useEffect(() => { if (st.data) setF(toForm(st.data)); }, [st.data]);
   const errs = f ? settingsErrors(f) : {};
@@ -61,7 +65,7 @@ export function LiveSettings() {
   };
   const save = () => run(async () => {
     const pick = (g) => Object.fromEntries(Object.entries(f[g]).map(([k, v]) => [k, { amount: Number(v.text) * 100, active: v.active }]));
-    const r = await http('/api/admin/settings', { method: 'PUT', body: { plans: pick('plans'), addons: pick('addons'), deliveryHours: Number(f.hoursText), referral: { on: f.referral.on, needed: Number(f.referral.text) }, dailySummary: f.dailySummary } });
+    const r = await http('/api/admin/settings', { method: 'PUT', body: { plans: pick('plans'), addons: pick('addons'), deliveryHours: Number(f.hoursText), referral: { on: f.referral.on, needed: Number(f.referral.text) }, dailySummary: f.dailySummary, companies: Object.fromEntries(Object.entries(f.companies).map(([k, v]) => [k, Number(v)])) } });
     setF(toForm(r)); st.reload();
   }, 'Saved — new orders use these prices');
   return (
@@ -88,6 +92,13 @@ export function LiveSettings() {
             <strong>Daily summary</strong>
             <label className="row g8 small"><input type="checkbox" checked={f.dailySummary.on} onChange={(e) => setF({ ...f, dailySummary: { on: e.target.checked } })} data-testid="daily-on" />Email the Owner admins yesterday’s numbers every day at 8:00 IST (new users, resumes, orders, revenue, codes used, new organizations, server errors)</label>
             <span className="xs muted">The Dashboard’s “Today so far” card has a Share to WhatsApp button for sending the numbers from your phone.</span>
+          </section>
+          <section className="card stack g12" aria-label="Company limits" data-testid="company-limits">
+            <strong>Company limits</strong>
+            <span className="small muted">What companies may post by trust level (Admin → Companies). Basic: the emails are confirmed. Verified: approved by our team.</span>
+            {[['basicJobsPerWeek', 'Basic: jobs a week', 0, 50], ['verifiedLiveJobs', 'Verified: live jobs at a time', 0, 500], ['verifiedMonths', 'Verified lasts (months)', 1, 36], ['ipBurst', 'Flag sign-ups from one address within 2 hours, from', 2, 50]].map(([k, label, lo, hi]) => (
+              <label key={k} className="row g8 small">{label} <input className="input" type="number" inputMode="numeric" min={lo} max={hi} step={1} style={{ height: 38, width: 90 }} value={f.companies[k]} data-testid={`co-${k}`} onChange={(e) => setF({ ...f, companies: { ...f.companies, [k]: e.target.value } })} /></label>
+            ))}
           </section>
           <section className="card stack g12" aria-label="Referral rewards" data-testid="ref-settings">
             <strong>Referral rewards</strong>

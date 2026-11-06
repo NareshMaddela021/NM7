@@ -1,7 +1,7 @@
 // Admin roles — the same table as backend/app/admin/roles.py. The screens only hide sections; the server checks.
 export const ROLES = {
-  owner: { label: 'Owner', can: ['dashboard', 'orders', 'experts', 'refunds', 'payments', 'customers', 'quality', 'reports', 'settings', 'automation', 'team', 'organizations', 'jobs'] },
-  ops: { label: 'Operations', can: ['dashboard', 'orders', 'experts', 'quality', 'automation', 'jobs'] },
+  owner: { label: 'Owner', can: ['dashboard', 'orders', 'experts', 'refunds', 'payments', 'customers', 'quality', 'reports', 'settings', 'automation', 'team', 'organizations', 'jobs', 'companies'] },
+  ops: { label: 'Operations', can: ['dashboard', 'orders', 'experts', 'quality', 'automation', 'jobs', 'companies'] },
   finance: { label: 'Finance', can: ['dashboard', 'payments', 'refunds', 'reports'] },
   support: { label: 'Support', can: ['orders', 'customers', 'refunds'] },
   quality: { label: 'Quality reviewer', can: ['orders', 'quality'] },

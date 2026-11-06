@@ -181,7 +181,11 @@ async def start(body: StartIn, request: Request, db: DB) -> dict[str, Any]:
     _apply(c, body.company)
     c["domain"] = await _domain_facts(c["details"]["website"]) if c["kind"] == "company" else {}
     await _save(db, c)
-    session = await issue_session(db, body.email, body.name.strip())
+    session = await issue_session(db, body.email, body.name.strip(), request=request)
+    from app.companies.security import device_of, note_sign_in
+
+    acc = await db[RECRUITERS].find_one({"email_lc": body.email})
+    await note_sign_in(db, acc, device_of(request))
     await audit(db, None, "company.signup", target=c["_id"], data={"by": body.email, "kind": c["kind"]})
     return {"session": session, "company": company_out(c, body.email)}
 
