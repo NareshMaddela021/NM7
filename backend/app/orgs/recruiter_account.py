@@ -72,6 +72,7 @@ class EmailIn(CamelModel):
 
 class SessionIn(EmailIn):
     code: str = Field(min_length=4, max_length=10)
+    totp: str | None = Field(None, max_length=6)  # the authenticator code, when the account has 2-step on
 
 
 def _hash(kind: str, *parts: str) -> str:
@@ -99,7 +100,7 @@ async def _invites(db, email_lc: str) -> list[dict[str, Any]]:
     return out
 
 
-async def issue_session(db, email_lc: str, name: str = "") -> str:
+async def issue_session(db, email_lc: str, name: str = "", request: Request | None = None) -> str:
     """A new account session (the account is made on first use). Used after a code sign-in, here or on an invite
     link (the same address was proven either way)."""
     session = secrets.token_urlsafe(32)
@@ -112,7 +113,17 @@ async def issue_session(db, email_lc: str, name: str = "") -> str:
         except Exception:  # made at the same moment by another request
             acc = await db[RECRUITERS].find_one({"email_lc": email_lc})
     sessions = [s for s in acc.get("sessions") or [] if s["exp"] > t][-4:]
-    sessions.append({"hash": _hash("session", session), "exp": t + timedelta(hours=SESSION_HOURS)})
+    from app.companies.security import device_of
+
+    sessions.append(
+        {
+            "id": secrets.token_hex(6),
+            "hash": _hash("session", session),
+            "exp": t + timedelta(hours=SESSION_HOURS),
+            "at": t,
+            **device_of(request),
+        }
+    )
     sets: dict[str, Any] = {"sessions": sessions, "last_seen_at": t}
     if name and not acc.get("name"):
         sets["name"] = name
@@ -177,7 +188,9 @@ async def send_code(body: EmailIn, request: Request, response: Response, db: DB,
 
 
 @router.post("/session")
-async def start_session(body: SessionIn, request: Request, response: Response, db: DB) -> dict[str, Any]:
+async def start_session(
+    body: SessionIn, request: Request, response: Response, db: DB, mailer: MailerDep
+) -> dict[str, Any]:
     response.headers.update(NO_STORE)
     key = f"raccount-try:{_hash('email', body.email)[:24]}"
     await rate_limit.check(db, key, CODE_TRY_RULES, "Too many wrong codes. Please wait 15 minutes.")
@@ -192,8 +205,19 @@ async def start_session(body: SessionIn, request: Request, response: Response, d
     if not ok:
         await rate_limit.record(db, key)
         raise ApiError(401, "wrong_code", "That code is wrong or has expired. Ask for a new one.")
+    if acc.get("totp_on"):  # 2-step: the emailed code stays valid until the app code is given too
+        from app.companies.security import claim
+
+        if not body.totp:
+            raise ApiError(401, "totp_required", "Enter the 6-digit code from your authenticator app.")
+        if not await claim(db, acc, body.totp.strip()):
+            await rate_limit.record(db, key)
+            raise ApiError(401, "wrong_totp", "That authenticator code didn’t match. Try the newest one.")
     await db[RECRUITERS].update_one({"_id": acc["_id"]}, {"$set": {"code_hash": None, "code_exp": None}})
-    session = await issue_session(db, body.email)
+    session = await issue_session(db, body.email, request=request)
+    from app.companies.security import device_of, note_sign_in
+
+    await note_sign_in(db, await db[RECRUITERS].find_one({"_id": acc["_id"]}), device_of(request), mailer)
     orgs = sorted({i["org_id"] for i in await _invites(db, body.email)})
     await audit(db, None, "recruiter_account_login", target=acc["_id"], data={"orgs": orgs}, ip=None)
     return {"session": session, "expiresInHours": SESSION_HOURS}

@@ -10,6 +10,7 @@ from pymongo.errors import DuplicateKeyError
 
 from app.admin.daily import send_daily
 from app.billing.subscription import run_reminders
+from app.companies.admin import recheck_reminders as company_rechecks
 from app.core.config import get_settings
 from app.core.db import LOCKS, ORDER_WORK, ORDERS
 from app.core.email import Email, Mailer, get_mailer, send_safely
@@ -125,6 +126,7 @@ async def run_rules(db: AsyncDatabase, mailer: Mailer | None = None) -> dict[str
         done["accounts_erased"] = await erase_due(db)  # self-serve deletions whose 7-day undo window is over
         done["daily_summary"] = await send_daily(db, mailer or get_mailer())  # 8:00 IST, once a day
         done["job_links"] = (await job_links.run(db))["checked"]  # apply links ~daily; dead twice: closed
+        done["company_rechecks"] = await company_rechecks(db, mailer or get_mailer())  # 30 days before Verified ends
         done["job_followups"] = await job_followups(db, mailer or get_mailer())  # a week on; ≤ 1 email a day
         done["pass_reminders"] = await pass_reminders(db, mailer or get_mailer())  # 7 days before a pass ends
         done["interview_reminders"] = await interview_reminders(db, mailer or get_mailer())  # the day before, 9:00 IST

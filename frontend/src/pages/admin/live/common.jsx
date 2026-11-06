@@ -20,6 +20,7 @@ export const NAV = [
   ['customers', '/admin/customers', 'Customers & support', '☺'],
   ['customers', '/admin/stories', 'Stories', '❝'],
   ['jobs', '/admin/jobs', 'Jobs', '◎'],
+  ['companies', '/admin/companies', 'Companies', '▣'],
   ['quality', '/admin/quality', 'Quality', '✓'],
   ['reports', '/admin/reports', 'Reports', '⇩'],
   ['settings', '/admin/settings', 'Settings & prices', '⚙'],

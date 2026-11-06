@@ -739,6 +739,16 @@ class SettingsIn(CamelModel):
     delivery_hours: int | None = Field(None, ge=24, le=168)
     referral: "ReferralSettingsIn | None" = None
     daily_summary: "DailySummaryIn | None" = None
+    companies: "CompanyLimitsIn | None" = None
+
+
+class CompanyLimitsIn(CamelModel):
+    """What each company trust level may post (Phase 2) and how long Verified lasts."""
+
+    basic_jobs_per_week: int = Field(ge=0, le=50)
+    verified_live_jobs: int = Field(ge=0, le=500)
+    verified_months: int = Field(ge=1, le=36)
+    ip_burst: int = Field(ge=2, le=50)
 
 
 class DailySummaryIn(CamelModel):
@@ -757,6 +767,12 @@ def _settings_out(site: dict[str, Any]) -> dict[str, Any]:
         "deliveryHours": site["delivery_hours"],
         "referral": site["referral"],
         "dailySummary": site["daily_summary"],
+        "companies": {
+            "basicJobsPerWeek": site["companies"]["basic_jobs_per_week"],
+            "verifiedLiveJobs": site["companies"]["verified_live_jobs"],
+            "verifiedMonths": site["companies"]["verified_months"],
+            "ipBurst": site["companies"]["ip_burst"],
+        },
     }
 
 
@@ -785,6 +801,9 @@ async def put_settings(body: SettingsIn, request: Request, db: DB, auth: AdminAu
     if body.referral and body.referral.model_dump() != before["referral"]:
         changes["referral"] = body.referral.model_dump()
         diff["referral"] = {"from": before["referral"], "to": changes["referral"]}
+    if body.companies and body.companies.model_dump() != before["companies"]:
+        changes["companies"] = body.companies.model_dump()
+        diff["companies"] = {"from": before["companies"], "to": changes["companies"]}
     if body.daily_summary and body.daily_summary.model_dump() != before["daily_summary"]:
         changes["daily_summary"] = body.daily_summary.model_dump()
         diff["daily_summary"] = {"from": before["daily_summary"], "to": changes["daily_summary"]}
