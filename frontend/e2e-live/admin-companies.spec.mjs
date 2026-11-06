@@ -83,6 +83,7 @@ for (const [label, opts] of SIZES) {
       await co.evaluate((s) => localStorage.setItem('nm7-recruiter-account', s), first.session);
       await co.reload();
       await expect(co.getByTestId('co-card').getByTestId('co-trust')).toHaveText('Verified');
+      await co.getByRole('tab', { name: 'Security' }).click();
       const sec = co.getByTestId('co-security');
       await expect(sec.getByTestId('co-2fa')).toHaveText('Off');
       await expect(sec.getByTestId('co-device')).toHaveCount(1);
