@@ -14,6 +14,7 @@ export default function SiteFooter() {
         <nav aria-label="Site links" className="row g16">
           <Link to="/for-orgs" onClick={() => track('to_for_orgs')}>For organizations</Link>
           <Link to="/partners" onClick={() => track('to_partners')}>Partner programme</Link>
+          <Link to="/for-companies">For companies: post jobs</Link>
           <Link to="/blog">Blog</Link>
           <Link to="/contact">Contact us</Link>
           <Link to="/terms">Terms</Link>
