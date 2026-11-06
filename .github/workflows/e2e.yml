@@ -1,10 +1,15 @@
 name: e2e
 
-# The full browser suite against the real API, desktop + 390 px (and the production build with the vercel.json
-# headers, and the sample-data browser tests). It is the slowest check, so it runs nightly on the production branch
-# and by hand (Actions → e2e → Run workflow), not on every pull request: before each merge the affected live specs
-# are run locally instead. Schedules start from the default branch (main), which must have this file.
+# The full browser suite against the real API, desktop + 390 px (plus the production build with the vercel.json
+# headers, and the sample-data browser tests on the preview build). Nightly at 03:00 IST on the production branch,
+# by hand (Actions → e2e → Run workflow), and on pull requests while the repository variable CI_MODE is "full" (the
+# default when it isn't set). Set CI_MODE=light (Settings → Secrets and variables → Actions → Variables) to save
+# minutes once the repo is private: pull requests then run only tests.yml (backend + unit tests + build), and this
+# suite runs nightly and by hand. Schedules start from the default branch (main), which must have this file.
 on:
+  pull_request:
+    branches: ["claude/fervent-albattani-wqmaoq", "main"]
+    paths-ignore: ["**/*.md", "docs/**"]
   schedule:
     - cron: "30 21 * * *" # 03:00 IST
   workflow_dispatch:
@@ -15,6 +20,8 @@ concurrency:
 
 jobs:
   live:
+    # CI_MODE=light: not on pull requests (nightly and by hand only)
+    if: github.event_name != 'pull_request' || vars.CI_MODE != 'light'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     defaults:

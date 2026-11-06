@@ -1345,11 +1345,15 @@ card count "Annual passes sold".
 ## CI (GitHub Actions)
 
 - **tests.yml** runs on every pull request and every push to `main`: the API's lint and tests (backend), and the
-  site's lint, unit tests and build (frontend). It has no browser tests, skips docs-only changes (`*.md`, `docs/`),
-  caches uv/npm downloads, and a newer commit cancels the older run (timeouts 20 / 15 minutes).
-- **e2e.yml** runs the full live browser suite (desktop + 390 px) plus the CSP and preview-build checks. It runs
-  nightly at 03:00 IST on the production branch, and by hand (Actions → e2e → Run workflow). The affected live
-  specs run locally before each merge.
+  site's lint, unit tests and build (frontend).
+- **e2e.yml** is the full live browser suite (desktop + 390 px), plus the CSP check and the preview-build browser
+  tests. It runs nightly at 03:00 IST, by hand (Actions → e2e → Run workflow), and on pull requests while the
+  repository variable `CI_MODE` is `full`. `full` is the default when the variable isn't set.
+- Both skip docs-only changes (`*.md`, `docs/`), cache uv/npm downloads, and cancel an older run when a newer commit
+  arrives. Timeouts: backend 20, frontend 15, e2e 60 minutes.
+- **Switching to light** (to save Actions minutes once the repository is private): Settings → Secrets and variables
+  → Actions → Variables → New repository variable `CI_MODE` = `light`. Pull requests then run only tests.yml, and the
+  live suite runs nightly and by hand. Delete the variable, or set it to `full`, to go back.
 - **deps.yml** runs only when dependency files change, and weekly. **backup.yml** runs nightly. **hygraph.yml**
   runs daily. **deploy-check.yml** runs after a backend change lands on the production branch.
 - Scheduled workflows run from the default branch (`main`), so `main` is kept level with the production branch
