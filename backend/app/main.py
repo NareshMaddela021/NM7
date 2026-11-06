@@ -48,6 +48,7 @@ from app.downloads.router import router as downloads_router
 from app.experts.router import router as expert_router
 from app.health import service as resume_health
 from app.jobs import admin as jobs_admin
+from app.jobs import alerts as jobs_alerts
 from app.jobs import apply as jobs_apply
 from app.jobs import foryou as jobs_foryou
 from app.jobs import ingest as jobs_ingest
@@ -223,6 +224,8 @@ def create_app() -> FastAPI:
     app.include_router(company_applicants.router)  # /api/company/{id}/applicants, /pool (C5)
     app.include_router(company_applicants.me)  # /api/me/applications/{key}/withdraw
     app.include_router(jobs_reports.admin)  # /api/admin/job-reports
+    app.include_router(jobs_alerts.me)  # /api/me/job-alerts (C6)
+    app.include_router(jobs_alerts.public)  # /api/public/jobs/stop-alerts
     app.include_router(org_feedback.portal)  # /api/recruiter/{token}/feedback (R4)
     app.include_router(org_feedback.account)  # /api/recruiter-account/drives/{id}/feedback
     app.include_router(org_feedback.staff)  # /api/org/{org_id}/recruiter-feedback

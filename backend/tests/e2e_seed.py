@@ -10,6 +10,8 @@ MONGODB_DB=nm7_e2e uv run python -m tests.e2e_seed reset
                                           without calling Razorpay (the browser tests run without Razorpay keys)
 ... company-verify COMPANY_ID              → {"ok": true} (as if an admin approved it: Verified for a year)
 ... job JSON [STATUS] [AGE_HOURS]       → {"id", "slug"} (a job-board job, as an admin would add it)
+... job-alerts EMAIL                   → {"sent": [{to, subject, text}], "stop": token} (the alert pass for one person,
+                                          its emails captured instead of sent, and their "Stop these emails" token)
 """
 
 import asyncio
@@ -58,6 +60,22 @@ async def main(cmd: str, *args: str) -> dict:
         if sets:
             await db["jobs"].update_one({"_id": doc["_id"]}, {"$set": sets})
         return {"id": doc["_id"], "slug": doc["slug"]}
+    if cmd == "job-alerts":
+        from app.jobs import alerts
+
+        (mail,) = args
+        u = await db[USERS].find_one({"email_lc": mail.lower()})
+
+        class Capture:
+            def __init__(self):
+                self.sent = []
+
+            async def send(self, e):
+                self.sent.append({"to": e.to, "subject": e.subject, "text": e.text})
+
+        cap = Capture()
+        await alerts.send_alerts(db, cap)
+        return {"sent": [x for x in cap.sent if x["to"] == u["email"]], "stop": alerts.unsub_token(u["_id"])}
     if cmd == "admin":
         email, role, password = args
         _, secret, _ = await create_admin(db, email, role.title(), role, password)
