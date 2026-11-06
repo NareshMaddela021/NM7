@@ -123,6 +123,7 @@ async def test_recheck_and_settings(client, outbox, db, admin_client):
         "verifiedMonths": 6,
         "ipBurst": 4,
         "noReplyDays": 21,
+        "applicantMonths": 12,
     }
     assert (await posting_room(db, doc))["limit"] == 2
     await owner.post(f"/api/admin/companies/{cid}/approve")

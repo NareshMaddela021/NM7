@@ -8,7 +8,18 @@ import { Link } from 'react-router-dom';
 import { rq } from '../../lib/company';
 import { EXPERIENCE, JOB_TYPES, WORK_TYPES, salaryText } from '../../lib/jobBoard';
 
-const BLANK = { title: '', cities: '', workType: 'onsite', jobType: 'full_time', experience: 'fresher', salaryMin: '', salaryMax: '', period: 'yearly', skills: '', description: '', applyMethod: 'nm7', applyUrl: '', applyEmail: '', closesAt: '' };
+const BLANK = { title: '', cities: '', workType: 'onsite', jobType: 'full_time', experience: 'fresher', salaryMin: '', salaryMax: '', period: 'yearly', skills: '', description: '', applyMethod: 'nm7', applyUrl: '', applyEmail: '', closesAt: '', questions: [] };
+const NEW_Q = { text: '', kind: 'yesno', options: '', want: '', min: '', accept: '' };
+const MAX_Q = 5;
+const csv = (s) => String(s || '').split(',').map((x) => x.trim()).filter(Boolean);
+/** Screening questions as the API takes them (the rules are only seen by the company). */
+export const questionsBody = (qs) => qs.filter((q) => q.text.trim()).map((q) => ({
+  text: q.text.trim(), kind: q.kind,
+  ...(q.kind === 'yesno' ? { want: q.want } : {}),
+  ...(q.kind === 'number' && String(q.min).trim() !== '' ? { min: Number(q.min) } : {}),
+  ...(q.kind === 'choice' ? { options: csv(q.options), accept: csv(q.accept) } : {}),
+}));
+const questionsForm = (qs) => (qs || []).map((q) => ({ text: q.text, kind: q.kind, options: (q.options || []).join(', '), want: q.want || '', min: q.min ?? '', accept: (q.accept || []).join(', ') }));
 const TONE = { active: 'b-success', review: 'b-warning', paused: 'b-neutral', closed: 'b-danger' };
 
 function toBody(f) {
@@ -20,6 +31,7 @@ function toBody(f) {
     salary, skills: list(f.skills), description: f.description, applyMethod: f.applyMethod,
     applyUrl: f.applyMethod === 'link' ? f.applyUrl : '', applyEmail: f.applyMethod === 'email' ? f.applyEmail : '',
     ...(f.closesAt ? { closesAt: new Date(`${f.closesAt}T23:59:00+05:30`).toISOString() } : {}),
+    questions: f.applyMethod === 'nm7' ? questionsBody(f.questions || []) : [],
   };
 }
 
@@ -29,6 +41,7 @@ function fromJob(j) {
     salaryMin: j.salary?.min ?? '', salaryMax: j.salary?.max ?? '', period: j.salary?.period || 'yearly', skills: (j.skills || []).join(', '),
     description: j.description, applyMethod: j.apply.method, applyUrl: j.apply.url || '', applyEmail: j.apply.email || '',
     closesAt: j.closesAt ? new Date(j.closesAt).toISOString().slice(0, 10) : '',
+    questions: questionsForm(j.questions),
   };
 }
 
@@ -148,6 +161,7 @@ function JobForm({ t, c, init, onDone, onCancel }) {
         {f.applyMethod === 'link' && <div className="field"><label className="label" htmlFor="cj-url">{t('co.jobs.f.url')}</label><input id="cj-url" className="input" inputMode="url" required value={f.applyUrl} onChange={set('applyUrl')} /></div>}
         {f.applyMethod === 'email' && <div className="field"><label className="label" htmlFor="cj-mail">{t('co.jobs.f.email')}</label><input id="cj-mail" type="email" className="input" required value={f.applyEmail} onChange={set('applyEmail')} /></div>}
       </div>
+      {f.applyMethod === 'nm7' && <Questions t={t} qs={f.questions || []} onChange={(questions) => setF({ ...f, questions })} />}
       {check && (
         <div className="card-sm stack g4" role="status" data-testid="co-job-check">
           {check.errors.map((x, i) => <span key={`e${i}`} className="small" style={{ color: 'var(--danger)' }}>{x}</span>)}
@@ -165,5 +179,34 @@ function JobForm({ t, c, init, onDone, onCancel }) {
       </div>
       {err && <p className="error" role="alert">{err}</p>}
     </form>
+  );
+}
+
+/** Up to 5 screening questions. An answer that doesn't fit only adds a "Not a fit" label: the company still sees everyone. */
+function Questions({ t, qs, onChange }) {
+  const put = (i, patch) => onChange(qs.map((q, k) => (k === i ? { ...q, ...patch } : q)));
+  return (
+    <fieldset className="card-sm stack g8" data-testid="co-questions" style={{ border: 0, margin: 0 }}>
+      <legend className="small"><strong>{t('co.q.title')}</strong></legend>
+      <span className="xs muted">{t('co.q.hint')}</span>
+      {qs.map((q, i) => (
+        <div key={i} className="stack g8 well" data-testid="co-question">
+          <div className="field"><label className="label" htmlFor={`cq-t${i}`}>{t('co.q.text', { n: i + 1 })}</label><input id={`cq-t${i}`} className="input" maxLength={200} value={q.text} onChange={(e) => put(i, { text: e.target.value })} /></div>
+          <div className="co-grid">
+            <div className="field"><label className="label" htmlFor={`cq-k${i}`}>{t('co.q.kind')}</label>
+              <select id={`cq-k${i}`} className="input" value={q.kind} onChange={(e) => put(i, { kind: e.target.value })}>{['yesno', 'number', 'choice'].map((k) => <option key={k} value={k}>{t(`co.q.kind.${k}`)}</option>)}</select></div>
+            {q.kind === 'yesno' && <div className="field"><label className="label" htmlFor={`cq-w${i}`}>{t('co.q.want')}</label>
+              <select id={`cq-w${i}`} className="input" value={q.want} onChange={(e) => put(i, { want: e.target.value })}><option value="">{t('co.q.any')}</option><option value="yes">{t('co.q.yes')}</option><option value="no">{t('co.q.no')}</option></select></div>}
+            {q.kind === 'number' && <div className="field"><label className="label" htmlFor={`cq-m${i}`}>{t('co.q.min')}</label><input id={`cq-m${i}`} className="input" inputMode="numeric" value={q.min} onChange={(e) => put(i, { min: e.target.value.replace(/[^\d]/g, '') })} /></div>}
+          </div>
+          {q.kind === 'choice' && <>
+            <div className="field"><label className="label" htmlFor={`cq-o${i}`}>{t('co.q.options')}</label><input id={`cq-o${i}`} className="input" value={q.options} onChange={(e) => put(i, { options: e.target.value })} /></div>
+            <div className="field"><label className="label" htmlFor={`cq-a${i}`}>{t('co.q.accept')}</label><input id={`cq-a${i}`} className="input" value={q.accept} onChange={(e) => put(i, { accept: e.target.value })} /></div>
+          </>}
+          <button type="button" className="link-btn small" style={{ alignSelf: 'flex-start' }} onClick={() => onChange(qs.filter((_, k) => k !== i))}>{t('co.q.remove')}</button>
+        </div>
+      ))}
+      {qs.length < MAX_Q && <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} onClick={() => onChange([...qs, { ...NEW_Q }])}>{t('co.q.add')}</button>}
+    </fieldset>
   );
 }

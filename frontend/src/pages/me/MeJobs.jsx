@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, useToast } from '../../components/ui';
-import { useMe, setMe, newId, APP_STAGES, openInBuilder } from '../../lib/customerStore';
+import { useMe, setMe, newId, APP_STAGES, openInBuilder, reloadMe } from '../../lib/customerStore';
+import { http } from '../../services/http';
 import { BarChart, Kpi } from '../admin/AdminUI';
 import { MeHead } from './MeLayout';
 import { fmtShort, fmtDay } from './shared';
@@ -90,6 +91,7 @@ export default function MeJobs() {
                   {a.matchId && <button type="button" className="link-btn xs" style={{ textAlign: 'left' }} onClick={() => nav(`/me/interview/${a.matchId}`)}>Interview prep</button>}
                   {a.next && <span className="xs" style={{ color: 'var(--text2)' }}>Next: {fmtShort(a.next)}</span>}
                   {due(a) && <span className="row g4 xs" style={{ color: 'var(--warning)' }}>⏰ Follow up? <button type="button" className="link-btn xs" onClick={() => { setMe((s) => ({ apps: s.apps.map((x) => (x.id === a.id ? { ...x, followed: Date.now(), notes: `${x.notes ? `${x.notes}\n` : ''}Followed up ${fmtDay(Date.now())}.` } : x)) })); toast('Marked as followed up'); }}>Done</button></span>}
+                  {a.toCompany && <Withdraw a={a} toast={toast} />}
                   {a.status === 'no_reply' && <span className="xs" data-testid="no-reply-note">The company didn’t reply in time, so Nm7 closed this. It isn’t about you.</span>}
                   {a.channel === 'nm7' ? <span className="xs faint">Updated by the company</span> : (
                     <span className="row between" style={{ marginTop: 2 }}>
@@ -108,5 +110,24 @@ export default function MeJobs() {
         onSave={(a) => { setMe((s) => ({ apps: s.apps.some((x) => x.id === a.id) ? s.apps.map((x) => (x.id === a.id ? a : x)) : [...s.apps, a] })); setEdit(null); toast('Saved'); }}
         onDelete={() => { setMe((s) => ({ apps: s.apps.filter((x) => x.id !== edit.id) })); setEdit(null); toast('Deleted'); }} />}
     </>
+  );
+}
+
+/** Applications sent on Nm7 to a company's own job: withdraw takes back consent; the company no longer sees it. */
+function Withdraw({ a, toast }) {
+  const [ask, setAsk] = useState(false);
+  const [busy, setBusy] = useState(false);
+  if (a.withdrawn) return <span className="xs muted" data-testid="withdrawn">Withdrawn: the company no longer sees this application.</span>;
+  if (!ask) return <button type="button" className="link-btn xs" style={{ textAlign: 'left' }} onClick={() => setAsk(true)}>Withdraw application</button>;
+  const go = async () => {
+    setBusy(true);
+    try { await http(`/api/me/applications/${encodeURIComponent(a.id)}/withdraw`, { method: 'POST' }); toast('Withdrawn'); reloadMe(); } catch (e) { toast(e.message); setBusy(false); }
+  };
+  return (
+    <span className="stack g4 xs" role="alert">
+      <span>The company will no longer see your resume or answers for this job.</span>
+      <span className="row g8"><button type="button" className="btn btn-outline" style={{ minHeight: 30, height: 30 }} disabled={busy} onClick={go}>Withdraw</button>
+        <button type="button" className="link-btn xs" onClick={() => setAsk(false)}>Keep it</button></span>
+    </span>
   );
 }

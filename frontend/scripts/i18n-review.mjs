@@ -27,6 +27,7 @@ export function pageOf(key, file) {
   if (key.startsWith('signin.')) return '/login (sign in)';
   if (key.startsWith('jobs.')) return '/jobs (job board)';
   if (key.startsWith('co.')) return '/for-companies, /company';
+  if (key.startsWith('gr.')) return '/grievance';
   return '';
 }
 

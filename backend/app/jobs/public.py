@@ -77,7 +77,12 @@ def public_out(j: dict[str, Any], full: bool = False) -> dict[str, Any]:
         "apply": {"method": apply["method"], "url": (apply.get("url") or "") if apply["method"] == "link" else ""},
     }
     if full:
+        from app.companies.questions import public as questions
+
         out["description"] = j["description"]
+        if j.get("company_id") and apply["method"] == "nm7":  # applying shares the resume with the company (C5)
+            out["questions"] = questions(j.get("questions"))
+            out["consent"] = True
     return out
 
 

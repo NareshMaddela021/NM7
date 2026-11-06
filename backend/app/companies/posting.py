@@ -21,7 +21,7 @@ from pydantic import Field, ValidationError
 
 from app.audit import audit
 from app.auth.models import new_id
-from app.companies import jobcheck
+from app.companies import jobcheck, questions
 from app.companies.limits import posting_room
 from app.companies.model import POST
 from app.companies.signup import company_for
@@ -44,7 +44,7 @@ class JobBody(CamelModel):
 
 def _job_in(c: dict[str, Any], raw: dict[str, Any]) -> tuple[JobIn | None, list[str]]:
     d = c["details"]
-    body = {k: v for k, v in raw.items() if k not in ("company", "status", "source")}
+    body = {k: v for k, v in raw.items() if k not in ("company", "status", "source", "questions")}
     body["company"] = {"name": d["legal_name"], "website": d.get("website") or ""}
     body.setdefault("applyMethod", "nm7")
     try:
@@ -104,16 +104,24 @@ def company_job_out(j: dict[str, Any]) -> dict[str, Any]:
         "editsLeft": max(0, MAX_EDITS - int(j.get("edit_count", 0))),
         "review": {"reasons": rv.get("reasons") or [], "note": rv.get("note", "")},
         "closedReason": j.get("closed_reason", ""),
+        "questions": questions.for_company(j.get("questions")),
     }
+
+
+def _with_questions(description: str, qs: list[dict[str, Any]]) -> str:
+    """The questions are checked for unfair wording and scam signs like the description."""
+    return "\n".join([description, *(q["text"] for q in qs), *(o for q in qs for o in q.get("options") or [])])
 
 
 @router.post("/{cid}/jobs/check")
 async def check_job(cid: str, body: JobBody, db: DB, x_recruiter_account: str | None = Header(None)) -> dict[str, Any]:
     _, c, _ = await company_for(db, cid, x_recruiter_account, POST)
     job, errors = _job_in(c, body.job)
-    if not job:
+    qs, qerr = questions.parse(body.job.get("questions"))
+    errors += qerr
+    if not job or errors:
         return {"errors": errors, "blocked": [], "scam": [], "warnings": [], "duplicate": False}
-    res = jobcheck.check(job.model_dump(), await _lists(db))
+    res = jobcheck.check({**job.model_dump(), "description": _with_questions(job.description, qs)}, await _lists(db))
     return {"errors": [], **res, "duplicate": await _duplicate(db, cid, job)}
 
 
@@ -124,9 +132,11 @@ async def post_job(cid: str, body: JobBody, db: DB, x_recruiter_account: str | N
     if not room["allowed"]:
         raise ApiError(403, "limit", room["reason"])
     job, errors = _job_in(c, body.job)
-    if not job:
+    qs, qerr = questions.parse(body.job.get("questions"))
+    errors += qerr
+    if not job or errors:
         raise ApiError(400, "invalid", " ".join(errors), extra={"errors": errors})
-    res = jobcheck.check(job.model_dump(), await _lists(db))
+    res = jobcheck.check({**job.model_dump(), "description": _with_questions(job.description, qs)}, await _lists(db))
     if res["blocked"]:
         raise ApiError(
             400,
@@ -157,6 +167,7 @@ async def post_job(cid: str, body: JobBody, db: DB, x_recruiter_account: str | N
         "link_check": {"at": None, "ok": None, "status": None, "fails": 0, "error": ""},
         "closed_reason": "",
         "review": {"reasons": reasons, "ai": ai, "warnings": res["warnings"]},
+        "questions": qs,
     }
     doc["dedupe_key"] = f"company:{cid}:{doc['_id']}"  # company jobs are kept apart from collector duplicates
     await db[JOBS].insert_one(doc)
@@ -204,16 +215,18 @@ async def edit_job(
             409, "edit_limit", f"A live job can be edited {MAX_EDITS} times. Contact Nm7 support for more changes."
         )
     job, errors = _job_in(c, body.job)
-    if not job:
+    qs, qerr = questions.parse(body.job.get("questions"))
+    errors += qerr
+    if not job or errors:
         raise ApiError(400, "invalid", " ".join(errors), extra={"errors": errors})
-    res = jobcheck.check(job.model_dump(), await _lists(db))
+    res = jobcheck.check({**job.model_dump(), "description": _with_questions(job.description, qs)}, await _lists(db))
     if res["blocked"]:
         raise ApiError(
             400, "unfair_wording", f"Please remove: {', '.join(res['blocked'])}.", extra={"blocked": res["blocked"]}
         )
     if await _duplicate(db, cid, job, not_id=jid):
         raise ApiError(409, "duplicate", "You already have this job open in the same city.")
-    sets = {**to_doc(job), "updated_at": now(), "dedupe_key": old["dedupe_key"]}
+    sets = {**to_doc(job), "updated_at": now(), "dedupe_key": old["dedupe_key"], "questions": qs}
     if res["scam"]:  # new scam signs: back to Admin review
         sets["status"] = "review"
         sets["review"] = {**(old.get("review") or {}), "reasons": [f"Scam sign: “{p}”" for p in res["scam"]]}

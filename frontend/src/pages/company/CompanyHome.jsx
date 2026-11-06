@@ -8,6 +8,7 @@ import LangSwitch from '../../components/LangSwitch';
 import SiteFooter from '../../components/SiteFooter';
 import { TEAM_ROLES, keepDraft, readDraft, rq } from '../../lib/company';
 import CompanyJobs from './CompanyJobs';
+import CompanyApplicants, { TalentPool } from './CompanyApplicants';
 import { headerLabels, useLang } from '../../lib/i18n';
 import { usePageMeta } from '../../lib/meta';
 import { keepAccount, readAccount } from '../../lib/recruiterPortal';
@@ -96,7 +97,7 @@ function Companies({ t, onSignedOut }) {
   );
 }
 
-const TABS = ['overview', 'jobs', 'team', 'page', 'settings', 'security', 'activity'];
+const TABS = ['overview', 'jobs', 'applicants', 'pool', 'team', 'page', 'settings', 'security', 'activity'];
 
 function Dashboard({ t, c, onChanged, onSignedOut }) {
   const [tab, setTab] = useState('overview');
@@ -108,6 +109,8 @@ function Dashboard({ t, c, onChanged, onSignedOut }) {
       </div>
       {tab === 'overview' && <Overview t={t} c={c} manage={manage} />}
       {tab === 'jobs' && <CompanyJobs t={t} c={c} />}
+      {tab === 'applicants' && <CompanyApplicants t={t} c={c} />}
+      {tab === 'pool' && <TalentPool t={t} c={c} />}
       {tab === 'team' && <Team t={t} c={c} manage={manage} onChanged={onChanged} />}
       {tab === 'page' && <PageEditor t={t} c={c} manage={manage} onChanged={onChanged} />}
       {tab === 'settings' && <Settings t={t} c={c} manage={manage} onChanged={onChanged} />}

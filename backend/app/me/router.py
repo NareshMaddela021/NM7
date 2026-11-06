@@ -100,7 +100,8 @@ def cover_out(d: dict[str, Any]) -> CoverOut:
 
 def app_out(d: dict[str, Any]) -> ApplicationOut:
     steps = [{"status": s["status"], "at": ms(s["at"])} for s in d.get("timeline") or []]
-    return ApplicationOut.model_validate({**d, "id": d["key"], "timeline": steps})
+    extra = {"to_company": bool(d.get("company_id")), "withdrawn": bool(d.get("withdrawn_at"))}
+    return ApplicationOut.model_validate({**d, "id": d["key"], "timeline": steps, **extra})
 
 
 def ticket_out(d: dict[str, Any]) -> TicketOut:

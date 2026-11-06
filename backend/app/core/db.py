@@ -98,6 +98,7 @@ COLLEGE_GROUPS = (
     "college_groups"  # a parent college group: its campus organizations, owners (roll-up only), group price
 )
 JOB_FIT = "job_fit"  # _id = user:job: the cached match score of one resume for one job (rules only)
+TALENT_POOL = "talent_pool"  # a company's saved applicants (company_id, user_id), kept as long as the application
 JOB_REPORTS = "job_reports"  # _id = user:job: a student's report of a job (3 from different people pause it)
 COMPANIES = "companies"  # company accounts (Phase 2): details, registration, emails, team, trust level, review, flags
 SAVED_JOBS = "saved_jobs"  # _id = user:job: a job someone saved on the job board (removed with the account)
@@ -184,6 +185,7 @@ COLLECTIONS = (
     JOB_FIT,
     COMPANIES,
     JOB_REPORTS,
+    TALENT_POOL,
 )
 
 DAY = 86_400
@@ -255,6 +257,7 @@ INDEXES: dict[str, list[IndexModel]] = {
     ],
     SAVED_JOBS: [IndexModel([("user_id", ASCENDING), ("created_at", DESCENDING)])],
     JOB_FIT: [IndexModel("user_id"), IndexModel("at", expireAfterSeconds=30 * DAY)],
+    TALENT_POOL: [IndexModel([("company_id", ASCENDING), ("user_id", ASCENDING)], unique=True), IndexModel("user_id")],
     JOB_REPORTS: [
         IndexModel([("job_id", ASCENDING), ("state", ASCENDING)]),
         IndexModel([("state", ASCENDING), ("at", DESCENDING)]),

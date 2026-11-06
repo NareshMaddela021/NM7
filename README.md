@@ -1589,3 +1589,27 @@ image is also served at `/api/companies/<slug>/logo` for search engines.
   **Closed (no reply)** in My applications, and the student gets one polite email a day at most (never when they
   turned follow-up emails off, never to an unconfirmed or bounced address). The days are in
   **Admin → Settings & prices → Company limits**. Jobs from the job collector are never auto-closed.
+
+**Apply on Nm7 into the company dashboard (C5).** `backend/app/companies/applicants.py`, `questions.py`,
+`frontend/src/pages/company/CompanyApplicants.jsx`, `Grievance.jsx`.
+- **Screening questions:** a company job taking applications on Nm7 can ask up to 5 (yes/no, a number, one choice),
+  each with an optional rule ("fits when yes", "at least 6", "Day or Either"). Students see only the questions, never
+  the rules. Questions are checked for unfair wording and scam signs like the description.
+- **Consent on apply:** applying to a company's job on Nm7 asks for every answer and a ticked box: "Share my resume
+  and these answers with <company> for this job". The consent time is kept with the application.
+- **Applicants tab:** ranked a fit first, then the best match score (the job board's own rules), then the newest, with
+  the match reasons in plain words, the skills found and missing, and the answers. An answer that breaks a rule adds a
+  **Not a fit** label with the reasons: the person stays in the list (at the bottom), is never hidden, deleted or
+  auto-rejected. Opening the list marks new applications Viewed. Email and phone show only after shortlisting (the
+  recruiter portal's rule); ID numbers never. Stages: Shortlist, Offer, Not selected; **Schedule an interview** emails
+  the student a calendar file (.ics) and moves them to Interview. Compare up to 3 side by side. The resume they
+  applied with opens in place. Main, full and posting admins act; view admins read.
+- **Talent pool:** applicants saved for later roles, with a note.
+- **Students** see every stage in My applications and can **Withdraw application** (in-page confirm): the company
+  stops seeing it at once, with the answers and any talent-pool entry.
+- **12 months:** a company sees an applicant for up to 12 months after they applied (Admin → Settings & prices →
+  Company limits, 1–12). Then the daily automation pass removes the application from the company's view with its
+  answers and talent-pool entry. The student's own record stays until they delete it.
+- **`nm7.si/grievance`:** what a company sees, for how long, the student's rights (withdraw, download, correct,
+  erase, nominate) and how to complain: the Grievance Officer from `frontend/src/lib/legal.js` when filled in, else
+  our email; then the Data Protection Board of India.

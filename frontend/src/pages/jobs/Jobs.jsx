@@ -239,11 +239,14 @@ function ApplyBox({ job, t, onApplied }) {
   const [busy, setBusy] = useState('');
   const [err, setErr] = useState('');
   const [mail, setMail] = useState(null);
+  const [asking, setAsking] = useState(false); // company jobs: the questions and the consent box first (C5)
   const signedIn = user?.role === 'customer';
-  const go = async () => {
+  const go = async (extra) => {
+    if (job.consent && !extra) { setAsking(true); return; }
     setBusy('apply'); setErr('');
     try {
-      const r = await applyToJob(job.id);
+      const r = await applyToJob(job.id, null, extra || {});
+      setAsking(false);
       if (r.method === 'email') setMail(r.email);
       onApplied({ status: r.application.status, at: Date.now() });
       reloadMe();
@@ -275,10 +278,11 @@ function ApplyBox({ job, t, onApplied }) {
           // the link opens straight away (no pop-up blocker); the application is saved alongside
           <a className="btn btn-ink" href={job.apply.url} target="_blank" rel="noopener noreferrer nofollow" data-testid="apply" onClick={() => { go(); }}>{t('jobs.apply.link')} <span aria-hidden="true">↗</span></a>
         ) : (
-          <button type="button" className="btn btn-ink" data-testid="apply" disabled={!!busy} onClick={go}>{job.apply.method === 'email' ? t('jobs.apply.email') : t('jobs.apply.nm7')}</button>
+          <button type="button" className="btn btn-ink" data-testid="apply" disabled={!!busy || asking} onClick={() => go()}>{job.apply.method === 'email' ? t('jobs.apply.email') : t('jobs.apply.nm7')}</button>
         )}
         <button type="button" className="btn btn-outline" disabled={!!busy} onClick={fit} data-testid="make-fit">{busy === 'fit' ? t('jobs.loading') : t('jobs.apply.fit')}</button>
       </div>
+      {asking && !applied && <ApplyQuestions job={job} t={t} busy={busy === 'apply'} onSend={go} onCancel={() => setAsking(false)} />}
       <span className="xs muted">{t('jobs.apply.fitHint')}</span>
       {applied && <Link className="xs" to="/me/jobs">{t('jobs.apply.track')}</Link>}
       {mail && (
@@ -293,6 +297,53 @@ function ApplyBox({ job, t, onApplied }) {
       )}
       {err && <p role="alert" className="xs" style={{ color: 'var(--danger)', margin: 0 }}>{err}</p>}
     </div>
+  );
+}
+
+/** Company jobs on Nm7: the screening questions (never the company's rules) and the consent box, before applying. */
+function ApplyQuestions({ job, t, busy, onSend, onCancel }) {
+  const [answers, setAnswers] = useState({});
+  const [consent, setConsent] = useState(false);
+  const [err, setErr] = useState('');
+  const set = (id, v) => setAnswers((a) => ({ ...a, [id]: v }));
+  const send = (e) => {
+    e.preventDefault();
+    if (job.questions.some((q) => answers[q.id] == null || String(answers[q.id]).trim() === '')) { setErr(t('jobs.apply.qMissing')); return; }
+    if (!consent) { setErr(t('jobs.apply.consentNeeded', { company: job.company.name })); return; }
+    setErr('');
+    onSend({ consent: true, answers: Object.fromEntries(job.questions.map((q) => [q.id, q.kind === 'number' ? Number(answers[q.id]) : answers[q.id]])) });
+  };
+  return (
+    <form className="card-sm stack g12" onSubmit={send} data-testid="apply-form" aria-labelledby="apply-form-h">
+      <strong id="apply-form-h">{t('jobs.apply.formTitle', { company: job.company.name })}</strong>
+      {job.questions.map((q) => (
+        <fieldset key={q.id} className="stack g4" style={{ border: 0, margin: 0, padding: 0 }}>
+          {q.kind === 'number' ? (
+            <div className="field"><label className="label" htmlFor={`aq-${q.id}`}>{q.text}</label>
+              <input id={`aq-${q.id}`} className="input" inputMode="numeric" maxLength={6} value={answers[q.id] ?? ''} onChange={(e) => set(q.id, e.target.value.replace(/[^\d]/g, ''))} /></div>
+          ) : (
+            <>
+              <legend className="label">{q.text}</legend>
+              <div className="row g12" style={{ flexWrap: 'wrap' }}>
+                {(q.kind === 'yesno' ? [['yes', t('jobs.apply.yes')], ['no', t('jobs.apply.no')]] : q.options.map((o) => [o, o])).map(([v, l]) => (
+                  <label key={v} className="row g4 small"><input type="radio" name={`aq-${q.id}`} value={v} checked={answers[q.id] === v} onChange={() => set(q.id, v)} /> {l}</label>
+                ))}
+              </div>
+            </>
+          )}
+        </fieldset>
+      ))}
+      <label className="row g8 small" style={{ alignItems: 'flex-start', flexWrap: 'nowrap' }}>
+        <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} style={{ marginTop: 3 }} data-testid="apply-consent" />
+        <span>{t('jobs.apply.consent', { company: job.company.name })}</span>
+      </label>
+      <span className="xs muted">{t('jobs.apply.consentMore')} <Link to="/grievance">{t('jobs.apply.yourData')}</Link></span>
+      {err && <p role="alert" className="xs" style={{ color: 'var(--danger)', margin: 0 }}>{err}</p>}
+      <div className="row g8">
+        <button type="submit" className="btn btn-ink" disabled={busy} data-testid="apply-send">{busy ? t('jobs.loading') : t('jobs.apply.send')}</button>
+        <button type="button" className="btn btn-outline" onClick={onCancel}>{t('jobs.report.cancel')}</button>
+      </div>
+    </form>
   );
 }
 
