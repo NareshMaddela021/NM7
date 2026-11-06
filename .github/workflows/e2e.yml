@@ -30,7 +30,7 @@ jobs:
     env:
       TEST_MONGODB_URI: mongodb://localhost:27017/?directConnection=true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # the nightly run tests the production branch (schedules start from the default branch)
           ref: ${{ github.event_name == 'schedule' && 'claude/fervent-albattani-wqmaoq' || '' }}
