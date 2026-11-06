@@ -22,6 +22,9 @@ const Scan = lazy(() => import('./pages/Scan'));
 const blog = () => import('./pages/blog/Blog');
 const BlogList = named(blog, 'BlogList');
 const BlogPost = named(blog, 'BlogPost');
+const jobBoard = () => import('./pages/jobs/Jobs');
+const JobsList = named(jobBoard, 'JobsList');
+const JobPage = named(jobBoard, 'JobPage');
 // The download pop-ups (and the account code they need) load only when a download is blocked.
 const DownloadGate = lazy(() => import('./components/DownloadGate'));
 function DownloadGateHost() {
@@ -346,6 +349,8 @@ export default function App() {
         <Route path="/builder" element={<Builder />} />
         <Route path="/templates" element={<Templates />} />
         <Route path="/linkedin" element={<LinkedInPage />} />
+        <Route path="/jobs" element={<JobsList />} />
+        <Route path="/jobs/:slug" element={<JobPage />} />
         <Route path="/expert" element={E(<ExpertHome />)} />
         <Route path="/expert/orders" element={E(<ExpertOrders />)} />
         <Route path="/expert/orders/:id" element={E(<OrderWorkspace />)} />

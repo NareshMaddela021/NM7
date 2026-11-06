@@ -1407,3 +1407,20 @@ HEAD (or a GET without reading the page), with a 10-second timeout, at most one 
 jobs a pass. 404 / 410 / 5xx / no answer is a failure; 401 / 403 / 429 is no verdict. Two failures in a row close the
 job with the reason, and the admin can reopen it from Expired links. Jobs past their closing date are closed in the
 same pass. Code: `backend/app/jobs/linkcheck.py`.
+
+**Public job pages (J3).** `nm7.si/jobs` lists open jobs, newest first, 20 at a time with "Show more":
+- search by role, skill or company;
+- filters: experience, city or remote, job type, work type, salary per year, posted in the last 6 hours / 24 hours /
+  7 days. The filters are in the URL, so a filtered list can be shared;
+- Save (signed in; the list is at `/jobs?saved=1`) and, on each job page, Share on WhatsApp.
+
+`nm7.si/jobs/<slug>` shows the whole job, "posted 2 days ago" and the apply button. While the job is open the page
+carries Google JobPosting data (`frontend/src/lib/jobBoard.js`): title, description, datePosted, validThrough when
+there is a closing date, employmentType, hiringOrganization, each city (or TELECOMMUTE with India for remote jobs),
+and baseSalary in INR when known. A closed job says "Closed", drops the JobPosting data, is marked noindex and shows
+similar open jobs. Demo jobs never appear on these pages. An email-apply address is not public.
+
+Search engines find open jobs through `nm7.si/sitemap-jobs.xml` (listed in robots.txt). Vercel forwards it to the
+API's `/api/jobs/sitemap.xml`, so it is always current. The pages are in English, Telugu and Hindi
+(`pages.json`, keys `jobs.*`). Company logos are not shown, because the site's CSP only allows images from known hosts;
+a letter stands in. Code: `backend/app/jobs/public.py`, `frontend/src/pages/jobs/Jobs.jsx`.
