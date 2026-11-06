@@ -27,12 +27,15 @@ export function settingsErrors(f) {
     const lim = { basicJobsPerWeek: [0, 50], verifiedLiveJobs: [0, 500], verifiedMonths: [1, 36], ipBurst: [2, 50], noReplyDays: [7, 60], applicantMonths: [1, 12] };
     if (Object.entries(lim).some(([k, [lo, hi]]) => !/^\d+$/.test(String(f.companies[k] ?? '').trim()) || Number(f.companies[k]) < lo || Number(f.companies[k]) > hi)) out.companies = 'Company limits must be whole numbers in range';
   }
+  if (f.simple?.weights && weightTotal(f) !== 100) out.weights = 'The readiness points must add up to 100';
   if (f.referral) {
     const n = String(f.referral.text ?? '').trim();
     if (!/^\d+$/.test(n) || Number(n) < 1 || Number(n) > 20) out.referral = 'Enter 1–20 friends';
   }
   return out;
 }
+const weightTotal = (f) => Object.values(f.simple.weights).reduce((a, v) => a + (/^\d+$/.test(String(v).trim()) ? Number(v) : NaN), 0);
+
 export function LiveSettings() {
   const toast = useToast();
   const st = useApi('/api/admin/settings');
@@ -42,7 +45,7 @@ export function LiveSettings() {
   // the form keeps what was typed (text), so a bad value can be explained instead of silently becoming 0
   const toForm = (d) => {
     const g = (o) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, { ...v, text: String(Math.round(v.amount / 100)) }]));
-    return { ...d, plans: g(d.plans), addons: g(d.addons), hoursText: String(d.deliveryHours), referral: { ...(d.referral || { on: true, needed: 3 }), text: String(d.referral?.needed ?? 3) }, dailySummary: d.dailySummary || { on: true }, simple: d.simple || { on: true, defaultTeHi: 'simple', defaultOther: 'full' }, jobChecks: { blocked: (d.jobChecks?.blocked || []).join('\n'), scam: (d.jobChecks?.scam || []).join('\n') }, companies: Object.fromEntries(Object.entries({ noReplyDays: 14, applicantMonths: 12, ...(d.companies || { basicJobsPerWeek: 1, verifiedLiveJobs: 3, verifiedMonths: 12, ipBurst: 3 }) }).map(([k, v]) => [k, String(v)])) };
+    return { ...d, plans: g(d.plans), addons: g(d.addons), hoursText: String(d.deliveryHours), referral: { ...(d.referral || { on: true, needed: 3 }), text: String(d.referral?.needed ?? 3) }, dailySummary: d.dailySummary || { on: true }, simple: { on: true, defaultTeHi: 'simple', defaultOther: 'full', ...(d.simple || {}), weights: Object.fromEntries(Object.entries(d.simple?.weights || { resume: 20, score: 25, linkedin: 10, interview: 15, skills: 20, certs: 10 }).map(([k, v]) => [k, String(v)])) }, jobChecks: { blocked: (d.jobChecks?.blocked || []).join('\n'), scam: (d.jobChecks?.scam || []).join('\n') }, companies: Object.fromEntries(Object.entries({ noReplyDays: 14, applicantMonths: 12, ...(d.companies || { basicJobsPerWeek: 1, verifiedLiveJobs: 3, verifiedMonths: 12, ipBurst: 3 }) }).map(([k, v]) => [k, String(v)])) };
   };
   useEffect(() => { if (st.data) setF(toForm(st.data)); }, [st.data]);
   const errs = f ? settingsErrors(f) : {};
@@ -65,7 +68,7 @@ export function LiveSettings() {
   };
   const save = () => run(async () => {
     const pick = (g) => Object.fromEntries(Object.entries(f[g]).map(([k, v]) => [k, { amount: Number(v.text) * 100, active: v.active }]));
-    const r = await http('/api/admin/settings', { method: 'PUT', body: { plans: pick('plans'), addons: pick('addons'), deliveryHours: Number(f.hoursText), referral: { on: f.referral.on, needed: Number(f.referral.text) }, dailySummary: f.dailySummary, simple: f.simple, companies: Object.fromEntries(Object.entries(f.companies).map(([k, v]) => [k, Number(v)])), jobChecks: { blocked: f.jobChecks.blocked.split('\n').map((x) => x.trim()).filter(Boolean), scam: f.jobChecks.scam.split('\n').map((x) => x.trim()).filter(Boolean) } } });
+    const r = await http('/api/admin/settings', { method: 'PUT', body: { plans: pick('plans'), addons: pick('addons'), deliveryHours: Number(f.hoursText), referral: { on: f.referral.on, needed: Number(f.referral.text) }, dailySummary: f.dailySummary, simple: { ...f.simple, weights: Object.fromEntries(Object.entries(f.simple.weights).map(([k, v]) => [k, Number(v)])) }, companies: Object.fromEntries(Object.entries(f.companies).map(([k, v]) => [k, Number(v)])), jobChecks: { blocked: f.jobChecks.blocked.split('\n').map((x) => x.trim()).filter(Boolean), scam: f.jobChecks.scam.split('\n').map((x) => x.trim()).filter(Boolean) } } });
     setF(toForm(r)); st.reload();
   }, 'Saved — new orders use these prices');
   return (
@@ -103,6 +106,12 @@ export function LiveSettings() {
                   <option value="simple">Simple</option><option value="full">Full</option>
                 </select></label>
             ))}
+            <span className="small">Job readiness score: points for each part (they must add up to 100; now {Number.isNaN(weightTotal(f)) ? "—" : weightTotal(f)})</span>
+            {[['resume', 'Resume complete'], ['score', 'Resume score'], ['linkedin', 'LinkedIn link'], ['interview', 'Interview practice'], ['skills', 'Skills for the chosen jobs'], ['certs', 'Certificates']].map(([k, label]) => (
+              <label key={k} className="row g8 small">{label} <input className="input" type="number" inputMode="numeric" min={0} max={100} step={1} style={{ height: 38, width: 80 }} value={f.simple.weights[k]} data-testid={`ready-w-${k}`}
+                aria-invalid={errs.weights ? 'true' : undefined} aria-describedby={errs.weights ? 'rw-err' : undefined} onChange={(e) => setF({ ...f, simple: { ...f.simple, weights: { ...f.simple.weights, [k]: e.target.value } } })} /></label>
+            ))}
+            {errs.weights && <span id="rw-err" className="error">{errs.weights}</span>}
           </section>
           <section className="card stack g12" aria-label="Company limits" data-testid="company-limits">
             <strong>Company limits</strong>

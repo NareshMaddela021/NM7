@@ -122,6 +122,9 @@ async def home(db: DB, auth: CustomerAuth, hint: str | None = None) -> dict[str,
         for state in ("needs_answer", "ready")
     }
     aa = u.get("auto_apply") or {}
+    from app.simple.readiness import readiness  # (it reads this module's rules)
+
+    ready = await readiness(db, uid, site)
     return {
         "on": bool(site["simple"]["on"]),
         "lang": prefs.get("lang"),
@@ -137,6 +140,7 @@ async def home(db: DB, auth: CustomerAuth, hint: str | None = None) -> dict[str,
             bool(site["auto_apply"]["on"]),
         ),
         "counts": {"needs": counts["needs_answer"], "ready": counts["ready"], "autoOn": bool(aa.get("on"))},
+        "readiness": {"score": ready["score"], "left": ready["left"]},
     }
 
 

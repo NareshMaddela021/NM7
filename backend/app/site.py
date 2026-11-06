@@ -57,6 +57,8 @@ SIMPLE = {
     "on": True,  # the Easy dashboard (Phase 4) for everyone; off = everyone gets the full dashboard
     "default_te_hi": "simple",  # the dashboard for people who picked Telugu or Hindi and haven't chosen one
     "default_other": "full",  # … and for everyone else
+    # job readiness score (E5): points per part, adding up to 100 (app/simple/readiness.py)
+    "weights": {"resume": 20, "score": 25, "linkedin": 10, "interview": 15, "skills": 20, "certs": 10},
 }
 
 
@@ -82,7 +84,7 @@ def defaults() -> dict[str, Any]:
         # Auto Apply (Phase 3): the off switch and every default (Admin → Auto Apply)
         "auto_apply": dict(AUTO_APPLY),
         # the Easy dashboard (Phase 4): on / off and which dashboard people get before they choose (Admin → Settings)
-        "simple": dict(SIMPLE),
+        "simple": {**SIMPLE, "weights": dict(SIMPLE["weights"])},
     }
 
 
