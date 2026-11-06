@@ -92,6 +92,7 @@ const MeAts = lazy(() => import('./pages/me/MeAts'));
 const MeInterview = lazy(() => import('./pages/me/MeInterview'));
 const MeCovers = lazy(() => import('./pages/me/MeCovers'));
 const MeJobs = lazy(() => import('./pages/me/MeJobs'));
+const AutoApply = lazy(() => import('./pages/me/AutoApply'));
 const meShare = () => import('./pages/me/MeShare');
 const MeShare = named(meShare, 'default');
 const RecruiterPortal = lazy(() => import('./pages/recruit/RecruiterPortal')); // /recruiter/<token>: college recruiter invites
@@ -423,6 +424,7 @@ export default function App() {
           <Route path="interview/:id" element={<MeInterview />} />
           <Route path="covers" element={<MeCovers />} />
           <Route path="jobs" element={<MeJobs />} />
+          <Route path="auto-apply" element={<AutoApply />} />
           <Route path="share" element={<MeShare />} />
           <Route path="groups" element={<MeGroups />} />
           <Route path="launch" element={<MeLaunch />} />

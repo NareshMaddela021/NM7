@@ -114,3 +114,30 @@ def mock_claude(monkeypatch, *modules):
     for m in modules:
         monkeypatch.setattr(m, "HTTP_CLIENT", transport)
     return A
+
+
+def strong_resume(**patch):
+    """A resume that passes every ATS check (score 100): what Auto Apply needs to start (Phase 3)."""
+    return resume(
+        links={"linkedin": "linkedin.com/in/sai-varsha"},
+        summary="Data Analyst Intern at Northwind Retail, skilled in Python, SQL and Statistics. Built Power BI "
+        "dashboards used by 12 store managers and cleaned weekly sales files, cutting report time by 30%.",
+        exp=[
+            {
+                "company": "Northwind Retail",
+                "role": "Data Analyst Intern",
+                "employmentType": "Internship",
+                "from": "2025-01",
+                "to": "2025-07",
+                "current": False,
+                "description": "Built 6 Power BI dashboards for 12 store managers\nAutomated weekly CSV cleaning in "
+                "Python, saving 4 hours a week\nAnalyzed 2 years of sales data in SQL to find 3 slow-moving product "
+                "lines",
+            }
+        ],
+        skillGroups=[
+            {"id": "core", "label": "Core", "value": "Python, SQL, Statistics, Pandas, Data Cleaning"},
+            {"id": "tools", "label": "Tools", "value": "Power BI, Excel, Git, Tableau, Jupyter"},
+        ],
+        **patch,
+    )

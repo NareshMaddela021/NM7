@@ -1,7 +1,8 @@
 // Application tracker: Saved → Applied → Viewed (Nm7 jobs) → Shortlisted → Interview → Offer / Rejected, with
 // follow-up reminders and simple stats. Applications sent on Nm7 move when the company moves them; the rest you move.
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useLang } from '../../lib/i18n';
 import { Dialog, useToast } from '../../components/ui';
 import { useMe, setMe, newId, APP_STAGES, openInBuilder, reloadMe } from '../../lib/customerStore';
 import { http } from '../../services/http';
@@ -51,6 +52,7 @@ function AppForm({ app, resumes, onSave, onDelete, onClose }) {
 
 export default function MeJobs() {
   const me = useMe();
+  const [t] = useLang();
   const toast = useToast();
   const nav = useNavigate();
   const [edit, setEdit] = useState(null);
@@ -66,7 +68,7 @@ export default function MeJobs() {
 
   return (
     <>
-      <MeHead title="Applications" sub="Track every job you apply to and which resume you sent. Job matches you save land here with their score." right={<button type="button" className="btn btn-ink" onClick={() => setEdit({})}>Add application</button>} />
+      <MeHead title="Applications" sub="Track every job you apply to and which resume you sent. Job matches you save land here with their score." right={<span className="row g8"><Link to="/me/auto-apply" className="btn btn-outline" data-testid="jobs-auto-apply">{t('aa.link')}</Link><button type="button" className="btn btn-ink" onClick={() => setEdit({})}>Add application</button></span>} />
       <div className="kpis">
         <Kpi label="Applied" value={sent.length} sub="excluding saved" />
         <Kpi label="Interview rate" value={sent.length ? `${Math.round((iv / sent.length) * 100)}%` : '—'} sub={`${iv} reached interview or offer`} />
