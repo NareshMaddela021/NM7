@@ -5,15 +5,17 @@
 // own small chunk: nothing from the full dashboard is loaded here.
 //   /me/simple            Your next step + 4 tiles + More (the language is asked first, once)
 //   /me/simple/language   English / తెలుగు / हिंदी, each with a speaker button
-//   /me/simple/more       everything else: links to the full dashboard's pages
-import { useState } from 'react';
+//   /me/simple/more       everything else: links to the full dashboard's pages, "Read screens aloud automatically"
+// 🔊 at the top reads each screen's main words (voice.jsx); each card has its own 🔊.
+import { useEffect, useState } from 'react';
 import { Link, Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { useLang } from '../../lib/i18n';
 import { readAloud } from '../../lib/readAloud';
 import { savePrefs, useSimple } from '../../lib/simple';
+import { SayButton, useAutoRead } from './voice';
 import '../../styles/simple.css';
 
-export const LANG_NAMES = [['en', 'English', 'en-IN'], ['te', 'తెలుగు', 'te-IN'], ['hi', 'हिंदी', 'hi-IN']];
+export const LANG_NAMES = [['en', 'English', 'en-IN', 'English'], ['te', 'తెలుగు', 'te-IN', 'Telugu'], ['hi', 'हिंदी', 'hi-IN', 'Hindi']];
 export const NEXT_ICONS = { resume: '📝', education: '🎓', skills: '🛠️', projects: '💡', fix_score: '📈', auto_apply: '🤖', answer: '💬', jobs: '💼' };
 export const TILES = [['resume', '📄', '/builder'], ['jobs', '💼', '/jobs'], ['apps', '📋', '/me/jobs'], ['practice', '🎤', '/me/ats']];
 export const MORE = [
@@ -22,8 +24,11 @@ export const MORE = [
   ['share', '🔗', '/me/share'], ['groups', '🏫', '/me/groups'], ['payments', '₹', '/me/payments'], ['settings', '⚙️', '/me/settings'], ['help', '❓', '/me/help'],
 ];
 
-/** The bar at the top of every simple screen: Nm7 home, the language, Simple / Full. */
-function Top({ t, lang }) {
+/** What a screen reads aloud: set once per change of words. */
+const useSay = (setSay, items) => { const k = JSON.stringify(items); useEffect(() => { setSay(items); }, [k]); }; // eslint-disable-line react-hooks/exhaustive-deps
+
+/** The bar at the top of every simple screen: Nm7 home, read this screen, the language, Simple / Full. */
+function Top({ t, lang, say }) {
   const nav = useNavigate();
   const [busy, setBusy] = useState(false);
   const full = async () => {
@@ -35,6 +40,7 @@ function Top({ t, lang }) {
     <header className="sx-top">
       <Link to="/me/simple" className="sx-logo" aria-label={t('simple.home')}>Nm7</Link>
       <span className="sx-top-r">
+        <SayButton items={say} t={t} lang={lang} label={t('simple.voice.readScreen')} testid="sx-read-screen" />
         <Link to="/me/simple/language" className="sx-chip" data-testid="sx-lang"><span aria-hidden="true">🌐</span>{LANG_NAMES.find(([c]) => c === lang)?.[1] || 'English'}</Link>
         <span className="sx-seg" role="group" aria-label={t('simple.mode.label')}>
           <button type="button" aria-pressed="true">{t('simple.mode.simple')}</button>
@@ -45,10 +51,10 @@ function Top({ t, lang }) {
   );
 }
 
-function Frame({ t, lang, offline, children }) {
+function Frame({ t, lang, offline, say, children }) {
   return (
     <div className="sx" lang={lang}>
-      <Top t={t} lang={lang} />
+      <Top t={t} lang={lang} say={say} />
       {offline && <div className="sx-offline" role="status" data-testid="sx-offline"><span aria-hidden="true">📶</span>{t('simple.offline')}</div>}
       <main id="main" className="sx-main" tabIndex={-1}>{children}</main>
     </div>
@@ -63,21 +69,28 @@ export function Big({ to, icon, label, ink, testid, onClick }) {
     : <Link to={to} className={`sx-big${ink ? ' sx-ink' : ''}`} data-testid={testid}>{body}</Link>;
 }
 
-function Languages({ t, onPicked }) {
+function Languages({ t, onPicked, setSay }) {
+  useSay(setSay, [['simple.lang.title']]);
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
   const pick = async (code) => {
     setBusy(true);
     try { onPicked(await savePrefs({ lang: code })); } catch (e) { setNote(e.message); } finally { setBusy(false); }
   };
-  const hear = async (name, voice) => { setNote(''); const r = await readAloud(name, voice); if (!r.ok) setNote(t('simple.voice.none')); };
+  const hear = async (name, voice, english) => { // its own voice, else its English name in an English voice
+    setNote('');
+    const r = await readAloud(name, voice);
+    if (r.ok) return;
+    const e = r.reason === 'no_voice' ? await readAloud(english, 'en-IN') : r;
+    setNote(e.ok ? t('simple.voice.english') : t('simple.voice.none'));
+  };
   return (
     <section className="sx-stack" aria-labelledby="sx-lang-h">
       <h1 id="sx-lang-h" className="sx-h1"><span aria-hidden="true">🌐 </span>{t('simple.lang.title')}</h1>
-      {LANG_NAMES.map(([code, name, voice]) => (
+      {LANG_NAMES.map(([code, name, voice, english]) => (
         <div key={code} className="sx-langrow">
           <button type="button" className="sx-big sx-lang" lang={code} disabled={busy} onClick={() => pick(code)} data-testid={`sx-pick-${code}`}>{name}</button>
-          <button type="button" className="sx-say" aria-label={t('simple.lang.hear', { name })} onClick={() => hear(name, voice)} data-testid={`sx-hear-${code}`}><span aria-hidden="true">🔊</span></button>
+          <button type="button" className="sx-say" aria-label={t('simple.lang.hear', { name })} onClick={() => hear(name, voice, english)} data-testid={`sx-hear-${code}`}><span aria-hidden="true">🔊</span></button>
         </div>
       ))}
       {note && <p className="sx-note" role="status">{note}</p>}
@@ -85,14 +98,16 @@ function Languages({ t, onPicked }) {
   );
 }
 
-function Home({ t, d }) {
+function Home({ t, lang, d, setSay }) {
   const n = d.next || { key: 'jobs', path: '/me/jobs' };
   const vars = { count: n.count ?? '', score: n.score ?? '', need: n.need ?? '' };
+  const card = [['simple.nextLabel'], [`simple.next.${n.key}.title`, vars], [`simple.next.${n.key}.text`, vars], [`simple.next.${n.key}.cta`, vars]];
+  useSay(setSay, [d.name ? ['simple.hi', { name: d.name }] : ['simple.hiNoName'], ...card]);
   return (
     <>
       <h1 className="sx-h1">{d.name ? t('simple.hi', { name: d.name }) : t('simple.hiNoName')}</h1>
       <section className="sx-next" aria-labelledby="sx-next-h" data-testid="sx-next" data-key={n.key}>
-        <span className="sx-label">{t('simple.nextLabel')}</span>
+        <span className="sx-cardtop"><span className="sx-label">{t('simple.nextLabel')}</span><SayButton items={card} t={t} lang={lang} label={t('simple.voice.readCard')} testid="sx-next-say" /></span>
         <h2 id="sx-next-h" className="sx-h2"><span aria-hidden="true">{NEXT_ICONS[n.key]} </span>{t(`simple.next.${n.key}.title`, vars)}</h2>
         <p className="sx-p">{t(`simple.next.${n.key}.text`, vars)}</p>
         <Big to={n.path} icon="➜" label={t(`simple.next.${n.key}.cta`, vars)} ink testid="sx-next-go" />
@@ -105,7 +120,13 @@ function Home({ t, d }) {
   );
 }
 
-function More({ t }) {
+function More({ t, d, setData, setSay }) {
+  useSay(setSay, [['simple.more.title'], ['simple.more.sub']]);
+  const [busy, setBusy] = useState(false);
+  const auto = async () => {
+    setBusy(true);
+    try { setData(await savePrefs({ autoRead: !d.autoRead })); } catch { /* stays as it was */ } finally { setBusy(false); }
+  };
   return (
     <section className="sx-stack" aria-labelledby="sx-more-h">
       <h1 id="sx-more-h" className="sx-h1">{t('simple.more.title')}</h1>
@@ -113,6 +134,9 @@ function More({ t }) {
       <ul className="sx-list">
         {MORE.map(([k, icon, to]) => <li key={k}><Big to={to} icon={icon} label={t(`simple.more.${k}`)} testid={`sx-more-${k}`} /></li>)}
       </ul>
+      <button type="button" className="sx-big sx-switch" role="switch" aria-checked={!!d.autoRead} disabled={busy} onClick={auto} data-testid="sx-autoread">
+        <span className="sx-ic" aria-hidden="true">🔊</span><span>{t('simple.voice.auto')}</span><span className="sx-onoff" aria-hidden="true">{d.autoRead ? t('simple.voice.on') : t('simple.voice.off')}</span>
+      </button>
       <Big to="/me" icon="🗂️" label={t('simple.more.full')} testid="sx-more-full" />
       <Big to="/me/simple" icon="←" label={t('simple.back')} />
     </section>
@@ -123,6 +147,8 @@ export default function SimpleApp() {
   const [t, lang] = useLang();
   const { data, offline, error, reload, setData } = useSimple();
   const nav = useNavigate();
+  const [say, setSay] = useState([]);
+  useAutoRead(!!data?.autoRead, say, lang);
   let body;
   if (!data && error) {
     body = <div className="sx-stack" role="alert"><p className="sx-p">{t('simple.error')}</p><Big icon="↻" label={t('simple.retry')} onClick={reload} /></div>;
@@ -134,12 +160,12 @@ export default function SimpleApp() {
     const picked = (d) => { setData(d); nav('/me/simple', { replace: true }); };
     body = (
       <Routes>
-        <Route index element={data.lang ? <Home t={t} d={data} /> : <Languages t={t} onPicked={setData} />} />
-        <Route path="language" element={<Languages t={t} onPicked={picked} />} />
-        <Route path="more" element={<More t={t} />} />
+        <Route index element={data.lang ? <Home t={t} lang={lang} d={data} setSay={setSay} /> : <Languages t={t} onPicked={setData} setSay={setSay} />} />
+        <Route path="language" element={<Languages t={t} onPicked={picked} setSay={setSay} />} />
+        <Route path="more" element={<More t={t} d={data} setData={setData} setSay={setSay} />} />
         <Route path="*" element={<Navigate to="/me/simple" replace />} />
       </Routes>
     );
   }
-  return <Frame t={t} lang={lang} offline={offline}>{body}</Frame>;
+  return <Frame t={t} lang={lang} offline={offline} say={say}>{body}</Frame>;
 }
