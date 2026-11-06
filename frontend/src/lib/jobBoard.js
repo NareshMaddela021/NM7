@@ -192,3 +192,19 @@ export function useSaved() {
   useSyncExternalStore((f) => { subs.add(f); return () => subs.delete(f); }, () => savedVersion, () => 0);
   return { has: (id) => !!saved?.has(id), count: saved ? saved.size : 0, loaded: !!saved };
 }
+
+/* ---------- the match score (J4) ---------- */
+
+/** A match → { good: ["Matches 4 of 5 skills", "Fresher OK", "In Hyderabad"], gaps: ["Asks for 3+ years"] }. */
+export function matchReasons(m, t) {
+  const good = []; const gaps = [];
+  if (!m) return { good, gaps };
+  const total = (m.found?.length || 0) + (m.missing?.length || 0);
+  if (total) (m.found.length ? good : gaps).push(t('jobs.match.skills', { found: m.found.length, total }));
+  if (m.experience === 'ok') good.push(t(`jobs.match.exp.${m.level}`));
+  else gaps.push(t('jobs.match.expGap', { level: t(`jobs.exp.${m.level}`) }));
+  if (m.place === 'remote') good.push(t('jobs.match.remote'));
+  else if (m.place === 'city') good.push(t('jobs.match.city', { city: m.city }));
+  else if (m.place === 'other') gaps.push(t('jobs.match.otherCity'));
+  return { good, gaps };
+}

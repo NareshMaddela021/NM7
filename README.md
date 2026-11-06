@@ -1424,3 +1424,15 @@ Search engines find open jobs through `nm7.si/sitemap-jobs.xml` (listed in robot
 API's `/api/jobs/sitemap.xml`, so it is always current. The pages are in English, Telugu and Hindi
 (`pages.json`, keys `jobs.*`). Company logos are not shown, because the site's CSP only allows images from known hosts;
 a letter stands in. Code: `backend/app/jobs/public.py`, `frontend/src/pages/jobs/Jobs.jsx`.
+
+**Match score (J4).** A signed-in person with a resume sees "N% match" on every job card and job page, with plain
+reasons, for example "Matches 4 of 5 skills · Fresher OK · In Hyderabad", plus the skills found on the resume and
+the ones missing. It is worked out by rules only, with no AI call per card (`backend/app/jobs/fit.py`):
+- skills 60: the job's skills found anywhere on the resume (dictionary names, else as written);
+- experience 25: fresher and internship jobs suit 0–3 years; 1–3 and 3+ need those years;
+- place 15: remote, or the job is in the resume's city (no city on the resume = half).
+
+It uses the person's active resume. Scores are cached per person and job in `job_fit`, keyed by the resume's and the
+job's last change, so they are worked out again when either changes, and they are removed with the account.
+"Best match" ranks the newest 300 jobs that pass the filters. Signed-out people are asked to sign in, and people
+without a resume are asked to add one. There is no "AI matches" count anywhere.
