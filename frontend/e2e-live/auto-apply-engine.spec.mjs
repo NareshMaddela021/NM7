@@ -24,7 +24,7 @@ for (const [label, opts] of SIZES) {
       await request.post(`${API}/api/company/signup/code`, { headers: NET, data: { email: mail, name: 'Ira' } });
       const r = await (await request.post(`${API}/api/company/signup/start`, { headers: NET, data: { email: mail, name: 'Ira', code: lastCode(mail), company } })).json();
       const H = { 'X-Recruiter-Account': r.session };
-      await request.post(`${API}/api/company/${r.company.id}/company-email/code`, { data: { email: `jobs@${site}` }, headers: H });
+      await request.post(`${API}/api/company/${r.company.id}/company-email/code`, { data: { email: `jobs@${site}` }, headers: { ...H, ...NET } });
       await request.post(`${API}/api/company/${r.company.id}/company-email/verify`, { data: { code: lastCode(`jobs@${site}`) }, headers: H });
       seed('company-verify', r.company.id);
       const post = async (title, extra = {}) => (await (await request.post(`${API}/api/company/${r.company.id}/jobs`, { headers: H, data: { job: { title, description: DESC, locations: ['Hyderabad'], experience: 'fresher', skills: ['SQL', 'Power BI'], ...extra } } })).json());

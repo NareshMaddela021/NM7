@@ -11,7 +11,7 @@ const BASE = '/api/me/auto-apply/items';
 function JobLine({ it, t }) {
   return (
     <span className="stack g4" style={{ minWidth: 0 }}>
-      <Link to={`/jobs/${it.job.slug}`} style={{ fontWeight: 700, overflowWrap: 'anywhere' }}>{it.job.title}</Link>
+      {it.demo ? <strong style={{ overflowWrap: 'anywhere' }}>{it.job.title}</strong> : <Link to={`/jobs/${it.job.slug}`} style={{ fontWeight: 700, overflowWrap: 'anywhere' }}>{it.job.title}</Link>}
       <span className="xs muted">{it.job.company}{it.score != null ? ` · ${t('jobs.match.pct', { n: it.score })}` : ''}</span>
     </span>
   );

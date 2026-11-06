@@ -18,6 +18,8 @@ from app.admin.router import router as admin_router
 from app.admin.setup import router as admin_setup_router
 from app.auth.admin_router import router as admin_auth_router
 from app.auth.router import router as auth_router
+from app.autoapply import admin as auto_admin
+from app.autoapply import demo as auto_demo
 from app.autoapply import items as auto_items
 from app.autoapply import settings as auto_settings
 from app.autoapply import summary as auto_summary
@@ -235,6 +237,10 @@ def create_app() -> FastAPI:
     app.include_router(auto_items.router)  # /api/me/auto-apply/items (A2, A3)
     app.include_router(auto_summary.router)  # /api/me/auto-apply/summary, /emails (A6)
     app.include_router(auto_summary.public)  # /api/public/auto-apply/stop-emails
+    app.include_router(auto_admin.router)  # /api/admin/auto-apply (A7)
+    app.include_router(auto_admin.company)  # /api/company/{id}/applicants/{app}/irrelevant
+    app.include_router(auto_demo.admin)  # /api/admin/auto-apply/demo
+    app.include_router(auto_demo.public)  # /api/public/demo-student
     app.include_router(jobs_alerts.public)  # /api/public/jobs/stop-alerts
     app.include_router(org_feedback.portal)  # /api/recruiter/{token}/feedback (R4)
     app.include_router(org_feedback.account)  # /api/recruiter-account/drives/{id}/feedback

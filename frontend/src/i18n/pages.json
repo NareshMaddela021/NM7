@@ -892,7 +892,10 @@
     "aa.sum.weekLine": "Applied {applied} · viewed {viewed} · shortlisted {shortlisted} · interviews {interviews}",
     "aa.sum.tipSkill": "Tip: {skill} was asked in {n} of the {of} jobs that matched you and isn't on your resume. If you know it, add it.",
     "aa.sum.tipAnswers": "Tip: {n} job(s) are waiting for your answer.",
-    "aa.sum.emails": "Email me a short summary on days something happens, and a weekly report"
+    "aa.sum.emails": "Email me a short summary on days something happens, and a weekly report",
+    "aa.co.irrelevant": "Not relevant",
+    "aa.co.relevant": "Undo “Not relevant”",
+    "aa.co.marked": "Marked not relevant. After repeated marks, Auto Apply stops sending this student’s applications to you."
   },
   "te": {
     "home.more.roles.eyebrow": "నిజమైనవిలా కనిపించే నమూనాలు · ఊహించిన వ్యక్తులు",
@@ -1786,7 +1789,10 @@
     "aa.sum.weekLine": "{applied} అప్లై · {viewed} చూశారు · {shortlisted} షార్ట్‌లిస్ట్ · {interviews} ఇంటర్వ్యూలు",
     "aa.sum.tipSkill": "సూచన: మీకు సరిపోయిన {of} ఉద్యోగాల్లో {n}లో {skill} అడిగారు, అది మీ రెజ్యూమ్‌లో లేదు. మీకు తెలిస్తే జోడించండి.",
     "aa.sum.tipAnswers": "సూచన: {n} ఉద్యోగాలు మీ జవాబు కోసం ఆగుతున్నాయి.",
-    "aa.sum.emails": "ఏదైనా జరిగిన రోజుల్లో చిన్న సారాంశం, వారానికోసారి నివేదిక ఈమెయిల్ చేయండి"
+    "aa.sum.emails": "ఏదైనా జరిగిన రోజుల్లో చిన్న సారాంశం, వారానికోసారి నివేదిక ఈమెయిల్ చేయండి",
+    "aa.co.irrelevant": "సంబంధం లేదు",
+    "aa.co.relevant": "“సంబంధం లేదు” వెనక్కి తీసుకోండి",
+    "aa.co.marked": "సంబంధం లేదని గుర్తించారు. మళ్లీ మళ్లీ గుర్తిస్తే, ఈ విద్యార్థి దరఖాస్తులను ఆటో అప్లై మీకు పంపడం ఆపుతుంది."
   },
   "hi": {
     "home.more.roles.eyebrow": "असली जैसे दिखने वाले नमूने · काल्पनिक लोग",
@@ -2680,6 +2686,9 @@
     "aa.sum.weekLine": "{applied} अप्लाई · {viewed} देखे गए · {shortlisted} शॉर्टलिस्ट · {interviews} इंटरव्यू",
     "aa.sum.tipSkill": "सुझाव: आपसे मेल खाती {of} नौकरियों में से {n} में {skill} माँगा गया और यह आपके रिज़्यूमे में नहीं है। अगर आप जानते हैं तो जोड़ें।",
     "aa.sum.tipAnswers": "सुझाव: {n} नौकरियाँ आपके जवाब का इंतज़ार कर रही हैं।",
-    "aa.sum.emails": "जिस दिन कुछ हो, उस दिन छोटा सारांश और हर हफ़्ते एक रिपोर्ट ईमेल करें"
+    "aa.sum.emails": "जिस दिन कुछ हो, उस दिन छोटा सारांश और हर हफ़्ते एक रिपोर्ट ईमेल करें",
+    "aa.co.irrelevant": "प्रासंगिक नहीं",
+    "aa.co.relevant": "“प्रासंगिक नहीं” वापस लें",
+    "aa.co.marked": "प्रासंगिक नहीं चिह्नित। बार-बार चिह्नित करने पर ऑटो अप्लाई इस छात्र के आवेदन आपको भेजना बंद कर देता है।"
   }
 }

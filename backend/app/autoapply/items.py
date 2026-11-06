@@ -60,6 +60,7 @@ def _out(it: dict[str, Any], j: dict[str, Any] | None, missing: set[str] | None 
         else None,
         "delivery": it.get("delivery"),
         "hasCopy": bool(it.get("copy_id")),
+        "demo": bool(it.get("demo")),
         "applyUrl": ((j or {}).get("apply") or {}).get("url", "") if it["state"] == "ready" else "",
         "at": ms(it.get("updated_at")),
     }

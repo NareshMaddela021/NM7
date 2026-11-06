@@ -87,7 +87,7 @@
       "destination": "/index.html"
     },
     {
-      "source": "/(scan|checkout|editor|login|signup|forgot-password|linkedin|stop-alerts|checkin|status|accessibility|grievance)",
+      "source": "/(scan|checkout|editor|login|signup|forgot-password|linkedin|stop-alerts|checkin|status|accessibility|grievance|demo-student)",
       "destination": "/index.html"
     },
     {
