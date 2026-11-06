@@ -27,7 +27,7 @@ jobs:
             echo "::warning::MONGODB_BACKUP_URI is not set; nothing was scanned."
             echo "skip=1" >> "$GITHUB_ENV"
           fi
-      - uses: astral-sh/setup-uv@v5
+      - uses: astral-sh/setup-uv@v7
         if: env.skip != '1'
         with:
           python-version: "3.12"
