@@ -9,6 +9,7 @@ from pymongo.asynchronous.database import AsyncDatabase
 from pymongo.errors import DuplicateKeyError
 
 from app.admin.daily import send_daily
+from app.autoapply.engine import run as auto_apply_run
 from app.billing.subscription import run_reminders
 from app.companies.admin import recheck_reminders as company_rechecks
 from app.companies.applicants import remove_old as company_applicants_removed
@@ -134,6 +135,7 @@ async def run_rules(db: AsyncDatabase, mailer: Mailer | None = None) -> dict[str
         done["no_reply_closed"] = await close_silent(db, mailer or get_mailer())  # Nm7 applications silent 14 days
         done["applicants_removed"] = await company_applicants_removed(db)  # 12 months on: out of the company's view
         done["company_rechecks"] = await company_rechecks(db, mailer or get_mailer())  # 30 days before Verified ends
+        done["auto_apply"] = (await auto_apply_run(db, mailer or get_mailer())).get("users", 0)  # from 07:00 IST
         done["job_alerts"] = await job_alerts(db, mailer or get_mailer())  # daily / weekly matches; ≤ 1 email a day
         done["job_followups"] = await job_followups(db, mailer or get_mailer())  # a week on; ≤ 1 email a day
         done["pass_reminders"] = await pass_reminders(db, mailer or get_mailer())  # 7 days before a pass ends

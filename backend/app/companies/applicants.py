@@ -71,6 +71,12 @@ async def _app(db, cid: str, app_id: str) -> dict[str, Any]:
 
 
 async def _resume_doc(db, a: dict[str, Any]) -> dict[str, Any] | None:
+    if a.get("copy_id"):  # Auto Apply: the tailored copy exactly as it was sent
+        from app.core.db import AUTO_COPIES
+
+        c = await db[AUTO_COPIES].find_one({"_id": a["copy_id"]})
+        if c:
+            return {"key": c["from_key"], "data": c["data"], "_id": c["_id"], "updated_at": c["created_at"]}
     q = {"user_id": a["user_id"]}
     if a.get("resume_id"):
         r = await db[RESUMES].find_one({**q, "key": a["resume_id"]})
@@ -98,6 +104,7 @@ def _row(a, job, user, r, pooled: bool) -> dict[str, Any]:
         "status": a.get("status"),
         "appliedAt": ms(a.get("created_at")),
         "resume": a.get("resume_name", ""),
+        "origin": a.get("origin") or "manual",  # Auto Apply or by hand: companies always see which
         "match": m
         and {k: m[k] for k in ("score", "found", "missing", "experience", "level", "years", "place", "city")},
         "fit": a.get("fit") or {"ok": True, "reasons": []},

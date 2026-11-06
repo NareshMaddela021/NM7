@@ -77,6 +77,7 @@ function Applicant({ t, c, a, rank, can, picked, canPick, onPick, open, onOpen, 
         </div>
         <div className="row g4" style={{ flexWrap: 'wrap', justifyContent: 'flex-end' }}>
           {a.match && <span className="badge b-signal" data-testid="co-ap-score">{t('jobs.match.pct', { n: a.match.score })}</span>}
+          <span className={`badge ${a.origin === 'auto' ? 'b-signal' : 'b-neutral'}`} data-testid="co-ap-origin" title={t(`aa.badge.${a.origin === 'auto' ? 'autoHint' : 'manualHint'}`)}>{t(`aa.badge.${a.origin === 'auto' ? 'auto' : 'manual'}`)}</span>
           <span className={`badge ${TONE[a.status] || 'b-neutral'}`} data-testid="co-ap-stage">{t(`jobs.app.${a.status}`)}</span>
         </div>
       </div>

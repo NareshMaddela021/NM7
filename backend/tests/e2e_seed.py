@@ -10,6 +10,8 @@ MONGODB_DB=nm7_e2e uv run python -m tests.e2e_seed reset
                                           without calling Razorpay (the browser tests run without Razorpay keys)
 ... company-verify COMPANY_ID              → {"ok": true} (as if an admin approved it: Verified for a year)
 ... job JSON [STATUS] [AGE_HOURS]       → {"id", "slug"} (a job-board job, as an admin would add it)
+... auto-apply-run [EMAIL [past]]      → the Auto Apply run now (any hour); with EMAIL and "past", that student's
+                                          preview days are over first
 ... job-alerts EMAIL                   → {"sent": [{to, subject, text}], "stop": token} (the alert pass for one person,
                                           its emails captured instead of sent, and their "Stop these emails" token)
 """
@@ -60,6 +62,16 @@ async def main(cmd: str, *args: str) -> dict:
         if sets:
             await db["jobs"].update_one({"_id": doc["_id"]}, {"$set": sets})
         return {"id": doc["_id"], "slug": doc["slug"]}
+    if cmd == "auto-apply-run":
+        from app.autoapply import engine
+
+        if len(args) >= 2 and args[1] == "past":
+            await db[USERS].update_one(
+                {"email_lc": args[0].lower()}, {"$set": {"auto_apply.started_at": now() - timedelta(days=10)}}
+            )
+        await db[USERS].update_many({}, {"$set": {"auto_apply.run_day": None}})
+        out = await engine.run(db, force=True, limit=1000)
+        return {k: v for k, v in out.items() if isinstance(v, (int, bool))}
     if cmd == "job-alerts":
         from app.jobs import alerts
 
