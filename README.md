@@ -1395,3 +1395,15 @@ Sending a job again updates it instead of adding a copy. Code: `backend/app/jobs
 
 Every change is in the audit log. The demo college comes with 30 jobs marked "(demo)": admin and tests only, never on
 the public job pages, and removed with the demo.
+
+**Job collector upload (J2).** `POST /api/jobs/ingest` with `Authorization: Bearer <JOB_INGEST_KEY>`. The owner sets
+the key in Render; it must be at least 32 characters, and the API answers 503 without it. The endpoint takes up to 500
+jobs a request, checks each one, and answers created / updated / skipped / rejected with reasons. Wrong keys and
+uploads are rate limited. The exact JSON shape and the Render steps are in
+[docs/job-ingest-api.md](docs/job-ingest-api.md).
+
+**Daily dead-link check.** The automation pass opens each active or paused job's apply link about once a day. It sends
+HEAD (or a GET without reading the page), with a 10-second timeout, at most one request a second per website and 60
+jobs a pass. 404 / 410 / 5xx / no answer is a failure; 401 / 403 / 429 is no verdict. Two failures in a row close the
+job with the reason, and the admin can reopen it from Expired links. Jobs past their closing date are closed in the
+same pass. Code: `backend/app/jobs/linkcheck.py`.
