@@ -1436,3 +1436,27 @@ It uses the person's active resume. Scores are cached per person and job in `job
 job's last change, so they are worked out again when either changes, and they are removed with the account.
 "Best match" ranks the newest 300 jobs that pass the filters. Signed-out people are asked to sign in, and people
 without a resume are asked to add one. There is no "AI matches" count anywhere.
+
+**Manual Apply and My applications (J5).** Applying is free, and how it works depends on the job's apply method
+(`backend/app/jobs/apply.py`, `POST /api/jobs/{id}/apply`):
+- **Apply on Nm7:** one tap. The application shows in Admin → Jobs → Applications.
+- **Company link:** the company's page opens in a new tab, and the application is saved as "Applied (outside Nm7)"
+  with the resume used.
+- **Email:** the answer gives the address (only to the signed-in person), a subject and a short letter. The page
+  offers the resume download and a filled-in email draft.
+
+"Make my resume fit" opens the existing job match for that job, which leads on to the tailored copy, cover letter
+and interview prep.
+
+My applications (`/me/jobs`) follows Applied → Viewed → Shortlisted → Interview → Offer / Rejected, and each
+job-board application keeps its steps with dates:
+- Viewed is only for Nm7 applications: opening the list in Admin marks new ones Viewed.
+- The admin moves Nm7 applications along, and the person can't change their status.
+- The person moves their outside applications themselves.
+
+On phones the board shows one stage under another.
+
+**Follow-up reminders.** Seven days after applying, while still Applied or Viewed, the application gets a
+"Follow up?" mark on My applications. The person also gets an email, sent at most once a day and listing every one
+that is due. It never goes to an unconfirmed or bounced address. People can stop these emails with the link in the
+email (`/stop-alerts#…&k=followups`) or with `PUT /api/me/job-followups`.

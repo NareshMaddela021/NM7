@@ -99,7 +99,8 @@ def cover_out(d: dict[str, Any]) -> CoverOut:
 
 
 def app_out(d: dict[str, Any]) -> ApplicationOut:
-    return ApplicationOut.model_validate({**d, "id": d["key"]})
+    steps = [{"status": s["status"], "at": ms(s["at"])} for s in d.get("timeline") or []]
+    return ApplicationOut.model_validate({**d, "id": d["key"], "timeline": steps})
 
 
 def ticket_out(d: dict[str, Any]) -> TicketOut:
@@ -349,6 +350,17 @@ async def add_application(body: ApplicationIn, auth: CustomerAuth, db: DB) -> Ap
 
 @router.patch("/applications/{key}")
 async def patch_application(key: str, body: ApplicationPatch, auth: CustomerAuth, db: DB) -> ApplicationOut:
+    old = await db[APPLICATIONS].find_one({"user_id": auth.user.id, "key": key})
+    if not old:
+        raise _not_found("application")
+    if body.status and body.status != old.get("status") and old.get("job_id"):
+        if old.get("channel") == "nm7":  # an application on Nm7 moves when the company / admin moves it
+            raise ApiError(409, "managed", "This application is updated by the company. You’ll see each step here.")
+        if body.status == "viewed":
+            raise ApiError(400, "bad_status", "“Viewed” is only for applications sent on Nm7.")
+        await db[APPLICATIONS].update_one(
+            {"_id": old["_id"]}, {"$push": {"timeline": {"status": body.status, "at": now()}}}
+        )
     return app_out(await _patch(db, APPLICATIONS, auth.user.id, key, body, "application"))
 
 

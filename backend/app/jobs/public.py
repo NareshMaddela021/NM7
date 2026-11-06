@@ -17,7 +17,7 @@ from fastapi import APIRouter, Query, Response
 
 from app.auth.deps import CustomerAuth, MaybeAuth
 from app.core.config import get_settings
-from app.core.db import DB, JOBS, SAVED_JOBS
+from app.core.db import APPLICATIONS, DB, JOBS, SAVED_JOBS
 from app.core.errors import ApiError
 from app.core.time import now
 from app.jobs import fit as fitmod
@@ -206,6 +206,11 @@ async def one(slug: str, db: DB, auth: MaybeAuth) -> dict[str, Any]:
     out["similar"] = await similar(db, j)
     state, person = await _person(db, auth)
     out["matchState"] = state
+    if auth and auth.user.role == "customer":  # already applied? (J5)
+        mine = await db[APPLICATIONS].find_one(
+            {"user_id": auth.user.id, "job_id": j["_id"]}, {"status": 1, "created_at": 1}
+        )
+        out["application"] = {"status": mine["status"], "at": ms(mine["created_at"])} if mine else None
     if person:
         out["match"] = (await fitmod.fits(db, auth.user.id, person, [j]))[j["_id"]]
     return out

@@ -26,6 +26,7 @@ from app.core.errors import ApiError
 from app.core.schemas import CamelModel
 from app.core.time import now
 from app.jobs import service
+from app.jobs.apply import status_change
 from app.jobs.model import APPLY, EXPERIENCE, JOB_TYPES, SOURCES, STATUSES, WORK_TYPES, JobIn, to_doc
 from app.me.service import ms
 
@@ -221,14 +222,41 @@ async def import_jobs(body: ImportIn, request: Request, db: DB, auth: AdminAuth(
 
 
 @router.get("/{job_id}/applications")
-async def job_applications(job_id: str, db: DB, _: AdminAuth("jobs")) -> list[dict[str, Any]]:
+async def job_applications(job_id: str, request: Request, db: DB, auth: AdminAuth("jobs")) -> list[dict[str, Any]]:
+    """Everyone who applied. Opening the list marks applications sent on Nm7 as Viewed (the person sees that)."""
     await _job(db, job_id)
     apps = await db[APPLICATIONS].find({"job_id": job_id}).sort("created_at", -1).to_list(500)
+    fresh = [a for a in apps if a.get("channel") == "nm7" and a.get("status") == "applied"]
+    for a in fresh:
+        await db[APPLICATIONS].update_one({"_id": a["_id"], "status": "applied"}, status_change(a, "viewed"))
+        a["status"] = "viewed"
+    if fresh:
+        await audit(db, auth.user.id, "job.applications_viewed", target=job_id, data={"n": len(fresh)}, ip=_ip(request))
     users = {u["_id"]: u async for u in db[USERS].find({"_id": {"$in": [a["user_id"] for a in apps]}},
                                                        {"name": 1, "email": 1})}  # fmt: skip
     return [
-        {"id": a.get("key"), "name": (users.get(a["user_id"]) or {}).get("name", ""),
+        {"user": a["user_id"], "id": a.get("key"), "name": (users.get(a["user_id"]) or {}).get("name", ""),
          "email": (users.get(a["user_id"]) or {}).get("email", ""), "status": a.get("status"),
-         "channel": a.get("channel", ""), "at": ms(a.get("created_at"))}
+         "channel": a.get("channel", ""), "resume": a.get("resume_name", ""), "at": ms(a.get("created_at"))}
         for a in apps
     ]  # fmt: skip
+
+
+class AppStatusIn(CamelModel):
+    status: Literal["viewed", "shortlisted", "interview", "offer", "rejected"]
+
+
+@router.post("/{job_id}/applications/{user_id}/status")
+async def set_application_status(
+    job_id: str, user_id: str, body: AppStatusIn, request: Request, db: DB, auth: AdminAuth("jobs")
+) -> dict[str, Any]:
+    """Moves an application sent on Nm7 along: Shortlisted → Interview → Offer / Rejected."""
+    a = await db[APPLICATIONS].find_one({"job_id": job_id, "user_id": user_id, "channel": "nm7"})
+    if not a:
+        raise ApiError(404, "not_found", "That application isn’t here.")
+    change = status_change(a, body.status)
+    if change:
+        await db[APPLICATIONS].update_one({"_id": a["_id"]}, change)
+        await audit(db, auth.user.id, "job.application_status", target=job_id,
+                    data={"user": user_id, "from": a.get("status"), "to": body.status}, ip=_ip(request))  # fmt: skip
+    return {"status": body.status}

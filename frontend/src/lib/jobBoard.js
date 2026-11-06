@@ -208,3 +208,11 @@ export function matchReasons(m, t) {
   else if (m.place === 'other') gaps.push(t('jobs.match.otherCity'));
   return { good, gaps };
 }
+
+/* ---------- Manual Apply (J5) ---------- */
+
+/** Applies (signed in). → { method, created, application, url? (link), email? {to, subject, body} } */
+export const applyToJob = (id, resumeId = null) => http(`/api/jobs/${encodeURIComponent(id)}/apply`, { method: 'POST', body: { resumeId } });
+
+/** The mailto: link for an email application (subject and letter filled in). */
+export const mailtoLink = ({ to, subject, body }) => `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;

@@ -188,13 +188,40 @@ function JobForm({ id, onClose, onSaved }) {
   );
 }
 
+const CHANNEL = { nm7: 'Applied on Nm7', link: 'Company link', email: 'By email' };
+const APP_STEPS = [['viewed', 'Viewed'], ['shortlisted', 'Shortlisted'], ['interview', 'Interview'], ['offer', 'Offer'], ['rejected', 'Rejected']];
+
+function AppRow({ job, a }) {
+  const toast = useToast();
+  const [status, setStatus] = useState(a.status);
+  const [busy, setBusy] = useState(false);
+  const move = async (v) => {
+    setBusy(true);
+    try { await http(`/api/admin/jobs/${job.id}/applications/${encodeURIComponent(a.user)}/status`, { method: 'POST', body: { status: v } }); setStatus(v); toast('Updated: the applicant sees it in My applications'); } catch (e) { toast(e.message); } finally { setBusy(false); }
+  };
+  return (
+    <li className="row g8 small" data-testid="admin-application" style={{ justifyContent: 'space-between' }}>
+      <span style={{ minWidth: 0, overflowWrap: 'anywhere' }}><strong>{a.name}</strong> · {a.email} · {CHANNEL[a.channel] || a.channel}{a.resume ? ` · resume “${a.resume}”` : ''} · {day(a.at)}</span>
+      {a.channel === 'nm7' ? (
+        <label className="row g4">
+          <span className="sr-only">Status for {a.name}</span>
+          <select className="input" style={{ height: 36 }} value={status} disabled={busy} onChange={(e) => move(e.target.value)}>
+            {APP_STEPS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+          </select>
+        </label>
+      ) : <span className="badge b-neutral">{status}</span>}
+    </li>
+  );
+}
+
 function Applications({ job, onClose }) {
   const st = useApi(`/api/admin/jobs/${job.id}/applications`);
   return (
     <Panel title={`Applications · ${job.title}`} onClose={onClose}>
-      <Loading st={st} empty={emptyIf((d) => !d.length, 'Nobody has applied through Nm7 yet.')}>{(rows) => (
-        <ul className="stack g6" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-          {rows.map((a) => <li key={a.id} className="small">{a.name} · {a.email} · {a.status}{a.channel ? ` · ${a.channel}` : ''} · {day(a.at)}</li>)}
+      <p className="small muted" style={{ margin: 0 }}>Opening this list marks new Nm7 applications as Viewed. Move each one along; the applicant sees every step.</p>
+      <Loading st={st} empty={emptyIf((d) => !d.length, 'Nobody has applied yet.')}>{(rows) => (
+        <ul className="stack g8" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+          {rows.map((a) => <AppRow key={a.user} job={job} a={a} />)}
         </ul>
       )}</Loading>
     </Panel>

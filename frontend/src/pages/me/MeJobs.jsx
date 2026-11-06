@@ -1,4 +1,5 @@
-// Application tracker: Saved → Applied → Interview → Offer → Rejected, with follow-up reminders and simple stats.
+// Application tracker: Saved → Applied → Viewed (Nm7 jobs) → Shortlisted → Interview → Offer / Rejected, with
+// follow-up reminders and simple stats. Applications sent on Nm7 move when the company moves them; the rest you move.
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, useToast } from '../../components/ui';
@@ -9,6 +10,7 @@ import { fmtShort, fmtDay } from './shared';
 import { webLink } from '../../lib/links';
 
 const DAY = 864e5;
+const CHANNEL = { nm7: 'Applied on Nm7', link: 'Applied (outside Nm7)', email: 'Applied by email' };
 const BLANK = { company: '', role: '', status: 'applied', url: '', notes: '', resumeId: '', next: '' };
 
 function AppForm({ app, resumes, onSave, onDelete, onClose }) {
@@ -52,8 +54,9 @@ export default function MeJobs() {
   const nav = useNavigate();
   const [edit, setEdit] = useState(null);
   const apps = me.apps;
-  const move = (a, dir) => { const i = APP_STAGES.findIndex(([k]) => k === a.status); const n = APP_STAGES[Math.min(APP_STAGES.length - 1, Math.max(0, i + dir))][0]; setMe((s) => ({ apps: s.apps.map((x) => (x.id === a.id ? { ...x, status: n } : x)) })); };
-  const due = (a) => a.status === 'applied' && Date.now() - a.date > 7 * DAY && !a.followed;
+  const stages = (a) => APP_STAGES.filter(([k]) => k !== 'viewed' || a.status === 'viewed'); // Viewed is set by the company
+  const move = (a, dir) => { const st = stages(a); const i = st.findIndex(([k]) => k === a.status); const n = st[Math.min(st.length - 1, Math.max(0, i + dir))][0]; setMe((s) => ({ apps: s.apps.map((x) => (x.id === a.id ? { ...x, status: n } : x)) })); };
+  const due = (a) => ['applied', 'viewed'].includes(a.status) && (a.followUp || Date.now() - a.date > 7 * DAY) && !a.followed;
   const sent = apps.filter((a) => a.status !== 'saved');
   const iv = apps.filter((a) => ['interview', 'offer'].includes(a.status)).length;
   const weeks = Array.from({ length: 6 }, (_, i) => { const end = Date.now() - (5 - i) * 7 * DAY; const start = end - 7 * DAY; return { label: i === 5 ? 'This wk' : fmtShort(start), sent: sent.filter((a) => a.date > start && a.date <= end).length }; });
@@ -78,16 +81,20 @@ export default function MeJobs() {
                   <button type="button" className="link-btn" style={{ textAlign: 'left', fontWeight: 700, color: 'var(--text)', textDecoration: 'none' }} onClick={() => setEdit(a)}>{a.company}</button>
                   <span className="xs">{a.role}</span>
                   {webLink(a.url) && <a className="xs" href={webLink(a.url)} target="_blank" rel="noopener noreferrer" style={{ overflowWrap: 'anywhere' }}>Job post ↗<span className="sr-only"> for {a.company} (opens in a new tab)</span></a>}
-                  <span className="xs faint">{fmtDay(a.date)} · {resumeName(a.resumeId)}</span>
+                  <span className="xs faint">{fmtDay(a.date)} · {a.resumeName || resumeName(a.resumeId)}</span>
+                  {a.channel && <span className="xs" data-testid="app-channel">{CHANNEL[a.channel]}</span>}
+                  {a.timeline?.length > 1 && <ol className="app-steps xs" aria-label={`Steps for ${a.company}`}>{a.timeline.map((s, i) => <li key={i}>{APP_STAGES.find(([k]) => k === s.status)?.[1] || s.status} · {fmtShort(s.at)}</li>)}</ol>}
                   {a.score != null && <span className="xs" data-testid="app-score">Job match {a.score}/100</span>}
                   {a.tailoredResumeId && me.resumes.some((r) => r.id === a.tailoredResumeId) && <button type="button" className="link-btn xs" style={{ textAlign: 'left' }} onClick={() => { openInBuilder(a.tailoredResumeId); nav('/builder', { state: { open: 'build' } }); }}>Open the tailored copy</button>}
                   {a.matchId && <button type="button" className="link-btn xs" style={{ textAlign: 'left' }} onClick={() => nav(`/me/interview/${a.matchId}`)}>Interview prep</button>}
                   {a.next && <span className="xs" style={{ color: 'var(--text2)' }}>Next: {fmtShort(a.next)}</span>}
                   {due(a) && <span className="row g4 xs" style={{ color: 'var(--warning)' }}>⏰ Follow up? <button type="button" className="link-btn xs" onClick={() => { setMe((s) => ({ apps: s.apps.map((x) => (x.id === a.id ? { ...x, followed: Date.now(), notes: `${x.notes ? `${x.notes}\n` : ''}Followed up ${fmtDay(Date.now())}.` } : x)) })); toast('Marked as followed up'); }}>Done</button></span>}
-                  <span className="row between" style={{ marginTop: 2 }}>
-                    <button type="button" className="btn btn-icon" style={{ width: 30, height: 30, minHeight: 30 }} aria-label={`Move ${a.company} back`} disabled={k === APP_STAGES[0][0]} onClick={() => move(a, -1)}>←</button>
-                    <button type="button" className="btn btn-icon" style={{ width: 30, height: 30, minHeight: 30 }} aria-label={`Move ${a.company} forward`} disabled={k === APP_STAGES[APP_STAGES.length - 1][0]} onClick={() => move(a, 1)}>→</button>
-                  </span>
+                  {a.channel === 'nm7' ? <span className="xs faint">Updated by the company</span> : (
+                    <span className="row between" style={{ marginTop: 2 }}>
+                      <button type="button" className="btn btn-icon" style={{ width: 30, height: 30, minHeight: 30 }} aria-label={`Move ${a.company} back`} disabled={k === stages(a)[0][0]} onClick={() => move(a, -1)}>←</button>
+                      <button type="button" className="btn btn-icon" style={{ width: 30, height: 30, minHeight: 30 }} aria-label={`Move ${a.company} forward`} disabled={k === APP_STAGES[APP_STAGES.length - 1][0]} onClick={() => move(a, 1)}>→</button>
+                    </span>
+                  )}
                 </article>
               ))}
             </section>
