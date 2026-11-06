@@ -29,6 +29,7 @@ export function pageOf(key, file) {
   if (key.startsWith('co.')) return '/for-companies, /company';
   if (key.startsWith('gr.')) return '/grievance';
   if (key.startsWith('aa.')) return '/me/auto-apply (Auto Apply)';
+  if (key.startsWith('simple.')) return '/me/simple (Easy dashboard)';
   return '';
 }
 

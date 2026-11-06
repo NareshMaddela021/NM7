@@ -151,7 +151,22 @@ export function PortalGroups() {
       {home.groupList.length === 0 && <div className="well small muted" style={{ textAlign: 'center', padding: 24 }}>No groups yet.{home.canCreateGroups ? ' A group is one batch, event or drive with its own join code.' : ''}</div>}
       {home.groupList.map((g) => <GroupCard key={g.id} g={g} ctx={ctx} busy={busy} run={run} reload={reload} toast={toast} />)}
       {home.canCreateGroups && <NewGroup ctx={ctx} url={`${ctx.base}/groups`} busy={busy} run={run} reload={reload} />}
+      <SimpleDefault orgId={ctx.orgId} canManage={home.canManage} toast={toast} />
     </>
+  );
+}
+
+/** The college's "Simple by default": its students start on the Easy dashboard (they can still switch). */
+function SimpleDefault({ orgId, canManage, toast }) {
+  const st = useApi(`/api/org/${orgId}/simple`);
+  const [busy, run] = useAction(toast);
+  if (!st.data) return null;
+  const set = (on) => run(async () => { await http(`/api/org/${orgId}/simple`, { method: 'PUT', body: { simpleDefault: on } }); st.reload(); }, on ? 'Students start on the simple dashboard' : 'Students start on the full dashboard');
+  return (
+    <section className="card stack g8" aria-label="Students’ dashboard" data-testid="org-simple">
+      <strong>Students’ dashboard</strong>
+      <label className="row g8 small"><input type="checkbox" checked={st.data.simpleDefault} disabled={busy || !canManage} onChange={(e) => set(e.target.checked)} data-testid="org-simple-on" />Simple by default: big buttons, voice, English / Telugu / Hindi. Students can still switch to the full dashboard.</label>
+    </section>
   );
 }
 
