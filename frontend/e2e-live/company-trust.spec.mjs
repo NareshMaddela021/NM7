@@ -4,7 +4,7 @@
 // needed; no browser dialogs), two more students report it and it pauses; Admin → Jobs → Reports dismisses the
 // reports and the job is live again. No sideways scrolling.
 import { expect, test } from '@playwright/test';
-import { API, PASSWORD, adminLogin, email, lastCode, seed } from './helpers.mjs';
+import { API, PASSWORD, adminLogin, email, lastCode, ownNetwork, seed } from './helpers.mjs';
 import { SIZES, call, json, noSideScroll } from './college.mjs';
 
 async function student(browser, opts, label, i) {
@@ -30,8 +30,9 @@ for (const [label, opts] of SIZES) {
       const site = `trust${tag}.example`;
       const mail = `hr-${tag}@example.com`;
       const company = { details: { legalName: `Trustco ${tag} Pvt Ltd`, website: site, category: 'startup', structure: 'private_limited', industry: 'Software', size: '11_50', about: '' }, registration: { kind: 'llpin', number: 'AAB-1234' }, phone: '' };
-      await request.post(`${API}/api/company/signup/code`, { data: { email: mail, name: 'Tara' } });
-      const r = await (await request.post(`${API}/api/company/signup/start`, { data: { email: mail, name: 'Tara', code: lastCode(mail), company } })).json();
+      const NET = ownNetwork();
+      await request.post(`${API}/api/company/signup/code`, { headers: NET, data: { email: mail, name: 'Tara' } });
+      const r = await (await request.post(`${API}/api/company/signup/start`, { headers: NET, data: { email: mail, name: 'Tara', code: lastCode(mail), company } })).json();
       const H = { 'X-Recruiter-Account': r.session };
       await request.post(`${API}/api/company/${r.company.id}/company-email/code`, { data: { email: `jobs@${site}` }, headers: H });
       await request.post(`${API}/api/company/${r.company.id}/company-email/verify`, { data: { code: lastCode(`jobs@${site}`) }, headers: H });

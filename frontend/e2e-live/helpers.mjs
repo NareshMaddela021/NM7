@@ -143,3 +143,8 @@ export async function downloadThrough(page, click, opts = {}) {
   const [file] = await Promise.all([dl, click(), pass]);
   return [file];
 }
+
+/** A made-up network address for API calls that set up test data (e.g. company sign-ups), so the per-network daily
+ * limits only count what a spec is actually testing. Our API reads the address the proxy passes on. */
+let nets = 0;
+export const ownNetwork = () => ({ 'x-forwarded-for': `10.250.${(nets += 1) % 250}.${(Date.now() % 250) + 1}` });
