@@ -872,7 +872,18 @@
     "aa.items.approvedAll": "Sent {n}",
     "aa.items.queuedTitle": "Answered: going first thing tomorrow (today's limit is used)",
     "aa.items.appliedTitle": "Applied by Auto Apply",
-    "aa.items.appliedNone": "None yet. Auto Apply runs every morning."
+    "aa.items.appliedNone": "None yet. Auto Apply runs every morning.",
+    "aa.items.ready": "Ready to apply",
+    "aa.items.readyHint": "These jobs are on other websites. Nm7 never fills in their forms: your tailored resume is ready, one tap opens the company site and saves it in My applications.",
+    "aa.items.readyNone": "Nothing here today.",
+    "aa.items.open": "Apply on the company site",
+    "aa.items.openedToast": "Saved in My applications",
+    "aa.items.pdf": "Download the tailored resume (PDF)",
+    "aa.items.pdfError": "Couldn't download the resume. Please try again.",
+    "aa.items.sentTo": "Sent by email to {to}",
+    "aa.items.bounced": "the address didn't accept it",
+    "aa.items.sentByEmail": "Sent by email",
+    "aa.items.whatSent": "See what was sent"
   },
   "te": {
     "home.more.roles.eyebrow": "నిజమైనవిలా కనిపించే నమూనాలు · ఊహించిన వ్యక్తులు",
@@ -1746,7 +1757,18 @@
     "aa.items.approvedAll": "{n} పంపాం",
     "aa.items.queuedTitle": "జవాబిచ్చారు: రేపు ముందుగా వెళ్తాయి (ఈరోజు పరిమితి అయిపోయింది)",
     "aa.items.appliedTitle": "ఆటో అప్లై చేసినవి",
-    "aa.items.appliedNone": "ఇంకా ఏవీ లేవు. ఆటో అప్లై ప్రతి ఉదయం నడుస్తుంది."
+    "aa.items.appliedNone": "ఇంకా ఏవీ లేవు. ఆటో అప్లై ప్రతి ఉదయం నడుస్తుంది.",
+    "aa.items.ready": "అప్లై చేయడానికి సిద్ధం",
+    "aa.items.readyHint": "ఈ ఉద్యోగాలు ఇతర వెబ్‌సైట్లలో ఉన్నాయి. Nm7 వారి ఫారాలను ఎప్పుడూ నింపదు: మీ టైలర్డ్ రెజ్యూమ్ సిద్ధంగా ఉంది, ఒక్క ట్యాప్‌తో కంపెనీ సైట్ తెరుచుకుంటుంది, My applicationsలో సేవ్ అవుతుంది.",
+    "aa.items.readyNone": "ఈరోజు ఇక్కడ ఏమీ లేదు.",
+    "aa.items.open": "కంపెనీ సైట్‌లో అప్లై చేయండి",
+    "aa.items.openedToast": "My applicationsలో సేవ్ అయింది",
+    "aa.items.pdf": "టైలర్డ్ రెజ్యూమ్ డౌన్‌లోడ్ చేయండి (PDF)",
+    "aa.items.pdfError": "రెజ్యూమ్ డౌన్‌లోడ్ కాలేదు. మళ్లీ ప్రయత్నించండి.",
+    "aa.items.sentTo": "{to}కు ఈమెయిల్‌లో పంపాం",
+    "aa.items.bounced": "ఆ చిరునామా దాన్ని తీసుకోలేదు",
+    "aa.items.sentByEmail": "ఈమెయిల్‌లో పంపాం",
+    "aa.items.whatSent": "ఏం పంపామో చూడండి"
   },
   "hi": {
     "home.more.roles.eyebrow": "असली जैसे दिखने वाले नमूने · काल्पनिक लोग",
@@ -2620,6 +2642,17 @@
     "aa.items.approvedAll": "{n} भेजे गए",
     "aa.items.queuedTitle": "जवाब दिया: कल सबसे पहले जाएँगे (आज की सीमा पूरी)",
     "aa.items.appliedTitle": "ऑटो अप्लाई ने भेजे",
-    "aa.items.appliedNone": "अभी कोई नहीं। ऑटो अप्लाई हर सुबह चलता है।"
+    "aa.items.appliedNone": "अभी कोई नहीं। ऑटो अप्लाई हर सुबह चलता है।",
+    "aa.items.ready": "अप्लाई के लिए तैयार",
+    "aa.items.readyHint": "ये नौकरियाँ दूसरी वेबसाइटों पर हैं। Nm7 उनके फ़ॉर्म कभी नहीं भरता: आपका टेलर्ड रिज़्यूमे तैयार है, एक टैप से कंपनी की साइट खुलती है और My applications में सेव होता है।",
+    "aa.items.readyNone": "आज यहाँ कुछ नहीं।",
+    "aa.items.open": "कंपनी की साइट पर अप्लाई करें",
+    "aa.items.openedToast": "My applications में सेव हुआ",
+    "aa.items.pdf": "टेलर्ड रिज़्यूमे डाउनलोड करें (PDF)",
+    "aa.items.pdfError": "रिज़्यूमे डाउनलोड नहीं हुआ। फिर से कोशिश करें।",
+    "aa.items.sentTo": "{to} को ईमेल से भेजा",
+    "aa.items.bounced": "उस पते ने इसे नहीं लिया",
+    "aa.items.sentByEmail": "ईमेल से भेजा",
+    "aa.items.whatSent": "क्या भेजा गया, देखें"
   }
 }

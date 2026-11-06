@@ -118,6 +118,12 @@ def mock_claude(monkeypatch, *modules):
 
 def strong_resume(**patch):
     """A resume that passes every ATS check (score 100): what Auto Apply needs to start (Phase 3)."""
+    d = _strong()
+    d.update(patch)
+    return d
+
+
+def _strong():
     return resume(
         links={"linkedin": "linkedin.com/in/sai-varsha"},
         summary="Data Analyst Intern at Northwind Retail, skilled in Python, SQL and Statistics. Built Power BI "
@@ -139,5 +145,4 @@ def strong_resume(**patch):
             {"id": "core", "label": "Core", "value": "Python, SQL, Statistics, Pandas, Data Cleaning"},
             {"id": "tools", "label": "Tools", "value": "Power BI, Excel, Git, Tableau, Jupyter"},
         ],
-        **patch,
     )

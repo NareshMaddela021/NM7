@@ -1684,3 +1684,20 @@ each pass; `auto_runs` keeps the day's counts and errors).
   answers", saves them for the same question in later jobs; a stuck job whose questions all have saved answers goes
   in the next run. Items expire when the job closes. Nothing is sent while the off switch is off or Admin paused the
   student. My applications, Admin → Jobs and the company's Applicants tab show **Auto** or **Manual**.
+
+**Email applications (A4).** `backend/app/autoapply/emailing.py`, `pdf.py`.
+- For jobs that take email: one proper email per job through the existing Resend setup and Nm7's sending address
+  (no new keys), with the tailored resume attached as a PDF made on the server (plain one-column text, hidden
+  entries and ID numbers left out). Reply-To is the student's own email. Short, in English, from their own facts
+  only (name, the first sentence of their summary, the job's skills their resume shows); a line that fails the fact
+  check is left out. Ends "Sent through Nm7 (nm7.si) at <name>'s request."
+- Counts towards the student's daily limit and the site's daily Auto Apply email cap (`email_daily_cap`, 80 by
+  default under the Resend free plan's 100); over the cap the email waits for the next run (counted in the run log).
+- Bounces and complaints: each pass asks Resend's own API (same key) for the delivery of recent emails; a bounce stops
+  Auto Apply emails to that address, a complaint to that whole domain (`email_blocks`).
+- My applications shows "Sent by email" and "See what was sent" (the exact subject, text and attachment name).
+
+**Ready to apply (A5).** Jobs on other websites are never submitted by a bot. Matching ones (at or over the minimum
+score, within the company cap, up to the daily limit a day) wait in "Ready to apply" with the tailored resume
+prepared: **Download the tailored resume (PDF)**, and **Apply on the company site** opens it in a new tab and saves
+Applied (outside Nm7) with the resume version. They don't use up the daily auto applications.

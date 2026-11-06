@@ -155,6 +155,7 @@ def create_app() -> FastAPI:
         allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
         # recruiter link code, portal session, recruiter account session
         allow_headers=["Content-Type", "X-Access-Code", "X-Recruiter-Session", "X-Recruiter-Account"],
+        expose_headers=["Content-Disposition"],  # file downloads keep their name (e.g. the tailored resume PDF)
     )
 
     @app.api_route("/health", methods=["GET", "HEAD"], tags=["ops"])

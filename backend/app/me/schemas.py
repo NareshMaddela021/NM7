@@ -184,6 +184,7 @@ class ApplicationOut(ApplicationIn):
     follow_up: bool = False
     to_company: bool = False  # sent on Nm7 to a company's own job (C5): the student can withdraw it
     origin: str = "manual"  # "auto" when Auto Apply sent it (Phase 3)
+    sent_email: dict[str, Any] | None = None  # an Auto Apply email application: {to, subject, text, at} as sent
     withdrawn: bool = False
 
     @field_validator("url")
