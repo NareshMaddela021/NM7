@@ -140,6 +140,9 @@ def _resume(rng: random.Random, name: str, branch: str, email: str, quality: int
 
 async def remove_demo(db: AsyncDatabase) -> int:
     """Deletes the demo organization and every demo student (and what they own). Returns how many students."""
+    from app.jobs import demo_jobs
+
+    await demo_jobs.remove(db)
     uids = [u["_id"] async for u in db[USERS].find({"demo": True}, {"_id": 1})]
     for coll, q in (
         (RESUMES, {"user_id": {"$in": uids}}),
@@ -314,6 +317,9 @@ async def create_demo(db: AsyncDatabase, actor_id: str | None = None, seed: int 
     await _demo_reviewer(db)
     await _demo_coordinator(db)
     await _demo_stories(db)
+    from app.jobs import demo_jobs
+
+    await demo_jobs.seed(db)  # 30 demo jobs: admin and tests only, never on the public job pages
     await db[COLLEGE_GROUPS].insert_one(
         {
             "_id": "demo-college-group",

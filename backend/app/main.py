@@ -41,6 +41,7 @@ from app.courses import router as courses
 from app.downloads.router import router as downloads_router
 from app.experts.router import router as expert_router
 from app.health import service as resume_health
+from app.jobs import admin as jobs_admin
 from app.jobsearch.cover_router import router as jobs_cover_router
 from app.jobsearch.interview_router import router as jobs_interview_router
 from app.jobsearch.router import router as jobs_router
@@ -193,6 +194,7 @@ def create_app() -> FastAPI:
     app.include_router(org_interviews.public)  # /api/public/interviews/stop-reminders
     app.include_router(org_interviews.staff)  # /api/org/{org_id}/interviews
     app.include_router(student_pass.router)  # /api/me/pass (P1)
+    app.include_router(jobs_admin.router)  # /api/admin/jobs (job board J1)
     app.include_router(org_feedback.portal)  # /api/recruiter/{token}/feedback (R4)
     app.include_router(org_feedback.account)  # /api/recruiter-account/drives/{id}/feedback
     app.include_router(org_feedback.staff)  # /api/org/{org_id}/recruiter-feedback

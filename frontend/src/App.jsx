@@ -143,7 +143,7 @@ const MeSettings = named(meSettings, 'MeSettings');
 const MeHelp = named(meSettings, 'MeHelp');
 
 // Admin console: real data on the live site; the sample console only in the preview build.
-const liveAdmin = { billing: () => import('./pages/admin/live/BillingPages'), partners: () => import('./pages/admin/live/PartnerPages'), orgs: () => import('./pages/admin/live/OrgPages'), common: () => import('./pages/admin/live/common'), ops: () => import('./pages/admin/live/OpsPages'), people: () => import('./pages/admin/live/PeoplePages'), setup: () => import('./pages/admin/live/SetupPages'), wa: () => import('./pages/admin/live/WaPages'), codes: () => import('./pages/admin/live/CodePages'), courses: () => import('./pages/admin/live/CoursePages'), campuses: () => import('./pages/admin/live/CollegeGroups'), stories: () => import('./pages/admin/live/StoryPages') };
+const liveAdmin = { billing: () => import('./pages/admin/live/BillingPages'), partners: () => import('./pages/admin/live/PartnerPages'), orgs: () => import('./pages/admin/live/OrgPages'), common: () => import('./pages/admin/live/common'), ops: () => import('./pages/admin/live/OpsPages'), people: () => import('./pages/admin/live/PeoplePages'), setup: () => import('./pages/admin/live/SetupPages'), wa: () => import('./pages/admin/live/WaPages'), codes: () => import('./pages/admin/live/CodePages'), courses: () => import('./pages/admin/live/CoursePages'), campuses: () => import('./pages/admin/live/CollegeGroups'), stories: () => import('./pages/admin/live/StoryPages'), jobs: () => import('./pages/admin/live/JobPages') };
 const ADMIN = LIVE ? {
   Layout: named(liveAdmin.common, 'LiveAdminLayout'), Dashboard: named(liveAdmin.ops, 'LiveDashboard'), Orders: named(liveAdmin.ops, 'LiveOrders'),
   Experts: named(liveAdmin.people, 'LiveExperts'), Refunds: named(liveAdmin.ops, 'LiveRefunds'), Payments: named(liveAdmin.ops, 'LivePayments'),
@@ -151,7 +151,7 @@ const ADMIN = LIVE ? {
   Settings: named(liveAdmin.setup, 'LiveSettings'), Automation: named(liveAdmin.setup, 'LiveAutomation'), Team: named(liveAdmin.setup, 'LiveTeam'),
   Orgs: named(liveAdmin.orgs, 'LiveOrgs'), Shared: named(liveAdmin.orgs, 'LiveShared'),
   Plans: named(liveAdmin.billing, 'LivePlans'), BillingSettings: named(liveAdmin.billing, 'LiveBillingSettings'), OrgInvoices: named(liveAdmin.billing, 'LiveOrgInvoices'), Partners: named(liveAdmin.partners, 'LivePartners'),
-  WhatsApp: named(liveAdmin.wa, 'LiveWhatsAppPayments'), Codes: named(liveAdmin.codes, 'LiveCodes'), Courses: named(liveAdmin.courses, 'LiveCourses'), CollegeGroups: named(liveAdmin.campuses, 'LiveCollegeGroups'), Stories: named(liveAdmin.stories, 'LiveStories'),
+  WhatsApp: named(liveAdmin.wa, 'LiveWhatsAppPayments'), Codes: named(liveAdmin.codes, 'LiveCodes'), Courses: named(liveAdmin.courses, 'LiveCourses'), CollegeGroups: named(liveAdmin.campuses, 'LiveCollegeGroups'), Stories: named(liveAdmin.stories, 'LiveStories'), Jobs: named(liveAdmin.jobs, 'LiveJobs'),
 } : {
   Layout: lazy(() => import('./pages/admin/AdminLayout')), Dashboard: lazy(() => import('./pages/admin/Dashboard')), Orders: lazy(() => import('./pages/admin/Orders')),
   Experts: lazy(() => import('./pages/admin/ExpertsAdmin')), Refunds: lazy(() => import('./pages/admin/Refunds')), Payments: lazy(() => import('./pages/admin/Payments')),
@@ -159,7 +159,7 @@ const ADMIN = LIVE ? {
   Settings: lazy(() => import('./pages/admin/Settings')), Automation: lazy(() => import('./pages/admin/Automation')), Team: lazy(() => import('./pages/admin/Team')),
   Orgs: named(liveAdmin.orgs, 'LiveOrgs'), Shared: named(liveAdmin.orgs, 'LiveShared'), // live API only
   Plans: named(liveAdmin.billing, 'LivePlans'), BillingSettings: named(liveAdmin.billing, 'LiveBillingSettings'), OrgInvoices: named(liveAdmin.billing, 'LiveOrgInvoices'), Partners: named(liveAdmin.partners, 'LivePartners'),
-  WhatsApp: named(liveAdmin.wa, 'LiveWhatsAppPayments'), Codes: named(liveAdmin.codes, 'LiveCodes'), Courses: named(liveAdmin.courses, 'LiveCourses'), CollegeGroups: named(liveAdmin.campuses, 'LiveCollegeGroups'), Stories: named(liveAdmin.stories, 'LiveStories'), // live API only
+  WhatsApp: named(liveAdmin.wa, 'LiveWhatsAppPayments'), Codes: named(liveAdmin.codes, 'LiveCodes'), Courses: named(liveAdmin.courses, 'LiveCourses'), CollegeGroups: named(liveAdmin.campuses, 'LiveCollegeGroups'), Stories: named(liveAdmin.stories, 'LiveStories'), Jobs: named(liveAdmin.jobs, 'LiveJobs'), // live API only
 };
 
 if (!LIVE && import.meta.env.VITE_PREVIEW === '1') {
@@ -393,6 +393,7 @@ export default function App() {
           <Route path="courses" element={<ADMIN.Courses />} />
           <Route path="college-groups" element={<ADMIN.CollegeGroups />} />
           <Route path="stories" element={<ADMIN.Stories />} />
+          <Route path="jobs" element={<ADMIN.Jobs />} />
         </Route>
         <Route path="/me" element={C(<MeLayout />)}>
           <Route index element={<MeHome />} />
