@@ -1613,3 +1613,13 @@ image is also served at `/api/companies/<slug>/logo` for search engines.
 - **`nm7.si/grievance`:** what a company sees, for how long, the student's rights (withdraw, download, correct,
   erase, nominate) and how to complain: the Grievance Officer from `frontend/src/lib/legal.js` when filled in, else
   our email; then the Data Protection Board of India.
+
+**Job alerts (C6).** `backend/app/jobs/alerts.py`; Profile & settings → **Job alerts**.
+- The student picks roles or skills (up to 5, needed to turn alerts on), cities (empty = anywhere), remote yes/no,
+  experience levels (none = any), daily or weekly, and the email language: English, Telugu or Hindi (the Telugu and
+  Hindi email text are drafts that need a native speaker's review).
+- The automation pass finds open jobs posted since the last alert where a role appears in the title or skills, in
+  one of the cities (or remote), at one of the levels, and emails the best 5 by the job board's match score (newest
+  first without a resume), each with its link and a WhatsApp share link. No matches, no email.
+- Limits: at most one alert email a day; never to an unconfirmed or bounced address; "Stop these emails"
+  (`/stop-alerts#…&k=alerts`) or the switch in settings turns them off. Deleting the account removes the alert.

@@ -31,6 +31,51 @@ function HealthEmails() {
   );
 }
 
+const LEVELS = [['internship', 'Internship'], ['fresher', 'Fresher'], ['0_1', '0–1 years'], ['1_3', '1–3 years'], ['3_plus', '3+ years']];
+const LANGS = [['en', 'English'], ['te', 'తెలుగు (Telugu)'], ['hi', 'हिन्दी (Hindi)']];
+const list = (s) => s.split(',').map((x) => x.trim()).filter(Boolean);
+
+/** Job alerts (C6): new jobs that match, by email, daily or weekly, in English, Telugu or Hindi. */
+function JobAlerts() {
+  const toast = useToast();
+  const [a, setA] = useState(null);
+  const [f, setF] = useState(null);
+  const [err, setErr] = useState('');
+  const [busy, setBusy] = useState(false);
+  useEffect(() => { if (LIVE) http('/api/me/job-alerts').then((d) => { setA(d); setF({ ...d, roles: d.roles.join(', '), cities: d.cities.join(', ') }); }, () => {}); }, []);
+  if (!f) return null;
+  const save = async (e) => {
+    e.preventDefault();
+    setBusy(true); setErr('');
+    try {
+      const d = await http('/api/me/job-alerts', { method: 'PUT', body: { ...f, roles: list(f.roles), cities: list(f.cities) } });
+      setA(d); setF({ ...d, roles: d.roles.join(', '), cities: d.cities.join(', ') }); toast(d.on ? 'Job alerts saved' : 'Job alerts are off');
+    } catch (x) { setErr(x.message); } finally { setBusy(false); }
+  };
+  const lvl = (k) => setF({ ...f, experience: f.experience.includes(k) ? f.experience.filter((x) => x !== k) : [...f.experience, k] });
+  return (
+    <form id="job-alerts" className="card stack g12" aria-label="Job alerts" onSubmit={save} data-testid="job-alerts" style={{ scrollMarginTop: 96 }}>
+      <strong>Job alerts</strong>
+      <span className="small muted">New jobs on Nm7 that match, by email with a WhatsApp share link for each. Only when there are new matches; at most one email a day.</span>
+      <label className="row g8 small"><input type="checkbox" checked={f.on} onChange={(e) => setF({ ...f, on: e.target.checked })} data-testid="alerts-on" /> Send me job alerts</label>
+      <div className="field"><label className="label" htmlFor="al-roles">Roles or skills (comma between, up to 5)</label><input id="al-roles" className="input" placeholder="Data analyst, SQL" value={f.roles} onChange={(e) => setF({ ...f, roles: e.target.value })} /></div>
+      <div className="field"><label className="label" htmlFor="al-cities">Cities (comma between; empty = anywhere)</label><input id="al-cities" className="input" placeholder="Hyderabad, Pune" value={f.cities} onChange={(e) => setF({ ...f, cities: e.target.value })} /></div>
+      <label className="row g8 small"><input type="checkbox" checked={f.remote} onChange={(e) => setF({ ...f, remote: e.target.checked })} /> Include remote jobs</label>
+      <fieldset className="stack g4" style={{ border: 0, margin: 0, padding: 0 }}>
+        <legend className="label">Experience (none ticked = any)</legend>
+        <div className="row g12" style={{ flexWrap: 'wrap' }}>{LEVELS.map(([k, l]) => <label key={k} className="row g4 small"><input type="checkbox" checked={f.experience.includes(k)} onChange={() => lvl(k)} /> {l}</label>)}</div>
+      </fieldset>
+      <fieldset className="stack g4" style={{ border: 0, margin: 0, padding: 0 }}>
+        <legend className="label">How often</legend>
+        <div className="row g12">{[['daily', 'Daily'], ['weekly', 'Weekly']].map(([k, l]) => <label key={k} className="row g4 small"><input type="radio" name="al-freq" checked={f.frequency === k} onChange={() => setF({ ...f, frequency: k })} /> {l}</label>)}</div>
+      </fieldset>
+      <div className="field" style={{ maxWidth: 260 }}><label className="label" htmlFor="al-lang">Email language</label><select id="al-lang" className="input" value={f.lang} onChange={(e) => setF({ ...f, lang: e.target.value })}>{LANGS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
+      {err && <p className="error" role="alert">{err}</p>}
+      <div className="row g8"><button type="submit" className="btn btn-ink" disabled={busy}>{busy ? 'Saving…' : 'Save job alerts'}</button>{a?.on && <span className="xs muted" data-testid="alerts-status">On · {a.frequency === 'daily' ? 'daily' : 'weekly'}</span>}</div>
+    </form>
+  );
+}
+
 const EVENTS = [['order', 'Order updates'], ['draft', 'Drafts ready to review'], ['jobs', 'Matched jobs'], ['tips', 'Tips & offers']];
 const CHANNELS = [['whatsapp', 'WhatsApp'], ['email', 'Email'], ['sms', 'SMS']];
 const PHONE_RE = /^(\+91[\s-]?)?[6-9]\d{4}[\s-]?\d{5}$/;
@@ -86,6 +131,8 @@ export function MeSettings() {
         <span className="xs faint">Order emails stay on — they carry your receipts and refund updates.</span>
         <HealthEmails />
       </section>
+
+      <JobAlerts />
 
       <ChangePassword />
 
