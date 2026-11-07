@@ -171,6 +171,7 @@ async def erase_account(db: AsyncDatabase, user_id: str) -> dict[str, int]:
             "$unset": {
                 "deletion": "",
                 "auto_apply": "",
+                "simple": "",
                 "job_alert": "",
                 "job_alert_ran_at": "",
                 "job_alert_sent_day": "",

@@ -89,6 +89,7 @@ from app.payments.router import router as payments_router
 from app.photos.router import router as photos_router
 from app.profile.router import router as profile_router
 from app.projects.router import router as projects_router
+from app.simple import router as simple
 from app.summary.router import router as summary_router
 from app.wapay.router import router as wapay_router
 from app.work.router import router as work_router
@@ -241,6 +242,8 @@ def create_app() -> FastAPI:
     app.include_router(auto_admin.company)  # /api/company/{id}/applicants/{app}/irrelevant
     app.include_router(auto_demo.admin)  # /api/admin/auto-apply/demo
     app.include_router(auto_demo.public)  # /api/public/demo-student
+    app.include_router(simple.router)  # /api/me/simple (Easy dashboard, Phase 4)
+    app.include_router(simple.org)  # /api/org/{org_id}/simple (a college's Simple by default)
     app.include_router(jobs_alerts.public)  # /api/public/jobs/stop-alerts
     app.include_router(org_feedback.portal)  # /api/recruiter/{token}/feedback (R4)
     app.include_router(org_feedback.account)  # /api/recruiter-account/drives/{id}/feedback

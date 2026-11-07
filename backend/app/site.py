@@ -53,6 +53,13 @@ AUTO_APPLY = {
 }
 
 
+SIMPLE = {
+    "on": True,  # the Easy dashboard (Phase 4) for everyone; off = everyone gets the full dashboard
+    "default_te_hi": "simple",  # the dashboard for people who picked Telugu or Hindi and haven't chosen one
+    "default_other": "full",  # … and for everyone else
+}
+
+
 def defaults() -> dict[str, Any]:
     return {
         "plans": {k: {"name": n, "amount": a, "active": True} for k, (n, a) in PLANS.items()},
@@ -74,6 +81,8 @@ def defaults() -> dict[str, Any]:
         "job_checks": {"blocked": list(BLOCKED), "scam": list(SCAM)},
         # Auto Apply (Phase 3): the off switch and every default (Admin → Auto Apply)
         "auto_apply": dict(AUTO_APPLY),
+        # the Easy dashboard (Phase 4): on / off and which dashboard people get before they choose (Admin → Settings)
+        "simple": dict(SIMPLE),
     }
 
 
@@ -91,6 +100,7 @@ async def get_site(db: AsyncDatabase, session: Session = None) -> dict[str, Any]
     out["companies"] = {**out["companies"], **(stored.get("companies") or {})}
     out["job_checks"] = {**out["job_checks"], **(stored.get("job_checks") or {})}
     out["auto_apply"] = {**out["auto_apply"], **(stored.get("auto_apply") or {})}
+    out["simple"] = {**out["simple"], **(stored.get("simple") or {})}
     out["daily_summary_sent"] = stored.get("daily_summary_sent")
     out["rule_runs"] = stored.get("rule_runs", {})
     return out

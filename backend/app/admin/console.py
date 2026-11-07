@@ -741,6 +741,15 @@ class SettingsIn(CamelModel):
     daily_summary: "DailySummaryIn | None" = None
     companies: "CompanyLimitsIn | None" = None
     job_checks: "JobChecksIn | None" = None
+    simple: "SimpleSettingsIn | None" = None
+
+
+class SimpleSettingsIn(CamelModel):
+    """The Easy dashboard (Phase 4): on for everyone or off, and the dashboard people get before they choose."""
+
+    on: bool
+    default_te_hi: Literal["simple", "full"] = "simple"
+    default_other: Literal["simple", "full"] = "full"
 
 
 class JobChecksIn(CamelModel):
@@ -788,6 +797,11 @@ def _settings_out(site: dict[str, Any]) -> dict[str, Any]:
         "referral": site["referral"],
         "dailySummary": site["daily_summary"],
         "jobChecks": site["job_checks"],
+        "simple": {
+            "on": site["simple"]["on"],
+            "defaultTeHi": site["simple"]["default_te_hi"],
+            "defaultOther": site["simple"]["default_other"],
+        },
         "companies": {
             "basicJobsPerWeek": site["companies"]["basic_jobs_per_week"],
             "verifiedLiveJobs": site["companies"]["verified_live_jobs"],
@@ -830,6 +844,11 @@ async def put_settings(body: SettingsIn, request: Request, db: DB, auth: AdminAu
     if body.companies and body.companies.model_dump() != before["companies"]:
         changes["companies"] = body.companies.model_dump()
         diff["companies"] = {"from": before["companies"], "to": changes["companies"]}
+    if body.simple:
+        new = {**before["simple"], **body.simple.model_dump()}
+        if new != before["simple"]:
+            changes["simple"] = new
+            diff["simple"] = {"from": before["simple"], "to": new}
     if body.daily_summary and body.daily_summary.model_dump() != before["daily_summary"]:
         changes["daily_summary"] = body.daily_summary.model_dump()
         diff["daily_summary"] = {"from": before["daily_summary"], "to": changes["daily_summary"]}

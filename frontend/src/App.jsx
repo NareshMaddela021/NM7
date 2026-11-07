@@ -146,6 +146,7 @@ const OrgInvite = named(portal, 'OrgInvite');
 const AcceptTransfer = lazy(() => import('./pages/org/Transfer'));
 const DemoLogin = lazy(() => import('./pages/org/DemoLogin'));
 const DemoStudentLogin = lazy(() => import('./pages/me/DemoStudentLogin'));
+const SimpleApp = lazy(() => import('./pages/simple/SimpleApp')); // /me/simple: the Easy dashboard (Phase 4), its own small chunk
 const StopReminders = named(portal, 'StopReminders');
 const meSettings = () => import('./pages/me/MeSettings');
 const MeSettings = named(meSettings, 'MeSettings');
@@ -412,6 +413,7 @@ export default function App() {
           <Route path="companies" element={<ADMIN.Companies />} />
           <Route path="auto-apply" element={<ADMIN.AutoApply />} />
         </Route>
+        <Route path="/me/simple/*" element={C(<SimpleApp />)} />
         <Route path="/me" element={C(<MeLayout />)}>
           <Route index element={<MeHome />} />
           <Route path="orders" element={<OrdersList />} />

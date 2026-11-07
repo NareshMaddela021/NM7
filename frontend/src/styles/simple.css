@@ -1,0 +1,32 @@
+/* The Easy dashboard (Phase 4): big text and buttons, high contrast in light and dark (the colour tokens), no
+   images. Body text 18 px and up, every control at least 48 px tall. */
+.sx { min-height: 100vh; background: var(--bg); color: var(--text); font-size: 18px; line-height: 1.5; }
+.sx-top { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; padding: 8px 16px; background: var(--surface); border-bottom: 2px solid var(--border2); }
+.sx-top-r { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.sx-logo { font-family: var(--font-display); font-weight: 800; font-size: 24px; color: var(--text); text-decoration: none; min-height: 48px; display: inline-flex; align-items: center; padding: 0 4px; }
+.sx-chip { min-height: 48px; display: inline-flex; align-items: center; gap: 6px; padding: 0 14px; border-radius: 999px; border: 2px solid var(--border2); color: var(--text); text-decoration: none; font-weight: 600; background: var(--surface); }
+.sx-seg { display: inline-flex; border: 2px solid var(--text); border-radius: 999px; overflow: hidden; }
+.sx-seg button { min-height: 44px; min-width: 64px; padding: 0 14px; border: 0; background: var(--surface); color: var(--text); font: inherit; font-size: 16px; font-weight: 700; cursor: pointer; }
+.sx-seg button[aria-pressed="true"] { background: var(--ink); color: var(--onink); }
+.sx-main { max-width: 640px; margin: 0 auto; padding: 20px 16px 64px; display: flex; flex-direction: column; gap: 20px; outline: none; }
+.sx-stack { display: flex; flex-direction: column; gap: 16px; }
+.sx-h1 { font-family: var(--font-display); font-size: 30px; line-height: 1.2; margin: 0; font-weight: 700; }
+.sx-h2 { font-family: var(--font-display); font-size: 26px; line-height: 1.25; margin: 0; font-weight: 700; }
+.sx-p { margin: 0; font-size: 20px; }
+.sx-label { font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+.sx-note { margin: 0; font-size: 18px; padding: 12px 14px; border-radius: 12px; background: var(--warningbg); color: var(--text); }
+.sx-offline { display: flex; gap: 8px; align-items: center; padding: 10px 16px; background: var(--warningbg); color: var(--text); font-weight: 600; }
+.sx-next { display: flex; flex-direction: column; gap: 12px; padding: 20px; border-radius: 20px; background: var(--surface); border: 3px solid var(--text); }
+.sx-big { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 64px; padding: 10px 20px; border-radius: 16px; border: 2px solid var(--text); background: var(--surface); color: var(--text); font: inherit; font-size: 20px; font-weight: 700; text-decoration: none; text-align: left; cursor: pointer; box-sizing: border-box; overflow-wrap: anywhere; }
+.sx-big.sx-ink { background: var(--ink); color: var(--onink); border-color: var(--ink); }
+.sx-big:disabled { opacity: .6; cursor: default; }
+.sx-big:focus-visible, .sx-tile:focus-visible, .sx-chip:focus-visible, .sx-seg button:focus-visible, .sx-say:focus-visible, .sx-logo:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.sx-ic { font-size: 28px; line-height: 1; flex: none; }
+.sx-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.sx-tile { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 120px; padding: 12px; border-radius: 16px; border: 2px solid var(--border2); background: var(--surface); color: var(--text); text-decoration: none; font-size: 20px; font-weight: 700; text-align: center; overflow-wrap: anywhere; }
+.sx-tile .sx-ic { font-size: 36px; }
+.sx-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.sx-langrow { display: flex; gap: 10px; align-items: stretch; }
+.sx-lang { font-size: 26px; justify-content: center; min-height: 72px; }
+.sx-say { flex: none; width: 72px; min-height: 72px; border-radius: 16px; border: 2px solid var(--text); background: var(--surface); color: var(--text); font-size: 28px; cursor: pointer; }
+@media (max-width: 360px) { .sx-tiles { grid-template-columns: 1fr; } }

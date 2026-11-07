@@ -1733,3 +1733,23 @@ applied on Nm7 (Auto in the company's Applicants tab), sent by email (a recorded
 your answer (a screening question) and ready to apply (a website job). Three demo-college students get Auto Apply on
 for the admin numbers. The one-time link (5 minutes) signs that browser in as the student, so use a private window to
 keep the admin console. Demo jobs are never public and demo students never run, so no email goes to them.
+
+## Easy dashboard (Phase 4)
+
+For students who are not comfortable with technology or English, often on cheap Android phones with slow internet.
+The full dashboard stays for everyone who wants it.
+
+- **Simple home** (`/me/simple`, `app/simple/router.py`, `pages/simple/SimpleApp.jsx`): one "Your next step" card
+  chosen by rules, in order: no resume → make one; education, skills or projects missing → add them; resume score
+  under the Auto Apply gate (60) → fix it; Auto Apply not on → turn it on; questions in "Needs your answer" → answer;
+  else → see jobs. Below it 4 big tiles (My resume, Jobs, My applications, Practice interview) and More (links to the
+  full dashboard's pages). Body text 18 px and up, 48 px touch targets, light and dark, icons always with words, no
+  tables, no jargon ("Resume score").
+- **Language first:** the first visit asks English / తెలుగు / हिंदी (each with a speaker button). It is saved on the
+  profile (`users.simple.lang`) and can be changed from the top. Every word is in `src/i18n/pages.json` (`simple.*`);
+  Telugu and Hindi need native review (`docs/translations-review.csv`).
+- **Simple / Full switch** at the top of both dashboards, saved per person. Before someone chooses: Full when Admin →
+  Settings → Easy dashboard is off; else Simple when their college ticked "Simple by default" (Organization → Groups);
+  else Admin's default for Telugu / Hindi (Simple) or everyone else (Full).
+- **Slow internet:** the simple screens are their own small chunk, and the last data is kept for the open tab (session storage, nothing personal in local storage), so with no
+  internet they show it with "Will update when internet is back".

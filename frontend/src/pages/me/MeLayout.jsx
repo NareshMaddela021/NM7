@@ -1,10 +1,12 @@
 // Customer dashboard frame: sidebar on desktop, bottom tab bar + "More" sheet on phones.
 import { useEffect, useState } from 'react';
-import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
+import { Link, Navigate, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Header from '../../components/Header';
 import { useMe, unreadCount, syncFromBuilder, reloadMe } from '../../lib/customerStore';
 import { Dialog, Spinner } from '../../components/ui';
 import { useExpertOrders } from '../../lib/expertStore';
+import { useLang } from '../../lib/i18n';
+import { loadSimple, savePrefs } from '../../lib/simple';
 
 export const ME_NAV = [
   ['home', '/me', 'Home', '⌂'],
@@ -45,6 +47,13 @@ export default function MeLayout() {
   const { pathname } = useLocation();
   useEffect(() => { syncFromBuilder(); }, []);
   useEffect(() => { setMore(false); }, [pathname]);
+  // the Easy dashboard (Phase 4): people whose dashboard is Simple land there; everyone can switch at the top
+  const [t] = useLang();
+  const go = useNavigate();
+  const [simple, setSimple] = useState(null);
+  useEffect(() => { loadSimple().then(setSimple, () => {}); }, []);
+  if (simple?.on && simple.mode === 'simple' && pathname === '/me') return <Navigate to="/me/simple" replace />;
+  const toSimple = async () => { try { await savePrefs({ mode: 'simple' }); } catch { /* open it anyway */ } go('/me/simple'); };
   const link = ([k, to, l, ic], cls = 'admin-link') => (
     <NavLink key={k} to={to} end={to === '/me'} className={cls}>
       <span aria-hidden="true" style={{ width: 18, textAlign: 'center' }}>{ic}</span>{l}
@@ -53,7 +62,7 @@ export default function MeLayout() {
   );
   return (
     <>
-      <Header variant="me" right={<Link to="/builder" state={{ open: 'build' }} className="btn btn-outline hide-sm" style={{ minHeight: 40 }}>Open builder</Link>} />
+      <Header variant="me" right={<span className="row g8">{simple?.on && <button type="button" className="btn btn-outline" style={{ minHeight: 40 }} onClick={toSimple} data-testid="to-simple">{t('simple.switch.toSimple')}</button>}<Link to="/builder" state={{ open: 'build' }} className="btn btn-outline hide-sm" style={{ minHeight: 40 }}>Open builder</Link></span>} />
       <div className="container-wide row g24 me-wrap has-tabs" style={{ padding: '20px 24px 64px', alignItems: 'flex-start' }}>
         <nav aria-label="My dashboard" className="stack sticky me-side" style={{ flex: '0 0 220px', top: 88, gap: 2 }}>
           <span className="xs muted" style={{ padding: '0 10px 6px' }}>Signed in as <strong>{me.account.name}</strong></span>
