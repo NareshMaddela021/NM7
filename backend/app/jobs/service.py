@@ -76,7 +76,8 @@ async def save_batch(
             job = JobIn.model_validate(raw)
         except (ValidationError, ValueError) as e:
             out["rejected"] += 1
-            out["rows"].append({**row, "result": "rejected", "errors": errors_of(e)})
+            # people (Admin bulk import) get plain words; the collector gets field names it can act on
+            out["rows"].append({**row, "result": "rejected", "errors": errors_of(e, plain=source != "collector")})
             continue
         if commit:
             result, doc = await save(db, job, source, actor)

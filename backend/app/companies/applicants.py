@@ -6,7 +6,7 @@ Signed in (header X-Recruiter-Account; any team role reads, main / full / postin
                                                   stage and the talent-pool mark. Opening marks new ones Viewed.
   GET  /api/company/{id}/applicants/{app_id}      one applicant with the resume they applied with
   POST /api/company/{id}/applicants/{app_id}/status {status}     viewed / shortlisted / interview / offer / rejected
-  POST /api/company/{id}/applicants/{app_id}/interview {date, time, minutes, place, link, notes}
+  POST /api/company/{id}/applicants/{app_id}/interview {date, time, minutes, place, link, notes, round, interviewer}
                                                   the student is emailed with a calendar file (.ics); stage Interview
   PUT  /api/company/{id}/applicants/{app_id}/pool {on, note}     the talent pool (people to call for later roles)
   GET  /api/company/{id}/pool                     the talent pool
@@ -131,6 +131,8 @@ def _iv_out(iv: dict[str, Any] | None) -> dict[str, Any] | None:
         "place": iv["place"],
         "link": iv["link"],
         "notes": iv["notes"],
+        "round": iv.get("round", ""),
+        "interviewer": iv.get("interviewer", ""),
     }
 
 
@@ -223,8 +225,10 @@ class InterviewIn(CamelModel):
     place: str = Field("", max_length=200)
     link: str = Field("", max_length=300)
     notes: str = Field("", max_length=500)
+    round: str = Field("", max_length=80)  # "Technical round 1", "HR round" (fix round item 39)
+    interviewer: str = Field("", max_length=80)  # who the student will meet
 
-    @field_validator("place", "notes")
+    @field_validator("place", "notes", "round", "interviewer")
     @classmethod
     def _tidy(cls, v: str) -> str:
         return v.strip()
@@ -261,7 +265,9 @@ def interview_email(company: str, role: str, iv: dict[str, Any], to: str, name: 
     first = (name or "").split(" ")[0] or "there"
     lines = [
         f"Role: {role}",
+        *([f"Round: {iv['round']}"] if iv.get("round") else []),
         f"When: {_ist(iv['starts_at'])} ({iv['minutes']} minutes)",
+        *([f"With: {iv['interviewer']}"] if iv.get("interviewer") else []),
         *([f"Where: {iv['place']}"] if iv["place"] else []),
         *([f"Online: {iv['link']}"] if iv["link"] else []),
         *([f"Notes: {iv['notes']}"] if iv["notes"] else []),
@@ -291,7 +297,7 @@ def interview_email(company: str, role: str, iv: dict[str, Any], to: str, name: 
         sequence=iv["seq"],
         start=iv["starts_at"],
         minutes=iv["minutes"],
-        summary=f"Interview: {company} – {role}",
+        summary=f"Interview: {company} – {role}" + (f" ({iv['round']})" if iv.get("round") else ""),
         location=" · ".join(x for x in (iv["place"], iv["link"]) if x),
         description="\n".join(x for x in (f"{company} – {role}", iv["notes"], f"{site}/me/jobs") if x),
         url=iv["link"],
@@ -322,6 +328,8 @@ async def schedule(
         "place": body.place,
         "link": body.link,
         "notes": body.notes,
+        "round": body.round,
+        "interviewer": body.interviewer,
         "seq": int(old.get("seq", -1)) + 1,
         "by": acc["email_lc"],
     }

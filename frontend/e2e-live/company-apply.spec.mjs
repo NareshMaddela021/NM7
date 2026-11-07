@@ -90,9 +90,11 @@ for (const [label, opts] of SIZES) {
       await ivf.getByLabel('Date').fill(day);
       await ivf.getByLabel('Time (IST)').fill('11:00');
       await ivf.getByLabel('Online link (https://…)').fill('https://meet.example.com/abc');
+      await ivf.getByLabel('Round (optional)').fill('Technical round 1'); // fix round item 39
+      await ivf.getByLabel('Interviewer’s name (optional)').fill('Ravi (HR)');
       await ivf.getByRole('button', { name: 'Send the invite' }).click();
       await expect(card.getByTestId('co-ap-stage')).toHaveText('Interview');
-      await expect(card.getByTestId('co-ap-interview')).toBeVisible();
+      await expect(card.getByTestId('co-ap-interview')).toContainText('Technical round 1 · Ravi (HR)');
       await card.getByRole('button', { name: 'Add to talent pool' }).click();
       await expect(card).toContainText('In your talent pool');
       await card.getByRole('button', { name: 'See the resume' }).click();

@@ -11,14 +11,16 @@ async def test_demo_company(client, db, admin_client):
     assert (await (await admin_client("support")).post("/api/admin/demo-company/open")).status_code == 403
     owner = await admin_client("owner")
     r = (await owner.post("/api/admin/demo-company/open")).json()
-    assert r["jobs"] == 5 and r["applicants"] > 5 and r["samples"] == 3
+    assert r["jobs"] == 5 and r["live"] == 2 and r["applicants"] > 5 and r["samples"] == 3
     session = r["session"]
     # the dashboard as the demo main admin
     mine = (await client.get("/api/company/mine", headers=H(session))).json()
     cid = demo.COMPANY_ID
     assert any(c["id"] == cid for c in (mine["companies"] if isinstance(mine, dict) else mine))
     ov = (await client.get(f"/api/company/{cid}/overview", headers=H(session))).json()
-    assert ov["liveJobs"] == 5 and ov["trust"] == "verified" and ov["myRole"] == "main"
+    # fix round item 11: within the posting limit (3), with room to post one more
+    assert ov["liveJobs"] == 2 and ov["trust"] == "verified" and ov["myRole"] == "main"
+    assert ov["room"]["allowed"] is True and ov["room"]["used"] == 2 and ov["room"]["limit"] == 3
     c = await db[COMPANIES].find_one({"_id": cid})
     assert [m["role"] for m in c["members"]] == ["main", "full"]
     out = (await client.get(f"/api/company/{cid}/applicants", headers=H(session))).json()
@@ -45,3 +47,22 @@ async def test_demo_company(client, db, admin_client):
     assert (await owner.delete("/api/admin/demo-company")).json() == {"removed": 4}
     assert await db[JOBS].count_documents({"company_id": cid}) == 0
     assert await db[APPLICATIONS].count_documents({"company_id": cid}) == 0
+
+
+async def test_demo_samples_approve_and_domain_warning(client, db, admin_client):
+    """Fix round items 10 and 22: the clean sample has both emails confirmed and can be approved; the panel shows each
+    email's real state; a sample whose emails aren't on its website's domain shows the warning."""
+    owner = await admin_client("owner")
+    await owner.post("/api/admin/demo-company/open")
+    got = await owner.get("/api/admin/companies", params={"state": "pending", "q": "(demo)"})
+    q = {x["id"]: x for x in got.json()["items"]}
+    clean, dupe, burst = (q[s] for s in demo.SAMPLES)
+    assert clean["emailsConfirmed"] == {"admin": True, "company": True} and clean["trust"] == "basic"
+    assert dupe["emailsConfirmed"] == {"admin": True, "company": False} and dupe["trust"] == "unverified"
+    assert "email_domain" not in [f["code"] for f in clean["flags"]]
+    gap = next(f for f in burst["flags"] if f["code"] == "email_domain")
+    assert "burst.demo.nm7.invalid" in gap["text"] and "burst-careers.invalid" in gap["text"]
+    r = await owner.post(f"/api/admin/companies/{clean['id']}/approve")
+    assert r.status_code == 200 and r.json()["trust"] == "verified"
+    r = await owner.post(f"/api/admin/companies/{dupe['id']}/approve")
+    assert r.status_code == 400 and r.json()["error"]["code"] == "emails"

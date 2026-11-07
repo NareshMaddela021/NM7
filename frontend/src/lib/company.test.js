@@ -35,3 +35,11 @@ describe('the body sent to the API', () => {
     expect(b.individual).toEqual({ linkedin: 'x', declared: true });
   });
 });
+
+describe('fix round item 21: the company website', () => {
+  it('an email service is never the website', async () => {
+    const { websiteProblem } = await import('./company');
+    for (const w of ['gmail.com', 'https://www.Gmail.com/', 'yahoo.co.in', 'mailinator.com', 'outlook.com/acme']) expect(websiteProblem(w), w).toBe('co.err.freeSite');
+    for (const w of ['acme.co.in', 'https://acme.com', '', 'mygmail.com']) expect(websiteProblem(w), w).toBe('');
+  });
+});

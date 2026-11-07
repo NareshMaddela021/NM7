@@ -26,9 +26,13 @@ for (const [label, opts] of SIZES) {
       await expect(page.getByRole('heading', { level: 1, name: 'Hire freshers and early talent on Nm7' })).toBeVisible();
       // step 1
       await page.getByLabel('Legal name of the company').fill(`Acme Labs ${tag} Pvt Ltd`);
-      await page.getByLabel('Company website').fill(site);
       await page.getByLabel('Industry').fill('Software');
       await page.getByLabel('About the company').fill('We build analytics tools for retail shops.');
+      // fix round item 21: an email service is never the company website
+      await page.getByLabel('Company website').fill('gmail.com');
+      await page.getByRole('button', { name: 'Next' }).click();
+      await expect(page.getByRole('alert')).toContainText('not an email service like gmail.com');
+      await page.getByLabel('Company website').fill(site);
       await wide();
       await page.getByRole('button', { name: 'Next' }).click();
       // step 2: a typo in the GSTIN is caught at once

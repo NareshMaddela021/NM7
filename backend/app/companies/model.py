@@ -24,7 +24,7 @@ from typing import Any, Literal
 
 from pydantic import Field, field_validator, model_validator
 
-from app.companies.checks import check_registration, clean_number, site_domain
+from app.companies.checks import check_registration, clean_number, domain_gap, free_site, site_domain
 from app.core.db import COMPANIES
 from app.core.schemas import CamelModel
 from app.core.time import now
@@ -66,6 +66,8 @@ class DetailsIn(CamelModel):
         d = site_domain(v)
         if not d or "." not in d or not re.match(r"^[a-z0-9.-]+$", d):
             raise ValueError("Enter your website, like acme.com")
+        if free_site(d):  # fix round item 21: gmail.com is an email service, not the company's website
+            raise ValueError("Enter your company’s own website, not an email service like gmail.com.")
         return f"https://{d}"
 
 
@@ -172,6 +174,8 @@ async def flags_for(db, c: dict[str, Any], settings: dict[str, Any]) -> list[dic
     age = (c.get("domain") or {}).get("age_days")
     if age is not None and age < 90:
         out.append({"code": "new_domain", "text": f"The website domain was registered {age} days ago."})
+    if c.get("kind") == "company" and (gap := domain_gap(c)):
+        out.append({"code": "email_domain", "text": gap})  # fix round item 22
     if (c.get("domain") or {}).get("mx") is False:
         out.append({"code": "no_mail", "text": "The website domain doesn’t receive email (no mail server found)."})
     for f in c.get("login_flags") or []:  # unusual sign-ins (C1b)

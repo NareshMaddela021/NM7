@@ -58,3 +58,42 @@ async def test_errors_counted(db):
     await count_error()
     await count_error()
     assert (await db[OPS_DAILY].find_one({"_id": f"errors:{ist_day().isoformat()}"}))["n"] == 2
+
+
+async def test_today_has_jobs_companies_and_auto_apply(owner, db):
+    """Fix round item 38: the Today card counts the job board, companies and Auto Apply too (demo data left out)."""
+    from app.core.db import APPLICATIONS, COMPANIES, JOBS
+
+    t = datetime.now(UTC)
+    live = {"status": "active", "created_at": t, "posted_at": t, "link_check": {"fails": 0}}
+    await db[JOBS].insert_many(
+        [
+            {"_id": "j1", **live, "dedupe_key": "k1", "slug": "s1"},
+            {"_id": "j2", **live, "demo": True, "dedupe_key": "k2", "slug": "s2"},
+        ]
+    )
+    await db[APPLICATIONS].insert_many(
+        [
+            {"_id": "a1", "user_id": "u1", "key": "k1", "job_id": "j1", "created_at": t, "origin": "auto"},
+            {"_id": "a2", "user_id": "u2", "key": "k1", "job_id": "j1", "created_at": t},
+            {
+                "_id": "a3",
+                "user_id": "u3",
+                "key": "k2",
+                "job_id": "j2",
+                "created_at": t,
+                "origin": "auto",
+                "demo": True,
+            },
+        ]
+    )
+    await db[COMPANIES].insert_many(
+        [
+            {"_id": "c1", "slug": "c1", "created_at": t, "review": {"state": "pending"}},
+            {"_id": "c2", "slug": "c2", "created_at": t, "demo": True},
+        ]
+    )
+    r = (await owner.get("/api/admin/today")).json()
+    assert (r["jobsPosted"], r["applications"], r["autoApplications"]) == (1, 2, 1)
+    assert (r["companySignups"], r["companiesWaiting"]) == (1, 1)
+    assert "Job applications: 2 (Auto Apply: 1)" in r["text"] and "Waiting for review: 1" in r["text"]

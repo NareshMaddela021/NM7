@@ -8,6 +8,7 @@ import { useToast } from '../../../components/ui';
 import { PageHead, Panel, Tabs } from '../AdminUI';
 import { Loading, day, emptyIf, http, useAction, useApi } from './common';
 import { keepAccount } from '../../../lib/recruiterPortal';
+import { plainWords } from '../../../lib/company';
 
 const STATES = [['pending', 'Waiting for review'], ['approved', 'Verified'], ['rejected', 'Rejected'], ['blocked', 'Blocked'], ['draft', 'Not finished'], ['all', 'All']];
 const TRUST = { verified: ['Verified', 'b-success'], basic: ['Basic', 'b-signal'], unverified: ['Unverified', 'b-warning'], blocked: ['Blocked', 'b-danger'] };
@@ -98,8 +99,8 @@ function CompanyReview({ id, onClose, onChanged }) {
                   <a href={c.checkAt} target="_blank" rel="noopener noreferrer" data-testid="check-reg">Check on {c.registration.kind === 'gstin' ? 'GST portal' : 'MCA site'} ↗</a></dd></div>
               )}
               {c.individual && <div><dt>LinkedIn</dt><dd><a href={c.individual.linkedin} target="_blank" rel="noopener noreferrer nofollow">{c.individual.linkedin}</a> · {c.individual.declared ? 'declaration ticked' : 'no declaration'}</dd></div>}
-              <div><dt>Category</dt><dd>{c.details.category} · {c.details.structure} · {c.details.size}</dd></div>
-              <div><dt>Emails</dt><dd>{c.adminEmail} (confirmed){c.companyEmail ? ` · ${c.companyEmail} (confirmed)` : ''}</dd></div>
+              <div><dt>Category</dt><dd>{plainWords(c.details.category, c.details.structure, c.details.size)}</dd></div>
+              <div><dt>Emails</dt><dd data-testid="co-emails">{c.adminEmail} ({c.emailsConfirmed?.admin ? 'confirmed' : 'not confirmed'}){c.kind !== 'individual' && ` · ${c.companyEmail || 'company email not added'}${c.companyEmail ? ` (${c.emailsConfirmed?.company ? 'confirmed' : 'not confirmed'})` : ''}`}</dd></div>
               {c.phone && <div><dt>Phone</dt><dd>{c.phone}</dd></div>}
               <div><dt>Team</dt><dd>{c.members.map((m) => `${m.email} (${m.role}${m.status === 'invited' ? ', invited' : ''})`).join(', ')}</dd></div>
               {c.verifiedUntil && <div><dt>Verified until</dt><dd>{day(c.verifiedUntil)}</dd></div>}
@@ -119,7 +120,7 @@ function CompanyReview({ id, onClose, onChanged }) {
                   : <button type="button" className="btn btn-outline" disabled={busy} onClick={() => act('unblock', { to: 'pending' }, 'Unblocked: back in the queue')}>Unblock</button>}
               </div>
             )}
-            {c.trust === 'unverified' && <span className="xs muted">Approve needs the company email confirmed first.</span>}
+            {c.trust === 'unverified' && <span className="xs muted" data-testid="co-approve-why">{c.kind !== 'individual' && !c.emailsConfirmed?.company ? 'Approve needs the company email confirmed first.' : 'Approve needs the main admin’s email confirmed first.'}</span>}
             <details>
               <summary className="small">Activity ({c.log.length})</summary>
               <ul className="stack g4" style={{ margin: '8px 0 0', paddingLeft: 18 }}>

@@ -204,22 +204,55 @@ PERKS = [
 NUM_RE = re.compile(r"(?:₹|rs\.?|inr)?\s*\d[\d,\.]*\s*(?:lpa|lakh|lakhs|k|cr|crore|%)?", re.I)
 
 
-def template(role: str, skills: str, place: str) -> str:
+def _lines(text: str) -> list[str]:
+    return [x.strip(" -•*\t") for x in re.split(r"[\n;]", text or "") if x.strip(" -•*\t")]
+
+
+def template(role: str, skills: str, place: str, duties: str = "") -> str:
+    """The plain draft: only what the company typed, the title word for word, no duties of our own (item 20)."""
     sk = ", ".join(s.strip() for s in re.split(r"[,;/]", skills) if s.strip())
     lines = [f"We are hiring a {role.strip()}."]
     if sk:
         lines.append(f"You will work with {sk}.")
-    lines.append(
-        "What you will do:\n- Work with the team on day-to-day tasks for this role\n"
-        "- Learn and grow with guidance from senior colleagues"
-    )
+    if d := _lines(duties):
+        lines.append("What you will do:\n" + "\n".join(f"- {x[:1].upper()}{x[1:]}" for x in d))
     if sk:
-        lines.append(
-            f"What we look for:\n- Working knowledge of {sk}\n- Willingness to learn; freshers are welcome to apply"
-        )
+        lines.append(f"What we look for:\n- Working knowledge of {sk}")
     if place.strip():
         lines.append(f"Location and pay: {place.strip()}")
     return "\n\n".join(lines)
+
+
+# words any job text may use without the company typing them (not duties, not facts)
+PLAIN = set(
+    "this that with will your you our we are is be for and the from into able also good basic clear daily each help "
+    "working work works knowledge team teams learn learning willing willingness fresher freshers welcome apply role "
+    "roles job jobs skill skills using use used understanding strong ability interest interested eager tasks task "
+    "join joining looking look candidate candidates someone person people company hiring hire".split()
+)
+
+
+def _stems(text: str) -> set[str]:
+    return {w[:5] for w in re.findall(r"[a-z]{4,}", _norm(text))}
+
+
+def new_duties(text: str, given: str) -> list[str]:
+    """Bullet lines (and "You will …" sentences) with words the company never typed: duties the writer added."""
+    have = _stems(given) | {w[:5] for w in PLAIN}
+    out = []
+    for line in text.splitlines():
+        t = line.strip()
+        if not (t.startswith(("-", "•", "*")) or t.lower().startswith("you will")):
+            continue
+        extra = [w for w in re.findall(r"[a-z]{4,}", _norm(t)) if w[:5] not in have]
+        if extra:
+            out.append(t.strip(" -•*")[:80])
+    return out
+
+
+def keeps_title(text: str, role: str) -> bool:
+    """The company's job title, word for word ("Data Entry Executive", never "Order Entry Executive")."""
+    return " ".join(_norm(role).split()) in " ".join(_norm(text).split())
 
 
 def invented(text: str, given: str) -> list[str]:
@@ -235,9 +268,12 @@ def invented(text: str, given: str) -> list[str]:
     return out
 
 
-async def write(db, company_id: str, company: str, role: str, skills: str, place: str) -> dict[str, Any]:
-    """{description, source: ai | template, removed: [...]} — the AI text only when it passes the fact check."""
-    base = template(role, skills, place)
+async def write(
+    db, company_id: str, company: str, role: str, skills: str, place: str, duties: str = ""
+) -> dict[str, Any]:
+    """{description, source: ai | template, removed: [...]} — the AI text only when it passes the fact check: no
+    invented numbers or perks, the company's title word for word, and no duties they didn't type (item 20)."""
+    base = template(role, skills, place, duties)
     if not get_settings().anthropic_api_key:
         return {"description": base, "source": "template", "removed": []}
     from app.core import ai_quota, claude
@@ -246,12 +282,16 @@ async def write(db, company_id: str, company: str, role: str, skills: str, place
         await ai_quota.take(db, "jobs", f"company:{company_id}")
     except Exception:  # noqa: BLE001
         return {"description": base, "source": "template", "removed": []}
-    given = f"{role}\n{skills}\n{place}"
+    given = f"{role}\n{skills}\n{place}\n{duties}"
     prompt = (
-        "Write a clear job description (120-220 words, plain text, short paragraphs and '- ' bullet points) for a job "
+        "Write a clear job description (80-200 words, plain text, short paragraphs and '- ' bullet points) for a job "
         "post aimed at freshers in India. Use ONLY these facts. Do NOT add salary, pay, benefits, perks, work mode, "
-        "company size, history or any number that is not below. If something is missing, leave it out.\n\n"
-        f"Company: {company}\nRole: {role}\nSkills: {skills}\nCity / salary as given: {place}"
+        "company size, history or any number that is not below. If something is missing, leave it out.\n"
+        f'Use the job title exactly as written: "{role.strip()}". Never change or shorten it.\n'
+        "List only the duties written below, in plain words; do not add any other duty or task. "
+        "If no duties are written, do not write a duties list.\n\n"
+        f"Company: {company}\nJob title: {role}\nSkills: {skills}\nCity / salary as given: {place}\n"
+        f"Duties as given: {duties or 'none'}"
     )
 
     def ok(a):
@@ -273,6 +313,9 @@ async def write(db, company_id: str, company: str, role: str, skills: str, place
     except Exception:  # noqa: BLE001
         return {"description": base, "source": "template", "removed": []}
     bad = invented(text, given + "\n" + company)
+    if not keeps_title(text, role):
+        bad.append(f"a changed job title (yours is “{role.strip()}”)")
+    bad += [f"a duty you didn’t write: {x}" for x in new_duties(text, given + "\n" + company)]
     if bad:
         return {"description": base, "source": "template", "removed": bad}
     return {"description": text, "source": "ai", "removed": []}

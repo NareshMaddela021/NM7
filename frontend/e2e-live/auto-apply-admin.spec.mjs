@@ -45,6 +45,7 @@ for (const [label, opts] of SIZES) {
       await expect(admin).not.toHaveURL(/\/login/);
       await admin.goto('/admin/auto-apply');
       await expect(admin.getByTestId('aa-days')).toContainText('Nm7');
+      await expect(admin.getByTestId('aa-days')).not.toContainText('—'); // one number per cell (item 36)
       await expect(admin.getByTestId('aa-runs')).toContainText('students');
       expect(await noSideScroll(admin)).toBe(true);
       // the off switch, with an in-page confirm, then back on

@@ -81,7 +81,7 @@ function JobRow({ t, c, j, can, onEdit, onChanged }) {
         <strong style={{ overflowWrap: 'anywhere' }}>{j.title}</strong>
         <span className={`badge ${TONE[j.status]}`} data-testid="co-job-status">{t(`co.jobs.status.${j.status}`)}</span>
       </div>
-      <span className="xs muted">{[(j.locations || []).join(', ') || (j.remote ? t('jobs.remote') : ''), t(`jobs.exp.${j.experience}`), t(`jobs.type.${j.jobType}`), salaryText(j.salary, t)].filter(Boolean).join(' · ')}</span>
+      <span className="xs muted">{[(j.locations || []).join(', ') || (j.remote ? t('jobs.remote') : ''), t(`jobs.exp.${j.experience}`), t(`jobs.type.${j.jobType}`), salaryText(j.salary, t)].filter((x, i, all) => x && all.indexOf(x) === i).join(' · ')}</span>
       {j.status === 'review' && <p className="xs" style={{ margin: 0, color: 'var(--warning)' }}>{t('co.jobs.reviewNote')}</p>}
       {j.status === 'closed' && j.closedReason && <p className="xs muted" style={{ margin: 0 }}>{j.closedReason}</p>}
       {can && j.status !== 'closed' && (
@@ -107,13 +107,15 @@ function JobForm({ t, c, init, onDone, onCancel }) {
   const [check, setCheck] = useState(null);
   const [busy, setBusy] = useState('');
   const [err, setErr] = useState('');
-  const [writer, setWriter] = useState({ open: false, role: init.f.title, skills: init.f.skills, place: '' });
+  const [writer, setWriter] = useState({ open: false, role: init.f.title, skills: init.f.skills, place: '', duties: '' });
   const [note, setNote] = useState('');
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
   const run = async (what, fn) => { setBusy(what); setErr(''); try { await fn(); } catch (x) { setErr(x.message); } finally { setBusy(''); } };
   const doCheck = () => run('check', async () => setCheck(await rq(`/api/company/${c.id}/jobs/check`, { method: 'POST', body: { job: toBody(f) } })));
   const write = () => run('write', async () => {
-    const r = await rq(`/api/company/${c.id}/jobs/write`, { method: 'POST', body: { role: writer.role, skills: writer.skills, place: writer.place } });
+    // the title the company typed stays word for word; only the duties they typed are used (fix round item 20)
+    const role = (f.title.trim() || writer.role).trim();
+    const r = await rq(`/api/company/${c.id}/jobs/write`, { method: 'POST', body: { role, skills: writer.skills, place: writer.place, duties: writer.duties } });
     setF({ ...f, description: r.description, title: f.title || writer.role, skills: f.skills || writer.skills });
     setNote(r.source === 'ai' ? t('co.jobs.writerAi') : r.removed.length ? t('co.jobs.writerRemoved') : t('co.jobs.writerTemplate'));
   });
@@ -136,10 +138,11 @@ function JobForm({ t, c, init, onDone, onCancel }) {
         <summary className="small"><strong>{t('co.jobs.writer')}</strong></summary>
         <div className="stack g8" style={{ marginTop: 8 }}>
           <span className="xs muted">{t('co.jobs.writerHint')}</span>
-          <div className="field"><label className="label" htmlFor="cw-role">{t('co.jobs.w.role')}</label><input id="cw-role" className="input" maxLength={120} value={writer.role} onChange={(e) => setWriter({ ...writer, role: e.target.value })} /></div>
+          {!f.title.trim() && <div className="field"><label className="label" htmlFor="cw-role">{t('co.jobs.w.role')}</label><input id="cw-role" className="input" maxLength={120} value={writer.role} onChange={(e) => setWriter({ ...writer, role: e.target.value })} /></div>}
           <div className="field"><label className="label" htmlFor="cw-skills">{t('co.jobs.w.skills')}</label><input id="cw-skills" className="input" maxLength={300} value={writer.skills} onChange={(e) => setWriter({ ...writer, skills: e.target.value })} /></div>
+          <div className="field"><label className="label" htmlFor="cw-duties">{t('co.jobs.w.duties')}</label><textarea id="cw-duties" className="input" rows={3} maxLength={1500} value={writer.duties} onChange={(e) => setWriter({ ...writer, duties: e.target.value })} /></div>
           <div className="field"><label className="label" htmlFor="cw-place">{t('co.jobs.w.place')}</label><input id="cw-place" className="input" maxLength={200} value={writer.place} onChange={(e) => setWriter({ ...writer, place: e.target.value })} /></div>
-          <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} disabled={!!busy || writer.role.trim().length < 2} onClick={write}>{busy === 'write' ? t('co.wait') : t('co.jobs.writeIt')}</button>
+          <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} disabled={!!busy || (f.title.trim() || writer.role).trim().length < 2} onClick={write}>{busy === 'write' ? t('co.wait') : t('co.jobs.writeIt')}</button>
         </div>
       </details>
       {note && <p className="xs" role="status" style={{ margin: 0 }} data-testid="co-writer-note">{note}</p>}

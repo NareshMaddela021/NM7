@@ -274,6 +274,7 @@ class WriteIn(CamelModel):
     role: str = Field(min_length=2, max_length=120)
     skills: str = Field("", max_length=300)
     place: str = Field("", max_length=200)  # city and salary, as the company types them
+    duties: str = Field("", max_length=1500)  # what the person will do, one per line (only these are used)
 
 
 @router.post("/{cid}/jobs/write")
@@ -281,4 +282,4 @@ async def write_description(
     cid: str, body: WriteIn, db: DB, x_recruiter_account: str | None = Header(None)
 ) -> dict[str, Any]:
     _, c, _ = await company_for(db, cid, x_recruiter_account, POST)
-    return await jobcheck.write(db, cid, c["details"]["legal_name"], body.role, body.skills, body.place)
+    return await jobcheck.write(db, cid, c["details"]["legal_name"], body.role, body.skills, body.place, body.duties)

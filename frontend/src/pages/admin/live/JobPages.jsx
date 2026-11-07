@@ -262,7 +262,7 @@ function BulkImport({ onDone }) {
     <div className="stack g12" style={{ maxWidth: 900 }}>
       <span className="small muted">Paste a JSON array of jobs, or a CSV with a header row (title, company, company_website, company_logo, locations, work_type, job_type, experience, salary_min, salary_max, salary_period, skills, description, apply_method, apply_url, apply_email, posted_at, closes_at, status; use ; between cities or skills). Preview first: nothing is saved until you press Import. The same job sent again updates it instead of adding a copy.</span>
       <div className="row g12" role="radiogroup" aria-label="Format">
-        {['json', 'csv'].map((k) => <label key={k} className="row g6 small"><input type="radio" name="bi-f" checked={format === k} onChange={() => { setFormat(k); setPreview(null); }} /> {k.toUpperCase()}</label>)}
+        {['json', 'csv'].map((k) => <label key={k} className="row g6 small"><input type="radio" name="bi-f" value={k} aria-label={k === 'json' ? 'JSON' : 'CSV'} checked={format === k} onChange={() => { setFormat(k); setPreview(null); }} /> {k.toUpperCase()}</label>)}
         <label className="small">Or choose a file <input type="file" accept=".json,.csv,application/json,text/csv" onChange={file} /></label>
       </div>
       <label className="sr-only" htmlFor="bi-text">Jobs to import</label>

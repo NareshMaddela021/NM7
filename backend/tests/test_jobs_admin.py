@@ -106,7 +106,9 @@ async def test_bulk_import_preview_then_import(owner, db):
     p = r.json()
     assert p["committed"] is False and (p["created"], p["rejected"]) == (2, 2)
     assert [x["result"] for x in p["rows"]] == ["created", "rejected", "created", "rejected"]
-    assert any("title" in e for e in p["rows"][1]["errors"])
+    # fix round item 34: plain words, not "String should have at least 2 characters"
+    assert "Job title is too short: use at least 2 letters." in p["rows"][1]["errors"]
+    assert not any("String should" in e for r in p["rows"] for e in r.get("errors", []))
     assert await db[JOBS].count_documents({}) == 0  # a preview saves nothing
     r = await owner.post("/api/admin/jobs/import", json={"format": "json", "text": json.dumps(rows), "commit": True})
     assert (r.json()["created"], r.json()["committed"]) == (2, True)

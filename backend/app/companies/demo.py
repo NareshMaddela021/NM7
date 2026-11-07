@@ -26,6 +26,7 @@ from app.core.security import keyed_hash
 from app.core.time import now
 from app.jobs.apply import app_key
 from app.jobs.model import JobIn, slug_for, to_doc
+from app.site import get_site
 
 router = APIRouter(prefix="/api/admin/demo-company", tags=["companies"])
 
@@ -86,7 +87,7 @@ async def remove(db) -> int:
     return n
 
 
-def _company(cid: str, name: str, members: list[dict[str, Any]], **over) -> dict[str, Any]:
+def _company(cid: str, name: str, members: list[dict[str, Any]], website: str = SITE, **over) -> dict[str, Any]:
     t = now()
     c = {
         "_id": cid,
@@ -94,7 +95,7 @@ def _company(cid: str, name: str, members: list[dict[str, Any]], **over) -> dict
         "kind": "company",
         "details": {
             "legal_name": name,
-            "website": SITE,
+            "website": website,
             "category": "startup",
             "structure": "private_limited",
             "industry": "Software",
@@ -150,7 +151,10 @@ async def create(db) -> dict[str, Any]:
     )
     await db[COMPANIES].insert_one(company)
     # the 3 sample sign-ups waiting in Admin → Companies
-    pending = {"review": {"state": "pending", "submitted_at": t}, "verified_until": None, "emails": {"admin": t}}
+    # each sample has its own website; the clean one has both emails confirmed, so Approve works (fix round item 10);
+    # the duplicate one still waits for its company email; the burst one's emails aren't on its website (item 22)
+    pending = {"review": {"state": "pending", "submitted_at": t}, "verified_until": None}
+
     ip = keyed_hash("demo-company-ip", "203.0.113.7")[:32]
     samples = [
         _company(
@@ -159,6 +163,10 @@ async def create(db) -> dict[str, Any]:
             [_member("founder@clean.demo.nm7.invalid", "Clean sample founder (demo)", "main")],
             reg={"kind": "cin", "number": "U72200TG2019PTC123456"},
             reg_key="cin:U72200TG2019PTC123456",
+            company_email="hr@clean.demo.nm7.invalid",
+            emails={"admin": t, "company": t},
+            domain={"name": "clean.demo.nm7.invalid", "mx": True, "age_days": 1400},
+            website="https://clean.demo.nm7.invalid",
             **pending,
         ),
         _company(
@@ -166,6 +174,9 @@ async def create(db) -> dict[str, Any]:
             "Duplicate GSTIN Sample (demo)",
             [_member("owner@dupe.demo.nm7.invalid", "Duplicate sample owner (demo)", "main")],
             flags=[{"code": "duplicate_registration", "text": "The same registration number is on another account."}],
+            emails={"admin": t},
+            domain={"name": "dupe.demo.nm7.invalid", "mx": True, "age_days": 700},
+            website="https://dupe.demo.nm7.invalid",
             **pending,
         ),
         _company(
@@ -179,12 +190,17 @@ async def create(db) -> dict[str, Any]:
                 {"code": "ip_burst", "text": "3 sign-ups from the same address within 2 hours."},
                 {"code": "new_domain", "text": "The website domain was registered 12 days ago."},
             ],
-            domain={"name": "burst.demo.nm7.invalid", "mx": True, "age_days": 12},
+            company_email="jobs@burst-careers.invalid",
+            emails={"admin": t, "company": t},
+            domain={"name": "burst-careers.invalid", "mx": True, "age_days": 12},
+            website="https://burst-careers.invalid",
             **pending,
         ),
     ]
     await db[COMPANIES].insert_many(samples)
-    # 5 jobs (marked demo: never public)
+    # 5 jobs (marked demo: never public). Only as many live as the posting limit allows, less one, so "Post a job"
+    # can be tried straight away (fix round item 11); the rest are closed (filled) and keep their applicants.
+    live = max(1, int((await get_site(db))["companies"]["verified_live_jobs"]) - 1)
     jobs = []
     for i, spec in enumerate(JOBS_DEMO):
         body = JobIn.model_validate(
@@ -207,7 +223,7 @@ async def create(db) -> dict[str, Any]:
             **to_doc(body),
             "_id": f"{COMPANY_ID}-job-{i + 1}",
             "slug": f"{slug_for(body.title, NAME)}-demo{i + 1}",
-            "status": "active",
+            "status": "active" if i < live else "closed",
             "posted_at": t - timedelta(days=i * 2 + 1),
             "source": "company",
             "company_id": COMPANY_ID,
@@ -217,7 +233,7 @@ async def create(db) -> dict[str, Any]:
             "edit_count": 0,
             "demo": True,
             "questions": qs,
-            "closed_reason": "",
+            "closed_reason": "" if i < live else "filled",
             "link_check": {"at": None, "ok": None, "status": None, "fails": 0, "error": ""},
             "review": {"reasons": [], "ai": None, "warnings": []},
             "dedupe_key": f"company:{COMPANY_ID}:{i}",
@@ -291,7 +307,7 @@ async def create(db) -> dict[str, Any]:
     if apps:
         await db[APPLICATIONS].insert_many(apps)
     await refresh(db, COMPANY_ID)
-    return {"company": COMPANY_ID, "jobs": len(jobs), "applicants": len(apps), "samples": len(samples)}
+    return {"company": COMPANY_ID, "jobs": len(jobs), "live": live, "applicants": len(apps), "samples": len(samples)}
 
 
 @router.post("/open")

@@ -125,8 +125,9 @@ async def _extra_jobs(db, company: dict[str, Any]) -> list[dict[str, Any]]:
             "slug": f"{slug_for(title, name)}-{jid[-4:]}",
             "status": "active",
             "posted_at": t,
-            "source": "company",
-            "company_id": company["_id"],
+            # added like an admin job (no company account), so they don't fill the demo company's posting
+            # allowance (fix round item 11)
+            "source": "admin",
             "created_at": t,
             "updated_at": t,
             "edit_count": 0,

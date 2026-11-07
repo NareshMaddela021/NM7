@@ -17,11 +17,13 @@ for (const [label, opts] of SIZES) {
       const card = page.getByTestId('today-card');
       await expect(card).toContainText('New users');
       await expect(card).toContainText('Server errors');
+      for (const k of ['Jobs posted', 'Live jobs', 'Job applications', 'By Auto Apply', 'New companies', 'Companies waiting']) await expect(card).toContainText(k); // item 38
       const href = new URL(await card.getByTestId('today-wa').getAttribute('href'));
       expect(href.origin + href.pathname).toBe('https://wa.me/');
       const text = href.searchParams.get('text');
       expect(text).toMatch(/^Nm7 today so far/);
       expect(text).toContain('Revenue: Rs');
+      expect(text).toContain('Job applications:');
       expect(text).not.toContain('@');
       expect(await noSideScroll(page)).toBe(true);
 

@@ -5,6 +5,7 @@ character); an admin then looks the number up by hand on the government site (Ad
 """
 
 import re
+from typing import Any
 from urllib.parse import urlparse
 
 # ---------- registration numbers ----------
@@ -114,6 +115,25 @@ def email_problem(email: str, *, company: bool, website: str = "") -> str | None
         if not sd or registrable(d) != registrable(sd):
             return f"The company email must be on your website’s domain ({registrable(sd) or 'your website'})."
     return None
+
+
+def free_site(host: str) -> bool:
+    """gmail.com, yahoo.co.in, mailinator.com …: an email service, never a company's own website (fix round 21)."""
+    h = (host or "").lower()
+    return any(x in FREE_DOMAINS or x in DISPOSABLE_DOMAINS for x in (h, registrable(h)))
+
+
+def domain_gap(c: dict[str, Any]) -> str:
+    """A warning when a team email (main admin or company email) isn't on the website's domain (fix round 22).
+    Only a warning for the admin: some small companies use a founder's address at first."""
+    site = registrable(site_domain((c.get("details") or {}).get("website") or ""))
+    if not site:
+        return ""
+    emails = [c.get("admin_email") or "", c.get("company_email") or ""]
+    off = sorted({email_domain(e) for e in emails if e and registrable(email_domain(e)) != site})
+    if not off:
+        return ""
+    return f"The email domain ({', '.join(off)}) doesn’t match the website ({site})."
 
 
 def _test_domain(domain: str) -> bool:

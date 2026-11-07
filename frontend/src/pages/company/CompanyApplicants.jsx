@@ -50,13 +50,22 @@ export default function CompanyApplicants({ t, c }) {
         <span className="xs muted" style={{ flex: '1 1 220px' }}>{t('co.ap.keep', { n: d.keepMonths })}</span>
       </div>
       {d.items.length === 0 && <p className="card-sm small muted" style={{ margin: 0 }}>{t('co.ap.none')}</p>}
-      {chosen.length >= 2 && <Compare t={t} rows={chosen} onClear={() => setPick([])} />}
       <ul className="stack g12" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
         {d.items.map((a, i) => (
           <Applicant key={a.id} t={t} c={c} a={a} rank={i + 1} can={can} picked={pick.includes(a.id)} canPick={pick.length < 3 || pick.includes(a.id)}
             onPick={() => toggle(a.id)} open={open === a.id} onOpen={() => setOpen(open === a.id ? null : a.id)} onChanged={load} />
         ))}
       </ul>
+      {/* a bar that stays at the bottom of the screen while ticking, so the result is right there (fix round item 23) */}
+      {chosen.length > 0 && (
+        <div className="co-ap-bar" data-testid="co-ap-bar">
+          <div className="row g8" style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
+            <span className="small" role="status"><strong>{t('co.ap.picked', { n: chosen.length })}</strong>{chosen.length < 2 ? ` ${t('co.ap.pickMore')}` : ''}</span>
+            <button type="button" className="link-btn small" onClick={() => setPick([])}>{t('co.ap.compareClear')}</button>
+          </div>
+          {chosen.length >= 2 && <Compare t={t} rows={chosen} />}
+        </div>
+      )}
     </section>
   );
 }
@@ -98,12 +107,12 @@ function Applicant({ t, c, a, rank, can, picked, canPick, onPick, open, onOpen, 
       {a.contact ? (
         <span className="xs" data-testid="co-ap-contact"><a href={`mailto:${a.contact.email}`}>{a.contact.email}</a>{a.contact.phone ? ` · ${a.contact.phone}` : ''}</span>
       ) : <span className="xs muted">{t('co.ap.contactLater')}</span>}
-      {a.interview && <span className="xs" data-testid="co-ap-interview">{t('co.ap.ivOn', { when: new Date(a.interview.at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) })}</span>}
+      {a.interview && <span className="xs" data-testid="co-ap-interview">{t('co.ap.ivOn', { when: new Date(a.interview.at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) })}{[a.interview.round, a.interview.interviewer].filter(Boolean).map((x) => ` · ${x}`).join('')}</span>}
       {a.pooled && <span className="xs">{t('co.ap.inPool')}</span>}
       {a.irrelevant && <span className="xs muted" data-testid="co-ap-marked">{t('aa.co.marked')}</span>}
       <div className="row g8" style={{ flexWrap: 'wrap' }}>
         <button type="button" className="link-btn small" aria-expanded={open} onClick={onOpen}>{open ? t('co.ap.hideResume') : t('co.ap.resume')}</button>
-        <label className="row g4 small"><input type="checkbox" checked={picked} disabled={!canPick} onChange={onPick} /> {t('co.ap.compare')}</label>
+        <label className="row g4 small"><input type="checkbox" value={a.id} aria-label={`${t('co.ap.compare')}: ${a.name}`} checked={picked} disabled={!canPick} onChange={onPick} /> {t('co.ap.compare')}</label>
         {can && <button type="button" className="link-btn small" disabled={!!busy} onClick={pool}>{a.pooled ? t('co.ap.unpool') : t('co.ap.pool')}</button>}
         {can && a.origin === 'auto' && <button type="button" className="link-btn small" disabled={!!busy} data-testid="co-ap-irrelevant" onClick={() => act('irr', () => rq(`/api/company/${c.id}/applicants/${a.id}/irrelevant`, { method: 'POST', body: { on: !a.irrelevant } }))}>{a.irrelevant ? t('aa.co.relevant') : t('aa.co.irrelevant')}</button>}
       </div>
@@ -112,7 +121,7 @@ function Applicant({ t, c, a, rank, can, picked, canPick, onPick, open, onOpen, 
           {STAGES.filter((s) => s !== 'viewed' && s !== 'interview' && s !== a.status).map((s) => (
             <button key={s} type="button" className={`btn ${s === 'rejected' ? 'btn-outline' : 'btn-ink'}`} disabled={!!busy} onClick={() => stage(s)}>{t(`co.ap.to.${s}`)}</button>
           ))}
-          {a.status !== 'rejected' && !iv && <button type="button" className="btn btn-outline" disabled={!!busy} onClick={() => setIv({ date: '', time: '10:30', minutes: '30', place: '', link: '', notes: '' })}>{a.interview ? t('co.ap.ivChange') : t('co.ap.ivNew')}</button>}
+          {a.status !== 'rejected' && !iv && <button type="button" className="btn btn-outline" disabled={!!busy} onClick={() => setIv({ date: '', time: '10:30', minutes: '30', round: '', interviewer: '', place: '', link: '', notes: '' })}>{a.interview ? t('co.ap.ivChange') : t('co.ap.ivNew')}</button>}
         </div>
       )}
       {iv && <InterviewForm t={t} iv={iv} setIv={setIv} busy={busy === 'iv'}
@@ -132,6 +141,10 @@ function InterviewForm({ t, iv, setIv, busy, onSend }) {
         <div className="field"><label className="label" htmlFor="iv-d">{t('co.ap.ivDate')}</label><input id="iv-d" type="date" className="input" required value={iv.date} onChange={set('date')} /></div>
         <div className="field"><label className="label" htmlFor="iv-t">{t('co.ap.ivTime')}</label><input id="iv-t" type="time" className="input" required value={iv.time} onChange={set('time')} /></div>
         <div className="field"><label className="label" htmlFor="iv-m">{t('co.ap.ivMinutes')}</label><input id="iv-m" className="input" inputMode="numeric" value={iv.minutes} onChange={set('minutes')} /></div>
+      </div>
+      <div className="co-grid">
+        <div className="field"><label className="label" htmlFor="iv-r">{t('co.ap.ivRound')}</label><input id="iv-r" className="input" maxLength={80} placeholder={t('co.ap.ivRoundEg')} value={iv.round} onChange={set('round')} /></div>
+        <div className="field"><label className="label" htmlFor="iv-w">{t('co.ap.ivWho')}</label><input id="iv-w" className="input" maxLength={80} value={iv.interviewer} onChange={set('interviewer')} /></div>
       </div>
       <div className="field"><label className="label" htmlFor="iv-p">{t('co.ap.ivPlace')}</label><input id="iv-p" className="input" maxLength={200} value={iv.place} onChange={set('place')} /></div>
       <div className="field"><label className="label" htmlFor="iv-l">{t('co.ap.ivLink')}</label><input id="iv-l" className="input" inputMode="url" maxLength={300} placeholder="https://" value={iv.link} onChange={set('link')} /></div>
@@ -158,11 +171,14 @@ function ResumeBox({ t, c, id }) {
   );
 }
 
-function Compare({ t, rows, onClear }) {
+/** Years of experience in plain words: "Less than a year", "1.5 years" (never "0.2"; fix round item 23). */
+export const yearsText = (y, t) => (y == null ? '—' : y < 1 ? t('co.ap.lessYear') : t('co.ap.yearsN', { n: Math.round(y * 2) / 2 }));
+
+function Compare({ t, rows }) {
   const line = (label, f) => <tr><th scope="row" className="xs muted" style={{ textAlign: 'left', fontWeight: 600 }}>{label}</th>{rows.map((a) => <td key={a.id} className="xs">{f(a)}</td>)}</tr>;
   return (
-    <section className="card-sm stack g8" aria-label={t('co.ap.compareTitle')} data-testid="co-ap-compare">
-      <div className="row g8" style={{ justifyContent: 'space-between' }}><strong className="small">{t('co.ap.compareTitle')}</strong><button type="button" className="link-btn small" onClick={onClear}>{t('co.ap.compareClear')}</button></div>
+    <section className="stack g8" aria-label={t('co.ap.compareTitle')} data-testid="co-ap-compare">
+      <strong className="small">{t('co.ap.compareTitle')}</strong>
       <div style={{ overflowX: 'auto' }}>
         <table className="table" style={{ minWidth: 0 }}>
           <thead><tr><td />{rows.map((a) => <th key={a.id} scope="col" className="small">{a.name}</th>)}</tr></thead>
@@ -170,7 +186,7 @@ function Compare({ t, rows, onClear }) {
             {line(t('co.ap.cScore'), (a) => (a.match ? `${a.match.score}/100` : '—'))}
             {line(t('co.ap.cFound'), (a) => a.match?.found.join(', ') || '—')}
             {line(t('co.ap.cMissing'), (a) => a.match?.missing.join(', ') || '—')}
-            {line(t('co.ap.cYears'), (a) => (a.match ? String(a.match.years) : '—'))}
+            {line(t('co.ap.cYears'), (a) => (a.match ? yearsText(a.match.years, t) : '—'))}
             {line(t('co.ap.cFit'), (a) => (a.fit.ok ? t('co.ap.fitOk') : t('co.ap.notFit')))}
             {line(t('co.ap.cStage'), (a) => t(`jobs.app.${a.status}`))}
           </tbody>

@@ -288,3 +288,28 @@ async def test_details_locked_after_approval(client, outbox, db):
     assert err(await client.put(f"/api/company/{c['id']}", json=company(), headers=H(session))) == "locked"
     await db[COMPANIES].update_one({"_id": c["id"]}, {"$set": {"review": {"state": "blocked"}}})
     assert err(await client.get(f"/api/company/{c['id']}", headers=H(session))) == "blocked"
+
+
+async def test_free_email_domain_is_not_a_company_website():
+    """Fix round item 21: gmail.com (or any email service) is refused as the company website at step 1."""
+    from pydantic import ValidationError
+
+    from app.companies.model import DetailsIn
+
+    for site in ("gmail.com", "https://www.yahoo.co.in", "mailinator.com", "outlook.com/acme"):
+        with pytest.raises(ValidationError, match="not an email service"):
+            DetailsIn.model_validate({"legalName": "Acme", "website": site, "category": "startup"})
+    assert DetailsIn.model_validate({"legalName": "Acme", "website": "acme.co.in", "category": "startup"}).website == (
+        "https://acme.co.in"
+    )
+
+
+def test_email_domain_gap_warning():
+    """Fix round item 22: a warning when the team's email isn't on the website's domain."""
+    from app.companies.checks import domain_gap
+
+    c = {"details": {"website": "https://acme.co.in"}, "admin_email": "hr@acme.co.in"}
+    c["company_email"] = "jobs@acme.co.in"
+    assert domain_gap(c) == ""
+    c["admin_email"] = "founder@gmail.com"
+    assert domain_gap(c) == "The email domain (gmail.com) doesn’t match the website (acme.co.in)."

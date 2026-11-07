@@ -136,7 +136,8 @@ function Overview({ t, c, manage }) {
           <span className={`badge ${tone}`} data-testid="co-trust">{t(`co.trustName.${c.trust}`)}</span>
         </div>
         <p className="small" style={{ margin: 0 }}>{t(`co.trust.${c.trust}`)}</p>
-        <p className="small muted" style={{ margin: 0 }} data-testid="co-review">{t(`co.review.${state}`, { reason: c.review.reason || '' })}</p>
+        {/* verified: the line above already says so; no second "Verified by our team." (fix round item 33) */}
+        {!(state === 'approved' && c.trust === 'verified') && <p className="small muted" style={{ margin: 0 }} data-testid="co-review">{t(`co.review.${state}`, { reason: c.review.reason || '' })}</p>}
         {room && <p className="small" style={{ margin: 0 }} data-testid="co-room">{room.allowed ? t(`co.room.${room.period}`, { used: room.used, limit: room.limit }) : room.reason}</p>}
         <p className="xs muted" style={{ margin: 0 }}>{t('co.home.role', { role: t(`co.role.${c.myRole}`) })}</p>
         {unfinished && manage && <Link to="/for-companies" onClick={resume} className="btn btn-ink" style={{ alignSelf: 'flex-start' }}>{t('co.home.continue')}</Link>}
