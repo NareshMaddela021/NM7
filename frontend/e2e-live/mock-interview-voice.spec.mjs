@@ -8,7 +8,9 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
-import { API, PASSWORD, TEST_PERSON, email, login, seed } from './helpers.mjs';
+import { API, PASSWORD, TEST_PERSON, email, login, seed, teluguHindi } from './helpers.mjs';
+
+teluguHindi(test); // the read-aloud language list includes Telugu / Hindi: shown for this file (item 41)
 
 const here = dirname(fileURLToPath(import.meta.url));
 const POST = readFileSync(join(here, 'fixtures', 'job-data-analyst.txt'), 'utf8');
