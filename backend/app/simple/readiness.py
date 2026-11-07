@@ -111,7 +111,7 @@ async def read_inputs(db, uid: str) -> dict[str, Any]:
     r = await resume_for(db, uid)
     raw = (r or {}).get("data") or {}
     d = printed(raw)
-    u = await db[USERS].find_one({"_id": uid}, {"auto_apply.roles": 1, "simple.readiness": 1}) or {}
+    u = await db[USERS].find_one({"_id": uid}, {"auto_apply.roles": 1, "simple.readiness": 1, "demo": 1}) or {}
     roles = ((u.get("auto_apply") or {}).get("roles")) or []
     li = await db[LINKEDIN].find_one({"_id": uid}, {"url": 1}) or {}
     links = d.get("links") if isinstance(d.get("links"), dict) else {}
@@ -158,8 +158,9 @@ async def readiness(db, uid: str, site: dict[str, Any] | None = None) -> dict[st
     if saved.get("sig") == sig and saved.get("out"):
         return saved["out"]
     jobs = []
-    if inputs["roles"]:
-        jobs = await db[JOBS].find(live_filter(), {"title": 1, "skills": 1}).sort("posted_at", -1).to_list(500)
+    if inputs["roles"]:  # demo students (never public) are compared with the demo company's jobs only
+        base = {"status": "active", "demo": True} if inputs["user"].get("demo") else live_filter()
+        jobs = await db[JOBS].find(base, {"title": 1, "skills": 1}).sort("posted_at", -1).to_list(500)
     inputs["role_skills"] = role_skills(jobs, inputs["roles"])
     inputs["ats"] = ats_score(inputs["raw"])["score"] if inputs["has_resume"] else 0
     out = compute(inputs, weights)

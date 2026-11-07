@@ -1,5 +1,5 @@
-// /demo-student#t=… — opened from Admin → Auto Apply → "Reset and open as student (Auto Apply)". Signs this browser in
-// as the made-up demo student (the link works once), then opens the Auto Apply page.
+// /demo-student#t=… — opened from Admin → Auto Apply → "Reset and open as student (Auto Apply)" or "(Easy dashboard,
+// Telugu)". Signs this browser in as that made-up demo student (the link works once), then opens their page.
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Spinner } from '../../components/ui';

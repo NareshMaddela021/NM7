@@ -22,7 +22,7 @@ export function LiveAutoApply() {
   const [busy, run] = useAction(toast);
   const [off, setOff] = useState(false);
   const save = (s, msg) => run(async () => { await http('/api/admin/auto-apply/settings', { method: 'PUT', body: s }); st.reload(); setOff(false); }, msg);
-  const demo = () => run(async () => { const r = await http('/api/admin/auto-apply/demo', { method: 'POST' }); window.location.assign(r.path); });
+  const demo = (url = '/api/admin/auto-apply/demo') => run(async () => { const r = await http(url, { method: 'POST' }); window.location.assign(r.path); });
   return (
     <>
       <PageHead title="Auto Apply" sub="Every morning Nm7 applies for students within their own rules. Nothing is ever submitted on other websites by a bot." />
@@ -75,7 +75,9 @@ export function LiveAutoApply() {
           <section className="card-sm stack g8" aria-label="Demo student" data-testid="aa-demo">
             <strong className="small">Demo student</strong>
             <span className="xs muted">A made-up student with Auto Apply on and one of each: applied on Nm7, sent by email (recorded, not sent), needs your answer, ready to apply, against the demo company’s jobs. Never public. Opening it signs this browser in as the student (the admin console signs out here: use a private window to keep both).</span>
-            <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} disabled={busy} onClick={demo} data-testid="aa-demo-open">Reset and open as student (Auto Apply)</button>
+            <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} disabled={busy} onClick={() => demo()} data-testid="aa-demo-open">Reset and open as student (Auto Apply)</button>
+            <span className="xs muted">Easy dashboard: Ravi Kumar (demo) uses the simple dashboard in Telugu, with a half-done resume (no project yet), a job readiness score near 60%, the demo company’s jobs and one question waiting. Never public.</span>
+            <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} disabled={busy} onClick={() => demo('/api/admin/simple/demo')} data-testid="aa-demo-simple">Reset and open as student (Easy dashboard, Telugu)</button>
           </section>
         </div>
       )}</Loading>
