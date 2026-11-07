@@ -46,6 +46,7 @@ for (const [label, opts] of SIZES) {
       const owner = `fx-autofill-${label}-${Date.now().toString(36)}@nm7.si`;
       seed('admin', owner, 'owner', PASSWORD);
       await page.goto('/admin/login');
+      await expect(page.getByLabel('Work email')).toBeVisible(); // the page is loaded on demand
       // 27: autofill sets the values without the change events React listens to
       await page.evaluate(([e, p]) => { document.getElementById('ad-e').value = e; document.getElementById('ad-p').value = p; }, [owner, PASSWORD]);
       await expect(page.getByTestId('admin-continue')).toBeEnabled();

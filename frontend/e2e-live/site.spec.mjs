@@ -59,14 +59,21 @@ test('legal and contact pages show no [placeholders]', async ({ page }) => {
   }
 });
 
-test('slow server: sign-in says the server is waking up after 3 seconds', async ({ page }) => {
-  await page.route('**/api/auth/login', async (route) => { await new Promise((r) => setTimeout(r, 4500)); await route.continue(); });
+test('slow server: the waking-up notice shows while it wakes and goes as soon as it answers (items 1, 25)', async ({ page }) => {
+  // a sleeping server: every API request waits 4.5 s until it has answered once
+  let asleep = true;
+  await page.route('http://localhost:8001/**', async (route) => { if (asleep) await new Promise((r) => setTimeout(r, 4500)); await route.continue(); });
+  const waking = page.getByText(/Waking up the server/);
   await page.goto('/login');
+  await expect(waking).toBeVisible({ timeout: 4500 }); // after 3 s
+  await expect(waking).toBeHidden({ timeout: 8000 }); // the server answered: gone at once, never stuck
+  asleep = false;
+  // awake now: a slow answer (a sign-in that takes 4.5 s) is not "waking up"
+  await page.route('**/api/auth/login', async (route) => { await new Promise((r) => setTimeout(r, 4500)); await route.continue(); });
   await page.getByLabel('Email').fill('nobody@example.com');
   await page.getByLabel('Password', { exact: true }).fill('whatever-123');
   await page.getByRole('button', { name: 'Sign in' }).click();
-  await expect(page.getByText(/Waking up the server/)).toBeHidden();
-  await expect(page.getByText(/Waking up the server/)).toBeVisible({ timeout: 4000 });
+  await page.waitForTimeout(3500);
+  await expect(waking).toBeHidden();
   await expect(page.getByText('Email or password is wrong.')).toBeVisible({ timeout: 10000 });
-  await expect(page.getByText(/Waking up the server/)).toBeHidden();
 });
