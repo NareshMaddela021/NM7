@@ -1,7 +1,7 @@
 // The Auto Apply summary (Phase 3, A6) on a desktop and a 390 px phone, against the real API: after the morning run
 // the dashboard card says "Applied 1 · 1 need your answer · 0 ready to apply" with buttons to each list; the Auto
 // Apply page shows the week (real numbers, a tip from real data) and the summary-emails switch; the "Stop these
-// emails" page for Auto Apply. No browser dialogs, no sideways scrolling.
+// emails" page for Auto Apply. Answering a question refreshes the today card (fix round item 18). No browser dialogs, no sideways scrolling.
 import { expect, test } from '@playwright/test';
 import { seed } from './helpers.mjs';
 import { SIZES, call, json, noSideScroll } from './college.mjs';
@@ -32,6 +32,11 @@ for (const [label, opts] of SIZES) {
       const week = page.getByTestId('aa-week');
       await expect(week).toContainText('Applied 1 · viewed 0 · shortlisted 0 · interviews 0');
       await expect(week.getByTestId('aa-tip').first()).toContainText('Kafka was asked in 2 of the 2 jobs that matched you');
+      // item 18: answering the question refreshes the "Auto Apply today" card at once, no reload
+      const need = page.getByTestId('aa-need').filter({ hasText: `Report Analyst ${tag}` });
+      await need.getByLabel('Notice period in days?').fill('30');
+      await need.getByRole('button', { name: /Answer and apply/i }).click();
+      await expect(page.getByTestId('aa-summary').getByTestId('aa-sum-today')).toHaveText('Applied 2 · 0 need your answer · 0 ready to apply');
       // the summary emails switch
       await expect(page.getByTestId('aa-emails')).toBeChecked();
       await page.getByText('Email me a short summary on days something happens, and a weekly report').click();

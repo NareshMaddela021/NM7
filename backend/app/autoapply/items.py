@@ -195,7 +195,7 @@ async def _approve(db, u, it, j) -> str:
         )
     got = await engine.deliver(db, it, j, u, copy, it.get("answers") or {})
     upd: dict[str, Any] = {"$set": {**got, "approved": True, "updated_at": now()}}
-    if got["state"] == "queued":
+    if got["state"] in ("queued", "skipped"):
         upd["$unset"] = {"counted_day": ""}
     await db[AUTO_ITEMS].update_one({"_id": it["_id"]}, upd)
     return got["state"]

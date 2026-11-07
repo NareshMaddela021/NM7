@@ -305,13 +305,17 @@ async def deliver(
     mailer=None,
     site: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Send one application through its channel. → the item's new fields (state applied / sent / queued / skipped)."""
+    """Send one application through its channel. → the item's new fields (state applied / sent / queued / skipped).
+    Every way an auto application goes out passes here (the morning run, an answered question, "Apply anyway",
+    Approve, Approve all, a queued email), so the company cap is checked here too (fix round item 9)."""
     t = now()
+    site = site or await get_site(db)
+    if await company_count(db, u["_id"], j, t) >= int(site["auto_apply"]["company_cap"]):
+        return {"state": "skipped", "reason": "company_cap"}
     if j["apply"]["method"] == "email":
         from app.autoapply import emailing
         from app.core.email import get_mailer
 
-        site = site or await get_site(db)
         day = today(t)
         if await emailing.sent_today(db, day) >= int(site["auto_apply"]["email_daily_cap"]):
             return {"state": "queued", "reason": "email_cap"}  # the site's daily email cap: the next run sends it
