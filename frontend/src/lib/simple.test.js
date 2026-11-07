@@ -74,3 +74,28 @@ describe('offline cache', () => {
     expect(m.isOffline({ status: 500 })).toBe(false);
   });
 });
+
+describe('fix round (7 Nov): everything stays inside the easy dashboard', () => {
+  it('items 3, 4, 12: every tile opens a simple screen', async () => {
+    for (const [, , to] of TILES) expect(to).toMatch(/^\/me\/simple\//);
+    expect(Object.fromEntries(TILES.map(([k, , to]) => [k, to]))).toEqual({ resume: '/me/simple/myresume', jobs: '/me/simple/jobs', apps: '/me/simple/apps', practice: '/me/simple/practice' });
+  });
+  it('item 13: every "Things left" button opens a simple screen', async () => {
+    const { READY_PATHS } = await import('../pages/simple/SimpleApp');
+    for (const to of Object.values(READY_PATHS)) expect(to).toMatch(/^\/me\/simple\//);
+    expect(READY_PATHS.roles).toBe('/me/simple/auto');
+  });
+  it('item 5: every fix has plain words; the simple ones stay inside', async () => {
+    const { SIMPLE_FIX, COMMON, resumeParts } = await import('../pages/simple/SimpleMore');
+    for (const k of ['contact', 'linkedin', 'summary', 'experience', 'numbers', 'verbs', 'skills', 'education', 'layout', 'length', 'resume', 'other']) expect(PAGES.en[`simple.fix.${k}`], k).toBeTruthy();
+    for (const to of Object.values(SIMPLE_FIX)) expect(to).toMatch(/^\/me\/simple\//);
+    for (const q of COMMON) { expect(PAGES.en[`simple.pr.${q}`]).toBeTruthy(); expect(PAGES.en[`simple.pr.${q}tip`]).toBeTruthy(); }
+    // item 4: the resume in plain words
+    const p = resumeParts({ personal: { name: 'Asha', email: 'a@x.in', phone: '98' }, edu: [{ degree: 'B.Tech', field: 'CSE', institution: 'JNTU', to: '2025' }], skillGroups: [{ value: 'SQL, Excel' }], proj: [{ title: 'Canteen dashboard', description: 'Built a dashboard\nShowed sales' }] });
+    expect(p).toMatchObject({ name: 'Asha', contact: 'a@x.in · 98', studied: 'B.Tech CSE · JNTU · 2025', skills: ['SQL', 'Excel'], projects: [{ title: 'Canteen dashboard', lines: ['Built a dashboard', 'Showed sales'] }] });
+  });
+  it('item 32: Auto Apply with no job role never says "—"', () => {
+    expect(PAGES.en['aa.will.noRole']).not.toContain('—');
+    expect(PAGES.te['aa.will.noRole']).toBeTruthy();
+  });
+});

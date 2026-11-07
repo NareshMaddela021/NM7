@@ -44,7 +44,7 @@ for (const [label, opts] of SIZES) {
       const after = ph.getByTestId('ph-after');
       await expect(after.locator('li')).toHaveText([
         'Built a college attendance app using Flutter and Firebase',
-        'Project lets teachers mark attendance from their phone',
+        'Designed it to let teachers mark attendance from their phone',
         'Handled the login and attendance screens in a team of 3',
       ]);
       await expect(ph.getByTestId('ph-tip')).toContainText('Add a number if you have one (users, accuracy, time saved)');

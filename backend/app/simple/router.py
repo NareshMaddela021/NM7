@@ -47,7 +47,7 @@ PATHS = {
     "education": "/me/simple/resume?step=studied",
     "skills": "/me/simple/resume?step=skills",
     "projects": "/me/simple/resume?step=projects",
-    "fix_score": "/me/ats",
+    "fix_score": "/me/simple/fixes",
     "auto_apply": "/me/simple/auto",
     "answer": "/me/simple/answers",
     "jobs": "/me/simple/jobs",

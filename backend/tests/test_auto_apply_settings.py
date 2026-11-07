@@ -36,7 +36,11 @@ async def test_gate_consent_and_pause(client, outbox, db):
     await add_resume(client, data=weak)
     g = (await client.get(URL)).json()["gate"]
     assert g["ok"] is False and g["score"] == ats_score(weak)["score"] < 60 and g["need"] == 60
-    assert {f["key"] for f in g["fixes"]} >= {"summary", "experience"} and g["fixes"][0]["path"] == "/builder"
+    assert {f["key"] for f in g["fixes"]} >= {"summary", "experience"}
+    # items 5 and 14: each fix opens the exact builder section, not the builder's start
+    paths = {f["key"]: f["path"] for f in g["fixes"]}
+    assert paths["summary"] == "/builder?start=section&sec=summary"
+    assert paths["experience"] == "/builder?start=section&sec=proj"
     r = await client.put(URL, json=GOOD)
     assert r.status_code == 409 and err(r) == "gate" and r.json()["error"]["gate"]["fixes"]
     # a good resume: consent needed, then on by default

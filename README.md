@@ -1796,3 +1796,12 @@ The full dashboard stays for everyone who wants it.
   English, voice choices and read-aloud are English, job alert emails are English, demo Ravi is English, and saved
   Telugu / Hindi choices are kept but shown as English. On: everything works as before. The browser learns the flag
   from `GET /api/public/site-flags` and keeps it (`nm7site.langs`) so the next visit draws in the right language.
+- **Easy dashboard fixes (items 3, 4, 5, 6, 12, 13, 15, 31, 32):** every tile and button stays inside the easy
+  dashboard: My resume (`/me/simple/myresume`, the resume in plain words with Download PDF), My applications as cards
+  (`/me/simple/apps`), Practice interview (`/me/simple/practice`: common questions one at a time, and practice for
+  each matched job), "Fix my resume" as a simple list of fixes (`/me/simple/fixes`) and "Things left" all open simple
+  screens. Each resume-score fix (here and on Auto Apply) opens the exact builder section
+  (`/builder?start=section&sec=…`). "Write it for me": the rules write proper English lines ("Built a sales
+  dashboard … using Excel and Power BI", "Designed it to show …"), and the AI's lines are no longer rejected for
+  plain resume verbs or word forms. Resume by talking puts the account's name, email and phone on the resume
+  whichever question comes first, and asks for an optional LinkedIn link. Skill chips keep their place when tapped.

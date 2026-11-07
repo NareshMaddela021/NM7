@@ -23,7 +23,7 @@ for (const [label, opts] of SIZES) {
       // the gate: what to fix, and Start is off
       const gate = page.getByTestId('aa-gate');
       await expect(gate).toContainText('Auto Apply starts at 60');
-      await expect(gate.getByRole('link', { name: 'Write a summary of 150–450 characters' })).toHaveAttribute('href', '/builder');
+      await expect(gate.getByRole('link', { name: 'Write a summary of 150–450 characters' })).toHaveAttribute('href', '/builder?start=section&sec=summary'); // item 14: the exact section
       await expect(page.getByTestId('aa-save')).toBeDisabled();
       expect(await noSideScroll(page)).toBe(true);
       // a strong resume passes

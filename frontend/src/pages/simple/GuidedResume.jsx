@@ -16,7 +16,7 @@ function Chips({ options, picked, onToggle, testid }) {
     <div className="sx-chips">
       {options.map((o) => (
         <button key={o} type="button" className="sx-chipbtn" aria-pressed={picked.includes(o)} onClick={() => onToggle(o)} data-testid={testid ? `${testid}-${o}` : undefined}>
-          <span aria-hidden="true">{picked.includes(o) ? '✔ ' : '+ '}</span>{o}
+          <span className="sx-chipic" aria-hidden="true">{picked.includes(o) ? '✔' : '+'}</span>{o}
         </button>
       ))}
     </div>
@@ -82,7 +82,7 @@ export default function GuidedResume({ t, lang, setSay, onDone }) {
   useEffect(() => {
     if (!s || !step) return;
     const a = s.answers?.[step] || {};
-    setV(step === 'about' ? { name: a.name || s.account.name, phone: a.phone || '' } : { ...a });
+    setV(step === 'about' ? { name: a.name || s.account.name, phone: a.phone || s.account.phone || '', linkedin: a.linkedin || '' } : { ...a }); // item 15: the account's phone too
     setErr('');
   }, [step, s?.answers]); // eslint-disable-line react-hooks/exhaustive-deps
   const q = step ? `simple.r.q.${step}.title` : 'simple.r.title';
@@ -106,7 +106,7 @@ export default function GuidedResume({ t, lang, setSay, onDone }) {
   const field = (key, label, extra = {}) => <SpeakField id={`sx-${step}-${key}`} label={label} value={v[key] ?? ''} onChange={(x) => setV({ ...v, [key]: x })} t={t} lang={lang} testid={`sx-${step}-${key}`} {...extra} />;
   let body;
   if (step === 'about') {
-    body = <>{field('name', t('simple.r.q.about.name'), { autoComplete: 'name' })}{field('phone', t('simple.r.q.about.phone'), { inputMode: 'tel', autoComplete: 'tel' })}<p className="sx-hint">{t('simple.r.q.about.email', { email: s.account.email })}</p></>;
+    body = <>{field('name', t('simple.r.q.about.name'), { autoComplete: 'name' })}{field('phone', t('simple.r.q.about.phone'), { inputMode: 'tel', autoComplete: 'tel' })}{field('linkedin', t('simple.r.q.about.linkedin'), { inputMode: 'url' })}<p className="sx-hint">{t('simple.r.q.about.email', { email: s.account.email })}</p></>;
   } else if (step === 'studied') {
     body = <><Chips options={s.chips.degrees} picked={v.degree ? [v.degree] : []} onToggle={(o) => setV({ ...v, degree: v.degree === o ? '' : o })} testid="sx-degree" />{field('field', t('simple.r.q.studied.field'))}</>;
   } else if (step === 'college') {

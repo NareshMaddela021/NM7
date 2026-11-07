@@ -36,7 +36,7 @@ async def test_answers_write_into_the_same_resume(client, outbox, db):
     uid = await me(client, outbox, db)
     s = (await client.get(URL)).json()
     assert s["steps"] == list(STEPS) and len(STEPS) == 10 and s["step"] == 0
-    assert s["account"] == {"name": "Ravi Kumar", "email": "ravi@example.com"}
+    assert s["account"] == {"name": "Ravi Kumar", "email": "ravi@example.com", "phone": ""}
     assert "B.Tech" in s["chips"]["degrees"] and "Telugu" in s["chips"]["langs"]
     # 1 of 10: name and phone; the email comes from the account
     assert (await client.put(f"{URL}/about", json={"value": {"name": ""}})).status_code == 400
@@ -116,6 +116,8 @@ async def test_this_is_what_we_wrote_rules_without_ai(client, outbox, db):
     "ai_lines,source",
     [
         (["Built a website for our college fest using HTML and CSS", "Website shows the event timings"], "ai"),
+        # item 6: plain resume verbs and word forms are fine ("Developed", "Displayed", "showed")
+        (["Developed a website for our college fest using HTML and CSS", "Displayed the event timings"], "ai"),
         # an invented word ("responsive", "1000 users") → dropped → the rules' lines
         (
             ["Built a responsive website for our college fest using HTML and CSS", "Used by 1000 users at the fest"],
@@ -137,3 +139,20 @@ async def test_fact_check_rejects_invented_words(client, outbox, db, monkeypatch
         assert w["lines"] == ai_lines
     else:
         assert all("responsive" not in x and "1000" not in x and "React" not in x for x in w["lines"])
+
+
+async def test_account_contact_on_the_resume_whichever_question_comes_first(client, outbox, db):
+    """Item 15: the account's email and phone go on the resume even when "About you" is never answered; a typed
+    name, a LinkedIn link."""
+    uid = await me(client, outbox, db)
+    await db[USERS].update_one({"_id": uid}, {"$set": {"phone": "+919876543210"}})
+    assert (await client.get(URL)).json()["account"]["phone"] == "+919876543210"
+    await client.put(f"{URL}/skills", json={"value": {"skills": ["AutoCAD"]}})
+    d, _ = await data_of(db, uid)
+    assert d["personal"] == {"name": "Ravi Kumar", "email": "ravi@example.com", "phone": "+919876543210"}
+    r = await client.put(f"{URL}/about", json={"value": {"name": "Ravi K", "linkedin": "not a link"}})
+    assert r.status_code == 400
+    await client.put(f"{URL}/about", json={"value": {"name": "Ravi K", "linkedin": "linkedin.com/in/ravi-k"}})
+    d, _ = await data_of(db, uid)
+    assert d["personal"]["name"] == "Ravi K" and d["links"]["linkedin"] == "linkedin.com/in/ravi-k"
+    assert d["personal"]["email"] == "ravi@example.com"
