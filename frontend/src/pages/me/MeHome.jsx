@@ -17,6 +17,20 @@ import ReadinessCard from './ReadinessCard';
 import PassOffer, { PassActive } from '../../components/PassOffer';
 import { useLang } from '../../lib/i18n';
 
+/** Three numbers measure three different things (fix round item 17): said once, in plain words, where they show. */
+export function ScoresExplained() {
+  return (
+    <details className="card-sm" data-testid="scores-explained">
+      <summary className="small"><strong>What do the three scores mean?</strong></summary>
+      <ul className="small stack g4" style={{ margin: '8px 0 0', paddingLeft: 18 }}>
+        <li><strong>Resume score (ATS)</strong>: how well hiring systems can read this resume. 60 and up is ready to send; 80 and up is strong.</li>
+        <li><strong>Job readiness</strong>: your whole job search, not only the resume: the resume score, a job role chosen, practice and applications.</li>
+        <li><strong>Profile strength</strong> (in the builder): how many sections of this resume have something in them. A full resume can still score low if hiring systems can’t read it well.</li>
+      </ul>
+    </details>
+  );
+}
+
 export default function MeHome() {
   const me = useMe();
   const [t] = useLang();
@@ -61,8 +75,14 @@ export default function MeHome() {
           <div className="stack g4"><span className="mono" style={{ opacity: 0.75, fontSize: 12 }}>GET STARTED</span><strong style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 600 }}>Build your resume — or upload your old one and we’ll rebuild it</strong></div>
           <span className="row g8"><button type="button" className="btn btn-signal btn-lg" onClick={edit}>Open the builder</button><Link to="/" className="btn btn-outline btn-lg" style={{ background: 'transparent', color: 'inherit' }}>Free scan</Link></span>
         </div>
+      ) : score < 60 ? (
+        // "ready" only from a score of 60 (fix round item 16): below it, the next thing is the fixes
+        <div className="card-ink row between g16" data-testid="me-banner" data-state="fix">
+          <div className="stack g4"><span className="mono" style={{ opacity: 0.75, fontSize: 12 }}>DO THIS NEXT</span><strong style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 600 }}>Your resume scores {score}/100. Fix a few things to reach 60, then apply.</strong></div>
+          <button type="button" className="btn btn-signal btn-lg" onClick={edit}>Fix my resume</button>
+        </div>
       ) : (
-        <div className="card-ink row between g16">
+        <div className="card-ink row between g16" data-testid="me-banner" data-state="ready">
           <strong style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 600 }}>Your resume is ready. Time to apply.</strong>
           <Link to="/me/jobs" className="btn btn-signal btn-lg">Track applications</Link>
         </div>
@@ -71,6 +91,8 @@ export default function MeHome() {
       <HealthCard />
 
       <div className="row g16" style={{ alignItems: 'stretch' }}><ReadinessCard /><JobsForYouCard /></div>
+
+      <ScoresExplained />
 
       <div className="kpis">
         <Kpi label="Resume ATS score" value={score} sub={score >= 80 ? 'Good — recruiters’ systems read it well' : 'Below 80 — see the tips'} tone={score >= 80 ? 'var(--success)' : 'var(--warning)'} />

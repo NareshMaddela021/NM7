@@ -43,6 +43,7 @@ function HeroSample({ t }) {
   );
 }
 
+const JOBS = [['board', '/jobs', '💼'], ['auto', '/me/auto-apply', '⚡'], ['simple', '/me/simple', '🙂'], ['companies', '/for-companies', '🏢']];
 const START = [
   ['resume', 'start_resume', '📄'],
   ['papers', 'start_papers', '📷', 'photos'],
@@ -134,6 +135,25 @@ export default function Home() {
                   <span className="hx-start-icon" aria-hidden="true">{icon}</span>
                   <strong>{t(`start.${k}.title`)}</strong>
                   <span className="small muted">{t(`start.${k}.text`)}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* 3 · jobs: the board, Auto Apply, the easy dashboard and companies (fix round item 24) */}
+        <section className="h-pad-sm" aria-labelledby="jobsec-h" lang={lang} data-testid="home-jobs">
+          <div className="h-wrap stack g20">
+            <div className="stack g8">
+              <h2 id="jobsec-h" className="h-sec-title">{t('jobsec.title')}</h2>
+              <p className="muted" style={{ margin: 0 }}>{t('jobsec.sub')}</p>
+            </div>
+            <div className="hx-start">
+              {JOBS.map(([k, to, icon]) => (
+                <Link key={k} to={to} className="hx-start-card" onClick={() => track(`home_${k}`)} data-testid={`home-jobs-${k}`}>
+                  <span className="hx-start-icon" aria-hidden="true">{icon}</span>
+                  <strong>{t(`jobsec.${k}.title`)}</strong>
+                  <span className="small muted">{t(`jobsec.${k}.text`)}</span>
                 </Link>
               ))}
             </div>

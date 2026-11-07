@@ -5,6 +5,9 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "cleanUrls": false,
+  "redirects": [
+    { "source": "/pricing", "destination": "/#pricing", "permanent": false }
+  ],
   "rewrites": [
     {
       "source": "/sitemap-jobs.xml",

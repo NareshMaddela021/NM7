@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 const vercel = JSON.parse(readFileSync(new URL('../../vercel.json', import.meta.url), 'utf8'));
 const app = readFileSync(new URL('../App.jsx', import.meta.url), 'utf8');
 const toRe = (src) => new RegExp(`^${src.replace(/:path\*/g, '.*').replace(/:[a-z]+/g, '[^/]+')}$`);
-const served = (path) => vercel.rewrites.some((r) => toRe(r.source).test(path));
+const served = (path) => [...vercel.rewrites, ...(vercel.redirects || [])].some((r) => toRe(r.source).test(path)); // a redirect serves its path too
 const header = (k) => vercel.headers[0].headers.find((h) => h.key === k)?.value;
 
 describe('vercel.json', () => {
@@ -31,5 +31,11 @@ describe('vercel.json', () => {
     for (const r of routes) expect(served(r.replace(/:[a-z]+/g, 'x')), r).toBe(true);
     for (const p of ['/me/orders/RS-1001', '/admin/team', '/expert/orders/RS-1', '/orders/RS-1/refund', '/r/asha']) expect(served(p), p).toBe(true);
     for (const p of ['/nope', '/wp-admin', '/me-too', '/assets/x.js']) expect(served(p), p).toBe(false);
+  });
+});
+
+describe('fix round item 26', () => {
+  it('/pricing goes to the pricing section of the home page', () => {
+    expect(vercel.redirects).toContainEqual({ source: '/pricing', destination: '/#pricing', permanent: false });
   });
 });

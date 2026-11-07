@@ -447,6 +447,7 @@ export default function App() {
         <Route path="/org/transfer" element={C(<AcceptTransfer />)} />
         <Route path="/org/demo-login" element={<DemoLogin />} />
         <Route path="/demo-student" element={<DemoStudentLogin />} />
+        <Route path="/pricing" element={<Navigate to="/#pricing" replace />} /> {/* the menu uses /#pricing (fix round item 26) */}
         <Route path="/for-orgs" element={<ForOrgs />} />
         <Route path="/status" element={<StatusPage />} />
         <Route path="/accessibility" element={<AccessibilityPage />} />

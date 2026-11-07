@@ -675,6 +675,8 @@ export default function Builder({ embedded = null }) {
               <div className="row between" style={{ alignItems: 'baseline' }}><span className="xs muted">Profile strength</span><span aria-live="polite" className="display" style={{ fontSize: 28 }}>{score}%</span></div>
               <Meter value={score} color={score >= 80 ? 'var(--success)' : score >= 55 ? 'var(--warning)' : 'var(--text3)'} label="Profile strength" />
               <span className="xs faint">{score >= 80 ? 'Excellent — recruiter-ready' : score >= 60 ? 'Good — a few more details help' : 'Keep going'}</span>
+              {/* not the same number as the resume score (ATS) or job readiness (fix round item 17) */}
+              <span className="xs faint" data-testid="strength-means">Sections filled in. Your resume score (how hiring systems read it) is on your dashboard.</span>
             </div>
             {SECS.map((s) => {
               const a = s.id === cur.id && tab === 'content';

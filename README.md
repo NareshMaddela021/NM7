@@ -1811,3 +1811,25 @@ The full dashboard stays for everyone who wants it.
   (no free match used); the match page fills in the job post and scrolls to the result. Apply on Nm7 asks "Send your
   active resume to …?" first (company jobs keep their consent box); the chip says "Applied". Jobs saved on the board
   show in My applications' Saved column.
+- **Auto Apply fixes (items 9, 14, 18):** the 2-per-company-in-30-days cap is checked where every auto application is
+  sent (`engine.deliver`), so answering "Needs your answer", Apply anyway, Approve and Approve all keep to it too. The
+  "Auto Apply today" card refreshes after each action on the lists. Fix links open the exact builder section.
+- **Company and admin fixes (items 10, 11, 20–23, 33–36, 38, 39):** the review panel shows each email's real state and
+  why Approve is off; the demo's clean sample can be approved; the demo company keeps one posting slot free (2 of 3
+  live, the rest closed as filled). The AI job writer keeps the company's title word for word and lists only the
+  duties they typed. Step 1 refuses an email service (gmail.com …) as the website; the admin sees a warning when the
+  team's email isn't on the website's domain. Compare opens a bar at the bottom of the screen; years read "Less than
+  a year". Plain words for codes and bulk import errors; named radios and checkboxes; one number per cell in
+  Applications per day; the Today card counts jobs, applications, Auto Apply and companies; interview invites have a
+  round and an interviewer.
+- **Site-wide fixes (items 1, 16, 17, 24–30):** the "Waking up the server" notice goes as soon as the server answers
+  and never shows for a slow AI answer once the server is awake. The dashboard says "ready" only from a resume score
+  of 60, and explains the three scores (resume score, job readiness, profile strength). The home page has a "Jobs on
+  Nm7" section (job board, Auto Apply, easy dashboard, For companies). `/pricing` opens `/#pricing`, which says the job
+  board, match score and Manual Apply are free. Admin sign-in works with browser autofill; no focus ring round the
+  whole page; the sign-in subtitle mentions jobs.
+- **Cold start (item 1):** the free Render server sleeps after about 15 quiet minutes and takes up to a minute to wake.
+  The site starts waking it on the first page load, but only an always-on server removes the wait: Render's paid
+  instance, or a free uptime monitor (for example UptimeRobot) calling `GET /health` every 5 minutes.
+- **Not code:** item 2 (no real jobs on the board) needs `JOB_INGEST_KEY` set on Render and the collector pointed at
+  `POST /api/jobs/ingest`; item 40 (the tailored copy needs the Tailor pack) is left as it is.
