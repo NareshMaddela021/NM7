@@ -32,7 +32,7 @@ def test_next_step_rules_in_order():
     assert next_step(doc(strong_resume()), {}, 0, 60, aa_site_on=False)["key"] == "jobs"  # Auto Apply off for all
     assert next_step(doc(strong_resume()), {"admin_paused": True}, 0, 60)["key"] == "jobs"
     ans = next_step(doc(strong_resume()), on, 2, 60)
-    assert ans == {"key": "answer", "path": "/me/auto-apply#needs", "count": 2}
+    assert ans == {"key": "answer", "path": "/me/simple/answers", "count": 2}
     assert next_step(doc(strong_resume()), on, 0, 60)["key"] == "jobs"
 
 

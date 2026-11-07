@@ -6,6 +6,7 @@
 //   /me/simple            Your next step + 4 tiles + More (the language is asked first, once)
 //   /me/simple/language   English / తెలుగు / हिंदी, each with a speaker button
 //   /me/simple/resume     build a resume by talking: one question per screen (GuidedResume.jsx)
+//   /me/simple/jobs …     jobs made simple: top 3, Apply, Let Nm7 apply for me, answers, apply on their website
 //   /me/simple/ready      the job readiness score: a big ring, "You are 65% ready", up to 3 things left
 //   /me/simple/more       everything else: links to the full dashboard's pages, "Read screens aloud automatically"
 // 🔊 at the top reads each screen's main words (voice.jsx); each card has its own 🔊.
@@ -17,11 +18,17 @@ import { savePrefs, useSimple } from '../../lib/simple';
 import { SayButton, useAutoRead } from './voice';
 
 const GuidedResume = lazy(() => import('./GuidedResume')); // loaded when the resume questions open
+const jobs = () => import('./SimpleJobs'); // the jobs screens: one small chunk, loaded when one opens
+const Jobs = lazy(() => jobs().then((m) => ({ default: m.Jobs })));
+const Apply = lazy(() => jobs().then((m) => ({ default: m.Apply })));
+const AutoOn = lazy(() => jobs().then((m) => ({ default: m.AutoOn })));
+const Answers = lazy(() => jobs().then((m) => ({ default: m.Answers })));
+const Outside = lazy(() => jobs().then((m) => ({ default: m.Outside })));
 import '../../styles/simple.css';
 
 export const LANG_NAMES = [['en', 'English', 'en-IN', 'English'], ['te', 'తెలుగు', 'te-IN', 'Telugu'], ['hi', 'हिंदी', 'hi-IN', 'Hindi']];
 export const NEXT_ICONS = { resume: '📝', education: '🎓', skills: '🛠️', projects: '💡', fix_score: '📈', auto_apply: '🤖', answer: '💬', jobs: '💼' };
-export const TILES = [['resume', '📄', '/me/simple/resume'], ['jobs', '💼', '/jobs'], ['apps', '📋', '/me/jobs'], ['practice', '🎤', '/me/ats']];
+export const TILES = [['resume', '📄', '/me/simple/resume'], ['jobs', '💼', '/me/simple/jobs'], ['apps', '📋', '/me/jobs'], ['practice', '🎤', '/me/ats']];
 export const READY_ICONS = { resume: '📝', score: '📈', linkedin: '🔗', interview: '🎤', skills: '🛠️', roles: '🎯', certs: '🏅' };
 export const MORE = [
   ['resumes', '📄', '/me/resumes'], ['profile', '👤', '/me/profile'], ['ats', '📈', '/me/ats'], ['auto', '🤖', '/me/auto-apply'],
@@ -198,11 +205,18 @@ export default function SimpleApp() {
     body = <div className="sx-stack" role="status"><p className="sx-p">{t('simple.off')}</p><Big to="/me" icon="🗂️" label={t('simple.offLink')} ink /></div>;
   } else {
     const picked = (d) => { setData(d); nav('/me/simple', { replace: true }); };
+    const screen = { t, lang, setSay };
+    const wait = (el) => <Suspense fallback={<p className="sx-p" role="status">{t('simple.loading')}</p>}>{el}</Suspense>;
     body = (
       <Routes>
         <Route index element={data.lang ? <Home t={t} lang={lang} d={data} setSay={setSay} /> : <Languages t={t} onPicked={setData} setSay={setSay} />} />
         <Route path="language" element={<Languages t={t} onPicked={picked} setSay={setSay} />} />
-        <Route path="resume" element={<Suspense fallback={<p className="sx-p" role="status">{t('simple.loading')}</p>}><GuidedResume t={t} lang={lang} setSay={setSay} onDone={reload} /></Suspense>} />
+        <Route path="resume" element={wait(<GuidedResume t={t} lang={lang} setSay={setSay} onDone={reload} />)} />
+        <Route path="jobs" element={wait(<Jobs {...screen} />)} />
+        <Route path="jobs/:id" element={wait(<Apply {...screen} />)} />
+        <Route path="auto" element={wait(<AutoOn {...screen} />)} />
+        <Route path="answers" element={wait(<Answers {...screen} />)} />
+        <Route path="outside" element={wait(<Outside {...screen} />)} />
         <Route path="ready" element={<Ready t={t} lang={lang} d={data} setSay={setSay} />} />
         <Route path="more" element={<More t={t} d={data} setData={setData} setSay={setSay} />} />
         <Route path="*" element={<Navigate to="/me/simple" replace />} />
