@@ -267,3 +267,34 @@ async def test_morning_only_and_resumable(client, outbox, db, monkeypatch):
     await db[USERS].update_one({"_id": uid}, {"$set": {"auto_apply.lock_until": now() - timedelta(minutes=1)}})
     assert (await engine.run(db, force=True))["applied"] == 1
     assert (await engine.run(db, force=True))["users"] == 0  # done for today
+
+
+async def test_company_cap_on_answer_and_approve(client, outbox, db):
+    """Fix round item 9: the 30-day company cap holds on every path, not only the morning run: answering a question
+    and Approve / Approve all in the preview days never send a third application to the same company."""
+    session, cid = await verified(client, outbox, db)
+    await save_site(db, {"auto_apply": {"company_cap": 2}})
+    q = {"text": "What is your notice period in days?", "kind": "number"}
+    asks = await company_job(client, session, cid, "Data Analyst Notice", questions=[q])
+    uid = await student(client, outbox, db)
+    assert (await engine.run(db, force=True))["needs_answer"] == 1
+    await company_job(client, session, cid, "Data Analyst One")
+    await company_job(client, session, cid, "Data Analyst Two")
+    assert (await run(db))["applied"] == 2  # the company's cap is now used up
+    it = (await client.get(f"{URL}/items")).json()["needsAnswer"][0]
+    r = await client.post(f"{URL}/items/{it['id']}/answer", json={"answers": {"q1": 30}})
+    assert r.json()["state"] == "skipped"
+    assert not await db[APPLICATIONS].find_one({"user_id": uid, "job_id": asks["id"]})
+    assert await db[APPLICATIONS].count_documents({"user_id": uid}) == 2
+    # the preview days: Approve and Approve all keep to the cap too
+    await db[USERS].update_one({"_id": uid}, {"$set": {"auto_apply.started_at": now()}})
+    await company_job(client, session, cid, "Data Analyst Three")
+    await company_job(client, session, cid, "Data Analyst Four")
+    await db[AUTO_ITEMS].update_many({"user_id": uid}, {"$set": {"counted_day": "2000-01-01"}})
+    await db[APPLICATIONS].update_many({"user_id": uid}, {"$set": {"created_at": now() - timedelta(days=40)}})
+    assert (await run(db))["waiting_approval"] == 2  # an old month: room again for 2
+    await db[APPLICATIONS].update_many({"user_id": uid}, {"$set": {"created_at": now()}})  # and now no room
+    waiting = (await client.get(f"{URL}/items")).json()["waiting"]
+    assert (await client.post(f"{URL}/items/{waiting[0]['id']}/approve")).json() == {"state": "skipped"}
+    assert (await client.post(f"{URL}/items/approve-all")).json() == {"applied": 0}
+    assert await db[APPLICATIONS].count_documents({"user_id": uid}) == 2

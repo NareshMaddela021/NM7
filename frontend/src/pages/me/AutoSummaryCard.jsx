@@ -7,10 +7,19 @@ import { useLang } from '../../lib/i18n';
 import { LIVE } from '../../lib/auth';
 import { http } from '../../services/http';
 
+/** The Auto Apply lists changed (an answer, an approval, a tap): the today card reloads (fix round item 18). */
+export const AA_CHANGED = 'nm7-auto-apply-changed';
+
 export default function AutoSummaryCard({ week = false, refreshKey }) {
   const [t] = useLang();
   const [d, setD] = useState(null);
   useEffect(() => { if (LIVE) http('/api/me/auto-apply/summary').then(setD, () => {}); }, [refreshKey]);
+  // item 18: refresh after an action on the lists below (answer, approve, open)
+  useEffect(() => {
+    const again = () => { if (LIVE) http('/api/me/auto-apply/summary').then(setD, () => {}); };
+    window.addEventListener(AA_CHANGED, again);
+    return () => window.removeEventListener(AA_CHANGED, again);
+  }, []);
   if (!d || !d.setUp) return null;
   const c = d.today;
   const w = d.week;

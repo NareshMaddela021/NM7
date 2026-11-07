@@ -5,6 +5,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { API_BASE, http } from '../../services/http';
+import { AA_CHANGED } from './AutoSummaryCard';
 
 const BASE = '/api/me/auto-apply/items';
 
@@ -76,14 +77,16 @@ export default function AutoItems({ t, toast, refreshKey }) {
   const [err, setErr] = useState('');
   const load = useCallback(() => { http(BASE).then(setD, (e) => setErr(e.message)); }, []);
   useEffect(() => { load(); }, [load, refreshKey]);
+  // after an answer, an approval or a tap: the lists and the "Auto Apply today" card both refresh (item 18)
+  const changed = () => { load(); try { window.dispatchEvent(new Event(AA_CHANGED)); } catch { /* no window */ } };
   const said = (r) => toast(r.state === 'applied' ? t('aa.items.applied') : r.state === 'queued' ? t('aa.items.queued') : r.state === 'waiting_approval' ? t('aa.items.waitingToast') : r.state === 'skipped' ? t('aa.items.skipped') : t('aa.items.saved'));
   const act = async (id, path) => {
     setBusy(id); setErr('');
-    try { said(await http(`${BASE}/${id}/${path}`, { method: 'POST' })); load(); } catch (x) { setErr(x.message); } finally { setBusy(''); }
+    try { said(await http(`${BASE}/${id}/${path}`, { method: 'POST' })); changed(); } catch (x) { setErr(x.message); } finally { setBusy(''); }
   };
   const approveAll = async () => {
     setBusy('all'); setErr('');
-    try { const r = await http(`${BASE}/approve-all`, { method: 'POST' }); toast(t('aa.items.approvedAll', { n: r.applied })); load(); } catch (x) { setErr(x.message); } finally { setBusy(''); }
+    try { const r = await http(`${BASE}/approve-all`, { method: 'POST' }); toast(t('aa.items.approvedAll', { n: r.applied })); changed(); } catch (x) { setErr(x.message); } finally { setBusy(''); }
   };
   if (!d) return err ? <p className="error" role="alert">{err}</p> : null;
   return (
@@ -104,7 +107,7 @@ export default function AutoItems({ t, toast, refreshKey }) {
             ) : (
               <>
                 <span className="small">{t('aa.items.questions')}</span>
-                <Questions it={it} t={t} onDone={(r) => { said(r); load(); }} />
+                <Questions it={it} t={t} onDone={(r) => { said(r); changed(); }} />
                 <button type="button" className="link-btn small" style={{ alignSelf: 'flex-start' }} disabled={!!busy} onClick={() => act(it.id, 'skip')}>{t('aa.items.skip')}</button>
               </>
             )}
@@ -135,7 +138,7 @@ export default function AutoItems({ t, toast, refreshKey }) {
             <JobLine it={it} t={t} />
             <div className="row g8" style={{ flexWrap: 'wrap' }}>
               {it.applyUrl && <a className="btn btn-ink" href={it.applyUrl} target="_blank" rel="noopener noreferrer nofollow" data-testid="aa-open"
-                onClick={() => { http(`${BASE}/${it.id}/opened`, { method: 'POST' }).then(() => { toast(t('aa.items.openedToast')); load(); }, () => {}); }}>{t('aa.items.open')} <span aria-hidden="true">↗</span></a>}
+                onClick={() => { http(`${BASE}/${it.id}/opened`, { method: 'POST' }).then(() => { toast(t('aa.items.openedToast')); changed(); }, () => {}); }}>{t('aa.items.open')} <span aria-hidden="true">↗</span></a>}
               {it.hasCopy && <button type="button" className="btn btn-outline" disabled={!!busy} onClick={() => downloadPdf(it.id).catch(() => setErr(t('aa.items.pdfError')))} data-testid="aa-pdf">{t('aa.items.pdf')}</button>}
               <button type="button" className="link-btn small" disabled={!!busy} onClick={() => act(it.id, 'skip')}>{t('aa.items.skip')}</button>
             </div>
