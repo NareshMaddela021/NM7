@@ -46,3 +46,14 @@
 .sx-hint { font-size: 18px; color: var(--text2); }
 .sx-ringrow { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
 .sx-ring { flex: none; max-width: 100%; height: auto; }
+.sx-chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.sx-chipbtn { min-height: 52px; padding: 6px 16px; border-radius: 999px; border: 2px solid var(--text); background: var(--surface); color: var(--text); font: inherit; font-size: 18px; font-weight: 600; cursor: pointer; }
+.sx-chipbtn[aria-pressed="true"] { background: var(--ink); color: var(--onink); border-color: var(--ink); }
+.sx-chipbtn:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.sx-bar { height: 14px; border-radius: 999px; background: var(--sunken); border: 2px solid var(--border2); overflow: hidden; }
+.sx-bar span { display: block; height: 100%; background: var(--success); }
+.sx-navrow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.sx-navrow .sx-big { justify-content: center; }
+.sx-navrow .sx-ink { grid-column: 1 / -1; order: -1; }
+.sx-lines { margin: 0; padding: 16px 16px 16px 36px; border-radius: 16px; border: 2px solid var(--border2); background: var(--surface); font-size: 19px; display: flex; flex-direction: column; gap: 8px; }
+.sx-ok { background: var(--successbg); }

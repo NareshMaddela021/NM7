@@ -7,6 +7,7 @@ bullets from the answers. Always 200 with bullets: never an error page. Nothing 
 """
 
 import logging
+from collections.abc import Callable
 from typing import Any
 
 import anthropic
@@ -57,9 +58,16 @@ async def strengthen(body: StrengthenIn, auth: CustomerAuth, db: DB) -> dict[str
     title = _scrub(body.title)[:120]
     if not answers.get("built") and not title:
         raise ApiError(400, "need_answers", "Tell us what you built first.")
+    return await write_bullets(db, str(auth.user.id), auth.session.kiosk_id, answers, title)
+
+
+async def write_bullets(
+    db, uid: str, kiosk_id: str | None, answers: dict[str, str], title: str, check: Callable | None = None
+) -> dict[str, Any]:
+    """{bullets, source, tip, note, aiLeft}: AI bullets that pass the fact check (helper.grounded, and `check` when
+    given), else the rules' bullets from the answers. Also used by the Easy dashboard's resume by talking."""
     tip = None if helper.has_number(answers) else helper.TIP
     rules = helper.rules_bullets(answers, title)
-    uid = str(auth.user.id)
 
     def out(bullets: list[str], source: str, note: str = "") -> dict[str, Any]:
         return {"bullets": bullets, "source": source, "tip": tip, "note": note}
@@ -68,7 +76,7 @@ async def strengthen(body: StrengthenIn, auth: CustomerAuth, db: DB) -> dict[str
     if not get_settings().anthropic_api_key:
         return {**out(rules, "rules"), "aiLeft": 0}
     try:
-        await ai_quota.take(db, "projects", uid, auth.session.kiosk_id)
+        await ai_quota.take(db, "projects", uid, kiosk_id)
     except ApiError as e:  # today's 3 free AI rewrites are used: the rules write them
         return {**out(rules, "rules", e.message), "aiLeft": 0}
     except ai_quota.CapReached:
@@ -83,7 +91,11 @@ async def strengthen(body: StrengthenIn, auth: CustomerAuth, db: DB) -> dict[str
         await ai_quota.note(db, "projects", "failed")
         log.exception("project helper failed")
         written = []
-    kept = [b for b in written if helper.grounded(b, answers, title) and 4 <= len(b.split()) <= 40]
+    kept = [
+        b
+        for b in written
+        if helper.grounded(b, answers, title) and 4 <= len(b.split()) <= 40 and (check is None or check(b))
+    ]
     if dropped := len(written) - len(kept):
         await ai_quota.note(db, "projects", "dropped", by=dropped)
     if stats.get("fallback"):

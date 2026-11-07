@@ -41,12 +41,12 @@ Lang = Literal["en", "te", "hi"]
 Mode = Literal["simple", "full"]
 LANGS = ("en", "te", "hi")
 
-# where each next step's big button goes (the guided resume, simple jobs etc. replace these as they arrive)
+# where each next step's big button goes (the resume steps open "build a resume by talking" at that question)
 PATHS = {
-    "resume": "/builder",
-    "education": "/builder",
-    "skills": "/builder",
-    "projects": "/builder",
+    "resume": "/me/simple/resume",
+    "education": "/me/simple/resume?step=studied",
+    "skills": "/me/simple/resume?step=skills",
+    "projects": "/me/simple/resume?step=projects",
     "fix_score": "/me/ats",
     "auto_apply": "/me/auto-apply",
     "answer": "/me/auto-apply#needs",

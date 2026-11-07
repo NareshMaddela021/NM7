@@ -40,6 +40,15 @@ describe('simple screen strings', () => {
     expect(keys.sort()).toEqual(Object.keys(NEXT_ICONS).sort());
   });
 
+  it('every resume question has its words', () => {
+    const py = readFileSync(join(__dirname, '..', '..', '..', 'backend', 'app', 'simple', 'guided.py'), 'utf8');
+    const steps = [...py.match(/STEPS = \(([^)]*)\)/)[1].matchAll(/"(\w+)"/g)].map((m) => m[1]);
+    expect(steps).toHaveLength(10);
+    for (const st of steps) expect(PAGES.en[`simple.r.q.${st}.title`], st).toBeTruthy();
+    for (const f of ['built', 'tools', 'does']) expect(PAGES.en[`simple.r.q.projects.${f}`]).toBeTruthy();
+    for (const f of ['company', 'role', 'built']) expect(PAGES.en[`simple.r.q.work.${f}`]).toBeTruthy();
+  });
+
   it('no jargon on the simple screens', () => {
     for (const k of SIMPLE_KEYS) expect(PAGES.en[k], k).not.toMatch(/\bATS\b/);
   });
