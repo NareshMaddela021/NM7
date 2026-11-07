@@ -1753,3 +1753,8 @@ The full dashboard stays for everyone who wants it.
   else Admin's default for Telugu / Hindi (Simple) or everyone else (Full).
 - **Slow internet:** the simple screens are their own small chunk, and the last data is kept for the open tab (session storage, nothing personal in local storage), so with no
   internet they show it with "Will update when internet is back".
+- **Voice everywhere** (`pages/simple/voice.jsx`), with the phone's own voices only (no paid voice service): 🔊 at
+  the top reads each screen's main words, and each card has its own 🔊. It reads in the person's language when the
+  phone has that voice, else the same words in English, else it says "Voice not available on this phone". 🎤 on
+  text answers uses Speak (`lib/speechCore.js`) in the person's language and shows "We heard: …" with Edit / OK
+  before anything is saved. "Read screens aloud automatically" (More, off by default) is kept on the profile.
