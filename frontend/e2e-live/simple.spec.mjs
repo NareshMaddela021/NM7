@@ -6,6 +6,9 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import { SIZES, noSideScroll } from './college.mjs';
 import { STRONG, studentWith } from './autoapply.mjs';
+import { teluguHindi } from './helpers.mjs';
+
+teluguHindi(test); // these tests are about Telugu / Hindi: shown for this file (item 41)
 
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 const axe = async (page) => (await new AxeBuilder({ page }).withTags(TAGS).analyze()).violations

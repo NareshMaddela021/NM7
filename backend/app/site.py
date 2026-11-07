@@ -85,6 +85,8 @@ def defaults() -> dict[str, Any]:
         "auto_apply": dict(AUTO_APPLY),
         # the Easy dashboard (Phase 4): on / off and which dashboard people get before they choose (Admin → Settings)
         "simple": {**SIMPLE, "weights": dict(SIMPLE["weights"])},
+        # Telugu and Hindi (switches, voice, emails): hidden until a native speaker has checked them (Admin → Settings)
+        "languages": {"te_hi": False},
     }
 
 
@@ -103,6 +105,7 @@ async def get_site(db: AsyncDatabase, session: Session = None) -> dict[str, Any]
     out["job_checks"] = {**out["job_checks"], **(stored.get("job_checks") or {})}
     out["auto_apply"] = {**out["auto_apply"], **(stored.get("auto_apply") or {})}
     out["simple"] = {**out["simple"], **(stored.get("simple") or {})}
+    out["languages"] = {**out["languages"], **(stored.get("languages") or {})}
     out["daily_summary_sent"] = stored.get("daily_summary_sent")
     out["rule_runs"] = stored.get("rule_runs", {})
     return out
@@ -110,3 +113,13 @@ async def get_site(db: AsyncDatabase, session: Session = None) -> dict[str, Any]
 
 async def save_site(db: AsyncDatabase, changes: dict[str, Any]) -> None:
     await db[SETTINGS].update_one({"_id": SITE}, {"$set": changes}, upsert=True)
+
+
+def langs_on(site: dict[str, Any]) -> bool:
+    """Telugu and Hindi shown (Admin → Settings → "Show Telugu and Hindi"); off: everything is in English."""
+    return bool(site.get("languages", {}).get("te_hi"))
+
+
+def lang_for(site: dict[str, Any], lang: str | None) -> str:
+    """A saved language, or English when Telugu and Hindi are hidden (or nothing is saved)."""
+    return lang if lang in ("te", "hi") and langs_on(site) else "en"

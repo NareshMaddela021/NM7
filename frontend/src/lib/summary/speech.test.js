@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { LANG_KEY, MESSAGES, SILENCE_MS, SpeechSession, appendSpeech, bestAlternative, defaultSpeechLang, rememberSpeechLang } from './speech';
+import { LANG_KEY, MESSAGES, SILENCE_MS, SpeechSession, appendSpeech, bestAlternative, defaultSpeechLang, rememberSpeechLang, speechLanguages } from './speech';
+import { setLangsShown } from '../i18n';
 
 /** A stand-in for the browser's SpeechRecognition: results accumulate within a run like Chrome's do. */
 class FakeRecognition {
@@ -153,7 +154,15 @@ describe('the language', () => {
     navigator: { language },
     localStorage: { store: saved ? { [LANG_KEY]: saved } : {}, getItem(k) { return this.store[k] ?? null; }, setItem(k, v) { this.store[k] = v; } },
   });
+  it('item 41: no Telugu or Hindi to speak in while they are hidden (the default)', () => {
+    expect(speechLanguages().map(([c]) => c)).not.toContain('te-IN');
+    expect(speechLanguages().map(([c]) => c)).not.toContain('hi-IN');
+    expect(defaultSpeechLang(win('te-IN'))).toBe('en-IN');
+  });
+
   it('remembers the last pick, else follows an Indian browser locale, else English', () => {
+    setLangsShown(true); // Telugu and Hindi shown (Admin → Settings)
+    expect(speechLanguages().map(([c]) => c)).toContain('te-IN');
     expect(defaultSpeechLang(win('en-US', 'ta-IN'))).toBe('ta-IN');
     expect(defaultSpeechLang(win('te-IN'))).toBe('te-IN');
     expect(defaultSpeechLang(win('hi'))).toBe('hi-IN');
@@ -165,5 +174,6 @@ describe('the language', () => {
     const w = win('en-US');
     rememberSpeechLang('kn-IN', w);
     expect(defaultSpeechLang(w)).toBe('kn-IN');
+    setLangsShown(false);
   });
 });

@@ -3,7 +3,9 @@
 // similar jobs), a job that's gone, Save (sign-in first, then the Saved list), Telugu, the jobs sitemap. No sideways
 // scrolling.
 import { expect, test } from '@playwright/test';
-import { API, PASSWORD, email, login, seed } from './helpers.mjs';
+import { API, PASSWORD, email, login, seed, teluguHindi } from './helpers.mjs';
+
+teluguHindi(test); // these tests are about Telugu / Hindi: shown for this file (item 41)
 
 const SIZES = [['desktop', { viewport: { width: 1280, height: 900 } }], ['phone', { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true }]];
 const DESC = 'Build weekly dashboards for our sales team with SQL and Power BI.\nFreshers who know Excel are welcome.';

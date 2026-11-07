@@ -3,21 +3,27 @@ import { describe, expect, it } from 'vitest';
 import STRINGS from '../i18n/home.json';
 import PAGES from '../i18n/pages.json';
 import { CSV_PATH, STATUS, buildCsv } from '../../scripts/i18n-review.mjs';
-import { STRINGS as ALL, loadLang, pickLang, rich, translate } from './i18n';
+import { STRINGS as ALL, langsShown, loadLang, pickLang, rich, translate } from './i18n';
 import { LIMITS, PLAN_FEATURES } from './orgBilling';
 import { PROMISES } from './pricing';
 import { WA_PAY_TEXT } from './waPay';
 
 describe('home languages', () => {
   it('a saved choice wins; else te-IN / hi-IN pick Telugu / Hindi; anything else is English', () => {
-    expect(pickLang('hi', ['te-IN'])).toBe('hi');
-    expect(pickLang(null, ['te-IN', 'en-US'])).toBe('te');
-    expect(pickLang(null, ['hi-IN'])).toBe('hi');
-    expect(pickLang(null, ['hi'])).toBe('hi');
-    expect(pickLang(null, ['en-IN', 'te-IN'])).toBe('en'); // the first known language decides
-    expect(pickLang(null, ['ta-IN'])).toBe('en');
-    expect(pickLang('xx', [])).toBe('en'); // a broken saved value is ignored
-    expect(pickLang(undefined, [undefined])).toBe('en');
+    expect(pickLang('hi', ['te-IN'], true)).toBe('hi');
+    expect(pickLang(null, ['te-IN', 'en-US'], true)).toBe('te');
+    expect(pickLang(null, ['hi-IN'], true)).toBe('hi');
+    expect(pickLang(null, ['hi'], true)).toBe('hi');
+    expect(pickLang(null, ['en-IN', 'te-IN'], true)).toBe('en'); // the first known language decides
+    expect(pickLang(null, ['ta-IN'], true)).toBe('en');
+    expect(pickLang('xx', [], true)).toBe('en'); // a broken saved value is ignored
+    expect(pickLang(undefined, [undefined], true)).toBe('en');
+  });
+
+  it('item 41: while Telugu and Hindi are hidden (the default) everything is English', () => {
+    expect(langsShown()).toBe(false);
+    expect(pickLang('te', ['te-IN'])).toBe('en');
+    expect(pickLang('hi', ['hi-IN'], false)).toBe('en');
   });
 
   it('a missing string falls back to English, then to the key; values are filled in', () => {

@@ -2,7 +2,9 @@
 // first; a tap fills the summary box, which can be edited and is saved; small personal touches (languages in #11,
 // skills in #3). Desktop and a 390 px phone. The guest draft is a filled-in test person (helpers TEST_PERSON: Data Analyst headline, fresher).
 import { expect, test } from '@playwright/test';
-import { asTestPerson } from './helpers.mjs';
+import { asTestPerson, teluguHindi } from './helpers.mjs';
+
+teluguHindi(test); // these tests are about Telugu / Hindi: shown for this file (item 41)
 
 test.beforeEach(({ page }) => asTestPerson(page)); // the builder no longer starts from the sample person
 

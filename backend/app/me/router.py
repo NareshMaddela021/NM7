@@ -519,6 +519,14 @@ async def _referral(db: AsyncDatabase, user: User) -> ReferralOut:
 # ---------- prices (the owner can change them in the admin console) ----------
 
 
+@public.get("/site-flags")
+async def site_flags(db: DB) -> dict[str, Any]:
+    """What every page needs before it draws: whether Telugu and Hindi are shown."""
+    from app.site import langs_on
+
+    return {"langs": langs_on(await get_site(db))}
+
+
 @public.get("/prices")
 async def prices(db: DB) -> dict[str, Any]:
     site = await get_site(db)

@@ -5,6 +5,9 @@
 import { expect, test } from '@playwright/test';
 import { SIZES } from './college.mjs';
 import { STRONG, studentWith } from './autoapply.mjs';
+import { teluguHindi } from './helpers.mjs';
+
+teluguHindi(test); // these tests are about Telugu / Hindi: shown for this file (item 41)
 
 const fakeVoices = () => {
   window.__voices = ['en-IN', 'te-IN'];

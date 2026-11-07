@@ -742,6 +742,11 @@ class SettingsIn(CamelModel):
     companies: "CompanyLimitsIn | None" = None
     job_checks: "JobChecksIn | None" = None
     simple: "SimpleSettingsIn | None" = None
+    languages: "LanguagesIn | None" = None
+
+
+class LanguagesIn(CamelModel):
+    te_hi: bool  # show Telugu and Hindi (language switches, voice, emails); off: English everywhere
 
 
 class SimpleSettingsIn(CamelModel):
@@ -819,6 +824,7 @@ def _settings_out(site: dict[str, Any]) -> dict[str, Any]:
             "defaultOther": site["simple"]["default_other"],
             "weights": site["simple"]["weights"],
         },
+        "languages": {"teHi": bool(site["languages"]["te_hi"])},
         "companies": {
             "basicJobsPerWeek": site["companies"]["basic_jobs_per_week"],
             "verifiedLiveJobs": site["companies"]["verified_live_jobs"],
@@ -861,6 +867,9 @@ async def put_settings(body: SettingsIn, request: Request, db: DB, auth: AdminAu
     if body.companies and body.companies.model_dump() != before["companies"]:
         changes["companies"] = body.companies.model_dump()
         diff["companies"] = {"from": before["companies"], "to": changes["companies"]}
+    if body.languages and body.languages.model_dump() != before["languages"]:
+        changes["languages"] = body.languages.model_dump()
+        diff["languages"] = {"from": before["languages"], "to": changes["languages"]}
     if body.simple:
         new = {**before["simple"], **body.simple.model_dump(exclude_none=True)}
         if new != before["simple"]:

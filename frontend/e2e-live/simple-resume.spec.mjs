@@ -4,8 +4,11 @@
 // (Accept), and everything in the same resume the full builder opens. No browser dialogs, no sideways scrolling.
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
+import { teluguHindi } from './helpers.mjs';
 import { SIZES, call, noSideScroll } from './college.mjs';
 import { studentWith } from './autoapply.mjs';
+
+teluguHindi(test); // these tests are about Telugu / Hindi: shown for this file (item 41)
 
 const fakeMic = () => {
   window.webkitSpeechRecognition = class {

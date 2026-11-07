@@ -3,8 +3,10 @@
 // link in the chosen language (Telugu here), and the email's "Stop these emails" link turns alerts off. No sideways
 // scrolling.
 import { expect, test } from '@playwright/test';
-import { email, login, seed } from './helpers.mjs';
+import { email, login, seed, teluguHindi } from './helpers.mjs';
 import { SIZES, noSideScroll } from './college.mjs';
+
+teluguHindi(test); // these tests are about Telugu / Hindi: shown for this file (item 41)
 
 const DESC = 'Build weekly dashboards in SQL and Power BI for our retail stores. Freshers are welcome; training is given.';
 

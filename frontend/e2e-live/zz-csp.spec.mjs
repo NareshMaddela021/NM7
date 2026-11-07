@@ -1,6 +1,8 @@
 // Runs only against a production build served with the vercel.json headers (CSP_CHECK=1): no CSP violations.
 import { expect, test } from '@playwright/test';
-import { PASSWORD, adminLogin, email, login, readQrPng, seed, downloadThrough } from './helpers.mjs';
+import { PASSWORD, adminLogin, email, login, readQrPng, seed, downloadThrough, teluguHindi } from './helpers.mjs';
+
+teluguHindi(test); // these tests are about Telugu / Hindi: shown for this file (item 41)
 
 test.skip(!process.env.CSP_CHECK, 'needs the production build with headers (npm run test:e2e:csp)');
 

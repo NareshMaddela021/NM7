@@ -4,6 +4,9 @@
 // to the next page, English comes back with one tap — and the legal pages stay English.
 import { expect, test } from '@playwright/test';
 import { SIZES, noSideScroll } from './college.mjs';
+import { teluguHindi } from './helpers.mjs';
+
+teluguHindi(test); // these tests are about Telugu / Hindi: shown for this file (item 41)
 
 /** Each page: where it is, its heading in English and Telugu, and the part that carries the language. */
 const PAGES = [

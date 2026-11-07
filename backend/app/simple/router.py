@@ -32,7 +32,7 @@ from app.core.schemas import CamelModel
 from app.core.time import now
 from app.orgs.ats import _list, all_skills, ats_score, printed
 from app.orgs.scope import OrgScope
-from app.site import get_site
+from app.site import get_site, lang_for, langs_on
 
 router = APIRouter(prefix="/api/me/simple", tags=["easy dashboard"])
 org = APIRouter(prefix="/api/org/{org_id}/simple", tags=["easy dashboard"])
@@ -107,7 +107,7 @@ def mode_of(prefs: dict[str, Any], site: dict[str, Any], college: bool, hint: st
         return prefs["mode"]
     if college:
         return "simple"
-    lang = prefs.get("lang") or hint
+    lang = lang_for(site, prefs.get("lang") or hint)  # hidden Telugu / Hindi count as English
     return s["default_te_hi"] if lang in ("te", "hi") else s["default_other"]
 
 
@@ -127,7 +127,9 @@ async def home(db: DB, auth: CustomerAuth, hint: str | None = None) -> dict[str,
     ready = await readiness(db, uid, site)
     return {
         "on": bool(site["simple"]["on"]),
-        "lang": prefs.get("lang"),
+        # None: ask first; while Telugu and Hindi are hidden there is nothing to ask: English
+        "lang": prefs.get("lang") and lang_for(site, prefs["lang"]) if langs_on(site) else "en",
+        "langs": langs_on(site),
         "mode": mode_of(prefs, site, await college_simple(db, uid), hint if hint in LANGS else None),
         "modeChosen": prefs.get("mode") in ("simple", "full"),
         "autoRead": bool(prefs.get("auto_read")),

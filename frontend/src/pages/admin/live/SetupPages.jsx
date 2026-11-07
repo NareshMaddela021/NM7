@@ -45,7 +45,7 @@ export function LiveSettings() {
   // the form keeps what was typed (text), so a bad value can be explained instead of silently becoming 0
   const toForm = (d) => {
     const g = (o) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, { ...v, text: String(Math.round(v.amount / 100)) }]));
-    return { ...d, plans: g(d.plans), addons: g(d.addons), hoursText: String(d.deliveryHours), referral: { ...(d.referral || { on: true, needed: 3 }), text: String(d.referral?.needed ?? 3) }, dailySummary: d.dailySummary || { on: true }, simple: { on: true, defaultTeHi: 'simple', defaultOther: 'full', ...(d.simple || {}), weights: Object.fromEntries(Object.entries(d.simple?.weights || { resume: 20, score: 25, linkedin: 10, interview: 15, skills: 20, certs: 10 }).map(([k, v]) => [k, String(v)])) }, jobChecks: { blocked: (d.jobChecks?.blocked || []).join('\n'), scam: (d.jobChecks?.scam || []).join('\n') }, companies: Object.fromEntries(Object.entries({ noReplyDays: 14, applicantMonths: 12, ...(d.companies || { basicJobsPerWeek: 1, verifiedLiveJobs: 3, verifiedMonths: 12, ipBurst: 3 }) }).map(([k, v]) => [k, String(v)])) };
+    return { ...d, plans: g(d.plans), addons: g(d.addons), hoursText: String(d.deliveryHours), referral: { ...(d.referral || { on: true, needed: 3 }), text: String(d.referral?.needed ?? 3) }, dailySummary: d.dailySummary || { on: true }, languages: d.languages || { teHi: false }, simple: { on: true, defaultTeHi: 'simple', defaultOther: 'full', ...(d.simple || {}), weights: Object.fromEntries(Object.entries(d.simple?.weights || { resume: 20, score: 25, linkedin: 10, interview: 15, skills: 20, certs: 10 }).map(([k, v]) => [k, String(v)])) }, jobChecks: { blocked: (d.jobChecks?.blocked || []).join('\n'), scam: (d.jobChecks?.scam || []).join('\n') }, companies: Object.fromEntries(Object.entries({ noReplyDays: 14, applicantMonths: 12, ...(d.companies || { basicJobsPerWeek: 1, verifiedLiveJobs: 3, verifiedMonths: 12, ipBurst: 3 }) }).map(([k, v]) => [k, String(v)])) };
   };
   useEffect(() => { if (st.data) setF(toForm(st.data)); }, [st.data]);
   const errs = f ? settingsErrors(f) : {};
@@ -68,7 +68,7 @@ export function LiveSettings() {
   };
   const save = () => run(async () => {
     const pick = (g) => Object.fromEntries(Object.entries(f[g]).map(([k, v]) => [k, { amount: Number(v.text) * 100, active: v.active }]));
-    const r = await http('/api/admin/settings', { method: 'PUT', body: { plans: pick('plans'), addons: pick('addons'), deliveryHours: Number(f.hoursText), referral: { on: f.referral.on, needed: Number(f.referral.text) }, dailySummary: f.dailySummary, simple: { ...f.simple, weights: Object.fromEntries(Object.entries(f.simple.weights).map(([k, v]) => [k, Number(v)])) }, companies: Object.fromEntries(Object.entries(f.companies).map(([k, v]) => [k, Number(v)])), jobChecks: { blocked: f.jobChecks.blocked.split('\n').map((x) => x.trim()).filter(Boolean), scam: f.jobChecks.scam.split('\n').map((x) => x.trim()).filter(Boolean) } } });
+    const r = await http('/api/admin/settings', { method: 'PUT', body: { plans: pick('plans'), addons: pick('addons'), deliveryHours: Number(f.hoursText), referral: { on: f.referral.on, needed: Number(f.referral.text) }, dailySummary: f.dailySummary, languages: f.languages, simple: { ...f.simple, weights: Object.fromEntries(Object.entries(f.simple.weights).map(([k, v]) => [k, Number(v)])) }, companies: Object.fromEntries(Object.entries(f.companies).map(([k, v]) => [k, Number(v)])), jobChecks: { blocked: f.jobChecks.blocked.split('\n').map((x) => x.trim()).filter(Boolean), scam: f.jobChecks.scam.split('\n').map((x) => x.trim()).filter(Boolean) } } });
     setF(toForm(r)); st.reload();
   }, 'Saved — new orders use these prices');
   return (
@@ -95,6 +95,11 @@ export function LiveSettings() {
             <strong>Daily summary</strong>
             <label className="row g8 small"><input type="checkbox" checked={f.dailySummary.on} onChange={(e) => setF({ ...f, dailySummary: { on: e.target.checked } })} data-testid="daily-on" />Email the Owner admins yesterday’s numbers every day at 8:00 IST (new users, resumes, orders, revenue, codes used, new organizations, server errors)</label>
             <span className="xs muted">The Dashboard’s “Today so far” card has a Share to WhatsApp button for sending the numbers from your phone.</span>
+          </section>
+          <section className="card stack g12" aria-label="Languages" data-testid="lang-settings">
+            <strong>Languages</strong>
+            <label className="row g8 small"><input type="checkbox" checked={f.languages.teHi} onChange={(e) => setF({ ...f, languages: { teHi: e.target.checked } })} data-testid="langs-on" />Show Telugu and Hindi</label>
+            <span className="xs muted">Off: no language switch on any page, the easy dashboard doesn’t ask for a language, and voice, emails and alerts are in English. People’s saved Telugu / Hindi choices are kept and come back when this is on. Turn it on once a native speaker has checked the translations (docs/translations-review.csv).</span>
           </section>
           <section className="card stack g12" aria-label="Easy dashboard" data-testid="simple-settings">
             <strong>Easy dashboard</strong>

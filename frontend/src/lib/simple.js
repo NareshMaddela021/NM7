@@ -3,7 +3,7 @@
 // ("Will update when internet is back"). The key starts with nm7-, so signing out wipes it too (lib/auth.js).
 import { useCallback, useEffect, useState } from 'react';
 import { http } from '../services/http';
-import { STORE_KEY, setLang } from './i18n';
+import { STORE_KEY, setLang, setLangsShown } from './i18n';
 
 export const CACHE_KEY = 'nm7-simple-cache';
 const LANG_CODES = ['en', 'te', 'hi'];
@@ -16,7 +16,11 @@ function keep(d) { try { sessionStorage.setItem(CACHE_KEY, JSON.stringify(d)); }
 export const hint = () => (LANG_CODES.includes(read(STORE_KEY)) ? read(STORE_KEY) : '');
 
 /** The person's own language wins on the simple screens: the whole site follows it in this browser. */
-export const applyLang = (d) => { if (d?.lang && LANG_CODES.includes(d.lang)) setLang(d.lang); return d; };
+export const applyLang = (d) => {
+  if (d && 'langs' in d) setLangsShown(d.langs); // Telugu and Hindi shown or hidden (Admin → Settings)
+  if (d?.lang && LANG_CODES.includes(d.lang)) setLang(d.lang);
+  return d;
+};
 
 let inflight = null;
 export function loadSimple() {

@@ -6,8 +6,10 @@
 //           Telugu note → English headlines, no experience step; AI's invented facts are dropped; over the limit →
 //           rules, never an error page. Locked items never open a checkout.
 import { expect, test } from '@playwright/test';
-import { API, PASSWORD, TEST_PERSON, email, login, seed } from './helpers.mjs';
+import { API, PASSWORD, TEST_PERSON, email, login, seed, teluguHindi } from './helpers.mjs';
 import { linkedinPdf } from './linkedinPdf.mjs';
+
+teluguHindi(test); // these tests are about Telugu / Hindi: shown for this file (item 41)
 
 const SIZES = [['desktop', { viewport: { width: 1280, height: 900 } }], ['phone', { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true }]];
 const HEADLINES = '**/api/me/linkedin/headlines';

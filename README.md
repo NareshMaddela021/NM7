@@ -1788,3 +1788,11 @@ The full dashboard stays for everyone who wants it.
   "Needs your answer" question. One-time link (5 minutes); demo jobs are never public and demo students never run.
 - **Size budget:** `npm run budget` (in CI after the build) checks the JavaScript a phone downloads to open
   /me/simple, gzipped, stays under 150 KB in English and in Telugu / Hindi, and prints a slow-3G estimate.
+
+## Fix round (7 Nov live test)
+
+- **Telugu and Hindi hidden (item 41):** Admin → Settings → Languages → "Show Telugu and Hindi" (off by default,
+  `site.languages.te_hi`). Off: no language switch on any page, the easy dashboard doesn't ask for a language and is
+  English, voice choices and read-aloud are English, job alert emails are English, demo Ravi is English, and saved
+  Telugu / Hindi choices are kept but shown as English. On: everything works as before. The browser learns the flag
+  from `GET /api/public/site-flags` and keeps it (`nm7site.langs`) so the next visit draws in the right language.

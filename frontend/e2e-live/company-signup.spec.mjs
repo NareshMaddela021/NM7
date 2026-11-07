@@ -4,7 +4,9 @@
 // submit; /company then shows Basic, "with our team for review" and the posting allowance. The individual
 // recruiter path asks for LinkedIn + a declaration and never for ID numbers. Telugu. No sideways scrolling.
 import { expect, test } from '@playwright/test';
-import { lastCode } from './helpers.mjs';
+import { lastCode, teluguHindi } from './helpers.mjs';
+
+teluguHindi(test); // these tests are about Telugu / Hindi: shown for this file (item 41)
 
 const SIZES = [['desktop', { viewport: { width: 1280, height: 900 } }], ['phone', { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true }]];
 

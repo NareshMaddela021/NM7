@@ -1,8 +1,9 @@
 // The summary writer (Layer A, no network): a note → Make my summary → three cards → pick one → edit → it is saved
 // with the draft, and the note is never printed on the resume. Desktop and a 390px phone.
 import { expect, test } from '@playwright/test';
-import { asTestPerson } from './helpers.mjs';
+import { asTestPerson, teluguHindi } from './helpers.mjs';
 
+teluguHindi(test); // the Speak language list includes Telugu / Hindi: shown for this file (item 41)
 test.beforeEach(({ page }) => asTestPerson(page)); // the builder no longer starts from the sample person
 
 async function openSummaryStep(page) {

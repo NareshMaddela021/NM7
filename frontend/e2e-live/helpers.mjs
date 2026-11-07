@@ -18,6 +18,12 @@ export function seed(...args) {
   return JSON.parse(out.trim().split('\n').pop());
 }
 
+/** Telugu and Hindi are hidden unless Admin shows them (item 41): specs about them turn them on, then off again. */
+export function teluguHindi(test) {
+  test.beforeAll(() => seed('site-langs', 'on'));
+  test.afterAll(() => seed('site-langs', 'off'));
+}
+
 let n = 0;
 /** A unique email per test run. */
 export const email = (who) => `${who}-${Date.now().toString(36)}-${(n += 1)}@example.com`;

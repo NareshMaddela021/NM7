@@ -11,15 +11,20 @@
 // - plain messages for the usual errors.
 import dictionary from './dictionary.json';
 import { DEFAULT_SPEECH_LANG } from '../speechCore';
+import { langsShown } from '../i18n';
 
 export * from '../speechCore';
 
-export const SPEECH_LANGUAGES = dictionary.speechLanguages; // [[code, label], …], en-IN first
+const ALL_SPEECH = dictionary.speechLanguages; // [[code, label], …], en-IN first
+const HIDDEN = /^(te|hi)-/;
+/** The languages to speak in: without Telugu and Hindi while they are hidden (Admin → Settings). */
+export const speechLanguages = () => (langsShown() ? ALL_SPEECH : ALL_SPEECH.filter(([c]) => !HIDDEN.test(c)));
+export const SPEECH_LANGUAGES = ALL_SPEECH;
 export const LANG_KEY = 'nm7.speechLang';
 
 /** The code to start with: the last one picked here, else the browser's own Indian locale, else English (en-IN). */
 export function defaultSpeechLang(win = typeof window !== 'undefined' ? window : undefined) {
-  const codes = SPEECH_LANGUAGES.map(([c]) => c);
+  const codes = speechLanguages().map(([c]) => c);
   try {
     const saved = win?.localStorage?.getItem(LANG_KEY);
     if (saved && codes.includes(saved)) return saved;

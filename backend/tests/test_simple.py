@@ -4,6 +4,7 @@ off switch) and the activity log."""
 
 from app.core.db import AUDIT_LOG, AUTO_ITEMS, USERS
 from app.simple.router import next_step
+from app.site import save_site
 from tests.conftest import signup
 from tests.jobs_helpers import add_resume, resume, strong_resume
 from tests.test_orgs import join, member, setup_group
@@ -38,8 +39,15 @@ def test_next_step_rules_in_order():
 
 async def test_language_first_and_mode_defaults(client, outbox, db, admin_client):
     await signup(client, outbox, email="ravi@example.com", name="Ravi Kumar")
+    await save_site(db, {"languages": {"te_hi": True}})  # Telugu and Hindi shown (Admin → Settings)
     r = (await client.get(URL)).json()
-    assert r["on"] is True and r["lang"] is None and r["mode"] == "full" and r["modeChosen"] is False
+    assert (
+        r["on"] is True
+        and r["langs"] is True
+        and r["lang"] is None
+        and r["mode"] == "full"
+        and r["modeChosen"] is False
+    )
     assert r["next"]["key"] == "resume" and r["name"] == "Ravi"
     assert (await client.get(URL, params={"hint": "te"})).json()["mode"] == "simple"  # picked Telugu on the site
     assert (await client.get(URL, params={"hint": "xx"})).json()["mode"] == "full"
@@ -108,3 +116,20 @@ async def test_counts_and_next_step_from_the_real_resume(client, outbox, db):
     await db[AUTO_ITEMS].insert_one({"_id": "i1", "user_id": uid, "job_id": "j1", "state": "needs_answer"})
     r = (await client.get(URL)).json()
     assert r["next"]["key"] == "answer" and r["counts"] == {"needs": 1, "ready": 0, "autoOn": True}
+
+
+async def test_telugu_and_hindi_hidden_by_default(client, outbox, db, admin_client):
+    """Item 41: hidden until Admin shows them: no question, English, saved Telugu falls back to English."""
+    await signup(client, outbox, email="ravi@example.com", name="Ravi Kumar")
+    assert (await client.get("/api/public/site-flags")).json() == {"langs": False}
+    r = (await client.get(URL, params={"hint": "te"})).json()
+    assert r["langs"] is False and r["lang"] == "en" and r["mode"] == "full"  # no "Choose your language"
+    await client.put(f"{URL}/prefs", json={"lang": "te"})
+    assert (await client.get(URL)).json()["lang"] == "en"  # the saved choice is kept, English is shown
+    owner = await admin_client("owner")
+    assert (await owner.get("/api/admin/settings")).json()["languages"] == {"teHi": False}
+    r = await owner.put("/api/admin/settings", json={"languages": {"teHi": True}})
+    assert r.json()["languages"] == {"teHi": True}
+    assert (await client.get("/api/public/site-flags")).json() == {"langs": True}
+    assert (await client.get(URL)).json()["lang"] == "te"  # shown again: everything works as before
+    assert await db[AUDIT_LOG].count_documents({"action": "settings.changed", "data.languages": {"$exists": True}}) == 1
