@@ -278,8 +278,12 @@ async def send_alerts(db, mailer: Mailer, limit: int = BATCH) -> int:
         .limit(limit)
     )
     day = t.astimezone(IST).date().isoformat()
+    from app.site import get_site, lang_for
+
+    site = await get_site(db)
     async for u in users:
         a = alert_of(u)
+        a = {**a, "lang": lang_for(site, a.get("lang"))}  # English while Telugu and Hindi are hidden
         if not a["roles"] or not _due(a, u.get("job_alert_ran_at"), t) or u.get("job_alert_sent_day") == day:
             continue
         since = u.get("job_alert_ran_at") or t - PERIOD[a["frequency"]]

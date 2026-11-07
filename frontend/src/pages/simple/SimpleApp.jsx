@@ -40,7 +40,7 @@ export const MORE = [
 const useSay = (setSay, items) => { const k = JSON.stringify(items); useEffect(() => { setSay(items); }, [k]); }; // eslint-disable-line react-hooks/exhaustive-deps
 
 /** The bar at the top of every simple screen: Nm7 home, read this screen, the language, Simple / Full. */
-function Top({ t, lang, say }) {
+function Top({ t, lang, say, langs }) {
   const nav = useNavigate();
   const [busy, setBusy] = useState(false);
   const full = async () => {
@@ -53,7 +53,7 @@ function Top({ t, lang, say }) {
       <Link to="/me/simple" className="sx-logo" aria-label={t('simple.home')}>Nm7</Link>
       <span className="sx-top-r">
         <SayButton items={say} t={t} lang={lang} label={t('simple.voice.readScreen')} testid="sx-read-screen" />
-        <Link to="/me/simple/language" className="sx-chip" data-testid="sx-lang"><span aria-hidden="true">🌐</span>{LANG_NAMES.find(([c]) => c === lang)?.[1] || 'English'}</Link>
+        {langs && <Link to="/me/simple/language" className="sx-chip" data-testid="sx-lang"><span aria-hidden="true">🌐</span>{LANG_NAMES.find(([c]) => c === lang)?.[1] || 'English'}</Link>}
         <span className="sx-seg" role="group" aria-label={t('simple.mode.label')}>
           <button type="button" aria-pressed="true">{t('simple.mode.simple')}</button>
           <button type="button" aria-pressed="false" disabled={busy} onClick={full} data-testid="sx-to-full">{t('simple.mode.full')}</button>
@@ -63,10 +63,10 @@ function Top({ t, lang, say }) {
   );
 }
 
-function Frame({ t, lang, offline, say, children }) {
+function Frame({ t, lang, offline, say, langs, children }) {
   return (
     <div className="sx" lang={lang}>
-      <Top t={t} lang={lang} say={say} />
+      <Top t={t} lang={lang} say={say} langs={langs} />
       {offline && <div className="sx-offline" role="status" data-testid="sx-offline"><span aria-hidden="true">📶</span>{t('simple.offline')}</div>}
       <main id="main" className="sx-main" tabIndex={-1}>{children}</main>
     </div>
@@ -210,7 +210,7 @@ export default function SimpleApp() {
     body = (
       <Routes>
         <Route index element={data.lang ? <Home t={t} lang={lang} d={data} setSay={setSay} /> : <Languages t={t} onPicked={setData} setSay={setSay} />} />
-        <Route path="language" element={<Languages t={t} onPicked={picked} setSay={setSay} />} />
+        <Route path="language" element={data.langs ? <Languages t={t} onPicked={picked} setSay={setSay} /> : <Navigate to="/me/simple" replace />} />
         <Route path="resume" element={wait(<GuidedResume t={t} lang={lang} setSay={setSay} onDone={reload} />)} />
         <Route path="jobs" element={wait(<Jobs {...screen} />)} />
         <Route path="jobs/:id" element={wait(<Apply {...screen} />)} />
@@ -223,5 +223,5 @@ export default function SimpleApp() {
       </Routes>
     );
   }
-  return <Frame t={t} lang={lang} offline={offline} say={say}>{body}</Frame>;
+  return <Frame t={t} lang={lang} offline={offline} say={say} langs={!!data?.langs}>{body}</Frame>;
 }

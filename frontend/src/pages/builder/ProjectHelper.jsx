@@ -4,7 +4,7 @@
 import { useRef, useState } from 'react';
 import { Spinner } from '../../components/ui';
 import { http, LIVE } from '../../services/http';
-import { KEYBOARD_TIP, SPEECH_LANGUAGES, appendSpeech, defaultSpeechLang, rememberSpeechLang, useSpeech } from '../../lib/summary/speech';
+import { KEYBOARD_TIP, speechLanguages, appendSpeech, defaultSpeechLang, rememberSpeechLang, useSpeech } from '../../lib/summary/speech';
 import { localBullets } from '../../lib/projectHelper';
 
 export const QUESTIONS = [
@@ -72,7 +72,7 @@ export default function ProjectHelper({ project, onAccept }) {
       {speech.supported && (
         <label className="xs row g4" style={{ alignItems: 'center' }}>Speak in
           <select className="input" style={{ height: 32, width: 'auto' }} value={lang} onChange={(e) => { setLang(e.target.value); rememberSpeechLang(e.target.value); }}>
-            {SPEECH_LANGUAGES.map(([c, l]) => <option key={c} value={c}>{l}</option>)}
+            {speechLanguages().map(([c, l]) => <option key={c} value={c}>{l}</option>)}
           </select>
         </label>
       )}

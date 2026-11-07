@@ -7,6 +7,7 @@ from datetime import timedelta
 from app.core.db import JOBS, USERS
 from app.core.time import now
 from app.jobs import alerts
+from app.site import save_site
 from tests.conftest import signup
 from tests.jobs_helpers import add_resume
 from tests.test_jobs_public import add
@@ -114,6 +115,11 @@ async def test_matching_email_limits_and_unsubscribe(client, outbox, db):
 async def test_languages_weekly_and_unconfirmed(client, outbox, db):
     uid = await setup(client, outbox, db, lang="hi", frequency="weekly", cities=[], experience=[])
     await add(db)
+    # item 41: while Telugu and Hindi are hidden (the default) the email is in English
+    assert await alerts.send_alerts(db, outbox) == 1
+    assert "पर" not in outbox.sent[-1].subject and "Nm7" in outbox.sent[-1].subject
+    await save_site(db, {"languages": {"te_hi": True}})
+    await db[USERS].update_one({"_id": uid}, {"$set": {"job_alert_ran_at": None, "job_alert_sent_day": None}})
     assert await alerts.send_alerts(db, outbox) == 1
     assert outbox.sent[-1].subject == "Nm7 पर आपके लिए 1 नई नौकरी" and "WhatsApp पर शेयर करें" in outbox.sent[-1].text
     # weekly: not again after a day

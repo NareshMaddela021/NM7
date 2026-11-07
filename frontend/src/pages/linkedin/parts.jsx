@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { Icon, useToast } from '../../components/ui';
 import { COMING_SOON } from '../../lib/linkedin/guide';
-import { KEYBOARD_TIP, MIXED_HINT, SPEECH_LANGUAGES, appendSpeech, defaultSpeechLang, rememberSpeechLang, useSpeech } from '../../lib/summary/speech';
+import { KEYBOARD_TIP, MIXED_HINT, speechLanguages, appendSpeech, defaultSpeechLang, rememberSpeechLang, useSpeech } from '../../lib/summary/speech';
 import { charCount } from '../../lib/text';
 
 export function CopyButton({ text, label = 'Copy', testid }) {
@@ -65,7 +65,7 @@ export function NoteBox({ note, onNote }) {
           <label className="row g8 small" style={{ minHeight: 44 }}>
             <span className="muted">Language</span>
             <select className="input" aria-label="Speaking language" value={lang} disabled={speech.listening} onChange={(e) => { setLang(e.target.value); rememberSpeechLang(e.target.value); }} style={{ height: 40, width: 'auto' }}>
-              {SPEECH_LANGUAGES.map(([code, label]) => <option key={code} value={code}>{label}</option>)}
+              {speechLanguages().map(([code, label]) => <option key={code} value={code}>{label}</option>)}
             </select>
           </label>
           {speech.interim && <span className="muted small" style={{ fontStyle: 'italic' }}>{speech.interim}…</span>}

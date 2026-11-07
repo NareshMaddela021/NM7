@@ -41,6 +41,10 @@ async def main(cmd: str, *args: str) -> dict:
         await get_client().drop_database(name)
         await ensure_indexes(db)
         return {"ok": True}
+    if cmd == "site-langs":  # Admin → Settings → "Show Telugu and Hindi" (item 41): on | off
+        (state,) = args
+        await db["settings"].update_one({"_id": "site"}, {"$set": {"languages.te_hi": state == "on"}}, upsert=True)
+        return {"ok": True}
     if cmd == "company-verify":
         (cid,) = args
         await db["companies"].update_one(

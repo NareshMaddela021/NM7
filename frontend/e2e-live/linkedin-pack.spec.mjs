@@ -7,8 +7,10 @@
 //                 failed payment never unlocks; Career Launch includes the pack
 import { readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
-import { API, PASSWORD, adminLogin, email, login, seed } from './helpers.mjs';
+import { API, PASSWORD, adminLogin, email, login, seed, teluguHindi } from './helpers.mjs';
 import { webhook } from './orgBilling.mjs';
+
+teluguHindi(test); // these tests are about Telugu / Hindi: shown for this file (item 41)
 
 const SIZES = [['desktop', { viewport: { width: 1280, height: 900 } }], ['phone', { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true }]];
 const call = (page, path, init = {}) => page.evaluate(async ([base, p, i]) => {

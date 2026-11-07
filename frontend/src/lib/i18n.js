@@ -13,6 +13,11 @@ import { en as PAGES_EN } from '../i18n/pages.json';
 
 export const LANGS = [['en', 'English'], ['te', 'తెలుగు'], ['hi', 'हिन्दी']];
 export const STORE_KEY = 'nm7-lang';
+// Telugu and Hindi are shown only when Admin → Settings → "Show Telugu and Hindi" is on (item 41; off by default
+// until a native speaker has checked them). The flag comes from GET /api/public/site-flags (main.jsx) and is kept in
+// this browser (not personal, so it doesn't start with nm7-) so the next visit draws in the right language at once.
+// Off: no language switch anywhere and everything is English; saved Telugu / Hindi choices are kept for later.
+export const FLAG_KEY = 'nm7site.langs';
 const CODES = LANGS.map(([c]) => c);
 const FONTS = {
   te: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@400;600;700&display=optional',
@@ -29,8 +34,15 @@ const LOADERS = {
 const loading = {};
 let version = 0; // goes up when a language's strings arrive, so pages re-render with them
 
-/** The language to show: a saved choice wins; else the browser's (te / hi, with or without -IN); else English. */
-export function pickLang(saved, navLangs = []) {
+const read0 = (k) => { try { return localStorage.getItem(k); } catch { return null; } };
+let shown = typeof window !== 'undefined' && read0(FLAG_KEY) === '1';
+/** Are Telugu and Hindi shown on this site right now? */
+export const langsShown = () => shown;
+
+/** The language to show: English while Telugu and Hindi are hidden; else a saved choice wins; else the browser's
+ * (te / hi, with or without -IN); else English. */
+export function pickLang(saved, navLangs = [], on = shown) {
+  if (!on) return 'en';
   if (CODES.includes(saved)) return saved;
   for (const l of navLangs) {
     const base = String(l || '').toLowerCase().split('-')[0];
@@ -68,11 +80,22 @@ export function loadLang(lang) {
 if (current !== 'en') { loadFont(current); loadLang(current); }
 
 export function setLang(lang) {
-  if (!CODES.includes(lang) || lang === current) return;
+  if (!CODES.includes(lang) || lang === current || (!shown && lang !== 'en')) return;
   current = lang;
   try { localStorage.setItem(STORE_KEY, lang); } catch { /* private mode: this visit only */ }
   loadFont(lang);
   loadLang(lang);
+  changed();
+}
+
+/** The site's flag arrived: show or hide Telugu and Hindi (and go back to English when they are hidden). */
+export function setLangsShown(on) {
+  on = !!on;
+  try { localStorage.setItem(FLAG_KEY, on ? '1' : '0'); } catch { /* private mode */ }
+  if (on === shown) return;
+  shown = on;
+  const next = pickLang(read(STORE_KEY), nav());
+  if (next !== current) { current = next; if (next !== 'en') { loadFont(next); loadLang(next); } }
   changed();
 }
 

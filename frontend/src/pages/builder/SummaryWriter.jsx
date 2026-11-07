@@ -11,7 +11,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { Icon } from '../../components/ui';
 import dictionary from '../../lib/summary/dictionary.json';
 import { BUSY_TEXT, FIX_LABEL, WRITING_TEXT, aiAvailable, fallbackNotice, fillSlots, writeWithAi } from '../../lib/summary/ai';
-import { KEYBOARD_TIP, MIXED_HINT, SPEECH_LANGUAGES, appendSpeech, defaultSpeechLang, rememberSpeechLang, useSpeech } from '../../lib/summary/speech';
+import { KEYBOARD_TIP, MIXED_HINT, speechLanguages, appendSpeech, defaultSpeechLang, rememberSpeechLang, useSpeech } from '../../lib/summary/speech';
 import { shorter, writeSummaries } from '../../lib/summary/write';
 import { charCount } from '../../lib/text';
 
@@ -140,7 +140,7 @@ export default function SummaryWriter({ resume, note = '', onNote, value = '', o
             <label className="row g8 small" style={{ minHeight: 44 }}>
               <span className="muted">Language</span>
               <select className="input" aria-label="Speaking language" value={lang} onChange={(e) => pickLang(e.target.value)} disabled={speech.listening} style={{ height: big ? 48 : 40, width: 'auto', fontSize }}>
-                {SPEECH_LANGUAGES.map(([code, label]) => <option key={code} value={code}>{label}</option>)}
+                {speechLanguages().map(([code, label]) => <option key={code} value={code}>{label}</option>)}
               </select>
             </label>
           </div>

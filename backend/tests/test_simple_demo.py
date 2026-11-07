@@ -4,6 +4,7 @@ company's jobs as his top jobs, one "Needs your answer" question; a one-time lin
 from app.autoapply import engine
 from app.core.db import AUTO_ITEMS, JOBS, USERS
 from app.simple import demo
+from app.site import save_site
 from tests.test_jobs_public import add
 
 ADMIN = "/api/admin/simple/demo"
@@ -29,7 +30,9 @@ async def test_ravi_demo(client, outbox, db, admin_client, make_client):
     me = (await phone.get("/api/auth/me")).json()
     assert me["name"] == "Ravi Kumar (demo)" and me["role"] == "customer"
     home = (await phone.get("/api/me/simple")).json()
-    assert home["lang"] == "te" and home["mode"] == "simple"
+    assert home["lang"] == "en" and home["mode"] == "simple"  # Telugu hidden (the default): Ravi in English
+    await save_site(db, {"languages": {"te_hi": True}})
+    assert (await phone.get("/api/me/simple")).json()["lang"] == "te"
     assert home["next"]["key"] == "projects"  # half-done: no project yet
     assert 55 <= home["readiness"]["score"] <= 65, home["readiness"]  # about 60%
     assert home["counts"]["needs"] == 1

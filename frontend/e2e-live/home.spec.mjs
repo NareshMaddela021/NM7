@@ -2,7 +2,9 @@
 // the right builder mode or page, the language switch changes the hero and survives a reload, the organization plans
 // table comes from the API, nothing shifts while the page loads, and taps are counted (first-party, no cookies).
 import { expect, test } from '@playwright/test';
-import { API, PASSWORD, adminLogin, email, seed } from './helpers.mjs';
+import { API, PASSWORD, adminLogin, email, seed, teluguHindi } from './helpers.mjs';
+
+teluguHindi(test); // these tests are about Telugu / Hindi: shown for this file (item 41)
 
 const SIZES = [['desktop', { width: 1280, height: 900 }], ['phone', { width: 390, height: 844 }]];
 

@@ -6,8 +6,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Icon, Spinner, useToast } from '../../components/ui';
 import { getInterview, getMatch, jobAccess, makeInterview, practise } from '../../lib/jobs';
-import { KEYBOARD_TIP, SPEECH_LANGUAGES, appendSpeech, defaultSpeechLang, rememberSpeechLang, useSpeech } from '../../lib/summary/speech';
-import { READ_LANGS, canRead, readAloud, stopReading } from '../../lib/readAloud';
+import { KEYBOARD_TIP, speechLanguages, appendSpeech, defaultSpeechLang, rememberSpeechLang, useSpeech } from '../../lib/summary/speech';
+import { readLangs, canRead, readAloud, stopReading } from '../../lib/readAloud';
 import { MeHead } from './MeLayout';
 import { PackOffer } from './JobMatch';
 
@@ -115,7 +115,7 @@ function Practice({ id, pack, start, onSaved, onClose }) {
           <button type="button" className="btn btn-outline" style={{ minHeight: 40 }} onClick={read} data-testid="iv-read">🔊 Read the question</button>
           <label className="xs row g4" style={{ alignItems: 'center' }}>Voice
             <select className="input" style={{ height: 32, width: 'auto' }} value={readLang} onChange={(e) => setReadLang(e.target.value)} data-testid="iv-read-lang">
-              {READ_LANGS.map(([c, l]) => <option key={c} value={c}>{l}</option>)}
+              {readLangs().map(([c, l]) => <option key={c} value={c}>{l}</option>)}
             </select>
           </label>
           <label className="xs row g4" style={{ alignItems: 'center' }}><input type="checkbox" checked={autoRead} onChange={(e) => toggleAuto(e.target.checked)} /> Read each question aloud</label>
@@ -134,7 +134,7 @@ function Practice({ id, pack, start, onSaved, onClose }) {
               {speech.listening ? <span className="pulse-dot" aria-hidden="true" /> : <Icon name="mic" size={18} />}{speech.listening ? `Stop ${mmss(speech.seconds)}` : 'Speak'}
             </button>
             <select className="input" aria-label="Speaking language" style={{ height: 36, width: 'auto' }} value={lang} disabled={speech.listening} onChange={(e) => { setLang(e.target.value); rememberSpeechLang(e.target.value); }}>
-              {SPEECH_LANGUAGES.map(([c, l]) => <option key={c} value={c}>{l}</option>)}
+              {speechLanguages().map(([c, l]) => <option key={c} value={c}>{l}</option>)}
             </select>
           </>
         ) : <span className="xs muted">{KEYBOARD_TIP}</span>}

@@ -1,5 +1,6 @@
 // Profile & settings: account details (career details live in the Job Profile), notifications per channel, privacy (download data, delete account).
 // Also Help & referral.
+import { langsShown } from '../../lib/i18n';
 import MyStories from './MyStories';
 import DeleteAccount from './DeleteAccount';
 import { useEffect, useState } from 'react';
@@ -32,7 +33,7 @@ function HealthEmails() {
 }
 
 const LEVELS = [['internship', 'Internship'], ['fresher', 'Fresher'], ['0_1', '0–1 years'], ['1_3', '1–3 years'], ['3_plus', '3+ years']];
-const LANGS = [['en', 'English'], ['te', 'తెలుగు (Telugu)'], ['hi', 'हिन्दी (Hindi)']];
+const ALL_LANGS = [['en', 'English'], ['te', 'తెలుగు (Telugu)'], ['hi', 'हिन्दी (Hindi)']];
 const list = (s) => s.split(',').map((x) => x.trim()).filter(Boolean);
 
 /** Job alerts (C6): new jobs that match, by email, daily or weekly, in English, Telugu or Hindi. */
@@ -69,7 +70,7 @@ function JobAlerts() {
         <legend className="label">How often</legend>
         <div className="row g12">{[['daily', 'Daily'], ['weekly', 'Weekly']].map(([k, l]) => <label key={k} className="row g4 small"><input type="radio" name="al-freq" checked={f.frequency === k} onChange={() => setF({ ...f, frequency: k })} /> {l}</label>)}</div>
       </fieldset>
-      <div className="field" style={{ maxWidth: 260 }}><label className="label" htmlFor="al-lang">Email language</label><select id="al-lang" className="input" value={f.lang} onChange={(e) => setF({ ...f, lang: e.target.value })}>{LANGS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
+      <div className="field" style={{ maxWidth: 260 }}><label className="label" htmlFor="al-lang">Email language</label><select id="al-lang" className="input" value={f.lang} onChange={(e) => setF({ ...f, lang: e.target.value })}>{(langsShown() ? ALL_LANGS : ALL_LANGS.slice(0, 1)).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
       {err && <p className="error" role="alert">{err}</p>}
       <div className="row g8"><button type="submit" className="btn btn-ink" disabled={busy}>{busy ? 'Saving…' : 'Save job alerts'}</button>{a?.on && <span className="xs muted" data-testid="alerts-status">On · {a.frequency === 'daily' ? 'daily' : 'weekly'}</span>}</div>
     </form>
