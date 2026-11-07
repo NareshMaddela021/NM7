@@ -3,8 +3,10 @@
 // Telugu: the next step is a project, about 60% ready, the demo company's jobs (looking only), one question waiting.
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
-import { PASSWORD, adminLogin, seed } from './helpers.mjs';
+import { PASSWORD, adminLogin, seed, teluguHindi } from './helpers.mjs';
 import { SIZES, noSideScroll } from './college.mjs';
+
+teluguHindi(test); // these tests are about Telugu / Hindi: shown for this file (item 41)
 
 for (const [label, opts] of SIZES) {
   test.describe(label, () => {
