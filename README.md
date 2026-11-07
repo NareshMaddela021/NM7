@@ -1758,3 +1758,9 @@ The full dashboard stays for everyone who wants it.
   phone has that voice, else the same words in English, else it says "Voice not available on this phone". 🎤 on
   text answers uses Speak (`lib/speechCore.js`) in the person's language and shows "We heard: …" with Edit / OK
   before anything is saved. "Read screens aloud automatically" (More, off by default) is kept on the profile.
+- **Job readiness score** (`app/simple/readiness.py`): 0-100 from the resume being complete (20), the resume score
+  (25), a LinkedIn link (10), interview practice (15, full at 3 practised answers), the skills live jobs for the
+  person's chosen roles ask for (20) and a certificate (10). Admin → Settings → Easy dashboard edits the points (they
+  must add up to 100). The simple home shows "You are 65% ready"; its screen has a big ring and up to 3 "Things left",
+  each one button to the exact place; the full dashboard has a small card. Recomputed only when something it reads
+  changes (else the saved result). Only the person sees it; it is never compared with anyone.

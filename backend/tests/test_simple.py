@@ -56,7 +56,11 @@ async def test_language_first_and_mode_defaults(client, outbox, db, admin_client
     # Admin: the default is editable, and the global switch turns the simple dashboard off for everyone
     owner = await admin_client("owner")
     s = (await owner.get("/api/admin/settings")).json()["simple"]
-    assert s == {"on": True, "defaultTeHi": "simple", "defaultOther": "full"}
+    assert {k: s[k] for k in ("on", "defaultTeHi", "defaultOther")} == {
+        "on": True,
+        "defaultTeHi": "simple",
+        "defaultOther": "full",
+    }
     await client.put(f"{URL}/prefs", json={"lang": "en"})
     await db[USERS].update_one({"_id": uid}, {"$unset": {"simple.mode": ""}})
     assert (await client.get(URL)).json()["mode"] == "full"

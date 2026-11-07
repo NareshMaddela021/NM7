@@ -44,3 +44,5 @@
 .sx-heard { display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 16px; border: 2px dashed var(--text); background: var(--sunken); }
 .sx-mic-on { background: var(--danger); color: #fff; border-color: var(--danger); }
 .sx-hint { font-size: 18px; color: var(--text2); }
+.sx-ringrow { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.sx-ring { flex: none; max-width: 100%; height: auto; }

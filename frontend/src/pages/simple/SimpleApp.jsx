@@ -5,6 +5,7 @@
 // own small chunk: nothing from the full dashboard is loaded here.
 //   /me/simple            Your next step + 4 tiles + More (the language is asked first, once)
 //   /me/simple/language   English / తెలుగు / हिंदी, each with a speaker button
+//   /me/simple/ready      the job readiness score: a big ring, "You are 65% ready", up to 3 things left
 //   /me/simple/more       everything else: links to the full dashboard's pages, "Read screens aloud automatically"
 // 🔊 at the top reads each screen's main words (voice.jsx); each card has its own 🔊.
 import { useEffect, useState } from 'react';
@@ -18,6 +19,7 @@ import '../../styles/simple.css';
 export const LANG_NAMES = [['en', 'English', 'en-IN', 'English'], ['te', 'తెలుగు', 'te-IN', 'Telugu'], ['hi', 'हिंदी', 'hi-IN', 'Hindi']];
 export const NEXT_ICONS = { resume: '📝', education: '🎓', skills: '🛠️', projects: '💡', fix_score: '📈', auto_apply: '🤖', answer: '💬', jobs: '💼' };
 export const TILES = [['resume', '📄', '/builder'], ['jobs', '💼', '/jobs'], ['apps', '📋', '/me/jobs'], ['practice', '🎤', '/me/ats']];
+export const READY_ICONS = { resume: '📝', score: '📈', linkedin: '🔗', interview: '🎤', skills: '🛠️', roles: '🎯', certs: '🏅' };
 export const MORE = [
   ['resumes', '📄', '/me/resumes'], ['profile', '👤', '/me/profile'], ['ats', '📈', '/me/ats'], ['auto', '🤖', '/me/auto-apply'],
   ['covers', '✉️', '/me/covers'], ['certs', '🏅', '/me/certificates'], ['orders', '🧾', '/me/orders'], ['messages', '💬', '/me/messages'],
@@ -112,11 +114,46 @@ function Home({ t, lang, d, setSay }) {
         <p className="sx-p">{t(`simple.next.${n.key}.text`, vars)}</p>
         <Big to={n.path} icon="➜" label={t(`simple.next.${n.key}.cta`, vars)} ink testid="sx-next-go" />
       </section>
+      {d.readiness && <Big to="/me/simple/ready" icon="🎯" label={t('simple.ready.big', { score: d.readiness.score })} testid="sx-ready-link" />}
       <nav className="sx-tiles" aria-label={t('simple.title')}>
         {TILES.map(([k, icon, to]) => <Link key={k} to={to} className="sx-tile" data-testid={`sx-tile-${k}`}><span className="sx-ic" aria-hidden="true">{icon}</span><span>{t(`simple.tile.${k}`)}</span></Link>)}
       </nav>
       <Big to="/me/simple/more" icon="➕" label={t('simple.tile.more')} testid="sx-more" />
     </>
+  );
+}
+
+/** The score as a big ring (no image: one SVG circle), with the number in the middle. */
+export function Ring({ score, size = 180 }) {
+  const r = 42;
+  const c = 2 * Math.PI * r;
+  return (
+    <svg className="sx-ring" width={size} height={size} viewBox="0 0 100 100" aria-hidden="true">
+      <circle cx="50" cy="50" r={r} fill="none" stroke="var(--border2)" strokeWidth="10" />
+      <circle cx="50" cy="50" r={r} fill="none" stroke="var(--success)" strokeWidth="10" strokeLinecap="round" strokeDasharray={`${(c * score) / 100} ${c}`} transform="rotate(-90 50 50)" />
+      <text x="50" y="57" textAnchor="middle" fontSize="24" fontWeight="800" fill="var(--text)">{score}%</text>
+    </svg>
+  );
+}
+
+function Ready({ t, lang, d, setSay }) {
+  const r = d.readiness || { score: 0, left: [] };
+  useSay(setSay, [['simple.ready.big', { score: r.score }], r.left.length ? ['simple.ready.left'] : ['simple.ready.done'], ...r.left.map((x) => [`simple.ready.item.${x.key}`])]);
+  return (
+    <section className="sx-stack" aria-labelledby="sx-ready-h" data-testid="sx-ready">
+      <h1 id="sx-ready-h" className="sx-h1">{t('simple.ready.title')}</h1>
+      <div className="sx-ringrow"><Ring score={r.score} /><p className="sx-h2" data-testid="sx-ready-score">{t('simple.ready.big', { score: r.score })}</p></div>
+      <p className="sx-hint">{t('simple.ready.private')}</p>
+      {r.left.length ? (
+        <>
+          <span className="sx-cardtop"><h2 className="sx-h2">{t('simple.ready.left')}</h2><SayButton items={r.left.map((x) => [`simple.ready.item.${x.key}`])} t={t} lang={lang} label={t('simple.voice.readCard')} /></span>
+          <ul className="sx-list">
+            {r.left.map((x) => <li key={x.key}><Big to={x.path} icon={READY_ICONS[x.key]} label={`${t(`simple.ready.item.${x.key}`)} · ${t('simple.ready.points', { points: x.points })}`} testid={`sx-left-${x.key}`} /></li>)}
+          </ul>
+        </>
+      ) : <p className="sx-p">{t('simple.ready.done')}</p>}
+      <Big to="/me/simple" icon="←" label={t('simple.back')} />
+    </section>
   );
 }
 
@@ -162,6 +199,7 @@ export default function SimpleApp() {
       <Routes>
         <Route index element={data.lang ? <Home t={t} lang={lang} d={data} setSay={setSay} /> : <Languages t={t} onPicked={setData} setSay={setSay} />} />
         <Route path="language" element={<Languages t={t} onPicked={picked} setSay={setSay} />} />
+        <Route path="ready" element={<Ready t={t} lang={lang} d={data} setSay={setSay} />} />
         <Route path="more" element={<More t={t} d={data} setData={setData} setSay={setSay} />} />
         <Route path="*" element={<Navigate to="/me/simple" replace />} />
       </Routes>

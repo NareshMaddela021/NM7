@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from typing import Any, Literal
 
 from fastapi import APIRouter, Query, Request, Response
-from pydantic import EmailStr, Field, field_validator
+from pydantic import EmailStr, Field, field_validator, model_validator
 from pymongo import DESCENDING
 
 from app.admin.deps import AdminAuth
@@ -750,6 +750,22 @@ class SimpleSettingsIn(CamelModel):
     on: bool
     default_te_hi: Literal["simple", "full"] = "simple"
     default_other: Literal["simple", "full"] = "full"
+    weights: "ReadinessWeightsIn | None" = None  # the job readiness score's points per part (E5)
+
+
+class ReadinessWeightsIn(CamelModel):
+    resume: int = Field(ge=0, le=100)
+    score: int = Field(ge=0, le=100)
+    linkedin: int = Field(ge=0, le=100)
+    interview: int = Field(ge=0, le=100)
+    skills: int = Field(ge=0, le=100)
+    certs: int = Field(ge=0, le=100)
+
+    @model_validator(mode="after")
+    def _total(self) -> "ReadinessWeightsIn":
+        if sum(self.model_dump().values()) != 100:
+            raise ValueError("The readiness points must add up to 100.")
+        return self
 
 
 class JobChecksIn(CamelModel):
@@ -801,6 +817,7 @@ def _settings_out(site: dict[str, Any]) -> dict[str, Any]:
             "on": site["simple"]["on"],
             "defaultTeHi": site["simple"]["default_te_hi"],
             "defaultOther": site["simple"]["default_other"],
+            "weights": site["simple"]["weights"],
         },
         "companies": {
             "basicJobsPerWeek": site["companies"]["basic_jobs_per_week"],
@@ -845,7 +862,7 @@ async def put_settings(body: SettingsIn, request: Request, db: DB, auth: AdminAu
         changes["companies"] = body.companies.model_dump()
         diff["companies"] = {"from": before["companies"], "to": changes["companies"]}
     if body.simple:
-        new = {**before["simple"], **body.simple.model_dump()}
+        new = {**before["simple"], **body.simple.model_dump(exclude_none=True)}
         if new != before["simple"]:
             changes["simple"] = new
             diff["simple"] = {"from": before["simple"], "to": new}
