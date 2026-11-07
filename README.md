@@ -1774,3 +1774,11 @@ The full dashboard stays for everyone who wants it.
   AI line with a number, tool or claim that isn't in the answers and, when the answers are in English letters, any
   word that isn't in them (joining words and plain verbs aside); then the rules' lines are used. Never asked:
   Aadhaar or other ID numbers, caste, religion, gender, a photo.
+- **Jobs made simple** (`/me/simple/jobs`, `app/simple/jobs.py`, `pages/simple/SimpleJobs.jsx`): the top 3 jobs (the
+  "Jobs for you" match score) as big cards: title, "72% match" with one plain reason ("You know SQL, Power BI"),
+  place or work from home, ₹ a month when the job gives a salary, the company's trust badge, 🔊, Apply and Save. Apply
+  is the normal Manual Apply (the consent tick and the company's questions for jobs on Nm7; the company's own site
+  opens for the others and it is saved in My applications). "Let Nm7 apply for me" asks the job, the city, how many a
+  day and the consent tick, then saves the normal Auto Apply settings (the resume-score gate still applies). "Needs
+  your answer" shows one question per screen, read aloud, answered by tap or voice; "Apply on their website" (Ready
+  to apply) is a list of big cards.
