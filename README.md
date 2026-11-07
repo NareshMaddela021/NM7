@@ -1764,3 +1764,13 @@ The full dashboard stays for everyone who wants it.
   must add up to 100). The simple home shows "You are 65% ready"; its screen has a big ring and up to 3 "Things left",
   each one button to the exact place; the full dashboard has a small card. Recomputed only when something it reads
   changes (else the saved result). Only the person sees it; it is never compared with anyone.
+- **Build a resume by talking** (`/me/simple/resume`, `app/simple/guided.py`, `pages/simple/GuidedResume.jsx`): one
+  question per screen in simple words, by voice or tap: name and phone (the email is the account's), what you
+  studied, college, year, marks (optional), skills (chips + "say it"), a project, internships / jobs, certificates
+  (from the wallet) and languages. "4 of 10", Skip and Back on every question; each answer is saved at once into
+  the normal resume (the full builder shows it), and finishing keeps a version "Made by talking". For a project or an
+  internship, "This is what we wrote" shows English resume lines made only from the answers (the project helper's
+  writer, AI while the free uses last, else the rules) with Accept / Change by voice / Edit. The fact check drops any
+  AI line with a number, tool or claim that isn't in the answers and, when the answers are in English letters, any
+  word that isn't in them (joining words and plain verbs aside); then the rules' lines are used. Never asked:
+  Aadhaar or other ID numbers, caste, religion, gender, a photo.

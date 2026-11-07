@@ -5,20 +5,23 @@
 // own small chunk: nothing from the full dashboard is loaded here.
 //   /me/simple            Your next step + 4 tiles + More (the language is asked first, once)
 //   /me/simple/language   English / తెలుగు / हिंदी, each with a speaker button
+//   /me/simple/resume     build a resume by talking: one question per screen (GuidedResume.jsx)
 //   /me/simple/ready      the job readiness score: a big ring, "You are 65% ready", up to 3 things left
 //   /me/simple/more       everything else: links to the full dashboard's pages, "Read screens aloud automatically"
 // 🔊 at the top reads each screen's main words (voice.jsx); each card has its own 🔊.
-import { useEffect, useState } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 import { Link, Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { useLang } from '../../lib/i18n';
 import { readAloud } from '../../lib/readAloud';
 import { savePrefs, useSimple } from '../../lib/simple';
 import { SayButton, useAutoRead } from './voice';
+
+const GuidedResume = lazy(() => import('./GuidedResume')); // loaded when the resume questions open
 import '../../styles/simple.css';
 
 export const LANG_NAMES = [['en', 'English', 'en-IN', 'English'], ['te', 'తెలుగు', 'te-IN', 'Telugu'], ['hi', 'हिंदी', 'hi-IN', 'Hindi']];
 export const NEXT_ICONS = { resume: '📝', education: '🎓', skills: '🛠️', projects: '💡', fix_score: '📈', auto_apply: '🤖', answer: '💬', jobs: '💼' };
-export const TILES = [['resume', '📄', '/builder'], ['jobs', '💼', '/jobs'], ['apps', '📋', '/me/jobs'], ['practice', '🎤', '/me/ats']];
+export const TILES = [['resume', '📄', '/me/simple/resume'], ['jobs', '💼', '/jobs'], ['apps', '📋', '/me/jobs'], ['practice', '🎤', '/me/ats']];
 export const READY_ICONS = { resume: '📝', score: '📈', linkedin: '🔗', interview: '🎤', skills: '🛠️', roles: '🎯', certs: '🏅' };
 export const MORE = [
   ['resumes', '📄', '/me/resumes'], ['profile', '👤', '/me/profile'], ['ats', '📈', '/me/ats'], ['auto', '🤖', '/me/auto-apply'],
@@ -199,6 +202,7 @@ export default function SimpleApp() {
       <Routes>
         <Route index element={data.lang ? <Home t={t} lang={lang} d={data} setSay={setSay} /> : <Languages t={t} onPicked={setData} setSay={setSay} />} />
         <Route path="language" element={<Languages t={t} onPicked={picked} setSay={setSay} />} />
+        <Route path="resume" element={<Suspense fallback={<p className="sx-p" role="status">{t('simple.loading')}</p>}><GuidedResume t={t} lang={lang} setSay={setSay} onDone={reload} /></Suspense>} />
         <Route path="ready" element={<Ready t={t} lang={lang} d={data} setSay={setSay} />} />
         <Route path="more" element={<More t={t} d={data} setData={setData} setSay={setSay} />} />
         <Route path="*" element={<Navigate to="/me/simple" replace />} />
