@@ -1155,7 +1155,10 @@
     "simple.fix.layout": "Pick a simple template",
     "simple.fix.length": "Make it fit on one page",
     "simple.fix.resume": "Make your resume",
-    "simple.fix.other": "Fix this part of your resume"
+    "simple.fix.other": "Fix this part of your resume",
+    "jobs.apply.confirmTitle": "Send your application",
+    "jobs.apply.confirm": "Send your active resume to {company} on Nm7? It is saved in My applications.",
+    "jobs.apply.cancel": "Cancel"
   },
   "te": {
     "home.more.roles.eyebrow": "నిజమైనవిలా కనిపించే నమూనాలు · ఊహించిన వ్యక్తులు",
@@ -2312,7 +2315,10 @@
     "simple.fix.layout": "సాధారణ టెంప్లేట్ ఎంచుకోండి",
     "simple.fix.length": "ఒక పేజీలో సరిపోయేలా చేయండి",
     "simple.fix.resume": "మీ రెజ్యూమ్ తయారు చేయండి",
-    "simple.fix.other": "మీ రెజ్యూమ్‌లో ఈ భాగాన్ని సరిచేయండి"
+    "simple.fix.other": "మీ రెజ్యూమ్‌లో ఈ భాగాన్ని సరిచేయండి",
+    "jobs.apply.confirmTitle": "మీ దరఖాస్తు పంపండి",
+    "jobs.apply.confirm": "మీ యాక్టివ్ రెజ్యూమ్‌ను Nm7లో {company}కు పంపాలా? ఇది నా అప్లికేషన్లలో సేవ్ అవుతుంది.",
+    "jobs.apply.cancel": "రద్దు"
   },
   "hi": {
     "home.more.roles.eyebrow": "असली जैसे दिखने वाले नमूने · काल्पनिक लोग",
@@ -3469,6 +3475,9 @@
     "simple.fix.layout": "एक सादा टेम्पलेट चुनें",
     "simple.fix.length": "इसे एक पेज में लाएँ",
     "simple.fix.resume": "अपना रिज़्यूमे बनाइए",
-    "simple.fix.other": "अपने रिज़्यूमे का यह हिस्सा ठीक करें"
+    "simple.fix.other": "अपने रिज़्यूमे का यह हिस्सा ठीक करें",
+    "jobs.apply.confirmTitle": "अपना आवेदन भेजें",
+    "jobs.apply.confirm": "अपना चालू रिज़्यूमे Nm7 पर {company} को भेजें? यह मेरे आवेदन में सेव होगा।",
+    "jobs.apply.cancel": "रद्द करें"
   }
 }

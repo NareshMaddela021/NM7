@@ -1805,3 +1805,9 @@ The full dashboard stays for everyone who wants it.
   dashboard … using Excel and Power BI", "Designed it to show …"), and the AI's lines are no longer rejected for
   plain resume verbs or word forms. Resume by talking puts the account's name, email and phone on the resume
   whichever question comes first, and asks for an optional LinkedIn link. Skill chips keep their place when tapped.
+- **Jobs and match fixes (items 7, 8, 19, 37):** a job's skills are only the skills it lists, never words of its title
+  ("QA" is not "Quality assurance"). "Make my resume fit" from a job page (`POST /api/me/jobs/match` with `jobId`)
+  reads that job's own fields and shows the same score as the job's card; opening it again reopens the same match
+  (no free match used); the match page fills in the job post and scrolls to the result. Apply on Nm7 asks "Send your
+  active resume to …?" first (company jobs keep their consent box); the chip says "Applied". Jobs saved on the board
+  show in My applications' Saved column.

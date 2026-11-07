@@ -1205,3 +1205,6 @@
 "simple.fix.length","/me/simple (Easy dashboard)","Make it fit on one page","ఒక పేజీలో సరిపోయేలా చేయండి","इसे एक पेज में लाएँ","needs native review"
 "simple.fix.resume","/me/simple (Easy dashboard)","Make your resume","మీ రెజ్యూమ్ తయారు చేయండి","अपना रिज़्यूमे बनाइए","needs native review"
 "simple.fix.other","/me/simple (Easy dashboard)","Fix this part of your resume","మీ రెజ్యూమ్‌లో ఈ భాగాన్ని సరిచేయండి","अपने रिज़्यूमे का यह हिस्सा ठीक करें","needs native review"
+"jobs.apply.confirmTitle","/jobs (job board)","Send your application","మీ దరఖాస్తు పంపండి","अपना आवेदन भेजें","needs native review"
+"jobs.apply.confirm","/jobs (job board)","Send your active resume to {company} on Nm7? It is saved in My applications.","మీ యాక్టివ్ రెజ్యూమ్‌ను Nm7లో {company}కు పంపాలా? ఇది నా అప్లికేషన్లలో సేవ్ అవుతుంది.","अपना चालू रिज़्यूमे Nm7 पर {company} को भेजें? यह मेरे आवेदन में सेव होगा।","needs native review"
+"jobs.apply.cancel","/jobs (job board)","Cancel","రద్దు","रद्द करें","needs native review"

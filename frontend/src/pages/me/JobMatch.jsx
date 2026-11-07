@@ -211,7 +211,16 @@ export default function JobMatch() {
   // /me/ats?match=<id> (a resume health alert, "Tailor it"): open that saved match
   useEffect(() => {
     const id = new URLSearchParams(window.location.search).get('match');
-    if (id) getMatch(id).then((r) => { setM(r); setTimeout(() => document.querySelector('[data-testid="jm-result"]')?.scrollIntoView({ block: 'start' }), 50); }).catch(() => {});
+    // item 8: the job post in the box and the page at the result (tried until the result is drawn)
+    if (id) {
+      getMatch(id).then((r) => {
+        setM(r);
+        if (r.post) setText(r.post);
+        let n = 0;
+        const go = () => { const el = document.querySelector('[data-testid="jm-result"]'); if (el) el.scrollIntoView({ block: 'start' }); else if ((n += 1) < 40) setTimeout(go, 50); };
+        setTimeout(go, 0);
+      }).catch(() => {});
+    }
   }, []);
   const run = async () => {
     setBusy('match'); setErr('');
