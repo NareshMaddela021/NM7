@@ -1782,3 +1782,9 @@ The full dashboard stays for everyone who wants it.
   day and the consent tick, then saves the normal Auto Apply settings (the resume-score gate still applies). "Needs
   your answer" shows one question per screen, read aloud, answered by tap or voice; "Apply on their website" (Ready
   to apply) is a list of big cards.
+- **Demo:** Admin → Auto Apply → "Reset and open as student (Easy dashboard, Telugu)" (`app/simple/demo.py`, no
+  browser dialog) opens Ravi Kumar (demo) on /me/simple in Telugu: a half-done resume (no project yet, so that is
+  his next step), a job readiness score near 60%, the demo company's jobs as his top jobs (look, not apply) and one
+  "Needs your answer" question. One-time link (5 minutes); demo jobs are never public and demo students never run.
+- **Size budget:** `npm run budget` (in CI after the build) checks the JavaScript a phone downloads to open
+  /me/simple, gzipped, stays under 150 KB in English and in Telugu / Hindi, and prints a slow-3G estimate.

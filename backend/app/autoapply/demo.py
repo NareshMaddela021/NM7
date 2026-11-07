@@ -6,7 +6,8 @@ demo students are left out of the real morning run, so no email ever goes to the
 
   POST /api/admin/auto-apply/demo        Admin → Auto Apply → "Reset and open as student (Auto Apply)": resets the
                                          demo, returns a one-time link (5 minutes; only a hash is stored)
-  POST /api/public/demo-student {token}  signs this browser in as the demo student → then /me/auto-apply
+  POST /api/public/demo-student {token}  signs this browser in as the demo student → then /me/auto-apply (the Easy
+                                         dashboard's demo student, app/simple/demo.py, → /me/simple)
 """
 
 import secrets
@@ -320,11 +321,18 @@ async def open_demo(request: Request, db: DB, auth: AdminAuth("jobs")) -> dict[s
 
 @public.post("")
 async def sign_in(body: TokenIn, request: Request, response: Response, db: DB) -> dict[str, str]:
+    from app.simple import demo as simple_demo  # Ravi, the Easy dashboard's demo student (Phase 4)
+
     doc = await db[USERS].find_one_and_update(  # one-time: cleared in the same write that accepts it
-        {"_id": STUDENT_ID, "demo": True, "demo_login_hash": hash_token(body.token), "demo_login_exp": {"$gt": now()}},
+        {
+            "_id": {"$in": [STUDENT_ID, simple_demo.STUDENT_ID]},
+            "demo": True,
+            "demo_login_hash": hash_token(body.token),
+            "demo_login_exp": {"$gt": now()},
+        },
         {"$set": {"demo_login_hash": None, "demo_login_exp": None}},
     )
     if not doc:
         raise ApiError(400, "link_used", "This demo link has been used or has expired. Open it again from Admin.")
     await start_session(db, request, response, User.model_validate(doc))
-    return {"path": "/me/auto-apply"}
+    return {"path": doc.get("demo_path") or "/me/auto-apply"}

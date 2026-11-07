@@ -89,6 +89,7 @@ from app.payments.router import router as payments_router
 from app.photos.router import router as photos_router
 from app.profile.router import router as profile_router
 from app.projects.router import router as projects_router
+from app.simple import demo as simple_demo
 from app.simple import guided as simple_guided
 from app.simple import jobs as simple_jobs
 from app.simple import readiness as simple_readiness
@@ -246,6 +247,7 @@ def create_app() -> FastAPI:
     app.include_router(auto_demo.admin)  # /api/admin/auto-apply/demo
     app.include_router(auto_demo.public)  # /api/public/demo-student
     app.include_router(simple_guided.router)  # /api/me/simple/resume (resume by talking, E4)
+    app.include_router(simple_demo.admin)  # /api/admin/simple/demo (Ravi, the Easy dashboard demo)
     app.include_router(simple_jobs.router)  # /api/me/simple/jobs (jobs made simple, E6)
     app.include_router(simple_readiness.router)  # /api/me/simple/readiness (job readiness score, E5)
     app.include_router(simple.router)  # /api/me/simple (Easy dashboard, Phase 4)
