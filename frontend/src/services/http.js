@@ -35,10 +35,19 @@ const label = (f) => FIELD_LABELS[f] || f.replace(/([A-Z])/g, ' $1').toLowerCase
 /* ---------- slow requests (the API waking up) ---------- */
 const slowSubs = new Set();
 let slowCount = 0;
-const notifySlow = () => slowSubs.forEach((f) => f(slowCount > 0));
+// The server answered recently: it is awake, so a slow request now (an AI call) isn't "waking up", and the notice
+// goes away the moment any answer arrives (fix round items 1 and 25). The free server sleeps after ~15 quiet minutes.
+const AWAKE_MS = 10 * 60_000;
+let lastAnswer = 0;
+let shown = false;
+const awake = () => lastAnswer > 0 && Date.now() - lastAnswer < AWAKE_MS;
+const waking = () => slowCount > 0 && !awake();
+const notifySlow = () => { const v = waking(); if (v !== shown) { shown = v; slowSubs.forEach((f) => f(v)); } };
+/** Tests only: forget that the server answered. */
+export const _forgetAwake = () => { lastAnswer = 0; shown = false; };
 /** `fn(true)` while any request has been running for more than 3 s, `fn(false)` once they all settled. */
-export const onSlow = (fn) => { slowSubs.add(fn); fn(slowCount > 0); return () => slowSubs.delete(fn); };
-export const isSlow = () => slowCount > 0;
+export const onSlow = (fn) => { slowSubs.add(fn); fn(waking()); return () => slowSubs.delete(fn); };
+export const isSlow = () => waking();
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -49,15 +58,18 @@ async function once(path, { method, body, signal, timeout }) {
   let timedOut = false;
   const timer = setTimeout(() => { timedOut = true; ctl.abort(); }, timeout);
   let slow = false;
-  const slowTimer = setTimeout(() => { slow = true; slowCount += 1; notifySlow(); }, SLOW_AFTER_MS);
+  const slowTimer = setTimeout(() => { if (awake()) return; slow = true; slowCount += 1; notifySlow(); }, SLOW_AFTER_MS);
   try {
-    return await fetch(API_BASE + path, {
+    const res = await fetch(API_BASE + path, {
       method,
       credentials: 'include',
       headers: body !== undefined ? { 'Content-Type': 'application/json' } : undefined,
       body: body !== undefined ? JSON.stringify(body) : undefined,
       signal: ctl.signal,
     });
+    lastAnswer = Date.now(); // the server answered (any status): it's awake
+    notifySlow();
+    return res;
   } catch (e) {
     if (timedOut) throw new ApiError(0, 'timeout', 'The server is taking too long to answer. Please try again in a moment.');
     if (e?.name === 'AbortError') throw new ApiError(0, 'cancelled', 'Cancelled.');

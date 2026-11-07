@@ -265,17 +265,26 @@ export function AdminLogin() {
   const [step, setStep] = useState(null); // { userId } after the password
   const [f, setF] = useState({ email: '', password: '', code: '', trust: false });
   const [recovery, setRecovery] = useState(false); // lost phone: one-time recovery code instead
-  const { busy, err, run } = useRun();
+  const { busy, err, setErr, run } = useRun();
   if (user?.role === 'admin' && session?.twoStep) return <Navigate to={next?.startsWith('/admin') ? next : '/admin'} replace />;
   return (
     <Shell title="Admin sign in" sub="Two-step login is required for every admin account.">
       {!step ? (
-        <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); run(async () => { const r = await adminPassword(f.email, f.password); if (r.signedIn) nav(next?.startsWith('/admin') ? next : '/admin', { replace: true }); else setStep(r); }); }}>
+        <form className="card stack g16" noValidate onSubmit={(e) => {
+          e.preventDefault();
+          // read from the form itself: browser autofill may not fire change events (fix round item 27)
+          const fd = new FormData(e.currentTarget);
+          const email = String(fd.get('email') || '').trim();
+          const password = String(fd.get('password') || '');
+          setF({ ...f, email, password });
+          if (!email || !password) { setErr('Enter your work email and password.'); return; }
+          run(async () => { const r = await adminPassword(email, password); if (r.signedIn) nav(next?.startsWith('/admin') ? next : '/admin', { replace: true }); else setStep(r); });
+        }}>
           <span className="mono xs muted">STEP 1 OF 2 · PASSWORD</span>
-          <Field id="ad-e" label="Work email" type="email" autoComplete="username" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
-          <Field id="ad-p" label="Password" type="password" autoComplete="current-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />
+          <Field id="ad-e" name="email" label="Work email" type="email" autoComplete="username" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
+          <Field id="ad-p" name="password" label="Password" type="password" autoComplete="current-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />
           {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
-            <button type="submit" className="btn btn-ink btn-lg" disabled={busy || !f.email || !f.password}>{busy && <Spinner />}Continue</button>
+            <button type="submit" className="btn btn-ink btn-lg" disabled={busy} data-testid="admin-continue">{busy && <Spinner />}Continue</button>
         </form>
       ) : (
         <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); run(async () => { await adminVerify(step.userId, f.code, f.trust); nav(next?.startsWith('/admin') ? next : '/admin', { replace: true }); }); }}>

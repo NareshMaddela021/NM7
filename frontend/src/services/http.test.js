@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // LIVE is a build-time constant; the client itself works whatever it says.
-const { http, ApiError, isTransient, onSlow, TIMEOUT_MS, SLOW_AFTER_MS } = await import('./http');
+const { http, ApiError, isTransient, onSlow, TIMEOUT_MS, SLOW_AFTER_MS, _forgetAwake } = await import('./http');
 
 const json = (status, body) => ({ ok: status < 400, status, json: async () => body });
 const fetchMock = vi.fn();
@@ -51,6 +51,7 @@ describe('http()', () => {
   });
 
   it('tells subscribers when a request has been slow for 3 s, and when it settled', async () => {
+    _forgetAwake();
     let resolve;
     fetchMock.mockImplementation(() => new Promise((r) => { resolve = r; }));
     const seen = [];
@@ -61,6 +62,29 @@ describe('http()', () => {
     resolve(json(200, {}));
     await p;
     expect(seen).toEqual([false, true, false]);
+    off();
+  });
+
+  it('items 1 and 25: the notice goes the moment the server answers, and slow AI calls after that never show it', async () => {
+    _forgetAwake();
+    const pending = [];
+    fetchMock.mockImplementation(() => new Promise((r) => { pending.push(r); }));
+    const seen = [];
+    const off = onSlow((v) => seen.push(v));
+    const a = http('/api/me/state');
+    const b = http('/api/public/site-flags');
+    await vi.advanceTimersByTimeAsync(SLOW_AFTER_MS + 10);
+    expect(seen).toEqual([false, true]); // waking up
+    pending[1](json(200, {})); // the first answer: the server is awake
+    await b;
+    expect(seen).toEqual([false, true, false]); // gone, though the other request is still running
+    pending[0](json(200, {}));
+    await a;
+    const ai = http('/api/me/summary/generate', { method: 'POST', body: {}, timeout: 120_000 });
+    await vi.advanceTimersByTimeAsync(SLOW_AFTER_MS * 5);
+    expect(seen).toEqual([false, true, false]); // a long AI answer is not "waking up"
+    pending[2](json(200, {}));
+    await ai;
     off();
   });
 
