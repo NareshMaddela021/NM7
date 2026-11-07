@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
 import Header from '../../components/Header';
 import LangSwitch from '../../components/LangSwitch';
 import SiteFooter from '../../components/SiteFooter';
-import { BLANK, CATEGORIES, SIZES, STRUCTURES, TEAM_ROLES, cleanNumber, companyBody, keepDraft, readDraft, registrationProblem, rq } from '../../lib/company';
+import { BLANK, CATEGORIES, SIZES, STRUCTURES, TEAM_ROLES, cleanNumber, companyBody, keepDraft, readDraft, registrationProblem, rq, websiteProblem } from '../../lib/company';
 import { headerLabels, useLang } from '../../lib/i18n';
 import { usePageMeta } from '../../lib/meta';
 import { keepAccount, readAccount } from '../../lib/recruiterPortal';
@@ -52,7 +52,12 @@ export default function CompanySignup() {
   const run = async (what, fn) => { setBusy(what); setErr(''); try { await fn(); } catch (e) { setErr(e.message); } finally { setBusy(''); } };
   const regProblem = individual ? '' : registrationProblem(c.registration.kind, c.registration.number);
 
-  const nextFromDetails = (e) => { e.preventDefault(); go(1); };
+  const nextFromDetails = (e) => {
+    e.preventDefault();
+    const bad = individual ? '' : websiteProblem(c.details.website); // gmail.com is not a company website (item 21)
+    if (bad) { setErr(t(bad)); return; }
+    go(1);
+  };
   const nextFromRegistration = (e) => {
     e.preventDefault();
     if (regProblem) { setErr(t(regProblem)); return; }
@@ -83,8 +88,8 @@ export default function CompanySignup() {
           <form className="card stack g16" aria-label={t('co.step.details')} onSubmit={nextFromDetails} data-testid="co-step-details">
             <fieldset className="stack g8 co-fieldset">
               <legend className="label">{t('co.f.accountType')}</legend>
-              <label className="row g8"><input type="radio" name="acct" checked={!individual} onChange={() => set('details.category', 'startup')} /> {t('co.f.typeCompany')}</label>
-              <label className="row g8"><input type="radio" name="acct" checked={individual} onChange={() => set('details.category', 'individual')} /> {t('co.f.typeIndividual')}</label>
+              <label className="row g8"><input type="radio" name="acct" value="company" checked={!individual} onChange={() => set('details.category', 'startup')} /> {t('co.f.typeCompany')}</label>
+              <label className="row g8"><input type="radio" name="acct" value="individual" checked={individual} onChange={() => set('details.category', 'individual')} /> {t('co.f.typeIndividual')}</label>
             </fieldset>
             <Field id="co-name" label={individual ? t('co.f.yourName') : t('co.f.legalName')}>
               <input id="co-name" className="input" required minLength={2} maxLength={120} value={c.details.legalName} onChange={(e) => set('details.legalName', e.target.value)} />
@@ -132,7 +137,7 @@ export default function CompanySignup() {
                   <input id="co-li" className="input" required inputMode="url" placeholder="https://www.linkedin.com/in/your-name" value={c.individual.linkedin} onChange={(e) => set('individual.linkedin', e.target.value)} />
                 </Field>
                 <label className="row g8" style={{ alignItems: 'flex-start', flexWrap: 'nowrap' }}>
-                  <input type="checkbox" required checked={c.individual.declared} onChange={(e) => set('individual.declared', e.target.checked)} style={{ marginTop: 4 }} />
+                  <input type="checkbox" value="declared" required checked={c.individual.declared} onChange={(e) => set('individual.declared', e.target.checked)} style={{ marginTop: 4 }} />
                   <span className="small">{t('co.ind.declare')}</span>
                 </label>
               </>
@@ -141,7 +146,7 @@ export default function CompanySignup() {
                 <fieldset className="stack g8 co-fieldset">
                   <legend className="label">{t('co.f.regKind')}</legend>
                   <div className="row g16">
-                    {['gstin', 'cin', 'llpin'].map((k) => <label key={k} className="row g8"><input type="radio" name="regkind" checked={c.registration.kind === k} onChange={() => set('registration.kind', k)} /> {k.toUpperCase()}</label>)}
+                    {['gstin', 'cin', 'llpin'].map((k) => <label key={k} className="row g8"><input type="radio" name="regkind" value={k} checked={c.registration.kind === k} onChange={() => set('registration.kind', k)} /> {k.toUpperCase()}</label>)}
                   </div>
                 </fieldset>
                 <Field id="co-reg" label={t('co.f.regNumber')} hint={t('co.f.regHint')}>
@@ -312,7 +317,7 @@ function ReviewStep({ t, company, setCompany, run, busy, go, onDone }) {
       {state === 'rejected' && company.review.reason && <p className="card-sm" role="status">{t('co.rejected', { reason: company.review.reason })}</p>}
       <p className="small" style={{ margin: 0 }}>{t('co.levels')}</p>
       <label className="row g8" style={{ alignItems: 'flex-start', flexWrap: 'nowrap' }}>
-        <input type="checkbox" checked={terms} onChange={(e) => setTerms(e.target.checked)} style={{ marginTop: 4 }} />
+        <input type="checkbox" value="terms" checked={terms} onChange={(e) => setTerms(e.target.checked)} style={{ marginTop: 4 }} />
         <span className="small">{t('co.terms')} <Link to="/terms">{t('co.termsLink')}</Link></span>
       </label>
       <div className="row g8">

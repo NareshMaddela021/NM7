@@ -15,8 +15,11 @@ from pymongo.asynchronous.database import AsyncDatabase
 
 from app.admin.deps import AdminAuth
 from app.core.db import (
+    APPLICATIONS,
+    COMPANIES,
     COUPON_USES,
     DB,
+    JOBS,
     OPS_DAILY,
     ORDERS,
     ORGANIZATIONS,
@@ -28,6 +31,7 @@ from app.core.db import (
 )
 from app.core.email import Email, Mailer, send_safely
 from app.core.time import IST, now
+from app.jobs.public import live_filter
 from app.site import get_site, save_site
 
 log = logging.getLogger("nm7.daily")
@@ -82,6 +86,17 @@ async def numbers(db: AsyncDatabase, day: date, until: datetime | None = None) -
         "revenue": (paid[0]["n"] if paid else 0) - (refunded[0]["n"] if refunded else 0),  # paise
         "codesUsed": await db[COUPON_USES].count_documents({"at": w, "status": {"$ne": "reserved"}}),
         "orgSignups": await db[ORGANIZATIONS].count_documents({"created_at": w, "demo": {"$ne": True}}),
+        # the job board, companies and Auto Apply (fix round item 38)
+        "jobsPosted": await db[JOBS].count_documents({"created_at": w, "demo": {"$ne": True}}),
+        "jobsLive": await db[JOBS].count_documents(live_filter()),
+        "applications": await db[APPLICATIONS].count_documents(
+            {"created_at": w, "job_id": {"$exists": True}, "demo": {"$ne": True}}
+        ),
+        "autoApplications": await db[APPLICATIONS].count_documents(
+            {"created_at": w, "origin": "auto", "demo": {"$ne": True}}
+        ),
+        "companySignups": await db[COMPANIES].count_documents({"created_at": w, "demo": {"$ne": True}}),
+        "companiesWaiting": await db[COMPANIES].count_documents({"review.state": "pending", "demo": {"$ne": True}}),
         "errors": errors.get("n", 0),
     }
 
@@ -101,6 +116,9 @@ def message(n: dict[str, Any], title: str) -> str:
             f"Annual passes sold: {n['passesSold']}",
             f"Codes used: {n['codesUsed']}",
             f"New organizations: {n['orgSignups']}",
+            f"Jobs posted: {n['jobsPosted']} · Live jobs: {n['jobsLive']}",
+            f"Job applications: {n['applications']} (Auto Apply: {n['autoApplications']})",
+            f"New companies: {n['companySignups']} · Waiting for review: {n['companiesWaiting']}",
             f"Server errors: {n['errors']}",
         ]
     )

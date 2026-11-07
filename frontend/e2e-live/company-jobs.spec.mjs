@@ -36,13 +36,16 @@ for (const [label, opts] of SIZES) {
       await jobs.getByRole('button', { name: 'Post a job' }).click();
       const form = page.getByTestId('co-job-form');
       // the writer
+      await form.getByLabel('Job title').fill(`QA Trainee ${tag}`);
       await form.getByText('Write the description for me').click();
-      await form.getByLabel('The role').fill(`QA Trainee ${tag}`);
+      await expect(form.getByLabel('The role')).toHaveCount(0); // the title typed above is used word for word (item 20)
+      await form.getByLabel('What the person will do (optional, one per line)').fill('Test the billing screens');
       await form.getByLabel('Skills needed').fill('Manual testing, SQL');
       await form.getByLabel('City and salary (optional)').fill('Pune, ₹2.4–3 LPA');
       await form.getByRole('button', { name: 'Write it' }).click();
       await expect(form.getByTestId('co-writer-note')).toContainText('simple draft');
       await expect(form.getByLabel('Job description')).toHaveValue(/Manual testing, SQL/);
+      await expect(form.getByLabel('Job description')).toHaveValue(new RegExp(`We are hiring a QA Trainee ${tag}\\.[\\s\\S]*- Test the billing screens`));
       await expect(form.getByLabel('Job title')).toHaveValue(`QA Trainee ${tag}`);
       await form.getByLabel('Cities (comma between)').fill('Pune');
       // unfair wording: Check shows it and Post is disabled

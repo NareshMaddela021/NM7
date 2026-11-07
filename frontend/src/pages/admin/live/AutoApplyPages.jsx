@@ -14,7 +14,11 @@ const FIELDS = [
   ['borderline', 'Borderline band: points under the minimum that ask the student', 0, 30], ['atsMin', 'ATS score needed to start', 0, 100],
   ['emailDailyCap', 'Auto Apply emails a day, whole site (Resend free plan: 100)', 0, 10000], ['irrelevantStop', 'Company “Not relevant” marks before a student stops going there', 1, 20],
 ];
-const channels = (o) => Object.entries(o || {}).map(([k, v]) => `${k === 'nm7' ? 'Nm7' : k === 'email' ? 'Email' : k === 'link' ? 'Website' : k} ${v}`).join(' · ') || '—';
+const channels = (o) => Object.entries(o || {}).map(([k, v]) => `${k === 'nm7' ? 'Nm7' : k === 'email' ? 'Email' : k === 'link' ? 'Website' : k} ${v}`).join(' · ');
+const total = (o) => Object.values(o || {}).reduce((a, b) => a + b, 0);
+// one number per cell, right-aligned, with the channels in small text under it: no "— Nm7 1" (fix round item 36)
+const NUM = { textAlign: 'right', fontVariantNumeric: 'tabular-nums' };
+const Count = ({ o }) => <td style={NUM}><strong>{total(o)}</strong>{total(o) > 0 && <div className="xs muted">{channels(o)}</div>}</td>;
 
 export function LiveAutoApply() {
   const toast = useToast();
@@ -51,9 +55,9 @@ export function LiveAutoApply() {
           </div>
           <Panel title="Applications per day">
             <div className="table-wrap" tabIndex={0} role="region" aria-label="Applications per day">
-              <table className="table" data-testid="aa-days"><thead><tr><th>Day</th><th>Auto</th><th>Manual</th><th>Emails sent</th><th>Bounced</th><th>Complaints</th></tr></thead>
+              <table className="table" data-testid="aa-days"><thead><tr><th scope="col">Day</th><th scope="col" style={NUM}>Auto</th><th scope="col" style={NUM}>Manual</th><th scope="col" style={NUM}>Emails sent</th><th scope="col" style={NUM}>Bounced</th><th scope="col" style={NUM}>Complaints</th></tr></thead>
                 <tbody>{d.days.length === 0 ? <tr><td colSpan={6} className="small muted">No applications yet.</td></tr> : d.days.map((r) => (
-                  <tr key={r.day}><td className="small">{r.day}</td><td className="small">{channels(r.auto)}</td><td className="small">{channels(r.manual)}</td><td>{r.sent}</td><td>{r.bounced}</td><td>{r.complained}</td></tr>
+                  <tr key={r.day}><th scope="row" className="small" style={{ fontWeight: 400 }}>{r.day}</th><Count o={r.auto} /><Count o={r.manual} /><td style={NUM}>{r.sent}</td><td style={NUM}>{r.bounced}</td><td style={NUM}>{r.complained}</td></tr>
                 ))}</tbody></table>
             </div>
           </Panel>

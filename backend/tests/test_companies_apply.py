@@ -161,13 +161,23 @@ async def test_apply_rank_stage_interview_pool_withdraw_and_removal(client, outb
     day = (now() + timedelta(days=3)).date().isoformat()
     r = await client.post(
         f"/api/company/{cid}/applicants/{first['id']}/interview",
-        json={"date": day, "time": "11:00", "minutes": 45, "link": "https://meet.example.com/x"},
+        json={
+            "date": day,
+            "time": "11:00",
+            "minutes": 45,
+            "link": "https://meet.example.com/x",
+            "round": "Technical round 1",
+            "interviewer": "Ravi (HR)",
+        },
         headers=H(session),
     )
     assert r.json()["status"] == "interview" and r.json()["emailed"] is True
+    # fix round item 39: the round and who they meet, in the email, the calendar file and the applicant card
+    assert r.json()["interview"]["round"] == "Technical round 1" and r.json()["interview"]["interviewer"] == "Ravi (HR)"
     mail = outbox.sent[-1]
     assert mail.to == "asha@example.com" and mail.attachments[0][0] == "interview.ics"
-    assert b"BEGIN:VEVENT" in mail.attachments[0][2]
+    assert b"BEGIN:VEVENT" in mail.attachments[0][2] and b"Technical round 1" in mail.attachments[0][2].replace(b"\r\n ", b"")
+    assert "Round: Technical round 1" in mail.text and "With: Ravi (HR)" in mail.text
     assert (
         err(
             await client.post(

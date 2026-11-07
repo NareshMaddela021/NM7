@@ -63,7 +63,10 @@ for (const [label, opts] of SIZES) {
       await expect(preview).toContainText('1 new');
       await expect(preview).toContainText('1 with errors');
       await expect(preview.getByTestId('import-row').nth(1)).toContainText('Error');
-      await expect(preview.getByTestId('import-row').nth(1)).toContainText('description');
+      await expect(preview.getByTestId('import-row').nth(1)).toContainText('Description is missing.'); // plain words (item 34)
+      await expect(preview.getByTestId('import-row').nth(1)).toContainText('Job title is too short: use at least 2 letters.');
+      await expect(preview).not.toContainText('String should');
+      await expect(page.getByRole('radio', { name: 'JSON' })).toBeChecked(); // a real name, not "on" (item 35)
       await page.getByRole('button', { name: 'Import 1 job' }).click();
       await expect(page.getByLabel('Search')).toBeVisible();
       await page.getByLabel('Search').fill(tag);

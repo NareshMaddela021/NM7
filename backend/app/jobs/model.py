@@ -208,15 +208,61 @@ def to_doc(job: JobIn) -> dict[str, Any]:
     }
 
 
-def errors_of(exc: Exception) -> list[str]:
-    """Plain messages for a failed JobIn (field: problem)."""
+def errors_of(exc: Exception, plain: bool = True) -> list[str]:
+    """Messages for a failed JobIn: plain words for people (fix round item 34), "field: problem" for machines."""
     from pydantic import ValidationError
 
     if not isinstance(exc, ValidationError):
         return [str(exc)]
+    if plain:
+        return [plain_error(e) for e in exc.errors()]
     out = []
     for e in exc.errors():
         where = ".".join(str(x) for x in e.get("loc") or () if x != "__root__")
         msg = str(e.get("msg", "")).removeprefix("Value error, ")
         out.append(f"{where}: {msg}" if where else msg)
     return out
+
+
+FIELD_WORDS = {
+    "title": "Job title", "company": "Company", "company.name": "Company name", "company.website": "Company website",
+    "description": "Description", "locations": "Locations", "skills": "Skills", "experience": "Experience",
+    "jobType": "Job type", "job_type": "Job type", "workType": "Work type", "work_type": "Work type",
+    "applyMethod": "How to apply", "apply_method": "How to apply", "applyUrl": "Apply link", "apply_url": "Apply link",
+    "applyEmail": "Apply email", "apply_email": "Apply email", "closesAt": "Closing date", "closes_at": "Closing date",
+    "salary": "Salary", "salary.min": "Lowest salary", "salary.max": "Highest salary", "status": "Status",
+}  # fmt: skip
+
+
+def plain_error(e: dict[str, Any]) -> str:
+    """One validation problem in plain words: "Job title is too short: use at least 2 letters." instead of
+    "title: String should have at least 2 characters" (fix round item 34)."""
+    loc = [str(x) for x in e.get("loc") or () if x not in ("__root__", "body") and not isinstance(x, int)]
+    key = ".".join(loc)
+    what = FIELD_WORDS.get(key) or FIELD_WORDS.get(loc[-1] if loc else "") or (loc[-1].replace("_", " ") if loc else "")
+    what = what[:1].upper() + what[1:] if what else ""
+    ctx = e.get("ctx") or {}
+    kind = str(e.get("type", ""))
+    msg = {
+        "missing": "is missing.",
+        "string_too_short": f"is too short: use at least {ctx.get('min_length')} letters.",
+        "string_too_long": f"is too long: use at most {ctx.get('max_length')} letters.",
+        "too_short": f"needs at least {ctx.get('min_length')}.",
+        "too_long": f"can have at most {ctx.get('max_length')}.",
+        "literal_error": f"must be one of: {str(ctx.get('expected', '')).replace(chr(39), '')}.",
+        "enum": f"must be one of: {str(ctx.get('expected', '')).replace(chr(39), '')}.",
+        "int_parsing": "must be a whole number.",
+        "int_type": "must be a whole number.",
+        "float_parsing": "must be a number.",
+        "greater_than_equal": f"must be {ctx.get('ge')} or more.",
+        "less_than_equal": f"must be {ctx.get('le')} or less.",
+        "string_type": "must be text.",
+        "list_type": "must be a list.",
+        "date_from_datetime_parsing": "must be a date, like 2026-12-31.",
+        "date_parsing": "must be a date, like 2026-12-31.",
+        "datetime_parsing": "must be a date, like 2026-12-31.",
+    }.get(kind)
+    if msg is None:
+        text = str(e.get("msg", "")).removeprefix("Value error, ")
+        return f"{what}: {text}" if what and not text.startswith(what) else text
+    return f"{what} {msg}" if what else msg[:1].upper() + msg[1:]

@@ -8,6 +8,26 @@ export const CATEGORIES = ['startup', 'sme', 'enterprise', 'ngo', 'government', 
 export const STRUCTURES = ['private_limited', 'public_limited', 'llp', 'partnership', 'proprietorship', 'opc', 'trust_society', 'government_body', 'other'];
 export const SIZES = ['1_10', '11_50', '51_200', '201_1000', '1000_plus'];
 export const TEAM_ROLES = ['full', 'posting', 'view'];
+/** Plain words for the stored codes (Admin is English): "Startup · Private limited · 51–200 people" (fix round 33). */
+const WORDS = {
+  startup: 'Startup', sme: 'Small or medium business', enterprise: 'Large company', ngo: 'NGO', government: 'Government', individual: 'Individual recruiter',
+  private_limited: 'Private limited', public_limited: 'Public limited', llp: 'LLP', partnership: 'Partnership', proprietorship: 'Proprietorship', opc: 'One person company', trust_society: 'Trust or society', government_body: 'Government body', other: 'Other',
+  '1_10': '1–10 people', '11_50': '11–50 people', '51_200': '51–200 people', '201_1000': '201–1,000 people', '1000_plus': 'Over 1,000 people',
+};
+export const plainWords = (...codes) => codes.filter(Boolean).map((c) => WORDS[c] || String(c).replace(/_/g, ' ')).join(' · ');
+/** Email services (and throwaway inboxes) are never a company's own website; the server has the full list (item 21). */
+const FREE_SITES = new Set(('gmail.com googlemail.com yahoo.com yahoo.co.in yahoo.in ymail.com rocketmail.com outlook.com outlook.in hotmail.com '
+  + 'hotmail.co.in live.com live.in msn.com icloud.com me.com mac.com aol.com rediffmail.com rediff.com protonmail.com proton.me pm.me '
+  + 'zohomail.in zohomail.com zoho.com gmx.com gmx.net mail.com yandex.com yandex.ru inbox.com hushmail.com tutanota.com tuta.io fastmail.com '
+  + 'indiatimes.com sify.com mailinator.com guerrillamail.com 10minutemail.com tempmail.com temp-mail.org yopmail.com').split(' '));
+export function websiteProblem(website) {
+  const host = String(website || '').trim().toLowerCase().replace(/^[a-z]+:\/\//, '').split(/[/?#]/)[0].replace(/^www\./, '').replace(/\.$/, '');
+  if (!host) return '';
+  const parts = host.split('.');
+  const two = parts.slice(-2).join('.');
+  const three = parts.slice(-3).join('.');
+  return FREE_SITES.has(host) || FREE_SITES.has(two) || FREE_SITES.has(three) ? 'co.err.freeSite' : '';
+}
 export const GST_PORTAL = 'https://services.gst.gov.in/services/searchtp';
 
 /** A JSON call with the account session. Field errors (422) come back joined into one readable message. */

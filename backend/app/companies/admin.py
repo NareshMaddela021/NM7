@@ -25,7 +25,7 @@ from pydantic import Field
 from app.admin.deps import AdminAuth
 from app.audit import audit
 from app.auth.sessions import client_ip
-from app.companies.checks import GST_PORTAL, MCA_PORTAL
+from app.companies.checks import GST_PORTAL, MCA_PORTAL, domain_gap
 from app.companies.model import company_out, flags_for, trust_of
 from app.core.config import get_settings
 from app.core.db import AUDIT_LOG, COMPANIES, DB
@@ -45,8 +45,15 @@ RECHECK_BEFORE = timedelta(days=30)
 def admin_out(c: dict[str, Any]) -> dict[str, Any]:
     out = company_out(c)
     reg = c.get("reg") or {}
+    flags = (c.get("flags") or []) + [f for f in c.get("login_flags") or [] if f not in (c.get("flags") or [])]
+    gap = domain_gap(c) if c.get("kind", "company") == "company" else ""
+    if gap and not any(f.get("code") == "email_domain" for f in flags):
+        flags = [*flags, {"code": "email_domain", "text": gap}]  # always shown, also on older sign-ups (item 22)
+    emails = c.get("emails") or {}
     out |= {
-        "flags": (c.get("flags") or []) + [f for f in c.get("login_flags") or [] if f not in (c.get("flags") or [])],
+        "flags": flags,
+        # the real state of each email, never a fixed "(confirmed)" (fix round item 10)
+        "emailsConfirmed": {"admin": bool(emails.get("admin")), "company": bool(emails.get("company"))},
         "createdAt": ms(c.get("created_at")),
         "updatedAt": ms(c.get("updated_at")),
         "domain": {

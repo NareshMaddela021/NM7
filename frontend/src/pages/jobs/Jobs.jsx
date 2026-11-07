@@ -25,7 +25,7 @@ const lakh = (n) => `₹${n / 100000} L`;
 
 /** The facts line: "Acme · Hyderabad, Pune · Fresher · Full-time · ₹3,00,000 – ₹4,50,000 a year". */
 function facts(j, t) {
-  return [placeText(j, t), t(`jobs.exp.${j.experience}`), t(`jobs.type.${j.jobType}`), j.workType !== 'onsite' && !j.remote ? t(`jobs.work.${j.workType}`) : '', salaryText(j.salary, t)].filter(Boolean).join(' · ');
+  return [placeText(j, t), t(`jobs.exp.${j.experience}`), t(`jobs.type.${j.jobType}`), j.workType !== 'onsite' && !j.remote ? t(`jobs.work.${j.workType}`) : '', salaryText(j.salary, t)].filter((x, i, all) => x && all.indexOf(x) === i).join(' · '); // no "Internship · Internship" (item 33)
 }
 
 function Logo({ name }) {
@@ -337,7 +337,7 @@ function ApplyQuestions({ job, t, busy, onSend, onCancel }) {
               <legend className="label">{q.text}</legend>
               <div className="row g12" style={{ flexWrap: 'wrap' }}>
                 {(q.kind === 'yesno' ? [['yes', t('jobs.apply.yes')], ['no', t('jobs.apply.no')]] : q.options.map((o) => [o, o])).map(([v, l]) => (
-                  <label key={v} className="row g4 small"><input type="radio" name={`aq-${q.id}`} value={v} checked={answers[q.id] === v} onChange={() => set(q.id, v)} /> {l}</label>
+                  <label key={v} className="row g4 small"><input type="radio" name={`aq-${q.id}`} value={v} aria-label={l} checked={answers[q.id] === v} onChange={() => set(q.id, v)} /> {l}</label>
                 ))}
               </div>
             </>
@@ -345,7 +345,7 @@ function ApplyQuestions({ job, t, busy, onSend, onCancel }) {
         </fieldset>
       ))}
       <label className="row g8 small" style={{ alignItems: 'flex-start', flexWrap: 'nowrap' }}>
-        <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} style={{ marginTop: 3 }} data-testid="apply-consent" />
+        <input type="checkbox" value="consent" checked={consent} onChange={(e) => setConsent(e.target.checked)} style={{ marginTop: 3 }} data-testid="apply-consent" />
         <span>{t('jobs.apply.consent', { company: job.company.name })}</span>
       </label>
       <span className="xs muted">{t('jobs.apply.consentMore')} <Link to="/grievance">{t('jobs.apply.yourData')}</Link></span>

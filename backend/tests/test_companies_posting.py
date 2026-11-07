@@ -221,8 +221,13 @@ async def test_ai_check_once_and_writer_never_invents(client, outbox, db, monkey
     invented_text = (
         "You will build dashboards in SQL. We offer 6 LPA, health insurance and free lunch. Founded in 1999."
     )
-    clean_text = "You will build weekly dashboards in SQL and Power BI for our stores in Hyderabad. Freshers welcome."
-    answers = iter([invented_text, clean_text])
+    clean_text = (
+        "We are hiring a Junior Data Analyst in Hyderabad.\n\nWhat you will do:\n- Build weekly dashboards in SQL and "
+        "Power BI\n\nFreshers welcome."
+    )
+    renamed = "We are hiring an Order Entry Executive in Hyderabad. You will work with SQL and Power BI."
+    added = "We are hiring a Junior Data Analyst in Hyderabad.\n- Handle customer calls and manage vendor invoices"
+    answers = iter([invented_text, renamed, added, clean_text])
 
     async def fake_models(feature, content, schema, check, **kw):
         return check({"description": next(answers)})
@@ -236,11 +241,17 @@ async def test_ai_check_once_and_writer_never_invents(client, outbox, db, monkey
         )
     ).json()
     assert bad["source"] == "template" and {"6 LPA", "insurance", "free lunch", "founded"} <= set(bad["removed"])
+    # fix round item 20: the company's title word for word, and only the duties they typed
+    body = {"role": "Junior Data Analyst", "skills": "SQL, Power BI", "place": "Hyderabad"}
+    r = (await client.post(f"{url}/write", json=body, headers=H(session))).json()
+    assert r["source"] == "template" and any("changed job title" in x for x in r["removed"])
+    assert "We are hiring a Junior Data Analyst." in r["description"]
+    r = (await client.post(f"{url}/write", json=body, headers=H(session))).json()
+    assert r["source"] == "template" and any("duty you didn’t write" in x for x in r["removed"])
+    assert "What you will do" not in r["description"]  # no duties typed: the plain draft adds none
     good = (
         await client.post(
-            f"{url}/write",
-            json={"role": "Junior Data Analyst", "skills": "SQL, Power BI", "place": "Hyderabad"},
-            headers=H(session),
+            f"{url}/write", json={**body, "duties": "Build weekly dashboards for the stores"}, headers=H(session)
         )
     ).json()
     assert good["source"] == "ai" and "Hyderabad" in good["description"]

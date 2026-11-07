@@ -45,14 +45,14 @@ function Questions({ it, t, onDone }) {
               <legend className="label">{q.text}</legend>
               <div className="row g12" style={{ flexWrap: 'wrap' }}>
                 {(q.kind === 'yesno' ? [['yes', t('jobs.apply.yes')], ['no', t('jobs.apply.no')]] : q.options.map((o) => [o, o])).map(([v, l]) => (
-                  <label key={v} className="row g4 small"><input type="radio" name={`ai-${it.id}-${q.id}`} checked={answers[q.id] === v} onChange={() => set(q.id, v)} /> {l}</label>
+                  <label key={v} className="row g4 small"><input type="radio" name={`ai-${it.id}-${q.id}`} value={v} aria-label={l} checked={answers[q.id] === v} onChange={() => set(q.id, v)} /> {l}</label>
                 ))}
               </div>
             </>
           )}
         </fieldset>
       ))}
-      <label className="row g8 small"><input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} /> {t('aa.items.remember')}</label>
+      <label className="row g8 small"><input type="checkbox" value="remember" aria-label={t('aa.items.remember')} checked={remember} onChange={(e) => setRemember(e.target.checked)} /> {t('aa.items.remember')}</label>
       {err && <p className="error" role="alert" style={{ margin: 0 }}>{err}</p>}
       <button type="submit" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={busy}>{busy ? t('jobs.loading') : t('aa.items.answerApply')}</button>
     </form>
