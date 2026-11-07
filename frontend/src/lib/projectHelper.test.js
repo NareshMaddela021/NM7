@@ -8,7 +8,7 @@ describe('project helper rules (same as the server)', () => {
     expect(localBullets(A, 'Attendance')).toEqual({
       bullets: [
         'Built a college attendance app using Flutter and Firebase',
-        'Project lets teachers mark attendance from their phone',
+        'Designed it to let teachers mark attendance from their phone',
         'Handled the login and attendance screens in a team of 3',
       ],
       tip: TIP,
@@ -23,5 +23,11 @@ describe('project helper rules (same as the server)', () => {
   });
   it('a solo project and the title when nothing else is given', () => {
     expect(localBullets({ part: 'everything', team: '1' }, 'Chat app').bullets).toEqual(['Built Chat app', 'Handled everything']);
+  });
+
+  it('item 6: reads as English, the same as the server', () => {
+    expect(localBullets({ built: 'A sales dashboard for a college canteen', tools: 'Excel and Power BI', does: 'Shows daily sales and the most sold items' }).bullets)
+      .toEqual(['Built a sales dashboard for a college canteen using Excel and Power BI', 'Designed it to show daily sales and the most sold items']);
+    expect(localBullets({ built: 'a library website', does: 'a list of all books' }).bullets[1]).toBe('Main feature: a list of all books');
   });
 });

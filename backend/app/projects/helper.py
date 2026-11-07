@@ -92,25 +92,53 @@ def _join(items: list[str]) -> str:
     return items[0] if len(items) == 1 else ", ".join(items[:-1]) + " and " + items[-1]
 
 
+# a "what does it do" answer that starts with one of these verbs becomes "Designed it to <verb> …" (item 6)
+VERBS = (
+    "helps", "lets", "allows", "shows", "tracks", "predicts", "finds", "sends", "reads", "makes", "gives", "displays",
+    "stores", "counts", "lists", "records", "calculates", "checks", "reminds", "notifies", "books", "manages",
+    "collects", "compares", "converts", "generates", "sorts", "matches", "suggests", "detects", "scans", "keeps",
+    "saves", "measures", "plays", "teaches", "answers", "connects", "controls", "monitors", "creates", "builds",
+)  # fmt: skip
+SUBJECT = r"^(it |this |the app |the project |the dashboard |the website |my project )"
+LEAD = re.compile(r"^(a|an|the|my|our|one)\b", re.I)
+
+
+def _base(verb: str) -> str:
+    v = verb.lower()
+    if v.endswith("ies"):
+        return v[:-3] + "y"
+    if v.endswith(("sses", "shes", "ches", "xes")):
+        return v[:-2]
+    return v[:-1]
+
+
+def _lead_lower(text: str) -> str:
+    """ "A sales dashboard" → "a sales dashboard" (only a leading a / an / the / my / our / one)."""
+    return LEAD.sub(lambda m: m.group(1).lower(), text, count=1)
+
+
 def rules_bullets(answers: dict[str, str], title: str = "") -> list[str]:
     """Bullets made from the answers' own words: always 2-4 when there is anything to say."""
     built = answers.get("built") or title
     tools = [t.strip() for t in re.split(r",|/|\band\b|\+", answers.get("tools", "")) if t.strip()]
     out = []
     if built:
-        what = re.sub(r"^(i |we )?(built|made|created|developed)\s+", "", built, flags=re.I)
+        what = _lead_lower(re.sub(r"^(i |we )?(built|made|created|developed)\s+", "", built, flags=re.I))
         out.append(f"Built {what}" + (f" using {_join(tools)}" if tools else ""))
     elif tools:
         out.append(f"Worked with {_join(tools)}")
     if answers.get("does"):
-        does = re.sub(r"^(it |this |the app |the project )", "", answers["does"], flags=re.I)
-        verb = re.match(r"^(helps|lets|allows|shows|tracks|predicts|finds|sends|reads|makes)\b", does, re.I)
-        out.append(f"Project {does}" if verb else f"Made it {does}")
+        does = re.sub(SUBJECT, "", answers["does"], flags=re.I).strip()
+        first, _, rest = does.partition(" ")
+        if first.lower() in VERBS:
+            out.append(f"Designed it to {_base(first)}" + (f" {rest}" if rest else ""))
+        else:
+            out.append(f"Main feature: {_lead_lower(does)}")
     part = answers.get("part")
     team = answers.get("team", "")
     size = NUMBER.search(team)
     if part:
-        p = re.sub(r"^(i |my part:?\s*)", "", part, flags=re.I)
+        p = _lead_lower(re.sub(r"^(i |my part:?\s*)", "", part, flags=re.I))
         if size and int(float(size.group(0).replace(",", ""))) > 1:
             out.append(f"Handled {p} in a team of {size.group(0)}")
         else:

@@ -23,9 +23,10 @@ for (const [label, opts] of SIZES) {
       await expect(page.getByTestId('sx-ready-score')).toHaveText('You are 55% ready');
       await expect(page.getByTestId('sx-ready').getByRole('listitem')).toHaveCount(3);
       await expect(page.getByTestId('sx-left-roles')).toHaveText(/Choose the jobs you want · \+20 points/);
-      await expect(page.getByTestId('sx-left-roles')).toHaveAttribute('href', '/me/auto-apply');
-      await expect(page.getByTestId('sx-left-interview')).toHaveAttribute('href', '/me/ats');
-      await expect(page.getByTestId('sx-left-certs')).toHaveAttribute('href', '/me/certificates');
+      // item 13 (fix round): "Things left" stay inside the easy dashboard
+      await expect(page.getByTestId('sx-left-roles')).toHaveAttribute('href', '/me/simple/auto');
+      await expect(page.getByTestId('sx-left-interview')).toHaveAttribute('href', '/me/simple/practice');
+      await expect(page.getByTestId('sx-left-certs')).toHaveAttribute('href', '/me/simple/resume?step=certs');
       expect(await noSideScroll(page)).toBe(true);
       const v = (await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze()).violations.filter((x) => ['serious', 'critical'].includes(x.impact));
       expect(v.map((x) => x.id)).toEqual([]);

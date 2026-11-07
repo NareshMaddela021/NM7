@@ -23,7 +23,7 @@ export function willHappen(f, limits, t) {
   const cities = list(f.cities);
   const where = cities.length ? (f.remote ? t('aa.will.whereRemote', { cities: cities.join(', ') }) : t('aa.will.where', { cities: cities.join(', ') })) : (f.remote ? t('aa.will.anywhereRemote') : t('aa.will.anywhere'));
   const out = [
-    t('aa.will.find', { roles: roles.length ? roles.join(', ') : '—', where }),
+    roles.length ? t('aa.will.find', { roles: roles.join(', '), where }) : t('aa.will.noRole', { where }), // item 32: no "—"
     t('aa.will.score', { n: f.minScore }),
     t('aa.will.limit', { n: f.dailyLimit, cap: limits.companyCap }),
     t('aa.will.channels'),

@@ -88,8 +88,14 @@ JOINING = set(
     are be been also both each per via over under all any some can could would will so such than then which who
     built build developed develop created create designed design made make worked work handled handle used use wrote
     write tested test prepared prepare helped help did do done project projects team internship intern job role part
-    tools tool app application website system page pages based simple small""".split()
+    tools tool app application website system page pages based simple small
+    displayed display showed show shown tracked track analysed analyzed analyse analyze implemented implement
+    maintained maintain organised organized organise collected collect calculated calculate generated generate
+    recorded record stored store presented present completed complete assisted assist supported support set daily
+    weekly monthly""".split()
 )
+# words of the same family count as the same word ("shows" / "showed" / "shown"): their first 4 letters (item 6)
+STEM = 4
 
 
 def _clean(v: Any, n: int) -> str:
@@ -111,7 +117,7 @@ def latin(text: str) -> bool:
 
 
 def _stem(w: str) -> str:
-    return w.lower()[:5]
+    return w.lower()[:STEM]
 
 
 def supported(line: str, answers: dict[str, str], title: str = "") -> bool:
@@ -178,7 +184,17 @@ def _edu(d: dict[str, Any]) -> dict[str, Any]:
     return edu[0]
 
 
-def apply(step: str, v: dict[str, Any], d: dict[str, Any], email: str = "") -> dict[str, Any]:
+def fill_contact(d: dict[str, Any], account: dict[str, Any]) -> dict[str, Any]:
+    """The account's name, email and phone on the resume wherever it has none yet (item 15), whichever question was
+    answered first. Never replaces what the person wrote."""
+    p = dict(d.get("personal") or {})
+    for k in ("name", "email", "phone"):
+        if account.get(k) and not str(p.get(k) or "").strip():
+            p[k] = account[k]
+    return {**d, "personal": p}
+
+
+def apply(step: str, v: dict[str, Any], d: dict[str, Any], account: dict[str, Any] | None = None) -> dict[str, Any]:
     """Writes one answer into the resume data (keeping everything else the person wrote)."""
     d = {**blank_resume(), **d}
     if step == "about":
@@ -187,9 +203,9 @@ def apply(step: str, v: dict[str, Any], d: dict[str, Any], email: str = "") -> d
             p["name"] = v["name"]
         if v.get("phone"):
             p["phone"] = v["phone"]
-        if email and not p.get("email"):
-            p["email"] = email
         d["personal"] = p
+        if v.get("linkedin"):
+            d["links"] = {**(d.get("links") if isinstance(d.get("links"), dict) else {}), "linkedin": v["linkedin"]}
     elif step == "studied":
         e = _edu(d)
         e["degree"], e["field"] = v.get("degree", e.get("degree", "")), v.get("field", e.get("field", ""))
@@ -218,17 +234,20 @@ def apply(step: str, v: dict[str, Any], d: dict[str, Any], email: str = "") -> d
         langs = _list(d.get("langs"))
         have = {str(x.get("name", "")).lower() for x in langs}
         d["langs"] = langs + [{"name": n, "level": ""} for n in v.get("names", []) if n.lower() not in have]
-    return d
+    return fill_contact(d, account or {})
 
 
 def check_value(step: str, raw: Any) -> dict[str, Any]:
     v = raw if isinstance(raw, dict) else {}
     if step == "about":
-        out = {"name": _clean(v.get("name"), 80), "phone": _clean(v.get("phone"), 20)}
+        out = {"name": _clean(v.get("name"), 80), "phone": _clean(v.get("phone"), 20),
+               "linkedin": _clean(v.get("linkedin"), 120)}  # fmt: skip
         if not out["name"]:
             raise ApiError(400, "need_name", "Please tell us your name.")
         if out["phone"] and not PHONE.match(out["phone"]):
             raise ApiError(400, "phone", "Please give a phone number with digits only.")
+        if out["linkedin"] and "linkedin.com/" not in out["linkedin"].lower():
+            raise ApiError(400, "linkedin", "Please give your LinkedIn link, like linkedin.com/in/your-name.")
         return out
     if step == "studied":
         return {"degree": _clean(v.get("degree"), 60), "field": _clean(v.get("field"), 80)}
@@ -270,15 +289,20 @@ def _answers(kind: str, a: dict[str, Any]) -> tuple[dict[str, str], str]:
     return helper.clean({k: v for k, v in raw.items() if k in helper.KEYS}), title
 
 
+async def _account(db, uid: str) -> dict[str, Any]:
+    u = await db[USERS].find_one({"_id": uid}, {"name": 1, "email": 1, "phone": 1}) or {}
+    return {k: u.get(k) or "" for k in ("name", "email", "phone")}
+
+
 async def _state(db, uid: str) -> dict[str, Any]:
-    u = await db[USERS].find_one({"_id": uid}, {"simple.guided": 1, "name": 1, "email": 1}) or {}
+    u = await db[USERS].find_one({"_id": uid}, {"simple.guided": 1, "name": 1, "email": 1, "phone": 1}) or {}
     g = ((u.get("simple") or {}).get("guided")) or {}
     wallet = [c.get("name") or c.get("title") or "" async for c in db[CERTIFICATES].find({"user_id": uid})]
     return {
         "steps": list(STEPS),
         "step": min(int(g.get("step", 0)), len(STEPS)),
         "answers": g.get("answers") or {},
-        "account": {"name": u.get("name") or "", "email": u.get("email") or ""},
+        "account": {"name": u.get("name") or "", "email": u.get("email") or "", "phone": u.get("phone") or ""},
         "wallet": [w for w in wallet if w][:10],
         "chips": {"skills": list(SKILL_CHIPS), "degrees": list(DEGREES), "langs": list(LANGS)},
     }
@@ -299,8 +323,7 @@ async def answer(step: str, body: AnswerIn, request: Request, db: DB, auth: Cust
     if not body.skip and step not in ("projects", "work"):
         v = check_value(step, body.value)
         r = await _resume(db, uid)
-        u = await db[USERS].find_one({"_id": uid}, {"email": 1}) or {}
-        await _save(db, r, apply(step, v, r.get("data") or {}, u.get("email") or ""))
+        await _save(db, r, apply(step, v, r.get("data") or {}, await _account(db, uid)))
         sets[f"simple.guided.answers.{step}"] = v
     elif body.skip:
         sets[f"simple.guided.skipped.{step}"] = True
@@ -348,7 +371,7 @@ async def accept(body: AcceptIn, request: Request, db: DB, auth: CustomerAuth) -
                 "description": "\n".join(lines),
             },
         ]
-    await _save(db, r, d)
+    await _save(db, r, fill_contact(d, await _account(db, uid)))
     await db[USERS].update_one(
         {"_id": uid},
         {

@@ -24,11 +24,19 @@ const Apply = lazy(() => jobs().then((m) => ({ default: m.Apply })));
 const AutoOn = lazy(() => jobs().then((m) => ({ default: m.AutoOn })));
 const Answers = lazy(() => jobs().then((m) => ({ default: m.Answers })));
 const Outside = lazy(() => jobs().then((m) => ({ default: m.Outside })));
+const more = () => import('./SimpleMore'); // my resume, applications, practice, fixes (fix round, 7 Nov)
+const MyResume = lazy(() => more().then((m) => ({ default: m.MyResume })));
+const Apps = lazy(() => more().then((m) => ({ default: m.Apps })));
+const Practice = lazy(() => more().then((m) => ({ default: m.Practice })));
+const Fixes = lazy(() => more().then((m) => ({ default: m.Fixes })));
 import '../../styles/simple.css';
 
 export const LANG_NAMES = [['en', 'English', 'en-IN', 'English'], ['te', 'తెలుగు', 'te-IN', 'Telugu'], ['hi', 'हिंदी', 'hi-IN', 'Hindi']];
 export const NEXT_ICONS = { resume: '📝', education: '🎓', skills: '🛠️', projects: '💡', fix_score: '📈', auto_apply: '🤖', answer: '💬', jobs: '💼' };
-export const TILES = [['resume', '📄', '/me/simple/resume'], ['jobs', '💼', '/me/simple/jobs'], ['apps', '📋', '/me/jobs'], ['practice', '🎤', '/me/ats']];
+// every tile opens a simple screen (items 3, 4, 12): the resume as it is, simple jobs, applications as cards, practice
+export const TILES = [['resume', '📄', '/me/simple/myresume'], ['jobs', '💼', '/me/simple/jobs'], ['apps', '📋', '/me/simple/apps'], ['practice', '🎤', '/me/simple/practice']];
+// "Things left" inside the easy dashboard (item 13), not the full pages
+export const READY_PATHS = { resume: '/me/simple/resume', score: '/me/simple/fixes', linkedin: '/me/simple/resume?step=about', interview: '/me/simple/practice', skills: '/me/simple/resume?step=skills', roles: '/me/simple/auto', certs: '/me/simple/resume?step=certs' };
 export const READY_ICONS = { resume: '📝', score: '📈', linkedin: '🔗', interview: '🎤', skills: '🛠️', roles: '🎯', certs: '🏅' };
 export const MORE = [
   ['resumes', '📄', '/me/resumes'], ['profile', '👤', '/me/profile'], ['ats', '📈', '/me/ats'], ['auto', '🤖', '/me/auto-apply'],
@@ -158,7 +166,7 @@ function Ready({ t, lang, d, setSay }) {
         <>
           <span className="sx-cardtop"><h2 className="sx-h2">{t('simple.ready.left')}</h2><SayButton items={r.left.map((x) => [`simple.ready.item.${x.key}`])} t={t} lang={lang} label={t('simple.voice.readCard')} /></span>
           <ul className="sx-list">
-            {r.left.map((x) => <li key={x.key}><Big to={x.path} icon={READY_ICONS[x.key]} label={`${t(`simple.ready.item.${x.key}`)} · ${t('simple.ready.points', { points: x.points })}`} testid={`sx-left-${x.key}`} /></li>)}
+            {r.left.map((x) => <li key={x.key}><Big to={READY_PATHS[x.key] || x.path} icon={READY_ICONS[x.key]} label={`${t(`simple.ready.item.${x.key}`)} · ${t('simple.ready.points', { points: x.points })}`} testid={`sx-left-${x.key}`} /></li>)}
           </ul>
         </>
       ) : <p className="sx-p">{t('simple.ready.done')}</p>}
@@ -212,6 +220,10 @@ export default function SimpleApp() {
         <Route index element={data.lang ? <Home t={t} lang={lang} d={data} setSay={setSay} /> : <Languages t={t} onPicked={setData} setSay={setSay} />} />
         <Route path="language" element={data.langs ? <Languages t={t} onPicked={picked} setSay={setSay} /> : <Navigate to="/me/simple" replace />} />
         <Route path="resume" element={wait(<GuidedResume t={t} lang={lang} setSay={setSay} onDone={reload} />)} />
+        <Route path="myresume" element={wait(<MyResume {...screen} />)} />
+        <Route path="apps" element={wait(<Apps {...screen} />)} />
+        <Route path="practice" element={wait(<Practice {...screen} />)} />
+        <Route path="fixes" element={wait(<Fixes {...screen} />)} />
         <Route path="jobs" element={wait(<Jobs {...screen} />)} />
         <Route path="jobs/:id" element={wait(<Apply {...screen} />)} />
         <Route path="auto" element={wait(<AutoOn {...screen} />)} />

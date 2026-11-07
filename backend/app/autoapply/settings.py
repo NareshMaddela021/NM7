@@ -36,6 +36,22 @@ from app.site import get_site
 router = APIRouter(prefix="/api/me/auto-apply", tags=["auto apply"])
 
 FIX_PATH = "/builder"
+# each resume-score check → the builder section that fixes it (/builder?start=section&sec=…), items 5 and 14
+FIX_SECTIONS = {
+    "contact": "personal",
+    "linkedin": "links",
+    "summary": "summary",
+    "experience": "proj",
+    "numbers": "exp",
+    "verbs": "exp",
+    "skills": "skills",
+    "education": "edu",
+}
+
+
+def fix_path(key: str) -> str:
+    sec = FIX_SECTIONS.get(key)
+    return f"{FIX_PATH}?start=section&sec={sec}" if sec else FIX_PATH
 
 
 def _words(v: list[str], n: int, size: int = 60) -> list[str]:
@@ -94,7 +110,7 @@ async def gate(db, user_id: str, site: dict[str, Any] | None = None) -> dict[str
         return {"ok": False, "score": None, "need": need, "resume": None,
                 "fixes": [{"key": "resume", "label": "Make a resume", "path": FIX_PATH}]}  # fmt: skip
     a = ats_score(r.get("data") or {})
-    fixes = [{"key": c["key"], "label": c["label"], "path": FIX_PATH} for c in a["checks"] if not c["ok"]]
+    fixes = [{"key": c["key"], "label": c["label"], "path": fix_path(c["key"])} for c in a["checks"] if not c["ok"]]
     return {"ok": a["score"] >= need, "score": a["score"], "need": need,
             "resume": {"id": r["key"], "name": r.get("name") or "Resume"}, "fixes": fixes}  # fmt: skip
 

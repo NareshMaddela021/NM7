@@ -78,12 +78,26 @@ def test_rules_bullets_use_only_the_answers():
     b = helper.rules_bullets(helper.clean(ANSWERS), "Attendance app")
     assert b == [
         "Built a college attendance app using Flutter and Firebase",
-        "Project lets teachers mark attendance from their phone",
+        "Designed it to let teachers mark attendance from their phone",
         "Handled the login and attendance screens in a team of 3",
     ]
     assert all(helper.grounded(x, helper.clean(ANSWERS), "Attendance app") for x in b)
     b2 = helper.rules_bullets(helper.clean({**ANSWERS, "result": "cut marking time from 10 minutes to 2"}))
     assert b2[-1] == "Result: cut marking time from 10 minutes to 2"
+
+
+def test_rules_bullets_read_as_english():
+    """Item 6: no glued capitals ("Built A sales …", "Project Shows …")."""
+    built, does = "A sales dashboard for a college canteen", "Shows daily sales and the most sold items"
+    a = helper.clean({"built": built, "tools": "Excel and Power BI", "does": does})
+    assert helper.rules_bullets(a) == [
+        "Built a sales dashboard for a college canteen using Excel and Power BI",
+        "Designed it to show daily sales and the most sold items",
+    ]
+    b = helper.clean({"built": "Attendance app", "does": "notifies parents by SMS"})
+    assert helper.rules_bullets(b)[1] == "Designed it to notify parents by SMS"
+    c = helper.clean({"built": "a library website", "does": "a list of all books"})
+    assert helper.rules_bullets(c)[1] == "Main feature: a list of all books"
 
 
 async def test_needs_sign_in(client):
