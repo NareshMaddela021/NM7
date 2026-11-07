@@ -32,10 +32,11 @@ def test_fit_rules():
     # no city on the resume: half the place marks, said as unknown
     q = Person({"_id": "r1", "data": resume(personal={**RESUME["personal"], "location": ""})})
     assert fitmod.fit(job, q)["place"] == "unknown"
-    # skills that aren't in the dictionary are matched as written; a job without skills reads its title
+    # skills that aren't in the dictionary are matched as written; a job without skills has none: words of its title
+    # are never turned into skills (fix round item 7: "QA" in a title is not "Quality assurance")
     assert fitmod.fit({**job, "skills": ["Northwind tools"]}, p)["missing"] == ["Northwind tools"]
     assert fitmod.fit({**job, "skills": ["Statistics"]}, p)["found"] == ["Statistics"]
-    assert fitmod.job_skills({"skills": [], "title": "Python Developer"}) == ["Python"]
+    assert fitmod.job_skills({"skills": [], "title": "Python Developer"}) == []
     # an empty resume doesn't count
     assert not Person({"_id": "r", "data": {"personal": {"name": "A"}}}).usable()
 

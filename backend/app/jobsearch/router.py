@@ -30,7 +30,7 @@ from app.auth.deps import CustomerAuth
 from app.auth.models import new_id
 from app.core import ai_quota, claude
 from app.core.config import get_settings
-from app.core.db import DB, JOB_MATCHES, RESUMES
+from app.core.db import DB, JOB_MATCHES, JOBS, RESUMES
 from app.core.errors import ApiError
 from app.core.schemas import CamelModel
 from app.core.time import now
@@ -71,6 +71,7 @@ def match_out(d: dict[str, Any], full: bool = True) -> dict[str, Any]:
         "createdAt": _ms(d.get("created_at")),
         "updatedAt": _ms(d.get("updated_at")),
         "source": d.get("source", "rules"),
+        "jobId": d.get("job_id"),
     }
     if full:
         p = d.get("parsed") or {}
@@ -96,6 +97,7 @@ def match_out(d: dict[str, Any], full: bool = True) -> dict[str, Any]:
             "items": r.get("items", []),
             "soft": r.get("soft", []),
             "fixes": r.get("fixes", []),
+            "board": r.get("board"),  # a job from the board: its card's score and skills (item 7)
             "note": d.get("note") or "",
             "covers": d.get("covers") or [],
             # the pack itself comes from GET …/interview (locked parts stay on the server)
@@ -227,6 +229,52 @@ class MatchIn(CamelModel):
     text: str = Field(min_length=1, max_length=40_000)
     title: str = Field("", max_length=120)
     company: str = Field("", max_length=120)
+    job_id: str | None = Field(None, max_length=80)  # "Make my resume fit" from a job on the board (item 7, 8)
+
+
+EXP_YEARS = {"internship": (0, 0, True), "fresher": (0, 0, True), "0_1": (0, 1, True), "1_3": (1, 3, False),
+             "3_plus": (3, None, False)}  # fmt: skip
+
+
+def job_parsed(j: dict[str, Any]) -> Parsed:
+    """A board job read from its own fields (item 7): the must-have skills are the skills the job lists, never words
+    of its title ("QA" is not "Quality assurance"); duties and education come from its description."""
+    from app.jobsearch import skills as dictionary
+
+    p = parse(j.get("description") or "")
+    p.title, p.company = j["title"], j["company"]["name"]
+    p.location = "Remote" if j.get("remote") else ", ".join(j.get("locations") or [])
+    p.exp_min, p.exp_max, p.fresher = EXP_YEARS.get(j.get("experience"), (None, None, False))
+    listed = [dictionary.canonical(x) or x for x in j.get("skills") or []]
+    kinds = {x: dictionary.kind(x) for x in listed}
+    p.must = [x for x in listed if kinds[x] not in ("soft", "lang", "cert")]
+    p.nice, p.nice_extra = [], []
+    p.tools = [x for x in p.must if kinds[x] == "tool"]
+    p.soft = [x for x in listed if kinds[x] == "soft"]
+    p.certs = [x for x in listed if kinds[x] == "cert"]
+    p.languages = [x for x in listed if kinds[x] == "lang"]
+    p.confidence, p.source = "high", "rules"
+    return p
+
+
+def with_board(result: dict[str, Any], j: dict[str, Any], resume: dict[str, Any]) -> dict[str, Any]:
+    """The same number as the job's card (item 7): the board's match score is the headline, the parts below explain
+    it, and the verdict follows that number."""
+    from app.jobs import fit as fitmod
+
+    f = fitmod.fit(j, fitmod.Person(resume))
+    total = f["score"]
+    n = len(result.get("fixes") or [])
+    if total >= 75:
+        verdict, text = "strong", "Strong match - apply"
+    elif total >= 45 and n and total < 60:
+        verdict, text = "good", f"Good after {n} fix{'es' if n != 1 else ''}"
+    elif total >= 60:
+        verdict, text = "good", "Good match - apply"
+    else:
+        verdict, text = "stretch", "Stretch role"
+    return {**result, "score": total, "verdict": verdict, "verdictText": text,
+            "board": {"score": total, "found": f["found"], "missing": f["missing"]}}  # fmt: skip
 
 
 async def _read(db, auth, text: str) -> tuple[Parsed, str]:
@@ -249,6 +297,15 @@ async def match(body: MatchIn, auth: CustomerAuth, db: DB) -> dict[str, Any]:
     if len(text) < MIN_TEXT:
         raise ApiError(400, "too_short", "Please paste the whole job post - the duties and the skills they ask for.")
     resume = await _resume(db, uid, body.resume_id)
+    job = None
+    if body.job_id:
+        job = await db[JOBS].find_one({"_id": body.job_id})
+        if not job:
+            raise ApiError(404, "not_found", "This job isn’t on Nm7 any more.")
+        # item 8: the match for this job already exists: open it again, no free match used
+        old = await db[JOB_MATCHES].find_one({"user_id": uid, "job_id": job["_id"]}, sort=[("created_at", -1)])
+        if old:
+            return match_out(old)
     paid = await access.has(db, uid, "tailor")
     if not paid and not await access.take_free(db, uid, "match"):
         raise ApiError(
@@ -258,12 +315,16 @@ async def match(body: MatchIn, auth: CustomerAuth, db: DB) -> dict[str, Any]:
             "pack for unlimited matches.",
         )
     try:
-        p, note = await _read(db, auth, text)
-        if body.title.strip():
-            p.title = body.title.strip()
-        if body.company.strip():
-            p.company = body.company.strip()
-        result = score(p, resume.get("data") or {})
+        if job:
+            p, note = job_parsed(job), ""
+            result = with_board(score(p, resume.get("data") or {}), job, resume)
+        else:
+            p, note = await _read(db, auth, text)
+            if body.title.strip():
+                p.title = body.title.strip()
+            if body.company.strip():
+                p.company = body.company.strip()
+            result = score(p, resume.get("data") or {})
     except Exception:
         if not paid:
             await access.give_back(db, uid, "match")
@@ -283,6 +344,7 @@ async def match(body: MatchIn, auth: CustomerAuth, db: DB) -> dict[str, Any]:
         "source": p.source,
         "note": note,
         "tailored_key": None,
+        "job_id": job["_id"] if job else None,
         "created_at": t,
         "updated_at": t,
     }
@@ -343,6 +405,9 @@ async def rescore(match_id: str, body: RescoreIn, auth: CustomerAuth, db: DB) ->
     resume = await _resume(db, auth.user.id, body.resume_id or d.get("resume_key"))
     parsed = Parsed(**(d.get("parsed") or {}))
     result = score(parsed, resume.get("data") or {})
+    job = await db[JOBS].find_one({"_id": d["job_id"]}) if d.get("job_id") else None
+    if job:
+        result = with_board(result, job, resume)
     await db[JOB_MATCHES].update_one(
         {"_id": match_id},
         {"$set": {"result": result, "resume_key": resume["key"], "resume_name": resume.get("name") or "",

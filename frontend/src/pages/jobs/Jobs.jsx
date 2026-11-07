@@ -240,9 +240,12 @@ function ApplyBox({ job, t, onApplied }) {
   const [err, setErr] = useState('');
   const [mail, setMail] = useState(null);
   const [asking, setAsking] = useState(false); // company jobs: the questions and the consent box first (C5)
+  const [confirm, setConfirm] = useState(false); // other jobs on Nm7: one "Send?" step first (item 19)
   const signedIn = user?.role === 'customer';
-  const go = async (extra) => {
+  const go = async (extra, sure) => {
     if (job.consent && !extra) { setAsking(true); return; }
+    if (!job.consent && job.apply.method === 'nm7' && !sure) { setConfirm(true); return; }
+    setConfirm(false);
     setBusy('apply'); setErr('');
     try {
       const r = await applyToJob(job.id, null, extra || {});
@@ -255,7 +258,8 @@ function ApplyBox({ job, t, onApplied }) {
   const fit = async () => {
     setBusy('fit'); setErr('');
     try {
-      const m = await matchJob({ text: `${job.title}\n${job.company.name}\n${job.description}`, title: job.title, company: job.company.name });
+      // item 7, 8: this job's own skills and the same number as its card; an earlier match for it opens again
+      const m = await matchJob({ text: `${job.title}\n${job.company.name}\n${job.description}`, title: job.title, company: job.company.name, jobId: job.id });
       nav(`/me/ats?match=${encodeURIComponent(m.id)}`);
     } catch (e) { setErr(e.message); setBusy(''); }
   };
@@ -273,15 +277,22 @@ function ApplyBox({ job, t, onApplied }) {
     <div className="stack g8" style={{ flexBasis: '100%' }}>
       <div className="row g8">
         {applied ? (
-          <span className="badge b-success" data-testid="applied">{t('jobs.apply.done', { status: t(`jobs.app.${applied.status}`) })}</span>
+          <span className="badge b-success" data-testid="applied">{applied.status === 'applied' ? t('jobs.app.applied') : t('jobs.apply.done', { status: t(`jobs.app.${applied.status}`) })}</span>
         ) : job.apply.method === 'link' && job.apply.url ? (
           // the link opens straight away (no pop-up blocker); the application is saved alongside
           <a className="btn btn-ink" href={job.apply.url} target="_blank" rel="noopener noreferrer nofollow" data-testid="apply" onClick={() => { go(); }}>{t('jobs.apply.link')} <span aria-hidden="true">↗</span></a>
         ) : (
-          <button type="button" className="btn btn-ink" data-testid="apply" disabled={!!busy || asking} onClick={() => go()}>{job.apply.method === 'email' ? t('jobs.apply.email') : t('jobs.apply.nm7')}</button>
+          <button type="button" className="btn btn-ink" data-testid="apply" disabled={!!busy || asking || confirm} onClick={() => go()}>{job.apply.method === 'email' ? t('jobs.apply.email') : t('jobs.apply.nm7')}</button>
         )}
         <button type="button" className="btn btn-outline" disabled={!!busy} onClick={fit} data-testid="make-fit">{busy === 'fit' ? t('jobs.loading') : t('jobs.apply.fit')}</button>
       </div>
+      {confirm && !applied && (
+        <div className="card-sm row g8" role="group" aria-label={t('jobs.apply.confirmTitle')} data-testid="apply-confirm" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
+          <span className="small" style={{ flex: '1 1 220px' }}>{t('jobs.apply.confirm', { company: job.company.name })}</span>
+          <button type="button" className="btn btn-ink" disabled={busy === 'apply'} onClick={() => go(undefined, true)} data-testid="apply-send">{t('jobs.apply.send')}</button>
+          <button type="button" className="btn btn-outline" onClick={() => setConfirm(false)}>{t('jobs.apply.cancel')}</button>
+        </div>
+      )}
       {asking && !applied && <ApplyQuestions job={job} t={t} busy={busy === 'apply'} onSend={go} onCancel={() => setAsking(false)} />}
       <span className="xs muted">{t('jobs.apply.fitHint')}</span>
       {applied && <Link className="xs" to="/me/jobs">{t('jobs.apply.track')}</Link>}

@@ -65,7 +65,8 @@ def _has_skill(p: Person, name: str) -> bool:
 
 
 def job_skills(job: dict[str, Any]) -> list[str]:
-    return list(job.get("skills") or []) or dictionary.find(job.get("title") or "")[:8]
+    """The skills the job lists. Never words of its title ("QA" is not "Quality assurance", item 7)."""
+    return list(job.get("skills") or [])
 
 
 def _experience(level: str, years: float) -> tuple[float, str]:

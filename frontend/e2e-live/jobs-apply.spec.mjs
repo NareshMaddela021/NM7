@@ -1,5 +1,5 @@
-// Manual Apply and My applications (J5) on a desktop and a 390 px phone, against the real API: apply on Nm7 (one
-// tap), on the company's site (the link opens and the application is saved as outside Nm7), by email (a filled-in
+// Manual Apply and My applications (J5) on a desktop and a 390 px phone, against the real API: apply on Nm7 (with a
+// "Send?" step), on the company's site (the link opens and the application is saved as outside Nm7), by email (a filled-in
 // mailto draft); My applications shows each with how it was sent; the admin opens the applications (Nm7 one → Viewed)
 // and shortlists it, and the person sees the steps; "Make my resume fit" opens the job match; the follow-up stop page.
 import { expect, test } from '@playwright/test';
@@ -35,10 +35,14 @@ for (const [label, opts] of SIZES) {
       const [first] = (await call(page, '/api/me/resumes')).body;
       expect((await call(page, `/api/me/resumes/${first.id}`, { method: 'PATCH', body: JSON.stringify({ name: 'Main', data: RESUME, active: true }) })).status).toBe(200);
 
-      // on Nm7: one tap
+      // on Nm7: one "Send?" step first (fix round item 19), then the chip reads just "Applied"
       await page.goto(`/jobs/${onNm7.slug}`);
+      const cardScore = (await call(page, `/api/jobs/${onNm7.slug}`)).body.match.score;
       await page.getByTestId('apply').click();
-      await expect(page.getByTestId('applied')).toHaveText('Applied · Applied');
+      await expect(page.getByTestId('apply-confirm')).toContainText(`Orbit ${tag}`);
+      await expect(page.getByTestId('applied')).toHaveCount(0);
+      await page.getByTestId('apply-send').click();
+      await expect(page.getByTestId('applied')).toHaveText('Applied');
       await expect(page.getByRole('link', { name: 'See it in My applications' })).toBeVisible();
       await wide();
 
@@ -100,11 +104,30 @@ for (const [label, opts] of SIZES) {
       await expect(steps).toContainText('Shortlisted');
       await wide();
 
-      // Make my resume fit: the job match for this job
+      // Make my resume fit: the job match for this job (items 7, 8): the post filled in, the result in view, the
+      // job's own skills (no "Quality assurance" from "QA" in the title), the same score as the card, and the
+      // second time the same match (no free match used)
       await page.goto(`/jobs/${onNm7.slug}`);
       await page.getByTestId('make-fit').click();
       await expect(page).toHaveURL(/\/me\/ats\?match=/);
-      await expect(page.getByTestId('jm-result')).toBeVisible({ timeout: 30_000 });
+      await expect(page.getByTestId('jm-result')).toBeInViewport({ timeout: 30_000 });
+      await expect(page.locator('#jm-text')).toHaveValue(new RegExp(`QA Trainee ${tag}`));
+      await expect(page.getByTestId('jm-score')).toHaveText(String(cardScore));
+      await expect(page.getByTestId('jm-result')).not.toContainText('Quality assurance');
+      const firstMatch = page.url();
+      await page.goto(`/jobs/${onNm7.slug}`);
+      await page.getByTestId('make-fit').click();
+      await expect(page).toHaveURL(firstMatch);
+      // item 37: a job saved on the board shows in My applications' Saved column
+      await page.goto(`/jobs/${byMail.slug}`);
+      expect((await call(page, `/api/me/saved-jobs/${byMail.id}`, { method: 'PUT' })).status).toBe(200);
+      await page.goto('/me/jobs');
+      await expect(page.getByTestId('saved-board-job').filter({ hasText: `Support Tester ${tag}` })).toHaveCount(0); // applied by email already
+      const spare = job({ title: `Saved Only ${tag}`, applyMethod: 'link', applyUrl: `https://orbit.example/s/${tag}` });
+      expect((await call(page, `/api/me/saved-jobs/${spare.id}`, { method: 'PUT' })).status).toBe(200);
+      await page.reload();
+      await expect(page.getByTestId('saved-board-job').filter({ hasText: `Saved Only ${tag}` })).toBeVisible();
+      await expect(page.getByTestId('col-count-saved')).not.toHaveText('0');
 
       // the follow-up email's stop page
       await page.goto('/stop-alerts#t=abcdefghijkl.bad&k=followups');

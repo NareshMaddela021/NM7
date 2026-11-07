@@ -1,6 +1,6 @@
 // Application tracker: Saved → Applied → Viewed (Nm7 jobs) → Shortlisted → Interview → Offer / Rejected, with
 // follow-up reminders and simple stats. Applications sent on Nm7 move when the company moves them; the rest you move.
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLang } from '../../lib/i18n';
 import { Dialog, useToast } from '../../components/ui';
@@ -65,6 +65,11 @@ export default function MeJobs() {
   const weeks = Array.from({ length: 6 }, (_, i) => { const end = Date.now() - (5 - i) * 7 * DAY; const start = end - 7 * DAY; return { label: i === 5 ? 'This wk' : fmtShort(start), sent: sent.filter((a) => a.date > start && a.date <= end).length }; });
   const cols = APP_STAGES.filter(([k]) => k !== 'no_reply' || apps.some((a) => a.status === k)); // Closed (no reply) only when there are some
   const resumeName = (id) => me.resumes.find((r) => r.id === id)?.name || '—';
+  // item 37: jobs saved on the job board show in the Saved column too (they live in Saved jobs, not here)
+  const [boardSaved, setBoardSaved] = useState([]);
+  useEffect(() => { http('/api/me/saved-jobs').then((r) => setBoardSaved(r.items || []), () => {}); }, []);
+  const appliedJobs = new Set(apps.map((a) => a.jobId).filter(Boolean));
+  const savedOnBoard = boardSaved.filter((j) => !appliedJobs.has(j.id));
 
   return (
     <>
@@ -77,9 +82,17 @@ export default function MeJobs() {
       <div className="board" role="list" aria-label="Application board" style={{ '--cols': cols.length }}>
         {cols.map(([k, l]) => {
           const col = apps.filter((a) => a.status === k);
+          const extra = k === 'saved' ? savedOnBoard : [];
           return (
-            <section key={k} className="stack g8" role="listitem" aria-label={`${l}: ${col.length}`} style={{ background: 'var(--sunken)', borderRadius: 14, padding: 10, minHeight: 160 }}>
-              <strong className="small row between"><span>{l}</span><span className="faint">{col.length}</span></strong>
+            <section key={k} className="stack g8" role="listitem" aria-label={`${l}: ${col.length + extra.length}`} style={{ background: 'var(--sunken)', borderRadius: 14, padding: 10, minHeight: 160 }}>
+              <strong className="small row between"><span>{l}</span><span className="faint" data-testid={`col-count-${k}`}>{col.length + extra.length}</span></strong>
+              {extra.map((j) => (
+                <article key={`job-${j.id}`} className="card stack g4" style={{ padding: 12 }} data-testid="saved-board-job">
+                  <Link to={`/jobs/${j.slug}`} style={{ fontWeight: 700, color: 'var(--text)', textDecoration: 'none' }}>{j.company?.name}</Link>
+                  <span className="xs">{j.title}</span>
+                  <span className="xs faint">Saved on the job board</span>
+                </article>
+              ))}
               {col.map((a) => (
                 <article key={a.id} className="card stack g4" style={{ padding: 12 }}>
                   <button type="button" className="link-btn" style={{ textAlign: 'left', fontWeight: 700, color: 'var(--text)', textDecoration: 'none' }} onClick={() => setEdit(a)}>{a.company}</button>
