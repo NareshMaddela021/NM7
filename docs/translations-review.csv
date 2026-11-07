@@ -481,6 +481,7 @@
 "co.f.typeIndividual","/for-companies, /company","An individual recruiter (no registered business)","వ్యక్తిగత రిక్రూటర్ (రిజిస్టర్ అయిన వ్యాపారం లేదు)","एक व्यक्तिगत रिक्रूटर (कोई रजिस्टर्ड व्यवसाय नहीं)","needs native review"
 "co.f.legalName","/for-companies, /company","Legal name of the company","కంపెనీ చట్టపరమైన పేరు","कंपनी का कानूनी नाम","needs native review"
 "co.f.yourName","/for-companies, /company","Your full name","మీ పూర్తి పేరు","आपका पूरा नाम","needs native review"
+"co.err.freeSite","/for-companies, /company","Enter your company’s own website, not an email service like gmail.com.","మీ కంపెనీ సొంత వెబ్‌సైట్ ఇవ్వండి, gmail.com లాంటి ఈమెయిల్ సేవ కాదు.","अपनी कंपनी की अपनी वेबसाइट लिखें, gmail.com जैसी ईमेल सेवा नहीं।","needs native review"
 "co.f.website","/for-companies, /company","Company website","కంపెనీ వెబ్‌సైట్","कंपनी की वेबसाइट","needs native review"
 "co.f.websiteHint","/for-companies, /company","Your company email must be on this website’s domain.","మీ కంపెనీ ఈమెయిల్ ఈ వెబ్‌సైట్ డొమైన్‌లోనే ఉండాలి.","आपकी कंपनी ईमेल इसी वेबसाइट के डोमेन पर होनी चाहिए।","needs native review"
 "co.f.category","/for-companies, /company","Category","వర్గం","श्रेणी","needs native review"

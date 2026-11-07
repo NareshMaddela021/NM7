@@ -176,7 +176,8 @@ async def test_apply_rank_stage_interview_pool_withdraw_and_removal(client, outb
     assert r.json()["interview"]["round"] == "Technical round 1" and r.json()["interview"]["interviewer"] == "Ravi (HR)"
     mail = outbox.sent[-1]
     assert mail.to == "asha@example.com" and mail.attachments[0][0] == "interview.ics"
-    assert b"BEGIN:VEVENT" in mail.attachments[0][2] and b"Technical round 1" in mail.attachments[0][2].replace(b"\r\n ", b"")
+    cal = mail.attachments[0][2].replace(b"\r\n ", b"")  # unfold the long .ics lines
+    assert b"BEGIN:VEVENT" in cal and b"Technical round 1" in cal
     assert "Round: Technical round 1" in mail.text and "With: Ravi (HR)" in mail.text
     assert (
         err(
