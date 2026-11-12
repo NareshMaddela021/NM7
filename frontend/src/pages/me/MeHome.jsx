@@ -14,6 +14,7 @@ import LinkedInCard from './LinkedInCard';
 import JobsForYouCard from './JobsForYouCard';
 import AutoSummaryCard from './AutoSummaryCard';
 import ReadinessCard from './ReadinessCard';
+import { HireCard } from './MeHire';
 import PassOffer, { PassActive } from '../../components/PassOffer';
 import { useLang } from '../../lib/i18n';
 
@@ -91,6 +92,8 @@ export default function MeHome() {
       <HealthCard />
 
       <div className="row g16" style={{ alignItems: 'stretch' }}><ReadinessCard /><JobsForYouCard /></div>
+
+      <div className="row g16" style={{ alignItems: 'stretch' }}><HireCard /></div>
 
       <ScoresExplained />
 

@@ -743,6 +743,14 @@ class SettingsIn(CamelModel):
     job_checks: "JobChecksIn | None" = None
     simple: "SimpleSettingsIn | None" = None
     languages: "LanguagesIn | None" = None
+    hire: "HireSettingsIn | None" = None
+
+
+class HireSettingsIn(CamelModel):
+    """Hire in 30 minutes (Phase 5): on / off and how long a "Ready to join" lasts without "Still ready"."""
+
+    on: bool
+    confirm_days: int = Field(7, ge=1, le=30)
 
 
 class LanguagesIn(CamelModel):
@@ -825,6 +833,7 @@ def _settings_out(site: dict[str, Any]) -> dict[str, Any]:
             "weights": site["simple"]["weights"],
         },
         "languages": {"teHi": bool(site["languages"]["te_hi"])},
+        "hire": {"on": bool(site["hire"]["on"]), "confirmDays": int(site["hire"]["confirm_days"])},
         "companies": {
             "basicJobsPerWeek": site["companies"]["basic_jobs_per_week"],
             "verifiedLiveJobs": site["companies"]["verified_live_jobs"],
@@ -867,6 +876,11 @@ async def put_settings(body: SettingsIn, request: Request, db: DB, auth: AdminAu
     if body.companies and body.companies.model_dump() != before["companies"]:
         changes["companies"] = body.companies.model_dump()
         diff["companies"] = {"from": before["companies"], "to": changes["companies"]}
+    if body.hire:
+        new = {**before["hire"], **body.hire.model_dump()}
+        if new != before["hire"]:
+            changes["hire"] = new
+            diff["hire"] = {"from": before["hire"], "to": new}
     if body.languages and body.languages.model_dump() != before["languages"]:
         changes["languages"] = body.languages.model_dump()
         diff["languages"] = {"from": before["languages"], "to": changes["languages"]}

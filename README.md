@@ -1874,3 +1874,25 @@ monitor that calls the API every 5 minutes keeps it awake:
 
 A free Render web service has 750 free hours a month, enough for one service awake all month. If a second free
 service is added later, they share those hours.
+
+## Hire in 30 minutes (Phase 5)
+
+A verified company posts a role and gets a confirmed interview or offer with a checked, available candidate within
+30 minutes. Built in small steps (H1–H9); the code is in `backend/app/hire/`. Admin → Settings → "Hire in 30
+minutes" switches it on or off (on by default) and sets the limits.
+
+### H1. Ready to join (candidates)
+
+- `/me/hire` (full dashboard, "Ready to join" in the menu) and `/me/simple/hire` (easy dashboard, under More): earliest
+  join date, cities and/or remote, expected salary (₹ a month or LPA), notice period (days), kinds of job.
+- Turning it on needs the box "Companies hiring now can see my profile and invite me". Phone and email are never
+  stored here and never shown to a company until the candidate accepts an invite.
+- It lasts 7 days (Admin → Settings → "Ask Still ready? every (days)", 1–30). A day before it ends the dashboard card
+  asks "Still ready" and one email goes out (the daily automation; not for unverified, bounced or demo accounts, and
+  not when the candidate turned the email off on `/me/hire`). The email's link `/hire/still-ready#t=…` works without
+  signing in. After the days pass without a tap, the candidate is not shown to anyone (stale = not available).
+- Pause keeps everything and hides the candidate until Resume. Turn off clears the consent. Deleting the account
+  removes it.
+- API: `GET/PUT/DELETE /api/me/hire`, `POST /api/me/hire/confirm`, `POST /api/me/hire/pause {paused}`,
+  `PUT /api/me/hire/emails {on}`, `POST /api/public/hire/still-ready {token}` (30 an hour per address).
+- Tests: `backend/tests/test_hire_available.py`, `frontend/e2e-live/hire-ready.spec.mjs` (desktop + 390 px).

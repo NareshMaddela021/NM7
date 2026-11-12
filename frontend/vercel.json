@@ -90,6 +90,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/hire/still-ready",
+      "destination": "/index.html"
+    },
+    {
       "source": "/(scan|checkout|editor|login|signup|forgot-password|linkedin|stop-alerts|checkin|status|accessibility|grievance|demo-student)",
       "destination": "/index.html"
     },

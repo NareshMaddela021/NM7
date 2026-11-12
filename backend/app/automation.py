@@ -20,6 +20,7 @@ from app.core.db import LOCKS, ORDER_WORK, ORDERS
 from app.core.email import Email, Mailer, get_mailer, send_safely
 from app.core.time import now
 from app.health.service import daily_batch as health_batch
+from app.hire.available import send_reminders as hire_reminders
 from app.jobs import linkcheck as job_links
 from app.jobs.alerts import send_alerts as job_alerts
 from app.jobs.apply import followups as job_followups
@@ -140,6 +141,7 @@ async def run_rules(db: AsyncDatabase, mailer: Mailer | None = None) -> dict[str
         done["job_followups"] = await job_followups(db, mailer or get_mailer())  # a week on; ≤ 1 email a day
         done["pass_reminders"] = await pass_reminders(db, mailer or get_mailer())  # 7 days before a pass ends
         done["interview_reminders"] = await interview_reminders(db, mailer or get_mailer())  # the day before, 9:00 IST
+        done["hire_still_ready"] = await hire_reminders(db, mailer or get_mailer())  # a day before Ready to join ends
         await save_site(db, {"rule_runs": runs})
         return done
     finally:

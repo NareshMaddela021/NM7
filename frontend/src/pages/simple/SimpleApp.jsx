@@ -8,6 +8,7 @@
 //   /me/simple/resume     build a resume by talking: one question per screen (GuidedResume.jsx)
 //   /me/simple/jobs …     jobs made simple: top 3, Apply, Let Nm7 apply for me, answers, apply on their website
 //   /me/simple/ready      the job readiness score: a big ring, "You are 65% ready", up to 3 things left
+//   /me/simple/hire       Ready to join (Phase 5): visible until …, Still ready, Pause; details in the full page
 //   /me/simple/more       everything else: links to the full dashboard's pages, "Read screens aloud automatically"
 // 🔊 at the top reads each screen's main words (voice.jsx); each card has its own 🔊.
 import { Suspense, lazy, useEffect, useState } from 'react';
@@ -29,6 +30,7 @@ const MyResume = lazy(() => more().then((m) => ({ default: m.MyResume })));
 const Apps = lazy(() => more().then((m) => ({ default: m.Apps })));
 const Practice = lazy(() => more().then((m) => ({ default: m.Practice })));
 const Fixes = lazy(() => more().then((m) => ({ default: m.Fixes })));
+const Hire = lazy(() => more().then((m) => ({ default: m.Hire })));
 import '../../styles/simple.css';
 
 /** "Loading…", or while a sleeping server wakes up, a plain note that it can take up to a minute (re-test N6). */
@@ -53,7 +55,7 @@ export const READY_ICONS = { resume: '📝', score: '📈', linkedin: '🔗', in
 export const MORE = [
   ['resumes', '📄', '/me/resumes'], ['profile', '👤', '/me/profile'], ['ats', '📈', '/me/ats'], ['auto', '🤖', '/me/auto-apply'],
   ['covers', '✉️', '/me/covers'], ['certs', '🏅', '/me/certificates'], ['orders', '🧾', '/me/orders'], ['messages', '💬', '/me/messages'],
-  ['share', '🔗', '/me/share'], ['groups', '🏫', '/me/groups'], ['payments', '₹', '/me/payments'], ['settings', '⚙️', '/me/settings'], ['help', '❓', '/me/help'],
+  ['share', '🔗', '/me/share'], ['groups', '🏫', '/me/groups'], ['payments', '₹', '/me/payments'], ['settings', '⚙️', '/me/settings'], ['help', '❓', '/me/help'], ['hire', '⚡', '/me/simple/hire'],
 ];
 
 /** What a screen reads aloud: set once per change of words. */
@@ -236,6 +238,7 @@ export default function SimpleApp() {
         <Route path="apps" element={wait(<Apps {...screen} />)} />
         <Route path="practice" element={wait(<Practice {...screen} />)} />
         <Route path="fixes" element={wait(<Fixes {...screen} />)} />
+        <Route path="hire" element={wait(<Hire {...screen} />)} />
         <Route path="jobs" element={wait(<Jobs {...screen} />)} />
         <Route path="jobs/:id" element={wait(<Apply {...screen} />)} />
         <Route path="auto" element={wait(<AutoOn {...screen} />)} />
