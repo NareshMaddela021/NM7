@@ -2002,3 +2002,24 @@ minutes" switches it on or off (on by default) and sets the limits.
   `POST /api/me/hire/offers/{offer}/answer {answer, typedName, agree, reason}`,
   `POST …/{offer}/joining {joining, reason}`, `POST …/{offer}/joined`, `GET …/{offer}/pdf`.
 - Tests: `backend/tests/test_hire_offers.py`, `frontend/e2e-live/hire-offer.spec.mjs` (desktop + 390 px).
+
+### H7. Bulk hiring mode
+
+- Hire now → **Bulk hiring**: turn it on for one job with 20–500 openings. It is a paid company feature (Admin → Plans
+  → Company hiring), open to every Verified company by default.
+- With it on:
+  - the shortlist shows up to 100 people, and invites go out up to 100 at a time (without it: 10);
+  - **progress board**: invited, accepted, interviews booked, attended, offers sent, offers accepted, joined and
+    walk-in check-ins, plus % of openings filled (joined ÷ openings);
+  - **batch actions** for everyone who accepted: move all to Interview, or send all the same offer (H6 rules: each
+    gets their own letter and answers alone);
+  - **CSV** of the whole pipeline: name, stage, email and phone only where the person shared them, interview time,
+    attended, offer, joined, walk-in check-in. Cells that start with `=`, `+`, `-` or `@` are made safe for
+    spreadsheets;
+  - **Walk-in drive day**: date, time and place, with a QR code to show at the desk. Signed-in candidates scan it
+    (`/hire/walkin/…`), tick the box to share their profile with that company, and tap "I'm here". They appear in
+    Applicants as Shortlisted and on the walk-in list.
+- API: `PUT /api/company/{id}/hire/bulk/{job} {on, openings}`, `GET …/board`, `POST …/status {people, status}`,
+  `POST …/offers`, `GET …/csv`, `POST/GET …/walkin`; `GET /api/hire/walkin/{token}`,
+  `POST /api/hire/walkin/{token}/checkin {consent}`.
+- Tests: `backend/tests/test_hire_bulk.py`, `frontend/e2e-live/hire-bulk.spec.mjs` (desktop + 390 px).

@@ -57,6 +57,7 @@ company = APIRouter(prefix="/api/company", tags=["hire in 30 minutes"])
 me = APIRouter(prefix="/api/me/hire", tags=["hire in 30 minutes"])
 
 TOP = 10
+BULK_TOP = 100  # a bulk hiring post (H7): bigger batches
 SCAN = 3000  # available profiles looked at per shortlist (newest confirmations first)
 INVITE_DAYS = 7  # an unanswered invite expires after this
 STYLE = "font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.5;color:#111"
@@ -126,6 +127,10 @@ async def gate(db, c: dict[str, Any], feature: str) -> bool:
     """A paid company feature (instant, tests, bulk): open to every Verified company, or turned on for this one."""
     s = (await get_site(db))["hire"]
     return bool(s["open"].get(feature, True)) or feature in (c.get("hire_features") or [])
+
+
+def is_bulk(job: dict[str, Any]) -> bool:
+    return bool((job.get("hire_bulk") or {}).get("on"))
 
 
 def _verified(c: dict[str, Any]) -> None:
@@ -224,7 +229,11 @@ def invite_state(i: dict[str, Any], t: datetime | None = None) -> dict[str, Any]
 
 @company.get("/{cid}/hire/shortlist")
 async def shortlist(
-    cid: str, db: DB, job: str = Query(..., min_length=1, max_length=40), x_recruiter_account: str | None = Header(None)
+    cid: str,
+    db: DB,
+    job: str = Query(..., min_length=1, max_length=40),
+    size: int = Query(TOP, ge=1, le=BULK_TOP),
+    x_recruiter_account: str | None = Header(None),
 ) -> dict[str, Any]:
     acc, c, _ = await company_for(db, cid, x_recruiter_account)
     s = (await get_site(db))["hire"]
@@ -265,7 +274,7 @@ async def shortlist(
             "locations": j.get("locations") or [],
             "remote": bool(j.get("remote")),
         },
-        "items": rows[:TOP],
+        "items": rows[: min(size, BULK_TOP if is_bulk(j) else TOP)],
         "available": len(rows),
         "usage": {"used": len(roles), "free": free},
         "ms": int((now() - started).total_seconds() * 1000),
@@ -277,7 +286,7 @@ async def shortlist(
 
 class InviteIn(CamelModel):
     job: str = Field(min_length=1, max_length=40)
-    people: list[str] = Field(min_length=1, max_length=TOP)
+    people: list[str] = Field(min_length=1, max_length=BULK_TOP)  # more than 10 only on a bulk hiring post
     note: str = Field("", max_length=500)
 
 
@@ -321,6 +330,8 @@ async def invite(
         raise ApiError(409, "hire_off", "Hiring now is switched off for the moment.")
     _verified(c)
     j = await _job(db, cid, body.job)
+    if len(set(body.people)) > TOP and not is_bulk(j):
+        raise ApiError(400, "too_many", f"Invite at most {TOP} at once. Bulk hiring mode allows more.")
     t = now()
     today = await db[HIRE_INVITES].count_documents({"company_id": cid, "created_at": {"$gte": t - timedelta(days=1)}})
     room = int(s["invites_per_day"]) - today
