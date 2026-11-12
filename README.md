@@ -1922,3 +1922,25 @@ minutes" switches it on or off (on by default) and sets the limits.
   `POST /api/me/hire/invites/{id} {answer: accept|decline, reason}`,
   `PUT /api/admin/companies/{id}/hire-features {features}`.
 - Tests: `backend/tests/test_hire_shortlist.py`, `frontend/e2e-live/hire-shortlist.spec.mjs` (desktop + 390 px).
+
+### H3. Skill checks (candidates; results a company feature)
+
+- `/me/skill-checks` ("Skill checks" in the menu; linked from Ready to join): a 10-minute multiple-choice test per
+  skill. 10 questions picked at random from the bank, with the options shuffled; the right answers never reach the
+  browser. A timer is on screen and answers are sent by themselves when it ends (answers sent more than 30 seconds
+  late are not counted). One try per skill every 30 days (reloading gives back the same test).
+- No camera or screen recording: the page only counts how often the tab was left, shown with the result.
+- Optional 3 spoken answers (speak with the mic or type). Kept as **text only**, never audio, each with clarity
+  feedback (length, structure, result, filler words: the interview practice rules).
+- The candidate decides sharing ("Show this result to companies hiring now", off by default). A shared result for one
+  of the job's skills shows on the company's Hire now shortlist, when the skill checks feature is on (Admin → Plans →
+  Company hiring; open to every Verified company by default).
+- Admin → **Skill tests**: the bank (role, skill, question, 2–6 options, right answer, difficulty, active). Add,
+  edit, turn off; nothing is deleted. A skill has a test once it has 5 active questions. The starting bank has 80
+  original questions, 10 for each skill: SQL, Excel, Python, Customer support, Sales, Accounting (GST and Tally
+  basics), Electrical (ITI) and Warehouse. They are added once, only when the bank is empty.
+- Deleting the account removes the results and spoken text.
+- API: `GET /api/me/skill-checks`, `POST /api/me/skill-checks/start {skill}`,
+  `POST /api/me/skill-checks/{id}/submit {answers, tabSwitches, spoken}`, `PUT /api/me/skill-checks/{id}/share`,
+  `GET/POST /api/admin/skill-tests`, `PUT /api/admin/skill-tests/{id}`.
+- Tests: `backend/tests/test_hire_skillcheck.py`, `frontend/e2e-live/hire-skillcheck.spec.mjs` (desktop + 390 px).

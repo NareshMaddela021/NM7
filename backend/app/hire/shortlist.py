@@ -46,6 +46,7 @@ from app.core.errors import ApiError
 from app.core.schemas import CamelModel
 from app.core.time import IST, now
 from app.hire.available import JOB_TYPES, available, wants_email
+from app.hire.skillcheck import best_for, shared_results
 from app.jobs import fit as fitmod
 from app.jobs.apply import FOLLOW_AFTER, app_key, job_page, status_change
 from app.me.service import ms
@@ -168,6 +169,9 @@ async def candidates(db, c: dict[str, Any], job: dict[str, Any], t: datetime | N
             {"job_id": job["_id"], "user_id": {"$in": uids}, "company_removed_at": None}, {"user_id": 1}
         )
     }
+    tests_on = await gate(db, c, "tests")  # skill check results: a paid company feature (open by default)
+    results = await shared_results(db, uids) if tests_on else {}
+    wanted = fitmod.job_skills(job)
     rows = []
     for p in profiles:
         u = users.get(p["_id"])
@@ -199,7 +203,7 @@ async def candidates(db, c: dict[str, Any], job: dict[str, Any], t: datetime | N
                     "confirmedAt": ms(p.get("confirmed_at")),
                 },
                 "salary": salary_fit(p.get("salary"), job.get("salary")),
-                "skillCheck": None,  # H3
+                "skillCheck": best_for(results.get(p["_id"], []), wanted),  # shared by the candidate (H3)
                 "reliability": {"label": "New - no history yet", "score": None},  # H4
                 "applied": p["_id"] in applied,
                 "invite": invite_state(inv, t) if inv else None,
