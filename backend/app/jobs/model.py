@@ -93,6 +93,8 @@ class JobIn(BaseModel):
     job_type: Literal["full_time", "internship", "contract", "part_time"] = "full_time"
     experience: Literal["internship", "fresher", "0_1", "1_3", "3_plus"] = "fresher"
     salary: SalaryIn | None = None
+    # the lowest qualification the job accepts (Phase 5 H8); "" = any
+    education: Literal["", "10th", "12th", "iti", "diploma", "graduate", "postgraduate"] = ""
     skills: list[str] = Field(default_factory=list, max_length=30)
     description: str = Field(min_length=30, max_length=20_000)
     apply_method: Literal["link", "email", "nm7"] = "link"
@@ -200,6 +202,7 @@ def to_doc(job: JobIn) -> dict[str, Any]:
         "job_type": job.job_type,
         "experience": job.experience,
         "salary": salary,
+        "education": job.education,
         "skills": job.skills,
         "description": job.description,
         "apply": {"method": job.apply_method, "url": job.apply_url, "email": job.apply_email},

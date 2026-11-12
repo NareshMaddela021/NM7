@@ -68,6 +68,7 @@ def public_out(j: dict[str, Any], full: bool = False) -> dict[str, Any]:
         "jobType": j["job_type"],
         "experience": j["experience"],
         "salary": j.get("salary"),
+        "education": j.get("education") or "",
         "skills": j.get("skills") or [],
         "status": j["status"],
         "postedAt": ms(j.get("posted_at")),

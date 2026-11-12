@@ -2023,3 +2023,24 @@ minutes" switches it on or off (on by default) and sets the limits.
   `POST …/offers`, `GET …/csv`, `POST/GET …/walkin`; `GET /api/hire/walkin/{token}`,
   `POST /api/hire/walkin/{token}/checkin {consent}`.
 - Tests: `backend/tests/test_hire_bulk.py`, `frontend/e2e-live/hire-bulk.spec.mjs` (desktop + 390 px).
+
+### H8. All domains (templates, non-IT skills, qualifications)
+
+- **Job templates**: Company dashboard → Jobs → Post a job → "Start from a template" (grouped by domain). There are
+  16 templates: 6 IT (data analyst, Python developer, front-end developer, IT support, software tester, data entry)
+  and 10 non-IT (customer support, field sales, accounts assistant, electrician (ITI), fitter (ITI), warehouse
+  associate, delivery executive, retail store associate, staff nurse, office assistant).
+  - Picking one fills the title, kind of job, experience, lowest qualification, skills (names from the skills
+    dictionary) and an original description. The salary is always left blank, and every word can be changed before
+    posting (the safe-posting checks still run).
+  - Templates with a skill check in the bank link to it (`GET /api/hire/templates`).
+- **Lowest qualification** on a job: Any, 10th, 12th, ITI, Diploma, Graduate, Post-graduate.
+  - When a job sets one, education takes 10 of the 100 match marks: skills 55, experience 20, place 15, education 10.
+  - ITI and 12th count as side by side.
+  - A resume that doesn't show its level gets half marks for education, never zero.
+  - The match reasons say "ITI or more: OK" or "Asks for Diploma".
+- **Skills dictionary**: it already had most non-IT skills (Tally, GST, electrical wiring, forklift, picking and
+  packing, billing counter, nursing, driving …). Added: Multimeter, Workplace safety (PPE, safety procedures), and
+  "delivery executive / delivery boy / delivery partner" as names for Last-mile delivery.
+- Tests: `backend/tests/test_hire_templates.py` (every template posts as it is; non-IT skills found; education in the
+  match), `frontend/e2e-live/hire-templates.spec.mjs` (desktop + 390 px).

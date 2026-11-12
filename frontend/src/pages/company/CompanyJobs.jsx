@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 import { rq } from '../../lib/company';
 import { EXPERIENCE, JOB_TYPES, WORK_TYPES, salaryText } from '../../lib/jobBoard';
 
-const BLANK = { title: '', cities: '', workType: 'onsite', jobType: 'full_time', experience: 'fresher', salaryMin: '', salaryMax: '', period: 'yearly', skills: '', description: '', applyMethod: 'nm7', applyUrl: '', applyEmail: '', closesAt: '', questions: [] };
+const BLANK = { title: '', cities: '', workType: 'onsite', jobType: 'full_time', experience: 'fresher', education: '', salaryMin: '', salaryMax: '', period: 'yearly', skills: '', description: '', applyMethod: 'nm7', applyUrl: '', applyEmail: '', closesAt: '', questions: [] };
 const NEW_Q = { text: '', kind: 'yesno', options: '', want: '', min: '', accept: '' };
 const MAX_Q = 5;
 const csv = (s) => String(s || '').split(',').map((x) => x.trim()).filter(Boolean);
@@ -22,12 +22,30 @@ export const questionsBody = (qs) => qs.filter((q) => q.text.trim()).map((q) => 
 const questionsForm = (qs) => (qs || []).map((q) => ({ text: q.text, kind: q.kind, options: (q.options || []).join(', '), want: q.want || '', min: q.min ?? '', accept: (q.accept || []).join(', ') }));
 const TONE = { active: 'b-success', review: 'b-warning', paused: 'b-neutral', closed: 'b-danger' };
 
+const EDU = ['', '10th', '12th', 'iti', 'diploma', 'graduate', 'postgraduate'];
+
+/** "Start from a template" (Phase 5, H8): IT and non-IT roles; the salary stays blank for the company to fill. */
+function Templates({ t, onPick }) {
+  const [list, setList] = useState([]);
+  useEffect(() => { rq('/api/hire/templates').then(setList, () => setList([])); }, []);
+  if (!list.length) return null;
+  return (
+    <div className="field">
+      <label className="label" htmlFor="cj-tpl">{t('co.jobs.template')}</label>
+      <select id="cj-tpl" className="input" defaultValue="" onChange={(e) => { const x = list.find((y) => y.id === e.target.value); if (x) onPick(x); }} data-testid="cj-template">
+        <option value="">{t('co.jobs.templateNone')}</option>
+        {[...new Set(list.map((x) => x.domain))].map((d) => <optgroup key={d} label={d}>{list.filter((x) => x.domain === d).map((x) => <option key={x.id} value={x.id}>{x.title}</option>)}</optgroup>)}
+      </select>
+    </div>
+  );
+}
+
 function toBody(f) {
   const list = (s) => s.split(',').map((x) => x.trim()).filter(Boolean);
   const num = (v) => (String(v).trim() ? Number(String(v).replace(/[^\d]/g, '')) : null);
   const salary = num(f.salaryMin) != null || num(f.salaryMax) != null ? { min: num(f.salaryMin), max: num(f.salaryMax), period: f.period } : null;
   return {
-    title: f.title, locations: f.workType === 'remote' && !f.cities.trim() ? [] : list(f.cities), workType: f.workType, jobType: f.jobType, experience: f.experience,
+    title: f.title, locations: f.workType === 'remote' && !f.cities.trim() ? [] : list(f.cities), workType: f.workType, jobType: f.jobType, experience: f.experience, education: f.education || '',
     salary, skills: list(f.skills), description: f.description, applyMethod: f.applyMethod,
     applyUrl: f.applyMethod === 'link' ? f.applyUrl : '', applyEmail: f.applyMethod === 'email' ? f.applyEmail : '',
     ...(f.closesAt ? { closesAt: new Date(`${f.closesAt}T23:59:00+05:30`).toISOString() } : {}),
@@ -37,7 +55,7 @@ function toBody(f) {
 
 function fromJob(j) {
   return {
-    title: j.title, cities: (j.locations || []).join(', '), workType: j.workType, jobType: j.jobType, experience: j.experience,
+    title: j.title, cities: (j.locations || []).join(', '), workType: j.workType, jobType: j.jobType, experience: j.experience, education: j.education || '',
     salaryMin: j.salary?.min ?? '', salaryMax: j.salary?.max ?? '', period: j.salary?.period || 'yearly', skills: (j.skills || []).join(', '),
     description: j.description, applyMethod: j.apply.method, applyUrl: j.apply.url || '', applyEmail: j.apply.email || '',
     closesAt: j.closesAt ? new Date(j.closesAt).toISOString().slice(0, 10) : '',
@@ -133,6 +151,7 @@ function JobForm({ t, c, init, onDone, onCancel }) {
     <form className="card stack g12" onSubmit={submit} aria-label={init.id ? t('co.jobs.editTitle') : t('co.jobs.post')} data-testid="co-job-form">
       <h2 className="co-h2">{init.id ? t('co.jobs.editTitle') : t('co.jobs.post')}</h2>
       {init.live && <p className="xs muted" style={{ margin: 0 }}>{t('co.jobs.editsNote', { n: init.editsLeft })}</p>}
+      {!init.id && <Templates t={t} onPick={(x) => setF({ ...f, title: x.title, jobType: x.jobType, experience: x.experience, education: x.education, skills: x.skills.join(', '), description: x.description })} />}
       <div className="field"><label className="label" htmlFor="cj-title">{t('co.jobs.f.title')}</label><input id="cj-title" className="input" required minLength={2} maxLength={120} value={f.title} onChange={set('title')} /></div>
       <details className="card-sm" open={writer.open} onToggle={(e) => setWriter({ ...writer, open: e.currentTarget.open })}>
         <summary className="small"><strong>{t('co.jobs.writer')}</strong></summary>
@@ -152,6 +171,7 @@ function JobForm({ t, c, init, onDone, onCancel }) {
         <div className="field"><label className="label" htmlFor="cj-work">{t('jobs.f.workType')}</label><select id="cj-work" className="input" value={f.workType} onChange={set('workType')}>{WORK_TYPES.map((x) => <option key={x} value={x}>{t(`jobs.work.${x}`)}</option>)}</select></div>
         <div className="field"><label className="label" htmlFor="cj-type">{t('jobs.f.jobType')}</label><select id="cj-type" className="input" value={f.jobType} onChange={set('jobType')}>{JOB_TYPES.map((x) => <option key={x} value={x}>{t(`jobs.type.${x}`)}</option>)}</select></div>
         <div className="field"><label className="label" htmlFor="cj-exp">{t('jobs.f.experience')}</label><select id="cj-exp" className="input" value={f.experience} onChange={set('experience')}>{EXPERIENCE.map((x) => <option key={x} value={x}>{t(`jobs.exp.${x}`)}</option>)}</select></div>
+        <div className="field"><label className="label" htmlFor="cj-edu">{t('jobs.f.education')}</label><select id="cj-edu" className="input" value={f.education || ''} onChange={set('education')} data-testid="cj-edu">{EDU.map((x) => <option key={x} value={x}>{t(`jobs.edu.${x || 'any'}`)}</option>)}</select></div>
         <div className="field"><label className="label" htmlFor="cj-min">{t('co.jobs.f.salaryMin')}</label><input id="cj-min" className="input" inputMode="numeric" value={f.salaryMin} onChange={set('salaryMin')} /></div>
         <div className="field"><label className="label" htmlFor="cj-max">{t('co.jobs.f.salaryMax')}</label><input id="cj-max" className="input" inputMode="numeric" value={f.salaryMax} onChange={set('salaryMax')} /></div>
         <div className="field"><label className="label" htmlFor="cj-per">{t('co.jobs.f.per')}</label><select id="cj-per" className="input" value={f.period} onChange={set('period')}><option value="yearly">{t('jobs.perYear')}</option><option value="monthly">{t('jobs.perMonth')}</option></select></div>
