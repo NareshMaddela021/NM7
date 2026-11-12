@@ -1,9 +1,9 @@
 name: tests
 
-# On every pull request and every push to main: the API's lint and tests, and the site's lint, unit tests and
-# build. The live browser suite is e2e.yml: also on pull requests while the repository variable CI_MODE is "full"
-# (the default), nightly and by hand only with CI_MODE=light. Docs-only changes skip it; a newer commit on the same
-# branch or PR cancels the older run.
+# On every pull request and every push to main, in both CI modes: the API's lint and tests, and the site's lint, unit
+# tests and build. The browser tests are e2e.yml: only the quick check on pull requests in light mode (the default:
+# CI_MODE unset or "light"; the whole suite then runs nightly and by hand), the whole suite with CI_MODE=full. Docs-only
+# changes skip both; a newer commit on the same branch or PR cancels the older run.
 on:
   pull_request:
     paths-ignore: ["**/*.md", "docs/**"]

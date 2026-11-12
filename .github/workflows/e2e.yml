@@ -1,11 +1,15 @@
 name: e2e
 
-# The full browser suite against the real API, desktop + 390 px (plus the production build with the vercel.json
-# headers, and the sample-data browser tests on the preview build). Nightly at 03:00 IST on the production branch,
-# by hand (Actions → e2e → Run workflow), and on pull requests while the repository variable CI_MODE is "full" (the
-# default when it isn't set). Set CI_MODE=light (Settings → Secrets and variables → Actions → Variables) to save
-# minutes once the repo is private: pull requests then run only tests.yml (backend + unit tests + build), and this
-# suite runs nightly and by hand. Schedules start from the default branch (main), which must have this file.
+# Browser tests against the real API, desktop + 390 px. Two modes, set by the repository variable CI_MODE (Settings →
+# Secrets and variables → Actions → Variables):
+#   full: every pull request runs the whole suite (job "live", about 35 min);
+#   light (the default when CI_MODE isn't set): every pull request runs only the quick check (job "quick", about
+#          10 min): a smoke set plus the specs
+#          related to the changed files (.github/scripts/pick-e2e.mjs). The whole suite ("live", plus the production
+#          build with the vercel.json headers and the sample-data tests on the preview build) runs nightly at 03:00
+#          IST on the production branch and whenever it is started by hand (Actions → e2e → Run workflow).
+# Back to full on pull requests: set CI_MODE=full. Schedules start from the default branch
+# (main), which must have this file.
 on:
   pull_request:
     branches: ["claude/fervent-albattani-wqmaoq", "main"]
@@ -19,9 +23,66 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  quick:
+    # light mode (CI_MODE unset or light), pull requests: the smoke set and the specs related to this change
+    if: github.event_name == 'pull_request' && vars.CI_MODE != 'full'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: frontend
+    env:
+      TEST_MONGODB_URI: mongodb://localhost:27017/?directConnection=true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # the base branch too: the changed files pick the specs
+      - name: Start MongoDB (replica set)
+        run: bash "$GITHUB_WORKSPACE/.github/scripts/start-mongo.sh"
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: frontend/.nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+      - run: npm ci
+      - name: Install the API
+        working-directory: backend
+        run: uv sync --frozen
+      - name: Cache the Playwright browser
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}
+      - run: npx playwright install --with-deps chromium
+      - name: Pick the specs (smoke + related to the changed files)
+        id: pick
+        run: |
+          specs=$(git diff --name-only "origin/${{ github.base_ref }}...HEAD" | node ../.github/scripts/pick-e2e.mjs)
+          echo "specs=$specs" >> "$GITHUB_OUTPUT"
+          echo "Quick check runs: $specs" >> "$GITHUB_STEP_SUMMARY"
+          echo "$specs"
+      - name: Quick browser tests against the real API, desktop + 390 px (a failed test is retried once)
+        run: npx playwright test -c playwright.live.config.mjs --retries=1 ${{ steps.pick.outputs.specs }}
+      - name: API log (on failure)
+        if: failure()
+        run: tail -n 400 e2e-live/.api.log || true
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-quick-results
+          path: |
+            frontend/test-results
+            frontend/e2e-live/.api.log
+          retention-days: 7
+
   live:
-    # CI_MODE=light: not on pull requests (nightly and by hand only)
-    if: github.event_name != 'pull_request' || vars.CI_MODE != 'light'
+    # the whole suite: nightly, by hand, and on pull requests when CI_MODE=full
+    if: github.event_name != 'pull_request' || vars.CI_MODE == 'full'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     defaults:
