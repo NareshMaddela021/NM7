@@ -52,6 +52,7 @@ function WaPlacedHost() {
 }
 const Checkout = lazy(() => import('./pages/Checkout'));
 const StopAlerts = lazy(() => import('./pages/StopAlerts'));
+const HireStillReady = lazy(() => import('./pages/HireStillReady'));
 const Intake = lazy(() => import('./pages/Intake'));
 const Refund = lazy(() => import('./pages/Refund'));
 const Editor = lazy(() => import('./pages/Editor'));
@@ -93,6 +94,7 @@ const MeInterview = lazy(() => import('./pages/me/MeInterview'));
 const MeCovers = lazy(() => import('./pages/me/MeCovers'));
 const MeJobs = lazy(() => import('./pages/me/MeJobs'));
 const AutoApply = lazy(() => import('./pages/me/AutoApply'));
+const MeHire = lazy(() => import('./pages/me/MeHire'));
 const meShare = () => import('./pages/me/MeShare');
 const MeShare = named(meShare, 'default');
 const RecruiterPortal = lazy(() => import('./pages/recruit/RecruiterPortal')); // /recruiter/<token>: college recruiter invites
@@ -349,6 +351,7 @@ export default function App() {
         <Route path="/scan" element={<Scan />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/stop-alerts" element={<StopAlerts />} />
+        <Route path="/hire/still-ready" element={<HireStillReady />} />
         <Route path="/orders/:id" element={<OrderRedirect />} />
         <Route path="/orders/:id/intake" element={C(<Intake />)} />
         <Route path="/orders/:id/refund" element={C(<Refund />)} />
@@ -429,6 +432,7 @@ export default function App() {
           <Route path="covers" element={<MeCovers />} />
           <Route path="jobs" element={<MeJobs />} />
           <Route path="auto-apply" element={<AutoApply />} />
+          <Route path="hire" element={<MeHire />} />
           <Route path="share" element={<MeShare />} />
           <Route path="groups" element={<MeGroups />} />
           <Route path="launch" element={<MeLaunch />} />

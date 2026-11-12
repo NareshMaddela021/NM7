@@ -45,6 +45,12 @@ async def main(cmd: str, *args: str) -> dict:
         (state,) = args
         await db["settings"].update_one({"_id": "site"}, {"$set": {"languages.te_hi": state == "on"}}, upsert=True)
         return {"ok": True}
+    if cmd == "hire-token":  # the one-tap "Still ready" link's token from the reminder email (Phase 5 H1)
+        from app.hire.available import still_token
+
+        (mail,) = args
+        u = await db["users"].find_one({"email": mail})
+        return {"token": still_token(u["_id"])}
     if cmd == "company-verify":
         (cid,) = args
         await db["companies"].update_one(

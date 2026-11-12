@@ -45,7 +45,7 @@ export function LiveSettings() {
   // the form keeps what was typed (text), so a bad value can be explained instead of silently becoming 0
   const toForm = (d) => {
     const g = (o) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, { ...v, text: String(Math.round(v.amount / 100)) }]));
-    return { ...d, plans: g(d.plans), addons: g(d.addons), hoursText: String(d.deliveryHours), referral: { ...(d.referral || { on: true, needed: 3 }), text: String(d.referral?.needed ?? 3) }, dailySummary: d.dailySummary || { on: true }, languages: d.languages || { teHi: false }, simple: { on: true, defaultTeHi: 'simple', defaultOther: 'full', ...(d.simple || {}), weights: Object.fromEntries(Object.entries(d.simple?.weights || { resume: 20, score: 25, linkedin: 10, interview: 15, skills: 20, certs: 10 }).map(([k, v]) => [k, String(v)])) }, jobChecks: { blocked: (d.jobChecks?.blocked || []).join('\n'), scam: (d.jobChecks?.scam || []).join('\n') }, companies: Object.fromEntries(Object.entries({ noReplyDays: 14, applicantMonths: 12, ...(d.companies || { basicJobsPerWeek: 1, verifiedLiveJobs: 3, verifiedMonths: 12, ipBurst: 3 }) }).map(([k, v]) => [k, String(v)])) };
+    return { ...d, plans: g(d.plans), addons: g(d.addons), hoursText: String(d.deliveryHours), referral: { ...(d.referral || { on: true, needed: 3 }), text: String(d.referral?.needed ?? 3) }, dailySummary: d.dailySummary || { on: true }, languages: d.languages || { teHi: false }, simple: { on: true, defaultTeHi: 'simple', defaultOther: 'full', ...(d.simple || {}), weights: Object.fromEntries(Object.entries(d.simple?.weights || { resume: 20, score: 25, linkedin: 10, interview: 15, skills: 20, certs: 10 }).map(([k, v]) => [k, String(v)])) }, hire: { on: d.hire?.on ?? true, confirmDays: String(d.hire?.confirmDays ?? 7) }, jobChecks: { blocked: (d.jobChecks?.blocked || []).join('\n'), scam: (d.jobChecks?.scam || []).join('\n') }, companies: Object.fromEntries(Object.entries({ noReplyDays: 14, applicantMonths: 12, ...(d.companies || { basicJobsPerWeek: 1, verifiedLiveJobs: 3, verifiedMonths: 12, ipBurst: 3 }) }).map(([k, v]) => [k, String(v)])) };
   };
   useEffect(() => { if (st.data) setF(toForm(st.data)); }, [st.data]);
   const errs = f ? settingsErrors(f) : {};
@@ -68,7 +68,7 @@ export function LiveSettings() {
   };
   const save = () => run(async () => {
     const pick = (g) => Object.fromEntries(Object.entries(f[g]).map(([k, v]) => [k, { amount: Number(v.text) * 100, active: v.active }]));
-    const r = await http('/api/admin/settings', { method: 'PUT', body: { plans: pick('plans'), addons: pick('addons'), deliveryHours: Number(f.hoursText), referral: { on: f.referral.on, needed: Number(f.referral.text) }, dailySummary: f.dailySummary, languages: f.languages, simple: { ...f.simple, weights: Object.fromEntries(Object.entries(f.simple.weights).map(([k, v]) => [k, Number(v)])) }, companies: Object.fromEntries(Object.entries(f.companies).map(([k, v]) => [k, Number(v)])), jobChecks: { blocked: f.jobChecks.blocked.split('\n').map((x) => x.trim()).filter(Boolean), scam: f.jobChecks.scam.split('\n').map((x) => x.trim()).filter(Boolean) } } });
+    const r = await http('/api/admin/settings', { method: 'PUT', body: { plans: pick('plans'), addons: pick('addons'), deliveryHours: Number(f.hoursText), referral: { on: f.referral.on, needed: Number(f.referral.text) }, dailySummary: f.dailySummary, languages: f.languages, simple: { ...f.simple, weights: Object.fromEntries(Object.entries(f.simple.weights).map(([k, v]) => [k, Number(v)])) }, companies: Object.fromEntries(Object.entries(f.companies).map(([k, v]) => [k, Number(v)])), hire: { on: f.hire.on, confirmDays: Number(f.hire.confirmDays) }, jobChecks: { blocked: f.jobChecks.blocked.split('\n').map((x) => x.trim()).filter(Boolean), scam: f.jobChecks.scam.split('\n').map((x) => x.trim()).filter(Boolean) } } });
     setF(toForm(r)); st.reload();
   }, 'Saved — new orders use these prices');
   return (
@@ -124,6 +124,12 @@ export function LiveSettings() {
             {[['basicJobsPerWeek', 'Basic: jobs a week', 0, 50], ['verifiedLiveJobs', 'Verified: live jobs at a time', 0, 500], ['verifiedMonths', 'Verified lasts (months)', 1, 36], ['ipBurst', 'Flag sign-ups from one address within 2 hours, from', 2, 50], ['noReplyDays', 'Close an Nm7 application the company hasn’t answered after (days)', 7, 60], ['applicantMonths', 'Companies see an applicant for (months, at most 12)', 1, 12]].map(([k, label, lo, hi]) => (
               <label key={k} className="row g8 small">{label} <input className="input" type="number" inputMode="numeric" min={lo} max={hi} step={1} style={{ height: 38, width: 90 }} value={f.companies[k]} data-testid={`co-${k}`} onChange={(e) => setF({ ...f, companies: { ...f.companies, [k]: e.target.value } })} /></label>
             ))}
+          </section>
+          <section className="card stack g12" aria-label="Hire in 30 minutes" data-testid="hire-settings">
+            <strong>Hire in 30 minutes</strong>
+            <span className="small muted">Candidates can say they are ready to join now (/me/hire). They stay visible to companies hiring now for the days below, then one tap (in the app or the reminder email) keeps them visible again. Off: nobody can turn it on, and nobody is shown.</span>
+            <label className="row g8 small"><input type="checkbox" checked={f.hire.on} onChange={(e) => setF({ ...f, hire: { ...f.hire, on: e.target.checked } })} data-testid="hire-on" />Offer “Ready to join”</label>
+            <label className="row g8 small">Ask “Still ready?” every (days) <input className="input" type="number" inputMode="numeric" min={1} max={30} step={1} style={{ height: 38, width: 80 }} value={f.hire.confirmDays} data-testid="hire-days" onChange={(e) => setF({ ...f, hire: { ...f.hire, confirmDays: e.target.value } })} /></label>
           </section>
           <section className="card stack g12" aria-label="Safe job posting" data-testid="job-checks">
             <strong>Safe job posting</strong>

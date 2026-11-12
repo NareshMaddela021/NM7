@@ -53,6 +53,7 @@ from app.courses import router as courses
 from app.downloads.router import router as downloads_router
 from app.experts.router import router as expert_router
 from app.health import service as resume_health
+from app.hire import available as hire_available
 from app.jobs import admin as jobs_admin
 from app.jobs import alerts as jobs_alerts
 from app.jobs import apply as jobs_apply
@@ -247,6 +248,8 @@ def create_app() -> FastAPI:
     app.include_router(auto_admin.company)  # /api/company/{id}/applicants/{app}/irrelevant
     app.include_router(auto_demo.admin)  # /api/admin/auto-apply/demo
     app.include_router(auto_demo.public)  # /api/public/demo-student
+    app.include_router(hire_available.router)  # /api/me/hire (Ready to join, Phase 5 H1)
+    app.include_router(hire_available.public)  # /api/public/hire/still-ready (the email's one tap)
     app.include_router(simple_guided.router)  # /api/me/simple/resume (resume by talking, E4)
     app.include_router(simple_demo.admin)  # /api/admin/simple/demo (Ravi, the Easy dashboard demo)
     app.include_router(simple_jobs.router)  # /api/me/simple/jobs (jobs made simple, E6)

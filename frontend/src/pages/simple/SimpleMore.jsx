@@ -193,3 +193,32 @@ export function Fixes({ t, setSay }) {
     </section>
   );
 }
+
+/** /me/simple/hire: "Ready to join" in plain words (Phase 5, H1). One big button: turn it on (the details form is
+ * the full page), Still ready, or Resume; Pause as the second. Phone and email stay hidden until an invite is accepted. */
+export function Hire({ t, lang, setSay }) {
+  const [s, err, , setS] = useScreen('/api/me/hire');
+  const [note, setNote] = useState('');
+  const date = s?.expiresAt ? new Date(s.expiresAt).toLocaleDateString(lang === 'en' ? 'en-IN' : `${lang}-IN`, { day: 'numeric', month: 'long' }) : '';
+  const line = !s ? '' : !s.on ? 'simple.h.off' : s.paused ? 'simple.h.paused' : s.stale ? 'simple.h.stale' : 'simple.h.on';
+  useEffect(() => { if (line) setSay([['simple.h.title'], [line, { date }], ['simple.h.private']]); }, [line, date]); // eslint-disable-line react-hooks/exhaustive-deps
+  if (!s) return <Wait t={t} err={err} />;
+  const act = async (path, body, said) => {
+    setNote('');
+    try { setS(await http(path, { method: 'POST', body })); if (said) setNote(t(said)); } catch (e) { setNote(e.message || t('simple.error')); }
+  };
+  return (
+    <section className="sx-stack" aria-labelledby="sx-h-h" data-testid="sx-hire">
+      <h1 id="sx-h-h" className="sx-h1">{t('simple.h.title')}</h1>
+      <p className="sx-p" data-testid="sx-hire-line">{t(line, { date })}</p>
+      {s.on && !s.paused && s.due && !s.stale && <p className="sx-hint">{t('simple.h.due', { date })}</p>}
+      {!s.on && <Big to="/me/hire" icon="⚡" label={t('simple.h.start')} ink testid="sx-hire-start" />}
+      {s.on && !s.paused && <Big icon="✅" label={t('simple.h.still')} ink onClick={() => act('/api/me/hire/confirm', undefined, 'simple.h.thanks')} testid="sx-hire-still" />}
+      {s.on && <Big icon={s.paused ? '▶️' : '⏸️'} label={t(s.paused ? 'simple.h.resume' : 'simple.h.pause')} ink={s.paused} onClick={() => act('/api/me/hire/pause', { paused: !s.paused })} testid="sx-hire-pause" />}
+      {note && <p className="sx-note" role="status" data-testid="sx-hire-note">{note}</p>}
+      <p className="sx-hint">{t('simple.h.private')}</p>
+      {s.on && <Big to="/me/hire" icon="✏️" label={t('simple.h.change')} testid="sx-hire-change" />}
+      <Big to="/me/simple" icon="←" label={t('simple.back')} />
+    </section>
+  );
+}
