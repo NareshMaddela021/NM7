@@ -111,13 +111,19 @@ async def read_inputs(db, uid: str) -> dict[str, Any]:
     r = await resume_for(db, uid)
     raw = (r or {}).get("data") or {}
     d = printed(raw)
-    u = await db[USERS].find_one({"_id": uid}, {"auto_apply.roles": 1, "simple.readiness": 1, "demo": 1}) or {}
+    u = (
+        await db[USERS].find_one(
+            {"_id": uid}, {"auto_apply.roles": 1, "simple.readiness": 1, "simple.practised": 1, "demo": 1}
+        )
+        or {}
+    )
     roles = ((u.get("auto_apply") or {}).get("roles")) or []
     li = await db[LINKEDIN].find_one({"_id": uid}, {"url": 1}) or {}
     links = d.get("links") if isinstance(d.get("links"), dict) else {}
     practised = 0
     async for m in db[JOB_MATCHES].find({"user_id": uid, "interview.practised": {"$exists": True}}, {"interview": 1}):
         practised += len((m.get("interview") or {}).get("practised") or {})
+    practised += len(((u.get("simple") or {}).get("practised")) or {})  # the easy dashboard's practice (N1)
     certs = await db[CERTIFICATES].count_documents({"user_id": uid}) + len(
         [c for c in _list(d.get("certs")) if c.get("name")]
     )

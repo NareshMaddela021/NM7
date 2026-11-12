@@ -38,6 +38,10 @@ async def test_ravi_demo(client, outbox, db, admin_client, make_client):
     assert home["counts"]["needs"] == 1
     jobs = (await phone.get("/api/me/simple/jobs")).json()
     assert len(jobs["items"]) == 3 and all(j["demo"] for j in jobs["items"])
+    # re-test N3: the full dashboard's "Jobs for you" card shows the same jobs with the same scores
+    card = (await phone.get("/api/me/jobs-for-you")).json()
+    assert card["state"] == "on" and all(j["demo"] for j in card["items"])
+    assert [(j["id"], j["match"]["score"]) for j in card["items"]] == [(j["id"], j["match"]) for j in jobs["items"]]
     assert jobs["autoOn"] is True and jobs["needs"] == 1
     # never public: demo jobs aren't on the board, and the morning run leaves demo students out
     j = await db[JOBS].find_one({"_id": jobs["items"][0]["id"]})

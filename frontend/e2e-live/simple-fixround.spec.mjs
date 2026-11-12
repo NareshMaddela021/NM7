@@ -45,6 +45,8 @@ for (const [label, opts] of SIZES) {
       await page.getByTestId('sx-pr-common').click();
       await expect(page.getByRole('heading', { level: 1 })).toHaveText('Tell me about yourself.');
       await page.getByTestId('sx-pr-answer').fill('I am Asha, I studied CSE');
+      await page.getByTestId('sx-pr-check').click(); // re-test N1: feedback first, then Next
+      await expect(page.getByTestId('sx-pr-feedback')).toBeVisible();
       await page.getByTestId('sx-pr-next').click();
       await expect(page.getByRole('heading', { level: 1 })).toHaveText('Why do you want this job?');
       // 13: "Choose the jobs you want" stays inside

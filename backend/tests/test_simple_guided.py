@@ -156,3 +156,32 @@ async def test_account_contact_on_the_resume_whichever_question_comes_first(clie
     d, _ = await data_of(db, uid)
     assert d["personal"]["name"] == "Ravi K" and d["links"]["linkedin"] == "linkedin.com/in/ravi-k"
     assert d["personal"]["email"] == "ravi@example.com"
+
+
+async def test_skills_step_ticks_what_is_there_never_twice_and_untap_removes(client, outbox, db):
+    """Re-test N2: the skills already on the resume open ticked (Excel shows as the "MS Excel" chip), saving never
+    adds a skill twice (aliases too), and untapping a ticked skill takes it off the resume."""
+    await signup(client, outbox, email="ravi@example.com", name="Ravi Kumar")
+    data = {"skillGroups": [{"id": "core", "label": "Skills", "value": "AutoCAD, Excel, SQL, Communication"},
+                            {"id": "tools", "label": "Tools", "value": "Power BI"}]}  # fmt: skip
+    await add_resume(client, data=data)
+    have = (await client.get(URL)).json()["have"]["skills"]
+    assert have == ["AutoCAD", "MS Excel", "SQL", "Communication", "Power BI"]
+    # keep everything, add Excel again under its other name and one new skill; untap SQL
+    picked = ["AutoCAD", "MS Excel", "Microsoft Excel", "Communication", "Power BI", "Python"]
+    r = await client.put(f"{URL}/skills", json={"value": {"skills": picked, "removed": ["SQL"]}})
+    assert r.status_code == 200, r.text
+    groups = (await db[RESUMES].find_one({"key": "r1"}))["data"]["skillGroups"]
+    assert groups[0]["value"] == "AutoCAD, Excel, Communication, Python" and groups[1]["value"] == "Power BI"
+    assert (await client.get(URL)).json()["have"]["skills"] == [
+        "AutoCAD",
+        "MS Excel",
+        "Communication",
+        "Python",
+        "Power BI",
+    ]
+    # saving the same again changes nothing
+    again = ["AutoCAD", "MS Excel", "Communication", "Python", "Power BI"]
+    await client.put(f"{URL}/skills", json={"value": {"skills": again, "removed": []}})
+    groups = (await db[RESUMES].find_one({"key": "r1"}))["data"]["skillGroups"]
+    assert groups[0]["value"] == "AutoCAD, Excel, Communication, Python"

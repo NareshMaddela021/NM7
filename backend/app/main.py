@@ -92,6 +92,7 @@ from app.projects.router import router as projects_router
 from app.simple import demo as simple_demo
 from app.simple import guided as simple_guided
 from app.simple import jobs as simple_jobs
+from app.simple import practice as simple_practice
 from app.simple import readiness as simple_readiness
 from app.simple import router as simple
 from app.summary.router import router as summary_router
@@ -249,6 +250,7 @@ def create_app() -> FastAPI:
     app.include_router(simple_guided.router)  # /api/me/simple/resume (resume by talking, E4)
     app.include_router(simple_demo.admin)  # /api/admin/simple/demo (Ravi, the Easy dashboard demo)
     app.include_router(simple_jobs.router)  # /api/me/simple/jobs (jobs made simple, E6)
+    app.include_router(simple_practice.router)  # /api/me/simple/practice (feedback on practice answers, N1)
     app.include_router(simple_readiness.router)  # /api/me/simple/readiness (job readiness score, E5)
     app.include_router(simple.router)  # /api/me/simple (Easy dashboard, Phase 4)
     app.include_router(simple.org)  # /api/org/{org_id}/simple (a college's Simple by default)
