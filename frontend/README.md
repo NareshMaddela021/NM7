@@ -184,6 +184,38 @@ orders (checkout writes the server's order id, invoice number and payment id int
 - CI runs a contract test against the live Hygraph APIs (`scripts/hygraph-contract.test.mjs`): the queries must be
   valid and the build step must pre-render every published post.
 
+### The asuraa.in blog as a second source (`VITE_BLOG_INCLUDE_ASURAA=1`)
+- `src/lib/blog/asuraa.js` reads the asuraa.in blog from the **Team Asuraa** Hygraph project
+  (`cmtxihlft00uf06v1drejgj89`, model `BlogPost`, Markdown `body`) and turns each post into the same shape as an
+  nm7-blog post, so the list, post pages, category pages, pre-render, sitemap and JSON-LD treat both alike.
+  `src/lib/blog/markdown.js` turns the Markdown into the Rich Text AST that `richtext.js` already renders safely.
+- **Off unless `VITE_BLOG_INCLUDE_ASURAA=1`** (Vercel → Settings → Environment Variables). Switch it on for
+  **Preview** first to check the posts. Switch it on for **Production** only on the day asuraa.in/blog/* starts
+  301-redirecting to nm7.si/blog/* — before that the same posts would be on two domains (duplicate content).
+- Rebranded on the way, not in Hygraph (asuraa.in keeps showing the originals until its redirects go live):
+  asuraa.in links → nm7.si pages (`PAGE_MAP`: blog posts → `/blog/<slug>`, `/jobs` → `/jobs`, the resume reviewer →
+  `/`; links to asuraa.in pages nm7.si doesn't have are dropped, their words stay), "Asuraa" / "AsuraaIN" → "Nm7",
+  "asuraa.in" → "nm7.si" (the company name AsuraaX AI is kept), and the stored "Last updated · By the Asuraa Team" line
+  is dropped. The post's `faq` field becomes FAQPage JSON-LD.
+- Not moved (`EXCLUDED_CATEGORIES`): Telugu / Hindi / Tamil Guides (nm7.si is English-only for now) and About Asuraa
+  (those posts describe asuraa.in and need a hand rewrite for nm7.si).
+- nm7-blog wins when both projects have the same slug. If the Team Asuraa project can't be read, the build logs a
+  warning and nm7-blog's posts still come through.
+- With more than 60 posts, post pages carry only their own data (not the whole list), so each page stays small; the
+  app reads the list from `/blog/data.json`.
+- **Read-only key (`ASURAA_HYGRAPH_TOKEN`, a Vercel env var for Preview and Production, never `VITE_`-prefixed):**
+  the build sends it as `Authorization: Bearer …` to the Team Asuraa project only; it is never read in the browser or
+  put in the bundle. Create it in Hygraph → Team Asuraa → Project Settings → Permanent Auth Tokens → Add token
+  (Content API: Read, Published stage only). With it set, the project's public read access (Project Settings →
+  Content API) can be switched off, which disconnects asuraa.in (it reads without a key) while nm7.si keeps
+  building. Do that only after asuraa.in/blog redirects to nm7.si. With public access off, the browser's live
+  top-up of asuraa posts stops (the built pages and /blog/data.json are unaffected; posts published after the last
+  build appear with the next build).
+- Endpoints: build = `https://api-ap-south-1.hygraph.com/v2/cmtxihlft00uf06v1drejgj89/master`
+  (override `ASURAA_HYGRAPH_BUILD_ENDPOINT`), browser = `https://ap-south-1.cdn.hygraph.com/content/cmtxihlft00uf06v1drejgj89/master`
+  (override `VITE_ASURAA_HYGRAPH_ENDPOINT`). For new asuraa posts to appear by themselves, add the same Vercel Deploy
+  Hook as a webhook in the Team Asuraa project too (steps below).
+
 ### New posts go live by themselves (rebuild on publish)
 1. Vercel → the **nm7** project → **Settings → Git → Deploy Hooks** → name `hygraph-publish`, branch = the production
    branch → **Create Hook**. Copy the URL (it is a secret: never put it in the repository).
