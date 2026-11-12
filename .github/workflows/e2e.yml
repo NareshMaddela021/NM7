@@ -71,7 +71,7 @@ jobs:
       - name: API log (on failure)
         if: failure()
         run: tail -n 400 e2e-live/.api.log || true
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: playwright-quick-results
@@ -126,7 +126,7 @@ jobs:
       - name: API log (on failure)
         if: failure()
         run: tail -n 400 e2e-live/.api.log || true  # the last lines only, so the test results above stay in the reachable log; the full log is in the artifact
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: playwright-live-results
