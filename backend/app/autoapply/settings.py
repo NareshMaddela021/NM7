@@ -226,4 +226,8 @@ async def suggest(auth: CustomerAuth, db: DB) -> dict[str, Any]:
         from app.jobsearch.facts import resume_text
 
         mine = [s for s in dictionary.find(resume_text(r.get("data") or {}))][:15]
-    return {"roles": [t for t, _ in titles.most_common(30)], "skills": mine}
+    from app.seek.roles import suggested_roles  # Phase 6 S1: the role finder's three roles come first
+
+    found = await suggested_roles(db, auth.user.id)
+    rest = [t for t, _ in titles.most_common(30) if t.lower() not in {f.lower() for f in found}]
+    return {"roles": [*found, *rest], "fromRoleFinder": found, "skills": mine}

@@ -2093,3 +2093,37 @@ sitemap.
 
 Untick a paid feature in Admin → Plans → Company hiring to keep it to the companies you turn it on for (Admin →
 Companies → Review). Every limit is editable in Admin → Settings → Hire in 30 minutes.
+
+## Job seekers: from no skills to hired (Phase 6)
+
+Free for students and job seekers unless Admin gates a feature. Each part below is one pull request.
+
+### S1. Role finder
+
+- **Where:** `/me/roles` (Dashboard → Find my role). There is also a card on the dashboard home and a screen in the easy dashboard (`/me/simple/roles`, from More).
+- **The 10 questions:**
+  1. What you studied (10th, 12th/Inter, ITI, diploma, degree, master's)
+  2. Branch
+  3. Subjects or tasks you like
+  4. Strengths
+  5. How you like to work (people, numbers, machines, computers, outdoors) and a second choice
+  6. City
+  7. Salary you need
+  8. Languages
+  9. Laptop: yes or no
+  10. Hours a week you can learn
+- **How roles are picked:** rules choose the roles, not AI.
+  - The role catalogue is in `backend/app/seek/catalogue.py`: 20 roles across IT, office, sales, retail, technician, logistics and healthcare. Each role lists its skills from the skills dictionary, the lowest qualification it needs, its H8 template and its H3 skill check.
+  - A role only shows if your studies are high enough. ITI and 12th count as equal.
+  - Work style counts most. Then likes, strengths, branch, languages, laptop and hours.
+  - When the laptop, language, hours or salary need don't fit a role, the role drops lower and a plain note says why.
+- **The "why" text:** AI only words the "why" sentence (limit `roles`: 5 a day per person). The text is checked: no numbers, no promises, no other role names. If the check fails or there is no AI key, you see the rules' own words.
+- **Typical starting salary:** taken from Nm7's own jobs only. It uses non-demo jobs from the last 90 days, at internship, fresher or 0–1 year level.
+  - It shows only when there are at least 10 such jobs. The number is a setting: `seek.salary_min_jobs`.
+  - The range is the middle half (25th to 75th percentile), in rupees a month, rounded to ₹500, with "based on X jobs in the last 90 days".
+  - With fewer jobs it says "Not enough data yet". Nothing is estimated.
+- **Live jobs:** up to 3 live jobs for each role, in your city or remote.
+- **Retake any time.** Answers are saved to your profile:
+  - your first role becomes your target role, if you haven't set one;
+  - the three roles appear first in Auto Apply's role suggestions;
+  - they are removed when you delete your account.

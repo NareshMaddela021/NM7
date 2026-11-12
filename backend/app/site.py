@@ -62,6 +62,10 @@ SIMPLE = {
 }
 
 
+SEEK = {  # Phase 6: job seekers
+    "salary_min_jobs": 10,  # a salary range is shown only with at least this many real jobs (last 90 days)
+}
+
 HIRE = {
     "on": True,  # off: nobody can turn "Ready to join" on, and companies see no instant shortlist
     "confirm_days": 7,  # a "Ready to join" older than this without a tap on "Still ready" is not available
@@ -104,6 +108,7 @@ def defaults() -> dict[str, Any]:
         "languages": {"te_hi": False},
         # Hire in 30 minutes (Phase 5): every limit editable in Admin → Settings
         "hire": dict(HIRE),
+        "seek": dict(SEEK),
     }
 
 
@@ -125,6 +130,7 @@ async def get_site(db: AsyncDatabase, session: Session = None) -> dict[str, Any]
     out["languages"] = {**out["languages"], **(stored.get("languages") or {})}
     out["hire"] = {**out["hire"], **(stored.get("hire") or {})}
     out["hire"]["open"] = {**HIRE["open"], **(out["hire"].get("open") or {})}
+    out["seek"] = {**SEEK, **(stored.get("seek") or {})}
     out["daily_summary_sent"] = stored.get("daily_summary_sent")
     out["rule_runs"] = stored.get("rule_runs", {})
     return out

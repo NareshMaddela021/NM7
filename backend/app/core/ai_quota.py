@@ -27,10 +27,26 @@ from app.core.db import AI_USAGE
 from app.core.errors import ApiError
 from app.core.time import IST, now
 
-Feature = Literal["photos", "summary", "linkedin", "jobs", "projects"]
-FEATURES: tuple[Feature, ...] = ("photos", "summary", "linkedin", "jobs", "projects")
-PER_PERSON: dict[str, int] = {"photos": 5, "summary": 10, "linkedin": 10, "jobs": 20, "projects": 3}
-PER_KIOSK: dict[str, int] = {"photos": 300, "summary": 600, "linkedin": 600, "jobs": 600, "projects": 600}
+Feature = Literal["photos", "summary", "linkedin", "jobs", "projects", "roles", "offers"]
+FEATURES: tuple[Feature, ...] = ("photos", "summary", "linkedin", "jobs", "projects", "roles", "offers")
+PER_PERSON: dict[str, int] = {
+    "photos": 5,
+    "summary": 10,
+    "linkedin": 10,
+    "jobs": 20,
+    "projects": 3,
+    "roles": 5,
+    "offers": 5,
+}
+PER_KIOSK: dict[str, int] = {
+    "photos": 300,
+    "summary": 600,
+    "linkedin": 600,
+    "jobs": 600,
+    "projects": 600,
+    "roles": 600,
+    "offers": 600,
+}
 DAILY_CAP = 2000  # every AI call on the site, all features together
 OUTCOMES = ("fallback", "failed", "limited", "capped", "dropped")  # always present per feature in usage()
 UNUSABLE = "unusable:"  # `note(..., "unusable:<reason>")`: why the configured model's answer was unusable
@@ -42,6 +58,8 @@ PERSON_MESSAGE = {
     "jobs": "You can use AI for job matches, cover letters and interview prep 20 times a day. "
     "Here are quick suggestions instead.",
     "projects": "You've used today's 3 free AI project rewrites. Here are bullets made from your answers instead.",
+    "roles": "You've used today's AI explanations for the role finder. The reasons below come from your answers.",
+    "offers": "You've used today's AI offer explanations. The checks below come from the offer text.",
 }
 KIOSK_MESSAGE = "This kiosk has used today's AI limit. Please type your details instead."
 

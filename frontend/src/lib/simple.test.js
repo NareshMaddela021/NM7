@@ -49,6 +49,21 @@ describe('simple screen strings', () => {
     for (const f of ['company', 'role', 'built']) expect(PAGES.en[`simple.r.q.work.${f}`]).toBeTruthy();
   });
 
+  it('no key is written twice in a language block (JSON keeps the last one silently)', () => {
+    const raw = readFileSync(join(__dirname, '..', 'i18n', 'pages.json'), 'utf8');
+    const blocks = raw.split(/\n {2}"(?:en|te|hi)": \{/).slice(1);
+    expect(blocks).toHaveLength(3);
+    for (const b of blocks) {
+      const keys = [...b.matchAll(/^ {4}"([^"]+)":/gm)].map((m) => m[1]);
+      expect(keys.filter((k, i) => keys.indexOf(k) !== i)).toEqual([]);
+    }
+  });
+
+  it('Phase 6 S1: the role finder opens inside the easy dashboard', () => {
+    expect(MORE.find(([k]) => k === 'roles')?.[2]).toBe('/me/simple/roles');
+    expect(PAGES.en['simple.rf.jobs.one']).toBe('1 live job now');
+  });
+
   it('no jargon on the simple screens', () => {
     for (const k of SIMPLE_KEYS) expect(PAGES.en[k], k).not.toMatch(/\bATS\b/);
   });
