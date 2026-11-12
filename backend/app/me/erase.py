@@ -32,6 +32,7 @@ from app.core.db import (
     HEALTH,
     HIRE_EVENTS,
     HIRE_INVITES,
+    HIRE_OFFERS,
     HIRE_PROFILES,
     HIRE_SLOTS,
     INTERVIEWS,
@@ -98,6 +99,7 @@ async def erase_user_data(db: AsyncDatabase, user_id: str) -> dict[str, int]:
     out["hire_invites"] = await gone(HIRE_INVITES, {"user_id": user_id})  # invites from companies (Phase 5)
     freed = await db[HIRE_SLOTS].update_many({"user_id": user_id}, {"$set": {"status": "open", "user_id": None}})
     out["hire_slots_freed"] = freed.modified_count  # the company keeps its times; the booking goes
+    out["hire_offers"] = await gone(HIRE_OFFERS, mine)  # offers made to them (Phase 5)
     out["hire_events"] = await gone(HIRE_EVENTS, mine)  # reliability events (Phase 5)
     out["skill_checks"] = await gone(SKILL_ATTEMPTS, mine)  # skill check results and spoken text (Phase 5)
     out["certificates"] = await gone(CERTIFICATES, mine)

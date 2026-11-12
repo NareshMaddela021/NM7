@@ -8,6 +8,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { rq } from '../../lib/company';
 import { reasons } from './CompanyApplicants';
 import HireSlots from './HireSlots';
+import HireOffers from './HireOffers';
 
 const rupees = (n) => (n == null ? '' : `₹${Math.round(n).toLocaleString('en-IN')}`);
 const day = (s) => (s ? new Date(`${s}T00:00:00`).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '');
@@ -115,6 +116,7 @@ export default function CompanyHire({ t, c }) {
         </>
       )}
       {job && <HireSlots key={job} t={t} c={c} job={job} canEdit={canInvite} />}
+      {job && <HireOffers key={`o-${job}`} t={t} c={c} job={job} people={invites.filter((x) => x.status === 'accepted').map((x) => ({ key: x.key, name: x.name }))} canEdit={canInvite} />}
       {invites.length > 0 && (
         <section className="card stack g8" aria-labelledby="co-hire-inv-h" data-testid="co-hire-invites">
           <strong id="co-hire-inv-h">{t('co.hire.invites')}</strong>

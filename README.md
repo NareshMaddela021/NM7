@@ -1980,3 +1980,25 @@ minutes" switches it on or off (on by default) and sets the limits.
   `POST /api/me/hire/slots/{slot}/book {reason}`, `POST /api/me/hire/slots/{slot}/cancel {reason}`,
   `GET /api/me/hire/slots/{slot}/ics`.
 - Tests: `backend/tests/test_hire_slots.py`, `frontend/e2e-live/hire-slots.spec.mjs` (desktop + 390 px).
+
+### H6. Instant offer
+
+- Hire now → **Offers**: send an offer to someone who accepted your invite (or is shortlisted): salary (₹ a month or
+  LPA), join date, place, a note, days to answer (1–14, 3 by default). The letter comes from one template. The
+  application moves to Offer.
+- The candidate sees the letter at the top of `/me/hire` and either **accepts** by typing their name (as on their
+  account) and ticking the box, or **declines** (an optional reason goes to the company). We keep the typed name, the
+  tick and the time: a record of the answer, **not a legal e-signature**, and the page and PDF say so. Unanswered
+  offers expire; the company can withdraw one that is still waiting (with a reason).
+- **PDF** (fpdf2, with the site's own fonts so ₹ prints) on both sides.
+- **Joining check-ins**: emails 7 days and 1 day before the join date (once each). The candidate taps "Still joining"
+  or "I can't join" (a reason, and the company is emailed).
+- **Joined**: from the join date, either side marks Joined, or Didn't join (with a reason). Joined / dropped out feed
+  reliability (H4).
+- Accepting adds the offer to each college the candidate belongs to (offer tracking and placement stats, source
+  "hire"); joining marks it Joined there, dropping out marks it Declined.
+- API: `POST/GET /api/company/{id}/hire/offers`, `GET …/{offer}/pdf`, `POST …/{offer}/joined {joined, reason}`,
+  `POST …/{offer}/withdraw {reason}`; `GET /api/me/hire/offers`,
+  `POST /api/me/hire/offers/{offer}/answer {answer, typedName, agree, reason}`,
+  `POST …/{offer}/joining {joining, reason}`, `POST …/{offer}/joined`, `GET …/{offer}/pdf`.
+- Tests: `backend/tests/test_hire_offers.py`, `frontend/e2e-live/hire-offer.spec.mjs` (desktop + 390 px).
