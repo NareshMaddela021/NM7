@@ -103,6 +103,7 @@ from app.seek import feedback as seek_feedback
 from app.seek import offers as seek_offers
 from app.seek import paths as seek_paths
 from app.seek import practice as seek_practice
+from app.seek import programs as seek_programs
 from app.seek import roles as seek_roles
 from app.seek import salary as seek_salary
 from app.simple import demo as simple_demo
@@ -288,6 +289,8 @@ def create_app() -> FastAPI:
     app.include_router(seek_offers.me)  # /api/me/offer-check (offer checker, Phase 6 S5)
     app.include_router(seek_feedback.company)  # /api/company/{cid}/applicants/{id}/feedback (Phase 6 S6)
     app.include_router(seek_feedback.me)  # /api/me/feedback
+    for r in (seek_programs.company, seek_programs.public, seek_programs.me, seek_programs.certs, seek_programs.admin):
+        app.include_router(r)  # internships and live projects (Phase 6 S8)
     app.include_router(hire_skillcheck.me)  # /api/me/skill-checks (10-minute tests, H3)
     app.include_router(hire_skillcheck.admin)  # /api/admin/skill-tests (the question bank, H3)
     app.include_router(simple_guided.router)  # /api/me/simple/resume (resume by talking, E4)
