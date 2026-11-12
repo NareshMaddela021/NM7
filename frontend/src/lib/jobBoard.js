@@ -206,6 +206,9 @@ export function matchReasons(m, t) {
   if (m.place === 'remote') good.push(t('jobs.match.remote'));
   else if (m.place === 'city') good.push(t('jobs.match.city', { city: m.city }));
   else if (m.place === 'other') gaps.push(t('jobs.match.otherCity'));
+  const need = m.educationNeed ? t(`jobs.edu.${m.educationNeed}`) : '';
+  if (m.education === 'ok') good.push(t('jobs.match.edu', { level: need }));
+  else if (m.education === 'near' || m.education === 'below') gaps.push(t('jobs.match.eduGap', { level: need }));
   return { good, gaps };
 }
 

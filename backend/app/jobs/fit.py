@@ -22,6 +22,9 @@ from app.jobsearch import skills as dictionary
 from app.jobsearch.score import Resume
 
 WEIGHTS = {"skills": 60, "experience": 25, "place": 15}
+# a job that names the lowest qualification it accepts (Phase 5 H8): education takes 10 of the 100 marks
+WEIGHTS_EDU = {"skills": 55, "experience": 20, "place": 15, "education": 10}
+EDU_RANK = {"10th": 1, "12th": 2, "iti": 3, "diploma": 4, "graduate": 5, "postgraduate": 6}
 MAX_RANKED = 300  # "Best match" ranks the newest jobs that pass the filters, up to this many
 CACHE_WRITES = 60  # scores saved per request at most (the rest are cheap to work out again)
 
@@ -94,6 +97,18 @@ def _place(job: dict[str, Any], p: Person) -> tuple[float, str, str]:
     return 0.0, "other", ""
 
 
+def _education(need: str, have: int) -> tuple[float, str]:
+    """(share, ok / near / below / unknown). ITI and 12th are side by side: either suits a job asking for the other."""
+    want = EDU_RANK.get(need, 0)
+    if not want:
+        return 1.0, ""
+    if not have:
+        return 0.5, "unknown"  # the resume doesn't say: never a zero for that
+    if have >= want or {have, want} == {2, 3}:
+        return 1.0, "ok"
+    return (0.5, "near") if have == want - 1 else (0.0, "below")
+
+
 def fit(job: dict[str, Any], p: Person) -> dict[str, Any]:
     wanted = job_skills(job)
     found = [s for s in wanted if _has_skill(p, s)]
@@ -101,7 +116,11 @@ def fit(job: dict[str, Any], p: Person) -> dict[str, Any]:
     skill_share = len(found) / len(wanted) if wanted else 0.5
     exp_share, exp = _experience(job["experience"], p.r.years)
     place_share, place, city = _place(job, p)
-    total = skill_share * WEIGHTS["skills"] + exp_share * WEIGHTS["experience"] + place_share * WEIGHTS["place"]
+    need = job.get("education") or ""
+    edu_share, edu = _education(need, p.r.edu_level())
+    w = WEIGHTS_EDU if need else WEIGHTS
+    total = skill_share * w["skills"] + exp_share * w["experience"] + place_share * w["place"]
+    total += edu_share * w.get("education", 0)
     return {
         "score": round(total),
         "found": found,
@@ -111,6 +130,8 @@ def fit(job: dict[str, Any], p: Person) -> dict[str, Any]:
         "years": p.r.years,
         "place": place,
         "city": city,
+        "education": edu,
+        "educationNeed": need,
     }
 
 

@@ -3984,7 +3984,10 @@
 "k":"tech",
 "s":[
 "last mile delivery",
-"delivery executive work"
+"delivery executive work",
+"delivery executive",
+"delivery boy",
+"delivery partner"
 ]
 },
 {
@@ -12136,6 +12139,21 @@
 {
 "n":"Paytm",
 "k":"tool"
+},
+{
+"n":"Multimeter",
+"k":"tool",
+"s":[
+"digital multimeter"
+]
+},
+{
+"n":"Workplace safety",
+"k":"soft",
+"s":[
+"safety procedures",
+"ppe"
+]
 }
 ]
 }

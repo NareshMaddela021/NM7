@@ -91,6 +91,7 @@ def company_job_out(j: dict[str, Any]) -> dict[str, Any]:
         "workType": j["work_type"],
         "jobType": j["job_type"],
         "experience": j["experience"],
+        "education": j.get("education") or "",
         "salary": j.get("salary"),
         "skills": j.get("skills") or [],
         "description": j["description"],
