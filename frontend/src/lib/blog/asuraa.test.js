@@ -79,6 +79,11 @@ describe('asuraa.in → nm7.si links', () => {
     expect(mapHref('https://asuraa.in/mentors')).toBeNull();
     expect(mapHref('https://asuraa.in/career-path')).toBeNull();
     expect(mapHref('https://www.mca.gov.in/')).toBe('https://www.mca.gov.in/');
+    // the About Asuraa posts are not on nm7.si: links to them go to the home page, not a 404
+    expect(mapHref('https://nm7.si/blog/what-is-asuraa')).toBe('/');
+    expect(mapHref('https://asuraa.in/blog/how-to-use-asuraa-to-find-jobs')).toBe('/');
+    expect(mapHref('/blog/is-asuraa-free-and-how-we-verify-jobs/')).toBe('/');
+    expect(mapHref('https://nm7.si/blog/how-to-use-asuraa-to-find-jobs-tamil')).toBe('https://nm7.si/blog/how-to-use-asuraa-to-find-jobs-tamil');
   });
 });
 
