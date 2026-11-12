@@ -103,11 +103,33 @@ export function Apps({ t, setSay }) {
 
 export const COMMON = ['q1', 'q2', 'q3', 'q4', 'q5'];
 
+/** The clarity feedback on one answer, in plain words, with Read aloud (re-test N1): the same checks as the full
+ * practice mode. */
+function Feedback({ fb, t, lang }) {
+  const rows = [['simple.pr.fb.structure', fb.structure], ['simple.pr.fb.length', fb.length], ['simple.pr.fb.filler', fb.filler], ['simple.pr.fb.result', fb.result]].filter(([, v]) => v);
+  return (
+    <div className="sx-next" data-testid="sx-pr-feedback" aria-live="polite">
+      <span className="sx-cardtop"><h2 className="sx-h2">{t('simple.pr.fb.title')}</h2><SayButton items={[['simple.pr.fb.title'], ...rows.map(([, v]) => v), ['simple.pr.fb.better'], fb.better]} t={t} lang={lang} label={t('simple.voice.readCard')} testid="sx-pr-fb-say" /></span>
+      <ul className="sx-ul">{rows.map(([k, v]) => <li key={k} data-testid={`sx-pr-fb-${k.split('.').pop()}`}><strong>{t(k)}:</strong> {v}</li>)}</ul>
+      {fb.better && <><span className="sx-label">{t('simple.pr.fb.better')}</span><p className="sx-p" lang="en" data-testid="sx-pr-better">{fb.better}</p></>}
+    </div>
+  );
+}
+
 export function Practice({ t, lang, setSay }) {
   const [matches] = useGet('/api/me/jobs/matches');
   const [i, setI] = useState(-1); // -1: the list; 0-4: a common question
   const [answer, setAnswer] = useState('');
-  useEffect(() => { setSay(i < 0 ? [['simple.pr.title'], ['simple.pr.text']] : [[`simple.pr.${COMMON[i]}`], [`simple.pr.${COMMON[i]}tip`]]); setAnswer(''); }, [i]); // eslint-disable-line react-hooks/exhaustive-deps
+  const [fb, setFb] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  const [done, setDone] = useState(false);
+  useEffect(() => { setSay(i < 0 ? [['simple.pr.title'], ['simple.pr.text']] : [[`simple.pr.${COMMON[i]}`], [`simple.pr.${COMMON[i]}tip`]]); setAnswer(''); setFb(null); setErr(''); }, [i]); // eslint-disable-line react-hooks/exhaustive-deps
+  const next = () => { if (i + 1 < COMMON.length) setI(i + 1); else { setDone(true); setI(-1); } };
+  const check = async () => {
+    setBusy(true); setErr('');
+    try { setFb((await http('/api/me/simple/practice', { method: 'POST', body: { q: COMMON[i], answer: answer.trim() } })).feedback); } catch (x) { setErr(x.message); } finally { setBusy(false); }
+  };
   if (i >= 0) {
     const q = COMMON[i];
     return (
@@ -115,11 +137,16 @@ export function Practice({ t, lang, setSay }) {
         <span className="sx-label">{t('simple.r.progress', { n: i + 1, total: COMMON.length })}</span>
         <span className="sx-cardtop"><h1 id="sx-pr-q" className="sx-h1">{t(`simple.pr.${q}`)}</h1><SayButton items={[[`simple.pr.${q}`]]} t={t} lang={lang} label={t('simple.voice.readCard')} /></span>
         <p className="sx-note">{t(`simple.pr.${q}tip`)}</p>
-        <SpeakField id="sx-pr-answer" label={t('simple.pr.yours')} value={answer} onChange={setAnswer} t={t} lang={lang} multiline testid="sx-pr-answer" />
+        <SpeakField id="sx-pr-answer" label={t('simple.pr.yours')} value={answer} onChange={(v) => { setAnswer(v); setFb(null); }} t={t} lang={lang} multiline testid="sx-pr-answer" />
         <p className="sx-hint">{t('simple.pr.private')}</p>
+        {err && <p className="sx-note" role="alert">{err}</p>}
+        {fb && <Feedback fb={fb} t={t} lang={lang} />}
         <div className="sx-navrow">
           <button type="button" className="sx-big" onClick={() => setI(i - 1)}><span className="sx-ic" aria-hidden="true">←</span><span>{t('simple.r.back')}</span></button>
-          <button type="button" className="sx-big sx-ink" onClick={() => setI(i + 1 < COMMON.length ? i + 1 : -1)} data-testid="sx-pr-next"><span>{i + 1 < COMMON.length ? t('simple.r.next') : t('simple.r.finish')}</span><span className="sx-ic" aria-hidden="true">→</span></button>
+          {/* first "How did I do?", then Next: feedback after every answer (N1); an empty answer can be skipped */}
+          {answer.trim() && !fb
+            ? <button type="button" className="sx-big sx-ink" disabled={busy} onClick={check} data-testid="sx-pr-check"><span>{busy ? t('simple.loading') : t('simple.pr.check')}</span><span className="sx-ic" aria-hidden="true">✓</span></button>
+            : <button type="button" className="sx-big sx-ink" onClick={next} data-testid="sx-pr-next"><span>{i + 1 < COMMON.length ? t('simple.r.next') : t('simple.r.finish')}</span><span className="sx-ic" aria-hidden="true">→</span></button>}
         </div>
       </section>
     );
@@ -129,7 +156,8 @@ export function Practice({ t, lang, setSay }) {
     <section className="sx-stack" aria-labelledby="sx-pr-h" data-testid="sx-practice">
       <h1 id="sx-pr-h" className="sx-h1">{t('simple.pr.title')}</h1>
       <p className="sx-p">{t('simple.pr.text')}</p>
-      <Big icon="🎤" label={t('simple.pr.common')} ink onClick={() => setI(0)} testid="sx-pr-common" />
+      {done && <p className="sx-note sx-ok" role="status" data-testid="sx-pr-done">{t('simple.pr.done')}</p>}
+      <Big icon="🎤" label={t('simple.pr.common')} ink onClick={() => { setDone(false); setI(0); }} testid="sx-pr-common" />
       {mine.length > 0 && <h2 className="sx-h2">{t('simple.pr.forJobs')}</h2>}
       <ul className="sx-list">{mine.map((m) => <li key={m.id}><Big to={`/me/interview/${m.id}`} icon="💼" label={t('simple.pr.forJob', { title: m.title || m.company || '—' })} testid="sx-pr-job" /></li>)}</ul>
       <Big to="/me/simple" icon="←" label={t('simple.back')} />

@@ -2,7 +2,8 @@
 
   GET /api/me/jobs-for-you → {state, items (top 3 matches with their scores), saved, applications}
 
-state: "on" (scores shown), "no_resume". The top 3 come from the newest open jobs (the same match score as the job
+state: "on" (scores shown), "no_resume". The top 3 come from the same list as the easy dashboard's Jobs screen
+(app.simple.jobs.top_jobs): the newest open jobs (the same match score as the job
 board, rules only) that the person hasn't applied to yet. The counts are for the Saved jobs and My applications
 shortcuts. Never an "AI matches" total: only the three jobs and real counts.
 """
@@ -12,13 +13,11 @@ from typing import Any
 from fastapi import APIRouter
 
 from app.auth.deps import CustomerAuth
-from app.core.db import APPLICATIONS, DB, JOBS, SAVED_JOBS
+from app.core.db import APPLICATIONS, DB, SAVED_JOBS, USERS
 from app.jobs import fit as fitmod
-from app.jobs.public import live_filter, public_out
+from app.jobs.public import public_out
 
 router = APIRouter(prefix="/api/me", tags=["job board"])
-TOP = 3
-POOL = 100  # the newest open jobs ranked for the card (the full board ranks 300)
 
 
 @router.get("/jobs-for-you")
@@ -26,22 +25,17 @@ async def jobs_for_you(auth: CustomerAuth, db: DB) -> dict[str, Any]:
     uid = auth.user.id
     saved = await db[SAVED_JOBS].count_documents({"user_id": uid})
     apps = await db[APPLICATIONS].count_documents({"user_id": uid})
-    applied = [
-        a["job_id"] async for a in db[APPLICATIONS].find({"user_id": uid, "job_id": {"$exists": True}}, {"job_id": 1})
-    ]
-    person = await fitmod.person_for(db, uid)
-    out: dict[str, Any] = {"state": "on" if person else "no_resume", "items": [], "saved": saved, "applications": apps}
-    if not person:
+    from app.simple.jobs import top_jobs  # here: app.simple imports the job board at load
+
+    u = await db[USERS].find_one({"_id": uid}, {"demo": 1}) or {}
+    # one source with the easy dashboard's Jobs screen (re-test N3): the same jobs, the same scores, the same rules,
+    # the demo company's jobs for a demo student
+    state, top = await top_jobs(db, uid, demo=bool(u.get("demo")))
+    out: dict[str, Any] = {"state": state, "items": [], "saved": saved, "applications": apps}
+    if state != "on":
         return out
-    pool = await (
-        db[JOBS]
-        .find({"$and": [live_filter(), {"_id": {"$nin": applied}}]}, {"description": 0})
-        .sort([("posted_at", -1), ("_id", 1)])
-        .limit(POOL)
-    ).to_list(None)
-    scored = await fitmod.fits(db, uid, person, pool, save=False)
-    pool.sort(key=lambda j: -scored[j["_id"]]["score"])
-    top = pool[:TOP]
-    kept = await fitmod.fits(db, uid, person, top)  # the three shown are cached like any card
-    out["items"] = [{**public_out(j), "match": kept[j["_id"]]} for j in top]
+    person = await fitmod.person_for(db, uid)
+    jobs = [x["job"] for x in top]
+    kept = await fitmod.fits(db, uid, person, jobs)  # the three shown are cached like any card
+    out["items"] = [{**public_out(j), "match": kept[j["_id"]], "demo": bool(j.get("demo"))} for j in jobs]
     return out

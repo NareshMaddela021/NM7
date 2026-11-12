@@ -82,7 +82,9 @@ export default function GuidedResume({ t, lang, setSay, onDone }) {
   useEffect(() => {
     if (!s || !step) return;
     const a = s.answers?.[step] || {};
-    setV(step === 'about' ? { name: a.name || s.account.name, phone: a.phone || s.account.phone || '', linkedin: a.linkedin || '' } : { ...a }); // item 15: the account's phone too
+    setV(step === 'about' ? { name: a.name || s.account.name, phone: a.phone || s.account.phone || '', linkedin: a.linkedin || '' }
+      : step === 'skills' ? { skills: [...(s.have?.skills || [])] } // re-test N2: the skills already on the resume start ticked
+        : { ...a }); // item 15: the account's phone too
     setErr('');
   }, [step, s?.answers]); // eslint-disable-line react-hooks/exhaustive-deps
   const q = step ? `simple.r.q.${step}.title` : 'simple.r.title';
@@ -91,7 +93,7 @@ export default function GuidedResume({ t, lang, setSay, onDone }) {
   const save = async (skip = false) => {
     setBusy(true); setErr('');
     try {
-      const next = await http(`${API}/${step}`, { method: 'PUT', body: skip ? { skip: true } : { value: v } });
+      const next = await http(`${API}/${step}`, { method: 'PUT', body: skip ? { skip: true } : { value: value() } });
       setS(next);
       if (i + 1 >= steps.length) { await http(`${API}/done`, { method: 'POST' }); onDone(); nav('/me/simple'); } else go(i + 1);
     } catch (e) { setErr(e.message); } finally { setBusy(false); }
@@ -136,6 +138,8 @@ export default function GuidedResume({ t, lang, setSay, onDone }) {
   }
   const value = () => {
     if ((step === 'certs' || step === 'langs') && (v.other || '').trim()) return { ...v, names: [...(v.names || []), ...splitSkills(v.other)] };
+    // skills: what was ticked when the step opened and is untapped now comes off the resume (re-test N2)
+    if (step === 'skills') return { ...v, removed: (s.have?.skills || []).filter((x) => !(v.skills || []).includes(x)) };
     return v;
   };
   const next = async () => {

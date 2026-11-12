@@ -38,7 +38,7 @@ from app.core.schemas import CamelModel
 from app.core.time import now
 from app.jobsearch import skills as dictionary
 from app.me.schemas import MAX_VERSIONS
-from app.orgs.ats import _list
+from app.orgs.ats import _list, all_skills, printed
 from app.projects import helper
 from app.projects.router import _scrub, write_bullets
 
@@ -216,12 +216,22 @@ def apply(step: str, v: dict[str, Any], d: dict[str, Any], account: dict[str, An
     elif step == "marks":
         _edu(d)["grade"] = v.get("grade", "")
     elif step == "skills":
+        # re-test N2: compare by skill (Excel = MS Excel) across every group: never twice; an untapped skill that
+        # was ticked (already on the resume) is taken off
         groups = [dict(g) for g in _list(d.get("skillGroups"))] or [{"id": "core", "label": "Skills", "value": ""}]
+        removed = v.get("removed", [])
+        every: list[str] = []
+        for x in groups:
+            keep = [s.strip() for s in str(x.get("value") or "").split(",") if s.strip()]
+            keep = [s for s in keep if not any(dictionary.same(s, r) for r in removed)]
+            x["value"] = ", ".join(keep)
+            every += keep
         g = next((x for x in groups if x.get("id") == "core"), groups[0])
         now_ = [s.strip() for s in str(g.get("value") or "").split(",") if s.strip()]
         for s in v.get("skills", []):
-            if s.lower() not in (x.lower() for x in now_):
+            if not any(dictionary.same(s, x) for x in every):
                 now_.append(s)
+                every.append(s)
         g["value"] = ", ".join(now_)
         d["skillGroups"] = groups
     elif step == "certs":
@@ -261,7 +271,7 @@ def check_value(step: str, raw: Any) -> dict[str, Any]:
     if step == "marks":
         return {"grade": _clean(v.get("grade"), 20)}
     if step == "skills":
-        return {"skills": _words(v.get("skills"), 30, 40)}
+        return {"skills": _words(v.get("skills"), 30, 40), "removed": _words(v.get("removed"), 40, 40)}
     if step in ("certs", "langs"):
         return {"names": _words(v.get("names"), 10 if step == "certs" else 8, 120 if step == "certs" else 30)}
     return {}
@@ -305,7 +315,19 @@ async def _state(db, uid: str) -> dict[str, Any]:
         "account": {"name": u.get("name") or "", "email": u.get("email") or "", "phone": u.get("phone") or ""},
         "wallet": [w for w in wallet if w][:10],
         "chips": {"skills": list(SKILL_CHIPS), "degrees": list(DEGREES), "langs": list(LANGS)},
+        "have": {"skills": have_skills((await resume_for(db, uid) or {}).get("data") or {})},
     }
+
+
+def have_skills(data: dict[str, Any]) -> list[str]:
+    """The skills already on the resume, each named like its chip when one matches (Excel → MS Excel), so the
+    skills step opens with them ticked (re-test N2)."""
+    out: list[str] = []
+    for s in all_skills(printed(data)):
+        name = next((c for c in SKILL_CHIPS if dictionary.same(c, s)), s)
+        if not any(dictionary.same(name, x) for x in out):
+            out.append(name)
+    return out
 
 
 @router.get("")
