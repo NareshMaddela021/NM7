@@ -99,6 +99,7 @@ const MeHire = lazy(() => import('./pages/me/MeHire'));
 const MeSkillChecks = lazy(() => import('./pages/me/MeSkillChecks'));
 const MeRoles = lazy(() => import('./pages/me/MeRoles'));
 const MeLearn = lazy(() => import('./pages/me/MeLearn'));
+const MePractice = lazy(() => import('./pages/me/MePractice'));
 const meShare = () => import('./pages/me/MeShare');
 const MeShare = named(meShare, 'default');
 const RecruiterPortal = lazy(() => import('./pages/recruit/RecruiterPortal')); // /recruiter/<token>: college recruiter invites
@@ -443,6 +444,7 @@ export default function App() {
           <Route path="skill-checks" element={<MeSkillChecks />} />
           <Route path="roles" element={<MeRoles />} />
           <Route path="learn" element={<MeLearn />} />
+          <Route path="practice" element={<MePractice />} />
           <Route path="share" element={<MeShare />} />
           <Route path="groups" element={<MeGroups />} />
           <Route path="launch" element={<MeLaunch />} />

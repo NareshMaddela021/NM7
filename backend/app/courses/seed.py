@@ -147,6 +147,18 @@ CATALOGUES = [
 # remove them). Skill India Digital Hub (Government of India) lists free courses for many trades: the title says what
 # to search for there. Hours unknown: left empty.
 SKILL_INDIA = "https://www.skillindiadigital.gov.in/"
+# Phase 6 S3: for weak practice topics (aptitude, grammar), added once too
+SEED_3: list[tuple[str, str, str, str, str, float | None]] = [
+    (
+        "Aptitude",
+        "Arithmetic (percentages, ratios and more)",
+        "Khan Academy",
+        "https://www.khanacademy.org/math/arithmetic",
+        "English",
+        None,
+    ),
+    ("English grammar", "Grammar", "Khan Academy", "https://www.khanacademy.org/humanities/grammar", "English", None),
+]
 SEED_2: list[tuple[str, str, str, str, str, float | None]] = [
     ("Typing", "Typing lessons", "TypingClub", "https://www.typingclub.com/", "English", None),
     ("Networking", "Networking courses (free self-paced)", "Cisco Networking Academy", "https://www.netacad.com/", "English", None),

@@ -88,7 +88,10 @@ function Path({ role }) {
             {t.skill ? (
               <>
                 <span className="small">The {t.skill} skill check: 10 minutes, 10 questions. Pass mark {t.pass}%.{t.best ? ` Your best: ${t.best.score}%.` : ''}</span>
-                <Link className="btn btn-outline btn-sm" style={{ alignSelf: 'flex-start' }} to="/me/skill-checks">Open skill checks</Link>
+                <div className="row g8" style={{ flexWrap: 'wrap' }}>
+                  <Link className="btn btn-outline btn-sm" to="/me/practice">Practise first (free)</Link>
+                  <Link className="btn btn-outline btn-sm" to="/me/skill-checks">Open skill checks</Link>
+                </div>
                 <span className="xs muted">Practice tests never count; only the official check does.</span>
               </>
             ) : <span className="small">This role has no skill check yet, so no badge for now. The courses and the project still help.</span>}
