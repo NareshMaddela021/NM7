@@ -65,6 +65,14 @@ SIMPLE = {
 HIRE = {
     "on": True,  # off: nobody can turn "Ready to join" on, and companies see no instant shortlist
     "confirm_days": 7,  # a "Ready to join" older than this without a tap on "Still ready" is not available
+    # H2: instant shortlist. Free roles a month per company (instant shortlists beyond it are a paid company
+    # feature), how often a company may run it, and how many invites a day.
+    "free_shortlists": 20,
+    "shortlists_per_hour": 20,
+    "invites_per_day": 60,
+    # paid company features (Admin → Plans → Company hiring): True = open to every Verified company (the default);
+    # False = only companies Admin turned it on for (Admin → Companies)
+    "open": {"instant": True, "tests": True, "bulk": True},
 }
 
 
@@ -115,6 +123,7 @@ async def get_site(db: AsyncDatabase, session: Session = None) -> dict[str, Any]
     out["simple"] = {**out["simple"], **(stored.get("simple") or {})}
     out["languages"] = {**out["languages"], **(stored.get("languages") or {})}
     out["hire"] = {**out["hire"], **(stored.get("hire") or {})}
+    out["hire"]["open"] = {**HIRE["open"], **(out["hire"].get("open") or {})}
     out["daily_summary_sent"] = stored.get("daily_summary_sent")
     out["rule_runs"] = stored.get("rule_runs", {})
     return out

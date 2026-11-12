@@ -7,6 +7,7 @@
   POST /api/admin/companies/{id}/reverify {reason}   back to the queue (Basic until checked again); emailed
   POST /api/admin/companies/{id}/block {reason}      can't sign in to it or post; emailed
   POST /api/admin/companies/{id}/unblock
+  PUT  /api/admin/companies/{id}/hire-features {features}   paid hiring features for this one company (Phase 5)
 Permission "companies" (Owner, Operations). Every decision is in the activity log. The registration number is checked by
 hand on the government site (the screen links to the GST portal); nothing here calls a paid registry.
 
@@ -54,6 +55,7 @@ def admin_out(c: dict[str, Any]) -> dict[str, Any]:
         "flags": flags,
         # the real state of each email, never a fixed "(confirmed)" (fix round item 10)
         "emailsConfirmed": {"admin": bool(emails.get("admin")), "company": bool(emails.get("company"))},
+        "hireFeatures": list(c.get("hire_features") or []),  # paid hiring features turned on for this company (H2)
         "createdAt": ms(c.get("created_at")),
         "updatedAt": ms(c.get("updated_at")),
         "domain": {
@@ -281,6 +283,24 @@ async def unblock(
     if (c.get("review") or {}).get("state") != "blocked":
         raise ApiError(409, "not_blocked", "This company isn’t blocked.")
     return await _decide(db, mailer, c, body.to, auth.user.id, request, "unblocked")
+
+
+class HireFeaturesIn(CamelModel):
+    features: list[Literal["instant", "tests", "bulk"]] = Field(default_factory=list, max_length=3)
+
+
+@router.put("/{cid}/hire-features")
+async def hire_features(
+    cid: str, body: HireFeaturesIn, request: Request, db: DB, auth: AdminAuth("companies")
+) -> dict[str, Any]:
+    """Hire in 30 minutes: paid company features turned on for this company, when Admin → Plans → Company hiring
+    doesn't open them to every Verified company."""
+    c = await _company(db, cid)
+    new = sorted(set(body.features))
+    await db[COMPANIES].update_one({"_id": cid}, {"$set": {"hire_features": new, "updated_at": now()}})
+    await audit(db, auth.user.id, "company.hire_features", target=cid, ip=client_ip(request),
+                data={"from": c.get("hire_features") or [], "to": new})  # fmt: skip
+    return admin_out({**c, "hire_features": new})
 
 
 # ---------- re-check reminders (automation pass) ----------

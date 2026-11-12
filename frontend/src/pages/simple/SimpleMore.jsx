@@ -198,7 +198,9 @@ export function Fixes({ t, setSay }) {
  * the full page), Still ready, or Resume; Pause as the second. Phone and email stay hidden until an invite is accepted. */
 export function Hire({ t, lang, setSay }) {
   const [s, err, , setS] = useScreen('/api/me/hire');
+  const [inv] = useScreen('/api/me/hire/invites');
   const [note, setNote] = useState('');
+  const waiting = (inv || []).filter((x) => x.status === 'sent' && x.live).length;
   const date = s?.expiresAt ? new Date(s.expiresAt).toLocaleDateString(lang === 'en' ? 'en-IN' : `${lang}-IN`, { day: 'numeric', month: 'long' }) : '';
   const line = !s ? '' : !s.on ? 'simple.h.off' : s.paused ? 'simple.h.paused' : s.stale ? 'simple.h.stale' : 'simple.h.on';
   useEffect(() => { if (line) setSay([['simple.h.title'], [line, { date }], ['simple.h.private']]); }, [line, date]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -210,6 +212,7 @@ export function Hire({ t, lang, setSay }) {
   return (
     <section className="sx-stack" aria-labelledby="sx-h-h" data-testid="sx-hire">
       <h1 id="sx-h-h" className="sx-h1">{t('simple.h.title')}</h1>
+      {waiting > 0 && <Big to="/me/hire#invites" icon="📩" label={t('simple.h.invites', { n: waiting })} ink testid="sx-hire-invites" />}
       <p className="sx-p" data-testid="sx-hire-line">{t(line, { date })}</p>
       {s.on && !s.paused && s.due && !s.stale && <p className="sx-hint">{t('simple.h.due', { date })}</p>}
       {!s.on && <Big to="/me/hire" icon="⚡" label={t('simple.h.start')} ink testid="sx-hire-start" />}
