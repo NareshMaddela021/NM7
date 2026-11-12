@@ -130,10 +130,17 @@ async def shared_results(db, user_ids: list[str]) -> dict[str, list[dict[str, An
     return {k: list(v.values()) for k, v in out.items()}
 
 
-def best_for(results: list[dict[str, Any]], wanted: list[str]) -> dict[str, Any] | None:
-    """The result for one of the job's skills (the best), else None."""
+def best_for(
+    results: list[dict[str, Any]], wanted: list[str], covers: dict[str, set[str]] | None = None
+) -> dict | None:
+    """The best result for one of the job's skills, else None. `covers`: test → the job skills it also speaks for
+    (from the job templates: the "Customer support" test covers Customer service and Telesales)."""
     low = {w.lower() for w in wanted}
-    mine = [r for r in results if r["skill"].lower() in low]
+
+    def fits(skill: str) -> bool:
+        return skill.lower() in low or bool({x.lower() for x in (covers or {}).get(skill, ())} & low)
+
+    mine = [r for r in results if fits(r["skill"])]
     return max(mine, key=lambda r: r["score"]) if mine else None
 
 

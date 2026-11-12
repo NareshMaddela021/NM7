@@ -10,6 +10,7 @@ import { reasons } from './CompanyApplicants';
 import HireSlots from './HireSlots';
 import HireOffers from './HireOffers';
 import HireBulk from './HireBulk';
+import HireSpeed from './HireSpeed';
 
 const rupees = (n) => (n == null ? '' : `₹${Math.round(n).toLocaleString('en-IN')}`);
 const day = (s) => (s ? new Date(`${s}T00:00:00`).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '');
@@ -83,6 +84,7 @@ export default function CompanyHire({ t, c }) {
         </label>
         {d?.usage && <span className="xs muted" data-testid="co-hire-usage">{t('co.hire.usage', { used: d.usage.used, free: d.usage.free })}</span>}
       </div>
+      <HireSpeed t={t} c={c} />
       {job && <HireBulk key={`b-${job}`} t={t} c={c} job={job} canEdit={canInvite} people={invites.filter((x) => x.status === 'accepted').map((x) => ({ key: x.key, name: x.name }))} onChange={load} />}
       {err && <p className="error" role="alert">{err}</p>}
       {!d && !err && <p className="muted">{t('co.loading')}</p>}

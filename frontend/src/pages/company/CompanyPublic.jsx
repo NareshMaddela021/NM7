@@ -40,6 +40,7 @@ export default function CompanyPublic() {
                 <div className="stack g4" style={{ minWidth: 0 }}>
                   <h1 className="display jobs-h1">{c.name}</h1>
                   <span className={`badge ${c.trust === 'verified' ? 'b-success' : 'b-neutral'}`} style={{ alignSelf: 'flex-start' }} data-testid="company-badge">{t(`co.pub.badge.${c.trust}`)}</span>
+                  {c.hiredIn30 && <span className="badge b-signal" style={{ alignSelf: 'flex-start' }} data-testid="company-hired30" title={t('co.pub.hired30Why')}>{t('co.speed.badge')}</span>}
                 </div>
               </div>
               <p className="xs muted" style={{ margin: 0 }}>{t(`co.pub.why.${c.trust}`)}</p>
