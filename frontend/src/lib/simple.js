@@ -2,7 +2,7 @@
 // left in localStorage) so the simple screens still show the last numbers on a bad connection, reloads included
 // ("Will update when internet is back"). The key starts with nm7-, so signing out wipes it too (lib/auth.js).
 import { useCallback, useEffect, useState } from 'react';
-import { http } from '../services/http';
+import { http, isSlow, onSlow } from '../services/http';
 import { STORE_KEY, setLang, setLangsShown } from './i18n';
 
 export const CACHE_KEY = 'nm7-simple-cache';
@@ -50,4 +50,29 @@ export function useSimple() {
     return () => window.removeEventListener('online', on);
   }, [reload]);
   return { data, offline, error, reload, setData };
+}
+
+/* ---------- each simple screen's own data, kept for this tab (re-test N6) ---------- */
+// While a sleeping server wakes up (15-60 s on the free plan) the screen shows what it showed last time instead of
+// "Loading…", then updates. sessionStorage only, and the nm7- prefix: signing out wipes it.
+const SCREEN_KEY = 'nm7-simple-screen:';
+export function screenCache(path) { try { return JSON.parse(sessionStorage.getItem(SCREEN_KEY + path) || 'null'); } catch { return null; } }
+export function keepScreen(path, d) { try { sessionStorage.setItem(SCREEN_KEY + path, JSON.stringify(d)); } catch { /* full or blocked */ } return d; }
+
+/** [data, error, reload, setData]: the last data at once (or null), then fresh data from `path`. An error shows only
+ * when there is nothing to show. */
+export function useScreen(path) {
+  const [d, setD] = useState(() => screenCache(path));
+  const [err, setErr] = useState('');
+  const reload = useCallback(() => http(path).then((x) => { setD(keepScreen(path, x)); setErr(''); return x; }, (e) => { if (!screenCache(path)) setErr(e.message); }), [path]);
+  useEffect(() => { setD(screenCache(path)); reload(); }, [path, reload]);
+  const set = useCallback((x) => setD((old) => keepScreen(path, typeof x === 'function' ? x(old) : x)), [path]);
+  return [d, err, reload, set];
+}
+
+/** True while a request has been slow because the server is waking up (the same signal as the site-wide notice). */
+export function useWaking() {
+  const [w, setW] = useState(isSlow);
+  useEffect(() => onSlow(setW), []);
+  return w;
 }

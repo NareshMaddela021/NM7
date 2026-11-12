@@ -31,7 +31,14 @@ for (const [label, opts] of SIZES) {
       // fix round item 21: an email service is never the company website
       await page.getByLabel('Company website').fill('gmail.com');
       await page.getByRole('button', { name: 'Next' }).click();
-      await expect(page.getByRole('alert')).toContainText('not an email service like gmail.com');
+      // re-test N4: the message is under the website field (in view on a phone), tied to it, and the cursor is there
+      const siteErr = page.getByTestId('co-site-err');
+      await expect(siteErr).toContainText('not an email service like gmail.com');
+      await expect(siteErr).toBeInViewport();
+      await expect(page.getByLabel('Company website')).toBeFocused();
+      await expect(page.getByLabel('Company website')).toHaveAttribute('aria-invalid', 'true');
+      expect(await page.getByLabel('Company website').getAttribute('aria-describedby')).toContain('co-site-err');
+      await expect(page.locator('.co-error')).toHaveCount(0); // not at the top of the page
       await page.getByLabel('Company website').fill(site);
       await wide();
       await page.getByRole('button', { name: 'Next' }).click();

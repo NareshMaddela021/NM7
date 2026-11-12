@@ -43,6 +43,17 @@ let shown = false;
 const awake = () => lastAnswer > 0 && Date.now() - lastAnswer < AWAKE_MS;
 const waking = () => slowCount > 0 && !awake();
 const notifySlow = () => { const v = waking(); if (v !== shown) { shown = v; slowSubs.forEach((f) => f(v)); } };
+/** Wakes a sleeping API the moment the site opens, before any screen asks it for data (re-test N6): GET /health, no
+ * cookies, the answer is not needed. Once per page load; off when there is no API (preview builds). */
+let woken = false;
+export function wakeApi() {
+  if (woken || !LIVE || typeof fetch !== 'function') return false;
+  woken = true;
+  fetch(`${API_BASE}/health`, { method: 'GET', mode: 'cors', credentials: 'omit', cache: 'no-store' })
+    .then((r) => { if (r.ok) { lastAnswer = Date.now(); notifySlow(); } }, () => {});
+  return true;
+}
+
 /** Tests only: forget that the server answered. */
 export const _forgetAwake = () => { lastAnswer = 0; shown = false; };
 /** `fn(true)` while any request has been running for more than 3 s, `fn(false)` once they all settled. */

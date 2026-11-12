@@ -413,7 +413,7 @@ export default function App() {
           <Route path="companies" element={<ADMIN.Companies />} />
           <Route path="auto-apply" element={<ADMIN.AutoApply />} />
         </Route>
-        <Route path="/me/simple/*" element={C(<SimpleApp />)} />
+        <Route path="/me/simple/*" element={<RequireAuth role="customer" keep><SimpleApp /></RequireAuth>} />
         <Route path="/me" element={C(<MeLayout />)}>
           <Route index element={<MeHome />} />
           <Route path="orders" element={<OrdersList />} />

@@ -7,6 +7,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { http } from '../../services/http';
 import { SayButton, SpeakField } from './voice';
+import { keepScreen, screenCache } from '../../lib/simple';
+import { WaitNote } from './SimpleApp';
 
 const API = '/api/me/simple/resume';
 const splitSkills = (s) => String(s || '').split(/,|\band\b|\bమరియు\b|\bऔर\b|\n/).map((x) => x.trim()).filter(Boolean);
@@ -68,12 +70,13 @@ function Wrote({ t, lang, kind, s, onAccepted }) {
 export default function GuidedResume({ t, lang, setSay, onDone }) {
   const nav = useNavigate();
   const [params, setParams] = useSearchParams();
-  const [s, setS] = useState(null);
+  const [s, setRaw] = useState(() => screenCache(API)); // the last questions and answers at once (re-test N6)
+  const setS = (x) => setRaw(keepScreen(API, x));
   const [v, setV] = useState({});
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
   const [work, setWork] = useState(null); // internships: yes / no first
-  useEffect(() => { http(API).then(setS, (e) => setErr(e.message)); }, []);
+  useEffect(() => { http(API).then(setS, (e) => { if (!screenCache(API)) setErr(e.message); }); }, []);
   const steps = s?.steps || [];
   const want = params.get('step');
   const i = s ? Math.max(0, Math.min(steps.length - 1, want && steps.includes(want) ? steps.indexOf(want) : Math.min(s.step, steps.length - 1))) : 0;
@@ -103,7 +106,7 @@ export default function GuidedResume({ t, lang, setSay, onDone }) {
     if (!s) return {};
     return { skills: [...new Set([...(s.chips.skills || []), ...(v.skills || [])])], langs: [...new Set([...(s.chips.langs || []), ...(v.names || [])])] };
   }, [s, v.skills, v.names]);
-  if (!s) return <p className="sx-p" role={err ? 'alert' : 'status'}>{err || t('simple.loading')}</p>;
+  if (!s) return <WaitNote t={t} err={err} />;
 
   const field = (key, label, extra = {}) => <SpeakField id={`sx-${step}-${key}`} label={label} value={v[key] ?? ''} onChange={(x) => setV({ ...v, [key]: x })} t={t} lang={lang} testid={`sx-${step}-${key}`} {...extra} />;
   let body;

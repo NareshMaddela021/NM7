@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, HashRouter } from 'react-router-dom';
 import App from './App';
-import { LIVE, http } from './services/http';
+import { LIVE, http, wakeApi } from './services/http';
 import { syncPrices } from './lib/pricing';
 import { ThemeProvider } from './lib/theme';
 import { FlowProvider } from './lib/flow';
@@ -18,6 +18,9 @@ document.querySelectorAll('link[data-async-css]').forEach((link) => {
 import { startMonitoring } from './lib/monitoring';
 import './styles/tokens.css';
 import './styles/base.css';
+
+// Live: start waking the API now (the free server sleeps when idle), before any screen needs it (re-test N6).
+wakeApi();
 
 // Referral links (nm7.si/?ref=CODE): remember the code for sign-up in this tab.
 try { const ref = new URLSearchParams(window.location.search).get('ref'); if (ref && /^[A-Za-z0-9]{4,12}$/.test(ref)) sessionStorage.setItem('nm7-ref', ref.toUpperCase()); } catch { /* ignore */ }

@@ -6,16 +6,12 @@
 //   /me/simple/fixes      the resume score's fixes in plain words, each one button to the exact place
 import { useEffect, useState } from 'react';
 import { http } from '../../services/http';
-import { Big } from './SimpleApp';
+import { Big, WaitNote } from './SimpleApp';
+import { useScreen } from '../../lib/simple';
 import { SayButton, SpeakField } from './voice';
 
-const useGet = (path) => {
-  const [d, setD] = useState(null);
-  const [err, setErr] = useState('');
-  useEffect(() => { http(path).then(setD, (e) => setErr(e.message)); }, [path]);
-  return [d, err];
-};
-const Wait = ({ t, err }) => <p className="sx-p" role={err ? 'alert' : 'status'}>{err || t('simple.loading')}</p>;
+const useGet = (path) => useScreen(path); // the last data at once, then fresh (re-test N6)
+export const Wait = ({ t, err }) => <WaitNote t={t} err={err} />;
 const list = (v) => (Array.isArray(v) ? v : []);
 const lines = (s) => String(s || '').split('\n').map((x) => x.replace(/^[•\-*–▸ ]+/, '').trim()).filter(Boolean);
 

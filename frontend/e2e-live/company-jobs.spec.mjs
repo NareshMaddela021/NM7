@@ -76,7 +76,7 @@ for (const [label, opts] of SIZES) {
       await expect(form).toContainText('you can edit it 2 more times');
       await form.getByLabel('Job description').fill(`${desc}\n\nShift timings: 9 to 6.`);
       await form.getByRole('button', { name: 'Save' }).click();
-      await expect(live.getByRole('button', { name: /Edit/ })).toContainText('1 edits left');
+      await expect(live.getByRole('button', { name: /Edit/ })).toContainText('1 edit left'); // singular (re-test N5)
       // close (in-page confirm)
       await live.getByRole('button', { name: 'Close job' }).click();
       await live.getByRole('alert').getByRole('button', { name: 'Close job' }).click();

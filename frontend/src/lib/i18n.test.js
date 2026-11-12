@@ -140,3 +140,16 @@ describe('the review list (docs/translations-review.csv)', () => {
     }
   });
 });
+
+describe('re-test N5: one thing is singular', () => {
+  it('uses key.one when n is 1, else the plural', async () => {
+    const { translate } = await import('./i18n');
+    expect(translate('en', 'simple.j.answers', { n: 1 })).toBe('Answer 1 question from companies');
+    expect(translate('en', 'simple.j.answers', { n: 2 })).toBe('Answer 2 questions from companies');
+    expect(translate('en', 'jobs.posted.days', { n: 1 })).toBe('Posted 1 day ago');
+    expect(translate('en', 'co.jobs.editsLeft', { n: '1' })).toBe('1 edit left');
+    expect(translate('te', 'simple.j.answers', { n: 1 })).toBe('కంపెనీల 1 ప్రశ్నకు జవాబివ్వండి');
+    // a string with no .one form is unchanged
+    expect(translate('en', 'jobs.posted.hours', { n: 3 })).toBe('Posted 3 hours ago');
+  });
+});

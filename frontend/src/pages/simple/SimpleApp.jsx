@@ -14,7 +14,7 @@ import { Suspense, lazy, useEffect, useState } from 'react';
 import { Link, Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { useLang } from '../../lib/i18n';
 import { readAloud } from '../../lib/readAloud';
-import { savePrefs, useSimple } from '../../lib/simple';
+import { savePrefs, useSimple, useWaking } from '../../lib/simple';
 import { SayButton, useAutoRead } from './voice';
 
 const GuidedResume = lazy(() => import('./GuidedResume')); // loaded when the resume questions open
@@ -30,6 +30,18 @@ const Apps = lazy(() => more().then((m) => ({ default: m.Apps })));
 const Practice = lazy(() => more().then((m) => ({ default: m.Practice })));
 const Fixes = lazy(() => more().then((m) => ({ default: m.Fixes })));
 import '../../styles/simple.css';
+
+/** "Loading…", or while a sleeping server wakes up, a plain note that it can take up to a minute (re-test N6). */
+export function WaitNote({ t, err }) {
+  const waking = useWaking();
+  if (err) return <p className="sx-p" role="alert">{err}</p>;
+  return (
+    <div className="sx-stack" role="status" data-testid="sx-wait">
+      <p className="sx-p">{t('simple.loading')}</p>
+      {waking && <p className="sx-note" data-testid="sx-waking">{t('simple.waking')}</p>}
+    </div>
+  );
+}
 
 export const LANG_NAMES = [['en', 'English', 'en-IN', 'English'], ['te', 'తెలుగు', 'te-IN', 'Telugu'], ['hi', 'हिंदी', 'hi-IN', 'Hindi']];
 export const NEXT_ICONS = { resume: '📝', education: '🎓', skills: '🛠️', projects: '💡', fix_score: '📈', auto_apply: '🤖', answer: '💬', jobs: '💼' };
@@ -208,13 +220,13 @@ export default function SimpleApp() {
   if (!data && error) {
     body = <div className="sx-stack" role="alert"><p className="sx-p">{t('simple.error')}</p><Big icon="↻" label={t('simple.retry')} onClick={reload} /></div>;
   } else if (!data) {
-    body = <p className="sx-p" role="status">{t('simple.loading')}</p>;
+    body = <WaitNote t={t} />;
   } else if (!data.on) {
     body = <div className="sx-stack" role="status"><p className="sx-p">{t('simple.off')}</p><Big to="/me" icon="🗂️" label={t('simple.offLink')} ink /></div>;
   } else {
     const picked = (d) => { setData(d); nav('/me/simple', { replace: true }); };
     const screen = { t, lang, setSay };
-    const wait = (el) => <Suspense fallback={<p className="sx-p" role="status">{t('simple.loading')}</p>}>{el}</Suspense>;
+    const wait = (el) => <Suspense fallback={<WaitNote t={t} />}>{el}</Suspense>;
     body = (
       <Routes>
         <Route index element={data.lang ? <Home t={t} lang={lang} d={data} setSay={setSay} /> : <Languages t={t} onPicked={setData} setSay={setSay} />} />

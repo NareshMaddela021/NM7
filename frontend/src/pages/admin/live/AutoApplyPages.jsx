@@ -5,6 +5,7 @@
 import { useEffect, useState } from 'react';
 import { useToast } from '../../../components/ui';
 import { Kpi, PageHead, Panel } from '../AdminUI';
+import { langsShown, useLang } from '../../../lib/i18n';
 import { Loading, http, useAction, useApi, when } from './common';
 
 const FIELDS = [
@@ -22,6 +23,8 @@ const Count = ({ o }) => <td style={NUM}><strong>{total(o)}</strong>{total(o) > 
 
 export function LiveAutoApply() {
   const toast = useToast();
+  useLang(); // redraws when Admin → Settings "Show Telugu and Hindi" changes
+  const raviLang = langsShown() ? 'Telugu' : 'English'; // Ravi follows that setting (re-test N5)
   const st = useApi('/api/admin/auto-apply');
   const [busy, run] = useAction(toast);
   const [off, setOff] = useState(false);
@@ -76,12 +79,13 @@ export function LiveAutoApply() {
               ))}
             </ul>
           </Panel>
+          {/* long labels wrap on a phone instead of running off the screen (re-test N5 follow-up) */}
           <section className="card-sm stack g8" aria-label="Demo student" data-testid="aa-demo">
             <strong className="small">Demo student</strong>
             <span className="xs muted">A made-up student with Auto Apply on and one of each: applied on Nm7, sent by email (recorded, not sent), needs your answer, ready to apply, against the demo company’s jobs. Never public. Opening it signs this browser in as the student (the admin console signs out here: use a private window to keep both).</span>
-            <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} disabled={busy} onClick={() => demo()} data-testid="aa-demo-open">Reset and open as student (Auto Apply)</button>
-            <span className="xs muted">Easy dashboard: Ravi Kumar (demo) uses the simple dashboard in Telugu, with a half-done resume (no project yet), a job readiness score near 60%, the demo company’s jobs and one question waiting. Never public.</span>
-            <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} disabled={busy} onClick={() => demo('/api/admin/simple/demo')} data-testid="aa-demo-simple">Reset and open as student (Easy dashboard, Telugu)</button>
+            <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start', maxWidth: '100%', whiteSpace: 'normal', textAlign: 'left', height: 'auto', minHeight: 40 }} disabled={busy} onClick={() => demo()} data-testid="aa-demo-open">Reset and open as student (Auto Apply)</button>
+            <span className="xs muted">Easy dashboard: Ravi Kumar (demo) uses the simple dashboard in {raviLang}, with a half-done resume (no project yet), a job readiness score near 60%, the demo company’s jobs and one question waiting. Never public.</span>
+            <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start', maxWidth: '100%', whiteSpace: 'normal', textAlign: 'left', height: 'auto', minHeight: 40 }} disabled={busy} onClick={() => demo('/api/admin/simple/demo')} data-testid="aa-demo-simple">Reset and open as student (Easy dashboard, {raviLang})</button>
           </section>
         </div>
       )}</Loading>
