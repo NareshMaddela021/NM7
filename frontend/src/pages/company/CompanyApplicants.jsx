@@ -11,6 +11,8 @@ import ResumePreview from '../builder/ResumePreview';
 import { designOf } from '../builder/design';
 import ErrorBoundary from '../../components/ErrorBoundary';
 
+import ApplicantFeedback from './ApplicantFeedback';
+
 const STAGES = ['viewed', 'shortlisted', 'interview', 'offer', 'rejected'];
 const TONE = { applied: 'b-neutral', viewed: 'b-neutral', shortlisted: 'b-signal', interview: 'b-signal', offer: 'b-success', rejected: 'b-danger', no_reply: 'b-neutral' };
 const day = (ms) => (ms ? new Date(ms).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
@@ -124,6 +126,7 @@ function Applicant({ t, c, a, rank, can, picked, canPick, onPick, open, onOpen, 
           {a.status !== 'rejected' && !iv && <button type="button" className="btn btn-outline" disabled={!!busy} onClick={() => setIv({ date: '', time: '10:30', minutes: '30', round: '', interviewer: '', place: '', link: '', notes: '' })}>{a.interview ? t('co.ap.ivChange') : t('co.ap.ivNew')}</button>}
         </div>
       )}
+      {can && a.status === 'rejected' && <ApplicantFeedback t={t} c={c} a={a} />}
       {iv && <InterviewForm t={t} iv={iv} setIv={setIv} busy={busy === 'iv'}
         onSend={() => act('iv', async () => { await rq(`/api/company/${c.id}/applicants/${a.id}/interview`, { method: 'POST', body: { ...iv, minutes: Number(iv.minutes) } }); setIv(null); })} />}
       {err && <p className="error" role="alert">{err}</p>}

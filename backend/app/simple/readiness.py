@@ -30,6 +30,7 @@ from app.core.db import CERTIFICATES, DB, JOB_MATCHES, JOBS, LINKEDIN, USERS
 from app.core.time import now
 from app.jobs.public import live_filter
 from app.orgs.ats import _list, all_skills, ats_score, printed
+from app.seek.feedback import recent_reasons
 from app.simple.router import missing
 from app.site import get_site
 
@@ -44,6 +45,7 @@ PATHS = {
     "skills": "/builder",
     "roles": "/me/auto-apply",
     "certs": "/me/certificates",
+    "feedback": "/me/feedback",  # Phase 6 S6: recent interview feedback to work on (no points; a pointer)
 }
 TOP_SKILLS = 8
 PRACTICE_FULL = 3
@@ -104,6 +106,8 @@ def compute(inputs: dict[str, Any], weights: dict[str, int]) -> dict[str, Any]:
     for p in open_[:3]:
         key = skills_key if p["key"] == "skills" else p["key"]
         left.append({"key": key, "path": PATHS[key], "points": p["weight"] - p["got"]})
+    if inputs.get("feedback"):  # Phase 6 S6: reasons from companies the student can work on
+        left.append({"key": "feedback", "path": PATHS["feedback"], "points": 0})
     return {"score": score, "parts": parts, "left": left}
 
 
@@ -137,6 +141,7 @@ async def read_inputs(db, uid: str) -> dict[str, Any]:
         "linkedin": bool(links.get("linkedin") or li.get("url")),
         "practised": practised,
         "certs": certs,
+        "feedback": len(await recent_reasons(db, uid)),
     }
 
 
@@ -148,6 +153,7 @@ def signature(inputs: dict[str, Any], weights: dict[str, int]) -> str:
         inputs["roles"],
         inputs["linkedin"],
         inputs["practised"],
+        inputs.get("feedback", 0),
         inputs["certs"],
         weights,
         now().strftime("%Y-%m-%d"),  # the jobs on the board change: at least once a day
