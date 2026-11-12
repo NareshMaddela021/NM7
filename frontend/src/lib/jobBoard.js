@@ -26,7 +26,9 @@ export const getJob = (slug) => http(`/api/jobs/${encodeURIComponent(slug)}`);
 
 /* ---------- filters ⇄ URL ---------- */
 
-const KEYS = ['q', 'experience', 'city', 'jobType', 'workType', 'salary', 'posted', 'sort'];
+const KEYS = ['q', 'experience', 'city', 'jobType', 'workType', 'salary', 'posted', 'support', 'sort'];
+// Phase 6 S9: returning after a break, immediate joiners, inclusive employers (declared by the company), accessible workplaces
+export const SUPPORT = ['returners', 'immediate', 'inclusive', 'accessible'];
 
 /** The filters from the page's URL (unknown values dropped). `city` "remote" means remote jobs. */
 export function fromQuery(search) {
@@ -38,6 +40,7 @@ export function fromQuery(search) {
   if (WORK_TYPES.includes(get('workType'))) f.workType = get('workType');
   if (SALARIES.includes(Number(get('salary')))) f.salary = Number(get('salary'));
   if (POSTED.includes(get('posted'))) f.posted = get('posted');
+  if (SUPPORT.includes(get('support'))) f.support = get('support');
   if (get('sort') === 'match') f.sort = 'match';
   return Object.fromEntries(Object.entries(f).filter(([, v]) => v));
 }

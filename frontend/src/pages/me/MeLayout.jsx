@@ -20,6 +20,7 @@ export const ME_NAV = [
   ['offercheck', '/me/offer-check', 'Offer checker', '⚖'],
   ['feedback', '/me/feedback', 'Interview feedback', '❝'],
   ['programs', '/me/programs', 'Internships & projects', '▣'],
+  ['guidance', '/me/guidance', 'Guidance', '☼'],
   ['ats', '/me/ats', 'ATS & job match', '◎'],
   ['covers', '/me/covers', 'Cover letters', '✎'],
   ['certificates', '/me/certificates', 'Certificates', '✪'],

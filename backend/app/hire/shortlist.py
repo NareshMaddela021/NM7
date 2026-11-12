@@ -163,7 +163,9 @@ async def _job(db, cid: str, job_id: str) -> dict[str, Any]:
 # --- the shortlist ------------------------------------------------------------------------------------------------
 
 
-async def candidates(db, c: dict[str, Any], job: dict[str, Any], t: datetime | None = None) -> list[dict[str, Any]]:
+async def candidates(
+    db, c: dict[str, Any], job: dict[str, Any], t: datetime | None = None, support: str = ""
+) -> list[dict[str, Any]]:
     """Every available, consenting candidate who suits the place and kind of job, ranked (best first)."""
     t = t or now()
     site = await get_site(db)
@@ -171,6 +173,14 @@ async def candidates(db, c: dict[str, Any], job: dict[str, Any], t: datetime | N
     q = {"on": True, "consent_at": {"$ne": None}, "paused_at": None, "confirmed_at": {"$gt": t - timedelta(days=days)}}
     profiles = await db[HIRE_PROFILES].find(q).sort("confirmed_at", -1).limit(SCAN).to_list(SCAN)
     profiles = [p for p in profiles if available(p, site, t)]
+    from app.seek.support import hidden_from, immediate  # Phase 6 S9
+
+    profiles = [p for p in profiles if not hidden_from(p, c)]  # "hide me from my current employer"
+    wanted = {s.strip() for s in support.split(",")}
+    if "immediate" in wanted:
+        profiles = [p for p in profiles if immediate(p)]
+    if "returners" in wanted:
+        profiles = [p for p in profiles if p.get("returner")]
     want_demo = bool(c.get("demo"))
     uids = [p["_id"] for p in profiles]
     users = {
@@ -248,6 +258,7 @@ async def shortlist(
     db: DB,
     job: str = Query(..., min_length=1, max_length=40),
     size: int = Query(TOP, ge=1, le=BULK_TOP),
+    support: str = Query("", max_length=40),  # Phase 6 S9: immediate,returners
     x_recruiter_account: str | None = Header(None),
 ) -> dict[str, Any]:
     acc, c, _ = await company_for(db, cid, x_recruiter_account)
@@ -276,7 +287,7 @@ async def shortlist(
     )
     await rate_limit.record(db, key)
     started = now()
-    rows = await candidates(db, c, j, started)
+    rows = await candidates(db, c, j, started, support)
     if rows:  # H9: when the first candidate was shown for this role
         await db[JOBS].update_one({"_id": j["_id"]}, {"$min": {"hire_speed.first_shown_at": started}})
     await db[HIRE_USAGE].update_one(

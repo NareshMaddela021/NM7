@@ -22,6 +22,11 @@ describe('filters in the URL', () => {
     expect(toQuery(f)).toEqual({ q: 'java', experience: 'fresher', remote: 'true', salary: '300000', posted: '24h' });
     expect(pageQuery(f)).toBe('q=java&experience=fresher&city=remote&salary=300000&posted=24h');
     expect(fromQuery('salary=12345')).toEqual({}); // not one of the choices
+    // Phase 6 S9: the support filter (known values only), kept in the API query and the page URL
+    expect(fromQuery('support=inclusive')).toEqual({ support: 'inclusive' });
+    expect(fromQuery('support=nope')).toEqual({});
+    expect(toQuery({ support: 'immediate' })).toEqual({ support: 'immediate' });
+    expect(pageQuery({ q: 'x', support: 'returners' })).toBe('q=x&support=returners');
     expect(toQuery({ city: 'Chennai', workType: 'onsite' })).toEqual({ city: 'Chennai', workType: 'onsite' });
   });
 });

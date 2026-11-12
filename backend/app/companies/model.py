@@ -206,6 +206,8 @@ def company_out(c: dict[str, Any], me: str | None = None, full: bool = True) -> 
         "review": {"state": review.get("state", "draft"), "reason": review.get("reason", ""),
                    "at": ms(review.get("at")), "submittedAt": ms(review.get("submitted_at"))},
         "demo": bool(c.get("demo")),
+        "policies": {k: {"text": v.get("text", ""), "removed": bool(v.get("removed"))}
+                     for k, v in (c.get("policies") or {}).items()},
     }  # fmt: skip
     if full:
         r = c.get("reg") or {}

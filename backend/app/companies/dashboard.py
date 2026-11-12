@@ -39,6 +39,7 @@ LOGO_MAX = 150_000  # characters of the data URL (the browser shrinks the image 
 
 class PageIn(CamelModel):
     about: str = Field("", max_length=2000)
+    policies: dict[str, str] | None = None  # Phase 6 S9: inclusive / accessible / returners, in the company's words
     logo: str | None = Field(None, max_length=LOGO_MAX)  # a data URL; "" removes it; None keeps it
 
     @field_validator("logo")
@@ -72,6 +73,9 @@ async def edit_page(cid: str, body: PageIn, db: DB, x_recruiter_account: str | N
     c["details"]["about"] = body.about.strip()
     if body.logo is not None:
         c["logo"] = body.logo or None
+    from app.seek.support import set_policies
+
+    set_policies(c, body.policies)
     await _save(db, c)
     await audit(db, None, "company.page", target=cid, data={"by": acc["email_lc"], "logo": bool(c.get("logo"))})
     return company_out(c, acc["email_lc"]) | {"logo": c.get("logo") or ""}

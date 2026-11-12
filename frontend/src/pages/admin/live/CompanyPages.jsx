@@ -116,6 +116,7 @@ function CompanyReview({ id, onClose, onChanged }) {
               {c.verifiedUntil && <div><dt>Verified until</dt><dd>{day(c.verifiedUntil)}</dd></div>}
             </dl>
             {c.details.about && <p className="small" style={{ margin: 0, whiteSpace: 'pre-line' }}>{c.details.about}</p>}
+            <Policies c={c} onSaved={st.reload} />
             <HireFeatures c={c} onSaved={st.reload} />
             {ask ? (
               <Reason busy={busy} onCancel={() => setAsk('')}
@@ -213,5 +214,25 @@ function DemoCompany({ onChanged }) {
         <button type="button" className="link-btn small" disabled={busy} onClick={remove}>Remove demo company</button>
       </div>
     </section>
+  );
+}
+
+/** Phase 6 S9: what the company declares (inclusive, accessible, returners), in its own words; Admin can remove one. */
+function Policies({ c, onSaved }) {
+  const toast = useToast();
+  const [busy, run] = useAction(toast);
+  const rows = Object.entries(c.policies || {}).filter(([, v]) => v.text);
+  if (!rows.length) return null;
+  const NAMES = { inclusive: 'Women-friendly / inclusive', accessible: 'Accessible workplace', returners: 'Returning after a break' };
+  return (
+    <div className="stack g4" data-testid="ad-co-policies">
+      <strong className="small">Declared policies</strong>
+      {rows.map(([k, v]) => (
+        <div key={k} className="row between g8" style={{ flexWrap: 'wrap' }}>
+          <span className="small" style={{ minWidth: 0 }}><strong>{NAMES[k] || k}:</strong> {v.text}{v.removed ? ' · removed' : ''}</span>
+          {!v.removed && <button type="button" className="btn btn-outline btn-sm" disabled={busy} onClick={() => run(async () => { await http(`/api/admin/companies/${c.id}/policies/${k}/remove`, { method: 'POST' }); onSaved(); }, 'Removed')} data-testid={`ad-pol-remove-${k}`}>Remove</button>}
+        </div>
+      ))}
+    </div>
   );
 }
