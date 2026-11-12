@@ -744,6 +744,14 @@ class SettingsIn(CamelModel):
     simple: "SimpleSettingsIn | None" = None
     languages: "LanguagesIn | None" = None
     hire: "HireSettingsIn | None" = None
+    seek: "SeekSettingsIn | None" = None
+
+
+class SeekSettingsIn(CamelModel):
+    """Job seekers (Phase 6): the salary guide's minimum jobs (S4) and the skill check pass mark for the badge (S2)."""
+
+    salary_min_jobs: int | None = Field(None, ge=3, le=1000)
+    pass_score: int | None = Field(None, ge=30, le=100)
 
 
 class HireSettingsIn(CamelModel):
@@ -847,6 +855,7 @@ def _settings_out(site: dict[str, Any]) -> dict[str, Any]:
             "weights": site["simple"]["weights"],
         },
         "languages": {"teHi": bool(site["languages"]["te_hi"])},
+        "seek": {"salaryMinJobs": int(site["seek"]["salary_min_jobs"]), "passScore": int(site["seek"]["pass_score"])},
         "hire": {
             "on": bool(site["hire"]["on"]),
             "confirmDays": int(site["hire"]["confirm_days"]),
@@ -903,6 +912,11 @@ async def put_settings(body: SettingsIn, request: Request, db: DB, auth: AdminAu
         if new != before["hire"]:
             changes["hire"] = new
             diff["hire"] = {"from": before["hire"], "to": new}
+    if body.seek:
+        new = {**before["seek"], **body.seek.model_dump(exclude_none=True)}
+        if new != before["seek"]:
+            changes["seek"] = new
+            diff["seek"] = {"from": before["seek"], "to": new}
     if body.languages and body.languages.model_dump() != before["languages"]:
         changes["languages"] = body.languages.model_dump()
         diff["languages"] = {"from": before["languages"], "to": changes["languages"]}

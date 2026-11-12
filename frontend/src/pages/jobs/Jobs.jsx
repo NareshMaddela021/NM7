@@ -9,6 +9,7 @@ import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'reac
 import Header from '../../components/Header';
 import LangSwitch from '../../components/LangSwitch';
 import SiteFooter from '../../components/SiteFooter';
+import { JobPay } from '../salaries/Salaries';
 import { useAuth } from '../../lib/auth';
 import { reloadMe } from '../../lib/customerStore';
 import { matchJob } from '../../lib/jobs';
@@ -418,6 +419,7 @@ export function JobPage() {
                 <div><dt>{t('jobs.f.workType')}</dt><dd>{t(`jobs.work.${job.workType}`)}</dd></div>
                 <div><dt>{t('jobs.salary')}</dt><dd>{salaryText(job.salary, t) || t('jobs.salaryNone')}</dd></div>
               </dl>
+              <JobPay job={job} t={t} />
               {job.match && (
                 <section className="card-sm stack g8" aria-labelledby="job-match-h" data-testid="job-match">
                   <h2 id="job-match-h" className="job-h2">{t('jobs.match.title')}: {t('jobs.match.pct', { n: job.match.score })}</h2>

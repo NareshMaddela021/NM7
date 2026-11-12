@@ -25,6 +25,7 @@ const BlogPost = named(blog, 'BlogPost');
 const jobBoard = () => import('./pages/jobs/Jobs');
 const JobsList = named(jobBoard, 'JobsList');
 const JobPage = named(jobBoard, 'JobPage');
+const Salaries = lazy(() => import('./pages/salaries/Salaries')); // Phase 6 S4: the salary guide
 const CompanySignup = lazy(() => import('./pages/company/CompanySignup'));
 const CompanyHome = lazy(() => import('./pages/company/CompanyHome'));
 const CompanyPublic = lazy(() => import('./pages/company/CompanyPublic'));
@@ -367,6 +368,7 @@ export default function App() {
         <Route path="/linkedin" element={<LinkedInPage />} />
         <Route path="/jobs" element={<JobsList />} />
         <Route path="/jobs/:slug" element={<JobPage />} />
+        <Route path="/salaries" element={<Salaries />} />
         <Route path="/for-companies" element={<CompanySignup />} />
         <Route path="/company" element={<CompanyHome />} />
         <Route path="/companies/:slug" element={<CompanyPublic />} />

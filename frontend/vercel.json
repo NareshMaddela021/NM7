@@ -85,6 +85,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/salaries",
+      "destination": "/index.html"
+    },
+    {
       "source": "/company",
       "destination": "/index.html"
     },
