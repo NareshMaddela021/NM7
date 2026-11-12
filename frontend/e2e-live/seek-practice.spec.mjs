@@ -36,7 +36,14 @@ for (const [label, opts] of SIZES) {
       await expect(page.getByTestId('pr-topics')).toContainText('%');
       // a coding question shows its code
       await page.getByTestId('pr-start-coding-basics').click();
-      await expect(page.getByTestId('pr-test').locator('pre')).toBeVisible();
+      const ct = page.getByTestId('pr-test');
+      // the order is random and one question in this set has no code: answer until a code question shows
+      for (let i = 0; i < 2 && !(await ct.locator('pre').count()); i += 1) {
+        await ct.getByTestId('pr-opt').first().check();
+        await ct.getByTestId('pr-check').click();
+        await ct.getByTestId('pr-next').click();
+      }
+      await expect(ct.locator('pre')).toBeVisible();
       expect(await noSideScroll(page)).toBe(true);
       // practice never verifies a skill
       const learn = await call(page, '/api/me/learn/data-analyst');

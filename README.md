@@ -2188,3 +2188,25 @@ Free for students and job seekers unless Admin gates a feature. Each part below 
   - `GET /api/public/salaries?city=` (cached 10 minutes)
   - `GET /api/public/salaries/lookup?title=&city=&experience=`
   - `GET /api/me/salary-hint?city=`
+
+### S5. Offer checker and compare offers
+
+- **Where:** `/me/offer-check` (Dashboard → Offer checker). It is free.
+- **Check an offer:** paste the offer letter, or choose its PDF (3 MB or less). The PDF is read in memory on the server and the file is never stored.
+  - Nothing is kept unless you tick **Save**. Saving keeps only the text, with Aadhaar, PAN and bank numbers removed, and the result. Saved checks can be deleted.
+  - Up to 30 checks an hour.
+- **What the rules look for:**
+  - **A fee or deposit** (registration, security, training, joining, kit…). This gives a Warning.
+  - **A bond or penalty**, with the amount and the years found. An amount gives a Warning; a bond with no amount found is a point to check.
+  - **Missing basics:** the company's full name, role, CTC, joining date, location, and who signed it.
+  - **Pay far from what similar starting jobs pay on Nm7:** more than 2.5× the top of the range, or under half the bottom. This uses the S4 data, and only when there is enough of it.
+  - **Whether the company is on Nm7**, with its trust level and score.
+  - **Scam phrases:** Admin's list for job posts, plus a few more, such as "pay to confirm" and "send your Aadhaar".
+- **Verdict:** **Looks OK**, **Check these points** or **Warning**.
+- **Explanation:** AI may explain the findings in 2–4 plain sentences (limit `offers`: 5 a day per person). The check rejects any number that is not in the letter or the findings, any promise, and any mention of "legal advice". When it fails, you see the rules' own words.
+- **Note on every result:** "an automatic check of the words in the letter, not a lawyer's opinion", and, for a bond, to ask the company's HR or a lawyer.
+- **Compare offers:** 2–3 offers side by side. Each has CTC (LPA, ₹ a year or ₹ a month), role, location, bond, joining date and your own growth notes.
+  - **In hand a month** shows only when you type your deductions; they are never guessed.
+  - The highest CTC and the most in hand are marked.
+  - A checked offer can be added with **Add to compare**.
+- **Account deletion** removes saved checks.
