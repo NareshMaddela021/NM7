@@ -19,7 +19,11 @@ def right_of(qid):
     return SETS[sid]["questions"][int(n)][3]
 
 
-async def test_practice_explains_scores_and_links_weak_topics(client, outbox, db):
+async def test_practice_explains_scores_and_links_weak_topics(client, outbox, db, monkeypatch):
+    from app.seek import practice
+
+    # a fixed order so all 3 Percentages questions are among the 10 (a random draw may leave 2: too few to call it weak)
+    monkeypatch.setattr(practice.random, "shuffle", lambda xs: None)
     await signup(client, outbox)
     d = (await client.get("/api/me/practice")).json()
     ids = {s["id"] for s in d["sets"]}
