@@ -83,9 +83,9 @@ describe('asuraa.in → nm7.si links', () => {
 });
 
 describe('rebranding', () => {
-  it('Asuraa → Nm7, asuraa.in → nm7.si, keeps the company name', () => {
-    expect(rebrand('By the Asuraa Team')).toBe('By the Nm7 Team');
-    expect(rebrand('AsuraaIN and Asuraa’s report on asuraa.in')).toBe('Nm7 and Nm7’s report on nm7.si');
+  it('Asuraa → NM7, asuraa.in → nm7.si, keeps the company name', () => {
+    expect(rebrand('By the Asuraa Team')).toBe('By the NM7 Team');
+    expect(rebrand('AsuraaIN and Asuraa’s report on asuraa.in')).toBe('NM7 and NM7’s report on nm7.si');
     expect(rebrand('AsuraaX AI Private Limited')).toBe('AsuraaX AI Private Limited');
   });
   it('drops the stored byline line', () => {
@@ -97,17 +97,17 @@ describe('a Team Asuraa post as an nm7.si post', () => {
   const p = normalizeAsuraaPost(RAW());
   const html = richTextToHtml(p.content);
   it('has the shape the pages use', () => {
-    expect(p).toMatchObject({ slug: 'fake-internship-scams-india', title: 'Fake Internship Scams in India: Nm7 Guide', excerpt: 'How to spot them, from the Nm7 Team.',
-      seoDescription: 'Spot fake internships. By Nm7.', category: { name: 'Job Search Safety', slug: 'job-search-safety' }, author: null, cover: null, source: 'asuraa' });
+    expect(p).toMatchObject({ slug: 'fake-internship-scams-india', title: 'Fake Internship Scams in India: NM7 Guide', excerpt: 'How to spot them, from the NM7 Team.',
+      seoDescription: 'Spot fake internships. By NM7.', category: { name: 'Job Search Safety', slug: 'job-search-safety' }, author: null, cover: null, source: 'asuraa' });
     expect(p.minutes).toBeGreaterThanOrEqual(1);
-    expect(p.faq).toEqual([{ question: 'Is Nm7 free?', answer: 'Yes, nm7.si is free to start.' }]);
+    expect(p.faq).toEqual([{ question: 'Is NM7 free?', answer: 'Yes, nm7.si is free to start.' }]);
   });
   it('the body carries no asuraa.in link and no old byline', () => {
     expect(html).not.toMatch(/asuraa\.in|Last updated|Asuraa Team/);
     expect(html).toContain('href="/jobs"');
     expect(html).toContain('href="/blog/how-to-verify-a-company-before-applying-india"');
     expect(html).toContain('Book a mentor or plan with the career path planner.'); // dropped links keep their words
-    expect(html).toContain('Nm7’s October 2026'.replace('’', '&#39;'));
+    expect(html).toContain('NM7’s October 2026'.replace('’', '&#39;'));
     expect(html).toContain('AsuraaX AI Private Limited runs nm7.si.');
     expect(html).toContain('href="https://www.mca.gov.in/"');
   });
@@ -117,7 +117,7 @@ describe('a Team Asuraa post as an nm7.si post', () => {
   });
   it('the FAQ becomes FAQPage JSON-LD', () => {
     const faq = postJsonLd(p).find((j) => j['@type'] === 'FAQPage');
-    expect(faq.mainEntity[0]).toMatchObject({ '@type': 'Question', name: 'Is Nm7 free?', acceptedAnswer: { text: 'Yes, nm7.si is free to start.' } });
+    expect(faq.mainEntity[0]).toMatchObject({ '@type': 'Question', name: 'Is NM7 free?', acceptedAnswer: { text: 'Yes, nm7.si is free to start.' } });
   });
   it('category names become slugs', () => {
     expect(asuraaCategory('Exams & Certifications')).toEqual({ name: 'Exams & Certifications', slug: 'exams-and-certifications' });

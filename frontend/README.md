@@ -194,7 +194,7 @@ orders (checkout writes the server's order id, invoice number and payment id int
   301-redirecting to nm7.si/blog/* — before that the same posts would be on two domains (duplicate content).
 - Rebranded on the way, not in Hygraph (asuraa.in keeps showing the originals until its redirects go live):
   asuraa.in links → nm7.si pages (`PAGE_MAP`: blog posts → `/blog/<slug>`, `/jobs` → `/jobs`, the resume reviewer →
-  `/`; links to asuraa.in pages nm7.si doesn't have are dropped, their words stay), "Asuraa" / "AsuraaIN" → "Nm7",
+  `/`; links to asuraa.in pages nm7.si doesn't have are dropped, their words stay), "Asuraa" / "AsuraaIN" → "NM7",
   "asuraa.in" → "nm7.si" (the company name AsuraaX AI is kept), and the stored "Last updated · By the Asuraa Team" line
   is dropped. The post's `faq` field becomes FAQPage JSON-LD.
 - Not moved (`EXCLUDED_CATEGORIES`): About Asuraa (those posts describe asuraa.in and need a hand rewrite for nm7.si;

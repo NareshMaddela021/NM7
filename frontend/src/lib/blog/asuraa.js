@@ -7,7 +7,7 @@
 // The Team Asuraa schema is different from nm7-blog: model `BlogPost`, Markdown `body`, `category` as plain text,
 // `metaDescription`, `faq` JSON. Each post is turned into the same shape normalizePost() returns, so the list, the
 // post page, the pre-render, the sitemap and the JSON-LD treat both sources alike. On the way it is rebranded for
-// nm7.si (links, byline, brand name) — the posts in Hygraph are not changed, so asuraa.in keeps showing them as
+// nm7.si (links, byline, brand name: "NM7" / "nm7.si") — the posts in Hygraph are not changed, so asuraa.in keeps showing them as
 // they are until its redirects go live.
 import { markdownToAst } from './markdown.js';
 import { readingTime } from './richtext.js';
@@ -69,12 +69,12 @@ export function mapHref(href) {
 /** Brand words in text. Order matters: the longer names first. The company name AsuraaX AI is kept. */
 const BRAND = [
   [/\bAsuraaX AI\b/g, '\uE000'], // protect the company name (a private-use character as a placeholder)
-  [/\bthe Asuraa Team\b/g, 'the Nm7 Team'],
-  [/\bAsuraa Team\b/g, 'Nm7 Team'],
-  [/\bAsuraaIN\b/g, 'Nm7'],
+  [/\bthe Asuraa Team\b/g, 'the NM7 Team'],
+  [/\bAsuraa Team\b/g, 'NM7 Team'],
+  [/\bAsuraaIN\b/g, 'NM7'],
   [/\b(www\.)?asuraa\.in\b/gi, 'nm7.si'],
-  [/\bAsuraa(?=['’]s\b)/g, 'Nm7'],
-  [/\bAsuraa\b/g, 'Nm7'],
+  [/\bAsuraa(?=['’]s\b)/g, 'NM7'],
+  [/\bAsuraa\b/g, 'NM7'],
   [/\uE000/g, 'AsuraaX AI'],
 ];
 export function rebrand(text) {
