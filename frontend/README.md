@@ -197,8 +197,9 @@ orders (checkout writes the server's order id, invoice number and payment id int
   `/`; links to asuraa.in pages nm7.si doesn't have are dropped, their words stay), "Asuraa" / "AsuraaIN" → "Nm7",
   "asuraa.in" → "nm7.si" (the company name AsuraaX AI is kept), and the stored "Last updated · By the Asuraa Team" line
   is dropped. The post's `faq` field becomes FAQPage JSON-LD.
-- Not moved (`EXCLUDED_CATEGORIES`): Telugu / Hindi / Tamil Guides (nm7.si is English-only for now) and About Asuraa
-  (those posts describe asuraa.in and need a hand rewrite for nm7.si).
+- Not moved (`EXCLUDED_CATEGORIES`): About Asuraa (those posts describe asuraa.in and need a hand rewrite for nm7.si;
+  asuraa.in redirects them to the nm7.si home page). The Telugu / Hindi / Tamil guides move too, so every other
+  asuraa.in/blog URL has its twin for the redirect.
 - nm7-blog wins when both projects have the same slug. If the Team Asuraa project can't be read, the build logs a
   warning and nm7-blog's posts still come through.
 - With more than 60 posts, post pages carry only their own data (not the whole list), so each page stays small; the

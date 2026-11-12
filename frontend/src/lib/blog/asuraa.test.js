@@ -149,9 +149,9 @@ describe('both sources together', () => {
   it('switched on: adds the asuraa.in posts, nm7-blog wins a shared slug, excluded categories stay out', async () => {
     const opts = { endpoint: 'https://x/cmup', fetchImpl: fakeFetch(), includeAsuraa: true };
     const posts = await fetchPosts(opts);
-    expect(posts.map((p) => p.slug)).toEqual(['own-post', 'fake-internship-scams-india']);
+    expect(posts.map((p) => p.slug)).toEqual(['own-post', 'fake-internship-scams-india', 'telugu-one']);
     expect(posts[0].title).toBe('Own');
-    expect((await fetchCategories(opts)).map((c) => c.slug)).toEqual(['ats', 'job-search-safety']);
+    expect((await fetchCategories(opts)).map((c) => c.slug)).toEqual(['ats', 'job-search-safety', 'telugu-guides']);
     expect((await fetchPost('fake-internship-scams-india', opts)).source).toBe('asuraa');
     expect(await fetchPost('what-is-asuraa', opts)).toBeNull();
   });
@@ -164,7 +164,7 @@ describe('both sources together', () => {
   it('the build reads the uncached API; excluded categories are listed', async () => {
     expect(ASURAA_BUILD_ENDPOINT).toBe('https://api-ap-south-1.hygraph.com/v2/cmtxihlft00uf06v1drejgj89/master');
     expect(ASURAA_POSTS_QUERY).toMatch(/blogPosts\(orderBy: publishedAt_DESC/);
-    expect([...EXCLUDED_CATEGORIES]).toEqual(['Telugu Guides', 'Hindi Guides', 'Tamil Guides', 'About Asuraa']);
+    expect([...EXCLUDED_CATEGORIES]).toEqual(['About Asuraa']);
     const got = await fetchAsuraaPosts(async () => ({ blogPosts: [RAW()] }));
     expect(got).toHaveLength(1);
   });
