@@ -169,3 +169,26 @@ describe('both sources together', () => {
     expect(got).toHaveLength(1);
   });
 });
+
+describe('the read-only token (ASURAA_HYGRAPH_TOKEN)', () => {
+  it('is sent as a Bearer header at build time, and only to the asuraa project', async () => {
+    const seen = [];
+    const fetchImpl = async (url, init) => {
+      seen.push([url, init.headers.Authorization]);
+      const { query } = JSON.parse(init.body);
+      const data = url.includes('cmtxihlft00uf06v1drejgj89') ? { blogPosts: [] } : query.includes('categories') ? { categories: [] } : { posts: [] };
+      return { ok: true, status: 200, text: async () => JSON.stringify({ data }) };
+    };
+    process.env.ASURAA_HYGRAPH_TOKEN = 'test-token';
+    try {
+      await fetchPosts({ endpoint: 'https://x/cmup', fetchImpl, includeAsuraa: true });
+    } finally { delete process.env.ASURAA_HYGRAPH_TOKEN; }
+    expect(seen.find(([u]) => u.includes('cmtxihlft00uf06v1drejgj89'))[1]).toBe('Bearer test-token');
+    expect(seen.find(([u]) => u.includes('cmup'))[1]).toBeUndefined();
+  });
+  it('without it, requests are unauthenticated (works while public read access is on)', async () => {
+    let auth = 'unset';
+    await fetchAsuraaPosts(async (q, v, o) => { auth = o.token; return { blogPosts: [] }; });
+    expect(auth).toBe('');
+  });
+});

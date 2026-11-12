@@ -203,6 +203,14 @@ orders (checkout writes the server's order id, invoice number and payment id int
   warning and nm7-blog's posts still come through.
 - With more than 60 posts, post pages carry only their own data (not the whole list), so each page stays small; the
   app reads the list from `/blog/data.json`.
+- **Read-only key (`ASURAA_HYGRAPH_TOKEN`, a Vercel env var for Preview and Production, never `VITE_`-prefixed):**
+  the build sends it as `Authorization: Bearer …` to the Team Asuraa project only; it is never read in the browser or
+  put in the bundle. Create it in Hygraph → Team Asuraa → Project Settings → Permanent Auth Tokens → Add token
+  (Content API: Read, Published stage only). With it set, the project's public read access (Project Settings →
+  Content API) can be switched off, which disconnects asuraa.in (it reads without a key) while nm7.si keeps
+  building. Do that only after asuraa.in/blog redirects to nm7.si. With public access off, the browser's live
+  top-up of asuraa posts stops (the built pages and /blog/data.json are unaffected; posts published after the last
+  build appear with the next build).
 - Endpoints: build = `https://api-ap-south-1.hygraph.com/v2/cmtxihlft00uf06v1drejgj89/master`
   (override `ASURAA_HYGRAPH_BUILD_ENDPOINT`), browser = `https://ap-south-1.cdn.hygraph.com/content/cmtxihlft00uf06v1drejgj89/master`
   (override `VITE_ASURAA_HYGRAPH_ENDPOINT`). For new asuraa posts to appear by themselves, add the same Vercel Deploy

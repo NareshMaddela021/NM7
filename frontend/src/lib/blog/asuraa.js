@@ -28,6 +28,12 @@ export const asuraaEndpoint = () => (inBrowser()
   ? env('VITE_ASURAA_HYGRAPH_ENDPOINT') || ASURAA_ENDPOINT
   : env('ASURAA_HYGRAPH_BUILD_ENDPOINT') || ASURAA_BUILD_ENDPOINT);
 
+/** The read-only Permanent Auth Token for the Team Asuraa project (ASURAA_HYGRAPH_TOKEN). Build only: it is never
+ * read in the browser, and it has no VITE_ prefix, so Vite never puts it in the bundle. Needed once the project's
+ * public (unauthenticated) read access is switched off to disconnect asuraa.in. Without it, requests go out
+ * unauthenticated, which works while public read access is still on. */
+export const asuraaToken = () => (inBrowser() ? '' : env('ASURAA_HYGRAPH_TOKEN'));
+
 /** Categories that are not moved to nm7.si: the regional-language guides (nm7.si is English-only for now) and the
  * About Asuraa posts, which describe asuraa.in and must be rewritten for nm7.si by hand. */
 export const EXCLUDED_CATEGORIES = new Set(['Telugu Guides', 'Hindi Guides', 'Tamil Guides', 'About Asuraa']);
@@ -122,10 +128,10 @@ export function rebrandOutsideLinks(md) {
 const keep = (p) => p?.slug && !EXCLUDED_CATEGORIES.has(String(p.category || '').trim());
 
 /** Every published post that moves to nm7.si, normalized. `gql` is hygraph.js's request function. */
-export async function fetchAsuraaPosts(gql, { endpoint = asuraaEndpoint(), fetchImpl, cacheBust } = {}) {
+export async function fetchAsuraaPosts(gql, { endpoint = asuraaEndpoint(), fetchImpl, cacheBust, token = asuraaToken() } = {}) {
   const posts = [];
   for (let skip = 0; ; skip += 100) {
-    const d = await gql(ASURAA_POSTS_QUERY, { first: 100, skip }, { endpoint, fetchImpl, cacheBust });
+    const d = await gql(ASURAA_POSTS_QUERY, { first: 100, skip }, { endpoint, fetchImpl, cacheBust, token });
     if (!Array.isArray(d.blogPosts)) throw new Error('the asuraa answer has no `blogPosts` list');
     posts.push(...d.blogPosts.filter(keep).map(normalizeAsuraaPost));
     if (d.blogPosts.length < 100) break;
@@ -133,17 +139,17 @@ export async function fetchAsuraaPosts(gql, { endpoint = asuraaEndpoint(), fetch
   return posts;
 }
 
-export async function fetchAsuraaPost(gql, slug, { endpoint = asuraaEndpoint(), fetchImpl, cacheBust } = {}) {
-  const d = await gql(ASURAA_POST_QUERY, { slug }, { endpoint, fetchImpl, cacheBust });
+export async function fetchAsuraaPost(gql, slug, { endpoint = asuraaEndpoint(), fetchImpl, cacheBust, token = asuraaToken() } = {}) {
+  const d = await gql(ASURAA_POST_QUERY, { slug }, { endpoint, fetchImpl, cacheBust, token });
   return keep(d.blogPost) ? normalizeAsuraaPost(d.blogPost) : null;
 }
 
 const CATS_QUERY = 'query AsuraaCategories($first: Int!, $skip: Int!) { blogPosts(first: $first, skip: $skip) { slug category } }';
 /** The categories of the posts that move (a light query: no bodies). */
-export async function fetchAsuraaCategories(gql, { endpoint = asuraaEndpoint(), fetchImpl, cacheBust } = {}) {
+export async function fetchAsuraaCategories(gql, { endpoint = asuraaEndpoint(), fetchImpl, cacheBust, token = asuraaToken() } = {}) {
   const seen = new Map();
   for (let skip = 0; ; skip += 100) {
-    const d = await gql(CATS_QUERY, { first: 100, skip }, { endpoint, fetchImpl, cacheBust });
+    const d = await gql(CATS_QUERY, { first: 100, skip }, { endpoint, fetchImpl, cacheBust, token });
     if (!Array.isArray(d.blogPosts)) throw new Error('the asuraa answer has no `blogPosts` list');
     for (const p of d.blogPosts.filter(keep)) { const c = asuraaCategory(p.category); if (c && !seen.has(c.slug)) seen.set(c.slug, c); }
     if (d.blogPosts.length < 100) break;

@@ -46,14 +46,15 @@ export class HygraphError extends Error {
 // every 5 minutes (`cacheBust`): the server ignores comments, but the request body — and so the cache key — is new.
 export const cacheBustComment = (now = Date.now()) => `\n# nm7 cache key ${Math.floor(now / 300000)}`;
 
-export async function gql(query, variables, { endpoint = ENDPOINT, fetchImpl = fetch, timeout = 15000, cacheBust = false } = {}) {
+export async function gql(query, variables, { endpoint = ENDPOINT, fetchImpl = fetch, timeout = 15000, cacheBust = false, token = '' } = {}) {
   if (cacheBust) query += cacheBustComment();
   const ctl = typeof AbortController !== 'undefined' ? new AbortController() : null;
   const t = ctl && setTimeout(() => ctl.abort(), timeout);
   try {
     let res;
     try {
-      res = await fetchImpl(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query, variables }), signal: ctl?.signal });
+      const headers = { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) };
+      res = await fetchImpl(endpoint, { method: 'POST', headers, body: JSON.stringify({ query, variables }), signal: ctl?.signal });
     } catch (e) {
       throw new HygraphError(`network error: ${e.cause?.code || e.cause?.message || e.message}`);
     }
