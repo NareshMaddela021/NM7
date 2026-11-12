@@ -167,3 +167,14 @@ describe('vercel.json', () => {
     expect(v.rewrites.some((r) => r.destination === '/index.html' && /blog/.test(r.source))).toBe(false);
   });
 });
+
+describe('large blogs (the asuraa.in posts): post pages do not embed the whole list', async () => {
+  const { postData, EMBED_LIST_MAX } = await import('./prerender-blog.mjs');
+  const p = { slug: 'a' };
+  it('small blog: list + post; large blog: post only (the app reads /blog/data.json)', () => {
+    const small = { builtAt: 'b', posts: [p], categories: [] };
+    expect(postData(small, p)).toEqual({ ...small, post: p });
+    const big = { builtAt: 'b', posts: Array.from({ length: EMBED_LIST_MAX + 1 }, () => p), categories: [] };
+    expect(postData(big, p)).toEqual({ builtAt: 'b', post: p });
+  });
+});
