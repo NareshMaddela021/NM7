@@ -87,6 +87,12 @@ export function sitemap(posts, categories) {
   ].join('\n');
 }
 
+/** What a post page carries for the app. With a small blog, the whole list too (no extra request); with a large one
+ * (the asuraa.in posts) only the post itself — the list would add hundreds of KB to every page — and the app reads
+ * the list from /blog/data.json when it needs it. */
+export const EMBED_LIST_MAX = 60;
+export const postData = (data, p) => (data.posts.length > EMBED_LIST_MAX ? { builtAt: data.builtAt, post: p } : { ...data, post: p });
+
 const write = (file, text) => { mkdirSync(join(file, '..'), { recursive: true }); writeFileSync(file, text); };
 const SLUG = /^[a-z0-9][a-z0-9-]*$/i; // only safe folder names
 
@@ -122,7 +128,7 @@ export async function prerenderBlog({ dist, endpoint = buildEndpoint(), fetchImp
     }
     for (const p of posts) {
       const related = relatedPosts(p, posts);
-      write(join(dist, 'blog', p.slug, 'index.html'), page(template, postMeta(p), postBody(p, related), { jsonLd: postJsonLd(p), data: { ...data, post: p } }));
+      write(join(dist, 'blog', p.slug, 'index.html'), page(template, postMeta(p), postBody(p, related), { jsonLd: postJsonLd(p), data: postData(data, p) }));
       write(join(dist, 'blog', p.slug, 'post.json'), JSON.stringify(p));
     }
   }

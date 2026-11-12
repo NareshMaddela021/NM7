@@ -7,6 +7,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { CATEGORIES_QUERY, DEFAULT_ENDPOINT, POSTS_QUERY, POST_QUERY, buildEndpoint, gql } from '../src/lib/blog/hygraph.js';
 import { prerenderBlog } from './prerender-blog.mjs';
+import { ASURAA_BUILD_ENDPOINT, ASURAA_ENDPOINT, ASURAA_POSTS_QUERY, ASURAA_POST_QUERY } from '../src/lib/blog/asuraa.js';
 
 const BUILD = buildEndpoint();
 const CDN = process.env.VITE_HYGRAPH_ENDPOINT || DEFAULT_ENDPOINT;
@@ -53,4 +54,16 @@ describe.skipIf(!process.env.HYGRAPH_CONTRACT)('Hygraph contract (live endpoints
       expect(readFileSync(join(dist, 'blog', slug, 'index.html'), 'utf8')).toContain(`<link rel="canonical" href="https://nm7.si/blog/${slug}" />`);
     }
   }, 60_000);
+});
+
+// The asuraa.in blog (Team Asuraa project) that nm7.si can include (VITE_BLOG_INCLUDE_ASURAA=1): its queries must stay
+// valid against that project's live schema, on both endpoints.
+describe.skipIf(!process.env.HYGRAPH_CONTRACT)('Hygraph contract: the asuraa.in blog source', () => {
+  it('the asuraa queries are valid and the posts carry a Markdown body', async (ctx) => {
+    const d = await live(ctx, () => gql(ASURAA_POSTS_QUERY, { first: 5, skip: 0 }, { endpoint: ASURAA_BUILD_ENDPOINT }));
+    expect(d.blogPosts.length).toBeGreaterThan(0);
+    for (const p of d.blogPosts) expect(typeof p.body).toBe('string');
+    expect((await gql(ASURAA_POST_QUERY, { slug: 'no-such-post-contract-test' }, { endpoint: ASURAA_BUILD_ENDPOINT })).blogPost).toBeNull();
+    await gql(ASURAA_POSTS_QUERY, { first: 1, skip: 0 }, { endpoint: ASURAA_ENDPOINT });
+  });
 });

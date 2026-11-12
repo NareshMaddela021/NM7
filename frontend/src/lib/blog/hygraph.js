@@ -3,6 +3,7 @@
 // Rich text is read as `content { raw }` (Hygraph's AST; there is no `json` field) and rendered by ./richtext.js —
 // never from the `html` field, so nothing typed into a post reaches the page as HTML.
 import { readingTime } from './richtext.js';
+import { asuraaEnabled, fetchAsuraaCategories, fetchAsuraaPost, fetchAsuraaPosts } from './asuraa.js';
 
 // Browser: Hygraph's CDN (fast, cached). Build: the uncached Content API, so a build started by the publish webhook
 // sees the post that was just published (the CDN can keep serving its cached answer for the same query for a while).
@@ -87,12 +88,12 @@ export function normalizePost(p) {
   };
 }
 /** What lists need (no body). */
-export const summary = ({ content, ...rest }) => rest; // eslint-disable-line no-unused-vars
+export const summary = ({ content, faq, ...rest }) => rest; // eslint-disable-line no-unused-vars
 
 const newestFirst = (a, b) => String(b.publishedAt || '').localeCompare(String(a.publishedAt || ''));
 
-/** Every published post, newest first (all pages of 100). */
-export async function fetchPosts(opts = {}) {
+/** Every published post of the nm7-blog project, newest first (all pages of 100). */
+export async function fetchNm7Posts(opts = {}) {
   const posts = [];
   for (let skip = 0; ; skip += 100) {
     const d = await gql(POSTS_QUERY, { first: 100, skip }, opts);
@@ -102,10 +103,31 @@ export async function fetchPosts(opts = {}) {
   }
   return posts.sort(newestFirst);
 }
+
+// The asuraa.in blog (./asuraa.js) is added only when VITE_BLOG_INCLUDE_ASURAA=1. Its own endpoint is used (never
+// opts.endpoint, which is nm7-blog's). If it fails, nm7-blog's posts still come through and a warning is logged.
+const asuraaOpts = (opts) => ({ fetchImpl: opts.fetchImpl, cacheBust: opts.cacheBust });
+async function withAsuraa(own, extra, what, opts) {
+  if (!(opts.includeAsuraa ?? asuraaEnabled())) return own;
+  try { return [...own, ...(await extra())]; } catch (e) {
+    (opts.log || console).warn?.(`[blog] WARNING: the asuraa.in ${what} could not be read (${e.message}); showing nm7-blog only.`);
+    return own;
+  }
+}
+const uniqueBySlug = (list) => [...new Map(list.slice().reverse().map((x) => [x.slug, x])).values()].reverse(); // first wins
+
+/** Every published post, newest first: nm7-blog, plus the asuraa.in blog when it is switched on (nm7-blog wins a
+ * slug both have). */
+export async function fetchPosts(opts = {}) {
+  const own = await fetchNm7Posts(opts);
+  const all = await withAsuraa(own, () => fetchAsuraaPosts(gql, asuraaOpts(opts)), 'posts', opts);
+  return uniqueBySlug(all).sort(newestFirst);
+}
 export async function fetchCategories(opts = {}) {
   const d = await gql(CATEGORIES_QUERY, {}, opts);
   if (!Array.isArray(d.categories)) throw new HygraphError('the answer has no `categories` list');
-  return d.categories.filter((c) => c?.slug);
+  const own = d.categories.filter((c) => c?.slug);
+  return uniqueBySlug(await withAsuraa(own, () => fetchAsuraaCategories(gql, asuraaOpts(opts)), 'categories', opts));
 }
 /** Every published post (newest first) and every category. */
 export async function fetchBlog(opts = {}) {
@@ -115,7 +137,9 @@ export async function fetchBlog(opts = {}) {
 
 export async function fetchPost(slug, opts = {}) {
   const d = await gql(POST_QUERY, { slug }, opts);
-  return d.post ? normalizePost(d.post) : null;
+  if (d.post) return normalizePost(d.post);
+  if (!(opts.includeAsuraa ?? asuraaEnabled())) return null;
+  return fetchAsuraaPost(gql, slug, asuraaOpts(opts));
 }
 
 /** Up to `n` other posts from the same category, newest first. */

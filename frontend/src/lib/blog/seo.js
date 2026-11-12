@@ -56,6 +56,11 @@ export function postJsonLd(p) {
       ...(p.category ? { articleSection: p.category.name } : {}),
     },
     crumbs([['Home', `${ORIGIN}/`], ['Blog', `${ORIGIN}/blog`], ...(p.category ? [[p.category.name, categoryUrl(p.category.slug)]] : []), [p.title, m.canonical]]),
+    ...(p.faq?.length ? [{
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: p.faq.map((q) => ({ '@type': 'Question', name: q.question, acceptedAnswer: { '@type': 'Answer', text: q.answer } })),
+    }] : []),
   ];
 }
 export const listJsonLd = () => [crumbs([['Home', `${ORIGIN}/`], ['Blog', `${ORIGIN}/blog`]])];
