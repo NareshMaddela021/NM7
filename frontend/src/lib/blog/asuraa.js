@@ -34,9 +34,10 @@ export const asuraaEndpoint = () => (inBrowser()
  * unauthenticated, which works while public read access is still on. */
 export const asuraaToken = () => (inBrowser() ? '' : env('ASURAA_HYGRAPH_TOKEN'));
 
-/** Categories that are not moved to nm7.si: the regional-language guides (nm7.si is English-only for now) and the
- * About Asuraa posts, which describe asuraa.in and must be rewritten for nm7.si by hand. */
-export const EXCLUDED_CATEGORIES = new Set(['Telugu Guides', 'Hindi Guides', 'Tamil Guides', 'About Asuraa']);
+/** Categories that are not moved to nm7.si: the About Asuraa posts, which describe asuraa.in and must be rewritten
+ * for nm7.si by hand (asuraa.in redirects them to the nm7.si home page). The Telugu, Hindi and Tamil guides do move,
+ * so every other asuraa.in/blog URL has its twin on nm7.si for the 301 redirect. */
+export const EXCLUDED_CATEGORIES = new Set(['About Asuraa']);
 
 const FIELDS = 'id title slug excerpt seoTitle metaDescription category body faq publishedAt updatedAt createdAt';
 export const ASURAA_POSTS_QUERY = `query AsuraaPosts($first: Int!, $skip: Int!) {
