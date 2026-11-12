@@ -99,6 +99,7 @@ from app.payments.router import router as payments_router
 from app.photos.router import router as photos_router
 from app.profile.router import router as profile_router
 from app.projects.router import router as projects_router
+from app.seek import paths as seek_paths
 from app.seek import roles as seek_roles
 from app.simple import demo as simple_demo
 from app.simple import guided as simple_guided
@@ -274,6 +275,9 @@ def create_app() -> FastAPI:
     app.include_router(hire_speed.admin)  # /api/admin/hire/supply (supply map, H9)
     app.include_router(hire_demo.router)  # /api/admin/demo-company/hire/open (the Phase 5 demo)
     app.include_router(seek_roles.router)  # /api/me/roles (role finder, Phase 6 S1)
+    app.include_router(seek_paths.me)  # /api/me/learn (learning paths with proof, Phase 6 S2)
+    app.include_router(seek_paths.admin)  # /api/admin/learn-paths
+    app.include_router(seek_paths.public)  # /api/public/learn/stop-nudges
     app.include_router(hire_skillcheck.me)  # /api/me/skill-checks (10-minute tests, H3)
     app.include_router(hire_skillcheck.admin)  # /api/admin/skill-tests (the question bank, H3)
     app.include_router(simple_guided.router)  # /api/me/simple/resume (resume by talking, E4)

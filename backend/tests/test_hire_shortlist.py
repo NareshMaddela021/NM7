@@ -72,8 +72,16 @@ async def test_verified_only_and_ranking_and_privacy(client, outbox, db, make_cl
     assert top["match"]["score"] > out["items"][1]["match"]["score"] and "SQL" in top["match"]["found"]
     assert top["salary"]["fit"] == "within" and top["availability"]["joinDate"] == "2026-12-01"
     assert top["reliability"]["label"] == "New - no history yet" and top["skillCheck"] is None
+    assert top["verified"] == []
     blob = str(out)
     assert "@example.com" not in blob and "phone" not in blob  # never contact details on the shortlist
+    # Phase 6 S2: a "Skill verified" badge (check passed + project sent) shows, with its date
+    asha = await db[USERS].find_one({"email": "asha@example.com"})
+    await db[USERS].update_one(
+        {"_id": asha["_id"]}, {"$set": {"verified_skills": [{"skill": "SQL", "role": "data-analyst", "at": now()}]}}
+    )
+    out = (await client.get(f"/api/company/{cid}/hire/shortlist", params={"job": job}, headers=H(session))).json()
+    assert out["items"][0]["verified"][0]["skill"] == "SQL" and out["items"][0]["verified"][0]["at"]
     # stale (7 days without Still ready) drops out
     asha = await db[USERS].find_one({"email": "asha@example.com"})
     await db[HIRE_PROFILES].update_one({"_id": asha["_id"]}, {"$set": {"confirmed_at": now() - timedelta(days=8)}})

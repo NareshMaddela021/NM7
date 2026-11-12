@@ -2127,3 +2127,29 @@ Free for students and job seekers unless Admin gates a feature. Each part below 
   - your first role becomes your target role, if you haven't set one;
   - the three roles appear first in Auto Apply's role suggestions;
   - they are removed when you delete your account.
+
+### S2. Learning paths with proof
+
+- **Where:** `/me/learn` (Dashboard → Learning paths), or the **Start learning path** button on each role in the role finder. A path opens at `/me/learn?role=<id>`. Paths from the role finder are listed first.
+- **The three steps of a path:**
+  1. **Free courses, in order.** Each skill in the path brings up to 2 free, active courses from Admin → Courses. Ticking "I finished this" only moves the progress bar. It never adds a skill to the resume.
+  2. **A small guided project.** It has a brief, the steps, and what to send (a link or a short text). Projects are free to do and are never paid work for anyone. The admin form refuses a project that mentions a fee, a deposit or buying something.
+  3. **The role's official skill check** (H3).
+- **"Skill verified: <skill>" needs both:**
+  - the official check passed: the best finished attempt that wasn't late, at or above Admin → Settings `seek.pass_score` (60%);
+  - the project sent.
+
+  Practice tests never count toward the badge. The badge is stored with its date. Companies see it in Hire now cards ("✓ Skill verified: SQL (12 Nov)") and on the public resume link.
+- **Weekly nudge:** at most 1 email a week for a path that is started, unfinished, and untouched for 7 days. The email has a "Stop these emails" link (`/stop-alerts#k=learn`). Demo users and bounced emails are skipped.
+- **Admin → Learning paths:** there is one path per role in the role catalogue. For each path you can edit:
+  - the skills, in order;
+  - the project: title, brief, steps, and link or text;
+  - the skill check (only tests with questions can be chosen);
+  - whether students see the path.
+
+  20 starting projects are in `backend/app/seek/projects.py`. They are added once and never overwrite your edits.
+- **More free sources (added once to existing course lists too, editable in Admin → Courses):**
+  - TypingClub (typing)
+  - Cisco Networking Academy (networking)
+  - Skill India Digital Hub (Government of India) for trade skills such as electrical wiring, retail, warehouse, delivery, Tally and first aid. The course title says what to search for there.
+- **Account deletion** removes the progress and the badges.

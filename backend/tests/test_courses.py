@@ -2,7 +2,7 @@
 official sources, no tracking / affiliate links, Owner-only admin."""
 
 from app.core.db import AUDIT_LOG, COURSES
-from app.courses.seed import SEED
+from app.courses.seed import SEED, SEED_2
 from tests.conftest import signup
 
 
@@ -17,9 +17,9 @@ async def test_seeded_once_and_free_courses_per_skill(client, outbox, db):
     assert [c["provider"] for c in by["SQL"]] == ["Kaggle Learn", "freeCodeCamp"]
     assert by["Underwater basket weaving"] == []
     assert [c["provider"] for c in d["catalogues"]] == ["NPTEL", "SWAYAM"]
-    assert await db[COURSES].count_documents({}) == len(SEED)
+    assert await db[COURSES].count_documents({}) == len(SEED) + len(SEED_2)
     await client.get("/api/me/courses?skills=Python")
-    assert await db[COURSES].count_documents({}) == len(SEED)  # not seeded twice
+    assert await db[COURSES].count_documents({}) == len(SEED) + len(SEED_2)  # not seeded twice
     assert all(row[3].startswith("https://") and "utm_" not in row[3] for row in SEED)
 
 
@@ -30,7 +30,7 @@ async def test_needs_sign_in(client):
 async def test_admin_edits_the_list_and_paid_or_paused_courses_never_show(client, outbox, admin_client, db):
     owner = await admin_client("owner")
     rows = (await owner.get("/api/admin/courses")).json()
-    assert len(rows) == len(SEED)
+    assert len(rows) == len(SEED) + len(SEED_2)
     body = {
         "skill": "figma",
         "title": "Figma for beginners",

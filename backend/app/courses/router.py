@@ -27,7 +27,7 @@ from app.core.db import COURSES, DB, LOCKS
 from app.core.errors import ApiError
 from app.core.schemas import CamelModel
 from app.core.time import now
-from app.courses.seed import CATALOGUES, SEED
+from app.courses.seed import CATALOGUES, SEED, SEED_2
 from app.jobsearch import skills
 
 me = APIRouter(prefix="/api/me/courses", tags=["courses"])
@@ -42,9 +42,15 @@ def skill_name(s: str) -> str:
 
 
 async def ensure_seed(db: AsyncDatabase) -> None:
-    """The first list, once (an admin may delete every course afterwards: it is not seeded again)."""
+    """The first list, once (an admin may delete every course afterwards: it is not seeded again); then each later
+    batch once (Phase 6 S2's free sources for the learning paths)."""
+    await _seed_once(db, "courses-seeded", SEED)
+    await _seed_once(db, "courses-seeded-2", SEED_2)
+
+
+async def _seed_once(db: AsyncDatabase, lock: str, rows: list[tuple]) -> None:
     try:
-        await db[LOCKS].insert_one({"_id": "courses-seeded", "at": now()})
+        await db[LOCKS].insert_one({"_id": lock, "at": now()})
     except DuplicateKeyError:
         return
     t = now()
@@ -63,7 +69,7 @@ async def ensure_seed(db: AsyncDatabase) -> None:
                 "created_at": t,
                 "updated_at": t,
             }
-            for s, ti, p, u, lang, h in SEED
+            for s, ti, p, u, lang, h in rows
         ]
     )
 

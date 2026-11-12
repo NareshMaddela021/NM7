@@ -41,6 +41,7 @@ from app.core.db import (
     JOB_MATCHES,
     JOB_PROFILES,
     JOB_REPORTS,
+    LEARN_PROGRESS,
     LINKEDIN,
     LINKEDIN_PACKS,
     MEMBERSHIPS,
@@ -102,6 +103,7 @@ async def erase_user_data(db: AsyncDatabase, user_id: str) -> dict[str, int]:
     out["hire_offers"] = await gone(HIRE_OFFERS, mine)  # offers made to them (Phase 5)
     out["hire_events"] = await gone(HIRE_EVENTS, mine)  # reliability events (Phase 5)
     out["skill_checks"] = await gone(SKILL_ATTEMPTS, mine)  # skill check results and spoken text (Phase 5)
+    out["learning_paths"] = await gone(LEARN_PROGRESS, mine)  # Phase 6 S2: courses ticked, projects sent
     out["certificates"] = await gone(CERTIFICATES, mine)
     out["offers"] = await gone(OFFERS, mine)
     out["alumni"] = await gone(ALUMNI, mine)
@@ -189,6 +191,9 @@ async def erase_account(db: AsyncDatabase, user_id: str) -> dict[str, int]:
                 "job_alert_ran_at": "",
                 "job_alert_sent_day": "",
                 "role_finder": "",
+                "verified_skills": "",
+                "learn_nudges_off": "",
+                "learn_nudged_at": "",
             },
         },
     )
