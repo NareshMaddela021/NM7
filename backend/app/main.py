@@ -57,6 +57,7 @@ from app.hire import available as hire_available
 from app.hire import reliability as hire_reliability
 from app.hire import shortlist as hire_shortlist
 from app.hire import skillcheck as hire_skillcheck
+from app.hire import slots as hire_slots
 from app.jobs import admin as jobs_admin
 from app.jobs import alerts as jobs_alerts
 from app.jobs import apply as jobs_apply
@@ -256,6 +257,8 @@ def create_app() -> FastAPI:
     app.include_router(hire_shortlist.company)  # /api/company/{id}/hire/… (instant shortlist + invites, H2)
     app.include_router(hire_shortlist.me)  # /api/me/hire/invites (the candidate answers, H2)
     app.include_router(hire_reliability.router)  # /api/me/hire/reliability (H4)
+    app.include_router(hire_slots.company)  # /api/company/{id}/hire/slots (interview times, H5)
+    app.include_router(hire_slots.me)  # /api/me/hire/slots (book, move, cancel, H5)
     app.include_router(hire_skillcheck.me)  # /api/me/skill-checks (10-minute tests, H3)
     app.include_router(hire_skillcheck.admin)  # /api/admin/skill-tests (the question bank, H3)
     app.include_router(simple_guided.router)  # /api/me/simple/resume (resume by talking, E4)

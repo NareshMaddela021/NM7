@@ -5,7 +5,7 @@
 // companies (H2) show at the top: Accept, or Not interested with a reason.
 import { useEffect, useState } from 'react';
 import { useToast } from '../../components/ui';
-import { http } from '../../services/http';
+import { API_BASE, http } from '../../services/http';
 import { MeHead } from './MeLayout';
 
 const TYPES = [['full_time', 'Full-time'], ['internship', 'Internship'], ['part_time', 'Part-time'], ['contract', 'Contract']];
@@ -51,6 +51,7 @@ export default function MeHire() {
     <>
       <MeHead title="Ready to join" sub="Tell companies hiring now that you can start, and they can invite you to an interview." />
       <Invites />
+      <Slots />
       <section className="card stack g12" aria-labelledby="hire-status-h" data-testid="hire-status">
         <div className="row between g8"><strong id="hire-status-h">Status</strong><span className={`badge ${tone}`} data-testid="hire-badge">{s.available ? 'Visible' : s.on ? (s.paused ? 'Paused' : 'Not visible') : 'Off'}</span></div>
         <p className="small" style={{ margin: 0 }} data-testid="hire-line">{hireLine(s)}</p>
@@ -148,6 +149,56 @@ export function Invites() {
           </li>
         ))}
       </ul>
+    </section>
+  );
+}
+
+const at = (ms) => new Date(ms).toLocaleString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', timeZone: 'Asia/Kolkata' });
+
+/** Interview times (H5): for each job where I accepted an invite, the company's open times; one tap books, another
+ * time moves it (with a reason), Cancel needs a reason. A calendar file comes by email and can be downloaded here. */
+export function Slots() {
+  const toast = useToast();
+  const [list, setList] = useState(null);
+  const [why, setWhy] = useState({});
+  const [err, setErr] = useState('');
+  const load = () => http('/api/me/hire/slots').then(setList, () => setList([]));
+  useEffect(() => { load(); }, []);
+  if (!list || !list.length) return null;
+  const go = async (path, body, said) => {
+    setErr('');
+    try { await http(path, { method: 'POST', body }); toast(said); setWhy({}); await load(); } catch (e) { setErr(e.message); }
+  };
+  return (
+    <section className="card stack g12" aria-labelledby="hire-slots-h" data-testid="hire-slots">
+      <strong id="hire-slots-h">Pick your interview time</strong>
+      {err && <p className="error" role="alert" style={{ margin: 0 }}>{err}</p>}
+      {list.map((j) => (
+        <div key={j.jobId} className="card-sm stack g8" data-testid="hire-slot-job">
+          <strong className="small">{j.role} · {j.company}</strong>
+          {j.mine && (
+            <div className="stack g4" data-testid="hire-slot-mine">
+              <span className="small">Booked: <strong>{at(j.mine.at)}</strong> ({j.mine.minutes} min){j.mine.place ? ` · ${j.mine.place}` : ''}{j.mine.link ? ' · online' : ''}</span>
+              {j.mine.link && <a className="small" href={j.mine.link} target="_blank" rel="noopener noreferrer">Join link</a>}
+              <span className="row g8" style={{ flexWrap: 'wrap' }}>
+                <a className="btn btn-ghost btn-sm" href={`${API_BASE}/api/me/hire/slots/${j.mine.id}/ics`} download="interview.ics">Calendar file</a>
+                {why[j.jobId] === undefined && <button type="button" className="btn btn-outline btn-sm" onClick={() => setWhy({ [j.jobId]: '' })} data-testid="hire-slot-change">Reschedule or cancel</button>}
+              </span>
+            </div>
+          )}
+          {why[j.jobId] !== undefined && (
+            <label className="field"><span className="label">Why? (the company sees this)</span><input className="input" maxLength={300} value={why[j.jobId]} onChange={(e) => setWhy({ [j.jobId]: e.target.value })} data-testid="hire-slot-reason" /></label>
+          )}
+          {(!j.mine || why[j.jobId] !== undefined) && (
+            <div className="row g8" style={{ flexWrap: 'wrap' }}>
+              {j.open.length === 0 && <span className="small muted">No open times yet. You will see them here.</span>}
+              {j.open.map((s) => <button key={s.id} type="button" className="btn btn-outline btn-sm" onClick={() => go(`/api/me/hire/slots/${s.id}/book`, { reason: why[j.jobId] || '' }, j.mine ? 'Moved: both of you got the new time' : 'Booked: the calendar file is in your email')} data-testid="hire-slot-pick">{at(s.at)}</button>)}
+              {j.mine && <button type="button" className="btn btn-ghost btn-sm" onClick={() => go(`/api/me/hire/slots/${j.mine.id}/cancel`, { reason: why[j.jobId] || '' }, 'Cancelled: the company was told')} data-testid="hire-slot-cancel">Cancel the interview</button>}
+            </div>
+          )}
+        </div>
+      ))}
+      <span className="xs muted">Reminders come 1 day and 1 hour before. Times are India time (IST).</span>
     </section>
   );
 }
