@@ -28,6 +28,8 @@ for (const [label, opts] of SIZES) {
       await page.getByTestId('hire-save').click();
       await expect(page.getByTestId('hire-badge')).toHaveText('Visible');
       await expect(page.getByTestId('hire-line')).toContainText('Visible to companies hiring now until');
+      // H4: a new candidate has no history, and is told so in plain words
+      await expect(page.getByTestId('hire-rel-label')).toHaveText('New - no history yet');
       expect(await noSideScroll(page)).toBe(true);
       const saved = (await call(page, '/api/me/hire')).body;
       expect(saved.cities).toEqual(['Hyderabad', 'Pune']);

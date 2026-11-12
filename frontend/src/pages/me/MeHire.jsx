@@ -87,6 +87,7 @@ export default function MeHire() {
           {s.on && <button type="button" className="btn btn-outline" disabled={busy} onClick={() => save(false)} data-testid="hire-off">Turn off</button>}
         </div>
       </form>
+      <Reliability />
       {s.on && (
         <label className="row g8 small card-sm">
           <input type="checkbox" value="emails" checked={s.emails} onChange={(e) => run(() => http('/api/me/hire/emails', { method: 'PUT', body: { on: e.target.checked } }))} data-testid="hire-emails" />
@@ -147,6 +148,22 @@ export function Invites() {
           </li>
         ))}
       </ul>
+    </section>
+  );
+}
+
+/** My reliability (H4): from real events only (invite replies, interviews, offers); new people show "New - no history
+ * yet" and are never ranked lower. */
+export function Reliability() {
+  const [r, setR] = useState(null);
+  useEffect(() => { http('/api/me/hire/reliability').then(setR, () => {}); }, []);
+  if (!r) return null;
+  return (
+    <section className="card stack g8" aria-labelledby="hire-rel-h" data-testid="hire-reliability">
+      <div className="row between g8" style={{ flexWrap: 'wrap' }}><strong id="hire-rel-h">Your reliability</strong><span className="badge b-neutral" data-testid="hire-rel-label">{r.score == null ? r.label : `${r.label} · ${r.score}%`}</span></div>
+      {r.lines.length > 0 && <ul className="small" style={{ margin: 0, paddingLeft: 18 }}>{r.lines.map((l) => <li key={l}>{l}</li>)}</ul>}
+      <span className="small">How to keep it high: {r.tips.join(' ')}</span>
+      <span className="xs muted">Companies hiring now see this label and these lines, never which company marked what.</span>
     </section>
   );
 }

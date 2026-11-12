@@ -54,6 +54,7 @@ from app.downloads.router import router as downloads_router
 from app.experts.router import router as expert_router
 from app.health import service as resume_health
 from app.hire import available as hire_available
+from app.hire import reliability as hire_reliability
 from app.hire import shortlist as hire_shortlist
 from app.hire import skillcheck as hire_skillcheck
 from app.jobs import admin as jobs_admin
@@ -254,6 +255,7 @@ def create_app() -> FastAPI:
     app.include_router(hire_available.public)  # /api/public/hire/still-ready (the email's one tap)
     app.include_router(hire_shortlist.company)  # /api/company/{id}/hire/… (instant shortlist + invites, H2)
     app.include_router(hire_shortlist.me)  # /api/me/hire/invites (the candidate answers, H2)
+    app.include_router(hire_reliability.router)  # /api/me/hire/reliability (H4)
     app.include_router(hire_skillcheck.me)  # /api/me/skill-checks (10-minute tests, H3)
     app.include_router(hire_skillcheck.admin)  # /api/admin/skill-tests (the question bank, H3)
     app.include_router(simple_guided.router)  # /api/me/simple/resume (resume by talking, E4)

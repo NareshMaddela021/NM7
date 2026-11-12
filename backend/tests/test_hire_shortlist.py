@@ -179,6 +179,7 @@ async def test_admin_settings_and_company_grant(client, outbox, db, admin_client
     owner = await admin_client()
     s = (await owner.get("/api/admin/settings")).json()["hire"]
     assert s == {"on": True, "confirmDays": 7, "freeShortlists": 20, "shortlistsPerHour": 20, "invitesPerDay": 60,
+                 "replyHours": 24,
                  "open": {"instant": True, "tests": True, "bulk": True}}  # fmt: skip
     r = await owner.put(
         "/api/admin/settings", json={"hire": {"on": True, "freeShortlists": 5, "open": {"instant": False}}}

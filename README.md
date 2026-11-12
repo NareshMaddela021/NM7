@@ -1944,3 +1944,19 @@ minutes" switches it on or off (on by default) and sets the limits.
   `POST /api/me/skill-checks/{id}/submit {answers, tabSwitches, spoken}`, `PUT /api/me/skill-checks/{id}/share`,
   `GET/POST /api/admin/skill-tests`, `PUT /api/admin/skill-tests/{id}`.
 - Tests: `backend/tests/test_hire_skillcheck.py`, `frontend/e2e-live/hire-skillcheck.spec.mjs` (desktop + 390 px).
+
+### H4. Reliability (from real events only)
+
+- Counted: invite replies (answered within 24 hours, Admin → Settings "quick reply"; answered later; not answered
+  before it expired), interviews (Attended / No-show, marked by the company in H5) and accepted offers (Joined /
+  dropped out, H6). Saying "Not interested" or declining an offer is fine: replying is what counts.
+- Score = good points ÷ all points (quick reply 1, late reply 0.5, no reply −1, attended 2, no-show −3, joined 3,
+  dropped −3). 85%+ "Very reliable", 65%+ "Reliable", else "Mixed record". Shown with plain lines such as
+  "Replied to 3 of 4 invites within 24 hours" or "Came to 2 of 2 interviews".
+- Nobody with no events gets a score: they show **"New - no history yet"** and are never ranked lower (reliability
+  is shown, not used to rank).
+- The candidate sees their own score and how to improve it on `/me/hire`. Companies see the label, the score and the
+  lines on the shortlist, never which company marked a no-show. A corrected mark is taken back. Deleting the account
+  removes the events.
+- API: `GET /api/me/hire/reliability`. Tests: `backend/tests/test_hire_reliability.py`; the e2e checks are in
+  `hire-ready.spec.mjs` and `hire-shortlist.spec.mjs`.

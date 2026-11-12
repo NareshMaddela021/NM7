@@ -46,6 +46,7 @@ from app.core.errors import ApiError
 from app.core.schemas import CamelModel
 from app.core.time import IST, now
 from app.hire.available import JOB_TYPES, available, wants_email
+from app.hire.reliability import reliability_for
 from app.hire.skillcheck import best_for, shared_results
 from app.jobs import fit as fitmod
 from app.jobs.apply import FOLLOW_AFTER, app_key, job_page, status_change
@@ -171,6 +172,7 @@ async def candidates(db, c: dict[str, Any], job: dict[str, Any], t: datetime | N
     }
     tests_on = await gate(db, c, "tests")  # skill check results: a paid company feature (open by default)
     results = await shared_results(db, uids) if tests_on else {}
+    reliable = await reliability_for(db, uids, t)
     wanted = fitmod.job_skills(job)
     rows = []
     for p in profiles:
@@ -204,7 +206,7 @@ async def candidates(db, c: dict[str, Any], job: dict[str, Any], t: datetime | N
                 },
                 "salary": salary_fit(p.get("salary"), job.get("salary")),
                 "skillCheck": best_for(results.get(p["_id"], []), wanted),  # shared by the candidate (H3)
-                "reliability": {"label": "New - no history yet", "score": None},  # H4
+                "reliability": {k: v for k, v in reliable[p["_id"]].items() if k != "tips"},  # H4, real events only
                 "applied": p["_id"] in applied,
                 "invite": invite_state(inv, t) if inv else None,
             }
