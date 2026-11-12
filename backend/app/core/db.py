@@ -124,6 +124,8 @@ HIRE_SLOTS = "hire_slots"  # Phase 5 H5: interview times a company offers; the c
 HIRE_EVENTS = "hire_events"  # Phase 5 H4: real events behind the reliability score (attended, no-show, joined …)
 SKILL_QUESTIONS = "skill_questions"  # Phase 5 H3: the skill check question bank (Admin → Skill tests)
 SKILL_ATTEMPTS = "skill_attempts"  # Phase 5 H3: one skill check taken (questions, marks, tab switches, spoken text)
+LEARN_PATHS = "learn_paths"  # Phase 6 S2, _id = role id: courses → project → skill check (Admin → Learning paths)
+LEARN_PROGRESS = "learn_progress"  # Phase 6 S2, _id = user:role: courses ticked, the project sent, verified at
 HIRE_PROFILES = "hire_profiles"  # Phase 5 H1, _id = user: "Ready to join" (join date, cities, salary), consent
 COLLECTIONS = (
     USERS,
@@ -212,6 +214,8 @@ COLLECTIONS = (
     HIRE_SLOTS,
     HIRE_OFFERS,
     HIRE_WALKINS,
+    LEARN_PATHS,
+    LEARN_PROGRESS,
 )
 
 DAY = 86_400
@@ -290,6 +294,7 @@ INDEXES: dict[str, list[IndexModel]] = {
     ],
     AUTO_COPIES: [IndexModel([("user_id", ASCENDING), ("job_id", ASCENDING)])],
     HIRE_PROFILES: [IndexModel([("on", ASCENDING), ("confirmed_at", DESCENDING)])],
+    LEARN_PROGRESS: [IndexModel([("user_id", ASCENDING), ("updated_at", DESCENDING)])],
     HIRE_WALKINS: [IndexModel([("company_id", ASCENDING), ("job_id", ASCENDING)], unique=True)],
     HIRE_OFFERS: [
         IndexModel([("company_id", ASCENDING), ("job_id", ASCENDING), ("created_at", DESCENDING)]),

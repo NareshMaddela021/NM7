@@ -29,6 +29,7 @@ from app.jobs.apply import followups as job_followups
 from app.me.delete import erase_due
 from app.me.student_pass import send_reminders as pass_reminders
 from app.orgs.interviews import send_reminders as interview_reminders
+from app.seek.paths import send_nudges as learn_nudges
 from app.site import get_site, save_site
 from app.wapay.service import cancel_stale
 
@@ -146,6 +147,7 @@ async def run_rules(db: AsyncDatabase, mailer: Mailer | None = None) -> dict[str
         done["hire_still_ready"] = await hire_reminders(db, mailer or get_mailer())  # a day before Ready to join ends
         done["hire_slot_reminders"] = await slot_reminders(db, mailer or get_mailer())  # 1 day and 1 hour before
         done["hire_joining_checkins"] = await offer_checkins(db, mailer or get_mailer())  # 7 days and 1 day before
+        done["learn_nudges"] = await learn_nudges(db, mailer or get_mailer())  # Phase 6 S2: ≤ 1 a week a person
         await save_site(db, {"rule_runs": runs})
         return done
     finally:

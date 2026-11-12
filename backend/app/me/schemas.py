@@ -231,6 +231,7 @@ class PublicResumeOut(CamelModel):
     data: dict[str, Any]
     updated: Ms
     can_download: bool = True  # the owner may download (so may anyone with the link)
+    verified: list[dict[str, Any]] = []  # Phase 6 S2: "Skill verified" badges (skill check passed + project sent)
 
 
 # ---------- profile ----------

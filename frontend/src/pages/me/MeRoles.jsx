@@ -1,6 +1,6 @@
 // Role finder (Phase 6, S1): ten simple questions → three roles that fit, each with plain reasons, what to learn, a
 // typical starting salary from Nm7's own job data (only with enough jobs; otherwise "Not enough data yet"), live jobs
-// and a link to the role's skill check (S2 adds the learning path). Rules decide the roles; AI only words the reasons (checked, with the rules' words
+// and a "Start learning path" button (S2) and the role's skill check. Rules decide the roles; AI only words the reasons (checked, with the rules' words
 // as fallback). Retake any time; answers are saved to the profile and feed Auto Apply's role suggestions.
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -53,6 +53,7 @@ function Role({ r, i }) {
         ) : <span className="xs muted">No live jobs for this role right now. Auto Apply can watch for them.</span>}
       </div>
       <div className="row g8" style={{ flexWrap: 'wrap' }}>
+        <Link className="btn btn-ink btn-sm" to={`/me/learn?role=${encodeURIComponent(r.id)}`} data-testid="rf-learn">Start learning path</Link>
         {r.test && <Link className="btn btn-outline btn-sm" to="/me/skill-checks">Skill check: {r.test}</Link>}
       </div>
     </li>

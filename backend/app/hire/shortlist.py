@@ -176,7 +176,8 @@ async def candidates(db, c: dict[str, Any], job: dict[str, Any], t: datetime | N
     users = {
         u["_id"]: u
         async for u in db[USERS].find(
-            {"_id": {"$in": uids}, "deleted_at": None, "disabled_at": None}, {"name": 1, "demo": 1}
+            {"_id": {"$in": uids}, "deleted_at": None, "disabled_at": None},
+            {"name": 1, "demo": 1, "verified_skills": 1},
         )
     }
     invites = {i["user_id"]: i async for i in db[HIRE_INVITES].find({"company_id": c["_id"], "job_id": job["_id"]})}
@@ -225,6 +226,7 @@ async def candidates(db, c: dict[str, Any], job: dict[str, Any], t: datetime | N
                     results.get(p["_id"], []), wanted, test_covers()
                 ),  # shared by the candidate (H3)
                 "reliability": {k: v for k, v in reliable[p["_id"]].items() if k != "tips"},  # H4, real events only
+                "verified": [{"skill": v["skill"], "at": ms(v["at"])} for v in u.get("verified_skills") or []],  # S2
                 "applied": p["_id"] in applied,
                 "invite": invite_state(inv, t) if inv else None,
             }

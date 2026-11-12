@@ -50,6 +50,12 @@ describe('http()', () => {
     expect(e.message).not.toMatch(/passwordConfirm|termsAccepted/);
   });
 
+  it('a check on the whole form shows its own message, not "the highlighted fields" (Phase 6 S2)', async () => {
+    fetchMock.mockResolvedValueOnce(json(422, { error: { code: 'invalid_input', message: 'Please check the highlighted fields.', fields: [{ field: '', message: 'Value error, A project must be free to do: no fee, deposit or purchase.' }] } }));
+    const e = await http('/api/admin/learn-paths/x', { method: 'PUT', body: {} }).catch((x) => x);
+    expect(e.message).toBe('A project must be free to do: no fee, deposit or purchase.');
+  });
+
   it('tells subscribers when a request has been slow for 3 s, and when it settled', async () => {
     _forgetAwake();
     let resolve;

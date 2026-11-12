@@ -1,3 +1,4 @@
+# ruff: noqa: E501
 """The first free-course list (Admin → Courses edits it afterwards). Only well-known free sources, official pages,
 no affiliate or sponsored links. Skills use the job-match dictionary's names so they line up with "missing" skills.
 Hours are left empty where the provider doesn't state them clearly (never guessed)."""
@@ -141,3 +142,17 @@ CATALOGUES = [
     ("NPTEL courses (IIT / IISc, free to learn)", "NPTEL", "https://nptel.ac.in/courses"),
     ("SWAYAM courses (Government of India, free)", "SWAYAM", "https://swayam.gov.in/"),
 ]
+
+# Phase 6 S2: free sources for the learning paths' non-IT skills, added once to existing lists too (Admin can edit or
+# remove them). Skill India Digital Hub (Government of India) lists free courses for many trades: the title says what
+# to search for there. Hours unknown: left empty.
+SKILL_INDIA = "https://www.skillindiadigital.gov.in/"
+SEED_2: list[tuple[str, str, str, str, str, float | None]] = [
+    ("Typing", "Typing lessons", "TypingClub", "https://www.typingclub.com/", "English", None),
+    ("Networking", "Networking courses (free self-paced)", "Cisco Networking Academy", "https://www.netacad.com/", "English", None),
+    *[
+        (s, f"Free courses on Skill India Digital Hub (search “{s}”)", "Skill India Digital Hub (Govt. of India)", SKILL_INDIA, "English", None)
+        for s in ("Electrical wiring", "Workplace safety", "Retail sales", "Customer service", "Inventory management",
+                  "Data entry", "Field sales", "Tally", "Last-mile delivery", "Communication skills", "First aid")
+    ],
+]  # fmt: skip

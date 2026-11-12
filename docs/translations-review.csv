@@ -806,6 +806,7 @@
 "co.hire.salary.below","/for-companies, /company","below your range","మీ పరిధికి కింద","आपकी सीमा से नीचे","needs native review"
 "co.hire.salary.unknown","/for-companies, /company","your job shows no range","మీ ఉద్యోగంలో పరిధి లేదు","आपकी नौकरी में सीमा नहीं दी है","needs native review"
 "co.hire.check","/for-companies, /company","Skill check {score}%","స్కిల్ చెక్ {score}%","स्किल चेक {score}%","needs native review"
+"co.hire.verified","/for-companies, /company","✓ Skill verified: {skill} ({date})","✓ నైపుణ్యం ధృవీకరించబడింది: {skill} ({date})","✓ स्किल सत्यापित: {skill} ({date})","needs native review"
 "co.hire.noCheck","/for-companies, /company","No skill check yet","ఇంకా స్కిల్ చెక్ లేదు","अभी स्किल चेक नहीं","needs native review"
 "co.hire.applied","/for-companies, /company","Applied already (see Applicants)","ఇప్పటికే దరఖాస్తు చేశారు (దరఖాస్తుదారులు చూడండి)","पहले ही आवेदन किया (आवेदक देखें)","needs native review"
 "co.hire.state.sent","/for-companies, /company","Invited: waiting","ఆహ్వానించారు: వేచి ఉంది","बुलाया: इंतज़ार","needs native review"

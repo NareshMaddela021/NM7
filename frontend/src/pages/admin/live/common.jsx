@@ -28,6 +28,7 @@ export const NAV = [
   ['settings', '/admin/settings', 'Settings & prices', '⚙'],
   ['settings', '/admin/codes', 'Codes', '%'],
   ['settings', '/admin/courses', 'Courses', '✎'],
+  ['settings', '/admin/learn-paths', 'Learning paths', '↗'],
   ['automation', '/admin/automation', 'Automation', '⚡'],
   ['team', '/admin/team', 'Team & audit log', '⚿'],
   ['organizations', '/admin/orgs', 'Organizations', '⌂'],

@@ -453,7 +453,10 @@ async def public_resume(slug: str, request: Request, auth: MaybeAuth, db: DB) ->
         )
     name = (data.get("personal") or {}).get("name") or ""
     can, _ = await account_entitlement(db, s["_id"])
-    return PublicResumeOut(name=name, data=data, updated=ms(r["updated_at"]), can_download=can)
+    from app.seek.paths import verified_of
+
+    badges = (await verified_of(db, [s["_id"]])).get(s["_id"], [])
+    return PublicResumeOut(name=name, data=data, updated=ms(r["updated_at"]), can_download=can, verified=badges)
 
 
 @public.post("/resumes/{slug}/export")

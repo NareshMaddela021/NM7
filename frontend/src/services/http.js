@@ -112,7 +112,9 @@ export async function http(path, { method = 'GET', body, signal, timeout = TIMEO
     if (!res.ok) {
       const e = data?.error;
       const fields = e?.fields?.map((f) => f.field).filter(Boolean);
-      const msg = e?.code === 'invalid_input' && fields?.length ? `Please check ${fields.map(label).join(', ')}.` : e?.message;
+      // a check on the whole form (no field name) says what is wrong in its own words (Phase 6 S2)
+      const whole = (e?.fields || []).filter((f) => !f.field && f.message).map((f) => String(f.message).replace(/^Value error, /, ''));
+      const msg = e?.code === 'invalid_input' && whole.length ? whole.join(' ') : e?.code === 'invalid_input' && fields?.length ? `Please check ${fields.map(label).join(', ')}.` : e?.message;
       const err = new ApiError(res.status, e?.code || 'error', msg || 'Something went wrong. Please try again.', e?.fields);
       if (Array.isArray(e?.photos)) err.photos = e.photos; // photo import: which photos look like ID cards
       throw err;

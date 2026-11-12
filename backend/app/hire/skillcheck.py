@@ -283,6 +283,9 @@ async def submit(aid: str, body: SubmitIn, auth: CustomerAuth, db: DB) -> dict[s
     if not done.modified_count:
         raise ApiError(409, "done", "This test is finished already.")
     await audit(db, uid, "hire.skill_check_done", data={"skill": a["skill"], "score": sets["score"], "late": late})
+    from app.seek.paths import on_skill_check  # Phase 6 S2: a passed check + a sent project = "Skill verified"
+
+    await on_skill_check(db, uid, a["skill"])
     return result_out({**a, **sets}, t)
 
 

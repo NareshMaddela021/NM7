@@ -51,6 +51,17 @@ async def main(cmd: str, *args: str) -> dict:
         (mail,) = args
         u = await db["users"].find_one({"email": mail})
         return {"token": still_token(u["_id"])}
+    if cmd == "skill-pass":  # Phase 6 S2: an official skill check finished with this score (the badge needs it)
+        from app.seek.paths import on_skill_check
+
+        mail, skill, score = args
+        u = await db["users"].find_one({"email": mail})
+        t = now()
+        doc = {"user_id": u["_id"], "skill": skill, "started_at": t, "ends_at": t, "submitted_at": t,
+               "score": int(score), "late": False, "total": 10}  # fmt: skip
+        await db["skill_attempts"].insert_one(doc)
+        await on_skill_check(db, u["_id"], skill)
+        return {"ok": True}
     if cmd == "company-verify":
         (cid,) = args
         await db["companies"].update_one(

@@ -64,6 +64,7 @@ SIMPLE = {
 
 SEEK = {  # Phase 6: job seekers
     "salary_min_jobs": 10,  # a salary range is shown only with at least this many real jobs (last 90 days)
+    "pass_score": 60,  # S2: the skill check score (%) that, with the project sent, gives "Skill verified"
 }
 
 HIRE = {
