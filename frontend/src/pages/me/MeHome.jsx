@@ -1,4 +1,5 @@
 // Dashboard home: one "do this next" card, summary tiles, the current resume, active order, recent activity.
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '../../components/ui';
 import { useMe, activeResume, orderView, openInBuilder, APP_STAGES } from '../../lib/customerStore';
@@ -15,6 +16,22 @@ import JobsForYouCard from './JobsForYouCard';
 import AutoSummaryCard from './AutoSummaryCard';
 import ReadinessCard from './ReadinessCard';
 import { HireCard } from './MeHire';
+import { http } from '../../services/http';
+
+/** Phase 6 S1: the role finder's top role, or an invitation to take it. */
+function RolesCard() {
+  const [d, setD] = useState(null);
+  useEffect(() => { http('/api/me/roles').then(setD, () => {}); }, []);
+  if (!d) return null;
+  const top = d.roles?.[0];
+  return (
+    <section className="card stack g8" style={{ flex: '1 1 300px' }} aria-label="Find my role" data-testid="roles-card">
+      <strong>Find my role</strong>
+      <span className="small">{top ? `Best fit for you: ${d.roles.map((r) => r.title).join(', ')}.` : 'Not sure which job fits you? Ten simple questions suggest three roles, what to learn for free, and live jobs.'}</span>
+      <Link className="btn btn-outline btn-sm" style={{ alignSelf: 'flex-start' }} to="/me/roles">{top ? 'See my roles' : 'Find my role'}</Link>
+    </section>
+  );
+}
 import PassOffer, { PassActive } from '../../components/PassOffer';
 import { useLang } from '../../lib/i18n';
 
@@ -93,7 +110,7 @@ export default function MeHome() {
 
       <div className="row g16" style={{ alignItems: 'stretch' }}><ReadinessCard /><JobsForYouCard /></div>
 
-      <div className="row g16" style={{ alignItems: 'stretch' }}><HireCard /></div>
+      <div className="row g16" style={{ alignItems: 'stretch' }}><HireCard /><RolesCard /></div>
 
       <ScoresExplained />
 

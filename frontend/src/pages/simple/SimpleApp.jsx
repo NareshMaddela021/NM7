@@ -31,6 +31,7 @@ const Apps = lazy(() => more().then((m) => ({ default: m.Apps })));
 const Practice = lazy(() => more().then((m) => ({ default: m.Practice })));
 const Fixes = lazy(() => more().then((m) => ({ default: m.Fixes })));
 const Hire = lazy(() => more().then((m) => ({ default: m.Hire })));
+const Roles = lazy(() => import('./SimpleRoles')); // Phase 6 S1: the role finder
 import '../../styles/simple.css';
 
 /** "Loading…", or while a sleeping server wakes up, a plain note that it can take up to a minute (re-test N6). */
@@ -55,7 +56,7 @@ export const READY_ICONS = { resume: '📝', score: '📈', linkedin: '🔗', in
 export const MORE = [
   ['resumes', '📄', '/me/resumes'], ['profile', '👤', '/me/profile'], ['ats', '📈', '/me/ats'], ['auto', '🤖', '/me/auto-apply'],
   ['covers', '✉️', '/me/covers'], ['certs', '🏅', '/me/certificates'], ['orders', '🧾', '/me/orders'], ['messages', '💬', '/me/messages'],
-  ['share', '🔗', '/me/share'], ['groups', '🏫', '/me/groups'], ['payments', '₹', '/me/payments'], ['settings', '⚙️', '/me/settings'], ['help', '❓', '/me/help'], ['hire', '⚡', '/me/simple/hire'],
+  ['share', '🔗', '/me/share'], ['groups', '🏫', '/me/groups'], ['payments', '₹', '/me/payments'], ['settings', '⚙️', '/me/settings'], ['help', '❓', '/me/help'], ['hire', '⚡', '/me/simple/hire'], ['roles', '🎯', '/me/simple/roles'],
 ];
 
 /** What a screen reads aloud: set once per change of words. */
@@ -239,6 +240,7 @@ export default function SimpleApp() {
         <Route path="practice" element={wait(<Practice {...screen} />)} />
         <Route path="fixes" element={wait(<Fixes {...screen} />)} />
         <Route path="hire" element={wait(<Hire {...screen} />)} />
+        <Route path="roles" element={wait(<Roles {...screen} />)} />
         <Route path="jobs" element={wait(<Jobs {...screen} />)} />
         <Route path="jobs/:id" element={wait(<Apply {...screen} />)} />
         <Route path="auto" element={wait(<AutoOn {...screen} />)} />
