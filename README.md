@@ -2171,3 +2171,20 @@ Free for students and job seekers unless Admin gates a feature. Each part below 
   - At the end you see your score by topic.
 - **Weak topics:** a topic with at least 3 answers in the last 90 days and under 60% right is listed. Each one comes with up to 2 free courses from Admin → Courses. Khan Academy arithmetic and grammar are added once for aptitude and English.
 - **Practice never counts as a verified score.** It is stored on its own (`practice_attempts`). The S2 badge and what companies see read only official skill checks. Practice is removed when the account is deleted.
+
+### S4. Salary guide
+
+- **Where it shows:**
+  - The public page **`/salaries`**: every role in the catalogue, with three ranges: starting (internship, fresher, 0–1 year), 1–3 years and 3+ years. You can pick a city.
+  - **Job pages**: "Pay for similar jobs on Nm7: …", for the same role, city and experience, with a link to the guide.
+  - **Ready to join** (`/me/hire`), under the expected salary: "Most fresher jobs for Data analyst in Hyderabad on Nm7 pay ₹X–Y a month (based on N jobs in the last 90 days)". The role comes from your target role or the role finder.
+- **Data used:** only Nm7's own job posts. That means collector, company and admin jobs that have a salary, are not demo, and are from the last 90 days. Each job counts once, at the middle of its range, in rupees a month.
+- **When a range shows:** only when at least N jobs match. N is set in Admin → Settings → Job seekers (default 10, at least 3).
+  - The range is the middle half (25th to 75th percentile), rounded to ₹500, with "based on X jobs in the last 90 days".
+  - With fewer jobs it says **"Not enough data yet"**. Nothing is estimated.
+  - A city with too few jobs falls back to all of India and says so.
+- **Admin → Settings → Job seekers** also holds the pass mark for "Skill verified" (S2, default 60%).
+- **APIs:**
+  - `GET /api/public/salaries?city=` (cached 10 minutes)
+  - `GET /api/public/salaries/lookup?title=&city=&experience=`
+  - `GET /api/me/salary-hint?city=`

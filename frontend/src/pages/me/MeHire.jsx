@@ -25,6 +25,23 @@ export function hireLine(s) {
   return `Visible to companies hiring now until ${day(s.expiresAt)}.`;
 }
 
+/** Phase 6 S4: what fresher jobs in the person's role pay, from Nm7's own jobs (only with enough of them). */
+function PayHint({ cities }) {
+  const city = (cities || '').split(',')[0].trim();
+  const [h, setH] = useState(null);
+  useEffect(() => {
+    const id = setTimeout(() => { http(`/api/me/salary-hint${city ? `?city=${encodeURIComponent(city)}` : ''}`).then(setH, () => setH(null)); }, 400);
+    return () => clearTimeout(id);
+  }, [city]);
+  if (!h?.role) return null;
+  const r = h.range;
+  return (
+    <span className="xs muted" data-testid="hj-pay">
+      {r ? `Most fresher jobs for ${h.role.title} ${r.city ? `in ${r.city}` : 'across India'} on Nm7 pay ₹${r.min.toLocaleString('en-IN')}–₹${r.max.toLocaleString('en-IN')} a month (based on ${r.jobs} jobs in the last ${r.days} days).` : `Salary guide for ${h.role.title}: not enough data yet.`}
+    </span>
+  );
+}
+
 export default function MeHire() {
   const toast = useToast();
   const [s, setS] = useState(null);
@@ -76,6 +93,7 @@ export default function MeHire() {
           <div className="field"><label className="label" htmlFor="hj-sal">Expected salary</label><input id="hj-sal" className="input" inputMode="decimal" placeholder={f.unit === 'lpa' ? '3.5' : '25000'} value={f.amount} onChange={(e) => setF({ ...f, amount: e.target.value.replace(/[^\d.]/g, '').slice(0, 9) })} /></div>
           <div className="field"><label className="label" htmlFor="hj-unit">Per</label><select id="hj-unit" className="input" value={f.unit} onChange={set('unit')}><option value="month">₹ a month</option><option value="lpa">Lakhs a year (LPA)</option></select></div>
         </div>
+        <PayHint cities={f.cities} />
         <fieldset className="stack g4" style={{ border: 0, padding: 0, margin: 0 }}>
           <legend className="label">Kinds of job</legend>
           <div className="row g12" style={{ flexWrap: 'wrap' }}>
