@@ -2153,3 +2153,21 @@ Free for students and job seekers unless Admin gates a feature. Each part below 
   - Cisco Networking Academy (networking)
   - Skill India Digital Hub (Government of India) for trade skills such as electrical wiring, retail, warehouse, delivery, Tally and first aid. The course title says what to search for there.
 - **Account deletion** removes the progress and the badges.
+
+### S3. Practice tests
+
+- **Where:** `/me/practice` (Dashboard → Practice tests). The learning path's skill-check step also links to it ("Practise first").
+- **Free and unlimited.** The only limit is 120 starts an hour, which just stops runaway scripts.
+- **Sets** (80 original questions, in `backend/app/seek/practice_bank.py`):
+  - Aptitude: numbers (percentages, ratios, profit and loss, time and work, averages, interest, speed)
+  - Aptitude: reasoning (series, coding-decoding, directions, relations, odd one out, syllogism, calendar)
+  - English: grammar, reading, and emails at work (all multiple choice)
+  - Basic coding: read the code. Python and SQL; nothing runs.
+  - Practice for every official skill check: SQL, Excel, Customer support, Sales, Accounting, Electrical, Warehouse, Python. These are different questions from the official bank; a test checks that none match.
+- **How a test works:**
+  - Up to 10 questions, in a random order.
+  - After each answer you see whether it was right, the right option, and why.
+  - Only the first answer to a question counts. Trying again still shows the explanation.
+  - At the end you see your score by topic.
+- **Weak topics:** a topic with at least 3 answers in the last 90 days and under 60% right is listed. Each one comes with up to 2 free courses from Admin → Courses. Khan Academy arithmetic and grammar are added once for aptitude and English.
+- **Practice never counts as a verified score.** It is stored on its own (`practice_attempts`). The S2 badge and what companies see read only official skill checks. Practice is removed when the account is deleted.

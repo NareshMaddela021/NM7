@@ -27,7 +27,7 @@ from app.core.db import COURSES, DB, LOCKS
 from app.core.errors import ApiError
 from app.core.schemas import CamelModel
 from app.core.time import now
-from app.courses.seed import CATALOGUES, SEED, SEED_2
+from app.courses.seed import CATALOGUES, SEED, SEED_2, SEED_3
 from app.jobsearch import skills
 
 me = APIRouter(prefix="/api/me/courses", tags=["courses"])
@@ -46,6 +46,7 @@ async def ensure_seed(db: AsyncDatabase) -> None:
     batch once (Phase 6 S2's free sources for the learning paths)."""
     await _seed_once(db, "courses-seeded", SEED)
     await _seed_once(db, "courses-seeded-2", SEED_2)
+    await _seed_once(db, "courses-seeded-3", SEED_3)
 
 
 async def _seed_once(db: AsyncDatabase, lock: str, rows: list[tuple]) -> None:

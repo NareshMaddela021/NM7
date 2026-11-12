@@ -16,6 +16,7 @@ export const ME_NAV = [
   ['profile', '/me/profile', 'Job Profile', '◉'],
   ['roles', '/me/roles', 'Find my role', '◇'],
   ['learn', '/me/learn', 'Learning paths', '↗'],
+  ['practice', '/me/practice', 'Practice tests', '✎'],
   ['ats', '/me/ats', 'ATS & job match', '◎'],
   ['covers', '/me/covers', 'Cover letters', '✎'],
   ['certificates', '/me/certificates', 'Certificates', '✪'],

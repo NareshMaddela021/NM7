@@ -49,6 +49,7 @@ from app.core.db import (
     ORDER_WORK,
     ORDERS,
     ORG_STAFF,
+    PRACTICE_ATTEMPTS,
     RECRUITER_INVITES,
     RECRUITER_LINKS,
     REFERRAL_REWARDS,
@@ -104,6 +105,7 @@ async def erase_user_data(db: AsyncDatabase, user_id: str) -> dict[str, int]:
     out["hire_events"] = await gone(HIRE_EVENTS, mine)  # reliability events (Phase 5)
     out["skill_checks"] = await gone(SKILL_ATTEMPTS, mine)  # skill check results and spoken text (Phase 5)
     out["learning_paths"] = await gone(LEARN_PROGRESS, mine)  # Phase 6 S2: courses ticked, projects sent
+    out["practice_tests"] = await gone(PRACTICE_ATTEMPTS, mine)  # Phase 6 S3
     out["certificates"] = await gone(CERTIFICATES, mine)
     out["offers"] = await gone(OFFERS, mine)
     out["alumni"] = await gone(ALUMNI, mine)
