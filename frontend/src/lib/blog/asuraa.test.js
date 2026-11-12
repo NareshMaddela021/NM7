@@ -79,10 +79,11 @@ describe('asuraa.in → nm7.si links', () => {
     expect(mapHref('https://asuraa.in/mentors')).toBeNull();
     expect(mapHref('https://asuraa.in/career-path')).toBeNull();
     expect(mapHref('https://www.mca.gov.in/')).toBe('https://www.mca.gov.in/');
-    // the About Asuraa posts are not on nm7.si: links to them go to the home page, not a 404
-    expect(mapHref('https://nm7.si/blog/what-is-asuraa')).toBe('/');
-    expect(mapHref('https://asuraa.in/blog/how-to-use-asuraa-to-find-jobs')).toBe('/');
-    expect(mapHref('/blog/is-asuraa-free-and-how-we-verify-jobs/')).toBe('/');
+    // the old About Asuraa posts were rewritten for NM7 under new slugs: links to the old slugs go to the new posts
+    expect(mapHref('https://nm7.si/blog/what-is-asuraa')).toBe('/blog/what-is-nm7');
+    expect(mapHref('https://asuraa.in/blog/how-to-use-asuraa-to-find-jobs')).toBe('/blog/how-to-use-nm7-to-find-jobs');
+    expect(mapHref('/blog/is-asuraa-free-and-how-we-verify-jobs/')).toBe('/blog/is-nm7-free-and-how-we-verify-jobs');
+    expect(mapHref('https://nm7.si/blog/ai-career-prediction-tools-explained')).toBe('https://nm7.si/blog/ai-career-prediction-tools-explained');
     expect(mapHref('https://nm7.si/blog/how-to-use-asuraa-to-find-jobs-tamil')).toBe('https://nm7.si/blog/how-to-use-asuraa-to-find-jobs-tamil');
   });
 });

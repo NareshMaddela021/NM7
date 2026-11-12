@@ -6,7 +6,10 @@
   "outputDirectory": "dist",
   "cleanUrls": false,
   "redirects": [
-    { "source": "/pricing", "destination": "/#pricing", "permanent": false }
+    { "source": "/pricing", "destination": "/#pricing", "permanent": false },
+    { "source": "/blog/what-is-asuraa", "destination": "/blog/what-is-nm7", "permanent": true },
+    { "source": "/blog/how-to-use-asuraa-to-find-jobs", "destination": "/blog/how-to-use-nm7-to-find-jobs", "permanent": true },
+    { "source": "/blog/is-asuraa-free-and-how-we-verify-jobs", "destination": "/blog/is-nm7-free-and-how-we-verify-jobs", "permanent": true }
   ],
   "rewrites": [
     {
