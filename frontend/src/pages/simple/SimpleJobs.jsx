@@ -10,7 +10,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { http } from '../../services/http';
-import { Big } from './SimpleApp';
+import { Big, WaitNote } from './SimpleApp';
+import { useScreen } from '../../lib/simple';
 import { SayButton, SpeakField } from './voice';
 
 const money = (n) => Number(n).toLocaleString('en-IN');
@@ -26,10 +27,8 @@ const placeKey = (j) => (j.place === 'remote' ? ['simple.j.remote'] : ['simple.j
 export const cardWords = (j) => [j.title, j.company, ['simple.j.match', { n: j.match }], [`simple.j.reason.${j.reason.key}`, j.reason.vars], placeKey(j), salaryKey(j.salaryMonth)];
 
 function useJobs() {
-  const [d, setD] = useState(null);
-  const [err, setErr] = useState('');
-  const load = () => http('/api/me/simple/jobs').then(setD, (e) => setErr(e.message));
-  useEffect(() => { load(); }, []);
+  // the last jobs at once while the server answers, then the fresh ones (re-test N6)
+  const [d, err, load, setD] = useScreen('/api/me/simple/jobs');
   return { d, err, load, setD };
 }
 
@@ -61,7 +60,7 @@ function JobCard({ t, lang, j, onSave }) {
 export function Jobs({ t, lang, setSay }) {
   const { d, err, setD } = useJobs();
   useEffect(() => { if (d) setSay([['simple.j.title'], ...(d.items[0] ? cardWords(d.items[0]) : [['simple.j.none']])]); }, [d]); // eslint-disable-line react-hooks/exhaustive-deps
-  if (!d) return <p className="sx-p" role={err ? 'alert' : 'status'}>{err || t('simple.loading')}</p>;
+  if (!d) return <WaitNote t={t} err={err} />;
   return (
     <section className="sx-stack" aria-labelledby="sx-jobs-h">
       <h1 id="sx-jobs-h" className="sx-h1">{t('simple.j.title')}</h1>
@@ -108,7 +107,7 @@ export function Apply({ t, lang, setSay }) {
   const [busy, setBusy] = useState(false);
   const j = d?.items.find((x) => x.id === id);
   useEffect(() => { if (j) setSay([['simple.j.applyTitle', { title: j.title }], ...(j.method === 'nm7' ? [['simple.j.consent', { company: j.company }]] : [['simple.j.onTheirSite']])]); }, [j?.id]); // eslint-disable-line react-hooks/exhaustive-deps
-  if (!d) return <p className="sx-p" role={err ? 'alert' : 'status'}>{err || t('simple.loading')}</p>;
+  if (!d) return <WaitNote t={t} err={err} />;
   if (!j) return <div className="sx-stack"><p className="sx-p">{t('simple.j.gone')}</p><Big to="/me/simple/jobs" icon="←" label={t('simple.back')} /></div>;
   const send = async () => {
     setBusy(true); setNote('');
@@ -161,7 +160,7 @@ export function AutoOn({ t, lang, setSay }) {
   const [busy, setBusy] = useState(false);
   useEffect(() => { http('/api/me/auto-apply/suggest').then((r) => setRoles((r.roles || []).slice(0, 6)), () => {}); }, []);
   useEffect(() => { setSay([['simple.a.title'], ['simple.a.text']]); }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  if (!d) return <p className="sx-p" role={err ? 'alert' : 'status'}>{err || t('simple.loading')}</p>;
+  if (!d) return <WaitNote t={t} err={err} />;
   const g = d.gate;
   const on = async () => {
     setBusy(true); setNote('');
@@ -215,7 +214,7 @@ export function Answers({ t, lang, setSay }) {
   const it = d?.needsAnswer?.[0];
   const words = it ? [[it.kind === 'borderline' ? 'simple.q.borderline' : 'simple.q.title', { title: it.job.title, company: it.job.company, score: it.score ?? '' }], ...(it.questions || []).map((q) => q.text)] : [['simple.q.none']];
   useEffect(() => { setSay(words); setA({}); }, [it?.id]); // eslint-disable-line react-hooks/exhaustive-deps
-  if (!d) return <p className="sx-p" role={err ? 'alert' : 'status'}>{err || t('simple.loading')}</p>;
+  if (!d) return <WaitNote t={t} err={err} />;
   const act = async (path, body) => {
     setBusy(true); setNote('');
     try { await http(`/api/me/auto-apply/items/${it.id}/${path}`, { method: 'POST', body }); await load(); } catch (e) { setNote(e.message); } finally { setBusy(false); }
@@ -253,7 +252,7 @@ export function Outside({ t, lang, setSay }) {
   const { d, err, load } = useItems();
   const [note, setNote] = useState('');
   useEffect(() => { setSay([['simple.o.title'], ['simple.o.text']]); }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  if (!d) return <p className="sx-p" role={err ? 'alert' : 'status'}>{err || t('simple.loading')}</p>;
+  if (!d) return <WaitNote t={t} err={err} />;
   const open = async (it) => {
     setNote('');
     const win = window.open('', '_blank');

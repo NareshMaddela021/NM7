@@ -54,7 +54,10 @@ export function pickLang(saved, navLangs = [], on = shown) {
 
 /** One string: the language's own, else English, else the key itself; {n}-style values filled in. */
 export function translate(lang, key, vars, table = STRINGS) {
-  const s = table[lang]?.[key] ?? table.en?.[key] ?? key;
+  // one thing: "Answer 1 question", not "Answer 1 questions" (re-test N5). `key.one` is used when n is 1 and the
+  // language has it (or, for English, when only the English one exists).
+  const one = vars && Number(vars.n) === 1 ? `${key}.one` : '';
+  const s = (one ? table[lang]?.[one] ?? (table[lang]?.[key] == null ? table.en?.[one] : undefined) : undefined) ?? table[lang]?.[key] ?? table.en?.[key] ?? key;
   return vars ? s.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : s;
 }
 

@@ -4,7 +4,7 @@
 // domain); individual recruiters skip it and give a LinkedIn link + declaration instead (never Aadhaar, PAN or ID
 // photos). Step 4 invites team admins (full / posting only / view only); step 5 reviews and sends the company to
 // Nm7's team. English, Telugu and Hindi (pages.json, co.*). No pop-up dialogs.
-import { useEffect, useState } from 'react';
+import { Children, cloneElement, isValidElement, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../../components/Header';
 import LangSwitch from '../../components/LangSwitch';
@@ -16,21 +16,30 @@ import { keepAccount, readAccount } from '../../lib/recruiterPortal';
 
 const STEPS = ['details', 'registration', 'emails', 'team', 'review'];
 
-function Field({ id, label, hint, children }) {
+/** One labelled field. A field error shows right under it and is tied to the input (aria-describedby, aria-invalid),
+ * so it is next to the field on a phone and read out with it (re-test N4). */
+function Field({ id, label, hint, error, children }) {
+  const described = [hint && `${id}-hint`, error && `${id}-err`].filter(Boolean).join(' ') || undefined;
+  const kids = Children.map(children, (ch) => (isValidElement(ch) && ch.props.id === id ? cloneElement(ch, { 'aria-describedby': described, 'aria-invalid': error ? 'true' : undefined }) : ch));
   return (
     <div className="field">
       <label className="label" htmlFor={id}>{label}</label>
-      {children}
+      {kids}
       {hint && <span className="xs muted" id={`${id}-hint`}>{hint}</span>}
+      {error && <span className="error" id={`${id}-err`} role="alert" data-testid={`${id}-err`}>{error}</span>}
     </div>
   );
 }
+
+// a server field error → the field it belongs to, and the step that field is on
+const FIELD_OF = { website: ['co-site', 0], legal_name: ['co-name', 0], legalName: ['co-name', 0], about: ['co-about', 0], industry: ['co-ind', 0], number: ['co-reg', 1], phone: ['co-phone', 1], linkedin: ['co-li', 1] };
 
 export default function CompanySignup() {
   const [t, lang] = useLang();
   const [d, setD] = useState(readDraft);
   const [company, setCompany] = useState(null); // the saved company (after step 3)
   const [err, setErr] = useState('');
+  const [fieldErr, setFieldErr] = useState({}); // { 'co-site': 'message' }
   const [busy, setBusy] = useState('');
   usePageMeta({ title: t('co.meta.title'), description: t('co.meta.desc'), path: '/for-companies' });
 
@@ -41,26 +50,38 @@ export default function CompanySignup() {
 
   const c = d.company;
   const individual = c.details.category === 'individual';
-  const set = (path, v) => setD((x) => {
+  const set = (path, v) => { setFieldErr({}); setD((x) => {
     const next = structuredClone(x);
     const keys = path.split('.'); let o = next.company;
     keys.slice(0, -1).forEach((k) => { o = o[k]; });
     o[keys.at(-1)] = v;
     return next;
-  });
-  const go = (step) => { setErr(''); setD((x) => ({ ...x, step })); window.scrollTo?.(0, 0); };
-  const run = async (what, fn) => { setBusy(what); setErr(''); try { await fn(); } catch (e) { setErr(e.message); } finally { setBusy(''); } };
+  }); };
+  const go = (step) => { setErr(''); setFieldErr({}); setD((x) => ({ ...x, step })); window.scrollTo?.(0, 0); };
+  /** Shows a message under one field, then scrolls to it and puts the cursor there (re-test N4). */
+  const fieldProblem = (id, message, step) => {
+    if (step != null && step !== d.step) setD((x) => ({ ...x, step }));
+    setErr(''); setFieldErr({ [id]: message });
+    setTimeout(() => { const el = document.getElementById(id); if (el) { el.scrollIntoView?.({ block: 'center' }); el.focus(); } }, 0);
+  };
+  const run = async (what, fn) => {
+    setBusy(what); setErr(''); setFieldErr({});
+    try { await fn(); } catch (e) {
+      const f = (e.fields || []).map((x) => [FIELD_OF[String(x.field || '').split('.').pop()], x]).find(([to]) => to);
+      if (f) fieldProblem(f[0][0], String(f[1].message || e.message).replace(/^Value error, /, ''), f[0][1]); else setErr(e.message);
+    } finally { setBusy(''); }
+  };
   const regProblem = individual ? '' : registrationProblem(c.registration.kind, c.registration.number);
 
   const nextFromDetails = (e) => {
     e.preventDefault();
     const bad = individual ? '' : websiteProblem(c.details.website); // gmail.com is not a company website (item 21)
-    if (bad) { setErr(t(bad)); return; }
+    if (bad) { fieldProblem('co-site', t(bad)); return; } // under the website field, not at the top (N4)
     go(1);
   };
   const nextFromRegistration = (e) => {
     e.preventDefault();
-    if (regProblem) { setErr(t(regProblem)); return; }
+    if (regProblem) { fieldProblem('co-reg', t(regProblem)); return; }
     run('check', async () => {
       if (company) setCompany(await rq(`/api/company/${company.id}`, { method: 'PUT', body: companyBody(c) }));
       else await rq('/api/company/signup/check', { method: 'POST', body: companyBody(c) });
@@ -91,12 +112,12 @@ export default function CompanySignup() {
               <label className="row g8"><input type="radio" name="acct" value="company" checked={!individual} onChange={() => set('details.category', 'startup')} /> {t('co.f.typeCompany')}</label>
               <label className="row g8"><input type="radio" name="acct" value="individual" checked={individual} onChange={() => set('details.category', 'individual')} /> {t('co.f.typeIndividual')}</label>
             </fieldset>
-            <Field id="co-name" label={individual ? t('co.f.yourName') : t('co.f.legalName')}>
+            <Field id="co-name" error={fieldErr['co-name']} label={individual ? t('co.f.yourName') : t('co.f.legalName')}>
               <input id="co-name" className="input" required minLength={2} maxLength={120} value={c.details.legalName} onChange={(e) => set('details.legalName', e.target.value)} />
             </Field>
             {!individual && (
               <>
-                <Field id="co-site" label={t('co.f.website')} hint={t('co.f.websiteHint')}>
+                <Field id="co-site" error={fieldErr['co-site']} label={t('co.f.website')} hint={t('co.f.websiteHint')}>
                   <input id="co-site" className="input" required inputMode="url" placeholder="acme.com" value={c.details.website} onChange={(e) => set('details.website', e.target.value)} aria-describedby="co-site-hint" />
                 </Field>
                 <div className="co-grid">
@@ -115,13 +136,13 @@ export default function CompanySignup() {
                       {SIZES.map((x) => <option key={x} value={x}>{t(`co.size.${x}`)}</option>)}
                     </select>
                   </Field>
-                  <Field id="co-ind" label={t('co.f.industry')}>
+                  <Field id="co-ind" error={fieldErr['co-ind']} label={t('co.f.industry')}>
                     <input id="co-ind" className="input" maxLength={80} value={c.details.industry} onChange={(e) => set('details.industry', e.target.value)} />
                   </Field>
                 </div>
               </>
             )}
-            <Field id="co-about" label={individual ? t('co.f.aboutYou') : t('co.f.about')}>
+            <Field id="co-about" error={fieldErr['co-about']} label={individual ? t('co.f.aboutYou') : t('co.f.about')}>
               <textarea id="co-about" className="input" rows={4} maxLength={2000} value={c.details.about} onChange={(e) => set('details.about', e.target.value)} />
             </Field>
             <div className="row g8"><button type="submit" className="btn btn-ink">{t('co.next')}</button></div>
@@ -133,7 +154,7 @@ export default function CompanySignup() {
             {individual ? (
               <>
                 <p className="small muted" style={{ margin: 0 }}>{t('co.ind.note')}</p>
-                <Field id="co-li" label={t('co.f.linkedin')}>
+                <Field id="co-li" error={fieldErr['co-li']} label={t('co.f.linkedin')}>
                   <input id="co-li" className="input" required inputMode="url" placeholder="https://www.linkedin.com/in/your-name" value={c.individual.linkedin} onChange={(e) => set('individual.linkedin', e.target.value)} />
                 </Field>
                 <label className="row g8" style={{ alignItems: 'flex-start', flexWrap: 'nowrap' }}>
@@ -149,13 +170,13 @@ export default function CompanySignup() {
                     {['gstin', 'cin', 'llpin'].map((k) => <label key={k} className="row g8"><input type="radio" name="regkind" value={k} checked={c.registration.kind === k} onChange={() => set('registration.kind', k)} /> {k.toUpperCase()}</label>)}
                   </div>
                 </fieldset>
-                <Field id="co-reg" label={t('co.f.regNumber')} hint={t('co.f.regHint')}>
+                <Field id="co-reg" error={fieldErr['co-reg']} label={t('co.f.regNumber')} hint={t('co.f.regHint')}>
                   <input id="co-reg" className="input mono" required maxLength={30} autoCapitalize="characters" value={c.registration.number} onChange={(e) => set('registration.number', e.target.value)} aria-invalid={c.registration.number && regProblem ? 'true' : undefined} aria-describedby="co-reg-hint co-reg-check" />
                 </Field>
                 {c.registration.number && <p id="co-reg-check" className="xs" style={{ margin: 0, color: regProblem ? 'var(--danger)' : 'var(--success)' }} data-testid="co-reg-check">{regProblem ? t(regProblem) : t('co.reg.ok', { n: cleanNumber(c.registration.number) })}</p>}
               </>
             )}
-            <Field id="co-phone" label={t('co.f.phone')} hint={t('co.f.phoneHint')}>
+            <Field id="co-phone" error={fieldErr['co-phone']} label={t('co.f.phone')} hint={t('co.f.phoneHint')}>
               <input id="co-phone" className="input" inputMode="tel" maxLength={20} value={c.phone} onChange={(e) => set('phone', e.target.value)} />
             </Field>
             <div className="row g8">

@@ -60,10 +60,17 @@ const fromApi = (u) => ({
   id: u.id, role: u.role, name: u.name, email: u.email, phone: u.phone || '', verified: u.verified,
   expertStatus: u.expertStatus || undefined, adminRole: u.adminRole || undefined, createdAt: Date.parse(u.createdAt),
 });
+// The role of whoever was signed in in this tab (re-test N6): while a sleeping server is slow to say who is signed in,
+// the easy dashboard can show its last screen at once. sessionStorage and nm7-: gone on sign-out and with the tab.
+// The server still checks the session on every request; if it says "signed out", the page goes to sign in.
+const TAB_ROLE_KEY = 'nm7-tab-role';
+export const tabRole = () => { try { return sessionStorage.getItem(TAB_ROLE_KEY) || ''; } catch { return ''; } };
+const keepTabRole = (u) => { try { if (u) sessionStorage.setItem(TAB_ROLE_KEY, u.role); else sessionStorage.removeItem(TAB_ROLE_KEY); } catch { /* blocked */ } };
 const setLive = (user) => {
   const prev = live.user;
   if (user && prev && prev.id !== user.id) clearUserData(); // account switch in the same tab
   if (user) noteUser(user.id);
+  keepTabRole(user);
   live = { user: user ? fromApi(user) : null, ready: true };
   notify();
   return live.user;

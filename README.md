@@ -1833,3 +1833,34 @@ The full dashboard stays for everyone who wants it.
   instance, or a free uptime monitor (for example UptimeRobot) calling `GET /health` every 5 minutes.
 - **Not code:** item 2 (no real jobs on the board) needs `JOB_INGEST_KEY` set on Render and the collector pointed at
   `POST /api/jobs/ingest`; item 40 (the tailored copy needs the Tailor pack) is left as it is.
+
+### Re-test fixes (12 Nov)
+
+- **N1:** the easy dashboard's practice interview gives clarity feedback after each answer (`POST
+  /api/me/simple/practice`, rules only) and counts for "Practise an interview".
+- **N2:** the skills step opens with the resume's skills ticked (Excel = MS Excel), never adds one twice, and an
+  untapped skill comes off the resume.
+- **N3:** the full dashboard's "Jobs for you" and the easy Jobs screen share one list (`app.simple.jobs.top_jobs`).
+- **N4:** company sign-up shows a field's error under that field (`aria-describedby`), and scrolls to and focuses it.
+- **N5:** `translate()` uses a `key.one` string when `n` is 1 ("Answer 1 question"); a company's status is said once;
+  the Auto Apply demo button follows "Show Telugu and Hindi".
+- **N6:** the site calls `GET /health` the moment it opens; the easy-dashboard screens keep their last data in this tab
+  (sessionStorage, `nm7-simple-screen:…`, wiped on sign-out) and say "The server is waking up" while it wakes; a tab
+  that was signed in shows the easy dashboard at once while the server confirms the session (`nm7-tab-role`).
+
+### Keep the free server awake (UptimeRobot, free)
+
+The free Render server sleeps after about 15 quiet minutes; the first visit after that waits up to a minute. A free
+monitor that calls the API every 5 minutes keeps it awake:
+
+1. Go to https://uptimerobot.com and create a free account (Sign up, confirm the email).
+2. In the dashboard, click **+ New monitor**.
+3. Monitor type: **HTTP(s)**.
+4. Friendly name: `Nm7 API`.
+5. URL: `https://nm7-api.onrender.com/health` (the API's address; `/health` answers `{"status": "ok", "db": "ok"}`).
+6. Monitoring interval: **5 minutes** (the smallest on the free plan).
+7. Alert contacts: tick your email, so you hear if the API is really down.
+8. Click **Create monitor**. Within a few minutes it shows "Up"; from then on the first page load is fast.
+
+A free Render web service has 750 free hours a month, enough for one service awake all month. If a second free
+service is added later, they share those hours.

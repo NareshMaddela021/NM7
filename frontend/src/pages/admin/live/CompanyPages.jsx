@@ -13,6 +13,15 @@ import { plainWords } from '../../../lib/company';
 const STATES = [['pending', 'Waiting for review'], ['approved', 'Verified'], ['rejected', 'Rejected'], ['blocked', 'Blocked'], ['draft', 'Not finished'], ['all', 'All']];
 const TRUST = { verified: ['Verified', 'b-success'], basic: ['Basic', 'b-signal'], unverified: ['Unverified', 'b-warning'], blocked: ['Blocked', 'b-danger'] };
 
+/** "Verified", or "Basic · Waiting for review": the trust level and the review state, said once when they're the
+ * same word (re-test N5: no "Verified · Verified"). */
+export function statusText(c, state) {
+  const trust = TRUST[c.trust]?.[0];
+  const review = STATES.find(([k]) => k === state)?.[1] || state;
+  const parts = [trust, review].filter(Boolean).filter((x, i, all) => all.indexOf(x) === i);
+  return parts.join(' · ') + (c.review?.reason ? ` (${c.review.reason})` : '');
+}
+
 export function LiveCompanies() {
   const [state, setState] = useState('pending');
   const [q, setQ] = useState('');
@@ -92,7 +101,7 @@ function CompanyReview({ id, onClose, onChanged }) {
               </section>
             )}
             <dl className="co-review">
-              <div><dt>Status</dt><dd>{TRUST[c.trust]?.[0]} · {STATES.find(([k]) => k === state)?.[1] || state}{c.review.reason ? ` (${c.review.reason})` : ''}</dd></div>
+              <div><dt>Status</dt><dd data-testid="co-status">{statusText(c, state)}</dd></div>
               {c.kind === 'company' && <div><dt>Website</dt><dd>{c.details.website}{c.domain.ageDays != null ? ` · domain ${c.domain.ageDays} days old` : ''}{c.domain.mail === false ? ' · no mail server' : ''}</dd></div>}
               {c.registration && (
                 <div><dt>{c.registration.kind.toUpperCase()}</dt><dd><span className="mono">{c.registration.number}</span>{' '}
