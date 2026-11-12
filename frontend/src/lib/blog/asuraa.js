@@ -57,9 +57,16 @@ export const PAGE_MAP = [
 ];
 const ASURAA = /^https?:\/\/(www\.)?asuraa\.in(?=\/|$|[?#])/i;
 
+/** The About Asuraa posts (EXCLUDED_CATEGORIES) are not on nm7.si, so a link to one goes to the home page instead
+ * of a 404 — whether it still points at asuraa.in or was already rewritten to nm7.si in Hygraph. */
+export const EXCLUDED_SLUGS = new Set(['what-is-asuraa', 'how-to-use-asuraa-to-find-jobs', 'is-asuraa-free-and-how-we-verify-jobs', 'ai-career-prediction-tools-explained']);
+const EXCLUDED_LINK = /^(?:https?:\/\/(?:www\.)?(?:asuraa\.in|nm7\.si))?\/blog\/([a-z0-9-]+)\/?(?:[?#].*)?$/i;
+
 /** An href from an asuraa.in post → the href nm7.si shows, or null to drop the link. */
 export function mapHref(href) {
   const h = String(href ?? '').trim();
+  const ex = EXCLUDED_LINK.exec(h);
+  if (ex && EXCLUDED_SLUGS.has(ex[1].toLowerCase())) return '/';
   if (!ASURAA.test(h)) return h;
   const path = h.replace(ASURAA, '').replace(/[?#].*$/, '') || '/';
   for (const [re, to] of PAGE_MAP) { const m = re.exec(path); if (m) return to(m); }
