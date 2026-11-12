@@ -45,6 +45,7 @@ from app.core.db import (
     LINKEDIN,
     LINKEDIN_PACKS,
     MEMBERSHIPS,
+    OFFER_CHECKS,
     OFFERS,
     ORDER_WORK,
     ORDERS,
@@ -106,6 +107,7 @@ async def erase_user_data(db: AsyncDatabase, user_id: str) -> dict[str, int]:
     out["skill_checks"] = await gone(SKILL_ATTEMPTS, mine)  # skill check results and spoken text (Phase 5)
     out["learning_paths"] = await gone(LEARN_PROGRESS, mine)  # Phase 6 S2: courses ticked, projects sent
     out["practice_tests"] = await gone(PRACTICE_ATTEMPTS, mine)  # Phase 6 S3
+    out["offer_checks"] = await gone(OFFER_CHECKS, mine)  # Phase 6 S5
     out["certificates"] = await gone(CERTIFICATES, mine)
     out["offers"] = await gone(OFFERS, mine)
     out["alumni"] = await gone(ALUMNI, mine)
