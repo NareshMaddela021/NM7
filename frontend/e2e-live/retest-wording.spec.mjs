@@ -31,6 +31,9 @@ for (const [label, opts] of SIZES) {
       // the demo button follows "Show Telugu and Hindi" (off): English
       await page.goto('/admin/auto-apply');
       await expect(page.getByTestId('aa-demo-simple')).toHaveText('Reset and open as student (Easy dashboard, English)');
+      expect(await noSideScroll(page)).toBe(true); // the long label wraps on a 390 px phone
+      const box = await page.getByTestId('aa-demo-simple').boundingBox();
+      expect(box.x + box.width).toBeLessThanOrEqual(opts.viewport.width);
       await page.getByTestId('aa-demo-simple').click();
       await expect(page).toHaveURL(/\/me\/simple$/);
       // Ravi has one question waiting: singular
