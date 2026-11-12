@@ -2044,3 +2044,52 @@ minutes" switches it on or off (on by default) and sets the limits.
   "delivery executive / delivery boy / delivery partner" as names for Last-mile delivery.
 - Tests: `backend/tests/test_hire_templates.py` (every template posts as it is; non-IT skills found; education in the
   match), `frontend/e2e-live/hire-templates.spec.mjs` (desktop + 390 px).
+
+### H9. Hiring speed, the badge and the supply map
+
+- Hire now → **Hiring speed** (it opens once a candidate has been shown for any role). For each role it gives the
+  minutes from posting to: the first candidate shown (shortlist or invite), the first invite accepted, the first
+  interview booked and the first offer sent. It also shows the share of roles that reached an **interview booked or
+  offer sent within 30 minutes** of posting, the averages, and the funnel (invited → accepted → interviews → offers →
+  accepted → joined). Everything comes from recorded events; nothing is estimated.
+- **"Hired in 30 minutes" badge**: shows on the company's Hire now card and public page (`/companies/<slug>`) only
+  when at least one real (not demo) role reached an interview or offer within 30 minutes of posting.
+- Admin → Companies → **Ready to join: supply map**: people ready to join now by city (next to live jobs there) and
+  by domain (from their resume skills, using the template domains), plus how many are open to remote work. Real
+  people only.
+- API: `GET /api/company/{id}/hire/speed`, `GET /api/admin/hire/supply`; the public company page has `hiredIn30`.
+- Tests: `backend/tests/test_hire_speed.py`, `frontend/e2e-live/hire-demo.spec.mjs` (desktop + 390 px).
+
+### Try the 30-minute flow in the demo
+
+1. Admin → Companies → **Reset and open as company (Hire in 30 minutes)**. This resets "Demo Tech Solutions (demo)"
+   (Verified) and adds, all marked demo:
+   - 30 made-up candidates ready to join (10 for customer support in Hyderabad, 20 across IT and non-IT, different
+     cities), with resumes, shared skill check results for half of them, and reliability histories for a third (the
+     rest are "New - no history yet");
+   - a bulk post "Customer Support Executive" with 50 openings;
+   - three interview times tomorrow;
+   - one candidate who accepted an invite and has an offer waiting.
+
+   The browser opens the company dashboard on **Hire now**.
+2. Pick the job: the shortlist shows the ready candidates with match, join date, salary fit, skill check and
+   reliability. **Invite all**.
+3. Look at the bulk board, the interview times, the offer, and **Hiring speed**. Make a walk-in day to see its QR.
+4. Demo candidates can't sign in or get email, so the candidate side (accept, pick a time, accept the offer) is best
+   tried with a real test account. Sign up as a student, turn on Ready to join, then use a real Verified test company.
+
+Demo people are never shown to real companies, and never appear on the job board, company pages, the supply map or a
+sitemap.
+
+### Free and paid in Phase 5 (all on by default; no prices set)
+
+| Feature | Who | Default |
+|---|---|---|
+| Ready to join, skill checks (taking them), reliability, invites, interview slots, offers | candidates | free |
+| Applicants and the basic shortlist | every company | free |
+| Instant shortlist (Hire now) | Verified companies | free for 20 roles a month (Admin → Settings), then a paid feature: **open to all** by default |
+| Seeing skill check results on the shortlist | Verified companies | paid feature: **open to all** by default |
+| Bulk hiring mode | Verified companies | paid feature: **open to all** by default |
+
+Untick a paid feature in Admin → Plans → Company hiring to keep it to the companies you turn it on for (Admin →
+Companies → Review). Every limit is editable in Admin → Settings → Hire in 30 minutes.

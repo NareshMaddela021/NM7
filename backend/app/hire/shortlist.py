@@ -129,6 +129,17 @@ async def gate(db, c: dict[str, Any], feature: str) -> bool:
     return bool(s["open"].get(feature, True)) or feature in (c.get("hire_features") or [])
 
 
+def test_covers() -> dict[str, set[str]]:
+    """Skill check → the job skills it speaks for, from the job templates (H8)."""
+    from app.hire.templates import TEMPLATES
+
+    out: dict[str, set[str]] = {}
+    for t in TEMPLATES:
+        if t["test"]:
+            out.setdefault(t["test"], set()).update(t["skills"])
+    return out
+
+
 def is_bulk(job: dict[str, Any]) -> bool:
     return bool((job.get("hire_bulk") or {}).get("on"))
 
@@ -210,7 +221,9 @@ async def candidates(db, c: dict[str, Any], job: dict[str, Any], t: datetime | N
                     "confirmedAt": ms(p.get("confirmed_at")),
                 },
                 "salary": salary_fit(p.get("salary"), job.get("salary")),
-                "skillCheck": best_for(results.get(p["_id"], []), wanted),  # shared by the candidate (H3)
+                "skillCheck": best_for(
+                    results.get(p["_id"], []), wanted, test_covers()
+                ),  # shared by the candidate (H3)
                 "reliability": {k: v for k, v in reliable[p["_id"]].items() if k != "tips"},  # H4, real events only
                 "applied": p["_id"] in applied,
                 "invite": invite_state(inv, t) if inv else None,
@@ -262,6 +275,8 @@ async def shortlist(
     await rate_limit.record(db, key)
     started = now()
     rows = await candidates(db, c, j, started)
+    if rows:  # H9: when the first candidate was shown for this role
+        await db[JOBS].update_one({"_id": j["_id"]}, {"$min": {"hire_speed.first_shown_at": started}})
     await db[HIRE_USAGE].update_one(
         {"_id": month_id(cid)}, {"$addToSet": {"jobs": job}, "$set": {"updated_at": started}}, upsert=True
     )
@@ -365,6 +380,8 @@ async def invite(
         u = await db[USERS].find_one({"_id": uid})
         if wants_email(u):
             await send_safely(mailer, invite_email(u, c, j, body.note))
+    if sent:  # H9: an invite means a candidate was shown for this role
+        await db[JOBS].update_one({"_id": j["_id"]}, {"$min": {"hire_speed.first_shown_at": t}})
     await audit(db, None, "hire.invite", target=cid, data={"by": acc["email_lc"], "job": j["_id"], "n": len(sent)})
     return {"sent": len(sent), "skipped": skipped}
 

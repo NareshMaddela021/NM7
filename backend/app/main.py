@@ -55,11 +55,13 @@ from app.experts.router import router as expert_router
 from app.health import service as resume_health
 from app.hire import available as hire_available
 from app.hire import bulk as hire_bulk
+from app.hire import demo as hire_demo
 from app.hire import offers as hire_offers
 from app.hire import reliability as hire_reliability
 from app.hire import shortlist as hire_shortlist
 from app.hire import skillcheck as hire_skillcheck
 from app.hire import slots as hire_slots
+from app.hire import speed as hire_speed
 from app.hire import templates as hire_templates
 from app.jobs import admin as jobs_admin
 from app.jobs import alerts as jobs_alerts
@@ -267,6 +269,9 @@ def create_app() -> FastAPI:
     app.include_router(hire_bulk.company)  # /api/company/{id}/hire/bulk/… (bulk hiring, H7)
     app.include_router(hire_bulk.walkin_public)  # /api/hire/walkin/{token} (walk-in QR check-in, H7)
     app.include_router(hire_templates.router)  # /api/hire/templates (job templates, H8)
+    app.include_router(hire_speed.company)  # /api/company/{id}/hire/speed (hiring speed, H9)
+    app.include_router(hire_speed.admin)  # /api/admin/hire/supply (supply map, H9)
+    app.include_router(hire_demo.router)  # /api/admin/demo-company/hire/open (the Phase 5 demo)
     app.include_router(hire_skillcheck.me)  # /api/me/skill-checks (10-minute tests, H3)
     app.include_router(hire_skillcheck.admin)  # /api/admin/skill-tests (the question bank, H3)
     app.include_router(simple_guided.router)  # /api/me/simple/resume (resume by talking, E4)

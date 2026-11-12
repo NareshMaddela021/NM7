@@ -26,6 +26,7 @@ from app.companies.signup import _save, company_for
 from app.core.db import APPLICATIONS, AUDIT_LOG, COMPANIES, DB, JOBS
 from app.core.errors import ApiError
 from app.core.schemas import CamelModel
+from app.hire.speed import hired_in_30
 from app.jobs.public import live_filter, public_out
 from app.me.service import ms
 
@@ -128,6 +129,7 @@ async def company_page(slug: str, db: DB) -> dict[str, Any]:
         "parts": (c.get("score") or {}).get("parts") or [],
         "replyDays": (c.get("score") or {}).get("replyDays"),
         "jobs": [public_out(j) for j in jobs],
+        "hiredIn30": await hired_in_30(db, c["_id"]),  # Phase 5 H9: only from real roles
     }
 
 

@@ -39,6 +39,7 @@ export function LiveCompanies() {
         <button type="submit" className="btn btn-outline">Search</button>
       </form>
       <DemoCompany onChanged={() => st.reload()} />
+      <SupplyMap />
       <Loading st={st} empty={emptyIf((d) => !d.items.length, 'No companies here.')}>{(d) => (
         <ul className="stack g12" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
           {d.items.map((c) => (
@@ -165,19 +166,50 @@ function HireFeatures({ c, onSaved }) {
   );
 }
 
+/** Hire in 30 minutes (Phase 5, H9): who is ready to join now, by city (next to live jobs) and by domain. Real people
+ * only (demo accounts are never counted). */
+function SupplyMap() {
+  const [open, setOpen] = useState(false);
+  const st = useApi(open ? '/api/admin/hire/supply' : null);
+  return (
+    <details className="card-sm" onToggle={(e) => setOpen(e.currentTarget.open)} data-testid="supply-map">
+      <summary className="small"><strong>Ready to join: supply map</strong></summary>
+      {open && <Loading st={st}>{(d) => (
+        <div className="stack g8" style={{ marginTop: 8 }}>
+          <span className="small" data-testid="supply-total">{d.available} people ready to join now · {d.remote} open to remote work</span>
+          <div className="row g16" style={{ flexWrap: 'wrap', alignItems: 'flex-start' }}>
+            <table className="small" style={{ borderCollapse: 'collapse', minWidth: 0 }}>
+              <caption className="xs muted" style={{ textAlign: 'left' }}>By city</caption>
+              <thead><tr><th scope="col" style={{ textAlign: 'left', paddingRight: 12 }}>City</th><th scope="col" style={{ paddingRight: 12 }}>Ready</th><th scope="col">Live jobs</th></tr></thead>
+              <tbody>{d.byCity.map((r) => <tr key={r.city}><td style={{ paddingRight: 12 }}>{r.city}</td><td style={{ textAlign: 'center' }}>{r.available}</td><td style={{ textAlign: 'center' }}>{r.liveJobs}</td></tr>)}</tbody>
+            </table>
+            <table className="small" style={{ borderCollapse: 'collapse', minWidth: 0 }}>
+              <caption className="xs muted" style={{ textAlign: 'left' }}>By domain</caption>
+              <thead><tr><th scope="col" style={{ textAlign: 'left', paddingRight: 12 }}>Domain</th><th scope="col">Ready</th></tr></thead>
+              <tbody>{d.byDomain.map((r) => <tr key={r.domain}><td style={{ paddingRight: 12 }}>{r.domain}</td><td style={{ textAlign: 'center' }}>{r.available}</td></tr>)}</tbody>
+            </table>
+          </div>
+        </div>
+      )}</Loading>}
+    </details>
+  );
+}
+
 /** The demo company: reset it (2 admins, 5 jobs, demo-college applicants, 3 sample sign-ups) and open it as its
  * main admin in this browser (a company sign-in; the admin console stays signed in), or remove it. Never public. */
 function DemoCompany({ onChanged }) {
   const toast = useToast();
   const [busy, run] = useAction(toast);
   const open = () => run(async () => { const r = await http('/api/admin/demo-company/open', { method: 'POST' }); keepAccount(r.session); window.location.assign('/company'); });
+  const openHire = () => run(async () => { const r = await http('/api/admin/demo-company/hire/open', { method: 'POST' }); keepAccount(r.session); window.location.assign('/company#hire'); });
   const remove = () => run(async () => { await http('/api/admin/demo-company', { method: 'DELETE' }); onChanged(); }, 'Demo company removed');
   return (
     <section className="card-sm stack g8" aria-label="Demo company" data-testid="demo-company">
       <strong className="small">Demo company</strong>
-      <span className="xs muted">“Demo Tech Solutions (demo)”: 2 admins, 5 jobs, applicants from the demo college, and 3 sample sign-ups here (clean, duplicate GSTIN, same-address burst). Never on the job board. Opening it starts a fresh copy and signs this browser in as its main admin.</span>
-      <div className="row g8">
+      <span className="xs muted">“Demo Tech Solutions (demo)”: 2 admins, 5 jobs, applicants from the demo college, and 3 sample sign-ups here (clean, duplicate GSTIN, same-address burst). Never on the job board. Opening it starts a fresh copy and signs this browser in as its main admin. The Hire in 30 minutes version adds 30 made-up candidates who are ready to join (IT and non-IT, with skill check results and reliability histories), a bulk post with 50 openings, three interview times tomorrow and one offer waiting; demo people are never shown to real companies.</span>
+      <div className="row g8" style={{ flexWrap: 'wrap' }}>
         <button type="button" className="btn btn-outline" disabled={busy} onClick={open} data-testid="demo-as-company">Reset and open as company</button>
+        <button type="button" className="btn btn-outline" style={{ maxWidth: '100%', whiteSpace: 'normal', height: 'auto', minHeight: 40, textAlign: 'left' }} disabled={busy} onClick={openHire} data-testid="demo-hire">Reset and open as company (Hire in 30 minutes)</button>
         <button type="button" className="link-btn small" disabled={busy} onClick={remove}>Remove demo company</button>
       </div>
     </section>

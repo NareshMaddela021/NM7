@@ -101,7 +101,7 @@ function Companies({ t, onSignedOut }) {
 const TABS = ['overview', 'jobs', 'applicants', 'hire', 'pool', 'team', 'page', 'settings', 'security', 'activity'];
 
 function Dashboard({ t, c, onChanged, onSignedOut }) {
-  const [tab, setTab] = useState('overview');
+  const [tab, setTab] = useState(() => (typeof window !== 'undefined' && window.location.hash === '#hire' ? 'hire' : 'overview'));
   const manage = ['main', 'full'].includes(c.myRole);
   return (
     <section className="stack g16" aria-label={c.details.legalName}>
