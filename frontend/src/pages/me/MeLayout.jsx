@@ -20,6 +20,7 @@ export const ME_NAV = [
   ['jobs', '/me/jobs', 'Applications', '▥'],
   ['auto', '/me/auto-apply', 'Auto Apply', '⟳'],
   ['hire', '/me/hire', 'Ready to join', '⚡'],
+  ['skills', '/me/skill-checks', 'Skill checks', '✓'],
   ['share', '/me/share', 'Share link', '↗'],
   ['groups', '/me/groups', 'My groups', '⚑'],
   ['launch', '/me/launch', 'Career Launch', '★'],

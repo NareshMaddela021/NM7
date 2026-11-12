@@ -61,6 +61,7 @@ export default function MeHire() {
           </div>
         )}
         <p className="xs muted" style={{ margin: 0 }}>Your phone number and email are never shown to a company until you accept its invite.</p>
+        <p className="small" style={{ margin: 0 }}>Stand out: take a 10-minute <a href="/me/skill-checks" data-testid="hire-skill-link">skill check</a> and choose to show the score.</p>
       </section>
       <form className="card stack g12" onSubmit={(e) => { e.preventDefault(); save(true); }} aria-label="Ready to join details" data-testid="hire-form">
         <div className="co-grid">
