@@ -53,6 +53,7 @@ function WaPlacedHost() {
 const Checkout = lazy(() => import('./pages/Checkout'));
 const StopAlerts = lazy(() => import('./pages/StopAlerts'));
 const HireStillReady = lazy(() => import('./pages/HireStillReady'));
+const HireWalkin = lazy(() => import('./pages/HireWalkin'));
 const Intake = lazy(() => import('./pages/Intake'));
 const Refund = lazy(() => import('./pages/Refund'));
 const Editor = lazy(() => import('./pages/Editor'));
@@ -353,6 +354,7 @@ export default function App() {
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/stop-alerts" element={<StopAlerts />} />
         <Route path="/hire/still-ready" element={<HireStillReady />} />
+        <Route path="/hire/walkin/:token" element={<RequireAuth role="customer"><HireWalkin /></RequireAuth>} />
         <Route path="/orders/:id" element={<OrderRedirect />} />
         <Route path="/orders/:id/intake" element={C(<Intake />)} />
         <Route path="/orders/:id/refund" element={C(<Refund />)} />

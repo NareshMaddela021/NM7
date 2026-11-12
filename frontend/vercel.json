@@ -90,7 +90,7 @@
       "destination": "/index.html"
     },
     {
-      "source": "/hire/still-ready",
+      "source": "/hire/:path*",
       "destination": "/index.html"
     },
     {
