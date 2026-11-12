@@ -102,7 +102,7 @@ export default function CompanyHire({ t, c }) {
                 <span className="small">{reasons(x.match, t).join(' · ')}</span>
                 <span className="small" data-testid="co-hire-when">{whenLine(x.availability, t)}</span>
                 <span className="small" data-testid="co-hire-salary">{salaryLine(x.salary, t)}</span>
-                <span className="xs muted">{x.skillCheck ? t('co.hire.check', { score: x.skillCheck.score }) : t('co.hire.noCheck')} · {x.reliability.label}</span>
+                <span className="xs muted" data-testid="co-hire-trust">{x.skillCheck ? t('co.hire.check', { score: x.skillCheck.score }) : t('co.hire.noCheck')} · {x.reliability.score == null ? x.reliability.label : `${x.reliability.label} (${x.reliability.score}%)`}{x.reliability.lines?.length ? `: ${x.reliability.lines.join('; ')}` : ''}</span>
                 <div className="row g8" style={{ flexWrap: 'wrap' }}>
                   {x.invite ? <span className={`badge ${TONE[x.invite.status]}`} data-testid="co-hire-state">{t(`co.hire.state.${x.invite.status}`)}</span>
                     : x.applied ? <span className="badge b-neutral">{t('co.hire.applied')}</span>

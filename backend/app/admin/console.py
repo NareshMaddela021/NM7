@@ -755,6 +755,7 @@ class HireSettingsIn(CamelModel):
     free_shortlists: int | None = Field(None, ge=0, le=10000)  # roles a month per company
     shortlists_per_hour: int | None = Field(None, ge=1, le=1000)
     invites_per_day: int | None = Field(None, ge=0, le=5000)
+    reply_hours: int | None = Field(None, ge=1, le=168)  # H4: a quick reply to an invite
     open: "HireOpenIn | None" = None  # Admin → Plans → Company hiring
 
 
@@ -852,6 +853,7 @@ def _settings_out(site: dict[str, Any]) -> dict[str, Any]:
             "freeShortlists": int(site["hire"]["free_shortlists"]),
             "shortlistsPerHour": int(site["hire"]["shortlists_per_hour"]),
             "invitesPerDay": int(site["hire"]["invites_per_day"]),
+            "replyHours": int(site["hire"]["reply_hours"]),
             "open": {k: bool(site["hire"]["open"].get(k, True)) for k in ("instant", "tests", "bulk")},
         },
         "companies": {

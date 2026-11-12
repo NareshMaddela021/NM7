@@ -62,6 +62,7 @@ for (const [label, opts] of SIZES) {
       await expect(row.getByTestId('co-hire-score')).toContainText('% match');
       await expect(row.getByTestId('co-hire-when')).toContainText("15 days' notice");
       await expect(row.getByTestId('co-hire-salary')).toContainText('within your range');
+      await expect(row.getByTestId('co-hire-trust')).toContainText('New - no history yet'); // H4
       await expect(co.getByTestId('co-hire')).not.toContainText(smail);
       expect(await noSideScroll(co)).toBe(true);
       await co.getByTestId('co-hire-note').fill('Can you come on Monday?');

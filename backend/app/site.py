@@ -70,6 +70,7 @@ HIRE = {
     "free_shortlists": 20,
     "shortlists_per_hour": 20,
     "invites_per_day": 60,
+    "reply_hours": 24,  # H4: an invite answered within this counts as a quick reply
     # paid company features (Admin → Plans → Company hiring): True = open to every Verified company (the default);
     # False = only companies Admin turned it on for (Admin → Companies)
     "open": {"instant": True, "tests": True, "bulk": True},
