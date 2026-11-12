@@ -89,6 +89,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/verify/:token",
+      "destination": "/index.html"
+    },
+    {
       "source": "/company",
       "destination": "/index.html"
     },

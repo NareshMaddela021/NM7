@@ -23,6 +23,7 @@ export const NAV = [
   ['companies', '/admin/companies', 'Companies', '▣'],
   ['jobs', '/admin/auto-apply', 'Auto Apply', '⟳'],
   ['jobs', '/admin/skill-tests', 'Skill tests', '✓'],
+  ['companies', '/admin/programs', 'Internships & projects', '▣'],
   ['quality', '/admin/quality', 'Quality', '✓'],
   ['reports', '/admin/reports', 'Reports', '⇩'],
   ['settings', '/admin/settings', 'Settings & prices', '⚙'],

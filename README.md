@@ -2228,3 +2228,26 @@ Free for students and job seekers unless Admin gates a feature. Each part below 
   - Up to 200 notes. Only the student sees them, and can delete them.
 - **Readiness score:** reasons from the last 90 days that the student can work on (skills, communication, experience) add **"Work on your interview feedback"** to the things left on the readiness score. It adds no points; it is a pointer. In the easy dashboard it opens the practice screen.
 - **Account deletion** removes the self-reviews. Feedback on an application is removed with the application.
+
+### S8. Internships and live projects
+
+- **Companies (Verified only):** Company dashboard → **Internships & projects**.
+  - **Two kinds:**
+    - an **internship**: stipend or unpaid, any number of weeks, remote or on-site;
+    - a **live project**: 1–4 weeks, with a brief, what to send, a deadline and the number of students.
+  - **Unpaid** is allowed and is shown as "Unpaid". Wording that asks students for a fee or deposit is refused.
+  - **Accepting:** the company accepts students up to the number of places. Each accepted student sends a link or text, and the company reviews it as **Work accepted** or **Not completed**.
+- **Free-labour check:** some programs are **held for Admin** before any student sees them:
+  - an unpaid project for more than 20 students;
+  - an unpaid internship longer than 3 months;
+  - work that sounds like the company's paid work (clients, production, sales targets, revenue).
+  
+  Admin → **Internships & projects** shows the held list, where Admin approves or removes each one.
+- **Students:** `/me/programs` (Dashboard → Internships & projects).
+  - **Browsing and applying:** students see open programs and apply by ticking the box that shares their resume.
+  - **Sending work:** once accepted, they send their work.
+  - **When the company accepts the work:**
+    - a **certificate PDF**, made on the server, with the student's name, the company, the title, the dates and a certificate number;
+    - a public check page at **nm7.si/verify/<number>**.
+  - **Resume:** the student sees a suggested resume entry: company, title (Internship or Live project), the accepted and completed months, and what was sent. It is added under Internships only when the student presses **Add to my resume**, and only once.
+- **Account deletion** removes the student's applications. After that, their certificates no longer verify.
