@@ -116,4 +116,4 @@ async def test_account_deletion_removes_it(client, outbox, db):
     uid = await _me(client, outbox, db)
     await client.put(URL, json=FORM)
     out = await erase_user_data(db, uid)
-    assert out["hire_profile"] == 1 and not await db[HIRE_PROFILES].find_one({"_id": uid})
+    assert out["hire_profile"] == 1 and out["hire_invites"] == 0 and not await db[HIRE_PROFILES].find_one({"_id": uid})

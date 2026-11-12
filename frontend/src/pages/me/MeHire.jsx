@@ -1,7 +1,8 @@
 // "Ready to join" (Phase 5, H1): the candidate says they can start a job now — when, where, the salary they expect,
 // their notice period and the kinds of job — and agrees that companies hiring now may see their profile and invite
 // them. It lasts 7 days (Admin can change it); one tap on "Still ready" starts the days again. Pause keeps
-// everything. Phone and email are never shown to a company until the candidate accepts an invite.
+// everything. Phone and email are never shown to a company until the candidate accepts an invite. Invites from
+// companies (H2) show at the top: Accept, or Not interested with a reason.
 import { useEffect, useState } from 'react';
 import { useToast } from '../../components/ui';
 import { http } from '../../services/http';
@@ -49,6 +50,7 @@ export default function MeHire() {
   return (
     <>
       <MeHead title="Ready to join" sub="Tell companies hiring now that you can start, and they can invite you to an interview." />
+      <Invites />
       <section className="card stack g12" aria-labelledby="hire-status-h" data-testid="hire-status">
         <div className="row between g8"><strong id="hire-status-h">Status</strong><span className={`badge ${tone}`} data-testid="hire-badge">{s.available ? 'Visible' : s.on ? (s.paused ? 'Paused' : 'Not visible') : 'Off'}</span></div>
         <p className="small" style={{ margin: 0 }} data-testid="hire-line">{hireLine(s)}</p>
@@ -91,6 +93,60 @@ export default function MeHire() {
         </label>
       )}
     </>
+  );
+}
+
+const REASONS = [['salary', 'The salary is too low'], ['place', 'The place doesn’t suit me'], ['role', 'The role doesn’t suit me'], ['timing', 'I can’t join that soon'], ['joined', 'I already got a job'], ['other', 'Another reason']];
+const STATE = { sent: 'Waiting for your answer', accepted: 'Accepted: the company can see your email and phone', declined: 'Not interested', expired: 'Expired' };
+
+/** Invites from companies hiring now (H2): Accept shares the email and phone with that company; Not interested asks
+ * for a reason (no pop-up: the reasons open under the invite). */
+export function Invites() {
+  const toast = useToast();
+  const [list, setList] = useState(null);
+  const [why, setWhy] = useState({});
+  const [err, setErr] = useState('');
+  useEffect(() => { http('/api/me/hire/invites').then(setList, () => setList([])); }, []);
+  if (!list || !list.length) return null;
+  const answer = async (i, a, reason) => {
+    setErr('');
+    try {
+      const x = await http(`/api/me/hire/invites/${i.id}`, { method: 'POST', body: { answer: a, reason } });
+      setList(list.map((y) => (y.id === i.id ? { ...y, ...x } : y)));
+      setWhy({ ...why, [i.id]: undefined });
+      toast(a === 'accept' ? 'Accepted: the company will contact you' : 'Thanks, we told the company');
+    } catch (e) { setErr(e.message); }
+  };
+  return (
+    <section id="invites" className="card stack g12" aria-labelledby="hire-inv-h" data-testid="hire-invites">
+      <strong id="hire-inv-h">Invites from companies hiring now</strong>
+      {err && <p className="error" role="alert" style={{ margin: 0 }}>{err}</p>}
+      <ul className="stack g12" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+        {list.map((i) => (
+          <li key={i.id} className="card-sm stack g8" data-testid="hire-invite">
+            <strong>{i.role} · {i.company}</strong>
+            <span className="small">{[i.where, i.salary && (i.salary.min || i.salary.max) ? `₹${(i.salary.min || i.salary.max).toLocaleString('en-IN')}${i.salary.max && i.salary.min ? `–${i.salary.max.toLocaleString('en-IN')}` : ''} ${i.salary.period === 'monthly' ? 'a month' : 'a year'}` : ''].filter(Boolean).join(' · ')}</span>
+            {i.note && <span className="small">“{i.note}”</span>}
+            {i.jobUrl && <a href={i.jobUrl} className="small">See the job</a>}
+            {i.status === 'sent' && i.live ? (
+              why[i.id] ? (
+                <fieldset className="stack g4" style={{ border: 0, padding: 0, margin: 0 }}>
+                  <legend className="label">Why not? The company sees only this reason.</legend>
+                  {REASONS.map(([k, l]) => <button key={k} type="button" className="btn btn-outline btn-sm" style={{ alignSelf: 'flex-start' }} onClick={() => answer(i, 'decline', k)} data-testid={`hire-why-${k}`}>{l}</button>)}
+                  <button type="button" className="btn btn-ghost btn-sm" style={{ alignSelf: 'flex-start' }} onClick={() => setWhy({ ...why, [i.id]: false })}>Back</button>
+                </fieldset>
+              ) : (
+                <span className="row g8" style={{ flexWrap: 'wrap' }}>
+                  <button type="button" className="btn btn-ink" onClick={() => answer(i, 'accept')} data-testid="hire-accept">Accept</button>
+                  <button type="button" className="btn btn-outline" onClick={() => setWhy({ ...why, [i.id]: true })} data-testid="hire-decline">Not interested</button>
+                </span>
+              )
+            ) : <span className="badge b-neutral" style={{ alignSelf: 'flex-start', maxWidth: '100%', whiteSpace: 'normal', height: 'auto' }} data-testid="hire-invite-state">{i.status === 'sent' ? 'This job is closed' : STATE[i.status]}</span>}
+            {i.status === 'sent' && <span className="xs muted">Accepting shares your email and phone with {i.company} only.</span>}
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 

@@ -1896,3 +1896,29 @@ minutes" switches it on or off (on by default) and sets the limits.
 - API: `GET/PUT/DELETE /api/me/hire`, `POST /api/me/hire/confirm`, `POST /api/me/hire/pause {paused}`,
   `PUT /api/me/hire/emails {on}`, `POST /api/public/hire/still-ready {token}` (30 an hour per address).
 - Tests: `backend/tests/test_hire_available.py`, `frontend/e2e-live/hire-ready.spec.mjs` (desktop + 390 px).
+
+### H2. Instant shortlist (companies)
+
+- Company dashboard → **Hire now** tab: pick a live job and see, at once, the top 10 people who are ready to join
+  (H1, consent given, not stale), who can work where the job is (a city in common, or the job is remote) and take
+  that kind of job. Each row: first name and initial, match score and reasons (the job board's rules), join date and
+  notice, expected salary against the job's range, skill check (H3) and reliability ("New - no history yet" until
+  H4). Never email or phone.
+- **Invite** one person or **Invite all**, with an optional note. The candidate gets an email (not demo, bounced or
+  unverified addresses) and sees the invite at the top of `/me/hire` (the easy dashboard links to it). **Accept**
+  shares their email and phone with that company only and puts them in Applicants as Shortlisted (interview, offer
+  and talent pool work as before). **Not interested** needs a reason (salary, place, role, timing, already got a
+  job, another reason); the company sees only the reason. Unanswered invites expire after 7 days.
+- Only **Verified** companies; a Basic account sees a note and its Applicants.
+- Limits (Admin → Settings → Hire in 30 minutes): instant shortlists free a month per company (20 roles; the same
+  role again doesn't count), shortlists an hour (20), invites a day (60).
+- Paid company features (Admin → **Plans** → Company hiring): instant shortlists beyond the free roles, skill checks
+  (H3) and bulk hiring mode (H7). All are ticked (open to every Verified company) by default; untick one to keep it
+  to the companies you turn it on for in Admin → Companies → Review → "Hiring features for this company". No prices
+  are set here.
+- Demo candidates are shown only to demo companies, real ones never to demo companies.
+- API: `GET /api/company/{id}/hire/shortlist?job=`, `POST /api/company/{id}/hire/invite {job, people, note}`,
+  `GET /api/company/{id}/hire/invites?job=`, `GET /api/me/hire/invites`,
+  `POST /api/me/hire/invites/{id} {answer: accept|decline, reason}`,
+  `PUT /api/admin/companies/{id}/hire-features {features}`.
+- Tests: `backend/tests/test_hire_shortlist.py`, `frontend/e2e-live/hire-shortlist.spec.mjs` (desktop + 390 px).

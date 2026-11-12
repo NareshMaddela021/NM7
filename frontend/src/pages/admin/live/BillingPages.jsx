@@ -95,7 +95,34 @@ export function LivePlans() {
     <>
       <PageHead title="Organization plans" sub="Prices exclude GST. Limits left empty are unlimited. Kiosks are on when a plan allows at least one kiosk stall." right={<Link className="btn btn-outline" to="/admin/billing-settings">Billing settings</Link>} />
       <Loading st={st}>{(plans) => plans.map((p) => <PlanForm key={`${p.id}-${p.version}`} p={p} reload={st.reload} />)}</Loading>
+      <CompanyHiring />
     </>
+  );
+}
+
+const HIRE_GATES = [
+  ['instant', 'Instant shortlists beyond the free roles a month'],
+  ['tests', 'Skill checks'],
+  ['bulk', 'Bulk hiring mode (one post for many openings)'],
+];
+
+/** Hire in 30 minutes (Phase 5): the paid company features. Ticked = open to every Verified company (the default);
+ * not ticked = only companies turned on in Admin → Companies. The basic shortlist (applicants) is always free. */
+function CompanyHiring() {
+  const toast = useToast();
+  const st = useApi('/api/admin/settings');
+  const [busy, run] = useAction(toast);
+  return (
+    <Loading st={st}>{(s) => (
+      <section className="card stack g8" aria-label="Company hiring" data-testid="plans-hiring">
+        <strong>Company hiring (Hire in 30 minutes)</strong>
+        <span className="small muted">Paid company features. Ticked: open to every Verified company. Not ticked: only companies you turn it on for in Admin → Companies. Applicants and the basic shortlist are always free; the free roles a month and the limits are in Settings → Hire in 30 minutes.</span>
+        {HIRE_GATES.map(([k, l]) => (
+          <label key={k} className="row g8 small"><input type="checkbox" disabled={busy} checked={s.hire.open[k]} data-testid={`gate-${k}`}
+            onChange={(e) => run(async () => { await http('/api/admin/settings', { method: 'PUT', body: { hire: { on: s.hire.on, open: { ...s.hire.open, [k]: e.target.checked } } } }); st.reload(); }, 'Saved')} />{l}</label>
+        ))}
+      </section>
+    )}</Loading>
   );
 }
 

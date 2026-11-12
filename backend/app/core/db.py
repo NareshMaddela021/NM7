@@ -116,6 +116,8 @@ DELETION_REQUESTS = "deletion_requests"  # self-serve account deletions: dates a
 ORG_TRANSFERS = "org_transfers"  # an Owner handing the organization to someone else (code hashed, 48 hours)
 REFERRAL_REWARDS = "referral_rewards"  # _id = the inviter: when the reward was given, by which friends, revoked
 HEALTH = "resume_health"  # per user (_id = user id): dismissed resume health alerts, when the last alert email went
+HIRE_INVITES = "hire_invites"  # Phase 5 H2: a company invites an available candidate to a job; accept / not interested
+HIRE_USAGE = "hire_usage"  # Phase 5 H2, _id = company:YYYY-MM: the roles a company ran an instant shortlist for
 HIRE_PROFILES = "hire_profiles"  # Phase 5 H1, _id = user: "Ready to join" (join date, cities, salary), consent
 COLLECTIONS = (
     USERS,
@@ -196,6 +198,8 @@ COLLECTIONS = (
     AUTO_RUNS,
     EMAIL_BLOCKS,
     HIRE_PROFILES,
+    HIRE_INVITES,
+    HIRE_USAGE,
 )
 
 DAY = 86_400
@@ -274,6 +278,11 @@ INDEXES: dict[str, list[IndexModel]] = {
     ],
     AUTO_COPIES: [IndexModel([("user_id", ASCENDING), ("job_id", ASCENDING)])],
     HIRE_PROFILES: [IndexModel([("on", ASCENDING), ("confirmed_at", DESCENDING)])],
+    HIRE_INVITES: [
+        IndexModel([("company_id", ASCENDING), ("job_id", ASCENDING), ("user_id", ASCENDING)], unique=True),
+        IndexModel([("user_id", ASCENDING), ("created_at", DESCENDING)]),
+        IndexModel([("company_id", ASCENDING), ("created_at", DESCENDING)]),
+    ],
     TALENT_POOL: [IndexModel([("company_id", ASCENDING), ("user_id", ASCENDING)], unique=True), IndexModel("user_id")],
     JOB_REPORTS: [
         IndexModel([("job_id", ASCENDING), ("state", ASCENDING)]),

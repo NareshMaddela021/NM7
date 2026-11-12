@@ -115,6 +115,7 @@ function CompanyReview({ id, onClose, onChanged }) {
               {c.verifiedUntil && <div><dt>Verified until</dt><dd>{day(c.verifiedUntil)}</dd></div>}
             </dl>
             {c.details.about && <p className="small" style={{ margin: 0, whiteSpace: 'pre-line' }}>{c.details.about}</p>}
+            <HireFeatures c={c} onSaved={st.reload} />
             {ask ? (
               <Reason busy={busy} onCancel={() => setAsk('')}
                 label={{ reject: 'Why can’t we verify it?', reverify: 'Why does it need a new check?', block: 'Why is it blocked?' }[ask]}
@@ -140,6 +141,27 @@ function CompanyReview({ id, onClose, onChanged }) {
         );
       }}</Loading>
     </Panel>
+  );
+}
+
+const HIRE_FEATURES = [['instant', 'Instant shortlists beyond the free roles a month'], ['tests', 'Skill checks'], ['bulk', 'Bulk hiring mode']];
+
+/** Hire in 30 minutes: paid hiring features turned on for this one company (used when Admin → Plans → Company hiring
+ * doesn't open a feature to every Verified company). */
+function HireFeatures({ c, onSaved }) {
+  const toast = useToast();
+  const [busy, setBusy] = useState(false);
+  const on = c.hireFeatures || [];
+  const flip = async (k, yes) => {
+    setBusy(true);
+    try { await http(`/api/admin/companies/${c.id}/hire-features`, { method: 'PUT', body: { features: yes ? [...on, k] : on.filter((x) => x !== k) } }); toast('Saved'); onSaved(); } catch (e) { toast(e.message); } finally { setBusy(false); }
+  };
+  return (
+    <fieldset className="card-sm stack g4" style={{ margin: 0 }} data-testid="co-hire-features">
+      <legend className="small"><strong>Hiring features for this company</strong></legend>
+      <span className="xs muted">Needed only for features Admin → Plans → Company hiring doesn’t open to every Verified company.</span>
+      {HIRE_FEATURES.map(([k, l]) => <label key={k} className="row g8 small"><input type="checkbox" disabled={busy} checked={on.includes(k)} onChange={(e) => flip(k, e.target.checked)} data-testid={`co-hf-${k}`} />{l}</label>)}
+    </fieldset>
   );
 }
 

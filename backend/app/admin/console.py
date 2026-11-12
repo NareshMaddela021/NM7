@@ -750,7 +750,20 @@ class HireSettingsIn(CamelModel):
     """Hire in 30 minutes (Phase 5): on / off and how long a "Ready to join" lasts without "Still ready"."""
 
     on: bool
-    confirm_days: int = Field(7, ge=1, le=30)
+    confirm_days: int | None = Field(None, ge=1, le=30)
+    # H2 (left out: kept as they are)
+    free_shortlists: int | None = Field(None, ge=0, le=10000)  # roles a month per company
+    shortlists_per_hour: int | None = Field(None, ge=1, le=1000)
+    invites_per_day: int | None = Field(None, ge=0, le=5000)
+    open: "HireOpenIn | None" = None  # Admin → Plans → Company hiring
+
+
+class HireOpenIn(CamelModel):
+    """Paid company features: True = open to every Verified company; False = only those Admin turned it on for."""
+
+    instant: bool = True  # instant shortlists beyond the free roles a month
+    tests: bool = True  # skill checks (H3)
+    bulk: bool = True  # bulk hiring mode (H7)
 
 
 class LanguagesIn(CamelModel):
@@ -833,7 +846,14 @@ def _settings_out(site: dict[str, Any]) -> dict[str, Any]:
             "weights": site["simple"]["weights"],
         },
         "languages": {"teHi": bool(site["languages"]["te_hi"])},
-        "hire": {"on": bool(site["hire"]["on"]), "confirmDays": int(site["hire"]["confirm_days"])},
+        "hire": {
+            "on": bool(site["hire"]["on"]),
+            "confirmDays": int(site["hire"]["confirm_days"]),
+            "freeShortlists": int(site["hire"]["free_shortlists"]),
+            "shortlistsPerHour": int(site["hire"]["shortlists_per_hour"]),
+            "invitesPerDay": int(site["hire"]["invites_per_day"]),
+            "open": {k: bool(site["hire"]["open"].get(k, True)) for k in ("instant", "tests", "bulk")},
+        },
         "companies": {
             "basicJobsPerWeek": site["companies"]["basic_jobs_per_week"],
             "verifiedLiveJobs": site["companies"]["verified_live_jobs"],
@@ -877,7 +897,7 @@ async def put_settings(body: SettingsIn, request: Request, db: DB, auth: AdminAu
         changes["companies"] = body.companies.model_dump()
         diff["companies"] = {"from": before["companies"], "to": changes["companies"]}
     if body.hire:
-        new = {**before["hire"], **body.hire.model_dump()}
+        new = {**before["hire"], **body.hire.model_dump(exclude_none=True)}
         if new != before["hire"]:
             changes["hire"] = new
             diff["hire"] = {"from": before["hire"], "to": new}
