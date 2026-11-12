@@ -1960,3 +1960,23 @@ minutes" switches it on or off (on by default) and sets the limits.
   removes the events.
 - API: `GET /api/me/hire/reliability`. Tests: `backend/tests/test_hire_reliability.py`; the e2e checks are in
   `hire-ready.spec.mjs` and `hire-shortlist.spec.mjs`.
+
+### H5. One-tap interview slots
+
+- Company dashboard → Hire now → **Interview times** for the chosen job: add times (date and time in India time,
+  minutes, a place or an `https://` online link, interviewer, round; "One more time" copies the row). At most 30 open
+  times a job, from 15 minutes to 60 days ahead.
+- Candidates who accepted an invite (or were shortlisted) see "Pick your interview time" on `/me/hire` and book with
+  one tap. Two people can never take the same time. Picking another time moves the booking (a reason is asked, and
+  the company sees it). Cancelling needs a reason. The company can cancel a booked time with a reason too.
+- Both sides get an email with the calendar file (.ics) on booking, moving and cancelling, and reminders **1 day and
+  1 hour before** (the automation pass; once each). The calendar file can also be downloaded on both sides.
+- The booking sets the company application's interview (stage Interview), so Applicants and My applications show it.
+- After the time starts, the company marks **Attended** or **No-show** (tap again to clear). This feeds reliability
+  (H4); the candidate never sees which company marked it.
+- Deleting the account frees the booked times; the company keeps its times.
+- API: `POST/GET /api/company/{id}/hire/slots`, `POST /api/company/{id}/hire/slots/{slot}/cancel {reason}`,
+  `POST /api/company/{id}/hire/slots/{slot}/mark {result}`, `GET …/{slot}/ics`; `GET /api/me/hire/slots`,
+  `POST /api/me/hire/slots/{slot}/book {reason}`, `POST /api/me/hire/slots/{slot}/cancel {reason}`,
+  `GET /api/me/hire/slots/{slot}/ics`.
+- Tests: `backend/tests/test_hire_slots.py`, `frontend/e2e-live/hire-slots.spec.mjs` (desktop + 390 px).

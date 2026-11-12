@@ -118,6 +118,7 @@ REFERRAL_REWARDS = "referral_rewards"  # _id = the inviter: when the reward was 
 HEALTH = "resume_health"  # per user (_id = user id): dismissed resume health alerts, when the last alert email went
 HIRE_INVITES = "hire_invites"  # Phase 5 H2: a company invites an available candidate to a job; accept / not interested
 HIRE_USAGE = "hire_usage"  # Phase 5 H2, _id = company:YYYY-MM: the roles a company ran an instant shortlist for
+HIRE_SLOTS = "hire_slots"  # Phase 5 H5: interview times a company offers; the candidate books one
 HIRE_EVENTS = "hire_events"  # Phase 5 H4: real events behind the reliability score (attended, no-show, joined …)
 SKILL_QUESTIONS = "skill_questions"  # Phase 5 H3: the skill check question bank (Admin → Skill tests)
 SKILL_ATTEMPTS = "skill_attempts"  # Phase 5 H3: one skill check taken (questions, marks, tab switches, spoken text)
@@ -206,6 +207,7 @@ COLLECTIONS = (
     SKILL_QUESTIONS,
     SKILL_ATTEMPTS,
     HIRE_EVENTS,
+    HIRE_SLOTS,
 )
 
 DAY = 86_400
@@ -284,6 +286,12 @@ INDEXES: dict[str, list[IndexModel]] = {
     ],
     AUTO_COPIES: [IndexModel([("user_id", ASCENDING), ("job_id", ASCENDING)])],
     HIRE_PROFILES: [IndexModel([("on", ASCENDING), ("confirmed_at", DESCENDING)])],
+    HIRE_SLOTS: [
+        IndexModel([("job_id", ASCENDING), ("status", ASCENDING), ("starts_at", ASCENDING)]),
+        IndexModel([("company_id", ASCENDING), ("starts_at", ASCENDING)]),
+        IndexModel([("status", ASCENDING), ("starts_at", ASCENDING)]),
+        IndexModel("user_id"),
+    ],
     HIRE_EVENTS: [IndexModel([("user_id", ASCENDING), ("kind", ASCENDING), ("ref", ASCENDING)], unique=True)],
     SKILL_QUESTIONS: [IndexModel([("skill", ASCENDING), ("active", ASCENDING)])],
     SKILL_ATTEMPTS: [
