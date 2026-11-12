@@ -1346,14 +1346,24 @@ card count "Annual passes sold".
 
 - **tests.yml** runs on every pull request and every push to `main`: the API's lint and tests (backend), and the
   site's lint, unit tests and build (frontend).
-- **e2e.yml** is the full live browser suite (desktop + 390 px), plus the CSP check and the preview-build browser
-  tests. It runs nightly at 03:00 IST, by hand (Actions → e2e → Run workflow), and on pull requests while the
-  repository variable `CI_MODE` is `full`. `full` is the default when the variable isn't set.
-- Both skip docs-only changes (`*.md`, `docs/`), cache uv/npm downloads, and cancel an older run when a newer commit
-  arrives. Timeouts: backend 20, frontend 15, e2e 60 minutes.
-- **Switching to light** (to save Actions minutes once the repository is private): Settings → Secrets and variables
-  → Actions → Variables → New repository variable `CI_MODE` = `light`. Pull requests then run only tests.yml, and the
-  live suite runs nightly and by hand. Delete the variable, or set it to `full`, to go back.
+- **e2e.yml** holds the live browser tests (desktop + 390 px, against the real API). The repository variable
+  `CI_MODE` picks what a pull request runs:
+  - **`light` (the current setting, and the default when `CI_MODE` isn't set):** each pull request runs tests.yml (lint, unit tests, backend tests, build) and
+    the **quick** job: a smoke set (site shell and sign-in, home page, easy dashboard) plus the specs related to the
+    changed files, at most 10 (`.github/scripts/pick-e2e.mjs`; the step summary lists them). About 10 minutes.
+    The **whole suite** (job `live`: every spec, desktop + 390 px, plus the CSP check on the production build and the
+    preview-build browser tests) runs **nightly at 03:00 IST** on the production branch, and by hand.
+  - **`full`:** each pull request runs the whole suite (about 35 minutes).
+- **Switching back to full:** Settings → Secrets and variables → Actions → Variables → New repository variable (or
+  Edit) `CI_MODE` = `full` (or with the GitHub CLI: `gh variable set CI_MODE --body full`). Back to light: set it to
+  `light` or delete it. It applies to the next run; no code change.
+- **A full run by hand** (for example the complete run before launch): Actions → **e2e** → **Run workflow** → branch
+  `claude/fervent-albattani-wqmaoq` → **Run workflow** (or `gh workflow run e2e.yml --ref claude/fervent-albattani-wqmaoq`).
+  A run started by hand is always the whole suite, whatever `CI_MODE` says. tests.yml can be started the same way.
+- **When a nightly run fails:** the e2e run on the Actions page is red and the test results are attached to it; the
+  fix goes into the next pull request.
+- Both workflows skip docs-only changes (`*.md`, `docs/`), cache uv/npm downloads, and cancel an older run when a
+  newer commit arrives. Timeouts: backend 20, frontend 15, quick e2e 25, full e2e 60 minutes.
 - **deps.yml** runs only when dependency files change, and weekly. **backup.yml** runs nightly. **hygraph.yml**
   runs daily. **deploy-check.yml** runs after a backend change lands on the production branch.
 - Scheduled workflows run from the default branch (`main`), so `main` is kept level with the production branch
