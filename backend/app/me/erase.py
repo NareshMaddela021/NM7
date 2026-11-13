@@ -42,6 +42,8 @@ from app.core.db import (
     JOB_MATCHES,
     JOB_PROFILES,
     JOB_REPORTS,
+    JOINING_REPORTS,
+    JOININGS,
     LEARN_PROGRESS,
     LINKEDIN,
     LINKEDIN_PACKS,
@@ -111,6 +113,10 @@ async def erase_user_data(db: AsyncDatabase, user_id: str) -> dict[str, int]:
     out["practice_tests"] = await gone(PRACTICE_ATTEMPTS, mine)  # Phase 6 S3
     out["offer_checks"] = await gone(OFFER_CHECKS, mine)  # Phase 6 S5
     out["interview_reviews"] = await gone(INTERVIEW_REVIEWS, mine)  # Phase 6 S6
+    out["joinings"] = await gone(
+        JOININGS, mine
+    )  # Phase 6 S10 (reports to Nm7 keep the company side, without the person)
+    await db[JOINING_REPORTS].update_many(mine, {"$set": {"user_id": None, "note": ""}})
     out["program_apps"] = await gone(PROGRAM_APPS, mine)  # Phase 6 S8: certificates stop verifying
     out["certificates"] = await gone(CERTIFICATES, mine)
     out["offers"] = await gone(OFFERS, mine)
@@ -202,6 +208,9 @@ async def erase_account(db: AsyncDatabase, user_id: str) -> dict[str, int]:
                 "verified_skills": "",
                 "learn_nudges_off": "",
                 "learn_nudged_at": "",
+                "progress_snap": "",
+                "progress_emails_off": "",
+                "progress_mailed_at": "",
             },
         },
     )

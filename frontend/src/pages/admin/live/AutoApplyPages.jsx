@@ -29,7 +29,7 @@ export function LiveAutoApply() {
   const [busy, run] = useAction(toast);
   const [off, setOff] = useState(false);
   const save = (s, msg) => run(async () => { await http('/api/admin/auto-apply/settings', { method: 'PUT', body: s }); st.reload(); setOff(false); }, msg);
-  const demo = (url = '/api/admin/auto-apply/demo') => run(async () => { const r = await http(url, { method: 'POST' }); window.location.assign(r.path); });
+  const demo = (url = '/api/admin/auto-apply/demo', body) => run(async () => { const r = await http(url, { method: 'POST', body }); window.location.assign(r.path); });
   return (
     <>
       <PageHead title="Auto Apply" sub="Every morning Nm7 applies for students within their own rules. Nothing is ever submitted on other websites by a bot." />
@@ -86,6 +86,8 @@ export function LiveAutoApply() {
             <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start', maxWidth: '100%', whiteSpace: 'normal', textAlign: 'left', height: 'auto', minHeight: 40 }} disabled={busy} onClick={() => demo()} data-testid="aa-demo-open">Reset and open as student (Auto Apply)</button>
             <span className="xs muted">Easy dashboard: Ravi Kumar (demo) uses the simple dashboard in {raviLang}, with a half-done resume (no project yet), a job readiness score near 60%, the demo company’s jobs and one question waiting. Never public.</span>
             <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start', maxWidth: '100%', whiteSpace: 'normal', textAlign: 'left', height: 'auto', minHeight: 40 }} disabled={busy} onClick={() => demo('/api/admin/simple/demo')} data-testid="aa-demo-simple">Reset and open as student (Easy dashboard, {raviLang})</button>
+            <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start', maxWidth: '100%', whiteSpace: 'normal', textAlign: 'left', height: 'auto', minHeight: 40 }} disabled={busy} onClick={() => demo('/api/admin/seek/demo', { who: 'meera' })} data-testid="aa-demo-meera">Reset and open as student (Phase 6: Meera, learning and proving skills)</button>
+            <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start', maxWidth: '100%', whiteSpace: 'normal', textAlign: 'left', height: 'auto', minHeight: 40 }} disabled={busy} onClick={() => demo('/api/admin/seek/demo', { who: 'arjun' })} data-testid="aa-demo-arjun">Reset and open as student (Phase 6: Arjun, day 10 at a new job)</button>
           </section>
         </div>
       )}</Loading>

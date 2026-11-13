@@ -2270,3 +2270,35 @@ Free for students and job seekers unless Admin gates a feature. Each part below 
   - **Government-exam backup:** SSC, banking, railways and state PSC, each mapped to private roles that use the same subjects. Each role shows its live job count and a link to its learning path.
   - **Gap year or backlogs:** honest resume wording, built only from what the person enters (dates, reason, what they did, backlog count and status). Every suggestion passes the same check.
   - **Check my wording:** flags a line that hides a gap ("no gap", "continuous"…), claims no backlogs when there are some, says backlogs are cleared when they aren't, or shows a year the person didn't give.
+
+### S10. First 90 days and weekly progress
+
+- **Where:** `/me/progress` (Dashboard → My progress).
+- **During the search:** a weekly card shows only what really happened in the last 7 days:
+  - applications;
+  - interviews (scheduled by a company, or a booked Hire-now slot);
+  - skills verified;
+  - the readiness score, and its change since last week (one snapshot a week).
+
+  A kind, honest message goes with it. For example: a quiet week gets one small next step, never pressure and never made-up numbers.
+- **Weekly email:** the same card, at most once a week. It goes to people who applied in the last 30 days and haven't joined a job. It has a "Stop these emails" link (`/stop-alerts#k=progress`).
+- **After joining:** a job appears automatically when an Nm7 offer is marked Joined, or the student adds one with "I joined a job". Each job has:
+  - a **first-90-days checklist** (week 1, month 1, month 3) and probation tips;
+  - **check-ins on day 7 and day 30:** "Is the job what was promised?"
+    - Each check-in sends one email, once, unless emails are stopped.
+    - **No** opens a short private form (pay, role, hours, place, safety, other, plus a note). The form goes to **Admin → Joining reports**. The company is not told who wrote it.
+- **Trust score:** reports about the same company from **two or more different people** in 180 days lower its trust score by 5 points for each person after the first. If Admin **dismisses** a report (not about the company), it stops counting.
+- **Account deletion** removes the joined jobs. Reports stay for the company side, without the person's name or note.
+
+### Phase 6 demo
+
+Admin → Auto Apply has two new buttons, next to the other demo students: **Reset and open as student (Phase 6: Meera …)** and **(… Arjun …)**. Both are demo-only and never public.
+
+- **Meera** has:
+  - the role finder done (Data analyst);
+  - the learning path half done, with **Skill verified: SQL**;
+  - practice history;
+  - a saved offer check with a **bond warning**;
+  - interview feedback received;
+  - a **live project completed** with its certificate.
+- **Arjun** is on **day 10** of a new job: checklist started, day 7 check-in answered.

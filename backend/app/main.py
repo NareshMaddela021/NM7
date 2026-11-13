@@ -99,7 +99,9 @@ from app.payments.router import router as payments_router
 from app.photos.router import router as photos_router
 from app.profile.router import router as profile_router
 from app.projects.router import router as projects_router
+from app.seek import demo as seek_demo
 from app.seek import feedback as seek_feedback
+from app.seek import first90 as seek_first90
 from app.seek import guidance as seek_guidance
 from app.seek import offers as seek_offers
 from app.seek import paths as seek_paths
@@ -296,6 +298,9 @@ def create_app() -> FastAPI:
     app.include_router(seek_guidance.public)  # /api/public/guidance/exams (Phase 6 S9)
     app.include_router(seek_guidance.me)  # /api/me/guidance/wording, /check
     app.include_router(seek_support.admin)  # /api/admin/companies/{cid}/policies/{key}/remove (Phase 6 S9)
+    for r in (seek_first90.me, seek_first90.public, seek_first90.admin):
+        app.include_router(r)  # /api/me/progress: first 90 days, weekly progress (Phase 6 S10)
+    app.include_router(seek_demo.admin)  # /api/admin/seek/demo (Phase 6 demo students)
     app.include_router(hire_skillcheck.me)  # /api/me/skill-checks (10-minute tests, H3)
     app.include_router(hire_skillcheck.admin)  # /api/admin/skill-tests (the question bank, H3)
     app.include_router(simple_guided.router)  # /api/me/simple/resume (resume by talking, E4)
