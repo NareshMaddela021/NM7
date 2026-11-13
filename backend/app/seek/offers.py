@@ -305,17 +305,21 @@ def check_explain(text: str, r: dict[str, Any]):
     return check
 
 
+# structured outputs need additionalProperties false on every object (round L)
+EXPLAIN_SCHEMA = {"type": "object", "properties": {"explanation": {"type": "string"}}, "required": ["explanation"],
+                  "additionalProperties": False}  # fmt: skip
+
+
 async def ai_explain(db, uid: str, text: str, r: dict[str, Any]) -> str | None:
     if not get_settings().anthropic_api_key:
         return None
     if not await ai_quota.take(db, "offers", uid):
         return None
-    schema = {"type": "object", "properties": {"explanation": {"type": "string"}}, "required": ["explanation"]}
     content = ("Explain these offer-letter check findings to an Indian fresher in 2-4 short, plain sentences. Use only "
                "the findings; no new numbers; no promises; don't call it legal advice. Findings: "
                + str([{k: f.get(k) for k in ("title", "detail")} for f in r["findings"]]))  # fmt: skip
     try:
-        return await claude.ask_models("offers", content, schema, check_explain(text, r), max_tokens=300, effort="low",
+        return await claude.ask_models("offers", content, EXPLAIN_SCHEMA, check_explain(text, r), max_tokens=300, effort="low",
                                        timeout_s=20, retries=1)  # fmt: skip
     except Exception:  # noqa: BLE001  (any failure, Unusable included: the rules' words)
         await ai_quota.note(db, "offers", "fallback")

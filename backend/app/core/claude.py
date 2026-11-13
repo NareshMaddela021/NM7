@@ -104,6 +104,53 @@ def error_detail(e: BaseException) -> str:
     return f" (type={e.type or err.get('type') or '-'}, request_id={request_id}, message={message!r})"
 
 
+def strict_schema(schema: Any) -> Any:
+    """The schema as structured outputs accept it: every object says `additionalProperties: false` (the API refuses
+    an object schema without it, 400 in under a second: round L, the job collector), and a nullable type written as
+    a list (`["object", "null"]`) becomes `anyOf`. Returns a copy; the caller's schema is left as it is."""
+    if isinstance(schema, list):
+        return [strict_schema(x) for x in schema]
+    if not isinstance(schema, dict):
+        return schema
+    out = {k: strict_schema(v) for k, v in schema.items()}
+    t = out.get("type")
+    if isinstance(t, list):
+        rest = {k: v for k, v in out.items() if k != "type"}
+        return {"anyOf": [strict_schema({**rest, "type": x}) if x != "null" else {"type": "null"} for x in t]}
+    if t == "object" or "properties" in out:
+        out.setdefault("additionalProperties", False)
+    return out
+
+
+def schema_problems(schema: Any, where: str = "$") -> list[str]:
+    """What structured outputs would refuse in this schema (for tests): objects without additionalProperties false,
+    type lists, `required` keys that aren't properties."""
+    found: list[str] = []
+    if isinstance(schema, list):
+        for i, x in enumerate(schema):
+            found += schema_problems(x, f"{where}[{i}]")
+        return found
+    if not isinstance(schema, dict):
+        return found
+    if isinstance(schema.get("type"), list):
+        found.append(f"{where}: type is a list")
+    if (schema.get("type") == "object" or "properties" in schema) and schema.get("additionalProperties") is not False:
+        found.append(f"{where}: object without additionalProperties: false")
+    for k in schema.get("required") or []:
+        if k not in (schema.get("properties") or {}):
+            found.append(f"{where}: required {k!r} is not a property")
+    for k, v in schema.items():
+        if isinstance(v, (dict, list)):
+            found += schema_problems(v, f"{where}.{k}")
+    return found
+
+
+def as_blocks(content: Any) -> list[dict[str, Any]]:
+    """The message content as a list of blocks (a plain string becomes one text block, so the loose mode can add the
+    schema to the last block)."""
+    return [{"type": "text", "text": content}] if isinstance(content, str) else list(content)
+
+
 def params(model: str, thinking: dict[str, Any] | None = None) -> dict[str, Any]:
     """What this model accepts: the refusal fallback only where Anthropic offers it; `thinking` as asked, except
     that thinking off goes only to the models that take it (THINKING_OFF)."""
@@ -185,6 +232,7 @@ async def ask(
     Returns the parsed JSON (not yet checked). Raises Unusable or the SDK's APIError."""
     c = client(timeout_s, retries, http_client)
     key = f"{feature}:{model}"
+    content, schema = as_blocks(content), strict_schema(schema)
     for strict in modes or ((True, False) if key not in NO_GRAMMAR else (False,)):
         output_config: dict[str, Any] = {"effort": effort}
         if strict:

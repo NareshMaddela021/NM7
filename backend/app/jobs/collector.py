@@ -294,17 +294,31 @@ def check_summary(page: str):
     return check
 
 
+# structured outputs: every object needs additionalProperties false (without it the API answers 400 at once, which
+# sent every job of the first real batch to review: round L); salary is null unless the page states it
+SALARY = {
+    "type": "object",
+    "properties": {
+        "min": {"type": "number"},
+        "max": {"type": "number"},
+        "period": {"type": "string", "enum": ["monthly", "yearly"]},
+    },
+    "required": ["period"],
+    "additionalProperties": False,
+}
 SCHEMA = {
     "type": "object",
     "properties": {
         "summary": {"type": "string"},
         "skills": {"type": "array", "items": {"type": "string"}},
         "work_type": {"type": "string", "enum": ["onsite", "hybrid", "remote", "unknown"]},
-        "salary": {"type": ["object", "null"], "properties": {"min": {"type": "number"}, "max": {"type": "number"},
-                                                              "period": {"type": "string", "enum": ["monthly", "yearly"]}}},
+        "salary": {"anyOf": [SALARY, {"type": "null"}]},
     },
-    "required": ["summary", "skills", "work_type"],
+    "required": ["summary", "skills", "work_type", "salary"],
+    "additionalProperties": False,
 }  # fmt: skip
+PAGE_SENT = 12_000  # characters of page text sent to Claude
+HTTP_CLIENT = None  # tests put a mock transport here
 
 
 def _day() -> str:
@@ -344,22 +358,33 @@ async def summarise(db, j: CollectorJob) -> tuple[dict[str, Any] | None, str]:
         return None, "summary_unavailable"
     if not await take_budget(db):
         return None, "ai_daily_limit"
-    content = (
+    try:
+        out = await claude.ask_models("jobs", prompt(j, page), SCHEMA, check_summary(page), **ASK,
+                                      http_client=HTTP_CLIENT)  # fmt: skip
+    except Exception as e:  # noqa: BLE001  (any failure: the job waits for review instead)
+        await ai_quota.note(db, "jobs", "fallback")
+        # the kind and Anthropic's own message and request id (never the prompt, the page or the key)
+        log.warning("collector summary failed: %s%s", claude.error_kind(e), claude.error_detail(e))
+        return None, "summary_failed"
+    return out, ""
+
+
+# thinking off where the model takes it (the summary is short and fully specified; thinking tokens count toward
+# max_tokens), room for a 900-character summary, 10 skills and a salary
+ASK = {"max_tokens": 1500, "effort": "low", "timeout_s": 40, "retries": 1, "thinking": {"type": "disabled"}}
+
+
+def prompt(j: CollectorJob, page: str) -> list[dict[str, Any]]:
+    """The request's content: the instructions and the job's own (scrubbed) page text, as one text block."""
+    text = (
         "Write a short, ORIGINAL summary (300 to 900 characters) of this job for job seekers in India, in plain English, "
         "in your own words: what the role does, the key skills, who can apply (education, experience), and the place "
         "and work type. Use only facts stated in the page below; if something isn't stated, leave it out. Do not copy "
         "sentences. No names of people, no email addresses, no phone numbers. Also list up to 10 key skills, the work "
-        "type, and the salary only if the page states it (rupees).\n\nJob: "
-        f"{j.title} at {j.company} ({j.location})\n\nPage text:\n{page[:12000]}"
+        "type, and the salary only if the page states it (rupees; otherwise salary is null).\n\nJob: "
+        f"{j.title} at {j.company} ({j.location or 'location not stated'})\n\nPage text:\n{page[:PAGE_SENT]}"
     )
-    try:
-        out = await claude.ask_models("jobs", content, SCHEMA, check_summary(page), max_tokens=700, effort="low",
-                                      timeout_s=40, retries=1)  # fmt: skip
-    except Exception as e:  # noqa: BLE001  (any failure: the job waits for review instead)
-        await ai_quota.note(db, "jobs", "fallback")
-        log.warning("collector summary failed: %s", type(e).__name__)
-        return None, "summary_failed"
-    return out, ""
+    return [{"type": "text", "text": text}]
 
 
 # --- one job ---------------------------------------------------------------------------------------------------------
