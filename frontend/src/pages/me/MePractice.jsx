@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { http } from '../../services/http';
 import { MeHead } from './MeLayout';
+import { countOf } from '../../lib/format';
 
 function Weak({ weak }) {
   if (!weak?.length) return null;
@@ -14,7 +15,7 @@ function Weak({ weak }) {
       <strong>Topics to work on</strong>
       {weak.map((w) => (
         <div key={w.topic} className="stack g4">
-          <span className="small"><strong>{w.topic}</strong> · {w.pct}% right in {w.answered} answers</span>
+          <span className="small"><strong>{w.topic}</strong> · {w.pct}% right in {countOf(w.answered, 'answer')}</span>
           {w.courses.length ? w.courses.map((c) => <a key={c.id} className="xs" href={c.url} target="_blank" rel="noopener noreferrer" style={{ overflowWrap: 'anywhere' }}>Free: {c.title} ({c.provider})</a>) : <span className="xs muted">Practise this topic again; free courses for it will show here.</span>}
         </div>
       ))}
@@ -104,7 +105,7 @@ export default function MePractice() {
           {d.topics.length > 0 && (
             <section className="card stack g4" aria-label="My scores by topic" data-testid="pr-topics">
               <strong>My scores by topic (last 90 days)</strong>
-              {d.topics.map((x) => <span key={x.topic} className="small">{x.topic}: {x.pct}% · {x.answered} answers</span>)}
+              {d.topics.map((x) => <span key={x.topic} className="small">{x.topic}: {x.pct}% · {countOf(x.answered, 'answer')}</span>)}
             </section>
           )}
         </>

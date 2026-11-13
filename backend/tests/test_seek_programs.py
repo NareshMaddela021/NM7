@@ -32,7 +32,15 @@ async def test_rules_and_free_labour():
     assert free_labour(base) == []
     assert free_labour({**base, "seats": 30}) == ["Unpaid, for more than 20 students"]
     assert free_labour({**base, "seats": 30, "stipend": 5000}) == []
-    assert free_labour({**base, "kind": "internship", "weeks": 20}) == ["Unpaid internship longer than 3 months"]
+    assert free_labour({**base, "kind": "internship", "weeks": 20}) == ["Unpaid internship longer than 2 months"]
+    assert free_labour({**base, "kind": "internship", "weeks": 8}) == []
+    assert free_labour(
+        {**base, "kind": "internship", "weeks": 8, "brief": "Work full time from our office on reports."}
+    )
+    assert (
+        free_labour({**base, "kind": "internship", "weeks": 8, "stipend": 8000, "brief": "Work full time on reports."})
+        == []
+    )
     assert (
         "paid work"
         in free_labour({**base, "brief": "Handle calls from our clients and meet sales targets every week for us."})[0]
@@ -131,6 +139,28 @@ async def test_free_labour_held_for_admin(client, outbox, db, admin_client):
         "status"
     ] == "removed"
     assert (await client.get("/api/programs")).json() == []
+
+
+LIVE_TEST = {  # the 13 Nov live test: unpaid, 12 weeks, running the company's social media full time
+    "kind": "internship",
+    "title": "Social media intern",
+    "brief": "Run our social media accounts full time, make daily posts and handle customer messages",
+    "weeks": 12,
+    "stipend": 0,
+    "remote": True,
+    "seats": 1,
+}
+
+
+async def test_unpaid_long_full_time_internship_held(client, outbox, db, admin_client):
+    session, cid = await verified(client, outbox, db)
+    await db[COMPANIES].update_one({"_id": cid}, {"$set": {"demo": True}})  # demo companies get the same check
+    p = (await client.post(f"/api/company/{cid}/programs", json=LIVE_TEST, headers=H(session))).json()
+    assert p["status"] == "review"
+    assert "Unpaid internship longer than 2 months" in p["flags"]
+    assert any("regular job" in f for f in p["flags"])
+    owner = await admin_client("owner")
+    assert [x["id"] for x in (await owner.get("/api/admin/programs", params={"flagged": True})).json()] == [p["id"]]
 
 
 async def test_erased_with_the_account(client, outbox, db, make_client):

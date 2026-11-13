@@ -5,7 +5,7 @@
        30 made-up candidates who are ready to join, across IT and non-IT, with resumes, shared skill check results
        and reliability histories (some new, never ranked lower); a bulk hiring post (50 openings) for a customer
        support role in Hyderabad; three interview times tomorrow; one candidate who accepted an invite and has an
-       offer waiting. Signs this browser in as the demo company's main admin → {session}.
+       offer waiting. One live-job slot stays free, so Post a job works. Signs this browser in as the demo company's main admin → {session}.
 
 Demo people can't sign in (no password), get no email (demo addresses end in .invalid and demo accounts are skipped),
 are shown only to demo companies, and are never on the job board, a company page, the supply map or a sitemap.
@@ -43,6 +43,7 @@ from app.hire.skillcheck import ensure_bank
 from app.hire.templates import TEMPLATES
 from app.jobs.apply import FOLLOW_AFTER, app_key, job_page
 from app.jobs.model import JobIn, slug_for, to_doc
+from app.site import get_site
 
 router = APIRouter(prefix="/api/admin/demo-company/hire", tags=["hire in 30 minutes"])
 
@@ -139,6 +140,12 @@ async def create(db) -> dict[str, Any]:
         "salary": {"min": 180000, "max": 264000, "period": "yearly"},
     })  # fmt: skip
     jid = f"demo-hire-{ObjectId()}"
+    # keep a free live-job slot so "Post a job" and the job templates can be tried (13 Nov live test): with the bulk
+    # post added, close the newest other live demo jobs until one slot is left under the Verified limit
+    limit = int((await get_site(db))["companies"]["verified_live_jobs"])
+    others = await db[JOBS].find({"company_id": cid, "status": "active"}, {"_id": 1}).sort("posted_at", 1).to_list(50)
+    for extra in others[max(0, limit - 2) :]:
+        await db[JOBS].update_one({"_id": extra["_id"]}, {"$set": {"status": "closed", "closed_reason": "filled"}})
     await db[JOBS].insert_one({"_id": jid, **to_doc(body), "slug": slug_for(cs["title"], company_demo.NAME),
                                "status": "active", "source": "company", "company_id": cid, "demo": True,
                                "posted_at": t, "created_at": t, "updated_at": t, "questions": [],

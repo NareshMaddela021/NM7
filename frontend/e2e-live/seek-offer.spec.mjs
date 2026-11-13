@@ -33,7 +33,7 @@ for (const [label, opts] of SIZES) {
       const res = page.getByTestId('oc-result');
       await expect(res.getByTestId('oc-verdict')).toHaveText('Warning');
       await expect(res.locator('[data-kind="fee"]')).toContainText('pay a fee or deposit');
-      await expect(res.locator('[data-kind="bond"]')).toContainText('2 year(s)');
+      await expect(res.locator('[data-kind="bond"]')).toContainText('₹1,50,000 if you leave early, 2 years');
       await expect(res.getByTestId('oc-note')).toContainText("ask the company's HR or a lawyer");
       await expect(res).not.toContainText(/legal advice/i);
       expect(await noSideScroll(page)).toBe(true);

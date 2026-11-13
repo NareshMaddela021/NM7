@@ -2,7 +2,7 @@
 // set; review the work students send; a completed one gets a certificate with a verification link. Unpaid is
 // allowed and shown as "Unpaid"; work that looks like free labour is checked by Nm7 before students see it.
 // English, Telugu and Hindi (co.pg.*).
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { rq } from '../../lib/company';
 
 const BLANK = { kind: 'project', title: '', brief: '', deliverable: '', deadline: '', weeks: '2', stipend: '', remote: true, city: '', seats: '5' };
@@ -40,6 +40,8 @@ export default function CompanyPrograms({ t, c }) {
   const [f, setF] = useState(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
+  const uid = useId(); // every label is tied to its input by id (13 Nov live test: screen readers read "on" or nothing)
+  const id = (k) => `${uid}-${k}`;
   const load = () => rq(`/api/company/${c.id}/programs`).then(setRows, (x) => { setErr(x.message); setRows([]); });
   useEffect(() => { load(); }, [c.id]); // eslint-disable-line react-hooks/exhaustive-deps
   if (c.trust !== 'verified') return <section className="card stack g8" data-testid="co-pg"><strong>{t('co.pg.title')}</strong><p className="small">{t('co.pg.basic')}</p></section>;
@@ -61,18 +63,28 @@ export default function CompanyPrograms({ t, c }) {
       </div>
       {f && (
         <form className="card stack g8" onSubmit={post} data-testid="co-pg-form">
-          <div className="row g12" style={{ flexWrap: 'wrap' }}>{['project', 'internship'].map((k) => <label key={k} className="row g4 small"><input type="radio" name="co-pg-kind" checked={f.kind === k} onChange={() => setF({ ...f, kind: k, weeks: k === 'project' ? '2' : '8' })} />{t(`co.pg.kind.${k}`)}</label>)}</div>
-          <label className="field"><span className="label">{t('co.pg.f.title')}</span><input className="input" required maxLength={120} value={f.title} onChange={set('title')} data-testid="co-pg-title" /></label>
-          <label className="field"><span className="label">{t('co.pg.f.brief')}</span><textarea className="input" rows={3} required maxLength={3000} value={f.brief} onChange={set('brief')} data-testid="co-pg-brief" /></label>
-          {f.kind === 'project' && <label className="field"><span className="label">{t('co.pg.f.deliverable')}</span><input className="input" maxLength={600} value={f.deliverable} onChange={set('deliverable')} data-testid="co-pg-deliverable" /></label>}
+          <fieldset className="stack g4" style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
+            <legend className="label">{t('co.pg.f.kind')}</legend>
+            <div className="row g12" style={{ flexWrap: 'wrap' }}>
+              {['project', 'internship'].map((k) => (
+                <span key={k} className="row g4 small">
+                  <input type="radio" id={id(`kind-${k}`)} name="co-pg-kind" value={k} checked={f.kind === k} onChange={() => setF({ ...f, kind: k, weeks: k === 'project' ? '2' : '8' })} data-testid={`co-pg-kind-${k}`} />
+                  <label htmlFor={id(`kind-${k}`)}>{t(`co.pg.kind.${k}`)}</label>
+                </span>
+              ))}
+            </div>
+          </fieldset>
+          <div className="field"><label className="label" htmlFor={id('title')}>{t('co.pg.f.title')}</label><input id={id('title')} className="input" required maxLength={120} value={f.title} onChange={set('title')} data-testid="co-pg-title" /></div>
+          <div className="field"><label className="label" htmlFor={id('brief')}>{t('co.pg.f.brief')}</label><textarea id={id('brief')} className="input" rows={3} required maxLength={3000} value={f.brief} onChange={set('brief')} data-testid="co-pg-brief" /></div>
+          {f.kind === 'project' && <div className="field"><label className="label" htmlFor={id('deliverable')}>{t('co.pg.f.deliverable')}</label><input id={id('deliverable')} className="input" maxLength={600} value={f.deliverable} onChange={set('deliverable')} data-testid="co-pg-deliverable" /></div>}
           <div className="co-grid">
-            {f.kind === 'project' && <label className="field"><span className="label">{t('co.pg.f.deadline')}</span><input className="input" type="date" value={f.deadline} onChange={set('deadline')} data-testid="co-pg-deadline" /></label>}
-            <label className="field"><span className="label">{t('co.pg.f.weeks')}</span><input className="input" inputMode="numeric" value={f.weeks} onChange={set('weeks')} data-testid="co-pg-weeks" /></label>
-            <label className="field"><span className="label">{t('co.pg.f.stipend')}</span><input className="input" inputMode="numeric" value={f.stipend} onChange={set('stipend')} placeholder="0" /></label>
-            <label className="field"><span className="label">{t('co.pg.f.seats')}</span><input className="input" inputMode="numeric" value={f.seats} onChange={set('seats')} data-testid="co-pg-seats" /></label>
+            {f.kind === 'project' && <div className="field"><label className="label" htmlFor={id('deadline')}>{t('co.pg.f.deadline')}</label><input id={id('deadline')} className="input" type="date" value={f.deadline} onChange={set('deadline')} data-testid="co-pg-deadline" /></div>}
+            <div className="field"><label className="label" htmlFor={id('weeks')}>{t('co.pg.f.weeks')}</label><input id={id('weeks')} className="input" inputMode="numeric" value={f.weeks} onChange={set('weeks')} data-testid="co-pg-weeks" /></div>
+            <div className="field"><label className="label" htmlFor={id('stipend')}>{t('co.pg.f.stipend')}</label><input id={id('stipend')} className="input" inputMode="numeric" value={f.stipend} onChange={set('stipend')} placeholder="0" data-testid="co-pg-stipend" /></div>
+            <div className="field"><label className="label" htmlFor={id('seats')}>{t('co.pg.f.seats')}</label><input id={id('seats')} className="input" inputMode="numeric" value={f.seats} onChange={set('seats')} data-testid="co-pg-seats" /></div>
           </div>
-          <label className="row g8 small"><input type="checkbox" checked={f.remote} onChange={set('remote')} />{t('co.pg.f.remote')}</label>
-          {!f.remote && <label className="field"><span className="label">{t('co.pg.f.city')}</span><input className="input" maxLength={60} value={f.city} onChange={set('city')} /></label>}
+          <span className="row g8 small"><input type="checkbox" id={id('remote')} checked={f.remote} onChange={set('remote')} data-testid="co-pg-remote" /><label htmlFor={id('remote')}>{t('co.pg.f.remote')}</label></span>
+          {!f.remote && <div className="field"><label className="label" htmlFor={id('city')}>{t('co.pg.f.city')}</label><input id={id('city')} className="input" maxLength={60} value={f.city} onChange={set('city')} data-testid="co-pg-city" /></div>}
           {err && <p className="error" role="alert">{err}</p>}
           <div className="row g8"><button type="submit" className="btn btn-ink btn-sm" disabled={busy} data-testid="co-pg-post">{t('co.pg.post')}</button><button type="button" className="btn btn-outline btn-sm" onClick={() => setF(null)}>{t('co.pg.cancel')}</button></div>
         </form>

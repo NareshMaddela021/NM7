@@ -13,8 +13,8 @@ Candidate (signed in):
 Who is shown: "Ready to join" is available (H1: on, consent, not paused, confirmed within the days Admin set), the
 candidate can work where the job is (a city in common, or the job is remote), takes this kind of job (when they said),
 and has a resume. Demo candidates are shown only to demo companies, and real ones never to demo companies. Ranked by the
-match score (the job board's rules: skills, experience, place) with a small step down when the salary they expect is
-above the job's range, then the soonest join date. Each row: first name and initial, match score and reasons,
+match score (the job board's rules: skills, experience, place), strictly; on the same score, a salary within the job's
+range comes first, then the soonest join date. Each row: first name and initial, match score and reasons,
 availability, salary fit, skill check (H3) and reliability (H4); never email or phone until the candidate accepts.
 
 Only Verified companies; a Basic company sees its applicants only. Limits (Admin → Settings → Hire in 30 minutes):
@@ -113,10 +113,14 @@ def short_name(name: str) -> str:
     return parts[0] if len(parts) == 1 else f"{parts[0]} {parts[-1][0].upper()}."
 
 
+MATCH_KEYS = ("score", "found", "missing", "experience", "level", "years", "place", "city")  # city: "In Hyderabad"
+SALARY_ORDER = {"within": 0, "below": 0, "unknown": 1, "above": 2}
+
+
 def rank_key(row: dict[str, Any]) -> tuple:
-    over = 8 if row["salary"]["fit"] == "above" else 0
+    """Strictly by match score; on the same score, salary within the range first, then the soonest join date."""
     join = row["availability"]["joinDate"] or "9999-12-31"
-    return (-(row["match"]["score"] - over), join, row["key"])
+    return (-row["match"]["score"], SALARY_ORDER.get(row["salary"]["fit"], 1), join, row["key"])
 
 
 def month_id(cid: str, t: datetime | None = None) -> str:
@@ -222,7 +226,7 @@ async def candidates(
             {
                 "key": p["_id"],
                 "name": short_name(u.get("name", "")),
-                "match": {k: m[k] for k in ("score", "found", "missing", "experience", "level", "years", "place")},
+                "match": {k: m.get(k) for k in MATCH_KEYS},
                 "where": where,
                 "availability": {
                     "joinDate": p.get("join_date") or "",

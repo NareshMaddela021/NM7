@@ -9,7 +9,7 @@ import base64
 from fpdf import FPDF
 
 from app.core.db import COMPANIES, OFFER_CHECKS, USERS
-from app.seek.offers import ctc_yearly, years_in
+from app.seek.offers import company_name, ctc_yearly, inr, role_of, years_in
 from tests.conftest import signup
 from tests.test_seek_salary import _fresh_cache, _jobs  # noqa: F401
 
@@ -41,6 +41,38 @@ def test_rule_helpers():
     assert ctc_yearly("CTC: 4.5 LPA") == 450000
     assert years_in("serve the company for 2 years") == 2 and years_in("a bond of three years") == 3
     assert years_in("for 18 months") == 1.5
+
+
+LIVE_TEST = (  # the 13 Nov live test
+    "Dear candidate, congratulations! You are selected as Data Analyst at Star Global Solutions with a salary of "
+    "Rs 60,000 per month. Please pay a refundable security deposit of Rs 5,000 for your laptop before joining. You "
+    "must sign a 3 year service bond; leaving early costs Rs 2,00,000. Contact HR on WhatsApp only."
+)
+
+
+def test_names_and_amounts():
+    assert company_name(LIVE_TEST) == "Star Global Solutions"
+    assert company_name("Bright Future Solutions\nCongratulations! You are selected.") == "Bright Future Solutions"
+    assert company_name("For and on behalf of Demo Skills Pvt Ltd, HR") == "Demo Skills Pvt Ltd"
+    assert role_of(LIVE_TEST) == "Data Analyst"
+    assert role_of("Your designation: Junior Accountant, based in Pune.") == "Junior Accountant"
+    assert (
+        inr(200000) == "₹2,00,000" and inr(5000) == "₹5,000" and inr(12345678) == "₹1,23,45,678" and inr(500) == "₹500"
+    )
+
+
+async def test_live_test_letter(client, outbox, db):
+    await signup(client, outbox)
+    r = (await client.post("/api/me/offer-check", json={"text": LIVE_TEST})).json()
+    by = {f["kind"]: f for f in r["findings"]}
+    assert r["verdict"] == "warning"
+    assert by["company"]["title"] == "Star Global Solutions isn't on Nm7"
+    assert "role" not in by["missing"]["missing"]  # "selected as Data Analyst" names the role
+    assert r["facts"]["role"] == "Data Analyst" and r["facts"]["company"] == "Star Global Solutions"
+    assert by["bond"]["amount"] == 200000 and by["bond"]["years"] == 3 and by["bond"]["level"] == "warning"
+    assert "₹2,00,000" in by["bond"]["title"] and "₹2,00,000" in by["bond"]["detail"]
+    assert by["fee"]["level"] == "warning" and "₹5,000" in by["fee"]["title"]
+    assert by["chat_only"]["level"] == "warning" and "WhatsApp" in by["chat_only"]["title"]
 
 
 async def test_clean_offer_looks_ok(client, outbox, db):

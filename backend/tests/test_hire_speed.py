@@ -79,6 +79,11 @@ async def test_demo(client, outbox, db, admin_client):
     assert job["demo"] and job["hire_bulk"]["openings"] == 50
     assert await db[HIRE_SLOTS].count_documents({"job_id": job["_id"], "status": "open"}) == 3
     assert await db[HIRE_OFFERS].count_documents({"job_id": job["_id"], "status": "sent"}) == 1
+    # one live-job slot is left (13 Nov live test: it started at 3 of 3, so Post a job couldn't be tried)
+    from app.companies.limits import posting_room
+
+    lim = await posting_room(db, await db[COMPANIES].find_one({"_id": job["company_id"]}))
+    assert lim["allowed"] and lim["used"] == lim["limit"] - 1, lim
     # the demo company sees demo people on the shortlist (with test results and history)
     sl = (await client.get(f"/api/company/{job['company_id']}/hire/shortlist", params={"job": job["_id"], "size": 50},
                            headers=H(r["session"]))).json()  # fmt: skip

@@ -49,7 +49,7 @@ from app.core.errors import ApiError
 from app.core.schemas import CamelModel
 from app.core.time import IST, now
 from app.hire import offers as offers_mod
-from app.hire.shortlist import gate
+from app.hire.shortlist import gate, short_name
 from app.jobs.apply import FOLLOW_AFTER, app_key, job_page, status_change
 from app.me.service import ms
 
@@ -97,15 +97,26 @@ async def board(db, cid: str, j: dict[str, Any]) -> dict[str, Any]:
     jid = j["_id"]
     count = lambda coll, q: db[coll].count_documents({"job_id": jid, **q})  # noqa: E731
     stages = {}
-    async for a in db[APPLICATIONS].find({"job_id": jid, "company_id": cid, "company_removed_at": None}, {"status": 1}):
+    stage_of = {}
+    async for a in db[APPLICATIONS].find(
+        {"job_id": jid, "company_id": cid, "company_removed_at": None}, {"status": 1, "user_id": 1}
+    ):
         stages[a["status"]] = stages.get(a["status"], 0) + 1
+        stage_of[a["user_id"]] = a["status"]
+    # who accepted the invite, from the same records as the "accepted" count, so the batch buttons always agree with it
+    acc_ids = [i["user_id"] async for i in db[HIRE_INVITES].find({"job_id": jid, "status": "accepted"}, {"user_id": 1})]
+    names = {u["_id"]: u.get("name", "") async for u in db[USERS].find({"_id": {"$in": acc_ids}}, {"name": 1})}
+    people = [{"key": u, "name": short_name(names.get(u, "")), "stage": stage_of.get(u, "")} for u in acc_ids]
     joined = await count(HIRE_OFFERS, {"status": "joined"})
     openings = int((j.get("hire_bulk") or {}).get("openings") or 0)
     w = await db[HIRE_WALKINS].find_one({"company_id": cid, "job_id": jid})
     return {
         "openings": openings,
         "invited": await count(HIRE_INVITES, {}),
-        "accepted": await count(HIRE_INVITES, {"status": "accepted"}),
+        "accepted": len(acc_ids),
+        "people": people,  # everyone who accepted (for offers) …
+        # … and those not yet moved to Interview
+        "toInterview": [p["key"] for p in people if p["stage"] in ("applied", "viewed", "shortlisted")],
         "applicants": sum(stages.values()),
         "stages": stages,
         "interviewsBooked": await count(HIRE_SLOTS, {"status": "booked"}),

@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { useToast } from '../../components/ui';
 import { API_BASE, http } from '../../services/http';
 import { MeHead } from './MeLayout';
+import { fmtDay } from '../../lib/format';
 
 const TYPES = [['full_time', 'Full-time'], ['internship', 'Internship'], ['part_time', 'Part-time'], ['contract', 'Contract']];
 const day = (ms) => new Date(ms).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
@@ -262,7 +263,7 @@ export function Offers() {
           ) : (
             <div className="stack g8">
               <label className="field"><span className="label">Type your full name to accept</span><input className="input" maxLength={120} autoComplete="name" value={v(o.id).name} onChange={(e) => put(o.id, { name: e.target.value })} data-testid="hire-offer-name" /></label>
-              <label className="row g8 small" style={{ alignItems: 'flex-start', flexWrap: 'nowrap' }}><input type="checkbox" checked={v(o.id).agree} onChange={(e) => put(o.id, { agree: e.target.checked })} style={{ marginTop: 3 }} data-testid="hire-offer-agree" /><span>I accept this offer and plan to join on {o.joinDate}.</span></label>
+              <label className="row g8 small" style={{ alignItems: 'flex-start', flexWrap: 'nowrap' }}><input type="checkbox" checked={v(o.id).agree} onChange={(e) => put(o.id, { agree: e.target.checked })} style={{ marginTop: 3 }} data-testid="hire-offer-agree" /><span>I accept this offer and plan to join on {fmtDay(o.joinDate)}.</span></label>
               <span className="row g8" style={{ flexWrap: 'wrap' }}>
                 <button type="button" className="btn btn-ink" onClick={() => go(`/api/me/hire/offers/${o.id}/answer`, { answer: 'accept', typedName: v(o.id).name, agree: v(o.id).agree }, 'Accepted: the company was told')} data-testid="hire-offer-accept">Accept</button>
                 <button type="button" className="btn btn-outline" onClick={() => put(o.id, { mode: 'decline' })} data-testid="hire-offer-decline">Decline</button>
@@ -279,7 +280,7 @@ export function Offers() {
             <span className="row g8" style={{ flexWrap: 'wrap' }}>
               {o.joinDate <= today
                 ? <button type="button" className="btn btn-ink btn-sm" onClick={() => go(`/api/me/hire/offers/${o.id}/joined`, { joined: true }, 'Congratulations on joining!')} data-testid="hire-offer-joined">I joined</button>
-                : <button type="button" className="btn btn-outline btn-sm" onClick={() => go(`/api/me/hire/offers/${o.id}/joining`, { joining: true }, 'Thanks: see you on your first day')} data-testid="hire-offer-still">Still joining on {o.joinDate}</button>}
+                : <button type="button" className="btn btn-outline btn-sm" onClick={() => go(`/api/me/hire/offers/${o.id}/joining`, { joining: true }, 'Thanks: see you on your first day')} data-testid="hire-offer-still">Still joining on {fmtDay(o.joinDate)}</button>}
               <button type="button" className="btn btn-ghost btn-sm" onClick={() => put(o.id, { mode: 'drop' })}>I can’t join</button>
             </span>
           ))}

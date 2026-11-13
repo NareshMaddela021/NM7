@@ -19,9 +19,10 @@ Public:
 Admin ("companies"):
   GET  /api/admin/programs?flagged=1 · POST /api/admin/programs/{pid}/review {approve}
 
-Free labour: an unpaid live project longer than 4 weeks or for more than 20 students, an unpaid internship over 3
-months, or work that sounds like the company's paid work (clients, production, sales targets, revenue) is held for
-Admin before anyone sees it. Unpaid is allowed and shown clearly ("Unpaid"); never a fee.
+Free labour: an unpaid live project for more than 20 students, an unpaid internship over 2 months, unpaid work that
+reads like a regular job (full time, running the company's accounts or customers), or work that sounds like the
+company's paid work (clients, production, sales targets, revenue) is held for Admin before anyone sees it, for every
+company (demo companies too). Unpaid is allowed and shown clearly ("Unpaid"); never a fee.
 """
 
 import re
@@ -56,6 +57,13 @@ admin = APIRouter(prefix="/api/admin/programs", tags=["job seekers"])
 POST = {"main", "full", "posting"}
 PAID_WORK = re.compile(
     r"\b(our clients?|client work|production|live customers|sales targets?|revenue|billable|for our customers|real orders|deliver to (?:a |our )?client)\b",
+    re.I,
+)
+# unpaid work that reads like a regular job: full-time hours or running the company's day-to-day work
+REGULAR_JOB = re.compile(
+    r"\b(full[- ]?time|9 ?(?:am)? ?(?:to|-) ?6|every day|daily (?:posts?|calls|targets|reports)|run (?:our|the company'?s)|"
+    r"manage our|our (?:social media|accounts|instagram|facebook|page|store|shop|office)|handle (?:our )?customers?|"
+    r"customer (?:messages|calls|queries|support|complaints)|reply to customers)\b",
     re.I,
 )
 FEE = re.compile(r"\b(fee|deposit|pay us|registration charges?)\b", re.I)
@@ -98,8 +106,10 @@ def free_labour(p: dict[str, Any]) -> list[str]:
     unpaid = not p.get("stipend")
     if unpaid and p["kind"] == "project" and p["seats"] > 20:
         why.append("Unpaid, for more than 20 students")
-    if unpaid and p["kind"] == "internship" and p["weeks"] > 13:
-        why.append("Unpaid internship longer than 3 months")
+    if unpaid and p["kind"] == "internship" and p["weeks"] > 8:
+        why.append("Unpaid internship longer than 2 months")
+    if unpaid and REGULAR_JOB.search(p["title"] + " " + p["brief"] + " " + p.get("deliverable", "")):
+        why.append("Unpaid, but reads like a regular job (full time, running the company's accounts or customers)")
     if PAID_WORK.search(p["title"] + " " + p["brief"] + " " + p.get("deliverable", "")):
         why.append("Sounds like the company's paid work (clients, production, sales targets)")
     return why
