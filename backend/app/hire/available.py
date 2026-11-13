@@ -58,6 +58,13 @@ class HireIn(CamelModel):
     salary: SalaryIn | None = None
     notice_days: int = Field(0, ge=0, le=180)
     job_types: list[Literal[JOB_TYPES]] = Field(default_factory=list, max_length=4)  # type: ignore[valid-type]
+    returner: bool = False  # Phase 6 S9: returning after a break
+    hide_from: list[str] = Field(default_factory=list, max_length=20)  # company names or website domains
+
+    @field_validator("hide_from")
+    @classmethod
+    def _hide(cls, v: list[str]) -> list[str]:
+        return [" ".join(str(x).split())[:80] for x in v if str(x).strip()]
 
     @field_validator("cities")
     @classmethod
@@ -113,6 +120,8 @@ def state(p: dict[str, Any] | None, site: dict[str, Any], t=None) -> dict[str, A
         "salary": {"amount": s["amount"], "unit": s["unit"]} if s else None,
         "noticeDays": int(p.get("notice_days") or 0),
         "jobTypes": p.get("job_types") or [],
+        "returner": bool(p.get("returner")),
+        "hideFrom": p.get("hide_from") or [],
         "confirmedAt": int(confirmed.timestamp() * 1000) if confirmed else None,
         "expiresAt": int(expires.timestamp() * 1000) if expires else None,
         "confirmDays": days,
@@ -150,6 +159,8 @@ async def put_hire(body: HireIn, request: Request, auth: CustomerAuth, db: DB) -
         "salary": body.salary.model_dump() if body.salary else None,
         "notice_days": body.notice_days,
         "job_types": list(body.job_types),
+        "returner": body.returner,
+        "hide_from": body.hide_from,
         "updated_at": t,
     }
     if body.on:

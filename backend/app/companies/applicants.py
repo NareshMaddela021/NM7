@@ -34,7 +34,7 @@ from app.companies.model import POST
 from app.companies.signup import company_for
 from app.core import ics
 from app.core.config import get_settings
-from app.core.db import APPLICATIONS, DB, JOBS, RESUMES, TALENT_POOL, USERS
+from app.core.db import APPLICATIONS, COMPANIES, DB, JOBS, RESUMES, TALENT_POOL, USERS
 from app.core.email import Email, MailerDep, send_safely
 from app.core.errors import ApiError
 from app.core.schemas import CamelModel
@@ -66,6 +66,11 @@ def _visible(cid: str) -> dict[str, Any]:
 async def _app(db, cid: str, app_id: str) -> dict[str, Any]:
     a = await db[APPLICATIONS].find_one({"_id": _oid(app_id), **_visible(cid)})
     if not a:
+        raise ApiError(404, "not_found", "That applicant isn’t here.")
+    from app.seek.support import hidden_users  # Phase 6 S9
+
+    c = await db[COMPANIES].find_one({"_id": cid}, {"details": 1, "name": 1}) or {}
+    if await hidden_users(db, c, [a["user_id"]]):
         raise ApiError(404, "not_found", "That applicant isn’t here.")
     return a
 
@@ -145,10 +150,14 @@ def _rank(row: dict[str, Any]) -> tuple:
 async def applicants(
     cid: str, db: DB, job: str = Query("", max_length=40), x_recruiter_account: str | None = Header(None)
 ) -> dict[str, Any]:
-    acc, _, _ = await company_for(db, cid, x_recruiter_account)
+    acc, c, _ = await company_for(db, cid, x_recruiter_account)
     jobs = {j["_id"]: j async for j in db[JOBS].find({"company_id": cid}, {"description": 0})}
     q = _visible(cid) | ({"job_id": job} if job else {})
     apps = await db[APPLICATIONS].find(q).sort("created_at", -1).to_list(500)
+    from app.seek.support import hidden_users  # Phase 6 S9: "hide me from my current employer"
+
+    hidden = await hidden_users(db, c, list({a["user_id"] for a in apps}))
+    apps = [a for a in apps if a["user_id"] not in hidden]
     fresh = [a for a in apps if a.get("status") == "applied"]
     if fresh:  # anyone on the team opening the list counts as seen
         t = now()

@@ -104,6 +104,7 @@ const MePractice = lazy(() => import('./pages/me/MePractice'));
 const MeOfferCheck = lazy(() => import('./pages/me/MeOfferCheck'));
 const MeFeedback = lazy(() => import('./pages/me/MeFeedback'));
 const MePrograms = lazy(() => import('./pages/me/MePrograms'));
+const MeGuidance = lazy(() => import('./pages/me/MeGuidance'));
 const Verify = lazy(() => import('./pages/Verify')); // Phase 6 S8: certificate check
 const meShare = () => import('./pages/me/MeShare');
 const MeShare = named(meShare, 'default');
@@ -456,6 +457,7 @@ export default function App() {
           <Route path="offer-check" element={<MeOfferCheck />} />
           <Route path="feedback" element={<MeFeedback />} />
           <Route path="programs" element={<MePrograms />} />
+          <Route path="guidance" element={<MeGuidance />} />
           <Route path="share" element={<MeShare />} />
           <Route path="groups" element={<MeGroups />} />
           <Route path="launch" element={<MeLaunch />} />

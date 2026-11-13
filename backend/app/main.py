@@ -100,12 +100,14 @@ from app.photos.router import router as photos_router
 from app.profile.router import router as profile_router
 from app.projects.router import router as projects_router
 from app.seek import feedback as seek_feedback
+from app.seek import guidance as seek_guidance
 from app.seek import offers as seek_offers
 from app.seek import paths as seek_paths
 from app.seek import practice as seek_practice
 from app.seek import programs as seek_programs
 from app.seek import roles as seek_roles
 from app.seek import salary as seek_salary
+from app.seek import support as seek_support
 from app.simple import demo as simple_demo
 from app.simple import guided as simple_guided
 from app.simple import jobs as simple_jobs
@@ -291,6 +293,9 @@ def create_app() -> FastAPI:
     app.include_router(seek_feedback.me)  # /api/me/feedback
     for r in (seek_programs.company, seek_programs.public, seek_programs.me, seek_programs.certs, seek_programs.admin):
         app.include_router(r)  # internships and live projects (Phase 6 S8)
+    app.include_router(seek_guidance.public)  # /api/public/guidance/exams (Phase 6 S9)
+    app.include_router(seek_guidance.me)  # /api/me/guidance/wording, /check
+    app.include_router(seek_support.admin)  # /api/admin/companies/{cid}/policies/{key}/remove (Phase 6 S9)
     app.include_router(hire_skillcheck.me)  # /api/me/skill-checks (10-minute tests, H3)
     app.include_router(hire_skillcheck.admin)  # /api/admin/skill-tests (the question bank, H3)
     app.include_router(simple_guided.router)  # /api/me/simple/resume (resume by talking, E4)

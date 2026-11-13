@@ -2251,3 +2251,22 @@ Free for students and job seekers unless Admin gates a feature. Each part below 
     - a public check page at **nm7.si/verify/<number>**.
   - **Resume:** the student sees a suggested resume entry: company, title (Internship or Live project), the accepted and completed months, and what was sent. It is added under Internships only when the student presses **Add to my resume**, and only once.
 - **Account deletion** removes the student's applications. After that, their certificates no longer verify.
+
+### S9. Special filters and guidance
+
+- **Filters on `/jobs`:** the **Support** filter has four options:
+  - **Returning after a break**: companies that declared a returner policy.
+  - **Immediate joiner**: jobs marked immediate, or that say "immediate joining".
+  - **Women-friendly / inclusive employer**: companies that declared an inclusive policy.
+  - **Accessible workplace**: companies that declared an accessibility policy.
+- **Company policies:** companies declare these policies in their own words under Company dashboard → Company page.
+  - Job pages show the text under "What the company says", noted as "in the company's own words; Nm7 has not checked it".
+  - **Admin → Companies** can remove a policy that isn't right. A removed policy stays hidden until the company writes new text.
+- **Hire now filters:** **Immediate joiner** (no notice, or joining within 7 days) and **Returning after a break**. The second uses the candidate's own tick in Ready to join.
+- **Hide me from my current employer:** in Ready to join, a candidate can list company names or website domains.
+  - Those companies don't see the candidate in Hire now or in their applicant lists, and opening the candidate's application directly shows "not found".
+  - Names need at least 3 letters to match. Domains also match their sub-domains.
+- **`/me/guidance` (Dashboard → Guidance):**
+  - **Government-exam backup:** SSC, banking, railways and state PSC, each mapped to private roles that use the same subjects. Each role shows its live job count and a link to its learning path.
+  - **Gap year or backlogs:** honest resume wording, built only from what the person enters (dates, reason, what they did, backlog count and status). Every suggestion passes the same check.
+  - **Check my wording:** flags a line that hides a gap ("no gap", "continuous"…), claims no backlogs when there are some, says backlogs are cleared when they aren't, or shows a year the person didn't give.

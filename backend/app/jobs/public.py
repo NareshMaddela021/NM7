@@ -17,7 +17,7 @@ from fastapi import APIRouter, Query, Response
 
 from app.auth.deps import CustomerAuth, MaybeAuth
 from app.core.config import get_settings
-from app.core.db import APPLICATIONS, DB, JOBS, SAVED_JOBS
+from app.core.db import APPLICATIONS, COMPANIES, DB, JOBS, SAVED_JOBS
 from app.core.errors import ApiError
 from app.core.time import now
 from app.jobs import fit as fitmod
@@ -122,8 +122,13 @@ async def search(
     salary: int = Query(0, ge=0, le=100_000_000),
     posted: str = Query("", max_length=4),
     page: int = Query(1, ge=1, le=500),
+    support: str = Query("", max_length=60),  # Phase 6 S9: returners,immediate,inclusive,accessible
 ) -> dict[str, Any]:
     and_: list[dict[str, Any]] = [live_filter()]
+    if support:
+        from app.seek.support import job_filters
+
+        and_ += await job_filters(db, support)
     if q.strip():
         rx = {"$regex": re.escape(q.strip()), "$options": "i"}
         and_.append({"$or": [{"title": rx}, {"company.name": rx}, {"skills": rx}]})
@@ -232,6 +237,10 @@ async def one(slug: str, db: DB, auth: MaybeAuth) -> dict[str, Any]:
         j["status"] = "closed"  # the daily pass hasn't run yet
     out = public_out(j, full=True)
     out["similar"] = await similar(db, j)
+    if j.get("company_id"):  # Phase 6 S9: what the company declares, in its own words
+        from app.seek.support import policies_out
+
+        out["policies"] = policies_out(await db[COMPANIES].find_one({"_id": j["company_id"]}, {"policies": 1}))
     with_badge(out, j, await badges(db, [j]))
     state, person = await _person(db, auth)
     out["matchState"] = state

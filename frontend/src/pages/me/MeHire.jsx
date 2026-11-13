@@ -12,6 +12,7 @@ const TYPES = [['full_time', 'Full-time'], ['internship', 'Internship'], ['part_
 const day = (ms) => new Date(ms).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
 const toForm = (s) => ({
   joinDate: s.joinDate || '', cities: (s.cities || []).join(', '), remote: !!s.remote,
+  returner: !!s.returner, hideFrom: (s.hideFrom || []).join(', '),
   amount: s.salary ? String(s.salary.amount) : '', unit: s.salary?.unit || 'month', noticeDays: String(s.noticeDays || 0),
   jobTypes: s.jobTypes || [], consent: !!s.consent,
 });
@@ -55,6 +56,7 @@ export default function MeHire() {
   const save = (on) => run(async () => {
     const body = {
       on, consent: f.consent, joinDate: f.joinDate, cities: f.cities.split(',').map((x) => x.trim()).filter(Boolean), remote: f.remote,
+      returner: f.returner, hideFrom: f.hideFrom.split(',').map((x) => x.trim()).filter(Boolean),
       salary: f.amount ? { amount: Number(f.amount), unit: f.unit } : null, noticeDays: Number(f.noticeDays || 0), jobTypes: f.jobTypes,
     };
     const x = await http('/api/me/hire', { method: 'PUT', body });
@@ -94,6 +96,8 @@ export default function MeHire() {
           <div className="field"><label className="label" htmlFor="hj-unit">Per</label><select id="hj-unit" className="input" value={f.unit} onChange={set('unit')}><option value="month">₹ a month</option><option value="lpa">Lakhs a year (LPA)</option></select></div>
         </div>
         <PayHint cities={f.cities} />
+        <label className="row g8 small"><input type="checkbox" checked={f.returner} onChange={(e) => setF({ ...f, returner: e.target.checked })} data-testid="hj-returner" /> I'm returning to work after a break</label>
+        <div className="field"><label className="label" htmlFor="hj-hide">Hide me from these companies (my current employer…)</label><input id="hj-hide" className="input" maxLength={600} placeholder="Company name or website, comma between" value={f.hideFrom} onChange={(e) => setF({ ...f, hideFrom: e.target.value })} data-testid="hj-hide" /><span className="xs muted">They won't see you in Hire now or in their applicant lists.</span></div>
         <fieldset className="stack g4" style={{ border: 0, padding: 0, margin: 0 }}>
           <legend className="label">Kinds of job</legend>
           <div className="row g12" style={{ flexWrap: 'wrap' }}>

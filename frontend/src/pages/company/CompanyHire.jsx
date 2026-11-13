@@ -42,6 +42,7 @@ export default function CompanyHire({ t, c }) {
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState('');
   const [msg, setMsg] = useState('');
+  const [support, setSupport] = useState(''); // Phase 6 S9: immediate joiners / returning after a break
   const verified = c.trust === 'verified';
   const canInvite = ['main', 'full', 'posting'].includes(c.myRole);
   useEffect(() => {
@@ -55,10 +56,10 @@ export default function CompanyHire({ t, c }) {
     if (!job || !verified) return;
     setErr(''); setD(null);
     try {
-      const [s, inv] = await Promise.all([rq(`/api/company/${c.id}/hire/shortlist?job=${encodeURIComponent(job)}&size=100`), rq(`/api/company/${c.id}/hire/invites?job=${encodeURIComponent(job)}`)]);
+      const [s, inv] = await Promise.all([rq(`/api/company/${c.id}/hire/shortlist?job=${encodeURIComponent(job)}&size=100${support ? `&support=${support}` : ''}`), rq(`/api/company/${c.id}/hire/invites?job=${encodeURIComponent(job)}`)]);
       setD(s); setInvites(inv);
     } catch (x) { setErr(x.message); setD({ items: [] }); }
-  }, [c.id, job, verified]);
+  }, [c.id, job, verified, support]);
   useEffect(() => { load(); }, [load]);
   const invite = async (people) => {
     setBusy(true); setMsg(''); setErr('');
@@ -80,6 +81,12 @@ export default function CompanyHire({ t, c }) {
         <label className="row g8 small" style={{ flexWrap: 'wrap' }}>{t('co.hire.job')}
           <select className="input" style={{ height: 38, width: 'auto', maxWidth: '100%' }} value={job} onChange={(e) => setJob(e.target.value)} data-testid="co-hire-job">
             {jobs.map((j) => <option key={j.id} value={j.id}>{j.title}</option>)}
+          </select>
+        </label>
+        <label className="row g8 small" style={{ flexWrap: 'wrap' }}>{t('jobs.f.support')}
+          <select className="input" style={{ height: 38, width: 'auto', maxWidth: '100%' }} value={support} onChange={(e) => setSupport(e.target.value)} data-testid="co-hire-support">
+            <option value="">{t('jobs.f.any')}</option>
+            {['immediate', 'returners'].map((k) => <option key={k} value={k}>{t(`jobs.support.${k}`)}</option>)}
           </select>
         </label>
         {d?.usage && <span className="xs muted" data-testid="co-hire-usage">{t('co.hire.usage', { used: d.usage.used, free: d.usage.free })}</span>}

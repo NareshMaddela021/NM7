@@ -15,7 +15,7 @@ import { reloadMe } from '../../lib/customerStore';
 import { matchJob } from '../../lib/jobs';
 import { headerLabels, useLang } from '../../lib/i18n';
 import {
-  EXPERIENCE, JOB_TYPES, ORIGIN, applyToJob, mailtoLink, POSTED, SALARIES, WORK_TYPES, fromQuery, getJob, jobPostingJsonLd, listSaved, loadSaved,
+  EXPERIENCE, JOB_TYPES, ORIGIN, applyToJob, mailtoLink, POSTED, SALARIES, SUPPORT, WORK_TYPES, fromQuery, getJob, jobPostingJsonLd, listSaved, loadSaved,
   matchReasons, pageQuery, placeText, postedAgo, salaryText, searchJobs, toggleSaved, useJsonLd, useSaved,
 } from '../../lib/jobBoard';
 import { usePageMeta } from '../../lib/meta';
@@ -182,6 +182,8 @@ export function JobsList() {
                 options={[['', t('jobs.f.any')], ...SALARIES.map((n) => [String(n), t('jobs.f.salaryAtLeast', { amount: lakh(n) })])]} />
               <Select id="f-posted" label={t('jobs.f.posted')} value={filters.posted} onChange={(v) => set({ posted: v })}
                 options={[['', t('jobs.f.anyTime')], ...POSTED.map((x) => [x, t(`jobs.f.posted.${x}`)])]} />
+              <Select id="f-support" label={t('jobs.f.support')} value={filters.support || ''} onChange={(v) => set({ support: v })}
+                options={[['', t('jobs.f.any')], ...SUPPORT.map((x) => [x, t(`jobs.support.${x}`)])]} />
               {data?.match === 'on' && (
                 <Select id="f-sort" label={t('jobs.f.sort')} value={filters.sort} onChange={(v) => set({ sort: v })}
                   options={[['', t('jobs.f.newest')], ['match', t('jobs.f.best')]]} />
@@ -420,6 +422,13 @@ export function JobPage() {
                 <div><dt>{t('jobs.salary')}</dt><dd>{salaryText(job.salary, t) || t('jobs.salaryNone')}</dd></div>
               </dl>
               <JobPay job={job} t={t} />
+              {Object.keys(job.policies || {}).length > 0 && (
+                <section className="card-sm stack g4" aria-label={t('jobs.pol.title')} data-testid="job-policies">
+                  <strong className="small">{t('jobs.pol.title')}</strong>
+                  {Object.entries(job.policies).map(([k, v]) => <span key={k} className="small"><strong>{t(`jobs.support.${k}`)}:</strong> {v}</span>)}
+                  <span className="xs muted">{t('jobs.pol.note')}</span>
+                </section>
+              )}
               {job.match && (
                 <section className="card-sm stack g8" aria-labelledby="job-match-h" data-testid="job-match">
                   <h2 id="job-match-h" className="job-h2">{t('jobs.match.title')}: {t('jobs.match.pct', { n: job.match.score })}</h2>

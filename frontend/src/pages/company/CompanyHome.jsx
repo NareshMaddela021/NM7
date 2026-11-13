@@ -220,6 +220,7 @@ async function shrink(file) {
 
 function PageEditor({ t, c, manage, onChanged }) {
   const [about, setAbout] = useState(c.details.about || '');
+  const [pol, setPol] = useState(() => Object.fromEntries(['inclusive', 'accessible', 'returners'].map((k) => [k, c.policies?.[k]?.text || ''])));
   const [logo, setLogo] = useState(c.logo || '');
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState('');
@@ -232,7 +233,7 @@ function PageEditor({ t, c, manage, onChanged }) {
   };
   const save = async (e) => {
     e.preventDefault(); setBusy(true); setErr(''); setMsg('');
-    try { await rq(`/api/company/${c.id}/page`, { method: 'PUT', body: { about, logo } }); setMsg(t('co.dash.saved')); onChanged(); } catch (x) { setErr(x.message); } finally { setBusy(false); }
+    try { await rq(`/api/company/${c.id}/page`, { method: 'PUT', body: { about, logo, policies: pol } }); setMsg(t('co.dash.saved')); onChanged(); } catch (x) { setErr(x.message); } finally { setBusy(false); }
   };
   return (
     <form className="card stack g12" onSubmit={save} aria-label={t('co.dash.tab.page')} data-testid="co-page">
@@ -247,6 +248,14 @@ function PageEditor({ t, c, manage, onChanged }) {
       </div>
       <div className="field"><label className="label" htmlFor="cp-about">{t('co.f.about')}</label>
         <textarea id="cp-about" className="input" rows={5} maxLength={2000} value={about} disabled={!manage} onChange={(e) => setAbout(e.target.value)} /></div>
+      <fieldset className="stack g8" style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }} data-testid="cp-policies">
+        <legend className="label">{t('co.pol.title')}</legend>
+        <span className="xs muted">{t('co.pol.intro')}</span>
+        {['inclusive', 'accessible', 'returners'].map((k) => (
+          <label key={k} className="field"><span className="small">{t(`jobs.support.${k}`)}{c.policies?.[k]?.removed ? ` · ${t('co.pol.removed')}` : ''}</span>
+            <input className="input" maxLength={300} value={pol[k]} disabled={!manage} onChange={(e) => setPol({ ...pol, [k]: e.target.value })} placeholder={t('co.pol.ph')} data-testid={`cp-pol-${k}`} /></label>
+        ))}
+      </fieldset>
       {c.details.website && <p className="small" style={{ margin: 0 }}>{t('co.f.website')}: {c.details.website}</p>}
       {manage && <button type="submit" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={busy}>{t('co.dash.save')}</button>}
       {msg && <p className="small" role="status" style={{ margin: 0, color: 'var(--success)' }}>{msg}</p>}
