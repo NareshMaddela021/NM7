@@ -8,8 +8,11 @@ export function fmtMonth(v) {
   return `${MONTHS[parseInt(m, 10) - 1] || ''} ${y}`;
 }
 
+/** "Jan 2025 – Mar 2025"; one month when both are the same ("Oct 2026"); "… – Present" while current. */
 export function fmtRange(from, to, current) {
-  return [fmtMonth(from), current ? 'Present' : fmtMonth(to)].filter(Boolean).join(' – ');
+  const a = fmtMonth(from);
+  const b = current ? 'Present' : fmtMonth(to);
+  return [a, b === a ? '' : b].filter(Boolean).join(' – ');
 }
 
 /** Split a textarea into bullet lines. */

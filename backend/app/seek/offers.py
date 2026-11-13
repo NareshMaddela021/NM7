@@ -34,6 +34,7 @@ from app.core.errors import ApiError
 from app.core.pii import scrub_id_numbers
 from app.core.schemas import CamelModel
 from app.core.time import now
+from app.jobsearch.parse import CITIES
 from app.me.service import ms
 from app.seek.salary import range_for, role_for_title
 from app.site import get_site
@@ -100,6 +101,33 @@ ROLE_END = re.compile(r"\s(?:at|with|in|for|on|from|and|by)\s.*$", re.I)
 CITY_LINE = re.compile(
     r"(?:location|place of work|posting|based (?:at|in))\s*(?:at|in|:|-)?\s*([A-Z][A-Za-z ]{2,30})", re.I
 )
+# "at our Hyderabad office", "office in Pune", "Hyderabad office": a known city next to a workplace word
+PLACE = "office|branch|centre|center|campus|plant|factory|facility|site|store|warehouse|unit"
+CITY_AT = re.compile(
+    rf"\b(?:at|in|from)\s+(?:our|the|its)\s+({CITIES})\s+(?:{PLACE})\b|\b(?:{PLACE})\s+(?:at|in)\s+({CITIES})\b|"
+    rf"\b(?:based|located|posted|work)\s+(?:at|in|from)\s+({CITIES})\b|\b({CITIES})\s+(?:{PLACE})\b",
+    re.I,
+)
+
+
+def city_of(text: str) -> str:
+    """The work city the letter names ("" when none)."""
+    m = CITY_AT.search(text)
+    if m:
+        return next(g for g in m.groups() if g)
+    m = CITY_LINE.search(text)
+    return m.group(1).strip() if m else ""
+
+
+def has(text: str, key: str) -> bool:
+    return bool(BASICS[key].search(text)) or (key == "location" and bool(CITY_AT.search(text)))
+
+
+def listed(items: list[str]) -> str:
+    """ "a", "a and b", "a, b and c"."""
+    return items[0] if len(items) == 1 else ", ".join(items[:-1]) + " and " + items[-1]
+
+
 NOT_ADVICE = "This is an automatic check of the words in the letter, not a lawyer's opinion. Before you sign anything with a bond or penalty, ask the company's HR or a lawyer to explain it."
 
 
@@ -173,7 +201,8 @@ def ctc_yearly(text: str) -> float | None:
 async def rule_check(db, text: str) -> dict[str, Any]:
     site = await get_site(db)
     findings: list[dict[str, Any]] = []
-    fee = sentences(text, FEE)
+    # a "pay … if you leave early" line is the bond's penalty, not a fee to join: it stays under the bond only
+    fee = [x for x in sentences(text, FEE) if not BOND.search(x)]
     if fee:
         paid = max(money_in(" ".join(fee)), default=None)
         findings.append({"kind": "fee", "level": "warning", "title": "It asks you to pay a fee or deposit" + (f" ({inr(paid)})" if paid else ""),
@@ -197,10 +226,10 @@ async def rule_check(db, text: str) -> dict[str, Any]:
         findings.append({"kind": "chat_only", "level": "warning", "title": "HR talks only on WhatsApp or Telegram",
                          "detail": "Real companies give an office email and address. Being told to contact HR only on a chat app is a common sign of a fake offer: confirm with the company through its own website.",
                          "quotes": chat})  # fmt: skip
-    missing = [k for k, rx in BASICS.items() if not rx.search(text)]
+    missing = [k for k in BASICS if not has(text, k)]
     if missing:
         findings.append({"kind": "missing", "level": "check", "title": "Some basics are missing",
-                         "detail": "A clear offer names " + ", ".join(BASIC_NAMES[k] for k in missing) + ". Ask the company to add them.",
+                         "detail": f"A clear offer names {listed([BASIC_NAMES[k] for k in missing])}. Ask the company to add {'it' if len(missing) == 1 else 'them'}.",
                          "missing": missing})  # fmt: skip
     low = text.lower()
     scam = [p for p in {*(site.get("job_checks") or {}).get("scam", []), *EXTRA_SCAM} if p and p.lower() in low]
@@ -224,7 +253,7 @@ async def rule_check(db, text: str) -> dict[str, Any]:
     # pay vs what similar jobs pay on Nm7 (S4; only with enough data)
     ctc = ctc_yearly(text)
     role_txt = role_of(text)
-    city = (CITY_LINE.search(text) or [None, ""])[1].strip() if CITY_LINE.search(text) else ""
+    city = city_of(text)
     pay = None
     role = role_for_title(role_txt) if role_txt else None
     if ctc and role:

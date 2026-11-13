@@ -28,6 +28,11 @@ for (const [label, opts] of SIZES) {
       await expect(hire).toBeVisible();
       await page.getByTestId('co-hire-job').selectOption({ label: 'Customer Support Executive' });
       await expect(page.getByTestId('co-bulk')).toContainText('Bulk hiring: 50 openings');
+      // round C (C3): the demo story reads in order, with the same numbers in the "where they are now" line
+      const stats = (await page.getByTestId('co-bulk-stats').getByRole('listitem').allInnerTexts()).map((x) => parseInt(x, 10));
+      expect(stats.slice(0, 7)).toEqual([1, 1, 1, 1, 1, 0, 0]);
+      await expect(page.getByTestId('co-bulk-now')).toHaveText('Where they are now: 1 at Offer stage');
+      await expect(page.getByTestId('co-bulk-offer')).toHaveText('Everyone who accepted has an offer');
       await expect(page.getByTestId('co-hire-row').first()).toBeVisible();
       expect(await page.getByTestId('co-hire-row').count()).toBeGreaterThanOrEqual(9);
       // 13 Nov live test: the top 10 first with "Show more", ranked by score, and never "In undefined"
@@ -41,7 +46,8 @@ for (const [label, opts] of SIZES) {
       }
       await expect(hire).toContainText('Skill check');
       await expect(hire).toContainText('New - no history yet');
-      await expect(page.getByTestId('co-slot')).toHaveCount(3);
+      await expect(page.getByTestId('co-slot')).toHaveCount(4); // three open times tomorrow + yesterday's attended one (round C)
+      await expect(page.getByTestId('co-slot').filter({ hasText: 'Open' })).toHaveCount(3);
       await expect(page.getByTestId('co-offer-state')).toHaveText('Waiting for an answer');
       expect(await noSideScroll(page)).toBe(true);
       await page.reload();

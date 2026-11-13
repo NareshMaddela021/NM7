@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react';
 import { API_BASE, http } from '../../services/http';
 import { MeHead } from './MeLayout';
+import { fmtRange } from '../../lib/format';
 
 const pay = (p) => (p.stipend ? `₹${p.stipend.toLocaleString('en-IN')}${p.kind === 'internship' ? ' a month' : ''}` : 'Unpaid');
 const STATUS = { applied: 'Applied', accepted: 'Accepted: send your work', submitted: 'Work sent: waiting for review', completed: 'Completed', not_completed: 'Not completed' };
@@ -69,7 +70,7 @@ function Mine({ a, onChange }) {
           <span className="xs muted" style={{ overflowWrap: 'anywhere' }}>Anyone can check it at {a.verifyUrl}</span>
           {a.resumeEntry && !a.resumeAdded && (
             <div className="card-sm stack g4" data-testid="pg-entry">
-              <span className="small"><strong>Add to your resume?</strong> {a.resumeEntry.role} · {a.resumeEntry.company} · {a.resumeEntry.from} – {a.resumeEntry.to}</span>
+              <span className="small"><strong>Add to your resume?</strong> {a.resumeEntry.role} · {a.resumeEntry.company} · {fmtRange(a.resumeEntry.from, a.resumeEntry.to)}</span>
               <button type="button" className="btn btn-ink btn-sm" style={{ alignSelf: 'flex-start' }} onClick={toResume} data-testid="pg-add-resume">Add to my resume</button>
             </div>
           )}

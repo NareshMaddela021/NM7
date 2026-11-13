@@ -4,8 +4,8 @@
   POST /api/admin/demo-company/hire/open   reset the demo company (Phase 2 demo) and add, all marked demo:
        30 made-up candidates who are ready to join, across IT and non-IT, with resumes, shared skill check results
        and reliability histories (some new, never ranked lower); a bulk hiring post (50 openings) for a customer
-       support role in Hyderabad; three interview times tomorrow; one candidate who accepted an invite and has an
-       offer waiting. One live-job slot stays free, so Post a job works. Signs this browser in as the demo company's main admin → {session}.
+       support role in Hyderabad; three interview times tomorrow; one candidate who accepted an invite, attended an
+       interview yesterday and has an offer waiting. One live-job slot stays free, so Post a job works. Signs this browser in as the demo company's main admin → {session}.
 
 Demo people can't sign in (no password), get no email (demo addresses end in .invalid and demo accounts are skipped),
 are shown only to demo companies, and are never on the job board, a company page, the supply map or a sitemap.
@@ -158,18 +158,26 @@ async def create(db) -> dict[str, Any]:
         "place": "Demo office, Hitech City (made-up)", "link": "", "interviewer": "Ravi (demo HR)", "round": "HR",
         "status": "open", "user_id": None, "seq": 0, "by": company_demo.MAIN[0], "created_at": t, "updated_at": t,
     } for k in range(3)])  # fmt: skip
-    # one candidate accepted the invite and has an offer waiting
+    # one candidate accepted the invite, booked an interview yesterday, attended it, and has an offer waiting
+    # (invite → accepted → interview booked → attended → offer sent, so the bulk board's funnel reads in order)
     uid = people[0]
+    await db[HIRE_SLOTS].insert_one({
+        "_id": ObjectId(), "company_id": cid, "job_id": jid, "starts_at": day - timedelta(days=1), "minutes": 20,
+        "place": "Demo office, Hitech City (made-up)", "link": "", "interviewer": "Ravi (demo HR)", "round": "HR",
+        "status": "booked", "user_id": uid, "seq": 1, "mark": "attended", "by": company_demo.MAIN[0],
+        "created_at": t - timedelta(days=2), "updated_at": t,
+    })  # fmt: skip
     await db[HIRE_INVITES].insert_one({"_id": ObjectId(), "company_id": cid, "job_id": jid, "user_id": uid,
                                        "status": "accepted", "note": "", "by": company_demo.MAIN[0],
-                                       "created_at": t - timedelta(minutes=12), "answered_at": t - timedelta(minutes=9),
+                                       "created_at": t - timedelta(days=2, minutes=12), "answered_at": t - timedelta(days=2),
                                        "updated_at": t})  # fmt: skip
     await db[APPLICATIONS].insert_one({
         "key": app_key(jid), "user_id": uid, "company": company_demo.NAME, "role": cs["title"], "status": "offer",
         "date": int(t.timestamp() * 1000), "resume_id": "r1", "resume_name": "Main", "url": job_page(j), "notes": "",
         "next": int((t + FOLLOW_AFTER).timestamp() * 1000), "job_id": jid, "channel": "nm7", "origin": "invite",
         "company_id": cid, "consent_at": t, "answers": {}, "fit": {"ok": True, "reasons": []}, "demo": True,
-        "timeline": [{"status": "shortlisted", "at": t - timedelta(minutes=9)}, {"status": "offer", "at": t}],
+        "timeline": [{"status": "shortlisted", "at": t - timedelta(days=2)}, {"status": "interview", "at": t - timedelta(days=1)},
+                     {"status": "offer", "at": t}],
         "created_at": t, "updated_at": t,
     })  # fmt: skip
     await db[HIRE_OFFERS].insert_one({

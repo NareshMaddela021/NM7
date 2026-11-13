@@ -93,9 +93,37 @@ async def set_bulk(cid: str, job_id: str, body: BulkIn, db: DB, x_recruiter_acco
     return {"on": body.on, "openings": body.openings}
 
 
+FUNNEL = ("invited", "accepted", "interviewsBooked", "attended", "offersSent", "offersAccepted", "joined")
+
+
+async def stage_counts(db, jid: str) -> dict[str, int]:
+    """How many people reached each stage or a later one, so the board never goes up from one stage to the next
+    (an offer sent without a booked interview still counts that person as having passed the interview stages)."""
+    who: dict[str, set[str]] = {k: set() for k in FUNNEL}
+    async for i in db[HIRE_INVITES].find({"job_id": jid}, {"user_id": 1, "status": 1}):
+        who["invited"].add(i["user_id"])
+        if i["status"] == "accepted":
+            who["accepted"].add(i["user_id"])
+    async for sl in db[HIRE_SLOTS].find(
+        {"job_id": jid, "user_id": {"$ne": None}}, {"user_id": 1, "status": 1, "mark": 1}
+    ):
+        if sl.get("status") == "booked" or sl.get("mark") == "attended":
+            who["interviewsBooked"].add(sl["user_id"])
+        if sl.get("mark") == "attended":
+            who["attended"].add(sl["user_id"])
+    async for o in db[HIRE_OFFERS].find({"job_id": jid, "status": {"$ne": "withdrawn"}}, {"user_id": 1, "status": 1}):
+        who["offersSent"].add(o["user_id"])
+        if o["status"] in ("accepted", "joined"):
+            who["offersAccepted"].add(o["user_id"])
+        if o["status"] == "joined":
+            who["joined"].add(o["user_id"])
+    for later, earlier in zip(FUNNEL[:0:-1], FUNNEL[-2::-1], strict=True):  # joined → … → invited
+        who[earlier] |= who[later]
+    return {k: len(v) for k, v in who.items()}
+
+
 async def board(db, cid: str, j: dict[str, Any]) -> dict[str, Any]:
     jid = j["_id"]
-    count = lambda coll, q: db[coll].count_documents({"job_id": jid, **q})  # noqa: E731
     stages = {}
     stage_of = {}
     async for a in db[APPLICATIONS].find(
@@ -107,25 +135,24 @@ async def board(db, cid: str, j: dict[str, Any]) -> dict[str, Any]:
     acc_ids = [i["user_id"] async for i in db[HIRE_INVITES].find({"job_id": jid, "status": "accepted"}, {"user_id": 1})]
     names = {u["_id"]: u.get("name", "") async for u in db[USERS].find({"_id": {"$in": acc_ids}}, {"name": 1})}
     people = [{"key": u, "name": short_name(names.get(u, "")), "stage": stage_of.get(u, "")} for u in acc_ids]
-    joined = await count(HIRE_OFFERS, {"status": "joined"})
+    funnel = await stage_counts(db, jid)
     openings = int((j.get("hire_bulk") or {}).get("openings") or 0)
     w = await db[HIRE_WALKINS].find_one({"company_id": cid, "job_id": jid})
+    offered = {
+        o["user_id"]
+        async for o in db[HIRE_OFFERS].find({"job_id": jid, "status": {"$ne": "withdrawn"}}, {"user_id": 1})
+    }
     return {
         "openings": openings,
-        "invited": await count(HIRE_INVITES, {}),
-        "accepted": len(acc_ids),
-        "people": people,  # everyone who accepted (for offers) …
-        # … and those not yet moved to Interview
+        **funnel,  # invited … joined: each counts everyone who reached that stage or later
+        "people": people,  # everyone who accepted …
+        # … those not yet moved to Interview, and those without an offer yet (the batch buttons)
         "toInterview": [p["key"] for p in people if p["stage"] in ("applied", "viewed", "shortlisted")],
+        "toOffer": [p["key"] for p in people if p["key"] not in offered and p["stage"] != "rejected"],
         "applicants": sum(stages.values()),
-        "stages": stages,
-        "interviewsBooked": await count(HIRE_SLOTS, {"status": "booked"}),
-        "attended": await count(HIRE_SLOTS, {"mark": "attended"}),
-        "offersSent": await count(HIRE_OFFERS, {"status": {"$ne": "withdrawn"}}),
-        "offersAccepted": await count(HIRE_OFFERS, {"status": {"$in": ["accepted", "joined"]}}),
-        "joined": joined,
+        "stages": stages,  # where applicants are now (one stage each)
         "checkedIn": len((w or {}).get("checkins") or []),
-        "filledPct": round(100 * joined / openings) if openings else 0,
+        "filledPct": round(100 * funnel["joined"] / openings) if openings else 0,
     }
 
 

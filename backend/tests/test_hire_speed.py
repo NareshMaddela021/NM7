@@ -78,6 +78,19 @@ async def test_demo(client, outbox, db, admin_client):
     job = await db[JOBS].find_one({"_id": r["bulkJob"]})
     assert job["demo"] and job["hire_bulk"]["openings"] == 50
     assert await db[HIRE_SLOTS].count_documents({"job_id": job["_id"], "status": "open"}) == 3
+    # round C: the demo story is in order (invite → accepted → interview booked → attended → offer sent)
+    from app.hire.bulk import board
+
+    b = await board(db, job["company_id"], job)
+    assert [b[k] for k in ("invited", "accepted", "interviewsBooked", "attended", "offersSent", "offersAccepted")] == [
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+    ]
+    assert b["stages"] == {"offer": 1} and b["toOffer"] == [] and b["toInterview"] == []
     assert await db[HIRE_OFFERS].count_documents({"job_id": job["_id"], "status": "sent"}) == 1
     # one live-job slot is left (13 Nov live test: it started at 3 of 3, so Post a job couldn't be tried)
     from app.companies.limits import posting_room
