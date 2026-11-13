@@ -83,6 +83,16 @@ async def main(cmd: str, *args: str) -> dict:
         if sets:
             await db["jobs"].update_one({"_id": doc["_id"]}, {"$set": sets})
         return {"id": doc["_id"], "slug": doc["slug"]}
+    if cmd == "collector-job":  # round J: a job the morning collector posted (source "collector", summary written)
+        from app.jobs import service
+        from app.jobs.model import JobIn
+
+        (body,) = args
+        _, doc = await service.save(db, JobIn.model_validate(json.loads(body)), "collector")
+        key = doc["apply"]["url"].split("://", 1)[-1].lower().rstrip("/")
+        meta = {"url_key": key, "summarised": True, "removed": False}
+        await db["jobs"].update_one({"_id": doc["_id"]}, {"$set": {"collector": meta}})
+        return {"id": doc["_id"], "slug": doc["slug"]}
     if cmd == "auto-apply-run":
         from app.autoapply import engine
 

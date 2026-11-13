@@ -46,11 +46,12 @@ export function LiveJobs() {
   return (
     <>
       <PageHead title="Jobs" sub="Every job on nm7.si/jobs: from the morning job collector, added here, or bulk imported. Changes are in the audit log." />
-      <Tabs label="Show" tabs={[['jobs', 'Jobs'], ['reports', 'Reports'], ['import', 'Bulk import'], ['expired', 'Expired links']]} value={tab} onChange={setTab} />
+      <Tabs label="Show" tabs={[['jobs', 'Jobs'], ['reports', 'Reports'], ['removals', 'Removal requests'], ['import', 'Bulk import'], ['expired', 'Expired links']]} value={tab} onChange={setTab} />
       {tab === 'jobs' && <JobList />}
       {tab === 'import' && <BulkImport onDone={() => setTab('jobs')} />}
       {tab === 'expired' && <Expired />}
       {tab === 'reports' && <Reports />}
+      {tab === 'removals' && <Removals />}
     </>
   );
 }
@@ -85,6 +86,7 @@ function JobList() {
               <Kpi label="Jobs" value={d.total} sub={Object.entries(d.counts.status).map(([k, n]) => `${STATUS[k]?.[0] || k} ${n}`).join(' · ')} />
               <Kpi label="By source" value={Object.values(d.counts.source).reduce((a, b) => a + b, 0)} sub={Object.entries(d.counts.source).map(([k, n]) => `${SOURCE[k] || k} ${n}`).join(' · ')} />
               <Kpi label="By experience" value={d.counts.experience.fresher || 0} sub={Object.entries(d.counts.experience).map(([k, n]) => `${EXP[k] || k} ${n}`).join(' · ')} />
+              <Kpi label="Job collector: waiting for review" value={d.counts.collectorReview ?? 0} sub={`${d.counts.removalRequests ?? 0} removal request${d.counts.removalRequests === 1 ? '' : 's'} open`} />
             </div>
             <ul className="stack g8" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
               {d.items.map((j) => (
@@ -308,6 +310,9 @@ function Expired() {
 }
 
 /** A company job waiting for review (scam signs / the AI check): why, then approve or reject with a reason typed here. */
+// round J: why a collector job waits for review
+const COLLECTOR_WHY = { no_page_text: 'No page text to summarise (the official page was empty or too short)', summary_failed: 'The summary failed a check (too long, copied the page, or had contact details)', summary_unavailable: 'AI summaries are off (no API key)', ai_daily_limit: "Today's AI summaries for the collector are used up", experience_not_stated: 'Experience not stated', city_not_stated: 'City not stated' };
+
 function ReviewBox({ j, onDone }) {
   const toast = useToast();
   const [busy, run] = useAction(toast);
@@ -317,7 +322,8 @@ function ReviewBox({ j, onDone }) {
   return (
     <div className="stack g8 well" data-testid="job-review">
       <strong className="small">Why it is waiting</strong>
-      <ul className="stack g4" style={{ margin: 0, paddingLeft: 18 }}>{j.review.reasons.map((r, i) => <li key={i} className="small" style={{ color: 'var(--warning)' }}>{r}</li>)}</ul>
+      <ul className="stack g4" style={{ margin: 0, paddingLeft: 18 }}>{j.review.reasons.map((r, i) => <li key={i} className="small" style={{ color: 'var(--warning)' }}>{COLLECTOR_WHY[r] || r}</li>)}</ul>
+      {j.source === 'collector' && <span className="xs muted" data-testid="collector-review-note">From the job collector. Write a short summary in your own words (Edit) before approving: the description is a placeholder until then. Never paste the company&apos;s text.</span>}
       {rejecting ? (
         <form className="stack g8" role="alert" onSubmit={(e) => { e.preventDefault(); decide(false); }}>
           <label className="label" htmlFor={`rv-${j.id}`}>Why can’t it go live?</label>
@@ -381,5 +387,39 @@ function ReportRow({ r, open, toast, onDone }) {
         </div>
       ))}
     </li>
+  );
+}
+
+/** Round J: requests to remove a job (usually a company about a job from its careers page). One click closes the job. */
+function Removals() {
+  const toast = useToast();
+  const [status, setStatus] = useState('open');
+  const st = useApi(`/api/admin/jobs/removals?status=${status}`);
+  const [busy, run] = useAction(toast);
+  const closeJob = (r) => run(async () => { await http(`/api/admin/jobs/removals/${r.id}/close-job`, { method: 'POST' }); st.reload(); }, 'Job closed: removed on request');
+  const dismiss = (r) => run(async () => { await http(`/api/admin/jobs/removals/${r.id}/dismiss`, { method: 'POST', body: { note: '' } }); st.reload(); }, 'Request dismissed');
+  return (
+    <div className="stack g12">
+      <span className="small muted">Requests to remove a job from Nm7 (from the form at /contact?topic=job-removal and the link on job pages).</span>
+      <Tabs label="Removal requests" tabs={[['open', 'To do'], ['done', 'Removed'], ['dismissed', 'Dismissed']]} value={status} onChange={setStatus} />
+      <Loading st={st} empty={emptyIf((d) => !d.length, status === 'open' ? 'No removal requests to handle.' : 'Nothing here yet.')}>{(rows) => (
+        <ul className="stack g8" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+          {rows.map((r) => (
+            <li key={r.id} className="card stack g4" data-testid="removal-row">
+              <strong className="small">{r.company}{r.jobTitle ? ` · ${r.jobTitle}` : ''}</strong>
+              <a className="xs" href={r.jobLink} target="_blank" rel="noopener noreferrer nofollow" style={{ overflowWrap: 'anywhere' }}>{r.jobLink}</a>
+              <span className="xs muted">{r.email} · {day(r.at)}{r.jobId ? '' : ' · job not found on Nm7'}</span>
+              {r.reason && <span className="small" style={{ whiteSpace: 'pre-line' }}>{r.reason}</span>}
+              {r.status === 'open' && (
+                <div className="row g8" style={{ flexWrap: 'wrap' }}>
+                  <button type="button" className="btn btn-ink btn-sm" disabled={busy || !r.jobId} onClick={() => closeJob(r)} data-testid="removal-close">Close the job</button>
+                  <button type="button" className="btn btn-outline btn-sm" disabled={busy} onClick={() => dismiss(r)}>Dismiss</button>
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}</Loading>
+    </div>
   );
 }

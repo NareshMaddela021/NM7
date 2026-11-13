@@ -1,7 +1,8 @@
 // Legal pages: Terms, Privacy, Refunds & cancellation, Delivery, Expert terms, Contact.
 // DRAFT wording for a lawyer to review. Business details come from src/lib/legal.js; a sentence whose detail is
 // still empty is left out. Lines starting "?? " are business decisions to confirm (tagged in the preview only).
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
+import JobRemovalForm from './JobRemovalForm';
 import Header from '../../components/Header';
 import SiteFooter from '../../components/SiteFooter';
 import { LEGAL as L, join, missingLegal } from '../../lib/legal';
@@ -139,11 +140,14 @@ export function ExpertTerms() {
 }
 
 export function Contact() {
+  const [params] = useSearchParams();
+  const removal = params.get('topic') === 'job-removal'; // round J: the job-removal form
   return (
     <>
       <Header />
       <main id="main" className="container stack g20 legal" style={{ maxWidth: 820, padding: '32px 20px 64px' }}>
         <h1 className="display" style={{ fontSize: 36 }}>Contact us</h1>
+        {removal && <JobRemovalForm link={params.get('job') || ''} />}
         <div className="row g16" style={{ alignItems: 'stretch' }}>
           <section className="card stack g8" style={{ flex: '1 1 300px' }}>
             <strong>Support</strong>
@@ -161,6 +165,7 @@ export function Contact() {
               ? <span>{join(' · ', L.grievance.name, L.grievance.phone)}{(L.grievance.email || L.email) && <> · <a href={`mailto:${L.grievance.email || L.email}`}>{L.grievance.email || L.email}</a></>}</span>
               : <a href={`mailto:${L.grievance.email || L.email}`}>{L.grievance.email || L.email}</a>}
             <span className="small muted">We acknowledge complaints within 48 hours.</span>
+            {!removal && <Link className="small" to="/contact?topic=job-removal" data-testid="contact-job-removal">Ask us to remove a job from Nm7</Link>}
           </section>
         </div>
       </main>

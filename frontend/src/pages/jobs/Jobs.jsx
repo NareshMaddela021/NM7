@@ -414,6 +414,13 @@ export function JobPage() {
                 <span className="xs muted">{postedAgo(job.postedAt, t)}</span>
                 {job.closesAt && !closed && <span className="xs muted">· {t('jobs.closesOn', { date: new Date(job.closesAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) })}</span>}
               </div>
+              {job.fromCareersPage && ( /* round J: found on the company's own careers page by the job collector */
+                <div className="row g8 xs muted" style={{ flexWrap: 'wrap' }} data-testid="job-source">
+                  <span>{t('jobs.src.careers')}</span>
+                  <span aria-hidden="true">·</span>
+                  <Link to={`/contact?topic=job-removal&job=${encodeURIComponent(`https://nm7.si/jobs/${job.slug}`)}`} data-testid="job-removal">{t('jobs.src.removal')}</Link>
+                </div>
+              )}
               <dl className="job-facts-grid">
                 <div><dt>{t('jobs.f.city')}</dt><dd>{placeText(job, t) || '—'}</dd></div>
                 <div><dt>{t('jobs.f.experience')}</dt><dd>{t(`jobs.exp.${job.experience}`)}</dd></div>

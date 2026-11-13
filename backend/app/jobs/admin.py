@@ -123,6 +123,9 @@ async def list_jobs(
             "source": await counts("source"),
             "experience": await counts("experience"),
             "status": await counts("status"),
+            # round J: collector jobs waiting for review (no usable page text, a summary that failed a check …)
+            "collectorReview": await db[JOBS].count_documents({"source": "collector", "status": "review"}),
+            "removalRequests": await db["job_removals"].count_documents({"status": "open"}),
         },  # fmt: skip
         "labels": {"workType": WORK_TYPES, "jobType": JOB_TYPES, "experience": EXPERIENCE, "apply": APPLY},
     }
@@ -281,6 +284,12 @@ async def review_job(
     j = await _job(db, job_id)
     if j["status"] != "review":
         raise ApiError(409, "not_in_review", "This job isn’t waiting for review.")
+    if (
+        body.approve
+        and j.get("source") == "collector"
+        and j.get("description", "").startswith("Summary not written yet")
+    ):
+        raise ApiError(409, "no_summary", "Write a short summary in your own words (Edit) before approving.")
     reason = body.reason.strip()
     if not body.approve and len(reason) < 5:
         raise ApiError(400, "reason", "Say why the job can’t go live (the company is told).")
