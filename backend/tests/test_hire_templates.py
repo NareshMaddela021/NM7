@@ -19,7 +19,9 @@ async def test_templates_list_and_post_each(client, outbox, db):
     assert all(skills.canonical(s) == s for t in out for s in t["skills"])  # dictionary names
     by = {t["id"]: t for t in out}
     assert by["electrician"]["test"] == "Electrical" and by["electrician"]["education"] == "iti"
-    assert by["web-developer"]["test"] == ""  # no test in the bank: no link
+    assert by["web-developer"]["test"] == "Web basics" and by["nurse"]["test"] == "Nursing basics"  # 13 Nov batch
+    assert by["office-assistant"]["test"] == "Excel"  # the bank's own name (was "Microsoft Excel": never linked)
+    assert by["it-support"]["test"] == ""  # no test in the bank: no link
     session, cid = await verified(client, outbox, db)
     from app.site import get_site, save_site
 

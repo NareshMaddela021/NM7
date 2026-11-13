@@ -55,7 +55,7 @@ TEMPLATES: list[dict[str, Any]] = [
         "experience": "0_1",
         "education": "graduate",
         "skills": ["HTML", "CSS", "JavaScript", "React"],
-        "test": "",
+        "test": "Web basics",
         "description": "Build and update pages of our web app with HTML, CSS, JavaScript and React. Make screens work well on "
         "phones, fix layout bugs and work with the design and back-end teams.",
     },
@@ -79,7 +79,7 @@ TEMPLATES: list[dict[str, Any]] = [
         "experience": "fresher",
         "education": "graduate",
         "skills": ["Manual testing", "Test cases", "SQL"],
-        "test": "SQL",
+        "test": "Software testing",
         "description": "Test new features of our app before each release. Write test cases, report bugs clearly with steps to "
         "repeat them, and check fixes. Training on our tools is given.",
     },
@@ -91,7 +91,7 @@ TEMPLATES: list[dict[str, Any]] = [
         "experience": "fresher",
         "education": "12th",
         "skills": ["Data entry", "Microsoft Excel", "Typing"],
-        "test": "Microsoft Excel",
+        "test": "Data entry",
         "description": "Enter and check customer and order details in our system and in Excel sheets. Accuracy and a steady "
         "typing speed matter. 12th pass with basic computer knowledge can apply.",
     },
@@ -152,7 +152,7 @@ TEMPLATES: list[dict[str, Any]] = [
         "experience": "fresher",
         "education": "iti",
         "skills": ["Fitting", "Workplace safety"],
-        "test": "",
+        "test": "Mechanical basics",
         "description": "Assemble, fit and maintain machine parts on the shop floor, read simple drawings and keep the work "
         "area safe. ITI Fitter pass. Shift work with overtime pay.",
     },
@@ -176,7 +176,7 @@ TEMPLATES: list[dict[str, Any]] = [
         "experience": "fresher",
         "education": "10th",
         "skills": ["Last-mile delivery", "Driving"],
-        "test": "",
+        "test": "Delivery and logistics",
         "description": "Deliver parcels to homes and shops in your area using our app for routes. A two-wheeler with a valid "
         "licence is needed. Daily incentives on top of salary.",
     },
@@ -188,7 +188,7 @@ TEMPLATES: list[dict[str, Any]] = [
         "experience": "fresher",
         "education": "12th",
         "skills": ["Retail sales", "Billing counter", "Customer service"],
-        "test": "",
+        "test": "Retail",
         "description": "Help customers find products, handle billing at the counter, keep shelves stocked and tidy, and "
         "count stock at the end of the day. Friendly, on-time people are welcome.",
     },
@@ -200,7 +200,7 @@ TEMPLATES: list[dict[str, Any]] = [
         "experience": "fresher",
         "education": "diploma",
         "skills": ["Nursing", "First aid"],
-        "test": "",
+        "test": "Nursing basics",
         "description": "Care for patients on the ward, give medicines as prescribed, record vital signs and support doctors "
         "on rounds. GNM or B.Sc Nursing with a valid registration.",
     },
@@ -212,7 +212,7 @@ TEMPLATES: list[dict[str, Any]] = [
         "experience": "fresher",
         "education": "12th",
         "skills": ["Microsoft Excel", "Data entry", "Communication skills"],
-        "test": "Microsoft Excel",
+        "test": "Excel",
         "description": "Keep files and records in order, update Excel sheets, answer calls and help the team with daily "
         "office work. 12th pass with basic computer skills.",
     },
