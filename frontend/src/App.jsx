@@ -375,6 +375,7 @@ export default function App() {
         <Route path="/jobs" element={<JobsList />} />
         <Route path="/jobs/:slug" element={<JobPage />} />
         <Route path="/salaries" element={<Salaries />} />
+        <Route path="/salaries/:role" element={<Salaries />} />
         <Route path="/verify/:token" element={<Verify />} />
         <Route path="/for-companies" element={<CompanySignup />} />
         <Route path="/company" element={<CompanyHome />} />

@@ -17,6 +17,10 @@
       "destination": "https://nm7-api.onrender.com/api/jobs/sitemap.xml"
     },
     {
+      "source": "/sitemap-salaries.xml",
+      "destination": "https://nm7-api.onrender.com/api/public/salaries/sitemap.xml"
+    },
+    {
       "source": "/blog",
       "destination": "/blog/index.html"
     },
@@ -86,6 +90,10 @@
     },
     {
       "source": "/salaries",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/salaries/:role",
       "destination": "/index.html"
     },
     {

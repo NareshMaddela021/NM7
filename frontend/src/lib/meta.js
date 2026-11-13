@@ -14,6 +14,7 @@ export const ROUTE_META = [
   [/^\/companies\/./, 'Company', 'A company hiring on Nm7.'],
   [/^\/jobs\/?$/, 'Jobs for freshers, interns and 0–3 years experience', 'Find fresher jobs and internships in India by role, skill, company and city. Filter by experience, salary and remote work. Free on Nm7.'],
   [/^\/jobs\/./, 'Job', 'A job on the Nm7 job board.'],
+  [/^\/salaries(\/|$)/, 'Salary guide for freshers in India', 'Starting salaries by role, city and experience, from real jobs on Nm7 only.'],
   [/^\/linkedin/, 'LinkedIn profile check and headlines, free', 'Get a free score for your LinkedIn profile with a fix for each section, or create a new profile with 5 headline options and a step-by-step guide in English, Telugu and Hindi.'],
   [/^\/for-orgs/, 'Nm7 for Organizations — plans for colleges, institutes and job fairs', 'Collect consent-based, ATS-safe resumes from your students or candidates, approve, print and share them with recruiters. Free plan, Drive and Campus plans.'],
   [/^\/partners/, 'Nm7 partner programme — earn by bringing colleges and job fairs', 'Refer colleges, training institutes and job fairs to Nm7 for Organizations and earn commission on their plans. Apply in a minute.'],
@@ -87,17 +88,24 @@ function setMeta(name, content) {
   el.setAttribute('content', content);
 }
 
-export function applyMeta({ title, description = DEFAULT_DESC, noindex = false, path = '/' }) {
+/** The robots tag: "index, follow", "noindex, follow" (a page that is only hidden for now) or "noindex, nofollow". */
+export const robotsFor = ({ noindex = false, follow = false }) => (noindex ? `noindex, ${follow ? 'follow' : 'nofollow'}` : 'index, follow');
+
+export function applyMeta({ title, description = DEFAULT_DESC, noindex = false, follow = false, path = '/' }) {
   document.title = path === '/' ? title : `${title} · ${SITE}`; // the home title already starts with the name
   setMeta('description', description);
-  setMeta('robots', noindex ? 'noindex, nofollow' : 'index, follow');
+  setMeta('robots', robotsFor({ noindex, follow }));
   const canonical = document.head.querySelector('link[rel="canonical"]');
   if (canonical) canonical.setAttribute('href', `https://nm7.si${path}`);
 }
 
 /** The title and description for a path (unknown paths: "Page not found", not indexed). */
+// pages that start as "noindex, follow" until they know better (the salary guide, while it is hidden: round D1)
+const HIDDEN_UNTIL_READY = /^\/salaries(\/|$)/;
+
 export function metaFor(path) {
   const m = ROUTE_META.find(([re]) => re.test(path));
+  if (m && HIDDEN_UNTIL_READY.test(path)) return { title: m[1], description: m[2], noindex: true, follow: true, path };
   return m ? { title: m[1], description: m[2], noindex: PRIVATE.test(path), path } : { title: 'Page not found', description: 'This page doesn’t exist.', noindex: true, path };
 }
 
@@ -113,5 +121,5 @@ export function usePageMeta(meta) {
     override = mine;
     applyMeta(mine.meta);
     return () => { if (override === mine) { override = null; applyMeta(metaFor(window.location.pathname)); } };
-  }, [meta.title, meta.description]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [meta.title, meta.description, meta.noindex, meta.follow]); // eslint-disable-line react-hooks/exhaustive-deps
 }

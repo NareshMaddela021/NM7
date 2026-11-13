@@ -751,6 +751,8 @@ class SeekSettingsIn(CamelModel):
     """Job seekers (Phase 6): the salary guide's minimum jobs (S4) and the skill check pass mark for the badge (S2)."""
 
     salary_min_jobs: int | None = Field(None, ge=3, le=1000)
+    salaries_min_roles: int | None = Field(None, ge=1, le=100)
+    salaries_mode: Literal["auto", "show", "hide"] | None = None
     pass_score: int | None = Field(None, ge=30, le=100)
 
 
@@ -855,7 +857,12 @@ def _settings_out(site: dict[str, Any]) -> dict[str, Any]:
             "weights": site["simple"]["weights"],
         },
         "languages": {"teHi": bool(site["languages"]["te_hi"])},
-        "seek": {"salaryMinJobs": int(site["seek"]["salary_min_jobs"]), "passScore": int(site["seek"]["pass_score"])},
+        "seek": {
+            "salaryMinJobs": int(site["seek"]["salary_min_jobs"]),
+            "salariesMinRoles": int(site["seek"]["salaries_min_roles"]),
+            "salariesMode": site["seek"]["salaries_mode"],
+            "passScore": int(site["seek"]["pass_score"]),
+        },
         "hire": {
             "on": bool(site["hire"]["on"]),
             "confirmDays": int(site["hire"]["confirm_days"]),
@@ -878,7 +885,11 @@ def _settings_out(site: dict[str, Any]) -> dict[str, Any]:
 
 @router.get("/settings")
 async def get_settings_(db: DB, _: AdminAuth("settings")) -> dict[str, Any]:
-    return _settings_out(await get_site(db))
+    from app.seek.salary import visibility
+
+    out = _settings_out(await get_site(db))
+    out["salariesStatus"] = await visibility(db, fresh=True)  # "Salaries page: hidden, 0 of 15 roles ready"
+    return out
 
 
 @router.put("/settings")
@@ -915,6 +926,9 @@ async def put_settings(body: SettingsIn, request: Request, db: DB, auth: AdminAu
     if body.seek:
         new = {**before["seek"], **body.seek.model_dump(exclude_none=True)}
         if new != before["seek"]:
+            from app.seek import salary
+
+            salary._cache.clear()  # the salary guide and its visibility follow the new numbers at once
             changes["seek"] = new
             diff["seek"] = {"from": before["seek"], "to": new}
     if body.languages and body.languages.model_dump() != before["languages"]:
@@ -931,7 +945,11 @@ async def put_settings(body: SettingsIn, request: Request, db: DB, auth: AdminAu
     if changes:
         await save_site(db, changes)
         await audit(db, auth.user.id, "settings.changed", target="site", data=diff, ip=_ip(request))
-    return _settings_out(await get_site(db))
+    from app.seek.salary import visibility
+
+    out = _settings_out(await get_site(db))
+    out["salariesStatus"] = await visibility(db, fresh=True)
+    return out
 
 
 # ---------- automation ----------

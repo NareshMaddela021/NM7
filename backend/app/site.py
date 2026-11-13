@@ -63,7 +63,9 @@ SIMPLE = {
 
 
 SEEK = {  # Phase 6: job seekers
-    "salary_min_jobs": 10,  # a salary range is shown only with at least this many real jobs (last 90 days)
+    "salary_min_jobs": 20,  # a role's salary shows only with this many real jobs with pay (live or last 90 days)
+    "salaries_min_roles": 15,  # /salaries comes back (menu, indexing, sitemap) once this many roles have enough jobs
+    "salaries_mode": "auto",  # auto (the rule above) · show (always) · hide (always)
     "pass_score": 60,  # S2: the skill check score (%) that, with the project sent, gives "Skill verified"
 }
 

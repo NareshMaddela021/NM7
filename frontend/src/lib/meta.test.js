@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ROUTE_META, metaFor } from './meta';
+import { ROUTE_META, metaFor, robotsFor } from './meta';
 
 describe('page titles', () => {
   it('every public page has its own title and description', () => {
@@ -22,5 +22,21 @@ describe('page titles', () => {
     ]) expect(metaFor(path)).toMatchObject({ title, noindex: true });
     expect(metaFor('/me/upgrade').title).toBe('Upgrade & add-ons');
     expect(metaFor('/expert/orders')).toMatchObject({ title: 'Expert workspace', noindex: true });
+  });
+});
+
+// Round D1: the salary guide starts hidden from search ("noindex, follow") until the page knows it may be indexed
+describe('salary guide indexing', () => {
+  it('starts as noindex, follow', () => {
+    for (const p of ['/salaries', '/salaries/data-analyst']) {
+      const m = metaFor(p);
+      expect(m.noindex).toBe(true);
+      expect(m.follow).toBe(true);
+    }
+  });
+  it('writes the robots tag it is given', () => {
+    expect(robotsFor(metaFor('/salaries'))).toBe('noindex, follow');
+    expect(robotsFor({ noindex: false })).toBe('index, follow');
+    expect(robotsFor(metaFor('/me/orders'))).toBe('noindex, nofollow');
   });
 });
