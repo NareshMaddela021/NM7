@@ -1,9 +1,12 @@
-// Admin → Joining reports (Phase 6, S10): "the job is not what was promised" from the day 7 / day 30 check-ins.
+// Admin → Joining reports (Phase 6, S10): "the job is not what was promised", from the day 7 / day 30 check-ins or
+// sent any day of the first 90 from My progress (round E).
 // Close one when handled, or dismiss it when it isn't about the company (then it no longer lowers the trust score).
 import { useState } from 'react';
 import { useToast } from '../../../components/ui';
 import { PageHead } from '../AdminUI';
 import { Loading, http, useAction, useApi } from './common';
+
+export const PROBLEM = { salary: 'Pay lower than promised', role: 'Different work', hours: 'Longer hours', location: 'Different place', fee: 'Asked to pay a deposit or fee', safety: "Doesn't feel safe", other: 'Something else' };
 
 export function LiveJoiningReports() {
   const [status, setStatus] = useState('open');
@@ -19,8 +22,8 @@ export function LiveJoiningReports() {
           {!rows.length && <li className="small muted">Nothing here.</li>}
           {rows.map((r) => (
             <li key={r.id} className="card-sm stack g4" data-testid="ad-jr-row">
-              <strong className="small">{r.company} · {r.role} · day {r.day}</strong>
-              <span className="small">{r.problems.join(', ')}</span>
+              <strong className="small">{r.company} · {r.role} · day {r.day}{r.how === 'anytime' ? ' · reported from My progress' : ' · at a check-in'}</strong>
+              <span className="small" data-testid="ad-jr-problems">{r.problems.map((p) => PROBLEM[p] || p).join(', ')}</span>
               {r.note && <span className="xs">{r.note}</span>}
               {r.status === 'open' && <div className="row g8"><button type="button" className="btn btn-ink btn-sm" disabled={busy} onClick={() => close(r.id, false)}>Close</button><button type="button" className="btn btn-outline btn-sm" disabled={busy} onClick={() => close(r.id, true)}>Dismiss (not about the company)</button></div>}
             </li>

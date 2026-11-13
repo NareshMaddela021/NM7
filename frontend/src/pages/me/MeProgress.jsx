@@ -6,7 +6,9 @@ import { useEffect, useState } from 'react';
 import { http } from '../../services/http';
 import { MeHead } from './MeLayout';
 
-const PROBLEMS = [['salary', 'Pay is lower than promised'], ['role', 'The work is different'], ['hours', 'Hours are longer'], ['location', 'A different place'], ['safety', "I don't feel safe"], ['other', 'Something else']];
+const PROBLEMS = [['salary', 'Pay is lower than promised'], ['role', 'The work is different'], ['hours', 'Hours are longer'], ['location', 'A different place'], ['fee', 'Asked to pay a deposit or fee'], ['safety', "I don't feel safe"], ['other', 'Something else']];
+export const problemText = (k) => (PROBLEMS.find(([x]) => x === k) || [k, k])[1];
+const day = (ms) => new Date(ms).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 const PART = { week1: 'Week 1', month1: 'Month 1', month3: 'Month 3' };
 
 function Checkin({ j, onDone }) {
@@ -36,6 +38,45 @@ function Checkin({ j, onDone }) {
   );
 }
 
+/** Round E: "Something isn't as promised? Report it", any day of the first 90 (not only at the check-ins). */
+function Report({ j, onDone }) {
+  const [open, setOpen] = useState(false);
+  const [probs, setProbs] = useState([]);
+  const [note, setNote] = useState('');
+  const [err, setErr] = useState('');
+  const [sent, setSent] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const send = async () => {
+    setErr('');
+    if (!probs.length) { setErr('Pick what isn\'t as promised.'); return; }
+    setBusy(true);
+    try { onDone(await http(`/api/me/progress/joined/${j.id}/report`, { method: 'POST', body: { problems: probs, note } })); setSent(true); setOpen(false); setProbs([]); setNote(''); } catch (x) { setErr(x.message); } finally { setBusy(false); }
+  };
+  return (
+    <div className="card-sm stack g8" data-testid="pr-report-box">
+      {j.reports.map((r) => <span key={r.at} className="xs muted" data-testid="pr-reported">Reported to Nm7 on {day(r.at)}: {r.problems.map(problemText).join(', ')}</span>)}
+      {sent && (
+        <div className="stack g4" role="status" data-testid="pr-report-sent">
+          <strong className="small">Thanks: Nm7 has your report.</strong>
+          <span className="small">What happens next: our team reads it and may email you to ask more. Only Nm7 sees it; the company is not told who wrote it. If more than one person reports the same company, its trust score on Nm7 goes down. If you feel unsafe, put your safety first and talk to someone you trust.</span>
+        </div>
+      )}
+      {!open ? (
+        <button type="button" className="btn btn-outline btn-sm" style={{ alignSelf: 'flex-start' }} onClick={() => { setOpen(true); setSent(false); }} data-testid="pr-report-open">Something isn&apos;t as promised? Report it</button>
+      ) : (
+        <fieldset className="stack g8" style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
+          <legend className="small" style={{ fontWeight: 600 }}>What isn&apos;t as promised?</legend>
+          <span className="xs muted">Only Nm7 sees this. The company is not told who wrote it.</span>
+          <div className="row g8" style={{ flexWrap: 'wrap' }}>{PROBLEMS.map(([k, l]) => <label key={k} className="row g4 small"><input type="checkbox" checked={probs.includes(k)} onChange={() => setProbs(probs.includes(k) ? probs.filter((x) => x !== k) : [...probs, k])} data-testid={`pr-r-${k}`} />{l}</label>)}</div>
+          <label className="field"><span className="label">A short note (optional)</span><textarea className="input" rows={2} maxLength={1000} value={note} onChange={(e) => setNote(e.target.value)} data-testid="pr-r-note" /></label>
+          {err && <p className="error" role="alert" style={{ margin: 0 }}>{err}</p>}
+          <div className="row g8"><button type="button" className="btn btn-ink btn-sm" disabled={busy} onClick={send} data-testid="pr-r-send">Send to Nm7</button><button type="button" className="btn btn-ghost btn-sm" onClick={() => { setOpen(false); setErr(''); }}>Cancel</button></div>
+        </fieldset>
+      )}
+    </div>
+  );
+}
+
 function Joined({ j: start }) {
   const [j, setJ] = useState(start);
   const tick = async (item, done) => { try { setJ(await http(`/api/me/progress/joined/${j.id}/item`, { method: 'PUT', body: { item, done } })); } catch { /* keep as is */ } };
@@ -44,6 +85,7 @@ function Joined({ j: start }) {
       <div className="row between g8" style={{ flexWrap: 'wrap' }}><strong>{j.role} · {j.company}</strong><span className="badge b-neutral" data-testid="pr-day">Day {j.day}</span></div>
       {j.due && <Checkin j={j} onDone={setJ} />}
       {Object.entries(j.checkins).map(([d, c]) => <span key={d} className="xs muted">Day {d} check-in: {c.ok ? 'as promised' : 'reported to Nm7'}</span>)}
+      {j.canReport && <Report j={j} onDone={setJ} />}
       {Object.entries(j.checklist).map(([part, items]) => (
         <fieldset key={part} className="stack g4" style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
           <legend className="small" style={{ fontWeight: 600 }}>{PART[part]}</legend>

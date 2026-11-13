@@ -7,11 +7,13 @@
                                                  Joined appears by itself)
   PUT  /api/me/progress/joined/{id}/item {item, done}
   POST /api/me/progress/joined/{id}/checkin {day: 7|30, ok, problems, note}   "Is the job what was promised?"
+  POST /api/me/progress/joined/{id}/report {problems, note}   "Something isn't as promised?" any day of the first 90
   POST /api/public/progress/stop {token}         stop the weekly progress and check-in emails
 Admin ("companies"):
   GET  /api/admin/joining-reports · POST /api/admin/joining-reports/{id}/close {note}
 
-A "No" at a check-in becomes a report to Nm7 (Admin → Joining reports). Reports about the same company from two or more
+A "No" at a check-in, or a report sent any day in the first 90 days, becomes a report to Nm7 (Admin → Joining
+reports). Only Nm7 sees it; the company is never told who wrote it. Reports about the same company from two or more
 different people in 180 days lower its trust score (5 points for each one after the first). Weekly progress counts
 only what really happened; with nothing to show, it says so kindly and suggests one next step.
 """
@@ -57,7 +59,8 @@ CHECKLIST = {
 ITEMS = {k for v in CHECKLIST.values() for k, _ in v}
 TIPS = ["Arrive on time and tell your manager early if you'll be late or absent.", "Ask questions: in the first weeks nobody expects you to know everything.",
         "Keep copies of your offer letter, pay slips and any written promises.", "If something is not as promised (pay, role, hours, place), raise it politely in writing first."]  # fmt: skip
-PROBLEMS = ("salary", "role", "hours", "location", "safety", "other")
+PROBLEMS = ("salary", "role", "hours", "location", "fee", "safety", "other")  # fee: asked to pay a deposit or a fee
+REPORT_DAYS = 90  # the report button shows for the whole first 90 days
 CHECK_DAYS = (7, 30)
 REPORTS_WINDOW = timedelta(days=180)
 WEEK = timedelta(days=7)
@@ -97,7 +100,8 @@ def joining_out(j: dict[str, Any]) -> dict[str, Any]:
     return {"id": str(j["_id"]), "company": j["company"], "role": j["role"], "joinDate": j["join_date"], "day": n,
             "source": j["source"], "checklist": {k: [{"id": i, "text": t, "done": i in (j.get("checklist") or [])} for i, t in v] for k, v in CHECKLIST.items()},
             "checkins": {k: {"ok": v["ok"], "at": ms(v["at"])} for k, v in (j.get("checkins") or {}).items()},
-            "due": due[0] if due else None, "tips": TIPS}  # fmt: skip
+            "due": due[0] if due else None, "tips": TIPS, "canReport": 1 <= n <= REPORT_DAYS,
+            "reports": [{"at": ms(r["at"]), "problems": r["problems"]} for r in j.get("reports") or []]}  # fmt: skip
 
 
 async def week_numbers(db, uid: str) -> dict[str, Any]:
@@ -193,7 +197,12 @@ async def item(jid: str, body: ItemIn, auth: CustomerAuth, db: DB) -> dict[str, 
 class CheckinIn(CamelModel):
     day: Literal[7, 30]
     ok: bool
-    problems: list[Literal[PROBLEMS]] = Field(default_factory=list, max_length=6)  # type: ignore[valid-type]
+    problems: list[Literal[PROBLEMS]] = Field(default_factory=list, max_length=7)  # type: ignore[valid-type]
+    note: str = Field("", max_length=1000)
+
+
+class ReportIn(CamelModel):
+    problems: list[Literal[PROBLEMS]] = Field(min_length=1, max_length=7)  # type: ignore[valid-type]
     note: str = Field("", max_length=1000)
 
 
@@ -217,20 +226,47 @@ async def checkin(jid: str, body: CheckinIn, auth: CustomerAuth, db: DB) -> dict
     t = now()
     await db[JOININGS].update_one({"_id": j["_id"]}, {"$set": {f"checkins.{body.day}": {"ok": body.ok, "at": t}}})
     if not body.ok:
-        await db[JOINING_REPORTS].insert_one({"joining_id": j["_id"], "user_id": auth.user.id, "company_id": j.get("company_id"),
-                                              "company": j["company"], "role": j["role"], "day": body.day, "problems": list(body.problems),
-                                              "note": body.note.strip(), "at": t, "status": "open"})  # fmt: skip
-        await audit(
-            db,
-            auth.user.id,
-            "joining.reported",
-            target=j.get("company_id") or "",
-            data={"day": body.day, "problems": list(body.problems)},
-        )
-        if j.get("company_id"):
-            from app.companies.trust import refresh
+        await _report(db, auth.user.id, j, body.day, list(body.problems), body.note, "checkin")
+    return joining_out(await db[JOININGS].find_one({"_id": j["_id"]}))
 
-            await refresh(db, j["company_id"])
+
+async def _report(db, uid: str, j: dict[str, Any], day: int, problems: list[str], note: str, how: str) -> None:
+    """A report to Nm7 (Admin → Joining reports); the company is never told who wrote it."""
+    t = now()
+    await db[JOINING_REPORTS].insert_one({"joining_id": j["_id"], "user_id": uid, "company_id": j.get("company_id"),
+                                          "company": j["company"], "role": j["role"], "day": day, "problems": problems,
+                                          "note": note.strip(), "at": t, "status": "open", "how": how})  # fmt: skip
+    await db[JOININGS].update_one({"_id": j["_id"]}, {"$push": {"reports": {"at": t, "problems": problems}}})
+    await audit(
+        db,
+        uid,
+        "joining.reported",
+        target=j.get("company_id") or "",
+        data={"day": day, "problems": problems, "how": how},
+    )
+    if j.get("company_id"):
+        from app.companies.trust import refresh
+
+        await refresh(db, j["company_id"])
+
+
+@me.post("/joined/{jid}/report")
+async def report(jid: str, body: ReportIn, auth: CustomerAuth, db: DB) -> dict[str, Any]:
+    """ "Something isn't as promised? Report it": any day of the first 90, not only at the check-ins."""
+    j = await _mine(db, auth.user.id, jid)
+    n = day_n(j)
+    if n < 1:
+        raise ApiError(409, "not_started", "You can report once you've joined.")
+    if n > REPORT_DAYS:
+        raise ApiError(
+            409, "too_late", f"Reports here are for the first {REPORT_DAYS} days. Contact Nm7 support instead."
+        )
+    key = f"joining-report:{auth.user.id}"
+    await rate_limit.check(
+        db, key, [(5, timedelta(days=1))], "You've sent several reports today. Nm7 will look at them first."
+    )
+    await rate_limit.record(db, key)
+    await _report(db, auth.user.id, j, n, list(dict.fromkeys(body.problems)), body.note, "anytime")
     return joining_out(await db[JOININGS].find_one({"_id": j["_id"]}))
 
 
@@ -336,7 +372,8 @@ async def reports(db: DB, _: AdminAuth("companies"), status: str = "open") -> li
     out = []
     async for r in db[JOINING_REPORTS].find(q).sort("at", -1).limit(200):
         out.append({"id": str(r["_id"]), "company": r["company"], "companyId": r.get("company_id"), "role": r["role"], "day": r["day"],
-                    "problems": r["problems"], "note": r["note"], "at": ms(r["at"]), "status": r["status"]})  # fmt: skip
+                    "problems": r["problems"], "note": r["note"], "at": ms(r["at"]), "status": r["status"],
+                    "how": r.get("how") or "checkin"})  # fmt: skip
     return out
 
 

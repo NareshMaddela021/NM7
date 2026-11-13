@@ -119,3 +119,7 @@ async def test_reminders_and_marks(client, outbox, db, make_client):
     assert kinds == ["attended"]
     await client.post(mark, json={"result": "clear"}, headers=H(session))
     assert not await db[HIRE_EVENTS].find_one({"user_id": uid})
+    # round E: a past time can't be cancelled (mark it instead); the booking stays
+    cancel = f"/api/company/{cid}/hire/slots/{sid}/cancel"
+    assert err(await client.post(cancel, json={"reason": "Too late now"}, headers=H(session))) == "past"
+    assert (await db[HIRE_SLOTS].find_one({"_id": s["_id"]}))["status"] == "booked"

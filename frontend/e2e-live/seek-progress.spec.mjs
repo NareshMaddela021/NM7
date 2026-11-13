@@ -47,7 +47,7 @@ for (const [label, opts] of SIZES) {
       await adminLogin(admin, owner, secret);
       await expect(admin).not.toHaveURL(/\/login/);
       await admin.goto('/admin/joining-reports');
-      await expect(admin.getByTestId('ad-jr-row').filter({ hasText: `Shopco ${label}` })).toContainText('salary');
+      await expect(admin.getByTestId('ad-jr-row').filter({ hasText: `Shopco ${label}` })).toContainText('Pay lower than promised'); // readable, at a check-in (round E)
       expect(await noSideScroll(admin)).toBe(true);
 
       // the demo students (Arjun's one-time link first, while this browser is still the admin)
@@ -66,6 +66,18 @@ for (const [label, opts] of SIZES) {
       await a2.goto(arjun.body.path);
       await expect(a2).toHaveURL(/\/me\/progress/);
       await expect(a2.getByTestId('pr-day')).toHaveText('Day 10');
+      // round E: day 7 was "as promised", and Arjun can still report something any day of the first 90
+      await a2.getByTestId('pr-report-open').click();
+      await a2.getByTestId('pr-r-send').click();
+      await expect(a2.getByRole('alert')).toContainText("Pick what isn't as promised");
+      await a2.getByTestId('pr-r-fee').check();
+      await a2.getByTestId('pr-r-note').fill('Asked to pay Rs 2,000 for the uniform.');
+      expect(await noSideScroll(a2)).toBe(true);
+      await a2.getByTestId('pr-r-send').click();
+      await expect(a2.getByTestId('pr-report-sent')).toContainText('What happens next');
+      await expect(a2.getByTestId('pr-reported')).toContainText('Asked to pay a deposit or fee');
+      await a2.reload();
+      await expect(a2.getByTestId('pr-reported')).toHaveCount(1); // kept after a reload
       expect(await noSideScroll(a2)).toBe(true);
     });
   });

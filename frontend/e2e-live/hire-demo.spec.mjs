@@ -48,6 +48,11 @@ for (const [label, opts] of SIZES) {
       await expect(hire).toContainText('New - no history yet');
       await expect(page.getByTestId('co-slot')).toHaveCount(4); // three open times tomorrow + yesterday's attended one (round C)
       await expect(page.getByTestId('co-slot').filter({ hasText: 'Open' })).toHaveCount(3);
+      // round E: the past (attended) time has Attended / No-show but no Cancel
+      const past = page.getByTestId('co-slot').filter({ hasNotText: 'Open' });
+      await expect(past.getByTestId('co-slot-attended')).toBeVisible();
+      await expect(past.getByTestId('co-slot-cancel')).toHaveCount(0);
+      await expect(page.getByTestId('co-slot').filter({ hasText: 'Open' }).first().getByTestId('co-slot-cancel')).toBeVisible();
       await expect(page.getByTestId('co-offer-state')).toHaveText('Waiting for an answer');
       expect(await noSideScroll(page)).toBe(true);
       await page.reload();
