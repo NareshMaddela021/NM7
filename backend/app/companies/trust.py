@@ -87,7 +87,9 @@ async def score_of(db, c: dict[str, Any]) -> dict[str, Any]:
         if job_ids
         else 0
     )
-    parts.append(("reports", max(0, 15 - 5 * reports)))
+    from app.seek.first90 import joining_penalty  # Phase 6 S10: "not as promised" from two or more people
+
+    parts.append(("reports", max(0, 15 - 5 * reports - await joining_penalty(db, c["_id"]))))
     rs = await reply_stats(db, c["_id"])
     parts.append(("replies", round(15 * rs["rate"]) if rs["asked"] >= 3 and rs["rate"] is not None else 8))
     if trust == "blocked":

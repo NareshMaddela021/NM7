@@ -322,11 +322,12 @@ async def open_demo(request: Request, db: DB, auth: AdminAuth("jobs")) -> dict[s
 
 @public.post("")
 async def sign_in(body: TokenIn, request: Request, response: Response, db: DB) -> dict[str, str]:
+    from app.seek import demo as seek_demo  # Meera and Arjun, the job-seeker demo students (Phase 6)
     from app.simple import demo as simple_demo  # Ravi, the Easy dashboard's demo student (Phase 4)
 
     doc = await db[USERS].find_one_and_update(  # one-time: cleared in the same write that accepts it
         {
-            "_id": {"$in": [STUDENT_ID, simple_demo.STUDENT_ID]},
+            "_id": {"$in": [STUDENT_ID, simple_demo.STUDENT_ID, seek_demo.MEERA, seek_demo.ARJUN]},
             "demo": True,
             "demo_login_hash": hash_token(body.token),
             "demo_login_exp": {"$gt": now()},

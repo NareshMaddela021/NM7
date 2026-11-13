@@ -24,6 +24,7 @@ export const NAV = [
   ['jobs', '/admin/auto-apply', 'Auto Apply', '⟳'],
   ['jobs', '/admin/skill-tests', 'Skill tests', '✓'],
   ['companies', '/admin/programs', 'Internships & projects', '▣'],
+  ['companies', '/admin/joining-reports', 'Joining reports', '!'],
   ['quality', '/admin/quality', 'Quality', '✓'],
   ['reports', '/admin/reports', 'Reports', '⇩'],
   ['settings', '/admin/settings', 'Settings & prices', '⚙'],

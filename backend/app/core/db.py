@@ -131,6 +131,8 @@ OFFER_CHECKS = (
 INTERVIEW_REVIEWS = "interview_reviews"  # Phase 6 S6: private self-reviews after an interview
 PROGRAMS = "programs"  # Phase 6 S8: internships and 1–4 week live projects from Verified companies
 PROGRAM_APPS = "program_apps"  # Phase 6 S8: applications, accepted places, work sent, review, certificate number
+JOININGS = "joinings"  # Phase 6 S10: jobs joined (Nm7 offers or told by the student), checklist, day 7 / 30 check-ins
+JOINING_REPORTS = "joining_reports"  # Phase 6 S10: "not as promised" reports from check-ins (Admin → Joining reports)
 PRACTICE_ATTEMPTS = "practice_attempts"  # Phase 6 S3: practice tests (never a verified score; kept apart from H3)
 LEARN_PROGRESS = "learn_progress"  # Phase 6 S2, _id = user:role: courses ticked, the project sent, verified at
 HIRE_PROFILES = "hire_profiles"  # Phase 5 H1, _id = user: "Ready to join" (join date, cities, salary), consent
@@ -228,6 +230,8 @@ COLLECTIONS = (
     INTERVIEW_REVIEWS,
     PROGRAMS,
     PROGRAM_APPS,
+    JOININGS,
+    JOINING_REPORTS,
 )
 
 DAY = 86_400
@@ -310,6 +314,11 @@ INDEXES: dict[str, list[IndexModel]] = {
     PRACTICE_ATTEMPTS: [IndexModel([("user_id", ASCENDING), ("started_at", DESCENDING)])],
     OFFER_CHECKS: [IndexModel([("user_id", ASCENDING), ("at", DESCENDING)])],
     INTERVIEW_REVIEWS: [IndexModel([("user_id", ASCENDING), ("at", DESCENDING)])],
+    JOININGS: [
+        IndexModel([("user_id", ASCENDING), ("created_at", DESCENDING)]),
+        IndexModel([("offer_id", ASCENDING)], sparse=True),
+    ],
+    JOINING_REPORTS: [IndexModel([("company_id", ASCENDING), ("at", DESCENDING)]), IndexModel([("status", ASCENDING)])],
     PROGRAMS: [
         IndexModel([("company_id", ASCENDING), ("created_at", DESCENDING)]),
         IndexModel([("status", ASCENDING)]),
