@@ -43,6 +43,15 @@ for (const [label, opts] of SIZES) {
       };
       await post(`Dashboard ${tag}`, 3);
       await post(`Big ${tag}`, 30);
+      // 13 Nov live test: an unpaid 12-week full-time internship is held too; every field has a real label
+      await co.getByTestId('co-pg-new').click();
+      await co.getByRole('radio', { name: 'Internship' }).check();
+      await co.getByLabel('Title', { exact: true }).fill(`Social ${tag}`);
+      await co.getByLabel('What they will do').fill('Run our social media accounts full time, make daily posts and handle customer messages');
+      await co.getByLabel('Weeks', { exact: true }).fill('12');
+      await expect(co.getByRole('checkbox', { name: /Remote/ })).toBeChecked();
+      await co.getByTestId('co-pg-post').click();
+      await expect(co.getByTestId('co-pg-row').filter({ hasText: `Social ${tag}` }).getByTestId('co-pg-status')).toHaveText('Being checked');
       await expect(co.getByTestId('co-pg-row').filter({ hasText: `Big ${tag}` }).getByTestId('co-pg-status')).toHaveText('Being checked');
       expect(await noSideScroll(co)).toBe(true);
 

@@ -52,7 +52,10 @@ export default function HireBulk({ t, c, job, people, canEdit, onChange }) {
       </section>
     ) : null;
   }
-  const ids = people.map((p) => p.key);
+  // the board's own list of people who accepted, so the buttons always match its "accepted" count (even after a reload)
+  const accepted = b.people || people;
+  const ids = accepted.map((p) => p.key);
+  const toInterview = b.toInterview || ids;
   return (
     <section className="card stack g12" aria-labelledby="co-bulk-h" data-testid="co-bulk">
       <div className="row between g8" style={{ flexWrap: 'wrap' }}>
@@ -66,7 +69,7 @@ export default function HireBulk({ t, c, job, people, canEdit, onChange }) {
       {msg && <p className="small" role="status" style={{ margin: 0 }} data-testid="co-bulk-msg">{msg}</p>}
       {canEdit && (
         <div className="row g8" style={{ flexWrap: 'wrap' }}>
-          <button type="button" className="btn btn-outline btn-sm" disabled={!ids.length} onClick={() => act(() => rq(`/api/company/${c.id}/hire/bulk/${job}/status`, { method: 'POST', body: { people: ids, status: 'interview' } }), t('co.bulk.moved'))} data-testid="co-bulk-interview">{t('co.bulk.allInterview', { n: ids.length })}</button>
+          <button type="button" className="btn btn-outline btn-sm" disabled={!toInterview.length} onClick={() => act(() => rq(`/api/company/${c.id}/hire/bulk/${job}/status`, { method: 'POST', body: { people: toInterview, status: 'interview' } }), t('co.bulk.moved'))} data-testid="co-bulk-interview">{toInterview.length ? t('co.bulk.allInterview', { n: toInterview.length }) : t('co.bulk.noneInterview')}</button>
           <button type="button" className="btn btn-outline btn-sm" disabled={!ids.length} onClick={() => setOffer({ amount: '', unit: 'month', joinDate: '' })} data-testid="co-bulk-offer">{t('co.bulk.allOffer', { n: ids.length })}</button>
           <button type="button" className="btn btn-ghost btn-sm" onClick={csv} data-testid="co-bulk-csv">{t('co.bulk.csv')}</button>
           <button type="button" className="btn btn-ghost btn-sm" onClick={() => toggle(false)}>{t('co.bulk.turnOff')}</button>

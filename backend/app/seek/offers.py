@@ -47,7 +47,13 @@ FEE = re.compile(
     re.I,
 )
 BOND = re.compile(
-    r"\b(bond|service agreement|minimum service|lock-?in|liquidated damages|penalty|serve the company for)\b", re.I
+    r"\b(bond|service agreement|minimum service|lock-?in|liquidated damages|penalty|serve the company for|"
+    r"leav(?:e|ing) (?:the company |the job )?(?:early|before)|before completing|break(?:ing)? the (?:bond|agreement))\b",
+    re.I,
+)
+# being told to talk to "HR" only on a chat app (no company email or office) is a common sign of a fake offer
+CHAT_ONLY = re.compile(
+    r"\b(?:whats\s?app|telegram)\s+only\b|\bonly\s+(?:on|via|through)\s+(?:whats\s?app|telegram)\b", re.I
 )
 MONEY = re.compile(
     r"(?:₹|rs\.?|inr)\s*([\d,]+(?:\.\d+)?)\s*(lakhs?|lacs?|l\b|k\b)?|([\d.]+)\s*(lakhs?|lacs?|lpa)\b", re.I
@@ -56,7 +62,7 @@ YEARS = re.compile(r"\b(\d{1,2}|one|two|three|four|five)\s*(?:\(\w+\)\s*)?(years
 WORDS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5}
 BASICS = {
     "company": re.compile(r"\b(pvt\.?|private|ltd\.?|limited|llp|inc\.?|technologies|solutions|services|industries)\b", re.I),
-    "role": re.compile(r"\b(designation|position|role|post of|job title|appointed as)\b", re.I),
+    "role": re.compile(r"\b(designation|position|role|post of|job title|appointed as|selected as|hired as|join(?:ing)? as|offer you the)\b", re.I),
     "ctc": re.compile(r"\b(ctc|cost to company|salary|compensation|stipend|per annum|lpa|gross pay|remuneration)\b", re.I),
     "joining": re.compile(r"\b(date of joining|joining date|join(?:ing)? on|report(?:ing)? on|start date|commence)\b", re.I),
     "location": re.compile(r"\b(location|place of work|posting|work from|based (?:at|in)|office address)\b", re.I),
@@ -66,16 +72,58 @@ BASIC_NAMES = {"company": "the company's full name", "role": "your role or desig
                "joining": "the joining date", "location": "the work location", "signatory": "who signed it (HR or an authorised signatory)"}  # fmt: skip
 EXTRA_SCAM = ["pay to confirm", "confirm your seat", "limited seats", "100% placement", "send your aadhaar", "send your pan",
               "gift card", "upi to", "no experience needed earn", "work from home earn"]  # fmt: skip
+# capitalised words only, on one line, ending in a company word: "You are selected as Data Analyst at Star Global
+# Solutions" gives "Star Global Solutions" (the lower-case words in between break the run)
 COMPANY_NAME = re.compile(
-    r"([A-Z][A-Za-z&.\- ]{2,60}?\s(?:Pvt\.?\s*Ltd\.?|Private Limited|Limited|Ltd\.?|LLP|Technologies|Solutions))", re.M
+    r"\b((?:[A-Z&][A-Za-z&.\-]*[ \t]+){1,5}(?:Pvt\.?[ \t]*Ltd\.?|Private[ \t]+Limited|Limited|Ltd\.?|LLP|Technologies|Solutions|Services|Industries))"
 )
+NOT_A_NAME = {
+    "dear",
+    "you",
+    "we",
+    "our",
+    "the",
+    "congratulations",
+    "welcome",
+    "hello",
+    "hi",
+    "for",
+    "at",
+    "join",
+    "joining",
+}
 ROLE_LINE = re.compile(
-    r"(?:designation|position|role|post of|appointed as)\s*(?:of|as|:|-)?\s*([A-Za-z][A-Za-z /&\-]{2,50})", re.I
+    r"(?:designation|position|role|post of|appointed as|selected as|hired as|join(?:ing)? as)\s*(?:of|as|:|-)?\s*(?:an?\s+)?([A-Za-z][A-Za-z /&\-]{2,50})",
+    re.I,
 )
+ROLE_END = re.compile(r"\s(?:at|with|in|for|on|from|and|by)\s.*$", re.I)
 CITY_LINE = re.compile(
     r"(?:location|place of work|posting|based (?:at|in))\s*(?:at|in|:|-)?\s*([A-Z][A-Za-z ]{2,30})", re.I
 )
 NOT_ADVICE = "This is an automatic check of the words in the letter, not a lawyer's opinion. Before you sign anything with a bond or penalty, ask the company's HR or a lawyer to explain it."
+
+
+def inr(v: float) -> str:
+    """₹2,00,000 (Indian grouping)."""
+    n = str(round(v))
+    head, tail = n[:-3], n[-3:]
+    head = ",".join([head[max(0, i - 2) : i] for i in range(len(head), 0, -2)][::-1]) if head else ""
+    return "₹" + (f"{head},{tail}" if head else tail)
+
+
+def company_name(text: str) -> str:
+    for m in COMPANY_NAME.finditer(text):
+        words = m.group(1).split()
+        while words and words[0].lower() in NOT_A_NAME:
+            words.pop(0)
+        if len(words) >= 2:
+            return " ".join(words)
+    return ""
+
+
+def role_of(text: str) -> str:
+    m = ROLE_LINE.search(text)
+    return ROLE_END.sub("", m.group(1)).strip(" .,-") if m else ""
 
 
 def rupees(amount: str, unit: str | None) -> float:
@@ -127,7 +175,8 @@ async def rule_check(db, text: str) -> dict[str, Any]:
     findings: list[dict[str, Any]] = []
     fee = sentences(text, FEE)
     if fee:
-        findings.append({"kind": "fee", "level": "warning", "title": "It asks you to pay a fee or deposit",
+        paid = max(money_in(" ".join(fee)), default=None)
+        findings.append({"kind": "fee", "level": "warning", "title": "It asks you to pay a fee or deposit" + (f" ({inr(paid)})" if paid else ""),
                          "detail": "A real employer doesn't ask you to pay to join. Don't pay before you check with the company directly.",
                          "quotes": fee})  # fmt: skip
     bond = sentences(text, BOND)
@@ -135,11 +184,19 @@ async def rule_check(db, text: str) -> dict[str, Any]:
         joined = " ".join(bond)
         amount = max(money_in(joined), default=None)
         years = years_in(joined)
-        bits = [f"₹{amount:,.0f}" if amount else "", f"{years:g} year(s)" if years else ""]
+        bits = [
+            f"{inr(amount)} if you leave early" if amount else "",
+            f"{years:g} year{'s' if years != 1 else ''}" if years else "",
+        ]
         findings.append({"kind": "bond", "level": "warning" if amount else "check",
                          "title": "There is a bond or penalty" + (f" ({', '.join(b for b in bits if b)})" if any(bits) else ""),
-                         "detail": "Read what you would pay if you leave early, and for how long it applies. Ask the company's HR or a lawyer before you sign.",
+                         "detail": (f"Leaving early would cost you {inr(amount)}. " if amount else "") + "Read what you would pay if you leave early, and for how long it applies. Ask the company's HR or a lawyer before you sign.",
                          "quotes": bond, "amount": amount, "years": years})  # fmt: skip
+    chat = sentences(text, CHAT_ONLY)
+    if chat:
+        findings.append({"kind": "chat_only", "level": "warning", "title": "HR talks only on WhatsApp or Telegram",
+                         "detail": "Real companies give an office email and address. Being told to contact HR only on a chat app is a common sign of a fake offer: confirm with the company through its own website.",
+                         "quotes": chat})  # fmt: skip
     missing = [k for k, rx in BASICS.items() if not rx.search(text)]
     if missing:
         findings.append({"kind": "missing", "level": "check", "title": "Some basics are missing",
@@ -152,7 +209,7 @@ async def rule_check(db, text: str) -> dict[str, Any]:
                          "detail": "Phrases found: " + ", ".join(sorted(scam)[:6]) + ". Check the company before you share documents or pay anything.",
                          "phrases": sorted(scam)[:6]})  # fmt: skip
     # the company on Nm7
-    name = (COMPANY_NAME.search(text) or [None, ""])[1].strip() if COMPANY_NAME.search(text) else ""
+    name = company_name(text)
     company = None
     if name:
         core = re.sub(r"\s(Pvt\.?\s*Ltd\.?|Private Limited|Limited|Ltd\.?|LLP)$", "", name, flags=re.I).strip()
@@ -166,7 +223,7 @@ async def rule_check(db, text: str) -> dict[str, Any]:
                              "detail": "That alone isn't a problem. Check the company's website and that the email came from its own domain, not a free email address."})  # fmt: skip
     # pay vs what similar jobs pay on Nm7 (S4; only with enough data)
     ctc = ctc_yearly(text)
-    role_txt = (ROLE_LINE.search(text) or [None, ""])[1] if ROLE_LINE.search(text) else ""
+    role_txt = role_of(text)
     city = (CITY_LINE.search(text) or [None, ""])[1].strip() if CITY_LINE.search(text) else ""
     pay = None
     role = role_for_title(role_txt) if role_txt else None

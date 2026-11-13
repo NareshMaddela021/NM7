@@ -1,7 +1,8 @@
 """Phase 5 H2: instant shortlist. Only Verified companies; only available candidates who agreed to be seen, who suit
-the place and the kind of job; ranked by match (salary above the range steps down); no email or phone until the
-candidate accepts; invite one or all; Accept moves them to Shortlisted in the company dashboard; Not interested needs
-a reason; the free roles a month, the hourly and daily limits (Admin can change them); demo and real never mix."""
+the place and the kind of job; ranked strictly by match (same score: salary within range, then soonest join); no
+email or phone until the candidate accepts; invite one or all; Accept moves them to Shortlisted in the company
+dashboard; Not interested needs a reason; the free roles a month, the hourly and daily limits (Admin can change them);
+demo and real never mix."""
 
 from datetime import timedelta
 
@@ -48,6 +49,15 @@ def test_small_pieces():
     assert sl.place_ok({"cities": []}, {"remote": True}) == "remote"
 
 
+def test_rank_strictly_by_match():
+    """13 Nov live test: a 40% match was shown above a 45% one (salary step-down). Now the score alone orders."""
+    row = lambda key, score, fit, join="": {"key": key, "match": {"score": score}, "salary": {"fit": fit},  # noqa: E731
+                                            "availability": {"joinDate": join}}  # fmt: skip
+    rows = [row("a", 40, "within"), row("b", 45, "above"), row("c", 45, "within", "2026-12-20"),
+            row("d", 45, "within", "2026-12-01")]  # fmt: skip
+    assert [r["key"] for r in sorted(rows, key=sl.rank_key)] == ["d", "c", "b", "a"]
+
+
 async def test_verified_only_and_ranking_and_privacy(client, outbox, db, make_client):
     session, cid = await verified(client, outbox, db)
     job = await post_job(client, session, cid, salary={"min": 240000, "max": 360000, "period": "yearly"})
@@ -73,6 +83,7 @@ async def test_verified_only_and_ranking_and_privacy(client, outbox, db, make_cl
     assert top["salary"]["fit"] == "within" and top["availability"]["joinDate"] == "2026-12-01"
     assert top["reliability"]["label"] == "New - no history yet" and top["skillCheck"] is None
     assert top["verified"] == []
+    assert top["match"]["place"] == "city" and top["match"]["city"] == "Hyderabad"  # never "In undefined"
     blob = str(out)
     assert "@example.com" not in blob and "phone" not in blob  # never contact details on the shortlist
     # Phase 6 S2: a "Skill verified" badge (check passed + project sent) shows, with its date

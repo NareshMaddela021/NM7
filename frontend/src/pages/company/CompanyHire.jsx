@@ -14,6 +14,7 @@ import HireSpeed from './HireSpeed';
 
 const rupees = (n) => (n == null ? '' : `₹${Math.round(n).toLocaleString('en-IN')}`);
 const day = (s) => (s ? new Date(`${s}T00:00:00`).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '');
+export const PAGE = 10;
 const TONE = { sent: 'b-neutral', accepted: 'b-success', declined: 'b-danger', expired: 'b-neutral' };
 
 /** "Joins 1 Dec · 15 days' notice · Hyderabad, Pune / remote". */
@@ -43,6 +44,7 @@ export default function CompanyHire({ t, c }) {
   const [note, setNote] = useState('');
   const [msg, setMsg] = useState('');
   const [support, setSupport] = useState(''); // Phase 6 S9: immediate joiners / returning after a break
+  const [shown, setShown] = useState(PAGE); // the top 10 first, then "Show more"
   const verified = c.trust === 'verified';
   const canInvite = ['main', 'full', 'posting'].includes(c.myRole);
   useEffect(() => {
@@ -54,7 +56,7 @@ export default function CompanyHire({ t, c }) {
   }, [c.id]);
   const load = useCallback(async () => {
     if (!job || !verified) return;
-    setErr(''); setD(null);
+    setErr(''); setD(null); setShown(PAGE);
     try {
       const [s, inv] = await Promise.all([rq(`/api/company/${c.id}/hire/shortlist?job=${encodeURIComponent(job)}&size=100${support ? `&support=${support}` : ''}`), rq(`/api/company/${c.id}/hire/invites?job=${encodeURIComponent(job)}`)]);
       setD(s); setInvites(inv);
@@ -72,7 +74,7 @@ export default function CompanyHire({ t, c }) {
   if (!verified) return <section className="card stack g8" data-testid="co-hire"><strong>{t('co.hire.title')}</strong><p className="small" data-testid="co-hire-basic">{t('co.hire.basic')}</p></section>;
   if (!jobs) return <p className="muted">{t('co.loading')}</p>;
   if (!jobs.length) return <section className="card stack g8" data-testid="co-hire"><strong>{t('co.hire.title')}</strong><p className="small">{t('co.hire.noJobs')}</p></section>;
-  const open = (d?.items || []).filter((x) => !x.invite && !x.applied).map((x) => x.key);
+  const open = (d?.items || []).slice(0, shown).filter((x) => !x.invite && !x.applied).map((x) => x.key); // the people on screen
   return (
     <section className="stack g12" aria-label={t('co.hire.title')} data-testid="co-hire">
       <div className="card stack g8">
@@ -106,7 +108,7 @@ export default function CompanyHire({ t, c }) {
           )}
           {msg && <p className="small" role="status" data-testid="co-hire-msg">{msg}</p>}
           <ol className="stack g8" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {d.items.map((x, i) => (
+            {d.items.slice(0, shown).map((x, i) => (
               <li key={x.key} className="card stack g4" data-testid="co-hire-row">
                 <div className="row between g8" style={{ flexWrap: 'wrap' }}>
                   <strong>{i + 1}. {x.name}</strong>
@@ -125,6 +127,9 @@ export default function CompanyHire({ t, c }) {
               </li>
             ))}
           </ol>
+          {d.items.length > shown && (
+            <button type="button" className="btn btn-outline btn-sm" style={{ alignSelf: 'flex-start' }} onClick={() => setShown((n) => n + PAGE)} data-testid="co-hire-more">{t('co.hire.more', { n: Math.min(PAGE, d.items.length - shown), left: d.items.length - shown })}</button>
+          )}
         </>
       )}
       {job && <HireSlots key={job} t={t} c={c} job={job} canEdit={canInvite} />}

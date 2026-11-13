@@ -30,6 +30,15 @@ for (const [label, opts] of SIZES) {
       await expect(page.getByTestId('co-bulk')).toContainText('Bulk hiring: 50 openings');
       await expect(page.getByTestId('co-hire-row').first()).toBeVisible();
       expect(await page.getByTestId('co-hire-row').count()).toBeGreaterThanOrEqual(9);
+      // 13 Nov live test: the top 10 first with "Show more", ranked by score, and never "In undefined"
+      expect(await page.getByTestId('co-hire-row').count()).toBeLessThanOrEqual(10);
+      await expect(hire).not.toContainText('undefined');
+      const scores = (await page.getByTestId('co-hire-score').allInnerTexts()).map((x) => parseInt(x.replace(/\D/g, ''), 10));
+      expect(scores).toEqual([...scores].sort((x, y) => y - x));
+      if (await page.getByTestId('co-hire-more').count()) {
+        await page.getByTestId('co-hire-more').click();
+        expect(await page.getByTestId('co-hire-row').count()).toBeGreaterThan(10);
+      }
       await expect(hire).toContainText('Skill check');
       await expect(hire).toContainText('New - no history yet');
       await expect(page.getByTestId('co-slot')).toHaveCount(3);

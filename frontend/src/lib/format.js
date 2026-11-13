@@ -22,3 +22,12 @@ export function toBullets(text) {
 }
 
 export const isUpi = (v) => /^[\w.-]{2,}@[a-zA-Z]{2,}$/.test((v || '').trim());
+
+/** "2026-11-23" → "23 Nov 2026" (dates people read: offers, joining days). Anything else comes back unchanged. */
+export function fmtDay(v) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(v || '')) return v || '';
+  return new Date(`${v}T00:00:00`).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+/** "1 answer", "2 answers". */
+export const countOf = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;

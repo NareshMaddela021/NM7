@@ -207,7 +207,7 @@ export function matchReasons(m, t) {
   if (m.experience === 'ok') good.push(t(`jobs.match.exp.${m.level}`));
   else gaps.push(t('jobs.match.expGap', { level: t(`jobs.exp.${m.level}`) }));
   if (m.place === 'remote') good.push(t('jobs.match.remote'));
-  else if (m.place === 'city') good.push(t('jobs.match.city', { city: m.city }));
+  else if (m.place === 'city') { if (m.city) good.push(t('jobs.match.city', { city: m.city })); } // no city known: leave the part out
   else if (m.place === 'other') gaps.push(t('jobs.match.otherCity'));
   const need = m.educationNeed ? t(`jobs.edu.${m.educationNeed}`) : '';
   if (m.education === 'ok') good.push(t('jobs.match.edu', { level: need }));

@@ -109,6 +109,8 @@ describe('match reasons', () => {
     expect(matchReasons({ ...m, found: [], missing: ['Java'], place: 'remote' }, t)).toEqual({ good: ['Fresher OK', 'Remote'], gaps: ['Matches 0 of 1 skills'] });
     expect(matchReasons({ ...m, found: [], missing: [], place: 'unknown' }, t)).toEqual({ good: ['Fresher OK'], gaps: [] });
     expect(matchReasons(null, t)).toEqual({ good: [], gaps: [] });
+    // Hire now (13 Nov live test): a city match without the city name never says "In undefined"
+    expect(matchReasons({ ...m, city: undefined }, t).good).toEqual(['Matches 4 of 5 skills', 'Fresher OK']);
     expect(matchReasons(m, (k, v) => translate('hi', k, v, { hi: PAGES.hi, en: PAGES.en })).good[0]).toBe('5 में से 4 स्किल मेल खाते हैं');
   });
 });

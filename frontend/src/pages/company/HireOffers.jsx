@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { readAccount } from '../../lib/recruiterPortal';
 import { rq } from '../../lib/company';
 import { API_BASE } from '../../services/http';
+import { fmtDay } from '../../lib/format';
 
 const TONE = { sent: 'b-neutral', accepted: 'b-success', joined: 'b-success', declined: 'b-danger', dropped: 'b-danger', expired: 'b-neutral', withdrawn: 'b-neutral' };
 const BLANK = { amount: '', unit: 'month', joinDate: '', place: '', notes: '', respondDays: '3' };
@@ -48,7 +49,7 @@ export default function HireOffers({ t, c, job, people, canEdit }) {
                 <strong className="small">{o.candidate} · {o.salaryText}</strong>
                 <span className={`badge ${TONE[o.status]}`} data-testid="co-offer-state">{t(`co.offer.state.${o.status}`)}</span>
               </div>
-              <span className="xs muted">{t('co.offer.joins', { date: o.joinDate })}{o.typedName ? ` · ${t('co.offer.signed', { name: o.typedName })}` : ''}{o.declineReason || o.dropReason ? ` · ${o.declineReason || o.dropReason}` : ''}</span>
+              <span className="xs muted">{t('co.offer.joins', { date: fmtDay(o.joinDate) })}{o.typedName ? ` · ${t('co.offer.signed', { name: o.typedName })}` : ''}{o.declineReason || o.dropReason ? ` · ${o.declineReason || o.dropReason}` : ''}</span>
               <div className="row g8" style={{ flexWrap: 'wrap' }}>
                 <button type="button" className="btn btn-ghost btn-sm" onClick={() => pdf(o.id)} data-testid="co-offer-pdf">{t('co.offer.pdf')}</button>
                 {canEdit && o.status === 'accepted' && o.joinDate <= today && (why[o.id] !== undefined ? (

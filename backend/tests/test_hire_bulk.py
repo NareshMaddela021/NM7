@@ -49,8 +49,12 @@ async def test_batch_status_offers_csv_and_board(client, outbox, db, make_client
     url = f"/api/company/{cid}/hire/bulk/{job}"
     assert err(await client.get(f"{url}/board", headers=H(session))) == "not_bulk"
     await client.put(url, json={"on": True, "openings": 20}, headers=H(session))
+    b = (await client.get(f"{url}/board", headers=H(session))).json()  # the 13 Nov live test: counts must agree
+    assert b["accepted"] == 2 and len(b["people"]) == 2 and sorted(b["toInterview"]) == sorted([uid, uid2])
     r = await client.post(f"{url}/status", json={"people": [uid, uid2], "status": "interview"}, headers=H(session))
     assert r.json()["moved"] == 2
+    b = (await client.get(f"{url}/board", headers=H(session))).json()  # after the move (and any reload)
+    assert b["accepted"] == 2 and len(b["people"]) == 2 and b["toInterview"] == []
     join = (now().astimezone(IST).date() + timedelta(days=10)).isoformat()
     body = {"people": [uid, uid2, "nobody"], "salary": {"amount": 18000, "unit": "month"}, "joinDate": join}
     r = (await client.post(f"{url}/offers", json=body, headers=H(session))).json()
