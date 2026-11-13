@@ -77,7 +77,7 @@ async def starting_range(db, role: dict[str, Any], city: str = "") -> dict[str, 
 
 
 # --- S4: the salary guide ---------------------------------------------------------------------------------------------
-#   GET /api/public/salaries?city=                  per role: starting, 1–3 years, 3+ years (each only with N jobs)
+#   GET /api/public/salaries?city=                  per role: starting, 1–3, 3–5, 5–8, 8+ years (each only with N jobs)
 #   GET /api/public/salaries/lookup?title=&city=&experience=   the range for one job title (job pages)
 #   GET /api/me/salary-hint?city=                   for Ready to join: the person's role (target role / role finder)
 
@@ -86,13 +86,17 @@ from fastapi import APIRouter, Query, Response  # noqa: E402
 from app.auth.deps import CustomerAuth  # noqa: E402
 from app.core.config import get_settings  # noqa: E402
 from app.core.db import DB, USERS  # noqa: E402
+from app.jobs.model import EXPERIENCE  # noqa: E402
 from app.seek.catalogue import ROLES  # noqa: E402
 
 public = APIRouter(prefix="/api/public/salaries", tags=["job seekers"])
 me = APIRouter(prefix="/api/me/salary-hint", tags=["job seekers"])
 
-LEVELS = {"start": START, "1_3": ("1_3",), "3_plus": ("3_plus",)}
-LEVEL_OF = {"internship": "start", "fresher": "start", "0_1": "start", "1_3": "1_3", "3_plus": "3_plus"}
+# the guide's columns (round J2): starting, 1–3, 3–5, 5–8 and 8+ years; older "3+ years" jobs count as 3–5
+LEVELS = {
+    "start": START, "1_3": ("1_3",), "3_5": ("3_5", "3_plus"), "5_8": ("5_8",), "8_plus": ("8_12", "12_15", "15_plus"),
+}  # fmt: skip
+LEVEL_OF = {x: lv for lv, xs in LEVELS.items() for x in xs}  # a job's level → its column (none: not stated)
 _cache: dict[str, tuple[float, dict]] = {}
 CACHE_S = 600
 
@@ -187,8 +191,8 @@ async def lookup(
     experience: str = Query("fresher", max_length=20),
 ) -> dict[str, Any]:
     role = role_for_title(title)
-    level = LEVEL_OF.get(experience, "start")
-    if not role:
+    level = LEVEL_OF.get(experience, "start" if experience not in EXPERIENCE else None)
+    if not role or not level:  # experience not stated: no range rather than a guess
         return {"role": None, "level": level, "range": None}
     got = await range_for(db, role, city.strip(), level) if city.strip() else None
     got = got or await range_for(db, role, "", level)

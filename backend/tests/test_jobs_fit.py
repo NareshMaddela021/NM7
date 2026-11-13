@@ -41,6 +41,22 @@ def test_fit_rules():
     assert not Person({"_id": "r", "data": {"personal": {"name": "A"}}}).usable()
 
 
+def test_experience_bands_round_j2():
+    """Every level from internship to 15+ years: a job asking for clearly more years than the resume shows is far,
+    one clearly below it is over; neither may be used by Auto Apply. Not stated: unknown, half the marks."""
+    e = fitmod._experience
+    assert e("8_12", 0) == (0.1, "far") and e("3_5", 0.5) == (0.1, "far") and e("3_5", 2) == (0.5, "near")
+    assert e("5_8", 6) == (1.0, "ok") and e("15_plus", 20) == (1.0, "ok") and e("12_15", 11) == (0.5, "near")
+    assert e("fresher", 8) == (0.5, "over") and e("1_3", 7) == (0.5, "over") and e("5_8", 12) == (1.0, "ok")
+    assert e("fresher", 2) == (1.0, "ok") and e("1_3", 0) == (0.2, "far")  # as before
+    assert e("3_plus", 4) == (1.0, "ok") and e("3_plus", 30) == (1.0, "ok")  # older jobs keep working
+    assert e("not_stated", 4) == (0.5, "unknown")
+    ok = lambda level, years: fitmod.level_fits({"level": level, "experience": e(level, years)[1]})  # noqa: E731
+    assert not ok("8_12", 0) and not ok("15_plus", 1) and not ok("3_5", 0.5)  # a fresher never gets a senior job
+    assert not ok("fresher", 9) and not ok("0_1", 6)  # nor someone with 9 years a fresher job
+    assert ok("1_3", 0) and ok("3_5", 2) and ok("fresher", 0) and ok("8_12", 9) and ok("not_stated", 0)
+
+
 async def board(db):
     await add(db, title="Data Analyst", skills=["SQL", "Power BI", "Excel"], locations=["Chennai"],
               applyUrl="https://a.example/1")  # fmt: skip  # newest of the three? no: added first

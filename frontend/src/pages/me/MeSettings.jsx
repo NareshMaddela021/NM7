@@ -32,7 +32,7 @@ function HealthEmails() {
   );
 }
 
-const LEVELS = [['internship', 'Internship'], ['fresher', 'Fresher'], ['0_1', '0–1 years'], ['1_3', '1–3 years'], ['3_plus', '3+ years']];
+const LEVELS = [['internship', 'Internship'], ['fresher', 'Fresher'], ['0_1', '0–1 years'], ['1_3', '1–3 years'], ['3_5', '3–5 years'], ['5_8', '5–8 years'], ['8_12', '8–12 years'], ['12_15', '12–15 years'], ['15_plus', '15+ years']];
 const ALL_LANGS = [['en', 'English'], ['te', 'తెలుగు (Telugu)'], ['hi', 'हिन्दी (Hindi)']];
 const list = (s) => s.split(',').map((x) => x.trim()).filter(Boolean);
 

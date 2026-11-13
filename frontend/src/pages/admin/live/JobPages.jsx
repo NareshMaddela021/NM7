@@ -9,7 +9,8 @@ import { Loading, day, emptyIf, http, useAction, useApi, when } from './common';
 
 const WORK = { onsite: 'On-site', hybrid: 'Hybrid', remote: 'Remote' };
 const TYPE = { full_time: 'Full-time', internship: 'Internship', contract: 'Contract', part_time: 'Part-time' };
-const EXP = { internship: 'Internship', fresher: 'Fresher', '0_1': '0–1 years', '1_3': '1–3 years', '3_plus': '3+ years' };
+const EXP = { internship: 'Internship', fresher: 'Fresher', '0_1': '0–1 years', '1_3': '1–3 years', '3_5': '3–5 years', '5_8': '5–8 years', '8_12': '8–12 years', '12_15': '12–15 years', '15_plus': '15+ years', not_stated: 'Experience not stated' };
+const EXP_OLD = { '3_plus': '3+ years (older jobs)' }; // shown and filterable, never offered for a new job (round J2)
 const APPLY = { link: 'Company website', email: 'By email', nm7: 'Apply on Nm7' };
 const SOURCE = { collector: 'Job collector', admin: 'Added here', bulk: 'Bulk import', company: 'Company' };
 const STATUS = { active: ['Active', 'b-success'], paused: ['Paused', 'b-neutral'], closed: ['Closed', 'b-warning'], review: ['Waiting for review', 'b-danger'] };
@@ -76,7 +77,7 @@ function JobList() {
           <div className="field" style={{ flex: '2 1 200px' }}><label className="label" htmlFor="aj-q">Search</label><input id="aj-q" className="input" placeholder="Title, company, city or skill" value={f.q} onChange={(e) => setF({ ...f, q: e.target.value })} /></div>
           <div className="field" style={{ flex: '1 1 120px' }}><label className="label" htmlFor="aj-st">Status</label><select id="aj-st" className="input" value={f.status} onChange={(e) => setF({ ...f, status: e.target.value })}><option value="">All</option>{Object.entries(STATUS).map(([k, [l]]) => <option key={k} value={k}>{l}</option>)}</select></div>
           <div className="field" style={{ flex: '1 1 130px' }}><label className="label" htmlFor="aj-src">Source</label><select id="aj-src" className="input" value={f.source} onChange={(e) => setF({ ...f, source: e.target.value })}><option value="">All</option>{Object.entries(SOURCE).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
-          <div className="field" style={{ flex: '1 1 130px' }}><label className="label" htmlFor="aj-exp">Experience</label><select id="aj-exp" className="input" value={f.experience} onChange={(e) => setF({ ...f, experience: e.target.value })}><option value="">All</option>{Object.entries(EXP).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
+          <div className="field" style={{ flex: '1 1 130px' }}><label className="label" htmlFor="aj-exp">Experience</label><select id="aj-exp" className="input" value={f.experience} onChange={(e) => setF({ ...f, experience: e.target.value })}><option value="">All</option>{Object.entries({ ...EXP, ...EXP_OLD }).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
           <button type="submit" className="btn btn-outline">Search</button>
           <button type="button" className="btn btn-ink" onClick={() => setEditing('new')}>Add job</button>
         </form>
@@ -85,7 +86,7 @@ function JobList() {
             <div className="row g12" style={{ flexWrap: 'wrap' }}>
               <Kpi label="Jobs" value={d.total} sub={Object.entries(d.counts.status).map(([k, n]) => `${STATUS[k]?.[0] || k} ${n}`).join(' · ')} />
               <Kpi label="By source" value={Object.values(d.counts.source).reduce((a, b) => a + b, 0)} sub={Object.entries(d.counts.source).map(([k, n]) => `${SOURCE[k] || k} ${n}`).join(' · ')} />
-              <Kpi label="By experience" value={d.counts.experience.fresher || 0} sub={Object.entries(d.counts.experience).map(([k, n]) => `${EXP[k] || k} ${n}`).join(' · ')} />
+              <Kpi label="By experience" value={d.counts.experience.fresher || 0} sub={Object.entries(d.counts.experience).map(([k, n]) => `${EXP[k] || EXP_OLD[k] || k} ${n}`).join(' · ')} />
               <Kpi label="Job collector: waiting for review" value={d.counts.collectorReview ?? 0} sub={`${d.counts.removalRequests ?? 0} removal request${d.counts.removalRequests === 1 ? '' : 's'} open`} />
             </div>
             <ul className="stack g8" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
@@ -94,7 +95,7 @@ function JobList() {
                   <div className="row between g8" style={{ flexWrap: 'wrap', alignItems: 'flex-start' }}>
                     <span className="stack g2" style={{ minWidth: 0 }}>
                       <strong className="small" style={{ overflowWrap: 'anywhere' }}>{j.title}</strong>
-                      <span className="xs muted">{j.company.name} · {j.remote && !j.locations.length ? 'Remote' : j.locations.join(', ')} · {EXP[j.experience]} · {TYPE[j.jobType]}{j.salary ? ` · ${salaryText(j.salary)}` : ''}</span>
+                      <span className="xs muted">{j.company.name} · {j.remote && !j.locations.length ? 'Remote' : j.locations.join(', ')} · {EXP[j.experience] || EXP_OLD[j.experience]} · {TYPE[j.jobType]}{j.salary ? ` · ${salaryText(j.salary)}` : ''}</span>
                       <span className="xs faint">{SOURCE[j.source]} · posted {day(j.postedAt)} · {APPLY[j.apply.method]}{j.linkCheck.at ? ` · link checked ${when(j.linkCheck.at)}${j.linkCheck.ok === false ? ' (failed)' : ''}` : ''}</span>
                     </span>
                     <span className="row g6" style={{ flexWrap: 'wrap' }}>{j.demo && <span className="badge b-neutral">Demo — never public</span>}<span className={`badge ${STATUS[j.status][1]}`}>{STATUS[j.status][0]}</span></span>
@@ -166,7 +167,7 @@ function JobForm({ id, onClose, onSaved }) {
           <div className="row g8" style={{ flexWrap: 'wrap' }}>
             <div className="field" style={{ flex: '1 1 120px' }}><label className="label" htmlFor="jf-wt">Work type</label><select id="jf-wt" className="input" value={form.workType} onChange={(e) => set('workType', e.target.value)}>{Object.entries(WORK).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
             <div className="field" style={{ flex: '1 1 120px' }}><label className="label" htmlFor="jf-jt">Job type</label><select id="jf-jt" className="input" value={form.jobType} onChange={(e) => set('jobType', e.target.value)}>{Object.entries(TYPE).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
-            <div className="field" style={{ flex: '1 1 120px' }}><label className="label" htmlFor="jf-ex">Experience</label><select id="jf-ex" className="input" value={form.experience} onChange={(e) => set('experience', e.target.value)}>{Object.entries(EXP).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
+            <div className="field" style={{ flex: '1 1 120px' }}><label className="label" htmlFor="jf-ex">Experience</label><select id="jf-ex" className="input" value={form.experience} onChange={(e) => set('experience', e.target.value)}>{Object.entries({ ...EXP, ...(EXP_OLD[form.experience] ? { [form.experience]: EXP_OLD[form.experience] } : {}) }).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
           </div>
           <div className="row g8" style={{ flexWrap: 'wrap' }}>
             <div className="field" style={{ flex: '1 1 100px' }}><label className="label" htmlFor="jf-smin">Salary from (₹)</label><input id="jf-smin" className="input" inputMode="numeric" value={form.salaryMin} onChange={(e) => set('salaryMin', e.target.value.replace(/\D/g, ''))} /></div>
@@ -262,7 +263,7 @@ function BulkImport({ onDone }) {
   const file = async (e) => { const fl = e.target.files?.[0]; if (!fl) return; setFormat(fl.name.toLowerCase().endsWith('.csv') ? 'csv' : 'json'); setText(await fl.text()); setPreview(null); };
   return (
     <div className="stack g12" style={{ maxWidth: 900 }}>
-      <span className="small muted">Paste a JSON array of jobs, or a CSV with a header row (title, company, company_website, company_logo, locations, work_type, job_type, experience, salary_min, salary_max, salary_period, skills, description, apply_method, apply_url, apply_email, posted_at, closes_at, status; use ; between cities or skills). Preview first: nothing is saved until you press Import. The same job sent again updates it instead of adding a copy.</span>
+      <span className="small muted">Paste a JSON array of jobs, or a CSV with a header row (title, company, company_website, company_logo, locations, work_type, job_type, experience, salary_min, salary_max, salary_period, skills, description, apply_method, apply_url, apply_email, posted_at, closes_at, status; use ; between cities or skills; experience is one of internship, fresher, 0_1, 1_3, 3_5, 5_8, 8_12, 12_15, 15_plus or not_stated). Preview first: nothing is saved until you press Import. The same job sent again updates it instead of adding a copy.</span>
       <div className="row g12" role="radiogroup" aria-label="Format">
         {['json', 'csv'].map((k) => <label key={k} className="row g6 small"><input type="radio" name="bi-f" value={k} aria-label={k === 'json' ? 'JSON' : 'CSV'} checked={format === k} onChange={() => { setFormat(k); setPreview(null); }} /> {k.toUpperCase()}</label>)}
         <label className="small">Or choose a file <input type="file" accept=".json,.csv,application/json,text/csv" onChange={file} /></label>

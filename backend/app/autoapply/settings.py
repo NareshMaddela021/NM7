@@ -67,7 +67,7 @@ class SettingsIn(CamelModel):
     roles: list[str] = Field(default_factory=list, max_length=20)
     cities: list[str] = Field(default_factory=list, max_length=20)
     remote: bool = True
-    experience: list[Literal[tuple(EXPERIENCE)]] = Field(default_factory=list, max_length=5)  # type: ignore[valid-type]
+    experience: list[Literal[tuple(EXPERIENCE)]] = Field(default_factory=list, max_length=11)  # type: ignore[valid-type]
     min_salary: int | None = Field(None, ge=0, le=10_000_000)  # rupees a year; None = any
     min_score: int = Field(70, ge=50, le=100)
     daily_limit: int = Field(5, ge=1, le=50)

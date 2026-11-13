@@ -1,10 +1,16 @@
 #!/usr/bin/env python3
-"""Send today's new jobs from the job collector to nm7.si, and close the jobs whose link died.
+"""Send the job collector's India jobs to nm7.si (every experience level), and close the jobs whose link died.
 
 Copy this file to the root of Solofounder0214/job-collector. Python 3.10+, standard library only.
 
-  python post_to_nm7.py post  [--queue data/post_queue.json] [--details PATH] [--batch 25] [--dry-run]
+  python post_to_nm7.py post  [--source PATH] [--seen data/nm7_seen.txt] [--details PATH] [--batch 25] [--dry-run]
   python post_to_nm7.py close [--link-check output/link_check/latest.json]
+
+Round J2: nm7.si takes ALL India jobs, freshers to 15+ years. --source is the list of every India job in the
+collector's window (CSV or JSON), not only the "not senior" new_jobs list. Default: the first that exists of
+output/<date>/all_india_jobs_in_window.csv, data/all_india_jobs_in_window.csv, data/all_india_jobs_in_window.json,
+data/post_queue.json (or the environment variable NM7_SOURCE). Jobs already sent are skipped: their links are kept in
+--seen (one line per link, committed with the rest); --resend sends them again.
 
 The key comes from the environment variable NM7_INGEST_KEY (the GitHub secret of the same name). Without it the
 script prints one line and exits 0, so the morning run still succeeds. The key is never printed.
@@ -17,6 +23,7 @@ Writes a summary to output/<date>/nm7_post.md (sent / created / updated / waitin
 """
 
 import argparse
+import csv
 import datetime as dt
 import json
 import os
@@ -97,6 +104,57 @@ def load_details(path: str | None) -> dict[str, str]:
     return out
 
 
+SOURCES = ("output/{date}/all_india_jobs_in_window.csv", "data/all_india_jobs_in_window.csv",
+           "data/all_india_jobs_in_window.json", "data/post_queue.json")
+
+
+def find_source(given: str | None) -> pathlib.Path | None:
+    for p in [given] if given else [x.format(date=today()) for x in SOURCES]:
+        if p and pathlib.Path(p).exists():
+            return pathlib.Path(p)
+    return None
+
+
+def _years(v):
+    try:
+        return int(float(v)) if v not in (None, "") else None
+    except (TypeError, ValueError):
+        return None
+
+
+def load_jobs(path: pathlib.Path) -> list[dict]:
+    """The jobs in a CSV (header row: company, title, url or apply_url, location, posted, exp_min, exp_max, exp_text,
+    system) or a JSON list / {"jobs": [...]}."""
+    text = path.read_text(encoding="utf-8-sig")
+    if path.suffix.lower() == ".csv":
+        rows = [{(k or "").strip().lower(): (v or "").strip() for k, v in r.items()} for r in csv.DictReader(text.splitlines())]
+    else:
+        data = json.loads(text)
+        rows = data.get("jobs", []) if isinstance(data, dict) else data
+    out = []
+    for r in rows:
+        if isinstance(r, dict):
+            out.append({**r, "exp_min": _years(r.get("exp_min")), "exp_max": _years(r.get("exp_max"))})
+    return out
+
+
+def link_key(url: str) -> str:
+    """The same normalised link nm7.si uses: no scheme, www, query, fragment or trailing slash, lower case."""
+    u = (url or "").strip().lower().split("://", 1)[-1].removeprefix("www.")
+    return u.split("?", 1)[0].split("#", 1)[0].rstrip("/")
+
+
+def load_seen(path: str) -> set[str]:
+    p = pathlib.Path(path)
+    return set(p.read_text(encoding="utf-8").split()) if p.exists() else set()
+
+
+def save_seen(path: str, seen: set[str]) -> None:
+    p = pathlib.Path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text("\n".join(sorted(seen)) + "\n", encoding="utf-8")
+
+
 def to_nm7(job: dict, details: dict[str, str]) -> dict:
     url = job.get("url") or job.get("apply_url") or ""
     return {
@@ -112,10 +170,15 @@ def post(args) -> None:
     key = key_or_skip()
     if not key:
         return
-    queue = json.loads(pathlib.Path(args.queue).read_text(encoding="utf-8"))
-    jobs = queue.get("jobs", queue) if isinstance(queue, dict) else queue
+    src = find_source(args.source)
+    if not src:
+        print("nm7: no job list found (all_india_jobs_in_window.csv / post_queue.json); nothing sent")
+        return
     details = load_details(args.details)
-    rows = [to_nm7(j, details) for j in jobs if isinstance(j, dict)]
+    seen = set() if args.resend else load_seen(args.seen)
+    found = [to_nm7(j, details) for j in load_jobs(src)]
+    rows = [r for r in found if r["apply_url"] and link_key(r["apply_url"]) not in seen]
+    print(f"nm7: {src}: {len(found)} jobs, {len(found) - len(rows)} already sent, sending {len(rows)}")
     totals = {k: 0 for k in ("created", "updated", "skipped", "review", "closed", "rejected")}
     rejected: dict[str, int] = {}
     review: dict[str, int] = {}
@@ -125,13 +188,19 @@ def post(args) -> None:
             totals[k] += int(out.get(k, 0))
         for k, n in (out.get("rejectedBy") or {}).items():
             rejected[k] = rejected.get(k, 0) + n
-        for r in out.get("results") or []:
+        for job, r in zip(rows[i:i + args.batch], out.get("results") or []):
             for why in r.get("reasons") or []:
                 review[why] = review.get(why, 0) + 1
+            retry = {"invalid", "ai_daily_limit", "summary_failed", "summary_unavailable"}  # worth sending again
+            if r.get("reason") not in retry and not retry & set(r.get("reasons") or []):
+                seen.add(link_key(job["apply_url"]))  # answered for good (saved or refused): not sent again
         print(f"nm7: batch {i // args.batch + 1}: " + ", ".join(f"{k} {out.get(k, 0)}" for k in totals))
         time.sleep(1)
+    if not args.dry_run:
+        save_seen(args.seen, seen)
     with_text = sum(1 for r in rows if len(r["page_text"]) >= 300)
     lines = [f"# nm7.si posting, {today()}{' (dry run: nothing saved)' if args.dry_run else ''}", "",
+             f"- From: {src} ({len(found)} India jobs in the window, {len(found) - len(rows)} sent before)",
              f"- Sent: {len(rows)} (with page text: {with_text})",
              *(f"- {k.capitalize()}: {v}" for k, v in totals.items()), "",
              "## Rejected by reason", *([f"- {k}: {v}" for k, v in sorted(rejected.items())] or ["- none"]), "",
@@ -185,7 +254,9 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
     p = sub.add_parser("post")
-    p.add_argument("--queue", default="data/post_queue.json")
+    p.add_argument("--source", "--queue", dest="source", default=os.environ.get("NM7_SOURCE"))
+    p.add_argument("--seen", default="data/nm7_seen.txt")
+    p.add_argument("--resend", action="store_true")
     p.add_argument("--details", default=os.environ.get("NM7_DETAILS", "data/details.json"))
     p.add_argument("--batch", type=int, default=25)
     p.add_argument("--dry-run", action="store_true")

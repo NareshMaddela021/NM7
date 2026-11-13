@@ -2,7 +2,7 @@
 // Google's Rich Results test needs, remote jobs, salary in INR, closed jobs without the markup).
 import { describe, expect, it } from 'vitest';
 import { translate } from './i18n';
-import { descriptionHtml, fromQuery, matchReasons, jobPostingJsonLd, jobPostingProblems, pageQuery, placeText, postedAgo, salaryText, toQuery } from './jobBoard';
+import { EXPERIENCE, QUICK_EXPERIENCE, descriptionHtml, fromQuery, matchReasons, jobPostingJsonLd, jobPostingProblems, pageQuery, placeText, postedAgo, salaryText, toQuery } from './jobBoard';
 import PAGES from '../i18n/pages.json';
 
 const t = (k, v) => translate('en', k, v);
@@ -112,5 +112,30 @@ describe('match reasons', () => {
     // Hire now (13 Nov live test): a city match without the city name never says "In undefined"
     expect(matchReasons({ ...m, city: undefined }, t).good).toEqual(['Matches 4 of 5 skills', 'Fresher OK']);
     expect(matchReasons(m, (k, v) => translate('hi', k, v, { hi: PAGES.hi, en: PAGES.en })).good[0]).toBe('5 में से 4 स्किल मेल खाते हैं');
+  });
+});
+
+describe('every experience level, internship to 15+ years (round J2)', () => {
+  const t = (k, v) => translate('en', k, v, { en: PAGES.en });
+  it('reads the new levels and the 8+ chip from the URL, and drops unknown ones', () => {
+    expect(fromQuery('?experience=5_8').experience).toBe('5_8');
+    expect(fromQuery('?experience=8_plus').experience).toBe('8_plus');
+    expect(fromQuery('?experience=40_plus').experience).toBeUndefined();
+    expect(QUICK_EXPERIENCE.map((x) => t(`jobs.exp.${x}`))).toEqual(['Internship', 'Fresher', '1–3 years', '3–5 years', '5–8 years', '8+ years']);
+  });
+  it('labels every level, old ones included', () => {
+    for (const x of [...EXPERIENCE, '3_plus', 'not_stated', '8_plus']) expect(t(`jobs.exp.${x}`)).not.toMatch(/^jobs\./);
+    expect(t('jobs.exp.not_stated')).toBe('Experience not stated');
+  });
+  it('says when a job is below the person’s experience, and nothing when the job doesn’t say', () => {
+    const m = { found: ['SQL'], missing: [], experience: 'over', level: 'fresher', place: 'remote' };
+    expect(matchReasons(m, t).gaps).toEqual(['Below your experience (Fresher)']);
+    expect(matchReasons({ ...m, experience: 'unknown', level: 'not_stated' }, t)).toEqual({ good: ['Matches 1 of 1 skills', 'Remote'], gaps: [] });
+    expect(matchReasons({ ...m, experience: 'ok', level: '8_12' }, t).good).toContain('Your experience fits 8–12 years');
+  });
+  it('gives Google the months of experience a level asks for', () => {
+    const base = { status: 'active', title: 'Backend Lead', company: { name: 'Acme' }, description: 'x', locations: ['Pune'], jobType: 'full_time', postedAt: '2026-11-01T00:00:00Z', apply: { method: 'link', url: 'https://a.example/j' } };
+    expect(jobPostingJsonLd({ ...base, experience: '8_12' }).experienceRequirements.monthsOfExperience).toBe(96);
+    expect(jobPostingJsonLd({ ...base, experience: 'not_stated' }).experienceRequirements).toBe('no requirements');
   });
 });

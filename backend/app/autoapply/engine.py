@@ -5,8 +5,9 @@ Every morning (from 07:00 IST, in the automation pass) for each student with Aut
    gate;
 2. find live jobs that pass their rules (roles in the title or skills, cities or remote, levels, job types, salary,
    companies to avoid) that they have never applied to (by hand or Auto) and never seen before;
-3. skip what the hard rules forbid: dead links, paused / reported / scam-flagged jobs, companies under the trust
-   threshold or paused by Admin, more than 2 applications to one company in 30 days;
+3. skip what the hard rules forbid: jobs that don't fit the person's experience (round J2: never a fresher for a
+   10-year job), dead links, paused / reported / scam-flagged jobs, companies under the trust threshold or paused
+   by Admin, more than 2 applications to one company in 30 days;
 4. rank by the job board's own match score (rules, cached); under the student's minimum → skip, within the
    borderline band → "Needs your answer";
 5. for each job, best first, until the daily limit: make a tailored resume copy (only the resume's own facts; AI
@@ -34,6 +35,7 @@ from app.core.db import APPLICATIONS, AUTO_COPIES, AUTO_ITEMS, AUTO_RUNS, COMPAN
 from app.core.time import IST, now
 from app.jobs import fit as fitmod
 from app.jobs.apply import FOLLOW_AFTER, app_key, job_page
+from app.jobs.model import with_older
 from app.jobs.public import live_filter
 from app.site import get_site
 
@@ -84,7 +86,7 @@ def job_query(a: dict[str, Any], since: datetime) -> dict[str, Any]:
     elif not a.get("remote", True):
         q.append({"remote": {"$ne": True}})
     if a.get("experience"):
-        q.append({"experience": {"$in": a["experience"]}})
+        q.append({"experience": {"$in": with_older(a["experience"])}})
     if a.get("job_types"):
         q.append({"job_type": {"$in": a["job_types"]}})
     return {"$and": q}
@@ -118,6 +120,15 @@ def skip_reason(j: dict[str, Any], a: dict[str, Any], companies: dict[str, dict]
         if score is not None and score < d["trust_min"]:
             return "low_trust"
     return None
+
+
+def level_ok(f: dict[str, Any], a: dict[str, Any]) -> bool:
+    """Only jobs that fit the person's own experience (round J2): never one asking for clearly more years than the
+    resume shows. One clearly below their experience (a fresher job for someone with 8 years) only when they picked
+    that level in their Auto Apply rules themselves."""
+    if fitmod.level_fits(f):
+        return True
+    return f.get("experience") == "over" and f.get("level") in (a.get("experience") or [])
 
 
 async def _reported(db, job_ids: list[str]) -> set[str]:
@@ -466,6 +477,8 @@ async def run_user(db, u: dict[str, Any], site: dict[str, Any], day: str, counts
             why = "reported"
         if not why and j.get("company_id") in blocked:
             why = "company_marks"
+        if not why and not level_ok(fits[j["_id"]], a):
+            why = "experience"
         if why:
             counts[f"skip_{why}"] = counts.get(f"skip_{why}", 0) + 1
             continue

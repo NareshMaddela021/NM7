@@ -75,7 +75,8 @@ async def test_shown_at_n_with_the_real_range(client, db):
     d = (await client.get("/api/public/salaries")).json()
     da = _role(d, "data-analyst")["levels"]
     assert da["start"] == {"min": 22500, "max": 27000, "jobs": 10, "days": 90, "city": ""}
-    assert da["1_3"] is None and da["3_plus"] is None
+    assert da["1_3"] is None and da["3_5"] is None and da["5_8"] is None and da["8_plus"] is None
+    assert set(da) == {"start", "1_3", "3_5", "5_8", "8_plus"}  # round J2: the guide's columns
     assert _role(d, "sales-executive")["levels"]["1_3"]["jobs"] == 12
     # by city: Pune has no data analyst jobs
     p = (await client.get("/api/public/salaries", params={"city": "pune"})).json()
@@ -105,7 +106,8 @@ async def test_ready_to_join_hint_and_admin_setting(client, outbox, admin_client
     assert h["role"]["id"] == "data-analyst" and h["range"] is None  # 6 < 20
     owner = await admin_client("owner")
     s = (await owner.get("/api/admin/settings")).json()
-    assert s["seek"] == {"salaryMinJobs": 20, "salariesMinRoles": 15, "salariesMode": "auto", "passScore": 60}
+    assert s["seek"] == {"salaryMinJobs": 20, "salariesMinRoles": 15, "salariesMode": "auto", "passScore": 60,
+                         "collectorAiDaily": 3000}  # fmt: skip
     assert (await owner.put("/api/admin/settings", json={"seek": {"salaryMinJobs": 5}})).status_code == 200
     assert (
         await owner.put("/api/admin/settings", json={"seek": {"salaryMinJobs": 1}})
@@ -180,3 +182,19 @@ async def test_admin_override_and_status(client, db, admin_client):
     r = await owner.put("/api/admin/settings", json={"seek": {"salariesMinRoles": 16}})
     assert r.json()["salariesStatus"]["visible"] is False and r.json()["seek"]["salariesMinRoles"] == 16
     assert (await owner.put("/api/admin/settings", json={"seek": {"salariesMode": "sometimes"}})).status_code == 422
+
+
+async def test_guide_groups_every_level(client, db):
+    """Round J2: 3–5 years (older "3+ years" jobs count there), 5–8, and 8+ (8–12, 12–15, 15+) each have a column; a
+    job page whose experience isn't stated gets no range rather than the starting one."""
+    await min_jobs(db, 4)
+    await _jobs(db, 2, exp="3_5", tag="a")
+    await _jobs(db, 2, exp="3_plus", tag="b")
+    await _jobs(db, 2, exp="8_12", tag="c")
+    await _jobs(db, 2, exp="15_plus", tag="e")
+    da = _role((await client.get("/api/public/salaries")).json(), "data-analyst")["levels"]
+    assert da["3_5"]["jobs"] == 4 and da["8_plus"]["jobs"] == 4 and da["5_8"] is None and da["start"] is None
+    look = lambda exp: client.get("/api/public/salaries/lookup", params={"title": "Data Analyst", "experience": exp})  # noqa: E731
+    assert (await look("12_15")).json()["level"] == "8_plus" and (await look("12_15")).json()["range"]["jobs"] == 4
+    assert (await look("3_plus")).json()["level"] == "3_5"
+    assert (await look("not_stated")).json()["range"] is None

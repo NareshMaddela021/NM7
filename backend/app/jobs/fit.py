@@ -1,7 +1,8 @@
 """The match score on the job board (J4): how well a signed-in person's resume fits each job, by rules only.
 
     skills       60   the job's skills found anywhere on the resume (bullets, projects, skills list, certificates)
-    experience   25   the job's level against the years on the resume; fresher and internship jobs suit 0-3 years
+    experience   25   the job's level against the years on the resume; fresher and internship jobs suit 0-3 years,
+                      a 5–8 year job suits 5 to 12 (round J2: levels from internship to 15+ years)
     place        15   remote, or the job is in the resume's city; no city on the resume = half
 
 No AI call per card. The answer is a number and plain parts the page turns into words in the person's language:
@@ -18,6 +19,7 @@ from pymongo import UpdateOne
 
 from app.core.db import JOB_FIT, RESUMES
 from app.core.time import now
+from app.jobs.model import BAND_YEARS
 from app.jobsearch import skills as dictionary
 from app.jobsearch.score import Resume
 
@@ -26,7 +28,10 @@ WEIGHTS = {"skills": 60, "experience": 25, "place": 15}
 WEIGHTS_EDU = {"skills": 55, "experience": 20, "place": 15, "education": 10}
 EDU_RANK = {"10th": 1, "12th": 2, "iti": 3, "diploma": 4, "graduate": 5, "postgraduate": 6}
 MAX_RANKED = 300  # "Best match" ranks the newest jobs that pass the filters, up to this many
+# years past a level's top before a resume counts as clearly more experienced than the job is for
+OVER = {"internship": 3, "fresher": 3, "0_1": 3, "1_3": 3, "3_5": 3, "5_8": 4, "8_12": 4, "12_15": 5}
 CACHE_WRITES = 60  # scores saved per request at most (the rest are cheap to work out again)
+VERSION = "j2"  # part of each cached score's key: a change to the rules works every score out again
 
 
 class Person:
@@ -73,14 +78,30 @@ def job_skills(job: dict[str, Any]) -> list[str]:
 
 
 def _experience(level: str, years: float) -> tuple[float, str]:
-    """(share of the marks, ok / near / far)."""
-    if level in ("internship", "fresher"):
-        return (1.0, "ok") if years <= 3 else (0.5, "near")
-    if level == "0_1":
-        return (1.0, "ok") if years <= 2 else (0.6, "near")
-    if level == "1_3":
-        return (1.0, "ok") if years >= 1 else (0.5, "near") if years >= 0.5 else (0.2, "far")
-    return (1.0, "ok") if years >= 3 else (0.5, "near") if years >= 2 else (0.1, "far")  # 3_plus
+    """(share of the marks, ok / near / far / over / unknown). far: the job asks for clearly more years than the
+    resume shows; over: the resume shows clearly more years than the job is for (round J2)."""
+    if level not in BAND_YEARS:
+        return 0.5, "unknown"  # experience not stated
+    lo, hi = BAND_YEARS[level]
+    if years < lo:
+        if lo <= 1:
+            return (0.5, "near") if years >= 0.5 else (0.2, "far")
+        return (0.5, "near") if lo - years <= 1 else (0.1, "far")
+    if hi is not None and years > hi + OVER.get(level, 3):
+        return 0.5, "over"
+    if level == "0_1" and years > 2:
+        return 0.6, "near"
+    return 1.0, "ok"
+
+
+def level_fits(fit_: dict[str, Any]) -> bool:
+    """Whether Auto Apply may use this job for the person: never a job that asks for clearly more years than the
+    resume shows (a fresher for a 10-year job), nor one clearly below them (round J2). A 1–3 year job stays open to
+    a fresher (it is "far" only on the score)."""
+    exp = fit_.get("experience")
+    if exp == "over":
+        return False
+    return not (exp == "far" and BAND_YEARS.get(fit_.get("level") or "", (0, 0))[0] >= 3)
 
 
 def _place(job: dict[str, Any], p: Person) -> tuple[float, str, str]:
@@ -149,7 +170,7 @@ async def fits(db, user_id: str, p: Person, jobs: list[dict[str, Any]], save: bo
     writes = []
     t = now()
     for j in jobs:
-        rev = f"{p.rev}|{_job_rev(j)}"
+        rev = f"{p.rev}|{_job_rev(j)}|{VERSION}"
         c = cached.get(j["_id"])
         if c and c.get("rev") == rev:
             out[j["_id"]] = c["fit"]

@@ -25,8 +25,53 @@ EXPERIENCE = {
     "fresher": "Fresher",
     "0_1": "0–1 years",
     "1_3": "1–3 years",
-    "3_plus": "3+ years",
+    "3_5": "3–5 years",
+    "5_8": "5–8 years",
+    "8_12": "8–12 years",
+    "12_15": "12–15 years",
+    "15_plus": "15+ years",
+    "not_stated": "Experience not stated",
+    "3_plus": "3+ years",  # older jobs (before round J2); new jobs use 3_5 and up
 }
+# the levels offered in forms and filters (3_plus stays readable for old jobs, never offered for new ones)
+BANDS = ("internship", "fresher", "0_1", "1_3", "3_5", "5_8", "8_12", "12_15", "15_plus")
+# the years each level asks for: (lowest, highest or None for "and up")
+BAND_YEARS: dict[str, tuple[int, int | None]] = {
+    "internship": (0, 0), "fresher": (0, 0), "0_1": (0, 1), "1_3": (1, 3), "3_5": (3, 5), "5_8": (5, 8),
+    "8_12": (8, 12), "12_15": (12, 15), "15_plus": (15, None), "3_plus": (3, None),
+}  # fmt: skip
+# a filter on one level also finds older jobs whose level it covers ("3–5 years" finds "3+ years")
+ALSO = {"3_5": ("3_plus",)}
+
+
+def with_older(levels) -> list[str]:
+    """The levels to look for when someone picks these (adds the older 3_plus where it fits)."""
+    out = list(dict.fromkeys(levels))
+    for x in list(out):
+        out += [y for y in ALSO.get(x, ()) if y not in out]
+    return out
+
+
+def band_for_years(lo: int | None, hi: int | None = None) -> str:
+    """The level for a job asking for lo (to hi) years, by the lowest number (round J2)."""
+    lo = lo or 0
+    hi = hi if hi is not None else lo
+    if hi <= 0:
+        return "fresher"
+    if lo == 0:
+        return "0_1" if hi <= 1 else "1_3"
+    for band, (a, b) in BAND_YEARS.items():
+        if band in ("internship", "fresher", "0_1", "3_plus"):
+            continue
+        if lo >= a and (b is None or lo < b):
+            return band
+    return "15_plus"
+
+
+def experience_error() -> str:
+    return "Experience must be one of: " + ", ".join([*BANDS, "not_stated"]) + "."
+
+
 APPLY = {"link": "Company website", "email": "By email", "nm7": "Apply on Nm7"}
 STATUSES = ("active", "paused", "closed", "review")  # review: a company job waiting for Admin (C3)
 SOURCES = ("collector", "admin", "bulk", "company")
@@ -91,7 +136,7 @@ class JobIn(BaseModel):
     locations: list[str] = Field(default_factory=list, max_length=10)  # cities; empty with workType remote
     work_type: Literal["onsite", "hybrid", "remote"] = "onsite"
     job_type: Literal["full_time", "internship", "contract", "part_time"] = "full_time"
-    experience: Literal["internship", "fresher", "0_1", "1_3", "3_plus"] = "fresher"
+    experience: str = "fresher"  # one of EXPERIENCE (3_plus only for older jobs)
     salary: SalaryIn | None = None
     # the lowest qualification the job accepts (Phase 5 H8); "" = any
     education: Literal["", "10th", "12th", "iti", "diploma", "graduate", "postgraduate"] = ""
@@ -108,6 +153,15 @@ class JobIn(BaseModel):
     @classmethod
     def _title(cls, v):
         return _tidy(v, 120)
+
+    @field_validator("experience")
+    @classmethod
+    def _experience(cls, v):
+        t = re.sub(r"[\s\-–]+", "_", str(v or "").strip().lower())
+        t = re.sub(r"_?years?$", "", t).replace("+", "_plus").replace("__", "_")
+        if t not in EXPERIENCE:
+            raise ValueError(experience_error())
+        return t
 
     @field_validator("locations")
     @classmethod

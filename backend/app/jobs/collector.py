@@ -11,9 +11,9 @@ nm7.si. No browser, no admin sign-in: one key.
 
 Rules (each job on its own; one bad job never stops the others):
 - Only India, only an official hiring system or a company's own careers site: job boards (LinkedIn, Naukri, Indeed …),
-  forms (Google, Microsoft), Notion pages and staffing agencies are refused. Only 0–3 years: exp_min above 3, or a
-  senior title (Senior, Lead, Principal, Manager but not Assistant / Associate Manager, Head, Director, Architect,
-  Staff …) is refused. Experience maps to internship · fresher · 0_1 · 1_3.
+  forms (Google, Microsoft), Notion pages and staffing agencies are refused. Every experience level is welcome
+  (round J2, freshers to 15+ years): exp_min maps to internship · fresher · 0_1 · 1_3 · 3_5 · 5_8 · 8_12 · 12_15 ·
+  15_plus; without years the title is a hint (Senior → 5–8 …); otherwise "Experience not stated" (still goes live).
 - Duplicates: the same normalised apply link (lower case, no scheme, www, query or trailing slash), else the same
   company + title. Sending a job again updates it; a job closed on a removal request is never reopened.
 - Never the company's description word for word: page_text (the official page's text) is used once, to write a short
@@ -47,7 +47,7 @@ from app.core.db import DB, JOBS
 from app.core.errors import ApiError
 from app.core.time import now
 from app.jobs.ingest import BAD_KEY_RULES, _key_ok
-from app.jobs.model import JobIn, _fold, slug_for, to_doc
+from app.jobs.model import JobIn, _fold, band_for_years, slug_for, to_doc
 from app.jobsearch import skills as dictionary
 from app.jobsearch.parse import CITIES
 
@@ -60,7 +60,7 @@ RULES = [(240, 3600), (1500, 86400)]  # requests per hour / per day (batches of 
 SUMMARY_MIN, SUMMARY_MAX = 300, 900
 PAGE_MIN = 300  # page_text shorter than this is too thin to summarise honestly
 PARALLEL = 6
-AI_DAILY = 1200  # summaries a day for the collector, counted apart from people's AI use (the site's daily cap)
+# summaries a day for the collector, counted apart from people's AI use: Admin → Settings (seek.collector_ai_daily)
 
 # hosts that are never a company's own hiring page
 BOARDS = (
@@ -136,10 +136,6 @@ STAFFING = (
     "hr consultan",
 )
 # "Staff Nurse" and "Management Trainee" are junior roles: "staff" only before an engineering word, no "management"
-SENIOR = re.compile(
-    r"\b(senior|sr|lead|principal|head|director|architect|vp|vice president|chief|cxo|avp|evp|svp|manager)\b|\bstaff\s+(engineer|software|data|scientist|designer|developer|product|machine)",
-    re.I,
-)
 JUNIOR_MANAGER = re.compile(r"\b(assistant|associate|asst)\s+manager\b", re.I)
 INTERN = re.compile(r"\b(intern|internship|apprentice|apprenticeship)\b", re.I)
 CITY = re.compile(rf"\b({CITIES})\b", re.I)
@@ -166,27 +162,35 @@ def scrub(text: str) -> str:
     return re.sub(r"\s{2,}", " ", PHONE.sub("", EMAIL.sub("", text or ""))).strip()
 
 
-def experience(exp_min: int | None, exp_max: int | None, title: str, exp_text: str) -> str | None:
-    """internship · fresher · 0_1 · 1_3 (None: not stated)."""
+TITLE_HINT = (  # only when the job gives no years (round J2): the title's level, as a hint
+    (re.compile(r"\b(trainee|fresher|freshers|graduate engineer|campus)\b", re.I), "fresher"),
+    (re.compile(r"\b(head|director|vp|vice president|chief|cxo|avp|evp|svp)\b", re.I), "12_15"),
+    (
+        re.compile(
+            r"\b(lead|principal|architect|manager)\b|\bstaff\s+(engineer|software|data|scientist|designer|developer|product|machine)",
+            re.I,
+        ),
+        "8_12",
+    ),
+    (re.compile(r"\b(senior|sr)\b", re.I), "5_8"),
+)
+
+
+def experience(exp_min: int | None, exp_max: int | None, title: str, exp_text: str) -> tuple[str | None, str]:
+    """(level, where it came from: years · text · title · ""). None: not stated. Years map by exp_min (round J2)."""
     if INTERN.search(title):
-        return "internship"
-    if exp_min is None and exp_max is None:
-        t = (exp_text or "").lower()
-        if re.search(r"\bfresher|0\s*(?:-|to)\s*0\b|no experience", t):
-            return "fresher"
-        return None
-    lo = exp_min or 0
-    hi = exp_max if exp_max is not None else lo
-    if hi <= 0:
-        return "fresher"
-    if lo == 0 and hi <= 1:
-        return "0_1"
-    return "1_3" if lo >= 1 or hi > 1 else "0_1"
-
-
-def is_senior(title: str) -> bool:
-    t = JUNIOR_MANAGER.sub("", title)  # Assistant / Associate Manager are early-career roles
-    return bool(SENIOR.search(t))
+        return "internship", "title"
+    if exp_min is not None or exp_max is not None:
+        lo = exp_min if exp_min is not None else 0
+        return band_for_years(lo, exp_max if exp_max is not None else lo), "years"
+    t = (exp_text or "").lower()
+    if re.search(r"\bfresher|0\s*(?:-|to)\s*0\b|no experience", t):
+        return "fresher", "text"
+    plain = JUNIOR_MANAGER.sub("", title)  # Assistant / Associate Manager are early-career roles
+    for rx, band in TITLE_HINT:
+        if rx.search(plain):
+            return band, "title"
+    return None, ""
 
 
 class CollectorJob(BaseModel):
@@ -226,10 +230,6 @@ def refusal(j: CollectorJob) -> str | None:
     blob = f"{j.company} {host}".lower()
     if any(s in blob for s in STAFFING):
         return "staffing_agency"
-    if is_senior(j.title):
-        return "senior_title"
-    if j.exp_min is not None and j.exp_min > 3:
-        return "over_3_years"
     loc = j.location  # empty: the job waits for review ("city not stated") instead
     if loc and not re.search(r"\bindia\b", loc, re.I) and not CITY.search(loc):
         return "not_india"
@@ -307,15 +307,32 @@ SCHEMA = {
 }  # fmt: skip
 
 
-async def take_budget(db) -> bool:
-    """The collector's own daily AI budget (AI_DAILY), separate from people's AI use."""
+def _day() -> str:
     from app.core.time import IST
 
-    day = now().astimezone(IST).strftime("%Y-%m-%d")
+    return now().astimezone(IST).strftime("%Y-%m-%d")
+
+
+async def used_today(db) -> int:
+    """Summaries the collector asked for today (Admin → Settings shows it next to the limit)."""
+    doc = await db["ai_usage"].find_one({"_id": f"{_day()}|collector"})
+    return min(int((doc or {}).get("n") or 0), await daily_limit(db))
+
+
+async def daily_limit(db) -> int:
+    from app.site import get_site
+
+    return int((await get_site(db))["seek"]["collector_ai_daily"])
+
+
+async def take_budget(db) -> bool:
+    """The collector's own daily AI budget (Admin → Settings, default 3,000), separate from people's AI use."""
+    limit = await daily_limit(db)
+    day = _day()
     doc = await db["ai_usage"].find_one_and_update(
         {"_id": f"{day}|collector"}, {"$inc": {"n": 1}, "$setOnInsert": {"day": day}}, upsert=True, return_document=True
     )
-    return int(doc["n"]) <= AI_DAILY
+    return int(doc["n"]) <= limit
 
 
 async def summarise(db, j: CollectorJob) -> tuple[dict[str, Any] | None, str]:
@@ -328,7 +345,7 @@ async def summarise(db, j: CollectorJob) -> tuple[dict[str, Any] | None, str]:
     if not await take_budget(db):
         return None, "ai_daily_limit"
     content = (
-        "Write a short, ORIGINAL summary (300 to 900 characters) of this job for Indian freshers, in plain English, "
+        "Write a short, ORIGINAL summary (300 to 900 characters) of this job for job seekers in India, in plain English, "
         "in your own words: what the role does, the key skills, who can apply (education, experience), and the place "
         "and work type. Use only facts stated in the page below; if something isn't stated, leave it out. Do not copy "
         "sentences. No names of people, no email addresses, no phone numbers. Also list up to 10 key skills, the work "
@@ -372,11 +389,9 @@ async def handle(db, raw: Any, dry: bool, sem: asyncio.Semaphore) -> dict[str, A
         return {**base, "result": "rejected", "reason": why}
     if old and (old.get("collector") or {}).get("removed"):
         return {**base, "result": "skipped", "reason": "removed_on_request", "id": old["_id"]}
-    exp = experience(j.exp_min, j.exp_max, j.title, j.exp_text)
+    exp, exp_from = experience(j.exp_min, j.exp_max, j.title, j.exp_text)
     cities, work = cities_of(j.location)
-    reasons: list[str] = []
-    if exp is None:
-        reasons.append("experience_not_stated")
+    reasons: list[str] = []  # experience not stated is no reason to wait (round J2): "Experience not stated"
     if not cities and work != "remote":
         reasons.append("city_not_stated")
     if dry:
@@ -395,7 +410,7 @@ async def handle(db, raw: Any, dry: bool, sem: asyncio.Semaphore) -> dict[str, A
         job = JobIn.model_validate({
             "title": j.title[:120], "company": {"name": j.company}, "locations": cities or ([] if work == "remote" else ["India"]),
             "workType": (facts or {}).get("work") or work, "jobType": "internship" if exp == "internship" else "full_time",
-            "experience": exp or "fresher", "skills": (facts or {}).get("skills") or (old or {}).get("skills") or [],
+            "experience": exp or "not_stated", "skills": (facts or {}).get("skills") or (old or {}).get("skills") or [],
             "description": desc, "applyMethod": "link", "applyUrl": j.apply_url,
             **({"salary": facts["salary"]} if facts and facts.get("salary") else {}),
         })  # fmt: skip
@@ -405,7 +420,7 @@ async def handle(db, raw: Any, dry: bool, sem: asyncio.Semaphore) -> dict[str, A
     fields["dedupe_key"] = "collector:" + hashlib.sha256(ukey.encode()).hexdigest()[:32]
     t = now()
     meta = {"url_key": ukey, "ct_key": ckey, "system": j.system[:40], "posted_raw": j.posted[:40],
-            "exp_text": scrub(j.exp_text)[:200], "summarised": bool(facts) or has_summary, "removed": False}  # fmt: skip
+            "exp_text": scrub(j.exp_text)[:200], "exp_from": exp_from, "summarised": bool(facts) or has_summary, "removed": False}  # fmt: skip
     status = "review" if reasons else "active"
     review = {"reasons": reasons, "note": ""} if reasons else None
     if old:

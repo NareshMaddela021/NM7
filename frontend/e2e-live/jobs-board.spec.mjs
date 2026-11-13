@@ -26,7 +26,7 @@ for (const [label, opts] of SIZES) {
 
       // the list: open jobs only, newest first
       await page.goto(`/jobs?q=${tag}`);
-      await expect(page.getByRole('heading', { level: 1, name: 'Jobs for students and freshers' })).toBeVisible();
+      await expect(page.getByRole('heading', { level: 1, name: 'Jobs in India for freshers and experienced professionals' })).toBeVisible();
       await expect(page.getByTestId('jobs-count')).toHaveText('3 jobs');
       const cards = page.getByTestId('job-card');
       await expect(cards).toHaveCount(3);
@@ -42,6 +42,15 @@ for (const [label, opts] of SIZES) {
       await expect(cards).toHaveCount(1);
       await expect(cards).toContainText(`Data Analyst ${tag}`);
       await page.getByLabel('Experience').selectOption('');
+      // round J2: quick chips by years; the 1–3 chip finds the 1–3 year job, a second tap clears it
+      const chips = page.getByTestId('exp-chips');
+      await expect(chips.getByRole('button')).toHaveText(['Internship', 'Fresher', '1–3 years', '3–5 years', '5–8 years', '8+ years']);
+      await chips.getByRole('button', { name: '1–3 years' }).click();
+      await expect(page).toHaveURL(/experience=1_3/);
+      await expect(cards).toHaveCount(1);
+      await expect(cards).toContainText(`Java Developer ${tag}`);
+      await chips.getByRole('button', { name: '1–3 years' }).click();
+      await expect(page).not.toHaveURL(/experience=/);
       await page.getByLabel('City').selectOption('remote');
       await expect(cards).toHaveCount(1);
       await expect(cards).toContainText(`Support Intern ${tag}`);
@@ -113,7 +122,7 @@ for (const [label, opts] of SIZES) {
       // Telugu
       await page.goto(`/jobs?q=${tag}`);
       await page.getByRole('button', { name: 'తెలుగు' }).click();
-      await expect(page.getByRole('heading', { level: 1 })).toHaveText('విద్యార్థులు, ఫ్రెషర్ల కోసం ఉద్యోగాలు');
+      await expect(page.getByRole('heading', { level: 1 })).toHaveText('ఫ్రెషర్లు, అనుభవం ఉన్నవారి కోసం భారత్‌లో ఉద్యోగాలు');
       await expect(page.getByTestId('jobs-count')).toHaveText('3 ఉద్యోగాలు');
       await wide();
       await page.getByRole('button', { name: 'English' }).click();
