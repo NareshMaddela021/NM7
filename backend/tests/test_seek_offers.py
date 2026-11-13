@@ -9,7 +9,7 @@ import base64
 from fpdf import FPDF
 
 from app.core.db import COMPANIES, OFFER_CHECKS, USERS
-from app.seek.offers import company_name, ctc_yearly, inr, role_of, years_in
+from app.seek.offers import city_of, company_name, ctc_yearly, inr, listed, role_of, years_in
 from tests.conftest import signup
 from tests.test_seek_salary import _fresh_cache, _jobs  # noqa: F401
 
@@ -73,6 +73,42 @@ async def test_live_test_letter(client, outbox, db):
     assert "₹2,00,000" in by["bond"]["title"] and "₹2,00,000" in by["bond"]["detail"]
     assert by["fee"]["level"] == "warning" and "₹5,000" in by["fee"]["title"]
     assert by["chat_only"]["level"] == "warning" and "WhatsApp" in by["chat_only"]["title"]
+
+
+RETEST = (  # the re-test letter (round C): a bond with a penalty and a separate deposit
+    "Star Global Solutions Pvt Ltd\nDear Meera, we are pleased to offer you the position of Junior Data Analyst at our Hyderabad office. "
+    "Your CTC will be Rs 3,00,000 per annum. Date of joining: 1 December 2026.\n"
+    "Service bond: You agree to work with the company for 3 years. If you leave early, you must pay Rs 2,00,000 to "
+    "the company.\nBefore joining, please pay a refundable security deposit of Rs 5,000 for your laptop and training."
+)
+
+
+def test_location_words_and_lists():
+    assert city_of(RETEST) == "Hyderabad"
+    assert city_of("You will be based in Pune.") == "Pune" and city_of("Work from Chennai, Mon–Fri.") == "Chennai"
+    assert city_of("Location: Visakhapatnam") == "Visakhapatnam" and city_of("Welcome to the team.") == ""
+    assert listed(["a"]) == "a" and listed(["a", "b"]) == "a and b" and listed(["a", "b", "c"]) == "a, b and c"
+
+
+async def test_retest_letter_fee_bond_and_basics(client, outbox, db):
+    await signup(client, outbox)
+    r = (await client.post("/api/me/offer-check", json={"text": RETEST})).json()
+    by = {f["kind"]: f for f in r["findings"]}
+    # C1: the deposit is the fee (₹5,000); the leave-early penalty belongs to the bond only
+    assert by["fee"]["title"] == "It asks you to pay a fee or deposit (₹5,000)"
+    assert all("leave early" not in q for q in by["fee"]["quotes"]) and any("deposit" in q for q in by["fee"]["quotes"])
+    assert by["bond"]["amount"] == 200000 and "₹2,00,000 if you leave early, 3 years" in by["bond"]["title"]
+    assert "deposit (₹5,000)" in r["explanation"] and "deposit (₹2,00,000)" not in r["explanation"]  # the summary line
+    # C2: "at our Hyderabad office" names the location; only the signatory is missing, in a proper sentence
+    assert by["missing"]["missing"] == ["signatory"] and r["facts"]["city"] == "Hyderabad"
+    assert by["missing"]["detail"] == (
+        "A clear offer names who signed it (HR or an authorised signatory). Ask the company to add it."
+    )
+    two = (
+        await client.post("/api/me/offer-check", json={"text": RETEST.replace("at our Hyderabad office", "")})
+    ).json()
+    miss = next(f for f in two["findings"] if f["kind"] == "missing")
+    assert "names the work location and who signed it" in miss["detail"] and miss["detail"].endswith("add them.")
 
 
 async def test_clean_offer_looks_ok(client, outbox, db):

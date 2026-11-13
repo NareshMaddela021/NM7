@@ -109,7 +109,7 @@ export function fmtDate(v, f) {
 export function fmtDates(from, to, current, f, expected) {
   const a = fmtDate(from, f);
   let b = current ? (expected && to ? `Expected ${fmtDate(to, f)}` : 'Present') : fmtDate(to, f);
-  if (f === 'year' && a && b === a) b = '';
+  if (a && b === a) b = ''; // the same month (or year) once: "Oct 2026", not "Oct 2026 – Oct 2026"
   return [a, b].filter(Boolean).join(' – ');
 }
 

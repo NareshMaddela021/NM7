@@ -96,6 +96,12 @@ for (const [label, opts] of SIZES) {
       const pdf = await request.get(href);
       expect(pdf.headers()['content-type']).toContain('application/pdf');
       const number = href.split('/').pop().replace('.pdf', '');
+      // round C (C4): accepted and completed in the same month, so the suggestion shows that month once ("Nov 2026")
+      const month = new Date().toLocaleDateString('en-IN', { month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' });
+      const line = page.getByTestId('pg-done');
+      await expect(line).toContainText(month);
+      await expect(line).not.toContainText(/\d{4}-\d{2}/);
+      await expect(line).not.toContainText(`${month} – ${month}`);
       await page.getByTestId('pg-add-resume').click();
       await expect(page.getByTestId('pg-done')).toContainText('On your resume');
       await page.goto(`/verify/${number}`);

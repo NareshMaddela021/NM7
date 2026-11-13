@@ -55,6 +55,7 @@ async def test_batch_status_offers_csv_and_board(client, outbox, db, make_client
     assert r.json()["moved"] == 2
     b = (await client.get(f"{url}/board", headers=H(session))).json()  # after the move (and any reload)
     assert b["accepted"] == 2 and len(b["people"]) == 2 and b["toInterview"] == []
+    assert sorted(b["toOffer"]) == sorted([uid, uid2])  # nobody has an offer yet
     join = (now().astimezone(IST).date() + timedelta(days=10)).isoformat()
     body = {"people": [uid, uid2, "nobody"], "salary": {"amount": 18000, "unit": "month"}, "joinDate": join}
     r = (await client.post(f"{url}/offers", json=body, headers=H(session))).json()
@@ -73,6 +74,13 @@ async def test_batch_status_offers_csv_and_board(client, outbox, db, make_client
         and b["filledPct"] == 5
     )
     assert b["stages"] == {"offer": 2}
+    # round C: each stage counts everyone who reached it or a later one, so the funnel never goes up; offers were
+    # sent without booked interviews, so those people count as past the interview stages too
+    funnel = [
+        b[k] for k in ("invited", "accepted", "interviewsBooked", "attended", "offersSent", "offersAccepted", "joined")
+    ]
+    assert funnel == sorted(funnel, reverse=True) and funnel == [2, 2, 2, 2, 2, 1, 1]
+    assert b["toOffer"] == []  # both have an offer: the batch offer button is off
     text = (await client.get(f"{url}/csv", headers=H(session))).text.lstrip("﻿")
     rows = list(csv.reader(io.StringIO(text)))
     assert rows[0][:4] == ["Name", "Stage", "Email", "Phone"] and len(rows) == 3

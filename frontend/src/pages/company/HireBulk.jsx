@@ -7,6 +7,7 @@ import { readAccount } from '../../lib/recruiterPortal';
 import { rq } from '../../lib/company';
 import { API_BASE } from '../../services/http';
 
+const STAGES = ['applied', 'viewed', 'shortlisted', 'interview', 'offer', 'rejected']; // the job-board statuses (jobs.app.*)
 const STATS = ['invited', 'accepted', 'interviewsBooked', 'attended', 'offersSent', 'offersAccepted', 'joined', 'checkedIn'];
 
 export default function HireBulk({ t, c, job, people, canEdit, onChange }) {
@@ -56,6 +57,9 @@ export default function HireBulk({ t, c, job, people, canEdit, onChange }) {
   const accepted = b.people || people;
   const ids = accepted.map((p) => p.key);
   const toInterview = b.toInterview || ids;
+  const toOffer = b.toOffer || ids; // who accepted and has no offer yet
+  // where applicants are now, in pipeline order ("1 at Offer stage")
+  const now = STAGES.filter((k) => b.stages?.[k]).map((k) => t('co.bulk.atStage', { n: b.stages[k], stage: t(`jobs.app.${k}`) }));
   return (
     <section className="card stack g12" aria-labelledby="co-bulk-h" data-testid="co-bulk">
       <div className="row between g8" style={{ flexWrap: 'wrap' }}>
@@ -65,18 +69,20 @@ export default function HireBulk({ t, c, job, people, canEdit, onChange }) {
       <div className="co-grid" role="list" data-testid="co-bulk-stats">
         {STATS.map((k) => <div key={k} role="listitem" className="card-sm stack g4"><strong>{b[k]}</strong><span className="xs muted">{t(`co.bulk.stat.${k}`)}</span></div>)}
       </div>
+      <span className="xs muted" data-testid="co-bulk-funnel-note">{t('co.bulk.funnelNote')}</span>
+      {now.length > 0 && <p className="small" style={{ margin: 0 }} data-testid="co-bulk-now">{t('co.bulk.now')} {now.join(' · ')}</p>}
       {err && <p className="error" role="alert" style={{ margin: 0 }}>{err}</p>}
       {msg && <p className="small" role="status" style={{ margin: 0 }} data-testid="co-bulk-msg">{msg}</p>}
       {canEdit && (
         <div className="row g8" style={{ flexWrap: 'wrap' }}>
           <button type="button" className="btn btn-outline btn-sm" disabled={!toInterview.length} onClick={() => act(() => rq(`/api/company/${c.id}/hire/bulk/${job}/status`, { method: 'POST', body: { people: toInterview, status: 'interview' } }), t('co.bulk.moved'))} data-testid="co-bulk-interview">{toInterview.length ? t('co.bulk.allInterview', { n: toInterview.length }) : t('co.bulk.noneInterview')}</button>
-          <button type="button" className="btn btn-outline btn-sm" disabled={!ids.length} onClick={() => setOffer({ amount: '', unit: 'month', joinDate: '' })} data-testid="co-bulk-offer">{t('co.bulk.allOffer', { n: ids.length })}</button>
+          <button type="button" className="btn btn-outline btn-sm" disabled={!toOffer.length} onClick={() => setOffer({ amount: '', unit: 'month', joinDate: '' })} data-testid="co-bulk-offer">{toOffer.length ? t('co.bulk.allOffer', { n: toOffer.length }) : t('co.bulk.noneOffer')}</button>
           <button type="button" className="btn btn-ghost btn-sm" onClick={csv} data-testid="co-bulk-csv">{t('co.bulk.csv')}</button>
           <button type="button" className="btn btn-ghost btn-sm" onClick={() => toggle(false)}>{t('co.bulk.turnOff')}</button>
         </div>
       )}
       {offer && (
-        <form className="card-sm co-grid" onSubmit={(e) => { e.preventDefault(); act(async () => { const r = await rq(`/api/company/${c.id}/hire/bulk/${job}/offers`, { method: 'POST', body: { people: ids, salary: { amount: Number(offer.amount), unit: offer.unit }, joinDate: offer.joinDate } }); setOffer(null); setMsg(t('co.bulk.offersSent', { n: r.sent })); }); }} data-testid="co-bulk-offer-form">
+        <form className="card-sm co-grid" onSubmit={(e) => { e.preventDefault(); act(async () => { const r = await rq(`/api/company/${c.id}/hire/bulk/${job}/offers`, { method: 'POST', body: { people: toOffer, salary: { amount: Number(offer.amount), unit: offer.unit }, joinDate: offer.joinDate } }); setOffer(null); setMsg(t('co.bulk.offersSent', { n: r.sent })); }); }} data-testid="co-bulk-offer-form">
           <label className="field"><span className="label">{t('co.offer.salary')}</span><input className="input" required inputMode="decimal" value={offer.amount} onChange={(e) => setOffer({ ...offer, amount: e.target.value.replace(/[^\d.]/g, '') })} /></label>
           <label className="field"><span className="label">{t('co.offer.per')}</span><select className="input" value={offer.unit} onChange={(e) => setOffer({ ...offer, unit: e.target.value })}><option value="month">{t('co.offer.month')}</option><option value="lpa">LPA</option></select></label>
           <label className="field"><span className="label">{t('co.offer.joinDate')}</span><input type="date" className="input" required value={offer.joinDate} onChange={(e) => setOffer({ ...offer, joinDate: e.target.value })} /></label>
