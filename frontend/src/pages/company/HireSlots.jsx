@@ -57,7 +57,7 @@ export default function HireSlots({ t, c, job, canEdit }) {
                   {s.booked && s.at <= Date.now() && ['attended', 'no_show'].map((k) => (
                     <button key={k} type="button" className={`btn btn-sm ${s.mark === k ? 'btn-ink' : 'btn-outline'}`} onClick={() => act(() => rq(`/api/company/${c.id}/hire/slots/${s.id}/mark`, { method: 'POST', body: { result: s.mark === k ? 'clear' : k } }))} data-testid={`co-slot-${k}`}>{t(`co.slots.${k}`)}</button>
                   ))}
-                  {why[s.id] !== undefined ? (
+                  {s.at <= Date.now() ? null : why[s.id] !== undefined ? ( /* a past time: Attended / No-show only (round E) */
                     <span className="row g8" style={{ flexWrap: 'wrap' }}>
                       <input className="input" style={{ height: 34, minWidth: 180 }} maxLength={300} placeholder={t('co.slots.reason')} aria-label={t('co.slots.reason')} value={why[s.id]} onChange={(e) => setWhy({ ...why, [s.id]: e.target.value })} data-testid="co-slot-reason" />
                       <button type="button" className="btn btn-outline btn-sm" onClick={() => act(() => rq(`/api/company/${c.id}/hire/slots/${s.id}/cancel`, { method: 'POST', body: { reason: why[s.id] } }), t('co.slots.cancelled'))} data-testid="co-slot-cancel-ok">{t('co.slots.cancelIt')}</button>

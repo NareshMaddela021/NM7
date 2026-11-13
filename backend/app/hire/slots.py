@@ -245,9 +245,11 @@ async def company_cancel(
     s = await db[HIRE_SLOTS].find_one({"_id": _oid(sid), "company_id": cid})
     if not s or s["status"] == "cancelled":
         raise ApiError(404, "not_found", "That time isn’t here.")
+    t = now()
+    if s["starts_at"] <= t:  # round E: a time that has started or passed is marked Attended / No-show, not cancelled
+        raise ApiError(409, "past", "This interview time has passed. Mark it Attended or No-show instead.")
     if s.get("user_id") and len(body.reason.strip()) < 3:
         raise ApiError(400, "reason", "Say why, so the candidate knows.")
-    t = now()
     sets = {"status": "cancelled", "cancel_reason": body.reason.strip(), "cancelled_by": "company", "updated_at": t,
             "seq": int(s.get("seq", 0)) + 1}  # fmt: skip
     await db[HIRE_SLOTS].update_one({"_id": s["_id"]}, {"$set": sets})

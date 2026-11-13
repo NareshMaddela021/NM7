@@ -47,6 +47,40 @@ async def test_checklist_and_checkins(client, outbox, db):
     assert await db[JOINING_REPORTS].count_documents({}) == 0
 
 
+async def test_report_any_day_of_the_first_90(client, outbox, db, admin_client):
+    """Round E: like Arjun on day 10, after a day 7 "as promised", a person can still report any day of the first 90."""
+    await signup(client, outbox)
+    j = (
+        await client.post("/api/me/progress/joined", json={"company": "Acme", "role": "Analyst", "joinDate": ago(9)})
+    ).json()
+    j = (await client.post(f"/api/me/progress/joined/{j['id']}/checkin", json={"day": 7, "ok": True})).json()
+    assert j["canReport"] is True and j["reports"] == [] and j["due"] is None
+    url = f"/api/me/progress/joined/{j['id']}/report"
+    assert (await client.post(url, json={"problems": []})).status_code == 422  # say what
+    assert (await client.post(url, json={"problems": ["bribe"]})).status_code == 422
+    j = (
+        await client.post(url, json={"problems": ["fee", "salary"], "note": "Asked for Rs 3,000 for the uniform."})
+    ).json()
+    assert [r["problems"] for r in j["reports"]] == [["fee", "salary"]] and j["checkins"]["7"]["ok"]  # check-in kept
+    r = await db[JOINING_REPORTS].find_one({})
+    assert r["day"] == 10 and r["how"] == "anytime" and r["status"] == "open" and r["company"] == "Acme"
+    owner = await admin_client("owner")
+    rows = (await owner.get("/api/admin/joining-reports")).json()
+    assert rows[0]["problems"] == ["fee", "salary"] and rows[0]["day"] == 10 and "uniform" in rows[0]["note"]
+    # after day 90 the button is gone and the endpoint says so
+    await db[JOININGS].update_one({"_id": r["joining_id"]}, {"$set": {"join_date": ago(90)}})
+    out = (await client.get("/api/me/progress")).json()
+    assert out["joined"][0]["day"] == 91 and out["joined"][0]["canReport"] is False
+    res = await client.post(url, json={"problems": ["other"]})
+    assert res.status_code == 409 and res.json()["error"]["code"] == "too_late"
+    # not someone else's
+    other = await db[JOININGS].insert_one({"user_id": "someone-else", "company": "X", "role": "Y", "join_date": ago(5),
+                                           "source": "self", "checklist": [], "checkins": {}})  # fmt: skip
+    assert (
+        await client.post(f"/api/me/progress/joined/{other.inserted_id}/report", json={"problems": ["other"]})
+    ).status_code == 404
+
+
 async def test_reports_from_two_people_lower_trust(client, outbox, db, make_client, admin_client):
     session, cid = await verified(client, outbox, db)
     name = (await db[COMPANIES].find_one({"_id": cid}))["details"]["legal_name"]
