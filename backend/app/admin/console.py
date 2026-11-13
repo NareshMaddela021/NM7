@@ -754,6 +754,7 @@ class SeekSettingsIn(CamelModel):
     salaries_min_roles: int | None = Field(None, ge=1, le=100)
     salaries_mode: Literal["auto", "show", "hide"] | None = None
     pass_score: int | None = Field(None, ge=30, le=100)
+    collector_ai_daily: int | None = Field(None, ge=0, le=20000)
 
 
 class HireSettingsIn(CamelModel):
@@ -862,6 +863,7 @@ def _settings_out(site: dict[str, Any]) -> dict[str, Any]:
             "salariesMinRoles": int(site["seek"]["salaries_min_roles"]),
             "salariesMode": site["seek"]["salaries_mode"],
             "passScore": int(site["seek"]["pass_score"]),
+            "collectorAiDaily": int(site["seek"]["collector_ai_daily"]),
         },
         "hire": {
             "on": bool(site["hire"]["on"]),
@@ -885,10 +887,12 @@ def _settings_out(site: dict[str, Any]) -> dict[str, Any]:
 
 @router.get("/settings")
 async def get_settings_(db: DB, _: AdminAuth("settings")) -> dict[str, Any]:
+    from app.jobs.collector import used_today
     from app.seek.salary import visibility
 
     out = _settings_out(await get_site(db))
     out["salariesStatus"] = await visibility(db, fresh=True)  # "Salaries page: hidden, 0 of 15 roles ready"
+    out["collectorAiToday"] = await used_today(db)  # "Used today: 412 of 3,000"
     return out
 
 
@@ -945,10 +949,12 @@ async def put_settings(body: SettingsIn, request: Request, db: DB, auth: AdminAu
     if changes:
         await save_site(db, changes)
         await audit(db, auth.user.id, "settings.changed", target="site", data=diff, ip=_ip(request))
+    from app.jobs.collector import used_today
     from app.seek.salary import visibility
 
     out = _settings_out(await get_site(db))
     out["salariesStatus"] = await visibility(db, fresh=True)
+    out["collectorAiToday"] = await used_today(db)
     return out
 
 

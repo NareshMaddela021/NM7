@@ -34,6 +34,7 @@ from app.core.db import DB, JOB_MATCHES, JOBS, RESUMES
 from app.core.errors import ApiError
 from app.core.schemas import CamelModel
 from app.core.time import now
+from app.jobs.model import BAND_YEARS
 from app.jobsearch import access, ai
 from app.jobsearch.parse import Parsed, clean_text, parse
 from app.jobsearch.score import score
@@ -232,8 +233,7 @@ class MatchIn(CamelModel):
     job_id: str | None = Field(None, max_length=80)  # "Make my resume fit" from a job on the board (item 7, 8)
 
 
-EXP_YEARS = {"internship": (0, 0, True), "fresher": (0, 0, True), "0_1": (0, 1, True), "1_3": (1, 3, False),
-             "3_plus": (3, None, False)}  # fmt: skip
+EXP_YEARS = {k: (lo, hi, k in ("internship", "fresher", "0_1")) for k, (lo, hi) in BAND_YEARS.items()}
 
 
 def job_parsed(j: dict[str, Any]) -> Parsed:

@@ -12,10 +12,11 @@ Candidate (signed in):
 
 Who is shown: "Ready to join" is available (H1: on, consent, not paused, confirmed within the days Admin set), the
 candidate can work where the job is (a city in common, or the job is remote), takes this kind of job (when they said),
-and has a resume. Demo candidates are shown only to demo companies, and real ones never to demo companies. Ranked by the
-match score (the job board's rules: skills, experience, place), strictly; on the same score, a salary within the job's
-range comes first, then the soonest join date. Each row: first name and initial, match score and reasons,
-availability, salary fit, skill check (H3) and reliability (H4); never email or phone until the candidate accepts.
+and has a resume whose years fit the job's level (round J2). Demo candidates are shown only to demo companies, and
+real ones never to demo companies. Ranked by the match score (the job board's rules: skills, experience, place),
+strictly; on the same score, a salary within the job's range comes first, then the soonest join date. Each row:
+first name and initial, match score and reasons, availability, salary fit, skill check (H3) and reliability (H4);
+never email or phone until the candidate accepts.
 
 Only Verified companies; a Basic company sees its applicants only. Limits (Admin → Settings → Hire in 30 minutes):
 `free_shortlists` roles a month (beyond that the instant shortlist is a paid company feature: Admin → Plans → Company
@@ -221,6 +222,8 @@ async def candidates(
         if where != "remote":
             person.place = where.lower()  # they said they can work there
         m = fitmod.fit(job, person)
+        if not fitmod.level_fits(m):
+            continue  # round J2: never a fresher for a 10-year job, nor someone with 10 years for a fresher job
         inv = invites.get(p["_id"])
         rows.append(
             {

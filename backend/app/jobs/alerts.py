@@ -35,7 +35,7 @@ from app.core.schemas import CamelModel
 from app.core.security import keyed_hash, same
 from app.core.time import IST, now
 from app.jobs import fit as fitmod
-from app.jobs.model import EXPERIENCE
+from app.jobs.model import EXPERIENCE, with_older
 from app.jobs.public import live_filter
 
 log = logging.getLogger("nm7.jobs")
@@ -119,7 +119,7 @@ class AlertIn(CamelModel):
     roles: list[str] = Field(default_factory=list, max_length=10)
     cities: list[str] = Field(default_factory=list, max_length=10)
     remote: bool = True
-    experience: list[Literal[tuple(EXPERIENCE)]] = Field(default_factory=list, max_length=5)  # type: ignore[valid-type]
+    experience: list[Literal[tuple(EXPERIENCE)]] = Field(default_factory=list, max_length=11)  # type: ignore[valid-type]
     frequency: Literal["daily", "weekly"] = "weekly"
     lang: Literal["en", "te", "hi"] = "en"
 
@@ -207,7 +207,7 @@ def job_query(a: dict[str, Any], since) -> dict[str, Any]:
     elif not a["remote"]:
         q["$and"].append({"remote": {"$ne": True}})
     if a["experience"]:
-        q["$and"].append({"experience": {"$in": a["experience"]}})
+        q["$and"].append({"experience": {"$in": with_older(a["experience"])}})
     return q
 
 

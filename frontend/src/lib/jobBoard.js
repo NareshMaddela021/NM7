@@ -5,7 +5,11 @@ import { useEffect, useSyncExternalStore } from 'react';
 import { http, LIVE } from '../services/http';
 
 export const ORIGIN = 'https://nm7.si';
-export const EXPERIENCE = ['internship', 'fresher', '0_1', '1_3', '3_plus'];
+// round J2: every level from internship to 15+ years (older jobs may still say 3_plus or not_stated; never offered)
+export const EXPERIENCE = ['internship', 'fresher', '0_1', '1_3', '3_5', '5_8', '8_12', '12_15', '15_plus'];
+// the quick chips on /jobs; 8_plus finds 8–12, 12–15 and 15+ years
+export const QUICK_EXPERIENCE = ['internship', 'fresher', '1_3', '3_5', '5_8', '8_plus'];
+const EXPERIENCE_FILTERS = [...EXPERIENCE, '8_plus'];
 export const JOB_TYPES = ['full_time', 'internship', 'contract', 'part_time'];
 export const WORK_TYPES = ['onsite', 'hybrid', 'remote'];
 export const POSTED = ['6h', '24h', '7d'];
@@ -35,7 +39,7 @@ export function fromQuery(search) {
   const p = new URLSearchParams(search);
   const get = (k) => (p.get(k) || '').trim();
   const f = { q: get('q').slice(0, 80), city: get('city').slice(0, 60) };
-  if (EXPERIENCE.includes(get('experience'))) f.experience = get('experience');
+  if (EXPERIENCE_FILTERS.includes(get('experience'))) f.experience = get('experience');
   if (JOB_TYPES.includes(get('jobType'))) f.jobType = get('jobType');
   if (WORK_TYPES.includes(get('workType'))) f.workType = get('workType');
   if (SALARIES.includes(Number(get('salary')))) f.salary = Number(get('salary'));
@@ -92,7 +96,7 @@ export function placeText(j, t) {
 /* ---------- Google JobPosting (https://developers.google.com/search/docs/appearance/structured-data/job-posting) ---------- */
 
 const EMPLOYMENT = { full_time: 'FULL_TIME', internship: 'INTERN', contract: 'CONTRACTOR', part_time: 'PART_TIME' };
-const MONTHS = { '1_3': 12, '3_plus': 36 };
+const MONTHS = { '1_3': 12, '3_5': 36, '5_8': 60, '8_12': 96, '12_15': 144, '15_plus': 180, '3_plus': 36 };
 const escHtml = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const iso = (ms) => new Date(ms).toISOString();
 
@@ -205,7 +209,8 @@ export function matchReasons(m, t) {
   const total = (m.found?.length || 0) + (m.missing?.length || 0);
   if (total) (m.found.length ? good : gaps).push(t('jobs.match.skills', { found: m.found.length, total }));
   if (m.experience === 'ok') good.push(t(`jobs.match.exp.${m.level}`));
-  else gaps.push(t('jobs.match.expGap', { level: t(`jobs.exp.${m.level}`) }));
+  else if (m.experience === 'over') gaps.push(t('jobs.match.over', { level: t(`jobs.exp.${m.level}`) }));
+  else if (m.experience !== 'unknown') gaps.push(t('jobs.match.expGap', { level: t(`jobs.exp.${m.level}`) })); // not stated: nothing to say
   if (m.place === 'remote') good.push(t('jobs.match.remote'));
   else if (m.place === 'city') { if (m.city) good.push(t('jobs.match.city', { city: m.city })); } // no city known: leave the part out
   else if (m.place === 'other') gaps.push(t('jobs.match.otherCity'));

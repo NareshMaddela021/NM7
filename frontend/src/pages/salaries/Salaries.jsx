@@ -32,7 +32,7 @@ export function JobPay({ job, t }) {
   return <span className="xs muted" data-testid="job-pay">{t('jobs.pay.title')}: {payText(r.range, t)}{st?.visible && <> · <Link to="/salaries" data-testid="job-pay-link">{t('jobs.pay.link')}</Link></>}</span>;
 }
 
-const LEVELS = ['start', '1_3', '3_plus'];
+const LEVELS = ['start', '1_3', '3_5', '5_8', '8_plus'];
 
 export default function Salaries() {
   const [t, lang] = useLang();

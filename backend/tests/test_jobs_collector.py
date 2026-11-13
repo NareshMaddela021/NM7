@@ -1,7 +1,8 @@
 # ruff: noqa: E501
 """Round J: the morning job-collector posts to nm7.si with one key. Auth, dedupe / update, refused jobs (job boards,
-forms, staffing, senior titles, over 3 years, outside India), original summaries only (page_text never stored, no
-emails or phone numbers kept), review instead of guessing, close by link, dry runs, and removal requests."""
+forms, staffing, outside India), original summaries only (page_text never stored, no emails or phone numbers kept),
+review instead of guessing, close by link, dry runs, and removal requests. Round J2: every experience level is
+accepted (senior jobs too), years map to the bands, and the daily AI allowance is an Admin setting."""
 
 import pytest
 
@@ -62,24 +63,24 @@ async def post(client, h, jobs, **extra):
 
 def test_rules():
     assert col.url_key("HTTPS://www.Careers.Acme.com/jobs/1/?utm=x#top") == "careers.acme.com/jobs/1"
-    assert col.experience(0, 0, "Analyst", "") == "fresher" and col.experience(0, 1, "Analyst", "") == "0_1"
+    lvl = lambda lo, hi, title, text="": col.experience(lo, hi, title, text)[0]  # noqa: E731
+    assert lvl(0, 0, "Analyst") == "fresher" and lvl(0, 1, "Analyst") == "0_1" and lvl(1, 3, "Analyst") == "1_3"
     assert (
-        col.experience(1, 3, "Analyst", "") == "1_3" and col.experience(None, None, "Data Intern", "") == "internship"
+        lvl(None, None, "Data Intern") == "internship" and lvl(None, None, "Analyst", "Freshers welcome") == "fresher"
     )
+    assert lvl(None, None, "Analyst") is None  # not stated: shown as "Experience not stated"
+    # round J2: years map by exp_min, every level
+    assert [lvl(lo, hi, "Engineer") for lo, hi in [(3, 5), (4, None), (5, 8), (7, 10), (8, 12), (11, 14), (12, 15), (15, 20), (20, None)]] == [
+        "3_5", "3_5", "5_8", "5_8", "8_12", "8_12", "12_15", "15_plus", "15_plus"]  # fmt: skip
+    assert lvl(2, 6, "Senior Engineer") == "1_3"  # the years decide, not the title
+    # no years: the title is only a hint
+    assert lvl(None, None, "Senior Software Engineer") == "5_8" and lvl(None, None, "Engineering Manager") == "8_12"
+    assert lvl(None, None, "Staff Engineer") == "8_12" and lvl(None, None, "Head of Sales") == "12_15"
+    assert lvl(None, None, "Assistant Manager - Accounts") is None and lvl(None, None, "Staff Nurse") is None
+    assert lvl(None, None, "Management Trainee") == "fresher"
     assert (
-        col.experience(None, None, "Analyst", "") is None
-        and col.experience(None, None, "Analyst", "Freshers welcome") == "fresher"
+        col.experience(None, None, "Senior Analyst", "")[1] == "title" and col.experience(4, 6, "x", "")[1] == "years"
     )
-    assert (
-        col.is_senior("Senior Software Engineer")
-        and col.is_senior("Engineering Manager")
-        and col.is_senior("Staff Engineer")
-    )
-    assert (
-        col.is_senior("Team Lead - Support") and col.is_senior("Head of Sales") and col.is_senior("Solution Architect")
-    )
-    assert not col.is_senior("Assistant Manager - Accounts") and not col.is_senior("Associate Manager, Operations")
-    assert not col.is_senior("Staff Nurse") and not col.is_senior("Management Trainee")
     assert col.scrub("Mail a.b@x.co or call +91 98765 43210 / 080-41234567 today") == "Mail or call / today"
     assert col.copied("we are hiring graduate engineer trainees for our pune plant you will support", PAGE)
     assert not col.copied(SUMMARY, PAGE)
@@ -151,15 +152,6 @@ async def test_refused_jobs(client, db, key, ai):
         {**JOB, "title": "Trainee 3", "apply_url": "https://forms.gle/abc123xyz"},
         {**JOB, "title": "Trainee 4", "apply_url": "https://acme.notion.site/jobs"},
         {**JOB, "company": "TeamLease Services", "title": "Trainee 5", "apply_url": "https://teamlease.com/j/5"},
-        {**JOB, "title": "Senior Engineer", "apply_url": "https://careers.acme-industries.com/jobs/6"},
-        {**JOB, "title": "Production Manager", "apply_url": "https://careers.acme-industries.com/jobs/7"},
-        {
-            **JOB,
-            "title": "Engineer",
-            "exp_min": 5,
-            "exp_max": 8,
-            "apply_url": "https://careers.acme-industries.com/jobs/8",
-        },
         {
             **JOB,
             "title": "Engineer 9",
@@ -169,15 +161,8 @@ async def test_refused_jobs(client, db, key, ai):
         {**JOB, "apply_url": "not a link"},
     ]
     out = await post(client, key, bad)
-    assert out["rejected"] == 10 and await db[JOBS].count_documents({}) == 0 and not ai
-    assert out["rejectedBy"] == {
-        "job_board_or_form": 4,
-        "staffing_agency": 1,
-        "senior_title": 2,
-        "over_3_years": 1,
-        "not_india": 1,
-        "invalid": 1,
-    }
+    assert out["rejected"] == 7 and await db[JOBS].count_documents({}) == 0 and not ai
+    assert out["rejectedBy"] == {"job_board_or_form": 4, "staffing_agency": 1, "not_india": 1, "invalid": 1}
     ok = await post(
         client,
         key,
@@ -195,10 +180,10 @@ async def test_review_instead_of_guessing(client, db, key, ai, monkeypatch):
     # later the page text arrives: summarised and live
     out = await post(client, key, [JOB])
     assert out["updated"] == 1 and (await db[JOBS].find_one({}))["status"] == "active"
-    # experience and city unknown: review; a summary that copies the page: review
-    out = await post(client, key, [{**JOB, "title": "Plant Trainee", "exp_min": None, "exp_max": None, "exp_text": "", "location": "",
+    # city unknown: review (experience not stated is no reason to wait, round J2); a summary that copies the page: review
+    out = await post(client, key, [{**JOB, "title": "Plant Operator", "exp_min": None, "exp_max": None, "exp_text": "", "location": "",
                                     "apply_url": "https://careers.acme-industries.com/jobs/11"}])  # fmt: skip
-    assert out["results"][0]["reasons"][:2] == ["experience_not_stated", "city_not_stated"]
+    assert out["results"][0]["reasons"] == ["city_not_stated"]
 
     async def copy_cat(feature, content, schema, check, **kw):
         return check({"summary": PAGE[:600], "skills": [], "work_type": "onsite"})
@@ -287,3 +272,55 @@ async def test_removal_request_closes_the_job(client, db, key, ai, admin_client)
         "status"
     ] == "dismissed"
     assert (await client.post("/api/public/job-removal", json={**body, "email": "nope"})).status_code == 422
+
+
+# --- round J2: every experience level ----------------------------------------------------------------------------------
+
+
+async def test_senior_jobs_accepted_with_their_level(client, db, key, ai):
+    """Senior, Lead, Manager, Director … and jobs over 3 years go live like any other, with their own level."""
+    jobs = [
+        {**JOB, "title": "Senior Software Engineer", "exp_min": 6, "exp_max": 10, "apply_url": "https://careers.acme-industries.com/jobs/s1"},
+        {**JOB, "title": "Production Manager", "exp_min": None, "exp_max": None, "exp_text": "", "apply_url": "https://careers.acme-industries.com/jobs/s2"},
+        {**JOB, "title": "Director of Engineering", "exp_min": 15, "exp_max": None, "apply_url": "https://careers.acme-industries.com/jobs/s3"},
+        {**JOB, "title": "Plant Operator", "exp_min": None, "exp_max": None, "exp_text": "", "apply_url": "https://careers.acme-industries.com/jobs/s4"},
+    ]  # fmt: skip
+    out = await post(client, key, jobs)
+    assert out["created"] == 4 and out["rejected"] == 0 and out["review"] == 0
+    got = {j["title"]: j async for j in db[JOBS].find({})}
+    assert got["Senior Software Engineer"]["experience"] == "5_8"
+    assert (
+        got["Production Manager"]["experience"] == "8_12"
+        and got["Production Manager"]["collector"]["exp_from"] == "title"
+    )
+    assert got["Director of Engineering"]["experience"] == "15_plus"
+    # no years and no hint: live, shown as "Experience not stated"
+    j = got["Plant Operator"]
+    assert j["status"] == "active" and j["experience"] == "not_stated"
+    pub = (await client.get(f"/api/jobs/{j['slug']}")).json()
+    assert pub["experience"] == "not_stated"
+    # the board's filters find them by band; "3–5 years" also finds older "3+ years" jobs
+    await db[JOBS].update_one({"title": "Senior Software Engineer"}, {"$set": {"experience": "3_plus"}})
+    titles = lambda r: sorted(x["title"] for x in r.json()["items"])  # noqa: E731
+    assert titles(await client.get("/api/jobs?experience=3_5")) == ["Senior Software Engineer"]
+    assert titles(await client.get("/api/jobs?experience=8_plus")) == ["Director of Engineering", "Production Manager"]
+
+
+async def test_ai_allowance_is_an_admin_setting(client, db, key, ai, admin_client):
+    owner = await admin_client("owner")
+    s = (await owner.get("/api/admin/settings")).json()
+    assert s["seek"]["collectorAiDaily"] == 3000 and s["collectorAiToday"] == 0
+    r = await owner.put("/api/admin/settings", json={"seek": {"collectorAiDaily": 1}})
+    assert r.status_code == 200 and r.json()["seek"]["collectorAiDaily"] == 1
+    out = await post(
+        client,
+        key,
+        [JOB, {**JOB, "title": "Design Trainee", "apply_url": "https://careers.acme-industries.com/jobs/a2"}],
+    )
+    assert sorted(x["result"] for x in out["results"]) == ["created", "review"] and len(ai) == 1
+    assert [x for x in out["results"] if x["result"] == "review"][0]["reasons"] == [
+        "ai_daily_limit"
+    ]  # waits, as before
+    s = (await owner.get("/api/admin/settings")).json()
+    assert s["collectorAiToday"] == 1  # "Used today: 1 of 1"
+    assert (await owner.put("/api/admin/settings", json={"seek": {"collectorAiDaily": -1}})).status_code == 422

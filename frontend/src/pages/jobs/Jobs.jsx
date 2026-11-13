@@ -15,7 +15,7 @@ import { reloadMe } from '../../lib/customerStore';
 import { matchJob } from '../../lib/jobs';
 import { headerLabels, useLang } from '../../lib/i18n';
 import {
-  EXPERIENCE, JOB_TYPES, ORIGIN, applyToJob, mailtoLink, POSTED, SALARIES, SUPPORT, WORK_TYPES, fromQuery, getJob, jobPostingJsonLd, listSaved, loadSaved,
+  EXPERIENCE, JOB_TYPES, ORIGIN, QUICK_EXPERIENCE, applyToJob, mailtoLink, POSTED, SALARIES, SUPPORT, WORK_TYPES, fromQuery, getJob, jobPostingJsonLd, listSaved, loadSaved,
   matchReasons, pageQuery, placeText, postedAgo, salaryText, searchJobs, toggleSaved, useJsonLd, useSaved,
 } from '../../lib/jobBoard';
 import { usePageMeta } from '../../lib/meta';
@@ -171,7 +171,7 @@ export function JobsList() {
             </div>
             <div className="jobs-filters">
               <Select id="f-exp" label={t('jobs.f.experience')} value={filters.experience} onChange={(v) => set({ experience: v })}
-                options={[['', t('jobs.f.any')], ...EXPERIENCE.map((e) => [e, t(`jobs.exp.${e}`)])]} />
+                options={[['', t('jobs.f.any')], ...[...EXPERIENCE, ...(filters.experience === '8_plus' ? ['8_plus'] : [])].map((e) => [e, t(`jobs.exp.${e}`)])]} />
               <Select id="f-city" label={t('jobs.f.city')} value={filters.city} onChange={(v) => set({ city: v })}
                 options={[['', t('jobs.f.anywhere')], ['remote', t('jobs.remote')], ...(filters.city && filters.city !== 'remote' && !cities.includes(filters.city) ? [filters.city] : []).concat(cities).map((c) => [c, c])]} />
               <Select id="f-type" label={t('jobs.f.jobType')} value={filters.jobType} onChange={(v) => set({ jobType: v })}
@@ -188,6 +188,9 @@ export function JobsList() {
                 <Select id="f-sort" label={t('jobs.f.sort')} value={filters.sort} onChange={(v) => set({ sort: v })}
                   options={[['', t('jobs.f.newest')], ['match', t('jobs.f.best')]]} />
               )}
+            </div>
+            <div className="row g8" style={{ flexWrap: 'wrap' }} role="group" aria-label={t('jobs.quick')} data-testid="exp-chips">
+              {QUICK_EXPERIENCE.map((e) => <button key={e} type="button" className="chip" aria-pressed={filters.experience === e} style={{ minHeight: 36, fontSize: 13 }} onClick={() => set({ experience: filters.experience === e ? '' : e })}>{t(`jobs.exp.${e}`)}</button>)}
             </div>
           </form>
         )}

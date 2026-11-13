@@ -298,3 +298,24 @@ async def test_company_cap_on_answer_and_approve(client, outbox, db):
     assert (await client.post(f"{URL}/items/{waiting[0]['id']}/approve")).json() == {"state": "skipped"}
     assert (await client.post(f"{URL}/items/approve-all")).json() == {"applied": 0}
     assert await db[APPLICATIONS].count_documents({"user_id": uid}) == 2
+
+
+async def test_only_jobs_that_fit_the_persons_experience(client, outbox, db):
+    """Round J2: the student has half a year of experience. A 10-year job with the very same skills is never applied
+    to; a fresher job is. Someone with 9 years doesn't get fresher jobs unless they picked that level themselves."""
+    session, cid = await verified(client, outbox, db)
+    fresh = await company_job(client, session, cid, "Junior Data Analyst")
+    senior = await company_job(client, session, cid, "Lead Data Analyst", experience="8_12")
+    top = await company_job(client, session, cid, "Head of Data Analytics SQL", experience="15_plus")
+    uid = await student(client, outbox, db)  # the senior jobs score 77: only the level keeps them out
+    out = await engine.run(db, force=True)
+    apps = {a["job_id"] async for a in db[APPLICATIONS].find({"user_id": uid})}
+    assert apps == {fresh["id"]} and out["applied"] == 1
+    assert not await db[AUTO_ITEMS].find_one({"user_id": uid, "job_id": {"$in": [senior["id"], top["id"]]}})
+    log = (await db[AUTO_RUNS].find_one({"_id": engine.today()}))["counts"]
+    assert log["skip_experience"] == 2
+    # the same rule, straight: an experienced person and a fresher job
+    f = {"level": "fresher", "experience": "over"}
+    assert not engine.level_ok(f, {"experience": []}) and engine.level_ok(f, {"experience": ["fresher"]})
+    far = {"level": "8_12", "experience": "far"}
+    assert not engine.level_ok(far, {"experience": ["8_12"]})  # picking the level never sends a fresher to it

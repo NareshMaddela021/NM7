@@ -67,6 +67,7 @@ SEEK = {  # Phase 6: job seekers
     "salaries_min_roles": 15,  # /salaries comes back (menu, indexing, sitemap) once this many roles have enough jobs
     "salaries_mode": "auto",  # auto (the rule above) · show (always) · hide (always)
     "pass_score": 60,  # S2: the skill check score (%) that, with the project sent, gives "Skill verified"
+    "collector_ai_daily": 3000,  # J2: AI summaries a day for the morning job collector (over it: jobs wait for review)
 }
 
 HIRE = {

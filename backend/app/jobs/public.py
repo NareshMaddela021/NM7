@@ -21,7 +21,7 @@ from app.core.db import APPLICATIONS, COMPANIES, DB, JOBS, SAVED_JOBS
 from app.core.errors import ApiError
 from app.core.time import now
 from app.jobs import fit as fitmod
-from app.jobs.model import EXPERIENCE, JOB_TYPES, WORK_TYPES
+from app.jobs.model import EXPERIENCE, JOB_TYPES, WORK_TYPES, with_older
 from app.me.service import ms
 
 router = APIRouter(prefix="/api/jobs", tags=["job board"])
@@ -134,8 +134,8 @@ async def search(
     if q.strip():
         rx = {"$regex": re.escape(q.strip()), "$options": "i"}
         and_.append({"$or": [{"title": rx}, {"company.name": rx}, {"skills": rx}]})
-    if ex := _csv(experience, EXPERIENCE):
-        and_.append({"experience": {"$in": ex}})
+    if ex := _csv(experience.replace("8_plus", "8_12,12_15,15_plus"), EXPERIENCE):  # the "8+ years" chip
+        and_.append({"experience": {"$in": with_older(ex)}})
     if remote and city.strip():
         rx = {"$regex": f"^{re.escape(city.strip())}$", "$options": "i"}
         and_.append({"$or": [{"remote": True}, {"locations": rx}]})
