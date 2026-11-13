@@ -451,6 +451,8 @@
 "jobs.crumbs","/jobs (job board)","Breadcrumb","బ్రెడ్‌క్రంబ్","ब्रेडक्रंब","needs native review"
 "jobs.crumb","/jobs (job board)","Jobs","ఉద్యోగాలు","नौकरियाँ","needs native review"
 "jobs.open","/jobs (job board)","Hiring","నియామకం జరుగుతోంది","भर्ती चल रही है","needs native review"
+"jobs.src.careers","/jobs (job board)","Source: company careers page","మూలం: కంపెనీ కెరీర్స్ పేజీ","स्रोत: कंपनी का करियर पेज","needs native review"
+"jobs.src.removal","/jobs (job board)","Request removal of this job","ఈ ఉద్యోగాన్ని తీసివేయమని అడగండి","इस नौकरी को हटाने का अनुरोध करें","needs native review"
 "jobs.closed","/jobs (job board)","Closed","ముగిసింది","बंद","needs native review"
 "jobs.closedNote","/jobs (job board)","This job is closed and no longer takes applications. Similar open jobs are below.","ఈ ఉద్యోగం ముగిసింది, ఇక దరఖాస్తులు తీసుకోదు. ఇలాంటి ఓపెన్ ఉద్యోగాలు కింద ఉన్నాయి.","यह नौकरी बंद हो गई है और अब आवेदन नहीं ले रही। मिलती-जुलती खुली नौकरियाँ नीचे हैं।","needs native review"
 "jobs.closesOn","/jobs (job board)","Closes {date}","{date}న ముగుస్తుంది","{date} को बंद होगी","needs native review"

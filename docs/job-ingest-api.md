@@ -1,5 +1,10 @@
 # Job upload API (for the morning job-collector)
 
+> **Round J:** the collector now uses its own endpoint, `POST /api/jobs/collector`, which takes its native fields
+> (company, title, apply_url, location, posted, exp_min, exp_max, exp_text, system, page_text), writes original
+> summaries and closes dead links. See [docs/job-collector/README.md](job-collector/README.md). The endpoint below
+> stays for full job records (bulk tools).
+
 The collector sends jobs to the Nm7 job board with one HTTPS request:
 
 ```

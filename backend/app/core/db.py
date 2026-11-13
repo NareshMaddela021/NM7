@@ -103,6 +103,7 @@ AUTO_COPIES = "auto_copies"  # the tailored resume copy Auto Apply sent for one 
 EMAIL_BLOCKS = "email_blocks"  # _id = an address or "@domain": no Auto Apply email after a bounce / a complaint
 AUTO_RUNS = "auto_runs"  # _id = IST day: the daily Auto Apply run log
 TALENT_POOL = "talent_pool"  # a company's saved applicants (company_id, user_id), kept as long as the application
+JOB_REMOVALS = "job_removals"  # round J: "remove this job" requests from companies (Admin → Jobs → Removal requests)
 JOB_REPORTS = "job_reports"  # _id = user:job: a student's report of a job (3 from different people pause it)
 COMPANIES = "companies"  # company accounts (Phase 2): details, registration, emails, team, trust level, review, flags
 SAVED_JOBS = "saved_jobs"  # _id = user:job: a job someone saved on the job board (removed with the account)
@@ -209,6 +210,7 @@ COLLECTIONS = (
     JOB_FIT,
     COMPANIES,
     JOB_REPORTS,
+    JOB_REMOVALS,
     TALENT_POOL,
     AUTO_ITEMS,
     AUTO_COPIES,
@@ -352,6 +354,7 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel([("company_id", ASCENDING), ("created_at", DESCENDING)]),
     ],
     TALENT_POOL: [IndexModel([("company_id", ASCENDING), ("user_id", ASCENDING)], unique=True), IndexModel("user_id")],
+    JOB_REMOVALS: [IndexModel([("status", ASCENDING), ("at", DESCENDING)])],
     JOB_REPORTS: [
         IndexModel([("job_id", ASCENDING), ("state", ASCENDING)]),
         IndexModel([("state", ASCENDING), ("at", DESCENDING)]),

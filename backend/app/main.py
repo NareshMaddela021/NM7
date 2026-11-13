@@ -240,8 +240,15 @@ def create_app() -> FastAPI:
     app.include_router(org_interviews.public)  # /api/public/interviews/stop-reminders
     app.include_router(org_interviews.staff)  # /api/org/{org_id}/interviews
     app.include_router(student_pass.router)  # /api/me/pass (P1)
+    from app.jobs import removals as job_removals
+
+    app.include_router(job_removals.public)  # /api/public/job-removal (round J)
+    app.include_router(job_removals.admin)  # /api/admin/jobs/removals (before /api/admin/jobs/{id})
     app.include_router(jobs_admin.router)  # /api/admin/jobs (job board J1)
     app.include_router(jobs_ingest.router)  # /api/jobs/ingest (the job collector, J2)
+    from app.jobs import collector as jobs_collector
+
+    app.include_router(jobs_collector.router)  # /api/jobs/collector (round J: the morning job-collector)
     app.include_router(jobs_public.router)  # /api/jobs, /api/jobs/{slug}, the jobs sitemap (J3)
     app.include_router(jobs_public.me_router)  # /api/me/saved-jobs
     app.include_router(jobs_apply.router)  # /api/jobs/{id}/apply (J5)

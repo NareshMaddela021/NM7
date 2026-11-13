@@ -61,7 +61,9 @@ def public_out(j: dict[str, Any], full: bool = False) -> dict[str, Any]:
         "id": j["_id"],
         "slug": j["slug"],
         "title": j["title"],
-        "company": j["company"],
+        # round J: a collector job never shows a company logo (and is never called a partner)
+        "company": {**j["company"], "logo": ""} if j.get("source") == "collector" else j["company"],
+        "fromCareersPage": j.get("source") == "collector",  # "Source: company careers page" + Request removal
         "locations": j.get("locations") or [],
         "remote": bool(j.get("remote")),
         "workType": j["work_type"],
@@ -231,6 +233,8 @@ async def similar(db, j: dict[str, Any], n: int = SIMILAR) -> list[dict[str, Any
 @router.get("/{slug}")
 async def one(slug: str, db: DB, auth: MaybeAuth) -> dict[str, Any]:
     j = await db[JOBS].find_one({"slug": slug[:120], "demo": {"$ne": True}})
+    if j and j["status"] == "review" and j.get("source") == "collector":  # no summary yet: never public (round J)
+        raise ApiError(404, "not_found", "This job isn’t on Nm7 any more.")
     if not j:
         raise ApiError(404, "not_found", "This job isn’t on Nm7 any more.")
     if j["status"] == "active" and j.get("closes_at") and j["closes_at"] <= now():
