@@ -2210,3 +2210,21 @@ Free for students and job seekers unless Admin gates a feature. Each part below 
   - The highest CTC and the most in hand are marked.
   - A checked offer can be added with **Add to compare**.
 - **Account deletion** removes saved checks.
+
+### S6. Interview feedback
+
+- **Company side:** after **Not selected** in Applicants, a company can pick 1–3 short reasons. Giving reasons is optional, but the form encourages it.
+  - The reasons are: skills gap (and which skill), communication, experience, not the right fit, position filled, other.
+  - The company can add a short optional note.
+  - Only applicants marked Not selected can get feedback.
+  - Nm7 stores only the reasons, the skill, the note and the date. It never stores the interviewer's name or the company account that wrote it; the audit log keeps that, as for every company action.
+- **Student side:** `/me/feedback` (Dashboard → Interview feedback) shows each reason in kind words, never "rejected" or "failed", with free help:
+  - **Skills gap:** the matching practice test and free courses for that skill.
+  - **Communication:** the work-emails practice, speaking practice and communication courses.
+  - **Experience:** learning paths, for a small project.
+  - **Fit** and **position filled:** reassuring words only.
+- **Self-review:** after any interview the student can write private notes: company, role, date, what was asked, and how it went (well, OK or badly).
+  - Rules then give tips. For example, "Tell me about yourself" gets a 3-part answer in under a minute; salary questions point to the salary guide; technical questions point to the practice tests.
+  - Up to 200 notes. Only the student sees them, and can delete them.
+- **Readiness score:** reasons from the last 90 days that the student can work on (skills, communication, experience) add **"Work on your interview feedback"** to the things left on the readiness score. It adds no points; it is a pointer. In the easy dashboard it opens the practice screen.
+- **Account deletion** removes the self-reviews. Feedback on an application is removed with the application.

@@ -113,6 +113,7 @@ def _row(a, job, user, r, pooled: bool) -> dict[str, Any]:
         "contact": _contact(user, r) if contact else None,
         "pooled": pooled,
         "interview": _iv_out(a.get("interview")),
+        "feedback": (a.get("feedback") or {}).get("reasons") or [],  # Phase 6 S6: reasons given after Not selected
         "timeline": [{"status": s["status"], "at": ms(s["at"])} for s in a.get("timeline") or []],
     }
 

@@ -51,8 +51,8 @@ export const NEXT_ICONS = { resume: '📝', education: '🎓', skills: '🛠️'
 // every tile opens a simple screen (items 3, 4, 12): the resume as it is, simple jobs, applications as cards, practice
 export const TILES = [['resume', '📄', '/me/simple/myresume'], ['jobs', '💼', '/me/simple/jobs'], ['apps', '📋', '/me/simple/apps'], ['practice', '🎤', '/me/simple/practice']];
 // "Things left" inside the easy dashboard (item 13), not the full pages
-export const READY_PATHS = { resume: '/me/simple/resume', score: '/me/simple/fixes', linkedin: '/me/simple/resume?step=about', interview: '/me/simple/practice', skills: '/me/simple/resume?step=skills', roles: '/me/simple/auto', certs: '/me/simple/resume?step=certs' };
-export const READY_ICONS = { resume: '📝', score: '📈', linkedin: '🔗', interview: '🎤', skills: '🛠️', roles: '🎯', certs: '🏅' };
+export const READY_PATHS = { resume: '/me/simple/resume', score: '/me/simple/fixes', linkedin: '/me/simple/resume?step=about', interview: '/me/simple/practice', skills: '/me/simple/resume?step=skills', roles: '/me/simple/auto', certs: '/me/simple/resume?step=certs', feedback: '/me/simple/practice' };
+export const READY_ICONS = { resume: '📝', score: '📈', linkedin: '🔗', interview: '🎤', skills: '🛠️', roles: '🎯', certs: '🏅', feedback: '💬' };
 export const MORE = [
   ['resumes', '📄', '/me/resumes'], ['profile', '👤', '/me/profile'], ['ats', '📈', '/me/ats'], ['auto', '🤖', '/me/auto-apply'],
   ['covers', '✉️', '/me/covers'], ['certs', '🏅', '/me/certificates'], ['orders', '🧾', '/me/orders'], ['messages', '💬', '/me/messages'],
