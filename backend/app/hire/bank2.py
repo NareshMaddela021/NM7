@@ -109,7 +109,7 @@ BATCH: dict[str, tuple[str, list[tuple[str, str, list[str], int]]]] = {
     ]),
     "Electrical": ("Electrician (ITI)", [
         ("easy", "Which unit measures resistance?", ["Volt", "Ohm", "Ampere", "Watt"], 1),
-        ("easy", "Power in watts equals…", ["Voltage × current", "Voltage ÷ current", "Current ÷ resistance", "Voltage + current"], 0),
+        ("easy", "Which formula gives electrical power in watts?", ["Voltage × current", "Voltage ÷ current", "Current ÷ resistance", "Voltage + current"], 0),
         ("easy", "The normal single-phase supply in Indian homes is about…", ["110 V", "230 V", "415 V", "12 V"], 1),
         ("easy", "What do you wear to test a live panel?", ["Insulated rubber gloves and safety shoes", "Cotton gloves", "Sandals", "Nothing special"], 0),
         ("medium", "Three-phase supply in India, measured between two phases, is about…", ["230 V", "415 V", "110 V", "1000 V"], 1),
