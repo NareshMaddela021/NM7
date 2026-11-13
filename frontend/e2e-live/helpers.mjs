@@ -92,7 +92,7 @@ export async function apiMember(playwright, mail, name, code, fields = {}, data 
 
 /** All the text in a PDF (pdf.js), page by page. */
 export async function pdfText(bytes) {
-  const pdfjs = await import('pdfjs-dist/legacy/build/pdf.js');
+  const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
   const doc = await (pdfjs.default || pdfjs).getDocument({ data: new Uint8Array(bytes), isEvalSupported: false, verbosity: 0 }).promise;
   const pages = [];
   for (let p = 1; p <= doc.numPages; p++) pages.push((await (await doc.getPage(p)).getTextContent()).items.map((i) => i.str).join(' '));
