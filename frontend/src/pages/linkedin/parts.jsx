@@ -2,7 +2,6 @@
 // "Tell us about yourself" box with Speak, the Save-to-PDF picture and the score ring.
 import { useEffect, useId, useRef, useState } from 'react';
 import { Icon, useToast } from '../../components/ui';
-import { COMING_SOON } from '../../lib/linkedin/guide';
 import { KEYBOARD_TIP, MIXED_HINT, speechLanguages, appendSpeech, defaultSpeechLang, rememberSpeechLang, useSpeech } from '../../lib/summary/speech';
 import { charCount } from '../../lib/text';
 
@@ -15,24 +14,6 @@ export function CopyButton({ text, label = 'Copy', testid }) {
     <button type="button" className="btn btn-outline" data-testid={testid} onClick={copy} disabled={!text} style={{ minHeight: 44, gap: 6 }}>
       <Icon name="copy" size={16} />{label}
     </button>
-  );
-}
-
-/** A paid Phase 2 item: visible, clearly locked, and its button does nothing but say "Coming soon". */
-export function Locked({ items }) {
-  return (
-    <section className="card stack g12" aria-labelledby="li-locked-h" data-testid="li-locked">
-      <h2 id="li-locked-h" className="h3" style={{ margin: 0 }}>Full rewrites</h2>
-      <p className="small muted" style={{ margin: 0 }}>These are on the way. Nothing to pay now.</p>
-      <ul className="stack g8" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-        {items.map((it) => (
-          <li key={it.id} className="well row between g8" style={{ alignItems: 'center', flexWrap: 'wrap' }} data-testid={`li-locked-${it.id}`}>
-            <span className="row g8" style={{ alignItems: 'center' }}><Icon name="lock" size={16} /><span>{it.title}</span></span>
-            <button type="button" className="btn btn-outline" aria-disabled="true" style={{ minHeight: 40, opacity: 0.7, cursor: 'not-allowed' }} onClick={(e) => e.preventDefault()}>{COMING_SOON}</button>
-          </li>
-        ))}
-      </ul>
-    </section>
   );
 }
 
