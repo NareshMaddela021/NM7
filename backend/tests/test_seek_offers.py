@@ -155,6 +155,9 @@ async def test_pay_vs_salary_guide_only_with_data(client, outbox, db):
     high = GOOD.replace("Rs 3,00,000 per annum", "Rs 24,00,000 per annum")
     r = (await client.post("/api/me/offer-check", json={"text": high})).json()
     assert "pay" not in {f["kind"] for f in r["findings"]} and r["pay"] is None  # no data: nothing said
+    from tests.test_seek_salary import min_jobs
+
+    await min_jobs(db, 10)
     await _jobs(db, 10)  # 20,000 … 29,000 a month
     r = (await client.post("/api/me/offer-check", json={"text": high})).json()
     pay = next(f for f in r["findings"] if f["kind"] == "pay")

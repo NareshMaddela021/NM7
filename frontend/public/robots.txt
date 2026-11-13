@@ -19,3 +19,4 @@ Disallow: /forgot-password
 
 Sitemap: https://nm7.si/sitemap.xml
 Sitemap: https://nm7.si/sitemap-jobs.xml
+Sitemap: https://nm7.si/sitemap-salaries.xml

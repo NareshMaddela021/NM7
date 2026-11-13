@@ -1,9 +1,9 @@
 """Salary ranges from Nm7's own job data (Phase 6: S1 uses it for a role's typical starting salary; S4 adds the guide).
 
-A range is shown only when at least `salary_min_jobs` jobs (Admin → Settings, 10) with a salary match, from the last
-90 days, never from demo jobs. Each job counts once, at the middle of its own range, in rupees a month; the range
-shown is the middle half of those (25th to 75th percentile), rounded to ₹500. Fewer jobs: None, and the page says
-"Not enough data yet". Nothing is ever estimated or filled in.
+A range is shown only when at least `salary_min_jobs` jobs (Admin → Settings, 20) with a salary match: live jobs, or
+jobs from the last 90 days; never demo jobs. Each job counts once, at the middle of its own range, in rupees a month;
+the range shown is the middle half of those (25th to 75th percentile), rounded to ₹500. Fewer jobs: None, and the page
+says "Not enough data yet". Nothing is ever estimated or filled in.
 """
 
 import math
@@ -48,8 +48,10 @@ async def min_jobs(db) -> int:
 
 async def mids_for(db, words: list[str], city: str = "", levels: tuple[str, ...] | None = START) -> list[float]:
     since = now() - timedelta(days=DAYS)
+    # live (any age) or recent (posted in the last 90 days, also closed or paused since)
     q: dict[str, Any] = {"salary": {"$ne": None}, "demo": {"$ne": True},
-                         "status": {"$in": ["active", "closed", "paused"]}, "created_at": {"$gte": since},
+                         "$or": [{"status": "active"},
+                                 {"status": {"$in": ["closed", "paused"]}, "created_at": {"$gte": since}}],
                          "title": {"$regex": "|".join(re.escape(w) for w in words), "$options": "i"}}  # fmt: skip
     if levels:
         q["experience"] = {"$in": list(levels)}
@@ -79,9 +81,10 @@ async def starting_range(db, role: dict[str, Any], city: str = "") -> dict[str, 
 #   GET /api/public/salaries/lookup?title=&city=&experience=   the range for one job title (job pages)
 #   GET /api/me/salary-hint?city=                   for Ready to join: the person's role (target role / role finder)
 
-from fastapi import APIRouter, Query  # noqa: E402
+from fastapi import APIRouter, Query, Response  # noqa: E402
 
 from app.auth.deps import CustomerAuth  # noqa: E402
+from app.core.config import get_settings  # noqa: E402
 from app.core.db import DB, USERS  # noqa: E402
 from app.seek.catalogue import ROLES  # noqa: E402
 
@@ -111,6 +114,50 @@ async def range_for(db, role: dict[str, Any], city: str, level: str) -> dict[str
     return {**got, "city": city.title()} if got else None
 
 
+# --- D1: hidden until there is enough data -------------------------------------------------------------------------
+#   A role is "ready" with at least `salary_min_jobs` jobs with pay (any experience level, across India). /salaries is
+#   shown (menu link, indexing, sitemap) once `salaries_min_roles` roles are ready; Admin can force it either way
+#   (`salaries_mode`: auto · show · hide). While hidden the page still works for anyone who opens it, but says noindex.
+
+GET_STATUS = "__status"
+
+
+async def visibility(db, fresh: bool = False) -> dict[str, Any]:
+    import time
+
+    hit = _cache.get(GET_STATUS)
+    if hit and not fresh and time.monotonic() - hit[0] < CACHE_S:
+        return hit[1]
+    seek = (await get_site(db)).get("seek", {})
+    need = int(seek.get("salary_min_jobs", 20))
+    roles_need = int(seek.get("salaries_min_roles", 15))
+    mode = seek.get("salaries_mode", "auto")
+    ready = [r["id"] for r in ROLES if len(await mids_for(db, r["words"], levels=None)) >= need]
+    auto = len(ready) >= roles_need
+    out = {"mode": mode, "visible": auto if mode == "auto" else mode == "show", "auto": auto, "readyRoles": ready,
+           "ready": len(ready), "needRoles": roles_need, "minJobs": need, "totalRoles": len(ROLES)}  # fmt: skip
+    _cache[GET_STATUS] = (time.monotonic(), out)
+    return out
+
+
+@public.get("/status")
+async def status(db: DB) -> dict[str, Any]:
+    """For the menu link and the page's indexing: is /salaries shown, and which roles have enough data."""
+    v = await visibility(db)
+    return {"visible": v["visible"], "readyRoles": v["readyRoles"]}
+
+
+@public.get("/sitemap.xml")
+async def sitemap(db: DB) -> Response:
+    """nm7.si/sitemap-salaries.xml: /salaries and each ready role's page while the guide is shown; empty if hidden."""
+    v = await visibility(db)
+    site = get_settings().site_url.rstrip("/")
+    paths = (["/salaries"] + [f"/salaries/{r}" for r in v["readyRoles"]]) if v["visible"] else []
+    body = "".join(f"<url><loc>{site}{p}</loc><changefreq>weekly</changefreq></url>" for p in paths)
+    xml = f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{body}</urlset>\n'
+    return Response(xml, media_type="application/xml")
+
+
 @public.get("")
 async def guide(db: DB, city: str = Query("", max_length=60)) -> dict[str, Any]:
     import time
@@ -123,7 +170,11 @@ async def guide(db: DB, city: str = Query("", max_length=60)) -> dict[str, Any]:
     for r in ROLES:
         levels = {lv: await range_for(db, r, key, lv) for lv in LEVELS}
         rows.append({"id": r["id"], "title": r["title"], "domain": r["domain"], "levels": levels})
-    out = {"minJobs": await min_jobs(db), "days": DAYS, "city": key.title(), "roles": rows}
+    v = await visibility(db)
+    ready = set(v["readyRoles"])
+    for row in rows:
+        row["ready"] = row["id"] in ready
+    out = {"minJobs": await min_jobs(db), "days": DAYS, "city": key.title(), "roles": rows, "visible": v["visible"]}
     _cache[key] = (time.monotonic(), out)
     return out
 

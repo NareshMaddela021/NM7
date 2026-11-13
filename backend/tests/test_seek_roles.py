@@ -72,6 +72,9 @@ def test_salary_helpers():
 
 
 async def test_find_save_retake_and_feeds(client, outbox, db):
+    from tests.test_seek_salary import min_jobs
+
+    await min_jobs(db, 10)  # this test's 10 jobs are enough for a typical salary (the default is 20)
     await signup(client, outbox)
     uid = (await db[USERS].find_one({"email": "sai@example.com"}))["_id"]
     t = now()
