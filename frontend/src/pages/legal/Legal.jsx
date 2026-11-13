@@ -51,6 +51,9 @@ const grievance = [
   'We acknowledge every complaint within 48 hours and aim to resolve it within one month, as the Consumer Protection (E-Commerce) Rules, 2020 require.',
 ];
 
+// round J2 (agreed by Naresh): jobs from companies' own careers pages, and how a company has one removed
+const jobRemoval = <>Some jobs on Nm7 come from companies’ own careers pages. A company can ask us to remove a job at <Link to="/contact?topic=job-removal">nm7.si/contact?topic=job-removal</Link>; we remove it, usually within 2 working days.</>;
+
 export function Terms() {
   return <Page title="Terms of Service" intro={`These terms are an agreement between you and ${L.company}${L.entity ? ` (${L.entity})` : ''}, which runs Nm7 at ${L.site}. By creating an account or buying a service you accept them.`} sections={[
     ['Who we are', [`${L.company} runs ${L.brands}. Nm7 helps job seekers improve their resumes with free tools, paid tools and verified human experts.${L.address ? ` Registered office: ${L.address}.` : ''}`]],
@@ -80,7 +83,7 @@ export function Terms() {
     ['Liability', ['To the extent the law allows, our total liability for any claim about a service is limited to the amount you paid for that service. We are not liable for indirect losses such as lost job opportunities.']],
     ['Changes to these terms', ['If we change these terms in a way that matters, we tell you by email or in your dashboard at least 7 days before the change applies.']],
     ['Law and disputes', [`Indian law applies. Courts in ${L.courts} have jurisdiction. Please contact us first — most problems are solved quickly.`]],
-    ['Grievances and contact', grievance],
+    ['Grievances and contact', [...grievance, jobRemoval]],
   ]} />;
 }
 
@@ -101,7 +104,7 @@ export function Privacy() {
     ['Security', ['We use encryption in transit (HTTPS), encrypted passwords, two-step login for staff, access only on a need-to-know basis, and audit logs of admin actions. No system is perfectly secure; if a breach affects you, we will tell you and the authorities as the law requires.']],
     ['Cookies and local storage', ['We use essential cookies and browser storage to keep you signed in and to save drafts on your device. We do not use advertising cookies.']],
     ['Changes', ['We will post changes here and tell you by email if they matter.']],
-    ['Grievance Officer and contact', grievance],
+    ['Grievance Officer and contact', [...grievance, jobRemoval]],
   ]} />;
 }
 
