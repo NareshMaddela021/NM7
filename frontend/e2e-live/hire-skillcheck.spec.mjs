@@ -19,6 +19,9 @@ for (const [label, opts] of SIZES) {
       await expect(page).toHaveURL(/\/me/);
       await page.goto('/me/skill-checks');
       await expect(page.getByTestId('sk-list')).toContainText('Electrical');
+      // 13 Nov live test: the ten new tests are listed (a long list still fits a 390 px phone)
+      for (const s of ['Java', 'Web basics', 'Software testing', 'Spoken English', 'Nursing basics', 'Mechanical basics', 'Delivery and logistics', 'Tally and GST', 'Data entry', 'Retail']) await expect(page.getByTestId('sk-list')).toContainText(s);
+      expect(await noSideScroll(page)).toBe(true);
       await page.getByTestId('sk-start-SQL').click();
       await expect(page.getByTestId('sk-q')).toHaveCount(10);
       await expect(page.getByTestId('sk-timer')).toContainText(/^(10:00|9:5\d) left/);

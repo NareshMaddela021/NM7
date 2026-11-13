@@ -18,6 +18,7 @@ when the candidate turns sharing on (default off); companies see them only with 
 (Admin → Plans → Company hiring, open to every Verified company by default).
 """
 
+import hashlib
 import random
 from datetime import datetime, timedelta
 from typing import Any, Literal
@@ -26,6 +27,7 @@ from bson import ObjectId
 from bson.errors import InvalidId
 from fastapi import APIRouter, Query
 from pydantic import Field, field_validator
+from pymongo.errors import BulkWriteError
 
 from app.admin.deps import AdminAuth
 from app.audit import audit
@@ -35,6 +37,7 @@ from app.core.errors import ApiError
 from app.core.schemas import CamelModel
 from app.core.time import now
 from app.hire.bank import SEED, SPOKEN
+from app.hire.bank2 import SEED_2
 from app.jobsearch import interview
 from app.me.service import ms
 
@@ -50,27 +53,51 @@ DIFFICULTY = ("easy", "medium", "hard")
 
 
 async def ensure_bank(db) -> int:
-    """The starting questions, once: only when the bank is empty (Admin's edits are never overwritten)."""
-    if await db[SKILL_QUESTIONS].estimated_document_count():
-        return 0
+    """The starting questions, once: the first batch only when the bank is empty, then the second batch (more per
+    test, and new tests) once, also into a bank that already has questions. Admin's edits are never overwritten: a
+    second-batch question has a fixed id from its text, so it is never added twice, and one Admin turned off stays
+    off."""
     t = now()
-    docs = [
-        {
-            "skill": s,
-            "role": r,
-            "difficulty": d,
-            "question": q,
-            "options": o,
-            "answer": a,
-            "active": True,
-            "seed": True,
-            "created_at": t,
-            "updated_at": t,
-        }  # fmt: skip
-        for s, r, d, q, o, a in SEED
-    ]
-    await db[SKILL_QUESTIONS].insert_many(docs)
-    return len(docs)
+    added = 0
+    if not await db[SKILL_QUESTIONS].estimated_document_count():
+        docs = [{"skill": s, "role": r, "difficulty": d, "question": q, "options": o, "answer": a, "active": True,
+                 "seed": True, "created_at": t, "updated_at": t} for s, r, d, q, o, a in SEED]  # fmt: skip
+        await db[SKILL_QUESTIONS].insert_many(docs)
+        added += len(docs)
+    if await db[SKILL_QUESTIONS].find_one({"_id": seed_id(SEED_2[-1])}, {"_id": 1}):
+        return added  # the second batch is in (questions are never deleted, only turned off)
+    have = {
+        d["_id"] async for d in db[SKILL_QUESTIONS].find({"_id": {"$in": [seed_id(x) for x in SEED_2]}}, {"_id": 1})
+    }
+    new = [{"_id": seed_id(x), "skill": x[0], "role": x[1], "difficulty": x[2], "question": x[3], "options": x[4],
+            "answer": x[5], "active": True, "seed": True, "batch": 2, "created_at": t, "updated_at": t}
+           for x in SEED_2 if seed_id(x) not in have]  # fmt: skip
+    if new:
+        try:
+            await db[SKILL_QUESTIONS].insert_many(new, ordered=False)
+            added += len(new)
+        except BulkWriteError as e:  # another request added some at the same moment: theirs stand
+            added += e.details.get("nInserted", 0)
+        await _link_new_tests(db)
+    return added
+
+
+def seed_id(x: tuple) -> ObjectId:
+    """A fixed id for a second-batch question, from its test and wording."""
+    return ObjectId(hashlib.sha1(f"{x[0]}|{x[3]}".encode()).hexdigest()[:24])
+
+
+async def _link_new_tests(db) -> None:
+    """Learning paths still without a skill check (and never edited by Admin) get the new test for their role."""
+    from app.core.db import LEARN_PATHS
+    from app.seek.catalogue import ROLES
+
+    for r in ROLES:
+        if r.get("test"):
+            await db[LEARN_PATHS].update_one(
+                {"_id": r["id"], "test": "", "$expr": {"$eq": ["$created_at", "$updated_at"]}},
+                {"$set": {"test": r["test"]}},
+            )
 
 
 def mark(questions: list[dict[str, Any]], order: dict[str, list[int]], answers: dict[str, int]) -> tuple[int, int]:
