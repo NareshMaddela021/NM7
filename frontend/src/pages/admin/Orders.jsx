@@ -6,6 +6,7 @@ import { useAdmin, hoursLeft, atRisk, isLate, bestExpert } from './AdminContext'
 import { PageHead, Panel, Tabs, Empty, inr, fmtDT, downloadCsv } from './AdminUI';
 import { DOMAINS, orderTimeline } from '../../data/adminData';
 import { PLANS } from '../../lib/pricing';
+import { liveParams } from '../../lib/liveParams';
 
 const VIEWS = [
   ['all', 'All', () => true],
@@ -120,7 +121,7 @@ export default function Orders() {
       .sort((a, b) => (hoursLeft(a) ?? 1e9) - (hoursLeft(b) ?? 1e9) || b.createdAt - a.createdAt);
   }, [orders, view, plan, domain, expert, q]);
   const sel = orders.find((o) => o.id === selId);
-  const set = (k, v) => { const p = new URLSearchParams(params); if (v) p.set(k, v); else p.delete(k); setParams(p); };
+  const set = (k, v) => { const p = liveParams(); if (v) p.set(k, v); else p.delete(k); setParams(p); };
   const counts = Object.fromEntries(VIEWS.map(([v, , f]) => [v, orders.filter(f).length]));
   const unassignedIds = orders.filter((o) => !o.expert && o.stage === 'Placed').map((o) => o.id);
 

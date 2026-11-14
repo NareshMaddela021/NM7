@@ -6,6 +6,7 @@
 // our own site); a letter stands in.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { liveParams } from '../../lib/liveParams';
 import Header from '../../components/Header';
 import LangSwitch from '../../components/LangSwitch';
 import SiteFooter from '../../components/SiteFooter';
@@ -134,7 +135,9 @@ export function JobsList() {
   }, [key, showSaved]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const set = (patch) => {
-    const next = { ...filters, ...patch };
+    // on the address as it is now, not this render's filters (React Router 7 renders a moment after the address
+    // changes: a quick second change would otherwise bring back a filter just turned off)
+    const next = { ...fromQuery(liveParams().toString()), ...patch };
     const qs = pageQuery(next);
     setParams(qs ? new URLSearchParams(qs) : {}, { replace: false });
   };

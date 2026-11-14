@@ -7,6 +7,7 @@ import { Kpi, PageHead, Panel, Tabs } from '../AdminUI';
 import { Loading, STATUS_LABEL, day, emptyIf, http, rupees, tone, useAction, useApi, when } from './common';
 import { aiDetail } from './aiUsageText';
 import { HomeClicks, OrgRevenue } from './BillingPages';
+import { liveParams } from '../../../lib/liveParams';
 
 /* ---------- dashboard ---------- */
 /** "Today so far" with a Share to WhatsApp button (wa.me with the text, sent from the admin's own phone). The same
@@ -124,7 +125,7 @@ export function LiveOrders() {
   const [open, setOpen] = useState(params.get('id') || null);
   const qs = new URLSearchParams({ ...(status ? { status } : {}), ...(late ? { late: 'true' } : {}), ...(params.get('q') ? { q: params.get('q') } : {}), limit: '100' });
   const st = useApi(`/api/admin/orders?${qs}`);
-  const setFilter = (k, v) => { const p = new URLSearchParams(params); if (v) p.set(k, v); else p.delete(k); setParams(p); };
+  const setFilter = (k, v) => { const p = liveParams(); if (v) p.set(k, v); else p.delete(k); setParams(p); };
   return (
     <>
       <PageHead title="Orders" sub="Open orders first, closest deadline first." />
