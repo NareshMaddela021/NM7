@@ -17,7 +17,7 @@ describe('legal pages', () => {
   it.each([['Terms', Terms], ['Privacy', Privacy]])('%s says how a company has a job removed, with a working link (round J2)', (_, C) => {
     const out = html(C);
     expect(out).toContain('Some jobs on Nm7 come from companies’ own careers pages.');
-    expect(out).toContain('<a href="/contact?topic=job-removal">nm7.si/contact?topic=job-removal</a>; we remove it, usually within 2 working days.');
+    expect(out).toMatch(/<a href="\/contact\?topic=job-removal"[^>]*>nm7\.si\/contact\?topic=job-removal<\/a>; we remove it, usually within 2 working days\./);
   });
   it('lists the details the owner still has to fill in', () => {
     expect(missingLegal()).toEqual(expect.arrayContaining(['Registered office address', 'Grievance Officer name', 'Support phone number', 'Legal form of the company', 'TDS rate on expert payouts']));
