@@ -244,6 +244,9 @@ def create_app() -> FastAPI:
 
     app.include_router(job_removals.public)  # /api/public/job-removal (round J)
     app.include_router(job_removals.admin)  # /api/admin/jobs/removals (before /api/admin/jobs/{id})
+    from app.jobs import collector_admin
+
+    app.include_router(collector_admin.router)  # /api/admin/jobs/collector/* (round M; before /api/admin/jobs/{id})
     app.include_router(jobs_admin.router)  # /api/admin/jobs (job board J1)
     app.include_router(jobs_ingest.router)  # /api/jobs/ingest (the job collector, J2)
     from app.jobs import collector as jobs_collector

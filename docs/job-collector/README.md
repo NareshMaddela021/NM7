@@ -52,6 +52,16 @@ everything again (nm7.si updates jobs it already has instead of adding copies). 
 the repo, commit `data/nm7_seen.txt` too; otherwise every run starts fresh and nm7.si's own duplicate check does the
 work (more requests, nothing doubled).
 
+### Sent back from nm7.si (round M)
+
+Admin → Jobs → Collector review can send jobs back: the ones held only because there was no page text, the AI
+allowance was used up that day, or the summary failed. Before posting, `post_to_nm7.py` asks
+`GET /api/jobs/collector/resend` for those links and sends them again even if they are in `data/nm7_seen.txt`, as long
+as they are in today's list (with page text when fetch_details.py has it). A job leaves nm7.si's list when it
+arrives again; with page text and allowance left it goes live with its summary. Jobs that waited only for page
+text are no longer marked as sent, so a later run tries them again by itself. The run's summary
+(`output/<date>/nm7_post.md`) says how many were sent back and how many were in today's list.
+
 ### Where page_text comes from
 
 `post_to_nm7.py` attaches each job's page text from `--details` (default `data/details.json`, or the environment
@@ -99,7 +109,9 @@ nothing and writes no summaries.
 `location`, `posted`, `exp_min`, `exp_max`, `exp_text`, `system`, `page_text` (optional), `status` (`closed` to
 close one). Close by link: `POST /api/jobs/collector/close {"urls": [...]}`.
 
-- **Refused** (never saved): job boards, Google / Microsoft forms, Notion pages, staffing agencies, outside India.
+- **Refused** (never saved): job boards, Google / Microsoft forms, Notion pages, staffing agencies, outside India
+  (round M: also a location that names a place abroad and no Indian place, like "Remote - United States"; a job
+  already on nm7.si that comes back with such a location is closed as "outside India" and is never shown).
   Every experience level is accepted (round J2): Senior, Lead, Principal, Manager, Head, Director, Architect, Staff.
 - **Experience**: `exp_min` decides the level: 0 → Fresher (0–1 years when the top is 1, 1–3 when higher), 1–2 → 1–3, 3–4 → 3–5,
   5–7 → 5–8, 8–11 → 8–12, 12–14 → 12–15, 15 or more → 15+. Without years the title is a hint (Intern → Internship,
@@ -112,7 +124,7 @@ close one). Close by link: `POST /api/jobs/collector/close {"urls": [...]}`.
   if stated). page_text is not stored. Emails and phone numbers are removed from everything kept.
 - **Waiting for review** (not live) when there is no usable page text, the summary fails a check, the daily AI
   allowance for the collector is used up (Admin → Settings → Job collector, default 3,000 a day, with today's
-  count), or the city isn't stated. Admin → Jobs shows the count; Admin writes a summary (Edit) before approving one.
+  count; only summaries that were written count, round M), or the city isn't stated. Admin → Jobs shows the count; Admin writes a summary (Edit) before approving one.
 - **On the job page**: "Source: company careers page", Apply to the official link, no company logo, never "partner".
   "Request removal of this job" opens the form at `/contact?topic=job-removal`; requests are in Admin → Jobs →
   Removal requests, and one click closes the job.

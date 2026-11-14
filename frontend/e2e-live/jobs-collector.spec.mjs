@@ -50,6 +50,20 @@ for (const [label, opts] of SIZES) {
       expect(await noSideScroll(admin)).toBe(true);
       await page.goto(`/jobs/${job.slug}`);
       await expect(page.getByTestId('job-status')).toHaveText('Closed');
+
+      // round M: Collector review, by reason; jobs held only for page text go back to the collector in one click
+      seed('collector-job', JSON.stringify({
+        title: `Plant Trainee ${tag}`, company: { name: 'Acme Industries' }, locations: ['Pune'], experience: 'fresher',
+        description: 'Summary not written yet: this job is waiting for review. Open the official page for the details.',
+        applyMethod: 'link', applyUrl: `https://careers.acmeind-${tag}.example/jobs/GET-2`,
+      }), 'no_page_text');
+      await admin.getByRole('tab', { name: 'Collector review' }).click();
+      const box = admin.getByTestId('collector-review');
+      await expect(box.getByTestId('cr-no_page_text')).toBeVisible();
+      await box.getByTestId('cr-send-no_page_text').click();
+      await expect(box.getByTestId('cr-send-no_page_text')).toHaveCount(0); // all of them sent back
+      await expect(box).toContainText(/[1-9]\d* sent back to the collector/);
+      expect(await noSideScroll(admin)).toBe(true);
     });
   });
 }

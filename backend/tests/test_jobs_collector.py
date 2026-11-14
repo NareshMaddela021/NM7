@@ -416,3 +416,90 @@ async def test_an_api_error_is_logged_with_its_message_never_the_key(client, db,
     line = next(r.getMessage() for r in caplog.records if "collector summary failed" in r.getMessage())
     assert "bad_request" in line and "credit balance is too low" in line and "req_test123" in line
     assert "sk-ant-test" not in caplog.text
+
+
+# --- round M ---------------------------------------------------------------------------------------------------------
+
+
+async def test_only_successful_summaries_use_the_allowance(client, db, key, ai, admin_client, monkeypatch):
+    """Failed attempts are given back: 'Used today' counts summaries written, and the allowance isn't used up by
+    errors (the first real day: 3,000 of 3,000 used, almost all of them 400s)."""
+    owner = await admin_client("owner")
+    await owner.put("/api/admin/settings", json={"seek": {"collectorAiDaily": 10}})  # more than one batch runs at once
+
+    async def broken(*a, **kw):
+        raise RuntimeError("boom")
+
+    monkeypatch.setattr(claude, "ask_models", broken)
+    jobs = [
+        {**JOB, "title": f"Trainee {i}", "apply_url": f"https://careers.acme-industries.com/jobs/f{i}"}
+        for i in range(5)
+    ]
+    out = await post(client, key, jobs)
+    assert [r["reasons"] for r in out["results"]] == [["summary_failed"]] * 5  # never "ai_daily_limit"
+    assert (await owner.get("/api/admin/settings")).json()["collectorAiToday"] == 0
+    # the AI works again: two succeed (the allowance), the third waits for tomorrow's
+    monkeypatch.undo()
+    monkeypatch.setattr(get_settings(), "job_ingest_key", KEY)
+    monkeypatch.setattr(get_settings(), "anthropic_api_key", "sk-test")
+
+    async def fake(feature, content, schema, check, **kw):
+        return check({"summary": SUMMARY, "skills": ["SAP"], "work_type": "onsite", "salary": None})
+
+    monkeypatch.setattr(claude, "ask_models", fake)
+    await owner.put("/api/admin/settings", json={"seek": {"collectorAiDaily": 2}})
+    out = await post(client, key, jobs[:3])
+    assert sorted(r["result"] for r in out["results"]) == ["review", "updated", "updated"]
+    assert [r["reasons"] for r in out["results"] if r["result"] == "review"] == [["ai_daily_limit"]]
+    assert (await owner.get("/api/admin/settings")).json()["collectorAiToday"] == 2
+
+
+async def test_jobs_abroad_are_never_live(client, db, key, ai):
+    assert col.outside_india("Remote - United States") and col.outside_india("London, UK")
+    assert col.outside_india("Singapore") and col.outside_india("Remote US")
+    assert not col.outside_india("Bengaluru or London") and not col.outside_india("Remote (India)")
+    assert not col.outside_india("Hyderabad, Telangana") and not col.outside_india("Remote")
+    out = await post(client, key, [{**JOB, "title": "Analyst US", "location": "Remote - United States",
+                                    "apply_url": "https://careers.acme-industries.com/jobs/us1"}])  # fmt: skip
+    assert out["results"][0] == {**out["results"][0], "result": "rejected", "reason": "outside_india"}
+    assert await db[JOBS].count_documents({}) == 0
+    # stored earlier with an Indian place, now sent from abroad: closed as "outside India", and gone from the site
+    await post(client, key, [JOB])
+    j = await db[JOBS].find_one({})
+    out = await post(client, key, [{**JOB, "location": "London, United Kingdom"}])
+    assert out["results"][0]["result"] == "closed" and out["results"][0]["reason"] == "outside_india"
+    j = await db[JOBS].find_one({"_id": j["_id"]})
+    assert j["status"] == "closed" and j["closed_reason"] == "outside India"
+    assert (await client.get(f"/api/jobs/{j['slug']}")).status_code == 404
+
+
+async def test_send_back_to_the_collector_and_go_live(client, db, key, ai, admin_client, monkeypatch):
+    """Admin sends the jobs held only for retryable reasons back; the collector's next run fetches the list, sends
+    them again with page text, and they go live with their summary (and leave the list)."""
+    waiting = [
+        {**JOB, "title": "No text 1", "page_text": "", "apply_url": "https://careers.acme-industries.com/jobs/n1"},
+        {**JOB, "title": "No text 2", "page_text": "", "apply_url": "https://careers.acme-industries.com/jobs/n2"},
+        {**JOB, "title": "No city", "page_text": "", "location": "", "apply_url": "https://careers.acme-industries.com/jobs/n3"},
+    ]  # fmt: skip
+    await post(client, key, waiting)
+    owner = await admin_client("owner")
+    r = (await owner.get("/api/admin/jobs/collector/review")).json()
+    assert r["total"] == 3 and r["byReason"] == {"no_page_text": 3, "city_not_stated": 1}
+    assert r["retryable"]["no_page_text"] == 2 and r["sentBack"] == 0  # the one without a city still needs Admin
+    assert (await owner.post("/api/admin/jobs/collector/resend", json={"reason": "no_page_text"})).json() == {
+        "sentBack": 2
+    }
+    after = (await owner.get("/api/admin/jobs/collector/review")).json()
+    assert after["sentBack"] == 2 and after["retryable"]["no_page_text"] == 0  # nothing left to send
+    lst = (await client.get("/api/jobs/collector/resend", headers=key)).json()
+    assert sorted(lst["urls"]) == [waiting[0]["apply_url"], waiting[1]["apply_url"]]
+    assert (await client.get("/api/jobs/collector/resend")).status_code == 401  # the key is needed
+    # the next run sends them again, now with page text: live, with the summary, and off the list
+    out = await post(client, key, [{**w, "page_text": PAGE} for w in waiting[:2]])
+    assert [x["result"] for x in out["results"]] == ["updated", "updated"]
+    for w in waiting[:2]:
+        j = await db[JOBS].find_one({"title": w["title"]})
+        assert j["status"] == "active" and j["description"] == SUMMARY and j["review"]["reasons"] == []
+        assert (await client.get(f"/api/jobs/{j['slug']}")).status_code == 200
+    assert (await client.get("/api/jobs/collector/resend", headers=key)).json()["urls"] == []
+    assert (await owner.get("/api/admin/jobs/collector/review")).json()["total"] == 1

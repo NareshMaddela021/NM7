@@ -233,7 +233,8 @@ async def similar(db, j: dict[str, Any], n: int = SIMILAR) -> list[dict[str, Any
 @router.get("/{slug}")
 async def one(slug: str, db: DB, auth: MaybeAuth) -> dict[str, Any]:
     j = await db[JOBS].find_one({"slug": slug[:120], "demo": {"$ne": True}})
-    if j and j["status"] == "review" and j.get("source") == "collector":  # no summary yet: never public (round J)
+    if j and j.get("source") == "collector" and (j["status"] == "review" or j.get("closed_reason") == "outside India"):
+        # no summary yet (round J) or found to be abroad (round M): never public
         raise ApiError(404, "not_found", "This job isn’t on Nm7 any more.")
     if not j:
         raise ApiError(404, "not_found", "This job isn’t on Nm7 any more.")

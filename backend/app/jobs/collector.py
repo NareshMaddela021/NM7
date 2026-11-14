@@ -138,6 +138,21 @@ STAFFING = (
 # "Staff Nurse" and "Management Trainee" are junior roles: "staff" only before an engineering word, no "management"
 JUNIOR_MANAGER = re.compile(r"\b(assistant|associate|asst)\s+manager\b", re.I)
 INTERN = re.compile(r"\b(intern|internship|apprentice|apprenticeship)\b", re.I)
+# places that are clearly not India (round M): a country or a big city abroad, named without any Indian place
+FOREIGN = re.compile(
+    r"\b(united states|usa|u\.s\.a?|america|canada|mexico|brazil|argentina|chile|colombia|united kingdom|uk|england|"
+    r"scotland|ireland|london|manchester|germany|berlin|munich|france|paris|netherlands|amsterdam|belgium|spain|madrid|"
+    r"barcelona|portugal|lisbon|italy|milan|switzerland|zurich|austria|vienna|poland|warsaw|krakow|czech|prague|"
+    r"romania|bucharest|hungary|budapest|sweden|stockholm|norway|denmark|copenhagen|finland|helsinki|estonia|"
+    r"lithuania|ukraine|serbia|greece|turkey|istanbul|israel|tel aviv|uae|united arab emirates|dubai|abu dhabi|"
+    r"saudi|riyadh|qatar|doha|kuwait|bahrain|oman|egypt|cairo|nigeria|lagos|kenya|nairobi|south africa|cape town|"
+    r"johannesburg|singapore|malaysia|kuala lumpur|indonesia|jakarta|philippines|manila|thailand|bangkok|vietnam|"
+    r"ho chi minh|hanoi|china|beijing|shanghai|shenzhen|hong kong|taiwan|taipei|japan|tokyo|osaka|korea|seoul|"
+    r"australia|sydney|melbourne|new zealand|auckland|pakistan|karachi|lahore|bangladesh|dhaka|sri lanka|colombo|"
+    r"nepal|kathmandu|new york|san francisco|seattle|austin|boston|chicago|los angeles|toronto|vancouver|"
+    r"emea|latam|apac(?! india)|americas|europe|remote\s*-?\s*(us|uk|eu|europe|canada))\b",
+    re.I,
+)
 CITY = re.compile(rf"\b({CITIES})\b", re.I)
 EMAIL = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
 PHONE = re.compile(r"(?<!\d)(?:\+?91[\s-]?)?(?:\d[\s-]?){10}(?!\d)|(?<!\d)\d{3,5}[\s-]\d{6,8}(?!\d)")
@@ -233,7 +248,18 @@ def refusal(j: CollectorJob) -> str | None:
     loc = j.location  # empty: the job waits for review ("city not stated") instead
     if loc and not re.search(r"\bindia\b", loc, re.I) and not CITY.search(loc):
         return "not_india"
+    if outside_india(loc):
+        return "outside_india"
     return None
+
+
+def outside_india(location: str) -> bool:
+    """Clearly abroad: a country or city outside India is named and no Indian place is (round M). "Remote, United
+    States" is abroad; "Bengaluru or London" and "Remote (India)" are not."""
+    loc = location or ""
+    if not FOREIGN.search(loc):
+        return False
+    return not (re.search(r"\bindia\b", loc, re.I) or cities_of(loc)[0])
 
 
 def cities_of(location: str) -> tuple[list[str], str]:
@@ -328,7 +354,8 @@ def _day() -> str:
 
 
 async def used_today(db) -> int:
-    """Summaries the collector asked for today (Admin → Settings shows it next to the limit)."""
+    """Summaries the collector wrote today (Admin → Settings shows it next to the limit). Failed attempts are given
+    back (round M), so this counts successes."""
     doc = await db["ai_usage"].find_one({"_id": f"{_day()}|collector"})
     return min(int((doc or {}).get("n") or 0), await daily_limit(db))
 
@@ -346,7 +373,15 @@ async def take_budget(db) -> bool:
     doc = await db["ai_usage"].find_one_and_update(
         {"_id": f"{day}|collector"}, {"$inc": {"n": 1}, "$setOnInsert": {"day": day}}, upsert=True, return_document=True
     )
-    return int(doc["n"]) <= limit
+    if int(doc["n"]) <= limit:
+        return True
+    await refund_budget(db)  # over the limit: this attempt doesn't count either
+    return False
+
+
+async def refund_budget(db) -> None:
+    """Give back a reserved summary when no summary came of it (round M: only successes use the allowance)."""
+    await db["ai_usage"].update_one({"_id": f"{_day()}|collector", "n": {"$gt": 0}}, {"$inc": {"n": -1}})
 
 
 async def summarise(db, j: CollectorJob) -> tuple[dict[str, Any] | None, str]:
@@ -362,6 +397,7 @@ async def summarise(db, j: CollectorJob) -> tuple[dict[str, Any] | None, str]:
         out = await claude.ask_models("jobs", prompt(j, page), SCHEMA, check_summary(page), **ASK,
                                       http_client=HTTP_CLIENT)  # fmt: skip
     except Exception as e:  # noqa: BLE001  (any failure: the job waits for review instead)
+        await refund_budget(db)
         await ai_quota.note(db, "jobs", "fallback")
         # the kind and Anthropic's own message and request id (never the prompt, the page or the key)
         log.warning("collector summary failed: %s%s", claude.error_kind(e), claude.error_detail(e))
@@ -389,6 +425,9 @@ def prompt(j: CollectorJob, page: str) -> list[dict[str, Any]]:
 
 # --- one job ---------------------------------------------------------------------------------------------------------
 
+OUTSIDE_INDIA = "outside India"
+# held only for these: sending them again (with page text, on a day with allowance left) can put them live
+RETRY = ("no_page_text", "ai_daily_limit", "summary_failed", "summary_unavailable")
 PLACEHOLDER = "Summary not written yet: this job is waiting for review. Open the official page for the details."
 
 
@@ -410,6 +449,11 @@ async def handle(db, raw: Any, dry: bool, sem: asyncio.Semaphore) -> dict[str, A
             )
         return {**base, "result": "closed" if old else "skipped", **({"id": old["_id"]} if old else {})}
     why = refusal(j)
+    if why in ("not_india", "outside_india") and old and old["status"] != "closed":
+        if not dry:  # it was stored before (or with an Indian place then): close it, never public (round M)
+            await db[JOBS].update_one({"_id": old["_id"]}, {"$set": {
+                "status": "closed", "closed_reason": OUTSIDE_INDIA, "updated_at": now()}})  # fmt: skip
+        return {**base, "result": "closed", "reason": "outside_india", "id": old["_id"]}
     if why:
         return {**base, "result": "rejected", "reason": why}
     if old and (old.get("collector") or {}).get("removed"):
@@ -445,7 +489,7 @@ async def handle(db, raw: Any, dry: bool, sem: asyncio.Semaphore) -> dict[str, A
     fields["dedupe_key"] = "collector:" + hashlib.sha256(ukey.encode()).hexdigest()[:32]
     t = now()
     meta = {"url_key": ukey, "ct_key": ckey, "system": j.system[:40], "posted_raw": j.posted[:40],
-            "exp_text": scrub(j.exp_text)[:200], "exp_from": exp_from, "summarised": bool(facts) or has_summary, "removed": False}  # fmt: skip
+            "exp_text": scrub(j.exp_text)[:200], "exp_from": exp_from, "location": j.location[:300], "summarised": bool(facts) or has_summary, "removed": False}  # fmt: skip
     status = "review" if reasons else "active"
     review = {"reasons": reasons, "note": ""} if reasons else None
     if old:
@@ -528,6 +572,16 @@ async def collect(request: Request, db: DB, authorization: str | None = Header(N
     if not dry:
         await audit(db, None, "job.collector", target=None, data={**counts, "rejectedBy": by}, ip=None)
     return JSONResponse({**counts, "rejectedBy": by, "dryRun": dry, "results": results})
+
+
+@router.get("/resend")
+async def resend(request: Request, db: DB, authorization: str | None = Header(None)) -> dict[str, Any]:
+    """The links Admin sent back to the collector (round M): post_to_nm7.py sends these again even if it sent them
+    before. Each one leaves the list when it arrives again."""
+    await _auth(request, db, authorization)
+    rows = db[JOBS].find({"source": "collector", "status": "review", "collector.resend": True}, {"apply.url": 1})
+    urls = [r["apply"]["url"] async for r in rows.limit(5000) if (r.get("apply") or {}).get("url")]
+    return {"urls": urls, "count": len(urls)}
 
 
 class CloseIn(BaseModel):

@@ -47,12 +47,13 @@ export function LiveJobs() {
   return (
     <>
       <PageHead title="Jobs" sub="Every job on nm7.si/jobs: from the morning job collector, added here, or bulk imported. Changes are in the audit log." />
-      <Tabs label="Show" tabs={[['jobs', 'Jobs'], ['reports', 'Reports'], ['removals', 'Removal requests'], ['import', 'Bulk import'], ['expired', 'Expired links']]} value={tab} onChange={setTab} />
+      <Tabs label="Show" tabs={[['jobs', 'Jobs'], ['collector', 'Collector review'], ['reports', 'Reports'], ['removals', 'Removal requests'], ['import', 'Bulk import'], ['expired', 'Expired links']]} value={tab} onChange={setTab} />
       {tab === 'jobs' && <JobList />}
       {tab === 'import' && <BulkImport onDone={() => setTab('jobs')} />}
       {tab === 'expired' && <Expired />}
       {tab === 'reports' && <Reports />}
       {tab === 'removals' && <Removals />}
+      {tab === 'collector' && <CollectorReview />}
     </>
   );
 }
@@ -392,6 +393,48 @@ function ReportRow({ r, open, toast, onDone }) {
 }
 
 /** Round J: requests to remove a job (usually a company about a job from its careers page). One click closes the job. */
+// round M: the collector's jobs waiting for review, by reason; the ones held only for something a new try can fix go
+// back to the collector in one click (its next run sends them again), and the ones abroad are closed
+function CollectorReview() {
+  const toast = useToast();
+  const st = useApi('/api/admin/jobs/collector/review');
+  const [busy, run] = useAction(toast);
+  const [sure, setSure] = useState(false);
+  const sendBack = (reason, n) => run(async () => { await http('/api/admin/jobs/collector/resend', { method: 'POST', body: { reason } }); st.reload(); }, `${n} sent back: the collector sends them again on its next run`);
+  const closeAbroad = () => run(async () => { const r = await http('/api/admin/jobs/collector/close-outside-india', { method: 'POST' }); setSure(false); st.reload(); return r; }, 'Closed: outside India');
+  return (
+    <Loading st={st}>{(d) => (
+      <div className="stack g12" data-testid="collector-review">
+        <div className="row g12" style={{ flexWrap: 'wrap' }}>
+          <Kpi label="Waiting for review" value={d.total} sub={`${d.sentBack} sent back to the collector`} />
+        </div>
+        <section className="card stack g8" aria-label="Why they wait">
+          <strong>Why they wait</strong>
+          <span className="small muted">A job can wait for more than one reason. Only the ones held just for page text, the AI allowance or a failed summary can be sent back: the collector sends them again on its next run and they go live once a summary is written. The rest need you (Edit, then Approve).</span>
+          {Object.keys(d.byReason).length === 0 ? <span className="small">Nothing is waiting.</span> : (
+            <ul className="stack g8" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+              {Object.entries(d.byReason).map(([why, n]) => (
+                <li key={why} className="row between g8" style={{ flexWrap: 'wrap', alignItems: 'center' }} data-testid={`cr-${why}`}>
+                  <span className="small"><strong>{n}</strong> · {COLLECTOR_WHY[why] || why}</span>
+                  {d.retryable[why] > 0 && <button type="button" className="btn btn-outline btn-sm" disabled={busy} onClick={() => sendBack(why, d.retryable[why])} data-testid={`cr-send-${why}`}>Send back to the collector ({d.retryable[why]})</button>}
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+        <section className="card stack g8" aria-label="Outside India">
+          <strong>Outside India</strong>
+          <span className="small muted">New jobs abroad are refused and ones already here are closed when the collector sends them again. Jobs stored before 14 Nov have no raw location, so they close when they are sent back.</span>
+          {d.outsideIndia > 0 ? (sure
+            ? <div className="row g8" style={{ flexWrap: 'wrap' }}><button type="button" className="btn btn-ink btn-sm" disabled={busy} onClick={closeAbroad} data-testid="cr-abroad-yes">Yes, close {d.outsideIndia}</button><button type="button" className="btn btn-outline btn-sm" onClick={() => setSure(false)}>Keep them</button></div>
+            : <button type="button" className="btn btn-outline btn-sm" style={{ alignSelf: 'flex-start' }} onClick={() => setSure(true)} data-testid="cr-abroad">Close jobs outside India ({d.outsideIndia})</button>)
+            : <span className="small">None waiting.</span>}
+        </section>
+      </div>
+    )}</Loading>
+  );
+}
+
 function Removals() {
   const toast = useToast();
   const [status, setStatus] = useState('open');
