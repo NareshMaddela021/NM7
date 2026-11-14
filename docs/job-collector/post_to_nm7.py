@@ -51,6 +51,19 @@ def key_or_skip() -> str | None:
     return k
 
 
+def sent_back(key: str) -> set[str]:
+    """Round M: the links Admin sent back from nm7.si (Admin → Jobs → Collector review). They are sent again even if
+    they were sent before. A failure here never stops the run: the list is then just empty."""
+    req = urllib.request.Request(f"{API}/api/jobs/collector/resend", method="GET",
+                                 headers={"Authorization": f"Bearer {key}", "User-Agent": UA})
+    try:
+        with urllib.request.urlopen(req, timeout=120) as r:
+            return {link_key(u) for u in json.loads(r.read() or b"{}").get("urls") or []}
+    except (urllib.error.URLError, TimeoutError, ConnectionError, ValueError) as e:
+        print(f"nm7: couldn't read the sent-back list ({type(e).__name__}); carrying on without it")
+        return set()
+
+
 def call(path: str, body: dict, key: str) -> dict:
     """POST JSON with retries: 502/503/504 and timeouts wait and retry (Render waking up); 429 waits; 401 stops."""
     data = json.dumps(body).encode()
@@ -176,9 +189,13 @@ def post(args) -> None:
         return
     details = load_details(args.details)
     seen = set() if args.resend else load_seen(args.seen)
+    back = sent_back(key)
+    seen -= back
     found = [to_nm7(j, details) for j in load_jobs(src)]
     rows = [r for r in found if r["apply_url"] and link_key(r["apply_url"]) not in seen]
-    print(f"nm7: {src}: {len(found)} jobs, {len(found) - len(rows)} already sent, sending {len(rows)}")
+    in_list = {link_key(r["apply_url"]) for r in found} & back
+    print(f"nm7: {src}: {len(found)} jobs, {len(found) - len(rows)} already sent, sending {len(rows)}"
+          f" ({len(in_list)} of {len(back)} sent back from nm7.si are in today's list)")
     totals = {k: 0 for k in ("created", "updated", "skipped", "review", "closed", "rejected")}
     rejected: dict[str, int] = {}
     review: dict[str, int] = {}
@@ -191,7 +208,8 @@ def post(args) -> None:
         for job, r in zip(rows[i:i + args.batch], out.get("results") or []):
             for why in r.get("reasons") or []:
                 review[why] = review.get(why, 0) + 1
-            retry = {"invalid", "ai_daily_limit", "summary_failed", "summary_unavailable"}  # worth sending again
+            # worth sending again (round M: no page text too: a later run may fetch it)
+            retry = {"invalid", "no_page_text", "ai_daily_limit", "summary_failed", "summary_unavailable"}
             if r.get("reason") not in retry and not retry & set(r.get("reasons") or []):
                 seen.add(link_key(job["apply_url"]))  # answered for good (saved or refused): not sent again
         print(f"nm7: batch {i // args.batch + 1}: " + ", ".join(f"{k} {out.get(k, 0)}" for k in totals))
@@ -201,6 +219,7 @@ def post(args) -> None:
     with_text = sum(1 for r in rows if len(r["page_text"]) >= 300)
     lines = [f"# nm7.si posting, {today()}{' (dry run: nothing saved)' if args.dry_run else ''}", "",
              f"- From: {src} ({len(found)} India jobs in the window, {len(found) - len(rows)} sent before)",
+             f"- Sent back from nm7.si: {len(back)} ({len(in_list)} in today's list, sent again)",
              f"- Sent: {len(rows)} (with page text: {with_text})",
              *(f"- {k.capitalize()}: {v}" for k, v in totals.items()), "",
              "## Rejected by reason", *([f"- {k}: {v}" for k, v in sorted(rejected.items())] or ["- none"]), "",

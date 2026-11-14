@@ -1,6 +1,6 @@
 // The free ATS scan report. The file is read and checked in the browser (src/lib/scan) — nothing is uploaded.
 // The score comes from fixed, documented rules (src/lib/scan/analyze.js): same file + role = same score.
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import { Icon, Meter, useToast } from '../components/ui';
@@ -205,6 +205,9 @@ export default function Scan() {
   const nav = useNavigate();
   const { role, upload, setUpload, report, setReport } = useFlow();
   const [step, setStep] = useState(0);
+  // React Router 7 navigates in a transition: clearing the upload re-renders this page first, and its "nothing to
+  // show" redirect below would win and drop the error message (round M: the preview build's scan test)
+  const leaving = useRef(false);
 
   useEffect(() => {
     if (!upload) return undefined;
@@ -214,13 +217,14 @@ export default function Scan() {
       .then((r) => { if (alive) { setReport(r); setUpload(null); } })
       .catch((e) => {
         if (!alive) return;
-        setUpload(null);
+        leaving.current = true;
         nav('/', { replace: true, state: { scanError: e?.code ? e.message : MESSAGES.unreadable } });
+        setUpload(null);
       });
     return () => { alive = false; };
   }, [upload]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!upload && !report) return <Navigate to="/#scan" replace />; // nothing scanned yet → back to the upload box
+  if (!upload && !report) return leaving.current ? null : <Navigate to="/#scan" replace />; // nothing scanned yet → back to the upload box
   return (
     <>
       <Header variant="flow" />
