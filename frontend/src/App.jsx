@@ -11,7 +11,7 @@ import { applyMeta, currentMeta, usePageMeta } from './lib/meta';
 import { StaleBuildPage, isChunkError, lazyRetry, reloadOnce } from './lib/chunks';
 import { onSlow } from './services/http';
 import { reportError } from './lib/monitoring';
-import { rememberCode } from './lib/codes';
+import { rememberCode } from './lib/codeLink';
 
 // a page file missing after a deploy (tab opened on the old build) reloads onto the new build
 const lazy = (load) => reactLazy(lazyRetry(load));

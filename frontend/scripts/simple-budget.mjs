@@ -2,7 +2,7 @@
 // under 150 KB, in English and in Telugu / Hindi (their strings load when that language is on). Run after the build:
 //   npm run build && npm run budget
 // It follows the built files: the entry script in dist/index.html and everything it imports statically, plus the
-// /me/simple chunk (SimpleApp) and its static imports, plus the largest language-strings chunk. The resume questions
+// /me/simple chunk (SimpleApp) and its static imports, plus the largest language's strings (pages.json and home.json). The resume questions
 // and the jobs screens load later, when they open; their sizes are printed too. A rough slow-3G time is printed
 // (400 kbit/s, 400 ms round trips: 3 round trips + the bytes).
 import { readFileSync, readdirSync } from 'node:fs';
@@ -39,7 +39,8 @@ export function measure() {
   if (simple.length !== 1) throw new Error(`expected one SimpleApp chunk, found ${simple.length}`);
   const route = closure([entry, simple[0]]);
   const base = [...route].reduce((a, f) => a + gz(f), 0);
-  const strings = Math.max(0, ...pick('pages-').map(gz));
+  // the larger language's strings: its pages.json part and its home.json part (each a chunk of its own, round L)
+  const strings = Math.max(0, ...pick('pages-').map(gz)) + Math.max(0, ...pick('home-').map(gz));
   const later = Object.fromEntries(['GuidedResume-', 'SimpleJobs-'].map((p) => [p.slice(0, -1), pick(p).reduce((a, f) => a + gz(f), 0)]));
   return { files: [...route].sort(), english: base, telugu: base + strings, later };
 }

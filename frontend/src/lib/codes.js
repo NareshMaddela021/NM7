@@ -15,7 +15,7 @@ export const STATUS = {
 };
 
 /** "save 50" → "SAVE50": what the server stores (case and spaces don't matter). */
-export const normCode = (s) => String(s ?? '').replace(/\s+/g, '').toUpperCase().slice(0, 40);
+export { normCode } from './codeLink';
 
 /** Paise → "99" / "74.50" (the server's own "Rs" texts use the same). */
 export const rs = (paise) => {
@@ -92,17 +92,5 @@ export function saveText(text, name, type = 'text/csv;charset=utf-8') {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-// ---------- ?code= in a link: kept until the pay step, never used by itself ----------
-const KEY = 'nm7.code';
-
-/** Reads ?code= from a URL search string and keeps it for the pay step. Returns the code ('' when none). */
-export function rememberCode(search) {
-  const c = normCode(new URLSearchParams(search || '').get('code'));
-  if (!/^[A-Z0-9][A-Z0-9-]{2,31}$/.test(c)) return '';
-  try { sessionStorage.setItem(KEY, c); } catch { /* private mode: the field just starts empty */ }
-  return c;
-}
-
-/** The code from a link, for filling in the "Have a code?" field. */
-export const savedCode = () => { try { return sessionStorage.getItem(KEY) || ''; } catch { return ''; } };
-export const forgetCode = () => { try { sessionStorage.removeItem(KEY); } catch { /* nothing kept */ } };
+// ?code= in a link: kept until the pay step (its own small file, so the main bundle doesn't carry the rest of this one)
+export { rememberCode, savedCode, forgetCode } from './codeLink';

@@ -5,10 +5,11 @@
 // language (te-IN → Telugu, hi-IN → Hindi), else English. Noto Sans Telugu / Devanagari load only when that language
 // is picked, with font-display: optional — the text never re-flows when the font arrives (it would shift the whole
 // hero); until it is cached, the phone's own Telugu / Devanagari font is used (Android ships Noto itself).
-// pages.json's Telugu and Hindi are not in the main bundle: each loads (a few KB) the first time that language is on,
-// and its strings show as soon as it arrives (English until then).
+// Telugu and Hindi (home.json's and pages.json's) are not in the main bundle: each loads (a few KB) the first time that
+// language is on, and its strings show as soon as it arrives (English until then). Round L: home.json's moved out of
+// the main bundle too, so React Router 7 fits the Easy dashboard's 150 KB budget.
 import { Fragment, createElement, useSyncExternalStore } from 'react';
-import HOME from '../i18n/home.json';
+import { en as HOME_EN } from '../i18n/home.json';
 import { en as PAGES_EN } from '../i18n/pages.json';
 
 export const LANGS = [['en', 'English'], ['te', 'తెలుగు'], ['hi', 'हिन्दी']];
@@ -24,12 +25,15 @@ const FONTS = {
   hi: 'https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=optional',
 };
 
-/** Both string files as one table per language (a key lives in only one of them). Telugu and Hindi from pages.json
- * are added by loadLang(). */
-export const STRINGS = { en: { ...HOME.en, ...PAGES_EN }, te: { ...HOME.te }, hi: { ...HOME.hi } };
+/** Both string files as one table per language (a key lives in only one of them). Telugu and Hindi are added by
+ * loadLang(). */
+export const STRINGS = { en: { ...HOME_EN, ...PAGES_EN }, te: {}, hi: {} };
 const LOADERS = {
-  te: () => import('../i18n/pages.json?te').then(({ te }) => te),
-  hi: () => import('../i18n/pages.json?hi').then(({ hi }) => hi),
+  // one named export per import, so the bundler keeps only that language of each file
+  te: () => Promise.all([import('../i18n/home.json?te').then(({ te }) => te), import('../i18n/pages.json?te').then(({ te }) => te)])
+    .then(([home, pages]) => ({ ...home, ...pages })),
+  hi: () => Promise.all([import('../i18n/home.json?hi').then(({ hi }) => hi), import('../i18n/pages.json?hi').then(({ hi }) => hi)])
+    .then(([home, pages]) => ({ ...home, ...pages })),
 };
 const loading = {};
 let version = 0; // goes up when a language's strings arrive, so pages re-render with them

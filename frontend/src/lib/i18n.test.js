@@ -84,8 +84,11 @@ describe('more pages in Telugu and Hindi (src/i18n/pages.json)', () => {
     for (const k of Object.keys(STRINGS.en)) expect(PAGES.en[k], k).toBeUndefined();
     expect(translate('en', 'orgs.hero.title')).toBe(PAGES.en['orgs.hero.title']);
     expect(translate('hi', 'orgs.hero.title')).toBe(PAGES.en['orgs.hero.title']); // English until Hindi arrives
+    // round L: home.json's Telugu / Hindi load with the language too (English until then), not in the main bundle
+    expect(translate('te', 'hero.title')).toBe(STRINGS.en['hero.title']);
     await Promise.all([loadLang('te'), loadLang('hi'), loadLang('xx')]);
     expect(translate('te', 'hero.title')).toBe(STRINGS.te['hero.title']);
+    expect(translate('hi', 'hero.title')).toBe(STRINGS.hi['hero.title']);
     expect(translate('hi', 'orgs.hero.title')).toBe(PAGES.hi['orgs.hero.title']);
     expect(translate('te', 'builder.start.profile.text', { n: 55 })).toContain('55%');
     for (const l of ['en', 'te', 'hi']) expect(Object.keys(ALL[l]).length).toBe(Object.keys(STRINGS.en).length + keys.length);
