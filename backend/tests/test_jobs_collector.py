@@ -324,3 +324,95 @@ async def test_ai_allowance_is_an_admin_setting(client, db, key, ai, admin_clien
     s = (await owner.get("/api/admin/settings")).json()
     assert s["collectorAiToday"] == 1  # "Used today: 1 of 1"
     assert (await owner.put("/api/admin/settings", json={"seek": {"collectorAiDaily": -1}})).status_code == 422
+
+
+# --- round L: the real request to Anthropic ------------------------------------------------------------------------
+
+
+class FakeAnthropic:
+    """api.anthropic.com/v1/messages (a mock transport: nothing leaves the machine), checking a request the way the
+    API does for what broke the first real batch (a structured-output schema with an object lacking
+    additionalProperties: false → 400 at once), plus the basics: a model, max_tokens, one user message whose content
+    is a list of text blocks."""
+
+    def __init__(self, answer=None, status=200, error=""):
+        self.bodies = []
+        self.answer, self.status, self.error = answer, status, error
+
+    def __call__(self, request):
+        import json
+
+        import httpx2
+
+        assert request.url.host == "api.anthropic.com" and request.url.path == "/v1/messages"
+        body = json.loads(request.content)
+        self.bodies.append(body)
+
+        def bad(msg):
+            return httpx2.Response(400, json={"type": "error", "error": {"type": "invalid_request_error", "message": msg},
+                                              "request_id": "req_test123"})  # fmt: skip
+
+        if self.status != 200:
+            return bad(self.error)
+        problems = claude.schema_problems(body["output_config"]["format"]["schema"])
+        if problems:
+            return bad(f"output_config.format.schema: {problems[0]}")
+        msg = body["messages"][0]
+        if (
+            not body.get("model")
+            or not body.get("max_tokens")
+            or msg["role"] != "user"
+            or not isinstance(msg["content"], list)
+        ):
+            return bad("malformed request")
+        return httpx2.Response(200, json={"id": "msg_1", "type": "message", "role": "assistant", "model": body["model"],
+                                          "content": [{"type": "text", "text": json.dumps(self.answer)}],
+                                          "stop_reason": "end_turn", "stop_sequence": None,
+                                          "usage": {"input_tokens": 900, "output_tokens": 200}})  # fmt: skip
+
+
+@pytest.fixture
+def anthropic_api(monkeypatch):
+    import httpx2
+
+    monkeypatch.setattr(get_settings(), "anthropic_api_key", "sk-ant-test-not-a-real-key")
+
+    def make(**kw):
+        api = FakeAnthropic(**kw)
+        monkeypatch.setattr(col, "HTTP_CLIENT", httpx2.AsyncClient(transport=httpx2.MockTransport(api)))
+        return api
+
+    return make
+
+
+async def test_real_prompt_and_request_reach_the_api_and_go_live(client, db, key, anthropic_api):
+    """The collector's own prompt builder and the shared Claude client, end to end against the mocked API: the
+    request is one a real API accepts (strict schema, text blocks, thinking off on Haiku, room for the answer),
+    the page text is sent scrubbed, and the job goes live with the summary."""
+    api = anthropic_api(answer={"summary": SUMMARY, "skills": ["AutoCAD", "Excel", "SAP"], "work_type": "onsite",
+                                "salary": None})  # fmt: skip
+    out = await post(client, key, [JOB])
+    assert out["created"] == 1 and out["results"][0]["result"] == "created", out
+    body = api.bodies[0]
+    assert body["model"] == get_settings().anthropic_model and body["max_tokens"] >= 1200
+    assert body.get("thinking") == {"type": "disabled"} or body["model"] not in claude.THINKING_OFF
+    text = body["messages"][0]["content"][0]["text"]
+    assert "Graduate Engineer Trainee at Acme Industries" in text and "Page text:" in text
+    assert "priya.hr@" not in text and "98765" not in text  # scrubbed before it is sent
+    assert claude.schema_problems(body["output_config"]["format"]["schema"]) == []
+    j = await db[JOBS].find_one({})
+    assert j["status"] == "active" and j["description"] == SUMMARY
+    # the prompt builder on its own: one text block, the page cut at PAGE_SENT
+    blocks = col.prompt(col.CollectorJob.model_validate({**JOB, "location": ""}), "x" * 20_000)
+    assert len(blocks) == 1 and blocks[0]["type"] == "text" and "location not stated" in blocks[0]["text"]
+    assert blocks[0]["text"].count("x") >= col.PAGE_SENT
+
+
+async def test_an_api_error_is_logged_with_its_message_never_the_key(client, db, key, anthropic_api, caplog):
+    anthropic_api(status=400, error="Your credit balance is too low to access the Anthropic API.")
+    with caplog.at_level("WARNING"):
+        out = await post(client, key, [JOB])
+    assert out["results"][0]["reasons"] == ["summary_failed"]
+    line = next(r.getMessage() for r in caplog.records if "collector summary failed" in r.getMessage())
+    assert "bad_request" in line and "credit balance is too low" in line and "req_test123" in line
+    assert "sk-ant-test" not in caplog.text
