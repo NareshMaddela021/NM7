@@ -160,8 +160,9 @@
 .nh-card p { margin: 0 0 10px; color: var(--nh-dim); font-size: 15px; }
 .nh-card-link { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-weight: 800; color: var(--nh-violet) !important; text-decoration: none; }
 .nh-card-link:hover { text-decoration: underline; }
-.nh-js .nh-reveal { opacity: 0; transform: translateY(26px); transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1); transition-delay: calc(var(--i, 0) * 70ms); }
-.nh-js .nh-reveal.is-in { opacity: 1; transform: none; }
+/* cards slide in as they reach the screen; they never fade, so their text always has full contrast (axe) */
+.nh-js .nh-reveal { transform: translateY(26px); transition: transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1); transition-delay: calc(var(--i, 0) * 70ms); }
+.nh-js .nh-reveal.is-in { transform: none; }
 
 .nh-flow { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
 .nh-flow li { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px 8px 8px; border-radius: 999px; background: #fff; border: 1px solid var(--nh-line); font-weight: 700; font-size: 14px; box-shadow: 0 2px 8px -4px rgba(27, 23, 48, 0.12); }
