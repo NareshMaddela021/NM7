@@ -79,7 +79,6 @@ p { margin: 0; }
 .btn-danger-soft { background: var(--dangerbg); color: var(--danger); min-height: 36px; font-size: 14px; padding: 0 10px; }
 .btn-lg { min-height: 52px; padding: 0 24px; font-size: 16px; }
 .btn-xl { min-height: 56px; padding: 0 28px; font-size: 17px; }
-.btn-block { width: 100%; }
 .btn-icon { width: 44px; padding: 0; border: 1px solid var(--border); background: var(--surface); }
 .link-btn { background: none; border: 0; padding: 0 4px; min-height: 44px; color: var(--accent); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
 
@@ -130,9 +129,6 @@ label:has(> input[type="checkbox"]):not(.option) { width: fit-content; max-width
 .segmented { display: inline-flex; gap: 4px; padding: 4px; border-radius: 12px; background: var(--sunken); }
 .segmented button { min-height: 40px; padding: 0 14px; border-radius: 9px; border: 0; background: transparent; color: var(--text2); font-weight: 600; font-size: 14px; }
 .segmented button[aria-selected="true"], .segmented button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(18, 19, 22, .14); }
-.tabs-ink { display: flex; flex-wrap: wrap; gap: 4px; }
-.tabs-ink button { min-height: 40px; padding: 0 14px; border-radius: 9px; border: 0; background: transparent; color: var(--text2); font-weight: 600; font-size: 14px; }
-.tabs-ink button[aria-selected="true"] { background: var(--ink); color: var(--onink); }
 
 /* ---------- progress ---------- */
 .meter { height: 8px; border-radius: 4px; background: var(--sunken); overflow: hidden; }

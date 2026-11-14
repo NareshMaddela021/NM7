@@ -24,7 +24,7 @@ test('fill the Job Profile; it autosaves and survives a reload and another sign-
   // the sidebar has it between My resumes and ATS & job match
   const nav = page.getByRole('navigation', { name: 'My dashboard', exact: true });
   const around = async () => { const n = await nav.getByRole('link').allInnerTexts(); const at = n.findIndex((x) => x.includes('Job Profile')); return at > 0 ? [n[at - 1], n[at + 1]].map((x) => x.replace(/^\W+/, '').trim()) : null; };
-  await expect.poll(around).toEqual(['My resumes', 'ATS & job match']);
+  await expect.poll(around).toEqual(['My resumes', 'Find my role']); // Phase 6: Find my role follows the Job Profile
   await nav.getByRole('link', { name: /Job Profile/ }).click();
   await expect(page).toHaveURL(/\/me\/profile$/);
   await expect(page.getByRole('heading', { name: 'Job Profile', level: 1 })).toBeVisible();

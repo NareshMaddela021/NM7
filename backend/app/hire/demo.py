@@ -158,11 +158,12 @@ async def create(db) -> dict[str, Any]:
         "place": "Demo office, Hitech City (made-up)", "link": "", "interviewer": "Ravi (demo HR)", "round": "HR",
         "status": "open", "user_id": None, "seq": 0, "by": company_demo.MAIN[0], "created_at": t, "updated_at": t,
     } for k in range(3)])  # fmt: skip
-    # one candidate accepted the invite, booked an interview yesterday, attended it, and has an offer waiting
+    # one candidate accepted the invite, booked an interview yesterday (10:00 India time: `day` is tomorrow, so two days
+    # back; one day back was today, still ahead before 10:00 IST), attended it, and has an offer waiting
     # (invite → accepted → interview booked → attended → offer sent, so the bulk board's funnel reads in order)
     uid = people[0]
     await db[HIRE_SLOTS].insert_one({
-        "_id": ObjectId(), "company_id": cid, "job_id": jid, "starts_at": day - timedelta(days=1), "minutes": 20,
+        "_id": ObjectId(), "company_id": cid, "job_id": jid, "starts_at": day - timedelta(days=2), "minutes": 20,
         "place": "Demo office, Hitech City (made-up)", "link": "", "interviewer": "Ravi (demo HR)", "round": "HR",
         "status": "booked", "user_id": uid, "seq": 1, "mark": "attended", "by": company_demo.MAIN[0],
         "created_at": t - timedelta(days=2), "updated_at": t,

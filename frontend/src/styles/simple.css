@@ -60,7 +60,6 @@
 .sx-job .sx-p { font-size: 19px; }
 .sx-match { display: inline-block; padding: 4px 14px; border-radius: 999px; background: var(--successbg); color: var(--text); font-weight: 800; font-size: 20px; }
 .sx-trust { font-size: 17px; font-weight: 600; white-space: nowrap; }
-.sx-trust-verified { color: var(--success); }
 .sx-check { display: flex; align-items: flex-start; gap: 12px; font-size: 19px; padding: 12px; border-radius: 14px; border: 2px solid var(--border2); background: var(--surface); cursor: pointer; }
 .sx-check input { width: 28px; height: 28px; flex: none; margin-top: 2px; accent-color: var(--ink); }
 .sx-frow .sx-big { flex: 1 1 0; justify-content: center; }

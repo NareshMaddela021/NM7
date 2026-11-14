@@ -122,7 +122,12 @@ test('share link: public page from the server, phone hidden, views counted', asy
   await page.goto('/me/share');
   await page.getByRole('switch').check();
   await expect(page.getByText('Link turned on')).toBeVisible();
+  // the box ticks at once and saves in the background: wait for the save, or the visitor below can open the link
+  // before the server knows the phone is hidden (the old flake)
+  const saved = page.waitForResponse((r) => r.url().endsWith('/api/me/share') && r.request().method() === 'PUT');
   await page.getByLabel('Hide my phone number on the link').check();
+  expect((await saved).ok()).toBe(true);
+  await expect(page.getByLabel('Hide my phone number on the link')).toBeEnabled();
   const slug = (await page.getByLabel('Link name').inputValue());
   const visitor = await browser.newContext();
   const v = await visitor.newPage();
