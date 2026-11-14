@@ -1,6 +1,7 @@
 // Legal pages: Terms, Privacy, Refunds & cancellation, Delivery, Expert terms, Contact.
 // DRAFT wording for a lawyer to review. Business details come from src/lib/legal.js; a sentence whose detail is
 // still empty is left out. Lines starting "?? " are business decisions to confirm (tagged in the preview only).
+import { PageArt } from '../../components/PageHero';
 import { Link, useSearchParams } from 'react-router-dom';
 import JobRemovalForm from './JobRemovalForm';
 import Header from '../../components/Header';
@@ -21,12 +22,12 @@ function Page({ title, intro, sections }) {
     <>
       <Header />
       <main id="main" className="container stack g20 legal" style={{ maxWidth: 820, padding: '32px 20px 64px' }}>
-        <div className="stack g8">
-          <span className="mono xs muted">LAST UPDATED · {L.updated.toUpperCase()}</span>
+        <div className="ph-row"><div className="stack g8">
+          <span className="kicker">Last updated · {L.updated}</span>
           <h1 className="display" style={{ fontSize: 36 }}>{title}</h1>
           {intro && <p className="lead" style={{ fontSize: 17, margin: 0 }}><T s={intro} /></p>}
           {PREVIEW && <div className="well small" style={{ borderLeft: '3px solid var(--warning)' }}><strong>Draft for review.</strong> Have a lawyer check this page before going live. Still empty in src/lib/legal.js (those lines are hidden): {missingLegal().join(', ') || 'nothing'}.</div>}
-        </div>
+        </div><PageArt shape="resume" /></div>
         <nav aria-label="On this page" className="card stack g4 small" style={{ padding: 16 }}>
           <strong className="xs muted">ON THIS PAGE</strong>
           {sections.filter(([, body]) => body.length).map(([h], i) => <a key={h} href={`#s${i + 1}`} onClick={(e) => { e.preventDefault(); document.getElementById(`s${i + 1}`)?.scrollIntoView({ behavior: 'smooth' }); }}>{i + 1}. {h}</a>)}
@@ -149,7 +150,7 @@ export function Contact() {
     <>
       <Header />
       <main id="main" className="container stack g20 legal" style={{ maxWidth: 820, padding: '32px 20px 64px' }}>
-        <h1 className="display" style={{ fontSize: 36 }}>Contact us</h1>
+        <div className="ph-row"><div className="stack g8"><p className="kicker">Support, complaints and job removal</p><h1 className="display" style={{ fontSize: 36 }}>Contact us</h1></div><PageArt shape="sphere" /></div>
         {removal && <JobRemovalForm link={params.get('job') || ''} />}
         <div className="row g16" style={{ alignItems: 'stretch' }}>
           <section className="card stack g8" style={{ flex: '1 1 300px' }}>

@@ -68,7 +68,7 @@ for (const [label, opts] of SIZES) {
       const mail = await signIn(page, `wac-buy-${label}`, 'Ravi Kumar');
       await fakeWhatsApp(page);
       // home pricing says how to pay
-      await page.goto('/');
+      await page.goto('/old-home');
       await expect(page.getByTestId('home-wa-pay')).toHaveText('Pay by UPI through WhatsApp. Your order starts as soon as we confirm payment.');
 
       await page.goto('/linkedin?path=fix');

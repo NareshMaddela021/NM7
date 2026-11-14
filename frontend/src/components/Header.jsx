@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { useTheme } from '../lib/theme';
 import { BRAND } from '../lib/brand';
 import { useAuth, signOut, homeFor, LIVE } from '../lib/auth';
-import { Icon } from './ui';
 import { track } from '../lib/track';
 
 export function Logo({ suffix }) {
@@ -15,13 +13,9 @@ export function Logo({ suffix }) {
   );
 }
 
+/** The light/dark switch: hidden while the site is light only (round P). Kept so it can return in one place. */
 export function ThemeToggle() {
-  const { theme, toggle } = useTheme();
-  return (
-    <button type="button" className="btn btn-icon" onClick={toggle} aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}>
-      <Icon name={theme === 'dark' ? 'sun' : 'moon'} />
-    </button>
-  );
+  return null;
 }
 
 /** Signed in: name + menu (my home, sign out). Signed out: "Sign in". */
@@ -82,7 +76,7 @@ export default function Header({ variant = 'public', right, labels, lang }) {
   return (
     <header className="site-header" data-variant={variant} data-menu={menu} lang="en">
       <div className="bar">
-        <Logo suffix={variant === 'expert' ? '/expert' : variant === 'admin' ? '/admin' : variant === 'builder' ? '/builder' : variant === 'me' ? '/me' : '/resume'} />
+        <Logo suffix={variant === 'expert' ? '/expert' : variant === 'admin' ? '/admin' : variant === 'builder' ? '/builder' : variant === 'me' ? '/me' : undefined} />
 
         {variant === 'public' && (
           <span className="row g8 hdr-quick" lang={lang}>
@@ -98,7 +92,7 @@ export default function Header({ variant = 'public', right, labels, lang }) {
             <NavLink to="/jobs">{L.jobs}</NavLink>
             <Link to="/templates">{L.templates}</Link>
             <NavLink to="/linkedin">{L.linkedin}</NavLink>
-            <Link to="/#pricing">{L.pricing}</Link>
+            <NavLink to="/pricing">{L.pricing}</NavLink>
             <NavLink to="/for-orgs" onClick={() => track('to_for_orgs')}>{L.orgs}</NavLink>
             <NavLink to="/blog">{L.blog}</NavLink>
           </nav>
@@ -142,7 +136,7 @@ export default function Header({ variant = 'public', right, labels, lang }) {
         )}
 
         <div className="row g8 hdr-right">
-          {variant === 'public' && <Link to="/#scan" className="btn btn-outline hide-sm hdr-scan" lang={lang}>{L.scan}</Link>}
+          {variant === 'public' && <Link to="/pricing#scan" className="btn btn-outline hide-sm hdr-scan" lang={lang}>{L.scan}</Link>}
           {right}
           <ThemeToggle />
           <AccountMenu />

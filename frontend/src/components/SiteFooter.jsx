@@ -20,6 +20,7 @@ export default function SiteFooter() {
           {salaries?.visible && <Link to="/salaries" data-testid="footer-salaries">Salary guide</Link>}
           <Link to="/blog">Blog</Link>
           <Link to="/contact">Contact us</Link>
+          <Link to="/contact?topic=job-removal">Request job removal</Link>
           <Link to="/terms">Terms</Link>
           <Link to="/privacy">Privacy</Link>
           <Link to="/refund-policy">Refunds & cancellation</Link>

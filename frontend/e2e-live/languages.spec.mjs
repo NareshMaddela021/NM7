@@ -50,7 +50,7 @@ for (const [label, opts] of SIZES) {
     }
 
     test('the rest of each page follows: home pricing and FAQ, /for-orgs plans, builder options, sign-in form', async ({ page }) => {
-      await page.goto('/');
+      await page.goto('/old-home');
       await page.getByRole('group', { name: 'Language' }).getByRole('button', { name: 'తెలుగు' }).click();
       // home, below the fold (loads just after the first paint)
       const pricing = page.locator('#pricing');
@@ -88,7 +88,7 @@ for (const [label, opts] of SIZES) {
     });
 
     test('legal pages stay English, with no language switch, even with Telugu chosen', async ({ page }) => {
-      await page.goto('/');
+      await page.goto('/old-home');
       await page.evaluate(() => localStorage.setItem('nm7-lang', 'te'));
       await page.goto('/terms');
       await expect(page.getByRole('heading', { level: 1 })).toHaveText('Terms of Service');

@@ -28,7 +28,7 @@ for (const [label, size] of SIZES) {
 
     test('each hero, "Start from" and demo button lands on the right builder mode or page', async ({ page }) => {
       for (const [name, url, landed] of DESTINATIONS) {
-        await page.goto('/');
+        await page.goto('/old-home');
         const link = page.getByRole('main').getByRole('link', { name: new RegExp(`^${name}`) }).first(); // cards add their description
         await link.scrollIntoViewIfNeeded();
         const box = await link.boundingBox();
@@ -40,7 +40,7 @@ for (const [label, size] of SIZES) {
     });
 
     test('the language switch changes the hero and the header, and is remembered after a reload', async ({ page }) => {
-      await page.goto('/');
+      await page.goto('/old-home');
       const h1 = page.getByRole('heading', { level: 1 });
       await expect(h1).toHaveText('Resumes for every job seeker. Resume drives for every campus.');
       await page.getByRole('group', { name: 'Language' }).getByRole('button', { name: 'తెలుగు' }).click();
@@ -64,7 +64,7 @@ for (const [label, size] of SIZES) {
     test('<html lang> follows the language: on every switch, on first load from the saved choice, and back to en elsewhere', async ({ page }) => {
       const html = page.locator('html');
       const group = page.locator('.hx-lang');
-      await page.goto('/');
+      await page.goto('/old-home');
       await expect(html).toHaveAttribute('lang', 'en');
       for (const [label, code] of [['తెలుగు', 'te'], ['हिन्दी', 'hi'], ['English', 'en']]) {
         await group.getByRole('button', { name: label }).click();
@@ -89,7 +89,7 @@ for (const [label, size] of SIZES) {
         window.__cls = 0;
         new PerformanceObserver((l) => { for (const e of l.getEntries()) if (!e.hadRecentInput) window.__cls += e.value; }).observe({ type: 'layout-shift', buffered: true });
       });
-      await page.goto('/');
+      await page.goto('/old-home');
       await page.waitForLoadState('networkidle');
       await page.waitForTimeout(1500);
       expect(await page.evaluate(() => window.__cls)).toBeLessThan(0.1);
@@ -108,7 +108,7 @@ for (const [label, size] of SIZES) {
 
 test('the organization plans table on the home page comes from the API', async ({ page, request }) => {
   const api = await (await request.get(`${API}/api/public/org-plans`)).json();
-  await page.goto('/#org-plans');
+  await page.goto('/old-home#org-plans');
   const table = page.getByRole('region', { name: 'Start free. Upgrade for your drive.' }).getByRole('table');
   await expect(table).toBeVisible();
   for (const p of api.plans) await expect(table).toContainText(p.name);
@@ -117,7 +117,7 @@ test('the organization plans table on the home page comes from the API', async (
 });
 
 test('taps are counted on our own server, without cookies, and show on the admin dashboard', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/old-home');
   const sent = page.waitForRequest((r) => r.url().endsWith('/api/public/events') && r.method() === 'POST');
   await page.getByRole('main').getByRole('link', { name: /^I have papers/ }).click();
   const req = await sent;

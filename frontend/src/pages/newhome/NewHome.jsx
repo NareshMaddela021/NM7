@@ -7,7 +7,8 @@ import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-do
 import { LIVE } from '../../services/http';
 import { pageQuery, placeText, postedAgo, salaryText, searchJobs } from '../../lib/jobBoard';
 import { translate } from '../../lib/i18n';
-import { homeFor, useAuth } from '../../lib/auth';
+import Header from '../../components/Header';
+import SiteFooter from '../../components/SiteFooter';
 import { usePageMeta } from '../../lib/meta';
 import ParticleStage from './ParticleStage';
 import GlassWidget, { reducedMotion } from './GlassWidget';
@@ -111,22 +112,6 @@ function useStructuredData() {
 
 /* ---------- pieces ---------- */
 
-function Header() {
-  const { user } = useAuth();
-  return (
-    <header className="nh-header">
-      <div className="nh-wrap nh-header-in">
-        <Link to="/" className="nh-logo" aria-label="Nm7 home"><span aria-hidden="true">nm</span>7</Link>
-        <nav aria-label="Main" className="nh-nav">
-          <Link to="/jobs">Jobs</Link>
-          <Link to="/for-companies">Companies</Link>
-          <Link to="/for-orgs">Colleges</Link>
-          {user ? <Link to={homeFor(user)} className="nh-nav-pill">My dashboard</Link> : <Link to="/login" className="nh-nav-pill">Sign in</Link>}
-        </nav>
-      </div>
-    </header>
-  );
-}
 
 function Tabs({ current, onPick }) {
   const refs = useRef([]);
@@ -413,25 +398,6 @@ function FinalCall() {
   );
 }
 
-function Footer() {
-  return (
-    <footer className="nh-footer">
-      <div className="nh-wrap nh-footer-in">
-        <span>Nm7 · nm7.si</span>
-        <nav aria-label="Site links">
-          <Link to="/terms">Terms</Link>
-          <Link to="/privacy">Privacy</Link>
-          <Link to="/contact">Contact</Link>
-          <Link to="/contact?topic=job-removal">Request job removal</Link>
-          <Link to="/for-companies">For companies</Link>
-          <Link to="/for-orgs">For colleges</Link>
-          <Link to="/blog">Blog</Link>
-          <Link to="/accessibility">Accessibility</Link>
-        </nav>
-      </div>
-    </footer>
-  );
-}
 
 /* ---------- the page ---------- */
 
@@ -463,7 +429,7 @@ export default function NewHome() {
         <Faq />
         <FinalCall />
       </main>
-      <Footer />
+      <SiteFooter />
     </div>
   );
 }

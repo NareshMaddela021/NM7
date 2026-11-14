@@ -30,7 +30,7 @@ for (const [label, size] of SIZES) {
       test('home gallery: a card tap shows the large preview, Use this template opens the builder — no download', async ({ page }) => {
         const dl = noDownloads(page);
         if (signedIn) await signIn(page);
-        await page.goto('/#templates');
+        await page.goto('/old-home#templates');
         const cards = page.locator('#templates').getByRole('button', { name: /^Preview the .* template$/ });
         await expect(cards).toHaveCount(6);
         for (const i of [0, 1]) {
@@ -85,7 +85,7 @@ for (const [label, size] of SIZES) {
     await expect(page).toHaveURL(/\/$/);
     // later they sign in from the header, then open a template from the gallery
     await signIn(page);
-    await page.goto('/#templates');
+    await page.goto('/old-home#templates');
     const card = page.locator('#templates').getByRole('button', { name: /^Preview the .* template$/ }).first();
     await card.scrollIntoViewIfNeeded();
     await card.click();

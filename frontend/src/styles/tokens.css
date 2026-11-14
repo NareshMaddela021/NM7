@@ -1,112 +1,75 @@
-/* Ink & Highlighter — design tokens.
-   Yellow (--signal) means one thing only: "a recruiter would notice this". */
-/* Fallback faces sized to match the web fonts (width, ascent, descent), so text does not move when Instrument Sans
-   and Bricolage Grotesque arrive. One per common system font: Arial or Liberation Sans (Windows, Mac, Linux), Roboto
-   (Android), DejaVu Sans (Linux). The numbers come from comparing text widths and line metrics in Chromium. */
-@font-face { font-family: 'Body Fallback Arial'; src: local('Arial'), local('ArialMT'), local('Liberation Sans'), local('LiberationSans'); font-weight: 400 500; size-adjust: 100.60%; ascent-override: 96.43%; descent-override: 24.85%; line-gap-override: 0%; }
-@font-face { font-family: 'Body Fallback Arial'; src: local('Arial Bold'), local('Arial-BoldMT'), local('Liberation Sans Bold'), local('LiberationSans-Bold'); font-weight: 600 800; size-adjust: 96.46%; ascent-override: 100.56%; descent-override: 25.92%; line-gap-override: 0%; }
-@font-face { font-family: 'Body Fallback Roboto'; src: local('Roboto'), local('Roboto-Regular'), local('Roboto Regular'); font-weight: 400 500; size-adjust: 101.54%; ascent-override: 95.53%; descent-override: 24.62%; line-gap-override: 0%; }
-@font-face { font-family: 'Body Fallback Roboto'; src: local('Roboto Bold'), local('Roboto-Bold'); font-weight: 600 800; size-adjust: 102.81%; ascent-override: 94.34%; descent-override: 24.32%; line-gap-override: 0%; }
-@font-face { font-family: 'Body Fallback DejaVu'; src: local('DejaVu Sans'), local('DejaVuSans'); font-weight: 400 500; size-adjust: 88.89%; ascent-override: 109.12%; descent-override: 28.12%; line-gap-override: 0%; }
-@font-face { font-family: 'Body Fallback DejaVu'; src: local('DejaVu Sans Bold'), local('DejaVuSans-Bold'); font-weight: 600 800; size-adjust: 81.19%; ascent-override: 119.47%; descent-override: 30.79%; line-gap-override: 0%; }
-@font-face { font-family: 'Display Fallback Arial'; src: local('Arial'), local('ArialMT'), local('Liberation Sans'), local('LiberationSans'); font-weight: 400 500; size-adjust: 94.75%; ascent-override: 98.15%; descent-override: 28.49%; line-gap-override: 0%; }
-@font-face { font-family: 'Display Fallback Arial'; src: local('Arial Bold'), local('Arial-BoldMT'), local('Liberation Sans Bold'), local('LiberationSans-Bold'); font-weight: 600 800; size-adjust: 90.13%; ascent-override: 103.19%; descent-override: 29.96%; line-gap-override: 0%; }
-@font-face { font-family: 'Display Fallback Roboto'; src: local('Roboto'), local('Roboto-Regular'), local('Roboto Regular'); font-weight: 400 500; size-adjust: 95.64%; ascent-override: 97.24%; descent-override: 28.23%; line-gap-override: 0%; }
-@font-face { font-family: 'Display Fallback Roboto'; src: local('Roboto Bold'), local('Roboto-Bold'); font-weight: 600 800; size-adjust: 96.06%; ascent-override: 96.81%; descent-override: 28.11%; line-gap-override: 0%; }
-@font-face { font-family: 'Display Fallback DejaVu'; src: local('DejaVu Sans'), local('DejaVuSans'); font-weight: 400 500; size-adjust: 83.73%; ascent-override: 111.07%; descent-override: 32.25%; line-gap-override: 0%; }
-@font-face { font-family: 'Display Fallback DejaVu'; src: local('DejaVu Sans Bold'), local('DejaVuSans-Bold'); font-weight: 600 800; size-adjust: 75.86%; ascent-override: 122.59%; descent-override: 35.59%; line-gap-override: 0%; }
+/* Nm7 design tokens: the look of the new home page (asuraa.ai style), for every page.
+   Light only for now (no dark mode). Navy text, purple gradient accents, a white base with soft lavender and peach
+   glows, EB Garamond headings and Manrope text. Every page reads these variables, so changing a value here changes
+   the whole site. Text colours keep 4.5:1 or more on white and on the light tints.
+   Yellow (--signal) keeps one meaning only, in the resume tools: "a recruiter would notice this". */
+
+/* Fallback faces sized close to the web fonts, so text moves little when EB Garamond and Manrope arrive. */
+@font-face { font-family: 'Manrope Fallback'; src: local('Arial'), local('ArialMT'), local('Liberation Sans'), local('Roboto'); size-adjust: 103%; ascent-override: 100%; descent-override: 28%; line-gap-override: 0%; }
+@font-face { font-family: 'Garamond Fallback'; src: local('Georgia'), local('Times New Roman'), local('Liberation Serif'), local('DejaVu Serif'); size-adjust: 88%; ascent-override: 102%; descent-override: 30%; line-gap-override: 0%; }
 
 :root {
-  --viz-1: #2a78d6; --viz-2: #eb6834; --viz-3: #1baf7a; --viz-grid: #e4e3df;
-  --bg: #F7F6F2;
-  --surface: #FFFFFF;
-  --sunken: #EFEDE6;
-  --text: #121316;
-  --text2: #4E4F55;
-  --text3: #68696F;
-  --border: #E2DFD6;
-  --border2: #C9C5B9;
-  --ink: #121316;
-  --onink: #F7F6F2;
-  --signal: #FFE14D;
-  --signalink: #3A3000;
-  --accent: #2E46D8;
-  --success: #0E7A52;
-  --successbg: #DFF3EA;
-  --warning: #8A5200;
-  --warningbg: #FFF0D6;
-  --danger: #B42D1B;
-  --dangerbg: #FCE6E2;
-  --paper: #FFFFFF;
-  --shadow: 0 30px 60px -24px rgba(18, 19, 22, .22), 0 2px 6px rgba(18, 19, 22, .06);
-  --shadow-sm: 0 8px 24px -8px rgba(18, 19, 22, .2);
+  /* colours */
+  --bg: #fcfbff;              /* the page: white with a hint of lavender */
+  --surface: #ffffff;         /* cards, inputs */
+  --sunken: #f4f1fc;          /* quiet panels, table hover, skeletons */
+  --text: #1b1730;            /* navy */
+  --text2: #4a4560;
+  --text3: #5f5a76;
+  --border: #e6e2f2;
+  --border2: #cdc6e3;
+  --ink: #0f1729;             /* deep navy: secondary buttons, selected chips */
+  --onink: #ffffff;
+  --signal: #ffe14d;          /* resume tools only */
+  --signalink: #3a3000;
+  --accent: #5b52f0;          /* links, focus, the brand purple */
+  --accent2: #9b55f2;
+  --success: #0e7a52;
+  --successbg: #dff3ea;
+  --warning: #8a5200;
+  --warningbg: #fff0d6;
+  --danger: #b42d1b;
+  --dangerbg: #fce6e2;
+  --paper: #ffffff;
+  --lav: #f6f3ff;             /* section tints */
+  --peach: #fff7ef;
+  --viz-1: #5b52f0; --viz-2: #e0701a; --viz-3: #0d9488; --viz-grid: #e6e2f2;
 
-  --font-display: 'Bricolage Grotesque', 'Display Fallback Arial', 'Display Fallback Roboto', 'Display Fallback DejaVu', 'Segoe UI', system-ui, sans-serif;
-  --font-body: 'Instrument Sans', 'Body Fallback Arial', 'Body Fallback Roboto', 'Body Fallback DejaVu', 'Segoe UI', system-ui, sans-serif;
+  /* the purple gradient: accents and primary buttons */
+  --grad: linear-gradient(100deg, #5b52f0, #9b55f2);
+  --grad-btn: linear-gradient(120deg, #5b52f0, #8f4deb);
+  /* the page glow: soft peach (top right) and lavender (top left) */
+  --glow-bg:
+    radial-gradient(55% 40% at 82% 0%, rgba(255, 214, 170, 0.55), transparent 70%),
+    radial-gradient(50% 38% at 12% 4%, rgba(214, 198, 255, 0.6), transparent 70%);
+
+  /* audience colours (dots, glows, small accents; text in these colours only at 18 px or bold) */
+  --aud-company: #2563eb;
+  --aud-college: #0d9488;
+  --aud-seeker: #ea7a1f;
+  --aud-student: #db2777;
+  --aud-default: #5b52f0;
+
+  /* shadows */
+  --shadow: 0 1px 2px rgba(27, 23, 48, 0.04), 0 18px 44px -18px rgba(52, 40, 120, 0.28);
+  --shadow-sm: 0 1px 2px rgba(27, 23, 48, 0.04), 0 8px 22px -10px rgba(52, 40, 120, 0.22);
+  --shadow-btn: 0 12px 28px -12px rgba(91, 82, 240, 0.75);
+
+  /* type */
+  --font-display: 'EB Garamond', 'Garamond Fallback', Georgia, 'Times New Roman', serif;
+  --font-body: 'Manrope', 'Manrope Fallback', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
-  --font-serif: Georgia, 'Times New Roman', serif;
+  --font-serif: 'EB Garamond', Georgia, 'Times New Roman', serif;
 
-  --r-chip: 6px;
-  --r-control: 12px;
-  --r-card: 16px;
-  --r-panel: 20px;
+  /* radii */
+  --r-chip: 999px;
+  --r-control: 14px;
+  --r-card: 18px;
+  --r-panel: 22px;
+
+  /* spacing scale */
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px; --s8: 72px;
 
   --ease: cubic-bezier(.2, .8, .2, 1);
   color-scheme: light;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --viz-1: #3987e5; --viz-2: #d95926; --viz-3: #199e70; --viz-grid: #34332f;
-  --bg: #0D0E10;
-  --surface: #15171A;
-  --sunken: #0A0B0C;
-  --text: #F1F0EC;
-  --text2: #B4B3AD;
-  --text3: #94938D;
-  --border: #2A2D32;
-  --border2: #3A3E44;
-  --ink: #F1F0EC;
-  --onink: #0D0E10;
-  --signal: #FFE14D;
-  --signalink: #2B2400;
-  --accent: #8EA0FF;
-  --success: #4FD1A1;
-  --successbg: #10261E;
-  --warning: #FFC266;
-  --warningbg: #2A2010;
-  --danger: #FF8A78;
-  --dangerbg: #2C1512;
-  --paper: #1C1F23;
-  --shadow: 0 30px 60px -24px rgba(0, 0, 0, .6), 0 0 0 1px #2A2D32;
-  --shadow-sm: 0 0 0 1px #2A2D32;
-  color-scheme: dark;
-  }
-}
-
-:root[data-theme="dark"] {
-  --viz-1: #3987e5; --viz-2: #d95926; --viz-3: #199e70; --viz-grid: #34332f;
-  --bg: #0D0E10;
-  --surface: #15171A;
-  --sunken: #0A0B0C;
-  --text: #F1F0EC;
-  --text2: #B4B3AD;
-  --text3: #94938D;
-  --border: #2A2D32;
-  --border2: #3A3E44;
-  --ink: #F1F0EC;
-  --onink: #0D0E10;
-  --signal: #FFE14D;
-  --signalink: #2B2400;
-  --accent: #8EA0FF;
-  --success: #4FD1A1;
-  --successbg: #10261E;
-  --warning: #FFC266;
-  --warningbg: #2A2010;
-  --danger: #FF8A78;
-  --dangerbg: #2C1512;
-  --paper: #1C1F23;
-  --shadow: 0 30px 60px -24px rgba(0, 0, 0, .6), 0 0 0 1px #2A2D32;
-  --shadow-sm: 0 0 0 1px #2A2D32;
-  color-scheme: dark;
 }

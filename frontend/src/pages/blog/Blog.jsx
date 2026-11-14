@@ -1,6 +1,7 @@
 // The blog: /blog (newest first, 12 at a time), /blog/category/:slug and /blog/:slug, plus the home page strip.
 // The build pre-renders these pages as static HTML for search engines (scripts/prerender-blog.mjs); here the app
 // takes over with the same markup.
+import { PageArt } from '../../components/PageHero';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Header from '../../components/Header';
@@ -87,8 +88,8 @@ export function BlogList() {
   return (
     <Frame>
       <div className="stack g16">
-        <h1 className="display h2">{cat ? cat.name : BLOG_TITLE}</h1>
-        <p className="lead">{cat ? `Articles on ${cat.name.toLowerCase()}.` : BLOG_DESC}</p>
+        <div className="ph-row"><div className="stack g12"><h1 className="display h2">{cat ? cat.name : BLOG_TITLE}</h1>
+        <p className="lead">{cat ? `Articles on ${cat.name.toLowerCase()}.` : BLOG_DESC}</p></div><PageArt shape="magnifier" /></div>
         {st.data && (
           <nav className="blog-filters" aria-label="Categories">
             <Link to="/blog" aria-current={!slug ? 'page' : undefined}>All</Link>
@@ -140,7 +141,7 @@ export function BlogPost() {
             <aside className="blog-cta" aria-label="Free resume scan">
               <strong>Is your resume ATS-ready?</strong>
               <span>See your score and every issue in seconds.</span>
-              <Link className="btn btn-ink" to="/">Scan your resume free</Link>
+              <Link className="btn btn-ink" to="/pricing#scan">Scan your resume free</Link>
             </aside>
           </div>
           {st.data.related.length > 0 && (

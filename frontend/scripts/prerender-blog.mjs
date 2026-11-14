@@ -13,7 +13,7 @@ import { BLOG_DESC, BLOG_TITLE, ORIGIN, categoryJsonLd, categoryMeta, listJsonLd
 
 /** Pages that are always in the sitemap (the blog adds its own). */
 export const STATIC_PAGES = [
-  ['/', 'weekly', '1.0'], ['/builder', 'monthly', '0.8'], ['/templates', 'monthly', '0.8'], ['/blog', 'daily', '0.8'], ['/jobs', 'daily', '0.9'], ['/for-companies', 'monthly', '0.6'], ['/contact', 'yearly', '0.4'], ['/for-orgs', 'monthly', '0.7'], ['/partners', 'monthly', '0.5'],
+  ['/', 'weekly', '1.0'], ['/builder', 'monthly', '0.8'], ['/templates', 'monthly', '0.8'], ['/blog', 'daily', '0.8'], ['/jobs', 'daily', '0.9'], ['/for-companies', 'monthly', '0.6'], ['/contact', 'yearly', '0.4'], ['/for-orgs', 'monthly', '0.7'], ['/partners', 'monthly', '0.5'], ['/pricing', 'monthly', '0.6'],
   ['/terms', 'yearly', '0.3'], ['/privacy', 'yearly', '0.3'], ['/refund-policy', 'yearly', '0.3'], ['/delivery-policy', 'yearly', '0.3'], ['/expert-terms', 'yearly', '0.3'],
 ];
 
@@ -68,7 +68,7 @@ export function postBody(p, related) {
   const by = `<p class="blog-byline">${p.author ? `${esc(p.author.name)} · ` : ''}${esc(fmtDate(p.publishedAt))} · ${p.minutes} min read</p>`;
   const crumbs = `<nav class="blog-crumbs" aria-label="Breadcrumb"><a href="/blog">Blog</a>${p.category ? ` / <a href="/blog/category/${esc(p.category.slug)}">${esc(p.category.name)}</a>` : ''}</nav>`;
   const art = `<article class="blog-article">${crumbs}<h1 class="display h2">${esc(p.title)}</h1>${by}${p.cover ? `<img class="blog-cover" src="${esc(p.cover.url)}" alt="" decoding="async"${p.cover.width && p.cover.height ? ` width="${p.cover.width}" height="${p.cover.height}"` : ''}>` : ''}<div class="blog-content">${richTextToHtml(p.content)}</div></article>`;
-  const cta = '<aside class="blog-cta" aria-label="Free resume scan"><strong>Is your resume ATS-ready?</strong><span>See your score and every issue in seconds.</span><a class="btn btn-ink" href="/">Scan your resume free</a></aside>';
+  const cta = '<aside class="blog-cta" aria-label="Free resume scan"><strong>Is your resume ATS-ready?</strong><span>See your score and every issue in seconds.</span><a class="btn btn-ink" href="/pricing#scan">Scan your resume free</a></aside>';
   const rel = related.length ? `<section class="blog-related" aria-labelledby="blog-related-h"><h2 id="blog-related-h">Related articles</h2><div class="blog-grid">${related.map(card).join('')}</div></section>` : '';
   return shell(`<div class="blog-layout">${art}${cta}</div>${rel}`);
 }

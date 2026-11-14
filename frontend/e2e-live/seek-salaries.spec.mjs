@@ -16,7 +16,7 @@ for (const [label, opts] of SIZES) {
       page.on('dialog', () => { throw new Error('no browser dialogs'); });
       // round D1: with too little data the page is hidden from search ("noindex, follow") and from the footer,
       // but still works when opened directly; each role has its own page
-      await page.goto('/');
+      await page.goto('/old-home');
       await expect(page.locator('footer')).toBeVisible();
       await expect(page.getByTestId('footer-salaries')).toHaveCount(0);
       await page.goto('/salaries');

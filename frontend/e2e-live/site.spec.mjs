@@ -11,18 +11,18 @@ test('phones: the logo and "Build free" stay in view; the other links are behind
   await expect(pricing).toBeVisible();
   await expect(page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'For organizations' })).toBeVisible();
   await pricing.click();
-  await expect(page).toHaveURL(/#pricing$/);
+  await expect(page).toHaveURL(/\/pricing$/); // round P: its own page
   await expect(pricing).toBeHidden(); // closes after choosing
   await expect(page.getByRole('heading', { name: 'Free to build. Pay only for what you need.' })).toBeInViewport();
 });
 
 test('home: no unbacked stats; closing the file picker asks for a file; labelled inputs; skip link', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/old-home'); // the previous home page (round P): its scan box and line fixer
   await expect(page.getByText('20,000+')).toHaveCount(0);
   await expect(page.getByText('job seekers on Nm7')).toHaveCount(0);
   await page.getByLabel('Resume file to scan', { exact: true }).dispatchEvent('cancel');
   await expect(page.getByRole('alert').filter({ hasText: 'Choose a PDF or DOCX first.' })).toBeVisible();
-  await expect(page).toHaveURL(/\/$/); // didn't go off and scan anything
+  await expect(page).toHaveURL(/\/old-home$/); // didn't go off and scan anything
   await expect(page.getByLabel('Your resume line')).toBeVisible();
   await page.keyboard.press('Tab');
   await expect(page.getByRole('link', { name: 'Skip to content' })).toBeFocused();

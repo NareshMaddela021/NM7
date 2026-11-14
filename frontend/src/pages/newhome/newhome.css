@@ -28,7 +28,7 @@
   font-size: 16px;
   line-height: 1.6;
 }
-.nh a { color: inherit; }
+.nh-main a:not(.nh-btn), .nh-footer a { color: inherit; }
 .nh :focus-visible { outline: 3px solid var(--nh-focus); outline-offset: 3px; border-radius: 10px; }
 .nh-wrap { position: relative; z-index: 2; width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 16px; box-sizing: border-box; }
 .nh-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

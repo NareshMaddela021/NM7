@@ -25,7 +25,7 @@ for (const [label, opts] of SIZES) {
       expect(await noSideScroll(page)).toBe(true);
       // 26 + 30: /pricing lands on the pricing section, which says what is free
       await page.goto('/pricing');
-      await expect(page).toHaveURL(/\/#pricing$/);
+      await expect(page).toHaveURL(/\/pricing$/); // round P: its own page
       await expect(page.locator('#pricing')).toContainText('The job board, your match score on every job and Manual Apply are free too.');
       // 29: the sign-in subtitle mentions jobs
       await page.goto('/login');

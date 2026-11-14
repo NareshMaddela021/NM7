@@ -35,7 +35,7 @@ for (const [label, opts] of SIZES) {
       expect((await setMode(owner.page, 'whatsapp')).status).toBe(200);
 
       // the home pricing shows the pass as best value
-      await page.goto('/#pricing');
+      await page.goto('/pricing'); // round P: its own page
       const card = page.getByTestId('home-pass');
       await expect(card).toContainText('Annual student pass');
       await expect(card).toContainText('Best value');

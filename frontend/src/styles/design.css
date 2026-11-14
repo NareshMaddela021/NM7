@@ -1,0 +1,197 @@
+/* Nm7 design system (round P): the new home page's look for every page. Loaded after base.css; it restyles the
+   shared classes every page already uses (buttons, cards, inputs, chips, tables, tabs, header, footer, dialogs,
+   toasts), so pages pick up the look without code changes, and adds a few new pieces (page header with a dotted
+   shape, glass widget, empty state, skeleton). Tokens: tokens.css. Mobile first; 44 px tap targets; reduced motion
+   respected (base.css turns animation off). */
+
+/* ---------- page ---------- */
+body {
+  background-color: var(--bg);
+  background-image: var(--glow-bg);
+  background-repeat: no-repeat;
+  background-size: 100% 900px;
+  color: var(--text);
+  font-family: var(--font-body);
+  transition: none;
+}
+a { color: var(--accent); text-underline-offset: 3px; }
+a:hover { color: #3f36c9; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 8px; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 500; letter-spacing: -0.01em; color: var(--text); }
+h4, h5, h6 { font-family: var(--font-body); }
+.display { font-family: var(--font-display); font-weight: 500; letter-spacing: -0.02em; line-height: 1.04; }
+.h2 { font-weight: 500; }
+.h3 { font-weight: 500; font-size: 26px; }
+.lead { color: var(--text2); }
+.grad-text { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.kicker { margin: 0; text-transform: uppercase; letter-spacing: .14em; font-size: 12px; font-weight: 800; color: var(--accent); }
+.mono { font-family: var(--font-mono); }
+
+/* section tints */
+.tint-lav { background: linear-gradient(180deg, transparent, var(--lav) 14%, var(--lav) 86%, transparent); }
+.tint-peach { background: linear-gradient(180deg, transparent, var(--peach) 14%, var(--peach) 86%, transparent); }
+
+/* ---------- buttons ---------- */
+.btn { border-radius: 999px; font-weight: 700; padding: 0 20px; min-height: 44px; }
+.btn:hover { transform: translateY(-1px); }
+/* primary: the purple gradient pill (the old yellow call-to-action) */
+.btn-signal, .btn-primary { background: var(--grad-btn); color: #fff; border-color: transparent; box-shadow: var(--shadow-btn); }
+.btn-signal:hover, .btn-primary:hover { color: #fff; filter: brightness(1.06); }
+/* secondary: navy pill, white pill */
+.btn-ink { background: var(--ink); color: #fff; }
+.btn-ink:hover { color: #fff; background: #1f2740; box-shadow: 0 10px 22px -12px rgba(15, 23, 41, .6); }
+.btn-outline { background: var(--surface); border: 1px solid var(--border2); color: var(--text); }
+.btn-outline:hover { border-color: var(--accent); color: var(--text); }
+.btn-ghost { color: var(--text2); }
+.btn-ghost:hover { color: var(--text); background: var(--sunken); }
+.btn-icon { width: 44px; padding: 0; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); }
+.btn-lg { min-height: 52px; padding: 0 26px; }
+.btn-xl { min-height: 58px; padding: 0 30px; font-size: 17px; }
+.link-btn { color: var(--accent); }
+
+/* ---------- forms ---------- */
+.label { color: var(--text2); font-weight: 700; }
+.input { border-radius: var(--r-control); border: 1px solid var(--border2); background: var(--surface); min-height: 48px; }
+.input:hover { border-color: #b3aad6; }
+.input:focus { border-color: var(--accent); outline: 3px solid color-mix(in srgb, var(--accent) 22%, transparent); outline-offset: 1px; }
+select.input { appearance: none; -webkit-appearance: none; padding-right: 40px; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5l5-5' fill='none' stroke='%234a4560' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 16px center; }
+.check input, .option input, input[type="checkbox"], input[type="radio"] { accent-color: var(--accent); }
+.option { border-radius: var(--r-card); border-color: var(--border); background: var(--surface); }
+.option[data-on="true"] { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent); }
+.help { color: var(--text3); }
+
+/* ---------- surfaces ---------- */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-panel); box-shadow: var(--shadow-sm); }
+.card-sm { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-card); box-shadow: 0 1px 2px rgba(27, 23, 48, .04); }
+.card-ink { background: linear-gradient(140deg, #5b52f0, #8f4deb); color: #fff; border-radius: var(--r-panel); }
+.card-ink :is(h1, h2, h3, a) { color: #fff; }
+.well { background: var(--sunken); border-radius: var(--r-control); }
+.divider { background: var(--border); }
+/* the glass widget (light frosted glass with a soft glow underneath) */
+.glass { position: relative; overflow: hidden; border-radius: 24px; background: rgba(255, 255, 255, .64); border: 1px solid rgba(255, 255, 255, .9);
+  backdrop-filter: blur(18px) saturate(150%); -webkit-backdrop-filter: blur(18px) saturate(150%);
+  box-shadow: inset 0 1px 0 #fff, 0 0 0 1px rgba(27, 23, 48, .05), 0 24px 50px -24px rgba(52, 40, 120, .35); padding: 22px; }
+.glass::after { content: ""; position: absolute; left: 6%; right: 6%; bottom: -46px; height: 90px; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(ellipse at center, rgba(176, 156, 255, .7), rgba(255, 200, 150, .4) 50%, transparent 72%); filter: blur(16px); }
+.glass > * { position: relative; z-index: 1; }
+
+/* ---------- chips & badges ---------- */
+.chip { border-radius: 999px; border-color: var(--border2); min-height: 44px; font-weight: 700; }
+.chip:hover { border-color: var(--accent); }
+.chip[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+.badge { border-radius: 999px; padding: 4px 10px; font-weight: 700; }
+.b-neutral { background: var(--sunken); color: var(--text2); }
+.b-signal { background: #efeaff; color: #4338ca; }
+.b-accent { background: #efeaff; color: #4338ca; }
+
+/* ---------- tabs ---------- */
+.segmented { border-radius: 999px; background: var(--sunken); padding: 4px; }
+.segmented button { border-radius: 999px; min-height: 40px; font-weight: 700; }
+.segmented button[aria-selected="true"], .segmented button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); }
+.view-switch, .hx-lang { border-radius: 999px; }
+.view-switch button, .hx-lang button { border-radius: 999px; }
+.steps li[aria-current="step"] { background: var(--grad-btn); color: #fff; }
+.meter > span { background: var(--grad-btn); }
+.num-dot { background: var(--grad-btn); color: #fff; }
+
+/* ---------- tables (scroll inside their box on a phone) ---------- */
+.table-wrap { overflow-x: auto; border-radius: var(--r-card); -webkit-overflow-scrolling: touch; }
+.table th { font-family: var(--font-body); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--text3); }
+.table td { border-top-color: var(--border); }
+.table tr.clickable:hover, .table tr[aria-selected="true"] { background: var(--lav); }
+
+/* ---------- dialogs, toasts ---------- */
+.overlay { background: rgba(27, 23, 48, .38); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+.dialog { border-radius: 24px; box-shadow: var(--shadow); border: 1px solid var(--border); }
+.toast { background: var(--ink); color: #fff; border-radius: 999px; padding: 10px 12px 10px 20px; box-shadow: var(--shadow); }
+
+/* ---------- skeleton & empty state ---------- */
+.shimmer, .skeleton { background: linear-gradient(90deg, #ece8fb, #f8f6ff, #ece8fb); background-size: 200% 100%; animation: shimmer 1.3s linear infinite; border-radius: 10px; }
+.skeleton { display: block; height: 14px; }
+.empty { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; padding: 40px 20px; border-radius: var(--r-panel);
+  border: 1px dashed var(--border2); background: var(--surface); color: var(--text2); }
+.empty h2, .empty h3 { font-size: 26px; }
+
+/* ---------- header: a floating white pill ---------- */
+.site-header { position: sticky; top: 0; z-index: 20; background: transparent; border-bottom: 0; padding: 10px 12px 0; pointer-events: none; }
+.site-header .bar { pointer-events: auto; max-width: 1200px; margin: 0 auto; padding: 6px 8px 6px 20px; background: rgba(255, 255, 255, .88);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid var(--border); border-radius: 999px; box-shadow: 0 8px 30px -12px rgba(52, 40, 120, .28); }
+.logo b { font-family: var(--font-display); font-weight: 600; font-size: 28px; letter-spacing: -0.01em; color: var(--ink); }
+.logo mark { background: none; color: var(--accent); padding: 0; margin: 0; }
+.nav a { color: var(--text2); font-weight: 600; border-radius: 999px; padding: 10px 12px; }
+.nav a:hover { color: var(--text); background: color-mix(in srgb, var(--accent) 7%, transparent); }
+.nav a[aria-current="page"] { color: var(--text); box-shadow: none; background: color-mix(in srgb, var(--accent) 10%, transparent); border-radius: 999px; }
+.hdr-right .btn:not(.btn-outline):not(.btn-ink) { background: var(--ink); color: #fff; }
+@media (max-width: 760px) {
+  .site-header .bar { border-radius: 26px; padding: 6px 8px 6px 16px; }
+  .site-header .nav-public[data-open="true"] a { border-bottom-color: var(--border); border-radius: 12px; }
+}
+
+/* ---------- footer ---------- */
+.site-footer { background: rgba(255, 255, 255, .7); border-top: 1px solid var(--border) !important; margin-top: 48px; }
+.site-footer a { color: var(--text2); }
+.site-footer a:hover { color: var(--text); }
+
+/* ---------- page header with an optional dotted shape (components/PageHero.jsx) ---------- */
+.ph { position: relative; overflow: hidden; padding: 40px 0 28px; }
+.ph-in { position: relative; z-index: 2; display: grid; grid-template-columns: 1fr; gap: 20px; align-items: center; }
+.ph-text { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.ph-title { font-size: clamp(36px, 7.5vw, 64px); line-height: 1.04; letter-spacing: -0.02em; margin: 0; overflow-wrap: anywhere; }
+.ph-sub { font-size: 18px; line-height: 1.6; color: var(--text2); max-width: 62ch; }
+.ph-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+.ph-art { position: relative; justify-self: center; width: min(70vw, 300px); aspect-ratio: 1; pointer-events: none; }
+.ph-art svg { width: 100%; height: 100%; }
+.ph-art::before { content: ""; position: absolute; inset: 8%; border-radius: 50%; background: radial-gradient(circle, currentColor 0%, color-mix(in srgb, currentColor 40%, transparent) 40%, transparent 70%); filter: blur(20px); opacity: .7; }
+.ph-art canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; }
+.ph-art[data-mode="3d"] svg { opacity: 0; transition: opacity .6s; }
+.ph-sm .ph-title { font-size: clamp(32px, 6vw, 48px); }
+.ph-sm { padding: 28px 0 16px; }
+@media (max-width: 700px) { .ph-art { display: none; } } /* phones: the words first; the shape stays on bigger screens */
+@media (min-width: 900px) {
+  .ph { padding: 64px 0 40px; }
+  .ph-in.has-art { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 48px; }
+  .ph-art { width: min(100%, 340px); }
+}
+
+/* ---------- legal and simple text pages ---------- */
+.legal h2 { font-size: 28px; margin-top: 12px; }
+.legal p, .legal li { color: var(--text2); line-height: 1.7; }
+
+/* ---------- public jobs, companies, blog: a little more air and the new cards ---------- */
+.job-logo { border-radius: 14px; background: var(--lav); color: var(--accent); }
+.blog-card { border-radius: var(--r-panel); box-shadow: var(--shadow-sm); }
+.blog-card-title { font-family: var(--font-display); font-weight: 500; font-size: 23px; }
+.blog-filters a { min-height: 44px; border-radius: 999px; }
+.blog-filters a[aria-current="page"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+.blog-content h2, .blog-content h3 { font-family: var(--font-display); font-weight: 500; }
+.blog-content h2 { font-size: 32px; }
+.blog-content h3 { font-size: 25px; }
+.blog-cta { border-radius: var(--r-panel); box-shadow: var(--shadow-sm); }
+.co-steps li[aria-current="step"] { background: var(--grad-btn); color: #fff; }
+.admin-link.active { background: var(--ink); color: #fff; }
+.tl li[data-state="now"] .dot2 { background: var(--accent); border-color: var(--accent); }
+
+/* ---------- audience accents (small details, never body text) ---------- */
+.aud-company { --aud: var(--aud-company); }
+.aud-college { --aud: var(--aud-college); }
+.aud-seeker { --aud: var(--aud-seeker); }
+.aud-student { --aud: var(--aud-student); }
+.aud-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--aud, var(--aud-default)); }
+
+/* a page's own title block with the dotted shape beside it (PageArt); phones: the title only */
+.ph-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; align-items: center; padding: 16px 0 4px; }
+.ph-row h1.display, .ph-title-lg { font-size: clamp(34px, 6vw, 52px) !important; line-height: 1.05; letter-spacing: -0.015em; }
+.ph-row .ph-art { width: 220px; justify-self: end; }
+.ph-row .lead, .ph-row > div > .muted { font-size: 18px; }
+@media (min-width: 900px) { .ph-row { grid-template-columns: minmax(0, 1fr) 220px; gap: 32px; padding-top: 28px; } }
+.row > .ph-art { flex: none; width: 200px; margin-left: auto; }
+
+/* the old home page's section labels and plan cards (still used on /pricing and /old-home), in the new style */
+.h-eyebrow { font-family: var(--font-body) !important; text-transform: uppercase; letter-spacing: .14em !important; font-size: 12px !important; font-weight: 800 !important; color: var(--accent) !important; }
+.h-eyebrow::before { display: none !important; }
+.h-sec-title { font-family: var(--font-display) !important; font-weight: 500 !important; letter-spacing: -0.015em !important; }
+.h-plan { border-radius: var(--r-panel) !important; box-shadow: var(--shadow-sm); }
+.h-plan[data-pop="true"] { border-color: var(--accent) !important; box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent), var(--shadow-sm); }
+.hx-tool { border-radius: var(--r-panel) !important; box-shadow: var(--shadow-sm); }

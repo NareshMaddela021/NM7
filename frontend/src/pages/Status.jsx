@@ -1,5 +1,6 @@
 // /status — is Nm7 working right now? The website (this page loaded), the API (and its database) and email, as
 // states only: no server names, numbers or errors. Checks again every 60 seconds.
+import { PageArt } from '../components/PageHero';
 import { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import SiteFooter from '../components/SiteFooter';
@@ -37,8 +38,8 @@ export default function Status() {
     <>
       <Header />
       <main id="main" className="container stack g20" style={{ maxWidth: 720, padding: '32px 16px 64px' }}>
-        <h1 className="display" style={{ fontSize: 34 }}>Nm7 status</h1>
-        <p className="lead" style={{ margin: 0 }} role="status" data-testid="status-summary">{!s ? 'Checking…' : allOk ? 'Everything is working.' : 'Something isn’t working right now. We’re on it.'}</p>
+        <div className="ph-row"><div className="stack g12"><h1 className="display" style={{ fontSize: 34 }}>Nm7 status</h1>
+        <p className="lead" style={{ margin: 0 }} role="status" data-testid="status-summary">{!s ? 'Checking…' : allOk ? 'Everything is working.' : 'Something isn’t working right now. We’re on it.'}</p></div><PageArt shape="badge" /></div>
         <ul className="card stack g8" style={{ listStyle: 'none', margin: 0, padding: 16 }} aria-label="Services">
           {rows.map(([name, k]) => {
             const [label, tone] = TEXT[k] || TEXT.checking;
