@@ -2,7 +2,7 @@
 // "reduce motion" switched on, data saver, or a low-power phone. The page paints with the still picture first; the
 // three.js chunk (particles.js) loads only after that, when the browser is idle. ?fx=static forces the picture.
 import { memo, useEffect, useRef, useState } from 'react';
-import { projectPoints } from './shapes';
+import { colorsFor, projectPoints } from './shapes';
 
 /** Why 3D is off on this device ('' when it can run). */
 export function why3dOff(win = typeof window !== 'undefined' ? window : null) {
@@ -30,16 +30,17 @@ const STILL_DOTS = 650;
 /** The still picture: the same shape's dots, drawn once as an SVG. */
 const Still = memo(function Still({ shape }) {
   const pts = projectPoints(shape, STILL_DOTS, 400);
+  const c = colorsFor(shape);
   return (
     <svg className="nh-still" viewBox="0 0 400 400" aria-hidden="true" focusable="false" data-shape={shape}>
       <defs>
         <linearGradient id="nh-dot" x1="0" y1="0" x2="0" y2="400" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#9b55f2" />
-          <stop offset="1" stopColor="#5b52f0" />
+          <stop offset="0" stopColor={c.b} />
+          <stop offset="1" stopColor={c.a} />
         </linearGradient>
       </defs>
       <g fill="url(#nh-dot)">
-        {pts.map(([x, y, z], i) => <circle key={i} cx={x.toFixed(1)} cy={y.toFixed(1)} r={(1.3 + z * 0.5).toFixed(2)} opacity={(0.55 + z * 0.3).toFixed(2)} />)}
+        {pts.map(([x, y, z], i) => <circle key={i} cx={x.toFixed(1)} cy={y.toFixed(1)} r="1.6" opacity={(0.7 + z * 0.25).toFixed(2)} />)}
       </g>
     </svg>
   );
@@ -63,7 +64,7 @@ export default function ParticleStage({ shape, side = 0, dim = false }) {
       if (dead || !host.current) return;
       try {
         const phone = window.innerWidth < 700;
-        scene.current = startParticles(host.current, { count: phone ? 1600 : 4000, shape: latest.current.shape });
+        scene.current = startParticles(host.current, { count: phone ? 700 : 1100, shape: latest.current.shape, phone });
         scene.current.setSide(latest.current.side);
         setMode('3d');
       } catch {
@@ -85,7 +86,7 @@ export default function ParticleStage({ shape, side = 0, dim = false }) {
 
   return (
     <div className="nh-stage" data-testid="nh-stage" data-mode={mode} data-off={off || ''} data-shape={shape} data-dim={dim ? '1' : '0'} style={{ '--side': side }} aria-hidden="true">
-      <div className="nh-stage-glow" />
+      <div className="nh-stage-glow" style={{ color: colorsFor(shape).glow }} />
       {mode === 'still' && <Still shape={shape} />}
       <div ref={host} className="nh-canvas" />
     </div>

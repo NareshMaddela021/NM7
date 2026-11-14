@@ -1,7 +1,7 @@
 // The new home page (/new-home): every shape has the same number of dots (so they can morph), the four audiences
 // and their links, widgets never show a number that didn't come from the API, and the structured data is complete.
 import { describe, expect, it } from 'vitest';
-import { SHAPE_NAMES, projectPoints, shapePoints } from './shapes';
+import { SHAPE_COLORS, SHAPE_NAMES, SPACING, colorsFor, projectPoints, shapePoints } from './shapes';
 import { AUDIENCES, DEFAULT_AUDIENCE, FAQ, HERO_HEADLINE, META, SECTIONS, TAGLINE, audienceFor, structuredData, widgetFor } from './content';
 import { translate } from '../../lib/i18n';
 import { widgetText } from './GlassWidget';
@@ -86,5 +86,48 @@ describe('FAQ and structured data', () => {
     expect(org['@type']).toBe('Organization');
     expect(site.potentialAction.target.urlTemplate).toBe('https://nm7.si/jobs?q={search_term_string}');
     expect(faq.mainEntity).toHaveLength(FAQ.flatMap(([, qs]) => qs).length);
+  });
+});
+
+describe('the CUTE-orb dots (round O)', () => {
+  // the visible dots (spares stacked on a drawn dot count once) and each one's distance to its nearest neighbour
+  const visible = (p) => [...new Map(Array.from({ length: p.length / 3 }, (_, i) => [p[i * 3], p[i * 3 + 1], p[i * 3 + 2]]).map((q) => [q.map((v) => v.toFixed(4)).join(), q])).values()];
+  const gaps = (q) => q.map((a, i) => Math.min(...q.map((b, j) => (i === j ? 9 : Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]))))).sort((a, b) => a - b);
+  it.each(SHAPE_NAMES.filter((n) => n !== 'sphere'))('%s: a dotted line drawing, most dots on its outlines, evenly spaced', (name) => {
+    const p = shapePoints(name, 1100);
+    expect(p.length).toBe(1100 * 3);
+    expect(p.outline).toBeGreaterThanOrEqual(0.85); // outlines and details; the inside fill stays light
+    const g = gaps(visible(p));
+    const median = g[g.length >> 1];
+    expect(median).toBeGreaterThan(SPACING * 0.75); // dots stay dots: never merged into a solid line
+    expect(median).toBeLessThan(SPACING * 1.15);
+    expect(g[0]).toBeGreaterThan(median * 0.1); // no two drawn dots on the same spot
+  });
+  it('the sphere is latitude rings, each with evenly spaced dots', () => {
+    const p = shapePoints('sphere', 1100);
+    const byRing = new Map();
+    for (let i = 0; i < 1100; i += 1) { const y = p[i * 3 + 1].toFixed(5); if (!byRing.has(y)) byRing.set(y, []); byRing.get(y).push(Math.atan2(p[i * 3 + 2], p[i * 3])); }
+    expect(byRing.size).toBeGreaterThan(20);
+    expect(byRing.size).toBeLessThan(45);
+    for (const angles of byRing.values()) {
+      if (angles.length < 3) continue;
+      const step = (Math.PI * 2) / angles.length;
+      const sorted = angles.map((a) => (a + Math.PI * 2) % (Math.PI * 2)).sort((a, b) => a - b);
+      sorted.slice(1).forEach((a, k) => expect(a - sorted[k]).toBeCloseTo(step, 5));
+    }
+  });
+  const lum = (hex) => {
+    const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  };
+  const onWhite = (hex) => 1.05 / (lum(hex) + 0.05);
+  it('each audience shape has its own colours, clearly visible on the light page', () => {
+    expect(Object.keys(SHAPE_COLORS)).toEqual(['sphere', 'stopwatch', 'college', 'briefcase', 'cap']);
+    for (const [name, c] of Object.entries(SHAPE_COLORS)) {
+      expect(onWhite(c.a), `${name} dots`).toBeGreaterThanOrEqual(3);
+      expect(onWhite(c.b), `${name} dots`).toBeGreaterThanOrEqual(3);
+      expect(c.glow).toMatch(/^#[0-9a-f]{6}$/);
+    }
+    expect(colorsFor('magnifier')).toBe(SHAPE_COLORS.sphere);
   });
 });
