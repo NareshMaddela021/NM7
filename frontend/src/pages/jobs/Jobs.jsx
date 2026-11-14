@@ -6,6 +6,7 @@
 // our own site); a letter stands in.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { liveParams } from '../../lib/liveParams';
 import Header from '../../components/Header';
 import LangSwitch from '../../components/LangSwitch';
 import SiteFooter from '../../components/SiteFooter';
@@ -124,7 +125,10 @@ export function JobsList() {
   const seq = useRef(0);
   usePageMeta({ title: t('jobs.meta.title'), description: t('jobs.meta.desc'), path: '/jobs' });
 
-  useEffect(() => { setQ(filters.q || ''); }, [filters.q]);
+  // the search box follows the address only when it changed from outside (Back, a shared link): React Router 7 renders
+  // a moment after this page's own changes, and syncing then wiped what was typed just after "Clear filters"
+  const ownQ = useRef(filters.q || '');
+  useEffect(() => { const v = filters.q || ''; if (v !== ownQ.current) { ownQ.current = v; setQ(v); } }, [filters.q]);
   useEffect(() => { if (user) loadSaved(); }, [user]);
   useEffect(() => {
     const n = ++seq.current;
@@ -134,7 +138,10 @@ export function JobsList() {
   }, [key, showSaved]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const set = (patch) => {
-    const next = { ...filters, ...patch };
+    // on the address as it is now, not this render's filters (React Router 7 renders a moment after the address
+    // changes: a quick second change would otherwise bring back a filter just turned off)
+    const next = { ...fromQuery(liveParams().toString()), ...patch };
+    ownQ.current = next.q || '';
     const qs = pageQuery(next);
     setParams(qs ? new URLSearchParams(qs) : {}, { replace: false });
   };
@@ -206,7 +213,7 @@ export function JobsList() {
             {data ? t(data.total === 1 ? 'jobs.count.one' : 'jobs.count', { n: data.total.toLocaleString('en-IN') }) : error ? '' : t('jobs.loading')}
           </p>
           <span className="row g12">
-            {anyFilter && !showSaved && <button type="button" className="link-btn" onClick={() => setParams({})}>{t('jobs.clear')}</button>}
+            {anyFilter && !showSaved && <button type="button" className="link-btn" onClick={() => { ownQ.current = ''; setQ(''); setParams({}); }}>{t('jobs.clear')}</button>}
             {user && (showSaved
               ? <Link to="/jobs">{t('jobs.allJobs')}</Link>
               : <Link to="/jobs?saved=1">{t('jobs.savedLink', { n: savedState.count })}</Link>)}

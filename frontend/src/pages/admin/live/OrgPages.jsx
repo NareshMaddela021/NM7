@@ -32,6 +32,7 @@ import { OrgBilling } from './BillingPages';
 import Placement from '../../org/Placement';
 import SharedCerts from '../../../components/SharedCerts';
 import { openCertFile } from '../../../lib/certs';
+import { liveParams } from '../../../lib/liveParams';
 
 export const ORG_TYPES = [
   ['college', 'College'], ['institute', 'Coaching / training institute'], ['job_fair', 'Job fair'], ['skill_centre', 'Skill centre'],
@@ -667,7 +668,7 @@ export function SharedResumes({ ctx = ADMIN_CTX, groups: portalGroups = null, ti
   const [busy, run] = useAction(toast);
 
   function setFilter(patch) {
-    const next = new URLSearchParams(params);
+    const next = liveParams(); // the address now, not this render's (React Router 7)
     Object.entries(patch).forEach(([k, v]) => { if (v === '' || v == null || v === false) next.delete(k); else next.set(k, String(v)); });
     next.delete('page');
     setParams(next, { replace: true });
