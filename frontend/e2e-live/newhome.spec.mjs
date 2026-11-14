@@ -1,7 +1,8 @@
-// The new home page on test (/new-home), against the real API, on a desktop and a 390 px phone: the four tabs change
+// The home page (/, round P; /new-home goes there), against the real API, on a desktop and a 390 px phone: the four tabs change
 // the headline, the main button and the address bar (also with the arrow keys); the job seekers' widget shows the
 // real numbers from the jobs API and the newest real job; without WebGL, or with "reduce motion", the still picture
-// shows instead of the 3D dots; the page is not indexed, carries its structured data, and has no sideways scrolling.
+// shows instead of the 3D dots; the page is indexed, carries its structured data, and has no sideways scrolling;
+// the previous home page is at /old-home, not indexed.
 import { expect, test } from '@playwright/test';
 import { API, seed } from './helpers.mjs';
 
@@ -27,7 +28,7 @@ for (const [label, opts] of SIZES) {
     test.use(opts);
 
     test('the four tabs change the headline, the button and the address bar', async ({ page }) => {
-      await page.goto('/new-home');
+      await page.goto('/');
       await expect(page.getByRole('heading', { level: 1, name: 'Hire in 60 minutes. Get hired fast.' })).toBeVisible();
       await expect(page.getByTestId('nh-tagline')).toHaveText('Blink-it for hiring');
       await expect(page.getByText(/Blinkit/)).toHaveCount(0);
@@ -59,7 +60,7 @@ for (const [label, opts] of SIZES) {
       await page.reload();
       await expect(page.getByTestId('nh-headline')).toHaveText('Hire any role in 60 minutes');
       // the main button goes where it says
-      await page.goto('/new-home?for=seeker');
+      await page.goto('/?for=seeker');
       await page.getByTestId('nh-cta').click();
       await expect(page).toHaveURL(/\/jobs$/);
     });
@@ -72,7 +73,7 @@ for (const [label, opts] of SIZES) {
       const today = await (await request.get(`${API}/api/jobs?posted=24h`)).json();
       expect(all.total).toBeGreaterThan(0);
 
-      await page.goto('/new-home');
+      await page.goto('/');
       const text = page.getByTestId('nh-widget-text');
       await expect(text).toContainText(`${all.total.toLocaleString('en-IN')} job`);
       await expect(text).toContainText(`${today.total.toLocaleString('en-IN')} new today`);
@@ -104,7 +105,7 @@ for (const [label, opts] of SIZES) {
 
     test('without WebGL the still picture shows, and the page still works', async ({ page }) => {
       await page.addInitScript(noWebgl);
-      await page.goto('/new-home?for=company');
+      await page.goto('/?for=company');
       const stage = page.getByTestId('nh-stage');
       await expect(stage).toHaveAttribute('data-off', /no-webgl|low-power/);
       await expect(stage).toHaveAttribute('data-mode', 'still');
@@ -118,7 +119,7 @@ for (const [label, opts] of SIZES) {
     test('“reduce motion”: the still picture, the widget stays still, cards are shown', async ({ browser }) => {
       const ctx = await browser.newContext({ ...opts, reducedMotion: 'reduce' });
       const page = await ctx.newPage();
-      await page.goto('/new-home?for=company');
+      await page.goto('/?for=company');
       await expect(page.getByTestId('nh-stage')).toHaveAttribute('data-off', 'reduced-motion');
       await expect(page.getByTestId('nh-widget')).toHaveAttribute('data-phase', 'view');
       await page.waitForTimeout(5500); // longer than one widget look
@@ -127,18 +128,19 @@ for (const [label, opts] of SIZES) {
       await ctx.close();
     });
 
-    test('not indexed, structured data, phone layout without sideways scrolling', async ({ page }) => {
-      await page.goto('/new-home');
+    test('indexed home page, structured data, phone layout without sideways scrolling; /old-home kept, not indexed', async ({ page }) => {
+      await page.goto('/new-home'); // the old test address goes to /
+      await expect(page).toHaveURL(/\/$/);
       // the page is its own chunk: wait for it, not just for the route table's title
       await expect(page.getByRole('heading', { level: 1, name: 'Hire in 60 minutes. Get hired fast.' })).toBeVisible();
-      await expect(page).toHaveTitle('Nm7 — Hire in 60 minutes. Get hired fast. · Nm7');
-      await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
+      await expect(page).toHaveTitle('Nm7 — Hire in 60 minutes. Get hired fast.');
+      await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'index, follow');
       const ld = page.locator('script[type="application/ld+json"][id^="nh-ld-"]');
       await expect.poll(() => ld.evaluateAll((els) => els.map((e) => JSON.parse(e.textContent)['@type']))).toEqual(['Organization', 'WebSite', 'FAQPage']);
       // FAQ: a group per audience; footer keeps the legal links and job removal
       for (const g of ['Companies', 'Colleges', 'Job seekers', 'Students']) await expect(page.locator('.nh-faq-group h3', { hasText: g })).toHaveCount(1);
       const footer = page.getByRole('contentinfo');
-      for (const name of ['Terms', 'Privacy', 'Contact', 'Request job removal']) await expect(footer.getByRole('link', { name, exact: true })).toBeVisible();
+      for (const name of ['Terms', 'Privacy', 'Contact us', 'Request job removal']) await expect(footer.getByRole('link', { name, exact: true })).toBeVisible();
       await expect(footer.getByRole('link', { name: 'Request job removal' })).toHaveAttribute('href', '/contact?topic=job-removal');
       // scroll the whole page so every card slides in; nothing may be wider than the screen
       await page.evaluate(async () => { for (let y = 0; y < document.body.scrollHeight; y += 500) { window.scrollTo(0, y); await new Promise((r) => setTimeout(r, 40)); } });
@@ -148,9 +150,10 @@ for (const [label, opts] of SIZES) {
         expect(Math.abs(a.y - b.y), 'tabs: two in a row').toBeLessThan(2);
         expect(c.y, 'tabs: 2 × 2').toBeGreaterThan(a.y + 20);
       }
-      // the live home page is unchanged
-      await page.goto('/');
+      // the previous home page is kept at /old-home, not indexed
+      await page.goto('/old-home');
       await expect(page.getByRole('heading', { level: 1, name: 'Hire in 60 minutes. Get hired fast.' })).toHaveCount(0);
+      await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
     });
   });
 }

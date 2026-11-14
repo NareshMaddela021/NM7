@@ -4,6 +4,7 @@
 // domain); individual recruiters skip it and give a LinkedIn link + declaration instead (never Aadhaar, PAN or ID
 // photos). Step 4 invites team admins (full / posting only / view only); step 5 reviews and sends the company to
 // Nm7's team. English, Telugu and Hindi (pages.json, co.*). No pop-up dialogs.
+import { PageArt } from '../../components/PageHero';
 import { Children, cloneElement, isValidElement, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../../components/Header';
@@ -99,6 +100,7 @@ export default function CompanySignup() {
             <p className="lead" style={{ margin: 0 }}>{t('co.sub')}</p>
           </div>
           <LangSwitch t={t} lang={lang} />
+          <PageArt shape="stopwatch" />
         </div>
         <ol className="co-steps" aria-label={t('co.steps')}>
           {STEPS.map((s, i) => <li key={s} aria-current={d.step === i ? 'step' : undefined} data-done={i < d.step || undefined}><span className="co-step-n">{i + 1}</span><span>{t(`co.step.${s}`)}</span></li>)}

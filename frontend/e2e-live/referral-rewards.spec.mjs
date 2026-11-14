@@ -12,7 +12,7 @@ async function friend(browser, opts, code, i, label) {
   // another network: the address our proxy would pass on (added outside the page, so no CORS preflight)
   const ip = `10.${label === 'phone' ? 2 : 1}.${i}.${Date.now() % 200}`;
   await page.route(`${API}/**`, (r) => r.continue({ headers: { ...r.request().headers(), 'x-forwarded-for': ip } }));
-  await page.goto('/');
+  await page.goto('/old-home');
   const mail = email(`friend${i}-${label}`);
   const body = { role: 'customer', name: `Friend ${i}`, email: mail, password: PASSWORD, passwordConfirm: PASSWORD, termsAccepted: true, ref: code };
   expect((await call(page, '/api/auth/signup', json('POST', body))).status).toBe(201);

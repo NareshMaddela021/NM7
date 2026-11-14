@@ -28,19 +28,20 @@ export function why3dOff(win = typeof window !== 'undefined' ? window : null) {
 const STILL_DOTS = 650;
 
 /** The still picture: the same shape's dots, drawn once as an SVG. */
-const Still = memo(function Still({ shape }) {
+export const Still = memo(function Still({ shape, className = 'nh-still' }) {
   const pts = projectPoints(shape, STILL_DOTS, 400);
   const c = colorsFor(shape);
+  const id = `nh-dot-${shape}`;
   return (
-    <svg className="nh-still" viewBox="0 0 400 400" aria-hidden="true" focusable="false" data-shape={shape}>
+    <svg className={className} viewBox="0 0 400 400" aria-hidden="true" focusable="false" data-shape={shape}>
       <defs>
-        <linearGradient id="nh-dot" x1="0" y1="0" x2="0" y2="400" gradientUnits="userSpaceOnUse">
+        <linearGradient id={id} x1="0" y1="0" x2="0" y2="400" gradientUnits="userSpaceOnUse">
           <stop offset="0" stopColor={c.b} />
           <stop offset="1" stopColor={c.a} />
         </linearGradient>
       </defs>
-      <g fill="url(#nh-dot)">
-        {pts.map(([x, y, z], i) => <circle key={i} cx={x.toFixed(1)} cy={y.toFixed(1)} r="1.6" opacity={(0.7 + z * 0.25).toFixed(2)} />)}
+      <g fill={`url(#${id})`}>
+        {pts.map(([x, y, z], i) => <circle key={i} cx={x.toFixed(1)} cy={y.toFixed(1)} r="2.4" opacity={(0.7 + z * 0.25).toFixed(2)} />)}
       </g>
     </svg>
   );

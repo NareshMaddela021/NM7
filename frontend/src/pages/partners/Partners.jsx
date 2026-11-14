@@ -1,5 +1,6 @@
 // /partners — the Nm7 partner programme: how it works and the application form (name, organisation, email, phone —
 // nothing else: no PAN or bank details until the first payout). Nm7 approves each application and emails a code.
+import { PageArt } from '../../components/PageHero';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../../components/Header';
@@ -45,10 +46,13 @@ export default function Partners() {
     <>
       <Header />
       <main id="main" className="container stack g24" style={{ maxWidth: 820, padding: '32px 16px 64px' }}>
-        <section className="stack g12">
-          <span className="xs muted">Nm7 partner programme</span>
+        <section className="ph-row">
+          <div className="stack g12">
+          <span className="kicker">Nm7 partner programme</span>
           <h1 className="display" style={{ fontSize: 'clamp(28px, 6vw, 40px)' }}>Bring organizations to Nm7, earn on every plan</h1>
           <p className="muted">For placement consultants, trainers and anyone who works with colleges, training institutes or job fairs. Share your link; when an organization you referred buys a plan on <Link to="/for-orgs">Nm7 for Organizations</Link>, you earn commission.</p>
+          </div>
+          <PageArt shape="handshake" />
         </section>
         <section className="card stack g8" aria-labelledby="how-h">
           <h2 id="how-h" className="display h3">How it works</h2>

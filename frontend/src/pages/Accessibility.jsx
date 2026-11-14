@@ -1,5 +1,6 @@
 // /accessibility — our accessibility statement: the standard we aim for, what we check and how, what we know isn't
 // right yet, and how to tell us about a problem.
+import { PageArt } from '../components/PageHero';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import SiteFooter from '../components/SiteFooter';
@@ -13,9 +14,11 @@ export default function Accessibility() {
     <>
       <Header />
       <main id="main" className="container stack g16" style={{ maxWidth: 760, padding: '32px 16px 64px' }}>
-        <span className="mono xs muted">LAST UPDATED · {UPDATED.toUpperCase()}</span>
+        <div className="ph-row"><div className="stack g12">
+        <span className="kicker">Last updated · {UPDATED}</span>
         <h1 className="display" style={{ fontSize: 34 }}>Accessibility</h1>
         <p className="lead" style={{ margin: 0 }}>We want every student, job seeker, college and recruiter to be able to use Nm7, including people who use a keyboard, a screen reader, zoom or a small phone.</p>
+        </div><PageArt shape="sphere" /></div>
         <h2 style={{ fontSize: 20 }}>The standard we aim for</h2>
         <p>Web Content Accessibility Guidelines (WCAG) 2.1, level AA.</p>
         <h2 style={{ fontSize: 20 }}>What we do</h2>
@@ -23,9 +26,9 @@ export default function Accessibility() {
           <li>Every page works with a keyboard alone, and the focused item is always outlined.</li>
           <li>Form fields have labels, images have text alternatives, and buttons have names a screen reader can read.</li>
           <li>Pop-up windows close with Escape, keep keyboard focus inside while open, and return focus to where you were.</li>
-          <li>Text and controls meet AA contrast in both the light and the dark theme.</li>
+          <li>Text and controls meet AA contrast (the site uses one light theme for now).</li>
           <li>Pages work on a 390 px wide phone, and at 200% zoom, without scrolling sideways.</li>
-          <li>Automated accessibility checks (axe) run on our key pages with every change, in light and dark, on desktop and phone. Serious problems stop a release.</li>
+          <li>Automated accessibility checks (axe) run on our key pages with every change, on desktop and phone (also with the phone set to dark mode). Serious problems stop a release.</li>
         </ul>
         <h2 style={{ fontSize: 20 }}>What isn’t right yet</h2>
         <ul>

@@ -42,7 +42,7 @@ describe('pre-rendering the blog at build time', async () => {
     expect(html).toContain('ATS software reads your resume before a person does.');
     expect(html).toContain('<h2>Use standard headings</h2>');
     expect(html).toContain('Nm7 Team · 10 Oct 2026 · 2 min read');
-    expect(html).toContain('href="/">Scan your resume free</a>');
+    expect(html).toContain('href="/pricing#scan">Scan your resume free</a>');
     expect(html).not.toMatch(/<script>alert/);
     // related: the other ATS post, not the fresher one
     const related = html.slice(html.indexOf('Related articles'));

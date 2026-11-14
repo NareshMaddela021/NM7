@@ -97,6 +97,6 @@ test('roles only see their sections; the setup page is closed once an admin exis
   await page.goto('/admin/setup');
   await expect(page.getByText('Admin setup is closed.')).toBeVisible();
   await expect(page.getByLabel('Setup token')).toHaveCount(0);
-  await page.goto('/');
+  await page.goto('/old-home');
   await expect(page.locator('footer').getByRole('link', { name: 'Admin' })).toHaveCount(0);
 });

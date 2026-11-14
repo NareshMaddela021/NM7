@@ -16,7 +16,7 @@ export const STRONG = {
 /** A signed-in, confirmed student with one resume (their data), from their own made-up network. */
 export async function studentWith(page, label, data, who = 'auto') {
   await page.route('http://localhost:8001/**', (r) => r.continue({ headers: { ...r.request().headers(), 'x-forwarded-for': `10.8.${label === 'phone' ? 2 : 1}.${Date.now() % 200}` } }));
-  await page.goto('/');
+  await page.goto('/old-home');
   const mail = email(`${who}-${label}`);
   expect((await call(page, '/api/auth/signup', json('POST', { role: 'customer', name: 'Asha Rao', email: mail, password: PASSWORD, passwordConfirm: PASSWORD, termsAccepted: true }))).status).toBe(201);
   expect((await call(page, '/api/auth/verify-email', json('POST', { email: mail, code: lastCode(mail) }))).status).toBe(200);

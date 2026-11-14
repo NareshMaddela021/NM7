@@ -47,6 +47,22 @@ expert rewrite are supporting features further down ("Make it stronger").
   /for-orgs and /partners, and the language switch post `{name}` to `POST /api/public/events` — no cookies, no user
   or IP stored, only a per-day count. Admin → Dashboard shows the last 7 days ("Home page taps").
 
+## Design system (round P)
+
+Every page uses the new home page's look (asuraa.ai style). Light only for now (no dark mode).
+- **Tokens:** `frontend/src/styles/tokens.css`: navy text, purple gradient accents, a white base with soft lavender and
+  peach glows, audience colours (companies blue, colleges teal, job seekers orange, students magenta), radii, shadows,
+  spacing. EB Garamond headings and Manrope text (Google Fonts, loaded without blocking the first paint).
+- **Components:** `frontend/src/styles/design.css` restyles the shared classes every page already uses (`.btn-*`,
+  `.input`, `.card`, `.chip`, `.badge`, `.table`, `.segmented`, `.dialog`, `.toast`, the header as a floating white
+  pill, the footer) and adds `.glass`, `.empty`, `.skeleton`, `.kicker`, `.grad-text`, `.tint-lav` / `.tint-peach`.
+  `.btn-signal` / `.btn-primary` = purple gradient pill; `.btn-ink` = navy pill; `.btn-outline` = white pill.
+- **Page header:** `components/PageHero.jsx` (title, kicker, line, buttons, optional dotted shape) and `PageArt`
+  (the shape beside a page's own title, in `.ph-row`). Still drawing first; the moving 3D dots on desktops with WebGL
+  and motion allowed; phones show the words only.
+- **Home:** `/` is the 3D home page; the previous home page is at `/old-home` (not indexed) until it is removed.
+  `/pricing` is its own page (job-seeker prices, the free ATS scan at `/pricing#scan`, organization plans).
+
 ## New home page on test (nm7.si/new-home)
 
 "Hire in 60 minutes. Get hired fast.": a dark 3D landing page for four equal audiences (companies, colleges, job seekers, students).

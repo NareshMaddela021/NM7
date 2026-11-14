@@ -6,7 +6,7 @@ import { answer } from './hygraph-mock.mjs';
 
 /** The home page, scrolled to the bottom: the blog cards load only when someone gets near them. */
 async function homeBottom(page) {
-  await page.goto('/');
+  await page.goto('/old-home');
   await page.locator('#faq').scrollIntoViewIfNeeded();
   await page.locator('footer').scrollIntoViewIfNeeded();
 }
@@ -25,7 +25,7 @@ const cards = (page) => page.locator('main .blog-card');
 
 test('list: newest first with chip, date and reading time; category filter; header and footer links', async ({ page }) => {
   await blog(page);
-  await page.goto('/');
+  await page.goto('/old-home');
   await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Blog' }).click();
   await expect(page).toHaveURL(/\/blog$/);
   await expect(page.getByRole('heading', { level: 1, name: 'Resume & job-search blog' })).toBeVisible();
@@ -103,8 +103,8 @@ test('article: content rendered safely, sticky scan CTA (side on desktop, bottom
   expect(phone.width).toBeGreaterThan(380);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   await cta.getByRole('link', { name: 'Scan your resume free' }).click();
-  await expect(page).toHaveURL(/\/$/);
-  await expect(page.getByRole('heading', { level: 1, name: /Resumes for every job seeker/ })).toBeVisible();
+  await expect(page).toHaveURL(/\/pricing#scan$/); // round P: the free scan is on /pricing
+  await expect(page.locator('#scan')).toBeVisible();
 });
 
 test('unknown article or category: "This page doesn’t exist" (not indexed)', async ({ page }) => {

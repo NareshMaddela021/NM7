@@ -58,7 +58,7 @@ for (const [label, opts] of SIZES) {
       // the student applies
       page.on('dialog', () => { throw new Error('no browser dialogs'); });
       await page.route(`${API}/**`, (x) => x.continue({ headers: { ...x.request().headers(), 'x-forwarded-for': `10.9.${label === 'phone' ? 2 : 1}.${Date.now() % 200}` } }));
-      await page.goto('/');
+      await page.goto('/old-home');
       const smail = email(`pg-${label}`);
       expect((await call(page, '/api/auth/signup', json('POST', { role: 'customer', name: 'Asha Rao', email: smail, password: PASSWORD, passwordConfirm: PASSWORD, termsAccepted: true }))).status).toBe(201);
       expect((await call(page, '/api/auth/verify-email', json('POST', { email: smail, code: lastCode(smail) }))).status).toBe(200);
