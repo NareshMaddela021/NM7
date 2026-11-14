@@ -145,7 +145,8 @@ def rule_why(row: dict[str, Any]) -> str:
 
 # --- AI: one friendlier sentence per role, checked ----------------------------------------------------------------
 
-SCHEMA = {"type": "object", "properties": {"why": {"type": "array", "items": {"type": "string"}}}, "required": ["why"]}
+SCHEMA = {"type": "object", "properties": {"why": {"type": "array", "items": {"type": "string"}}}, "required": ["why"],
+          "additionalProperties": False}  # fmt: skip
 PROMISE = re.compile(r"\b(guarantee|assured|sure to|definitely|100%|will get|placement)\b", re.I)
 
 
