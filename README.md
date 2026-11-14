@@ -47,6 +47,26 @@ expert rewrite are supporting features further down ("Make it stronger").
   /for-orgs and /partners, and the language switch post `{name}` to `POST /api/public/events` — no cookies, no user
   or IP stored, only a per-day count. Admin → Dashboard shows the last 7 days ("Home page taps").
 
+## New home page on test (nm7.si/new-home)
+
+"Blinkit for hiring": a dark 3D landing page for four equal audiences (companies, colleges, job seekers, students).
+It is **not linked from anywhere and not indexed** (robots meta + `X-Robots-Tag` in `vercel.json`) until approved;
+the live home page `/` is unchanged.
+
+- **Code:** `frontend/src/pages/newhome/` — `NewHome.jsx` (the page), `content.js` (all words, links, FAQ, structured
+  data), `GlassWidget.jsx` (the looping glass card), `ParticleStage.jsx` + `particles.js` (the 3D dots, three.js),
+  `shapes.js` (our own dot shapes: stopwatch, college, briefcase, cap, resume, magnifier, badge, handshake).
+- **Tabs:** `?for=company|college|seeker|student` (default job seeker) changes the headline, shape, widget and button.
+- **Real numbers only:** the job seekers' widget and "Live jobs" read `GET /api/jobs` (total, `posted=24h`, top city).
+  Colleges and students show words, no figures. No testimonials or logos.
+- **3D:** loads after the first paint, in its own chunk. A still picture of the same shape shows instead when WebGL
+  is missing, "reduce motion" is on, data saver is on, or on low-power phones (`?fx=static` forces it). Phones get
+  fewer dots. `npm run budget` fails if the page or the 3D ever lands in the main bundle.
+- **Tests:** `frontend/e2e-live/newhome.spec.mjs` (desktop + 390 px), `frontend/src/pages/newhome/newhome.test.js`.
+- **To make it the home page** (after approval): in `frontend/src/App.jsx` change
+  `<Route path="/" element={<Home />} />` to `<Route path="/" element={<NewHome />} />`. On `/` the page turns
+  indexing on by itself. Then update the home page tests (`e2e-live/home.spec.mjs`) and remove the `/new-home` route.
+
 ## Templates page (nm7.si/templates)
 
 - All 18 templates with a **Sample resume | My details** switch, above the grid and inside the large preview.

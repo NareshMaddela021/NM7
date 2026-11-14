@@ -7,6 +7,7 @@ const DEFAULT_DESC = 'Free ATS resume scan in seconds. Fix it in our builder wit
 /** [path pattern, title, description] — first match wins. */
 export const ROUTE_META = [
   [/^\/$/, 'Nm7 — Resume builder for every job seeker, resume drives for every campus', 'Build a job-ready resume free — from photos, your own words or an old file, in 8 Indian languages. Colleges and job fairs run whole resume drives on Nm7: approvals, kiosks, printing and GST invoices.'],
+  [/^\/new-home/, 'Nm7 — Blinkit for hiring (test page)', 'The new Nm7 home page, on test.'],
   [/^\/scan/, 'Your ATS scan report', 'See how applicant tracking systems read your resume and what to fix first.'],
   [/^\/templates/, 'Resume templates — 18 free, ATS-safe designs · see them with your own details', 'Browse 18 ATS-safe resume templates for freshers, tech, govt and healthcare jobs. Preview each with a sample or with your own resume, then use it free in the Nm7 builder.'],
   [/^\/for-companies/, 'Post jobs on Nm7 — free for verified companies', 'Hire interns, freshers and experienced professionals. Sign up your company in 5 steps: email check, GSTIN or CIN, your team. Verified companies post jobs free.'],
@@ -80,7 +81,7 @@ export const ROUTE_META = [
 ];
 
 // whole path segments only: /expert-terms is a public page, /expert/orders is not
-const PRIVATE = /^\/(me|admin|expert|orders|checkout|login|signup|forgot-password|r|org|join|groups|kiosk|continue|partner|company)(\/|$)/;
+const PRIVATE = /^\/(new-home|me|admin|expert|orders|checkout|login|signup|forgot-password|r|org|join|groups|kiosk|continue|partner|company)(\/|$)/;
 
 function setMeta(name, content) {
   let el = document.head.querySelector(`meta[name="${name}"]`);
