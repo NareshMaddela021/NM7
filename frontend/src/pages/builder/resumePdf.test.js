@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { inflateSync } from 'node:zlib';
-import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.js';
+import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs';
 import { buildResumePdf } from './resumePdf';
 import { INITIAL } from './schema';
 import { DEFAULT_DESIGN, TEMPLATE_PRESETS } from './design';

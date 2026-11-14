@@ -1,12 +1,10 @@
 // Builder entry controls (move up/down, on/off, remove) in every kind of section, against the real API:
 // the preview, the downloaded PDF and Word file, the public share link, a reload and another sign-in.
 import { readFileSync } from 'node:fs';
-import { createRequire } from 'node:module';
 import { expect, test } from '@playwright/test';
 import { unzipSync, strFromU8 } from 'fflate';
 import { API, PASSWORD, email, login, seed, downloadThrough } from './helpers.mjs';
 
-const require = createRequire(import.meta.url);
 
 // [list key, sidebar name, entry name, first entry text, second entry text]
 const SECTIONS = [
@@ -71,7 +69,7 @@ const preview = (page) => page.getByRole('article', { name: 'Resume preview' });
 const goTo = (page, side) => page.getByRole('button', { name: new RegExp(`^.?\\s*${side}( · \\d+ hidden)?`) }).first().click();
 
 async function pdfText(path) {
-  const pdfjs = require('pdfjs-dist/legacy/build/pdf.js');
+  const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
   const doc = await pdfjs.getDocument({ data: new Uint8Array(readFileSync(path)), isEvalSupported: false, verbosity: 0 }).promise;
   let out = '';
   for (let i = 1; i <= doc.numPages; i++) out += (await (await doc.getPage(i)).getTextContent()).items.map((x) => x.str).join(' ') + '\n';

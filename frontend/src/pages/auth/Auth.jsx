@@ -11,9 +11,9 @@ import SiteFooter from '../../components/SiteFooter';
 import LangSwitch from '../../components/LangSwitch';
 import { useLang } from '../../lib/i18n';
 import { usePageMeta } from '../../lib/meta';
+import { safeNext } from '../../lib/safeNext';
 
 const isPreview = import.meta.env.VITE_PREVIEW === '1';
-const safeNext = (n) => (n && n.startsWith('/') && !n.startsWith('//') ? n : null);
 
 /** This page's own tab title (when it differs from the route's). */
 function PageTitle({ title }) {
