@@ -82,7 +82,7 @@ for (const [label, size] of SIZES) {
       await expect(html).toHaveAttribute('lang', 'en');
     });
 
-    test('nothing shifts while the page loads; the hero image is preloaded and sized; no builder code on the page', async ({ page }) => {
+    test('nothing shifts while the page loads; the hero image is sized; no builder code on the page', async ({ page }) => {
       const scripts = [];
       page.on('request', (r) => { if (r.resourceType() === 'script') scripts.push(new URL(r.url()).pathname); });
       await page.addInitScript(() => {
@@ -93,7 +93,7 @@ for (const [label, size] of SIZES) {
       await page.waitForLoadState('networkidle');
       await page.waitForTimeout(1500);
       expect(await page.evaluate(() => window.__cls)).toBeLessThan(0.1);
-      await expect(page.locator('link[rel="preload"][as="image"]')).toHaveAttribute('href', '/home/hero-btech.webp');
+      // round P: its hero image is no longer preloaded (that preload was for /, which is the 3D home page now)
       const img = page.locator('.hx-sample img');
       await expect(img).toHaveAttribute('width', '340');
       await expect(img).toHaveAttribute('height', '481');

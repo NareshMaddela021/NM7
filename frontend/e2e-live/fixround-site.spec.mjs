@@ -18,7 +18,7 @@ for (const [label, opts] of SIZES) {
       test.setTimeout(90_000);
       page.on('dialog', () => { throw new Error('no browser dialogs'); });
       // 24: the jobs side of Nm7 on the home page
-      await page.goto('/');
+      await page.goto('/old-home'); // round P: the previous home page has this section
       const jobs = page.getByTestId('home-jobs');
       await expect(jobs.getByRole('heading', { name: 'Jobs on Nm7' })).toBeVisible();
       for (const [k, href] of [['board', '/jobs'], ['auto', '/me/auto-apply'], ['simple', '/me/simple'], ['companies', '/for-companies']]) await expect(jobs.getByTestId(`home-jobs-${k}`)).toHaveAttribute('href', href);

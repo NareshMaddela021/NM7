@@ -10,7 +10,7 @@ teluguHindi(test); // these tests are about Telugu / Hindi: shown for this file 
 
 /** Each page: where it is, its heading in English and Telugu, and the part that carries the language. */
 const PAGES = [
-  { path: '/', en: 'Resumes for every job seeker. Resume drives for every campus.', te: 'ఉద్యోగం వెతికే ప్రతి ఒక్కరికీ రెజ్యూమ్', part: 'section[aria-labelledby="hero-title"]' },
+  { path: '/old-home', en: 'Resumes for every job seeker. Resume drives for every campus.', te: 'ఉద్యోగం వెతికే ప్రతి ఒక్కరికీ రెజ్యూమ్', part: 'section[aria-labelledby="hero-title"]' },
   { path: '/for-orgs', en: 'Every student’s resume, ready for placements', te: 'ప్రతి విద్యార్థి రెజ్యూమ్, ప్లేస్‌మెంట్లకు సిద్ధంగా', part: 'section[aria-labelledby="orgs-h"]' },
   { path: '/builder', en: 'Build a resume recruiters actually read.', te: 'రిక్రూటర్లు నిజంగా చదివే రెజ్యూమ్ తయారు చేయండి.', part: 'main#main' },
   { path: '/login', en: 'Sign in', te: 'సైన్ ఇన్', part: 'main' },
