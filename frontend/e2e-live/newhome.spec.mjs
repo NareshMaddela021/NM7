@@ -127,10 +127,12 @@ for (const [label, opts] of SIZES) {
 
     test('not indexed, structured data, phone layout without sideways scrolling', async ({ page }) => {
       await page.goto('/new-home');
-      await expect(page).toHaveTitle(/Blinkit for hiring/);
+      // the page is its own chunk: wait for it, not just for the route table's title
+      await expect(page.getByRole('heading', { level: 1, name: 'Blinkit for hiring.' })).toBeVisible();
+      await expect(page).toHaveTitle('Nm7 — Blinkit for hiring: hire in 30 minutes, get hired at any level · Nm7');
       await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
-      const types = await page.locator('script[type="application/ld+json"][id^="nh-ld-"]').evaluateAll((els) => els.map((e) => JSON.parse(e.textContent)['@type']));
-      expect(types).toEqual(['Organization', 'WebSite', 'FAQPage']);
+      const ld = page.locator('script[type="application/ld+json"][id^="nh-ld-"]');
+      await expect.poll(() => ld.evaluateAll((els) => els.map((e) => JSON.parse(e.textContent)['@type']))).toEqual(['Organization', 'WebSite', 'FAQPage']);
       // FAQ: a group per audience; footer keeps the legal links and job removal
       for (const g of ['Companies', 'Colleges', 'Job seekers', 'Students']) await expect(page.locator('.nh-faq-group h3', { hasText: g })).toHaveCount(1);
       const footer = page.getByRole('contentinfo');
