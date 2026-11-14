@@ -23,7 +23,7 @@ for (const [label, opts] of SIZES) {
       page.on('dialog', () => { throw new Error('no browser dialogs'); });
 
       await page.goto('/for-companies');
-      await expect(page.getByRole('heading', { level: 1, name: 'Hire freshers and early talent on Nm7' })).toBeVisible();
+      await expect(page.getByRole('heading', { level: 1, name: 'Hire freshers and experienced talent on Nm7' })).toBeVisible();
       // step 1
       await page.getByLabel('Legal name of the company').fill(`Acme Labs ${tag} Pvt Ltd`);
       await page.getByLabel('Industry').fill('Software');
