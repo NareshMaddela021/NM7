@@ -36,8 +36,8 @@ from app.core.security import keyed_hash, same
 from app.core.time import now
 from app.site import get_site
 
-router = APIRouter(prefix="/api/me/hire", tags=["hire in 30 minutes"])
-public = APIRouter(prefix="/api/public/hire", tags=["hire in 30 minutes"])
+router = APIRouter(prefix="/api/me/hire", tags=["hire in 60 minutes"])
+public = APIRouter(prefix="/api/public/hire", tags=["hire in 60 minutes"])
 
 JOB_TYPES = ("full_time", "internship", "part_time", "contract")
 STYLE = "font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.5;color:#111"

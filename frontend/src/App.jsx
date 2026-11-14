@@ -160,6 +160,7 @@ const OrgInvite = named(portal, 'OrgInvite');
 const AcceptTransfer = lazy(() => import('./pages/org/Transfer'));
 const DemoLogin = lazy(() => import('./pages/org/DemoLogin'));
 const DemoStudentLogin = lazy(() => import('./pages/me/DemoStudentLogin'));
+const NewHome = lazy(() => import('./pages/newhome/NewHome')); // /new-home: the new 3D home page, on test until approved (README)
 const SimpleApp = lazy(() => import('./pages/simple/SimpleApp')); // /me/simple: the Easy dashboard (Phase 4), its own small chunk
 const StopReminders = named(portal, 'StopReminders');
 const meSettings = () => import('./pages/me/MeSettings');
@@ -360,6 +361,7 @@ export default function App() {
       <Suspense fallback={<Fallback />}>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/new-home" element={<NewHome />} />
         <Route path="/scan" element={<Scan />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/stop-alerts" element={<StopAlerts />} />

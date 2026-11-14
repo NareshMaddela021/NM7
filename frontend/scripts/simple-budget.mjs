@@ -42,8 +42,17 @@ export function measure() {
   // the larger language's strings: its pages.json part and its home.json part (each a chunk of its own, round L)
   const strings = Math.max(0, ...pick('pages-').map(gz)) + Math.max(0, ...pick('home-').map(gz));
   const later = Object.fromEntries(['GuidedResume-', 'SimpleJobs-'].map((p) => [p.slice(0, -1), pick(p).reduce((a, f) => a + gz(f), 0)]));
-  return { files: [...route].sort(), english: base, telugu: base + strings, later };
+  // the new home page (/new-home): its own chunk, and the 3D dots (three.js) in another one loaded after the first paint;
+  // neither may ever be part of the main bundle
+  const entryFiles = closure([entry]);
+  const newHome = pick('NewHome-');
+  const particles = pick('particles-');
+  const leaked = [...entryFiles].filter((f) => f.startsWith('NewHome-') || f.startsWith('particles-'));
+  const page = newHome.length ? [...closure(newHome)].filter((f) => !entryFiles.has(f) && !f.startsWith('particles-')).reduce((a, f) => a + gz(f), 0) : 0;
+  return { files: [...route].sort(), english: base, telugu: base + strings, later, newHome: { page, threeD: particles.reduce((a, f) => a + gz(f), 0), leaked } };
 }
+
+export const NEW_HOME_BUDGET = 40 * 1024; // the page's own JavaScript on top of the main bundle, before the 3D
 
 const kb = (n) => `${(n / 1024).toFixed(1)} KB`;
 export const slow3g = (bytes) => 3 * 0.4 + bytes / (400_000 / 8); // seconds
@@ -54,5 +63,8 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   console.log(`  later, when opened: resume questions ${kb(m.later.GuidedResume)} · jobs screens ${kb(m.later.SimpleJobs)}`);
   console.log(`  slow 3G estimate: English ${slow3g(m.english).toFixed(1)} s · Telugu / Hindi ${slow3g(m.telugu).toFixed(1)} s (first visit, nothing cached)`);
   console.log(`  files: ${m.files.join(', ')}`);
+  console.log(`/new-home JavaScript (gzip): the page ${kb(m.newHome.page)} (budget ${kb(NEW_HOME_BUDGET)}) · 3D, loaded after the first paint ${kb(m.newHome.threeD)}`);
+  if (m.newHome.leaked.length) { console.error(`The new home page or its 3D is in the main bundle: ${m.newHome.leaked.join(', ')}`); process.exit(1); }
+  if (m.newHome.page > NEW_HOME_BUDGET) { console.error('Over the new home page budget.'); process.exit(1); }
   if (m.english > BUDGET || m.telugu > BUDGET) { console.error('Over the Easy dashboard budget.'); process.exit(1); }
 }

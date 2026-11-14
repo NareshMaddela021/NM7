@@ -1,5 +1,5 @@
 """Phase 5 H9: hiring speed from real events (minutes to first candidate, invite accepted, interview, offer; % of roles
-in 30 minutes; funnel), the "Hired in 30 minutes" badge only when a real role did it, the admin supply map (real
+in 60 minutes; funnel), the "Hired in 60 minutes" badge only when a real role did it, the admin supply map (real
 people only), and the demo (30 candidates, a bulk post, slots, one offer; never shown to real companies)."""
 
 from datetime import timedelta
@@ -17,9 +17,9 @@ def test_math():
     t = now()
     fast = {"posted": t, "shown": t + timedelta(minutes=1), "accepted": t + timedelta(minutes=8),
             "interview": t + timedelta(minutes=25), "offer": None}  # fmt: skip
-    slow = {**fast, "interview": t + timedelta(minutes=45), "offer": t + timedelta(hours=3)}
+    slow = {**fast, "interview": t + timedelta(minutes=75), "offer": t + timedelta(hours=3)}
     assert sp.in_goal(fast) and not sp.in_goal(slow)
-    assert not sp.in_goal({**fast, "interview": None})  # nothing booked or offered: not "hired in 30"
+    assert not sp.in_goal({**fast, "interview": None})  # nothing booked or offered: not "hired in 60"
     assert sp.minutes(t, t + timedelta(seconds=150)) == 2 and sp.minutes(t, None) is None
     roles = [{"minutes": {"shown": 1, "accepted": 8, "interview": 25, "offer": None}, "in30": True},
              {"minutes": {"shown": 3, "accepted": None, "interview": None, "offer": None}, "in30": False},
@@ -43,7 +43,7 @@ async def test_speed_board_and_badge(client, outbox, db, make_client):
     assert out["in30Pct"] == 100 and out["badge"] is True
     assert out["funnel"]["invited"] == 1 and out["funnel"]["accepted"] == 1 and out["funnel"]["interviews"] == 1
     assert (await client.get(f"/api/companies/{slug}")).json()["hiredIn30"] is True
-    # an old post that took hours: not in 30 minutes, and the badge needs a real role
+    # an old post that took hours: not in 60 minutes, and the badge needs a real role
     await db[JOBS].update_one({"_id": job}, {"$set": {"posted_at": now() - timedelta(hours=5)}})
     out = (await client.get(f"/api/company/{cid}/hire/speed", headers=H(session))).json()
     assert out["in30Pct"] == 0 and out["badge"] is False

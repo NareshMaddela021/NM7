@@ -22,7 +22,7 @@ from app.core.db import DB, HIRE_EVENTS, HIRE_INVITES
 from app.core.time import now
 from app.site import get_site
 
-router = APIRouter(prefix="/api/me/hire", tags=["hire in 30 minutes"])
+router = APIRouter(prefix="/api/me/hire", tags=["hire in 60 minutes"])
 
 INVITE_DAYS = 7  # the same as an invite's life (shortlist.INVITE_DAYS)
 # event kind → (points for, points against)

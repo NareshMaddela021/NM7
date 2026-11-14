@@ -1,5 +1,5 @@
 # ruff: noqa: E501  (demo records: one per block, easier to read)
-"""The Hire in 30 minutes demo (Phase 5). Admin → Companies → "Reset and open as company (Hire in 30 minutes)".
+"""The Hire in 60 minutes demo (Phase 5). Admin → Companies → "Reset and open as company (Hire in 60 minutes)".
 
   POST /api/admin/demo-company/hire/open   reset the demo company (Phase 2 demo) and add, all marked demo:
        30 made-up candidates who are ready to join, across IT and non-IT, with resumes, shared skill check results
@@ -45,7 +45,7 @@ from app.jobs.apply import FOLLOW_AFTER, app_key, job_page
 from app.jobs.model import JobIn, slug_for, to_doc
 from app.site import get_site
 
-router = APIRouter(prefix="/api/admin/demo-company/hire", tags=["hire in 30 minutes"])
+router = APIRouter(prefix="/api/admin/demo-company/hire", tags=["hire in 60 minutes"])
 
 DOMAIN = "hire-demo.nm7.invalid"
 FIRST = ["Asha", "Ravi", "Meena", "Arjun", "Divya", "Kiran", "Sana", "Vikram", "Lakshmi", "Imran", "Pooja", "Suresh",

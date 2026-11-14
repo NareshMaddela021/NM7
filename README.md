@@ -47,6 +47,32 @@ expert rewrite are supporting features further down ("Make it stronger").
   /for-orgs and /partners, and the language switch post `{name}` to `POST /api/public/events` — no cookies, no user
   or IP stored, only a per-day count. Admin → Dashboard shows the last 7 days ("Home page taps").
 
+## New home page on test (nm7.si/new-home)
+
+"Hire in 60 minutes. Get hired fast.": a dark 3D landing page for four equal audiences (companies, colleges, job seekers, students).
+It is **not linked from anywhere and not indexed** (robots meta + `X-Robots-Tag` in `vercel.json`) until approved;
+the live home page `/` is unchanged.
+
+- **Look:** the style of asuraa.ai (Naresh's own brand): light page with peach and lavender glows and a "sun", EB Garamond
+  headings and Manrope text (Google Fonts, loaded by the page, not in the bundle), navy text, purple gradient accents
+  and buttons, a floating white pill nav, white cards with soft shadows. The 3D dots are deep violet, sway at most
+  ±25° (always facing forward) and stay in the outer part of the screen, clear of the hero text and tabs.
+- **Code:** `frontend/src/pages/newhome/` — `NewHome.jsx` (the page), `content.js` (all words, links, FAQ, structured
+  data), `GlassWidget.jsx` (the looping glass card), `ParticleStage.jsx` + `particles.js` (the 3D dots, three.js),
+  `shapes.js` (our own dot shapes: stopwatch, college, briefcase, cap, resume, magnifier, badge, handshake).
+- **Brand line:** the small tagline above the headline is one constant, `TAGLINE` in `content.js` (now "Blink-it for
+  hiring"); the headline is `HERO_HEADLINE` and the company promise `HIRE_MINUTES` (60) in the same file.
+- **Tabs:** `?for=company|college|seeker|student` (default job seeker) changes the headline, shape, widget and button.
+- **Real numbers only:** the job seekers' widget and "Live jobs" read `GET /api/jobs` (total, `posted=24h`, top city).
+  Colleges and students show words, no figures. No testimonials or logos.
+- **3D:** loads after the first paint, in its own chunk. A still picture of the same shape shows instead when WebGL
+  is missing, "reduce motion" is on, data saver is on, or on low-power phones (`?fx=static` forces it). Phones get
+  fewer dots. `npm run budget` fails if the page or the 3D ever lands in the main bundle.
+- **Tests:** `frontend/e2e-live/newhome.spec.mjs` (desktop + 390 px), `frontend/src/pages/newhome/newhome.test.js`.
+- **To make it the home page** (after approval): in `frontend/src/App.jsx` change
+  `<Route path="/" element={<Home />} />` to `<Route path="/" element={<NewHome />} />`. On `/` the page turns
+  indexing on by itself. Then update the home page tests (`e2e-live/home.spec.mjs`) and remove the `/new-home` route.
+
 ## Templates page (nm7.si/templates)
 
 - All 18 templates with a **Sample resume | My details** switch, above the grid and inside the large preview.
@@ -1875,10 +1901,10 @@ monitor that calls the API every 5 minutes keeps it awake:
 A free Render web service has 750 free hours a month, enough for one service awake all month. If a second free
 service is added later, they share those hours.
 
-## Hire in 30 minutes (Phase 5)
+## Hire in 60 minutes (Phase 5)
 
 A verified company posts a role and gets a confirmed interview or offer with a checked, available candidate within
-30 minutes. Built in small steps (H1–H9); the code is in `backend/app/hire/`. Admin → Settings → "Hire in 30
+60 minutes. Built in small steps (H1–H9); the code is in `backend/app/hire/`. Admin → Settings → "Hire in 60
 minutes" switches it on or off (on by default) and sets the limits.
 
 ### H1. Ready to join (candidates)
@@ -1910,7 +1936,7 @@ minutes" switches it on or off (on by default) and sets the limits.
   and talent pool work as before). **Not interested** needs a reason (salary, place, role, timing, already got a
   job, another reason); the company sees only the reason. Unanswered invites expire after 7 days.
 - Only **Verified** companies; a Basic account sees a note and its Applicants.
-- Limits (Admin → Settings → Hire in 30 minutes): instant shortlists free a month per company (20 roles; the same
+- Limits (Admin → Settings → Hire in 60 minutes): instant shortlists free a month per company (20 roles; the same
   role again doesn't count), shortlists an hour (20), invites a day (60).
 - Paid company features (Admin → **Plans** → Company hiring): instant shortlists beyond the free roles, skill checks
   (H3) and bulk hiring mode (H7). All are ticked (open to every Verified company) by default; untick one to keep it
@@ -2050,19 +2076,19 @@ minutes" switches it on or off (on by default) and sets the limits.
 - Hire now → **Hiring speed** (it opens once a candidate has been shown for any role). For each role it gives the
   minutes from posting to: the first candidate shown (shortlist or invite), the first invite accepted, the first
   interview booked and the first offer sent. It also shows the share of roles that reached an **interview booked or
-  offer sent within 30 minutes** of posting, the averages, and the funnel (invited → accepted → interviews → offers →
+  offer sent within 60 minutes** of posting, the averages, and the funnel (invited → accepted → interviews → offers →
   accepted → joined). Everything comes from recorded events; nothing is estimated.
-- **"Hired in 30 minutes" badge**: shows on the company's Hire now card and public page (`/companies/<slug>`) only
-  when at least one real (not demo) role reached an interview or offer within 30 minutes of posting.
+- **"Hired in 60 minutes" badge**: shows on the company's Hire now card and public page (`/companies/<slug>`) only
+  when at least one real (not demo) role reached an interview or offer within 60 minutes of posting.
 - Admin → Companies → **Ready to join: supply map**: people ready to join now by city (next to live jobs there) and
   by domain (from their resume skills, using the template domains), plus how many are open to remote work. Real
   people only.
 - API: `GET /api/company/{id}/hire/speed`, `GET /api/admin/hire/supply`; the public company page has `hiredIn30`.
 - Tests: `backend/tests/test_hire_speed.py`, `frontend/e2e-live/hire-demo.spec.mjs` (desktop + 390 px).
 
-### Try the 30-minute flow in the demo
+### Try the 60-minute flow in the demo
 
-1. Admin → Companies → **Reset and open as company (Hire in 30 minutes)**. This resets "Demo Tech Solutions (demo)"
+1. Admin → Companies → **Reset and open as company (Hire in 60 minutes)**. This resets "Demo Tech Solutions (demo)"
    (Verified) and adds, all marked demo:
    - 30 made-up candidates ready to join (10 for customer support in Hyderabad, 20 across IT and non-IT, different
      cities), with resumes, shared skill check results for half of them, and reliability histories for a third (the
@@ -2092,7 +2118,7 @@ sitemap.
 | Bulk hiring mode | Verified companies | paid feature: **open to all** by default |
 
 Untick a paid feature in Admin → Plans → Company hiring to keep it to the companies you turn it on for (Admin →
-Companies → Review). Every limit is editable in Admin → Settings → Hire in 30 minutes.
+Companies → Review). Every limit is editable in Admin → Settings → Hire in 60 minutes.
 
 ## Job seekers: from no skills to hired (Phase 6)
 

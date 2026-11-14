@@ -41,8 +41,8 @@ from app.hire.bank2 import SEED_2
 from app.jobsearch import interview
 from app.me.service import ms
 
-me = APIRouter(prefix="/api/me/skill-checks", tags=["hire in 30 minutes"])
-admin = APIRouter(prefix="/api/admin/skill-tests", tags=["hire in 30 minutes"])
+me = APIRouter(prefix="/api/me/skill-checks", tags=["hire in 60 minutes"])
+admin = APIRouter(prefix="/api/admin/skill-tests", tags=["hire in 60 minutes"])
 
 QUESTIONS = 10
 MIN_QUESTIONS = 5  # a skill with fewer active questions has no test

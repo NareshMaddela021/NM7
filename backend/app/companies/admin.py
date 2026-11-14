@@ -293,7 +293,7 @@ class HireFeaturesIn(CamelModel):
 async def hire_features(
     cid: str, body: HireFeaturesIn, request: Request, db: DB, auth: AdminAuth("companies")
 ) -> dict[str, Any]:
-    """Hire in 30 minutes: paid company features turned on for this company, when Admin → Plans → Company hiring
+    """Hire in 60 minutes: paid company features turned on for this company, when Admin → Plans → Company hiring
     doesn't open them to every Verified company."""
     c = await _company(db, cid)
     new = sorted(set(body.features))

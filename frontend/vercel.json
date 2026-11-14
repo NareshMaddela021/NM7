@@ -179,6 +179,10 @@
     {
       "source": "/continue",
       "destination": "/index.html"
+    },
+    {
+      "source": "/new-home",
+      "destination": "/index.html"
     }
   ],
   "headers": [
@@ -227,6 +231,15 @@
           "key": "Cache-Control",
           "value": "no-store"
         },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/new-home",
+      "headers": [
         {
           "key": "X-Robots-Tag",
           "value": "noindex, nofollow"

@@ -1,6 +1,6 @@
 // Hiring speed (Phase 5, H9), at the top of the Hire now tab: for each role, minutes from posting to the first
 // candidate shown, the first invite accepted, the first interview booked and the first offer sent; the share of roles
-// that reached an interview or offer within 30 minutes; the funnel. All from real events. The "Hired in 30 minutes"
+// that reached an interview or offer within 60 minutes; the funnel. All from real events. The "Hired in 60 minutes"
 // badge shows only when a real role did it. English, Telugu and Hindi (co.speed.*).
 import { useEffect, useState } from 'react';
 import { rq } from '../../lib/company';

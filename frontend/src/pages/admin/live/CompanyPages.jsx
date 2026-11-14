@@ -148,7 +148,7 @@ function CompanyReview({ id, onClose, onChanged }) {
 
 const HIRE_FEATURES = [['instant', 'Instant shortlists beyond the free roles a month'], ['tests', 'Skill checks'], ['bulk', 'Bulk hiring mode']];
 
-/** Hire in 30 minutes: paid hiring features turned on for this one company (used when Admin → Plans → Company hiring
+/** Hire in 60 minutes: paid hiring features turned on for this one company (used when Admin → Plans → Company hiring
  * doesn't open a feature to every Verified company). */
 function HireFeatures({ c, onSaved }) {
   const toast = useToast();
@@ -167,7 +167,7 @@ function HireFeatures({ c, onSaved }) {
   );
 }
 
-/** Hire in 30 minutes (Phase 5, H9): who is ready to join now, by city (next to live jobs) and by domain. Real people
+/** Hire in 60 minutes (Phase 5, H9): who is ready to join now, by city (next to live jobs) and by domain. Real people
  * only (demo accounts are never counted). */
 function SupplyMap() {
   const [open, setOpen] = useState(false);
@@ -207,10 +207,10 @@ function DemoCompany({ onChanged }) {
   return (
     <section className="card-sm stack g8" aria-label="Demo company" data-testid="demo-company">
       <strong className="small">Demo company</strong>
-      <span className="xs muted">“Demo Tech Solutions (demo)”: 2 admins, 5 jobs, applicants from the demo college, and 3 sample sign-ups here (clean, duplicate GSTIN, same-address burst). Never on the job board. Opening it starts a fresh copy and signs this browser in as its main admin. The Hire in 30 minutes version adds 30 made-up candidates who are ready to join (IT and non-IT, with skill check results and reliability histories), a bulk post with 50 openings, three interview times tomorrow and one offer waiting; demo people are never shown to real companies.</span>
+      <span className="xs muted">“Demo Tech Solutions (demo)”: 2 admins, 5 jobs, applicants from the demo college, and 3 sample sign-ups here (clean, duplicate GSTIN, same-address burst). Never on the job board. Opening it starts a fresh copy and signs this browser in as its main admin. The Hire in 60 minutes version adds 30 made-up candidates who are ready to join (IT and non-IT, with skill check results and reliability histories), a bulk post with 50 openings, three interview times tomorrow and one offer waiting; demo people are never shown to real companies.</span>
       <div className="row g8" style={{ flexWrap: 'wrap' }}>
         <button type="button" className="btn btn-outline" disabled={busy} onClick={open} data-testid="demo-as-company">Reset and open as company</button>
-        <button type="button" className="btn btn-outline" style={{ maxWidth: '100%', whiteSpace: 'normal', height: 'auto', minHeight: 40, textAlign: 'left' }} disabled={busy} onClick={openHire} data-testid="demo-hire">Reset and open as company (Hire in 30 minutes)</button>
+        <button type="button" className="btn btn-outline" style={{ maxWidth: '100%', whiteSpace: 'normal', height: 'auto', minHeight: 40, textAlign: 'left' }} disabled={busy} onClick={openHire} data-testid="demo-hire">Reset and open as company (Hire in 60 minutes)</button>
         <button type="button" className="link-btn small" disabled={busy} onClick={remove}>Remove demo company</button>
       </div>
     </section>

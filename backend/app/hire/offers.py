@@ -49,8 +49,8 @@ from app.hire import reliability
 from app.jobs.apply import app_key, status_change
 from app.me.service import ms
 
-company = APIRouter(prefix="/api/company", tags=["hire in 30 minutes"])
-me = APIRouter(prefix="/api/me/hire/offers", tags=["hire in 30 minutes"])
+company = APIRouter(prefix="/api/company", tags=["hire in 60 minutes"])
+me = APIRouter(prefix="/api/me/hire/offers", tags=["hire in 60 minutes"])
 
 STYLE = "font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.5;color:#111"
 NOT_ESIGN = ("This is a record of your answer on Nm7 (your typed name, the box you ticked and the time). It is not a "

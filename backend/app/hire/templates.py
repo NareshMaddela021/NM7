@@ -17,7 +17,7 @@ from app.core.db import DB
 from app.hire.skillcheck import ensure_bank
 from app.hire.skillcheck import skills as test_skills
 
-router = APIRouter(prefix="/api/hire/templates", tags=["hire in 30 minutes"])
+router = APIRouter(prefix="/api/hire/templates", tags=["hire in 60 minutes"])
 
 # id, domain, title, job type, experience, education, skills, test skill, description
 TEMPLATES: list[dict[str, Any]] = [
