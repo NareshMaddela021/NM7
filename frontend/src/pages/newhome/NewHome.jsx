@@ -11,7 +11,7 @@ import { homeFor, useAuth } from '../../lib/auth';
 import { usePageMeta } from '../../lib/meta';
 import ParticleStage from './ParticleStage';
 import GlassWidget, { reducedMotion } from './GlassWidget';
-import { AUDIENCES, EXPERIENCE_TEXT, FAQ, HERO_HEADLINE, HIRE_MINUTES, JOB_CHIPS, META, SECTIONS, TAGLINE, TRUST, audienceFor, structuredData, widgetFor } from './content';
+import { AUDIENCES, EXPERIENCE_TEXT, FAQ, HERO_HEADLINE, HERO_HIGHLIGHT, HIRE_MINUTES, JOB_CHIPS, META, SECTIONS, TAGLINE, TRUST, audienceFor, structuredData, widgetFor } from './content';
 import './newhome.css';
 
 const en = (k, v) => translate('en', k, v);
@@ -75,6 +75,26 @@ function useReveal(root) {
 }
 
 /** Organization, WebSite search box and FAQ structured data in the page head (removed when the page closes). */
+/** The asuraa.ai fonts (EB Garamond headings, Manrope text) from Google Fonts: a stylesheet, not part of the bundle. */
+const FONTS = 'https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500;600&family=Manrope:wght@400;500;600;700;800&display=swap';
+function useFonts() {
+  useEffect(() => {
+    if (document.getElementById('nh-fonts')) return;
+    const pre = document.createElement('link');
+    pre.rel = 'preconnect'; pre.href = 'https://fonts.gstatic.com'; pre.crossOrigin = 'anonymous';
+    const css = document.createElement('link');
+    css.id = 'nh-fonts'; css.rel = 'stylesheet'; css.href = FONTS;
+    document.head.append(pre, css);
+  }, []);
+}
+
+/** The headline with its key words in the purple gradient. */
+function Headline() {
+  const i = HERO_HEADLINE.indexOf(HERO_HIGHLIGHT);
+  if (i < 0) return HERO_HEADLINE;
+  return <>{HERO_HEADLINE.slice(0, i)}<span className="nh-grad">{HERO_HIGHLIGHT}</span>{HERO_HEADLINE.slice(i + HERO_HIGHLIGHT.length)}</>;
+}
+
 function useStructuredData() {
   useEffect(() => {
     const tags = structuredData().map((d, i) => {
@@ -162,10 +182,11 @@ function Hero({ aud, onPick, live }) {
   const w = widgetFor(aud.key, live);
   return (
     <section className="nh-hero" data-shape={aud.shape} data-spot="hero" data-side="1" aria-labelledby="nh-h1">
+      <span className="nh-sun" aria-hidden="true" />
       <span className="nh-bigword" aria-hidden="true">HIRED</span>
       <div className="nh-wrap nh-hero-in">
         <p className="nh-kicker nh-tagline" data-testid="nh-tagline">{TAGLINE}</p>
-        <h1 id="nh-h1" className="nh-h1">{HERO_HEADLINE}</h1>
+        <h1 id="nh-h1" className="nh-h1"><Headline /></h1>
         <Tabs current={aud.key} onPick={onPick} />
         <div className="nh-panel" role="tabpanel" id="nh-panel" aria-labelledby={`nh-tab-${aud.key}`}>
           <div className="nh-panel-text">
@@ -327,7 +348,7 @@ function Connect() {
   return (
     <section id="how" className="nh-sec" aria-labelledby="how-h">
       <div className="nh-wrap">
-        <div data-shape="handshake" data-side="-1" data-spot="how">
+        <div data-shape="handshake" data-side="-1" data-dim="1" data-spot="how">
           <p className="nh-kicker">How it connects</p>
           <h2 id="how-h" className="nh-h2">Colleges, people and companies, through Nm7</h2>
         </div>
@@ -375,7 +396,7 @@ function FinalCall() {
       <svg className="nh-wave" viewBox="0 0 1440 320" preserveAspectRatio="none" aria-hidden="true" focusable="false">
         <defs>
           <linearGradient id="nh-wave-g" x1="0" x2="1">
-            <stop offset="0" stopColor="#3b5bff" /><stop offset="0.5" stopColor="#8b5cf6" /><stop offset="1" stopColor="#3b5bff" />
+            <stop offset="0" stopColor="#5b52f0" /><stop offset="0.5" stopColor="#9b55f2" /><stop offset="1" stopColor="#ffb877" />
           </linearGradient>
         </defs>
         <g className="nh-wave-a"><path d="M0 180 C 240 120 480 240 720 180 S 1200 120 1440 180 S 1920 240 2160 180 S 2640 120 2880 180 V320 H0Z" fill="url(#nh-wave-g)" opacity="0.35" /></g>
@@ -419,6 +440,7 @@ export default function NewHome() {
   // not indexed while it is a test page; indexed as soon as it is the home page
   usePageMeta(useMemo(() => ({ ...META, noindex: pathname !== '/' }), [pathname]));
   useStructuredData();
+  useFonts();
   const [params, setParams] = useSearchParams();
   const aud = audienceFor(params.get('for'));
   const pick = (key) => setParams((p) => { const n = new URLSearchParams(p); n.set('for', key); return n; }, { replace: true, preventScrollReset: true });

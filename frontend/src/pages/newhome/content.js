@@ -9,6 +9,8 @@ import { TEMPLATE_COUNT } from '../home/templateMeta';
 export const TAGLINE = 'Blink-it for hiring';
 /** The hero headline (the same for every tab; each tab has its own line under it). */
 export const HERO_HEADLINE = 'Hire in 60 minutes. Get hired fast.';
+/** The words of the headline shown in the purple gradient. */
+export const HERO_HIGHLIGHT = '60 minutes';
 /** The company promise, in minutes: the timeline runs from minute 0 to this. */
 export const HIRE_MINUTES = 60;
 

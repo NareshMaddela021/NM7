@@ -1,10 +1,12 @@
-// The new home page's 3D dots (/new-home): a few thousand glowing points in Nm7 blue-purple that slowly turn, lean
-// towards the mouse, and morph from one shape to another (shapes.js). This file and three.js are their own chunk,
+// The new home page's 3D dots (/new-home): a few thousand deep indigo-violet points on the light page that sway
+// gently (never more than about 25°, so a shape always faces you and stays recognisable), lean towards the mouse, and morph from one shape to another (shapes.js). This file and three.js are their own chunk,
 // loaded only after the page has painted, and only where WebGL works (ParticleStage.jsx decides).
-import { AdditiveBlending, BufferAttribute, BufferGeometry, Color, PerspectiveCamera, Points, Scene, ShaderMaterial, WebGLRenderer } from 'three';
+import { BufferAttribute, BufferGeometry, Color, NormalBlending, PerspectiveCamera, Points, Scene, ShaderMaterial, WebGLRenderer } from 'three';
 import { shapePoints } from './shapes';
 
 const MORPH_MS = 1600;
+const MAX_TURN = (25 * Math.PI) / 180; // the most a shape turns either way
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 const SPREAD = 0.45; // per-dot delay share of the morph: dots leave one after another, not all at once
 
 const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
@@ -47,9 +49,10 @@ const FRAG = /* glsl */ `
     vec2 c = gl_PointCoord - 0.5;
     float d = length(c);
     if (d > 0.5) discard;
-    float glow = smoothstep(0.5, 0.0, d);
     vec3 col = mix(uBlue, uPurple, clamp(vY * 0.6 + 0.5, 0.0, 1.0));
-    gl_FragColor = vec4(col + glow * glow * 0.5, glow * vTw);
+    // solid violet dots with a soft edge: visible on a light page (normal blending, no white bloom)
+    float a = smoothstep(0.5, 0.18, d);
+    gl_FragColor = vec4(col, a * (0.55 + 0.45 * vTw));
   }
 `;
 
@@ -82,10 +85,10 @@ export function startParticles(host, { count = 4000, shape = 'sphere' } = {}) {
     fragmentShader: FRAG,
     transparent: true,
     depthWrite: false,
-    blending: AdditiveBlending,
+    blending: NormalBlending,
     uniforms: {
-      uMix: { value: 0 }, uTime: { value: 0 }, uSize: { value: count > 3000 ? 22 : 26 }, uPixel: { value: pixel },
-      uBlue: { value: new Color('#4f6bff') }, uPurple: { value: new Color('#b26bff') },
+      uMix: { value: 0 }, uTime: { value: 0 }, uSize: { value: count > 3000 ? 13 : 16 }, uPixel: { value: pixel },
+      uBlue: { value: new Color('#5b52f0') }, uPurple: { value: new Color('#9b55f2') },
     },
   });
   const dots = new Points(geo, mat);
@@ -96,6 +99,7 @@ export function startParticles(host, { count = 4000, shape = 'sphere' } = {}) {
   let current = shape;
   let side = 0; // where the shape sits: -1 left … 1 right of the screen
   let sideNow = 0;
+  let placed = false;
   const pointer = { x: 0, y: 0, sx: 0, sy: 0 };
   let scrollKick = 0;
   let lastScroll = window.scrollY;
@@ -127,12 +131,16 @@ export function startParticles(host, { count = 4000, shape = 'sphere' } = {}) {
     pointer.sx += (pointer.x - pointer.sx) * 0.04;
     pointer.sy += (pointer.y - pointer.sy) * 0.04;
     scrollKick *= 0.92;
-    spin += 0.0018 + scrollKick * 0.2;
-    dots.rotation.y = spin * 0.6 + pointer.sx * 0.35 + Math.sin(spin) * 0.25;
-    dots.rotation.x = pointer.sy * 0.2 + Math.sin(spin * 0.7) * 0.06;
+    spin += 0.006;
+    // a gentle sway only (±25° at most): the shape always faces forward, never turns side-on into a thin stick
+    dots.rotation.y = clamp(Math.sin(spin) * 0.3 + pointer.sx * 0.12 + scrollKick, -MAX_TURN, MAX_TURN);
+    dots.rotation.x = clamp(Math.sin(spin * 0.7) * 0.08 + pointer.sy * 0.08, -0.2, 0.2);
     sideNow += (side - sideNow) * 0.05;
+    // on a wide screen the shape sits in the outer ~38% of the screen and is sized to fit there, clear of the text
     const halfWidth = Math.tan((camera.fov * Math.PI) / 360) * camera.position.z * camera.aspect;
-    dots.position.x = sideNow * Math.max(0, halfWidth - 1.1);
+    const away = Math.abs(sideNow);
+    dots.position.x = sideNow * halfWidth * 0.64;
+    dots.scale.setScalar(away > 0.01 ? Math.min(1, 1 - away + away * halfWidth * 0.3) : 1);
     renderer.render(scene, camera);
   };
   renderer.setAnimationLoop(frame);
@@ -158,7 +166,10 @@ export function startParticles(host, { count = 4000, shape = 'sphere' } = {}) {
       morphStart = performance.now();
       current = name;
     },
-    setSide(x) { side = x; },
+    setSide(x) {
+      if (!placed) { sideNow = x; placed = true; } // the first position is set at once, not slid in from the centre
+      side = x;
+    },
     stop() {
       renderer.setAnimationLoop(null);
       window.removeEventListener('pointermove', onMove);

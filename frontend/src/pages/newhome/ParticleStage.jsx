@@ -34,8 +34,8 @@ const Still = memo(function Still({ shape }) {
     <svg className="nh-still" viewBox="0 0 400 400" aria-hidden="true" focusable="false" data-shape={shape}>
       <defs>
         <linearGradient id="nh-dot" x1="0" y1="0" x2="0" y2="400" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#c08bff" />
-          <stop offset="1" stopColor="#5a74ff" />
+          <stop offset="0" stopColor="#9b55f2" />
+          <stop offset="1" stopColor="#5b52f0" />
         </linearGradient>
       </defs>
       <g fill="url(#nh-dot)">
