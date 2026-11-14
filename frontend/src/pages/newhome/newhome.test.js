@@ -1,7 +1,7 @@
 // The new home page (/new-home): every shape has the same number of dots (so they can morph), the four audiences
 // and their links, widgets never show a number that didn't come from the API, and the structured data is complete.
 import { describe, expect, it } from 'vitest';
-import { SHAPE_COLORS, SHAPE_NAMES, colorsFor, projectPoints, shapePoints } from './shapes';
+import { SHAPE_COLORS, SHAPE_NAMES, SPACING, colorsFor, projectPoints, shapePoints } from './shapes';
 import { AUDIENCES, DEFAULT_AUDIENCE, FAQ, HERO_HEADLINE, META, SECTIONS, TAGLINE, audienceFor, structuredData, widgetFor } from './content';
 import { translate } from '../../lib/i18n';
 import { widgetText } from './GlassWidget';
@@ -90,26 +90,31 @@ describe('FAQ and structured data', () => {
 });
 
 describe('the CUTE-orb dots (round O)', () => {
-  // nearest-neighbour distances: their spread (sd / mean) and how many dots sit far closer than the rest
-  const spacing = (p, n) => {
-    const d = [];
-    for (let i = 0; i < n; i += 1) {
-      let m = Infinity;
-      for (let j = 0; j < n; j += 1) {
-        if (i === j) continue;
-        const dx = p[i * 3] - p[j * 3]; const dy = p[i * 3 + 1] - p[j * 3 + 1]; const dz = p[i * 3 + 2] - p[j * 3 + 2];
-        m = Math.min(m, dx * dx + dy * dy + dz * dz);
-      }
-      d.push(Math.sqrt(m));
+  // the visible dots (spares stacked on a drawn dot count once) and each one's distance to its nearest neighbour
+  const visible = (p) => [...new Map(Array.from({ length: p.length / 3 }, (_, i) => [p[i * 3], p[i * 3 + 1], p[i * 3 + 2]]).map((q) => [q.map((v) => v.toFixed(4)).join(), q])).values()];
+  const gaps = (q) => q.map((a, i) => Math.min(...q.map((b, j) => (i === j ? 9 : Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]))))).sort((a, b) => a - b);
+  it.each(SHAPE_NAMES.filter((n) => n !== 'sphere'))('%s: a dotted line drawing, most dots on its outlines, evenly spaced', (name) => {
+    const p = shapePoints(name, 1100);
+    expect(p.length).toBe(1100 * 3);
+    expect(p.outline).toBeGreaterThanOrEqual(0.85); // outlines and details; the inside fill stays light
+    const g = gaps(visible(p));
+    const median = g[g.length >> 1];
+    expect(median).toBeGreaterThan(SPACING * 0.75); // dots stay dots: never merged into a solid line
+    expect(median).toBeLessThan(SPACING * 1.15);
+    expect(g[0]).toBeGreaterThan(median * 0.1); // no two drawn dots on the same spot
+  });
+  it('the sphere is latitude rings, each with evenly spaced dots', () => {
+    const p = shapePoints('sphere', 1100);
+    const byRing = new Map();
+    for (let i = 0; i < 1100; i += 1) { const y = p[i * 3 + 1].toFixed(5); if (!byRing.has(y)) byRing.set(y, []); byRing.get(y).push(Math.atan2(p[i * 3 + 2], p[i * 3])); }
+    expect(byRing.size).toBeGreaterThan(20);
+    expect(byRing.size).toBeLessThan(45);
+    for (const angles of byRing.values()) {
+      if (angles.length < 3) continue;
+      const step = (Math.PI * 2) / angles.length;
+      const sorted = angles.map((a) => (a + Math.PI * 2) % (Math.PI * 2)).sort((a, b) => a - b);
+      sorted.slice(1).forEach((a, k) => expect(a - sorted[k]).toBeCloseTo(step, 5));
     }
-    const mean = d.reduce((a, b) => a + b) / n;
-    const sd = Math.sqrt(d.reduce((a, b) => a + (b - mean) ** 2, 0) / n);
-    return { spread: sd / mean, clumped: d.filter((x) => x < mean * 0.3).length };
-  };
-  it.each(SHAPE_NAMES)('%s: evenly spaced dots, no clumps', (name) => {
-    const { spread, clumped } = spacing(shapePoints(name, 1200), 1200);
-    expect(clumped).toBe(0);
-    expect(spread).toBeLessThan(0.25); // random scatter was 0.5–0.7
   });
   const lum = (hex) => {
     const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));

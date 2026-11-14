@@ -35,7 +35,8 @@ const VERT = /* glsl */ `
     vec3 p = mix(position, aTarget, t);
     // breathing: a slow wave runs down the rings, moving each dot a little in and out
     vec3 out_ = normalize(p + vec3(0.0001));
-    p += out_ * 0.03 * sin(p.y * 7.0 - uTime * 1.6) * (0.6 + 0.4 * sin(uTime * 0.5));
+    // (small: enough to ripple the sphere's rings, while straight lines in the drawings stay straight)
+    p += out_ * 0.012 * sin(p.y * 7.0 - uTime * 1.6) * (0.6 + 0.4 * sin(uTime * 0.5));
     vec4 mv = modelViewMatrix * vec4(p, 1.0);
     vec4 clip = projectionMatrix * mv;
     // the soft dent: dots near the cursor slide away from it on screen
@@ -65,7 +66,7 @@ const FRAG = /* glsl */ `
  * Starts the scene in `host` (a div). count = number of dots; phone = lighter touch push.
  * Returns { morph(name), setSide(x), stop() }. Throws if WebGL can't start (the caller keeps the still picture).
  */
-export function startParticles(host, { count = 4000, shape = 'sphere', phone = false } = {}) {
+export function startParticles(host, { count = 1100, shape = 'sphere', phone = false } = {}) {
   const renderer = new WebGLRenderer({ antialias: false, alpha: true, powerPreference: 'low-power', failIfMajorPerformanceCaveat: true });
   const pixel = Math.min(window.devicePixelRatio || 1, 1.75);
   renderer.setPixelRatio(pixel);
@@ -95,7 +96,7 @@ export function startParticles(host, { count = 4000, shape = 'sphere', phone = f
     depthWrite: false,
     blending: NormalBlending,
     uniforms: {
-      uMix: { value: 0 }, uTime: { value: 0 }, uSize: { value: count > 2000 ? 17 : 19 }, uPixel: { value: pixel },
+      uMix: { value: 0 }, uTime: { value: 0 }, uSize: { value: 21 }, uPixel: { value: pixel },
       uMouse: { value: new Vector2(9, 9) }, uPush: { value: 0 }, uAspect: { value: 1 },
       uColA: { value: colA.clone() }, uColB: { value: colB.clone() },
     },

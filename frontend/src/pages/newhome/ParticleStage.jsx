@@ -64,7 +64,7 @@ export default function ParticleStage({ shape, side = 0, dim = false }) {
       if (dead || !host.current) return;
       try {
         const phone = window.innerWidth < 700;
-        scene.current = startParticles(host.current, { count: phone ? 1100 : 2200, shape: latest.current.shape, phone });
+        scene.current = startParticles(host.current, { count: phone ? 700 : 1100, shape: latest.current.shape, phone });
         scene.current.setSide(latest.current.side);
         setMode('3d');
       } catch {
