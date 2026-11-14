@@ -108,3 +108,24 @@ async def test_demo(client, outbox, db, admin_client):
     await owner.post("/api/admin/demo-company/hire/open")
     assert await db[HIRE_PROFILES].count_documents({"_id": {"$regex": "^hire-demo-"}}) == 30
     assert await db[HIRE_INVITES].count_documents({"company_id": job["company_id"]}) == 1
+
+
+async def test_demo_attended_interview_is_in_the_past_at_any_hour(client, db, admin_client, monkeypatch):
+    """Round L: the attended interview was set to today 10:00 India time, so before 10:00 IST the demo (and its e2e
+    test) showed it as upcoming, with Cancel and without Attended. It is yesterday now, whatever the hour."""
+    from datetime import datetime
+
+    from app.core.time import IST
+    from app.hire import demo
+
+    owner = await admin_client()
+    for hour in (0, 6, 9, 11, 23):
+        at = datetime(2026, 11, 14, hour, 30, tzinfo=IST)
+        monkeypatch.setattr(demo, "now", lambda at=at: at)
+        r = await owner.post("/api/admin/demo-company/hire/open")
+        assert r.status_code == 200, r.text
+        q = {"job_id": r.json()["bulkJob"]}
+        attended = await db[HIRE_SLOTS].find_one({**q, "mark": "attended"})
+        opens = await db[HIRE_SLOTS].find({**q, "status": "open"}).to_list(None)
+        assert attended["starts_at"] < at, (hour, attended["starts_at"])
+        assert all(s["starts_at"] > at for s in opens), hour
