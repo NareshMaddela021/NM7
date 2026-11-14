@@ -1,7 +1,7 @@
 // The new home page (/new-home): every shape has the same number of dots (so they can morph), the four audiences
 // and their links, widgets never show a number that didn't come from the API, and the structured data is complete.
 import { describe, expect, it } from 'vitest';
-import { SHAPE_NAMES, projectPoints, shapePoints } from './shapes';
+import { SHAPE_COLORS, SHAPE_NAMES, colorsFor, projectPoints, shapePoints } from './shapes';
 import { AUDIENCES, DEFAULT_AUDIENCE, FAQ, HERO_HEADLINE, META, SECTIONS, TAGLINE, audienceFor, structuredData, widgetFor } from './content';
 import { translate } from '../../lib/i18n';
 import { widgetText } from './GlassWidget';
@@ -86,5 +86,43 @@ describe('FAQ and structured data', () => {
     expect(org['@type']).toBe('Organization');
     expect(site.potentialAction.target.urlTemplate).toBe('https://nm7.si/jobs?q={search_term_string}');
     expect(faq.mainEntity).toHaveLength(FAQ.flatMap(([, qs]) => qs).length);
+  });
+});
+
+describe('the CUTE-orb dots (round O)', () => {
+  // nearest-neighbour distances: their spread (sd / mean) and how many dots sit far closer than the rest
+  const spacing = (p, n) => {
+    const d = [];
+    for (let i = 0; i < n; i += 1) {
+      let m = Infinity;
+      for (let j = 0; j < n; j += 1) {
+        if (i === j) continue;
+        const dx = p[i * 3] - p[j * 3]; const dy = p[i * 3 + 1] - p[j * 3 + 1]; const dz = p[i * 3 + 2] - p[j * 3 + 2];
+        m = Math.min(m, dx * dx + dy * dy + dz * dz);
+      }
+      d.push(Math.sqrt(m));
+    }
+    const mean = d.reduce((a, b) => a + b) / n;
+    const sd = Math.sqrt(d.reduce((a, b) => a + (b - mean) ** 2, 0) / n);
+    return { spread: sd / mean, clumped: d.filter((x) => x < mean * 0.3).length };
+  };
+  it.each(SHAPE_NAMES)('%s: evenly spaced dots, no clumps', (name) => {
+    const { spread, clumped } = spacing(shapePoints(name, 1200), 1200);
+    expect(clumped).toBe(0);
+    expect(spread).toBeLessThan(0.25); // random scatter was 0.5–0.7
+  });
+  const lum = (hex) => {
+    const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  };
+  const onWhite = (hex) => 1.05 / (lum(hex) + 0.05);
+  it('each audience shape has its own colours, clearly visible on the light page', () => {
+    expect(Object.keys(SHAPE_COLORS)).toEqual(['sphere', 'stopwatch', 'college', 'briefcase', 'cap']);
+    for (const [name, c] of Object.entries(SHAPE_COLORS)) {
+      expect(onWhite(c.a), `${name} dots`).toBeGreaterThanOrEqual(3);
+      expect(onWhite(c.b), `${name} dots`).toBeGreaterThanOrEqual(3);
+      expect(c.glow).toMatch(/^#[0-9a-f]{6}$/);
+    }
+    expect(colorsFor('magnifier')).toBe(SHAPE_COLORS.sphere);
   });
 });

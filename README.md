@@ -55,8 +55,13 @@ the live home page `/` is unchanged.
 
 - **Look:** the style of asuraa.ai (Naresh's own brand): light page with peach and lavender glows and a "sun", EB Garamond
   headings and Manrope text (Google Fonts, loaded by the page, not in the bundle), navy text, purple gradient accents
-  and buttons, a floating white pill nav, white cards with soft shadows. The 3D dots are deep violet, sway at most
-  ±25° (always facing forward) and stay in the outer part of the screen, clear of the hero text and tabs.
+  and buttons, a floating white pill nav, white cards with soft shadows. The 3D dots sway at most ±25° (always facing
+  forward) and stay in the outer part of the screen, clear of the hero text and tabs.
+- **Dots (like the asuraa.ai "CUTE" orb):** evenly spaced, equal-size dots: the sphere is a Fibonacci lattice and the
+  other shapes are sampled evenly (a low-discrepancy sequence, then Poisson-disc thinning, so no clumps); every shape
+  shares one spatial order, so morphs move dot to dot. A slow wave ripples across the rings, dots near the cursor (or
+  a finger, lighter) move aside and spring back, and a soft glow pulses behind. Colours per shape (`SHAPE_COLORS` in
+  `shapes.js`): sphere purple, stopwatch blue, college teal, briefcase orange, cap magenta; they fade during a morph.
 - **Code:** `frontend/src/pages/newhome/` — `NewHome.jsx` (the page), `content.js` (all words, links, FAQ, structured
   data), `GlassWidget.jsx` (the looping glass card), `ParticleStage.jsx` + `particles.js` (the 3D dots, three.js),
   `shapes.js` (our own dot shapes: stopwatch, college, briefcase, cap, resume, magnifier, badge, handshake).

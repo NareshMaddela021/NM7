@@ -56,8 +56,12 @@
 .nh-canvas canvas { display: block; }
 .nh-stage[data-mode="still"] .nh-canvas { opacity: 0; }
 .nh-stage[data-mode="3d"] .nh-canvas { animation: nh-fade 1.2s ease both; }
+/* the soft glow behind each shape: its colour (currentColor) fades with the morph, and it pulses slowly */
 .nh-stage-glow { position: absolute; width: 60vmin; height: 60vmin; left: 50%; top: 38%; transform: translate(-50%, -50%); border-radius: 50%;
-  background: radial-gradient(circle, rgba(196, 180, 255, 0.55), rgba(255, 214, 170, 0.25) 45%, transparent 70%); filter: blur(18px); }
+  background: radial-gradient(circle, currentColor 0%, color-mix(in srgb, currentColor 45%, transparent) 40%, transparent 70%);
+  filter: blur(22px); transition: color 1.6s ease, transform 1s; }
+.nh-stage-glow::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: inherit; animation: nh-pulse 4.5s ease-in-out infinite; }
+@keyframes nh-pulse { 0%, 100% { opacity: 0.25; transform: scale(0.92); } 50% { opacity: 0.75; transform: scale(1.06); } }
 .nh-still { position: absolute; width: min(80vw, 380px); left: 50%; top: 30%; transform: translate(-50%, -50%); animation: nh-fade 0.8s ease both; }
 @keyframes nh-fade { from { opacity: 0; } }
 
@@ -267,7 +271,7 @@
   .nh-stage { opacity: 1; }
   .nh-stage[data-dim="1"] { opacity: 0.22; }
   .nh-still { width: min(30vw, 420px); top: 54%; transform: translate(calc(-50% + var(--side, 0) * 32vw), -50%); transition: transform 1s cubic-bezier(0.2, 0.7, 0.2, 1); }
-  .nh-stage-glow { width: 44vw; height: 44vw; max-width: 620px; max-height: 620px; top: 54%; transform: translate(calc(-50% + var(--side, 0) * 30vw), -50%); transition: transform 1s; }
+  .nh-stage-glow { width: 44vw; height: 44vw; max-width: 620px; max-height: 620px; top: 54%; transform: translate(calc(-50% + var(--side, 0) * 30vw), -50%); transition: color 1.6s ease, transform 1s; }
 }
 
 @media (prefers-reduced-motion: reduce) {

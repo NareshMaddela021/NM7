@@ -1,6 +1,9 @@
 // The new home page's particle shapes (/new-home): each one is a cloud of N points drawn from simple geometry we
 // define here (boxes, rings, tubes, discs, lines). Every shape has exactly N points, so the dots can morph from one
 // shape to another point by point. Coordinates sit roughly inside a unit sphere (x right, y up, z towards you).
+// Dots are spread evenly, not at random: each part is sampled with a low-discrepancy (Halton) sequence, so the dots
+// sit at tidy, regular spacing like a mesh; the sphere is an exact Fibonacci lattice. Every shape's dots are then put
+// in the same spatial order (height bands, then angle), so a morph moves each dot to a nearby spot and stays neat.
 // Pure functions, no three.js: the static fallback picture uses them too.
 
 /** Small seeded random numbers, so a shape is the same on every visit (and in tests). */
@@ -68,9 +71,105 @@ const disc = (c, rad) => (r) => {
   return [c[0] + Math.cos(a) * k, c[1] + Math.sin(a) * k, c[2] + (r() - 0.5) * 0.04];
 };
 
-/** Points spread through several parts: parts = [[weight, sampler], …]. Always exactly n points. */
-function build(n, parts, seed) {
+/** The i-th value of the Halton sequence in base b: evenly spread numbers in [0, 1). */
+export function halton(i, b) {
+  let f = 1;
+  let out = 0;
+  for (let k = i; k > 0; k = Math.floor(k / b)) { f /= b; out += f * (k % b); }
+  return out;
+}
+const PRIMES = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29];
+
+/** A "random" source that is really evenly spread: each call inside one sample uses the next dimension. */
+function evenly(offset) {
+  let i = offset;
+  let d = 0;
+  const r = () => halton(i, PRIMES[d++ % PRIMES.length]);
+  r.next = () => { i += 1; d = 0; };
+  return r;
+}
+
+/** The same spatial order for every shape: height bands from the top, then the angle around the vertical axis. */
+function tidyOrder(out) {
+  const n = out.length / 3;
+  const idx = Array.from({ length: n }, (_, i) => i);
+  const key = (i) => {
+    const band = Math.round((1.2 - out[i * 3 + 1]) * 12);
+    return band * 10 + (Math.atan2(out[i * 3 + 2], out[i * 3]) + Math.PI) / (Math.PI * 2) * 9.99;
+  };
+  const keys = idx.map(key);
+  idx.sort((a, b) => keys[a] - keys[b]);
+  const sorted = new Float32Array(out.length);
+  idx.forEach((from, to) => { sorted.set(out.subarray(from * 3, from * 3 + 3), to * 3); });
+  return sorted;
+}
+
+/**
+ * Poisson-disc thinning: from many evenly drawn candidates, keep each one that is at least `r` away from every dot
+ * kept so far (a grid makes this fast). `r` is searched so that at least n dots survive; the first n are returned.
+ * The result: dots at near-equal spacing everywhere, with no clumps where parts meet.
+ */
+function poisson(cands, n, seed) {
+  const m = cands.length / 3;
+  const order = Array.from({ length: m }, (_, i) => i);
   const r = rng(seed);
+  for (let i = m - 1; i > 0; i -= 1) { const j = Math.floor(r() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
+  const keep = (rad) => {
+    // a hash grid of cells `rad` wide, with integer keys (fast); each cell keeps the indexes of the dots kept in it
+    const inv = 1 / rad;
+    const r2 = rad * rad;
+    const grid = new Map();
+    const out = [];
+    const key = (gx, gy, gz) => (gx * 92837111) ^ (gy * 689287499) ^ (gz * 283923481);
+    for (let o = 0; o < m; o += 1) {
+      const i = order[o];
+      const x = cands[i * 3]; const y = cands[i * 3 + 1]; const z = cands[i * 3 + 2];
+      const gx = Math.floor(x * inv); const gy = Math.floor(y * inv); const gz = Math.floor(z * inv);
+      let ok = true;
+      for (let dx = -1; dx <= 1 && ok; dx += 1) {
+        for (let dy = -1; dy <= 1 && ok; dy += 1) {
+          for (let dz = -1; dz <= 1 && ok; dz += 1) {
+            const list = grid.get(key(gx + dx, gy + dy, gz + dz));
+            if (!list) continue;
+            for (let q = 0; q < list.length; q += 1) {
+              const k = list[q];
+              const ex = cands[k * 3] - x; const ey = cands[k * 3 + 1] - y; const ez = cands[k * 3 + 2] - z;
+              if (ex * ex + ey * ey + ez * ez < r2) { ok = false; break; }
+            }
+          }
+        }
+      }
+      if (ok) {
+        const kk = key(gx, gy, gz);
+        const list = grid.get(kk);
+        if (list) list.push(i); else grid.set(kk, [i]);
+        out.push(i);
+        if (out.length >= n * 1.6) break; // plenty: this spacing is too small, no need to finish
+      }
+    }
+    return out;
+  };
+  // the spacing for n dots on this shape, by bisection (a dozen tries)
+  let lo = 0.004; let hi = 0.2; let best = order.slice(0, n);
+  for (let step = 0; step < 12; step += 1) {
+    const mid = (lo + hi) / 2;
+    const got = keep(mid);
+    if (got.length >= n) { best = got; lo = mid; } else hi = mid;
+  }
+  const out = new Float32Array(n * 3);
+  best.slice(0, n).forEach((i, k) => out.set(cands.subarray(i * 3, i * 3 + 3), k * 3));
+  return out;
+}
+
+const OVERSAMPLE = 3;
+
+/** Points spread evenly through several parts: parts = [[weight, sampler], …]. Always exactly n points. */
+function build(n, parts, seed) {
+  return tidyOrder(poisson(raw(n * OVERSAMPLE, parts, seed), n, seed));
+}
+
+/** n evenly drawn candidate points through the parts, by weight. */
+function raw(n, parts, seed) {
   const total = parts.reduce((a, [w]) => a + w, 0);
   const counts = parts.map(([w]) => Math.floor((w / total) * n));
   let left = n - counts.reduce((a, b) => a + b, 0);
@@ -78,7 +177,8 @@ function build(n, parts, seed) {
   const out = new Float32Array(n * 3);
   let k = 0;
   parts.forEach(([, sample], i) => {
-    for (let j = 0; j < counts[i]; j += 1) {
+    const r = evenly(seed + i * 7 + 1);
+    for (let j = 0; j < counts[i]; j += 1, r.next()) {
       const p = sample(r);
       out[k] = p[0]; out[k + 1] = p[1]; out[k + 2] = p[2];
       k += 3;
@@ -92,15 +192,13 @@ function build(n, parts, seed) {
 function sphere(n) {
   const out = new Float32Array(n * 3);
   const golden = Math.PI * (3 - Math.sqrt(5));
-  const r = rng(3);
-  for (let i = 0; i < n; i += 1) {
-    const y = 1 - (i / (n - 1)) * 2;
+  for (let i = 0; i < n; i += 1) { // an exact Fibonacci lattice: every dot the same distance from its neighbours
+    const y = 1 - ((i + 0.5) / n) * 2;
     const rad = Math.sqrt(1 - y * y);
     const a = golden * i;
-    const k = 0.92 + r() * 0.08; // a little depth, so it reads as a cloud and not a shell
-    out[i * 3] = Math.cos(a) * rad * k; out[i * 3 + 1] = y * k; out[i * 3 + 2] = Math.sin(a) * rad * k;
+    out[i * 3] = Math.cos(a) * rad; out[i * 3 + 1] = y; out[i * 3 + 2] = Math.sin(a) * rad;
   }
-  return out;
+  return tidyOrder(out);
 }
 
 const ticks = (n, R) => Array.from({ length: n }, (_, i) => {
@@ -219,6 +317,20 @@ const handshake = (n) => build(n, [
   ...[-0.12, -0.02, 0.08].map((y) => [4, segment([-0.3, y, 0.16], [0.3, y + 0.04, 0.16], 0.02)]),
   [6, segment([-0.1, 0.2, 0.12], [0.2, 0.32, 0.12], 0.04)],
 ], 37);
+
+/**
+ * Each shape's colours: dots go from `a` (bottom) to `b` (top); `glow` is the soft light behind the shape. Chosen to
+ * stand out on the light page (3:1 or more against white for the dots), not neon. Shapes without their own colours
+ * (the journey and trust shapes) use the Nm7 purple of the sphere.
+ */
+export const SHAPE_COLORS = {
+  sphere: { a: '#5b52f0', b: '#9b55f2', glow: '#cbbfff' }, // Nm7 purple, lavender glow
+  stopwatch: { a: '#1d4ed8', b: '#2563eb', glow: '#bcd2ff' }, // companies: deep blue, soft blue glow
+  college: { a: '#0f766e', b: '#0d9488', glow: '#a9efd6' }, // colleges: teal, soft mint glow
+  briefcase: { a: '#c2570c', b: '#e0701a', glow: '#ffd2ad' }, // job seekers: orange, soft peach glow
+  cap: { a: '#be185d', b: '#db2777', glow: '#fbc4da' }, // students: magenta, soft pink glow
+};
+export const colorsFor = (name) => SHAPE_COLORS[name] || SHAPE_COLORS.sphere;
 
 export const SHAPES = { sphere, stopwatch, college, briefcase, cap, resume, magnifier, badge, handshake };
 export const SHAPE_NAMES = Object.keys(SHAPES);
