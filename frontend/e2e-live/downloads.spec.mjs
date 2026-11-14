@@ -66,6 +66,9 @@ test('guest → Create account (email code) → the draft becomes their resume a
   await page.getByRole('button', { name: 'Download PDF', exact: true }).first().click();
   await guestModal(page).getByRole('button', { name: 'Create account' }).click();
   await page.waitForURL('**/signup?next=%2Fbuilder');
+  // React Router 7 changes the address before the (lazy) sign-up page replaces the builder: wait for the page itself,
+  // or "Full name" below fills the builder's field of the same name
+  await expect(page.getByRole('heading', { name: 'Create your account', level: 1 })).toBeVisible();
   const mail = email('gate-new');
   await page.getByLabel('Full name').fill('Guna Shekar');
   await page.getByLabel('Email').fill(mail);
@@ -103,6 +106,7 @@ test('guest → Sign in to an account with resumes → a new resume (never overw
   await page.getByRole('button', { name: 'Word', exact: true }).first().click();
   await guestModal(page).getByRole('button', { name: 'I already have an account - Sign in' }).click();
   await page.waitForURL('**/login?next=%2Fbuilder');
+  await expect(page.getByRole('heading', { name: 'Sign in', level: 1 })).toBeVisible(); // the page itself, not just the URL
   await page.getByLabel('Email').fill(mail);
   await page.getByLabel('Password', { exact: true }).fill(PASSWORD);
   const file = await expectFile(page, () => page.getByRole('button', { name: 'Sign in' }).click(), '.docx');
