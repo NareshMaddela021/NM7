@@ -39,7 +39,7 @@
     "jsqr": "^1.4.0",
     "vite": "^7.3.8",
     "vite-plugin-singlefile": "^2.3.4",
-    "vitest": "^4.1.12"
+    "vitest": "^5.1.0"
   },
   "private": true,
   "type": "module",
