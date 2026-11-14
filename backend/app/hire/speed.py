@@ -2,10 +2,10 @@
 
   GET /api/company/{cid}/hire/speed     per role: minutes from posting to the first candidate shown, the first invite
                                         accepted, the first interview booked and the first offer sent; the share of
-                                        roles that reached an interview or offer within 30 minutes; the funnel
+                                        roles that reached an interview or offer within 60 minutes; the funnel
   GET /api/admin/hire/supply            Admin: available candidates by city and by domain, next to live jobs
 
-"Hired in 30 minutes" = an interview booked or an offer sent within 30 minutes of the job being posted. The badge on
+"Hired in 60 minutes" = an interview booked or an offer sent within 60 minutes of the job being posted. The badge on
 the company's public page shows only when at least one real (not demo) role did that; nothing is estimated.
 """
 
@@ -24,10 +24,10 @@ from app.jobs.public import live_filter
 from app.jobsearch import skills as dictionary
 from app.site import get_site
 
-company = APIRouter(prefix="/api/company", tags=["hire in 30 minutes"])
-admin = APIRouter(prefix="/api/admin/hire", tags=["hire in 30 minutes"])
+company = APIRouter(prefix="/api/company", tags=["hire in 60 minutes"])
+admin = APIRouter(prefix="/api/admin/hire", tags=["hire in 60 minutes"])
 
-GOAL = timedelta(minutes=30)
+GOAL = timedelta(minutes=60)
 STEPS = ("shown", "accepted", "interview", "offer")
 
 
@@ -99,7 +99,7 @@ async def speed(cid: str, db: DB, x_recruiter_account: str | None = Header(None)
 
 
 async def hired_in_30(db, cid: str) -> bool:
-    """The public badge: at least one real role reached an interview or offer within 30 minutes of posting."""
+    """The public badge: at least one real role reached an interview or offer within 60 minutes of posting."""
     c = await db[COMPANIES].find_one({"_id": cid}, {"demo": 1})
     if not c or c.get("demo"):
         return False

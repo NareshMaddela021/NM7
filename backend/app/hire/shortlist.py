@@ -18,7 +18,7 @@ strictly; on the same score, a salary within the job's range comes first, then t
 first name and initial, match score and reasons, availability, salary fit, skill check (H3) and reliability (H4);
 never email or phone until the candidate accepts.
 
-Only Verified companies; a Basic company sees its applicants only. Limits (Admin → Settings → Hire in 30 minutes):
+Only Verified companies; a Basic company sees its applicants only. Limits (Admin → Settings → Hire in 60 minutes):
 `free_shortlists` roles a month (beyond that the instant shortlist is a paid company feature: Admin → Plans → Company
 hiring, open to every Verified company by default), `shortlists_per_hour` and `invites_per_day` per company.
 
@@ -54,8 +54,8 @@ from app.jobs.apply import FOLLOW_AFTER, app_key, job_page, status_change
 from app.me.service import ms
 from app.site import get_site
 
-company = APIRouter(prefix="/api/company", tags=["hire in 30 minutes"])
-me = APIRouter(prefix="/api/me/hire", tags=["hire in 30 minutes"])
+company = APIRouter(prefix="/api/company", tags=["hire in 60 minutes"])
+me = APIRouter(prefix="/api/me/hire", tags=["hire in 60 minutes"])
 
 TOP = 10
 BULK_TOP = 100  # a bulk hiring post (H7): bigger batches

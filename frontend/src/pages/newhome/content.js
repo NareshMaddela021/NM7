@@ -1,15 +1,22 @@
-// The words and links of the new home page (/new-home, "Blinkit for hiring"). Every link goes to a real page; FAQ
+// The words and links of the new home page (/new-home). Every link goes to a real page; FAQ
 // answers are the site's own (the same strings as the current home page, /for-orgs, /for-companies and the terms).
 // No testimonials, client logos or invented numbers: the only numbers shown come from the live jobs API.
 import { translate } from '../../lib/i18n';
 import { PROMISES } from '../../lib/pricing';
 import { TEMPLATE_COUNT } from '../home/templateMeta';
 
+/** The small brand line above the hero headline (Naresh's choice). To change it, change it here, in this one place. */
+export const TAGLINE = 'Blink-it for hiring';
+/** The hero headline (the same for every tab; each tab has its own line under it). */
+export const HERO_HEADLINE = 'Hire in 60 minutes. Get hired fast.';
+/** The company promise, in minutes: the timeline runs from minute 0 to this. */
+export const HIRE_MINUTES = 60;
+
 /** The four audiences, in tab order. `key` is the ?for= value in the address bar. */
 export const AUDIENCES = [
   {
     key: 'company', who: 'For companies', tab: 'I’m a company', shape: 'stopwatch',
-    headline: 'Hire any role in 30 minutes',
+    headline: `Hire any role in ${HIRE_MINUTES} minutes`,
     sub: 'Post a job, get a ranked shortlist at once, book interviews and send the offer, all in one place.',
     cta: { label: 'Post a job free', to: '/for-companies' },
   },
@@ -42,8 +49,8 @@ export const audienceFor = (key) => AUDIENCES.find((a) => a.key === key) || AUDI
  */
 export function widgetFor(key, live) {
   if (key === 'company') {
-    return { icon: 'stopwatch', big: '30', unit: 'min', label: 'from post to hire', row: ['Shortlist in 2 min', 'interviews in 15', 'hired in 30'],
-      lines: [[['Post a role. Get a ', false], ['ranked shortlist', true], [' in minutes.', false]], [['Book ', false], ['interviews', true], [' and send the ', false], ['offer', true], ['.', false]]] };
+    return { icon: 'stopwatch', big: String(HIRE_MINUTES), unit: 'min', label: 'from post to hire', row: ['Minute 0: post the role', 'shortlist in minutes', `hired by minute ${HIRE_MINUTES}`],
+      lines: [[['Minute 0: ', false], ['post a role', true], [', get a ranked shortlist.', false]], [[`By minute ${HIRE_MINUTES}: `, false], ['interviews', true], [' booked, ', false], ['offer', true], [' sent.', false]]] };
   }
   if (key === 'college') {
     return { icon: 'college', big: 'Drive', unit: 'day', label: 'placements, start to finish', row: ['Run a placement drive', 'resumes ready', 'invite verified companies'],
@@ -69,10 +76,10 @@ export function widgetFor(key, live) {
 /** One section per audience: the shape it shows, and its cards (each links to the real feature). */
 export const SECTIONS = [
   {
-    key: 'company', id: 'companies', kicker: 'For companies', title: 'Hire any role in 30 minutes', shape: 'stopwatch',
-    flow: ['Post', 'Instant shortlist', 'Invite', 'Interviews booked', 'Offer'],
+    key: 'company', id: 'companies', kicker: 'For companies', title: `Hire any role in ${HIRE_MINUTES} minutes`, shape: 'stopwatch',
+    flow: ['Post', 'Instant shortlist', 'Invite', 'Interviews booked', 'Offer'], // the timeline, minute 0 → HIRE_MINUTES
     cards: [
-      { title: 'The 30-minute flow', text: 'Post a role and get a ranked shortlist at once. Invite people, they book interview slots, and you send the offer from the same screen.', to: '/for-companies', link: 'Post a job free' },
+      { title: `The ${HIRE_MINUTES}-minute flow`, text: 'Post a role and get a ranked shortlist at once. Invite people, they book interview slots, and you send the offer from the same screen.', to: '/for-companies', link: 'Post a job free' },
       { title: 'Bulk hiring and walk-in drives', text: 'Hiring 20 to 500 people for one role? Bigger shortlists, invites up to 100 at a time, batch offers, and a walk-in day with QR check-in.', to: '/for-companies', link: 'Start hiring' },
       { title: 'Verified company badge', text: 'Our team checks each company by hand, usually within 2 working days. Verified companies post more jobs, and candidates see the badge.', to: '/for-companies', link: 'Get verified' },
       { title: 'Plans', text: 'Verified companies post jobs free. Sign up in 5 steps: email check, GSTIN or CIN, your team.', to: '/for-companies', link: 'See how it works' },
@@ -149,7 +156,7 @@ export const FAQ = [
   ['Companies', [
     ['Is posting a job free?', 'Yes. Verified companies post jobs free. Sign up your company in 5 steps: email check, GSTIN or CIN, your team.'],
     ['How do you verify a company?', `${en('co.sub')} ${en('co.done.sub')}`],
-    ['What does “Hired in 30 minutes” mean?', en('co.pub.hired30Why')],
+    [`What does “Hired in ${HIRE_MINUTES} minutes” mean?`, en('co.pub.hired30Why')],
     ['A job from our careers page is on Nm7. Can you remove it?', JOB_REMOVAL],
   ]],
   ['Colleges', [1, 2, 6].map((i) => [en(`orgs.faq.${i}.q`), en(`orgs.faq.${i}.a`)])],
@@ -167,8 +174,8 @@ export const FAQ = [
 
 export const ORIGIN = 'https://nm7.si';
 export const META = {
-  title: 'Nm7 — Blinkit for hiring: hire in 30 minutes, get hired at any level',
-  description: 'Companies hire any role in 30 minutes. Job seekers from freshers to 15+ years and college students get 360° support, and colleges run placements, all on Nm7.',
+  title: `Nm7 — ${HERO_HEADLINE}`,
+  description: `Companies hire any role in ${HIRE_MINUTES} minutes. Job seekers from freshers to 15+ years and college students get 360° support, and colleges run placements, all on Nm7.`,
 };
 
 /** Organization + WebSite (with the jobs search box) + FAQPage structured data. */

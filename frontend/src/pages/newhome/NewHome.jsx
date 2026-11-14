@@ -1,4 +1,4 @@
-// The new home page, "Blinkit for hiring" (/new-home for now, not indexed). Four equal audiences: companies, colleges,
+// The new home page, "Hire in 60 minutes. Get hired fast." (/new-home for now, not indexed). Four equal audiences: companies, colleges,
 // job seekers and students. The hero's tabs (?for=company|college|seeker|student) change the headline, the 3D shape,
 // the glass widget and the main button. Scrolling morphs the shape to each section's own. Live numbers come only
 // from the jobs API. To make this the home page, point the "/" route in App.jsx at this page (see the README).
@@ -11,7 +11,7 @@ import { homeFor, useAuth } from '../../lib/auth';
 import { usePageMeta } from '../../lib/meta';
 import ParticleStage from './ParticleStage';
 import GlassWidget, { reducedMotion } from './GlassWidget';
-import { AUDIENCES, EXPERIENCE_TEXT, FAQ, JOB_CHIPS, META, SECTIONS, TRUST, audienceFor, structuredData, widgetFor } from './content';
+import { AUDIENCES, EXPERIENCE_TEXT, FAQ, HERO_HEADLINE, HIRE_MINUTES, JOB_CHIPS, META, SECTIONS, TAGLINE, TRUST, audienceFor, structuredData, widgetFor } from './content';
 import './newhome.css';
 
 const en = (k, v) => translate('en', k, v);
@@ -164,8 +164,8 @@ function Hero({ aud, onPick, live }) {
     <section className="nh-hero" data-shape={aud.shape} data-spot="hero" data-side="1" aria-labelledby="nh-h1">
       <span className="nh-bigword" aria-hidden="true">HIRED</span>
       <div className="nh-wrap nh-hero-in">
-        <p className="nh-kicker">Nm7 · hiring, delivered fast</p>
-        <h1 id="nh-h1" className="nh-h1">Blinkit for hiring.</h1>
+        <p className="nh-kicker nh-tagline" data-testid="nh-tagline">{TAGLINE}</p>
+        <h1 id="nh-h1" className="nh-h1">{HERO_HEADLINE}</h1>
         <Tabs current={aud.key} onPick={onPick} />
         <div className="nh-panel" role="tabpanel" id="nh-panel" aria-labelledby={`nh-tab-${aud.key}`}>
           <div className="nh-panel-text">
@@ -205,9 +205,12 @@ function AudienceSection({ s, side }) {
             <h2 id={`${s.id}-h`} className="nh-h2">{s.title}</h2>
           </div>
           {s.flow && (
-            <ol className="nh-flow nh-reveal" aria-label="The 30-minute flow">
-              {s.flow.map((f, i) => <li key={f}><span className="nh-flow-n">{i + 1}</span>{f}</li>)}
-            </ol>
+            <div className="nh-timeline nh-reveal">
+              <ol className="nh-flow" aria-label={`The ${HIRE_MINUTES}-minute flow, from minute 0 to minute ${HIRE_MINUTES}`}>
+                {s.flow.map((f, i) => <li key={f}><span className="nh-flow-n">{i + 1}</span>{f}</li>)}
+              </ol>
+              <div className="nh-time-bar" aria-hidden="true"><span>Minute 0</span><i /><span>Minute {HIRE_MINUTES}</span></div>
+            </div>
           )}
           {s.journey && (
             <ol className="nh-journey" aria-label="The 360° journey">
@@ -317,7 +320,7 @@ const NODES = [
   ['Colleges', 'Run drives and share ready resumes, with consent.'],
   ['Students & job seekers', 'Learn, prove skills, build a resume and apply.'],
   ['Nm7', 'Matches, shortlists, interviews and offers.'],
-  ['Companies', 'Hire any role in 30 minutes.'],
+  ['Companies', `Hire any role in ${HIRE_MINUTES} minutes.`],
 ];
 
 function Connect() {

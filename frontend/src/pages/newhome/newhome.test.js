@@ -2,7 +2,8 @@
 // and their links, widgets never show a number that didn't come from the API, and the structured data is complete.
 import { describe, expect, it } from 'vitest';
 import { SHAPE_NAMES, projectPoints, shapePoints } from './shapes';
-import { AUDIENCES, DEFAULT_AUDIENCE, FAQ, SECTIONS, audienceFor, structuredData, widgetFor } from './content';
+import { AUDIENCES, DEFAULT_AUDIENCE, FAQ, HERO_HEADLINE, META, SECTIONS, TAGLINE, audienceFor, structuredData, widgetFor } from './content';
+import { translate } from '../../lib/i18n';
 import { widgetText } from './GlassWidget';
 
 describe('shapes', () => {
@@ -38,6 +39,25 @@ describe('audiences', () => {
   });
   it('the job seekers’ 360° journey has its eight steps', () => {
     expect(SECTIONS.find((s) => s.key === 'seeker').journey.map((j) => j.step)).toEqual(['Discover', 'Learn', 'Prove', 'Resume', 'Apply', 'Interview', 'Offer', 'First 90 days']);
+  });
+});
+
+describe('the 60-minute promise (Naresh, round N)', () => {
+  it('headline, tagline, company tab, widget, flow, FAQ and title all say 60 minutes; never Blinkit', () => {
+    expect(HERO_HEADLINE).toBe('Hire in 60 minutes. Get hired fast.');
+    expect(TAGLINE).toBe('Blink-it for hiring');
+    expect(audienceFor('company').headline).toBe('Hire any role in 60 minutes');
+    expect(widgetText(widgetFor('company'))).toBe('60 min from post to hire · Minute 0: post the role · shortlist in minutes · hired by minute 60');
+    expect(SECTIONS[0].cards[0].title).toBe('The 60-minute flow');
+    expect(FAQ[0][1].map(([q]) => q)).toContain('What does “Hired in 60 minutes” mean?');
+    expect(META.title).toBe('Nm7 — Hire in 60 minutes. Get hired fast.');
+    const all = JSON.stringify({ AUDIENCES, SECTIONS, FAQ, META, sd: structuredData() });
+    expect(all).not.toMatch(/Blinkit|30 minutes|30-minute|hired in 30/i);
+  });
+  it('the rest of the site says 60 too (badge, speed, public page; English, Telugu, Hindi)', () => {
+    expect(translate('en', 'co.speed.badge')).toBe('Hired in 60 minutes');
+    expect(translate('en', 'co.pub.hired30Why')).toContain('within 60 minutes');
+    expect(translate('en', 'co.speed.pct', { pct: 50, n: 1, total: 2 })).toContain('within 60 minutes');
   });
 });
 

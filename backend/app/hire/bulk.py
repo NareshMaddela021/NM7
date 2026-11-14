@@ -53,8 +53,8 @@ from app.hire.shortlist import gate, short_name
 from app.jobs.apply import FOLLOW_AFTER, app_key, job_page, status_change
 from app.me.service import ms
 
-company = APIRouter(prefix="/api/company", tags=["hire in 30 minutes"])
-walkin_public = APIRouter(prefix="/api/hire/walkin", tags=["hire in 30 minutes"])
+company = APIRouter(prefix="/api/company", tags=["hire in 60 minutes"])
+walkin_public = APIRouter(prefix="/api/hire/walkin", tags=["hire in 60 minutes"])
 
 MAX_BATCH = 500
 

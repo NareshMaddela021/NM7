@@ -247,3 +247,12 @@
   .nh *, .nh *::before, .nh *::after { animation: none !important; transition: none !important; }
   .nh-js .nh-reveal { opacity: 1; transform: none; }
 }
+
+/* the company timeline: minute 0 → the promise */
+.nh-timeline { display: flex; flex-direction: column; gap: 10px; }
+.nh-time-bar { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 700; color: #c6cfff; }
+.nh-time-bar i { flex: 1; height: 3px; border-radius: 2px; background: linear-gradient(90deg, #3b5bff, #9b6bff); background-size: 200% 100%; animation: nh-flowline-x 3s linear infinite; }
+@keyframes nh-flowline-x { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+
+/* the brand line above the headline: shown exactly as written (TAGLINE in content.js) */
+.nh-tagline { text-transform: none; letter-spacing: 0.02em; font-size: 15px; }

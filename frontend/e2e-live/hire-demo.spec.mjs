@@ -1,5 +1,5 @@
 // Phase 5 H9 + demo, on a desktop and a 390 px phone, against the real API: Admin opens the supply map, then "Reset and
-// open as company (Hire in 30 minutes)": the company lands on Hire now with the bulk post (50 openings), demo
+// open as company (Hire in 60 minutes)": the company lands on Hire now with the bulk post (50 openings), demo
 // candidates with skill check results and reliability ("New - no history yet" for some), three interview times and
 // one offer waiting; the hiring speed card appears once a candidate was shown. No browser dialogs, no sideways
 // scrolling.
@@ -11,7 +11,7 @@ for (const [label, opts] of SIZES) {
   test.describe(label, () => {
     test.use(opts);
 
-    test('Hire in 30 minutes demo walk-through', async ({ page }) => {
+    test('Hire in 60 minutes demo walk-through', async ({ page }) => {
       test.setTimeout(150_000);
       page.on('dialog', () => { throw new Error('no browser dialogs'); });
       const owner = `hd-owner-${label}-${Date.now().toString(36)}@nm7.si`;

@@ -142,8 +142,8 @@ export function LiveSettings() {
             <span className="small" data-testid="collector-ai-today">Used today: {Number(f.collectorAiToday || 0).toLocaleString('en-IN')} of {Number(f.seek.collectorAiDaily || 0).toLocaleString('en-IN')}</span>
             <label className="row g8 small">AI summaries a day <input className="input" type="number" inputMode="numeric" min={0} max={20000} step={100} style={{ height: 38, width: 110 }} value={f.seek.collectorAiDaily} data-testid="collector-ai-daily" onChange={(e) => setF({ ...f, seek: { ...f.seek, collectorAiDaily: e.target.value } })} /></label>
           </section>
-          <section className="card stack g12" aria-label="Hire in 30 minutes" data-testid="hire-settings">
-            <strong>Hire in 30 minutes</strong>
+          <section className="card stack g12" aria-label="Hire in 60 minutes" data-testid="hire-settings">
+            <strong>Hire in 60 minutes</strong>
             <span className="small muted">Candidates can say they are ready to join now (/me/hire). They stay visible to companies hiring now for the days below, then one tap (in the app or the reminder email) keeps them visible again. Off: nobody can turn it on, and nobody is shown.</span>
             <label className="row g8 small"><input type="checkbox" checked={f.hire.on} onChange={(e) => setF({ ...f, hire: { ...f.hire, on: e.target.checked } })} data-testid="hire-on" />Offer “Ready to join”</label>
             <label className="row g8 small">Ask “Still ready?” every (days) <input className="input" type="number" inputMode="numeric" min={1} max={30} step={1} style={{ height: 38, width: 80 }} value={f.hire.confirmDays} data-testid="hire-days" onChange={(e) => setF({ ...f, hire: { ...f.hire, confirmDays: e.target.value } })} /></label>

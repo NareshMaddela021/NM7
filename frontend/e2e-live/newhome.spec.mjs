@@ -8,7 +8,7 @@ import { API, seed } from './helpers.mjs';
 const SIZES = [['desktop', { viewport: { width: 1280, height: 900 } }], ['phone', { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true }]];
 
 const TABS = [
-  ['company', 'I’m a company', 'Hire any role in 30 minutes', 'Post a job free', '/for-companies'],
+  ['company', 'I’m a company', 'Hire any role in 60 minutes', 'Post a job free', '/for-companies'],
   ['college', 'I’m a college', 'Place every student, track every step', 'Partner with Nm7', '/for-orgs'],
   ['seeker', 'I’m a job seeker', 'Get hired fast, at any experience level', 'Find a job', '/jobs'],
   ['student', 'I’m a student', 'From classroom to your first job', 'Start free', '/signup'],
@@ -28,7 +28,9 @@ for (const [label, opts] of SIZES) {
 
     test('the four tabs change the headline, the button and the address bar', async ({ page }) => {
       await page.goto('/new-home');
-      await expect(page.getByRole('heading', { level: 1, name: 'Blinkit for hiring.' })).toBeVisible();
+      await expect(page.getByRole('heading', { level: 1, name: 'Hire in 60 minutes. Get hired fast.' })).toBeVisible();
+      await expect(page.getByTestId('nh-tagline')).toHaveText('Blink-it for hiring');
+      await expect(page.getByText(/Blinkit/)).toHaveCount(0);
       const tabs = page.getByRole('tablist', { name: 'Who are you?' }).getByRole('tab');
       await expect(tabs).toHaveText(TABS.map((t) => t[1]));
       // job seeker by default
@@ -55,7 +57,7 @@ for (const [label, opts] of SIZES) {
       await expect(page).toHaveURL(/for=company$/);
       // the choice survives a reload (it is in the address)
       await page.reload();
-      await expect(page.getByTestId('nh-headline')).toHaveText('Hire any role in 30 minutes');
+      await expect(page.getByTestId('nh-headline')).toHaveText('Hire any role in 60 minutes');
       // the main button goes where it says
       await page.goto('/new-home?for=seeker');
       await page.getByTestId('nh-cta').click();
@@ -121,15 +123,15 @@ for (const [label, opts] of SIZES) {
       await expect(page.getByTestId('nh-widget')).toHaveAttribute('data-phase', 'view');
       await page.waitForTimeout(5500); // longer than one widget look
       await expect(page.getByTestId('nh-widget')).toHaveAttribute('data-phase', 'view');
-      await expect(page.getByRole('heading', { name: 'The 30-minute flow' })).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'The 60-minute flow' })).toBeVisible();
       await ctx.close();
     });
 
     test('not indexed, structured data, phone layout without sideways scrolling', async ({ page }) => {
       await page.goto('/new-home');
       // the page is its own chunk: wait for it, not just for the route table's title
-      await expect(page.getByRole('heading', { level: 1, name: 'Blinkit for hiring.' })).toBeVisible();
-      await expect(page).toHaveTitle('Nm7 — Blinkit for hiring: hire in 30 minutes, get hired at any level · Nm7');
+      await expect(page.getByRole('heading', { level: 1, name: 'Hire in 60 minutes. Get hired fast.' })).toBeVisible();
+      await expect(page).toHaveTitle('Nm7 — Hire in 60 minutes. Get hired fast. · Nm7');
       await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
       const ld = page.locator('script[type="application/ld+json"][id^="nh-ld-"]');
       await expect.poll(() => ld.evaluateAll((els) => els.map((e) => JSON.parse(e.textContent)['@type']))).toEqual(['Organization', 'WebSite', 'FAQPage']);
@@ -148,7 +150,7 @@ for (const [label, opts] of SIZES) {
       }
       // the live home page is unchanged
       await page.goto('/');
-      await expect(page.getByRole('heading', { level: 1, name: 'Blinkit for hiring.' })).toHaveCount(0);
+      await expect(page.getByRole('heading', { level: 1, name: 'Hire in 60 minutes. Get hired fast.' })).toHaveCount(0);
     });
   });
 }

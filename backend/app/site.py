@@ -110,7 +110,7 @@ def defaults() -> dict[str, Any]:
         "simple": {**SIMPLE, "weights": dict(SIMPLE["weights"])},
         # Telugu and Hindi (switches, voice, emails): hidden until a native speaker has checked them (Admin → Settings)
         "languages": {"te_hi": False},
-        # Hire in 30 minutes (Phase 5): every limit editable in Admin → Settings
+        # Hire in 60 minutes (Phase 5): every limit editable in Admin → Settings
         "hire": dict(HIRE),
         "seek": dict(SEEK),
     }

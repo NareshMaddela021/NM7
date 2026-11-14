@@ -758,7 +758,7 @@ class SeekSettingsIn(CamelModel):
 
 
 class HireSettingsIn(CamelModel):
-    """Hire in 30 minutes (Phase 5): on / off and how long a "Ready to join" lasts without "Still ready"."""
+    """Hire in 60 minutes (Phase 5): on / off and how long a "Ready to join" lasts without "Still ready"."""
 
     on: bool
     confirm_days: int | None = Field(None, ge=1, le=30)
