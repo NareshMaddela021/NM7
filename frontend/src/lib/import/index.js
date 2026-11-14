@@ -31,27 +31,28 @@ export function workerReady(worker) {
 }
 
 async function startWorker() {
-  const { default: PdfWorker } = await freshImport(() => import('pdfjs-dist/build/pdf.worker.js?worker'));
+  const { default: PdfWorker } = await freshImport(() => import('pdfjs-dist/legacy/build/pdf.worker.mjs?worker'));
   const worker = new PdfWorker();
   try { return await workerReady(worker); } catch (e) { worker.terminate(); throw e; }
 }
 
 /**
- * Loads pdf.js with its worker as a real Web Worker (Vite bundles pdf.worker.js as its own file, served from this
+ * Loads pdf.js with its worker as a real Web Worker (Vite bundles pdf.worker.mjs as its own file, served from this
  * origin: the CSP allows worker-src 'self'), so parsing and rendering never block the page. When the worker can't
  * start (an old browser, a blocked worker), pdf.js's "fake worker" on the main thread is used instead, as before.
+ * pdf.js 4 (security fix: no script runs from a PDF since 4.2); its "legacy" build keeps older phone browsers working.
  */
 export async function loadPdfjs() {
   if (!pdfjsP) {
     pdfjsP = (async () => {
-      const lib = await freshImport(() => import('pdfjs-dist/build/pdf.js'));
+      const lib = await freshImport(() => import('pdfjs-dist/legacy/build/pdf.mjs'));
       const pdfjs = lib.default || lib;
       if (!canUseWorker() || pdfjs.GlobalWorkerOptions.workerPort) return pdfjs;
       try {
         pdfjs.GlobalWorkerOptions.workerPort = await startWorker();
       } catch (e) {
         if (e?.code === 'stale_build') throw e;
-        const worker = await freshImport(() => import('pdfjs-dist/build/pdf.worker.js'));
+        const worker = await freshImport(() => import('pdfjs-dist/legacy/build/pdf.worker.mjs'));
         globalThis.pdfjsWorker = worker.default || worker;
       }
       return pdfjs;

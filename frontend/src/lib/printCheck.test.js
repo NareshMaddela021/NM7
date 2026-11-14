@@ -2,7 +2,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
-import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.js';
+import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs';
 import { buildResumePdf } from '../pages/builder/resumePdf';
 import { INITIAL } from '../pages/builder/schema';
 import { DEFAULT_DESIGN, TEMPLATE_PRESETS } from '../pages/builder/design';
