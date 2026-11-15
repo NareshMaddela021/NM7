@@ -190,7 +190,7 @@ jobs:
         working-directory: .
         run: |
           mkdir -p /tmp/pics && cp frontend/shots/*.jpg /tmp/pics/
-          git reset -q --hard && git checkout -q "${{ github.ref_name }}" && git pull -q origin "${{ github.ref_name }}"
+          git reset -q --hard && rm -f frontend/e2e-live/zz-shots.spec.mjs && git fetch -q origin "${{ github.ref_name }}" && git checkout -q -B "${{ github.ref_name }}" FETCH_HEAD
           dest="docs/redesign/phase2b/${{ inputs.shots_label }}"
           rm -rf "$dest" && mkdir -p "$dest" && cp /tmp/pics/*.jpg "$dest/"
           git config user.name "github-actions[bot]" && git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
