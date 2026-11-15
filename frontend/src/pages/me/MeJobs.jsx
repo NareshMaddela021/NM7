@@ -6,7 +6,9 @@ import { useLang } from '../../lib/i18n';
 import { Dialog, useToast } from '../../components/ui';
 import { useMe, setMe, newId, APP_STAGES, openInBuilder, reloadMe } from '../../lib/customerStore';
 import { http } from '../../services/http';
-import { BarChart, Kpi } from '../admin/AdminUI';
+import { BarChart } from '../admin/AdminUI';
+import { Chip, Empty, MeCard, Pipeline, Stat } from './kit';
+import '../../styles/me-jobs.css';
 import { MeHead } from './MeLayout';
 import { fmtShort, fmtDay } from './shared';
 import { webLink } from '../../lib/links';
@@ -42,7 +44,7 @@ function AppForm({ app, resumes, onSave, onDelete, onClose }) {
         </div>
         <div className="field"><label htmlFor="ap-no" className="label">Notes</label><textarea id="ap-no" className="input" rows={3} value={f.notes} onChange={set('notes')} placeholder="Who referred you, interview rounds, salary discussed…" /></div>
         <div className="row g8">
-          <button type="submit" className="btn btn-ink" disabled={!f.company.trim() || !f.role.trim()}>Save</button>
+          <button type="submit" className="btn btn-signal" disabled={!f.company.trim() || !f.role.trim()}>Save</button>
           {app.id && <button type="button" className="btn btn-ghost" style={{ color: 'var(--danger)' }} onClick={onDelete}>Delete</button>}
         </div>
       </form>
@@ -56,6 +58,7 @@ export default function MeJobs() {
   const toast = useToast();
   const nav = useNavigate();
   const [edit, setEdit] = useState(null);
+  const [filter, setFilter] = useState(null);
   const apps = me.apps;
   const stages = (a) => APP_STAGES.filter(([k]) => !['viewed', 'no_reply'].includes(k) || a.status === k); // set by the company / by Nm7
   const move = (a, dir) => { const st = stages(a); const i = st.findIndex(([k]) => k === a.status); const n = st[Math.min(st.length - 1, Math.max(0, i + dir))][0]; setMe((s) => ({ apps: s.apps.map((x) => (x.id === a.id ? { ...x, status: n } : x)) })); };
@@ -71,57 +74,93 @@ export default function MeJobs() {
   const appliedJobs = new Set(apps.map((a) => a.jobId).filter(Boolean));
   const savedOnBoard = boardSaved.filter((j) => !appliedJobs.has(j.id));
 
+  const TONE = { saved: 'neutral', applied: 'info', viewed: 'info', shortlisted: 'accent', interview: 'warn', offer: 'ok', rejected: 'bad', no_reply: 'neutral' };
+  const countOf = (k) => apps.filter((a) => a.status === k).length + (k === 'saved' ? savedOnBoard.length : 0);
+  const shown = cols.filter(([k]) => (filter ? filter === k : countOf(k) > 0));
+  const nothing = apps.length === 0 && savedOnBoard.length === 0;
+
   return (
     <>
-      <MeHead title="Applications" sub="Track every job you apply to and which resume you sent. Job matches you save land here with their score." right={<span className="row g8"><Link to="/me/auto-apply" className="btn btn-outline" data-testid="jobs-auto-apply">{t('aa.link')}</Link><button type="button" className="btn btn-ink" onClick={() => setEdit({})}>Add application</button></span>} />
-      <div className="kpis">
-        <Kpi label="Applied" value={sent.length} sub="excluding saved" />
-        <Kpi label="Interview rate" value={sent.length ? `${Math.round((iv / sent.length) * 100)}%` : '—'} sub={`${iv} reached interview or offer`} />
-        <Kpi label="Follow-ups due" value={apps.filter(due).length} sub="applied 7+ days ago" tone={apps.some(due) ? 'var(--warning)' : undefined} />
+      <MeHead title="Applications" sub="Track every job you apply to and which resume you sent. Job matches you save land here with their score." right={<span className="row g8"><Link to="/me/auto-apply" className="btn btn-outline" data-testid="jobs-auto-apply">{t('aa.link')}</Link><button type="button" className="btn btn-signal" onClick={() => setEdit({})}>Add application</button></span>} />
+      <div className="mjobs-top">
+        <MeCard title="Where your applications are" sub="Tap a step to see only those jobs. Tap it again to see all." icon="▥" className="mjobs-pipe">
+          <Pipeline label="Applications by step" steps={cols.map(([k, l]) => ({ key: k, label: l, count: countOf(k), tone: TONE[k] }))} active={filter} onPick={setFilter} />
+        </MeCard>
+        <div className="mjobs-stats">
+          <Stat label="Applied" value={sent.length} sub="excluding saved" />
+          <Stat label="Interview rate" value={sent.length ? `${Math.round((iv / sent.length) * 100)}%` : '—'} sub={`${iv} reached interview or offer`} tone={iv ? 'ok' : undefined} />
+          <Stat label="Follow-ups due" value={apps.filter(due).length} sub="applied 7+ days ago" tone={apps.some(due) ? 'warn' : undefined} />
+        </div>
       </div>
-      <div className="board" role="list" aria-label="Application board" style={{ '--cols': cols.length }}>
-        {cols.map(([k, l]) => {
-          const col = apps.filter((a) => a.status === k);
-          const extra = k === 'saved' ? savedOnBoard : [];
-          return (
-            <section key={k} className="stack g8" role="listitem" aria-label={`${l}: ${col.length + extra.length}`} style={{ background: 'var(--sunken)', borderRadius: 14, padding: 10, minHeight: 160 }}>
-              <strong className="small row between"><span>{l}</span><span className="faint" data-testid={`col-count-${k}`}>{col.length + extra.length}</span></strong>
-              {extra.map((j) => (
-                <article key={`job-${j.id}`} className="card stack g4" style={{ padding: 12 }} data-testid="saved-board-job">
-                  <Link to={`/jobs/${j.slug}`} style={{ fontWeight: 700, color: 'var(--text)', textDecoration: 'none' }}>{j.company?.name}</Link>
-                  <span className="xs">{j.title}</span>
-                  <span className="xs faint">Saved on the job board</span>
-                </article>
-              ))}
-              {col.map((a) => (
-                <article key={a.id} className="card stack g4" style={{ padding: 12 }}>
-                  <button type="button" className="link-btn" style={{ textAlign: 'left', fontWeight: 700, color: 'var(--text)', textDecoration: 'none' }} onClick={() => setEdit(a)}>{a.company}</button>
-                  <span className="xs">{a.role}</span>
-                  {webLink(a.url) && <a className="xs" href={webLink(a.url)} target="_blank" rel="noopener noreferrer" style={{ overflowWrap: 'anywhere' }}>Job post ↗<span className="sr-only"> for {a.company} (opens in a new tab)</span></a>}
-                  <span className="xs faint">{fmtDay(a.date)} · {a.resumeName || resumeName(a.resumeId)}</span>
-                  {a.channel && <span className="xs" data-testid="app-channel">{a.sentEmail ? t('aa.items.sentByEmail') : CHANNEL[a.channel]}{a.origin === 'auto' ? <> · <span className="badge b-signal" data-testid="app-auto">{t('aa.badge.auto')}</span></> : null}</span>}
-                  {a.sentEmail && <details className="xs" data-testid="app-sent-email"><summary>{t('aa.items.whatSent')}</summary><div className="stack g4" style={{ marginTop: 4 }}><span>{t('aa.items.sentTo', { to: a.sentEmail.to })}</span><strong>{a.sentEmail.subject}</strong><span style={{ whiteSpace: 'pre-line' }}>{a.sentEmail.text}</span>{a.sentEmail.attachment && <span className="muted">📎 {a.sentEmail.attachment}</span>}</div></details>}
-                  {a.timeline?.length > 1 && <ol className="app-steps xs" aria-label={`Steps for ${a.company}`}>{a.timeline.map((s, i) => <li key={i}>{APP_STAGES.find(([k]) => k === s.status)?.[1] || s.status} · {fmtShort(s.at)}</li>)}</ol>}
-                  {a.score != null && <span className="xs" data-testid="app-score">Job match {a.score}/100</span>}
-                  {a.tailoredResumeId && me.resumes.some((r) => r.id === a.tailoredResumeId) && <button type="button" className="link-btn xs" style={{ textAlign: 'left' }} onClick={() => { openInBuilder(a.tailoredResumeId); nav('/builder', { state: { open: 'build' } }); }}>Open the tailored copy</button>}
-                  {a.matchId && <button type="button" className="link-btn xs" style={{ textAlign: 'left' }} onClick={() => nav(`/me/interview/${a.matchId}`)}>Interview prep</button>}
-                  {a.next && <span className="xs" style={{ color: 'var(--text2)' }}>Next: {fmtShort(a.next)}</span>}
-                  {due(a) && <span className="row g4 xs" style={{ color: 'var(--warning)' }}>⏰ Follow up? <button type="button" className="link-btn xs" onClick={() => { setMe((s) => ({ apps: s.apps.map((x) => (x.id === a.id ? { ...x, followed: Date.now(), notes: `${x.notes ? `${x.notes}\n` : ''}Followed up ${fmtDay(Date.now())}.` } : x)) })); toast('Marked as followed up'); }}>Done</button></span>}
-                  {a.toCompany && <Withdraw a={a} toast={toast} />}
-                  {a.status === 'no_reply' && <span className="xs" data-testid="no-reply-note">The company didn’t reply in time, so Nm7 closed this. It isn’t about you.</span>}
-                  {a.channel === 'nm7' ? <span className="xs faint">Updated by the company</span> : (
-                    <span className="row between" style={{ marginTop: 2 }}>
-                      <button type="button" className="btn btn-icon" style={{ width: 30, height: 30, minHeight: 30 }} aria-label={`Move ${a.company} back`} disabled={k === stages(a)[0][0]} onClick={() => move(a, -1)}>←</button>
-                      <button type="button" className="btn btn-icon" style={{ width: 30, height: 30, minHeight: 30 }} aria-label={`Move ${a.company} forward`} disabled={k === stages(a)[stages(a).length - 1][0]} onClick={() => move(a, 1)}>→</button>
-                    </span>
-                  )}
-                </article>
-              ))}
-            </section>
-          );
-        })}
-      </div>
-      <section className="card"><BarChart title="Applications sent per week" data={weeks} series={[{ key: 'sent', label: 'Applications', color: 'var(--viz-1)' }]} height={150} /></section>
+      {nothing ? (
+        <Empty shape="briefcase" title="No applications yet" action={<Link to="/jobs" className="btn btn-signal">Find a job</Link>}>
+          Apply to a job on Nm7, or add one you applied to somewhere else with “Add application”. Every step shows up here.
+        </Empty>
+      ) : (
+        <div className="mjobs-board" role="list" aria-label="Application board">
+          {shown.length === 0 && <Empty compact shape="briefcase" title="Nothing at this step">Tap another step above, or tap this one again to see all.</Empty>}
+          {shown.map(([k, l]) => {
+            const col = apps.filter((a) => a.status === k);
+            const extra = k === 'saved' ? savedOnBoard : [];
+            return (
+              <section key={k} className="mjobs-group" role="listitem" aria-label={`${l}: ${col.length + extra.length}`}>
+                <h2 className="mjobs-gh"><Chip tone={TONE[k]}>{l}</Chip><span className="mjobs-gn" data-testid={`col-count-${k}`}>{col.length + extra.length}</span></h2>
+                <div className="mjobs-cards">
+                  {extra.map((j) => (
+                    <article key={`job-${j.id}`} className="mjob" data-testid="saved-board-job">
+                      <div className="mjob-top">
+                        <span className="mavatar" aria-hidden="true">{(j.company?.name || '?').slice(0, 1).toUpperCase()}</span>
+                        <span className="mjob-name"><Link to={`/jobs/${j.slug}`} className="mjob-co">{j.company?.name}</Link><span className="mjob-role">{j.title}</span></span>
+                      </div>
+                      <span className="mjob-meta">Saved on the job board</span>
+                    </article>
+                  ))}
+                  {col.map((a) => (
+                    <article key={a.id} className={`mjob ${due(a) ? 'mjob-due' : ''}`}>
+                      <div className="mjob-top">
+                        <span className="mavatar" aria-hidden="true">{(a.company || '?').slice(0, 1).toUpperCase()}</span>
+                        <span className="mjob-name">
+                          <button type="button" className="link-btn mjob-co" onClick={() => setEdit(a)}>{a.company}</button>
+                          <span className="mjob-role">{a.role}</span>
+                        </span>
+                      </div>
+                      {(a.channel || a.score != null) && (
+                        <span className="mjob-chips">
+                          {a.channel && <Chip tone="info" testid="app-channel">{a.sentEmail ? t('aa.items.sentByEmail') : CHANNEL[a.channel]}</Chip>}
+                          {a.origin === 'auto' && <Chip tone="accent" testid="app-auto">{t('aa.badge.auto')}</Chip>}
+                          {a.score != null && <Chip tone={a.score >= 70 ? 'ok' : 'warn'} testid="app-score">Job match {a.score}/100</Chip>}
+                        </span>
+                      )}
+                      <span className="mjob-meta">{fmtDay(a.date)} · {a.resumeName || resumeName(a.resumeId)}</span>
+                      {a.next && <span className="mjob-next"><span aria-hidden="true">→</span> Next: {fmtShort(a.next)}</span>}
+                      {due(a) && <span className="mjob-follow">⏰ Follow up? <button type="button" className="link-btn xs" onClick={() => { setMe((s) => ({ apps: s.apps.map((x) => (x.id === a.id ? { ...x, followed: Date.now(), notes: `${x.notes ? `${x.notes}\n` : ''}Followed up ${fmtDay(Date.now())}.` } : x)) })); toast('Marked as followed up'); }}>Done</button></span>}
+                      {a.sentEmail && <details className="xs mjob-more" data-testid="app-sent-email"><summary>{t('aa.items.whatSent')}</summary><div className="stack g4" style={{ marginTop: 4 }}><span>{t('aa.items.sentTo', { to: a.sentEmail.to })}</span><strong>{a.sentEmail.subject}</strong><span style={{ whiteSpace: 'pre-line' }}>{a.sentEmail.text}</span>{a.sentEmail.attachment && <span className="muted">📎 {a.sentEmail.attachment}</span>}</div></details>}
+                      {a.timeline?.length > 1 && <ol className="app-steps xs" aria-label={`Steps for ${a.company}`}>{a.timeline.map((s, i) => <li key={i}>{APP_STAGES.find(([x]) => x === s.status)?.[1] || s.status} · {fmtShort(s.at)}</li>)}</ol>}
+                      {(webLink(a.url) || (a.tailoredResumeId && me.resumes.some((r) => r.id === a.tailoredResumeId)) || a.matchId) && (
+                        <span className="mjob-links">
+                          {webLink(a.url) && <a className="xs" href={webLink(a.url)} target="_blank" rel="noopener noreferrer" style={{ overflowWrap: 'anywhere' }}>Job post ↗<span className="sr-only"> for {a.company} (opens in a new tab)</span></a>}
+                          {a.tailoredResumeId && me.resumes.some((r) => r.id === a.tailoredResumeId) && <button type="button" className="link-btn xs" style={{ textAlign: 'left' }} onClick={() => { openInBuilder(a.tailoredResumeId); nav('/builder', { state: { open: 'build' } }); }}>Open the tailored copy</button>}
+                          {a.matchId && <button type="button" className="link-btn xs" style={{ textAlign: 'left' }} onClick={() => nav(`/me/interview/${a.matchId}`)}>Interview prep</button>}
+                        </span>
+                      )}
+                      {a.toCompany && <Withdraw a={a} toast={toast} />}
+                      {a.status === 'no_reply' && <span className="xs" data-testid="no-reply-note">The company didn’t reply in time, so Nm7 closed this. It isn’t about you.</span>}
+                      {a.channel === 'nm7' ? <span className="mjob-foot xs faint">Updated by the company</span> : (
+                        <span className="mjob-foot mjob-move">
+                          <span className="xs faint">Move to</span>
+                          <button type="button" className="btn btn-icon" aria-label={`Move ${a.company} back`} disabled={k === stages(a)[0][0]} onClick={() => move(a, -1)}>←</button>
+                          <button type="button" className="btn btn-icon" aria-label={`Move ${a.company} forward`} disabled={k === stages(a)[stages(a).length - 1][0]} onClick={() => move(a, 1)}>→</button>
+                        </span>
+                      )}
+                    </article>
+                  ))}
+                </div>
+              </section>
+            );
+          })}
+        </div>
+      )}
+      <MeCard label="Applications sent per week" className="mcard-flat"><BarChart title="Applications sent per week" data={weeks} series={[{ key: 'sent', label: 'Applications', color: 'var(--viz-1)' }]} height={150} /></MeCard>
       {edit && <AppForm app={edit} resumes={me.resumes} onClose={() => setEdit(null)}
         onSave={(a) => { setMe((s) => ({ apps: s.apps.some((x) => x.id === a.id) ? s.apps.map((x) => (x.id === a.id ? a : x)) : [...s.apps, a] })); setEdit(null); toast('Saved'); }}
         onDelete={() => { setMe((s) => ({ apps: s.apps.filter((x) => x.id !== edit.id) })); setEdit(null); toast('Deleted'); }} />}

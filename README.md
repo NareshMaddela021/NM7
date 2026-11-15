@@ -60,6 +60,12 @@ Every page uses the new home page's look (asuraa.ai style). Light only for now (
 - **Page header:** `components/PageHero.jsx` (title, kicker, line, buttons, optional dotted shape) and `PageArt`
   (the shape beside a page's own title, in `.ph-row`). Still drawing first; the moving 3D dots on desktops with WebGL
   and motion allowed; phones show the words only.
+- **Dashboards (Phase 2, /me):** the side menu in groups (Overview, Resume tools, Jobs, Learning, Offer and work,
+  Account; `ME_GROUPS` in `pages/me/MeLayout.jsx`), the phone tabs and a grouped More sheet; every page header
+  (`MeHead`) shows a small dotted shape in the section's tint (job seekers orange, learning magenta; desktop only);
+  the home page shows the person's own numbers as glass widgets (applications, interviews, resume score, skill
+  checks). The Easy dashboard (`styles/simple.css`) keeps its large, simple layout in the new colours and fonts.
+  Resume templates are unchanged, so resumes print exactly as before.
 - **Home:** `/` is the 3D home page; the previous home page is at `/old-home` (not indexed) until it is removed.
   `/pricing` is its own page (job-seeker prices, the free ATS scan at `/pricing#scan`, organization plans).
 

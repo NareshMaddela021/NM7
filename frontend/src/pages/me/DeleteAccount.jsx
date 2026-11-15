@@ -30,7 +30,7 @@ export default function DeleteAccount() {
   if (!st) return null;
   if (st.requested) {
     return (
-      <div className="well stack g8" role="status" data-testid="delete-pending" style={{ borderColor: 'var(--danger)' }}>
+      <div className="acc-pending stack g8" role="status" data-testid="delete-pending">
         <strong className="small">Your account will be deleted on {day(st.eraseAt)}.</strong>
         <span className="xs muted">Until then you can use it as normal (your public link is off). Changed your mind?</span>
         <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} disabled={busy} onClick={() => go(async () => { await http('/api/me/account/deletion', { method: 'DELETE' }); toast('Deletion cancelled — your account stays'); await load(); })} data-testid="delete-undo">Undo — keep my account</button>
@@ -39,7 +39,7 @@ export default function DeleteAccount() {
   }
   return (
     <>
-      <div className="row between g8"><span className="small" style={{ color: 'var(--danger)' }}>Delete my account and all my data.</span><button type="button" className="btn btn-ghost" style={{ color: 'var(--danger)' }} onClick={(e) => { setStep('explain'); setCode(''); setErr(''); setOpen(e.currentTarget); }} data-testid="delete-open">Delete account</button></div>
+      <div className="mspread"><span className="small" style={{ color: 'var(--danger)' }}>Delete my account and all my data.</span><button type="button" className="btn btn-outline acc-danger-btn" onClick={(e) => { setStep('explain'); setCode(''); setErr(''); setOpen(e.currentTarget); }} data-testid="delete-open">Delete account</button></div>
       {open && (
         <Dialog showTitle title="Delete your account?" onClose={() => setOpen(null)} returnTo={open}>
           <div className="stack g12">
@@ -51,7 +51,7 @@ export default function DeleteAccount() {
             ) : step === 'explain' ? (
               <>
                 <span className="small">We remove:</span>
-                <ul className="small" style={{ margin: 0, paddingLeft: 18 }}>{REMOVED.map((x) => <li key={x}>{x}</li>)}</ul>
+                <ul className="small acc-removed">{REMOVED.map((x) => <li key={x}>{x}</li>)}</ul>
                 <span className="small muted">We keep only what the law needs for paid orders (amounts and invoices, for GST), no longer linked to you. You have 7 days to undo. Download your data first if you want a copy.</span>
                 {err && <span className="small" role="alert" style={{ color: 'var(--danger)' }}>{err}</span>}
                 <button type="button" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={busy} onClick={() => go(async () => { await http('/api/me/account/deletion/code', { method: 'POST' }); setStep('code'); })} data-testid="delete-send">{busy && <Spinner />}Email me a code</button>

@@ -4,6 +4,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { http, LIVE } from '../../services/http';
+import { Bar, Chip } from './kit';
+import '../../styles/me-learn.css';
 
 const LEARNED = 'nm7.learned';
 const learnedSet = () => { try { return new Set(JSON.parse(localStorage.getItem(LEARNED) || '[]')); } catch { return new Set(); } };
@@ -30,42 +32,50 @@ export default function SkillGap({ m }) {
   };
   const bySkill = Object.fromEntries((data?.skills || []).map((s) => [s.skill.toLowerCase(), s.courses]));
   return (
-    <section className="well stack g12" aria-labelledby="gap-h" data-testid="skill-gap">
-      <strong id="gap-h">{missing.length} of {must.length} must-have skill{must.length > 1 ? 's' : ''} missing</strong>
-      <span className="xs muted">Free courses only — no paid or sponsored links. Learning a skill doesn’t add it to your resume: show it with a project or certificate.</span>
-      <ul className="stack g12" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+    <section className="mcard mcard-flat stack g12" aria-labelledby="gap-h" data-testid="skill-gap">
+      <header className="mcard-h">
+        <span className="mcard-ic student" aria-hidden="true">↗</span>
+        <span className="mcard-ht">
+          <h3 className="mcard-title" id="gap-h" style={{ fontSize: '20px' }}>{missing.length} of {must.length} must-have skill{must.length > 1 ? 's' : ''} missing</h3>
+          <span className="mcard-sub">Free courses only — no paid or sponsored links. Learning a skill doesn’t add it to your resume: show it with a project or certificate.</span>
+        </span>
+      </header>
+      <Bar value={must.length - missing.length} max={must.length} label="Must-have skills you have" tone="student" />
+      <ul className="mlist">
         {missing.map((i) => {
           const courses = bySkill[i.name.toLowerCase()] || [];
           const done = learned.has(i.name.toLowerCase());
           return (
-            <li key={i.name} className="stack g4" data-testid={`gap-${i.name}`}>
-              <span className="row between g8" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
-                <strong className="small">{i.name}</strong>
-                {done ? <span className="badge b-success">Learned</span>
-                  : <button type="button" className="link-btn xs" onClick={() => mark(i.name)} data-testid="gap-learned">I learned this</button>}
-              </span>
-              {!data ? <span className="xs faint">Finding free courses…</span> : courses.length ? (
-                <ul className="stack g4" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-                  {courses.map((c) => (
-                    <li key={c.id} className="xs">
-                      <a href={c.url} target="_blank" rel="noopener noreferrer nofollow" data-testid="gap-course">{c.title}</a>
-                      <span className="faint"> · {c.provider}{c.hours ? ` · about ${c.hours} h` : ''}{c.language && c.language !== 'English' ? ` · ${c.language}` : ''} · free</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <span className="xs faint">No course in our list yet. Search {(data.catalogues || []).map((c, n) => <span key={c.url}>{n ? ' or ' : ''}<a href={c.url} target="_blank" rel="noopener noreferrer nofollow">{c.provider}</a></span>)} for “{i.name}”.</span>
-              )}
-              {ask === i.name && (
-                <div className="card stack g8" role="status" data-testid="gap-prove" style={{ padding: 12 }}>
-                  <span className="small">Nice work! We don’t add {i.name} to your resume by itself. Show it with something real:</span>
-                  <span className="row g8" style={{ flexWrap: 'wrap' }}>
-                    <Link className="btn btn-outline" style={{ minHeight: 36 }} to="/builder?start=section&sec=proj">Add a project that uses it</Link>
-                    <Link className="btn btn-outline" style={{ minHeight: 36 }} to="/me/certificates">Add a certificate</Link>
-                    <button type="button" className="link-btn xs" onClick={() => setAsk(null)}>Later</button>
-                  </span>
-                </div>
-              )}
+            <li key={i.name} className="mitem" style={{ alignItems: 'flex-start' }} data-testid={`gap-${i.name}`}>
+              <div className="mitem-main">
+                <span className="mspread">
+                  <strong className="mitem-title">{i.name}</strong>
+                  {done ? <Chip tone="ok">Learned</Chip>
+                    : <button type="button" className="btn btn-outline btn-sm" style={{ minHeight: 40 }} onClick={() => mark(i.name)} data-testid="gap-learned">I learned this</button>}
+                </span>
+                {!data ? <span className="xs faint">Finding free courses…</span> : courses.length ? (
+                  <ul className="ml-jobs">
+                    {courses.map((c) => (
+                      <li key={c.id} className="small">
+                        <a href={c.url} target="_blank" rel="noopener noreferrer nofollow" data-testid="gap-course">{c.title}</a>
+                        <span className="faint xs"> · {c.provider}{c.hours ? ` · about ${c.hours} h` : ''}{c.language && c.language !== 'English' ? ` · ${c.language}` : ''} · free</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <span className="xs faint">No course in our list yet. Search {(data.catalogues || []).map((c, n) => <span key={c.url}>{n ? ' or ' : ''}<a href={c.url} target="_blank" rel="noopener noreferrer nofollow">{c.provider}</a></span>)} for “{i.name}”.</span>
+                )}
+                {ask === i.name && (
+                  <div className="mcard mcard-ok mcard-tight" role="status" data-testid="gap-prove">
+                    <span className="small">Nice work! We don’t add {i.name} to your resume by itself. Show it with something real:</span>
+                    <span className="ml-actions">
+                      <Link className="btn btn-outline btn-sm" to="/builder?start=section&sec=proj">Add a project that uses it</Link>
+                      <Link className="btn btn-outline btn-sm" to="/me/certificates">Add a certificate</Link>
+                      <button type="button" className="btn btn-ghost btn-sm" onClick={() => setAsk(null)}>Later</button>
+                    </span>
+                  </div>
+                )}
+              </div>
             </li>
           );
         })}

@@ -20,6 +20,18 @@ import { brandFor, checklist } from '../../lib/placementFormat';
 import ResumePreview from '../builder/ResumePreview';
 import ErrorBoundary from '../../components/ErrorBoundary';
 import MyInterviews from '../../components/MyInterviews';
+import { Chip, Empty, Skel } from '../me/kit';
+import '../../styles/me-account.css';
+
+const chipTone = (cls = '') => ({ 'b-success': 'ok', 'b-warning': 'warn', 'b-danger': 'bad', 'b-signal': 'accent' }[cls] || 'neutral');
+/** A link to another part of My groups, as a card. */
+const LinkCard = ({ to, icon, title, text, cta, testid, textTestid }) => (
+  <Link to={to} className="mcard mcard-link acc-glink" data-testid={testid}>
+    <span className="mcard-ic violet" aria-hidden="true">{icon}</span>
+    <span className="stack g4" style={{ flex: '1 1 200px', minWidth: 0 }}><strong className="mserif acc-glink-t">{title}</strong><span className="small muted" data-testid={textTestid}>{text}</span></span>
+    <span className="btn btn-outline">{cta}</span>
+  </Link>
+);
 
 const NEW = '__new__';
 const consentKey = (code) => `nm7-join-consent:${code}`;
@@ -200,100 +212,93 @@ export function MeGroups() {
   return (
     <div className="stack g20">
       <MeHead title="My groups" sub="Colleges, institutes and job fairs you share your resume with." />
-      <form className="card row g12" style={{ alignItems: 'flex-end' }} aria-label="Join a group" onSubmit={(e) => { e.preventDefault(); if (cleanCode(code)) nav(`/join/${cleanCode(code)}`); }}>
+      <form className="mcard mcard-accent acc-join" aria-label="Join a group" onSubmit={(e) => { e.preventDefault(); if (cleanCode(code)) nav(`/join/${cleanCode(code)}`); }}>
+        <span className="mcard-ic" aria-hidden="true">⚑</span>
         <div className="field" style={{ flex: '1 1 220px' }}>
           <label className="label" htmlFor="g-code">Join a group</label>
-          <input id="g-code" className="input mono" placeholder="e.g. JNTUA26" value={code} maxLength={20} onChange={(e) => setCode(e.target.value.toUpperCase())} />
+          <input id="g-code" className="input mono" placeholder="e.g. JNTUA26" value={code} maxLength={20} onChange={(e) => setCode(e.target.value.toUpperCase())} aria-describedby="g-code-h" />
+          <span id="g-code-h" className="xs faint">Your college or job fair gives you this code.</span>
         </div>
-        <button type="submit" className="btn btn-ink" disabled={!cleanCode(code)}>Continue</button>
+        <button type="submit" className="btn btn-signal" disabled={!cleanCode(code)}>Continue</button>
       </form>
       {LIVE && <MyInterviews />}
-      {drives.data?.length > 0 && (
-        <Link to="/me/drive" className="card row between g8" style={{ textDecoration: 'none', color: 'inherit', flexWrap: 'wrap' }} data-testid="drive-link">
-          <span className="stack g4"><strong>My drive day</strong><span className="small muted">{drives.data[0].name} · {drives.data[0].date} · {drives.data[0].slots.length} slot{drives.data[0].slots.length === 1 ? '' : 's'}</span></span>
-          <span className="btn btn-ink">Open</span>
-        </Link>
-      )}
-      {(alumni.data?.browse?.length > 0 || alumni.data?.canJoin?.length > 0 || alumni.data?.profiles?.length > 0) && (
-        <Link to="/me/alumni" className="card row between g8" style={{ textDecoration: 'none', color: 'inherit', flexWrap: 'wrap' }} data-testid="alumni-link">
-          <span className="stack g4"><strong>Alumni network</strong><span className="small muted">{alumni.data.canJoin.length ? 'Your batch has passed out: join your college’s alumni network.' : 'Ask alumni for a referral or mentoring.'}</span></span>
-          <span className="btn btn-ink">Open</span>
-        </Link>
+      {(drives.data?.length > 0 || alumni.data?.browse?.length > 0 || alumni.data?.canJoin?.length > 0 || alumni.data?.profiles?.length > 0 || cgroups.data?.length > 0 || staff.data?.length > 0) && (
+        <div className="mgrid">
+          {drives.data?.length > 0 && <LinkCard to="/me/drive" testid="drive-link" icon="◷" title="My drive day" text={`${drives.data[0].name} · ${drives.data[0].date} · ${drives.data[0].slots.length} slot${drives.data[0].slots.length === 1 ? '' : 's'}`} cta="Open" />}
+          {(alumni.data?.browse?.length > 0 || alumni.data?.canJoin?.length > 0 || alumni.data?.profiles?.length > 0) && <LinkCard to="/me/alumni" testid="alumni-link" icon="✦" title="Alumni network" text={alumni.data.canJoin.length ? 'Your batch has passed out: join your college’s alumni network.' : 'Ask alumni for a referral or mentoring.'} cta="Open" />}
+          {cgroups.data?.map((g) => <LinkCard key={g.id} to={`/college-group/${g.id}`} testid="cg-link" icon="▦" title={`You run ${g.name}`} text={`College group · ${g.campuses} campuses · numbers by campus`} cta="Open" />)}
+          {staff.data?.map((o) => <LinkCard key={o.orgId} to={o.role === 'reviewer' ? `/review/${o.orgId}` : `/org/${o.orgId}`} icon="⌂" title={`You help run ${o.orgName}`} text={staffSummary(o)} textTestid="staff-summary" cta="Open organization" />)}
+        </div>
       )}
       {offers.data?.length > 0 && (
-        <section className="card stack g8" aria-label="My offers" data-testid="my-offers">
-          <strong>My offers</strong>
-          <span className="xs muted">Recorded by your college’s placement office. Only you and your college see these.</span>
-          <ul className="stack g4" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-            {offers.data.map((o) => <li key={o.id} className="row between g8 small" style={{ flexWrap: 'wrap' }} data-testid="my-offer"><span><strong>{o.company}</strong>{o.role ? ` · ${o.role}` : ''}{o.ctcLpa != null ? ` · ${o.ctcLpa} LPA` : ''} · {o.typeName}</span><span className="badge b-neutral">{o.statusName}</span></li>)}
+        <section className="mcard" aria-label="My offers" data-testid="my-offers">
+          <header className="mcard-h"><span className="mcard-ic teal" aria-hidden="true">★</span><span className="mcard-ht"><h2 className="mcard-title">My offers</h2><span className="mcard-sub">Recorded by your college’s placement office. Only you and your college see these.</span></span></header>
+          <ul className="mlist">
+            {offers.data.map((o) => <li key={o.id} className="mitem" data-testid="my-offer"><span className="mitem-main"><span className="mitem-title">{o.company}</span><span className="mitem-meta">{[o.role, o.ctcLpa != null ? `${o.ctcLpa} LPA` : null, o.typeName].filter(Boolean).join(' · ')}</span></span><Chip>{o.statusName}</Chip></li>)}
           </ul>
         </section>
       )}
-      {cgroups.data?.map((g) => (
-        <Link key={g.id} to={`/college-group/${g.id}`} className="card row between g8" style={{ textDecoration: 'none', color: 'inherit', flexWrap: 'wrap' }} data-testid="cg-link">
-          <span className="stack g4"><strong>You run {g.name}</strong><span className="small muted">College group · {g.campuses} campuses · numbers by campus</span></span>
-          <span className="btn btn-ink">Open</span>
-        </Link>
-      ))}
-      {staff.data?.map((o) => (
-        <Link key={o.orgId} to={o.role === 'reviewer' ? `/review/${o.orgId}` : `/org/${o.orgId}`} className="card row between g8" style={{ textDecoration: 'none', color: 'inherit' }}>
-          <span className="stack g4"><strong>You help run {o.orgName}</strong><span className="small muted" data-testid="staff-summary">{staffSummary(o)}</span></span>
-          <span className="btn btn-ink">Open organization</span>
-        </Link>
-      ))}
-      {!LIVE && <p className="muted small">Groups work on the live site only.</p>}
-      {groups.loading && <div className="row g12 muted" role="status"><Spinner /> Loading…</div>}
-      {groups.error && <div className="card" role="alert">{groups.error.message}</div>}
-      {groups.data?.length === 0 && <div className="well small muted" style={{ textAlign: 'center', padding: 24 }}>You’re not in any group yet. Your college or job fair will give you a code or a QR code.</div>}
-      {groups.data?.map((g) => (
-        <section key={g.id} className="card stack g12" aria-label={g.groupName}>
-          <div className="row between g8">
-            <div className="stack g4"><strong>{g.orgName}</strong><span className="small muted">{g.groupName} · joined {fmtDay(g.joinedAt)} · code <span className="mono">{g.code}</span></span></div>
-            <span className="row g8">
-              <span className={`badge ${memberStatus(g).tone}`} data-testid="group-status">{memberStatus(g).label}</span>
-              {g.downloadsFree && g.approval === 'approved' && <span className="badge b-success">Free downloads</span>}
-            </span>
-          </div>
-          {g.approval === 'pending' && <span className="small muted">{g.orgName} checks new members first. Keep building your resume meanwhile.</span>}
-          {g.reviewStatus === 'needs_changes' && g.reviewNote && (
-            <div className="well stack g4 small" role="note"><strong>{g.orgName} asked for changes:</strong><span style={{ whiteSpace: 'pre-wrap' }}>{g.reviewNote}</span><Link to="/builder">Open my resume</Link></div>
-          )}
-          {g.format && <CollegeFormat g={g} resume={list.find((r) => r.id === g.resumeId)} />}
-          {g.academic && <Marks g={g} />}
-          {Object.keys(g.fields || {}).length > 0 && (
-            <span className="small">{(g.customFields || []).filter((f) => g.fields[f.key]).map((f) => `${f.label}: ${g.fields[f.key]}`).join(' · ')}</span>
-          )}
-          <div className="row g12" style={{ alignItems: 'flex-end' }}>
-            <div className="field" style={{ flex: '1 1 240px' }}>
-              <label className="label" htmlFor={`g-r-${g.id}`}>Shared resume</label>
-              <select id={`g-r-${g.id}`} className="input" value={g.resumeId || ''} disabled={busy || !list.length}
-                onChange={(e) => act(() => http(`/api/me/groups/${g.id}`, { method: 'PATCH', body: { resumeId: e.target.value } }), 'Shared resume changed')}>
-                {list.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
-                {!list.some((r) => r.id === g.resumeId) && <option value={g.resumeId || ''}>(deleted resume)</option>}
-              </select>
-            </div>
-            <label className="row g8 small" style={{ minHeight: 40 }}>
-              <input type="checkbox" checked={!g.remindersOptOut} disabled={busy}
-                onChange={(e) => act(() => http(`/api/me/groups/${g.id}`, { method: 'PATCH', body: { remindersOptOut: !e.target.checked } }), e.target.checked ? 'Reminders on' : 'Reminders off')} />
-              Reminder emails
-            </label>
-            {g.shareWithRecruiters && (
-              <label className="row g8 small" style={{ minHeight: 40 }}>
-                <input type="checkbox" checked={!!g.recruiterOptIn} disabled={busy}
-                  onChange={(e) => act(() => http(`/api/me/groups/${g.id}`, { method: 'PATCH', body: { recruiterOptIn: e.target.checked } }), e.target.checked ? 'Recruiters can see your resume when shared' : 'Removed from recruiter links')} />
-                Allow {g.orgName} to share my resume with recruiters
-              </label>
+      {!LIVE && <Empty shape="handshake" compact title="Groups work on the live site only." />}
+      {groups.loading && <Skel cards={2} label="Loading…" />}
+      {groups.error && <div className="mcard mcard-bad" role="alert">{groups.error.message}</div>}
+      {groups.data?.length === 0 && <Empty shape="handshake" title="No groups yet" action={<a href="#g-code" className="btn btn-outline" onClick={(e) => { e.preventDefault(); document.getElementById('g-code')?.focus(); }}>Enter a code</a>}>You’re not in any group yet. Your college or job fair will give you a code or a QR code.</Empty>}
+      {groups.data?.map((g) => {
+        const ms = memberStatus(g);
+        return (
+          <section key={g.id} className="mcard acc-group" aria-label={g.groupName}>
+            <header className="mcard-h">
+              <span className="mavatar" aria-hidden="true">{(g.orgName || '?')[0]}</span>
+              <span className="mcard-ht"><h2 className="mcard-title">{g.orgName}</h2><span className="mcard-sub">{g.groupName} · joined {fmtDay(g.joinedAt)} · code <span className="mono">{g.code}</span></span></span>
+              <span className="mcard-actions">
+                <Chip tone={chipTone(ms.tone)} testid="group-status">{ms.label}</Chip>
+                {g.downloadsFree && g.approval === 'approved' && <Chip tone="ok">Free downloads</Chip>}
+              </span>
+            </header>
+            {g.approval === 'pending' && <span className="small muted">{g.orgName} checks new members first. Keep building your resume meanwhile.</span>}
+            {g.reviewStatus === 'needs_changes' && g.reviewNote && (
+              <div className="acc-note acc-note-warn stack g4 small" role="note"><strong>{g.orgName} asked for changes:</strong><span style={{ whiteSpace: 'pre-wrap' }}>{g.reviewNote}</span><Link to="/builder">Open my resume</Link></div>
+            )}
+            {g.format && <CollegeFormat g={g} resume={list.find((r) => r.id === g.resumeId)} />}
+            {g.academic && <Marks g={g} />}
+            {Object.keys(g.fields || {}).length > 0 && (
+              <span className="small">{(g.customFields || []).filter((f) => g.fields[f.key]).map((f) => `${f.label}: ${g.fields[f.key]}`).join(' · ')}</span>
             )}
             {g.shortlistedBy?.length > 0 && (
-              <div className="row g6" style={{ flexWrap: 'wrap' }} data-testid="shortlisted-by">
+              <div className="mrow" data-testid="shortlisted-by">
                 {g.shortlistedBy.map((c) => <span key={c} className="badge b-success">Shortlisted by {c}</span>)}
               </div>
             )}
-            <button type="button" className="btn btn-outline" disabled={busy}
-              onClick={() => { if (window.confirm(`Leave ${g.groupName}? ${g.orgName} will no longer see your resume.`)) act(() => http(`/api/me/groups/${g.id}/leave`, { method: 'POST', body: {} }), 'You left the group'); }}>Leave group</button>
-          </div>
-        </section>
-      ))}
+            <div className="acc-gset">
+              <div className="field">
+                <label className="label" htmlFor={`g-r-${g.id}`}>Shared resume</label>
+                <select id={`g-r-${g.id}`} className="input" value={g.resumeId || ''} disabled={busy || !list.length}
+                  onChange={(e) => act(() => http(`/api/me/groups/${g.id}`, { method: 'PATCH', body: { resumeId: e.target.value } }), 'Shared resume changed')}>
+                  {list.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
+                  {!list.some((r) => r.id === g.resumeId) && <option value={g.resumeId || ''}>(deleted resume)</option>}
+                </select>
+              </div>
+              <div className="stack g8">
+                <label className="acc-switch small">
+                  <input type="checkbox" checked={!g.remindersOptOut} disabled={busy}
+                    onChange={(e) => act(() => http(`/api/me/groups/${g.id}`, { method: 'PATCH', body: { remindersOptOut: !e.target.checked } }), e.target.checked ? 'Reminders on' : 'Reminders off')} />
+                  Reminder emails
+                </label>
+                {g.shareWithRecruiters && (
+                  <label className="acc-switch small">
+                    <input type="checkbox" checked={!!g.recruiterOptIn} disabled={busy}
+                      onChange={(e) => act(() => http(`/api/me/groups/${g.id}`, { method: 'PATCH', body: { recruiterOptIn: e.target.checked } }), e.target.checked ? 'Recruiters can see your resume when shared' : 'Removed from recruiter links')} />
+                    Allow {g.orgName} to share my resume with recruiters
+                  </label>
+                )}
+              </div>
+            </div>
+            <div className="acc-gfoot">
+              <button type="button" className="btn btn-outline acc-danger-btn" disabled={busy}
+                onClick={() => { if (window.confirm(`Leave ${g.groupName}? ${g.orgName} will no longer see your resume.`)) act(() => http(`/api/me/groups/${g.id}/leave`, { method: 'POST', body: {} }), 'You left the group'); }}>Leave group</button>
+            </div>
+          </section>
+        );
+      })}
     </div>
   );
 }

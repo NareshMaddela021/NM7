@@ -2,7 +2,7 @@
 // "reduce motion" switched on, data saver, or a low-power phone. The page paints with the still picture first; the
 // three.js chunk (particles.js) loads only after that, when the browser is idle. ?fx=static forces the picture.
 import { memo, useEffect, useRef, useState } from 'react';
-import { colorsFor, projectPoints } from './shapes';
+import { TINTS, colorsFor, projectPoints } from './shapes';
 
 /** Why 3D is off on this device ('' when it can run). */
 export function why3dOff(win = typeof window !== 'undefined' ? window : null) {
@@ -28,10 +28,10 @@ export function why3dOff(win = typeof window !== 'undefined' ? window : null) {
 const STILL_DOTS = 650;
 
 /** The still picture: the same shape's dots, drawn once as an SVG. */
-export const Still = memo(function Still({ shape, className = 'nh-still' }) {
+export const Still = memo(function Still({ shape, className = 'nh-still', tint }) {
   const pts = projectPoints(shape, STILL_DOTS, 400);
-  const c = colorsFor(shape);
-  const id = `nh-dot-${shape}`;
+  const c = TINTS[tint] || colorsFor(shape);
+  const id = `nh-dot-${shape}-${tint || 'own'}`;
   return (
     <svg className={className} viewBox="0 0 400 400" aria-hidden="true" focusable="false" data-shape={shape}>
       <defs>

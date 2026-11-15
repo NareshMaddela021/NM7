@@ -17,6 +17,8 @@ import { deleteJobData } from '../../lib/jobs';
 import { MeHead } from './MeLayout';
 import { http } from '../../services/http';
 import { fmtDay } from './shared';
+import { Bar, Chip, FieldGroup, MeCard, StickyBar } from './kit';
+import '../../styles/me-account.css';
 
 /** Resume health alert emails (at most one every two weeks); the same switch as the email's "Stop these emails". */
 function HealthEmails() {
@@ -25,8 +27,8 @@ function HealthEmails() {
   if (on === null) return null;
   const set = async (v) => { setOn(v); try { setOn((await http('/api/me/health/emails', { method: 'PUT', body: { on: v } })).emails); } catch { setOn(!v); } };
   return (
-    <label className="row g8 small" style={{ alignItems: 'flex-start' }}>
-      <input type="checkbox" checked={on} onChange={(e) => set(e.target.checked)} data-testid="health-emails" style={{ marginTop: 3 }} />
+    <label className="acc-switch small">
+      <input type="checkbox" checked={on} onChange={(e) => set(e.target.checked)} data-testid="health-emails" />
       <span><strong>Resume health emails</strong> — small fixes for your resume, at most once every two weeks.</span>
     </label>
   );
@@ -55,24 +57,26 @@ function JobAlerts() {
   };
   const lvl = (k) => setF({ ...f, experience: f.experience.includes(k) ? f.experience.filter((x) => x !== k) : [...f.experience, k] });
   return (
-    <form id="job-alerts" className="card stack g12" aria-label="Job alerts" onSubmit={save} data-testid="job-alerts" style={{ scrollMarginTop: 96 }}>
-      <strong>Job alerts</strong>
-      <span className="small muted">New jobs on Nm7 that match, by email with a WhatsApp share link for each. Only when there are new matches; at most one email a day.</span>
-      <label className="row g8 small"><input type="checkbox" checked={f.on} onChange={(e) => setF({ ...f, on: e.target.checked })} data-testid="alerts-on" /> Send me job alerts</label>
-      <div className="field"><label className="label" htmlFor="al-roles">Roles or skills (comma between, up to 5)</label><input id="al-roles" className="input" placeholder="Data analyst, SQL" value={f.roles} onChange={(e) => setF({ ...f, roles: e.target.value })} /></div>
-      <div className="field"><label className="label" htmlFor="al-cities">Cities (comma between; empty = anywhere)</label><input id="al-cities" className="input" placeholder="Hyderabad, Pune" value={f.cities} onChange={(e) => setF({ ...f, cities: e.target.value })} /></div>
-      <label className="row g8 small"><input type="checkbox" checked={f.remote} onChange={(e) => setF({ ...f, remote: e.target.checked })} /> Include remote jobs</label>
-      <fieldset className="stack g4" style={{ border: 0, margin: 0, padding: 0 }}>
-        <legend className="label">Experience (none ticked = any)</legend>
-        <div className="row g12" style={{ flexWrap: 'wrap' }}>{LEVELS.map(([k, l]) => <label key={k} className="row g4 small"><input type="checkbox" checked={f.experience.includes(k)} onChange={() => lvl(k)} /> {l}</label>)}</div>
+    <form id="job-alerts" className="mcard acc-sec" aria-label="Job alerts" onSubmit={save} data-testid="job-alerts">
+      <header className="mcard-h"><span className="mcard-ic teal" aria-hidden="true">✦</span><span className="mcard-ht"><h2 className="mcard-title">Job alerts</h2><span className="mcard-sub">New jobs on Nm7 that match, by email with a WhatsApp share link for each. Only when there are new matches; at most one email a day.</span></span>{a?.on && <span className="mcard-actions"><span className="xs muted acc-on" data-testid="alerts-status">On · {a.frequency === 'daily' ? 'daily' : 'weekly'}</span></span>}</header>
+      <label className="acc-switch small"><input type="checkbox" checked={f.on} onChange={(e) => setF({ ...f, on: e.target.checked })} data-testid="alerts-on" /> Send me job alerts</label>
+      <FieldGroup title="What and where">
+        <div className="field"><label className="label" htmlFor="al-roles">Roles or skills (comma between, up to 5)</label><input id="al-roles" className="input" placeholder="Data analyst, SQL" value={f.roles} onChange={(e) => setF({ ...f, roles: e.target.value })} /></div>
+        <div className="field"><label className="label" htmlFor="al-cities">Cities (comma between; empty = anywhere)</label><input id="al-cities" className="input" placeholder="Hyderabad, Pune" value={f.cities} onChange={(e) => setF({ ...f, cities: e.target.value })} /></div>
+        <label className="acc-switch small full"><input type="checkbox" checked={f.remote} onChange={(e) => setF({ ...f, remote: e.target.checked })} /> Include remote jobs</label>
+      </FieldGroup>
+      <fieldset className="mfields">
+        <legend className="mfields-h">Experience</legend>
+        <p className="mfields-help">None ticked = any.</p>
+        <div className="acc-pills">{LEVELS.map(([k, l]) => <label key={k} className="acc-pill small"><input type="checkbox" checked={f.experience.includes(k)} onChange={() => lvl(k)} /> {l}</label>)}</div>
       </fieldset>
-      <fieldset className="stack g4" style={{ border: 0, margin: 0, padding: 0 }}>
-        <legend className="label">How often</legend>
-        <div className="row g12">{[['daily', 'Daily'], ['weekly', 'Weekly']].map(([k, l]) => <label key={k} className="row g4 small"><input type="radio" name="al-freq" checked={f.frequency === k} onChange={() => setF({ ...f, frequency: k })} /> {l}</label>)}</div>
+      <fieldset className="mfields">
+        <legend className="mfields-h">How often</legend>
+        <div className="acc-pills">{[['daily', 'Daily'], ['weekly', 'Weekly']].map(([k, l]) => <label key={k} className="acc-pill small"><input type="radio" name="al-freq" checked={f.frequency === k} onChange={() => setF({ ...f, frequency: k })} /> {l}</label>)}</div>
+        <div className="field" style={{ maxWidth: 280 }}><label className="label" htmlFor="al-lang">Email language</label><select id="al-lang" className="input" value={f.lang} onChange={(e) => setF({ ...f, lang: e.target.value })}>{(langsShown() ? ALL_LANGS : ALL_LANGS.slice(0, 1)).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
       </fieldset>
-      <div className="field" style={{ maxWidth: 260 }}><label className="label" htmlFor="al-lang">Email language</label><select id="al-lang" className="input" value={f.lang} onChange={(e) => setF({ ...f, lang: e.target.value })}>{(langsShown() ? ALL_LANGS : ALL_LANGS.slice(0, 1)).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
       {err && <p className="error" role="alert">{err}</p>}
-      <div className="row g8"><button type="submit" className="btn btn-ink" disabled={busy}>{busy ? 'Saving…' : 'Save job alerts'}</button>{a?.on && <span className="xs muted" data-testid="alerts-status">On · {a.frequency === 'daily' ? 'daily' : 'weekly'}</span>}</div>
+      <div className="mrow"><button type="submit" className="btn btn-signal" disabled={busy}>{busy ? 'Saving…' : 'Save job alerts'}</button></div>
     </form>
   );
 }
@@ -113,38 +117,43 @@ export function MeSettings() {
 
   return (
     <>
-      <MeHead title="Profile & settings" />
-      <form className="card stack g12" onSubmit={save} aria-label="Profile" noValidate>
-        <strong>Profile</strong>
-        <div className="row g12">
-          <div className="field" style={{ flex: '1 1 220px' }}><label htmlFor="p-n" className="label">Full name</label><input id="p-n" className="input" style={{ height: 42 }} value={f.name} onChange={set('name')} aria-invalid={tried && errs.name ? 'true' : undefined} aria-describedby={tried && errs.name ? 'p-n-err' : undefined} />{tried && errs.name && <span id="p-n-err" role="alert" className="error">{errs.name}</span>}</div>
-          <div className="field" style={{ flex: '1 1 220px' }}><label htmlFor="p-e" className="label">Email</label><input id="p-e" type="email" className="input" style={{ height: 42, background: 'var(--sunken)', color: 'var(--text2)', cursor: 'not-allowed' }} value={me.account.email} readOnly aria-readonly="true" aria-describedby="p-e-h" /><span id="p-e-h" className="xs faint">This is your sign-in email. To change it, write to info@nm7.si from this address.</span></div>
-          <div className="field" style={{ flex: '1 1 220px' }}><label htmlFor="p-p" className="label">Mobile (WhatsApp)</label><input id="p-p" className="input" style={{ height: 42 }} value={f.phone} onChange={set('phone')} aria-invalid={!!errs.phone} aria-describedby={errs.phone ? 'p-p-err' : undefined} />{errs.phone && <span id="p-p-err" className="error">{errs.phone}</span>}</div>
-        </div>
+      <MeHead title="Profile & settings" sub="Your account, how we reach you, and your data." />
+      <nav className="acc-jump" aria-label="On this page">
+        {[['#s-profile', 'Profile'], ['#s-notify', 'Notifications'], ...(LIVE ? [['#job-alerts', 'Job alerts']] : []), ['#s-password', 'Password'], ['#s-privacy', 'Privacy']].map(([h, l]) => <a key={h} href={h} className="acc-jump-a">{l}</a>)}
+      </nav>
+      <form id="s-profile" className="mcard acc-sec" onSubmit={save} aria-label="Profile" noValidate>
+        <header className="mcard-h"><span className="mavatar" aria-hidden="true">{(me.account.name || '?').trim()[0]?.toUpperCase()}</span><span className="mcard-ht"><h2 className="mcard-title">Profile</h2><span className="mcard-sub">Your name and mobile number. Career details live in your Job Profile.</span></span></header>
+        <FieldGroup>
+          <div className="field"><label htmlFor="p-n" className="label">Full name</label><input id="p-n" className="input" value={f.name} onChange={set('name')} aria-invalid={tried && errs.name ? 'true' : undefined} aria-describedby={tried && errs.name ? 'p-n-err' : undefined} />{tried && errs.name && <span id="p-n-err" role="alert" className="error">{errs.name}</span>}</div>
+          <div className="field"><label htmlFor="p-p" className="label">Mobile (WhatsApp)</label><input id="p-p" className="input" value={f.phone} onChange={set('phone')} aria-invalid={!!errs.phone} aria-describedby={errs.phone ? 'p-p-err' : undefined} />{errs.phone && <span id="p-p-err" className="error">{errs.phone}</span>}</div>
+          <div className="field full"><label htmlFor="p-e" className="label">Email</label><input id="p-e" type="email" className="input" style={{ background: 'var(--sunken)', color: 'var(--text2)', cursor: 'not-allowed' }} value={me.account.email} readOnly aria-readonly="true" aria-describedby="p-e-h" /><span id="p-e-h" className="xs faint">This is your sign-in email. To change it, write to info@nm7.si from this address.</span></div>
+        </FieldGroup>
         {error && <span className="small" role="alert" style={{ color: 'var(--danger)' }}>{error}</span>}
-        <div className="row g8"><button type="submit" className="btn btn-ink" disabled={busy}>{busy ? <Spinner /> : 'Save'}</button><Link to="/me/profile" className="btn btn-outline">Target role, cities &amp; career details → Job Profile</Link></div>
+        <Link to="/me/profile" className="btn btn-outline acc-jp">Target role, cities &amp; career details → Job Profile</Link>
+        <StickyBar label="Profile actions"><button type="submit" className="btn btn-signal" disabled={busy}>{busy ? <Spinner /> : 'Save'}</button></StickyBar>
       </form>
 
-      <section className="card stack g12" aria-label="Notifications">
-        <strong>Notifications</strong>
-        <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table"><thead><tr><th>Event</th>{CHANNELS.map(([k, l]) => <th key={k}>{l}</th>)}</tr></thead>
-          <tbody>{EVENTS.map(([ev, l]) => <tr key={ev}><td className="small">{l}</td>{CHANNELS.map(([ch, cl]) => <td key={ch}><input type="checkbox" aria-label={`${l} on ${cl}`} checked={!!me.account.notify[ch][ev]} disabled={ev === 'order' && ch === 'email'} onChange={(e) => notify(ch, ev, e.target.checked)} /></td>)}</tr>)}</tbody></table></div>
+      <MeCard as="section" id="s-notify" className="acc-sec" label="Notifications" icon="🔔" title="Notifications" sub="Choose how we tell you about each thing.">
+        <div className="table-wrap mtable-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table mtable acc-notify"><thead><tr><th>Event</th>{CHANNELS.map(([k, l]) => <th key={k}>{l}</th>)}</tr></thead>
+          <tbody>{EVENTS.map(([ev, l]) => <tr key={ev}><th scope="row" className="small acc-ev">{l}</th>{CHANNELS.map(([ch, cl]) => <td key={ch} data-label={cl}><input type="checkbox" className="acc-cb" aria-label={`${l} on ${cl}`} checked={!!me.account.notify[ch][ev]} disabled={ev === 'order' && ch === 'email'} onChange={(e) => notify(ch, ev, e.target.checked)} /></td>)}</tr>)}</tbody></table></div>
         <span className="xs faint">Order emails stay on — they carry your receipts and refund updates.</span>
         <HealthEmails />
-      </section>
+      </MeCard>
 
       <JobAlerts />
 
       <ChangePassword />
 
-      <section className="card stack g12" aria-label="Privacy">
-        <strong>Privacy</strong>
-        <div className="row between g8"><span className="small">Download everything we hold about you — resumes, orders, messages, applications.</span><button type="button" className="btn btn-outline" onClick={exportAll}>Download my data</button></div>
-        <div className="row between g8"><span className="small">Expert files are kept for {PROMISES.retentionDays} days after delivery. Your own resumes stay until you delete them.</span></div>
-        {canSave() && <div className="row between g8"><span className="small">Your LinkedIn link, the text from your LinkedIn PDF or pasted sections, and your checks. Kept on your account only, never shared with organizations.</span><button type="button" className="btn btn-outline" onClick={() => setLiDel(true)}>Delete my LinkedIn data</button></div>}
-        {canSave() && <div className="row between g8"><span className="small">Job posts you matched, their scores, tailoring suggestions, cover letters and interview prep. Kept on your account only, never shared with organizations.</span><button type="button" className="btn btn-outline" onClick={() => setJobDel(true)}>Delete my job-search data</button></div>}
-        {LIVE ? <DeleteAccount /> : <div className="row between g8"><span className="small" style={{ color: 'var(--danger)' }}>Delete my account and all my data.</span><button type="button" className="btn btn-ghost" style={{ color: 'var(--danger)' }} onClick={() => setDel(true)}>Delete account</button></div>}
-      </section>
+      <MeCard as="section" id="s-privacy" className="acc-sec" label="Privacy" icon="🔒" title="Privacy" sub={`Expert files are kept for ${PROMISES.retentionDays} days after delivery. Your own resumes stay until you delete them.`}>
+        <ul className="mlist">
+          <li className="mitem"><span className="mitem-main"><span className="mitem-title">Your data</span><span className="mitem-meta">Download everything we hold about you — resumes, orders, messages, applications.</span></span><span className="mitem-side"><button type="button" className="btn btn-outline" onClick={exportAll}>Download my data</button></span></li>
+          {canSave() && <li className="mitem"><span className="mitem-main"><span className="mitem-title">LinkedIn data</span><span className="mitem-meta">Your LinkedIn link, the text from your LinkedIn PDF or pasted sections, and your checks. Kept on your account only, never shared with organizations.</span></span><span className="mitem-side"><button type="button" className="btn btn-outline" onClick={() => setLiDel(true)}>Delete my LinkedIn data</button></span></li>}
+          {canSave() && <li className="mitem"><span className="mitem-main"><span className="mitem-title">Job-search data</span><span className="mitem-meta">Job posts you matched, their scores, tailoring suggestions, cover letters and interview prep. Kept on your account only, never shared with organizations.</span></span><span className="mitem-side"><button type="button" className="btn btn-outline" onClick={() => setJobDel(true)}>Delete my job-search data</button></span></li>}
+        </ul>
+      </MeCard>
+      <MeCard as="section" tone="bad" className="acc-danger" label="Delete account" icon="⚠" title="Delete account" sub="Removes your account and everything in it. Invoices are kept as the law requires.">
+        {LIVE ? <DeleteAccount /> : <div className="mspread"><span className="small" style={{ color: 'var(--danger)' }}>Delete my account and all my data.</span><button type="button" className="btn btn-outline acc-danger-btn" onClick={() => setDel(true)}>Delete account</button></div>}
+      </MeCard>
       {jobDel && (
         <Dialog showTitle title="Delete your job-search data?" onClose={() => setJobDel(false)}>
           <div className="stack g12">
@@ -203,15 +212,14 @@ function ChangePassword() {
     } catch (err) { setError(err.message || 'Not changed. Please try again.'); } finally { setBusy(false); }
   };
   return (
-    <form className="card stack g12" onSubmit={submit} aria-label="Change password" noValidate>
-      <strong>Change password</strong>
-      <div className="row g12">
-        <div className="field" style={{ flex: '1 1 200px' }}><label htmlFor="pw-c" className="label">Current password</label><input id="pw-c" type="password" autoComplete="current-password" className="input" style={{ height: 42 }} value={p.current} onChange={set('current')} /></div>
-        <div className="field" style={{ flex: '1 1 200px' }}><label htmlFor="pw-n" className="label">New password</label><input id="pw-n" type="password" autoComplete="new-password" className="input" style={{ height: 42 }} value={p.next} onChange={set('next')} aria-invalid={!!issue} aria-describedby="pw-n-h" /><span id="pw-n-h" className="xs" style={{ color: issue ? 'var(--danger)' : 'var(--text3)' }}>{issue || 'At least 8 characters, with letters and a number.'}</span></div>
-        <div className="field" style={{ flex: '1 1 200px' }}><label htmlFor="pw-a" className="label">Re-type new password</label><input id="pw-a" type="password" autoComplete="new-password" className="input" style={{ height: 42 }} value={p.again} onChange={set('again')} aria-invalid={!!mismatch} />{mismatch && <span className="xs" style={{ color: 'var(--danger)' }}>The two passwords don’t match.</span>}</div>
-      </div>
+    <form id="s-password" className="mcard acc-sec" onSubmit={submit} aria-label="Change password" noValidate>
+      <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true">🔑</span><span className="mcard-ht"><h2 className="mcard-title">Change password</h2><span className="mcard-sub">Changing it signs you out on every other device.</span></span></header>
+      <FieldGroup>
+        <div className="field full"><label htmlFor="pw-c" className="label">Current password</label><input id="pw-c" type="password" autoComplete="current-password" className="input" value={p.current} onChange={set('current')} /></div>
+        <div className="field"><label htmlFor="pw-n" className="label">New password</label><input id="pw-n" type="password" autoComplete="new-password" className="input" value={p.next} onChange={set('next')} aria-invalid={!!issue} aria-describedby="pw-n-h" /><span id="pw-n-h" className="xs" style={{ color: issue ? 'var(--danger)' : 'var(--text3)' }}>{issue || 'At least 8 characters, with letters and a number.'}</span></div>
+        <div className="field"><label htmlFor="pw-a" className="label">Re-type new password</label><input id="pw-a" type="password" autoComplete="new-password" className="input" value={p.again} onChange={set('again')} aria-invalid={!!mismatch} />{mismatch && <span className="xs" style={{ color: 'var(--danger)' }}>The two passwords don’t match.</span>}</div>
+      </FieldGroup>
       {error && <span className="small" role="alert" style={{ color: 'var(--danger)' }}>{error}</span>}
-      <span className="xs faint">Changing it signs you out on every other device.</span>
       <button type="submit" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} disabled={busy || !p.current || !p.next || !!issue || p.next !== p.again}>{busy ? <Spinner /> : 'Change password'}</button>
     </form>
   );
@@ -235,44 +243,56 @@ export function MeHelp() {
   const link = `nm7.si/?ref=${me.account.referralCode}`;
   return (
     <>
-      <MeHead title="Help & referral" />
-      <section className="card stack g8" aria-label="Questions">
-        <strong>Common questions</strong>
-        {FAQ.map(([q, a]) => <details key={q} className="well"><summary className="small" style={{ fontWeight: 600, cursor: 'pointer' }}>{q}</summary><p className="small muted" style={{ margin: '8px 0 0' }}>{a}</p></details>)}
-      </section>
-      <div className="row g16" style={{ alignItems: 'flex-start' }}>
-        <form className="card stack g12" style={{ flex: '1 1 340px' }} aria-label="Raise an issue" onSubmit={async (e) => {
-          e.preventDefault();
-          if (sending || t.text.trim().length < 10) return;
-          setSending(true); setSendError('');
-          try { await raiseIssue({ topic: t.topic, order: t.order || null, text: t.text.trim() }); setT({ ...t, text: '' }); toast('Sent — our team replies by email within 24 hours'); } catch (err) { setSendError(err.message || 'Not sent. Please try again.'); } finally { setSending(false); }
-        }}>
-          <strong>Raise an issue</strong>
-          <div className="row g8">
-            <div className="field" style={{ flex: 1 }}><label htmlFor="is-t" className="label">About</label><select id="is-t" className="input" style={{ height: 42 }} value={t.topic} onChange={(e) => setT({ ...t, topic: e.target.value })}>{['Order', 'Payment', 'Refund', 'Expert', 'Builder', 'Account', 'Other'].map((x) => <option key={x}>{x}</option>)}</select></div>
-            <div className="field" style={{ flex: 1 }}><label htmlFor="is-o" className="label">Order</label><select id="is-o" className="input" style={{ height: 42 }} value={t.order} onChange={(e) => setT({ ...t, order: e.target.value })}><option value="">None</option>{me.orders.map((o) => <option key={o.id}>{o.id}</option>)}</select></div>
-          </div>
-          <div className="field"><label htmlFor="is-x" className="label">What happened?</label><textarea id="is-x" className="input" rows={4} value={t.text} onChange={(e) => setT({ ...t, text: e.target.value })} /></div>
-          {sendError && <span className="small" role="alert" style={{ color: 'var(--danger)' }}>{sendError}</span>}
-          <button type="submit" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={sending || t.text.trim().length < 10}>{sending ? <Spinner /> : 'Send to support'}</button>
-          {me.issues.map((i) => (
-            <div key={i.id} className="well stack g4">
-              <span className="row between g8"><strong className="small">{i.id} · {i.topic}{i.order ? ` · ${i.order}` : ''}</strong><span className={`badge ${i.status === 'resolved' ? 'b-success' : 'b-warning'}`}>{i.status === 'resolved' ? 'Resolved' : 'Open'}</span></span>
-              <span className="small">{i.text}</span>
-              {i.reply && <span className="small muted"><strong>Support:</strong> {i.reply}</span>}
-              <span className="xs faint">{fmtDay(i.at)}</span>
+      <MeHead title="Help & referral" sub="Answers, support, and a link to share with friends." />
+      <div className="mgrid-2">
+        <div className="mstack">
+          <MeCard as="section" label="Questions" icon="?" title="Common questions" sub="Tap a question to see the answer.">
+            <div className="acc-faq">{FAQ.map(([q, a]) => <details key={q} className="acc-faq-i"><summary>{q}</summary><p className="small muted">{a}</p></details>)}</div>
+          </MeCard>
+          <form className="mcard" aria-label="Raise an issue" onSubmit={async (e) => {
+            e.preventDefault();
+            if (sending || t.text.trim().length < 10) return;
+            setSending(true); setSendError('');
+            try { await raiseIssue({ topic: t.topic, order: t.order || null, text: t.text.trim() }); setT({ ...t, text: '' }); toast('Sent — our team replies by email within 24 hours'); } catch (err) { setSendError(err.message || 'Not sent. Please try again.'); } finally { setSending(false); }
+          }}>
+            <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true">✉</span><span className="mcard-ht"><h2 className="mcard-title">Raise an issue</h2><span className="mcard-sub">Our team replies by email within 24 hours.</span></span></header>
+            <FieldGroup>
+              <div className="field"><label htmlFor="is-t" className="label">About</label><select id="is-t" className="input" value={t.topic} onChange={(e) => setT({ ...t, topic: e.target.value })}>{['Order', 'Payment', 'Refund', 'Expert', 'Builder', 'Account', 'Other'].map((x) => <option key={x}>{x}</option>)}</select></div>
+              <div className="field"><label htmlFor="is-o" className="label">Order</label><select id="is-o" className="input" value={t.order} onChange={(e) => setT({ ...t, order: e.target.value })}><option value="">None</option>{me.orders.map((o) => <option key={o.id}>{o.id}</option>)}</select></div>
+              <div className="field full"><label htmlFor="is-x" className="label">What happened?</label><textarea id="is-x" className="input" rows={4} value={t.text} onChange={(e) => setT({ ...t, text: e.target.value })} aria-describedby="is-x-h" /><span id="is-x-h" className="xs faint">At least 10 letters. Add your order number if it’s about an order.</span></div>
+            </FieldGroup>
+            {sendError && <span className="small" role="alert" style={{ color: 'var(--danger)' }}>{sendError}</span>}
+            <button type="submit" className="btn btn-signal" style={{ alignSelf: 'flex-start' }} disabled={sending || t.text.trim().length < 10}>{sending ? <Spinner /> : 'Send to support'}</button>
+            {me.issues.length > 0 && (
+              <ul className="mlist" aria-label="Your issues">
+                {me.issues.map((i) => (
+                  <li key={i.id} className="mitem acc-issue">
+                    <span className="mitem-main">
+                      <span className="mspread"><strong className="small">{i.id} · {i.topic}{i.order ? ` · ${i.order}` : ''}</strong><Chip tone={i.status === 'resolved' ? 'ok' : 'warn'}>{i.status === 'resolved' ? 'Resolved' : 'Open'}</Chip></span>
+                      <span className="small">{i.text}</span>
+                      {i.reply && <span className="small muted"><strong>Support:</strong> {i.reply}</span>}
+                      <span className="xs faint">{fmtDay(i.at)}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </form>
+        </div>
+        <div className="mstack">
+          <section className="mcard mcard-accent acc-ref" aria-label="Refer a friend">
+            <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">♥</span><span className="mcard-ht"><h2 className="mcard-title">Refer a friend</h2><span className="mcard-sub">Share your link. Friends get a resume that works.</span></span></header>
+            <ReferralProgress reward={me.referralReward} />
+            <div className="acc-reflink"><span className="mono small" style={{ overflowWrap: 'anywhere' }} data-testid="ref-link">{link}</span><button type="button" className="btn btn-outline" onClick={async () => { try { await navigator.clipboard.writeText(`https://${link}`); toast('Link copied'); } catch { toast(`Copy this: https://${link}`); } }}>Copy</button></div>
+            <a className="btn btn-signal" style={{ alignSelf: 'flex-start' }} href={`https://wa.me/?text=${encodeURIComponent(`I fixed my resume on Nm7 — try it: https://${link}`)}`} target="_blank" rel="noreferrer">Share on WhatsApp</a>
+            <div className="mgrid-3 acc-ref-stats">
+              <div className="mstat"><span className="mstat-l">Friends joined</span><strong className="mstat-v">{me.referrals.length}</strong></div>
+              <div className="mstat"><span className="mstat-l">Bought a plan</span><strong className="mstat-v">{me.referrals.filter((r) => r.status === 'bought').length}</strong></div>
             </div>
-          ))}
-        </form>
-        <MyStories name={me.account.name} />
-        <section className="card stack g12" style={{ flex: '1 1 300px' }} aria-label="Refer a friend">
-          <strong>Refer a friend</strong>
-          <ReferralProgress reward={me.referralReward} />
-          <div className="well row between g8"><span className="mono small" style={{ overflowWrap: 'anywhere' }} data-testid="ref-link">{link}</span><button type="button" className="btn btn-outline" style={{ minHeight: 34 }} onClick={async () => { try { await navigator.clipboard.writeText(`https://${link}`); toast('Link copied'); } catch { toast(`Copy this: https://${link}`); } }}>Copy</button></div>
-          <a className="btn btn-ghost" style={{ alignSelf: 'flex-start' }} href={`https://wa.me/?text=${encodeURIComponent(`I fixed my resume on Nm7 — try it: https://${link}`)}`} target="_blank" rel="noreferrer">Share on WhatsApp</a>
-          <span className="small"><strong>{me.referrals.length}</strong> friends joined · <strong>{me.referrals.filter((r) => r.status === 'bought').length}</strong> bought a plan</span>
-          {me.referrals.map((r) => <span key={r.name + r.at} className="xs muted" data-testid="ref-friend">{r.name} · {r.status === 'bought' ? 'bought a plan' : 'joined'} · {fmtDay(r.at)}{me.referralReward?.on ? ` · ${r.counts ? 'counts' : WHY[r.why] || 'doesn’t count yet'}` : ''}</span>)}
-        </section>
+            {me.referrals.length > 0 && <ul className="mlist acc-friends">{me.referrals.map((r) => <li key={r.name + r.at} className="xs muted" data-testid="ref-friend">{r.name} · {r.status === 'bought' ? 'bought a plan' : 'joined'} · {fmtDay(r.at)}{me.referralReward?.on ? ` · ${r.counts ? 'counts' : WHY[r.why] || 'doesn’t count yet'}` : ''}</li>)}</ul>}
+          </section>
+          <MyStories name={me.account.name} />
+        </div>
       </div>
     </>
   );
@@ -289,7 +309,7 @@ function ReferralProgress({ reward }) {
     <div className="stack g4" data-testid="ref-reward">
       <span className="small">Invite {reward.needed} friends: when they sign up, confirm their email and build a resume with their name, your downloads unlock free.</span>
       <span className="small"><strong>{reward.counted} of {reward.needed}</strong> friends done</span>
-      <div role="progressbar" aria-label="Friends who count" aria-valuemin={0} aria-valuemax={reward.needed} aria-valuenow={reward.counted} style={{ height: 6, background: 'var(--sunken)', borderRadius: 3 }}><div style={{ width: `${(100 * reward.counted) / reward.needed}%`, height: '100%', background: 'var(--success)', borderRadius: 3 }} /></div>
+      <Bar value={reward.counted} max={reward.needed} label="Friends who count" tone="ok" showValue={false} />
       <span className="xs faint">One reward per account. Sign-ups from your own phone or Wi-Fi, or with throwaway email addresses, don’t count.</span>
     </div>
   );

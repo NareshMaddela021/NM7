@@ -6,3 +6,4 @@ dist-preview
 e2e-live/.api.log
 test-results
 playwright-report
+shots

@@ -66,3 +66,35 @@
 .sx-chipic { display: inline-block; width: 1.2em; text-align: center; } /* the same width ticked or not: chips don't move (item 31) */
 .sx-chipbtn { font-weight: 600 !important; }
 .sx-ul { margin: 0; padding-left: 24px; display: flex; flex-direction: column; gap: 4px; font-size: 19px; }
+
+/* Round P: the Easy dashboard in the new design. Still extra large, simple and icon-led, with strong contrast: navy
+   text, white cards with a firm lavender-grey border, the purple gradient for the main button, EB Garamond headings,
+   icons in soft circles. Light only. */
+.sx { background-color: var(--bg); background-image: var(--glow-bg); background-repeat: no-repeat; background-size: 100% 700px; }
+.sx-top { background: rgba(255, 255, 255, .92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--border2); }
+.sx-logo { font-family: var(--font-display); font-weight: 600; font-size: 28px; color: var(--ink); }
+.sx-h1, .sx-h2 { font-family: var(--font-display); font-weight: 500; letter-spacing: -0.01em; color: var(--ink); }
+.sx-h1 { font-size: 36px; line-height: 1.12; }
+.sx-h2 { font-size: 30px; }
+.sx-label { color: var(--accent); letter-spacing: .1em; font-size: 15px; }
+.sx-chip, .sx-chipbtn { border-color: var(--border2); }
+.sx-seg { border-color: var(--ink); }
+.sx-seg button[aria-pressed="true"], .sx-chipbtn[aria-pressed="true"], .sx-switch[aria-checked="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+.sx-next { border: 2px solid var(--accent); border-radius: 24px; background: #fff; box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 12%, transparent), var(--shadow-sm); }
+.sx-big { border: 2px solid var(--border2); border-radius: 20px; background: #fff; box-shadow: 0 1px 2px rgba(27, 23, 48, .04), 0 8px 20px -14px rgba(52, 40, 120, .3); font-weight: 700; }
+.sx-big:hover { border-color: var(--accent); }
+.sx-big.sx-ink { background: var(--grad-btn); color: #fff; border-color: transparent; box-shadow: var(--shadow-btn); }
+.sx-ic { display: inline-grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: #efeaff; font-size: 26px; }
+.sx-ink .sx-ic { background: rgba(255, 255, 255, .2); }
+.sx-tile { border: 2px solid var(--border2); border-radius: 22px; background: #fff; box-shadow: var(--shadow-sm); min-height: 132px; font-weight: 700; }
+.sx-tile .sx-ic { width: 64px; height: 64px; font-size: 32px; background: #fff1e6; }
+.sx-input { border: 2px solid var(--border2); border-radius: 16px; }
+.sx-input:focus { border-color: var(--accent); }
+.sx-say { border: 2px solid var(--border2); border-radius: 18px; background: #fff; }
+.sx-check { border-radius: 16px; background: #fff; }
+.sx-check input { accent-color: var(--accent); }
+.sx-bar { border-color: var(--border); }
+.sx-bar span { background: var(--grad-btn); }
+.sx-lines { border-radius: 20px; background: #fff; }
+.sx-match { background: #efeaff; color: #3f36c9; }
+.sx-note, .sx-offline { border-radius: 16px; }

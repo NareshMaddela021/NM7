@@ -35,6 +35,43 @@ function RolesCard() {
 import PassOffer, { PassActive } from '../../components/PassOffer';
 import { useLang } from '../../lib/i18n';
 
+/** Skill checks taken (and the best score), from the person's own results; nothing until it has loaded. */
+function useSkillChecks() {
+  const [d, setD] = useState(null);
+  useEffect(() => {
+    http('/api/me/skill-checks').then((x) => {
+      const done = (x?.skills || []).map((k) => k.last).filter((l) => l?.done);
+      setD({ taken: done.length, best: done.length ? Math.max(...done.map((l) => l.score || 0)) : null });
+    }, () => setD({ failed: true }));
+  }, []);
+  return d;
+}
+
+/**
+ * Round P: the person's own numbers as glass widgets (applications, interviews, resume score, skill checks). Each
+ * number comes from their account; while one is loading its widget shows a skeleton, never a made-up value.
+ */
+function MyNumbers({ score, apps, interviews, tracked }) {
+  const sk = useSkillChecks();
+  const tiles = [
+    ['Applications', apps, `${tracked} tracked`, '/me/jobs', '▥'],
+    ['Interviews', interviews, interviews ? 'Prepare with practice questions' : 'None yet', '/me/practice', '❝'],
+    ['Resume ATS score', score, score >= 80 ? 'Good — recruiters’ systems read it well' : 'Below 80 — see the tips', '/me/ats', '◎'],
+    ['Skill checks', sk && !sk.failed ? sk.taken : null, sk?.failed ? 'Take a 10-minute check' : sk ? (sk.best != null ? `Best score ${sk.best}%` : 'Take a 10-minute check') : '', '/me/skill-checks', '✓'],
+  ];
+  return (
+    <div className="me-widgets" data-testid="me-widgets">
+      {tiles.map(([label, value, sub, to, ic]) => (
+        <Link key={label} to={to} className="glass me-widget" data-testid={`me-widget-${label.toLowerCase().replace(/[^a-z]+/g, '-')}`}>
+          <span className="me-widget-top"><span className="me-widget-ic" aria-hidden="true">{ic}</span><span className="me-widget-label">{label}</span></span>
+          {value == null ? <span className="skeleton" style={{ width: 64, height: 40 }} aria-label="Loading" /> : <strong className="me-widget-num">{value}</strong>}
+          <span className="me-widget-sub">{sub}</span>
+        </Link>
+      ))}
+    </div>
+  );
+}
+
 /** Three numbers measure three different things (fix round item 17): said once, in plain words, where they show. */
 export function ScoresExplained() {
   return (
@@ -70,7 +107,8 @@ export default function MeHome() {
 
   return (
     <>
-      <div className="stack g4"><span className="mono xs muted">MY DASHBOARD</span><h1 className="display" style={{ fontSize: 32 }}>Hi {first} 👋</h1></div>
+      <div className="stack g4"><span className="kicker">My dashboard</span><h1 className="display me-h1">Hi {first} 👋</h1></div>
+      <MyNumbers score={score} apps={apps.length} interviews={me.apps.filter((a) => a.status === 'interview').length} tracked={me.apps.length} />
       <PassActive />
       {typeof window !== 'undefined' && /[?&]pass=1/.test(window.location.search) && <PassOffer />}
 
@@ -115,10 +153,8 @@ export default function MeHome() {
       <ScoresExplained />
 
       <div className="kpis">
-        <Kpi label="Resume ATS score" value={score} sub={score >= 80 ? 'Good — recruiters’ systems read it well' : 'Below 80 — see the tips'} tone={score >= 80 ? 'var(--success)' : 'var(--warning)'} />
         <Kpi label="Active order" value={live[0] ? live[0].id : '—'} sub={live[0] ? `${live[0].label} · ${countdown(live[0].deadline).text}` : 'No order in progress'} />
         <Kpi label="My resumes" value={me.resumes.length} sub={`Editing “${r.name}”`} />
-        <Kpi label="Applications" value={apps.length} sub={`${me.apps.filter((a) => a.status === 'interview').length} interview · ${me.apps.length} tracked`} />
       </div>
 
       <div className="row g16" style={{ alignItems: 'stretch' }}>
