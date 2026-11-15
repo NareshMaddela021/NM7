@@ -151,14 +151,14 @@
 /* ---------- offers ---------- */
 .ho { gap: 14px; }
 .ho-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 12px; }
-.ho-offer { display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 18px; background: #fff; border: 1px solid var(--border); min-width: 0; }
+.ho-offer { display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 18px; background: #fff; border: 1px solid var(--border); min-width: min(100%, 300px); }
 .ho-accepted, .ho-joined { border-color: #bfe5cd; background: #f6fcf8; }
 .ho-declined, .ho-dropped { border-color: #f5c2c2; background: #fffafa; }
-.ho-top { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; }
-@media (max-width: 420px) { .ho-top { grid-template-columns: auto minmax(0, 1fr); } .ho-top > .mchip { grid-column: 1 / -1; justify-self: start; } }
+.ho-top { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: center; }
+.ho-top > .mchip { grid-column: 1 / -1; justify-self: start; } /* the status goes under the name, so the salary keeps one line */
 .ho-who { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .ho-who strong { font-size: 15.5px; overflow-wrap: anywhere; }
-.ho-sal { font-family: var(--font-display); font-size: 22px; color: var(--ink); line-height: 1.1; overflow-wrap: anywhere; }
+.ho-sal { font-family: var(--font-display); font-size: 22px; color: var(--ink); line-height: 1.15; }
 .ho-top .mchip { white-space: normal; }
 .ho-meta { font-size: 13px; color: var(--text2); overflow-wrap: anywhere; }
 .ho-actions { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 10px; border-top: 1px dashed var(--border); }
