@@ -12,7 +12,8 @@ from tests.test_companies_signup import no_network  # noqa: F401
 
 
 def mails_to(outbox, to):
-    return [m for m in outbox.sent if m.to == to and "Auto Apply" in m.subject]
+    # the daily summary only: on a real Monday the run also sends the weekly report ("Your Auto Apply week")
+    return [m for m in outbox.sent if m.to == to and m.subject.startswith("Auto Apply today")]
 
 
 async def test_daily_summary_once_and_only_with_news(client, outbox, db):
@@ -89,7 +90,8 @@ async def test_weekly_report_real_numbers_and_tips(client, outbox, db, monkeypat
     monkeypatch.setattr(summary, "now", lambda: monday)
     out = await summary.after_run(db, outbox, {"_id": uid}, "2026-11-09")
     assert out["weekly"] is True
-    m = next(x for x in outbox.sent if x.subject == "Your Auto Apply week")
+    # the last weekly email: on a real Monday the first run above already sent one, before the numbers below changed
+    m = [x for x in outbox.sent if x.subject == "Your Auto Apply week"][-1]
     assert "applied 3 · viewed 2 · shortlisted 1 · interviews 1" in m.text
     assert "Kafka was asked in 3 of the 3 jobs that matched you and isn't on your resume" in m.text
     assert (await summary.after_run(db, outbox, {"_id": uid}, "2026-11-09"))["weekly"] is False
