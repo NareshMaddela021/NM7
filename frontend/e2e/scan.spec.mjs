@@ -49,7 +49,7 @@ function docxOf(paragraphs) {
 }
 
 async function scan(page, file, role = 'Data Analyst') {
-  await page.goto('/');
+  await page.goto('/pricing');
   await page.locator('#role').fill(role);
   await page.locator('input[type=file]').first().setInputFiles(file);
 }
@@ -94,7 +94,7 @@ test('scans the uploaded PDFs — each shows its own resume and score; same file
 
 test('rejects a fake PDF and an image-only PDF with a friendly message', async ({ page, browser }) => {
   await scan(page, pdfFile('fake.pdf', Buffer.from('hello pdf!')));
-  await expect(page).toHaveURL(/\/#scan$/); // back at the scan box on the home page
+  await expect(page).toHaveURL(/\/pricing#scan$/); // back at the scan box (round P: on /pricing)
   await expect(page.getByRole('alert')).toHaveCount(1); // shown once, under the box that was used
   await expect(page.getByRole('alert')).toContainText('isn’t a real PDF');
 
@@ -111,7 +111,7 @@ test('reads a Word file', async ({ page }) => {
 
 test('/scan with nothing uploaded goes back to the upload box; only the sample shows Sai Varsha, labelled', async ({ page }) => {
   await page.goto('/scan');
-  await expect(page).toHaveURL(/\/#scan$/);
+  await expect(page).toHaveURL(/\/pricing#scan$/);
   await expect(page.locator('#role')).toBeVisible();
 
   await page.getByRole('button', { name: 'No resume handy? Try a sample' }).first().click();
@@ -122,7 +122,7 @@ test('/scan with nothing uploaded goes back to the upload box; only the sample s
 });
 
 test('role is capped at 60 characters and long text never widens the page', async ({ page, browser }) => {
-  await page.goto('/');
+  await page.goto('/pricing');
   await page.locator('#role').fill('x'.repeat(300));
   await expect(page.locator('#role')).toHaveValue('x'.repeat(60));
   await scan(page, pdfFile('Asha_Kumar_Resume.pdf', await pdfOf(browser, STRONG)), 'y'.repeat(60));
@@ -132,7 +132,7 @@ test('role is capped at 60 characters and long text never widens the page', asyn
 });
 
 test('copy says the file stays on the device', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/pricing');
   await expect(page.getByText('Read on your device — never uploaded').first()).toBeVisible();
   await expect(page.getByText(/Deleted automatically after/)).toHaveCount(0);
 });

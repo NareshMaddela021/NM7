@@ -131,7 +131,7 @@ test('thumbnails: one label, no page-break text; job links are web links only; f
 });
 
 test('home: improve demo only says IMPROVED when the score rises; samples have no placeholders or live links', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/old-home');
   const box = page.locator('textarea#try');
   await box.fill('Built 6 Power BI dashboards for a 12-person sales team, cutting reporting from 5 hours to 30 minutes');
   await page.getByRole('button', { name: 'Improve this line' }).click();

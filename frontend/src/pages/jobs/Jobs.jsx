@@ -4,6 +4,7 @@
 // Google JobPosting data while it is open; a closed job says so, drops the markup, isn't indexed, and shows similar
 // jobs. English, Telugu and Hindi (pages.json, jobs.*). Company logos aren't loaded (the page only loads images from
 // our own site); a letter stands in.
+import { PageArt } from '../../components/PageHero';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { liveParams } from '../../lib/liveParams';
@@ -165,6 +166,7 @@ export function JobsList() {
             <p className="lead" style={{ margin: 0 }}>{showSaved ? t('jobs.savedSub') : t('jobs.sub')}</p>
           </div>
           <LangSwitch t={t} lang={lang} />
+          <PageArt shape="briefcase" />
         </div>
 
         {!showSaved && (

@@ -272,7 +272,7 @@ test('new users are pointed at the Job Profile; scans and cover letters use it; 
   await expect(page.locator('#pf-personal-name')).toHaveValue('Neha Joshi');
 
   // a scan of their old resume can be saved into the profile
-  await page.goto('/');
+  await page.goto('/old-home');
   await page.locator('#role').fill('Data Analyst');
   await page.locator('input[type=file]').first().setInputFiles({ name: 'Neha_Joshi.docx', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', buffer: docxOf(['Neha Joshi', 'neha@example.com · +91 99887 66554', 'Skills', 'SQL, Excel, Power BI', 'Education', 'B.Sc Statistics · Loyola College · 2024']) });
   await page.getByRole('button', { name: 'Save this to my Job Profile' }).click();

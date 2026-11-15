@@ -3,6 +3,7 @@
 // "Talk to us" (a support ticket). A ?ref=CODE link from a partner is remembered (Phase 4C). Readable in English,
 // Telugu or Hindi (the language switch at the top; strings orgs.* in src/i18n/pages.json); messages from the server and
 // the students' stories stay as they are.
+import { PageArt } from '../../components/PageHero';
 import Stories from '../../components/Stories';
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -115,7 +116,8 @@ export default function ForOrgs() {
     <>
       <Header labels={headerLabels(t)} lang={lang} />
       <main id="main" className="container stack g24" style={{ maxWidth: 980, padding: '32px 16px 64px' }} lang="en" data-lang={lang}>
-        <section className="stack g12" lang={lang} aria-labelledby="orgs-h">
+        <section className="ph-row" lang={lang} aria-labelledby="orgs-h">
+          <div className="stack g12">
           <div className="row between g12" style={{ alignItems: 'center' }}>
             <span className="xs muted">{t('orgs.hero.eyebrow')}</span>
             <LangSwitch t={t} lang={lang} />
@@ -127,6 +129,8 @@ export default function ForOrgs() {
             <a className="btn btn-outline btn-lg" href="#talk">{t('orgs.talk.title')}</a>
           </div>
           {refCode && <span className="xs muted" role="status">{rich(refCode.discountPct ? t('orgs.refOff', { n: refCode.discountPct }) : t('orgs.ref'), { code })}</span>}
+          </div>
+          <PageArt shape="college" />
         </section>
         <section id="start" className="stack g12" lang={lang}><StartFree open={start} t={t} /></section>
         <DemoVideo t={t} lang={lang} />

@@ -55,7 +55,7 @@ test('guest: every download button opens "Create a free account" and no file is 
   expect(exports.length).toBe(3); // each one asked the server, which said "sign in" (401)
   expect(files).toHaveLength(0);
   // the free scan and the templates stay open to guests
-  await page.goto('/');
+  await page.goto('/old-home');
   await expect(page.getByText('Try it now · no sign-up')).toBeVisible();
 });
 

@@ -46,7 +46,7 @@ for (const [label, opts] of SIZES) {
 
       // public on the home page and /for-orgs
       const anon = await (await browser.newContext(opts)).newPage();
-      await anon.goto('/');
+      await anon.goto('/old-home');
       await expect(anon.getByTestId('story').filter({ hasText: tag })).toContainText('in one week.');
       await anon.goto('/for-orgs');
       await expect(anon.getByTestId('stories')).toBeVisible();
@@ -54,7 +54,7 @@ for (const [label, opts] of SIZES) {
       await page.reload();
       await page.getByTestId('my-story').filter({ hasText: tag }).getByTestId('story-withdraw').click();
       await expect(page.getByTestId('my-story')).toHaveCount(0);
-      await anon.goto('/');
+      await anon.goto('/old-home');
       await expect(anon.getByTestId('story').filter({ hasText: tag })).toHaveCount(0);
       await anon.context().close();
     });

@@ -18,6 +18,7 @@ document.querySelectorAll('link[data-async-css]').forEach((link) => {
 import { startMonitoring } from './lib/monitoring';
 import './styles/tokens.css';
 import './styles/base.css';
+import './styles/design.css';
 
 // Live: start waking the API now (the free server sleeps when idle), before any screen needs it (re-test N6).
 wakeApi();

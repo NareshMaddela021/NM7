@@ -142,7 +142,7 @@ test('Job Profile: import from photos only adds what is missing', async ({ page 
 });
 
 test('home: "Snap my papers" opens the photo flow; guests are asked to sign in', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/old-home');
   await page.getByRole('link', { name: 'Snap my papers' }).click();
   await expect(page).toHaveURL(/\/builder\?start=photos$/);
   await expect(page.getByRole('heading', { name: 'Snap photos of your papers' })).toBeVisible();

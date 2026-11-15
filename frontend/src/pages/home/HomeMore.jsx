@@ -215,7 +215,7 @@ function LineFixer({ t }) {
   );
 }
 
-function ScanBox({ scanError, t }) {
+export function ScanBox({ scanError, t }) {
   const nav = useNavigate();
   const { role, setRole, setUpload } = useFlow();
   const fileRef = useRef();
@@ -296,7 +296,7 @@ const FEATURES = [
   [10, false, false, true],
 ];
 const PLAN_NAMES = { diy: 'Fix it yourself', expert: 'Expert rewrite', launch: 'Career Launch' }; // product names: not translated
-function Pricing({ goPlan, t }) {
+export function Pricing({ goPlan, t }) {
   const pm = usePayMode();
   const [table, setTable] = useState(false);
   const plans = [
@@ -390,7 +390,7 @@ function DriveSteps({ t }) {
 }
 
 /* ---------- 10 · plans for organizations ---------- */
-function OrgPlans({ t }) {
+export function OrgPlans({ t }) {
   const st = useOrgPlans();
   return (
     <div className="stack g24">

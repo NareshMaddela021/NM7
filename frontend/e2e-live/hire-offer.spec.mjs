@@ -41,7 +41,7 @@ for (const [label, opts] of SIZES) {
 
       // the candidate: a resume and Ready to join
       await page.route(`${API}/**`, (x) => x.continue({ headers: { ...x.request().headers(), 'x-forwarded-for': `10.10.${label === 'phone' ? 2 : 1}.${Date.now() % 200}` } }));
-      await page.goto('/');
+      await page.goto('/old-home');
       const smail = email(`hire-asha-${label}`);
       expect((await call(page, '/api/auth/signup', json('POST', { role: 'customer', name: `${first} Rao`, email: smail, password: PASSWORD, passwordConfirm: PASSWORD, termsAccepted: true }))).status).toBe(201);
       expect((await call(page, '/api/auth/verify-email', json('POST', { email: smail, code: lastCode(smail) }))).status).toBe(200);

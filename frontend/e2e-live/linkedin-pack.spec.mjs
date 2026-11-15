@@ -79,7 +79,7 @@ for (const [label, opts] of SIZES) {
       await page.goto('/me/upgrade');
       await expect(page.getByTestId('up-li-pack')).toContainText('Coming soon');
       await expect(page.getByTestId('up-li-pack').getByRole('button')).toHaveCount(0);
-      await page.goto('/');
+      await page.goto('/old-home');
       await expect(page.getByTestId('home-linkedin-pack')).toContainText('LinkedIn pack · ₹149');
       expect(asked).toEqual([]);
     });

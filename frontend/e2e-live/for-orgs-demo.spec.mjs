@@ -47,7 +47,7 @@ for (const [label, opts] of SIZES) {
         expect(r.status(), f).toBeLessThan(300);
       }
 
-      await page.goto('/');
+      await page.goto('/old-home');
       await expect(page.locator('main')).toBeVisible();
       await expect(page.getByTestId('demo-video')).toHaveCount(0);
       await expect(page.locator('video')).toHaveCount(0);

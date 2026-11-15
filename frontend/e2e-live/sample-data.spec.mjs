@@ -33,7 +33,7 @@ for (const [label, size] of SIZES) {
     test('New blank saves no sample text anywhere, even with an old sample draft in this browser', async ({ page }) => {
       const mail = email('blank');
       seed('customer', mail, 'Anjali Kumar', PASSWORD);
-      await page.goto('/');
+      await page.goto('/old-home');
       await plantOldDraft(page);
       await login(page, mail);
       await page.waitForURL('**/me');
@@ -60,7 +60,7 @@ for (const [label, size] of SIZES) {
     });
 
     test('a guest starts with an empty builder and the sample is never saved as their draft', async ({ page }) => {
-      await page.goto('/');
+      await page.goto('/old-home');
       await plantOldDraft(page);
       await page.goto('/builder');
       await page.evaluate(() => window.history.replaceState({ usr: { open: 'build' }, key: 'x' }, ''));

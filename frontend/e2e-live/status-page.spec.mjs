@@ -21,7 +21,7 @@ for (const [label, opts] of SIZES) {
       expect(await noSideScroll(page)).toBe(true);
       expect((await request.get(`${API}/health`)).status()).toBe(200);
       expect((await request.head(`${API}/health`)).status()).toBe(200);
-      await page.goto('/');
+      await page.goto('/old-home');
       await expect(page.getByRole('navigation', { name: 'Site links' }).getByRole('link', { name: 'Status' })).toHaveAttribute('href', '/status');
     });
   });

@@ -18,14 +18,14 @@ for (const [label, opts] of SIZES) {
       test.setTimeout(90_000);
       page.on('dialog', () => { throw new Error('no browser dialogs'); });
       // 24: the jobs side of Nm7 on the home page
-      await page.goto('/');
+      await page.goto('/old-home'); // round P: the previous home page has this section
       const jobs = page.getByTestId('home-jobs');
       await expect(jobs.getByRole('heading', { name: 'Jobs on Nm7' })).toBeVisible();
       for (const [k, href] of [['board', '/jobs'], ['auto', '/me/auto-apply'], ['simple', '/me/simple'], ['companies', '/for-companies']]) await expect(jobs.getByTestId(`home-jobs-${k}`)).toHaveAttribute('href', href);
       expect(await noSideScroll(page)).toBe(true);
       // 26 + 30: /pricing lands on the pricing section, which says what is free
       await page.goto('/pricing');
-      await expect(page).toHaveURL(/\/#pricing$/);
+      await expect(page).toHaveURL(/\/pricing$/); // round P: its own page
       await expect(page.locator('#pricing')).toContainText('The job board, your match score on every job and Manual Apply are free too.');
       // 29: the sign-in subtitle mentions jobs
       await page.goto('/login');

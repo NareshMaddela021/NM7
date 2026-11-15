@@ -45,7 +45,7 @@ for (const [label, opts] of SIZES) {
       await admin.getByRole('button', { name: 'Save settings' }).click();
       await expect(admin.getByTestId('langs-on')).toBeChecked();
       await ctx.close();
-      await page.goto('/');
+      await page.goto('/old-home');
       await expect(page.locator('.hx-lang').first()).toBeVisible();
       await page.goto('/me/simple');
       await expect(page.getByRole('heading', { level: 1 })).toHaveText('నమస్తే Asha');

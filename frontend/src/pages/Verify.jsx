@@ -1,5 +1,6 @@
 // Phase 6 S8: /verify/<number>, the public check for an internship or live-project certificate. English, Telugu and
 // Hindi (verify.*).
+import { PageArt } from '../components/PageHero';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Header from '../components/Header';
@@ -16,7 +17,7 @@ export default function Verify() {
     <>
       <Header labels={headerLabels(t)} lang={lang} />
       <main id="main" className="container stack g16" style={{ maxWidth: 720, padding: '24px 16px 64px' }} data-testid="verify">
-        <h1 className="display" style={{ fontSize: 28 }}>{t('verify.title')}</h1>
+        <div className="ph-row"><div className="stack g12"><p className="kicker">Nm7 certificates</p><h1 className="display" style={{ fontSize: 28 }}>{t('verify.title')}</h1></div><PageArt shape="badge" /></div>
         {d === undefined && <p className="muted">{t('verify.loading')}</p>}
         {d === null && <p className="error" role="alert" data-testid="verify-none">{t('verify.none')}</p>}
         {d && (

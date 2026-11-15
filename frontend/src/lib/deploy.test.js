@@ -35,7 +35,9 @@ describe('vercel.json', () => {
 });
 
 describe('fix round item 26', () => {
-  it('/pricing goes to the pricing section of the home page', () => {
-    expect(vercel.redirects).toContainEqual({ source: '/pricing', destination: '/#pricing', permanent: false });
+  // round P: /pricing is its own page now (the new home page has no pricing section)
+  it('/pricing is its own pre-rendered page', () => {
+    expect(vercel.redirects.some((r) => r.source === '/pricing')).toBe(false);
+    expect(vercel.rewrites).toContainEqual({ source: '/pricing', destination: '/pricing/index.html' });
   });
 });

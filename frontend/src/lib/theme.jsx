@@ -2,12 +2,10 @@ import { createContext, useContext, useEffect, useState } from 'react';
 
 const ThemeCtx = createContext({ theme: 'light', toggle: () => {} });
 
+// The new design (round P) is light only for now: every page is light, whatever the phone's setting or an older
+// saved choice. The provider and hook stay, so a dark theme can come back later in one place.
 function initialTheme() {
-  try {
-    const saved = localStorage.getItem('asuraa-theme');
-    if (saved === 'light' || saved === 'dark') return saved;
-  } catch { /* storage unavailable */ }
-  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  return 'light';
 }
 
 export function ThemeProvider({ children }) {
@@ -16,7 +14,7 @@ export function ThemeProvider({ children }) {
     document.documentElement.dataset.theme = theme;
     try { localStorage.setItem('asuraa-theme', theme); } catch { /* ignore */ }
   }, [theme]);
-  const toggle = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'));
+  const toggle = () => setTheme('light');
   return <ThemeCtx.Provider value={{ theme, toggle }}>{children}</ThemeCtx.Provider>;
 }
 

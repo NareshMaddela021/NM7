@@ -25,7 +25,7 @@ test('a browser draft is imported once: not after a reload, a second tab, a sign
 
   // as a guest: a resume without a name (like the ones that were copied three times)
   const draft = { ...TEST_PERSON, personal: { ...TEST_PERSON.personal, name: '', email: '' } };
-  await page.goto('/');
+  await page.goto('/old-home');
   await putDraft(page, draft);
   await login(page, mail);
   await page.waitForURL('**/me');

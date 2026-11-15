@@ -3,7 +3,6 @@ import { Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } fr
 import Header from './components/Header';
 import { notePage, onCheck, onGate } from './lib/downloads';
 import { onPlaced } from './lib/waPay';
-import Home from './pages/Home';
 import { Spinner } from './components/ui';
 import { useAuth, previewSignIn, previewUsers, LIVE } from './lib/auth';
 import { RequireAuth } from './pages/auth/RequireAuth';
@@ -16,7 +15,7 @@ import { rememberCode } from './lib/codeLink';
 // a page file missing after a deploy (tab opened on the old build) reloads onto the new build
 const lazy = (load) => reactLazy(lazyRetry(load));
 
-// Every page except Home is its own chunk, loaded when first opened.
+// Every page is its own chunk, loaded when first opened (the home page too, round P: the 3D home is lazy).
 const named = (load, name) => lazy(() => load().then((m) => ({ default: m[name] })));
 const Scan = lazy(() => import('./pages/Scan'));
 const blog = () => import('./pages/blog/Blog');
@@ -160,7 +159,10 @@ const OrgInvite = named(portal, 'OrgInvite');
 const AcceptTransfer = lazy(() => import('./pages/org/Transfer'));
 const DemoLogin = lazy(() => import('./pages/org/DemoLogin'));
 const DemoStudentLogin = lazy(() => import('./pages/me/DemoStudentLogin'));
-const NewHome = lazy(() => import('./pages/newhome/NewHome')); // /new-home: the new 3D home page, on test until approved (README)
+const NewHome = lazy(() => import('./pages/newhome/NewHome')); // /: the 3D home page (round P)
+const OldHome = lazy(() => import('./pages/Home')); // /old-home: the previous home page, not indexed, kept to compare until removed
+const PricingPage = lazy(() => import('./pages/PricingPage')); // /pricing: prices, the free scan, organization plans
+const PageArt = named(() => import('./components/PageHero'), 'PageArt'); // the 404 page's dotted shape: kept out of the main bundle
 const SimpleApp = lazy(() => import('./pages/simple/SimpleApp')); // /me/simple: the Easy dashboard (Phase 4), its own small chunk
 const StopReminders = named(portal, 'StopReminders');
 const meSettings = () => import('./pages/me/MeSettings');
@@ -242,6 +244,12 @@ function ScrollToTop() {
   return null;
 }
 
+/** /new-home was the test address of the new home page: it now goes to /, keeping ?for= (round P). */
+function ToNewHome() {
+  const { search } = useLocation();
+  return <Navigate to={`/${search}`} replace />;
+}
+
 const SCREENS = [
   ['/', 'Home · free scan'], ['/scan', 'Scan report'], ['/checkout', 'Checkout'], 
   ['/login', 'Sign in'], ['/signup', 'Sign up'], ['/admin/login', 'Admin login (two-step)'], ['/orders/RS-1117/intake', 'Intake questions'], ['/orders/RS-1117/refund', 'Refund request'], ['/editor', 'Editor'],
@@ -286,10 +294,13 @@ function NotFound() {
   return (
     <>
       <Header />
-      <main id="main" className="container stack g16" style={{ padding: '96px 24px' }}>
-        <h1 className="display h2">This page doesn’t exist.</h1>
-        <p className="lead">The link may be old. Start with a free resume scan instead.</p>
-        <Link to="/" className="btn btn-ink btn-lg" style={{ alignSelf: 'flex-start' }}>Go to home</Link>
+      <main id="main" className="container stack g16" style={{ padding: '48px 24px 96px', maxWidth: 960 }}>
+        <div className="ph-row"><div className="stack g16">
+          <p className="kicker">Error 404</p>
+          <h1 className="display h2">This page doesn’t exist.</h1>
+          <p className="lead">The link may be old. Start from the home page, or look for a job.</p>
+          <div className="row g8"><Link to="/" className="btn btn-primary btn-lg">Go to home</Link><Link to="/jobs" className="btn btn-outline btn-lg">Find a job</Link></div>
+        </div><PageArt shape="magnifier" /></div>
       </main>
     </>
   );
@@ -360,8 +371,9 @@ export default function App() {
       <Pages>
       <Suspense fallback={<Fallback />}>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/new-home" element={<NewHome />} />
+        <Route path="/" element={<NewHome />} />
+        <Route path="/old-home" element={<OldHome />} />
+        <Route path="/new-home" element={<ToNewHome />} />
         <Route path="/scan" element={<Scan />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/stop-alerts" element={<StopAlerts />} />
@@ -482,7 +494,7 @@ export default function App() {
         <Route path="/org/transfer" element={C(<AcceptTransfer />)} />
         <Route path="/org/demo-login" element={<DemoLogin />} />
         <Route path="/demo-student" element={<DemoStudentLogin />} />
-        <Route path="/pricing" element={<Navigate to="/#pricing" replace />} /> {/* the menu uses /#pricing (fix round item 26) */}
+        <Route path="/pricing" element={<PricingPage />} />
         <Route path="/for-orgs" element={<ForOrgs />} />
         <Route path="/status" element={<StatusPage />} />
         <Route path="/accessibility" element={<AccessibilityPage />} />

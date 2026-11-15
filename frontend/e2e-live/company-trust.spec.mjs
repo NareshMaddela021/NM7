@@ -12,7 +12,7 @@ async function student(browser, opts, label, i) {
   const page = await ctx.newPage();
   const ip = `10.${label === 'phone' ? 4 : 3}.${i}.${Date.now() % 200}`; // each student from their own network
   await page.route(`${API}/**`, (r) => r.continue({ headers: { ...r.request().headers(), 'x-forwarded-for': ip } }));
-  await page.goto('/');
+  await page.goto('/old-home');
   const mail = email(`reporter${i}-${label}`);
   const body = { role: 'customer', name: `Student ${i}`, email: mail, password: PASSWORD, passwordConfirm: PASSWORD, termsAccepted: true };
   expect((await call(page, '/api/auth/signup', json('POST', body))).status).toBe(201);

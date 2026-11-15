@@ -131,8 +131,10 @@ export function startParticles(host, { count = 1100, shape = 'sphere', phone = f
   size();
 
   const onMove = (e) => {
-    pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
-    pointer.y = (e.clientY / window.innerHeight) * 2 - 1;
+    // relative to the canvas, so the dent lands under the cursor whether the canvas fills the window or a small box
+    const box = renderer.domElement.getBoundingClientRect();
+    pointer.x = ((e.clientX - box.left) / (box.width || 1)) * 2 - 1;
+    pointer.y = ((e.clientY - box.top) / (box.height || 1)) * 2 - 1;
     pointer.at = performance.now();
     pointer.strength = e.pointerType === 'touch' || phone ? 0.55 : 1; // lighter on phones
   };

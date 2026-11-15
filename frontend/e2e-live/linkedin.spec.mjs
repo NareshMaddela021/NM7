@@ -37,6 +37,7 @@ for (const [label, opts] of SIZES) {
       await page.goto('/templates');
       if (label === 'phone') await page.getByRole('button', { name: 'Menu' }).click();
       const nav = page.getByRole('navigation', { name: 'Main' });
+      await nav.getByRole('button', { name: 'For students' }).click(); // round P: the student tools sit under For students
       await expect(nav.getByRole('link', { name: 'Templates' })).toBeVisible();
       const names = await nav.getByRole('link').evaluateAll((els) => els.map((e) => e.textContent.trim()));
       expect(names.indexOf('LinkedIn')).toBe(names.indexOf('Templates') + 1);
