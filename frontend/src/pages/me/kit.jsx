@@ -81,12 +81,13 @@ export function Bar({ value, max = 100, label, tone = 'accent', showValue = true
 /** A row of steps with counts (an application pipeline). steps: [{ key, label, count, tone }]. */
 export function Pipeline({ steps, label = 'Status', active, onPick }) {
   return (
-    <ol className="mpipe" aria-label={label}>
+    <ol className="mpipe" aria-label={label} role={onPick ? 'radiogroup' : undefined}>
       {steps.map((s) => {
         const body = <><span className="mpipe-n">{s.count}</span><span className="mpipe-l">{s.label}</span></>;
         return (
           <li key={s.key} className={`mpipe-step mpipe-${s.tone || 'neutral'} ${active === s.key ? 'on' : ''}`}>
-            {onPick ? <button type="button" aria-pressed={active === s.key} onClick={() => onPick(active === s.key ? null : s.key)}>{body}</button> : <span>{body}</span>}
+            {/* a filter, so a radio (not a button): "Saved" must not answer to a search for a "Save" button */}
+            {onPick ? <button type="button" role="radio" aria-checked={active === s.key} onClick={() => onPick(active === s.key ? null : s.key)}>{body}</button> : <span>{body}</span>}
           </li>
         );
       })}
