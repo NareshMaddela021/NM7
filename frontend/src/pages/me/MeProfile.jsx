@@ -17,6 +17,10 @@ import LineEntries from '../builder/LineEntries';
 import { moveItem, removeItem, toggleItem } from '../builder/entries';
 import { HOBBY_IDEAS, STRENGTH_IDEAS } from '../builder/schema';
 import { MeHead } from './MeLayout';
+import { Chip, ScoreRing, Skel, StickyBar } from './kit';
+import '../../styles/me-resume.css';
+
+const ICONS = { basics: '◉', summary: '❝', exp: '▤', intern: '◇', proj: '▣', edu: '✎', certs: '✪', skills: '✓', ach: '★', langs: 'あ', extra: '⚑', hobbies: '☼', strengths: '♥', pinfo: '⚿', decl: '✍', privacy: '⛨' };
 
 const f = (key, label, type = 'text', extra = {}) => ({ key, label, type, ...extra });
 const BASICS = [
@@ -44,8 +48,11 @@ const touch = (x) => ({ ...x, pu: Date.now() });
 
 function Section({ id, title, sub, children, badge }) {
   return (
-    <section id={`pf-${id}`} className="card stack g12" style={{ padding: 20, scrollMarginTop: 90 }} aria-labelledby={`pf-${id}-h`}>
-      <div className="stack g4"><h2 id={`pf-${id}-h`} style={{ fontSize: 20 }}>{title}{badge && <span className="badge b-neutral" style={{ marginLeft: 8, fontSize: 11, verticalAlign: 'middle' }}>{badge}</span>}</h2>{sub && <span className="xs muted">{sub}</span>}</div>
+    <section id={`pf-${id}`} className="mcard pf-section" style={{ scrollMarginTop: 90 }} aria-labelledby={`pf-${id}-h`}>
+      <header className="mcard-h">
+        <span className="mcard-ic violet" aria-hidden="true">{ICONS[id] || '•'}</span>
+        <span className="mcard-ht"><h2 id={`pf-${id}-h`} className="mcard-title">{title}{badge && <Chip tone="neutral" style={{ marginLeft: 8, verticalAlign: 'middle' }}>{badge}</Chip>}</h2>{sub && <span className="mcard-sub">{sub}</span>}</span>
+      </header>
       {children}
     </section>
   );
@@ -58,11 +65,11 @@ function EntryList({ p, k }) {
   const setItem = (i, key, v) => setList((l) => l.map((x, j) => (j === i ? touch({ ...x, [key]: v }) : x)));
   return (
     <div className="stack g12">
-      {list.length === 0 && <span className="small muted">Nothing here yet.</span>}
+      {list.length === 0 && <span className="pf-none">Nothing here yet. Add your first {item.toLowerCase()} below.</span>}
       {list.map((obj, i) => {
         const label = `${item} ${i + 1}`;
         return (
-          <div key={obj.pid || i} className="well stack g12 entry-card" data-off={!!obj.off} style={{ padding: 16 }}>
+          <div key={obj.pid || i} className="pf-entry stack g12 entry-card" data-off={!!obj.off}>
             <EntryHeader list={`pf-${k}`} index={i} count={list.length} label={label} off={!!obj.off}
               onMove={(dir) => { setList((l) => moveItem(l, i, dir)); focusMoved(`pf-${k}`, i + dir, dir); }}
               onToggle={() => setList((l) => toggleItem(l, i).map((x, j) => (j === i ? touch(x) : x)))}
@@ -112,17 +119,16 @@ function Importer({ p }) {
     } catch (e) { toast(e?.message || 'We couldn’t read that file. Try another copy.'); } finally { setBusy(''); }
   };
   return (
-    <section className="card stack g12" style={{ padding: 20 }} aria-labelledby="pf-import-h">
-      <h2 id="pf-import-h" style={{ fontSize: 20 }}>Fill your profile faster</h2>
-      <span className="xs muted">We only add what your profile doesn’t have yet — nothing you typed is overwritten.</span>
-      <div className="row g8">
+    <section className="mcard mcard-accent" aria-labelledby="pf-import-h">
+      <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">⇪</span><span className="mcard-ht"><h2 id="pf-import-h" className="mcard-title">Fill your profile faster</h2><span className="mcard-sub">We only add what your profile doesn’t have yet — nothing you typed is overwritten.</span></span></header>
+      <div className="pf-import">
         {[['resume', 'Upload my old resume (PDF or Word)'], ['linkedin', 'Upload my LinkedIn PDF']].map(([mode, label]) => (
-          <label key={mode} className="btn btn-outline" style={{ cursor: 'pointer' }}>
+          <label key={mode} className="btn btn-outline pf-import-btn" style={{ cursor: 'pointer' }}>
             {busy === mode ? <Spinner /> : null}{label}
             <input ref={files[mode]} type="file" accept=".pdf,.docx,application/pdf" className="sr-only" aria-label={label} disabled={!!busy} onChange={(e) => { const fl = e.target.files?.[0]; e.target.value = ''; fromFile(fl, mode); }} />
           </label>
         ))}
-        <button type="button" className="btn btn-outline" onClick={() => setSnap(true)}>Import from photos</button>
+        <button type="button" className="btn btn-outline pf-import-btn" onClick={() => setSnap(true)}>Import from photos</button>
       </div>
       {snap && (
         <Dialog wide showTitle title="Import from photos" onClose={() => setSnap(false)}>
@@ -131,10 +137,10 @@ function Importer({ p }) {
         </Dialog>
       )}
       {me.resumes?.length > 0 && (
-        <form className="row g8" style={{ alignItems: 'flex-end' }} onSubmit={(e) => { e.preventDefault(); const r = me.resumes.find((x) => x.id === pick); if (r) merge(r.data, `“${r.name}”`); }}>
+        <form className="sh-slug" onSubmit={(e) => { e.preventDefault(); const r = me.resumes.find((x) => x.id === pick); if (r) merge(r.data, `“${r.name}”`); }}>
           <div className="field" style={{ flex: '1 1 220px' }}>
             <label htmlFor="pf-copy" className="label">Copy from one of my resumes</label>
-            <select id="pf-copy" className="input" style={{ height: 42 }} value={pick} onChange={(e) => setPick(e.target.value)}>
+            <select id="pf-copy" className="input" value={pick} onChange={(e) => setPick(e.target.value)}>
               <option value="">Choose a resume…</option>
               {me.resumes.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
             </select>
@@ -149,17 +155,17 @@ function Importer({ p }) {
 export default function MeProfile() {
   const pr = useJobProfile();
   const toast = useToast();
-  if (pr.loading || (!pr.data && pr.available && !pr.error)) return <><MeHead title="Job Profile" /><div className="row g12 muted" role="status"><Spinner /> Loading your Job Profile…</div></>;
+  if (pr.loading || (!pr.data && pr.available && !pr.error)) return <><MeHead title="Job Profile" /><Skel cards={2} lines={4} label="Loading your Job Profile…" /></>;
   if (!pr.available) {
     return (
       <>
         <MeHead title="Job Profile" />
-        <div className="card stack g8" role="status"><strong>Your Job Profile is being switched on.</strong><span className="small muted">Our server is being updated — please try again a little later. Your resumes and orders work as usual.</span>
+        <div className="mcard mcard-warn" role="status"><strong>Your Job Profile is being switched on.</strong><span className="small muted">Our server is being updated — please try again a little later. Your resumes and orders work as usual.</span>
           <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} onClick={reloadJobProfile}>Try again</button></div>
       </>
     );
   }
-  if (pr.error) return <><MeHead title="Job Profile" /><div className="card stack g8" role="alert"><strong>We couldn’t load your Job Profile.</strong><span className="small muted">{pr.error}</span><button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} onClick={reloadJobProfile}>Try again</button></div></>;
+  if (pr.error) return <><MeHead title="Job Profile" /><div className="mcard mcard-bad" role="alert"><strong>We couldn’t load your Job Profile.</strong><span className="small muted">{pr.error}</span><button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} onClick={reloadJobProfile}>Try again</button></div></>;
   const p = pr.data;
   const { pct, missing } = profileCompleteness(p);
   const fillResume = () => {
@@ -174,28 +180,39 @@ export default function MeProfile() {
   return (
     <>
       <MeHead title="Job Profile" sub="Your master career record. Start any resume from it, or fill a section of a resume with one click." right={<span className="xs muted" aria-live="polite">{pr.saving ? 'Saving…' : 'All changes saved'}</span>} />
-      <section className="card stack g8" aria-label="Profile completeness">
-        <div className="row between"><strong>Profile complete: {pct}%</strong><Link to="/builder" state={{ open: 'start' }} className="btn btn-ink" style={{ minHeight: 38 }}>Start a resume from it</Link></div>
-        <Meter value={pct} color={pct >= 80 ? 'var(--success)' : pct >= 40 ? 'var(--warning)' : 'var(--text3)'} label="Profile complete" />
-        {missing.length > 0 && <span className="small muted">Missing: {missing.join(' · ')}</span>}
-        <div className="row g8"><button type="button" className="btn btn-outline" onClick={fillResume}>Fill these into my resume</button><span className="xs faint">Copies your name, contact details and links into the resume you’re editing.</span></div>
+      <section className="mcard pf-hero" aria-label="Profile completeness">
+        <ScoreRing value={pct} label="Profile complete" sub="%" size={120} good={80} fair={40} />
+        <div className="mstack" style={{ gap: 8, flex: '1 1 260px' }}>
+          <strong className="pf-hero-title">Profile complete: {pct}%</strong>
+          <Meter value={pct} color={pct >= 80 ? 'var(--success)' : pct >= 40 ? 'var(--warning)' : 'var(--text3)'} label="Profile complete" />
+          {missing.length > 0 ? <span className="mrow pf-missing" style={{ gap: 6 }}><span className="mitem-meta">Missing:</span>{missing.map((x) => <Chip key={x} tone="warn">{x}</Chip>)}</span> : <Chip tone="ok">Everything is filled in</Chip>}
+          <span className="sr-only">{missing.length > 0 ? `Missing: ${missing.join(' · ')}` : ''}</span>
+          <div className="mrow" style={{ gap: 8 }}>
+            <Link to="/builder" state={{ open: 'start' }} className="btn btn-signal">Start a resume from it</Link>
+            <button type="button" className="btn btn-outline" onClick={fillResume}>Fill these into my resume</button>
+          </div>
+          <span className="xs faint">“Fill these into my resume” copies your name, contact details and links into the resume you’re editing.</span>
+        </div>
       </section>
-      <nav aria-label="Profile sections" className="row g8" style={{ flexWrap: 'wrap' }}>
-        {SECTIONS.map(([id, l]) => <a key={id} href={`#pf-${id}`} className="chip" style={{ minHeight: 32, fontSize: 13 }} onClick={(e) => { e.preventDefault(); document.getElementById(`pf-${id}`)?.scrollIntoView({ behavior: 'smooth' }); }}>{l}</a>)}
+      <div className="pf-layout">
+      <nav aria-label="Profile sections" className="pf-nav">
+        <span className="mkicker pf-nav-h">Sections</span>
+        {SECTIONS.map(([id, l]) => <a key={id} href={`#pf-${id}`} className="pf-nav-link" onClick={(e) => { e.preventDefault(); document.getElementById(`pf-${id}`)?.scrollIntoView({ behavior: 'smooth' }); }}><span aria-hidden="true">{ICONS[id]}</span>{l}</a>)}
       </nav>
+      <div className="mstack pf-main">
       <Importer p={p} />
 
       <Section id="basics" title="Basics"><ObjFields k="personal" fields={BASICS} p={p} /><ObjFields k="links" fields={LINKS} p={p} /></Section>
 
       <Section id="summary" title="Summary" sub="Keep 2–3 versions for different roles. The first one that’s on is used for new resumes.">
-        <div className="well stack g8" style={{ padding: 16 }} aria-label="About me">
+        <div className="pf-entry stack g8" aria-label="About me">
           <strong>About me</strong>
           <SummaryWriter resume={profileToResume(p)} note={p.about || ''} onNote={(v) => setJobProfile((x) => ({ ...x, about: v }))}
             value={(p.summaries.find((s) => !s.off) || p.summaries[0])?.text || ''}
             onUse={(t) => setJobProfile((x) => { const i = Math.max(0, x.summaries.findIndex((s) => !s.off)); return { ...x, summaries: x.summaries.map((s, j) => (j === i ? { ...s, text: t } : s)) }; })} />
         </div>
         {p.summaries.map((s, i) => (
-          <div key={s.id} className="well stack g8 entry-card" data-off={!!s.off} style={{ padding: 16 }}>
+          <div key={s.id} className="pf-entry stack g8 entry-card" data-off={!!s.off}>
             <EntryHeader list="pf-summary" index={i} count={p.summaries.length} label={`Summary ${i + 1}`} title={s.name || `Summary ${i + 1}`} off={!!s.off}
               onMove={(dir) => { setJobProfile((x) => ({ ...x, summaries: moveItem(x.summaries, i, dir) })); focusMoved('pf-summary', i + dir, dir); }}
               onToggle={() => setJobProfile((x) => ({ ...x, summaries: toggleItem(x.summaries, i) }))}
@@ -216,7 +233,7 @@ export default function MeProfile() {
       <Section id="certs" title="Certifications"><EntryList p={p} k="certs" /></Section>
       <Section id="skills" title="Skills" sub="Grouped like on your resume. Separate items with commas.">
         {p.skillGroups.map((g, gi) => (
-          <div key={g.pid || g.id} className="well stack g8 entry-card" data-off={!!g.off} style={{ padding: 12 }}>
+          <div key={g.pid || g.id} className="pf-entry stack g8 entry-card" data-off={!!g.off}>
             <EntryHeader list="pf-skills" index={gi} count={p.skillGroups.length} label={`Skills category ${gi + 1}`} title={g.label || `Category ${gi + 1}`} off={!!g.off}
               onMove={(dir) => { setJobProfile((x) => ({ ...x, skillGroups: moveItem(x.skillGroups, gi, dir) })); focusMoved('pf-skills', gi + dir, dir); }}
               onToggle={() => setJobProfile((x) => ({ ...x, skillGroups: toggleItem(x.skillGroups, gi) }))}
@@ -237,9 +254,15 @@ export default function MeProfile() {
       <Section id="pinfo" title="Personal information" badge="Private" sub="Only used on resumes where you switch on “Personal Information”. Never sent to experts unless you allow it below."><ObjFields k="pinfo" fields={PINFO_FIELDS} p={p} /></Section>
       <Section id="decl" title="Declaration"><ObjFields k="decl" fields={DECL_FIELDS} p={p} /></Section>
       <Section id="privacy" title="Privacy" sub="Experts only see what you allow here.">
-        <label className="row g8 small"><input type="checkbox" role="switch" checked={pr.privacy.experts} onChange={(e) => setPrivacy({ experts: e.target.checked, ...(e.target.checked ? {} : { personal: false }) })} />Let my expert see my Job Profile while they work on my order</label>
-        <label className="row g8 small" style={{ paddingLeft: 24, opacity: pr.privacy.experts ? 1 : 0.5 }}><input type="checkbox" role="switch" disabled={!pr.privacy.experts} checked={pr.privacy.personal} onChange={(e) => setPrivacy({ personal: e.target.checked })} />…including my personal information</label>
+        <label className="sh-check"><input type="checkbox" role="switch" checked={pr.privacy.experts} onChange={(e) => setPrivacy({ experts: e.target.checked, ...(e.target.checked ? {} : { personal: false }) })} />Let my expert see my Job Profile while they work on my order</label>
+        <label className="sh-check" style={{ paddingLeft: 28, opacity: pr.privacy.experts ? 1 : 0.5 }}><input type="checkbox" role="switch" disabled={!pr.privacy.experts} checked={pr.privacy.personal} onChange={(e) => setPrivacy({ personal: e.target.checked })} />…including my personal information</label>
       </Section>
+      </div>
+      </div>
+      <StickyBar label="Job Profile">
+        <span className="pf-saved" aria-hidden="true">{pr.saving ? 'Saving…' : '✓ Saved'}</span>
+        <Link to="/builder" state={{ open: 'start' }} className="btn btn-signal pf-sticky-only">Make a resume</Link>
+      </StickyBar>
     </>
   );
 }

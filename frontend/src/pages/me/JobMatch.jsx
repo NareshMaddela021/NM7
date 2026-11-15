@@ -12,6 +12,8 @@ import { inr, inrExact } from '../../lib/pricing';
 import CodeBox from '../../components/CodeBox';
 import { PACKS, STATUS_TEXT, VERDICT_TONE, buyPack, decide, getMatch, getTailor, jobAccess, listMatches, matchJob, patchMatch, readPdfText, readScreenshot, startTailor } from '../../lib/jobs';
 import { fmtDay } from './shared';
+import { Chip, Empty, ScoreRing, Skel, StickyBar } from './kit';
+import '../../styles/me-resume.css';
 import JobCover from './JobCover';
 import SkillGap from './SkillGap';
 import PassOffer from '../../components/PassOffer';
@@ -52,16 +54,17 @@ export function PackOffer({ kind, acc, onBought, why }) {
 
 function Breakdown({ m }) {
   return (
-    <ul className="stack g8" style={{ listStyle: 'none', margin: 0, padding: 0 }} aria-label="Score breakdown">
-      {m.breakdown.map((b) => (
-        <li key={b.key} className="stack g4" data-testid={`jm-part-${b.key}`}>
-          <span className="row between small"><strong>{b.label}</strong><span>{Math.round(b.points)} / {b.max}</span></span>
-          <span aria-hidden="true" style={{ height: 6, borderRadius: 3, background: 'var(--sunken)', overflow: 'hidden' }}>
-            <span style={{ display: 'block', height: '100%', width: `${(b.points / b.max) * 100}%`, background: b.points / b.max >= 0.7 ? 'var(--success)' : b.points / b.max >= 0.4 ? 'var(--warning)' : 'var(--danger)' }} />
-          </span>
-          <span className="xs muted">{b.note}</span>
-        </li>
-      ))}
+    <ul className="mlist jm-break" aria-label="Score breakdown">
+      {m.breakdown.map((b) => {
+        const r = b.points / b.max;
+        return (
+          <li key={b.key} className="mbar-wrap" data-testid={`jm-part-${b.key}`}>
+            <span className="mbar-row"><span className="mbar-label">{b.label}</span><span className="mbar-val">{Math.round(b.points)} / {b.max}</span></span>
+            <span className={`mbar mbar-${r >= 0.7 ? 'ok' : r >= 0.4 ? 'warn' : 'bad'}`} aria-hidden="true"><span style={{ width: `${r * 100}%` }} /></span>
+            <span className="mitem-meta">{b.note}</span>
+          </li>
+        );
+      })}
     </ul>
   );
 }
@@ -69,16 +72,16 @@ function Breakdown({ m }) {
 function Items({ m }) {
   const groups = [['found', 'Found in your resume', 'b-success'], ['weak', 'Weak: only listed, not shown in a bullet', 'b-warning'], ['missing', 'Missing', 'b-danger']];
   return (
-    <div className="stack g12">
+    <div className="mstack jm-items" style={{ gap: 12 }}>
       {groups.map(([st, title, cls]) => {
         const list = m.items.filter((i) => i.status === st);
         if (!list.length) return null;
         return (
-          <div key={st} className="stack g8" data-testid={`jm-${st}`}>
-            <strong className="small">{title} · {list.length}</strong>
-            <ul className="stack g8" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+          <div key={st} className={`jm-group jm-group-${st}`} data-testid={`jm-${st}`}>
+            <strong className="jm-group-h">{title} · {list.length}</strong>
+            <ul className="mlist" style={{ gap: 8 }}>
               {list.map((i) => (
-                <li key={i.name} className="stack g4">
+                <li key={i.name} className="jm-item">
                   <span className="row g8 small" style={{ alignItems: 'center' }}>
                     <span className={`badge ${cls}`}>{STATUS_TEXT[st]}</span>
                     <strong>{i.name}</strong>
@@ -105,7 +108,7 @@ function Tailor({ m, onScore }) {
   useEffect(() => { if (m.tailoredResumeId) run(() => getTailor(m.id)); }, [m.id]); // eslint-disable-line react-hooks/exhaustive-deps
   if (!t) {
     return (
-      <button type="button" className="btn btn-ink" data-testid="jm-tailor-start" disabled={busy} onClick={() => run(async () => { const r = await startTailor(m.id); reloadMe(); return r; })}>
+      <button type="button" className="btn btn-signal" style={{ alignSelf: 'flex-start' }} data-testid="jm-tailor-start" disabled={busy} onClick={() => run(async () => { const r = await startTailor(m.id); reloadMe(); return r; })}>
         {busy && <Spinner />}{busy ? 'Making your copy…' : 'Tailor this resume'}
       </button>
     );
@@ -113,8 +116,8 @@ function Tailor({ m, onScore }) {
   const pending = t.suggestions.filter((s) => s.status === 'pending').length;
   return (
     <section className="stack g12" aria-label="Tailored copy" data-testid="jm-tailor">
-      <div className="well stack g4">
-        <strong className="small">Copy: {t.copy?.name}</strong>
+      <div className="mcard mcard-accent mcard-tight">
+        <strong>Copy: {t.copy?.name}</strong>
         <span className="xs muted">Your original “{t.original.name}” never changes. Accepted suggestions go into this copy only.</span>
         <span className="small" data-testid="jm-tailor-score">Score: {t.scoreBefore} → <strong>{t.scoreNow}</strong>{pending > 0 ? ` (${t.scoreIfAll} if you accept all)` : ''}</span>
         {t.note && <span className="xs muted">{t.note}</span>}
@@ -122,16 +125,16 @@ function Tailor({ m, onScore }) {
       </div>
       {t.suggestions.length === 0 && <span className="small muted">No changes to suggest: your resume already uses the job’s words where it can.</span>}
       {t.suggestions.map((s) => (
-        <article key={s.id} className="card stack g8" style={{ padding: 14 }} data-testid="jm-sugg">
+        <article key={s.id} className="mcard mcard-tight mcard-flat jm-sugg" data-testid="jm-sugg">
           <span className="row between g8"><strong className="small">{s.label}</strong>{s.source === 'ai' && <span className="badge b-neutral">AI, checked</span>}</span>
-          <div className="stack g4 small">
-            <span className="muted" style={{ textDecoration: s.status === 'accepted' ? 'line-through' : undefined }}><span className="xs faint">Before: </span>{s.before || '(empty)'}</span>
-            <span><span className="xs faint">After: </span>{s.after}</span>
+          <div className="jm-diff small">
+            <span className="jm-before" style={{ textDecoration: s.status === 'accepted' ? 'line-through' : undefined }}><span className="xs faint">Before: </span>{s.before || '(empty)'}</span>
+            <span className="jm-after"><span className="xs faint">After: </span>{s.after}</span>
           </div>
           {s.status === 'pending' ? (
             <div className="row g8">
-              <button type="button" className="btn btn-ink" style={{ minHeight: 38 }} disabled={busy} onClick={() => run(() => decide(m.id, s.id, 'accept'))}>Accept</button>
-              <button type="button" className="btn btn-outline" style={{ minHeight: 38 }} disabled={busy} onClick={() => run(() => decide(m.id, s.id, 'skip'))}>Skip</button>
+              <button type="button" className="btn btn-signal" disabled={busy} onClick={() => run(() => decide(m.id, s.id, 'accept'))}>Accept</button>
+              <button type="button" className="btn btn-outline" disabled={busy} onClick={() => run(() => decide(m.id, s.id, 'skip'))}>Skip</button>
             </div>
           ) : <span className={`badge ${s.status === 'accepted' ? 'b-success' : 'b-neutral'}`} style={{ alignSelf: 'flex-start' }}>{s.status === 'accepted' ? 'Accepted' : 'Skipped'}</span>}
         </article>
@@ -152,9 +155,14 @@ function Result({ m, acc, onChange, onBought }) {
     toast('Saved to My applications');
   };
   return (
-    <section className="card stack g16" aria-label="Job match result" data-testid="jm-result">
-      <div className="row between g12" style={{ alignItems: 'flex-start', flexWrap: 'wrap' }}>
-        <div className="stack g4">
+    <section className="mcard jm-result" aria-label="Job match result" data-testid="jm-result">
+      <div className="jm-hero">
+        <div className="jm-ring">
+          <ScoreRing value={m.score} label="Job match score" size={132} />
+          <strong className="jm-ring-num" data-testid="jm-score">{m.score}</strong>
+        </div>
+        <div className="mstack" style={{ gap: 6, flex: '1 1 240px' }}>
+          <span className={`badge b-${VERDICT_TONE[m.verdict] || 'neutral'} jm-verdict`} data-testid="jm-verdict">{m.verdictText}</span>
           {edit ? (
             <form className="row g8" style={{ flexWrap: 'wrap' }} onSubmit={async (e) => { e.preventDefault(); try { onChange(await patchMatch(m.id, edit)); setEdit(null); } catch (x) { toast(x.message); } }}>
               <input className="input" aria-label="Job title" value={edit.title} onChange={(e) => setEdit({ ...edit, title: e.target.value })} style={{ height: 38 }} />
@@ -163,28 +171,29 @@ function Result({ m, acc, onChange, onBought }) {
             </form>
           ) : (
             <span className="row g8" style={{ alignItems: 'baseline', flexWrap: 'wrap' }}>
-              <strong data-testid="jm-title">{m.title || 'Job'}{m.company ? ` · ${m.company}` : ''}</strong>
+              <strong className="jm-title" data-testid="jm-title">{m.title || 'Job'}{m.company ? ` · ${m.company}` : ''}</strong>
               <button type="button" className="link-btn xs" onClick={() => setEdit({ title: m.title, company: m.company })}>Fix title / company</button>
             </span>
           )}
-          <span className="xs muted">{[m.location, m.parsed.fresher ? 'Freshers can apply' : m.parsed.expMin != null ? `${m.parsed.expMin}${m.parsed.expMax ? `–${m.parsed.expMax}` : '+'} years` : '', m.parsed.education[0]].filter(Boolean).join(' · ')}{` · checked with ${m.resumeName}`}</span>
-        </div>
-        <div className="stack g4" style={{ alignItems: 'flex-end' }}>
-          <span className="row g8" style={{ alignItems: 'baseline' }}><strong className="display" data-testid="jm-score" style={{ fontSize: 44 }}>{m.score}</strong><span className="muted">/ 100</span></span>
-          <span className={`badge b-${VERDICT_TONE[m.verdict] || 'neutral'}`} data-testid="jm-verdict">{m.verdictText}</span>
+          <span className="mitem-meta">{[m.location, m.parsed.fresher ? 'Freshers can apply' : m.parsed.expMin != null ? `${m.parsed.expMin}${m.parsed.expMax ? `–${m.parsed.expMax}` : '+'} years` : '', m.parsed.education[0]].filter(Boolean).join(' · ')}{` · checked with ${m.resumeName}`}</span>
         </div>
       </div>
       {m.note && <span className="xs muted" role="note">{m.note}</span>}
-      {m.fixes?.length > 0 && <div className="stack g4"><strong className="small">Fixes that use what you already have</strong><ul className="small" style={{ margin: 0, paddingLeft: 18 }}>{m.fixes.map((f) => <li key={f}>{f}</li>)}</ul></div>}
-      <div className="row g16" style={{ alignItems: 'flex-start' }}>
-        <div style={{ flex: '1 1 280px' }}><Items m={m} /></div>
-        <div style={{ flex: '1 1 260px' }}><Breakdown m={m} /></div>
+      {m.fixes?.length > 0 && (
+        <div className="mcard mcard-warn mcard-tight">
+          <strong>Fixes that use what you already have</strong>
+          <ul className="mlist jm-fixes">{m.fixes.map((f) => <li key={f}><Chip tone="warn">Fix</Chip><span>{f}</span></li>)}</ul>
+        </div>
+      )}
+      <div className="jm-cols">
+        <div className="jm-col"><h3 className="jm-col-h">What the job asks for</h3><Items m={m} /></div>
+        <div className="jm-col"><h3 className="jm-col-h">How the score adds up</h3><Breakdown m={m} /></div>
       </div>
       <SkillGap m={m} />
       <div className="stack g8">
         {acc.tailor ? <Tailor m={m} onScore={setTailored} /> : <PackOffer kind="tailor" acc={acc} onBought={onBought} why="Want a copy of your resume tailored to this job?" />}
         <JobCover m={m} acc={acc} onUsed={onBought} offer={<PackOffer kind="tailor" acc={acc} onBought={onBought} why="Come back tomorrow for another free letter, or" />} />
-        <div className="row g8" style={{ flexWrap: 'wrap' }}>
+        <div className="mrow jm-next">
           <button type="button" className="btn btn-outline" data-testid="jm-save-app" disabled={!!saved} onClick={saveApp}>{saved ? 'Saved to My applications' : 'Save to My applications'}</button>
           <ShareWhatsApp job={{ role: m.title, company: m.company }} testid="jm-share-wa" />
           <button type="button" className="btn btn-outline" data-testid="jm-interview" onClick={() => nav(`/me/interview/${m.id}`)}>Interview prep{m.interview ? ` · ${m.interview.practised} of ${m.interview.total} practised` : ''}</button>
@@ -235,13 +244,14 @@ export default function JobMatch() {
     setBusy(kind); setErr('');
     try { setText(kind === 'pdf' ? await readPdfText(file) : await readScreenshot(file)); toast('Job post added - check it, then match'); } catch (e) { setErr(e.message); } finally { setBusy(''); }
   };
-  if (!acc) return <div className="card"><Spinner /></div>;
+  if (!acc) return <Skel cards={1} lines={4} label="Loading job match" />;
   const left = acc.free.matchesLeft;
   return (
     <>
-      <section className="card stack g12" aria-label="Match a job" data-testid="jm-form">
+      <section className="mcard jm-form" aria-label="Match a job" data-testid="jm-form">
+        <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true">⇄</span><span className="mcard-ht"><h2 className="mcard-title">Match a job</h2><span className="mcard-sub">Paste a job post. We score your resume for it and show what to fix.</span></span></header>
         <div className="field"><label htmlFor="jm-r" className="label">Resume</label>
-          <select id="jm-r" className="input" style={{ height: 42 }} value={rid} onChange={(e) => setRid(e.target.value)}>{me.resumes.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}</select></div>
+          <select id="jm-r" className="input" value={rid} onChange={(e) => setRid(e.target.value)}>{me.resumes.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}</select></div>
         <div className="field">
           <label htmlFor="jm-text" className="label">Job post</label>
           <textarea id="jm-text" className="input" rows={8} value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste the whole job post: the title, the duties and the skills they ask for." />
@@ -254,26 +264,29 @@ export default function JobMatch() {
           <input ref={pdf} type="file" accept="application/pdf,.pdf" hidden aria-label="Job post PDF" onChange={(e) => { readFile(e.target.files?.[0], 'pdf'); e.target.value = ''; }} />
         </div>
         {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
-        <div className="row between g8" style={{ alignItems: 'center', flexWrap: 'wrap' }}>
-          <button type="button" className="btn btn-ink" data-testid="jm-go" disabled={!!busy || !text.trim() || left === 0} onClick={run}>{busy === 'match' && <Spinner />}{busy === 'match' ? 'Reading the post…' : 'Match my resume'}</button>
-          <span className="xs muted" data-testid="jm-left">{acc.tailor ? 'Unlimited matches with your Tailor pack' : left === 0 ? 'You’ve used today’s free matches' : `${left} of ${acc.free.matchesPerDay} free matches left today`}</span>
-        </div>
+        <StickyBar label="Match">
+          <button type="button" className="btn btn-signal" data-testid="jm-go" disabled={!!busy || !text.trim() || left === 0} onClick={run}>{busy === 'match' && <Spinner />}{busy === 'match' ? 'Reading the post…' : 'Match my resume'}</button>
+          <span className="mitem-meta" data-testid="jm-left">{acc.tailor ? 'Unlimited matches with your Tailor pack' : left === 0 ? 'You’ve used today’s free matches' : `${left} of ${acc.free.matchesPerDay} free matches left today`}</span>
+        </StickyBar>
         {!acc.tailor && left === 0 && <PackOffer kind="tailor" acc={acc} onBought={refresh} why="Come back tomorrow for more free matches, or" />}
       </section>
       {m && <Result key={m.id} m={m} acc={acc} onChange={setM} onBought={refresh} />}
-      {hist.length > 0 && (
-        <section className="card stack g8" aria-label="Your job matches" data-testid="jm-history">
-          <strong className="small">Your job matches</strong>
-          <ul className="stack g4" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+      {hist.length > 0 ? (
+        <section className="mcard" aria-label="Your job matches" data-testid="jm-history">
+          <h2 className="mcard-title">Your job matches</h2>
+          <ul className="mlist">
             {hist.map((h) => (
-              <li key={h.id} className="row between g8 small" style={{ flexWrap: 'wrap' }}>
-                <button type="button" className="link-btn small" style={{ textAlign: 'left' }} onClick={async () => { try { setM(await getMatch(h.id)); } catch (e) { toast(e.message); } }}>{h.title || 'Job'}{h.company ? ` · ${h.company}` : ''}</button>
-                <span className="xs muted">{h.score}/100 · {fmtDay(h.createdAt)}{h.tailoredResumeId ? ' · tailored' : ''}</span>
+              <li key={h.id} className="mitem">
+                <span className={`jm-mini jm-mini-${h.score >= 80 ? 'ok' : h.score >= 60 ? 'warn' : 'bad'}`} aria-hidden="true">{h.score}</span>
+                <span className="mitem-main">
+                  <button type="button" className="link-btn jm-hist-open" onClick={async () => { try { setM(await getMatch(h.id)); } catch (e) { toast(e.message); } }}>{h.title || 'Job'}{h.company ? ` · ${h.company}` : ''}</button>
+                  <span className="mitem-meta">{h.score}/100 · {fmtDay(h.createdAt)}{h.tailoredResumeId ? ' · tailored' : ''}</span>
+                </span>
               </li>
             ))}
           </ul>
         </section>
-      )}
+      ) : !m && <Empty compact shape="resume" title="No job matches yet">Paste a job post above to see your first match.</Empty>}
     </>
   );
 }

@@ -54,24 +54,24 @@ export default function JobCover({ m, acc, onUsed, offer }) {
   };
   const terms = cur ? [...(cur.used || []), ...(cur.used || []).map((u) => u.slice(0, 40)), ...(cur.skills || [])] : [];
   return (
-    <section className="stack g12" aria-label="Cover letter" data-testid="jc">
-      <strong>Write cover letter</strong>
-      <div className="row g12" style={{ flexWrap: 'wrap' }}>
-        <div className="field" style={{ flex: '1 1 200px' }}><label htmlFor="jc-len" className="label">Length</label>
-          <select id="jc-len" className="input" style={{ height: 42 }} value={form.length} onChange={(e) => setForm({ ...form, length: e.target.value })}>{LENGTHS.map(([v, t]) => <option key={v} value={v}>{t}</option>)}</select></div>
-        <div className="field" style={{ flex: '1 1 200px' }}><label htmlFor="jc-tone" className="label">Tone</label>
-          <select id="jc-tone" className="input" style={{ height: 42 }} value={form.tone} onChange={(e) => setForm({ ...form, tone: e.target.value })}>{TONES.map(([v, t]) => <option key={v} value={v}>{t}</option>)}</select></div>
-        <div className="field" style={{ flex: '1 1 200px' }}><label htmlFor="jc-mgr" className="label">Hiring manager’s name (if you know it)</label>
+    <section className="mcard mcard-flat jc" aria-label="Cover letter" data-testid="jc">
+      <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">✉</span><span className="mcard-ht"><h3 className="mcard-title">Write cover letter</h3><span className="mcard-sub">Built only from your resume, for this job.</span></span></header>
+      <div className="mfields-body">
+        <div className="field"><label htmlFor="jc-len" className="label">Length</label>
+          <select id="jc-len" className="input" value={form.length} onChange={(e) => setForm({ ...form, length: e.target.value })}>{LENGTHS.map(([v, t]) => <option key={v} value={v}>{t}</option>)}</select></div>
+        <div className="field"><label htmlFor="jc-tone" className="label">Tone</label>
+          <select id="jc-tone" className="input" value={form.tone} onChange={(e) => setForm({ ...form, tone: e.target.value })}>{TONES.map(([v, t]) => <option key={v} value={v}>{t}</option>)}</select></div>
+        <div className="field"><label htmlFor="jc-mgr" className="label">Hiring manager’s name (if you know it)</label>
           <input id="jc-mgr" className="input" maxLength={80} value={form.manager} onChange={(e) => setForm({ ...form, manager: e.target.value })} placeholder="Leave empty if you don’t know" /></div>
       </div>
       {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
-      <div className="row between g8" style={{ alignItems: 'center', flexWrap: 'wrap' }}>
-        <button type="button" className="btn btn-ink" data-testid="jc-go" disabled={busy || locked} onClick={write}>{busy && <Spinner />}{busy ? 'Writing your letter…' : 'Write cover letter'}</button>
-        <span className="xs muted" data-testid="jc-left">{acc.tailor ? 'Unlimited letters with your Tailor pack' : left === 0 ? 'You’ve used today’s free cover letter' : `${left} free cover letter left today`}</span>
+      <div className="mrow">
+        <button type="button" className="btn btn-signal" data-testid="jc-go" disabled={busy || locked} onClick={write}>{busy && <Spinner />}{busy ? 'Writing your letter…' : 'Write cover letter'}</button>
+        <span className="mitem-meta" data-testid="jc-left">{acc.tailor ? 'Unlimited letters with your Tailor pack' : left === 0 ? 'You’ve used today’s free cover letter' : `${left} free cover letter left today`}</span>
       </div>
       {locked && offer}
       {cur && (
-        <article className="card stack g12" style={{ padding: 16 }} data-testid="jc-letter">
+        <article className="jc-letter" data-testid="jc-letter">
           <span className="row between g8" style={{ flexWrap: 'wrap' }}>
             <span className="xs muted">{cur.words} words · {LENGTHS.find(([v]) => v === cur.length)?.[1].split(' (')[0]} · {TONES.find(([v]) => v === cur.tone)?.[1]}</span>
             {cur.source === 'ai' ? <span className="badge b-neutral">AI, checked against your resume</span> : <span className="badge b-neutral">Written from your resume</span>}
@@ -79,30 +79,30 @@ export default function JobCover({ m, acc, onUsed, offer }) {
           {cur.words < MIN_WORDS[cur.length] && <span className="xs muted" data-testid="jc-short">Shorter than the {MIN_WORDS[cur.length]}+ words this length aims for: we only use what’s on your resume. Add one more real example in your own words if you like.</span>}
           {cur.reminder && <p className="small" role="note" data-testid="jc-reminder" style={{ margin: 0, color: 'var(--warning-ink, var(--warning))' }}>{cur.reminder}</p>}
           {cur.note && <span className="xs muted">{cur.note}</span>}
-          <div className="small stack g8" data-testid="jc-body" style={{ lineHeight: 1.6 }}>
+          <div className="jc-paper" data-testid="jc-body">
             <p style={{ margin: 0 }} className="faint">Subject: {cur.subject}</p>
             <p style={{ margin: 0 }}>{cur.greeting}</p>
             {cur.paragraphs.map((p) => <p key={p} style={{ margin: 0 }}><Marked text={p} terms={terms} /></p>)}
             <p style={{ margin: 0, whiteSpace: 'pre-line' }}>{cur.close}{'\n'}{resume?.data?.personal?.name || ''}</p>
           </div>
           <span className="xs muted"><mark className="fact">Marked</mark> words come from your resume. Check every line before you send it.</span>
-          <div className="row g8" style={{ flexWrap: 'wrap' }}>
+          <div className="mrow" style={{ gap: 8 }}>
             <button type="button" className="btn btn-outline" onClick={() => download('pdf')}>PDF</button>
             <button type="button" className="btn btn-outline" onClick={() => download('docx')}>Word</button>
             <button type="button" className="btn btn-outline" data-testid="jc-copy-email" onClick={() => copy(`Subject: ${cur.subject}\n\n${cur.email}`, toast, 'Email')}>Copy as email</button>
             <button type="button" className="btn btn-outline" onClick={saveToCovers}>Save to Cover letters</button>
           </div>
-          <div className="well stack g8" data-testid="jc-cold">
+          <div className="mcard mcard-accent mcard-tight" data-testid="jc-cold">
             <strong className="small">Cold email / LinkedIn message · {cur.cold.length} / 300 characters</strong>
             <span className="small">{cur.cold}</span>
-            <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start', minHeight: 38 }} onClick={() => copy(cur.cold, toast, 'Message')}>Copy message</button>
+            <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} onClick={() => copy(cur.cold, toast, 'Message')}>Copy message</button>
           </div>
         </article>
       )}
       {letters.length > 0 && (
-        <ul className="stack g4" style={{ listStyle: 'none', margin: 0, padding: 0 }} aria-label="Letters for this job" data-testid="jc-saved">
+        <ul className="mlist" style={{ gap: 8 }} aria-label="Letters for this job" data-testid="jc-saved">
           {letters.map((c) => (
-            <li key={c.id} className="row between g8 small" style={{ flexWrap: 'wrap' }}>
+            <li key={c.id} className={`mitem jc-saved-item ${cur?.id === c.id ? 'on' : ''}`}>
               <button type="button" className="link-btn small" onClick={() => setCur(c)} aria-current={cur?.id === c.id || undefined}>{TONES.find(([v]) => v === c.tone)?.[1]} · {c.words} words</button>
               <button type="button" className="link-btn xs" style={{ color: 'var(--danger)' }} onClick={() => remove(c)}>Delete</button>
             </li>

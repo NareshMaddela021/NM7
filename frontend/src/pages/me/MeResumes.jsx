@@ -9,6 +9,8 @@ import VersionCompare from './VersionCompare';
 import { MeHead } from './MeLayout';
 import ShareWhatsApp from '../../components/ShareWhatsApp';
 import { ResumeThumb, downloadResume, templateName, ago, fmtWhen } from './shared';
+import { Chip } from './kit';
+import '../../styles/me-resume.css';
 
 function Versions({ r, onClose }) {
   const toast = useToast();
@@ -50,38 +52,49 @@ export default function MeResumes() {
     <>
       <MeHead title="My resumes" sub="Keep a resume per job type. The builder edits the one marked “Editing now”."
         right={<><ShareWhatsApp testid="resumes-share-wa" /><button type="button" className="btn btn-outline" onClick={() => { const id = addResume('New resume', blank()); edit(id); }}>New blank</button></>} />
-      <div className="row g16" style={{ alignItems: 'stretch' }}>
+      <ul className="rz-grid" aria-label="My resumes">
         {me.resumes.map((r) => {
           const s = atsScore(r.data).score;
           return (
-            <article key={r.id} className="card row g16" style={{ flex: '1 1 420px', alignItems: 'flex-start' }} aria-label={r.name}>
-              <ResumeThumb data={r.data} width={120} label={`Preview of ${r.name} resume`} />
-              <div className="stack g8" style={{ flex: 1, minWidth: 180 }}>
-                {renaming === r.id ? (
-                  <form className="row g4" onSubmit={(e) => { e.preventDefault(); updateResume(r.id, { name: name.trim() || r.name }); setRenaming(null); }}>
-                    <label htmlFor={`rn-${r.id}`} className="sr-only">Resume name</label>
-                    <input id={`rn-${r.id}`} className="input" style={{ height: 38 }} value={name} autoFocus maxLength={40} onChange={(e) => setName(e.target.value)} />
-                    <button type="submit" className="btn btn-ink" style={{ minHeight: 38 }}>Save</button>
-                  </form>
-                ) : <strong style={{ fontSize: 17 }}>{r.name}</strong>}
-                <span className="row g8">{r.active && <span className="badge b-signal">Editing now</span>}<span className={`badge ${s >= 80 ? 'b-success' : 'b-warning'}`}>ATS {s}</span></span>
-                <span className="xs muted">{templateName(r.data)} · edited {ago(r.updated)} · {r.versions.length + expertDrafts(r.id).length} versions</span>
-                <div className="row g8">
-                  <button type="button" className="btn btn-ink" style={{ minHeight: 36 }} onClick={() => edit(r.id)}>Edit</button>
-                  <button type="button" className="btn btn-outline" style={{ minHeight: 36 }} onClick={async () => { if (await downloadResume(r.data, 'pdf', undefined, undefined, r.id)) toast('PDF ready'); }}>PDF</button>
-                  <button type="button" className="btn btn-outline" style={{ minHeight: 36 }} onClick={async () => { if (await downloadResume(r.data, 'docx', undefined, undefined, r.id)) toast('Word file ready'); }}>Word</button>
+            <li key={r.id} className="rz-li">
+              <article className={`mcard rz-card ${r.active ? 'rz-active' : ''}`} aria-label={r.name}>
+                <button type="button" className="rz-thumb" onClick={() => edit(r.id)} aria-label={`Open ${r.name} in the builder`}>
+                  <ResumeThumb data={r.data} width={210} label={`Preview of ${r.name} resume`} />
+                </button>
+                <div className="rz-body">
+                  <span className="mrow" style={{ gap: 6 }}>{r.active && <Chip tone="accent">Editing now</Chip>}<Chip tone={s >= 80 ? 'ok' : 'warn'}>ATS {s}</Chip></span>
+                  {renaming === r.id ? (
+                    <form className="mrow" style={{ gap: 6 }} onSubmit={(e) => { e.preventDefault(); updateResume(r.id, { name: name.trim() || r.name }); setRenaming(null); }}>
+                      <label htmlFor={`rn-${r.id}`} className="sr-only">Resume name</label>
+                      <input id={`rn-${r.id}`} className="input" style={{ flex: '1 1 140px', minWidth: 0 }} value={name} autoFocus maxLength={40} onChange={(e) => setName(e.target.value)} />
+                      <button type="submit" className="btn btn-ink">Save</button>
+                    </form>
+                  ) : <h2 className="rz-name">{r.name}</h2>}
+                  <span className="mitem-meta">{templateName(r.data)} · edited {ago(r.updated)} · {r.versions.length + expertDrafts(r.id).length} versions</span>
+                  <div className="rz-actions">
+                    <button type="button" className="btn btn-signal" onClick={() => edit(r.id)}>Edit</button>
+                    <button type="button" className="btn btn-outline" onClick={async () => { if (await downloadResume(r.data, 'pdf', undefined, undefined, r.id)) toast('PDF ready'); }}>PDF</button>
+                    <button type="button" className="btn btn-outline" onClick={async () => { if (await downloadResume(r.data, 'docx', undefined, undefined, r.id)) toast('Word file ready'); }}>Word</button>
+                  </div>
+                  <div className="rz-more" role="group" aria-label={`More for ${r.name}`}>
+                    <button type="button" className="link-btn" onClick={() => setVersions(r)}>Versions</button>
+                    <button type="button" className="link-btn" onClick={() => { addResume(`${r.name} (copy)`, r.data); toast('Copied'); }}>Duplicate</button>
+                    <button type="button" className="link-btn" onClick={() => { setRenaming(r.id); setName(r.name); }}>Rename</button>
+                    {me.resumes.length > 1 && <button type="button" className="link-btn" style={{ color: 'var(--danger)' }} onClick={() => setConfirmDel(r)}>Delete</button>}
+                  </div>
                 </div>
-                <div className="row g12 small">
-                  <button type="button" className="link-btn small" onClick={() => setVersions(r)}>Versions</button>
-                  <button type="button" className="link-btn small" onClick={() => { addResume(`${r.name} (copy)`, r.data); toast('Copied'); }}>Duplicate</button>
-                  <button type="button" className="link-btn small" onClick={() => { setRenaming(r.id); setName(r.name); }}>Rename</button>
-                  {me.resumes.length > 1 && <button type="button" className="link-btn small" style={{ color: 'var(--danger)' }} onClick={() => setConfirmDel(r)}>Delete</button>}
-                </div>
-              </div>
-            </article>
+              </article>
+            </li>
           );
         })}
-      </div>
+        <li className="rz-li">
+          <button type="button" className="rz-new" onClick={() => { const id = addResume('New resume', blank()); edit(id); }}>
+            <span className="rz-plus" aria-hidden="true">+</span>
+            <strong>Start a new resume</strong>
+            <span className="mitem-meta">Keep one for each kind of job you apply for.</span>
+          </button>
+        </li>
+      </ul>
       {versions && <Versions r={me.resumes.find((x) => x.id === versions.id)} onClose={() => setVersions(null)} />}
       {confirmDel && (
         <Dialog showTitle title={`Delete “${confirmDel.name}”?`} onClose={() => setConfirmDel(null)}>
