@@ -46,7 +46,7 @@ for (const [size, opts] of SIZES) {
         await page.goto(path);
         await page.waitForLoadState('networkidle').catch(() => {});
         await page.waitForTimeout(600);
-        await page.screenshot({ path: join(OUT, `${name}-${size}.png`), fullPage: true });
+        await page.screenshot({ path: join(OUT, `${name}-${size}.jpg`), fullPage: true, type: 'jpeg', quality: 60 });
       }
       await ctx.close();
     }

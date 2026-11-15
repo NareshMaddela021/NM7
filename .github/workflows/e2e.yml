@@ -148,6 +148,8 @@ jobs:
     # by hand only, with shots_ref set: screenshots of every dashboard page (e2e-live/zz-shots.spec.mjs)
     if: inputs.shots_ref != ''
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     timeout-minutes: 30
     defaults:
       run:
@@ -184,9 +186,13 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: Screenshots
         run: npx playwright test -c playwright.live.config.mjs e2e-live/zz-shots.spec.mjs
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: shots-${{ inputs.shots_label }}
-          path: frontend/shots
-          retention-days: 30
+      - name: Save the pictures on this branch (docs/redesign/phase2b/<label>)
+        working-directory: .
+        run: |
+          mkdir -p /tmp/pics && cp frontend/shots/*.jpg /tmp/pics/
+          git reset -q --hard && git checkout -q "${{ github.ref_name }}" && git pull -q origin "${{ github.ref_name }}"
+          dest="docs/redesign/phase2b/${{ inputs.shots_label }}"
+          rm -rf "$dest" && mkdir -p "$dest" && cp /tmp/pics/*.jpg "$dest/"
+          git config user.name "github-actions[bot]" && git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$dest" && git commit -qm "Screenshots: ${{ inputs.shots_label }} (${{ inputs.shots_ref }})" || exit 0
+          for i in 1 2 3 4; do git push -q origin "HEAD:${{ github.ref_name }}" && break; git pull -q --rebase origin "${{ github.ref_name }}"; sleep $((i*5)); done
