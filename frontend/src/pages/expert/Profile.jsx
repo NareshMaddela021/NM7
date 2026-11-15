@@ -3,12 +3,12 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { currentUser } from '../../lib/auth';
 import Header from '../../components/Header';
+import { ExpertHead, ExpertLoading } from './ExpertFrame';
 import { Icon, Meter, useToast } from '../../components/ui';
 import PhotoEditor, { DEFAULT_ADJ } from '../builder/PhotoEditor';
 import { Logo } from '../builder/LinksEditor';
 import { getAsuraaAiProfile, sendAsuraaAiCode, verifyAsuraaAiCode, submitExpertProfile, ASURAA_AI_LINK } from '../../services/api';
 import { LIVE } from '../../services/http';
-import { Spinner } from '../../components/ui';
 import { PLANS, expertPayout, inr, FEES, PROMISES } from '../../lib/pricing';
 import {
   BLANK, DOMAINS, LEVELS, LANGS, STATUS, loadExpert, saveExpert, clearExpert, useExpertReady, submitExpert, fromAsuraaAi, fromDocument, suggestDomains,
@@ -45,14 +45,10 @@ function Chips({ label, options, value, onChange }) {
 function Start({ onAi, onDoc, onFresh, busy, error }) {
   const fileRef = useRef();
   return (
-    <main className="container stack g24 rise" style={{ maxWidth: 1100, padding: '56px 24px' }}>
-      <div className="stack g8" style={{ maxWidth: 760 }}>
-        <span className="mono faint">EXPERTS · NM7 RESUME SERVICES</span>
-        <h1 className="display" style={{ fontSize: 'clamp(34px,4.6vw,52px)' }}>Become a resume expert on <span className="hl" style={{ padding: '0 4px' }}>Nm7</span></h1>
-        <p className="lead">Rewrite resumes for freshers and early-career job seekers, delivered in {PROMISES.delivery}. Start from what you already have — no need to type it all again.</p>
-      </div>
-      <div className="grid-auto g16" style={{ '--min': '280px' }}>
-        {ASURAA_AI_LINK && <button type="button" className="card stack g8 btn" onClick={onAi} style={{ textAlign: 'left', alignItems: 'flex-start', whiteSpace: 'normal', height: 'auto', padding: 24, border: '2px solid var(--ink)' }}>
+    <main className="container-wide ex-page ex-mid stack g24 rise">
+      <ExpertHead kicker="Experts · Nm7 resume services" title={<>Become a resume expert on <span className="hl" style={{ padding: '0 4px' }}>Nm7</span></>} sub={`Rewrite resumes for freshers and early-career job seekers, delivered in ${PROMISES.delivery}. Start from what you already have — no need to type it all again.`} shape="handshake" />
+      <div className="ex-start">
+        {ASURAA_AI_LINK && <button type="button" className="card stack g8 btn ex-start-best" onClick={onAi} style={{ textAlign: 'left', alignItems: 'flex-start', whiteSpace: 'normal', height: 'auto', padding: 24 }}>
           <span className="badge b-signal">Already on asuraa.ai? · Fastest</span>
           <strong className="display" style={{ fontSize: 22 }}>Use my asuraa.ai profile link</strong>
           <span className="muted" style={{ fontWeight: 400 }}>Paste asuraa.ai/yourname. We fill your name, bio, languages and experience — you confirm with a code.</span>
@@ -67,7 +63,7 @@ function Start({ onAi, onDoc, onFresh, busy, error }) {
           <span className="muted" style={{ fontWeight: 400 }}>A short guided form. About 10 minutes.</span>
         </button>
       </div>
-      {error && <p role="alert" className="card small" style={{ borderColor: 'var(--danger)', color: 'var(--danger)', padding: 16 }}>{error}</p>}
+      {error && <p role="alert" className="mcard mcard-bad small" style={{ color: 'var(--danger)', margin: 0 }}>{error}</p>}
       <p className="xs faint">Your ID, PAN and bank details are never read from documents or copied from asuraa.ai — you add them yourself in a secure step.</p>
     </main>
   );
@@ -100,15 +96,15 @@ function AiLink({ onBack, onDone, initial = '' }) {
   };
 
   return (
-    <main className="container stack g20 rise" style={{ maxWidth: 760, padding: '48px 24px 72px' }}>
+    <main className="container-wide ex-page ex-narrow stack g20 rise">
       <button type="button" className="btn btn-ghost" style={{ alignSelf: 'flex-start', paddingLeft: 0 }} onClick={onBack}><Icon name="back" size={16} />Back</button>
       <ol className="steps" aria-label="Link asuraa.ai">
         {['Paste link', 'Pick details', 'Confirm it’s you'].map((l, i) => { const at = ['link', 'pick', 'code'].indexOf(step); return <li key={l} aria-current={i === at ? 'step' : undefined} data-state={i < at ? 'done' : undefined}><span className="mono">{i < at ? '✓' : i + 1}</span>{l}</li>; })}
       </ol>
 
       {step === 'link' && (
-        <form className="card stack g16" style={{ padding: 24 }} onSubmit={fetchIt}>
-          <h1 className="display" style={{ fontSize: 30 }}>Paste your asuraa.ai profile link</h1>
+        <form className="mcard stack g16" onSubmit={fetchIt}>
+          <h1 className="ex-title" style={{ fontSize: 30 }}>Paste your asuraa.ai profile link</h1>
           <Text id="ai-link" label="Profile link" value={link} onChange={setLink} ph="asuraa.ai/yourname" error={err} hint="Open your profile on asuraa.ai → Share profile → copy link." />
           <div className="row g8"><button type="submit" className="btn btn-ink btn-lg" disabled={busy || !link.trim()}>{busy ? 'Finding your profile…' : 'Find my profile'}</button></div>
           <span className="xs faint">Preview: try asuraa.ai/nareshmaddela or asuraa.ai/saivarsha.</span>
@@ -116,7 +112,7 @@ function AiLink({ onBack, onDone, initial = '' }) {
       )}
 
       {step === 'pick' && ai && (
-        <div className="card stack g16" style={{ padding: 24 }}>
+        <div className="mcard stack g16">
           <div className="row g16" style={{ alignItems: 'center', flexWrap: 'nowrap' }}>
             <span style={{ width: 64, height: 64, flex: 'none', borderRadius: '50%', background: 'var(--ink)', color: 'var(--onink)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 26 }}>{ai.name[0]}</span>
             <div className="stack g4"><strong style={{ fontSize: 20 }}>{ai.name}</strong><span className="muted small">{ai.headline} · {ai.location}</span><span className="xs faint">{ai.url} · ★ {ai.rating} ({ai.reviews} review{ai.reviews === 1 ? '' : 's'})</span></div>
@@ -145,8 +141,8 @@ function AiLink({ onBack, onDone, initial = '' }) {
       )}
 
       {step === 'code' && (
-        <form className="card stack g16" style={{ padding: 24 }} onSubmit={check}>
-          <h1 className="display" style={{ fontSize: 28 }}>Enter the 6-digit code</h1>
+        <form className="mcard stack g16" onSubmit={check}>
+          <h1 className="ex-title" style={{ fontSize: 28 }}>Enter the 6-digit code</h1>
           <p className="muted">We sent it to the email on this asuraa.ai account: <strong>{sent?.sentTo}</strong>. This makes sure only the owner can copy this profile.</p>
           <Text id="ai-code" label="Code" value={code} onChange={(v) => setCode(v.replace(/\D/g, '').slice(0, 6))} ph="••••••" error={err} />
           {sent?.demoCode && <span className="xs" style={{ color: 'var(--accent)' }}>Preview only — your code is {sent.demoCode}. The live app sends it by email.</span>}
@@ -163,7 +159,7 @@ function AiLink({ onBack, onDone, initial = '' }) {
 /* ---------- main page ---------- */
 export default function Profile() {
   const ready = useExpertReady();
-  if (!ready) return <><Header variant="expert" /><main className="container row g12 muted" role="status" style={{ padding: 48 }}><Spinner /> Loading your profile…</main></>;
+  if (!ready) return <ExpertLoading text="Loading your profile…" />;
   return <ProfilePage />;
 }
 
@@ -229,8 +225,8 @@ function ProfilePage() {
     } catch (e) { toast(e.message || 'Not submitted. Please try again.'); } finally { setBusy(false); }
   };
   const SecHead = ({ id, title, sub }) => (
-    <div className="stack g4" id={`ex-${id}`} style={{ scrollMarginTop: 90 }}>
-      <h2 style={{ fontSize: 22 }}>{title}</h2>{sub && <span className="small muted">{sub}</span>}
+    <div className="stack g4 ex-sec" id={`ex-${id}`}>
+      <h2 className="ex-sec-title">{title}</h2>{sub && <span className="small muted">{sub}</span>}
       {errFor(id)?.length > 0 && <ul className="error" role="alert" style={{ margin: 0, paddingLeft: 18 }}>{errFor(id).map((i) => <li key={i.msg}>{i.msg}</li>)}</ul>}
     </div>
   );
@@ -239,13 +235,13 @@ function ProfilePage() {
   return (
     <>
       <Header variant="expert" />
-      <main className="container-wide row g24" style={{ padding: '24px 24px 72px', alignItems: 'flex-start' }}>
+      <main className="container-wide ex-page ex-wide ex-prof">
         {/* section nav */}
-        <nav aria-label="Profile sections" className="stack sticky" style={{ flex: '1 1 190px', maxWidth: 220, gap: 2, top: 88 }}>
+        <nav aria-label="Profile sections" className="ex-prof-nav">
           {SECTIONS.map(([id, l]) => {
             const bad = issues.some((i) => i.sec === id);
-            return <button key={id} type="button" onClick={() => go(id)} className="row g8" style={{ minHeight: 40, border: 0, background: 'transparent', textAlign: 'left', padding: '0 10px', borderRadius: 10, fontWeight: 500, color: 'var(--text)' }}>
-              <span aria-hidden="true" style={{ width: 8, height: 8, borderRadius: '50%', background: bad ? 'var(--warning)' : 'var(--success)' }} />{l}</button>;
+            return <button key={id} type="button" onClick={() => go(id)} className="ex-nav-btn">
+              <span aria-hidden="true" className="ex-dot" style={{ background: bad ? 'var(--warning)' : 'var(--success)' }} />{l}</button>;
           })}
           <hr className="divider" />
           {ASURAA_AI_LINK && <button type="button" className="btn btn-ghost" style={{ justifyContent: 'flex-start' }} onClick={() => setMode('ai')}><Icon name="spark" size={14} />{p.ai ? 'Refresh from asuraa.ai' : 'Fill from asuraa.ai'}</button>}
@@ -253,17 +249,14 @@ function ProfilePage() {
         </nav>
 
         {/* form */}
-        <section aria-label="Expert profile form" className="stack g20" style={{ flex: '3 1 520px', minWidth: 0 }}>
-          <div className="row between g12" style={{ alignItems: 'flex-end' }}>
-            <div className="stack g4"><span className="mono faint">EXPERT PROFILE</span><h1 className="display" style={{ fontSize: 34 }}>Your expert profile</h1></div>
-            <span className={`badge ${stBadge}`}>{stLabel}</span>
-          </div>
-          <p className="well small" style={{ margin: 0 }}>{stText}{['changes', 'rejected'].includes(p.status) && p.note ? <><br /><strong>Reviewer note:</strong> {p.note}</> : null}</p>
+        <section aria-label="Expert profile form" className="stack g20" style={{ minWidth: 0 }}>
+          <ExpertHead kicker="Expert profile" title="Your expert profile" shape="handshake" right={<span className={`badge ${stBadge}`}>{stLabel}</span>} />
+          <p className="ex-status" style={{ margin: 0 }}>{stText}{['changes', 'rejected'].includes(p.status) && p.note ? <><br /><strong>Reviewer note:</strong> {p.note}</> : null}</p>
           {p.status === 'test' && <div className="card-ink row between g12"><span className="stack g4"><strong style={{ fontSize: 18 }}>Your test task is ready</strong><span className="small" style={{ opacity: 0.8 }}>Rewrite one sample resume in the real expert workspace. Due {p.test?.due ? new Date(p.test.due).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) : 'within 48 hours'}.</span></span><Link to="/expert/test" className="btn btn-signal btn-lg">Start test task</Link></div>}
-          {notes.length > 0 && <div className="card stack g4 small" style={{ borderColor: 'var(--accent)' }}>{notes.map((n) => <span key={n}>✦ {n}</span>)}<button type="button" className="btn btn-ghost" style={{ alignSelf: 'flex-start', minHeight: 32 }} onClick={() => setNotes([])}>Got it</button></div>}
+          {notes.length > 0 && <div className="mcard mcard-accent mcard-tight stack g4 small">{notes.map((n) => <span key={n}>✦ {n}</span>)}<button type="button" className="btn btn-ghost" style={{ alignSelf: 'flex-start', minHeight: 32 }} onClick={() => setNotes([])}>Got it</button></div>}
           <fieldset disabled={locked} className="stack g20" style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
 
-            <div className="card stack g16" style={{ padding: 24 }}>
+            <div className="mcard stack g16">
               <SecHead id="about" title="About you" sub="This is what job seekers see on your expert card." />
               <div className="row g16" style={{ alignItems: 'center' }}>
                 <span style={{ width: 84, height: 84, flex: 'none', borderRadius: '50%', overflow: 'hidden', background: 'var(--ink)', color: 'var(--onink)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 30 }}>
@@ -283,7 +276,7 @@ function ProfilePage() {
               <Chips label="Languages you can work in *" options={LANGS} value={p.about.languages} onChange={(v) => set('about.languages', v)} />
             </div>
 
-            <div className="card stack g16" style={{ padding: 24 }}>
+            <div className="mcard stack g16">
               <SecHead id="expertise" title="Expertise" sub="We match orders to you by domain and level." />
               <Chips label="Domains *" options={DOMAINS} value={p.expertise.domains} onChange={(v) => set('expertise.domains', v)} />
               {suggested.length > 0 && (
@@ -294,7 +287,7 @@ function ProfilePage() {
               <Chips label="Experience levels you serve *" options={LEVELS} value={p.expertise.levels} onChange={(v) => set('expertise.levels', v)} />
             </div>
 
-            <div className="card stack g16" style={{ padding: 24 }}>
+            <div className="mcard stack g16">
               <SecHead id="proof" title="Experience & proof" sub="Recruiters and job seekers trust experts with real hiring or industry experience." />
               {p.proof.experience.map((e, i) => (
                 <div key={i} className="well row g8" style={{ alignItems: 'flex-end' }}>
@@ -316,7 +309,7 @@ function ProfilePage() {
               {p.proof.certs.length > 0 && <span className="small"><strong>Certifications:</strong> {p.proof.certs.map((c) => [c.name, c.issuer].filter(Boolean).join(' · ')).join(' / ')} <button type="button" className="link-btn xs" onClick={() => set('proof.certs', [])}>Clear</button></span>}
             </div>
 
-            <div className="card stack g16" style={{ padding: 24 }}>
+            <div className="mcard stack g16">
               <SecHead id="samples" title="Sample work" sub="1–3 before/after resumes you wrote. Remove names, phone numbers and emails first." />
               {p.samples.map((s, i) => (
                 <div key={i} className="well row between g8">
@@ -329,7 +322,7 @@ function ProfilePage() {
               <span className="xs faint">Optional, but experts with samples are approved much faster.</span>
             </div>
 
-            <div className="card stack g16" style={{ padding: 24 }}>
+            <div className="mcard stack g16">
               <SecHead id="services" title="Services & capacity" />
               <div className="stack g8">
                 {[['expert', PLANS.expert], ['launch', PLANS.launch]].map(([k, pl]) => (
@@ -347,7 +340,7 @@ function ProfilePage() {
               <label className="check small"><input type="checkbox" checked={p.services.paused} onChange={(e) => set('services.paused', e.target.checked)} />Pause new orders (holiday mode)</label>
             </div>
 
-            <div className="card stack g16" style={{ padding: 24 }}>
+            <div className="mcard stack g16">
               <SecHead id="payout" title="Payouts & tax" sub={`Withdraw anytime; money arrives in ${PROMISES.withdrawalDays}.`} />
               {p.ai?.verified && (
                 <label className="option" data-on={p.payout.reuseAi}>
@@ -372,7 +365,7 @@ function ProfilePage() {
               <span className="xs faint">In the live app these are stored encrypted and never shown in full again.</span>
             </div>
 
-            <div className="card stack g12" style={{ padding: 24 }}>
+            <div className="mcard stack g12">
               <SecHead id="agree" title="Expert agreement" />
               <ul className="small muted stack g4" style={{ margin: 0, paddingLeft: 18 }}>
                 <li>Deliver within {PROMISES.delivery}. Late delivery means an automatic full refund to the customer.</li>
@@ -386,13 +379,14 @@ function ProfilePage() {
         </section>
 
         {/* right: strength, card preview, submit */}
-        <aside aria-label="Profile summary" className="stack g16 sticky" style={{ flex: '2 1 300px', maxWidth: 380, top: 88 }}>
-          <div className="card stack g8">
+        <aside aria-label="Profile summary" className="mstack ex-prof-side">
+          <div className="mcard stack g8">
             <div className="row between" style={{ alignItems: 'baseline' }}><span className="xs muted">Profile strength</span><span className="display" style={{ fontSize: 26 }}>{strength}%</span></div>
             <Meter value={strength} color={strength >= 80 ? 'var(--success)' : strength >= 55 ? 'var(--warning)' : 'var(--text3)'} label="Profile strength" />
           </div>
-          <div className="card stack g12">
+          <div className="mcard stack g12">
             <span className="xs muted strong">How job seekers see you</span>
+            <div className="ex-preview">
             <div className="row g12" style={{ flexWrap: 'nowrap' }}>
               <span style={{ width: 56, height: 56, flex: 'none', borderRadius: '50%', overflow: 'hidden', background: 'var(--sunken)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>{p.photo ? <img src={p.photo} alt="" style={{ width: 56, height: 56, objectFit: 'cover' }} /> : (p.about.name || '?')[0]}</span>
               <span className="stack g4" style={{ minWidth: 0 }}>
@@ -408,12 +402,13 @@ function ProfilePage() {
                 Show “Also on asuraa.ai · ★ {p.ai.rating}” badge</label>
             )}
             {p.ai?.showBadge && <span className="badge b-signal" style={{ alignSelf: 'flex-start' }}>Also on asuraa.ai · ★ {p.ai.rating}</span>}
+            </div>
           </div>
-          {p.ai && <div className="card xs stack g4"><span><strong>Linked:</strong> {p.ai.url} · confirmed with a code</span><span className="faint">Last copied {new Date(p.ai.syncedAt).toLocaleDateString('en-IN')}. Use “Refresh from asuraa.ai” to bring changes over.</span><button type="button" className="link-btn xs" style={{ alignSelf: 'flex-start', color: 'var(--danger)' }} onClick={() => set('ai', null)}>Unlink asuraa.ai</button></div>}
+          {p.ai && <div className="mcard mcard-tight xs stack g4"><span><strong>Linked:</strong> {p.ai.url} · confirmed with a code</span><span className="faint">Last copied {new Date(p.ai.syncedAt).toLocaleDateString('en-IN')}. Use “Refresh from asuraa.ai” to bring changes over.</span><button type="button" className="link-btn xs" style={{ alignSelf: 'flex-start', color: 'var(--danger)' }} onClick={() => set('ai', null)}>Unlink asuraa.ai</button></div>}
           {!['review', 'approved', 'test', 'testReview', 'rejected'].includes(p.status) && (
-            <div className="card stack g8">
+            <div className="mcard mcard-accent stack g8">
               {issues.length > 0 && <span className="xs" style={{ color: 'var(--warning)' }}>{issues.length} thing{issues.length > 1 ? 's' : ''} left to fill</span>}
-              <button type="button" className="btn btn-ink btn-lg" onClick={submit} disabled={busy}>{busy ? 'Submitting…' : p.status === 'changes' ? 'Submit again' : 'Submit for review'}</button>
+              <button type="button" className="btn btn-signal btn-lg" onClick={submit} disabled={busy}>{busy ? 'Submitting…' : p.status === 'changes' ? 'Submit again' : 'Submit for review'}</button>
               <span className="xs faint">Saved automatically as you type.</span>
             </div>
           )}
