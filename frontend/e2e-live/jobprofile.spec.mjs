@@ -21,10 +21,11 @@ const serverProfile = async (page) => (await api(page, '/api/me/job-profile')).d
 
 test('fill the Job Profile; it autosaves and survives a reload and another sign-in; phone and keyboard work', async ({ page, browser }) => {
   const mail = await signIn(page);
-  // the sidebar has it between My resumes and ATS & job match
+  // the sidebar has it in the "Resume tools" group, between My resumes and ATS & job match (round P groups)
   const nav = page.getByRole('navigation', { name: 'My dashboard', exact: true });
+  await expect(nav.getByRole('group', { name: 'Resume tools' }).getByRole('link', { name: /Job Profile/ })).toBeVisible();
   const around = async () => { const n = await nav.getByRole('link').allInnerTexts(); const at = n.findIndex((x) => x.includes('Job Profile')); return at > 0 ? [n[at - 1], n[at + 1]].map((x) => x.replace(/^\W+/, '').trim()) : null; };
-  await expect.poll(around).toEqual(['My resumes', 'Find my role']); // Phase 6: Find my role follows the Job Profile
+  await expect.poll(around).toEqual(['My resumes', 'ATS & job match']); // Find my role moved to the Learning group
   await nav.getByRole('link', { name: /Job Profile/ }).click();
   await expect(page).toHaveURL(/\/me\/profile$/);
   await expect(page.getByRole('heading', { name: 'Job Profile', level: 1 })).toBeVisible();
