@@ -5,6 +5,9 @@
 //   the coordinator portal (/org/:orgId, pages/org/Portal.jsx) — ctx.base '/api/org/<id>', one organization.
 // The server decides what each person may see and do (app/orgs/scope.py); the screens only hide what they can't use.
 import { TransferOwnership } from '../../org/Transfer';
+import { Chip, Empty, MeCard, Stat } from '../../me/kit';
+import '../../../styles/me-kit.css';
+import '../../../styles/admin-orgs.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import QRCode from 'qrcode';
@@ -219,13 +222,15 @@ export function NewGroup({ ctx, url, busy, run, reload }) {
 /* ---------- coordinators (admin only) ---------- */
 function GroupPicker({ groups, value, onChange, idp }) {
   return (
-    <fieldset className="stack g4" style={{ border: 0, padding: 0, margin: 0 }}>
+    <fieldset className="ao-picker">
       <legend className="label">Groups</legend>
-      <label className="row g8 small"><input type="radio" name={`${idp}-scope`} checked={value === null} onChange={() => onChange(null)} /> All groups (also new ones)</label>
-      <label className="row g8 small"><input type="radio" name={`${idp}-scope`} checked={value !== null} onChange={() => onChange(groups.slice(0, 1).map((g) => g.id))} /> Only these:</label>
+      <div className="ao-seg">
+        <label className={`ao-seg-opt ${value === null ? 'on' : ''}`}><input type="radio" name={`${idp}-scope`} checked={value === null} onChange={() => onChange(null)} /> All groups (also new ones)</label>
+        <label className={`ao-seg-opt ${value !== null ? 'on' : ''}`}><input type="radio" name={`${idp}-scope`} checked={value !== null} onChange={() => onChange(groups.slice(0, 1).map((g) => g.id))} /> Only these:</label>
+      </div>
       {value !== null && (
-        <div className="row g12" style={{ paddingLeft: 24 }}>
-          {groups.map((g) => <label key={g.id} className="row g4 small"><input type="checkbox" checked={value.includes(g.id)} onChange={(e) => onChange(e.target.checked ? [...value, g.id] : value.filter((x) => x !== g.id))} /> {g.name}</label>)}
+        <div className="ao-pills">
+          {groups.map((g) => <label key={g.id} className={`ao-pill ${value.includes(g.id) ? 'on' : ''}`}><input type="checkbox" checked={value.includes(g.id)} onChange={(e) => onChange(e.target.checked ? [...value, g.id] : value.filter((x) => x !== g.id))} /> {g.name}</label>)}
         </div>
       )}
     </fieldset>
@@ -243,46 +248,45 @@ function Coordinators({ orgId, groups }) {
   const gname = (ids) => (ids === null ? 'All groups' : ids.map((i) => groups.find((g) => g.id === i)?.name || '—').join(', '));
   const sent = (r) => { setLink(r); st.reload(); };
   return (
-    <section className="card stack g12" aria-label="Coordinators">
-      <strong>Coordinators</strong>
-      <span className="xs faint">People from the organization who run their own drives at nm7.si/org. They sign in with their own Nm7 account; removing someone ends their access at once.</span>
+    <MeCard title="Coordinators" icon="☺" className="ao-card" id="ao-coordinators" sub="People from the organization who run their own drives at nm7.si/org. They sign in with their own Nm7 account; removing someone ends their access at once.">
       <Loading st={st} empty={emptyIf((d) => !d.length, 'No coordinators yet.')}>{(rows) => (
-        <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table"><thead><tr><th>Person</th><th>Role</th><th>Groups</th><th>Status</th><th /></tr></thead>
+        <div className="table-wrap ao-table" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table"><thead><tr><th>Person</th><th>Role</th><th>Groups</th><th>Status</th><th /></tr></thead>
           <tbody>{rows.map((s) => (
             <tr key={s.id}>
-              <td className="small">{s.name || s.email}{s.name && <div className="xs faint">{s.email}</div>}</td>
+              <td className="small"><span className="ao-person"><span className="ao-av" aria-hidden="true">{(s.name || s.email || '?').trim().charAt(0).toUpperCase()}</span><span className="ao-person-t">{s.name || s.email}{s.name && <span className="xs faint">{s.email}</span>}</span></span></td>
               <td className="small">{editing?.id === s.id
-                ? <select aria-label={`Role for ${s.email}`} className="input" style={{ height: 34 }} value={editing.role} onChange={(e) => setEditing({ ...editing, role: e.target.value })}><option value="owner">Owner</option><option value="coordinator">Coordinator</option><option value="viewer">Viewer</option></select>
-                : s.role === 'viewer' ? 'Viewer' : s.role === 'owner' ? 'Owner' : 'Coordinator'}</td>
+                ? <select aria-label={`Role for ${s.email}`} className="input" style={{ height: 36 }} value={editing.role} onChange={(e) => setEditing({ ...editing, role: e.target.value })}><option value="owner">Owner</option><option value="coordinator">Coordinator</option><option value="viewer">Viewer</option></select>
+                : <Chip tone={s.role === 'owner' ? 'accent' : s.role === 'viewer' ? 'neutral' : 'info'}>{s.role === 'viewer' ? 'Viewer' : s.role === 'owner' ? 'Owner' : 'Coordinator'}</Chip>}</td>
               <td className="xs">{editing?.id === s.id ? <GroupPicker idp={`e-${s.id}`} groups={groups} value={editing.groupIds} onChange={(groupIds) => setEditing({ ...editing, groupIds })} /> : gname(s.groupIds)}</td>
               <td className="small">{s.status === 'active' ? <span className="badge b-success">Active</span> : <span className="badge b-warning">Invited{s.expiresAt && s.expiresAt < Date.now() ? ' · expired' : ''}</span>}</td>
-              <td><div className="row g8">
+              <td><div className="ao-row-actions">
                 {editing?.id === s.id
                   ? <><button type="button" className="link-btn small" disabled={busy} onClick={() => run(async () => { await http(`/api/admin/staff/${s.id}`, { method: 'PATCH', body: { role: editing.role, groupIds: editing.groupIds } }); setEditing(null); st.reload(); }, 'Access changed')}>Save</button><button type="button" className="link-btn small" onClick={() => setEditing(null)}>Cancel</button></>
                   : <button type="button" className="link-btn small" onClick={() => setEditing({ id: s.id, role: s.role, groupIds: s.groupIds })}>Change</button>}
                 {s.status === 'invited' && <button type="button" className="link-btn small" disabled={busy} onClick={() => run(async () => sent(await http(`/api/admin/staff/${s.id}/resend`, { method: 'POST', body: {} })), 'Invite sent again')}>Resend invite</button>}
-                <button type="button" className="link-btn small" disabled={busy} onClick={() => { if (window.confirm(`Remove ${s.email}? Their access ends now.`)) run(async () => { await http(`/api/admin/staff/${s.id}`, { method: 'DELETE' }); st.reload(); }, 'Access removed'); }}>Remove</button>
+                <button type="button" className="link-btn small ao-danger-link" disabled={busy} onClick={() => { if (window.confirm(`Remove ${s.email}? Their access ends now.`)) run(async () => { await http(`/api/admin/staff/${s.id}`, { method: 'DELETE' }); st.reload(); }, 'Access removed'); }}>Remove</button>
               </div></td>
             </tr>
           ))}</tbody></table></div>
       )}</Loading>
-      <form className="stack g12" aria-label="Invite a coordinator" onSubmit={(e) => { e.preventDefault(); run(async () => { sent(await http(`/api/admin/orgs/${orgId}/staff`, { method: 'POST', body: f })); setF({ email: '', role: 'coordinator', groupIds: null }); }, 'Invite sent'); }}>
-        <div className="row g12" style={{ alignItems: 'flex-end' }}>
-          <div className="field" style={{ flex: '2 1 220px' }}><label className="label" htmlFor="st-email">Invite by email</label><input id="st-email" type="email" className="input" style={inputStyle} placeholder="placement.cell@college.edu" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></div>
-          <div className="field" style={{ flex: '1 1 260px' }}><label className="label" htmlFor="st-role">Role</label><select id="st-role" className="input" style={inputStyle} value={f.role} onChange={(e) => setF({ ...f, role: e.target.value })}>{Object.entries(ROLE_TEXT).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
+      <form className="ao-sub" aria-label="Invite a coordinator" onSubmit={(e) => { e.preventDefault(); run(async () => { sent(await http(`/api/admin/orgs/${orgId}/staff`, { method: 'POST', body: f })); setF({ email: '', role: 'coordinator', groupIds: null }); }, 'Invite sent'); }}>
+        <span className="ao-sub-h" aria-hidden="true">✉ Invite someone</span>
+        <div className="ao-fields">
+          <div className="field ao-span2"><label className="label" htmlFor="st-email">Invite by email</label><input id="st-email" type="email" className="input" style={inputStyle} placeholder="placement.cell@college.edu" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></div>
+          <div className="field"><label className="label" htmlFor="st-role">Role</label><select id="st-role" className="input" style={inputStyle} value={f.role} onChange={(e) => setF({ ...f, role: e.target.value })}>{Object.entries(ROLE_TEXT).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
         </div>
         {groups.length > 0 && <GroupPicker idp="new" groups={groups} value={f.groupIds} onChange={(groupIds) => setF({ ...f, groupIds })} />}
-        <button type="submit" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={busy || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(f.email.trim()) || (f.groupIds !== null && !f.groupIds.length)}>Send invite</button>
+        <button type="submit" className="btn btn-signal" style={{ alignSelf: 'flex-start' }} disabled={busy || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(f.email.trim()) || (f.groupIds !== null && !f.groupIds.length)}>Send invite</button>
       </form>
       {link && (
-        <div className="well stack g4 small" role="status">
-          <strong>{link.emailSent ? `Invite emailed to ${link.email}` : `The email didn’t go out — send ${link.email} this link yourself`}</strong>
+        <div className="ao-note ao-note-ok" role="status">
+          <strong className="small">{link.emailSent ? `Invite emailed to ${link.email}` : `The email didn’t go out — send ${link.email} this link yourself`}</strong>
           <span className="xs">One-time link (expires in 7 days): <code style={{ userSelect: 'all', overflowWrap: 'anywhere' }} data-testid="invite-url">{link.inviteUrl}</code></span>
           <button type="button" className="link-btn xs" style={{ alignSelf: 'flex-start' }} onClick={() => setLink(null)}>Hide</button>
         </div>
       )}
       {(st.data || []).some((x) => x.role === 'owner' && x.status === 'active') && <TransferOwnership base={`/api/admin/orgs/${orgId}/transfer`} team={st.data} admin />}
-    </section>
+    </MeCard>
   );
 }
 
@@ -314,19 +318,20 @@ function Features({ o, reload }) {
   const [busy, run] = useAction(toast);
   const set = (k, v) => run(async () => { await http(`/api/admin/orgs/${o.id}/features`, { method: 'PUT', body: { [FEATURE_KEY[k]]: OVERRIDE[v] } }); reload(); }, 'Saved');
   const mode = (k) => { const v = o.featureOverrides?.[k]; return v === true ? 'on' : v === false ? 'off' : 'plan'; };
+  const onCount = FEATURES.filter(([k]) => o.features?.[k]).length;
   return (
-    <section className="card stack g12" aria-label="Features">
-      <strong>Features</strong>
-      <span className="xs faint">The organization’s plan ({o.plan?.name || 'Free'}) decides these. Force one on or off for this organization only; coordinators and Owners can’t change them.</span>
-      {FEATURES.map(([k, l, d]) => (
-        <div key={k} className="row g12 between" style={{ alignItems: 'flex-start', flexWrap: 'wrap' }}>
-          <span className="stack g2" style={{ flex: '1 1 260px' }}><span className="small" style={{ fontWeight: 600 }}>{l} <span className={`badge ${o.features?.[k] ? 'b-success' : 'b-neutral'}`}>{o.features?.[k] ? 'On' : 'Off'}</span></span><span className="xs faint">{d}</span></span>
-          <select aria-label={l} className="input" style={{ height: 36, width: 'auto' }} value={mode(k)} disabled={busy} onChange={(e) => set(k, e.target.value)}>
-            <option value="plan">Follow the plan</option><option value="on">Always on</option><option value="off">Always off</option>
-          </select>
-        </div>
-      ))}
-    </section>
+    <MeCard title="Features" icon="✦" className="ao-card" id="ao-features" sub={`The organization’s plan (${o.plan?.name || 'Free'}) decides these. Force one on or off for this organization only; coordinators and Owners can’t change them.`} actions={<Chip tone="accent">{onCount} of {FEATURES.length} on</Chip>}>
+      <div className="ao-feats">
+        {FEATURES.map(([k, l, d]) => (
+          <div key={k} className={`ao-feat ${o.features?.[k] ? 'is-on' : ''} ${mode(k) !== 'plan' ? 'is-forced' : ''}`}>
+            <span className="ao-feat-t"><span className="small" style={{ fontWeight: 700 }}>{l} <span className={`badge ${o.features?.[k] ? 'b-success' : 'b-neutral'}`}>{o.features?.[k] ? 'On' : 'Off'}</span></span><span className="xs faint">{d}</span></span>
+            <select aria-label={l} className="input ao-feat-sel" value={mode(k)} disabled={busy} onChange={(e) => set(k, e.target.value)}>
+              <option value="plan">Follow the plan</option><option value="on">Always on</option><option value="off">Always off</option>
+            </select>
+          </div>
+        ))}
+      </div>
+    </MeCard>
   );
 }
 
@@ -336,38 +341,57 @@ function OrgDetail({ id, onBack, onPlacement }) {
   const [busy, run] = useAction(toast);
   const [edit, setEdit] = useState(null);
   return (
-    <Loading st={st}>{(o) => { const ctx = { ...ADMIN_CTX, orgId: null, orgName: o.name, features: o.features || {} }; return (
-      <>
-        <PageHead title={o.name} sub={`${o.typeName}${o.city ? ` · ${o.city}` : ''} · ${o.groups} group${o.groups === 1 ? '' : 's'} · ${o.members} member${o.members === 1 ? '' : 's'}${o.status === 'archived' ? ' · archived' : ''}`}
-          right={<><button type="button" className="btn btn-ink" onClick={onPlacement}>Placement dashboard</button><button type="button" className="btn btn-outline" onClick={() => setEdit(edit ? null : { name: o.name, type: o.type, city: o.city, logoUrl: o.logoUrl, status: o.status })}>Edit organization</button><button type="button" className="btn btn-outline" onClick={onBack}>All organizations</button></>} />
+    <Loading st={st}>{(o) => { const ctx = { ...ADMIN_CTX, orgId: null, orgName: o.name, features: o.features || {} }; const jump = [['ao-groups', 'Groups'], ['ao-coordinators', 'Coordinators'], ['ao-billing', 'Plan and billing'], ['ao-features', 'Features'], ...(o.features?.kiosk ? [['ao-kiosks', 'Kiosks']] : []), ...(o.features?.branding ? [['ao-branding', 'Branding']] : []), ...(o.features?.recruiterLinks ? [['ao-recruiters', 'Recruiters']] : [])]; return (
+      <div className="stack g16">
+        <div className="ao-hero">
+          <span className="ao-hero-av" aria-hidden="true">{o.logoUrl ? <img src={o.logoUrl} alt="" /> : (o.name || '?').trim().charAt(0).toUpperCase()}</span>
+          <div className="ao-hero-main">
+            <PageHead title={o.name} sub={`${o.typeName}${o.city ? ` · ${o.city}` : ''} · ${o.groups} group${o.groups === 1 ? '' : 's'} · ${o.members} member${o.members === 1 ? '' : 's'}${o.status === 'archived' ? ' · archived' : ''}`}
+              right={<><button type="button" className="btn btn-signal" onClick={onPlacement}>Placement dashboard</button><button type="button" className="btn btn-outline" onClick={() => setEdit(edit ? null : { name: o.name, type: o.type, city: o.city, logoUrl: o.logoUrl, status: o.status })}>Edit organization</button><button type="button" className="btn btn-outline" onClick={onBack}>All organizations</button></>} />
+            <div className="ao-hero-chips">
+              <Chip tone="accent">{o.plan?.name || 'Free'} plan</Chip>
+              {o.status === 'archived' && <Chip>Archived</Chip>}
+              {o.demo && <Chip tone="warn">Demo</Chip>}
+            </div>
+          </div>
+        </div>
+        <div className="ao-stats">
+          <Stat label="Groups" value={o.groups} />
+          <Stat label="Members" value={o.members} />
+          <Stat label="Features on" value={`${FEATURES.filter(([k]) => o.features?.[k]).length}/${FEATURES.length}`} />
+        </div>
+        <nav className="ao-jump" aria-label="On this page">{jump.map(([h, l]) => <a key={h} href={`#${h}`} className="ao-jump-a">{l}</a>)}</nav>
         {edit && (
-          <form className="card stack g12" aria-label="Edit organization" onSubmit={(e) => { e.preventDefault(); run(async () => { await http(`/api/admin/orgs/${id}`, { method: 'PATCH', body: edit }); setEdit(null); st.reload(); }, 'Saved'); }}>
+          <form className="mcard ao-card" aria-label="Edit organization" onSubmit={(e) => { e.preventDefault(); run(async () => { await http(`/api/admin/orgs/${id}`, { method: 'PATCH', body: edit }); setEdit(null); st.reload(); }, 'Saved'); }}>
+            <span className="ao-sub-h" aria-hidden="true">✎ Edit organization</span>
             <OrgFields f={edit} set={setEdit} idp="eo" />
-            <label className="row g8 small"><input type="checkbox" checked={edit.status === 'archived'} onChange={(e) => setEdit({ ...edit, status: e.target.checked ? 'archived' : 'active' })} /> Archived</label>
-            <button type="submit" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={busy}>Save</button>
+            <label className="ao-check"><input type="checkbox" checked={edit.status === 'archived'} onChange={(e) => setEdit({ ...edit, status: e.target.checked ? 'archived' : 'active' })} /> Archived</label>
+            <button type="submit" className="btn btn-signal" style={{ alignSelf: 'flex-start' }} disabled={busy}>Save</button>
           </form>
         )}
-        {o.groupList.map((g) => <GroupCard key={g.id} g={g} ctx={ctx} busy={busy} run={run} reload={st.reload} toast={toast} />)}
-        {o.groupList.length === 0 && <div className="well small muted" style={{ textAlign: 'center', padding: 24 }}>No groups yet. A group is one batch, event or drive with its own join code.</div>}
-        <NewGroup ctx={ctx} url={`/api/admin/orgs/${id}/groups`} busy={busy} run={run} reload={st.reload} />
+        <div id="ao-groups" className="stack g12 ao-anchor">
+          {o.groupList.map((g) => <GroupCard key={g.id} g={g} ctx={ctx} busy={busy} run={run} reload={st.reload} toast={toast} />)}
+          {o.groupList.length === 0 && <Empty compact shape="college" tint="admin" title="No groups yet">A group is one batch, event or drive with its own join code.</Empty>}
+          <NewGroup ctx={ctx} url={`/api/admin/orgs/${id}/groups`} busy={busy} run={run} reload={st.reload} />
+        </div>
         <Coordinators orgId={id} groups={o.groupList} />
-        <OrgBilling orgId={id} />
+        <div id="ao-billing" className="ao-anchor"><OrgBilling orgId={id} /></div>
         <Features o={o} reload={st.reload} />
-        {o.features?.kiosk && <Kiosks orgId={id} groups={o.groupList} canManage />}
-        {o.features?.branding && <><strong style={{ marginTop: 8 }}>Branding</strong><Branding orgId={id} canManage /></>}
-        {o.features?.recruiterLinks && <><RecruiterInvites orgId={id} groups={o.groupList} canManage /><RecruiterLinks orgId={id} canManage /></>}
-      </>
+        {o.features?.kiosk && <div id="ao-kiosks" className="ao-anchor"><Kiosks orgId={id} groups={o.groupList} canManage /></div>}
+        {o.features?.branding && <div id="ao-branding" className="stack g8 ao-anchor"><strong className="ao-sec-h">Branding</strong><Branding orgId={id} canManage /></div>}
+        {o.features?.recruiterLinks && <div id="ao-recruiters" className="stack g12 ao-anchor"><RecruiterInvites orgId={id} groups={o.groupList} canManage /><RecruiterLinks orgId={id} canManage /></div>}
+      </div>
     ); }}</Loading>
   );
 }
 
 function OrgFields({ f, set, idp }) {
   return (
-    <div className="row g12">
-      <div className="field" style={{ flex: '2 1 220px' }}><label className="label" htmlFor={`${idp}-n`}>Organization name</label><input id={`${idp}-n`} className="input" style={inputStyle} value={f.name} onChange={(e) => set({ ...f, name: e.target.value })} /></div>
-      <div className="field" style={{ flex: '1 1 200px' }}><label className="label" htmlFor={`${idp}-t`}>Type</label><select id={`${idp}-t`} className="input" style={inputStyle} value={f.type} onChange={(e) => set({ ...f, type: e.target.value })}>{ORG_TYPES.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
-      <div className="field" style={{ flex: '1 1 140px' }}><label className="label" htmlFor={`${idp}-c`}>City</label><input id={`${idp}-c`} className="input" style={inputStyle} value={f.city} onChange={(e) => set({ ...f, city: e.target.value })} /></div>
-      <div className="field" style={{ flex: '2 1 220px' }}><label className="label" htmlFor={`${idp}-l`}>Logo URL (optional, https)</label><input id={`${idp}-l`} className="input" style={inputStyle} value={f.logoUrl} onChange={(e) => set({ ...f, logoUrl: e.target.value.trim() })} /></div>
+    <div className="ao-fields">
+      <div className="field ao-span2"><label className="label" htmlFor={`${idp}-n`}>Organization name</label><input id={`${idp}-n`} className="input" style={inputStyle} value={f.name} onChange={(e) => set({ ...f, name: e.target.value })} /></div>
+      <div className="field"><label className="label" htmlFor={`${idp}-t`}>Type</label><select id={`${idp}-t`} className="input" style={inputStyle} value={f.type} onChange={(e) => set({ ...f, type: e.target.value })}>{ORG_TYPES.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
+      <div className="field"><label className="label" htmlFor={`${idp}-c`}>City</label><input id={`${idp}-c`} className="input" style={inputStyle} value={f.city} onChange={(e) => set({ ...f, city: e.target.value })} /></div>
+      <div className="field ao-span2"><label className="label" htmlFor={`${idp}-l`}>Logo URL (optional, https)</label><input id={`${idp}-l`} className="input" style={inputStyle} value={f.logoUrl} onChange={(e) => set({ ...f, logoUrl: e.target.value.trim() })} /></div>
     </div>
   );
 }
@@ -487,18 +511,20 @@ function DemoOrg({ onOpen, reload }) {
   const toast = useToast();
   const [busy, run] = useAction(toast);
   return (
-    <section className="card stack g8" aria-label="Demo organization" data-testid="demo-org">
-      <strong>Demo organization</strong>
+    <section className="mcard ao-card ao-demo" aria-label="Demo organization" data-testid="demo-org">
+      <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">✧</span><span className="mcard-ht"><strong className="mcard-title">Demo organization</strong><span className="mcard-sub">For testing and sales demos. Marked Demo and left out of real numbers.</span></span><span className="mcard-actions"><Chip tone="warn">Made-up data</Chip></span></header>
       <span className="xs muted">“Demo Engineering College”: two closed groups, 48 made-up students and a roll list, on the Campus plan, with a recruiter invite from a made-up company (“Reset and open as a recruiter” signs you straight in to it, no email code). “Reset and open as coordinator” signs this browser in as the demo college’s coordinator, also with no code, to show drives, eligibility, offers, reminders, alumni, reviewers and the college group; that session can open only the demo college. Marked Demo and left out of real numbers; demo students can’t sign in and are never emailed. Reset puts it back to the starting data.</span>
-      <div className="row g8" style={{ flexWrap: 'wrap' }}>
-        <button type="button" className="btn btn-ink" disabled={busy} onClick={() => run(async () => { const r = await http('/api/admin/demo-org', { method: 'POST' }); reload(); onOpen(r.orgId); }, 'Demo organization ready')}>Create / reset demo</button>
+      <div className="ao-demo-actions">
+        <button type="button" className="btn btn-signal" disabled={busy} onClick={() => run(async () => { const r = await http('/api/admin/demo-org', { method: 'POST' }); reload(); onOpen(r.orgId); }, 'Demo organization ready')}>Create / reset demo</button>
         <button type="button" className="btn btn-outline" disabled={busy} onClick={() => run(async () => { const r = await http('/api/admin/demo-org', { method: 'POST' }); window.location.assign(r.recruiterPath); })}>Reset and open as a recruiter</button>
         <button type="button" className="btn btn-outline" disabled={busy} data-testid="demo-as-coordinator" onClick={() => { if (!window.confirm('Reset the demo college and open it as its coordinator? This signs this browser out of the admin console — use a private window if you want to keep both.')) return; run(async () => { const r = await http('/api/admin/demo-org/coordinator', { method: 'POST' }); window.location.assign(r.path); }); }}>Reset and open as coordinator</button>
-        <button type="button" className="btn btn-outline" disabled={busy} onClick={() => run(async () => { await http('/api/admin/demo-org', { method: 'DELETE' }); reload(); }, 'Demo organization removed')}>Remove demo</button>
+        <button type="button" className="btn btn-outline ao-danger-btn" disabled={busy} onClick={() => run(async () => { await http('/api/admin/demo-org', { method: 'DELETE' }); reload(); }, 'Demo organization removed')}>Remove demo</button>
       </div>
     </section>
   );
 }
+
+const PLAN_TONE = { active: 'ok', grace: 'warn', expired: 'bad' };
 
 /** /admin/orgs */
 export function LiveOrgs() {
@@ -509,29 +535,54 @@ export function LiveOrgs() {
   const st = useApi(open ? null : '/api/admin/orgs');
   const [busy, run] = useAction(toast);
   const [f, setF] = useState({ name: '', type: 'college', city: '', logoUrl: '' });
+  const [q, setQ] = useState('');
+  const [type, setType] = useState('');
   if (open && group) return <GroupDashboard ctx={ADMIN_CTX} groupId={group} onBack={<button type="button" className="btn btn-outline" onClick={() => setParams({ org: open })}>Back to the organization</button>} />;
   if (open && params.get('view') === 'placement') return <><PageHead title="Placement dashboard" sub="What the organization’s coordinators see on Org > Dashboard." right={<button type="button" className="btn btn-outline" onClick={() => setParams({ org: open })}>Back to the organization</button>} /><Placement base={`/api/org/${encodeURIComponent(open)}`} role="admin" canManage /></>;
   if (open) return <OrgDetail id={open} onBack={() => setParams({})} onPlacement={() => setParams({ org: open, view: 'placement' })} />;
+  const all = st.data || [];
+  const t = q.trim().toLowerCase();
+  const shown = all.filter((o) => (!type || o.type === type) && (!t || `${o.name} ${o.city || ''}`.toLowerCase().includes(t)));
   return (
     <>
       <PageHead title="Organizations" sub="Colleges, institutes, job fairs and other groups whose people share their resumes with Nm7." right={<Link className="btn btn-outline" to="/admin/shared-resumes">Shared resumes</Link>} />
-      <Loading st={st} empty={emptyIf((d) => !d.length, 'No organizations yet. Add the first one below.')}>{(orgs) => (
-        <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ padding: 0 }}>
-          <table className="table"><thead><tr><th>Organization</th><th>Type</th><th>Plan</th><th>Groups</th><th>Members</th><th>Added</th></tr></thead>
-            <tbody>{orgs.map((o) => (
-              <tr key={o.id}>
-                <td><button type="button" className="link-btn" onClick={() => setParams({ org: o.id })}>{o.name}</button>{o.city && <div className="xs faint">{o.city}</div>}{o.status === 'archived' && <span className="badge b-neutral">Archived</span>}{o.demo && <span className="badge b-warning">Demo</span>}</td>
-                <td className="small">{o.typeName}</td><td className="small">{o.plan?.name || 'Free'}{o.plan?.state === 'grace' ? ' (grace)' : o.plan?.state === 'expired' ? ` (${o.plan.lastPlan} ended)` : ''}</td><td className="small">{o.groups}</td><td className="small">{o.members}</td><td className="small">{day(o.createdAt)}</td>
-              </tr>
-            ))}</tbody></table>
+      {all.length > 0 && (
+        <div className="ao-stats">
+          <Stat label="Organizations" value={all.filter((o) => !o.demo).length} sub={all.some((o) => o.demo) ? 'plus the demo' : undefined} />
+          <Stat label="On a paid plan" value={all.filter((o) => !o.demo && o.plan?.name && o.plan.name !== 'Free' && o.plan.state !== 'expired').length} />
+          <Stat label="Groups" value={all.filter((o) => !o.demo).reduce((n, o) => n + (o.groups || 0), 0)} />
+          <Stat label="Members" value={all.filter((o) => !o.demo).reduce((n, o) => n + (o.members || 0), 0).toLocaleString('en-IN')} />
         </div>
+      )}
+      <Loading st={st} empty={emptyIf((d) => !d.length, 'No organizations yet. Add the first one below.')}>{() => (
+        <section className="mcard ao-card ao-flush" aria-label="All organizations">
+          <div className="ad-toolbar ao-toolbar">
+            <label className="sr-only" htmlFor="ao-q">Search organizations</label>
+            <input id="ao-q" className="input" type="search" placeholder="Search by name or city" value={q} onChange={(e) => setQ(e.target.value)} />
+            <label className="sr-only" htmlFor="ao-type">Type</label>
+            <select id="ao-type" className="input" value={type} onChange={(e) => setType(e.target.value)}><option value="">All types</option>{ORG_TYPES.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select>
+            <span className="xs muted ao-count">{shown.length} of {all.length}</span>
+          </div>
+          <div className="table-wrap ao-table" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns">
+            <table className="table"><thead><tr><th>Organization</th><th>Type</th><th>Plan</th><th>Groups</th><th>Members</th><th>Added</th></tr></thead>
+              <tbody>{shown.map((o) => (
+                <tr key={o.id}>
+                  <td><span className="ao-person"><span className="ao-av" aria-hidden="true">{(o.name || '?').trim().charAt(0).toUpperCase()}</span><span className="ao-person-t"><button type="button" className="link-btn ao-org-link" onClick={() => setParams({ org: o.id })}>{o.name}</button>{o.city && <span className="xs faint">{o.city}</span>}<span className="ao-tags">{o.status === 'archived' && <span className="badge b-neutral">Archived</span>}{o.demo && <span className="badge b-warning">Demo</span>}</span></span></span></td>
+                  <td className="small">{o.typeName}</td><td className="small"><Chip tone={PLAN_TONE[o.plan?.state] || 'neutral'}>{o.plan?.name || 'Free'}{o.plan?.state === 'grace' ? ' (grace)' : o.plan?.state === 'expired' ? ` (${o.plan.lastPlan} ended)` : ''}</Chip></td><td className="small ao-num">{o.groups}</td><td className="small ao-num">{o.members}</td><td className="small">{day(o.createdAt)}</td>
+                </tr>
+              ))}</tbody></table>
+            {shown.length === 0 && <p className="small muted" style={{ padding: 16, margin: 0 }}>No organization matches. Clear the search to see all.</p>}
+          </div>
+        </section>
       )}</Loading>
-      <DemoOrg onOpen={(id) => setParams({ org: id, view: 'placement' })} reload={st.reload} />
-      <form className="card stack g12" aria-label="New organization" onSubmit={(e) => { e.preventDefault(); run(async () => { const o = await http('/api/admin/orgs', { method: 'POST', body: f }); setF({ name: '', type: 'college', city: '', logoUrl: '' }); setParams({ org: o.id }); }, 'Organization added'); }}>
-        <strong>New organization</strong>
-        <OrgFields f={f} set={setF} idp="no" />
-        <button type="submit" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={busy || f.name.trim().length < 2}>Add organization</button>
-      </form>
+      <div className="ao-two">
+        <form className="mcard ao-card" aria-label="New organization" onSubmit={(e) => { e.preventDefault(); run(async () => { const o = await http('/api/admin/orgs', { method: 'POST', body: f }); setF({ name: '', type: 'college', city: '', logoUrl: '' }); setParams({ org: o.id }); }, 'Organization added'); }}>
+          <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">+</span><span className="mcard-ht"><strong className="mcard-title">New organization</strong><span className="mcard-sub">Add it here, then create its groups and invite its coordinators.</span></span></header>
+          <OrgFields f={f} set={setF} idp="no" />
+          <button type="submit" className="btn btn-signal" style={{ alignSelf: 'flex-start' }} disabled={busy || f.name.trim().length < 2}>Add organization</button>
+        </form>
+        <DemoOrg onOpen={(id) => setParams({ org: id, view: 'placement' })} reload={st.reload} />
+      </div>
       <AuditList url="/api/admin/org-audit?limit=100" />
     </>
   );
