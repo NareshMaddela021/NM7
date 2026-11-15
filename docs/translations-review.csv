@@ -662,6 +662,7 @@
 "co.room.week","/for-companies, /company","Jobs this week: {used} of {limit}.","ఈ వారం ఉద్యోగాలు: {limit}లో {used}.","इस हफ़्ते की नौकरियाँ: {limit} में से {used}।","needs native review"
 "co.room.live","/for-companies, /company","Live jobs: {used} of {limit}.","లైవ్ ఉద్యోగాలు: {limit}లో {used}.","लाइव नौकरियाँ: {limit} में से {used}।","needs native review"
 "co.home.title","/for-companies, /company","Company account","కంపెనీ ఖాతా","कंपनी खाता","needs native review"
+"co.side.title","/for-companies, /company","What happens next","తర్వాత ఏమి జరుగుతుంది","आगे क्या होगा","needs native review"
 "co.home.signIn","/for-companies, /company","Sign in","సైన్ ఇన్","साइन इन","needs native review"
 "co.home.signInHint","/for-companies, /company","Use the email you signed up with, or the one a colleague invited. We email you a code; there is no password.","మీరు నమోదు చేసిన ఈమెయిల్ లేదా సహోద్యోగి ఆహ్వానించిన ఈమెయిల్ వాడండి. మేము కోడ్ ఈమెయిల్ చేస్తాం; పాస్‌వర్డ్ లేదు.","वही ईमेल इस्तेमाल करें जिससे साइन अप किया, या जिस पर साथी ने आमंत्रित किया। हम कोड ईमेल करते हैं; कोई पासवर्ड नहीं।","needs native review"
 "co.home.signInBtn","/for-companies, /company","Sign in","సైన్ ఇన్","साइन इन","needs native review"
