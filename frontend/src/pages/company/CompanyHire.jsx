@@ -4,6 +4,8 @@
 // all of them; the list shows each answer (Accept, or Not interested with the reason). Email and phone show only after
 // the person accepts, then they are also in Applicants (Shortlisted). Only Verified companies; Basic accounts see a
 // note. No pop-up dialogs. English, Telugu and Hindi (co.hire.*).
+// Round P, Phase 3: a control bar card, the Minute 0 → 60 card, the bulk board, then ranked people cards (rank badge,
+// match ring, facts as chips, Invite) with Invite all in a bar that sticks on a phone; interview times and offers.
 import { useCallback, useEffect, useState } from 'react';
 import { rq } from '../../lib/company';
 import { reasons } from './CompanyApplicants';
@@ -11,11 +13,14 @@ import HireSlots from './HireSlots';
 import HireOffers from './HireOffers';
 import HireBulk from './HireBulk';
 import HireSpeed from './HireSpeed';
+import { Empty } from '../me/kit';
+import '../../styles/company-hire.css';
 
 const rupees = (n) => (n == null ? '' : `₹${Math.round(n).toLocaleString('en-IN')}`);
 const day = (s) => (s ? new Date(`${s}T00:00:00`).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '');
 export const PAGE = 10;
-const TONE = { sent: 'b-neutral', accepted: 'b-success', declined: 'b-danger', expired: 'b-neutral' };
+const CHIP = { sent: 'mchip-info', accepted: 'mchip-ok', declined: 'mchip-bad', expired: 'mchip-neutral' }; // round P: kit chips
+const initial = (n) => (n || '?').trim().charAt(0).toUpperCase();
 
 /** "Joins 1 Dec · 15 days' notice · Hyderabad, Pune / remote". */
 export function whenLine(a, t) {
@@ -71,85 +76,106 @@ export default function CompanyHire({ t, c }) {
       await load();
     } catch (x) { setErr(x.message); } finally { setBusy(false); }
   };
-  if (!verified) return <section className="card stack g8" data-testid="co-hire"><strong>{t('co.hire.title')}</strong><p className="small" data-testid="co-hire-basic">{t('co.hire.basic')}</p></section>;
-  if (!jobs) return <p className="muted">{t('co.loading')}</p>;
-  if (!jobs.length) return <section className="card stack g8" data-testid="co-hire"><strong>{t('co.hire.title')}</strong><p className="small">{t('co.hire.noJobs')}</p></section>;
+  if (!verified) return <section className="mcard hn-gate" data-testid="co-hire"><strong className="mcard-title">{t('co.hire.title')}</strong><p className="small" data-testid="co-hire-basic">{t('co.hire.basic')}</p></section>;
+  if (!jobs) return <div className="mcard stack g12" role="status" aria-label={t('co.loading')}><span className="skeleton" style={{ width: '40%', height: 20 }} /><span className="skeleton" style={{ width: '80%' }} /><span className="skeleton" style={{ width: '65%' }} /></div>;
+  if (!jobs.length) return <section className="mcard" data-testid="co-hire"><strong className="mcard-title">{t('co.hire.title')}</strong><Empty shape="stopwatch" tint="company" compact>{t('co.hire.noJobs')}</Empty></section>;
   const open = (d?.items || []).slice(0, shown).filter((x) => !x.invite && !x.applied).map((x) => x.key); // the people on screen
   return (
-    <section className="stack g12" aria-label={t('co.hire.title')} data-testid="co-hire">
-      <div className="card stack g8">
-        <strong>{t('co.hire.title')}</strong>
-        <span className="small muted">{t('co.hire.intro')}</span>
-        <label className="row g8 small" style={{ flexWrap: 'wrap' }}>{t('co.hire.job')}
-          <select className="input" style={{ height: 38, width: 'auto', maxWidth: '100%' }} value={job} onChange={(e) => setJob(e.target.value)} data-testid="co-hire-job">
-            {jobs.map((j) => <option key={j.id} value={j.id}>{j.title}</option>)}
-          </select>
-        </label>
-        <label className="row g8 small" style={{ flexWrap: 'wrap' }}>{t('jobs.f.support')}
-          <select className="input" style={{ height: 38, width: 'auto', maxWidth: '100%' }} value={support} onChange={(e) => setSupport(e.target.value)} data-testid="co-hire-support">
-            <option value="">{t('jobs.f.any')}</option>
-            {['immediate', 'returners'].map((k) => <option key={k} value={k}>{t(`jobs.support.${k}`)}</option>)}
-          </select>
-        </label>
-        {d?.usage && <span className="xs muted" data-testid="co-hire-usage">{t('co.hire.usage', { used: d.usage.used, free: d.usage.free })}</span>}
+    <section className="stack g16 hn" aria-label={t('co.hire.title')} data-testid="co-hire">
+      <div className="mcard hn-control">
+        <div className="hn-control-top">
+          <span className="mcard-ic blue" aria-hidden="true">⚡</span>
+          <span className="stack g4" style={{ minWidth: 0 }}>
+            <strong className="mcard-title">{t('co.hire.title')}</strong>
+            <span className="mcard-sub">{t('co.hire.intro')}</span>
+          </span>
+        </div>
+        <div className="hn-selects">
+          <label className="field hn-field"><span className="label">{t('co.hire.job')}</span>
+            <select className="input" value={job} onChange={(e) => setJob(e.target.value)} data-testid="co-hire-job">
+              {jobs.map((j) => <option key={j.id} value={j.id}>{j.title}</option>)}
+            </select>
+          </label>
+          <label className="field hn-field"><span className="label">{t('jobs.f.support')}</span>
+            <select className="input" value={support} onChange={(e) => setSupport(e.target.value)} data-testid="co-hire-support">
+              <option value="">{t('jobs.f.any')}</option>
+              {['immediate', 'returners'].map((k) => <option key={k} value={k}>{t(`jobs.support.${k}`)}</option>)}
+            </select>
+          </label>
+          {d?.usage && <span className="mchip mchip-info hn-usage" data-testid="co-hire-usage">{t('co.hire.usage', { used: d.usage.used, free: d.usage.free })}</span>}
+        </div>
       </div>
       <HireSpeed t={t} c={c} />
       {job && <HireBulk key={`b-${job}`} t={t} c={c} job={job} canEdit={canInvite} people={invites.filter((x) => x.status === 'accepted').map((x) => ({ key: x.key, name: x.name }))} onChange={load} />}
       {err && <p className="error" role="alert">{err}</p>}
-      {!d && !err && <p className="muted">{t('co.loading')}</p>}
+      {!d && !err && (
+        <div className="hn-grid" role="status" aria-label={t('co.loading')}>
+          {[0, 1].map((i) => <div key={i} className="mcard stack g12" aria-hidden="true"><span className="skeleton" style={{ width: '50%', height: 18 }} /><span className="skeleton" style={{ width: '85%' }} /><span className="skeleton" style={{ width: '70%' }} /></div>)}
+        </div>
+      )}
       {d && !err && (
-        <>
-          <p className="small" data-testid="co-hire-count">{d.items.length ? t('co.hire.found', { n: d.available }) : t('co.hire.none')}</p>
+        <div className="hn-people">
+          <div className="hn-people-head">
+            <p className="hn-count" data-testid="co-hire-count">{d.items.length ? t('co.hire.found', { n: d.available }) : t('co.hire.none')}</p>
+          </div>
           {canInvite && open.length > 0 && (
-            <div className="card-sm stack g8">
-              <label className="field"><span className="label">{t('co.hire.note')}</span><input className="input" maxLength={500} value={note} onChange={(e) => setNote(e.target.value)} placeholder={t('co.hire.notePh')} data-testid="co-hire-note" /></label>
-              <button type="button" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={busy} onClick={() => invite(open)} data-testid="co-hire-all">{t('co.hire.inviteAll', { n: open.length })}</button>
+            <div className="hn-invitebar">
+              <label className="field hn-note"><span className="label">{t('co.hire.note')}</span><input className="input" maxLength={500} value={note} onChange={(e) => setNote(e.target.value)} placeholder={t('co.hire.notePh')} data-testid="co-hire-note" /></label>
+              <button type="button" className="btn btn-signal hn-all" disabled={busy} onClick={() => invite(open)} data-testid="co-hire-all">{t('co.hire.inviteAll', { n: open.length })}</button>
             </div>
           )}
-          {msg && <p className="small" role="status" data-testid="co-hire-msg">{msg}</p>}
-          <ol className="stack g8" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+          {msg && <p className="small hn-msg" role="status" data-testid="co-hire-msg">{msg}</p>}
+          {!d.items.length && <Empty shape="magnifier" tint="company" compact />}
+          <ol className="hn-grid">
             {d.items.slice(0, shown).map((x, i) => (
-              <li key={x.key} className="card stack g4" data-testid="co-hire-row">
-                <div className="row between g8" style={{ flexWrap: 'wrap' }}>
-                  <strong>{i + 1}. {x.name}</strong>
-                  <span className="badge b-signal" data-testid="co-hire-score">{t('co.hire.score', { score: x.match.score })}</span>
+              <li key={x.key} className={`mcard hn-person ${i < 3 ? 'hn-top' : ''}`} data-testid="co-hire-row">
+                <div className="hn-person-top">
+                  <span className="hn-rank" aria-hidden="true">{i + 1}</span>
+                  <span className="hn-avatar" aria-hidden="true">{initial(x.name)}</span>
+                  <strong className="hn-name"><span className="sr-only">{i + 1}. </span>{x.name}</strong>
+                  <span className="hn-score">
+                    <span className="hn-ring" aria-hidden="true" style={{ '--p': Math.max(0, Math.min(100, x.match.score)) }}><span>{x.match.score}</span></span>
+                    <span className="mchip mchip-accent" data-testid="co-hire-score">{t('co.hire.score', { score: x.match.score })}</span>
+                  </span>
                 </div>
-                <span className="small">{reasons(x.match, t).join(' · ')}</span>
-                <span className="small" data-testid="co-hire-when">{whenLine(x.availability, t)}</span>
-                <span className="small" data-testid="co-hire-salary">{salaryLine(x.salary, t)}</span>
-                {x.verified?.length > 0 && <span className="small" data-testid="co-hire-verified">{x.verified.map((v) => t('co.hire.verified', { skill: v.skill, date: new Date(v.at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) })).join(' · ')}</span>}
-                <span className="xs muted" data-testid="co-hire-trust">{x.skillCheck ? t('co.hire.check', { score: x.skillCheck.score }) : t('co.hire.noCheck')} · {x.reliability.score == null ? x.reliability.label : `${x.reliability.label} (${x.reliability.score}%)`}{x.reliability.lines?.length ? `: ${x.reliability.lines.join('; ')}` : ''}</span>
-                <div className="row g8" style={{ flexWrap: 'wrap' }}>
-                  {x.invite ? <span className={`badge ${TONE[x.invite.status]}`} data-testid="co-hire-state">{t(`co.hire.state.${x.invite.status}`)}</span>
-                    : x.applied ? <span className="badge b-neutral">{t('co.hire.applied')}</span>
-                      : canInvite && <button type="button" className="btn btn-outline btn-sm" disabled={busy} onClick={() => invite([x.key])} data-testid="co-hire-invite">{t('co.hire.invite')}</button>}
+                <ul className="hn-chips">{reasons(x.match, t).map((r) => <li key={r} className="mchip mchip-neutral">{r}</li>)}</ul>
+                <dl className="hn-facts">
+                  <div><dt aria-hidden="true">📅</dt><dd data-testid="co-hire-when">{whenLine(x.availability, t)}</dd></div>
+                  <div><dt aria-hidden="true">₹</dt><dd data-testid="co-hire-salary">{salaryLine(x.salary, t)}</dd></div>
+                  {x.verified?.length > 0 && <div><dt aria-hidden="true">✓</dt><dd data-testid="co-hire-verified">{x.verified.map((v) => t('co.hire.verified', { skill: v.skill, date: new Date(v.at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) })).join(' · ')}</dd></div>}
+                </dl>
+                <span className="hn-trust" data-testid="co-hire-trust">{x.skillCheck ? t('co.hire.check', { score: x.skillCheck.score }) : t('co.hire.noCheck')} · {x.reliability.score == null ? x.reliability.label : `${x.reliability.label} (${x.reliability.score}%)`}{x.reliability.lines?.length ? `: ${x.reliability.lines.join('; ')}` : ''}</span>
+                <div className="hn-person-foot">
+                  {x.invite ? <span className={`mchip ${CHIP[x.invite.status]}`} data-testid="co-hire-state">{t(`co.hire.state.${x.invite.status}`)}</span>
+                    : x.applied ? <span className="mchip mchip-neutral">{t('co.hire.applied')}</span>
+                      : canInvite && <button type="button" className="btn btn-outline hn-invite" disabled={busy} onClick={() => invite([x.key])} data-testid="co-hire-invite">{t('co.hire.invite')}</button>}
                 </div>
               </li>
             ))}
           </ol>
           {d.items.length > shown && (
-            <button type="button" className="btn btn-outline btn-sm" style={{ alignSelf: 'flex-start' }} onClick={() => setShown((n) => n + PAGE)} data-testid="co-hire-more">{t('co.hire.more', { n: Math.min(PAGE, d.items.length - shown), left: d.items.length - shown })}</button>
+            <button type="button" className="btn btn-outline hn-more" onClick={() => setShown((n) => n + PAGE)} data-testid="co-hire-more">{t('co.hire.more', { n: Math.min(PAGE, d.items.length - shown), left: d.items.length - shown })}</button>
           )}
-        </>
+        </div>
       )}
       {job && <HireSlots key={job} t={t} c={c} job={job} canEdit={canInvite} />}
       {job && <HireOffers key={`o-${job}`} t={t} c={c} job={job} people={invites.filter((x) => x.status === 'accepted').map((x) => ({ key: x.key, name: x.name }))} canEdit={canInvite} />}
       {invites.length > 0 && (
-        <section className="card stack g8" aria-labelledby="co-hire-inv-h" data-testid="co-hire-invites">
-          <strong id="co-hire-inv-h">{t('co.hire.invites')}</strong>
-          <ul className="stack g8" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+        <section className="mcard" aria-labelledby="co-hire-inv-h" data-testid="co-hire-invites">
+          <header className="mcard-h"><span className="mcard-ic blue" aria-hidden="true">✉</span><span className="mcard-ht"><strong id="co-hire-inv-h" className="mcard-title">{t('co.hire.invites')}</strong><span className="mcard-sub">{t('co.hire.privacy')}</span></span></header>
+          <ul className="mlist">
             {invites.map((x) => (
-              <li key={x.id} className="row between g8" style={{ flexWrap: 'wrap' }} data-testid="co-hire-inv">
-                <span className="stack g4" style={{ minWidth: 0 }}>
-                  <strong>{x.name}</strong>
-                  {x.contact && <span className="small" data-testid="co-hire-contact">{[x.contact.email, x.contact.phone].filter(Boolean).join(' · ')}</span>}
-                  {x.reasonText && <span className="small muted">{x.reasonText}</span>}
+              <li key={x.id} className="mitem" data-testid="co-hire-inv">
+                <span className="mavatar hn-av-blue" aria-hidden="true">{initial(x.name)}</span>
+                <span className="mitem-main">
+                  <strong className="mitem-title">{x.name}</strong>
+                  {x.contact && <span className="mitem-meta" data-testid="co-hire-contact">{[x.contact.email, x.contact.phone].filter(Boolean).join(' · ')}</span>}
+                  {x.reasonText && <span className="mitem-meta">{x.reasonText}</span>}
                 </span>
-                <span className={`badge ${TONE[x.status]}`}>{t(`co.hire.state.${x.status}`)}</span>
+                <span className={`mchip ${CHIP[x.status]}`}>{t(`co.hire.state.${x.status}`)}</span>
               </li>
             ))}
           </ul>
-          <span className="xs muted">{t('co.hire.privacy')}</span>
         </section>
       )}
     </section>
