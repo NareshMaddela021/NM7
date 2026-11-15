@@ -9,6 +9,7 @@ import { useExpertOrders } from '../../lib/expertStore';
 import { useLang } from '../../lib/i18n';
 import { loadSimple, savePrefs } from '../../lib/simple';
 import { Still } from '../newhome/ParticleStage';
+import '../../styles/me-kit.css';
 
 export const ME_NAV = [
   ['home', '/me', 'Home', '⌂'],
