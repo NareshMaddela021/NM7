@@ -7,6 +7,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { rq } from '../../lib/company';
 import { EXPERIENCE, JOB_TYPES, WORK_TYPES, salaryText } from '../../lib/jobBoard';
+import { Bar, Chip, Empty, Skel, Stat } from '../me/kit';
+import '../../styles/company-jobs.css';
 
 const BLANK = { title: '', cities: '', workType: 'onsite', jobType: 'full_time', experience: 'fresher', education: '', salaryMin: '', salaryMax: '', period: 'yearly', skills: '', description: '', applyMethod: 'nm7', applyUrl: '', applyEmail: '', closesAt: '', questions: [] };
 const NEW_Q = { text: '', kind: 'yesno', options: '', want: '', min: '', accept: '' };
@@ -20,7 +22,8 @@ export const questionsBody = (qs) => qs.filter((q) => q.text.trim()).map((q) => 
   ...(q.kind === 'choice' ? { options: csv(q.options), accept: csv(q.accept) } : {}),
 }));
 const questionsForm = (qs) => (qs || []).map((q) => ({ text: q.text, kind: q.kind, options: (q.options || []).join(', '), want: q.want || '', min: q.min ?? '', accept: (q.accept || []).join(', ') }));
-const TONE = { active: 'b-success', review: 'b-warning', paused: 'b-neutral', closed: 'b-danger' };
+const TONE = { active: 'ok', review: 'warn', paused: 'neutral', closed: 'bad' };
+const ORDER = ['active', 'review', 'paused', 'closed'];
 
 const EDU = ['', '10th', '12th', 'iti', 'diploma', 'graduate', 'postgraduate'];
 
@@ -73,16 +76,25 @@ export default function CompanyJobs({ t, c }) {
     rq(`/api/company/${c.id}/room`).then(setRoom, () => {});
   }, [c.id]);
   useEffect(() => { load(); }, [load]);
-  if (!jobs) return <p className="muted">{t('co.loading')}</p>;
+  if (!jobs) return <Skel cards={3} lines={2} label={t('co.loading')} />;
+  const count = (st) => jobs.filter((j) => j.status === st).length;
   return (
-    <section className="stack g12" aria-label={t('co.dash.tab.jobs')} data-testid="co-jobs">
-      <div className="row g8" style={{ justifyContent: 'space-between' }}>
-        {room && <span className="small" data-testid="co-jobs-room">{room.allowed ? t(`co.room.${room.period}`, { used: room.used, limit: room.limit }) : room.reason}</span>}
-        {can && !form && <button type="button" className="btn btn-ink" disabled={room && !room.allowed} onClick={() => setForm({ f: { ...BLANK } })}>{t('co.jobs.post')}</button>}
+    <section className="stack g16" aria-label={t('co.dash.tab.jobs')} data-testid="co-jobs">
+      <div className="cj-top mcard mcard-accent">
+        <div className="cj-room">
+          {room && <span className="cj-room-text" data-testid="co-jobs-room">{room.allowed ? t(`co.room.${room.period}`, { used: room.used, limit: room.limit }) : room.reason}</span>}
+          {room?.limit > 0 && <Bar value={Math.min(room.used, room.limit)} max={room.limit} showValue={false} label={t('co.dash.allowance')} />}
+        </div>
+        {can && !form && <button type="button" className="btn btn-signal cj-post" disabled={room && !room.allowed} onClick={() => setForm({ f: { ...BLANK } })}>{t('co.jobs.post')}</button>}
       </div>
+      {jobs.length > 0 && (
+        <div className="cj-stats">
+          {ORDER.map((st) => <Stat key={st} label={t(`co.jobs.status.${st}`)} value={count(st)} tone={st === 'active' && count(st) ? 'ok' : st === 'review' && count(st) ? 'warn' : undefined} />)}
+        </div>
+      )}
       {form && <JobForm t={t} c={c} init={form} onDone={(msg) => { setForm(null); load(); if (msg) setJobs((x) => x); }} onCancel={() => setForm(null)} />}
-      {jobs.length === 0 && !form && <p className="card-sm small muted" style={{ margin: 0 }}>{t('co.jobs.none')}</p>}
-      <ul className="stack g12" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+      {jobs.length === 0 && !form && <Empty shape="briefcase" tint="company" compact>{t('co.jobs.none')}</Empty>}
+      <ul className="cj-list">
         {jobs.map((j) => <JobRow key={j.id} t={t} c={c} j={j} can={can} onEdit={() => setForm({ id: j.id, f: fromJob(j), editsLeft: j.editsLeft, live: j.status === 'active' })} onChanged={load} />)}
       </ul>
     </section>
@@ -93,26 +105,28 @@ function JobRow({ t, c, j, can, onEdit, onChanged }) {
   const [closing, setClosing] = useState(false);
   const [err, setErr] = useState('');
   const status = async (s) => { setErr(''); try { await rq(`/api/company/${c.id}/jobs/${j.id}/status`, { method: 'POST', body: { status: s } }); setClosing(false); onChanged(); } catch (x) { setErr(x.message); } };
+  const facts = [(j.locations || []).join(', ') || (j.remote ? t('jobs.remote') : ''), t(`jobs.exp.${j.experience}`), t(`jobs.type.${j.jobType}`), salaryText(j.salary, t)].filter((x, i, all) => x && all.indexOf(x) === i);
   return (
-    <li className="card-sm stack g8" data-testid="co-job">
-      <div className="row g8" style={{ justifyContent: 'space-between' }}>
-        <strong style={{ overflowWrap: 'anywhere' }}>{j.title}</strong>
-        <span className={`badge ${TONE[j.status]}`} data-testid="co-job-status">{t(`co.jobs.status.${j.status}`)}</span>
+    <li className={`mcard cj-job cj-job-${j.status}`} data-testid="co-job">
+      <div className="cj-job-head">
+        <span className="cj-job-ic" aria-hidden="true">▤</span>
+        <strong className="cj-job-title">{j.title}</strong>
+        <Chip tone={TONE[j.status]} testid="co-job-status">{t(`co.jobs.status.${j.status}`)}</Chip>
       </div>
-      <span className="xs muted">{[(j.locations || []).join(', ') || (j.remote ? t('jobs.remote') : ''), t(`jobs.exp.${j.experience}`), t(`jobs.type.${j.jobType}`), salaryText(j.salary, t)].filter((x, i, all) => x && all.indexOf(x) === i).join(' · ')}</span>
-      {j.status === 'review' && <p className="xs" style={{ margin: 0, color: 'var(--warning)' }}>{t('co.jobs.reviewNote')}</p>}
-      {j.status === 'closed' && j.closedReason && <p className="xs muted" style={{ margin: 0 }}>{j.closedReason}</p>}
+      <ul className="cj-facts">{facts.map((x) => <li key={x}>{x}</li>)}</ul>
+      {j.status === 'review' && <p className="cj-note cj-note-warn">{t('co.jobs.reviewNote')}</p>}
+      {j.status === 'closed' && j.closedReason && <p className="cj-note">{j.closedReason}</p>}
       {can && j.status !== 'closed' && (
-        <div className="row g8">
-          {j.status === 'active' && <Link to={`/jobs/${j.slug}`} className="link-btn small">{t('co.jobs.view')}</Link>}
-          {(j.status !== 'active' || j.editsLeft > 0) && <button type="button" className="link-btn small" onClick={onEdit}>{t('co.jobs.edit')}{j.status === 'active' ? ` (${t('co.jobs.editsLeft', { n: j.editsLeft })})` : ''}</button>}
-          {j.status === 'active' && <button type="button" className="link-btn small" onClick={() => status('paused')}>{t('co.jobs.pause')}</button>}
-          {j.status === 'paused' && <button type="button" className="link-btn small" onClick={() => status('active')}>{t('co.jobs.resume')}</button>}
+        <div className="cj-actions">
+          {j.status === 'active' && <Link to={`/jobs/${j.slug}`} className="btn btn-outline btn-sm">{t('co.jobs.view')}</Link>}
+          {(j.status !== 'active' || j.editsLeft > 0) && <button type="button" className="btn btn-outline btn-sm" onClick={onEdit}>{t('co.jobs.edit')}{j.status === 'active' ? ` (${t('co.jobs.editsLeft', { n: j.editsLeft })})` : ''}</button>}
+          {j.status === 'active' && <button type="button" className="btn btn-outline btn-sm" onClick={() => status('paused')}>{t('co.jobs.pause')}</button>}
+          {j.status === 'paused' && <button type="button" className="btn btn-signal btn-sm" onClick={() => status('active')}>{t('co.jobs.resume')}</button>}
           {closing ? (
-            <span className="row g4" role="alert"><span className="xs">{t('co.jobs.closeAsk')}</span>
-              <button type="button" className="btn btn-outline" onClick={() => status('closed')}>{t('co.jobs.close')}</button>
-              <button type="button" className="link-btn small" onClick={() => setClosing(false)}>{t('co.cancel')}</button></span>
-          ) : <button type="button" className="link-btn small" onClick={() => setClosing(true)}>{t('co.jobs.close')}</button>}
+            <span className="cj-confirm" role="alert"><span className="small">{t('co.jobs.closeAsk')}</span>
+              <span className="cj-confirm-btns"><button type="button" className="btn btn-outline btn-sm cj-danger" onClick={() => status('closed')}>{t('co.jobs.close')}</button>
+                <button type="button" className="link-btn small" onClick={() => setClosing(false)}>{t('co.cancel')}</button></span></span>
+          ) : <button type="button" className="link-btn small cj-close" onClick={() => setClosing(true)}>{t('co.jobs.close')}</button>}
         </div>
       )}
       {err && <p className="error" role="alert">{err}</p>}
@@ -148,56 +162,69 @@ function JobForm({ t, c, init, onDone, onCancel }) {
   };
   const blocked = check?.blocked?.length > 0;
   return (
-    <form className="card stack g12" onSubmit={submit} aria-label={init.id ? t('co.jobs.editTitle') : t('co.jobs.post')} data-testid="co-job-form">
-      <h2 className="co-h2">{init.id ? t('co.jobs.editTitle') : t('co.jobs.post')}</h2>
-      {init.live && <p className="xs muted" style={{ margin: 0 }}>{t('co.jobs.editsNote', { n: init.editsLeft })}</p>}
-      {!init.id && <Templates t={t} onPick={(x) => setF({ ...f, title: x.title, jobType: x.jobType, experience: x.experience, education: x.education, skills: x.skills.join(', '), description: x.description })} />}
-      <div className="field"><label className="label" htmlFor="cj-title">{t('co.jobs.f.title')}</label><input id="cj-title" className="input" required minLength={2} maxLength={120} value={f.title} onChange={set('title')} /></div>
-      <details className="card-sm" open={writer.open} onToggle={(e) => setWriter({ ...writer, open: e.currentTarget.open })}>
-        <summary className="small"><strong>{t('co.jobs.writer')}</strong></summary>
-        <div className="stack g8" style={{ marginTop: 8 }}>
-          <span className="xs muted">{t('co.jobs.writerHint')}</span>
-          {!f.title.trim() && <div className="field"><label className="label" htmlFor="cw-role">{t('co.jobs.w.role')}</label><input id="cw-role" className="input" maxLength={120} value={writer.role} onChange={(e) => setWriter({ ...writer, role: e.target.value })} /></div>}
-          <div className="field"><label className="label" htmlFor="cw-skills">{t('co.jobs.w.skills')}</label><input id="cw-skills" className="input" maxLength={300} value={writer.skills} onChange={(e) => setWriter({ ...writer, skills: e.target.value })} /></div>
-          <div className="field"><label className="label" htmlFor="cw-duties">{t('co.jobs.w.duties')}</label><textarea id="cw-duties" className="input" rows={3} maxLength={1500} value={writer.duties} onChange={(e) => setWriter({ ...writer, duties: e.target.value })} /></div>
-          <div className="field"><label className="label" htmlFor="cw-place">{t('co.jobs.w.place')}</label><input id="cw-place" className="input" maxLength={200} value={writer.place} onChange={(e) => setWriter({ ...writer, place: e.target.value })} /></div>
-          <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} disabled={!!busy || (f.title.trim() || writer.role).trim().length < 2} onClick={write}>{busy === 'write' ? t('co.wait') : t('co.jobs.writeIt')}</button>
+    <form className="cj-form stack g16" onSubmit={submit} aria-label={init.id ? t('co.jobs.editTitle') : t('co.jobs.post')} data-testid="co-job-form">
+      <div className="cj-form-head">
+        <h2 className="cj-form-title">{init.id ? t('co.jobs.editTitle') : t('co.jobs.post')}</h2>
+        {init.live && <p className="small muted" style={{ margin: 0 }}>{t('co.jobs.editsNote', { n: init.editsLeft })}</p>}
+      </div>
+      <div className="mcard cj-group">
+        <h3 className="cj-group-h"><span className="cj-step" aria-hidden="true">1</span>{t('co.jobs.g.basics')}</h3>
+        {!init.id && <Templates t={t} onPick={(x) => setF({ ...f, title: x.title, jobType: x.jobType, experience: x.experience, education: x.education, skills: x.skills.join(', '), description: x.description })} />}
+        <div className="field"><label className="label" htmlFor="cj-title">{t('co.jobs.f.title')}</label><input id="cj-title" className="input" required minLength={2} maxLength={120} value={f.title} onChange={set('title')} /></div>
+        <details className="cj-writer" open={writer.open} onToggle={(e) => setWriter({ ...writer, open: e.currentTarget.open })}>
+          <summary className="small"><span aria-hidden="true">✦ </span><strong>{t('co.jobs.writer')}</strong></summary>
+          <div className="stack g8" style={{ marginTop: 10 }}>
+            <span className="xs muted">{t('co.jobs.writerHint')}</span>
+            {!f.title.trim() && <div className="field"><label className="label" htmlFor="cw-role">{t('co.jobs.w.role')}</label><input id="cw-role" className="input" maxLength={120} value={writer.role} onChange={(e) => setWriter({ ...writer, role: e.target.value })} /></div>}
+            <div className="field"><label className="label" htmlFor="cw-skills">{t('co.jobs.w.skills')}</label><input id="cw-skills" className="input" maxLength={300} value={writer.skills} onChange={(e) => setWriter({ ...writer, skills: e.target.value })} /></div>
+            <div className="field"><label className="label" htmlFor="cw-duties">{t('co.jobs.w.duties')}</label><textarea id="cw-duties" className="input" rows={3} maxLength={1500} value={writer.duties} onChange={(e) => setWriter({ ...writer, duties: e.target.value })} /></div>
+            <div className="field"><label className="label" htmlFor="cw-place">{t('co.jobs.w.place')}</label><input id="cw-place" className="input" maxLength={200} value={writer.place} onChange={(e) => setWriter({ ...writer, place: e.target.value })} /></div>
+            <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} disabled={!!busy || (f.title.trim() || writer.role).trim().length < 2} onClick={write}>{busy === 'write' ? t('co.wait') : t('co.jobs.writeIt')}</button>
+          </div>
+        </details>
+        {note && <p className="cj-note" role="status" data-testid="co-writer-note">{note}</p>}
+        <div className="field"><label className="label" htmlFor="cj-desc">{t('co.jobs.f.description')}</label><textarea id="cj-desc" className="input" rows={8} required minLength={30} maxLength={20000} value={f.description} onChange={set('description')} /></div>
+        <div className="field"><label className="label" htmlFor="cj-skills">{t('co.jobs.f.skills')}</label><input id="cj-skills" className="input" value={f.skills} onChange={set('skills')} /></div>
+      </div>
+      <div className="mcard cj-group">
+        <h3 className="cj-group-h"><span className="cj-step" aria-hidden="true">2</span>{t('co.jobs.g.details')}</h3>
+        <div className="cj-grid">
+          <div className="field"><label className="label" htmlFor="cj-cities">{t('co.jobs.f.cities')}</label><input id="cj-cities" className="input" value={f.cities} onChange={set('cities')} /></div>
+          <div className="field"><label className="label" htmlFor="cj-work">{t('jobs.f.workType')}</label><select id="cj-work" className="input" value={f.workType} onChange={set('workType')}>{WORK_TYPES.map((x) => <option key={x} value={x}>{t(`jobs.work.${x}`)}</option>)}</select></div>
+          <div className="field"><label className="label" htmlFor="cj-type">{t('jobs.f.jobType')}</label><select id="cj-type" className="input" value={f.jobType} onChange={set('jobType')}>{JOB_TYPES.map((x) => <option key={x} value={x}>{t(`jobs.type.${x}`)}</option>)}</select></div>
+          <div className="field"><label className="label" htmlFor="cj-exp">{t('jobs.f.experience')}</label><select id="cj-exp" className="input" value={f.experience} onChange={set('experience')}>{EXPERIENCE.map((x) => <option key={x} value={x}>{t(`jobs.exp.${x}`)}</option>)}</select></div>
+          <div className="field"><label className="label" htmlFor="cj-edu">{t('jobs.f.education')}</label><select id="cj-edu" className="input" value={f.education || ''} onChange={set('education')} data-testid="cj-edu">{EDU.map((x) => <option key={x} value={x}>{t(`jobs.edu.${x || 'any'}`)}</option>)}</select></div>
+          <div className="field"><label className="label" htmlFor="cj-close">{t('co.jobs.f.closes')}</label><input id="cj-close" type="date" className="input" value={f.closesAt} onChange={set('closesAt')} /></div>
         </div>
-      </details>
-      {note && <p className="xs" role="status" style={{ margin: 0 }} data-testid="co-writer-note">{note}</p>}
-      <div className="field"><label className="label" htmlFor="cj-desc">{t('co.jobs.f.description')}</label><textarea id="cj-desc" className="input" rows={8} required minLength={30} maxLength={20000} value={f.description} onChange={set('description')} /></div>
-      <div className="co-grid">
-        <div className="field"><label className="label" htmlFor="cj-cities">{t('co.jobs.f.cities')}</label><input id="cj-cities" className="input" value={f.cities} onChange={set('cities')} /></div>
-        <div className="field"><label className="label" htmlFor="cj-work">{t('jobs.f.workType')}</label><select id="cj-work" className="input" value={f.workType} onChange={set('workType')}>{WORK_TYPES.map((x) => <option key={x} value={x}>{t(`jobs.work.${x}`)}</option>)}</select></div>
-        <div className="field"><label className="label" htmlFor="cj-type">{t('jobs.f.jobType')}</label><select id="cj-type" className="input" value={f.jobType} onChange={set('jobType')}>{JOB_TYPES.map((x) => <option key={x} value={x}>{t(`jobs.type.${x}`)}</option>)}</select></div>
-        <div className="field"><label className="label" htmlFor="cj-exp">{t('jobs.f.experience')}</label><select id="cj-exp" className="input" value={f.experience} onChange={set('experience')}>{EXPERIENCE.map((x) => <option key={x} value={x}>{t(`jobs.exp.${x}`)}</option>)}</select></div>
-        <div className="field"><label className="label" htmlFor="cj-edu">{t('jobs.f.education')}</label><select id="cj-edu" className="input" value={f.education || ''} onChange={set('education')} data-testid="cj-edu">{EDU.map((x) => <option key={x} value={x}>{t(`jobs.edu.${x || 'any'}`)}</option>)}</select></div>
-        <div className="field"><label className="label" htmlFor="cj-min">{t('co.jobs.f.salaryMin')}</label><input id="cj-min" className="input" inputMode="numeric" value={f.salaryMin} onChange={set('salaryMin')} /></div>
-        <div className="field"><label className="label" htmlFor="cj-max">{t('co.jobs.f.salaryMax')}</label><input id="cj-max" className="input" inputMode="numeric" value={f.salaryMax} onChange={set('salaryMax')} /></div>
-        <div className="field"><label className="label" htmlFor="cj-per">{t('co.jobs.f.per')}</label><select id="cj-per" className="input" value={f.period} onChange={set('period')}><option value="yearly">{t('jobs.perYear')}</option><option value="monthly">{t('jobs.perMonth')}</option></select></div>
-        <div className="field"><label className="label" htmlFor="cj-close">{t('co.jobs.f.closes')}</label><input id="cj-close" type="date" className="input" value={f.closesAt} onChange={set('closesAt')} /></div>
+        <div className="cj-grid cj-pay">
+          <div className="field"><label className="label" htmlFor="cj-min">{t('co.jobs.f.salaryMin')}</label><input id="cj-min" className="input" inputMode="numeric" value={f.salaryMin} onChange={set('salaryMin')} /></div>
+          <div className="field"><label className="label" htmlFor="cj-max">{t('co.jobs.f.salaryMax')}</label><input id="cj-max" className="input" inputMode="numeric" value={f.salaryMax} onChange={set('salaryMax')} /></div>
+          <div className="field"><label className="label" htmlFor="cj-per">{t('co.jobs.f.per')}</label><select id="cj-per" className="input" value={f.period} onChange={set('period')}><option value="yearly">{t('jobs.perYear')}</option><option value="monthly">{t('jobs.perMonth')}</option></select></div>
+        </div>
       </div>
-      <div className="field"><label className="label" htmlFor="cj-skills">{t('co.jobs.f.skills')}</label><input id="cj-skills" className="input" value={f.skills} onChange={set('skills')} /></div>
-      <div className="co-grid">
-        <div className="field"><label className="label" htmlFor="cj-apply">{t('co.jobs.f.apply')}</label>
-          <select id="cj-apply" className="input" value={f.applyMethod} onChange={set('applyMethod')}><option value="nm7">{t('co.jobs.applyNm7')}</option><option value="link">{t('co.jobs.applyLink')}</option><option value="email">{t('co.jobs.applyEmail')}</option></select></div>
-        {f.applyMethod === 'link' && <div className="field"><label className="label" htmlFor="cj-url">{t('co.jobs.f.url')}</label><input id="cj-url" className="input" inputMode="url" required value={f.applyUrl} onChange={set('applyUrl')} /></div>}
-        {f.applyMethod === 'email' && <div className="field"><label className="label" htmlFor="cj-mail">{t('co.jobs.f.email')}</label><input id="cj-mail" type="email" className="input" required value={f.applyEmail} onChange={set('applyEmail')} /></div>}
+      <div className="mcard cj-group">
+        <h3 className="cj-group-h"><span className="cj-step" aria-hidden="true">3</span>{t('co.jobs.g.apply')}</h3>
+        <div className="cj-grid">
+          <div className="field"><label className="label" htmlFor="cj-apply">{t('co.jobs.f.apply')}</label>
+            <select id="cj-apply" className="input" value={f.applyMethod} onChange={set('applyMethod')}><option value="nm7">{t('co.jobs.applyNm7')}</option><option value="link">{t('co.jobs.applyLink')}</option><option value="email">{t('co.jobs.applyEmail')}</option></select></div>
+          {f.applyMethod === 'link' && <div className="field"><label className="label" htmlFor="cj-url">{t('co.jobs.f.url')}</label><input id="cj-url" className="input" inputMode="url" required value={f.applyUrl} onChange={set('applyUrl')} /></div>}
+          {f.applyMethod === 'email' && <div className="field"><label className="label" htmlFor="cj-mail">{t('co.jobs.f.email')}</label><input id="cj-mail" type="email" className="input" required value={f.applyEmail} onChange={set('applyEmail')} /></div>}
+        </div>
+        {f.applyMethod === 'nm7' && <Questions t={t} qs={f.questions || []} onChange={(questions) => setF({ ...f, questions })} />}
       </div>
-      {f.applyMethod === 'nm7' && <Questions t={t} qs={f.questions || []} onChange={(questions) => setF({ ...f, questions })} />}
       {check && (
-        <div className="card-sm stack g4" role="status" data-testid="co-job-check">
-          {check.errors.map((x, i) => <span key={`e${i}`} className="small" style={{ color: 'var(--danger)' }}>{x}</span>)}
-          {check.blocked.length > 0 && <span className="small" style={{ color: 'var(--danger)' }}>{t('co.jobs.blocked', { list: check.blocked.join(', ') })}</span>}
-          {check.scam.length > 0 && <span className="small" style={{ color: 'var(--warning)' }}>{t('co.jobs.scam', { list: check.scam.join(', ') })}</span>}
-          {check.warnings.map((x, i) => <span key={`w${i}`} className="small" style={{ color: 'var(--warning)' }}>{x}</span>)}
-          {check.duplicate && <span className="small" style={{ color: 'var(--danger)' }}>{t('co.jobs.duplicate')}</span>}
-          {!check.errors.length && !blocked && !check.scam.length && !check.warnings.length && !check.duplicate && <span className="small" style={{ color: 'var(--success)' }}>{t('co.jobs.checkOk')}</span>}
+        <div className={`mcard mcard-tight cj-check ${check.errors.length || blocked || check.duplicate ? 'mcard-bad' : check.scam.length || check.warnings.length ? 'mcard-warn' : 'mcard-ok'}`} role="status" data-testid="co-job-check">
+          {check.errors.map((x, i) => <span key={`e${i}`} className="small cj-bad">{x}</span>)}
+          {check.blocked.length > 0 && <span className="small cj-bad">{t('co.jobs.blocked', { list: check.blocked.join(', ') })}</span>}
+          {check.scam.length > 0 && <span className="small cj-warn">{t('co.jobs.scam', { list: check.scam.join(', ') })}</span>}
+          {check.warnings.map((x, i) => <span key={`w${i}`} className="small cj-warn">{x}</span>)}
+          {check.duplicate && <span className="small cj-bad">{t('co.jobs.duplicate')}</span>}
+          {!check.errors.length && !blocked && !check.scam.length && !check.warnings.length && !check.duplicate && <span className="small cj-ok">{t('co.jobs.checkOk')}</span>}
         </div>
       )}
-      <div className="row g8">
+      <div className="msticky cj-bar" role="group" aria-label={init.id ? t('co.jobs.editTitle') : t('co.jobs.post')}>
         <button type="button" className="btn btn-outline" disabled={!!busy} onClick={doCheck}>{busy === 'check' ? t('co.wait') : t('co.jobs.check')}</button>
-        <button type="submit" className="btn btn-ink" disabled={!!busy || blocked}>{busy === 'post' ? t('co.wait') : init.id ? t('co.dash.save') : t('co.jobs.postNow')}</button>
+        <button type="submit" className="btn btn-signal" disabled={!!busy || blocked}>{busy === 'post' ? t('co.wait') : init.id ? t('co.dash.save') : t('co.jobs.postNow')}</button>
         <button type="button" className="link-btn small" onClick={onCancel}>{t('co.cancel')}</button>
       </div>
       {err && <p className="error" role="alert">{err}</p>}
@@ -209,13 +236,13 @@ function JobForm({ t, c, init, onDone, onCancel }) {
 function Questions({ t, qs, onChange }) {
   const put = (i, patch) => onChange(qs.map((q, k) => (k === i ? { ...q, ...patch } : q)));
   return (
-    <fieldset className="card-sm stack g8" data-testid="co-questions" style={{ border: 0, margin: 0 }}>
-      <legend className="small"><strong>{t('co.q.title')}</strong></legend>
+    <fieldset className="cj-questions stack g8" data-testid="co-questions">
+      <legend className="cj-q-legend">{t('co.q.title')}</legend>
       <span className="xs muted">{t('co.q.hint')}</span>
       {qs.map((q, i) => (
-        <div key={i} className="stack g8 well" data-testid="co-question">
+        <div key={i} className="stack g8 cj-question" data-testid="co-question">
           <div className="field"><label className="label" htmlFor={`cq-t${i}`}>{t('co.q.text', { n: i + 1 })}</label><input id={`cq-t${i}`} className="input" maxLength={200} value={q.text} onChange={(e) => put(i, { text: e.target.value })} /></div>
-          <div className="co-grid">
+          <div className="cj-grid">
             <div className="field"><label className="label" htmlFor={`cq-k${i}`}>{t('co.q.kind')}</label>
               <select id={`cq-k${i}`} className="input" value={q.kind} onChange={(e) => put(i, { kind: e.target.value })}>{['yesno', 'number', 'choice'].map((k) => <option key={k} value={k}>{t(`co.q.kind.${k}`)}</option>)}</select></div>
             {q.kind === 'yesno' && <div className="field"><label className="label" htmlFor={`cq-w${i}`}>{t('co.q.want')}</label>
@@ -226,7 +253,7 @@ function Questions({ t, qs, onChange }) {
             <div className="field"><label className="label" htmlFor={`cq-o${i}`}>{t('co.q.options')}</label><input id={`cq-o${i}`} className="input" value={q.options} onChange={(e) => put(i, { options: e.target.value })} /></div>
             <div className="field"><label className="label" htmlFor={`cq-a${i}`}>{t('co.q.accept')}</label><input id={`cq-a${i}`} className="input" value={q.accept} onChange={(e) => put(i, { accept: e.target.value })} /></div>
           </>}
-          <button type="button" className="link-btn small" style={{ alignSelf: 'flex-start' }} onClick={() => onChange(qs.filter((_, k) => k !== i))}>{t('co.q.remove')}</button>
+          <button type="button" className="link-btn small cj-q-remove" style={{ alignSelf: 'flex-start' }} onClick={() => onChange(qs.filter((_, k) => k !== i))}>{t('co.q.remove')}</button>
         </div>
       ))}
       {qs.length < MAX_Q && <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} onClick={() => onChange([...qs, { ...NEW_Q }])}>{t('co.q.add')}</button>}

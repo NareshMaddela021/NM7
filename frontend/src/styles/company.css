@@ -2,6 +2,7 @@
    two groups, and a section header with a small blue dotted shape (desktop only). Phones: the tabs become a
    sideways strip that stays at the top. Page styles live in company-*.css next to their pages. */
 .co-page { padding-top: 20px; padding-bottom: 64px; }
+.co-page.container-wide { max-width: 1280px; } /* the dashboard is wide; base.css keeps 820px for the other company pages */
 .co-top .co-h1 { font-size: clamp(30px, 5vw, 40px) !important; }
 
 .co-shell { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; align-items: start; }
