@@ -15,9 +15,12 @@
 .og-pill-check:has(input:checked) { color: #0f766e; }
 .og-pill-check:has(input:checked)::before { background: #dcf5f1; border-color: #8fd9cb; }
 .og-pill-check input { margin: 0; }
-.og-toggle-row { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border-radius: 16px; background: #f6fbfa; border: 1px solid #d6efe9; cursor: pointer; line-height: 1.45; }
+/* a checkbox row in a tinted card: like .og-pill-check the card is drawn behind (::before), so the label that
+   toggles stays the box and its text */
+.og-toggle-row { position: relative; isolation: isolate; display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; margin: 0 15px; max-width: calc(100% - 30px) !important; cursor: pointer; line-height: 1.45; }
+.og-toggle-row::before { content: ""; position: absolute; z-index: -1; inset: 0 -15px; border-radius: 16px; background: #f6fbfa; border: 1px solid #d6efe9; pointer-events: none; }
 .og-toggle-row input { margin-top: 3px; width: 20px; height: 20px; flex: none; accent-color: #0d9488; }
-.og-toggle-row:has(input:checked) { background: #e9f8f5; border-color: #8fd9cb; }
+.og-toggle-row:has(input:checked)::before { background: #e9f8f5; border-color: #8fd9cb; }
 .og-avatar-lg { width: 64px !important; height: 64px !important; font-size: 26px !important; border-radius: 20px !important; }
 .og-av { width: 36px; height: 36px; border-radius: 12px; font-size: 14px; color: #0f766e; background: #dcf5f1; }
 .og-person { display: flex; align-items: center; gap: 10px; min-width: 0; }
