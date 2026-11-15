@@ -7,6 +7,8 @@ import { useEffect, useState } from 'react';
 import { useToast } from '../../components/ui';
 import { API_BASE, http } from '../../services/http';
 import { MeHead } from './MeLayout';
+import { Bar, Empty, FieldGroup, MeCard, Skel, StickyBar } from './kit';
+import '../../styles/me-jobs.css';
 import { fmtDay } from '../../lib/format';
 
 const TYPES = [['full_time', 'Full-time'], ['internship', 'Internship'], ['part_time', 'Part-time'], ['contract', 'Contract']];
@@ -64,61 +66,90 @@ export default function MeHire() {
     setF(toForm(x));
     return x;
   }, on ? 'Saved: you are ready to join' : 'Turned off');
-  if (!s) return err ? <p className="error" role="alert">{err}</p> : <p className="muted">Loading…</p>;
-  if (!s.siteOn && !s.on) return <><MeHead title="Ready to join" /><p className="card small">Hiring now is switched off for the moment.</p></>;
+  if (!s) return err ? <p className="error" role="alert">{err}</p> : <Skel cards={2} label="Loading" />;
+  if (!s.siteOn && !s.on) return <><MeHead title="Ready to join" /><Empty shape="handshake" title="Hiring now is switched off" action={<a href="/jobs" className="btn btn-signal">Find a job</a>}>Hiring now is switched off for the moment.</Empty></>;
   const tone = s.available ? 'b-success' : s.on ? 'b-warning' : 'b-neutral';
+  const ring = s.available ? '' : s.on ? 'warn' : 'off';
+  const ready = [
+    ['When you can start', !!f.joinDate],
+    ['Cities or remote', !!f.cities.trim() || f.remote],
+    ['Salary you expect', !!f.amount],
+    ['Types of job chosen', f.jobTypes.length > 0],
+    ['Companies may see your profile', f.consent],
+  ];
   return (
     <>
       <MeHead title="Ready to join" sub="Tell companies hiring now that you can start, and they can invite you to an interview." />
+      <section className="mcard mcard-accent" aria-labelledby="hire-status-h" data-testid="hire-status">
+        <div className="mhire-status">
+          <span className={`mhire-badge ${ring}`} aria-hidden="true">{s.available ? '✓' : s.on ? (s.paused ? 'II' : '!') : '○'}</span>
+          <div className="stack g8" style={{ minWidth: 0 }}>
+            <div className="mrow"><h2 id="hire-status-h" className="mcard-title">Status</h2><span className={`badge ${tone}`} data-testid="hire-badge">{s.available ? 'Visible' : s.on ? (s.paused ? 'Paused' : 'Not visible') : 'Off'}</span></div>
+            <p className="mhire-line" data-testid="hire-line">{hireLine(s)}</p>
+            {s.on && (
+              <div className="row g8" style={{ flexWrap: 'wrap' }}>
+                {!s.paused && <button type="button" className="btn btn-signal" disabled={busy} onClick={() => run(() => http('/api/me/hire/confirm', { method: 'POST' }), 'Thanks: visible for another week')} data-testid="hire-still">Still ready</button>}
+                <button type="button" className="btn btn-outline" disabled={busy} onClick={() => run(() => http('/api/me/hire/pause', { method: 'POST', body: { paused: !s.paused } }), s.paused ? 'Resumed' : 'Paused')} data-testid="hire-pause">{s.paused ? 'Resume' : 'Pause'}</button>
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="mgrid" style={{ gap: 12 }}>
+          <p className="xs muted" style={{ margin: 0 }}>🔒 Your phone number and email are never shown to a company until you accept its invite.</p>
+          <p className="small" style={{ margin: 0 }}>Stand out: take a 10-minute <a href="/me/skill-checks" data-testid="hire-skill-link">skill check</a> and choose to show the score.</p>
+        </div>
+      </section>
       <Offers />
       <Invites />
       <Slots />
-      <section className="card stack g12" aria-labelledby="hire-status-h" data-testid="hire-status">
-        <div className="row between g8"><strong id="hire-status-h">Status</strong><span className={`badge ${tone}`} data-testid="hire-badge">{s.available ? 'Visible' : s.on ? (s.paused ? 'Paused' : 'Not visible') : 'Off'}</span></div>
-        <p className="small" style={{ margin: 0 }} data-testid="hire-line">{hireLine(s)}</p>
-        {s.on && (
-          <div className="row g8" style={{ flexWrap: 'wrap' }}>
-            {!s.paused && <button type="button" className="btn btn-ink" disabled={busy} onClick={() => run(() => http('/api/me/hire/confirm', { method: 'POST' }), 'Thanks: visible for another week')} data-testid="hire-still">Still ready</button>}
-            <button type="button" className="btn btn-outline" disabled={busy} onClick={() => run(() => http('/api/me/hire/pause', { method: 'POST', body: { paused: !s.paused } }), s.paused ? 'Resumed' : 'Paused')} data-testid="hire-pause">{s.paused ? 'Resume' : 'Pause'}</button>
-          </div>
-        )}
-        <p className="xs muted" style={{ margin: 0 }}>Your phone number and email are never shown to a company until you accept its invite.</p>
-        <p className="small" style={{ margin: 0 }}>Stand out: take a 10-minute <a href="/me/skill-checks" data-testid="hire-skill-link">skill check</a> and choose to show the score.</p>
-      </section>
-      <form className="card stack g12" onSubmit={(e) => { e.preventDefault(); save(true); }} aria-label="Ready to join details" data-testid="hire-form">
-        <div className="co-grid">
-          <div className="field"><label className="label" htmlFor="hj-date">Earliest join date</label><input id="hj-date" type="date" className="input" value={f.joinDate} onChange={set('joinDate')} /></div>
-          <div className="field"><label className="label" htmlFor="hj-notice">Notice period (days)</label><input id="hj-notice" className="input" inputMode="numeric" value={f.noticeDays} onChange={(e) => setF({ ...f, noticeDays: e.target.value.replace(/\D/g, '').slice(0, 3) })} /></div>
+      <div className="mgrid-2">
+        <form className="mcard" onSubmit={(e) => { e.preventDefault(); save(true); }} aria-label="Ready to join details" data-testid="hire-form">
+          <FieldGroup title="When you can start">
+            <div className="field"><label className="label" htmlFor="hj-date">Earliest join date</label><input id="hj-date" type="date" className="input" value={f.joinDate} onChange={set('joinDate')} /></div>
+            <div className="field"><label className="label" htmlFor="hj-notice">Notice period (days)</label><input id="hj-notice" className="input" inputMode="numeric" value={f.noticeDays} onChange={(e) => setF({ ...f, noticeDays: e.target.value.replace(/\D/g, '').slice(0, 3) })} /></div>
+          </FieldGroup>
+          <FieldGroup title="Where and what">
+            <div className="field full"><label className="label" htmlFor="hj-cities">Cities you can work in (comma between)</label><input id="hj-cities" className="input" placeholder="Hyderabad, Pune" value={f.cities} onChange={set('cities')} /></div>
+            <label className="mjobs-toggle full"><input type="checkbox" value="remote" checked={f.remote} onChange={set('remote')} /> Remote is fine</label>
+            <fieldset className="stack g8 full" style={{ border: 0, padding: 0, margin: 0 }}>
+              <legend className="label">Kinds of job</legend>
+              <div className="maa-checks">
+                {TYPES.map(([k, l]) => <label key={k}><input type="checkbox" value={k} checked={f.jobTypes.includes(k)} onChange={(e) => setF({ ...f, jobTypes: e.target.checked ? [...f.jobTypes, k] : f.jobTypes.filter((x) => x !== k) })} /> {l}</label>)}
+              </div>
+            </fieldset>
+          </FieldGroup>
+          <FieldGroup title="Pay" help="What you expect. Companies see it before they invite you.">
+            <div className="field"><label className="label" htmlFor="hj-sal">Expected salary</label><input id="hj-sal" className="input" inputMode="decimal" placeholder={f.unit === 'lpa' ? '3.5' : '25000'} value={f.amount} onChange={(e) => setF({ ...f, amount: e.target.value.replace(/[^\d.]/g, '').slice(0, 9) })} /></div>
+            <div className="field"><label className="label" htmlFor="hj-unit">Per</label><select id="hj-unit" className="input" value={f.unit} onChange={set('unit')}><option value="month">₹ a month</option><option value="lpa">Lakhs a year (LPA)</option></select></div>
+            <span className="full"><PayHint cities={f.cities} /></span>
+          </FieldGroup>
+          <FieldGroup title="Privacy">
+            <label className="mjobs-toggle full"><input type="checkbox" checked={f.returner} onChange={(e) => setF({ ...f, returner: e.target.checked })} data-testid="hj-returner" /> I'm returning to work after a break</label>
+            <div className="field full"><label className="label" htmlFor="hj-hide">Hide me from these companies (my current employer…)</label><input id="hj-hide" className="input" maxLength={600} placeholder="Company name or website, comma between" value={f.hideFrom} onChange={(e) => setF({ ...f, hideFrom: e.target.value })} data-testid="hj-hide" /><span className="xs muted">They won't see you in Hire now or in their applicant lists.</span></div>
+            <label className="maa-consent full"><input type="checkbox" value="consent" checked={f.consent} onChange={set('consent')} data-testid="hire-consent" /> <span>Companies hiring now can see my profile and invite me. (Not my phone or email: those only after I accept an invite.)</span></label>
+          </FieldGroup>
+          {err && <p className="error" role="alert" style={{ margin: 0 }}>{err}</p>}
+          <StickyBar label="Save Ready to join">
+            <button type="submit" className="btn btn-signal" disabled={busy} data-testid="hire-save">{s.on ? 'Save' : 'Turn on Ready to join'}</button>
+            {s.on && <button type="button" className="btn btn-outline" disabled={busy} onClick={() => save(false)} data-testid="hire-off">Turn off</button>}
+          </StickyBar>
+        </form>
+        <div className="mstack">
+          <MeCard title="Your checklist" sub="What companies hiring now look at first." icon="✓" tone="flat">
+            <ul className="mhire-check" aria-label="Your checklist">
+              {ready.map(([l, ok]) => <li key={l}><span className={`ok ${ok ? '' : 'no'}`} aria-hidden="true">{ok ? '✓' : '·'}</span>{l}<span className="sr-only">{ok ? ': done' : ': not yet'}</span></li>)}
+            </ul>
+            <Bar label="Ready" value={ready.filter((x) => x[1]).length} max={ready.length} tone="ok" />
+          </MeCard>
+          <Reliability />
+          {s.on && (
+            <label className="mcard mcard-tight mjobs-toggle" style={{ flexDirection: 'row', flexWrap: 'nowrap' }}>
+              <input type="checkbox" value="emails" checked={s.emails} onChange={(e) => run(() => http('/api/me/hire/emails', { method: 'PUT', body: { on: e.target.checked } }))} data-testid="hire-emails" />
+              Email me a day before it ends, with a one-tap Still ready
+            </label>
+          )}
         </div>
-        <div className="field"><label className="label" htmlFor="hj-cities">Cities you can work in (comma between)</label><input id="hj-cities" className="input" placeholder="Hyderabad, Pune" value={f.cities} onChange={set('cities')} /></div>
-        <label className="row g8 small"><input type="checkbox" value="remote" checked={f.remote} onChange={set('remote')} /> Remote is fine</label>
-        <div className="co-grid">
-          <div className="field"><label className="label" htmlFor="hj-sal">Expected salary</label><input id="hj-sal" className="input" inputMode="decimal" placeholder={f.unit === 'lpa' ? '3.5' : '25000'} value={f.amount} onChange={(e) => setF({ ...f, amount: e.target.value.replace(/[^\d.]/g, '').slice(0, 9) })} /></div>
-          <div className="field"><label className="label" htmlFor="hj-unit">Per</label><select id="hj-unit" className="input" value={f.unit} onChange={set('unit')}><option value="month">₹ a month</option><option value="lpa">Lakhs a year (LPA)</option></select></div>
-        </div>
-        <PayHint cities={f.cities} />
-        <label className="row g8 small"><input type="checkbox" checked={f.returner} onChange={(e) => setF({ ...f, returner: e.target.checked })} data-testid="hj-returner" /> I'm returning to work after a break</label>
-        <div className="field"><label className="label" htmlFor="hj-hide">Hide me from these companies (my current employer…)</label><input id="hj-hide" className="input" maxLength={600} placeholder="Company name or website, comma between" value={f.hideFrom} onChange={(e) => setF({ ...f, hideFrom: e.target.value })} data-testid="hj-hide" /><span className="xs muted">They won't see you in Hire now or in their applicant lists.</span></div>
-        <fieldset className="stack g4" style={{ border: 0, padding: 0, margin: 0 }}>
-          <legend className="label">Kinds of job</legend>
-          <div className="row g12" style={{ flexWrap: 'wrap' }}>
-            {TYPES.map(([k, l]) => <label key={k} className="row g4 small"><input type="checkbox" value={k} checked={f.jobTypes.includes(k)} onChange={(e) => setF({ ...f, jobTypes: e.target.checked ? [...f.jobTypes, k] : f.jobTypes.filter((x) => x !== k) })} /> {l}</label>)}
-          </div>
-        </fieldset>
-        <label className="row g8 small" style={{ alignItems: 'flex-start', flexWrap: 'nowrap' }}><input type="checkbox" value="consent" checked={f.consent} onChange={set('consent')} style={{ marginTop: 3 }} data-testid="hire-consent" /> <span>Companies hiring now can see my profile and invite me. (Not my phone or email: those only after I accept an invite.)</span></label>
-        {err && <p className="error" role="alert" style={{ margin: 0 }}>{err}</p>}
-        <div className="row g8" style={{ flexWrap: 'wrap' }}>
-          <button type="submit" className="btn btn-ink" disabled={busy} data-testid="hire-save">{s.on ? 'Save' : 'Turn on Ready to join'}</button>
-          {s.on && <button type="button" className="btn btn-outline" disabled={busy} onClick={() => save(false)} data-testid="hire-off">Turn off</button>}
-        </div>
-      </form>
-      <Reliability />
-      {s.on && (
-        <label className="row g8 small card-sm" style={{ flexWrap: 'nowrap' }}>
-          <input type="checkbox" value="emails" checked={s.emails} onChange={(e) => run(() => http('/api/me/hire/emails', { method: 'PUT', body: { on: e.target.checked } }))} data-testid="hire-emails" />
-          Email me a day before it ends, with a one-tap Still ready
-        </label>
-      )}
+      </div>
     </>
   );
 }
@@ -145,30 +176,30 @@ export function Invites() {
     } catch (e) { setErr(e.message); }
   };
   return (
-    <section id="invites" className="card stack g12" aria-labelledby="hire-inv-h" data-testid="hire-invites">
-      <strong id="hire-inv-h">Invites from companies hiring now</strong>
+    <section id="invites" className="mcard" aria-labelledby="hire-inv-h" data-testid="hire-invites">
+      <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true">✉</span><span className="mcard-ht"><h2 id="hire-inv-h" className="mcard-title">Invites from companies hiring now</h2><span className="mcard-sub">Accept to share your email and phone with that company only.</span></span></header>
       {err && <p className="error" role="alert" style={{ margin: 0 }}>{err}</p>}
-      <ul className="stack g12" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+      <ul className="mgrid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
         {list.map((i) => (
-          <li key={i.id} className="card-sm stack g8" data-testid="hire-invite">
-            <strong>{i.role} · {i.company}</strong>
+          <li key={i.id} className="mhire-offer" data-testid="hire-invite">
+            <span className="mjob-top"><span className="mavatar" aria-hidden="true">{(i.company || '?').slice(0, 1).toUpperCase()}</span><strong style={{ overflowWrap: 'anywhere' }}>{i.role} · {i.company}</strong></span>
             <span className="small">{[i.where, i.salary && (i.salary.min || i.salary.max) ? `₹${(i.salary.min || i.salary.max).toLocaleString('en-IN')}${i.salary.max && i.salary.min ? `–${i.salary.max.toLocaleString('en-IN')}` : ''} ${i.salary.period === 'monthly' ? 'a month' : 'a year'}` : ''].filter(Boolean).join(' · ')}</span>
             {i.note && <span className="small">“{i.note}”</span>}
             {i.jobUrl && <a href={i.jobUrl} className="small">See the job</a>}
             {i.status === 'sent' && i.live ? (
               why[i.id] ? (
-                <fieldset className="stack g4" style={{ border: 0, padding: 0, margin: 0 }}>
+                <fieldset className="mhire-why" style={{ border: 0, padding: 0, margin: 0 }}>
                   <legend className="label">Why not? The company sees only this reason.</legend>
                   {REASONS.map(([k, l]) => <button key={k} type="button" className="btn btn-outline btn-sm" style={{ alignSelf: 'flex-start' }} onClick={() => answer(i, 'decline', k)} data-testid={`hire-why-${k}`}>{l}</button>)}
                   <button type="button" className="btn btn-ghost btn-sm" style={{ alignSelf: 'flex-start' }} onClick={() => setWhy({ ...why, [i.id]: false })}>Back</button>
                 </fieldset>
               ) : (
                 <span className="row g8" style={{ flexWrap: 'wrap' }}>
-                  <button type="button" className="btn btn-ink" onClick={() => answer(i, 'accept')} data-testid="hire-accept">Accept</button>
+                  <button type="button" className="btn btn-signal" onClick={() => answer(i, 'accept')} data-testid="hire-accept">Accept</button>
                   <button type="button" className="btn btn-outline" onClick={() => setWhy({ ...why, [i.id]: true })} data-testid="hire-decline">Not interested</button>
                 </span>
               )
-            ) : <span className="badge b-neutral" style={{ alignSelf: 'flex-start', maxWidth: '100%', whiteSpace: 'normal', height: 'auto' }} data-testid="hire-invite-state">{i.status === 'sent' ? 'This job is closed' : STATE[i.status]}</span>}
+            ) : <span className={`mchip ${i.status === 'accepted' ? 'mchip-ok' : 'mchip-neutral'}`} style={{ alignSelf: 'flex-start', maxWidth: '100%', whiteSpace: 'normal' }} data-testid="hire-invite-state">{i.status === 'sent' ? 'This job is closed' : STATE[i.status]}</span>}
             {i.status === 'sent' && <span className="xs muted">Accepting shares your email and phone with {i.company} only.</span>}
           </li>
         ))}
@@ -194,11 +225,11 @@ export function Slots() {
     try { await http(path, { method: 'POST', body }); toast(said); setWhy({}); await load(); } catch (e) { setErr(e.message); }
   };
   return (
-    <section className="card stack g12" aria-labelledby="hire-slots-h" data-testid="hire-slots">
-      <strong id="hire-slots-h">Pick your interview time</strong>
+    <section className="mcard" aria-labelledby="hire-slots-h" data-testid="hire-slots">
+      <header className="mcard-h"><span className="mcard-ic blue" aria-hidden="true">◷</span><span className="mcard-ht"><h2 id="hire-slots-h" className="mcard-title">Pick your interview time</h2><span className="mcard-sub">Reminders come 1 day and 1 hour before. Times are India time (IST).</span></span></header>
       {err && <p className="error" role="alert" style={{ margin: 0 }}>{err}</p>}
       {list.map((j) => (
-        <div key={j.jobId} className="card-sm stack g8" data-testid="hire-slot-job">
+        <div key={j.jobId} className="mhire-offer" data-testid="hire-slot-job">
           <strong className="small">{j.role} · {j.company}</strong>
           {j.mine && (
             <div className="stack g4" data-testid="hire-slot-mine">
@@ -214,7 +245,7 @@ export function Slots() {
             <label className="field"><span className="label">Why? (the company sees this)</span><input className="input" maxLength={300} value={why[j.jobId]} onChange={(e) => setWhy({ [j.jobId]: e.target.value })} data-testid="hire-slot-reason" /></label>
           )}
           {(!j.mine || why[j.jobId] !== undefined) && (
-            <div className="row g8" style={{ flexWrap: 'wrap' }}>
+            <div className="mhire-slots">
               {j.open.length === 0 && <span className="small muted">No open times yet. You will see them here.</span>}
               {j.open.map((s) => <button key={s.id} type="button" className="btn btn-outline btn-sm" onClick={() => go(`/api/me/hire/slots/${s.id}/book`, { reason: why[j.jobId] || '' }, j.mine ? 'Moved: both of you got the new time' : 'Booked: the calendar file is in your email')} data-testid="hire-slot-pick">{at(s.at)}</button>)}
               {j.mine && <button type="button" className="btn btn-ghost btn-sm" onClick={() => go(`/api/me/hire/slots/${j.mine.id}/cancel`, { reason: why[j.jobId] || '' }, 'Cancelled: the company was told')} data-testid="hire-slot-cancel">Cancel the interview</button>}
@@ -222,7 +253,6 @@ export function Slots() {
           )}
         </div>
       ))}
-      <span className="xs muted">Reminders come 1 day and 1 hour before. Times are India time (IST).</span>
     </section>
   );
 }
@@ -247,13 +277,13 @@ export function Offers() {
   };
   const today = new Date().toISOString().slice(0, 10);
   return (
-    <section id="offers" className="card stack g12" aria-labelledby="hire-offers-h" data-testid="hire-offers">
-      <strong id="hire-offers-h">Your offers</strong>
+    <section id="offers" className="mcard mcard-ok" aria-labelledby="hire-offers-h" data-testid="hire-offers">
+      <header className="mcard-h"><span className="mcard-ic teal" aria-hidden="true">★</span><span className="mcard-ht"><h2 id="hire-offers-h" className="mcard-title">Your offers</h2><span className="mcard-sub">Read the letter, then accept or decline. The company is told at once.</span></span></header>
       {err && <p className="error" role="alert" style={{ margin: 0 }}>{err}</p>}
       {list.map((o) => (
-        <article key={o.id} className="card-sm stack g8" data-testid="hire-offer">
-          <div className="row between g8" style={{ flexWrap: 'wrap' }}><strong>{o.title} · {o.company}</strong>{o.status !== 'sent' && <span className="badge b-neutral" data-testid="hire-offer-state">{OFFER_STATE[o.status]}</span>}</div>
-          <p className="small" style={{ margin: 0, whiteSpace: 'pre-line' }} data-testid="hire-offer-letter">{o.letter}</p>
+        <article key={o.id} className="mhire-offer" data-testid="hire-offer">
+          <div className="mhire-offer-top"><span className="mjob-top"><span className="mavatar" aria-hidden="true">{(o.company || '?').slice(0, 1).toUpperCase()}</span><strong style={{ overflowWrap: 'anywhere' }}>{o.title} · {o.company}</strong></span>{o.status !== 'sent' && <span className={`mchip ${['accepted', 'joined'].includes(o.status) ? 'mchip-ok' : 'mchip-neutral'}`} data-testid="hire-offer-state">{OFFER_STATE[o.status]}</span>}</div>
+          <p className="mhire-letter" data-testid="hire-offer-letter">{o.letter}</p>
           <a className="btn btn-ghost btn-sm" style={{ alignSelf: 'flex-start' }} href={`${API_BASE}/api/me/hire/offers/${o.id}/pdf`} download="offer.pdf">Download PDF</a>
           {o.status === 'sent' && (v(o.id).mode === 'decline' ? (
             <div className="stack g8">
@@ -265,7 +295,7 @@ export function Offers() {
               <label className="field"><span className="label">Type your full name to accept</span><input className="input" maxLength={120} autoComplete="name" value={v(o.id).name} onChange={(e) => put(o.id, { name: e.target.value })} data-testid="hire-offer-name" /></label>
               <label className="row g8 small" style={{ alignItems: 'flex-start', flexWrap: 'nowrap' }}><input type="checkbox" checked={v(o.id).agree} onChange={(e) => put(o.id, { agree: e.target.checked })} style={{ marginTop: 3 }} data-testid="hire-offer-agree" /><span>I accept this offer and plan to join on {fmtDay(o.joinDate)}.</span></label>
               <span className="row g8" style={{ flexWrap: 'wrap' }}>
-                <button type="button" className="btn btn-ink" onClick={() => go(`/api/me/hire/offers/${o.id}/answer`, { answer: 'accept', typedName: v(o.id).name, agree: v(o.id).agree }, 'Accepted: the company was told')} data-testid="hire-offer-accept">Accept</button>
+                <button type="button" className="btn btn-signal" onClick={() => go(`/api/me/hire/offers/${o.id}/answer`, { answer: 'accept', typedName: v(o.id).name, agree: v(o.id).agree }, 'Accepted: the company was told')} data-testid="hire-offer-accept">Accept</button>
                 <button type="button" className="btn btn-outline" onClick={() => put(o.id, { mode: 'decline' })} data-testid="hire-offer-decline">Decline</button>
               </span>
               <span className="xs muted">{o.notESign}</span>
@@ -279,7 +309,7 @@ export function Offers() {
           ) : (
             <span className="row g8" style={{ flexWrap: 'wrap' }}>
               {o.joinDate <= today
-                ? <button type="button" className="btn btn-ink btn-sm" onClick={() => go(`/api/me/hire/offers/${o.id}/joined`, { joined: true }, 'Congratulations on joining!')} data-testid="hire-offer-joined">I joined</button>
+                ? <button type="button" className="btn btn-signal btn-sm" onClick={() => go(`/api/me/hire/offers/${o.id}/joined`, { joined: true }, 'Congratulations on joining!')} data-testid="hire-offer-joined">I joined</button>
                 : <button type="button" className="btn btn-outline btn-sm" onClick={() => go(`/api/me/hire/offers/${o.id}/joining`, { joining: true }, 'Thanks: see you on your first day')} data-testid="hire-offer-still">Still joining on {fmtDay(o.joinDate)}</button>}
               <button type="button" className="btn btn-ghost btn-sm" onClick={() => put(o.id, { mode: 'drop' })}>I can’t join</button>
             </span>
@@ -297,8 +327,8 @@ export function Reliability() {
   useEffect(() => { http('/api/me/hire/reliability').then(setR, () => {}); }, []);
   if (!r) return null;
   return (
-    <section className="card stack g8" aria-labelledby="hire-rel-h" data-testid="hire-reliability">
-      <div className="row between g8" style={{ flexWrap: 'wrap' }}><strong id="hire-rel-h">Your reliability</strong><span className="badge b-neutral" data-testid="hire-rel-label">{r.score == null ? r.label : `${r.label} · ${r.score}%`}</span></div>
+    <section className="mcard" aria-labelledby="hire-rel-h" data-testid="hire-reliability">
+      <div className="mspread"><h2 id="hire-rel-h" className="mcard-title">Your reliability</h2><span className="mchip mchip-accent" data-testid="hire-rel-label">{r.score == null ? r.label : `${r.label} · ${r.score}%`}</span></div>
       {r.lines.length > 0 && <ul className="small" style={{ margin: 0, paddingLeft: 18 }}>{r.lines.map((l) => <li key={l}>{l}</li>)}</ul>}
       <span className="small">How to keep it high: {r.tips.join(' ')}</span>
       <span className="xs muted">Companies hiring now see this label and these lines, never which company marked what.</span>
@@ -313,11 +343,11 @@ export function HireCard() {
   if (!s || (!s.siteOn && !s.on)) return null;
   const still = async () => { try { setS(await http('/api/me/hire/confirm', { method: 'POST' })); } catch { /* stays */ } };
   return (
-    <section className="card stack g8" style={{ flex: '1 1 300px' }} aria-labelledby="hire-card-h" data-testid="hire-card">
-      <strong id="hire-card-h">Ready to join</strong>
+    <section className="mcard" style={{ flex: '1 1 300px' }} aria-labelledby="hire-card-h" data-testid="hire-card">
+      <header className="mcard-h"><span className="mcard-ic teal" aria-hidden="true">⚡</span><span className="mcard-ht"><h2 id="hire-card-h" className="mcard-title">Ready to join</h2></span></header>
       <span className="small" data-testid="hire-card-line">{hireLine(s)}</span>
       <span className="row g8" style={{ flexWrap: 'wrap' }}>
-        {s.on && !s.paused && (s.due || s.stale) && <button type="button" className="btn btn-ink" onClick={still} data-testid="hire-card-still">Still ready</button>}
+        {s.on && !s.paused && (s.due || s.stale) && <button type="button" className="btn btn-signal" onClick={still} data-testid="hire-card-still">Still ready</button>}
         <a href="/me/hire" className="btn btn-outline">{s.on ? 'Change' : 'I can join now'}</a>
       </span>
     </section>

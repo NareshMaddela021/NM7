@@ -6,14 +6,18 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { API_BASE, http } from '../../services/http';
 import { AA_CHANGED } from './AutoSummaryCard';
+import { Empty, Skel } from './kit';
 
 const BASE = '/api/me/auto-apply/items';
 
 function JobLine({ it, t }) {
   return (
-    <span className="stack g4" style={{ minWidth: 0 }}>
-      {it.demo ? <strong style={{ overflowWrap: 'anywhere' }}>{it.job.title}</strong> : <Link to={`/jobs/${it.job.slug}`} style={{ fontWeight: 700, overflowWrap: 'anywhere' }}>{it.job.title}</Link>}
-      <span className="xs muted">{it.job.company}{it.score != null ? ` · ${t('jobs.match.pct', { n: it.score })}` : ''}</span>
+    <span className="mrow maa-line" style={{ flexWrap: 'nowrap', alignItems: 'flex-start', minWidth: 0 }}>
+      <span className="mavatar" aria-hidden="true">{(it.job.company || '?').slice(0, 1).toUpperCase()}</span>
+      <span className="stack g4" style={{ minWidth: 0 }}>
+        {it.demo ? <strong style={{ overflowWrap: 'anywhere' }}>{it.job.title}</strong> : <Link to={`/jobs/${it.job.slug}`} style={{ fontWeight: 800, overflowWrap: 'anywhere' }}>{it.job.title}</Link>}
+        <span className="xs muted">{it.job.company}{it.score != null ? ` · ${t('jobs.match.pct', { n: it.score })}` : ''}</span>
+      </span>
     </span>
   );
 }
@@ -54,7 +58,7 @@ function Questions({ it, t, onDone }) {
       ))}
       <label className="row g8 small"><input type="checkbox" value="remember" aria-label={t('aa.items.remember')} checked={remember} onChange={(e) => setRemember(e.target.checked)} /> {t('aa.items.remember')}</label>
       {err && <p className="error" role="alert" style={{ margin: 0 }}>{err}</p>}
-      <button type="submit" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={busy}>{busy ? t('jobs.loading') : t('aa.items.answerApply')}</button>
+      <button type="submit" className="btn btn-signal" style={{ alignSelf: 'flex-start' }} disabled={busy}>{busy ? t('jobs.loading') : t('aa.items.answerApply')}</button>
     </form>
   );
 }
@@ -88,80 +92,88 @@ export default function AutoItems({ t, toast, refreshKey }) {
     setBusy('all'); setErr('');
     try { const r = await http(`${BASE}/approve-all`, { method: 'POST' }); toast(t('aa.items.approvedAll', { n: r.applied })); changed(); } catch (x) { setErr(x.message); } finally { setBusy(''); }
   };
-  if (!d) return err ? <p className="error" role="alert">{err}</p> : null;
+  if (!d) return err ? <p className="error" role="alert">{err}</p> : <Skel cards={2} label={t('jobs.loading')} />;
+  const head = (id, icon, title, count, tone, extra) => (
+    <header className="mcard-h">
+      <span className={`mcard-ic ${tone || ''}`} aria-hidden="true">{icon}</span>
+      <span className="mcard-ht"><h2 id={id} className="mcard-title">{title}</h2>{extra}</span>
+      {count != null && <span className="maa-count" aria-hidden="true">{count}</span>}
+    </header>
+  );
   return (
     <>
       {err && <p className="error" role="alert" style={{ margin: 0 }}>{err}</p>}
-      <section id="needs" className="card stack g12" aria-labelledby="aa-need-h" data-testid="aa-needs" style={{ scrollMarginTop: 96 }}>
-        <div className="row g8" style={{ justifyContent: 'space-between' }}><strong id="aa-need-h">{t('aa.items.needs')}</strong><span className="badge b-warning">{d.needsAnswer.length}</span></div>
-        {d.needsAnswer.length === 0 && <span className="small muted">{t('aa.items.needsNone')}</span>}
+      <section id="needs" className={`mcard ${d.needsAnswer.length ? 'maa-needs' : ''}`} aria-labelledby="aa-need-h" data-testid="aa-needs" style={{ scrollMarginTop: 96 }}>
+        {head('aa-need-h', '?', t('aa.items.needs'), d.needsAnswer.length, '', d.needsAnswer.length === 0 ? <span className="mcard-sub">{t('aa.items.needsNone')}</span> : null)}
         {d.needsAnswer.map((it) => (
-          <article key={it.id} className="card-sm stack g8" data-testid="aa-need">
+          <article key={it.id} className="maa-job" data-testid="aa-need">
             <JobLine it={it} t={t} />
             {it.kind === 'borderline' ? (
               <>
                 <span className="small">{t('aa.items.borderline')}</span>
-                <div className="row g8"><button type="button" className="btn btn-ink" disabled={!!busy} onClick={() => act(it.id, 'go')}>{t('aa.items.go')}</button>
+                <div className="row g8"><button type="button" className="btn btn-signal" disabled={!!busy} onClick={() => act(it.id, 'go')}>{t('aa.items.go')}</button>
                   <button type="button" className="btn btn-outline" disabled={!!busy} onClick={() => act(it.id, 'skip')}>{t('aa.items.skip')}</button></div>
               </>
             ) : (
               <>
                 <span className="small">{t('aa.items.questions')}</span>
                 <Questions it={it} t={t} onDone={(r) => { said(r); changed(); }} />
-                <button type="button" className="link-btn small" style={{ alignSelf: 'flex-start' }} disabled={!!busy} onClick={() => act(it.id, 'skip')}>{t('aa.items.skip')}</button>
+                <button type="button" className="link-btn small" style={{ alignSelf: 'flex-start', minHeight: 44 }} disabled={!!busy} onClick={() => act(it.id, 'skip')}>{t('aa.items.skip')}</button>
               </>
             )}
           </article>
         ))}
       </section>
       {d.waiting.length > 0 && (
-        <section className="card stack g12" aria-labelledby="aa-wait-h" data-testid="aa-waiting">
-          <div className="row g8" style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
-            <strong id="aa-wait-h">{t('aa.items.waiting')}</strong>
-            <button type="button" className="btn btn-ink" disabled={!!busy} onClick={approveAll} data-testid="aa-approve-all">{t('aa.items.approveAll', { n: d.waiting.length })}</button>
-          </div>
-          <span className="small muted">{t('aa.items.waitingHint')}</span>
+        <section className="mcard" aria-labelledby="aa-wait-h" data-testid="aa-waiting">
+          {head('aa-wait-h', '✓', t('aa.items.waiting'), d.waiting.length, 'violet', <span className="mcard-sub">{t('aa.items.waitingHint')}</span>)}
+          <button type="button" className="btn btn-signal" style={{ alignSelf: 'flex-start' }} disabled={!!busy} onClick={approveAll} data-testid="aa-approve-all">{t('aa.items.approveAll', { n: d.waiting.length })}</button>
           {d.waiting.map((it) => (
-            <article key={it.id} className="card-sm row g8" style={{ justifyContent: 'space-between', flexWrap: 'wrap' }} data-testid="aa-wait">
+            <article key={it.id} className="maa-job maa-job-row" data-testid="aa-wait">
               <JobLine it={it} t={t} />
-              <span className="row g8"><button type="button" className="btn btn-ink" disabled={!!busy} onClick={() => act(it.id, 'approve')}>{t('aa.items.approve')}</button>
+              <span className="row g8"><button type="button" className="btn btn-signal" disabled={!!busy} onClick={() => act(it.id, 'approve')}>{t('aa.items.approve')}</button>
                 <button type="button" className="btn btn-outline" disabled={!!busy} onClick={() => act(it.id, 'skip')}>{t('aa.items.skip')}</button></span>
             </article>
           ))}
         </section>
       )}
-      <section id="ready" className="card stack g12" aria-labelledby="aa-ready-h" data-testid="aa-ready" style={{ scrollMarginTop: 96 }}>
-        <div className="row g8" style={{ justifyContent: 'space-between' }}><strong id="aa-ready-h">{t('aa.items.ready')}</strong><span className="badge b-neutral">{d.ready.length}</span></div>
-        <span className="small muted">{t('aa.items.readyHint')}</span>
+      <section id="ready" className="mcard" aria-labelledby="aa-ready-h" data-testid="aa-ready" style={{ scrollMarginTop: 96 }}>
+        {head('aa-ready-h', '↗', t('aa.items.ready'), d.ready.length, 'blue', <span className="mcard-sub">{t('aa.items.readyHint')}</span>)}
         {d.ready.map((it) => (
-          <article key={it.id} className="card-sm stack g8" data-testid="aa-ready-item">
+          <article key={it.id} className="maa-job" data-testid="aa-ready-item">
             <JobLine it={it} t={t} />
             <div className="row g8" style={{ flexWrap: 'wrap' }}>
-              {it.applyUrl && <a className="btn btn-ink" href={it.applyUrl} target="_blank" rel="noopener noreferrer nofollow" data-testid="aa-open"
+              {it.applyUrl && <a className="btn btn-signal" href={it.applyUrl} target="_blank" rel="noopener noreferrer nofollow" data-testid="aa-open"
                 onClick={() => { http(`${BASE}/${it.id}/opened`, { method: 'POST' }).then(() => { toast(t('aa.items.openedToast')); changed(); }, () => {}); }}>{t('aa.items.open')} <span aria-hidden="true">↗</span></a>}
               {it.hasCopy && <button type="button" className="btn btn-outline" disabled={!!busy} onClick={() => downloadPdf(it.id).catch(() => setErr(t('aa.items.pdfError')))} data-testid="aa-pdf">{t('aa.items.pdf')}</button>}
-              <button type="button" className="link-btn small" disabled={!!busy} onClick={() => act(it.id, 'skip')}>{t('aa.items.skip')}</button>
+              <button type="button" className="link-btn small" style={{ minHeight: 44 }} disabled={!!busy} onClick={() => act(it.id, 'skip')}>{t('aa.items.skip')}</button>
             </div>
           </article>
         ))}
         {d.ready.length === 0 && <span className="small muted">{t('aa.items.readyNone')}</span>}
       </section>
       {d.queued.length > 0 && (
-        <section className="card-sm stack g8" aria-labelledby="aa-q-h" data-testid="aa-queued">
+        <section className="mcard mcard-tight" aria-labelledby="aa-q-h" data-testid="aa-queued">
           <strong id="aa-q-h" className="small">{t('aa.items.queuedTitle')}</strong>
           {d.queued.map((it) => <JobLine key={it.id} it={it} t={t} />)}
         </section>
       )}
-      <section className="card stack g8" aria-labelledby="aa-done-h" data-testid="aa-applied">
-        <strong id="aa-done-h">{t('aa.items.appliedTitle')}</strong>
-        {d.applied.length === 0 && <span className="small muted">{t('aa.items.appliedNone')}</span>}
-        {d.applied.map((it) => (
-          <div key={it.id} className="stack g4">
-            <JobLine it={it} t={t} />
-            {it.sent && <span className="xs muted" data-testid="aa-sent">{t('aa.items.sentTo', { to: it.sent.to })}{it.delivery === 'bounced' ? ` · ${t('aa.items.bounced')}` : ''}</span>}
-          </div>
-        ))}
-        {d.applied.length > 0 && <Link to="/me/jobs" className="small">{t('aa.seeApplications')}</Link>}
+      <section className="mcard" aria-labelledby="aa-done-h" data-testid="aa-applied">
+        {head('aa-done-h', '✓', t('aa.items.appliedTitle'), d.applied.length, 'teal', null)}
+        {d.applied.length === 0 ? <Empty compact shape="briefcase">{t('aa.items.appliedNone')}</Empty> : (
+          <ul className="maa-hist">
+            {d.applied.map((it) => (
+              <li key={it.id}>
+                <span className="maa-hist-dot" aria-hidden="true" />
+                <span className="stack g4" style={{ minWidth: 0, flex: 1 }}>
+                  <JobLine it={it} t={t} />
+                  {it.sent && <span className="xs muted" data-testid="aa-sent">{t('aa.items.sentTo', { to: it.sent.to })}{it.delivery === 'bounced' ? ` · ${t('aa.items.bounced')}` : ''}</span>}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+        {d.applied.length > 0 && <Link to="/me/jobs" className="small" style={{ fontWeight: 700 }}>{t('aa.seeApplications')} →</Link>}
       </section>
     </>
   );
