@@ -35,8 +35,11 @@ for (const [size, opts] of SIZES) {
     const { secret } = seed('admin', owner, 'owner', 'Strong-pass-123');
     const admin = await (await browser.newContext({ viewport: { width: 1280, height: 900 } })).newPage();
     await adminLogin(admin, owner, secret);
+    await admin.goto('/admin/auto-apply'); // the admin session is ready once this page shows its demo buttons
+    await admin.getByTestId('aa-demo-open').waitFor();
     for (const [who, url, body, pages] of PEOPLE) {
-      const r = await call(admin, url, json('POST', body || {}));
+      let r = await call(admin, url, json('POST', body || {}));
+      if (r.status === 401) { await admin.waitForTimeout(2000); r = await call(admin, url, json('POST', body || {})); }
       if (r.status !== 200) { console.log(`demo ${who}: ${r.status} ${JSON.stringify(r.body)}`); continue; }
       const ctx = await browser.newContext({ ...opts, reducedMotion: 'reduce' });
       const page = await ctx.newPage();
