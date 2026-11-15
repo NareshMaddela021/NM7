@@ -23,7 +23,7 @@ from app.audit import audit
 from app.companies.limits import posting_room
 from app.companies.model import MANAGE, trust_of
 from app.companies.signup import _save, company_for
-from app.core.db import APPLICATIONS, AUDIT_LOG, COMPANIES, DB, JOBS
+from app.core.db import APPLICATIONS, AUDIT_LOG, COMPANIES, DB, HIRE_INVITES, HIRE_OFFERS, HIRE_SLOTS, JOBS
 from app.core.errors import ApiError
 from app.core.schemas import CamelModel
 from app.hire.speed import hired_in_30
@@ -58,6 +58,12 @@ async def overview(cid: str, db: DB, x_recruiter_account: str | None = Header(No
         "liveJobs": await db[JOBS].count_documents({"company_id": cid, "status": "active"}),
         "jobs": len(job_ids),
         "applicants": await db[APPLICATIONS].count_documents({"job_id": {"$in": job_ids}}) if job_ids else 0,
+        # Phase 3 overview widgets: real counts from Hire now (invites sent, interview times booked, offers made)
+        "invites": await db[HIRE_INVITES].count_documents({"company_id": cid}),
+        "interviews": await db[HIRE_SLOTS].count_documents(
+            {"company_id": cid, "user_id": {"$ne": None}, "status": {"$ne": "cancelled"}}
+        ),
+        "offers": await db[HIRE_OFFERS].count_documents({"company_id": cid}),
         "room": await posting_room(db, c),
         "trust": trust_of(c),
         "review": (c.get("review") or {}).get("state", "draft"),

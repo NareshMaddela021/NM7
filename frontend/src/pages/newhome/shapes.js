@@ -255,8 +255,8 @@ export const SHAPE_COLORS = {
   cap: { a: '#be185d', b: '#db2777', glow: '#fbc4da' }, // students: magenta, soft pink glow
 };
 export const colorsFor = (name) => SHAPE_COLORS[name] || SHAPE_COLORS.sphere;
-/** Audience tints for any shape (round P, dashboards): job seekers orange, students magenta. */
-export const TINTS = { seeker: SHAPE_COLORS.briefcase, student: SHAPE_COLORS.cap };
+/** Audience tints for any shape (round P, dashboards): job seekers orange, students magenta, companies blue. */
+export const TINTS = { seeker: SHAPE_COLORS.briefcase, student: SHAPE_COLORS.cap, company: SHAPE_COLORS.stopwatch };
 
 export const SHAPES = { sphere, stopwatch, college, briefcase, cap, resume, magnifier, badge, handshake };
 export const SHAPE_NAMES = Object.keys(SHAPES);

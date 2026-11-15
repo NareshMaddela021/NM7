@@ -14,6 +14,10 @@ import CompanyPrograms from './CompanyPrograms';
 import { headerLabels, useLang } from '../../lib/i18n';
 import { usePageMeta } from '../../lib/meta';
 import { keepAccount, readAccount } from '../../lib/recruiterPortal';
+import { Still } from '../newhome/ParticleStage';
+import { Chip } from '../me/kit';
+import '../../styles/me-kit.css';
+import '../../styles/company.css';
 
 export default function CompanyHome() {
   const [t, lang] = useLang();
@@ -22,8 +26,8 @@ export default function CompanyHome() {
   return (
     <>
       <Header labels={headerLabels(t)} lang={lang} />
-      <main id="main" className="container stack g20 co-page" lang={lang}>
-        <div className="row g12" style={{ justifyContent: 'space-between' }}>
+      <main id="main" className="container-wide stack g20 co-page" lang={lang}>
+        <div className="row g12 co-top" style={{ justifyContent: 'space-between' }}>
           <h1 className="display co-h1">{t('co.home.title')}</h1>
           <LangSwitch t={t} lang={lang} />
         </div>
@@ -100,26 +104,57 @@ function Companies({ t, onSignedOut }) {
 }
 
 const TABS = ['overview', 'jobs', 'applicants', 'hire', 'programs', 'pool', 'team', 'page', 'settings', 'security', 'activity'];
+/** Round P, Phase 3: the side menu in two groups (hiring, then the company itself), each tab with a symbol and the
+ * small blue dotted shape shown beside its title on a desktop. */
+const GROUPS = [['overview', 'jobs', 'applicants', 'hire', 'programs', 'pool'], ['team', 'page', 'settings', 'security', 'activity']];
+const TAB_META = {
+  overview: ['⌂', 'stopwatch'], jobs: ['▤', 'briefcase'], applicants: ['◉', 'magnifier'], hire: ['⚡', 'stopwatch'], programs: ['▣', 'cap'],
+  pool: ['☆', 'magnifier'], team: ['☺', 'handshake'], page: ['◧', 'badge'], settings: ['⚙', 'sphere'], security: ['⛨', 'badge'], activity: ['☰', 'resume'],
+};
+const TRUST_TONE = { verified: 'ok', basic: 'accent', unverified: 'warn', blocked: 'bad' };
 
 function Dashboard({ t, c, onChanged, onSignedOut }) {
   const [tab, setTab] = useState(() => (typeof window !== 'undefined' && window.location.hash === '#hire' ? 'hire' : 'overview'));
   const manage = ['main', 'full'].includes(c.myRole);
+  const [icon, shape] = TAB_META[tab];
   return (
-    <section className="stack g16" aria-label={c.details.legalName}>
-      <div className="segmented co-tabs" role="tablist" aria-label={t('co.dash.sections')}>
-        {TABS.map((k) => <button key={k} type="button" role="tab" aria-selected={tab === k} onClick={() => setTab(k)}>{t(`co.dash.tab.${k}`)}</button>)}
+    <section className="co-shell" aria-label={c.details.legalName}>
+      <aside className="co-side">
+        <div className="co-side-head">
+          <span className="co-avatar" aria-hidden="true">{(c.details.legalName || '?').trim().charAt(0).toUpperCase()}</span>
+          <span className="co-side-name">{c.details.legalName}</span>
+          <Chip tone={TRUST_TONE[c.trust] || 'neutral'}>{t(`co.trustName.${c.trust}`)}</Chip>
+        </div>
+        <div className="co-tabs" role="tablist" aria-label={t('co.dash.sections')}>
+          {GROUPS.map((g, gi) => (
+            <div key={gi} className="co-tab-group">
+              {g.map((k) => (
+                <button key={k} type="button" role="tab" aria-selected={tab === k} className="co-tab" onClick={() => setTab(k)}>
+                  <span className="co-tab-ic" aria-hidden="true">{TAB_META[k][0]}</span>{t(`co.dash.tab.${k}`)}
+                </button>
+              ))}
+            </div>
+          ))}
+        </div>
+      </aside>
+      <div className="co-main stack g16">
+        <div className="co-head">
+          <span className="co-head-ic" aria-hidden="true">{icon}</span>
+          <h2 className="co-head-title">{t(`co.dash.tab.${tab}`)}</h2>
+          <span className="co-head-art" aria-hidden="true"><Still shape={shape} tint="company" className="co-head-still" /></span>
+        </div>
+        {tab === 'overview' && <Overview t={t} c={c} manage={manage} />}
+        {tab === 'jobs' && <CompanyJobs t={t} c={c} />}
+        {tab === 'applicants' && <CompanyApplicants t={t} c={c} />}
+        {tab === 'hire' && <CompanyHire t={t} c={c} />}
+        {tab === 'programs' && <CompanyPrograms t={t} c={c} />}
+        {tab === 'pool' && <TalentPool t={t} c={c} />}
+        {tab === 'team' && <Team t={t} c={c} manage={manage} onChanged={onChanged} />}
+        {tab === 'page' && <PageEditor t={t} c={c} manage={manage} onChanged={onChanged} />}
+        {tab === 'settings' && <Settings t={t} c={c} manage={manage} onChanged={onChanged} />}
+        {tab === 'security' && <Security t={t} onSignedOut={onSignedOut} />}
+        {tab === 'activity' && <Activity t={t} c={c} />}
       </div>
-      {tab === 'overview' && <Overview t={t} c={c} manage={manage} />}
-      {tab === 'jobs' && <CompanyJobs t={t} c={c} />}
-      {tab === 'applicants' && <CompanyApplicants t={t} c={c} />}
-      {tab === 'hire' && <CompanyHire t={t} c={c} />}
-      {tab === 'programs' && <CompanyPrograms t={t} c={c} />}
-      {tab === 'pool' && <TalentPool t={t} c={c} />}
-      {tab === 'team' && <Team t={t} c={c} manage={manage} onChanged={onChanged} />}
-      {tab === 'page' && <PageEditor t={t} c={c} manage={manage} onChanged={onChanged} />}
-      {tab === 'settings' && <Settings t={t} c={c} manage={manage} onChanged={onChanged} />}
-      {tab === 'security' && <Security t={t} onSignedOut={onSignedOut} />}
-      {tab === 'activity' && <Activity t={t} c={c} />}
     </section>
   );
 }
