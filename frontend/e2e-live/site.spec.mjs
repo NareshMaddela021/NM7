@@ -1,15 +1,24 @@
 // Smaller site fixes, checked in the browser.
 import { expect, test } from '@playwright/test';
 
-test('phones: the logo and "Build free" stay in view; the other links are behind a Menu button', async ({ page }) => {
+test('phones: the logo and Sign in stay in view; the menu links are behind a Menu button; For students opens in place', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 800 });
   await page.goto('/');
-  await expect(page.getByRole('banner').getByRole('link', { name: 'Build free' })).toBeVisible();
-  const pricing = page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Pricing' });
+  await expect(page.getByRole('banner').getByRole('link', { name: 'Sign in' })).toBeVisible();
+  const nav = page.getByRole('navigation', { name: 'Main' });
+  const pricing = nav.getByRole('link', { name: 'Pricing' });
   await expect(pricing).toBeHidden();
   await page.getByRole('button', { name: 'Menu' }).click();
   await expect(pricing).toBeVisible();
-  await expect(page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'For organizations' })).toBeVisible();
+  // round P: Jobs · For companies · For colleges · For students · Pricing · Blog
+  await expect(nav.getByRole('link')).toHaveText(['Jobs', 'For companies', 'For colleges', 'Pricing', 'Blog']);
+  await expect(nav.getByRole('link', { name: 'For colleges' })).toHaveAttribute('href', '/for-orgs');
+  const students = nav.getByRole('button', { name: 'For students' });
+  await students.click();
+  await expect(students).toHaveAttribute('aria-expanded', 'true');
+  for (const [name, href] of [['Student home', '/?for=student'], ['Build a resume', '/builder'], ['Templates', '/templates'], ['LinkedIn', '/linkedin'], ['Free scan', '/pricing#scan']]) {
+    await expect(nav.getByRole('link', { name, exact: true })).toHaveAttribute('href', href);
+  }
   await pricing.click();
   await expect(page).toHaveURL(/\/pricing$/); // round P: its own page
   await expect(pricing).toBeHidden(); // closes after choosing

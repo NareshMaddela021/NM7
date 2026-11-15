@@ -195,3 +195,23 @@ select.input { appearance: none; -webkit-appearance: none; padding-right: 40px; 
 .h-plan { border-radius: var(--r-panel) !important; box-shadow: var(--shadow-sm); }
 .h-plan[data-pop="true"] { border-color: var(--accent) !important; box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent), var(--shadow-sm); }
 .hx-tool { border-radius: var(--r-panel) !important; box-shadow: var(--shadow-sm); }
+
+/* ---------- main menu: "For students" dropdown (Header.jsx StudentsMenu) ---------- */
+.nav-drop { position: relative; display: inline-flex; }
+.nav-drop-btn { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 10px 12px; border: 0; border-radius: 999px; background: transparent;
+  color: var(--text2); font: inherit; font-weight: 600; font-size: 15px; cursor: pointer; }
+.nav-drop-btn:hover, .nav-drop[data-open="true"] .nav-drop-btn, .nav-drop-btn[data-here="true"] { color: var(--text); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.nav-drop-caret { font-size: 11px; transition: transform .2s; }
+.nav-drop[data-open="true"] .nav-drop-caret { transform: rotate(180deg); }
+.nav-sub { position: absolute; top: calc(100% + 8px); left: 0; z-index: 30; min-width: 220px; display: flex; flex-direction: column; gap: 2px; padding: 8px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 18px; box-shadow: var(--shadow); }
+.nav-sub[hidden] { display: none; }
+.nav .nav-sub a { padding: 10px 12px; border-radius: 12px; white-space: nowrap; }
+@media (max-width: 760px) {
+  .site-header .nav-public[data-open="true"] .nav-drop { display: flex; flex-direction: column; width: 100%; }
+  .site-header .nav-public[data-open="true"] .nav-drop-btn { justify-content: space-between; width: 100%; padding: 12px 8px; border-radius: 12px; }
+  .nav-sub { position: static; box-shadow: none; border: 0; padding: 0 0 4px 12px; min-width: 0; background: transparent; }
+  /* phones: logo, Sign in (or the account button) and Menu stay on one line */
+  .site-header[data-variant="public"] .hdr-right { display: flex !important; order: 2; margin-left: auto; }
+  .site-header[data-variant="public"] .hdr-quick { order: 3; margin-left: 0; }
+}

@@ -61,7 +61,42 @@ const FLOW = [
 ];
 
 // Public header links. The home page passes them translated (labels), with the language code (lang).
-const LABELS = { build: 'Build a resume', jobs: 'Jobs', templates: 'Templates', linkedin: 'LinkedIn', pricing: 'Pricing', orgs: 'For organizations', blog: 'Blog', scan: 'Free scan', buildFree: 'Build free', menu: 'Menu' };
+const LABELS = { build: 'Build a resume', jobs: 'Jobs', templates: 'Templates', linkedin: 'LinkedIn', pricing: 'Pricing', orgs: 'For organizations', blog: 'Blog', scan: 'Free scan', buildFree: 'Build free', menu: 'Menu',
+  companies: 'For companies', colleges: 'For colleges', students: 'For students', studentHome: 'Student home' };
+
+/**
+ * "For students" in the main menu (round P): a small dropdown with the student tools that used to sit in the menu
+ * (Build a resume, Templates, LinkedIn) plus the free scan and the home page's student tab. Desktop: a panel under
+ * the button; phone (inside the open Menu): the links open in place. Escape, a click outside or a new page closes it.
+ */
+function StudentsMenu({ L }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef();
+  const { pathname, hash } = useLocation();
+  useEffect(() => { setOpen(false); }, [pathname, hash]);
+  useEffect(() => {
+    if (!open) return undefined;
+    const close = (e) => { if (!ref.current?.contains(e.target)) setOpen(false); };
+    const esc = (e) => { if (e.key === 'Escape') { setOpen(false); ref.current?.querySelector('button')?.focus(); } };
+    document.addEventListener('mousedown', close); document.addEventListener('keydown', esc);
+    return () => { document.removeEventListener('mousedown', close); document.removeEventListener('keydown', esc); };
+  }, [open]);
+  const here = ['/builder', '/templates', '/linkedin'].some((p) => pathname.startsWith(p));
+  return (
+    <div ref={ref} className="nav-drop" data-open={open}>
+      <button type="button" className="nav-drop-btn" aria-expanded={open} aria-controls="students-menu" data-here={here} onClick={() => setOpen(!open)}>
+        {L.students}<span aria-hidden="true" className="nav-drop-caret">▾</span>
+      </button>
+      <div id="students-menu" className="nav-sub" hidden={!open}>
+        <Link to="/?for=student">{L.studentHome}</Link>
+        <NavLink to="/builder">{L.build}</NavLink>
+        <NavLink to="/templates">{L.templates}</NavLink>
+        <NavLink to="/linkedin">{L.linkedin}</NavLink>
+        <Link to="/pricing#scan">{L.scan}</Link>
+      </div>
+    </div>
+  );
+}
 
 /** variant: public | flow | expert | admin | builder | me */
 export default function Header({ variant = 'public', right, labels, lang }) {
@@ -80,7 +115,6 @@ export default function Header({ variant = 'public', right, labels, lang }) {
 
         {variant === 'public' && (
           <span className="row g8 hdr-quick" lang={lang}>
-            <Link to="/builder" className="btn btn-ink show-sm hdr-build">{L.buildFree}</Link>
             <button type="button" className="btn btn-outline nav-toggle" aria-expanded={menu} aria-controls="main-nav" aria-label={L.menu} onClick={() => setMenu(!menu)}>
               <span aria-hidden="true">{menu ? '✕' : '☰'}</span><span className="nav-toggle-text">{L.menu}</span>
             </button>
@@ -88,12 +122,11 @@ export default function Header({ variant = 'public', right, labels, lang }) {
         )}
         {variant === 'public' && (
           <nav id="main-nav" className="nav nav-public" data-open={menu} aria-label="Main" lang={lang}>
-            <NavLink to="/builder">{L.build}</NavLink>
             <NavLink to="/jobs">{L.jobs}</NavLink>
-            <Link to="/templates">{L.templates}</Link>
-            <NavLink to="/linkedin">{L.linkedin}</NavLink>
+            <NavLink to="/for-companies">{L.companies}</NavLink>
+            <NavLink to="/for-orgs" onClick={() => track('to_for_orgs')}>{L.colleges}</NavLink>
+            <StudentsMenu L={L} />
             <NavLink to="/pricing">{L.pricing}</NavLink>
-            <NavLink to="/for-orgs" onClick={() => track('to_for_orgs')}>{L.orgs}</NavLink>
             <NavLink to="/blog">{L.blog}</NavLink>
           </nav>
         )}
@@ -136,7 +169,6 @@ export default function Header({ variant = 'public', right, labels, lang }) {
         )}
 
         <div className="row g8 hdr-right">
-          {variant === 'public' && <Link to="/pricing#scan" className="btn btn-outline hide-sm hdr-scan" lang={lang}>{L.scan}</Link>}
           {right}
           <ThemeToggle />
           <AccountMenu />

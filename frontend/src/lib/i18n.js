@@ -119,7 +119,7 @@ export function rich(s, parts = {}) {
 }
 
 /** The header's public links in the current language (Header's `labels`). */
-export const headerLabels = (t) => Object.fromEntries(['build', 'jobs', 'templates', 'pricing', 'orgs', 'blog', 'scan', 'buildFree', 'menu'].map((k) => [k, t(`nav.${k}`)]));
+export const headerLabels = (t) => Object.fromEntries(['build', 'jobs', 'templates', 'pricing', 'orgs', 'blog', 'scan', 'buildFree', 'menu', 'companies', 'colleges', 'students', 'studentHome', 'linkedin'].map((k) => [k, t(`nav.${k}`)]));
 
 /** [t, lang]: t('hero.title'), t('seeker.chip.templates', { n: 18 }). Re-renders when the language changes. */
 export function useLang() {
