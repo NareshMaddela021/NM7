@@ -20,6 +20,9 @@ const PEOPLE = [
     ['roles', '/me/roles'], ['learn', '/me/learn'], ['practice', '/me/practice'], ['skill-checks', '/me/skill-checks'],
     ['programs', '/me/programs'], ['launch', '/me/launch'], ['guidance', '/me/guidance'], ['offer-check', '/me/offer-check'],
     ['feedback', '/me/feedback'], ['certificates', '/me/certificates'],
+    // screens behind a click: the Compare offers tab, and a skill check being taken (last: it starts a timed test)
+    ['offer-compare', '/me/offer-check', (pg) => pg.getByTestId('oc-tab-compare').click()],
+    ['skill-test', '/me/skill-checks', (pg) => pg.locator('[data-testid^="sk-start-"]').first().click()],
   ]],
   ['arjun', '/api/admin/seek/demo', { who: 'arjun' }, [['progress', '/me/progress']]],
   ['ravi', '/api/admin/simple/demo', undefined, [['simple', '/me/simple']]],
@@ -44,9 +47,10 @@ for (const [size, opts] of SIZES) {
       const page = await ctx.newPage();
       await page.goto(r.body.path);
       await page.waitForLoadState('networkidle').catch(() => {});
-      for (const [name, path] of pages) {
+      for (const [name, path, act] of pages) {
         await page.goto(path);
         await page.waitForLoadState('networkidle').catch(() => {});
+        if (act) { await act(page).catch((e) => console.log(`${name}: ${e.message}`)); await page.waitForLoadState('networkidle').catch(() => {}); }
         await page.waitForTimeout(600);
         await page.screenshot({ path: join(OUT, `${name}-${size}.jpg`), fullPage: true, type: 'jpeg', quality: 60 });
       }
