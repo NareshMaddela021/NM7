@@ -10,6 +10,8 @@ import { KEYBOARD_TIP, speechLanguages, appendSpeech, defaultSpeechLang, remembe
 import { readLangs, canRead, readAloud, stopReading } from '../../lib/readAloud';
 import { MeHead } from './MeLayout';
 import { PackOffer } from './JobMatch';
+import { Bar, Chip, Empty, MeCard, Skel } from './kit';
+import '../../styles/me-work.css';
 
 const STAR = [['situation', 'Situation'], ['task', 'Task'], ['action', 'Action'], ['result', 'Result']];
 const mmss = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
@@ -34,17 +36,18 @@ function Answer({ q }) {
 function Question({ q, n, groups, onPractise }) {
   const [open, setOpen] = useState(n === 1);
   return (
-    <article className="card stack g8" style={{ padding: 14 }} data-testid="iv-q">
-      <button type="button" className="row between g8 link-plain" style={{ textAlign: 'left', minHeight: 44, background: 'none', border: 0, padding: 0, cursor: 'pointer', color: 'inherit', flexWrap: 'nowrap', width: '100%' }} aria-expanded={open} onClick={() => setOpen(!open)}>
-        <span className="stack g4" style={{ flex: 1, minWidth: 0 }}><span className="xs faint">{n}. {groups[q.group]}</span><strong>{q.q}</strong></span>
-        <span className="row g8" style={{ alignItems: 'center', flex: 'none' }}>{q.practised && <span className="badge b-success">Practised</span>}<span aria-hidden="true">{open ? '−' : '+'}</span></span>
+    <article className={`wk-q ${open ? 'open' : ''}`} data-testid="iv-q">
+      <button type="button" className="wk-q-btn" aria-expanded={open} onClick={() => setOpen(!open)}>
+        <span className="wk-q-n" aria-hidden="true">{n}</span>
+        <span className="stack g4" style={{ flex: 1, minWidth: 0 }}><span className="mkicker">{n}. {groups[q.group]}</span><strong className="wk-q-t">{q.q}</strong></span>
+        <span className="row g8" style={{ alignItems: 'center', flex: 'none' }}>{q.practised && <Chip tone="ok">Practised</Chip>}<span className="wk-q-pm" aria-hidden="true">{open ? '−' : '+'}</span></span>
       </button>
       {open && (
-        <div className="stack g8">
+        <div className="stack g8 wk-q-body">
           <span className="xs muted">Model answer, from your resume{q.source === 'ai' ? ' (AI, checked)' : ''}:</span>
           <Answer q={q} />
           {q.tips?.length > 0 && <div className="well stack g4"><strong className="xs">Make it yours</strong><ul className="small" style={{ margin: 0, paddingLeft: 18 }}>{q.tips.map((t) => <li key={t}>{t}</li>)}</ul></div>}
-          <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start', minHeight: 38 }} onClick={() => onPractise(q.id)}>Practise this question</button>
+          <button type="button" className="btn btn-outline btn-sm" style={{ alignSelf: 'flex-start' }} onClick={() => onPractise(q.id)}>Practise this question</button>
         </div>
       )}
     </article>
@@ -54,10 +57,10 @@ function Question({ q, n, groups, onPractise }) {
 function Feedback({ fb }) {
   const rows = [['Length', fb.length], ...(fb.pace ? [['Speaking pace', fb.pace.text]] : []), ['Filler words', fb.filler], ['Structure', fb.structure], ['Result', fb.result]];
   return (
-    <div className="well stack g8" data-testid="iv-feedback" aria-live="polite">
+    <div className="mcard mcard-tight mcard-accent" data-testid="iv-feedback" aria-live="polite">
       <strong className="small">Clarity feedback{fb.source === 'ai' ? ' (AI, checked)' : ''}</strong>
       <span className="xs muted">About how clear your answer is: length, pace, filler words and structure. Nothing about your feelings or confidence is read from your voice.</span>
-      {rows.map(([k, v]) => <span key={k} className="small" data-testid={`iv-fb-${k.split(' ')[0].toLowerCase()}`}><strong>{k}: </strong>{v}</span>)}
+      <dl className="wk-fbrows">{rows.map(([k, v]) => <div key={k} className="wk-fbrow" data-testid={`iv-fb-${k.split(' ')[0].toLowerCase()}`}><dt>{k}: </dt><dd>{v}</dd></div>)}</dl>
       {fb.note && <span className="xs muted">{fb.note}</span>}
       <div className="stack g4"><strong className="small">A better version</strong><p className="small" style={{ margin: 0, lineHeight: 1.6 }} data-testid="iv-better"><Gaps text={fb.better} /></p></div>
     </div>
@@ -107,9 +110,10 @@ function Practice({ id, pack, start, onSaved, onClose }) {
   };
   const toggleAuto = (on) => { setAutoRead(on); try { localStorage.setItem('nm7.readQuestions', on ? '1' : '0'); } catch { /* not remembered */ } };
   return (
-    <section className="card stack g12" aria-label="Practice" data-testid="iv-practice">
-      <span className="row between g8"><span className="xs faint">Question {i + 1} of {qs.length}{pack.locked.length ? ` (${pack.locked.length} more in the Interview pack)` : ''}</span><button type="button" className="link-btn xs" onClick={() => { stopReading(); onClose(); }}>Close practice</button></span>
-      <strong style={{ fontSize: 18 }} data-testid="iv-practice-q">{q.q}</strong>
+    <section className="mcard mcard-accent wk-practice" aria-label="Practice" data-testid="iv-practice">
+      <Bar value={i + 1} max={qs.length} label="Practice" showValue={false} />
+      <span className="row between g8"><span className="mkicker">Question {i + 1} of {qs.length}{pack.locked.length ? ` (${pack.locked.length} more in the Interview pack)` : ''}</span><button type="button" className="link-btn xs" onClick={() => { stopReading(); onClose(); }}>Close practice</button></span>
+      <strong className="wk-practice-q" data-testid="iv-practice-q">{q.q}</strong>
       {canRead() && (
         <div className="row g8" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
           <button type="button" className="btn btn-outline" style={{ minHeight: 40 }} onClick={read} data-testid="iv-read">🔊 Read the question</button>
@@ -138,7 +142,7 @@ function Practice({ id, pack, start, onSaved, onClose }) {
             </select>
           </>
         ) : <span className="xs muted">{KEYBOARD_TIP}</span>}
-        <button type="button" className="btn btn-ink" data-testid="iv-send" disabled={busy || !text.trim()} onClick={send}>{busy && <Spinner />}{busy ? 'Checking…' : 'Get feedback'}</button>
+        <button type="button" className="btn btn-signal" data-testid="iv-send" disabled={busy || !text.trim()} onClick={send}>{busy && <Spinner />}{busy ? 'Checking…' : 'Get feedback'}</button>
       </div>
       {speech.error && <span className="small" role="alert" style={{ color: 'var(--danger)' }} data-testid="iv-mic-error">{speech.error} You can type your answer instead.</span>}
       {fb && <Feedback fb={fb} />}
@@ -158,8 +162,8 @@ function Homework({ id, items }) {
     try { localStorage.setItem(homeKey(id), JSON.stringify(next)); } catch { /* storage blocked */ }
   };
   return (
-    <ul className="stack g8" style={{ listStyle: 'none', margin: 0, padding: 0 }} data-testid="iv-homework">
-      {items.map((t) => <li key={t}><label className="row g8 small check" style={{ alignItems: 'flex-start', flexWrap: 'nowrap' }}><input type="checkbox" checked={done.includes(t)} onChange={() => toggle(t)} style={{ marginTop: 3, flex: 'none' }} /><span>{t}</span></label></li>)}
+    <ul className="mlist" data-testid="iv-homework">
+      {items.map((t) => <li key={t}><label className={`wk-item ${done.includes(t) ? 'on' : ''}`}><input type="checkbox" checked={done.includes(t)} onChange={() => toggle(t)} /><span>{t}</span></label></li>)}
     </ul>
   );
 }
@@ -191,69 +195,71 @@ export default function MeInterview() {
     pack.locked.forEach((q) => { counts[q.group] = (counts[q.group] || 0) + 1; });
     return Object.entries(counts).map(([g, n]) => `${n} × ${pack.groups[g]}`).join(' · ');
   }, [pack]);
-  if (err) return <div className="card stack g8"><p role="alert" className="error" style={{ margin: 0 }}>{err}</p><Link to="/me/ats">Back to job match</Link></div>;
-  if (!m || pack === undefined || !acc) return <div className="card"><Spinner /></div>;
+  if (err) return <div className="mcard mcard-bad"><p role="alert" className="error" style={{ margin: 0 }}>{err}</p><Link to="/me/ats">Back to job match</Link></div>;
+  if (!m || pack === undefined || !acc) return <Skel cards={2} label="Loading interview prep" />;
   const job = `${m.title || 'Job'}${m.company ? ` · ${m.company}` : ''}`;
   return (
     <>
       <MeHead title="Interview prep" sub={job} right={<Link className="btn btn-outline" to="/me/ats">Back to job match</Link>} />
       {!pack ? (
-        <section className="card stack g12" data-testid="iv-start">
-          <strong>Get ready for the {m.title || 'interview'}</strong>
-          <span className="small muted">10 likely questions with answers built from your resume, “Tell me about yourself”, honest answers for your weak spots, questions to ask them, and practice with feedback.</span>
-          <button type="button" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} data-testid="iv-make" disabled={busy} onClick={make}>{busy && <Spinner />}{busy ? 'Making your pack…' : 'Make my interview pack'}</button>
-          {!acc.interview && <span className="xs muted">Free: the first 3 questions, with practice.</span>}
+        <section data-testid="iv-start">
+          <Empty shape="handshake" tint="seeker" title={`Get ready for the ${m.title || 'interview'}`}
+            action={<div className="stack g8" style={{ alignItems: 'center' }}><button type="button" className="btn btn-signal" data-testid="iv-make" disabled={busy} onClick={make}>{busy && <Spinner />}{busy ? 'Making your pack…' : 'Make my interview pack'}</button>{!acc.interview && <span className="xs muted">Free: the first 3 questions, with practice.</span>}</div>}>
+            10 likely questions with answers built from your resume, “Tell me about yourself”, honest answers for your weak spots, questions to ask them, and practice with feedback.
+          </Empty>
         </section>
       ) : (
-        <>
-          <section className="card stack g8">
-            <span className="row between g8" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
-              <strong data-testid="iv-progress">{pack.progress.done} of {pack.progress.total} practised</strong>
-              {!practice && <button type="button" className="btn btn-ink" data-testid="iv-practise" onClick={() => setPractice(pack.questions.find((q) => !q.practised)?.id || pack.questions[0].id)}>Practise one question at a time</button>}
-            </span>
-            {pack.note && <span className="xs muted" role="note">{pack.note}</span>}
-            <span className="xs muted"><mark className="gap">[Brackets]</mark> are gaps for you to fill with what really happened. Never add something you didn’t do.</span>
-          </section>
-          {practice && <Practice key={practice} id={id} pack={pack} start={practice} onSaved={saved} onClose={() => setPractice(null)} />}
-          <section className="stack g8" aria-label="Questions">
-            <h2 className="small" style={{ margin: 0 }}>Likely questions</h2>
-            {pack.questions.map((q, i) => <Question key={q.id} q={q} n={i + 1} groups={pack.groups} onPractise={(qid) => { setPractice(qid); window.scrollTo({ top: 0, behavior: 'smooth' }); }} />)}
-            {pack.locked.length > 0 && (
-              <div className="card stack g8" style={{ padding: 14 }} data-testid="iv-locked">
-                <strong className="small">{pack.locked.length} more questions in the Interview pack</strong>
-                <span className="xs muted">{lockedGroups}. Also: “Tell me about yourself” in 2 minutes, your weak spots, questions to ask, and the homework checklist.</span>
-                <PackOffer kind="interview" acc={acc} onBought={load} />
+        <div className="mgrid-2">
+          <div className="mstack">
+            <section className="mcard wk-ivtop">
+              <div className="mspread">
+                <span className="stack g4" style={{ minWidth: 0 }}><span className="mkicker">Your practice</span><strong className="wk-ivprog" data-testid="iv-progress">{pack.progress.done} of {pack.progress.total} practised</strong></span>
+                {!practice && <button type="button" className="btn btn-signal" data-testid="iv-practise" onClick={() => setPractice(pack.questions.find((q) => !q.practised)?.id || pack.questions[0].id)}>Practise one question at a time</button>}
               </div>
+              <Bar value={pack.progress.done} max={pack.progress.total || 1} label="Questions practised" showValue={false} tone="ok" />
+              {pack.note && <span className="xs muted" role="note">{pack.note}</span>}
+              <span className="xs muted"><mark className="gap">[Brackets]</mark> are gaps for you to fill with what really happened. Never add something you didn’t do.</span>
+            </section>
+            {practice && <Practice key={practice} id={id} pack={pack} start={practice} onSaved={saved} onClose={() => setPractice(null)} />}
+            <section className="stack g8" aria-label="Questions">
+              <h2 className="wk-h2">Likely questions</h2>
+              {pack.questions.map((q, i) => <Question key={q.id} q={q} n={i + 1} groups={pack.groups} onPractise={(qid) => { setPractice(qid); window.scrollTo({ top: 0, behavior: 'smooth' }); }} />)}
+              {pack.locked.length > 0 && (
+                <div className="mcard mcard-accent" data-testid="iv-locked">
+                  <strong className="small">{pack.locked.length} more questions in the Interview pack</strong>
+                  <span className="xs muted">{lockedGroups}. Also: “Tell me about yourself” in 2 minutes, your weak spots, questions to ask, and the homework checklist.</span>
+                  <PackOffer kind="interview" acc={acc} onBought={load} />
+                </div>
+              )}
+            </section>
+          </div>
+          <div className="mstack">
+            <section className="mcard" aria-label="Tell me about yourself" data-testid="iv-intro">
+              <div className="mspread">
+                <h2 className="mcard-title">Tell me about yourself</h2>
+                <span className="segmented" role="tablist" aria-label="Intro length">
+                  <button type="button" role="tab" aria-selected={intro === 'sec60'} onClick={() => setIntro('sec60')}>60 seconds</button>
+                  <button type="button" role="tab" aria-selected={intro === 'min2'} disabled={!pack.intro.min2} onClick={() => setIntro('min2')}>2 minutes</button>
+                </span>
+              </div>
+              <p className="wk-intro" data-testid="iv-intro-text">{pack.intro[intro] || pack.intro.sec60}</p>
+            </section>
+            {pack.unlocked && (
+              <>
+                <MeCard title="Weak spots: honest answers" icon="◐" label="Weak spots" testid="iv-weak">
+                  {pack.weak.map((w) => <div key={w.q} className="wk-weak"><strong className="small">{w.q}</strong><p className="small" style={{ margin: 0 }}><Gaps text={w.answer} /></p>{w.tip && <span className="xs muted">{w.tip}</span>}</div>)}
+                </MeCard>
+                <MeCard title="5 questions to ask them" icon="?" label="Questions to ask" testid="iv-ask">
+                  <ol className="wk-ask">{pack.ask.map((a) => <li key={a}>{a}</li>)}</ol>
+                </MeCard>
+                <MeCard title="Company homework" icon="✓" label="Company homework">
+                  <Homework id={id} items={pack.homework} />
+                </MeCard>
+              </>
             )}
-          </section>
-          <section className="card stack g8" aria-label="Tell me about yourself" data-testid="iv-intro">
-            <span className="row between g8" style={{ flexWrap: 'wrap' }}>
-              <strong>Tell me about yourself</strong>
-              <span className="segmented" role="tablist" aria-label="Intro length">
-                <button type="button" role="tab" aria-selected={intro === 'sec60'} onClick={() => setIntro('sec60')}>60 seconds</button>
-                <button type="button" role="tab" aria-selected={intro === 'min2'} disabled={!pack.intro.min2} onClick={() => setIntro('min2')}>2 minutes</button>
-              </span>
-            </span>
-            <p className="small" style={{ margin: 0, lineHeight: 1.6 }} data-testid="iv-intro-text">{pack.intro[intro] || pack.intro.sec60}</p>
-          </section>
-          {pack.unlocked && (
-            <>
-              <section className="card stack g8" aria-label="Weak spots" data-testid="iv-weak">
-                <strong>Weak spots: honest answers</strong>
-                {pack.weak.map((w) => <div key={w.q} className="stack g4"><strong className="small">{w.q}</strong><p className="small" style={{ margin: 0 }}><Gaps text={w.answer} /></p>{w.tip && <span className="xs muted">{w.tip}</span>}</div>)}
-              </section>
-              <section className="card stack g8" aria-label="Questions to ask" data-testid="iv-ask">
-                <strong>5 questions to ask them</strong>
-                <ol className="small" style={{ margin: 0, paddingLeft: 18 }}>{pack.ask.map((a) => <li key={a}>{a}</li>)}</ol>
-              </section>
-              <section className="card stack g8" aria-label="Company homework">
-                <strong>Company homework</strong>
-                <Homework id={id} items={pack.homework} />
-              </section>
-            </>
-          )}
-          <button type="button" className="btn btn-ghost" style={{ alignSelf: 'flex-start' }} disabled={busy} onClick={make}>{busy && <Spinner />}Make the pack again (your practice is kept)</button>
-        </>
+            <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} disabled={busy} onClick={make}>{busy && <Spinner />}Make the pack again (your practice is kept)</button>
+          </div>
+        </div>
       )}
     </>
   );
