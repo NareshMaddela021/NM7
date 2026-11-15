@@ -17,9 +17,18 @@ on:
   schedule:
     - cron: "30 21 * * *" # 03:00 IST
   workflow_dispatch:
+    inputs:
+      shots_ref:
+        description: "Screenshots only: the branch or commit to photograph (empty = run the tests)"
+        required: false
+        default: ""
+      shots_label:
+        description: "Screenshots only: artifact name (before / after)"
+        required: false
+        default: after
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-${{ inputs.shots_ref && inputs.shots_label || 'tests' }}
   cancel-in-progress: true
 
 jobs:
@@ -82,7 +91,7 @@ jobs:
 
   live:
     # the whole suite: nightly, by hand, and on pull requests when CI_MODE=full
-    if: github.event_name != 'pull_request' || vars.CI_MODE == 'full'
+    if: (github.event_name != 'pull_request' || vars.CI_MODE == 'full') && !inputs.shots_ref
     runs-on: ubuntu-latest
     timeout-minutes: 60
     defaults:
@@ -134,3 +143,50 @@ jobs:
             frontend/test-results
             frontend/e2e-live/.api.log
           retention-days: 7
+
+  shots:
+    # by hand only, with shots_ref set: screenshots of every dashboard page (e2e-live/zz-shots.spec.mjs)
+    if: inputs.shots_ref != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: frontend
+    env:
+      TEST_MONGODB_URI: mongodb://localhost:27017/?directConnection=true
+      SHOTS: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Use the app from app_ref, with this branch's screenshot script
+        working-directory: .
+        run: |
+          cp frontend/e2e-live/zz-shots.spec.mjs /tmp/zz-shots.spec.mjs
+          git checkout "${{ inputs.shots_ref }}" 2>/dev/null || git checkout "origin/${{ inputs.shots_ref }}"
+          cp /tmp/zz-shots.spec.mjs frontend/e2e-live/zz-shots.spec.mjs
+      - name: Start MongoDB (replica set)
+        run: bash "$GITHUB_WORKSPACE/.github/scripts/start-mongo.sh"
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: frontend/.nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+      - run: npm ci
+      - name: Install the API
+        working-directory: backend
+        run: uv sync --frozen
+      - run: npx playwright install --with-deps chromium
+      - name: Screenshots
+        run: npx playwright test -c playwright.live.config.mjs e2e-live/zz-shots.spec.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: shots-${{ inputs.shots_label }}
+          path: frontend/shots
+          retention-days: 30
