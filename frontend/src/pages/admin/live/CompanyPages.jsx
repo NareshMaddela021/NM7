@@ -9,6 +9,8 @@ import { PageHead, Panel, Tabs } from '../AdminUI';
 import { Loading, day, emptyIf, http, useAction, useApi } from './common';
 import { keepAccount } from '../../../lib/recruiterPortal';
 import { plainWords } from '../../../lib/company';
+import '../../../styles/me-kit.css';
+import '../../../styles/admin-jobs.css';
 
 const STATES = [['pending', 'Waiting for review'], ['approved', 'Verified'], ['rejected', 'Rejected'], ['blocked', 'Blocked'], ['draft', 'Not finished'], ['all', 'All']];
 const TRUST = { verified: ['Verified', 'b-success'], basic: ['Basic', 'b-signal'], unverified: ['Unverified', 'b-warning'], blocked: ['Blocked', 'b-danger'] };
@@ -30,10 +32,10 @@ export function LiveCompanies() {
   const st = useApi(`/api/admin/companies?state=${state}&q=${encodeURIComponent(query)}`);
   const counts = st.data?.counts || {};
   return (
-    <>
+    <div className="adx adx-companies stack g16">
       <PageHead title="Companies" sub="Check each company before its jobs reach students. Flags come first; the registration number is checked by hand on the government site." />
       <Tabs value={state} onChange={setState} tabs={STATES.map(([k, l]) => [k, k === 'all' ? l : `${l} (${counts[k] ?? 0})`])} label="Companies by state" />
-      <form className="row g8" role="search" aria-label="Find companies" onSubmit={(e) => { e.preventDefault(); setQuery(q.trim()); }}>
+      <form className="row g8 ad-toolbar" role="search" aria-label="Find companies" onSubmit={(e) => { e.preventDefault(); setQuery(q.trim()); }}>
         <label className="sr-only" htmlFor="co-q">Search companies</label>
         <input id="co-q" className="input" style={{ flex: '1 1 220px', height: 40 }} placeholder="Name, email or registration number" value={q} onChange={(e) => setQ(e.target.value)} />
         <button type="submit" className="btn btn-outline">Search</button>
@@ -43,9 +45,9 @@ export function LiveCompanies() {
       <Loading st={st} empty={emptyIf((d) => !d.items.length, 'No companies here.')}>{(d) => (
         <ul className="stack g12" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
           {d.items.map((c) => (
-            <li key={c.id} className="card stack g8" data-testid="admin-company">
-              <div className="row g8" style={{ justifyContent: 'space-between' }}>
-                <strong style={{ overflowWrap: 'anywhere' }}>{c.details.legalName}</strong>
+            <li key={c.id} className="card stack g8 adx-row" data-status={c.trust} data-testid="admin-company">
+              <div className="row g8 adx-row-head" style={{ justifyContent: 'space-between' }}>
+                <span className="row g8" style={{ minWidth: 0, flexWrap: 'nowrap' }}><span className="mavatar adx-av" aria-hidden="true">{(c.details.legalName || '?').trim().charAt(0).toUpperCase()}</span><strong className="adx-title" style={{ overflowWrap: 'anywhere' }}>{c.details.legalName}</strong></span>
                 <span className={`badge ${TRUST[c.trust]?.[1]}`}>{TRUST[c.trust]?.[0]}</span>
               </div>
               <span className="small muted" style={{ overflowWrap: 'anywhere' }}>{c.kind === 'individual' ? 'Individual recruiter' : c.details.website} · {c.adminEmail} · signed up {day(c.createdAt)}</span>
@@ -60,7 +62,7 @@ export function LiveCompanies() {
         </ul>
       )}</Loading>
       {open && <CompanyReview id={open} onClose={() => setOpen(null)} onChanged={() => st.reload()} />}
-    </>
+    </div>
   );
 }
 
@@ -72,7 +74,7 @@ function Reason({ label, cta, onSubmit, busy, onCancel }) {
       <textarea id="co-reason" className="input" rows={3} minLength={5} maxLength={500} required value={text} onChange={(e) => setText(e.target.value)} />
       <span className="xs muted">The main admin gets this reason by email.</span>
       <div className="row g8">
-        <button type="submit" className="btn btn-ink" disabled={busy || text.trim().length < 5}>{cta}</button>
+        <button type="submit" className="btn btn-signal" disabled={busy || text.trim().length < 5}>{cta}</button>
         <button type="button" className="link-btn small" onClick={onCancel}>Cancel</button>
       </div>
     </form>
@@ -125,7 +127,7 @@ function CompanyReview({ id, onClose, onChanged }) {
                 onSubmit={(reason) => act(ask, { reason }, { reject: 'Rejected: the main admin was emailed', reverify: 'Back in the queue', block: 'Blocked: its jobs are paused' }[ask])} />
             ) : (
               <div className="row g8">
-                {state !== 'approved' && state !== 'blocked' && <button type="button" className="btn btn-ink" disabled={busy || c.trust === 'unverified'} onClick={() => act('approve', null, 'Verified: the main admin was emailed')}>Approve</button>}
+                {state !== 'approved' && state !== 'blocked' && <button type="button" className="btn btn-signal" disabled={busy || c.trust === 'unverified'} onClick={() => act('approve', null, 'Verified: the main admin was emailed')}>Approve</button>}
                 {state !== 'blocked' && state !== 'rejected' && <button type="button" className="btn btn-outline" disabled={busy} onClick={() => setAsk('reject')}>Reject</button>}
                 {state === 'approved' && <button type="button" className="btn btn-outline" disabled={busy} onClick={() => setAsk('reverify')}>Re-verify</button>}
                 {state !== 'blocked' ? <button type="button" className="btn btn-outline" style={{ color: 'var(--danger)' }} disabled={busy} onClick={() => setAsk('block')}>Block</button>
@@ -173,7 +175,7 @@ function SupplyMap() {
   const [open, setOpen] = useState(false);
   const st = useApi(open ? '/api/admin/hire/supply' : null);
   return (
-    <details className="card-sm" onToggle={(e) => setOpen(e.currentTarget.open)} data-testid="supply-map">
+    <details className="card-sm adx-fold" onToggle={(e) => setOpen(e.currentTarget.open)} data-testid="supply-map">
       <summary className="small"><strong>Ready to join: supply map</strong></summary>
       {open && <Loading st={st}>{(d) => (
         <div className="stack g8" style={{ marginTop: 8 }}>
@@ -205,7 +207,7 @@ function DemoCompany({ onChanged }) {
   const openHire = () => run(async () => { const r = await http('/api/admin/demo-company/hire/open', { method: 'POST' }); keepAccount(r.session); window.location.assign('/company#hire'); });
   const remove = () => run(async () => { await http('/api/admin/demo-company', { method: 'DELETE' }); onChanged(); }, 'Demo company removed');
   return (
-    <section className="card-sm stack g8" aria-label="Demo company" data-testid="demo-company">
+    <section className="card-sm stack g8 adx-demo" aria-label="Demo company" data-testid="demo-company">
       <strong className="small">Demo company</strong>
       <span className="xs muted">“Demo Tech Solutions (demo)”: 2 admins, 5 jobs, applicants from the demo college, and 3 sample sign-ups here (clean, duplicate GSTIN, same-address burst). Never on the job board. Opening it starts a fresh copy and signs this browser in as its main admin. The Hire in 60 minutes version adds 30 made-up candidates who are ready to join (IT and non-IT, with skill check results and reliability histories), a bulk post with 50 openings, three interview times tomorrow and one offer waiting; demo people are never shown to real companies.</span>
       <div className="row g8" style={{ flexWrap: 'wrap' }}>

@@ -6,6 +6,8 @@ import { useState } from 'react';
 import { useToast } from '../../../components/ui';
 import { Kpi, PageHead, Panel, Tabs } from '../AdminUI';
 import { Loading, day, emptyIf, http, useAction, useApi, when } from './common';
+import '../../../styles/me-kit.css';
+import '../../../styles/admin-jobs.css';
 
 const WORK = { onsite: 'On-site', hybrid: 'Hybrid', remote: 'Remote' };
 const TYPE = { full_time: 'Full-time', internship: 'Internship', contract: 'Contract', part_time: 'Part-time' };
@@ -45,7 +47,7 @@ function toBody(f) {
 export function LiveJobs() {
   const [tab, setTab] = useState('jobs');
   return (
-    <>
+    <div className="adx adx-jobs stack g16">
       <PageHead title="Jobs" sub="Every job on nm7.si/jobs: from the morning job collector, added here, or bulk imported. Changes are in the audit log." />
       <Tabs label="Show" tabs={[['jobs', 'Jobs'], ['collector', 'Collector review'], ['reports', 'Reports'], ['removals', 'Removal requests'], ['import', 'Bulk import'], ['expired', 'Expired links']]} value={tab} onChange={setTab} />
       {tab === 'jobs' && <JobList />}
@@ -54,7 +56,7 @@ export function LiveJobs() {
       {tab === 'reports' && <Reports />}
       {tab === 'removals' && <Removals />}
       {tab === 'collector' && <CollectorReview />}
-    </>
+    </div>
   );
 }
 
@@ -74,17 +76,17 @@ function JobList() {
   return (
     <div className="row g16" style={{ alignItems: 'flex-start', flexWrap: 'wrap' }}>
       <div className="stack g12" style={{ flex: '3 1 520px', minWidth: 0 }}>
-        <form className="row g8" style={{ flexWrap: 'wrap', alignItems: 'flex-end' }} onSubmit={(e) => { e.preventDefault(); setPage(1); setApplied(f); }} aria-label="Find jobs">
+        <form className="row g8 ad-toolbar adx-filters" style={{ flexWrap: 'wrap', alignItems: 'flex-end' }} onSubmit={(e) => { e.preventDefault(); setPage(1); setApplied(f); }} aria-label="Find jobs">
           <div className="field" style={{ flex: '2 1 200px' }}><label className="label" htmlFor="aj-q">Search</label><input id="aj-q" className="input" placeholder="Title, company, city or skill" value={f.q} onChange={(e) => setF({ ...f, q: e.target.value })} /></div>
           <div className="field" style={{ flex: '1 1 120px' }}><label className="label" htmlFor="aj-st">Status</label><select id="aj-st" className="input" value={f.status} onChange={(e) => setF({ ...f, status: e.target.value })}><option value="">All</option>{Object.entries(STATUS).map(([k, [l]]) => <option key={k} value={k}>{l}</option>)}</select></div>
           <div className="field" style={{ flex: '1 1 130px' }}><label className="label" htmlFor="aj-src">Source</label><select id="aj-src" className="input" value={f.source} onChange={(e) => setF({ ...f, source: e.target.value })}><option value="">All</option>{Object.entries(SOURCE).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
           <div className="field" style={{ flex: '1 1 130px' }}><label className="label" htmlFor="aj-exp">Experience</label><select id="aj-exp" className="input" value={f.experience} onChange={(e) => setF({ ...f, experience: e.target.value })}><option value="">All</option>{Object.entries({ ...EXP, ...EXP_OLD }).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
           <button type="submit" className="btn btn-outline">Search</button>
-          <button type="button" className="btn btn-ink" onClick={() => setEditing('new')}>Add job</button>
+          <button type="button" className="btn btn-signal" onClick={() => setEditing('new')}>Add job</button>
         </form>
         <Loading st={st} empty={emptyIf((d) => !d.items.length, 'No jobs match. Add one, or import a file.')}>{(d) => (
           <>
-            <div className="row g12" style={{ flexWrap: 'wrap' }}>
+            <div className="row g12 adx-kpis" style={{ flexWrap: 'wrap' }}>
               <Kpi label="Jobs" value={d.total} sub={Object.entries(d.counts.status).map(([k, n]) => `${STATUS[k]?.[0] || k} ${n}`).join(' · ')} />
               <Kpi label="By source" value={Object.values(d.counts.source).reduce((a, b) => a + b, 0)} sub={Object.entries(d.counts.source).map(([k, n]) => `${SOURCE[k] || k} ${n}`).join(' · ')} />
               <Kpi label="By experience" value={d.counts.experience.fresher || 0} sub={Object.entries(d.counts.experience).map(([k, n]) => `${EXP[k] || EXP_OLD[k] || k} ${n}`).join(' · ')} />
@@ -92,10 +94,10 @@ function JobList() {
             </div>
             <ul className="stack g8" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
               {d.items.map((j) => (
-                <li key={j.id} className="card stack g6" data-testid="admin-job">
-                  <div className="row between g8" style={{ flexWrap: 'wrap', alignItems: 'flex-start' }}>
+                <li key={j.id} className="card stack g6 adx-row" data-status={j.status} data-testid="admin-job">
+                  <div className="row between g8 adx-row-head" style={{ flexWrap: 'wrap', alignItems: 'flex-start' }}>
                     <span className="stack g2" style={{ minWidth: 0 }}>
-                      <strong className="small" style={{ overflowWrap: 'anywhere' }}>{j.title}</strong>
+                      <strong className="small adx-title" style={{ overflowWrap: 'anywhere' }}>{j.title}</strong>
                       <span className="xs muted">{j.company.name} · {j.remote && !j.locations.length ? 'Remote' : j.locations.join(', ')} · {EXP[j.experience] || EXP_OLD[j.experience]} · {TYPE[j.jobType]}{j.salary ? ` · ${salaryText(j.salary)}` : ''}</span>
                       <span className="xs faint">{SOURCE[j.source]} · posted {day(j.postedAt)} · {APPLY[j.apply.method]}{j.linkCheck.at ? ` · link checked ${when(j.linkCheck.at)}${j.linkCheck.ok === false ? ' (failed)' : ''}` : ''}</span>
                     </span>
@@ -103,13 +105,13 @@ function JobList() {
                   </div>
                   {j.closedReason && <span className="xs" style={{ color: 'var(--warning)' }}>{j.closedReason}</span>}
                   {confirm === j.id ? (
-                    <div className="row g8 well" role="alert" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
+                    <div className="row g8 well adx-danger" role="alert" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
                       <span className="small">Delete “{j.title}” for good? Closing keeps it for the record.</span>
-                      <button type="button" className="btn btn-ink" style={{ background: 'var(--danger)' }} disabled={busy} onClick={() => remove(j)}>Delete</button>
+                      <button type="button" className="btn btn-ink adx-btn-danger" style={{ background: 'var(--danger)' }} disabled={busy} onClick={() => remove(j)}>Delete</button>
                       <button type="button" className="btn btn-outline" onClick={() => setConfirm(null)}>Cancel</button>
                     </div>
                   ) : (
-                    j.status === 'review' ? <ReviewBox j={j} onDone={() => st.reload()} /> : <div className="row g8" style={{ flexWrap: 'wrap' }}>
+                    j.status === 'review' ? <ReviewBox j={j} onDone={() => st.reload()} /> : <div className="row g8 adx-actions" style={{ flexWrap: 'wrap' }}>
                       <button type="button" className="link-btn small" onClick={() => setEditing(j.id)}>Edit</button>
                       {j.status !== 'active' && <button type="button" className="link-btn small" disabled={busy} onClick={() => setStatus(j, 'active')}>{j.status === 'closed' ? 'Reopen' : 'Make live'}</button>}
                       {j.status === 'active' && <button type="button" className="link-btn small" disabled={busy} onClick={() => setStatus(j, 'paused')}>Pause</button>}
@@ -122,7 +124,7 @@ function JobList() {
               ))}
             </ul>
             {d.pages > 1 && (
-              <div className="row g8" style={{ alignItems: 'center' }}>
+              <div className="row g8 adx-pager" style={{ alignItems: 'center' }}>
                 <button type="button" className="btn btn-outline" disabled={page <= 1} onClick={() => setPage(page - 1)}>Previous</button>
                 <span className="small">Page {d.page} of {d.pages}</span>
                 <button type="button" className="btn btn-outline" disabled={page >= d.pages} onClick={() => setPage(page + 1)}>Next</button>
@@ -157,7 +159,7 @@ function JobForm({ id, onClose, onSaved }) {
   return (
     <Panel title={id ? 'Edit job' : 'Add a job'} onClose={onClose}>
       {!form ? <span className="small muted">Loading…</span> : (
-        <form className="stack g12" onSubmit={save} aria-label={id ? 'Edit job' : 'Add a job'}>
+        <form className="stack g12 adx-form" onSubmit={save} aria-label={id ? 'Edit job' : 'Add a job'}>
           <div className="field"><label className="label" htmlFor="jf-t">Job title *</label><input id="jf-t" className="input" required maxLength={120} value={form.title} onChange={(e) => set('title', e.target.value)} /></div>
           <div className="field"><label className="label" htmlFor="jf-c">Company *</label><input id="jf-c" className="input" required maxLength={100} value={form.company.name} onChange={(e) => set('company', { ...form.company, name: e.target.value })} /></div>
           <div className="row g8" style={{ flexWrap: 'wrap' }}>
@@ -187,7 +189,7 @@ function JobForm({ id, onClose, onSaved }) {
             <div className="field" style={{ flex: '1 1 140px' }}><label className="label" htmlFor="jf-cl">Closes on (optional)</label><input id="jf-cl" className="input" type="date" value={form.closesAt} onChange={(e) => set('closesAt', e.target.value)} /></div>
           </div>
           {error && <p className="error" role="alert">{error}</p>}
-          <div className="row g8"><button type="submit" className="btn btn-ink" disabled={busy}>{id ? 'Save' : 'Add job'}</button><button type="button" className="btn btn-outline" onClick={onClose}>Cancel</button></div>
+          <div className="row g8"><button type="submit" className="btn btn-signal" disabled={busy}>{id ? 'Save' : 'Add job'}</button><button type="button" className="btn btn-outline" onClick={onClose}>Cancel</button></div>
         </form>
       )}
     </Panel>
@@ -206,7 +208,7 @@ function AppRow({ job, a }) {
     try { await http(`/api/admin/jobs/${job.id}/applications/${encodeURIComponent(a.user)}/status`, { method: 'POST', body: { status: v } }); setStatus(v); toast('Updated: the applicant sees it in My applications'); } catch (e) { toast(e.message); } finally { setBusy(false); }
   };
   return (
-    <li className="row g8 small" data-testid="admin-application" style={{ justifyContent: 'space-between' }}>
+    <li className="row g8 small adx-app" data-testid="admin-application" style={{ justifyContent: 'space-between' }}>
       <span style={{ minWidth: 0, overflowWrap: 'anywhere' }}><strong>{a.name}</strong> · {a.email} · {CHANNEL[a.channel] || a.channel}{a.origin === 'auto' ? ' · Auto' : ' · Manual'}{a.resume ? ` · resume “${a.resume}”` : ''} · {day(a.at)}</span>
       {a.channel === 'nm7' ? (
         <label className="row g4">
@@ -263,7 +265,7 @@ function BulkImport({ onDone }) {
   });
   const file = async (e) => { const fl = e.target.files?.[0]; if (!fl) return; setFormat(fl.name.toLowerCase().endsWith('.csv') ? 'csv' : 'json'); setText(await fl.text()); setPreview(null); };
   return (
-    <div className="stack g12" style={{ maxWidth: 900 }}>
+    <div className="stack g12 mcard adx-import" style={{ maxWidth: 900 }}>
       <span className="small muted">Paste a JSON array of jobs, or a CSV with a header row (title, company, company_website, company_logo, locations, work_type, job_type, experience, salary_min, salary_max, salary_period, skills, description, apply_method, apply_url, apply_email, posted_at, closes_at, status; use ; between cities or skills; experience is one of internship, fresher, 0_1, 1_3, 3_5, 5_8, 8_12, 12_15, 15_plus or not_stated). Preview first: nothing is saved until you press Import. The same job sent again updates it instead of adding a copy.</span>
       <div className="row g12" role="radiogroup" aria-label="Format">
         {['json', 'csv'].map((k) => <label key={k} className="row g6 small"><input type="radio" name="bi-f" value={k} aria-label={k === 'json' ? 'JSON' : 'CSV'} checked={format === k} onChange={() => { setFormat(k); setPreview(null); }} /> {k.toUpperCase()}</label>)}
@@ -273,7 +275,7 @@ function BulkImport({ onDone }) {
       <textarea id="bi-text" className="input mono xs" rows={12} placeholder={format === 'json' ? SAMPLE_JSON : 'title,company,locations,experience,description,apply_method,apply_url'} value={text} onChange={(e) => { setText(e.target.value); setPreview(null); }} />
       {error && <p className="error" role="alert">{error}</p>}
       <div className="row g8"><button type="button" className="btn btn-outline" disabled={busy || text.trim().length < 2} onClick={() => send(false)}>Preview</button>
-        {preview && <button type="button" className="btn btn-ink" disabled={busy || !(preview.created + preview.updated)} onClick={() => send(true)}>Import {preview.created + preview.updated} job{preview.created + preview.updated === 1 ? '' : 's'}</button>}</div>
+        {preview && <button type="button" className="btn btn-signal" disabled={busy || !(preview.created + preview.updated)} onClick={() => send(true)}>Import {preview.created + preview.updated} job{preview.created + preview.updated === 1 ? '' : 's'}</button>}</div>
       {preview && (
         <div className="stack g8" data-testid="import-preview">
           <span className="small"><strong>{preview.created}</strong> new · <strong>{preview.updated}</strong> updated · <strong>{preview.skipped}</strong> already here, unchanged · <strong>{preview.rejected}</strong> with errors (skipped)</span>
@@ -298,7 +300,7 @@ function Expired() {
     <Loading st={st} empty={emptyIf((d) => !d.length, 'No failed apply links. The daily check closes a job after its link fails twice in a row.')}>{(rows) => (
       <ul className="stack g8" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
         {rows.map((j) => (
-          <li key={j.id} className="card stack g4" data-testid="expired-job">
+          <li key={j.id} className="card stack g4 adx-row" data-status="expired" data-testid="expired-job">
             <span className="row between g8" style={{ flexWrap: 'wrap' }}><strong className="small">{j.title} · {j.company.name}</strong><span className={`badge ${STATUS[j.status][1]}`}>{STATUS[j.status][0]}</span></span>
             <span className="xs muted">Failed {j.linkCheck.fails} time{j.linkCheck.fails === 1 ? '' : 's'} · last check {when(j.linkCheck.at)}{j.linkCheck.status ? ` · HTTP ${j.linkCheck.status}` : ''}{j.linkCheck.error ? ` · ${j.linkCheck.error}` : ''}</span>
             {j.closedReason && <span className="xs">{j.closedReason}</span>}
@@ -322,7 +324,7 @@ function ReviewBox({ j, onDone }) {
   const [reason, setReason] = useState('');
   const decide = (approve) => run(async () => { await http(`/api/admin/jobs/${j.id}/review`, { method: 'POST', body: { approve, reason } }); onDone(); }, approve ? 'Approved: the job is live' : 'Rejected: the company was emailed');
   return (
-    <div className="stack g8 well" data-testid="job-review">
+    <div className="stack g8 well adx-review" data-testid="job-review">
       <strong className="small">Why it is waiting</strong>
       <ul className="stack g4" style={{ margin: 0, paddingLeft: 18 }}>{j.review.reasons.map((r, i) => <li key={i} className="small" style={{ color: 'var(--warning)' }}>{COLLECTOR_WHY[r] || r}</li>)}</ul>
       {j.source === 'collector' && <span className="xs muted" data-testid="collector-review-note">From the job collector. Write a short summary in your own words (Edit) before approving: the description is a placeholder until then. Never paste the company&apos;s text.</span>}
@@ -330,11 +332,11 @@ function ReviewBox({ j, onDone }) {
         <form className="stack g8" role="alert" onSubmit={(e) => { e.preventDefault(); decide(false); }}>
           <label className="label" htmlFor={`rv-${j.id}`}>Why can’t it go live?</label>
           <textarea id={`rv-${j.id}`} className="input" rows={2} maxLength={300} value={reason} onChange={(e) => setReason(e.target.value)} />
-          <div className="row g8"><button type="submit" className="btn btn-ink" disabled={busy || reason.trim().length < 5}>Reject</button>
+          <div className="row g8"><button type="submit" className="btn btn-signal" disabled={busy || reason.trim().length < 5}>Reject</button>
             <button type="button" className="link-btn small" onClick={() => setRejecting(false)}>Cancel</button></div>
         </form>
       ) : (
-        <div className="row g8"><button type="button" className="btn btn-ink" disabled={busy} onClick={() => decide(true)}>Approve</button>
+        <div className="row g8"><button type="button" className="btn btn-signal" disabled={busy} onClick={() => decide(true)}>Approve</button>
           <button type="button" className="btn btn-outline" disabled={busy} onClick={() => setRejecting(true)}>Reject</button></div>
       )}
     </div>
@@ -366,7 +368,7 @@ function ReportRow({ r, open, toast, onDone }) {
   const [note, setNote] = useState('');
   const resolve = (action) => run(async () => { await http(`/api/admin/job-reports/${r.jobId}/resolve`, { method: 'POST', body: { action, note } }); onDone(); }, action === 'close' ? 'Job closed' : 'Reports dismissed');
   return (
-    <li className="card stack g8" data-testid="job-report">
+    <li className="card stack g8 adx-row" data-status={r.held ? 'held' : 'report'} data-testid="job-report">
       <span className="row between g8" style={{ flexWrap: 'wrap' }}>
         <strong className="small"><a href={`/jobs/${r.slug}`} target="_blank" rel="noopener noreferrer">{r.title}</a> · {r.company}</strong>
         <span className="row g8"><span className={`badge ${STATUS[r.status]?.[1] || 'b-neutral'}`}>{STATUS[r.status]?.[0] || r.status}</span>{r.held && <span className="badge b-danger">Paused by reports</span>}</span>
@@ -379,13 +381,13 @@ function ReportRow({ r, open, toast, onDone }) {
         <form className="stack g8" onSubmit={(e) => { e.preventDefault(); resolve('close'); }}>
           <label className="label" htmlFor={`rc-${r.jobId}`}>Why is the job closed?</label>
           <textarea id={`rc-${r.jobId}`} className="input" rows={2} maxLength={300} value={note} onChange={(e) => setNote(e.target.value)} />
-          <div className="row g8"><button type="submit" className="btn btn-ink" disabled={busy || note.trim().length < 5}>Close the job</button>
+          <div className="row g8"><button type="submit" className="btn btn-signal" disabled={busy || note.trim().length < 5}>Close the job</button>
             <button type="button" className="link-btn small" onClick={() => setClosing(false)}>Cancel</button></div>
         </form>
       ) : (
         <div className="row g8">
           <button type="button" className="btn btn-outline" disabled={busy} onClick={() => resolve('dismiss')}>{r.held ? 'Dismiss and make live again' : 'Dismiss'}</button>
-          <button type="button" className="btn btn-ink" disabled={busy} onClick={() => setClosing(true)}>Close the job</button>
+          <button type="button" className="btn btn-signal" disabled={busy} onClick={() => setClosing(true)}>Close the job</button>
         </div>
       ))}
     </li>
@@ -426,7 +428,7 @@ function CollectorReview() {
           <strong>Outside India</strong>
           <span className="small muted">New jobs abroad are refused and ones already here are closed when the collector sends them again. Jobs stored before 14 Nov have no raw location, so they close when they are sent back.</span>
           {d.outsideIndia > 0 ? (sure
-            ? <div className="row g8" style={{ flexWrap: 'wrap' }}><button type="button" className="btn btn-ink btn-sm" disabled={busy} onClick={closeAbroad} data-testid="cr-abroad-yes">Yes, close {d.outsideIndia}</button><button type="button" className="btn btn-outline btn-sm" onClick={() => setSure(false)}>Keep them</button></div>
+            ? <div className="row g8" style={{ flexWrap: 'wrap' }}><button type="button" className="btn btn-signal btn-sm" disabled={busy} onClick={closeAbroad} data-testid="cr-abroad-yes">Yes, close {d.outsideIndia}</button><button type="button" className="btn btn-outline btn-sm" onClick={() => setSure(false)}>Keep them</button></div>
             : <button type="button" className="btn btn-outline btn-sm" style={{ alignSelf: 'flex-start' }} onClick={() => setSure(true)} data-testid="cr-abroad">Close jobs outside India ({d.outsideIndia})</button>)
             : <span className="small">None waiting.</span>}
         </section>
@@ -449,14 +451,14 @@ function Removals() {
       <Loading st={st} empty={emptyIf((d) => !d.length, status === 'open' ? 'No removal requests to handle.' : 'Nothing here yet.')}>{(rows) => (
         <ul className="stack g8" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
           {rows.map((r) => (
-            <li key={r.id} className="card stack g4" data-testid="removal-row">
+            <li key={r.id} className="card stack g4 adx-row" data-status="removal" data-testid="removal-row">
               <strong className="small">{r.company}{r.jobTitle ? ` · ${r.jobTitle}` : ''}</strong>
               <a className="xs" href={r.jobLink} target="_blank" rel="noopener noreferrer nofollow" style={{ overflowWrap: 'anywhere' }}>{r.jobLink}</a>
               <span className="xs muted">{r.email} · {day(r.at)}{r.jobId ? '' : ' · job not found on Nm7'}</span>
               {r.reason && <span className="small" style={{ whiteSpace: 'pre-line' }}>{r.reason}</span>}
               {r.status === 'open' && (
                 <div className="row g8" style={{ flexWrap: 'wrap' }}>
-                  <button type="button" className="btn btn-ink btn-sm" disabled={busy || !r.jobId} onClick={() => closeJob(r)} data-testid="removal-close">Close the job</button>
+                  <button type="button" className="btn btn-signal btn-sm" disabled={busy || !r.jobId} onClick={() => closeJob(r)} data-testid="removal-close">Close the job</button>
                   <button type="button" className="btn btn-outline btn-sm" disabled={busy} onClick={() => dismiss(r)}>Dismiss</button>
                 </div>
               )}
