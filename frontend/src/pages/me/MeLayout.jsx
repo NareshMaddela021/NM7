@@ -1,4 +1,5 @@
-// Customer dashboard frame: sidebar on desktop, bottom tab bar + "More" sheet on phones.
+// Customer dashboard frame: a grouped side menu on desktop, bottom tab bar + a grouped "More" sheet on phones (round P:
+// the new design; the links and their order inside each group are unchanged).
 import { useEffect, useState } from 'react';
 import { Link, Navigate, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Header from '../../components/Header';
@@ -7,6 +8,7 @@ import { Dialog, Spinner } from '../../components/ui';
 import { useExpertOrders } from '../../lib/expertStore';
 import { useLang } from '../../lib/i18n';
 import { loadSimple, savePrefs } from '../../lib/simple';
+import { Still } from '../newhome/ParticleStage';
 
 export const ME_NAV = [
   ['home', '/me', 'Home', '⌂'],
@@ -37,14 +39,37 @@ export const ME_NAV = [
   ['settings', '/me/settings', 'Profile & settings', '⚙'],
   ['help', '/me/help', 'Help & referral', '?'],
 ];
+/** The side menu in groups (round P). Every link of ME_NAV is in exactly one group. */
+export const ME_GROUPS = [
+  ['Overview', ['home', 'messages']],
+  ['Resume tools', ['resumes', 'profile', 'ats', 'covers', 'share', 'certificates']],
+  ['Jobs', ['jobs', 'auto', 'hire']],
+  ['Learning', ['roles', 'learn', 'practice', 'skills', 'programs', 'launch', 'guidance']],
+  ['Offer and work', ['offercheck', 'feedback', 'progress']],
+  ['Account', ['orders', 'payments', 'upgrade', 'settings', 'help', 'groups']],
+];
+/** Each section's small dotted shape and tint for the page header: job seekers orange, learning (students) magenta. */
+const SECTION_ART = {
+  'Overview': ['sphere', 'seeker'], 'Resume tools': ['resume', 'seeker'], 'Jobs': ['briefcase', 'seeker'],
+  'Learning': ['cap', 'student'], 'Offer and work': ['badge', 'seeker'], 'Account': ['handshake', 'seeker'],
+};
+const artFor = (pathname) => {
+  const hit = ME_NAV.filter(([, to]) => pathname === to || (to !== '/me' && pathname.startsWith(`${to}/`))).sort((x, y) => y[1].length - x[1].length)[0];
+  const group = hit && ME_GROUPS.find(([, keys]) => keys.includes(hit[0]));
+  return SECTION_ART[group?.[0]] || SECTION_ART.Overview;
+};
 const TABS = ['home', 'orders', 'resumes', 'jobs'];
 const SHORT = { home: 'Home', orders: 'Orders', resumes: 'Resumes', jobs: 'Jobs' };
 
+/** A dashboard page's header: title, line under it, buttons, and the section's small dotted shape (desktop only). */
 export function MeHead({ title, sub, right }) {
+  const { pathname } = useLocation();
+  const [shape, tint] = artFor(pathname);
   return (
-    <div className="row between g16" style={{ alignItems: 'flex-end' }}>
-      <div className="stack g4"><h1 className="display" style={{ fontSize: 30 }}>{title}</h1>{sub && <span className="small muted">{sub}</span>}</div>
-      {right && <div className="row g8">{right}</div>}
+    <div className="me-head">
+      <div className="stack g4 me-head-text"><h1 className="display me-h1">{title}</h1>{sub && <span className="small muted">{sub}</span>}</div>
+      {right && <div className="row g8 me-head-right">{right}</div>}
+      <span className="me-head-art" aria-hidden="true" data-tint={tint}><Still shape={shape} tint={tint} className="me-head-still" /></span>
     </div>
   );
 }
@@ -76,7 +101,12 @@ export default function MeLayout() {
       <div className="container-wide row g24 me-wrap has-tabs" style={{ padding: '20px 24px 64px', alignItems: 'flex-start' }}>
         <nav aria-label="My dashboard" className="stack sticky me-side" style={{ flex: '0 0 220px', top: 88, gap: 2 }}>
           <span className="xs muted" style={{ padding: '0 10px 6px' }}>Signed in as <strong>{me.account.name}</strong></span>
-          {ME_NAV.map((n) => link(n))}
+          {ME_GROUPS.map(([g, keys]) => (
+            <div key={g} className="me-group" role="group" aria-label={g}>
+              <span className="me-group-h" aria-hidden="true">{g}</span>
+              {keys.map((k) => link(ME_NAV.find((n) => n[0] === k)))}
+            </div>
+          ))}
         </nav>
         <main className="stack g20" style={{ flex: '1 1 600px', minWidth: 0 }}>
           {me.loading && !me.error && <div className="row g12 muted" role="status" style={{ padding: '48px 0' }}><Spinner /> Loading your dashboard…</div>}
@@ -98,7 +128,12 @@ export default function MeLayout() {
       </nav>
       {more && (
         <Dialog title="More" onClose={() => setMore(false)} overlayStyle={{ alignItems: 'flex-end', padding: 0 }} panelStyle={{ borderRadius: '20px 20px 0 0', maxWidth: '100%', margin: 0, paddingBottom: 88, gap: 4 }}>
-          {ME_NAV.filter(([k]) => !TABS.includes(k)).map((n) => link(n))}
+          {ME_GROUPS.map(([g, keys]) => keys.filter((k) => !TABS.includes(k)).length > 0 && (
+            <div key={g} className="me-group" role="group" aria-label={g}>
+              <span className="me-group-h" aria-hidden="true">{g}</span>
+              {keys.filter((k) => !TABS.includes(k)).map((k) => link(ME_NAV.find((n) => n[0] === k)))}
+            </div>
+          ))}
         </Dialog>
       )}
     </>
