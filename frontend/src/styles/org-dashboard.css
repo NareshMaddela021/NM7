@@ -77,7 +77,16 @@
 .pld-who { display: inline-flex; align-items: center; gap: 10px; min-width: 0; }
 .pld-av { flex: none; width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; background: #dcf5f1; color: #0f766e; font-weight: 800; font-size: 13px; }
 .pld-check input, .pld-table thead input { width: 20px; height: 20px; }
+.pld-all-l { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; }
+.pld-all-t { display: none; }
 @media (max-width: 640px) {
+  /* the table becomes cards here, so its header is hidden: keep its Select all box visible above the cards */
+  .pld-table thead { position: static; width: auto; height: auto; overflow: visible; clip: auto; display: block; }
+  .pld-table thead tr { display: flex; border: 0; padding: 0; margin: 0 0 8px; background: none; }
+  .pld-table thead th { display: none; }
+  .pld-table thead th.pld-all { display: flex; align-items: center; width: auto !important; min-height: 44px; padding: 0 4px !important; border: 0 !important; background: none; position: static;
+    text-transform: none; letter-spacing: 0; font-size: 14px; font-weight: 700; color: var(--text); }
+  .pld-all-t { display: inline; }
   .pld-table td.pld-check { justify-content: flex-start; }
   .pld-table td.pld-name { justify-content: flex-start; }
   .pld-table td.pld-name::before { display: none; }

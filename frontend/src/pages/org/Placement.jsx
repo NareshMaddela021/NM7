@@ -206,7 +206,7 @@ function MissingTabs({ base, d, group, role, onChange, wa }) {
       {rows.length === 0 ? <div data-testid="pl-missing-empty"><Empty compact shape="college" tint="college" title="No one here. 🎉">Everyone in this list is done.</Empty></div> : (
         <div className="table-wrap mtable-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table mtable pld-table" data-testid="pl-missing-table">
           <thead><tr>
-            {tab !== 'notJoined' && !viewer && <th style={{ width: 36 }}><input type="checkbox" aria-label="Select all" checked={all} onChange={() => setSel(all ? [] : selectable.map((r) => r.membershipId))} /></th>}
+            {tab !== 'notJoined' && !viewer && <th className="pld-all" style={{ width: 36 }}><label className="pld-all-l"><input type="checkbox" aria-label="Select all" checked={all} onChange={() => setSel(all ? [] : selectable.map((r) => r.membershipId))} /><span className="pld-all-t" aria-hidden="true">Select all</span></label></th>}
             <th>Name</th><th>Roll no.</th><th>Branch</th><th>What’s missing</th><th>Last active</th>
           </tr></thead>
           <tbody>{rows.map((r, i) => (

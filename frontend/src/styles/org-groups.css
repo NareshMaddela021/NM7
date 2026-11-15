@@ -7,9 +7,13 @@
 .og-block { display: block; }
 .og-nowrap { white-space: nowrap; }
 .og-wrap { overflow-wrap: anywhere; }
-.og-pill-check { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--border);
-  background: #fff; cursor: pointer; font-weight: 600; color: var(--text2); }
-.og-pill-check:has(input:checked) { background: #dcf5f1; border-color: #8fd9cb; color: #0f766e; }
+/* a checkbox in a pill: the pill is drawn behind the label (::before) so the label itself, and so the area that
+   toggles, stays just the box and its text (the shared checkbox rule: empty space beside it never ticks it) */
+.og-pill-check { position: relative; isolation: isolate; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 6px 0; margin: 0 14px;
+  cursor: pointer; font-weight: 600; color: var(--text2); }
+.og-pill-check::before { content: ""; position: absolute; z-index: -1; inset: 0 -14px; border-radius: 999px; border: 1px solid var(--border); background: #fff; pointer-events: none; }
+.og-pill-check:has(input:checked) { color: #0f766e; }
+.og-pill-check:has(input:checked)::before { background: #dcf5f1; border-color: #8fd9cb; }
 .og-pill-check input { margin: 0; }
 .og-toggle-row { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border-radius: 16px; background: #f6fbfa; border: 1px solid #d6efe9; cursor: pointer; line-height: 1.45; }
 .og-toggle-row input { margin-top: 3px; width: 20px; height: 20px; flex: none; accent-color: #0d9488; }
