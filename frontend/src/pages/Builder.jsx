@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import '../styles/builder.css';
 import { Link, useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import LangSwitch from '../components/LangSwitch';
@@ -93,6 +94,7 @@ function ProfileOnly() {
 /* ---------- Start & template screens ---------- */
 /** "5 min ago" / "3 h ago" / "2 d ago" in the chosen language (lib/text ago). */
 const agoIn = (t, ts) => { const m = (Date.now() - ts) / 60000; return m < 60 ? t('builder.start.ago.min', { n: Math.max(1, Math.round(m)) }) : m < 1440 ? t('builder.start.ago.h', { n: Math.round(m / 60) }) : t('builder.start.ago.d', { n: Math.round(m / 1440) }); };
+const START_ICONS = { profile: '◉', scratch: '✎', linkedin: 'in', resume: '▤', photos: '◫' };
 /** The first screen: English, Telugu or Hindi (the switch at the top; strings builder.start.* in src/i18n/pages.json).
  * The resume itself, and every later step of the builder, stays in English. */
 function Start({ onNext, profilePct = null, resume = null, onContinue, customer = false }) {
@@ -106,34 +108,36 @@ function Start({ onNext, profilePct = null, resume = null, onContinue, customer 
     ['photos'],
   ];
   return (
-    <main id="main" className="container stack g32 rise" style={{ maxWidth: 1100, padding: '72px 24px' }} lang={lang} data-lang={lang}>
-      <div className="stack g12" style={{ maxWidth: 720 }}>
+    <main id="main" className="container stack g32 rise bld-start" lang={lang} data-lang={lang}>
+      <div className="stack g12 bld-start-hero">
         <LangSwitch t={t} lang={lang} style={{ alignSelf: 'flex-start' }} />
         <h1 className="display h1" style={{ fontSize: 'clamp(36px,5vw,60px)' }}>{rich(t('builder.start.title'), { em: (w) => <span className="hl" style={{ padding: '0 4px' }}>{w}</span> })}</h1>
         <p className="lead">{t('builder.start.lead')}</p>
         <p className="small muted" style={{ margin: 0 }}><strong>{t('builder.start.free')}</strong></p>
       </div>
       {resume && (
-        <section className="card row between g16" aria-labelledby="continue-h" style={{ padding: 24, border: '2px solid var(--ink)' }}>
+        <section className="bld-continue" aria-labelledby="continue-h">
           <div className="stack g4" style={{ minWidth: 0 }}>
-            <span className="mono xs muted" id="continue-h">{t('builder.start.continue.label')}</span>
+            <span className="bld-kicker" id="continue-h">{t('builder.start.continue.label')}</span>
             <strong className="display" style={{ fontSize: 22, overflowWrap: 'anywhere' }} lang="en">{resume.name}</strong>
             <span className="small muted">{resume.updated ? t('builder.start.continue.edited', { when: agoIn(t, resume.updated) }) : t('builder.start.continue.local')}</span>
           </div>
           <div className="row g8">
-            <button type="button" className="btn btn-ink btn-lg" onClick={onContinue}>{t('builder.start.continue.button')}</button>
+            <button type="button" className="btn btn-signal btn-lg" onClick={onContinue}>{t('builder.start.continue.button')}</button>
             {resume.updated && <Link to="/me/resumes" className="btn btn-outline btn-lg">{t('builder.start.continue.all')}</Link>}
           </div>
         </section>
       )}
-      {resume && <h2 style={{ fontSize: 22, margin: '8px 0 -12px' }}>{t('builder.start.new')}</h2>}
-      <div className="grid-auto g16">
+      {resume && <h2 className="bld-start-h2">{t('builder.start.new')}</h2>}
+      <div className="grid-auto g16 bld-start-grid">
         {opts.map(([k, rec]) => (
-          <button key={k} type="button" className={`card stack g8 btn${k === 'photos' ? ' start-photos' : ''}`} onClick={() => onNext(k)} style={{ textAlign: 'left', alignItems: 'flex-start', whiteSpace: 'normal', height: 'auto', padding: 24, border: rec ? '2px solid var(--ink)' : undefined }}>
+          <button key={k} type="button" className={`bld-start-card${k === 'photos' ? ' start-photos' : ''}`} data-rec={rec || undefined} onClick={() => onNext(k)}>
+            <span className="bld-start-ic" aria-hidden="true">{START_ICONS[k]}</span>
             {rec && <span className="badge b-signal">{t('builder.start.recommended')}</span>}
-            <strong className="display" style={{ fontSize: 22 }}>{t(`builder.start.${k}.title`)}</strong>
-            <span className="muted" style={{ fontWeight: 400 }}>{t(`builder.start.${k}.text`, { n: profilePct })}</span>
+            <strong className="bld-start-title">{t(`builder.start.${k}.title`)}</strong>
+            <span className="bld-start-text">{t(`builder.start.${k}.text`, { n: profilePct })}</span>
             {k === 'photos' && !customer && <span className="xs muted" data-testid="start-photos-signin">{t('builder.start.photos.signin')}</span>}
+            <span className="bld-start-go" aria-hidden="true">→</span>
           </button>
         ))}
       </div>
@@ -146,13 +150,13 @@ function Done({ name, score, onEdit, onDownload, onCover, pdfBusy, nudge }) {
   const [jobs, setJobs] = useState([]);
   useEffect(() => { getMatchedJobs().then(setJobs); }, []);
   return (
-    <main id="main" className="container row g48 rise" style={{ maxWidth: 1100, padding: '64px 24px', alignItems: 'center' }}>
-      <div className="stack g20" style={{ flex: '1 1 420px' }}>
-        <span className="mono" style={{ color: 'var(--success)', fontSize: 13 }}>PROFILE {score}% · RESUME READY</span>
-        <h1 className="display" style={{ fontSize: 48 }}>Nice work, {(name || 'there').split(' ')[0]}. Recruiters can now find you.</h1>
+    <main id="main" className="container rise bld-done">
+      <div className="stack g20 bld-done-main">
+        <span className="bld-done-chip">PROFILE {score}% · RESUME READY</span>
+        <h1 className="display bld-done-h1">Nice work, {(name || 'there').split(' ')[0]}. Recruiters can now find you.</h1>
         <p className="lead">Your Nm7 profile is live and your resume is ready to download.</p>
-        <div className="stack g8" style={{ maxWidth: 420 }}>
-          <button type="button" className="btn btn-ink btn-xl" onClick={() => onDownload('pdf')} disabled={pdfBusy}>{pdfBusy ? 'Preparing…' : 'Download PDF'}</button>
+        <div className="stack g8 bld-done-actions">
+          <button type="button" className="btn btn-signal btn-xl" onClick={() => onDownload('pdf')} disabled={pdfBusy}>{pdfBusy ? 'Preparing…' : 'Download PDF'}</button>
           <button type="button" className="btn btn-outline btn-lg" onClick={() => onDownload('docx')} disabled={pdfBusy}>Also download as Word (.docx)</button>
           <ShareWhatsApp className="btn btn-outline btn-lg" testid="done-share-wa" />
           <button type="button" className="btn btn-outline btn-lg" onClick={onCover}>Write a matching cover letter</button>
@@ -161,8 +165,8 @@ function Done({ name, score, onEdit, onDownload, onCover, pdfBusy, nudge }) {
           <LinkedInNudge show={nudge} />
         </div>
       </div>
-      <div className="card stack g12" style={{ flex: '1 1 360px' }}>
-        <strong>Matched jobs on Nm7</strong>
+      <div className="bld-done-jobs stack g12">
+        <strong className="bld-done-jobs-h">Matched jobs on Nm7</strong>
         {jobs.length === 0 && [0, 1, 2].map((i) => <div key={i} className="shimmer" style={{ height: 60 }} />)}
         {jobs.map((j) => (
           <div key={j.id} className="row between g12 well">
@@ -397,6 +401,12 @@ export default function Builder({ embedded = null }) {
   }, [d]);
   const idx = Math.max(0, SECS.findIndex((s) => s.id === sec));
   const cur = SECS[idx];
+  // phones: the sideways section strip shows the section being edited (only the strip scrolls, never the page)
+  useEffect(() => {
+    const el = document.querySelector('.bld-sec[data-active]');
+    const strip = el?.parentElement;
+    if (strip && strip.scrollWidth > strip.clientWidth) strip.scrollLeft = Math.max(0, el.offsetLeft - strip.offsetLeft - 16);
+  }, [cur?.id, stage]);
   const { has } = completeness(d);
   const score = strengthOf(has, SECS.map((s) => s.id)); // the ticks shown, nothing else
   const fresher = (d.personal.level || '').startsWith('Fresher');
@@ -613,7 +623,7 @@ export default function Builder({ embedded = null }) {
     <>
       {!embedded && <Header variant="builder" right={stage === 'build' && <SaveStatus customer={customer} serverIn={serverIn} save={save} dirty={dirty} />} />}
       {!embedded && (
-        <ol className="steps container-wide" aria-label="Builder steps" style={{ padding: '12px 24px 0' }}>
+        <ol className="steps container-wide bld-steps" aria-label="Builder steps">
           {['Start', 'Template', 'Build', 'Done'].map((l, i) => (
             <li key={l} aria-current={i === stageIdx ? 'step' : undefined} data-state={i < stageIdx ? 'done' : undefined}><span className="mono">{i < stageIdx ? '✓' : i + 1}</span>{l}</li>
           ))}
@@ -668,16 +678,18 @@ export default function Builder({ embedded = null }) {
       {stage === 'done' && <Done name={d.personal.name} score={score} onEdit={() => setStage('build')} onDownload={(f) => download(f, 'resume')} onCover={() => { setTab('cover'); setStage('build'); }} pdfBusy={pdfBusy} nudge={liNudge} />}
 
       {stage === 'build' && (
-        <main id={embedded ? undefined : 'main'} className={embedded ? 'row g24' : 'container-wide row g24'} style={{ padding: embedded ? '4px 0 32px' : '20px 24px 64px', alignItems: 'flex-start' }}>
-          {/* Section nav */}
-          <nav aria-label="Sections" className="stack" style={{ flex: '1 1 210px', maxWidth: 250, gap: 2 }}>
-            <div className="card-sm stack g8" style={{ marginBottom: 10 }}>
-              <div className="row between" style={{ alignItems: 'baseline' }}><span className="xs muted">Profile strength</span><span aria-live="polite" className="display" style={{ fontSize: 28 }}>{score}%</span></div>
+        <main id={embedded ? undefined : 'main'} className={`bld-main${embedded ? ' bld-embedded' : ' container-wide'}`}>
+          {/* Section nav: a glass rail on a desktop, a sideways strip of section cards on a phone */}
+          <nav aria-label="Sections" className="bld-nav">
+            <div className="bld-strength">
+              <div className="bld-strength-top"><span className="bld-kicker">Profile strength</span><span aria-live="polite" className="bld-strength-num">{score}%</span></div>
               <Meter value={score} color={score >= 80 ? 'var(--success)' : score >= 55 ? 'var(--warning)' : 'var(--text3)'} label="Profile strength" />
-              <span className="xs faint">{score >= 80 ? 'Excellent — recruiter-ready' : score >= 60 ? 'Good — a few more details help' : 'Keep going'}</span>
+              <span className="bld-strength-word">{score >= 80 ? 'Excellent — recruiter-ready' : score >= 60 ? 'Good — a few more details help' : 'Keep going'}</span>
               {/* not the same number as the resume score (ATS) or job readiness (fix round item 17) */}
-              <span className="xs faint" data-testid="strength-means">Sections filled in. Your resume score (how hiring systems read it) is on your dashboard.</span>
+              <span className="xs faint bld-strength-means" data-testid="strength-means">Sections filled in. Your resume score (how hiring systems read it) is on your dashboard.</span>
             </div>
+            <span className="bld-kicker bld-nav-h" aria-hidden="true">Your sections</span>
+            <div className="bld-secs">
             {SECS.map((s) => {
               const a = s.id === cur.id && tab === 'content';
               const ok = !!has[s.id];
@@ -688,15 +700,14 @@ export default function Builder({ embedded = null }) {
               const offN = hiddenCount(d, s.id); // entries switched off inside this section
               const label = sectionLabel(d, s.id) && printable ? sectionLabel(d, s.id) : s.label;
               return (
-                <div key={s.id} className="row" style={{ flexWrap: 'nowrap', borderRadius: 10, background: a ? 'var(--surface)' : 'transparent', opacity: hidden ? 0.6 : 1 }}>
-                  <button type="button" onClick={() => { setTab('content'); go(s.id); }} aria-current={a ? 'step' : undefined} className="row g8"
-                    style={{ flex: 1, minWidth: 0, flexWrap: 'nowrap', minHeight: 40, padding: '0 8px 0 10px', border: 0, background: 'transparent', color: a || ok ? 'var(--text)' : 'var(--text2)', fontWeight: a ? 600 : 500, fontSize: 14, textAlign: 'left' }}>
-                    <span style={{ width: 20, height: 20, flex: 'none', borderRadius: '50%', boxSizing: 'border-box', border: `2px solid ${ok ? 'var(--success)' : a ? 'var(--ink)' : 'var(--border2)'}`, background: ok ? 'var(--success)' : 'transparent', color: 'var(--onink)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{ok && <Icon name="check" size={11} stroke={3} />}</span>
-                    <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textDecoration: hidden ? 'line-through' : 'none' }}>{label}{offN > 0 && <span className="xs muted" style={{ fontWeight: 500 }}> · {offN} hidden</span>}{!(s.id in SCORE_WEIGHTS) && !ok && <span className="xs faint" style={{ fontWeight: 500 }}> · optional</span>}</span>
+                <div key={s.id} className="bld-sec" data-active={a || undefined} data-hidden={hidden || undefined}>
+                  <button type="button" onClick={() => { setTab('content'); go(s.id); }} aria-current={a ? 'step' : undefined} className="bld-sec-btn" data-ok={ok || undefined}>
+                    <span className="bld-dot" data-ok={ok || undefined}>{ok && <Icon name="check" size={11} stroke={3} />}</span>
+                    <span className="bld-sec-label">{label}{offN > 0 && <span className="xs muted" style={{ fontWeight: 500 }}> · {offN} hidden</span>}{!(s.id in SCORE_WEIGHTS) && !ok && <span className="xs faint" style={{ fontWeight: 500 }}> · optional</span>}</span>
                     {!printable && count !== null && <span className="mono faint">{count}</span>}
                   </button>
                   {printable && (
-                    <span className="row" style={{ flexWrap: 'nowrap', gap: 0 }}>
+                    <span className="bld-sec-ctl">
                       <button type="button" className="nav-ctl" aria-label={`Move ${label} up`} disabled={oi === 0} onClick={() => moveSection(s.id, -1)}>↑</button>
                       <button type="button" className="nav-ctl" aria-label={`Move ${label} down`} disabled={oi === order.length - 1} onClick={() => moveSection(s.id, 1)}>↓</button>
                       <button type="button" role="switch" aria-checked={!hidden} aria-label={`Show ${label} on resume`} className="nav-ctl" onClick={() => toggleHidden(s.id)}>
@@ -709,12 +720,13 @@ export default function Builder({ embedded = null }) {
                 </div>
               );
             })}
-            <button type="button" className="btn btn-outline" style={{ marginTop: 8, borderStyle: 'dashed' }} onClick={() => setPicker(true)}>+ Add a section</button>
+            </div>
+            <button type="button" className="btn btn-outline bld-add" onClick={() => setPicker(true)}>+ Add a section</button>
           </nav>
 
           {/* Editor */}
-          <section ref={editorTop} aria-label="Section editor" className="stack g16" style={{ flex: '2 1 440px', minWidth: 0, scrollMarginTop: 90 }}>
-            <div className="segmented" role="tablist" aria-label="Builder mode" style={{ alignSelf: 'flex-start' }}>
+          <section ref={editorTop} id="bld-editor" aria-label="Section editor" className="bld-editor">
+            <div className="segmented bld-modes" role="tablist" aria-label="Builder mode">
               <button type="button" role="tab" aria-selected={tab === 'content'} onClick={() => setTab('content')}>Content</button>
               <button type="button" role="tab" aria-selected={tab === 'design'} onClick={() => setTab('design')}>Design · fonts, colours, layout</button>
               <button type="button" role="tab" aria-selected={tab === 'cover'} onClick={() => setTab('cover')}>Cover letter</button>
@@ -734,9 +746,9 @@ export default function Builder({ embedded = null }) {
               </div>
             )}
             {serverCustomer() && <ReviewNotes sec={cur.id} first={idx === 0} />}
-            <div className="row between g12" style={{ alignItems: 'flex-end' }}>
-              <div className="stack g4"><span className="mono faint">SECTION {idx + 1} OF {SECS.length}</span><h2 style={{ fontSize: 28 }}>{cur.label}</h2></div>
-              <div className="row g8">
+            <div className="bld-head">
+              <div className="bld-head-text"><span className="bld-kicker">SECTION {idx + 1} OF {SECS.length}</span><h2 className="bld-h2">{cur.label}</h2><span className="bld-progress" aria-hidden="true"><span style={{ width: `${((idx + 1) / SECS.length) * 100}%` }} /></span></div>
+              <div className="bld-head-actions">
                 {(PRINTABLE[cur.id] || cur.custom) && (
                   <button type="button" role="switch" aria-checked={!d.hidden?.[cur.id]} onClick={() => toggleHidden(cur.id)} className="btn btn-outline" style={{ paddingLeft: 8 }}>
                     <span aria-hidden="true" style={{ width: 34, height: 20, borderRadius: 999, background: d.hidden?.[cur.id] ? 'var(--border2)' : 'var(--success)', position: 'relative', transition: 'background-color 200ms' }}>
@@ -750,7 +762,7 @@ export default function Builder({ embedded = null }) {
               </div>
             </div>
             {d.hidden?.[cur.id] && <p className="well small muted">This section is hidden from your resume. It stays saved on your profile.</p>}
-            <p className="muted" style={{ lineHeight: 1.55 }}>{cur.help}</p>
+            <p className="bld-help">{cur.help}</p>
             {cur.fresherTip && fresher && !(d[cur.id] || []).some((e) => real(e.company) || real(e.role)) && <p className="well small muted" data-testid="fresher-tip">{cur.fresherTip}</p>}
 
             {cur.id === 'personal' && (
@@ -930,9 +942,9 @@ export default function Builder({ embedded = null }) {
               </div>
             )}
 
-            <div className="row g8" style={{ paddingTop: 4 }}>
+            <div className="bld-stepbar">
               {idx > 0 && <button type="button" className="btn btn-outline btn-lg" onClick={() => go(SECS[idx - 1].id)}>Back</button>}
-              {!(embedded && cur.id === 'review') && <button type="button" className="btn btn-ink btn-lg" onClick={() => {
+              {!(embedded && cur.id === 'review') && <button type="button" className="btn btn-signal btn-lg" onClick={() => {
                 if (cur.id !== 'review') return go(SECS[idx + 1].id);
                 if (issues.length) { setShowIssues(true); editorTop.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); return undefined; }
                 setD((p) => ({ ...p, reviewedAt: p.reviewedAt || Date.now() })); // ticks Review & Submit
@@ -944,31 +956,32 @@ export default function Builder({ embedded = null }) {
           </section>
 
           {/* Preview */}
-          <section aria-label="Live resume preview" className="stack g8 sticky" style={{ flex: '3 1 440px', minWidth: 0, top: 80 }}>
-            <div className="row between g8 xs muted">
-              <span className="row g8">{tab === 'cover' ? 'Cover letter · same design · ' : 'Live preview · '}{TEMPLATE_PRESETS[ds.preset]?.name ? `${TEMPLATE_PRESETS[ds.preset].name}${JSON.stringify({ ...TEMPLATE_PRESETS[ds.preset].design, preset: 0 }) === JSON.stringify({ ...ds, preset: 0 }) ? '' : ' (edited)'}` : 'Custom'}
+          <section id="bld-preview" aria-label="Live resume preview" className="bld-preview">
+            <div className="bld-toolbar">
+              <span className="bld-toolbar-info">{tab === 'cover' ? 'Cover letter · same design · ' : 'Live preview · '}{TEMPLATE_PRESETS[ds.preset]?.name ? `${TEMPLATE_PRESETS[ds.preset].name}${JSON.stringify({ ...TEMPLATE_PRESETS[ds.preset].design, preset: 0 }) === JSON.stringify({ ...ds, preset: 0 }) ? '' : ' (edited)'}` : 'Custom'}
                 {tab !== 'cover' && <button type="button" className="link-btn" style={{ minHeight: 32 }} onClick={() => { setChanging(true); setStage('templates'); window.scrollTo(0, 0); }}>Change template</button>}
                 {tab !== 'cover' && (pages === null
                   ? <span className="badge b-neutral" data-testid="page-count">Measuring…</span>
                   : <span className={`badge ${pages > 1 ? 'b-warning' : 'b-success'}`} data-testid="page-count">{pages > 1 ? `${pages} pages · aim for 1` : '1 page ✓'}</span>)}
               </span>
-              <span className="row g8" style={{ alignItems: 'center' }}>
+              <span className="bld-toolbar-actions">
                 {tab !== 'cover' && (
-                  <span role="group" aria-label="Preview shows" className="row" style={{ gap: 0 }}>
+                  <span role="group" aria-label="Preview shows" className="segmented bld-pview">
                     {[['mine', 'My resume'], ['sample', 'Sample']].map(([v, l]) => (
-                      <button key={v} type="button" className="chip" aria-pressed={pview === v} onClick={() => setPview(v)} style={{ minHeight: 36, borderRadius: v === 'mine' ? '999px 0 0 999px' : '0 999px 999px 0' }}>{l}</button>
+                      <button key={v} type="button" aria-pressed={pview === v} onClick={() => setPview(v)}>{l}</button>
                     ))}
                   </span>
                 )}
-                <button type="button" className="link-btn" style={{ minHeight: 32, textDecoration: 'none' }} onClick={() => setTab('design')}>Edit design</button>
-                <button type="button" className="btn btn-ink" style={{ minHeight: 36, fontSize: 13 }} onClick={() => downloadMine('pdf')} disabled={pdfBusy || noName} title={noName ? 'Add your name to download' : undefined}>{pdfBusy ? 'Preparing…' : 'Download PDF'}</button>
-                <button type="button" className="btn btn-outline" style={{ minHeight: 36, fontSize: 13 }} onClick={() => downloadMine('docx')} disabled={pdfBusy || noName} title={noName ? 'Add your name to download' : 'Word file in one column with Calibri / Cambria'}>Word</button>
+                <button type="button" className="btn btn-outline bld-tb-btn" onClick={() => setTab('design')}>Edit design</button>
+                <button type="button" className="btn btn-signal bld-tb-btn" onClick={() => downloadMine('pdf')} disabled={pdfBusy || noName} title={noName ? 'Add your name to download' : undefined}>{pdfBusy ? 'Preparing…' : 'Download PDF'}</button>
+                <button type="button" className="btn btn-outline bld-tb-btn" onClick={() => downloadMine('docx')} disabled={pdfBusy || noName} title={noName ? 'Add your name to download' : 'Word file in one column with Calibri / Cambria'}>Word</button>
               </span>
             </div>
-            {noName && <span className="xs muted" data-testid="need-name" style={{ alignSelf: 'flex-end' }}>Add your name to download</span>}
+            {noName && <span className="xs muted bld-note" data-testid="need-name">Add your name to download</span>}
             <LinkedInNudge show={liNudge} />
-            {fromSample && <span role="status" className="small" data-testid="download-note" style={{ alignSelf: 'flex-end', fontWeight: 600 }}>Downloading your resume, not the sample</span>}
+            {fromSample && <span role="status" className="small bld-note" data-testid="download-note" style={{ fontWeight: 600 }}>Downloading your resume, not the sample</span>}
             {tab !== 'cover' && hintBox}
+            <div className="bld-desk">
             {tab === 'cover' ? <ResumePreview key="cover" data={d} design={ds} photo={photo} cover={d.cover || {}} />
               : sampleView ? (
                 <div className="stack g8" data-testid="sample-view">
@@ -980,8 +993,14 @@ export default function Builder({ embedded = null }) {
                   <ResumePreview decorative data={sampleData} design={ds} photo={TEMPLATE_PRESETS[ds.preset]?.photo ? PHOTO_PLACEHOLDER : null} />
                 </div>
               ) : <ResumePreview data={d} design={ds} photo={photo} onPages={onPages} loading={dataLoading} hints />}
-            <span className="xs faint">Personal information, declaration and your photo print only when you switch them on.</span>
+            </div>
+            <span className="xs faint bld-foot">Personal information, declaration and your photo print only when you switch them on.</span>
           </section>
+          {/* phones: jump between the form and the resume (both stay on the page) */}
+          <div className="bld-jump" role="group" aria-label="Jump to">
+            <button type="button" className="btn btn-outline" onClick={() => document.getElementById('bld-editor')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>Go to the form</button>
+            <button type="button" className="btn btn-signal" onClick={() => document.getElementById('bld-preview')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>See the resume</button>
+          </div>
         </main>
       )}
 
