@@ -8,6 +8,7 @@ import { Spinner } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth';
 import { http } from '../../../services/http';
 import { ROLES } from '../roles';
+import '../../../styles/admin.css';
 
 export { http };
 export const NAV = [
@@ -99,24 +100,41 @@ export const STATUS_LABEL = {
 };
 export const tone = (s) => ({ refunded: 'neutral', expired: 'neutral', cancelled: 'neutral', approved: 'success', done: 'success', delivered: 'success', offer: 'warning', revision: 'warning' }[s] || 'neutral');
 
+/** Round P, Phase 5: the side menu in groups (the same links, order inside each group as in NAV). */
+export const NAV_GROUPS = [
+  ['Overview', ['/admin', '/admin/reports', '/admin/quality']],
+  ['Orders & money', ['/admin/orders', '/admin/whatsapp-payments', '/admin/refunds', '/admin/payments', '/admin/org-invoices', '/admin/partners', '/admin/billing-settings']],
+  ['People', ['/admin/customers', '/admin/experts', '/admin/stories', '/admin/team']],
+  ['Jobs & companies', ['/admin/jobs', '/admin/companies', '/admin/auto-apply', '/admin/skill-tests', '/admin/programs', '/admin/joining-reports']],
+  ['Colleges', ['/admin/orgs', '/admin/college-groups', '/admin/shared-resumes', '/admin/plans']],
+  ['Setup', ['/admin/settings', '/admin/codes', '/admin/courses', '/admin/learn-paths', '/admin/automation']],
+];
+
 export function LiveAdminLayout() {
   const { user } = useAuth();
   const { pathname, search } = useLocation();
   const can = ROLES[user?.adminRole]?.can || [];
   const current = NAV.find(([, to]) => (to === '/admin' ? pathname === '/admin' || pathname === '/admin/' : pathname.startsWith(to)));
   const allowed = !current || can.includes(current[0]);
+  const byPath = Object.fromEntries(NAV.map((n) => [n[1], n]));
+  const groups = NAV_GROUPS.map(([g, paths]) => [g, paths.map((p) => byPath[p]).filter((n) => n && can.includes(n[0]))]).filter(([, l]) => l.length);
   return (
     <>
       <Header variant="admin" />
-      <div className="container-wide row g24" style={{ padding: '20px 24px 64px', alignItems: 'flex-start' }}>
-        <nav aria-label="Admin sections" className="stack sticky admin-side" style={{ flex: '0 0 220px', top: 88, gap: 2 }}>
-          {NAV.filter(([k]) => can.includes(k)).map(([_k, to, l, ic]) => (
-            <NavLink key={to} to={to} end={to === '/admin'} className="admin-link"><span aria-hidden="true" style={{ width: 18, textAlign: 'center' }}>{ic}</span>{l}</NavLink>
+      <div className="container-wide ad-shell">
+        <nav aria-label="Admin sections" className="ad-side admin-side">
+          {groups.map(([g, links]) => (
+            <div key={g} className="ad-group" role="group" aria-label={g}>
+              <span className="ad-group-h" aria-hidden="true">{g}</span>
+              {links.map(([_k, to, l, ic]) => (
+                <NavLink key={to} to={to} end={to === '/admin'} className="admin-link ad-link"><span aria-hidden="true" className="ad-link-ic">{ic}</span>{l}</NavLink>
+              ))}
+            </div>
           ))}
-          <hr className="divider" />
-          <span className="xs faint" style={{ padding: '0 10px' }}>Signed in as {user?.name} · {ROLES[user?.adminRole]?.label || 'Admin'}</span>
+          <span className="xs faint ad-signed">Signed in as {user?.name} · {ROLES[user?.adminRole]?.label || 'Admin'}</span>
         </nav>
-        <main id="main" className="stack g20" style={{ flex: '1 1 600px', minWidth: 0 }}>
+        <main id="main" className="stack g20 ad-main">
+          {current && <div className="ad-crumb" aria-hidden="true"><span className="ad-crumb-ic">{current[3]}</span><span>{current[2]}</span></div>}
           {allowed ? <ErrorBoundary resetKey={`${pathname}${search}`}><Outlet /></ErrorBoundary> : <div className="card stack g8"><strong>No access</strong><span className="small muted">Your role ({ROLES[user?.adminRole]?.label}) can’t open {current[2]}. Ask the owner.</span></div>}
         </main>
       </div>
