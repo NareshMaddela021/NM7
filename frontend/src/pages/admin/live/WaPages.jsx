@@ -9,7 +9,9 @@ import { Link } from 'react-router-dom';
 import { Dialog, useToast } from '../../../components/ui';
 import { savePdf } from '../../builder/resumePdf';
 import { API_BASE } from '../../../services/http';
-import { Kpi, PageHead, Tabs } from '../AdminUI';
+import { PageHead, Tabs } from '../AdminUI';
+import '../../../styles/me-kit.css';
+import '../../../styles/admin-ops.css';
 import { Loading, emptyIf, http, rupees, useAction, useApi } from './common';
 
 export const MODES = [['off', 'Off'], ['whatsapp', 'WhatsApp'], ['razorpay', 'Razorpay']];
@@ -32,8 +34,8 @@ export function PaymentSettings() {
     setF({ ...r, hoursText: String(r.cancelAfterHours) });
   }, 'Payment settings saved');
   return (
-    <section className="card stack g12" aria-label="Payments" data-testid="pay-settings">
-      <strong>Payments</strong>
+    <section className="ops-card" aria-label="Payments" data-testid="pay-settings">
+      <div className="ops-card-h"><strong>Payments</strong></div>
       <Loading st={st}>{() => f && (
         <>
           <div className="segmented" role="radiogroup" aria-label="Payment mode" style={{ alignSelf: 'flex-start' }}>
@@ -46,28 +48,28 @@ export function PaymentSettings() {
             {f.mode === 'off' ? 'Nothing can be bought: paid buttons show “Coming soon” and downloads stay free.'
               : f.mode === 'whatsapp' ? 'Every paid button becomes “Buy on WhatsApp”. You confirm each payment below in WhatsApp payments.'
                 : 'Razorpay’s checkout, as before.'}
-            {' '}Now active: <strong data-testid="pay-active">{MODES.find(([v]) => v === f.active)?.[1]}</strong>
+            {' '}Now active: <strong className="ops-pay-active" data-testid="pay-active">{MODES.find(([v]) => v === f.active)?.[1]}</strong>
           </span>
-          <div className="row g12" style={{ flexWrap: 'wrap' }}>
-            <div className="field" style={{ flex: '1 1 220px' }}>
+          <div className="ops-pay-fields">
+            <div className="field">
               <label className="label" htmlFor="pay-wa">WhatsApp number</label>
               <input id="pay-wa" className="input" inputMode="tel" autoComplete="off" placeholder="+91 98765 43210" value={f.whatsappNumber}
                 aria-invalid={numberErr || needNumber ? 'true' : undefined} onChange={(e) => setF({ ...f, whatsappNumber: e.target.value })} />
               {(numberErr || needNumber) && <span className="error">{numberErr || 'Add the WhatsApp number to use WhatsApp.'}</span>}
               <span className="xs faint">Stored only in the database. Never put a UPI ID on the site: share it inside the chat.</span>
             </div>
-            <div className="field" style={{ flex: '1 1 220px' }}>
+            <div className="field">
               <label className="label" htmlFor="pay-hours">Reply hours</label>
               <input id="pay-hours" className="input" maxLength={80} placeholder="We reply 9 am - 9 pm" value={f.replyHours} onChange={(e) => setF({ ...f, replyHours: e.target.value })} />
             </div>
-            <div className="field" style={{ flex: '0 1 200px' }}>
+            <div className="field">
               <label className="label" htmlFor="pay-cancel">Cancel unpaid orders after</label>
               <span className="row g8 small" style={{ alignItems: 'center' }}><input id="pay-cancel" className="input" inputMode="numeric" style={{ width: 90 }} value={f.hoursText} aria-invalid={hoursErr ? 'true' : undefined} onChange={(e) => setF({ ...f, hoursText: e.target.value })} />hours</span>
               {hoursErr && <span className="error">{hoursErr}</span>}
             </div>
           </div>
           {!f.businessReady && <span className="xs" data-testid="pay-business">Business details (name, address, GSTIN) aren’t set: WhatsApp payments get a receipt from “Nm7” and no GST invoice. Add them in <Link to="/admin/billing-settings">Billing settings</Link> when ready.</span>}
-          <button type="button" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={busy || !!numberErr || !!hoursErr || needNumber} onClick={save}>Save payments</button>
+          <button type="button" className="btn btn-signal" style={{ alignSelf: 'flex-start' }} disabled={busy || !!numberErr || !!hoursErr || needNumber} onClick={save}>Save payments</button>
         </>
       )}</Loading>
     </section>
@@ -87,22 +89,22 @@ export function LiveWhatsAppPayments() {
   return (
     <>
       <PageHead title="WhatsApp payments" sub="Orders paid in a WhatsApp chat. Mark one paid only after the money has arrived." right={<Link to="/admin/orders" className="btn btn-outline">All orders</Link>} />
-      <Tabs label="Show" tabs={VIEWS} value={view} onChange={setView} />
+      <div className="ad-toolbar ops-toolbar"><Tabs label="Show" tabs={VIEWS} value={view} onChange={setView} /></div>
       <Loading st={st} empty={emptyIf((d) => !d.length, view === 'awaiting' ? 'No orders waiting for payment.' : 'Nothing here.')}>{(rows) => (
-        <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ padding: 0 }}>
-          <table className="table" data-testid="wa-table"><thead><tr><th>Order</th><th>Customer</th><th>Item</th><th>Amount</th><th>Age</th><th>Status</th><th /></tr></thead>
+        <div className="card table-wrap ops-table" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns">
+          <table className="table mtable" data-testid="wa-table"><thead><tr><th>Order</th><th>Customer</th><th>Item</th><th>Amount</th><th>Age</th><th>Status</th><th /></tr></thead>
             <tbody>{rows.map((r) => (
               <tr key={r.id} data-testid="wa-row">
-                <td className="mono small">{r.id}</td>
-                <td className="small">{r.customer.name}<div className="xs faint">{r.customer.email}</div></td>
-                <td className="small">{r.item}</td>
-                <td className="small">{rupees(r.amount)}</td>
-                <td className="small">{r.ageHours < 48 ? `${r.ageHours} h` : `${Math.round(r.ageHours / 24)} d`}</td>
-                <td className="small">{LABEL[r.status] || (r.payment ? `Paid · ${r.payment.method.toUpperCase()} ${r.payment.reference}` : r.status)}{r.receiptNo && <div className="xs faint">{r.receiptNo}</div>}{r.invoiceNo && <div className="xs faint">{r.invoiceNo}</div>}</td>
+                <td className="ops-mono" data-label="Order">{r.id}</td>
+                <td className="small" data-label="Customer"><span>{r.customer.name}<span className="ops-sub">{r.customer.email}</span></span></td>
+                <td className="small" data-label="Item">{r.item}</td>
+                <td className="small" data-label="Amount"><strong>{rupees(r.amount)}</strong></td>
+                <td className="small" data-label="Age">{r.ageHours < 48 ? `${r.ageHours} h` : `${Math.round(r.ageHours / 24)} d`}</td>
+                <td className="small" data-label="Status"><span><span className={`mchip mchip-${r.status === 'awaiting_payment' ? 'warn' : r.status === 'cancelled' ? 'neutral' : r.status === 'refunded' ? 'info' : r.payment ? 'ok' : 'neutral'}`} style={{ whiteSpace: 'normal' }}>{LABEL[r.status] || (r.payment ? `Paid · ${r.payment.method.toUpperCase()} ${r.payment.reference}` : r.status)}</span>{r.receiptNo && <span className="ops-sub">{r.receiptNo}</span>}{r.invoiceNo && <span className="ops-sub">{r.invoiceNo}</span>}</span></td>
                 <td>
-                  <span className="row g4" style={{ flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                  <span className="ops-actions">
                     {r.chatUrl && <a className="btn btn-outline" style={{ minHeight: 36 }} href={r.chatUrl} target="_blank" rel="noopener noreferrer">Open chat</a>}
-                    {r.status === 'awaiting_payment' && <button type="button" className="btn btn-ink" style={{ minHeight: 36 }} onClick={() => setDlg({ kind: 'paid', row: r })}>Mark as paid</button>}
+                    {r.status === 'awaiting_payment' && <button type="button" className="btn btn-signal" style={{ minHeight: 36 }} onClick={() => setDlg({ kind: 'paid', row: r })}>Mark as paid</button>}
                     {r.status === 'awaiting_payment' && <button type="button" className="btn btn-ghost" style={{ minHeight: 36 }} onClick={() => setDlg({ kind: 'cancel', row: r })}>Cancel</button>}
                     {r.payment && r.status !== 'refunded' && <button type="button" className="btn btn-ghost" style={{ minHeight: 36 }} onClick={() => setDlg({ kind: 'refund', row: r })}>Refund</button>}
                   </span>
@@ -158,7 +160,7 @@ function MarkPaid({ row, busy, onClose, onSave }) {
       )}
       <span className="xs muted">Saving unlocks the order at once and emails the customer a receipt.</span>
       <div className="row g8">
-        <button type="button" className="btn btn-ink" disabled={busy || !ok} onClick={() => onSave({ method: f.method, reference: f.reference.trim(), amount, paidOn: f.paidOn, reason: f.reason.trim() })}>Save — mark paid</button>
+        <button type="button" className="btn btn-signal" disabled={busy || !ok} onClick={() => onSave({ method: f.method, reference: f.reference.trim(), amount, paidOn: f.paidOn, reason: f.reason.trim() })}>Save — mark paid</button>
         <button type="button" className="btn btn-outline" onClick={onClose}>Close</button>
       </div>
     </Dialog>
@@ -199,13 +201,13 @@ export function WaReport({ days }) {
     await savePdf(await r.blob(), `nm7-payments-${days}d.csv`);
   }, 'CSV downloaded');
   return (
-    <section className="card stack g12" aria-label="Payments by method" data-testid="wa-report">
-      <div className="row between g8" style={{ flexWrap: 'wrap' }}><strong>Payments by method</strong><button type="button" className="btn btn-outline" disabled={busy} onClick={csv}>Download payments CSV</button></div>
+    <section className="ops-card" aria-label="Payments by method" data-testid="wa-report">
+      <div className="ops-card-h"><strong>Payments by method</strong><button type="button" className="btn btn-outline" disabled={busy} onClick={csv}>Download payments CSV</button></div>
       <Loading st={st}>{(r) => (
-        <div className="kpis">
-          <Kpi label="Money in · WhatsApp" value={rupees(r.moneyIn.whatsapp)} />
-          <Kpi label="Money in · Razorpay" value={rupees(r.moneyIn.razorpay)} />
-          <Kpi label="WhatsApp orders" value={r.counts.paid} sub={`${r.counts.pending} waiting · ${r.counts.cancelled} cancelled`} />
+        <div className="ops-kpis">
+          <div className="ops-kpi"><span className="ops-kpi-l">Money in · WhatsApp</span><strong className="ops-kpi-v">{rupees(r.moneyIn.whatsapp)}</strong></div>
+          <div className="ops-kpi"><span className="ops-kpi-l">Money in · Razorpay</span><strong className="ops-kpi-v">{rupees(r.moneyIn.razorpay)}</strong></div>
+          <div className="ops-kpi"><span className="ops-kpi-l">WhatsApp orders</span><strong className="ops-kpi-v">{r.counts.paid}</strong><span className="ops-kpi-s">{`${r.counts.pending} waiting · ${r.counts.cancelled} cancelled`}</span></div>
         </div>
       )}</Loading>
     </section>
