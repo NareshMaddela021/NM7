@@ -103,7 +103,6 @@ function Companies({ t, onSignedOut }) {
   );
 }
 
-const TABS = ['overview', 'jobs', 'applicants', 'hire', 'programs', 'pool', 'team', 'page', 'settings', 'security', 'activity'];
 /** Round P, Phase 3: the side menu in two groups (hiring, then the company itself), each tab with a symbol and the
  * small blue dotted shape shown beside its title on a desktop. */
 const GROUPS = [['overview', 'jobs', 'applicants', 'hire', 'programs', 'pool'], ['team', 'page', 'settings', 'security', 'activity']];
