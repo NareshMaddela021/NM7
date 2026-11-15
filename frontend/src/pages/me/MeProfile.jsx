@@ -186,7 +186,6 @@ export default function MeProfile() {
           <strong className="pf-hero-title">Profile complete: {pct}%</strong>
           <Meter value={pct} color={pct >= 80 ? 'var(--success)' : pct >= 40 ? 'var(--warning)' : 'var(--text3)'} label="Profile complete" />
           {missing.length > 0 ? <span className="mrow pf-missing" style={{ gap: 6 }}><span className="mitem-meta">Missing:</span>{missing.map((x) => <Chip key={x} tone="warn">{x}</Chip>)}</span> : <Chip tone="ok">Everything is filled in</Chip>}
-          <span className="sr-only">{missing.length > 0 ? `Missing: ${missing.join(' · ')}` : ''}</span>
           <div className="mrow" style={{ gap: 8 }}>
             <Link to="/builder" state={{ open: 'start' }} className="btn btn-signal">Start a resume from it</Link>
             <button type="button" className="btn btn-outline" onClick={fillResume}>Fill these into my resume</button>
