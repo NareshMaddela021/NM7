@@ -104,7 +104,21 @@ Every dashboard page photographed with the demo students against the real API (C
 |---|---|---|---|
 | <img src="before/guidance-desktop.jpg" width="260"> | <img src="after/guidance-desktop.jpg" width="260"> | <img src="before/guidance-phone.jpg" width="130"> | <img src="after/guidance-phone.jpg" width="130"> |
 
+## Learning extra
+
+### Skill check: taking the test (Meera)
+
+| Before (desktop) | After (desktop) | Before (phone) | After (phone) |
+|---|---|---|---|
+| <img src="before/skill-test-desktop.jpg" width="260"> | <img src="after/skill-test-desktop.jpg" width="260"> | <img src="before/skill-test-phone.jpg" width="130"> | <img src="after/skill-test-phone.jpg" width="130"> |
+
 ## Offer and work
+
+### Offer checker: Compare offers tab (Meera)
+
+| Before (desktop) | After (desktop) | Before (phone) | After (phone) |
+|---|---|---|---|
+| <img src="before/offer-compare-desktop.jpg" width="260"> | <img src="after/offer-compare-desktop.jpg" width="260"> | <img src="before/offer-compare-phone.jpg" width="130"> | <img src="after/offer-compare-phone.jpg" width="130"> |
 
 ### Offer checker (Meera)
 
