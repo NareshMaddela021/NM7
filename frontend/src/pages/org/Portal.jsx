@@ -26,6 +26,13 @@ import Reviewers from './Reviewers';
 import { planBanners } from '../../lib/orgBilling';
 import RecruiterFeedback from './RecruiterFeedback';
 
+import { Still } from '../newhome/ParticleStage';
+import { TINTS, SHAPE_COLORS } from '../newhome/shapes';
+import '../../styles/me-kit.css';
+import '../../styles/org.css';
+
+TINTS.college = SHAPE_COLORS.college; // colleges: teal (round P, Phase 4)
+
 const ROLE = { owner: 'Owner', coordinator: 'Coordinator', viewer: 'Viewer (view and print)', reviewer: 'Reviewer', admin: 'Nm7 admin' };
 
 function Frame({ children, wide }) {
@@ -71,24 +78,52 @@ export function PortalLayout() {
     groupPatchUrl: (g) => `${apiBase(orgId)}/groups/${g.id}`,
   } : null), [st.data, orgId]);
   const owner = !!st.data?.isOwner;
-  const tabs = [['', 'My groups'], ['/dashboard', 'Dashboard'], ['/resumes', 'Shared resumes'], ...(st.data?.features?.kiosk ? [['/kiosks', 'Kiosks']] : []), ...(st.data?.features?.branding ? [['/branding', 'Branding']] : []), ...(st.data?.features?.recruiterLinks ? [['/recruiters', 'Recruiter links']] : []), ...(st.data?.features?.drives ? [['/drives', 'Drives']] : []), ...(st.data?.features?.offers ? [['/offers', 'Offers']] : []), ...(st.data?.features?.alumni ? [['/alumni', 'Alumni']] : []), ...(st.data?.features?.facultyReview ? [['/reviewers', 'Reviewers']] : []), ...(owner ? [['/team', 'Team'], ['/billing', 'Billing']] : []), ['/activity', 'Activity']];
+  const f = st.data?.features || {};
+  // round P, Phase 4: the side menu in groups (students, drives, reaching out, running the college); the same links
+  // and conditions as before, each with a symbol; the section title shows a small teal dotted shape on a desktop
+  const groups = [
+    [['', 'My groups', '☷'], ['/dashboard', 'Dashboard', '⌂'], ['/resumes', 'Shared resumes', '▤']],
+    [...(f.drives ? [['/drives', 'Drives', '⚑']] : []), ...(f.offers ? [['/offers', 'Offers', '✉']] : []), ...(f.kiosk ? [['/kiosks', 'Kiosks', '▣']] : [])],
+    [...(f.recruiterLinks ? [['/recruiters', 'Recruiter links', '⇄']] : []), ...(f.alumni ? [['/alumni', 'Alumni', '☆']] : []), ...(f.facultyReview ? [['/reviewers', 'Reviewers', '✎']] : []), ...(f.branding ? [['/branding', 'Branding', '◧']] : [])],
+    [...(owner ? [['/team', 'Team', '☺'], ['/billing', 'Billing', '₹']] : []), ['/activity', 'Activity', '☰']],
+  ].filter((g) => g.length);
+  const all = groups.flat();
+  const sub = pathname.replace(`/org/${orgId}`, '').replace(/\/$/, '');
+  const current = all.find(([to]) => to && sub.startsWith(to)) || all[0];
+  const SHAPE = { '': 'college', '/dashboard': 'college', '/resumes': 'resume', '/drives': 'handshake', '/offers': 'badge', '/kiosks': 'magnifier', '/recruiters': 'handshake', '/alumni': 'cap', '/reviewers': 'resume', '/branding': 'badge', '/team': 'handshake', '/billing': 'sphere', '/activity': 'resume' };
   return (
     <Frame wide>
       {st.error ? (
         <div className="card stack g8" role="alert"><strong>{st.error.status === 404 ? 'You don’t have access to this organization' : 'Couldn’t load this'}</strong><span className="small muted">{st.error.status === 404 ? 'Your access may have been removed. Ask Nm7 if this is a mistake.' : st.error.message}</span><Link to="/org">My organizations</Link></div>
       ) : !st.data ? <div className="row g12 muted" role="status"><Spinner /> Loading…</div> : (
-        <>
-          <div className="stack g4">
-            <span className="xs muted">{st.data.typeName}{st.data.city ? ` · ${st.data.city}` : ''} · {ROLE[st.data.role]}{st.data.allGroups ? '' : ' · some groups'} · {st.data.billing?.planName || 'Free'} plan</span>
-            <h1 className="display" style={{ fontSize: 28 }}>{st.data.name}</h1>
+        <div className="og-shell">
+          <aside className="og-side">
+            <div className="og-side-head">
+              <span className="og-avatar" aria-hidden="true">{(st.data.name || '?').trim().charAt(0).toUpperCase()}</span>
+              <span className="stack g4" style={{ minWidth: 0 }}>
+                <span className="xs muted">{st.data.typeName}{st.data.city ? ` · ${st.data.city}` : ''} · {ROLE[st.data.role]}{st.data.allGroups ? '' : ' · some groups'} · {st.data.billing?.planName || 'Free'} plan</span>
+                <h1 className="og-name">{st.data.name}</h1>
+              </span>
+            </div>
+            <nav aria-label="Organization" className="og-nav">
+              {groups.map((g, gi) => (
+                <div key={gi} className="og-nav-group">
+                  {g.map(([to, l, ic]) => <NavLink key={l} to={`/org/${orgId}${to}`} end={to === ''} className={({ isActive }) => `og-link ${isActive || (to === '' && pathname.includes('/groups/')) ? 'on' : ''}`}><span className="og-link-ic" aria-hidden="true">{ic}</span>{l}</NavLink>)}
+                </div>
+              ))}
+            </nav>
+          </aside>
+          <div className="og-main stack g16">
+            <div className="og-head" aria-hidden="true">
+              <span className="og-head-ic">{current[2]}</span>
+              <span className="og-head-title">{pathname.includes('/groups/') ? 'My groups' : current[1]}</span>
+              <span className="og-head-art"><Still shape={SHAPE[current[0]] || 'college'} tint="college" className="og-head-still" /></span>
+            </div>
+            {st.data.demo && <DemoBanner />}
+            <PlanBanners home={st.data} orgId={orgId} />
+            <Outlet context={{ ctx, home: st.data, reload: st.reload }} />
           </div>
-          {st.data.demo && <DemoBanner />}
-          <PlanBanners home={st.data} orgId={orgId} />
-          <nav aria-label="Organization" className="row g8" style={{ flexWrap: 'wrap' }}>
-            {tabs.map(([to, l]) => <NavLink key={l} to={`/org/${orgId}${to}`} end={to === ''} className={({ isActive }) => `btn ${isActive || (to === '' && pathname.includes('/groups/')) ? 'btn-ink' : 'btn-outline'}`} style={{ minHeight: 36 }}>{l}</NavLink>)}
-          </nav>
-          <Outlet context={{ ctx, home: st.data, reload: st.reload }} />
-        </>
+        </div>
       )}
     </Frame>
   );
