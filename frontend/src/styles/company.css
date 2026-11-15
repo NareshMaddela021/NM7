@@ -31,9 +31,9 @@
   .co-side { padding: 10px; gap: 8px; position: sticky; top: 64px; z-index: 15; }
   .co-side-head { padding: 0 2px 8px; }
   .co-avatar { width: 36px; height: 36px; font-size: 15px; }
-  .co-tabs { flex-direction: row; overflow-x: auto; gap: 6px; scrollbar-width: none; -webkit-overflow-scrolling: touch; margin: 0 -4px; padding: 0 4px; }
+  .co-tabs { flex-direction: row; flex-wrap: nowrap; overflow-x: auto; gap: 6px; scrollbar-width: none; -webkit-overflow-scrolling: touch; margin: 0 -4px; padding: 0 4px; }
   .co-tabs::-webkit-scrollbar { display: none; }
-  .co-tab-group { flex-direction: row; gap: 6px; }
+  .co-tab-group { flex-direction: row; flex: none; gap: 6px; }
   .co-tab-group + .co-tab-group { border-top: 0; padding-top: 0; border-left: 1px solid var(--border); padding-left: 6px; }
   .co-tab { white-space: nowrap; min-height: 44px; border-radius: 999px; padding: 8px 14px; background: #fff; border: 1px solid var(--border); }
   .co-tab[aria-selected="true"] { background: #1d4ed8; color: #fff; border-color: #1d4ed8; }
