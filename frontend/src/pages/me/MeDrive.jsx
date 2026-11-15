@@ -8,6 +8,7 @@ import { StatusBadge } from '../org/Drives';
 import { http } from '../../services/http';
 import { MeHead } from './MeLayout';
 import MyInterviews from '../../components/MyInterviews';
+import '../../styles/org-drives.css';
 
 /** The camera, when the browser can read QR codes (Android Chrome can). Calls onCode(slotId, code) once. */
 function Scanner({ onCode, onClose }) {
@@ -118,10 +119,13 @@ export function CheckinLink() {
       .then((r) => setMsg({ ok: true, text: `You’re checked in: ${r.company} · ${r.round} · ${r.room}${r.status === 'late' ? ' (marked late)' : ''}.` }), (e) => setMsg({ ok: false, text: e.message }));
   }, [params]);
   return (
-    <main id="main" className="container stack g16" style={{ padding: '48px 16px', maxWidth: 520 }}>
-      <h1 className="display h2">Drive day check-in</h1>
-      {!msg ? <div className="row g8"><Spinner /> Checking you in…</div> : <p role={msg.ok ? 'status' : 'alert'} data-testid="checkin-result" className={msg.ok ? '' : 'error'}>{msg.text}</p>}
-      <span className="row g8"><Link className="btn btn-outline" to="/me/drive">My drive day</Link>{msg && !msg.ok && <button type="button" className="btn btn-ink" onClick={() => nav('/me/drive')}>Type the code instead</button>}</span>
+    <main id="main" className="container ks-check" style={{ padding: '48px 16px', maxWidth: 560 }}>
+      <div className={`ks-check-card ${!msg ? '' : msg.ok ? 'ok' : 'bad'}`}>
+        <span className="ks-check-ic" aria-hidden="true">{!msg ? '⏳' : msg.ok ? '✓' : '!'}</span>
+        <h1 className="display h2 ks-check-title">Drive day check-in</h1>
+        {!msg ? <div className="row g8" style={{ justifyContent: 'center' }}><Spinner /> Checking you in…</div> : <p role={msg.ok ? 'status' : 'alert'} data-testid="checkin-result" className={`ks-check-msg ${msg.ok ? '' : 'error'}`}>{msg.text}</p>}
+        <span className="ks-check-actions"><Link className="btn btn-outline" to="/me/drive">My drive day</Link>{msg && !msg.ok && <button type="button" className="btn btn-signal" onClick={() => nav('/me/drive')}>Type the code instead</button>}</span>
+      </div>
     </main>
   );
 }

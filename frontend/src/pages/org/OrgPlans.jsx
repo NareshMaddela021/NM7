@@ -6,6 +6,7 @@ import { LIVE } from '../../lib/auth';
 import { translate } from '../../lib/i18n';
 import { LIMITS, PLAN_FEATURES, limitText, rupees } from '../../lib/orgBilling';
 import { http, onSlow } from '../../services/http';
+import '../../styles/org-signup.css';
 
 const EN = (k, v) => translate('en', k, v);
 /** The organizations' FAQ (orgs.faq.1–6) in one language; tr = (key, values) → string. */
@@ -51,14 +52,14 @@ export const TABLE_FEATURES = PLAN_FEATURES.filter(([k]) => k !== 'kiosk');
 export function PlansTable({ data, t = EN }) {
   const plans = data.plans;
   return (
-    <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ overflowX: 'auto' }}>
-      <table className="table" style={{ minWidth: 640 }}>
+    <div className="table-wrap fo-plans-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ overflowX: 'auto' }}>
+      <table className="table fo-plans" style={{ minWidth: 640 }}>
         <caption className="sr-only">{t('orgs.table.caption')}</caption>
         <thead>
-          <tr><th scope="col">{t('orgs.table.plan')}</th>{plans.map((p) => <th key={p.id} scope="col" lang="en">{p.name}</th>)}</tr>
+          <tr><th scope="col">{t('orgs.table.plan')}</th>{plans.map((p) => <th key={p.id} scope="col" lang="en" className={`fo-plan-h fo-plan-${p.id}`}>{p.name}</th>)}</tr>
         </thead>
         <tbody>
-          <tr>
+          <tr className="fo-price-row">
             <th scope="row">{t('orgs.table.price')}</th>
             {plans.map((p) => (
               <td key={p.id}>
@@ -70,7 +71,7 @@ export function PlansTable({ data, t = EN }) {
             <tr key={k}><th scope="row">{t(`orgs.table.l.${k}`)}</th>{plans.map((p) => <td key={p.id}>{p.id === 'custom' ? t('orgs.table.yourChoice') : p.limits[k] == null ? t('orgs.table.unlimited') : limitText(p.limits[k])}</td>)}</tr>
           ))}
           {TABLE_FEATURES.map(([k]) => (
-            <tr key={k}><th scope="row">{t(`orgs.table.f.${k}`)}</th>{plans.map((p) => <td key={p.id}>{p.features[k] ? t('orgs.table.yes') : '—'}</td>)}</tr>
+            <tr key={k}><th scope="row">{t(`orgs.table.f.${k}`)}</th>{plans.map((p) => <td key={p.id} className={p.features[k] ? 'fo-yes' : 'fo-no'}>{p.features[k] ? <><span className="fo-tick" aria-hidden="true">✓ </span>{t('orgs.table.yes')}</> : '—'}</td>)}</tr>
           ))}
         </tbody>
       </table>
