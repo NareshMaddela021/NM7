@@ -24,7 +24,7 @@ describe('quick e2e pick', () => {
     const y = readFileSync(join(__dirname, '..', '..', '..', '.github', 'workflows', 'e2e.yml'), 'utf8');
     // light is the default (CI_MODE unset or light); CI_MODE=full brings the whole suite back to every pull request
     expect(y).toMatch(/quick:\n\s+# [^\n]*\n\s+if: github.event_name == 'pull_request' && vars.CI_MODE != 'full'/);
-    expect(y).toMatch(/live:\n\s+# [^\n]*\n\s+if: github.event_name != 'pull_request' \|\| vars.CI_MODE == 'full'/);
+    expect(y).toMatch(/live:\n\s+# [^\n]*\n\s+if: \(github.event_name != 'pull_request' \|\| vars.CI_MODE == 'full'\) && !inputs.shots_ref/); // not on a screenshots-only run
     expect(y).toContain('workflow_dispatch:');
     expect(y).toMatch(/schedule:\n\s+- cron:/);
   });
