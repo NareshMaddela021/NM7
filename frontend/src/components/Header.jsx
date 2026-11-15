@@ -78,8 +78,10 @@ function StudentsMenu({ L }) {
     if (!open) return undefined;
     const close = (e) => { if (!ref.current?.contains(e.target)) setOpen(false); };
     const esc = (e) => { if (e.key === 'Escape') { setOpen(false); ref.current?.querySelector('button')?.focus(); } };
-    document.addEventListener('mousedown', close); document.addEventListener('keydown', esc);
-    return () => { document.removeEventListener('mousedown', close); document.removeEventListener('keydown', esc); };
+    // on a finished click, not on mousedown: closing first would shrink the phone menu under the finger, and the tap
+    // meant for the next link (Pricing, Blog) would land on empty space
+    document.addEventListener('click', close); document.addEventListener('keydown', esc);
+    return () => { document.removeEventListener('click', close); document.removeEventListener('keydown', esc); };
   }, [open]);
   const here = ['/builder', '/templates', '/linkedin'].some((p) => pathname.startsWith(p));
   return (
