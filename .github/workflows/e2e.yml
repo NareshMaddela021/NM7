@@ -26,6 +26,14 @@ on:
         description: "Only these spec files (space-separated, e.g. e2e-live/customer.spec.mjs); empty = all"
         required: false
         default: ""
+      shots_spec:
+        description: "Screenshots only: which script (zz-shots.spec.mjs = dashboard, zz-shots-company.spec.mjs = company)"
+        required: false
+        default: zz-shots.spec.mjs
+      shots_dir:
+        description: "Screenshots only: folder under docs/redesign (phase2b, phase3, ...)"
+        required: false
+        default: phase2b
       shots_label:
         description: "Screenshots only: artifact name (before / after)"
         required: false
@@ -168,9 +176,9 @@ jobs:
       - name: Use the app from app_ref, with this branch's screenshot script
         working-directory: .
         run: |
-          cp frontend/e2e-live/zz-shots.spec.mjs /tmp/zz-shots.spec.mjs
+          mkdir -p /tmp/shotspec && cp frontend/e2e-live/zz-shots*.spec.mjs /tmp/shotspec/
           git checkout "${{ inputs.shots_ref }}" 2>/dev/null || git checkout "origin/${{ inputs.shots_ref }}"
-          cp /tmp/zz-shots.spec.mjs frontend/e2e-live/zz-shots.spec.mjs
+          cp /tmp/shotspec/*.spec.mjs frontend/e2e-live/
       - name: Start MongoDB (replica set)
         run: bash "$GITHUB_WORKSPACE/.github/scripts/start-mongo.sh"
       - uses: actions/setup-node@v4
@@ -189,13 +197,13 @@ jobs:
         run: uv sync --frozen
       - run: npx playwright install --with-deps chromium
       - name: Screenshots
-        run: npx playwright test -c playwright.live.config.mjs e2e-live/zz-shots.spec.mjs
-      - name: Save the pictures on this branch (docs/redesign/phase2b/<label>)
+        run: npx playwright test -c playwright.live.config.mjs e2e-live/${{ inputs.shots_spec }}
+      - name: Save the pictures on this branch (docs/redesign/<dir>/<label>)
         working-directory: .
         run: |
           mkdir -p /tmp/pics && cp frontend/shots/*.jpg /tmp/pics/
-          git reset -q --hard && rm -f frontend/e2e-live/zz-shots.spec.mjs && git fetch -q origin "${{ github.ref_name }}" && git checkout -q -B "${{ github.ref_name }}" FETCH_HEAD
-          dest="docs/redesign/phase2b/${{ inputs.shots_label }}"
+          git reset -q --hard && git clean -fdq frontend/e2e-live && git fetch -q origin "${{ github.ref_name }}" && git checkout -q -B "${{ github.ref_name }}" FETCH_HEAD
+          dest="docs/redesign/${{ inputs.shots_dir }}/${{ inputs.shots_label }}"
           rm -rf "$dest" && mkdir -p "$dest" && cp /tmp/pics/*.jpg "$dest/"
           git config user.name "github-actions[bot]" && git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add "$dest" && git commit -qm "Screenshots: ${{ inputs.shots_label }} (${{ inputs.shots_ref }})" || exit 0
