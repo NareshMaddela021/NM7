@@ -10,6 +10,8 @@ import { keepAccount, readAccount, STAGE_LABEL } from '../../lib/recruiterPortal
 import { API_BASE, ApiError } from '../../services/http';
 import Shell from './RecruiterShell';
 import FeedbackForm from './FeedbackForm';
+import { Still } from '../newhome/ParticleStage';
+import { Chip, Empty } from '../me/kit';
 
 async function rq(path, { method = 'GET', body } = {}) {
   let res;
@@ -29,7 +31,8 @@ async function rq(path, { method = 'GET', body } = {}) {
 }
 
 const day = (t) => (t ? new Date(t).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
-const STATE = { active: ['Active', 'badge-success'], expired: ['Ended', ''], revoked: ['Ended by the college', 'badge-warning'] };
+const STATE = { active: ['Active', 'ok'], expired: ['Ended', 'neutral'], revoked: ['Ended by the college', 'warn'] };
+const initial = (s) => (s || '?').trim().charAt(0).toUpperCase();
 
 export default function RecruiterHome() {
   const [account, setAccount] = useState(readAccount);
@@ -56,17 +59,20 @@ function SignIn({ onSession }) {
     } catch (err) { setError(err.message); setBusy(false); }
   };
   return (
-    <form className="card stack g12" style={{ maxWidth: 460 }} onSubmit={sent ? verify : send} aria-label="Recruiter sign-in">
-      <h1 className="display" style={{ fontSize: 26 }}>Recruiter sign-in</h1>
-      <p className="small muted">Use the email a college invited. We email you a one-time code (no password). You’ll see My drives: every college and drive you worked with on Nm7.</p>
+    <form className="mcard rc-signin" onSubmit={sent ? verify : send} aria-label="Recruiter sign-in">
+      <span className="rc-signin-art" aria-hidden="true"><Still shape="handshake" tint="company" className="rc-still" /></span>
+      <span className="mkicker rc-kicker">Recruiter portal</span>
+      <h1 className="display rc-h1">Recruiter sign-in</h1>
+      <p className="rc-lead">Use the email a college invited. We email you a one-time code (no password). You’ll see My drives: every college and drive you worked with on Nm7.</p>
+      <ol className="rc-steps" aria-hidden="true"><li className={sent ? 'done' : 'now'}>1</li><li className={sent ? 'now' : ''}>2</li></ol>
       <div className="field"><label className="label" htmlFor="ra-email">Work email</label>
         <input id="ra-email" type="email" className="input" required autoComplete="email" value={email} disabled={sent} onChange={(e) => setEmail(e.target.value)} /></div>
-      {!sent ? <button type="submit" className="btn btn-ink" disabled={busy || !email}>{busy ? 'Sending…' : 'Email me a code'}</button> : (
+      {!sent ? <button type="submit" className="btn btn-signal rc-wide" disabled={busy || !email}>{busy ? 'Sending…' : 'Email me a code'}</button> : (
         <>
-          <p className="small" role="status">If a college invited this address, a code is on its way.</p>
+          <p className="rc-sent" role="status">If a college invited this address, a code is on its way.</p>
           <div className="field"><label className="label" htmlFor="ra-code">Code from the email</label>
-            <input id="ra-code" className="input mono" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} /></div>
-          <button type="submit" className="btn btn-ink" disabled={busy || code.length !== 6}>Sign in</button>
+            <input id="ra-code" className="input mono rc-code" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} /></div>
+          <button type="submit" className="btn btn-signal rc-wide" disabled={busy || code.length !== 6}>Sign in</button>
           <button type="button" className="link-btn small" style={{ alignSelf: 'flex-start' }} disabled={busy} onClick={() => { setSent(false); setCode(''); }}>Use another email</button>
         </>
       )}
@@ -81,20 +87,25 @@ function Drives({ onSignedOut }) {
   useEffect(() => { load(); }, [load]);
   const signOut = async () => { await rq('/api/recruiter-account/sign-out', { method: 'POST', body: {} }).catch(() => {}); onSignedOut(); };
   if (st.loading) return <div className="row g12 muted" role="status"><Spinner /> Loading…</div>;
-  if (st.error) return <p className="error" role="alert">{st.error.message}</p>;
+  if (st.error) return <p className="error mcard" role="alert">{st.error.message}</p>;
   const { data } = st;
   const active = data.drives.filter((d) => d.state === 'active');
   const past = data.drives.filter((d) => d.state !== 'active');
   return (
-    <div className="stack g16">
-      <div className="row between g8" style={{ flexWrap: 'wrap' }}>
-        <div className="stack g4"><h1 className="display" style={{ fontSize: 28 }}>My drives</h1><span className="xs muted">{data.name} · {data.emailHint}</span></div>
+    <div className="stack g20">
+      <div className="rc-head">
+        <div className="rc-head-text">
+          <span className="mkicker rc-kicker">Recruiter portal</span>
+          <h1 className="display rc-h1">My drives</h1>
+          <span className="rc-sub">{data.name} · {data.emailHint}</span>
+        </div>
         <button type="button" className="btn btn-outline" onClick={signOut}>Sign out</button>
+        <span className="rc-head-art" aria-hidden="true"><Still shape="college" tint="company" className="rc-still" /></span>
       </div>
-      <p className="xs faint">Each college decides who you can see. Students show only while that college’s invite is active; when it ends you keep the counts and your own notes.</p>
-      {data.drives.length === 0 && <div className="well small muted">No drives yet. When a college invites this email, it shows here.</div>}
-      {active.length > 0 && <section className="stack g12" aria-label="Active drives"><h2 className="small">Active</h2>{active.map((d) => <Drive key={d.id} d={d} onChanged={load} />)}</section>}
-      {past.length > 0 && <section className="stack g12" aria-label="Past drives"><h2 className="small">Past</h2>{past.map((d) => <Drive key={d.id} d={d} onChanged={load} />)}</section>}
+      <p className="rc-note"><span aria-hidden="true">⛨</span>Each college decides who you can see. Students show only while that college’s invite is active; when it ends you keep the counts and your own notes.</p>
+      {data.drives.length === 0 && <Empty shape="college" tint="company">No drives yet. When a college invites this email, it shows here.</Empty>}
+      {active.length > 0 && <section className="rc-group" aria-label="Active drives"><h2 className="rc-group-h"><span className="rc-dot rc-dot-ok" aria-hidden="true" />Active <span className="rc-count">{active.length}</span></h2><div className="rc-drive-grid">{active.map((d) => <Drive key={d.id} d={d} onChanged={load} />)}</div></section>}
+      {past.length > 0 && <section className="rc-group" aria-label="Past drives"><h2 className="rc-group-h"><span className="rc-dot" aria-hidden="true" />Past <span className="rc-count">{past.length}</span></h2><div className="rc-drive-grid">{past.map((d) => <Drive key={d.id} d={d} onChanged={load} />)}</div></section>}
     </div>
   );
 }
@@ -105,26 +116,27 @@ function Drive({ d, onChanged }) {
   const path = `/api/recruiter-account/drives/${d.id}/feedback`;
   const c = d.counts;
   return (
-    <article className="card stack g8" data-testid="my-drive">
-      <div className="row between g8" style={{ flexWrap: 'wrap' }}>
-        <div className="stack g4"><strong>{d.orgName}</strong><span className="xs muted">{d.company} · invited {day(d.createdAt)} · {d.state === 'active' ? 'until' : 'ended'} {day(d.expiresAt)}</span></div>
-        <span className={`badge ${tone}`}>{label}</span>
-      </div>
-      <dl className="row g16 small" style={{ flexWrap: 'wrap', margin: 0 }}>
+    <article className={`mcard rc-drive rc-drive-${d.state}`} data-testid="my-drive">
+      <header className="rc-drive-head">
+        <span className="rc-avatar" aria-hidden="true">{initial(d.orgName)}</span>
+        <span className="rc-drive-titles"><strong className="rc-drive-name">{d.orgName}</strong><span className="rc-drive-meta">{d.company} · invited {day(d.createdAt)} · {d.state === 'active' ? 'until' : 'ended'} {day(d.expiresAt)}</span></span>
+        <Chip tone={tone}>{label}</Chip>
+      </header>
+      <dl className="rc-funnel">
         {[['Viewed', c.viewed], ['Shortlisted', c.shortlisted], ['Interviewed', c.interviewed], ['Selected', c.selected], ['Offers', c.offers]].map(([k, v]) => (
-          <div key={k} className="stack" style={{ minWidth: 70 }}><dt className="xs muted">{k}</dt><dd style={{ margin: 0, fontWeight: 700 }}>{v}</dd></div>
+          <div key={k} className="rc-funnel-step"><dt>{k}</dt><dd>{v}</dd></div>
         ))}
       </dl>
       {d.notes.length > 0 && (
-        <details>
-          <summary className="small">Your notes ({d.notes.length})</summary>
-          <ul className="stack g4 small" style={{ paddingLeft: 18, marginTop: 8 }}>
+        <details className="rc-notes">
+          <summary>Your notes ({d.notes.length})</summary>
+          <ul>
             {d.notes.map((n, i) => <li key={i}><strong>{n.name || 'A student'}</strong> · {STAGE_LABEL[n.stage] || n.stage}: {n.note}</li>)}
           </ul>
         </details>
       )}
-      <div className="row g8" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
-        {d.path ? <Link to={d.path} className="btn btn-ink">Open students</Link> : <span className="xs faint">This invite has ended: students are no longer shown.</span>}
+      <div className="rc-actions">
+        {d.path ? <Link to={d.path} className="btn btn-signal">Open students</Link> : <span className="rc-ended">This invite has ended: students are no longer shown.</span>}
         {d.feedbackOn && <button type="button" className="btn btn-outline" onClick={() => setFb(true)}>{d.feedbackGiven ? 'Edit feedback' : 'Give feedback'}</button>}
       </div>
       {fb && <FeedbackForm load={() => rq(path)} save={(body) => rq(path, { method: 'PUT', body })} onClose={() => setFb(false)} onSaved={onChanged} />}
