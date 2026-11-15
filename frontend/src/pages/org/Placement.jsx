@@ -44,8 +44,8 @@ function Tile({ label, value, sub, testid, icon, bar, bands, hero }) {
   );
 }
 
-const TILE_ICON = { 'pl-joined': '☺', 'pl-shared': '▤', 'pl-approved': '✓', 'pl-ats': '◎', 'pl-linkedin': 'in', 'pl-printed': '⎙', 'pl-shortlisted': '★' };
-const HERO = ['pl-joined', 'pl-shared', 'pl-approved', 'pl-shortlisted'];
+const TILE_ICON = { 'pl-joined': '☺', 'pl-shared': '▤', 'pl-approved': '✓', 'pl-ats': '◎', 'pl-linkedin': 'in', 'pl-printed': '⎙', 'pl-shortlisted': '★', 'pl-applications': '✉', 'pl-placed': '🎓' };
+const HERO = ['pl-joined', 'pl-shared', 'pl-applications', 'pl-placed'];
 /** Small bars only from the numbers the server sent (no guessing). */
 const tileBar = (id, t) => ({
   'pl-joined': t.invited ? pct(t.joined, t.invited) : null,
@@ -64,6 +64,9 @@ export function tiles(t) {
     ['pl-linkedin', 'LinkedIn-ready', `${t.linkedinReadyPct}%`, `${t.linkedinReady} students: link added or check 70+`],
     ['pl-printed', 'Printed / ready', `${t.printed} / ${t.ready}`, t.readyNotPrinted ? `${t.readyNotPrinted} ready, not printed` : 'all ready resumes printed'],
     ['pl-shortlisted', 'Shortlisted by recruiters', t.shortlisted, 'by at least one company'],
+    // Phase 4: real counts from the server (older servers leave them out, then the tiles are not shown)
+    ...(t.applications != null ? [['pl-applications', 'Job applications', t.applications, 'sent on Nm7 by these students']] : []),
+    ...(t.placed != null ? [['pl-placed', 'Placed', t.placed, `${pct(t.placed, t.joined)}% · full-time or PPO offer`]] : []),
   ];
 }
 

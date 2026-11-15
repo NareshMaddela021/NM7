@@ -33,9 +33,11 @@ from pydantic import Field
 
 from app.audit import audit
 from app.core.db import (
+    APPLICATIONS,
     DB,
     LINKEDIN,
     MEMBERSHIPS,
+    OFFERS,
     ORG_GROUPS,
     ORGANIZATIONS,
     RESUMES,
@@ -435,6 +437,20 @@ async def placement_view(db, scope: Scope, group: str | None) -> tuple[list[dict
     groups = await _groups(db, scope, group)
     rows = await students(db, groups)
     out = summarize(rows, await roll_entries(db, groups))
+    # Phase 4 dashboard widgets: real counts for the students in view — job applications they sent on Nm7, and
+    # how many are placed (a full-time or PPO offer recorded by the college that wasn't declined, as in Offers)
+    uids = [r["user_id"] for r in rows]
+    mids = [r["membership_id"] for r in rows]
+    out["tiles"]["applications"] = await db[APPLICATIONS].count_documents({"user_id": {"$in": uids}}) if uids else 0
+    placed = (
+        await db[OFFERS].distinct(
+            "membership_id",
+            {"membership_id": {"$in": mids}, "status": {"$ne": "declined"}, "type": {"$in": ["full_time", "ppo"]}},
+        )
+        if mids
+        else []
+    )
+    out["tiles"]["placed"] = len(placed)
     return rows, out
 
 
