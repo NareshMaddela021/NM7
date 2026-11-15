@@ -55,7 +55,7 @@ for (const [size, opts] of SIZES) {
           await sel.selectOption(v);
         });
       }
-      if (k === 'page') {
+      if (k === 'overview') {
         const href = await page.getByTestId('co-public-link').getAttribute('href', { timeout: 3000 }).catch(() => null);
         if (href) { await step('co-public', () => page.goto(href)); await page.goto('/company'); await settle(page); }
       }
