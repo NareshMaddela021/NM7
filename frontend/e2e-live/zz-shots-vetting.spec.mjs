@@ -13,7 +13,7 @@ const OUT = process.env.SHOTS_DIR || 'shots';
 test.skip(!process.env.SHOTS, 'screenshots only in the shots workflow');
 test.setTimeout(900_000);
 
-const settle = async (page) => { await page.waitForLoadState('networkidle').catch(() => {}); await page.waitForTimeout(800); };
+const settle = async (page) => { await page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => {}); await page.waitForTimeout(800); };
 const snap = (page, name, size) => page.screenshot({ path: join(OUT, `${name}-${size}.jpg`), fullPage: true, type: 'jpeg', quality: 60 });
 const quiet = (fn) => { try { return fn(); } catch (e) { console.log(e.message.split('\n')[0]); return null; } };
 

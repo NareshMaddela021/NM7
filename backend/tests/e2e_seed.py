@@ -20,6 +20,7 @@ import asyncio
 import json
 import os
 import sys
+from datetime import timedelta
 
 from app.auth.admin_service import create_admin
 from app.auth.models import User
@@ -62,8 +63,6 @@ async def main(cmd: str, *args: str) -> dict:
         await on_skill_check(db, u["_id"], skill)
         return {"ok": True}
     if cmd == "skill-verified":  # Vetting V2: a "Skill verified" badge; "@demo" = the first 3 Hire-in-60 demo people
-        from datetime import timedelta
-
         from app.hire.demo import DOMAIN
         from app.hire.vetting.roles import BY_TEST
 
