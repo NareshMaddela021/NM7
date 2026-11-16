@@ -168,7 +168,7 @@ describe('vercel.json', () => {
   });
 });
 
-describe('large blogs (the asuraa.in posts): post pages do not embed the whole list', async () => {
+describe('large blogs: post pages do not embed the whole list', async () => {
   const { postData, EMBED_LIST_MAX } = await import('./prerender-blog.mjs');
   const p = { slug: 'a' };
   it('small blog: list + post; large blog: post only (the app reads /blog/data.json)', () => {

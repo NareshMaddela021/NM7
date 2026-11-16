@@ -110,7 +110,7 @@ export function MeSettings() {
   const exportAll = async () => {
     const s = getMe();
     const data = { exportedAt: new Date().toISOString(), account: s.account, orders: s.orders, expertOrders: all.filter((x) => s.orders.some((o) => o.id === x.id)).map(({ id, status, versions, messages, comments }) => ({ id, status, versions, messages, comments })), resumes: s.resumes, coverLetters: s.covers, applications: s.apps, atsChecks: s.checks, shareLink: s.share, issues: s.issues, jobProfile: getJobProfile().data, linkedin: canSave() ? await getLinkedIn().catch(() => null) : null };
-    await savePdf(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }), 'my-asuraa-data.json');
+    await savePdf(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }), 'my-nm7-data.json');
     toast('Your data file is ready');
   };
   const notify = (ch, ev, v) => setMe((s) => ({ account: { ...s.account, notify: { ...s.account.notify, [ch]: { ...s.account.notify[ch], [ev]: v } } } }));

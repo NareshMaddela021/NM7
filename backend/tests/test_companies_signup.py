@@ -1,4 +1,4 @@
-"""Phase 2 C1: company sign-up. GSTIN / CIN / LLPIN checks, email rules (throwaway, free, @asuraa.in, domain match,
+"""Phase 2 C1: company sign-up. GSTIN / CIN / LLPIN checks, email rules (throwaway, free, domain match,
 mail server), the 5-step flow with email codes, team admins and what each role may do, trust levels and posting
 limits, duplicate / same-address flags, individual recruiters (no ID numbers), locked details after approval."""
 
@@ -40,7 +40,6 @@ def test_email_rules():
     assert p("hr@acme.com", company=True, website="https://www.acme.com/about") is None
     assert p("jobs@careers.acme.co.in", company=True, website="acme.co.in") is None  # a subdomain is fine
     assert "acme.com" in p("hr@acme-jobs.com", company=True, website="acme.com")
-    assert "can’t be used" in p("x@asuraa.in", company=False)
 
 
 @pytest.fixture(autouse=True)

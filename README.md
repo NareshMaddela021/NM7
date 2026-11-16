@@ -1425,7 +1425,7 @@ card count "Annual passes sold".
 
 ## Job board
 
-Nm7's job board starts from zero: no data, users or redirects are taken from asuraa.in. It is for students,
+Nm7's job board is for students,
 freshers and people with 0–3 years of experience. The board, the match score and Manual Apply are free.
 
 **Jobs (J1).** A job has:
@@ -1551,7 +1551,7 @@ waits for it. Before this, a busy dashboard could leave the person signed in.
 3. **Emails:** a code to the admin's own email creates the company (Unverified). Then a code to the company email.
    The company email:
    - can't be a free address (Gmail, Yahoo, Outlook and similar);
-   - can't be a throwaway address or @asuraa.in;
+   - can't be a throwaway address;
    - must be on the website's domain (subdomains are fine);
    - must be on a domain with a mail server (MX check, using the free `dnspython` library).
 4. **Team admins:** invite by email as full / posting only / view only. Sub-admins can't change or remove the main

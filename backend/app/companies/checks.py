@@ -70,7 +70,7 @@ DISPOSABLE_DOMAINS = frozenset(
     "luxusmail.org cuvox.de armyspy.com dayrep.com fleckens.hu gustr.com jourrapide.com rhyta.com superrito.com "
     "teleworm.us".split()
 )
-BLOCKED_DOMAINS = frozenset({"asuraa.in"})  # Nm7 never takes @asuraa.in addresses
+BLOCKED_DOMAINS: frozenset[str] = frozenset()  # domains that may never be a company email (none today)
 
 # two-part public suffixes common in India and elsewhere (no full public-suffix list needed for the match check)
 _TWO_PART = frozenset(
