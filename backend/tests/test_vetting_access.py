@@ -111,3 +111,26 @@ async def test_v3_interviews_hidden(client, outbox, db, make_client):
     session, cid = await verified(client, outbox, db)
     u = await db[USERS].find_one({"email": "meena@example.com"})
     assert (await client.get(f"/api/company/{cid}/hire/interview/{u['_id']}", headers=H(session))).status_code == 404
+
+
+async def test_v5_hidden_appeals_export_reminders_and_no_retention(outbox, db, make_client):
+    from bson import ObjectId
+
+    from app.core.db import AUDIT_LOG
+    from app.hire.vetting import trust as T
+
+    c = await student(make_client, outbox, "kiran@example.com", "Kiran P")
+    assert (await c.get("/api/me/appeals")).status_code == 404
+    assert (await c.get("/api/me/data-export")).status_code == 404
+    u = await db[USERS].find_one({"email": "kiran@example.com"})
+    t = now()
+    await db[VETTING_VERIFIED].insert_one({"user_id": u["_id"], "test": "Excel", "slug": "excel", "role": "Office assistant (Excel)", "band": "1-3",
+                                            "score": 80, "task_score": 80, "at": t - timedelta(days=76), "expires_at": t + timedelta(days=14)})  # fmt: skip
+    assert await T.reverify_reminders(db, outbox) == 0  # hidden: no email to a real person
+    v = await db[VETTING_VERIFIED].find_one({"user_id": u["_id"]})
+    assert "reminded" not in v  # not marked either: they still get it after the launch
+    await db[AUDIT_LOG].insert_one(
+        {"_id": ObjectId(), "action": "x", "ip": "203.0.113.9", "at": now() - timedelta(days=31)}
+    )
+    out = await T.daily_if_due(db, outbox)
+    assert out["retention_waits"] == 1 and await db[AUDIT_LOG].find_one({"ip": "203.0.113.9"})  # nothing rewritten

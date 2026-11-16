@@ -6,6 +6,7 @@ holds the vetting data; retention clears raw IPs after 30 days."""
 
 from datetime import datetime, timedelta
 
+import pytest
 from bson import ObjectId
 
 from app.core.db import AUDIT_LOG, RESUMES, SKILL_ATTEMPTS, SKILL_QUESTIONS, USERS, VETTING_QUEUE, VETTING_VERIFIED
@@ -16,6 +17,17 @@ from tests.test_companies_posting import JOB, no_ai, verified  # noqa: F401
 from tests.test_companies_signup import err, no_network  # noqa: F401
 
 URL = "/api/me/skill-checks"
+
+
+@pytest.fixture(autouse=True)
+def vetting_public(monkeypatch):
+    """V5 itself: the engine is public here (hidden mode: test_vetting_access.py)."""
+    from app.hire.vetting import access
+
+    async def public(db):
+        return {"public": True, "testers": []}
+
+    monkeypatch.setattr(access, "settings", public)
 
 
 def test_helpers():
