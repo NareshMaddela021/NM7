@@ -66,8 +66,10 @@ for (const [label, opts] of SIZES) {
       const admin = await actx.newPage();
       admin.on('dialog', () => { throw new Error('no browser dialogs'); });
       await adminLogin(admin, owner, secret);
+      await expect(admin).not.toHaveURL(/\/login/, { timeout: 15_000 });
       await admin.goto('/admin/skill-tests?tab=interviews');
-      await expect(admin.getByRole('tab', { name: 'Interviews' })).toHaveAttribute('aria-selected', 'true');
+      await expect(admin.getByRole('heading', { name: 'Skill checks', level: 1 })).toBeVisible({ timeout: 15_000 });
+      await expect(admin.getByRole('tab', { name: /Interviews/ })).toHaveAttribute('aria-selected', 'true');
       const item = admin.getByTestId('ivq-item').filter({ hasText: name });
       await expect(item).toBeVisible({ timeout: 20_000 });
       await expect(item).toContainText('(answer 7)');
