@@ -1,0 +1,48 @@
+{
+  "slug": "pharmacy",
+  "version": 1,
+  "questions": [
+    {
+      "id": "pharmacy-i1",
+      "kind": "experience",
+      "q": "Tell us about your pharmacy work so far. Was it a medical shop, hospital pharmacy or chain store, and what did you do every day?",
+      "looks_for": "Specific place and daily tasks (billing, dispensing, stock, expiry checks, software used), qualification (D.Pharm, B.Pharm), how long. Honest about their role."
+    },
+    {
+      "id": "pharmacy-i2",
+      "kind": "experience",
+      "q": "Tell us about one time at the pharmacy that you are proud of, like catching a mistake or helping a customer well?",
+      "looks_for": "A real example: noticed a wrong strength or brand, checked with the pharmacist or doctor, explained dosage clearly to an elderly customer, managed a busy time well."
+    },
+    {
+      "id": "pharmacy-i3",
+      "kind": "knowledge",
+      "q": "When a customer gives you a prescription, how do you check it and give the right medicine?",
+      "looks_for": "Checks patient name, doctor, date and signature, reads the drug name, strength and dose carefully, asks if unclear, checks expiry and quantity, double-checks before giving, explains how to take it, bills correctly."
+    },
+    {
+      "id": "pharmacy-i4",
+      "kind": "knowledge",
+      "q": "How do you store medicines correctly, including those that need a fridge, and how do you handle expiry dates?",
+      "looks_for": "Keeps medicines in a cool dry place away from sunlight, fridge items like insulin and some vaccines at 2 to 8 degrees with temperature checks, look-alike drugs kept apart, first expiry first out, near-expiry list, expired items removed and returned or destroyed as per rules."
+    },
+    {
+      "id": "pharmacy-i5",
+      "kind": "knowledge",
+      "q": "How do you explain to a customer how and when to take their medicines?",
+      "looks_for": "Simple words in their language, tells dose, timing, before or after food, how many days, common side effects, what to avoid, reminds to complete antibiotics, asks them to repeat back, writes on the strip if needed."
+    },
+    {
+      "id": "pharmacy-i6",
+      "kind": "situation",
+      "q": "A regular customer gets angry when you refuse to give sleeping tablets without a prescription. What will you do?",
+      "looks_for": "Stays calm and polite but firm, explains it is the law and for their safety, suggests seeing a doctor, does not give in to pressure, informs the pharmacist in charge if needed."
+    },
+    {
+      "id": "pharmacy-i7",
+      "kind": "motivation",
+      "q": "Why do you want to work as a pharmacy assistant? When can you join, and what salary do you expect? Can you say your notice period and salary clearly?",
+      "looks_for": "A genuine reason for this work, a clear joining date or notice period, and a clear salary figure. May mention qualification or registration."
+    }
+  ]
+}

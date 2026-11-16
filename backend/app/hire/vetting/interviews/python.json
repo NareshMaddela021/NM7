@@ -1,0 +1,48 @@
+{
+  "slug": "python",
+  "version": 1,
+  "questions": [
+    {
+      "id": "python-i1",
+      "kind": "experience",
+      "q": "Tell me about a Python project or script you wrote that is actually used. What problem did it solve, what libraries did you use, and what was your part?",
+      "looks_for": "A concrete project with a clear purpose, real libraries or frameworks, their own contribution separated from the team's, and some result such as time saved or users served."
+    },
+    {
+      "id": "python-i2",
+      "kind": "experience",
+      "q": "Describe a bug in your Python code that took you a long time to find. How did you track it down and what did you learn?",
+      "looks_for": "A real bug, a sensible debugging process (logs, debugger, reproducing with small input, reading tracebacks), the root cause, and a lesson or prevention like a test."
+    },
+    {
+      "id": "python-i3",
+      "kind": "knowledge",
+      "q": "Your script works fine on a small file but becomes very slow or runs out of memory on a 5 GB file. How would you approach this?",
+      "looks_for": "Reads the file in chunks or line by line instead of loading it all, uses generators, measures where time goes, picks suitable data structures or libraries, and checks the fix on real-size data."
+    },
+    {
+      "id": "python-i4",
+      "kind": "knowledge",
+      "q": "How do you decide what to test in a piece of Python code, and how do you write those tests?",
+      "looks_for": "Tests main behaviour, edge cases and error paths; uses a test framework such as pytest; keeps tests small and independent; mocks external services. Shows judgement, not just tool names."
+    },
+    {
+      "id": "python-i5",
+      "kind": "knowledge",
+      "q": "What problems can come up when two parts of a program change the same list or dictionary, and how do you avoid them?",
+      "looks_for": "Understands that lists and dicts are mutable and shared by reference, mentions default mutable arguments or threads changing shared data, and avoids it with copies, immutable data or locks."
+    },
+    {
+      "id": "python-i6",
+      "kind": "situation",
+      "q": "A teammate's change to a shared Python package breaks your service in production, and they are on leave today. What do you do?",
+      "looks_for": "Restores service first (roll back or pin the previous version), informs the team, documents the problem, adds a test, and discusses the fix calmly with the teammate later without blame."
+    },
+    {
+      "id": "python-i7",
+      "kind": "motivation",
+      "q": "Why do you want to work as a Python developer, and what do you want to grow into? Please state clearly your notice period or joining date, and your expected salary in ₹ per month or per year?",
+      "looks_for": "Gives a genuine reason tied to the work, a sensible growth direction, a clear notice period or joining date, and a clear salary figure or range in ₹. Honest about buyout or negotiable notice if relevant."
+    }
+  ]
+}

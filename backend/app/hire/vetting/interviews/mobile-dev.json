@@ -1,0 +1,48 @@
+{
+  "slug": "mobile-dev",
+  "version": 1,
+  "questions": [
+    {
+      "id": "mobile-dev-i1",
+      "kind": "experience",
+      "q": "Tell me about an Android or Flutter app you worked on. What did it do, and what screens or features did you build yourself?",
+      "looks_for": "A real app with its purpose, tools used (Kotlin, Java, Flutter/Dart), their own features, and any result like Play Store release, users or ratings."
+    },
+    {
+      "id": "mobile-dev-i2",
+      "kind": "experience",
+      "q": "Describe a crash or serious bug in your app that you fixed. How did you find the cause?",
+      "looks_for": "Uses crash reports, logs, reproducing on devices, checks lifecycle or null issues. Explains the cause, the fix, and how they confirmed it was solved."
+    },
+    {
+      "id": "mobile-dev-i3",
+      "kind": "knowledge",
+      "q": "Users with cheap phones and slow internet say your app is slow. How would you improve it?",
+      "looks_for": "Profiles on low-end devices, reduces image sizes, caches data, loads in pages, shows progress or offline states, avoids heavy work on the main thread, and measures before and after."
+    },
+    {
+      "id": "mobile-dev-i4",
+      "kind": "knowledge",
+      "q": "How do you handle the app being sent to the background or the screen rotating, so the user does not lose what they were doing?",
+      "looks_for": "Understands lifecycle events, saves and restores state, uses ViewModel or proper state management, and avoids memory leaks from holding old screens."
+    },
+    {
+      "id": "mobile-dev-i5",
+      "kind": "knowledge",
+      "q": "How would you make your app work when the user has no internet for some time and then comes back online?",
+      "looks_for": "Stores data locally (database or cache), queues user actions, syncs when online, handles conflicts, and shows clear status to the user."
+    },
+    {
+      "id": "mobile-dev-i6",
+      "kind": "situation",
+      "q": "Your new app version is live, and within an hour crash reports jump sharply. What do you do?",
+      "looks_for": "Checks crash reports to find the cause, halts the staged rollout if possible, informs the team, prepares a fix or turns off the feature remotely, and communicates with users if needed."
+    },
+    {
+      "id": "mobile-dev-i7",
+      "kind": "motivation",
+      "q": "Why do you want to work as a Android / Flutter developer, and what do you want to grow into? Please state clearly your notice period or joining date, and your expected salary in ₹ per month or per year?",
+      "looks_for": "Gives a genuine reason tied to the work, a sensible growth direction, a clear notice period or joining date, and a clear salary figure or range in ₹. Honest about buyout or negotiable notice if relevant."
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "slug": "software-testing",
+  "version": 1,
+  "questions": [
+    {
+      "id": "software-testing-i1",
+      "kind": "experience",
+      "q": "Tell me about a product or feature you tested. How did you plan your testing and what kinds of bugs did you find?",
+      "looks_for": "A real product, a planned approach (requirements reading, test cases, priorities), types of testing done, and examples of meaningful bugs found and their impact."
+    },
+    {
+      "id": "software-testing-i2",
+      "kind": "experience",
+      "q": "Describe the most serious bug you found. How did you report it and what happened next?",
+      "looks_for": "Clear bug report with steps, expected versus actual result, environment and evidence. Follows up until it is fixed and retested. Shows ownership and good communication with developers."
+    },
+    {
+      "id": "software-testing-i3",
+      "kind": "knowledge",
+      "q": "You have only one day to test a new release that normally needs a week. How do you decide what to test?",
+      "looks_for": "Risk-based testing: focuses on critical user flows, recently changed areas, payment or data features, and past problem areas. Communicates clearly what was not tested."
+    },
+    {
+      "id": "software-testing-i4",
+      "kind": "knowledge",
+      "q": "How do you decide which tests are worth automating and which should stay manual?",
+      "looks_for": "Automates stable, repeated, high-value checks like regression and smoke tests; keeps exploratory, usability and fast-changing areas manual. Mentions maintenance cost of automation."
+    },
+    {
+      "id": "software-testing-i5",
+      "kind": "knowledge",
+      "q": "A bug happens on some users' phones but you cannot reproduce it on yours. How would you approach this?",
+      "looks_for": "Collects device, OS, app version, network and steps from users or logs; tries matching devices or emulators; looks for patterns; works with developers on extra logging. Does not dismiss it."
+    },
+    {
+      "id": "software-testing-i6",
+      "kind": "situation",
+      "q": "A developer marks your bug as 'not a bug' and the release is tomorrow. You believe users will be affected. What do you do?",
+      "looks_for": "Stays calm, rechecks the requirement, shows clear evidence and user impact, discusses with the developer, and if still unresolved raises it with the lead or product owner to decide."
+    },
+    {
+      "id": "software-testing-i7",
+      "kind": "motivation",
+      "q": "Why do you want to work as a QA / software tester, and what do you want to grow into? Please state clearly your notice period or joining date, and your expected salary in ₹ per month or per year?",
+      "looks_for": "Gives a genuine reason tied to the work, a sensible growth direction, a clear notice period or joining date, and a clear salary figure or range in ₹. Honest about buyout or negotiable notice if relevant."
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "slug": "teaching",
+  "version": 1,
+  "questions": [
+    {
+      "id": "teaching-i1",
+      "kind": "experience",
+      "q": "Tell us about your teaching work so far. Which classes and subjects did you teach, and where?",
+      "looks_for": "Specific classes, subjects, school or tuition setting, class size, years of experience, qualification (D.El.Ed, B.Ed, TET) if any. Honest about their level."
+    },
+    {
+      "id": "teaching-i2",
+      "kind": "experience",
+      "q": "Tell us about one student or class you are proud of. What did you do, and what changed?",
+      "looks_for": "A real example: a weak student who improved, a new way of teaching, patience and extra effort, with a clear result."
+    },
+    {
+      "id": "teaching-i3",
+      "kind": "knowledge",
+      "q": "How would you teach a Class 3 child to do addition with carrying, so that they really understand it?",
+      "looks_for": "Starts with objects like sticks or beads in bundles of ten, shows place value with tens and ones, then moves to written steps, gives easy practice first, checks understanding, uses daily life examples like money."
+    },
+    {
+      "id": "teaching-i4",
+      "kind": "knowledge",
+      "q": "How do you find out if every child in your class has understood the lesson, not just the bright ones?",
+      "looks_for": "Asks quiet children too, short questions or quick oral checks, small written tasks or slates, walks around and looks at work, asks children to explain in their own words, reteaches those who need it."
+    },
+    {
+      "id": "teaching-i5",
+      "kind": "knowledge",
+      "q": "How do you keep a class of 35 young children calm and interested without shouting or hitting?",
+      "looks_for": "Clear simple rules, fixed routines, activities and games, praises good behaviour, gives small responsibilities, short tasks with movement breaks, speaks calmly; never uses physical punishment or insults."
+    },
+    {
+      "id": "teaching-i6",
+      "kind": "situation",
+      "q": "A parent comes to school angry, saying you gave their child low marks unfairly. What will you do?",
+      "looks_for": "Listens calmly, does not argue, shows the answer sheet and how marks were given, admits and corrects any real mistake, suggests how to help the child improve, informs the head teacher if needed."
+    },
+    {
+      "id": "teaching-i7",
+      "kind": "motivation",
+      "q": "Why do you want to work as a teacher? When can you join, and what salary do you expect? Can you say your notice period and salary clearly?",
+      "looks_for": "A genuine reason for this work, a clear joining date or notice period, and a clear salary figure. Mentions which classes and subjects they can teach."
+    }
+  ]
+}

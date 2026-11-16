@@ -1,0 +1,48 @@
+{
+  "slug": "hr-admin",
+  "version": 1,
+  "questions": [
+    {
+      "id": "hr-admin-i1",
+      "kind": "experience",
+      "q": "Tell me about the HR and admin tasks you handled in your last job. Which ones were fully yours?",
+      "looks_for": "Concrete tasks like onboarding, attendance, leave records, payroll inputs, vendor or office management, and clear ownership."
+    },
+    {
+      "id": "hr-admin-i2",
+      "kind": "experience",
+      "q": "Describe a time you fixed a problem for employees, like a salary, attendance or facilities issue. What did you do?",
+      "looks_for": "Specific problem, how they checked records, coordinated with payroll or vendor, communicated with the employee, and closed it."
+    },
+    {
+      "id": "hr-admin-i3",
+      "kind": "knowledge",
+      "q": "What steps should happen when a new employee joins, from offer acceptance to their first week?",
+      "looks_for": "Documents and verification, offer and appointment letter, system access, ID, seat and laptop, induction, PF/ESI enrolment, introduction to team."
+    },
+    {
+      "id": "hr-admin-i4",
+      "kind": "knowledge",
+      "q": "What are PF and ESI in simple words, and who is usually covered by them?",
+      "looks_for": "PF is retirement savings with employer and employee contributions; ESI is health insurance for employees below a wage limit; mentions monthly deductions and filing."
+    },
+    {
+      "id": "hr-admin-i5",
+      "kind": "knowledge",
+      "q": "Why should employee records and salary details be kept confidential, and how do you do that in an office?",
+      "looks_for": "Privacy, trust, avoiding disputes; locked files, limited access, password-protected sheets, not discussing in public."
+    },
+    {
+      "id": "hr-admin-i6",
+      "kind": "situation",
+      "q": "Two days before payroll, you find that attendance data for one team is missing and the team lead is on leave. What would you do?",
+      "looks_for": "Contacts another senior or the team, checks biometric or system logs, informs HR manager early, marks pending items clearly, avoids guessing pay."
+    },
+    {
+      "id": "hr-admin-i7",
+      "kind": "motivation",
+      "q": "Why do you want this HR and admin job, when can you join (state your notice period), and what salary do you expect?",
+      "looks_for": "Clear reason linked to the work, states notice period or joining date in days or weeks, and gives an expected monthly or yearly salary figure or range without dodging."
+    }
+  ]
+}

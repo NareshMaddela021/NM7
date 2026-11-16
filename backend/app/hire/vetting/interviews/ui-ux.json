@@ -1,0 +1,48 @@
+{
+  "slug": "ui-ux",
+  "version": 1,
+  "questions": [
+    {
+      "id": "ui-ux-i1",
+      "kind": "experience",
+      "q": "Tell me about a design project you worked on from research to final screens. What problem were you solving and what did you deliver?",
+      "looks_for": "Clear problem, users, their process (research, flows, wireframes, prototypes, testing), tools used, their own contribution, and the outcome after launch."
+    },
+    {
+      "id": "ui-ux-i2",
+      "kind": "experience",
+      "q": "Describe a time user testing or feedback showed that your design was not working. What did you change?",
+      "looks_for": "Specific feedback, what they learned, how they changed the design, and whether it improved. Shows openness to criticism and focus on users over personal taste."
+    },
+    {
+      "id": "ui-ux-i3",
+      "kind": "knowledge",
+      "q": "How would you find out why many users drop off on a sign-up screen?",
+      "looks_for": "Looks at analytics and funnels, session recordings, talks to or tests with users, reviews the form for unnecessary fields, unclear errors or trust issues, then tests a change and measures."
+    },
+    {
+      "id": "ui-ux-i4",
+      "kind": "knowledge",
+      "q": "How do you design for users in India who may use cheap phones, slow internet, or are not comfortable reading English?",
+      "looks_for": "Light screens, clear icons with text, simple words, local language support, large touch targets, offline or slow-network states, and testing with real users from that group."
+    },
+    {
+      "id": "ui-ux-i5",
+      "kind": "knowledge",
+      "q": "Why do teams create a design system, and what problems can come up when maintaining one?",
+      "looks_for": "Consistency, faster design and development, shared components. Problems: going out of date, too rigid, poor documentation, low adoption. Mentions working with developers to keep it in sync."
+    },
+    {
+      "id": "ui-ux-i6",
+      "kind": "situation",
+      "q": "A product manager insists on adding a big banner that you believe will annoy users and hurt the main task. What do you do?",
+      "looks_for": "Understands the business goal behind it, shares evidence or user data, proposes alternatives, suggests an A/B test, and accepts the final decision professionally if overruled."
+    },
+    {
+      "id": "ui-ux-i7",
+      "kind": "motivation",
+      "q": "Why do you want to work as a UI / UX designer, and what do you want to grow into? Please state clearly your notice period or joining date, and your expected salary in ₹ per month or per year?",
+      "looks_for": "Gives a genuine reason tied to the work, a sensible growth direction, a clear notice period or joining date, and a clear salary figure or range in ₹. Honest about buyout or negotiable notice if relevant."
+    }
+  ]
+}

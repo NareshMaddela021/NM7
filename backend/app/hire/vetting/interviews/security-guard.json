@@ -1,0 +1,62 @@
+{
+  "slug": "security-guard",
+  "version": 1,
+  "questions": [
+    {
+      "id": "security-guard-i1",
+      "kind": "experience",
+      "q": "What security work have you done? Tell us the place, like apartment, office, factory or mall, and what your duties were there?",
+      "looks_for": "Specific places and duties (gate, patrol, CCTV, register, visitor passes), shift pattern, how long, agency name. Honest and clear.",
+      "te": "మీరు ఏ security పని చేశారు? Apartment, office, factory లేదా mall లాంటి ఏ చోట, అక్కడ మీ duties ఏంటి చెప్పండి?",
+      "hi": "आपने कौन सा security काम किया है? Apartment, office, factory या mall जैसी कौन सी जगह, और वहाँ आपकी duties क्या थीं, बताइए?"
+    },
+    {
+      "id": "security-guard-i2",
+      "kind": "experience",
+      "q": "Tell us about one time on duty that you are proud of, like stopping a problem or helping someone?",
+      "looks_for": "A real example with their own actions: noticed something wrong, acted calmly, followed rules, informed seniors or police, helped a person in need.",
+      "te": "Duty లో మీకు గర్వంగా అనిపించిన ఒక సందర్భం చెప్పండి, ఉదాహరణకు ఒక problem ని ఆపడం లేదా ఎవరికైనా సహాయం చేయడం?",
+      "hi": "Duty पर कोई ऐसा समय बताइए जिस पर आपको गर्व है, जैसे कोई problem रोकना या किसी की मदद करना?"
+    },
+    {
+      "id": "security-guard-i3",
+      "kind": "knowledge",
+      "q": "How do you check visitors and vehicles at the gate, and what do you write in the register?",
+      "looks_for": "Greets politely, asks whom they are visiting and confirms with the resident or staff, checks ID, notes name, phone, vehicle number, time in and out, gives a pass, checks vehicle and bags as per rules, never lets anyone in without confirmation.",
+      "te": "Gate దగ్గర visitors ని, vehicles ని ఎలా check చేస్తారు? Register లో ఏం రాస్తారు?",
+      "hi": "Gate पर visitors और गाड़ियों को कैसे check करते हैं, और register में क्या लिखते हैं?"
+    },
+    {
+      "id": "security-guard-i4",
+      "kind": "knowledge",
+      "q": "What do you do during a night round to stay alert and check the building properly?",
+      "looks_for": "Fixed and random rounds, checks doors, locks, lights, water and fire points, parking, uses a torch and whistle, signs the patrol log, does not sleep or use the phone for long, reports anything unusual at once.",
+      "te": "Night round లో alert గా ఉండడానికి, building ని సరిగ్గా check చేయడానికి మీరు ఏం చేస్తారు?",
+      "hi": "Night round के समय alert रहने और building को ठीक से check करने के लिए आप क्या करते हैं?"
+    },
+    {
+      "id": "security-guard-i5",
+      "kind": "knowledge",
+      "q": "If you see smoke or fire in the building, what steps will you take?",
+      "looks_for": "Raises the alarm, calls 101 and the supervisor, helps people leave by stairs not lift, uses the extinguisher only if small and safe, switches off power if possible, keeps the gate clear for the fire engine, does not panic.",
+      "te": "Building లో పొగ లేదా మంటలు కనిపిస్తే మీరు ఏ steps తీసుకుంటారు?",
+      "hi": "अगर building में धुआँ या आग दिखे तो आप कौन से steps लेंगे?"
+    },
+    {
+      "id": "security-guard-i6",
+      "kind": "situation",
+      "q": "A man says he is a resident's relative and wants to go in, but the resident is not answering the phone. He starts shouting. What will you do?",
+      "looks_for": "Stays calm and polite, does not allow entry without confirmation, asks him to wait, tries the resident again or calls the supervisor or committee, notes his details, calls for help if he becomes aggressive; no fighting or bad words.",
+      "te": "ఒక వ్యక్తి తాను resident బంధువునని లోపలికి వెళ్ళాలని అంటున్నాడు, కానీ resident phone ఎత్తడం లేదు. అతను అరవడం మొదలుపెట్టాడు. మీరు ఏం చేస్తారు?",
+      "hi": "एक आदमी कहता है कि वह किसी resident का रिश्तेदार है और अंदर जाना चाहता है, लेकिन resident phone नहीं उठा रहा। वह चिल्लाने लगता है। आप क्या करेंगे?"
+    },
+    {
+      "id": "security-guard-i7",
+      "kind": "motivation",
+      "q": "Why do you want to work as a security guard? When can you join, and what salary do you expect? Can you say your notice period and salary clearly?",
+      "looks_for": "A genuine reason for this work, a clear joining date or notice period, and a clear salary figure. Honest about day or night shift comfort.",
+      "te": "మీరు security guard గా ఎందుకు పని చేయాలనుకుంటున్నారు? ఎప్పుడు join అవ్వగలరు, ఎంత salary ఆశిస్తున్నారు? మీ notice period, salary స్పష్టంగా చెప్పగలరా?",
+      "hi": "आप security guard का काम क्यों करना चाहते हैं? आप कब join कर सकते हैं, और कितनी salary चाहते हैं? क्या आप अपना notice period और salary साफ़ बता सकते हैं?"
+    }
+  ]
+}

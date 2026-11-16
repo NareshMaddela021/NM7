@@ -1,0 +1,48 @@
+{
+  "slug": "devops-aws",
+  "version": 1,
+  "questions": [
+    {
+      "id": "devops-aws-i1",
+      "kind": "experience",
+      "q": "Tell me about a deployment pipeline or cloud setup you built or improved. What tools did you use and what changed after your work?",
+      "looks_for": "Concrete setup: CI/CD tool, AWS services, scripts or infrastructure-as-code, their own role, and results such as faster deployments or fewer failures."
+    },
+    {
+      "id": "devops-aws-i2",
+      "kind": "experience",
+      "q": "Describe a production outage or incident you were involved in. What was your role and what did you learn?",
+      "looks_for": "Clear timeline, how they detected and diagnosed it, what they did to restore service, the root cause, and follow-up actions. Honest about mistakes."
+    },
+    {
+      "id": "devops-aws-i3",
+      "kind": "knowledge",
+      "q": "A website on an EC2 server suddenly stops responding. How would you find out what is wrong?",
+      "looks_for": "Checks monitoring and alerts, instance status, CPU, memory and disk, application and system logs, security groups and load balancer health checks, recent deployments. Restores service then finds root cause."
+    },
+    {
+      "id": "devops-aws-i4",
+      "kind": "knowledge",
+      "q": "How would you keep passwords, API keys and other secrets safe in a cloud setup and CI/CD pipeline?",
+      "looks_for": "Never commits secrets to code, uses a secret manager or parameter store, IAM roles with least privilege, rotation, limited access, and audit logs."
+    },
+    {
+      "id": "devops-aws-i5",
+      "kind": "knowledge",
+      "q": "The company's monthly AWS bill has gone up a lot. How would you find the cause and reduce it?",
+      "looks_for": "Uses cost reports and tags to find the services driving cost, looks for idle or oversized resources, old snapshots, data transfer, then rightsizes, schedules, uses reserved or spot options, and sets budgets and alerts."
+    },
+    {
+      "id": "devops-aws-i6",
+      "kind": "situation",
+      "q": "You ran a command that deleted a storage folder in production by mistake. What do you do next?",
+      "looks_for": "Tells the team immediately, stops further damage, checks backups or versioning to restore, assesses impact, and later suggests safeguards like permissions or confirmation steps. Honest and calm."
+    },
+    {
+      "id": "devops-aws-i7",
+      "kind": "motivation",
+      "q": "Why do you want to work as a DevOps / cloud engineer, and what do you want to grow into? Please state clearly your notice period or joining date, and your expected salary in ₹ per month or per year?",
+      "looks_for": "Gives a genuine reason tied to the work, a sensible growth direction, a clear notice period or joining date, and a clear salary figure or range in ₹. Honest about buyout or negotiable notice if relevant."
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "slug": "it-support",
+  "version": 1,
+  "questions": [
+    {
+      "id": "it-support-i1",
+      "kind": "experience",
+      "q": "Tell me about your IT support work. What kinds of problems did you handle every day, and how many users or systems did you support?",
+      "looks_for": "Realistic picture of daily tasks (laptops, printers, email, network, accounts), scale of users, tools like ticketing systems, and how they prioritised work."
+    },
+    {
+      "id": "it-support-i2",
+      "kind": "experience",
+      "q": "Describe a difficult technical problem you solved for a user. How did you find the cause?",
+      "looks_for": "Step-by-step troubleshooting, ruling out causes, use of logs or tools, the final fix, and how they communicated with the user. Mentions documenting it."
+    },
+    {
+      "id": "it-support-i3",
+      "kind": "knowledge",
+      "q": "A user says the internet is not working on their laptop. What steps would you follow to find the problem?",
+      "looks_for": "Checks if others are affected, cables or Wi-Fi, IP address, DNS, gateway ping, proxy or VPN settings, drivers, and moves from simple to complex. Explains logically."
+    },
+    {
+      "id": "it-support-i4",
+      "kind": "knowledge",
+      "q": "How would you set up a new employee's laptop so they can work safely from the first day?",
+      "looks_for": "Standard image or setup, updates, antivirus, encryption, user account with correct permissions, email and required software, VPN, backups, and a short guide for the user."
+    },
+    {
+      "id": "it-support-i5",
+      "kind": "knowledge",
+      "q": "Why is it important to log every support request in a ticket system, even small ones?",
+      "looks_for": "Tracks work and response times, finds repeated problems, helps teammates, builds a knowledge base, and gives proof of work and accountability."
+    },
+    {
+      "id": "it-support-i6",
+      "kind": "situation",
+      "q": "The office printer stops working just as the CEO needs an urgent document printed, and you also have other open tickets. What do you do?",
+      "looks_for": "Quickly gives a workaround (another printer or sending the file), then fixes the printer, informs other users of delays, and follows a fair priority approach."
+    },
+    {
+      "id": "it-support-i7",
+      "kind": "motivation",
+      "q": "Why do you want to work as a IT support / desktop engineer, and what do you want to grow into? Please state clearly your notice period or joining date, and your expected salary in ₹ per month or per year?",
+      "looks_for": "Gives a genuine reason tied to the work, a sensible growth direction, a clear notice period or joining date, and a clear salary figure or range in ₹. Honest about buyout or negotiable notice if relevant."
+    }
+  ]
+}

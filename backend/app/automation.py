@@ -23,6 +23,7 @@ from app.health.service import daily_batch as health_batch
 from app.hire.available import send_reminders as hire_reminders
 from app.hire.offers import send_checkins as offer_checkins
 from app.hire.slots import send_reminders as slot_reminders
+from app.hire.vetting import interview as vetting_interview
 from app.hire.vetting import jobs as vetting_jobs
 from app.hire.vetting import ladder as vetting_ladder
 from app.jobs import linkcheck as job_links
@@ -157,6 +158,7 @@ async def run_rules(db: AsyncDatabase, mailer: Mailer | None = None) -> dict[str
         done["vetting_expired"] = await vetting_jobs.nightly(db)  # V2: badges past 90 days, device hashes past 30
         done["vetting_invites"] = await vetting_jobs.send_invites(db, mailer or get_mailer())  # V2: ≤ 1 a week a person
         done.update({f"vetting_{k}": v for k, v in (await vetting_ladder.hourly_if_due(db)).items()})  # V1: hourly
+        done["interview_bias_alerts"] = await vetting_interview.weekly_if_due(db)  # V3: 5% re-graded weekly
         await save_site(db, {"rule_runs": runs})
         return done
     finally:

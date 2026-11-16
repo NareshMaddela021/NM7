@@ -1,0 +1,62 @@
+{
+  "slug": "plumbing",
+  "version": 1,
+  "questions": [
+    {
+      "id": "plumbing-i1",
+      "kind": "experience",
+      "q": "What plumbing work have you done? Tell us if it was houses, apartments or big buildings, and what jobs like pipe fitting, bathroom fitting or leak repair?",
+      "looks_for": "Specific work and pipe types (CPVC, PVC, GI), fittings installed, new work vs repair, where and how long. Honest about their own role.",
+      "te": "మీరు ఏ plumbing పని చేశారు? ఇళ్ళు, apartments లేదా పెద్ద buildings లోనా, pipe fitting, bathroom fitting లేదా leak repair లాంటి ఏ jobs చేశారు చెప్పండి?",
+      "hi": "आपने कौन सा plumbing काम किया है? घर, apartments या बड़ी buildings में, और pipe fitting, bathroom fitting या leak repair जैसे कौन से jobs किए, बताइए?"
+    },
+    {
+      "id": "plumbing-i2",
+      "kind": "experience",
+      "q": "Tell us about one plumbing job you are proud of. What was the problem and how did you fix it?",
+      "looks_for": "A concrete job: how they found the problem (hidden leak, low pressure, blockage), what they did, and how they tested it so it did not come back.",
+      "te": "మీకు గర్వంగా అనిపించిన ఒక plumbing పని గురించి చెప్పండి. Problem ఏంటి, మీరు ఎలా సరిచేశారు?",
+      "hi": "किसी एक plumbing काम के बारे में बताइए जिस पर आपको गर्व है। Problem क्या थी और आपने उसे कैसे ठीक किया?"
+    },
+    {
+      "id": "plumbing-i3",
+      "kind": "knowledge",
+      "q": "A tap joint under the kitchen sink is leaking. How will you fix it, step by step?",
+      "looks_for": "Closes the angle valve or main valve, keeps a bucket and cloth, finds exactly where it leaks, tightens or replaces the washer, connection pipe or fitting, uses teflon tape properly, opens water and checks for leaks, cleans up.",
+      "te": "Kitchen sink కింద tap joint దగ్గర leak అవుతోంది. మీరు step by step ఎలా సరిచేస్తారు?",
+      "hi": "Kitchen sink के नीचे tap का joint leak हो रहा है। आप step by step कैसे ठीक करेंगे?"
+    },
+    {
+      "id": "plumbing-i4",
+      "kind": "knowledge",
+      "q": "How do you fit a CPVC or PVC pipe joint so that it does not leak later?",
+      "looks_for": "Cuts the pipe straight, removes burrs, cleans, dry-fits first, uses the correct solvent cement for that pipe, pushes and turns slightly, holds a few seconds, lets it set before pressure, then does a pressure or water test.",
+      "te": "CPVC లేదా PVC pipe joint ని తర్వాత leak అవ్వకుండా ఎలా fit చేస్తారు?",
+      "hi": "CPVC या PVC pipe का joint कैसे fit करते हैं ताकि बाद में leak न हो?"
+    },
+    {
+      "id": "plumbing-i5",
+      "kind": "knowledge",
+      "q": "A bathroom drain is blocked and water is not going down. How will you clear it without damaging the pipe?",
+      "looks_for": "Removes the jali and takes out hair and dirt, uses a plunger, then a drain spring or rod gently, checks the trap, uses hot water; avoids strong acid that can damage pipes and hurt people; wears gloves; tests flow afterwards.",
+      "te": "Bathroom drain block అయ్యి నీళ్ళు పోవడం లేదు. Pipe పాడవకుండా మీరు దాన్ని ఎలా clear చేస్తారు?",
+      "hi": "Bathroom की drain block है और पानी नीचे नहीं जा रहा। Pipe को नुकसान पहुँचाए बिना आप उसे कैसे साफ़ करेंगे?"
+    },
+    {
+      "id": "plumbing-i6",
+      "kind": "situation",
+      "q": "You finish a job, but the customer calls and says water is now leaking into the flat below, and he is very angry. What will you do?",
+      "looks_for": "Stays calm, says sorry, goes back quickly or asks them to close the valve, checks their own work honestly, fixes it, helps clean up, informs the office; does not blame others without checking.",
+      "te": "మీరు పని పూర్తి చేశారు, కానీ ఇప్పుడు కింది flat లోకి నీళ్ళు leak అవుతున్నాయని customer చాలా కోపంగా call చేశారు. మీరు ఏం చేస్తారు?",
+      "hi": "आपने काम पूरा कर दिया, लेकिन customer बहुत गुस्से में call करता है कि अब नीचे वाले flat में पानी leak हो रहा है। आप क्या करेंगे?"
+    },
+    {
+      "id": "plumbing-i7",
+      "kind": "motivation",
+      "q": "Why do you want to work as a plumber? When can you join, and what salary do you expect? Can you say your notice period and salary clearly?",
+      "looks_for": "A genuine reason for this work, a clear joining date or notice period, and a clear salary figure. May mention own tools.",
+      "te": "మీరు plumber గా ఎందుకు పని చేయాలనుకుంటున్నారు? ఎప్పుడు join అవ్వగలరు, ఎంత salary ఆశిస్తున్నారు? మీ notice period, salary స్పష్టంగా చెప్పగలరా?",
+      "hi": "आप plumber का काम क्यों करना चाहते हैं? आप कब join कर सकते हैं, और कितनी salary चाहते हैं? क्या आप अपना notice period और salary साफ़ बता सकते हैं?"
+    }
+  ]
+}

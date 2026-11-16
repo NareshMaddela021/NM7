@@ -1,0 +1,48 @@
+{
+  "slug": "data-science",
+  "version": 1,
+  "questions": [
+    {
+      "id": "data-science-i1",
+      "kind": "experience",
+      "q": "Tell me about a machine learning or data project you worked on. What was the business problem, what data did you use, and what was the result?",
+      "looks_for": "A clear problem, data sources, the approach and model chosen, how success was measured, and the real outcome or decision made from it."
+    },
+    {
+      "id": "data-science-i2",
+      "kind": "experience",
+      "q": "Describe a time your model looked good in testing but did not work well in real use. What went wrong and what did you do?",
+      "looks_for": "Recognises issues like data leakage, different real-world data, overfitting or wrong metric. Explains how they investigated and fixed it. Honest about failure."
+    },
+    {
+      "id": "data-science-i3",
+      "kind": "knowledge",
+      "q": "Only 2% of transactions are fraud. Why can accuracy be a misleading measure here, and what would you look at instead?",
+      "looks_for": "Explains that predicting 'not fraud' for all gives 98% accuracy. Uses precision, recall, F1, PR curves, and costs of mistakes, with suitable threshold choice and resampling or class weights."
+    },
+    {
+      "id": "data-science-i4",
+      "kind": "knowledge",
+      "q": "How do you decide whether a simple model is good enough or whether you need a more complex one?",
+      "looks_for": "Starts with a simple baseline, compares on a proper validation set, weighs gains against cost, speed, explainability and maintenance, and considers what the business needs."
+    },
+    {
+      "id": "data-science-i5",
+      "kind": "knowledge",
+      "q": "Your dataset has many missing values in an important column. How would you handle it?",
+      "looks_for": "First understands why values are missing, checks how many and whether it is random, then chooses to drop, fill (with care), add a missing flag, or get better data, and checks the effect on results."
+    },
+    {
+      "id": "data-science-i6",
+      "kind": "situation",
+      "q": "A business head wants you to show that a new campaign increased sales, but your analysis shows no clear effect. What do you do?",
+      "looks_for": "Stays honest, double-checks the analysis, explains findings simply with limitations, suggests a better test like a proper control group, and does not change results to please anyone."
+    },
+    {
+      "id": "data-science-i7",
+      "kind": "motivation",
+      "q": "Why do you want to work as a data scientist, and what do you want to grow into? Please state clearly your notice period or joining date, and your expected salary in ₹ per month or per year?",
+      "looks_for": "Gives a genuine reason tied to the work, a sensible growth direction, a clear notice period or joining date, and a clear salary figure or range in ₹. Honest about buyout or negotiable notice if relevant."
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "slug": "lab-tech",
+  "version": 1,
+  "questions": [
+    {
+      "id": "lab-tech-i1",
+      "kind": "experience",
+      "q": "Tell us about your lab work so far. Which lab or hospital did you work in, and what tests did you do yourself?",
+      "looks_for": "Specific lab type and sections (haematology, biochemistry, microbiology), tests and machines used, sample collection, qualification (DMLT, BMLT), how long. Honest about what they did alone."
+    },
+    {
+      "id": "lab-tech-i2",
+      "kind": "experience",
+      "q": "Tell us about one time in the lab that you are proud of, like catching an error or handling a very busy day?",
+      "looks_for": "A real example: noticed a labelling mistake, repeated a doubtful test, kept quality control, managed many samples on time."
+    },
+    {
+      "id": "lab-tech-i3",
+      "kind": "knowledge",
+      "q": "How do you collect a blood sample from a patient safely and correctly, step by step?",
+      "looks_for": "Confirms patient identity, explains the process, hand hygiene and gloves, chooses the vein, cleans with spirit, right tube and order of draw, labels in front of the patient, presses the site, disposes the needle in the sharps box, sends sample on time."
+    },
+    {
+      "id": "lab-tech-i4",
+      "kind": "knowledge",
+      "q": "How do you make sure the right result goes to the right patient, from labelling to the final report?",
+      "looks_for": "Two identifiers on every tube, labels at the bedside, checks request form vs sample, barcode or register entry, rejects unlabelled samples, checks result against patient history, double-checks before releasing the report."
+    },
+    {
+      "id": "lab-tech-i5",
+      "kind": "knowledge",
+      "q": "How do you handle and throw away used needles and blood samples safely?",
+      "looks_for": "No recapping, sharps straight into a puncture-proof container, biomedical waste in the correct colour bags, gloves and coat, cleans spills with disinfectant, knows what to do after a needle-stick injury (wash, report, follow-up)."
+    },
+    {
+      "id": "lab-tech-i6",
+      "kind": "situation",
+      "q": "At night, you get a very abnormal result, like a very low haemoglobin or a very high sugar. What will you do?",
+      "looks_for": "Checks the sample and machine, repeats the test if possible, looks for errors, then informs the doctor or ward at once as a critical value, notes who was told and when; does not wait till morning."
+    },
+    {
+      "id": "lab-tech-i7",
+      "kind": "motivation",
+      "q": "Why do you want to work as a lab technician? When can you join, and what salary do you expect? Can you say your notice period and salary clearly?",
+      "looks_for": "A genuine reason for this work, a clear joining date or notice period, and a clear salary figure. Honest about shifts and night duty."
+    }
+  ]
+}

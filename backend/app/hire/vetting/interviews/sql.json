@@ -1,0 +1,48 @@
+{
+  "slug": "sql",
+  "version": 1,
+  "questions": [
+    {
+      "id": "sql-i1",
+      "kind": "experience",
+      "q": "Tell me about a report or analysis you built using SQL. What question were you answering, what tables did you work with, and what did people do with the result?",
+      "looks_for": "A real piece of work: the business question, the data sources, how they wrote the queries, and who used the output. Specific numbers or decisions are a plus. Owns their part honestly."
+    },
+    {
+      "id": "sql-i2",
+      "kind": "experience",
+      "q": "Describe a time your numbers did not match someone else's numbers. How did you find the cause and fix it?",
+      "looks_for": "Methodical checking: comparing row counts, filters, date ranges, duplicates from joins, nulls. Explains the actual root cause and how they communicated it. Shows care about data accuracy."
+    },
+    {
+      "id": "sql-i3",
+      "kind": "knowledge",
+      "q": "When you join two tables and suddenly get many more rows than you expected, what is usually happening and how do you check it?",
+      "looks_for": "Understands one-to-many or many-to-many joins causing duplication. Checks key uniqueness with GROUP BY and COUNT, reviews join conditions, and fixes by aggregating first or adding the missing key."
+    },
+    {
+      "id": "sql-i4",
+      "kind": "knowledge",
+      "q": "A query that used to run in seconds now takes several minutes. How would you go about finding out why?",
+      "looks_for": "Looks at the query plan, checks data growth, missing or unused indexes, functions on filtered columns, large scans or sorts, and changed filters. Tests changes one at a time and measures."
+    },
+    {
+      "id": "sql-i5",
+      "kind": "knowledge",
+      "q": "How would you calculate each customer's month-on-month change in spending, and what problems would you watch out for?",
+      "looks_for": "Groups spend by customer and month, then compares with the previous month (window function like LAG or a self join). Mentions missing months, new customers, nulls, and division by zero for percentages."
+    },
+    {
+      "id": "sql-i6",
+      "kind": "situation",
+      "q": "Your manager wants a sales dashboard number urgently for a meeting in one hour, but you notice the source data for yesterday looks incomplete. What do you do?",
+      "looks_for": "Does not hide the problem. Quickly checks how incomplete it is, tells the manager clearly, offers the best available number with a caveat or an earlier complete date, and follows up with the data owner."
+    },
+    {
+      "id": "sql-i7",
+      "kind": "motivation",
+      "q": "Why do you want to work as a data analyst, and what do you want to grow into? Please state clearly your notice period or joining date, and your expected salary in ₹ per month or per year?",
+      "looks_for": "Gives a genuine reason tied to the work, a sensible growth direction, a clear notice period or joining date, and a clear salary figure or range in ₹. Honest about buyout or negotiable notice if relevant."
+    }
+  ]
+}

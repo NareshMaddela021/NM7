@@ -1,0 +1,48 @@
+{
+  "slug": "cloud-db",
+  "version": 1,
+  "questions": [
+    {
+      "id": "cloud-db-i1",
+      "kind": "experience",
+      "q": "Tell me about a database you designed or worked on. What was it for, how big was it, and which part did you own?",
+      "looks_for": "Clear purpose, database type, main tables, size or load, their own work like schema design, queries, migrations or tuning, and results."
+    },
+    {
+      "id": "cloud-db-i2",
+      "kind": "experience",
+      "q": "Describe a time you improved a slow query or database problem. What did you find and what was the result?",
+      "looks_for": "Used the query plan or monitoring to find the cause, made a specific change (index, rewrite, schema change), and measured before and after."
+    },
+    {
+      "id": "cloud-db-i3",
+      "kind": "knowledge",
+      "q": "For a simple online shop with customers, products and orders, which main tables and keys would you create, and why?",
+      "looks_for": "Separate tables for customers, products, orders and order items, with primary and foreign keys, price stored on order items, and constraints. Mentions normalisation and indexes for common lookups."
+    },
+    {
+      "id": "cloud-db-i4",
+      "kind": "knowledge",
+      "q": "When would you add an index to a table, and what is the cost of adding too many?",
+      "looks_for": "Adds indexes on columns used often in filters, joins and sorting; explains that indexes slow down writes, use storage, and need maintenance. Checks real queries before deciding."
+    },
+    {
+      "id": "cloud-db-i5",
+      "kind": "knowledge",
+      "q": "How do you change a large table's structure in production without stopping the application?",
+      "looks_for": "Plans backward-compatible steps (add new column, backfill in batches, switch code, remove old), tests on a copy, schedules low-traffic time, takes backups and has a rollback plan."
+    },
+    {
+      "id": "cloud-db-i6",
+      "kind": "situation",
+      "q": "Someone runs an UPDATE without a WHERE clause on the live customer table. What do you do?",
+      "looks_for": "Stops further changes, informs the team, checks backups or point-in-time recovery, restores the affected data carefully, verifies, and later adds safeguards like permissions and review."
+    },
+    {
+      "id": "cloud-db-i7",
+      "kind": "motivation",
+      "q": "Why do you want to work as a database developer, and what do you want to grow into? Please state clearly your notice period or joining date, and your expected salary in ₹ per month or per year?",
+      "looks_for": "Gives a genuine reason tied to the work, a sensible growth direction, a clear notice period or joining date, and a clear salary figure or range in ₹. Honest about buyout or negotiable notice if relevant."
+    }
+  ]
+}

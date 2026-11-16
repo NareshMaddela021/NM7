@@ -1,0 +1,62 @@
+{
+  "slug": "cashier",
+  "version": 1,
+  "questions": [
+    {
+      "id": "cashier-i1",
+      "kind": "experience",
+      "q": "Tell me about your cashier or billing work. Where did you work, which billing software did you use, and how many bills did you make in a day?",
+      "looks_for": "Real place (supermarket, restaurant, pharmacy, showroom), software or POS, daily bill count, cash and UPI handling, and their duties.",
+      "te": "మీ cashier లేదా billing పని గురించి చెప్పండి. ఎక్కడ పని చేశారు, ఏ billing software వాడారు, రోజుకి ఎన్ని bills చేసేవారు?",
+      "hi": "अपने cashier या billing काम के बारे में बताइए। आपने कहाँ काम किया, कौन सा billing software इस्तेमाल किया, और दिन में कितने bills बनाते थे?"
+    },
+    {
+      "id": "cashier-i2",
+      "kind": "experience",
+      "q": "Tell me about a time your cash did not match at the end of the day. What did you do to find the problem?",
+      "looks_for": "Specific case, rechecked counts, bills, UPI and card slips, found the cause or reported honestly, and what they do now to avoid it.",
+      "te": "రోజు చివర్లో మీ cash సరిపోలని ఒక సందర్భం గురించి చెప్పండి. సమస్య కనుక్కోవడానికి ఏం చేశారు?",
+      "hi": "किसी ऐसे दिन के बारे में बताइए जब दिन के अंत में आपका cash match नहीं हुआ। आपने problem ढूंढने के लिए क्या किया?"
+    },
+    {
+      "id": "cashier-i3",
+      "kind": "knowledge",
+      "q": "How do you check that a UPI payment has really reached the shop before you give the goods?",
+      "looks_for": "Checks the shop's own app, soundbox or account for the exact amount and name, not just the customer's screen; watches for fake or pending screenshots.",
+      "te": "Goods ఇచ్చే ముందు UPI payment నిజంగా shop కి వచ్చిందని ఎలా check చేస్తారు?",
+      "hi": "सामान देने से पहले आप कैसे check करते हैं कि UPI payment सच में shop में आ गया है?"
+    },
+    {
+      "id": "cashier-i4",
+      "kind": "knowledge",
+      "q": "How do you count and give change quickly and correctly when there is a long queue?",
+      "looks_for": "Keeps the drawer arranged by note, counts change back to the customer, keeps the received note aside till done, stays calm and does not rush errors.",
+      "te": "Queue పెద్దగా ఉన్నప్పుడు change ఎలా వేగంగా, సరిగ్గా లెక్కపెట్టి ఇస్తారు?",
+      "hi": "जब लंबी line हो, तो आप change जल्दी और सही तरीके से कैसे गिनकर देते हैं?"
+    },
+    {
+      "id": "cashier-i5",
+      "kind": "knowledge",
+      "q": "Why must a cashier never share the drawer or billing login with others, even friends at work?",
+      "looks_for": "Each person is responsible for their cash; sharing makes shortages impossible to trace and can cause fraud or blame.",
+      "te": "Cashier తన drawer లేదా billing login ని ఎవరితోనూ, పనిలో friends తో కూడా ఎందుకు share చేయకూడదు?",
+      "hi": "Cashier को अपना drawer या billing login किसी के साथ, यहाँ तक कि काम के दोस्तों के साथ भी, क्यों share नहीं करना चाहिए?"
+    },
+    {
+      "id": "cashier-i6",
+      "kind": "situation",
+      "q": "A customer says you gave them 100 rupees less change and the queue behind them is getting angry. What would you do?",
+      "looks_for": "Stays polite, does not argue, follows store rule like a quick drawer count or CCTV check with the supervisor, serves others if possible, resolves fairly.",
+      "te": "నేను 100 రూపాయలు తక్కువ change ఇచ్చానని customer అంటున్నారు, వెనకాల queue లో వాళ్ళు కోపంగా ఉన్నారు. మీరు ఏం చేస్తారు?",
+      "hi": "Customer कह रहा है कि आपने 100 रुपये कम change दिया, और पीछे line वाले लोग नाराज़ हो रहे हैं। आप क्या करेंगे?"
+    },
+    {
+      "id": "cashier-i7",
+      "kind": "motivation",
+      "q": "Why do you want this cashier job, when can you join (say your notice period clearly), and what monthly salary do you expect?",
+      "looks_for": "Clear reason linked to the work, states notice period or joining date in days or weeks, and gives an expected monthly salary figure or range without dodging.",
+      "te": "ఈ cashier job మీకు ఎందుకు కావాలి? ఎప్పుడు join అవ్వగలరు (notice period స్పష్టంగా చెప్పండి)? నెలకు ఎంత జీతం ఆశిస్తున్నారు?",
+      "hi": "आपको यह cashier job क्यों चाहिए? आप कब join कर सकते हैं (notice period साफ़ बताइए)? और महीने की कितनी salary चाहिए?"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "slug": "mechanical",
+  "version": 1,
+  "questions": [
+    {
+      "id": "mechanical-i1",
+      "kind": "experience",
+      "q": "What fitter work have you done? Tell us the company or workshop and the machines or jobs you worked on?",
+      "looks_for": "Specific details: workshop or plant, machines (pumps, gearboxes, conveyors), tasks like assembly, alignment, bearing change, maintenance; ITI trade; how long. Honest about their own role.",
+      "te": "మీరు ఏ fitter పని చేశారు? ఏ company లేదా workshop, ఏ machines లేదా jobs మీద పని చేశారు చెప్పండి?",
+      "hi": "आपने कौन सा fitter काम किया है? कौन सी company या workshop, और किन machines या jobs पर काम किया, बताइए?"
+    },
+    {
+      "id": "mechanical-i2",
+      "kind": "experience",
+      "q": "Tell us about one fitting or repair job you are proud of. What was the problem and how did you fix it?",
+      "looks_for": "A concrete job with clear steps: the fault, how they found the cause, what they changed or adjusted, and how they tested it afterwards.",
+      "te": "మీకు గర్వంగా అనిపించిన ఒక fitting లేదా repair పని గురించి చెప్పండి. Problem ఏంటి, మీరు ఎలా సరిచేశారు?",
+      "hi": "किसी एक fitting या repair काम के बारे में बताइए जिस पर आपको गर्व है। Problem क्या थी और आपने उसे कैसे ठीक किया?"
+    },
+    {
+      "id": "mechanical-i3",
+      "kind": "knowledge",
+      "q": "How do you measure a part with a vernier caliper or micrometer, and how do you make sure your reading is correct?",
+      "looks_for": "Cleans the part and tool, checks zero error first, holds the tool straight without too much force, reads main and vernier scale correctly, takes two or three readings, compares with the drawing tolerance.",
+      "te": "Vernier caliper లేదా micrometer తో ఒక part ని ఎలా measure చేస్తారు? మీ reading correct అని ఎలా confirm చేసుకుంటారు?",
+      "hi": "Vernier caliper या micrometer से किसी part को कैसे measure करते हैं, और कैसे पक्का करते हैं कि reading सही है?"
+    },
+    {
+      "id": "mechanical-i4",
+      "kind": "knowledge",
+      "q": "A machine is making a strange noise and getting hot. What steps will you follow to check it safely?",
+      "looks_for": "Stops the machine and isolates power, waits to cool, checks lubrication, bearings, belts, alignment, loose bolts and coupling; finds the cause before restarting; informs the supervisor and notes it in the log.",
+      "te": "ఒక machine వింత శబ్దం చేస్తోంది, వేడి ఎక్కుతోంది. Safe గా check చేయడానికి మీరు ఏ steps follow చేస్తారు?",
+      "hi": "एक machine अजीब आवाज़ कर रही है और गर्म हो रही है। Safe तरीके से check करने के लिए आप क्या steps follow करेंगे?"
+    },
+    {
+      "id": "mechanical-i5",
+      "kind": "knowledge",
+      "q": "What safety steps do you take before you start work on a machine?",
+      "looks_for": "Lockout and tagout, confirms the machine cannot start, wears PPE like safety shoes, gloves and goggles, checks tools are in good condition, keeps the area clean, informs the operator, never wears loose clothes near moving parts.",
+      "te": "ఒక machine మీద పని మొదలుపెట్టే ముందు మీరు ఏ safety steps తీసుకుంటారు?",
+      "hi": "किसी machine पर काम शुरू करने से पहले आप कौन से safety steps लेते हैं?"
+    },
+    {
+      "id": "mechanical-i6",
+      "kind": "situation",
+      "q": "Your supervisor asks you to remove the machine guard so the job goes faster. What will you do?",
+      "looks_for": "Does not run the machine without the guard; explains the injury risk politely, suggests a safe faster method, and escalates to safety or a senior if pushed.",
+      "te": "Job తొందరగా అవ్వాలని machine guard తీసేయమని మీ supervisor అడుగుతున్నారు. మీరు ఏం చేస్తారు?",
+      "hi": "आपका supervisor कहता है कि काम जल्दी हो, इसलिए machine का guard हटा दो। आप क्या करेंगे?"
+    },
+    {
+      "id": "mechanical-i7",
+      "kind": "motivation",
+      "q": "Why do you want to work as a fitter? When can you join, and what salary do you expect? Can you say your notice period and salary clearly?",
+      "looks_for": "A genuine reason, honest about shift work, a clear joining date or notice period, and a clear salary figure.",
+      "te": "మీరు fitter గా ఎందుకు పని చేయాలనుకుంటున్నారు? ఎప్పుడు join అవ్వగలరు, ఎంత salary ఆశిస్తున్నారు? మీ notice period, salary స్పష్టంగా చెప్పండి?",
+      "hi": "आप fitter का काम क्यों करना चाहते हैं? आप कब join कर सकते हैं, और कितनी salary चाहते हैं? अपना notice period और salary साफ़ बताइए?"
+    }
+  ]
+}

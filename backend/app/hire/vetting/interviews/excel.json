@@ -1,0 +1,48 @@
+{
+  "slug": "excel",
+  "version": 1,
+  "questions": [
+    {
+      "id": "excel-i1",
+      "kind": "experience",
+      "q": "Tell me about an Excel sheet or report you built or kept up in a past job or course. What data was in it, who used it, and what did you do each day or week?",
+      "looks_for": "Names a real sheet with real columns and users, describes their own part (entry, formulas, cleanup, sharing), and shows regular, careful work."
+    },
+    {
+      "id": "excel-i2",
+      "kind": "experience",
+      "q": "Describe a time you used Excel to save time or fix a mistake in data. What was the problem and what changed after your work?",
+      "looks_for": "A specific problem (duplicates, wrong totals, manual copying), the steps or functions used, and a clear result like hours saved or errors caught."
+    },
+    {
+      "id": "excel-i3",
+      "kind": "knowledge",
+      "q": "When would you use VLOOKUP or XLOOKUP, and what common mistakes make it give wrong or missing results?",
+      "looks_for": "Explains looking up a value from another table by a key; mentions exact vs approximate match, extra spaces, numbers stored as text, or the key column not being first for VLOOKUP."
+    },
+    {
+      "id": "excel-i4",
+      "kind": "knowledge",
+      "q": "What is a pivot table, and how would you use one to show a manager total sales by month and by branch?",
+      "looks_for": "Describes summarising a big table without formulas; drags month/branch into rows or columns and sales into values as sum; mentions refreshing when data changes."
+    },
+    {
+      "id": "excel-i5",
+      "kind": "knowledge",
+      "q": "What is the difference between a relative and an absolute cell reference, and when does it matter while copying a formula?",
+      "looks_for": "Relative changes when copied, absolute with $ stays fixed; gives an example like a fixed GST rate or target cell used by many rows."
+    },
+    {
+      "id": "excel-i6",
+      "kind": "situation",
+      "q": "Your manager needs a stock report in one hour, but the data from two branches has different date formats and some duplicate rows. What would you do?",
+      "looks_for": "Stays calm, keeps a copy of raw data, fixes date formats, removes duplicates carefully, checks totals against the source, and tells the manager of any doubt before the deadline."
+    },
+    {
+      "id": "excel-i7",
+      "kind": "motivation",
+      "q": "Why do you want this office assistant job, when can you join (please say your notice period), and what monthly salary do you expect?",
+      "looks_for": "Clear reason linked to the work, states notice period or joining date in days or weeks, and gives an expected monthly or yearly salary figure or range without dodging."
+    }
+  ]
+}

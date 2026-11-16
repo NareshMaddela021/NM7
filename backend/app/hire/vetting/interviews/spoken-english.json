@@ -1,0 +1,48 @@
+{
+  "slug": "spoken-english",
+  "version": 1,
+  "questions": [
+    {
+      "id": "spoken-english-i1",
+      "kind": "experience",
+      "q": "Tell me about a job or situation where you spoke in English with customers or colleagues every day. What kind of conversations were they?",
+      "looks_for": "Speaks in full sentences about a real setting, gives examples of conversations (queries, explanations, updates), and sounds comfortable and clear."
+    },
+    {
+      "id": "spoken-english-i2",
+      "kind": "experience",
+      "q": "Describe a time you had to explain something in English to someone who did not understand at first. How did you make it clear?",
+      "looks_for": "Specific case; used simpler words, slowed down, gave an example or repeated in steps, checked understanding; shows patience."
+    },
+    {
+      "id": "spoken-english-i3",
+      "kind": "knowledge",
+      "q": "What makes someone easy to understand on a phone call, apart from grammar?",
+      "looks_for": "Speed, clear pronunciation, pauses, simple words, polite tone, confirming understanding; shows awareness that the customer cannot see them."
+    },
+    {
+      "id": "spoken-english-i4",
+      "kind": "knowledge",
+      "q": "How do you politely say no to a customer in English when you cannot do what they ask?",
+      "looks_for": "Gives a polite phrase, apologises without blaming, explains the reason simply, and offers an alternative or next step."
+    },
+    {
+      "id": "spoken-english-i5",
+      "kind": "knowledge",
+      "q": "If you do not understand a customer's accent or a word they said, what should you do?",
+      "looks_for": "Politely asks them to repeat or spell, repeats back to confirm, never guesses or pretends; stays respectful of the accent."
+    },
+    {
+      "id": "spoken-english-i6",
+      "kind": "situation",
+      "q": "A customer is speaking very fast and sounds upset about a wrong bill. In English, what would you say to them in the first minute?",
+      "looks_for": "Calm, polite opening in good English: greets, apologises for the trouble, asks for details, repeats the issue, promises to check; clear and natural speech."
+    },
+    {
+      "id": "spoken-english-i7",
+      "kind": "motivation",
+      "q": "Why do you want this English customer support job, when can you join (state your notice period), and what monthly salary do you expect?",
+      "looks_for": "Clear reason linked to the work, states notice period or joining date in days or weeks, and gives an expected monthly or yearly salary figure or range without dodging."
+    }
+  ]
+}

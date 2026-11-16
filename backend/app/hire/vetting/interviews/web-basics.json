@@ -1,0 +1,48 @@
+{
+  "slug": "web-basics",
+  "version": 1,
+  "questions": [
+    {
+      "id": "web-basics-i1",
+      "kind": "experience",
+      "q": "Tell me about a web page or React feature you built from start to finish. What did it do and what were the hard parts?",
+      "looks_for": "A real feature with clear scope, how they built components, state and API calls, the difficulties they faced, and how it was used or received."
+    },
+    {
+      "id": "web-basics-i2",
+      "kind": "experience",
+      "q": "Describe a time you had to make a page work well on mobile phones as well as desktop. What did you change?",
+      "looks_for": "Concrete responsive work: layouts with flexbox or grid, media queries, image sizes, touch targets, testing on real devices or browser tools. Mentions results."
+    },
+    {
+      "id": "web-basics-i3",
+      "kind": "knowledge",
+      "q": "Users say a page is slow to load. How would you find out why and make it faster?",
+      "looks_for": "Measures first with browser dev tools or Lighthouse, checks large images, big JavaScript bundles, too many requests, slow APIs and blocking scripts. Fixes the biggest cause and measures again."
+    },
+    {
+      "id": "web-basics-i4",
+      "kind": "knowledge",
+      "q": "In React, when would you keep data in a component's own state, and when would you move it higher or into a shared store?",
+      "looks_for": "Keeps state local when only one component needs it, lifts it up when siblings share it, uses context or a store for app-wide data. Mentions avoiding unnecessary re-renders and complexity."
+    },
+    {
+      "id": "web-basics-i5",
+      "kind": "knowledge",
+      "q": "What would you check to make sure a form on your website can be used by people who rely on a keyboard or screen reader?",
+      "looks_for": "Labels linked to inputs, logical tab order, visible focus, clear error messages, semantic HTML elements, enough colour contrast, and testing with keyboard only or a screen reader."
+    },
+    {
+      "id": "web-basics-i6",
+      "kind": "situation",
+      "q": "A designer gives you a screen that would take a week to build exactly, but the deadline is in two days. What do you do?",
+      "looks_for": "Talks early with the designer and manager, proposes a simpler version that keeps the key experience, agrees what comes later, and does not silently cut corners or overwork without telling anyone."
+    },
+    {
+      "id": "web-basics-i7",
+      "kind": "motivation",
+      "q": "Why do you want to work as a front-end developer, and what do you want to grow into? Please state clearly your notice period or joining date, and your expected salary in ₹ per month or per year?",
+      "looks_for": "Gives a genuine reason tied to the work, a sensible growth direction, a clear notice period or joining date, and a clear salary figure or range in ₹. Honest about buyout or negotiable notice if relevant."
+    }
+  ]
+}

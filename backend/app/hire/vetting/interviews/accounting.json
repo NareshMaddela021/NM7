@@ -1,0 +1,48 @@
+{
+  "slug": "accounting",
+  "version": 1,
+  "questions": [
+    {
+      "id": "accounting-i1",
+      "kind": "experience",
+      "q": "Tell me about the accounts work you did in your last job or internship. What entries, reports or tasks were yours?",
+      "looks_for": "Names concrete tasks (vouchers, ledgers, bank reconciliation, payables, receivables, GST data), the business type and software, and their own share of the work."
+    },
+    {
+      "id": "accounting-i2",
+      "kind": "experience",
+      "q": "Describe a time you found a mistake or mismatch in the books. How did you find it and how was it fixed?",
+      "looks_for": "A specific mismatch (bank vs books, wrong ledger, duplicate entry), how they traced it, the correction entry, and what was done to avoid it again."
+    },
+    {
+      "id": "accounting-i3",
+      "kind": "knowledge",
+      "q": "What is a bank reconciliation, and why can the bank balance and the book balance be different on the same day?",
+      "looks_for": "Matching bank statement with cash book; reasons like cheques issued not cleared, deposits not credited, bank charges or interest not yet entered."
+    },
+    {
+      "id": "accounting-i4",
+      "kind": "knowledge",
+      "q": "Can you explain the difference between an expense and an asset, with an example from a small business?",
+      "looks_for": "Expense is used up in the period (rent, salary); asset gives benefit over time (computer, vehicle) and is depreciated; shows why the difference changes profit."
+    },
+    {
+      "id": "accounting-i5",
+      "kind": "knowledge",
+      "q": "What is accrual accounting, and how would you record an electricity bill for March that is paid in April?",
+      "looks_for": "Record income and expenses when they happen, not when cash moves; book March expense with a payable (outstanding) in March, then clear it on payment in April."
+    },
+    {
+      "id": "accounting-i6",
+      "kind": "situation",
+      "q": "At month end your manager asks for the closing figures today, but two vendor bills are missing and one payment entry looks doubtful. What would you do?",
+      "looks_for": "Follows up with vendors or purchase team, books known items, clearly flags missing and doubtful items instead of guessing, informs the manager with a list, does not fudge figures."
+    },
+    {
+      "id": "accounting-i7",
+      "kind": "motivation",
+      "q": "Why do you want this accounts executive job, when can you join (state your notice period), and what salary do you expect?",
+      "looks_for": "Clear reason linked to the work, states notice period or joining date in days or weeks, and gives an expected monthly or yearly salary figure or range without dodging."
+    }
+  ]
+}

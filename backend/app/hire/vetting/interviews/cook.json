@@ -1,0 +1,62 @@
+{
+  "slug": "cook",
+  "version": 1,
+  "questions": [
+    {
+      "id": "cook-i1",
+      "kind": "experience",
+      "q": "What cooking work have you done? Tell us the place, like hotel, mess, canteen or restaurant, and what dishes you make?",
+      "looks_for": "Specific places, cuisines (South Indian, North Indian, Chinese, tandoor), dishes and quantity cooked, whether head cook or helper, how long.",
+      "te": "మీరు ఏ cooking పని చేశారు? Hotel, mess, canteen లేదా restaurant లాంటి ఏ చోట, మీరు ఏ dishes చేస్తారు చెప్పండి?",
+      "hi": "आपने कौन सा cooking काम किया है? Hotel, mess, canteen या restaurant जैसी कौन सी जगह, और आप कौन सी dishes बनाते हैं, बताइए?"
+    },
+    {
+      "id": "cook-i2",
+      "kind": "experience",
+      "q": "Tell us about one time in the kitchen you are proud of, like a big function or a dish people loved?",
+      "looks_for": "A real example: planning for a large number of people, keeping taste and time, teamwork, handling pressure.",
+      "te": "Kitchen లో మీకు గర్వంగా అనిపించిన ఒక సందర్భం చెప్పండి, ఉదాహరణకు పెద్ద function లేదా అందరికీ నచ్చిన ఒక dish?",
+      "hi": "Kitchen में कोई ऐसा समय बताइए जिस पर आपको गर्व है, जैसे कोई बड़ा function या कोई dish जो सबको पसंद आई?"
+    },
+    {
+      "id": "cook-i3",
+      "kind": "knowledge",
+      "q": "How do you keep yourself, the kitchen and the food clean, so that nobody falls sick?",
+      "looks_for": "Washes hands often, cap or hairnet, clean apron, short nails, separate boards for raw and cooked, washes vegetables, cleans surfaces and vessels, keeps dustbins closed, no work when sick, keeps pests away.",
+      "te": "ఎవరూ జబ్బు పడకుండా మిమ్మల్ని, kitchen ని, food ని ఎలా clean గా ఉంచుతారు?",
+      "hi": "किसी को बीमार न पड़ने देने के लिए आप खुद को, kitchen को और खाने को कैसे साफ़ रखते हैं?"
+    },
+    {
+      "id": "cook-i4",
+      "kind": "knowledge",
+      "q": "How do you store raw chicken, vegetables and cooked food in the fridge, and how do you know food is not good to use?",
+      "looks_for": "Raw meat covered on the lowest shelf, cooked food covered on top, labels with date, first in first out, fridge cold enough; throws away food that smells bad, changes colour, is slimy or kept too long. Does not serve doubtful food.",
+      "te": "Raw chicken, కూరగాయలు, వండిన food ని fridge లో ఎలా పెడతారు? Food వాడడానికి పనికిరాదని ఎలా తెలుసుకుంటారు?",
+      "hi": "Raw chicken, सब्ज़ियाँ और पका हुआ खाना fridge में कैसे रखते हैं, और कैसे पता करते हैं कि खाना इस्तेमाल करने लायक नहीं है?"
+    },
+    {
+      "id": "cook-i5",
+      "kind": "knowledge",
+      "q": "What do you do to work safely with gas, hot oil and knives in the kitchen?",
+      "looks_for": "Checks for gas leaks and closes the regulator after work, no water in hot oil, handles turned inward, dry cloth for hot vessels, sharp knives used with care and cut away from body, knows how to use the fire blanket or extinguisher.",
+      "te": "Kitchen లో gas, వేడి నూనె, కత్తులతో safe గా పని చేయడానికి మీరు ఏం చేస్తారు?",
+      "hi": "Kitchen में gas, गर्म तेल और चाकू के साथ safe तरीके से काम करने के लिए आप क्या करते हैं?"
+    },
+    {
+      "id": "cook-i6",
+      "kind": "situation",
+      "q": "A customer sends back a dish saying it is too spicy and is angry, and orders are piling up. What will you do?",
+      "looks_for": "Does not take it personally, tastes and checks, quickly makes a fresh milder plate or follows the manager's decision, keeps other orders moving, remembers the feedback for next time.",
+      "te": "ఒక customer dish చాలా కారంగా ఉందని కోపంగా తిరిగి పంపారు, orders కూడా పెరిగిపోతున్నాయి. మీరు ఏం చేస్తారు?",
+      "hi": "एक customer गुस्से में dish वापस भेजता है कि बहुत तीखी है, और orders भी बढ़ते जा रहे हैं। आप क्या करेंगे?"
+    },
+    {
+      "id": "cook-i7",
+      "kind": "motivation",
+      "q": "Why do you want to work as a cook? When can you join, and what salary do you expect? Can you say your notice period and salary clearly?",
+      "looks_for": "A genuine reason for this work, a clear joining date or notice period, and a clear salary figure. Honest about shift timings and early or late hours.",
+      "te": "మీరు cook గా ఎందుకు పని చేయాలనుకుంటున్నారు? ఎప్పుడు join అవ్వగలరు, ఎంత salary ఆశిస్తున్నారు? మీ notice period, salary స్పష్టంగా చెప్పగలరా?",
+      "hi": "आप cook का काम क्यों करना चाहते हैं? आप कब join कर सकते हैं, और कितनी salary चाहते हैं? क्या आप अपना notice period और salary साफ़ बता सकते हैं?"
+    }
+  ]
+}
