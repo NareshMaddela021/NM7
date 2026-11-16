@@ -96,7 +96,7 @@ export default function MeHire() {
         </div>
         <div className="mgrid" style={{ gap: 12 }}>
           <p className="xs muted" style={{ margin: 0 }}>🔒 Your phone number and email are never shown to a company until you accept its invite.</p>
-          <p className="small" style={{ margin: 0 }}>Stand out: take a 10-minute <a href="/me/skill-checks" data-testid="hire-skill-link">skill check</a> and choose to show the score.</p>
+          <p className="small" style={{ margin: 0 }}>Stand out: <a href="/me/skill-checks" data-testid="hire-skill-link">get a skill verified</a> (a 15-minute test and a short practical task). Companies hiring now see the badge.</p>
         </div>
       </section>
       <Offers />

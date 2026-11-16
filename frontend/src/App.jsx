@@ -468,6 +468,7 @@ export default function App() {
           <Route path="auto-apply" element={<AutoApply />} />
           <Route path="hire" element={<MeHire />} />
           <Route path="skill-checks" element={<MeSkillChecks />} />
+          <Route path="skill-checks/:id" element={<MeSkillChecks />} />
           <Route path="roles" element={<MeRoles />} />
           <Route path="learn" element={<MeLearn />} />
           <Route path="practice" element={<MePractice />} />

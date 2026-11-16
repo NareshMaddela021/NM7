@@ -106,11 +106,11 @@ function Path({ role }) {
               <span className="ml-qno">Step 3 · Skill check</span>
               {t.skill ? (
                 <>
-                  <span className="small">The {t.skill} skill check: 10 minutes, 10 questions. Pass mark {t.pass}%.{t.best ? ` Your best: ${t.best.score}%.` : ''}</span>
+                  <span className="small">The {t.skill} skill check: about 15 minutes, 18 questions, then a short practical task. Pass mark {t.pass}.{t.best ? ` Your best: ${t.best.score}/100.` : ''}</span>
                   {t.best && <Bar value={t.best.score} label="Your best" tone={t.best.score >= t.pass ? 'ok' : 'warn'} />}
                   <div className="ml-actions">
                     <Link className="btn btn-outline" to="/me/practice">Practise first (free)</Link>
-                    <Link className="btn btn-signal" to="/me/skill-checks">Open skill checks</Link>
+                    <Link className="btn btn-signal" to={`/me/skill-checks?skill=${encodeURIComponent(t.skill)}`}>Open the skill check</Link>
                   </div>
                   <span className="xs muted">Practice tests never count; only the official check does.</span>
                 </>

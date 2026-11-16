@@ -6,6 +6,8 @@
 // note. No pop-up dialogs. English, Telugu and Hindi (co.hire.*).
 // Round P, Phase 3: a control bar card, the Minute 0 → 60 card, the bulk board, then ranked people cards (rank badge,
 // match ring, facts as chips, Invite) with Invite all in a bar that sticks on a phone; interview times and offers.
+// Vetting V2: each card shows the "Skill verified" badge (test, band, score, task stars, month; muted when expired),
+// and the control bar filters by "Skill verified only", the test and a minimum test score.
 import { useCallback, useEffect, useState } from 'react';
 import { rq } from '../../lib/company';
 import { reasons } from './CompanyApplicants';
@@ -13,12 +15,25 @@ import HireSlots from './HireSlots';
 import HireOffers from './HireOffers';
 import HireBulk from './HireBulk';
 import HireSpeed from './HireSpeed';
+import SkillBadge from './SkillBadge';
+import { TEST_NAMES } from '../../lib/vettingRoles';
 import { Empty } from '../me/kit';
 import '../../styles/company-hire.css';
 
 const rupees = (n) => (n == null ? '' : `₹${Math.round(n).toLocaleString('en-IN')}`);
 const day = (s) => (s ? new Date(`${s}T00:00:00`).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '');
 export const PAGE = 10;
+export const MIN_SCORES = [0, 60, 70, 80, 90];
+
+/** The shortlist's query: job, size, support, and the Vetting V2 filters (verified only, test, minimum score). */
+export function shortlistQuery(job, { support = '', verified = false, role = '', minScore = 0 } = {}) {
+  const q = new URLSearchParams({ job, size: '100' });
+  if (support) q.set('support', support);
+  if (verified) q.set('verified', 'true');
+  if (role) q.set('role', role);
+  if (Number(minScore) > 0) q.set('minScore', String(minScore));
+  return q.toString();
+}
 const CHIP = { sent: 'mchip-info', accepted: 'mchip-ok', declined: 'mchip-bad', expired: 'mchip-neutral' }; // round P: kit chips
 const initial = (n) => (n || '?').trim().charAt(0).toUpperCase();
 
@@ -50,6 +65,8 @@ export default function CompanyHire({ t, c }) {
   const [msg, setMsg] = useState('');
   const [support, setSupport] = useState(''); // Phase 6 S9: immediate joiners / returning after a break
   const [shown, setShown] = useState(PAGE); // the top 10 first, then "Show more"
+  const [vf, setVf] = useState({ verified: false, role: '', minScore: 0 }); // Vetting V2 filters
+  const setV = (k) => (e) => setVf((x) => ({ ...x, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
   const verified = c.trust === 'verified';
   const canInvite = ['main', 'full', 'posting'].includes(c.myRole);
   useEffect(() => {
@@ -63,10 +80,10 @@ export default function CompanyHire({ t, c }) {
     if (!job || !verified) return;
     setErr(''); setD(null); setShown(PAGE);
     try {
-      const [s, inv] = await Promise.all([rq(`/api/company/${c.id}/hire/shortlist?job=${encodeURIComponent(job)}&size=100${support ? `&support=${support}` : ''}`), rq(`/api/company/${c.id}/hire/invites?job=${encodeURIComponent(job)}`)]);
+      const [s, inv] = await Promise.all([rq(`/api/company/${c.id}/hire/shortlist?${shortlistQuery(job, { support, ...vf })}`), rq(`/api/company/${c.id}/hire/invites?job=${encodeURIComponent(job)}`)]);
       setD(s); setInvites(inv);
     } catch (x) { setErr(x.message); setD({ items: [] }); }
-  }, [c.id, job, verified, support]);
+  }, [c.id, job, verified, support, vf]);
   useEffect(() => { load(); }, [load]);
   const invite = async (people) => {
     setBusy(true); setMsg(''); setErr('');
@@ -102,8 +119,26 @@ export default function CompanyHire({ t, c }) {
               {['immediate', 'returners'].map((k) => <option key={k} value={k}>{t(`jobs.support.${k}`)}</option>)}
             </select>
           </label>
-          {d?.usage && <span className="mchip mchip-info hn-usage" data-testid="co-hire-usage">{t('co.hire.usage', { used: d.usage.used, free: d.usage.free })}</span>}
         </div>
+        <fieldset className="hn-sv" data-testid="co-hire-sv-filters">
+          <legend className="hn-sv-legend">{t('co.hire.sv.filters')}</legend>
+          <label className="hn-sv-only">
+            <input type="checkbox" checked={vf.verified} onChange={setV('verified')} data-testid="co-hire-sv-only" />
+            <span>{t('co.hire.sv.only')}</span>
+          </label>
+          <label className="field hn-field"><span className="label">{t('co.hire.sv.role')}</span>
+            <select className="input" value={vf.role} onChange={setV('role')} data-testid="co-hire-sv-role">
+              <option value="">{t('co.hire.sv.anyRole')}</option>
+              {TEST_NAMES.map((n) => <option key={n} value={n}>{n}</option>)}
+            </select>
+          </label>
+          <label className="field hn-field"><span className="label">{t('co.hire.sv.min')}</span>
+            <select className="input" value={vf.minScore} onChange={setV('minScore')} data-testid="co-hire-sv-min">
+              {MIN_SCORES.map((n) => <option key={n} value={n}>{n ? t('co.hire.sv.atLeast', { n }) : t('co.hire.sv.anyScore')}</option>)}
+            </select>
+          </label>
+        </fieldset>
+        {d?.usage && <span className="mchip mchip-info hn-usage" data-testid="co-hire-usage">{t('co.hire.usage', { used: d.usage.used, free: d.usage.free })}</span>}
       </div>
       <HireSpeed t={t} c={c} />
       {job && <HireBulk key={`b-${job}`} t={t} c={c} job={job} canEdit={canInvite} people={invites.filter((x) => x.status === 'accepted').map((x) => ({ key: x.key, name: x.name }))} onChange={load} />}
@@ -126,6 +161,9 @@ export default function CompanyHire({ t, c }) {
           )}
           {msg && <p className="small hn-msg" role="status" data-testid="co-hire-msg">{msg}</p>}
           {!d.items.length && <Empty shape="magnifier" tint="company" compact />}
+          {!d.items.length && (vf.verified || vf.role || Number(vf.minScore) > 0) && (
+            <button type="button" className="btn btn-outline hn-more" onClick={() => setVf({ verified: false, role: '', minScore: 0 })} data-testid="co-hire-sv-clear">{t('co.hire.sv.clear')}</button>
+          )}
           <ol className="hn-grid">
             {d.items.slice(0, shown).map((x, i) => (
               <li key={x.key} className={`mcard hn-person ${i < 3 ? 'hn-top' : ''}`} data-testid="co-hire-row">
@@ -144,6 +182,7 @@ export default function CompanyHire({ t, c }) {
                   <div><dt aria-hidden="true">₹</dt><dd data-testid="co-hire-salary">{salaryLine(x.salary, t)}</dd></div>
                   {x.verified?.length > 0 && <div><dt aria-hidden="true">✓</dt><dd data-testid="co-hire-verified">{x.verified.map((v) => t('co.hire.verified', { skill: v.skill, date: new Date(v.at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) })).join(' · ')}</dd></div>}
                 </dl>
+                <SkillBadge sv={x.skillVerified} t={t} />
                 <span className="hn-trust" data-testid="co-hire-trust">{x.skillCheck ? t('co.hire.check', { score: x.skillCheck.score }) : t('co.hire.noCheck')} · {x.reliability.score == null ? x.reliability.label : `${x.reliability.label} (${x.reliability.score}%)`}{x.reliability.lines?.length ? `: ${x.reliability.lines.join('; ')}` : ''}</span>
                 <div className="hn-person-foot">
                   {x.invite ? <span className={`mchip ${CHIP[x.invite.status]}`} data-testid="co-hire-state">{t(`co.hire.state.${x.invite.status}`)}</span>

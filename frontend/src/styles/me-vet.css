@@ -1,0 +1,109 @@
+/* Get skill verified (Vetting V2): the role list, the start dialog, the test, the result and the practical task.
+   Built on me-kit.css (glass cards, chips, rings, bars). Every tap target is at least 44 px. */
+
+.vet-h2 { font-family: var(--font-display); font-weight: 500; font-size: clamp(22px, 3vw, 28px); line-height: 1.15; color: var(--ink); margin: 0; overflow-wrap: anywhere; }
+.vet-sec-h { font-family: var(--font-display); font-weight: 500; font-size: 24px; line-height: 1.2; color: var(--ink); margin: 0; }
+.vet-group-h { font-size: 15px; font-weight: 800; color: var(--text); margin: 4px 0 0; letter-spacing: .01em; }
+.vet-legend { padding: 0; margin-bottom: 8px; font-weight: 800; font-size: 14.5px; color: var(--text); }
+.vet-fs { border: 0; padding: 0; margin: 0; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+
+/* hero */
+.vet-hero { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
+@media (min-width: 860px) { .vet-hero { grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); align-items: center; } }
+.vet-hero-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.vet-steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 14.5px; color: var(--text2); line-height: 1.5; }
+.vet-steps strong { color: var(--text); }
+
+/* consent */
+.vet-consent-list { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 14.5px; color: var(--text2); line-height: 1.5; }
+.vet-consent-list strong { color: var(--text); }
+.vet-consent-list .vet-no { list-style: "✓  "; color: #166534; }
+.vet-consent-list .vet-no strong { color: #166534; }
+.vet-check { display: flex; align-items: flex-start; gap: 12px; min-height: 44px; padding: 10px 14px; border-radius: 14px; border: 1.5px solid var(--border2); background: #fff; cursor: pointer; font-size: 14.5px; line-height: 1.4; }
+.vet-check input { width: 22px; height: 22px; margin: 0; flex: none; accent-color: var(--accent); }
+.vet-check:has(input:checked) { border-color: var(--accent); background: #f5f3ff; }
+.vet-check:has(input:focus-visible) { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* filters and chips */
+.vet-filters { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+.vet-search { flex: 1 1 260px; min-width: 0; margin: 0; }
+.vet-search .input { min-height: 48px; }
+.vet-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.vet-pill { position: relative; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 8px 16px; border-radius: 999px; border: 1.5px solid var(--border2); background: #fff;
+  font: inherit; font-size: 14px; font-weight: 700; color: var(--text); cursor: pointer; }
+.vet-pill input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.vet-pill:hover { border-color: var(--accent); }
+.vet-pill.on { border-color: var(--accent); background: #efeaff; color: #3730a3; }
+.vet-pill:has(input:focus-visible), button.vet-pill:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* role cards */
+.vet-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 12px; }
+.vet-role { justify-content: space-between; }
+.vet-role-title { font-family: var(--font-display); font-weight: 500; font-size: 20px; line-height: 1.2; color: var(--ink); overflow-wrap: anywhere; }
+.vet-role-meta { display: flex; flex-wrap: wrap; gap: 6px 14px; color: var(--text2); }
+.vet-role-go { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.vet-role-go .btn { min-height: 44px; }
+
+/* badges */
+.vet-badge { display: flex; flex-direction: column; gap: 4px; padding: 12px 16px; border-radius: 16px; background: linear-gradient(120deg, #ecfdf3, #f3fbf6); border: 1px solid #bfe5cd; color: #14532d; min-width: 0; overflow-wrap: anywhere; }
+.vet-badge strong { font-size: 15px; }
+.vet-badge.expired { background: #fffaf0; border-color: #f5d9a8; color: #7c2d12; }
+
+/* the test */
+.vet-run { display: flex; flex-direction: column; gap: 14px; max-width: 760px; }
+.vet-bar { position: sticky; top: 76px; z-index: 6; gap: 8px; }
+.vet-bar-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; min-width: 0; }
+.vet-bar-title { font-size: 16px; color: var(--ink); }
+.vet-clocks { display: flex; gap: 10px; }
+.vet-clock { display: inline-flex; flex-direction: column; align-items: flex-end; font-family: var(--font-display); font-size: 26px; line-height: 1; color: var(--ink); font-variant-numeric: tabular-nums; }
+.vet-clock small { font-family: var(--font-body); font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--text3); margin-bottom: 3px; }
+.vet-clock.low { color: #b42318; }
+.vet-save { font-size: 12.5px; font-weight: 700; color: var(--text3); min-height: 1em; }
+.vet-save.saved { color: #166534; }
+.vet-save.offline { color: #92400e; }
+.vet-q { gap: 16px; }
+.vet-q:focus { outline: none; }
+
+.vet-qtext { padding: 0; font-size: 18px; font-weight: 700; line-height: 1.45; color: var(--ink); margin-bottom: 12px; overflow-wrap: anywhere; }
+.vet-opts { display: flex; flex-direction: column; gap: 10px; }
+.vet-opt { position: relative; display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 12px 14px; border-radius: 16px; border: 1.5px solid var(--border2); background: #fff; cursor: pointer; font-size: 16px; line-height: 1.4; color: var(--text); }
+.vet-opt input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.vet-opt:hover { border-color: var(--accent); }
+.vet-opt.on { border-color: var(--accent); background: #f3f0ff; box-shadow: 0 0 0 2px #ddd6fe inset; }
+.vet-opt:has(input:focus-visible) { outline: 3px solid var(--accent); outline-offset: 2px; }
+.vet-opt-k { flex: none; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 10px; background: #f1eefb; color: #3730a3; font-weight: 800; font-size: 15px; }
+.vet-opt.on .vet-opt-k { background: var(--accent); color: #fff; }
+.vet-opt-t { min-width: 0; overflow-wrap: anywhere; }
+.vet-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.vet-actions .btn { min-height: 48px; }
+@media (max-width: 560px) {
+  .vet-bar { top: 64px; padding: 10px 12px; }
+  .vet-clock { font-size: 22px; }
+  .vet-qtext { font-size: 17px; }
+  .vet-actions .btn-lg { flex: 1 1 100%; }
+  .vet-keys { display: none; }
+}
+
+/* result */
+.vet-result { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+.vet-topics { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 12px 20px; }
+.vet-toggle { display: flex; align-items: flex-start; gap: 12px; min-height: 44px; padding: 10px 0; font-size: 14.5px; cursor: pointer; }
+.vet-toggle input { width: 22px; height: 22px; margin: 0; flex: none; accent-color: var(--accent); }
+
+/* the practical task */
+.vet-task { gap: 14px; scroll-margin-top: 90px; }
+.vet-brief { margin: 0; font-size: 15.5px; line-height: 1.6; color: var(--text); white-space: pre-line; overflow-wrap: anywhere; }
+.vet-material { margin: 0; padding: 14px 16px; border-radius: 14px; background: #0f1729; color: #e8ecf6; font: 13.5px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; overflow-x: auto; white-space: pre; max-width: 100%; }
+.vet-material:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.vet-text { min-height: 220px; font-size: 16px; line-height: 1.5; }
+.vet-note { margin: 0; padding: 10px 14px; border-radius: 12px; background: #fff7ed; border: 1px solid #fed7aa; color: #7c2d12; font-size: 14.5px; }
+.vet-mic { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.vet-mic .vet-clock { align-items: flex-start; }
+.vet-transcript { min-height: 120px; padding: 14px 16px; border-radius: 14px; border: 1.5px dashed var(--border2); background: #fbfaff; font-size: 16px; line-height: 1.55; color: var(--text); overflow-wrap: anywhere; }
+.vet-sits { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 18px; }
+.vet-sit-q { padding: 0; font-size: 16px; font-weight: 700; line-height: 1.45; color: var(--ink); margin-bottom: 10px; overflow-wrap: anywhere; }
+.vet-photo { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.vet-photo img { width: 160px; max-width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--border); }
+.vet-file { position: relative; align-self: flex-start; min-height: 48px; cursor: pointer; }
+.vet-file:has(input:focus-visible) { outline: 3px solid var(--accent); outline-offset: 2px; }
+

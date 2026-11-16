@@ -65,7 +65,7 @@ function Role({ r, i }) {
       </div>
       <div className="ml-actions">
         <Link className="btn btn-signal" to={`/me/learn?role=${encodeURIComponent(r.id)}`} data-testid="rf-learn">Start learning path</Link>
-        {r.test && <Link className="btn btn-outline" to="/me/skill-checks">Skill check: {r.test}</Link>}
+        {r.test && <Link className="btn btn-outline" to={`/me/skill-checks?skill=${encodeURIComponent(r.test)}`}>Skill check: {r.test}</Link>}
       </div>
     </li>
   );

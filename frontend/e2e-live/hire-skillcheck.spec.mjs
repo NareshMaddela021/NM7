@@ -1,66 +1,92 @@
-// Phase 5 H3 skill checks, on a desktop and a 390 px phone, against the real API: a candidate takes a 10-minute SQL
-// check (10 questions, a timer, leaving the tab is counted), answers one spoken question by typing, sees the score and
-// clarity feedback, shares it, and can't start the same check again for 30 days; Admin adds a question to the bank.
-// No browser dialogs, no sideways scrolling.
+// Vetting V2 skill checks, on a desktop and a 390 px phone, against the real API: a candidate reads what the test
+// checks and ticks "I understand", starts the SQL check for an experience band, answers all 18 questions one at a
+// time (a tap or a number key, then Next), survives a reload mid-test, sends the answers and sees a score out of 100
+// with topic bars; the same check can't start again for 30 days. A second candidate whose result the server couldn't
+// confirm (signals sent through the API, as backend/tests/test_vetting.py does) sees the polite free-retest message,
+// never any blame. No browser dialogs, no sideways scrolling.
 import { expect, test } from '@playwright/test';
-import { PASSWORD, adminLogin, email, login, seed } from './helpers.mjs';
+import { PASSWORD, email, login, seed } from './helpers.mjs';
 import { SIZES, call, json, noSideScroll } from './college.mjs';
 
 for (const [label, opts] of SIZES) {
   test.describe(label, () => {
     test.use(opts);
 
-    test('take a skill check, see the score, share it; admin adds a question', async ({ page, browser }) => {
-      test.setTimeout(150_000);
+    test('consent, start for a band, answer all, see the score and topics', async ({ page }) => {
+      test.setTimeout(240_000);
       page.on('dialog', () => { throw new Error('no browser dialogs'); });
       const mail = email(`sk-${label}`);
       seed('customer', mail, 'Asha Rao', PASSWORD);
       await login(page, mail);
       await expect(page).toHaveURL(/\/me/);
       await page.goto('/me/skill-checks');
-      await expect(page.getByTestId('sk-list')).toContainText('Electrical');
-      // 13 Nov live test: the ten new tests are listed (a long list still fits a 390 px phone)
-      for (const s of ['Java', 'Web basics', 'Software testing', 'Spoken English', 'Nursing basics', 'Mechanical basics', 'Delivery and logistics', 'Tally and GST', 'Data entry', 'Retail']) await expect(page.getByTestId('sk-list')).toContainText(s);
+      const list = page.getByTestId('sk-list');
+      for (const s of ['Electrical', 'Java', 'Web basics', 'Spoken English', 'Nursing basics', 'Delivery and logistics', 'Tally and GST', 'Retail']) await expect(list).toContainText(s);
       expect(await noSideScroll(page)).toBe(true);
-      await page.getByTestId('sk-start-SQL').click();
-      await expect(page.getByTestId('sk-q')).toHaveCount(10);
-      await expect(page.getByTestId('sk-timer')).toContainText(/^(10:00|9:5\d) left/);
-      for (const q of await page.getByTestId('sk-q').all()) await q.getByRole('radio').first().check();
-      await expect(page.getByTestId('sk-timer')).toContainText('10 of 10 answered');
-      // leaving the tab is counted
-      await page.evaluate(() => { Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true }); document.dispatchEvent(new Event('visibilitychange')); Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true }); });
-      await expect(page.getByTestId('sk-timer')).toContainText('left the tab 1×');
-      await page.getByText('Optional: 3 spoken answers').click();
-      await page.getByTestId('sk-spoken-0').fill('I used SQL in my final year project. I wrote joins for a sales report and it cut the time by 2 hours.');
+      // the consent card, in plain words
+      const consent = page.getByTestId('vt-consent');
+      await expect(consent).toContainText('No camera');
+      await expect(consent).toContainText('No audio is stored');
+      await consent.getByTestId('vt-consent-tick').check();
+      await consent.getByTestId('vt-consent-go').click();
+      await expect(consent).toBeHidden();
+      // search, then start for an experience band
+      await page.getByTestId('vt-search').fill('data analyst');
+      await list.getByTestId('sk-start-SQL').click();
+      const dlg = page.getByTestId('vt-start');
+      await dlg.getByText('1–3 years').click();
+      await expect(dlg.getByTestId('vt-band-1-3')).toBeChecked();
+      await dlg.getByTestId('vt-go').click();
+      await expect(page.getByTestId('vt-q')).toBeVisible();
+      await expect(page.getByTestId('vt-time')).toContainText(/1[45]:\d\d/);
+      await expect(page.getByTestId('vt-qtime')).toContainText(/\d:\d\d/);
       expect(await noSideScroll(page)).toBe(true);
-      await page.getByTestId('sk-submit').click();
-      const res = page.getByTestId('sk-result');
-      await expect(res.getByTestId('sk-score')).toContainText(/\d+% · \d+ of 10 right/);
-      await expect(res).toContainText('left the tab 1×');
-      await expect(res).toContainText('I used SQL in my final year project');
-      await res.getByTestId('sk-share').click(); // saved first, then ticked
-      await expect(res.getByTestId('sk-share')).toBeChecked();
+      // a reload carries on with the same paper and the answer already given
+      await page.getByTestId('vt-opt').first().click();
+      await expect(page.getByTestId('vt-save')).toHaveText('Saved');
+      await page.reload();
+      await expect(page.getByTestId('vt-q')).toBeVisible();
+      await expect(page.getByTestId('vt-runner')).toContainText('1 of 18 answered');
+      for (let i = 0; i < 18; i += 1) {
+        if (!(await page.getByTestId('vt-q').isVisible())) break;
+        await page.keyboard.press(String((i % 4) + 1)); // number keys pick an answer
+        await page.getByTestId('vt-next').click();
+      }
+      await expect(page.getByTestId('vt-end')).toContainText('18 of 18 answered');
+      await page.getByTestId('vt-submit').click();
+      const res = page.getByTestId('vt-result');
+      await expect(res).toBeVisible();
+      await expect(res.getByTestId('vt-ring')).toHaveAttribute('aria-label', /Data analyst score: \d+ out of 100/);
+      await expect(res.getByTestId('vt-pass')).toContainText(/\d+\/100/);
+      expect(await res.getByTestId('vt-topic').count()).toBeGreaterThan(1);
+      await expect(res).toContainText('1–3 years');
+      await expect(res.getByTestId('vt-again')).toContainText('Next try from');
+      expect(await noSideScroll(page)).toBe(true);
       const again = await call(page, '/api/me/skill-checks/start', json('POST', { skill: 'SQL' }));
       expect(again.status).toBe(409); // once in 30 days
-      expect(await noSideScroll(page)).toBe(true);
+    });
 
-      // Admin → Skill tests
-      const owner = `sk-owner-${label}-${Date.now().toString(36)}@nm7.si`;
-      const { secret } = seed('admin', owner, 'owner', PASSWORD);
-      const admin = await (await browser.newContext(opts)).newPage();
-      admin.on('dialog', () => { throw new Error('no browser dialogs'); });
-      await adminLogin(admin, owner, secret);
-      await expect(admin).not.toHaveURL(/\/login/);
-      await admin.goto('/admin/skill-tests');
-      await expect(admin.getByTestId('st-skills')).toContainText('Warehouse');
-      await admin.getByTestId('st-new').click();
-      const q = `Which document comes with goods sent to a store? ${label}`;
-      await admin.getByTestId('st-skill').fill('Delivery');
-      await admin.getByTestId('st-question').fill(q);
-      for (const [i, o] of ['A delivery challan', 'A school report', 'A movie ticket', 'A recipe'].entries()) await admin.getByTestId(`st-opt-${i}`).fill(o);
-      await admin.getByTestId('st-save').click();
-      await expect(admin.getByTestId('st-row').filter({ hasText: q })).toContainText('✔ A delivery challan');
-      expect(await noSideScroll(admin)).toBe(true);
+    test('a result we could not confirm offers a polite free retest', async ({ page }) => {
+      test.setTimeout(120_000);
+      page.on('dialog', () => { throw new Error('no browser dialogs'); });
+      const mail = email(`skr-${label}`);
+      seed('customer', mail, 'Meena S', PASSWORD);
+      await login(page, mail);
+      await expect(page).toHaveURL(/\/me/);
+      expect((await call(page, '/api/me/skill-checks/consent', json('POST', {}))).status).toBe(200);
+      const p = (await call(page, '/api/me/skill-checks/start', json('POST', { skill: 'Excel' }))).body;
+      const answers = Object.fromEntries(p.questions.map((q) => [q.id, 0]));
+      const times = Object.fromEntries(p.questions.map((q) => [q.id, 300])); // faster than anyone can read
+      const signals = { blurs: 12, blurMs: 200_000, devtools: 1 };
+      const r = (await call(page, `/api/me/skill-checks/${p.id}/submit`, json('POST', { answers, times, signals }))).body;
+      expect(r.retest).toBe(true);
+      await page.goto(`/me/skill-checks/${p.id}`);
+      const box = page.getByTestId('vt-retest');
+      await expect(box).toContainText('We couldn’t confirm this result — please take a free retest under quieter conditions. This doesn’t mean anything is wrong.');
+      await expect(page.getByTestId('vt-result')).not.toContainText(/cheat/i);
+      await box.getByTestId('vt-retest-start').click();
+      await expect(page.getByTestId('vt-start')).toBeVisible(); // the start dialog for the free retest
+      expect(await noSideScroll(page)).toBe(true);
     });
   });
 }

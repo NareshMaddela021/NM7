@@ -102,7 +102,7 @@ export const SECTIONS = [
     journey: [
       { step: 'Discover', text: 'Ten simple questions suggest three roles that fit you.', to: '/me/roles', shape: 'magnifier' },
       { step: 'Learn', text: 'Free courses and a small project for each role.', to: '/me/learn', shape: 'magnifier' },
-      { step: 'Prove', text: 'A 10-minute skill check. Pass it to get “Skill verified”.', to: '/me/skill-checks', shape: 'badge' },
+      { step: 'Prove', text: 'A 15-minute skill check and a short task. Pass both to get “Skill verified”.', to: '/me/skill-checks', shape: 'badge' },
       { step: 'Resume', text: 'An ATS-safe resume from photos, your own words or an old file.', to: '/builder', shape: 'resume' },
       { step: 'Apply', text: 'Real jobs from 0 to 15+ years, filtered by city and experience.', to: '/jobs', shape: 'briefcase' },
       { step: 'Interview', text: 'Practice questions from your own resume, with feedback.', to: '/me/practice', shape: 'resume' },

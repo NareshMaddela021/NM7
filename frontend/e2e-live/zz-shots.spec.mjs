@@ -22,7 +22,13 @@ const PEOPLE = [
     ['feedback', '/me/feedback'], ['certificates', '/me/certificates'],
     // screens behind a click: the Compare offers tab, and a skill check being taken (last: it starts a timed test)
     ['offer-compare', '/me/offer-check', (pg) => pg.getByTestId('oc-tab-compare').click()],
-    ['skill-test', '/me/skill-checks', (pg) => pg.locator('[data-testid^="sk-start-"]').first().click()],
+    ['skill-test', '/me/skill-checks', async (pg) => {
+      const consent = pg.getByTestId('vt-consent');
+      if (await consent.isVisible()) { await consent.getByTestId('vt-consent-tick').check(); await consent.getByTestId('vt-consent-go').click(); }
+      await pg.getByTestId('sk-list').locator('[data-testid^="sk-start-"]').first().click();
+      await pg.getByTestId('vt-go').click();
+      await pg.getByTestId('vt-q').waitFor();
+    }],
   ]],
   ['arjun', '/api/admin/seek/demo', { who: 'arjun' }, [['progress', '/me/progress']]],
   ['ravi', '/api/admin/simple/demo', undefined, [['simple', '/me/simple']]],
