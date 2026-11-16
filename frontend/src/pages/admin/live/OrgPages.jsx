@@ -5,7 +5,7 @@
 //   the coordinator portal (/org/:orgId, pages/org/Portal.jsx) — ctx.base '/api/org/<id>', one organization.
 // The server decides what each person may see and do (app/orgs/scope.py); the screens only hide what they can't use.
 import { TransferOwnership } from '../../org/Transfer';
-import { Chip, Empty, MeCard, Stat } from '../../me/kit';
+import { Bar, Chip, Empty, MeCard, Stat } from '../../me/kit';
 import '../../../styles/me-kit.css';
 import '../../../styles/admin-orgs.css';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -36,8 +36,6 @@ import Placement from '../../org/Placement';
 import SharedCerts from '../../../components/SharedCerts';
 import { openCertFile } from '../../../lib/certs';
 import { liveParams } from '../../../lib/liveParams';
-import { Bar, Chip, Empty } from '../../me/kit';
-import '../../../styles/me-kit.css';
 import '../../../styles/org-groups.css';
 
 export const ORG_TYPES = [
