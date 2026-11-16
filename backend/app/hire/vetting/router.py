@@ -119,7 +119,11 @@ def result_out(a: dict[str, Any], v: dict[str, Any] | None = None, t: datetime |
         "task": task_out(a, a.get("lang", "en")) if a.get("v") == 2 else None,
         "verified": verified_out(v, t), "share": bool(a.get("share")), "tabSwitches": int(a.get("tab_switches") or 0),
         "againAt": ms(a["started_at"] + E.RETAKE), "canRetry": a["started_at"] + E.RETAKE <= t,
-        "strict": bool(a.get("strict")),
+        "strict": bool(a.get("strict")), "kind": a.get("kind", "full"),
+        "integrityNote": ("We couldn't confirm this result, so a free retest is offered. This doesn't mean anything is wrong."
+                          if integ == "retest" else "Nothing unusual was noticed." if done else None),
+        "improve": [{"topic": k, "score": v, "learn": f"/me/learn?skill={k}", "practice": "/me/practice"}
+                    for k, v in sorted(topics.items(), key=lambda kv: kv[1])[:3] if v < 75] if done else [],
     }  # fmt: skip
 
 
@@ -135,7 +139,10 @@ async def demand(db) -> dict[str, int]:
     t = now()
     if _DEMAND["at"] and t - _DEMAND["at"] < timedelta(hours=1):
         return _DEMAND["counts"]
-    titles = [j.get("title", "") async for j in db[JOBS].find({"status": "active", "demo": {"$ne": True}}, {"title": 1}).limit(5000)]
+    titles = [
+        j.get("title", "")
+        async for j in db[JOBS].find({"status": "active", "demo": {"$ne": True}}, {"title": 1}).limit(5000)
+    ]
     counts = {}
     for r in ROLES:
         words = [
@@ -228,6 +235,9 @@ class StartIn(CamelModel):
     band: Literal["fresher", "1-3", "3-5", "5-8", "8+"] = "fresher"
     lang: Literal["en", "te", "hi"] = "en"
     extra_time: bool = False
+    refresh: bool = (
+        False  # V5: the 8-question refresher that renews a badge (day 75 on, or up to 30 days after it ended)
+    )
 
 
 def paper_out(a: dict[str, Any], picked: list[dict[str, Any]], t: datetime) -> dict[str, Any]:
@@ -272,7 +282,20 @@ async def start(body: StartIn, auth: CustomerAuth, db: DB) -> dict[str, Any]:
         await _finish(db, last, last.get("answers") or {}, last.get("times") or {}, {}, t, expired=True)
         last = await db[SKILL_ATTEMPTS].find_one({"_id": last["_id"]})
     free = bool(last and last.get("retest_offered") and not last.get("retest_used"))
-    if last and not E.can_start(last["started_at"], t, free):
+    badge = await db[VETTING_VERIFIED].find_one({"user_id": uid, "test": body.skill}) if body.refresh else None
+    if body.refresh:
+        if (
+            not badge
+            or badge.get("held")
+            or badge["at"] > t - timedelta(days=75)
+            or badge["expires_at"] < t - timedelta(days=30)
+        ):
+            raise ApiError(
+                409,
+                "no_refresh",
+                "The refresher opens 75 days after you got the badge (and up to 30 days after it ends).",
+            )
+    elif last and not E.can_start(last["started_at"], t, free):
         again = last["started_at"] + E.RETAKE
         raise ApiError(409, "too_soon", f"You can take the {body.skill} check again from {again:%d %b}.",
                        extra={"againAt": ms(again)})  # fmt: skip
@@ -281,10 +304,12 @@ async def start(body: StartIn, auth: CustomerAuth, db: DB) -> dict[str, Any]:
         raise ApiError(404, "no_test", "There is no test for this skill yet.")
     rng = random.SystemRandom()
     avoid = set(last["question_ids"]) if free else set()
-    picked = E.build_paper(pool, body.band, avoid=avoid, rng=rng)
+    band = badge["band"] if badge else body.band
+    picked = E.build_paper(pool, band, n=8 if badge else E.QUESTIONS, avoid=avoid, rng=rng)
     total = E.total_seconds(picked, body.extra_time) * 1000
     a = {
-        "_id": ObjectId(), "v": 2, "user_id": uid, "skill": body.skill, "slug": role["slug"], "band": body.band,
+        "_id": ObjectId(), "v": 2, "user_id": uid, "skill": body.skill, "slug": role["slug"], "band": band,
+        "kind": "refresh" if badge else "full",
         "lang": lang, "extra_time": body.extra_time, "strict": free, "question_ids": [q["_id"] for q in picked],
         "order": {str(q["_id"]): E.option_order(q, rng) for q in picked}, "started_at": t, "last_seen": t,
         "ends_at": t + timedelta(milliseconds=total) + E.RESUME_WITHIN, "total_ms": total, "remaining_ms": total,
@@ -438,6 +463,10 @@ async def _finish(db, a: dict[str, Any], answers: dict[str, int], times: dict[st
 
     await on_skill_check(db, a["user_id"], a["skill"])
     done = {**a, **sets}
+    if a.get("kind") == "refresh":  # V5: a passed refresher renews the badge for 90 days
+        from app.hire.vetting.trust import renew
+
+        await renew(db, done)
     return result_out(done, await db[VETTING_VERIFIED].find_one({"user_id": a["user_id"], "test": a["skill"]}), t)
 
 
