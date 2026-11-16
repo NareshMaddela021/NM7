@@ -27,6 +27,7 @@ from app.hire.vetting import interview as vetting_interview
 from app.hire.vetting import jobs as vetting_jobs
 from app.hire.vetting import ladder as vetting_ladder
 from app.hire.vetting import trust as vetting_trust
+from app.hire.vetting import verify as vetting_verify
 from app.jobs import linkcheck as job_links
 from app.jobs.alerts import send_alerts as job_alerts
 from app.jobs.apply import followups as job_followups
@@ -162,6 +163,7 @@ async def run_rules(db: AsyncDatabase, mailer: Mailer | None = None) -> dict[str
         done["interview_bias_alerts"] = await vetting_interview.weekly_if_due(db)  # V3: 5% re-graded weekly
         trust = await vetting_trust.daily_if_due(db, mailer or get_mailer())  # V5: fraud scan, re-verify, retention
         done.update({f"trust_{k}": v for k, v in trust.items()})
+        done["l4_overdue"] = await vetting_verify.overdue_report(db, mailer or get_mailer())  # V4: past the 24 h SLA
         await save_site(db, {"rule_runs": runs})
         return done
     finally:

@@ -265,7 +265,7 @@ async def candidates(
         u["_id"]: u
         async for u in db[USERS].find(
             {"_id": {"$in": uids}, "deleted_at": None, "disabled_at": None},
-            {"name": 1, "demo": 1, "verified_skills": 1, "vetting": 1},
+            {"name": 1, "demo": 1, "verified_skills": 1, "vetting": 1, "vetting_l4_until": 1, "vetting_l4_line": 1},
         )
     }
     invites = {i["user_id"]: i async for i in db[HIRE_INVITES].find({"company_id": c["_id"], "job_id": job["_id"]})}
@@ -313,6 +313,7 @@ async def candidates(
         sf = salary_fit(p.get("salary"), job.get("salary"))
         same = where != "remote"
         conf_days = (t - p["confirmed_at"]).days if p.get("confirmed_at") else None
+        from app.companies.applicants import l4_of
         from app.hire.vetting import engine as V
         from app.hire.vetting import levels as LV
 
@@ -334,6 +335,7 @@ async def candidates(
                 "salary": sf,
                 "level": {"level": lvl, "label": LV.LEVELS[lvl]},  # V1
                 "readyNow": ready,  # V1: ⚡ confirmed within 7 days
+                "l4": l4_of(u),  # V4: "Nm7 verified" and the reference line
                 "band": V.band_for_years(m.get("years")),
                 "readiness": rd,  # V1: 0–100 with its parts
                 "reasons": LV.reasons(
@@ -358,7 +360,7 @@ async def candidates(
         )
     if not vetting:  # hidden from this company (Admin → Skill checks → Launch): Hire now exactly as before
         for r in rows:
-            for k in ("level", "readyNow", "band", "readiness", "reasons"):
+            for k in ("level", "readyNow", "band", "readiness", "reasons", "l4"):
                 r.pop(k, None)
     rows.sort(key=rank_key if vetting else rank_key_classic)
     return rows

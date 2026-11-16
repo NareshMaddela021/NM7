@@ -69,6 +69,7 @@ from app.hire.vetting import jobs as vetting_jobs
 from app.hire.vetting import ladder as vetting_ladder
 from app.hire.vetting import router as vetting_router
 from app.hire.vetting import trust as vetting_trust
+from app.hire.vetting import verify as vetting_verify
 from app.jobs import admin as jobs_admin
 from app.jobs import alerts as jobs_alerts
 from app.jobs import apply as jobs_apply
@@ -325,6 +326,12 @@ def create_app() -> FastAPI:
     app.include_router(vetting_interview.admin)  # /api/admin/vetting/interviews
     app.include_router(vetting_trust.me)  # /api/me/appeals, /api/me/data-export (Vetting V5)
     app.include_router(vetting_trust.admin)  # /api/admin/vetting/appeals, /fraud, /fairness (V5)
+    app.include_router(vetting_verify.reviewer_access)  # /api/reviewer/access (the header link, V4)
+    app.include_router(vetting_verify.reviewer)  # /api/reviewer (Vetting V4: reviewers, expert accounts)
+    app.include_router(vetting_verify.company)  # /api/company/{cid}/hire/l4/{uid}
+    app.include_router(vetting_verify.me)  # /api/me/verification
+    app.include_router(vetting_verify.public)  # /api/public/reference/{token}
+    app.include_router(vetting_verify.admin)  # /api/admin/vetting/l4
     app.include_router(vetting_ladder.me)  # /api/me/level (Vetting V1: my level, ⚡, what to do next)
     app.include_router(vetting_ladder.admin)  # /api/admin/vetting/overview (V1)
     app.include_router(hire_skillcheck.admin)  # /api/admin/skill-tests (the question bank, H3)

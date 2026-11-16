@@ -132,6 +132,8 @@ VETTING_DEMAND = "vetting_demand"  # Vetting V1: the hourly demand watch (live j
 VETTING_LEVEL_LOG = "vetting_level_log"  # Vetting V1: every change of a person's level or ⚡ (what changed it, when)
 VETTING_SHORTLISTS = "vetting_shortlists"  # Vetting V1: cached top 20 per hot role × city (rebuilt hourly)
 VETTING_INTERVIEWS = "vetting_interviews"  # Vetting V3: AI screening interviews (transcripts deleted after 180 days)
+VETTING_L4 = "vetting_l4"  # Vetting V4: Nm7 human check requests, results and references
+VETTING_REVIEWERS = "vetting_reviewers"  # Vetting V4: the reviewer network (roles, slots, calibration, quality)
 VETTING_PHOTOS = "vetting_photos"  # Vetting V2: optional photos of past work (proof tasks), deleted after 30 days
 LEARN_PATHS = "learn_paths"  # Phase 6 S2, _id = role id: courses → project → skill check (Admin → Learning paths)
 OFFER_CHECKS = (
@@ -233,6 +235,8 @@ COLLECTIONS = (
     VETTING_VERIFIED,
     VETTING_QUEUE,
     VETTING_PHOTOS,
+    VETTING_L4,
+    VETTING_REVIEWERS,
     VETTING_INTERVIEWS,
     VETTING_DEMAND,
     VETTING_LEVEL_LOG,
@@ -373,6 +377,12 @@ INDEXES: dict[str, list[IndexModel]] = {
     VETTING_QUEUE: [IndexModel([("kind", ASCENDING), ("status", ASCENDING), ("created_at", DESCENDING)])],
     VETTING_PHOTOS: [IndexModel("delete_at", expireAfterSeconds=0), IndexModel("attempt_id")],
     VETTING_LEVEL_LOG: [IndexModel([("user_id", ASCENDING), ("at", DESCENDING)])],
+    VETTING_L4: [
+        IndexModel([("user_id", ASCENDING), ("requested_at", DESCENDING)]),
+        IndexModel("referees.rid"),
+        IndexModel("referees.keys"),
+        IndexModel([("status", ASCENDING), ("due_at", ASCENDING)]),
+    ],
     VETTING_INTERVIEWS: [
         IndexModel([("user_id", ASCENDING), ("test", ASCENDING), ("started_at", DESCENDING)]),
         IndexModel("delete_at", expireAfterSeconds=0),  # transcripts: 180 days

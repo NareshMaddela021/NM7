@@ -12,6 +12,7 @@
 // reasons and a "Why this score" fold with the parts; filters for the minimum level, ⚡ ready now only, notice period,
 // salary, city and experience band. The order is the server's.
 // Vetting V3: people at L3+ get a "Screening interview" button: the summary in a drawer, with Invite to final interview.
+// Vetting V4: and "Request Nm7 check" (the human check, NmCheck.jsx) with its status; verified people can be rated.
 import { useCallback, useEffect, useState } from 'react';
 import { rq } from '../../lib/company';
 import { reasons } from './CompanyApplicants';
@@ -21,6 +22,7 @@ import HireBulk from './HireBulk';
 import HireSpeed from './HireSpeed';
 import SkillBadge from './SkillBadge';
 import ScreeningInterview from './ScreeningInterview';
+import NmCheck from './NmCheck';
 import { TEST_NAMES } from '../../lib/vettingRoles';
 import { Empty } from '../me/kit';
 import { useLang } from '../../lib/i18n';
@@ -270,6 +272,7 @@ export default function CompanyHire({ t, c }) {
                 </dl>
                 <SkillBadge sv={x.skillVerified} t={t} />
                 <span className="hn-trust" data-testid="co-hire-trust">{x.skillCheck ? t('co.hire.check', { score: x.skillCheck.score }) : t('co.hire.noCheck')} · {x.reliability.score == null ? x.reliability.label : `${x.reliability.label} (${x.reliability.score}%)`}{x.reliability.lines?.length ? `: ${x.reliability.lines.join('; ')}` : ''}</span>
+                <NmCheck c={c} uid={x.key} name={x.name} level={x.level?.level} row={x} canRequest={canInvite} />
                 <div className="hn-person-foot">
                   <ScreeningInterview c={c} uid={x.key} name={x.name} level={x.level?.level} job={job} canInvite={canInvite && !x.applied} invited={!!x.invite} onInvited={load} />
                   {x.invite ? <span className={`mchip ${CHIP[x.invite.status]}`} data-testid="co-hire-state">{t(`co.hire.state.${x.invite.status}`)}</span>

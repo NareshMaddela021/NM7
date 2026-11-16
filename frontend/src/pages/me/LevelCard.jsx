@@ -18,7 +18,7 @@ const STEP_LINKS = [
   [/Ready to join/i, '/me/hire', 'Ready to join'],
   [/skill check/i, '/me/skill-checks', 'Skill checks'],
   [/AI screening/i, '/me/interviews', 'Screening interview'],
-  [/human check/i, null, 'Coming soon'],
+  [/human check/i, '/me/verification', 'Nm7 human check'],
 ];
 export const stepLink = (s) => { const m = STEP_LINKS.find(([re]) => re.test(s)); return m ? { to: m[1], cta: m[2] } : { to: null, cta: '' }; };
 
