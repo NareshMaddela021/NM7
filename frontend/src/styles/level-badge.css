@@ -1,0 +1,49 @@
+/* Vetting V1: the level chip and the ⚡ Ready now chip (src/components/LevelBadge.jsx). One calm colour per level;
+   text on each tint is at least 4.5:1. The four dots show how far up the ladder the person is (decoration: the
+   words say the same). */
+.lvb-row { display: inline-flex; flex-wrap: wrap; gap: 6px; align-items: center; min-width: 0; }
+.lvb { display: inline-flex; align-items: center; gap: 7px; padding: 4px 11px; border-radius: 999px; font-size: 12.5px; font-weight: 750;
+  line-height: 1.35; border: 1px solid transparent; max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+.lvb-dots { display: inline-flex; gap: 2px; flex: none; }
+.lvb-dots i { width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: .22; }
+.lvb-dots i.on { opacity: 1; }
+.lvb-0 { background: #f1f3f7; color: #3f4a5a; border-color: #d9dee7; }
+.lvb-1 { background: #e6f4f7; color: #0d5566; border-color: #bfe2ea; }
+.lvb-2 { background: #e7f6ec; color: #166534; border-color: #c6e8d2; }
+.lvb-3 { background: #ecedfd; color: #3730a3; border-color: #d3d6fa; }
+.lvb-4 { background: #fbf1df; color: #7c4405; border-color: #efd7ad; }
+.lvb-ready { background: #fff6d1; color: #6b4500; border-color: #f0dc8f; }
+
+/* the candidate's ladder card (src/pages/me/LevelCard.jsx) */
+.lvl-card .mcard-h { flex-wrap: wrap; }
+.lvl-card-badge { margin-left: auto; }
+.lvl-ladder { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; counter-reset: none; }
+.lvl-ladder li { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; min-width: 0; }
+.lvl-ladder li + li::before { content: ''; position: absolute; top: 17px; right: calc(50% + 20px); width: calc(100% - 34px); height: 3px; border-radius: 3px; background: #e4e1ee; }
+.lvl-ladder li.done + li::before { background: #7c6be6; }
+.lvl-rung { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; font-weight: 800; color: #5b5675; background: #f3f2f8; border: 2px solid #e4e1ee; }
+.lvl-ladder .done .lvl-rung { color: #fff; background: #5b4bd6; border-color: #5b4bd6; }
+.lvl-ladder .now .lvl-rung { color: #3b2fb8; background: #efeaff; border-color: #5b4bd6; box-shadow: 0 0 0 4px rgba(91, 75, 214, .15); }
+.lvl-rung-l { font-size: 12px; font-weight: 700; line-height: 1.25; color: var(--text2); overflow-wrap: anywhere; }
+.lvl-ladder .now .lvl-rung-l { color: var(--ink); }
+.lvl-next-h { font-size: 15px; color: var(--ink); }
+.lvl-next { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.lvl-step { display: flex; align-items: center; justify-content: space-between; gap: 6px 12px; flex-wrap: wrap; min-height: 44px; padding: 10px 14px;
+  border-radius: 14px; border: 1px solid #e3ddfb; background: #faf9ff; color: var(--ink) !important; text-decoration: none; font-size: 14.5px; }
+a.lvl-step:hover, a.lvl-step:focus-visible { border-color: #b7a9f5; background: #f3efff; }
+.lvl-step-t { font-weight: 650; min-width: 0; overflow-wrap: anywhere; }
+.lvl-step-cta { font-size: 13px; font-weight: 800; color: #4338ca; white-space: nowrap; }
+.lvl-step-off { background: #f7f7fa; border-style: dashed; }
+.lvl-step-off .lvl-step-cta { color: #5b5675; }
+.lvl-ready { display: flex; align-items: center; justify-content: space-between; gap: 10px 16px; flex-wrap: wrap; padding: 12px 14px; border-radius: 14px;
+  background: #f6f5fb; border: 1px solid #e4e1ee; }
+.lvl-ready.on { background: #fff8db; border-color: #f0dc8f; color: #4d3300; }
+.lvl-confirm { min-height: 44px; }
+.lvl-msg, .lvl-top { margin: 0; }
+@media (max-width: 560px) { .lvl-card-badge { margin-left: 52px; flex-basis: 100%; } }
+@media (max-width: 480px) {
+  .lvl-rung { width: 30px; height: 30px; font-size: 11.5px; }
+  .lvl-ladder li + li::before { top: 14px; right: calc(50% + 17px); width: calc(100% - 28px); }
+  .lvl-rung-l { font-size: 10.5px; }
+  .lvl-confirm { width: 100%; }
+}

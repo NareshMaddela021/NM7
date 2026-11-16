@@ -3,7 +3,7 @@
 // that break the company's rules add a "Not a fit" label with the reasons: the person is never hidden or deleted.
 // Contact details show once shortlisted. Stages (the student sees each one), compare up to 3 side by side, schedule an
 // interview (the student gets a calendar file), the talent pool, the resume they applied with. No pop-up dialogs.
-// English, Telugu and Hindi (co.ap.*).
+// English, Telugu and Hindi (co.ap.*). Vetting V1: the level chip and ⚡ Ready now on each card and in the profile.
 import { useCallback, useEffect, useState } from 'react';
 import { rq } from '../../lib/company';
 import { matchReasons } from '../../lib/jobBoard';
@@ -16,6 +16,16 @@ import '../../styles/company-jobs.css';
 
 import ApplicantFeedback from './ApplicantFeedback';
 import SkillBadge from './SkillBadge';
+import LevelBadge from '../../components/LevelBadge';
+import { lt } from '../../components/levelStrings';
+import { useLang } from '../../lib/i18n';
+
+/** The level chip and ⚡ for an applicant row (`level` is null for people without a level yet). */
+function ApLevel({ lv }) {
+  const [, lang] = useLang();
+  if (!lv) return null;
+  return <LevelBadge level={lv.level} label={lv.label} readyNow={lv.readyNow} lang={lang} className="ca-level" />;
+}
 
 const STAGES = ['viewed', 'shortlisted', 'interview', 'offer', 'rejected'];
 const TONE = { applied: 'neutral', viewed: 'neutral', shortlisted: 'info', interview: 'accent', offer: 'ok', rejected: 'bad', no_reply: 'neutral' };
@@ -102,6 +112,8 @@ export default function CompanyApplicants({ t, c }) {
 
 /** The board: one column per stage (stacked on a phone); a card opens the person's profile. */
 function Board({ t, items, onProfile }) {
+  const [, lang] = useLang();
+  const lv = lt(lang);
   const cols = BOARD.filter((st) => items.some((a) => a.status === st) || ['viewed', 'shortlisted', 'interview', 'offer'].includes(st));
   return (
     <div className="ca-board" style={{ '--cols': cols.length }}>
@@ -115,7 +127,7 @@ function Board({ t, items, onProfile }) {
                 <li key={a.id}>
                   <button type="button" className="ca-mini" onClick={() => onProfile(a.id)}>
                     <span className="mavatar ca-av-sm" aria-hidden="true">{initial(a.name)}</span>
-                    <span className="ca-mini-main"><strong>{a.name}</strong><span className="xs muted">{a.job}</span></span>
+                    <span className="ca-mini-main"><strong>{a.name}</strong><span className="xs muted">{a.job}</span>{a.level && <span className="xs ca-mini-lv" data-testid="co-ap-mini-level">L{a.level.level} · {lv(`lv.${a.level.level}`)}{a.level.readyNow ? <> · <span aria-hidden="true">⚡</span>{lv('lv.ready')}</> : ''}</span>}</span>
                     {a.match && <span className="ca-mini-score">{a.match.score}</span>}
                   </button>
                 </li>
@@ -143,6 +155,7 @@ function Profile({ t, a, rank, onClose }) {
             <span className="ca-chips"><Chip tone={TONE[a.status] || 'neutral'}>{t(`jobs.app.${a.status}`)}</Chip><Chip tone={a.origin === 'auto' ? 'accent' : 'neutral'}>{t(`aa.badge.${a.origin === 'auto' ? 'auto' : 'manual'}`)}</Chip>{a.pooled && <Chip tone="info">{t('co.ap.inPool')}</Chip>}</span>
           </div>
         </div>
+        <ApLevel lv={a.level} />
         <SkillBadge sv={a.skillVerified} t={t} />
         <ul className="ca-reasons">{reasons(a.match, t).map((r) => <li key={r}>{r}</li>)}</ul>
         {a.match?.found.length > 0 && <div className="stack g4"><span className="mkicker">{t('co.ap.cFound')}</span><span className="ca-skills">{a.match.found.map((x) => <span key={x} className="ca-skill ok">{x}</span>)}</span></div>}
@@ -186,6 +199,7 @@ function Applicant({ t, c, a, rank, can, picked, canPick, onPick, open, onOpen, 
           <Chip tone={TONE[a.status] || 'neutral'} testid="co-ap-stage">{t(`jobs.app.${a.status}`)}</Chip>
         </div>
       </div>
+      <ApLevel lv={a.level} />
       <p className="ca-why">{reasons(a.match, t).join(' · ')}</p>
       {(a.match?.found.length > 0 || a.match?.missing.length > 0) && (
         <div className="ca-skillrow">

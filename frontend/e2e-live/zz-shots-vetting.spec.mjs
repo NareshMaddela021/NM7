@@ -74,7 +74,7 @@ for (const [size, opts] of SIZES) {
     for (let i = 0; i < 5 && r.status === 401; i += 1) { await admin.waitForTimeout(2000); r = await call(admin, '/api/admin/demo-company/hire/open', json('POST', {})); }
     quiet(() => seed('skill-verified', '@demo', 'Customer support', '1-3', '86', '80'));
     const astep = async (name, fn) => { try { await fn(); } catch (e) { console.log(`${name}: ${e.message.split('\n')[0]}`); } await settle(admin); await snap(admin, name, size); };
-    for (const [name, tab] of [['vet-admin-banks', ''], ['vet-admin-rubrics', '?tab=rubrics'], ['vet-admin-review', '?tab=review'],
+    for (const [name, tab] of [['vet-admin-overview', ''], ['vet-admin-banks', '?tab=banks'], ['vet-admin-rubrics', '?tab=rubrics'], ['vet-admin-review', '?tab=review'],
       ['vet-admin-integrity', '?tab=integrity'], ['vet-admin-stats', '?tab=stats']]) {
       await astep(name, () => admin.goto(`/admin/skill-tests${tab}`));
     }

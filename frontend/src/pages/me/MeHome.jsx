@@ -16,6 +16,7 @@ import JobsForYouCard from './JobsForYouCard';
 import AutoSummaryCard from './AutoSummaryCard';
 import ReadinessCard from './ReadinessCard';
 import { HireCard } from './MeHire';
+import LevelCard from './LevelCard';
 import { http } from '../../services/http';
 
 /** Phase 6 S1: the role finder's top role, or an invitation to take it. */
@@ -161,6 +162,8 @@ export default function MeHome() {
           <Link to="/me/jobs" className="btn btn-signal btn-lg">Track applications</Link>
         </div>
       )}
+
+      <LevelCard />
 
       <HealthCard />
 

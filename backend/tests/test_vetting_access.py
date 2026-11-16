@@ -78,3 +78,27 @@ async def test_invites_only_reach_testers_while_hidden(db):
     assert await access.mail_filter(db) == {"email_lc": {"$in": ["ravi@example.com"]}}
     await save_site(db, {"vetting": {"public": True, "testers": []}})
     assert await access.mail_filter(db) == {}
+
+
+async def test_v1_hidden_hire_now_applicants_level_and_reminder_as_before(client, outbox, db, make_client):
+    from app.core.db import HIRE_PROFILES
+    from app.hire.available import send_reminders
+
+    session, cid = await verified(client, outbox, db)
+    job = await post_job(client, session, cid)
+    c = await student(make_client, outbox, "asha@example.com", "Asha Rao")
+    await c.put("/api/me/hire", json=READY)
+    assert (await c.get("/api/me/level")).status_code == 404
+    out = (
+        await client.get(f"/api/company/{cid}/hire/shortlist", params={"job": job, "minLevel": 4}, headers=H(session))
+    ).json()
+    row = out["items"][0]  # the V1 filter is ignored while hidden
+    assert "level" not in row and "readyNow" not in row and "reasons" not in row
+    u = await db[USERS].find_one({"email": "asha@example.com"})
+    await db[HIRE_PROFILES].update_one({"_id": u["_id"]}, {"$set": {"confirmed_at": now() - timedelta(days=8)}})
+    out = (await client.get(f"/api/company/{cid}/hire/shortlist", params={"job": job}, headers=H(session))).json()
+    assert out["items"] == []  # stale after 7 days, as before (V1 keeps them 21 days)
+    await db[HIRE_PROFILES].update_one(
+        {"_id": u["_id"]}, {"$set": {"confirmed_at": now() - timedelta(days=6, hours=12)}}
+    )
+    assert await send_reminders(db, outbox) == 1 and "Still ready" in outbox.sent[-1].subject  # the old email

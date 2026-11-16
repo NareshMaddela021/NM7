@@ -8,6 +8,9 @@
 // match ring, facts as chips, Invite) with Invite all in a bar that sticks on a phone; interview times and offers.
 // Vetting V2: each card shows the "Skill verified" badge (test, band, score, task stars, month; muted when expired),
 // and the control bar filters by "Skill verified only", the test and a minimum test score.
+// Vetting V1: each card shows the level chip (L0–L4) and ⚡ Ready now, the readiness score (0–100) with its top 3
+// reasons and a "Why this score" fold with the parts; filters for the minimum level, ⚡ ready now only, notice period,
+// salary, city and experience band. The order is the server's.
 import { useCallback, useEffect, useState } from 'react';
 import { rq } from '../../lib/company';
 import { reasons } from './CompanyApplicants';
@@ -18,6 +21,9 @@ import HireSpeed from './HireSpeed';
 import SkillBadge from './SkillBadge';
 import { TEST_NAMES } from '../../lib/vettingRoles';
 import { Empty } from '../me/kit';
+import { useLang } from '../../lib/i18n';
+import LevelBadge from '../../components/LevelBadge';
+import { BANDS, NOTICE, PART_MAX, lt } from '../../components/levelStrings';
 import '../../styles/company-hire.css';
 
 const rupees = (n) => (n == null ? '' : `₹${Math.round(n).toLocaleString('en-IN')}`);
@@ -25,14 +31,50 @@ const day = (s) => (s ? new Date(`${s}T00:00:00`).toLocaleDateString('en-IN', { 
 export const PAGE = 10;
 export const MIN_SCORES = [0, 60, 70, 80, 90];
 
-/** The shortlist's query: job, size, support, and the Vetting V2 filters (verified only, test, minimum score). */
-export function shortlistQuery(job, { support = '', verified = false, role = '', minScore = 0 } = {}) {
+/** The shortlist's query: job, size, support, the Vetting V2 filters (verified only, test, minimum score) and the V1
+ * ones (minimum level, ⚡ ready now only, notice period at most, salary at most, city, experience band). */
+export function shortlistQuery(job, { support = '', verified = false, role = '', minScore = 0, minLevel = 0, readyNow = false,
+  noticeMax = -1, salaryMax = '', city = '', band = '' } = {}) {
   const q = new URLSearchParams({ job, size: '100' });
   if (support) q.set('support', support);
   if (verified) q.set('verified', 'true');
   if (role) q.set('role', role);
   if (Number(minScore) > 0) q.set('minScore', String(minScore));
+  if (Number(minLevel) > 0) q.set('minLevel', String(minLevel));
+  if (readyNow) q.set('readyNow', 'true');
+  if (Number(noticeMax) >= 0 && String(noticeMax) !== '') q.set('noticeMax', String(noticeMax));
+  const sal = Math.round(Number(String(salaryMax).replace(/[^\d]/g, '')));
+  if (sal > 0) q.set('salaryMax', String(sal));
+  if (city.trim()) q.set('city', city.trim());
+  if (BANDS.includes(band)) q.set('band', band);
   return q.toString();
+}
+export const NO_FILTERS = { verified: false, role: '', minScore: 0, minLevel: 0, readyNow: false, noticeMax: -1, salaryMax: '', city: '', band: '' };
+const filtered = (f) => Object.keys(NO_FILTERS).some((k) => String(f[k]) !== String(NO_FILTERS[k]));
+
+/** The readiness score, its top 3 reasons as one line, and a fold listing the parts (out of their weights). */
+export function Readiness({ x, lv }) {
+  if (!x.readiness) return null;
+  const parts = x.readiness.parts || {};
+  return (
+    <div className="hn-ready" data-testid="co-hire-readiness">
+      <p className="hn-ready-line">
+        <span className="mchip mchip-info hn-ready-score">{lv('lv.readiness', { n: x.readiness.score })}</span>
+        {x.reasons?.length > 0 && <span className="hn-ready-why" data-testid="co-hire-reasons">{x.reasons.join(' · ')}</span>}
+      </p>
+      <details className="hn-why">
+        <summary data-testid="co-hire-why">{lv('lv.why')}</summary>
+        <dl className="hn-parts">
+          {Object.keys(PART_MAX).filter((k) => k in parts).map((k) => (
+            <div key={k}>
+              <dt>{lv(`lv.p.${k}`)}</dt>
+              <dd><span className="hn-bar" aria-hidden="true"><i style={{ width: `${Math.round((100 * parts[k]) / PART_MAX[k])}%` }} /></span>{lv('lv.whyOf', { got: parts[k], max: PART_MAX[k] })}</dd>
+            </div>
+          ))}
+        </dl>
+      </details>
+    </div>
+  );
 }
 const CHIP = { sent: 'mchip-info', accepted: 'mchip-ok', declined: 'mchip-bad', expired: 'mchip-neutral' }; // round P: kit chips
 const initial = (n) => (n || '?').trim().charAt(0).toUpperCase();
@@ -65,8 +107,17 @@ export default function CompanyHire({ t, c }) {
   const [msg, setMsg] = useState('');
   const [support, setSupport] = useState(''); // Phase 6 S9: immediate joiners / returning after a break
   const [shown, setShown] = useState(PAGE); // the top 10 first, then "Show more"
-  const [vf, setVf] = useState({ verified: false, role: '', minScore: 0 }); // Vetting V2 filters
+  const [vf, setVf] = useState(NO_FILTERS); // Vetting V2 and V1 filters (the ones the list is loaded with)
+  const [typed, setTyped] = useState({ salaryMax: '', city: '' }); // V1 text filters, applied after a short pause
   const setV = (k) => (e) => setVf((x) => ({ ...x, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
+  const setT = (k) => (e) => setTyped((x) => ({ ...x, [k]: e.target.value }));
+  useEffect(() => {
+    const id = setTimeout(() => setVf((x) => (x.salaryMax === typed.salaryMax && x.city === typed.city ? x : { ...x, ...typed })), 500);
+    return () => clearTimeout(id);
+  }, [typed]);
+  const clear = () => { setVf(NO_FILTERS); setTyped({ salaryMax: '', city: '' }); };
+  const [, lang] = useLang();
+  const lv = lt(lang);
   const verified = c.trust === 'verified';
   const canInvite = ['main', 'full', 'posting'].includes(c.myRole);
   useEffect(() => {
@@ -138,6 +189,37 @@ export default function CompanyHire({ t, c }) {
             </select>
           </label>
         </fieldset>}
+        {d?.vetting && <fieldset className="hn-sv hn-lv" data-testid="co-hire-lv-filters">
+          <legend className="hn-sv-legend">{lv('lv.f.legend')}</legend>
+          <label className="field hn-field"><span className="label">{lv('lv.f.min')}</span>
+            <select className="input" value={vf.minLevel} onChange={setV('minLevel')} data-testid="co-hire-lv-min">
+              <option value={0}>{lv('lv.f.anyLevel')}</option>
+              {[1, 2, 3, 4].map((n) => <option key={n} value={n}>{lv('lv.f.atLeast', { n, label: lv(`lv.${n}`) })}</option>)}
+            </select>
+          </label>
+          <label className="hn-sv-only">
+            <input type="checkbox" checked={vf.readyNow} onChange={setV('readyNow')} data-testid="co-hire-lv-ready" />
+            <span>{lv('lv.f.ready')}</span>
+          </label>
+          <label className="field hn-field"><span className="label">{lv('lv.f.notice')}</span>
+            <select className="input" value={vf.noticeMax} onChange={setV('noticeMax')} data-testid="co-hire-lv-notice">
+              {NOTICE.map((n) => <option key={n} value={n}>{n < 0 ? lv('lv.f.anyNotice') : n === 0 ? lv('lv.f.zero') : lv('lv.f.days', { n })}</option>)}
+            </select>
+          </label>
+          <label className="field hn-field"><span className="label">{lv('lv.f.salary')}</span>
+            <input className="input" inputMode="numeric" maxLength={9} value={typed.salaryMax} onChange={setT('salaryMax')} placeholder={lv('lv.f.salaryPh')} data-testid="co-hire-lv-salary" />
+          </label>
+          <label className="field hn-field"><span className="label">{lv('lv.f.city')}</span>
+            <input className="input" maxLength={60} autoComplete="address-level2" value={typed.city} onChange={setT('city')} placeholder={lv('lv.f.cityPh')} data-testid="co-hire-lv-city" />
+          </label>
+          <label className="field hn-field"><span className="label">{lv('lv.f.band')}</span>
+            <select className="input" value={vf.band} onChange={setV('band')} data-testid="co-hire-lv-band">
+              <option value="">{lv('lv.f.anyBand')}</option>
+              {BANDS.map((b) => <option key={b} value={b}>{lv(`lv.b.${b}`)}</option>)}
+            </select>
+          </label>
+        </fieldset>}
+        {d?.vetting && filtered(vf) && <button type="button" className="btn btn-outline hn-clear" onClick={clear} data-testid="co-hire-lv-clear">{lv('lv.f.clear')}</button>}
         {d?.usage && <span className="mchip mchip-info hn-usage" data-testid="co-hire-usage">{t('co.hire.usage', { used: d.usage.used, free: d.usage.free })}</span>}
       </div>
       <HireSpeed t={t} c={c} />
@@ -151,7 +233,7 @@ export default function CompanyHire({ t, c }) {
       {d && !err && (
         <div className="hn-people">
           <div className="hn-people-head">
-            <p className="hn-count" data-testid="co-hire-count">{d.items.length ? t('co.hire.found', { n: d.available }) : t('co.hire.none')}</p>
+            <p className="hn-count" data-testid="co-hire-count">{d.items.length ? t(d.vetting ? 'co.hire.foundLevel' : 'co.hire.found', { n: d.available }) : t('co.hire.none')}</p>
           </div>
           {canInvite && open.length > 0 && (
             <div className="hn-invitebar">
@@ -161,8 +243,8 @@ export default function CompanyHire({ t, c }) {
           )}
           {msg && <p className="small hn-msg" role="status" data-testid="co-hire-msg">{msg}</p>}
           {!d.items.length && <Empty shape="magnifier" tint="company" compact />}
-          {!d.items.length && (vf.verified || vf.role || Number(vf.minScore) > 0) && (
-            <button type="button" className="btn btn-outline hn-more" onClick={() => setVf({ verified: false, role: '', minScore: 0 })} data-testid="co-hire-sv-clear">{t('co.hire.sv.clear')}</button>
+          {!d.items.length && filtered(vf) && (
+            <button type="button" className="btn btn-outline hn-more" onClick={clear} data-testid="co-hire-sv-clear">{t('co.hire.sv.clear')}</button>
           )}
           <ol className="hn-grid">
             {d.items.slice(0, shown).map((x, i) => (
@@ -176,6 +258,8 @@ export default function CompanyHire({ t, c }) {
                     <span className="mchip mchip-accent" data-testid="co-hire-score">{t('co.hire.score', { score: x.match.score })}</span>
                   </span>
                 </div>
+                {x.level && <LevelBadge level={x.level.level} label={x.level.label} readyNow={x.readyNow} lang={lang} />}
+                <Readiness x={x} lv={lv} />
                 <ul className="hn-chips">{reasons(x.match, t).map((r) => <li key={r} className="mchip mchip-neutral">{r}</li>)}</ul>
                 <dl className="hn-facts">
                   <div><dt aria-hidden="true">📅</dt><dd data-testid="co-hire-when">{whenLine(x.availability, t)}</dd></div>

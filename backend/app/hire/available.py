@@ -97,6 +97,17 @@ def available(p: dict[str, Any] | None, site: dict[str, Any], t=None) -> bool:
     return bool(p.get("confirmed_at")) and p["confirmed_at"] > t - timedelta(days=int(site["hire"]["confirm_days"]))
 
 
+def visible(p: dict[str, Any] | None, t=None) -> bool:
+    """Vetting V1: shown in Hire now at all — on, consent, not paused, confirmed within 21 days. Within 7 days
+    (available) they also get ⚡ "ready now"; after 21 days they are hidden until they tap "Still looking"."""
+    from app.hire.vetting.levels import HIDE_DAYS
+
+    if not p or not p.get("on") or not p.get("consent_at") or p.get("paused_at"):
+        return False
+    t = t or now()
+    return bool(p.get("confirmed_at")) and p["confirmed_at"] > t - timedelta(days=HIDE_DAYS)
+
+
 def state(p: dict[str, Any] | None, site: dict[str, Any], t=None) -> dict[str, Any]:
     """{on, available, stale, due, paused, consent, …fields, confirmedAt, expiresAt}. due: a day or less left."""
     t = t or now()
@@ -129,6 +140,9 @@ def state(p: dict[str, Any] | None, site: dict[str, Any], t=None) -> dict[str, A
 
 
 async def _out(db, uid: str) -> dict[str, Any]:
+    from app.hire.vetting.ladder import refresh  # V1: saving or confirming may change the level or ⚡
+
+    await refresh(db, uid, "ready to join")
     out = state(await db[HIRE_PROFILES].find_one({"_id": uid}), await get_site(db))
     u = await db[USERS].find_one({"_id": uid}, {"notify": 1}) or {}
     out["emails"] = ((u.get("notify") or {}).get("email") or {}).get("hire", True) is not False
@@ -248,11 +262,50 @@ async def still_ready(body: TokenIn, request: Request, db: DB) -> dict[str, Any]
     uid = token_user(body.token)
     if not uid or not await confirm(db, uid):
         raise ApiError(404, "invalid_link", "This link doesn’t work any more. Sign in and tap “Still ready”.")
+    from app.hire.vetting.ladder import refresh
+
+    await refresh(db, uid, "still looking (email)")
     p = await db[HIRE_PROFILES].find_one({"_id": uid})
     return {"ok": True, "expiresAt": state(p, await get_site(db))["expiresAt"]}
 
 
 def reminder_email(u: dict[str, Any], days: int) -> Email:
+    site = get_settings().site_url.rstrip("/")
+    first = (u.get("name") or "").split(" ")[0] or "there"
+    yes = f"{site}/hire/still-ready#t={still_token(u['_id'])}"
+    edit = f"{site}/me/hire"
+    lines = [
+        f"Hi {first},",
+        "",
+        f"Still looking? Tap to confirm, and companies hiring now see you as ⚡ ready now for the next {days} days:",
+        yes,
+        "",
+        f"Changed your plans? Update or pause it here: {edit}",
+        "If you do nothing, you lose ⚡ ready now; after 3 weeks companies stop seeing you until you confirm. "
+        "Nothing is deleted.",
+        "",
+        "Nm7 · nm7.si",
+    ]
+    html = (
+        f'<div style="{STYLE}"><p>Hi {escape(first)},</p><p>Still looking? Tap to confirm, and companies hiring now '
+        f"see you as ⚡ ready now for the next {days} days:</p>"
+        f'<p><a href="{escape(yes)}" style="display:inline-block;padding:10px 18px;background:#111;color:#fff;'
+        f'border-radius:8px;text-decoration:none">Still ready</a></p>'
+        f'<p style="color:#666;font-size:13px">Changed your plans? <a href="{escape(edit)}">Update or pause it</a>. '
+        "If you do nothing, you lose ⚡ ready now; after 3 weeks companies stop seeing you until you confirm. "
+        "Nothing is deleted.</p></div>"
+    )
+    subject = "Still looking? Tap to confirm"
+    return Email(to=u["email"], to_name=u.get("name", ""), subject=subject, text="\n".join(lines), html=html)
+
+
+def wants_email(u: dict[str, Any]) -> bool:
+    if not u or not u.get("email_verified_at") or u.get("email_bounced") or u.get("demo"):
+        return False
+    return ((u.get("notify") or {}).get("email") or {}).get("hire", True) is not False
+
+
+def reminder_email_classic(u: dict[str, Any], days: int) -> Email:
     site = get_settings().site_url.rstrip("/")
     first = (u.get("name") or "").split(" ")[0] or "there"
     yes = f"{site}/hire/still-ready#t={still_token(u['_id'])}"
@@ -281,14 +334,9 @@ def reminder_email(u: dict[str, Any], days: int) -> Email:
     return Email(to=u["email"], to_name=u.get("name", ""), subject=subject, text="\n".join(lines), html=html)
 
 
-def wants_email(u: dict[str, Any]) -> bool:
-    if not u or not u.get("email_verified_at") or u.get("email_bounced") or u.get("demo"):
-        return False
-    return ((u.get("notify") or {}).get("email") or {}).get("hire", True) is not False
-
-
-async def send_reminders(db, mailer: Mailer, t=None) -> int:
-    """Run by every automation pass: one email a day before "Ready to join" goes stale, once per confirmation."""
+async def _send_reminders_classic(db, mailer: Mailer, t=None) -> int:
+    """The reminder as it was before Vetting V1 (while the vetting engine is hidden): one email a day before "Ready to
+    join" goes stale, once per confirmation."""
     t = t or now()
     site = await get_site(db)
     if not site["hire"]["on"]:
@@ -303,6 +351,39 @@ async def send_reminders(db, mailer: Mailer, t=None) -> int:
             continue  # this week's reminder went already
         claimed = await db[HIRE_PROFILES].update_one(
             {"_id": p["_id"], "reminded_for": {"$ne": p["confirmed_at"]}}, {"$set": {"reminded_for": p["confirmed_at"]}}
+        )
+        if not claimed.modified_count:
+            continue
+        u = await db[USERS].find_one({"_id": p["_id"]})
+        if wants_email(u):
+            sent += await send_safely(mailer, reminder_email_classic(u, days))
+    return sent
+
+
+async def send_reminders(db, mailer: Mailer, t=None) -> int:
+    """Run by every automation pass. Vetting V1 freshness: "Still looking? Tap to confirm" once a week while the
+    confirmation is getting old — the day before ⚡ "ready now" lapses (day 6), then weekly until day 21, after which
+    they are hidden from Hire now until they confirm. Never twice in 7 days, never to a bounced address or someone who
+    turned these emails off."""
+    from app.hire.vetting import access
+    from app.hire.vetting.levels import HIDE_DAYS
+
+    if not await access.is_public(db):  # hidden (Admin → Skill checks → Launch): the reminder exactly as before
+        return await _send_reminders_classic(db, mailer, t)
+    t = t or now()
+    site = await get_site(db)
+    if not site["hire"]["on"]:
+        return 0
+    days = int(site["hire"]["confirm_days"])
+    sent = 0
+    q = {"on": True, "consent_at": {"$ne": None}, "paused_at": None,
+         "confirmed_at": {"$gt": t - timedelta(days=HIDE_DAYS), "$lte": t - timedelta(days=max(0, days - 1))},
+         "$or": [{"reminded_at": None}, {"reminded_at": {"$lte": t - timedelta(days=7)}},
+                 {"$expr": {"$lt": ["$reminded_at", "$confirmed_at"]}}]}  # fmt: skip
+    async for p in db[HIRE_PROFILES].find(q).limit(500):
+        claimed = await db[HIRE_PROFILES].update_one(
+            {"_id": p["_id"], "reminded_at": p.get("reminded_at")},
+            {"$set": {"reminded_for": p["confirmed_at"], "reminded_at": t}},
         )
         if not claimed.modified_count:
             continue

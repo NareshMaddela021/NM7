@@ -69,6 +69,7 @@ from app.core.db import (
     TALENT_POOL,
     TICKETS,
     USERS,
+    VETTING_LEVEL_LOG,
     VETTING_PHOTOS,
     VETTING_QUEUE,
     VETTING_VERIFIED,
@@ -115,6 +116,7 @@ async def erase_user_data(db: AsyncDatabase, user_id: str) -> dict[str, int]:
     out["skill_verified"] = await gone(VETTING_VERIFIED, mine)  # Vetting V2: "Skill verified" badges
     out["vetting_queue"] = await gone(VETTING_QUEUE, mine)  # Vetting V2: review / integrity items about them
     out["vetting_photos"] = await gone(VETTING_PHOTOS, mine)  # Vetting V2: photos of past work
+    out["vetting_levels"] = await gone(VETTING_LEVEL_LOG, mine)  # Vetting V1: level history
     out["learning_paths"] = await gone(LEARN_PROGRESS, mine)  # Phase 6 S2: courses ticked, projects sent
     out["practice_tests"] = await gone(PRACTICE_ATTEMPTS, mine)  # Phase 6 S3
     out["offer_checks"] = await gone(OFFER_CHECKS, mine)  # Phase 6 S5

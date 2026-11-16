@@ -24,6 +24,7 @@ from app.hire.available import send_reminders as hire_reminders
 from app.hire.offers import send_checkins as offer_checkins
 from app.hire.slots import send_reminders as slot_reminders
 from app.hire.vetting import jobs as vetting_jobs
+from app.hire.vetting import ladder as vetting_ladder
 from app.jobs import linkcheck as job_links
 from app.jobs.alerts import send_alerts as job_alerts
 from app.jobs.apply import followups as job_followups
@@ -155,6 +156,7 @@ async def run_rules(db: AsyncDatabase, mailer: Mailer | None = None) -> dict[str
         done["weekly_progress"] = await weekly_progress(db, mailer or get_mailer())  # Phase 6 S10: ≤ 1 a week a person
         done["vetting_expired"] = await vetting_jobs.nightly(db)  # V2: badges past 90 days, device hashes past 30
         done["vetting_invites"] = await vetting_jobs.send_invites(db, mailer or get_mailer())  # V2: ≤ 1 a week a person
+        done.update({f"vetting_{k}": v for k, v in (await vetting_ladder.hourly_if_due(db)).items()})  # V1: hourly
         await save_site(db, {"rule_runs": runs})
         return done
     finally:

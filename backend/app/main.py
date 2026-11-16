@@ -65,6 +65,7 @@ from app.hire import speed as hire_speed
 from app.hire import templates as hire_templates
 from app.hire.vetting import admin as vetting_admin
 from app.hire.vetting import jobs as vetting_jobs
+from app.hire.vetting import ladder as vetting_ladder
 from app.hire.vetting import router as vetting_router
 from app.jobs import admin as jobs_admin
 from app.jobs import alerts as jobs_alerts
@@ -317,6 +318,8 @@ def create_app() -> FastAPI:
     app.include_router(vetting_router.me)  # /api/me/skill-checks (Vetting V2: 50 roles, bands, tasks, integrity)
     app.include_router(vetting_admin.admin)  # /api/admin/vetting (rubrics, review / integrity queues, stats)
     app.include_router(vetting_jobs.public)  # /api/public/vetting/stop-invites
+    app.include_router(vetting_ladder.me)  # /api/me/level (Vetting V1: my level, ⚡, what to do next)
+    app.include_router(vetting_ladder.admin)  # /api/admin/vetting/overview (V1)
     app.include_router(hire_skillcheck.admin)  # /api/admin/skill-tests (the question bank, H3)
     app.include_router(simple_guided.router)  # /api/me/simple/resume (resume by talking, E4)
     app.include_router(simple_demo.admin)  # /api/admin/simple/demo (Ravi, the Easy dashboard demo)

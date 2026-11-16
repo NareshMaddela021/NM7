@@ -646,6 +646,9 @@ async def award(db, a: dict[str, Any]) -> dict[str, Any] | None:
     await db[USERS].update_one({"_id": a["user_id"]}, {"$pull": {"verified_skills": {"skill": a["skill"]}}})
     await db[USERS].update_one({"_id": a["user_id"]}, {"$push": {"verified_skills": badge}})
     await audit(db, a["user_id"], "vetting.verified", data={"skill": a["skill"], "band": a["band"]})
+    from app.hire.vetting.ladder import refresh
+
+    await refresh(db, a["user_id"], f"skill verified: {a['skill']}")  # V1: the level may go up to L2
     return rec
 
 
