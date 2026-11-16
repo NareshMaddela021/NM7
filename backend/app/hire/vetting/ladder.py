@@ -158,7 +158,11 @@ def band_of_job(j: dict[str, Any]) -> str:
 async def demand_watch(db) -> list[dict[str, Any]]:
     t = now()
     c: Counter[tuple[str, str, str]] = Counter()
-    async for j in db[JOBS].find({"status": "live"}, {"title": 1, "locations": 1, "experience": 1}).limit(20000):
+    async for j in (
+        db[JOBS]
+        .find({"status": "active", "demo": {"$ne": True}}, {"title": 1, "locations": 1, "experience": 1})
+        .limit(20000)
+    ):
         role = role_of_title(j.get("title", ""))
         if not role:
             continue
