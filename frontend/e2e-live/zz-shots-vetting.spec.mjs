@@ -12,6 +12,7 @@ import { SIZES, call, json } from './college.mjs';
 const OUT = process.env.SHOTS_DIR || 'shots';
 test.skip(!process.env.SHOTS, 'screenshots only in the shots workflow');
 test.setTimeout(900_000);
+test.use({ actionTimeout: 8000, navigationTimeout: 30000 });  // a missing control fails fast, never hangs
 
 const settle = async (page) => { await page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => {}); await page.waitForTimeout(800); };
 const snap = (page, name, size) => page.screenshot({ path: join(OUT, `${name}-${size}.jpg`), fullPage: true, type: 'jpeg', quality: 60 });
@@ -33,8 +34,8 @@ for (const [size, opts] of SIZES) {
       await page.getByTestId('sk-list').getByTestId('sk-start-SQL').first().click({ timeout: 8000 });
     });
     await step('vet-question', async () => {
-      const box = page.getByRole('checkbox', { name: /understand/i });
-      if (await box.count()) await box.first().check();
+      const label = page.getByText('I understand what is checked during the test');
+      if (await label.count()) await label.last().click();
       await page.getByRole('button', { name: /^Start/ }).last().click({ timeout: 8000 });
       await page.getByText(/Question 1 of/i).first().waitFor({ timeout: 15000 });
     });
