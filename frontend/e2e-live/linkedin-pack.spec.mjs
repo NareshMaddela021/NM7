@@ -62,7 +62,7 @@ for (const [label, opts] of SIZES) {
       await signIn(page, `pk-off-${label}`);
       const asked = noCheckout(page);
       const card = page.getByTestId('me-linkedin');
-      await expect(card.getByTestId('me-li-pack-soon')).toHaveText('Coming soon');
+      await expect(card.getByTestId('me-li-pack-soon')).toHaveText('Payments coming soon');
       await page.goto('/linkedin?path=fix');
       const offer = page.getByTestId('li-locked');
       await expect(offer).toContainText('LinkedIn pack');
@@ -77,7 +77,7 @@ for (const [label, opts] of SIZES) {
         expect(r.body.error.code).toBe('pack_locked');
       }
       await page.goto('/me/upgrade');
-      await expect(page.getByTestId('up-li-pack')).toContainText('Coming soon');
+      await expect(page.getByTestId('up-li-pack')).toContainText('Payments coming soon');
       await expect(page.getByTestId('up-li-pack').getByRole('button')).toHaveCount(0);
       await page.goto('/old-home');
       await expect(page.getByTestId('home-linkedin-pack')).toContainText('LinkedIn pack · ₹149');

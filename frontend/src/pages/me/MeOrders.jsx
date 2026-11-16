@@ -7,7 +7,7 @@ import { useMe, orderView, buyAddon, upgradeOrder, retentionLeft, getMe, cancelO
 import { useExpertOrders, updateOrder } from '../../lib/expertStore';
 import { PLANS, ADDONS, PROMISES, inr, upgradePrice } from '../../lib/pricing';
 import { MeHead } from './MeLayout';
-import { PAY_METHODS, payAddon, payError, payOrder, usePayMode } from '../../lib/payMode';
+import { PAY_METHODS, PAY_SOON, payAddon, payError, payOrder, usePayMode } from '../../lib/payMode';
 import PayRetry from '../../components/PayRetry';
 import { countdown, downloadInvoice, fmtDay, fmtWhen } from './shared';
 import { Chip, Empty, MeCard, Stat } from './kit';
@@ -19,7 +19,7 @@ const total = (o) => o.price + o.addons.reduce((t, a) => t + a.price, 0);
 
 /**
  * Adding to a paid order (an add-on, or an upgrade: pay only the difference). Live: Razorpay's checkout for a small
- * order of its own (POST /api/orders/:id/addon; the server adds it to this order once paid). Payments off: Coming soon.
+ * order of its own (POST /api/orders/:id/addon; the server adds it to this order once paid). Payments off: Payments coming soon.
  * Preview: a sample payment step.
  */
 export function PayDialog({ title, amount, onPaid, onClose, orderId, item }) {
@@ -40,7 +40,7 @@ export function PayDialog({ title, amount, onPaid, onClose, orderId, item }) {
           <div className="well row between"><span>Amount</span><strong style={{ fontSize: 20 }}>{inr(amount)}</strong></div>
           {pm && !on && <span className="small" data-testid="addon-soon">Payments are paused right now. Please try again later.</span>}
           <PayRetry error={err} busy={busy} onRetry={go} />
-          <button type="button" className="btn btn-ink btn-lg" disabled={busy || !on} aria-busy={busy} onClick={go}>{busy && <Spinner />}{!pm ? 'Loading…' : !on ? 'Coming soon' : busy ? 'Waiting for your payment…' : `Pay ${inr(amount)}`}</button>
+          <button type="button" className="btn btn-ink btn-lg" disabled={busy || !on} aria-busy={busy} onClick={go}>{busy && <Spinner />}{!pm ? 'Loading…' : !on ? PAY_SOON : busy ? 'Waiting for your payment…' : `Pay ${inr(amount)}`}</button>
           {on && <span className="xs muted">Secure payment by {PROMISES.paymentProvider}: {PAY_METHODS}. Prices include GST.</span>}
         </div>
       </Dialog>
@@ -139,7 +139,7 @@ export function OrdersList() {
               {o.unpaid && !o.wa && (
                 <div className="stack g8 acc-paynow" style={{ padding: '8px 0 4px' }}>
                   <button type="button" className="btn btn-signal" style={{ alignSelf: 'flex-start', minHeight: 44 }} data-testid="pay-now" disabled={!!payNow.busy || pm?.mode !== 'razorpay'} aria-busy={payNow.busy === o.id} onClick={() => startPay(o.id)}>
-                    {payNow.busy === o.id && <Spinner />}{pm && pm.mode !== 'razorpay' ? 'Coming soon' : payNow.busy === o.id ? 'Waiting for your payment…' : `Pay now · ${inr(total(o))}`}
+                    {payNow.busy === o.id && <Spinner />}{pm && pm.mode !== 'razorpay' ? PAY_SOON : payNow.busy === o.id ? 'Waiting for your payment…' : `Pay now · ${inr(total(o))}`}
                   </button>
                   {payNow.for === o.id && <PayRetry error={payNow.error} busy={!!payNow.busy} onRetry={() => startPay(o.id)} />}
                 </div>
@@ -174,7 +174,7 @@ function WaitingOrder({ o, justPaid }) {
           <span className="small">Your order is saved. Nothing has been charged yet — pay to start it.</span>
           <PayRetry error={payNow.error} busy={!!payNow.busy} onRetry={() => startPay(o.id)} />
           <button type="button" className="btn btn-signal btn-lg" style={{ alignSelf: 'flex-start' }} data-testid="pay-now" disabled={!!payNow.busy || !on} aria-busy={!!payNow.busy} onClick={() => startPay(o.id)}>
-            {payNow.busy && <Spinner />}{pm && !on ? 'Coming soon' : payNow.busy ? 'Waiting for your payment…' : `Pay now · ${inr(total(o))}`}
+            {payNow.busy && <Spinner />}{pm && !on ? PAY_SOON : payNow.busy ? 'Waiting for your payment…' : `Pay now · ${inr(total(o))}`}
           </button>
           <span className="xs muted">{pm && !on ? 'Payments are paused right now. Please try again later.' : `Secure payment by ${PROMISES.paymentProvider}: ${PAY_METHODS}.`}</span>
         </MeCard>

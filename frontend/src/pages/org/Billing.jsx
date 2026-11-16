@@ -7,7 +7,7 @@ import { LIMITS, PLAN_FEATURES, gstinProblem, limitText, periodText, rupees, usa
 import { downloadFrom } from '../../lib/fileDownload';
 import { pay } from '../../services/api';
 import { http } from '../../services/http';
-import { payError } from '../../lib/payMode';
+import { PAY_SOON, payError } from '../../lib/payMode';
 import PayRetry from '../../components/PayRetry';
 import { Loading, day, useAction, useApi } from '../admin/live/common';
 import CodeBox from '../../components/CodeBox';
@@ -145,7 +145,7 @@ function Buy({ data, plan, onPaid, onOrdered, refCode }) {
           )}
           {q.partnerCode && <span className="xs muted">Referred by partner <span className="mono">{q.partnerCode}</span>.</span>}
           <div className="row g8" style={{ marginTop: 6 }}>
-            {mode === 'off' ? <button type="button" className="btn btn-outline" disabled data-testid="org-pay-soon">Coming soon</button>
+            {mode === 'off' ? <button type="button" className="btn btn-outline" disabled data-testid="org-pay-soon">{PAY_SOON}</button>
               : <button type="button" className="btn btn-signal" disabled={st.busy || st.waiting} onClick={go}>{st.busy ? 'Waiting for your payment…' : `Pay ${rupees(q.total)}`}</button>}
             <button type="button" className="btn btn-outline" onClick={() => setQ(null)}>Cancel</button>
           </div>

@@ -1,7 +1,7 @@
 // The annual student pass (P1) on a desktop and a 390 px phone, against the real API (payments Off: no Razorpay keys;
 // "on" is mocked for the page): "Best value" on the home pricing; the pass paid with Razorpay (stood in, confirmed by
 // the signed webhook) shows "Pass active until <date>" on the dashboard and unlocks downloads, the Tailor and
-// Interview packs and the LinkedIn pack; a free "Annual pass" code unlocks it from the dashboard; Off hides the offer.
+// Interview packs and the LinkedIn pack; a free "Annual pass" code unlocks it from the dashboard; Off shows "Payments coming soon".
 // No sideways scrolling.
 import { expect, test } from '@playwright/test';
 import { API, PASSWORD, adminLogin, email, login, seed } from './helpers.mjs';
@@ -25,7 +25,7 @@ for (const [label, opts] of SIZES) {
     let owner;
     test.afterEach(async () => { if (owner) { await owner.ctx.close(); owner = null; } });
 
-    test('pass paid with Razorpay → active until, everything unlocked; a free pass code; Off hides it', async ({ page, browser, request }) => {
+    test('pass paid with Razorpay → active until, everything unlocked; a free pass code; Off: Payments coming soon', async ({ page, browser, request }) => {
       test.setTimeout(150_000);
       const ctx = await browser.newContext();
       owner = { ctx, page: await ctx.newPage() };
@@ -39,6 +39,7 @@ for (const [label, opts] of SIZES) {
       const card = page.getByTestId('home-pass');
       await expect(card).toContainText('Annual student pass');
       await expect(card).toContainText('Best value');
+      await expect(card.getByTestId('pay-soon')).toHaveText('Payments coming soon'); // Off: no Razorpay keys in the test API
 
       // a student: the offer on the dashboard, paid with Razorpay (stood in); the signed webhook confirms it
       const student = email(`pass-${label}`);
@@ -89,7 +90,7 @@ for (const [label, opts] of SIZES) {
       await expect(p2.getByTestId('pass-active')).toContainText('Pass active until');
       await expect(p2.getByTestId('pass-offer')).toHaveCount(0);
 
-      // Off (the test API: no Razorpay keys): no offer for someone without a pass
+      // Off (the test API: no Razorpay keys): the offer says "Payments coming soon", nothing to buy
       const s3 = await browser.newContext({ ...opts, baseURL: 'http://localhost:5182' });
       const p3 = await s3.newPage();
       const mail3 = email(`pass3-${label}`);
@@ -98,7 +99,8 @@ for (const [label, opts] of SIZES) {
       await p3.waitForURL('**/me');
       await p3.goto('/me?pass=1');
       await expect(p3.getByRole('heading', { level: 1 })).toBeVisible();
-      await expect(p3.getByTestId('pass-offer')).toHaveCount(0);
+      await expect(p3.getByTestId('pass-offer').getByTestId('pass-soon')).toHaveText('Payments coming soon');
+      await expect(p3.getByTestId('pass-offer').getByTestId('pass-buy')).toHaveCount(0);
       await s2.close(); await s3.close();
     });
   });

@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { Dialog, Spinner, useToast } from './ui';
 import { closeGate, onGate, rememberDownload } from '../lib/downloads';
 import { reloadMe } from '../lib/customerStore';
-import { PAY_METHODS, buy, payError, usePayMode } from '../lib/payMode';
+import { PAY_METHODS, PAY_SOON, buy, payError, usePayMode } from '../lib/payMode';
 import PayRetry from './PayRetry';
 import CodeBox from './CodeBox';
 import PassOffer from './PassOffer';
@@ -43,6 +43,7 @@ function UnlockGate({ g }) {
   const list = g.price ?? 99;
   const price = quote ? quote.final / 100 : list;
   const pm = usePayMode();
+  const off = pm?.mode === 'off'; // no Razorpay keys yet: nothing can be bought, no order is made
   const code = quote?.code;
   const unlocked = async () => { // a free code: this resume unlocks for good, the download runs now
     reloadMe();
@@ -51,7 +52,7 @@ function UnlockGate({ g }) {
     await g.retry().catch(() => {});
   };
   const unlock = async () => {
-    if (busy) return;
+    if (busy || off) return;
     setBusy(true); setErr('');
     try {
       await buy({ planId: 'diy', ...(code ? { code } : {}) }); // the server sets the price; Razorpay's window, then the server confirms it
@@ -77,10 +78,10 @@ function UnlockGate({ g }) {
       {g.what !== 'cover' && <CodeBox item="resume" resumeId={g.resumeId} onApplied={setQuote} onUnlocked={unlocked} disabled={busy} />}
       <PayRetry error={err} busy={busy} onRetry={unlock} />
       <div className="stack g8">
-        <button type="button" className="btn btn-ink btn-lg" onClick={unlock} disabled={busy || !pm} aria-busy={busy}>{busy && <Spinner />}{busy ? 'Waiting for your payment…' : `Pay ${rs(price)}`}</button>
+        <button type="button" className="btn btn-ink btn-lg" onClick={unlock} disabled={busy || !pm || off} aria-busy={busy} data-testid={off ? 'gate-pay-soon' : undefined}>{busy && <Spinner />}{off ? PAY_SOON : busy ? 'Waiting for your payment…' : `Pay ${rs(price)}`}</button>
         <button type="button" className="btn btn-outline" onClick={closeGate} disabled={busy}>Not now</button>
       </div>
-      <span className="xs faint" style={{ textAlign: 'center' }}>{PAY_METHODS}</span>
+      {!off && <span className="xs faint" style={{ textAlign: 'center' }}>{PAY_METHODS}</span>}
     </Dialog>
   );
 }

@@ -10,7 +10,7 @@ import { SIZES, call, json } from './college.mjs';
 
 const OUT = process.env.SHOTS_DIR || 'shots';
 const ADMIN = ['', 'orders', 'experts', 'refunds', 'payments', 'customers', 'quality', 'reports', 'settings', 'automation', 'team', 'orgs',
-  'shared-resumes', 'plans', 'billing-settings', 'org-invoices', 'partners', 'whatsapp-payments', 'codes', 'courses', 'college-groups', 'stories',
+  'shared-resumes', 'plans', 'billing-settings', 'org-invoices', 'partners', 'codes', 'courses', 'college-groups', 'stories',
   'jobs', 'companies', 'auto-apply', 'skill-tests', 'learn-paths', 'programs', 'joining-reports'];
 const EXPERT = ['', 'orders', 'snippets', 'performance', 'earnings', 'profile', 'help'];
 

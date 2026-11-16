@@ -89,15 +89,15 @@ async def test_expiry_keeps_separate_purchases_and_refund_takes_it_away(
     assert r.status_code == 200, r.text
     assert r.json()["status"] == "refunded" and razorpay.last_json(razorpay.refunds)["amount"] == 199_00
     assert await everything(c2, db, me2["id"]) == NONE
-    # an old pass paid on WhatsApp, refunded offline: gone too
+    # an old pass paid on WhatsApp counts too; it can't be refunded through Razorpay (WhatsApp refunds are gone)
     c3, me3 = await person(make_client, outbox, "three@example.com")
     old = await old_order(db, email="three@example.com", plan="annual_pass")
     await old_paid(db, old.id, reference="UTR444444444")
     assert (await everything(c3, db, me3["id"]))["tailor"] is True
-    body = {"method": "upi", "reference": "RFD-1234"}
-    r = await owner.post(f"/api/admin/whatsapp/orders/{old.id}/refund", json=body)
-    assert r.status_code == 200, r.text
-    assert await everything(c3, db, me3["id"]) == NONE
+    r = await owner.post(f"/api/admin/orders/{old.id}/razorpay-refund", json={"reason": "other"})
+    assert r.status_code == 409 and err(r) == "old_whatsapp"
+    assert (await owner.post(f"/api/admin/whatsapp/orders/{old.id}/refund", json={})).status_code == 404
+    assert (await everything(c3, db, me3["id"]))["tailor"] is True
 
 
 async def test_codes_admin_grant_and_off_mode(admin_client, make_client, outbox, db):

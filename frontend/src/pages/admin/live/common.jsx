@@ -14,7 +14,6 @@ export { http };
 export const NAV = [
   ['dashboard', '/admin', 'Dashboard', '▦'],
   ['orders', '/admin/orders', 'Orders', '☰'],
-  ['payments', '/admin/whatsapp-payments', 'WhatsApp payments (old)', '✆'], // in the menu only while some wait for money
   ['experts', '/admin/experts', 'Experts', '✦'],
   ['refunds', '/admin/refunds', 'Refunds & disputes', '↺'],
   ['payments', '/admin/payments', 'Payments & invoices', '₹'],
@@ -103,12 +102,24 @@ export const tone = (s) => ({ refunded: 'neutral', expired: 'neutral', cancelled
 /** Round P, Phase 5: the side menu in groups (the same links, order inside each group as in NAV). */
 export const NAV_GROUPS = [
   ['Overview', ['/admin', '/admin/reports', '/admin/quality']],
-  ['Orders & money', ['/admin/orders', '/admin/whatsapp-payments', '/admin/refunds', '/admin/payments', '/admin/org-invoices', '/admin/partners', '/admin/billing-settings']],
+  ['Orders & money', ['/admin/orders', '/admin/refunds', '/admin/payments', '/admin/org-invoices', '/admin/partners', '/admin/billing-settings']],
   ['People', ['/admin/customers', '/admin/experts', '/admin/stories', '/admin/team']],
   ['Jobs & companies', ['/admin/jobs', '/admin/companies', '/admin/auto-apply', '/admin/skill-tests', '/admin/programs', '/admin/joining-reports']],
   ['Colleges', ['/admin/orgs', '/admin/college-groups', '/admin/shared-resumes', '/admin/plans']],
   ['Setup', ['/admin/settings', '/admin/codes', '/admin/courses', '/admin/learn-paths', '/admin/automation']],
 ];
+
+export const KEYS_MISSING = 'Razorpay keys missing: add RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET, RAZORPAY_WEBHOOK_SECRET in Render';
+
+/** Shown at the top of every live admin page while the Razorpay keys aren't set (payments stay off). Not dismissible. */
+function KeysBanner() {
+  return (
+    <div role="status" className="well row between g8" data-testid="admin-keys-banner" style={{ borderLeft: '3px solid var(--warning)', alignItems: 'center', flexWrap: 'wrap' }}>
+      <span className="small">{KEYS_MISSING}. Until then every pay button shows “Payments coming soon”.</span>
+      <NavLink to="/admin/settings" className="btn btn-outline" style={{ minHeight: 44 }}>How to set up</NavLink>
+    </div>
+  );
+}
 
 export function LiveAdminLayout() {
   const { user } = useAuth();
@@ -116,19 +127,15 @@ export function LiveAdminLayout() {
   const can = ROLES[user?.adminRole]?.can || [];
   const current = NAV.find(([, to]) => (to === '/admin' ? pathname === '/admin' || pathname === '/admin/' : pathname.startsWith(to)));
   const allowed = !current || can.includes(current[0]);
-  // "WhatsApp payments (old)" shows in the menu only while old WhatsApp orders still wait for money (the page itself
-  // always opens at /admin/whatsapp-payments)
-  const [oldWa, setOldWa] = useState(0);
-  const canPay = can.includes('payments');
+  // Razorpay keys missing on the server: a calm banner on every page (GET /api/admin/payments/status; errors → none)
+  const [keys, setKeys] = useState(null);
   useEffect(() => {
-    if (!canPay) return undefined;
     let on = true;
-    http('/api/admin/whatsapp/pending').then((r) => on && setOldWa(r.pending || 0), () => {});
+    http('/api/admin/payments/status').then((r) => on && setKeys(r), () => {});
     return () => { on = false; };
-  }, [canPay]);
-  const hidden = (to) => to === '/admin/whatsapp-payments' && !oldWa && !pathname.startsWith(to);
+  }, []);
   const byPath = Object.fromEntries(NAV.map((n) => [n[1], n]));
-  const groups = NAV_GROUPS.map(([g, paths]) => [g, paths.map((p) => byPath[p]).filter((n) => n && can.includes(n[0]) && !hidden(n[1]))]).filter(([, l]) => l.length);
+  const groups = NAV_GROUPS.map(([g, paths]) => [g, paths.map((p) => byPath[p]).filter((n) => n && can.includes(n[0]))]).filter(([, l]) => l.length);
   return (
     <>
       <Header variant="admin" />
@@ -145,6 +152,7 @@ export function LiveAdminLayout() {
           <span className="xs faint ad-signed">Signed in as {user?.name} · {ROLES[user?.adminRole]?.label || 'Admin'}</span>
         </nav>
         <main id="main" className="stack g20 ad-main">
+          {keys && keys.razorpayReady === false && <KeysBanner />}
           {current && <div className="ad-crumb" aria-hidden="true"><span className="ad-crumb-ic">{current[3]}</span><span>{current[2]}</span></div>}
           {allowed ? <ErrorBoundary resetKey={`${pathname}${search}`}><Outlet /></ErrorBoundary> : <div className="card stack g8"><strong>No access</strong><span className="small muted">Your role ({ROLES[user?.adminRole]?.label}) can’t open {current[2]}. Ask the owner.</span></div>}
         </main>

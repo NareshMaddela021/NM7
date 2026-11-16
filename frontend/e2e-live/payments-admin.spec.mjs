@@ -2,8 +2,10 @@
 // payment method can't be Razorpay and Razorpay calls are stood in where a test needs them):
 //   Settings → Payments: "Payment method" Razorpay / Off (pause payments) only; the missing-keys hint; no WhatsApp
 //                        number, reply hours or cancel hours; Off saves; the server refuses "whatsapp"
-//   WhatsApp payments (old): in the menu only while old orders wait for money; read-only, labelled "old (WhatsApp)";
-//                        Send payment link, Send links to all pending, Cancel, Record refund; never Mark paid (410)
+//   banner:              "Razorpay keys missing: …" at the top of every Admin page while the keys aren't set
+//   Old WhatsApp orders: a tab in Payments & invoices (the old page and its menu item are gone; the old address
+//                        redirects there); read-only, labelled "old (WhatsApp)"; only "Send Razorpay payment link" and
+//                        "Send links to all pending" (in-page confirm); no Mark paid, Cancel or Record refund (404)
 //   Payments & invoices: Razorpay payment ID, method, fee with its GST, refunded, source; "Refund via Razorpay" with an
 //                        in-page confirm (never a browser pop-up); the Daily check tab with Run now and Resolve
 //   roles: Support sees none of it
@@ -66,50 +68,72 @@ for (const [label, opts] of SIZES) {
       await ctx.close();
     });
 
-    test('WhatsApp payments (old): hidden while nothing waits; read-only; links, cancel and record refund; no Mark paid', async ({ browser }) => {
+    test('Razorpay keys banner on every Admin page; Old WhatsApp orders tab: read-only, Razorpay links only', async ({ browser }) => {
       const { ctx, page } = await admin(browser, 'owner', `old-${label}`, opts);
-      // nothing waits on this test database: not in the menu, but the page still opens
-      expect((await call(page, '/api/admin/whatsapp/pending')).body).toEqual({ pending: 0 });
-      await page.goto('/admin/payments');
-      await expect(page.getByRole('heading', { name: 'Payments & invoices' })).toBeVisible();
+      expect((await call(page, '/api/admin/payments/status')).body).toMatchObject({ razorpayReady: false, mode: 'off' });
+      // the banner: calm, at the top of every live Admin page, not dismissible
+      for (const path of ['/admin', '/admin/orders', '/admin/settings']) {
+        await page.goto(path);
+        const banner = page.getByTestId('admin-keys-banner');
+        await expect(banner).toContainText(`Razorpay keys missing: add ${KEYS} in Render`);
+        await expect(banner).toHaveAttribute('role', 'status');
+        await expect(banner.getByRole('button')).toHaveCount(0);
+      }
+      // the old page is gone: no menu item, its address opens the tab
       await expect(page.getByRole('link', { name: /WhatsApp payments/ })).toHaveCount(0);
       await page.goto('/admin/whatsapp-payments');
-      await expect(page.getByRole('heading', { name: 'WhatsApp payments (old)' })).toBeVisible();
-      await expect(page.getByText('No old WhatsApp orders waiting for payment.')).toBeVisible();
-      const gone = await call(page, '/api/admin/whatsapp/orders/RS-1/paid', { method: 'POST', body: JSON.stringify({}) });
-      expect(gone.status).toBe(410);
+      await expect(page).toHaveURL(/\/admin\/payments\?tab=old$/);
+      await expect(page.getByRole('heading', { name: 'Payments & invoices' })).toBeVisible();
+      await expect(page.getByRole('tab', { name: 'Old WhatsApp orders' })).toHaveAttribute('aria-selected', 'true');
+      // the removed actions answer 404
+      for (const path of ['/api/admin/whatsapp/orders/RS-1/paid', '/api/admin/whatsapp/orders/RS-1/cancel', '/api/admin/whatsapp/orders/RS-1/refund']) {
+        expect([404, 405]).toContain((await call(page, path, { method: 'POST', body: JSON.stringify({}) })).status);
+      }
+      // a real link request without the keys: the server's calm message, shown in the page (nothing seeded: 404 / 503)
+      const noKeys = await call(page, '/api/admin/whatsapp/orders/RS-1/payment-link', { method: 'POST' });
+      expect([404, 409, 503]).toContain(noKeys.status);
 
-      // old orders still waiting (stood in: they can't be made any more): in the menu, with their actions
-      await page.route('**/api/admin/whatsapp/pending', (r) => r.fulfill({ json: { pending: 1 } }));
-      await page.route(/\/api\/admin\/whatsapp\/orders\?status=awaiting$/, (r) => r.fulfill({ json: [OLD_ROW('RS-7001')] }));
-      await page.route(/\/api\/admin\/whatsapp\/orders\?status=paid$/, (r) => r.fulfill({ json: [OLD_ROW('RS-7002', { status: 'offer', payment: { method: 'upi', reference: 'UTR123456', amount: 14900, paidOn: '2026-10-01' }, receiptNo: 'NM7R/26-27/0001' })] }));
+      // old orders (stood in: they can't be made any more): one waiting, one paid
+      await page.route(/\/api\/admin\/whatsapp\/orders\?status=all$/, (r) => r.fulfill({ json: [
+        OLD_ROW('RS-7001'),
+        OLD_ROW('RS-7002', { status: 'offer', payment: { method: 'upi', reference: 'UTR123456', amount: 14900, paidOn: '2026-10-01' }, receiptNo: 'NM7R/26-27/0001' }),
+      ] }));
       const sent = [];
-      await page.route('**/api/admin/whatsapp/orders/RS-7001/payment-link', (r) => { sent.push('one'); return r.fulfill({ json: { url: 'https://rzp.io/i/abc', id: 'plink_1', expiresAt: '2026-12-01T00:00:00Z', emailed: true, to: 'ravi@example.com' } }); });
+      let keysOn = false;
+      await page.route('**/api/admin/whatsapp/orders/RS-7001/payment-link', (r) => {
+        sent.push('one');
+        return keysOn ? r.fulfill({ json: { url: 'https://rzp.io/i/abc', id: 'plink_1', expiresAt: '2026-12-01T00:00:00Z', emailed: true, to: 'ravi@example.com' } })
+          : r.fulfill({ status: 503, json: { error: { code: 'payments_unavailable', message: 'Payments aren’t switched on yet.' } } });
+      });
       await page.route('**/api/admin/whatsapp/payment-links', (r) => { sent.push('all'); return r.fulfill({ json: { sent: 1, failed: 0 } }); });
       await page.reload();
-      await expect(page.getByRole('link', { name: 'WhatsApp payments (old)' })).toHaveCount(1);
-      const row = page.getByTestId('wa-row').filter({ hasText: 'RS-7001' });
+      const box = page.getByTestId('old-wa');
+      const row = box.getByTestId('wa-row').filter({ hasText: 'RS-7001' });
       await expect(row).toContainText('old (WhatsApp)');
       await expect(row).toContainText('₹149');
-      await expect(page.getByRole('button', { name: /Mark as paid/ })).toHaveCount(0);
-      await expect(row.getByRole('link', { name: 'Open chat' })).toHaveCount(0);
-      await row.getByRole('button', { name: 'Send payment link' }).click();
-      await expect(page.getByText('Payment link emailed to ravi@example.com')).toBeVisible();
-      await page.getByTestId('wa-links-all').click();
-      await page.getByTestId('wa-links-all-yes').click();
-      await expect(page.getByText('1 link(s) sent')).toBeVisible();
-      expect(sent).toEqual(['one', 'all']);
-      await row.getByRole('button', { name: 'Cancel' }).click();
-      const dlg = page.getByRole('dialog');
-      await expect(dlg).toContainText('Cancel RS-7001?');
-      await dlg.getByRole('button', { name: 'Keep it' }).click();
-      await page.getByRole('tab', { name: 'Paid' }).click();
-      const paid = page.getByTestId('wa-row').filter({ hasText: 'RS-7002' });
-      await expect(paid).toContainText('UTR123456');
-      await paid.getByRole('button', { name: 'Record refund' }).click();
-      await expect(dlg).toContainText('old (WhatsApp) payment was made outside Razorpay');
-      await expect(dlg.getByRole('button', { name: 'Save refund' })).toBeDisabled(); // needs the refund reference
-      await dlg.getByRole('button', { name: 'Close', exact: true }).last().click();
+      await expect(row).toContainText('Waiting for payment');
+      const paid = box.getByTestId('wa-row').filter({ hasText: 'RS-7002' });
+      await expect(paid).toContainText('old (WhatsApp)');
+      await expect(paid).toContainText('Paid');
+      await expect(paid).toContainText('UPI UTR123456');
+      await expect(paid).toContainText('NM7R/26-27/0001');
+      await expect(paid.getByRole('button')).toHaveCount(0); // nothing to do on a paid one
+      for (const gone of [/Mark as paid/, /^Cancel$/, /Record refund/, /Refund/]) await expect(box.getByRole('button', { name: gone })).toHaveCount(0);
+      // no keys: the server's message, calmly in the page
+      await row.getByRole('button', { name: 'Send Razorpay payment link' }).click();
+      await expect(box.getByTestId('wa-note')).toHaveText('Payments aren’t switched on yet.');
+      keysOn = true;
+      await row.getByRole('button', { name: 'Send Razorpay payment link' }).click();
+      await expect(box.getByTestId('wa-note')).toHaveText('Payment link for RS-7001 emailed to ravi@example.com.');
+      await box.getByTestId('wa-links-all').click();
+      await expect(box.getByTestId('wa-links-confirm')).toBeVisible();
+      expect(sent).toEqual(['one', 'one']); // nothing until confirmed
+      await box.getByTestId('wa-links-all-yes').click();
+      await expect(box.getByTestId('wa-note')).toHaveText('1 link(s) sent.');
+      expect(sent).toEqual(['one', 'one', 'all']);
+      // the source label in the payments table stays
+      await page.getByRole('tab', { name: 'Payments', exact: true }).click();
+      await expect(page.getByRole('heading', { name: 'Payments & invoices' })).toBeVisible();
       await noSideways(page, opts);
       await ctx.close();
     });
@@ -151,7 +175,7 @@ for (const [label, opts] of SIZES) {
       await page.route('**/api/admin/payments/checks', (r) => r.fulfill({ json: check() }));
       const notes = [];
       await page.route('**/api/admin/payments/checks/2026-11-16/flags/0/resolve', (r) => { notes.push(r.request().postDataJSON().note); resolved = true; return r.fulfill({ json: check().items[0] }); });
-      await page.getByRole('tab', { name: 'Payments' }).click();
+      await page.getByRole('tab', { name: 'Payments', exact: true }).click();
       await page.getByRole('tab', { name: 'Daily check' }).click();
       await expect(box.getByTestId('pay-check-open')).toHaveText('1 open flag(s) in the latest check.');
       const flag = box.getByTestId('pay-flag');
@@ -174,6 +198,10 @@ for (const [label, opts] of SIZES) {
       await expect(page.getByRole('link', { name: 'Payments & invoices' })).toHaveCount(0);
       expect((await call(page, '/api/admin/whatsapp/orders?status=all')).status).toBe(403);
       expect((await call(page, '/api/admin/whatsapp/pending')).status).toBe(403);
+      // the keys banner needs the dashboard role: Support gets 403 and simply no banner (no error shown)
+      expect((await call(page, '/api/admin/payments/status')).status).toBe(403);
+      await expect(page.getByRole('navigation', { name: 'Admin sections' })).toBeVisible();
+      await expect(page.getByTestId('admin-keys-banner')).toHaveCount(0);
       expect((await call(page, '/api/admin/payments/checks')).status).toBe(403);
       await ctx.close();
     });

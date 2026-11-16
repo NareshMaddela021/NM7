@@ -24,7 +24,7 @@ const PRIVATE = /98765|ravi@example\.com|testperson@example\.com/;
 async function noCheckout(page) {
   const asked = [];
   page.on('request', (r) => { if (/\/api\/(orders|payments|checkout)|razorpay/i.test(r.url())) asked.push(r.url()); });
-  for (const b of await page.getByTestId('li-locked').getByRole('button', { name: 'Coming soon' }).all()) await b.click({ force: true });
+  for (const b of await page.getByTestId('li-locked').getByRole('button', { name: 'Payments coming soon' }).all()) await b.click({ force: true });
   await expect(page).toHaveURL(/\/linkedin/);
   expect(asked).toEqual([]);
 }
@@ -155,7 +155,7 @@ for (const [label, opts] of SIZES) {
       await expect(guide.getByTestId('li-step-skills')).toContainText('स्किल्स');
       await expect(guide.getByTestId('li-copy-skills')).toBeVisible();
       await expect(page.getByTestId('li-locked')).toContainText('LinkedIn pack'); // the paid pack: Coming soon while payments are off
-      await expect(page.getByTestId('li-pack-soon')).toHaveText('Coming soon');
+      await expect(page.getByTestId('li-pack-soon')).toHaveText('Payments coming soon');
       await noCheckout(page);
       await expect.poll(async () => (await api(page, '/api/me/linkedin')).path).toBe('create');
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);

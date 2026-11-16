@@ -1,5 +1,5 @@
 // The LinkedIn pack (Rs 149) on /linkedin, under both paths.
-//   not owned: what is in it, and "Buy ₹149" only when payments are on (else "Coming soon": nothing can be bought)
+//   not owned: what is in it, and "Buy ₹149" only when payments are on (else "Payments coming soon": nothing can be bought)
 //   owned:     "Make my LinkedIn pack" from what the person entered above, then the pack itself (saved on the
 //              account): copy per item, where to paste (EN / TE / HI), before → after and "Keep as it is" in Path 1,
 //              one regenerate per written section, the person's own edits (never replaced without asking), the

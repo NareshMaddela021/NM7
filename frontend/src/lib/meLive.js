@@ -41,7 +41,7 @@ export function orderFromApi(o, resumeId, extras = []) {
   const declined = !done && !review ? refunds.find((r) => r.status === 'rejected') : null;
   return {
     id: o.id, plan: o.plan, price: (plan?.amount ?? o.amount) / 100 + upgrades.reduce((t, u) => t + u.price, 0), paidAt, method: o.paymentMethod ? o.paymentMethod.toUpperCase() === 'UPI' ? 'UPI' : o.paymentMethod[0].toUpperCase() + o.paymentMethod.slice(1) : '—',
-    payId: o.paymentId || '', invoice: o.invoiceNo || '', receipt: o.receiptNo || '', // receipt: paid on WhatsApp before a GST invoice could be made
+    payId: o.paymentId || '', invoice: o.invoiceNo || '', receipt: o.receiptNo || '', // receipt: an old (WhatsApp) order paid before a GST invoice could be made
     createdAt: ts(o.createdAt), serverStatus: o.status,
     ...(!paidAt && PAYABLE.has(o.status) ? { unpaid: true } : {}),
     // old WhatsApp orders (awaiting_payment is theirs only): paid with an emailed Razorpay link, not Pay now

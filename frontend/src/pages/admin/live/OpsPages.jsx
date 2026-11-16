@@ -277,7 +277,7 @@ export function LivePayments() {
   return (
     <>
       <PageHead title="Payments & invoices" sub="Every payment (Razorpay, payment links, offline and old WhatsApp ones), its fee and refunds, and every GST invoice number." />
-      <div className="ad-toolbar ops-toolbar"><Tabs label="View" tabs={[['payments', 'Payments'], ['invoices', 'Invoices'], ['check', 'Daily check'], ['payouts', 'Expert payouts']]} value={tab} onChange={(v) => setParams({ tab: v })} /></div>
+      <div className="ad-toolbar ops-toolbar"><Tabs label="View" tabs={[['payments', 'Payments'], ['invoices', 'Invoices'], ['old', 'Old WhatsApp orders'], ['check', 'Daily check'], ['payouts', 'Expert payouts']]} value={tab} onChange={(v) => setParams({ tab: v })} /></div>
       {tab === 'payments' && (
         <Loading st={pays} empty={emptyIf((d) => !d.items.length, 'No payments yet. Payments stay off until the Razorpay keys are added.')}>{(d) => (
           <div className="card table-wrap ops-table" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns">
@@ -312,6 +312,7 @@ export function LivePayments() {
           </div>
         )}</Loading>
       )}
+      {tab === 'old' && <OldWaOrders />}
       {tab === 'check' && <DailyCheck />}
       {tab === 'payouts' && <div className="well small muted" style={{ padding: 24 }}>No expert payouts yet. Payouts are paid by bank/UPI transfer after delivered orders are approved; they will be listed here once experts start completing orders.</div>}
     </>
@@ -356,6 +357,72 @@ function RazorpayRefund({ p, onClose, onDone }) {
         )}
       </div>
     </Dialog>
+  );
+}
+
+/**
+ * "Old WhatsApp orders": orders from the old WhatsApp payments, read-only (no mark paid, cancel or refund). A row still
+ * waiting for money can get a Razorpay payment link by email; without the Razorpay keys the server says so (shown calmly).
+ */
+const OLD_LABEL = { awaiting_payment: 'Waiting for payment', cancelled: 'Cancelled', refunded: 'Refunded', expired: 'Expired' };
+function OldWaOrders() {
+  const st = useApi('/api/admin/whatsapp/orders?status=all');
+  const [busy, setBusy] = useState(false);
+  const [note, setNote] = useState(null); // { ok, text } after a link was (or wasn't) sent
+  const [confirm, setConfirm] = useState(false);
+  const run = async (fn) => {
+    if (busy) return;
+    setBusy(true); setNote(null);
+    try { setNote({ ok: true, text: await fn() }); st.reload(); } catch (e) { setNote({ ok: false, text: e.message || 'That didn’t work. Please try again.' }); } finally { setBusy(false); }
+  };
+  const link = (r) => run(async () => {
+    const out = await http(`/api/admin/whatsapp/orders/${encodeURIComponent(r.id)}/payment-link`, { method: 'POST' });
+    return out.emailed ? `Payment link for ${r.id} emailed to ${out.to}.` : `Payment link for ${r.id} made, but the email didn’t go out.`;
+  });
+  const all = () => run(async () => {
+    setConfirm(false);
+    const out = await http('/api/admin/whatsapp/payment-links', { method: 'POST' });
+    return `${out.sent} link(s) sent${out.failed ? ` · ${out.failed} failed` : ''}.`;
+  });
+  const status = (r) => OLD_LABEL[r.status] || (r.payment || r.invoiceNo || r.receiptNo ? 'Paid' : r.status);
+  return (
+    <section className="stack g12" aria-label="Old WhatsApp orders" data-testid="old-wa">
+      <span className="small muted">Orders from the old WhatsApp payments, kept read-only for the accounts. Payments are Razorpay only now: an order still waiting for money can get a Razorpay payment link by email.</span>
+      <Loading st={st} empty={emptyIf((d) => !d.length, 'No old WhatsApp orders.')}>{(rows) => (
+        <>
+          {rows.some((r) => r.status === 'awaiting_payment') && (
+            !confirm ? <button type="button" className="btn btn-signal" style={{ alignSelf: 'flex-start', minHeight: 44 }} disabled={busy} data-testid="wa-links-all" onClick={() => setConfirm(true)}>Send links to all pending</button>
+              : (
+                <div className="well stack g8" role="alert" data-testid="wa-links-confirm">
+                  <strong className="small">Email a Razorpay payment link to every old order still waiting for money that hasn’t had one yet?</strong>
+                  <span className="xs muted">Each link is valid for 7 days.</span>
+                  <div className="row g8" style={{ flexWrap: 'wrap' }}>
+                    <button type="button" className="btn btn-ink" style={{ minHeight: 44 }} disabled={busy} data-testid="wa-links-all-yes" onClick={all}>Send links</button>
+                    <button type="button" className="btn btn-outline" style={{ minHeight: 44 }} disabled={busy} onClick={() => setConfirm(false)}>Not now</button>
+                  </div>
+                </div>
+              )
+          )}
+          {note && <div className="well small" role="status" data-testid="wa-note" style={{ borderLeft: `3px solid var(--${note.ok ? 'success' : 'warning'})` }}>{note.text}</div>}
+          <div className="card table-wrap ops-table" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns">
+            <table className="table mtable" data-testid="wa-table"><thead><tr><th>Order</th><th>Customer</th><th>Item</th><th>Amount</th><th>Status</th><th>Receipt / invoice</th><th>Payment reference</th><th><span className="sr-only">Actions</span></th></tr></thead>
+              <tbody>{rows.map((r) => (
+                <tr key={r.id} data-testid="wa-row">
+                  <td className="ops-mono" data-label="Order"><span>{r.id}<span className="ops-sub">{r.label || 'old (WhatsApp)'}</span></span></td>
+                  <td className="small" data-label="Customer"><span>{r.customer?.name || '—'}<span className="ops-sub">{r.customer?.email}</span></span></td>
+                  <td className="small" data-label="Item">{r.item}</td>
+                  <td className="small" data-label="Amount"><strong>{rupees(r.amount)}</strong></td>
+                  <td data-label="Status"><span><Chip tone={r.status === 'awaiting_payment' ? 'warn' : status(r) === 'Paid' ? 'ok' : 'neutral'}>{status(r)}</Chip>{r.paymentLink && <span className="ops-sub" data-testid="wa-link-sent">Link sent {when(r.paymentLink.sentAt)}</span>}</span></td>
+                  <td className="ops-mono small" data-label="Receipt / invoice">{[r.receiptNo, r.invoiceNo].filter(Boolean).join(' · ') || '—'}</td>
+                  <td className="ops-mono small" data-label="Payment reference">{r.payment ? `${(r.payment.method || '').toUpperCase()} ${r.payment.reference || ''}`.trim() : '—'}</td>
+                  <td>{r.status === 'awaiting_payment' && <button type="button" className="btn btn-outline" style={{ minHeight: 44 }} disabled={busy} onClick={() => link(r)}>{r.paymentLink ? 'Send Razorpay payment link again' : 'Send Razorpay payment link'}</button>}</td>
+                </tr>
+              ))}</tbody></table>
+            <div className="ops-foot">{rows.length} old (WhatsApp) order(s). Read-only.</div>
+          </div>
+        </>
+      )}</Loading>
+    </section>
   );
 }
 

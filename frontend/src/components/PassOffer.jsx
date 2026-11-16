@@ -1,13 +1,14 @@
 // The annual student pass (P1) on every pay screen, marked "Best value": one payment unlocks for 12 months unlimited
-// PDF / Word downloads and the Tailor, Interview (with voice practice) and LinkedIn packs. Paid with Razorpay (not
-// shown while payments are off). Hidden while a pass is active. Also the dashboard line
+// PDF / Word downloads and the Tailor, Interview (with voice practice) and LinkedIn packs. Paid with Razorpay; while
+// payments are off the button says "Payments coming soon" and makes no order. Hidden while a pass is active. Also the dashboard line
 // "Pass active until <date>".
 import { useEffect, useState } from 'react';
 import { Spinner, useToast } from './ui';
 import CodeBox from './CodeBox';
 import { http } from '../services/http';
-import { buy as buyPlan, payErrorLine } from '../lib/payMode';
+import { PAY_SOON, buy as buyPlan, payErrorLine } from '../lib/payMode';
 import { reloadMe } from '../lib/customerStore';
+import { PLANS } from '../lib/pricing';
 
 const rs = (n) => `Rs ${Number(n).toLocaleString('en-IN', Number.isInteger(Number(n)) ? {} : { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 export const PASS_WHAT = 'Unlimited PDF and Word downloads, the Tailor pack, the Interview pack (with voice practice) and the LinkedIn pack, for 12 months.';
@@ -32,7 +33,8 @@ export default function PassOffer({ onBought, compact = false }) {
   const [st, setSt] = usePass();
   const [busy, setBusy] = useState(false);
   const [quote, setQuote] = useState(null);
-  if (!st || st.active || !st.onSale) return null;
+  const off = st?.mode === 'off' && PLANS.annual_pass?.active !== false;
+  if (!st || st.active || !(st.onSale || off)) return null;
   const price = quote ? quote.final / 100 : st.price;
   const done = async () => {
     const fresh = await http('/api/me/pass').catch(() => null);
@@ -42,7 +44,7 @@ export default function PassOffer({ onBought, compact = false }) {
     onBought?.();
   };
   const buy = async () => {
-    if (busy) return;
+    if (busy || off) return;
     setBusy(true);
     try {
       await buyPlan({ planId: 'annual_pass', ...(quote?.code ? { code: quote.code } : {}) });
@@ -56,9 +58,11 @@ export default function PassOffer({ onBought, compact = false }) {
         <span className="badge b-success">Best value</span>
       </div>
       <span className="xs muted">{PASS_WHAT}{compact ? '' : ' Things you buy separately stay yours after the year; your resumes are never locked.'}</span>
-      <button type="button" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={busy} onClick={buy} data-testid="pass-buy">
-        {busy && <Spinner />}{busy ? 'Waiting for your payment…' : `Get the pass ${rs(price)}`}
-      </button>
+      {off ? <span className="btn btn-outline" aria-disabled="true" data-testid="pass-soon" style={{ alignSelf: 'flex-start', opacity: 0.7, cursor: 'not-allowed' }}>{PAY_SOON}</span> : (
+        <button type="button" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={busy} onClick={buy} data-testid="pass-buy">
+          {busy && <Spinner />}{busy ? 'Waiting for your payment…' : `Get the pass ${rs(price)}`}
+        </button>
+      )}
       {!compact && <CodeBox item="annual_pass" onApplied={setQuote} disabled={busy} onUnlocked={done} />}
     </div>
   );

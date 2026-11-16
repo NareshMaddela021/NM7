@@ -1,7 +1,7 @@
 // The LinkedIn pack (Rs 149) in the browser: who owns it, buying it (only when payments are on), and its contents
 // from the server (which writes them for owners only). The banner image is drawn here from the pack's text.
 import { http, LIVE } from '../../services/http';
-import { buy } from '../payMode';
+import { PAY_SOON, buy, payMode } from '../payMode';
 import { canvasToPng } from '../qr';
 import { saveBlob } from '../fileDownload';
 import { fileName, fileSlug } from '../fileName';
@@ -17,16 +17,19 @@ export const PACK_ITEMS = [
   '3 custom profile URL ideas',
   'Copy buttons and a where-to-paste guide (English, తెలుగు, हिन्दी)',
 ];
-export const COMING_SOON = 'Coming soon';
+export const COMING_SOON = PAY_SOON;
 export const SECTION_TITLE = { headline: 'Headline', about: 'About', experience: 'Experience', education: 'Education', skills: 'Skills', featured: 'Featured', banner: 'Banner', urls: 'Custom URL' };
 export const REGEN_SECTIONS = ['headline', 'about', 'experience', 'education'];
 export const LIMITS = { headline: 220, about: 2600, experience: 2000 };
 
 const OFF = { owned: false, source: '', orderId: null, purchasedAt: null, paymentsOn: false, onSale: false, price: 149, mode: 'off' };
-/** { owned, source, orderId, purchasedAt, paymentsOn, onSale, price, mode (off | razorpay) }. Never throws (shows "Coming soon" on error). */
+/** { owned, source, orderId, purchasedAt, paymentsOn, onSale, price, mode (off | razorpay) }. Never throws: signed out (or on an error) it follows the public payment mode, so "Sign in to buy" or "Payments coming soon". */
 export async function packStatus() {
   if (!LIVE) return OFF;
-  try { return await http('/api/me/linkedin/pack/status'); } catch { return OFF; }
+  try { return await http('/api/me/linkedin/pack/status'); } catch {
+    const { mode } = await payMode();
+    return { ...OFF, mode, paymentsOn: mode === 'razorpay', onSale: mode === 'razorpay' };
+  }
 }
 
 /** Pay for the pack: the server prices the order (503 while payments are off), Razorpay's window, server check. */

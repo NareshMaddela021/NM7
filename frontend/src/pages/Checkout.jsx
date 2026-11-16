@@ -8,7 +8,7 @@ import { useFlow } from '../lib/flow';
 import { PLANS, PROMISES, inr, inrExact } from '../lib/pricing';
 import CodeBox from '../components/CodeBox';
 import PayRetry from '../components/PayRetry';
-import { buy, payError, usePayMode } from '../lib/payMode';
+import { PAY_SOON, buy, payError, usePayMode } from '../lib/payMode';
 import { gstinProblem } from '../lib/orgBilling';
 import { GST_STATES } from '../lib/gstStates';
 
@@ -101,7 +101,7 @@ export default function Checkout() {
         <form className="side card stack g20" aria-label="Payment" onSubmit={submit} noValidate>
           {mode === 'off' ? (
             <div className="stack g8" data-testid="checkout-soon">
-              <strong>Coming soon</strong>
+              <strong>{PAY_SOON}</strong>
               <p className="small muted" style={{ margin: 0 }}>Online orders open soon. Nothing can be bought yet.</p>
             </div>
           ) : (
@@ -117,7 +117,7 @@ export default function Checkout() {
           {!user && <div className="well small">Sign in or create a free account first — your order, drafts and invoices live in your dashboard. <Link to="/login?next=%2Fcheckout">Sign in</Link> · <Link to="/signup?next=%2Fcheckout">Create account</Link></div>}
           {user && user.role !== 'customer' && <div className="well small">You’re signed in with an {user.role} account. Orders need a customer account.</div>}
           <button type="submit" className="btn btn-ink btn-xl" disabled={disabled} aria-busy={paying}>
-            {paying && <Spinner />}{mode === 'off' ? 'Coming soon' : paying ? 'Waiting for your payment…' : `Pay ${inrExact(total)}`}
+            {paying && <Spinner />}{mode === 'off' ? PAY_SOON : paying ? 'Waiting for your payment…' : `Pay ${inrExact(total)}`}
           </button>
           {mode !== 'off' && <span className="xs muted" style={{ textAlign: 'center' }}>By paying you agree to our <Link to="/terms">Terms</Link> and <Link to="/refund-policy">Refund policy</Link>.</span>}
           {mode === 'razorpay' && <span className="xs faint" style={{ textAlign: 'center' }}>Secured by {PROMISES.paymentProvider} · GST invoice emailed · full refund if we don’t deliver</span>}

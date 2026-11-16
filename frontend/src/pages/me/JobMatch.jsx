@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Spinner, useToast } from '../../components/ui';
 import { useMe, setMe, newId, openInBuilder, reloadMe, activeResume } from '../../lib/customerStore';
-import { payErrorLine } from '../../lib/payMode';
+import { PAY_SOON, payErrorLine } from '../../lib/payMode';
 import { inr, inrExact } from '../../lib/pricing';
 import CodeBox from '../../components/CodeBox';
 import { PACKS, STATUS_TEXT, VERDICT_TONE, buyPack, decide, getMatch, getTailor, jobAccess, listMatches, matchJob, patchMatch, readPdfText, readScreenshot, startTailor } from '../../lib/jobs';
@@ -20,7 +20,7 @@ import PassOffer from '../../components/PassOffer';
 
 const KIND_LABEL = { tech: 'Skill', tool: 'Tool', cert: 'Certification', lang: 'Language' };
 
-/** The Tailor / Interview pack offer, following the payment mode (Off: Coming soon). */
+/** The Tailor / Interview pack offer, following the payment mode (Off: Payments coming soon). */
 export function PackOffer({ kind, acc, onBought, why }) {
   const toast = useToast();
   const [busy, setBusy] = useState(false);
@@ -45,7 +45,7 @@ export function PackOffer({ kind, acc, onBought, why }) {
         <button type="button" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={busy} onClick={buy}>
           {busy && <Spinner />}{busy ? 'Waiting for your payment…' : `Buy ${inrExact(price)}`}
         </button>
-      ) : <span className="btn btn-outline" aria-disabled="true" data-testid={`pack-${kind}-soon`} style={{ alignSelf: 'flex-start', opacity: 0.7, cursor: 'not-allowed' }}>Coming soon</span>}
+      ) : <span className="btn btn-outline" aria-disabled="true" data-testid={`pack-${kind}-soon`} style={{ alignSelf: 'flex-start', opacity: 0.7, cursor: 'not-allowed' }}>{PAY_SOON}</span>}
       {acc && <CodeBox item={pack.plan} onApplied={setQuote} disabled={busy} onUnlocked={() => { toast(`${pack.name} unlocked`); onBought?.(); }} />}
       <PassOffer compact onBought={onBought} />
     </div>

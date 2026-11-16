@@ -1,7 +1,8 @@
 // Razorpay payments, customer side, on a desktop and a 390 px phone, against the real API (the test API has no
 // Razorpay keys, so payments are Off; "on" is mocked for the page and Razorpay's window is stood in):
-//   Off:       Coming soon on checkout and the LinkedIn pack, no Pay button, no WhatsApp anywhere; the old WhatsApp
-//              order endpoints answer 410
+//   Off:       "Payments coming soon" on every pay button (checkout, LinkedIn pack, student pass, Upgrade & add-ons,
+//              My orders Pay now), no Pay button, no order made, no WhatsApp anywhere; the old WhatsApp order endpoint
+//              is gone (404)
 //   Checkout:  the optional "Need a GST invoice for your company?" section checks the GSTIN in the page and shows the
 //              server's message inline; a closed Razorpay window says "Payment not completed — no money was taken."
 //              with Try again, which reuses the same order; paying opens the order (the signed webhook confirms it)
@@ -52,24 +53,38 @@ for (const [label, opts] of SIZES) {
   test.describe(label, () => {
     test.use(opts);
 
-    test('Off: Coming soon, no Pay button, no WhatsApp; the old WhatsApp order endpoints are gone', async ({ page }) => {
-      await signIn(page, `pay-off-${label}`, 'Ravi Kumar');
+    test('Off: Payments coming soon on every pay button, no order made, no WhatsApp; the old WhatsApp endpoint is gone', async ({ page }) => {
+      const mail = await signIn(page, `pay-off-${label}`, 'Ravi Kumar');
+      const orderCalls = [];
+      page.on('request', (r) => { if (r.method() === 'POST' && /\/api\/orders(\/|$)/.test(new URL(r.url()).pathname)) orderCalls.push(r.url()); });
       await page.goto('/checkout');
       const form = page.getByRole('form', { name: 'Payment' });
-      await expect(form.getByTestId('checkout-soon')).toContainText('Coming soon');
-      await expect(form.getByRole('button', { name: 'Coming soon' })).toBeDisabled();
+      await expect(form.getByTestId('checkout-soon')).toContainText('Payments coming soon');
+      await expect(form.getByRole('button', { name: 'Payments coming soon' })).toBeDisabled();
       await expect(form.getByRole('button', { name: /Pay ₹/ })).toHaveCount(0);
       await expect(form.getByTestId('checkout-gst')).toHaveCount(0);
       await expect(page.locator('main')).not.toContainText('WhatsApp');
       await noSideways(page, opts);
       await page.goto('/linkedin?path=fix');
-      await expect(page.getByTestId('li-pack-soon')).toBeVisible();
+      await expect(page.getByTestId('li-pack-soon')).toHaveText('Payments coming soon');
       await expect(page.getByTestId('li-pack-buy')).toHaveCount(0);
-      for (const path of ['/api/orders/whatsapp']) {
-        const r = await call(page, path, { method: 'POST', body: JSON.stringify({ planId: 'linkedin_pack' }) });
-        expect(r.status).toBe(410);
-        expect(r.body.error.code).toBe('whatsapp_payments_retired');
-      }
+      // the student pass and Upgrade & add-ons
+      await page.goto('/me?pass=1');
+      await expect(page.getByTestId('pass-offer').getByTestId('pass-soon')).toHaveText('Payments coming soon');
+      await page.goto('/me/upgrade');
+      await expect(page.getByTestId('up-pay-soon').first()).toHaveText('Payments coming soon');
+      await expect(page.getByTestId('up-li-pack')).toContainText('Payments coming soon');
+      await expect(page.getByRole('button', { name: /^Get .* · ₹/ })).toHaveCount(0);
+      // an unpaid order: Pay now says so too
+      const order = seed('customer-order', mail, 'linkedin_pack');
+      await page.goto('/me/orders');
+      const row = page.getByRole('listitem').filter({ hasText: order.orderId });
+      await expect(row.getByTestId('pay-now')).toHaveText('Payments coming soon');
+      await expect(row.getByTestId('pay-now')).toBeDisabled();
+      await expect(page.locator('main')).not.toContainText(/pay (on|via|through) whatsapp|paid on whatsapp/i);
+      expect(orderCalls).toEqual([]); // nothing tried to make or pay an order
+      const r = await call(page, '/api/orders/whatsapp', { method: 'POST', body: JSON.stringify({ planId: 'linkedin_pack' }) });
+      expect([404, 405]).toContain(r.status);
       expect((await call(page, '/api/public/payment-mode')).body.mode).toBe('off');
       // the refund policy: Razorpay only
       await page.goto('/refund-policy');

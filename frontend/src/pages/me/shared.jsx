@@ -43,7 +43,7 @@ export function countdown(deadline) {
 }
 
 /**
- * A payment receipt for a WhatsApp payment made before Nm7's business details are set: from "Nm7" only, no company
+ * A payment receipt for an old (WhatsApp) order paid before Nm7's business details are set: from "Nm7" only, no company
  * name, no GSTIN and no GST lines (it is not a tax invoice).
  */
 async function receiptPdf({ no, at, name, email, item, amount, method }) {

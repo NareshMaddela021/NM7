@@ -5,30 +5,15 @@
 //   payOrder(id)   pay an unpaid / expired order again (POST /api/orders/:id/pay)
 //   payAddon(id, item)  an add-on or upgrade on a paid order (POST /api/orders/:id/addon)
 //   payError(e)    the calm text to show when a payment didn't finish
-// Every amount is the server's. Off: paid buttons show "Coming soon" and nothing calls these.
-import { useEffect, useState } from 'react';
-import { http, LIVE } from '../services/http';
+// Every amount is the server's. Off (no Razorpay keys yet): every pay button shows PAY_SOON ("Payments coming soon")
+// and nothing calls these. As soon as the mode is "razorpay" the same buttons pay, with no code change.
+import { http } from '../services/http';
 import { createOrder, pay } from '../services/api';
 
+export { PAY_SOON, payMode, usePayMode } from './payState';
 export const NOT_PAID = 'Payment not completed — no money was taken.';
 export const NOT_CONFIRMED = 'We couldn’t confirm your payment yet. If money was taken, your order updates in My orders within a few minutes — you won’t be charged twice.';
 export const PAY_METHODS = 'UPI, card, netbanking or wallet · GST invoice emailed';
-
-const OFF = { mode: 'off' };
-const PREVIEW = { mode: 'razorpay' }; // preview builds keep their sample checkout (no money moves)
-let cached = null;
-/** { mode: 'off' | 'razorpay' }. Never throws ("off" on an error). */
-export function payMode(fresh = false) {
-  if (!LIVE) return Promise.resolve(PREVIEW);
-  if (!cached || fresh) cached = http('/api/public/payment-mode').then((r) => ({ mode: r?.mode === 'razorpay' ? 'razorpay' : 'off' }), () => { cached = null; return OFF; });
-  return cached;
-}
-/** The mode for a page: null while loading. */
-export function usePayMode() {
-  const [m, setM] = useState(null);
-  useEffect(() => { let on = true; payMode().then((x) => on && setM(x)); return () => { on = false; }; }, []);
-  return m;
-}
 
 /** The message for a payment that didn't finish: closed window → "no money was taken"; server errors → their text. */
 export function payError(e) {

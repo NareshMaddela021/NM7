@@ -76,7 +76,7 @@ for (const [label, opts] of SIZES) {
       await expect(res.getByTestId('jm-missing')).toContainText('VLOOKUP');
       await expect(res.getByTestId('jm-missing')).toContainText('Not something you’ve done? Leave it out.'.replace('’', "'"));
       // the Tailor pack: payments are Off → Coming soon, nothing to buy
-      await expect(res.getByTestId('pack-tailor-soon')).toHaveText('Coming soon');
+      await expect(res.getByTestId('pack-tailor-soon')).toHaveText('Payments coming soon');
       await expect(res.getByRole('button', { name: /Buy/ })).toHaveCount(0);
       await expect(page.getByTestId('jm-left')).toHaveText('2 of 3 free matches left today');
       // saved below; save to My applications

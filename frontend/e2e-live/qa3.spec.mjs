@@ -105,10 +105,11 @@ test('thumbnails: one label, no page-break text; job links are web links only; f
     await page.goto(path);
     await expect(page).toHaveTitle(title);
   }
-  // upgrade: real buttons when there's no order
+  // upgrade: real buttons when there's no order (the builder link; paid plans follow the payment mode)
   await expect(page.getByRole('link', { name: 'Open the builder' })).toBeVisible();
-  await page.getByRole('button', { name: /^Get Expert rewrite/ }).click();
-  await expect(page).toHaveURL(/\/checkout$/);
+  // payments are Off in the test API (no Razorpay keys): the paid plans say so, no checkout
+  await expect(page.getByTestId('up-pay-soon').first()).toHaveText('Payments coming soon');
+  await expect(page.getByRole('button', { name: /^Get Expert rewrite/ })).toHaveCount(0);
 
   // footer: signed in → My dashboard; "Become an expert" explains separate accounts
   await page.goto('/contact');
