@@ -104,6 +104,7 @@ def _row(a, job, user, r, pooled: bool) -> dict[str, Any]:
     return {
         "id": str(a["_id"]),
         "jobId": a["job_id"],
+        "userId": a["user_id"],  # Vetting V3: opens the screening interview summary (Hire now already shows it as key)
         "job": (job or {}).get("title", a.get("role", "")),
         "name": (user or {}).get("name", "") or "Applicant",
         "status": a.get("status"),

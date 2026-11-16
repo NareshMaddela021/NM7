@@ -66,7 +66,7 @@ async def test_interview_needs_a_badge_and_consent(outbox, db, make_client):
     assert err(await c.post(f"{URL}/start", json={"test": "SQL", "consent": True})) == "not_verified"
     c2, _ = await _verified_student(make_client, outbox, db)
     assert err(await c2.post(f"{URL}/start", json={"test": "SQL"})) == "consent"
-    cat = (await c2.get(URL)).json()
+    cat = (await c2.get(f"{URL}/roles")).json()
     assert [r["test"] for r in cat["roles"]] == ["SQL"] and cat["pass"]["average"] == 3.2
 
 

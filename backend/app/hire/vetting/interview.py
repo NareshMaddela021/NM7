@@ -5,7 +5,8 @@ V2 badge for the role) answer 7 fixed questions for that role (interview_sets.py
 text; no audio ever reaches the server). After each answer the AI may ask at most ONE follow-up, built only from the
 candidate's own words; no free chat, never off the script. The whole interview is then graded once, to a fixed rubric.
 
-  GET  /api/me/interviews                         roles I can interview for (current V2 badges), my last results
+  GET  /api/me/interviews/roles                   roles I can interview for (current V2 badges), my last results
+                                                  (plain GET /api/me/interviews belongs to the org interviews list)
   POST /api/me/interviews/start {test, lang, mode, consent}
   POST /api/me/interviews/{id}/answer {text, seconds, pasteAttempts, blurs, blurMs}   → the follow-up, the next
                                                   question, or done
@@ -258,6 +259,7 @@ def out(iv: dict[str, Any], t: datetime | None = None) -> dict[str, Any]:
 
 
 @me.get("")
+@me.get("/roles")  # the same list: GET "" is shadowed by app.orgs.interviews.me (registered first, same prefix)
 async def mine(auth: CustomerAuth, db: DB) -> dict[str, Any]:
     t = now()
     have = sets()
