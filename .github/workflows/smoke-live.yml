@@ -1,0 +1,56 @@
+name: smoke-live
+
+# A read-only smoke check of the LIVE site (https://nm7.si): every public page, and with the demo accounts every job
+# seeker, student, company, college and admin page, desktop + 390 px. Each page must load without a blank page, page
+# errors, console errors, failed API calls or "Page not found", and every link in the public menus must open.
+# It never creates orders or sends emails; the demo "Reset and open" calls only reset the made-up demo data.
+# Signed-in areas need three repository secrets (Settings → Secrets and variables → Actions) for a live admin who
+# may open the demos: SMOKE_ADMIN_EMAIL, SMOKE_ADMIN_PASSWORD and SMOKE_ADMIN_TOTP (the base32 2-step secret).
+# Without them only the public pages are checked.
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "Site to check"
+        required: false
+        default: https://nm7.si
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: frontend
+    env:
+      SMOKE_URL: ${{ inputs.url || 'https://nm7.si' }}
+      SMOKE_ADMIN_EMAIL: ${{ secrets.SMOKE_ADMIN_EMAIL }}
+      SMOKE_ADMIN_PASSWORD: ${{ secrets.SMOKE_ADMIN_PASSWORD }}
+      SMOKE_ADMIN_TOTP: ${{ secrets.SMOKE_ADMIN_TOTP }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: frontend/.nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - name: Cache the Playwright browser
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}
+      - run: npx playwright install --with-deps chromium
+      - name: Smoke check of the live site (a failed page is retried once; passed on retry = flaky)
+        run: npx playwright test -c playwright.smoke.config.mjs
+      - name: Summary by area
+        if: always()
+        run: node e2e-smoke/summary.mjs smoke-results.json | tee -a "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-live-results
+          path: |
+            frontend/smoke-results.json
+            frontend/test-results
+          retention-days: 7

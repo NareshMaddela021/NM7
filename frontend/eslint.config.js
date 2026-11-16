@@ -32,7 +32,7 @@ export default [
     },
   },
   {
-    files: ['**/*.test.{js,jsx,mjs}', 'e2e/**', 'e2e-live/**', 'scripts/**', '*.config.*'],
+    files: ['**/*.test.{js,jsx,mjs}', 'e2e/**', 'e2e-live/**', 'e2e-smoke/**', 'scripts/**', '*.config.*'],
     languageOptions: { globals: { ...globals.node } },
     rules: { 'no-console': 'off' },
   },
