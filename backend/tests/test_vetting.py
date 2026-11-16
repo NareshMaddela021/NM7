@@ -26,6 +26,17 @@ from tests.test_hire_shortlist import READY, post_job
 URL = "/api/me/skill-checks"
 
 
+@pytest.fixture(autouse=True)
+def vetting_public(monkeypatch):
+    """These tests are about the V2 flow itself: the engine is public here (hidden mode: test_vetting_access.py)."""
+    from app.hire.vetting import access
+
+    async def public(db):
+        return {"public": True, "testers": []}
+
+    monkeypatch.setattr(access, "settings", public)
+
+
 # --- banks and validator --------------------------------------------------------------------------------------
 
 

@@ -42,10 +42,11 @@ function useSkillChecks() {
   const [d, setD] = useState(null);
   useEffect(() => {
     http('/api/me/skill-checks').then((x) => {
-      const roles = x?.roles || [];
+      const v2 = Array.isArray(x?.roles); // the old catalog ({ skills }) while vetting is hidden from this person
+      const roles = (v2 ? x.roles : x?.skills) || [];
       const done = roles.map((k) => k.last).filter((l) => l?.done);
-      const verified = roles.filter((k) => k.verified && !k.verified.expired).map((k) => k.role);
-      setD({ taken: done.length, best: done.length ? Math.max(...done.map((l) => l.score || 0)) : null, verified });
+      const verified = v2 ? roles.filter((k) => k.verified && !k.verified.expired).map((k) => k.role) : [];
+      setD({ v2, taken: done.length, best: done.length ? Math.max(...done.map((l) => l.score || 0)) : null, verified });
     }, () => setD({ failed: true }));
   }, []);
   return d;
@@ -72,7 +73,9 @@ function MyNumbers({ score, apps, interviews, tracked, sk }) {
     ['Applications', apps, `${tracked} tracked`, '/me/jobs', '▥'],
     ['Interviews', interviews, interviews ? 'Prepare with practice questions' : 'None yet', '/me/practice', '❝'],
     ['Resume ATS score', score, score >= 80 ? 'Good — recruiters’ systems read it well' : 'Below 80 — see the tips', '/me/ats', '◎'],
-    ['Skill checks', sk && !sk.failed ? sk.taken : null, sk?.failed ? 'Get a skill verified' : sk ? (sk.verified?.length ? `${sk.verified.length} skill${sk.verified.length > 1 ? 's' : ''} verified` : sk.best != null ? `Best score ${sk.best}/100` : 'Get a skill verified') : '', '/me/skill-checks', '✓'],
+    sk?.v2
+      ? ['Skill checks', sk.taken, sk.verified?.length ? `${sk.verified.length} skill${sk.verified.length > 1 ? 's' : ''} verified` : sk.best != null ? `Best score ${sk.best}/100` : 'Get a skill verified', '/me/skill-checks', '✓']
+      : ['Skill checks', sk && !sk.failed ? sk.taken : null, sk?.failed ? 'Take a 10-minute check' : sk ? (sk.best != null ? `Best score ${sk.best}%` : 'Take a 10-minute check') : '', '/me/skill-checks', '✓'],
   ];
   return (
     <div className="me-widgets" data-testid="me-widgets">
@@ -166,7 +169,7 @@ export default function MeHome() {
 
       <div className="row g16" style={{ alignItems: 'stretch' }}><ReadinessCard /><JobsForYouCard /></div>
 
-      <div className="row g16" style={{ alignItems: 'stretch' }}><HireCard /><RolesCard /><SkillVerifyCard sk={sk} /></div>
+      <div className="row g16" style={{ alignItems: 'stretch' }}><HireCard /><RolesCard />{sk?.v2 && <SkillVerifyCard sk={sk} />}</div>
 
       <ScoresExplained />
 

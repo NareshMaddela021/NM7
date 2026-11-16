@@ -305,13 +305,71 @@ def wants_email(u: dict[str, Any]) -> bool:
     return ((u.get("notify") or {}).get("email") or {}).get("hire", True) is not False
 
 
+def reminder_email_classic(u: dict[str, Any], days: int) -> Email:
+    site = get_settings().site_url.rstrip("/")
+    first = (u.get("name") or "").split(" ")[0] or "there"
+    yes = f"{site}/hire/still-ready#t={still_token(u['_id'])}"
+    edit = f"{site}/me/hire"
+    lines = [
+        f"Hi {first},",
+        "",
+        f"You said you are ready to join a job now. To stay visible to companies hiring now for the next {days} "
+        "days, tap Still ready:",
+        yes,
+        "",
+        f"Changed your plans? Update or pause it here: {edit}",
+        "If you do nothing, companies stop seeing you as ready from tomorrow. Nothing is deleted.",
+        "",
+        "Nm7 · nm7.si",
+    ]
+    html = (
+        f'<div style="{STYLE}"><p>Hi {escape(first)},</p><p>You said you are ready to join a job now. To stay '
+        f"visible to companies hiring now for the next {days} days, tap Still ready:</p>"
+        f'<p><a href="{escape(yes)}" style="display:inline-block;padding:10px 18px;background:#111;color:#fff;'
+        f'border-radius:8px;text-decoration:none">Still ready</a></p>'
+        f'<p style="color:#666;font-size:13px">Changed your plans? <a href="{escape(edit)}">Update or pause it</a>. '
+        "If you do nothing, companies stop seeing you as ready from tomorrow. Nothing is deleted.</p></div>"
+    )
+    subject = "Still ready to join? One tap"
+    return Email(to=u["email"], to_name=u.get("name", ""), subject=subject, text="\n".join(lines), html=html)
+
+
+async def _send_reminders_classic(db, mailer: Mailer, t=None) -> int:
+    """The reminder as it was before Vetting V1 (while the vetting engine is hidden): one email a day before "Ready to
+    join" goes stale, once per confirmation."""
+    t = t or now()
+    site = await get_site(db)
+    if not site["hire"]["on"]:
+        return 0
+    days = int(site["hire"]["confirm_days"])
+    due_from = t - timedelta(days=days)  # older than this: already stale
+    due_to = t - timedelta(days=max(0, days - 1))  # a day or less left
+    sent = 0
+    q = {"on": True, "consent_at": {"$ne": None}, "paused_at": None, "confirmed_at": {"$gt": due_from, "$lte": due_to}}
+    async for p in db[HIRE_PROFILES].find(q).limit(500):
+        if p.get("reminded_for") == p["confirmed_at"]:
+            continue  # this week's reminder went already
+        claimed = await db[HIRE_PROFILES].update_one(
+            {"_id": p["_id"], "reminded_for": {"$ne": p["confirmed_at"]}}, {"$set": {"reminded_for": p["confirmed_at"]}}
+        )
+        if not claimed.modified_count:
+            continue
+        u = await db[USERS].find_one({"_id": p["_id"]})
+        if wants_email(u):
+            sent += await send_safely(mailer, reminder_email_classic(u, days))
+    return sent
+
+
 async def send_reminders(db, mailer: Mailer, t=None) -> int:
     """Run by every automation pass. Vetting V1 freshness: "Still looking? Tap to confirm" once a week while the
     confirmation is getting old — the day before ⚡ "ready now" lapses (day 6), then weekly until day 21, after which
     they are hidden from Hire now until they confirm. Never twice in 7 days, never to a bounced address or someone who
     turned these emails off."""
+    from app.hire.vetting import access
     from app.hire.vetting.levels import HIDE_DAYS
 
+    if not await access.is_public(db):  # hidden (Admin → Skill checks → Launch): the reminder exactly as before
+        return await _send_reminders_classic(db, mailer, t)
     t = t or now()
     site = await get_site(db)
     if not site["hire"]["on"]:

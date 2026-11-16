@@ -69,9 +69,13 @@ def invite_email(u: dict[str, Any], role: dict[str, Any], jobs: int) -> Email:
 
 
 async def send_invites(db, mailer: Mailer, limit: int = 200) -> int:
+    from app.hire.vetting import access
     from app.hire.vetting.roles import BY_TEST
     from app.hire.vetting.router import demand, suggested_for
 
+    only = await access.mail_filter(db)  # hidden (Admin → Skill checks → Launch): only the testers get invites
+    if only is None:
+        return 0
     t = now()
     want = await demand(db)
     hot = {k for k, v in sorted(want.items(), key=lambda kv: -kv[1])[:10] if v > 0}
@@ -80,7 +84,7 @@ async def send_invites(db, mailer: Mailer, limit: int = 200) -> int:
     sent = 0
     q = {"email_verified_at": {"$ne": None}, "email_bounced": {"$ne": True}, "vetting_invites_off": {"$ne": True},
          "deleted_at": None, "disabled_at": None, "demo": {"$ne": True}, "vetting_consent_at": None,
-         "$or": [{"vetting_invited_at": None}, {"vetting_invited_at": {"$lt": t - INVITE_EVERY}}]}  # fmt: skip
+         "$or": [{"vetting_invited_at": None}, {"vetting_invited_at": {"$lt": t - INVITE_EVERY}}], **only}  # fmt: skip
     async for u in db[USERS].find(q, {"email": 1, "name": 1, "notify": 1, "email_verified_at": 1}).limit(limit * 5):
         if sent >= limit or not wants_email(u):
             continue

@@ -189,6 +189,11 @@ async def applicants(
     for a in apps:
         r = await _resume_doc(db, a)
         rows.append(_row(a, jobs.get(a["job_id"]), users.get(a["user_id"]), r, a["user_id"] in pooled))
+    from app.hire.vetting import access
+
+    if not await access.for_company(db, c, acc):  # the vetting engine hidden from this company: no level chips
+        for row in rows:
+            row["level"] = None
     rows.sort(key=_rank)
     counts: dict[str, int] = {}
     async for a in db[APPLICATIONS].find(_visible(cid), {"job_id": 1}):
@@ -205,13 +210,17 @@ async def applicants(
 
 @router.get("/{cid}/applicants/{app_id}")
 async def applicant(cid: str, app_id: str, db: DB, x_recruiter_account: str | None = Header(None)) -> dict[str, Any]:
-    acc, _, _ = await company_for(db, cid, x_recruiter_account)
+    acc, c, _ = await company_for(db, cid, x_recruiter_account)
     a = await _app(db, cid, app_id)
     job = await db[JOBS].find_one({"_id": a["job_id"]})
     user = await db[USERS].find_one({"_id": a["user_id"]}, {"name": 1, "email": 1, "vetting": 1})
     r = await _resume_doc(db, a)
     pooled = bool(await db[TALENT_POOL].find_one({"company_id": cid, "user_id": a["user_id"]}))
     out = _row(a, job, user, r, pooled)
+    from app.hire.vetting import access
+
+    if not await access.for_company(db, c, acc):
+        out["level"] = None
     out["data"] = recruiter_data({"_data": r["data"]}, a.get("status") in CONTACT_STAGES) if r else None
     out["template"] = (r or {}).get("template") or "classic"
     await audit(db, None, "company.applicant_open", target=cid, data={"by": acc["email_lc"], "app": app_id})

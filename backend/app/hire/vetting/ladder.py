@@ -20,7 +20,7 @@ from collections import Counter
 from datetime import timedelta
 from typing import Any
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
 from app.admin.deps import AdminAuth
 from app.auth.deps import CustomerAuth
@@ -39,13 +39,24 @@ from app.core.db import (
     VETTING_SHORTLISTS,
     VETTING_VERIFIED,
 )
+from app.core.errors import ApiError
 from app.core.time import now
 from app.hire.vetting import levels as L
 from app.hire.vetting.roles import ROLES
 from app.me.service import ms
 
 log = logging.getLogger(__name__)
-me = APIRouter(prefix="/api/me/level", tags=["vetting"])
+
+
+async def _on(auth: CustomerAuth, db: DB) -> None:
+    """404 while the vetting engine is hidden from this person (Admin → Skill checks → Launch)."""
+    from app.hire.vetting import access
+
+    if not await access.for_user(db, auth.user.id):
+        raise ApiError(404, "not_found", "Not found.")
+
+
+me = APIRouter(prefix="/api/me/level", tags=["vetting"], dependencies=[Depends(_on)])
 admin = APIRouter(prefix="/api/admin/vetting", tags=["vetting"])
 HOT = 15  # hot role × city pairs kept
 TOP = 20  # cached per pair
