@@ -267,13 +267,22 @@ async def _reference_used(db: AsyncDatabase, ref: str) -> bool:
 
 
 async def cancel(db: AsyncDatabase, order_id: str, actor_id: str | None, reason: str) -> Order:
-    order = await _wa_order(db, order_id)
+    order = await get_order(db, order_id)  # also one sent a payment link (method cleared, moved_from "whatsapp")
+    if order is None or "whatsapp" not in (order.method, order.moved_from):
+        raise ApiError(404, "not_found", "No such WhatsApp order.")
     r = await db[ORDERS].update_one(
         {"_id": order.id, "status": "awaiting_payment"},
         {"$set": {"status": "cancelled", "cancel_reason": reason.strip()[:300], "updated_at": now()}},
     )
     if not r.modified_count:
         raise ApiError(409, "not_cancellable", "Only an order waiting for payment can be cancelled.")
+    if order.payment_link:  # its Razorpay payment link must not take money for a cancelled order
+        from app.payments.links import cancel_open_links
+
+        try:
+            await cancel_open_links(db, order.id)
+        except ApiError as e:  # keys gone: the link expires on its own; a late payment is flagged for a refund
+            log.warning("cancel links of %s: %s", order.id, e.message)
     await release_codes(db, [order.id])
     await audit(db, actor_id, "whatsapp.cancelled", target=order.id, data={"order_id": order.id, "reason": reason})
     return await get_order(db, order.id)
