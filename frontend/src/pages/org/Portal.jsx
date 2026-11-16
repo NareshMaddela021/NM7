@@ -26,6 +26,15 @@ import Reviewers from './Reviewers';
 import { planBanners } from '../../lib/orgBilling';
 import RecruiterFeedback from './RecruiterFeedback';
 
+import { Still } from '../newhome/ParticleStage';
+import { TINTS, SHAPE_COLORS } from '../newhome/shapes';
+import '../../styles/me-kit.css';
+import '../../styles/org.css';
+import '../../styles/org-groups.css';
+import { Empty } from '../me/kit';
+
+TINTS.college = SHAPE_COLORS.college; // colleges: teal (round P, Phase 4)
+
 const ROLE = { owner: 'Owner', coordinator: 'Coordinator', viewer: 'Viewer (view and print)', reviewer: 'Reviewer', admin: 'Nm7 admin' };
 
 function Frame({ children, wide }) {
@@ -41,13 +50,16 @@ export function OrgHome() {
   if (!LIVE) return <Frame><h1 className="display h2">My organization</h1><p className="muted">The organization portal works on the live site only.</p></Frame>;
   return (
     <Frame>
-      {asked.length > 0 && <Link to="/org/transfer" className="card stack g4" style={{ textDecoration: 'none', color: 'inherit' }} data-testid="transfer-waiting"><strong>You’ve been asked to become the Owner of {asked.map((t) => t.orgName).join(', ')}</strong><span className="small muted">Enter the code from the email →</span></Link>}
+      {asked.length > 0 && <Link to="/org/transfer" className="mcard mcard-accent mcard-link og-transfer" data-testid="transfer-waiting"><span className="mcard-ic" aria-hidden="true">⇄</span><span className="stack g4"><strong>You’ve been asked to become the Owner of {asked.map((t) => t.orgName).join(', ')}</strong><span className="small muted">Enter the code from the email →</span></span></Link>}
       <Loading st={st}>{(orgs) => (orgs.length === 1 && !asked.length && (tr.data !== null || tr.error) ? <Navigate to={orgs[0].role === 'reviewer' ? `/review/${orgs[0].orgId}` : `/org/${orgs[0].orgId}`} replace /> : (
         <>
-          <h1 className="display h2">My organization</h1>
+          <div className="og-home-head">
+            <h1 className="display h2">My organization</h1>
+            <span className="og-home-art" aria-hidden="true"><Still shape="college" tint="college" className="og-head-still" /></span>
+          </div>
           {orgs.length === 0
-            ? <div className="card stack g8"><strong>You don’t run an organization on Nm7 yet.</strong><span className="small muted">Start one for free (you become its Owner), or ask your organization’s Owner for an invite — it comes by email with a one-time link.</span><Link to="/for-orgs?start=1#start" className="btn btn-ink" style={{ alignSelf: 'flex-start' }}>Start an organization</Link></div>
-            : orgs.map((o) => <Link key={o.orgId} to={o.role === 'reviewer' ? `/review/${o.orgId}` : `/org/${o.orgId}`} className="card row between g8" style={{ textDecoration: 'none', color: 'inherit' }}><strong>{o.orgName}</strong><span className="small muted">{ROLE[o.role]}</span></Link>)}
+            ? <Empty shape="college" tint="college" title="You don’t run an organization on Nm7 yet." action={<Link to="/for-orgs?start=1#start" className="btn btn-signal">Start an organization</Link>}>Start one for free (you become its Owner), or ask your organization’s Owner for an invite — it comes by email with a one-time link.</Empty>
+            : <div className="og-org-list">{orgs.map((o) => <Link key={o.orgId} to={o.role === 'reviewer' ? `/review/${o.orgId}` : `/org/${o.orgId}`} className="mcard mcard-link og-org-card"><span className="og-avatar" aria-hidden="true">{(o.orgName || '?').trim().charAt(0).toUpperCase()}</span><strong className="og-org-name">{o.orgName}</strong><span className="mchip mchip-neutral">{ROLE[o.role]}</span><span className="og-org-go" aria-hidden="true">→</span></Link>)}</div>}
         </>
       ))}</Loading>
     </Frame>
@@ -71,24 +83,52 @@ export function PortalLayout() {
     groupPatchUrl: (g) => `${apiBase(orgId)}/groups/${g.id}`,
   } : null), [st.data, orgId]);
   const owner = !!st.data?.isOwner;
-  const tabs = [['', 'My groups'], ['/dashboard', 'Dashboard'], ['/resumes', 'Shared resumes'], ...(st.data?.features?.kiosk ? [['/kiosks', 'Kiosks']] : []), ...(st.data?.features?.branding ? [['/branding', 'Branding']] : []), ...(st.data?.features?.recruiterLinks ? [['/recruiters', 'Recruiter links']] : []), ...(st.data?.features?.drives ? [['/drives', 'Drives']] : []), ...(st.data?.features?.offers ? [['/offers', 'Offers']] : []), ...(st.data?.features?.alumni ? [['/alumni', 'Alumni']] : []), ...(st.data?.features?.facultyReview ? [['/reviewers', 'Reviewers']] : []), ...(owner ? [['/team', 'Team'], ['/billing', 'Billing']] : []), ['/activity', 'Activity']];
+  const f = st.data?.features || {};
+  // round P, Phase 4: the side menu in groups (students, drives, reaching out, running the college); the same links
+  // and conditions as before, each with a symbol; the section title shows a small teal dotted shape on a desktop
+  const groups = [
+    [['', 'My groups', '☷'], ['/dashboard', 'Dashboard', '⌂'], ['/resumes', 'Shared resumes', '▤']],
+    [...(f.drives ? [['/drives', 'Drives', '⚑']] : []), ...(f.offers ? [['/offers', 'Offers', '✉']] : []), ...(f.kiosk ? [['/kiosks', 'Kiosks', '▣']] : [])],
+    [...(f.recruiterLinks ? [['/recruiters', 'Recruiter links', '⇄']] : []), ...(f.alumni ? [['/alumni', 'Alumni', '☆']] : []), ...(f.facultyReview ? [['/reviewers', 'Reviewers', '✎']] : []), ...(f.branding ? [['/branding', 'Branding', '◧']] : [])],
+    [...(owner ? [['/team', 'Team', '☺'], ['/billing', 'Billing', '₹']] : []), ['/activity', 'Activity', '☰']],
+  ].filter((g) => g.length);
+  const all = groups.flat();
+  const sub = pathname.replace(`/org/${orgId}`, '').replace(/\/$/, '');
+  const current = all.find(([to]) => to && sub.startsWith(to)) || all[0];
+  const SHAPE = { '': 'college', '/dashboard': 'college', '/resumes': 'resume', '/drives': 'handshake', '/offers': 'badge', '/kiosks': 'magnifier', '/recruiters': 'handshake', '/alumni': 'cap', '/reviewers': 'resume', '/branding': 'badge', '/team': 'handshake', '/billing': 'sphere', '/activity': 'resume' };
   return (
     <Frame wide>
       {st.error ? (
         <div className="card stack g8" role="alert"><strong>{st.error.status === 404 ? 'You don’t have access to this organization' : 'Couldn’t load this'}</strong><span className="small muted">{st.error.status === 404 ? 'Your access may have been removed. Ask Nm7 if this is a mistake.' : st.error.message}</span><Link to="/org">My organizations</Link></div>
       ) : !st.data ? <div className="row g12 muted" role="status"><Spinner /> Loading…</div> : (
-        <>
-          <div className="stack g4">
-            <span className="xs muted">{st.data.typeName}{st.data.city ? ` · ${st.data.city}` : ''} · {ROLE[st.data.role]}{st.data.allGroups ? '' : ' · some groups'} · {st.data.billing?.planName || 'Free'} plan</span>
-            <h1 className="display" style={{ fontSize: 28 }}>{st.data.name}</h1>
+        <div className="og-shell">
+          <aside className="og-side">
+            <div className="og-side-head">
+              <span className="og-avatar" aria-hidden="true">{(st.data.name || '?').trim().charAt(0).toUpperCase()}</span>
+              <span className="stack g4" style={{ minWidth: 0 }}>
+                <span className="xs muted">{st.data.typeName}{st.data.city ? ` · ${st.data.city}` : ''} · {ROLE[st.data.role]}{st.data.allGroups ? '' : ' · some groups'} · {st.data.billing?.planName || 'Free'} plan</span>
+                <h1 className="og-name">{st.data.name}</h1>
+              </span>
+            </div>
+            <nav aria-label="Organization" className="og-nav">
+              {groups.map((g, gi) => (
+                <div key={gi} className="og-nav-group">
+                  {g.map(([to, l, ic]) => <NavLink key={l} to={`/org/${orgId}${to}`} end={to === ''} className={({ isActive }) => `og-link ${isActive || (to === '' && pathname.includes('/groups/')) ? 'on' : ''}`}><span className="og-link-ic" aria-hidden="true">{ic}</span>{l}</NavLink>)}
+                </div>
+              ))}
+            </nav>
+          </aside>
+          <div className="og-main stack g16">
+            <div className="og-head" aria-hidden="true">
+              <span className="og-head-ic">{current[2]}</span>
+              <span className="og-head-title">{pathname.includes('/groups/') ? 'My groups' : current[1]}</span>
+              <span className="og-head-art"><Still shape={SHAPE[current[0]] || 'college'} tint="college" className="og-head-still" /></span>
+            </div>
+            {st.data.demo && <DemoBanner />}
+            <PlanBanners home={st.data} orgId={orgId} />
+            <Outlet context={{ ctx, home: st.data, reload: st.reload }} />
           </div>
-          {st.data.demo && <DemoBanner />}
-          <PlanBanners home={st.data} orgId={orgId} />
-          <nav aria-label="Organization" className="row g8" style={{ flexWrap: 'wrap' }}>
-            {tabs.map(([to, l]) => <NavLink key={l} to={`/org/${orgId}${to}`} end={to === ''} className={({ isActive }) => `btn ${isActive || (to === '' && pathname.includes('/groups/')) ? 'btn-ink' : 'btn-outline'}`} style={{ minHeight: 36 }}>{l}</NavLink>)}
-          </nav>
-          <Outlet context={{ ctx, home: st.data, reload: st.reload }} />
-        </>
+        </div>
       )}
     </Frame>
   );
@@ -148,8 +188,17 @@ export function PortalGroups() {
   const [busy, run] = useAction(toast);
   return (
     <>
-      {home.groupList.length === 0 && <div className="well small muted" style={{ textAlign: 'center', padding: 24 }}>No groups yet.{home.canCreateGroups ? ' A group is one batch, event or drive with its own join code.' : ''}</div>}
-      {home.groupList.map((g) => <GroupCard key={g.id} g={g} ctx={ctx} busy={busy} run={run} reload={reload} toast={toast} />)}
+      {home.groupList.length > 0 && (
+        <div className="og-summary">
+          <div className="og-tile"><span className="og-tile-l">Groups</span><strong className="og-tile-v">{home.groupList.length}</strong></div>
+          <div className="og-tile"><span className="og-tile-l">Students joined</span><strong className="og-tile-v">{home.groupList.reduce((n, g) => n + (g.members || 0), 0)}</strong></div>
+          <div className="og-tile"><span className="og-tile-l">Open for joining</span><strong className="og-tile-v">{home.groupList.filter((g) => g.settings?.active).length}</strong></div>
+        </div>
+      )}
+      {home.groupList.length === 0 && <Empty shape="college" tint="college" title="No groups yet.">{home.canCreateGroups ? 'A group is one batch, event or drive with its own join code.' : 'Your organization hasn’t made a group yet.'}</Empty>}
+      <div className="og-group-list">
+        {home.groupList.map((g) => <GroupCard key={g.id} g={g} ctx={ctx} busy={busy} run={run} reload={reload} toast={toast} />)}
+      </div>
       {home.canCreateGroups && <NewGroup ctx={ctx} url={`${ctx.base}/groups`} busy={busy} run={run} reload={reload} />}
       <SimpleDefault orgId={ctx.orgId} canManage={home.canManage} toast={toast} />
     </>
@@ -163,9 +212,9 @@ function SimpleDefault({ orgId, canManage, toast }) {
   if (!st.data) return null;
   const set = (on) => run(async () => { await http(`/api/org/${orgId}/simple`, { method: 'PUT', body: { simpleDefault: on } }); st.reload(); }, on ? 'Students start on the simple dashboard' : 'Students start on the full dashboard');
   return (
-    <section className="card stack g8" aria-label="Students’ dashboard" data-testid="org-simple">
-      <strong>Students’ dashboard</strong>
-      <label className="row g8 small"><input type="checkbox" checked={st.data.simpleDefault} disabled={busy || !canManage} onChange={(e) => set(e.target.checked)} data-testid="org-simple-on" />Simple by default: big buttons, voice, English / Telugu / Hindi. Students can still switch to the full dashboard.</label>
+    <section className="mcard og-simple" aria-label="Students’ dashboard" data-testid="org-simple">
+      <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">☺</span><span className="mcard-ht"><strong className="mcard-title">Students’ dashboard</strong><span className="mcard-sub">What your students see first when they sign in.</span></span></header>
+      <label className="og-toggle-row small"><input type="checkbox" checked={st.data.simpleDefault} disabled={busy || !canManage} onChange={(e) => set(e.target.checked)} data-testid="org-simple-on" /><span>Simple by default: big buttons, voice, English / Telugu / Hindi. Students can still switch to the full dashboard.</span></label>
     </section>
   );
 }
@@ -195,7 +244,7 @@ export function PortalDashboard() {
   const { groupId } = useParams();
   const group = home.groupList.find((g) => g.id === groupId);
   usePageMeta(portalMeta(group ? `${group.name} dashboard` : `Group dashboard · ${home.name}`));
-  return <GroupDashboard ctx={ctx} groupId={groupId} onBack={<Link className="btn btn-outline" to={`/org/${ctx.orgId}`}>All groups</Link>} />;
+  return <GroupDashboard ctx={ctx} groupId={groupId} onBack={<Link className="btn btn-outline og-btn-sm" to={`/org/${ctx.orgId}`}><span aria-hidden="true">← </span>All groups</Link>} />;
 }
 
 /** /org/:orgId/kiosks — only when Nm7 switched kiosks on for the organization */
@@ -247,20 +296,22 @@ export function OrgInvite() {
   return (
     <Frame>
       {info.error ? (
-        <div className="card stack g8" role="alert"><h1 className="display" style={{ fontSize: 26 }}>This invite doesn’t work</h1><p>{info.error.message}</p></div>
+        <div className="mcard mcard-bad og-center-card" role="alert"><span className="og-big-ic bad" aria-hidden="true">!</span><h1 className="display" style={{ fontSize: 26 }}>This invite doesn’t work</h1><p>{info.error.message}</p></div>
       ) : !info.data || !ready ? <div className="row g12 muted" role="status"><Spinner /> Loading…</div> : (
-        <div className="card stack g16">
-          <h1 className="display" style={{ fontSize: 26 }}>Join {info.data.orgName} on Nm7</h1>
+        <div className="mcard og-center-card og-invite">
+          <span className="og-invite-art" aria-hidden="true"><Still shape="college" tint="college" className="og-head-still" /></span>
+          <span className="mchip mchip-accent">{info.data.role === 'viewer' ? 'Viewer' : 'Coordinator'} invite</span>
+          <h1 className="display" style={{ fontSize: 28 }}>Join {info.data.orgName} on Nm7</h1>
           <p>You’re invited as a <strong>{info.data.role === 'viewer' ? 'viewer (view and print)' : 'coordinator'}</strong> for <strong>{info.data.orgName}</strong>. You’ll see your organization’s shared resumes, and nothing else.</p>
           <p className="small muted">The invite is for <strong>{info.data.email}</strong>. Use your own Nm7 account with that email address.</p>
           {!user && (
-            <div className="row g8">
-              <Link className="btn btn-ink" to={`/signup?next=${here}`}>Create a free account</Link>
+            <div className="row g8 og-center-actions">
+              <Link className="btn btn-signal" to={`/signup?next=${here}`}>Create a free account</Link>
               <Link className="btn btn-outline" to={`/login?next=${here}`}>Sign in</Link>
             </div>
           )}
           {user && user.role !== 'customer' && <p className="small" role="alert">You’re signed in with a {user.role} account. Sign out and sign in with {info.data.email}.</p>}
-          {user?.role === 'customer' && <button type="button" className="btn btn-ink btn-lg" style={{ alignSelf: 'flex-start' }} disabled={busy} onClick={accept}>{busy ? 'Accepting…' : 'Accept the invite'}</button>}
+          {user?.role === 'customer' && <button type="button" className="btn btn-signal btn-lg" disabled={busy} onClick={accept}>{busy ? 'Accepting…' : 'Accept the invite'}</button>}
           {error && <p className="small" role="alert" style={{ color: 'var(--danger)' }}>{error}</p>}
         </div>
       )}
@@ -280,13 +331,14 @@ export function StopReminders() {
   return (
     <Frame>
       {st.loading ? <div className="row g12 muted" role="status"><Spinner /> One moment…</div>
-        : st.error ? <div className="card stack g8" role="alert"><strong>This link doesn’t work</strong><span className="small muted">{st.error.message}</span><Link to="/me/groups">My groups</Link></div>
+        : st.error ? <div className="mcard mcard-bad og-center-card" role="alert"><span className="og-big-ic bad" aria-hidden="true">!</span><strong>This link doesn’t work</strong><span className="small muted">{st.error.message}</span><Link to="/me/groups" className="btn btn-outline">My groups</Link></div>
           : (
-            <div className="card stack g8" role="status">
+            <div className="mcard mcard-ok og-center-card" role="status">
+              <span className="og-big-ic ok" aria-hidden="true">✓</span>
               <h1 className="display" style={{ fontSize: 26 }}>Reminders stopped</h1>
               <p>You won’t get reminder emails from {st.data?.orgName ? `${st.data.orgName} (${st.data.groupName})` : 'this group'} any more. Your resume is still shared with them.</p>
               <span className="small muted">You can switch reminders back on, or leave the group, in your dashboard.</span>
-              <Link to="/me/groups" className="btn btn-outline" style={{ alignSelf: 'flex-start' }}>My groups</Link>
+              <Link to="/me/groups" className="btn btn-outline">My groups</Link>
             </div>
           )}
     </Frame>

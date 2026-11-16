@@ -22,6 +22,8 @@ import ErrorBoundary from '../../components/ErrorBoundary';
 import MyInterviews from '../../components/MyInterviews';
 import { Chip, Empty, Skel } from '../me/kit';
 import '../../styles/me-account.css';
+import '../../styles/org-groups.css';
+import { Still } from '../newhome/ParticleStage';
 
 const chipTone = (cls = '') => ({ 'b-success': 'ok', 'b-warning': 'warn', 'b-danger': 'bad', 'b-signal': 'accent' }[cls] || 'neutral');
 /** A link to another part of My groups, as a card. */
@@ -71,7 +73,7 @@ function FieldInputs({ defs, values, set, idPrefix = 'jf' }) {
 }
 
 function Frame({ children }) {
-  return (<><Header /><main id="main" className="container stack g20" style={{ maxWidth: 640, padding: '40px 16px 72px' }}>{children}</main><SiteFooter /></>);
+  return (<><Header /><main id="main" className="container stack g20 og-join-page" style={{ maxWidth: 680, padding: '32px 16px 72px' }}>{children}</main><SiteFooter /></>);
 }
 
 /** /join/:code */
@@ -101,11 +103,12 @@ export function Join() {
   if (info.error) {
     return (
       <Frame>
-        <div className="card stack g12" role="alert">
+        <div className="mcard mcard-bad og-center-card" role="alert">
+          <span className="og-big-ic bad" aria-hidden="true">!</span>
           <h1 className="display" style={{ fontSize: 26 }}>{info.error.code === 'network' ? 'We can’t reach Nm7' : 'This join link doesn’t work'}</h1>
           <p>{info.error.message}</p>
           <span className="small muted">Code: <strong className="mono">{code || '—'}</strong>. Ask your organizer for the right code or link.</span>
-          <Link to="/" className="btn btn-outline" style={{ alignSelf: 'flex-start' }}>Go to Nm7</Link>
+          <Link to="/" className="btn btn-outline">Go to Nm7</Link>
         </div>
       </Frame>
     );
@@ -144,28 +147,37 @@ export function Join() {
 
   return (
     <Frame>
-      <div className="stack g8">
-        <span className="badge b-neutral" style={{ alignSelf: 'flex-start' }}>{j.org.typeName}{j.org.city ? ` · ${j.org.city}` : ''}</span>
-        <h1 className="display h2">{j.org.name}</h1>
-        <p className="lead">{j.group.name}</p>
+      <div className="mcard og-join-hero">
+        <span className="og-join-av" aria-hidden="true">{(j.org.name || '?').trim().charAt(0).toUpperCase()}</span>
+        <div className="stack g4" style={{ minWidth: 0 }}>
+          <span className="mchip mchip-neutral" style={{ alignSelf: 'flex-start' }}>{j.org.typeName}{j.org.city ? ` · ${j.org.city}` : ''}</span>
+          <h1 className="display h2 og-join-name">{j.org.name}</h1>
+          <p className="lead og-join-group">{j.group.name}</p>
+        </div>
+        <span className="og-join-art" aria-hidden="true"><Still shape="college" tint="college" className="og-head-still" /></span>
       </div>
-      <p>{j.org.name} uses Nm7 to collect and print resumes{j.group.endsOn ? ` (until ${fmtDay(Date.parse(j.group.endsOn))})` : ''}. Build or pick your resume here — it’s free — and share it with them in one step. You can leave the group any time from your dashboard.{j.group.requireApproval ? ` ${j.org.name} checks new members before their resume is shared.` : ''}</p>
-      <form className="card stack g16" onSubmit={submit} aria-label="Join this group">
-        <label className="row g8" style={{ alignItems: 'flex-start', flexWrap: 'nowrap' }}>
-          <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} style={{ marginTop: 4 }} />
+      <ol className="og-join-steps" aria-label="How joining works">
+        <li><span className="og-join-n" aria-hidden="true">1</span>Agree to share</li>
+        <li><span className="og-join-n" aria-hidden="true">2</span>{user ? 'Answer a few questions' : 'Sign in or sign up'}</li>
+        <li><span className="og-join-n" aria-hidden="true">3</span>Pick your resume</li>
+      </ol>
+      <p className="og-join-intro">{j.org.name} uses Nm7 to collect and print resumes{j.group.endsOn ? ` (until ${fmtDay(Date.parse(j.group.endsOn))})` : ''}. Build or pick your resume here — it’s free — and share it with them in one step. You can leave the group any time from your dashboard.{j.group.requireApproval ? ` ${j.org.name} checks new members before their resume is shared.` : ''}</p>
+      <form className="mcard og-join-form" onSubmit={submit} aria-label="Join this group">
+        <label className="og-toggle-row">
+          <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
           <span>{j.consentText}</span>
         </label>
         {j.group.shareWithRecruiters && (
-          <label className="row g8" style={{ alignItems: 'flex-start', flexWrap: 'nowrap' }}>
-            <input type="checkbox" checked={recruit} onChange={(e) => setRecruit(e.target.checked)} style={{ marginTop: 4 }} />
+          <label className="og-toggle-row">
+            <input type="checkbox" checked={recruit} onChange={(e) => setRecruit(e.target.checked)} />
             <span>Allow {j.org.name} to share my resume with recruiters <span className="small muted">(optional — you can change this any time in My groups)</span></span>
           </label>
         )}
         {!user && (
           <div className="stack g8">
             <span className="small muted">Next: create a free account (or sign in) so your resume is saved.</span>
-            <div className="row g8">
-              <Link className="btn btn-ink" to={consent ? `/signup?next=${here}` : '#'} onClick={(e) => { if (!consent) { e.preventDefault(); setError('Please tick the box to agree first.'); } }}>Create a free account</Link>
+            <div className="row g8 og-join-auth">
+              <Link className="btn btn-signal" to={consent ? `/signup?next=${here}` : '#'} onClick={(e) => { if (!consent) { e.preventDefault(); setError('Please tick the box to agree first.'); } }}>Create a free account</Link>
               <Link className="btn btn-outline" to={consent ? `/login?next=${here}` : '#'} onClick={(e) => { if (!consent) { e.preventDefault(); setError('Please tick the box to agree first.'); } }}>I have an account — sign in</Link>
             </div>
           </div>
@@ -173,7 +185,7 @@ export function Join() {
         {user && !customer && <p className="small" role="alert">You’re signed in with a {user.role} account. Please sign in with your own (customer) account to join.</p>}
         {customer && (
           <>
-            <FieldInputs defs={defs} values={values} set={setValues} />
+            {defs.length > 0 && <div className="og-join-fields"><FieldInputs defs={defs} values={values} set={setValues} /></div>}
             <div className="field">
               <label className="label" htmlFor="jf-resume">Resume to share</label>
               {resumes.loading ? <span className="small muted"><Spinner /> Loading your resumes…</span> : (
@@ -184,12 +196,12 @@ export function Join() {
               )}
               <span className="xs faint">You can change this later in your dashboard → My groups.</span>
             </div>
-            <button type="submit" className="btn btn-ink btn-lg" disabled={busy || resumes.loading}>{busy ? 'Joining…' : chosen === NEW ? 'Join and build my resume' : 'Join and share this resume'}</button>
+            <button type="submit" className="btn btn-signal btn-lg og-join-submit" disabled={busy || resumes.loading}>{busy ? 'Joining…' : chosen === NEW ? 'Join and build my resume' : 'Join and share this resume'}</button>
           </>
         )}
         {error && <p className="small" role="alert" style={{ color: 'var(--danger)' }}>{error}</p>}
       </form>
-      <p className="xs faint">Nm7 never asks for Aadhaar or other ID numbers. Only {j.org.name} and Nm7 see what you share.</p>
+      <p className="xs faint og-join-safe"><span aria-hidden="true">🔒 </span>Nm7 never asks for Aadhaar or other ID numbers. Only {j.org.name} and Nm7 see what you share.</p>
     </Frame>
   );
 }
