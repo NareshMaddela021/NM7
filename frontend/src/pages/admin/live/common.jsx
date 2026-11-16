@@ -14,7 +14,7 @@ export { http };
 export const NAV = [
   ['dashboard', '/admin', 'Dashboard', '▦'],
   ['orders', '/admin/orders', 'Orders', '☰'],
-  ['payments', '/admin/whatsapp-payments', 'WhatsApp payments', '✆'],
+  ['payments', '/admin/whatsapp-payments', 'WhatsApp payments (old)', '✆'], // in the menu only while some wait for money
   ['experts', '/admin/experts', 'Experts', '✦'],
   ['refunds', '/admin/refunds', 'Refunds & disputes', '↺'],
   ['payments', '/admin/payments', 'Payments & invoices', '₹'],
@@ -95,7 +95,7 @@ export const when = (v) => (v ? new Date(typeof v === 'number' ? v : Date.parse(
 export const day = (v) => (v ? new Date(typeof v === 'number' ? v : Date.parse(v)).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—');
 
 export const STATUS_LABEL = {
-  pending_payment: 'Awaiting payment', awaiting_payment: 'Waiting for payment (WhatsApp)', offer: 'Finding expert', in_progress: 'Expert writing', waiting: 'Draft with customer', revision: 'Changes',
+  pending_payment: 'Awaiting payment', awaiting_payment: 'Waiting for payment · old (WhatsApp)', offer: 'Finding expert', in_progress: 'Expert writing', waiting: 'Draft with customer', revision: 'Changes',
   delivered: 'Delivered', approved: 'Approved', done: 'Done (DIY)', expired: 'Expired', cancelled: 'Cancelled', refunded: 'Refunded',
 };
 export const tone = (s) => ({ refunded: 'neutral', expired: 'neutral', cancelled: 'neutral', approved: 'success', done: 'success', delivered: 'success', offer: 'warning', revision: 'warning' }[s] || 'neutral');
@@ -116,8 +116,19 @@ export function LiveAdminLayout() {
   const can = ROLES[user?.adminRole]?.can || [];
   const current = NAV.find(([, to]) => (to === '/admin' ? pathname === '/admin' || pathname === '/admin/' : pathname.startsWith(to)));
   const allowed = !current || can.includes(current[0]);
+  // "WhatsApp payments (old)" shows in the menu only while old WhatsApp orders still wait for money (the page itself
+  // always opens at /admin/whatsapp-payments)
+  const [oldWa, setOldWa] = useState(0);
+  const canPay = can.includes('payments');
+  useEffect(() => {
+    if (!canPay) return undefined;
+    let on = true;
+    http('/api/admin/whatsapp/pending').then((r) => on && setOldWa(r.pending || 0), () => {});
+    return () => { on = false; };
+  }, [canPay]);
+  const hidden = (to) => to === '/admin/whatsapp-payments' && !oldWa && !pathname.startsWith(to);
   const byPath = Object.fromEntries(NAV.map((n) => [n[1], n]));
-  const groups = NAV_GROUPS.map(([g, paths]) => [g, paths.map((p) => byPath[p]).filter((n) => n && can.includes(n[0]))]).filter(([, l]) => l.length);
+  const groups = NAV_GROUPS.map(([g, paths]) => [g, paths.map((p) => byPath[p]).filter((n) => n && can.includes(n[0]) && !hidden(n[1]))]).filter(([, l]) => l.length);
   return (
     <>
       <Header variant="admin" />

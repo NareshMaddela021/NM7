@@ -2,7 +2,6 @@ import { Component, Suspense, lazy as reactLazy, useEffect, useRef, useState } f
 import { Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
 import Header from './components/Header';
 import { notePage, onCheck, onGate } from './lib/downloads';
-import { onPlaced } from './lib/waPay';
 import { Spinner } from './components/ui';
 import { useAuth, previewSignIn, previewUsers, LIVE } from './lib/auth';
 import { RequireAuth } from './pages/auth/RequireAuth';
@@ -42,13 +41,6 @@ function PrintCheckHost() {
   const [opened, setOpened] = useState(false);
   useEffect(() => onCheck((c) => { if (c) setOpened(true); }), []);
   return opened ? <Suspense fallback={null}><PrintCheck /></Suspense> : null;
-}
-// "Buy on WhatsApp": the order number and the chat link, shown once an order is placed.
-const WaPlaced = lazy(() => import('./components/WaPlaced'));
-function WaPlacedHost() {
-  const [opened, setOpened] = useState(false);
-  useEffect(() => onPlaced((p) => { if (p) setOpened(true); }), []);
-  return opened ? <Suspense fallback={null}><WaPlaced /></Suspense> : null;
 }
 const Checkout = lazy(() => import('./pages/Checkout'));
 const StopAlerts = lazy(() => import('./pages/StopAlerts'));
@@ -370,7 +362,6 @@ export default function App() {
       <PreviewBar />
       <DownloadGateHost />
       <PrintCheckHost />
-      <WaPlacedHost />
       <ServerWaking />
       <Pages>
       <Suspense fallback={<Fallback />}>

@@ -1,13 +1,12 @@
 // The annual student pass (P1) on every pay screen, marked "Best value": one payment unlocks for 12 months unlimited
-// PDF / Word downloads and the Tailor, Interview (with voice practice) and LinkedIn packs. Follows the payment mode
-// (WhatsApp order now, Razorpay later; Off: not shown). Hidden while a pass is active. Also the dashboard line
+// PDF / Word downloads and the Tailor, Interview (with voice practice) and LinkedIn packs. Paid with Razorpay (not
+// shown while payments are off). Hidden while a pass is active. Also the dashboard line
 // "Pass active until <date>".
 import { useEffect, useState } from 'react';
 import { Spinner, useToast } from './ui';
 import CodeBox from './CodeBox';
-import { createOrder, pay } from '../services/api';
 import { http } from '../services/http';
-import { WA_PAY_TEXT, buyOnWhatsApp } from '../lib/waPay';
+import { buy as buyPlan, payErrorLine } from '../lib/payMode';
 import { reloadMe } from '../lib/customerStore';
 
 const rs = (n) => `Rs ${Number(n).toLocaleString('en-IN', Number.isInteger(Number(n)) ? {} : { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -27,7 +26,7 @@ export function usePass() {
   return [st, publish];
 }
 
-/** onBought(): after a Razorpay payment or a free code (a WhatsApp order unlocks when the admin marks it paid). */
+/** onBought(): after a Razorpay payment or a free code. */
 export default function PassOffer({ onBought, compact = false }) {
   const toast = useToast();
   const [st, setSt] = usePass();
@@ -43,16 +42,12 @@ export default function PassOffer({ onBought, compact = false }) {
     onBought?.();
   };
   const buy = async () => {
+    if (busy) return;
     setBusy(true);
     try {
-      if (st.mode === 'whatsapp') {
-        const r = await buyOnWhatsApp({ planId: 'annual_pass', ...(quote?.code ? { code: quote.code } : {}) });
-        if (r?.unlocked) await done();
-        return;
-      }
-      await pay(await createOrder({ planId: 'annual_pass', code: quote?.code }));
+      await buyPlan({ planId: 'annual_pass', ...(quote?.code ? { code: quote.code } : {}) });
       await done();
-    } catch (e) { toast(e.message || 'Payment didn’t go through. You haven’t been charged.'); } finally { setBusy(false); }
+    } catch (e) { toast(payErrorLine(e)); } finally { setBusy(false); }
   };
   return (
     <div className="well stack g8" data-testid="pass-offer" style={{ borderColor: 'var(--accent)' }}>
@@ -62,10 +57,9 @@ export default function PassOffer({ onBought, compact = false }) {
       </div>
       <span className="xs muted">{PASS_WHAT}{compact ? '' : ' Things you buy separately stay yours after the year; your resumes are never locked.'}</span>
       <button type="button" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={busy} onClick={buy} data-testid="pass-buy">
-        {busy && <Spinner />}{st.mode === 'whatsapp' ? (busy ? 'Opening WhatsApp…' : 'Get the pass on WhatsApp') : busy ? 'Waiting for your payment…' : `Get the pass ${rs(price)}`}
+        {busy && <Spinner />}{busy ? 'Waiting for your payment…' : `Get the pass ${rs(price)}`}
       </button>
       {!compact && <CodeBox item="annual_pass" onApplied={setQuote} disabled={busy} onUnlocked={done} />}
-      {st.mode === 'whatsapp' && <span className="xs faint">{WA_PAY_TEXT}</span>}
     </div>
   );
 }

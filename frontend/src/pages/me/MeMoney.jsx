@@ -7,10 +7,10 @@ import { useMe, payments, orderView, buyAddon, upgradeOrder, getMe } from '../..
 import { useExpertOrders } from '../../lib/expertStore';
 import { PLANS, ADDONS, PROMISES, RESUME_PLANS, inr, upgradePrice } from '../../lib/pricing';
 import { COMING_SOON, buyPack, packStatus } from '../../lib/linkedin/pack';
-import { BUY_WA } from '../../lib/waPay';
+import { payErrorLine } from '../../lib/payMode';
 import { MeHead } from './MeLayout';
 import { PayDialog } from './MeOrders';
-import { fmtDay, invoicePdf } from './shared';
+import { downloadInvoice, fmtDay } from './shared';
 import { Chip, Empty, MeCard, Stat } from './kit';
 import '../../styles/me-account.css';
 
@@ -19,6 +19,7 @@ const points = (blurb) => blurb.split(/,\s*|\s\+\s|\s+and\s+/).map((x) => x.trim
 
 export function MePayments() {
   const me = useMe();
+  const toast = useToast();
   const rows = payments(me);
   const paid = rows.filter((r) => r.kind === 'payment').reduce((t, r) => t + r.amount, 0);
   const refunded = rows.filter((r) => r.kind === 'refund').reduce((t, r) => t - r.amount, 0);
@@ -42,7 +43,7 @@ export function MePayments() {
                   <td className="small strong" data-label="Amount" style={{ color: r.amount < 0 ? 'var(--success)' : undefined }}>{r.amount < 0 ? `+ ${inr(-r.amount)}` : inr(r.amount)}</td>
                   <td className="small" data-label="Method">{r.method}</td>
                   <td data-label="Status">{r.kind === 'refund' ? (r.done ? <Chip tone="ok">Refunded {fmtDay(r.done)}</Chip> : <Chip tone="warn">On the way · {PROMISES.refundDays}</Chip>) : <Chip>Paid</Chip>}</td>
-                  <td className="acc-pay-dl">{r.invoice && <button type="button" className="btn btn-outline acc-pdf" onClick={() => invoicePdf({ no: r.invoice, at: r.at, item: r.what, amount: r.amount, payId: r.payId, method: r.method, receipt: r.receipt, name: getMe().account.name, email: getMe().account.email })}>{r.receipt ? 'Receipt' : 'Invoice'}</button>}</td>
+                  <td className="acc-pay-dl">{r.invoice && <button type="button" className="btn btn-outline acc-pdf" aria-label={`Download ${r.receipt ? 'receipt' : 'invoice'} ${r.invoice}`} onClick={() => downloadInvoice({ no: r.invoice, invoiceOrder: r.invoiceOrder, at: r.at, item: r.what, amount: r.amount, payId: r.payId, method: r.method, receipt: r.receipt, name: getMe().account.name, email: getMe().account.email }).catch((e) => toast(e.message))}>{r.receipt ? 'Receipt' : 'Invoice'}</button>}</td>
                 </tr>
               ))}</tbody></table>
           </div>
@@ -121,8 +122,9 @@ function PackCard() {
   useEffect(() => { packStatus().then(setSt); }, []);
   if (!st) return null;
   const buy = async () => {
+    if (busy) return;
     setBusy(true);
-    try { const r = await buyPack(st.mode); if (!r?.whatsapp) { toast('LinkedIn pack unlocked'); setSt(await packStatus()); } } catch (e) { toast(e.message || 'Payment didn’t go through. You haven’t been charged.'); } finally { setBusy(false); }
+    try { await buyPack(); toast('LinkedIn pack unlocked'); setSt(await packStatus()); } catch (e) { toast(payErrorLine(e)); } finally { setBusy(false); }
   };
   return (
     <section className="mcard mcard-accent acc-pack" aria-label="LinkedIn pack" data-testid="up-li-pack">
@@ -132,7 +134,7 @@ function PackCard() {
         <span className="small muted">Headlines, About in 3 styles, experience, skills, a banner and URL ideas, from your own details. Included in Career Launch.</span>
       </span>
       {st.owned ? <Link to="/linkedin#pack" className="btn btn-signal">Open my LinkedIn pack</Link>
-        : st.onSale ? <button type="button" className="btn btn-signal" onClick={buy} disabled={busy}>{st.mode === 'whatsapp' ? (busy ? 'Opening WhatsApp…' : BUY_WA) : busy ? 'Waiting for your payment…' : `Buy ${inr(st.price)}`}</button>
+        : st.onSale ? <button type="button" className="btn btn-signal" onClick={buy} disabled={busy}>{busy ? 'Waiting for your payment…' : `Buy ${inr(st.price)}`}</button>
           : <span className="btn btn-outline" aria-disabled="true" style={{ opacity: 0.7, cursor: 'not-allowed' }}>{COMING_SOON}</span>}
     </section>
   );

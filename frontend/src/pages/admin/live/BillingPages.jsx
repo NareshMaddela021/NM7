@@ -326,13 +326,13 @@ function OrgMoney({ orgId, b, reload }) {
           <div className="row g8" style={{ flexWrap: 'wrap' }}>
             <select aria-label="Proforma plan" className="input" style={inputStyle} value={pf.planId} onChange={(e) => setPf({ ...pf, planId: e.target.value })}><option value="drive">Drive</option><option value="campus">Campus</option>{b.customPlan && <option value="custom">Custom</option>}</select>
             <label className="small">Extra discount % <input type="number" min={0} max={100} className="input" style={{ ...inputStyle, width: 80 }} value={pf.extraDiscountPct} onChange={(e) => setPf({ ...pf, extraDiscountPct: e.target.value })} /></label>
-            <label className="row g8 small"><input type="checkbox" checked={pf.paymentLink} onChange={(e) => setPf({ ...pf, paymentLink: e.target.checked })} /> With a Razorpay payment link</label>
+            <label className="row g8 small" style={{ minHeight: 44, alignItems: 'center' }}><input type="checkbox" checked={pf.paymentLink} data-testid="pf-link" onChange={(e) => setPf({ ...pf, paymentLink: e.target.checked })} /> Email a Razorpay payment link</label>
           </div>
-          <span className="xs muted">A request for payment, not a tax invoice. Paid through the link, the plan turns on by itself; paid by bank, record it below.</span>
+          <span className="xs muted">A request for payment, not a tax invoice. With the link on, the proforma and its Razorpay payment link are emailed to the organization’s billing email; paid through the link, the plan turns on by itself. Paid by bank, record it below.</span>
           <button type="submit" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={busy}>Issue proforma</button>
         </form>
       )}
-      {made && <div className="ao-note ao-note-ok small" role="status">Proforma <span className="mono">{made.number}</span> for {rupees(made.total)}.{made.paymentLink ? <> Payment link: <a href={made.paymentLink} target="_blank" rel="noreferrer" className="mono">{made.paymentLink}</a></> : ''} Download it below and send it to the organization.</div>}
+      {made && <div className="ao-note ao-note-ok small" role="status" data-testid="pf-made">Proforma <span className="mono">{made.number}</span> for {rupees(made.total)}.{made.paymentLink ? <> Payment link: <a href={made.paymentLink} target="_blank" rel="noreferrer" className="mono" style={{ overflowWrap: 'anywhere' }}>{made.paymentLink}</a></> : ''}{made.emailedTo ? (made.emailed ? <> Emailed to <strong>{made.emailedTo}</strong>.</> : <> The email to {made.emailedTo} didn’t go out: download it below and send it yourself.</>) : made.paymentLink ? ' No billing email is set: download it below and send it to the organization.' : ' Download it below and send it to the organization.'}</div>}
       {off && (
         <form className="ao-sub" aria-label="Offline payment" onSubmit={(e) => { e.preventDefault(); run(async () => { await http(`/api/admin/orgs/${orgId}/billing/offline-payment`, { method: 'POST', body: { orderId: off.orderId || null, planId: off.orderId ? null : off.planId, method: off.method, reference: off.reference, paidOn: off.paidOn, amount: Math.round(Number(off.amount) * 100) } }); setOff(null); again(); }, 'Payment recorded · plan on · invoice issued'); }}>
           <div className="row g8" style={{ flexWrap: 'wrap' }}>

@@ -22,8 +22,8 @@ export async function scanResume(source, role, onStep) {
 
 /* ---------- Orders & payment ---------- */
 /** POST /api/orders { planId, role, addons } → { orderId, razorpayOrderId, amount (paise), currency, keyId, … } */
-export async function createOrder({ planId, role, addons = [], code }) {
-  if (LIVE) return http('/api/orders', { method: 'POST', body: { planId, role: role || null, addons, ...(code ? { code } : {}) } });
+export async function createOrder({ planId, role, addons = [], code, billing }) {
+  if (LIVE) return http('/api/orders', { method: 'POST', body: { planId, role: role || null, addons, ...(code ? { code } : {}), ...(billing ? { billing } : {}) } });
   await wait(400);
   return { orderId: null, planId, role, razorpayOrderId: 'order_TEST123' };
 }
@@ -45,7 +45,9 @@ const METHOD = { upi: 'UPI', card: 'Card', netbanking: 'Netbanking', wallet: 'Wa
 /**
  * Opens Razorpay's own checkout window (UPI, card, netbanking…) for an order from createOrder(),
  * then has the server confirm the payment (POST /api/payments/verify).
- * Resolves with { orderId, method, invoiceNo, paymentId }. Closing the window rejects with code 'dismissed'.
+ * Resolves with { orderId, method, invoiceNo, paymentId }. Closing the window rejects with code 'dismissed' (no money
+ * was taken); a payment Razorpay took that the server couldn't confirm yet rejects with code 'verify_failed' (the
+ * webhook still confirms it).
  */
 export async function pay(order) {
   if (!LIVE) { await wait(1600); return { orderId: null, method: 'UPI', invoiceNo: null, paymentId: null }; }
@@ -61,11 +63,12 @@ export async function pay(order) {
       prefill: { name: order.prefill?.name, email: order.prefill?.email, ...(order.prefill?.contact ? { contact: order.prefill.contact } : {}) },
       theme: { color: '#111111' },
       handler: resolve,
-      modal: { ondismiss: () => reject(Object.assign(new Error('You closed the payment window. Nothing was charged.'), { code: 'dismissed' })) },
+      modal: { ondismiss: () => reject(Object.assign(new Error('Payment not completed — no money was taken.'), { code: 'dismissed' })) },
     });
     rzp.open();
   });
-  const o = await http('/api/payments/verify', { method: 'POST', body: result });
+  let o;
+  try { o = await http('/api/payments/verify', { method: 'POST', body: result }); } catch (e) { throw Object.assign(e, { code: 'verify_failed' }); }
   return { orderId: o.id, method: METHOD[o.paymentMethod] || 'Razorpay', invoiceNo: o.invoiceNo, paymentId: o.paymentId, order: o };
 }
 

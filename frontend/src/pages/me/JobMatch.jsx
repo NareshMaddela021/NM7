@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Spinner, useToast } from '../../components/ui';
 import { useMe, setMe, newId, openInBuilder, reloadMe, activeResume } from '../../lib/customerStore';
-import { BUY_WA, WA_PAY_TEXT } from '../../lib/waPay';
+import { payErrorLine } from '../../lib/payMode';
 import { inr, inrExact } from '../../lib/pricing';
 import CodeBox from '../../components/CodeBox';
 import { PACKS, STATUS_TEXT, VERDICT_TONE, buyPack, decide, getMatch, getTailor, jobAccess, listMatches, matchJob, patchMatch, readPdfText, readScreenshot, startTailor } from '../../lib/jobs';
@@ -30,11 +30,12 @@ export function PackOffer({ kind, acc, onBought, why }) {
   const price = quote ? quote.final / 100 : list;
   const onSale = acc?.onSale?.[kind];
   const buy = async () => {
+    if (busy) return;
     setBusy(true);
     try {
-      const r = await buyPack(kind, acc.mode, quote?.code);
-      if (!r?.whatsapp) { toast(`${pack.name} unlocked`); onBought?.(); }
-    } catch (e) { toast(e.message || 'Payment didn’t go through. You haven’t been charged.'); } finally { setBusy(false); }
+      await buyPack(kind, quote?.code);
+      toast(`${pack.name} unlocked`); onBought?.();
+    } catch (e) { toast(payErrorLine(e)); } finally { setBusy(false); }
   };
   return (
     <div className="well stack g8" data-testid={`pack-${kind}`}>
@@ -42,11 +43,10 @@ export function PackOffer({ kind, acc, onBought, why }) {
       <span className="xs muted">{why ? `${why} ` : ''}{pack.what}{kind === 'tailor' ? ` Included in the ${inr(acc?.prices?.diy ?? 99)} plan.` : ' Included in Career Launch.'}</span>
       {onSale ? (
         <button type="button" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={busy} onClick={buy}>
-          {busy && <Spinner />}{acc.mode === 'whatsapp' ? (busy ? 'Opening WhatsApp…' : BUY_WA) : busy ? 'Waiting for your payment…' : `Buy ${inrExact(price)}`}
+          {busy && <Spinner />}{busy ? 'Waiting for your payment…' : `Buy ${inrExact(price)}`}
         </button>
       ) : <span className="btn btn-outline" aria-disabled="true" data-testid={`pack-${kind}-soon`} style={{ alignSelf: 'flex-start', opacity: 0.7, cursor: 'not-allowed' }}>Coming soon</span>}
       {acc && <CodeBox item={pack.plan} onApplied={setQuote} disabled={busy} onUnlocked={() => { toast(`${pack.name} unlocked`); onBought?.(); }} />}
-      {onSale && acc.mode === 'whatsapp' && <span className="xs faint">{WA_PAY_TEXT}</span>}
       <PassOffer compact onBought={onBought} />
     </div>
   );

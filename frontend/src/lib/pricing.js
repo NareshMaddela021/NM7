@@ -21,7 +21,7 @@ export const PROMISES = {
   delivery: '24–48 hours',
   deliveryHours: 48,
   refund: 'Full refund if we don’t fulfil the service',
-  refundDays: '3–5 business days',
+  refundDays: '5–7 working days', // Razorpay refunds to the original payment method
   retentionDays: 60,
   autoApproveDays: '1–2 days',
   withdrawalDays: '3–5 business days',

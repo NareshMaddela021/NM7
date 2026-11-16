@@ -1,25 +1,26 @@
-// Pay via WhatsApp (Admin → Settings → Payments: Off | WhatsApp | Razorpay).
-//   payMode()       the active mode from GET /api/public/payment-mode ("off" on any error)
-//   buyOnWhatsApp() makes a pending order on the server (status awaiting_payment), then opens wa.me with only the item,
-//                   the price and the order number. The order number and a tappable link are always shown too
-//                   (<WaPlacedHost/>), in case WhatsApp didn't open.
-// Nothing is unlocked here: Nm7 confirms the payment in Admin → WhatsApp payments, and the server unlocks it then.
+// How Nm7 takes payments (Admin → Settings → Payments → "Payment method": Razorpay | Off).
+//   payMode()      the active mode from GET /api/public/payment-mode: "razorpay" or "off" ("off" on any error)
+//   usePayMode()   the same for a page (null while loading)
+//   buy(body)      Razorpay checkout for a new order (POST /api/orders), reusing an unpaid order for the same thing
+//   payOrder(id)   pay an unpaid / expired order again (POST /api/orders/:id/pay)
+//   payAddon(id, item)  an add-on or upgrade on a paid order (POST /api/orders/:id/addon)
+//   payError(e)    the calm text to show when a payment didn't finish
+// Every amount is the server's. Off: paid buttons show "Coming soon" and nothing calls these.
 import { useEffect, useState } from 'react';
 import { http, LIVE } from '../services/http';
+import { createOrder, pay } from '../services/api';
 
-export const WA_PAY_TEXT = 'Pay by UPI through WhatsApp. Your order starts as soon as we confirm payment.';
-export const WA_SAFETY = 'Pay only to the UPI ID we send in the Nm7 WhatsApp chat. We never ask for your OTP, PIN or card number.';
-export const WA_DELIVERY = 'Delivery time starts after payment is confirmed.';
-export const WA_WAITING = 'Waiting for payment confirmation';
-export const BUY_WA = 'Buy on WhatsApp';
+export const NOT_PAID = 'Payment not completed — no money was taken.';
+export const NOT_CONFIRMED = 'We couldn’t confirm your payment yet. If money was taken, your order updates in My orders within a few minutes — you won’t be charged twice.';
+export const PAY_METHODS = 'UPI, card, netbanking or wallet · GST invoice emailed';
 
-const OFF = { mode: 'off', replyHours: '' };
-const PREVIEW = { mode: 'razorpay', replyHours: '' }; // preview builds keep their sample checkout (no money moves)
+const OFF = { mode: 'off' };
+const PREVIEW = { mode: 'razorpay' }; // preview builds keep their sample checkout (no money moves)
 let cached = null;
-/** { mode: 'off' | 'whatsapp' | 'razorpay', replyHours }. Never throws ("off" on an error). */
+/** { mode: 'off' | 'razorpay' }. Never throws ("off" on an error). */
 export function payMode(fresh = false) {
   if (!LIVE) return Promise.resolve(PREVIEW);
-  if (!cached || fresh) cached = http('/api/public/payment-mode').catch(() => { cached = null; return OFF; });
+  if (!cached || fresh) cached = http('/api/public/payment-mode').then((r) => ({ mode: r?.mode === 'razorpay' ? 'razorpay' : 'off' }), () => { cached = null; return OFF; });
   return cached;
 }
 /** The mode for a page: null while loading. */
@@ -29,34 +30,43 @@ export function usePayMode() {
   return m;
 }
 
-/* ---------- the "order placed" box (rendered by <WaPlacedHost/>) ---------- */
-let placed = null;
-const subs = new Set();
-export const onPlaced = (f) => { subs.add(f); f(placed); return () => subs.delete(f); };
-export const closePlaced = () => { placed = null; subs.forEach((f) => f(null)); };
+/** The message for a payment that didn't finish: closed window → "no money was taken"; server errors → their text. */
+export function payError(e) {
+  if (!e || e.code === 'dismissed') return NOT_PAID;
+  if (e.code === 'verify_failed') return NOT_CONFIRMED;
+  return e.message || NOT_PAID;
+}
 
-/**
- * Call straight from the click (before any other await): the WhatsApp tab is opened at once so the browser doesn't
- * block it, then pointed at the chat once the server has made the order. `path` is the endpoint that makes the order:
- * POST /api/orders/whatsapp { planId, role, addons } or POST /api/org/:id/billing/whatsapp { plan }.
- * `orderLink`: show "See my order" (customer orders; an organization's order is on its billing page).
- * Resolves with { orderId, item, amount (paise), waUrl, replyHours, opened }.
- */
-export async function buyOnWhatsApp(body, path = '/api/orders/whatsapp', { orderLink = true } = {}) {
-  let win = null;
-  try { win = window.open('', '_blank'); } catch { win = null; }
+/** The same as one line for a toast (where there's no Try again button next to it). */
+export const payErrorLine = (e) => (!e || e.code === 'dismissed' ? `${NOT_PAID} Try again.` : payError(e));
+
+// orders made but not paid yet (the window was closed), reused when the same thing is bought again: no double orders
+const unpaid = new Map();
+const keyOf = (body) => JSON.stringify(Object.keys(body).sort().map((k) => [k, body[k]]));
+
+async function payOnce(key, make) {
+  let order = unpaid.get(key);
+  if (!order) { order = await make(); unpaid.set(key, order); }
   try {
-    const r = await http(path, { method: 'POST', body });
-    if (r.unlocked) { try { win?.close(); } catch { /* ignore */ } return r; } // a free code: unlocked, no chat
-    let opened = false;
-    if (win && !win.closed) {
-      try { win.opener = null; win.location.href = r.waUrl; opened = true; } catch { opened = false; }
-    }
-    placed = { ...r, opened, orderLink: orderLink ? `/me/orders/${r.orderId}` : null };
-    subs.forEach((f) => f(placed));
-    return placed;
+    const paid = await pay(order);
+    unpaid.delete(key);
+    return paid;
   } catch (e) {
-    try { win?.close(); } catch { /* ignore */ }
+    if (e?.code === 'verify_failed') unpaid.delete(key); // Razorpay took it; the webhook confirms it: never reuse it
     throw e;
   }
 }
+
+/** Razorpay checkout for a new order { planId, role?, addons?, code?, billing? }. Resolves with pay()'s result. */
+export const buy = (body) => payOnce(keyOf(body), () => createOrder(body));
+
+/** Pay an unpaid (or expired) order again: the same order and amount. */
+export async function payOrder(orderId) {
+  const order = await http(`/api/orders/${encodeURIComponent(orderId)}/pay`, { method: 'POST' });
+  return pay(order);
+}
+
+/** An add-on ("express", "revision", "linkedin") or an upgrade ("upgrade:expert" / "upgrade:launch") on a paid order. */
+export const payAddon = (orderId, item) => payOnce(`addon:${orderId}:${item}`, () => http(`/api/orders/${encodeURIComponent(orderId)}/addon`, { method: 'POST', body: { item } }));
+
+export const _forgetUnpaid = () => unpaid.clear();

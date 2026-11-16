@@ -1,8 +1,7 @@
 // The LinkedIn pack (Rs 149) in the browser: who owns it, buying it (only when payments are on), and its contents
 // from the server (which writes them for owners only). The banner image is drawn here from the pack's text.
 import { http, LIVE } from '../../services/http';
-import { createOrder, pay } from '../../services/api';
-import { buyOnWhatsApp } from '../waPay';
+import { buy } from '../payMode';
 import { canvasToPng } from '../qr';
 import { saveBlob } from '../fileDownload';
 import { fileName, fileSlug } from '../fileName';
@@ -24,21 +23,14 @@ export const REGEN_SECTIONS = ['headline', 'about', 'experience', 'education'];
 export const LIMITS = { headline: 220, about: 2600, experience: 2000 };
 
 const OFF = { owned: false, source: '', orderId: null, purchasedAt: null, paymentsOn: false, onSale: false, price: 149, mode: 'off' };
-/** { owned, source, orderId, purchasedAt, paymentsOn, onSale, price, mode (off | whatsapp | razorpay) }. Never throws (shows "Coming soon" on error). */
+/** { owned, source, orderId, purchasedAt, paymentsOn, onSale, price, mode (off | razorpay) }. Never throws (shows "Coming soon" on error). */
 export async function packStatus() {
   if (!LIVE) return OFF;
   try { return await http('/api/me/linkedin/pack/status'); } catch { return OFF; }
 }
 
-/**
- * Pay for the pack: the server prices the order (503 while payments are off), Razorpay's window, server check.
- * WhatsApp mode: a pending order and the chat instead; resolves { whatsapp: true } (nothing unlocks until Nm7 confirms).
- */
-export async function buyPack(mode, code) {
-  if (mode === 'whatsapp') { const r = await buyOnWhatsApp({ planId: 'linkedin_pack', ...(code ? { code } : {}) }); return r?.unlocked ? r : { whatsapp: true }; }
-  const order = await createOrder({ planId: 'linkedin_pack', code });
-  return pay(order);
-}
+/** Pay for the pack: the server prices the order (503 while payments are off), Razorpay's window, server check. */
+export const buyPack = (code) => buy({ planId: 'linkedin_pack', ...(code ? { code } : {}) });
 
 export const getPack = () => http('/api/me/linkedin/pack');
 export const generatePack = (body) => http('/api/me/linkedin/pack/generate', { method: 'POST', body, timeout: 120_000 });

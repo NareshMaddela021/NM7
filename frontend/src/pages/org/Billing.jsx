@@ -7,7 +7,8 @@ import { LIMITS, PLAN_FEATURES, gstinProblem, limitText, periodText, rupees, usa
 import { downloadFrom } from '../../lib/fileDownload';
 import { pay } from '../../services/api';
 import { http } from '../../services/http';
-import { BUY_WA, WA_PAY_TEXT, WA_SAFETY, WA_WAITING, buyOnWhatsApp } from '../../lib/waPay';
+import { payError } from '../../lib/payMode';
+import PayRetry from '../../components/PayRetry';
 import { Loading, day, useAction, useApi } from '../admin/live/common';
 import CodeBox from '../../components/CodeBox';
 import { Chip, FieldGroup } from '../me/kit';
@@ -16,7 +17,7 @@ import '../../styles/org-signup.css';
 
 const STATE = { free: ['Free', 'neutral'], active: ['Active', 'ok'], grace: ['Ended — grace period', 'warn'], expired: ['Ended', 'neutral'] };
 const ORDER_TONE = { done: 'ok', pending_payment: 'warn', awaiting_payment: 'warn', expired: 'neutral', refunded: 'info', cancelled: 'neutral' };
-const ORDER_STATUS = { done: 'Paid', pending_payment: 'Waiting for payment', awaiting_payment: WA_WAITING, expired: 'Not paid', refunded: 'Refunded', cancelled: 'Cancelled' };
+const ORDER_STATUS = { done: 'Paid', pending_payment: 'Waiting for payment', awaiting_payment: 'Waiting for payment', expired: 'Not paid', refunded: 'Refunded', cancelled: 'Cancelled' };
 
 function Usage({ s }) {
   return (
@@ -96,19 +97,24 @@ function Buy({ data, plan, onPaid, onOrdered, refCode }) {
     try { setQ(await http(quoteUrl(typed, ''))); } catch { /* keep the old quote */ }
   };
   const open = () => quote(typed);
-  const mode = data.paymentMode || 'razorpay';
+  const mode = data.paymentMode === 'off' ? 'off' : 'razorpay';
+  const unpaid = useRef(null); // { key, order }: an order made but not paid (window closed), reused on Try again
   const go = async () => {
+    if (st.busy || st.waiting) return;
     setSt({ busy: true });
-    if (mode === 'whatsapp') {
-      try { await buyOnWhatsApp({ planId: plan.id, refCode: coupon ? null : typed || null, code: coupon || null }, `/api/org/${data.orgId}/billing/whatsapp`, { orderLink: false }); setSt({}); setQ(null); onOrdered(); } catch (err) { setSt({ error: err.message }); }
-      return;
-    }
+    const body = { planId: plan.id, refCode: coupon ? null : typed || null, code: coupon || null };
+    const key = JSON.stringify(body);
     try {
-      const order = await http(`/api/org/${data.orgId}/billing/checkout`, { method: 'POST', body: { planId: plan.id, refCode: coupon ? null : typed || null, code: coupon || null } });
+      const order = unpaid.current?.key === key ? unpaid.current.order : await http(`/api/org/${data.orgId}/billing/checkout`, { method: 'POST', body });
+      unpaid.current = { key, order };
       await pay(order);
+      unpaid.current = null;
       setSt({ waiting: true });
       onPaid(order.orderId);
-    } catch (err) { setSt(err.code === 'dismissed' ? {} : { error: err.message }); }
+    } catch (err) {
+      if (err.code === 'verify_failed') unpaid.current = null;
+      setSt({ payError: payError(err) });
+    }
   };
   return (
     <section className={`ob-buy ${s.planId === plan.id ? 'ob-buy-current' : ''}`} aria-label={`Buy ${plan.name}`}>
@@ -140,10 +146,11 @@ function Buy({ data, plan, onPaid, onOrdered, refCode }) {
           {q.partnerCode && <span className="xs muted">Referred by partner <span className="mono">{q.partnerCode}</span>.</span>}
           <div className="row g8" style={{ marginTop: 6 }}>
             {mode === 'off' ? <button type="button" className="btn btn-outline" disabled data-testid="org-pay-soon">Coming soon</button>
-              : <button type="button" className="btn btn-signal" disabled={st.busy || st.waiting} onClick={go}>{st.busy ? 'Opening…' : mode === 'whatsapp' ? `${BUY_WA} · ${rupees(q.total)}` : `Pay ${rupees(q.total)}`}</button>}
+              : <button type="button" className="btn btn-signal" disabled={st.busy || st.waiting} onClick={go}>{st.busy ? 'Waiting for your payment…' : `Pay ${rupees(q.total)}`}</button>}
             <button type="button" className="btn btn-outline" onClick={() => setQ(null)}>Cancel</button>
           </div>
-          {mode === 'whatsapp' && <span className="xs muted">{WA_PAY_TEXT} {WA_SAFETY}</span>}
+          <PayRetry error={st.payError} busy={st.busy} onRetry={go} />
+          {mode === 'razorpay' && <span className="xs muted">UPI, card, netbanking or wallet through Razorpay. The invoice is emailed once the payment is confirmed.</span>}
           {mode === 'off' && <span className="xs muted">Online payment opens soon. To buy now, use “Talk to us” on nm7.si/for-orgs.</span>}
           {renew && <span className="xs muted">Renewing continues from the day after your current plan ends.</span>}
           {!renew && s.state === 'active' && <span className="xs muted">A new plan starts today and replaces the current one.</span>}

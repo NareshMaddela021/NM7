@@ -19,6 +19,17 @@ describe('vercel.json', () => {
     expect(header('Permissions-Policy')).toContain('camera=()');
   });
 
+  it('payments: only Razorpay’s own domains (checkout script + frame, api, lumberjack, images)', () => {
+    const dir = (name) => header('Content-Security-Policy').split(';').map((d) => d.trim()).find((d) => d.startsWith(`${name} `)) || '';
+    expect(dir('script-src')).toContain('https://checkout.razorpay.com');
+    expect(dir('frame-src').split(' ').slice(1).sort()).toEqual(['https://api.razorpay.com', 'https://checkout.razorpay.com']);
+    expect(dir('connect-src')).toContain('https://api.razorpay.com');
+    expect(dir('connect-src')).toContain('https://lumberjack.razorpay.com');
+    expect(dir('img-src')).toContain('https://*.razorpay.com');
+    const paymentHosts = header('Content-Security-Policy').match(/https:\/\/[^\s;]*(pay|upi|stripe|paytm|cashfree)[^\s;]*/gi) || [];
+    expect(paymentHosts.every((h) => /razorpay\.com$/.test(h))).toBe(true);
+  });
+
   it('recruiter links and kiosks are never cached or indexed', () => {
     const rule = vercel.headers.find((h) => new RegExp(`^${h.source}$`).test('/r/abc') && h.source !== '/(.*)');
     expect(rule.headers).toEqual(expect.arrayContaining([{ key: 'Cache-Control', value: 'no-store' }, { key: 'X-Robots-Tag', value: 'noindex, nofollow' }]));

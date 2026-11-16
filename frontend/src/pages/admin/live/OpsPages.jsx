@@ -1,7 +1,7 @@
 // Live admin: dashboard, orders (with expert assignment), refunds, payments & invoices.
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { useToast } from '../../../components/ui';
+import { Dialog, useToast } from '../../../components/ui';
 import { PLANS } from '../../../lib/pricing';
 import { PageHead, Panel, Tabs } from '../AdminUI';
 import { Chip } from '../../me/kit';
@@ -262,25 +262,47 @@ export function LiveRefunds() {
 }
 
 /* ---------- payments & invoices ---------- */
+const SOURCE = { razorpay: 'Razorpay', old_whatsapp: 'old (WhatsApp)', offline: 'Offline', link: 'Payment link' };
+const REFUND_REASONS = [['cancel', 'Cancelled'], ['late', 'Late delivery'], ['quality', 'Quality'], ['other', 'Other']];
+const rupeesExact = (paise) => `₹${((paise || 0) / 100).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+/** A captured Razorpay payment (checkout or payment link) for an order, not fully refunded: "Refund via Razorpay". */
+const refundable = (p) => p.orderId && p.razorpayPaymentId && p.status === 'captured' && ['razorpay', 'link'].includes(p.source || 'razorpay') && (p.refunded || 0) < p.amount && !['review', 'approved'].includes(p.refundStatus);
+
 export function LivePayments() {
   const [params, setParams] = useSearchParams();
   const tab = params.get('tab') || 'payments';
   const pays = useApi(tab === 'payments' ? '/api/admin/payments?limit=200' : null);
   const invoices = useApi(tab === 'invoices' ? '/api/admin/invoices?limit=500' : null);
+  const [refund, setRefund] = useState(null); // the payment row being refunded
   return (
     <>
-      <PageHead title="Payments & invoices" sub="Every Razorpay payment and every GST invoice number." />
-      <div className="ad-toolbar ops-toolbar"><Tabs label="View" tabs={[['payments', 'Payments'], ['invoices', 'Invoices'], ['payouts', 'Expert payouts']]} value={tab} onChange={(v) => setParams({ tab: v })} /></div>
+      <PageHead title="Payments & invoices" sub="Every payment (Razorpay, payment links, offline and old WhatsApp ones), its fee and refunds, and every GST invoice number." />
+      <div className="ad-toolbar ops-toolbar"><Tabs label="View" tabs={[['payments', 'Payments'], ['invoices', 'Invoices'], ['check', 'Daily check'], ['payouts', 'Expert payouts']]} value={tab} onChange={(v) => setParams({ tab: v })} /></div>
       {tab === 'payments' && (
-        <Loading st={pays} empty={emptyIf((d) => !d.items.length, 'No payments yet. Online payments are switched off until the Razorpay keys are added.')}>{(d) => (
+        <Loading st={pays} empty={emptyIf((d) => !d.items.length, 'No payments yet. Payments stay off until the Razorpay keys are added.')}>{(d) => (
           <div className="card table-wrap ops-table" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns">
-            <table className="table mtable"><thead><tr><th>When</th><th>Order</th><th>Customer</th><th>Amount</th><th>Method</th><th>Status</th></tr></thead>
+            <table className="table mtable" data-testid="payments-table"><thead><tr><th>When</th><th>Order</th><th>Customer</th><th>Amount</th><th>Razorpay payment ID</th><th>Method</th><th>Status</th><th>Fee (GST)</th><th>Refunded</th><th>Source</th><th>Reference</th><th><span className="sr-only">Actions</span></th></tr></thead>
               <tbody>{d.items.map((p) => (
-                <tr key={p.id}><td className="small" data-label="When">{when(p.createdAt)}</td><td className="ops-mono" data-label="Order">{p.orderId || <span style={{ color: 'var(--danger)' }}>no order</span>}</td><td className="small" data-label="Customer">{p.customerName || '—'}</td><td className="small" data-label="Amount"><strong>{rupees(p.amount)}</strong></td><td className="small" data-label="Method">{p.method || '—'}</td><td data-label="Status"><span><Chip tone={p.status === 'captured' ? 'ok' : p.status === 'failed' ? 'bad' : 'neutral'}>{p.status}</Chip><span className="ops-sub ops-mono">{p.razorpayPaymentId || ''}</span></span></td></tr>
+                <tr key={p.id} data-testid="payment-row">
+                  <td className="small" data-label="When">{when(p.createdAt)}</td>
+                  <td className="ops-mono" data-label="Order">{p.orderId || <span style={{ color: 'var(--danger)' }}>no order</span>}</td>
+                  <td className="small" data-label="Customer">{p.customerName || '—'}</td>
+                  <td className="small" data-label="Amount"><strong>{rupees(p.amount)}</strong></td>
+                  <td className="ops-mono small" data-label="Razorpay payment ID">{p.razorpayPaymentId || '—'}</td>
+                  <td className="small" data-label="Method">{p.method || '—'}</td>
+                  <td data-label="Status"><Chip tone={p.status === 'captured' ? 'ok' : p.status === 'failed' ? 'bad' : 'neutral'}>{p.status}</Chip></td>
+                  <td className="small" data-label="Fee (GST)">{p.fee == null ? '—' : <span>{rupeesExact(p.fee)}{p.tax != null && <span className="ops-sub">GST {rupeesExact(p.tax)}</span>}</span>}</td>
+                  <td className="small" data-label="Refunded">{p.refunded ? <span>{rupees(p.refunded)}{p.refundStatus && <span className="ops-sub">{p.refundStatus}</span>}</span> : p.refundStatus ? <span className="ops-sub">{p.refundStatus}</span> : '—'}</td>
+                  <td className="small" data-label="Source">{SOURCE[p.source] || p.source || 'Razorpay'}</td>
+                  <td className="ops-mono small" data-label="Reference">{p.reference || '—'}</td>
+                  <td>{refundable(p) && <button type="button" className="btn btn-outline" style={{ minHeight: 44 }} onClick={() => setRefund(p)}>Refund via Razorpay</button>}</td>
+                </tr>
               ))}</tbody></table>
+            <div className="ops-foot">{d.total} payment(s). Fees are Razorpay’s, GST on the fee included.</div>
           </div>
         )}</Loading>
       )}
+      {refund && <RazorpayRefund p={refund} onClose={() => setRefund(null)} onDone={() => { setRefund(null); pays.reload(); }} />}
       {tab === 'invoices' && (
         <Loading st={invoices} empty={emptyIf((d) => !d.items.length, 'No invoices yet. An invoice number is given when a payment succeeds.')}>{(d) => (
           <div className="card table-wrap ops-table" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns">
@@ -290,7 +312,94 @@ export function LivePayments() {
           </div>
         )}</Loading>
       )}
+      {tab === 'check' && <DailyCheck />}
       {tab === 'payouts' && <div className="well small muted" style={{ padding: 24 }}>No expert payouts yet. Payouts are paid by bank/UPI transfer after delivered orders are approved; they will be listed here once experts start completing orders.</div>}
     </>
+  );
+}
+
+/** "Refund via Razorpay": amount (empty = everything left), reason, note, then an in-page confirm step. */
+function RazorpayRefund({ p, onClose, onDone }) {
+  const toast = useToast();
+  const [busy, run] = useAction(toast);
+  const [f, setF] = useState({ amountText: '', reason: 'cancel', note: '' });
+  const [confirm, setConfirm] = useState(false);
+  const left = p.amount - (p.refunded || 0);
+  const amount = f.amountText.trim() ? Math.round(Number(f.amountText) * 100) : null;
+  const amountErr = amount !== null && !(amount > 0 && amount <= left) ? `Enter up to ${rupeesExact(left)}, or leave it empty for the full amount.` : '';
+  const send = () => run(async () => {
+    await http(`/api/admin/orders/${encodeURIComponent(p.orderId)}/razorpay-refund`, { method: 'POST', body: { ...(amount ? { amount } : {}), reason: f.reason, note: f.note.trim() } });
+    onDone();
+  }, 'Refund sent to Razorpay — the customer is emailed');
+  return (
+    <Dialog showTitle title={`Refund ${p.orderId} via Razorpay`} onClose={() => !busy && onClose()}>
+      <div className="stack g12" data-testid="rzp-refund">
+        <span className="small">{p.customerName || 'Customer'} · paid {rupees(p.amount)}{p.refunded ? ` · ${rupees(p.refunded)} refunded already` : ''} · <span className="ops-mono">{p.razorpayPaymentId}</span></span>
+        <div className="field"><label className="label" htmlFor="rr-amt">Amount (₹) <span className="xs muted" style={{ fontWeight: 400 }}>· empty = everything left ({rupeesExact(left)})</span></label>
+          <input id="rr-amt" className="input" inputMode="decimal" disabled={confirm} value={f.amountText} aria-invalid={amountErr ? 'true' : undefined} onChange={(e) => setF({ ...f, amountText: e.target.value })} />
+          {amountErr && <span className="error">{amountErr}</span>}</div>
+        <div className="field"><label className="label" htmlFor="rr-why">Reason</label>
+          <select id="rr-why" className="input" disabled={confirm} value={f.reason} onChange={(e) => setF({ ...f, reason: e.target.value })}>{REFUND_REASONS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select></div>
+        <div className="field"><label className="label" htmlFor="rr-note">Note (saved with the refund)</label>
+          <input id="rr-note" className="input" maxLength={300} disabled={confirm} value={f.note} onChange={(e) => setF({ ...f, note: e.target.value })} /></div>
+        {!confirm ? (
+          <button type="button" className="btn btn-signal" style={{ alignSelf: 'flex-start', minHeight: 44 }} disabled={!!amountErr} onClick={() => setConfirm(true)}>Refund via Razorpay</button>
+        ) : (
+          <div className="well stack g8" role="alert">
+            <strong className="small">Send {amount ? rupeesExact(amount) : rupeesExact(left)} back to the customer’s original payment method?</strong>
+            <span className="xs muted">Razorpay usually takes 5–7 working days. This can’t be undone.</span>
+            <div className="row g8" style={{ flexWrap: 'wrap' }}>
+              <button type="button" className="btn btn-ink" style={{ minHeight: 44 }} disabled={busy} data-testid="rzp-refund-yes" onClick={send}>Yes, refund</button>
+              <button type="button" className="btn btn-outline" style={{ minHeight: 44 }} disabled={busy} onClick={() => setConfirm(false)}>Back</button>
+            </div>
+          </div>
+        )}
+      </div>
+    </Dialog>
+  );
+}
+
+/** "Daily check": each day Razorpay's payments and settlements are compared with ours; anything odd is a flag. */
+function DailyCheck() {
+  const toast = useToast();
+  const st = useApi('/api/admin/payments/checks');
+  const [busy, run] = useAction(toast);
+  const [open, setOpen] = useState(null); // `${day}:${n}` being resolved
+  const [note, setNote] = useState('');
+  return (
+    <section className="ops-card" aria-label="Daily check" data-testid="pay-checks">
+      <div className="ops-card-h">
+        <strong>Daily check</strong>
+        <button type="button" className="btn btn-outline" style={{ minHeight: 44 }} disabled={busy} data-testid="pay-check-run" onClick={() => run(async () => { await http('/api/admin/payments/checks/run', { method: 'POST' }); st.reload(); }, 'Check done')}>Run now</button>
+      </div>
+      <span className="xs muted">Every day Nm7 compares the last 3 days of Razorpay payments, refunds and fees with its own records.</span>
+      <Loading st={st} empty={emptyIf((d) => !d.items.length, 'No checks yet. Press Run now (needs the Razorpay keys).')}>{(d) => (
+        <div className="stack g12">
+          <span className="small" data-testid="pay-check-open">{d.open ? `${d.open} open flag(s) in the latest check.` : 'No open flags in the latest check.'}</span>
+          {d.items.map((c) => (
+            <div key={c.day} className="stack g8">
+              <strong className="small">{c.day} · checked {c.checked} · {when(c.at)}</strong>
+              {!c.flags.length ? <span className="xs muted">All matched.</span> : (
+                <ul className="stack g8" style={{ listStyle: 'none', margin: 0, padding: 0 }}>{c.flags.map((f) => (
+                  <li key={f.n} className="well stack g8" data-testid="pay-flag">
+                    <span className="row between g8" style={{ flexWrap: 'wrap' }}><span className="small">{f.text}</span><Chip tone={f.resolved ? 'ok' : 'warn'}>{f.resolved ? 'Resolved' : f.kind}</Chip></span>
+                    {[f.orderId || f.order_id, f.paymentId || f.payment_id].some(Boolean) && <span className="xs muted ops-mono">{[f.orderId || f.order_id, f.paymentId || f.payment_id].filter(Boolean).join(' · ')}</span>}
+                    {f.resolved && f.note && <span className="xs muted">Note: {f.note}</span>}
+                    {!f.resolved && (open === `${c.day}:${f.n}` ? (
+                      <form className="row g8" style={{ flexWrap: 'wrap', alignItems: 'flex-end' }} onSubmit={(e) => { e.preventDefault(); run(async () => { await http(`/api/admin/payments/checks/${encodeURIComponent(c.day)}/flags/${f.n}/resolve`, { method: 'POST', body: { note: note.trim() } }); setOpen(null); setNote(''); st.reload(); }, 'Flag resolved'); }}>
+                        <div className="field" style={{ flex: '1 1 220px' }}><label className="label" htmlFor={`fl-${c.day}-${f.n}`}>What was done</label>
+                          <input id={`fl-${c.day}-${f.n}`} className="input" maxLength={300} value={note} onChange={(e) => setNote(e.target.value)} /></div>
+                        <button type="submit" className="btn btn-signal" style={{ minHeight: 44 }} disabled={busy || note.trim().length < 3}>Resolve</button>
+                        <button type="button" className="btn btn-outline" style={{ minHeight: 44 }} onClick={() => setOpen(null)}>Cancel</button>
+                      </form>
+                    ) : <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start', minHeight: 44 }} onClick={() => { setOpen(`${c.day}:${f.n}`); setNote(''); }}>Resolve</button>)}
+                  </li>
+                ))}</ul>
+              )}
+            </div>
+          ))}
+        </div>
+      )}</Loading>
+    </section>
   );
 }

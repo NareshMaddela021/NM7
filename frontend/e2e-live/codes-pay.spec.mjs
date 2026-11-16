@@ -1,14 +1,13 @@
-// "Have a code?" at the pay step, on a desktop and a 390 px phone, against the real API:
+// "Have a code?" at the pay step, on a desktop and a 390 px phone, against the real API (payments Off: the test API
+// has no Razorpay keys; the download gate is mocked "on" where needed):
 //   a ?code= link fills in the code (never used by itself); a free code on a resume download unlocks that resume at
-//   once (no WhatsApp) and it stays unlocked (PDF and Word again later); a percent code shows the new price and the
-//   WhatsApp order and message carry the code and the new price; wrong codes get a clear message; Off mode: a
-//   discount is refused, a free pack code unlocks; an organization's Owner turns the Drive plan on with a free code.
-// Every test puts the payment mode back to Off (the other specs expect it).
+//   once (no payment window) and it stays unlocked (PDF and Word again later); wrong codes get a clear message; Off
+//   mode: a discount is refused, a free pack code unlocks; an organization's Owner turns the Drive plan on with a
+//   free code. (A percent code needs payments on: the backend tests cover the lowered Razorpay order.)
 import { expect, test } from '@playwright/test';
 import { API, PASSWORD, adminLogin, email, login, seed, downloadThrough } from './helpers.mjs';
 
 const SIZES = [['desktop', { viewport: { width: 1280, height: 900 } }], ['phone', { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true }]];
-const NUMBER = '+91 90000 12345';
 const call = (page, path, init = {}) => page.evaluate(async ([base, p, i]) => {
   const r = await fetch(`${base}${p}`, { credentials: 'include', headers: { 'Content-Type': 'application/json' }, ...i });
   const text = await r.text();
@@ -17,10 +16,6 @@ const call = (page, path, init = {}) => page.evaluate(async ([base, p, i]) => {
   return { status: r.status, body };
 }, [API, path, init]);
 const post = (page, path, body) => call(page, path, { method: 'POST', body: JSON.stringify(body) });
-const setMode = (page, mode) => call(page, '/api/admin/payment-settings', {
-  method: 'PUT', body: JSON.stringify({ mode, whatsappNumber: NUMBER, replyHours: 'We reply 9 am - 9 pm', cancelAfterHours: 72 }),
-});
-const fakeWhatsApp = (page) => page.context().route('https://wa.me/**', (r) => r.fulfill({ contentType: 'text/html', body: '<title>WhatsApp</title>chat' }));
 const tagOf = (label) => `${label === 'desktop' ? 'D' : 'P'}${Date.now().toString(36).toUpperCase().slice(-5)}`;
 
 async function ownerPage(browser, label) {
@@ -50,12 +45,11 @@ for (const [label, opts] of SIZES) {
     test.use(opts);
     let owner;
     test.afterEach(async () => {
-      if (owner) { await setMode(owner.page, 'off'); await owner.ctx.close(); owner = null; }
+      if (owner) { await owner.ctx.close(); owner = null; }
     });
 
-    test('a free resume code from a link unlocks that resume at once (no WhatsApp) and it stays unlocked', async ({ page, browser }) => {
+    test('a free resume code from a link unlocks that resume at once (no payment window) and it stays unlocked', async ({ page, browser }) => {
       owner = await ownerPage(browser, `free-${label}`);
-      expect((await setMode(owner.page, 'whatsapp')).status).toBe(200);
       const code = `CAMPUS-${tagOf(label)}`;
       await newCode(owner, { code, type: 'free', items: ['resume'], totalLimit: 100, note: 'e2e' });
       await signIn(page, `codepay-free-${label}`, 'Asha Rao');
@@ -63,6 +57,13 @@ for (const [label, opts] of SIZES) {
       expect(made.status).toBeLessThan(300);
       let popups = 0;
       page.on('popup', () => { popups += 1; });
+      const rzp = [];
+      page.on('request', (r) => { if (/razorpay/.test(r.url())) rzp.push(r.url()); });
+      // payments on (mocked) until the code is applied: the download gate asks to unlock
+      let unlocked = false;
+      page.on('response', (r) => { if (/\/api\/me\/codes\/apply/.test(r.url()) && r.ok()) unlocked = true; });
+      await page.route('**/api/me/entitlements', (r) => (unlocked ? r.fallback() : r.fulfill({ json: { canDownload: false, reason: 'unpaid', paymentsOn: true, planId: 'diy', price: 99 } })));
+      await page.route('**/api/me/exports', (r) => (unlocked ? r.fallback() : r.fulfill({ status: 402, json: { error: { code: 'payment_required', message: 'Unlock downloads - Rs 99 one-time.', planId: 'diy', price: 99 } } })));
 
       await page.goto(`/builder?code=${code.toLowerCase()}`); // the link: kept for the pay step, not used
       await expect.poll(() => page.evaluate(() => sessionStorage.getItem('nm7.code'))).toBe(code); // once the page has loaded
@@ -76,7 +77,8 @@ for (const [label, opts] of SIZES) {
       expect(pdf.suggestedFilename()).toMatch(/\.pdf$/);
       await expect(page.getByText('Code applied - unlocked')).toBeVisible();
       await expect(gate).toHaveCount(0);
-      expect(popups).toBe(0); // no WhatsApp step
+      expect(popups).toBe(0); // no payment step
+      expect(rzp).toEqual([]);
 
       // later: Word and PDF again, no gate
       await page.reload();
@@ -92,16 +94,12 @@ for (const [label, opts] of SIZES) {
       expect(o.resumeId).toBe('r1');
     });
 
-    test('a percent code lowers the WhatsApp order; wrong codes get clear messages', async ({ page, browser }) => {
-      owner = await ownerPage(browser, `pct-${label}`);
-      expect((await setMode(owner.page, 'whatsapp')).status).toBe(200);
+    test('wrong codes get clear messages', async ({ page, browser }) => {
+      owner = await ownerPage(browser, `bad-${label}`);
       const tag = tagOf(label);
-      const code = `SAVE50-${tag}`;
-      await newCode(owner, { code, type: 'percent', value: 50, items: ['linkedin_pack'] });
       await newCode(owner, { code: `PACKONLY-${tag}`, type: 'free', items: ['tailor_pack'] });
       await newCode(owner, { code: `OLD-${tag}`, type: 'free', items: ['all'], validUntil: '2020-01-01' });
-      await signIn(page, `codepay-pct-${label}`, 'Ravi Kumar');
-      await fakeWhatsApp(page);
+      await signIn(page, `codepay-bad-${label}`, 'Ravi Kumar');
       await page.goto('/linkedin?path=fix');
       const box = page.getByTestId('li-locked');
       await box.getByTestId('code-open').click();
@@ -111,29 +109,11 @@ for (const [label, opts] of SIZES) {
         await box.getByTestId('code-apply').click();
         await expect(box.getByTestId('code-error')).toContainText(text);
       }
-      await input.fill(` ${code.toLowerCase()} `);
-      await box.getByTestId('code-apply').click();
-      await expect(box.getByTestId('code-applied')).toHaveText(new RegExp(`Rs 149 -> Rs 74.50 with ${code}`));
-      const popup = page.waitForEvent('popup');
-      await box.getByTestId('li-pack-buy').click();
-      const chat = await popup;
-      await chat.waitForURL(/^https:\/\/wa\.me\//);
-      const text = new URL(chat.url()).searchParams.get('text');
-      expect(text).toContain(`Rs 149 -> Rs 74.50 with code ${code}`);
-      await chat.close();
-      const orderNo = (await page.getByTestId('wa-placed').getByTestId('wa-order-no').innerText()).trim();
-      const mine = await call(page, '/api/orders');
-      const o = mine.body.find((x) => x.id === orderNo);
-      expect(o.amount).toBe(7450);
-      expect(o.coupon).toMatchObject({ code, original: 14900, discount: 7450, final: 7450 });
-      // the admin's list shows it
-      const rows = await call(owner.page, '/api/admin/whatsapp/orders?status=awaiting');
-      expect(JSON.stringify(rows.body)).toContain(code);
+      expect((await call(page, '/api/me/linkedin/pack/status')).body.owned).toBe(false);
     });
 
     test('Off mode: a discount is refused, a free pack code unlocks', async ({ page, browser }) => {
       owner = await ownerPage(browser, `off-${label}`);
-      expect((await setMode(owner.page, 'off')).status).toBe(200);
       const tag = tagOf(label);
       await newCode(owner, { code: `HALF-${tag}`, type: 'percent', value: 50, items: ['all'] });
       await newCode(owner, { code: `GIFT-${tag}`, type: 'free', items: ['linkedin_pack'] });

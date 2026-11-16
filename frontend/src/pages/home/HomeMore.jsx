@@ -12,7 +12,6 @@ import { rich, translate } from '../../lib/i18n';
 import { ROLE_MAX, useFlow } from '../../lib/flow';
 import { ADDONS, PLANS, PROMISES, inr } from '../../lib/pricing';
 import { track } from '../../lib/track';
-import { usePayMode } from '../../lib/waPay';
 import { ORG_FAQ, PlansSkeleton, PlansTable, orgFaq, useOrgPlans } from '../org/OrgPlans';
 import { EXPERT_DEMO } from './expertDemo';
 import { EXAMPLES, bulletScore, improveBullet } from './lineFixer';
@@ -297,7 +296,6 @@ const FEATURES = [
 ];
 const PLAN_NAMES = { diy: 'Fix it yourself', expert: 'Expert rewrite', launch: 'Career Launch' }; // product names: not translated
 export function Pricing({ goPlan, t }) {
-  const pm = usePayMode();
   const [table, setTable] = useState(false);
   const plans = [
     ['diy', ['pricing.diy.1', 'pricing.diy.2', 'pricing.diy.3']],
@@ -312,7 +310,6 @@ export function Pricing({ goPlan, t }) {
         <span className="h-eyebrow">{t('pricing.eyebrow')}</span>
         <h2 id="pricing-h" className="h-sec-title">{t('pricing.title')}</h2>
         <p className="small muted" style={{ margin: 0 }}>{t('pricing.sub')}</p>
-        {pm?.mode === 'whatsapp' && <p className="small" style={{ margin: 0 }} data-testid="home-wa-pay">{t('pricing.waPay')}</p>}
       </div>
       <div className="h-plans">
         {plans.map(([k, items]) => (
