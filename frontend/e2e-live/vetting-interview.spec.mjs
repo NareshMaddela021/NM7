@@ -22,6 +22,7 @@ for (const [label, opts] of SIZES) {
       const name = `Iv Candidate ${tag}`;
       const mail = email(`iv-${label}`);
       seed('customer', mail, name, PASSWORD);
+      seed('vetting-tester', mail); // the vetting engine is hidden by default (Admin → Skill checks → Launch)
       seed('skill-verified', mail, 'SQL', '1-3', '84', '86');
       await login(page, mail);
       await expect(page).toHaveURL(/\/me/);

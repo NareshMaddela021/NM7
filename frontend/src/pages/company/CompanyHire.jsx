@@ -175,7 +175,7 @@ export default function CompanyHire({ t, c }) {
             </select>
           </label>
         </div>
-        <fieldset className="hn-sv" data-testid="co-hire-sv-filters">
+        {d?.vetting && <fieldset className="hn-sv" data-testid="co-hire-sv-filters">
           <legend className="hn-sv-legend">{t('co.hire.sv.filters')}</legend>
           <label className="hn-sv-only">
             <input type="checkbox" checked={vf.verified} onChange={setV('verified')} data-testid="co-hire-sv-only" />
@@ -192,8 +192,8 @@ export default function CompanyHire({ t, c }) {
               {MIN_SCORES.map((n) => <option key={n} value={n}>{n ? t('co.hire.sv.atLeast', { n }) : t('co.hire.sv.anyScore')}</option>)}
             </select>
           </label>
-        </fieldset>
-        <fieldset className="hn-sv hn-lv" data-testid="co-hire-lv-filters">
+        </fieldset>}
+        {d?.vetting && <fieldset className="hn-sv hn-lv" data-testid="co-hire-lv-filters">
           <legend className="hn-sv-legend">{lv('lv.f.legend')}</legend>
           <label className="field hn-field"><span className="label">{lv('lv.f.min')}</span>
             <select className="input" value={vf.minLevel} onChange={setV('minLevel')} data-testid="co-hire-lv-min">
@@ -222,8 +222,8 @@ export default function CompanyHire({ t, c }) {
               {BANDS.map((b) => <option key={b} value={b}>{lv(`lv.b.${b}`)}</option>)}
             </select>
           </label>
-        </fieldset>
-        {filtered(vf) && <button type="button" className="btn btn-outline hn-clear" onClick={clear} data-testid="co-hire-lv-clear">{lv('lv.f.clear')}</button>}
+        </fieldset>}
+        {d?.vetting && filtered(vf) && <button type="button" className="btn btn-outline hn-clear" onClick={clear} data-testid="co-hire-lv-clear">{lv('lv.f.clear')}</button>}
         {d?.usage && <span className="mchip mchip-info hn-usage" data-testid="co-hire-usage">{t('co.hire.usage', { used: d.usage.used, free: d.usage.free })}</span>}
       </div>
       <HireSpeed t={t} c={c} />
@@ -237,7 +237,7 @@ export default function CompanyHire({ t, c }) {
       {d && !err && (
         <div className="hn-people">
           <div className="hn-people-head">
-            <p className="hn-count" data-testid="co-hire-count">{d.items.length ? t('co.hire.found', { n: d.available }) : t('co.hire.none')}</p>
+            <p className="hn-count" data-testid="co-hire-count">{d.items.length ? t(d.vetting ? 'co.hire.foundLevel' : 'co.hire.found', { n: d.available }) : t('co.hire.none')}</p>
           </div>
           {canInvite && open.length > 0 && (
             <div className="hn-invitebar">

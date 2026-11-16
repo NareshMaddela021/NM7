@@ -30,7 +30,7 @@ from typing import Any, Literal
 import anthropic
 from bson import ObjectId
 from bson.errors import InvalidId
-from fastapi import APIRouter, Header
+from fastapi import APIRouter, Depends, Header
 from pydantic import Field
 
 from app.admin.deps import AdminAuth
@@ -47,7 +47,17 @@ from app.hire.vetting.roles import BY_TEST
 from app.me.service import ms
 
 log = logging.getLogger(__name__)
-me = APIRouter(prefix="/api/me/interviews", tags=["vetting"])
+
+
+async def _on(auth: CustomerAuth, db: DB) -> None:
+    """404 while the vetting engine is hidden from this person (Admin → Skill checks → Launch)."""
+    from app.hire.vetting import access
+
+    if not await access.for_user(db, auth.user.id):
+        raise ApiError(404, "not_found", "Not found.")
+
+
+me = APIRouter(prefix="/api/me/interviews", tags=["vetting"], dependencies=[Depends(_on)])
 company = APIRouter(prefix="/api/company", tags=["vetting"])
 admin = APIRouter(prefix="/api/admin/vetting/interviews", tags=["vetting"])
 
@@ -415,7 +425,11 @@ async def company_view(cid: str, uid: str, db: DB, x_recruiter_account: str | No
     (in Hire now with consent, or who applied to this company)."""
     from app.companies.signup import company_for
 
-    _, c, _ = await company_for(db, cid, x_recruiter_account)
+    acc, c, _ = await company_for(db, cid, x_recruiter_account)
+    from app.hire.vetting import access
+
+    if not await access.for_company(db, c, acc):  # hidden from this company (Admin → Skill checks → Launch)
+        raise ApiError(404, "not_found", "Not found.")
     seen = await db[HIRE_PROFILES].find_one({"_id": uid, "on": True, "consent_at": {"$ne": None}}) or await db[APPLICATIONS].find_one(
         {"user_id": uid, "company_id": cid})  # fmt: skip
     if not seen:

@@ -25,7 +25,7 @@ from typing import Any, Literal
 
 from bson import ObjectId
 from bson.errors import InvalidId
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import Field
 
 from app.admin.deps import AdminAuth
@@ -53,7 +53,16 @@ from app.hire.vetting import engine as E
 from app.hire.vetting.roles import BY_TEST
 from app.me.service import ms
 
-me = APIRouter(prefix="/api/me", tags=["vetting"])
+
+async def _on(auth: CustomerAuth, db: DB) -> None:
+    """404 while the vetting engine is hidden from this person (Admin → Skill checks → Launch)."""
+    from app.hire.vetting import access
+
+    if not await access.for_user(db, auth.user.id):
+        raise ApiError(404, "not_found", "Not found.")
+
+
+me = APIRouter(prefix="/api/me", tags=["vetting"], dependencies=[Depends(_on)])
 admin = APIRouter(prefix="/api/admin/vetting", tags=["vetting"])
 
 REFRESH_QUESTIONS = 8
@@ -235,12 +244,24 @@ def reverify_email(u: dict[str, Any], v: dict[str, Any], days_left: int) -> Emai
 
 
 async def reverify_reminders(db, mailer: Mailer, t: datetime | None = None) -> int:
-    """Day 75 and day 85 of the 90 days: one email each, never twice."""
+    """Day 75 and day 85 of the 90 days: one email each, never twice. While the vetting engine is hidden (Admin →
+    Skill checks → Launch) only the testers get them; nobody else is marked as reminded, so they still get theirs
+    after the launch."""
+    from app.hire.vetting import access
+
     t = t or now()
     sent = 0
+    hidden = not await access.is_public(db)
+    testers = await access.testers(db)
+    if hidden and not testers:
+        return 0
     for day in REMIND_DAYS:
         q = {"at": {"$lte": t - timedelta(days=day)}, "expires_at": {"$gt": t}, f"reminded.d{day}": {"$exists": False}}
         async for v in db[VETTING_VERIFIED].find(q).limit(500):
+            if hidden:
+                who = await db[USERS].find_one({"_id": v["user_id"]}, {"email_lc": 1, "email": 1}) or {}
+                if (who.get("email_lc") or who.get("email") or "").lower() not in testers:
+                    continue
             claimed = await db[VETTING_VERIFIED].update_one(
                 {"_id": v["_id"], f"reminded.d{day}": {"$exists": False}}, {"$set": {f"reminded.d{day}": t}}
             )
@@ -514,7 +535,11 @@ async def daily_if_due(db, mailer: Mailer) -> dict[str, int]:
     d = await db[VETTING_DEMAND].find_one({"_id": "trust"}) or {}
     if d.get("at") and d["at"] > now() - timedelta(hours=23):
         return {}
-    out = {**(await fraud_scan(db)), **(await retention(db)), "reverify": await reverify_reminders(db, mailer)}
+    from app.hire.vetting import access
+
+    # the retention clean-up rewrites existing records (raw IPs in the audit log): only once the engine is public
+    clean = await retention(db) if await access.is_public(db) else {"retention_waits": 1}
+    out = {**(await fraud_scan(db)), **clean, "reverify": await reverify_reminders(db, mailer)}
     await db[VETTING_DEMAND].update_one({"_id": "trust"}, {"$set": {"at": now(), "last": out}}, upsert=True)
     return out
 

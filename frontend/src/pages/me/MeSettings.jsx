@@ -1,5 +1,6 @@
 // Profile & settings: account details (career details live in the Job Profile), notifications per channel, privacy (download data, delete account).
 // Also Help & referral.
+import { useVettingOn } from '../../lib/vettingAccess';
 import { langsShown } from '../../lib/i18n';
 import MyStories from './MyStories';
 import DeleteAccount from './DeleteAccount';
@@ -98,6 +99,7 @@ const KEEP = [
 export function MeSettings() {
   const me = useMe();
   const all = useExpertOrders();
+  const vet = useVettingOn(); // Vetting V5 additions only for people who get the engine (Admin → Skill checks → Launch)
   const toast = useToast();
   const [f, setF] = useState(me.account);
   const [del, setDel] = useState(false);
@@ -117,7 +119,7 @@ export function MeSettings() {
     try { await saveProfile({ ...f, email: me.account.email }); toast('Saved'); } catch (err) { setError(err.message || 'Not saved. Please try again.'); } finally { setBusy(false); }
   };
   const exportAll = async () => {
-    if (LIVE) { // the live build: everything the server holds about you (DPDP), as one JSON file
+    if (LIVE && vet) { // the live build: everything the server holds about you (DPDP), as one JSON file
       try {
         const data = await http('/api/me/data-export');
         await savePdf(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }), 'my-nm7-data.json');
@@ -167,12 +169,12 @@ export function MeSettings() {
           {canSave() && <li className="mitem"><span className="mitem-main"><span className="mitem-title">LinkedIn data</span><span className="mitem-meta">Your LinkedIn link, the text from your LinkedIn PDF or pasted sections, and your checks. Kept on your account only, never shared with organizations.</span></span><span className="mitem-side"><button type="button" className="btn btn-outline" onClick={() => setLiDel(true)}>Delete my LinkedIn data</button></span></li>}
           {canSave() && <li className="mitem"><span className="mitem-main"><span className="mitem-title">Job-search data</span><span className="mitem-meta">Job posts you matched, their scores, tailoring suggestions, cover letters and interview prep. Kept on your account only, never shared with organizations.</span></span><span className="mitem-side"><button type="button" className="btn btn-outline" onClick={() => setJobDel(true)}>Delete my job-search data</button></span></li>}
         </ul>
-        <div className="stack g8" data-testid="retention">
+        {vet && <div className="stack g8" data-testid="retention">
           <h3 className="acc-keep-h">How long we keep things</h3>
           <ul className="acc-keep small">
             {KEEP.map(([what, how]) => <li key={what}><strong>{what}:</strong> {how}</li>)}
           </ul>
-        </div>
+        </div>}
       </MeCard>
       <MeCard as="section" tone="bad" className="acc-danger" label="Delete account" icon="⚠" title="Delete account" sub="Removes your account and everything in it. Invoices are kept as the law requires.">
         {LIVE ? <DeleteAccount /> : <div className="mspread"><span className="small" style={{ color: 'var(--danger)' }}>Delete my account and all my data.</span><button type="button" className="btn btn-outline acc-danger-btn" onClick={() => setDel(true)}>Delete account</button></div>}

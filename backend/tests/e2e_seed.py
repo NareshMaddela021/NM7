@@ -45,6 +45,10 @@ async def main(cmd: str, *args: str) -> dict:
         (state,) = args
         await db["settings"].update_one({"_id": "site"}, {"$set": {"languages.te_hi": state == "on"}}, upsert=True)
         return {"ok": True}
+    if cmd == "vetting-tester":  # Admin → Skill checks → Launch: this email sees the vetting engine while it is hidden
+        (email,) = args
+        await db["settings"].update_one({"_id": "site"}, {"$addToSet": {"vetting.testers": email.lower()}}, upsert=True)
+        return {"ok": True}
     if cmd == "hire-token":  # the one-tap "Still ready" link's token from the reminder email (Phase 5 H1)
         from app.hire.available import still_token
 

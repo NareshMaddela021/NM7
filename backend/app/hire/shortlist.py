@@ -141,6 +141,13 @@ def rank_key(row: dict[str, Any]) -> tuple:
             0 if row.get("where") else 1, join, row["key"])  # fmt: skip
 
 
+def rank_key_classic(row: dict[str, Any]) -> tuple:
+    """Hire now's order before Vetting V1 (while the vetting engine is hidden): by match score; on the same score,
+    salary within the range first, then the soonest join date."""
+    join = row["availability"]["joinDate"] or "9999-12-31"
+    return (-row["match"]["score"], SALARY_ORDER.get(row["salary"]["fit"], 1), join, row["key"])
+
+
 def vetted_for(records: list[dict[str, Any]], wanted: list[str], t: datetime) -> dict[str, Any] | None:
     """The badge to show for this job: a current one for one of the job's skills first, else the best current one,
     else the latest expired one (shown as "expired")."""
@@ -210,26 +217,33 @@ async def _job(db, cid: str, job_id: str) -> dict[str, Any]:
 
 
 async def candidates(
-    db, c: dict[str, Any], job: dict[str, Any], t: datetime | None = None, support: str = ""
+    db, c: dict[str, Any], job: dict[str, Any], t: datetime | None = None, support: str = "", vetting: bool = True
 ) -> list[dict[str, Any]]:
-    """Every available, consenting candidate who suits the place and kind of job, ranked (best first)."""
+    """Every available, consenting candidate who suits the place and kind of job, ranked (best first). `vetting`
+    False (the vetting engine hidden from this company): no "Skill verified" badges, so the order is as before."""
     t = t or now()
     site = await get_site(db)
     from app.hire.available import visible
     from app.hire.vetting import ladder
     from app.hire.vetting.levels import HIDE_DAYS
 
+    days = (
+        HIDE_DAYS if vetting else int(site["hire"]["confirm_days"])
+    )  # hidden: only "Ready to join" (7 days) as before
     q = {
         "on": True,
         "consent_at": {"$ne": None},
         "paused_at": None,
-        "confirmed_at": {"$gt": t - timedelta(days=HIDE_DAYS)},
+        "confirmed_at": {"$gt": t - timedelta(days=days)},
     }
     profiles = await db[HIRE_PROFILES].find(q).sort("confirmed_at", -1).limit(SCAN).to_list(SCAN)
-    profiles = [p for p in profiles if visible(p, t)]  # V1: shown for 21 days; ⚡ "ready now" only for 7
+    if vetting:
+        profiles = [p for p in profiles if visible(p, t)]  # V1: shown for 21 days; ⚡ "ready now" only for 7
+    else:
+        profiles = [p for p in profiles if available(p, site, t)]
     # V1 ready shortlists: when this role × city has a fresh cached top 20, start from it (plus anyone who
     # confirmed in the last hour, so a new person is never missed)
-    cached = await ladder.cached_ids(
+    cached = vetting and await ladder.cached_ids(
         db,
         ladder.role_of_title(job.get("title", "")),
         ((job.get("locations") or ["Anywhere"])[0]).split(",")[0].strip(),
@@ -265,7 +279,9 @@ async def candidates(
     results = await shared_results(db, uids) if tests_on else {}
     reliable = await reliability_for(db, uids, t)
     vetted: dict[str, list[dict[str, Any]]] = {}
-    async for v in db[VETTING_VERIFIED].find({"user_id": {"$in": uids}}):  # Vetting V2: "Skill verified" (L2)
+    async for v in db[VETTING_VERIFIED].find(
+        {"user_id": {"$in": uids if vetting else []}}
+    ):  # Vetting V2: "Skill verified" (L2)
         vetted.setdefault(v["user_id"], []).append(v)
     wanted = fitmod.job_skills(job)
     rows = []
@@ -287,8 +303,8 @@ async def candidates(
         if not fitmod.level_fits(m):
             continue  # round J2: never a fresher for a 10-year job, nor someone with 10 years for a fresher job
         inv = invites.get(p["_id"])
-        vt = u.get("vetting")
-        if not vt:  # never worked out yet (the hourly pass hasn't reached them): work it out now
+        vt = u.get("vetting") or ({} if not vetting else None)
+        if vt is None:  # never worked out yet (the hourly pass hasn't reached them): work it out now
             vt = await ladder.refresh(db, p["_id"], "shortlist") or {}
         lvl = int(vt.get("level") or 0)
         ready = available(p, site, t)
@@ -342,7 +358,11 @@ async def candidates(
                 "invite": invite_state(inv, t) if inv else None,
             }
         )
-    rows.sort(key=rank_key)
+    if not vetting:  # hidden from this company (Admin → Skill checks → Launch): Hire now exactly as before
+        for r in rows:
+            for k in ("level", "readyNow", "band", "readiness", "reasons"):
+                r.pop(k, None)
+    rows.sort(key=rank_key if vetting else rank_key_classic)
     return rows
 
 
@@ -424,10 +444,14 @@ async def shortlist(
     )
     await rate_limit.record(db, key)
     started = now()
-    rows = await candidates(db, c, j, started, support)
-    if verified or role or min_score:
+    from app.hire.vetting import access
+
+    vetting = await access.for_company(db, c, acc)
+    rows = await candidates(db, c, j, started, support, vetting)
+    if vetting and (verified or role or min_score):
         rows = [r for r in rows if keep_vetted(r, role, min_score)]
-    rows = [r for r in rows if keep_v1(r, min_level, ready_now, notice_max, salary_max, city, band)]
+    if vetting:
+        rows = [r for r in rows if keep_v1(r, min_level, ready_now, notice_max, salary_max, city, band)]
     if rows:  # H9: when the first candidate was shown for this role
         await db[JOBS].update_one({"_id": j["_id"]}, {"$min": {"hire_speed.first_shown_at": started}})
     await db[HIRE_USAGE].update_one(
@@ -444,6 +468,7 @@ async def shortlist(
         },
         "items": rows[: min(size, BULK_TOP if is_bulk(j) else TOP)],
         "available": len(rows),
+        "vetting": vetting,  # the Skill verified filters and badges are shown (Admin → Skill checks → Launch)
         "usage": {"used": len(roles), "free": free},
         "ms": int((now() - started).total_seconds() * 1000),
     }

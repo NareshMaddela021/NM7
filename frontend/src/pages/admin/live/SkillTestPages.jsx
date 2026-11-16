@@ -13,7 +13,7 @@
 //   Fraud scan  (Vetting V5) the daily scan's findings: Clear or Confirm (holds badges back, never a ban).
 //   Fairness    (Vetting V5) pass rates by language, city tier and experience band (TrustPages.jsx).
 //   Stats       attempts, pass rate and average score per role; flags and AI spend per day.
-// The tab is in the address (?tab=rubrics) so a link opens the right one.
+// The tab is in the address (?tab=rubrics) so a link opens the right one. Above the tabs: Launch (VettingLaunch.jsx).
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Dialog, useToast } from '../../../components/ui';
@@ -25,6 +25,7 @@ import VettingOverview from './VettingOverview';
 import { InterviewQueue } from './InterviewPages';
 import { L4Checks } from './L4Pages';
 import { Appeals, Fairness, FraudScan } from './TrustPages';
+import VettingLaunch from './VettingLaunch';
 import '../../../styles/me-kit.css';
 import '../../../styles/admin-jobs.css';
 import '../../../styles/admin-vetting.css';
@@ -70,6 +71,7 @@ export function LiveSkillTests() {
   return (
     <div className="adx vt stack g16">
       <PageHead title="Skill checks" sub="Levels and shortlists at a glance, question banks, practical-task rubrics, the review and integrity queues, appeals, the fraud scan, fairness, and how the checks are doing. Companies only ever see the badge and scores." />
+      <VettingLaunch />
       <TabBar tab={tab} setTab={setTab} counts={counts.data?.open} />
       <div role="tabpanel" id={`vt-panel-${tab}`} aria-labelledby={`vt-tab-${tab}`} className="stack g16">
         {tab === 'overview' && <VettingOverview />}

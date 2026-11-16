@@ -59,6 +59,17 @@ test.describe('public', () => {
   });
 });
 
+// The live API (Render): healthy, and the vetting endpoints exist (signed out they answer 401/403, never 404).
+const API = process.env.SMOKE_API || 'https://nm7-api.onrender.com';
+test('public › API health and the vetting endpoints', async ({ request }) => {
+  const { expect } = await import('@playwright/test');
+  expect((await request.get(`${API}/health`, { timeout: 60_000 })).status()).toBe(200);
+  for (const p of ['/api/admin/vetting/stats', '/api/admin/vetting/queue', '/api/me/skill-checks', '/api/me/skill-checks/access']) {
+    const r = await request.get(`${API}${p}`, { timeout: 30_000 });
+    expect([401, 403], `${p} answered ${r.status()}`).toContain(r.status());
+  }
+});
+
 area('seeker', 'seeker', ME.map((s) => `/me${s ? `/${s}` : ''}`).concat(['/builder']), (p) => p, { allow: ['/api/me/offer', '/api/me/drive'] });
 area('student', 'student', STUDENT);
 area('student', 'easy', ['/me/simple']);
@@ -77,3 +88,16 @@ area('company', 'company', ['/company', ...COMPANY_TABS.map((t) => ({
 }))]);
 area('college', 'college', COLLEGE, (p, d) => `${d?.base || '/org'}${p}`);
 area('admin', 'admin', ADMIN.map((s) => `/admin${s ? `/${s}` : ''}`));
+// Vetting V2 on the live site: Admin → Skill checks lists the 50 roles, every one with its question bank loaded, and
+// the Launch switch says whether the new skill checks are hidden (the default) or live for everyone.
+area('admin', 'admin', [{
+  title: '/admin/skill-tests: 50 roles with banks, Launch state',
+  run: async (page) => {
+    const { expect } = await import('@playwright/test');
+    await checkPage(page, '/admin/skill-tests', { signedIn: true });
+    const roles = page.getByTestId('st-skills').locator('optgroup[label="The 50 roles"] option');
+    await expect(roles).toHaveCount(50, { timeout: 30_000 });
+    await expect.poll(async () => (await roles.allInnerTexts()).filter((x) => / questions · /.test(x)).length, { timeout: 60_000 }).toBe(50);
+    if (await page.getByTestId('vl-card').count()) await expect(page.getByTestId('vl-state')).toContainText(/Hidden|Live for everyone/); // owners only
+  },
+}]);
