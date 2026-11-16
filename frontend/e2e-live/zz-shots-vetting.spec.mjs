@@ -25,7 +25,7 @@ for (const [size, opts] of SIZES) {
     const mail = `shots-vet-${tag}@example.com`;
     seed('customer', mail, 'Asha Rao', PASSWORD);
     const ctx = await browser.newContext({ ...opts, reducedMotion: 'reduce' });
-    const page = await ctx.newPage();
+    let page = await ctx.newPage();
     const step = async (name, fn) => { try { await fn(); } catch (e) { console.log(`${name}: ${e.message.split('\n')[0]}`); } await settle(page); await snap(page, name, size); };
     await login(page, mail);
     await settle(page);
@@ -39,7 +39,9 @@ for (const [size, opts] of SIZES) {
       await page.getByRole('button', { name: /^Start/ }).last().click({ timeout: 8000 });
       await page.getByText(/Question 1 of/i).first().waitFor({ timeout: 15000 });
     });
-    // a passed paper through the API (the right answers from the test seed), then its result and the task
+    // a passed paper through the API (the right answers from the test seed), then its result and the task, in a
+    // fresh tab (the running SQL test above lives in the first tab's session storage)
+    page = await ctx.newPage();
     let aid = null;
     await step('vet-result', async () => {
       await call(page, '/api/me/skill-checks/consent', json('POST', {}));
