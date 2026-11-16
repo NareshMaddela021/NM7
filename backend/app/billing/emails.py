@@ -94,3 +94,21 @@ def plan_reminder(to: str, name: str, org: dict[str, Any], due: str) -> Email:
     text = f"{hi}\n\n{line}\n\nRenew or change the plan: {url}\n\nNm7 · nm7.si"
     html = _wrap([escape(hi), escape(line)], url, "Renew the plan")
     return Email(to, name or to, subject, text, html)
+
+
+def proforma_with_link(to: str, name: str, org: dict[str, Any], number: str, amount: int, link: str,
+                       pdf: tuple[str, bytes] | None) -> Email:  # fmt: skip
+    """An organization's proforma invoice with its Razorpay payment link (replaces collecting on WhatsApp)."""
+    hi = f"Hi {name}," if name else "Hello,"
+    lines = [
+        hi,
+        f"Proforma invoice {number} for {org['name']}: {rupees(amount)}. Pay securely with Razorpay (UPI, cards, "
+        "netbanking or wallets) using the button below. Your tax invoice is emailed as soon as the payment is "
+        "confirmed, and the plan turns on at once.",
+        "The proforma is attached. Questions? Reply to this email or write to info@nm7.si.",
+    ]
+    text = "\n\n".join(lines) + f"\n\nPay here: {link}\n\nNm7 · nm7.si"
+    html = _wrap([escape(x) for x in lines], link, f"Pay {rupees(amount)}")
+    files = [(pdf[0], "application/pdf", pdf[1])] if pdf else []
+    return Email(to, name or to, f"Proforma {number} — pay {rupees(amount)} for {org['name']}", text, html,
+                 attachments=files)  # fmt: skip

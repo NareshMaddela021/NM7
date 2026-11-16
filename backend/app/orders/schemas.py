@@ -6,6 +6,7 @@ from pydantic import Field
 from app.core.schemas import CamelModel
 from app.orders.models import Order
 from app.orders.pricing import PLANS
+from app.payments.customer_invoice import CustomerBillingIn  # noqa: E402
 
 
 class CreateOrderIn(CamelModel):
@@ -13,6 +14,7 @@ class CreateOrderIn(CamelModel):
     role: str | None = Field(default=None, max_length=100)  # the job the resume is for
     addons: list[str] = Field(default_factory=list, max_length=5)
     code: str | None = Field(default=None, max_length=40)  # a code (Admin → Codes); one per order
+    billing: CustomerBillingIn | None = None  # optional: invoice to a company (name + GSTIN) for input tax credit
 
 
 class Prefill(CamelModel):

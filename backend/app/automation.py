@@ -34,6 +34,8 @@ from app.jobs.apply import followups as job_followups
 from app.me.delete import erase_due
 from app.me.student_pass import send_reminders as pass_reminders
 from app.orgs.interviews import send_reminders as interview_reminders
+from app.payments.admin import daily_if_due as payment_check
+from app.payments.reminders import send_reminders as payment_reminders
 from app.seek.first90 import send_checkins as joining_checkins
 from app.seek.first90 import send_weekly as weekly_progress
 from app.seek.paths import send_nudges as learn_nudges
@@ -66,10 +68,17 @@ async def release_lease(db: AsyncDatabase, name: str = "automation") -> None:
 
 
 async def _expire_unpaid(db: AsyncDatabase, hours: int, _mailer: Mailer) -> int:
+    """Unpaid checkouts expire (a late payment on an expired order still counts); their codes are released."""
+    from app.coupons.service import release
+
+    stale = [o["_id"] async for o in db[ORDERS].find(
+        {"status": "pending_payment", "created_at": {"$lt": now() - timedelta(hours=hours)}}, {"_id": 1})]  # fmt: skip
+    if not stale:
+        return 0
     r = await db[ORDERS].update_many(
-        {"status": "pending_payment", "created_at": {"$lt": now() - timedelta(hours=hours)}},
-        {"$set": {"status": "expired", "updated_at": now()}},
+        {"_id": {"$in": stale}, "status": "pending_payment"}, {"$set": {"status": "expired", "updated_at": now()}}
     )
+    await release(db, stale)
     return r.modified_count
 
 
@@ -137,7 +146,9 @@ async def run_rules(db: AsyncDatabase, mailer: Mailer | None = None) -> dict[str
             done[key] = await RUNNERS[key](db, int(rule["value"]), mailer or get_mailer())
             prev = runs.get(key, {})
             runs[key] = {"last_run": now(), "acted": prev.get("acted", 0) + done[key]}
-        done["whatsapp_cancel"] = await cancel_stale(db)  # hours from Admin → Settings → Payments
+        done["whatsapp_cancel"] = await cancel_stale(db)  # old WhatsApp orders (not while a payment link is open)
+        done["payment_reminders"] = await payment_reminders(db, mailer or get_mailer())  # ≤ 2 per unpaid order
+        done["payment_check_flags"] = await payment_check(db)  # once a day: nm7.si vs Razorpay
         done["health_emails"] = await health_batch(db, mailer or get_mailer())  # once a day; each person ≤ 1 / 14 days
         done["accounts_erased"] = await erase_due(db)  # self-serve deletions whose 7-day undo window is over
         done["daily_summary"] = await send_daily(db, mailer or get_mailer())  # 8:00 IST, once a day

@@ -102,6 +102,7 @@ from app.orgs import router as orgs
 from app.orgs import staff as org_staff
 from app.orgs import transfer as org_transfer
 from app.partners import router as partners
+from app.payments.admin import admin as payments_admin
 from app.payments.router import router as payments_router
 from app.photos.router import router as photos_router
 from app.profile.router import router as profile_router
@@ -363,9 +364,10 @@ def create_app() -> FastAPI:
     app.include_router(home_events.admin)
     app.include_router(coupons.me)  # /api/me/codes (Admin → Codes)
     app.include_router(coupons.admin)
-    app.include_router(wapay_router)  # pay via WhatsApp (before /api/orders/{id})
+    app.include_router(wapay_router)  # old WhatsApp payments, read-only (before /api/orders/{id})
     app.include_router(orders_router)
     app.include_router(payments_router)
+    app.include_router(payments_admin)  # Admin → Payments: Razorpay refunds, payment links, the daily check
     app.include_router(profile_router)  # before me_router: /api/me/job-profile
     app.include_router(photos_router)  # /api/me/photo-import
     app.include_router(summary_router)  # /api/me/summary/generate

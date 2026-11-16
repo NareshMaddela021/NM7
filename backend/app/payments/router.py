@@ -60,7 +60,22 @@ async def _send_receipt(db: AsyncDatabase, mailer: Mailer, order: Order) -> None
         return
     user = User.load(await db[USERS].find_one({"_id": order.customer_id}))
     if user:
-        await send_safely(mailer, emails.payment_receipt(user.email, user.name, order))
+        await send_safely(mailer, await receipt_with_invoice(db, user, order))
+
+
+async def receipt_with_invoice(db: AsyncDatabase, user: User, order: Order):
+    """The receipt email with the order's GST invoice attached (PDF), when it has one."""
+    from app.billing.invoices import file_name, pdf_of
+    from app.payments.customer_invoice import invoice_for
+
+    msg = emails.payment_receipt(user.email, user.name, order)
+    doc = await invoice_for(db, order.id)
+    if doc:
+        try:
+            msg.attachments.append((file_name(doc), "application/pdf", await pdf_of(db, doc)))
+        except Exception:  # the email still goes; the invoice stays downloadable from My orders
+            log.exception("invoice PDF for %s", order.id)
+    return msg
 
 
 PAYMENT_OK = ("authorized", "captured")

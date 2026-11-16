@@ -26,7 +26,7 @@ from app.billing.checkout import send_org_receipt
 from app.billing.invoices import doc_out, file_name, pdf_of
 from app.billing.money import OFFLINE_METHODS, create_proforma, org_order, record_offline, refund_org_order
 from app.core.db import DB, INVOICES, ORGANIZATIONS
-from app.core.email import MailerDep
+from app.core.email import MailerDep, send_safely
 from app.core.errors import ApiError
 from app.core.exports import CSV_BOM, csv_safe
 from app.core.schemas import CamelModel
@@ -186,11 +186,25 @@ class ProformaIn(CamelModel):
 
 
 @admin.post("/orgs/{org_id}/billing/proforma", status_code=201)
-async def proforma(org_id: str, body: ProformaIn, db: DB, auth: AdminAuth("payments")) -> dict[str, Any]:
-    doc = await create_proforma(
-        db, await _org(db, org_id), auth.user.id, body.plan_id, body.extra_discount_pct, body.payment_link
-    )
-    return doc_out(doc)
+async def proforma(
+    org_id: str, body: ProformaIn, db: DB, mailer: MailerDep, auth: AdminAuth("payments")
+) -> dict[str, Any]:
+    o = await _org(db, org_id)
+    doc = await create_proforma(db, o, auth.user.id, body.plan_id, body.extra_discount_pct, body.payment_link)
+    link = (doc.get("snapshot") or {}).get("payment_link")
+    out = doc_out(doc)
+    if link:  # the organization gets the proforma and its Razorpay payment link by email
+        from app.billing.emails import proforma_with_link
+        from app.billing.invoices import file_name, pdf_of
+
+        to = ((doc.get("snapshot") or {}).get("recipient") or {}).get("email") or ""
+        if to:
+            pdf = (file_name(doc), await pdf_of(db, doc))
+            out["emailed"] = await send_safely(
+                mailer, proforma_with_link(to, "", o, doc["number"], int(doc["total"]), link, pdf)
+            )
+            out["emailedTo"] = to
+    return out
 
 
 class OfflineIn(CamelModel):

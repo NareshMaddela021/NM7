@@ -279,15 +279,26 @@ async def cancel(db: AsyncDatabase, order_id: str, actor_id: str | None, reason:
     return await get_order(db, order.id)
 
 
+async def pending_count(db: AsyncDatabase) -> int:
+    """Old WhatsApp orders still waiting for money (with or without a Razorpay payment link sent)."""
+    return await db[ORDERS].count_documents(
+        {"status": "awaiting_payment", "$or": [{"method": "whatsapp"}, {"moved_from": "whatsapp"}]}
+    )
+
+
 async def cancel_stale(db: AsyncDatabase) -> int:
-    """Automation: unpaid WhatsApp orders older than the hours in Admin → Settings → Payments are cancelled."""
+    """Automation: unpaid old WhatsApp orders older than the hours in Admin → Settings → Payments are cancelled —
+    except while a Razorpay payment link sent for them is still open (they are cancelled once it has expired)."""
     hours = int((await get_payments(db))["cancel_after_hours"] or 72)
+    t = now()
     stale = [
         o["_id"]
         async for o in db[ORDERS].find(
-            {"status": "awaiting_payment", "created_at": {"$lt": now() - timedelta(hours=hours)}}, {"_id": 1}
+            {"status": "awaiting_payment", "created_at": {"$lt": t - timedelta(hours=hours)},
+             "$or": [{"payment_link": None}, {"payment_link.expires_at": {"$lt": t}}]},
+            {"_id": 1},
         )
-    ]
+    ]  # fmt: skip
     if not stale:
         return 0
     r = await db[ORDERS].update_many(
@@ -376,7 +387,7 @@ def _chat_url(phone: str | None) -> str | None:
 
 
 async def order_rows(db: AsyncDatabase, status: str, limit: int = 200) -> list[dict[str, Any]]:
-    q: dict[str, Any] = {"method": "whatsapp"}
+    q: dict[str, Any] = {"$or": [{"method": "whatsapp"}, {"moved_from": "whatsapp"}]}  # old WhatsApp orders
     if status == "awaiting":
         q["status"] = "awaiting_payment"
     elif status == "paid":
@@ -404,12 +415,21 @@ async def order_rows(db: AsyncDatabase, status: str, limit: int = 200) -> list[d
             "createdAt": int(o.created_at.timestamp() * 1000),
             "ageHours": int((t - o.created_at).total_seconds() // 3600),
             "chatUrl": _chat_url(u.get("phone")),
+            "label": "old (WhatsApp)",
+            "paymentLink": _link_out(o.payment_link),
             "receiptNo": o.receipt_no,
             "invoiceNo": o.invoice_no,
             "payment": {"method": p["method"], "reference": p["reference"], "amount": p["amount"],
                         "paidOn": (p.get("raw") or {}).get("whatsapp", {}).get("paid_on")} if p else None,
         })  # fmt: skip
     return rows
+
+
+def _link_out(link: dict[str, Any] | None) -> dict[str, Any] | None:
+    if not link:
+        return None
+    sent = link.get("sent_at")
+    return {"url": link.get("url", ""), "sentAt": int(sent.timestamp() * 1000) if sent else None}
 
 
 def _coupon_out(o: Order) -> dict[str, Any] | None:
