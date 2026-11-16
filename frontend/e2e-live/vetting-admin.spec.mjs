@@ -1,7 +1,7 @@
 // Admin → Skill checks (Vetting V2) on a desktop and a 390 px phone, against the real API: the Overview tab (Vetting V1,
 // the default) shows people per level, ready now and the success measures with their status; the Banks tab lists a
 // role's questions (the banks load on first open), a question's wording is edited in the dialog and saved, then the
-// Rubrics, Review queue, Integrity queue, Appeals, Fraud scan, Fairness (Vetting V5) and Stats tabs open. No sideways
+// Rubrics, Review queue, Integrity queue, L4 checks (Vetting V4), Appeals, Fraud scan, Fairness (Vetting V5) and Stats tabs open. No sideways
 // scrolling, no browser dialogs.
 // (The company "Skill verified" badge is covered by the backend tests: seed() cannot make a skill_verified record.)
 import { expect, test } from '@playwright/test';
@@ -71,6 +71,16 @@ for (const [label, opts] of SIZES) {
 
       await page.getByRole('tab', { name: /Integrity queue/ }).click();
       await expect(page.getByRole('note')).toContainText('Holding never bans anyone');
+      expect(await noSideScroll(page)).toBe(true);
+
+      // Vetting V4: the L4 checks tab (requests, reviewers, the free settings)
+      await page.getByRole('tab', { name: 'L4 checks' }).click();
+      await expect(page).toHaveURL(/tab=l4/);
+      const l4 = page.getByRole('region', { name: 'L4 checks' });
+      await expect(l4.getByRole('note')).toContainText('within 24 hours');
+      await expect(page.getByTestId('l4-requests')).toBeVisible();
+      await expect(page.getByTestId('l4-reviewers')).toBeVisible();
+      await expect(page.getByTestId('l4-free-note')).toContainText(/nothing is charged or paid|Payments are on/);
       expect(await noSideScroll(page)).toBe(true);
 
       // Vetting V5: appeals, the fraud scan and the fairness report

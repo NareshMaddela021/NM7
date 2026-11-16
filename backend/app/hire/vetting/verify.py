@@ -7,7 +7,7 @@ pass calibration first — they grade 5 sample interviews and must land within 1
 the lines. A quality score comes from senior re-reviews and from companies' ratings of the candidates they checked.
 
   Reviewer (expert account):  GET/PUT /api/reviewer/me · GET /api/reviewer/calibration · POST /api/reviewer/calibration
-                              GET /api/reviewer/checks · POST /api/reviewer/checks/{id}/claim
+                              GET /api/reviewer/checks
                               POST /api/reviewer/checks/{id}/result {score 1–5, passed, note (3 lines), checklist}
   Company:                    POST /api/company/{cid}/hire/l4/{uid}   request L4 for a candidate it can see
                               POST /api/company/{cid}/hire/l4/{uid}/rating {stars}   after interviewing them

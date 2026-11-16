@@ -22,6 +22,13 @@ def test_calibration_and_defaults():
     assert V4.calibration_score(off) < V4.CALIBRATION_PASS
     assert V4.DEFAULT_SETTINGS == {"price_inr": 0, "payout_inr": 0, "payments_on": False}
     assert V4.ref_id(V4.ref_token("abc123")) == "abc123" and V4.ref_id("abc123.wrong") is None
+    from app.companies.applicants import l4_of
+
+    assert l4_of({"vetting_l4_until": now() + timedelta(days=1), "vetting_l4_line": "Confirmed by HR at X"}) == {
+        "status": "verified",
+        "referenceLine": "Confirmed by HR at X",
+    }
+    assert l4_of({"vetting_l4_until": now() - timedelta(days=1)}) is None and l4_of(None) is None
     assert not V4.l4_ready(
         {"check": {"passed": True}, "referees": [{"answered_at": now(), "rehire": "yes", "flags": ["x"]}]}
     )

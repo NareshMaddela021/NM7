@@ -5,6 +5,7 @@
 // interview (the student gets a calendar file), the talent pool, the resume they applied with. No pop-up dialogs.
 // English, Telugu and Hindi (co.ap.*). Vetting V1: the level chip and ⚡ Ready now on each card and in the profile.
 // Vetting V3: the profile of someone at L3+ opens their screening interview (ScreeningInterview.jsx).
+// Vetting V4: and can ask for the Nm7 human check (NmCheck.jsx).
 import { useCallback, useEffect, useState } from 'react';
 import { rq } from '../../lib/company';
 import { matchReasons } from '../../lib/jobBoard';
@@ -18,6 +19,7 @@ import '../../styles/company-jobs.css';
 import ApplicantFeedback from './ApplicantFeedback';
 import SkillBadge from './SkillBadge';
 import ScreeningInterview from './ScreeningInterview';
+import NmCheck from './NmCheck';
 import LevelBadge from '../../components/LevelBadge';
 import { lt } from '../../components/levelStrings';
 import { useLang } from '../../lib/i18n';
@@ -161,6 +163,7 @@ function Profile({ t, c, can, a, rank, onClose, onChanged }) {
         <SkillBadge sv={a.skillVerified} t={t} />
         {a.level?.level >= 3 && <div className="row g8"><ScreeningInterview c={c} uid={a.userId} name={a.name} level={a.level.level} job={a.jobId} appId={a.id} top
           canInvite={can && !['interview', 'offer', 'rejected'].includes(a.status)} onInvited={onChanged} /></div>}
+        <NmCheck c={c} uid={a.userId} name={a.name} level={a.level?.level} row={a} canRequest={can} />
         <ul className="ca-reasons">{reasons(a.match, t).map((r) => <li key={r}>{r}</li>)}</ul>
         {a.match?.found.length > 0 && <div className="stack g4"><span className="mkicker">{t('co.ap.cFound')}</span><span className="ca-skills">{a.match.found.map((x) => <span key={x} className="ca-skill ok">{x}</span>)}</span></div>}
         {a.match?.missing.length > 0 && <div className="stack g4"><span className="mkicker">{t('co.ap.cMissing')}</span><span className="ca-skills">{a.match.missing.map((x) => <span key={x} className="ca-skill">{x}</span>)}</span></div>}

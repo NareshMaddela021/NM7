@@ -1,0 +1,81 @@
+/* Vetting V4 (the Nm7 human check, L4): the company "Request Nm7 check" control, the candidate's /me/verification,
+   the public referee page, the reviewer workspace and the Admin "L4 checks" tab. Built on the me-kit (mcard, mchip). */
+
+/* shared: choice buttons (radio / toggle) at least 44 px tall */
+.l4-choices { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; border: 0; min-width: 0; }
+.l4-choice { min-height: 44px; min-width: 44px; padding: 0 12px; border-radius: 12px; border: 1px solid #d9d3f5; background: #fff; color: var(--text); font-weight: 700; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.l4-choice:hover { border-color: #a99cf0; }
+.l4-choice:focus-visible { outline: 3px solid #6d5fd8; outline-offset: 2px; }
+.l4-choice[aria-checked="true"], .l4-choice[aria-pressed="true"] { background: #3f36c9; border-color: #3f36c9; color: #fff; }
+.l4-choice:disabled { opacity: .55; cursor: not-allowed; }
+.l4-legend { font-size: 13.5px; font-weight: 700; color: var(--text); padding: 0; margin: 0 0 6px; }
+.l4-help { font-size: 13px; color: var(--text2); margin: 0; line-height: 1.5; }
+.l4-verified { margin: 0; font-size: 14px; font-weight: 700; color: #166534; overflow-wrap: anywhere; }
+.l4-status { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+
+/* company: on the Hire now card and in the applicant drawer */
+.l4-co { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.l4-co-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.l4-co .btn { min-height: 44px; }
+.l4-stars .l4-choice { font-size: 20px; padding: 0; width: 44px; color: #b45309; background: #fffaf0; border-color: #f3dfb5; }
+.l4-stars .l4-choice[aria-checked="true"], .l4-stars .l4-choice.on { background: #fff1d6; color: #92400e; border-color: #d97706; }
+
+/* candidate: steps, slots, referees */
+.l4-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 130px), 1fr)); gap: 8px; }
+.l4-steps li { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 14px; border: 1px solid var(--border); background: #fff; font-size: 13.5px; font-weight: 700; color: var(--text2); min-width: 0; }
+.l4-steps li.done { background: #ecfdf3; border-color: #bfe5cd; color: #14532d; }
+.l4-steps li.now { background: #f1eefc; border-color: #b9adf5; color: #3f36c9; }
+.l4-steps .l4-dot { flex: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: #eef0f4; font-size: 12px; }
+.l4-steps li.done .l4-dot { background: #16a34a; color: #fff; }
+.l4-steps li.now .l4-dot { background: #3f36c9; color: #fff; }
+.l4-days { display: flex; flex-direction: column; gap: 12px; }
+.l4-day { margin: 0; padding: 0; border: 0; min-width: 0; }
+.l4-refs { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.l4-ref { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--border); background: #fff; min-width: 0; }
+.l4-ref-main { flex: 1 1 200px; display: flex; flex-direction: column; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
+.l4-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 12px; }
+.l4-form .input, .l4-big .input { min-height: 44px; }
+.l4-person { margin: 0; padding: 14px; border: 1px solid var(--border); border-radius: 16px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.l4-person > legend { font-weight: 800; font-size: 14.5px; padding: 0 6px; }
+.l4-checklist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--text2); }
+.l4-checklist li::before { content: "✓ "; color: #16a34a; font-weight: 800; }
+
+/* the referee page */
+.l4-ref-page { max-width: 620px; padding: 40px 16px 64px; margin: 0 auto; }
+.l4-big { display: flex; flex-direction: column; gap: 16px; }
+.l4-rehire { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.l4-rehire .l4-choice { min-height: 64px; font-size: 16px; border-radius: 16px; flex-direction: column; gap: 2px; }
+.l4-rehire .l4-choice small { font-weight: 600; font-size: 12px; opacity: .85; }
+
+/* reviewer workspace */
+.l4-tabs { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px; border-radius: 999px; background: #f1eefc; border: 1px solid #e3ddfb; align-self: flex-start; max-width: 100%; }
+.l4-tabs > button { min-height: 44px; padding: 0 16px; border-radius: 999px; border: 0; background: transparent; font-weight: 700; font-size: 14px; color: var(--text2); cursor: pointer; }
+.l4-tabs > button[aria-selected="true"] { background: #fff; color: #3f36c9; box-shadow: 0 1px 3px rgba(63, 54, 201, .2); }
+.l4-tabs > button:focus-visible { outline: 3px solid #6d5fd8; outline-offset: 2px; }
+.l4-roles { display: flex; flex-direction: column; gap: 12px; max-height: 420px; overflow: auto; padding: 2px; }
+.l4-week { display: flex; flex-direction: column; gap: 10px; }
+.l4-week .l4-day { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 8px; align-items: start; }
+.l4-week .l4-day > legend { float: left; width: 48px; padding-top: 12px; font-weight: 800; font-size: 13.5px; margin: 0; }
+.l4-week .l4-choice { min-width: 48px; padding: 0 6px; font-size: 13px; }
+.l4-transcript { white-space: pre-wrap; margin: 0; padding: 12px 14px; border-radius: 14px; background: #f8f7fd; border: 1px solid #ebe7fb; font-size: 14px; line-height: 1.55; color: var(--text); overflow-wrap: anywhere; }
+.l4-crit { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 0; border: 0; min-width: 0; }
+.l4-crit .l4-choice { min-width: 44px; padding: 0; }
+.l4-result { padding: 14px 16px; border-radius: 16px; border: 1px solid #bfe5cd; background: #ecfdf3; color: #14532d; }
+.l4-result.bad { border-color: #f7c9c9; background: #fef3f2; color: #8a1c13; }
+.l4-check-item { display: flex; flex-direction: column; gap: 14px; }
+.l4-ticks { display: flex; flex-direction: column; gap: 6px; }
+.l4-tick { display: flex; align-items: flex-start; gap: 10px; min-height: 44px; padding: 10px 12px; border-radius: 12px; border: 1px solid #e3ddfb; background: #faf9ff; font-size: 14px; cursor: pointer; }
+.l4-tick input { width: 20px; height: 20px; flex: none; margin-top: 1px; accent-color: #3f36c9; }
+
+/* admin */
+.l4-overdue-row td { background: #fef3f2; }
+.l4-overdue { color: #b42318; font-weight: 800; white-space: nowrap; }
+.l4-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.l4-actions .btn { min-height: 44px; }
+.l4-settings { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: 12px; align-items: end; }
+.l4-switch { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; font-weight: 700; font-size: 14px; }
+.l4-switch input { width: 20px; height: 20px; accent-color: #3f36c9; }
+@media (max-width: 640px) {
+  .mtable tr.l4-overdue-row { border: 2px solid #f04438; background: #fef3f2; }
+  .mtable tr.l4-overdue-row td { background: transparent; }
+}

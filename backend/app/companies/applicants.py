@@ -122,7 +122,18 @@ def _row(a, job, user, r, pooled: bool) -> dict[str, Any]:
         "feedback": (a.get("feedback") or {}).get("reasons") or [],  # Phase 6 S6: reasons given after Not selected
         "timeline": [{"status": s["status"], "at": ms(s["at"])} for s in a.get("timeline") or []],
         "level": _level(user),  # Vetting V1: L0–L4 and ⚡ (never integrity details)
+        "l4": l4_of(user),  # Vetting V4: "Nm7 verified" and the reference line
     }
+
+
+def l4_of(user: dict[str, Any] | None) -> dict[str, Any] | None:
+    """Vetting V4: {status: "verified", referenceLine} while the person's Nm7 check is current, else None."""
+    from app.core.time import now
+
+    until = (user or {}).get("vetting_l4_until")
+    if not until or until.replace(tzinfo=until.tzinfo or now().tzinfo) <= now():
+        return None
+    return {"status": "verified", "referenceLine": user.get("vetting_l4_line", "")}
 
 
 def _level(user: dict[str, Any] | None) -> dict[str, Any] | None:
@@ -184,7 +195,12 @@ async def applicants(
             a.setdefault("timeline", []).append({"status": "viewed", "at": t})
         await audit(db, None, "company.applicants_viewed", target=cid, data={"by": acc["email_lc"], "n": len(fresh)})
     uids = list({a["user_id"] for a in apps})
-    users = {u["_id"]: u async for u in db[USERS].find({"_id": {"$in": uids}}, {"name": 1, "email": 1, "vetting": 1})}
+    users = {
+        u["_id"]: u
+        async for u in db[USERS].find(
+            {"_id": {"$in": uids}}, {"name": 1, "email": 1, "vetting": 1, "vetting_l4_until": 1, "vetting_l4_line": 1}
+        )
+    }
     pooled = {p["user_id"] async for p in db[TALENT_POOL].find({"company_id": cid, "user_id": {"$in": uids}})}
     rows = []
     for a in apps:
@@ -209,7 +225,9 @@ async def applicant(cid: str, app_id: str, db: DB, x_recruiter_account: str | No
     acc, _, _ = await company_for(db, cid, x_recruiter_account)
     a = await _app(db, cid, app_id)
     job = await db[JOBS].find_one({"_id": a["job_id"]})
-    user = await db[USERS].find_one({"_id": a["user_id"]}, {"name": 1, "email": 1, "vetting": 1})
+    user = await db[USERS].find_one(
+        {"_id": a["user_id"]}, {"name": 1, "email": 1, "vetting": 1, "vetting_l4_until": 1, "vetting_l4_line": 1}
+    )
     r = await _resume_doc(db, a)
     pooled = bool(await db[TALENT_POOL].find_one({"company_id": cid, "user_id": a["user_id"]}))
     out = _row(a, job, user, r, pooled)

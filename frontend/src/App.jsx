@@ -52,6 +52,7 @@ function WaPlacedHost() {
 }
 const Checkout = lazy(() => import('./pages/Checkout'));
 const StopAlerts = lazy(() => import('./pages/StopAlerts'));
+const Reference = lazy(() => import('./pages/Reference')); // Vetting V4: a referee's 5 questions (#t=…)
 const HireStillReady = lazy(() => import('./pages/HireStillReady'));
 const HireWalkin = lazy(() => import('./pages/HireWalkin'));
 const Intake = lazy(() => import('./pages/Intake'));
@@ -68,6 +69,7 @@ const ExpertHelp = lazy(() => import('./pages/expert/Help'));
 const Earnings = lazy(() => import('./pages/expert/Earnings'));
 const ExpertProfile = lazy(() => import('./pages/expert/Profile'));
 const TestTask = lazy(() => import('./pages/expert/TestTask'));
+const Reviewer = lazy(() => import('./pages/expert/Reviewer')); // Vetting V4: the Nm7 reviewer workspace
 const auth = () => import('./pages/auth/Auth');
 const Login = named(auth, 'Login');
 const Signup = named(auth, 'Signup');
@@ -98,6 +100,7 @@ const AutoApply = lazy(() => import('./pages/me/AutoApply'));
 const MeHire = lazy(() => import('./pages/me/MeHire'));
 const MeSkillChecks = lazy(() => import('./pages/me/MeSkillChecks'));
 const MeInterviews = lazy(() => import('./pages/me/MeInterviews'));
+const MeVerification = lazy(() => import('./pages/me/MeVerification')); // Vetting V4: the Nm7 human check
 const MeRoles = lazy(() => import('./pages/me/MeRoles'));
 const MeLearn = lazy(() => import('./pages/me/MeLearn'));
 const MePractice = lazy(() => import('./pages/me/MePractice'));
@@ -378,6 +381,7 @@ export default function App() {
         <Route path="/scan" element={<Scan />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/stop-alerts" element={<StopAlerts />} />
+        <Route path="/reference" element={<Reference />} />
         <Route path="/hire/still-ready" element={<HireStillReady />} />
         <Route path="/hire/walkin/:token" element={<RequireAuth role="customer"><HireWalkin /></RequireAuth>} />
         <Route path="/orders/:id" element={<OrderRedirect />} />
@@ -406,6 +410,7 @@ export default function App() {
         <Route path="/expert/earnings" element={E(<Earnings />)} />
         <Route path="/expert/profile" element={E(<ExpertProfile />, false)} />
         <Route path="/expert/test" element={E(<TestTask />, false)} />
+        <Route path="/expert/reviewer" element={E(<Reviewer />)} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -472,6 +477,7 @@ export default function App() {
           <Route path="skill-checks/:id" element={<MeSkillChecks />} />
           <Route path="interviews" element={<MeInterviews />} />
           <Route path="interviews/:id" element={<MeInterviews />} />
+          <Route path="verification" element={<MeVerification />} />
           <Route path="roles" element={<MeRoles />} />
           <Route path="learn" element={<MeLearn />} />
           <Route path="practice" element={<MePractice />} />

@@ -1,4 +1,4 @@
-// Admin → Skill checks (Vetting V2). One page, ten tabs:
+// Admin → Skill checks (Vetting V2). One page, eleven tabs:
 //   Overview    (Vetting V1, the first and default tab) people per level, ⚡ ready now, hot roles, shortlist health,
 //               reminder replies and the success measures (VettingOverview.jsx).
 //   Banks       the question bank per role (50 roles): filters, a dense table with % right, average time and bad-question
@@ -8,6 +8,7 @@
 //   Review      practical tasks the AI could not grade with confidence: read the answer, score each rubric line 0–5.
 //   Integrity   attempts with strong integrity signals: Clear (the badge can be issued) or Hold (never a ban).
 //   Interviews  (Vetting V3) the AI screening interview: review queue, bias checks, graded (InterviewPages.jsx).
+//   L4 checks   (Vetting V4) the Nm7 human check: requests and the 24 h SLA, reviewers, price and payout (L4Pages.jsx).
 //   Appeals     (Vetting V5) "I think this is wrong": retest / corrected / kept with a note; appeal rate per role.
 //   Fraud scan  (Vetting V5) the daily scan's findings: Clear or Confirm (holds badges back, never a ban).
 //   Fairness    (Vetting V5) pass rates by language, city tier and experience band (TrustPages.jsx).
@@ -22,12 +23,13 @@ import { TEST_NAMES, VETTING_ROLES } from '../../../lib/vettingRoles';
 import { IntegrityQueue, ReviewQueue, Rubrics, Stats } from './VettingPages';
 import VettingOverview from './VettingOverview';
 import { InterviewQueue } from './InterviewPages';
+import { L4Checks } from './L4Pages';
 import { Appeals, Fairness, FraudScan } from './TrustPages';
 import '../../../styles/me-kit.css';
 import '../../../styles/admin-jobs.css';
 import '../../../styles/admin-vetting.css';
 
-const TABS = [['overview', 'Overview'], ['banks', 'Banks'], ['rubrics', 'Rubrics'], ['review', 'Review queue'], ['integrity', 'Integrity queue'], ['interviews', 'Interviews'], ['appeals', 'Appeals'], ['fraud', 'Fraud scan'], ['fairness', 'Fairness'], ['stats', 'Stats']];
+const TABS = [['overview', 'Overview'], ['banks', 'Banks'], ['rubrics', 'Rubrics'], ['review', 'Review queue'], ['integrity', 'Integrity queue'], ['interviews', 'Interviews'], ['l4', 'L4 checks'], ['appeals', 'Appeals'], ['fraud', 'Fraud scan'], ['fairness', 'Fairness'], ['stats', 'Stats']];
 const FLAG_LABEL = { too_easy: 'Too easy', too_hard: 'Too hard', top_scorers_fail: 'Top scorers fail it' };
 const FLAG_TONE = { too_easy: 'mchip-warn', too_hard: 'mchip-bad', top_scorers_fail: 'mchip-bad' };
 const DIFF = [['easy', 'Easy'], ['medium', 'Medium'], ['hard', 'Hard']];
@@ -76,6 +78,7 @@ export function LiveSkillTests() {
         {tab === 'review' && <ReviewQueue onDone={counts.reload} />}
         {tab === 'integrity' && <IntegrityQueue onDone={counts.reload} />}
         {tab === 'interviews' && <InterviewQueue />}
+        {tab === 'l4' && <L4Checks />}
         {tab === 'appeals' && <Appeals />}
         {tab === 'fraud' && <FraudScan />}
         {tab === 'fairness' && <Fairness />}
