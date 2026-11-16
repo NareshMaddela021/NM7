@@ -19,6 +19,10 @@ import ErrorBoundary from '../../components/ErrorBoundary';
 import { designOf } from '../builder/design';
 import SharedCerts from '../../components/SharedCerts';
 import { openCertFile } from '../../lib/certs';
+import { Still } from '../newhome/ParticleStage';
+import { Empty } from '../me/kit';
+import '../../styles/me-kit.css';
+import '../../styles/recruit.css';
 
 /** /r/:slug — a recruiter link (long token) or a member's public resume link (a short name). */
 export default function ShareRoute() {
@@ -60,13 +64,15 @@ function save(blob, name) {
 
 function Shell({ children }) {
   return (
-    <>
-      <header className="container-wide row between g8" style={{ padding: '14px 16px', borderBottom: '1px solid var(--border)' }}>
-        <Link to="/" className="display" style={{ fontSize: 20, textDecoration: 'none', color: 'inherit' }}>Nm<mark>7</mark></Link>
-        <span className="xs muted">Shared securely via Nm7</span>
+    <div className="rc-page">
+      <header className="rc-top">
+        <div className="rc-bar">
+          <Link to="/" className="rc-logo" aria-label="Nm7 home">Nm<span>7</span></Link>
+          <span className="rc-portal"><span className="rc-portal-dot" aria-hidden="true" />Shared securely via Nm7</span>
+        </div>
       </header>
-      <main id="main" className="container-wide stack g16" style={{ padding: '24px 16px 64px' }}>{children}</main>
-    </>
+      <main id="main" className="rc-main stack g20">{children}</main>
+    </div>
   );
 }
 
@@ -111,12 +117,13 @@ function RecruiterPage({ token }) {
   if (st.error?.code === 'code_required' || st.error?.code === 'wrong_code') {
     return (
       <Shell>
-        <form className="card stack g12" style={{ maxWidth: 420 }} onSubmit={(e) => { e.preventDefault(); setCode(typed); setSt({ loading: true }); load(typed); }}>
-          <h1 className="display" style={{ fontSize: 26 }}>Enter the access code</h1>
-          <p className="small muted">The organization gave you a 6-digit code with this link.</p>
-          <div className="field"><label className="label" htmlFor="rc-code">Access code</label><input id="rc-code" className="input mono" inputMode="numeric" maxLength={6} autoComplete="off" value={typed} onChange={(e) => setTyped(e.target.value.replace(/\D/g, ''))} /></div>
+        <form className="mcard rc-signin" onSubmit={(e) => { e.preventDefault(); setCode(typed); setSt({ loading: true }); load(typed); }}>
+          <span className="rc-gate-ic" aria-hidden="true">⛨</span>
+          <h1 className="display rc-h1">Enter the access code</h1>
+          <p className="rc-lead">The organization gave you a 6-digit code with this link.</p>
+          <div className="field"><label className="label" htmlFor="rc-code">Access code</label><input id="rc-code" className="input mono rc-code" inputMode="numeric" maxLength={6} autoComplete="off" value={typed} onChange={(e) => setTyped(e.target.value.replace(/\D/g, ''))} /></div>
           {st.error.code === 'wrong_code' && <p className="error" role="alert">{st.error.message}</p>}
-          <button type="submit" className="btn btn-ink" disabled={typed.length !== 6}>Open</button>
+          <button type="submit" className="btn btn-signal rc-wide" disabled={typed.length !== 6}>Open</button>
         </form>
       </Shell>
     );
@@ -125,9 +132,10 @@ function RecruiterPage({ token }) {
     const ended = st.error.status === 410 || st.error.status === 404;
     return (
       <Shell>
-        <div className="card stack g8" role="alert" style={{ maxWidth: 560 }}>
-          <h1 className="display" style={{ fontSize: 26 }}>{ended ? 'This link has expired' : 'Couldn’t open this link'}</h1>
-          <p>{ended ? 'The organization that shared these resumes has ended this link, or it has run out. Ask them for a new one.' : st.error.message}</p>
+        <div className="mcard rc-gate" role="alert">
+          <span className="rc-gate-ic" aria-hidden="true">{ended ? '⌛' : '!'}</span>
+          <h1 className="display rc-h1">{ended ? 'This link has expired' : 'Couldn’t open this link'}</h1>
+          <p className="rc-lead">{ended ? 'The organization that shared these resumes has ended this link, or it has run out. Ask them for a new one.' : st.error.message}</p>
         </div>
       </Shell>
     );
@@ -135,29 +143,32 @@ function RecruiterPage({ token }) {
   const exp = new Date(d.expiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
   return (
     <Shell>
-      <div className="stack g4">
-        <span className="xs muted">From {d.orgName}{d.label ? ` · ${d.label}` : ''} · link expires {exp}</span>
-        <h1 className="display" style={{ fontSize: 28 }}>Resumes shared with {d.company}</h1>
-        <span className="small muted">These candidates agreed to share their resume with recruiters. Tick <strong>Interested</strong> to let {d.orgName} know.{d.includeContact ? '' : ' Contact details are shared through the organization.'}</span>
+      <div className="rc-head">
+        <div className="rc-head-text">
+          <span className="mkicker rc-kicker">From {d.orgName}{d.label ? ` · ${d.label}` : ''} · link expires {exp}</span>
+          <h1 className="display rc-h1">Resumes shared with {d.company}</h1>
+          <span className="rc-sub">These candidates agreed to share their resume with recruiters. Tick <strong>Interested</strong> to let {d.orgName} know.{d.includeContact ? '' : ' Contact details are shared through the organization.'}</span>
+        </div>
+        <span className="rc-head-art" aria-hidden="true"><Still shape="resume" tint="company" className="rc-still" /></span>
       </div>
-      <div className="row g12" style={{ alignItems: 'flex-end' }}>
+      <div className="mcard rc-search rc-search-row">
         <div className="field" style={{ flex: '1 1 240px' }}><label className="label" htmlFor="rc-q">Search</label><input id="rc-q" className="input" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Name, skill or answer" /></div>
-        <label className="row g8 small" style={{ minHeight: 40 }}><input type="checkbox" checked={onlyInterested} onChange={(e) => setOnlyInterested(e.target.checked)} /> Interested only</label>
-        {d.allowDownloads && d.candidates.length > 0 && <button type="button" className="btn btn-ink" disabled={!!busy} onClick={() => download(shown.map((c) => c.id), 'all')}>{busy === 'all' ? 'Preparing…' : `Download ${shown.length === d.candidates.length ? 'all' : shown.length} as one PDF`}</button>}
+        <label className="rc-check"><input type="checkbox" checked={onlyInterested} onChange={(e) => setOnlyInterested(e.target.checked)} /> Interested only</label>
+        {d.allowDownloads && d.candidates.length > 0 && <button type="button" className="btn btn-signal" disabled={!!busy} onClick={() => download(shown.map((c) => c.id), 'all')}>{busy === 'all' ? 'Preparing…' : `Download ${shown.length === d.candidates.length ? 'all' : shown.length} as one PDF`}</button>}
       </div>
-      {d.candidates.length === 0 ? <div className="well small muted" style={{ textAlign: 'center', padding: 24 }}>No candidates on this link right now.</div> : (
-        <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ padding: 0 }}>
-          <table className="table">
+      {d.candidates.length === 0 ? <Empty compact shape="resume" tint="company">No candidates on this link right now.</Empty> : (
+        <div className="mcard table-wrap mtable-wrap rc-table" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns">
+          <table className="table mtable">
             <thead><tr><th>Candidate</th>{d.answerLabels.map((l) => <th key={l}>{l}</th>)}<th>Complete</th><th>Interested</th><th /></tr></thead>
             <tbody>{shown.map((c) => (
               <tr key={c.id} data-testid="candidate">
-                <td className="small"><strong>{c.name}</strong>{c.headline && <div className="xs muted">{c.headline}</div>}{c.email && <div className="xs">{c.email}{c.phone ? ` · ${c.phone}` : ''}</div>}</td>
-                {d.answerLabels.map((l) => <td key={l} className="small">{c.answers[l] || '—'}</td>)}
-                <td className="small">{c.completeness}%</td>
-                <td><label className="row g4 small"><input type="checkbox" checked={c.interested} onChange={() => interest(c)} aria-label={`Interested in ${c.name}`} /> Interested</label></td>
+                <td className="small rc-td-name"><span className="rc-item-top"><span className="rc-avatar rc-avatar-sm" aria-hidden="true">{(c.name || '?').charAt(0).toUpperCase()}</span><span><strong>{c.name}</strong>{c.headline && <div className="xs muted">{c.headline}</div>}{c.email && <div className="xs">{c.email}{c.phone ? ` · ${c.phone}` : ''}</div>}</span></span></td>
+                {d.answerLabels.map((l) => <td key={l} className="small" data-label={l}>{c.answers[l] || '—'}</td>)}
+                <td className="small" data-label="Complete"><span className="rc-complete"><span className="rc-complete-bar" aria-hidden="true"><span style={{ width: `${c.completeness}%` }} /></span>{c.completeness}%</span></td>
+                <td data-label="Interested"><label className="rc-check"><input type="checkbox" checked={c.interested} onChange={() => interest(c)} aria-label={`Interested in ${c.name}`} /> Interested</label></td>
                 <td><div className="row g8">
-                  <button type="button" className="link-btn small" onClick={() => setViewing(c)}>View</button>
-                  {d.allowDownloads && <button type="button" className="link-btn small" disabled={!!busy} onClick={() => download([c.id], c.id)}>{busy === c.id ? 'Preparing…' : 'Download'}</button>}
+                  <button type="button" className="btn btn-outline rc-mini" onClick={() => setViewing(c)}>View</button>
+                  {d.allowDownloads && <button type="button" className="btn btn-outline rc-mini" disabled={!!busy} onClick={() => download([c.id], c.id)}>{busy === c.id ? 'Preparing…' : 'Download'}</button>}
                 </div></td>
               </tr>
             ))}</tbody>

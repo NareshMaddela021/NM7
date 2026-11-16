@@ -8,6 +8,9 @@ import SiteFooter from '../../components/SiteFooter';
 import { headerLabels, useLang } from '../../lib/i18n';
 import { LEGAL } from '../../lib/legal';
 import { usePageMeta } from '../../lib/meta';
+import { PageArt } from '../../components/PageHero';
+import '../../styles/me-kit.css';
+import '../../styles/company-signup.css';
 
 export default function Grievance() {
   const [t, lang] = useLang();
@@ -17,39 +20,48 @@ export default function Grievance() {
   return (
     <>
       <Header labels={headerLabels(t)} lang={lang} />
-      <main id="main" className="container stack g20 jobs-page" lang={lang} style={{ maxWidth: 760 }}>
-        <div className="row g12" style={{ justifyContent: 'space-between' }}><span /><LangSwitch t={t} lang={lang} /></div>
-        <h1 className="display jobs-h1">{t('gr.title')}</h1>
-        <p className="lead" style={{ margin: 0 }}>{t('gr.lead')}</p>
-        <section className="card stack g8" aria-labelledby="gr-sees">
-          <h2 id="gr-sees" className="job-h2">{t('gr.sees.h')}</h2>
-          <ul className="stack g4" style={{ margin: 0, paddingLeft: 20 }}>
-            <li>{t('gr.sees.1')}</li><li>{t('gr.sees.2')}</li><li>{t('gr.sees.3')}</li><li>{t('gr.sees.4')}</li>
-          </ul>
-        </section>
-        <section className="card stack g8" aria-labelledby="gr-long">
-          <h2 id="gr-long" className="job-h2">{t('gr.long.h')}</h2>
-          <p style={{ margin: 0 }}>{t('gr.long.1')}</p>
-        </section>
-        <section className="card stack g8" aria-labelledby="gr-rights">
-          <h2 id="gr-rights" className="job-h2">{t('gr.rights.h')}</h2>
-          <ul className="stack g4" style={{ margin: 0, paddingLeft: 20 }}>
-            <li>{t('gr.rights.withdraw')} <Link to="/me/jobs">{t('gr.rights.withdrawLink')}</Link></li>
-            <li>{t('gr.rights.download')}</li>
-            <li>{t('gr.rights.correct')}</li>
-            <li>{t('gr.rights.delete')}</li>
-            <li>{t('gr.rights.nominate')}</li>
-          </ul>
-        </section>
-        <section className="card stack g8" aria-labelledby="gr-complain" data-testid="grievance-contact">
-          <h2 id="gr-complain" className="job-h2">{t('gr.complain.h')}</h2>
-          <p style={{ margin: 0 }}>{t('gr.complain.1')}</p>
-          {g.name ? <p style={{ margin: 0 }}><strong>{t('gr.officer')}</strong>: {[g.name, g.phone].filter(Boolean).join(' · ')}{mail ? <> · <a href={`mailto:${mail}`}>{mail}</a></> : null}</p>
-            : <p style={{ margin: 0 }}><a href={`mailto:${mail}`}>{mail}</a></p>}
-          <p style={{ margin: 0 }}>{t('gr.complain.help')} <Link to="/me/help">{t('gr.complain.helpLink')}</Link></p>
-          <p className="small muted" style={{ margin: 0 }}>{t('gr.complain.board')}</p>
-          <p className="small" style={{ margin: 0 }}><Link to="/privacy">{t('gr.privacy')}</Link></p>
-        </section>
+      <main id="main" className="container-wide stack g20 jobs-page cs-page gr-page" lang={lang}>
+        <div className="cs-hero">
+          <div className="stack g8 cs-hero-text">
+            <h1 className="display jobs-h1 co-h1">{t('gr.title')}</h1>
+            <p className="lead" style={{ margin: 0 }}>{t('gr.lead')}</p>
+          </div>
+          <div className="cs-hero-side"><LangSwitch t={t} lang={lang} /></div>
+          <div className="cs-hero-art"><PageArt shape="badge" /></div>
+        </div>
+        <div className="cs-layout">
+          <div className="cs-col stack g16">
+            <section className="mcard gr-card" aria-labelledby="gr-sees">
+              <div className="cs-step-head"><span className="cs-step-badge" aria-hidden="true">◉</span><h2 id="gr-sees" className="job-h2 cs-step-title">{t('gr.sees.h')}</h2></div>
+              <ul className="gr-list">
+                <li>{t('gr.sees.1')}</li><li>{t('gr.sees.2')}</li><li>{t('gr.sees.3')}</li><li>{t('gr.sees.4')}</li>
+              </ul>
+            </section>
+            <section className="mcard gr-card" aria-labelledby="gr-long">
+              <div className="cs-step-head"><span className="cs-step-badge" aria-hidden="true">⧗</span><h2 id="gr-long" className="job-h2 cs-step-title">{t('gr.long.h')}</h2></div>
+              <p style={{ margin: 0 }}>{t('gr.long.1')}</p>
+            </section>
+            <section className="mcard gr-card" aria-labelledby="gr-rights">
+              <div className="cs-step-head"><span className="cs-step-badge" aria-hidden="true">✓</span><h2 id="gr-rights" className="job-h2 cs-step-title">{t('gr.rights.h')}</h2></div>
+              <ul className="gr-list gr-ticks">
+                <li>{t('gr.rights.withdraw')} <Link to="/me/jobs">{t('gr.rights.withdrawLink')}</Link></li>
+                <li>{t('gr.rights.download')}</li>
+                <li>{t('gr.rights.correct')}</li>
+                <li>{t('gr.rights.delete')}</li>
+                <li>{t('gr.rights.nominate')}</li>
+              </ul>
+            </section>
+          </div>
+          <section className="mcard mcard-accent cs-side gr-contact" aria-labelledby="gr-complain" data-testid="grievance-contact">
+            <div className="cs-step-head"><span className="cs-step-badge" aria-hidden="true">✉</span><h2 id="gr-complain" className="job-h2 cs-step-title">{t('gr.complain.h')}</h2></div>
+            <p style={{ margin: 0 }}>{t('gr.complain.1')}</p>
+            {g.name ? <p className="gr-mail" style={{ margin: 0 }}><strong>{t('gr.officer')}</strong>: {[g.name, g.phone].filter(Boolean).join(' · ')}{mail ? <> · <a href={`mailto:${mail}`}>{mail}</a></> : null}</p>
+              : <p className="gr-mail" style={{ margin: 0 }}><a href={`mailto:${mail}`}>{mail}</a></p>}
+            <p style={{ margin: 0 }}>{t('gr.complain.help')} <Link to="/me/help">{t('gr.complain.helpLink')}</Link></p>
+            <p className="small muted" style={{ margin: 0 }}>{t('gr.complain.board')}</p>
+            <p className="small" style={{ margin: 0 }}><Link to="/privacy">{t('gr.privacy')}</Link></p>
+          </section>
+        </div>
       </main>
       <SiteFooter />
     </>

@@ -4,7 +4,7 @@ verified details) and the public company page (Basic or Verified only; never dem
 import base64
 from datetime import timedelta
 
-from app.core.db import APPLICATIONS, COMPANIES, JOBS
+from app.core.db import APPLICATIONS, COMPANIES, HIRE_INVITES, HIRE_OFFERS, HIRE_SLOTS, JOBS
 from app.core.time import now
 from tests.test_companies_queue import basic_company
 from tests.test_companies_signup import H, err, no_network, sign_up  # noqa: F401
@@ -24,6 +24,21 @@ async def test_overview_page_activity_and_change(client, outbox, db):
     o = (await client.get(f"/api/company/{cid}/overview", headers=H(session))).json()
     assert (o["liveJobs"], o["jobs"], o["applicants"], o["trust"], o["review"]) == (1, 2, 1, "basic", "pending")
     assert o["room"]["limit"] == 1 and o["myRole"] == "main"
+    # Phase 3: invites, booked interview times and offers are counted for this company only
+    assert (o["invites"], o["interviews"], o["offers"]) == (0, 0, 0)
+    await db[HIRE_INVITES].insert_many(
+        [{"company_id": cid, "job_id": "j1", "user_id": "u1"}, {"company_id": "x", "job_id": "j3", "user_id": "u2"}]
+    )
+    await db[HIRE_SLOTS].insert_many(
+        [
+            {"company_id": cid, "job_id": "j1", "user_id": "u1", "status": "booked"},
+            {"company_id": cid, "job_id": "j1", "user_id": None, "status": "open"},
+            {"company_id": cid, "job_id": "j1", "user_id": "u2", "status": "cancelled"},
+        ]
+    )
+    await db[HIRE_OFFERS].insert_one({"company_id": cid, "job_id": "j1", "user_id": "u1"})
+    o = (await client.get(f"/api/company/{cid}/overview", headers=H(session))).json()
+    assert (o["invites"], o["interviews"], o["offers"]) == (1, 1, 1)
     # the company page: about + logo; a view-only admin can read, not change
     r = await client.put(
         f"/api/company/{cid}/page", json={"about": "We build tools for shops.", "logo": PNG}, headers=H(session)

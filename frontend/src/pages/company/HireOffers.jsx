@@ -2,13 +2,15 @@
 // your invite (salary a month or LPA, join date, place, a note, days to answer); see the answer; download the PDF;
 // after the join date mark Joined or Didn't join (with a reason). Accept is a record of the answer (typed name, tick,
 // time), not a legal e-signature. No pop-up dialogs. English, Telugu and Hindi (co.offer.*).
+// Round P, Phase 3: offer cards (name, salary in large type, status chip, join date) and a send form in grouped cards.
 import { useCallback, useEffect, useState } from 'react';
 import { readAccount } from '../../lib/recruiterPortal';
 import { rq } from '../../lib/company';
 import { API_BASE } from '../../services/http';
 import { fmtDay } from '../../lib/format';
+import '../../styles/company-hire.css';
 
-const TONE = { sent: 'b-neutral', accepted: 'b-success', joined: 'b-success', declined: 'b-danger', dropped: 'b-danger', expired: 'b-neutral', withdrawn: 'b-neutral' };
+const TONE = { sent: 'mchip-info', accepted: 'mchip-ok', joined: 'mchip-ok', declined: 'mchip-bad', dropped: 'mchip-bad', expired: 'mchip-neutral', withdrawn: 'mchip-neutral' };
 const BLANK = { amount: '', unit: 'month', joinDate: '', place: '', notes: '', respondDays: '3' };
 
 export default function HireOffers({ t, c, job, people, canEdit }) {
@@ -37,29 +39,29 @@ export default function HireOffers({ t, c, job, people, canEdit }) {
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
   const today = new Date().toISOString().slice(0, 10);
   return (
-    <section className="card stack g8" aria-labelledby="co-offers-h" data-testid="co-offers">
-      <strong id="co-offers-h">{t('co.offer.title')}</strong>
-      <span className="small muted">{t('co.offer.intro')}</span>
+    <section className="mcard ho" aria-labelledby="co-offers-h" data-testid="co-offers">
+      <header className="mcard-h"><span className="mcard-ic blue" aria-hidden="true">✍</span><span className="mcard-ht"><strong id="co-offers-h" className="mcard-title">{t('co.offer.title')}</strong><span className="mcard-sub">{t('co.offer.intro')}</span></span></header>
       {err && <p className="error" role="alert" style={{ margin: 0 }}>{err}</p>}
       {list.length > 0 && (
-        <ul className="stack g8" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+        <ul className="ho-list">
           {list.map((o) => (
-            <li key={o.id} className="card-sm stack g4" data-testid="co-offer">
-              <div className="row between g8" style={{ flexWrap: 'wrap' }}>
-                <strong className="small">{o.candidate} · {o.salaryText}</strong>
-                <span className={`badge ${TONE[o.status]}`} data-testid="co-offer-state">{t(`co.offer.state.${o.status}`)}</span>
+            <li key={o.id} className={`ho-offer ho-${o.status}`} data-testid="co-offer">
+              <div className="ho-top">
+                <span className="mavatar hn-av-blue" aria-hidden="true">{(o.candidate || '?').trim().charAt(0).toUpperCase()}</span>
+                <span className="ho-who"><strong>{o.candidate}</strong><span className="ho-sal">{o.salaryText}</span></span>
+                <span className={`mchip ${TONE[o.status]}`} data-testid="co-offer-state">{t(`co.offer.state.${o.status}`)}</span>
               </div>
-              <span className="xs muted">{t('co.offer.joins', { date: fmtDay(o.joinDate) })}{o.typedName ? ` · ${t('co.offer.signed', { name: o.typedName })}` : ''}{o.declineReason || o.dropReason ? ` · ${o.declineReason || o.dropReason}` : ''}</span>
-              <div className="row g8" style={{ flexWrap: 'wrap' }}>
-                <button type="button" className="btn btn-ghost btn-sm" onClick={() => pdf(o.id)} data-testid="co-offer-pdf">{t('co.offer.pdf')}</button>
+              <span className="ho-meta">{t('co.offer.joins', { date: fmtDay(o.joinDate) })}{o.typedName ? ` · ${t('co.offer.signed', { name: o.typedName })}` : ''}{o.declineReason || o.dropReason ? ` · ${o.declineReason || o.dropReason}` : ''}</span>
+              <div className="ho-actions">
+                <button type="button" className="btn btn-ghost btn-sm" onClick={() => pdf(o.id)} data-testid="co-offer-pdf"><span aria-hidden="true">⤓ </span>{t('co.offer.pdf')}</button>
                 {canEdit && o.status === 'accepted' && o.joinDate <= today && (why[o.id] !== undefined ? (
-                  <span className="row g8" style={{ flexWrap: 'wrap' }}>
-                    <input className="input" style={{ height: 34 }} maxLength={300} aria-label={t('co.offer.why')} placeholder={t('co.offer.why')} value={why[o.id]} onChange={(e) => setWhy({ ...why, [o.id]: e.target.value })} />
+                  <span className="hsl-cancel">
+                    <input className="input" maxLength={300} aria-label={t('co.offer.why')} placeholder={t('co.offer.why')} value={why[o.id]} onChange={(e) => setWhy({ ...why, [o.id]: e.target.value })} />
                     <button type="button" className="btn btn-outline btn-sm" onClick={() => act(() => rq(`/api/company/${c.id}/hire/offers/${o.id}/joined`, { method: 'POST', body: { joined: false, reason: why[o.id] } }))}>{t('co.offer.save')}</button>
                   </span>
                 ) : (
                   <>
-                    <button type="button" className="btn btn-ink btn-sm" onClick={() => act(() => rq(`/api/company/${c.id}/hire/offers/${o.id}/joined`, { method: 'POST', body: { joined: true } }))} data-testid="co-offer-joined">{t('co.offer.joined')}</button>
+                    <button type="button" className="btn btn-signal btn-sm" onClick={() => act(() => rq(`/api/company/${c.id}/hire/offers/${o.id}/joined`, { method: 'POST', body: { joined: true } }))} data-testid="co-offer-joined">{t('co.offer.joined')}</button>
                     <button type="button" className="btn btn-outline btn-sm" onClick={() => setWhy({ ...why, [o.id]: '' })}>{t('co.offer.notJoined')}</button>
                   </>
                 ))}
@@ -69,20 +71,20 @@ export default function HireOffers({ t, c, job, people, canEdit }) {
         </ul>
       )}
       {canEdit && ready.length > 0 && (form ? (
-        <form className="stack g8" onSubmit={send} aria-label={t('co.offer.send')} data-testid="co-offer-form">
+        <form className="ho-form" onSubmit={send} aria-label={t('co.offer.send')} data-testid="co-offer-form">
           <label className="field"><span className="label">{t('co.offer.who')}</span>
             <select className="input" value={form.person} onChange={set('person')} data-testid="co-offer-person">{ready.map((p) => <option key={p.key} value={p.key}>{p.name}</option>)}</select></label>
-          <div className="co-grid">
+          <div className="ho-grid">
             <label className="field"><span className="label">{t('co.offer.salary')}</span><input className="input" inputMode="decimal" required value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value.replace(/[^\d.]/g, '') })} data-testid="co-offer-amount" /></label>
             <label className="field"><span className="label">{t('co.offer.per')}</span><select className="input" value={form.unit} onChange={set('unit')}><option value="month">{t('co.offer.month')}</option><option value="lpa">LPA</option></select></label>
             <label className="field"><span className="label">{t('co.offer.joinDate')}</span><input type="date" className="input" required min={today} value={form.joinDate} onChange={set('joinDate')} data-testid="co-offer-join" /></label>
             <label className="field"><span className="label">{t('co.offer.place')}</span><input className="input" maxLength={120} value={form.place} onChange={set('place')} /></label>
           </div>
           <label className="field"><span className="label">{t('co.offer.notes')}</span><textarea className="input" rows={2} maxLength={1000} value={form.notes} onChange={set('notes')} /></label>
-          <label className="row g8 small">{t('co.offer.days')} <input className="input" style={{ height: 34, width: 70 }} inputMode="numeric" value={form.respondDays} onChange={set('respondDays')} /></label>
-          <div className="row g8"><button type="submit" className="btn btn-ink" data-testid="co-offer-send">{t('co.offer.send')}</button><button type="button" className="btn btn-ghost" onClick={() => setForm(null)}>{t('co.slots.close')}</button></div>
+          <label className="field ho-days"><span className="label">{t('co.offer.days')}</span><input className="input" inputMode="numeric" value={form.respondDays} onChange={set('respondDays')} /></label>
+          <div className="hb-actions"><button type="submit" className="btn btn-signal" data-testid="co-offer-send">{t('co.offer.send')}</button><button type="button" className="btn btn-ghost" onClick={() => setForm(null)}>{t('co.slots.close')}</button></div>
         </form>
-      ) : <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} onClick={() => setForm({ person: ready[0].key, ...BLANK })} data-testid="co-offer-new">{t('co.offer.new')}</button>)}
+      ) : <button type="button" className="btn btn-outline ho-new" onClick={() => setForm({ person: ready[0].key, ...BLANK })} data-testid="co-offer-new"><span aria-hidden="true">+ </span>{t('co.offer.new')}</button>)}
     </section>
   );
 }
