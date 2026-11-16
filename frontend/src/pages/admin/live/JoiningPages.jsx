@@ -5,6 +5,8 @@ import { useState } from 'react';
 import { useToast } from '../../../components/ui';
 import { PageHead } from '../AdminUI';
 import { Loading, http, useAction, useApi } from './common';
+import '../../../styles/me-kit.css';
+import '../../../styles/admin-jobs.css';
 
 export const PROBLEM = { salary: 'Pay lower than promised', role: 'Different work', hours: 'Longer hours', location: 'Different place', fee: 'Asked to pay a deposit or fee', safety: "Doesn't feel safe", other: 'Something else' };
 
@@ -15,21 +17,21 @@ export function LiveJoiningReports() {
   const [busy, run] = useAction(toast);
   const close = (id, dismiss) => run(async () => { await http(`/api/admin/joining-reports/${id}/close`, { method: 'POST', body: { dismiss } }); st.reload(); }, dismiss ? 'Dismissed' : 'Closed');
   return (
-    <>
+    <div className="adx adx-jr stack g16">
       <PageHead title="Joining reports" sub="From people who joined a job and say it isn't what was promised. Reports from two or more people lower the company's trust score." right={<select className="input" style={{ height: 36, width: 'auto' }} value={status} onChange={(e) => setStatus(e.target.value)} aria-label="Show"><option value="open">Open</option><option value="closed">Closed</option><option value="dismissed">Dismissed</option></select>} />
       <Loading st={st}>{(rows) => (
         <ul className="stack g8" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {!rows.length && <li className="small muted">Nothing here.</li>}
+          {!rows.length && <li className="small muted adx-empty-li">Nothing here.</li>}
           {rows.map((r) => (
-            <li key={r.id} className="card-sm stack g4" data-testid="ad-jr-row">
+            <li key={r.id} className="card-sm stack g4 adx-row" data-status={r.status === 'open' ? 'held' : 'closed'} data-testid="ad-jr-row">
               <strong className="small">{r.company} · {r.role} · day {r.day}{r.how === 'anytime' ? ' · reported from My progress' : ' · at a check-in'}</strong>
               <span className="small" data-testid="ad-jr-problems">{r.problems.map((p) => PROBLEM[p] || p).join(', ')}</span>
               {r.note && <span className="xs">{r.note}</span>}
-              {r.status === 'open' && <div className="row g8"><button type="button" className="btn btn-ink btn-sm" disabled={busy} onClick={() => close(r.id, false)}>Close</button><button type="button" className="btn btn-outline btn-sm" disabled={busy} onClick={() => close(r.id, true)}>Dismiss (not about the company)</button></div>}
+              {r.status === 'open' && <div className="row g8"><button type="button" className="btn btn-signal btn-sm" disabled={busy} onClick={() => close(r.id, false)}>Close</button><button type="button" className="btn btn-outline btn-sm" disabled={busy} onClick={() => close(r.id, true)}>Dismiss (not about the company)</button></div>}
             </li>
           ))}
         </ul>
       )}</Loading>
-    </>
+    </div>
   );
 }

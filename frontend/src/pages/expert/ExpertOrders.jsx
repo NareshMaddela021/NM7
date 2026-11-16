@@ -1,7 +1,8 @@
 // Expert orders inbox: tabs by status, deadline colours, offers with a countdown.
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import Header from '../../components/Header';
+import { ExpertPage } from './ExpertFrame';
+import { Empty } from '../me/kit';
 import { useExpertOrders, resetExpertOrders } from '../../lib/expertStore';
 import { LIVE } from '../../services/http';
 import { expertPayout, inr, PLANS } from '../../lib/pricing';
@@ -16,29 +17,30 @@ export default function ExpertOrders() {
   const tab = picked || (orders.some((o) => o.status === 'offer') ? 'new' : 'progress'); // open on new offers when there are any
   const list = orders.filter((o) => TABS.find(([k]) => k === tab)[2].includes(o.status)).sort((a, b) => a.deadline - b.deadline);
   return (
-    <>
-      <Header variant="expert" />
-      <main className="container stack g16" style={{ maxWidth: 1100, padding: '24px 24px 64px' }}>
-        <div className="row between g12" style={{ alignItems: 'flex-end' }}>
-          <h1 className="display" style={{ fontSize: 32 }}>Orders</h1>
-          {!LIVE && <button type="button" className="btn btn-ghost xs" onClick={resetExpertOrders} title="Preview only">Reset sample orders</button>}
-        </div>
-        <div className="row g8" role="tablist" aria-label="Order status">
-          {TABS.map(([k, l, st]) => { const n = orders.filter((o) => st.includes(o.status)).length; return <button key={k} type="button" role="tab" aria-selected={tab === k} className="chip" aria-pressed={tab === k} style={{ minHeight: 36, fontSize: 13 }} onClick={() => setTab(k)}>{l} <span className="mono xs" style={{ opacity: 0.7 }}>{n}</span></button>; })}
-        </div>
-        {list.length === 0 && <div className="well small muted" style={{ padding: 24, textAlign: 'center' }}>Nothing here.</div>}
-        <div className="stack g8">
-          {list.map((o) => {
-            const t = timeLeft(o); const live = ['progress', 'revision', 'waiting', 'offer'].includes(o.status);
-            return (
-              <Link key={o.id} to={`/expert/orders/${o.id}`} className="card row between g12" style={{ textDecoration: 'none', color: 'inherit', borderLeft: live ? `5px solid ${o.status === 'offer' ? 'var(--signal)' : t.color}` : undefined }}>
-                <span className="stack g4"><strong>{o.customer} · {o.role}</strong><span className="xs muted">{o.id} · {PLANS[o.plan].name} · {o.domain} · {o.level} · you earn {inr(expertPayout(o.price).net)}</span></span>
-                <span className="row g8"><span className={`badge ${LABEL[o.status][1]}`}>{LABEL[o.status][0]}</span>{live && <span className="xs strong" style={{ color: o.status === 'offer' ? 'var(--warning)' : t.color }}>{o.status === 'offer' ? `${Math.max(0, Math.round((o.offerExpires - Date.now()) / 60000))} min to accept` : t.label}</span>}{o.rating && <span className="small">★ {o.rating}</span>}</span>
-              </Link>
-            );
-          })}
-        </div>
-      </main>
-    </>
+    <ExpertPage width="wide" kicker="Your work" title="Orders" sub="Offers first. Colours show how close each deadline is." shape="resume"
+      right={!LIVE && <button type="button" className="btn btn-ghost xs" onClick={resetExpertOrders} title="Preview only">Reset sample orders</button>}>
+      <div className="ex-tabs" role="tablist" aria-label="Order status">
+        {TABS.map(([k, l, st]) => { const n = orders.filter((o) => st.includes(o.status)).length; return <button key={k} type="button" role="tab" aria-selected={tab === k} className="ex-tab" onClick={() => setTab(k)}>{l} <span className="ex-tab-n">{n}</span></button>; })}
+      </div>
+      {list.length === 0 && <Empty shape="resume" title="Nothing here.">Orders in this tab show up here.</Empty>}
+      <div className="ex-orders">
+        {list.map((o) => {
+          const t = timeLeft(o); const live = ['progress', 'revision', 'waiting', 'offer'].includes(o.status);
+          return (
+            <Link key={o.id} to={`/expert/orders/${o.id}`} className="ex-order" style={live ? { borderTopColor: o.status === 'offer' ? 'var(--accent)' : t.color } : undefined}>
+              <span className="ex-order-top">
+                <span className="ex-av" aria-hidden="true">{(o.customer || '').replace(/[^A-Za-z]/g, '').charAt(0).toUpperCase() || '•'}</span>
+                <span className="stack g4" style={{ minWidth: 0 }}><strong className="ex-order-name">{o.customer} · {o.role}</strong><span className="ex-order-meta">{o.id} · {PLANS[o.plan].name} · {o.domain} · {o.level} · you earn {inr(expertPayout(o.price).net)}</span></span>
+              </span>
+              <span className="ex-order-foot">
+                <span className={`badge ${LABEL[o.status][1]}`}>{LABEL[o.status][0]}</span>
+                {live && <span className="ex-time" style={{ color: o.status === 'offer' ? 'var(--warning)' : t.color }}>{o.status === 'offer' ? `${Math.max(0, Math.round((o.offerExpires - Date.now()) / 60000))} min to accept` : t.label}</span>}
+                {o.rating && <span className="small">★ {o.rating}</span>}
+              </span>
+            </Link>
+          );
+        })}
+      </div>
+    </ExpertPage>
   );
 }

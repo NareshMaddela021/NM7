@@ -1,5 +1,6 @@
 // Performance & reviews: ratings, on-time, revisions, audit scores and tips from the expert's own numbers.
-import Header from '../../components/Header';
+import { ExpertPage } from './ExpertFrame';
+import { Empty, MeCard } from '../me/kit';
 import { Meter } from '../../components/ui';
 import { useExpertOrders } from '../../lib/expertStore';
 import { expertStats } from './ExpertHome';
@@ -19,29 +20,29 @@ export default function Performance() {
     'Save your best bullets as snippets — experts who reuse them deliver faster.',
   ].filter(Boolean);
   return (
-    <>
-      <Header variant="expert" />
-      <main className="container stack g16" style={{ maxWidth: 1100, padding: '24px 24px 64px' }}>
-        <div className="stack g4"><h1 className="display" style={{ fontSize: 32 }}>Performance & reviews</h1><span className="small muted">{LIVE ? 'From your delivered Nm7 orders.' : 'Last 90 days · includes orders before this preview (sample).'}</span></div>
-        <div className="kpis">
-          {[['Rating', `★ ${st.rating}`, st.rating * 20], ['On time', `${st.onTime}%`, st.onTime], ['Revisions / order', st.revisions, Math.max(0, 100 - st.revisions * 40)], ['Delivered', st.delivered, Math.min(100, st.delivered * 2.5)]].map(([l, v, pct]) => (
-            <div key={l} className="card stack g8" style={{ padding: 16 }}><span className="xs muted">{l}</span><strong className="display" style={{ fontSize: 26 }}>{v}</strong><Meter value={pct} label={l} color={pct >= 80 ? 'var(--success)' : 'var(--warning)'} /></div>
-          ))}
-        </div>
-        <div className="row g16" style={{ alignItems: 'flex-start' }}>
-          <section className="card stack g12" style={{ flex: '2 1 420px' }}>
-            <strong>Customer reviews</strong>
-            {reviews.map((o) => <div key={o.id} className="well stack g4"><span className="small">{'★'.repeat(o.rating)}{'☆'.repeat(5 - o.rating)} · {o.role}</span><span className="small">“{o.review}”</span><span className="xs faint">{o.id}</span></div>)}
-            <strong style={{ marginTop: 8 }}>Quality audits by the Nm7 team</strong>
-            {AUDITS.map(([id, sc, n]) => <div key={id} className="row between small"><span>{id} · {n}</span><span className={`badge ${sc >= 5 ? 'b-success' : 'b-warning'}`}>{sc}/5</span></div>)}
-          </section>
-          <section className="card stack g8" style={{ flex: '1 1 300px' }}>
-            <strong>Tips from your numbers</strong>
-            {tips.map((t) => <span key={t} className="small">✦ {t}</span>)}
-            <span className="xs faint" style={{ marginTop: 8 }}>Below 90% on time or 2+ refunds in a week pauses new offers until you talk to us.</span>
-          </section>
-        </div>
-      </main>
-    </>
+    <ExpertPage width="wide" kicker="How you’re doing" title="Performance & reviews" sub={LIVE ? 'From your delivered Nm7 orders.' : 'Last 90 days · includes orders before this preview (sample).'} shape="badge">
+      <div className="ex-tiles">
+        {[['Rating', `★ ${st.rating}`, st.rating * 20], ['On time', `${st.onTime}%`, st.onTime], ['Revisions / order', st.revisions, Math.max(0, 100 - st.revisions * 40)], ['Delivered', st.delivered, Math.min(100, st.delivered * 2.5)]].map(([l, v, pct]) => (
+          <div key={l} className={`ex-tile ${pct >= 80 ? 'ex-tile-ok' : ''}`}><span className="ex-tile-l">{l}</span><strong className="ex-tile-v">{v}</strong><Meter value={pct} label={l} color={pct >= 80 ? 'var(--success)' : 'var(--warning)'} /></div>
+        ))}
+      </div>
+      <div className="ex-cols">
+        <MeCard title="Customer reviews" icon="❝" sub="What customers wrote after delivery.">
+          {reviews.length === 0 && <Empty compact shape="badge" title="No reviews yet">Reviews appear after customers approve your work.</Empty>}
+          <div className="mlist">
+            {reviews.map((o) => <div key={o.id} className="ex-quote"><span className="ex-stars" aria-label={`${o.rating} out of 5`}>{'★'.repeat(o.rating)}{'☆'.repeat(5 - o.rating)}</span><span className="ex-quote-text">“{o.review}”</span><span className="xs faint">{o.id} · {o.role}</span></div>)}
+          </div>
+          <h3 className="ex-subhead">Quality audits by the Nm7 team</h3>
+          {AUDITS.length === 0 && <span className="small muted">No audits yet.</span>}
+          <div className="mlist">
+            {AUDITS.map(([id, sc, n]) => <div key={id} className="mitem"><span className="mitem-main"><span className="mitem-title">{id}</span><span className="mitem-meta">{n}</span></span><span className={`badge ${sc >= 5 ? 'b-success' : 'b-warning'}`}>{sc}/5</span></div>)}
+          </div>
+        </MeCard>
+        <MeCard title="Tips from your numbers" icon="✦" tone="accent">
+          <div className="mlist">{tips.map((t) => <span key={t} className="ex-tip"><span className="ex-tip-ic" aria-hidden="true">✦</span><span>{t}</span></span>)}</div>
+          <span className="xs faint">Below 90% on time or 2+ refunds in a week pauses new offers until you talk to us.</span>
+        </MeCard>
+      </div>
+    </ExpertPage>
   );
 }

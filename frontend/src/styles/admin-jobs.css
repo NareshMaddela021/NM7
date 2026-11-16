@@ -1,0 +1,95 @@
+/* Admin → Jobs, Companies, Auto Apply, Skill tests, Internships & projects, Joining reports (round P, Phase 5).
+   Neutral Nm7 purple, dense but clean. Rows are white cards with a coloured status edge; tabs are a pill bar that
+   scrolls sideways on a phone; filters sit in the .ad-toolbar card (admin.css); KPIs are a tidy grid. */
+.adx { min-width: 0; }
+
+/* tabs: one pill bar, purple when picked; a sideways strip on a phone */
+.adx .segmented { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px; border-radius: 999px; background: #f1eefc; border: 1px solid #e3ddfb; max-width: 100%; }
+.adx .segmented > button { min-height: 38px; padding: 0 14px; border-radius: 999px; font-weight: 700; font-size: 13.5px; color: var(--text2); background: transparent; border: 0; }
+.adx .segmented > button[aria-selected="true"] { background: #fff; color: #3f36c9; box-shadow: 0 1px 3px rgba(63, 54, 201, .2); }
+@media (max-width: 700px) {
+  .adx .segmented { flex-wrap: nowrap !important; overflow-x: auto; border-radius: 16px; scrollbar-width: none; }
+  .adx .segmented::-webkit-scrollbar { display: none; }
+  .adx .segmented > button { flex: none; min-height: 44px; white-space: nowrap; }
+}
+
+/* cards */
+.adx .card, .adx .card-sm { border-radius: 16px; border: 1px solid #e7e3f5; background: #fff; box-shadow: 0 1px 2px rgba(27, 23, 48, .04); }
+.adx .card { padding: 16px 18px; }
+.adx .card-sm { padding: 12px 14px; }
+
+/* list rows with a status edge */
+.adx-row { position: relative; padding-left: 20px !important; }
+.adx-row::before { content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 4px; border-radius: 0 4px 4px 0; background: #cfc8ec; }
+.adx-row[data-status="active"]::before, .adx-row[data-status="verified"]::before, .adx-row[data-status="approved"]::before { background: #16a34a; }
+.adx-row[data-status="paused"]::before, .adx-row[data-status="closed"]::before { background: #a8a3bd; }
+.adx-row[data-status="review"]::before, .adx-row[data-status="held"]::before, .adx-row[data-status="removal"]::before, .adx-row[data-status="blocked"]::before { background: #dc2626; }
+.adx-row[data-status="expired"]::before, .adx-row[data-status="unverified"]::before, .adx-row[data-status="report"]::before { background: #ea7a1f; }
+.adx-row[data-status="basic"]::before { background: #5b52f0; }
+.adx-row-head { align-items: center !important; }
+.adx-title { font-size: 15px !important; font-weight: 800; color: var(--ink); }
+.adx-av { width: 34px; height: 34px; border-radius: 10px; font-size: 14px; flex: none; }
+.adx ul.stack.g8 > .adx-row + .adx-row { margin-top: 0; }
+
+/* chips: the old badges, rounder, with a dot */
+.adx .badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 700; }
+.adx .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: .75; }
+
+/* row actions: quiet pill buttons, delete in red */
+.adx-actions { gap: 6px !important; padding-top: 8px; border-top: 1px dashed #ece8f7; }
+.adx-actions .link-btn { min-height: 34px; padding: 0 12px; border-radius: 999px; border: 1px solid #e3ddfb; background: #faf9ff; text-decoration: none; font-weight: 700; color: #3f36c9; }
+.adx-actions .link-btn:hover { background: #efeaff; }
+.adx-actions .link-btn[style*="danger"] { border-color: #f5c2c2; background: #fff6f6; }
+@media (max-width: 700px) { .adx-actions .link-btn { min-height: 44px; } }
+.adx-danger { background: #fff6f6 !important; border: 1px solid #f5c2c2; border-radius: 12px; }
+.adx-btn-danger { background: #dc2626 !important; border-color: #dc2626 !important; color: #fff !important; }
+.adx-review { background: #fffaf0 !important; border: 1px solid #f5d9a8; border-radius: 12px; }
+
+/* KPIs: a tidy grid of number tiles */
+.adx-kpis { display: grid !important; grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)); gap: 10px !important; align-items: stretch !important; }
+.adx-kpis > .card { padding: 14px 16px !important; border-top: 3px solid #c9bffd; }
+.adx-kpis > .card .display { font-size: 28px !important; color: var(--ink); }
+
+/* filters toolbar extras */
+.adx-filters .field { margin: 0; }
+.adx-filters .label { font-size: 12px; font-weight: 700; color: var(--text2); }
+.adx-chips .btn-sm { min-height: 36px; border-radius: 999px; }
+
+/* pager */
+.adx-pager { justify-content: center; padding: 6px 0; }
+
+/* side panels (edit job, review a company, defaults …): a header line in purple */
+.adx aside.card { border-top: 4px solid #5b52f0; border-radius: 18px; }
+.adx-form .field .input { min-height: 42px; }
+
+/* bulk import as a card */
+.adx-import { padding: 18px !important; }
+.adx-import textarea { font-family: var(--font-mono); font-size: 13px; }
+
+/* applications inside a job */
+.adx-app { padding: 8px 10px; border-radius: 12px; background: #faf9ff; border: 1px solid #ece8f7; }
+
+/* the demo boxes and folding extras */
+.adx-demo { background: linear-gradient(140deg, #f7f4ff, #fff) !important; border: 1px solid #ddd3ff !important; }
+.adx-demo > strong::before { content: "✦ "; color: #5b52f0; }
+.adx-fold > summary { cursor: pointer; font-weight: 700; min-height: 40px; display: flex; align-items: center; }
+
+/* Auto Apply off switch: green edge when on, red card when off */
+.adx-switch { border-left: 5px solid #16a34a !important; }
+.adx-switch[data-on="0"] { border-left-color: #dc2626 !important; background: #fff6f6 !important; }
+.adx-switch [data-testid="aa-switch-state"] { font-size: 17px; }
+.adx-log { border-left: 3px solid #e3ddfb !important; }
+
+/* empty lines inside lists */
+.adx-empty-li { padding: 22px 16px; border-radius: 16px; border: 1px dashed #d9d2f3; background: #faf9ff; text-align: center; }
+
+@media (max-width: 560px) {
+  .adx .card { padding: 14px; }
+  .adx .card-sm { padding: 12px; }
+  .adx-row { padding-left: 16px !important; }
+}
+
+/* Auto Apply: its panels are page sections, not side panels: full width, natural height, two per row on a wide screen */
+.adx-aa > .stack { display: grid !important; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+@media (min-width: 1100px) { .adx-aa > .stack { grid-template-columns: repeat(2, minmax(0, 1fr)); } .adx-aa > .stack > .adx-switch, .adx-aa > .stack > .adx-kpis, .adx-aa > .stack > .adx-demo { grid-column: 1 / -1; } }
+.adx-aa aside.card { position: static !important; max-width: none !important; max-height: none !important; flex: none !important; overflow: visible !important; }

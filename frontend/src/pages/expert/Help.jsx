@@ -1,5 +1,6 @@
 // Help & rules for experts: style guide, checklist, re-do/refund rules, privacy.
-import Header from '../../components/Header';
+import { ExpertPage } from './ExpertFrame';
+import { MeCard } from '../me/kit';
 import { PROMISES, FEES } from '../../lib/pricing';
 
 const SECTIONS = [
@@ -10,21 +11,21 @@ const SECTIONS = [
   ['Privacy & conduct', ['Never contact customers outside Nm7 or share their resume.', `Customer files are deleted ${PROMISES.retentionDays} days after delivery. Downloads are logged.`, 'Don’t invent experience, numbers or certificates — ask the customer instead.']],
 ];
 
+const ICONS = ['⇢', '✎', '✓', '↺', '⛨'];
+
 export default function Help() {
   return (
-    <>
-      <Header variant="expert" />
-      <main className="container stack g16" style={{ maxWidth: 900, padding: '24px 24px 64px' }}>
-        <h1 className="display" style={{ fontSize: 32 }}>Help & rules</h1>
-        {SECTIONS.map(([t, items]) => (
-          <section key={t} className="card stack g8"><strong>{t}</strong><ul className="stack g4 small" style={{ margin: 0, paddingLeft: 18 }}>{items.map((i) => <li key={i}>{i}</li>)}</ul></section>
+    <ExpertPage width="mid" kicker="For experts" title="Help & rules" sub="How orders work, how to write, and what we check before a draft goes out." shape="badge">
+      <div className="ex-help">
+        {SECTIONS.map(([t, items], i) => (
+          <MeCard key={t} title={t} icon={ICONS[i]} headingLevel={2}><ul>{items.map((x) => <li key={x}><span>{x}</span></li>)}</ul></MeCard>
         ))}
-        <section className="card stack g8"><strong>Strong vs weak bullets</strong>
-          <span className="small" style={{ background: 'var(--dangerbg)', padding: '6px 10px', borderRadius: 8 }}>✗ Responsible for MIS reports</span>
-          <span className="small" style={{ background: 'var(--successbg)', padding: '6px 10px', borderRadius: 8 }}>✓ Automated the weekly MIS report with Excel macros, saving 4 hours a week for a 6-person sales team</span>
-        </section>
-        <span className="small muted">Questions? Write to experts@nm7.si.</span>
-      </main>
-    </>
+        <MeCard title="Strong vs weak bullets" icon="★">
+          <span className="ex-weak">✗ Responsible for MIS reports</span>
+          <span className="ex-strong">✓ Automated the weekly MIS report with Excel macros, saving 4 hours a week for a 6-person sales team</span>
+        </MeCard>
+      </div>
+      <span className="small muted">Questions? Write to experts@nm7.si.</span>
+    </ExpertPage>
   );
 }

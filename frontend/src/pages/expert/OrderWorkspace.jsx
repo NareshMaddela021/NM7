@@ -4,6 +4,10 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { plainResume } from '../../lib/bold';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Header from '../../components/Header';
+import { ExpertPage } from './ExpertFrame';
+import { Empty } from '../me/kit';
+import '../../styles/me-kit.css';
+import '../../styles/expert.css';
 import { Icon, useToast } from '../../components/ui';
 import Builder from '../Builder';
 import ResumePreview from '../builder/ResumePreview';
@@ -59,8 +63,8 @@ function Drawer({ title, onClose, children }) {
     return () => { window.removeEventListener('scroll', place); window.removeEventListener('resize', place); };
   }, []);
   return (
-    <aside aria-label={title} className="card stack g16" style={{ position: 'fixed', right: 16, top, bottom: 16, width: 'min(460px, calc(100vw - 32px))', overflow: 'auto', zIndex: 40, padding: 20, boxShadow: 'var(--shadow)' }}>
-      <div className="row between g8"><strong style={{ fontSize: 18 }}>{title}</strong><button type="button" className="btn btn-icon" aria-label="Close" onClick={onClose}>✕</button></div>
+    <aside aria-label={title} className="card ex-drawer stack g16" style={{ position: 'fixed', right: 16, top, bottom: 16, width: 'min(460px, calc(100vw - 32px))', overflow: 'auto', zIndex: 40, padding: 20 }}>
+      <div className="row between g8"><strong className="ex-drawer-title">{title}</strong><button type="button" className="btn btn-icon" aria-label="Close" onClick={onClose}>✕</button></div>
       {children}
     </aside>
   );
@@ -107,7 +111,7 @@ function OrderWorkspace({ id }) {
   const orig = useMemo(() => (o?.original ? atsScore(o.original, o.jd) : null), [o?.original, o?.jd]);
   const now = useMemo(() => (d ? atsScore(d, o?.jd) : orig), [d, o?.jd, orig]);
 
-  if (!o) return <><Header variant="expert" /><main className="container" style={{ padding: 40 }}><p>Order not found. <Link to="/expert/orders">Back to orders</Link></p></main></>;
+  if (!o) return <ExpertPage width="narrow" kicker="Order" title="Order not found" shape="resume"><Empty shape="resume" title="We couldn’t find this order" action={<Link to="/expert/orders" className="btn btn-outline">Back to orders</Link>}><p style={{ margin: 0 }}>Order not found. <Link to="/expert/orders">Back to orders</Link></p></Empty></ExpertPage>;
   const tl = timeLeft(o);
   const open = (k) => setDrawer(drawer === k ? null : k);
   const doReplace = (data) => setReplace({ n: Date.now(), data });
@@ -121,21 +125,21 @@ function OrderWorkspace({ id }) {
     const mins = Math.max(0, Math.round((o.offerExpires - Date.now()) / 60000));
     return (
       <><Header variant="expert" />
-        <main className="container stack g20 rise" style={{ maxWidth: 820, padding: '40px 24px' }}>
+        <main className="container-wide ex-page ex-narrow stack g20 rise">
           <Link to="/expert/orders" className="small">← Orders</Link>
-          <div className="card stack g16" style={{ padding: 24 }}>
-            <div className="row between g8"><h1 className="display" style={{ fontSize: 30 }}>New order offer</h1><span className="badge b-warning">{o.status === 'declined' ? 'Declined' : `${mins} min to accept`}</span></div>
-            <div className="grid-auto g12 small" style={{ '--min': '200px' }}>
-              <span><strong>Plan:</strong> {PLANS[o.plan].name} · you earn {inr(expertPayout(o.price).net)}</span>
-              <span><strong>Target role:</strong> {o.intake.target}</span>
-              <span><strong>Domain / level:</strong> {o.domain} · {o.level}</span>
-              <span><strong>Deadline:</strong> {timeLeft(o).label}</span>
-              <span><strong>Their resume today:</strong> ATS {orig?.score}/100</span>
-              <span><strong>Wins to highlight:</strong> {o.intake.wins}</span>
+          <div className="mcard mcard-accent stack g16">
+            <div className="mspread"><span className="stack g4"><span className="ex-kicker">{o.id}</span><h1 className="ex-title" style={{ fontSize: 34 }}>New order offer</h1></span><span className="badge b-warning">{o.status === 'declined' ? 'Declined' : `${mins} min to accept`}</span></div>
+            <div className="ex-facts">
+              <span className="ex-fact"><span className="ex-fact-v"><strong>Plan:</strong> {PLANS[o.plan].name} · you earn {inr(expertPayout(o.price).net)}</span></span>
+              <span className="ex-fact"><span className="ex-fact-v"><strong>Target role:</strong> {o.intake.target}</span></span>
+              <span className="ex-fact"><span className="ex-fact-v"><strong>Domain / level:</strong> {o.domain} · {o.level}</span></span>
+              <span className="ex-fact"><span className="ex-fact-v"><strong>Deadline:</strong> {timeLeft(o).label}</span></span>
+              <span className="ex-fact"><span className="ex-fact-v"><strong>Their resume today:</strong> ATS {orig?.score}/100</span></span>
+              <span className="ex-fact"><span className="ex-fact-v"><strong>Wins to highlight:</strong> {o.intake.wins}</span></span>
             </div>
-            {o.plan === 'launch' && <span className="well small">Career Launch includes a LinkedIn makeover, a cover letter and a 1:1 mentor call.</span>}
+            {o.plan === 'launch' && <span className="ex-status small">Career Launch includes a LinkedIn makeover, a cover letter and a 1:1 mentor call.</span>}
             {o.status === 'offer' && <div className="row g8">
-              <button type="button" className="btn btn-ink btn-lg" onClick={() => { updateOrder(o.id, () => ({ status: 'progress', accepted: Date.now(), messages: [{ from: 'expert', text: 'Hi! I’m your resume expert — starting on your resume now.', at: Date.now() }] })); toast('Order accepted — the customer has been told'); }}>Accept order</button>
+              <button type="button" className="btn btn-signal btn-lg" onClick={() => { updateOrder(o.id, () => ({ status: 'progress', accepted: Date.now(), messages: [{ from: 'expert', text: 'Hi! I’m your resume expert — starting on your resume now.', at: Date.now() }] })); toast('Order accepted — the customer has been told'); }}>Accept order</button>
               <button type="button" className="btn btn-outline btn-lg" onClick={() => { updateOrder(o.id, () => ({ status: 'declined' })); toast('Declined — it goes to the next best expert'); nav('/expert/orders'); }}>Decline</button>
             </div>}
             <span className="xs faint">If you don’t answer in time, the order goes to the next best expert. Declining often lowers how many offers you get.</span>
@@ -149,10 +153,10 @@ function OrderWorkspace({ id }) {
   if (!o.original) {
     return (
       <><Header variant="expert" />
-        <main className="container stack g16" style={{ maxWidth: 760, padding: '40px 24px' }}>
+        <main className="container-wide ex-page ex-narrow stack g16">
           <Link to="/expert/orders" className="small">← Orders</Link>
-          <div className="card stack g8" style={{ padding: 24 }}>
-            <h1 className="display" style={{ fontSize: 28 }}>{o.id} · {o.customer}</h1>
+          <div className="mcard stack g8">
+            <h1 className="ex-title" style={{ fontSize: 30 }}>{o.id} · {o.customer}</h1>
             <span className="muted">{PLANS[o.plan].name} · {o.role} · {o.versions.length} versions · {o.status}</span>
             {o.rating && <span>★ {o.rating} — “{o.review}”</span>}
             <span className="xs faint">Resume files are deleted 60 days after delivery.</span>
@@ -192,9 +196,10 @@ function OrderWorkspace({ id }) {
     <>
       <Header variant="expert" />
       {/* order bar */}
-      <div id="ws-orderbar" className="container-wide stack g8" style={{ padding: '14px 24px 6px' }}>
-        <div className="row between g12" style={{ alignItems: 'center' }}>
-          <div className="row g12" style={{ alignItems: 'center' }}>
+      <div id="ws-orderbar" className="ex-wsbar">
+        <div className="ex-wsbar-card">
+        <div className="ex-wsbar-row">
+          <div className="ex-wsbar-id">
             <Link to="/expert/orders" className="btn btn-ghost" style={{ paddingLeft: 0 }}><Icon name="back" size={16} />Orders</Link>
             <strong>{o.id} · {o.customer}</strong>
             <span className="badge b-neutral">{PLANS[o.plan].name}</span>
@@ -203,19 +208,20 @@ function OrderWorkspace({ id }) {
             {live && <span className="xs strong" style={{ color: tl.color }}>⏱ {tl.label}</span>}
             {!live && <span className="badge b-success">{o.status === 'approved' ? 'Approved' : 'Delivered'}</span>}
           </div>
-          <div className="row g8">
-            <button type="button" className="btn btn-outline" style={{ minHeight: 38 }} onClick={() => open('checks')} title="ATS score, job match and checklist">
+          <div className="ex-wsbar-id">
+            <button type="button" className="btn btn-outline ex-ats" style={{ minHeight: 40 }} onClick={() => open('checks')} title="ATS score, job match and checklist">
               ATS {orig?.score} → <strong style={{ color: now?.score >= 80 ? 'var(--success)' : 'var(--warning)' }}>{now?.score}</strong>
               <span className="faint">· Job {now?.match.found.length}/{now?.match.keywords.length} · ✓ {ticks.filter(Boolean).length}/5</span>
             </button>
-            {live && <button type="button" className="btn btn-ink" style={{ minHeight: 38 }} onClick={() => open('send')}>Send {o.status === 'revision' || draftN > 1 ? `draft ${draftN} / final` : `draft ${draftN}`}</button>}
+            {live && <button type="button" className="btn btn-signal" style={{ minHeight: 40 }} onClick={() => open('send')}>Send {o.status === 'revision' || draftN > 1 ? `draft ${draftN} / final` : `draft ${draftN}`}</button>}
           </div>
         </div>
-        <div className="row g4">
+        <div className="ex-tools" role="group" aria-label="Workspace tools">
           {[['brief', 'Brief'], ['checks', 'Checks'], ['versions', `Versions (${(o.versions || []).length})`], ['messages', `Messages & comments${unresolved.length ? ` · ${unresolved.length}` : ''}`], ['snippets', 'Snippets'], ...(o.plan === 'launch' ? [['launch', 'LinkedIn & mentor call']] : (o.addons || []).includes('linkedin') ? [['launch', 'LinkedIn makeover']] : [])].map(([k, l]) => (
-            <button key={k} type="button" className="chip" aria-pressed={drawer === k} style={{ minHeight: 32, fontSize: 12 }} onClick={() => open(k)}>{l}</button>
+            <button key={k} type="button" className="chip" aria-pressed={drawer === k} onClick={() => open(k)}>{l}</button>
           ))}
         </div>
+      </div>
       </div>
 
       <div className="container-wide" style={{ padding: '0 24px' }}>
