@@ -1,0 +1,682 @@
+{
+ "slug": "salesforce-crm",
+ "version": 1,
+ "topics": [
+  "Objects and data model",
+  "Security and access",
+  "Automation",
+  "Data quality and imports",
+  "Reports and dashboards"
+ ],
+ "questions": [
+  {
+   "id": "salesforce-crm-001",
+   "topic": "Objects and data model",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "In a CRM, what is a lead?",
+   "options": [
+    "A potential customer who is not yet qualified",
+    "A customer with a signed contract",
+    "A support complaint from a customer",
+    "A product listed in the catalogue"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "salesforce-crm-002",
+   "topic": "Objects and data model",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which standard Salesforce object holds the companies you do business with?",
+   "options": [
+    "Contact",
+    "Account",
+    "Opportunity",
+    "Campaign"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "salesforce-crm-003",
+   "topic": "Objects and data model",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Converting a qualified lead usually creates which records?",
+   "options": [
+    "Only a new case linked to the queue",
+    "A new user licence for the customer",
+    "An account, a contact and optionally an opportunity",
+    "A price book entry for the product"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "salesforce-crm-004",
+   "topic": "Objects and data model",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "When is a master-detail relationship a better choice than a lookup?",
+   "options": [
+    "When the link between the records is optional",
+    "When each child record needs its own separate owner",
+    "When you are linking a record to a user",
+    "When child records can't exist alone and you need roll-up totals"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "salesforce-crm-005",
+   "topic": "Objects and data model",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "You need a field showing \"days since last contact\" that stays current without anyone editing it. What fits?",
+   "options": [
+    "A formula field based on TODAY()",
+    "A text field that reps update weekly",
+    "A picklist with ranges of days",
+    "A number field filled by data import"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "salesforce-crm-006",
+   "topic": "Objects and data model",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Sales wants to log dealer visits (date, outcome, notes) several times a month for each account. What do you build?",
+   "options": [
+    "Ten extra text fields on Account",
+    "A custom object related to Account",
+    "A shared Excel sheet on the drive",
+    "A new record type on Contact"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "salesforce-crm-007",
+   "topic": "Objects and data model",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why be careful before changing a picklist field to a text field?",
+   "options": [
+    "Text fields can't be placed on page layouts",
+    "Picklist fields can't be deleted afterwards",
+    "Reports, filters and automation using its values may break",
+    "All existing records on the object get deleted"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "salesforce-crm-008",
+   "topic": "Objects and data model",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Users want a \"State\" field on accounts; some want a picklist, others free text. What is best for reporting?",
+   "options": [
+    "Free text, so users can type any spelling they like",
+    "A long text area holding the full postal address",
+    "A separate checkbox field for each Indian state",
+    "A picklist of states, ideally dependent on country"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "salesforce-crm-009",
+   "topic": "Objects and data model",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A client company has branches in three states, each with its own GSTIN. How should you model it?",
+   "options": [
+    "A parent account with a child account per GST registration",
+    "One account with all GSTINs typed in a comma list",
+    "Three separate accounts with no link between them",
+    "GSTIN stored only on the contact records"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "salesforce-crm-010",
+   "topic": "Security and access",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is a profile mainly used for?",
+   "options": [
+    "Storing the user's photo, bio and contact details",
+    "Setting what a user can do: object, field and app permissions",
+    "Deciding the user's monthly sales target",
+    "Choosing only the user's display language"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "salesforce-crm-011",
+   "topic": "Security and access",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What do org-wide defaults set?",
+   "options": [
+    "The company's logo and theme colours",
+    "The default currency used in reports",
+    "The baseline record access for each object",
+    "The login hours allowed for admins"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "salesforce-crm-012",
+   "topic": "Security and access",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Why should each user have their own login instead of sharing one?",
+   "options": [
+    "Shared logins make the system run slower for everyone",
+    "Separate logins reduce the total licence cost",
+    "Shared logins can't be used on the mobile app",
+    "For security and a correct audit trail of who did what"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "salesforce-crm-013",
+   "topic": "Security and access",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is a permission set best used for?",
+   "options": [
+    "Giving extra access to some users without changing their profile",
+    "Taking away access that the user's profile already grants",
+    "Sharing one particular record with a single colleague",
+    "Changing the time zone for the whole organisation"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "salesforce-crm-014",
+   "topic": "Security and access",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Regional managers must see their team's records but not other regions'. Org-wide default is Private. What helps?",
+   "options": [
+    "Changing the default to Public Read/Write",
+    "A role hierarchy organised by region",
+    "Giving everyone the View All Data permission",
+    "Sharing each record manually by hand"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "salesforce-crm-015",
+   "topic": "Security and access",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "To hide a sensitive field such as PAN number from most users, what do you use?",
+   "options": [
+    "Removing it from the page layout only",
+    "A validation rule on the field",
+    "Field-level security",
+    "A filter on the list view"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "salesforce-crm-016",
+   "topic": "Security and access",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "An employee leaving tomorrow owns 2,000 open accounts. What should the admin do?",
+   "options": [
+    "Delete the user today so the licence becomes free",
+    "Keep the user active for a month in case of questions",
+    "Share the user's password with their manager for handover",
+    "Freeze the user, transfer records to the right owners, then deactivate"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "salesforce-crm-017",
+   "topic": "Security and access",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A user can see an account but gets \"insufficient privileges\" on its opportunity. Likely cause?",
+   "options": [
+    "Opportunity sharing is stricter than account access for them",
+    "The user's browser cache is full and needs clearing",
+    "The account record is missing its phone number",
+    "The user's password is about to expire this week"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "salesforce-crm-018",
+   "topic": "Security and access",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "What should an admin do with sensitive customer data like ID numbers under India's data protection rules?",
+   "options": [
+    "Keep it in a field everyone can see, for convenience",
+    "Collect only what's needed, restrict access, and log who views it",
+    "Export it weekly to personal drives as a backup copy",
+    "Share it with partner firms so they can run marketing"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "salesforce-crm-019",
+   "topic": "Automation",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does a validation rule do?",
+   "options": [
+    "Sends an email every time a record is saved",
+    "Creates a report automatically each morning",
+    "Stops a record saving when data breaks a condition",
+    "Imports rows from an Excel sheet"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "salesforce-crm-020",
+   "topic": "Automation",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which is Salesforce's main recommended point-and-click automation tool today?",
+   "options": [
+    "Workflow rules",
+    "Process Builder",
+    "Apex triggers",
+    "Flow"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "salesforce-crm-021",
+   "topic": "Automation",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "When is an approval process used?",
+   "options": [
+    "When a record needs sign-off, like a discount above 15%",
+    "When a user resets their own password",
+    "When a report is scheduled to run daily",
+    "When a field is added to a page layout"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "salesforce-crm-022",
+   "topic": "Automation",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "When should a record-triggered flow run before the record is saved?",
+   "options": [
+    "To send emails to the customer",
+    "To update fields on that same record quickly",
+    "To create related child records",
+    "To call an external system's API"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "salesforce-crm-023",
+   "topic": "Automation",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Reps often skip the \"Lost reason\" when marking a deal lost. Best fix?",
+   "options": [
+    "A reminder email to all reps every Friday evening",
+    "Make the field required at every single stage",
+    "A validation rule requiring it when stage is Closed Lost",
+    "Remove the field since no one fills it anyway"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "salesforce-crm-024",
+   "topic": "Automation",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A flow emails the customer when a case closes. 500 cases are about to be closed by a data load. Risk?",
+   "options": [
+    "The data load will finish much faster than usual",
+    "The closed cases will reopen by themselves",
+    "All case reports will stop working afterwards",
+    "Hitting limits and flooding customers with emails"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "salesforce-crm-025",
+   "topic": "Automation",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Two flows and an Apex trigger all update Opportunity on save, and values flip unpredictably. What do you do?",
+   "options": [
+    "Map all automation on the object and consolidate it with a clear order",
+    "Add a third flow that corrects the values after the others run",
+    "Delete the trigger straight away without checking its purpose",
+    "Ask users to save each opportunity twice to settle the values"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "salesforce-crm-026",
+   "topic": "Automation",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why build and test a new flow in a sandbox before production?",
+   "options": [
+    "Production orgs don't allow flows to be created at all",
+    "To catch errors and side effects without harming live data",
+    "Flows run noticeably faster inside a sandbox org",
+    "A sandbox test is required to activate the licence"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "salesforce-crm-027",
+   "topic": "Automation",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A flow fails for some users but works for others. What do you check first?",
+   "options": [
+    "The file size of the org's logo and branding",
+    "The browser language each user has selected",
+    "The running user's access to the records and fields used",
+    "The number of dashboards each user has built"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "salesforce-crm-028",
+   "topic": "Data quality and imports",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Why set up duplicate rules for leads?",
+   "options": [
+    "To copy each lead into two campaigns at once",
+    "To speed up the lead conversion process",
+    "To make lead records read-only for reps",
+    "To warn or block when the same person is entered twice"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "salesforce-crm-029",
+   "topic": "Data quality and imports",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Before a large data import, what should you always do?",
+   "options": [
+    "Back up or export the current data",
+    "Delete all existing records first",
+    "Turn off user logins for a week",
+    "Reset every user's password"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "salesforce-crm-030",
+   "topic": "Data quality and imports",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is an external ID field useful for?",
+   "options": [
+    "Showing a record to people outside the company",
+    "Matching records to IDs from another system during imports",
+    "Encrypting the value stored in the field",
+    "Linking the record to a company website"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "salesforce-crm-031",
+   "topic": "Data quality and imports",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Phone numbers arrive as \"98480 12345\", \"+91-9848012345\" and \"09848012345\". What do you do before import?",
+   "options": [
+    "Import them as they are; users will understand them",
+    "Keep the rows in the first format and drop the others",
+    "Standardise them to one format, such as +91 and ten digits",
+    "Move all of them into the description field instead"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "salesforce-crm-032",
+   "topic": "Data quality and imports",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What does an upsert do in a data load?",
+   "options": [
+    "Uploads only attachments and files",
+    "Deletes all records and reloads them",
+    "Updates only the record owner field",
+    "Updates matching records and inserts the new ones"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "salesforce-crm-033",
+   "topic": "Data quality and imports",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Sales says 30% of contacts have no email address. What is a sensible plan?",
+   "options": [
+    "Find the entry points, require email where it applies, and enrich old records",
+    "Delete every contact that does not have an email address",
+    "Fill the empty ones with dummy emails so reports look complete",
+    "Ignore it, since most of those contacts have a phone number"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "salesforce-crm-034",
+   "topic": "Data quality and imports",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "When merging duplicate accounts, what must you decide carefully?",
+   "options": [
+    "Which colour the merged account will show on the layout",
+    "Which record is the master and which values and related records to keep",
+    "Whether Salesforce support must be told before merging",
+    "Which of the two record owners logged in most recently"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "salesforce-crm-035",
+   "topic": "Data quality and imports",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "An import set the wrong owners on 8,000 leads yesterday. What is the safest recovery?",
+   "options": [
+    "Ask each sales rep to find and correct their own leads by hand this week",
+    "Delete all 8,000 leads and import the original file again from scratch",
+    "Use the pre-import backup to fix owners by update load, testing a small batch first",
+    "Restore the whole org from last week's full backup copy"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "salesforce-crm-036",
+   "topic": "Data quality and imports",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why load data in a sensible order, such as accounts before contacts and opportunities?",
+   "options": [
+    "Salesforce imports faster in alphabetical order",
+    "Contacts can't be imported after the first week",
+    "Opportunities are deleted if loaded first",
+    "Child records need their parent's ID to link correctly"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "salesforce-crm-037",
+   "topic": "Reports and dashboards",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which report format groups data by both rows and columns, like sales by rep and month?",
+   "options": [
+    "Matrix",
+    "Tabular",
+    "Summary",
+    "Joined"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "salesforce-crm-038",
+   "topic": "Reports and dashboards",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Where does a dashboard component get its data?",
+   "options": [
+    "From a page layout",
+    "From a source report",
+    "From a validation rule",
+    "From a permission set"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "salesforce-crm-039",
+   "topic": "Reports and dashboards",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Why schedule a report?",
+   "options": [
+    "To lock it so that nobody can edit it",
+    "To delete old data from the system",
+    "To email it to people automatically at set times",
+    "To make the report load faster"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "salesforce-crm-040",
+   "topic": "Reports and dashboards",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which report shows accounts that have no opportunities at all?",
+   "options": [
+    "An opportunities report filtered to an amount of zero",
+    "An accounts report sorted by created date",
+    "A dashboard gauge on the count of opportunities",
+    "An accounts report with a cross filter for \"without opportunities\""
+   ],
+   "answer": 3
+  },
+  {
+   "id": "salesforce-crm-041",
+   "topic": "Reports and dashboards",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A dashboard runs as the admin, so every viewer sees all data. Why can this be a problem?",
+   "options": [
+    "Viewers may see numbers they shouldn't; consider dynamic dashboards",
+    "Admins lose the ability to edit that dashboard later",
+    "It slows down the login page for every user",
+    "Its charts can no longer refresh automatically"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "salesforce-crm-042",
+   "topic": "Reports and dashboards",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "The sales head says the pipeline total doesn't match finance's figure. What do you check first?",
+   "options": [
+    "Whether the report chart is shown as a bar chart or a pie chart",
+    "Filters, date fields, currency and which stages each report counts",
+    "The name of the folder where each report is saved",
+    "The font size and colours used on the sales dashboard"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "salesforce-crm-043",
+   "topic": "Reports and dashboards",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "How would you show lead-to-opportunity conversion rate by lead source?",
+   "options": [
+    "Counting the leads by hand in Excel every week",
+    "A plain tabular report listing all leads",
+    "A summary report grouped by source with a custom summary formula",
+    "A single dashboard metric showing total leads"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "salesforce-crm-044",
+   "topic": "Reports and dashboards",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Leadership wants to see how the pipeline changed week by week, but reports show only today's data. What do you suggest?",
+   "options": [
+    "Ask every sales rep to email their weekly numbers to the manager",
+    "Take screenshots of the pipeline dashboard each Monday morning",
+    "Add a text field called \"last week amount\" on each opportunity",
+    "Reporting snapshots or historical trending to capture data over time"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "salesforce-crm-045",
+   "topic": "Reports and dashboards",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A dashboard with 20 components loads slowly and half of it is never read. Best fix?",
+   "options": [
+    "Agree the key decisions with users, keep essential charts, split by audience",
+    "Add more filters to every chart so users can find what they need",
+    "Set it to refresh every minute so the data is always current",
+    "Move the dashboard to a different folder with fewer viewers"
+   ],
+   "answer": 0
+  }
+ ],
+ "task": {
+  "type": "written",
+  "title": "Reply to the sales head's CRM change requests with a configuration plan",
+  "minutes": 20,
+  "brief": "You are the Salesforce admin. Read the sales head's email (below). In about 20 minutes, write a reply that she and your IT manager can follow. For each request say: how you would set it up in Salesforce (which feature and roughly how), anything you need to confirm with her first, and how you will test it before it goes live. If a request is risky or goes against good practice, say so politely and offer a safer option. A good answer uses the right features, protects data and users, mentions sandbox testing and rollout, and is clear and friendly.",
+  "material": "From: Kavita Rao, Head of Sales (West & South)\nTo: CRM Admin\nSubject: Need these by next Monday\n\nHi,\n1. Any discount above 10% on an opportunity must be approved by the regional manager. Above 20% needs me.\n2. Reps should not be able to mark a deal 'Closed Won' without a PO number and the customer's GSTIN.\n3. I want one dashboard showing pipeline by region and by rep, for this quarter, in ₹ lakhs.\n4. Our 6 new interns start Monday. Please give them access to all accounts in the system so they can learn fast. Easiest is to give them the same login as Sameer.\n5. Every time a deal above ₹10 lakh is won, send a WhatsApp/email alert to me and the regional manager.\n6. Our old Excel list of 3,000 dealers needs to come into Salesforce. Many are already in the CRM.\nThanks,\nKavita",
+  "key_points": [
+   "Discount approvals: an approval process (or flow) with two levels, 10% to regional manager and 20% to the sales head",
+   "Closed Won rule: a validation rule requiring PO number and GSTIN, with thought for customers who have no GSTIN",
+   "Dashboard from a summary/matrix report filtered to this quarter, grouped by region and rep; dynamic dashboard or right running user",
+   "Pushes back on shared login and all-accounts access for interns; offers own users, limited profile/permission set and role",
+   "Alert via record-triggered flow on Closed Won above ₹10 lakh; WhatsApp needs an approved integration",
+   "Dealer import: back up, clean and de-duplicate against existing accounts, use an external ID or matching and upsert",
+   "Builds and tests in a sandbox first and confirms details (e.g. GSTIN exceptions, who the regional managers are)",
+   "Realistic timeline: says what can be ready by Monday and what needs more time"
+  ],
+  "rubric": [
+   {
+    "key": "correctness",
+    "label": "Right features",
+    "guide": "0 = wrong or no features named, 3 = mostly right with gaps, 5 = the right feature for each request with sensible detail"
+   },
+   {
+    "key": "security",
+    "label": "Data and access safety",
+    "guide": "0 = agrees to the shared login and full access, 3 = notes a concern but weak fix, 5 = clearly refuses unsafe access and gives a safe, practical alternative"
+   },
+   {
+    "key": "completeness",
+    "label": "Completeness",
+    "guide": "0 = covers one or two items, 3 = covers most items, 5 = covers all six with testing, open questions and timing"
+   },
+   {
+    "key": "tone",
+    "label": "Tone and clarity",
+    "guide": "0 = rude or confusing, 3 = clear but blunt or wordy, 5 = polite, structured and easy for a busy sales head to follow"
+   }
+  ]
+ }
+}

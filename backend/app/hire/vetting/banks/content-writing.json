@@ -1,0 +1,667 @@
+{
+ "slug": "content-writing",
+ "version": 1,
+ "topics": [
+  "Grammar and clarity",
+  "Writing for the web and SEO",
+  "Tone and audience",
+  "Research and ethics",
+  "Editing and structure"
+ ],
+ "questions": [
+  {
+   "id": "content-writing-001",
+   "topic": "Grammar and clarity",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which sentence is correct?",
+   "options": [
+    "Each of the students have a laptop.",
+    "Each of the student has laptops.",
+    "Each of students have a laptop.",
+    "Each of the students has a laptop."
+   ],
+   "answer": 3
+  },
+  {
+   "id": "content-writing-002",
+   "topic": "Grammar and clarity",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Pick the right word: 'The new policy will ___ all employees.'",
+   "options": [
+    "effect",
+    "infect",
+    "afect",
+    "affect"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "content-writing-003",
+   "topic": "Grammar and clarity",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which sentence uses their, there and they're correctly?",
+   "options": [
+    "Their late because they're car broke down there.",
+    "There late because their car broke down they're.",
+    "They're late because their car broke down there.",
+    "They're late because there car broke down their."
+   ],
+   "answer": 2
+  },
+  {
+   "id": "content-writing-004",
+   "topic": "Grammar and clarity",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which is the active voice version of 'The report was written by Meena'?",
+   "options": [
+    "The report has been written by Meena.",
+    "Meena wrote the report.",
+    "The report, by Meena, was written.",
+    "Written was the report by Meena."
+   ],
+   "answer": 1
+  },
+  {
+   "id": "content-writing-005",
+   "topic": "Grammar and clarity",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which sentence is the clearest?",
+   "options": [
+    "It is to be noted that seat bookings done by Friday may get a 10% discount.",
+    "Seats, if booked by Friday, which is the last day, get 10% off maybe.",
+    "Kindly do the needful of booking seats by Friday for discount.",
+    "Book your seat by Friday to get 10% off."
+   ],
+   "answer": 3
+  },
+  {
+   "id": "content-writing-006",
+   "topic": "Grammar and clarity",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is wrong with: 'Walking into the office, the AC was too cold'?",
+   "options": [
+    "It uses the wrong tense",
+    "It needs a comma after 'AC'",
+    "It suggests the AC was walking",
+    "'Too' should be 'to'"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "content-writing-007",
+   "topic": "Grammar and clarity",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which line avoids a common Indian English error in formal writing?",
+   "options": [
+    "Please reply by Monday.",
+    "Please revert back by Monday.",
+    "Please do the needful by Monday.",
+    "Kindly revert back on Monday itself."
+   ],
+   "answer": 0
+  },
+  {
+   "id": "content-writing-008",
+   "topic": "Grammar and clarity",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Which sentence keeps a list parallel?",
+   "options": [
+    "The app lets you order food, pay bills and book tickets.",
+    "The app lets you order food, paying bills and to book tickets.",
+    "The app lets you ordering food, pay bills and booking tickets.",
+    "The app lets you to order food, bills paying and book tickets."
+   ],
+   "answer": 0
+  },
+  {
+   "id": "content-writing-009",
+   "topic": "Grammar and clarity",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A client's style guide says use 'e-mail' with a hyphen. Your team usually writes 'email'. What do you do in their content?",
+   "options": [
+    "Use 'email', it is more common",
+    "Follow the client's guide every time",
+    "Mix both so it looks natural",
+    "Ask readers in a poll"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "content-writing-010",
+   "topic": "Writing for the web and SEO",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Why use short paragraphs in a blog post?",
+   "options": [
+    "They are easier to read on a phone",
+    "Google ranks short posts higher always",
+    "They use fewer keywords",
+    "They load images faster"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "content-writing-011",
+   "topic": "Writing for the web and SEO",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is a meta description?",
+   "options": [
+    "The first heading on the page",
+    "A list of tags at the end of a post",
+    "A short summary shown under the title in search results",
+    "The author bio box"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "content-writing-012",
+   "topic": "Writing for the web and SEO",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Where should the main keyword ideally appear in a blog post?",
+   "options": [
+    "Only in the last line",
+    "Hidden in white text",
+    "In the title and early in the first paragraph",
+    "In every sentence"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "content-writing-013",
+   "topic": "Writing for the web and SEO",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is 'keyword stuffing'?",
+   "options": [
+    "Using a keyword once in the title",
+    "Repeating a keyword so often that reading feels forced",
+    "Adding related words naturally",
+    "Putting a keyword in the image alt text"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "content-writing-014",
+   "topic": "Writing for the web and SEO",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why should images in a blog post have alt text?",
+   "options": [
+    "It describes the image for screen readers and search engines",
+    "It makes the image look sharper",
+    "It stops people copying the image",
+    "It adds a caption below the image"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "content-writing-015",
+   "topic": "Writing for the web and SEO",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "You must write 'best budget phones 2026' for a tech blog. Top results are long lists with specs. What helps your post most?",
+   "options": [
+    "A useful list with tested details readers can't find elsewhere",
+    "A short 200-word post with the keyword 15 times",
+    "Copying the top post and changing a few words",
+    "A story about your first phone with no list"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "content-writing-016",
+   "topic": "Writing for the web and SEO",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Two of a client's blog posts compete for the same search term. What do you suggest?",
+   "options": [
+    "Write a third post on the same term",
+    "Change both titles to match exactly",
+    "Combine them into one stronger post and redirect the other",
+    "Remove all keywords from both posts"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "content-writing-017",
+   "topic": "Writing for the web and SEO",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A client asks for 50 city pages like 'AC repair in Nagpur', changing only the city name. What do you advise?",
+   "options": [
+    "Write them as asked, it is quick",
+    "Add real local details to each page so they are not thin copies",
+    "Make one page and list all 50 cities in tiny text",
+    "Use AI to spin each page without checking"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "content-writing-018",
+   "topic": "Tone and audience",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "You write a WhatsApp message to customers about a sale. Which style suits best?",
+   "options": [
+    "Long and formal like a legal letter",
+    "Full of technical terms",
+    "All in capital letters for attention",
+    "Short, friendly and clear about the offer"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "content-writing-019",
+   "topic": "Tone and audience",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "A school asks for a notice to parents about a holiday. What matters most?",
+   "options": [
+    "Fancy words to sound official",
+    "Date, reason and what parents must do, in plain words",
+    "A long history of the festival",
+    "Jokes to keep it light"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "content-writing-020",
+   "topic": "Tone and audience",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Who is the 'target audience' of a piece of content?",
+   "options": [
+    "The group of people it is written for",
+    "Everyone on the internet",
+    "Only the client who pays",
+    "The editor who checks it"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "content-writing-021",
+   "topic": "Tone and audience",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "For a bank's FAQ page, which answer style is best?",
+   "options": [
+    "A long story before the answer",
+    "Answer in a question to make readers think",
+    "Direct answer first, then short steps",
+    "Legal terms only, to be safe"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "content-writing-022",
+   "topic": "Tone and audience",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A health brand asks for a post for older readers. Your draft uses slang like 'lit' and 'no cap'. What do you do?",
+   "options": [
+    "Keep it, slang is trendy",
+    "Rewrite in simple, respectful words without slang",
+    "Add more slang and emojis",
+    "Add a glossary at the end"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "content-writing-023",
+   "topic": "Tone and audience",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What does 'brand voice' mean?",
+   "options": [
+    "The voice-over in a brand's ads",
+    "The CEO's personal opinions",
+    "The font used in the logo",
+    "The steady personality a brand uses in all its writing"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "content-writing-024",
+   "topic": "Tone and audience",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which call to action is strongest for an online course page?",
+   "options": [
+    "Click here",
+    "Submit",
+    "More information may be found on the next page",
+    "Start your free 7-day trial"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "content-writing-025",
+   "topic": "Tone and audience",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A client wants a funny tone for a post about a data leak that hit their customers. What do you do?",
+   "options": [
+    "Write it funny, the client decides",
+    "Mix jokes with the apology",
+    "Advise a calm, honest tone and explain why",
+    "Refuse the work without explaining"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "content-writing-026",
+   "topic": "Tone and audience",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "One article must serve both first-time buyers and experts. What structure works best?",
+   "options": [
+    "Only expert terms, beginners will learn",
+    "Two separate tones mixed in each paragraph",
+    "Very short with no details",
+    "Simple summary on top, deeper sections with clear headings below"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "content-writing-027",
+   "topic": "Research and ethics",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is plagiarism?",
+   "options": [
+    "Writing in more than one language",
+    "Quoting a source with credit",
+    "Using someone else's words or ideas as your own",
+    "Writing about a popular topic"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "content-writing-028",
+   "topic": "Research and ethics",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which is the most reliable source for a GST rate in an article?",
+   "options": [
+    "A random forum post",
+    "A friend's WhatsApp forward",
+    "The official GST portal or CBIC notification",
+    "An old blog from 2017"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "content-writing-029",
+   "topic": "Research and ethics",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "You find a perfect paragraph on another blog for your article. What should you do?",
+   "options": [
+    "Copy it, nobody will check",
+    "Change a few words and use it",
+    "Paste it as an image so tools miss it",
+    "Write your own version and credit the source if you use its idea"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "content-writing-030",
+   "topic": "Research and ethics",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A statistic you want to use has no clear source. What do you do?",
+   "options": [
+    "Use it, it sounds right",
+    "Round it off to look safer",
+    "Write 'experts say' before it",
+    "Find the original study or drop the number"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "content-writing-031",
+   "topic": "Research and ethics",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Can you use any image from Google Images in a client's blog?",
+   "options": [
+    "No, only images you have rights or a licence for",
+    "Yes, if you add the website name",
+    "Yes, if the image is small",
+    "Yes, if the blog is not paid"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "content-writing-032",
+   "topic": "Research and ethics",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "You used an AI tool to draft a blog. What must you do before sending it to the client?",
+   "options": [
+    "Check every fact, edit it and follow the client's AI policy",
+    "Send it as is to save time",
+    "Only fix the spelling",
+    "Add your name and remove the tool's name"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "content-writing-033",
+   "topic": "Research and ethics",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A product review is paid for by the brand. What is the right practice?",
+   "options": [
+    "Hide it, readers won't trust it",
+    "Clearly disclose it as sponsored",
+    "Mention it only in the URL",
+    "Write only good points without saying"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "content-writing-034",
+   "topic": "Research and ethics",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A client asks you to write that their supplement 'cures diabetes'. What do you do?",
+   "options": [
+    "Refuse the claim and suggest wording backed by evidence",
+    "Write it, the client is responsible",
+    "Write 'may cure' instead",
+    "Put the claim in small font"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "content-writing-035",
+   "topic": "Research and ethics",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "You quote an interview with a doctor in an article. What should you confirm first?",
+   "options": [
+    "That the quote is exact and they agreed to be named",
+    "That the quote is long enough",
+    "That the doctor has social media",
+    "That the quote uses keywords"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "content-writing-036",
+   "topic": "Editing and structure",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What should the first line of a news-style article do?",
+   "options": [
+    "Thank the reader",
+    "Describe the weather",
+    "Give the most important fact",
+    "List the sources"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "content-writing-037",
+   "topic": "Editing and structure",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Why are subheadings useful in long articles?",
+   "options": [
+    "They make the word count bigger",
+    "They help readers scan and find what they need",
+    "They hide weak sections",
+    "They replace the need for paragraphs"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "content-writing-038",
+   "topic": "Editing and structure",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Your 1,200-word draft must be cut to 800 words. What do you cut first?",
+   "options": [
+    "Repeated points and filler phrases",
+    "The main facts",
+    "The call to action",
+    "All the examples"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "content-writing-039",
+   "topic": "Editing and structure",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "An editor says your intro is 'slow'. The first three lines talk about how fast the world is changing. What do you do?",
+   "options": [
+    "Add one more line about the world",
+    "Make the intro longer and more detailed",
+    "Move the intro to the end",
+    "Open with the reader's problem or the key point"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "content-writing-040",
+   "topic": "Editing and structure",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is the best way to check your own copy for errors?",
+   "options": [
+    "Read it once quickly right after writing",
+    "Trust the spell-checker only",
+    "Check only the headline",
+    "Take a break, then read it aloud slowly"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "content-writing-041",
+   "topic": "Editing and structure",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "In a 'how to' article, how should steps be written?",
+   "options": [
+    "As one long paragraph",
+    "As a numbered list in the order they are done",
+    "In random order to keep interest",
+    "Only as pictures with no text"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "content-writing-042",
+   "topic": "Editing and structure",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A client sends edits that make your article longer, vague and full of praise for themselves. What do you do?",
+   "options": [
+    "Accept every change silently",
+    "Make useful changes and politely explain the reader impact of the rest",
+    "Reject every change",
+    "Ask another writer to argue with them"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "content-writing-043",
+   "topic": "Editing and structure",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Two editors give you opposite feedback on the same draft. What do you do?",
+   "options": [
+    "Pick the feedback you like",
+    "Ask who has the final say and agree one direction",
+    "Mix both versions in the draft",
+    "Ignore both and submit"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "content-writing-044",
+   "topic": "Editing and structure",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Your article on a ₹ loan scheme was accurate when published. Rules changed last week. What should you do?",
+   "options": [
+    "Leave it, it was right then",
+    "Delete the article quietly",
+    "Update the facts and add an 'updated on' date",
+    "Add a comment at the bottom only"
+   ],
+   "answer": 2
+  }
+ ],
+ "task": {
+  "type": "written",
+  "title": "Rewrite a weak product page for an online saree store",
+  "brief": "Below is a draft product description for an online saree store. It is long, vague and has grammar mistakes. Rewrite it in 15 to 20 minutes. A good answer: a clear title, a short opening line that says what the saree is and who it suits, 4 to 6 short bullet points with the real details (fabric, size, care, price), and one clear call to action. Fix all grammar errors. Do not invent facts that are not in the draft. Aim for 120 to 180 words.",
+  "minutes": 20,
+  "material": "DRAFT:\n\nBEST SAREE EVER!!! This saree is very very beautiful and it is having a very rich look which will make you look like a queen in all the functions and also wedding's. The fabric is a pure Kanchipuram silk and the colour is maroon with golden zari border it is 5.5 meters and blouse piece of 0.8 meter is also coming with it. Kindly note dry clean only is recommended else colour may go. We are giving free shipping all over India. Price is Rs 8,499 only including GST. Hurry up and do the needful and buy it before stock finish because these kind of sarees are not available anywhere in market. Return is accepted in 7 days if tag is not removed.",
+  "key_points": [
+   "Keeps all real facts: Kanchipuram silk, maroon, golden zari border, 5.5 m saree, 0.8 m blouse piece",
+   "Keeps price ₹8,499 incl. GST, free shipping in India, 7-day return with tag on, dry clean only",
+   "Removes hype and false claims like 'not available anywhere'",
+   "Fixes grammar ('is having', 'wedding's', 'is also coming', 'stock finish', 'do the needful')",
+   "Uses a clear title, short intro and bullet points",
+   "Ends with one clear call to action",
+   "Does not add facts that were not in the draft"
+  ],
+  "rubric": [
+   {
+    "key": "correctness",
+    "label": "Grammar and facts",
+    "guide": "0 = many errors or facts changed, 3 = few small errors, 5 = error-free and every fact kept accurately"
+   },
+   {
+    "key": "clarity",
+    "label": "Clarity and structure",
+    "guide": "0 = still one long block, 3 = some structure, 5 = title, short intro, clean bullets, easy to scan"
+   },
+   {
+    "key": "tone",
+    "label": "Tone",
+    "guide": "0 = pushy or hyped like the draft, 3 = neutral but flat, 5 = warm, confident and honest, suits the buyer"
+   },
+   {
+    "key": "completeness",
+    "label": "Completeness",
+    "guide": "0 = key details missing, 3 = most details, 5 = all buyer details plus a clear call to action"
+   }
+  ]
+ }
+}

@@ -1,0 +1,1369 @@
+{
+ "slug": "warehouse",
+ "version": 1,
+ "topics": [
+  "Receiving and putaway",
+  "Picking and packing",
+  "Stock control",
+  "Dispatch and returns",
+  "Safety"
+ ],
+ "questions": [
+  {
+   "id": "warehouse-001",
+   "topic": "Safety",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What should you wear on your feet on the warehouse floor?",
+   "options": [
+    "Open sandals",
+    "Cloth sports shoes",
+    "Safety shoes with a toe cap",
+    "Rubber slippers"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "వేర్‌హౌస్ ఫ్లోర్‌లో కాళ్లకు ఏం వేసుకోవాలి?",
+    "options": [
+     "ఓపెన్ చెప్పులు",
+     "క్లాత్ స్పోర్ట్స్ షూస్",
+     "టో క్యాప్ ఉన్న సేఫ్టీ షూస్",
+     "రబ్బర్ స్లిప్పర్లు"
+    ]
+   },
+   "hi": {
+    "q": "वेयरहाउस फ़्लोर पर पैरों में क्या पहनना चाहिए?",
+    "options": [
+     "खुली सैंडल",
+     "कपड़े के स्पोर्ट्स शूज़",
+     "टो कैप वाले सेफ़्टी शूज़",
+     "रबर की चप्पल"
+    ]
+   }
+  },
+  {
+   "id": "warehouse-002",
+   "topic": "Safety",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "You see oil spilled in a walkway. What should you do?",
+   "options": [
+    "Put up a warning and clean or report it at once",
+    "Walk around it and carry on",
+    "Cover it with an empty carton",
+    "Leave it for the cleaner's next round"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "నడిచే దారిలో ఆయిల్ పడి ఉంది. మీరు ఏం చేయాలి?",
+    "options": [
+     "వార్నింగ్ పెట్టి, వెంటనే క్లీన్ చేయాలి లేదా రిపోర్ట్ చేయాలి",
+     "పక్క నుంచి నడిచి పని కొనసాగించాలి",
+     "ఖాళీ కార్టన్‌తో కప్పేయాలి",
+     "క్లీనర్ తర్వాత వచ్చినప్పుడు చూసుకుంటాడు అని వదిలేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "रास्ते में तेल गिरा है। आपको क्या करना चाहिए?",
+    "options": [
+     "चेतावनी लगाकर तुरंत साफ़ करें या रिपोर्ट करें",
+     "बगल से निकलकर काम करते रहें",
+     "खाली कार्टन से ढक दें",
+     "सफ़ाई वाले के अगले चक्कर के लिए छोड़ दें"
+    ]
+   }
+  },
+  {
+   "id": "warehouse-003",
+   "topic": "Safety",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A stack of cartons on a pallet is leaning and may fall. Workers are walking nearby. What do you do first?",
+   "options": [
+    "Push it straight with your hands",
+    "Pull out the bottom carton",
+    "Take a photo and carry on",
+    "Keep people away and tell the supervisor"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "ప్యాలెట్ మీద కార్టన్ల స్టాక్ ఒరిగి, పడిపోయేలా ఉంది. దగ్గరలో కార్మికులు నడుస్తున్నారు. మీరు ముందు ఏం చేస్తారు?",
+    "options": [
+     "చేతులతో నెట్టి నిటారుగా చేస్తారు",
+     "కింది కార్టన్‌ను బయటకు లాగుతారు",
+     "ఫోటో తీసి పని కొనసాగిస్తారు",
+     "అందరినీ దూరంగా ఉంచి, సూపర్‌వైజర్‌కు చెప్తారు"
+    ]
+   },
+   "hi": {
+    "q": "पैलेट पर कार्टन का ढेर झुक गया है और गिर सकता है। पास में लोग चल रहे हैं। आप पहले क्या करेंगे?",
+    "options": [
+     "हाथ से धक्का देकर सीधा करेंगे",
+     "नीचे वाला कार्टन खींच लेंगे",
+     "फ़ोटो लेकर काम करते रहेंगे",
+     "लोगों को दूर रखेंगे और सुपरवाइज़र को बताएँगे"
+    ]
+   }
+  },
+  {
+   "id": "warehouse-004",
+   "topic": "Safety",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "If you try to put out a small fire at a forklift charging point, which extinguisher is right?",
+   "options": [
+    "Water type",
+    "CO2 or dry powder type",
+    "Foam type",
+    "A bucket of water and sand"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "ఫోర్క్‌లిఫ్ట్ చార్జింగ్ పాయింట్ దగ్గర చిన్న మంట ఆర్పాలంటే ఏ ఎక్స్‌టింగ్విషర్ సరైనది?",
+    "options": [
+     "వాటర్ టైప్",
+     "CO2 లేదా డ్రై పౌడర్ టైప్",
+     "ఫోమ్ టైప్",
+     "నీళ్లు, ఇసుక కలిపిన బకెట్"
+    ]
+   },
+   "hi": {
+    "q": "फ़ोर्कलिफ़्ट चार्जिंग पॉइंट पर छोटी आग बुझानी हो तो कौन सा एक्सटिंग्विशर सही है?",
+    "options": [
+     "पानी वाला",
+     "CO2 या ड्राई पाउडर वाला",
+     "फ़ोम वाला",
+     "पानी और रेत की बाल्टी"
+    ]
+   }
+  },
+  {
+   "id": "warehouse-005",
+   "topic": "Dispatch and returns",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Where do you stick the shipping label on a carton?",
+   "options": [
+    "Over the tape joint",
+    "On the top flat side, fully visible",
+    "On the bottom side",
+    "Folded around a corner"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "కార్టన్ మీద షిప్పింగ్ లేబుల్ ఎక్కడ అతికించాలి?",
+    "options": [
+     "టేప్ జాయింట్ మీద",
+     "పైన చదునుగా ఉన్న వైపు, పూర్తిగా కనిపించేలా",
+     "కింది వైపు",
+     "మూలకు మడిచి"
+    ]
+   },
+   "hi": {
+    "q": "कार्टन पर शिपिंग लेबल कहाँ चिपकाएँ?",
+    "options": [
+     "टेप के जोड़ के ऊपर",
+     "ऊपर की सपाट साइड पर, पूरा दिखे ऐसे",
+     "नीचे की साइड पर",
+     "कोने पर मोड़कर"
+    ]
+   }
+  },
+  {
+   "id": "warehouse-006",
+   "topic": "Dispatch and returns",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Goods worth ₹2 lakh are going by truck to another state. Which document must go with the invoice?",
+   "options": [
+    "A gate pass only",
+    "The pick list",
+    "The GRN copy",
+    "An e-way bill"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "₹2 లక్షల విలువైన సరుకు ట్రక్కులో వేరే రాష్ట్రానికి వెళ్తోంది. ఇన్వాయిస్‌తో పాటు ఏ డాక్యుమెంట్ తప్పనిసరి?",
+    "options": [
+     "గేట్ పాస్ మాత్రమే",
+     "పిక్ లిస్ట్",
+     "GRN కాపీ",
+     "ఈ-వే బిల్"
+    ]
+   },
+   "hi": {
+    "q": "₹2 लाख का सामान ट्रक से दूसरे राज्य जा रहा है। इनवॉइस के साथ कौन सा डॉक्यूमेंट ज़रूरी है?",
+    "options": [
+     "सिर्फ़ गेट पास",
+     "पिक लिस्ट",
+     "GRN की कॉपी",
+     "ई-वे बिल"
+    ]
+   }
+  },
+  {
+   "id": "warehouse-007",
+   "topic": "Dispatch and returns",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "One truck will drop orders at three towns. Town A is the first stop. How do you load Town A's cartons?",
+   "options": [
+    "Last, near the door",
+    "First, deep inside the truck",
+    "Under the heavy cartons",
+    "Anywhere, the driver will sort it"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "ఒక ట్రక్ మూడు ఊళ్లలో ఆర్డర్లు దింపుతుంది. మొదటి స్టాప్ A ఊరు. A ఊరి కార్టన్లను ఎలా లోడ్ చేస్తారు?",
+    "options": [
+     "చివరగా, డోర్ దగ్గర",
+     "ముందుగా, ట్రక్ లోపల లోతుగా",
+     "బరువైన కార్టన్ల కింద",
+     "ఎక్కడైనా, డ్రైవర్ చూసుకుంటాడు"
+    ]
+   },
+   "hi": {
+    "q": "एक ट्रक तीन शहरों में ऑर्डर उतारेगा। पहला स्टॉप शहर A है। शहर A के कार्टन कैसे लोड करेंगे?",
+    "options": [
+     "सबसे आखिर में, दरवाज़े के पास",
+     "सबसे पहले, ट्रक में अंदर तक",
+     "भारी कार्टन के नीचे",
+     "कहीं भी, ड्राइवर देख लेगा"
+    ]
+   }
+  },
+  {
+   "id": "warehouse-008",
+   "topic": "Dispatch and returns",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "How should heavy and fragile cartons be loaded in the same truck?",
+   "options": [
+    "Fragile at the bottom, heavy on top",
+    "Mixed in any order to save time",
+    "Heavy at the bottom, fragile on top and tied",
+    "Fragile cartons on their side under heavy ones"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "బరువైన కార్టన్లు, సులువుగా పగిలే కార్టన్లు ఒకే ట్రక్కులో ఎలా లోడ్ చేయాలి?",
+    "options": [
+     "పగిలేవి కింద, బరువైనవి పైన",
+     "టైమ్ సేవ్ కోసం ఏ క్రమంలోనైనా",
+     "బరువైనవి కింద, పగిలేవి పైన కట్టి",
+     "పగిలే కార్టన్లను పక్కకు తిప్పి బరువైనవాటి కింద"
+    ]
+   },
+   "hi": {
+    "q": "भारी और नाज़ुक कार्टन एक ही ट्रक में कैसे लोड करें?",
+    "options": [
+     "नाज़ुक नीचे, भारी ऊपर",
+     "समय बचाने के लिए किसी भी क्रम में",
+     "भारी नीचे, नाज़ुक ऊपर और बाँधकर",
+     "नाज़ुक कार्टन करवट से भारी के नीचे"
+    ]
+   }
+  },
+  {
+   "id": "warehouse-009",
+   "topic": "Dispatch and returns",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A return arrives with the seal broken and a different item inside. What do you do?",
+   "options": [
+    "Accept it and put the item on the shelf",
+    "Give it back to the courier without a note",
+    "Take photos, record it, keep it aside, tell the returns team",
+    "Throw away the wrong item"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "సీల్ పగిలి, లోపల వేరే వస్తువు ఉన్న రిటర్న్ వచ్చింది. మీరు ఏం చేస్తారు?",
+    "options": [
+     "అంగీకరించి వస్తువును షెల్ఫ్‌లో పెడతారు",
+     "ఏ నోట్ లేకుండా కొరియర్‌కు తిరిగి ఇస్తారు",
+     "ఫోటోలు తీసి, రికార్డ్ చేసి, పక్కన పెట్టి, రిటర్న్స్ టీమ్‌కు చెప్తారు",
+     "తప్పు వస్తువును పారేస్తారు"
+    ]
+   },
+   "hi": {
+    "q": "सील टूटा हुआ रिटर्न आया है और अंदर कोई दूसरा सामान है। आप क्या करेंगे?",
+    "options": [
+     "मान लेंगे और सामान शेल्फ़ पर रख देंगे",
+     "बिना कुछ लिखे कूरियर को लौटा देंगे",
+     "फ़ोटो लेंगे, रिकॉर्ड करेंगे, अलग रखेंगे, रिटर्न्स टीम को बताएँगे",
+     "गलत सामान फेंक देंगे"
+    ]
+   }
+  },
+  {
+   "id": "warehouse-010",
+   "topic": "Dispatch and returns",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does a 'Fragile' sticker on a carton tell you?",
+   "options": [
+    "Handle with care, it can break",
+    "It is very heavy",
+    "It must be kept cold",
+    "It is a returned item"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "కార్టన్ మీద 'Fragile' స్టిక్కర్ ఉంటే అర్థం ఏమిటి?",
+    "options": [
+     "జాగ్రత్తగా పట్టుకోండి, పగలవచ్చు",
+     "చాలా బరువు ఉంది",
+     "చల్లగా ఉంచాలి",
+     "రిటర్న్ వచ్చిన వస్తువు"
+    ]
+   },
+   "hi": {
+    "q": "कार्टन पर 'Fragile' स्टिकर का क्या मतलब है?",
+    "options": [
+     "ध्यान से संभालें, टूट सकता है",
+     "बहुत भारी है",
+     "ठंडे में रखना है",
+     "रिटर्न आया सामान है"
+    ]
+   }
+  },
+  {
+   "id": "warehouse-011",
+   "topic": "Picking and packing",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "The pick list says 6 pieces but the bin has only 4. What do you do?",
+   "options": [
+    "Take 2 from another packed order",
+    "Mark all 6 as picked",
+    "Skip the order and tell no one",
+    "Pick 4 and report the shortage"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "పిక్ లిస్ట్‌లో 6 పీసులు అని ఉంది, కానీ బిన్‌లో 4 మాత్రమే ఉన్నాయి. మీరు ఏం చేస్తారు?",
+    "options": [
+     "ప్యాక్ చేసిన వేరే ఆర్డర్ నుంచి 2 తీస్తారు",
+     "6 తీసినట్టు మార్క్ చేస్తారు",
+     "ఎవరికీ చెప్పకుండా ఆర్డర్ వదిలేస్తారు",
+     "4 తీసి, తక్కువ ఉన్నట్టు రిపోర్ట్ చేస్తారు"
+    ]
+   },
+   "hi": {
+    "q": "पिक लिस्ट में 6 पीस लिखे हैं पर बिन में सिर्फ़ 4 हैं। आप क्या करेंगे?",
+    "options": [
+     "दूसरे पैक हुए ऑर्डर से 2 ले लेंगे",
+     "पूरे 6 पिक किए हुए मार्क कर देंगे",
+     "बिना बताए ऑर्डर छोड़ देंगे",
+     "4 निकालेंगे और कमी की रिपोर्ट करेंगे"
+    ]
+   }
+  },
+  {
+   "id": "warehouse-012",
+   "topic": "Picking and packing",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Two packs look the same but are different SKUs (500 g and 1 kg). How do you avoid mixing them?",
+   "options": [
+    "Go by the colour of the pack",
+    "Scan each one and read the weight on the label",
+    "Ask a co-worker which is which",
+    "Pick whichever is closer"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "రెండు ప్యాక్‌లు ఒకేలా కనిపిస్తాయి కానీ వేర్వేరు SKU లు (500 g, 1 kg). కలవకుండా ఎలా చూసుకుంటారు?",
+    "options": [
+     "ప్యాక్ రంగు చూసి",
+     "ప్రతిదాన్నీ స్కాన్ చేసి, లేబుల్‌పై బరువు చదువుతారు",
+     "తోటి వర్కర్‌ను అడిగి",
+     "దగ్గరగా ఉన్నది తీసి"
+    ]
+   },
+   "hi": {
+    "q": "दो पैक एक जैसे दिखते हैं पर SKU अलग हैं (500 g और 1 kg)। इन्हें मिलने से कैसे बचाएँगे?",
+    "options": [
+     "पैक का रंग देखकर",
+     "हर पैक स्कैन करेंगे और लेबल पर वज़न पढ़ेंगे",
+     "साथी से पूछकर",
+     "जो पास में हो वही उठाकर"
+    ]
+   }
+  },
+  {
+   "id": "warehouse-013",
+   "topic": "Picking and packing",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which packing material best protects glass items inside a box?",
+   "options": [
+    "Loose rubber bands",
+    "Bubble wrap",
+    "Plastic rope",
+    "Extra tape outside only"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "బాక్స్ లోపల గాజు వస్తువులకు ఏ ప్యాకింగ్ మెటీరియల్ బాగా రక్షణ ఇస్తుంది?",
+    "options": [
+     "విడి రబ్బర్ బ్యాండ్లు",
+     "బబుల్ ర్యాప్",
+     "ప్లాస్టిక్ తాడు",
+     "బయట ఎక్కువ టేప్ మాత్రమే"
+    ]
+   },
+   "hi": {
+    "q": "बॉक्स के अंदर काँच के सामान को सबसे अच्छा कौन सा पैकिंग मटीरियल बचाता है?",
+    "options": [
+     "खुले रबर बैंड",
+     "बबल रैप",
+     "प्लास्टिक की रस्सी",
+     "सिर्फ़ बाहर ज़्यादा टेप"
+    ]
+   }
+  },
+  {
+   "id": "warehouse-014",
+   "topic": "Picking and packing",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A box is half empty after packing. Why fill the gap with paper or air bags?",
+   "options": [
+    "To make the box heavier",
+    "To use up old paper",
+    "So the label sticks better",
+    "So items don't move and break on the way"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "ప్యాకింగ్ తర్వాత బాక్స్ సగం ఖాళీగా ఉంది. ఖాళీని పేపర్ లేదా ఎయిర్ బ్యాగ్‌లతో ఎందుకు నింపాలి?",
+    "options": [
+     "బాక్స్ బరువు పెంచడానికి",
+     "పాత పేపర్ వాడేయడానికి",
+     "లేబుల్ బాగా అతుక్కోవడానికి",
+     "దారిలో వస్తువులు కదిలి పగలకుండా"
+    ]
+   },
+   "hi": {
+    "q": "पैकिंग के बाद बॉक्स आधा खाली है। खाली जगह को कागज़ या एयर बैग से क्यों भरें?",
+    "options": [
+     "बॉक्स भारी करने के लिए",
+     "पुराना कागज़ खत्म करने के लिए",
+     "ताकि लेबल अच्छे से चिपके",
+     "ताकि रास्ते में सामान हिलकर टूटे नहीं"
+    ]
+   }
+  },
+  {
+   "id": "warehouse-015",
+   "topic": "Receiving and putaway",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Goods arrive at the dock. What do you check against the invoice or PO?",
+   "options": [
+    "Item, quantity and condition",
+    "Only the truck number",
+    "Only the driver's name",
+    "The colour of the boxes"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "డాక్ దగ్గరకు సరుకు వచ్చింది. ఇన్వాయిస్ లేదా PO తో ఏం సరిచూస్తారు?",
+    "options": [
+     "వస్తువు, సంఖ్య, కండిషన్",
+     "ట్రక్ నంబర్ మాత్రమే",
+     "డ్రైవర్ పేరు మాత్రమే",
+     "బాక్సుల రంగు"
+    ]
+   },
+   "hi": {
+    "q": "डॉक पर सामान आया है। इनवॉइस या PO से क्या मिलाएँगे?",
+    "options": [
+     "सामान, गिनती और हालत",
+     "सिर्फ़ ट्रक नंबर",
+     "सिर्फ़ ड्राइवर का नाम",
+     "बॉक्स का रंग"
+    ]
+   }
+  },
+  {
+   "id": "warehouse-016",
+   "topic": "Receiving and putaway",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A supplier delivers biscuits with 20 days of shelf life left. Your company rule says at least 60 days. What do you do?",
+   "options": [
+    "Accept and keep them at the front",
+    "Accept and write new dates",
+    "Hold or reject them and inform purchase",
+    "Accept half and return half"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "సప్లయర్ 20 రోజుల షెల్ఫ్ లైఫ్ మాత్రమే మిగిలిన బిస్కెట్లు తెచ్చాడు. కంపెనీ రూల్ కనీసం 60 రోజులు. మీరు ఏం చేస్తారు?",
+    "options": [
+     "తీసుకుని ముందు వరుసలో పెడతారు",
+     "తీసుకుని కొత్త డేట్లు రాస్తారు",
+     "హోల్డ్ లేదా రిజెక్ట్ చేసి, పర్చేస్ టీమ్‌కు చెప్తారు",
+     "సగం తీసుకుని సగం వెనక్కి పంపుతారు"
+    ]
+   },
+   "hi": {
+    "q": "सप्लायर 20 दिन की शेल्फ़ लाइफ़ बचे बिस्किट लाया है। कंपनी का नियम कम से कम 60 दिन है। आप क्या करेंगे?",
+    "options": [
+     "ले लेंगे और आगे रख देंगे",
+     "ले लेंगे और नई तारीख लिख देंगे",
+     "होल्ड या रिजेक्ट करेंगे और परचेज़ टीम को बताएँगे",
+     "आधा लेंगे, आधा लौटा देंगे"
+    ]
+   }
+  },
+  {
+   "id": "warehouse-017",
+   "topic": "Receiving and putaway",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "During putaway, why do you scan the bin location label?",
+   "options": [
+    "To print the invoice",
+    "To check the weight",
+    "So the system knows where the stock is kept",
+    "To close the truck door"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "పుట్‌అవే సమయంలో బిన్ లొకేషన్ లేబుల్ ఎందుకు స్కాన్ చేస్తారు?",
+    "options": [
+     "ఇన్వాయిస్ ప్రింట్ చేయడానికి",
+     "బరువు చూడటానికి",
+     "స్టాక్ ఎక్కడ ఉందో సిస్టమ్‌కు తెలియడానికి",
+     "ట్రక్ డోర్ మూయడానికి"
+    ]
+   },
+   "hi": {
+    "q": "पुटअवे के समय बिन लोकेशन का लेबल क्यों स्कैन करते हैं?",
+    "options": [
+     "इनवॉइस प्रिंट करने के लिए",
+     "वज़न देखने के लिए",
+     "ताकि सिस्टम को पता हो कि स्टॉक कहाँ रखा है",
+     "ट्रक का दरवाज़ा बंद करने के लिए"
+    ]
+   }
+  },
+  {
+   "id": "warehouse-018",
+   "topic": "Stock control",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "The system shows stock in a bin but the bin is empty. What is the most likely cause?",
+   "options": [
+    "Items were picked or moved without scanning",
+    "The bin label was printed recently",
+    "The rack is painted a new colour",
+    "Too many workers were on shift"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "సిస్టమ్‌లో బిన్‌లో స్టాక్ ఉన్నట్టు చూపిస్తోంది, కానీ బిన్ ఖాళీగా ఉంది. ఎక్కువగా కారణం ఏమిటి?",
+    "options": [
+     "స్కాన్ చేయకుండా వస్తువులు తీశారు లేదా మార్చారు",
+     "బిన్ లేబుల్ ఇటీవలే ప్రింట్ చేశారు",
+     "ర్యాక్‌కు కొత్త రంగు వేశారు",
+     "షిఫ్ట్‌లో ఎక్కువ మంది ఉన్నారు"
+    ]
+   },
+   "hi": {
+    "q": "सिस्टम में बिन में स्टॉक दिख रहा है पर बिन खाली है। सबसे संभावित कारण क्या है?",
+    "options": [
+     "बिना स्कैन किए सामान निकाला या हटाया गया",
+     "बिन का लेबल हाल में प्रिंट हुआ",
+     "रैक पर नया रंग हुआ है",
+     "शिफ़्ट में बहुत लोग थे"
+    ]
+   }
+  },
+  {
+   "id": "warehouse-019",
+   "topic": "Stock control",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "In a count, item A has 5 extra and look-alike item B is 5 short. What do you check first?",
+   "options": [
+    "Whether the scanner battery is low",
+    "Just adjust both in the system",
+    "Leave it for the yearly count",
+    "Whether A and B were swapped while picking or storing"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "కౌంట్‌లో A వస్తువు 5 ఎక్కువ, దానిలాగే ఉండే B వస్తువు 5 తక్కువ ఉంది. ముందు ఏం చెక్ చేస్తారు?",
+    "options": [
+     "స్కానర్ బ్యాటరీ తక్కువగా ఉందా అని",
+     "సిస్టమ్‌లో రెండింటినీ సరిచేసి వదిలేస్తారు",
+     "సంవత్సరం కౌంట్ వరకు వదిలేస్తారు",
+     "పికింగ్ లేదా స్టోర్ చేసేటప్పుడు A, B మారిపోయాయా అని"
+    ]
+   },
+   "hi": {
+    "q": "गिनती में A सामान 5 ज़्यादा है और उसी जैसा दिखने वाला B 5 कम। पहले क्या चेक करेंगे?",
+    "options": [
+     "स्कैनर की बैटरी कम तो नहीं",
+     "बस सिस्टम में दोनों ठीक कर देंगे",
+     "सालाना गिनती तक छोड़ देंगे",
+     "पिकिंग या रखते समय A और B आपस में बदल तो नहीं गए"
+    ]
+   }
+  },
+  {
+   "id": "warehouse-020",
+   "topic": "Stock control",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is 'dead stock' in a warehouse?",
+   "options": [
+    "Only damaged items",
+    "Items that have not moved for a long time",
+    "Items sold today",
+    "Items loaded in the truck"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "వేర్‌హౌస్‌లో 'డెడ్ స్టాక్' అంటే ఏమిటి?",
+    "options": [
+     "పాడైన వస్తువులు మాత్రమే",
+     "చాలా కాలంగా కదలని వస్తువులు",
+     "ఈరోజు అమ్మిన వస్తువులు",
+     "ట్రక్కులో లోడ్ చేసిన వస్తువులు"
+    ]
+   },
+   "hi": {
+    "q": "वेयरहाउस में 'डेड स्टॉक' क्या है?",
+    "options": [
+     "सिर्फ़ खराब सामान",
+     "जो सामान बहुत समय से नहीं हिला",
+     "आज बिका सामान",
+     "ट्रक में लोड हुआ सामान"
+    ]
+   }
+  }
+ ],
+ "existing": {
+  "FIFO in a store means…": {
+   "topic": "Stock control",
+   "te": {
+    "q": "స్టోర్‌లో FIFO అంటే…",
+    "options": [
+     "ముందు వచ్చిన స్టాక్ ముందు వెళ్తుంది: పాత స్టాక్ ముందు బయటకు",
+     "వేగంగా అమ్ముడయ్యే వస్తువులు ముందు",
+     "నింపడం, ఖాళీ చేయడం",
+     "పూర్తి ఇన్వెంటరీ, చివరి ఆర్డర్"
+    ]
+   },
+   "hi": {
+    "q": "स्टोर में FIFO का मतलब…",
+    "options": [
+     "पहले आया, पहले गया: पुराना स्टॉक पहले बाहर",
+     "तेज़ बिकने वाला सामान पहले",
+     "भरो और खाली करो",
+     "पूरा इन्वेंटरी, आखिरी ऑर्डर"
+    ]
+   }
+  },
+  "What is a GRN?": {
+   "topic": "Receiving and putaway",
+   "te": {
+    "q": "GRN అంటే ఏమిటి?",
+    "options": [
+     "Goods Received Note: వచ్చిన సరుకుల రికార్డు",
+     "డెలివరీ వ్యాన్",
+     "ఒక సేఫ్టీ రూల్",
+     "ప్యాకింగ్ బాక్స్ సైజు"
+    ]
+   },
+   "hi": {
+    "q": "GRN क्या है?",
+    "options": [
+     "Goods Received Note: जो सामान आया उसका रिकॉर्ड",
+     "डिलीवरी वैन",
+     "एक सेफ्टी नियम",
+     "पैकिंग बॉक्स का साइज़"
+    ]
+   }
+  },
+  "How do you lift a heavy box safely?": {
+   "topic": "Safety",
+   "te": {
+    "q": "బరువైన బాక్స్‌ను సురక్షితంగా ఎలా ఎత్తాలి?",
+    "options": [
+     "మోకాళ్లు వంచి, వీపు నిటారుగా ఉంచి, బాక్స్‌ను దగ్గరగా పట్టుకోవాలి",
+     "వీపు వంచి వేగంగా ఎత్తాలి",
+     "ఒక చేత్తో ఎత్తాలి",
+     "షెల్ఫ్ మీదకు విసరాలి"
+    ]
+   },
+   "hi": {
+    "q": "भारी बॉक्स को सुरक्षित तरीके से कैसे उठाएँ?",
+    "options": [
+     "घुटने मोड़ें, पीठ सीधी रखें, बॉक्स को पास पकड़ें",
+     "पीठ झुकाकर जल्दी उठाएँ",
+     "एक हाथ से उठाएँ",
+     "शेल्फ पर फेंक दें"
+    ]
+   }
+  },
+  "The invoice says 50 cartons but 48 arrived. What do you do?": {
+   "topic": "Receiving and putaway",
+   "te": {
+    "q": "ఇన్వాయిస్‌లో 50 కార్టన్లు అని ఉంది కానీ 48 వచ్చాయి. మీరు ఏం చేస్తారు?",
+    "options": [
+     "50 కి సంతకం చేస్తారు",
+     "GRN లో 48 అని రాసి, తక్కువ వచ్చినట్టు రిపోర్ట్ చేస్తారు",
+     "అన్నీ వెనక్కి పంపిస్తారు",
+     "ఏమీ చెప్పరు"
+    ]
+   },
+   "hi": {
+    "q": "इनवॉइस में 50 कार्टन लिखे हैं पर 48 आए। आप क्या करेंगे?",
+    "options": [
+     "50 पर साइन कर देंगे",
+     "GRN में 48 लिखेंगे और कमी की रिपोर्ट करेंगे",
+     "सब वापस भेज देंगे",
+     "कुछ नहीं कहेंगे"
+    ]
+   }
+  },
+  "What does SKU stand for?": {
+   "topic": "Stock control",
+   "te": {
+    "q": "SKU పూర్తి పేరు ఏమిటి?",
+    "options": [
+     "Stock Keeping Unit",
+     "Store Key Unit",
+     "Shipping Kilo Unit",
+     "Sales Key Update"
+    ]
+   },
+   "hi": {
+    "q": "SKU का पूरा नाम क्या है?",
+    "options": [
+     "Stock Keeping Unit",
+     "Store Key Unit",
+     "Shipping Kilo Unit",
+     "Sales Key Update"
+    ]
+   }
+  },
+  "Why do you scan the barcode when picking an item?": {
+   "topic": "Picking and packing",
+   "te": {
+    "q": "పికింగ్ చేసేటప్పుడు బార్‌కోడ్ ఎందుకు స్కాన్ చేస్తారు?",
+    "options": [
+     "సరైన వస్తువు, సరైన సంఖ్య వెళ్తున్నాయని నిర్ధారించడానికి",
+     "లైట్ ఆన్ చేయడానికి",
+     "వస్తువు బరువు చూడటానికి",
+     "అవసరం లేదు, ఇష్టం ఉంటే చేయొచ్చు"
+    ]
+   },
+   "hi": {
+    "q": "पिकिंग करते समय बारकोड क्यों स्कैन करते हैं?",
+    "options": [
+     "ताकि सही सामान और सही गिनती बाहर जाए",
+     "लाइट चालू करने के लिए",
+     "सामान का वज़न देखने के लिए",
+     "ज़रूरी नहीं है"
+    ]
+   }
+  },
+  "A cycle count is…": {
+   "topic": "Stock control",
+   "te": {
+    "q": "సైకిల్ కౌంట్ అంటే…",
+    "options": [
+     "మొత్తం స్టోర్ ఒకేసారి కాకుండా, కొన్ని లొకేషన్లను క్రమం తప్పకుండా లెక్కించడం",
+     "సైకిళ్లను లెక్కించడం",
+     "సంవత్సరానికి ఒకసారి లెక్కించడం",
+     "పాడైన వస్తువులను మాత్రమే లెక్కించడం"
+    ]
+   },
+   "hi": {
+    "q": "साइकिल काउंट का मतलब…",
+    "options": [
+     "पूरे स्टोर की जगह कुछ लोकेशन को नियमित रूप से गिनना",
+     "साइकिलें गिनना",
+     "साल में एक बार गिनना",
+     "सिर्फ़ खराब सामान गिनना"
+    ]
+   }
+  },
+  "Medicines and food with expiry dates are usually sent out by…": {
+   "topic": "Picking and packing",
+   "te": {
+    "q": "ఎక్స్‌పైరీ డేట్ ఉన్న మందులు, ఆహారం సాధారణంగా ఏ పద్ధతిలో పంపిస్తారు?",
+    "options": [
+     "FEFO: ముందు ఎక్స్‌పైర్ అయ్యేది ముందు బయటకు",
+     "కొత్తవి ముందు",
+     "బరువైనవి ముందు",
+     "ఏ క్రమంలోనైనా"
+    ]
+   },
+   "hi": {
+    "q": "एक्सपायरी डेट वाली दवाइयाँ और खाना आमतौर पर किस तरीके से भेजे जाते हैं?",
+    "options": [
+     "FEFO: जो पहले एक्सपायर हो, वह पहले बाहर",
+     "नया सामान पहले",
+     "भारी सामान पहले",
+     "किसी भी क्रम में"
+    ]
+   }
+  },
+  "A rack shows 120 units in the system but you count 112. What is the difference called?": {
+   "topic": "Stock control",
+   "te": {
+    "q": "సిస్టమ్‌లో ర్యాక్‌లో 120 యూనిట్లు చూపిస్తోంది, కానీ మీరు లెక్కిస్తే 112. ఈ తేడాను ఏమంటారు?",
+    "options": [
+     "స్టాక్ వేరియన్స్ (8 యూనిట్లు తక్కువ)",
+     "పర్చేస్ ఆర్డర్",
+     "రిటర్న్",
+     "ట్రాన్స్‌ఫర్"
+    ]
+   },
+   "hi": {
+    "q": "सिस्टम में रैक पर 120 यूनिट दिख रहे हैं पर गिनती में 112 निकले। इस अंतर को क्या कहते हैं?",
+    "options": [
+     "स्टॉक वेरिएंस (8 यूनिट कम)",
+     "परचेज़ ऑर्डर",
+     "रिटर्न",
+     "ट्रांसफ़र"
+    ]
+   }
+  },
+  "Heavy items on racks should be kept…": {
+   "topic": "Safety",
+   "te": {
+    "q": "ర్యాక్‌లపై బరువైన వస్తువులను ఎక్కడ పెట్టాలి?",
+    "options": [
+     "కింది షెల్ఫ్‌లలో",
+     "పై షెల్ఫ్‌లలో",
+     "ఎక్కడైనా",
+     "నడిచే దారిలో నేల మీద"
+    ]
+   },
+   "hi": {
+    "q": "रैक पर भारी सामान कहाँ रखना चाहिए?",
+    "options": [
+     "नीचे की शेल्फ़ पर",
+     "ऊपर की शेल्फ़ पर",
+     "कहीं भी",
+     "रास्ते में ज़मीन पर"
+    ]
+   }
+  },
+  "What is a pick list?": {
+   "topic": "Picking and packing",
+   "te": {
+    "q": "పిక్ లిస్ట్ అంటే ఏమిటి?",
+    "options": [
+     "ఆర్డర్ల కోసం తీయాల్సిన వస్తువులు, వాటి సంఖ్యల లిస్ట్",
+     "స్టాఫ్ లిస్ట్",
+     "ధరల లిస్ట్",
+     "ట్రక్కుల లిస్ట్"
+    ]
+   },
+   "hi": {
+    "q": "पिक लिस्ट क्या है?",
+    "options": [
+     "ऑर्डर के लिए निकालने वाले सामान और उनकी गिनती",
+     "स्टाफ़ की लिस्ट",
+     "दाम की लिस्ट",
+     "ट्रकों की लिस्ट"
+    ]
+   }
+  },
+  "You find a damaged carton at receiving. Where does it go?": {
+   "topic": "Receiving and putaway",
+   "te": {
+    "q": "రిసీవింగ్ దగ్గర పాడైన కార్టన్ కనిపించింది. దాన్ని ఎక్కడ పెట్టాలి?",
+    "options": [
+     "నేరుగా ర్యాక్‌లోకి",
+     "పక్కన పెట్టి, రికార్డ్ చేసి, రిపోర్ట్ చేయాలి",
+     "చెత్తబుట్టలోకి",
+     "కస్టమర్‌కు పంపాలి"
+    ]
+   },
+   "hi": {
+    "q": "रिसीविंग पर एक खराब कार्टन मिला। उसे कहाँ रखेंगे?",
+    "options": [
+     "सीधे रैक पर",
+     "अलग रखकर, रिकॉर्ड करके, रिपोर्ट करेंगे",
+     "कूड़ेदान में",
+     "कस्टमर को भेज देंगे"
+    ]
+   }
+  },
+  "A pallet is…": {
+   "topic": "Receiving and putaway",
+   "te": {
+    "q": "ప్యాలెట్ అంటే…",
+    "options": [
+     "సరుకులు పేర్చి కదిలించడానికి ఒక చదునైన బేస్",
+     "ఒక ట్రక్",
+     "ఒక బార్‌కోడ్",
+     "బాక్స్ కట్టర్"
+    ]
+   },
+   "hi": {
+    "q": "पैलेट क्या है?",
+    "options": [
+     "सामान रखकर ले जाने के लिए एक चपटा बेस",
+     "एक ट्रक",
+     "एक बारकोड",
+     "बॉक्स कटर"
+    ]
+   }
+  },
+  "Why keep walkways clear?": {
+   "topic": "Safety",
+   "te": {
+    "q": "నడిచే దారులను ఎందుకు ఖాళీగా ఉంచాలి?",
+    "options": [
+     "సేఫ్టీ కోసం, వేగంగా తిరగడం కోసం",
+     "ఎక్కువ సరుకు పెట్టడానికి",
+     "అందంగా కనిపించడానికి",
+     "ఏమీ పర్వాలేదు"
+    ]
+   },
+   "hi": {
+    "q": "रास्ते खाली क्यों रखने चाहिए?",
+    "options": [
+     "सेफ़्टी के लिए और जल्दी आने-जाने के लिए",
+     "ज़्यादा सामान रखने के लिए",
+     "अच्छा दिखने के लिए",
+     "कोई फ़र्क नहीं पड़ता"
+    ]
+   }
+  },
+  "FEFO means…": {
+   "topic": "Stock control",
+   "te": {
+    "q": "FEFO అంటే…",
+    "options": [
+     "First expiry, first out (ముందు ఎక్స్‌పైర్ అయ్యేది ముందు బయటకు)",
+     "First entry, first out",
+     "Fast exit, fast order",
+     "Full, empty, full out"
+    ]
+   },
+   "hi": {
+    "q": "FEFO का मतलब…",
+    "options": [
+     "First expiry, first out (जो पहले एक्सपायर हो, वह पहले बाहर)",
+     "First entry, first out",
+     "Fast exit, fast order",
+     "Full, empty, full out"
+    ]
+   }
+  },
+  "An order needs 3 boxes of 12 pieces and 5 loose pieces. How many pieces?": {
+   "topic": "Picking and packing",
+   "te": {
+    "q": "ఒక ఆర్డర్‌కు 12 పీసులు ఉండే 3 బాక్సులు, ఇంకా 5 విడి పీసులు కావాలి. మొత్తం ఎన్ని పీసులు?",
+    "options": [
+     "36",
+     "41",
+     "17",
+     "45"
+    ]
+   },
+   "hi": {
+    "q": "एक ऑर्डर में 12 पीस वाले 3 बॉक्स और 5 खुले पीस चाहिए। कुल कितने पीस?",
+    "options": [
+     "36",
+     "41",
+     "17",
+     "45"
+    ]
+   }
+  },
+  "Before driving a forklift you must…": {
+   "topic": "Safety",
+   "te": {
+    "q": "ఫోర్క్‌లిఫ్ట్ నడిపే ముందు మీరు తప్పకుండా…",
+    "options": [
+     "ట్రైనింగ్, అనుమతి ఉండాలి; వాహనాన్ని చెక్ చేయాలి",
+     "వెంటనే స్టార్ట్ చేయాలి",
+     "ఒకరిని ఎక్కించుకోవాలి",
+     "ఫోర్క్‌లు పైకి ఎత్తాలి"
+    ]
+   },
+   "hi": {
+    "q": "फ़ोर्कलिफ़्ट चलाने से पहले आपको…",
+    "options": [
+     "ट्रेनिंग और इजाज़त होनी चाहिए, और गाड़ी चेक करनी चाहिए",
+     "सीधे स्टार्ट कर देना चाहिए",
+     "किसी को साथ बिठाना चाहिए",
+     "फ़ोर्क ऊपर उठा लेने चाहिए"
+    ]
+   }
+  },
+  "What is \"putaway\"?": {
+   "topic": "Receiving and putaway",
+   "te": {
+    "q": "\"పుట్‌అవే\" అంటే ఏమిటి?",
+    "options": [
+     "వచ్చిన సరుకును దాని స్టోరేజ్ స్థలానికి తరలించడం",
+     "ఆర్డర్ క్యాన్సిల్ చేయడం",
+     "సరుకు బయటకు పంపడం",
+     "స్టాక్ లెక్కించడం"
+    ]
+   },
+   "hi": {
+    "q": "\"पुटअवे\" क्या है?",
+    "options": [
+     "आया हुआ सामान उसकी तय जगह पर रखना",
+     "ऑर्डर कैंसिल करना",
+     "सामान बाहर भेजना",
+     "स्टॉक गिनना"
+    ]
+   }
+  },
+  "Before loading, dispatch checks that…": {
+   "topic": "Dispatch and returns",
+   "te": {
+    "q": "లోడింగ్ ముందు డిస్పాచ్ టీమ్ ఏం చెక్ చేస్తుంది?",
+    "options": [
+     "ఆర్డర్, సంఖ్య, అడ్రస్ లేబుల్, ఇన్వాయిస్ సరిపోలుతున్నాయా అని",
+     "ట్రక్ రంగు సరైనదా అని",
+     "ఏమీ చెక్ చేయదు",
+     "వాతావరణం బాగుందా అని"
+    ]
+   },
+   "hi": {
+    "q": "लोडिंग से पहले डिस्पैच क्या चेक करता है?",
+    "options": [
+     "ऑर्डर, गिनती, पते का लेबल और इनवॉइस मिलते हैं या नहीं",
+     "ट्रक का रंग सही है या नहीं",
+     "कुछ नहीं",
+     "मौसम ठीक है या नहीं"
+    ]
+   }
+  },
+  "WMS stands for…": {
+   "topic": "Stock control",
+   "te": {
+    "q": "WMS అంటే…",
+    "options": [
+     "Warehouse management system (వేర్‌హౌస్ మేనేజ్‌మెంట్ సిస్టమ్)",
+     "Weekly money statement",
+     "Work move schedule",
+     "Weight measure scale"
+    ]
+   },
+   "hi": {
+    "q": "WMS का मतलब…",
+    "options": [
+     "Warehouse management system (वेयरहाउस मैनेजमेंट सिस्टम)",
+     "Weekly money statement",
+     "Work move schedule",
+     "Weight measure scale"
+    ]
+   }
+  },
+  "Opening stock 500, received 300, dispatched 650. Closing stock?": {
+   "topic": "Stock control",
+   "te": {
+    "q": "ఓపెనింగ్ స్టాక్ 500, వచ్చింది 300, పంపింది 650. క్లోజింగ్ స్టాక్ ఎంత?",
+    "options": [
+     "150",
+     "350",
+     "450",
+     "1450"
+    ]
+   },
+   "hi": {
+    "q": "ओपनिंग स्टॉक 500, आया 300, भेजा 650। क्लोज़िंग स्टॉक कितना?",
+    "options": [
+     "150",
+     "350",
+     "450",
+     "1450"
+    ]
+   }
+  },
+  "Which items should be kept nearest the packing area?": {
+   "topic": "Picking and packing",
+   "te": {
+    "q": "ప్యాకింగ్ ఏరియాకు దగ్గరగా ఏ వస్తువులు ఉంచాలి?",
+    "options": [
+     "అత్యంత వేగంగా కదిలే (ఎక్కువ అమ్ముడయ్యే) వస్తువులు",
+     "అతి నెమ్మదిగా కదిలే వస్తువులు",
+     "బరువైనవి మాత్రమే",
+     "రిటర్న్ వచ్చిన వస్తువులు"
+    ]
+   },
+   "hi": {
+    "q": "पैकिंग एरिया के सबसे पास कौन सा सामान रखना चाहिए?",
+    "options": [
+     "सबसे तेज़ चलने वाला सामान",
+     "सबसे धीमा चलने वाला सामान",
+     "सिर्फ़ भारी सामान",
+     "रिटर्न आया सामान"
+    ]
+   }
+  },
+  "A carton is 40 × 30 × 20 cm. Its volume is…": {
+   "topic": "Dispatch and returns",
+   "te": {
+    "q": "ఒక కార్టన్ 40 × 30 × 20 cm. దాని వాల్యూమ్ ఎంత?",
+    "options": [
+     "24,000 క్యూబిక్ cm",
+     "2,400 క్యూబిక్ cm",
+     "90 క్యూబిక్ cm",
+     "240 క్యూబిక్ cm"
+    ]
+   },
+   "hi": {
+    "q": "एक कार्टन 40 × 30 × 20 cm का है। उसका वॉल्यूम कितना है?",
+    "options": [
+     "24,000 क्यूबिक cm",
+     "2,400 क्यूबिक cm",
+     "90 क्यूबिक cm",
+     "240 क्यूबिक cm"
+    ]
+   }
+  },
+  "Customer returns arrive. What is the right process?": {
+   "topic": "Dispatch and returns",
+   "te": {
+    "q": "కస్టమర్ రిటర్న్‌లు వచ్చాయి. సరైన పద్ధతి ఏమిటి?",
+    "options": [
+     "నేరుగా షెల్ఫ్‌లో పెట్టడం",
+     "చెక్ చేసి, కారణం రికార్డ్ చేసి, తర్వాత రీస్టాక్ / రిపేర్ / స్క్రాప్ చేయడం",
+     "పారేయడం",
+     "వేరే కస్టమర్‌కు పంపడం"
+    ]
+   },
+   "hi": {
+    "q": "कस्टमर रिटर्न आए हैं। सही तरीका क्या है?",
+    "options": [
+     "सीधे शेल्फ़ पर रख देना",
+     "जाँचें, कारण लिखें, फिर रीस्टॉक, रिपेयर या स्क्रैप करें",
+     "फेंक देना",
+     "दूसरे कस्टमर को भेज देना"
+    ]
+   }
+  }
+ },
+ "task": {
+  "type": "proof",
+  "title": "Warehouse safety and handling check (with optional work photo)",
+  "minutes": 10,
+  "brief": "Answer 7 short picture-style questions about real warehouse work: lifting, stacking, picking, packing and loading. Pick the safe and correct way in each. This takes about 10 minutes. Then, if you like, upload one photo of your own past work (a neat rack, a packed order, a loaded pallet) or a training certificate. Do not show any faces or customer details in the photo. The photo is optional.",
+  "rubric": [
+   {
+    "key": "relevance",
+    "label": "Relevance",
+    "guide": "0 = no photo or unrelated, 3 = shows similar work, 5 = clearly shows the candidate's own work in this trade"
+   },
+   {
+    "key": "genuineness",
+    "label": "Genuineness",
+    "guide": "0 = looks copied or a stock image, 3 = probably real, 5 = clearly real work or a real ITI / training certificate"
+   },
+   {
+    "key": "safety",
+    "label": "Safety",
+    "guide": "0 = unsafe practice visible, 3 = nothing unsafe seen, 5 = good safe practice visible (PPE, neat and tidy work)"
+   }
+  ],
+  "situations": [
+   {
+    "q": "A worker is carrying a 25 kg sack. Which way is safe?",
+    "options": [
+     "Sack held out in front with straight arms",
+     "Sack held close to the body, knees bent, back straight",
+     "Sack on one shoulder while twisting to walk"
+    ],
+    "answer": 1,
+    "topic": "Safety",
+    "te": {
+     "q": "ఒక వర్కర్ 25 kg బస్తా మోస్తున్నాడు. ఏ పద్ధతి సురక్షితం?",
+     "options": [
+      "చేతులు చాచి బస్తా ముందుకు పట్టుకుని",
+      "బస్తా శరీరానికి దగ్గరగా, మోకాళ్లు వంచి, వీపు నిటారుగా",
+      "ఒక భుజం మీద పెట్టుకుని, తిరుగుతూ నడుస్తూ"
+     ]
+    },
+    "hi": {
+     "q": "एक वर्कर 25 kg की बोरी उठा रहा है। कौन सा तरीका सुरक्षित है?",
+     "options": [
+      "हाथ सीधे करके बोरी आगे पकड़ी",
+      "बोरी शरीर के पास, घुटने मुड़े, पीठ सीधी",
+      "एक कंधे पर रखकर मुड़ते हुए चलना"
+     ]
+    }
+   },
+   {
+    "q": "Cartons are stacked on a pallet. Which stack is right?",
+    "options": [
+     "Small cartons at the bottom, big ones on top",
+     "Stack higher than the rack beam to save space",
+     "Heavy cartons below, edges in line, below the height limit",
+     "Cartons hanging over the pallet edge"
+    ],
+    "answer": 2,
+    "topic": "Safety",
+    "te": {
+     "q": "ప్యాలెట్ మీద కార్టన్లు పేర్చారు. ఏది సరైనది?",
+     "options": [
+      "చిన్న కార్టన్లు కింద, పెద్దవి పైన",
+      "స్థలం కోసం ర్యాక్ బీమ్ కంటే ఎత్తుగా",
+      "బరువైనవి కింద, అంచులు వరుసగా, ఎత్తు లిమిట్ లోపల",
+      "ప్యాలెట్ అంచు దాటి వేలాడుతున్న కార్టన్లు"
+     ]
+    },
+    "hi": {
+     "q": "पैलेट पर कार्टन रखे हैं। कौन सा ढेर सही है?",
+     "options": [
+      "छोटे कार्टन नीचे, बड़े ऊपर",
+      "जगह बचाने के लिए रैक बीम से ऊँचा",
+      "भारी नीचे, किनारे सीध में, ऊँचाई सीमा के अंदर",
+      "पैलेट के किनारे से बाहर लटकते कार्टन"
+     ]
+    }
+   },
+   {
+    "q": "Two bins have medicine of the same batch type: one expires in March, one in August. Which do you pick first?",
+    "options": [
+     "The one that expires in March",
+     "The one that expires in August",
+     "Whichever bin is nearer"
+    ],
+    "answer": 0,
+    "topic": "Picking and packing",
+    "te": {
+     "q": "రెండు బిన్‌లలో ఒకే రకమైన మందు ఉంది: ఒకటి మార్చిలో, ఒకటి ఆగస్టులో ఎక్స్‌పైర్ అవుతుంది. ముందు ఏది తీస్తారు?",
+     "options": [
+      "మార్చిలో ఎక్స్‌పైర్ అయ్యేది",
+      "ఆగస్టులో ఎక్స్‌పైర్ అయ్యేది",
+      "దగ్గరగా ఉన్న బిన్‌లోది"
+     ]
+    },
+    "hi": {
+     "q": "दो बिन में एक ही तरह की दवा है: एक मार्च में, एक अगस्त में एक्सपायर होगी। पहले कौन सी निकालेंगे?",
+     "options": [
+      "जो मार्च में एक्सपायर होगी",
+      "जो अगस्त में एक्सपायर होगी",
+      "जो बिन पास में है"
+     ]
+    }
+   },
+   {
+    "q": "A packed box for a glass bottle is ready. Which one passes the check?",
+    "options": [
+     "Bottle loose inside, one strip of tape",
+     "Bottle wrapped, box left open for the courier",
+     "Bottle wrapped, gaps filled, box taped in an H shape"
+    ],
+    "answer": 2,
+    "topic": "Picking and packing",
+    "te": {
+     "q": "గాజు సీసా ఉన్న బాక్స్ ప్యాక్ అయింది. ఏది చెక్ పాస్ అవుతుంది?",
+     "options": [
+      "సీసా లోపల వదులుగా, ఒకే టేప్ పట్టీ",
+      "సీసా ర్యాప్ చేసి, కొరియర్ కోసం బాక్స్ తెరిచి ఉంచింది",
+      "సీసా ర్యాప్ చేసి, ఖాళీలు నింపి, H ఆకారంలో టేప్ వేసింది"
+     ]
+    },
+    "hi": {
+     "q": "काँच की बोतल का बॉक्स पैक हुआ है। कौन सा चेक में पास होगा?",
+     "options": [
+      "बोतल अंदर ढीली, टेप की एक पट्टी",
+      "बोतल लिपटी, कूरियर के लिए बॉक्स खुला छोड़ा",
+      "बोतल लिपटी, खाली जगह भरी, बॉक्स पर H आकार में टेप"
+     ]
+    }
+   },
+   {
+    "q": "A forklift is coming down an aisle where you are walking. What is right?",
+    "options": [
+     "Walk in front and wave to the driver",
+     "Step aside to the walkway and let it pass",
+     "Hold on to the forks to ride along"
+    ],
+    "answer": 1,
+    "topic": "Safety",
+    "te": {
+     "q": "మీరు నడుస్తున్న ఐల్‌లో ఫోర్క్‌లిఫ్ట్ వస్తోంది. ఏది సరైనది?",
+     "options": [
+      "ముందు నడుస్తూ డ్రైవర్‌కు చేయి ఊపాలి",
+      "పక్కకు, నడిచే దారిలోకి జరిగి దాన్ని వెళ్లనివ్వాలి",
+      "ఫోర్క్‌లు పట్టుకుని ఎక్కి వెళ్లాలి"
+     ]
+    },
+    "hi": {
+     "q": "जिस गली में आप चल रहे हैं वहाँ फ़ोर्कलिफ़्ट आ रही है। क्या सही है?",
+     "options": [
+      "आगे-आगे चलें और ड्राइवर को हाथ दिखाएँ",
+      "साइड में पैदल रास्ते पर हटकर उसे जाने दें",
+      "फ़ोर्क पकड़कर साथ सवारी करें"
+     ]
+    }
+   },
+   {
+    "q": "A delivery has 10 cartons; one is wet and torn. What does the GRN show?",
+    "options": [
+     "9 good, 1 damaged, with a note and photo",
+     "10 received, all fine",
+     "9 received, the torn one not mentioned"
+    ],
+    "answer": 0,
+    "topic": "Receiving and putaway",
+    "te": {
+     "q": "డెలివరీలో 10 కార్టన్లు ఉన్నాయి; ఒకటి తడిసి చినిగింది. GRN లో ఏం ఉండాలి?",
+     "options": [
+      "9 బాగున్నాయి, 1 పాడైంది, నోట్ మరియు ఫోటోతో",
+      "10 వచ్చాయి, అన్నీ బాగున్నాయి",
+      "9 వచ్చాయి, చినిగినది ప్రస్తావన లేదు"
+     ]
+    },
+    "hi": {
+     "q": "डिलीवरी में 10 कार्टन हैं; एक गीला और फटा है। GRN में क्या लिखा होना चाहिए?",
+     "options": [
+      "9 ठीक, 1 खराब, नोट और फ़ोटो के साथ",
+      "10 आए, सब ठीक",
+      "9 आए, फटे वाले का ज़िक्र नहीं"
+     ]
+    }
+   },
+   {
+    "q": "Before the truck leaves, which check is done?",
+    "options": [
+     "Only the driver signs, no count",
+     "Carton count and labels match the dispatch list and invoices",
+     "Count is done later at the customer"
+    ],
+    "answer": 1,
+    "topic": "Dispatch and returns",
+    "te": {
+     "q": "ట్రక్ బయలుదేరే ముందు ఏ చెక్ చేయాలి?",
+     "options": [
+      "డ్రైవర్ సంతకం మాత్రమే, లెక్క లేదు",
+      "కార్టన్ల సంఖ్య, లేబుల్స్ డిస్పాచ్ లిస్ట్, ఇన్వాయిస్‌లతో సరిపోవాలి",
+      "లెక్క తర్వాత కస్టమర్ దగ్గర చేస్తారు"
+     ]
+    },
+    "hi": {
+     "q": "ट्रक निकलने से पहले कौन सा चेक होता है?",
+     "options": [
+      "सिर्फ़ ड्राइवर साइन करे, गिनती नहीं",
+      "कार्टन की गिनती और लेबल डिस्पैच लिस्ट और इनवॉइस से मिलें",
+      "गिनती बाद में कस्टमर के यहाँ होगी"
+     ]
+    }
+   }
+  ]
+ }
+}

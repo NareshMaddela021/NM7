@@ -1,0 +1,668 @@
+{
+ "slug": "graphic-design",
+ "version": 1,
+ "topics": [
+  "Design basics",
+  "Typography",
+  "Print production",
+  "Digital and social media",
+  "Branding and client work"
+ ],
+ "questions": [
+  {
+   "id": "graphic-design-001",
+   "topic": "Design basics",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does 'white space' mean in a layout?",
+   "options": [
+    "Only the white parts of a photo",
+    "Areas printed with white ink",
+    "Space left for the client's signature",
+    "Empty space around and between elements"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "graphic-design-002",
+   "topic": "Design basics",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which pair are complementary colours on the colour wheel?",
+   "options": [
+    "Blue and green",
+    "Red and pink",
+    "Blue and orange",
+    "Yellow and lime"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "graphic-design-003",
+   "topic": "Design basics",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is visual hierarchy?",
+   "options": [
+    "Arranging items so the most important is seen first",
+    "Putting the logo at the top always",
+    "Using only one colour",
+    "Making all text the same size"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "graphic-design-004",
+   "topic": "Design basics",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which colour mode is used for screens?",
+   "options": [
+    "CMYK",
+    "Pantone only",
+    "RGB",
+    "Grayscale"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "graphic-design-005",
+   "topic": "Design basics",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why use a grid in a layout?",
+   "options": [
+    "To add lines that print on the page",
+    "To make the file size smaller",
+    "To lock images from editing",
+    "To align items and keep spacing consistent"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "graphic-design-006",
+   "topic": "Design basics",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A poster has five things in bold, bright colours. The client says nothing stands out. What do you do?",
+   "options": [
+    "Make all five bigger",
+    "Add a sixth bright element",
+    "Change the background to black",
+    "Pick one main message and tone down the rest"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "graphic-design-007",
+   "topic": "Design basics",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Light grey text on a white background is mainly a problem because of:",
+   "options": [
+    "Poor contrast, hard to read",
+    "Bigger file size",
+    "Wrong colour mode",
+    "Printing cost"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "graphic-design-008",
+   "topic": "Design basics",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why might the same red look different on a phone, a laptop and a printed flyer?",
+   "options": [
+    "Screens and inks show colour differently and need calibration",
+    "The designer saved it wrongly each time",
+    "Red ink fades in one day",
+    "Phones only show 16 colours"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "graphic-design-009",
+   "topic": "Design basics",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A client wants their 40 product photos, shot in different lights, to look like one set on their website. What is the best approach?",
+   "options": [
+    "Add a different trendy filter to each photo",
+    "Correct all to one white balance and style",
+    "Put a heavy frame around each photo",
+    "Convert them all to CMYK"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "graphic-design-010",
+   "topic": "Typography",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is the difference between serif and sans-serif fonts?",
+   "options": [
+    "Serif fonts have small strokes at letter ends",
+    "Serif fonts are always bold",
+    "Sans-serif fonts are only for print",
+    "Serif fonts have no capital letters"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "graphic-design-011",
+   "topic": "Typography",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is 'leading' in typography?",
+   "options": [
+    "Space between letters",
+    "Space between lines of text",
+    "The first letter of a paragraph",
+    "The heaviest font weight"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "graphic-design-012",
+   "topic": "Typography",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "How many font families should a simple flyer usually use?",
+   "options": [
+    "Two at most",
+    "Five or more",
+    "A new one for every line",
+    "Exactly seven"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "graphic-design-013",
+   "topic": "Typography",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "You design a bilingual shop board in English and Telugu. The Telugu text looks small next to English. What do you do?",
+   "options": [
+    "Choose a matching Telugu font and adjust its size visually",
+    "Stretch the Telugu text sideways to fill space",
+    "Use the same point size and leave it",
+    "Remove the Telugu text"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "graphic-design-014",
+   "topic": "Typography",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is kerning?",
+   "options": [
+    "Adjusting space between lines",
+    "Making text italic",
+    "Changing text colour",
+    "Adjusting space between two specific letters"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "graphic-design-015",
+   "topic": "Typography",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "For body text in a printed brochure, what size range is usually readable?",
+   "options": [
+    "About 9 to 12 pt",
+    "About 4 to 6 pt",
+    "About 20 to 24 pt",
+    "About 36 pt"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "graphic-design-016",
+   "topic": "Typography",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A client loves a font they found online and wants it in their new logo. What should you check first?",
+   "options": [
+    "Whether it has a bold version",
+    "Whether it looks good in red",
+    "Whether its licence allows commercial logo use",
+    "Whether it is free to download"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "graphic-design-017",
+   "topic": "Typography",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why should you avoid all-caps for long paragraphs?",
+   "options": [
+    "Printers can't print capital letters",
+    "It doubles the file size",
+    "Word shapes are lost, so reading slows down",
+    "Search engines ignore capitals"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "graphic-design-018",
+   "topic": "Print production",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which resolution is standard for print images?",
+   "options": [
+    "72 dpi",
+    "30 dpi",
+    "1000 dpi",
+    "300 dpi"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "graphic-design-019",
+   "topic": "Print production",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which colour mode should a file for offset printing be in?",
+   "options": [
+    "RGB",
+    "HSL",
+    "CMYK",
+    "Indexed"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "graphic-design-020",
+   "topic": "Print production",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is 'bleed' in a print file?",
+   "options": [
+    "Ink that spreads on cheap paper",
+    "A red mark for errors",
+    "Space between two columns",
+    "Extra image area beyond the trim line"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "graphic-design-021",
+   "topic": "Print production",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A printer says your visiting card file has text right at the edge. What is the risk?",
+   "options": [
+    "The colours will look brighter",
+    "The text may get cut while trimming",
+    "The card will be thicker",
+    "The ink will dry slowly"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "graphic-design-022",
+   "topic": "Print production",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is a usual bleed size for small print jobs like flyers?",
+   "options": [
+    "3 cm on each side",
+    "3 mm on each side",
+    "No bleed is ever needed",
+    "Half the page width"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "graphic-design-023",
+   "topic": "Print production",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why convert text to outlines (or embed fonts) before sending a PDF to print?",
+   "options": [
+    "To make text easier to edit",
+    "To reduce the bleed area around the page",
+    "To change the colour mode",
+    "So the printer's system shows the right font"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "graphic-design-024",
+   "topic": "Print production",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A 10 ft x 20 ft flex banner is needed. The client sends a 1080 px photo from WhatsApp. What do you do?",
+   "options": [
+    "Enlarge it in Photoshop and send it to print",
+    "Print it smaller in the corner",
+    "Add a filter to hide the blur",
+    "Warn it will blur and ask for the original file"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "graphic-design-025",
+   "topic": "Print production",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Your printed brochure's dark blue came out almost purple. What is the most likely cause?",
+   "options": [
+    "The paper was too thick for the printer",
+    "The font was too small",
+    "The RGB blue was not converted and proofed in CMYK",
+    "The file was saved as PDF"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "graphic-design-026",
+   "topic": "Print production",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "When is a Pantone (spot) colour worth the extra cost?",
+   "options": [
+    "When printing a single home copy",
+    "When a brand colour must match exactly across jobs",
+    "When the design has many photos",
+    "When the file is in RGB"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "graphic-design-027",
+   "topic": "Digital and social media",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is a square Instagram post size in pixels?",
+   "options": [
+    "500 x 300",
+    "1080 x 1080",
+    "1920 x 200",
+    "300 x 300"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "graphic-design-028",
+   "topic": "Digital and social media",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which file type is best for a logo with a transparent background on a website?",
+   "options": [
+    "SVG",
+    "JPG",
+    "BMP",
+    "PDF"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "graphic-design-029",
+   "topic": "Digital and social media",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "A client asks for the same festive offer post for Instagram feed and Stories. What do you do?",
+   "options": [
+    "Use the square post for Stories as it is",
+    "Crop the post randomly",
+    "Make two versions sized for each format",
+    "Send only the feed post"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "graphic-design-030",
+   "topic": "Digital and social media",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why keep important text away from the edges of an Instagram Story design?",
+   "options": [
+    "Stories print the edges in black",
+    "App buttons and profile name may cover it",
+    "Edges are cut off on laptops only",
+    "It makes the file lighter"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "graphic-design-031",
+   "topic": "Digital and social media",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A website banner image is 6 MB. Why is that a problem?",
+   "options": [
+    "It will look too sharp on big screens",
+    "The page loads slowly, mostly on mobile data",
+    "It can't be shown on phones",
+    "It changes the site colours"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "graphic-design-032",
+   "topic": "Digital and social media",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A food brand's ad shows a busy photo with small text. Clicks are very low. What do you change first?",
+   "options": [
+    "One clear dish photo and a short, large headline",
+    "Add more dishes to the photo",
+    "Make the text even smaller",
+    "Add the full menu with prices below the photo"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "graphic-design-033",
+   "topic": "Digital and social media",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why use SVG instead of PNG for website icons?",
+   "options": [
+    "They always have more colours",
+    "They work better only on new iPhones",
+    "They stay sharp at any size and are usually lighter",
+    "They can't be edited by others"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "graphic-design-034",
+   "topic": "Digital and social media",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A client's app needs icons that work in dark mode and light mode. What is the best approach?",
+   "options": [
+    "Use black icons everywhere for safety",
+    "Test each icon on both and adjust colour or stroke",
+    "Add a white box behind each icon",
+    "Use photos instead of icons"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "graphic-design-035",
+   "topic": "Branding and client work",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What should you ask first when a client says 'make a logo'?",
+   "options": [
+    "Which font is trending now",
+    "What their favourite cartoon is",
+    "About their business, audience and where it will be used",
+    "How many hours you should spend on the design"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "graphic-design-036",
+   "topic": "Branding and client work",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is a brand style guide?",
+   "options": [
+    "A list of the brand's employees",
+    "A document of logo, colour and font rules for a brand",
+    "The brand's sales targets for the year",
+    "A price list for printing"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "graphic-design-037",
+   "topic": "Branding and client work",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "A client says 'make it pop' about your draft. What do you do?",
+   "options": [
+    "Ask what they mean and show quick options",
+    "Make everything neon",
+    "Ignore it and send the same file",
+    "Double every font size"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "graphic-design-038",
+   "topic": "Branding and client work",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why should a logo work in one colour too?",
+   "options": [
+    "One colour logos are always cheaper to design",
+    "Clients prefer black logos",
+    "Colour logos can't be used online",
+    "It may be stamped, embroidered or printed in black only"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "graphic-design-039",
+   "topic": "Branding and client work",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A client keeps asking for changes after the agreed two rounds. What is the professional step?",
+   "options": [
+    "Stop replying until they accept the last version",
+    "Make unlimited changes for free",
+    "Remind them of the scope and share the cost for extra rounds",
+    "Send a lower-quality file to end it"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "graphic-design-040",
+   "topic": "Branding and client work",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which files should you usually hand over at the end of a logo project?",
+   "options": [
+    "Vector source plus PNG, JPG and PDF versions",
+    "Only a JPG screenshot",
+    "Only the first rough sketch scanned on paper",
+    "Only a WhatsApp image"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "graphic-design-041",
+   "topic": "Branding and client work",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A client shows you a well-known brand's logo and says 'make ours exactly like this'. What do you do?",
+   "options": [
+    "Copy it closely and change only the colours used",
+    "Trace it and change one letter",
+    "Use it and add their name",
+    "Explain the legal risk and design an original logo in that spirit"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "graphic-design-042",
+   "topic": "Branding and client work",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why give clients two or three strong concepts instead of ten weak ones?",
+   "options": [
+    "Ten options take less time",
+    "Fewer, well-reasoned options lead to clearer decisions",
+    "Clients always pick the first",
+    "Three is the standard number in the print industry"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "graphic-design-043",
+   "topic": "Branding and client work",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A startup changes its name a month after you finish the logo and wants it free. The contract has a fixed scope. What do you do?",
+   "options": [
+    "Do it for free to keep them happy",
+    "Refuse to talk to them",
+    "Explain it is new work and quote fairly",
+    "Change only one letter for free"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "graphic-design-044",
+   "topic": "Design basics",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is the rule of thirds?",
+   "options": [
+    "Using only three colours in every single design",
+    "Using three fonts per design",
+    "Keeping text to three lines",
+    "Placing key items along lines that split the frame into thirds"
+   ],
+   "answer": 3
+  }
+ ],
+ "task": {
+  "type": "written",
+  "title": "Plan the design for a coaching centre's admission flyer",
+  "brief": "Read the client brief in the material below. In 15 to 20 minutes, write a short design plan (no drawing needed). A good answer covers: the main message and what readers should see first, a simple layout (what goes top, middle, bottom), colours and fonts with a reason, the print specs you will use (size, bleed, colour mode, resolution), the extra versions you will make for WhatsApp and Instagram, and 2 or 3 questions you would ask the client before starting. Use plain words and bullet points.",
+  "minutes": 20,
+  "material": "Client: Bright Path Coaching, Vijayawada.\nNeed: A5 flyer to hand out at schools, plus versions for WhatsApp and Instagram.\nContent: New batches for Class 10 and Intermediate (MPC, BiPC). Starts 1 June. 20% early-bird fee discount till 15 May. Free demo class every Sunday. Phone: 90000 00000. Address: 2nd floor, near bus stand.\nClient wishes: 'Put everything big. Use lots of colours. Add photos of all 12 teachers. Logo is a JPG from our old website.'\nBudget: printing 5,000 copies on 130 gsm paper.",
+  "key_points": [
+   "Picks one main message (new batches or early-bird discount) as the focal point",
+   "Clear layout with hierarchy, not everything big",
+   "Limited colour palette and at most two fonts, with reasons",
+   "Print specs: A5 (148 x 210 mm), about 3 mm bleed, CMYK, 300 dpi",
+   "Notes the JPG logo may be low quality and asks for a vector or redraws it",
+   "Suggests a better option than 12 teacher photos (few photos or a group photo)",
+   "Separate sizes for WhatsApp and Instagram (for example 1080 x 1080 and Story 1080 x 1920)",
+   "Asks sensible client questions (brand colours, photo quality, deadline)"
+  ],
+  "rubric": [
+   {
+    "key": "correctness",
+    "label": "Technical correctness",
+    "guide": "0 = wrong or no print/digital specs, 3 = some specs right, 5 = size, bleed, CMYK, dpi and digital sizes all correct"
+   },
+   {
+    "key": "design_thinking",
+    "label": "Design thinking",
+    "guide": "0 = follows 'everything big' blindly, 3 = some hierarchy, 5 = clear focal point, layout and reasons that suit parents and students"
+   },
+   {
+    "key": "client_handling",
+    "label": "Client handling",
+    "guide": "0 = ignores weak inputs, 3 = notes some issues, 5 = politely flags logo and photo issues and asks good questions"
+   },
+   {
+    "key": "clarity",
+    "label": "Clarity",
+    "guide": "0 = hard to follow, 3 = understandable, 5 = short, organised bullets anyone can follow"
+   }
+  ]
+ }
+}

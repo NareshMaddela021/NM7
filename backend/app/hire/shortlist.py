@@ -41,7 +41,18 @@ from app.companies.model import POST, trust_of
 from app.companies.signup import company_for
 from app.core import rate_limit
 from app.core.config import get_settings
-from app.core.db import APPLICATIONS, COMPANIES, DB, HIRE_INVITES, HIRE_PROFILES, HIRE_USAGE, JOBS, RESUMES, USERS
+from app.core.db import (
+    APPLICATIONS,
+    COMPANIES,
+    DB,
+    HIRE_INVITES,
+    HIRE_PROFILES,
+    HIRE_USAGE,
+    JOBS,
+    RESUMES,
+    USERS,
+    VETTING_VERIFIED,
+)
 from app.core.email import Email, MailerDep, send_safely
 from app.core.errors import ApiError
 from app.core.schemas import CamelModel
@@ -119,9 +130,38 @@ SALARY_ORDER = {"within": 0, "below": 0, "unknown": 1, "above": 2}
 
 
 def rank_key(row: dict[str, Any]) -> tuple:
-    """Strictly by match score; on the same score, salary within the range first, then the soonest join date."""
+    """By match level (the match score in steps of 10); at the same level a current "Skill verified" badge (Vetting
+    V2) comes first, then the exact match score, salary within the range, and the soonest join date. An expired badge
+    ranks as unverified."""
     join = row["availability"]["joinDate"] or "9999-12-31"
-    return (-row["match"]["score"], SALARY_ORDER.get(row["salary"]["fit"], 1), join, row["key"])
+    sv = row.get("skillVerified")
+    proven = bool(sv and not sv.get("expired"))
+    score = row["match"]["score"]
+    return (-(score // 10), not proven, -score, SALARY_ORDER.get(row["salary"]["fit"], 1), join, row["key"])
+
+
+def vetted_for(records: list[dict[str, Any]], wanted: list[str], t: datetime) -> dict[str, Any] | None:
+    """The badge to show for this job: a current one for one of the job's skills first, else the best current one,
+    else the latest expired one (shown as "expired")."""
+    from app.hire.vetting import engine as V
+
+    low = {w.lower() for w in wanted}
+    covers = test_covers()
+
+    def fits(test: str) -> bool:
+        return test.lower() in low or bool({x.lower() for x in covers.get(test, ())} & low)
+
+    def out(v: dict[str, Any]) -> dict[str, Any]:
+        return {"test": v["test"], "role": v.get("role", ""), "band": v["band"],
+                "bandLabel": V.BANDS[v["band"]]["label"], "score": v["score"],
+                "taskStars": V.stars(v["task_score"]), "at": ms(v["at"]),
+                "expired": V.is_expired(v["expires_at"], t), "forThisJob": fits(v["test"])}  # fmt: skip
+
+    live = [v for v in records if not V.is_expired(v["expires_at"], t)]
+    pick = max((v for v in live if fits(v["test"])), key=lambda v: v["score"], default=None)
+    pick = pick or max(live, key=lambda v: v["score"], default=None)
+    pick = pick or max(records, key=lambda v: v["at"], default=None)
+    return out(pick) if pick else None
 
 
 def month_id(cid: str, t: datetime | None = None) -> str:
@@ -169,9 +209,10 @@ async def _job(db, cid: str, job_id: str) -> dict[str, Any]:
 
 
 async def candidates(
-    db, c: dict[str, Any], job: dict[str, Any], t: datetime | None = None, support: str = ""
+    db, c: dict[str, Any], job: dict[str, Any], t: datetime | None = None, support: str = "", vetting: bool = True
 ) -> list[dict[str, Any]]:
-    """Every available, consenting candidate who suits the place and kind of job, ranked (best first)."""
+    """Every available, consenting candidate who suits the place and kind of job, ranked (best first). `vetting`
+    False (the vetting engine hidden from this company): no "Skill verified" badges, so the order is as before."""
     t = t or now()
     site = await get_site(db)
     days = int(site["hire"]["confirm_days"])
@@ -205,6 +246,11 @@ async def candidates(
     tests_on = await gate(db, c, "tests")  # skill check results: a paid company feature (open by default)
     results = await shared_results(db, uids) if tests_on else {}
     reliable = await reliability_for(db, uids, t)
+    vetted: dict[str, list[dict[str, Any]]] = {}
+    async for v in db[VETTING_VERIFIED].find(
+        {"user_id": {"$in": uids if vetting else []}}
+    ):  # Vetting V2: "Skill verified" (L2)
+        vetted.setdefault(v["user_id"], []).append(v)
     wanted = fitmod.job_skills(job)
     rows = []
     for p in profiles:
@@ -244,12 +290,20 @@ async def candidates(
                 ),  # shared by the candidate (H3)
                 "reliability": {k: v for k, v in reliable[p["_id"]].items() if k != "tips"},  # H4, real events only
                 "verified": [{"skill": v["skill"], "at": ms(v["at"])} for v in u.get("verified_skills") or []],  # S2
+                "skillVerified": vetted_for(vetted.get(p["_id"], []), wanted, t),  # V2: test + practical task
                 "applied": p["_id"] in applied,
                 "invite": invite_state(inv, t) if inv else None,
             }
         )
     rows.sort(key=rank_key)
     return rows
+
+
+def keep_vetted(row: dict[str, Any], role: str, min_score: int) -> bool:
+    sv = row.get("skillVerified")
+    if not sv or sv["expired"]:
+        return False
+    return (not role or sv["test"].lower() == role.lower()) and sv["score"] >= min_score
 
 
 def invite_state(i: dict[str, Any], t: datetime | None = None) -> dict[str, Any]:
@@ -266,6 +320,9 @@ async def shortlist(
     job: str = Query(..., min_length=1, max_length=40),
     size: int = Query(TOP, ge=1, le=BULK_TOP),
     support: str = Query("", max_length=40),  # Phase 6 S9: immediate,returners
+    verified: bool = False,  # Vetting V2: only people with a current "Skill verified" badge
+    role: str = Query("", max_length=80),  # V2: ... for this test (e.g. "Java")
+    min_score: int = Query(0, ge=0, le=100, alias="minScore"),  # V2: ... with at least this test score
     x_recruiter_account: str | None = Header(None),
 ) -> dict[str, Any]:
     acc, c, _ = await company_for(db, cid, x_recruiter_account)
@@ -294,7 +351,12 @@ async def shortlist(
     )
     await rate_limit.record(db, key)
     started = now()
-    rows = await candidates(db, c, j, started, support)
+    from app.hire.vetting import access
+
+    vetting = await access.for_company(db, c, acc)
+    rows = await candidates(db, c, j, started, support, vetting)
+    if vetting and (verified or role or min_score):
+        rows = [r for r in rows if keep_vetted(r, role, min_score)]
     if rows:  # H9: when the first candidate was shown for this role
         await db[JOBS].update_one({"_id": j["_id"]}, {"$min": {"hire_speed.first_shown_at": started}})
     await db[HIRE_USAGE].update_one(
@@ -311,6 +373,7 @@ async def shortlist(
         },
         "items": rows[: min(size, BULK_TOP if is_bulk(j) else TOP)],
         "available": len(rows),
+        "vetting": vetting,  # the Skill verified filters and badges are shown (Admin → Skill checks → Launch)
         "usage": {"used": len(roles), "free": free},
         "ms": int((now() - started).total_seconds() * 1000),
     }

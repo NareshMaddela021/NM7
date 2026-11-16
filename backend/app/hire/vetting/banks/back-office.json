@@ -1,0 +1,667 @@
+{
+ "slug": "back-office",
+ "version": 1,
+ "topics": [
+  "Data entry and accuracy",
+  "Excel and records",
+  "Documents and invoices",
+  "Process and deadlines",
+  "Data security"
+ ],
+ "questions": [
+  {
+   "id": "back-office-001",
+   "topic": "Data entry and accuracy",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is the best way to avoid typing errors in data entry?",
+   "options": [
+    "Type faster so there is time left at the end",
+    "Check only the last row of the sheet",
+    "Check each entry against the source before saving",
+    "Let the team lead find and fix errors"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "back-office-002",
+   "topic": "Data entry and accuracy",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A form asks for an Indian pincode. Which entry is valid?",
+   "options": [
+    "5000321",
+    "A50032",
+    "50003",
+    "500032"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "back-office-003",
+   "topic": "Data entry and accuracy",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A customer's name is spelled differently in two documents. What do you do?",
+   "options": [
+    "Use whichever spelling is shorter",
+    "Leave the name field blank for now",
+    "Enter both spellings in the same field",
+    "Check with the source or team before entering it"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "back-office-004",
+   "topic": "Data entry and accuracy",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "In back office work, what is a maker-checker process?",
+   "options": [
+    "One person enters data and a second person verifies it",
+    "The same record is entered twice by one person",
+    "The file is saved in two different folders",
+    "Data is typed using both hands for speed"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "back-office-005",
+   "topic": "Data entry and accuracy",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "You find you entered 200 records with the wrong date format. What do you do?",
+   "options": [
+    "Delete all 200 records and start again",
+    "Fix only the ones you happen to see later",
+    "Tell your lead, fix them and check which reports were affected",
+    "Leave it, since nobody has noticed yet"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "back-office-006",
+   "topic": "Data entry and accuracy",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which date format is least likely to confuse people reading Indian records?",
+   "options": [
+    "16/11",
+    "16-Nov-2026",
+    "11/16/26",
+    "2026"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "back-office-007",
+   "topic": "Data entry and accuracy",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "You make 1,000 entries a day at 99% accuracy. About how many errors is that?",
+   "options": [
+    "About 100 a day",
+    "About 10 a day",
+    "About 1 a day",
+    "About 50 a day"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "back-office-008",
+   "topic": "Data entry and accuracy",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "The same bank account number appears for two different vendors. What do you do?",
+   "options": [
+    "Delete one of the vendors yourself",
+    "Hold payments and flag it, as it may be fraud or an error",
+    "Change one number so they look different",
+    "Pay both vendors as usual"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "back-office-009",
+   "topic": "Data entry and accuracy",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Your target is 300 forms a day and your quality is falling. What is the best step?",
+   "options": [
+    "Skip the checks so the target is met",
+    "Raise it with your lead, with error data and ideas to fix it",
+    "Leave the errors out of your daily report",
+    "Slow down quietly without telling anyone"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "back-office-010",
+   "topic": "Excel and records",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "In Excel, which function adds up a range of numbers?",
+   "options": [
+    "SUM",
+    "MAX",
+    "COUNT",
+    "LEN"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "back-office-011",
+   "topic": "Excel and records",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Why do you use Filter in an Excel sheet?",
+   "options": [
+    "To change the font of the sheet",
+    "To make the sheet print faster",
+    "To see only the rows you need",
+    "To delete data permanently"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "back-office-012",
+   "topic": "Excel and records",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does Remove Duplicates do in Excel?",
+   "options": [
+    "Adds a new empty column",
+    "Sorts all the data by date",
+    "Copies every row a second time",
+    "Deletes repeated rows and keeps one copy"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "back-office-013",
+   "topic": "Excel and records",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which Excel function picks a value from another table using a key like an ID?",
+   "options": [
+    "ROUND",
+    "TODAY",
+    "CONCAT",
+    "VLOOKUP or XLOOKUP"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "back-office-014",
+   "topic": "Excel and records",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Your report total does not match the system total. What do you check first?",
+   "options": [
+    "The font size used in the report",
+    "Nothing; retype the whole sheet",
+    "Missing rows, repeated rows or numbers saved as text",
+    "Round the total off so it matches"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "back-office-015",
+   "topic": "Excel and records",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which Excel function counts the cells that meet a condition?",
+   "options": [
+    "SUM",
+    "AVERAGE",
+    "TRIM",
+    "COUNTIF"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "back-office-016",
+   "topic": "Excel and records",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "VLOOKUP shows #N/A for IDs you can clearly see in the other sheet. What is a common cause?",
+   "options": [
+    "Extra spaces, or IDs saved as text in one sheet",
+    "The two sheets use different fonts",
+    "The sheet has too many rows",
+    "The file name has a space in it"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "back-office-017",
+   "topic": "Excel and records",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why keep a master file safe and do your work on a copy?",
+   "options": [
+    "Because Excel needs two files to run",
+    "So more people can see the master file",
+    "So the file opens faster on your system",
+    "So the original stays clean if a mistake happens"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "back-office-018",
+   "topic": "Excel and records",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Two people edited the same shared sheet and some data was lost. What prevents this next time?",
+   "options": [
+    "Everyone keeps a separate copy on their desktop",
+    "Clear owners for each section, plus version history checks",
+    "Only edit the sheet late at night",
+    "Stop using any shared sheets at all"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "back-office-019",
+   "topic": "Documents and invoices",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is a GSTIN?",
+   "options": [
+    "A 15-character GST number of a business",
+    "An employee code",
+    "A bank account number",
+    "A courier tracking number"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "back-office-020",
+   "topic": "Documents and invoices",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which detail must appear on every tax invoice?",
+   "options": [
+    "An invoice number and date",
+    "The delivery person's name",
+    "The buyer's monthly salary",
+    "A photo of the seller's shop"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "back-office-021",
+   "topic": "Documents and invoices",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is a purchase order (PO)?",
+   "options": [
+    "A record of staff salaries",
+    "A receipt from the courier company",
+    "A bill showing tax already paid",
+    "A buyer's written order to a supplier"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "back-office-022",
+   "topic": "Documents and invoices",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "For a sale within the same state, which GST is charged?",
+   "options": [
+    "Customs duty",
+    "No GST at all",
+    "IGST only",
+    "CGST and SGST"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "back-office-023",
+   "topic": "Documents and invoices",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Before paying a vendor, what is three-way matching?",
+   "options": [
+    "Matching the PO, goods receipt and invoice",
+    "Checking three different bank accounts",
+    "Getting sign-off from three managers",
+    "Paying the bill in three parts"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "back-office-024",
+   "topic": "Documents and invoices",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A vendor invoice shows 100 units, but the goods receipt shows 90. What do you do?",
+   "options": [
+    "Reject the invoice and forget about it",
+    "Pay for 95 as a middle figure",
+    "Hold it and raise the difference with the vendor and stores",
+    "Pay for 100, since the invoice says so"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "back-office-025",
+   "topic": "Documents and invoices",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A seller in Telangana bills a buyer in Karnataka. Which tax should the invoice show?",
+   "options": [
+    "No tax, as it is outside the state",
+    "CGST and SGST",
+    "IGST",
+    "Only SGST"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "back-office-026",
+   "topic": "Documents and invoices",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "The GSTIN on an invoice does not match the vendor's name in your records. What do you do?",
+   "options": [
+    "Pay the bill without the GST part",
+    "Process it, since the amount is right",
+    "Change the GSTIN yourself to match",
+    "Stop and ask the vendor for a corrected invoice"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "back-office-027",
+   "topic": "Documents and invoices",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why must invoice numbers follow a continuous series?",
+   "options": [
+    "Gaps or repeats raise tax and audit questions",
+    "It makes printing invoices easier",
+    "Banks need them for business loans",
+    "Customers like neat round numbers"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "back-office-028",
+   "topic": "Process and deadlines",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is an SOP?",
+   "options": [
+    "A daily attendance sheet",
+    "A type of tax invoice",
+    "A customer complaint form",
+    "A written step-by-step guide for a task"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "back-office-029",
+   "topic": "Process and deadlines",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "You have five tasks, and one is due in an hour. What do you do?",
+   "options": [
+    "Work on all five at once",
+    "Start with the one due soonest",
+    "Start with the easiest one",
+    "Wait for your lead to choose"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "back-office-030",
+   "topic": "Process and deadlines",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "You cannot finish a report by the deadline. What do you do?",
+   "options": [
+    "Tell your lead early and give a new time",
+    "Submit it half done without saying anything",
+    "Miss the deadline and explain later",
+    "Send last month's report instead"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "back-office-031",
+   "topic": "Process and deadlines",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is TAT in back office work?",
+   "options": [
+    "The tracker for team attendance",
+    "The time allowed to finish a task",
+    "The target achieved today",
+    "The total amount of tax on a bill"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "back-office-032",
+   "topic": "Process and deadlines",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why log every task in a tracker?",
+   "options": [
+    "Because logging a task closes it",
+    "To make the team look busy",
+    "To show status, pending work and delays clearly",
+    "To avoid talking to the team"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "back-office-033",
+   "topic": "Process and deadlines",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "One SOP step seems to cause repeated errors. What should you do?",
+   "options": [
+    "Ignore the errors, since the SOP says so",
+    "Follow it, note the errors and suggest a change to your lead",
+    "Make your own rules for the task",
+    "Skip the step quietly from now on"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "back-office-034",
+   "topic": "Process and deadlines",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Month-end work always piles up in the last two days. What helps most?",
+   "options": [
+    "Skip quality checks at month-end",
+    "Work overnight on the last day",
+    "Push the deadlines to next month",
+    "Spread tasks across the month with mid-month checks"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "back-office-035",
+   "topic": "Process and deadlines",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A client asks you directly to skip a check so their file moves faster. What do you do?",
+   "options": [
+    "Politely refuse and inform your lead",
+    "Ask a colleague to skip it for you",
+    "Skip it, since the client asked",
+    "Skip it just this one time"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "back-office-036",
+   "topic": "Process and deadlines",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Which sign best shows a back office process is working well?",
+   "options": [
+    "Many staff working late every day",
+    "A large number of emails sent daily",
+    "Low errors and tasks done within TAT",
+    "A very long SOP document"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "back-office-037",
+   "topic": "Data security",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which is a strong password?",
+   "options": [
+    "A long mix of letters, numbers and symbols",
+    "123456",
+    "Your first name",
+    "Your date of birth"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "back-office-038",
+   "topic": "Data security",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "An email asks you to click a link to 'verify your salary'. What do you do?",
+   "options": [
+    "Forward it to your friends",
+    "Don't click; report it to IT",
+    "Click it and check quickly",
+    "Reply with your details"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "back-office-039",
+   "topic": "Data security",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Can you share your login with a colleague who forgot theirs?",
+   "options": [
+    "Yes, if the lead is on leave",
+    "No, each person must use their own",
+    "Yes, if it is for office work",
+    "Yes, but only for one day"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "back-office-040",
+   "topic": "Data security",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Where should you save client files?",
+   "options": [
+    "In your personal email",
+    "On your own pen drive",
+    "Only in approved company folders",
+    "On a public file-sharing link"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "back-office-041",
+   "topic": "Data security",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "You sent a client file to the wrong email address. What do you do?",
+   "options": [
+    "Delete it from your sent folder",
+    "Send another mail saying 'please ignore'",
+    "Tell your lead and IT at once",
+    "Wait and see if anyone notices"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "back-office-042",
+   "topic": "Data security",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why must printed papers with customer data be shredded?",
+   "options": [
+    "Shredded paper can be sold for money",
+    "Thrown papers can leak personal details",
+    "It saves storage space in the office",
+    "Printers need the paper recycled"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "back-office-043",
+   "topic": "Data security",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A caller says he is from a bank and urgently needs a client's account details. What do you do?",
+   "options": [
+    "Share nothing; verify through official channels",
+    "Ask him to email first, then share",
+    "Share them, since it is a bank",
+    "Share only part of the details"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "back-office-044",
+   "topic": "Data security",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why give each staff member access only to the data they need?",
+   "options": [
+    "Staff do not like seeing more data",
+    "It saves money on software licences",
+    "It limits damage if an account is misused",
+    "It makes the computers run faster"
+   ],
+   "answer": 2
+  }
+ ],
+ "task": {
+  "type": "written",
+  "title": "Find the mistakes in a vendor invoice and write to the vendor",
+  "minutes": 20,
+  "brief": "You check vendor bills before payment. Compare the invoice below with the purchase order and the goods receipt. List every mistake you find and the correct figures. Then write a short, polite email to the vendor asking for a corrected invoice. Take about 20 minutes. A good answer finds all the mistakes, shows the right amounts, and explains clearly what the vendor must change. It also says the payment is on hold until the corrected invoice comes.",
+  "material": "PURCHASE ORDER PO-7731 (Kaveri Logistics Pvt Ltd, Hyderabad, Telangana, GSTIN 36AAACK1234L1Z2)\nItem: Office chair, 50 units @ Rs 2,400 = Rs 1,20,000 + GST 18%\n\nGOODS RECEIPT GRN-2290: Office chair, 50 units received in good condition.\n\nVENDOR INVOICE\nBright Seat Furniture, Hyderabad, Telangana, GSTIN 36AAFCB5678M1Z9\nInvoice No: BSF/26/0412   Invoice date: (blank)\nBill to: Kaveri Logistics Pvt Ltd, Hyderabad, Telangana\nPO ref: PO-7731\nOffice chair  55 units x Rs 2,400 = Rs 1,32,000\nIGST @ 18% = Rs 23,760\nTotal = Rs 1,55,670",
+  "key_points": [
+   "Invoice date is missing",
+   "Quantity billed is 55, but PO and goods receipt show 50",
+   "Both parties are in Telangana, so CGST 9% + SGST 9% should be charged, not IGST",
+   "Total is added wrongly: 1,32,000 + 23,760 is 1,55,760, not 1,55,670",
+   "Correct invoice: taxable Rs 1,20,000, CGST Rs 10,800, SGST Rs 10,800, total Rs 1,41,600",
+   "Email asks for a corrected invoice and says payment is on hold until then",
+   "Polite, clear email that quotes the PO and invoice numbers"
+  ],
+  "rubric": [
+   {
+    "key": "correctness",
+    "label": "Mistakes found",
+    "guide": "0 = one or none found; 3 = two or three found; 5 = all four found with correct figures"
+   },
+   {
+    "key": "accuracy",
+    "label": "Correct amounts",
+    "guide": "0 = wrong totals; 3 = small slip in tax or total; 5 = taxable value, CGST, SGST and total all right"
+   },
+   {
+    "key": "clarity",
+    "label": "Clear email",
+    "guide": "0 = vague or confusing; 3 = clear but missing references; 5 = short, quotes PO and invoice, lists each change"
+   },
+   {
+    "key": "tone",
+    "label": "Tone",
+    "guide": "0 = rude or blaming; 3 = polite but stiff; 5 = polite, firm and professional"
+   }
+  ]
+ }
+}

@@ -1,0 +1,447 @@
+{
+ "slug": "web-basics",
+ "version": 1,
+ "topics": [
+  "HTML",
+  "CSS and layout",
+  "JavaScript",
+  "React",
+  "Web practice"
+ ],
+ "questions": [
+  {
+   "id": "web-basics-001",
+   "topic": "React",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "In React, what is a component?",
+   "options": [
+    "A CSS file for one page",
+    "A reusable function that returns UI",
+    "A table in the app's database",
+    "A plugin installed in the browser"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "web-basics-002",
+   "topic": "React",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "How does a parent component pass data to a child component in React?",
+   "options": [
+    "Through a global CSS class name",
+    "By editing the child's file at run time",
+    "Only through the page URL",
+    "Through props, e.g. <Price amount={499} />"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "web-basics-003",
+   "topic": "React",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is JSX?",
+   "options": [
+    "HTML-like syntax written inside JavaScript",
+    "A JSON file format used by React",
+    "A new web browser from Meta",
+    "A tool that minifies CSS files"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "web-basics-004",
+   "topic": "Web practice",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which HTTP method is usually used to submit a sign-up form that creates a new account?",
+   "options": [
+    "GET",
+    "HEAD",
+    "POST",
+    "OPTIONS"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "web-basics-005",
+   "topic": "React",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "const [count, setCount] = useState(0); Which line correctly increases count by 1?",
+   "options": [
+    "count = count + 1",
+    "count++",
+    "setCount(count + 1)",
+    "useState(count + 1)"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "web-basics-006",
+   "topic": "React",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why does React warn when items rendered from a list have no key prop?",
+   "options": [
+    "Keys let React match items between renders and update the right ones",
+    "Keys make the items load faster from the server",
+    "Keys are needed so CSS can style each item",
+    "Lists show nothing on screen without keys"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "web-basics-007",
+   "topic": "React",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "When does loadOrders run in useEffect(() => { loadOrders(); }, [])?",
+   "options": [
+    "On every single render",
+    "Never, because the array is empty",
+    "Only when the page is closed",
+    "Once, after the component first renders"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "web-basics-008",
+   "topic": "React",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A component's useEffect starts setInterval to refresh a live price every 5 seconds. What else must the effect do?",
+   "options": [
+    "Call setInterval again inside the render",
+    "Return a cleanup function that calls clearInterval",
+    "Declare the timer with var, not const",
+    "Wrap the setInterval call in try/catch"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "web-basics-009",
+   "topic": "React",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A click handler calls setCount(count + 1) twice, but count goes up by only 1. Which change makes it go up by 2?",
+   "options": [
+    "Call setCount(c => c + 1) twice",
+    "Call setCount(count + 1) three times",
+    "Change count directly, then re-render",
+    "Add 1 inside a useEffect as well"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "web-basics-010",
+   "topic": "React",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A child component must change a value that its parent owns. What is the usual React pattern?",
+   "options": [
+    "Child changes props.value directly",
+    "Child keeps a copy in a global variable",
+    "Parent passes a callback prop; the child calls it with the new value",
+    "Child reloads the page to refresh it"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "web-basics-011",
+   "topic": "React",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Code does items.push(newItem); setItems(items); but the list on screen does not update. Why?",
+   "options": [
+    "push() does not exist on JavaScript arrays",
+    "The same array is passed, so React sees no change; pass a new array",
+    "setItems must always be called twice",
+    "React state can hold only numbers and text"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "web-basics-012",
+   "topic": "React",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is a controlled input in React?",
+   "options": [
+    "An input that has the disabled attribute",
+    "An input styled only with CSS classes",
+    "An input checked only by the server",
+    "An input whose value comes from state and changes through onChange"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "web-basics-013",
+   "topic": "React",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "What are useMemo and useCallback mainly used for?",
+   "options": [
+    "Fetching data from an API on page load",
+    "Reusing a value or function across renders to skip work",
+    "Saving data into localStorage",
+    "Replacing useState in large apps"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "web-basics-014",
+   "topic": "React",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A list of 5,000 products re-renders slowly on every key press in the search box. What is the best first step?",
+   "options": [
+    "Add console.log calls inside every row",
+    "Rewrite all components as class components",
+    "Move the CSS rules into the JS files",
+    "Profile it, then memoise list rows and debounce the search"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "web-basics-015",
+   "topic": "React",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which hook reads a value shared through Context, such as the logged-in user?",
+   "options": [
+    "useContext",
+    "useState",
+    "useRef",
+    "useId"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "web-basics-016",
+   "topic": "Web practice",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What does localStorage do in the browser?",
+   "options": [
+    "Stores uploaded files on the web server",
+    "Caches only the CSS files of a site",
+    "Keeps small key–value data in the browser across reloads",
+    "Saves form data straight into a database"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "web-basics-017",
+   "topic": "Web practice",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Your React app calls api.example.in and the browser blocks it with a CORS error. Where is this usually fixed?",
+   "options": [
+    "In React, by renaming the fetch function",
+    "By clearing the browser's cache",
+    "On the API server, by sending headers that allow your site's origin",
+    "By moving the script tag into the head"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "web-basics-018",
+   "topic": "Web practice",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Many users open your site on budget phones over slow 4G. Which change helps first load the most?",
+   "options": [
+    "Compress and lazy-load images, and split the large JS bundle",
+    "Add two more web fonts for headings",
+    "Switch the photos to large PNG files",
+    "Load every script in the head without defer"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "web-basics-019",
+   "topic": "Web practice",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which is the accessible way to build a clickable 'Pay now' control?",
+   "options": [
+    "A <div> with only an onclick",
+    "A <span> styled to look like a button",
+    "An <img> with an onclick",
+    "A <button> element"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "web-basics-020",
+   "topic": "JavaScript",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "What does [3, 10, 1].sort() return in JavaScript?",
+   "options": [
+    "[1, 3, 10]",
+    "[1, 10, 3]",
+    "[10, 3, 1]",
+    "An error"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "web-basics-021",
+   "topic": "CSS and layout",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A button has class btn and id pay. The CSS has .btn { color: red } then #pay { color: green }. What colour is its text?",
+   "options": [
+    "Green, because an id selector is more specific",
+    "Red, because that rule comes first",
+    "Red, because classes beat ids",
+    "Black, because the rules cancel out"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "web-basics-022",
+   "topic": "JavaScript",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What does array.map(fn) return?",
+   "options": [
+    "The same array, changed in place",
+    "Only the first item that matches fn",
+    "A new array with fn applied to each item",
+    "Always undefined"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "web-basics-023",
+   "topic": "JavaScript",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What does await do inside an async function?",
+   "options": [
+    "Freezes the whole browser tab until done",
+    "Pauses only that function until the Promise settles",
+    "Turns a Promise into a plain string",
+    "Sends the code to run on the server"
+   ],
+   "answer": 1
+  }
+ ],
+ "existing": {
+  "HTML is used to…": {
+   "topic": "HTML"
+  },
+  "Which tag makes a link?": {
+   "topic": "HTML"
+  },
+  "Which tag shows an image?": {
+   "topic": "HTML"
+  },
+  "CSS is used to…": {
+   "topic": "CSS and layout"
+  },
+  "Which CSS property changes the text colour?": {
+   "topic": "CSS and layout"
+  },
+  "Which is the largest heading?": {
+   "topic": "HTML"
+  },
+  "JavaScript in a web page is mainly used to…": {
+   "topic": "JavaScript"
+  },
+  "Which tag makes a numbered list?": {
+   "topic": "HTML"
+  },
+  "In CSS, what does .card select?": {
+   "topic": "CSS and layout"
+  },
+  "In CSS, what does #menu select?": {
+   "topic": "CSS and layout"
+  },
+  "Which puts child items side by side and shares the space?": {
+   "topic": "CSS and layout"
+  },
+  "In the CSS box model, padding is…": {
+   "topic": "CSS and layout"
+  },
+  "Which JavaScript keyword declares a name that can't be reassigned?": {
+   "topic": "JavaScript"
+  },
+  "What does document.getElementById(\"total\") return?": {
+   "topic": "JavaScript"
+  },
+  "Which input shows a date picker?": {
+   "topic": "HTML"
+  },
+  "Why give every image alt text?": {
+   "topic": "Web practice"
+  },
+  "What does @media (max-width: 600px) { … } do?": {
+   "topic": "CSS and layout"
+  },
+  "In JavaScript, what is \"5\" + 2?": {
+   "topic": "JavaScript"
+  },
+  "What does === check in JavaScript?": {
+   "topic": "JavaScript"
+  },
+  "What does fetch(url) return?": {
+   "topic": "JavaScript"
+  },
+  "Which adds a click handler to a button?": {
+   "topic": "JavaScript"
+  },
+  "Which HTTP status code means Not Found?": {
+   "topic": "Web practice"
+  },
+  "Which tag best holds the main navigation links?": {
+   "topic": "HTML"
+  },
+  "Responsive design means…": {
+   "topic": "CSS and layout"
+  }
+ },
+ "task": {
+  "type": "tech",
+  "title": "Fix a buggy React cart summary component",
+  "brief": "Below is a small React component for a shopping cart summary. Users report several problems (listed under the code). In 20 to 25 minutes: (1) list every bug or bad practice you find and explain why it is a problem, (2) write the corrected component, and (3) say briefly how the coupon should behave (for example, applied only once, total never below zero). No code is run; clear reasoning matters as much as the code.",
+  "minutes": 25,
+  "material": "// React 18. Parent passes items like [{ id: 7, name: \"Basmati rice 5 kg\", price: 649, qty: 2 }]\n\nimport { useState, useEffect } from \"react\";\n\nfunction CartSummary({ items }) {\n  const [coupon, setCoupon] = useState(\"\");\n  const [total, setTotal] = useState(0);\n\n  useEffect(() => {\n    let sum = 0;\n    items.forEach(i => sum += i.price * i.qty);\n    setTotal(sum);\n  });\n\n  function applyCoupon() {\n    if (coupon = \"SAVE50\") {\n      total = total - 50;\n    }\n  }\n\n  return (\n    <div>\n      {items.map(i => <p>{i.name}: ₹{i.price * i.qty}</p>)}\n      <input value={coupon} placeholder=\"Coupon code\" />\n      <div onClick={applyCoupon}>Apply</div>\n      <h3>Total: ₹{total}</h3>\n    </div>\n  );\n}\n\nexport default CartSummary;\n\n// Reported problems: users can't type in the coupon box, \"Apply\" does nothing\n// useful, the console shows a warning, and screen-reader users can't reach Apply.\n",
+  "key_points": [
+   "The input has value but no onChange, so it is read-only; add onChange={e => setCoupon(e.target.value)}",
+   "if (coupon = \"SAVE50\") assigns instead of comparing; use ===",
+   "total is mutated directly; state must change via a setter (or derive the total)",
+   "useEffect has no dependency array so it runs after every render; use [items] or compute the total during render / useMemo",
+   "List items need a key prop, e.g. key={i.id}",
+   "Use a <button> instead of a clickable <div> for keyboard and screen-reader access",
+   "Coupon logic: apply once (track applied state), keep total from going negative, show a message for an invalid code"
+  ],
+  "rubric": [
+   {
+    "key": "correctness",
+    "label": "Bugs found and fixed",
+    "guide": "0 = finds none or fix still broken, 3 = finds input, comparison and state bugs, 5 = finds all main bugs and the fixed component works"
+   },
+   {
+    "key": "react_practice",
+    "label": "React practice",
+    "guide": "0 = mutates state or misuses hooks, 3 = mostly right, 5 = correct state updates, sensible effect or derived value, keys, accessible button"
+   },
+   {
+    "key": "edge_cases",
+    "label": "Edge cases",
+    "guide": "0 = none, 3 = mentions one or two, 5 = handles coupon applied twice, empty cart, negative total and wrong codes"
+   },
+   {
+    "key": "explanation",
+    "label": "Explanation",
+    "guide": "0 = no reasons, 3 = brief or partly wrong, 5 = each problem explained clearly and simply"
+   }
+  ]
+ }
+}

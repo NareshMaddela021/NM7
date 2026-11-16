@@ -1,0 +1,1631 @@
+{
+ "slug": "driver",
+ "version": 1,
+ "topics": [
+  "Traffic rules and signs",
+  "Safe driving",
+  "Vehicle care",
+  "Documents and law",
+  "Passengers and conduct"
+ ],
+ "questions": [
+  {
+   "id": "driver-001",
+   "topic": "Traffic rules and signs",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "In India, on which side of the road should you drive?",
+   "options": [
+    "The right side",
+    "The left side",
+    "The middle of the road",
+    "Any side if the road is empty"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "భారతదేశంలో రోడ్డుకు ఏ వైపు నడపాలి?",
+    "options": [
+     "కుడి వైపు",
+     "ఎడమ వైపు",
+     "రోడ్డు మధ్యలో",
+     "రోడ్డు ఖాళీగా ఉంటే ఏ వైపైనా"
+    ]
+   },
+   "hi": {
+    "q": "भारत में सड़क के किस तरफ़ गाड़ी चलानी चाहिए?",
+    "options": [
+     "दाईं तरफ़",
+     "बाईं तरफ़",
+     "सड़क के बीच में",
+     "सड़क खाली हो तो किसी भी तरफ़"
+    ]
+   }
+  },
+  {
+   "id": "driver-002",
+   "topic": "Traffic rules and signs",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A red traffic light is on. What must you do?",
+   "options": [
+    "Slow down and go if it is clear",
+    "Honk and move ahead",
+    "Stop after the zebra crossing",
+    "Stop before the stop line"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "ఎరుపు సిగ్నల్ లైట్ వెలుగుతోంది. మీరు ఏం చేయాలి?",
+    "options": [
+     "నెమ్మదిగా వెళ్లి, ఖాళీగా ఉంటే దాటాలి",
+     "హారన్ కొట్టి ముందుకు వెళ్లాలి",
+     "జీబ్రా క్రాసింగ్ దాటాక ఆగాలి",
+     "స్టాప్ లైన్ ముందే ఆగాలి"
+    ]
+   },
+   "hi": {
+    "q": "लाल बत्ती जल रही है। आपको क्या करना चाहिए?",
+    "options": [
+     "धीमे होकर, खाली हो तो निकल जाना",
+     "हॉर्न बजाकर आगे बढ़ना",
+     "ज़ेबरा क्रॉसिंग पार करके रुकना",
+     "स्टॉप लाइन से पहले रुकना"
+    ]
+   }
+  },
+  {
+   "id": "driver-003",
+   "topic": "Traffic rules and signs",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "From which side should you normally overtake another vehicle?",
+   "options": [
+    "From the right side",
+    "From the left side",
+    "From whichever side has space",
+    "From the footpath side"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "సాధారణంగా ముందున్న వాహనాన్ని ఏ వైపు నుంచి ఓవర్‌టేక్ చేయాలి?",
+    "options": [
+     "కుడి వైపు నుంచి",
+     "ఎడమ వైపు నుంచి",
+     "ఎటు ఖాళీ ఉంటే అటు నుంచి",
+     "ఫుట్‌పాత్ వైపు నుంచి"
+    ]
+   },
+   "hi": {
+    "q": "आम तौर पर दूसरी गाड़ी को किस तरफ़ से ओवरटेक करना चाहिए?",
+    "options": [
+     "दाईं तरफ़ से",
+     "बाईं तरफ़ से",
+     "जिधर जगह हो उधर से",
+     "फुटपाथ की तरफ़ से"
+    ]
+   }
+  },
+  {
+   "id": "driver-004",
+   "topic": "Traffic rules and signs",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does a blinking yellow light at a junction mean?",
+   "options": [
+    "Stop fully and wait",
+    "Slow down and go with care",
+    "Speed up to cross quickly",
+    "The signal is broken, ignore it"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "జంక్షన్ దగ్గర పసుపు లైట్ మెరుస్తూ ఉంటే అర్థం ఏమిటి?",
+    "options": [
+     "పూర్తిగా ఆగి వేచి ఉండాలి",
+     "వేగం తగ్గించి జాగ్రత్తగా వెళ్లాలి",
+     "వేగం పెంచి త్వరగా దాటేయాలి",
+     "సిగ్నల్ పాడైంది, పట్టించుకోనక్కర్లేదు"
+    ]
+   },
+   "hi": {
+    "q": "चौराहे पर पीली बत्ती टिमटिमा रही हो तो इसका क्या मतलब है?",
+    "options": [
+     "पूरी तरह रुककर इंतज़ार करना",
+     "धीमे होकर सावधानी से जाना",
+     "रफ़्तार बढ़ाकर जल्दी निकलना",
+     "सिग्नल खराब है, ध्यान न देना"
+    ]
+   }
+  },
+  {
+   "id": "driver-005",
+   "topic": "Traffic rules and signs",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A round sign with a red border shows a horn with a line across it. What does it mean?",
+   "options": [
+    "Horn must be used here",
+    "Horn only for heavy vehicles",
+    "Car repair shop ahead",
+    "Horn not allowed"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "ఎరుపు అంచు ఉన్న గుండ్రటి బోర్డు మీద హారన్ గుర్తుపై అడ్డగీత ఉంది. దీని అర్థం ఏమిటి?",
+    "options": [
+     "ఇక్కడ హారన్ తప్పనిసరి",
+     "హారన్ పెద్ద వాహనాలకు మాత్రమే",
+     "ముందు కార్ రిపేర్ షాప్ ఉంది",
+     "హారన్ కొట్టకూడదు"
+    ]
+   },
+   "hi": {
+    "q": "लाल किनारे वाले गोल बोर्ड पर हॉर्न के निशान पर लाइन कटी है। इसका क्या मतलब है?",
+    "options": [
+     "यहाँ हॉर्न बजाना ज़रूरी है",
+     "हॉर्न सिर्फ़ भारी गाड़ियों के लिए",
+     "आगे कार रिपेयर की दुकान है",
+     "हॉर्न बजाना मना है"
+    ]
+   }
+  },
+  {
+   "id": "driver-006",
+   "topic": "Traffic rules and signs",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "At a roundabout, who gets to go first?",
+   "options": [
+    "Vehicles already moving on the roundabout",
+    "Vehicles entering it",
+    "The bigger vehicle",
+    "Whoever honks first"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "రౌండ్‌అబౌట్ దగ్గర ముందు వెళ్లే హక్కు ఎవరికి ఉంటుంది?",
+    "options": [
+     "ఇప్పటికే రౌండ్‌అబౌట్‌పై తిరుగుతున్న వాహనాలకు",
+     "లోపలికి వస్తున్న వాహనాలకు",
+     "పెద్ద వాహనానికి",
+     "ముందు హారన్ కొట్టిన వారికి"
+    ]
+   },
+   "hi": {
+    "q": "गोल चक्कर (राउंडअबाउट) पर पहले जाने का हक़ किसका है?",
+    "options": [
+     "जो गाड़ियाँ पहले से चक्कर पर चल रही हैं",
+     "जो गाड़ियाँ अंदर आ रही हैं",
+     "बड़ी गाड़ी का",
+     "जो पहले हॉर्न बजाए"
+    ]
+   }
+  },
+  {
+   "id": "driver-007",
+   "topic": "Traffic rules and signs",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "At a junction with no signal and no police, who should you give way to?",
+   "options": [
+    "Vehicles coming from your left",
+    "No one, cross fast",
+    "Vehicles coming from your right",
+    "Only two-wheelers"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "సిగ్నల్, పోలీస్ లేని జంక్షన్‌లో ఎవరికి దారి ఇవ్వాలి?",
+    "options": [
+     "మీ ఎడమ వైపు నుంచి వచ్చే వాహనాలకు",
+     "ఎవరికీ వద్దు, వేగంగా దాటాలి",
+     "మీ కుడి వైపు నుంచి వచ్చే వాహనాలకు",
+     "టూ-వీలర్లకు మాత్రమే"
+    ]
+   },
+   "hi": {
+    "q": "जिस चौराहे पर न सिग्नल हो न पुलिस, वहाँ किसे रास्ता देना चाहिए?",
+    "options": [
+     "आपकी बाईं तरफ़ से आने वाली गाड़ियों को",
+     "किसी को नहीं, तेज़ी से निकलें",
+     "आपकी दाईं तरफ़ से आने वाली गाड़ियों को",
+     "सिर्फ़ टू-व्हीलर को"
+    ]
+   }
+  },
+  {
+   "id": "driver-008",
+   "topic": "Traffic rules and signs",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "On a narrow hill road, your car is going down and a truck is coming up. There is room for only one. What do you do?",
+   "options": [
+    "Keep going, the truck must reverse",
+    "Honk and squeeze past it",
+    "Stop at a wider spot and let the truck come up",
+    "Flash your lights and push ahead"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "ఇరుకైన ఘాట్ రోడ్డులో మీ కారు కిందికి దిగుతోంది, ఒక లారీ పైకి వస్తోంది. ఒక్క వాహనానికే చోటు ఉంది. మీరు ఏం చేస్తారు?",
+    "options": [
+     "ముందుకే వెళ్తాను, లారీ వెనక్కి వెళ్లాలి",
+     "హారన్ కొట్టి పక్క నుంచి దూరుతాను",
+     "వెడల్పు ఉన్న చోట ఆగి, లారీని పైకి రానిస్తాను",
+     "లైట్లు ఫ్లాష్ చేసి ముందుకు వెళ్తాను"
+    ]
+   },
+   "hi": {
+    "q": "पतली पहाड़ी सड़क पर आपकी कार नीचे उतर रही है और एक ट्रक ऊपर आ रहा है। जगह सिर्फ़ एक के लिए है। आप क्या करेंगे?",
+    "options": [
+     "आगे बढ़ते रहेंगे, ट्रक पीछे हटे",
+     "हॉर्न बजाकर बगल से निकलेंगे",
+     "चौड़ी जगह पर रुककर ट्रक को ऊपर आने देंगे",
+     "लाइट फ़्लैश करके आगे बढ़ेंगे"
+    ]
+   }
+  },
+  {
+   "id": "driver-009",
+   "topic": "Traffic rules and signs",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A traffic police officer signals you to go, but the light is red. What do you follow?",
+   "options": [
+    "The red light",
+    "Whatever feels safer to you",
+    "The police officer's signal",
+    "What the vehicle in front does"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "ట్రాఫిక్ పోలీస్ వెళ్లమని సైగ చేస్తున్నారు, కానీ లైట్ ఎరుపుగా ఉంది. మీరు దేన్ని పాటిస్తారు?",
+    "options": [
+     "ఎరుపు లైట్‌ను",
+     "మీకు ఏది సేఫ్ అనిపిస్తే అది",
+     "పోలీస్ సైగను",
+     "ముందున్న వాహనం చేసేది"
+    ]
+   },
+   "hi": {
+    "q": "ट्रैफ़िक पुलिस आपको जाने का इशारा कर रही है, पर बत्ती लाल है। आप किसकी बात मानेंगे?",
+    "options": [
+     "लाल बत्ती की",
+     "जो आपको सुरक्षित लगे",
+     "पुलिस के इशारे की",
+     "आगे वाली गाड़ी जो करे"
+    ]
+   }
+  },
+  {
+   "id": "driver-010",
+   "topic": "Safe driving",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Who in the car must wear a seat belt?",
+   "options": [
+    "Only the driver",
+    "Only the front passenger",
+    "The driver and all passengers",
+    "Everyone, but only on highways"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "కారులో ఎవరు సీట్ బెల్ట్ పెట్టుకోవాలి?",
+    "options": [
+     "డ్రైవర్ మాత్రమే",
+     "ముందు సీటు ప్రయాణికుడు మాత్రమే",
+     "డ్రైవర్, ప్రయాణికులు అందరూ",
+     "అందరూ, కానీ హైవే మీద మాత్రమే"
+    ]
+   },
+   "hi": {
+    "q": "कार में किसे सीट बेल्ट लगानी चाहिए?",
+    "options": [
+     "सिर्फ़ ड्राइवर को",
+     "सिर्फ़ आगे बैठी सवारी को",
+     "ड्राइवर और सभी सवारियों को",
+     "सबको, पर सिर्फ़ हाईवे पर"
+    ]
+   }
+  },
+  {
+   "id": "driver-011",
+   "topic": "Safe driving",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Can you hold and use a mobile phone while driving?",
+   "options": [
+    "Yes, if you drive slowly",
+    "Yes, for short calls",
+    "Yes, if traffic is light",
+    "No, it is not allowed"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "డ్రైవ్ చేస్తూ మొబైల్ ఫోన్ చేతిలో పట్టుకుని వాడవచ్చా?",
+    "options": [
+     "నెమ్మదిగా నడిపితే వాడవచ్చు",
+     "చిన్న కాల్స్ అయితే పరవాలేదు",
+     "ట్రాఫిక్ తక్కువగా ఉంటే వాడవచ్చు",
+     "వద్దు, అది నిషేధం"
+    ]
+   },
+   "hi": {
+    "q": "गाड़ी चलाते समय क्या मोबाइल फ़ोन हाथ में लेकर इस्तेमाल कर सकते हैं?",
+    "options": [
+     "धीरे चला रहे हों तो हाँ",
+     "छोटी कॉल के लिए हाँ",
+     "ट्रैफ़िक कम हो तो हाँ",
+     "नहीं, यह मना है"
+    ]
+   }
+  },
+  {
+   "id": "driver-012",
+   "topic": "Safe driving",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Rain has just started. What should you do?",
+   "options": [
+    "Drive faster to reach home",
+    "Put on hazard lights and keep the same speed",
+    "Slow down and keep more distance",
+    "Brake hard often to test the brakes"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "వర్షం మొదలైంది. మీరు ఏం చేయాలి?",
+    "options": [
+     "త్వరగా ఇంటికి చేరడానికి వేగం పెంచాలి",
+     "హజార్డ్ లైట్లు వేసి అదే వేగంలో వెళ్లాలి",
+     "వేగం తగ్గించి, ముందు వాహనానికి ఎక్కువ దూరం ఉంచాలి",
+     "బ్రేకులు పరీక్షించడానికి తరచూ గట్టిగా బ్రేక్ వేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "बारिश अभी शुरू हुई है। आपको क्या करना चाहिए?",
+    "options": [
+     "जल्दी घर पहुँचने के लिए तेज़ चलाना",
+     "हैज़र्ड लाइट जलाकर उसी रफ़्तार से चलना",
+     "रफ़्तार कम करके आगे वाली गाड़ी से ज़्यादा दूरी रखना",
+     "ब्रेक जाँचने के लिए बार-बार ज़ोर से ब्रेक लगाना"
+    ]
+   }
+  },
+  {
+   "id": "driver-013",
+   "topic": "Safe driving",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "In normal conditions, what is a safe gap behind the vehicle in front?",
+   "options": [
+    "At least a 2–3 second gap",
+    "Half a car length",
+    "One metre",
+    "As close as possible so no one cuts in"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "సాధారణ పరిస్థితుల్లో ముందు వాహనానికి ఎంత దూరం సేఫ్?",
+    "options": [
+     "కనీసం 2–3 సెకన్ల దూరం",
+     "అర కారు పొడవు",
+     "ఒక మీటర్",
+     "మధ్యలో ఎవరూ దూరకుండా వీలైనంత దగ్గరగా"
+    ]
+   },
+   "hi": {
+    "q": "आम हालात में आगे वाली गाड़ी से कितनी दूरी सुरक्षित है?",
+    "options": [
+     "कम से कम 2–3 सेकंड की दूरी",
+     "आधी कार जितनी",
+     "एक मीटर",
+     "जितना हो सके पास, ताकि कोई बीच में न घुसे"
+    ]
+   }
+  },
+  {
+   "id": "driver-014",
+   "topic": "Safe driving",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "When should you use high beam at night?",
+   "options": [
+    "All the time in the city",
+    "When a vehicle comes from the front",
+    "On empty roads, dipping for oncoming traffic",
+    "Only in fog"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "రాత్రి హై బీమ్ ఎప్పుడు వాడాలి?",
+    "options": [
+     "సిటీలో ఎప్పుడూ",
+     "ఎదురుగా వాహనం వస్తున్నప్పుడు",
+     "ఖాళీ రోడ్లపై; ఎదురుగా వాహనం వస్తే డిప్ చేయాలి",
+     "పొగమంచులో మాత్రమే"
+    ]
+   },
+   "hi": {
+    "q": "रात में हाई बीम कब इस्तेमाल करनी चाहिए?",
+    "options": [
+     "शहर में हर समय",
+     "जब सामने से गाड़ी आ रही हो",
+     "खाली सड़क पर; सामने से गाड़ी आए तो डिप करें",
+     "सिर्फ़ कोहरे में"
+    ]
+   }
+  },
+  {
+   "id": "driver-015",
+   "topic": "Safe driving",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "In thick fog, which lights help most?",
+   "options": [
+    "High beam",
+    "Only hazard lights while driving fast",
+    "No lights, to avoid glare",
+    "Low beam and fog lamps"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "దట్టమైన పొగమంచులో ఏ లైట్లు ఎక్కువ ఉపయోగపడతాయి?",
+    "options": [
+     "హై బీమ్",
+     "వేగంగా వెళ్తూ హజార్డ్ లైట్లు మాత్రమే",
+     "గ్లేర్ రాకుండా లైట్లు లేకుండా",
+     "లో బీమ్, ఫాగ్ ల్యాంప్స్"
+    ]
+   },
+   "hi": {
+    "q": "घने कोहरे में कौन सी लाइटें सबसे ज़्यादा मदद करती हैं?",
+    "options": [
+     "हाई बीम",
+     "तेज़ चलते हुए सिर्फ़ हैज़र्ड लाइट",
+     "चकाचौंध से बचने के लिए कोई लाइट नहीं",
+     "लो बीम और फ़ॉग लैंप"
+    ]
+   }
+  },
+  {
+   "id": "driver-016",
+   "topic": "Safe driving",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "An ambulance with its siren on is behind you in traffic. What do you do?",
+   "options": [
+    "Speed up to stay ahead of it",
+    "Stop in the middle of the lane",
+    "Move left safely and let it pass",
+    "Follow closely behind it"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "ట్రాఫిక్‌లో మీ వెనుక సైరన్‌తో అంబులెన్స్ ఉంది. మీరు ఏం చేస్తారు?",
+    "options": [
+     "ముందే ఉండడానికి వేగం పెంచుతాను",
+     "లేన్ మధ్యలోనే ఆగిపోతాను",
+     "జాగ్రత్తగా ఎడమ వైపుకు జరిగి దారి ఇస్తాను",
+     "దాని వెనుకే దగ్గరగా వెళ్తాను"
+    ]
+   },
+   "hi": {
+    "q": "ट्रैफ़िक में आपके पीछे सायरन बजाती एम्बुलेंस है। आप क्या करेंगे?",
+    "options": [
+     "आगे बने रहने के लिए रफ़्तार बढ़ाएँगे",
+     "लेन के बीच में ही रुक जाएँगे",
+     "सावधानी से बाईं ओर होकर उसे रास्ता देंगे",
+     "उसके ठीक पीछे-पीछे चलेंगे"
+    ]
+   }
+  },
+  {
+   "id": "driver-017",
+   "topic": "Safe driving",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "On the highway, your brakes feel soft and the car takes longer to stop. What do you do?",
+   "options": [
+    "Keep the speed and press the brake harder",
+    "Drive faster to reach a garage quickly",
+    "Pull the handbrake at full speed",
+    "Slow down, pull over safely and get them checked"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "హైవేలో బ్రేకులు మెత్తగా అనిపిస్తున్నాయి, కారు ఆగడానికి ఎక్కువ సమయం పడుతోంది. మీరు ఏం చేస్తారు?",
+    "options": [
+     "అదే వేగంలో వెళ్తూ బ్రేక్ గట్టిగా తొక్కుతాను",
+     "గ్యారేజ్‌కి త్వరగా చేరడానికి వేగం పెంచుతాను",
+     "ఫుల్ స్పీడ్‌లో హ్యాండ్‌బ్రేక్ లాగుతాను",
+     "వేగం తగ్గించి, సేఫ్‌గా పక్కకు ఆపి, చెక్ చేయిస్తాను"
+    ]
+   },
+   "hi": {
+    "q": "हाईवे पर ब्रेक ढीले लग रहे हैं और कार रुकने में ज़्यादा समय ले रही है। आप क्या करेंगे?",
+    "options": [
+     "उसी रफ़्तार में ब्रेक को ज़ोर से दबाते रहेंगे",
+     "जल्दी गैराज पहुँचने के लिए तेज़ चलाएँगे",
+     "पूरी रफ़्तार में हैंडब्रेक खींच देंगे",
+     "रफ़्तार कम करके सुरक्षित किनारे रोकेंगे और जाँच करवाएँगे"
+    ]
+   }
+  },
+  {
+   "id": "driver-018",
+   "topic": "Safe driving",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A tyre bursts at high speed on the highway. What should you do?",
+   "options": [
+    "Grip the steering, ease off the pedal and slow down gently",
+    "Brake hard at once",
+    "Turn the steering sharply to one side",
+    "Speed up to keep the car balanced"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "హైవేలో వేగంగా వెళ్తుండగా టైర్ పేలింది. మీరు ఏం చేయాలి?",
+    "options": [
+     "స్టీరింగ్ గట్టిగా పట్టుకుని, యాక్సిలరేటర్ వదిలి, నెమ్మదిగా ఆపాలి",
+     "వెంటనే గట్టిగా బ్రేక్ వేయాలి",
+     "స్టీరింగ్‌ను ఒక్కసారిగా పక్కకు తిప్పాలి",
+     "కారు బ్యాలెన్స్ కోసం వేగం పెంచాలి"
+    ]
+   },
+   "hi": {
+    "q": "हाईवे पर तेज़ रफ़्तार में टायर फट गया। आपको क्या करना चाहिए?",
+    "options": [
+     "स्टीयरिंग कसकर पकड़ें, एक्सीलेरेटर छोड़ें और धीरे से रोकें",
+     "तुरंत ज़ोर से ब्रेक लगाएँ",
+     "स्टीयरिंग एकदम से एक तरफ़ घुमाएँ",
+     "कार का संतुलन बनाने के लिए रफ़्तार बढ़ाएँ"
+    ]
+   }
+  },
+  {
+   "id": "driver-019",
+   "topic": "Safe driving",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "You feel very sleepy on a long night drive. What is the safe thing to do?",
+   "options": [
+    "Stop at a safe place and rest",
+    "Open the window and keep going",
+    "Drink tea and drive faster",
+    "Play loud music and carry on"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "రాత్రి లాంగ్ డ్రైవ్‌లో బాగా నిద్ర వస్తోంది. సేఫ్‌గా ఏం చేయాలి?",
+    "options": [
+     "సేఫ్ ప్లేస్‌లో ఆపి విశ్రాంతి తీసుకోవాలి",
+     "కిటికీ తెరిచి నడుపుతూనే ఉండాలి",
+     "టీ తాగి ఇంకా వేగంగా నడపాలి",
+     "మ్యూజిక్ గట్టిగా పెట్టి కొనసాగాలి"
+    ]
+   },
+   "hi": {
+    "q": "रात की लंबी ड्राइव में बहुत नींद आ रही है। सुरक्षित क्या करना चाहिए?",
+    "options": [
+     "सुरक्षित जगह रुककर आराम करें",
+     "खिड़की खोलकर चलाते रहें",
+     "चाय पीकर और तेज़ चलाएँ",
+     "गाना तेज़ करके चलाते रहें"
+    ]
+   }
+  },
+  {
+   "id": "driver-020",
+   "topic": "Vehicle care",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Where can you see if the engine oil is low?",
+   "options": [
+    "On the fuel gauge",
+    "On the speedometer",
+    "On the temperature gauge",
+    "On the dipstick or the oil warning light"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "ఇంజిన్ ఆయిల్ తక్కువగా ఉందో లేదో ఎక్కడ తెలుస్తుంది?",
+    "options": [
+     "ఫ్యూయల్ గేజ్ మీద",
+     "స్పీడోమీటర్ మీద",
+     "టెంపరేచర్ గేజ్ మీద",
+     "డిప్‌స్టిక్ మీద లేదా ఆయిల్ వార్నింగ్ లైట్‌తో"
+    ]
+   },
+   "hi": {
+    "q": "इंजन ऑयल कम है या नहीं, यह कहाँ दिखता है?",
+    "options": [
+     "फ़्यूल गेज पर",
+     "स्पीडोमीटर पर",
+     "टेम्परेचर गेज पर",
+     "डिपस्टिक पर या ऑयल वॉर्निंग लाइट से"
+    ]
+   }
+  },
+  {
+   "id": "driver-021",
+   "topic": "Vehicle care",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "When should tyre pressure be checked?",
+   "options": [
+    "Only when a tyre looks flat",
+    "When tyres are cold, at least once a week",
+    "Right after a long drive, when tyres are hot",
+    "Once a year at service"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "టైర్ ప్రెషర్ ఎప్పుడు చెక్ చేయాలి?",
+    "options": [
+     "టైర్ ఫ్లాట్‌గా కనిపించినప్పుడు మాత్రమే",
+     "టైర్లు చల్లగా ఉన్నప్పుడు, కనీసం వారానికి ఒకసారి",
+     "లాంగ్ డ్రైవ్ అయిన వెంటనే, టైర్లు వేడిగా ఉన్నప్పుడు",
+     "సంవత్సరానికి ఒకసారి సర్వీస్‌లో"
+    ]
+   },
+   "hi": {
+    "q": "टायर प्रेशर कब जाँचना चाहिए?",
+    "options": [
+     "सिर्फ़ जब टायर पिचका दिखे",
+     "टायर ठंडे हों तब, कम से कम हफ़्ते में एक बार",
+     "लंबी ड्राइव के तुरंत बाद, गरम टायर पर",
+     "साल में एक बार सर्विस पर"
+    ]
+   }
+  },
+  {
+   "id": "driver-022",
+   "topic": "Vehicle care",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "The engine temperature needle goes into the red. What do you do?",
+   "options": [
+    "Keep driving to the next town",
+    "Open the radiator cap at once",
+    "Pour cold water on the engine",
+    "Stop safely and switch off the engine"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "ఇంజిన్ టెంపరేచర్ ముల్లు ఎరుపు గుర్తులోకి వెళ్లింది. మీరు ఏం చేస్తారు?",
+    "options": [
+     "తర్వాతి ఊరు వరకు నడుపుతాను",
+     "వెంటనే రేడియేటర్ మూత తెరుస్తాను",
+     "ఇంజిన్ మీద చల్లని నీళ్లు పోస్తాను",
+     "సేఫ్‌గా ఆపి ఇంజిన్ ఆఫ్ చేస్తాను"
+    ]
+   },
+   "hi": {
+    "q": "इंजन टेम्परेचर की सुई लाल निशान में चली गई। आप क्या करेंगे?",
+    "options": [
+     "अगले शहर तक चलाते रहेंगे",
+     "तुरंत रेडिएटर का ढक्कन खोलेंगे",
+     "इंजन पर ठंडा पानी डालेंगे",
+     "सुरक्षित जगह रोककर इंजन बंद करेंगे"
+    ]
+   }
+  },
+  {
+   "id": "driver-023",
+   "topic": "Vehicle care",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why should you check the coolant only when the engine is cold?",
+   "options": [
+    "The level shows higher when cold",
+    "Hot coolant can spray out and burn you",
+    "The cap locks when the engine is hot",
+    "Coolant dries up when cold"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "కూలెంట్‌ను ఇంజిన్ చల్లగా ఉన్నప్పుడే ఎందుకు చెక్ చేయాలి?",
+    "options": [
+     "చల్లగా ఉన్నప్పుడు లెవెల్ ఎక్కువ చూపిస్తుంది",
+     "వేడి కూలెంట్ చిమ్మి కాలిన గాయాలు అవుతాయి",
+     "వేడిగా ఉన్నప్పుడు మూత లాక్ అవుతుంది",
+     "చల్లగా ఉంటే కూలెంట్ ఆవిరైపోతుంది"
+    ]
+   },
+   "hi": {
+    "q": "कूलेंट सिर्फ़ ठंडे इंजन पर ही क्यों जाँचना चाहिए?",
+    "options": [
+     "ठंडे में लेवल ज़्यादा दिखता है",
+     "गरम कूलेंट उछलकर जला सकता है",
+     "गरम होने पर ढक्कन लॉक हो जाता है",
+     "ठंडे में कूलेंट सूख जाता है"
+    ]
+   }
+  },
+  {
+   "id": "driver-024",
+   "topic": "Vehicle care",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "The tyre tread is worn almost flat. What is the main risk?",
+   "options": [
+    "Poor grip, mainly on wet roads",
+    "Better mileage",
+    "No risk if the pressure is right",
+    "Only more road noise"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "టైర్ గ్రిప్ (ట్రెడ్) దాదాపు అరిగిపోయింది. ప్రధాన ప్రమాదం ఏమిటి?",
+    "options": [
+     "ముఖ్యంగా తడి రోడ్డుపై పట్టు తగ్గుతుంది",
+     "మైలేజ్ పెరుగుతుంది",
+     "ప్రెషర్ సరిగ్గా ఉంటే ఏ ప్రమాదం లేదు",
+     "రోడ్డు శబ్దం మాత్రమే పెరుగుతుంది"
+    ]
+   },
+   "hi": {
+    "q": "टायर की ग्रिप (ट्रेड) लगभग घिस गई है। मुख्य खतरा क्या है?",
+    "options": [
+     "खासकर गीली सड़क पर पकड़ कम हो जाती है",
+     "माइलेज बढ़ जाता है",
+     "प्रेशर सही हो तो कोई खतरा नहीं",
+     "सिर्फ़ सड़क की आवाज़ बढ़ती है"
+    ]
+   }
+  },
+  {
+   "id": "driver-025",
+   "topic": "Vehicle care",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "The brake warning light stays on while driving. What should you do?",
+   "options": [
+    "Ignore it if the brakes still work",
+    "Check brake fluid and get the brakes checked soon",
+    "Take out the bulb",
+    "Top up engine oil and carry on"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "డ్రైవ్ చేస్తుంటే బ్రేక్ వార్నింగ్ లైట్ వెలుగుతూనే ఉంది. మీరు ఏం చేయాలి?",
+    "options": [
+     "బ్రేకులు పనిచేస్తుంటే పట్టించుకోవద్దు",
+     "బ్రేక్ ఆయిల్ చూసి, త్వరగా బ్రేకులు చెక్ చేయించాలి",
+     "బల్బ్ తీసేయాలి",
+     "ఇంజిన్ ఆయిల్ పోసి కొనసాగాలి"
+    ]
+   },
+   "hi": {
+    "q": "गाड़ी चलाते समय ब्रेक वॉर्निंग लाइट जलती रहती है। आपको क्या करना चाहिए?",
+    "options": [
+     "ब्रेक काम कर रहे हों तो ध्यान न दें",
+     "ब्रेक ऑयल देखें और जल्दी ब्रेक की जाँच करवाएँ",
+     "बल्ब निकाल दें",
+     "इंजन ऑयल डालकर चलते रहें"
+    ]
+   }
+  },
+  {
+   "id": "driver-026",
+   "topic": "Vehicle care",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "The car pulls to one side when you brake. What is a likely reason?",
+   "options": [
+    "Low fuel in the tank",
+    "A weak battery",
+    "Uneven brakes or tyre pressure",
+    "A dirty windscreen"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "బ్రేక్ వేసినప్పుడు కారు ఒక వైపుకు లాగుతోంది. కారణం ఏమై ఉండొచ్చు?",
+    "options": [
+     "ట్యాంక్‌లో ఫ్యూయల్ తక్కువగా ఉండడం",
+     "బ్యాటరీ బలహీనంగా ఉండడం",
+     "బ్రేకులు లేదా టైర్ ప్రెషర్ సమానంగా లేకపోవడం",
+     "విండ్‌షీల్డ్ మురికిగా ఉండడం"
+    ]
+   },
+   "hi": {
+    "q": "ब्रेक लगाने पर कार एक तरफ़ खिंचती है। इसकी वजह क्या हो सकती है?",
+    "options": [
+     "टंकी में पेट्रोल कम होना",
+     "बैटरी कमज़ोर होना",
+     "ब्रेक या टायर प्रेशर बराबर न होना",
+     "शीशा गंदा होना"
+    ]
+   }
+  },
+  {
+   "id": "driver-027",
+   "topic": "Vehicle care",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "The battery is dead in the morning. A friend offers jump cables. What is the safe order?",
+   "options": [
+    "Black clips first, then the red ones",
+    "Any order is fine if done quickly",
+    "Red clips on both + first, black to bare metal last",
+    "Join + to – for faster charging"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "ఉదయం బ్యాటరీ డెడ్ అయింది. ఫ్రెండ్ జంప్ కేబుల్స్ ఇచ్చాడు. సేఫ్ క్రమం ఏమిటి?",
+    "options": [
+     "ముందు నలుపు క్లిప్స్, తర్వాత ఎరుపు",
+     "త్వరగా చేస్తే ఏ క్రమమైనా పరవాలేదు",
+     "ముందు రెండు + లకు ఎరుపు క్లిప్స్, చివరగా నలుపు క్లిప్ మెటల్ భాగానికి",
+     "త్వరగా చార్జ్ కావడానికి + ను – కు కలపాలి"
+    ]
+   },
+   "hi": {
+    "q": "सुबह बैटरी डेड है। दोस्त जंप केबल दे रहा है। सुरक्षित क्रम क्या है?",
+    "options": [
+     "पहले काले क्लिप, फिर लाल",
+     "जल्दी करें तो कोई भी क्रम चलेगा",
+     "पहले दोनों + पर लाल क्लिप, आखिर में काला क्लिप धातु वाले हिस्से पर",
+     "जल्दी चार्ज के लिए + को – से जोड़ें"
+    ]
+   }
+  },
+  {
+   "id": "driver-028",
+   "topic": "Documents and law",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which documents must you carry while driving a car?",
+   "options": [
+    "Only the licence",
+    "Only the Aadhaar card",
+    "Licence, RC, insurance and PUC",
+    "RC and a toll receipt"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "కారు నడిపేటప్పుడు ఏ డాక్యుమెంట్లు దగ్గర ఉండాలి?",
+    "options": [
+     "లైసెన్స్ మాత్రమే",
+     "ఆధార్ కార్డ్ మాత్రమే",
+     "లైసెన్స్, RC, ఇన్సూరెన్స్, PUC",
+     "RC, టోల్ రసీదు"
+    ]
+   },
+   "hi": {
+    "q": "कार चलाते समय कौन से कागज़ साथ होने चाहिए?",
+    "options": [
+     "सिर्फ़ लाइसेंस",
+     "सिर्फ़ आधार कार्ड",
+     "लाइसेंस, RC, इंश्योरेंस और PUC",
+     "RC और टोल की रसीद"
+    ]
+   }
+  },
+  {
+   "id": "driver-029",
+   "topic": "Documents and law",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Is it okay to drive after drinking alcohol?",
+   "options": [
+    "Yes, after just one peg",
+    "No; it is an offence with heavy fines",
+    "Yes, if you drive slowly",
+    "Yes, at night on empty roads"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "మద్యం తాగిన తర్వాత డ్రైవ్ చేయవచ్చా?",
+    "options": [
+     "ఒక పెగ్ అయితే పరవాలేదు",
+     "వద్దు; ఇది నేరం, భారీ జరిమానా ఉంది",
+     "నెమ్మదిగా నడిపితే పరవాలేదు",
+     "రాత్రి రోడ్లు ఖాళీగా ఉంటే పరవాలేదు"
+    ]
+   },
+   "hi": {
+    "q": "शराब पीने के बाद गाड़ी चला सकते हैं?",
+    "options": [
+     "एक पैग हो तो चलेगा",
+     "नहीं; यह अपराध है, भारी जुर्माना है",
+     "धीरे चलाएँ तो चलेगा",
+     "रात में सड़क खाली हो तो चलेगा"
+    ]
+   }
+  },
+  {
+   "id": "driver-030",
+   "topic": "Documents and law",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does a PUC certificate show?",
+   "options": [
+    "The vehicle's smoke is within limits",
+    "Road tax is paid",
+    "You have no pending fines",
+    "The tyres are new"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "PUC సర్టిఫికేట్ దేన్ని చూపిస్తుంది?",
+    "options": [
+     "వాహనం పొగ పరిమితిలో ఉందని",
+     "రోడ్ టాక్స్ కట్టారని",
+     "మీపై ఫైన్లు లేవని",
+     "టైర్లు కొత్తవని"
+    ]
+   },
+   "hi": {
+    "q": "PUC सर्टिफ़िकेट क्या बताता है?",
+    "options": [
+     "गाड़ी का धुआँ तय सीमा में है",
+     "रोड टैक्स भरा है",
+     "आप पर कोई चालान बाकी नहीं है",
+     "टायर नए हैं"
+    ]
+   }
+  },
+  {
+   "id": "driver-031",
+   "topic": "Documents and law",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Can you show your licence on DigiLocker or mParivahan to the traffic police?",
+   "options": [
+    "No, only the paper copy",
+    "Yes, it is valid",
+    "Only if a photocopy is also kept",
+    "Only for two-wheelers"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "ట్రాఫిక్ పోలీసులకు డిజిలాకర్ లేదా mParivahan యాప్‌లో లైసెన్స్ చూపించవచ్చా?",
+    "options": [
+     "లేదు, పేపర్ కాపీ మాత్రమే",
+     "అవును, అది చెల్లుతుంది",
+     "ఫోటోకాపీ కూడా ఉంటేనే",
+     "టూ-వీలర్లకు మాత్రమే"
+    ]
+   },
+   "hi": {
+    "q": "क्या ट्रैफ़िक पुलिस को DigiLocker या mParivahan में लाइसेंस दिखा सकते हैं?",
+    "options": [
+     "नहीं, सिर्फ़ कागज़ वाला",
+     "हाँ, वह मान्य है",
+     "सिर्फ़ तब जब फ़ोटोकॉपी भी साथ हो",
+     "सिर्फ़ टू-व्हीलर के लिए"
+    ]
+   }
+  },
+  {
+   "id": "driver-032",
+   "topic": "Documents and law",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "You hit someone's vehicle and your insurance has expired. What happens?",
+   "options": [
+    "Nothing, the government pays",
+    "The other side's insurance pays it all",
+    "You pay the damages yourself and face a fine",
+    "You only get a warning"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "మీరు వేరే వాహనాన్ని ఢీకొట్టారు, మీ ఇన్సూరెన్స్ గడువు ముగిసింది. ఏం జరుగుతుంది?",
+    "options": [
+     "ఏమీ కాదు, ప్రభుత్వం కడుతుంది",
+     "అవతలి వారి ఇన్సూరెన్స్ అంతా కడుతుంది",
+     "నష్టం మీరే కట్టాలి, జరిమానా కూడా పడుతుంది",
+     "కేవలం హెచ్చరిక ఇస్తారు"
+    ]
+   },
+   "hi": {
+    "q": "आपने किसी की गाड़ी को टक्कर मारी और आपका इंश्योरेंस खत्म हो चुका है। क्या होगा?",
+    "options": [
+     "कुछ नहीं, सरकार भरेगी",
+     "दूसरे का इंश्योरेंस सब भर देगा",
+     "नुकसान आपको खुद भरना होगा, साथ में जुर्माना",
+     "सिर्फ़ चेतावनी मिलेगी"
+    ]
+   }
+  },
+  {
+   "id": "driver-033",
+   "topic": "Documents and law",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "There is a minor accident and someone is hurt. What do you do first?",
+   "options": [
+    "Help the injured and call 108 or the police",
+    "Drive away quickly",
+    "Argue about whose fault it was",
+    "Take photos and leave"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "చిన్న ప్రమాదం జరిగింది, ఒకరికి గాయమైంది. మీరు మొదట ఏం చేస్తారు?",
+    "options": [
+     "గాయపడిన వారికి సహాయం చేసి 108 లేదా పోలీసులకు ఫోన్ చేస్తాను",
+     "త్వరగా అక్కడి నుంచి వెళ్లిపోతాను",
+     "తప్పు ఎవరిదని గొడవ పడతాను",
+     "ఫోటోలు తీసి వెళ్లిపోతాను"
+    ]
+   },
+   "hi": {
+    "q": "छोटा हादसा हुआ है और कोई घायल है। आप सबसे पहले क्या करेंगे?",
+    "options": [
+     "घायल की मदद करके 108 या पुलिस को फ़ोन करेंगे",
+     "जल्दी से वहाँ से निकल जाएँगे",
+     "गलती किसकी है, इस पर बहस करेंगे",
+     "फ़ोटो खींचकर चले जाएँगे"
+    ]
+   }
+  },
+  {
+   "id": "driver-034",
+   "topic": "Documents and law",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Police stop you. Your licence expired 2 months ago and you forgot to renew it. What is correct?",
+   "options": [
+    "Offer money to let it go",
+    "Pay the fine and don't drive until it is renewed",
+    "Show a friend's licence",
+    "Drive off when they look away"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "పోలీసులు ఆపారు. మీ లైసెన్స్ 2 నెలల క్రితం గడువు ముగిసింది, రిన్యూ చేయడం మర్చిపోయారు. ఏది సరైనది?",
+    "options": [
+     "వదిలేయమని డబ్బులు ఇవ్వాలి",
+     "ఫైన్ కట్టి, రిన్యూ అయ్యే వరకు నడపకూడదు",
+     "ఫ్రెండ్ లైసెన్స్ చూపించాలి",
+     "వాళ్లు చూడనప్పుడు వెళ్లిపోవాలి"
+    ]
+   },
+   "hi": {
+    "q": "पुलिस ने रोका। आपका लाइसेंस 2 महीने पहले खत्म हो गया और आप रिन्यू कराना भूल गए। सही क्या है?",
+    "options": [
+     "छोड़ने के लिए पैसे दें",
+     "जुर्माना भरें और रिन्यू होने तक गाड़ी न चलाएँ",
+     "दोस्त का लाइसेंस दिखाएँ",
+     "उनका ध्यान हटते ही निकल जाएँ"
+    ]
+   }
+  },
+  {
+   "id": "driver-035",
+   "topic": "Documents and law",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "You drive your employer's private (white plate) car. A stranger offers money for a ride to the airport. What is right?",
+   "options": [
+    "Take him if he pays cash",
+    "Take him if it is late at night",
+    "Take him once without telling the owner",
+    "Refuse; a private car can't carry paying riders"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "మీరు యజమాని ప్రైవేట్ (తెల్ల నంబర్ ప్లేట్) కారు నడుపుతారు. ఒక అపరిచితుడు డబ్బులిస్తాను ఎయిర్‌పోర్ట్‌కి తీసుకెళ్లమంటున్నాడు. ఏది సరైనది?",
+    "options": [
+     "నగదు ఇస్తే తీసుకెళ్లవచ్చు",
+     "అర్ధరాత్రి అయితే తీసుకెళ్లవచ్చు",
+     "యజమానికి చెప్పకుండా ఒకసారి తీసుకెళ్లవచ్చు",
+     "వద్దనాలి; ప్రైవేట్ కారులో డబ్బుకు ప్రయాణికులను తీసుకెళ్లకూడదు"
+    ]
+   },
+   "hi": {
+    "q": "आप मालिक की प्राइवेट (सफ़ेद नंबर प्लेट) कार चलाते हैं। एक अनजान व्यक्ति एयरपोर्ट जाने के लिए पैसे दे रहा है। सही क्या है?",
+    "options": [
+     "नकद दे तो ले जाएँ",
+     "देर रात हो तो ले जाएँ",
+     "मालिक को बताए बिना एक बार ले जाएँ",
+     "मना करें; प्राइवेट कार में पैसे लेकर सवारी नहीं ले जा सकते"
+    ]
+   }
+  },
+  {
+   "id": "driver-036",
+   "topic": "Passengers and conduct",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "A passenger asks you to drive faster than the speed limit. What do you do?",
+   "options": [
+    "Politely say you will stay within the limit",
+    "Speed up to keep them happy",
+    "Argue loudly with them",
+    "Stop and ask them to get out"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "ఒక ప్రయాణికుడు స్పీడ్ లిమిట్ కంటే వేగంగా నడపమంటున్నాడు. మీరు ఏం చేస్తారు?",
+    "options": [
+     "మర్యాదగా లిమిట్‌లోనే నడుపుతానని చెబుతాను",
+     "వారిని సంతోషపెట్టడానికి వేగం పెంచుతాను",
+     "గట్టిగా వాదిస్తాను",
+     "కారు ఆపి దిగిపొమ్మంటాను"
+    ]
+   },
+   "hi": {
+    "q": "एक सवारी स्पीड लिमिट से तेज़ चलाने को कह रही है। आप क्या करेंगे?",
+    "options": [
+     "विनम्रता से कहेंगे कि लिमिट में ही चलाएँगे",
+     "उन्हें खुश करने के लिए तेज़ चलाएँगे",
+     "ज़ोर से बहस करेंगे",
+     "गाड़ी रोककर उतरने को कहेंगे"
+    ]
+   }
+  },
+  {
+   "id": "driver-037",
+   "topic": "Passengers and conduct",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Where is the safest place for a small child to sit?",
+   "options": [
+    "On the driver's lap",
+    "The back seat, in a child seat",
+    "The front seat",
+    "Standing between the seats"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "చిన్న పిల్లలు కూర్చోవడానికి అత్యంత సేఫ్ చోటు ఏది?",
+    "options": [
+     "డ్రైవర్ ఒడిలో",
+     "వెనుక సీటులో, చైల్డ్ సీట్‌లో",
+     "ముందు సీటులో",
+     "సీట్ల మధ్య నిలబడి"
+    ]
+   },
+   "hi": {
+    "q": "छोटे बच्चे के बैठने की सबसे सुरक्षित जगह कौन सी है?",
+    "options": [
+     "ड्राइवर की गोद में",
+     "पीछे की सीट पर, चाइल्ड सीट में",
+     "आगे की सीट पर",
+     "सीटों के बीच खड़े होकर"
+    ]
+   }
+  },
+  {
+   "id": "driver-038",
+   "topic": "Passengers and conduct",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "On a busy road, how should passengers get in or out?",
+   "options": [
+    "From the footpath side, once the car has fully stopped",
+    "From the road side to save time",
+    "While the car is still moving slowly",
+    "In the middle of the road at a signal"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "రద్దీ రోడ్డులో ప్రయాణికులు ఎలా ఎక్కాలి లేదా దిగాలి?",
+    "options": [
+     "కారు పూర్తిగా ఆగాక, ఫుట్‌పాత్ వైపు నుంచి",
+     "సమయం ఆదా చేయడానికి రోడ్డు వైపు నుంచి",
+     "కారు నెమ్మదిగా కదులుతుండగానే",
+     "సిగ్నల్ దగ్గర రోడ్డు మధ్యలో"
+    ]
+   },
+   "hi": {
+    "q": "भीड़ वाली सड़क पर सवारियाँ कैसे चढ़ें या उतरें?",
+    "options": [
+     "कार पूरी रुकने पर, फुटपाथ की तरफ़ से",
+     "समय बचाने के लिए सड़क की तरफ़ से",
+     "कार धीरे चलते हुए ही",
+     "सिग्नल पर सड़क के बीच में"
+    ]
+   }
+  },
+  {
+   "id": "driver-039",
+   "topic": "Passengers and conduct",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Your employer asks you to wait 2 hours outside a mall. Where do you park?",
+   "options": [
+    "On the main road with hazard lights on",
+    "Right in front of the mall gate",
+    "In a no-parking zone, ready to move",
+    "In a proper parking spot, staying near the car"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "యజమాని మాల్ బయట 2 గంటలు వేచి ఉండమన్నారు. మీరు ఎక్కడ పార్క్ చేస్తారు?",
+    "options": [
+     "మెయిన్ రోడ్డుపై హజార్డ్ లైట్లు వేసి",
+     "మాల్ గేటు ముందే",
+     "నో పార్కింగ్ జోన్‌లో, కదలడానికి సిద్ధంగా",
+     "సరైన పార్కింగ్ స్థలంలో, కారు దగ్గరే ఉంటాను"
+    ]
+   },
+   "hi": {
+    "q": "मालिक ने मॉल के बाहर 2 घंटे इंतज़ार करने को कहा है। आप कहाँ पार्क करेंगे?",
+    "options": [
+     "मेन रोड पर हैज़र्ड लाइट जलाकर",
+     "मॉल के गेट के ठीक सामने",
+     "नो पार्किंग ज़ोन में, चलने को तैयार",
+     "सही पार्किंग की जगह पर, गाड़ी के पास ही रहेंगे"
+    ]
+   }
+  },
+  {
+   "id": "driver-040",
+   "topic": "Passengers and conduct",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "An elderly passenger must reach the hospital for an appointment. Traffic is slow. What do you do?",
+   "options": [
+    "Stay calm, take a known safe route and keep them informed",
+    "Drive on the footpath to skip the jam",
+    "Jump red signals when the road looks clear",
+    "Take the wrong side where it is empty"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "ఒక వృద్ధ ప్రయాణికుడు అపాయింట్‌మెంట్ కోసం హాస్పిటల్‌కి వెళ్లాలి. ట్రాఫిక్ నెమ్మదిగా ఉంది. మీరు ఏం చేస్తారు?",
+    "options": [
+     "ప్రశాంతంగా ఉండి, తెలిసిన సేఫ్ దారిలో వెళ్లి, వారికి సమాచారం ఇస్తాను",
+     "జామ్ తప్పించుకోవడానికి ఫుట్‌పాత్ మీద నడుపుతాను",
+     "రోడ్డు ఖాళీగా ఉంటే రెడ్ సిగ్నల్ జంప్ చేస్తాను",
+     "ఖాళీగా ఉన్న చోట రాంగ్ సైడ్‌లో వెళ్తాను"
+    ]
+   },
+   "hi": {
+    "q": "एक बुज़ुर्ग सवारी को अपॉइंटमेंट के लिए अस्पताल पहुँचना है। ट्रैफ़िक धीमा है। आप क्या करेंगे?",
+    "options": [
+     "शांत रहकर जाने-पहचाने सुरक्षित रास्ते से जाएँगे और उन्हें बताते रहेंगे",
+     "जाम से बचने के लिए फुटपाथ पर चलाएँगे",
+     "सड़क खाली दिखे तो लाल बत्ती तोड़ेंगे",
+     "जहाँ खाली हो वहाँ रॉन्ग साइड चलेंगे"
+    ]
+   }
+  },
+  {
+   "id": "driver-041",
+   "topic": "Passengers and conduct",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A passenger has left a bag in the car. What should you do?",
+   "options": [
+    "Keep it if no one calls",
+    "Keep it safe and tell the owner or company",
+    "Open it and use what you need",
+    "Leave it in the parking area"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "ప్రయాణికుడు కారులో బ్యాగ్ మర్చిపోయాడు. మీరు ఏం చేయాలి?",
+    "options": [
+     "ఎవరూ ఫోన్ చేయకపోతే ఉంచుకోవాలి",
+     "సురక్షితంగా ఉంచి, యజమానికి లేదా కంపెనీకి తెలియజేయాలి",
+     "తెరిచి కావాల్సింది వాడుకోవాలి",
+     "పార్కింగ్‌లో వదిలేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "सवारी कार में बैग भूल गई है। आपको क्या करना चाहिए?",
+    "options": [
+     "कोई फ़ोन न करे तो रख लें",
+     "सुरक्षित रखें और मालिक या कंपनी को बताएँ",
+     "खोलकर ज़रूरत की चीज़ इस्तेमाल करें",
+     "पार्किंग में छोड़ दें"
+    ]
+   }
+  },
+  {
+   "id": "driver-042",
+   "topic": "Passengers and conduct",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A drunk passenger sits in front and keeps touching the gear and music. What do you do?",
+   "options": [
+    "Let them do it to avoid a fight",
+    "Drive fast to finish the trip sooner",
+    "Push them out of the car",
+    "Stop safely and calmly ask them to sit at the back"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "తాగిన ప్రయాణికుడు ముందు కూర్చుని గేర్, మ్యూజిక్‌ను పదే పదే తాకుతున్నాడు. మీరు ఏం చేస్తారు?",
+    "options": [
+     "గొడవ వద్దని అలాగే వదిలేస్తాను",
+     "ట్రిప్ త్వరగా ముగించడానికి వేగంగా నడుపుతాను",
+     "కారు నుంచి బయటకు తోసేస్తాను",
+     "సేఫ్‌గా ఆపి, ప్రశాంతంగా వెనుక కూర్చోమని అడుగుతాను"
+    ]
+   },
+   "hi": {
+    "q": "नशे में सवारी आगे बैठकर बार-बार गियर और गाना छू रही है। आप क्या करेंगे?",
+    "options": [
+     "झगड़े से बचने के लिए करने देंगे",
+     "ट्रिप जल्दी खत्म करने के लिए तेज़ चलाएँगे",
+     "उसे धक्का देकर कार से बाहर करेंगे",
+     "सुरक्षित जगह रोककर शांति से पीछे बैठने को कहेंगे"
+    ]
+   }
+  },
+  {
+   "id": "driver-043",
+   "topic": "Passengers and conduct",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Late at night, GPS shows a short route on a dark, empty road. The main road takes 10 minutes more. What do you do?",
+   "options": [
+    "Follow the GPS, since it is faster",
+    "Take the dark road but lock all doors",
+    "Drive the dark road at high speed",
+    "Take the main road and tell the passenger why"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "అర్ధరాత్రి GPS చీకటి, నిర్మానుష్య రోడ్డులో షార్ట్ రూట్ చూపిస్తోంది. మెయిన్ రోడ్డులో 10 నిమిషాలు ఎక్కువ. మీరు ఏం చేస్తారు?",
+    "options": [
+     "GPS చెప్పినట్లే వెళ్తాను, అది త్వరగా",
+     "చీకటి రోడ్డులోనే వెళ్లి, డోర్లన్నీ లాక్ చేస్తాను",
+     "చీకటి రోడ్డులో ఎక్కువ వేగంతో వెళ్తాను",
+     "మెయిన్ రోడ్డులో వెళ్లి, ప్రయాణికుడికి కారణం చెబుతాను"
+    ]
+   },
+   "hi": {
+    "q": "देर रात GPS एक अंधेरी, सुनसान सड़क से छोटा रास्ता दिखा रहा है। मेन रोड से 10 मिनट ज़्यादा लगेंगे। आप क्या करेंगे?",
+    "options": [
+     "GPS के हिसाब से जाएँगे, वह जल्दी है",
+     "अंधेरी सड़क से ही जाएँगे, बस दरवाज़े लॉक कर देंगे",
+     "अंधेरी सड़क पर तेज़ रफ़्तार से निकलेंगे",
+     "मेन रोड से जाएँगे और सवारी को वजह बताएँगे"
+    ]
+   }
+  },
+  {
+   "id": "driver-044",
+   "topic": "Passengers and conduct",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "After a full day of driving, your employer wants you to drive through the night too. What should you say?",
+   "options": [
+    "Agree and drink strong coffee",
+    "Say you are too tired to drive safely and suggest a rest",
+    "Drive and hope to stay awake",
+    "Agree but drive very fast to finish early"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "రోజంతా నడిపిన తర్వాత రాత్రంతా కూడా నడపమని యజమాని అడుగుతున్నారు. మీరు ఏం చెప్పాలి?",
+    "options": [
+     "ఒప్పుకుని స్ట్రాంగ్ కాఫీ తాగాలి",
+     "సేఫ్‌గా నడపలేనంత అలసటగా ఉందని చెప్పి, విశ్రాంతి సూచించాలి",
+     "నడుపుతూ మెలకువగా ఉంటానని ఆశించాలి",
+     "ఒప్పుకుని త్వరగా ముగించడానికి చాలా వేగంగా నడపాలి"
+    ]
+   },
+   "hi": {
+    "q": "दिन भर गाड़ी चलाने के बाद मालिक रात भर भी चलाने को कह रहे हैं। आपको क्या कहना चाहिए?",
+    "options": [
+     "मान जाएँ और कड़क कॉफ़ी पी लें",
+     "बताएँ कि थकान से सुरक्षित नहीं चला पाएँगे और आराम का सुझाव दें",
+     "चलाएँ और उम्मीद करें कि नींद नहीं आएगी",
+     "मान जाएँ पर जल्दी खत्म करने के लिए बहुत तेज़ चलाएँ"
+    ]
+   }
+  }
+ ],
+ "task": {
+  "type": "proof",
+  "title": "Driving safety check and optional proof of experience",
+  "brief": "Answer the 7 picture-style questions about real driving situations. Pick the safe and correct way each time. This takes about 10 minutes. After that, you may add ONE photo as proof of your experience, but it is optional: for example a driving school or training certificate, or a car you look after (clean engine bay, tyre check). Do not show any faces. Cover your licence number, Aadhaar number, address and phone number before you upload. Do not take the photo while driving.",
+  "minutes": 10,
+  "situations": [
+   {
+    "q": "Which is the right way to hold the steering wheel?",
+    "options": [
+     "One hand at the top of the wheel",
+     "Two hands, at about 9 and 3 o'clock",
+     "One hand always resting on the gear lever",
+     "Elbow out of the window, one hand on the wheel"
+    ],
+    "answer": 1,
+    "topic": "Safe driving",
+    "te": {
+     "q": "స్టీరింగ్‌ను సరిగ్గా ఎలా పట్టుకోవాలి?",
+     "options": [
+      "ఒక చేత్తో స్టీరింగ్ పైభాగంలో",
+      "రెండు చేతులతో, సుమారు 9, 3 గంటల స్థానంలో",
+      "ఒక చేయి ఎప్పుడూ గేర్ లివర్ మీద",
+      "మోచేయి కిటికీ బయట, ఒక చేయి స్టీరింగ్ మీద"
+     ]
+    },
+    "hi": {
+     "q": "स्टीयरिंग पकड़ने का सही तरीका क्या है?",
+     "options": [
+      "एक हाथ से स्टीयरिंग के ऊपर",
+      "दोनों हाथों से, लगभग 9 और 3 बजे की जगह पर",
+      "एक हाथ हमेशा गियर लीवर पर",
+      "कोहनी खिड़की से बाहर, एक हाथ स्टीयरिंग पर"
+     ]
+    }
+   },
+   {
+    "q": "You get a flat tyre on the highway. What do you do first?",
+    "options": [
+     "Pull over far left, hazard lights on, warning triangle behind",
+     "Jack up the car right where it stopped",
+     "Loosen the wheel nuts while still in the lane"
+    ],
+    "answer": 0,
+    "topic": "Safe driving",
+    "te": {
+     "q": "హైవేలో టైర్ పంక్చర్ అయింది. మొదట ఏం చేయాలి?",
+     "options": [
+      "పూర్తిగా ఎడమ వైపుకు ఆపి, హజార్డ్ లైట్లు వేసి, వెనుక వార్నింగ్ ట్రయాంగిల్ పెట్టాలి",
+      "కారు ఆగిన చోటే జాక్ పెట్టాలి",
+      "లేన్‌లోనే ఉండి వీల్ నట్లు వదులు చేయాలి"
+     ]
+    },
+    "hi": {
+     "q": "हाईवे पर टायर पंक्चर हो गया। सबसे पहले क्या करेंगे?",
+     "options": [
+      "पूरी तरह बाईं ओर रोककर हैज़र्ड लाइट जलाएँ और पीछे वॉर्निंग ट्रायंगल रखें",
+      "जहाँ कार रुकी वहीं जैक लगाएँ",
+      "लेन में ही रहकर पहिए के नट ढीले करें"
+     ]
+    }
+   },
+   {
+    "q": "Which is the safe way to reverse out of a parking spot?",
+    "options": [
+     "Reverse fast using only the camera",
+     "Reverse while honking so people move",
+     "Check mirrors, look back, then reverse slowly"
+    ],
+    "answer": 2,
+    "topic": "Safe driving",
+    "te": {
+     "q": "పార్కింగ్ నుంచి రివర్స్ చేసే సేఫ్ పద్ధతి ఏది?",
+     "options": [
+      "కెమెరా మాత్రమే చూసి వేగంగా రివర్స్ చేయాలి",
+      "జనం జరగాలని హారన్ కొడుతూ రివర్స్ చేయాలి",
+      "మిర్రర్లు చూసి, వెనక్కి తిరిగి చూసి, నెమ్మదిగా రివర్స్ చేయాలి"
+     ]
+    },
+    "hi": {
+     "q": "पार्किंग से गाड़ी पीछे निकालने का सुरक्षित तरीका क्या है?",
+     "options": [
+      "सिर्फ़ कैमरा देखकर तेज़ी से रिवर्स करें",
+      "लोग हटें, इसलिए हॉर्न बजाते हुए रिवर्स करें",
+      "शीशे देखें, पीछे मुड़कर देखें, फिर धीरे से रिवर्स करें"
+     ]
+    }
+   },
+   {
+    "q": "A school bus has stopped and children are getting down. What do you do?",
+    "options": [
+     "Overtake the bus quickly",
+     "Slow down and wait, watching for children",
+     "Honk so the children hurry"
+    ],
+    "answer": 1,
+    "topic": "Traffic rules and signs",
+    "te": {
+     "q": "స్కూల్ బస్ ఆగింది, పిల్లలు దిగుతున్నారు. మీరు ఏం చేస్తారు?",
+     "options": [
+      "బస్‌ను త్వరగా ఓవర్‌టేక్ చేస్తాను",
+      "వేగం తగ్గించి, పిల్లలను గమనిస్తూ వేచి ఉంటాను",
+      "పిల్లలు త్వరపడాలని హారన్ కొడతాను"
+     ]
+    },
+    "hi": {
+     "q": "स्कूल बस रुकी है और बच्चे उतर रहे हैं। आप क्या करेंगे?",
+     "options": [
+      "बस को जल्दी से ओवरटेक करेंगे",
+      "धीमे होकर बच्चों पर नज़र रखते हुए रुकेंगे",
+      "बच्चे जल्दी करें, इसलिए हॉर्न बजाएँगे"
+     ]
+    }
+   },
+   {
+    "q": "Which tyre is safe to drive on?",
+    "options": [
+     "Tread clearly visible, no cuts or bulges",
+     "A bulge on the side wall",
+     "Smooth tread with wires showing"
+    ],
+    "answer": 0,
+    "topic": "Vehicle care",
+    "te": {
+     "q": "ఏ టైర్‌తో నడపడం సేఫ్?",
+     "options": [
+      "ట్రెడ్ స్పష్టంగా కనిపిస్తుంది, కోతలు, ఉబ్బులు లేవు",
+      "సైడ్ వాల్ మీద ఉబ్బు ఉంది",
+      "ట్రెడ్ నున్నగా అరిగి, వైర్లు కనిపిస్తున్నాయి"
+     ]
+    },
+    "hi": {
+     "q": "किस टायर पर गाड़ी चलाना सुरक्षित है?",
+     "options": [
+      "ट्रेड साफ़ दिखती है, कोई कट या उभार नहीं",
+      "साइड वॉल पर उभार है",
+      "ट्रेड घिसकर चिकनी, तार दिख रहे हैं"
+     ]
+    }
+   },
+   {
+    "q": "You park facing up a slope. Which is safe?",
+    "options": [
+     "Neutral gear and no handbrake",
+     "Handbrake off, a stone under one wheel only",
+     "Handbrake on and the car left in first gear"
+    ],
+    "answer": 2,
+    "topic": "Vehicle care",
+    "te": {
+     "q": "ఎత్తు వైపు ముఖంగా కారు పార్క్ చేస్తున్నారు. ఏది సేఫ్?",
+     "options": [
+      "న్యూట్రల్‌లో, హ్యాండ్‌బ్రేక్ లేకుండా",
+      "హ్యాండ్‌బ్రేక్ లేకుండా, ఒక చక్రం కింద రాయి మాత్రమే",
+      "హ్యాండ్‌బ్రేక్ వేసి, ఫస్ట్ గేర్‌లో ఉంచాలి"
+     ]
+    },
+    "hi": {
+     "q": "आप चढ़ाई की तरफ़ मुँह करके गाड़ी पार्क कर रहे हैं। क्या सुरक्षित है?",
+     "options": [
+      "न्यूट्रल में, बिना हैंडब्रेक",
+      "बिना हैंडब्रेक, सिर्फ़ एक पहिए के नीचे पत्थर",
+      "हैंडब्रेक लगाकर फ़र्स्ट गियर में छोड़ें"
+     ]
+    }
+   },
+   {
+    "q": "People are waiting at a zebra crossing. What do you do?",
+    "options": [
+     "Honk and drive through",
+     "Stop before the crossing and let them cross",
+     "Drive slowly around them"
+    ],
+    "answer": 1,
+    "topic": "Traffic rules and signs",
+    "te": {
+     "q": "జీబ్రా క్రాసింగ్ దగ్గర జనం దాటడానికి ఎదురుచూస్తున్నారు. మీరు ఏం చేస్తారు?",
+     "options": [
+      "హారన్ కొట్టి దాటేస్తాను",
+      "క్రాసింగ్ ముందే ఆగి వారిని దాటనిస్తాను",
+      "వారి చుట్టూ నెమ్మదిగా వెళ్తాను"
+     ]
+    },
+    "hi": {
+     "q": "ज़ेबरा क्रॉसिंग पर लोग पार करने का इंतज़ार कर रहे हैं। आप क्या करेंगे?",
+     "options": [
+      "हॉर्न बजाकर निकल जाएँगे",
+      "क्रॉसिंग से पहले रुककर उन्हें पार करने देंगे",
+      "उनके आस-पास से धीरे निकलेंगे"
+     ]
+    }
+   }
+  ],
+  "rubric": [
+   {
+    "key": "relevance",
+    "label": "Relevance",
+    "guide": "0 = no photo or unrelated, 3 = loosely related to driving, 5 = clearly shows driving training or vehicle care work"
+   },
+   {
+    "key": "genuineness",
+    "label": "Genuineness",
+    "guide": "0 = looks copied from the internet or edited, 3 = unclear, 5 = clearly the candidate's own, real photo"
+   },
+   {
+    "key": "safety",
+    "label": "Safety and privacy",
+    "guide": "0 = taken while driving or shows faces and ID numbers, 3 = minor privacy slip, 5 = safe, no faces and personal numbers covered"
+   }
+  ]
+ }
+}

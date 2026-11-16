@@ -45,6 +45,10 @@ async def main(cmd: str, *args: str) -> dict:
         (state,) = args
         await db["settings"].update_one({"_id": "site"}, {"$set": {"languages.te_hi": state == "on"}}, upsert=True)
         return {"ok": True}
+    if cmd == "vetting-tester":  # Admin → Skill checks → Launch: this email sees the vetting engine while it is hidden
+        (email,) = args
+        await db["settings"].update_one({"_id": "site"}, {"$addToSet": {"vetting.testers": email.lower()}}, upsert=True)
+        return {"ok": True}
     if cmd == "hire-token":  # the one-tap "Still ready" link's token from the reminder email (Phase 5 H1)
         from app.hire.available import still_token
 
@@ -62,6 +66,31 @@ async def main(cmd: str, *args: str) -> dict:
         await db["skill_attempts"].insert_one(doc)
         await on_skill_check(db, u["_id"], skill)
         return {"ok": True}
+    if cmd == "skill-verified":  # Vetting V2: a "Skill verified" badge; "@demo" = the first 3 Hire-in-60 demo people
+        from app.hire.demo import DOMAIN
+        from app.hire.vetting.roles import BY_TEST
+
+        who, test, band, score, task = args
+        q = {"email": {"$regex": rf"@{DOMAIN.replace('.', r'\.')}$"}} if who == "@demo" else {"email": who}
+        users = await db["users"].find(q).to_list(3 if who == "@demo" else 1)
+        t = now()
+        for i, u in enumerate(users):
+            sc = int(score) - 4 * i
+            rec = {"user_id": u["_id"], "test": test, "slug": BY_TEST[test]["slug"], "role": BY_TEST[test]["role"],
+                   "band": band, "score": sc, "task_score": int(task), "at": t,
+                   "expires_at": t + timedelta(days=90)}  # fmt: skip
+            await db["vetting_verified"].update_one({"user_id": u["_id"], "test": test}, {"$set": rec}, upsert=True)
+            await db["users"].update_one({"_id": u["_id"]}, {"$push": {"verified_skills": {
+                "skill": test, "role": rec["slug"], "at": t, "band": band, "score": sc, "task": int(task),
+                "expires_at": rec["expires_at"], "source": "v2"}}})  # fmt: skip
+        return {"n": len(users)}
+    if cmd == "skill-answers":  # Vetting V2: the right shown option per question of an attempt (screenshots only)
+        from bson import ObjectId
+
+        (aid,) = args
+        a = await db["skill_attempts"].find_one({"_id": ObjectId(aid)})
+        qs = await db["skill_questions"].find({"_id": {"$in": a["question_ids"]}}).to_list(50)
+        return {"answers": {str(q["_id"]): a["order"][str(q["_id"])].index(q["answer"]) for q in qs}}
     if cmd == "company-verify":
         (cid,) = args
         await db["companies"].update_one(

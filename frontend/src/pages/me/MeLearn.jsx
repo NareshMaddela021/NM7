@@ -2,6 +2,7 @@
 // first); /me/learn?role=<id> opens one: free courses in order ("I finished this" is progress only, never a skill),
 // a small guided project (send a link or a few lines), then the role's skill check. "Skill verified" shows only when
 // the check is passed and the project is sent; companies hiring now and the public resume link see it, with the date.
+import { useVettingOn } from '../../lib/vettingAccess';
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { http } from '../../services/http';
@@ -45,6 +46,7 @@ function Project({ role, p, onDone }) {
 }
 
 function Path({ role }) {
+  const vet = useVettingOn(); // Vetting V2 wording only for people who get it (Admin → Skill checks → Launch)
   const [d, setD] = useState(null);
   const [err, setErr] = useState('');
   useEffect(() => { http(`/api/me/learn/${role}`).then(setD, (e) => setErr(e.message)); }, [role]);
@@ -106,11 +108,13 @@ function Path({ role }) {
               <span className="ml-qno">Step 3 · Skill check</span>
               {t.skill ? (
                 <>
-                  <span className="small">The {t.skill} skill check: 10 minutes, 10 questions. Pass mark {t.pass}%.{t.best ? ` Your best: ${t.best.score}%.` : ''}</span>
+                  <span className="small">{vet
+                    ? <>The {t.skill} skill check: about 15 minutes, 18 questions, then a short practical task. Pass mark {t.pass}.{t.best ? ` Your best: ${t.best.score}/100.` : ''}</>
+                    : <>The {t.skill} skill check: 10 minutes, 10 questions. Pass mark {t.pass}%.{t.best ? ` Your best: ${t.best.score}%.` : ''}</>}</span>
                   {t.best && <Bar value={t.best.score} label="Your best" tone={t.best.score >= t.pass ? 'ok' : 'warn'} />}
                   <div className="ml-actions">
                     <Link className="btn btn-outline" to="/me/practice">Practise first (free)</Link>
-                    <Link className="btn btn-signal" to="/me/skill-checks">Open skill checks</Link>
+                    <Link className="btn btn-signal" to={`/me/skill-checks?skill=${encodeURIComponent(t.skill)}`}>Open the skill check</Link>
                   </div>
                   <span className="xs muted">Practice tests never count; only the official check does.</span>
                 </>

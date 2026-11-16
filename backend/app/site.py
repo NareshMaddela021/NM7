@@ -85,6 +85,12 @@ HIRE = {
 }
 
 
+VETTING = {  # the vetting engine (V1–V5): hidden while it is tested on the live site
+    "public": False,  # off: only admins, demo accounts and the testers below see it; everyone else sees the old site
+    "testers": [],  # emails (lowercase) of real accounts that see it while it is off (e.g. the owner's own)
+}
+
+
 def defaults() -> dict[str, Any]:
     return {
         "plans": {k: {"name": n, "amount": a, "active": True} for k, (n, a) in PLANS.items()},
@@ -113,6 +119,7 @@ def defaults() -> dict[str, Any]:
         # Hire in 60 minutes (Phase 5): every limit editable in Admin → Settings
         "hire": dict(HIRE),
         "seek": dict(SEEK),
+        "vetting": {**VETTING, "testers": []},
     }
 
 
@@ -135,6 +142,7 @@ async def get_site(db: AsyncDatabase, session: Session = None) -> dict[str, Any]
     out["hire"] = {**out["hire"], **(stored.get("hire") or {})}
     out["hire"]["open"] = {**HIRE["open"], **(out["hire"].get("open") or {})}
     out["seek"] = {**SEEK, **(stored.get("seek") or {})}
+    out["vetting"] = {**out["vetting"], **(stored.get("vetting") or {})}
     out["daily_summary_sent"] = stored.get("daily_summary_sent")
     out["rule_runs"] = stored.get("rule_runs", {})
     return out

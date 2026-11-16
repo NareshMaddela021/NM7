@@ -1,0 +1,1656 @@
+{
+ "slug": "cook",
+ "version": 1,
+ "topics": [
+  "Food safety and hygiene",
+  "Kitchen safety",
+  "Cooking skills",
+  "Storage and stock",
+  "Tools and equipment"
+ ],
+ "questions": [
+  {
+   "id": "cook-001",
+   "topic": "Food safety and hygiene",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "When should you wash your hands in the kitchen?",
+   "options": [
+    "Only before the shift starts",
+    "Only when they look dirty",
+    "Only after cutting onions",
+    "Before cooking, and after raw meat, waste or the phone"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "కిచెన్‌లో చేతులు ఎప్పుడు కడుక్కోవాలి?",
+    "options": [
+     "షిఫ్ట్ మొదలయ్యే ముందు మాత్రమే",
+     "మురికిగా కనిపించినప్పుడు మాత్రమే",
+     "ఉల్లిపాయలు కోశాక మాత్రమే",
+     "వంట ముందు, పచ్చి మాంసం, చెత్త లేదా ఫోన్ తాకిన తర్వాత"
+    ]
+   },
+   "hi": {
+    "q": "किचन में हाथ कब धोने चाहिए?",
+    "options": [
+     "सिर्फ़ शिफ़्ट शुरू होने से पहले",
+     "सिर्फ़ जब हाथ गंदे दिखें",
+     "सिर्फ़ प्याज़ काटने के बाद",
+     "खाना बनाने से पहले, और कच्चा मीट, कचरा या फ़ोन छूने के बाद"
+    ]
+   }
+  },
+  {
+   "id": "cook-002",
+   "topic": "Food safety and hygiene",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Why use a separate chopping board for raw chicken?",
+   "options": [
+    "Chicken makes the board smell",
+    "It saves washing time",
+    "The board gets blunt faster",
+    "So its germs don't reach cooked or salad items"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "పచ్చి చికెన్‌కు వేరే చాపింగ్ బోర్డు ఎందుకు వాడాలి?",
+    "options": [
+     "చికెన్ వల్ల బోర్డు వాసన వస్తుంది",
+     "కడిగే సమయం ఆదా అవుతుంది",
+     "బోర్డు త్వరగా అరిగిపోతుంది",
+     "దాని క్రిములు వండిన ఆహారానికి, సలాడ్‌కు చేరకుండా"
+    ]
+   },
+   "hi": {
+    "q": "कच्चे चिकन के लिए अलग चॉपिंग बोर्ड क्यों इस्तेमाल करें?",
+    "options": [
+     "चिकन से बोर्ड में बदबू आती है",
+     "धोने का समय बचता है",
+     "बोर्ड जल्दी घिस जाता है",
+     "ताकि उसके कीटाणु पके खाने या सलाद तक न पहुँचें"
+    ]
+   }
+  },
+  {
+   "id": "cook-003",
+   "topic": "Food safety and hygiene",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Cooked dal and rice are left out. How long can they safely stay at room temperature?",
+   "options": [
+    "Till the next morning",
+    "6 to 8 hours if covered",
+    "About 2 hours, then fridge or throw away",
+    "As long as it does not smell"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "వండిన పప్పు, అన్నం బయట ఉంచారు. గది ఉష్ణోగ్రతలో ఎంతసేపు సురక్షితంగా ఉంటాయి?",
+    "options": [
+     "మరుసటి రోజు ఉదయం వరకు",
+     "మూత పెడితే 6 నుండి 8 గంటలు",
+     "సుమారు 2 గంటలు, తర్వాత ఫ్రిజ్‌లో పెట్టాలి లేదా పారేయాలి",
+     "వాసన రానంత వరకు"
+    ]
+   },
+   "hi": {
+    "q": "पकी दाल और चावल बाहर रखे हैं। कमरे के तापमान पर कितनी देर सुरक्षित रहते हैं?",
+    "options": [
+     "अगली सुबह तक",
+     "ढके हों तो 6 से 8 घंटे",
+     "लगभग 2 घंटे, फिर फ़्रिज में रखें या फेंक दें",
+     "जब तक बदबू न आए"
+    ]
+   }
+  },
+  {
+   "id": "cook-004",
+   "topic": "Food safety and hygiene",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is the safe temperature range for a kitchen fridge?",
+   "options": [
+    "8 to 12°C",
+    "0 to 5°C",
+    "12 to 18°C",
+    "Any, if the door is kept shut"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "కిచెన్ ఫ్రిజ్‌కు సురక్షితమైన ఉష్ణోగ్రత ఎంత?",
+    "options": [
+     "8 నుండి 12°C",
+     "0 నుండి 5°C",
+     "12 నుండి 18°C",
+     "తలుపు మూసి ఉంటే ఏదైనా పర్వాలేదు"
+    ]
+   },
+   "hi": {
+    "q": "किचन फ़्रिज का सुरक्षित तापमान कितना होना चाहिए?",
+    "options": [
+     "8 से 12°C",
+     "0 से 5°C",
+     "12 से 18°C",
+     "दरवाज़ा बंद हो तो कुछ भी"
+    ]
+   }
+  },
+  {
+   "id": "cook-005",
+   "topic": "Food safety and hygiene",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "How should a large pot of leftover biryani be cooled for storage?",
+   "options": [
+    "Leave the full pot covered on the stove overnight",
+    "Put the deep hot pot straight into the freezer",
+    "Let it cool slowly in the pot for 5–6 hours",
+    "Spread into shallow trays, cool fast, then refrigerate"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "మిగిలిన పెద్ద గిన్నె బిర్యానీని నిల్వ కోసం ఎలా చల్లార్చాలి?",
+    "options": [
+     "నిండు గిన్నెను మూత పెట్టి రాత్రంతా స్టవ్ మీద ఉంచాలి",
+     "వేడిగా ఉన్న లోతైన గిన్నెను నేరుగా ఫ్రీజర్‌లో పెట్టాలి",
+     "గిన్నెలోనే 5–6 గంటలు మెల్లగా చల్లారనివ్వాలి",
+     "లోతు తక్కువ ట్రేలలో పరిచి, త్వరగా చల్లార్చి, ఫ్రిజ్‌లో పెట్టాలి"
+    ]
+   },
+   "hi": {
+    "q": "बची हुई बिरयानी का बड़ा भगोना रखने के लिए कैसे ठंडा करें?",
+    "options": [
+     "पूरा भगोना ढककर रात भर चूल्हे पर छोड़ दें",
+     "गरम गहरा भगोना सीधे फ़्रीज़र में रख दें",
+     "भगोने में ही 5–6 घंटे धीरे-धीरे ठंडा होने दें",
+     "कम गहरी ट्रे में फैलाकर जल्दी ठंडा करें, फिर फ़्रिज में रखें"
+    ]
+   }
+  },
+  {
+   "id": "cook-006",
+   "topic": "Food safety and hygiene",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "When reheating cooked food, what is the right practice?",
+   "options": [
+    "Warm it slightly so the taste is not lost",
+    "Reheat the full batch many times in the day",
+    "Heat till steaming hot all through, and only once",
+    "Heat only the top part that will be served"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "వండిన ఆహారాన్ని మళ్లీ వేడి చేసేటప్పుడు సరైన పద్ధతి ఏది?",
+    "options": [
+     "రుచి పోకుండా కొంచెం గోరువెచ్చగా చేయాలి",
+     "రోజంతా మొత్తం బ్యాచ్‌ను చాలాసార్లు వేడి చేయాలి",
+     "లోపల అంతా ఆవిరి వచ్చేంత వేడి చేయాలి, ఒక్కసారి మాత్రమే",
+     "వడ్డించే పై భాగం మాత్రమే వేడి చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "पका खाना दोबारा गरम करते समय सही तरीक़ा क्या है?",
+    "options": [
+     "स्वाद न जाए इसलिए हल्का सा गुनगुना करें",
+     "पूरा बैच दिन में कई बार गरम करें",
+     "अंदर तक भाप निकलने जितना गरम करें, और सिर्फ़ एक बार",
+     "सिर्फ़ ऊपर का हिस्सा गरम करें जो परोसना है"
+    ]
+   }
+  },
+  {
+   "id": "cook-007",
+   "topic": "Food safety and hygiene",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A cook has loose motions and fever but wants to work. What should the head cook do?",
+   "options": [
+    "Keep the cook away from food until recovered",
+    "Let the cook work if wearing gloves",
+    "Let the cook make only salads",
+    "Give medicine and let the cook continue"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "ఒక కుక్‌కు విరేచనాలు, జ్వరం ఉన్నా పని చేయాలనుకుంటున్నారు. హెడ్ కుక్ ఏం చేయాలి?",
+    "options": [
+     "కోలుకునే వరకు ఆహారం పనులకు దూరంగా ఉంచాలి",
+     "గ్లవ్స్ వేసుకుంటే పని చేయనివ్వాలి",
+     "సలాడ్లు మాత్రమే చేయనివ్వాలి",
+     "మందు ఇచ్చి పని కొనసాగించనివ్వాలి"
+    ]
+   },
+   "hi": {
+    "q": "एक कुक को दस्त और बुख़ार है पर काम करना चाहता है। हेड कुक को क्या करना चाहिए?",
+    "options": [
+     "ठीक होने तक खाने के काम से दूर रखें",
+     "दस्ताने पहने तो काम करने दें",
+     "सिर्फ़ सलाद बनाने दें",
+     "दवा देकर काम करते रहने दें"
+    ]
+   }
+  },
+  {
+   "id": "cook-008",
+   "topic": "Food safety and hygiene",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What should a cook wear on the head while working?",
+   "options": [
+    "A cap or hair net",
+    "Nothing, if the hair is short",
+    "A towel over the shoulder",
+    "A handkerchief kept in the pocket"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "పని చేసేటప్పుడు కుక్ తలకు ఏం ధరించాలి?",
+    "options": [
+     "క్యాప్ లేదా హెయిర్ నెట్",
+     "జుట్టు చిన్నదైతే ఏమీ అవసరం లేదు",
+     "భుజం మీద టవల్",
+     "జేబులో పెట్టుకున్న కర్చీఫ్"
+    ]
+   },
+   "hi": {
+    "q": "काम करते समय कुक को सिर पर क्या पहनना चाहिए?",
+    "options": [
+     "टोपी या हेयर नेट",
+     "बाल छोटे हों तो कुछ नहीं",
+     "कंधे पर तौलिया",
+     "जेब में रखा रूमाल"
+    ]
+   }
+  },
+  {
+   "id": "cook-009",
+   "topic": "Food safety and hygiene",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which food is most risky if kept warm, not hot, for many hours?",
+   "options": [
+    "Dry roasted peanuts",
+    "Cooked rice, chicken curry and paneer dishes",
+    "Plain sugar syrup",
+    "Whole raw onions"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "చాలా గంటలు వేడిగా కాకుండా గోరువెచ్చగా ఉంచితే ఏ ఆహారం ఎక్కువ ప్రమాదం?",
+    "options": [
+     "వేయించిన పల్లీలు",
+     "వండిన అన్నం, చికెన్ కర్రీ, పనీర్ వంటకాలు",
+     "మామూలు చక్కెర పాకం",
+     "పచ్చి ఉల్లిపాయలు (ముక్కలు చేయనివి)"
+    ]
+   },
+   "hi": {
+    "q": "कई घंटे गरम नहीं, बस गुनगुना रखने पर कौन सा खाना सबसे ज़्यादा जोखिम वाला है?",
+    "options": [
+     "भुनी हुई मूँगफली",
+     "पका चावल, चिकन करी और पनीर वाली डिश",
+     "सादी चीनी की चाशनी",
+     "साबुत कच्चे प्याज़"
+    ]
+   }
+  },
+  {
+   "id": "cook-010",
+   "topic": "Food safety and hygiene",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A customer says they have a peanut allergy and orders a curry. What do you do?",
+   "options": [
+    "Check every ingredient and use clean utensils",
+    "Pick out any visible peanuts before serving",
+    "Add less peanut paste than usual",
+    "Tell the waiter it should be fine"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "ఒక కస్టమర్ తనకు పల్లీల అలర్జీ ఉందని చెప్పి కర్రీ ఆర్డర్ చేశారు. ఏం చేస్తారు?",
+    "options": [
+     "ప్రతి పదార్థం చెక్ చేసి, శుభ్రమైన పాత్రలు వాడాలి",
+     "వడ్డించే ముందు కనిపించే పల్లీలు తీసేయాలి",
+     "మామూలు కంటే తక్కువ పల్లీ పేస్ట్ వేయాలి",
+     "పర్వాలేదని వెయిటర్‌కు చెప్పాలి"
+    ]
+   },
+   "hi": {
+    "q": "एक कस्टमर कहता है कि उसे मूँगफली से एलर्जी है और करी ऑर्डर करता है। आप क्या करेंगे?",
+    "options": [
+     "हर सामग्री जाँचें और साफ़ बर्तन इस्तेमाल करें",
+     "परोसने से पहले दिखने वाली मूँगफली निकाल दें",
+     "आम से कम मूँगफली का पेस्ट डालें",
+     "वेटर से कहें कि कोई दिक़्क़त नहीं होगी"
+    ]
+   }
+  },
+  {
+   "id": "cook-011",
+   "topic": "Kitchen safety",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Oil in a kadai catches fire. What do you do first?",
+   "options": [
+    "Pour water on it",
+    "Carry the kadai outside",
+    "Turn off the gas and cover with a metal lid",
+    "Throw flour on it from a distance"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "కడాయిలో నూనెకు మంట అంటుకుంది. ముందు ఏం చేస్తారు?",
+    "options": [
+     "దాని మీద నీళ్లు పోయాలి",
+     "కడాయిని బయటకు తీసుకెళ్లాలి",
+     "గ్యాస్ ఆఫ్ చేసి, లోహపు మూతతో కప్పాలి",
+     "దూరం నుండి దాని మీద పిండి చల్లాలి"
+    ]
+   },
+   "hi": {
+    "q": "कढ़ाई के तेल में आग लग गई। सबसे पहले क्या करेंगे?",
+    "options": [
+     "उस पर पानी डालें",
+     "कढ़ाई उठाकर बाहर ले जाएँ",
+     "गैस बंद करें और धातु के ढक्कन से ढक दें",
+     "दूर से उस पर आटा फेंकें"
+    ]
+   }
+  },
+  {
+   "id": "cook-012",
+   "topic": "Kitchen safety",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "You smell an LPG leak in the kitchen. What should you do?",
+   "options": [
+    "Switch on the exhaust fan",
+    "Light a match to find the leak",
+    "Close the cylinder valve, open windows, no switches or flames",
+    "Keep cooking and call the gas agency later"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "కిచెన్‌లో LPG లీక్ వాసన వస్తోంది. ఏం చేయాలి?",
+    "options": [
+     "ఎగ్జాస్ట్ ఫ్యాన్ ఆన్ చేయాలి",
+     "లీక్ కనుక్కోవడానికి అగ్గిపుల్ల వెలిగించాలి",
+     "సిలిండర్ వాల్వ్ మూసి, కిటికీలు తెరిచి, స్విచ్‌లు, మంట వద్దు",
+     "వంట కొనసాగించి తర్వాత గ్యాస్ ఏజెన్సీకి కాల్ చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "किचन में LPG लीक की गंध आ रही है। क्या करना चाहिए?",
+    "options": [
+     "एग्ज़ॉस्ट फ़ैन चालू करें",
+     "लीक ढूँढने के लिए माचिस जलाएँ",
+     "सिलेंडर का वाल्व बंद करें, खिड़कियाँ खोलें, कोई स्विच या आग नहीं",
+     "खाना बनाते रहें और बाद में गैस एजेंसी को फ़ोन करें"
+    ]
+   }
+  },
+  {
+   "id": "cook-013",
+   "topic": "Kitchen safety",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "How should you carry a knife in a busy kitchen?",
+   "options": [
+    "Point forward to show where you are going",
+    "Point down, close to your side, and warn others",
+    "Tucked in your apron pocket",
+    "Held up high above your head"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "రద్దీగా ఉన్న కిచెన్‌లో కత్తిని ఎలా తీసుకెళ్లాలి?",
+    "options": [
+     "ఎటు వెళ్తున్నారో చూపేలా మొన ముందుకు",
+     "మొన కిందికి, శరీరం పక్కగా, ఇతరులను హెచ్చరిస్తూ",
+     "ఏప్రన్ జేబులో పెట్టుకుని",
+     "తల మీదికి పైకి పట్టుకుని"
+    ]
+   },
+   "hi": {
+    "q": "भीड़ वाले किचन में चाकू कैसे लेकर चलना चाहिए?",
+    "options": [
+     "नोक आगे करके ताकि रास्ता दिखे",
+     "नोक नीचे, शरीर के पास, और दूसरों को सावधान करते हुए",
+     "एप्रन की जेब में रखकर",
+     "सिर के ऊपर उठाकर"
+    ]
+   }
+  },
+  {
+   "id": "cook-014",
+   "topic": "Kitchen safety",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A knife slips off the counter and starts to fall. What should you do?",
+   "options": [
+    "Step back and let it fall",
+    "Try to catch it quickly",
+    "Stop it with your foot",
+    "Grab the blade with a cloth"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "కౌంటర్ మీద నుండి కత్తి జారి పడుతోంది. ఏం చేయాలి?",
+    "options": [
+     "వెనక్కి జరిగి పడనివ్వాలి",
+     "త్వరగా పట్టుకోవడానికి ప్రయత్నించాలి",
+     "కాలితో ఆపాలి",
+     "గుడ్డతో బ్లేడ్ పట్టుకోవాలి"
+    ]
+   },
+   "hi": {
+    "q": "काउंटर से चाकू फिसलकर गिरने लगा। क्या करना चाहिए?",
+    "options": [
+     "पीछे हट जाएँ और गिरने दें",
+     "जल्दी से पकड़ने की कोशिश करें",
+     "पैर से रोकें",
+     "कपड़े से ब्लेड पकड़ लें"
+    ]
+   }
+  },
+  {
+   "id": "cook-015",
+   "topic": "Kitchen safety",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "You are taking a hot tawa off the stove. What is the safe way?",
+   "options": [
+    "Use a dry cloth or mitt, and call out 'hot' while moving",
+    "Use a wet cloth for a better grip",
+    "Hold it quickly with bare hands",
+    "Use the edge of your apron"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "వేడి పెనాన్ని స్టవ్ మీద నుండి తీస్తున్నారు. సురక్షిత మార్గం ఏది?",
+    "options": [
+     "పొడి గుడ్డ లేదా మిట్ వాడి, కదిలేటప్పుడు 'హాట్' అని చెప్పాలి",
+     "బాగా పట్టు కోసం తడి గుడ్డ వాడాలి",
+     "ఒట్టి చేతులతో త్వరగా పట్టుకోవాలి",
+     "ఏప్రన్ అంచుతో పట్టుకోవాలి"
+    ]
+   },
+   "hi": {
+    "q": "आप गरम तवा चूल्हे से उतार रहे हैं। सुरक्षित तरीक़ा क्या है?",
+    "options": [
+     "सूखा कपड़ा या मिट इस्तेमाल करें, और चलते समय 'गरम' बोलें",
+     "अच्छी पकड़ के लिए गीला कपड़ा लें",
+     "नंगे हाथों से जल्दी पकड़ लें",
+     "एप्रन के किनारे से पकड़ें"
+    ]
+   }
+  },
+  {
+   "id": "cook-016",
+   "topic": "Kitchen safety",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Water spills on the kitchen floor during the lunch rush. What do you do?",
+   "options": [
+    "Leave it till the rush is over",
+    "Throw some flour on it to soak it",
+    "Wipe it right away and put a wet floor sign",
+    "Ask everyone to walk carefully"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "లంచ్ రద్దీ సమయంలో కిచెన్ నేల మీద నీళ్లు ఒలికాయి. ఏం చేస్తారు?",
+    "options": [
+     "రద్దీ తగ్గేవరకు వదిలేయాలి",
+     "పీల్చడానికి దాని మీద పిండి చల్లాలి",
+     "వెంటనే తుడిచి, వెట్ ఫ్లోర్ బోర్డు పెట్టాలి",
+     "అందరినీ జాగ్రత్తగా నడవమని చెప్పాలి"
+    ]
+   },
+   "hi": {
+    "q": "लंच के रश में किचन के फ़र्श पर पानी गिर गया। आप क्या करेंगे?",
+    "options": [
+     "रश ख़त्म होने तक छोड़ दें",
+     "सोखने के लिए उस पर आटा डाल दें",
+     "तुरंत पोंछें और गीले फ़र्श का बोर्ड लगाएँ",
+     "सबसे कहें कि ध्यान से चलें"
+    ]
+   }
+  },
+  {
+   "id": "cook-017",
+   "topic": "Kitchen safety",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A helper's arm is burnt by hot oil. What is the right first aid?",
+   "options": [
+    "Apply butter or toothpaste",
+    "Cool it under running tap water for 20 minutes",
+    "Put ice directly on it",
+    "Burst the blisters and cover them"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "ఒక హెల్పర్ చేతికి వేడి నూనె తగిలి కాలింది. సరైన ప్రథమ చికిత్స ఏది?",
+    "options": [
+     "వెన్న లేదా టూత్‌పేస్ట్ రాయాలి",
+     "పారే కుళాయి నీళ్ల కింద 20 నిమిషాలు చల్లబరచాలి",
+     "నేరుగా ఐస్ పెట్టాలి",
+     "బొబ్బలు చిదిమి కప్పాలి"
+    ]
+   },
+   "hi": {
+    "q": "एक हेल्पर का हाथ गरम तेल से जल गया। सही प्राथमिक उपचार क्या है?",
+    "options": [
+     "मक्खन या टूथपेस्ट लगाएँ",
+     "बहते नल के पानी में 20 मिनट ठंडा करें",
+     "सीधे बर्फ़ रखें",
+     "छाले फोड़कर ढक दें"
+    ]
+   }
+  },
+  {
+   "id": "cook-018",
+   "topic": "Kitchen safety",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A pressure cooker is not whistling and steam leaks from the sides. What do you do?",
+   "options": [
+    "Raise the flame to build more pressure",
+    "Open the lid quickly to check inside",
+    "Put a heavy weight on the lid",
+    "Switch off, let it cool, then check the gasket and vent"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "ప్రెషర్ కుక్కర్ విజిల్ రావడం లేదు, పక్కల నుండి ఆవిరి లీక్ అవుతోంది. ఏం చేస్తారు?",
+    "options": [
+     "ప్రెషర్ పెరగడానికి మంట పెంచాలి",
+     "లోపల చూడటానికి త్వరగా మూత తెరవాలి",
+     "మూత మీద బరువు పెట్టాలి",
+     "ఆఫ్ చేసి, చల్లారనిచ్చి, గాస్కెట్, వెంట్ చెక్ చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "प्रेशर कुकर सीटी नहीं दे रहा और किनारों से भाप निकल रही है। आप क्या करेंगे?",
+    "options": [
+     "प्रेशर बनाने के लिए आँच तेज़ करें",
+     "अंदर देखने के लिए जल्दी ढक्कन खोलें",
+     "ढक्कन पर भारी वज़न रख दें",
+     "गैस बंद करें, ठंडा होने दें, फिर गैस्केट और वेंट जाँचें"
+    ]
+   }
+  },
+  {
+   "id": "cook-019",
+   "topic": "Kitchen safety",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Which is right for a fire in a deep fryer full of oil?",
+   "options": [
+    "A water-type extinguisher",
+    "A wet chemical (K class) extinguisher or fire blanket",
+    "Sand mixed with water",
+    "Whichever extinguisher is closest"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "నూనె నిండిన డీప్ ఫ్రైయర్‌లో మంటకు ఏది సరైనది?",
+    "options": [
+     "నీళ్ల రకం ఎక్స్‌టింగ్విషర్",
+     "వెట్ కెమికల్ (K క్లాస్) ఎక్స్‌టింగ్విషర్ లేదా ఫైర్ బ్లాంకెట్",
+     "నీళ్లు కలిపిన ఇసుక",
+     "దగ్గరగా ఉన్న ఏ ఎక్స్‌టింగ్విషర్ అయినా"
+    ]
+   },
+   "hi": {
+    "q": "तेल से भरे डीप फ़्रायर की आग के लिए क्या सही है?",
+    "options": [
+     "पानी वाला एक्सटिंग्विशर",
+     "वेट केमिकल (K क्लास) एक्सटिंग्विशर या फ़ायर ब्लैंकेट",
+     "पानी मिली रेत",
+     "जो भी एक्सटिंग्विशर पास में हो"
+    ]
+   }
+  },
+  {
+   "id": "cook-020",
+   "topic": "Kitchen safety",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Before cleaning a meat mincer or a mixer, what must you do?",
+   "options": [
+    "Switch it off and unplug it",
+    "Run it with water inside",
+    "Remove only the lid",
+    "Wear gloves and clean while it runs"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "మీట్ మిన్సర్ లేదా మిక్సర్ శుభ్రం చేసే ముందు తప్పకుండా ఏం చేయాలి?",
+    "options": [
+     "స్విచ్ ఆఫ్ చేసి ప్లగ్ తీసేయాలి",
+     "లోపల నీళ్లు పోసి తిప్పాలి",
+     "మూత మాత్రమే తీయాలి",
+     "గ్లవ్స్ వేసుకుని తిరుగుతుండగానే శుభ్రం చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "मीट मिंसर या मिक्सर साफ़ करने से पहले क्या ज़रूर करना चाहिए?",
+    "options": [
+     "स्विच बंद करें और प्लग निकालें",
+     "अंदर पानी डालकर चलाएँ",
+     "सिर्फ़ ढक्कन हटाएँ",
+     "दस्ताने पहनकर चलते हुए साफ़ करें"
+    ]
+   }
+  },
+  {
+   "id": "cook-021",
+   "topic": "Cooking skills",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does 'simmer' mean when cooking?",
+   "options": [
+    "Cook on full flame with big bubbles",
+    "Fry in a lot of oil",
+    "Cook on low heat with small bubbles",
+    "Cook with no water at all"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "వంటలో 'సిమ్మర్' అంటే ఏమిటి?",
+    "options": [
+     "పెద్ద బుడగలతో పూర్తి మంట మీద ఉడికించడం",
+     "ఎక్కువ నూనెలో వేయించడం",
+     "చిన్న బుడగలతో తక్కువ మంట మీద ఉడికించడం",
+     "అసలు నీళ్లు లేకుండా వండటం"
+    ]
+   },
+   "hi": {
+    "q": "खाना बनाने में 'सिमर' का मतलब क्या है?",
+    "options": [
+     "तेज़ आँच पर बड़े बुलबुलों के साथ पकाना",
+     "ज़्यादा तेल में तलना",
+     "धीमी आँच पर छोटे बुलबुलों के साथ पकाना",
+     "बिल्कुल बिना पानी के पकाना"
+    ]
+   }
+  },
+  {
+   "id": "cook-022",
+   "topic": "Cooking skills",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "How do you know oil is hot enough for frying pakoras?",
+   "options": [
+    "The oil gives thick smoke",
+    "A drop of batter rises quickly to the top",
+    "The oil looks darker in colour",
+    "After exactly one minute on the gas"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "పకోడీలు వేయించడానికి నూనె సరిపడా వేడెక్కిందని ఎలా తెలుస్తుంది?",
+    "options": [
+     "నూనె నుండి దట్టమైన పొగ వస్తుంది",
+     "పిండి చుక్క వేస్తే త్వరగా పైకి తేలుతుంది",
+     "నూనె రంగు ముదురుగా కనిపిస్తుంది",
+     "గ్యాస్ మీద సరిగ్గా ఒక నిమిషం తర్వాత"
+    ]
+   },
+   "hi": {
+    "q": "पकौड़े तलने के लिए तेल काफ़ी गरम है, यह कैसे पता चलेगा?",
+    "options": [
+     "तेल से गाढ़ा धुआँ निकलता है",
+     "घोल की एक बूँद जल्दी ऊपर तैर आती है",
+     "तेल का रंग गहरा दिखता है",
+     "गैस पर ठीक एक मिनट बाद"
+    ]
+   }
+  },
+  {
+   "id": "cook-023",
+   "topic": "Cooking skills",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "The dal is too salty and must be served soon. What is the best fix?",
+   "options": [
+    "Add sugar to hide the salt",
+    "Add more chilli powder",
+    "Boil it longer to burn off the salt",
+    "Add more plain boiled dal or water, then adjust spices"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "పప్పులో ఉప్పు ఎక్కువైంది, త్వరలో వడ్డించాలి. ఉత్తమ పరిష్కారం ఏది?",
+    "options": [
+     "ఉప్పు తెలియకుండా చక్కెర వేయాలి",
+     "ఇంకా కారం పొడి వేయాలి",
+     "ఉప్పు పోవడానికి ఇంకా ఎక్కువసేపు మరిగించాలి",
+     "ఉప్పు లేని ఉడికించిన పప్పు లేదా నీళ్లు కలిపి, మసాలా సరిచేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "दाल में नमक ज़्यादा हो गया और जल्दी परोसनी है। सबसे अच्छा उपाय क्या है?",
+    "options": [
+     "नमक छिपाने के लिए चीनी डालें",
+     "और लाल मिर्च पाउडर डालें",
+     "नमक उड़ाने के लिए और देर उबालें",
+     "बिना नमक की उबली दाल या पानी मिलाएँ, फिर मसाले ठीक करें"
+    ]
+   }
+  },
+  {
+   "id": "cook-024",
+   "topic": "Cooking skills",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "After putting mustard seeds in hot oil, when should you add curry leaves?",
+   "options": [
+    "Before the oil gets hot",
+    "After the seeds turn black",
+    "At the same time, in cold oil",
+    "After the seeds start to splutter"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "వేడి నూనెలో ఆవాలు వేశాక, కరివేపాకు ఎప్పుడు వేయాలి?",
+    "options": [
+     "నూనె వేడెక్కక ముందే",
+     "ఆవాలు నల్లగా మాడాక",
+     "చల్లని నూనెలో ఒకేసారి",
+     "ఆవాలు చిటపటలాడటం మొదలయ్యాక"
+    ]
+   },
+   "hi": {
+    "q": "गरम तेल में राई डालने के बाद कड़ी पत्ता कब डालना चाहिए?",
+    "options": [
+     "तेल गरम होने से पहले",
+     "जब राई काली पड़ जाए",
+     "ठंडे तेल में एक साथ",
+     "जब राई चटकने लगे"
+    ]
+   }
+  },
+  {
+   "id": "cook-025",
+   "topic": "Cooking skills",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A gravy has become too thin just before service. What is a quick fix?",
+   "options": [
+    "Stir dry maida straight into the hot gravy",
+    "Add more water and salt",
+    "Reduce it on open flame or add some cashew paste",
+    "Cover it tightly and boil it hard"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "వడ్డించే ముందు గ్రేవీ చాలా పలుచగా అయింది. త్వరగా సరిచేసే మార్గం ఏది?",
+    "options": [
+     "పొడి మైదాను నేరుగా వేడి గ్రేవీలో కలపాలి",
+     "ఇంకా నీళ్లు, ఉప్పు వేయాలి",
+     "మూత లేకుండా మరిగించి చిక్కబరచాలి లేదా జీడిపప్పు పేస్ట్ కలపాలి",
+     "గట్టిగా మూత పెట్టి బాగా మరిగించాలి"
+    ]
+   },
+   "hi": {
+    "q": "परोसने से ठीक पहले ग्रेवी बहुत पतली हो गई। जल्दी ठीक करने का तरीक़ा क्या है?",
+    "options": [
+     "सूखा मैदा सीधे गरम ग्रेवी में मिलाएँ",
+     "और पानी और नमक डालें",
+     "खुली आँच पर गाढ़ा करें या थोड़ा काजू पेस्ट डालें",
+     "कसकर ढककर तेज़ उबालें"
+    ]
+   }
+  },
+  {
+   "id": "cook-026",
+   "topic": "Cooking skills",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Chapatis keep turning hard and dry. What is the most likely reason?",
+   "options": [
+    "Too much water was used in the dough",
+    "The tawa was very well seasoned",
+    "Too little salt was added to the atta",
+    "Dough not rested, and cooked too long on low heat"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "చపాతీలు గట్టిగా, పొడిగా వస్తున్నాయి. ఎక్కువగా కారణం ఏమిటి?",
+    "options": [
+     "పిండిలో నీళ్లు చాలా ఎక్కువ పోశారు",
+     "పెనం బాగా సీజన్ చేసి ఉంది",
+     "ఆటాలో ఉప్పు చాలా తక్కువ వేశారు",
+     "పిండి నాననివ్వలేదు, తక్కువ మంట మీద ఎక్కువసేపు కాల్చారు"
+    ]
+   },
+   "hi": {
+    "q": "रोटियाँ बार-बार सख़्त और सूखी बन रही हैं। सबसे संभावित कारण क्या है?",
+    "options": [
+     "आटे में बहुत ज़्यादा पानी डाला गया",
+     "तवा बहुत अच्छी तरह सीज़न किया हुआ था",
+     "आटे में बहुत कम नमक डाला गया",
+     "आटा रखा नहीं गया, और धीमी आँच पर बहुत देर सेंका"
+    ]
+   }
+  },
+  {
+   "id": "cook-027",
+   "topic": "Cooking skills",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "You usually cook rice for 50 plates. Today you need 200. What is the right approach?",
+   "options": [
+    "Multiply everything by 4 and use one pot",
+    "Guess the amounts by eye",
+    "Scale the recipe and cook in batches your pots can hold",
+    "Cook 50 plates and stretch it with water"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "మీరు సాధారణంగా 50 ప్లేట్ల అన్నం వండుతారు. ఈరోజు 200 కావాలి. సరైన పద్ధతి ఏది?",
+    "options": [
+     "అన్నీ 4 రెట్లు చేసి ఒకే గిన్నెలో వండాలి",
+     "కళ్లతో అంచనా వేసి కొలతలు వేయాలి",
+     "రెసిపీ కొలతలు పెంచి, గిన్నెలు పట్టేంత బ్యాచ్‌లలో వండాలి",
+     "50 ప్లేట్లు వండి నీళ్లతో పెంచాలి"
+    ]
+   },
+   "hi": {
+    "q": "आप आम तौर पर 50 प्लेट चावल बनाते हैं। आज 200 चाहिए। सही तरीक़ा क्या है?",
+    "options": [
+     "सब कुछ 4 गुना करके एक ही बर्तन में पकाएँ",
+     "आँख से अंदाज़ा लगाकर मात्रा डालें",
+     "रेसिपी की मात्रा बढ़ाएँ और बर्तन जितना ले सकें उतने बैच में पकाएँ",
+     "50 प्लेट बनाकर पानी से बढ़ा दें"
+    ]
+   }
+  },
+  {
+   "id": "cook-028",
+   "topic": "Cooking skills",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why is meat marinated in curd and spices before cooking?",
+   "options": [
+    "So it cooks without heat",
+    "To kill all the germs in it",
+    "To soften it and let flavour go inside",
+    "So it keeps for many days"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "వండే ముందు మాంసాన్ని పెరుగు, మసాలాలో ఎందుకు మారినేట్ చేస్తారు?",
+    "options": [
+     "వేడి లేకుండానే ఉడకడానికి",
+     "అందులోని క్రిములన్నీ చావడానికి",
+     "మెత్తబడటానికి, రుచి లోపలికి ఇంకడానికి",
+     "చాలా రోజులు నిల్వ ఉండటానికి"
+    ]
+   },
+   "hi": {
+    "q": "पकाने से पहले मीट को दही और मसालों में मैरिनेट क्यों करते हैं?",
+    "options": [
+     "ताकि बिना आँच के पक जाए",
+     "उसके सारे कीटाणु मारने के लिए",
+     "नरम करने और स्वाद अंदर तक जाने के लिए",
+     "ताकि कई दिन तक चले"
+    ]
+   }
+  },
+  {
+   "id": "cook-029",
+   "topic": "Cooking skills",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Paneer turns rubbery in a curry. What is the most likely cause?",
+   "options": [
+    "It was not soaked in oil first",
+    "The paneer was too fresh",
+    "Too little salt went into the curry",
+    "It was cooked too long or on very high heat"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "కర్రీలో పనీర్ రబ్బరులా అయింది. ఎక్కువగా కారణం ఏమిటి?",
+    "options": [
+     "ముందుగా నూనెలో నానబెట్టలేదు",
+     "పనీర్ చాలా తాజాగా ఉంది",
+     "కర్రీలో ఉప్పు చాలా తక్కువ వేశారు",
+     "ఎక్కువసేపు లేదా చాలా ఎక్కువ మంట మీద వండారు"
+    ]
+   },
+   "hi": {
+    "q": "करी में पनीर रबड़ जैसा हो गया। सबसे संभावित कारण क्या है?",
+    "options": [
+     "पहले तेल में भिगोया नहीं गया",
+     "पनीर बहुत ताज़ा था",
+     "करी में बहुत कम नमक डाला गया",
+     "बहुत देर तक या बहुत तेज़ आँच पर पकाया गया"
+    ]
+   }
+  },
+  {
+   "id": "cook-030",
+   "topic": "Cooking skills",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is the correct way to wash rice before cooking?",
+   "options": [
+    "Wash it once quickly in hot water",
+    "Do not wash it at all",
+    "Rub it hard with salt and keep it dry",
+    "Rinse it 2–3 times until the water runs clearer"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "వండే ముందు బియ్యం కడిగే సరైన పద్ధతి ఏది?",
+    "options": [
+     "వేడి నీళ్లలో ఒక్కసారి త్వరగా కడగాలి",
+     "అసలు కడగకూడదు",
+     "ఉప్పుతో గట్టిగా రుద్ది పొడిగా ఉంచాలి",
+     "నీళ్లు తేటగా వచ్చేవరకు 2–3 సార్లు కడగాలి"
+    ]
+   },
+   "hi": {
+    "q": "पकाने से पहले चावल धोने का सही तरीक़ा क्या है?",
+    "options": [
+     "गरम पानी में एक बार जल्दी से धोएँ",
+     "बिल्कुल न धोएँ",
+     "नमक से ज़ोर से रगड़कर सूखा रखें",
+     "पानी साफ़ आने तक 2–3 बार धोएँ"
+    ]
+   }
+  },
+  {
+   "id": "cook-031",
+   "topic": "Storage and stock",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does FIFO mean in a kitchen store room?",
+   "options": [
+    "Older stock is used before newer stock",
+    "Fresh items are used first, old ones later",
+    "Fill in, fill out the register daily",
+    "Frozen items are always used first"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "కిచెన్ స్టోర్ రూమ్‌లో FIFO అంటే ఏమిటి?",
+    "options": [
+     "కొత్త సరుకు కంటే ముందు పాత సరుకు వాడాలి",
+     "తాజావి ముందు, పాతవి తర్వాత వాడాలి",
+     "రోజూ రిజిస్టర్ నింపడం",
+     "ఫ్రోజెన్ వస్తువులు ఎప్పుడూ ముందు వాడాలి"
+    ]
+   },
+   "hi": {
+    "q": "किचन स्टोर में FIFO का मतलब क्या है?",
+    "options": [
+     "नए सामान से पहले पुराना सामान इस्तेमाल हो",
+     "ताज़ा सामान पहले, पुराना बाद में",
+     "रोज़ रजिस्टर भरना",
+     "फ़्रोज़न सामान हमेशा पहले इस्तेमाल हो"
+    ]
+   }
+  },
+  {
+   "id": "cook-032",
+   "topic": "Storage and stock",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Where in the fridge should raw meat be kept?",
+   "options": [
+    "On the bottom shelf, covered",
+    "On the top shelf above vegetables",
+    "Next to cooked food, uncovered",
+    "In the door rack"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "ఫ్రిజ్‌లో పచ్చి మాంసం ఎక్కడ ఉంచాలి?",
+    "options": [
+     "కింది అరలో, మూత పెట్టి",
+     "కూరగాయల పైన, పై అరలో",
+     "వండిన ఆహారం పక్కన, మూత లేకుండా",
+     "తలుపు ర్యాక్‌లో"
+    ]
+   },
+   "hi": {
+    "q": "फ़्रिज में कच्चा मीट कहाँ रखना चाहिए?",
+    "options": [
+     "सबसे नीचे वाली शेल्फ़ पर, ढककर",
+     "सब्ज़ियों के ऊपर, सबसे ऊपर वाली शेल्फ़ पर",
+     "पके खाने के पास, बिना ढके",
+     "दरवाज़े वाले रैक में"
+    ]
+   }
+  },
+  {
+   "id": "cook-033",
+   "topic": "Storage and stock",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Frozen chicken must be thawed for tomorrow's lunch. What is the safest way?",
+   "options": [
+    "Leave it on the counter overnight",
+    "Move it to the fridge the night before",
+    "Soak it in hot water for an hour",
+    "Keep it near the warm stove"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "రేపటి లంచ్ కోసం ఫ్రోజెన్ చికెన్‌ను కరిగించాలి. అత్యంత సురక్షిత మార్గం ఏది?",
+    "options": [
+     "రాత్రంతా కౌంటర్ మీద ఉంచాలి",
+     "ముందు రాత్రే ఫ్రిజ్‌లోకి మార్చాలి",
+     "గంటసేపు వేడి నీళ్లలో నానబెట్టాలి",
+     "వేడిగా ఉన్న స్టవ్ దగ్గర ఉంచాలి"
+    ]
+   },
+   "hi": {
+    "q": "कल के लंच के लिए फ़्रोज़न चिकन पिघलाना है। सबसे सुरक्षित तरीक़ा क्या है?",
+    "options": [
+     "रात भर काउंटर पर छोड़ दें",
+     "रात पहले उसे फ़्रिज में रख दें",
+     "एक घंटे गरम पानी में भिगो दें",
+     "गरम चूल्हे के पास रख दें"
+    ]
+   }
+  },
+  {
+   "id": "cook-034",
+   "topic": "Storage and stock",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A delivery of milk packets arrives. What do you check?",
+   "options": [
+    "Expiry date, packet sealed, and cold to touch",
+    "Only the number of packets",
+    "Only the price on the bill",
+    "Only the brand name"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "పాల ప్యాకెట్ల డెలివరీ వచ్చింది. ఏం చెక్ చేస్తారు?",
+    "options": [
+     "ఎక్స్‌పైరీ తేదీ, ప్యాకెట్ సీల్, తాకితే చల్లగా ఉందా",
+     "ప్యాకెట్ల సంఖ్య మాత్రమే",
+     "బిల్లులో ధర మాత్రమే",
+     "బ్రాండ్ పేరు మాత్రమే"
+    ]
+   },
+   "hi": {
+    "q": "दूध के पैकेट की डिलीवरी आई है। आप क्या जाँचेंगे?",
+    "options": [
+     "एक्सपायरी डेट, पैकेट सील, और छूने पर ठंडा",
+     "सिर्फ़ पैकेटों की गिनती",
+     "सिर्फ़ बिल पर दाम",
+     "सिर्फ़ ब्रांड का नाम"
+    ]
+   }
+  },
+  {
+   "id": "cook-035",
+   "topic": "Storage and stock",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "How should dry items like rice, dal and atta be stored?",
+   "options": [
+    "In closed, labelled containers on racks above the floor",
+    "In open sacks on the floor",
+    "Near the stove to keep them dry",
+    "Under the sink in plastic bags"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "బియ్యం, పప్పు, ఆటా లాంటి పొడి సరుకులు ఎలా నిల్వ చేయాలి?",
+    "options": [
+     "మూత, లేబుల్ ఉన్న డబ్బాల్లో, నేలకు పైగా ర్యాక్‌ల మీద",
+     "నేల మీద తెరిచిన బస్తాల్లో",
+     "పొడిగా ఉండటానికి స్టవ్ దగ్గర",
+     "సింక్ కింద ప్లాస్టిక్ కవర్లలో"
+    ]
+   },
+   "hi": {
+    "q": "चावल, दाल और आटा जैसा सूखा सामान कैसे रखना चाहिए?",
+    "options": [
+     "बंद, लेबल लगे डिब्बों में, फ़र्श से ऊपर रैक पर",
+     "फ़र्श पर खुली बोरियों में",
+     "सूखा रखने के लिए चूल्हे के पास",
+     "सिंक के नीचे प्लास्टिक की थैलियों में"
+    ]
+   }
+  },
+  {
+   "id": "cook-036",
+   "topic": "Storage and stock",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Paneer in the fridge is past its use-by date but looks fine. What should you do?",
+   "options": [
+    "Use it in a spicy dish so no one can tell",
+    "Smell it and use it if it seems okay",
+    "Throw it out and note it in the waste record",
+    "Wash it in hot water and then use it"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "ఫ్రిజ్‌లో పనీర్ గడువు తేదీ దాటింది కానీ బాగానే కనిపిస్తోంది. ఏం చేయాలి?",
+    "options": [
+     "ఎవరికీ తెలియకుండా కారంగా ఉండే వంటకంలో వాడాలి",
+     "వాసన చూసి బాగుంటే వాడాలి",
+     "పారేసి, వేస్ట్ రికార్డులో రాయాలి",
+     "వేడి నీళ్లలో కడిగి వాడాలి"
+    ]
+   },
+   "hi": {
+    "q": "फ़्रिज में पनीर की तारीख़ निकल चुकी है पर ठीक दिखता है। क्या करना चाहिए?",
+    "options": [
+     "तीखी डिश में डाल दें ताकि पता न चले",
+     "सूँघकर ठीक लगे तो इस्तेमाल करें",
+     "फेंक दें और वेस्ट रिकॉर्ड में लिखें",
+     "गरम पानी में धोकर इस्तेमाल करें"
+    ]
+   }
+  },
+  {
+   "id": "cook-037",
+   "topic": "Storage and stock",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What should a label on cooked food stored in the fridge show?",
+   "options": [
+    "Only the name of the cook",
+    "Item name and the date and time it was made",
+    "Only the selling price",
+    "Nothing, if the box is see-through"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "ఫ్రిజ్‌లో పెట్టిన వండిన ఆహారం మీద లేబుల్‌లో ఏం ఉండాలి?",
+    "options": [
+     "కుక్ పేరు మాత్రమే",
+     "వంటకం పేరు, తయారు చేసిన తేదీ, సమయం",
+     "అమ్మే ధర మాత్రమే",
+     "డబ్బా పారదర్శకంగా ఉంటే ఏమీ అవసరం లేదు"
+    ]
+   },
+   "hi": {
+    "q": "फ़्रिज में रखे पके खाने के लेबल पर क्या लिखा होना चाहिए?",
+    "options": [
+     "सिर्फ़ कुक का नाम",
+     "डिश का नाम और बनाने की तारीख़ व समय",
+     "सिर्फ़ बेचने का दाम",
+     "डिब्बा पारदर्शी हो तो कुछ नहीं"
+    ]
+   }
+  },
+  {
+   "id": "cook-038",
+   "topic": "Storage and stock",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "The walk-in freezer shows -5°C in the morning instead of -18°C. What do you do?",
+   "options": [
+    "Report it now and shift stock to a working freezer",
+    "Wait, it will be cold again by evening",
+    "Refreeze it all and say nothing",
+    "Use all the food today as specials"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "వాక్-ఇన్ ఫ్రీజర్ ఉదయం -18°C బదులు -5°C చూపిస్తోంది. ఏం చేస్తారు?",
+    "options": [
+     "వెంటనే రిపోర్ట్ చేసి, సరుకును పని చేసే ఫ్రీజర్‌కు మార్చాలి",
+     "ఆగండి, సాయంత్రానికి మళ్లీ చల్లబడుతుంది",
+     "అన్నీ మళ్లీ ఫ్రీజ్ చేసి ఏమీ చెప్పకూడదు",
+     "ఆహారమంతా ఈరోజే స్పెషల్స్‌గా వాడేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "वॉक-इन फ़्रीज़र सुबह -18°C की जगह -5°C दिखा रहा है। आप क्या करेंगे?",
+    "options": [
+     "तुरंत रिपोर्ट करें और सामान चालू फ़्रीज़र में शिफ़्ट करें",
+     "रुकिए, शाम तक फिर ठंडा हो जाएगा",
+     "सब दोबारा जमा दें और कुछ न कहें",
+     "सारा खाना आज स्पेशल डिश में इस्तेमाल कर लें"
+    ]
+   }
+  },
+  {
+   "id": "cook-039",
+   "topic": "Storage and stock",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "The kitchen uses 70 kg onions a week. Stock is 20 kg and delivery takes 3 days. When should you order?",
+   "options": [
+    "When the stock reaches zero",
+    "In 3 days' time",
+    "Next week, with the usual order",
+    "Today, as 20 kg lasts only about 2 days"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "కిచెన్‌కు వారానికి 70 కిలోల ఉల్లిపాయలు కావాలి. స్టాక్ 20 కిలోలు, డెలివరీకి 3 రోజులు. ఎప్పుడు ఆర్డర్ చేయాలి?",
+    "options": [
+     "స్టాక్ పూర్తిగా అయిపోయినప్పుడు",
+     "3 రోజుల తర్వాత",
+     "వచ్చే వారం, మామూలు ఆర్డర్‌తో",
+     "ఈరోజే, ఎందుకంటే 20 కిలోలు సుమారు 2 రోజులే వస్తాయి"
+    ]
+   },
+   "hi": {
+    "q": "किचन में हफ़्ते में 70 किलो प्याज़ लगता है। स्टॉक 20 किलो है और डिलीवरी में 3 दिन लगते हैं। ऑर्डर कब करें?",
+    "options": [
+     "जब स्टॉक ख़त्म हो जाए",
+     "3 दिन बाद",
+     "अगले हफ़्ते, रोज़ के ऑर्डर के साथ",
+     "आज ही, क्योंकि 20 किलो लगभग 2 दिन ही चलेगा"
+    ]
+   }
+  },
+  {
+   "id": "cook-040",
+   "topic": "Tools and equipment",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which knife is best for chopping onions and vegetables?",
+   "options": [
+    "A bread knife with teeth",
+    "A butter knife",
+    "A tiny peeling knife only",
+    "A chef's knife"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "ఉల్లిపాయలు, కూరగాయలు కోయడానికి ఏ కత్తి బాగుంటుంది?",
+    "options": [
+     "పళ్లు ఉన్న బ్రెడ్ నైఫ్",
+     "బటర్ నైఫ్",
+     "చిన్న పీలింగ్ కత్తి మాత్రమే",
+     "చెఫ్ నైఫ్"
+    ]
+   },
+   "hi": {
+    "q": "प्याज़ और सब्ज़ियाँ काटने के लिए कौन सा चाकू सबसे अच्छा है?",
+    "options": [
+     "दाँतेदार ब्रेड नाइफ़",
+     "बटर नाइफ़",
+     "सिर्फ़ छोटा छीलने वाला चाकू",
+     "शेफ़ नाइफ़"
+    ]
+   }
+  },
+  {
+   "id": "cook-041",
+   "topic": "Tools and equipment",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why is a blunt knife more dangerous than a sharp one?",
+   "options": [
+    "It is heavier to hold",
+    "It slips more and needs more force",
+    "It rusts more quickly",
+    "It cuts too deep into food"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "పదునైన కత్తి కంటే మొద్దు కత్తి ఎందుకు ఎక్కువ ప్రమాదం?",
+    "options": [
+     "పట్టుకోవడానికి బరువుగా ఉంటుంది",
+     "ఎక్కువ జారుతుంది, ఎక్కువ బలం పెట్టాలి",
+     "త్వరగా తుప్పు పడుతుంది",
+     "ఆహారంలోకి చాలా లోతుగా కోస్తుంది"
+    ]
+   },
+   "hi": {
+    "q": "धार वाले चाकू से भोथरा चाकू ज़्यादा ख़तरनाक क्यों है?",
+    "options": [
+     "पकड़ने में भारी होता है",
+     "ज़्यादा फिसलता है और ज़्यादा ज़ोर लगाना पड़ता है",
+     "जल्दी ज़ंग लगता है",
+     "खाने में बहुत गहरा कटता है"
+    ]
+   }
+  },
+  {
+   "id": "cook-042",
+   "topic": "Tools and equipment",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "How should you clean an iron tawa after use?",
+   "options": [
+    "Soak it overnight in soapy water",
+    "Wash, dry fully on heat, and rub a little oil",
+    "Leave it wet in the sink till morning",
+    "Scrub off all the black layer every day"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "వాడిన తర్వాత ఇనుప పెనాన్ని ఎలా శుభ్రం చేయాలి?",
+    "options": [
+     "రాత్రంతా సబ్బు నీళ్లలో నానబెట్టాలి",
+     "కడిగి, మంట మీద పూర్తిగా ఆరబెట్టి, కొంచెం నూనె రాయాలి",
+     "ఉదయం వరకు సింక్‌లో తడిగా వదిలేయాలి",
+     "రోజూ నల్లటి పొర మొత్తం గీకేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "इस्तेमाल के बाद लोहे का तवा कैसे साफ़ करना चाहिए?",
+    "options": [
+     "रात भर साबुन के पानी में भिगो दें",
+     "धोएँ, आँच पर पूरा सुखाएँ, और थोड़ा तेल लगाएँ",
+     "सुबह तक सिंक में गीला छोड़ दें",
+     "रोज़ पूरी काली परत रगड़कर हटा दें"
+    ]
+   }
+  },
+  {
+   "id": "cook-043",
+   "topic": "Tools and equipment",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why should you not use a steel spoon in a non-stick pan?",
+   "options": [
+    "It makes the food salty",
+    "It scratches the coating",
+    "The spoon melts in the heat",
+    "It makes the pan heavier"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "నాన్-స్టిక్ పాన్‌లో స్టీల్ గరిటె ఎందుకు వాడకూడదు?",
+    "options": [
+     "ఆహారం ఉప్పగా అవుతుంది",
+     "కోటింగ్ గీతలు పడుతుంది",
+     "వేడికి గరిటె కరుగుతుంది",
+     "పాన్ బరువు పెరుగుతుంది"
+    ]
+   },
+   "hi": {
+    "q": "नॉन-स्टिक पैन में स्टील का चम्मच क्यों नहीं इस्तेमाल करना चाहिए?",
+    "options": [
+     "खाना नमकीन हो जाता है",
+     "कोटिंग पर खरोंच आती है",
+     "गरमी से चम्मच पिघल जाता है",
+     "पैन भारी हो जाता है"
+    ]
+   }
+  },
+  {
+   "id": "cook-044",
+   "topic": "Tools and equipment",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "The mixer grinder jar leaks from the bottom while running. What is the likely cause?",
+   "options": [
+    "Too much salt in the batter",
+    "Motor speed set too low",
+    "A worn jar gasket or a loose coupler",
+    "The jar was filled with cold water"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "మిక్సర్ గ్రైండర్ జార్ తిరుగుతున్నప్పుడు కింద నుండి లీక్ అవుతోంది. కారణం ఏమిటి?",
+    "options": [
+     "పిండిలో ఉప్పు ఎక్కువ",
+     "మోటార్ స్పీడ్ చాలా తక్కువ పెట్టారు",
+     "జార్ గాస్కెట్ అరిగిపోవడం లేదా కప్లర్ వదులవడం",
+     "జార్‌లో చల్లని నీళ్లు పోశారు"
+    ]
+   },
+   "hi": {
+    "q": "मिक्सर ग्राइंडर का जार चलते समय नीचे से लीक हो रहा है। संभावित कारण क्या है?",
+    "options": [
+     "घोल में ज़्यादा नमक",
+     "मोटर की स्पीड बहुत कम रखी",
+     "जार का गैस्केट घिसा है या कपलर ढीला है",
+     "जार में ठंडा पानी भरा था"
+    ]
+   }
+  }
+ ],
+ "task": {
+  "type": "proof",
+  "title": "Kitchen practical check: 7 real situations and an optional photo of your cooking",
+  "minutes": 10,
+  "brief": "This takes about 10 minutes. First answer 7 short questions. Each one describes a real kitchen situation (fridge storage, chopping, gas stove, store room) and asks which way is safe and hygienic. Then, if you want, upload one photo of your own past work: a dish you cooked, a clean and organised work station, or a well-arranged store shelf. You can also upload a cooking, food safety or ITI certificate instead. Do not show any faces in the photo. The photo is optional, but a clear, genuine one helps employers trust your skill.",
+  "key_points": [
+   "Keeps raw and cooked food apart",
+   "Picks the safe way with knives, gas and hot oil",
+   "Uses FIFO and labels in storage",
+   "Follows personal hygiene rules",
+   "Photo shows real cooking or a clean work station"
+  ],
+  "rubric": [
+   {
+    "key": "relevance",
+    "label": "Relevance",
+    "guide": "0 = no photo or unrelated photo, 3 = kitchen work but unclear, 5 = clear photo of own dish, station or store"
+   },
+   {
+    "key": "genuineness",
+    "label": "Genuineness",
+    "guide": "0 = looks copied from the internet, 3 = probably own work, 5 = clearly own work or a real certificate"
+   },
+   {
+    "key": "safety",
+    "label": "Safety and hygiene",
+    "guide": "0 = unsafe or dirty practice visible, 3 = mostly fine, 5 = clean, safe, hygienic set-up and no faces shown"
+   }
+  ],
+  "situations": [
+   {
+    "q": "Which picture shows raw and cooked food stored correctly in a fridge?",
+    "options": [
+     "Raw chicken placed on top of the cooked curry",
+     "Cooked food covered on top, raw meat covered below",
+     "Everything open on one shelf",
+     "Raw fish kept in the door rack"
+    ],
+    "answer": 1,
+    "topic": "Storage and stock",
+    "te": {
+     "q": "ఫ్రిజ్‌లో పచ్చి, వండిన ఆహారం సరిగ్గా పెట్టినది ఏది?",
+     "options": [
+      "వండిన కర్రీ పైన పచ్చి చికెన్",
+      "పైన మూత పెట్టిన వండిన ఆహారం, కింద మూత పెట్టిన పచ్చి మాంసం",
+      "అన్నీ మూత లేకుండా ఒకే అరలో",
+      "తలుపు ర్యాక్‌లో పచ్చి చేప"
+     ]
+    },
+    "hi": {
+     "q": "फ़्रिज में कच्चा और पका खाना सही तरीक़े से कहाँ रखा है?",
+     "options": [
+      "पकी करी के ऊपर कच्चा चिकन",
+      "ऊपर ढका हुआ पका खाना, नीचे ढका कच्चा मीट",
+      "सब कुछ खुला एक ही शेल्फ़ पर",
+      "दरवाज़े के रैक में कच्ची मछली"
+     ]
+    }
+   },
+   {
+    "q": "Which way of holding vegetables while chopping is safe?",
+    "options": [
+     "Fingers flat and stretched out",
+     "Holding the vegetable up in the air",
+     "Thumb on top, right next to the blade",
+     "Fingertips curled in, knuckles guiding the knife"
+    ],
+    "answer": 3,
+    "topic": "Kitchen safety",
+    "te": {
+     "q": "కూరగాయలు కోసేటప్పుడు పట్టుకునే సురక్షిత మార్గం ఏది?",
+     "options": [
+      "వేళ్లు చాపి నిటారుగా",
+      "కూరగాయను గాలిలో పట్టుకుని",
+      "బొటనవేలు పైన, బ్లేడ్ పక్కనే",
+      "వేళ్ల కొనలు లోపలికి ముడిచి, కణుపులు కత్తికి దారి చూపేలా"
+     ]
+    },
+    "hi": {
+     "q": "सब्ज़ी काटते समय पकड़ने का सुरक्षित तरीक़ा कौन सा है?",
+     "options": [
+      "उँगलियाँ सीधी फैली हुई",
+      "सब्ज़ी हवा में पकड़कर",
+      "अँगूठा ऊपर, ब्लेड के ठीक पास",
+      "उँगलियों के सिरे अंदर मुड़े, गाँठें चाकू को रास्ता दें"
+     ]
+    }
+   },
+   {
+    "q": "Which cook is dressed right for the kitchen?",
+    "options": [
+     "Open hair and many bangles",
+     "Clean apron, cap, short nails, no rings",
+     "An apron used for many days",
+     "Phone in one hand while cooking"
+    ],
+    "answer": 1,
+    "topic": "Food safety and hygiene",
+    "te": {
+     "q": "కిచెన్‌కు సరిగ్గా తయారైన కుక్ ఎవరు?",
+     "options": [
+      "విరబోసిన జుట్టు, చాలా గాజులు",
+      "శుభ్రమైన ఏప్రన్, క్యాప్, చిన్న గోళ్లు, ఉంగరాలు లేవు",
+      "చాలా రోజులుగా వాడుతున్న ఏప్రన్",
+      "వంట చేస్తూ ఒక చేతిలో ఫోన్"
+     ]
+    },
+    "hi": {
+     "q": "किचन के लिए कौन सा कुक सही तरीक़े से तैयार है?",
+     "options": [
+      "खुले बाल और ढेर सारी चूड़ियाँ",
+      "साफ़ एप्रन, टोपी, छोटे नाख़ून, कोई अँगूठी नहीं",
+      "कई दिनों से पहना हुआ एप्रन",
+      "खाना बनाते हुए एक हाथ में फ़ोन"
+     ]
+    }
+   },
+   {
+    "q": "Which gas stove set-up is safe?",
+    "options": [
+     "Old cracked hose tied with tape",
+     "Cylinder lying on its side",
+     "Cylinder kept right next to the tandoor",
+     "ISI-marked hose, checked often, cylinder upright"
+    ],
+    "answer": 3,
+    "topic": "Kitchen safety",
+    "te": {
+     "q": "ఏ గ్యాస్ స్టవ్ ఏర్పాటు సురక్షితం?",
+     "options": [
+      "టేప్‌తో కట్టిన పాత పగిలిన పైపు",
+      "పక్కకు పడుకోబెట్టిన సిలిండర్",
+      "తందూర్ పక్కనే ఉంచిన సిలిండర్",
+      "ISI గుర్తు ఉన్న పైపు, తరచూ చెక్ చేసింది, సిలిండర్ నిలువుగా"
+     ]
+    },
+    "hi": {
+     "q": "गैस चूल्हे का कौन सा इंतज़ाम सुरक्षित है?",
+     "options": [
+      "टेप से बँधा पुराना फटा पाइप",
+      "करवट लेटा हुआ सिलेंडर",
+      "तंदूर के ठीक पास रखा सिलेंडर",
+      "ISI मार्क वाला पाइप, बार-बार जाँचा हुआ, सिलेंडर खड़ा"
+     ]
+    }
+   },
+   {
+    "q": "Which chopping board use is correct?",
+    "options": [
+     "One board for everything, wiped with a cloth",
+     "Separate boards for raw meat, veg and cooked food",
+     "Raw chicken cut on the bread board",
+     "Boards washed only at night"
+    ],
+    "answer": 1,
+    "topic": "Food safety and hygiene",
+    "te": {
+     "q": "చాపింగ్ బోర్డు వాడకంలో ఏది సరైనది?",
+     "options": [
+      "అన్నింటికీ ఒకే బోర్డు, గుడ్డతో తుడిచి",
+      "పచ్చి మాంసం, కూరగాయలు, వండిన ఆహారానికి వేర్వేరు బోర్డులు",
+      "బ్రెడ్ బోర్డు మీద పచ్చి చికెన్ కోయడం",
+      "బోర్డులు రాత్రి మాత్రమే కడగడం"
+     ]
+    },
+    "hi": {
+     "q": "चॉपिंग बोर्ड का कौन सा इस्तेमाल सही है?",
+     "options": [
+      "सबके लिए एक बोर्ड, कपड़े से पोंछकर",
+      "कच्चे मीट, सब्ज़ी और पके खाने के लिए अलग-अलग बोर्ड",
+      "ब्रेड वाले बोर्ड पर कच्चा चिकन काटना",
+      "बोर्ड सिर्फ़ रात को धोना"
+     ]
+    }
+   },
+   {
+    "q": "Which store room shelf is arranged right?",
+    "options": [
+     "Open sacks lying on the floor",
+     "New stock placed in front of old",
+     "Cleaning chemicals kept above the dal",
+     "Sealed, labelled boxes on racks, older stock in front"
+    ],
+    "answer": 3,
+    "topic": "Storage and stock",
+    "te": {
+     "q": "ఏ స్టోర్ రూమ్ అర సరిగ్గా సర్దారు?",
+     "options": [
+      "నేల మీద తెరిచిన బస్తాలు",
+      "పాత సరుకు ముందు కొత్త సరుకు",
+      "పప్పు పైన క్లీనింగ్ కెమికల్స్",
+      "ర్యాక్‌ల మీద సీల్, లేబుల్ ఉన్న డబ్బాలు, పాత సరుకు ముందు"
+     ]
+    },
+    "hi": {
+     "q": "स्टोर रूम की कौन सी शेल्फ़ सही लगी है?",
+     "options": [
+      "फ़र्श पर पड़ी खुली बोरियाँ",
+      "पुराने सामान के आगे नया सामान",
+      "दाल के ऊपर सफ़ाई के केमिकल",
+      "रैक पर सील और लेबल लगे डिब्बे, पुराना सामान आगे"
+     ]
+    }
+   },
+   {
+    "q": "Which way of tasting food while cooking is hygienic?",
+    "options": [
+     "Taste from the ladle and put it back",
+     "A clean spoon each time",
+     "Dip a finger in to check",
+     "Reuse the same spoon again and again"
+    ],
+    "answer": 1,
+    "topic": "Food safety and hygiene",
+    "te": {
+     "q": "వంట చేస్తూ రుచి చూసే ఏ పద్ధతి పరిశుభ్రమైనది?",
+     "options": [
+      "గరిటెతో రుచి చూసి మళ్లీ అందులోనే పెట్టడం",
+      "ప్రతిసారీ శుభ్రమైన చెంచా",
+      "వేలు ముంచి చూడటం",
+      "ఒకే చెంచాను మళ్లీ మళ్లీ వాడటం"
+     ]
+    },
+    "hi": {
+     "q": "खाना बनाते समय चखने का कौन सा तरीक़ा साफ़-सुथरा है?",
+     "options": [
+      "करछी से चखकर वापस उसी में डालना",
+      "हर बार साफ़ चम्मच",
+      "उँगली डुबोकर चखना",
+      "एक ही चम्मच बार-बार इस्तेमाल करना"
+     ]
+    }
+   }
+  ]
+ }
+}

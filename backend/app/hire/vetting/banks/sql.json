@@ -1,0 +1,433 @@
+{
+ "slug": "sql",
+ "version": 1,
+ "topics": [
+  "Basics and filtering",
+  "Aggregation and grouping",
+  "Joins",
+  "Data changes and design",
+  "Advanced queries"
+ ],
+ "questions": [
+  {
+   "id": "sql-001",
+   "topic": "Basics and filtering",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which query returns only the name and city columns from the customers table?",
+   "options": [
+    "SELECT * FROM customers WHERE name, city",
+    "SELECT name, city FROM customers",
+    "GET name, city FROM customers",
+    "SELECT customers FROM name, city"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "sql-002",
+   "topic": "Basics and filtering",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which condition picks orders shipped to either Pune or Nagpur in one short expression?",
+   "options": [
+    "city = 'Pune' AND city = 'Nagpur'",
+    "city BETWEEN 'Pune' AND 'Nagpur'",
+    "city LIKE 'Pune, Nagpur'",
+    "city IN ('Pune', 'Nagpur')"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "sql-003",
+   "topic": "Aggregation and grouping",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which function gives the biggest single order amount in the orders table?",
+   "options": [
+    "MAX(amount)",
+    "TOP(amount)",
+    "COUNT(amount)",
+    "HIGH(amount)"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "sql-004",
+   "topic": "Joins",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does a JOIN do in a query?",
+   "options": [
+    "Adds a new column to a table for good",
+    "Copies one table into another table",
+    "Combines rows of two tables using a related column",
+    "Sorts two tables in the same order"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "sql-005",
+   "topic": "Data changes and design",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which constraint stops the mobile_no column from being left empty when a row is added?",
+   "options": [
+    "UNIQUE",
+    "DEFAULT",
+    "NOT NULL",
+    "INDEX"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "sql-006",
+   "topic": "Aggregation and grouping",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Your manager wants the number of different customers who ordered in October, counting each customer once. Which expression do you use?",
+   "options": [
+    "COUNT(DISTINCT customer_id)",
+    "COUNT(customer_id)",
+    "DISTINCT COUNT(*)",
+    "SUM(customer_id)"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "sql-007",
+   "topic": "Joins",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "orders has 1,000 rows. After a LEFT JOIN from orders to payments the result has 1,150 rows. What is the most likely reason?",
+   "options": [
+    "A LEFT JOIN always adds extra blank rows",
+    "Some payments have no matching order",
+    "The join removed rows with NULL values",
+    "Some orders have more than one payment row"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "sql-008",
+   "topic": "Joins",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which query lists customers who have never placed an order?",
+   "options": [
+    "SELECT c.name FROM customers c JOIN orders o ON o.customer_id = c.id WHERE o.id IS NULL",
+    "SELECT c.name FROM customers c LEFT JOIN orders o ON o.customer_id = c.id WHERE o.id IS NULL",
+    "SELECT c.name FROM customers c LEFT JOIN orders o ON o.customer_id = c.id WHERE o.id IS NOT NULL",
+    "SELECT c.name FROM customers c CROSS JOIN orders o WHERE o.amount = 0"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "sql-009",
+   "topic": "Joins",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "An employees table has a manager_id column. What is a self join used for here?",
+   "options": [
+    "Showing each employee next to their manager's name",
+    "Copying the table to another database",
+    "Removing duplicate employee rows",
+    "Joining two tables without any condition"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "sql-010",
+   "topic": "Joins",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A query LEFT JOINs customers to orders, then adds WHERE o.status = 'paid'. What happens to customers with no orders?",
+   "options": [
+    "They stay, with empty order columns",
+    "The query gives a syntax error",
+    "They disappear, because their o.status is NULL and fails the WHERE",
+    "They appear twice in the result"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "sql-011",
+   "topic": "Advanced queries",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What does a CTE written as WITH monthly AS (...) give you?",
+   "options": [
+    "A permanent new table in the database",
+    "A named temporary result the following query can use",
+    "An index on the monthly column",
+    "A saved login for another user"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "sql-012",
+   "topic": "Advanced queries",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Which ranks salespeople by sales inside each region, starting again at 1 for every region?",
+   "options": [
+    "RANK() OVER (ORDER BY region, sales DESC)",
+    "GROUP BY region ORDER BY sales DESC",
+    "COUNT(*) OVER (PARTITION BY sales)",
+    "RANK() OVER (PARTITION BY region ORDER BY sales DESC)"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "sql-013",
+   "topic": "Advanced queries",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Two staff tie for the top sales figure. What do ROW_NUMBER() and RANK() over the same ORDER BY give them?",
+   "options": [
+    "Each function gives them 1 and 2",
+    "ROW_NUMBER gives 1 and 2; RANK gives both of them 1",
+    "Each function gives them both 1",
+    "ROW_NUMBER gives both 1; RANK gives 1 and 2"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "sql-014",
+   "topic": "Advanced queries",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A report on a 2-crore-row orders table filters on order_date and has become very slow. What do you check first?",
+   "options": [
+    "Whether the keywords are in capital letters",
+    "Whether adding DISTINCT speeds it up",
+    "Whether the table can be split by hand into two",
+    "The query plan, and whether order_date has an index it uses"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "sql-015",
+   "topic": "Advanced queries",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "WHERE YEAR(order_date) = 2024 is slow even though order_date has an index. What is the usual fix?",
+   "options": [
+    "Use order_date >= '2024-01-01' AND order_date < '2025-01-01'",
+    "Put 2024 in quotes as '2024'",
+    "Add ORDER BY order_date to the query",
+    "Drop the index and create it again"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "sql-016",
+   "topic": "Advanced queries",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which expression gives a running total of daily sales, day by day?",
+   "options": [
+    "SUM(amount) with GROUP BY sale_date",
+    "MAX(amount) OVER ()",
+    "SUM(amount) OVER (ORDER BY sale_date)",
+    "COUNT(amount) OVER (ORDER BY sale_date)"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "sql-017",
+   "topic": "Data changes and design",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A wallet app moves ₹500 from one account to another with two UPDATE statements. How do you make sure both happen or neither does?",
+   "options": [
+    "Run each UPDATE in a separate session",
+    "Run the second UPDATE before the first",
+    "Run them in one transaction and COMMIT only if both work",
+    "Add a LIMIT 1 to both UPDATE statements"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "sql-018",
+   "topic": "Data changes and design",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "You ran UPDATE products SET price = 0 without a WHERE, inside a transaction you have not committed. What do you do?",
+   "options": [
+    "Run ROLLBACK, then repeat it with the right WHERE",
+    "COMMIT, then restore last week's backup",
+    "DROP the products table and recreate it",
+    "Run another UPDATE setting every price to 100"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "sql-019",
+   "topic": "Data changes and design",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why put a UNIQUE constraint on the gstin column of a vendors table?",
+   "options": [
+    "So the gstin values sort faster in reports",
+    "So the gstin column may be left empty",
+    "So the gstin values are stored encrypted",
+    "So the database refuses a second vendor with the same GSTIN"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "sql-020",
+   "topic": "Aggregation and grouping",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "SELECT city, COUNT(*) FROM orders WHERE COUNT(*) > 50 GROUP BY city gives an error. Why?",
+   "options": [
+    "GROUP BY must be written before FROM",
+    "An aggregate can't be used in WHERE; that condition goes in HAVING",
+    "COUNT(*) needs a column name inside it",
+    "city must be written inside quotes"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "sql-021",
+   "topic": "Aggregation and grouping",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "On the same table, SUM(amount) / COUNT(*) is lower than AVG(amount). What explains this?",
+   "options": [
+    "Some amounts are NULL: AVG skips them but COUNT(*) counts those rows",
+    "AVG always rounds the result upward",
+    "SUM leaves out negative amounts",
+    "COUNT(*) counts only rows with unique amounts"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "sql-022",
+   "topic": "Basics and filtering",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "You need rows where city is anything other than Mumbai, and rows with no city must be included too. Which condition is right?",
+   "options": [
+    "WHERE city <> 'Mumbai'",
+    "WHERE city NOT LIKE NULL",
+    "WHERE city <> 'Mumbai' OR city IS NULL",
+    "WHERE city != 'Mumbai' AND city = NULL"
+   ],
+   "answer": 2
+  }
+ ],
+ "existing": {
+  "Which statement reads rows from a table?": {
+   "topic": "Basics and filtering"
+  },
+  "Which clause keeps only the rows that match a condition?": {
+   "topic": "Basics and filtering"
+  },
+  "What does COUNT(*) return?": {
+   "topic": "Aggregation and grouping"
+  },
+  "You need the total sales for each city. Which clause groups the rows?": {
+   "topic": "Aggregation and grouping"
+  },
+  "Which clause filters groups after GROUP BY, for example cities with more than 100 orders?": {
+   "topic": "Aggregation and grouping"
+  },
+  "An INNER JOIN of orders and customers returns…": {
+   "topic": "Joins"
+  },
+  "Which query finds rows where the email column is empty (has no value)?": {
+   "topic": "Basics and filtering"
+  },
+  "Which keyword removes repeated values from the result?": {
+   "topic": "Basics and filtering"
+  },
+  "A LEFT JOIN from customers to orders keeps…": {
+   "topic": "Joins"
+  },
+  "Which shows the 5 most recent orders?": {
+   "topic": "Basics and filtering"
+  },
+  "Which keyword sorts the result from highest to lowest?": {
+   "topic": "Basics and filtering"
+  },
+  "Which statement adds a new row to a table?": {
+   "topic": "Data changes and design"
+  },
+  "Which statement changes values in rows that already exist?": {
+   "topic": "Data changes and design"
+  },
+  "What does SUM(amount) do?": {
+   "topic": "Aggregation and grouping"
+  },
+  "A primary key is…": {
+   "topic": "Data changes and design"
+  },
+  "Which finds customers whose name starts with \"Ra\"?": {
+   "topic": "Basics and filtering"
+  },
+  "Which picks orders with an amount from 500 to 1000, both included?": {
+   "topic": "Basics and filtering"
+  },
+  "SELECT city, COUNT(*) FROM customers GROUP BY city returns…": {
+   "topic": "Aggregation and grouping"
+  },
+  "orders.customer_id points to customers.id. What is customer_id in orders?": {
+   "topic": "Data changes and design"
+  },
+  "Which values does AVG(price) leave out?": {
+   "topic": "Aggregation and grouping"
+  },
+  "Which finds the second-highest salary?": {
+   "topic": "Advanced queries"
+  },
+  "What is the difference between DELETE FROM t and DROP TABLE t?": {
+   "topic": "Data changes and design"
+  },
+  "Which join returns every row from both tables, matched where possible?": {
+   "topic": "Joins"
+  },
+  "COUNT(email) gives 90 and COUNT(*) gives 100 on the same table. Why?": {
+   "topic": "Aggregation and grouping"
+  }
+ },
+ "task": {
+  "type": "tech",
+  "title": "Write SQL for a small online shop's sales questions",
+  "brief": "You get two tables from a small online shop (customers and orders) with sample rows. Write one SQL query for each of the three questions in 20 to 25 minutes. Any common SQL dialect is fine; say which one you use. Under each query, add one or two lines explaining how it works and anything you watched out for (cancelled orders, NULL amounts, ties, customers with no orders). Correct logic matters more than exact syntax.",
+  "minutes": 25,
+  "material": "Tables (PostgreSQL):\n\ncustomers(id INT PRIMARY KEY, name TEXT, city TEXT, joined_on DATE)\norders(id INT PRIMARY KEY, customer_id INT REFERENCES customers(id),\n       order_date DATE, amount NUMERIC(10,2), status TEXT)   -- status: 'paid', 'cancelled', 'pending'\n\nSample rows\ncustomers\nid | name          | city      | joined_on\n1  | Anjali Rao    | Hyderabad | 2025-02-10\n2  | Imran Shaikh  | Pune      | 2025-06-01\n3  | Deepa Nair    | Kochi     | 2026-01-15\n4  | Harpreet Gill | Pune      | 2026-03-20\n5  | Suresh Kumar  | Hyderabad | 2026-08-05\n\norders\nid  | customer_id | order_date | amount  | status\n101 | 1           | 2026-10-02 | 1250.00 | paid\n102 | 2           | 2026-10-05 | 899.00  | cancelled\n103 | 1           | 2026-10-18 | 2400.00 | paid\n104 | 4           | 2026-10-21 | 560.00  | paid\n105 | 2           | 2026-11-01 | 3100.00 | paid\n106 | 5           | 2026-10-30 | NULL    | pending\n\nQuestions\nQ1. Total paid sales per city for October 2026, highest first.\nQ2. Customers (name, city) who have never placed any order.\nQ3. For each city, the customer with the highest total paid amount (all time). Show city, name and total.\n",
+  "key_points": [
+   "Q1 joins orders to customers, keeps status = 'paid' and October 2026 dates, groups by city, sums amount, orders by total DESC",
+   "Q1 uses a date range (>= '2026-10-01' and < '2026-11-01') or equivalent, not text matching",
+   "Q2 uses LEFT JOIN ... WHERE o.id IS NULL, or NOT EXISTS (not NOT IN with possible NULLs)",
+   "Q2 returns Deepa Nair (Kochi) from the sample data",
+   "Q3 totals paid amount per customer, then picks the top per city with a window function (RANK/ROW_NUMBER over PARTITION BY city) or a correlated subquery",
+   "Q3 mentions how ties are handled",
+   "Excludes cancelled and pending orders and is aware that SUM ignores NULL amounts"
+  ],
+  "rubric": [
+   {
+    "key": "correctness",
+    "label": "Correct results",
+    "guide": "0 = queries would not give the asked result, 3 = two of three right or small logic slips, 5 = all three give the right result on the sample"
+   },
+   {
+    "key": "edge_cases",
+    "label": "Edge cases",
+    "guide": "0 = ignores status, NULLs and ties, 3 = handles some of them, 5 = handles cancelled/pending orders, NULL amounts, no-order customers and ties"
+   },
+   {
+    "key": "explanation",
+    "label": "Explanation",
+    "guide": "0 = no explanation, 3 = brief but partly unclear, 5 = short, clear notes on how each query works and why"
+   },
+   {
+    "key": "query_quality",
+    "label": "Query quality",
+    "guide": "0 = hard to read or very inefficient, 3 = works but clumsy, 5 = readable, uses aliases and sensible date filters that can use indexes"
+   }
+  ]
+ }
+}

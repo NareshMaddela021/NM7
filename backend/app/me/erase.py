@@ -69,6 +69,9 @@ from app.core.db import (
     TALENT_POOL,
     TICKETS,
     USERS,
+    VETTING_PHOTOS,
+    VETTING_QUEUE,
+    VETTING_VERIFIED,
     WEBHOOK_EVENTS,
 )
 from app.core.time import now
@@ -109,6 +112,9 @@ async def erase_user_data(db: AsyncDatabase, user_id: str) -> dict[str, int]:
     out["hire_offers"] = await gone(HIRE_OFFERS, mine)  # offers made to them (Phase 5)
     out["hire_events"] = await gone(HIRE_EVENTS, mine)  # reliability events (Phase 5)
     out["skill_checks"] = await gone(SKILL_ATTEMPTS, mine)  # skill check results and spoken text (Phase 5)
+    out["skill_verified"] = await gone(VETTING_VERIFIED, mine)  # Vetting V2: "Skill verified" badges
+    out["vetting_queue"] = await gone(VETTING_QUEUE, mine)  # Vetting V2: review / integrity items about them
+    out["vetting_photos"] = await gone(VETTING_PHOTOS, mine)  # Vetting V2: photos of past work
     out["learning_paths"] = await gone(LEARN_PROGRESS, mine)  # Phase 6 S2: courses ticked, projects sent
     out["practice_tests"] = await gone(PRACTICE_ATTEMPTS, mine)  # Phase 6 S3
     out["offer_checks"] = await gone(OFFER_CHECKS, mine)  # Phase 6 S5

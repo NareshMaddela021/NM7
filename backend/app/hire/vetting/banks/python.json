@@ -1,0 +1,447 @@
+{
+ "slug": "python",
+ "version": 1,
+ "topics": [
+  "Basics and strings",
+  "Data structures",
+  "Control flow and functions",
+  "OOP and modules",
+  "Errors, files and tooling"
+ ],
+ "questions": [
+  {
+   "id": "python-001",
+   "topic": "Control flow and functions",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which keyword sends a value back from a function to the code that called it?",
+   "options": [
+    "give",
+    "return",
+    "send",
+    "output"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "python-002",
+   "topic": "Control flow and functions",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which numbers does a loop over range(1, 5) go through?",
+   "options": [
+    "1, 2, 3, 4, 5",
+    "0, 1, 2, 3, 4",
+    "5, 4, 3, 2",
+    "1, 2, 3, 4"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "python-003",
+   "topic": "OOP and modules",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "In a method written as def area(self):, what is self?",
+   "options": [
+    "The object the method was called on",
+    "The name of the file of the class",
+    "A global variable shared by all code",
+    "The value the method returns"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "python-004",
+   "topic": "Errors, files and tooling",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which command installs a third-party package such as requests?",
+   "options": [
+    "python get requests",
+    "import install requests",
+    "pip install requests",
+    "npm add requests"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "python-005",
+   "topic": "Basics and strings",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does 'Pune'.lower().startswith('p') return?",
+   "options": [
+    "False",
+    "'p'",
+    "True",
+    "An error"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "python-006",
+   "topic": "Control flow and functions",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What does this print?\nfor i in range(3):\n    if i == 1:\n        continue\n    print(i)",
+   "options": [
+    "0 and 2",
+    "0 only",
+    "0, 1 and 2",
+    "1 only"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "python-007",
+   "topic": "Control flow and functions",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "def add(item, bucket=[]):\n    bucket.append(item)\n    return bucket\nWhat does the second call return in add(1); add(2)?",
+   "options": [
+    "[2]",
+    "[1]",
+    "An error",
+    "[1, 2]"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "python-008",
+   "topic": "Control flow and functions",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "In def total(*args):, what does args hold?",
+   "options": [
+    "Only the keyword arguments, as a dict",
+    "The extra positional arguments, as a tuple",
+    "Only the first argument passed",
+    "A list of every global variable"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "python-009",
+   "topic": "Control flow and functions",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "x = 10\ndef f():\n    x += 1\nCalling f() raises UnboundLocalError. Why?",
+   "options": [
+    "Assigning x in f makes it local, so it's read before being set",
+    "Integers can never be changed once created in Python",
+    "f has no return statement",
+    "x must be declared as a string first"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "python-010",
+   "topic": "OOP and modules",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "class Car(Vehicle): ... What does super().__init__() inside Car.__init__ do?",
+   "options": [
+    "Creates a second, separate Vehicle object",
+    "Deletes the parent class from memory",
+    "Runs Vehicle's set-up code for the new Car object",
+    "Turns Car into a copy of Vehicle"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "python-011",
+   "topic": "OOP and modules",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which decorator makes a method that you call on the class and that receives neither self nor cls?",
+   "options": [
+    "@property",
+    "@staticmethod",
+    "@classmethod",
+    "@override"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "python-012",
+   "topic": "OOP and modules",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What changes when you define __str__ in a class?",
+   "options": [
+    "How two objects compare with ==",
+    "How the object is saved to disk",
+    "How much memory the object uses",
+    "What print(obj) and str(obj) show"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "python-013",
+   "topic": "OOP and modules",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is if __name__ == \"__main__\": at the bottom of a module for?",
+   "options": [
+    "It makes the module import and run faster",
+    "Code under it runs only when the file is run, not imported",
+    "Every Python file must have it to run",
+    "It makes the code below run twice"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "python-014",
+   "topic": "OOP and modules",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Two Order objects have the same order number, but order_a == order_b is False. What is missing from the class?",
+   "options": [
+    "An __init__ method that sets the fields",
+    "A __len__ method that returns the size",
+    "A __repr__ method used for printing",
+    "An __eq__ method that compares the order numbers"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "python-015",
+   "topic": "OOP and modules",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why is a dataclass a good fit for a simple record such as Invoice(number, amount, gstin)?",
+   "options": [
+    "It writes __init__, __repr__ and __eq__ from the fields",
+    "It runs the class as fast as C code",
+    "It saves each object to a database",
+    "It stops other code from reading fields"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "python-016",
+   "topic": "Errors, files and tooling",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Your script reads ₹ amounts from a CSV and crashes with ValueError on '1,250'. What is the best fix?",
+   "options": [
+    "Wrap the whole script in try/except with pass",
+    "Use int() instead of float() for the value",
+    "Strip the commas before converting: float(s.replace(',', ''))",
+    "Edit that row in the file by hand each time"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "python-017",
+   "topic": "Errors, files and tooling",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "An API call sometimes times out. A teammate wrapped it in except Exception: pass. What is the main problem?",
+   "options": [
+    "except Exception is not valid Python syntax",
+    "It makes every call noticeably slower",
+    "Failures are hidden, so nobody notices or can debug them",
+    "pass sends an error code to the caller"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "python-018",
+   "topic": "Errors, files and tooling",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why create a separate virtual environment (venv) for each project?",
+   "options": [
+    "Each project keeps its own package versions without clashes",
+    "Code inside a venv runs much faster than outside",
+    "It hides the code from other users",
+    "print() works only inside a venv"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "python-019",
+   "topic": "Errors, files and tooling",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A test passes when run alone but fails when the full test suite runs. What is the most likely cause?",
+   "options": [
+    "pytest has been installed twice on the machine",
+    "The test function's name is too long",
+    "The test file uses spaces, not tabs",
+    "Shared state, like a module-level list, changed by another test"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "python-020",
+   "topic": "Data structures",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "You must check often whether a PIN code is in a collection of 50,000 serviceable PIN codes. What is fastest?",
+   "options": [
+    "Keep them in a list and use the in operator",
+    "Keep them in a set and use the in operator",
+    "Join them into one string and search it",
+    "Sort a list before every check, then loop"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "python-021",
+   "topic": "Data structures",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "counts = {}\nfor w in words:\n    counts[w] += 1\nThis raises KeyError. Which line fixes the loop body?",
+   "options": [
+    "counts[w] = counts.get(w, 0) + 1",
+    "counts.add(w)",
+    "counts[w] == 1",
+    "counts.append(w)"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "python-022",
+   "topic": "Basics and strings",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "What is 0.1 + 0.2 == 0.3 in Python?",
+   "options": [
+    "True, since Python rounds floats",
+    "An error, since floats can't be compared",
+    "False, since floats can't hold these decimals exactly",
+    "True, but only in Python 3"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "python-023",
+   "topic": "Basics and strings",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "amount = 1499.5. What does print(f\"Total: {amount:.2f}\") show?",
+   "options": [
+    "Total: 1499.5",
+    "Total: 1499.50",
+    "Total: {amount:.2f}",
+    "Total: 1500"
+   ],
+   "answer": 1
+  }
+ ],
+ "existing": {
+  "What does print(len(\"hello\")) show?": {
+   "topic": "Basics and strings"
+  },
+  "Which makes a list with 1, 2 and 3?": {
+   "topic": "Data structures"
+  },
+  "What is 7 // 2 in Python 3?": {
+   "topic": "Basics and strings"
+  },
+  "What does this show? x = [1, 2, 3]; x.append(4); print(x[-1])": {
+   "topic": "Data structures"
+  },
+  "Which runs a block of code for each item in a list called names?": {
+   "topic": "Control flow and functions"
+  },
+  "d = {\"a\": 1}. What does d.get(\"b\", 0) return?": {
+   "topic": "Data structures"
+  },
+  "Which handles an error so the program doesn't stop?": {
+   "topic": "Errors, files and tooling"
+  },
+  "What does [n * 2 for n in range(3)] give?": {
+   "topic": "Data structures"
+  },
+  "def f(a, b=2): return a + b. What is f(3)?": {
+   "topic": "Control flow and functions"
+  },
+  "Which is true about a tuple such as (1, 2)?": {
+   "topic": "Data structures"
+  },
+  "Which symbol starts a comment in Python?": {
+   "topic": "Basics and strings"
+  },
+  "What type is 3.5?": {
+   "topic": "Basics and strings"
+  },
+  "What does \"ab\" * 3 give?": {
+   "topic": "Basics and strings"
+  },
+  "Which checks whether x equals 10?": {
+   "topic": "Basics and strings"
+  },
+  "What does input() give back?": {
+   "topic": "Basics and strings"
+  },
+  "What does \"Hello\"[1:3] give?": {
+   "topic": "Basics and strings"
+  },
+  "s = {1, 2, 2, 3}. What is len(s)?": {
+   "topic": "Data structures"
+  },
+  "Which opens a file and closes it by itself when done?": {
+   "topic": "Errors, files and tooling"
+  },
+  "What does int(\"42\") + 1 give?": {
+   "topic": "Basics and strings"
+  },
+  "n = 0. Which loop stops when n reaches 5?": {
+   "topic": "Control flow and functions"
+  },
+  "a = [1, 2]; b = a; b.append(3). What is a now?": {
+   "topic": "Data structures"
+  },
+  "What does sorted([3, 1, 2], reverse=True) return?": {
+   "topic": "Data structures"
+  },
+  "Which method of a class runs when a new object is made?": {
+   "topic": "OOP and modules"
+  },
+  "What does \"-\".join([\"a\", \"b\", \"c\"]) give?": {
+   "topic": "Basics and strings"
+  }
+ },
+ "task": {
+  "type": "tech",
+  "title": "Find and fix the bugs in a GST invoice function",
+  "brief": "Below is a short Python function that should total a customer bill: add up the items, apply a 10% festival discount if the code is given, then add GST. Customers report wrong totals. In 20 to 25 minutes: (1) list every bug or risky line you find and say why it is wrong, (2) write the corrected function, and (3) give three test inputs with the expected output, including at least one edge case. No code is run, so explain your reasoning clearly.",
+  "minutes": 25,
+  "material": "# Billing helper used by a small Hyderabad shop. Customers say totals are wrong.\n\ndef invoice_total(items, gst_rate=18, discount_codes=[]):\n    \"\"\"items: list of dicts like {\"name\": \"Kettle\", \"price\": 1200, \"qty\": 2}\n    price is in rupees per unit, gst_rate is a percent.\n    Rule: apply a 10% discount if \"FEST10\" is in discount_codes,\n    then add GST on the discounted amount. Return rupees to 2 decimals.\"\"\"\n    total = 0\n    for item in items:\n        total = item[\"price\"] * item[\"qty\"]\n    if \"FEST10\" in discount_codes:\n        total = total - 10\n    total = total + total * gst_rate\n    return round(total)\n\n# Example call\nprint(invoice_total([{\"name\": \"Kettle\", \"price\": 1200, \"qty\": 2},\n                     {\"name\": \"Mug\", \"price\": 150, \"qty\": 4}], 18, [\"FEST10\"]))\n# Expected: 3186.0   (2400 + 600 = 3000, minus 10% = 2700, plus 18% GST = 3186.00)\n",
+  "key_points": [
+   "total is overwritten in the loop; it must add up (total += price * qty)",
+   "Discount subtracts ₹10 instead of 10%; should be total * 0.9 (or total - total * 10 / 100)",
+   "GST rate is a percent, so multiply by gst_rate / 100",
+   "round(total) drops paise; should round to 2 decimals (or use Decimal for money)",
+   "Mutable default argument discount_codes=[] is risky; use None and create a list inside",
+   "Mentions input checks or edge cases: empty items list, zero or negative qty/price, missing keys",
+   "Gives test cases with correct expected values, e.g. the example gives 3186.00"
+  ],
+  "rubric": [
+   {
+    "key": "correctness",
+    "label": "Bugs found and fixed",
+    "guide": "0 = finds none or fix still wrong, 3 = finds the loop and one more bug, 5 = finds loop, discount, GST percent and rounding bugs and fixes all"
+   },
+   {
+    "key": "edge_cases",
+    "label": "Edge cases and tests",
+    "guide": "0 = no tests, 3 = tests only the happy path, 5 = clear tests with correct expected values including empty or invalid input"
+   },
+   {
+    "key": "explanation",
+    "label": "Explanation",
+    "guide": "0 = no reasons given, 3 = reasons are thin or partly wrong, 5 = each bug explained simply and correctly"
+   },
+   {
+    "key": "code_quality",
+    "label": "Code quality",
+    "guide": "0 = messy or new bugs, 3 = works but awkward, 5 = clean, readable Python with sensible money handling"
+   }
+  ]
+ }
+}

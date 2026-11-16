@@ -15,6 +15,7 @@ import { Chip, Empty, Pipeline, ScoreRing, Skel } from '../me/kit';
 import '../../styles/company-jobs.css';
 
 import ApplicantFeedback from './ApplicantFeedback';
+import SkillBadge from './SkillBadge';
 
 const STAGES = ['viewed', 'shortlisted', 'interview', 'offer', 'rejected'];
 const TONE = { applied: 'neutral', viewed: 'neutral', shortlisted: 'info', interview: 'accent', offer: 'ok', rejected: 'bad', no_reply: 'neutral' };
@@ -142,6 +143,7 @@ function Profile({ t, a, rank, onClose }) {
             <span className="ca-chips"><Chip tone={TONE[a.status] || 'neutral'}>{t(`jobs.app.${a.status}`)}</Chip><Chip tone={a.origin === 'auto' ? 'accent' : 'neutral'}>{t(`aa.badge.${a.origin === 'auto' ? 'auto' : 'manual'}`)}</Chip>{a.pooled && <Chip tone="info">{t('co.ap.inPool')}</Chip>}</span>
           </div>
         </div>
+        <SkillBadge sv={a.skillVerified} t={t} />
         <ul className="ca-reasons">{reasons(a.match, t).map((r) => <li key={r}>{r}</li>)}</ul>
         {a.match?.found.length > 0 && <div className="stack g4"><span className="mkicker">{t('co.ap.cFound')}</span><span className="ca-skills">{a.match.found.map((x) => <span key={x} className="ca-skill ok">{x}</span>)}</span></div>}
         {a.match?.missing.length > 0 && <div className="stack g4"><span className="mkicker">{t('co.ap.cMissing')}</span><span className="ca-skills">{a.match.missing.map((x) => <span key={x} className="ca-skill">{x}</span>)}</span></div>}

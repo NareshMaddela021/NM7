@@ -1,0 +1,667 @@
+{
+ "slug": "data-science",
+ "version": 1,
+ "topics": [
+  "Statistics",
+  "Data preparation",
+  "Machine learning",
+  "Model evaluation",
+  "Python and SQL for data"
+ ],
+ "questions": [
+  {
+   "id": "data-science-001",
+   "topic": "Statistics",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A column of monthly salaries in ₹ has a few very large values. Which summary best describes a typical salary?",
+   "options": [
+    "The mean",
+    "The median",
+    "The maximum",
+    "The range"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "data-science-002",
+   "topic": "Statistics",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does a p-value of 0.03 mean in a test with significance level 0.05?",
+   "options": [
+    "There is a 3% chance the null hypothesis is true",
+    "The alternative hypothesis is 97% likely to be right",
+    "The effect size is 3% of the mean",
+    "Data this extreme would occur ~3% of the time if the null were true"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "data-science-003",
+   "topic": "Statistics",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Two variables have a correlation of -0.85. What can you say about them?",
+   "options": [
+    "They move strongly in opposite directions",
+    "One causes the other to fall",
+    "They are unrelated",
+    "They have a weak positive link"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "data-science-004",
+   "topic": "Statistics",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "An e-commerce team ran an A/B test on a checkout button for 2 days and saw 8% more conversions. What is the main concern?",
+   "options": [
+    "An 8% lift is too small to ever matter",
+    "A/B tests need at least four variants",
+    "Two days may miss weekly patterns and be noise",
+    "Conversion is not a valid test metric"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "data-science-005",
+   "topic": "Statistics",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A Diwali-week sales spike lifted average daily order value. A manager wants that week as the baseline for next quarter's target. What do you advise?",
+   "options": [
+    "Use the Diwali week since it is the latest data",
+    "Double the Diwali average to set a stretch target",
+    "Use a longer period or exclude the festive week",
+    "Use only the weakest week of the year"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "data-science-006",
+   "topic": "Statistics",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which distribution best models the count of UPI payment failures per hour, occurring at a steady rate?",
+   "options": [
+    "Poisson",
+    "Normal with mean zero",
+    "Uniform",
+    "Exponential"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "data-science-007",
+   "topic": "Statistics",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "You test 20 product features at α = 0.05 and exactly one shows a significant effect. Why be careful?",
+   "options": [
+    "α should be raised to 0.1 when testing many features",
+    "A significant result means the effect is large",
+    "Only one-tailed tests are valid in this case",
+    "About one false positive is expected by chance alone"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "data-science-008",
+   "topic": "Statistics",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Loan defaults are lower for customers who used the app's new budgeting tool. Product wants to claim the tool reduces defaults. What is your first concern?",
+   "options": [
+    "Loan samples are always too small to compare",
+    "Careful borrowers may be the ones who chose the tool",
+    "Default rates cannot be compared across groups",
+    "The tool's usage logs are probably wrong"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "data-science-009",
+   "topic": "Statistics",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "What does Simpson's paradox describe?",
+   "options": [
+    "Averages of averages always equal the overall average",
+    "A trend within groups reverses or vanishes when groups are combined",
+    "Small samples always show bigger effects",
+    "Correlation turns into causation in large datasets"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "data-science-010",
+   "topic": "Data preparation",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A 'city' column has 'Bengaluru', 'Bangalore' and 'BLR'. What is the right first step?",
+   "options": [
+    "Drop rows that contain any of them",
+    "One-hot encode all three as separate cities",
+    "Replace them with the most common city",
+    "Map the variants to one standard value"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "data-science-011",
+   "topic": "Data preparation",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Why should features be scaled before training a k-nearest neighbours model?",
+   "options": [
+    "Distance gets dominated by wide-range features",
+    "kNN cannot read decimal numbers",
+    "Scaling fills missing values",
+    "It lets the model train on GPUs"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "data-science-012",
+   "topic": "Data preparation",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which encoding suits a nominal column like 'payment_mode' (UPI, card, cash) for a linear model?",
+   "options": [
+    "Label encoding as 1, 2, 3",
+    "Min-max scaling",
+    "One-hot encoding",
+    "Log transform"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "data-science-013",
+   "topic": "Data preparation",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "In a customer table, 30% of 'annual_income' is missing, mostly for self-employed customers. What do you do?",
+   "options": [
+    "Drop all rows with missing income",
+    "Fill every gap with zero",
+    "Impute it and add a flag marking missing rows",
+    "Fill with the mean and note nothing"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "data-science-014",
+   "topic": "Data preparation",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "When should the mean and standard deviation used for scaling be computed?",
+   "options": [
+    "On the training split only, then applied to the others",
+    "On the full dataset before splitting",
+    "Separately on each split",
+    "On the test set, since it reflects real data"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "data-science-015",
+   "topic": "Data preparation",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A 'pincode' column is stored as an integer feature. What is the risk for a model?",
+   "options": [
+    "Integers use too much memory",
+    "Pincodes never have predictive value",
+    "Integer columns cannot be joined",
+    "Codes get treated as quantities with false order"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "data-science-016",
+   "topic": "Data preparation",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A fraud model shows 99% accuracy in testing but fails in production. Training data had a 'chargeback_filed' feature. What went wrong?",
+   "options": [
+    "The model needs more trees",
+    "Target leakage: that value is known only after fraud is confirmed",
+    "Accuracy should be replaced by RMSE",
+    "Production data needs different scaling"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "data-science-017",
+   "topic": "Data preparation",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "You are forecasting daily sales from three years of time-ordered data. How should you split train and test?",
+   "options": [
+    "Random shuffle with an 80/20 split",
+    "Train on earlier periods and test on later ones",
+    "Stratify by product and shuffle",
+    "Use the latest months for training"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "data-science-018",
+   "topic": "Data preparation",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A 'merchant_id' column has 50,000 distinct values. Which approach is usually sensible for a tree model?",
+   "options": [
+    "One-hot encoding every value",
+    "Dropping it without any check",
+    "Using the raw IDs as numbers",
+    "Target encoding computed out-of-fold"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "data-science-019",
+   "topic": "Machine learning",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Predicting whether a customer will repay a loan (yes or no) is which kind of problem?",
+   "options": [
+    "Binary classification",
+    "Regression",
+    "Clustering",
+    "Dimensionality reduction"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "data-science-020",
+   "topic": "Machine learning",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Grouping shoppers by buying behaviour when you have no labels is an example of what?",
+   "options": [
+    "Supervised learning",
+    "Reinforcement learning",
+    "Unsupervised learning",
+    "Semi-supervised regression"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "data-science-021",
+   "topic": "Machine learning",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A model scores 98% on training data and 70% on test data. What is likely happening?",
+   "options": [
+    "Underfitting",
+    "Perfect generalisation",
+    "Overfitting",
+    "Label noise in the test set only"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "data-science-022",
+   "topic": "Machine learning",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does increasing k in k-nearest neighbours generally do?",
+   "options": [
+    "Gives a smoother boundary with lower variance",
+    "Makes the model memorise training points",
+    "Adds more features to the model",
+    "Removes the need for scaling"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "data-science-023",
+   "topic": "Machine learning",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why does L1 (lasso) regularisation help with feature selection?",
+   "options": [
+    "It squares weights so large ones vanish",
+    "It drops features that have missing values",
+    "It raises the learning rate for weak features",
+    "It can shrink some coefficients exactly to zero"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "data-science-024",
+   "topic": "Machine learning",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "In a random forest, what reduces the correlation between individual trees?",
+   "options": [
+    "Using deeper trees only",
+    "Random rows and a random feature subset per split",
+    "Training each tree on the previous tree's errors",
+    "Pruning all trees to the same depth"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "data-science-025",
+   "topic": "Machine learning",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Your team must forecast next week's demand for 3,000 kirana-store SKUs from tabular features. A colleague wants a deep neural network first. What do you propose?",
+   "options": [
+    "Build the neural network since it is always best",
+    "Start with a baseline and boosted trees, then compare",
+    "Use k-means clustering to predict demand",
+    "Use last week's average with no evaluation"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "data-science-026",
+   "topic": "Machine learning",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is the role of the learning rate in gradient boosting?",
+   "options": [
+    "It sets the maximum tree depth",
+    "It decides how many features are used",
+    "It controls the train-test split ratio",
+    "It scales each tree's contribution, trading speed for accuracy"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "data-science-027",
+   "topic": "Machine learning",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Logistic regression coefficients flip sign between runs. Two input features have a correlation of 0.97. What is the likely cause?",
+   "options": [
+    "Multicollinearity",
+    "Class imbalance",
+    "Too few k-means iterations",
+    "A learning rate set too low"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "data-science-028",
+   "topic": "Machine learning",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A churn model trained in 2024 is degrading in 2026 though its code is unchanged. Telecom plans changed last year. What do you check first?",
+   "options": [
+    "Whether the server has enough RAM",
+    "Whether to switch to a deep model",
+    "Feature and label drift against training data",
+    "Whether random seeds were fixed"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "data-science-029",
+   "topic": "Machine learning",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why might a lender prefer a simpler model with slightly lower AUC for credit decisions?",
+   "options": [
+    "Simpler models always generalise better",
+    "Complex models cannot run on cloud servers",
+    "It is easier to explain to customers and auditors",
+    "Lower AUC means fewer false positives"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "data-science-030",
+   "topic": "Model evaluation",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "For a disease screening model, missing a sick patient is very costly. Which metric matters most?",
+   "options": [
+    "Recall",
+    "Precision",
+    "Accuracy",
+    "R-squared"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "data-science-031",
+   "topic": "Model evaluation",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which metric suits a regression model that predicts monthly flat rent in ₹?",
+   "options": [
+    "F1 score",
+    "ROC-AUC",
+    "Log loss",
+    "Mean absolute error"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "data-science-032",
+   "topic": "Model evaluation",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is a validation set used for?",
+   "options": [
+    "Adding more rows for training",
+    "Tuning choices without touching the test set",
+    "Reporting final accuracy to clients",
+    "Replacing the training set later"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "data-science-033",
+   "topic": "Model evaluation",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Only 1% of transactions are fraud. A model that predicts 'not fraud' for all gets 99% accuracy. Which metric is more useful?",
+   "options": [
+    "Accuracy on a larger sample",
+    "Precision-recall AUC",
+    "Mean squared error",
+    "R-squared"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "data-science-034",
+   "topic": "Model evaluation",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Marketing will call the top 5,000 customers ranked by your model each month. Which evaluation fits this use best?",
+   "options": [
+    "Overall accuracy on all customers",
+    "RMSE of predicted probabilities",
+    "Number of features in the model",
+    "Precision or lift within the top 5,000"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "data-science-035",
+   "topic": "Model evaluation",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why use k-fold cross-validation on a small dataset?",
+   "options": [
+    "A steadier estimate, with every row used for validation",
+    "It makes the model train faster",
+    "It removes the need for a test set",
+    "It balances the classes automatically"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "data-science-036",
+   "topic": "Model evaluation",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Events your classifier scores at 0.8 probability actually happen only 50% of the time. What is the issue?",
+   "options": [
+    "Low recall",
+    "High bias in features",
+    "Poor calibration",
+    "Too few target classes"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "data-science-037",
+   "topic": "Model evaluation",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Your loan model's offline AUC rose from 0.81 to 0.84, but an online test shows no better approval outcomes. What is a likely reason?",
+   "options": [
+    "AUC gains always appear online only after a year",
+    "The online test must have used the wrong currency",
+    "The offline data or metric does not match the real decision",
+    "An AUC of 0.84 is too low to show any effect"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "data-science-038",
+   "topic": "Model evaluation",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "When picking a decision threshold for a fraud model, what should drive the choice?",
+   "options": [
+    "The relative costs of false positives and false negatives",
+    "Always 0.5, the default",
+    "The value that maximises accuracy",
+    "The mean predicted probability"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "data-science-039",
+   "topic": "Python and SQL for data",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "In pandas, which call returns the number of missing values in each column?",
+   "options": [
+    "df.count()",
+    "df.dropna().sum()",
+    "df.describe()",
+    "df.isna().sum()"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "data-science-040",
+   "topic": "Python and SQL for data",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which SQL clause filters groups after aggregation?",
+   "options": [
+    "WHERE",
+    "HAVING",
+    "ORDER BY",
+    "LIMIT"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "data-science-041",
+   "topic": "Python and SQL for data",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What does df.groupby('city')['amount'].transform('mean') return?",
+   "options": [
+    "One row per city with its mean",
+    "A series aligned to the original rows with each city's mean",
+    "The overall mean repeated",
+    "A sorted list of city names"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "data-science-042",
+   "topic": "Python and SQL for data",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why avoid chained indexing like df[df.x > 0]['y'] = 1 in pandas?",
+   "options": [
+    "It deletes rows where x is not positive",
+    "It is always a syntax error",
+    "It converts y to a string column",
+    "It may modify a copy, leaving df unchanged"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "data-science-043",
+   "topic": "Python and SQL for data",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A daily pandas job joins 40 million orders with 2 million customers and runs out of memory. What is the best first fix?",
+   "options": [
+    "Do the join and aggregation in the database or warehouse",
+    "Convert all columns to object type",
+    "Loop over each row with a for loop",
+    "Save to CSV and reload before joining"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "data-science-044",
+   "topic": "Python and SQL for data",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Which SQL gives each customer's running total of spend by date?",
+   "options": [
+    "SUM(amount) with GROUP BY customer_id, order_date",
+    "SUM(amount) OVER (ORDER BY customer_id)",
+    "SUM(amount) OVER (PARTITION BY customer_id ORDER BY order_date)",
+    "COUNT(*) OVER (PARTITION BY order_date)"
+   ],
+   "answer": 2
+  }
+ ],
+ "task": {
+  "type": "tech",
+  "title": "Review a churn model's results and spot what is wrong",
+  "brief": "You get the summary of a churn model built by a junior colleague (see material). In 20-30 minutes, write short answers to three questions. 1) Work out precision and recall for the churn class from the table, and say whether 97% accuracy is a good sign here. 2) List the problems you see in how the model was built (features, split) and explain why each matters. 3) Recommend what to change before the retention team uses it, and how you would judge success. Show your working; plain sentences are fine, no code is needed.",
+  "minutes": 25,
+  "material": "Churn model for a prepaid mobile operator (predict: will the customer leave in the next 30 days?)\n\nData: 120,000 customers, Jan-Sep 2026. Churn rate 6%.\nSplit: rows shuffled randomly, 80% train / 20% test.\n\nFeatures used:\n tenure_months, avg_monthly_recharge_inr, data_gb_last_30d, calls_to_care_last_30d,\n days_since_last_recharge, port_out_request_flag, state, plan_type\n\nResults on the test set (24,000 customers, 1,440 churners):\n                 Predicted churn   Predicted stay\n Actual churn          1,296             144\n Actual stay             576          21,984\n\nAccuracy 97.0%. Top feature by importance: port_out_request_flag (62%).\nNote from ops: port_out_request_flag is set when the customer submits a number-porting request,\nwhich is usually 1-3 days before they leave.\n\nBusiness plan: the retention team can call 2,000 customers a month and offer a ₹99 data pack.",
+  "key_points": [
+   "Precision = 1296/1872 ≈ 69%; recall = 1296/1440 = 90%",
+   "Accuracy is misleading with a 6% churn rate; a model predicting 'stay' for all gets 94%",
+   "port_out_request_flag is leakage or too late to act on: it appears days before leaving",
+   "Random shuffle on time-ordered data; use a time-based split (train earlier months, test later)",
+   "Retrain without the leaky feature and re-check metrics",
+   "Evaluate precision or lift in the top 2,000 to match the call capacity",
+   "Measure success with a holdout or control group: retained customers and revenue vs ₹99 offer cost"
+  ],
+  "rubric": [
+   {
+    "key": "correctness",
+    "label": "Correct numbers",
+    "guide": "0 = wrong or missing calculations, 3 = one metric right or minor slips, 5 = precision and recall right with working"
+   },
+   {
+    "key": "problem_finding",
+    "label": "Finds the real problems",
+    "guide": "0 = no issues found, 3 = spots leakage or the split but not both, 5 = leakage, split and misleading accuracy all explained"
+   },
+   {
+    "key": "business_sense",
+    "label": "Fits the business use",
+    "guide": "0 = ignores the call team, 3 = generic advice, 5 = ties metric to top 2,000 calls and proposes a control group"
+   },
+   {
+    "key": "explanation",
+    "label": "Clear explanation",
+    "guide": "0 = hard to follow, 3 = understandable with gaps, 5 = short, clear reasons a manager could follow"
+   }
+  ]
+ }
+}

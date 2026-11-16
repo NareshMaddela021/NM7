@@ -3,6 +3,7 @@
 // them. It lasts 7 days (Admin can change it); one tap on "Still ready" starts the days again. Pause keeps
 // everything. Phone and email are never shown to a company until the candidate accepts an invite. Invites from
 // companies (H2) show at the top: Accept, or Not interested with a reason.
+import { useVettingOn } from '../../lib/vettingAccess';
 import { useEffect, useState } from 'react';
 import { useToast } from '../../components/ui';
 import { API_BASE, http } from '../../services/http';
@@ -47,6 +48,7 @@ function PayHint({ cities }) {
 }
 
 export default function MeHire() {
+  const vet = useVettingOn(); // Vetting V2 wording only for people who get it (Admin → Skill checks → Launch)
   const toast = useToast();
   const [s, setS] = useState(null);
   const [f, setF] = useState(null);
@@ -96,7 +98,9 @@ export default function MeHire() {
         </div>
         <div className="mgrid" style={{ gap: 12 }}>
           <p className="xs muted" style={{ margin: 0 }}>🔒 Your phone number and email are never shown to a company until you accept its invite.</p>
-          <p className="small" style={{ margin: 0 }}>Stand out: take a 10-minute <a href="/me/skill-checks" data-testid="hire-skill-link">skill check</a> and choose to show the score.</p>
+          {vet
+            ? <p className="small" style={{ margin: 0 }}>Stand out: <a href="/me/skill-checks" data-testid="hire-skill-link">get a skill verified</a> (a 15-minute test and a short practical task). Companies hiring now see the badge.</p>
+            : <p className="small" style={{ margin: 0 }}>Stand out: take a 10-minute <a href="/me/skill-checks" data-testid="hire-skill-link">skill check</a> and choose to show the score.</p>}
         </div>
       </section>
       <Offers />

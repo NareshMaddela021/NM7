@@ -35,29 +35,46 @@ function RolesCard() {
 import PassOffer, { PassActive } from '../../components/PassOffer';
 import { useLang } from '../../lib/i18n';
 
-/** Skill checks taken (and the best score), from the person's own results; nothing until it has loaded. */
+/** Skill checks taken, the best score and the "Skill verified" badges, from the person's own results (Vetting V2);
+ * nothing until it has loaded. */
 function useSkillChecks() {
   const [d, setD] = useState(null);
   useEffect(() => {
     http('/api/me/skill-checks').then((x) => {
-      const done = (x?.skills || []).map((k) => k.last).filter((l) => l?.done);
-      setD({ taken: done.length, best: done.length ? Math.max(...done.map((l) => l.score || 0)) : null });
+      const v2 = Array.isArray(x?.roles); // the old catalog ({ skills }) while vetting is hidden from this person
+      const roles = (v2 ? x.roles : x?.skills) || [];
+      const done = roles.map((k) => k.last).filter((l) => l?.done);
+      const verified = v2 ? roles.filter((k) => k.verified && !k.verified.expired).map((k) => k.role) : [];
+      setD({ v2, taken: done.length, best: done.length ? Math.max(...done.map((l) => l.score || 0)) : null, verified });
     }, () => setD({ failed: true }));
   }, []);
   return d;
+}
+
+/** "Get skill verified": a short test and a small task give a badge companies see; the badges so far, if any. */
+function SkillVerifyCard({ sk }) {
+  const n = sk?.verified?.length || 0;
+  return (
+    <section className="card stack g8" style={{ flex: '1 1 300px' }} aria-label="Get skill verified" data-testid="home-skill-verify">
+      <strong>{n ? `Skill verified: ${n} badge${n > 1 ? 's' : ''}` : 'Get skill verified'}</strong>
+      <span className="small">{n ? `✓ ${sk.verified.join(', ')}. Add another skill to stand out to more companies.` : 'A 15-minute test and a short real-work task. Pass both and companies hiring now see a “Skill verified” badge.'}</span>
+      <Link className="btn btn-outline btn-sm" style={{ alignSelf: 'flex-start', minHeight: 44 }} to="/me/skill-checks">{n ? 'Verify another skill' : 'Get skill verified'}</Link>
+    </section>
+  );
 }
 
 /**
  * Round P: the person's own numbers as glass widgets (applications, interviews, resume score, skill checks). Each
  * number comes from their account; while one is loading its widget shows a skeleton, never a made-up value.
  */
-function MyNumbers({ score, apps, interviews, tracked }) {
-  const sk = useSkillChecks();
+function MyNumbers({ score, apps, interviews, tracked, sk }) {
   const tiles = [
     ['Applications', apps, `${tracked} tracked`, '/me/jobs', '▥'],
     ['Interviews', interviews, interviews ? 'Prepare with practice questions' : 'None yet', '/me/practice', '❝'],
     ['Resume ATS score', score, score >= 80 ? 'Good — recruiters’ systems read it well' : 'Below 80 — see the tips', '/me/ats', '◎'],
-    ['Skill checks', sk && !sk.failed ? sk.taken : null, sk?.failed ? 'Take a 10-minute check' : sk ? (sk.best != null ? `Best score ${sk.best}%` : 'Take a 10-minute check') : '', '/me/skill-checks', '✓'],
+    sk?.v2
+      ? ['Skill checks', sk.taken, sk.verified?.length ? `${sk.verified.length} skill${sk.verified.length > 1 ? 's' : ''} verified` : sk.best != null ? `Best score ${sk.best}/100` : 'Get a skill verified', '/me/skill-checks', '✓']
+      : ['Skill checks', sk && !sk.failed ? sk.taken : null, sk?.failed ? 'Take a 10-minute check' : sk ? (sk.best != null ? `Best score ${sk.best}%` : 'Take a 10-minute check') : '', '/me/skill-checks', '✓'],
   ];
   return (
     <div className="me-widgets" data-testid="me-widgets">
@@ -103,12 +120,13 @@ export default function MeHome() {
   const edit = () => { openInBuilder(r.id); nav('/builder', { state: { open: 'build' } }); };
   const jp = useJobProfile();
   const setUp = jp.available && jp.data && profileCompleteness(jp.data).pct < 40; // new users: the Job Profile first
+  const sk = useSkillChecks();
   const dl = async (f) => { if (await downloadResume(r.data, f)) toast(f === 'pdf' ? 'PDF ready' : 'Word file ready'); };
 
   return (
     <>
       <div className="stack g4"><span className="kicker">My dashboard</span><h1 className="display me-h1">Hi {first} 👋</h1></div>
-      <MyNumbers score={score} apps={apps.length} interviews={me.apps.filter((a) => a.status === 'interview').length} tracked={me.apps.length} />
+      <MyNumbers score={score} apps={apps.length} interviews={me.apps.filter((a) => a.status === 'interview').length} tracked={me.apps.length} sk={sk} />
       <PassActive />
       {typeof window !== 'undefined' && /[?&]pass=1/.test(window.location.search) && <PassOffer />}
 
@@ -148,7 +166,7 @@ export default function MeHome() {
 
       <div className="row g16" style={{ alignItems: 'stretch' }}><ReadinessCard /><JobsForYouCard /></div>
 
-      <div className="row g16" style={{ alignItems: 'stretch' }}><HireCard /><RolesCard /></div>
+      <div className="row g16" style={{ alignItems: 'stretch' }}><HireCard /><RolesCard />{sk?.v2 && <SkillVerifyCard sk={sk} />}</div>
 
       <ScoresExplained />
 

@@ -1,0 +1,667 @@
+{
+ "slug": "cybersecurity",
+ "version": 1,
+ "topics": [
+  "Network security",
+  "Web application security",
+  "Identity and access",
+  "Threats and incident response",
+  "Security operations and compliance"
+ ],
+ "questions": [
+  {
+   "id": "cybersecurity-001",
+   "topic": "Network security",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which TCP port does HTTPS use by default?",
+   "options": [
+    "80",
+    "443",
+    "22",
+    "8080"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "cybersecurity-002",
+   "topic": "Network security",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A firewall blocks all inbound traffic except services that are explicitly allowed. Which principle is this?",
+   "options": [
+    "Security by obscurity",
+    "Fail open",
+    "Implicit trust",
+    "Default deny"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "cybersecurity-003",
+   "topic": "Network security",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Why is Telnet unsafe for managing a router?",
+   "options": [
+    "It sends credentials in plain text",
+    "It only works on IPv6",
+    "It needs a paid licence",
+    "It blocks SSH on the same port"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "cybersecurity-004",
+   "topic": "Network security",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What does network segmentation mainly achieve?",
+   "options": [
+    "Increases internet bandwidth",
+    "Removes the need for patching",
+    "Limits how far an attacker can move after a breach",
+    "Encrypts all internal traffic"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "cybersecurity-005",
+   "topic": "Network security",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Staff at a Pune branch see a new Wi-Fi network with a name like the company's near the lobby. Many devices joined it. What is the likely threat?",
+   "options": [
+    "A DNS server outage",
+    "A normal ISP signal booster",
+    "An evil-twin access point capturing traffic",
+    "A faulty network switch"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "cybersecurity-006",
+   "topic": "Network security",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A server's connection table fills with half-open TCP connections from many random IPs. What attack is this?",
+   "options": [
+    "A SYN flood denial of service",
+    "ARP spoofing",
+    "SQL injection",
+    "Pass-the-hash"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "cybersecurity-007",
+   "topic": "Network security",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why is TLS inspection at a corporate proxy considered a trade-off?",
+   "options": [
+    "It speeds up encrypted traffic",
+    "It is required by TLS 1.3",
+    "It removes the need for endpoint security",
+    "Visibility gained, but end-to-end trust and privacy suffer"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "cybersecurity-008",
+   "topic": "Network security",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "An internal server sends DNS queries with long random-looking subdomains to one external domain every minute. What do you suspect?",
+   "options": [
+    "Normal CDN load balancing",
+    "DNS tunnelling for command-and-control or data theft",
+    "A misconfigured NTP client",
+    "Browser prefetching by staff"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "cybersecurity-009",
+   "topic": "Network security",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Which control best stops a compromised laptop on the LAN from reaching the database subnet directly?",
+   "options": [
+    "A stronger Wi-Fi password",
+    "Internal firewall rules allowing only the app servers",
+    "Antivirus on the database server",
+    "Hiding the database's hostname"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "cybersecurity-010",
+   "topic": "Web application security",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A login form builds its database query by joining user input into the query string. What vulnerability is this?",
+   "options": [
+    "Cross-site scripting",
+    "Clickjacking",
+    "Open redirect",
+    "SQL injection"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "cybersecurity-011",
+   "topic": "Web application security",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is the right fix for SQL injection in application code?",
+   "options": [
+    "Parameterised queries",
+    "Hiding error messages only",
+    "Using POST instead of GET",
+    "Encoding the database password"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "cybersecurity-012",
+   "topic": "Web application security",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does the HttpOnly flag on a cookie do?",
+   "options": [
+    "Sends the cookie only over plain HTTP",
+    "Encrypts the cookie value",
+    "Stops page scripts from reading the cookie",
+    "Makes the cookie expire on logout"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "cybersecurity-013",
+   "topic": "Web application security",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A comment box shows users' input on the page without encoding, and an attacker posts a script. What is this?",
+   "options": [
+    "Reflected SQL injection",
+    "Server-side request forgery",
+    "Stored cross-site scripting",
+    "Directory traversal"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "cybersecurity-014",
+   "topic": "Web application security",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "On an order page, changing /orders/1045 to /orders/1046 shows another customer's address and UPI ID. What is the flaw?",
+   "options": [
+    "Broken object-level authorisation (IDOR)",
+    "Weak TLS cipher",
+    "Missing CAPTCHA",
+    "Session fixation"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "cybersecurity-015",
+   "topic": "Web application security",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What does an anti-CSRF token protect against?",
+   "options": [
+    "Passwords being guessed",
+    "Scripts injected into the page",
+    "Data read straight from the database",
+    "Forged requests from another site riding the user's session"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "cybersecurity-016",
+   "topic": "Web application security",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A file upload accepts any file type and stores it in the web root. What is the biggest risk?",
+   "options": [
+    "Files take too much disk space",
+    "A script gets uploaded and run by the server",
+    "Images lose quality",
+    "Pages load slowly for users"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "cybersecurity-017",
+   "topic": "Web application security",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A feature fetches a user-supplied URL to show a link preview. A tester enters http://169.254.169.254/. What risk are they checking?",
+   "options": [
+    "Clickjacking via an iframe",
+    "SSRF reaching the cloud metadata service",
+    "DNS rebinding of the user's browser",
+    "Brute force of the admin page"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "cybersecurity-018",
+   "topic": "Web application security",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why is a Content Security Policy useful even when output is already encoded?",
+   "options": [
+    "It replaces input validation completely",
+    "It encrypts page content",
+    "It blocks SQL injection at the database",
+    "It is a second layer limiting which scripts can run"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "cybersecurity-019",
+   "topic": "Web application security",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A JWT-based API accepts tokens whose header says \"alg\": \"none\". What is the impact?",
+   "options": [
+    "Anyone can forge tokens without a signature",
+    "Tokens expire too quickly",
+    "Tokens become too large",
+    "Only admins can log in"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "cybersecurity-020",
+   "topic": "Identity and access",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is the safest way to store user passwords?",
+   "options": [
+    "AES encryption with a shared key",
+    "An MD5 hash",
+    "A slow salted hash like bcrypt or Argon2",
+    "Base64 encoding"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "cybersecurity-021",
+   "topic": "Identity and access",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which is an example of multi-factor authentication?",
+   "options": [
+    "Password plus a security question",
+    "Two different passwords",
+    "Password plus an authenticator app code",
+    "Username plus password"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "cybersecurity-022",
+   "topic": "Identity and access",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does the principle of least privilege mean?",
+   "options": [
+    "Each user gets only the access their work needs",
+    "All staff get admin rights to save time",
+    "Access is removed only when someone leaves",
+    "One shared account is used per team"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "cybersecurity-023",
+   "topic": "Identity and access",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A finance employee in Hyderabad moved to the sales team last month but can still open payroll files. Which control failed?",
+   "options": [
+    "Password complexity",
+    "Disk encryption",
+    "Email filtering",
+    "Access review when roles change"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "cybersecurity-024",
+   "topic": "Identity and access",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why is an SMS OTP weaker than an authenticator app or hardware key?",
+   "options": [
+    "SMS codes are always shorter",
+    "SIM swap and interception can expose the code",
+    "Apps never need the internet",
+    "Phones cannot receive SMS abroad"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "cybersecurity-025",
+   "topic": "Identity and access",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A cloud service account key was pushed to a public GitHub repository an hour ago. What should you do first?",
+   "options": [
+    "Delete the commit and move on",
+    "Revoke and rotate the key immediately",
+    "Make the repo private and wait",
+    "Email the team to be careful"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "cybersecurity-026",
+   "topic": "Identity and access",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why are standing admin rights riskier than just-in-time admin access?",
+   "options": [
+    "Just-in-time access needs no approval",
+    "Standing rights slow down logins",
+    "Admins cannot use MFA with standing rights",
+    "A stolen admin account stays useful to attackers at all times"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "cybersecurity-027",
+   "topic": "Identity and access",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Logs show hundreds of accounts each failing one login from varied IPs within minutes, using common passwords. What attack is this and the best control?",
+   "options": [
+    "Password spraying; enforce MFA and ban weak passwords",
+    "Brute force on one account; lock that account",
+    "Phishing; train users next quarter",
+    "DDoS; add more web servers"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "cybersecurity-028",
+   "topic": "Identity and access",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "What does federated SSO (SAML or OIDC) mainly give a company that uses 30 SaaS apps?",
+   "options": [
+    "Faster network speed to SaaS",
+    "Automatic data backups",
+    "Central login control and quick offboarding",
+    "No need for authorisation checks in apps"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "cybersecurity-029",
+   "topic": "Threats and incident response",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "An email that looks like it is from the CEO asks an accountant to urgently send ₹4 lakh to a new vendor. What is this?",
+   "options": [
+    "A normal vendor payment",
+    "A denial-of-service attack",
+    "A business email compromise attempt",
+    "A ransomware infection"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "cybersecurity-030",
+   "topic": "Threats and incident response",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is ransomware?",
+   "options": [
+    "Malware that encrypts data and demands payment",
+    "Software that shows adverts",
+    "A tool that tests passwords",
+    "A firewall bypass rule"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "cybersecurity-031",
+   "topic": "Threats and incident response",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "A user clicked a suspicious link and typed their office password into the page. What should they do first?",
+   "options": [
+    "Wait to see if anything happens",
+    "Delete the email and forget it",
+    "Restart the laptop",
+    "Report it and change the password at once"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "cybersecurity-032",
+   "topic": "Threats and incident response",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "In the incident response lifecycle, which phase comes right before eradication?",
+   "options": [
+    "Recovery",
+    "Containment",
+    "Lessons learned",
+    "Restoration from backup"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "cybersecurity-033",
+   "topic": "Threats and incident response",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A server shows signs of compromise and the admin wants to reboot it immediately. Why might you object?",
+   "options": [
+    "Reboots are banned during office hours",
+    "A reboot can wipe memory evidence needed for investigation",
+    "The server licence will expire",
+    "Rebooting spreads malware to the network"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "cybersecurity-034",
+   "topic": "Threats and incident response",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Under CERT-In's 2022 directions, within how long must many types of cyber incidents be reported?",
+   "options": [
+    "72 hours",
+    "24 hours",
+    "30 days",
+    "6 hours"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "cybersecurity-035",
+   "topic": "Threats and incident response",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which pattern in Windows logs suggests lateral movement?",
+   "options": [
+    "One account remotely logging into many servers quickly",
+    "A user changing the desktop wallpaper",
+    "Print jobs sent late at night",
+    "A failed Windows update"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "cybersecurity-036",
+   "topic": "Threats and incident response",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Ransomware encrypted file servers at a Chennai hospital. Backups exist but were joined to the same domain. What is the key step before restoring?",
+   "options": [
+    "Restore immediately to cut downtime",
+    "Pay the ransom to get the key fast",
+    "Confirm backups are clean and the attacker's access is removed",
+    "Reinstall antivirus and restore everything"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "cybersecurity-037",
+   "topic": "Threats and incident response",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why keep a chain of custody for forensic disk images?",
+   "options": [
+    "To speed up disk imaging",
+    "To compress evidence files",
+    "So evidence is accepted as untampered in legal action",
+    "To share images freely with vendors"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "cybersecurity-038",
+   "topic": "Threats and incident response",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "EDR flags powershell.exe started by winword.exe with an encoded command line. What is the best immediate action?",
+   "options": [
+    "Isolate the host and collect the process tree",
+    "Ignore it since PowerShell is a Microsoft tool",
+    "Uninstall Word from all machines",
+    "Reset only the domain admin password"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "cybersecurity-039",
+   "topic": "Security operations and compliance",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does a SIEM mainly do?",
+   "options": [
+    "Blocks all malware on laptops",
+    "Encrypts databases",
+    "Manages employee payroll",
+    "Collects and correlates logs to raise alerts"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "cybersecurity-040",
+   "topic": "Security operations and compliance",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Why should security patches be applied promptly?",
+   "options": [
+    "Patches make laptops faster",
+    "Attackers quickly exploit publicly known flaws",
+    "Old versions stop working the next day",
+    "Patches remove the need for backups"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "cybersecurity-041",
+   "topic": "Security operations and compliance",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A vulnerability scan returns 400 findings. How should you prioritise them?",
+   "options": [
+    "In alphabetical order of host name",
+    "By exploitability and asset exposure, not only CVSS",
+    "Only the ones found first",
+    "Lowest severity first since they are quick"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "cybersecurity-042",
+   "topic": "Security operations and compliance",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Under India's DPDP Act 2023, what is an organisation that decides how personal data is processed called?",
+   "options": [
+    "Data principal",
+    "Data custodian",
+    "Data steward",
+    "Data fiduciary"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "cybersecurity-043",
+   "topic": "Security operations and compliance",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A SOC receives 2,000 alerts a day and analysts ignore most of them. What is the best fix?",
+   "options": [
+    "Tune rules using false-positive rates and add context",
+    "Hire more analysts and keep all rules",
+    "Turn off alerting at night",
+    "Email all alerts to managers"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "cybersecurity-044",
+   "topic": "Security operations and compliance",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why should at least one backup copy be offline or immutable?",
+   "options": [
+    "Offline storage is cheaper per GB",
+    "Immutable backups restore faster",
+    "So ransomware with admin access cannot encrypt or delete it",
+    "Auditors require tape media"
+   ],
+   "answer": 2
+  }
+ ],
+ "task": {
+  "type": "tech",
+  "title": "Investigate a suspicious web server log",
+  "brief": "You are on shift and get this web server log extract from an Indian online shop (see material). In 20-30 minutes, write a short incident note. Cover: 1) each attack you can see, which IP did it, and whether it looks successful (with the log line that shows it); 2) what data was likely exposed and how serious this is; 3) the first actions you would take in the next hour, in order; 4) the fixes needed so it does not happen again, including any reporting duty in India. Plain sentences or bullet points are fine.",
+  "minutes": 25,
+  "material": "nginx access log extract, shop.example.in (times IST, 14 Nov 2026). Format: IP - [time] \"request\" status bytes\n\n103.21.44.17 - [02:10:03] \"GET /products?id=12 HTTP/1.1\" 200 5120\n103.21.44.17 - [02:10:09] \"GET /products?id=12' HTTP/1.1\" 500 312\n103.21.44.17 - [02:10:15] \"GET /products?id=12%20OR%201=1-- HTTP/1.1\" 200 98211\n103.21.44.17 - [02:10:31] \"GET /products?id=12%20UNION%20SELECT%20username,password_hash%20FROM%20admins-- HTTP/1.1\" 200 5388\n49.36.8.201  - [02:11:02] \"GET /index.html HTTP/1.1\" 200 2210\n103.21.44.17 - [02:12:40] \"GET /download?file=../../../../etc/passwd HTTP/1.1\" 200 1874\n185.220.9.4  - [02:14:00] \"POST /admin/login HTTP/1.1\" 401 210\n185.220.9.4  - [02:14:01] \"POST /admin/login HTTP/1.1\" 401 210\n185.220.9.4  - [02:14:01] \"POST /admin/login HTTP/1.1\" 401 210\n   ... 1,412 more identical 401 lines from 185.220.9.4 until 02:31:55 ...\n185.220.9.4  - [02:32:07] \"POST /admin/login HTTP/1.1\" 302 0\n185.220.9.4  - [02:32:09] \"GET /admin/dashboard HTTP/1.1\" 200 7740\n185.220.9.4  - [02:33:45] \"GET /admin/export?table=customers&format=csv HTTP/1.1\" 200 48211904\n49.36.8.201  - [02:35:10] \"GET /cart HTTP/1.1\" 200 3301\n\nContext: the customers table holds names, phone numbers, delivery addresses and UPI IDs.\nThere is no MFA on /admin/login. The app runs on one VM; the database is on the same VM.",
+  "key_points": [
+   "SQL injection from 103.21.44.17; the OR 1=1 response size jump and UNION query returning 200 suggest success, admin hashes likely exposed",
+   "Path traversal on /download returned 200 with /etc/passwd; likely successful",
+   "Brute force or credential stuffing from 185.220.9.4 ending in a 302 success and admin dashboard access",
+   "Large customer CSV export (~48 MB) means personal data including UPI IDs was likely stolen",
+   "Contain: block the IPs, disable or reset admin accounts and sessions, take the export/download features offline, preserve logs and a VM snapshot",
+   "Fix: parameterised queries, file path allow-listing, MFA, rate limiting and lockout, least-privilege DB user, WAF/monitoring alerts",
+   "Report to CERT-In within 6 hours and handle DPDP obligations (notify the Data Protection Board and affected customers)"
+  ],
+  "rubric": [
+   {
+    "key": "detection",
+    "label": "Finds the attacks",
+    "guide": "0 = misses most attacks, 3 = finds two of the three with some evidence, 5 = all three found with the right lines and success judged correctly"
+   },
+   {
+    "key": "impact",
+    "label": "Judges the impact",
+    "guide": "0 = no view on impact, 3 = says data may be exposed, 5 = links the export to customer personal data and rates severity sensibly"
+   },
+   {
+    "key": "response",
+    "label": "Sound first actions",
+    "guide": "0 = no plan or harmful steps (e.g. wipe the VM), 3 = reasonable but unordered, 5 = contain, preserve evidence and reset access in a sensible order"
+   },
+   {
+    "key": "remediation",
+    "label": "Fixes and reporting",
+    "guide": "0 = none, 3 = generic advice, 5 = specific fixes for each flaw plus CERT-In and DPDP reporting"
+   }
+  ]
+ }
+}

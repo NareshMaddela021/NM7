@@ -1,0 +1,2786 @@
+{
+ "slug": "welding",
+ "version": 1,
+ "topics": [
+  "Safety and PPE",
+  "Machine and setup",
+  "Electrodes and metals",
+  "Joint preparation",
+  "Welding technique",
+  "Quality and customer"
+ ],
+ "questions": [
+  {
+   "id": "welding-001",
+   "topic": "Safety and PPE",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which filter glass shade is usually right for stick welding with a 3.15 mm electrode at about 100 A?",
+   "options": [
+    "Shade 3",
+    "Plain clear glass",
+    "Shade 10 or 11",
+    "Shade 5"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "3.15 mm electrode తో సుమారు 100 A లో stick welding కి ఏ filter glass shade సరైనది?",
+    "options": [
+     "Shade 3",
+     "మామూలు clear glass",
+     "Shade 10 లేదా 11",
+     "Shade 5"
+    ]
+   },
+   "hi": {
+    "q": "3.15 mm electrode से लगभग 100 A पर stick welding के लिए कौन सा filter glass shade सही है?",
+    "options": [
+     "Shade 3",
+     "सादा clear glass",
+     "Shade 10 या 11",
+     "Shade 5"
+    ]
+   }
+  },
+  {
+   "id": "welding-002",
+   "topic": "Safety and PPE",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Why should a welder avoid polyester or nylon clothes at work?",
+   "options": [
+    "Sparks melt them onto the skin",
+    "They are too costly",
+    "They make the arc unstable",
+    "They lower the current"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "Welder పని లో polyester లేదా nylon బట్టలు ఎందుకు వేసుకోకూడదు?",
+    "options": [
+     "Sparks పడితే కరిగి చర్మానికి అంటుకుంటాయి",
+     "అవి చాలా ఖరీదు",
+     "Arc స్థిరంగా ఉండదు",
+     "Current తగ్గిపోతుంది"
+    ]
+   },
+   "hi": {
+    "q": "Welder को काम पर polyester या nylon के कपड़े क्यों नहीं पहनने चाहिए?",
+    "options": [
+     "चिंगारी से पिघलकर त्वचा पर चिपक जाते हैं",
+     "ये बहुत महंगे होते हैं",
+     "Arc स्थिर नहीं रहता",
+     "Current कम हो जाता है"
+    ]
+   }
+  },
+  {
+   "id": "welding-003",
+   "topic": "Safety and PPE",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "Your helper wants to watch your arc with bare eyes for a minute. What do you tell him?",
+   "options": [
+    "Use a shield or turn away",
+    "A few seconds is fine",
+    "Wear normal sunglasses",
+    "Stand two metres back"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "మీ helper ఒక నిమిషం మీ arc ని కళ్ళతో నేరుగా చూడాలనుకుంటున్నాడు. అతనికి ఏం చెప్తారు?",
+    "options": [
+     "Shield వాడు లేదా వేరే వైపు తిరుగు",
+     "కొన్ని సెకన్లు చూస్తే పర్వాలేదు",
+     "మామూలు sunglasses పెట్టుకో",
+     "రెండు మీటర్లు దూరంగా నిలబడు"
+    ]
+   },
+   "hi": {
+    "q": "आपका helper एक मिनट तक आपका arc नंगी आंखों से देखना चाहता है। आप उसे क्या कहेंगे?",
+    "options": [
+     "Shield लगाओ या मुंह फेर लो",
+     "कुछ सेकंड देखना ठीक है",
+     "सादा sunglasses पहन लो",
+     "दो मीटर पीछे खड़े हो जाओ"
+    ]
+   }
+  },
+  {
+   "id": "welding-004",
+   "topic": "Safety and PPE",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "You must weld on a wall bracket. A wooden cupboard is on the other side of the wall. What is the right step?",
+   "options": [
+    "Move or cover the cupboard and keep an extinguisher ready",
+    "Pour water on the wall before starting",
+    "Weld quickly so the wall does not heat up",
+    "Use a thinner electrode to reduce heat"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "గోడ bracket మీద welding చేయాలి. గోడ అవతలి వైపు చెక్క అలమారా ఉంది. సరైన పని ఏది?",
+    "options": [
+     "అలమారా తీసేయండి లేదా కప్పండి, extinguisher దగ్గర ఉంచండి",
+     "మొదలుపెట్టే ముందు గోడ మీద నీళ్ళు పోయండి",
+     "గోడ వేడెక్కకుండా త్వరగా weld చేయండి",
+     "వేడి తగ్గడానికి సన్నని electrode వాడండి"
+    ]
+   },
+   "hi": {
+    "q": "दीवार के bracket पर welding करनी है। दीवार के दूसरी तरफ लकड़ी की अलमारी है। सही कदम क्या है?",
+    "options": [
+     "अलमारी हटाएं या ढकें, और extinguisher पास रखें",
+     "शुरू करने से पहले दीवार पर पानी डालें",
+     "जल्दी weld करें ताकि दीवार गरम न हो",
+     "गर्मी कम करने के लिए पतला electrode लें"
+    ]
+   }
+  },
+  {
+   "id": "welding-005",
+   "topic": "Safety and PPE",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A customer wants a stand made from an old diesel drum. It looks empty. What do you do first?",
+   "options": [
+    "Weld it, since it is empty",
+    "Wash it out and fill it with water or vent it",
+    "Open the caps and weld at low current",
+    "Cut it open with a gas torch"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "Customer పాత diesel drum తో stand చేయమంటున్నారు. అది ఖాళీగా కనిపిస్తోంది. ముందు ఏం చేస్తారు?",
+    "options": [
+     "ఖాళీగా ఉంది కదా, weld చేస్తాను",
+     "బాగా కడిగి, నీళ్ళు నింపి లేదా గాలి పోయేలా చేసి weld చేస్తాను",
+     "Caps తీసి తక్కువ current లో weld చేస్తాను",
+     "Gas torch తో కోసి తెరుస్తాను"
+    ]
+   },
+   "hi": {
+    "q": "Customer पुराने diesel drum से stand बनवाना चाहता है। वह खाली दिखता है। आप पहले क्या करेंगे?",
+    "options": [
+     "खाली है, तो सीधे weld कर दूंगा",
+     "अच्छे से धोकर पानी भरूंगा या हवा निकलने दूंगा",
+     "ढक्कन खोलकर कम current पर weld करूंगा",
+     "Gas torch से काटकर खोल दूंगा"
+    ]
+   }
+  },
+  {
+   "id": "welding-006",
+   "topic": "Safety and PPE",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "You must stick weld inside a small closed water tank. Which extra step matters most?",
+   "options": [
+    "Use higher current to finish faster",
+    "Wear two pairs of gloves",
+    "Keep a helper outside, blow in fresh air, stand on dry rubber",
+    "Keep the lid closed to stop sparks"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "చిన్న మూసి ఉన్న నీళ్ళ tank లోపల stick welding చేయాలి. ఏ అదనపు జాగ్రత్త ముఖ్యం?",
+    "options": [
+     "త్వరగా పూర్తి చేయడానికి ఎక్కువ current",
+     "రెండు జతల gloves వేసుకోవాలి",
+     "బయట helper ఉండాలి, తాజా గాలి పంపాలి, పొడి rubber మీద నిలబడాలి",
+     "Sparks రాకుండా మూత మూసి ఉంచాలి"
+    ]
+   },
+   "hi": {
+    "q": "छोटे बंद पानी के tank के अंदर stick welding करनी है। कौन सी अतिरिक्त सावधानी सबसे ज़रूरी है?",
+    "options": [
+     "जल्दी खत्म करने को ज़्यादा current",
+     "दो जोड़ी gloves पहनें",
+     "बाहर helper रहे, ताज़ी हवा दें, सूखी rubber पर खड़े हों",
+     "चिंगारी रोकने को ढक्कन बंद रखें"
+    ]
+   }
+  },
+  {
+   "id": "welding-007",
+   "topic": "Safety and PPE",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "It is raining on site. Your holder cable has a small cut in the rubber. What do you do?",
+   "options": [
+    "Stop and fix it with proper insulation or replace it",
+    "Wrap paper tape and carry on",
+    "Carry on, welding voltage is low",
+    "Keep the cut part off the wet floor and carry on"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "Site లో వర్షం పడుతోంది. మీ holder cable rubber కి చిన్న కోత ఉంది. ఏం చేస్తారు?",
+    "options": [
+     "ఆపి, సరైన insulation తో రిపేర్ చేస్తాను లేదా మారుస్తాను",
+     "Paper tape చుట్టి కొనసాగిస్తాను",
+     "Welding voltage తక్కువే కదా, కొనసాగిస్తాను",
+     "కోత భాగాన్ని తడి నేలకు దూరంగా ఉంచి కొనసాగిస్తాను"
+    ]
+   },
+   "hi": {
+    "q": "Site पर बारिश हो रही है। आपके holder cable की rubber में छोटा सा कट है। आप क्या करेंगे?",
+    "options": [
+     "रुककर सही insulation से ठीक करूंगा या बदल दूंगा",
+     "Paper tape लपेटकर चालू रखूंगा",
+     "Welding voltage कम है, चालू रखूंगा",
+     "कटा हिस्सा गीले फर्श से दूर रखकर चालू रखूंगा"
+    ]
+   }
+  },
+  {
+   "id": "welding-008",
+   "topic": "Safety and PPE",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "When you weld galvanised (GI) pipe without removing the coating, what is the main health risk?",
+   "options": [
+    "Extra sparks on the floor",
+    "The electrode keeps sticking",
+    "Loud noise from the arc",
+    "Zinc fumes that cause fever-like sickness"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "GI pipe మీద coating తీయకుండా weld చేస్తే ముఖ్యమైన ఆరోగ్య ప్రమాదం ఏమిటి?",
+    "options": [
+     "నేల మీద ఎక్కువ sparks",
+     "Electrode పదే పదే అంటుకోవడం",
+     "Arc నుండి పెద్ద శబ్దం",
+     "Zinc పొగ వల్ల జ్వరం లాంటి అనారోగ్యం"
+    ]
+   },
+   "hi": {
+    "q": "GI pipe की coating हटाए बिना weld करने पर सबसे बड़ा स्वास्थ्य खतरा क्या है?",
+    "options": [
+     "फर्श पर ज़्यादा चिंगारी",
+     "Electrode बार-बार चिपकना",
+     "Arc से तेज़ आवाज़",
+     "Zinc का धुआं जिससे बुखार जैसी बीमारी होती है"
+    ]
+   }
+  },
+  {
+   "id": "welding-009",
+   "topic": "Machine and setup",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Where should the earth (return) clamp be fixed?",
+   "options": [
+    "On any nearby iron pipe or railing",
+    "On the welding machine body",
+    "On clean metal of the job, near the weld",
+    "On a painted part of the job"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "Earth (return) clamp ఎక్కడ పెట్టాలి?",
+    "options": [
+     "దగ్గరలో ఉన్న ఏదైనా iron pipe లేదా railing మీద",
+     "Welding machine body మీద",
+     "Job మీద శుభ్రమైన metal పై, weld దగ్గర",
+     "Job లో paint ఉన్న భాగం మీద"
+    ]
+   },
+   "hi": {
+    "q": "Earth (return) clamp कहां लगाना चाहिए?",
+    "options": [
+     "पास की किसी भी लोहे की pipe या railing पर",
+     "Welding machine की body पर",
+     "Job के साफ metal पर, weld के पास",
+     "Job के paint वाले हिस्से पर"
+    ]
+   }
+  },
+  {
+   "id": "welding-010",
+   "topic": "Machine and setup",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "The electrode keeps sticking to the job every time you strike the arc. What is the usual cause?",
+   "options": [
+    "Current is set too high",
+    "Earth clamp is too tight",
+    "Current is set too low",
+    "The job is too clean"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "Arc strike చేసిన ప్రతిసారీ electrode job కి అంటుకుంటోంది. సాధారణ కారణం ఏమిటి?",
+    "options": [
+     "Current చాలా ఎక్కువ పెట్టారు",
+     "Earth clamp చాలా గట్టిగా ఉంది",
+     "Current చాలా తక్కువ పెట్టారు",
+     "Job చాలా శుభ్రంగా ఉంది"
+    ]
+   },
+   "hi": {
+    "q": "हर बार arc strike करने पर electrode job से चिपक जाता है। आम कारण क्या है?",
+    "options": [
+     "Current बहुत ज़्यादा रखा है",
+     "Earth clamp बहुत टाइट है",
+     "Current बहुत कम रखा है",
+     "Job बहुत साफ है"
+    ]
+   }
+  },
+  {
+   "id": "welding-011",
+   "topic": "Machine and setup",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Before starting a welding machine on a new site, what should you check first?",
+   "options": [
+    "The electrode box is full",
+    "Cables, plug and earthing are sound",
+    "The machine paint is fresh",
+    "The machine is the latest model"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "కొత్త site లో welding machine start చేసే ముందు మొదట ఏం చెక్ చేయాలి?",
+    "options": [
+     "Electrode box నిండుగా ఉందా",
+     "Cables, plug, earthing బాగున్నాయా",
+     "Machine paint కొత్తగా ఉందా",
+     "Machine కొత్త model ఆ"
+    ]
+   },
+   "hi": {
+    "q": "नई site पर welding machine चालू करने से पहले सबसे पहले क्या जांचें?",
+    "options": [
+     "Electrode का डिब्बा भरा है या नहीं",
+     "Cables, plug और earthing ठीक हैं या नहीं",
+     "Machine का paint नया है या नहीं",
+     "Machine नया model है या नहीं"
+    ]
+   }
+  },
+  {
+   "id": "welding-012",
+   "topic": "Machine and setup",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "For a 3.15 mm general electrode on mild steel, which current range is about right?",
+   "options": [
+    "40 to 60 A",
+    "180 to 220 A",
+    "250 to 300 A",
+    "90 to 130 A"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "Mild steel మీద 3.15 mm general electrode కి సుమారు ఏ current range సరైనది?",
+    "options": [
+     "40 నుండి 60 A",
+     "180 నుండి 220 A",
+     "250 నుండి 300 A",
+     "90 నుండి 130 A"
+    ]
+   },
+   "hi": {
+    "q": "Mild steel पर 3.15 mm general electrode के लिए लगभग कौन सी current range सही है?",
+    "options": [
+     "40 से 60 A",
+     "180 से 220 A",
+     "250 से 300 A",
+     "90 से 130 A"
+    ]
+   }
+  },
+  {
+   "id": "welding-013",
+   "topic": "Machine and setup",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "You added a long extra cable to reach a terrace job. The cable gets hot and the arc feels weak. What is the likely reason?",
+   "options": [
+    "The electrodes are too dry",
+    "The earth clamp is new",
+    "The cable is too thin for that length",
+    "The machine is set to DC"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "Terrace job కోసం పొడవైన extra cable కలిపారు. Cable వేడెక్కుతోంది, arc బలహీనంగా ఉంది. కారణం ఏమై ఉండొచ్చు?",
+    "options": [
+     "Electrodes బాగా పొడిగా ఉన్నాయి",
+     "Earth clamp కొత్తది",
+     "ఆ పొడవుకి cable చాలా సన్నగా ఉంది",
+     "Machine DC లో ఉంది"
+    ]
+   },
+   "hi": {
+    "q": "Terrace के काम के लिए लंबी extra cable जोड़ी। Cable गरम हो रही है और arc कमज़ोर है। संभावित कारण क्या है?",
+    "options": [
+     "Electrodes बहुत सूखे हैं",
+     "Earth clamp नया है",
+     "उस लंबाई के लिए cable बहुत पतली है",
+     "Machine DC पर है"
+    ]
+   }
+  },
+  {
+   "id": "welding-014",
+   "topic": "Machine and setup",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "In MIG welding, the wire keeps burning back into the contact tip. What should you check first?",
+   "options": [
+    "Gas flow is too high",
+    "The job is too thick",
+    "The torch cable is too long",
+    "Wire speed is too low for the voltage"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "MIG welding లో wire పదే పదే contact tip లోకి కాలిపోతోంది. మొదట ఏం చెక్ చేయాలి?",
+    "options": [
+     "Gas flow చాలా ఎక్కువ",
+     "Job చాలా మందంగా ఉంది",
+     "Torch cable చాలా పొడవు",
+     "Voltage కి wire speed చాలా తక్కువగా ఉంది"
+    ]
+   },
+   "hi": {
+    "q": "MIG welding में wire बार-बार contact tip में जल जाती है। पहले क्या जांचें?",
+    "options": [
+     "Gas flow बहुत ज़्यादा है",
+     "Job बहुत मोटा है",
+     "Torch cable बहुत लंबी है",
+     "Voltage के हिसाब से wire speed बहुत कम है"
+    ]
+   }
+  },
+  {
+   "id": "welding-015",
+   "topic": "Machine and setup",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "When TIG welding stainless steel on a DC machine, how should the torch be connected?",
+   "options": [
+    "Torch to positive",
+    "Torch to negative",
+    "Either way, it does not matter",
+    "DC cannot be used for steel"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "DC machine తో stainless steel TIG welding చేసేటప్పుడు torch ఎలా connect చేయాలి?",
+    "options": [
+     "Torch ని positive కి",
+     "Torch ని negative కి",
+     "ఎలా పెట్టినా పర్వాలేదు",
+     "Steel కి DC వాడకూడదు"
+    ]
+   },
+   "hi": {
+    "q": "DC machine पर stainless steel की TIG welding में torch कैसे जोड़ें?",
+    "options": [
+     "Torch को positive पर",
+     "Torch को negative पर",
+     "किसी भी तरफ, फर्क नहीं पड़ता",
+     "Steel के लिए DC नहीं चलता"
+    ]
+   }
+  },
+  {
+   "id": "welding-016",
+   "topic": "Electrodes and metals",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "A box of electrodes was left open in a damp store room for a week. What do you do?",
+   "options": [
+    "Use them straight away",
+    "Dry them in an electrode oven as the box says",
+    "Wipe the flux with a cloth and use",
+    "Use them only on thin sheet"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "Electrode box ఒక వారం తడి store room లో తెరిచి ఉంచారు. ఏం చేస్తారు?",
+    "options": [
+     "వెంటనే వాడేస్తాను",
+     "Box మీద చెప్పినట్టు electrode oven లో ఆరబెడతాను",
+     "Flux ని గుడ్డతో తుడిచి వాడతాను",
+     "సన్నని sheet మీద మాత్రమే వాడతాను"
+    ]
+   },
+   "hi": {
+    "q": "Electrodes का डिब्बा एक हफ्ते तक गीले store room में खुला पड़ा रहा। आप क्या करेंगे?",
+    "options": [
+     "सीधे इस्तेमाल कर लूंगा",
+     "डिब्बे पर लिखे अनुसार electrode oven में सुखाऊंगा",
+     "Flux को कपड़े से पोंछकर इस्तेमाल करूंगा",
+     "सिर्फ पतली sheet पर इस्तेमाल करूंगा"
+    ]
+   }
+  },
+  {
+   "id": "welding-017",
+   "topic": "Electrodes and metals",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which electrode is most common for general mild steel work like gates and window grills?",
+   "options": [
+    "Cast iron electrode",
+    "Stainless 308 electrode",
+    "E6013 rutile electrode",
+    "Aluminium filler rod"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "Gates, window grills లాంటి మామూలు mild steel పనికి ఎక్కువగా వాడే electrode ఏది?",
+    "options": [
+     "Cast iron electrode",
+     "Stainless 308 electrode",
+     "E6013 rutile electrode",
+     "Aluminium filler rod"
+    ]
+   },
+   "hi": {
+    "q": "Gate और खिड़की की grill जैसे आम mild steel काम के लिए सबसे ज़्यादा कौन सा electrode चलता है?",
+    "options": [
+     "Cast iron electrode",
+     "Stainless 308 electrode",
+     "E6013 rutile electrode",
+     "Aluminium filler rod"
+    ]
+   }
+  },
+  {
+   "id": "welding-018",
+   "topic": "Electrodes and metals",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A bracket will hold a chain pulley block with heavy loads. Which electrode is the better choice?",
+   "options": [
+    "E7018, baked and kept dry",
+    "E6013, since it is easy to use",
+    "A cast iron electrode",
+    "A 2 mm electrode for control"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "ఒక bracket బరువైన chain pulley block ని మోయాలి. ఏ electrode మంచిది?",
+    "options": [
+     "E7018, bake చేసి పొడిగా ఉంచినది",
+     "E6013, వాడటం సులువు కాబట్టి",
+     "Cast iron electrode",
+     "Control కోసం 2 mm electrode"
+    ]
+   },
+   "hi": {
+    "q": "एक bracket पर भारी chain pulley block लटकेगा। कौन सा electrode बेहतर है?",
+    "options": [
+     "E7018, bake करके सूखा रखा हुआ",
+     "E6013, क्योंकि चलाना आसान है",
+     "Cast iron electrode",
+     "Control के लिए 2 mm electrode"
+    ]
+   }
+  },
+  {
+   "id": "welding-019",
+   "topic": "Electrodes and metals",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "You must join two pieces of a stainless steel kitchen table frame. Which electrode do you pick?",
+   "options": [
+    "Mild steel E6013",
+    "SS 308L type",
+    "Cast iron nickel rod",
+    "Hardfacing electrode"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "Stainless steel kitchen table frame లో రెండు ముక్కలు జోడించాలి. ఏ electrode తీసుకుంటారు?",
+    "options": [
+     "Mild steel E6013",
+     "SS 308L రకం",
+     "Cast iron nickel rod",
+     "Hardfacing electrode"
+    ]
+   },
+   "hi": {
+    "q": "Stainless steel की kitchen table के frame के दो टुकड़े जोड़ने हैं। कौन सा electrode लेंगे?",
+    "options": [
+     "Mild steel E6013",
+     "SS 308L वाला",
+     "Cast iron nickel rod",
+     "Hardfacing electrode"
+    ]
+   }
+  },
+  {
+   "id": "welding-020",
+   "topic": "Electrodes and metals",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which gas is commonly used for MIG welding of mild steel in Indian workshops?",
+   "options": [
+    "CO2 or an argon-CO2 mix",
+    "Pure oxygen",
+    "LPG",
+    "Acetylene"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "మన workshops లో mild steel MIG welding కి సాధారణంగా ఏ gas వాడతారు?",
+    "options": [
+     "CO2 లేదా argon-CO2 mix",
+     "Pure oxygen",
+     "LPG",
+     "Acetylene"
+    ]
+   },
+   "hi": {
+    "q": "भारत की workshops में mild steel की MIG welding के लिए आमतौर पर कौन सी gas लगती है?",
+    "options": [
+     "CO2 या argon-CO2 mix",
+     "Pure oxygen",
+     "LPG",
+     "Acetylene"
+    ]
+   }
+  },
+  {
+   "id": "welding-021",
+   "topic": "Electrodes and metals",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A cast iron pump body has a crack. Which way of repairing it is right?",
+   "options": [
+    "E6013 in one long continuous run",
+    "Preheat, nickel rod, short runs, cool slowly",
+    "Cool with water after each run",
+    "Use the highest current possible"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "Cast iron pump body కి పగులు ఉంది. రిపేర్ చేసే సరైన పద్ధతి ఏది?",
+    "options": [
+     "E6013 తో ఒకే పొడవైన run",
+     "Preheat, nickel rod, చిన్న runs, నెమ్మదిగా చల్లబరచాలి",
+     "ప్రతి run తర్వాత నీళ్ళతో చల్లబరచాలి",
+     "వీలైనంత ఎక్కువ current"
+    ]
+   },
+   "hi": {
+    "q": "Cast iron के pump body में crack है। इसे ठीक करने का सही तरीका क्या है?",
+    "options": [
+     "E6013 से एक लंबा लगातार run",
+     "Preheat, nickel rod, छोटे runs, धीरे ठंडा करें",
+     "हर run के बाद पानी से ठंडा करें",
+     "जितना हो सके ज़्यादा current"
+    ]
+   }
+  },
+  {
+   "id": "welding-022",
+   "topic": "Electrodes and metals",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why do thick plates of high carbon steel often need preheating before welding?",
+   "options": [
+    "To stop cracks from fast cooling",
+    "To make the plate softer for cutting",
+    "To reduce the current needed",
+    "To burn off the rust"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "High carbon steel మందమైన plates కి welding ముందు preheat ఎందుకు అవసరం?",
+    "options": [
+     "త్వరగా చల్లబడి పగుళ్ళు రాకుండా",
+     "కోయడానికి plate మెత్తగా కావడానికి",
+     "తక్కువ current సరిపోవడానికి",
+     "తుప్పు కాలిపోవడానికి"
+    ]
+   },
+   "hi": {
+    "q": "High carbon steel की मोटी plates को welding से पहले preheat क्यों करना पड़ता है?",
+    "options": [
+     "जल्दी ठंडा होने से crack न आए",
+     "काटने के लिए plate नरम हो",
+     "कम current लगे",
+     "जंग जल जाए"
+    ]
+   }
+  },
+  {
+   "id": "welding-023",
+   "topic": "Joint preparation",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "The joint has rust, paint and oil on it. What should you do before welding?",
+   "options": [
+    "Weld over it, the arc burns it off",
+    "Apply grease to stop spatter",
+    "Grind or wire brush it to bare metal",
+    "Paint it again for protection"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "Joint మీద తుప్పు, paint, oil ఉన్నాయి. Welding ముందు ఏం చేయాలి?",
+    "options": [
+     "దాని మీదే weld చేయాలి, arc కాల్చేస్తుంది",
+     "Spatter రాకుండా grease రాయాలి",
+     "Grinder లేదా wire brush తో metal కనిపించేలా శుభ్రం చేయాలి",
+     "రక్షణ కోసం మళ్ళీ paint వేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "Joint पर जंग, paint और तेल लगा है। Welding से पहले क्या करें?",
+    "options": [
+     "उसी पर weld करें, arc जला देगा",
+     "Spatter रोकने को grease लगाएं",
+     "Grinder या wire brush से साफ metal तक साफ करें",
+     "बचाव के लिए फिर से paint करें"
+    ]
+   }
+  },
+  {
+   "id": "welding-024",
+   "topic": "Joint preparation",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Why do we tack weld the parts before the full weld?",
+   "options": [
+    "To test if the electrode is good",
+    "To make the final joint thicker",
+    "To hold them in place and keep alignment",
+    "To preheat the metal"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "Full weld ముందు parts కి tack weld ఎందుకు చేస్తాం?",
+    "options": [
+     "Electrode బాగుందో లేదో చూడటానికి",
+     "చివరి joint మందంగా రావడానికి",
+     "కదలకుండా పట్టి ఉంచి, alignment సరిగ్గా ఉంచడానికి",
+     "Metal ని preheat చేయడానికి"
+    ]
+   },
+   "hi": {
+    "q": "पूरी welding से पहले parts पर tack weld क्यों करते हैं?",
+    "options": [
+     "Electrode ठीक है या नहीं, जांचने के लिए",
+     "आखिरी joint मोटा करने के लिए",
+     "उन्हें अपनी जगह पकड़े रखने और alignment ठीक रखने के लिए",
+     "Metal को preheat करने के लिए"
+    ]
+   }
+  },
+  {
+   "id": "welding-025",
+   "topic": "Joint preparation",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "You must butt weld two 10 mm plates with full strength through the joint. What preparation is usual?",
+   "options": [
+    "Square edges pressed tight together",
+    "Overlap one plate on the other",
+    "Grind both faces flat and shiny",
+    "Bevel the edges into a V and keep a root gap"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "రెండు 10 mm plates ని పూర్తి బలంతో butt weld చేయాలి. సాధారణంగా ఏ preparation చేస్తారు?",
+    "options": [
+     "Square అంచులు గట్టిగా అంటించి ఉంచాలి",
+     "ఒక plate ని ఇంకోదాని మీద overlap చేయాలి",
+     "రెండు ముఖాలు flat గా మెరిసేలా grind చేయాలి",
+     "అంచులను V గా bevel చేసి root gap ఉంచాలి"
+    ]
+   },
+   "hi": {
+    "q": "दो 10 mm plates को पूरी मज़बूती से butt weld करना है। आमतौर पर क्या तैयारी करते हैं?",
+    "options": [
+     "सीधे किनारे कसकर सटा दें",
+     "एक plate को दूसरी पर overlap करें",
+     "दोनों सतहें flat और चमकदार grind करें",
+     "किनारों को V में bevel करें और root gap रखें"
+    ]
+   }
+  },
+  {
+   "id": "welding-026",
+   "topic": "Joint preparation",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "After welding one side of a long T-joint, the plate bent badly. How can you reduce this on the next job?",
+   "options": [
+    "Bigger electrode and more current",
+    "One long run from end to end",
+    "Cool it fast with water",
+    "Short runs, alternate sides, tack well first"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "పొడవైన T-joint ఒక వైపు weld చేశాక plate బాగా వంగిపోయింది. తర్వాతి పనిలో ఇది ఎలా తగ్గిస్తారు?",
+    "options": [
+     "పెద్ద electrode, ఎక్కువ current",
+     "ఒక చివర నుండి ఇంకో చివర వరకు ఒకే run",
+     "నీళ్ళతో త్వరగా చల్లబరచడం",
+     "చిన్న runs, రెండు వైపులా మార్చి మార్చి, ముందు బాగా tack"
+    ]
+   },
+   "hi": {
+    "q": "लंबे T-joint की एक तरफ weld करने के बाद plate बहुत टेढ़ी हो गई। अगले काम में इसे कैसे कम करेंगे?",
+    "options": [
+     "बड़ा electrode और ज़्यादा current",
+     "एक सिरे से दूसरे सिरे तक एक ही run",
+     "पानी से जल्दी ठंडा करना",
+     "छोटे runs, बारी-बारी दोनों तरफ, पहले अच्छे tack"
+    ]
+   }
+  },
+  {
+   "id": "welding-027",
+   "topic": "Joint preparation",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Thin 1.5 mm sheet keeps burning through while welding. What will help most?",
+   "options": [
+    "Higher current to finish faster",
+    "Lower current, smaller electrode, short stitch runs",
+    "A bigger gap between the sheets",
+    "A 4 mm electrode for more filling"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "1.5 mm సన్నని sheet welding లో పదే పదే రంధ్రం పడుతోంది. ఏది ఎక్కువ సహాయపడుతుంది?",
+    "options": [
+     "త్వరగా పూర్తి చేయడానికి ఎక్కువ current",
+     "తక్కువ current, చిన్న electrode, చిన్న చిన్న runs",
+     "Sheets మధ్య ఎక్కువ gap",
+     "ఎక్కువ నింపడానికి 4 mm electrode"
+    ]
+   },
+   "hi": {
+    "q": "1.5 mm की पतली sheet में welding करते समय बार-बार छेद हो जाता है। सबसे ज़्यादा क्या मदद करेगा?",
+    "options": [
+     "जल्दी खत्म करने को ज़्यादा current",
+     "कम current, छोटा electrode, छोटे-छोटे runs",
+     "Sheets के बीच ज़्यादा gap",
+     "ज़्यादा भराई के लिए 4 mm electrode"
+    ]
+   }
+  },
+  {
+   "id": "welding-028",
+   "topic": "Joint preparation",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A rectangular gate frame must stay square after welding. Which order of work is right?",
+   "options": [
+    "Fully finish one corner at a time",
+    "Weld every joint on one side first",
+    "Skip tacks and weld straight to save time",
+    "Tack, check diagonals, weld opposite sides"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "Rectangle gate frame welding తర్వాత కూడా square గా ఉండాలి. పని ఏ క్రమంలో చేయాలి?",
+    "options": [
+     "ఒక్కో corner పూర్తిగా ముగించడం",
+     "ముందు ఒక వైపు joints అన్నీ weld చేయడం",
+     "సమయం కోసం tack లేకుండా నేరుగా weld",
+     "Tack చేసి, diagonals చెక్ చేసి, ఎదురెదురు వైపులు weld"
+    ]
+   },
+   "hi": {
+    "q": "Rectangle gate का frame welding के बाद भी square रहना चाहिए। काम का सही क्रम क्या है?",
+    "options": [
+     "एक-एक corner पूरा खत्म करें",
+     "पहले एक तरफ के सारे joint weld करें",
+     "समय बचाने को बिना tack सीधे weld करें",
+     "Tack, diagonal जांचें, फिर आमने-सामने की तरफ weld"
+    ]
+   }
+  },
+  {
+   "id": "welding-029",
+   "topic": "Welding technique",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "In stick welding, what arc length is usually right?",
+   "options": [
+    "As long as you can hold it",
+    "Pressed hard on the job",
+    "About the core wire's thickness",
+    "About 2 cm, for a wide bead"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "Stick welding లో సాధారణంగా arc length ఎంత ఉండాలి?",
+    "options": [
+     "పట్టుకోగలిగినంత పొడవు",
+     "Job మీద గట్టిగా నొక్కి",
+     "సుమారు core wire మందం అంత",
+     "వెడల్పు bead కోసం సుమారు 2 cm"
+    ]
+   },
+   "hi": {
+    "q": "Stick welding में arc की लंबाई आमतौर पर कितनी सही है?",
+    "options": [
+     "जितनी लंबी पकड़ सकें",
+     "Job पर ज़ोर से दबाकर",
+     "लगभग core wire की मोटाई जितनी",
+     "चौड़े bead के लिए लगभग 2 cm"
+    ]
+   }
+  },
+  {
+   "id": "welding-030",
+   "topic": "Welding technique",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Before you start the next run on a weld, what must you remove?",
+   "options": [
+    "Slag from the earlier run",
+    "The earth clamp",
+    "The tack welds",
+    "The base primer of the job"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "Weld మీద తర్వాతి run మొదలుపెట్టే ముందు ఏం తీసేయాలి?",
+    "options": [
+     "ముందు run యొక్క slag",
+     "Earth clamp",
+     "Tack welds",
+     "Job మీద primer"
+    ]
+   },
+   "hi": {
+    "q": "Weld पर अगला run शुरू करने से पहले क्या हटाना ज़रूरी है?",
+    "options": [
+     "पिछले run का slag",
+     "Earth clamp",
+     "Tack welds",
+     "Job का primer"
+    ]
+   }
+  },
+  {
+   "id": "welding-031",
+   "topic": "Welding technique",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "For a vertical-up fillet weld with stick, what is a good habit?",
+   "options": [
+    "Highest current for speed",
+    "Vertical-down with a thick electrode",
+    "Slightly lower current and a small weave",
+    "A long arc so you can see better"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "Stick తో vertical-up fillet weld కి మంచి అలవాటు ఏది?",
+    "options": [
+     "Speed కోసం అత్యధిక current",
+     "మందమైన electrode తో vertical-down",
+     "కొంచెం తక్కువ current, చిన్న weave",
+     "బాగా కనిపించడానికి పొడవైన arc"
+    ]
+   },
+   "hi": {
+    "q": "Stick से vertical-up fillet weld के लिए अच्छी आदत क्या है?",
+    "options": [
+     "Speed के लिए सबसे ज़्यादा current",
+     "मोटे electrode से vertical-down",
+     "थोड़ा कम current और छोटा weave",
+     "साफ दिखने के लिए लंबा arc"
+    ]
+   }
+  },
+  {
+   "id": "welding-032",
+   "topic": "Welding technique",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Your bead is tall and narrow and has not joined well at the edges. What is the likely cause?",
+   "options": [
+    "Current set too high",
+    "Electrode baked too long",
+    "Earth clamp too close to the joint",
+    "Travel too fast or current too low"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "మీ bead ఎత్తుగా, సన్నగా ఉంది, అంచుల దగ్గర బాగా కలవలేదు. కారణం ఏమై ఉండొచ్చు?",
+    "options": [
+     "Current చాలా ఎక్కువ",
+     "Electrode ని ఎక్కువ సేపు bake చేశారు",
+     "Earth clamp joint కి చాలా దగ్గర",
+     "చాలా వేగంగా నడిపారు లేదా current తక్కువ"
+    ]
+   },
+   "hi": {
+    "q": "आपका bead ऊंचा और पतला है, किनारों पर ठीक से नहीं जुड़ा। संभावित कारण क्या है?",
+    "options": [
+     "Current बहुत ज़्यादा है",
+     "Electrode को ज़्यादा देर bake किया",
+     "Earth clamp joint के बहुत पास है",
+     "बहुत तेज़ चलाया या current कम है"
+    ]
+   }
+  },
+  {
+   "id": "welding-033",
+   "topic": "Welding technique",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "On DC stick welding, the arc keeps getting pulled to one side (arc blow). What can help?",
+   "options": [
+    "Raise the current a lot",
+    "Use a longer arc",
+    "Weld faster with a bigger rod",
+    "Shift the earth clamp or switch to AC"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "DC stick welding లో arc ఒక వైపుకి లాగబడుతోంది (arc blow). ఏది సహాయపడుతుంది?",
+    "options": [
+     "Current బాగా పెంచడం",
+     "పొడవైన arc వాడటం",
+     "పెద్ద rod తో వేగంగా weld చేయడం",
+     "Earth clamp స్థలం మార్చడం లేదా AC కి మారడం"
+    ]
+   },
+   "hi": {
+    "q": "DC stick welding में arc बार-बार एक तरफ खिंच रहा है (arc blow)। क्या मदद करेगा?",
+    "options": [
+     "Current बहुत बढ़ा दें",
+     "लंबा arc रखें",
+     "बड़ी rod से तेज़ weld करें",
+     "Earth clamp की जगह बदलें या AC पर जाएं"
+    ]
+   }
+  },
+  {
+   "id": "welding-034",
+   "topic": "Welding technique",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Which setup is right for overhead stick welding?",
+   "options": [
+    "Long arc and high current for speed",
+    "Short arc, smaller rod, lower current, full PPE",
+    "Thickest rod to fill in one run",
+    "Same settings as flat welding"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "Overhead stick welding కి ఏ setup సరైనది?",
+    "options": [
+     "Speed కోసం పొడవైన arc, ఎక్కువ current",
+     "చిన్న arc, చిన్న rod, తక్కువ current, పూర్తి PPE",
+     "ఒకే run లో నింపడానికి మందమైన rod",
+     "Flat welding లాగే అవే settings"
+    ]
+   },
+   "hi": {
+    "q": "Overhead stick welding के लिए कौन सा setup सही है?",
+    "options": [
+     "Speed के लिए लंबा arc, ज़्यादा current",
+     "छोटा arc, छोटी rod, कम current, पूरा PPE",
+     "एक run में भरने को सबसे मोटी rod",
+     "Flat welding जैसी ही settings"
+    ]
+   }
+  },
+  {
+   "id": "welding-035",
+   "topic": "Welding technique",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "When welding a thick plate with many runs, why should you control the heat between runs?",
+   "options": [
+    "To save electrodes",
+    "So the slag sticks better",
+    "To make the bead look shiny",
+    "Too much heat weakens the metal and adds bending"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "మందమైన plate ని చాలా runs తో weld చేసేటప్పుడు runs మధ్య వేడిని ఎందుకు control చేయాలి?",
+    "options": [
+     "Electrodes ఆదా చేయడానికి",
+     "Slag బాగా అంటుకోవడానికి",
+     "Bead మెరిసేలా కనిపించడానికి",
+     "ఎక్కువ వేడి metal ని బలహీనం చేస్తుంది, వంకర పెంచుతుంది"
+    ]
+   },
+   "hi": {
+    "q": "मोटी plate को कई runs में weld करते समय runs के बीच गर्मी को control क्यों करें?",
+    "options": [
+     "Electrodes बचाने के लिए",
+     "ताकि slag अच्छे से चिपके",
+     "Bead चमकदार दिखे",
+     "ज़्यादा गर्मी metal को कमज़ोर करती है और टेढ़ापन बढ़ाती है"
+    ]
+   }
+  },
+  {
+   "id": "welding-036",
+   "topic": "Quality and customer",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Small pinholes are seen on the weld surface. What do they usually mean?",
+   "options": [
+    "Porosity from dampness or dirt",
+    "The weld is extra strong",
+    "Slag was removed too much",
+    "Penetration is very good"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "Weld మీద చిన్న చిన్న రంధ్రాలు కనిపిస్తున్నాయి. సాధారణంగా వాటి అర్థం ఏమిటి?",
+    "options": [
+     "తేమ లేదా మురికి వల్ల porosity",
+     "Weld చాలా బలంగా ఉంది",
+     "Slag ఎక్కువగా తీసేశారు",
+     "Penetration చాలా బాగుంది"
+    ]
+   },
+   "hi": {
+    "q": "Weld की सतह पर छोटे-छोटे छेद दिख रहे हैं। इनका आमतौर पर क्या मतलब है?",
+    "options": [
+     "नमी या गंदगी से porosity",
+     "Weld बहुत मज़बूत है",
+     "Slag ज़्यादा हटा दिया",
+     "Penetration बहुत अच्छा है"
+    ]
+   }
+  },
+  {
+   "id": "welding-037",
+   "topic": "Quality and customer",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "A customer calls for a price for a new window grill. What should you do first?",
+   "options": [
+    "Quote a price on the phone without seeing",
+    "Measure the site and agree on design and material",
+    "Start buying material right away",
+    "Ask for full payment before measuring"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "కొత్త window grill కి ధర చెప్పమని customer phone చేశారు. మొదట ఏం చేయాలి?",
+    "options": [
+     "చూడకుండానే phone లో ధర చెప్పాలి",
+     "Site కొలిచి, design మరియు material మాట్లాడి ఖరారు చేయాలి",
+     "వెంటనే material కొనడం మొదలుపెట్టాలి",
+     "కొలవక ముందే మొత్తం డబ్బు అడగాలి"
+    ]
+   },
+   "hi": {
+    "q": "Customer नई खिड़की की grill का दाम पूछने के लिए phone करता है। पहले क्या करें?",
+    "options": [
+     "बिना देखे phone पर दाम बता दें",
+     "Site नापें और design व material तय करें",
+     "तुरंत material खरीदना शुरू करें",
+     "नापने से पहले पूरा पैसा मांगें"
+    ]
+   }
+  },
+  {
+   "id": "welding-038",
+   "topic": "Quality and customer",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What usually causes a groove melted into the plate along the edge of the weld (undercut)?",
+   "options": [
+    "Current too low",
+    "Electrode too dry",
+    "Too much cleaning before welding",
+    "Current too high or a wrong rod angle"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "Weld అంచు వెంబడి plate లో గాడి పడటం (undercut) సాధారణంగా దేని వల్ల?",
+    "options": [
+     "Current చాలా తక్కువ",
+     "Electrode చాలా పొడిగా ఉండటం",
+     "Welding ముందు ఎక్కువ శుభ్రం చేయడం",
+     "Current చాలా ఎక్కువ లేదా rod angle తప్పు"
+    ]
+   },
+   "hi": {
+    "q": "Weld के किनारे के साथ plate में नाली जैसा गड्ढा (undercut) आमतौर पर किस वजह से होता है?",
+    "options": [
+     "Current बहुत कम",
+     "Electrode बहुत सूखा",
+     "Welding से पहले ज़्यादा सफाई",
+     "Current बहुत ज़्यादा या rod का गलत angle"
+    ]
+   }
+  },
+  {
+   "id": "welding-039",
+   "topic": "Quality and customer",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A customer says the gate weld you did last week has cracked. What do you do?",
+   "options": [
+    "Weld a new bead over the crack",
+    "Grind out the crack, find the cause, and weld again",
+    "Fill it with putty and paint over",
+    "Tell him small cracks are normal"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "మీరు గత వారం చేసిన gate weld పగిలిందని customer చెప్తున్నారు. ఏం చేస్తారు?",
+    "options": [
+     "పగులు మీదే కొత్త bead వేస్తాను",
+     "పగులు grind చేసి తీసేసి, కారణం తెలుసుకుని, మళ్ళీ weld చేస్తాను",
+     "Putty తో నింపి paint వేస్తాను",
+     "చిన్న పగుళ్ళు మామూలే అని చెప్తాను"
+    ]
+   },
+   "hi": {
+    "q": "Customer कहता है कि पिछले हफ्ते आपने gate पर जो weld किया था उसमें crack आ गया है। आप क्या करेंगे?",
+    "options": [
+     "Crack के ऊपर नया bead लगा दूंगा",
+     "Crack को grind करके निकालूंगा, कारण देखूंगा, फिर से weld करूंगा",
+     "Putty भरकर paint कर दूंगा",
+     "कहूंगा छोटे crack आम बात हैं"
+    ]
+   }
+  },
+  {
+   "id": "welding-040",
+   "topic": "Quality and customer",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A customer wants thinner pipe than you advised for a heavy main gate, to save money. What do you do?",
+   "options": [
+    "Explain the risk clearly and suggest a safer option",
+    "Do it his way and say nothing",
+    "Refuse the job and leave",
+    "Use thin pipe but bill for thick"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "బరువైన main gate కి మీరు చెప్పిన దానికంటే సన్నని pipe తో చేయమని customer అడుగుతున్నారు, డబ్బు ఆదా కోసం. ఏం చేస్తారు?",
+    "options": [
+     "ప్రమాదం స్పష్టంగా వివరించి, సురక్షితమైన option సూచిస్తాను",
+     "ఆయన చెప్పినట్టే చేసి ఏమీ చెప్పను",
+     "పని వద్దని వెళ్ళిపోతాను",
+     "సన్నని pipe వాడి మందమైన దానికి bill వేస్తాను"
+    ]
+   },
+   "hi": {
+    "q": "भारी main gate के लिए customer पैसे बचाने को आपकी सलाह से पतली pipe चाहता है। आप क्या करेंगे?",
+    "options": [
+     "खतरा साफ समझाऊंगा और सुरक्षित option बताऊंगा",
+     "जैसा कहे वैसा करूंगा, कुछ नहीं बोलूंगा",
+     "काम छोड़कर चला जाऊंगा",
+     "पतली pipe लगाकर मोटी का bill दूंगा"
+    ]
+   }
+  },
+  {
+   "id": "welding-041",
+   "topic": "Quality and customer",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "You finish a grill job at a customer's flat. What is right before you leave?",
+   "options": [
+    "Leave the scrap for the watchman",
+    "Pack up fast and go to the next job",
+    "Leave the machine plugged in for tomorrow",
+    "Clear scrap, check for hot spots, switch off power"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "Customer flat లో grill పని అయిపోయింది. వెళ్ళే ముందు ఏది సరైనది?",
+    "options": [
+     "Scrap ని watchman కి వదిలేయాలి",
+     "త్వరగా సర్దుకుని తర్వాతి పనికి వెళ్ళాలి",
+     "రేపటి కోసం machine plug లోనే ఉంచాలి",
+     "Scrap శుభ్రం చేసి, వేడిగా ఉన్న చోట్లు చెక్ చేసి, power off చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "Customer के flat में grill का काम खत्म हुआ। जाने से पहले क्या सही है?",
+    "options": [
+     "Scrap watchman के लिए छोड़ दें",
+     "जल्दी समेटकर अगले काम पर जाएं",
+     "कल के लिए machine plug में लगी छोड़ दें",
+     "Scrap साफ करें, गरम जगहें जांचें, power बंद करें"
+    ]
+   }
+  },
+  {
+   "id": "welding-042",
+   "topic": "Quality and customer",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A water tank you welded must be leak-proof. Which simple check can you do on site before handover?",
+   "options": [
+    "Water fill or soap-bubble test for leaks",
+    "Look at the welds from a distance",
+    "Give it a thick coat of paint",
+    "Hammer the welds and listen"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "మీరు weld చేసిన నీళ్ళ tank leak లేకుండా ఉండాలి. Handover ముందు site లో ఏ సులువైన check చేయవచ్చు?",
+    "options": [
+     "నీళ్ళు నింపి లేదా soap-bubble test తో leak చూడటం",
+     "దూరం నుండి welds చూడటం",
+     "మందంగా paint వేయడం",
+     "Welds మీద hammer కొట్టి శబ్దం వినడం"
+    ]
+   },
+   "hi": {
+    "q": "आपके weld किए पानी के tank से leak नहीं होना चाहिए। Handover से पहले site पर कौन सी आसान जांच कर सकते हैं?",
+    "options": [
+     "पानी भरकर या soap-bubble test से leak देखना",
+     "दूर से welds को देखना",
+     "मोटा paint लगा देना",
+     "Welds पर hammer मारकर आवाज़ सुनना"
+    ]
+   }
+  },
+  {
+   "id": "welding-043",
+   "topic": "Quality and customer",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A butt weld looks fine on top, but the back side shows the root never melted through. What is this, and the fix?",
+   "options": [
+    "Porosity; dry the rods",
+    "Undercut; lower the current",
+    "Incomplete penetration; open the gap and reweld",
+    "Spatter; clean the surface"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "Butt weld పైకి బాగానే ఉంది, కానీ వెనుక వైపు root కరగలేదు. ఇది ఏమిటి, ఎలా సరిచేయాలి?",
+    "options": [
+     "Porosity; rods ఆరబెట్టాలి",
+     "Undercut; current తగ్గించాలి",
+     "Incomplete penetration; gap పెంచి మళ్ళీ weld",
+     "Spatter; ఉపరితలం శుభ్రం చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "Butt weld ऊपर से ठीक दिखता है, पर पीछे देखा तो root पिघला ही नहीं। यह क्या है और इलाज क्या है?",
+    "options": [
+     "Porosity; rods सुखाएं",
+     "Undercut; current कम करें",
+     "Incomplete penetration; gap खोलकर दोबारा weld",
+     "Spatter; सतह साफ करें"
+    ]
+   }
+  },
+  {
+   "id": "welding-044",
+   "topic": "Quality and customer",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "After grinding a multi-run weld, you see dark slag lines inside it. What caused this?",
+   "options": [
+    "Too much shielding gas",
+    "Slag not cleaned between runs",
+    "The electrode was too new",
+    "The plate was preheated"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "చాలా runs ఉన్న weld ని grind చేశాక లోపల నల్లటి slag గీతలు కనిపించాయి. దీనికి కారణం ఏమిటి?",
+    "options": [
+     "Shielding gas ఎక్కువైంది",
+     "Runs మధ్య slag శుభ్రం చేయలేదు",
+     "Electrode చాలా కొత్తది",
+     "Plate ని preheat చేశారు"
+    ]
+   },
+   "hi": {
+    "q": "कई runs वाले weld को grind करने पर अंदर काली slag की लाइनें दिखीं। इसका कारण क्या है?",
+    "options": [
+     "Shielding gas ज़्यादा थी",
+     "Runs के बीच slag साफ नहीं किया",
+     "Electrode बहुत नया था",
+     "Plate को preheat किया था"
+    ]
+   }
+  }
+ ],
+ "task": {
+  "type": "proof",
+  "title": "Welding safety and work check, with an optional photo of your work",
+  "brief": "This takes about 10 minutes. First answer the picture-style questions about safe and good welding work. Pick the answer you would really follow on the job. Then, if you like, upload one clear photo of a weld, gate, grill or frame you made yourself, or your ITI welder certificate. Do not show any faces in the photo. Add one or two lines: what the job was, which process and electrode you used, and how you kept it safe. The photo is optional, but it helps employers trust your skill.",
+  "minutes": 10,
+  "key_points": [
+   "Photo shows real welding work or a welder certificate",
+   "No faces in the photo",
+   "Says what the job was and the process or electrode used",
+   "Mentions a safety step taken",
+   "Weld looks even, clean and well joined"
+  ],
+  "rubric": [
+   {
+    "key": "relevance",
+    "label": "Relevance",
+    "guide": "0 = no photo or not welding work, 3 = welding work but unclear, 5 = clear photo of the candidate's own weld or certificate"
+   },
+   {
+    "key": "genuineness",
+    "label": "Genuineness",
+    "guide": "0 = looks copied from the internet, 3 = plausible but no details, 5 = clearly own work with job details that fit the photo"
+   },
+   {
+    "key": "quality",
+    "label": "Work quality",
+    "guide": "0 = poor welds (holes, gaps, lumps), 3 = acceptable, 5 = even, clean, well-fused welds"
+   },
+   {
+    "key": "safety",
+    "label": "Safety",
+    "guide": "0 = unsafe practice shown or faces visible, 3 = no issues seen, 5 = safety steps clearly described or visible"
+   }
+  ],
+  "situations": [
+   {
+    "q": "Picture: a welder changing the electrode. Which way is safe?",
+    "options": [
+     "Bare hands, done quickly",
+     "Dry gloves on, holder kept away from the body",
+     "Wet gloves, to stay cool"
+    ],
+    "answer": 1,
+    "topic": "Safety and PPE",
+    "te": {
+     "q": "చిత్రం: welder electrode మారుస్తున్నాడు. ఏది సురక్షితమైన పద్ధతి?",
+     "options": [
+      "చేతులకు ఏమీ లేకుండా, త్వరగా",
+      "పొడి gloves వేసుకుని, holder ని శరీరానికి దూరంగా",
+      "చల్లగా ఉండటానికి తడి gloves"
+     ]
+    },
+    "hi": {
+     "q": "चित्र: welder electrode बदल रहा है। कौन सा तरीका सुरक्षित है?",
+     "options": [
+      "खाली हाथ, जल्दी से",
+      "सूखे gloves पहनकर, holder शरीर से दूर रखकर",
+      "ठंडक के लिए गीले gloves"
+     ]
+    }
+   },
+   {
+    "q": "Picture: an oxygen cylinder lying flat on the floor near a welding spot. What is right?",
+    "options": [
+     "Lying flat is fine",
+     "Cover it with a cloth",
+     "Keep it upright, chained, away from sparks"
+    ],
+    "answer": 2,
+    "topic": "Safety and PPE",
+    "te": {
+     "q": "చిత్రం: welding చేసే చోటు దగ్గర oxygen cylinder నేల మీద పడుకోబెట్టి ఉంది. ఏది సరైనది?",
+     "options": [
+      "పడుకోబెట్టి ఉంచినా పర్వాలేదు",
+      "గుడ్డతో కప్పి ఉంచాలి",
+      "నిలువుగా, chain తో కట్టి, sparks కి దూరంగా ఉంచాలి"
+     ]
+    },
+    "hi": {
+     "q": "चित्र: welding की जगह के पास oxygen cylinder फर्श पर लेटा पड़ा है। सही क्या है?",
+     "options": [
+      "लेटा रहना ठीक है",
+      "कपड़े से ढक दें",
+      "खड़ा करके, chain से बांधकर, चिंगारी से दूर रखें"
+     ]
+    }
+   },
+   {
+    "q": "Three beads: A is even with neat ripples, B is lumpy with holes, C has gaps at the edges. Which is good work?",
+    "options": [
+     "Bead A",
+     "Bead B",
+     "Bead C"
+    ],
+    "answer": 0,
+    "topic": [
+     [
+      "Safety and PPE",
+      "easy",
+      "mcq",
+      "Which filter glass shade is usually right for stick welding with a 3.15 mm electrode at about 100 A?",
+      [
+       "Shade 10 or 11",
+       "Shade 3",
+       "Plain clear glass",
+       "Shade 5"
+      ],
+      "3.15 mm electrode తో సుమారు 100 A లో stick welding కి ఏ filter glass shade సరైనది?",
+      [
+       "Shade 10 లేదా 11",
+       "Shade 3",
+       "మామూలు clear glass",
+       "Shade 5"
+      ],
+      "3.15 mm electrode से लगभग 100 A पर stick welding के लिए कौन सा filter glass shade सही है?",
+      [
+       "Shade 10 या 11",
+       "Shade 3",
+       "सादा clear glass",
+       "Shade 5"
+      ]
+     ],
+     [
+      "Safety and PPE",
+      "easy",
+      "mcq",
+      "Why should a welder avoid polyester or nylon clothes at work?",
+      [
+       "Sparks melt them onto the skin",
+       "They are too costly",
+       "They make the arc unstable",
+       "They lower the current"
+      ],
+      "Welder పని లో polyester లేదా nylon బట్టలు ఎందుకు వేసుకోకూడదు?",
+      [
+       "Sparks పడితే కరిగి చర్మానికి అంటుకుంటాయి",
+       "అవి చాలా ఖరీదు",
+       "Arc స్థిరంగా ఉండదు",
+       "Current తగ్గిపోతుంది"
+      ],
+      "Welder को काम पर polyester या nylon के कपड़े क्यों नहीं पहनने चाहिए?",
+      [
+       "चिंगारी से पिघलकर त्वचा पर चिपक जाते हैं",
+       "ये बहुत महंगे होते हैं",
+       "Arc स्थिर नहीं रहता",
+       "Current कम हो जाता है"
+      ]
+     ],
+     [
+      "Safety and PPE",
+      "easy",
+      "scenario",
+      "Your helper wants to watch your arc with bare eyes for a minute. What do you tell him?",
+      [
+       "Use a shield or turn away",
+       "A few seconds is fine",
+       "Wear normal sunglasses",
+       "Stand two metres back"
+      ],
+      "మీ helper ఒక నిమిషం మీ arc ని కళ్ళతో నేరుగా చూడాలనుకుంటున్నాడు. అతనికి ఏం చెప్తారు?",
+      [
+       "Shield వాడు లేదా వేరే వైపు తిరుగు",
+       "కొన్ని సెకన్లు చూస్తే పర్వాలేదు",
+       "మామూలు sunglasses పెట్టుకో",
+       "రెండు మీటర్లు దూరంగా నిలబడు"
+      ],
+      "आपका helper एक मिनट तक आपका arc नंगी आंखों से देखना चाहता है। आप उसे क्या कहेंगे?",
+      [
+       "Shield लगाओ या मुंह फेर लो",
+       "कुछ सेकंड देखना ठीक है",
+       "सादा sunglasses पहन लो",
+       "दो मीटर पीछे खड़े हो जाओ"
+      ]
+     ],
+     [
+      "Safety and PPE",
+      "medium",
+      "mcq",
+      "You must weld on a wall bracket. A wooden cupboard is on the other side of the wall. What is the right step?",
+      [
+       "Move or cover the cupboard and keep an extinguisher ready",
+       "Pour water on the wall before starting",
+       "Weld quickly so the wall does not heat up",
+       "Use a thinner electrode to reduce heat"
+      ],
+      "గోడ bracket మీద welding చేయాలి. గోడ అవతలి వైపు చెక్క అలమారా ఉంది. సరైన పని ఏది?",
+      [
+       "అలమారా తీసేయండి లేదా కప్పండి, extinguisher దగ్గర ఉంచండి",
+       "మొదలుపెట్టే ముందు గోడ మీద నీళ్ళు పోయండి",
+       "గోడ వేడెక్కకుండా త్వరగా weld చేయండి",
+       "వేడి తగ్గడానికి సన్నని electrode వాడండి"
+      ],
+      "दीवार के bracket पर welding करनी है। दीवार के दूसरी तरफ लकड़ी की अलमारी है। सही कदम क्या है?",
+      [
+       "अलमारी हटाएं या ढकें, और extinguisher पास रखें",
+       "शुरू करने से पहले दीवार पर पानी डालें",
+       "जल्दी weld करें ताकि दीवार गरम न हो",
+       "गर्मी कम करने के लिए पतला electrode लें"
+      ]
+     ],
+     [
+      "Safety and PPE",
+      "medium",
+      "scenario",
+      "A customer wants a stand made from an old diesel drum. It looks empty. What do you do first?",
+      [
+       "Wash it out and fill it with water or vent it",
+       "Weld it, since it is empty",
+       "Open the caps and weld at low current",
+       "Cut it open with a gas torch"
+      ],
+      "Customer పాత diesel drum తో stand చేయమంటున్నారు. అది ఖాళీగా కనిపిస్తోంది. ముందు ఏం చేస్తారు?",
+      [
+       "బాగా కడిగి, నీళ్ళు నింపి లేదా గాలి పోయేలా చేసి weld చేస్తాను",
+       "ఖాళీగా ఉంది కదా, weld చేస్తాను",
+       "Caps తీసి తక్కువ current లో weld చేస్తాను",
+       "Gas torch తో కోసి తెరుస్తాను"
+      ],
+      "Customer पुराने diesel drum से stand बनवाना चाहता है। वह खाली दिखता है। आप पहले क्या करेंगे?",
+      [
+       "अच्छे से धोकर पानी भरूंगा या हवा निकलने दूंगा",
+       "खाली है, तो सीधे weld कर दूंगा",
+       "ढक्कन खोलकर कम current पर weld करूंगा",
+       "Gas torch से काटकर खोल दूंगा"
+      ]
+     ],
+     [
+      "Safety and PPE",
+      "hard",
+      "mcq",
+      "You must stick weld inside a small closed water tank. Which extra step matters most?",
+      [
+       "Keep a helper outside, blow in fresh air, stand on dry rubber",
+       "Use higher current to finish faster",
+       "Wear two pairs of gloves",
+       "Keep the lid closed to stop sparks"
+      ],
+      "చిన్న మూసి ఉన్న నీళ్ళ tank లోపల stick welding చేయాలి. ఏ అదనపు జాగ్రత్త ముఖ్యం?",
+      [
+       "బయట helper ఉండాలి, తాజా గాలి పంపాలి, పొడి rubber మీద నిలబడాలి",
+       "త్వరగా పూర్తి చేయడానికి ఎక్కువ current",
+       "రెండు జతల gloves వేసుకోవాలి",
+       "Sparks రాకుండా మూత మూసి ఉంచాలి"
+      ],
+      "छोटे बंद पानी के tank के अंदर stick welding करनी है। कौन सी अतिरिक्त सावधानी सबसे ज़रूरी है?",
+      [
+       "बाहर helper रहे, ताज़ी हवा दें, सूखी rubber पर खड़े हों",
+       "जल्दी खत्म करने को ज़्यादा current",
+       "दो जोड़ी gloves पहनें",
+       "चिंगारी रोकने को ढक्कन बंद रखें"
+      ]
+     ],
+     [
+      "Safety and PPE",
+      "hard",
+      "scenario",
+      "It is raining on site. Your holder cable has a small cut in the rubber. What do you do?",
+      [
+       "Stop and fix it with proper insulation or replace it",
+       "Wrap paper tape and carry on",
+       "Carry on, welding voltage is low",
+       "Keep the cut part off the wet floor and carry on"
+      ],
+      "Site లో వర్షం పడుతోంది. మీ holder cable rubber కి చిన్న కోత ఉంది. ఏం చేస్తారు?",
+      [
+       "ఆపి, సరైన insulation తో రిపేర్ చేస్తాను లేదా మారుస్తాను",
+       "Paper tape చుట్టి కొనసాగిస్తాను",
+       "Welding voltage తక్కువే కదా, కొనసాగిస్తాను",
+       "కోత భాగాన్ని తడి నేలకు దూరంగా ఉంచి కొనసాగిస్తాను"
+      ],
+      "Site पर बारिश हो रही है। आपके holder cable की rubber में छोटा सा कट है। आप क्या करेंगे?",
+      [
+       "रुककर सही insulation से ठीक करूंगा या बदल दूंगा",
+       "Paper tape लपेटकर चालू रखूंगा",
+       "Welding voltage कम है, चालू रखूंगा",
+       "कटा हिस्सा गीले फर्श से दूर रखकर चालू रखूंगा"
+      ]
+     ],
+     [
+      "Safety and PPE",
+      "hard",
+      "mcq",
+      "When you weld galvanised (GI) pipe without removing the coating, what is the main health risk?",
+      [
+       "Zinc fumes that cause fever-like sickness",
+       "Extra sparks on the floor",
+       "The electrode keeps sticking",
+       "Loud noise from the arc"
+      ],
+      "GI pipe మీద coating తీయకుండా weld చేస్తే ముఖ్యమైన ఆరోగ్య ప్రమాదం ఏమిటి?",
+      [
+       "Zinc పొగ వల్ల జ్వరం లాంటి అనారోగ్యం",
+       "నేల మీద ఎక్కువ sparks",
+       "Electrode పదే పదే అంటుకోవడం",
+       "Arc నుండి పెద్ద శబ్దం"
+      ],
+      "GI pipe की coating हटाए बिना weld करने पर सबसे बड़ा स्वास्थ्य खतरा क्या है?",
+      [
+       "Zinc का धुआं जिससे बुखार जैसी बीमारी होती है",
+       "फर्श पर ज़्यादा चिंगारी",
+       "Electrode बार-बार चिपकना",
+       "Arc से तेज़ आवाज़"
+      ]
+     ],
+     [
+      "Machine and setup",
+      "easy",
+      "mcq",
+      "Where should the earth (return) clamp be fixed?",
+      [
+       "On clean metal of the job, near the weld",
+       "On any nearby iron pipe or railing",
+       "On the welding machine body",
+       "On a painted part of the job"
+      ],
+      "Earth (return) clamp ఎక్కడ పెట్టాలి?",
+      [
+       "Job మీద శుభ్రమైన metal పై, weld దగ్గర",
+       "దగ్గరలో ఉన్న ఏదైనా iron pipe లేదా railing మీద",
+       "Welding machine body మీద",
+       "Job లో paint ఉన్న భాగం మీద"
+      ],
+      "Earth (return) clamp कहां लगाना चाहिए?",
+      [
+       "Job के साफ metal पर, weld के पास",
+       "पास की किसी भी लोहे की pipe या railing पर",
+       "Welding machine की body पर",
+       "Job के paint वाले हिस्से पर"
+      ]
+     ],
+     [
+      "Machine and setup",
+      "easy",
+      "mcq",
+      "The electrode keeps sticking to the job every time you strike the arc. What is the usual cause?",
+      [
+       "Current is set too low",
+       "Current is set too high",
+       "Earth clamp is too tight",
+       "The job is too clean"
+      ],
+      "Arc strike చేసిన ప్రతిసారీ electrode job కి అంటుకుంటోంది. సాధారణ కారణం ఏమిటి?",
+      [
+       "Current చాలా తక్కువ పెట్టారు",
+       "Current చాలా ఎక్కువ పెట్టారు",
+       "Earth clamp చాలా గట్టిగా ఉంది",
+       "Job చాలా శుభ్రంగా ఉంది"
+      ],
+      "हर बार arc strike करने पर electrode job से चिपक जाता है। आम कारण क्या है?",
+      [
+       "Current बहुत कम रखा है",
+       "Current बहुत ज़्यादा रखा है",
+       "Earth clamp बहुत टाइट है",
+       "Job बहुत साफ है"
+      ]
+     ],
+     [
+      "Machine and setup",
+      "easy",
+      "mcq",
+      "Before starting a welding machine on a new site, what should you check first?",
+      [
+       "Cables, plug and earthing are sound",
+       "The electrode box is full",
+       "The machine paint is fresh",
+       "The machine is the latest model"
+      ],
+      "కొత్త site లో welding machine start చేసే ముందు మొదట ఏం చెక్ చేయాలి?",
+      [
+       "Cables, plug, earthing బాగున్నాయా",
+       "Electrode box నిండుగా ఉందా",
+       "Machine paint కొత్తగా ఉందా",
+       "Machine కొత్త model ఆ"
+      ],
+      "नई site पर welding machine चालू करने से पहले सबसे पहले क्या जांचें?",
+      [
+       "Cables, plug और earthing ठीक हैं या नहीं",
+       "Electrode का डिब्बा भरा है या नहीं",
+       "Machine का paint नया है या नहीं",
+       "Machine नया model है या नहीं"
+      ]
+     ],
+     [
+      "Machine and setup",
+      "medium",
+      "mcq",
+      "For a 3.15 mm general electrode on mild steel, which current range is about right?",
+      [
+       "90 to 130 A",
+       "40 to 60 A",
+       "180 to 220 A",
+       "250 to 300 A"
+      ],
+      "Mild steel మీద 3.15 mm general electrode కి సుమారు ఏ current range సరైనది?",
+      [
+       "90 నుండి 130 A",
+       "40 నుండి 60 A",
+       "180 నుండి 220 A",
+       "250 నుండి 300 A"
+      ],
+      "Mild steel पर 3.15 mm general electrode के लिए लगभग कौन सी current range सही है?",
+      [
+       "90 से 130 A",
+       "40 से 60 A",
+       "180 से 220 A",
+       "250 से 300 A"
+      ]
+     ],
+     [
+      "Machine and setup",
+      "medium",
+      "scenario",
+      "You added a long extra cable to reach a terrace job. The cable gets hot and the arc feels weak. What is the likely reason?",
+      [
+       "The cable is too thin for that length",
+       "The electrodes are too dry",
+       "The earth clamp is new",
+       "The machine is set to DC"
+      ],
+      "Terrace job కోసం పొడవైన extra cable కలిపారు. Cable వేడెక్కుతోంది, arc బలహీనంగా ఉంది. కారణం ఏమై ఉండొచ్చు?",
+      [
+       "ఆ పొడవుకి cable చాలా సన్నగా ఉంది",
+       "Electrodes బాగా పొడిగా ఉన్నాయి",
+       "Earth clamp కొత్తది",
+       "Machine DC లో ఉంది"
+      ],
+      "Terrace के काम के लिए लंबी extra cable जोड़ी। Cable गरम हो रही है और arc कमज़ोर है। संभावित कारण क्या है?",
+      [
+       "उस लंबाई के लिए cable बहुत पतली है",
+       "Electrodes बहुत सूखे हैं",
+       "Earth clamp नया है",
+       "Machine DC पर है"
+      ]
+     ],
+     [
+      "Machine and setup",
+      "hard",
+      "mcq",
+      "In MIG welding, the wire keeps burning back into the contact tip. What should you check first?",
+      [
+       "Wire speed is too low for the voltage",
+       "Gas flow is too high",
+       "The job is too thick",
+       "The torch cable is too long"
+      ],
+      "MIG welding లో wire పదే పదే contact tip లోకి కాలిపోతోంది. మొదట ఏం చెక్ చేయాలి?",
+      [
+       "Voltage కి wire speed చాలా తక్కువగా ఉంది",
+       "Gas flow చాలా ఎక్కువ",
+       "Job చాలా మందంగా ఉంది",
+       "Torch cable చాలా పొడవు"
+      ],
+      "MIG welding में wire बार-बार contact tip में जल जाती है। पहले क्या जांचें?",
+      [
+       "Voltage के हिसाब से wire speed बहुत कम है",
+       "Gas flow बहुत ज़्यादा है",
+       "Job बहुत मोटा है",
+       "Torch cable बहुत लंबी है"
+      ]
+     ],
+     [
+      "Machine and setup",
+      "hard",
+      "mcq",
+      "When TIG welding stainless steel on a DC machine, how should the torch be connected?",
+      [
+       "Torch to negative",
+       "Torch to positive",
+       "Either way, it does not matter",
+       "DC cannot be used for steel"
+      ],
+      "DC machine తో stainless steel TIG welding చేసేటప్పుడు torch ఎలా connect చేయాలి?",
+      [
+       "Torch ని negative కి",
+       "Torch ని positive కి",
+       "ఎలా పెట్టినా పర్వాలేదు",
+       "Steel కి DC వాడకూడదు"
+      ],
+      "DC machine पर stainless steel की TIG welding में torch कैसे जोड़ें?",
+      [
+       "Torch को negative पर",
+       "Torch को positive पर",
+       "किसी भी तरफ, फर्क नहीं पड़ता",
+       "Steel के लिए DC नहीं चलता"
+      ]
+     ],
+     [
+      "Electrodes and metals",
+      "easy",
+      "scenario",
+      "A box of electrodes was left open in a damp store room for a week. What do you do?",
+      [
+       "Dry them in an electrode oven as the box says",
+       "Use them straight away",
+       "Wipe the flux with a cloth and use",
+       "Use them only on thin sheet"
+      ],
+      "Electrode box ఒక వారం తడి store room లో తెరిచి ఉంచారు. ఏం చేస్తారు?",
+      [
+       "Box మీద చెప్పినట్టు electrode oven లో ఆరబెడతాను",
+       "వెంటనే వాడేస్తాను",
+       "Flux ని గుడ్డతో తుడిచి వాడతాను",
+       "సన్నని sheet మీద మాత్రమే వాడతాను"
+      ],
+      "Electrodes का डिब्बा एक हफ्ते तक गीले store room में खुला पड़ा रहा। आप क्या करेंगे?",
+      [
+       "डिब्बे पर लिखे अनुसार electrode oven में सुखाऊंगा",
+       "सीधे इस्तेमाल कर लूंगा",
+       "Flux को कपड़े से पोंछकर इस्तेमाल करूंगा",
+       "सिर्फ पतली sheet पर इस्तेमाल करूंगा"
+      ]
+     ],
+     [
+      "Electrodes and metals",
+      "easy",
+      "mcq",
+      "Which electrode is most common for general mild steel work like gates and window grills?",
+      [
+       "E6013 rutile electrode",
+       "Cast iron electrode",
+       "Stainless 308 electrode",
+       "Aluminium filler rod"
+      ],
+      "Gates, window grills లాంటి మామూలు mild steel పనికి ఎక్కువగా వాడే electrode ఏది?",
+      [
+       "E6013 rutile electrode",
+       "Cast iron electrode",
+       "Stainless 308 electrode",
+       "Aluminium filler rod"
+      ],
+      "Gate और खिड़की की grill जैसे आम mild steel काम के लिए सबसे ज़्यादा कौन सा electrode चलता है?",
+      [
+       "E6013 rutile electrode",
+       "Cast iron electrode",
+       "Stainless 308 electrode",
+       "Aluminium filler rod"
+      ]
+     ],
+     [
+      "Electrodes and metals",
+      "medium",
+      "mcq",
+      "A bracket will hold a chain pulley block with heavy loads. Which electrode is the better choice?",
+      [
+       "E7018, baked and kept dry",
+       "E6013, since it is easy to use",
+       "A cast iron electrode",
+       "A 2 mm electrode for control"
+      ],
+      "ఒక bracket బరువైన chain pulley block ని మోయాలి. ఏ electrode మంచిది?",
+      [
+       "E7018, bake చేసి పొడిగా ఉంచినది",
+       "E6013, వాడటం సులువు కాబట్టి",
+       "Cast iron electrode",
+       "Control కోసం 2 mm electrode"
+      ],
+      "एक bracket पर भारी chain pulley block लटकेगा। कौन सा electrode बेहतर है?",
+      [
+       "E7018, bake करके सूखा रखा हुआ",
+       "E6013, क्योंकि चलाना आसान है",
+       "Cast iron electrode",
+       "Control के लिए 2 mm electrode"
+      ]
+     ],
+     [
+      "Electrodes and metals",
+      "medium",
+      "mcq",
+      "You must join two pieces of a stainless steel kitchen table frame. Which electrode do you pick?",
+      [
+       "SS 308L type",
+       "Mild steel E6013",
+       "Cast iron nickel rod",
+       "Hardfacing electrode"
+      ],
+      "Stainless steel kitchen table frame లో రెండు ముక్కలు జోడించాలి. ఏ electrode తీసుకుంటారు?",
+      [
+       "SS 308L రకం",
+       "Mild steel E6013",
+       "Cast iron nickel rod",
+       "Hardfacing electrode"
+      ],
+      "Stainless steel की kitchen table के frame के दो टुकड़े जोड़ने हैं। कौन सा electrode लेंगे?",
+      [
+       "SS 308L वाला",
+       "Mild steel E6013",
+       "Cast iron nickel rod",
+       "Hardfacing electrode"
+      ]
+     ],
+     [
+      "Electrodes and metals",
+      "medium",
+      "mcq",
+      "Which gas is commonly used for MIG welding of mild steel in Indian workshops?",
+      [
+       "CO2 or an argon-CO2 mix",
+       "Pure oxygen",
+       "LPG",
+       "Acetylene"
+      ],
+      "మన workshops లో mild steel MIG welding కి సాధారణంగా ఏ gas వాడతారు?",
+      [
+       "CO2 లేదా argon-CO2 mix",
+       "Pure oxygen",
+       "LPG",
+       "Acetylene"
+      ],
+      "भारत की workshops में mild steel की MIG welding के लिए आमतौर पर कौन सी gas लगती है?",
+      [
+       "CO2 या argon-CO2 mix",
+       "Pure oxygen",
+       "LPG",
+       "Acetylene"
+      ]
+     ],
+     [
+      "Electrodes and metals",
+      "hard",
+      "mcq",
+      "A cast iron pump body has a crack. Which way of repairing it is right?",
+      [
+       "Preheat, nickel rod, short runs, cool slowly",
+       "E6013 in one long continuous run",
+       "Cool with water after each run",
+       "Use the highest current possible"
+      ],
+      "Cast iron pump body కి పగులు ఉంది. రిపేర్ చేసే సరైన పద్ధతి ఏది?",
+      [
+       "Preheat, nickel rod, చిన్న runs, నెమ్మదిగా చల్లబరచాలి",
+       "E6013 తో ఒకే పొడవైన run",
+       "ప్రతి run తర్వాత నీళ్ళతో చల్లబరచాలి",
+       "వీలైనంత ఎక్కువ current"
+      ],
+      "Cast iron के pump body में crack है। इसे ठीक करने का सही तरीका क्या है?",
+      [
+       "Preheat, nickel rod, छोटे runs, धीरे ठंडा करें",
+       "E6013 से एक लंबा लगातार run",
+       "हर run के बाद पानी से ठंडा करें",
+       "जितना हो सके ज़्यादा current"
+      ]
+     ],
+     [
+      "Electrodes and metals",
+      "hard",
+      "mcq",
+      "Why do thick plates of high carbon steel often need preheating before welding?",
+      [
+       "To stop cracks from fast cooling",
+       "To make the plate softer for cutting",
+       "To reduce the current needed",
+       "To burn off the rust"
+      ],
+      "High carbon steel మందమైన plates కి welding ముందు preheat ఎందుకు అవసరం?",
+      [
+       "త్వరగా చల్లబడి పగుళ్ళు రాకుండా",
+       "కోయడానికి plate మెత్తగా కావడానికి",
+       "తక్కువ current సరిపోవడానికి",
+       "తుప్పు కాలిపోవడానికి"
+      ],
+      "High carbon steel की मोटी plates को welding से पहले preheat क्यों करना पड़ता है?",
+      [
+       "जल्दी ठंडा होने से crack न आए",
+       "काटने के लिए plate नरम हो",
+       "कम current लगे",
+       "जंग जल जाए"
+      ]
+     ],
+     [
+      "Joint preparation",
+      "easy",
+      "mcq",
+      "The joint has rust, paint and oil on it. What should you do before welding?",
+      [
+       "Grind or wire brush it to bare metal",
+       "Weld over it, the arc burns it off",
+       "Apply grease to stop spatter",
+       "Paint it again for protection"
+      ],
+      "Joint మీద తుప్పు, paint, oil ఉన్నాయి. Welding ముందు ఏం చేయాలి?",
+      [
+       "Grinder లేదా wire brush తో metal కనిపించేలా శుభ్రం చేయాలి",
+       "దాని మీదే weld చేయాలి, arc కాల్చేస్తుంది",
+       "Spatter రాకుండా grease రాయాలి",
+       "రక్షణ కోసం మళ్ళీ paint వేయాలి"
+      ],
+      "Joint पर जंग, paint और तेल लगा है। Welding से पहले क्या करें?",
+      [
+       "Grinder या wire brush से साफ metal तक साफ करें",
+       "उसी पर weld करें, arc जला देगा",
+       "Spatter रोकने को grease लगाएं",
+       "बचाव के लिए फिर से paint करें"
+      ]
+     ],
+     [
+      "Joint preparation",
+      "easy",
+      "mcq",
+      "Why do we tack weld the parts before the full weld?",
+      [
+       "To hold them in place and keep alignment",
+       "To test if the electrode is good",
+       "To make the final joint thicker",
+       "To preheat the metal"
+      ],
+      "Full weld ముందు parts కి tack weld ఎందుకు చేస్తాం?",
+      [
+       "కదలకుండా పట్టి ఉంచి, alignment సరిగ్గా ఉంచడానికి",
+       "Electrode బాగుందో లేదో చూడటానికి",
+       "చివరి joint మందంగా రావడానికి",
+       "Metal ని preheat చేయడానికి"
+      ],
+      "पूरी welding से पहले parts पर tack weld क्यों करते हैं?",
+      [
+       "उन्हें अपनी जगह पकड़े रखने और alignment ठीक रखने के लिए",
+       "Electrode ठीक है या नहीं, जांचने के लिए",
+       "आखिरी joint मोटा करने के लिए",
+       "Metal को preheat करने के लिए"
+      ]
+     ],
+     [
+      "Joint preparation",
+      "medium",
+      "mcq",
+      "You must butt weld two 10 mm plates with full strength through the joint. What preparation is usual?",
+      [
+       "Bevel the edges into a V and keep a root gap",
+       "Square edges pressed tight together",
+       "Overlap one plate on the other",
+       "Grind both faces flat and shiny"
+      ],
+      "రెండు 10 mm plates ని పూర్తి బలంతో butt weld చేయాలి. సాధారణంగా ఏ preparation చేస్తారు?",
+      [
+       "అంచులను V గా bevel చేసి root gap ఉంచాలి",
+       "Square అంచులు గట్టిగా అంటించి ఉంచాలి",
+       "ఒక plate ని ఇంకోదాని మీద overlap చేయాలి",
+       "రెండు ముఖాలు flat గా మెరిసేలా grind చేయాలి"
+      ],
+      "दो 10 mm plates को पूरी मज़बूती से butt weld करना है। आमतौर पर क्या तैयारी करते हैं?",
+      [
+       "किनारों को V में bevel करें और root gap रखें",
+       "सीधे किनारे कसकर सटा दें",
+       "एक plate को दूसरी पर overlap करें",
+       "दोनों सतहें flat और चमकदार grind करें"
+      ]
+     ],
+     [
+      "Joint preparation",
+      "medium",
+      "scenario",
+      "After welding one side of a long T-joint, the plate bent badly. How can you reduce this on the next job?",
+      [
+       "Short runs, alternate sides, tack well first",
+       "Bigger electrode and more current",
+       "One long run from end to end",
+       "Cool it fast with water"
+      ],
+      "పొడవైన T-joint ఒక వైపు weld చేశాక plate బాగా వంగిపోయింది. తర్వాతి పనిలో ఇది ఎలా తగ్గిస్తారు?",
+      [
+       "చిన్న runs, రెండు వైపులా మార్చి మార్చి, ముందు బాగా tack",
+       "పెద్ద electrode, ఎక్కువ current",
+       "ఒక చివర నుండి ఇంకో చివర వరకు ఒకే run",
+       "నీళ్ళతో త్వరగా చల్లబరచడం"
+      ],
+      "लंबे T-joint की एक तरफ weld करने के बाद plate बहुत टेढ़ी हो गई। अगले काम में इसे कैसे कम करेंगे?",
+      [
+       "छोटे runs, बारी-बारी दोनों तरफ, पहले अच्छे tack",
+       "बड़ा electrode और ज़्यादा current",
+       "एक सिरे से दूसरे सिरे तक एक ही run",
+       "पानी से जल्दी ठंडा करना"
+      ]
+     ],
+     [
+      "Joint preparation",
+      "medium",
+      "mcq",
+      "Thin 1.5 mm sheet keeps burning through while welding. What will help most?",
+      [
+       "Lower current, smaller electrode, short stitch runs",
+       "Higher current to finish faster",
+       "A bigger gap between the sheets",
+       "A 4 mm electrode for more filling"
+      ],
+      "1.5 mm సన్నని sheet welding లో పదే పదే రంధ్రం పడుతోంది. ఏది ఎక్కువ సహాయపడుతుంది?",
+      [
+       "తక్కువ current, చిన్న electrode, చిన్న చిన్న runs",
+       "త్వరగా పూర్తి చేయడానికి ఎక్కువ current",
+       "Sheets మధ్య ఎక్కువ gap",
+       "ఎక్కువ నింపడానికి 4 mm electrode"
+      ],
+      "1.5 mm की पतली sheet में welding करते समय बार-बार छेद हो जाता है। सबसे ज़्यादा क्या मदद करेगा?",
+      [
+       "कम current, छोटा electrode, छोटे-छोटे runs",
+       "जल्दी खत्म करने को ज़्यादा current",
+       "Sheets के बीच ज़्यादा gap",
+       "ज़्यादा भराई के लिए 4 mm electrode"
+      ]
+     ],
+     [
+      "Joint preparation",
+      "hard",
+      "mcq",
+      "A rectangular gate frame must stay square after welding. Which order of work is right?",
+      [
+       "Tack, check diagonals, weld opposite sides",
+       "Fully finish one corner at a time",
+       "Weld every joint on one side first",
+       "Skip tacks and weld straight to save time"
+      ],
+      "Rectangle gate frame welding తర్వాత కూడా square గా ఉండాలి. పని ఏ క్రమంలో చేయాలి?",
+      [
+       "Tack చేసి, diagonals చెక్ చేసి, ఎదురెదురు వైపులు weld",
+       "ఒక్కో corner పూర్తిగా ముగించడం",
+       "ముందు ఒక వైపు joints అన్నీ weld చేయడం",
+       "సమయం కోసం tack లేకుండా నేరుగా weld"
+      ],
+      "Rectangle gate का frame welding के बाद भी square रहना चाहिए। काम का सही क्रम क्या है?",
+      [
+       "Tack, diagonal जांचें, फिर आमने-सामने की तरफ weld",
+       "एक-एक corner पूरा खत्म करें",
+       "पहले एक तरफ के सारे joint weld करें",
+       "समय बचाने को बिना tack सीधे weld करें"
+      ]
+     ],
+     [
+      "Welding technique",
+      "easy",
+      "mcq",
+      "In stick welding, what arc length is usually right?",
+      [
+       "About the core wire's thickness",
+       "As long as you can hold it",
+       "Pressed hard on the job",
+       "About 2 cm, for a wide bead"
+      ],
+      "Stick welding లో సాధారణంగా arc length ఎంత ఉండాలి?",
+      [
+       "సుమారు core wire మందం అంత",
+       "పట్టుకోగలిగినంత పొడవు",
+       "Job మీద గట్టిగా నొక్కి",
+       "వెడల్పు bead కోసం సుమారు 2 cm"
+      ],
+      "Stick welding में arc की लंबाई आमतौर पर कितनी सही है?",
+      [
+       "लगभग core wire की मोटाई जितनी",
+       "जितनी लंबी पकड़ सकें",
+       "Job पर ज़ोर से दबाकर",
+       "चौड़े bead के लिए लगभग 2 cm"
+      ]
+     ],
+     [
+      "Welding technique",
+      "easy",
+      "mcq",
+      "Before you start the next run on a weld, what must you remove?",
+      [
+       "Slag from the earlier run",
+       "The earth clamp",
+       "The tack welds",
+       "The base primer of the job"
+      ],
+      "Weld మీద తర్వాతి run మొదలుపెట్టే ముందు ఏం తీసేయాలి?",
+      [
+       "ముందు run యొక్క slag",
+       "Earth clamp",
+       "Tack welds",
+       "Job మీద primer"
+      ],
+      "Weld पर अगला run शुरू करने से पहले क्या हटाना ज़रूरी है?",
+      [
+       "पिछले run का slag",
+       "Earth clamp",
+       "Tack welds",
+       "Job का primer"
+      ]
+     ],
+     [
+      "Welding technique",
+      "medium",
+      "mcq",
+      "For a vertical-up fillet weld with stick, what is a good habit?",
+      [
+       "Slightly lower current and a small weave",
+       "Highest current for speed",
+       "Vertical-down with a thick electrode",
+       "A long arc so you can see better"
+      ],
+      "Stick తో vertical-up fillet weld కి మంచి అలవాటు ఏది?",
+      [
+       "కొంచెం తక్కువ current, చిన్న weave",
+       "Speed కోసం అత్యధిక current",
+       "మందమైన electrode తో vertical-down",
+       "బాగా కనిపించడానికి పొడవైన arc"
+      ],
+      "Stick से vertical-up fillet weld के लिए अच्छी आदत क्या है?",
+      [
+       "थोड़ा कम current और छोटा weave",
+       "Speed के लिए सबसे ज़्यादा current",
+       "मोटे electrode से vertical-down",
+       "साफ दिखने के लिए लंबा arc"
+      ]
+     ],
+     [
+      "Welding technique",
+      "medium",
+      "mcq",
+      "Your bead is tall and narrow and has not joined well at the edges. What is the likely cause?",
+      [
+       "Travel too fast or current too low",
+       "Current set too high",
+       "Electrode baked too long",
+       "Earth clamp too close to the joint"
+      ],
+      "మీ bead ఎత్తుగా, సన్నగా ఉంది, అంచుల దగ్గర బాగా కలవలేదు. కారణం ఏమై ఉండొచ్చు?",
+      [
+       "చాలా వేగంగా నడిపారు లేదా current తక్కువ",
+       "Current చాలా ఎక్కువ",
+       "Electrode ని ఎక్కువ సేపు bake చేశారు",
+       "Earth clamp joint కి చాలా దగ్గర"
+      ],
+      "आपका bead ऊंचा और पतला है, किनारों पर ठीक से नहीं जुड़ा। संभावित कारण क्या है?",
+      [
+       "बहुत तेज़ चलाया या current कम है",
+       "Current बहुत ज़्यादा है",
+       "Electrode को ज़्यादा देर bake किया",
+       "Earth clamp joint के बहुत पास है"
+      ]
+     ],
+     [
+      "Welding technique",
+      "hard",
+      "mcq",
+      "On DC stick welding, the arc keeps getting pulled to one side (arc blow). What can help?",
+      [
+       "Shift the earth clamp or switch to AC",
+       "Raise the current a lot",
+       "Use a longer arc",
+       "Weld faster with a bigger rod"
+      ],
+      "DC stick welding లో arc ఒక వైపుకి లాగబడుతోంది (arc blow). ఏది సహాయపడుతుంది?",
+      [
+       "Earth clamp స్థలం మార్చడం లేదా AC కి మారడం",
+       "Current బాగా పెంచడం",
+       "పొడవైన arc వాడటం",
+       "పెద్ద rod తో వేగంగా weld చేయడం"
+      ],
+      "DC stick welding में arc बार-बार एक तरफ खिंच रहा है (arc blow)। क्या मदद करेगा?",
+      [
+       "Earth clamp की जगह बदलें या AC पर जाएं",
+       "Current बहुत बढ़ा दें",
+       "लंबा arc रखें",
+       "बड़ी rod से तेज़ weld करें"
+      ]
+     ],
+     [
+      "Welding technique",
+      "hard",
+      "mcq",
+      "Which setup is right for overhead stick welding?",
+      [
+       "Short arc, smaller rod, lower current, full PPE",
+       "Long arc and high current for speed",
+       "Thickest rod to fill in one run",
+       "Same settings as flat welding"
+      ],
+      "Overhead stick welding కి ఏ setup సరైనది?",
+      [
+       "చిన్న arc, చిన్న rod, తక్కువ current, పూర్తి PPE",
+       "Speed కోసం పొడవైన arc, ఎక్కువ current",
+       "ఒకే run లో నింపడానికి మందమైన rod",
+       "Flat welding లాగే అవే settings"
+      ],
+      "Overhead stick welding के लिए कौन सा setup सही है?",
+      [
+       "छोटा arc, छोटी rod, कम current, पूरा PPE",
+       "Speed के लिए लंबा arc, ज़्यादा current",
+       "एक run में भरने को सबसे मोटी rod",
+       "Flat welding जैसी ही settings"
+      ]
+     ],
+     [
+      "Welding technique",
+      "hard",
+      "mcq",
+      "When welding a thick plate with many runs, why should you control the heat between runs?",
+      [
+       "Too much heat weakens the metal and adds bending",
+       "To save electrodes",
+       "So the slag sticks better",
+       "To make the bead look shiny"
+      ],
+      "మందమైన plate ని చాలా runs తో weld చేసేటప్పుడు runs మధ్య వేడిని ఎందుకు control చేయాలి?",
+      [
+       "ఎక్కువ వేడి metal ని బలహీనం చేస్తుంది, వంకర పెంచుతుంది",
+       "Electrodes ఆదా చేయడానికి",
+       "Slag బాగా అంటుకోవడానికి",
+       "Bead మెరిసేలా కనిపించడానికి"
+      ],
+      "मोटी plate को कई runs में weld करते समय runs के बीच गर्मी को control क्यों करें?",
+      [
+       "ज़्यादा गर्मी metal को कमज़ोर करती है और टेढ़ापन बढ़ाती है",
+       "Electrodes बचाने के लिए",
+       "ताकि slag अच्छे से चिपके",
+       "Bead चमकदार दिखे"
+      ]
+     ],
+     [
+      "Quality and customer",
+      "easy",
+      "mcq",
+      "Small pinholes are seen on the weld surface. What do they usually mean?",
+      [
+       "Porosity from dampness or dirt",
+       "The weld is extra strong",
+       "Slag was removed too much",
+       "Penetration is very good"
+      ],
+      "Weld మీద చిన్న చిన్న రంధ్రాలు కనిపిస్తున్నాయి. సాధారణంగా వాటి అర్థం ఏమిటి?",
+      [
+       "తేమ లేదా మురికి వల్ల porosity",
+       "Weld చాలా బలంగా ఉంది",
+       "Slag ఎక్కువగా తీసేశారు",
+       "Penetration చాలా బాగుంది"
+      ],
+      "Weld की सतह पर छोटे-छोटे छेद दिख रहे हैं। इनका आमतौर पर क्या मतलब है?",
+      [
+       "नमी या गंदगी से porosity",
+       "Weld बहुत मज़बूत है",
+       "Slag ज़्यादा हटा दिया",
+       "Penetration बहुत अच्छा है"
+      ]
+     ],
+     [
+      "Quality and customer",
+      "easy",
+      "scenario",
+      "A customer calls for a price for a new window grill. What should you do first?",
+      [
+       "Measure the site and agree on design and material",
+       "Quote a price on the phone without seeing",
+       "Start buying material right away",
+       "Ask for full payment before measuring"
+      ],
+      "కొత్త window grill కి ధర చెప్పమని customer phone చేశారు. మొదట ఏం చేయాలి?",
+      [
+       "Site కొలిచి, design మరియు material మాట్లాడి ఖరారు చేయాలి",
+       "చూడకుండానే phone లో ధర చెప్పాలి",
+       "వెంటనే material కొనడం మొదలుపెట్టాలి",
+       "కొలవక ముందే మొత్తం డబ్బు అడగాలి"
+      ],
+      "Customer नई खिड़की की grill का दाम पूछने के लिए phone करता है। पहले क्या करें?",
+      [
+       "Site नापें और design व material तय करें",
+       "बिना देखे phone पर दाम बता दें",
+       "तुरंत material खरीदना शुरू करें",
+       "नापने से पहले पूरा पैसा मांगें"
+      ]
+     ],
+     [
+      "Quality and customer",
+      "medium",
+      "mcq",
+      "What usually causes a groove melted into the plate along the edge of the weld (undercut)?",
+      [
+       "Current too high or a wrong rod angle",
+       "Current too low",
+       "Electrode too dry",
+       "Too much cleaning before welding"
+      ],
+      "Weld అంచు వెంబడి plate లో గాడి పడటం (undercut) సాధారణంగా దేని వల్ల?",
+      [
+       "Current చాలా ఎక్కువ లేదా rod angle తప్పు",
+       "Current చాలా తక్కువ",
+       "Electrode చాలా పొడిగా ఉండటం",
+       "Welding ముందు ఎక్కువ శుభ్రం చేయడం"
+      ],
+      "Weld के किनारे के साथ plate में नाली जैसा गड्ढा (undercut) आमतौर पर किस वजह से होता है?",
+      [
+       "Current बहुत ज़्यादा या rod का गलत angle",
+       "Current बहुत कम",
+       "Electrode बहुत सूखा",
+       "Welding से पहले ज़्यादा सफाई"
+      ]
+     ],
+     [
+      "Quality and customer",
+      "medium",
+      "scenario",
+      "A customer says the gate weld you did last week has cracked. What do you do?",
+      [
+       "Grind out the crack, find the cause, and weld again",
+       "Weld a new bead over the crack",
+       "Fill it with putty and paint over",
+       "Tell him small cracks are normal"
+      ],
+      "మీరు గత వారం చేసిన gate weld పగిలిందని customer చెప్తున్నారు. ఏం చేస్తారు?",
+      [
+       "పగులు grind చేసి తీసేసి, కారణం తెలుసుకుని, మళ్ళీ weld చేస్తాను",
+       "పగులు మీదే కొత్త bead వేస్తాను",
+       "Putty తో నింపి paint వేస్తాను",
+       "చిన్న పగుళ్ళు మామూలే అని చెప్తాను"
+      ],
+      "Customer कहता है कि पिछले हफ्ते आपने gate पर जो weld किया था उसमें crack आ गया है। आप क्या करेंगे?",
+      [
+       "Crack को grind करके निकालूंगा, कारण देखूंगा, फिर से weld करूंगा",
+       "Crack के ऊपर नया bead लगा दूंगा",
+       "Putty भरकर paint कर दूंगा",
+       "कहूंगा छोटे crack आम बात हैं"
+      ]
+     ],
+     [
+      "Quality and customer",
+      "medium",
+      "scenario",
+      "A customer wants thinner pipe than you advised for a heavy main gate, to save money. What do you do?",
+      [
+       "Explain the risk clearly and suggest a safer option",
+       "Do it his way and say nothing",
+       "Refuse the job and leave",
+       "Use thin pipe but bill for thick"
+      ],
+      "బరువైన main gate కి మీరు చెప్పిన దానికంటే సన్నని pipe తో చేయమని customer అడుగుతున్నారు, డబ్బు ఆదా కోసం. ఏం చేస్తారు?",
+      [
+       "ప్రమాదం స్పష్టంగా వివరించి, సురక్షితమైన option సూచిస్తాను",
+       "ఆయన చెప్పినట్టే చేసి ఏమీ చెప్పను",
+       "పని వద్దని వెళ్ళిపోతాను",
+       "సన్నని pipe వాడి మందమైన దానికి bill వేస్తాను"
+      ],
+      "भारी main gate के लिए customer पैसे बचाने को आपकी सलाह से पतली pipe चाहता है। आप क्या करेंगे?",
+      [
+       "खतरा साफ समझाऊंगा और सुरक्षित option बताऊंगा",
+       "जैसा कहे वैसा करूंगा, कुछ नहीं बोलूंगा",
+       "काम छोड़कर चला जाऊंगा",
+       "पतली pipe लगाकर मोटी का bill दूंगा"
+      ]
+     ],
+     [
+      "Quality and customer",
+      "medium",
+      "scenario",
+      "You finish a grill job at a customer's flat. What is right before you leave?",
+      [
+       "Clear scrap, check for hot spots, switch off power",
+       "Leave the scrap for the watchman",
+       "Pack up fast and go to the next job",
+       "Leave the machine plugged in for tomorrow"
+      ],
+      "Customer flat లో grill పని అయిపోయింది. వెళ్ళే ముందు ఏది సరైనది?",
+      [
+       "Scrap శుభ్రం చేసి, వేడిగా ఉన్న చోట్లు చెక్ చేసి, power off చేయాలి",
+       "Scrap ని watchman కి వదిలేయాలి",
+       "త్వరగా సర్దుకుని తర్వాతి పనికి వెళ్ళాలి",
+       "రేపటి కోసం machine plug లోనే ఉంచాలి"
+      ],
+      "Customer के flat में grill का काम खत्म हुआ। जाने से पहले क्या सही है?",
+      [
+       "Scrap साफ करें, गरम जगहें जांचें, power बंद करें",
+       "Scrap watchman के लिए छोड़ दें",
+       "जल्दी समेटकर अगले काम पर जाएं",
+       "कल के लिए machine plug में लगी छोड़ दें"
+      ]
+     ],
+     [
+      "Quality and customer",
+      "hard",
+      "mcq",
+      "A water tank you welded must be leak-proof. Which simple check can you do on site before handover?",
+      [
+       "Water fill or soap-bubble test for leaks",
+       "Look at the welds from a distance",
+       "Give it a thick coat of paint",
+       "Hammer the welds and listen"
+      ],
+      "మీరు weld చేసిన నీళ్ళ tank leak లేకుండా ఉండాలి. Handover ముందు site లో ఏ సులువైన check చేయవచ్చు?",
+      [
+       "నీళ్ళు నింపి లేదా soap-bubble test తో leak చూడటం",
+       "దూరం నుండి welds చూడటం",
+       "మందంగా paint వేయడం",
+       "Welds మీద hammer కొట్టి శబ్దం వినడం"
+      ],
+      "आपके weld किए पानी के tank से leak नहीं होना चाहिए। Handover से पहले site पर कौन सी आसान जांच कर सकते हैं?",
+      [
+       "पानी भरकर या soap-bubble test से leak देखना",
+       "दूर से welds को देखना",
+       "मोटा paint लगा देना",
+       "Welds पर hammer मारकर आवाज़ सुनना"
+      ]
+     ],
+     [
+      "Quality and customer",
+      "hard",
+      "mcq",
+      "A butt weld looks fine on top, but the back side shows the root never melted through. What is this, and the fix?",
+      [
+       "Incomplete penetration; open the gap and reweld",
+       "Porosity; dry the rods",
+       "Undercut; lower the current",
+       "Spatter; clean the surface"
+      ],
+      "Butt weld పైకి బాగానే ఉంది, కానీ వెనుక వైపు root కరగలేదు. ఇది ఏమిటి, ఎలా సరిచేయాలి?",
+      [
+       "Incomplete penetration; gap పెంచి మళ్ళీ weld",
+       "Porosity; rods ఆరబెట్టాలి",
+       "Undercut; current తగ్గించాలి",
+       "Spatter; ఉపరితలం శుభ్రం చేయాలి"
+      ],
+      "Butt weld ऊपर से ठीक दिखता है, पर पीछे देखा तो root पिघला ही नहीं। यह क्या है और इलाज क्या है?",
+      [
+       "Incomplete penetration; gap खोलकर दोबारा weld",
+       "Porosity; rods सुखाएं",
+       "Undercut; current कम करें",
+       "Spatter; सतह साफ करें"
+      ]
+     ],
+     [
+      "Quality and customer",
+      "hard",
+      "mcq",
+      "After grinding a multi-run weld, you see dark slag lines inside it. What caused this?",
+      [
+       "Slag not cleaned between runs",
+       "Too much shielding gas",
+       "The electrode was too new",
+       "The plate was preheated"
+      ],
+      "చాలా runs ఉన్న weld ని grind చేశాక లోపల నల్లటి slag గీతలు కనిపించాయి. దీనికి కారణం ఏమిటి?",
+      [
+       "Runs మధ్య slag శుభ్రం చేయలేదు",
+       "Shielding gas ఎక్కువైంది",
+       "Electrode చాలా కొత్తది",
+       "Plate ని preheat చేశారు"
+      ],
+      "कई runs वाले weld को grind करने पर अंदर काली slag की लाइनें दिखीं। इसका कारण क्या है?",
+      [
+       "Runs के बीच slag साफ नहीं किया",
+       "Shielding gas ज़्यादा थी",
+       "Electrode बहुत नया था",
+       "Plate को preheat किया था"
+      ]
+     ]
+    ],
+    "te": {
+     "q": "మూడు beads: A సమానంగా, చక్కటి అలలతో ఉంది; B ముద్దలుగా రంధ్రాలతో ఉంది; C అంచుల దగ్గర ఖాళీలు ఉన్నాయి. ఏది మంచి పని?",
+     "options": [
+      "Bead A",
+      "Bead B",
+      "Bead C"
+     ]
+    },
+    "hi": {
+     "q": "तीन beads: A बराबर और साफ लहरों वाला, B गांठदार और छेद वाला, C के किनारों पर gap। अच्छा काम कौन सा है?",
+     "options": [
+      "Bead A",
+      "Bead B",
+      "Bead C"
+     ]
+    }
+   },
+   {
+    "q": "Picture: three people using an angle grinder. Which one is safe?",
+    "options": [
+     "Guard removed to reach corners",
+     "Bigger disc than the grinder is marked for",
+     "Guard fitted, goggles on, right disc size"
+    ],
+    "answer": 2,
+    "topic": "Safety and PPE",
+    "te": {
+     "q": "చిత్రం: ముగ్గురు angle grinder వాడుతున్నారు. ఎవరు సురక్షితంగా వాడుతున్నారు?",
+     "options": [
+      "మూలలకు చేరడానికి guard తీసేశాడు",
+      "Grinder మీద రాసిన దానికంటే పెద్ద disc",
+      "Guard ఉంది, goggles పెట్టుకున్నాడు, సరైన disc size"
+     ]
+    },
+    "hi": {
+     "q": "चित्र: तीन लोग angle grinder चला रहे हैं। कौन सुरक्षित है?",
+     "options": [
+      "कोनों तक पहुंचने को guard हटा दिया",
+      "Grinder पर लिखे से बड़ी disc",
+      "Guard लगा है, goggles पहने हैं, सही disc size"
+     ]
+    }
+   },
+   {
+    "q": "Picture: the earth clamp can go in three places. Which is right?",
+    "options": [
+     "On the metal stair railing",
+     "On the job, near the joint",
+     "On the machine body"
+    ],
+    "answer": 1,
+    "topic": "Machine and setup",
+    "te": {
+     "q": "చిత్రం: earth clamp ని మూడు చోట్ల పెట్టవచ్చు. ఏది సరైనది?",
+     "options": [
+      "మెట్ల metal railing మీద",
+      "Job మీద, joint దగ్గర",
+      "Machine body మీద"
+     ]
+    },
+    "hi": {
+     "q": "चित्र: earth clamp तीन जगह लग सकता है। कौन सी जगह सही है?",
+     "options": [
+      "सीढ़ी की metal railing पर",
+      "Job पर, joint के पास",
+      "Machine की body पर"
+     ]
+    }
+   },
+   {
+    "q": "Where should the fire extinguisher be at a welding site?",
+    "options": [
+     "Close by and ready to use",
+     "Locked in the site office",
+     "Not needed for small jobs"
+    ],
+    "answer": 0,
+    "topic": "Safety and PPE",
+    "te": {
+     "q": "Welding site లో fire extinguisher ఎక్కడ ఉండాలి?",
+     "options": [
+      "దగ్గరలో, వెంటనే వాడేలా",
+      "Site office లో తాళం వేసి",
+      "చిన్న పనులకు అవసరం లేదు"
+     ]
+    },
+    "hi": {
+     "q": "Welding site पर fire extinguisher कहां होना चाहिए?",
+     "options": [
+      "पास में, तुरंत इस्तेमाल के लिए तैयार",
+      "Site office में ताले में",
+      "छोटे काम के लिए ज़रूरत नहीं"
+     ]
+    }
+   },
+   {
+    "q": "Picture: three joints set up for welding. Which one is ready?",
+    "options": [
+     "Rusty edges, no gap",
+     "Clean metal, correct gap, tacked",
+     "Oily, with a big uneven gap"
+    ],
+    "answer": 1,
+    "topic": "Joint preparation",
+    "te": {
+     "q": "చిత్రం: welding కోసం మూడు joints సిద్ధం చేశారు. ఏది ready గా ఉంది?",
+     "options": [
+      "తుప్పు పట్టిన అంచులు, gap లేదు",
+      "శుభ్రమైన metal, సరైన gap, tack చేసినది",
+      "Oil తో, పెద్ద అసమాన gap"
+     ]
+    },
+    "hi": {
+     "q": "चित्र: welding के लिए तीन joint तैयार किए गए हैं। कौन सा तैयार है?",
+     "options": [
+      "जंग लगे किनारे, gap नहीं",
+      "साफ metal, सही gap, tack किया हुआ",
+      "तेल लगा, बड़ा टेढ़ा gap"
+     ]
+    }
+   }
+  ]
+ }
+}

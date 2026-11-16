@@ -11,6 +11,7 @@ DEFAULT_LIMIT = 2 * MB
 LIMITS: list[tuple[str, int]] = [
     ("/api/me/photo-import", 85 * MB),
     ("/api/me/certificates", 3 * MB),
+    ("/api/me/skill-checks", 4 * MB),  # Vetting V2: an optional photo of past work with the practical task
 ]  # longest prefix first when they overlap
 TOO_LARGE = "This request is too large."
 

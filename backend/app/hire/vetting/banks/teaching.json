@@ -1,0 +1,668 @@
+{
+ "slug": "teaching",
+ "version": 1,
+ "topics": [
+  "Lesson planning",
+  "Classroom management",
+  "Child safety and care",
+  "Reading and language",
+  "Maths teaching",
+  "Assessment and parents"
+ ],
+ "questions": [
+  {
+   "id": "teaching-001",
+   "topic": "Lesson planning",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What should a lesson plan state first?",
+   "options": [
+    "The page numbers to copy",
+    "What children should be able to do by the end",
+    "The homework for the week",
+    "How long the teacher will talk"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "teaching-002",
+   "topic": "Lesson planning",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Why use real objects like coins or leaves in a Class 2 lesson?",
+   "options": [
+    "Young children learn best by seeing and touching",
+    "It saves time on the board",
+    "It keeps parents happy",
+    "It is only useful in art classes"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "teaching-003",
+   "topic": "Lesson planning",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A lesson has 40 minutes. Which plan suits Class 3 best?",
+   "options": [
+    "40 minutes of the teacher reading aloud",
+    "Short explanation, group activity, then a quick check",
+    "Copying from the board the whole period",
+    "A test at the start, then free time"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "teaching-004",
+   "topic": "Lesson planning",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Half the class finished the activity early. The rest are still working. What do you do?",
+   "options": [
+    "Let them go and play outside",
+    "Tell them to sit silently and wait",
+    "Give the early group a harder extension task",
+    "Stop everyone and move on"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "teaching-005",
+   "topic": "Lesson planning",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What does 'learning outcome' mean in a lesson plan?",
+   "options": [
+    "The marks a child gets",
+    "The name of the chapter",
+    "The time at which the lesson ends",
+    "A skill the child can show after the lesson"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "teaching-006",
+   "topic": "Lesson planning",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Your class has children reading at three very different levels. How do you plan a reading lesson?",
+   "options": [
+    "Teach only to the middle level",
+    "Use one story with tasks at different levels",
+    "Let the strong readers teach the whole class",
+    "Give the weak readers colouring work instead"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "teaching-007",
+   "topic": "Lesson planning",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A topic needs two periods, but you have one before the test. What is the best choice?",
+   "options": [
+    "Cover the core idea well and plan a later recap",
+    "Rush through every page in one period",
+    "Skip the topic, it may not come",
+    "Give notes to copy at home"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "teaching-008",
+   "topic": "Classroom management",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is a good way to get a noisy class's attention?",
+   "options": [
+    "Shout louder than the class until it is quiet",
+    "Use a set signal, like a clap pattern, and wait",
+    "Bang a duster on the table",
+    "Walk out of the room"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "teaching-009",
+   "topic": "Classroom management",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "When should class rules be made clear to children?",
+   "options": [
+    "Only after someone breaks them",
+    "At the end of the year",
+    "In the first days, with simple examples",
+    "Only in the parents' meeting"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "teaching-010",
+   "topic": "Classroom management",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "A child keeps talking during your lesson. What do you do first?",
+   "options": [
+    "Send them out of the class",
+    "Shout their name in front of everyone",
+    "Ignore it for the whole week",
+    "Move close and give a quiet reminder"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "teaching-011",
+   "topic": "Classroom management",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why praise specific good behaviour, like 'Good, you put your books away'?",
+   "options": [
+    "It is shorter than other praise",
+    "It stops all bad behaviour forever",
+    "It is needed only for toppers",
+    "The child knows exactly what to repeat"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "teaching-012",
+   "topic": "Classroom management",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Two children fight over a pencil and one starts crying. What do you do?",
+   "options": [
+    "Punish both of them at once",
+    "Give the pencil to the one crying",
+    "Calm both, hear each side, and help them solve it",
+    "Tell them to sort it out after class"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "teaching-013",
+   "topic": "Classroom management",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A child who is usually calm has been disruptive for a week. What should you do?",
+   "options": [
+    "Punish them so it does not spread",
+    "Talk to them privately; something may be wrong",
+    "Move them to the last bench",
+    "Ignore it, it will stop by itself"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "teaching-014",
+   "topic": "Classroom management",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A child with ADHD can't sit still for long. How do you help them in class?",
+   "options": [
+    "Make them sit on the last bench",
+    "Give extra homework to keep them busy",
+    "Send them home early each day",
+    "Give short tasks, movement breaks and clear steps"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "teaching-015",
+   "topic": "Classroom management",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A few students laugh whenever one shy child answers. What do you do?",
+   "options": [
+    "Ignore it, children always tease",
+    "Stop it firmly, set a respect rule, and support the child",
+    "Stop asking the shy child any questions in class",
+    "Laugh along to keep the mood light"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "teaching-016",
+   "topic": "Child safety and care",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Physical punishment of children in Indian schools is:",
+   "options": [
+    "Allowed for serious mistakes",
+    "Allowed if parents agree",
+    "Banned under the RTE Act",
+    "Left to the teacher to decide"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "teaching-017",
+   "topic": "Child safety and care",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "A child falls and cuts a knee in the playground. What do you do first?",
+   "options": [
+    "Tell them to wash it at home",
+    "Wait and ignore it once they stop crying",
+    "Send them home alone",
+    "Clean it, apply a plaster from the first-aid kit, inform the office"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "teaching-018",
+   "topic": "Child safety and care",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "At home time, a stranger says they have come to pick up a Class 1 child. What do you do?",
+   "options": [
+    "Don't hand over; check with the parent and office",
+    "Let the child go if the person knows the name",
+    "Let the child decide",
+    "Send the child, as it is getting late"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "teaching-019",
+   "topic": "Child safety and care",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A child tells you an adult at home hurts them and asks you to keep it secret. What do you do?",
+   "options": [
+    "Promise to keep it a secret",
+    "Listen calmly, don't promise secrecy, report to the head",
+    "Call the adult and ask them about it",
+    "Tell the child they must be lying"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "teaching-020",
+   "topic": "Child safety and care",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A child often comes to school hungry and sleepy. What is a good first step?",
+   "options": [
+    "Scold them for sleeping in class",
+    "Talk gently to them and tell the school counsellor",
+    "Tell the class about it",
+    "Ignore it, it is a home matter"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "teaching-021",
+   "topic": "Child safety and care",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "When tutoring a child at their home, what is good practice?",
+   "options": [
+    "Lock the door to stop noise",
+    "Keep the child's parents away",
+    "Meet in a closed room for focus",
+    "Sit in an open room where adults can see"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "teaching-022",
+   "topic": "Child safety and care",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A child in your class has a peanut allergy, and children share lunch. What do you do?",
+   "options": [
+    "Let them share, small bits are fine",
+    "Make the child eat alone outside",
+    "Tell the parents to keep the child at home",
+    "Know the action plan, stop food sharing, and alert staff"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "teaching-023",
+   "topic": "Reading and language",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A Class 1 child can't read the word 'cat'. What helps most?",
+   "options": [
+    "Sound out c-a-t together, then blend it",
+    "Ask them to copy it 20 times",
+    "Tell them the word and move on",
+    "Give a harder word to challenge them"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "teaching-024",
+   "topic": "Reading and language",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Why read stories aloud to young children every day?",
+   "options": [
+    "It builds vocabulary and a love for reading",
+    "It only keeps them quiet",
+    "It replaces writing practice",
+    "It is only for weak readers"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "teaching-025",
+   "topic": "Reading and language",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A child reads a passage well but can't answer any question about it. What skill needs work?",
+   "options": [
+    "Handwriting",
+    "Spelling",
+    "Speed of reading",
+    "Understanding (comprehension)"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "teaching-026",
+   "topic": "Reading and language",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A child speaks a different language at home and is new to English. How do you help them?",
+   "options": [
+    "Ban the home language completely in class",
+    "Use pictures, gestures and some home-language words",
+    "Give English-only tests first",
+    "Seat them alone to focus"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "teaching-027",
+   "topic": "Reading and language",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which activity best improves spoken English in Class 4?",
+   "options": [
+    "Short role plays in pairs",
+    "Copying sentences from the board",
+    "Silent reading only",
+    "Learning grammar rules by heart"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "teaching-028",
+   "topic": "Reading and language",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A Class 3 child often writes 'b' for 'd' and reads slowly, despite trying hard. What do you do?",
+   "options": [
+    "Tell the parents the child is lazy and careless",
+    "Make them repeat the year",
+    "Note it, give extra support and suggest a specialist check",
+    "Ignore it, all children do this"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "teaching-029",
+   "topic": "Reading and language",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "What is the best way to correct many errors in a child's essay?",
+   "options": [
+    "Mark every mistake in red",
+    "Pick two or three key errors and show the fix",
+    "Rewrite the essay for them",
+    "Give zero marks so they try harder next time"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "teaching-030",
+   "topic": "Maths teaching",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is the best way to start teaching addition to Class 1?",
+   "options": [
+    "With two-digit sums on the board",
+    "By memorising answers",
+    "With word problems only",
+    "With counters, beads or fingers"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "teaching-031",
+   "topic": "Maths teaching",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A child says 7 + 5 = 11. What is a good response?",
+   "options": [
+    "Say 'wrong' and move on",
+    "Tell them it is 12 and continue",
+    "Ask them to count it again with counters",
+    "Mark it wrong in red pen"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "teaching-032",
+   "topic": "Maths teaching",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which tool best helps children understand tens and ones?",
+   "options": [
+    "Bundles of 10 sticks and loose sticks",
+    "A ruler",
+    "A number chart up to 10",
+    "A protractor"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "teaching-033",
+   "topic": "Maths teaching",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A child writes 25 + 17 = 312. What is the likely mistake?",
+   "options": [
+    "Subtracting instead of adding",
+    "Not knowing that 5 + 7 = 12",
+    "Not carrying over the ten",
+    "Reading 17 as 71"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "teaching-034",
+   "topic": "Maths teaching",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "How do you best explain 1/2 and 1/4 to Class 3?",
+   "options": [
+    "Fold or cut a roti or paper into equal parts",
+    "Write the definitions on the board",
+    "Teach the LCM method first",
+    "Use only number lines"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "teaching-035",
+   "topic": "Maths teaching",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Many children get a word problem wrong but can do the sum itself. What do you do?",
+   "options": [
+    "Give only plain sums from now on, no word problems",
+    "Give the answers to copy",
+    "Practise reading the problem and picking the operation",
+    "Move on to the next chapter"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "teaching-036",
+   "topic": "Maths teaching",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A child says 0.25 is bigger than 0.5 because 25 is more than 5. How do you correct this?",
+   "options": [
+    "Compare using place value or a 100-square grid",
+    "Tell them to just remember it",
+    "Say longer decimals are always smaller",
+    "Skip decimals for now"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "teaching-037",
+   "topic": "Maths teaching",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "In a mixed tuition group, one child is far ahead in maths and gets bored. What do you do?",
+   "options": [
+    "Give challenge problems while others practise basics",
+    "Ask them to wait quietly",
+    "Make them teach every lesson to the others",
+    "Send them home early"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "teaching-038",
+   "topic": "Assessment and parents",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is the main use of a short quiz at the end of a lesson?",
+   "options": [
+    "To fill the period",
+    "To find and punish the noisy children",
+    "To see who understood and who needs help",
+    "To give ranks"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "teaching-039",
+   "topic": "Assessment and parents",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "How should you share a child's weak result with parents?",
+   "options": [
+    "In front of other parents",
+    "By saying the child is weak",
+    "Privately, with examples and a plan to help",
+    "Only through the report card"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "teaching-040",
+   "topic": "Assessment and parents",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What does 'continuous assessment' mean?",
+   "options": [
+    "One big exam at year end",
+    "Weekly ranks pasted on the classroom wall",
+    "Grading only homework neatness",
+    "Checking learning often, through class work and tasks"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "teaching-041",
+   "topic": "Assessment and parents",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A parent is upset about low marks and blames you. What do you do?",
+   "options": [
+    "Listen calmly, show the work, and agree on next steps",
+    "Argue that the child is lazy",
+    "Raise the marks to please them",
+    "Tell them to complain to the principal"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "teaching-042",
+   "topic": "Assessment and parents",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "How does a rubric help children in a speaking task?",
+   "options": [
+    "It makes their marks higher",
+    "It saves paper",
+    "They know what good work looks like",
+    "It replaces feedback"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "teaching-043",
+   "topic": "Assessment and parents",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A parent asks you to give their child extra marks because of a family problem. What do you do?",
+   "options": [
+    "Add the marks quietly",
+    "Refuse kindly; offer extra support or a retest if rules allow",
+    "Agree, and tell other parents about it",
+    "Refuse and end the meeting"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "teaching-044",
+   "topic": "Assessment and parents",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Most of the class got the same test question wrong. What is the best conclusion?",
+   "options": [
+    "The class is weak",
+    "Cut marks for everyone",
+    "Never use that question again in any test",
+    "Reteach the idea and check if the question was clear"
+   ],
+   "answer": 3
+  }
+ ],
+ "task": {
+  "type": "written",
+  "title": "Write a progress note to a parent",
+  "brief": "You are Aditi's class teacher. Read your notes and her father's message below. Take about 15 minutes and write a reply to the father (about 150–200 words). A good reply is warm and honest, starts with strengths, explains the areas to work on in simple words, gives 2–3 practical things the family can do even with little time, says what you will do in class, and invites a short meeting. Do not label the child as weak.",
+  "minutes": 15,
+  "material": "Child: Aditi (Class 3), notes from the last 6 weeks\n- Reading: reads Class 2 level stories fluently; slows down and guesses on new long words.\n- Comprehension: answers 'what happened' questions well; struggles with 'why' questions.\n- Maths: strong in addition and subtraction with carrying; unsure of multiplication tables beyond 5.\n- Class work: neat, finishes on time. Homework missing 4 times in the last 2 weeks.\n- Behaviour: helpful, kind to classmates; has become quiet in class this month.\n- Test: 14/25 in English, 21/25 in Maths.\n\nMessage from her father on the school app:\n\"Aditi got only 14 in English. Is she weak? Should we put her in extra tuition? We are both working and can't sit with her daily.",
+  "key_points": [
+   "Warm greeting and thanks for reaching out",
+   "Starts with real strengths: maths, neat work, kindness",
+   "Explains English needs: new long words and 'why' questions, in simple words",
+   "Does not call the child weak; says tuition is not the only answer",
+   "2–3 practical home tips that fit busy parents (10 minutes of reading, asking 'why' about a story, homework routine)",
+   "Mentions missing homework and that she has become quiet, gently, and asks if anything has changed",
+   "Says what the teacher will do in class and invites a short meeting"
+  ],
+  "rubric": [
+   {
+    "key": "tone",
+    "label": "Tone",
+    "guide": "0 = cold, blaming or labels the child, 3 = polite but flat, 5 = warm, respectful and encouraging"
+   },
+   {
+    "key": "correctness",
+    "label": "Accurate picture",
+    "guide": "0 = ignores or misreads the notes, 3 = covers some points, 5 = strengths and needs match the notes, including homework and quietness"
+   },
+   {
+    "key": "practical",
+    "label": "Practical advice",
+    "guide": "0 = no advice, 3 = general advice, 5 = 2–3 specific tips a busy family can follow, plus the teacher's own plan"
+   },
+   {
+    "key": "clarity",
+    "label": "Clarity",
+    "guide": "0 = confusing or too long, 3 = understandable, 5 = simple words, well organised, right length"
+   }
+  ]
+ }
+}

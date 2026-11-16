@@ -1,0 +1,679 @@
+{
+ "slug": "front-office",
+ "version": 1,
+ "topics": [
+  "Greeting and etiquette",
+  "Reservations and check-in",
+  "Phone and messages",
+  "Complaints and problem solving",
+  "Billing, safety and records"
+ ],
+ "questions": [
+  {
+   "id": "front-office-001",
+   "topic": "Greeting and etiquette",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A guest walks up while you are typing. What do you do?",
+   "options": [
+    "Finish typing, then look up",
+    "Look up, smile and greet them at once",
+    "Point to a chair without speaking",
+    "Ask them to wait for the manager"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "front-office-002",
+   "topic": "Greeting and etiquette",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "How should you address a guest whose name you know?",
+   "options": [
+    "Use their name with Sir or Madam, or Mr or Ms",
+    "Call them 'boss' to sound friendly",
+    "Use only their first name",
+    "Avoid using any name at all"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "front-office-003",
+   "topic": "Greeting and etiquette",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is the right way to hand a room key card to a guest?",
+   "options": [
+    "Slide it across and shout the room number",
+    "Put it on the counter without a word",
+    "Hand it with a smile and tell the room number softly",
+    "Give it to the bellboy only"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "front-office-004",
+   "topic": "Greeting and etiquette",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "Two guests arrive together, but you are on a call with another guest. What do you do?",
+   "options": [
+    "Hang up on the caller",
+    "Ignore them until the call ends",
+    "Ask them to come back later",
+    "Smile and signal you will be with them shortly"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "front-office-005",
+   "topic": "Greeting and etiquette",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A guest speaks only Hindi and you speak little. What is the best step?",
+   "options": [
+    "Speak English louder and faster",
+    "Ask them to bring a translator",
+    "Get a Hindi-speaking colleague to help",
+    "Tell them the hotel is full"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "front-office-006",
+   "topic": "Greeting and etiquette",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which grooming practice suits the front desk?",
+   "options": [
+    "Heavy perfume and loud jewellery",
+    "Casual clothes on weekends",
+    "Clean uniform, name badge, neat hair",
+    "Sunglasses during day shifts"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "front-office-007",
+   "topic": "Greeting and etiquette",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A regular guest arrives. You remember he likes a quiet room away from the lift. What do you do?",
+   "options": [
+    "Give him any room to save time",
+    "Welcome him back and offer a quiet room if available",
+    "Ask him to fill his preferences again",
+    "Wait for him to ask for it"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "front-office-008",
+   "topic": "Greeting and etiquette",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A VIP guest and a walk-in guest arrive at the same time. How do you handle it?",
+   "options": [
+    "Serve the VIP and ignore the other",
+    "Serve whoever came closer first, no greeting",
+    "Greet both and get a colleague to help serve",
+    "Send both to the lounge to wait"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "front-office-009",
+   "topic": "Greeting and etiquette",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A guest's child is crying loudly in the lobby and other guests look upset. What do you do?",
+   "options": [
+    "Ask them to leave the lobby",
+    "Tell the other guests to ignore it",
+    "Offer the family a quiet corner and water, kindly",
+    "Turn up the lobby music"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "front-office-010",
+   "topic": "Reservations and check-in",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What must every guest give at check-in in India?",
+   "options": [
+    "A salary slip",
+    "A letter from their employer",
+    "Their PAN card only",
+    "A valid government photo ID"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "front-office-011",
+   "topic": "Reservations and check-in",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does 'walk-in guest' mean?",
+   "options": [
+    "A guest who arrives on foot",
+    "A guest who arrives without a booking",
+    "A guest who checks out early",
+    "A guest with a group booking"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "front-office-012",
+   "topic": "Reservations and check-in",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is the usual check-out step before printing the bill?",
+   "options": [
+    "Ask the guest to clean the room",
+    "Collect the ID card back",
+    "Change the room rate",
+    "Check minibar, room service and other charges"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "front-office-013",
+   "topic": "Reservations and check-in",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A foreign guest checks in. What extra record does the hotel need?",
+   "options": [
+    "Their bank statement",
+    "A letter from their embassy",
+    "A copy of their flight ticket only",
+    "Form C, sent to the FRRO"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "front-office-014",
+   "topic": "Reservations and check-in",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A guest arrives at 8 am. Check-in is at 12 noon and the room is not ready. What do you do?",
+   "options": [
+    "Tell them to come back at noon",
+    "Give them a dirty room to save time",
+    "Cancel the booking",
+    "Store their luggage and offer the lounge"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "front-office-015",
+   "topic": "Reservations and check-in",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is 'overbooking'?",
+   "options": [
+    "Accepting more bookings than rooms",
+    "Booking a room for many nights",
+    "A guest booking two rooms",
+    "Charging more than the room rate"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "front-office-016",
+   "topic": "Reservations and check-in",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A booking was made on a travel website. At check-in, the guest asks the rate. What do you check?",
+   "options": [
+    "The rate on the hotel's wall chart",
+    "The booking voucher and whether it is prepaid",
+    "What the last guest paid",
+    "The guest's room preference"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "front-office-017",
+   "topic": "Reservations and check-in",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "The hotel is overbooked and a confirmed guest arrives late at night. No rooms are left. What do you do?",
+   "options": [
+    "Tell them to search for a hotel",
+    "Arrange a similar hotel nearby at the hotel's cost",
+    "Give them a staff room quietly",
+    "Ask them to wait till someone checks out"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "front-office-018",
+   "topic": "Reservations and check-in",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A guest's ID name doesn't match the booking name. He says his friend booked it. What do you do?",
+   "options": [
+    "Check him in, the booking is paid",
+    "Refuse and call the police at once",
+    "Ask him to change the booking name online",
+    "Follow hotel policy: verify with the booker and record his own ID"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "front-office-019",
+   "topic": "Phone and messages",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "How soon should you answer the front desk phone?",
+   "options": [
+    "After it rings ten times",
+    "Only after finishing other work",
+    "Let it go to voicemail first",
+    "Within three rings"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "front-office-020",
+   "topic": "Phone and messages",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is a good way to start a phone call at the desk?",
+   "options": [
+    "Greet, say the hotel and your name, offer help",
+    "Say 'Hello, who is this?'",
+    "Say 'Yes, tell me'",
+    "Wait for the caller to speak first"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "front-office-021",
+   "topic": "Phone and messages",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "A caller asks for a guest's room number. What do you do?",
+   "options": [
+    "Give the room number",
+    "Ask the caller's name and then share it",
+    "Don't give it; offer to connect the call or take a message",
+    "Hang up"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "front-office-022",
+   "topic": "Phone and messages",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What should a phone message for a guest include?",
+   "options": [
+    "Only the caller's name and the room number",
+    "Only the time of the call",
+    "Your opinion of the caller",
+    "Caller name, number, time, message and your name"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "front-office-023",
+   "topic": "Phone and messages",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "You must put a caller on hold to check room availability. What is right?",
+   "options": [
+    "Put them on hold without a word",
+    "Keep the line open while chatting with staff",
+    "Ask first, say why and come back within a minute",
+    "Hang up and call later"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "front-office-024",
+   "topic": "Phone and messages",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A guest sends a WhatsApp message at 11 pm asking for extra towels. What do you do?",
+   "options": [
+    "Reply politely and send housekeeping",
+    "Reply in the morning",
+    "Ask them to call the desk instead",
+    "Ignore it after duty hours"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "front-office-025",
+   "topic": "Phone and messages",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "An email asks to change a booking's dates and card. The sender's email differs from the booking's. What do you do?",
+   "options": [
+    "Verify with the guest through the contact on the booking",
+    "Make the change at once",
+    "Reply with the card on file for checking",
+    "Cancel the booking"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "front-office-026",
+   "topic": "Phone and messages",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A caller says he is from the bank and asks for a guest's card details to 'fix a payment'. What do you do?",
+   "options": [
+    "Share the last four digits only",
+    "Refuse and inform your manager",
+    "Share them, banks are trusted",
+    "Ask the guest to talk to him"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "front-office-027",
+   "topic": "Complaints and problem solving",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A guest complains. What is the first thing you do?",
+   "options": [
+    "Explain the hotel policy at once",
+    "Listen fully without interrupting",
+    "Blame housekeeping",
+    "Offer a discount right away"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "front-office-028",
+   "topic": "Complaints and problem solving",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "A guest says the AC in her room is not cooling. What do you do?",
+   "options": [
+    "Tell her to open the window",
+    "Say the AC is new so it works",
+    "Ask her to call again later",
+    "Apologise, send maintenance now and follow up"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "front-office-029",
+   "topic": "Complaints and problem solving",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "After solving a guest's complaint, what should you do?",
+   "options": [
+    "Forget about it",
+    "Check later that the guest is satisfied",
+    "Ask them to post a review",
+    "Charge for the repair"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "front-office-030",
+   "topic": "Complaints and problem solving",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A guest shouts that his room smells of smoke. Another room is free. What is best?",
+   "options": [
+    "Apologise and offer a room move with help for luggage",
+    "Tell him all rooms smell like that",
+    "Spray perfume and leave",
+    "Ask him to prove it"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "front-office-031",
+   "topic": "Complaints and problem solving",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A complaint is beyond your authority to solve. What do you do?",
+   "options": [
+    "Say it can't be fixed",
+    "Ask the guest to email the head office",
+    "Tell the guest you will involve the duty manager now",
+    "Promise a full refund yourself"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "front-office-032",
+   "topic": "Complaints and problem solving",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A guest says ₹5,000 is missing from her room safe. What do you do first?",
+   "options": [
+    "Inform the duty manager and security, note details",
+    "Say the hotel isn't responsible",
+    "Search the housekeeping staff yourself",
+    "Tell her she must have spent it"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "front-office-033",
+   "topic": "Complaints and problem solving",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A guest posts an angry online review about slow check-in while still staying. What do you do?",
+   "options": [
+    "Ask them to delete the review",
+    "Meet them, fix it, then reply politely",
+    "Reply online that the guest is lying",
+    "Ignore it, they will leave soon"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "front-office-034",
+   "topic": "Complaints and problem solving",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "The same complaint about hot water comes from five rooms on one floor. What is right?",
+   "options": [
+    "Handle each complaint separately later",
+    "Tell guests it is a city problem",
+    "Move all five guests without checking",
+    "Report one floor fault and update all five"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "front-office-035",
+   "topic": "Complaints and problem solving",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A drunk guest is rude to staff in the lobby late at night. What do you do?",
+   "options": [
+    "Keep calm and call security and the manager",
+    "Shout back to control him",
+    "Push him out of the lobby",
+    "Call his family"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "front-office-036",
+   "topic": "Billing, safety and records",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A guest wants to pay by UPI. What do you check before confirming payment?",
+   "options": [
+    "The credit on the hotel's own UPI app",
+    "The guest's phone screen only",
+    "A screenshot sent on WhatsApp",
+    "The guest's word that it is done"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "front-office-037",
+   "topic": "Billing, safety and records",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Who should be allowed into a guest's room?",
+   "options": [
+    "Anyone who knows the room number",
+    "The guest, or someone they approved",
+    "Any relative who asks",
+    "Any delivery person"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "front-office-038",
+   "topic": "Billing, safety and records",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "You find a wallet in the lobby. What do you do?",
+   "options": [
+    "Keep it at the desk without noting",
+    "Open it and call the contacts",
+    "Give it to the first person who asks",
+    "Log it as lost property and give it to security"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "front-office-039",
+   "topic": "Billing, safety and records",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A company guest needs a GST invoice. What must be on it?",
+   "options": [
+    "The guest's Aadhaar number",
+    "The guest's home address only",
+    "The company's name and GSTIN",
+    "The guest's date of birth"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "front-office-040",
+   "topic": "Billing, safety and records",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A guest disputes a minibar charge of ₹600 at check-out. What do you do?",
+   "options": [
+    "Check the records politely and remove it if it is wrong",
+    "Insist he pays since the system shows it",
+    "Remove it without checking",
+    "Call the police"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "front-office-041",
+   "topic": "Billing, safety and records",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "During a fire alarm, what should the front desk do?",
+   "options": [
+    "Guide guests by stairs to the assembly point",
+    "Tell guests to use the lift quickly",
+    "Wait to see if it is real",
+    "Collect guests' luggage first"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "front-office-042",
+   "topic": "Billing, safety and records",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Your shift cash count is ₹2,000 short. What is the right step?",
+   "options": [
+    "Pay it from your pocket quietly",
+    "Adjust it in tomorrow's count",
+    "Tell the manager now and record it",
+    "Ask the next shift to cover it"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "front-office-043",
+   "topic": "Billing, safety and records",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A man says he is a police officer and wants a guest's details, without showing any ID or written request. What do you do?",
+   "options": [
+    "Give all details at once",
+    "Refuse and ask him to leave",
+    "Ask for ID and a written request; call the manager",
+    "Call the guest down to meet him"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "front-office-044",
+   "topic": "Reservations and check-in",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Late at night, a guest wants to extend his stay, but his room is booked from tomorrow. What is best?",
+   "options": [
+    "Cancel tomorrow's booking quietly",
+    "Offer another room for the extra night and plan the move",
+    "Tell him to leave as planned, no options",
+    "Keep him in the room and move the new guest"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "front-office-045",
+   "topic": "Phone and messages",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A guest asks you to tell all callers she is not staying here. What do you do?",
+   "options": [
+    "Note it on her profile and never confirm her stay",
+    "Ignore it, callers need answers",
+    "Tell callers she asked to hide",
+    "Give her room number only to family"
+   ],
+   "answer": 0
+  }
+ ],
+ "task": {
+  "type": "voice",
+  "title": "Handle an angry guest whose room is not ready",
+  "brief": "Imagine you are at the front desk of a hotel in Bengaluru. Mr. Joseph Mathew has a confirmed booking. He arrives at 2 pm (check-in time) after a long flight. His room is not ready because housekeeping is late. He is tired and angry, and says he has a work call in 45 minutes. Speak for 60 to 90 seconds as if you are talking to him. A good answer: greet him and use his name, listen and apologise sincerely, explain simply what happened without blaming staff, give clear options (for example a quiet place for his call, Wi-Fi, a drink, luggage help, a time when the room will be ready, or another room), and close politely by telling him what you will do next.",
+  "minutes": 5,
+  "key_points": [
+   "Greets the guest politely and uses his name",
+   "Apologises sincerely without blaming housekeeping",
+   "Shows understanding of his tiredness and urgent call",
+   "Offers practical options: quiet place for the call, Wi-Fi, refreshment, luggage storage",
+   "Gives a clear time the room will be ready or offers another room",
+   "Promises a follow-up and closes politely"
+  ],
+  "rubric": [
+   {
+    "key": "greeting_structure",
+    "label": "Greeting and structure",
+    "guide": "0 = no greeting, jumbled, 3 = greets but loose order, 5 = greets by name, apologises, gives options, closes clearly"
+   },
+   {
+    "key": "correctness",
+    "label": "Right actions",
+    "guide": "0 = wrong or no solution, 3 = one weak option, 5 = practical options for his call and a clear room time"
+   },
+   {
+    "key": "empathy",
+    "label": "Empathy",
+    "guide": "0 = cold or argues, 3 = polite but flat, 5 = calm, warm and shows he is understood"
+   },
+   {
+    "key": "clarity",
+    "label": "Clarity",
+    "guide": "0 = hard to follow, 3 = mostly clear, 5 = short, clear sentences a tired guest can follow"
+   }
+  ]
+ }
+}

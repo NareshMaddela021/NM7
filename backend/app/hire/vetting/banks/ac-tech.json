@@ -1,0 +1,1641 @@
+{
+ "slug": "ac-tech",
+ "version": 1,
+ "topics": [
+  "Safety",
+  "Installation",
+  "Refrigerant and gas",
+  "Troubleshooting",
+  "Servicing and maintenance",
+  "Customer handling"
+ ],
+ "questions": [
+  {
+   "id": "ac-tech-001",
+   "topic": "Safety",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Before opening an outdoor unit for repair, what must you do first?",
+   "options": [
+    "Switch it off with the remote only",
+    "Unplug just the indoor unit display",
+    "Put on gloves and start work",
+    "Switch off the MCB and check with a tester"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "రిపేర్ కోసం outdoor unit తెరిచే ముందు మొదట ఏం చేయాలి?",
+    "options": [
+     "Remote తో మాత్రమే off చేయాలి",
+     "Indoor unit display మాత్రమే unplug చేయాలి",
+     "Gloves వేసుకుని పని మొదలుపెట్టాలి",
+     "MCB off చేసి tester తో చెక్ చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "Repair के लिए outdoor unit खोलने से पहले सबसे पहले क्या करें?",
+    "options": [
+     "सिर्फ remote से बंद करें",
+     "सिर्फ indoor unit का display unplug करें",
+     "Gloves पहनकर काम शुरू करें",
+     "MCB बंद करें और tester से जांचें"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-002",
+   "topic": "Safety",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "You must fit an outdoor unit on a stand outside a third-floor window. What is a must?",
+   "options": [
+    "A safety belt tied to a strong point",
+    "Slippers with a good grip",
+    "A helper holding your shirt",
+    "Working fast to cut the risk"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "మూడో అంతస్తు కిటికీ బయట stand మీద outdoor unit పెట్టాలి. తప్పనిసరిగా ఏం ఉండాలి?",
+    "options": [
+     "గట్టి చోటుకి కట్టిన safety belt",
+     "బాగా పట్టు ఉన్న చెప్పులు",
+     "Helper మీ shirt పట్టుకోవడం",
+     "ప్రమాదం తగ్గడానికి త్వరగా పని చేయడం"
+    ]
+   },
+   "hi": {
+    "q": "तीसरी मंज़िल की खिड़की के बाहर stand पर outdoor unit लगाना है। क्या ज़रूरी है?",
+    "options": [
+     "मज़बूत जगह से बंधी safety belt",
+     "अच्छी पकड़ वाली चप्पल",
+     "Helper आपकी shirt पकड़े रहे",
+     "खतरा कम करने को जल्दी काम करना"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-003",
+   "topic": "Safety",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why must you never braze a pipe that still has gas and oil under pressure inside?",
+   "options": [
+    "The brazing rod gets wasted",
+    "Gas and oil can burst out and catch fire",
+    "The pipe colour will change",
+    "The gas will freeze the torch"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "లోపల ఇంకా gas, oil pressure లో ఉన్న pipe ని ఎప్పుడూ braze ఎందుకు చేయకూడదు?",
+    "options": [
+     "Brazing rod వృథా అవుతుంది",
+     "Gas, oil బయటికి చిమ్మి మంటలు రావచ్చు",
+     "Pipe రంగు మారుతుంది",
+     "Gas torch ని గడ్డకట్టిస్తుంది"
+    ]
+   },
+   "hi": {
+    "q": "जिस pipe में अभी gas और तेल दबाव में है, उस पर कभी braze क्यों नहीं करना चाहिए?",
+    "options": [
+     "Brazing rod बेकार जाती है",
+     "Gas और तेल बाहर निकलकर आग पकड़ सकते हैं",
+     "Pipe का रंग बदल जाता है",
+     "Gas torch को जमा देती है"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-004",
+   "topic": "Safety",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "You are brazing a joint indoors. A curtain and freshly painted wall are very close. What do you do?",
+   "options": [
+    "Braze quickly with a big flame",
+    "Wet the curtain and carry on",
+    "Move the curtain and use a heat shield",
+    "Ask the customer to keep watch"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "ఇంట్లో joint braze చేస్తున్నారు. కర్టెన్, కొత్తగా paint వేసిన గోడ చాలా దగ్గరగా ఉన్నాయి. ఏం చేస్తారు?",
+    "options": [
+     "పెద్ద మంటతో త్వరగా braze చేస్తాను",
+     "కర్టెన్ తడిపి కొనసాగిస్తాను",
+     "కర్టెన్ తీసేసి, గోడకి heat sheet అడ్డుపెడతాను",
+     "Customer ని చూస్తూ ఉండమంటాను"
+    ]
+   },
+   "hi": {
+    "q": "आप घर के अंदर joint braze कर रहे हैं। परदा और नया paint हुई दीवार बहुत पास हैं। क्या करेंगे?",
+    "options": [
+     "बड़ी लौ से जल्दी braze करूंगा",
+     "परदा गीला करके काम चालू रखूंगा",
+     "परदा हटाकर दीवार के आगे heat sheet लगाऊंगा",
+     "Customer से नज़र रखने को कहूंगा"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-005",
+   "topic": "Safety",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "You are servicing an AC that uses R-290 (propane) gas. What extra care is needed?",
+   "options": [
+    "Same care as R-22; nothing changes",
+    "Just wear thicker gloves while working",
+    "No flame or spark nearby, air flow, and flammable-gas tools",
+    "Fill a little extra gas for safety"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "R-290 (propane) gas వాడే AC ని service చేస్తున్నారు. అదనంగా ఏ జాగ్రత్త కావాలి?",
+    "options": [
+     "R-22 లాగే, ఏమీ మారదు",
+     "పని చేసేటప్పుడు మందమైన gloves చాలు",
+     "దగ్గర మంట లేదా spark ఉండకూడదు, గాలి ఆడాలి, flammable gas కి తగిన tools",
+     "సేఫ్టీ కోసం కొంచెం ఎక్కువ gas నింపాలి"
+    ]
+   },
+   "hi": {
+    "q": "R-290 (propane) gas वाले AC की service कर रहे हैं। क्या अतिरिक्त सावधानी चाहिए?",
+    "options": [
+     "R-22 जैसी ही, कुछ नहीं बदलता",
+     "बस मोटे gloves पहन लें",
+     "पास में आग या spark न हो, हवा चले, flammable gas वाले tools",
+     "सुरक्षा के लिए थोड़ी ज़्यादा gas भरें"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-006",
+   "topic": "Safety",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "You must remove the outdoor unit capacitor. What should you do before touching its terminals?",
+   "options": [
+    "Pull it out as soon as power is off",
+    "Check it on AC volts and pull it out",
+    "Cut the wires with a cutter first",
+    "Power off, then discharge it safely with a resistor"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "Outdoor unit capacitor తీయాలి. దాని terminals ముట్టుకునే ముందు ఏం చేయాలి?",
+    "options": [
+     "Power off అవగానే వెంటనే లాగేయాలి",
+     "AC volts లో చెక్ చేసి లాగేయాలి",
+     "ముందు cutter తో wires కోసేయాలి",
+     "Power off చేసి, resistor తో సురక్షితంగా discharge చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "Outdoor unit का capacitor निकालना है। उसके terminals छूने से पहले क्या करें?",
+    "options": [
+     "Power बंद होते ही खींच लें",
+     "AC volts पर जांचकर निकाल लें",
+     "पहले cutter से तार काट दें",
+     "Power बंद करके resistor से सुरक्षित discharge करें"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-007",
+   "topic": "Safety",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "You use a nitrogen cylinder to pressure test new piping. What is a must?",
+   "options": [
+    "Connect the cylinder straight to the gauge",
+    "Use a pressure regulator, never full cylinder pressure",
+    "Use oxygen if nitrogen is not there",
+    "Fill until you hear the pipe hiss"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "కొత్త piping ని pressure test చేయడానికి nitrogen cylinder వాడుతున్నారు. తప్పనిసరిగా ఏం చేయాలి?",
+    "options": [
+     "Cylinder ని నేరుగా gauge కి కలపాలి",
+     "Pressure regulator వాడాలి, cylinder పూర్తి pressure ఎప్పుడూ కాదు",
+     "Nitrogen లేకపోతే oxygen వాడాలి",
+     "Pipe లో శబ్దం వచ్చే వరకు నింపాలి"
+    ]
+   },
+   "hi": {
+    "q": "नई piping का pressure test करने के लिए nitrogen cylinder लगा रहे हैं। क्या ज़रूरी है?",
+    "options": [
+     "Cylinder सीधे gauge से जोड़ दें",
+     "Pressure regulator लगाएं, cylinder का पूरा दबाव कभी नहीं",
+     "Nitrogen न हो तो oxygen लगा लें",
+     "Pipe से सीटी की आवाज़ आने तक भरें"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-008",
+   "topic": "Installation",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Where is the best place to fix an indoor split unit?",
+   "options": [
+    "Right above the stove in an open kitchen",
+    "Behind a thick curtain",
+    "Tight under the ceiling with no gap",
+    "On a strong wall where air can spread across the room"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "Indoor split unit ని ఎక్కడ పెట్టడం మంచిది?",
+    "options": [
+     "Open kitchen లో stove కి సరిగ్గా పైన",
+     "మందమైన కర్టెన్ వెనుక",
+     "Ceiling కి gap లేకుండా అంటించి",
+     "గది అంతా గాలి వెళ్ళేలా గట్టి గోడ మీద"
+    ]
+   },
+   "hi": {
+    "q": "Indoor split unit लगाने की सबसे अच्छी जगह कौन सी है?",
+    "options": [
+     "Open kitchen में चूल्हे के ठीक ऊपर",
+     "मोटे परदे के पीछे",
+     "छत से बिना gap के सटाकर",
+     "मज़बूत दीवार पर जहां से हवा पूरे कमरे में फैले"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-009",
+   "topic": "Installation",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Why should the indoor unit's drain pipe slope downward all the way?",
+   "options": [
+    "So the gas moves faster",
+    "So water drains out, not inside",
+    "To cut the fan noise",
+    "So the pipe looks neat"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "Indoor unit drain pipe మొత్తం కిందికి వాలుగా ఎందుకు ఉండాలి?",
+    "options": [
+     "Gas వేగంగా వెళ్ళడానికి",
+     "నీళ్ళు బయటికి వెళ్ళి లోపల కారకుండా",
+     "Fan శబ్దం తగ్గడానికి",
+     "Pipe అందంగా కనిపించడానికి"
+    ]
+   },
+   "hi": {
+    "q": "Indoor unit का drain pipe पूरे रास्ते नीचे की ओर ढलान में क्यों होना चाहिए?",
+    "options": [
+     "ताकि gas तेज़ चले",
+     "ताकि पानी बाहर निकले और अंदर न टपके",
+     "Fan की आवाज़ कम करने के लिए",
+     "Pipe साफ-सुथरा दिखे"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-010",
+   "topic": "Installation",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Why is a voltage stabiliser often fitted with an AC in areas with power ups and downs?",
+   "options": [
+    "To make the room cool faster",
+    "To save gas",
+    "To reduce the fan noise",
+    "To guard the compressor from bad voltage"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "Current ఎక్కువ తక్కువ అయ్యే ప్రాంతాల్లో AC తో stabiliser ఎందుకు పెడతారు?",
+    "options": [
+     "గది త్వరగా చల్లబడటానికి",
+     "Gas ఆదా చేయడానికి",
+     "Fan శబ్దం తగ్గించడానికి",
+     "ఎక్కువ లేదా తక్కువ voltage నుండి compressor ని కాపాడటానికి"
+    ]
+   },
+   "hi": {
+    "q": "जहां बिजली ऊपर-नीचे होती है, वहां AC के साथ stabiliser क्यों लगाते हैं?",
+    "options": [
+     "कमरा जल्दी ठंडा करने के लिए",
+     "Gas बचाने के लिए",
+     "Fan की आवाज़ कम करने के लिए",
+     "Compressor को ज़्यादा या कम voltage से बचाने के लिए"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-011",
+   "topic": "Installation",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "After the copper pipes are connected, what must be done before opening the gas valves?",
+   "options": [
+    "Let some gas out to push the air out",
+    "Fill water to test for leaks",
+    "Only tighten the flare nuts",
+    "Vacuum the system with a vacuum pump"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "Copper pipes కలిపిన తర్వాత, gas valves తెరిచే ముందు ఏం చేయాలి?",
+    "options": [
+     "కొంచెం gas వదిలి గాలిని బయటికి నెట్టాలి",
+     "Leak చూడటానికి నీళ్ళు నింపాలి",
+     "Flare nuts మాత్రమే బిగించాలి",
+     "Vacuum pump తో system ని vacuum చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "Copper pipes जोड़ने के बाद gas valves खोलने से पहले क्या करना ज़रूरी है?",
+    "options": [
+     "थोड़ी gas छोड़कर हवा बाहर निकालें",
+     "Leak देखने को पानी भरें",
+     "बस flare nuts कस दें",
+     "Vacuum pump से system को vacuum करें"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-012",
+   "topic": "Installation",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is the right way to make a flare joint?",
+   "options": [
+    "Tube cutter, deburr, slide the nut on, then flare",
+    "Hacksaw cut and flare straight away",
+    "Flare first, then slide the nut on",
+    "Any flare tool size will do"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "Flare joint చేసే సరైన పద్ధతి ఏది?",
+    "options": [
+     "Tube cutter తో కోసి, burr తీసి, nut వేసి, తర్వాత flare",
+     "Hacksaw తో కోసి వెంటనే flare",
+     "ముందు flare చేసి తర్వాత nut వేయడం",
+     "ఏ size flare tool అయినా సరిపోతుంది"
+    ]
+   },
+   "hi": {
+    "q": "Flare joint बनाने का सही तरीका क्या है?",
+    "options": [
+     "Tube cutter से काटें, burr हटाएं, nut डालें, फिर flare",
+     "Hacksaw से काटकर सीधे flare",
+     "पहले flare करें, फिर nut डालें",
+     "कोई भी size का flare tool चलेगा"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-013",
+   "topic": "Installation",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A customer wants the outdoor unit inside a closed balcony box with no openings. What do you tell them?",
+   "options": [
+    "That is fine, it will cool better",
+    "It is only a problem in winter",
+    "Hot air must escape, or cooling drops and it may trip",
+    "Just add a small fan inside the box"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "Customer outdoor unit ని ఏ ఖాళీ లేని మూసి ఉన్న balcony box లో పెట్టమంటున్నారు. ఏం చెప్తారు?",
+    "options": [
+     "పర్వాలేదు, ఇంకా బాగా చల్లబడుతుంది",
+     "చలికాలంలో మాత్రమే సమస్య",
+     "వేడి గాలి బయటికి పోవాలి, లేకపోతే cooling తగ్గి trip అవ్వొచ్చు",
+     "Box లోపల చిన్న fan పెడితే చాలు"
+    ]
+   },
+   "hi": {
+    "q": "Customer outdoor unit को बिना खुली जगह वाले बंद balcony box में लगवाना चाहता है। आप क्या कहेंगे?",
+    "options": [
+     "ठीक है, और अच्छा ठंडा करेगा",
+     "सिर्फ सर्दियों में दिक्कत है",
+     "गरम हवा बाहर जानी चाहिए, वरना cooling घटेगी और trip हो सकता है",
+     "Box में एक छोटा fan लगा दो, बस"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-014",
+   "topic": "Installation",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "The pipe run between indoor and outdoor units is longer than the maker's standard length. What should you do?",
+   "options": [
+    "Nothing; factory gas is enough",
+    "Use thinner pipe to balance it",
+    "Add gas as per the maker's chart for the extra length",
+    "Let some gas out"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "Indoor, outdoor units మధ్య pipe పొడవు కంపెనీ standard కంటే ఎక్కువ ఉంది. ఏం చేయాలి?",
+    "options": [
+     "ఏమీ అవసరం లేదు, factory gas సరిపోతుంది",
+     "Balance కోసం సన్నని pipe వాడాలి",
+     "అదనపు పొడవుకి కంపెనీ chart ప్రకారం gas కలపాలి",
+     "కొంచెం gas బయటికి వదలాలి"
+    ]
+   },
+   "hi": {
+    "q": "Indoor और outdoor unit के बीच pipe की लंबाई company के standard से ज़्यादा है। क्या करें?",
+    "options": [
+     "कुछ नहीं, factory gas काफी है",
+     "Balance के लिए पतली pipe लगाएं",
+     "अतिरिक्त लंबाई के लिए company के chart के अनुसार gas डालें",
+     "थोड़ी gas बाहर निकाल दें"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-015",
+   "topic": "Installation",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "At a new install, you find the AC socket has no earth wire. What do you do?",
+   "options": [
+    "Fit it anyway; the AC body is earthed",
+    "Use the neutral wire as earth",
+    "Ask for proper earthing and MCB first",
+    "Run the earth wire to a water pipe"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "కొత్త install దగ్గర AC socket కి earth wire లేదని తెలిసింది. ఏం చేస్తారు?",
+    "options": [
+     "అయినా పెట్టేస్తాను; AC body earth అయ్యే ఉంటుంది",
+     "Neutral wire నే earth గా వాడతాను",
+     "ముందు సరైన earthing, సరైన MCB కావాలని చెప్తాను",
+     "Earth wire ని నీళ్ళ pipe కి కలుపుతాను"
+    ]
+   },
+   "hi": {
+    "q": "नई installation पर पता चला कि AC socket में earth wire नहीं है। आप क्या करेंगे?",
+    "options": [
+     "फिर भी लगा दूंगा; AC body earth होती है",
+     "Neutral wire को ही earth बना दूंगा",
+     "बताऊंगा कि पहले सही earthing और सही MCB चाहिए",
+     "Earth wire पानी की pipe से जोड़ दूंगा"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-016",
+   "topic": "Refrigerant and gas",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "How do you find a small gas leak at a flare joint?",
+   "options": [
+    "Smell the joint closely",
+    "Hold a lit match near it",
+    "Apply soap solution and look for bubbles",
+    "Touch it to feel if it is cold"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "Flare joint దగ్గర చిన్న gas leak ని ఎలా కనిపెడతారు?",
+    "options": [
+     "Joint దగ్గర వాసన చూడాలి",
+     "దగ్గర అగ్గిపుల్ల వెలిగించి చూడాలి",
+     "Soap నీళ్ళు రాసి బుడగలు వస్తున్నాయా చూడాలి",
+     "చల్లగా ఉందో లేదో ముట్టుకుని చూడాలి"
+    ]
+   },
+   "hi": {
+    "q": "Flare joint पर छोटी gas leak कैसे पकड़ेंगे?",
+    "options": [
+     "Joint के पास सूंघकर देखें",
+     "पास में जलती तीली रखकर देखें",
+     "Soap का घोल लगाकर बुलबुले देखें",
+     "छूकर देखें कि ठंडा है या नहीं"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-017",
+   "topic": "Refrigerant and gas",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "The AC runs on R-32, but you only have R-22 in your van. What do you do?",
+   "options": [
+    "Top up with R-22; it is close enough",
+    "Get R-32; never mix or swap gases",
+    "Mix the two half and half",
+    "Use R-22 at a lower pressure"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "AC లో R-32 gas ఉంది, కానీ మీ van లో R-22 మాత్రమే ఉంది. ఏం చేస్తారు?",
+    "options": [
+     "R-22 తో top up చేస్తాను; దాదాపు ఒకటే",
+     "R-32 తెచ్చుకుంటాను; gases ఎప్పుడూ కలపను, మార్చను",
+     "రెండూ సగం సగం కలుపుతాను",
+     "R-22 ని తక్కువ pressure లో వాడతాను"
+    ]
+   },
+   "hi": {
+    "q": "AC में R-32 gas है, पर आपकी van में सिर्फ R-22 है। आप क्या करेंगे?",
+    "options": [
+     "R-22 से top up कर दूंगा; लगभग एक जैसी है",
+     "R-32 मंगवाऊंगा; gas कभी मिलाता या बदलता नहीं",
+     "दोनों आधी-आधी मिला दूंगा",
+     "R-22 कम pressure पर भर दूंगा"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-018",
+   "topic": "Refrigerant and gas",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "After a full repair with the system empty, what is the best way to charge the right amount of gas?",
+   "options": [
+    "Weigh it in as per the nameplate",
+    "Fill until the pipe starts sweating",
+    "Fill until the pressure feels high",
+    "Fill for a fixed ten minutes"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "System ఖాళీ చేసి పూర్తి రిపేర్ చేశాక, సరైన మొత్తంలో gas నింపడానికి మంచి మార్గం ఏది?",
+    "options": [
+     "Nameplate ప్రకారం తూకం వేసి నింపాలి",
+     "Pipe మీద చెమట వచ్చే వరకు నింపాలి",
+     "Pressure ఎక్కువ అనిపించే వరకు నింపాలి",
+     "ఖచ్చితంగా పది నిమిషాలు నింపాలి"
+    ]
+   },
+   "hi": {
+    "q": "System खाली करके पूरी repair के बाद सही मात्रा में gas भरने का सबसे अच्छा तरीका क्या है?",
+    "options": [
+     "Nameplate के अनुसार तौलकर भरें",
+     "Pipe पर पसीना आने तक भरें",
+     "Pressure ज़्यादा लगने तक भरें",
+     "ठीक दस मिनट तक भरें"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-019",
+   "topic": "Refrigerant and gas",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why should old gas from an AC be recovered instead of released into the air?",
+   "options": [
+    "It harms the air and climate",
+    "It costs the customer money",
+    "It has a bad smell",
+    "It can freeze the room"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "AC లోని పాత gas ని గాలిలోకి వదలకుండా ఎందుకు recover చేయాలి?",
+    "options": [
+     "అది గాలికి, వాతావరణానికి హాని చేస్తుంది",
+     "Customer కి డబ్బు ఖర్చు",
+     "దానికి చెడు వాసన ఉంటుంది",
+     "గది గడ్డకట్టిపోతుంది"
+    ]
+   },
+   "hi": {
+    "q": "AC की पुरानी gas को हवा में छोड़ने की जगह recover क्यों करना चाहिए?",
+    "options": [
+     "यह हवा और मौसम को नुकसान पहुंचाती है",
+     "इससे customer का पैसा लगता है",
+     "इसकी बदबू आती है",
+     "कमरा जम सकता है"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-020",
+   "topic": "Refrigerant and gas",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why do good technicians pass a little nitrogen through copper pipe while brazing it?",
+   "options": [
+    "To cool the joint faster",
+    "To test for leaks at the same time",
+    "To make the rod melt faster",
+    "To stop black scale forming inside the pipe"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "మంచి technicians copper pipe braze చేసేటప్పుడు లోపల కొంచెం nitrogen ఎందుకు పంపుతారు?",
+    "options": [
+     "Joint త్వరగా చల్లబడటానికి",
+     "అదే సమయంలో leak test చేయడానికి",
+     "Rod త్వరగా కరగడానికి",
+     "Pipe లోపల నల్లటి scale రాకుండా"
+    ]
+   },
+   "hi": {
+    "q": "अच्छे technicians copper pipe को braze करते समय अंदर थोड़ी nitrogen क्यों चलाते हैं?",
+    "options": [
+     "Joint जल्दी ठंडा करने के लिए",
+     "साथ में leak test के लिए",
+     "Rod जल्दी पिघलाने के लिए",
+     "ताकि pipe के अंदर काली scale न बने"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-021",
+   "topic": "Refrigerant and gas",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "During vacuum, you stop the pump and the gauge needle slowly rises. What does this mean?",
+   "options": [
+    "The vacuum is perfect",
+    "There is a leak or moisture in the system",
+    "The pump is too strong",
+    "The gas is already charged"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "Vacuum చేసేటప్పుడు pump ఆపితే gauge ముల్లు నెమ్మదిగా పైకి వెళ్తోంది. దీని అర్థం ఏమిటి?",
+    "options": [
+     "Vacuum పర్ఫెక్ట్ గా ఉంది",
+     "System లో leak లేదా తేమ ఉంది",
+     "Pump చాలా బలంగా ఉంది",
+     "Gas ఇప్పటికే నిండింది"
+    ]
+   },
+   "hi": {
+    "q": "Vacuum के दौरान pump बंद करने पर gauge की सुई धीरे-धीरे ऊपर जाती है। इसका क्या मतलब है?",
+    "options": [
+     "Vacuum एकदम सही है",
+     "System में leak या नमी है",
+     "Pump बहुत ताकतवर है",
+     "Gas पहले से भरी है"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-022",
+   "topic": "Troubleshooting",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "The indoor unit runs but gives no cooling. The outdoor fan and compressor are not running. What do you check first?",
+   "options": [
+    "Outdoor unit power and capacitor",
+    "Remote batteries and settings",
+    "Indoor air filter condition",
+    "Drain pipe slope and flow"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "Indoor unit నడుస్తోంది కానీ cooling లేదు. Outdoor fan, compressor నడవడం లేదు. మొదట ఏం చెక్ చేస్తారు?",
+    "options": [
+     "Outdoor unit power supply, capacitor",
+     "Remote batteries",
+     "Indoor air filter",
+     "Drain pipe వాలు"
+    ]
+   },
+   "hi": {
+    "q": "Indoor unit चल रहा है पर ठंडक नहीं है। Outdoor fan और compressor नहीं चल रहे। पहले क्या जांचेंगे?",
+    "options": [
+     "Outdoor unit की power supply और capacitor",
+     "Remote की batteries",
+     "Indoor air filter",
+     "Drain pipe की ढलान"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-023",
+   "topic": "Troubleshooting",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Water is dripping from the indoor unit onto the wall. What is the most common reason?",
+   "options": [
+    "Too much gas in the system",
+    "Low voltage supply",
+    "Wrong mode on the remote",
+    "Drain pipe blocked or not sloped"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "Indoor unit నుండి గోడ మీద నీళ్ళు కారుతున్నాయి. సాధారణంగా కారణం ఏమిటి?",
+    "options": [
+     "System లో gas ఎక్కువ",
+     "Voltage తక్కువ",
+     "Remote లో తప్పు mode",
+     "Drain pipe block అయింది లేదా వాలు లేదు"
+    ]
+   },
+   "hi": {
+    "q": "Indoor unit से दीवार पर पानी टपक रहा है। सबसे आम कारण क्या है?",
+    "options": [
+     "System में gas ज़्यादा है",
+     "Voltage कम है",
+     "Remote पर गलत mode",
+     "Drain pipe चोक है या ढलान नहीं है"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-024",
+   "topic": "Troubleshooting",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "The AC cools well at night but poorly on hot afternoons. The outdoor coil is very dusty. What do you do first?",
+   "options": [
+    "Add more gas",
+    "Replace the compressor",
+    "Change the remote",
+    "Clean the outdoor coil"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "AC రాత్రి బాగా చల్లబరుస్తుంది కానీ ఎండ మధ్యాహ్నం సరిగ్గా లేదు. Outdoor coil చాలా దుమ్ముగా ఉంది. మొదట ఏం చేస్తారు?",
+    "options": [
+     "ఇంకా gas నింపుతాను",
+     "Compressor మారుస్తాను",
+     "Remote మారుస్తాను",
+     "Outdoor coil శుభ్రం చేస్తాను"
+    ]
+   },
+   "hi": {
+    "q": "AC रात में अच्छा ठंडा करता है पर गरम दोपहर में कम। Outdoor coil पर बहुत धूल है। पहले क्या करेंगे?",
+    "options": [
+     "और gas भरूंगा",
+     "Compressor बदलूंगा",
+     "Remote बदलूंगा",
+     "Outdoor coil साफ करूंगा"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-025",
+   "topic": "Troubleshooting",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "The compressor hums, tries to start, and trips in a few seconds. What is a likely cause?",
+   "options": [
+    "Dirty indoor filter",
+    "Weak or faulty compressor capacitor",
+    "Wrong mode on the remote",
+    "Blocked drain line"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "Compressor హమ్ అని శబ్దం చేసి, start అవ్వడానికి ప్రయత్నించి, కొన్ని సెకన్లలో trip అవుతోంది. కారణం ఏమై ఉండొచ్చు?",
+    "options": [
+     "Indoor filter మురికిగా ఉంది",
+     "Compressor capacitor బలహీనం లేదా పాడైంది",
+     "Remote లో తప్పు mode",
+     "Drain line block అయింది"
+    ]
+   },
+   "hi": {
+    "q": "Compressor गुनगुनाता है, चालू होने की कोशिश करता है और कुछ सेकंड में trip हो जाता है। संभावित कारण क्या है?",
+    "options": [
+     "Indoor filter गंदा है",
+     "Compressor का capacitor कमज़ोर या खराब",
+     "Remote पर गलत mode",
+     "Drain line चोक है"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-026",
+   "topic": "Troubleshooting",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "The indoor coil is clean, but the indoor fan turns slowly and the room stays warm. What do you check?",
+   "options": [
+    "Gas pressure first",
+    "Outdoor coil",
+    "Remote batteries",
+    "Fan capacitor or fan motor"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "Indoor coil శుభ్రంగా ఉంది, కానీ indoor fan నెమ్మదిగా తిరుగుతోంది, గది వేడిగానే ఉంది. ఏం చెక్ చేస్తారు?",
+    "options": [
+     "ముందు gas pressure",
+     "Outdoor coil",
+     "Remote batteries",
+     "Fan capacitor లేదా fan motor"
+    ]
+   },
+   "hi": {
+    "q": "Indoor coil साफ है, पर indoor fan धीरे घूमता है और कमरा गरम रहता है। क्या जांचेंगे?",
+    "options": [
+     "पहले gas pressure",
+     "Outdoor coil",
+     "Remote की batteries",
+     "Fan capacitor या fan motor"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-027",
+   "topic": "Troubleshooting",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Ice forms on the indoor coil and the thick suction pipe. Filters and fan are fine. Which is a likely cause?",
+   "options": [
+    "Too much gas",
+    "Low gas charge",
+    "Very hot room",
+    "Outdoor fan running too fast"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "Indoor coil, మందమైన suction pipe మీద మంచు ఏర్పడుతోంది. Filters, fan బాగానే ఉన్నాయి. కారణం ఏమై ఉండొచ్చు?",
+    "options": [
+     "Gas ఎక్కువగా ఉంది",
+     "Gas తక్కువగా ఉంది",
+     "గది చాలా వేడిగా ఉంది",
+     "Outdoor fan చాలా వేగంగా తిరుగుతోంది"
+    ]
+   },
+   "hi": {
+    "q": "Indoor coil और मोटी suction pipe पर बर्फ जम रही है। Filters और fan ठीक हैं। संभावित कारण क्या है?",
+    "options": [
+     "Gas ज़्यादा है",
+     "Gas कम है",
+     "कमरा बहुत गरम है",
+     "Outdoor fan बहुत तेज़ चल रहा है"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-028",
+   "topic": "Troubleshooting",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "An inverter AC shows an error code and will not start. What is the right first step?",
+   "options": [
+    "Look up that code in the model's service manual",
+    "Replace the PCB at once",
+    "Add gas and restart",
+    "Keep restarting until it runs"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "Inverter AC error code చూపిస్తోంది, start అవ్వడం లేదు. సరైన మొదటి అడుగు ఏది?",
+    "options": [
+     "ఆ model service manual లో ఆ code ఏంటో చూడాలి",
+     "వెంటనే PCB మార్చాలి",
+     "Gas నింపి restart చేయాలి",
+     "నడిచే వరకు restart చేస్తూనే ఉండాలి"
+    ]
+   },
+   "hi": {
+    "q": "Inverter AC error code दिखा रहा है और चालू नहीं हो रहा। सही पहला कदम क्या है?",
+    "options": [
+     "उस model के service manual में वह code देखें",
+     "तुरंत PCB बदल दें",
+     "Gas भरकर restart करें",
+     "चलने तक बार-बार restart करें"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-029",
+   "topic": "Troubleshooting",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "The clamp meter shows the compressor drawing far more than rated current, with high pressure. The outdoor coil is clean. What may be wrong?",
+   "options": [
+    "Gas charge is low",
+    "Gas overcharged or air in the system",
+    "Indoor filter is clean",
+    "Room temperature is low"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "Clamp meter లో compressor rated కంటే చాలా ఎక్కువ current తీసుకుంటోంది, pressure కూడా ఎక్కువ. Outdoor coil శుభ్రంగా ఉంది. ఏం తప్పు కావచ్చు?",
+    "options": [
+     "Gas తక్కువగా ఉంది",
+     "Gas ఎక్కువ నింపారు లేదా system లో గాలి ఉంది",
+     "Indoor filter శుభ్రంగా ఉంది",
+     "గది temperature తక్కువ"
+    ]
+   },
+   "hi": {
+    "q": "Clamp meter में compressor rated से बहुत ज़्यादा current ले रहा है और pressure भी ज़्यादा है। Outdoor coil साफ है। क्या गड़बड़ हो सकती है?",
+    "options": [
+     "Gas कम है",
+     "Gas ज़्यादा भरी है या system में हवा है",
+     "Indoor filter साफ है",
+     "कमरे का temperature कम है"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-030",
+   "topic": "Troubleshooting",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "While charging gas on a non-inverter split AC, which readings tell you the charge is right?",
+   "options": [
+    "The pipe feels cold to touch",
+    "The AC sounds quieter",
+    "Suction pressure and current match the maker's figures",
+    "The hissing sound stops"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "Non-inverter split AC కి gas నింపేటప్పుడు, charge సరిగ్గా ఉందని ఏ readings చెప్తాయి?",
+    "options": [
+     "Pipe ముట్టుకుంటే చల్లగా ఉండటం",
+     "AC శబ్దం తగ్గడం",
+     "Suction pressure, current కంపెనీ figures కి సరిపోవాలి",
+     "Hiss శబ్దం ఆగిపోవడం"
+    ]
+   },
+   "hi": {
+    "q": "Non-inverter split AC में gas भरते समय कौन सी readings बताती हैं कि charge सही है?",
+    "options": [
+     "Pipe छूने पर ठंडा लगे",
+     "AC की आवाज़ कम हो जाए",
+     "Suction pressure और current company के figures से मिलें",
+     "सीटी की आवाज़ बंद हो जाए"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-031",
+   "topic": "Servicing and maintenance",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "In dusty Indian cities in summer, how often should a home split AC filter be cleaned?",
+   "options": [
+    "Every 2 to 4 weeks",
+    "Once in 2 years",
+    "Never; it cleans itself",
+    "Only when the AC stops"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "వేసవిలో దుమ్ము ఎక్కువ ఉండే నగరాల్లో ఇంటి split AC filter ఎంత తరచుగా శుభ్రం చేయాలి?",
+    "options": [
+     "ప్రతి 2 నుండి 4 వారాలకు",
+     "2 సంవత్సరాలకు ఒకసారి",
+     "ఎప్పుడూ వద్దు; అదే శుభ్రం అవుతుంది",
+     "AC ఆగిపోయినప్పుడు మాత్రమే"
+    ]
+   },
+   "hi": {
+    "q": "गर्मियों में धूल वाले शहरों में घर के split AC का filter कितनी बार साफ करना चाहिए?",
+    "options": [
+     "हर 2 से 4 हफ्ते में",
+     "2 साल में एक बार",
+     "कभी नहीं; अपने आप साफ होता है",
+     "सिर्फ AC बंद होने पर"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-032",
+   "topic": "Servicing and maintenance",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Before jet servicing an indoor unit, what must you protect first?",
+   "options": [
+    "The remote control",
+    "The wall clock",
+    "The PCB and wiring, by covering them",
+    "The ceiling fan"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "Indoor unit jet service చేసే ముందు మొదట దేనిని కాపాడాలి?",
+    "options": [
+     "Remote control",
+     "గోడ గడియారం",
+     "PCB, wiring ని కప్పి కాపాడాలి",
+     "Ceiling fan"
+    ]
+   },
+   "hi": {
+    "q": "Indoor unit की jet service से पहले सबसे पहले किसे बचाना ज़रूरी है?",
+    "options": [
+     "Remote control",
+     "दीवार घड़ी",
+     "PCB और wiring को ढककर",
+     "छत का पंखा"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-033",
+   "topic": "Servicing and maintenance",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Many condenser fins are bent flat. What do you do?",
+   "options": [
+    "Leave them; it does not matter",
+    "Straighten them with a fin comb",
+    "Hammer them flat",
+    "Cut off the bent part"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "Condenser fins చాలా చోట్ల వంగి చదునుగా అయిపోయాయి. ఏం చేస్తారు?",
+    "options": [
+     "వదిలేస్తాను; పర్వాలేదు",
+     "Fin comb తో సరిచేస్తాను",
+     "Hammer తో చదును చేస్తాను",
+     "వంగిన భాగం కోసేస్తాను"
+    ]
+   },
+   "hi": {
+    "q": "Condenser के कई fins दबकर चपटे हो गए हैं। आप क्या करेंगे?",
+    "options": [
+     "छोड़ दूंगा; फर्क नहीं पड़ता",
+     "Fin comb से सीधा करूंगा",
+     "Hammer से चपटा कर दूंगा",
+     "मुड़ा हिस्सा काट दूंगा"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-034",
+   "topic": "Servicing and maintenance",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "When washing an outdoor coil with a pressure pump, how should the water hit it?",
+   "options": [
+    "Full pressure, sideways across the fins",
+    "Hot water at high pressure",
+    "Gently, along the fins, not across them",
+    "From very close at full pressure"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "Pressure pump తో outdoor coil కడిగేటప్పుడు నీళ్ళు ఎలా కొట్టాలి?",
+    "options": [
+     "పూర్తి pressure తో fins కి అడ్డంగా",
+     "ఎక్కువ pressure తో వేడి నీళ్ళు",
+     "మెల్లగా, fins వెంబడి, అడ్డంగా కాదు",
+     "చాలా దగ్గర నుండి పూర్తి pressure"
+    ]
+   },
+   "hi": {
+    "q": "Pressure pump से outdoor coil धोते समय पानी कैसे मारना चाहिए?",
+    "options": [
+     "पूरे pressure से fins के आर-पार",
+     "तेज़ pressure से गरम पानी",
+     "धीरे से, fins की दिशा में, आर-पार नहीं",
+     "बहुत पास से पूरे pressure पर"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-035",
+   "topic": "Servicing and maintenance",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A compressor burnt out and the oil smells burnt. Before fitting the new compressor, what should you do?",
+   "options": [
+    "Flush the system and fit a new filter drier",
+    "Just swap the compressor",
+    "Only add extra oil",
+    "Reuse the old filter drier"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "Compressor కాలిపోయింది, oil కాలిన వాసన వస్తోంది. కొత్త compressor పెట్టే ముందు ఏం చేయాలి?",
+    "options": [
+     "System ని flush చేసి కొత్త filter drier పెట్టాలి",
+     "Compressor మాత్రమే మార్చాలి",
+     "అదనంగా oil మాత్రమే పోయాలి",
+     "పాత filter drier నే మళ్ళీ వాడాలి"
+    ]
+   },
+   "hi": {
+    "q": "Compressor जल गया और तेल से जली हुई गंध आ रही है। नया compressor लगाने से पहले क्या करें?",
+    "options": [
+     "System को flush करें और नया filter drier लगाएं",
+     "बस compressor बदल दें",
+     "सिर्फ अतिरिक्त तेल डालें",
+     "पुराना filter drier फिर लगाएं"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-036",
+   "topic": "Servicing and maintenance",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "When you replace a run capacitor, what must match the old one?",
+   "options": [
+    "Only the colour and size",
+    "Only the brand name",
+    "The µF value and voltage rating",
+    "Any higher µF works better"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "Run capacitor మార్చేటప్పుడు పాత దానితో ఏది సరిపోవాలి?",
+    "options": [
+     "రంగు, size మాత్రమే",
+     "Brand పేరు మాత్రమే",
+     "µF విలువ, voltage rating",
+     "ఎక్కువ µF ఏదైనా ఇంకా బాగా పనిచేస్తుంది"
+    ]
+   },
+   "hi": {
+    "q": "Run capacitor बदलते समय पुराने से क्या मिलना चाहिए?",
+    "options": [
+     "सिर्फ रंग और size",
+     "सिर्फ brand का नाम",
+     "µF value और voltage rating",
+     "ज़्यादा µF वाला कोई भी बेहतर चलेगा"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-037",
+   "topic": "Customer handling",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "You reach a customer's home for a service call. What should you do first?",
+   "options": [
+    "Greet them, show your ID, ask about the problem",
+    "Start opening the unit straight away",
+    "Tell them the price before listening",
+    "Ask for payment before starting"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "Service call కోసం customer ఇంటికి వెళ్ళారు. మొదట ఏం చేయాలి?",
+    "options": [
+     "నమస్కారం చెప్పి, ID చూపించి, సమస్య ఏంటో అడగాలి",
+     "వెంటనే unit తెరవడం మొదలుపెట్టాలి",
+     "వినకముందే ధర చెప్పాలి",
+     "మొదలుపెట్టే ముందే డబ్బు అడగాలి"
+    ]
+   },
+   "hi": {
+    "q": "Service call पर customer के घर पहुंचे। सबसे पहले क्या करें?",
+    "options": [
+     "नमस्ते करें, ID दिखाएं, समस्या पूछें",
+     "सीधे unit खोलना शुरू करें",
+     "सुनने से पहले दाम बता दें",
+     "शुरू करने से पहले पैसे मांगें"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-038",
+   "topic": "Customer handling",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "The customer pays you by UPI. What should you do before leaving?",
+   "options": [
+    "Leave once they show their phone screen",
+    "Check the money has come in and give a bill",
+    "Ask for cash as well, to be safe",
+    "Trust them and leave"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "Customer UPI తో డబ్బు కట్టారు. వెళ్ళే ముందు ఏం చేయాలి?",
+    "options": [
+     "వాళ్ళ phone screen చూపిస్తే వెళ్ళిపోవాలి",
+     "డబ్బు వచ్చిందో చూసుకుని bill ఇవ్వాలి",
+     "సేఫ్టీ కోసం cash కూడా అడగాలి",
+     "నమ్మి వెళ్ళిపోవాలి"
+    ]
+   },
+   "hi": {
+    "q": "Customer ने UPI से पैसे दिए। जाने से पहले क्या करें?",
+    "options": [
+     "Phone की screen दिखा दे तो चले जाएं",
+     "पैसे आए हैं, यह जांचें और bill दें",
+     "सुरक्षा के लिए cash भी मांग लें",
+     "भरोसा करके चले जाएं"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-039",
+   "topic": "Customer handling",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A customer asks you to just fill gas, as every summer. You find a leak. What do you say?",
+   "options": [
+    "The leak must be fixed first, then gas will hold",
+    "Fill gas as asked; it is their choice",
+    "Refuse the job and leave",
+    "Fill extra gas so it lasts longer"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "ప్రతి వేసవిలాగే gas నింపమని customer అడుగుతున్నారు. మీకు leak కనిపించింది. ఏం చెప్తారు?",
+    "options": [
+     "ముందు leak సరిచేయాలి, అప్పుడే gas నిలుస్తుంది",
+     "అడిగినట్టే gas నింపుతాను; వాళ్ళ ఇష్టం",
+     "పని వద్దని వెళ్ళిపోతాను",
+     "ఎక్కువ రోజులు రావడానికి extra gas నింపుతాను"
+    ]
+   },
+   "hi": {
+    "q": "Customer कहता है हर गर्मी की तरह बस gas भर दो। आपको leak मिली। आप क्या कहेंगे?",
+    "options": [
+     "पहले leak ठीक करनी होगी, तभी gas टिकेगी",
+     "जैसा कहा वैसे gas भर दूंगा; उनकी मर्ज़ी",
+     "काम छोड़कर चला जाऊंगा",
+     "ज़्यादा दिन चले इसलिए extra gas भर दूंगा"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-040",
+   "topic": "Customer handling",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A customer asks why the bill is more than the visiting charge. What is right?",
+   "options": [
+    "Say it is the company rate, no details",
+    "Cut the price to avoid an argument",
+    "Tell them to pay whatever they like",
+    "Explain each part and job with a clear bill"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "Bill visiting charge కంటే ఎక్కువ ఎందుకు అని customer అడుగుతున్నారు. ఏది సరైనది?",
+    "options": [
+     "Company rate అని చెప్పి వివరాలు చెప్పకూడదు",
+     "గొడవ వద్దని ధర తగ్గించాలి",
+     "ఎంత ఇష్టమైతే అంత ఇవ్వమనాలి",
+     "స్పష్టమైన bill తో ప్రతి part, పని వివరించాలి"
+    ]
+   },
+   "hi": {
+    "q": "Customer पूछता है कि bill visiting charge से ज़्यादा क्यों है। सही क्या है?",
+    "options": [
+     "Company rate है कहकर कुछ न बताएं",
+     "बहस से बचने को दाम घटा दें",
+     "कहें जितना मन हो दे दो",
+     "साफ bill के साथ हर part और काम समझाएं"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-041",
+   "topic": "Customer handling",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "After a jet service, dirty water has stained the customer's wall and floor. What do you do?",
+   "options": [
+    "Leave; dirt is normal in service",
+    "Clean it up before leaving and say sorry",
+    "Charge extra for the cleaning",
+    "Tell them it will dry on its own"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "Jet service తర్వాత మురికి నీళ్ళు customer గోడ, నేల మీద మరకలు చేశాయి. ఏం చేస్తారు?",
+    "options": [
+     "వెళ్ళిపోతాను; service లో మురికి మామూలే",
+     "వెళ్ళే ముందు శుభ్రం చేసి sorry చెప్తాను",
+     "శుభ్రం చేయడానికి extra charge చేస్తాను",
+     "అదే ఆరిపోతుందని చెప్తాను"
+    ]
+   },
+   "hi": {
+    "q": "Jet service के बाद गंदे पानी से customer की दीवार और फर्श पर दाग लग गए। आप क्या करेंगे?",
+    "options": [
+     "चला जाऊंगा; service में गंदगी आम है",
+     "जाने से पहले साफ करूंगा और sorry बोलूंगा",
+     "सफाई का extra charge लूंगा",
+     "कहूंगा अपने आप सूख जाएगा"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-042",
+   "topic": "Customer handling",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A customer wants you to install a second-hand AC bought from a neighbour. What is good practice?",
+   "options": [
+    "Install it without checking",
+    "Refuse to touch used ACs",
+    "Promise it will run for five years",
+    "Check it first and tell them honestly what works"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "పొరుగువారి నుండి కొన్న second-hand AC ని install చేయమని customer అడుగుతున్నారు. మంచి పద్ధతి ఏది?",
+    "options": [
+     "చెక్ చేయకుండా install చేయాలి",
+     "వాడిన AC లు ముట్టుకోనని చెప్పాలి",
+     "ఐదేళ్ళు నడుస్తుందని హామీ ఇవ్వాలి",
+     "ముందు చెక్ చేసి, ఏది పనిచేస్తుందో ఏది చేయదో స్పష్టంగా చెప్పాలి"
+    ]
+   },
+   "hi": {
+    "q": "Customer पड़ोसी से खरीदा second-hand AC लगवाना चाहता है। अच्छा तरीका क्या है?",
+    "options": [
+     "बिना जांचे लगा दें",
+     "पुराने AC को हाथ न लगाएं",
+     "पांच साल चलने का वादा करें",
+     "पहले जांचें और साफ बताएं क्या ठीक है, क्या नहीं"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-043",
+   "topic": "Customer handling",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A customer insists you fit the outdoor unit on an old, cracked wall stand. What do you do?",
+   "options": [
+    "Fit it there as the customer wishes",
+    "Fit it and tie a rope for extra hold",
+    "Explain the danger and fit only on a safe stand",
+    "Take extra money and fit it there"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "పాత, పగిలిన గోడ stand మీదే outdoor unit పెట్టమని customer పట్టుబడుతున్నారు. ఏం చేస్తారు?",
+    "options": [
+     "Customer ఇష్టం కాబట్టి అక్కడే పెడతాను",
+     "అక్కడే పెట్టి అదనపు పట్టు కోసం తాడు కడతాను",
+     "ప్రమాదం వివరించి, సురక్షితమైన stand మీదే పెడతాను",
+     "Extra డబ్బు తీసుకుని అక్కడే పెడతాను"
+    ]
+   },
+   "hi": {
+    "q": "Customer ज़िद कर रहा है कि outdoor unit पुराने, टूटे दीवार stand पर ही लगाओ। आप क्या करेंगे?",
+    "options": [
+     "Customer की मर्ज़ी है, वहीं लगा दूंगा",
+     "वहीं लगाकर extra पकड़ के लिए रस्सी बांध दूंगा",
+     "खतरा समझाऊंगा और सिर्फ सुरक्षित stand पर लगाऊंगा",
+     "Extra पैसे लेकर वहीं लगा दूंगा"
+    ]
+   }
+  },
+  {
+   "id": "ac-tech-044",
+   "topic": "Customer handling",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A customer says the AC is not cooling. The room is large and sun-facing, and the AC is only 1 ton. Everything checks fine. What do you do?",
+   "options": [
+    "Explain the AC is too small and suggest the right tonnage",
+    "Add more gas to boost cooling",
+    "Replace the compressor",
+    "Say nothing and leave"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "AC చల్లబరచడం లేదని customer అంటున్నారు. గది పెద్దది, ఎండ పడే వైపు, AC 1 ton మాత్రమే. అన్నీ బాగానే ఉన్నాయి. ఏం చేస్తారు?",
+    "options": [
+     "AC చిన్నదని వివరించి సరైన tonnage సూచిస్తాను",
+     "Cooling పెంచడానికి ఇంకా gas నింపుతాను",
+     "Compressor మారుస్తాను",
+     "ఏమీ చెప్పకుండా వెళ్ళిపోతాను"
+    ]
+   },
+   "hi": {
+    "q": "Customer कहता है AC ठंडा नहीं करता। कमरा बड़ा है, धूप वाली तरफ है, और AC सिर्फ 1 ton का है। सब कुछ ठीक मिला। आप क्या करेंगे?",
+    "options": [
+     "समझाऊंगा कि AC छोटा है और सही tonnage बताऊंगा",
+     "Cooling बढ़ाने को और gas भरूंगा",
+     "Compressor बदल दूंगा",
+     "कुछ कहे बिना चला जाऊंगा"
+    ]
+   }
+  }
+ ],
+ "task": {
+  "type": "proof",
+  "title": "AC service and safety check, with an optional photo of your work",
+  "brief": "This takes about 10 minutes. First answer the picture-style questions about safe and correct AC installation and service. Pick the answer you would really follow on the job. Then, if you like, upload one clear photo of an AC you installed or serviced (neat piping, outdoor stand, flare joints, wiring) or your ITI / refrigeration certificate. Do not show any faces in the photo. Add one or two lines: what the job was, the AC type and gas, and one safety step you took. The photo is optional, but it helps employers trust your skill.",
+  "minutes": 10,
+  "key_points": [
+   "Photo shows real AC installation or service work, or a certificate",
+   "No faces in the photo",
+   "Says what the job was, the AC type and gas used",
+   "Mentions a safety step taken",
+   "Work looks neat: proper piping, drain slope, secure stand and wiring"
+  ],
+  "rubric": [
+   {
+    "key": "relevance",
+    "label": "Relevance",
+    "guide": "0 = no photo or not AC work, 3 = AC work but unclear, 5 = clear photo of the candidate's own AC job or certificate"
+   },
+   {
+    "key": "genuineness",
+    "label": "Genuineness",
+    "guide": "0 = looks copied from the internet, 3 = plausible but no details, 5 = clearly own work with job details that fit the photo"
+   },
+   {
+    "key": "quality",
+    "label": "Work quality",
+    "guide": "0 = messy or unsafe fitting, 3 = acceptable, 5 = neat piping, insulation, stand and wiring"
+   },
+   {
+    "key": "safety",
+    "label": "Safety",
+    "guide": "0 = unsafe practice shown or faces visible, 3 = no issues seen, 5 = safety steps clearly described or visible"
+   }
+  ],
+  "situations": [
+   {
+    "q": "Picture: three ways of using a ladder to fit an indoor unit. Which is safe?",
+    "options": [
+     "Half opened and leaned on the wall",
+     "Fully opened on a flat floor, a helper holding it",
+     "A chair placed on top of a table"
+    ],
+    "answer": 1,
+    "topic": "Safety",
+    "te": {
+     "q": "చిత్రం: indoor unit పెట్టడానికి ladder ని మూడు రకాలుగా వాడుతున్నారు. ఏది సురక్షితం?",
+     "options": [
+      "సగం తెరిచి గోడకి ఆనించి",
+      "చదునైన నేల మీద పూర్తిగా తెరిచి, helper పట్టుకుని",
+      "Table మీద కుర్చీ పెట్టి"
+     ]
+    },
+    "hi": {
+     "q": "चित्र: indoor unit लगाने के लिए ladder तीन तरह से लगी है। कौन सी सुरक्षित है?",
+     "options": [
+      "आधी खुली, दीवार से टिकाई हुई",
+      "समतल फर्श पर पूरी खुली, helper पकड़े हुए",
+      "Table के ऊपर कुर्सी रखकर"
+     ]
+    }
+   },
+   {
+    "q": "How should an outdoor unit with a compressor be carried up the stairs?",
+    "options": [
+     "On its side, by one person",
+     "Upside down, held by the legs",
+     "Upright, by two people"
+    ],
+    "answer": 2,
+    "topic": "Installation",
+    "te": {
+     "q": "Compressor ఉన్న outdoor unit ని మెట్లు ఎక్కి ఎలా తీసుకెళ్ళాలి?",
+     "options": [
+      "పక్కకు పడుకోబెట్టి, ఒక్కరే",
+      "తలకిందులుగా, కాళ్ళు పట్టుకుని",
+      "నిలువుగా, ఇద్దరు కలిసి"
+     ]
+    },
+    "hi": {
+     "q": "Compressor वाले outdoor unit को सीढ़ियों से ऊपर कैसे ले जाएं?",
+     "options": [
+      "करवट लिटाकर, एक आदमी",
+      "उल्टा करके, पैर पकड़कर",
+      "सीधा खड़ा, दो लोग मिलकर"
+     ]
+    }
+   },
+   {
+    "q": "Picture: three copper pipe bends. Which is right?",
+    "options": [
+     "Smooth bend made with a pipe bender",
+     "Sharp bend pressed by hand",
+     "Kinked pipe with tape over it"
+    ],
+    "answer": 0,
+    "topic": "Installation",
+    "te": {
+     "q": "చిత్రం: మూడు copper pipe వంపులు. ఏది సరైనది?",
+     "options": [
+      "Pipe bender తో చేసిన మెత్తటి వంపు",
+      "చేతితో నొక్కిన పదునైన వంపు",
+      "నలిగిన pipe మీద tape చుట్టినది"
+     ]
+    },
+    "hi": {
+     "q": "चित्र: copper pipe के तीन मोड़। कौन सा सही है?",
+     "options": [
+      "Pipe bender से बना गोल मोड़",
+      "हाथ से दबाकर बना तीखा मोड़",
+      "पिचकी pipe पर tape लपेटी हुई"
+     ]
+    }
+   },
+   {
+    "q": "Picture: three power connections for an AC. Which one is safe?",
+    "options": [
+     "Wires twisted with tape, no earth",
+     "Bare wires pushed into the socket",
+     "Wires tight in the terminal, earth connected"
+    ],
+    "answer": 2,
+    "topic": "Safety",
+    "te": {
+     "q": "చిత్రం: AC కి మూడు రకాల power connections. ఏది సురక్షితం?",
+     "options": [
+      "Wires మెలిపెట్టి tape చుట్టారు, earth లేదు",
+      "బయటి wires ని నేరుగా socket లో దూర్చారు",
+      "Terminal లో wires గట్టిగా, earth కలిపి ఉంది"
+     ]
+    },
+    "hi": {
+     "q": "चित्र: AC के तीन तरह के power connection। कौन सा सुरक्षित है?",
+     "options": [
+      "तार मरोड़कर tape लगी, earth नहीं",
+      "नंगे तार सीधे socket में घुसाए",
+      "Terminal में तार कसे हुए, earth जुड़ा हुआ"
+     ]
+    }
+   },
+   {
+    "q": "While charging, the gauge needle goes into the red zone. What do you do?",
+    "options": [
+     "Keep filling until it is cold",
+     "Stop and check; pressure is too high",
+     "Tap the gauge and carry on"
+    ],
+    "answer": 1,
+    "topic": "Refrigerant and gas",
+    "te": {
+     "q": "Gas నింపేటప్పుడు gauge ముల్లు red zone లోకి వెళ్ళింది. ఏం చేస్తారు?",
+     "options": [
+      "చల్లబడే వరకు నింపుతూనే ఉంటాను",
+      "ఆపి చెక్ చేస్తాను; pressure చాలా ఎక్కువ",
+      "Gauge మీద తట్టి కొనసాగిస్తాను"
+     ]
+    },
+    "hi": {
+     "q": "Gas भरते समय gauge की सुई red zone में चली गई। आप क्या करेंगे?",
+     "options": [
+      "ठंडा होने तक भरता रहूंगा",
+      "रुककर जांच करूंगा; pressure बहुत ज़्यादा है",
+      "Gauge को थपथपाकर चालू रखूंगा"
+     ]
+    }
+   },
+   {
+    "q": "Picture: three places for an outdoor unit. Which is right?",
+    "options": [
+     "Shaded spot with free air all around",
+     "Inside a closed wooden box",
+     "Facing a wall just 10 cm away"
+    ],
+    "answer": 0,
+    "topic": "Installation",
+    "te": {
+     "q": "చిత్రం: outdoor unit కి మూడు స్థలాలు. ఏది సరైనది?",
+     "options": [
+      "చుట్టూ గాలి ఆడే నీడ ఉన్న చోటు",
+      "మూసి ఉన్న చెక్క box లోపల",
+      "కేవలం 10 cm దూరంలో ఉన్న గోడ వైపు"
+     ]
+    },
+    "hi": {
+     "q": "चित्र: outdoor unit के लिए तीन जगहें। कौन सी सही है?",
+     "options": [
+      "छाया वाली जगह जहां चारों ओर हवा चले",
+      "बंद लकड़ी के box के अंदर",
+      "सिर्फ 10 cm दूर दीवार की तरफ मुंह करके"
+     ]
+    }
+   },
+   {
+    "q": "How should a gas cylinder travel in your service van?",
+    "options": [
+     "Lying loose on the floor",
+     "Upright and tied, away from heat",
+     "Next to the engine to keep warm"
+    ],
+    "answer": 1,
+    "topic": "Safety",
+    "te": {
+     "q": "మీ service van లో gas cylinder ని ఎలా తీసుకెళ్ళాలి?",
+     "options": [
+      "నేల మీద వదులుగా పడుకోబెట్టి",
+      "నిలువుగా కట్టి, వేడికి దూరంగా",
+      "వెచ్చగా ఉండటానికి engine పక్కన"
+     ]
+    },
+    "hi": {
+     "q": "Service van में gas cylinder कैसे ले जाना चाहिए?",
+     "options": [
+      "फर्श पर खुला लिटाकर",
+      "सीधा खड़ा करके बांधा हुआ, गर्मी से दूर",
+      "गरम रखने को engine के पास"
+     ]
+    }
+   }
+  ]
+ }
+}

@@ -1,0 +1,461 @@
+{
+ "slug": "java",
+ "version": 1,
+ "topics": [
+  "Basics and syntax",
+  "OOP",
+  "Strings and collections",
+  "Exceptions and debugging",
+  "Advanced Java and Spring"
+ ],
+ "questions": [
+  {
+   "id": "java-001",
+   "topic": "Strings and collections",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which collection stores key–value pairs, such as PIN code to city name?",
+   "options": [
+    "ArrayList",
+    "HashMap",
+    "HashSet",
+    "LinkedList"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "java-002",
+   "topic": "Exceptions and debugging",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which block runs whether or not an exception was thrown?",
+   "options": [
+    "catch",
+    "throw",
+    "else",
+    "finally"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "java-003",
+   "topic": "OOP",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which keyword does a class use to take on an interface?",
+   "options": [
+    "implements",
+    "extends",
+    "uses",
+    "inherits"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "java-004",
+   "topic": "Advanced Java and Spring",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does the JVM do?",
+   "options": [
+    "Writes Java code for you",
+    "Stores the app's database tables",
+    "Runs compiled Java bytecode",
+    "Designs the user interface screens"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "java-005",
+   "topic": "Basics and syntax",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which type fits a whole number such as a stock quantity of 250?",
+   "options": [
+    "boolean",
+    "char",
+    "int",
+    "String"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "java-006",
+   "topic": "Exceptions and debugging",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What usually causes a NullPointerException?",
+   "options": [
+    "Using a method or field on a reference that is null",
+    "Dividing an int by zero",
+    "Creating an array that is too large",
+    "Leaving out a semicolon"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "java-007",
+   "topic": "Exceptions and debugging",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is the difference between checked and unchecked exceptions?",
+   "options": [
+    "Checked ones never happen at run time",
+    "Unchecked ones stop the code compiling",
+    "There has been no difference since Java 8",
+    "Checked must be caught or declared; unchecked need not be"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "java-008",
+   "topic": "Exceptions and debugging",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why open a database Connection with try-with-resources?",
+   "options": [
+    "Queries inside it run faster",
+    "It is closed automatically, even if an exception is thrown",
+    "Failed queries are retried by itself",
+    "SQL errors are hidden from the logs"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "java-009",
+   "topic": "Exceptions and debugging",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Production logs show OutOfMemoryError after the app has run for two days. What do you suspect first?",
+   "options": [
+    "A memory leak, such as a static collection that keeps growing",
+    "A missing semicolon in a rarely used class",
+    "A for-loop counter that ends one step early",
+    "The log file on the server has grown too big"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "java-010",
+   "topic": "Strings and collections",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which collection refuses duplicates and gives fast lookups?",
+   "options": [
+    "ArrayList",
+    "LinkedList",
+    "HashSet",
+    "An int array"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "java-011",
+   "topic": "Strings and collections",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "You remove items from an ArrayList inside a for-each loop over that same list. What usually happens?",
+   "options": [
+    "The items are removed safely",
+    "A ConcurrentModificationException",
+    "The loop starts again from the top",
+    "A compile-time error"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "java-012",
+   "topic": "Strings and collections",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Employee objects are HashMap keys. equals() is overridden but hashCode() is not. What goes wrong?",
+   "options": [
+    "The code does not compile at all",
+    "The HashMap starts sorting its keys",
+    "Nothing, because hashCode() is never used",
+    "Lookups can fail, since equal keys may land in different buckets"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "java-013",
+   "topic": "Strings and collections",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why use StringBuilder to build a long string inside a loop?",
+   "options": [
+    "It encrypts the text as it is built",
+    "It changes one buffer instead of making a new String each time",
+    "String has no + operator in Java",
+    "It is the only way to print text"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "java-014",
+   "topic": "OOP",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A child class gives its own version of a parent method with the same signature. What is this called?",
+   "options": [
+    "Overloading",
+    "Encapsulation",
+    "Abstraction",
+    "Overriding"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "java-015",
+   "topic": "OOP",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is an abstract class?",
+   "options": [
+    "A class you can't instantiate, which may have abstract methods",
+    "A class that has no fields at all",
+    "A class that no other class can extend",
+    "A class that the JVM loads before others"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "java-016",
+   "topic": "OOP",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which declaration best follows the idea 'program to an interface'?",
+   "options": [
+    "ArrayList<String> names = new ArrayList<>();",
+    "Object names = new ArrayList<String>();",
+    "List<String> names = new ArrayList<>();",
+    "String[] names = new String[10];"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "java-017",
+   "topic": "Basics and syntax",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A class has an int field that is never set. What is its value when the object is created?",
+   "options": [
+    "null",
+    "undefined",
+    "0",
+    "-1"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "java-018",
+   "topic": "Basics and syntax",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Integer a = 1000, b = 1000; a == b is often false. Why?",
+   "options": [
+    "== compares object references, not values; use equals()",
+    "1000 is too big for an Integer",
+    "Integer objects can't be compared",
+    "Autoboxing rounds both numbers"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "java-019",
+   "topic": "Advanced Java and Spring",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What does list.stream().filter(x -> x > 100).count() do?",
+   "options": [
+    "Removes items over 100 from the list",
+    "Adds 100 to every item",
+    "Sorts items above 100 first",
+    "Counts the items greater than 100"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "java-020",
+   "topic": "Advanced Java and Spring",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Two threads each run count++ 1,000 times on a shared int. The final value is often below 2,000. Why?",
+   "options": [
+    "Each thread runs its loop only once",
+    "count++ is not atomic, so updates get lost; use AtomicInteger or a lock",
+    "An int overflows after 1,000",
+    "The JVM skips odd numbers between threads"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "java-021",
+   "topic": "Advanced Java and Spring",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "In Spring Boot, what does @Autowired on a constructor do?",
+   "options": [
+    "Spring supplies the needed beans when it creates the object",
+    "It runs the class once when the app starts",
+    "It turns the class into a REST endpoint",
+    "It creates the SQL tables automatically"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "java-022",
+   "topic": "Advanced Java and Spring",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A method may not find a user for a given mobile number. Which way of using Optional is right?",
+   "options": [
+    "Return Optional.of(null) when no user is found",
+    "Call get() on the result without checking",
+    "Return Optional<User>; the caller uses orElse or orElseThrow",
+    "Return null and wrap it in a list"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "java-023",
+   "topic": "Advanced Java and Spring",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A REST endpoint loops over 500 orders and runs one database query per order. It is slow. What is the best fix?",
+   "options": [
+    "Add Thread.sleep() between the queries",
+    "Fetch the needed rows in one query (a join or IN list)",
+    "Give the server more RAM",
+    "Catch the timeout and retry the loop"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "java-024",
+   "topic": "Basics and syntax",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why use BigDecimal rather than double for invoice amounts in ₹?",
+   "options": [
+    "double can't hold amounts above ₹10 lakh",
+    "BigDecimal arithmetic is faster",
+    "double is not allowed from Java 17",
+    "double stores many decimals inexactly, causing rounding errors"
+   ],
+   "answer": 3
+  }
+ ],
+ "existing": {
+  "Which method does a Java program start from?": {
+   "topic": "Basics and syntax"
+  },
+  "Which keyword makes a new object?": {
+   "topic": "OOP"
+  },
+  "Which type holds true or false?": {
+   "topic": "Basics and syntax"
+  },
+  "A Java statement usually ends with…": {
+   "topic": "Basics and syntax"
+  },
+  "Which prints a line on the console?": {
+   "topic": "Basics and syntax"
+  },
+  "int x = 7 / 2; What is x?": {
+   "topic": "Basics and syntax"
+  },
+  "Which is a String in Java?": {
+   "topic": "Basics and syntax"
+  },
+  "Which loop suits code that must run exactly 10 times?": {
+   "topic": "Basics and syntax"
+  },
+  "In class Dog extends Animal, what does extends do?": {
+   "topic": "OOP"
+  },
+  "Which compares the text of two Strings a and b?": {
+   "topic": "Strings and collections"
+  },
+  "int[] a = {4, 5, 6}; What is a.length?": {
+   "topic": "Strings and collections"
+  },
+  "Which collection keeps items in order and allows duplicates?": {
+   "topic": "Strings and collections"
+  },
+  "What does private mean on a field?": {
+   "topic": "OOP"
+  },
+  "What does a constructor do?": {
+   "topic": "OOP"
+  },
+  "Which keyword leaves a loop at once?": {
+   "topic": "Basics and syntax"
+  },
+  "What happens with int y = 5 / 0;?": {
+   "topic": "Exceptions and debugging"
+  },
+  "String s = \"Java\"; s.toUpperCase(); System.out.println(s); prints…": {
+   "topic": "Strings and collections"
+  },
+  "Which is true?": {
+   "topic": "OOP"
+  },
+  "m is a HashMap. m.put(\"a\", 1); m.put(\"a\", 2); What is m.get(\"a\")?": {
+   "topic": "Strings and collections"
+  },
+  "What does static mean on a method?": {
+   "topic": "OOP"
+  },
+  "Which handles an exception?": {
+   "topic": "Exceptions and debugging"
+  },
+  "Method overloading is…": {
+   "topic": "OOP"
+  },
+  "Which mistake does the compiler catch?": {
+   "topic": "Exceptions and debugging"
+  },
+  "What does final do on a variable?": {
+   "topic": "Basics and syntax"
+  }
+ },
+ "task": {
+  "type": "tech",
+  "title": "Review and fix a buggy Java order-service method",
+  "brief": "Below is a short Java method from an order service. It should remove cancelled orders and return the average order value for one city, but it crashes sometimes and gives wrong numbers. In 20 to 25 minutes: (1) list each bug or risk and explain what goes wrong at run time, (2) write a corrected version of the method, and (3) say how you would test it (a few cases with expected results). No code is run, so explain your reasoning.",
+  "minutes": 25,
+  "material": "// Part of an order service for a grocery delivery app.\n// Getters: getStatus() returns a String such as \"PAID\" or \"CANCELLED\",\n// getCity() returns a String (it can be null for old orders),\n// getAmount() returns an int amount in rupees.\n\npublic class OrderService {\n    private List<Order> orders = new ArrayList<>();\n\n    // Remove cancelled orders, then return the average order value\n    // (in rupees, with paise) for orders in the given city.\n    public double cleanAndAverage(String cityFilter) {\n        int total = 0;\n        for (Order o : orders) {\n            if (o.getStatus() == \"CANCELLED\") {\n                orders.remove(o);\n            }\n        }\n        for (Order o : orders) {\n            if (o.getCity().equals(cityFilter)) {\n                total += o.getAmount();\n            }\n        }\n        return total / orders.size();\n    }\n}\n",
+  "key_points": [
+   "Strings compared with ==; should use \"CANCELLED\".equals(o.getStatus())",
+   "Removing from the list inside a for-each throws ConcurrentModificationException; use removeIf or an Iterator",
+   "o.getCity() can be null, causing NullPointerException; use cityFilter.equals(o.getCity()) or Objects.equals",
+   "Average divides by all orders, not by the number of orders in the city",
+   "Integer division drops paise; cast to double or use BigDecimal",
+   "Division by zero / empty list when no orders match must be handled",
+   "Suggests tests: no orders, all cancelled, null city, mixed cities with a known average"
+  ],
+  "rubric": [
+   {
+    "key": "correctness",
+    "label": "Bugs found and fixed",
+    "guide": "0 = finds none or fix still wrong, 3 = finds two or three main bugs, 5 = finds string compare, list removal, null city, wrong divisor and integer division, all fixed"
+   },
+   {
+    "key": "edge_cases",
+    "label": "Edge cases",
+    "guide": "0 = none mentioned, 3 = some, 5 = handles empty list, no match, null values and all-cancelled orders with tests"
+   },
+   {
+    "key": "explanation",
+    "label": "Explanation",
+    "guide": "0 = no reasons, 3 = reasons thin or partly wrong, 5 = each bug explained clearly with what happens at run time"
+   },
+   {
+    "key": "code_quality",
+    "label": "Code quality",
+    "guide": "0 = new bugs or unreadable, 3 = works but clumsy, 5 = clean, idiomatic Java (removeIf, streams or clear loops)"
+   }
+  ]
+ }
+}

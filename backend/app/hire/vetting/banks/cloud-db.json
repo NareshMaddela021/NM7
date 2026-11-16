@@ -1,0 +1,667 @@
+{
+ "slug": "cloud-db",
+ "version": 1,
+ "topics": [
+  "SQL queries",
+  "Schema design",
+  "Indexing and performance",
+  "Transactions and concurrency",
+  "Backup, replication and security"
+ ],
+ "questions": [
+  {
+   "id": "cloud-db-001",
+   "topic": "SQL queries",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which join returns every customer, including those who have never placed an order?",
+   "options": [
+    "customers INNER JOIN orders",
+    "customers LEFT JOIN orders",
+    "customers CROSS JOIN orders",
+    "customers RIGHT JOIN orders"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "cloud-db-002",
+   "topic": "SQL queries",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does COUNT(column) skip that COUNT(*) counts?",
+   "options": [
+    "Duplicate values",
+    "Zero values",
+    "Negative numbers",
+    "NULL values"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "cloud-db-003",
+   "topic": "SQL queries",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which filter for October 2026 orders can best use an index on order_date?",
+   "options": [
+    "order_date >= '2026-10-01' AND order_date < '2026-11-01'",
+    "MONTH(order_date) = 10 AND YEAR(order_date) = 2026",
+    "CAST(order_date AS CHAR) LIKE '2026-10%'",
+    "DATE_FORMAT(order_date, '%Y-%m') = '2026-10'"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "cloud-db-004",
+   "topic": "SQL queries",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does the condition WHERE city = NULL return?",
+   "options": [
+    "Rows where city is an empty string",
+    "All rows in the table",
+    "No rows, since NULL needs IS NULL",
+    "Rows where city is missing"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "cloud-db-005",
+   "topic": "SQL queries",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which keyword removes duplicate rows from a query result?",
+   "options": [
+    "LIMIT",
+    "HAVING",
+    "DISTINCT",
+    "UNION ALL"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "cloud-db-006",
+   "topic": "SQL queries",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY created_at DESC) is often used to get what?",
+   "options": [
+    "Each customer's latest row, filtering where it equals 1",
+    "The total number of rows per customer",
+    "A unique global ID for the table",
+    "The oldest order across all customers"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "cloud-db-007",
+   "topic": "SQL queries",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A GST report sums invoices.tax_amount after joining invoices to invoice_items. Totals come out two to three times too high. Why?",
+   "options": [
+    "SUM ignores the decimal part of amounts",
+    "GST amounts must be stored as text",
+    "The join should have been a CROSS JOIN",
+    "Invoice-level tax repeats on every item row after the join"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "cloud-db-008",
+   "topic": "SQL queries",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A query using NOT IN (SELECT referrer_id FROM users) returns no rows, though some users never referred anyone. What is the likely cause?",
+   "options": [
+    "NOT IN only works on numbers",
+    "The subquery has a NULL, so NOT IN is never true",
+    "The subquery needs an ORDER BY",
+    "NOT IN ignores duplicate values"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "cloud-db-009",
+   "topic": "SQL queries",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Which is the safest general way to find customers who have never ordered, even when columns contain NULLs?",
+   "options": [
+    "NOT IN on orders.customer_id with no null filter",
+    "NOT EXISTS with a correlated subquery on orders",
+    "An INNER JOIN where order_id IS NULL",
+    "COUNT(*) = 0 placed inside the WHERE clause"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "cloud-db-010",
+   "topic": "SQL queries",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A recursive CTE is the natural tool for which of these queries?",
+   "options": [
+    "Summing sales by month",
+    "Finding duplicate email addresses",
+    "Pivoting rows into columns",
+    "Listing every level of an employee-manager hierarchy"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "cloud-db-011",
+   "topic": "Schema design",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is a primary key?",
+   "options": [
+    "A column or set that uniquely identifies each row",
+    "The first column of any table",
+    "A column that must be numeric",
+    "An index that allows duplicates"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "cloud-db-012",
+   "topic": "Schema design",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Why keep customer addresses in a separate table when one customer can have many?",
+   "options": [
+    "Because addresses are always private",
+    "Because it makes every query faster",
+    "To model one-to-many without repeating groups",
+    "Because SQL cannot store long text"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "cloud-db-013",
+   "topic": "Schema design",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which data type suits money amounts in ₹ such as 1499.50?",
+   "options": [
+    "FLOAT",
+    "VARCHAR(20)",
+    "DECIMAL(12,2)",
+    "INTEGER"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "cloud-db-014",
+   "topic": "Schema design",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A table stores mobile numbers as BIGINT. What is the problem?",
+   "options": [
+    "Leading zeros and '+91' formats are lost",
+    "BIGINT is too small for 10 digits",
+    "Phone numbers cannot be indexed",
+    "BIGINT cannot be used in WHERE"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "cloud-db-015",
+   "topic": "Schema design",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "An orders table has columns product1, product2 and product3. A client now orders up to 20 products. What design do you suggest?",
+   "options": [
+    "Add columns product4 to product20",
+    "Store products as a comma-separated string",
+    "Create a new orders table for each client",
+    "An order_items table with one row per product"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "cloud-db-016",
+   "topic": "Schema design",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "An orders table keyed by order_id also holds customer_city, which depends on customer_id. Which normal form does this break?",
+   "options": [
+    "First normal form",
+    "Third normal form",
+    "Fifth normal form",
+    "Second normal form"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "cloud-db-017",
+   "topic": "Schema design",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What does a foreign key with ON DELETE RESTRICT do?",
+   "options": [
+    "Deletes the child rows automatically",
+    "Blocks deleting a parent row that still has children",
+    "Sets the child keys to NULL",
+    "Allows the delete but logs a warning"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "cloud-db-018",
+   "topic": "Schema design",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A reporting dashboard joins 8 normalised tables and is slow. Reads far outnumber writes. What is a sensible approach?",
+   "options": [
+    "Merge all business tables into one wide table",
+    "Drop foreign keys everywhere",
+    "Move the data into spreadsheets",
+    "A summary table or materialised view refreshed on a schedule"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "cloud-db-019",
+   "topic": "Schema design",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why use a surrogate key rather than the PAN number as the primary key of a customers table?",
+   "options": [
+    "PAN may be missing, change, or be sensitive in joins",
+    "PAN is too long to index",
+    "Natural keys can never be unique",
+    "Surrogate keys encrypt the row"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "cloud-db-020",
+   "topic": "Schema design",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "An app has users in India and abroad. What is the safest way to store event timestamps?",
+   "options": [
+    "In IST since most users are Indian",
+    "As text in each user's local format",
+    "In UTC, converting to local time on display",
+    "As a date only, to avoid confusion"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "cloud-db-021",
+   "topic": "Indexing and performance",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is the main cost of adding many indexes to a table?",
+   "options": [
+    "Slower SELECT queries",
+    "Loss of data integrity",
+    "Slower inserts and updates, plus extra storage",
+    "Primary keys stop working"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "cloud-db-022",
+   "topic": "Indexing and performance",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which command shows how the database plans to execute a query?",
+   "options": [
+    "EXPLAIN",
+    "DESCRIBE TABLE",
+    "SHOW GRANTS",
+    "ANALYZE LOG"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "cloud-db-023",
+   "topic": "Indexing and performance",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "There is an index on (state, city). Which filter can use it most efficiently?",
+   "options": [
+    "city = 'Kochi' on its own",
+    "city LIKE '%chi'",
+    "UPPER(state) = 'KERALA'",
+    "state = 'Kerala' AND city = 'Kochi'"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "cloud-db-024",
+   "topic": "Indexing and performance",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A query on a 50 million row users table filters on LOWER(email) and does a full scan. What fix helps?",
+   "options": [
+    "Add more RAM to the server only",
+    "An expression index on LOWER(email), or store emails lowercased",
+    "Add a plain index on email and keep LOWER()",
+    "Run VACUUM on the table every day"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "cloud-db-025",
+   "topic": "Indexing and performance",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is a covering index?",
+   "options": [
+    "An index on every column of a table",
+    "One holding every column a query needs",
+    "An index that also covers deleted rows",
+    "A full-text index on long text"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "cloud-db-026",
+   "topic": "Indexing and performance",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why might the optimiser ignore an index on a 'status' column that holds only 'active' and 'inactive'?",
+   "options": [
+    "Text columns can never be indexed",
+    "The index is always corrupted",
+    "Indexes only work on primary keys",
+    "Low selectivity makes a full scan cheaper"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "cloud-db-027",
+   "topic": "Indexing and performance",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A query became slow overnight with no code change. EXPLAIN now shows a nested loop over many rows where a hash join was used before. What do you check first?",
+   "options": [
+    "Stale table statistics after a big data load",
+    "Network latency to the app server",
+    "The application's logging level",
+    "Whether the table has a primary key"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "cloud-db-028",
+   "topic": "Indexing and performance",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Paging with OFFSET 500000 LIMIT 50 is slow on a large table. What is a better approach?",
+   "options": [
+    "Larger OFFSET steps",
+    "ORDER BY RAND()",
+    "Keyset pagination using the last seen key",
+    "Removing the ORDER BY clause"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "cloud-db-029",
+   "topic": "Indexing and performance",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "When is a partial index, such as one WHERE status = 'pending', a good choice?",
+   "options": [
+    "Every column of the table needs indexing",
+    "The table has fewer than 100 rows",
+    "Queries often target a small, specific subset of rows",
+    "The column changes in every single query"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "cloud-db-030",
+   "topic": "Transactions and concurrency",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does the 'A' in ACID stand for?",
+   "options": [
+    "Atomicity",
+    "Availability",
+    "Accuracy",
+    "Authorisation"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "cloud-db-031",
+   "topic": "Transactions and concurrency",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "A wallet transfer debits one account and credits another. Why put both statements in one transaction?",
+   "options": [
+    "To make the transfer faster",
+    "To skip writing logs",
+    "So other users see it early",
+    "So both happen or neither does"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "cloud-db-032",
+   "topic": "Transactions and concurrency",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is a dirty read?",
+   "options": [
+    "Reading a row that has NULL values",
+    "Reading data another transaction has not yet committed",
+    "Reading from a corrupted disk",
+    "Reading data deleted last week"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "cloud-db-033",
+   "topic": "Transactions and concurrency",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Two cashiers sell the last unit of a product at the same moment and stock goes to -1. How do you prevent this?",
+   "options": [
+    "Add an index on product_id",
+    "Lock the row (SELECT ... FOR UPDATE) or use a conditional update",
+    "Run the update twice to be sure",
+    "Check stock in the app before each update"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "cloud-db-034",
+   "topic": "Transactions and concurrency",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What does optimistic concurrency control usually rely on?",
+   "options": [
+    "Locking every row that is read",
+    "Running all queries in one thread",
+    "Turning transactions off",
+    "A version number checked at update time"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "cloud-db-035",
+   "topic": "Transactions and concurrency",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What causes a deadlock?",
+   "options": [
+    "Two transactions each wait for a lock the other holds",
+    "A query runs longer than a minute",
+    "A table has too many indexes",
+    "A table has no primary key"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "cloud-db-036",
+   "topic": "Transactions and concurrency",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A UPI payment gateway's webhook can arrive twice for the same payment. How do you make the order update safe?",
+   "options": [
+    "Sleep 10 seconds before processing",
+    "Ask the gateway never to retry",
+    "An idempotency key with a unique constraint",
+    "Delete duplicate rows in a nightly job"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "cloud-db-037",
+   "topic": "Transactions and concurrency",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Which anomaly can still occur at the REPEATABLE READ isolation level in the SQL standard?",
+   "options": [
+    "Dirty reads",
+    "Non-repeatable reads",
+    "Phantom reads",
+    "Lost commits"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "cloud-db-038",
+   "topic": "Transactions and concurrency",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why keep transactions short in a busy OLTP database?",
+   "options": [
+    "Long ones hold locks, block others and bloat undo logs",
+    "Databases cap transactions at one second",
+    "Short transactions skip logging",
+    "Long transactions cannot be rolled back"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "cloud-db-039",
+   "topic": "Backup, replication and security",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Why should an application connect with its own low-privilege database user?",
+   "options": [
+    "Root users run queries more slowly",
+    "Backups run faster that way",
+    "No password is needed then",
+    "To limit damage if the app is compromised"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "cloud-db-040",
+   "topic": "Backup, replication and security",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is point-in-time recovery for?",
+   "options": [
+    "Speeding up nightly reports",
+    "Restoring to a moment before a mistake",
+    "Creating test data",
+    "Compressing old tables"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "cloud-db-041",
+   "topic": "Backup, replication and security",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A developer ran DELETE without a WHERE clause on production at 3:40 pm. You have nightly backups and transaction logs. What do you do?",
+   "options": [
+    "Restore only last night's backup",
+    "Restore and replay logs to just before 3:40 pm",
+    "Re-enter the data from emails",
+    "Run the DELETE again to see what happened"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "cloud-db-042",
+   "topic": "Backup, replication and security",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is a risk of reading from an asynchronous replica?",
+   "options": [
+    "It can never serve reads",
+    "It doubles write latency on the primary",
+    "It loses data on every restart",
+    "It may return slightly stale data"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "cloud-db-043",
+   "topic": "Backup, replication and security",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why test restores regularly instead of only taking backups?",
+   "options": [
+    "A backup is proven usable only once restored",
+    "Restores make backups smaller",
+    "Testing is needed to renew licences",
+    "Backups expire unless restored"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "cloud-db-044",
+   "topic": "Backup, replication and security",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "You must add a NOT NULL column with a default to a 200 million row table without downtime. What is a safe approach?",
+   "options": [
+    "Run one ALTER TABLE at peak hours",
+    "Export to CSV and reload the table",
+    "Add it nullable, backfill in batches, then add the constraint",
+    "Drop and recreate the table with the column"
+   ],
+   "answer": 2
+  }
+ ],
+ "task": {
+  "type": "tech",
+  "title": "Write and fix SQL for an online grocery database",
+  "brief": "Use the three tables in the material. In 20-30 minutes, write your answers (no code is run, small syntax slips are fine). 1) Find the bugs in the colleague's query and write a corrected version. 2) Write a query listing customers who have not placed any delivered order in the last 90 days, including customers who have never ordered. 3) Suggest the indexes you would add for these queries and explain why. Briefly explain your reasoning for each part.",
+  "minutes": 30,
+  "material": "Online grocery app (PostgreSQL). Amounts in ₹, GST included in line_total.\n\ncustomers(customer_id PK, name, phone, city, created_at)\norders(order_id PK, customer_id FK -> customers, status, placed_at)    -- status: 'delivered', 'cancelled', 'pending'\norder_items(order_id FK -> orders, product_id, qty, line_total)\n\nRows: customers 2 million, orders 30 million, order_items 110 million.\nExisting indexes: only the primary keys.\n\nQuery a colleague wrote for \"revenue by city, delivered orders, October 2026\":\n\nSELECT c.city, SUM(oi.line_total) AS revenue, COUNT(o.order_id) AS orders\nFROM customers c\nJOIN orders o ON o.customer_id = c.customer_id\nJOIN order_items oi ON oi.order_id = o.order_id\nWHERE o.status = 'delivered'\n  AND EXTRACT(MONTH FROM o.placed_at) = 10\nGROUP BY c.city\nORDER BY revenue DESC;\n\nIt takes over 2 minutes and the order counts look too high.",
+  "key_points": [
+   "The month filter misses the year: October of every year is counted",
+   "EXTRACT on placed_at stops index use; use a range placed_at >= '2026-10-01' AND < '2026-11-01'",
+   "COUNT(o.order_id) counts item rows; use COUNT(DISTINCT o.order_id)",
+   "Inactive customers via NOT EXISTS (or LEFT JOIN ... IS NULL) on delivered orders in the last 90 days",
+   "Avoid NOT IN pitfalls with NULLs; never-ordered customers must be included",
+   "Index orders(customer_id, placed_at) or (status, placed_at) and order_items(order_id)",
+   "Mentions the write cost of indexes or checking with EXPLAIN"
+  ],
+  "rubric": [
+   {
+    "key": "correctness",
+    "label": "Correct SQL",
+    "guide": "0 = queries would give wrong results, 3 = mostly right with one logic error, 5 = all queries return the right rows and totals"
+   },
+   {
+    "key": "bug_finding",
+    "label": "Finds the bugs",
+    "guide": "0 = no bugs found, 3 = finds one or two of year filter, double counting and non-sargable filter, 5 = all three found and fixed"
+   },
+   {
+    "key": "performance",
+    "label": "Index and performance sense",
+    "guide": "0 = no index ideas, 3 = generic 'add an index', 5 = specific composite indexes tied to the queries with trade-offs"
+   },
+   {
+    "key": "explanation",
+    "label": "Explanation",
+    "guide": "0 = no reasoning, 3 = brief but unclear, 5 = clear reasons for each choice"
+   }
+  ]
+ }
+}

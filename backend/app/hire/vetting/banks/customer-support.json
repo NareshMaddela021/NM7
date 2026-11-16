@@ -1,0 +1,405 @@
+{
+ "slug": "customer-support",
+ "version": 1,
+ "topics": [
+  "Call handling",
+  "Empathy and tone",
+  "Problem solving",
+  "Escalation and follow-up",
+  "Process and metrics",
+  "Chat and email"
+ ],
+ "questions": [
+  {
+   "id": "customer-support-001",
+   "topic": "Empathy and tone",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "A customer says their new phone stopped working on day two. Which reply shows empathy?",
+   "options": [
+    "Many phones stop working, so this is quite normal.",
+    "I understand that's hard. Let me help you fix it.",
+    "Please first tell me whether you dropped it anywhere.",
+    "You should have checked it in the shop itself."
+   ],
+   "answer": 1
+  },
+  {
+   "id": "customer-support-002",
+   "topic": "Chat and email",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A chat customer writes everything in CAPITAL letters. What does it usually show?",
+   "options": [
+    "They like big letters",
+    "There is a fault in the chat tool",
+    "They are a VIP customer",
+    "They are upset or in a hurry"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "customer-support-003",
+   "topic": "Call handling",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "The line is noisy and you can't hear the customer well. What do you say?",
+   "options": [
+    "Sorry, the line isn't clear. Could you repeat that, please?",
+    "I'll just note what I think you said.",
+    "Please call back from another number at once.",
+    "Let me end this call, it is too noisy."
+   ],
+   "answer": 0
+  },
+  {
+   "id": "customer-support-004",
+   "topic": "Chat and email",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "In a live chat, when should the first reply go to the customer?",
+   "options": [
+    "After about 15 minutes",
+    "Within a minute or two",
+    "Only after you have the full answer",
+    "At the end of your shift"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "customer-support-005",
+   "topic": "Process and metrics",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Why do you write short notes on every call or ticket?",
+   "options": [
+    "To make the call last longer",
+    "So the next agent knows what happened",
+    "Notes are only for managers to read",
+    "To fill the system with text"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "customer-support-006",
+   "topic": "Empathy and tone",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "An older customer finds the app hard to use. What is best?",
+   "options": [
+    "Send a help link and end the call",
+    "Guide them slowly, step by step",
+    "Tell them to visit a store instead",
+    "Speak faster so the call is short"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "customer-support-007",
+   "topic": "Problem solving",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A customer says ₹1,499 was debited by UPI, but the order shows 'failed'. What do you do first?",
+   "options": [
+    "Ask them to pay again so the order goes through",
+    "Tell them the bank is at fault and to call it",
+    "Take the UPI reference number and check the payment",
+    "Cancel the order and close the ticket"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "customer-support-008",
+   "topic": "Chat and email",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "You need two minutes to check something in chat. Which message is best?",
+   "options": [
+    "Please don't type anything until I come back to you.",
+    "I am checking. Please wait as long as it takes.",
+    "One sec, will see.",
+    "Thanks for waiting. I'm checking and will reply in 2 minutes."
+   ],
+   "answer": 3
+  },
+  {
+   "id": "customer-support-009",
+   "topic": "Escalation and follow-up",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A customer demands a manager at once. The issue is simple and you can fix it. What is best?",
+   "options": [
+    "Offer to fix it now; arrange the manager if they still want",
+    "Transfer to the manager without trying anything",
+    "Say managers don't take calls and refuse",
+    "Put them on hold for a long time so they calm down"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "customer-support-010",
+   "topic": "Empathy and tone",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which phrase should you avoid with an upset customer?",
+   "options": [
+    "\"I'm sorry for the trouble.\"",
+    "\"Let me look into it.\"",
+    "\"Thank you for telling us.\"",
+    "\"Calm down.\""
+   ],
+   "answer": 3
+  },
+  {
+   "id": "customer-support-011",
+   "topic": "Chat and email",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "In an email reply to a customer, what should the first lines do?",
+   "options": [
+    "Explain the history of the company",
+    "Give the update or answer they asked for",
+    "List every policy of the company",
+    "Ask them to phone the helpline"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "customer-support-012",
+   "topic": "Problem solving",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A customer got the wrong item. The return pickup has failed twice and they are upset. What is the best next step?",
+   "options": [
+    "Book a third pickup and tell them nothing more",
+    "Ask them to courier it back at their own cost",
+    "Apologise, raise it as priority with logistics, give a date and follow up",
+    "Close the ticket as 'customer not available'"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "customer-support-013",
+   "topic": "Escalation and follow-up",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "When should you escalate a complaint even if you could reply yourself?",
+   "options": [
+    "When it mentions a legal notice or a safety risk",
+    "When the customer asks for the delivery date",
+    "When the call goes past five minutes",
+    "When the customer is very polite"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "customer-support-014",
+   "topic": "Process and metrics",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Your CSAT is high but repeat calls are rising. What does this most likely show?",
+   "options": [
+    "Customers like you, but issues aren't fully solved",
+    "The CSAT survey tool is broken",
+    "The team has too many agents",
+    "Calls should be made shorter"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "customer-support-015",
+   "topic": "Empathy and tone",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A customer starts crying while saying a hospital payment has failed. What do you do?",
+   "options": [
+    "Ask them to stop crying so you can work",
+    "Transfer the call at once to another team",
+    "Speak gently, give a moment, then check the payment fast",
+    "Read out the refund policy word by word"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "customer-support-016",
+   "topic": "Chat and email",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A customer posts an angry public review about you on social media. What is the right reply?",
+   "options": [
+    "A long public reply proving the customer wrong",
+    "Ask them to delete the post before you help",
+    "A short public apology, then take details to private chat",
+    "Ignore it, as replying makes it worse"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "customer-support-017",
+   "topic": "Process and metrics",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A caller asks for the order details on their brother's account. They aren't the account holder. What do you do?",
+   "options": [
+    "Share details only with the verified account holder",
+    "Share them, since they are family",
+    "Share only the delivery address",
+    "Ask for the brother's name and then share"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "customer-support-018",
+   "topic": "Call handling",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "You must tell a customer the refund will take 7 more days. How do you say it?",
+   "options": [
+    "Don't mention it unless they ask",
+    "Say it will 'maybe come tomorrow'",
+    "Say the bank is slow and you can't help",
+    "Say it clearly with the reason, the date and your next step"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "customer-support-019",
+   "topic": "Problem solving",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A fix you gave yesterday didn't work and the customer calls back. What do you do first?",
+   "options": [
+    "Repeat the same steps again more slowly",
+    "Say they must have done the steps wrong",
+    "Read the notes, own it, then try another fix or escalate",
+    "Open a fresh ticket and start from zero"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "customer-support-020",
+   "topic": "Empathy and tone",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A customer is angry about a ₹299 monthly charge. You see they signed up for it themselves. How do you reply?",
+   "options": [
+    "Tell them clearly that they are wrong",
+    "Refund it at once to avoid an argument",
+    "End the chat, since it is their mistake",
+    "Show the details kindly, without blame, and offer to cancel"
+   ],
+   "answer": 3
+  }
+ ],
+ "existing": {
+  "A customer is angry about a late delivery. What do you do first?": {
+   "topic": "Empathy and tone"
+  },
+  "You don't know the answer to a question. What is best?": {
+   "topic": "Problem solving"
+  },
+  "Why do you repeat the customer's problem back to them?": {
+   "topic": "Call handling"
+  },
+  "A ticket needs another team. What should the customer hear?": {
+   "topic": "Escalation and follow-up"
+  },
+  "Which closing line is best?": {
+   "topic": "Call handling"
+  },
+  "A customer asks for their card number to be read out to confirm it. What do you do?": {
+   "topic": "Process and metrics"
+  },
+  "What does \"first contact resolution\" mean?": {
+   "topic": "Process and metrics"
+  },
+  "You promised a call back at 4 pm but have no update yet. What do you do?": {
+   "topic": "Escalation and follow-up"
+  },
+  "Many customers report the same fault in an hour. What is the right step?": {
+   "topic": "Escalation and follow-up"
+  },
+  "In a chat, which reply sounds most helpful?": {
+   "topic": "Chat and email"
+  },
+  "What is a good way to start a support call?": {
+   "topic": "Call handling"
+  },
+  "The customer spoke fast and you missed a detail. What do you do?": {
+   "topic": "Call handling"
+  },
+  "Before putting a customer on hold you should…": {
+   "topic": "Call handling"
+  },
+  "In support, \"TAT\" usually means…": {
+   "topic": "Process and metrics"
+  },
+  "A customer uses rude words but has a real problem. What is best?": {
+   "topic": "Empathy and tone"
+  },
+  "What is an escalation?": {
+   "topic": "Escalation and follow-up"
+  },
+  "Which ticket should be handled first?": {
+   "topic": "Problem solving"
+  },
+  "CSAT measures…": {
+   "topic": "Process and metrics"
+  },
+  "A customer asks for something against company policy. What do you say?": {
+   "topic": "Empathy and tone"
+  },
+  "Why do you give the customer the ticket number?": {
+   "topic": "Process and metrics"
+  },
+  "Which email subject is clearest?": {
+   "topic": "Chat and email"
+  },
+  "Your team's average handling time is going up. A good first step is…": {
+   "topic": "Process and metrics"
+  },
+  "A customer says a refund was promised last week, but there is no note. What do you do?": {
+   "topic": "Problem solving"
+  },
+  "The same complaint about a confusing bill keeps coming. What helps most?": {
+   "topic": "Problem solving"
+  }
+ },
+ "task": {
+  "type": "voice",
+  "title": "Handle a caller whose refund is late",
+  "brief": "Speak your answer out loud for 60–90 seconds, as if you are on the call. Situation: Ms. Kavya Reddy calls for the third time. She returned a pair of shoes worth ₹2,499. She was told the refund would come in 5–7 days. It is now day 12. You check and see the refund was approved but stuck at the bank step. A good answer: greets her and says your name, says sorry and shows you understand, tells her clearly what you found, says what you will do now and by when (with a ticket number), and closes politely. Speak calmly and clearly. Don't blame anyone and don't promise what you can't control.",
+  "minutes": 5,
+  "key_points": [
+   "Greets and gives own name",
+   "Apologises and acknowledges this is the third call",
+   "Explains the refund is approved but stuck at the bank step",
+   "Gives a clear next step and a date or time",
+   "Gives a ticket or reference number",
+   "Does not blame the customer or the bank",
+   "Closes by asking if anything else is needed"
+  ],
+  "rubric": [
+   {
+    "key": "greeting_structure",
+    "label": "Greeting and structure",
+    "guide": "0 = no greeting or order, 3 = greets but jumps around, 5 = greets, explains, gives next steps and closes in a clear order"
+   },
+   {
+    "key": "correctness",
+    "label": "Correct information",
+    "guide": "0 = wrong or made-up facts, 3 = mostly right but vague on next steps, 5 = accurate status, clear action, date and reference"
+   },
+   {
+    "key": "empathy",
+    "label": "Empathy",
+    "guide": "0 = cold or blaming, 3 = says sorry once, 5 = sincere apology, notes the repeat calls and stays calm and kind"
+   },
+   {
+    "key": "clarity",
+    "label": "Clarity",
+    "guide": "0 = hard to follow, 3 = understandable with some confusion, 5 = short, simple sentences the customer can easily follow"
+   }
+  ]
+ }
+}

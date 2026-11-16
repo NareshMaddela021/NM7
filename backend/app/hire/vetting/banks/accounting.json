@@ -1,0 +1,399 @@
+{
+ "slug": "accounting",
+ "version": 1,
+ "topics": [
+  "Basics and double entry",
+  "Assets and liabilities",
+  "GST and TDS",
+  "Bank and cash",
+  "Final accounts"
+ ],
+ "questions": [
+  {
+   "id": "accounting-001",
+   "topic": "Assets and liabilities",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which of these is a fixed asset?",
+   "options": [
+    "Cash in hand",
+    "Stock kept for sale",
+    "Money owed by customers",
+    "Office computer"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "accounting-002",
+   "topic": "Basics and double entry",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A cash sale of ₹5,000 is made. Which account increases on the asset side?",
+   "options": [
+    "Cash",
+    "Creditors",
+    "Capital",
+    "Bank loan"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "accounting-003",
+   "topic": "Bank and cash",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which document from the bank lists all deposits and withdrawals?",
+   "options": [
+    "Sales invoice",
+    "Bank statement",
+    "Pay slip",
+    "Delivery challan"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "accounting-004",
+   "topic": "GST and TDS",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which number identifies a business registered under GST?",
+   "options": [
+    "GSTIN",
+    "IFSC code",
+    "Aadhaar number",
+    "Employee code"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "accounting-005",
+   "topic": "Final accounts",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Net profit is…",
+   "options": [
+    "Sales minus purchases only",
+    "Assets minus liabilities",
+    "Income minus all expenses",
+    "Cash in hand at year end"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "accounting-006",
+   "topic": "Basics and double entry",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which document do you give a customer when you sell goods on credit?",
+   "options": [
+    "Tax invoice",
+    "Payment voucher",
+    "Pay slip",
+    "Bank statement"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "accounting-007",
+   "topic": "Assets and liabilities",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Money that customers owe the business is called…",
+   "options": [
+    "Creditors (payables)",
+    "Capital",
+    "Debtors (receivables)",
+    "Reserves"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "accounting-008",
+   "topic": "Bank and cash",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "You gave a cheque to a supplier, but they haven't cashed it yet. In the bank reconciliation it is…",
+   "options": [
+    "An unpresented cheque",
+    "A bounced cheque",
+    "A bank charge",
+    "An uncleared deposit"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "accounting-009",
+   "topic": "GST and TDS",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "You buy goods for ₹50,000 + 18% GST and sell them for ₹70,000 + 18% GST. GST to pay after ITC?",
+   "options": [
+    "₹12,600",
+    "₹9,000",
+    "₹21,600",
+    "₹3,600"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "accounting-010",
+   "topic": "Final accounts",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Closing stock is shown in the balance sheet as…",
+   "options": [
+    "A fixed asset",
+    "A current asset",
+    "A liability",
+    "An expense"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "accounting-011",
+   "topic": "Basics and double entry",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "You paid ₹2,000 in cash for office stationery. Which entry is right?",
+   "options": [
+    "Debit Cash, credit Stationery",
+    "Debit Capital, credit Cash",
+    "Debit Stationery, credit Creditors",
+    "Debit Stationery, credit Cash"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "accounting-012",
+   "topic": "GST and TDS",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "You pay a contractor ₹1,00,000 and must deduct 2% TDS. How much does the contractor receive?",
+   "options": [
+    "₹1,02,000",
+    "₹1,00,000",
+    "₹98,000",
+    "₹2,000"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "accounting-013",
+   "topic": "Final accounts",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Closing stock is overstated by ₹20,000. What happens to this year's profit?",
+   "options": [
+    "It is shown ₹20,000 too high",
+    "It is shown ₹20,000 too low",
+    "It does not change",
+    "Only the cash balance changes"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "accounting-014",
+   "topic": "Assets and liabilities",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A customer owing ₹15,000 has closed their shop and cannot pay. How is this recorded?",
+   "options": [
+    "Kept as a debtor for ever",
+    "Added to sales",
+    "Credited to cash",
+    "Written off as a bad debt (an expense)"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "accounting-015",
+   "topic": "Bank and cash",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "The cash book shows ₹48,000, the bank shows ₹52,000. A ₹4,000 cheque you issued is not yet cashed. What does this mean?",
+   "options": [
+    "The bank made a ₹4,000 error",
+    "₹4,000 cash is missing",
+    "The difference is just that uncashed cheque",
+    "Bank interest was not recorded"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "accounting-016",
+   "topic": "GST and TDS",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A supplier hasn't filed their GST return, so their invoice is missing from your GSTR-2B. What about its ITC?",
+   "options": [
+    "Claim it in full anyway",
+    "Hold the claim and follow up with the supplier",
+    "Claim double next month",
+    "Add it to sales"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "accounting-017",
+   "topic": "Final accounts",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "March electricity of ₹6,000 is unpaid on 31 March. What adjustment is needed?",
+   "options": [
+    "Ignore it until the bill is paid in April",
+    "Show it as a prepaid asset",
+    "Deduct it from capital",
+    "Record it as an expense and an outstanding liability"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "accounting-018",
+   "topic": "Basics and double entry",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Which error will the trial balance NOT show?",
+   "options": [
+    "A debit posted with no credit",
+    "A sale posted to the wrong customer's account",
+    "A wrong total in the debit column",
+    "One side of an entry missed"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "accounting-019",
+   "topic": "Assets and liabilities",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A ₹10,000 repair to the office AC was entered as a new asset. What is the effect?",
+   "options": [
+    "Expenses too high and profit too low",
+    "Expenses too low and profit too high",
+    "No effect on profit",
+    "Cash is shown too high"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "accounting-020",
+   "topic": "Bank and cash",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A customer paid ₹25,000 straight into your bank by NEFT. You see it only on the statement. What do you do?",
+   "options": [
+    "Ignore it, as the bank already has it",
+    "Record it as a new cash sale",
+    "Enter it in the cash book and credit the customer",
+    "Send the money back to the customer"
+   ],
+   "answer": 2
+  }
+ ],
+ "existing": {
+  "In double entry, every transaction has…": {
+   "topic": "Basics and double entry"
+  },
+  "Which is an asset of a business?": {
+   "topic": "Assets and liabilities"
+  },
+  "GST in India stands for…": {
+   "topic": "GST and TDS"
+  },
+  "A sale inside the same state usually has which GST?": {
+   "topic": "GST and TDS"
+  },
+  "A sale from one state to another usually has which GST?": {
+   "topic": "GST and TDS"
+  },
+  "Goods worth ₹1,000 with 18% GST. What is the bill total?": {
+   "topic": "GST and TDS"
+  },
+  "What does a bank reconciliation check?": {
+   "topic": "Bank and cash"
+  },
+  "A purchase bought on credit (pay later) is recorded with…": {
+   "topic": "Basics and double entry"
+  },
+  "Which voucher type is used to record cash paid for office rent in Tally?": {
+   "topic": "Basics and double entry"
+  },
+  "Depreciation means…": {
+   "topic": "Final accounts"
+  },
+  "Which is a liability?": {
+   "topic": "Assets and liabilities"
+  },
+  "A debit note is usually sent when…": {
+   "topic": "Basics and double entry"
+  },
+  "Which book records all cash received and paid?": {
+   "topic": "Bank and cash"
+  },
+  "A trial balance checks that…": {
+   "topic": "Basics and double entry"
+  },
+  "Rent paid now for next year is…": {
+   "topic": "Final accounts"
+  },
+  "Money the owner puts into the business is shown as…": {
+   "topic": "Assets and liabilities"
+  },
+  "Gross profit is…": {
+   "topic": "Final accounts"
+  },
+  "TDS stands for…": {
+   "topic": "GST and TDS"
+  },
+  "A customer's cheque bounces. What happens to their account?": {
+   "topic": "Bank and cash"
+  },
+  "Salary earned by staff but not yet paid is…": {
+   "topic": "Assets and liabilities"
+  },
+  "Goods are sold on credit for ₹60,000. Which entry is right?": {
+   "topic": "Basics and double entry"
+  },
+  "A machine costs ₹1,00,000, lasts 5 years, no scrap value. Straight-line depreciation a year?": {
+   "topic": "Final accounts"
+  },
+  "The bank statement shows bank charges the cash book doesn't. In the reconciliation you…": {
+   "topic": "Bank and cash"
+  },
+  "Working capital is…": {
+   "topic": "Final accounts"
+  }
+ },
+ "task": {
+  "type": "written",
+  "title": "Prepare a bank reconciliation for October",
+  "brief": "Take about 20 minutes. Using the figures below, write: (1) the entries that must go in the cash book, with the adjusted cash book balance; (2) a simple bank reconciliation statement that shows the bank balance and the adjusted cash book balance agree; and (3) one line on what you would follow up. Show your working in plain steps. A good answer gets the right balance, puts each item on the correct side, and is easy to check.",
+  "minutes": 20,
+  "material": "Business: Sai Krishna Traders. Month: October.\nCash book (bank column) balance on 31 Oct: ₹80,000 (debit)\nBank statement balance on 31 Oct: ₹91,200 (credit)\nFound while checking:\n1. Cheque no. 2241 given to Lakshmi Traders for ₹12,000 on 29 Oct is not yet cashed.\n2. Cheque for ₹6,000 from Rao & Sons, deposited on 31 Oct, is not yet credited by the bank.\n3. Bank charges of ₹350 are on the statement but not in the cash book.\n4. Interest of ₹450 credited by the bank is not in the cash book.\n5. Meera Stores paid ₹5,100 by NEFT straight into the bank. Not in the cash book.",
+  "key_points": [
+   "Cash book entries: less bank charges ₹350, add interest ₹450, add NEFT from Meera Stores ₹5,100",
+   "Adjusted cash book balance is ₹85,200",
+   "Bank side: ₹91,200 less unpresented cheque ₹12,000 plus uncleared deposit ₹6,000 = ₹85,200",
+   "Both balances agree at ₹85,200",
+   "Meera Stores' account is credited with ₹5,100",
+   "Follow up the uncleared Rao & Sons cheque and the unpresented Lakshmi Traders cheque"
+  ],
+  "rubric": [
+   {
+    "key": "correctness",
+    "label": "Correct figures",
+    "guide": "0 = wrong balance and sides, 3 = some items right but the balances don't agree, 5 = all items on the right side and both balances are ₹85,200"
+   },
+   {
+    "key": "completeness",
+    "label": "Completeness",
+    "guide": "0 = only a final number, 3 = statement or entries missing, 5 = entries, adjusted balance, statement and follow-up all given"
+   },
+   {
+    "key": "clarity",
+    "label": "Clear working",
+    "guide": "0 = can't follow, 3 = working shown but untidy, 5 = neat steps a senior can check quickly"
+   }
+  ]
+ }
+}

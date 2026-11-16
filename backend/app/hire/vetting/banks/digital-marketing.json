@@ -1,0 +1,681 @@
+{
+ "slug": "digital-marketing",
+ "version": 1,
+ "topics": [
+  "SEO",
+  "Social media",
+  "Paid ads",
+  "Email and WhatsApp",
+  "Analytics and reporting"
+ ],
+ "questions": [
+  {
+   "id": "digital-marketing-001",
+   "topic": "SEO",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does SEO mainly try to improve?",
+   "options": [
+    "How fast paid ads get approved",
+    "How many followers an Instagram page has",
+    "How often a site appears in free Google results",
+    "How much each click costs in Google Ads"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "digital-marketing-002",
+   "topic": "SEO",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "About how long should a page title tag be?",
+   "options": [
+    "Around 10 characters",
+    "Around 50 to 60 characters",
+    "Around 300 characters",
+    "Any length, Google ignores it"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "digital-marketing-003",
+   "topic": "SEO",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which of these is a long-tail keyword?",
+   "options": [
+    "kurti",
+    "clothes",
+    "fashion",
+    "ladies cotton kurti under 500 rupees"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "digital-marketing-004",
+   "topic": "SEO",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A sweet shop in Pune wants to show up in 'near me' searches. What helps most?",
+   "options": [
+    "A complete, verified Google Business Profile",
+    "More hashtags on Instagram posts",
+    "A longer About Us page",
+    "A .com domain instead of .in"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "digital-marketing-005",
+   "topic": "SEO",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is a backlink?",
+   "options": [
+    "A link on another website pointing to your site",
+    "A link from your home page to your blog",
+    "A broken link on your own site",
+    "A link inside a paid Google ad"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "digital-marketing-006",
+   "topic": "SEO",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A client's blog post sits on page 3 of Google. The content is good, but the page takes 9 seconds to open on mobile. What do you fix first?",
+   "options": [
+    "Add the keyword 20 more times",
+    "Change the post date to today",
+    "Publish the same post again at a new URL",
+    "Compress images and speed up the mobile page"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "digital-marketing-007",
+   "topic": "SEO",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Two pages on one site target the same keyword and both rank poorly. What is the usual fix?",
+   "options": [
+    "Delete both pages and start again",
+    "Add more keywords to each page",
+    "Merge them into one page and redirect the other",
+    "Block both pages in robots.txt"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "digital-marketing-008",
+   "topic": "SEO",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "After a website redesign, Google traffic falls 40%. Many old URLs now show 404 errors. What is the best first step?",
+   "options": [
+    "Run Google Ads until traffic recovers",
+    "Submit the home page to Google every day",
+    "Set up 301 redirects from old URLs to matching new pages",
+    "Wait three months for Google to adjust"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "digital-marketing-009",
+   "topic": "SEO",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "What does a canonical tag tell Google?",
+   "options": [
+    "Which page to use in paid ads",
+    "That the page must never be indexed",
+    "Which language the page is written in",
+    "Which copy of a duplicate page is the main one"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "digital-marketing-010",
+   "topic": "Social media",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which post type suits a 30-second product demo video on Instagram?",
+   "options": [
+    "A carousel of still photos",
+    "A Reel",
+    "A single photo post",
+    "A Story highlight cover"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "digital-marketing-011",
+   "topic": "Social media",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is the engagement rate of a post?",
+   "options": [
+    "Total followers of the page",
+    "Likes, comments, shares and saves compared to reach",
+    "Number of posts made in a month",
+    "Money spent on boosting the post"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "digital-marketing-012",
+   "topic": "Social media",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "A customer comments on your brand's post that their order is late. What do you do first?",
+   "options": [
+    "Delete the comment to protect the brand",
+    "Ignore it, support will handle it",
+    "Reply politely and ask them to DM the order number",
+    "Reply that delays are normal in festive season"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "digital-marketing-013",
+   "topic": "Social media",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is the main use of a content calendar?",
+   "options": [
+    "Tracking ad spend for each day",
+    "Storing logins for all accounts",
+    "Noting follower count every day",
+    "Planning posts, dates and themes ahead"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "digital-marketing-014",
+   "topic": "Social media",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A software company wants leads from HR managers. Which platform fits best?",
+   "options": [
+    "Snapchat",
+    "LinkedIn",
+    "Pinterest",
+    "Moj"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "digital-marketing-015",
+   "topic": "Social media",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Your Diwali post gets many likes but no website clicks. What do you change next time?",
+   "options": [
+    "Add a clear call to action and a trackable link",
+    "Post at midnight instead",
+    "Use 30 hashtags in the caption",
+    "Remove the caption completely"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "digital-marketing-016",
+   "topic": "Social media",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why might a local brand work with micro-influencers (10k to 50k followers)?",
+   "options": [
+    "They always work for free",
+    "Their posts never need brand approval",
+    "Their audience is focused and often trusts them more",
+    "They promise a fixed number of sales"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "digital-marketing-017",
+   "topic": "Social media",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A video by your brand is called insensitive online and anger is growing fast. What do you do first?",
+   "options": [
+    "Pause scheduled posts and escalate to the brand head with facts",
+    "Delete every critical comment",
+    "Post a funny meme to change the mood",
+    "Block every account that shares it"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "digital-marketing-018",
+   "topic": "Social media",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Organic reach on your Facebook page has dropped steadily for a year. What is the sensible plan?",
+   "options": [
+    "Move effort to formats and channels that work, with small paid boosts",
+    "Post ten times a day to beat the algorithm",
+    "Buy followers to lift reach",
+    "Stop posting until reach comes back"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "digital-marketing-019",
+   "topic": "Paid ads",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does CPC mean in online ads?",
+   "options": [
+    "Clicks per campaign",
+    "Cost per click",
+    "Cost per customer",
+    "Conversions per click"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "digital-marketing-020",
+   "topic": "Paid ads",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "In Google Ads, what is a negative keyword?",
+   "options": [
+    "A keyword with a low quality score",
+    "A keyword competitors bid on",
+    "A keyword that got bad reviews",
+    "A word for which you don't want your ad shown"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "digital-marketing-021",
+   "topic": "Paid ads",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is a landing page?",
+   "options": [
+    "The home page of Google",
+    "The first post on your Instagram",
+    "The page where you set the ad budget",
+    "The page people reach after clicking your ad"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "digital-marketing-022",
+   "topic": "Paid ads",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What does ROAS measure?",
+   "options": [
+    "Total reach of an ad set",
+    "Clicks divided by impressions",
+    "Revenue earned for each rupee spent on ads",
+    "Profit after paying staff salaries"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "digital-marketing-023",
+   "topic": "Paid ads",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Ads for a ₹40,000 sofa get many clicks but no sales. Search terms include 'free sofa' and 'sofa repair'. What do you do?",
+   "options": [
+    "Raise the daily budget",
+    "Change the ad image",
+    "Add those as negatives and tighten match types",
+    "Cut the sofa price at once"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "digital-marketing-024",
+   "topic": "Paid ads",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Your ad's CTR is 4% but only 0.2% of visitors buy. Where is the problem most likely?",
+   "options": [
+    "The ad headline",
+    "The bid is too low",
+    "The age targeting is too narrow",
+    "The landing page or the offer"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "digital-marketing-025",
+   "topic": "Paid ads",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is retargeting?",
+   "options": [
+    "Changing the target audience every week",
+    "Showing ads to people who visited your site before",
+    "Running one ad on two platforms",
+    "Targeting a competitor's employees"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "digital-marketing-026",
+   "topic": "Paid ads",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A Meta campaign's cost per lead rose from ₹120 to ₹300 in three weeks. Frequency is now 7. What is the likely cause?",
+   "options": [
+    "Ad fatigue: the same people see the same ad too often",
+    "The pixel has stopped working",
+    "Too many leads came in",
+    "The daily budget is too low"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "digital-marketing-027",
+   "topic": "Paid ads",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A client wants to judge a ₹5 lakh campaign only on last-click sales. What is the risk?",
+   "options": [
+    "Every sale gets counted twice",
+    "Mobile sales cannot be tracked at all",
+    "Ads that started the buying journey get no credit",
+    "The GST on ad spend gets calculated wrong"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "digital-marketing-028",
+   "topic": "Paid ads",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "When is Target CPA bidding a poor choice?",
+   "options": [
+    "When you have a fixed monthly budget",
+    "When the campaign has very few conversions so far",
+    "When you sell in many cities",
+    "When the website uses HTTPS"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "digital-marketing-029",
+   "topic": "Email and WhatsApp",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is the open rate of an email campaign?",
+   "options": [
+    "Share of emails that bounced",
+    "Share of delivered emails that were opened",
+    "Number of links in the email",
+    "Share of people who bought"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "digital-marketing-030",
+   "topic": "Email and WhatsApp",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Before sending promotional WhatsApp messages to customers, what do you need?",
+   "options": [
+    "Their Aadhaar number",
+    "A paid blue tick",
+    "Their opt-in consent",
+    "Their email address as well"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "digital-marketing-031",
+   "topic": "Email and WhatsApp",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "A customer replies 'STOP' to your promo SMS. What do you do?",
+   "options": [
+    "Remove them from the list quickly",
+    "Send one last discount offer",
+    "Move them to the WhatsApp list",
+    "Call them to ask why"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "digital-marketing-032",
+   "topic": "Email and WhatsApp",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why test two subject lines on a small part of the list first?",
+   "options": [
+    "To avoid paying GST on emails",
+    "To clean out bounced addresses",
+    "To make the email load faster",
+    "So the better one goes to everyone else"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "digital-marketing-033",
+   "topic": "Email and WhatsApp",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which email subject line is most likely to go to spam?",
+   "options": [
+    "Your order #4521 has shipped",
+    "FREE!!! WIN ₹10,000 NOW!!!",
+    "New winter kurtas, 20% off this week",
+    "Ravi, your invoice for October"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "digital-marketing-034",
+   "topic": "Email and WhatsApp",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Your email list has 50,000 addresses. 30% have opened nothing in a year. What do you do?",
+   "options": [
+    "Email them daily to wake them up",
+    "Keep them all, a big list looks good",
+    "Send a win-back mail, then drop those who still don't respond",
+    "Buy a fresh list to replace them"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "digital-marketing-035",
+   "topic": "Email and WhatsApp",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Your bounce rate jumped to 12% after importing a new list. What is the main danger?",
+   "options": [
+    "Each email will cost more GST",
+    "Open rates will look higher than real",
+    "Unsubscribe links will stop working",
+    "Sender reputation drops and more mail lands in spam"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "digital-marketing-036",
+   "topic": "Email and WhatsApp",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A client wants to send WhatsApp offers to 20,000 numbers bought from a vendor. What do you advise?",
+   "options": [
+    "Send in small batches so no one notices",
+    "Send from staff personal numbers",
+    "Use only opted-in contacts, or the number may get banned",
+    "Send late at night when fewer people complain"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "digital-marketing-037",
+   "topic": "Analytics and reporting",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "In Google Analytics, what is a 'session'?",
+   "options": [
+    "A group of actions by one user in one visit",
+    "One page load only",
+    "Everything one user ever did on the site",
+    "One ad impression"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "digital-marketing-038",
+   "topic": "Analytics and reporting",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does a UTM code added to a link help you see?",
+   "options": [
+    "How long the page takes to load",
+    "The visitor's phone number",
+    "Whether the link is broken",
+    "Which campaign or source sent the visitor"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "digital-marketing-039",
+   "topic": "Analytics and reporting",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "In an ad report, what does 'impressions' mean?",
+   "options": [
+    "How many times the ad was shown",
+    "How many people clicked",
+    "How many people bought",
+    "How many people shared it"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "digital-marketing-040",
+   "topic": "Analytics and reporting",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A blog page has a 90% bounce rate, but visitors spend 4 minutes on it. What does this most likely mean?",
+   "options": [
+    "The tracking code is missing",
+    "People read it and leave without another action",
+    "The page is broken",
+    "Only bots visit the page"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "digital-marketing-041",
+   "topic": "Analytics and reporting",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Your manager asks why leads fell this month. What do you check first?",
+   "options": [
+    "Traffic, conversion rate and form errors versus last month",
+    "Redesign the website",
+    "Raise every ad budget",
+    "Change the logo colour"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "digital-marketing-042",
+   "topic": "Analytics and reporting",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is a conversion in digital marketing?",
+   "options": [
+    "A visitor doing the action you want, like buying",
+    "Any visit to the home page",
+    "A post being shared once",
+    "An ad being shown once"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "digital-marketing-043",
+   "topic": "Analytics and reporting",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A monthly report shows 2 lakh impressions, but sales are flat. What should the report focus on?",
+   "options": [
+    "Impressions and follower growth",
+    "Leads, cost per lead and sales by channel",
+    "Number of posts published",
+    "Likes on each post"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "digital-marketing-044",
+   "topic": "Analytics and reporting",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Google Ads sales look high, but the CRM shows half are repeat buyers who would buy anyway. What do you do?",
+   "options": [
+    "Report the higher number to the client",
+    "Stop all Google Ads at once",
+    "Double the budget since sales look high",
+    "Exclude existing customers and track new-customer sales"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "digital-marketing-045",
+   "topic": "Analytics and reporting",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why can Meta and Google together report more sales than your actual orders?",
+   "options": [
+    "Each platform claims credit for the same sale",
+    "Orders are shown without GST",
+    "The website counts each sale twice",
+    "Refunds get added to sales"
+   ],
+   "answer": 0
+  }
+ ],
+ "task": {
+  "type": "written",
+  "title": "Write a campaign results email to a bakery client",
+  "brief": "You ran a two-week Diwali campaign for a bakery in Hyderabad. The results are in the material below. Write an email to the owner, Ms. Farah, in 15 to 20 minutes. A good email: gives a short summary first, explains in plain words what worked and what did not (use the numbers), and gives 3 clear, practical suggestions for the next campaign. Keep it under 250 words. No jargon without a short explanation.",
+  "minutes": 20,
+  "material": "Campaign: Diwali sweet boxes, 20 Oct to 3 Nov. Total budget ₹60,000.\n\nChannel | Spend | Clicks | Orders | Revenue\nInstagram ads | ₹30,000 | 6,000 | 45 | ₹54,000\nGoogle Search ads | ₹20,000 | 1,600 | 70 | ₹1,05,000\nWhatsApp broadcast (opted-in, 2,000 customers) | ₹2,000 | 500 | 60 | ₹84,000\nInfluencer post (1 food blogger) | ₹8,000 | 900 | 5 | ₹6,000\n\nNotes: Instagram cost per click was low, but many visitors left the order page. 30 orders were lost because the website showed 'out of stock' for kaju katli boxes on 30 Oct. Average order value is about ₹1,200 to ₹1,500.",
+  "key_points": [
+   "Opens with a clear one or two line summary of overall results (about ₹2.49 lakh revenue on ₹60,000 spend)",
+   "Names WhatsApp and Google Search as the best channels, using ROAS or cost per order",
+   "Points out the influencer post gave poor return (₹8,000 spent, ₹6,000 revenue)",
+   "Notes Instagram brought cheap clicks but few orders, suggesting an order page or offer problem",
+   "Mentions the stock-out loss and suggests stock checks or alerts",
+   "Gives 3 specific, practical suggestions, such as moving budget to Search and WhatsApp",
+   "Polite, plain-language tone suited to a small business owner"
+  ],
+  "rubric": [
+   {
+    "key": "correctness",
+    "label": "Correct reading of numbers",
+    "guide": "0 = numbers wrong or ignored, 3 = mostly right with small slips, 5 = all key figures read and compared correctly"
+   },
+   {
+    "key": "insight",
+    "label": "Useful suggestions",
+    "guide": "0 = no suggestions or vague ones, 3 = sensible but generic, 5 = three specific steps that follow from the data"
+   },
+   {
+    "key": "clarity",
+    "label": "Clarity and structure",
+    "guide": "0 = confusing or rambling, 3 = understandable but loose, 5 = summary first, short paragraphs, easy for the owner to act on"
+   },
+   {
+    "key": "tone",
+    "label": "Tone",
+    "guide": "0 = rude, pushy or full of jargon, 3 = polite but stiff, 5 = warm, professional and plain"
+   }
+  ]
+ }
+}

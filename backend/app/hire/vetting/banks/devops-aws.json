@@ -1,0 +1,669 @@
+{
+ "slug": "devops-aws",
+ "version": 1,
+ "topics": [
+  "Linux and scripting",
+  "Docker and containers",
+  "CI/CD, Git and IaC",
+  "AWS core services",
+  "Monitoring, reliability and security"
+ ],
+ "questions": [
+  {
+   "id": "devops-aws-001",
+   "topic": "Linux and scripting",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which Linux command shows a live view of the processes using the most CPU?",
+   "options": [
+    "top",
+    "ls -l",
+    "chmod",
+    "df -h"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "devops-aws-002",
+   "topic": "Linux and scripting",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does chmod 600 key.pem do?",
+   "options": [
+    "Everyone can read it; only the owner can write",
+    "Makes the file executable for every user",
+    "Deletes the file after 600 seconds",
+    "Owner can read and write it; no one else can access it"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "devops-aws-003",
+   "topic": "Linux and scripting",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which command shows how much space is free on each mounted filesystem?",
+   "options": [
+    "free -m",
+    "ps aux",
+    "uptime",
+    "df -h"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "devops-aws-004",
+   "topic": "Linux and scripting",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A deploy script in Bash keeps going after a command fails and breaks things. What should you add at the top?",
+   "options": [
+    "#!/bin/sh as the first line",
+    "nohup before each command",
+    "exit 0 as the last line",
+    "set -euo pipefail"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "devops-aws-005",
+   "topic": "Linux and scripting",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A server's disk is 100% full and the app is failing. du shows /var/log/app is 40 GB. What is the safe first action?",
+   "options": [
+    "Truncate or compress old logs, then set up logrotate",
+    "Delete /var/lib to free space quickly",
+    "Reboot the server and hope it clears",
+    "rm the log file the app still holds open"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "devops-aws-006",
+   "topic": "Linux and scripting",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "ssh to a new EC2 Linux instance fails with 'Permission denied (publickey)'. What is the likely cause?",
+   "options": [
+    "Wrong key file or wrong default username for that AMI",
+    "Port 443 is closed on the instance",
+    "The instance has no public DNS name",
+    "The laptop's disk is full"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "devops-aws-007",
+   "topic": "Linux and scripting",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A backup script works when run by hand but fails when run from cron. What is the most common cause?",
+   "options": [
+    "Cron's minimal environment, so PATH and variables differ",
+    "Cron can only run Python scripts",
+    "Cron jobs are not allowed to write files",
+    "Cron needs the script to be under /etc"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "devops-aws-008",
+   "topic": "Linux and scripting",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A 4-core server shows load average 12, but CPU usage is only 20%. What is the most likely reason?",
+   "options": [
+    "The CPU is overclocked and sitting idle",
+    "Load average counts only network packets",
+    "Processes are stuck waiting on I/O, like a slow disk",
+    "Too few processes are running"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "devops-aws-009",
+   "topic": "Linux and scripting",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "df -h shows 30% free, yet writes fail with 'No space left on device'. What should you check?",
+   "options": [
+    "Whether RAM is full",
+    "Whether the filesystem has run out of inodes",
+    "Whether the swap file is too small",
+    "Whether the kernel version is too old"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "devops-aws-010",
+   "topic": "Docker and containers",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is the relationship between a Docker image and a container?",
+   "options": [
+    "An image is a running instance of a container",
+    "A container is a running instance of an image",
+    "They are two names for the same thing",
+    "A container is a saved backup of a VM"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "devops-aws-011",
+   "topic": "Docker and containers",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which file describes the steps to build a Docker image?",
+   "options": [
+    "package.json",
+    "Makefile.docker",
+    "Dockerfile",
+    ".dockerrc"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "devops-aws-012",
+   "topic": "Docker and containers",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does docker ps list by default?",
+   "options": [
+    "All images on the disk",
+    "Repositories on Docker Hub",
+    "Running containers",
+    "Network traffic per container"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "devops-aws-013",
+   "topic": "Docker and containers",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A Node.js app's Docker image is 1.2 GB. What is the best way to shrink it?",
+   "options": [
+    "Run apt-get upgrade in the final image",
+    "Add a separate RUN layer for each file",
+    "Copy node_modules in from your laptop",
+    "A multi-stage build ending on a slim base image"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "devops-aws-014",
+   "topic": "Docker and containers",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why copy package.json and run npm ci before copying the rest of the source code?",
+   "options": [
+    "Docker needs package.json to be copied first",
+    "The container starts faster at runtime",
+    "The dependency layer stays cached when only code changes",
+    "It encrypts the dependencies in the image"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "devops-aws-015",
+   "topic": "Docker and containers",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A Postgres container loses all its data every time the container is recreated. What fixes it?",
+   "options": [
+    "Use docker restart instead of docker run",
+    "Raise the container's memory limit",
+    "Commit the container as a new image daily",
+    "Mount a named volume on the data directory"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "devops-aws-016",
+   "topic": "Docker and containers",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "In docker compose, the app container cannot reach the database at localhost:5432. What should the app use?",
+   "options": [
+    "Open port 5432 to the internet",
+    "Host networking for every service",
+    "The service name as host, like db:5432",
+    "The db's IP typed into /etc/hosts"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "devops-aws-017",
+   "topic": "Docker and containers",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A container keeps stopping with exit code 137 under load. What is the likely cause?",
+   "options": [
+    "The image tag is wrong",
+    "The health check URL returned 404",
+    "The container ran out of CPU credits",
+    "It was OOM-killed; check memory limits and usage"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "devops-aws-018",
+   "topic": "Docker and containers",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A developer put ENV DB_PASSWORD=... in the Dockerfile and pushed the image to the registry. What is the right response?",
+   "options": [
+    "Delete the latest tag and push again",
+    "Just make the registry repository private",
+    "Add the Dockerfile to .dockerignore",
+    "Rotate the password and inject secrets at runtime"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "devops-aws-019",
+   "topic": "CI/CD, Git and IaC",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which git command creates a new branch and switches to it?",
+   "options": [
+    "git merge feature-x",
+    "git push feature-x",
+    "git checkout -b feature-x",
+    "git init feature-x"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "devops-aws-020",
+   "topic": "CI/CD, Git and IaC",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does a CI (continuous integration) pipeline mainly do?",
+   "options": [
+    "Splits the cloud bill per developer",
+    "Builds and tests every change automatically",
+    "Writes code reviews automatically",
+    "Backs up the production database"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "devops-aws-021",
+   "topic": "CI/CD, Git and IaC",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Where should a deploy pipeline get its AWS credentials from?",
+   "options": [
+    "The CI tool's secret store or an OIDC role",
+    "A .env file committed to the repo",
+    "Typed straight into the pipeline YAML",
+    "A shared spreadsheet the team edits"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "devops-aws-022",
+   "topic": "CI/CD, Git and IaC",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is the main benefit of a blue-green deployment?",
+   "options": [
+    "It halves the cloud bill for each release",
+    "It removes the need for testing",
+    "Traffic can switch back at once if the new version fails",
+    "It updates every server in place, one by one"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "devops-aws-023",
+   "topic": "CI/CD, Git and IaC",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A CI pipeline takes 25 minutes because npm install downloads everything on each run. What helps most?",
+   "options": [
+    "Run the tests only on Fridays",
+    "Cache dependencies keyed on the lockfile",
+    "Delete the lockfile so installs are quicker",
+    "Skip the test stage on all branches"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "devops-aws-024",
+   "topic": "CI/CD, Git and IaC",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Someone force-pushed to main and wiped three teammates' commits. How do you stop this happening again?",
+   "options": [
+    "Ask everyone to re-clone the repo weekly",
+    "Rename the repository",
+    "Turn off CI on the main branch",
+    "Protect main: block force pushes and require reviewed PRs"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "devops-aws-025",
+   "topic": "CI/CD, Git and IaC",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Where should a team keep its Terraform state file?",
+   "options": [
+    "On each engineer's laptop",
+    "In a remote backend like S3 with state locking",
+    "Committed to Git after every apply",
+    "Deleted after each successful apply"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "devops-aws-026",
+   "topic": "CI/CD, Git and IaC",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "You must rename a database column with no downtime while old and new app versions run side by side. Best approach?",
+   "options": [
+    "Add the new column, write both, backfill, drop the old one later",
+    "Rename it in one step during peak hours",
+    "Stop the app for a day on each release",
+    "Drop the table and create it again"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "devops-aws-027",
+   "topic": "CI/CD, Git and IaC",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "terraform plan says it will destroy and recreate the production RDS instance after a small tag change. What do you do?",
+   "options": [
+    "Apply it at night when traffic is low",
+    "Delete the state file and apply again",
+    "Run apply with -auto-approve to skip prompts",
+    "Stop and find which attribute forces replacement first"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "devops-aws-028",
+   "topic": "AWS core services",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which AWS service is meant for storing files such as invoice PDFs and product images?",
+   "options": [
+    "Amazon EC2",
+    "Amazon S3",
+    "AWS Lambda",
+    "Amazon Route 53"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "devops-aws-029",
+   "topic": "AWS core services",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which AWS Region code is located in Mumbai?",
+   "options": [
+    "us-east-1",
+    "eu-west-1",
+    "ap-south-1",
+    "ap-southeast-1"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "devops-aws-030",
+   "topic": "AWS core services",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is an AWS security group?",
+   "options": [
+    "A virtual firewall for traffic to resources",
+    "A team of IAM users with admin rights",
+    "A backup policy for EBS volumes",
+    "A billing alert for the account"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "devops-aws-031",
+   "topic": "AWS core services",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "App servers in a private subnet must download OS updates without being reachable from the internet. What do you use?",
+   "options": [
+    "A public IP on each server with all ports open",
+    "A NAT gateway for outbound traffic",
+    "An internet gateway route in that subnet",
+    "Moving the servers to the public subnet"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "devops-aws-032",
+   "topic": "AWS core services",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "An app on EC2 needs to read one S3 bucket. How should it get access?",
+   "options": [
+    "An admin user's access keys in the config",
+    "An instance role allowing only the needed S3 actions",
+    "A public bucket so anyone can read it",
+    "The root account keys, for reliability"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "devops-aws-033",
+   "topic": "AWS core services",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "The monthly AWS bill jumped from ₹40,000 to ₹1.6 lakh. What is your first step?",
+   "options": [
+    "Use Cost Explorer by service and tag to find the spike",
+    "Stop every EC2 instance at once",
+    "Delete the largest S3 bucket",
+    "Raise a ticket to close the account"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "devops-aws-034",
+   "topic": "AWS core services",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is a cheap way to host a React build with HTTPS and fast loading for users across India?",
+   "options": [
+    "A large EC2 instance running npm start",
+    "S3 behind CloudFront with an ACM certificate",
+    "An RDS instance serving the files",
+    "One Lambda function per page"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "devops-aws-035",
+   "topic": "AWS core services",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Heavy reporting queries are slowing down the main RDS database during business hours. What helps most?",
+   "options": [
+    "A read replica that the reports query",
+    "Backup retention raised to 35 days",
+    "Multi-AZ, so reads spread across zones",
+    "Running reports on the primary at noon"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "devops-aws-036",
+   "topic": "AWS core services",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "After a deploy, the Auto Scaling group keeps launching and terminating instances in a loop. What is the likely cause?",
+   "options": [
+    "The group's maximum size is set too high",
+    "Health checks fail before the app finishes starting",
+    "A billing alarm is triggering the scaling",
+    "The AMI is stored in another region"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "devops-aws-037",
+   "topic": "Monitoring, reliability and security",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is Amazon CloudWatch used for?",
+   "options": [
+    "Storing Docker images",
+    "Managing DNS records",
+    "Running SQL on files in S3",
+    "Metrics, logs and alarms for AWS resources"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "devops-aws-038",
+   "topic": "Monitoring, reliability and security",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is the right practice for the AWS root account?",
+   "options": [
+    "Skip MFA if the password is long",
+    "Turn on MFA and avoid using it for daily work",
+    "Use MFA only for billing users",
+    "Share it with the team, MFA off"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "devops-aws-039",
+   "topic": "Monitoring, reliability and security",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Your team gets 300 alerts a day and has started ignoring them. What should you change?",
+   "options": [
+    "Add more alerts so nothing is missed",
+    "Send every alert to one shared inbox",
+    "Mute alerts during office hours",
+    "Alert on user-facing symptoms, with clear thresholds and owners"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "devops-aws-040",
+   "topic": "Monitoring, reliability and security",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is the difference between RPO and RTO in disaster recovery?",
+   "options": [
+    "RPO is acceptable data loss; RTO is acceptable recovery time",
+    "RPO is recovery time; RTO is data loss",
+    "They measure server CPU limits",
+    "RPO is cost; RTO is network latency"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "devops-aws-041",
+   "topic": "Monitoring, reliability and security",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "An S3 bucket stores customers' KYC documents (PAN, address proof). How should it be protected?",
+   "options": [
+    "Keep it public but use random file names",
+    "Store the files on the EC2 root volume",
+    "Block public access, encrypt it, and use least-privilege IAM",
+    "Email the files to the compliance team"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "devops-aws-042",
+   "topic": "Monitoring, reliability and security",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "The shop's website goes down at 9 pm during a festival sale. You are on call. What do you do first?",
+   "options": [
+    "Check what changed recently and roll back if needed",
+    "Start rewriting the slow service right away",
+    "Wait for the morning standup to discuss",
+    "Delete and recreate the load balancer"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "devops-aws-043",
+   "topic": "Monitoring, reliability and security",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A 99.9% monthly availability target allows roughly how much downtime in a 30-day month?",
+   "options": [
+    "About 4 minutes",
+    "About 8 hours",
+    "About 43 minutes",
+    "About 3 days"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "devops-aws-044",
+   "topic": "Monitoring, reliability and security",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "What should happen after a production outage is fixed?",
+   "options": [
+    "Find who made the change and warn them",
+    "Close the ticket once the site is back",
+    "A blameless review with timeline, root cause and owned actions",
+    "A long report with no owners for actions"
+   ],
+   "answer": 2
+  }
+ ],
+ "task": {
+  "type": "tech",
+  "title": "Review a Dockerfile and deploy pipeline for an online shop",
+  "minutes": 30,
+  "brief": "A small Indian online shop deploys its Node.js app to a single EC2 server with the Dockerfile and GitHub Actions workflow below. In about 30 minutes, list the problems you see (security, reliability, speed, cost), say why each matters, and write improved versions of both files or describe the changes clearly. Also explain in a few lines how you would roll back a bad release. A good answer is specific, puts the most serious risks first, and stays practical for a small team.",
+  "material": "# ---- Dockerfile ----\nFROM node:20\nWORKDIR /app\nCOPY . .\nRUN npm install\nENV DB_URL=mongodb://admin:Shop2024@10.0.2.15:27017/shop\nEXPOSE 3000\nCMD npm start\n\n# ---- .github/workflows/deploy.yml ----\nname: deploy\non: push\njobs:\n  deploy:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - run: docker build -t shop:latest .\n      - run: docker push 111122223333.dkr.ecr.ap-south-1.amazonaws.com/shop:latest\n        env:\n          AWS_ACCESS_KEY_ID: AKIAXXXXXXXXXXXXXXXX\n          AWS_SECRET_ACCESS_KEY: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n      - run: >\n          ssh ec2-user@13.200.10.20\n          \"docker pull 111122223333.dkr.ecr.ap-south-1.amazonaws.com/shop:latest &&\n           docker stop shop;\n           docker run -d --name shop -p 80:3000 111122223333.dkr.ecr.ap-south-1.amazonaws.com/shop:latest\"\n\n# Team complaints: every push to any branch goes live, the site is down for\n# 1-2 minutes on each deploy, a bad release last week could not be rolled back,\n# and the image is 1.1 GB.",
+  "key_points": [
+   "Database password baked into the image with ENV; rotate it and inject at runtime (SSM / Secrets Manager / env)",
+   "AWS keys hardcoded in the workflow; rotate them and use GitHub secrets or an OIDC role",
+   "Runs on every push to any branch; limit deploys to main (and protect main)",
+   "No test or lint step before deploying",
+   "Image tagged only latest; tag with the commit SHA so rollback is possible",
+   "Missing ECR login and the built tag does not match the pushed name",
+   "COPY . . before install breaks layer caching; add .dockerignore, use npm ci, multi-stage slim image, non-root user",
+   "docker stop then run causes downtime and a name clash with the old container; use a health-checked swap or blue-green behind a load balancer",
+   "Rollback plan: redeploy the previous SHA tag and verify health"
+  ],
+  "rubric": [
+   {
+    "key": "security",
+    "label": "Security issues",
+    "guide": "0 = misses the leaked secrets, 3 = spots one leaked secret, 5 = both secrets found with rotation and a proper secret store"
+   },
+   {
+    "key": "correctness",
+    "label": "Pipeline and Docker fixes",
+    "guide": "0 = no workable fixes, 3 = some fixes such as tests or caching, 5 = branch rules, tests, SHA tags, ECR login and a lean image"
+   },
+   {
+    "key": "reliability",
+    "label": "Downtime and rollback",
+    "guide": "0 = not addressed, 3 = mentions rollback vaguely, 5 = zero-downtime swap plus a clear rollback using versioned images"
+   },
+   {
+    "key": "explanation",
+    "label": "Prioritisation and clarity",
+    "guide": "0 = unclear list, 3 = clear but unordered, 5 = most serious risks first, each with a short reason"
+   }
+  ]
+ }
+}

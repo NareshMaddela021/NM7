@@ -1,0 +1,1763 @@
+{
+ "slug": "cnc",
+ "version": 1,
+ "topics": [
+  "Machine safety",
+  "Setup and tooling",
+  "Programs and codes",
+  "Measurement and quality",
+  "Running and troubleshooting",
+  "Maintenance"
+ ],
+ "questions": [
+  {
+   "id": "cnc-001",
+   "topic": "Machine safety",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Before you open the door of a CNC machine to check the part, what must happen?",
+   "options": [
+    "Feed override is set to 50%",
+    "The spindle must stop fully",
+    "Coolant is switched off only",
+    "The chip conveyor is running"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "పార్ట్ చెక్ చేయడానికి CNC మెషిన్ డోర్ తెరిచే ముందు ఏం జరగాలి?",
+    "options": [
+     "ఫీడ్ ఓవర్‌రైడ్ 50% లో ఉండాలి",
+     "స్పిండిల్ పూర్తిగా ఆగిపోవాలి",
+     "కూలెంట్ మాత్రమే ఆఫ్ చేయాలి",
+     "చిప్ కన్వేయర్ నడుస్తూ ఉండాలి"
+    ]
+   },
+   "hi": {
+    "q": "पार्ट चेक करने के लिए CNC मशीन का दरवाज़ा खोलने से पहले क्या होना ज़रूरी है?",
+    "options": [
+     "फ़ीड ओवरराइड 50% पर हो",
+     "स्पिंडल पूरी तरह रुक जाए",
+     "सिर्फ़ कूलेंट बंद हो",
+     "चिप कन्वेयर चल रहा हो"
+    ]
+   }
+  },
+  {
+   "id": "cnc-002",
+   "topic": "Machine safety",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is safe to wear while working on a CNC lathe?",
+   "options": [
+    "Safety shoes, goggles and close-fitting clothes",
+    "Cotton gloves while touching the chuck",
+    "A loose shirt with open sleeves",
+    "A metal bracelet or watch"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "CNC లేత్ మీద పని చేసేటప్పుడు ఏం వేసుకోవడం సేఫ్?",
+    "options": [
+     "సేఫ్టీ షూస్, గాగుల్స్, శరీరానికి పట్టే బట్టలు",
+     "చక్ పట్టుకునేటప్పుడు కాటన్ గ్లౌజ్‌లు",
+     "చేతులు తెరిచి ఉన్న లూజ్ షర్ట్",
+     "లోహపు కడియం లేదా వాచ్"
+    ]
+   },
+   "hi": {
+    "q": "CNC लेथ पर काम करते समय क्या पहनना सुरक्षित है?",
+    "options": [
+     "सेफ़्टी शूज़, चश्मा और बदन से सटे कपड़े",
+     "चक छूते समय सूती दस्ताने",
+     "खुली आस्तीन वाली ढीली कमीज़",
+     "धातु का कड़ा या घड़ी"
+    ]
+   }
+  },
+  {
+   "id": "cnc-003",
+   "topic": "Machine safety",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "How should you clear chips from the work area?",
+   "options": [
+    "Chip hook or brush, after the spindle stops",
+    "By hand while the spindle runs",
+    "Air gun pointed towards your face",
+    "A rag held on the turning chuck"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "వర్క్ ఏరియా నుంచి చిప్స్ ఎలా తీయాలి?",
+    "options": [
+     "స్పిండిల్ ఆగిన తర్వాత చిప్ హుక్ లేదా బ్రష్‌తో",
+     "స్పిండిల్ తిరుగుతుండగా చేత్తో",
+     "ముఖం వైపు ఎయిర్ గన్ పెట్టి",
+     "తిరిగే చక్ మీద గుడ్డ పెట్టి"
+    ]
+   },
+   "hi": {
+    "q": "काम की जगह से चिप्स कैसे हटाने चाहिए?",
+    "options": [
+     "स्पिंडल रुकने के बाद चिप हुक या ब्रश से",
+     "स्पिंडल चलते समय हाथ से",
+     "चेहरे की तरफ़ एयर गन करके",
+     "घूमते चक पर कपड़ा लगाकर"
+    ]
+   }
+  },
+  {
+   "id": "cnc-004",
+   "topic": "Machine safety",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "When should you press the emergency stop button?",
+   "options": [
+    "Before every tea break",
+    "When a crash or injury is about to happen",
+    "Each time you change the tool",
+    "At the end of every part"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "ఎమర్జెన్సీ స్టాప్ బటన్ ఎప్పుడు నొక్కాలి?",
+    "options": [
+     "ప్రతి టీ బ్రేక్ ముందు",
+     "క్రాష్ లేదా గాయం జరగబోతున్నప్పుడు",
+     "టూల్ మార్చిన ప్రతిసారి",
+     "ప్రతి పార్ట్ అయిపోయాక"
+    ]
+   },
+   "hi": {
+    "q": "इमरजेंसी स्टॉप बटन कब दबाना चाहिए?",
+    "options": [
+     "हर चाय ब्रेक से पहले",
+     "जब टक्कर या चोट होने वाली हो",
+     "हर बार टूल बदलते समय",
+     "हर पार्ट पूरा होने पर"
+    ]
+   }
+  },
+  {
+   "id": "cnc-005",
+   "topic": "Machine safety",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is the rule about the chuck key on a lathe?",
+   "options": [
+    "Leave it if the next part is the same",
+    "The door interlock will throw it clear",
+    "Never leave it in the chuck; remove it at once",
+    "It is fine at low rpm"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "లేత్ మీద చక్ కీ గురించి రూల్ ఏమిటి?",
+    "options": [
+     "తర్వాతి పార్ట్ అదే అయితే వదలొచ్చు",
+     "డోర్ ఇంటర్‌లాక్ దాన్ని బయటకు విసిరేస్తుంది",
+     "చక్‌లో ఎప్పుడూ వదలకూడదు; వెంటనే తీసేయాలి",
+     "తక్కువ rpm లో పర్వాలేదు"
+    ]
+   },
+   "hi": {
+    "q": "लेथ पर चक की (key) के बारे में नियम क्या है?",
+    "options": [
+     "अगला पार्ट वही हो तो छोड़ सकते हैं",
+     "डोर इंटरलॉक उसे बाहर फेंक देगा",
+     "चक में कभी न छोड़ें; तुरंत निकालें",
+     "कम rpm पर कोई दिक्कत नहीं"
+    ]
+   }
+  },
+  {
+   "id": "cnc-006",
+   "topic": "Machine safety",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "The coolant smells bad and two operators have skin rashes. What should be done?",
+   "options": [
+    "Add some scented liquid to it",
+    "Keep using it, wash hands later",
+    "Report it; the coolant needs changing at the right mix",
+    "Top it up with plain water"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "కూలెంట్ దుర్వాసన వస్తోంది, ఇద్దరు ఆపరేటర్లకు చర్మంపై దద్దుర్లు వచ్చాయి. ఏం చేయాలి?",
+    "options": [
+     "అందులో సువాసన ద్రవం కలపాలి",
+     "వాడుతూనే ఉండి, తర్వాత చేతులు కడుక్కోవాలి",
+     "రిపోర్ట్ చేయాలి; సరైన మిక్స్‌తో కూలెంట్ మార్చాలి",
+     "మామూలు నీళ్లతో నింపాలి"
+    ]
+   },
+   "hi": {
+    "q": "कूलेंट से बदबू आ रही है और दो ऑपरेटरों को त्वचा पर दाने हो गए हैं। क्या करना चाहिए?",
+    "options": [
+     "उसमें खुशबू वाला लिक्विड डालें",
+     "इस्तेमाल करते रहें, बाद में हाथ धोएँ",
+     "रिपोर्ट करें; कूलेंट सही मिक्स में बदलना होगा",
+     "सादा पानी डालकर भर दें"
+    ]
+   }
+  },
+  {
+   "id": "cnc-007",
+   "topic": "Machine safety",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "The door interlock is broken. The supervisor says, 'Run with the door open, the order is urgent.' What do you do?",
+   "options": [
+    "Run carefully with the door open",
+    "Tie the switch with wire so it works",
+    "Refuse to bypass it, report in writing, ask for repair or another machine",
+    "Run it, but at low feed"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "డోర్ ఇంటర్‌లాక్ పాడైంది. 'ఆర్డర్ అర్జెంట్, డోర్ తెరిచే నడుపు' అని సూపర్‌వైజర్ అంటున్నారు. ఏం చేస్తారు?",
+    "options": [
+     "డోర్ తెరిచి జాగ్రత్తగా నడపాలి",
+     "స్విచ్ పని చేసేలా వైర్‌తో కట్టాలి",
+     "బైపాస్ చేయను అని చెప్పి, రాతపూర్వకంగా రిపోర్ట్ చేసి, రిపేర్ లేదా వేరే మెషిన్ అడగాలి",
+     "నడపాలి, కానీ తక్కువ ఫీడ్‌లో"
+    ]
+   },
+   "hi": {
+    "q": "डोर इंटरलॉक खराब है। सुपरवाइज़र कहते हैं, 'ऑर्डर अर्जेंट है, दरवाज़ा खोलकर चलाओ।' आप क्या करेंगे?",
+    "options": [
+     "दरवाज़ा खोलकर ध्यान से चलाएँ",
+     "स्विच को तार से बाँध दें ताकि चले",
+     "बायपास से मना करें, लिखित में रिपोर्ट करें, मरम्मत या दूसरी मशीन माँगें",
+     "चलाएँ, पर कम फ़ीड पर"
+    ]
+   }
+  },
+  {
+   "id": "cnc-008",
+   "topic": "Setup and tooling",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is the work offset (like G54) used for?",
+   "options": [
+    "To tell the machine where part zero is",
+    "To set the spindle speed",
+    "To switch the coolant on",
+    "To count tool life"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "వర్క్ ఆఫ్‌సెట్ (ఉదా: G54) దేనికి వాడతారు?",
+    "options": [
+     "పార్ట్ జీరో ఎక్కడ ఉందో మెషిన్‌కు చెప్పడానికి",
+     "స్పిండిల్ స్పీడ్ సెట్ చేయడానికి",
+     "కూలెంట్ ఆన్ చేయడానికి",
+     "టూల్ లైఫ్ లెక్కించడానికి"
+    ]
+   },
+   "hi": {
+    "q": "वर्क ऑफ़सेट (जैसे G54) किस काम आता है?",
+    "options": [
+     "मशीन को बताने के लिए कि पार्ट का ज़ीरो कहाँ है",
+     "स्पिंडल स्पीड सेट करने के लिए",
+     "कूलेंट चालू करने के लिए",
+     "टूल लाइफ़ गिनने के लिए"
+    ]
+   }
+  },
+  {
+   "id": "cnc-009",
+   "topic": "Setup and tooling",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "You are running a new program for the first time. How should you run it?",
+   "options": [
+    "Full speed, to save time",
+    "Skip the dry run if the office sent it",
+    "With the door open to watch closely",
+    "Single block, with rapid and feed override low"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "కొత్త ప్రోగ్రామ్‌ను మొదటిసారి నడుపుతున్నారు. ఎలా నడపాలి?",
+    "options": [
+     "టైమ్ ఆదా కోసం ఫుల్ స్పీడ్‌లో",
+     "ఆఫీస్ నుంచి వస్తే డ్రై రన్ అవసరం లేదు",
+     "దగ్గరగా చూడటానికి డోర్ తెరిచి",
+     "సింగిల్ బ్లాక్‌లో, ర్యాపిడ్, ఫీడ్ ఓవర్‌రైడ్ తక్కువగా పెట్టి"
+    ]
+   },
+   "hi": {
+    "q": "नया प्रोग्राम पहली बार चला रहे हैं। कैसे चलाना चाहिए?",
+    "options": [
+     "समय बचाने के लिए फ़ुल स्पीड पर",
+     "ऑफ़िस से आया है तो ड्राई रन छोड़ दें",
+     "ध्यान से देखने के लिए दरवाज़ा खोलकर",
+     "सिंगल ब्लॉक में, रैपिड और फ़ीड ओवरराइड कम रखकर"
+    ]
+   }
+  },
+  {
+   "id": "cnc-010",
+   "topic": "Setup and tooling",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Before clamping a part in a vise on a VMC, how should the vise be checked?",
+   "options": [
+    "Check it by eye from the front",
+    "Tighten the bolts and start",
+    "Dial the fixed jaw parallel to the X axis",
+    "Tap it with a hammer till it looks straight"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "VMC మీద వైస్‌లో పార్ట్ బిగించే ముందు వైస్‌ను ఎలా చెక్ చేయాలి?",
+    "options": [
+     "ముందు నుంచి కంటితో చూడాలి",
+     "బోల్ట్‌లు బిగించి మొదలుపెట్టాలి",
+     "డయల్‌తో ఫిక్స్‌డ్ జా X యాక్సిస్‌కు పారలల్‌గా ఉందో చూడాలి",
+     "నేరుగా కనిపించే వరకు సుత్తితో కొట్టాలి"
+    ]
+   },
+   "hi": {
+    "q": "VMC पर वाइस में पार्ट कसने से पहले वाइस को कैसे जाँचें?",
+    "options": [
+     "सामने से आँख से देखें",
+     "बोल्ट कसकर काम शुरू करें",
+     "डायल से फ़िक्स्ड जॉ को X एक्सिस के समानांतर करें",
+     "सीधा दिखने तक हथौड़े से ठोकें"
+    ]
+   }
+  },
+  {
+   "id": "cnc-011",
+   "topic": "Setup and tooling",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "How should a new turning insert be fitted?",
+   "options": [
+    "Fit it over the old chips and tighten hard",
+    "Use any grade that fits the holder",
+    "Clean the seat, fit it, tighten the screw to torque",
+    "Tap it into place with a hammer"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "కొత్త టర్నింగ్ ఇన్సర్ట్‌ను ఎలా బిగించాలి?",
+    "options": [
+     "పాత చిప్స్ మీదే పెట్టి గట్టిగా బిగించాలి",
+     "హోల్డర్‌కు సరిపోయే ఏ గ్రేడ్ అయినా వాడొచ్చు",
+     "సీట్ శుభ్రం చేసి, పెట్టి, స్క్రూను టార్క్‌కు బిగించాలి",
+     "సుత్తితో కొట్టి సెట్ చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "नया टर्निंग इंसर्ट कैसे लगाना चाहिए?",
+    "options": [
+     "पुराने चिप्स पर ही रखकर ज़ोर से कसें",
+     "होल्डर में फ़िट हो तो कोई भी ग्रेड",
+     "सीट साफ़ करें, इंसर्ट रखें, स्क्रू को टॉर्क पर कसें",
+     "हथौड़े से ठोककर बैठाएँ"
+    ]
+   }
+  },
+  {
+   "id": "cnc-012",
+   "topic": "Setup and tooling",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why are soft jaws bored on the lathe before a new job?",
+   "options": [
+    "To make the chuck lighter",
+    "To allow a higher spindle speed",
+    "To clean rust off the jaws",
+    "To match the part size for firm grip and low runout"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "కొత్త జాబ్ ముందు సాఫ్ట్ జాస్‌ను లేత్ మీద ఎందుకు బోర్ చేస్తారు?",
+    "options": [
+     "చక్ బరువు తగ్గించడానికి",
+     "ఎక్కువ స్పిండిల్ స్పీడ్ కోసం",
+     "జాస్ మీద తుప్పు తీయడానికి",
+     "పార్ట్ సైజుకు సరిపోయి గట్టి పట్టు, తక్కువ రనౌట్ కోసం"
+    ]
+   },
+   "hi": {
+    "q": "नए जॉब से पहले सॉफ़्ट जॉ को लेथ पर बोर क्यों करते हैं?",
+    "options": [
+     "चक हल्का करने के लिए",
+     "ज़्यादा स्पिंडल स्पीड के लिए",
+     "जॉ से ज़ंग हटाने के लिए",
+     "पार्ट के साइज़ से मिलाने के लिए, ताकि पकड़ मज़बूत और रनआउट कम हो"
+    ]
+   }
+  },
+  {
+   "id": "cnc-013",
+   "topic": "Setup and tooling",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "On a VMC, the tool length offset was entered 10 mm shorter than the real tool. What is the danger?",
+   "options": [
+    "The tool will cut 10 mm in the air",
+    "The tool can go 10 mm into the part or vise",
+    "Only the surface finish gets worse",
+    "The spindle speed will drop"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "VMC లో టూల్ లెంగ్త్ ఆఫ్‌సెట్ నిజమైన టూల్ కంటే 10 mm తక్కువగా ఎంటర్ చేశారు. ప్రమాదం ఏమిటి?",
+    "options": [
+     "టూల్ 10 mm గాలిలో కట్ చేస్తుంది",
+     "టూల్ 10 mm పార్ట్ లేదా వైస్‌లోకి దూసుకుపోవచ్చు",
+     "సర్ఫేస్ ఫినిష్ మాత్రమే తగ్గుతుంది",
+     "స్పిండిల్ స్పీడ్ తగ్గుతుంది"
+    ]
+   },
+   "hi": {
+    "q": "VMC पर टूल लेंथ ऑफ़सेट असली टूल से 10 mm छोटा डाला गया। खतरा क्या है?",
+    "options": [
+     "टूल 10 mm हवा में कट करेगा",
+     "टूल 10 mm पार्ट या वाइस में घुस सकता है",
+     "सिर्फ़ सरफ़ेस फ़िनिश खराब होगी",
+     "स्पिंडल स्पीड कम हो जाएगी"
+    ]
+   }
+  },
+  {
+   "id": "cnc-014",
+   "topic": "Setup and tooling",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A long, thin shaft (length 8 times the diameter) shows taper and chatter on the lathe. Which setup change helps most?",
+   "options": [
+    "Raise the spindle speed to the maximum",
+    "Support it with the tailstock centre or a steady rest",
+    "Use a longer tool overhang",
+    "Hold it with less length in the jaws"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "పొడవైన సన్నని షాఫ్ట్ (పొడవు వ్యాసానికి 8 రెట్లు) లేత్ మీద టేపర్, చాటర్ చూపిస్తోంది. ఏ సెటప్ మార్పు ఎక్కువ సాయం చేస్తుంది?",
+    "options": [
+     "స్పిండిల్ స్పీడ్ మాక్సిమమ్ చేయాలి",
+     "టెయిల్‌స్టాక్ సెంటర్ లేదా స్టెడీ రెస్ట్‌తో సపోర్ట్ ఇవ్వాలి",
+     "టూల్ ఓవర్‌హ్యాంగ్ ఎక్కువ పెట్టాలి",
+     "జాస్‌లో తక్కువ పొడవు పట్టుకోవాలి"
+    ]
+   },
+   "hi": {
+    "q": "लंबा पतला शाफ़्ट (लंबाई व्यास की 8 गुना) लेथ पर टेपर और चैटर दे रहा है। कौन सा सेटअप बदलाव सबसे ज़्यादा मदद करेगा?",
+    "options": [
+     "स्पिंडल स्पीड अधिकतम कर दें",
+     "टेलस्टॉक सेंटर या स्टेडी रेस्ट से सहारा दें",
+     "टूल का ओवरहैंग लंबा रखें",
+     "जॉ में कम लंबाई पकड़ें"
+    ]
+   }
+  },
+  {
+   "id": "cnc-015",
+   "topic": "Setup and tooling",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "How far should a steel boring bar stick out of its holder?",
+   "options": [
+    "Long, so it reaches every bore easily",
+    "As short as the job allows, about 3–4 times its diameter",
+    "It does not matter for steel bars",
+    "About 10 times its diameter"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "స్టీల్ బోరింగ్ బార్ హోల్డర్ నుంచి ఎంత బయటకు ఉండాలి?",
+    "options": [
+     "ప్రతి బోర్ సులభంగా అందేలా పొడవుగా",
+     "జాబ్‌కు సరిపోయినంత తక్కువ, సుమారు వ్యాసానికి 3–4 రెట్లు",
+     "స్టీల్ బార్‌కు తేడా ఉండదు",
+     "సుమారు వ్యాసానికి 10 రెట్లు"
+    ]
+   },
+   "hi": {
+    "q": "स्टील बोरिंग बार होल्डर से कितना बाहर निकला होना चाहिए?",
+    "options": [
+     "लंबा, ताकि हर बोर आसानी से पहुँचे",
+     "जितना जॉब में ज़रूरी हो उतना कम, लगभग व्यास का 3–4 गुना",
+     "स्टील बार में फ़र्क नहीं पड़ता",
+     "लगभग व्यास का 10 गुना"
+    ]
+   }
+  },
+  {
+   "id": "cnc-016",
+   "topic": "Setup and tooling",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A thin-walled ring comes out oval after unclamping, though it measured round in the chuck. What is the likely fix?",
+   "options": [
+    "Increase chuck pressure for a firmer hold",
+    "Take a deeper cut to finish faster",
+    "Run the spindle slower only",
+    "Lower the clamping pressure or use wide, full-grip jaws"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "సన్నని గోడ ఉన్న రింగ్ చక్‌లో రౌండ్‌గా కొలిచినా, తీసిన తర్వాత ఓవల్‌గా వస్తోంది. ఎక్కువగా ఏ పరిష్కారం?",
+    "options": [
+     "గట్టి పట్టు కోసం చక్ ప్రెషర్ పెంచాలి",
+     "త్వరగా అవ్వడానికి లోతైన కట్ తీసుకోవాలి",
+     "స్పిండిల్ మాత్రమే నెమ్మదిగా నడపాలి",
+     "క్లాంపింగ్ ప్రెషర్ తగ్గించాలి లేదా వెడల్పైన ఫుల్-గ్రిప్ జాస్ వాడాలి"
+    ]
+   },
+   "hi": {
+    "q": "पतली दीवार वाली रिंग चक में गोल नापी गई, पर खोलने के बाद अंडाकार निकलती है। संभावित हल क्या है?",
+    "options": [
+     "मज़बूत पकड़ के लिए चक प्रेशर बढ़ाएँ",
+     "जल्दी खत्म करने के लिए गहरा कट लें",
+     "बस स्पिंडल धीमा चलाएँ",
+     "क्लैंपिंग प्रेशर कम करें या चौड़े फ़ुल-ग्रिप जॉ लगाएँ"
+    ]
+   }
+  },
+  {
+   "id": "cnc-017",
+   "topic": "Programs and codes",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does M03 do on most CNC machines?",
+   "options": [
+    "Starts the spindle clockwise",
+    "Stops the spindle",
+    "Turns the coolant on",
+    "Ends the program"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "చాలా CNC మెషిన్లలో M03 ఏం చేస్తుంది?",
+    "options": [
+     "స్పిండిల్‌ను క్లాక్‌వైజ్‌గా స్టార్ట్ చేస్తుంది",
+     "స్పిండిల్‌ను ఆపుతుంది",
+     "కూలెంట్ ఆన్ చేస్తుంది",
+     "ప్రోగ్రామ్ ముగిస్తుంది"
+    ]
+   },
+   "hi": {
+    "q": "ज़्यादातर CNC मशीनों में M03 क्या करता है?",
+    "options": [
+     "स्पिंडल को क्लॉकवाइज़ चालू करता है",
+     "स्पिंडल रोकता है",
+     "कूलेंट चालू करता है",
+     "प्रोग्राम खत्म करता है"
+    ]
+   }
+  },
+  {
+   "id": "cnc-018",
+   "topic": "Programs and codes",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What kind of move is G00?",
+   "options": [
+    "Straight cutting move at feed",
+    "Circular move",
+    "Rapid move, not for cutting",
+    "A short pause (dwell)"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "G00 ఏ రకమైన కదలిక?",
+    "options": [
+     "ఫీడ్‌తో నేరుగా కటింగ్ కదలిక",
+     "వృత్తాకార కదలిక",
+     "ర్యాపిడ్ కదలిక, కటింగ్‌కు కాదు",
+     "చిన్న విరామం (డ్వెల్)"
+    ]
+   },
+   "hi": {
+    "q": "G00 किस तरह की मूवमेंट है?",
+    "options": [
+     "फ़ीड पर सीधी कटिंग मूवमेंट",
+     "गोलाई वाली मूवमेंट",
+     "रैपिड मूवमेंट, कटिंग के लिए नहीं",
+     "छोटा रुकना (ड्वेल)"
+    ]
+   }
+  },
+  {
+   "id": "cnc-019",
+   "topic": "Programs and codes",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which code turns the coolant ON on most machines?",
+   "options": [
+    "M09",
+    "M08",
+    "M05",
+    "M30"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "చాలా మెషిన్లలో కూలెంట్ ON చేసే కోడ్ ఏది?",
+    "options": [
+     "M09",
+     "M08",
+     "M05",
+     "M30"
+    ]
+   },
+   "hi": {
+    "q": "ज़्यादातर मशीनों में कूलेंट ON करने का कोड कौन सा है?",
+    "options": [
+     "M09",
+     "M08",
+     "M05",
+     "M30"
+    ]
+   }
+  },
+  {
+   "id": "cnc-020",
+   "topic": "Programs and codes",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "On a CNC lathe, what does G96 mean?",
+   "options": [
+    "Constant rpm",
+    "Feed per minute",
+    "Thread cutting cycle",
+    "Constant surface speed"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "CNC లేత్ మీద G96 అంటే ఏమిటి?",
+    "options": [
+     "కాన్‌స్టంట్ rpm",
+     "నిమిషానికి ఫీడ్",
+     "థ్రెడ్ కటింగ్ సైకిల్",
+     "కాన్‌స్టంట్ సర్ఫేస్ స్పీడ్"
+    ]
+   },
+   "hi": {
+    "q": "CNC लेथ पर G96 का क्या मतलब है?",
+    "options": [
+     "कॉन्स्टेंट rpm",
+     "प्रति मिनट फ़ीड",
+     "थ्रेड कटिंग साइकिल",
+     "कॉन्स्टेंट सरफ़ेस स्पीड"
+    ]
+   }
+  },
+  {
+   "id": "cnc-021",
+   "topic": "Programs and codes",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "When G96 is used on a lathe, why is a max rpm limit (G50 or G92) given first?",
+   "options": [
+    "So rpm does not shoot up as the tool nears the centre",
+    "To set the feed rate for the finishing pass",
+    "To start the coolant",
+    "To call the next tool"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "లేత్ మీద G96 వాడేటప్పుడు ముందుగా మాక్స్ rpm లిమిట్ (G50 లేదా G92) ఎందుకు ఇస్తారు?",
+    "options": [
+     "టూల్ సెంటర్ దగ్గరకు వచ్చినప్పుడు rpm బాగా పెరిగిపోకుండా",
+     "ఫినిషింగ్ పాస్ కోసం ఫీడ్ రేట్ సెట్ చేయడానికి",
+     "కూలెంట్ స్టార్ట్ చేయడానికి",
+     "తర్వాతి టూల్ పిలవడానికి"
+    ]
+   },
+   "hi": {
+    "q": "लेथ पर G96 के साथ पहले अधिकतम rpm सीमा (G50 या G92) क्यों दी जाती है?",
+    "options": [
+     "ताकि टूल सेंटर के पास आने पर rpm बहुत न बढ़े",
+     "फ़िनिशिंग पास के लिए फ़ीड रेट सेट करने के लिए",
+     "कूलेंट शुरू करने के लिए",
+     "अगला टूल बुलाने के लिए"
+    ]
+   }
+  },
+  {
+   "id": "cnc-022",
+   "topic": "Programs and codes",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What do G41 and G42 do in a milling program?",
+   "options": [
+    "Cutter radius compensation, left and right",
+    "Tool length compensation, up and down",
+    "Select work offsets",
+    "Orient the spindle"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "మిల్లింగ్ ప్రోగ్రామ్‌లో G41, G42 ఏం చేస్తాయి?",
+    "options": [
+     "కట్టర్ రేడియస్ కాంపెన్సేషన్, ఎడమ, కుడి",
+     "టూల్ లెంగ్త్ కాంపెన్సేషన్, పైకి, కిందికి",
+     "వర్క్ ఆఫ్‌సెట్ ఎంచుకోవడం",
+     "స్పిండిల్ ఓరియంటేషన్"
+    ]
+   },
+   "hi": {
+    "q": "मिलिंग प्रोग्राम में G41 और G42 क्या करते हैं?",
+    "options": [
+     "कटर रेडियस कंपनसेशन, बायाँ और दायाँ",
+     "टूल लेंथ कंपनसेशन, ऊपर और नीचे",
+     "वर्क ऑफ़सेट चुनना",
+     "स्पिंडल ओरिएंटेशन"
+    ]
+   }
+  },
+  {
+   "id": "cnc-023",
+   "topic": "Programs and codes",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A turned diameter is 0.05 mm oversize. The program is correct. What is the right fix at the machine?",
+   "options": [
+    "Edit every X value in the program",
+    "Adjust that tool's wear offset",
+    "Shift the work offset in all axes",
+    "Change the geometry offset permanently"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "టర్న్ చేసిన డయామీటర్ 0.05 mm ఎక్కువగా వస్తోంది. ప్రోగ్రామ్ సరిగ్గా ఉంది. మెషిన్ దగ్గర సరైన పరిష్కారం ఏది?",
+    "options": [
+     "ప్రోగ్రామ్‌లో ప్రతి X విలువ మార్చాలి",
+     "ఆ టూల్ వేర్ ఆఫ్‌సెట్ సరిచేయాలి",
+     "అన్ని యాక్సిస్‌లలో వర్క్ ఆఫ్‌సెట్ జరపాలి",
+     "జామెట్రీ ఆఫ్‌సెట్‌ను శాశ్వతంగా మార్చాలి"
+    ]
+   },
+   "hi": {
+    "q": "टर्न किया डायमीटर 0.05 mm बड़ा आ रहा है। प्रोग्राम सही है। मशीन पर सही उपाय क्या है?",
+    "options": [
+     "प्रोग्राम में हर X वैल्यू बदलें",
+     "उस टूल का वियर ऑफ़सेट ठीक करें",
+     "सभी एक्सिस में वर्क ऑफ़सेट खिसकाएँ",
+     "ज्योमेट्री ऑफ़सेट हमेशा के लिए बदलें"
+    ]
+   }
+  },
+  {
+   "id": "cnc-024",
+   "topic": "Programs and codes",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "The machine gives an alarm on the line N120 G01 X20 Z-5 F with no number. What is wrong?",
+   "options": [
+    "X needs a decimal point",
+    "G01 needs a G00 line first",
+    "The line number is too large",
+    "The F word has no value"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "N120 G01 X20 Z-5 F (సంఖ్య లేకుండా) లైన్ దగ్గర మెషిన్ అలారం ఇస్తోంది. తప్పు ఏమిటి?",
+    "options": [
+     "X కి డెసిమల్ పాయింట్ కావాలి",
+     "G01 ముందు G00 లైన్ ఉండాలి",
+     "లైన్ నంబర్ చాలా పెద్దది",
+     "F కి విలువ లేదు"
+    ]
+   },
+   "hi": {
+    "q": "N120 G01 X20 Z-5 F (बिना नंबर) वाली लाइन पर मशीन अलार्म दे रही है। गलती क्या है?",
+    "options": [
+     "X में दशमलव चाहिए",
+     "G01 से पहले G00 लाइन चाहिए",
+     "लाइन नंबर बहुत बड़ा है",
+     "F की कोई वैल्यू नहीं है"
+    ]
+   }
+  },
+  {
+   "id": "cnc-025",
+   "topic": "Programs and codes",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A program written for aluminium is to be used for a steel part. What must you review before running?",
+   "options": [
+    "Only the program number",
+    "Only the coolant code",
+    "Nothing, the shape is the same",
+    "Speeds, feeds and depth of cut for steel"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "అల్యూమినియం కోసం రాసిన ప్రోగ్రామ్‌ను స్టీల్ పార్ట్‌కు వాడబోతున్నారు. నడపే ముందు ఏం చూడాలి?",
+    "options": [
+     "ప్రోగ్రామ్ నంబర్ మాత్రమే",
+     "కూలెంట్ కోడ్ మాత్రమే",
+     "ఏమీ వద్దు, షేప్ అదే కదా",
+     "స్టీల్‌కు తగిన స్పీడ్, ఫీడ్, కట్ లోతు"
+    ]
+   },
+   "hi": {
+    "q": "एल्युमिनियम के लिए लिखा प्रोग्राम स्टील पार्ट पर चलाना है। चलाने से पहले क्या देखना ज़रूरी है?",
+    "options": [
+     "सिर्फ़ प्रोग्राम नंबर",
+     "सिर्फ़ कूलेंट कोड",
+     "कुछ नहीं, शेप तो वही है",
+     "स्टील के हिसाब से स्पीड, फ़ीड और कट की गहराई"
+    ]
+   }
+  },
+  {
+   "id": "cnc-026",
+   "topic": "Measurement and quality",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which instrument should you use for a diameter of 25.00 ±0.01 mm?",
+   "options": [
+    "A steel rule",
+    "A vernier caliper (0.02 mm)",
+    "A 25–50 mm outside micrometer",
+    "A measuring tape"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "25.00 ±0.01 mm డయామీటర్ కొలవడానికి ఏ పరికరం వాడాలి?",
+    "options": [
+     "స్టీల్ రూల్",
+     "వెర్నియర్ కాలిపర్ (0.02 mm)",
+     "25–50 mm అవుట్‌సైడ్ మైక్రోమీటర్",
+     "మెజరింగ్ టేప్"
+    ]
+   },
+   "hi": {
+    "q": "25.00 ±0.01 mm डायमीटर नापने के लिए कौन सा उपकरण इस्तेमाल करें?",
+    "options": [
+     "स्टील रूल",
+     "वर्नियर कैलिपर (0.02 mm)",
+     "25–50 mm आउटसाइड माइक्रोमीटर",
+     "नापने वाला फ़ीता"
+    ]
+   }
+  },
+  {
+   "id": "cnc-027",
+   "topic": "Measurement and quality",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What should you check on a micrometer before measuring?",
+   "options": [
+    "That the thimble turns stiffly",
+    "That it is warm from your hand",
+    "That its box lock works",
+    "Its zero, with the faces wiped clean"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "కొలిచే ముందు మైక్రోమీటర్‌లో ఏం చెక్ చేయాలి?",
+    "options": [
+     "థింబుల్ గట్టిగా తిరుగుతోందో",
+     "చేతి వేడితో వెచ్చగా ఉందో",
+     "బాక్స్ లాక్ పని చేస్తోందో",
+     "ముఖాలు శుభ్రంగా తుడిచి, జీరో సరిగ్గా ఉందో"
+    ]
+   },
+   "hi": {
+    "q": "नापने से पहले माइक्रोमीटर में क्या चेक करें?",
+    "options": [
+     "थिम्बल कड़ा घूम रहा है या नहीं",
+     "हाथ की गर्मी से गर्म है या नहीं",
+     "डिब्बे का लॉक चलता है या नहीं",
+     "फ़ेस साफ़ करके उसका ज़ीरो"
+    ]
+   }
+  },
+  {
+   "id": "cnc-028",
+   "topic": "Measurement and quality",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "With a plug gauge, both the GO end and the NO-GO end enter the hole. What does it mean?",
+   "options": [
+    "Hole is oversize – reject or hold",
+    "Hole is perfect",
+    "Hole is undersize",
+    "Bore it a little more"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "ప్లగ్ గేజ్‌లో GO, NO-GO రెండు చివర్లూ హోల్‌లోకి వెళ్తున్నాయి. దీని అర్థం ఏమిటి?",
+    "options": [
+     "హోల్ ఓవర్‌సైజ్ – రిజెక్ట్ లేదా హోల్డ్",
+     "హోల్ పర్ఫెక్ట్",
+     "హోల్ అండర్‌సైజ్",
+     "ఇంకొంచెం బోర్ చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "प्लग गेज का GO और NO-GO दोनों सिरे छेद में चले जाते हैं। इसका क्या मतलब है?",
+    "options": [
+     "छेद बड़ा है – रिजेक्ट या होल्ड",
+     "छेद बिल्कुल सही है",
+     "छेद छोटा है",
+     "थोड़ा और बोर करें"
+    ]
+   }
+  },
+  {
+   "id": "cnc-029",
+   "topic": "Measurement and quality",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "The first part of a new batch is off the machine. What do you do?",
+   "options": [
+    "Run the batch, check at the end",
+    "Check one size and carry on",
+    "Get a full first-off check before running the rest",
+    "Pack it for the customer"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "కొత్త బ్యాచ్‌లో మొదటి పార్ట్ మెషిన్ నుంచి వచ్చింది. ఏం చేస్తారు?",
+    "options": [
+     "బ్యాచ్ నడిపి, చివర్లో చెక్ చేయాలి",
+     "ఒక సైజు చూసి కొనసాగించాలి",
+     "మిగతావి నడిపే ముందు పూర్తి ఫస్ట్-ఆఫ్ చెక్ చేయించాలి",
+     "కస్టమర్ కోసం ప్యాక్ చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "नए बैच का पहला पार्ट मशीन से निकला है। आप क्या करेंगे?",
+    "options": [
+     "बैच चलाएँ, आखिर में चेक करें",
+     "एक साइज़ देखकर आगे बढ़ें",
+     "बाकी चलाने से पहले पूरा फ़र्स्ट-ऑफ़ चेक करवाएँ",
+     "ग्राहक के लिए पैक कर दें"
+    ]
+   }
+  },
+  {
+   "id": "cnc-030",
+   "topic": "Measurement and quality",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "On a lathe, the outside diameter slowly grows by 0.01 mm every few parts. What is most likely?",
+   "options": [
+    "A wrong program",
+    "Insert wear – adjust wear offset or change insert",
+    "Chuck pressure set too high for the part",
+    "Coolant colour changed"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "లేత్ మీద బయటి డయామీటర్ కొన్ని పార్ట్స్‌కు ఒకసారి 0.01 mm పెరుగుతోంది. ఎక్కువగా కారణం ఏమిటి?",
+    "options": [
+     "తప్పు ప్రోగ్రామ్",
+     "ఇన్సర్ట్ అరుగుదల – వేర్ ఆఫ్‌సెట్ సరిచేయాలి లేదా ఇన్సర్ట్ మార్చాలి",
+     "పార్ట్‌కు చక్ ప్రెషర్ చాలా ఎక్కువ పెట్టారు",
+     "కూలెంట్ రంగు మారింది"
+    ]
+   },
+   "hi": {
+    "q": "लेथ पर बाहरी डायमीटर हर कुछ पार्ट के बाद 0.01 mm बढ़ रहा है। सबसे संभावित कारण क्या है?",
+    "options": [
+     "गलत प्रोग्राम",
+     "इंसर्ट घिसना – वियर ऑफ़सेट ठीक करें या इंसर्ट बदलें",
+     "पार्ट के लिए चक प्रेशर बहुत ज़्यादा रखा",
+     "कूलेंट का रंग बदला"
+    ]
+   }
+  },
+  {
+   "id": "cnc-031",
+   "topic": "Measurement and quality",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A turned part has a rough finish with clear feed marks. What helps first?",
+   "options": [
+    "Raise the feed",
+    "Reduce the coolant flow",
+    "Lower the feed or use a larger nose radius",
+    "Keep the worn insert longer"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "టర్న్ చేసిన పార్ట్ మీద ఫీడ్ గుర్తులతో రఫ్ ఫినిష్ వస్తోంది. ముందుగా ఏది సాయం చేస్తుంది?",
+    "options": [
+     "ఫీడ్ పెంచాలి",
+     "కూలెంట్ ఫ్లో తగ్గించాలి",
+     "ఫీడ్ తగ్గించాలి లేదా పెద్ద నోస్ రేడియస్ వాడాలి",
+     "అరిగిన ఇన్సర్ట్‌నే ఇంకా వాడాలి"
+    ]
+   },
+   "hi": {
+    "q": "टर्न किए पार्ट पर फ़ीड के निशान के साथ खुरदुरी फ़िनिश आ रही है। सबसे पहले क्या मदद करेगा?",
+    "options": [
+     "फ़ीड बढ़ाएँ",
+     "कूलेंट का बहाव कम करें",
+     "फ़ीड कम करें या बड़ा नोज़ रेडियस लें",
+     "घिसा इंसर्ट और चलाएँ"
+    ]
+   }
+  },
+  {
+   "id": "cnc-032",
+   "topic": "Measurement and quality",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Your part measured OK right after machining, but QC finds it undersize an hour later. What is the likely reason?",
+   "options": [
+    "QC's gauges are always wrong",
+    "The machine moved overnight",
+    "It was hot when you measured; metal shrinks as it cools",
+    "The insert grade was wrong"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "మెషినింగ్ అయిన వెంటనే మీ పార్ట్ OK వచ్చింది, కానీ గంట తర్వాత QC అండర్‌సైజ్ అంటోంది. ఎక్కువగా కారణం ఏమిటి?",
+    "options": [
+     "QC గేజ్‌లు ఎప్పుడూ తప్పే",
+     "రాత్రి మెషిన్ కదిలింది",
+     "కొలిచినప్పుడు పార్ట్ వేడిగా ఉంది; చల్లబడితే లోహం కుంచించుకుపోతుంది",
+     "ఇన్సర్ట్ గ్రేడ్ తప్పు"
+    ]
+   },
+   "hi": {
+    "q": "मशीनिंग के तुरंत बाद आपका पार्ट OK था, पर एक घंटे बाद QC ने उसे छोटा बताया। संभावित कारण क्या है?",
+    "options": [
+     "QC के गेज हमेशा गलत होते हैं",
+     "रात में मशीन खिसक गई",
+     "नापते समय पार्ट गर्म था; ठंडा होने पर धातु सिकुड़ती है",
+     "इंसर्ट ग्रेड गलत था"
+    ]
+   }
+  },
+  {
+   "id": "cnc-033",
+   "topic": "Measurement and quality",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "You find 5 bad parts mixed into a finished bin of 200. What do you do?",
+   "options": [
+    "Pick out the 5 and send the rest",
+    "Tag the bin, tell QC, check all 200 and find the cause",
+    "Hide the 5 in the scrap bin",
+    "Wait to see if the customer complains"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "200 పార్ట్స్ ఉన్న ఫినిష్డ్ బిన్‌లో 5 చెడ్డ పార్ట్స్ కలిసి ఉన్నాయి. ఏం చేస్తారు?",
+    "options": [
+     "ఆ 5 తీసేసి మిగతావి పంపాలి",
+     "బిన్‌కు ట్యాగ్ పెట్టి, QC కి చెప్పి, 200 అన్నీ చెక్ చేసి, కారణం కనిపెట్టాలి",
+     "ఆ 5 ని స్క్రాప్‌లో దాచాలి",
+     "కస్టమర్ ఫిర్యాదు చేస్తారేమో చూడాలి"
+    ]
+   },
+   "hi": {
+    "q": "200 पार्ट वाले तैयार बिन में 5 खराब पार्ट मिले हुए मिले। आप क्या करेंगे?",
+    "options": [
+     "5 निकालकर बाकी भेज दें",
+     "बिन पर टैग लगाएँ, QC को बताएँ, सभी 200 जाँचें और कारण ढूँढें",
+     "5 को स्क्रैप में छिपा दें",
+     "देखें कि ग्राहक शिकायत करता है या नहीं"
+    ]
+   }
+  },
+  {
+   "id": "cnc-034",
+   "topic": "Running and troubleshooting",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "You switch on the machine in the morning. What should you do before running parts?",
+   "options": [
+    "Start the program straight away",
+    "Warm up and home (reference return) all axes",
+    "Open the electrical panel to check",
+    "Remove all tools from the turret"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "ఉదయం మెషిన్ ఆన్ చేశారు. పార్ట్స్ నడిపే ముందు ఏం చేయాలి?",
+    "options": [
+     "నేరుగా ప్రోగ్రామ్ స్టార్ట్ చేయాలి",
+     "వార్మ్ అప్ చేసి అన్ని యాక్సిస్‌లను హోమ్ (రిఫరెన్స్ రిటర్న్) చేయాలి",
+     "ఎలక్ట్రికల్ ప్యానెల్ తెరిచి చూడాలి",
+     "టర్రెట్ నుంచి టూల్స్ అన్నీ తీసేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "सुबह मशीन चालू की। पार्ट चलाने से पहले क्या करना चाहिए?",
+    "options": [
+     "सीधे प्रोग्राम चालू करें",
+     "वार्म अप करें और सभी एक्सिस को होम (रेफ़रेंस रिटर्न) करें",
+     "इलेक्ट्रिकल पैनल खोलकर देखें",
+     "टरेट से सारे टूल निकाल दें"
+    ]
+   }
+  },
+  {
+   "id": "cnc-035",
+   "topic": "Running and troubleshooting",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "The machine shows an 'overtravel' alarm. What does it mean?",
+   "options": [
+    "The spindle is overheated",
+    "The coolant tank is low",
+    "The door is open",
+    "An axis went past its travel limit"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "మెషిన్ 'ఓవర్‌ట్రావెల్' అలారం చూపిస్తోంది. దీని అర్థం ఏమిటి?",
+    "options": [
+     "స్పిండిల్ బాగా వేడెక్కింది",
+     "కూలెంట్ ట్యాంక్ తక్కువగా ఉంది",
+     "డోర్ తెరిచి ఉంది",
+     "ఒక యాక్సిస్ తన ట్రావెల్ లిమిట్ దాటింది"
+    ]
+   },
+   "hi": {
+    "q": "मशीन 'ओवरट्रैवल' अलार्म दिखा रही है। इसका क्या मतलब है?",
+    "options": [
+     "स्पिंडल ज़्यादा गर्म है",
+     "कूलेंट टैंक कम है",
+     "दरवाज़ा खुला है",
+     "कोई एक्सिस अपनी ट्रैवल सीमा से आगे चला गया"
+    ]
+   }
+  },
+  {
+   "id": "cnc-036",
+   "topic": "Running and troubleshooting",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A drill squeals and the chips come out blue. What is happening?",
+   "options": [
+    "Drill is overheating: speed too high or poor coolant",
+    "The drill is cutting perfectly",
+    "Feed is a little low, nothing more",
+    "The part must be aluminium"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "డ్రిల్ కీచుమని శబ్దం చేస్తోంది, చిప్స్ నీలంగా వస్తున్నాయి. ఏం జరుగుతోంది?",
+    "options": [
+     "డ్రిల్ వేడెక్కుతోంది: స్పీడ్ ఎక్కువ లేదా కూలెంట్ సరిగ్గా లేదు",
+     "డ్రిల్ పర్ఫెక్ట్‌గా కట్ చేస్తోంది",
+     "ఫీడ్ కొంచెం తక్కువ, అంతే",
+     "పార్ట్ అల్యూమినియం అయి ఉండాలి"
+    ]
+   },
+   "hi": {
+    "q": "ड्रिल चीं-चीं कर रही है और चिप्स नीले निकल रहे हैं। क्या हो रहा है?",
+    "options": [
+     "ड्रिल गर्म हो रही है: स्पीड ज़्यादा या कूलेंट ठीक नहीं",
+     "ड्रिल बिल्कुल सही कट कर रही है",
+     "फ़ीड थोड़ा कम है, बस",
+     "पार्ट एल्युमिनियम ही होगा"
+    ]
+   }
+  },
+  {
+   "id": "cnc-037",
+   "topic": "Running and troubleshooting",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Chatter noise and wavy marks appear while milling a pocket. What do you try first?",
+   "options": [
+    "Take a deeper cut to get through faster",
+    "Switch off the coolant",
+    "Cut overhang, check clamping, adjust speed and feed",
+    "Tap the part to settle it"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "పాకెట్ మిల్లింగ్ చేస్తుండగా చాటర్ శబ్దం, అలల గుర్తులు వస్తున్నాయి. ముందుగా ఏం ట్రై చేస్తారు?",
+    "options": [
+     "త్వరగా అవ్వడానికి ఇంకా లోతైన కట్ తీసుకోవాలి",
+     "కూలెంట్ ఆఫ్ చేయాలి",
+     "ఓవర్‌హ్యాంగ్ తగ్గించి, క్లాంపింగ్ చూసి, స్పీడ్, ఫీడ్ సరిచేయాలి",
+     "పార్ట్‌ను కొట్టి సెట్ చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "पॉकेट मिलिंग में चैटर की आवाज़ और लहरदार निशान आ रहे हैं। पहले क्या आज़माएँगे?",
+    "options": [
+     "जल्दी निकलने के लिए और गहरा कट लें",
+     "कूलेंट बंद कर दें",
+     "ओवरहैंग कम करें, क्लैंपिंग देखें, स्पीड-फ़ीड बदलें",
+     "पार्ट को ठोककर बैठाएँ"
+    ]
+   }
+  },
+  {
+   "id": "cnc-038",
+   "topic": "Running and troubleshooting",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Long stringy chips keep wrapping around the part on the lathe. What helps?",
+   "options": [
+    "Insert with a chip breaker; adjust feed and depth",
+    "Drop the feed to the minimum",
+    "Turn the coolant off",
+    "Pull chips by hand while it runs"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "లేత్ మీద పొడవాటి దారం లాంటి చిప్స్ పార్ట్ చుట్టూ చుట్టుకుంటున్నాయి. ఏది సాయం చేస్తుంది?",
+    "options": [
+     "చిప్ బ్రేకర్ ఉన్న ఇన్సర్ట్; ఫీడ్, లోతు సరిచేయాలి",
+     "ఫీడ్ మినిమమ్‌కు తగ్గించాలి",
+     "కూలెంట్ ఆఫ్ చేయాలి",
+     "నడుస్తుండగా చేత్తో చిప్స్ లాగాలి"
+    ]
+   },
+   "hi": {
+    "q": "लेथ पर लंबे धागे जैसे चिप्स पार्ट पर लिपट रहे हैं। क्या मदद करेगा?",
+    "options": [
+     "चिप ब्रेकर वाला इंसर्ट; फ़ीड और गहराई बदलें",
+     "फ़ीड न्यूनतम कर दें",
+     "कूलेंट बंद कर दें",
+     "चलते में हाथ से चिप्स खींचें"
+    ]
+   }
+  },
+  {
+   "id": "cnc-039",
+   "topic": "Running and troubleshooting",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Inserts keep chipping right at the start of each cut on a cast iron casting. What is the likely cause and fix?",
+   "options": [
+    "The coolant is too cold",
+    "Spindle speed is too low only",
+    "Hard skin and shock at entry: tougher grade, lower entry feed",
+    "The program end code is missing"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "కాస్ట్ ఐరన్ కాస్టింగ్ మీద ప్రతి కట్ మొదట్లోనే ఇన్సర్ట్‌లు చిప్ అవుతున్నాయి. కారణం, పరిష్కారం ఏమిటి?",
+    "options": [
+     "కూలెంట్ చాలా చల్లగా ఉంది",
+     "స్పిండిల్ స్పీడ్ మాత్రమే తక్కువ",
+     "గట్టి పై పొర, ప్రవేశంలో షాక్: టఫ్ గ్రేడ్, ప్రవేశంలో తక్కువ ఫీడ్",
+     "ప్రోగ్రామ్ ఎండ్ కోడ్ లేదు"
+    ]
+   },
+   "hi": {
+    "q": "कास्ट आयरन कास्टिंग पर हर कट की शुरुआत में ही इंसर्ट टूट रहे हैं। संभावित कारण और हल क्या है?",
+    "options": [
+     "कूलेंट बहुत ठंडा है",
+     "सिर्फ़ स्पिंडल स्पीड कम है",
+     "सख्त ऊपरी परत और शुरुआत में झटका: मज़बूत ग्रेड, शुरुआत में कम फ़ीड",
+     "प्रोग्राम एंड कोड नहीं है"
+    ]
+   }
+  },
+  {
+   "id": "cnc-040",
+   "topic": "Running and troubleshooting",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Halfway through a batch, the tool lightly hits the part. What should you do next?",
+   "options": [
+    "Reset the alarm and continue",
+    "Change the insert and continue",
+    "Scrap the part quietly and carry on",
+    "Stop, tell the supervisor, check tool, holder and offsets before restart"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "బ్యాచ్ మధ్యలో టూల్ పార్ట్‌ను కొంచెం గుద్దింది. తర్వాత ఏం చేయాలి?",
+    "options": [
+     "అలారం రీసెట్ చేసి కొనసాగించాలి",
+     "ఇన్సర్ట్ మార్చి కొనసాగించాలి",
+     "పార్ట్‌ను గుట్టుగా స్క్రాప్ చేసి కొనసాగించాలి",
+     "ఆపి, సూపర్‌వైజర్‌కు చెప్పి, రీస్టార్ట్ ముందు టూల్, హోల్డర్, ఆఫ్‌సెట్‌లు చెక్ చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "बैच के बीच में टूल हल्के से पार्ट से टकरा गया। आगे क्या करना चाहिए?",
+    "options": [
+     "अलार्म रीसेट करके चालू रखें",
+     "इंसर्ट बदलकर चालू रखें",
+     "पार्ट चुपचाप स्क्रैप करके आगे बढ़ें",
+     "रोकें, सुपरवाइज़र को बताएँ, दोबारा चलाने से पहले टूल, होल्डर और ऑफ़सेट जाँचें"
+    ]
+   }
+  },
+  {
+   "id": "cnc-041",
+   "topic": "Running and troubleshooting",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Power failed in the middle of a program. How should you restart?",
+   "options": [
+    "Press cycle start to carry on",
+    "Restart from the stopped line without checks",
+    "Run the program again from the top at once",
+    "Home axes, check tool and part, restart from a safe block"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "ప్రోగ్రామ్ మధ్యలో కరెంట్ పోయింది. మళ్లీ ఎలా మొదలుపెట్టాలి?",
+    "options": [
+     "సైకిల్ స్టార్ట్ నొక్కి కొనసాగించాలి",
+     "ఏమీ చెక్ చేయకుండా ఆగిన లైన్ నుంచి మొదలుపెట్టాలి",
+     "వెంటనే మొదటి నుంచి ప్రోగ్రామ్ నడపాలి",
+     "యాక్సిస్‌లు హోమ్ చేసి, టూల్, పార్ట్ చూసి, సేఫ్ బ్లాక్ నుంచి రీస్టార్ట్ చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "प्रोग्राम के बीच में बिजली चली गई। दोबारा कैसे शुरू करें?",
+    "options": [
+     "साइकिल स्टार्ट दबाकर आगे बढ़ें",
+     "बिना जाँच रुकी हुई लाइन से शुरू करें",
+     "तुरंत शुरू से प्रोग्राम चला दें",
+     "एक्सिस होम करें, टूल और पार्ट देखें, सुरक्षित ब्लॉक से शुरू करें"
+    ]
+   }
+  },
+  {
+   "id": "cnc-042",
+   "topic": "Maintenance",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which is a daily check before starting a CNC machine?",
+   "options": [
+    "Lube oil, coolant level and air pressure",
+    "Repaint the guards",
+    "Change the spindle bearings",
+    "Update the control software"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "CNC మెషిన్ స్టార్ట్ చేసే ముందు రోజూ చేయాల్సిన చెక్ ఏది?",
+    "options": [
+     "లూబ్ ఆయిల్, కూలెంట్ లెవెల్, ఎయిర్ ప్రెషర్",
+     "గార్డులకు రంగు వేయడం",
+     "స్పిండిల్ బేరింగ్‌లు మార్చడం",
+     "కంట్రోల్ సాఫ్ట్‌వేర్ అప్‌డేట్ చేయడం"
+    ]
+   },
+   "hi": {
+    "q": "CNC मशीन चालू करने से पहले रोज़ की जाँच कौन सी है?",
+    "options": [
+     "लूब ऑयल, कूलेंट लेवल और एयर प्रेशर",
+     "गार्ड पर पेंट करना",
+     "स्पिंडल बेयरिंग बदलना",
+     "कंट्रोल सॉफ़्टवेयर अपडेट करना"
+    ]
+   }
+  },
+  {
+   "id": "cnc-043",
+   "topic": "Maintenance",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A low lubrication alarm comes on. What do you do?",
+   "options": [
+    "Ignore it and keep running",
+    "Fill the specified way oil up to the mark",
+    "Fill any engine oil you have",
+    "Silence the alarm and carry on"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "లో లూబ్రికేషన్ అలారం వచ్చింది. ఏం చేస్తారు?",
+    "options": [
+     "పట్టించుకోకుండా నడపాలి",
+     "చెప్పిన వే ఆయిల్‌ను గుర్తు వరకు నింపాలి",
+     "దగ్గర ఉన్న ఏదైనా ఇంజన్ ఆయిల్ పోయాలి",
+     "అలారం ఆపి కొనసాగించాలి"
+    ]
+   },
+   "hi": {
+    "q": "लो लुब्रिकेशन अलार्म आया है। आप क्या करेंगे?",
+    "options": [
+     "अनदेखा करके चलाते रहें",
+     "बताया गया वे ऑयल निशान तक भरें",
+     "जो भी इंजन ऑयल हो, डाल दें",
+     "अलार्म बंद करके आगे बढ़ें"
+    ]
+   }
+  },
+  {
+   "id": "cnc-044",
+   "topic": "Maintenance",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Shop air pressure to the machine is low. What can go wrong?",
+   "options": [
+    "Chuck or tool may not clamp properly",
+    "The machine will run faster",
+    "The coolant level will rise",
+    "Nothing at all"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "మెషిన్‌కు వచ్చే ఎయిర్ ప్రెషర్ తక్కువగా ఉంది. ఏం తప్పు జరగొచ్చు?",
+    "options": [
+     "చక్ లేదా టూల్ సరిగ్గా క్లాంప్ కాకపోవచ్చు",
+     "మెషిన్ వేగంగా నడుస్తుంది",
+     "కూలెంట్ లెవెల్ పెరుగుతుంది",
+     "ఏమీ కాదు"
+    ]
+   },
+   "hi": {
+    "q": "मशीन को मिलने वाला एयर प्रेशर कम है। क्या गड़बड़ हो सकती है?",
+    "options": [
+     "चक या टूल ठीक से क्लैंप नहीं होगा",
+     "मशीन तेज़ चलेगी",
+     "कूलेंट लेवल बढ़ जाएगा",
+     "कुछ नहीं होगा"
+    ]
+   }
+  },
+  {
+   "id": "cnc-045",
+   "topic": "Maintenance",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why clean the machine and way covers at the end of every shift?",
+   "options": [
+    "It is only so the machine looks good",
+    "It is not really needed",
+    "It clears the alarm history",
+    "Chips and coolant left there cause wear and rust"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "ప్రతి షిఫ్ట్ చివర మెషిన్, వే కవర్లు ఎందుకు శుభ్రం చేయాలి?",
+    "options": [
+     "మెషిన్ అందంగా కనిపించడానికి మాత్రమే",
+     "అసలు అవసరం లేదు",
+     "అలారం హిస్టరీ క్లియర్ అవుతుంది",
+     "అక్కడ మిగిలిన చిప్స్, కూలెంట్ వల్ల అరుగుదల, తుప్పు వస్తాయి"
+    ]
+   },
+   "hi": {
+    "q": "हर शिफ़्ट के आखिर में मशीन और वे कवर क्यों साफ़ करें?",
+    "options": [
+     "सिर्फ़ इसलिए कि मशीन अच्छी दिखे",
+     "असल में ज़रूरी नहीं",
+     "अलार्म हिस्ट्री साफ़ हो जाती है",
+     "वहाँ बचे चिप्स और कूलेंट से घिसाव और ज़ंग होता है"
+    ]
+   }
+  },
+  {
+   "id": "cnc-046",
+   "topic": "Maintenance",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "How is the strength (concentration) of water-mix coolant checked?",
+   "options": [
+    "By its smell",
+    "With a refractometer and the maker's chart",
+    "By its colour",
+    "By rubbing it between fingers"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "నీటితో కలిపే కూలెంట్ బలం (కాన్సంట్రేషన్) ఎలా చెక్ చేస్తారు?",
+    "options": [
+     "వాసన చూసి",
+     "రిఫ్రాక్టోమీటర్, తయారీదారు చార్ట్‌తో",
+     "రంగు చూసి",
+     "వేళ్ల మధ్య రుద్ది"
+    ]
+   },
+   "hi": {
+    "q": "पानी में मिलने वाले कूलेंट की ताकत (कंसन्ट्रेशन) कैसे जाँचते हैं?",
+    "options": [
+     "सूँघकर",
+     "रिफ़्रैक्टोमीटर और बनाने वाले के चार्ट से",
+     "रंग देखकर",
+     "उंगलियों में मलकर"
+    ]
+   }
+  },
+  {
+   "id": "cnc-047",
+   "topic": "Maintenance",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "The spindle sounds louder and runs hotter than usual. What should you do?",
+   "options": [
+    "Run it faster to test it",
+    "Pour coolant on the spindle nose",
+    "Keep running till the month-end service",
+    "Stop, report to maintenance for a bearing check before more running"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "స్పిండిల్ మామూలు కంటే ఎక్కువ శబ్దం చేస్తోంది, ఎక్కువ వేడెక్కుతోంది. ఏం చేయాలి?",
+    "options": [
+     "టెస్ట్ కోసం ఇంకా వేగంగా నడపాలి",
+     "స్పిండిల్ నోస్ మీద కూలెంట్ పోయాలి",
+     "నెలాఖరు సర్వీస్ వరకు నడపాలి",
+     "ఆపి, ఇంకా నడిపే ముందు బేరింగ్ చెక్ కోసం మెయింటెనెన్స్‌కు రిపోర్ట్ చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "स्पिंडल सामान्य से ज़्यादा आवाज़ कर रहा है और ज़्यादा गर्म है। क्या करना चाहिए?",
+    "options": [
+     "जाँचने के लिए और तेज़ चलाएँ",
+     "स्पिंडल नोज़ पर कूलेंट डालें",
+     "महीने के आखिर की सर्विस तक चलाते रहें",
+     "रोकें, आगे चलाने से पहले बेयरिंग जाँच के लिए मेंटेनेंस को बताएँ"
+    ]
+   }
+  },
+  {
+   "id": "cnc-048",
+   "topic": "Maintenance",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Milled circles come out with small steps where the X axis changes direction. What is the right action?",
+   "options": [
+    "Report backlash for a ball screw check or compensation",
+    "Change the cutting insert",
+    "Increase the feed rate",
+    "Edit the program values every time"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "మిల్ చేసిన వృత్తాల్లో X యాక్సిస్ దిశ మారే చోట చిన్న మెట్లు వస్తున్నాయి. సరైన చర్య ఏది?",
+    "options": [
+     "బాల్ స్క్రూ చెక్ లేదా కాంపెన్సేషన్ కోసం బ్యాక్‌లాష్ రిపోర్ట్ చేయాలి",
+     "కటింగ్ ఇన్సర్ట్ మార్చాలి",
+     "ఫీడ్ రేట్ పెంచాలి",
+     "ప్రతిసారి ప్రోగ్రామ్ విలువలు మార్చాలి"
+    ]
+   },
+   "hi": {
+    "q": "मिल किए गोलों में जहाँ X एक्सिस दिशा बदलता है, वहाँ छोटे स्टेप आ रहे हैं। सही कदम क्या है?",
+    "options": [
+     "बॉल स्क्रू जाँच या कंपनसेशन के लिए बैकलैश रिपोर्ट करें",
+     "कटिंग इंसर्ट बदलें",
+     "फ़ीड रेट बढ़ाएँ",
+     "हर बार प्रोग्राम की वैल्यू बदलें"
+    ]
+   }
+  }
+ ],
+ "task": {
+  "type": "proof",
+  "title": "CNC shop floor: safe-work picture check and photo of your work",
+  "brief": "This takes about 10 minutes. First, answer 7 short picture-style questions. Each one describes a real CNC shop moment (loading a part, measuring, tool holder, proving a program, rejected parts, shift end, lifting). Pick the safe and correct way. Then, if you like, upload one clear photo of a part you machined yourself, your machine setup, or your ITI / training certificate. The photo is optional. Do not show any faces, and do not show customer drawings or company names. Add one or two lines: machine type (lathe or VMC), material, and what you did.",
+  "minutes": 10,
+  "key_points": [
+   "Picks the safe option in each situation",
+   "Photo shows real CNC work or setup by the candidate",
+   "Note names machine type, material and the operation",
+   "No faces, customer drawings or company names visible"
+  ],
+  "rubric": [
+   {
+    "key": "relevance",
+    "label": "Relevance",
+    "guide": "0 = photo is not CNC work, 3 = machining related but unclear what was done, 5 = clear CNC part or setup matching the note"
+   },
+   {
+    "key": "genuineness",
+    "label": "Genuineness",
+    "guide": "0 = looks like a stock or catalogue image, 3 = probably own work but little detail, 5 = clearly own work with a specific note (machine, material, operation)"
+   },
+   {
+    "key": "safety",
+    "label": "Safety and quality",
+    "guide": "0 = unsafe practice or poor finish visible, 3 = acceptable, 5 = clean setup, good finish and safe practice"
+   }
+  ],
+  "situations": [
+   {
+    "q": "An operator is loading a part into a running lathe's chuck area. Which picture shows the safe way?",
+    "options": [
+     "Spindle turning slowly, part pushed in",
+     "Spindle stopped, door open, part loaded by hand",
+     "Door interlock taped, spindle running"
+    ],
+    "answer": 1,
+    "topic": "Machine safety",
+    "te": {
+     "q": "ఆపరేటర్ లేత్ చక్ దగ్గర పార్ట్ లోడ్ చేస్తున్నాడు. ఏ చిత్రం సురక్షిత పద్ధతి చూపిస్తుంది?",
+     "options": [
+      "స్పిండిల్ నెమ్మదిగా తిరుగుతుండగా పార్ట్ తోసి",
+      "స్పిండిల్ ఆగి ఉంది, డోర్ తెరిచి, చేత్తో పార్ట్ లోడ్",
+      "డోర్ ఇంటర్‌లాక్‌కు టేప్ వేసి, స్పిండిల్ నడుస్తుండగా"
+     ]
+    },
+    "hi": {
+     "q": "ऑपरेटर लेथ के चक में पार्ट लगा रहा है। कौन सी तस्वीर सुरक्षित तरीका दिखाती है?",
+     "options": [
+      "स्पिंडल धीरे घूम रहा, पार्ट अंदर धकेला",
+      "स्पिंडल रुका, दरवाज़ा खुला, हाथ से पार्ट लगाया",
+      "डोर इंटरलॉक पर टेप, स्पिंडल चालू"
+     ]
+    }
+   },
+   {
+    "q": "Three photos show a micrometer reading being taken. Which is correct?",
+    "options": [
+     "Part hot from the machine, thimble forced tight",
+     "Reading taken at an angle, chips on the faces",
+     "Part clean and cool, ratchet used, read straight on"
+    ],
+    "answer": 2,
+    "topic": "Measurement and quality",
+    "te": {
+     "q": "మైక్రోమీటర్ రీడింగ్ తీసుకుంటున్న మూడు ఫోటోలు. ఏది సరైనది?",
+     "options": [
+      "మెషిన్ నుంచి వచ్చిన వేడి పార్ట్, థింబుల్ గట్టిగా తిప్పి",
+      "వంకరగా చూసి రీడింగ్, ముఖాలపై చిప్స్",
+      "పార్ట్ శుభ్రంగా, చల్లగా, రాచెట్ వాడి, నేరుగా చూసి చదవడం"
+     ]
+    },
+    "hi": {
+     "q": "माइक्रोमीटर से रीडिंग लेने की तीन फ़ोटो हैं। कौन सी सही है?",
+     "options": [
+      "मशीन से निकला गर्म पार्ट, थिम्बल ज़ोर से कसा",
+      "तिरछे देखकर रीडिंग, फ़ेस पर चिप्स",
+      "पार्ट साफ़ और ठंडा, रैचेट इस्तेमाल, सीधे देखकर पढ़ा"
+     ]
+    }
+   },
+   {
+    "q": "A milling cutter is fitted in a holder. Which picture is right?",
+    "options": [
+     "Short stick-out, collet and taper wiped clean",
+     "Long stick-out for extra reach",
+     "Chips left inside the collet"
+    ],
+    "answer": 0,
+    "topic": "Setup and tooling",
+    "te": {
+     "q": "మిల్లింగ్ కట్టర్‌ను హోల్డర్‌లో బిగించారు. ఏ చిత్రం సరైనది?",
+     "options": [
+      "తక్కువ బయటకు, కొలెట్, టేపర్ శుభ్రంగా తుడిచి",
+      "ఎక్కువ రీచ్ కోసం ఎక్కువ బయటకు",
+      "కొలెట్ లోపల చిప్స్ ఉండిపోయి"
+     ]
+    },
+    "hi": {
+     "q": "मिलिंग कटर होल्डर में लगाया गया है। कौन सी तस्वीर सही है?",
+     "options": [
+      "कम बाहर निकला, कॉलेट और टेपर साफ़ पोंछे",
+      "ज़्यादा पहुँच के लिए लंबा बाहर निकला",
+      "कॉलेट के अंदर चिप्स रह गए"
+     ]
+    }
+   },
+   {
+    "q": "A new program is being proved out. Which screen setting is safest?",
+    "options": [
+     "Single block on, rapid override 25%, hand near feed hold",
+     "Rapid override 100%, auto mode",
+     "Optional stop off, operator away from panel"
+    ],
+    "answer": 0,
+    "topic": "Running and troubleshooting",
+    "te": {
+     "q": "కొత్త ప్రోగ్రామ్‌ను ప్రూవ్ చేస్తున్నారు. ఏ స్క్రీన్ సెట్టింగ్ అత్యంత సేఫ్?",
+     "options": [
+      "సింగిల్ బ్లాక్ ఆన్, ర్యాపిడ్ ఓవర్‌రైడ్ 25%, ఫీడ్ హోల్డ్ దగ్గర చేయి",
+      "ర్యాపిడ్ ఓవర్‌రైడ్ 100%, ఆటో మోడ్",
+      "ఆప్షనల్ స్టాప్ ఆఫ్, ఆపరేటర్ ప్యానెల్‌కు దూరంగా"
+     ]
+    },
+    "hi": {
+     "q": "नया प्रोग्राम प्रूव किया जा रहा है। कौन सी स्क्रीन सेटिंग सबसे सुरक्षित है?",
+     "options": [
+      "सिंगल ब्लॉक ऑन, रैपिड ओवरराइड 25%, हाथ फ़ीड होल्ड के पास",
+      "रैपिड ओवरराइड 100%, ऑटो मोड",
+      "ऑप्शनल स्टॉप ऑफ़, ऑपरेटर पैनल से दूर"
+     ]
+    }
+   },
+   {
+    "q": "A part fails inspection. Which picture shows correct handling?",
+    "options": [
+     "Put back in the OK bin to check later",
+     "Kept on the machine table, no tag",
+     "Red tag, kept in the reject bin, entry in the log"
+    ],
+    "answer": 2,
+    "topic": "Measurement and quality",
+    "te": {
+     "q": "ఒక పార్ట్ ఇన్‌స్పెక్షన్‌లో ఫెయిల్ అయింది. ఏ చిత్రం సరైన హ్యాండ్లింగ్ చూపిస్తుంది?",
+     "options": [
+      "తర్వాత చూడటానికి OK బిన్‌లో తిరిగి పెట్టి",
+      "ట్యాగ్ లేకుండా మెషిన్ టేబుల్ మీద ఉంచి",
+      "రెడ్ ట్యాగ్, రిజెక్ట్ బిన్‌లో పెట్టి, లాగ్‌లో ఎంట్రీ"
+     ]
+    },
+    "hi": {
+     "q": "एक पार्ट इंस्पेक्शन में फ़ेल हुआ। कौन सी तस्वीर सही तरीका दिखाती है?",
+     "options": [
+      "बाद में देखने के लिए OK बिन में वापस रखा",
+      "बिना टैग मशीन की टेबल पर रखा",
+      "लाल टैग, रिजेक्ट बिन में रखा, लॉग में एंट्री"
+     ]
+    }
+   },
+   {
+    "q": "End of shift. Which picture shows the machine left the right way?",
+    "options": [
+     "Chips piled on the bed, door shut",
+     "Chips cleared, ways wiped, lube checked, power off as per SOP",
+     "Coolant hose left running into the bed"
+    ],
+    "answer": 1,
+    "topic": "Maintenance",
+    "te": {
+     "q": "షిఫ్ట్ అయిపోయింది. మెషిన్‌ను సరిగ్గా వదిలిన చిత్రం ఏది?",
+     "options": [
+      "బెడ్ మీద చిప్స్ కుప్ప, డోర్ మూసి",
+      "చిప్స్ తీసి, వేస్ తుడిచి, లూబ్ చూసి, SOP ప్రకారం పవర్ ఆఫ్",
+      "కూలెంట్ హోస్ బెడ్‌లోకి నడుస్తూనే వదిలి"
+     ]
+    },
+    "hi": {
+     "q": "शिफ़्ट खत्म। किस तस्वीर में मशीन सही तरीके से छोड़ी गई है?",
+     "options": [
+      "बेड पर चिप्स का ढेर, दरवाज़ा बंद",
+      "चिप्स हटाए, वेज़ पोंछे, लूब देखा, SOP के हिसाब से पावर ऑफ़",
+      "कूलेंट होज़ बेड में चलता छोड़ा"
+     ]
+    }
+   },
+   {
+    "q": "A heavy part is being lifted into the VMC vise. Which method is safe?",
+    "options": [
+     "Hoist with rated sling, hands clear, lowered slowly",
+     "Two people lift it over the spindle by hand",
+     "Slide it across the table from the door edge"
+    ],
+    "answer": 0,
+    "topic": "Setup and tooling",
+    "te": {
+     "q": "బరువైన పార్ట్‌ను VMC వైస్‌లోకి ఎత్తుతున్నారు. ఏ పద్ధతి సేఫ్?",
+     "options": [
+      "రేటెడ్ స్లింగ్‌తో హాయిస్ట్, చేతులు దూరంగా, నెమ్మదిగా దించాలి",
+      "ఇద్దరు చేత్తో స్పిండిల్ మీదుగా ఎత్తాలి",
+      "డోర్ అంచు నుంచి టేబుల్ మీదుగా జారించాలి"
+     ]
+    },
+    "hi": {
+     "q": "भारी पार्ट VMC वाइस में उठाकर रखना है। कौन सा तरीका सुरक्षित है?",
+     "options": [
+      "रेटेड स्लिंग के साथ होइस्ट, हाथ दूर, धीरे से उतारें",
+      "दो लोग हाथ से स्पिंडल के ऊपर से उठाएँ",
+      "दरवाज़े के किनारे से टेबल पर खिसकाएँ"
+     ]
+    }
+   }
+  ]
+ }
+}

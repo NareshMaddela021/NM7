@@ -1,0 +1,1463 @@
+{
+ "slug": "telecaller",
+ "version": 1,
+ "topics": [
+  "Call opening",
+  "Listening and questions",
+  "Handling objections",
+  "Rules and customer data",
+  "Call notes and follow-up"
+ ],
+ "questions": [
+  {
+   "id": "telecaller-001",
+   "topic": "Call opening",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What should you say first when a customer picks up your call?",
+   "options": [
+    "Start the offer at once so they do not cut the call",
+    "Ask how much they earn every month",
+    "Greet, give your name and company, and ask if it is a good time",
+    "Ask them to hold while you open the script"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "కస్టమర్ మీ కాల్ ఎత్తగానే మొదట ఏమి చెప్పాలి?",
+    "options": [
+     "కాల్ కట్ చేయకుండా వెంటనే ఆఫర్ చెప్పడం మొదలుపెట్టాలి",
+     "వాళ్ల నెల సంపాదన ఎంత అని అడగాలి",
+     "నమస్కారం చెప్పి, మీ పేరు, కంపెనీ పేరు చెప్పి, ఇప్పుడు మాట్లాడొచ్చా అని అడగాలి",
+     "స్క్రిప్ట్ తెరిచే వరకు హోల్డ్‌లో ఉండమని చెప్పాలి"
+    ]
+   },
+   "hi": {
+    "q": "कस्टमर कॉल उठाए तो सबसे पहले क्या बोलना चाहिए?",
+    "options": [
+     "कॉल न कटे, इसलिए तुरंत ऑफर बताना शुरू करें",
+     "पूछें कि उनकी महीने की कमाई कितनी है",
+     "नमस्ते कहें, अपना नाम और कंपनी बताएं, और पूछें कि अभी बात कर सकते हैं क्या",
+     "स्क्रिप्ट खोलने तक होल्ड पर रहने को कहें"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-002",
+   "topic": "Call opening",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "The customer says, 'I am driving right now.' What do you do?",
+   "options": [
+    "Say sorry, ask for a better time, and call back then",
+    "Talk fast and finish the pitch in one minute",
+    "Ask them to stop the vehicle and listen",
+    "Cut the call and mark the number as not interested"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "కస్టమర్ 'నేను ఇప్పుడు డ్రైవ్ చేస్తున్నాను' అంటారు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "సారీ చెప్పి, వీలైన టైమ్ అడిగి, ఆ టైమ్‌కి మళ్లీ కాల్ చేయాలి",
+     "ఒక్క నిమిషంలో వేగంగా మొత్తం చెప్పేయాలి",
+     "బండి ఆపి వినమని అడగాలి",
+     "కాల్ కట్ చేసి నంబర్‌ను ఆసక్తి లేదు అని మార్క్ చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "कस्टमर कहता है, 'मैं अभी गाड़ी चला रहा हूँ।' आप क्या करेंगे?",
+    "options": [
+     "सॉरी बोलें, सही समय पूछें, और उसी समय वापस कॉल करें",
+     "तेज़ी से बोलकर एक मिनट में पूरी बात खत्म करें",
+     "गाड़ी रोककर सुनने को कहें",
+     "कॉल काटें और नंबर को 'इंटरेस्ट नहीं' मार्क करें"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-003",
+   "topic": "Call opening",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Why should you smile while talking on the phone?",
+   "options": [
+    "The customer can see you on video",
+    "It makes every call shorter",
+    "It is needed to pass the quality check",
+    "It makes your voice sound warm and friendly"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "ఫోన్‌లో మాట్లాడేటప్పుడు నవ్వుతూ ఎందుకు మాట్లాడాలి?",
+    "options": [
+     "కస్టమర్ మిమ్మల్ని వీడియోలో చూస్తారు",
+     "ప్రతి కాల్ తొందరగా అయిపోతుంది",
+     "క్వాలిటీ చెక్ పాస్ అవ్వడానికి తప్పనిసరి",
+     "మీ గొంతు ఆప్యాయంగా, స్నేహంగా వినిపిస్తుంది"
+    ]
+   },
+   "hi": {
+    "q": "फ़ोन पर बात करते समय मुस्कुराना क्यों चाहिए?",
+    "options": [
+     "कस्टमर आपको वीडियो में देख सकता है",
+     "इससे हर कॉल छोटी हो जाती है",
+     "क्वालिटी चेक पास करने के लिए यह ज़रूरी है",
+     "इससे आपकी आवाज़ अपनापन भरी और दोस्ताना लगती है"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-004",
+   "topic": "Call opening",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "You call a number from your lead list and a different person answers. What is best?",
+   "options": [
+    "Pitch the product to whoever answered",
+    "Ask politely for the person by name and keep their details private",
+    "Tell them the person's loan amount so they pass the message",
+    "Hang up without saying anything"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "లీడ్ లిస్ట్‌లోని నంబర్‌కి కాల్ చేస్తే వేరే వ్యక్తి ఎత్తారు. ఏది సరైనది?",
+    "options": [
+     "ఎత్తిన వారికే ప్రోడక్ట్ గురించి చెప్పాలి",
+     "ఆ వ్యక్తి పేరు చెప్పి మర్యాదగా అడగాలి, వారి వివరాలు ఎవరికీ చెప్పకూడదు",
+     "మెసేజ్ చేరవేయడానికి ఆ వ్యక్తి లోన్ అమౌంట్ చెప్పాలి",
+     "ఏమీ మాట్లాడకుండా కాల్ కట్ చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "लीड लिस्ट के नंबर पर कॉल किया और कोई दूसरा व्यक्ति उठाता है। क्या सही है?",
+    "options": [
+     "जिसने फ़ोन उठाया, उसी को प्रोडक्ट बताएं",
+     "उस व्यक्ति का नाम लेकर विनम्रता से पूछें, उनकी जानकारी किसी को न बताएं",
+     "मैसेज पहुँचाने के लिए उस व्यक्ति का लोन अमाउंट बता दें",
+     "बिना कुछ बोले कॉल काट दें"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-005",
+   "topic": "Call opening",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "How fast should you speak on a sales call?",
+   "options": [
+    "As fast as possible to cover the full script",
+    "Steady and clear, a little slower for key points like price",
+    "Very slowly for the whole call",
+    "Fast at the start to catch their interest"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "సేల్స్ కాల్‌లో ఎంత వేగంగా మాట్లాడాలి?",
+    "options": [
+     "స్క్రిప్ట్ మొత్తం చెప్పడానికి వీలైనంత వేగంగా",
+     "నిదానంగా, స్పష్టంగా; ధర లాంటి ముఖ్యమైన విషయాలు ఇంకొంచెం నెమ్మదిగా",
+     "కాల్ మొత్తం చాలా నెమ్మదిగా",
+     "ఆసక్తి కలగడానికి మొదట్లో వేగంగా"
+    ]
+   },
+   "hi": {
+    "q": "सेल्स कॉल पर कितनी तेज़ी से बोलना चाहिए?",
+    "options": [
+     "पूरी स्क्रिप्ट पूरी करने के लिए जितना तेज़ हो सके",
+     "स्थिर और साफ़; कीमत जैसी ज़रूरी बातें थोड़ा धीरे",
+     "पूरी कॉल में बहुत धीरे",
+     "ध्यान खींचने के लिए शुरू में तेज़"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-006",
+   "topic": "Call opening",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Your opening line is getting many quick hang-ups. What is the best fix?",
+   "options": [
+    "Add more details about the company's history",
+    "Speak louder at the start of every call",
+    "Skip the greeting and ask for payment details",
+    "Make the opening short and say the benefit in the first 15 seconds"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "మీ ఓపెనింగ్ లైన్ దగ్గరే చాలామంది కాల్ కట్ చేస్తున్నారు. ఏం మార్చాలి?",
+    "options": [
+     "కంపెనీ చరిత్ర గురించి ఇంకా ఎక్కువ చెప్పాలి",
+     "ప్రతి కాల్ మొదట్లో గట్టిగా మాట్లాడాలి",
+     "నమస్కారం వదిలేసి పేమెంట్ వివరాలు అడగాలి",
+     "ఓపెనింగ్ చిన్నగా చేసి, మొదటి 15 సెకన్లలో వారికి లాభం ఏంటో చెప్పాలి"
+    ]
+   },
+   "hi": {
+    "q": "आपकी ओपनिंग लाइन पर ही कई लोग कॉल काट देते हैं। सबसे अच्छा सुधार क्या है?",
+    "options": [
+     "कंपनी के इतिहास के बारे में और बताएं",
+     "हर कॉल की शुरुआत में ज़ोर से बोलें",
+     "नमस्ते छोड़कर सीधे पेमेंट डिटेल माँगें",
+     "ओपनिंग छोटी रखें और पहले 15 सेकंड में उनका फ़ायदा बताएं"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-007",
+   "topic": "Call opening",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "For a renewal call to an old customer, how should the opening differ from a cold call?",
+   "options": [
+    "Mention their plan and its end date, then ask how it has been",
+    "Use the same opening as for a new lead",
+    "Start with the price of the new plan",
+    "Tell them the plan is already renewed"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "పాత కస్టమర్‌కి రెన్యువల్ కాల్‌లో, కొత్త కాల్‌తో పోలిస్తే ఓపెనింగ్ ఎలా ఉండాలి?",
+    "options": [
+     "వారి ప్లాన్, అది ముగిసే తేదీ చెప్పి, ఇప్పటివరకు ఎలా ఉంది అని అడగాలి",
+     "కొత్త లీడ్‌కి చెప్పినట్టే అదే ఓపెనింగ్",
+     "కొత్త ప్లాన్ ధరతో మొదలుపెట్టాలి",
+     "ప్లాన్ ఇప్పటికే రెన్యూ అయిందని చెప్పాలి"
+    ]
+   },
+   "hi": {
+    "q": "पुराने कस्टमर को रिन्यूअल कॉल में, नई कॉल से ओपनिंग कैसे अलग होनी चाहिए?",
+    "options": [
+     "उनके प्लान और उसकी खत्म होने की तारीख बताएं, फिर पूछें अनुभव कैसा रहा",
+     "नई लीड जैसी ही ओपनिंग रखें",
+     "नए प्लान की कीमत से शुरू करें",
+     "बताएं कि प्लान पहले ही रिन्यू हो गया है"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-008",
+   "topic": "Call opening",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A customer asks, 'How did you get my number?' What is the right reply?",
+   "options": [
+    "Say a computer picked it at random, so you don't know",
+    "Change the topic and continue with the offer",
+    "Honestly say where it came from and offer to remove it if they want",
+    "Say you are not allowed to tell them that"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "కస్టమర్ 'నా నంబర్ మీకు ఎలా వచ్చింది?' అని అడుగుతారు. సరైన జవాబు ఏది?",
+    "options": [
+     "కంప్యూటర్ రాండమ్‌గా ఎంచుకుంది, నాకు తెలియదు అనాలి",
+     "విషయం మార్చి ఆఫర్ కొనసాగించాలి",
+     "ఎక్కడ నుంచి వచ్చిందో నిజాయితీగా చెప్పి, కావాలంటే తీసేస్తామని చెప్పాలి",
+     "అది చెప్పడానికి నాకు అనుమతి లేదు అనాలి"
+    ]
+   },
+   "hi": {
+    "q": "कस्टमर पूछता है, 'आपको मेरा नंबर कहाँ से मिला?' सही जवाब क्या है?",
+    "options": [
+     "कहें कि कंप्यूटर ने रैंडम चुना, आपको नहीं पता",
+     "बात बदलकर ऑफर जारी रखें",
+     "ईमानदारी से बताएं कहाँ से मिला, और चाहें तो नंबर हटाने की बात कहें",
+     "कहें कि यह बताने की इजाज़त नहीं है"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-009",
+   "topic": "Listening and questions",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is an 'open question'?",
+   "options": [
+    "A question asked at the start of a call",
+    "A question about the customer's money",
+    "A question the customer asks you",
+    "One that needs more than a yes or no answer"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "'ఓపెన్ క్వశ్చన్' అంటే ఏమిటి?",
+    "options": [
+     "కాల్ మొదట్లో అడిగే ప్రశ్న",
+     "కస్టమర్ డబ్బు గురించి అడిగే ప్రశ్న",
+     "కస్టమర్ మిమ్మల్ని అడిగే ప్రశ్న",
+     "అవును/కాదు కంటే ఎక్కువ జవాబు కావాల్సిన ప్రశ్న"
+    ]
+   },
+   "hi": {
+    "q": "'ओपन क्वेश्चन' क्या होता है?",
+    "options": [
+     "कॉल की शुरुआत में पूछा गया सवाल",
+     "कस्टमर के पैसों के बारे में सवाल",
+     "जो सवाल कस्टमर आपसे पूछे",
+     "जिसका जवाब सिर्फ़ हाँ या ना से ज़्यादा हो"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-010",
+   "topic": "Listening and questions",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "You sell mobile plans. Which question best helps you learn what the customer needs?",
+   "options": [
+    "You want this plan, right?",
+    "Shall I book it for you now?",
+    "What do you mainly use your phone for?",
+    "Is your name Ravi Kumar?"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "మీరు మొబైల్ ప్లాన్లు అమ్ముతారు. కస్టమర్ అవసరం తెలుసుకోవడానికి ఏ ప్రశ్న బాగా సహాయపడుతుంది?",
+    "options": [
+     "మీకు ఈ ప్లాన్ కావాలి కదా?",
+     "ఇప్పుడే బుక్ చేయమంటారా?",
+     "మీరు ఫోన్‌ని ఎక్కువగా దేనికి వాడతారు?",
+     "మీ పేరు రవి కుమార్ కదా?"
+    ]
+   },
+   "hi": {
+    "q": "आप मोबाइल प्लान बेचते हैं। कस्टमर की ज़रूरत जानने के लिए कौन सा सवाल सबसे अच्छा है?",
+    "options": [
+     "आपको यही प्लान चाहिए, है ना?",
+     "क्या मैं अभी बुक कर दूँ?",
+     "आप फ़ोन ज़्यादातर किस काम के लिए इस्तेमाल करते हैं?",
+     "क्या आपका नाम रवि कुमार है?"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-011",
+   "topic": "Listening and questions",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "While the customer is speaking, what should you do?",
+   "options": [
+    "Plan your next line and cut in when ready",
+    "Listen fully and note the key points",
+    "Mute and chat with your team leader",
+    "Keep typing the next call's number"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "కస్టమర్ మాట్లాడుతున్నప్పుడు మీరు ఏమి చేయాలి?",
+    "options": [
+     "మీ తర్వాతి లైన్ ఆలోచించి, మధ్యలో మాట్లాడేయాలి",
+     "పూర్తిగా విని, ముఖ్యమైన విషయాలు రాసుకోవాలి",
+     "మ్యూట్ చేసి టీమ్ లీడర్‌తో మాట్లాడాలి",
+     "తర్వాతి కాల్ నంబర్ టైప్ చేస్తూ ఉండాలి"
+    ]
+   },
+   "hi": {
+    "q": "जब कस्टमर बोल रहा हो, तब आपको क्या करना चाहिए?",
+    "options": [
+     "अपनी अगली लाइन सोचें और बीच में बोल दें",
+     "पूरा सुनें और ज़रूरी बातें नोट करें",
+     "म्यूट करके टीम लीडर से बात करें",
+     "अगली कॉल का नंबर टाइप करते रहें"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-012",
+   "topic": "Listening and questions",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A customer speaks only Telugu, but your script is in English. What is best?",
+   "options": [
+    "Switch to simple Telugu if you can, or offer a Telugu-speaking colleague",
+    "Keep reading the English script so quality is not affected",
+    "Ask them to speak in English",
+    "End the call as a language issue"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "కస్టమర్ తెలుగు మాత్రమే మాట్లాడతారు, కానీ మీ స్క్రిప్ట్ ఇంగ్లీష్‌లో ఉంది. ఏది సరైనది?",
+    "options": [
+     "వస్తే సులభమైన తెలుగులో మాట్లాడాలి, లేదా తెలుగు వచ్చిన సహోద్యోగిని కలపాలి",
+     "క్వాలిటీ దెబ్బతినకుండా ఇంగ్లీష్ స్క్రిప్ట్ చదువుతూనే ఉండాలి",
+     "ఇంగ్లీష్‌లో మాట్లాడమని అడగాలి",
+     "భాష సమస్య అని కాల్ ముగించాలి"
+    ]
+   },
+   "hi": {
+    "q": "कस्टमर सिर्फ़ तेलुगु बोलता है, पर आपकी स्क्रिप्ट अंग्रेज़ी में है। क्या सही है?",
+    "options": [
+     "आती हो तो आसान तेलुगु में बात करें, या तेलुगु बोलने वाले साथी से जोड़ें",
+     "क्वालिटी न बिगड़े, इसलिए अंग्रेज़ी स्क्रिप्ट ही पढ़ते रहें",
+     "उनसे अंग्रेज़ी में बोलने को कहें",
+     "भाषा की दिक्कत कहकर कॉल खत्म करें"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-013",
+   "topic": "Listening and questions",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What does 'summarising' mean on a call?",
+   "options": [
+    "Repeating the main points back to check you understood",
+    "Reading the full terms and conditions",
+    "Ending the call quickly",
+    "Telling the customer about other products"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "కాల్‌లో 'సమ్మరైజ్ చేయడం' అంటే ఏమిటి?",
+    "options": [
+     "మీకు సరిగ్గా అర్థమైందో లేదో చూడడానికి ముఖ్య విషయాలు మళ్లీ చెప్పడం",
+     "పూర్తి టర్మ్స్ అండ్ కండిషన్స్ చదవడం",
+     "కాల్ త్వరగా ముగించడం",
+     "కస్టమర్‌కి ఇతర ప్రోడక్ట్స్ గురించి చెప్పడం"
+    ]
+   },
+   "hi": {
+    "q": "कॉल पर 'समराइज़ करना' का मतलब क्या है?",
+    "options": [
+     "आपने सही समझा या नहीं, यह जाँचने के लिए मुख्य बातें दोहराना",
+     "पूरी टर्म्स और कंडीशन पढ़ना",
+     "कॉल जल्दी खत्म करना",
+     "कस्टमर को दूसरे प्रोडक्ट्स के बारे में बताना"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-014",
+   "topic": "Listening and questions",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A customer says, 'I already have a plan, but it is costly.' What do you ask next?",
+   "options": [
+    "Do you want to buy our plan today?",
+    "Why did you choose such a costly plan?",
+    "How much do you pay now, and what do you use most?",
+    "Can I call you again next month?"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "కస్టమర్ 'నాకు ఇప్పటికే ప్లాన్ ఉంది, కానీ ఖరీదుగా ఉంది' అంటారు. తర్వాత ఏమి అడుగుతారు?",
+    "options": [
+     "ఈరోజే మా ప్లాన్ తీసుకుంటారా?",
+     "అంత ఖరీదైన ప్లాన్ ఎందుకు తీసుకున్నారు?",
+     "ఇప్పుడు ఎంత కడుతున్నారు, ఎక్కువగా ఏది వాడతారు?",
+     "వచ్చే నెల మళ్లీ కాల్ చేయనా?"
+    ]
+   },
+   "hi": {
+    "q": "कस्टमर कहता है, 'मेरे पास पहले से प्लान है, पर महंगा है।' आप आगे क्या पूछेंगे?",
+    "options": [
+     "क्या आप आज ही हमारा प्लान लेंगे?",
+     "आपने इतना महंगा प्लान क्यों लिया?",
+     "अभी कितना देते हैं, और सबसे ज़्यादा क्या इस्तेमाल करते हैं?",
+     "क्या मैं अगले महीने फिर कॉल करूँ?"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-015",
+   "topic": "Listening and questions",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A customer gives short answers and sounds unsure. What works best?",
+   "options": [
+    "Ask many questions together to save time",
+    "Ask one easy open question at a time and give them time to answer",
+    "Stop asking and read out the full offer",
+    "Tell them other customers decided quickly"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "కస్టమర్ చిన్న చిన్న జవాబులు ఇస్తున్నారు, సందేహంగా ఉన్నారు. ఏది బాగా పనిచేస్తుంది?",
+    "options": [
+     "టైమ్ ఆదా కోసం చాలా ప్రశ్నలు ఒకేసారి అడగాలి",
+     "ఒక్కసారికి ఒక సులభమైన ఓపెన్ ప్రశ్న అడిగి, జవాబు చెప్పడానికి టైమ్ ఇవ్వాలి",
+     "ప్రశ్నలు ఆపేసి ఆఫర్ మొత్తం చదివి వినిపించాలి",
+     "ఇతర కస్టమర్లు వెంటనే నిర్ణయం తీసుకున్నారని చెప్పాలి"
+    ]
+   },
+   "hi": {
+    "q": "कस्टमर छोटे जवाब दे रहा है और उलझन में लगता है। सबसे अच्छा क्या है?",
+    "options": [
+     "समय बचाने के लिए कई सवाल एक साथ पूछें",
+     "एक बार में एक आसान ओपन सवाल पूछें और जवाब देने का समय दें",
+     "सवाल बंद करके पूरा ऑफर पढ़कर सुनाएं",
+     "बताएं कि बाकी कस्टमर ने जल्दी फ़ैसला किया"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-016",
+   "topic": "Listening and questions",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A customer keeps coming back to the same point during the call. What does it most likely mean?",
+   "options": [
+    "They are not listening and you should move on",
+    "They just want to end the call",
+    "They are testing your memory",
+    "That point is their real worry and needs a clear answer"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "కాల్‌లో కస్టమర్ మళ్లీ మళ్లీ అదే విషయం దగ్గరికి వస్తున్నారు. దాని అర్థం ఏమై ఉండొచ్చు?",
+    "options": [
+     "వారు వినడం లేదు, మీరు ముందుకు వెళ్లిపోవాలి",
+     "వారు కేవలం కాల్ ముగించాలనుకుంటున్నారు",
+     "మీ జ్ఞాపకశక్తిని పరీక్షిస్తున్నారు",
+     "అదే వారి అసలు ఆందోళన, దానికి స్పష్టమైన జవాబు కావాలి"
+    ]
+   },
+   "hi": {
+    "q": "कॉल में कस्टमर बार-बार एक ही बात पर लौट रहा है। इसका सबसे संभावित मतलब क्या है?",
+    "options": [
+     "वे सुन नहीं रहे, आपको आगे बढ़ जाना चाहिए",
+     "वे बस कॉल खत्म करना चाहते हैं",
+     "वे आपकी याददाश्त जाँच रहे हैं",
+     "वही उनकी असली चिंता है और उसका साफ़ जवाब चाहिए"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-017",
+   "topic": "Listening and questions",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "An elderly customer gets confused by the plan details. What is the best approach?",
+   "options": [
+    "Read the details again at the same pace",
+    "Send the brochure link and close the call",
+    "Explain one point at a time in plain words and check they follow",
+    "Book the plan, since they seem to agree"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "ఒక పెద్ద వయసు కస్టమర్ ప్లాన్ వివరాలతో అయోమయంలో ఉన్నారు. ఏ పద్ధతి మంచిది?",
+    "options": [
+     "అదే వేగంతో వివరాలు మళ్లీ చదవాలి",
+     "బ్రోచర్ లింక్ పంపి కాల్ ముగించాలి",
+     "ఒక్కో విషయం సులభమైన మాటల్లో చెప్పి, అర్థమైందో లేదో చూడాలి",
+     "ఒప్పుకున్నట్టు అనిపిస్తోంది కాబట్టి ప్లాన్ బుక్ చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "एक बुज़ुर्ग कस्टमर प्लान की जानकारी से उलझ गए हैं। सबसे अच्छा तरीका क्या है?",
+    "options": [
+     "उसी रफ़्तार से जानकारी फिर पढ़ें",
+     "ब्रोशर लिंक भेजकर कॉल खत्म करें",
+     "एक-एक बात आसान शब्दों में समझाएं और देखें कि वे समझ रहे हैं",
+     "लगता है वे राज़ी हैं, इसलिए प्लान बुक कर दें"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-018",
+   "topic": "Handling objections",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "A customer says, 'Not interested.' What is a good first reply?",
+   "options": [
+    "Thank them, ask one short question about why, and respect the answer",
+    "Repeat the whole offer in a louder voice",
+    "Argue that they will lose money",
+    "Hang up at once without a word"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "కస్టమర్ 'ఆసక్తి లేదు' అంటారు. మొదట మంచి జవాబు ఏది?",
+    "options": [
+     "ధన్యవాదాలు చెప్పి, ఎందుకో ఒక చిన్న ప్రశ్న అడిగి, వారి జవాబును గౌరవించాలి",
+     "ఆఫర్ మొత్తం గట్టి గొంతుతో మళ్లీ చెప్పాలి",
+     "డబ్బు నష్టపోతారని వాదించాలి",
+     "ఏమీ అనకుండా వెంటనే కాల్ కట్ చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "कस्टमर कहता है, 'इंटरेस्ट नहीं है।' पहला अच्छा जवाब क्या है?",
+    "options": [
+     "धन्यवाद कहें, कारण के बारे में एक छोटा सवाल पूछें, और जवाब का सम्मान करें",
+     "पूरा ऑफर ऊँची आवाज़ में दोहराएं",
+     "बहस करें कि उनका पैसा डूबेगा",
+     "बिना कुछ कहे तुरंत कॉल काट दें"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-019",
+   "topic": "Handling objections",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "A customer says the price is too high. What do you do first?",
+   "options": [
+    "Give the biggest discount at once",
+    "Say the price is fixed and end the call",
+    "Say that everyone else pays it",
+    "Find out what they compare it with, then explain the value"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "కస్టమర్ ధర చాలా ఎక్కువ అంటారు. మొదట ఏమి చేస్తారు?",
+    "options": [
+     "వెంటనే అతి పెద్ద డిస్కౌంట్ ఇవ్వాలి",
+     "ధర ఫిక్స్ అని చెప్పి కాల్ ముగించాలి",
+     "అందరూ ఇదే కడుతున్నారని చెప్పాలి",
+     "దేనితో పోలుస్తున్నారో తెలుసుకుని, తర్వాత విలువ వివరించాలి"
+    ]
+   },
+   "hi": {
+    "q": "कस्टमर कहता है कीमत बहुत ज़्यादा है। आप पहले क्या करेंगे?",
+    "options": [
+     "तुरंत सबसे बड़ा डिस्काउंट दे दें",
+     "कहें कीमत फ़िक्स है और कॉल खत्म करें",
+     "कहें कि बाकी सब यही देते हैं",
+     "पता करें वे किससे तुलना कर रहे हैं, फिर उसकी वैल्यू समझाएं"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-020",
+   "topic": "Handling objections",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A customer says, 'Send me the details on WhatsApp.' What is best?",
+   "options": [
+    "Refuse and insist they listen now",
+    "Agree, send the details, and fix a time to call back",
+    "Send it and never follow up",
+    "Say WhatsApp cannot be used for customers"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "కస్టమర్ 'వివరాలు WhatsApp‌లో పంపండి' అంటారు. ఏది సరైనది?",
+    "options": [
+     "కుదరదని చెప్పి ఇప్పుడే వినమని పట్టుబట్టాలి",
+     "సరే అని, వివరాలు పంపి, మళ్లీ కాల్ చేసే టైమ్ ఫిక్స్ చేయాలి",
+     "పంపేసి మళ్లీ ఎప్పుడూ ఫాలో-అప్ చేయకూడదు",
+     "కస్టమర్లకు WhatsApp వాడకూడదని చెప్పాలి"
+    ]
+   },
+   "hi": {
+    "q": "कस्टमर कहता है, 'डिटेल WhatsApp पर भेज दो।' क्या सही है?",
+    "options": [
+     "मना करें और अभी सुनने की ज़िद करें",
+     "हाँ कहें, डिटेल भेजें, और वापस कॉल का समय तय करें",
+     "भेज दें और फिर कभी फ़ॉलो-अप न करें",
+     "कहें कि कस्टमर के लिए WhatsApp इस्तेमाल नहीं होता"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-021",
+   "topic": "Handling objections",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A customer says, 'Let me ask my family first.' What is a good reply?",
+   "options": [
+    "Say they should decide on their own",
+    "Agree, offer details they can show at home, and fix a call-back time",
+    "Push them to buy before the offer ends today",
+    "Mark the lead as lost"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "కస్టమర్ 'ముందు మా ఇంట్లో వాళ్లని అడుగుతాను' అంటారు. మంచి జవాబు ఏది?",
+    "options": [
+     "మీరే సొంతంగా నిర్ణయం తీసుకోవాలని చెప్పాలి",
+     "సరే అని, ఇంట్లో చూపించడానికి వివరాలు పంపి, మళ్లీ కాల్ చేసే టైమ్ ఫిక్స్ చేయాలి",
+     "ఆఫర్ ఈరోజే ముగుస్తుందని కొనమని ఒత్తిడి చేయాలి",
+     "లీడ్‌ని పోయింది అని మార్క్ చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "कस्टमर कहता है, 'पहले घरवालों से पूछ लूँ।' अच्छा जवाब क्या है?",
+    "options": [
+     "कहें कि उन्हें खुद फ़ैसला करना चाहिए",
+     "हाँ कहें, घर पर दिखाने के लिए डिटेल भेजें, और वापस कॉल का समय तय करें",
+     "आज ऑफर खत्म होने से पहले खरीदने का दबाव डालें",
+     "लीड को 'लॉस्ट' मार्क करें"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-022",
+   "topic": "Handling objections",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A customer is angry about a past bad experience with your company. What do you do first?",
+   "options": [
+    "Defend the company strongly",
+    "Ignore it and continue the pitch",
+    "Say it was another department's fault",
+    "Listen, say sorry for the trouble, and note the issue"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "మీ కంపెనీతో పాత చెడు అనుభవం వల్ల కస్టమర్ కోపంగా ఉన్నారు. మొదట ఏమి చేస్తారు?",
+    "options": [
+     "కంపెనీని గట్టిగా సమర్థించాలి",
+     "పట్టించుకోకుండా పిచ్ కొనసాగించాలి",
+     "అది వేరే డిపార్ట్‌మెంట్ తప్పు అని చెప్పాలి",
+     "విని, ఇబ్బందికి సారీ చెప్పి, సమస్యను నోట్ చేసుకోవాలి"
+    ]
+   },
+   "hi": {
+    "q": "कस्टमर आपकी कंपनी के पुराने बुरे अनुभव से नाराज़ है। आप पहले क्या करेंगे?",
+    "options": [
+     "कंपनी का ज़ोरदार बचाव करें",
+     "अनदेखा करके पिच जारी रखें",
+     "कहें कि गलती दूसरे डिपार्टमेंट की थी",
+     "सुनें, परेशानी के लिए सॉरी कहें, और समस्या नोट करें"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-023",
+   "topic": "Handling objections",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A customer says a competitor offers the same plan cheaper. What is best?",
+   "options": [
+    "Ask what is included there, then show the real differences honestly",
+    "Say the other company is a fraud",
+    "Match the price without asking your manager",
+    "Agree and advise them to go there"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "వేరే కంపెనీ అదే ప్లాన్ తక్కువకి ఇస్తోందని కస్టమర్ అంటారు. ఏది సరైనది?",
+    "options": [
+     "అక్కడ ఏమేమి వస్తున్నాయో అడిగి, నిజమైన తేడాలు నిజాయితీగా చూపించాలి",
+     "ఆ కంపెనీ మోసం అని చెప్పాలి",
+     "మేనేజర్‌ని అడగకుండా అదే ధరకి ఇస్తామనాలి",
+     "ఒప్పుకుని అక్కడికే వెళ్లమని చెప్పాలి"
+    ]
+   },
+   "hi": {
+    "q": "कस्टमर कहता है कि दूसरी कंपनी वही प्लान सस्ते में दे रही है। क्या सही है?",
+    "options": [
+     "पूछें वहाँ क्या-क्या मिल रहा है, फिर असली फ़र्क ईमानदारी से बताएं",
+     "कहें कि वह कंपनी धोखेबाज़ है",
+     "मैनेजर से पूछे बिना वही कीमत दे दें",
+     "मान लें और वहीं जाने की सलाह दें"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-024",
+   "topic": "Handling objections",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "When is it right to stop handling objections and close the call politely?",
+   "options": [
+    "Never; every objection can be beaten",
+    "As soon as the customer asks their first question",
+    "When the customer has clearly said no twice or asks you to stop",
+    "Only when your call time target is over"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "అభ్యంతరాలకు జవాబు ఇవ్వడం ఆపి, మర్యాదగా కాల్ ఎప్పుడు ముగించాలి?",
+    "options": [
+     "ఎప్పుడూ కాదు; ప్రతి అభ్యంతరాన్ని గెలవొచ్చు",
+     "కస్టమర్ మొదటి ప్రశ్న అడగగానే",
+     "కస్టమర్ రెండుసార్లు స్పష్టంగా వద్దన్నప్పుడు లేదా ఆపమన్నప్పుడు",
+     "మీ కాల్ టైమ్ టార్గెట్ అయిపోయినప్పుడు మాత్రమే"
+    ]
+   },
+   "hi": {
+    "q": "आपत्तियों का जवाब देना छोड़कर, विनम्रता से कॉल कब खत्म करनी चाहिए?",
+    "options": [
+     "कभी नहीं; हर आपत्ति जीती जा सकती है",
+     "जैसे ही कस्टमर पहला सवाल पूछे",
+     "जब कस्टमर दो बार साफ़ मना कर दे या रुकने को कहे",
+     "सिर्फ़ तब जब आपका कॉल टाइम टारगेट पूरा हो"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-025",
+   "topic": "Handling objections",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A customer agrees to buy, but you sense they did not understand the charges. What do you do?",
+   "options": [
+    "Book it quickly before they change their mind",
+    "Tell them the details will come by SMS later",
+    "Skip the charges since they already agreed",
+    "Explain the charges again clearly and confirm before booking"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "కస్టమర్ కొనడానికి ఒప్పుకున్నారు, కానీ చార్జీలు అర్థం కాలేదని మీకు అనిపిస్తోంది. ఏమి చేస్తారు?",
+    "options": [
+     "మనసు మారకముందే త్వరగా బుక్ చేయాలి",
+     "వివరాలు తర్వాత SMSలో వస్తాయని చెప్పాలి",
+     "ఒప్పుకున్నారు కాబట్టి చార్జీల విషయం వదిలేయాలి",
+     "చార్జీలు మళ్లీ స్పష్టంగా చెప్పి, బుక్ చేసే ముందు కన్ఫర్మ్ చేసుకోవాలి"
+    ]
+   },
+   "hi": {
+    "q": "कस्टमर खरीदने को राज़ी है, पर आपको लगता है उसे चार्ज समझ नहीं आए। आप क्या करेंगे?",
+    "options": [
+     "मन बदलने से पहले जल्दी बुक कर दें",
+     "कहें कि डिटेल बाद में SMS से आ जाएगी",
+     "राज़ी हो गए हैं, इसलिए चार्ज की बात छोड़ दें",
+     "चार्ज फिर से साफ़ समझाएं और बुक करने से पहले कन्फ़र्म करें"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-026",
+   "topic": "Handling objections",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A customer says, 'Call me later' every time you call. What is best?",
+   "options": [
+    "Keep calling every day until they buy",
+    "Delete the lead without noting anything",
+    "Ask for an exact day and time, and whether they are still interested",
+    "Call late at night when they are free"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "మీరు కాల్ చేసిన ప్రతిసారీ కస్టమర్ 'తర్వాత కాల్ చేయండి' అంటారు. ఏది సరైనది?",
+    "options": [
+     "కొనే వరకు రోజూ కాల్ చేస్తూ ఉండాలి",
+     "ఏమీ రాయకుండా లీడ్‌ని డిలీట్ చేయాలి",
+     "ఖచ్చితమైన రోజు, టైమ్ అడిగి, ఇంకా ఆసక్తి ఉందా అని కూడా అడగాలి",
+     "ఖాళీగా ఉంటారని రాత్రి ఆలస్యంగా కాల్ చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "आप जब भी कॉल करते हैं, कस्टमर कहता है 'बाद में कॉल करो'। क्या सही है?",
+    "options": [
+     "खरीदने तक रोज़ कॉल करते रहें",
+     "कुछ नोट किए बिना लीड डिलीट कर दें",
+     "सही दिन और समय पूछें, और यह भी कि क्या अब भी इंटरेस्ट है",
+     "देर रात कॉल करें जब वे फ़्री हों"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-027",
+   "topic": "Rules and customer data",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which detail should you never ask a customer for on a sales call?",
+   "options": [
+    "Their preferred call time",
+    "OTP or card PIN",
+    "The city they live in",
+    "How they like to be addressed"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "సేల్స్ కాల్‌లో కస్టమర్‌ని ఎప్పుడూ అడగకూడని వివరం ఏది?",
+    "options": [
+     "వారికి వీలైన కాల్ టైమ్",
+     "OTP లేదా కార్డ్ PIN",
+     "వారు ఉండే ఊరు",
+     "వారిని ఎలా పిలవాలో"
+    ]
+   },
+   "hi": {
+    "q": "सेल्स कॉल पर कस्टमर से कौन सी जानकारी कभी नहीं माँगनी चाहिए?",
+    "options": [
+     "उनका पसंदीदा कॉल टाइम",
+     "OTP या कार्ड PIN",
+     "वे किस शहर में रहते हैं",
+     "उन्हें कैसे बुलाया जाए"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-028",
+   "topic": "Rules and customer data",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "A customer says, 'Please don't call me again.' What do you do?",
+   "options": [
+    "Note it in the system so the number is not called again",
+    "Call again next week with a new offer",
+    "Pass the number to another team",
+    "Ignore it; people often change their mind"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "కస్టమర్ 'దయచేసి మళ్లీ కాల్ చేయకండి' అంటారు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "ఆ నంబర్‌కి మళ్లీ కాల్ రాకుండా సిస్టమ్‌లో నోట్ చేయాలి",
+     "వచ్చే వారం కొత్త ఆఫర్‌తో మళ్లీ కాల్ చేయాలి",
+     "నంబర్‌ని వేరే టీమ్‌కి ఇవ్వాలి",
+     "పట్టించుకోకూడదు; జనం తరచూ మనసు మార్చుకుంటారు"
+    ]
+   },
+   "hi": {
+    "q": "कस्टमर कहता है, 'प्लीज़ मुझे दोबारा कॉल मत करना।' आप क्या करेंगे?",
+    "options": [
+     "सिस्टम में नोट करें ताकि उस नंबर पर दोबारा कॉल न हो",
+     "अगले हफ़्ते नए ऑफर के साथ फिर कॉल करें",
+     "नंबर दूसरी टीम को दे दें",
+     "ध्यान न दें; लोग अक्सर मन बदल लेते हैं"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-029",
+   "topic": "Rules and customer data",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A number is registered as 'DND'. What does that mean?",
+   "options": [
+    "The person does not want promotional calls",
+    "The phone is switched off",
+    "The number is a landline",
+    "The person wants offers only by SMS"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "ఒక నంబర్ 'DND'లో రిజిస్టర్ అయి ఉంది. దాని అర్థం ఏమిటి?",
+    "options": [
+     "ఆ వ్యక్తికి ప్రమోషనల్ కాల్స్ వద్దు",
+     "ఫోన్ స్విచ్ ఆఫ్ అయి ఉంది",
+     "అది ల్యాండ్‌లైన్ నంబర్",
+     "ఆఫర్లు SMSలో మాత్రమే కావాలి"
+    ]
+   },
+   "hi": {
+    "q": "कोई नंबर 'DND' में रजिस्टर है। इसका मतलब क्या है?",
+    "options": [
+     "उस व्यक्ति को प्रमोशनल कॉल नहीं चाहिए",
+     "फ़ोन स्विच ऑफ़ है",
+     "वह लैंडलाइन नंबर है",
+     "उन्हें ऑफर सिर्फ़ SMS से चाहिए"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-030",
+   "topic": "Rules and customer data",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why should you never promise a benefit that is not in the plan?",
+   "options": [
+    "It makes the call take longer",
+    "The script has no space for it",
+    "It misleads the customer and causes complaints",
+    "Customers never believe promises"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "ప్లాన్‌లో లేని లాభాన్ని ఎందుకు ఎప్పుడూ వాగ్దానం చేయకూడదు?",
+    "options": [
+     "కాల్ ఎక్కువసేపు పడుతుంది",
+     "స్క్రిప్ట్‌లో దానికి చోటు లేదు",
+     "అది కస్టమర్‌ని మోసం చేస్తుంది, కంప్లైంట్లు వస్తాయి",
+     "కస్టమర్లు వాగ్దానాలను ఎప్పుడూ నమ్మరు"
+    ]
+   },
+   "hi": {
+    "q": "जो फ़ायदा प्लान में नहीं है, उसका वादा कभी क्यों नहीं करना चाहिए?",
+    "options": [
+     "इससे कॉल लंबी हो जाती है",
+     "स्क्रिप्ट में इसकी जगह नहीं है",
+     "इससे कस्टमर गुमराह होता है और शिकायतें आती हैं",
+     "कस्टमर कभी वादों पर भरोसा नहीं करते"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-031",
+   "topic": "Rules and customer data",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which is the most suitable time to make sales calls to people at home?",
+   "options": [
+    "Late at night when people are free",
+    "Between 10 am and 7 pm",
+    "Early morning, around 6 am",
+    "Any time, since calls are free"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "ఇళ్లలో ఉన్నవారికి సేల్స్ కాల్స్ చేయడానికి ఏ టైమ్ ఎక్కువ సరైనది?",
+    "options": [
+     "జనం ఖాళీగా ఉండే రాత్రి ఆలస్యంగా",
+     "ఉదయం 10 నుంచి సాయంత్రం 7 మధ్య",
+     "తెల్లవారుజామున 6 గంటలకు",
+     "కాల్స్ ఫ్రీ కాబట్టి ఎప్పుడైనా"
+    ]
+   },
+   "hi": {
+    "q": "घर पर लोगों को सेल्स कॉल करने का सबसे सही समय कौन सा है?",
+    "options": [
+     "देर रात, जब लोग फ़्री हों",
+     "सुबह 10 से शाम 7 बजे के बीच",
+     "सुबह-सुबह, करीब 6 बजे",
+     "कभी भी, क्योंकि कॉल फ़्री है"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-032",
+   "topic": "Rules and customer data",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Your team leader asks you to tell customers the offer ends today, but it does not. What do you do?",
+   "options": [
+    "Say it, since the leader told you to",
+    "Say it only to customers who seem unsure",
+    "Quit the job on the spot",
+    "Say only what is true and raise it with the team leader"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "ఆఫర్ ఈరోజే ముగుస్తుందని కస్టమర్లకు చెప్పమని టీమ్ లీడర్ అంటారు, కానీ అది నిజం కాదు. ఏమి చేస్తారు?",
+    "options": [
+     "లీడర్ చెప్పారు కాబట్టి అలాగే చెప్పాలి",
+     "సందేహంగా ఉన్న కస్టమర్లకు మాత్రమే చెప్పాలి",
+     "అక్కడికక్కడే ఉద్యోగం మానేయాలి",
+     "నిజం మాత్రమే చెప్పి, ఈ విషయం టీమ్ లీడర్‌తో మాట్లాడాలి"
+    ]
+   },
+   "hi": {
+    "q": "टीम लीडर कहता है कि कस्टमर को बोलो ऑफर आज खत्म हो रहा है, पर ऐसा नहीं है। आप क्या करेंगे?",
+    "options": [
+     "लीडर ने कहा है, इसलिए बोल दें",
+     "सिर्फ़ उलझन वाले कस्टमर को बोलें",
+     "तुरंत नौकरी छोड़ दें",
+     "सिर्फ़ सच बोलें और यह बात टीम लीडर से करें"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-033",
+   "topic": "Rules and customer data",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A caller says he is the customer's son and asks for the account details. What do you do?",
+   "options": [
+    "Share the details, since he is family",
+    "Share only the amount due",
+    "Do not share; ask the account holder to call or verify themselves",
+    "Ask the son's name and then share"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "ఒక వ్యక్తి తాను కస్టమర్ కొడుకునని చెప్పి అకౌంట్ వివరాలు అడుగుతున్నారు. ఏమి చేస్తారు?",
+    "options": [
+     "కుటుంబ సభ్యుడు కాబట్టి వివరాలు చెప్పాలి",
+     "బాకీ మొత్తం మాత్రమే చెప్పాలి",
+     "చెప్పకూడదు; అకౌంట్ ఉన్నవారే కాల్ చేయాలి లేదా వెరిఫై చేయాలి అని చెప్పాలి",
+     "కొడుకు పేరు అడిగి తర్వాత చెప్పాలి"
+    ]
+   },
+   "hi": {
+    "q": "कोई कहता है कि वह कस्टमर का बेटा है और अकाउंट की जानकारी माँगता है। आप क्या करेंगे?",
+    "options": [
+     "परिवार है, इसलिए जानकारी दे दें",
+     "सिर्फ़ बकाया रकम बता दें",
+     "जानकारी न दें; अकाउंट होल्डर से खुद कॉल या वेरिफ़ाई करने को कहें",
+     "बेटे का नाम पूछकर बता दें"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-034",
+   "topic": "Rules and customer data",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why are calls usually recorded in telecalling?",
+   "options": [
+    "For quality checks, training and settling disputes",
+    "To sell to other companies as leads",
+    "To post on social media for marketing",
+    "Only to count how many calls you made"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "టెలికాలింగ్‌లో కాల్స్ సాధారణంగా ఎందుకు రికార్డ్ చేస్తారు?",
+    "options": [
+     "క్వాలిటీ చెక్, ట్రైనింగ్, వివాదాలు తేల్చడం కోసం",
+     "లీడ్స్‌గా వేరే కంపెనీలకు అమ్మడానికి",
+     "మార్కెటింగ్ కోసం సోషల్ మీడియాలో పెట్టడానికి",
+     "మీరు ఎన్ని కాల్స్ చేశారో లెక్కించడానికి మాత్రమే"
+    ]
+   },
+   "hi": {
+    "q": "टेलीकॉलिंग में कॉल आमतौर पर रिकॉर्ड क्यों की जाती हैं?",
+    "options": [
+     "क्वालिटी चेक, ट्रेनिंग और विवाद सुलझाने के लिए",
+     "दूसरी कंपनियों को लीड के रूप में बेचने के लिए",
+     "मार्केटिंग के लिए सोशल मीडिया पर डालने के लिए",
+     "सिर्फ़ यह गिनने के लिए कि आपने कितनी कॉल कीं"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-035",
+   "topic": "Rules and customer data",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "You see a colleague copying customer numbers into a personal notebook to take home. What is right?",
+   "options": [
+    "Ignore it; it is not your business",
+    "Ask them to share the numbers with you too",
+    "Post about it in the team WhatsApp group",
+    "Report it to your team leader, as customer data must stay safe"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "ఒక సహోద్యోగి కస్టమర్ నంబర్లు సొంత నోట్‌బుక్‌లో రాసుకుని ఇంటికి తీసుకెళ్తున్నారు. ఏది సరైనది?",
+    "options": [
+     "పట్టించుకోకూడదు; అది మీ పని కాదు",
+     "ఆ నంబర్లు మీకూ ఇవ్వమని అడగాలి",
+     "టీమ్ WhatsApp గ్రూప్‌లో దాని గురించి పోస్ట్ చేయాలి",
+     "కస్టమర్ డేటా సురక్షితంగా ఉండాలి కాబట్టి టీమ్ లీడర్‌కి చెప్పాలి"
+    ]
+   },
+   "hi": {
+    "q": "आप देखते हैं कि एक साथी कस्टमर के नंबर अपनी निजी कॉपी में लिखकर घर ले जा रहा है। क्या सही है?",
+    "options": [
+     "ध्यान न दें; यह आपका काम नहीं",
+     "उनसे कहें कि नंबर आपको भी दें",
+     "टीम के WhatsApp ग्रुप में इसके बारे में पोस्ट करें",
+     "टीम लीडर को बताएं, क्योंकि कस्टमर डेटा सुरक्षित रहना चाहिए"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-036",
+   "topic": "Call notes and follow-up",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "After a call, why should you write notes in the CRM?",
+   "options": [
+    "To make your call count go up",
+    "So you or anyone else knows what was said next time",
+    "Notes are needed only for sold calls",
+    "To fill time between calls"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "కాల్ అయ్యాక CRMలో నోట్స్ ఎందుకు రాయాలి?",
+    "options": [
+     "మీ కాల్ కౌంట్ పెరగడానికి",
+     "తర్వాత మీకు గానీ వేరేవారికి గానీ ఏమి మాట్లాడారో తెలియడానికి",
+     "అమ్ముడైన కాల్స్‌కి మాత్రమే నోట్స్ కావాలి",
+     "కాల్స్ మధ్య టైమ్ గడపడానికి"
+    ]
+   },
+   "hi": {
+    "q": "कॉल के बाद CRM में नोट्स क्यों लिखने चाहिए?",
+    "options": [
+     "ताकि आपकी कॉल गिनती बढ़े",
+     "ताकि अगली बार आपको या किसी और को पता हो कि क्या बात हुई",
+     "नोट्स सिर्फ़ बिकी हुई कॉल के लिए चाहिए",
+     "कॉल के बीच का समय भरने के लिए"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-037",
+   "topic": "Call notes and follow-up",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "A customer asks you to call on Friday at 4 pm. What do you do?",
+   "options": [
+    "Just remember it in your head",
+    "Set a reminder in the system and call at that time",
+    "Call on Thursday to be early",
+    "Wait for the customer to call you"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "కస్టమర్ శుక్రవారం సాయంత్రం 4కి కాల్ చేయమన్నారు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "మనసులో గుర్తుపెట్టుకుంటే చాలు",
+     "సిస్టమ్‌లో రిమైండర్ పెట్టి, ఆ టైమ్‌కి కాల్ చేయాలి",
+     "ముందుగా ఉండాలని గురువారమే కాల్ చేయాలి",
+     "కస్టమరే కాల్ చేసే వరకు ఆగాలి"
+    ]
+   },
+   "hi": {
+    "q": "कस्टमर शुक्रवार शाम 4 बजे कॉल करने को कहता है। आप क्या करेंगे?",
+    "options": [
+     "बस दिमाग में याद रखें",
+     "सिस्टम में रिमाइंडर लगाएं और उसी समय कॉल करें",
+     "जल्दी के लिए गुरुवार को ही कॉल कर दें",
+     "कस्टमर के कॉल करने का इंतज़ार करें"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-038",
+   "topic": "Call notes and follow-up",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is a 'lead' in telecalling?",
+   "options": [
+    "Your team leader",
+    "A customer who has complained",
+    "The first line of the script",
+    "A person who may be interested in buying"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "టెలికాలింగ్‌లో 'లీడ్' అంటే ఏమిటి?",
+    "options": [
+     "మీ టీమ్ లీడర్",
+     "కంప్లైంట్ ఇచ్చిన కస్టమర్",
+     "స్క్రిప్ట్‌లోని మొదటి లైన్",
+     "కొనడానికి ఆసక్తి ఉండొచ్చు అనుకునే వ్యక్తి"
+    ]
+   },
+   "hi": {
+    "q": "टेलीकॉलिंग में 'लीड' क्या होती है?",
+    "options": [
+     "आपका टीम लीडर",
+     "शिकायत करने वाला कस्टमर",
+     "स्क्रिप्ट की पहली लाइन",
+     "ऐसा व्यक्ति जिसे खरीदने में रुचि हो सकती है"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-039",
+   "topic": "Call notes and follow-up",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which call note is the most useful?",
+   "options": [
+    "Wants bike loan; salary on 5th; call 6 Mar, 5 pm",
+    "Customer was nice and talked for a long time",
+    "Said something about a loan, call back",
+    "Not sure, will see, call again some day"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "ఈ కాల్ నోట్స్‌లో ఏది ఎక్కువ ఉపయోగపడుతుంది?",
+    "options": [
+     "బైక్ లోన్ కావాలి; జీతం 5న; మార్చి 6, సా. 5కి కాల్",
+     "కస్టమర్ మంచిగా చాలాసేపు మాట్లాడారు",
+     "లోన్ గురించి ఏదో అన్నారు, మళ్లీ కాల్",
+     "తెలియదు, చూద్దాం, ఎప్పుడైనా మళ్లీ కాల్"
+    ]
+   },
+   "hi": {
+    "q": "इनमें से कौन सा कॉल नोट सबसे काम का है?",
+    "options": [
+     "बाइक लोन चाहिए; सैलरी 5 को; 6 मार्च शाम 5 बजे कॉल",
+     "कस्टमर अच्छे थे, देर तक बात की",
+     "लोन के बारे में कुछ कहा, फिर कॉल करना",
+     "पता नहीं, देखेंगे, कभी फिर कॉल करना"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-040",
+   "topic": "Call notes and follow-up",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is the 'conversion rate' in telesales?",
+   "options": [
+    "The number of calls made per hour",
+    "The time each call takes",
+    "The share of leads that end in a sale",
+    "How many customers hang up"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "టెలిసేల్స్‌లో 'కన్వర్షన్ రేట్' అంటే ఏమిటి?",
+    "options": [
+     "గంటకు చేసిన కాల్స్ సంఖ్య",
+     "ఒక్కో కాల్‌కి పట్టే టైమ్",
+     "లీడ్స్‌లో ఎంత భాగం అమ్మకంగా మారిందో",
+     "ఎంతమంది కస్టమర్లు కాల్ కట్ చేశారో"
+    ]
+   },
+   "hi": {
+    "q": "टेलीसेल्स में 'कन्वर्ज़न रेट' क्या है?",
+    "options": [
+     "एक घंटे में की गई कॉल की संख्या",
+     "हर कॉल में लगने वाला समय",
+     "लीड्स का वह हिस्सा जो बिक्री में बदला",
+     "कितने कस्टमर ने कॉल काटी"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-041",
+   "topic": "Call notes and follow-up",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "You have 120 leads and little time today. Which should you call first?",
+   "options": [
+    "Leads who said no last month",
+    "Leads sorted by name, A to Z",
+    "The oldest leads in the list",
+    "Fresh leads who asked for a call back recently"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "మీ దగ్గర 120 లీడ్స్ ఉన్నాయి, ఈరోజు టైమ్ తక్కువ. ముందు ఎవరికి కాల్ చేయాలి?",
+    "options": [
+     "గత నెల వద్దన్న లీడ్స్",
+     "పేరు A నుంచి Z క్రమంలో",
+     "లిస్ట్‌లో అన్నిటికంటే పాత లీడ్స్",
+     "ఇటీవలే మళ్లీ కాల్ చేయమన్న కొత్త లీడ్స్"
+    ]
+   },
+   "hi": {
+    "q": "आपके पास 120 लीड हैं और आज समय कम है। पहले किसे कॉल करना चाहिए?",
+    "options": [
+     "जिन्होंने पिछले महीने मना किया",
+     "नाम के हिसाब से A से Z",
+     "लिस्ट की सबसे पुरानी लीड",
+     "नई लीड जिन्होंने हाल ही में वापस कॉल करने को कहा"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-042",
+   "topic": "Call notes and follow-up",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Your talk time is high but sales are low. What should you check first?",
+   "options": [
+    "Make more calls per hour, no matter what",
+    "Ask to move to a new product",
+    "Listen to your recordings to see where customers drop off",
+    "Ask for only fresh leads and blame the old ones"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "మీ టాక్ టైమ్ ఎక్కువ, కానీ సేల్స్ తక్కువ. ముందుగా ఏమి చెక్ చేయాలి?",
+    "options": [
+     "ఏది ఏమైనా గంటకు ఎక్కువ కాల్స్ చేయాలి",
+     "కొత్త ప్రోడక్ట్‌కి మార్చమని అడగాలి",
+     "మీ రికార్డింగ్స్ విని, కస్టమర్లు ఎక్కడ ఆసక్తి కోల్పోతున్నారో చూడాలి",
+     "కొత్త లీడ్స్ మాత్రమే అడిగి, పాతవాటిని తప్పు పట్టాలి"
+    ]
+   },
+   "hi": {
+    "q": "आपका टॉक टाइम ज़्यादा है पर सेल्स कम है। पहले क्या जाँचना चाहिए?",
+    "options": [
+     "चाहे जो हो, हर घंटे ज़्यादा कॉल करें",
+     "नए प्रोडक्ट पर भेजने को कहें",
+     "अपनी रिकॉर्डिंग सुनें और देखें कस्टमर कहाँ रुचि खो देते हैं",
+     "सिर्फ़ नई लीड माँगें और पुरानी को दोष दें"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-043",
+   "topic": "Call notes and follow-up",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A customer paid 3 days ago, but the service is still not active. What do you do?",
+   "options": [
+    "Ask them to wait one more week and call again",
+    "Raise a ticket, share its number, and call back with an update",
+    "Give them the support number and close the call",
+    "Say activation is not your team's work"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "కస్టమర్ 3 రోజుల క్రితం పేమెంట్ చేశారు, కానీ సర్వీస్ ఇంకా యాక్టివ్ కాలేదు. ఏమి చేస్తారు?",
+    "options": [
+     "ఇంకో వారం ఆగి మళ్లీ కాల్ చేయమనాలి",
+     "టికెట్ రైజ్ చేసి, దాని నంబర్ చెప్పి, అప్‌డేట్‌తో మళ్లీ కాల్ చేయాలి",
+     "సపోర్ట్ నంబర్ ఇచ్చి కాల్ ముగించాలి",
+     "యాక్టివేషన్ మా టీమ్ పని కాదని చెప్పాలి"
+    ]
+   },
+   "hi": {
+    "q": "कस्टमर ने 3 दिन पहले पेमेंट किया, पर सर्विस अभी तक चालू नहीं हुई। आप क्या करेंगे?",
+    "options": [
+     "एक हफ़्ता और रुककर फिर कॉल करने को कहें",
+     "टिकट बनाएं, उसका नंबर बताएं, और अपडेट के साथ वापस कॉल करें",
+     "सपोर्ट नंबर देकर कॉल खत्म करें",
+     "कहें कि एक्टिवेशन आपकी टीम का काम नहीं"
+    ]
+   }
+  },
+  {
+   "id": "telecaller-044",
+   "topic": "Call notes and follow-up",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is a good way to end a sales call?",
+   "options": [
+    "Sum up what was agreed, say the next step, and thank them",
+    "Say bye quickly to save time",
+    "Ask them to rate you 5 stars",
+    "Read out the full price list once more"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "సేల్స్ కాల్‌ని ముగించడానికి మంచి పద్ధతి ఏది?",
+    "options": [
+     "ఒప్పుకున్నది క్లుప్తంగా చెప్పి, తర్వాతి స్టెప్ చెప్పి, ధన్యవాదాలు చెప్పాలి",
+     "టైమ్ ఆదా కోసం త్వరగా బై చెప్పాలి",
+     "5 స్టార్స్ రేటింగ్ ఇవ్వమని అడగాలి",
+     "పూర్తి ధరల లిస్ట్ మళ్లీ చదవాలి"
+    ]
+   },
+   "hi": {
+    "q": "सेल्स कॉल खत्म करने का अच्छा तरीका क्या है?",
+    "options": [
+     "जो तय हुआ उसे दोहराएं, अगला कदम बताएं, और धन्यवाद कहें",
+     "समय बचाने के लिए जल्दी बाय बोलें",
+     "5 स्टार रेटिंग देने को कहें",
+     "पूरी प्राइस लिस्ट एक बार फिर पढ़ें"
+    ]
+   }
+  }
+ ],
+ "task": {
+  "type": "voice",
+  "title": "Sales call: offer a home broadband plan to an enquiry lead",
+  "minutes": 5,
+  "brief": "Speak for 60 to 90 seconds as if you are on the phone. You work for a broadband company. Call Ms. Farah Shaikh, who filled an online enquiry form last week. The plan: 100 Mbps, ₹599 a month plus GST, free installation, free router, and the first month free with a 6-month plan. After your opening, imagine she says: 'I already have a connection. It is slow, but I don't want to waste money changing.' In your answer: greet her and say who you are and why you are calling, check if it is a good time, ask one or two questions about her use, answer her worry honestly (do not promise anything not in the plan), and end with a clear next step, like a free speed check visit or a call-back time. Speak clearly and politely, in English, Telugu or Hindi.",
+  "key_points": [
+   "Greets, gives own name and company, and says the reason for the call (her enquiry)",
+   "Asks if it is a good time to talk",
+   "Asks at least one question about her use (work from home, streaming, number of users)",
+   "Responds to the slow-speed and cost worry with empathy, not argument",
+   "States the offer correctly: 100 Mbps, ₹599 plus GST, free installation and router, first month free on 6 months",
+   "Makes no false promises or pressure (no fake deadlines)",
+   "Ends with a clear next step and a thank you"
+  ],
+  "rubric": [
+   {
+    "key": "greeting_structure",
+    "label": "Greeting and structure",
+    "guide": "0 = no greeting or introduction, jumps around; 3 = greets but misses the reason or time check; 5 = clear opening, questions, answer, next step in order"
+   },
+   {
+    "key": "correctness",
+    "label": "Correct offer details",
+    "guide": "0 = wrong price or made-up benefits; 3 = mostly right, one detail missing or vague; 5 = all plan details right, nothing false promised"
+   },
+   {
+    "key": "empathy",
+    "label": "Listening and empathy",
+    "guide": "0 = ignores or argues with her worry; 3 = acknowledges it briefly; 5 = shows understanding, asks about her need and answers the real concern"
+   },
+   {
+    "key": "clarity",
+    "label": "Clarity and tone",
+    "guide": "0 = hard to follow, rushed or rude; 3 = understandable but flat or too fast; 5 = clear, polite, steady pace, simple words"
+   },
+   {
+    "key": "closing",
+    "label": "Closing and next step",
+    "guide": "0 = no next step; 3 = vague next step ('I will call sometime'); 5 = specific next step agreed, summary and thanks"
+   }
+  ]
+ }
+}
