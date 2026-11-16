@@ -1,0 +1,62 @@
+{
+  "slug": "electrical",
+  "version": 1,
+  "questions": [
+    {
+      "id": "electrical-i1",
+      "kind": "experience",
+      "q": "What electrical work have you done? Tell us if it was house wiring, shops, factory or panel work, and what you did with your own hands?",
+      "looks_for": "Specific work done personally: wiring, DB fitting, motor connections, panel work, fault finding; where and for how long; ITI trade or licence if any. Honest about helper vs lead work.",
+      "te": "మీరు ఏ electrical పని చేశారు? House wiring, shops, factory లేదా panel పనా, మీ చేతులతో మీరు ఏం చేశారు చెప్పండి?",
+      "hi": "आपने कौन सा electrical काम किया है? House wiring, दुकान, factory या panel का काम, और आपने अपने हाथ से क्या किया, बताइए?"
+    },
+    {
+      "id": "electrical-i2",
+      "kind": "experience",
+      "q": "Tell us about one electrical job you are proud of. What was the problem and how did you finish it?",
+      "looks_for": "A concrete job with clear steps: what the fault or task was, how they found it, how they did it safely, and how they tested before handing over.",
+      "te": "మీకు గర్వంగా అనిపించిన ఒక electrical పని గురించి చెప్పండి. Problem ఏంటి, మీరు దాన్ని ఎలా పూర్తి చేశారు?",
+      "hi": "किसी एक electrical काम के बारे में बताइए जिस पर आपको गर्व है। Problem क्या थी और आपने उसे कैसे पूरा किया?"
+    },
+    {
+      "id": "electrical-i3",
+      "kind": "knowledge",
+      "q": "Before you work on a switch board or a light point in a house, what steps do you take to make sure there is no current?",
+      "looks_for": "Switches off the MCB or main, tells people in the house, puts a tag or keeps the DB closed, tests with a tester or multimeter that the line is dead, uses insulated tools and rubber slippers, never trusts the switch alone.",
+      "te": "ఇంట్లో switch board లేదా light point మీద పని చేసే ముందు, current లేదని confirm చేసుకోవడానికి మీరు ఏ steps తీసుకుంటారు?",
+      "hi": "घर में switch board या light point पर काम करने से पहले, करंट नहीं है यह पक्का करने के लिए आप क्या steps लेते हैं?"
+    },
+    {
+      "id": "electrical-i4",
+      "kind": "knowledge",
+      "q": "In a house, the MCB keeps tripping again and again. How will you find out the reason?",
+      "looks_for": "Logical steps: asks when it trips, switches off all loads and adds them back one by one, checks for overload, short circuit or earth leakage, checks wires and appliances with a meter, checks the MCB rating. Does not just fit a bigger MCB.",
+      "te": "ఒక ఇంట్లో MCB మళ్ళీ మళ్ళీ trip అవుతోంది. కారణం ఏంటో మీరు ఎలా కనిపెడతారు?",
+      "hi": "एक घर में MCB बार बार trip हो रहा है। आप कारण कैसे पता करेंगे?"
+    },
+    {
+      "id": "electrical-i5",
+      "kind": "knowledge",
+      "q": "A customer wants a new 1.5 ton AC point. How will you choose the wire size and the MCB, and what else will you check?",
+      "looks_for": "Separate line from the DB, copper wire of proper size (around 2.5 to 4 sq mm based on length), MCB of suitable rating (around 16 to 20 A), proper earthing, good socket or isolator, checks the meter and main load capacity.",
+      "te": "Customer కి కొత్త 1.5 ton AC point కావాలి. Wire size, MCB ఎలా select చేస్తారు, ఇంకా ఏం check చేస్తారు?",
+      "hi": "Customer को नया 1.5 ton AC point चाहिए। आप wire size और MCB कैसे चुनेंगे, और और क्या check करेंगे?"
+    },
+    {
+      "id": "electrical-i6",
+      "kind": "situation",
+      "q": "The site supervisor asks you to work on a live panel quickly because the factory cannot stop. What will you do?",
+      "looks_for": "Does not work live without authorisation, training and proper PPE; explains the danger, asks for a shutdown or planned time, follows permit-to-work or lockout. Stays respectful but firm on safety.",
+      "te": "Factory ఆపలేమని, live panel మీద తొందరగా పని చేయమని site supervisor అడుగుతున్నారు. మీరు ఏం చేస్తారు?",
+      "hi": "Site supervisor कहता है कि factory रुक नहीं सकती, इसलिए live panel पर जल्दी काम करो। आप क्या करेंगे?"
+    },
+    {
+      "id": "electrical-i7",
+      "kind": "motivation",
+      "q": "Why do you want to work as an electrician? When can you join, and what salary do you expect? Can you say your notice period and salary clearly?",
+      "looks_for": "A genuine reason (interest in the trade, ITI training, growth), a clear joining date or notice period, and a clear salary figure.",
+      "te": "మీరు electrician గా ఎందుకు పని చేయాలనుకుంటున్నారు? ఎప్పుడు join అవ్వగలరు, ఎంత salary ఆశిస్తున్నారు? మీ notice period, salary స్పష్టంగా చెప్పండి?",
+      "hi": "आप electrician का काम क्यों करना चाहते हैं? आप कब join कर सकते हैं, और कितनी salary चाहते हैं? अपना notice period और salary साफ़ बताइए?"
+    }
+  ]
+}

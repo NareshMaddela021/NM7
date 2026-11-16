@@ -4,6 +4,7 @@
 // Contact details show once shortlisted. Stages (the student sees each one), compare up to 3 side by side, schedule an
 // interview (the student gets a calendar file), the talent pool, the resume they applied with. No pop-up dialogs.
 // English, Telugu and Hindi (co.ap.*). Vetting V1: the level chip and ⚡ Ready now on each card and in the profile.
+// Vetting V3: the profile of someone at L3+ opens their screening interview (ScreeningInterview.jsx).
 import { useCallback, useEffect, useState } from 'react';
 import { rq } from '../../lib/company';
 import { matchReasons } from '../../lib/jobBoard';
@@ -16,6 +17,7 @@ import '../../styles/company-jobs.css';
 
 import ApplicantFeedback from './ApplicantFeedback';
 import SkillBadge from './SkillBadge';
+import ScreeningInterview from './ScreeningInterview';
 import LevelBadge from '../../components/LevelBadge';
 import { lt } from '../../components/levelStrings';
 import { useLang } from '../../lib/i18n';
@@ -95,7 +97,7 @@ export default function CompanyApplicants({ t, c }) {
       ) : (
         <Board t={t} items={d.items} onProfile={setDrawer} />
       )}
-      {profile && <Profile t={t} a={profile} rank={d.items.indexOf(profile) + 1} onClose={() => setDrawer(null)} />}
+      {profile && <Profile t={t} c={c} can={can} a={profile} rank={d.items.indexOf(profile) + 1} onClose={() => setDrawer(null)} onChanged={load} />}
       {/* a bar that stays at the bottom of the screen while ticking, so the result is right there (fix round item 23) */}
       {chosen.length > 0 && (
         <div className="co-ap-bar" data-testid="co-ap-bar">
@@ -142,7 +144,7 @@ function Board({ t, items, onProfile }) {
 }
 
 /** The candidate's profile in a side panel: only what the list already loaded (no extra calls). */
-function Profile({ t, a, rank, onClose }) {
+function Profile({ t, c, can, a, rank, onClose, onChanged }) {
   return (
     <Dialog title={a.name} onClose={onClose} showTitle overlayStyle={{ justifyContent: 'flex-end', alignItems: 'stretch', padding: 0 }}
       panelStyle={{ width: 'min(460px, 100vw)', maxWidth: '100vw', height: '100vh', maxHeight: '100vh', margin: 0, borderRadius: '22px 0 0 22px' }}>
@@ -157,6 +159,8 @@ function Profile({ t, a, rank, onClose }) {
         </div>
         <ApLevel lv={a.level} />
         <SkillBadge sv={a.skillVerified} t={t} />
+        {a.level?.level >= 3 && <div className="row g8"><ScreeningInterview c={c} uid={a.userId} name={a.name} level={a.level.level} job={a.jobId} appId={a.id} top
+          canInvite={can && !['interview', 'offer', 'rejected'].includes(a.status)} onInvited={onChanged} /></div>}
         <ul className="ca-reasons">{reasons(a.match, t).map((r) => <li key={r}>{r}</li>)}</ul>
         {a.match?.found.length > 0 && <div className="stack g4"><span className="mkicker">{t('co.ap.cFound')}</span><span className="ca-skills">{a.match.found.map((x) => <span key={x} className="ca-skill ok">{x}</span>)}</span></div>}
         {a.match?.missing.length > 0 && <div className="stack g4"><span className="mkicker">{t('co.ap.cMissing')}</span><span className="ca-skills">{a.match.missing.map((x) => <span key={x} className="ca-skill">{x}</span>)}</span></div>}

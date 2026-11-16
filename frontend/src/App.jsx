@@ -97,6 +97,7 @@ const MeJobs = lazy(() => import('./pages/me/MeJobs'));
 const AutoApply = lazy(() => import('./pages/me/AutoApply'));
 const MeHire = lazy(() => import('./pages/me/MeHire'));
 const MeSkillChecks = lazy(() => import('./pages/me/MeSkillChecks'));
+const MeInterviews = lazy(() => import('./pages/me/MeInterviews'));
 const MeRoles = lazy(() => import('./pages/me/MeRoles'));
 const MeLearn = lazy(() => import('./pages/me/MeLearn'));
 const MePractice = lazy(() => import('./pages/me/MePractice'));
@@ -469,6 +470,8 @@ export default function App() {
           <Route path="hire" element={<MeHire />} />
           <Route path="skill-checks" element={<MeSkillChecks />} />
           <Route path="skill-checks/:id" element={<MeSkillChecks />} />
+          <Route path="interviews" element={<MeInterviews />} />
+          <Route path="interviews/:id" element={<MeInterviews />} />
           <Route path="roles" element={<MeRoles />} />
           <Route path="learn" element={<MeLearn />} />
           <Route path="practice" element={<MePractice />} />

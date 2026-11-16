@@ -1,0 +1,62 @@
+{
+  "slug": "delivery",
+  "version": 1,
+  "questions": [
+    {
+      "id": "delivery-i1",
+      "kind": "experience",
+      "q": "What delivery work have you done before? Tell us the company or area, the vehicle you used, and about how many orders you did in a day?",
+      "looks_for": "Real, specific details: company or area, vehicle, daily order count, type of orders (food, parcels). Honest about how long they worked; no vague claims.",
+      "te": "మీరు ఇంతకు ముందు ఏ delivery పని చేశారు? ఏ company లేదా ఏ area, ఏ vehicle వాడారు, రోజుకు సుమారు ఎన్ని orders చేశారు చెప్పండి?",
+      "hi": "आपने पहले कौन सा delivery काम किया है? कौन सी company या area, कौन सी गाड़ी चलाई, और दिन में लगभग कितने orders किए, बताइए?"
+    },
+    {
+      "id": "delivery-i2",
+      "kind": "experience",
+      "q": "Tell us about one delivery day or one order you are proud of. What happened and what did you do well?",
+      "looks_for": "A concrete story (hard address, big rush day, saving a late order) with what they did themselves: calling the customer, staying calm, keeping the parcel safe.",
+      "te": "మీకు గర్వంగా అనిపించిన ఒక delivery రోజు లేదా ఒక order గురించి చెప్పండి. ఏం జరిగింది, మీరు ఏం బాగా చేశారు?",
+      "hi": "किसी एक delivery दिन या एक order के बारे में बताइए जिस पर आपको गर्व है। क्या हुआ और आपने क्या अच्छा किया?"
+    },
+    {
+      "id": "delivery-i3",
+      "kind": "knowledge",
+      "q": "It is raining heavily and you have five orders to deliver. How will you ride safely and keep the parcels dry?",
+      "looks_for": "Safety first: helmet, slow speed, keeps distance, avoids waterlogged roads, stops if it is too dangerous and informs the customer or team. Uses a plastic cover or bag for parcels. Does not rush to save time.",
+      "te": "బాగా వర్షం పడుతోంది, మీ దగ్గర ఐదు orders ఉన్నాయి. మీరు safe గా ఎలా bike నడుపుతారు, parcels తడవకుండా ఎలా చూసుకుంటారు?",
+      "hi": "तेज़ बारिश हो रही है और आपके पास पाँच orders हैं। आप safe तरीके से गाड़ी कैसे चलाएंगे और parcels को भीगने से कैसे बचाएंगे?"
+    },
+    {
+      "id": "delivery-i4",
+      "kind": "knowledge",
+      "q": "When you get many orders at once, how do you plan your route so that you deliver on time without rushing on the road?",
+      "looks_for": "Checks all addresses first, groups nearby ones, uses the map app, thinks about traffic and food that gets cold first, calls customers when the address is unclear. Does not over-speed to make up time.",
+      "te": "ఒకేసారి చాలా orders వస్తే, road మీద హడావిడి లేకుండా time కి delivery చేయడానికి మీ route ని ఎలా plan చేసుకుంటారు?",
+      "hi": "जब एक साथ बहुत सारे orders आ जाएँ, तो आप अपना route कैसे plan करते हैं ताकि सड़क पर जल्दबाज़ी किए बिना समय पर delivery हो?"
+    },
+    {
+      "id": "delivery-i5",
+      "kind": "knowledge",
+      "q": "How do you handle cash on delivery money safely, and how do you make sure the count is right at the end of the day?",
+      "looks_for": "Counts cash in front of the customer, keeps change ready, keeps money in a safe place, notes each order, checks fake notes, deposits or hands over on time, and reports any shortage honestly.",
+      "te": "Cash on delivery డబ్బులు మీరు ఎలా safe గా చూసుకుంటారు? రోజు చివర లెక్క సరిగ్గా ఉండేలా ఎలా చూసుకుంటారు?",
+      "hi": "Cash on delivery के पैसे आप कैसे संभालते हैं, और दिन के आखिर में हिसाब सही रहे, यह कैसे पक्का करते हैं?"
+    },
+    {
+      "id": "delivery-i6",
+      "kind": "situation",
+      "q": "You reach the address 20 minutes late because of traffic, and the customer is shouting at you. What will you say and do?",
+      "looks_for": "Stays calm and polite, says sorry without arguing, explains briefly, hands over the order properly, does not use bad words, and reports the issue to support if the customer wants a complaint or refund.",
+      "te": "Traffic వల్ల మీరు 20 నిమిషాలు late గా వెళ్లారు, customer మీ మీద అరుస్తున్నారు. మీరు ఏం మాట్లాడతారు, ఏం చేస్తారు?",
+      "hi": "Traffic की वजह से आप 20 मिनट late पहुँचे, और customer आप पर चिल्ला रहा है। आप क्या कहेंगे और क्या करेंगे?"
+    },
+    {
+      "id": "delivery-i7",
+      "kind": "motivation",
+      "q": "Why do you want to do delivery work? When can you join, and what salary or per-order pay do you expect? Can you say your notice period and salary clearly?",
+      "looks_for": "A genuine reason (knows the area, likes being on the road, needs steady income), a clear joining date or notice period, and a clear salary or pay figure. Mentions whether they have their own vehicle and licence.",
+      "te": "మీరు delivery పని ఎందుకు చేయాలనుకుంటున్నారు? ఎప్పుడు join అవ్వగలరు, ఎంత salary లేదా ఒక order కి ఎంత pay ఆశిస్తున్నారు? మీ notice period, salary స్పష్టంగా చెప్పండి?",
+      "hi": "आप delivery का काम क्यों करना चाहते हैं? आप कब join कर सकते हैं, और कितनी salary या per order कितना pay चाहते हैं? अपना notice period और salary साफ़ बताइए?"
+    }
+  ]
+}

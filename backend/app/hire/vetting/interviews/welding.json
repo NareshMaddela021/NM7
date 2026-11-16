@@ -1,0 +1,62 @@
+{
+  "slug": "welding",
+  "version": 1,
+  "questions": [
+    {
+      "id": "welding-i1",
+      "kind": "experience",
+      "q": "What welding work have you done? Tell us which type, like arc, MIG, TIG or gas welding, and what jobs you welded?",
+      "looks_for": "Specific processes and materials (mild steel, stainless, pipes, structures), positions they can weld, where and how long, any certificate. Honest about what they cannot do yet.",
+      "te": "మీరు ఏ welding పని చేశారు? Arc, MIG, TIG లేదా gas welding లో ఏది, ఏ jobs weld చేశారు చెప్పండి?",
+      "hi": "आपने कौन सा welding काम किया है? Arc, MIG, TIG या gas welding में से कौन सा, और कौन से jobs weld किए, बताइए?"
+    },
+    {
+      "id": "welding-i2",
+      "kind": "experience",
+      "q": "Tell us about one welding job you are proud of. What did you make or repair, and why was it good?",
+      "looks_for": "A concrete job: what it was, the process used, how they prepared and checked it, and how quality was confirmed (no leaks, passed inspection, strong joint).",
+      "te": "మీకు గర్వంగా అనిపించిన ఒక welding పని గురించి చెప్పండి. మీరు ఏం తయారు చేశారు లేదా repair చేశారు, అది ఎందుకు బాగుంది?",
+      "hi": "किसी एक welding काम के बारे में बताइए जिस पर आपको गर्व है। आपने क्या बनाया या repair किया, और वह अच्छा क्यों था?"
+    },
+    {
+      "id": "welding-i3",
+      "kind": "knowledge",
+      "q": "Before you start welding, what safety things do you check and wear?",
+      "looks_for": "Helmet or shield with the right filter, gloves, apron, safety shoes, full sleeves; checks cables, earth clamp and holder; removes flammable items; good ventilation; fire extinguisher nearby; screens to protect others' eyes.",
+      "te": "Welding మొదలుపెట్టే ముందు మీరు ఏ safety విషయాలు check చేస్తారు, ఏమేమి వేసుకుంటారు?",
+      "hi": "Welding शुरू करने से पहले आप कौन सी safety चीज़ें check करते हैं और क्या पहनते हैं?"
+    },
+    {
+      "id": "welding-i4",
+      "kind": "knowledge",
+      "q": "How do you choose the electrode and the current for welding a mild steel plate? What happens if the current is too high or too low?",
+      "looks_for": "Chooses electrode type and size by plate thickness (for example 3.15 mm rod for medium plate), sets current to suit the rod, keeps rods dry. Too high: spatter, undercut, burn-through. Too low: rod sticks, poor fusion, slag inside.",
+      "te": "Mild steel plate weld చేయడానికి electrode, current ఎలా select చేస్తారు? Current ఎక్కువైతే లేదా తక్కువైతే ఏం జరుగుతుంది?",
+      "hi": "Mild steel plate weld करने के लिए electrode और current कैसे चुनते हैं? Current बहुत ज़्यादा या बहुत कम हो तो क्या होता है?"
+    },
+    {
+      "id": "welding-i5",
+      "kind": "knowledge",
+      "q": "After welding, how do you check if the weld is good? What defects do you look for?",
+      "looks_for": "Removes slag and cleans, checks visually for cracks, porosity, undercut, poor fusion, uneven bead and spatter; checks size against the drawing; reports or repairs defects; mentions tests like dye penetrant if they know.",
+      "te": "Welding అయిపోయాక weld బాగుందో లేదో ఎలా check చేస్తారు? ఏ defects కోసం చూస్తారు?",
+      "hi": "Welding के बाद आप कैसे check करते हैं कि weld अच्छा है? आप कौन से defects देखते हैं?"
+    },
+    {
+      "id": "welding-i6",
+      "kind": "situation",
+      "q": "You are asked to weld near some oil drums and gas cylinders, and there is no fire extinguisher nearby. What will you do?",
+      "looks_for": "Does not start; asks for the drums and cylinders to be moved or covered, gets a fire extinguisher and a fire watcher, follows hot-work permit; informs the supervisor. Safety before deadline.",
+      "te": "కొన్ని oil drums, gas cylinders దగ్గర weld చేయమని చెప్పారు, దగ్గరలో fire extinguisher లేదు. మీరు ఏం చేస్తారు?",
+      "hi": "आपको कुछ oil drums और gas cylinders के पास weld करने को कहा गया है, और पास में fire extinguisher नहीं है। आप क्या करेंगे?"
+    },
+    {
+      "id": "welding-i7",
+      "kind": "motivation",
+      "q": "Why do you want to work as a welder? When can you join, and what salary do you expect? Can you say your notice period and salary clearly?",
+      "looks_for": "A genuine reason, a clear joining date or notice period, and a clear salary figure. May mention site work or travel comfort honestly.",
+      "te": "మీరు welder గా ఎందుకు పని చేయాలనుకుంటున్నారు? ఎప్పుడు join అవ్వగలరు, ఎంత salary ఆశిస్తున్నారు? మీ notice period, salary స్పష్టంగా చెప్పండి?",
+      "hi": "आप welder का काम क्यों करना चाहते हैं? आप कब join कर सकते हैं, और कितनी salary चाहते हैं? अपना notice period और salary साफ़ बताइए?"
+    }
+  ]
+}

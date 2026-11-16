@@ -1,0 +1,48 @@
+{
+  "slug": "hr-recruiter",
+  "version": 1,
+  "questions": [
+    {
+      "id": "hr-recruiter-i1",
+      "kind": "experience",
+      "q": "Tell me about your recruiting work. What roles did you hire for, which sources did you use, and how many positions did you close in a month?",
+      "looks_for": "Real roles and levels, sources (job portals, referrals, LinkedIn, walk-ins), monthly numbers, and their own part from sourcing to joining."
+    },
+    {
+      "id": "hr-recruiter-i2",
+      "kind": "experience",
+      "q": "Describe a hard position you filled. Why was it hard and what did you do differently to close it?",
+      "looks_for": "Specific role and challenge (rare skill, low budget, location), new sourcing or screening steps, talks with the hiring manager, and the final result."
+    },
+    {
+      "id": "hr-recruiter-i3",
+      "kind": "knowledge",
+      "q": "How do you screen a resume and a first phone call to decide if a candidate should go to the hiring manager?",
+      "looks_for": "Matches must-have skills and experience, checks gaps and job changes sensibly, confirms salary, notice and location on the call, and judges communication fairly."
+    },
+    {
+      "id": "hr-recruiter-i4",
+      "kind": "knowledge",
+      "q": "Why do candidates drop out after accepting an offer, and what can a recruiter do to reduce it?",
+      "looks_for": "Counter offers, better offers, long notice, poor communication; stays in touch, clear offer details, early salary talk, regular follow-up till joining."
+    },
+    {
+      "id": "hr-recruiter-i5",
+      "kind": "knowledge",
+      "q": "What questions should a recruiter never ask a candidate, and why?",
+      "looks_for": "Nothing on religion, caste, marriage, pregnancy, family plans, age or similar; unfair, can be illegal, and hiring should be on skills only."
+    },
+    {
+      "id": "hr-recruiter-i6",
+      "kind": "situation",
+      "q": "A hiring manager rejects five good candidates in a row without clear reasons, and the role is urgent. What would you do?",
+      "looks_for": "Asks for specific feedback, revisits the job requirements together, aligns on must-haves, shares market data on salary or skills, and adjusts the search politely."
+    },
+    {
+      "id": "hr-recruiter-i7",
+      "kind": "motivation",
+      "q": "Why do you want this HR recruiter job, when can you join (state your notice period), and what salary do you expect?",
+      "looks_for": "Clear reason linked to the work, states notice period or joining date in days or weeks, and gives an expected monthly or yearly salary figure or range without dodging."
+    }
+  ]
+}

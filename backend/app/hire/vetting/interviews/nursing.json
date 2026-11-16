@@ -1,0 +1,48 @@
+{
+  "slug": "nursing",
+  "version": 1,
+  "questions": [
+    {
+      "id": "nursing-i1",
+      "kind": "experience",
+      "q": "Tell us about your nursing work so far. Which hospital or ward did you work in, and what were your daily duties?",
+      "looks_for": "Specific hospital type and wards (ICU, medical, surgical, OT), patient load, duties done (vitals, medicines, IV, charting, handover), qualification and registration. Honest about experience level."
+    },
+    {
+      "id": "nursing-i2",
+      "kind": "experience",
+      "q": "Tell us about one patient or shift you are proud of. What did you do that made a difference?",
+      "looks_for": "A real story with their own actions: noticed a change early, informed the doctor, comforted a patient, handled a busy shift well. Respects patient privacy."
+    },
+    {
+      "id": "nursing-i3",
+      "kind": "knowledge",
+      "q": "Before giving a medicine or injection to a patient, what checks do you do to make sure it is right and safe?",
+      "looks_for": "Right patient (name and ID band), right drug, dose, route, time; checks the doctor's order, allergies and expiry; explains to the patient; records after giving; double-checks high-risk drugs with another nurse."
+    },
+    {
+      "id": "nursing-i4",
+      "kind": "knowledge",
+      "q": "After surgery, a patient's BP is falling and the pulse is getting fast. What will you do first, and whom will you inform?",
+      "looks_for": "Stays with the patient, checks vitals again, airway and breathing, looks for bleeding at the site and drains, raises legs if suitable, informs the doctor at once, keeps IV line ready, follows orders, records everything."
+    },
+    {
+      "id": "nursing-i5",
+      "kind": "knowledge",
+      "q": "How do you prevent infection while doing a dressing or putting in an IV cannula?",
+      "looks_for": "Hand hygiene before and after, gloves, sterile or clean technique as needed, cleans the site properly, does not touch sterile parts, disposes sharps and waste in the right colour bins, dates and checks the site daily."
+    },
+    {
+      "id": "nursing-i6",
+      "kind": "situation",
+      "q": "A doctor gives you a verbal order for a dose that looks too high to you, and the doctor is in a hurry. What will you do?",
+      "looks_for": "Does not give it blindly; politely repeats and confirms the dose with the doctor, checks the drug reference, asks for a written order, takes help from the senior nurse if still unsure. Patient safety first, stays respectful."
+    },
+    {
+      "id": "nursing-i7",
+      "kind": "motivation",
+      "q": "Why do you want to work as a nurse? When can you join, and what salary do you expect? Can you say your notice period and salary clearly?",
+      "looks_for": "A genuine reason for this work, a clear joining date or notice period, and a clear salary figure. Honest about shifts and night duty."
+    }
+  ]
+}

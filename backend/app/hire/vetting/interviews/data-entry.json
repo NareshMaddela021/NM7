@@ -1,0 +1,48 @@
+{
+  "slug": "data-entry",
+  "version": 1,
+  "questions": [
+    {
+      "id": "data-entry-i1",
+      "kind": "experience",
+      "q": "Tell me about your data entry work. What kind of data did you enter, in which software, and about how much in a day?",
+      "looks_for": "Real data type (forms, invoices, KYC, orders), the tool used (Excel, ERP, web portal), daily volume, and their own steps."
+    },
+    {
+      "id": "data-entry-i2",
+      "kind": "experience",
+      "q": "Describe a time you found an error in data, either your own or someone else's. How did you find it and what did you do?",
+      "looks_for": "Specific error, how it was caught (checking totals, cross-checking source), how it was corrected and reported, and any habit changed after."
+    },
+    {
+      "id": "data-entry-i3",
+      "kind": "knowledge",
+      "q": "How do you keep your accuracy high when you have to enter a lot of data fast?",
+      "looks_for": "Concrete methods: reading carefully, using shortcuts, checking key fields, short breaks, sample self-checks; values accuracy over raw speed."
+    },
+    {
+      "id": "data-entry-i4",
+      "kind": "knowledge",
+      "q": "Why is it important to keep data like customer phone numbers, Aadhaar or bank details private, and how do you protect it at work?",
+      "looks_for": "Misuse and fraud risk, company trust and law; does not share, locks screen, no photos or copies, follows access rules."
+    },
+    {
+      "id": "data-entry-i5",
+      "kind": "knowledge",
+      "q": "What is the difference between typing speed and data entry accuracy, and which matters more in your view?",
+      "looks_for": "Speed is volume, accuracy is correctness; wrong data causes bigger losses so accuracy first, with speed improving over time."
+    },
+    {
+      "id": "data-entry-i6",
+      "kind": "situation",
+      "q": "You are given 500 forms to enter by evening, and you notice many have unclear handwriting in the phone number field. What would you do?",
+      "looks_for": "Does not guess; marks unclear ones, continues the rest, informs the supervisor early, follows the agreed rule for doubtful entries, meets the deadline for clear ones."
+    },
+    {
+      "id": "data-entry-i7",
+      "kind": "motivation",
+      "q": "Why do you want this data entry job, when can you join (state your notice period), and what monthly salary do you expect?",
+      "looks_for": "Clear reason linked to the work, states notice period or joining date in days or weeks, and gives an expected monthly or yearly salary figure or range without dodging."
+    }
+  ]
+}

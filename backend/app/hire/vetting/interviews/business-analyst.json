@@ -1,0 +1,48 @@
+{
+  "slug": "business-analyst",
+  "version": 1,
+  "questions": [
+    {
+      "id": "business-analyst-i1",
+      "kind": "experience",
+      "q": "Tell me about a project where you gathered requirements. Who did you talk to, what documents did you produce, and what was built in the end?",
+      "looks_for": "Names stakeholders, methods (interviews, workshops, observing), documents (user stories, BRD, process flows), how they handled changes, and the final result."
+    },
+    {
+      "id": "business-analyst-i2",
+      "kind": "experience",
+      "q": "Describe a time your analysis changed a business decision. What data did you use and what happened?",
+      "looks_for": "Clear problem, data used and how it was analysed, the recommendation, how it was presented, and the decision or measurable result that followed."
+    },
+    {
+      "id": "business-analyst-i3",
+      "kind": "knowledge",
+      "q": "Two departments want opposite things from the same new feature. How would you handle this?",
+      "looks_for": "Understands each side's real need, finds common goals, lays out options with trade-offs and impact, brings decision-makers together, and records the agreed decision."
+    },
+    {
+      "id": "business-analyst-i4",
+      "kind": "knowledge",
+      "q": "How do you write a requirement so that developers and testers understand it the same way?",
+      "looks_for": "Clear user story or requirement with acceptance criteria, examples, edge cases, no vague words, linked to a business goal, and reviewed with developers and testers before work starts."
+    },
+    {
+      "id": "business-analyst-i5",
+      "kind": "knowledge",
+      "q": "A client says the new system is 'not working' but gives no details. How would you find out what the real issue is?",
+      "looks_for": "Asks specific questions, observes the user doing the task, collects screenshots or steps, checks if it is a bug, training gap or missing requirement, and sets next steps."
+    },
+    {
+      "id": "business-analyst-i6",
+      "kind": "situation",
+      "q": "Midway through a project, the client asks for a big new feature but wants the same deadline and budget. What do you do?",
+      "looks_for": "Assesses impact with the team, explains the effect on time and cost, offers options like phasing or swapping priorities, follows the change process, and gets written agreement."
+    },
+    {
+      "id": "business-analyst-i7",
+      "kind": "motivation",
+      "q": "Why do you want to work as a business analyst, and what do you want to grow into? Please state clearly your notice period or joining date, and your expected salary in ₹ per month or per year?",
+      "looks_for": "Gives a genuine reason tied to the work, a sensible growth direction, a clear notice period or joining date, and a clear salary figure or range in ₹. Honest about buyout or negotiable notice if relevant."
+    }
+  ]
+}

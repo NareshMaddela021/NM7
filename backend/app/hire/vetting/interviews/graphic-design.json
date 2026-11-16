@@ -1,0 +1,48 @@
+{
+  "slug": "graphic-design",
+  "version": 1,
+  "questions": [
+    {
+      "id": "graphic-design-i1",
+      "kind": "experience",
+      "q": "Tell me about the design work you have done. What did you design, which tools did you use, and for which clients or brands?",
+      "looks_for": "Real projects (social posts, logos, brochures, packaging), tools like Photoshop, Illustrator, Canva, Figma, CorelDRAW, and their role."
+    },
+    {
+      "id": "graphic-design-i2",
+      "kind": "experience",
+      "q": "Describe a design project you are proud of. What was the brief, how did you approach it, and what was the result?",
+      "looks_for": "Clear brief, process (ideas, drafts, feedback), design choices explained, and the outcome or client response."
+    },
+    {
+      "id": "graphic-design-i3",
+      "kind": "knowledge",
+      "q": "What is the difference between designing for print and designing for social media?",
+      "looks_for": "Print: CMYK, high resolution, bleed and margins; digital: RGB, screen sizes, lighter files; mentions checking final size."
+    },
+    {
+      "id": "graphic-design-i4",
+      "kind": "knowledge",
+      "q": "How do you use colour, font and spacing to make the most important message stand out in a poster?",
+      "looks_for": "Visual hierarchy: size and weight for main message, contrast colour, limited fonts, white space, clear flow for the eye."
+    },
+    {
+      "id": "graphic-design-i5",
+      "kind": "knowledge",
+      "q": "Why is it wrong to use images or fonts found on Google in client work, and what do you use instead?",
+      "looks_for": "Copyright and licence issues; uses licensed stock, free-licence sources, client photos, or own work and checks font licences."
+    },
+    {
+      "id": "graphic-design-i6",
+      "kind": "situation",
+      "q": "A client keeps asking for changes after the fourth revision and now wants the logo 'bigger' and 'more modern' in the same day. What would you do?",
+      "looks_for": "Stays polite, asks for examples to clarify, explains revision limits from the agreement, offers options, and keeps the deadline in view."
+    },
+    {
+      "id": "graphic-design-i7",
+      "kind": "motivation",
+      "q": "Why do you want this graphic designer job, when can you join (state your notice period), and what salary do you expect?",
+      "looks_for": "Clear reason linked to the work, states notice period or joining date in days or weeks, and gives an expected monthly or yearly salary figure or range without dodging."
+    }
+  ]
+}

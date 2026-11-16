@@ -1,0 +1,48 @@
+{
+  "slug": "back-office",
+  "version": 1,
+  "questions": [
+    {
+      "id": "back-office-i1",
+      "kind": "experience",
+      "q": "Tell me about your back-office or operations work. What processes did you handle, in which tools, and with what daily targets?",
+      "looks_for": "Real processes (order processing, documentation, reports, verification, MIS), tools used, daily volume and targets, and their own part."
+    },
+    {
+      "id": "back-office-i2",
+      "kind": "experience",
+      "q": "Describe a time you improved a process or caught a problem early. What did you notice and what happened after?",
+      "looks_for": "Specific observation, action taken (checklist, sheet, raising alert), and a clear result like fewer errors or time saved."
+    },
+    {
+      "id": "back-office-i3",
+      "kind": "knowledge",
+      "q": "What is a TAT or SLA in operations, and why does missing it matter?",
+      "looks_for": "Agreed turnaround time or service level; missing it hurts customers, penalties, trust; explains tracking and early escalation."
+    },
+    {
+      "id": "back-office-i4",
+      "kind": "knowledge",
+      "q": "How do you keep track of many pending tasks so nothing is missed at the end of the day?",
+      "looks_for": "Uses a tracker or sheet, priorities by deadline, daily checks, notes handover, updates status honestly."
+    },
+    {
+      "id": "back-office-i5",
+      "kind": "knowledge",
+      "q": "Why are checklists and maker-checker steps used in back-office work?",
+      "looks_for": "Reduce errors, one person makes, another checks; especially for money or customer data; builds accountability."
+    },
+    {
+      "id": "back-office-i6",
+      "kind": "situation",
+      "q": "Near the end of the day you see that 40 orders were processed with a wrong address field because of a sheet error. What would you do?",
+      "looks_for": "Stops further processing, tells the supervisor at once, lists affected orders, fixes the source, corrects records, and helps prevent repeat."
+    },
+    {
+      "id": "back-office-i7",
+      "kind": "motivation",
+      "q": "Why do you want this operations and back-office job, when can you join (state your notice period), and what salary do you expect?",
+      "looks_for": "Clear reason linked to the work, states notice period or joining date in days or weeks, and gives an expected monthly or yearly salary figure or range without dodging."
+    }
+  ]
+}

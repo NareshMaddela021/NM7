@@ -1,0 +1,62 @@
+{
+  "slug": "telecaller",
+  "version": 1,
+  "questions": [
+    {
+      "id": "telecaller-i1",
+      "kind": "experience",
+      "q": "Tell me about your telecalling work. What product or service did you call about, and how many calls did you make in a day?",
+      "looks_for": "Real product (loans, insurance, courses, real estate), inbound or outbound, daily call count, targets, and tools like a dialer or CRM.",
+      "te": "మీ telecalling పని గురించి చెప్పండి. ఏ product లేదా service గురించి call చేసేవారు? రోజుకి ఎన్ని calls చేసేవారు?",
+      "hi": "अपने telecalling काम के बारे में बताइए। आप किस product या service के लिए call करते थे, और दिन में कितनी calls करते थे?"
+    },
+    {
+      "id": "telecaller-i2",
+      "kind": "experience",
+      "q": "Tell me about one call where a customer was not interested at first but later agreed. What did you say?",
+      "looks_for": "Specific call, listened to the reason, gave a relevant benefit, handled the doubt, set follow-up, and the final outcome.",
+      "te": "మొదట customer కి ఆసక్తి లేదు, కానీ తర్వాత ఒప్పుకున్న ఒక call గురించి చెప్పండి. మీరు ఏం మాట్లాడారు?",
+      "hi": "किसी ऐसी call के बारे में बताइए जहाँ customer पहले interested नहीं था लेकिन बाद में मान गया। आपने क्या कहा?"
+    },
+    {
+      "id": "telecaller-i3",
+      "kind": "knowledge",
+      "q": "What should you say in the first 15 seconds of a sales call so that the customer does not cut the call?",
+      "looks_for": "Polite greeting, own name and company, clear reason, quick benefit, asks permission to continue; short and friendly.",
+      "te": "Customer call cut చేయకుండా ఉండాలంటే sales call లో మొదటి 15 seconds లో ఏం మాట్లాడాలి?",
+      "hi": "Sales call के पहले 15 seconds में क्या बोलना चाहिए ताकि customer call न काटे?"
+    },
+    {
+      "id": "telecaller-i4",
+      "kind": "knowledge",
+      "q": "Why is it important to write notes in the CRM or sheet after every call?",
+      "looks_for": "Remembers what was said, right follow-up time, team can see history, avoids repeat questions, helps reports and targets.",
+      "te": "ప్రతి call తర్వాత CRM లేదా sheet లో notes రాయడం ఎందుకు ముఖ్యం?",
+      "hi": "हर call के बाद CRM या sheet में notes लिखना क्यों ज़रूरी है?"
+    },
+    {
+      "id": "telecaller-i5",
+      "kind": "knowledge",
+      "q": "If a customer says do not call me again, what should you do and why?",
+      "looks_for": "Respects it, apologises politely, marks do-not-call in the system, does not argue; follows rules and protects company name.",
+      "te": "Customer మళ్ళీ call చేయొద్దు అంటే మీరు ఏం చేయాలి, ఎందుకు?",
+      "hi": "अगर customer कहे कि मुझे दोबारा call मत करना, तो आपको क्या करना चाहिए और क्यों?"
+    },
+    {
+      "id": "telecaller-i6",
+      "kind": "situation",
+      "q": "A customer is angry because another caller from your company promised a free gift that never came. What would you say on the call?",
+      "looks_for": "Apologises, listens, does not blame the colleague, checks records, gives honest information, raises a complaint with a timeline, keeps it polite.",
+      "te": "మీ company నుంచి ఇంకొకరు free gift ఇస్తామని చెప్పారు, కానీ రాలేదని customer కోపంగా ఉన్నారు. Call లో మీరు ఏం చెప్తారు?",
+      "hi": "Customer गुस्से में है क्योंकि आपकी company के किसी और caller ने free gift का वादा किया था जो कभी नहीं आया। आप call पर क्या कहेंगे?"
+    },
+    {
+      "id": "telecaller-i7",
+      "kind": "motivation",
+      "q": "Why do you want this telecaller job, when can you join (say your notice period clearly), and what monthly salary do you expect?",
+      "looks_for": "Clear reason linked to the work, states notice period or joining date in days or weeks, and gives an expected monthly salary figure or range without dodging.",
+      "te": "ఈ telecaller job మీకు ఎందుకు కావాలి? ఎప్పుడు join అవ్వగలరు (notice period స్పష్టంగా చెప్పండి)? నెలకు ఎంత జీతం ఆశిస్తున్నారు?",
+      "hi": "आपको यह telecaller job क्यों चाहिए? आप कब join कर सकते हैं (notice period साफ़ बताइए)? और महीने की कितनी salary चाहिए?"
+    }
+  ]
+}

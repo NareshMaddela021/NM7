@@ -1,0 +1,43 @@
+/* The AI screening interview (Vetting V3): the runner, the result and the company / admin summary panels. Built on
+   me-kit.css and me-vet.css. Tap targets ≥ 44 px; text colours ≥ 4.5:1 on white. */
+
+.iv-q { gap: 14px; }
+.iv-qtext { margin: 0; }
+.iv-qtext:focus { outline: none; }
+.iv-qtext:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; border-radius: 6px; }
+.iv-follow { color: #5b21b6; font-weight: 800; }
+.iv-text { min-height: 180px; }
+.iv-setup { max-width: 760px; }
+.iv-consent li { overflow-wrap: anywhere; }
+
+/* result */
+.iv-head { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; min-width: 0; }
+.iv-avg { flex: none; display: grid; place-items: center; align-content: center; width: 118px; height: 118px; border-radius: 50%;
+  background: radial-gradient(circle at 30% 25%, #f5f3ff, #ede9fe); border: 3px solid #c4b5fd; color: var(--ink); }
+.iv-avg strong { font-family: var(--font-display); font-weight: 500; font-size: 40px; line-height: 1; }
+.iv-avg small { font-size: 13px; font-weight: 800; color: #4c1d95; }
+.iv-scores { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 16px; }
+.iv-score { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.iv-reason { margin: 0; font-size: 14.5px; line-height: 1.5; color: var(--text2); overflow-wrap: anywhere; }
+.iv-quote { margin: 0; padding: 8px 12px; border-left: 3px solid #a78bfa; background: #faf8ff; border-radius: 0 10px 10px 0; font-size: 14px; font-style: italic; color: #3b3355; overflow-wrap: anywhere; }
+.iv-sc { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 12px; }
+.iv-list { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 14.5px; line-height: 1.5; color: var(--text); }
+.iv-list li { overflow-wrap: anywhere; }
+
+/* transcript */
+.iv-tr { border: 1px solid var(--border); border-radius: 16px; background: #fff; padding: 0 16px; }
+.iv-tr > summary { min-height: 48px; display: flex; align-items: center; cursor: pointer; font-weight: 800; font-size: 14.5px; color: var(--ink); }
+.iv-tr > summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+.iv-tr-list { margin: 0 0 14px; padding-left: 22px; display: flex; flex-direction: column; gap: 14px; }
+.iv-tr-q { margin: 0 0 4px; font-weight: 700; font-size: 14.5px; color: var(--ink); overflow-wrap: anywhere; }
+.iv-tr-a { margin: 0 0 6px; font-size: 14.5px; line-height: 1.5; color: var(--text2); white-space: pre-wrap; overflow-wrap: anywhere; }
+
+/* company panel */
+.iv-co { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.iv-co-top { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.iv-co-top .iv-avg { width: 92px; height: 92px; }
+.iv-co-top .iv-avg strong { font-size: 32px; }
+.iv-co h3 { margin: 0; font-size: 15px; font-weight: 800; color: var(--ink); }
+.iv-co-btn { min-height: 44px; }
+.iv-co-foot { position: sticky; bottom: -16px; background: #fff; padding: 12px 0; border-top: 1px solid var(--border); display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.iv-co-foot .btn { min-height: 48px; }

@@ -132,3 +132,9 @@
 .vo-m-l { min-width: 240px; font-weight: 650 !important; }
 @media (max-width: 640px) { .vo-m-l { min-width: 0; } .vt-table tr.vo-low { border-color: #f5bcbc; } }
 .vo-table tbody th[scope="row"] { text-transform: none; letter-spacing: normal; font-size: 13.5px; font-weight: 700; color: var(--ink); }
+
+/* Interviews (Vetting V3): transcript, bias alerts */
+.iv-ad-tr { margin: 8px 0 0; padding-left: 22px; display: flex; flex-direction: column; gap: 12px; }
+.iv-ad-q { margin: 0 0 4px; font-weight: 700; color: var(--ink); overflow-wrap: anywhere; }
+.vq-item.iv-ad-alert { border: 2px solid #f04438; background: #fffbfa; }
+.vt-table tr.iv-ad-gap th, .vt-table tr.iv-ad-gap td { background: #fef3f2; color: #912018; font-weight: 800; }

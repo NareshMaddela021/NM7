@@ -1,0 +1,62 @@
+{
+  "slug": "driver",
+  "version": 1,
+  "questions": [
+    {
+      "id": "driver-i1",
+      "kind": "experience",
+      "q": "What driving work have you done? Tell us which vehicles, whether it was for a company, a family or as a taxi, and for how many years?",
+      "looks_for": "Specific vehicles (hatchback, sedan, SUV, manual or automatic), type of driving (city, highway, office pickup), years of experience, valid LMV licence. Honest.",
+      "te": "మీరు ఏ driving పని చేశారు? ఏ vehicles, company కోసమా, ఒక family కోసమా లేదా taxi గానా, ఎన్ని సంవత్సరాలు చెప్పండి?",
+      "hi": "आपने कौन सा driving काम किया है? कौन सी गाड़ियाँ, company के लिए, किसी family के लिए या taxi में, और कितने साल, बताइए?"
+    },
+    {
+      "id": "driver-i2",
+      "kind": "experience",
+      "q": "Tell us about one trip or time as a driver that you are proud of?",
+      "looks_for": "A real example: safe long trip, handling a breakdown or bad weather, helping a passenger, always on time, accident-free record.",
+      "te": "Driver గా మీకు గర్వంగా అనిపించిన ఒక trip లేదా సందర్భం గురించి చెప్పండి?",
+      "hi": "Driver के रूप में किसी एक trip या समय के बारे में बताइए जिस पर आपको गर्व है?"
+    },
+    {
+      "id": "driver-i3",
+      "kind": "knowledge",
+      "q": "What do you check on the car before a long trip?",
+      "looks_for": "Tyre pressure and condition including spare, brakes, engine oil, coolant, wiper water, lights and indicators, fuel, horn, jack and tools, papers; plans the route and rest stops.",
+      "te": "Long trip కి ముందు car లో మీరు ఏమేమి check చేస్తారు?",
+      "hi": "Long trip से पहले आप car में क्या क्या check करते हैं?"
+    },
+    {
+      "id": "driver-i4",
+      "kind": "knowledge",
+      "q": "How do you drive safely at night or in heavy rain on a highway?",
+      "looks_for": "Lower speed, more distance from the vehicle ahead, dipper for oncoming traffic, wipers and demister on, avoids sudden braking, watches for people and animals, stops to rest if sleepy, no phone while driving, parks safely with hazard lights if needed.",
+      "te": "Highway మీద రాత్రి లేదా భారీ వర్షంలో safe గా ఎలా drive చేస్తారు?",
+      "hi": "Highway पर रात में या तेज़ बारिश में safe तरीके से कैसे drive करते हैं?"
+    },
+    {
+      "id": "driver-i5",
+      "kind": "knowledge",
+      "q": "What papers should you always keep in the car, and what do you do if the traffic police stop you?",
+      "looks_for": "Driving licence, RC, insurance, PUC, permit if needed (paper or DigiLocker); stops safely, stays polite, shows papers, pays challan properly if there is a fault, no arguing or bribe, informs the employer.",
+      "te": "Car లో ఎప్పుడూ ఏ papers ఉంచుకోవాలి? Traffic police ఆపితే మీరు ఏం చేస్తారు?",
+      "hi": "Car में हमेशा कौन से papers रखने चाहिए, और अगर traffic police रोके तो आप क्या करते हैं?"
+    },
+    {
+      "id": "driver-i6",
+      "kind": "situation",
+      "q": "Your passenger is late for a flight and asks you to drive very fast and jump signals. What will you do?",
+      "looks_for": "Stays calm and polite, refuses to break rules or over-speed, explains safety, chooses the best route and drives smoothly, suggests calling the airline; safety and law first.",
+      "te": "మీ passenger కి flight కి late అయింది, చాలా వేగంగా నడపమని, signals jump చేయమని అడుగుతున్నారు. మీరు ఏం చేస్తారు?",
+      "hi": "आपका passenger flight के लिए late है और कहता है कि बहुत तेज़ चलाओ और signal तोड़ दो। आप क्या करेंगे?"
+    },
+    {
+      "id": "driver-i7",
+      "kind": "motivation",
+      "q": "Why do you want to work as a driver? When can you join, and what salary do you expect? Can you say your notice period and salary clearly?",
+      "looks_for": "A genuine reason for this work, a clear joining date or notice period, and a clear salary figure. Mentions licence type and comfort with outstation trips or late hours.",
+      "te": "మీరు driver గా ఎందుకు పని చేయాలనుకుంటున్నారు? ఎప్పుడు join అవ్వగలరు, ఎంత salary ఆశిస్తున్నారు? మీ notice period, salary స్పష్టంగా చెప్పగలరా?",
+      "hi": "आप driver का काम क्यों करना चाहते हैं? आप कब join कर सकते हैं, और कितनी salary चाहते हैं? क्या आप अपना notice period और salary साफ़ बता सकते हैं?"
+    }
+  ]
+}

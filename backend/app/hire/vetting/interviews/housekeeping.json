@@ -1,0 +1,62 @@
+{
+  "slug": "housekeeping",
+  "version": 1,
+  "questions": [
+    {
+      "id": "housekeeping-i1",
+      "kind": "experience",
+      "q": "What housekeeping work have you done? Tell us the place, like hotel, hospital, office or homes, and what you cleaned there?",
+      "looks_for": "Specific places and areas cleaned (rooms, bathrooms, lobby, wards), machines or chemicals used, how long. Clear and honest.",
+      "te": "మీరు ఏ housekeeping పని చేశారు? Hotel, hospital, office లేదా ఇళ్ళు లాంటి ఏ చోట, అక్కడ ఏం clean చేశారు చెప్పండి?",
+      "hi": "आपने कौन सा housekeeping काम किया है? Hotel, hospital, office या घर जैसी कौन सी जगह, और वहाँ क्या साफ़ किया, बताइए?"
+    },
+    {
+      "id": "housekeeping-i2",
+      "kind": "experience",
+      "q": "Tell us about one time at work you are proud of, like a guest or manager praising your work?",
+      "looks_for": "A real example with what they did well: care for detail, speed in a rush, helping a guest, keeping a high standard.",
+      "te": "పనిలో మీకు గర్వంగా అనిపించిన ఒక సందర్భం చెప్పండి, ఉదాహరణకు guest లేదా manager మీ పనిని మెచ్చుకోవడం?",
+      "hi": "काम पर कोई ऐसा समय बताइए जिस पर आपको गर्व है, जैसे किसी guest या manager ने आपके काम की तारीफ़ की हो?"
+    },
+    {
+      "id": "housekeeping-i3",
+      "kind": "knowledge",
+      "q": "How do you clean a hotel room and bathroom properly, step by step?",
+      "looks_for": "Knocks and announces, opens windows, removes trash and used linen, dusts top to bottom, changes bed linen, cleans bathroom with separate cloths for toilet and basin, refills supplies, mops last, checks everything before leaving.",
+      "te": "Hotel room, bathroom ని సరిగ్గా ఎలా clean చేస్తారు, step by step చెప్పండి?",
+      "hi": "Hotel का room और bathroom ठीक से कैसे साफ़ करते हैं, step by step बताइए?"
+    },
+    {
+      "id": "housekeeping-i4",
+      "kind": "knowledge",
+      "q": "How do you use cleaning chemicals safely? What should you never do?",
+      "looks_for": "Reads the label, uses the right dilution, wears gloves, keeps area airy, keeps chemicals in labelled bottles away from food; never mixes chemicals like acid and bleach, never puts them in drinking bottles.",
+      "te": "Cleaning chemicals ని safe గా ఎలా వాడతారు? ఎప్పుడూ ఏం చేయకూడదు?",
+      "hi": "Cleaning chemicals को safe तरीके से कैसे इस्तेमाल करते हैं? क्या कभी नहीं करना चाहिए?"
+    },
+    {
+      "id": "housekeeping-i5",
+      "kind": "knowledge",
+      "q": "How do you mop a floor in a busy area so that nobody slips and falls?",
+      "looks_for": "Puts a wet floor sign, cleans one half at a time leaving a dry path, uses less water, dries the floor, cleans during less busy time if possible, removes the sign only when dry.",
+      "te": "జనాలు ఎక్కువగా తిరిగే చోట ఎవరూ జారి పడకుండా floor ని ఎలా mop చేస్తారు?",
+      "hi": "भीड़ वाली जगह पर floor का पोछा कैसे लगाते हैं ताकि कोई फिसल कर न गिरे?"
+    },
+    {
+      "id": "housekeeping-i6",
+      "kind": "situation",
+      "q": "While cleaning a guest room, you find a gold ring and some cash under the bed. What will you do?",
+      "looks_for": "Does not keep or hide it, does not leave it lying around, informs the supervisor at once, hands it over and writes it in the lost and found register, preferably with a witness.",
+      "te": "Guest room clean చేస్తుంటే bed కింద ఒక బంగారు ఉంగరం, కొంత cash దొరికింది. మీరు ఏం చేస్తారు?",
+      "hi": "Guest room साफ़ करते समय आपको bed के नीचे एक सोने की अंगूठी और कुछ cash मिलता है। आप क्या करेंगे?"
+    },
+    {
+      "id": "housekeeping-i7",
+      "kind": "motivation",
+      "q": "Why do you want to work as a housekeeping staff member? When can you join, and what salary do you expect? Can you say your notice period and salary clearly?",
+      "looks_for": "A genuine reason for this work, a clear joining date or notice period, and a clear salary figure. Honest about shift timings.",
+      "te": "మీరు housekeeping staff గా ఎందుకు పని చేయాలనుకుంటున్నారు? ఎప్పుడు join అవ్వగలరు, ఎంత salary ఆశిస్తున్నారు? మీ notice period, salary స్పష్టంగా చెప్పగలరా?",
+      "hi": "आप housekeeping का काम क्यों करना चाहते हैं? आप कब join कर सकते हैं, और कितनी salary चाहते हैं? क्या आप अपना notice period और salary साफ़ बता सकते हैं?"
+    }
+  ]
+}

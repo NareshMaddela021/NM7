@@ -1,0 +1,48 @@
+{
+  "slug": "salesforce-crm",
+  "version": 1,
+  "questions": [
+    {
+      "id": "salesforce-crm-i1",
+      "kind": "experience",
+      "q": "Tell me about a Salesforce or CRM setup you worked on. What did the business need and what did you configure?",
+      "looks_for": "Real configuration: objects, fields, page layouts, flows, reports, permissions. Explains the business need, their own part, and how users benefited."
+    },
+    {
+      "id": "salesforce-crm-i2",
+      "kind": "experience",
+      "q": "Describe a time users were unhappy with the CRM or not using it. What did you do to improve things?",
+      "looks_for": "Found the actual problem by talking to users, simplified screens or automated steps, gave training, and tracked adoption or feedback afterwards."
+    },
+    {
+      "id": "salesforce-crm-i3",
+      "kind": "knowledge",
+      "q": "A sales manager says her team can see records they should not see. How would you check and fix this?",
+      "looks_for": "Reviews organisation-wide defaults, role hierarchy, sharing rules, profiles and permission sets, tests with a sample user, fixes the most restrictive way, and confirms with the manager."
+    },
+    {
+      "id": "salesforce-crm-i4",
+      "kind": "knowledge",
+      "q": "When would you use automation like a flow, and when would you suggest custom code or no automation at all?",
+      "looks_for": "Uses clicks-based automation for most business rules, code only when logic is too complex or needs scale, and avoids automation that adds complexity without value. Mentions testing and maintenance."
+    },
+    {
+      "id": "salesforce-crm-i5",
+      "kind": "knowledge",
+      "q": "You need to import 50,000 customer records from spreadsheets into the CRM. How would you plan this?",
+      "looks_for": "Cleans and de-duplicates data, maps fields, tests with a small batch in a sandbox, plans for errors, takes a backup, then imports and validates counts and samples."
+    },
+    {
+      "id": "salesforce-crm-i6",
+      "kind": "situation",
+      "q": "A flow you deployed is sending wrong emails to customers right now. What do you do?",
+      "looks_for": "Deactivates the flow immediately, checks how many customers were affected, informs the manager, prepares a correction message if needed, fixes and tests in a sandbox before redeploying."
+    },
+    {
+      "id": "salesforce-crm-i7",
+      "kind": "motivation",
+      "q": "Why do you want to work as a Salesforce / CRM admin, and what do you want to grow into? Please state clearly your notice period or joining date, and your expected salary in ₹ per month or per year?",
+      "looks_for": "Gives a genuine reason tied to the work, a sensible growth direction, a clear notice period or joining date, and a clear salary figure or range in ₹. Honest about buyout or negotiable notice if relevant."
+    }
+  ]
+}

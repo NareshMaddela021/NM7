@@ -1,0 +1,62 @@
+{
+  "slug": "ac-tech",
+  "version": 1,
+  "questions": [
+    {
+      "id": "ac-tech-i1",
+      "kind": "experience",
+      "q": "What AC or fridge work have you done? Tell us if it was installation, service, gas filling or repair, and on which types like split AC, window AC or fridge?",
+      "looks_for": "Specific tasks and unit types, brands or company, where and how long, how many calls a day. Honest about what they do alone and what they did as a helper.",
+      "te": "మీరు ఏ AC లేదా fridge పని చేశారు? Installation, service, gas filling లేదా repair లో ఏది, split AC, window AC, fridge లో ఏ type మీద పని చేశారు చెప్పండి?",
+      "hi": "आपने कौन सा AC या fridge काम किया है? Installation, service, gas filling या repair, और split AC, window AC या fridge में से किस पर काम किया, बताइए?"
+    },
+    {
+      "id": "ac-tech-i2",
+      "kind": "experience",
+      "q": "Tell us about one AC or fridge repair you are proud of. What was the fault and how did you find it?",
+      "looks_for": "A concrete fault with logical steps to find it (checking gas pressure, capacitor, PCB, sensor, leak) and how they tested cooling after the repair.",
+      "te": "మీకు గర్వంగా అనిపించిన ఒక AC లేదా fridge repair గురించి చెప్పండి. Fault ఏంటి, మీరు దాన్ని ఎలా కనిపెట్టారు?",
+      "hi": "किसी एक AC या fridge repair के बारे में बताइए जिस पर आपको गर्व है। Fault क्या था और आपने उसे कैसे पकड़ा?"
+    },
+    {
+      "id": "ac-tech-i3",
+      "kind": "knowledge",
+      "q": "How do you do a full service of a split AC at a customer's house, step by step?",
+      "looks_for": "Switches off power, covers furniture and walls, cleans filters, coil and blower with jet or pump, cleans outdoor unit and drain pipe, checks gas pressure and current, tests cooling temperature, cleans up and explains to the customer.",
+      "te": "Customer ఇంట్లో split AC full service ఎలా చేస్తారు, step by step చెప్పండి?",
+      "hi": "Customer के घर पर split AC की full service आप step by step कैसे करते हैं?"
+    },
+    {
+      "id": "ac-tech-i4",
+      "kind": "knowledge",
+      "q": "A customer says the AC is running but not cooling. What will you check, one by one?",
+      "looks_for": "Logical order: filter and coil dirt, outdoor fan and compressor running, capacitor, gas pressure and leaks, thermostat or sensor setting, room size versus tonnage. Finds the leak before refilling gas.",
+      "te": "AC run అవుతోంది కానీ cooling రావడం లేదని customer చెప్తున్నారు. మీరు ఒక్కొక్కటిగా ఏం check చేస్తారు?",
+      "hi": "Customer कहता है कि AC चल रहा है पर cooling नहीं हो रही। आप एक एक करके क्या check करेंगे?"
+    },
+    {
+      "id": "ac-tech-i5",
+      "kind": "knowledge",
+      "q": "How do you install a split AC outdoor unit safely, especially on a high wall or balcony?",
+      "looks_for": "Uses a strong stand with proper bolts, safety belt or harness when working at height, a helper to lift, checks the wall strength, keeps space for airflow, proper copper pipe and drain slope, vacuum before opening gas, leak test.",
+      "te": "Split AC outdoor unit ని, ముఖ్యంగా ఎత్తైన గోడ లేదా balcony మీద, safe గా ఎలా install చేస్తారు?",
+      "hi": "Split AC का outdoor unit, खासकर ऊँची दीवार या balcony पर, safe तरीके से कैसे install करते हैं?"
+    },
+    {
+      "id": "ac-tech-i6",
+      "kind": "situation",
+      "q": "You find the AC needs a new compressor, but the customer is angry and says you are cheating. What will you say and do?",
+      "looks_for": "Stays calm, shows the proof (readings, current, sound), explains simply, gives an honest cost, offers a second check or the company's process, does not pressure or argue, informs the office.",
+      "te": "AC కి కొత్త compressor కావాలని మీరు కనిపెట్టారు, కానీ customer కోపంగా మీరు మోసం చేస్తున్నారని అంటున్నారు. మీరు ఏం చెప్తారు, ఏం చేస్తారు?",
+      "hi": "आपको पता चला कि AC में नया compressor लगेगा, लेकिन customer गुस्से में कहता है कि आप धोखा दे रहे हैं। आप क्या कहेंगे और क्या करेंगे?"
+    },
+    {
+      "id": "ac-tech-i7",
+      "kind": "motivation",
+      "q": "Why do you want to work as an AC technician? When can you join, and what salary do you expect? Can you say your notice period and salary clearly?",
+      "looks_for": "A genuine reason, honest about summer rush and field work, a clear joining date or notice period, and a clear salary figure. May mention own tools or vehicle.",
+      "te": "మీరు AC technician గా ఎందుకు పని చేయాలనుకుంటున్నారు? ఎప్పుడు join అవ్వగలరు, ఎంత salary ఆశిస్తున్నారు? మీ notice period, salary స్పష్టంగా చెప్పండి?",
+      "hi": "आप AC technician का काम क्यों करना चाहते हैं? आप कब join कर सकते हैं, और कितनी salary चाहते हैं? अपना notice period और salary साफ़ बताइए?"
+    }
+  ]
+}

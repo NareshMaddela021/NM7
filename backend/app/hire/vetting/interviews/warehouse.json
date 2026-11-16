@@ -1,0 +1,62 @@
+{
+  "slug": "warehouse",
+  "version": 1,
+  "questions": [
+    {
+      "id": "warehouse-i1",
+      "kind": "experience",
+      "q": "What warehouse work have you done? Tell us the company or place, and whether you did picking, packing, loading or stock counting?",
+      "looks_for": "Specific details: type of warehouse (e-commerce, FMCG, cold storage), tasks done, tools used like scanner or hand pallet truck, how long they worked. Honest, not inflated.",
+      "te": "మీరు ఏ warehouse పని చేశారు? ఏ company లేదా ఏ చోట, picking, packing, loading లేదా stock counting లో ఏది చేశారు చెప్పండి?",
+      "hi": "आपने कौन सा warehouse काम किया है? कौन सी company या जगह, और आपने picking, packing, loading या stock counting में से क्या किया, बताइए?"
+    },
+    {
+      "id": "warehouse-i2",
+      "kind": "experience",
+      "q": "Tell us about a time at work you are proud of, like finishing a big order on time or catching a mistake before it went out?",
+      "looks_for": "A real example with their own actions: teamwork in a rush, double-checking, spotting a wrong item or damaged box, telling the supervisor.",
+      "te": "పనిలో మీకు గర్వంగా అనిపించిన ఒక సందర్భం చెప్పండి, ఉదాహరణకు పెద్ద order ని time కి పూర్తి చేయడం లేదా బయటికి వెళ్ళే ముందు ఒక తప్పుని పట్టుకోవడం?",
+      "hi": "काम पर कोई ऐसा समय बताइए जिस पर आपको गर्व है, जैसे कोई बड़ा order समय पर पूरा करना या बाहर जाने से पहले कोई गलती पकड़ना?"
+    },
+    {
+      "id": "warehouse-i3",
+      "kind": "knowledge",
+      "q": "You get a pick list with ten items. How do you pick them correctly and quickly, and how do you make sure you did not pick a wrong item?",
+      "looks_for": "Reads the bin or rack location and SKU, scans each item, checks quantity, size and colour, follows a sensible path, keeps picked items separate, reports missing or damaged stock instead of replacing with something else.",
+      "te": "మీకు పది items ఉన్న pick list ఇచ్చారు. వాటిని సరిగ్గా, వేగంగా ఎలా pick చేస్తారు? తప్పు item pick చేయలేదని ఎలా confirm చేసుకుంటారు?",
+      "hi": "आपको दस items की pick list मिली है। आप उन्हें सही और जल्दी कैसे pick करेंगे, और कैसे पक्का करेंगे कि कोई गलत item नहीं उठाया?"
+    },
+    {
+      "id": "warehouse-i4",
+      "kind": "knowledge",
+      "q": "How do you lift and carry a heavy box safely so that you do not hurt your back?",
+      "looks_for": "Checks weight first, bends knees not back, keeps the box close to the body, does not twist, asks for help or uses a trolley or pallet truck for heavy loads, keeps the path clear, wears safety shoes.",
+      "te": "బరువైన box ని నడుము నొప్పి రాకుండా safe గా ఎలా ఎత్తుతారు, ఎలా మోస్తారు?",
+      "hi": "भारी box को कमर में चोट लगे बिना safe तरीके से कैसे उठाते और ले जाते हैं?"
+    },
+    {
+      "id": "warehouse-i5",
+      "kind": "knowledge",
+      "q": "How do you pack a glass or fragile item so that it does not break on the way to the customer?",
+      "looks_for": "Right size box, bubble wrap or padding on all sides, fills empty space so it does not move, seals well, puts a fragile sticker and correct label, checks the item before packing.",
+      "te": "Glass లేదా తొందరగా పగిలే item ని customer దగ్గరికి వెళ్ళేటప్పుడు పగలకుండా ఎలా pack చేస్తారు?",
+      "hi": "Glass या जल्दी टूटने वाले item को कैसे pack करेंगे ताकि customer तक पहुँचते हुए वह न टूटे?"
+    },
+    {
+      "id": "warehouse-i6",
+      "kind": "situation",
+      "q": "Your supervisor tells you to stand on the forks of a forklift to reach a high shelf faster. What will you do?",
+      "looks_for": "Refuses politely because it is unsafe, explains the risk, suggests a proper ladder, order picker or trained forklift driver, and reports it if pushed. Safety over speed, but stays respectful.",
+      "te": "High shelf ని తొందరగా అందుకోవడానికి forklift forks మీద నిలబడమని మీ supervisor చెప్పారు. మీరు ఏం చేస్తారు?",
+      "hi": "आपका supervisor कहता है कि ऊँची shelf तक जल्दी पहुँचने के लिए forklift के forks पर खड़े हो जाओ। आप क्या करेंगे?"
+    },
+    {
+      "id": "warehouse-i7",
+      "kind": "motivation",
+      "q": "Why do you want warehouse work? When can you join, are you okay with shifts, and what salary do you expect? Can you say your notice period and salary clearly?",
+      "looks_for": "A genuine reason, honest about shift and night-shift comfort, a clear joining date or notice period, and a clear salary figure.",
+      "te": "మీరు warehouse పని ఎందుకు చేయాలనుకుంటున్నారు? ఎప్పుడు join అవ్వగలరు, shifts మీకు ok నా, ఎంత salary ఆశిస్తున్నారు? మీ notice period, salary స్పష్టంగా చెప్పండి?",
+      "hi": "आप warehouse का काम क्यों करना चाहते हैं? आप कब join कर सकते हैं, shifts में काम ठीक है क्या, और कितनी salary चाहते हैं? अपना notice period और salary साफ़ बताइए?"
+    }
+  ]
+}

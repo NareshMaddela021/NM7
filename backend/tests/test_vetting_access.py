@@ -102,3 +102,12 @@ async def test_v1_hidden_hire_now_applicants_level_and_reminder_as_before(client
         {"_id": u["_id"]}, {"$set": {"confirmed_at": now() - timedelta(days=6, hours=12)}}
     )
     assert await send_reminders(db, outbox) == 1 and "Still ready" in outbox.sent[-1].subject  # the old email
+
+
+async def test_v3_interviews_hidden(client, outbox, db, make_client):
+    c = await student(make_client, outbox, "meena@example.com", "Meena S")
+    assert (await c.get("/api/me/interviews/roles")).status_code == 404
+    assert (await c.post("/api/me/interviews/start", json={"test": "SQL", "consent": True})).status_code == 404
+    session, cid = await verified(client, outbox, db)
+    u = await db[USERS].find_one({"email": "meena@example.com"})
+    assert (await client.get(f"/api/company/{cid}/hire/interview/{u['_id']}", headers=H(session))).status_code == 404

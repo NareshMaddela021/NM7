@@ -1,0 +1,62 @@
+{
+  "slug": "sales",
+  "version": 1,
+  "questions": [
+    {
+      "id": "sales-i1",
+      "kind": "experience",
+      "q": "Tell me about your field sales work. What product did you sell, to which customers, and what was your monthly target?",
+      "looks_for": "Real product and customer type (shops, homes, offices), area covered, target and how often they met it, and their own daily routine.",
+      "te": "మీ field sales పని గురించి చెప్పండి. మీరు ఏ product అమ్మారు, ఎవరికి అమ్మారు, మీ నెల target ఎంత?",
+      "hi": "अपने field sales काम के बारे में बताइए। आपने कौन सा product बेचा, किसको बेचा, और आपका महीने का target कितना था?"
+    },
+    {
+      "id": "sales-i2",
+      "kind": "experience",
+      "q": "Tell me about one big sale or new customer you won. How did you find them and what made them say yes?",
+      "looks_for": "Specific customer, how they got the lead, visits and follow-ups, how they handled doubts, and the final order value or result.",
+      "te": "మీరు చేసిన ఒక పెద్ద sale లేదా కొత్త customer గురించి చెప్పండి. వాళ్ళని ఎలా కనుక్కున్నారు, వాళ్ళు ఎందుకు ఒప్పుకున్నారు?",
+      "hi": "किसी एक बड़ी sale या नए customer के बारे में बताइए। आपने उन्हें कैसे ढूंढा और उन्होंने हाँ क्यों कहा?"
+    },
+    {
+      "id": "sales-i3",
+      "kind": "knowledge",
+      "q": "When a customer says your price is too high, how do you answer without just giving a discount?",
+      "looks_for": "Explains value and benefits, compares quality or service, asks what they compare with, offers options within rules; discount only as last step with approval.",
+      "te": "Customer మీ price ఎక్కువ అంటే, వెంటనే discount ఇవ్వకుండా ఎలా సమాధానం చెప్తారు?",
+      "hi": "अगर customer कहे कि आपका price ज़्यादा है, तो सीधे discount दिए बिना आप कैसे जवाब देंगे?"
+    },
+    {
+      "id": "sales-i4",
+      "kind": "knowledge",
+      "q": "Why is follow-up important in sales, and how do you follow up without irritating the customer?",
+      "looks_for": "Most sales need more than one visit; fixed times, useful reason each time (offer, sample, answer), polite tone, respects when they say no.",
+      "te": "Sales లో follow-up ఎందుకు ముఖ్యం? Customer కి విసుగు రాకుండా follow-up ఎలా చేస్తారు?",
+      "hi": "Sales में follow-up क्यों ज़रूरी है? Customer को परेशान किए बिना follow-up कैसे करते हैं?"
+    },
+    {
+      "id": "sales-i5",
+      "kind": "knowledge",
+      "q": "How do you plan your day in the field so you meet more customers and waste less time travelling?",
+      "looks_for": "Plans route by area, fixes appointments, mixes new and old customers, keeps a list or app updated, reports at day end.",
+      "te": "Field లో ఎక్కువ customers ని కలవడానికి, travel లో టైం వృధా కాకుండా మీ రోజుని ఎలా plan చేస్తారు?",
+      "hi": "Field में ज़्यादा customers से मिलने और travel में समय कम खराब हो, इसके लिए आप अपना दिन कैसे plan करते हैं?"
+    },
+    {
+      "id": "sales-i6",
+      "kind": "situation",
+      "q": "It is the last week of the month, you are at 60 percent of target, and a big customer asks for a discount that your manager has not approved. What would you do?",
+      "looks_for": "Does not promise unapproved discount; talks to manager with facts, offers allowed options, pushes other leads hard, stays honest with the customer.",
+      "te": "నెల చివరి వారం, మీరు target లో 60 శాతం మాత్రమే చేశారు. ఒక పెద్ద customer manager ఒప్పుకోని discount అడుగుతున్నారు. మీరు ఏం చేస్తారు?",
+      "hi": "महीने का आखिरी हफ्ता है, आपका target 60 प्रतिशत ही हुआ है, और एक बड़ा customer ऐसा discount मांग रहा है जो manager ने approve नहीं किया। आप क्या करेंगे?"
+    },
+    {
+      "id": "sales-i7",
+      "kind": "motivation",
+      "q": "Why do you want this field sales job, do you have a two-wheeler, when can you join (say your notice period clearly), and what monthly salary do you expect?",
+      "looks_for": "Clear reason linked to the work, states notice period or joining date in days or weeks, and gives an expected monthly salary figure or range without dodging. Also says if they have a two-wheeler and licence.",
+      "te": "ఈ field sales job మీకు ఎందుకు కావాలి? మీకు bike ఉందా? మీరు ఎప్పుడు join అవ్వగలరు (notice period స్పష్టంగా చెప్పండి)? నెలకు ఎంత జీతం ఆశిస్తున్నారు?",
+      "hi": "आपको यह field sales job क्यों चाहिए? क्या आपके पास bike है? आप कब join कर सकते हैं (notice period साफ़ बताइए)? और महीने की कितनी salary चाहिए?"
+    }
+  ]
+}

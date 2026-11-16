@@ -1,0 +1,48 @@
+{
+  "slug": "java",
+  "version": 1,
+  "questions": [
+    {
+      "id": "java-i1",
+      "kind": "experience",
+      "q": "Tell me about a Java application you worked on. What did it do, which frameworks did you use, and which part did you build yourself?",
+      "looks_for": "Clear description of the system, real frameworks (for example Spring Boot, Hibernate), their own modules or features, and the outcome. Honest about team versus individual work."
+    },
+    {
+      "id": "java-i2",
+      "kind": "experience",
+      "q": "Describe a production issue in a Java service that you helped solve. How did you find the cause?",
+      "looks_for": "Uses logs, stack traces, monitoring, thread or heap dumps as relevant. Explains the actual cause, the fix, and what was done to stop it happening again."
+    },
+    {
+      "id": "java-i3",
+      "kind": "knowledge",
+      "q": "Your Java service's memory keeps growing until it crashes every few days. How would you investigate?",
+      "looks_for": "Suspects a memory leak, takes and compares heap dumps, looks for growing collections, caches without limits, unclosed resources or listeners, and checks garbage collection logs. Tests the fix."
+    },
+    {
+      "id": "java-i4",
+      "kind": "knowledge",
+      "q": "When would you use an interface versus an abstract class in Java, and why does it matter for maintaining code?",
+      "looks_for": "Explains interfaces as contracts that many unrelated classes can implement, abstract classes for shared code and state, and connects it to flexibility, testing and loose coupling."
+    },
+    {
+      "id": "java-i5",
+      "kind": "knowledge",
+      "q": "Two threads update the same account balance at the same time and the final value is wrong. Why does this happen and how would you fix it?",
+      "looks_for": "Identifies a race condition from non-atomic read-modify-write. Fixes with synchronization, locks, atomic classes, or database-level locking or transactions, and mentions trade-offs like contention."
+    },
+    {
+      "id": "java-i6",
+      "kind": "situation",
+      "q": "Just before a release, you find that a feature you built passes tests but gives wrong results for one rare type of customer. What do you do?",
+      "looks_for": "Raises it immediately with the lead, explains the impact honestly, suggests options (fix now, feature flag, delay, or release with known issue), and adds a test for the case."
+    },
+    {
+      "id": "java-i7",
+      "kind": "motivation",
+      "q": "Why do you want to work as a Java developer, and what do you want to grow into? Please state clearly your notice period or joining date, and your expected salary in ₹ per month or per year?",
+      "looks_for": "Gives a genuine reason tied to the work, a sensible growth direction, a clear notice period or joining date, and a clear salary figure or range in ₹. Honest about buyout or negotiable notice if relevant."
+    }
+  ]
+}

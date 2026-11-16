@@ -1,0 +1,48 @@
+{
+  "slug": "customer-support",
+  "version": 1,
+  "questions": [
+    {
+      "id": "customer-support-i1",
+      "kind": "experience",
+      "q": "Tell me about your work handling customer calls or queries. What kind of customers and problems did you deal with, and roughly how many in a day?",
+      "looks_for": "Real setting (product, process, inbound/outbound), common issue types, daily volume, and their own role on the call."
+    },
+    {
+      "id": "customer-support-i2",
+      "kind": "experience",
+      "q": "Describe one customer call you are proud of. What was the problem, what did you say or do, and how did it end?",
+      "looks_for": "A specific case with clear steps: listened, understood, gave a fix or next step, followed up; ends with a resolved issue or a calmer customer."
+    },
+    {
+      "id": "customer-support-i3",
+      "kind": "knowledge",
+      "q": "What does first call resolution mean, and why do support teams care about it so much?",
+      "looks_for": "Solving the issue in the first contact without repeat calls; links it to customer happiness, lower cost and fewer escalations; mentions not rushing just to close."
+    },
+    {
+      "id": "customer-support-i4",
+      "kind": "knowledge",
+      "q": "How do you handle a customer who is angry and keeps interrupting you?",
+      "looks_for": "Lets them speak, stays polite, acknowledges the feeling, avoids arguing, repeats the issue back, gives a clear next step and timeline."
+    },
+    {
+      "id": "customer-support-i5",
+      "kind": "knowledge",
+      "q": "When should you put a customer on hold or transfer the call, and how should you do it properly?",
+      "looks_for": "Only when needed to check or when another team owns it; asks permission, gives a time, checks back, and briefs the next person so the customer need not repeat."
+    },
+    {
+      "id": "customer-support-i6",
+      "kind": "situation",
+      "q": "A customer says a refund promised a week ago has still not come, and they want to speak to your manager right now. What would you do?",
+      "looks_for": "Apologises, checks the record and refund status, explains honestly, gives a clear timeline or raises a ticket, escalates properly if needed, and does not make false promises."
+    },
+    {
+      "id": "customer-support-i7",
+      "kind": "motivation",
+      "q": "Why do you want a customer support role, are you okay with shifts, when can you join (state your notice period), and what salary do you expect?",
+      "looks_for": "Clear reason linked to the work, states notice period or joining date in days or weeks, and gives an expected monthly or yearly salary figure or range without dodging. Also says clearly whether shifts or weekends are okay."
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "slug": "support-chat",
+  "version": 1,
+  "questions": [
+    {
+      "id": "support-chat-i1",
+      "kind": "experience",
+      "q": "Tell me about your chat or email support work. What product or service was it, and what kinds of messages did you handle?",
+      "looks_for": "Real product, common query types, tools used (helpdesk, CRM, WhatsApp business), volume, and their own role."
+    },
+    {
+      "id": "support-chat-i2",
+      "kind": "experience",
+      "q": "Share an example of a written reply you sent to a customer that solved a hard problem. What was the issue and how did you write your reply?",
+      "looks_for": "Specific issue, clear structure (greeting, understanding, steps, next action), polite tone, and a good result."
+    },
+    {
+      "id": "support-chat-i3",
+      "kind": "knowledge",
+      "q": "How is writing to a customer on chat or email different from speaking on a call?",
+      "looks_for": "No tone of voice so words must be clear and polite; short paragraphs, steps, correct spelling; chat needs quick replies, email needs complete answers; record stays."
+    },
+    {
+      "id": "support-chat-i4",
+      "kind": "knowledge",
+      "q": "When you handle three or four chats at the same time, how do you avoid mixing them up or making customers wait too long?",
+      "looks_for": "Reads before replying, uses notes and names, quick holding messages, saved replies with edits, prioritises urgent ones, closes chats cleanly."
+    },
+    {
+      "id": "support-chat-i5",
+      "kind": "knowledge",
+      "q": "What are canned or template replies good for, and when can they make a customer more upset?",
+      "looks_for": "Speed and consistency; but feel robotic or miss the real question if not personalised; always edit to fit the case."
+    },
+    {
+      "id": "support-chat-i6",
+      "kind": "situation",
+      "q": "A customer sends an angry email in capital letters saying they were charged twice and will post on social media. How would you reply?",
+      "looks_for": "Calm, polite reply: apologises, confirms the issue, checks transaction details, explains refund steps and timeline, gives a reference number; no blame or arguing."
+    },
+    {
+      "id": "support-chat-i7",
+      "kind": "motivation",
+      "q": "Why do you want a chat and email support job, are you fine with shifts, when can you join (state your notice period), and what salary do you expect?",
+      "looks_for": "Clear reason linked to the work, states notice period or joining date in days or weeks, and gives an expected monthly or yearly salary figure or range without dodging. Also says clearly whether shifts are okay."
+    }
+  ]
+}

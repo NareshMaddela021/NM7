@@ -1,0 +1,48 @@
+{
+  "slug": "cybersecurity",
+  "version": 1,
+  "questions": [
+    {
+      "id": "cybersecurity-i1",
+      "kind": "experience",
+      "q": "Tell me about security work you have done, in a job, internship, lab or project. What did you do and what did you find?",
+      "looks_for": "Concrete activities like log monitoring, vulnerability scanning, hardening, CTFs or labs. Tools used, findings, and what action followed. Honest about level of experience."
+    },
+    {
+      "id": "cybersecurity-i2",
+      "kind": "experience",
+      "q": "Describe a time you found a security weakness. How did you confirm it and how did you report it?",
+      "looks_for": "Confirms carefully without causing harm, documents steps and impact, reports through the right channel, suggests a fix, and follows up. Shows ethics and responsible behaviour."
+    },
+    {
+      "id": "cybersecurity-i3",
+      "kind": "knowledge",
+      "q": "An employee says they clicked a link in a suspicious email and entered their password. What steps would you take?",
+      "looks_for": "Resets the password and ends sessions, checks for MFA, reviews login and mailbox activity, looks for the same email sent to others, blocks the sender or link, and informs the team. Advises the user calmly."
+    },
+    {
+      "id": "cybersecurity-i4",
+      "kind": "knowledge",
+      "q": "How would you explain to a non-technical manager why multi-factor authentication is worth the extra step for staff?",
+      "looks_for": "Simple explanation that stolen passwords alone are not enough to get in, connects to real risks like phishing, mentions low cost versus high damage, and suggests user-friendly options."
+    },
+    {
+      "id": "cybersecurity-i5",
+      "kind": "knowledge",
+      "q": "You see many failed login attempts on a server from different IP addresses overnight. How would you investigate?",
+      "looks_for": "Checks logs for the accounts targeted, whether any login succeeded, source patterns, and what is exposed; then blocks or rate-limits, enforces strong authentication, and escalates if an account was compromised."
+    },
+    {
+      "id": "cybersecurity-i6",
+      "kind": "situation",
+      "q": "A senior manager asks you to turn off a security control because it slows down their work. What do you do?",
+      "looks_for": "Listens to the real problem, explains the risk simply, looks for a safer fix or exception with approval, documents it, and escalates according to policy rather than quietly disabling it."
+    },
+    {
+      "id": "cybersecurity-i7",
+      "kind": "motivation",
+      "q": "Why do you want to work as a cybersecurity analyst, and what do you want to grow into? Please state clearly your notice period or joining date, and your expected salary in ₹ per month or per year?",
+      "looks_for": "Gives a genuine reason tied to the work, a sensible growth direction, a clear notice period or joining date, and a clear salary figure or range in ₹. Honest about buyout or negotiable notice if relevant."
+    }
+  ]
+}

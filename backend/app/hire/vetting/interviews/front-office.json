@@ -1,0 +1,48 @@
+{
+  "slug": "front-office",
+  "version": 1,
+  "questions": [
+    {
+      "id": "front-office-i1",
+      "kind": "experience",
+      "q": "Tell me about your front desk or reception work. What kind of place was it, and what did a normal day look like?",
+      "looks_for": "Real place (hotel, hospital, office), tasks like greeting, calls, check-in, visitor register, bookings, billing, and their own duties."
+    },
+    {
+      "id": "front-office-i2",
+      "kind": "experience",
+      "q": "Describe a guest or visitor you helped who had a special problem. What did you do and how did it end?",
+      "looks_for": "Specific case, polite handling, coordination with other teams, and a good result for the guest."
+    },
+    {
+      "id": "front-office-i3",
+      "kind": "knowledge",
+      "q": "What should happen during a smooth hotel check-in, from the guest arriving to them going to their room?",
+      "looks_for": "Greeting, booking check, ID proof and registration as per rules, payment or deposit, room and facilities explained, key given, luggage help."
+    },
+    {
+      "id": "front-office-i4",
+      "kind": "knowledge",
+      "q": "How do you handle many calls and walk-in guests at the same time without making anyone feel ignored?",
+      "looks_for": "Acknowledges walk-ins with eye contact or a word, asks callers to hold politely, prioritises, keeps notes, asks a colleague for help."
+    },
+    {
+      "id": "front-office-i5",
+      "kind": "knowledge",
+      "q": "Why is first impression so important at a front desk, and what makes a good one?",
+      "looks_for": "Front desk shows the whole place; neat look, smile, greeting, clear speech, quick help, calm manner."
+    },
+    {
+      "id": "front-office-i6",
+      "kind": "situation",
+      "q": "A guest arrives late at night with a confirmed booking, but the hotel is full because of an overbooking. What would you do?",
+      "looks_for": "Apologises sincerely, checks for any room, informs manager, arranges a similar nearby hotel and transport as per policy, stays calm and keeps the guest updated."
+    },
+    {
+      "id": "front-office-i7",
+      "kind": "motivation",
+      "q": "Why do you want this front office job, are you okay with shifts, when can you join (state your notice period), and what salary do you expect?",
+      "looks_for": "Clear reason linked to the work, states notice period or joining date in days or weeks, and gives an expected monthly or yearly salary figure or range without dodging. Also says clearly whether shifts are okay."
+    }
+  ]
+}

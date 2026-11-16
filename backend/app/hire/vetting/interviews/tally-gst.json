@@ -1,0 +1,48 @@
+{
+  "slug": "tally-gst",
+  "version": 1,
+  "questions": [
+    {
+      "id": "tally-gst-i1",
+      "kind": "experience",
+      "q": "Tell me about your work in Tally. What kind of company was it, and which vouchers, reports or GST tasks did you handle yourself?",
+      "looks_for": "Real business, names voucher types (sales, purchase, payment, receipt, journal), reports like GSTR data or ledgers, and their own regular duties."
+    },
+    {
+      "id": "tally-gst-i2",
+      "kind": "experience",
+      "q": "Describe a GST-related problem you handled, such as a mismatch in input credit or a wrong invoice. What did you do?",
+      "looks_for": "Specific case: found mismatch with GSTR-2B or wrong GSTIN/tax rate, contacted vendor or corrected entry, explains the outcome."
+    },
+    {
+      "id": "tally-gst-i3",
+      "kind": "knowledge",
+      "q": "What is input tax credit, and when can a business not claim it even if it paid GST on a purchase?",
+      "looks_for": "Credit of GST paid on purchases against output tax; blocked or lost when vendor has not filed or not shown in 2B, no valid invoice, goods not received, or blocked items like personal use."
+    },
+    {
+      "id": "tally-gst-i4",
+      "kind": "knowledge",
+      "q": "When do you charge CGST and SGST, and when do you charge IGST on a sale?",
+      "looks_for": "CGST+SGST for sale within the same state, IGST for sale to another state or import/export; place of supply decides."
+    },
+    {
+      "id": "tally-gst-i5",
+      "kind": "knowledge",
+      "q": "In Tally, how do you set up a new party ledger and stock item so that GST comes correctly on invoices?",
+      "looks_for": "Correct group (sundry debtor/creditor), GSTIN and state, registration type; stock item with HSN and GST rate; then check the invoice tax lines."
+    },
+    {
+      "id": "tally-gst-i6",
+      "kind": "situation",
+      "q": "A vendor's invoice of last month is not showing in your GSTR-2B, and your manager wants to claim the credit anyway. What would you do?",
+      "looks_for": "Explains the credit may not be allowed, contacts vendor to file or correct, keeps the bill on hold, tells the manager the risk politely, follows rules."
+    },
+    {
+      "id": "tally-gst-i7",
+      "kind": "motivation",
+      "q": "Why do you want this Tally and GST accounts job, when can you join (state your notice period), and what salary do you expect?",
+      "looks_for": "Clear reason linked to the work, states notice period or joining date in days or weeks, and gives an expected monthly or yearly salary figure or range without dodging."
+    }
+  ]
+}

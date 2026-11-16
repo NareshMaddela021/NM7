@@ -1,0 +1,48 @@
+{
+  "slug": "fullstack-mern",
+  "version": 1,
+  "questions": [
+    {
+      "id": "fullstack-mern-i1",
+      "kind": "experience",
+      "q": "Tell me about a full-stack MERN project you built. What did the app do, and which parts of the front end, back end and database did you build?",
+      "looks_for": "A real app with clear purpose, their own work across React, Node/Express and MongoDB, key design decisions, and how it was deployed or used."
+    },
+    {
+      "id": "fullstack-mern-i2",
+      "kind": "experience",
+      "q": "Describe a time an API you built had a problem in production or testing. How did you find and fix it?",
+      "looks_for": "Uses logs, error messages, reproducing the request, checking database queries. Explains root cause, fix, and what was added to prevent repeats such as validation or tests."
+    },
+    {
+      "id": "fullstack-mern-i3",
+      "kind": "knowledge",
+      "q": "How would you design the MongoDB data for an app where users place orders containing many products? What would you embed and what would you reference?",
+      "looks_for": "Weighs embedding versus referencing: e.g. store a snapshot of product name and price inside the order, reference the user and product IDs. Considers query patterns, document growth and indexes."
+    },
+    {
+      "id": "fullstack-mern-i4",
+      "kind": "knowledge",
+      "q": "How would you add secure login to a MERN app, and what mistakes would you avoid?",
+      "looks_for": "Hashes passwords (bcrypt or similar), uses tokens or sessions properly, HTTPS, short-lived tokens, secure cookie settings, server-side checks on every protected route. Avoids storing secrets in front-end code."
+    },
+    {
+      "id": "fullstack-mern-i5",
+      "kind": "knowledge",
+      "q": "A list page in your app loads thousands of records and is slow. What would you change on the back end and front end?",
+      "looks_for": "Server-side pagination or infinite scroll, database indexes, returning only needed fields, caching where suitable, and on the front end avoiding unnecessary re-renders or virtualising long lists."
+    },
+    {
+      "id": "fullstack-mern-i6",
+      "kind": "situation",
+      "q": "A teammate pushes a fix on Friday evening that breaks checkout on the live site. What do you do?",
+      "looks_for": "Puts customers first: confirms the issue, rolls back or reverts quickly, informs the team, checks orders affected, then looks at the root cause and adds tests or review steps. No blame."
+    },
+    {
+      "id": "fullstack-mern-i7",
+      "kind": "motivation",
+      "q": "Why do you want to work as a full-stack developer, and what do you want to grow into? Please state clearly your notice period or joining date, and your expected salary in ₹ per month or per year?",
+      "looks_for": "Gives a genuine reason tied to the work, a sensible growth direction, a clear notice period or joining date, and a clear salary figure or range in ₹. Honest about buyout or negotiable notice if relevant."
+    }
+  ]
+}

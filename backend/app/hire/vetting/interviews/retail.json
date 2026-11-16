@@ -1,0 +1,62 @@
+{
+  "slug": "retail",
+  "version": 1,
+  "questions": [
+    {
+      "id": "retail-i1",
+      "kind": "experience",
+      "q": "Tell me about your work in a shop or store. What did the store sell, and what were your daily duties?",
+      "looks_for": "Real store type, duties like helping customers, billing, stock, display, cleaning, and their own role in a normal day.",
+      "te": "మీరు shop లేదా store లో చేసిన పని గురించి చెప్పండి. ఆ store లో ఏం అమ్మేవారు, మీ రోజువారీ పనులు ఏంటి?",
+      "hi": "किसी shop या store में आपके काम के बारे में बताइए। वहाँ क्या बिकता था और आपके रोज़ के काम क्या थे?"
+    },
+    {
+      "id": "retail-i2",
+      "kind": "experience",
+      "q": "Tell me about a customer you helped who left very happy or bought more than they planned. What did you do?",
+      "looks_for": "Specific customer, asked about needs, showed suitable options, explained honestly, suggested a related item, good result.",
+      "te": "మీరు సహాయం చేసిన ఒక customer చాలా సంతోషంగా వెళ్ళారు లేదా అనుకున్న దానికంటే ఎక్కువ కొన్నారు. మీరు ఏం చేశారు?",
+      "hi": "किसी ऐसे customer के बारे में बताइए जो बहुत खुश होकर गया या जिसने सोचे से ज़्यादा खरीदा। आपने क्या किया?"
+    },
+    {
+      "id": "retail-i3",
+      "kind": "knowledge",
+      "q": "When a customer walks in and just looks around, how do you start talking to them without disturbing them?",
+      "looks_for": "Smiles and greets, gives space, offers help with a simple question, notices what they look at, does not force a sale.",
+      "te": "Customer లోపలికి వచ్చి ఊరికే చూస్తుంటే, వాళ్ళని ఇబ్బంది పెట్టకుండా ఎలా మాట్లాడటం మొదలుపెడతారు?",
+      "hi": "जब customer अंदर आकर बस देख रहा हो, तो उसे परेशान किए बिना आप बात कैसे शुरू करते हैं?"
+    },
+    {
+      "id": "retail-i4",
+      "kind": "knowledge",
+      "q": "Why should the store shelves and display be kept neat and full, and what do you check every morning?",
+      "looks_for": "Customers find items easily and buy more; checks stock gaps, price tags, expiry or damage, cleanliness, offers displayed.",
+      "te": "Store లో shelves, display ఎందుకు శుభ్రంగా, నిండుగా ఉండాలి? ప్రతి ఉదయం మీరు ఏం check చేస్తారు?",
+      "hi": "Store की shelves और display साफ़ और भरी हुई क्यों होनी चाहिए? आप हर सुबह क्या check करते हैं?"
+    },
+    {
+      "id": "retail-i5",
+      "kind": "knowledge",
+      "q": "What would you do if you see someone trying to take an item without paying?",
+      "looks_for": "Stays calm, does not accuse loudly or use force, informs the manager or security, follows store rules, keeps own and customers' safety first.",
+      "te": "ఎవరైనా డబ్బు కట్టకుండా ఒక వస్తువు తీసుకెళ్తుంటే మీరు ఏం చేస్తారు?",
+      "hi": "अगर आप देखें कि कोई बिना पैसे दिए सामान ले जा रहा है, तो आप क्या करेंगे?"
+    },
+    {
+      "id": "retail-i6",
+      "kind": "situation",
+      "q": "On a busy festival day, a customer wants to return a shirt without the bill and is shouting at the counter. What would you do?",
+      "looks_for": "Stays calm, listens, moves them aside politely, explains return policy, checks if the purchase can be found another way, calls the manager if needed.",
+      "te": "పండగ రోజు చాలా రద్దీగా ఉంది. ఒక customer bill లేకుండా shirt return చేయాలని counter దగ్గర అరుస్తున్నారు. మీరు ఏం చేస్తారు?",
+      "hi": "त्योहार के दिन बहुत भीड़ है, और एक customer बिना bill के shirt return करना चाहता है और counter पर चिल्ला रहा है। आप क्या करेंगे?"
+    },
+    {
+      "id": "retail-i7",
+      "kind": "motivation",
+      "q": "Why do you want this store job, are you okay with weekend and festival duty, when can you join (say your notice period clearly), and what monthly salary do you expect?",
+      "looks_for": "Clear reason linked to the work, states notice period or joining date in days or weeks, and gives an expected monthly salary figure or range without dodging. Also says clearly whether weekend and festival duty is okay.",
+      "te": "ఈ store job మీకు ఎందుకు కావాలి? Weekend, పండగ రోజుల్లో duty చేయగలరా? ఎప్పుడు join అవ్వగలరు (notice period స్పష్టంగా చెప్పండి)? నెలకు ఎంత జీతం ఆశిస్తున్నారు?",
+      "hi": "आपको यह store job क्यों चाहिए? क्या आप weekend और त्योहार पर duty कर सकते हैं? आप कब join कर सकते हैं (notice period साफ़ बताइए)? और महीने की कितनी salary चाहिए?"
+    }
+  ]
+}

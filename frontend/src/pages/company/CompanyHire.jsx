@@ -11,6 +11,7 @@
 // Vetting V1: each card shows the level chip (L0–L4) and ⚡ Ready now, the readiness score (0–100) with its top 3
 // reasons and a "Why this score" fold with the parts; filters for the minimum level, ⚡ ready now only, notice period,
 // salary, city and experience band. The order is the server's.
+// Vetting V3: people at L3+ get a "Screening interview" button: the summary in a drawer, with Invite to final interview.
 import { useCallback, useEffect, useState } from 'react';
 import { rq } from '../../lib/company';
 import { reasons } from './CompanyApplicants';
@@ -19,6 +20,7 @@ import HireOffers from './HireOffers';
 import HireBulk from './HireBulk';
 import HireSpeed from './HireSpeed';
 import SkillBadge from './SkillBadge';
+import ScreeningInterview from './ScreeningInterview';
 import { TEST_NAMES } from '../../lib/vettingRoles';
 import { Empty } from '../me/kit';
 import { useLang } from '../../lib/i18n';
@@ -269,6 +271,7 @@ export default function CompanyHire({ t, c }) {
                 <SkillBadge sv={x.skillVerified} t={t} />
                 <span className="hn-trust" data-testid="co-hire-trust">{x.skillCheck ? t('co.hire.check', { score: x.skillCheck.score }) : t('co.hire.noCheck')} · {x.reliability.score == null ? x.reliability.label : `${x.reliability.label} (${x.reliability.score}%)`}{x.reliability.lines?.length ? `: ${x.reliability.lines.join('; ')}` : ''}</span>
                 <div className="hn-person-foot">
+                  <ScreeningInterview c={c} uid={x.key} name={x.name} level={x.level?.level} job={job} canInvite={canInvite && !x.applied} invited={!!x.invite} onInvited={load} />
                   {x.invite ? <span className={`mchip ${CHIP[x.invite.status]}`} data-testid="co-hire-state">{t(`co.hire.state.${x.invite.status}`)}</span>
                     : x.applied ? <span className="mchip mchip-neutral">{t('co.hire.applied')}</span>
                       : canInvite && <button type="button" className="btn btn-outline hn-invite" disabled={busy} onClick={() => invite([x.key])} data-testid="co-hire-invite">{t('co.hire.invite')}</button>}

@@ -1,0 +1,48 @@
+{
+  "slug": "digital-marketing",
+  "version": 1,
+  "questions": [
+    {
+      "id": "digital-marketing-i1",
+      "kind": "experience",
+      "q": "Tell me about a digital marketing campaign you worked on. What was the goal, which channels did you use, and what was your part?",
+      "looks_for": "Real campaign, clear goal (leads, sales, followers), channels like Meta ads, Google ads, SEO, email, their own tasks, and numbers if available."
+    },
+    {
+      "id": "digital-marketing-i2",
+      "kind": "experience",
+      "q": "Share a result you are proud of, like more leads or lower cost. What did you change to get that result?",
+      "looks_for": "Specific metric before and after, and the change made (targeting, creative, keywords, landing page); shows testing and learning."
+    },
+    {
+      "id": "digital-marketing-i3",
+      "kind": "knowledge",
+      "q": "What is the difference between CTR and conversion rate, and which would you watch for a lead generation campaign?",
+      "looks_for": "CTR is clicks over impressions, conversion rate is actions over clicks/visits; for leads the conversion and cost per lead matter more than CTR alone."
+    },
+    {
+      "id": "digital-marketing-i4",
+      "kind": "knowledge",
+      "q": "How does SEO help a small business, and what are two or three basic things you would check on their website first?",
+      "looks_for": "Free traffic from search over time; checks page titles and descriptions, speed, mobile view, Google Business Profile, useful content, keywords."
+    },
+    {
+      "id": "digital-marketing-i5",
+      "kind": "knowledge",
+      "q": "When would you use paid ads instead of only organic social media posts?",
+      "looks_for": "Paid for quick reach, targeting, launches, or offers; organic for trust and community over time; mentions budget and tracking."
+    },
+    {
+      "id": "digital-marketing-i6",
+      "kind": "situation",
+      "q": "Your Meta ads campaign spent half the monthly budget in one week but brought very few leads. What would you do?",
+      "looks_for": "Pauses or reduces weak ads, checks targeting, creatives, form and landing page, looks at data by ad set, tests changes, reports honestly to the manager."
+    },
+    {
+      "id": "digital-marketing-i7",
+      "kind": "motivation",
+      "q": "Why do you want this digital marketing job, when can you join (state your notice period), and what salary do you expect?",
+      "looks_for": "Clear reason linked to the work, states notice period or joining date in days or weeks, and gives an expected monthly or yearly salary figure or range without dodging."
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "slug": "two-wheeler",
+  "version": 1,
+  "questions": [
+    {
+      "id": "two-wheeler-i1",
+      "kind": "experience",
+      "q": "What two-wheeler work have you done? Tell us which bikes or scooters, and what jobs like general service, engine work or electrical work?",
+      "looks_for": "Specific brands and models, tasks done alone (service, clutch, brakes, engine overhaul, wiring), where and how long, how many vehicles a day. Honest about helper vs mechanic level.",
+      "te": "మీరు ఏ two-wheeler పని చేశారు? ఏ bikes లేదా scooters, general service, engine పని లేదా electrical పని లాంటి ఏ jobs చేశారు చెప్పండి?",
+      "hi": "आपने कौन सा two-wheeler काम किया है? कौन सी bikes या scooters, और general service, engine का काम या electrical काम जैसे कौन से jobs किए, बताइए?"
+    },
+    {
+      "id": "two-wheeler-i2",
+      "kind": "experience",
+      "q": "Tell us about one bike repair you are proud of. What was the problem and how did you find it?",
+      "looks_for": "A concrete fault with logical checking steps, what part was repaired or replaced, and how they test-rode or checked it before handing over.",
+      "te": "మీకు గర్వంగా అనిపించిన ఒక bike repair గురించి చెప్పండి. Problem ఏంటి, మీరు దాన్ని ఎలా కనిపెట్టారు?",
+      "hi": "किसी एक bike repair के बारे में बताइए जिस पर आपको गर्व है। Problem क्या थी और आपने उसे कैसे पकड़ा?"
+    },
+    {
+      "id": "two-wheeler-i3",
+      "kind": "knowledge",
+      "q": "How do you do a general service of a bike, step by step?",
+      "looks_for": "Engine oil change and filter, air filter clean, spark plug check, chain clean, lube and adjust, brake check and adjust, clutch and cables, tyre pressure, lights and horn, battery, washing, final test ride.",
+      "te": "ఒక bike general service ని step by step ఎలా చేస్తారు?",
+      "hi": "एक bike की general service आप step by step कैसे करते हैं?"
+    },
+    {
+      "id": "two-wheeler-i4",
+      "kind": "knowledge",
+      "q": "A bike does not start in the morning. What will you check, one by one?",
+      "looks_for": "Logical order: fuel, battery and self, kill switch and side stand switch, spark plug and spark, choke, air filter, fuel flow or injector, compression. Checks simple things first.",
+      "te": "ఒక bike పొద్దున start అవ్వడం లేదు. మీరు ఒక్కొక్కటిగా ఏం check చేస్తారు?",
+      "hi": "एक bike सुबह start नहीं हो रही। आप एक एक करके क्या check करेंगे?"
+    },
+    {
+      "id": "two-wheeler-i5",
+      "kind": "knowledge",
+      "q": "A customer says the brakes are weak. How will you check and fix them, and how do you test before giving the bike back?",
+      "looks_for": "Checks pads or shoes for wear, disc or drum condition, brake fluid level and air in the line for disc brakes, cable adjustment; replaces worn parts; test ride at low speed in a safe place before handover.",
+      "te": "Brakes weak గా ఉన్నాయని customer చెప్తున్నారు. మీరు ఎలా check చేసి సరిచేస్తారు, bike తిరిగి ఇచ్చే ముందు ఎలా test చేస్తారు?",
+      "hi": "Customer कहता है कि brakes कमज़ोर हैं। आप कैसे check करके ठीक करेंगे, और bike वापस देने से पहले कैसे test करेंगे?"
+    },
+    {
+      "id": "two-wheeler-i6",
+      "kind": "situation",
+      "q": "The customer wants the bike back in one hour, but you see the brake shoe is fully worn, and he says no to changing it. What will you do?",
+      "looks_for": "Explains the danger simply and politely, shows the worn part, tells the supervisor or owner, notes the customer's refusal on the job card, does not hide it or secretly skip safety; stays respectful.",
+      "te": "Customer కి ఒక గంటలో bike కావాలి, కానీ brake shoe పూర్తిగా అరిగిపోయిందని మీరు చూశారు, ఆయన మార్చడానికి వద్దంటున్నారు. మీరు ఏం చేస్తారు?",
+      "hi": "Customer को एक घंटे में bike वापस चाहिए, पर आप देखते हैं कि brake shoe पूरा घिस गया है, और वह बदलने से मना कर रहा है। आप क्या करेंगे?"
+    },
+    {
+      "id": "two-wheeler-i7",
+      "kind": "motivation",
+      "q": "Why do you want to work as a two-wheeler mechanic? When can you join, and what salary do you expect? Can you say your notice period and salary clearly?",
+      "looks_for": "A genuine reason for this work, a clear joining date or notice period, and a clear salary figure. May mention own tools or driving licence.",
+      "te": "మీరు two-wheeler mechanic గా ఎందుకు పని చేయాలనుకుంటున్నారు? ఎప్పుడు join అవ్వగలరు, ఎంత salary ఆశిస్తున్నారు? మీ notice period, salary స్పష్టంగా చెప్పగలరా?",
+      "hi": "आप two-wheeler mechanic का काम क्यों करना चाहते हैं? आप कब join कर सकते हैं, और कितनी salary चाहते हैं? क्या आप अपना notice period और salary साफ़ बता सकते हैं?"
+    }
+  ]
+}

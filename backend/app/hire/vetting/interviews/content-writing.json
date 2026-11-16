@@ -1,0 +1,48 @@
+{
+  "slug": "content-writing",
+  "version": 1,
+  "questions": [
+    {
+      "id": "content-writing-i1",
+      "kind": "experience",
+      "q": "Tell me about the content you have written. What types (blogs, social posts, product pages), for whom, and how often?",
+      "looks_for": "Real examples, audience and brand, type of content, regular volume, and their own role from research to final draft."
+    },
+    {
+      "id": "content-writing-i2",
+      "kind": "experience",
+      "q": "Describe a piece you wrote that got good results or feedback. What made it work?",
+      "looks_for": "Specific piece, the result (views, leads, client praise), and why: clear audience, research, strong headline, simple structure."
+    },
+    {
+      "id": "content-writing-i3",
+      "kind": "knowledge",
+      "q": "How do you change your writing when the reader is a busy shop owner instead of a college student?",
+      "looks_for": "Adjusts tone, words, length and examples to the reader; short and practical for the shop owner; shows audience thinking."
+    },
+    {
+      "id": "content-writing-i4",
+      "kind": "knowledge",
+      "q": "What does writing for SEO mean, and how do you add keywords without making the article sound unnatural?",
+      "looks_for": "Writing content that matches what people search; keyword in title, headings and naturally in text; answers the reader's question first."
+    },
+    {
+      "id": "content-writing-i5",
+      "kind": "knowledge",
+      "q": "Why is copying content from other websites a problem, even if you change some words?",
+      "looks_for": "Plagiarism, unfair to the writer, search penalties, brand trust; original research and own voice are expected."
+    },
+    {
+      "id": "content-writing-i6",
+      "kind": "situation",
+      "q": "A client sends back your article saying it is boring and wants it rewritten by tomorrow, but gives no other details. What would you do?",
+      "looks_for": "Asks a few quick questions or checks their brand samples, revises hook, examples and structure, delivers on time, stays positive about feedback."
+    },
+    {
+      "id": "content-writing-i7",
+      "kind": "motivation",
+      "q": "Why do you want this content writer job, when can you join (state your notice period), and what salary do you expect?",
+      "looks_for": "Clear reason linked to the work, states notice period or joining date in days or weeks, and gives an expected monthly or yearly salary figure or range without dodging."
+    }
+  ]
+}

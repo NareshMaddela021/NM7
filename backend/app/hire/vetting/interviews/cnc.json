@@ -1,0 +1,62 @@
+{
+  "slug": "cnc",
+  "version": 1,
+  "questions": [
+    {
+      "id": "cnc-i1",
+      "kind": "experience",
+      "q": "What CNC work have you done? Tell us the machine, like CNC lathe or VMC, the controller, and what parts you made?",
+      "looks_for": "Specific machine types and controllers (Fanuc, Siemens), materials and parts made, whether they only loaded parts or also did setting and offsets, how long. Honest about their level.",
+      "te": "మీరు ఏ CNC పని చేశారు? CNC lathe లేదా VMC లాంటి ఏ machine, ఏ controller, ఏ parts తయారు చేశారు చెప్పండి?",
+      "hi": "आपने कौन सा CNC काम किया है? CNC lathe या VMC जैसी कौन सी machine, कौन सा controller, और कौन से parts बनाए, बताइए?"
+    },
+    {
+      "id": "cnc-i2",
+      "kind": "experience",
+      "q": "Tell us about one part or job on CNC that you are proud of. What made it hard and how did you get it right?",
+      "looks_for": "A concrete job with a real challenge (tight tolerance, new setup, tool wear) and their own steps to solve it, and how they checked it.",
+      "te": "CNC మీద మీకు గర్వంగా అనిపించిన ఒక part లేదా job గురించి చెప్పండి. అది ఎందుకు కష్టంగా ఉంది, మీరు దాన్ని ఎలా సరిగ్గా చేశారు?",
+      "hi": "CNC पर किसी एक part या job के बारे में बताइए जिस पर आपको गर्व है। उसमें क्या मुश्किल था और आपने उसे सही कैसे किया?"
+    },
+    {
+      "id": "cnc-i3",
+      "kind": "knowledge",
+      "q": "How do you set a new job on the machine before starting production, like loading the program and setting the tool and work offsets?",
+      "looks_for": "Checks drawing and program, loads and verifies the program, clamps the job properly, sets tool offsets and work zero, does a dry run or single block at low feed, checks the first piece before running.",
+      "te": "Production మొదలుపెట్టే ముందు machine మీద కొత్త job ని ఎలా set చేస్తారు, అంటే program load చేయడం, tool offset, work offset set చేయడం లాంటివి?",
+      "hi": "Production शुरू करने से पहले machine पर नया job कैसे set करते हैं, जैसे program load करना और tool और work offset set करना?"
+    },
+    {
+      "id": "cnc-i4",
+      "kind": "knowledge",
+      "q": "How do you check the first piece, and what do you do if a size starts going out of tolerance?",
+      "looks_for": "Measures all sizes with the right instruments against the drawing, gets first piece approval, checks at regular intervals; if size drifts, stops, checks tool wear and offset, corrects the wear offset, separates doubtful parts, informs the supervisor or quality.",
+      "te": "First piece ని ఎలా check చేస్తారు? ఒక size tolerance నుంచి బయటికి వెళ్తుంటే మీరు ఏం చేస్తారు?",
+      "hi": "First piece को कैसे check करते हैं, और अगर कोई size tolerance से बाहर जाने लगे तो आप क्या करते हैं?"
+    },
+    {
+      "id": "cnc-i5",
+      "kind": "knowledge",
+      "q": "What safety rules do you follow while running a CNC machine?",
+      "looks_for": "Door closed while running, no gloves or loose clothes near rotating parts, safety glasses and shoes, never puts hands inside while the spindle runs, knows the emergency stop, removes chips with a brush or hook, keeps the area clean.",
+      "te": "CNC machine run చేసేటప్పుడు మీరు ఏ safety rules follow చేస్తారు?",
+      "hi": "CNC machine चलाते समय आप कौन से safety rules follow करते हैं?"
+    },
+    {
+      "id": "cnc-i6",
+      "kind": "situation",
+      "q": "In the middle of a shift there is a loud sound and the tool breaks, and the production target is high. What will you do?",
+      "looks_for": "Presses stop or feed hold, keeps hands away, checks the part, tool and holder for damage, finds the cause (wrong offset, feed, wear) before restarting, replaces the tool and re-sets the offset, checks the next piece, informs the supervisor honestly.",
+      "te": "Shift మధ్యలో పెద్ద శబ్దం వచ్చి tool విరిగిపోయింది, production target కూడా ఎక్కువగా ఉంది. మీరు ఏం చేస్తారు?",
+      "hi": "Shift के बीच में ज़ोर की आवाज़ आती है और tool टूट जाता है, और production target भी ज़्यादा है। आप क्या करेंगे?"
+    },
+    {
+      "id": "cnc-i7",
+      "kind": "motivation",
+      "q": "Why do you want to work as a CNC operator? When can you join, and what salary do you expect? Can you say your notice period and salary clearly?",
+      "looks_for": "A genuine reason for this work, a clear joining date or notice period, and a clear salary figure. Honest about shift and night-shift comfort.",
+      "te": "మీరు CNC operator గా ఎందుకు పని చేయాలనుకుంటున్నారు? ఎప్పుడు join అవ్వగలరు, ఎంత salary ఆశిస్తున్నారు? మీ notice period, salary స్పష్టంగా చెప్పగలరా?",
+      "hi": "आप CNC operator का काम क्यों करना चाहते हैं? आप कब join कर सकते हैं, और कितनी salary चाहते हैं? क्या आप अपना notice period और salary साफ़ बता सकते हैं?"
+    }
+  ]
+}
