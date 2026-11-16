@@ -82,8 +82,10 @@ for (const [label, opts] of SIZES) {
       const actx = await browser.newContext(opts);
       const ap = await actx.newPage();
       await adminLogin(ap, owner, secret);
+      await expect(ap).not.toHaveURL(/\/login/, { timeout: 15_000 });
       await ap.goto('/admin/skill-tests?tab=l4');
-      await expect(ap.getByRole('tab', { name: 'L4 checks' })).toHaveAttribute('aria-selected', 'true');
+      await expect(ap.getByRole('heading', { name: 'Skill checks', level: 1 })).toBeVisible({ timeout: 15_000 });
+      await expect(ap.getByRole('tab', { name: /L4 checks/ })).toHaveAttribute('aria-selected', 'true');
       await expect(ap.getByTestId('l4-free')).toHaveText('Free — payments off');
       await expect(ap.getByTestId('l4-free-note')).toContainText('No prices yet; nothing is charged or paid');
       await expect(ap.getByTestId('l4-payments')).not.toBeChecked();
