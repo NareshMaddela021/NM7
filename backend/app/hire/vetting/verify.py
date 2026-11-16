@@ -61,9 +61,45 @@ from app.hire.vetting.roles import BY_TEST
 from app.me.service import ms
 
 ReviewerAuth = Annotated[Auth, Depends(require_role("expert"))]
-reviewer = APIRouter(prefix="/api/reviewer", tags=["vetting"])
+
+
+async def _on(auth: CustomerAuth, db: DB) -> None:
+    """404 while the vetting engine is hidden from this person (Admin → Skill checks → Launch)."""
+    from app.hire.vetting import access
+
+    if not await access.for_user(db, auth.user.id):
+        raise ApiError(404, "not_found", "Not found.")
+
+
+async def _reviewer_on(auth: ReviewerAuth, db: DB) -> None:
+    """Reviewers too: while hidden only testers (and admins) can use the reviewer workspace."""
+    from app.hire.vetting import access
+
+    if not await access.for_user(db, auth.user.id):
+        raise ApiError(404, "not_found", "Not found.")
+
+
+async def _company_on(db, c: dict[str, Any], acc: dict[str, Any]) -> None:
+    from app.hire.vetting import access
+
+    if not await access.for_company(db, c, acc):
+        raise ApiError(404, "not_found", "Not found.")
+
+
+reviewer = APIRouter(prefix="/api/reviewer", tags=["vetting"], dependencies=[Depends(_reviewer_on)])
+reviewer_access = APIRouter(prefix="/api/reviewer", tags=["vetting"])
 company = APIRouter(prefix="/api/company", tags=["vetting"])
-me = APIRouter(prefix="/api/me/verification", tags=["vetting"])
+me = APIRouter(prefix="/api/me/verification", tags=["vetting"], dependencies=[Depends(_on)])
+
+
+@reviewer_access.get("/access")
+async def reviewer_access_state(auth: ReviewerAuth, db: DB) -> dict[str, Any]:
+    """{on}: whether this expert sees the reviewer workspace (the header link)."""
+    from app.hire.vetting import access
+
+    return {"on": await access.for_user(db, auth.user.id)}
+
+
 public = APIRouter(prefix="/api/public/reference", tags=["vetting"])
 admin = APIRouter(prefix="/api/admin/vetting/l4", tags=["vetting"])
 
@@ -226,6 +262,7 @@ async def request_l4(
     from app.companies.signup import company_for
 
     acc, c, _ = await company_for(db, cid, x_recruiter_account)
+    await _company_on(db, c, acc)
     seen = await db[HIRE_PROFILES].find_one({"_id": uid, "on": True, "consent_at": {"$ne": None}})
     if not seen:
         raise ApiError(404, "not_found", "That candidate isn’t visible to your company.")
@@ -262,7 +299,8 @@ async def rate(
     """After interviewing an L4 candidate: how well did the check predict them? Feeds the reviewer's quality score."""
     from app.companies.signup import company_for
 
-    await company_for(db, cid, x_recruiter_account)
+    acc, c, _ = await company_for(db, cid, x_recruiter_account)
+    await _company_on(db, c, acc)
     r = await db[VETTING_L4].find_one({"user_id": uid, "status": "verified"}, sort=[("granted_at", -1)])
     if not r:
         raise ApiError(404, "not_found", "No Nm7 human check for this candidate.")

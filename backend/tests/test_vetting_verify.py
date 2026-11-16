@@ -6,6 +6,8 @@ candidate's own email is flagged, price and payout are free and off by default, 
 
 from datetime import timedelta
 
+import pytest
+
 from app.core.db import USERS, VETTING_L4, VETTING_VERIFIED
 from app.core.time import now
 from app.hire.vetting import verify as V4
@@ -14,6 +16,17 @@ from tests.test_companies_apply import student
 from tests.test_companies_posting import JOB, no_ai, verified  # noqa: F401
 from tests.test_companies_signup import H, err, no_network  # noqa: F401
 from tests.test_hire_shortlist import READY
+
+
+@pytest.fixture(autouse=True)
+def vetting_public(monkeypatch):
+    """V4 itself: the engine is public here (hidden mode: test_vetting_access.py)."""
+    from app.hire.vetting import access
+
+    async def public(db):
+        return {"public": True, "testers": []}
+
+    monkeypatch.setattr(access, "settings", public)
 
 
 def test_calibration_and_defaults():

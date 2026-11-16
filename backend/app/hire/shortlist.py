@@ -360,7 +360,7 @@ async def candidates(
         )
     if not vetting:  # hidden from this company (Admin → Skill checks → Launch): Hire now exactly as before
         for r in rows:
-            for k in ("level", "readyNow", "band", "readiness", "reasons"):
+            for k in ("level", "readyNow", "band", "readiness", "reasons", "l4"):
                 r.pop(k, None)
     rows.sort(key=rank_key if vetting else rank_key_classic)
     return rows

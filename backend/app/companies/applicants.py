@@ -210,7 +210,7 @@ async def applicants(
 
     if not await access.for_company(db, c, acc):  # the vetting engine hidden from this company: no level chips
         for row in rows:
-            row["level"] = None
+            row["level"] = row["l4"] = None
     rows.sort(key=_rank)
     counts: dict[str, int] = {}
     async for a in db[APPLICATIONS].find(_visible(cid), {"job_id": 1}):
@@ -239,7 +239,7 @@ async def applicant(cid: str, app_id: str, db: DB, x_recruiter_account: str | No
     from app.hire.vetting import access
 
     if not await access.for_company(db, c, acc):
-        out["level"] = None
+        out["level"] = out["l4"] = None
     out["data"] = recruiter_data({"_data": r["data"]}, a.get("status") in CONTACT_STAGES) if r else None
     out["template"] = (r or {}).get("template") or "classic"
     await audit(db, None, "company.applicant_open", target=cid, data={"by": acc["email_lc"], "app": app_id})

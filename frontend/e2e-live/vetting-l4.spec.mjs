@@ -41,6 +41,7 @@ for (const [label, opts] of SIZES) {
       const ex = `l4-rev-${tag}@example.com`;
       const name = `Ravi ${tag}`;
       seed('expert', ex, name, PASSWORD, 'approved');
+      seed('vetting-tester', ex); // the vetting engine is hidden by default (Admin → Skill checks → Launch)
       const ectx = await browser.newContext(opts);
       const ep = await ectx.newPage();
       await login(ep, ex);

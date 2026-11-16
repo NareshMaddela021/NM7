@@ -326,6 +326,7 @@ def create_app() -> FastAPI:
     app.include_router(vetting_interview.admin)  # /api/admin/vetting/interviews
     app.include_router(vetting_trust.me)  # /api/me/appeals, /api/me/data-export (Vetting V5)
     app.include_router(vetting_trust.admin)  # /api/admin/vetting/appeals, /fraud, /fairness (V5)
+    app.include_router(vetting_verify.reviewer_access)  # /api/reviewer/access (the header link, V4)
     app.include_router(vetting_verify.reviewer)  # /api/reviewer (Vetting V4: reviewers, expert accounts)
     app.include_router(vetting_verify.company)  # /api/company/{cid}/hire/l4/{uid}
     app.include_router(vetting_verify.me)  # /api/me/verification

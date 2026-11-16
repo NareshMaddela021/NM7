@@ -134,3 +134,16 @@ async def test_v5_hidden_appeals_export_reminders_and_no_retention(outbox, db, m
     )
     out = await T.daily_if_due(db, outbox)
     assert out["retention_waits"] == 1 and await db[AUDIT_LOG].find_one({"ip": "203.0.113.9"})  # nothing rewritten
+
+
+async def test_v4_hidden_human_check_reviewer_and_company(client, outbox, db, make_client):
+    from tests.conftest import approved_expert
+
+    c = await student(make_client, outbox, "devi@example.com", "Devi R")
+    assert (await c.get("/api/me/verification")).status_code == 404
+    rc, _ = await approved_expert(make_client, outbox, db)
+    assert (await rc.get("/api/reviewer/access")).json() == {"on": False}
+    assert (await rc.get("/api/reviewer/me")).status_code == 404
+    session, cid = await verified(client, outbox, db)
+    u = await db[USERS].find_one({"email": "devi@example.com"})
+    assert (await client.post(f"/api/company/{cid}/hire/l4/{u['_id']}", headers=H(session))).status_code == 404

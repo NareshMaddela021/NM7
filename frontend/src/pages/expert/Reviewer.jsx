@@ -276,7 +276,16 @@ function Checks() {
   return <ul className="l4-refs" style={{ gap: 16 }} data-testid="rv-checks">{d.items.map((x) => <CheckItem key={x.id} x={x} checklist={d.checklist || []} onDone={load} />)}</ul>;
 }
 
+/** Only for experts the vetting engine is open to (Admin → Skill checks → Launch). */
 export default function Reviewer() {
+  const [on, setOn] = useState(null);
+  useEffect(() => { http('/api/reviewer/access').then((x) => setOn(!!x?.on), () => setOn(false)); }, []);
+  if (on == null) return <ExpertPage kicker="Nm7 checks" title="Reviewer"><Skel cards={1} lines={3} label="Loading" /></ExpertPage>;
+  if (!on) return <ExpertPage kicker="Nm7 checks" title="Reviewer"><Empty shape="badge" title="Not open yet">The reviewer workspace is not open yet.</Empty></ExpertPage>;
+  return <ReviewerPage />;
+}
+
+function ReviewerPage() {
   const [sp, setSp] = useSearchParams();
   const tab = TABS.some(([v]) => v === sp.get('tab')) ? sp.get('tab') : 'profile';
   const setTab = (v) => setSp(v === 'profile' ? {} : { tab: v }, { replace: true });

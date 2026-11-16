@@ -158,7 +158,6 @@ export default function Header({ variant = 'public', right, labels, lang }) {
             <NavLink to="/expert/snippets">Snippets</NavLink>
             <NavLink to="/expert/earnings">Earnings</NavLink>
             <NavLink to="/expert/performance">Performance</NavLink>
-            <NavLink to="/expert/reviewer">Reviewer</NavLink>
             <NavLink to="/expert/profile">Profile</NavLink>
             <NavLink to="/expert/help">Help</NavLink>
           </nav>

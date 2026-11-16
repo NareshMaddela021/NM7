@@ -7,6 +7,7 @@
 import { useCallback, useEffect, useId, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { http } from '../../services/http';
+import { useVettingOn } from '../../lib/vettingAccess';
 import { MeHead } from './MeLayout';
 import { Chip, Empty, MeCard, Skel } from './kit';
 import { L4_STEPS, RELATIONS, byDay, l4Status, refereeProblems, stepIndex, timeText, whenText } from '../../lib/l4';
@@ -113,7 +114,15 @@ function RefereeForm({ onSaved }) {
   );
 }
 
+/** Hidden from this person (Admin → Skill checks → Launch): nothing to see yet. */
 export default function MeVerification() {
+  const on = useVettingOn();
+  if (on == null) return <Skel cards={1} lines={3} label="Loading" />;
+  if (!on) return <><MeHead title="Nm7 check" /><Empty shape="badge" title="Not open yet">The Nm7 human check is not open yet.</Empty></>;
+  return <MeVerificationPage />;
+}
+
+function MeVerificationPage() {
   const [d, setD] = useState(null);
   const [err, setErr] = useState('');
   const load = useCallback(() => http(API).then((x) => { setD(x); setErr(''); }, (e) => setErr(e.message)), []);
