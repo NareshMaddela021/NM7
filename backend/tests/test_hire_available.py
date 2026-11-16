@@ -93,7 +93,7 @@ async def test_one_reminder_a_day_before_and_the_one_tap_link(client, outbox, db
     n0 = len(outbox.sent)
     assert await send_reminders(db, outbox) == 1
     mail = outbox.sent[-1]
-    assert mail.to == "asha@example.com" and "Still ready" in mail.subject and "/hire/still-ready#t=" in mail.text
+    assert mail.to == "asha@example.com" and "Still looking" in mail.subject and "/hire/still-ready#t=" in mail.text
     assert await send_reminders(db, outbox) == 0 and len(outbox.sent) == n0 + 1  # never twice for the same week
     # the email's link: no sign-in needed, starts the 7 days again
     anon = make_client()

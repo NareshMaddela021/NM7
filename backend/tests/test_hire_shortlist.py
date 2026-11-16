@@ -93,9 +93,12 @@ async def test_verified_only_and_ranking_and_privacy(client, outbox, db, make_cl
     )
     out = (await client.get(f"/api/company/{cid}/hire/shortlist", params={"job": job}, headers=H(session))).json()
     assert out["items"][0]["verified"][0]["skill"] == "SQL" and out["items"][0]["verified"][0]["at"]
-    # stale (7 days without Still ready) drops out
+    # Vetting V1: 8 days without "Still looking" loses ⚡ but stays visible; 22 days hides them
     asha = await db[USERS].find_one({"email": "asha@example.com"})
     await db[HIRE_PROFILES].update_one({"_id": asha["_id"]}, {"$set": {"confirmed_at": now() - timedelta(days=8)}})
+    out = (await client.get(f"/api/company/{cid}/hire/shortlist", params={"job": job}, headers=H(session))).json()
+    assert {x["name"]: x["readyNow"] for x in out["items"]} == {"Asha R.": False, "Bala K.": True}
+    await db[HIRE_PROFILES].update_one({"_id": asha["_id"]}, {"$set": {"confirmed_at": now() - timedelta(days=22)}})
     out = (await client.get(f"/api/company/{cid}/hire/shortlist", params={"job": job}, headers=H(session))).json()
     assert [x["name"] for x in out["items"]] == ["Bala K."]
     # a Basic company (not verified) sees its applicants only

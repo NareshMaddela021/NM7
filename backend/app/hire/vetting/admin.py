@@ -246,4 +246,4 @@ async def stats(db: DB, _: AdminAuth("jobs"), days: int = Query(14, ge=1, le=90)
     }  # fmt: skip
 
 
-RUPEES_PER_CALL = 0.6  # about: one Haiku grading call (≈3k input + 400 output tokens), for the stats page only
+RUPEES_PER_CALL = 0.05  # about: one claude-haiku-5-5 grading call (≈3k input + 400 output tokens at $0.10 / $0.50 per million, ₹85 a dollar)
