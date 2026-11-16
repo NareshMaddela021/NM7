@@ -1,6 +1,6 @@
 // Phase 5 H1 "Ready to join", on a desktop and a 390 px phone, against the real API: consent is needed, the
 // details save, the dashboard card and the easy dashboard show "visible until …", Pause and Resume work, the email's
-// one-tap Still ready page works without signing in, nothing scrolls sideways, and no browser dialogs.
+// one-tap Still ready page works without signing in, the dashboard's level card (Vetting V1) shows, nothing scrolls sideways, and no browser dialogs.
 import { expect, test } from '@playwright/test';
 import { PASSWORD, email, login, seed } from './helpers.mjs';
 import { SIZES, call, noSideScroll } from './college.mjs';
@@ -42,6 +42,12 @@ for (const [label, opts] of SIZES) {
 
       await page.goto('/me');
       await expect(page.getByTestId('hire-card-line')).toContainText('Visible to companies hiring now until');
+      // Vetting V1: the ladder card says the level and what to do next (a new account has no complete resume yet)
+      await expect(page.getByTestId('level-card')).toContainText(/You are L[0-4] · /);
+      await expect(page.getByTestId('level-card').getByRole('list', { name: /Level [0-4] of 4/ })).toBeVisible();
+      await expect(page.getByTestId('level-next')).toBeVisible();
+      await expect(page.getByTestId('level-ready')).toBeVisible();
+      expect(await noSideScroll(page)).toBe(true);
 
       await page.goto('/me/simple/hire');
       await expect(page.getByTestId('sx-hire-line')).toContainText('Companies hiring now can see you until');

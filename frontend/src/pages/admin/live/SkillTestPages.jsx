@@ -1,4 +1,6 @@
-// Admin → Skill checks (Vetting V2). One page, five tabs:
+// Admin → Skill checks (Vetting V2). One page, six tabs:
+//   Overview    (Vetting V1, the first and default tab) people per level, ⚡ ready now, hot roles, shortlist health,
+//               reminder replies and the success measures (VettingOverview.jsx).
 //   Banks       the question bank per role (50 roles): filters, a dense table with % right, average time and bad-question
 //               flags, and an edit dialog (wording, options, the right answer, topic, difficulty, kind, active, the
 //               Telugu / Hindi versions and "needs native review"). Nothing is deleted: turn a question off instead.
@@ -14,11 +16,12 @@ import { PageHead } from '../AdminUI';
 import { Loading, http, useAction, useApi } from './common';
 import { TEST_NAMES, VETTING_ROLES } from '../../../lib/vettingRoles';
 import { IntegrityQueue, ReviewQueue, Rubrics, Stats } from './VettingPages';
+import VettingOverview from './VettingOverview';
 import '../../../styles/me-kit.css';
 import '../../../styles/admin-jobs.css';
 import '../../../styles/admin-vetting.css';
 
-const TABS = [['banks', 'Banks'], ['rubrics', 'Rubrics'], ['review', 'Review queue'], ['integrity', 'Integrity queue'], ['stats', 'Stats']];
+const TABS = [['overview', 'Overview'], ['banks', 'Banks'], ['rubrics', 'Rubrics'], ['review', 'Review queue'], ['integrity', 'Integrity queue'], ['stats', 'Stats']];
 const FLAG_LABEL = { too_easy: 'Too easy', too_hard: 'Too hard', top_scorers_fail: 'Top scorers fail it' };
 const FLAG_TONE = { too_easy: 'mchip-warn', too_hard: 'mchip-bad', top_scorers_fail: 'mchip-bad' };
 const DIFF = [['easy', 'Easy'], ['medium', 'Medium'], ['hard', 'Hard']];
@@ -53,14 +56,15 @@ function TabBar({ tab, setTab, counts }) {
 
 export function LiveSkillTests() {
   const [sp, setSp] = useSearchParams();
-  const tab = TABS.some(([v]) => v === sp.get('tab')) ? sp.get('tab') : 'banks';
-  const setTab = (v) => setSp(v === 'banks' ? {} : { tab: v }, { replace: true });
+  const tab = TABS.some(([v]) => v === sp.get('tab')) ? sp.get('tab') : 'overview';
+  const setTab = (v) => setSp(v === 'overview' ? {} : { tab: v }, { replace: true });
   const counts = useApi('/api/admin/vetting/queue?kind=review&limit=1');
   return (
     <div className="adx vt stack g16">
-      <PageHead title="Skill checks" sub="Question banks, practical-task rubrics, the review and integrity queues, and how the checks are doing. Companies only ever see the badge and scores." />
+      <PageHead title="Skill checks" sub="Levels and shortlists at a glance, question banks, practical-task rubrics, the review and integrity queues, and how the checks are doing. Companies only ever see the badge and scores." />
       <TabBar tab={tab} setTab={setTab} counts={counts.data?.open} />
       <div role="tabpanel" id={`vt-panel-${tab}`} aria-labelledby={`vt-tab-${tab}`} className="stack g16">
+        {tab === 'overview' && <VettingOverview />}
         {tab === 'banks' && <Banks />}
         {tab === 'rubrics' && <Rubrics />}
         {tab === 'review' && <ReviewQueue onDone={counts.reload} />}

@@ -18,6 +18,8 @@ import { moveItem, removeItem, toggleItem } from '../builder/entries';
 import { HOBBY_IDEAS, STRENGTH_IDEAS } from '../builder/schema';
 import { MeHead } from './MeLayout';
 import { Chip, ScoreRing, Skel, StickyBar } from './kit';
+import { useMyLevel } from './LevelCard';
+import LevelBadge from '../../components/LevelBadge';
 import '../../styles/me-resume.css';
 
 const ICONS = { basics: '◉', summary: '❝', exp: '▤', intern: '◇', proj: '▣', edu: '✎', certs: '✪', skills: '✓', ach: '★', langs: 'あ', extra: '⚑', hobbies: '☼', strengths: '♥', pinfo: '⚿', decl: '✍', privacy: '⛨' };
@@ -154,6 +156,7 @@ function Importer({ p }) {
 
 export default function MeProfile() {
   const pr = useJobProfile();
+  const lv = useMyLevel(); // Vetting V1: the level chip next to the completeness
   const toast = useToast();
   if (pr.loading || (!pr.data && pr.available && !pr.error)) return <><MeHead title="Job Profile" /><Skel cards={2} lines={4} label="Loading your Job Profile…" /></>;
   if (!pr.available) {
@@ -184,6 +187,7 @@ export default function MeProfile() {
         <ScoreRing value={pct} label="Profile complete" sub="%" size={120} good={80} fair={40} />
         <div className="mstack" style={{ gap: 8, flex: '1 1 260px' }}>
           <strong className="pf-hero-title">Profile complete: {pct}%</strong>
+          {lv.d && lv.d !== 'failed' && <span className="mrow" style={{ gap: 8, alignItems: 'center' }} data-testid="pf-level"><LevelBadge level={lv.d.level} label={lv.d.label} readyNow={lv.d.readyNow} /><Link to="/me" className="small">What raises my level</Link></span>}
           <Meter value={pct} color={pct >= 80 ? 'var(--success)' : pct >= 40 ? 'var(--warning)' : 'var(--text3)'} label="Profile complete" />
           {missing.length > 0 ? <span className="mrow pf-missing" style={{ gap: 6 }}><span className="mitem-meta">Missing:</span>{missing.map((x) => <Chip key={x} tone="warn">{x}</Chip>)}</span> : <Chip tone="ok">Everything is filled in</Chip>}
           <div className="mrow" style={{ gap: 8 }}>

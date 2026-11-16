@@ -180,3 +180,18 @@
 .ho-form textarea.input { min-height: 72px; }
 .ho-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: 12px; }
 .ho-days { max-width: 180px; }
+
+/* Vetting V1: the readiness score with its reasons, the "Why this score" fold, the level filters */
+.hn-clear { justify-self: start; min-height: 44px; }
+.hn-ready { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.hn-ready-line { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 14px; color: var(--text); }
+.hn-ready-score { white-space: nowrap; }
+.hn-ready-why { font-weight: 650; overflow-wrap: anywhere; min-width: 0; }
+.hn-why > summary { display: inline-flex; align-items: center; min-height: 44px; cursor: pointer; font-size: 13.5px; font-weight: 750; color: #1d4ed8; }
+.hn-why > summary:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; border-radius: 6px; }
+.hn-parts { margin: 0 0 4px; display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border-radius: 12px; background: #f6f8ff; border: 1px solid #dfe7ff; }
+.hn-parts > div { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; font-size: 13px; }
+.hn-parts dt { color: var(--text); font-weight: 650; min-width: 0; overflow-wrap: anywhere; }
+.hn-parts dd { margin: 0; display: inline-flex; align-items: center; gap: 8px; color: var(--text2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.hn-bar { width: 56px; height: 6px; border-radius: 6px; background: #dfe7ff; overflow: hidden; display: inline-block; }
+.hn-bar > i { display: block; height: 100%; background: #2563eb; border-radius: 6px; }

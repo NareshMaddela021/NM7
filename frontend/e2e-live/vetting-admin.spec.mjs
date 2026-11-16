@@ -1,4 +1,5 @@
-// Admin → Skill checks (Vetting V2) on a desktop and a 390 px phone, against the real API: the Banks tab lists a
+// Admin → Skill checks (Vetting V2) on a desktop and a 390 px phone, against the real API: the Overview tab (Vetting V1,
+// the default) shows people per level, ready now and the success measures with their status; the Banks tab lists a
 // role's questions (the banks load on first open), a question's wording is edited in the dialog and saved, then the
 // Rubrics, Review queue, Integrity queue and Stats tabs open. No sideways scrolling, no browser dialogs.
 // (The company "Skill verified" badge is covered by the backend tests: seed() cannot make a skill_verified record.)
@@ -10,7 +11,7 @@ for (const [label, opts] of SIZES) {
   test.describe(label, () => {
     test.use(opts);
 
-    test('banks: edit a question; rubrics, review, integrity and stats tabs', async ({ page }) => {
+    test('overview; banks: edit a question; rubrics, review, integrity and stats tabs', async ({ page }) => {
       test.setTimeout(120_000);
       const owner = `vt-owner-${label}-${Date.now().toString(36)}@nm7.si`;
       const { secret } = seed('admin', owner, 'owner', PASSWORD);
@@ -20,6 +21,19 @@ for (const [label, opts] of SIZES) {
 
       await page.goto('/admin/skill-tests');
       await expect(page.getByRole('heading', { name: 'Skill checks', level: 1 })).toBeVisible();
+      // Overview (Vetting V1) is the first tab and opens by default
+      await expect(page.getByRole('tab', { name: 'Overview' })).toHaveAttribute('aria-selected', 'true');
+      await expect(page.getByTestId('vo-level')).toHaveCount(5, { timeout: 20_000 });
+      await expect(page.getByTestId('vo-levels')).toContainText('L2 · Skill verified');
+      await expect(page.getByTestId('vo-ready')).toContainText('Ready now');
+      await expect(page.getByTestId('vo-measure')).toHaveCount(7);
+      await expect(page.getByTestId('vo-measures')).toContainText(/Met|Not met|No data yet/);
+      expect(await noSideScroll(page)).toBe(true);
+      await page.goto('/admin/skill-tests?tab=overview');
+      await expect(page.getByRole('tab', { name: 'Overview' })).toHaveAttribute('aria-selected', 'true');
+
+      await page.getByRole('tab', { name: 'Banks' }).click();
+      await expect(page).toHaveURL(/tab=banks/);
       await expect(page.getByRole('tab', { name: 'Banks' })).toHaveAttribute('aria-selected', 'true');
       await expect(page.getByTestId('st-skills')).toContainText('Warehouse');
       await page.getByTestId('st-skills').selectOption('SQL');
