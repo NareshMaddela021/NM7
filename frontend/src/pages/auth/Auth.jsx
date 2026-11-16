@@ -12,6 +12,7 @@ import LangSwitch from '../../components/LangSwitch';
 import { useLang } from '../../lib/i18n';
 import { usePageMeta } from '../../lib/meta';
 import { safeNext } from '../../lib/safeNext';
+import '../../styles/admin-ops.css';
 
 const isPreview = import.meta.env.VITE_PREVIEW === '1';
 
@@ -270,7 +271,7 @@ export function AdminLogin() {
   return (
     <Shell title="Admin sign in" sub="Two-step login is required for every admin account.">
       {!step ? (
-        <form className="card stack g16" noValidate onSubmit={(e) => {
+        <form className="ad-auth" noValidate onSubmit={(e) => {
           e.preventDefault();
           // read from the form itself: browser autofill may not fire change events (fix round item 27)
           const fd = new FormData(e.currentTarget);
@@ -280,24 +281,27 @@ export function AdminLogin() {
           if (!email || !password) { setErr('Enter your work email and password.'); return; }
           run(async () => { const r = await adminPassword(email, password); if (r.signedIn) nav(next?.startsWith('/admin') ? next : '/admin', { replace: true }); else setStep(r); });
         }}>
-          <span className="mono xs muted">STEP 1 OF 2 · PASSWORD</span>
+          <span className="ad-auth-top"><span className="ad-auth-ic" aria-hidden="true">⚿</span><span className="ad-auth-kicker">STEP 1 OF 2 · PASSWORD</span><span className="ad-auth-steps" aria-hidden="true"><i className="on" /><i /></span></span>
+          <p className="ad-auth-help">Use your Nm7 work email. After the password you’ll enter a code from your authenticator app.</p>
           <Field id="ad-e" name="email" label="Work email" type="email" autoComplete="username" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
           <Field id="ad-p" name="password" label="Password" type="password" autoComplete="current-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />
           {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
-            <button type="submit" className="btn btn-ink btn-lg" disabled={busy} data-testid="admin-continue">{busy && <Spinner />}Continue</button>
+            <button type="submit" className="btn btn-signal btn-lg" disabled={busy} data-testid="admin-continue">{busy && <Spinner />}Continue</button>
         </form>
       ) : (
-        <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); run(async () => { await adminVerify(step.userId, f.code, f.trust); nav(next?.startsWith('/admin') ? next : '/admin', { replace: true }); }); }}>
-          <span className="mono xs muted">STEP 2 OF 2 · AUTHENTICATOR</span>
-          <span className="small muted">Open Google Authenticator, Microsoft Authenticator or Authy and enter the 6-digit code for Nm7 admin.</span>
+        <form className="ad-auth" noValidate onSubmit={(e) => { e.preventDefault(); run(async () => { await adminVerify(step.userId, f.code, f.trust); nav(next?.startsWith('/admin') ? next : '/admin', { replace: true }); }); }}>
+          <span className="ad-auth-top"><span className="ad-auth-ic" aria-hidden="true">⛨</span><span className="ad-auth-kicker">STEP 2 OF 2 · AUTHENTICATOR</span><span className="ad-auth-steps" aria-hidden="true"><i className="on" /><i className="on" /></span></span>
+          <span className="ad-auth-help">Open Google Authenticator, Microsoft Authenticator or Authy and enter the 6-digit code for Nm7 admin.</span>
           {recovery
             ? <Field id="ad-r" label="Recovery code" autoComplete="one-time-code" placeholder="ABCD-EFGH" maxLength={9} value={f.code} onChange={(e) => setF({ ...f, code: e.target.value.toUpperCase() })} hint="Each recovery code works once." />
             : <CodeInput id="ad-c" value={f.code} onChange={(code) => setF({ ...f, code })} label="Authenticator code" />}
-          <label className="row g8 small"><input type="checkbox" checked={f.trust} onChange={(e) => setF({ ...f, trust: e.target.checked })} />Trust this device for 30 days</label>
+          <label className="ad-auth-trust"><input type="checkbox" checked={f.trust} onChange={(e) => setF({ ...f, trust: e.target.checked })} />Trust this device for 30 days</label>
           {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
-            <button type="submit" className="btn btn-ink btn-lg" disabled={busy || (recovery ? f.code.replace(/[^A-Z0-9]/gi, '').length !== 8 : f.code.length !== 6)}>{busy && <Spinner />}Verify & open admin</button>
+            <button type="submit" className="btn btn-signal btn-lg" disabled={busy || (recovery ? f.code.replace(/[^A-Z0-9]/gi, '').length !== 8 : f.code.length !== 6)}>{busy && <Spinner />}Verify & open admin</button>
+          <div className="ad-auth-foot">
           <button type="button" className="link-btn small" style={{ alignSelf: 'flex-start' }} onClick={() => { setStep(null); setF({ ...f, code: '' }); }}>← Use a different account</button>
           <span className="xs faint">Lost your phone? <button type="button" className="link-btn xs" onClick={() => { setRecovery(!recovery); setF({ ...f, code: '' }); }}>{recovery ? 'Use the authenticator code' : 'Use a recovery code'}</button> or ask the owner to reset your two-step login.</span>
+          </div>
         </form>
       )}
       <Demo>email <code>admin@nm7.si</code>, password <code>{SAMPLE_PASSWORD}</code>, code <code>{DEMO_CODE}</code>. <button type="button" className="link-btn xs" onClick={() => setF({ ...f, email: 'admin@nm7.si', password: SAMPLE_PASSWORD })}>Fill in</button></Demo>
@@ -353,10 +357,11 @@ export function AdminSetup() {
   if (done) {
     return (
       <Shell title="Owner account ready" sub={`${done.email} is the owner admin. Setup is now closed for good.`}>
-        <div className="card stack g12">
+        <div className="ad-auth">
+          <span className="ad-auth-top"><span className="ad-auth-ic" aria-hidden="true">✓</span><span className="ad-auth-kicker">SETUP DONE</span></span>
           <span className="small">Sign in with your email, password and the 6-digit code from your authenticator app.</span>
           <span className="small muted">On Render, delete <code>ADMIN_SETUP_TOKEN</code> from the API’s environment now.</span>
-          <Link to="/admin/login" className="btn btn-ink btn-lg" style={{ alignSelf: 'flex-start' }}>Go to admin sign in</Link>
+          <Link to="/admin/login" className="btn btn-signal btn-lg">Go to admin sign in</Link>
         </div>
       </Shell>
     );
@@ -364,43 +369,45 @@ export function AdminSetup() {
   if (setup) {
     return (
       <Shell title="Set up two-step login" sub={`Finish within ${setup.expiresInMinutes} minutes. Nothing is saved until you confirm the code.`} wide>
-        <div className="card stack g16">
-          <span className="mono xs muted">1 · SCAN WITH YOUR AUTHENTICATOR APP</span>
-          <div className="row g16" style={{ alignItems: 'center', flexWrap: 'wrap' }}>
+        <div className="ad-auth">
+          <span className="ad-auth-top"><span className="ad-auth-ic" aria-hidden="true">1</span><span className="ad-auth-kicker">1 · SCAN WITH YOUR AUTHENTICATOR APP</span><span className="ad-auth-steps" aria-hidden="true"><i className="on" /><i /><i /></span></span>
+          <div className="ad-auth-qr">
             <QrCode text={setup.otpauthUri} />
             <span className="stack g8 small" style={{ flex: '1 1 220px' }}>
               <span>Open Google Authenticator, Microsoft Authenticator or Authy and scan this code.</span>
               <span className="muted">Can’t scan? Add the key by hand:</span>
-              <code style={{ wordBreak: 'break-all' }}>{setup.secret}</code>
+              <code className="ad-auth-secret">{setup.secret}</code>
             </span>
           </div>
         </div>
-        <div className="card stack g12">
-          <span className="mono xs muted">2 · SAVE YOUR RECOVERY CODES</span>
+        <div className="ad-auth">
+          <span className="ad-auth-top"><span className="ad-auth-ic" aria-hidden="true">2</span><span className="ad-auth-kicker">2 · SAVE YOUR RECOVERY CODES</span><span className="ad-auth-steps" aria-hidden="true"><i className="on" /><i className="on" /><i /></span></span>
           <span className="small">Each works once if you lose your phone. They are shown only now.</span>
-          <ol className="mono small" style={{ columns: 2, margin: 0, paddingLeft: 24 }}>{setup.recoveryCodes.map((c) => <li key={c}>{c}</li>)}</ol>
+          <ol className="mono small ad-auth-codes">{setup.recoveryCodes.map((c) => <li key={c}>{c}</li>)}</ol>
           <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} onClick={copyCodes}>Copy codes</button>
-          <label className="row g8 small"><input type="checkbox" checked={saved} onChange={(e) => setSaved(e.target.checked)} />I saved them somewhere safe</label>
+          <label className="ad-auth-trust"><input type="checkbox" checked={saved} onChange={(e) => setSaved(e.target.checked)} />I saved them somewhere safe</label>
         </div>
-        <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); run(async () => setDone(await adminSetupVerify(code))); }}>
-          <span className="mono xs muted">3 · CONFIRM</span>
+        <form className="ad-auth" noValidate onSubmit={(e) => { e.preventDefault(); run(async () => setDone(await adminSetupVerify(code))); }}>
+          <span className="ad-auth-top"><span className="ad-auth-ic" aria-hidden="true">3</span><span className="ad-auth-kicker">3 · CONFIRM</span><span className="ad-auth-steps" aria-hidden="true"><i className="on" /><i className="on" /><i className="on" /></span></span>
           <CodeInput id="as-c" value={code} onChange={setCode} label="6-digit code from the app" />
           {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
-          <button type="submit" className="btn btn-ink btn-lg" disabled={busy || !saved || code.length !== 6}>{busy && <Spinner />}Create owner account</button>
+          <button type="submit" className="btn btn-signal btn-lg" disabled={busy || !saved || code.length !== 6}>{busy && <Spinner />}Create owner account</button>
         </form>
       </Shell>
     );
   }
   return (
     <Shell title="Set up the owner admin" sub="One time only. This page stops working as soon as an admin account exists.">
-      <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); if (ready) run(async () => setSetup(await adminSetupStart(f))); }}>
+      <form className="ad-auth" noValidate onSubmit={(e) => { e.preventDefault(); if (ready) run(async () => setSetup(await adminSetupStart(f))); }}>
+        <span className="ad-auth-top"><span className="ad-auth-ic" aria-hidden="true">⚿</span><span className="ad-auth-kicker">OWNER ACCOUNT</span></span>
+        <p className="ad-auth-help">You need the setup token from the API’s environment. After this you’ll scan a QR code and save recovery codes.</p>
         <Field id="as-t" label="Setup token" type="password" autoComplete="off" value={f.token} hint="The ADMIN_SETUP_TOKEN value from the API’s environment on Render" onChange={(e) => setF({ ...f, token: e.target.value })} />
         <Field id="as-e" label="Work email" type="email" autoComplete="username" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
         <Field id="as-n" label="Your name" autoComplete="name" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} />
         <Field id="as-p" label="Password" type="password" autoComplete="new-password" value={f.password} hint="8+ characters, with letters and a number" error={pwIssue || ''} onChange={(e) => setF({ ...f, password: e.target.value })} />
         <Field id="as-p2" label="Re-type password" type="password" autoComplete="new-password" value={f.confirm} error={f.confirm && f.confirm !== f.password && f.confirm.length >= f.password.length ? 'Passwords don’t match' : ''} hint={f.confirm && f.confirm === f.password ? '✓ Passwords match' : ''} onChange={(e) => setF({ ...f, confirm: e.target.value })} />
         {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
-        <button type="submit" className="btn btn-ink btn-lg" disabled={busy || !ready}>{busy && <Spinner />}Continue</button>
+        <button type="submit" className="btn btn-signal btn-lg" disabled={busy || !ready}>{busy && <Spinner />}Continue</button>
       </form>
       <Link to="/admin/login" className="small">← Admin sign in</Link>
     </Shell>

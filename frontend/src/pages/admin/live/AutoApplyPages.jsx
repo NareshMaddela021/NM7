@@ -7,6 +7,8 @@ import { useToast } from '../../../components/ui';
 import { Kpi, PageHead, Panel } from '../AdminUI';
 import { langsShown, useLang } from '../../../lib/i18n';
 import { Loading, http, useAction, useApi, when } from './common';
+import '../../../styles/me-kit.css';
+import '../../../styles/admin-jobs.css';
 
 const FIELDS = [
   ['minScore', 'New students’ minimum match score', 50, 100], ['dailyLimit', 'New students’ applications a day', 1, 50],
@@ -31,26 +33,26 @@ export function LiveAutoApply() {
   const save = (s, msg) => run(async () => { await http('/api/admin/auto-apply/settings', { method: 'PUT', body: s }); st.reload(); setOff(false); }, msg);
   const demo = (url = '/api/admin/auto-apply/demo', body) => run(async () => { const r = await http(url, { method: 'POST', body }); window.location.assign(r.path); });
   return (
-    <>
+    <div className="adx adx-aa stack g16">
       <PageHead title="Auto Apply" sub="Every morning Nm7 applies for students within their own rules. Nothing is ever submitted on other websites by a bot." />
       <Loading st={st}>{(d) => (
         <div className="stack g16">
-          <section className="card stack g8" aria-label="Off switch" data-testid="aa-switch">
+          <section className="card stack g8 adx-switch" data-on={d.settings.on ? '1' : '0'} aria-label="Off switch" data-testid="aa-switch">
             <div className="row g8" style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
               <strong data-testid="aa-switch-state">{d.settings.on ? 'Auto Apply is on for everyone' : 'Auto Apply is OFF: nothing is applied or sent'}</strong>
               {d.settings.on
                 ? !off && <button type="button" className="btn btn-outline" disabled={busy} onClick={() => setOff(true)}>Turn off for everyone</button>
-                : <button type="button" className="btn btn-ink" disabled={busy} onClick={() => save({ ...d.settings, on: true }, 'Auto Apply is on')}>Turn on</button>}
+                : <button type="button" className="btn btn-signal" disabled={busy} onClick={() => save({ ...d.settings, on: true }, 'Auto Apply is on')}>Turn on</button>}
             </div>
             {off && (
               <div className="row g8 well" role="alert" style={{ flexWrap: 'wrap' }}>
                 <span className="small">Nothing will be applied or sent for anyone until you turn it on again. Students’ settings are kept.</span>
-                <button type="button" className="btn btn-ink" disabled={busy} onClick={() => save({ ...d.settings, on: false }, 'Auto Apply is off')} data-testid="aa-off-confirm">Turn off</button>
+                <button type="button" className="btn btn-signal" disabled={busy} onClick={() => save({ ...d.settings, on: false }, 'Auto Apply is off')} data-testid="aa-off-confirm">Turn off</button>
                 <button type="button" className="link-btn small" onClick={() => setOff(false)}>Cancel</button>
               </div>
             )}
           </section>
-          <div className="kpis">
+          <div className="kpis adx-kpis">
             <Kpi label="Students on" value={d.students.on} sub={`${d.students.paused} paused`} />
             <Kpi label="Need an answer" value={d.stuck} sub={`${d.ready} ready to apply`} />
             <Kpi label="Emails waiting (cap)" value={d.waitingCap} sub={`${d.emailBlocks} blocked addresses / domains`} />
@@ -71,7 +73,7 @@ export function LiveAutoApply() {
             <ul className="stack g8" style={{ listStyle: 'none', margin: 0, padding: 0 }} data-testid="aa-runs">
               {d.runs.length === 0 && <li className="small muted">No runs yet. The run starts at 07:00 IST.</li>}
               {d.runs.map((r) => (
-                <li key={r.day} className="card-sm stack g4">
+                <li key={r.day} className="card-sm stack g4 adx-log">
                   <strong className="small">{r.day} · {r.users} students · {when(r.at)}</strong>
                   <span className="xs muted">{Object.entries(r.counts).filter(([, v]) => v).map(([k, v]) => `${k.replace(/_/g, ' ')} ${v}`).join(' · ') || 'nothing to do'}</span>
                   {r.errors.map((e, i) => <span key={i} className="xs" style={{ color: 'var(--danger)' }}>Error ({e.user}): {e.error}</span>)}
@@ -80,7 +82,7 @@ export function LiveAutoApply() {
             </ul>
           </Panel>
           {/* long labels wrap on a phone instead of running off the screen (re-test N5 follow-up) */}
-          <section className="card-sm stack g8" aria-label="Demo student" data-testid="aa-demo">
+          <section className="card-sm stack g8 adx-demo" aria-label="Demo student" data-testid="aa-demo">
             <strong className="small">Demo student</strong>
             <span className="xs muted">A made-up student with Auto Apply on and one of each: applied on Nm7, sent by email (recorded, not sent), needs your answer, ready to apply, against the demo company’s jobs. Never public. Opening it signs this browser in as the student (the admin console signs out here: use a private window to keep both).</span>
             <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start', maxWidth: '100%', whiteSpace: 'normal', textAlign: 'left', height: 'auto', minHeight: 40 }} disabled={busy} onClick={() => demo()} data-testid="aa-demo-open">Reset and open as student (Auto Apply)</button>
@@ -91,7 +93,7 @@ export function LiveAutoApply() {
           </section>
         </div>
       )}</Loading>
-    </>
+    </div>
   );
 }
 
@@ -106,7 +108,7 @@ function Defaults({ s, busy, onSave }) {
             <input className="input" type="number" inputMode="numeric" min={lo} max={hi} step={1} style={{ height: 38, width: 110 }} value={f[k]} onChange={(e) => setF({ ...f, [k]: e.target.value })} data-testid={`aa-${k}`} /></label>
         ))}
         {bad && <span className="xs" style={{ color: 'var(--danger)' }}>Each value must be a whole number in its range.</span>}
-        <button type="submit" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={busy || bad}>Save defaults</button>
+        <button type="submit" className="btn btn-signal" style={{ alignSelf: 'flex-start' }} disabled={busy || bad}>Save defaults</button>
       </form>
     </Panel>
   );
@@ -116,7 +118,7 @@ function PauseRow({ label, sub, paused, onPause }) {
   const [ask, setAsk] = useState(false);
   const [reason, setReason] = useState('');
   return (
-    <li className="card-sm stack g4">
+    <li className="card-sm stack g4 adx-row" data-status={paused ? 'paused' : 'active'}>
       <div className="row g8" style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
         <span className="small" style={{ overflowWrap: 'anywhere' }}><strong>{label}</strong> · {sub}</span>
         {paused ? <button type="button" className="btn btn-outline" onClick={() => onPause(false, '')}>Resume</button>
@@ -125,7 +127,7 @@ function PauseRow({ label, sub, paused, onPause }) {
       {ask && !paused && (
         <form className="row g8" onSubmit={(e) => { e.preventDefault(); onPause(true, reason); setAsk(false); }}>
           <input className="input" style={{ flex: '1 1 200px', height: 38 }} maxLength={200} placeholder="Why (kept in the activity log)" value={reason} onChange={(e) => setReason(e.target.value)} aria-label="Why" />
-          <button type="submit" className="btn btn-ink">Pause</button><button type="button" className="link-btn small" onClick={() => setAsk(false)}>Cancel</button>
+          <button type="submit" className="btn btn-signal">Pause</button><button type="button" className="link-btn small" onClick={() => setAsk(false)}>Cancel</button>
         </form>
       )}
     </li>

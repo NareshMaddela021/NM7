@@ -10,6 +10,9 @@ import { downloadFrom } from '../../../lib/fileDownload';
 import { Kpi, PageHead } from '../AdminUI';
 import { OrgPartner } from './PartnerPages';
 import { Loading, day, emptyIf, http, useAction, useApi } from './common';
+import { Bar, Chip, Stat } from '../../me/kit';
+import '../../../styles/me-kit.css';
+import '../../../styles/admin-orgs.css';
 
 const inputStyle = { height: 40 };
 const FEATURE_EDIT = PLAN_FEATURES.filter(([k]) => k !== 'kiosk'); // kiosks come from the kiosk-stall limit
@@ -19,9 +22,9 @@ const numOrNull = (v) => (v === '' || v === null ? null : Number(v));
 
 function LimitInputs({ value, onChange, idp }) {
   return (
-    <div className="row g12" style={{ flexWrap: 'wrap' }}>
+    <div className="ao-fields ao-fields-tight">
       {LIMITS.map(([k, label]) => (
-        <div key={k} className="field" style={{ flex: '1 1 130px' }}>
+        <div key={k} className="field">
           <label className="label" htmlFor={`${idp}-${k}`}>{label}</label>
           <input id={`${idp}-${k}`} className="input" style={inputStyle} type="number" min={0} placeholder="Unlimited" value={value[k] ?? ''} onChange={(e) => onChange({ ...value, [k]: numOrNull(e.target.value) })} />
         </div>
@@ -32,8 +35,8 @@ function LimitInputs({ value, onChange, idp }) {
 
 function FeatureInputs({ value, onChange }) {
   return (
-    <div className="row g16" style={{ flexWrap: 'wrap' }}>
-      {FEATURE_EDIT.map(([k, label]) => <label key={k} className="row g8 small"><input type="checkbox" checked={!!value[k]} onChange={(e) => onChange({ ...value, [k]: e.target.checked })} /> {label}</label>)}
+    <div className="ao-pills">
+      {FEATURE_EDIT.map(([k, label]) => <label key={k} className={`ao-pill ${value[k] ? 'on' : ''}`}><input type="checkbox" checked={!!value[k]} onChange={(e) => onChange({ ...value, [k]: e.target.checked })} /> {label}</label>)}
     </div>
   );
 }
@@ -57,29 +60,41 @@ function PlanForm({ p, reload }) {
     }, 'Saved as a new version');
   };
   return (
-    <form className="card stack g12" onSubmit={save} aria-label={`${p.name} plan`}>
-      <span className="row between g8" style={{ flexWrap: 'wrap' }}><strong>{p.name}</strong><span className="xs muted">version {p.version}{p.id === 'custom' ? ' · price and limits are set per organization' : ''}</span></span>
-      <div className="row g12" style={{ flexWrap: 'wrap' }}>
-        <div className="field" style={{ flex: '1 1 160px' }}><label className="label" htmlFor={`pn-${p.id}`}>Name</label><input id={`pn-${p.id}`} className="input" style={inputStyle} required value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></div>
-        <div className="field" style={{ flex: '2 1 260px' }}><label className="label" htmlFor={`pb-${p.id}`}>One line on /for-orgs</label><input id={`pb-${p.id}`} className="input" style={inputStyle} maxLength={160} value={f.blurb} onChange={(e) => setF({ ...f, blurb: e.target.value })} /></div>
+    <form className={`mcard ao-card ao-plan ao-plan-${p.id}`} onSubmit={save} aria-label={`${p.name} plan`}>
+      <header className="ao-plan-head">
+        <span className="ao-plan-ttl"><strong className="ao-plan-name">{p.name}</strong><span className="xs muted">version {p.version}{p.id === 'custom' ? ' · price and limits are set per organization' : ''}</span></span>
+        <span className="ao-plan-price">{p.id === 'free' ? 'Free' : p.id === 'custom' ? 'Per organization' : <>{rupees(p.price)}<small> {periodText(p)}</small></>}</span>
+        <span className="ao-plan-chips">{p.onSale && p.id !== 'free' && p.id !== 'custom' && <Chip tone="ok">On sale</Chip>}{p.public && <Chip tone="info">On /for-orgs</Chip>}</span>
+      </header>
+      <div className="ao-plan-sec">
+        <span className="ao-sec-k">Basics</span>
+        <div className="ao-fields">
+          <div className="field"><label className="label" htmlFor={`pn-${p.id}`}>Name</label><input id={`pn-${p.id}`} className="input" style={inputStyle} required value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></div>
+          <div className="field ao-span2"><label className="label" htmlFor={`pb-${p.id}`}>One line on /for-orgs</label><input id={`pb-${p.id}`} className="input" style={inputStyle} maxLength={160} value={f.blurb} onChange={(e) => setF({ ...f, blurb: e.target.value })} /></div>
+        </div>
       </div>
       {p.id !== 'free' && p.id !== 'custom' && (
-        <div className="row g12" style={{ flexWrap: 'wrap' }}>
-          <div className="field" style={{ flex: '1 1 160px' }}><label className="label" htmlFor={`pp-${p.id}`}>Price (₹, before GST)</label><input id={`pp-${p.id}`} className="input" style={inputStyle} type="number" min={1} step="0.01" required value={f.price} onChange={(e) => setF({ ...f, price: e.target.value })} /></div>
-          <div className="field" style={{ flex: '1 1 120px' }}><label className="label" htmlFor={`pd-${p.id}`}>Period</label><input id={`pd-${p.id}`} className="input" style={inputStyle} type="number" min={1} required value={f.n} onChange={(e) => setF({ ...f, n: e.target.value })} /></div>
-          <div className="field" style={{ flex: '1 1 120px' }}><label className="label" htmlFor={`pu-${p.id}`}>Unit</label><select id={`pu-${p.id}`} className="input" style={inputStyle} value={f.unit} onChange={(e) => setF({ ...f, unit: e.target.value })}><option value="days">days</option><option value="months">months</option></select></div>
+        <div className="ao-plan-sec">
+          <span className="ao-sec-k">Price and period</span>
+          <div className="ao-fields ao-fields-tight">
+            <div className="field"><label className="label" htmlFor={`pp-${p.id}`}>Price (₹, before GST)</label><input id={`pp-${p.id}`} className="input" style={inputStyle} type="number" min={1} step="0.01" required value={f.price} onChange={(e) => setF({ ...f, price: e.target.value })} /></div>
+            <div className="field"><label className="label" htmlFor={`pd-${p.id}`}>Period</label><input id={`pd-${p.id}`} className="input" style={inputStyle} type="number" min={1} required value={f.n} onChange={(e) => setF({ ...f, n: e.target.value })} /></div>
+            <div className="field"><label className="label" htmlFor={`pu-${p.id}`}>Unit</label><select id={`pu-${p.id}`} className="input" style={inputStyle} value={f.unit} onChange={(e) => setF({ ...f, unit: e.target.value })}><option value="days">days</option><option value="months">months</option></select></div>
+          </div>
         </div>
       )}
-      {p.id !== 'custom' && <LimitInputs value={f.limits} onChange={(limits) => setF({ ...f, limits })} idp={`pl-${p.id}`} />}
-      {p.id !== 'custom' && <FeatureInputs value={f.features} onChange={(features) => setF({ ...f, features })} />}
-      <div className="row g16" style={{ flexWrap: 'wrap' }}>
-        {p.id !== 'free' && p.id !== 'custom' && <label className="row g8 small"><input type="checkbox" checked={f.onSale} onChange={(e) => setF({ ...f, onSale: e.target.checked })} /> On sale (Owners can buy it)</label>}
-        <label className="row g8 small"><input type="checkbox" checked={f.public} onChange={(e) => setF({ ...f, public: e.target.checked })} /> Shown on /for-orgs</label>
+      {p.id !== 'custom' && <div className="ao-plan-sec"><span className="ao-sec-k">Limits (empty = unlimited)</span><LimitInputs value={f.limits} onChange={(limits) => setF({ ...f, limits })} idp={`pl-${p.id}`} /></div>}
+      {p.id !== 'custom' && <div className="ao-plan-sec"><span className="ao-sec-k">Features</span><FeatureInputs value={f.features} onChange={(features) => setF({ ...f, features })} /></div>}
+      <div className="ao-plan-sec ao-plan-toggles">
+        {p.id !== 'free' && p.id !== 'custom' && <label className="ao-check"><input type="checkbox" checked={f.onSale} onChange={(e) => setF({ ...f, onSale: e.target.checked })} /> On sale (Owners can buy it)</label>}
+        <label className="ao-check"><input type="checkbox" checked={f.public} onChange={(e) => setF({ ...f, public: e.target.checked })} /> Shown on /for-orgs</label>
       </div>
-      <div className="row g8"><button type="submit" className="btn btn-ink" disabled={busy}>Save</button>{p.history?.length > 0 && <button type="button" className="btn btn-outline" onClick={() => setHist(!hist)}>{hist ? 'Hide' : 'Earlier versions'}</button>}</div>
-      <span className="xs muted">Saving creates version {p.version + 1}. Plans already bought and invoices already issued keep the terms they were sold on.</span>
+      <div className="ao-plan-foot">
+        <div className="ao-demo-actions"><button type="submit" className="btn btn-signal" disabled={busy}>Save</button>{p.history?.length > 0 && <button type="button" className="btn btn-outline" onClick={() => setHist(!hist)}>{hist ? 'Hide' : 'Earlier versions'}</button>}</div>
+        <span className="xs muted">Saving creates version {p.version + 1}. Plans already bought and invoices already issued keep the terms they were sold on.</span>
+      </div>
       {hist && (
-        <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table">
+        <div className="table-wrap ao-table" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table">
           <thead><tr><th>Version</th><th>Price</th><th>Period</th><th>Members</th><th>Until</th></tr></thead>
           <tbody>{p.history.map((h) => <tr key={h.version}><td>{h.version}</td><td>{h.price === null ? '—' : rupees(h.price)}</td><td>{periodText(h) || '—'}</td><td>{limitText(h.limits?.members)}</td><td>{day(h.until)}</td></tr>)}</tbody>
         </table></div>
@@ -94,7 +109,9 @@ export function LivePlans() {
   return (
     <>
       <PageHead title="Organization plans" sub="Prices exclude GST. Limits left empty are unlimited. Kiosks are on when a plan allows at least one kiosk stall." right={<Link className="btn btn-outline" to="/admin/billing-settings">Billing settings</Link>} />
-      <Loading st={st}>{(plans) => plans.map((p) => <PlanForm key={`${p.id}-${p.version}`} p={p} reload={st.reload} />)}</Loading>
+      <Loading st={st}>{(plans) => (
+        <div className="ao-plans">{plans.map((p) => <PlanForm key={`${p.id}-${p.version}`} p={p} reload={st.reload} />)}</div>
+      )}</Loading>
       <CompanyHiring />
     </>
   );
@@ -114,13 +131,14 @@ function CompanyHiring() {
   const [busy, run] = useAction(toast);
   return (
     <Loading st={st}>{(s) => (
-      <section className="card stack g8" aria-label="Company hiring" data-testid="plans-hiring">
-        <strong>Company hiring (Hire in 60 minutes)</strong>
-        <span className="small muted">Paid company features. Ticked: open to every Verified company. Not ticked: only companies you turn it on for in Admin → Companies. Applicants and the basic shortlist are always free; the free roles a month and the limits are in Settings → Hire in 60 minutes.</span>
-        {HIRE_GATES.map(([k, l]) => (
-          <label key={k} className="row g8 small"><input type="checkbox" disabled={busy} checked={s.hire.open[k]} data-testid={`gate-${k}`}
-            onChange={(e) => run(async () => { await http('/api/admin/settings', { method: 'PUT', body: { hire: { on: s.hire.on, open: { ...s.hire.open, [k]: e.target.checked } } } }); st.reload(); }, 'Saved')} />{l}</label>
-        ))}
+      <section className="mcard ao-card" aria-label="Company hiring" data-testid="plans-hiring">
+        <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">⚡</span><span className="mcard-ht"><strong className="mcard-title">Company hiring (Hire in 60 minutes)</strong><span className="mcard-sub">Paid company features. Ticked: open to every Verified company. Not ticked: only companies you turn it on for in Admin → Companies. Applicants and the basic shortlist are always free; the free roles a month and the limits are in Settings → Hire in 60 minutes.</span></span></header>
+        <div className="ao-toggles">
+          {HIRE_GATES.map(([k, l]) => (
+            <label key={k} className={`ao-toggle ${s.hire.open[k] ? 'on' : ''}`}><input type="checkbox" disabled={busy} checked={s.hire.open[k]} data-testid={`gate-${k}`}
+              onChange={(e) => run(async () => { await http('/api/admin/settings', { method: 'PUT', body: { hire: { on: s.hire.on, open: { ...s.hire.open, [k]: e.target.checked } } } }); st.reload(); }, 'Saved')} />{l}</label>
+          ))}
+        </div>
       </section>
     )}</Loading>
   );
@@ -154,37 +172,37 @@ function SettingsForm({ s, states, reload }) {
   };
   return (
     <form className="stack g16" onSubmit={save} aria-label="Billing settings">
-      {s.missing.length > 0 && <div className="well small" role="note">Before going live, fill in: <strong>{s.missing.join(', ')}</strong>. GST stays off (plain invoices, no tax lines) until a GSTIN is entered.</div>}
-      <section className="card stack g12" aria-label="Supplier">
-        <strong>Supplier (printed on every invoice)</strong>
-        <div className="row g12" style={{ flexWrap: 'wrap' }}>
-          <div className="field" style={{ flex: '2 1 260px' }}><label className="label" htmlFor="bs-ln">Legal name</label><input id="bs-ln" className="input" style={inputStyle} required value={f.supplier.legalName} onChange={sup('legalName')} /></div>
-          <div className="field" style={{ flex: '1 1 160px' }}><label className="label" htmlFor="bs-tn">Trade name</label><input id="bs-tn" className="input" style={inputStyle} value={f.supplier.tradeName} onChange={sup('tradeName')} /></div>
-        </div>
-        <div className="field"><label className="label" htmlFor="bs-ad">Address</label><textarea id="bs-ad" className="input" rows={2} value={f.supplier.address} onChange={sup('address')} /></div>
-        <div className="row g12" style={{ flexWrap: 'wrap' }}>
-          <div className="field" style={{ flex: '1 1 200px' }}><label className="label" htmlFor="bs-st">State</label><select id="bs-st" className="input" style={inputStyle} value={f.supplier.stateCode} onChange={sup('stateCode')}><option value="">Choose…</option>{states.map((x) => <option key={x.code} value={x.code}>{x.name}</option>)}</select></div>
-          <div className="field" style={{ flex: '1 1 200px' }}><label className="label" htmlFor="bs-g">GSTIN (empty = GST off)</label><input id="bs-g" className="input mono" style={inputStyle} maxLength={15} value={f.supplier.gstin} onChange={sup('gstin')} /></div>
-          <div className="field" style={{ flex: '1 1 120px' }}><label className="label" htmlFor="bs-sac">SAC code</label><input id="bs-sac" className="input mono" style={inputStyle} maxLength={8} inputMode="numeric" value={f.supplier.sac} onChange={sup('sac')} /></div>
-        </div>
-        <div className="row g12" style={{ flexWrap: 'wrap' }}>
-          <div className="field" style={{ flex: '1 1 220px' }}><label className="label" htmlFor="bs-sg">Authorised signatory</label><input id="bs-sg" className="input" style={inputStyle} value={f.supplier.signatory} onChange={sup('signatory')} /></div>
-          <div className="field" style={{ flex: '1 1 220px' }}><label className="label" htmlFor="bs-em">Billing email</label><input id="bs-em" type="email" className="input" style={inputStyle} value={f.supplier.email} onChange={sup('email')} /></div>
-        </div>
-      </section>
-      <section className="card stack g12" aria-label="Rules">
-        <strong>Rules</strong>
-        <div className="row g12" style={{ flexWrap: 'wrap' }}>
-          {SETTINGS_FIELDS.map(([k, label, min, max]) => (
-            <div key={k} className="field" style={{ flex: '1 1 220px' }}><label className="label" htmlFor={`bs-${k}`}>{label}</label><input id={`bs-${k}`} className="input" style={inputStyle} type="number" min={min} max={max} required value={f[k]} onChange={(e) => setF({ ...f, [k]: Number(e.target.value) })} /></div>
-          ))}
-          <div className="field" style={{ flex: '1 1 220px' }}><label className="label" htmlFor="bs-rd">Reminder emails (days before the end)</label><input id="bs-rd" className="input" style={inputStyle} value={f.reminderText} onChange={(e) => setF({ ...f, reminderText: e.target.value })} /></div>
-        </div>
-        <label className="row g8 small"><input type="checkbox" checked={f.partnerDiscountOn} onChange={(e) => setF({ ...f, partnerDiscountOn: e.target.checked })} /> A partner code also gives the organization the discount above</label>
-        <label className="row g8 small"><input type="checkbox" checked={f.orgSignupOpen} onChange={(e) => setF({ ...f, orgSignupOpen: e.target.checked })} /> “Start free” on /for-orgs creates organizations</label>
-        <label className="row g8 small"><input type="checkbox" checked={f.razorpayLive} onChange={(e) => setF({ ...f, razorpayLive: e.target.checked })} /> <span><strong>Live payments.</strong> Off = test mode: checkout only works with Razorpay test keys. Switch on after putting the live keys in Render.</span></label>
-      </section>
-      <button type="submit" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={busy}>Save billing settings</button>
+      {s.missing.length > 0 && <div className="ao-note ao-note-warn" role="note"><span aria-hidden="true">⚠</span><span className="small">Before going live, fill in: <strong>{s.missing.join(', ')}</strong>. GST stays off (plain invoices, no tax lines) until a GSTIN is entered.</span></div>}
+      <div className="ao-two ao-two-wide">
+        <section className="mcard ao-card" aria-label="Supplier">
+          <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">▤</span><span className="mcard-ht"><strong className="mcard-title">Supplier</strong><span className="mcard-sub">Printed on every invoice.</span></span><span className="mcard-actions"><Chip tone={f.supplier.gstin ? 'ok' : 'warn'}>{f.supplier.gstin ? 'GST on' : 'GST off'}</Chip></span></header>
+          <div className="ao-fields">
+            <div className="field ao-span2"><label className="label" htmlFor="bs-ln">Legal name</label><input id="bs-ln" className="input" style={inputStyle} required value={f.supplier.legalName} onChange={sup('legalName')} /></div>
+            <div className="field"><label className="label" htmlFor="bs-tn">Trade name</label><input id="bs-tn" className="input" style={inputStyle} value={f.supplier.tradeName} onChange={sup('tradeName')} /></div>
+            <div className="field ao-full"><label className="label" htmlFor="bs-ad">Address</label><textarea id="bs-ad" className="input" rows={2} value={f.supplier.address} onChange={sup('address')} /></div>
+            <div className="field"><label className="label" htmlFor="bs-st">State</label><select id="bs-st" className="input" style={inputStyle} value={f.supplier.stateCode} onChange={sup('stateCode')}><option value="">Choose…</option>{states.map((x) => <option key={x.code} value={x.code}>{x.name}</option>)}</select></div>
+            <div className="field"><label className="label" htmlFor="bs-g">GSTIN (empty = GST off)</label><input id="bs-g" className="input mono" style={inputStyle} maxLength={15} value={f.supplier.gstin} onChange={sup('gstin')} /></div>
+            <div className="field"><label className="label" htmlFor="bs-sac">SAC code</label><input id="bs-sac" className="input mono" style={inputStyle} maxLength={8} inputMode="numeric" value={f.supplier.sac} onChange={sup('sac')} /></div>
+            <div className="field"><label className="label" htmlFor="bs-sg">Authorised signatory</label><input id="bs-sg" className="input" style={inputStyle} value={f.supplier.signatory} onChange={sup('signatory')} /></div>
+            <div className="field"><label className="label" htmlFor="bs-em">Billing email</label><input id="bs-em" type="email" className="input" style={inputStyle} value={f.supplier.email} onChange={sup('email')} /></div>
+          </div>
+        </section>
+        <section className="mcard ao-card" aria-label="Rules">
+          <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">§</span><span className="mcard-ht"><strong className="mcard-title">Rules</strong><span className="mcard-sub">Grace, banners, reminders, partner commission and payment links.</span></span></header>
+          <div className="ao-fields ao-fields-tight">
+            {SETTINGS_FIELDS.map(([k, label, min, max]) => (
+              <div key={k} className="field"><label className="label" htmlFor={`bs-${k}`}>{label}</label><input id={`bs-${k}`} className="input" style={inputStyle} type="number" min={min} max={max} required value={f[k]} onChange={(e) => setF({ ...f, [k]: Number(e.target.value) })} /></div>
+            ))}
+            <div className="field"><label className="label" htmlFor="bs-rd">Reminder emails (days before the end)</label><input id="bs-rd" className="input" style={inputStyle} value={f.reminderText} onChange={(e) => setF({ ...f, reminderText: e.target.value })} /></div>
+          </div>
+          <div className="ao-toggles">
+            <label className={`ao-toggle ${f.partnerDiscountOn ? 'on' : ''}`}><input type="checkbox" checked={f.partnerDiscountOn} onChange={(e) => setF({ ...f, partnerDiscountOn: e.target.checked })} /> A partner code also gives the organization the discount above</label>
+            <label className={`ao-toggle ${f.orgSignupOpen ? 'on' : ''}`}><input type="checkbox" checked={f.orgSignupOpen} onChange={(e) => setF({ ...f, orgSignupOpen: e.target.checked })} /> “Start free” on /for-orgs creates organizations</label>
+            <label className={`ao-toggle ao-toggle-live ${f.razorpayLive ? 'on' : ''}`}><input type="checkbox" checked={f.razorpayLive} onChange={(e) => setF({ ...f, razorpayLive: e.target.checked })} /> <span><strong>Live payments.</strong> Off = test mode: checkout only works with Razorpay test keys. Switch on after putting the live keys in Render.</span></label>
+          </div>
+        </section>
+      </div>
+      <div className="ao-savebar"><button type="submit" className="btn btn-signal" disabled={busy}>Save billing settings</button><span className="xs muted">Changes apply to new checkouts and invoices.</span></div>
     </form>
   );
 }
@@ -215,19 +233,23 @@ export function OrgBilling({ orgId }) {
     <Loading st={st}>{(b) => {
       const s = b.summary;
       return (
-        <section className="card stack g12" aria-label="Plan and billing">
-          <span className="row between g8" style={{ flexWrap: 'wrap' }}><strong>Plan and billing</strong><span className="badge b-neutral">{s.planName} · {STATE_TEXT[s.state]}</span></span>
-          {b.legacyUnlimited && <span className="xs" role="note">Created before plans existed: no plan limits until you assign a plan.</span>}
-          {s.state !== 'free' && <span className="small muted">{day(s.startsOn)} – {day(s.endsOn)} · grace until {day(s.graceUntil)}{b.subscription?.source ? ` · ${b.subscription.source}` : ''}</span>}
-          <span className="small">{LIMITS.map(([k, , words]) => `${s.usage[k]}/${limitText(s.limits[k])} ${words}`).join(' · ')}</span>
+        <section className="mcard ao-card" aria-label="Plan and billing">
+          <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">₹</span><span className="mcard-ht"><strong className="mcard-title">Plan and billing</strong>{s.state !== 'free' && <span className="mcard-sub">{day(s.startsOn)} – {day(s.endsOn)} · grace until {day(s.graceUntil)}{b.subscription?.source ? ` · ${b.subscription.source}` : ''}</span>}</span><span className="mcard-actions"><span className={`badge ${s.state === 'active' ? 'b-success' : s.state === 'grace' ? 'b-warning' : 'b-neutral'}`}>{s.planName} · {STATE_TEXT[s.state]}</span></span></header>
+          {b.legacyUnlimited && <span className="xs ao-note ao-note-warn" role="note">Created before plans existed: no plan limits until you assign a plan.</span>}
+          <div className="ao-usage">
+            {LIMITS.map(([k, label]) => (s.limits[k] == null
+              ? <div key={k} className="ao-usage-u"><span className="mbar-row"><span className="mbar-label">{label}</span><span className="mbar-val">{s.usage[k]} · no limit</span></span></div>
+              : <Bar key={k} label={label} value={s.usage[k]} max={s.limits[k]} tone={s.usage[k] >= s.limits[k] ? 'bad' : s.usage[k] >= s.limits[k] * 0.8 ? 'warn' : 'accent'} />))}
+          </div>
+          <span className="xs muted">{LIMITS.map(([k, , words]) => `${s.usage[k]}/${limitText(s.limits[k])} ${words}`).join(' · ')}</span>
           {b.details ? <span className="xs muted">Bills to {b.details.legalName}, {b.details.stateName}{b.details.gstin ? ` · GSTIN ${b.details.gstin}` : ''}</span> : <span className="xs muted">No billing details yet.</span>}
-          <div className="row g8" style={{ flexWrap: 'wrap' }}>
+          <div className="ao-demo-actions">
             <button type="button" className="btn btn-outline" onClick={() => setAssign(assign ? null : { planId: 'drive', startsOn: '', endsOn: '', price: '', discount: '0', note: '' })}>Assign a plan</button>
             {s.state !== 'free' && <button type="button" className="btn btn-outline" onClick={() => setExt(ext ? '' : s.endsOn)}>Extend</button>}
             <button type="button" className="btn btn-outline" onClick={() => setPricing(pricing ? null : { discountPct: b.discountPct, custom: b.customPlan ? { ...b.customPlan, price: toRupees(b.customPlan.price), unit: b.customPlan.periodMonths ? 'months' : 'days', n: b.customPlan.periodMonths || b.customPlan.periodDays } : null, limits: b.limitOverrides })}>Discount and custom plan</button>
           </div>
           {assign && (
-            <form className="well stack g8" onSubmit={(e) => { e.preventDefault(); run(async () => { await http(`/api/admin/orgs/${orgId}/billing/plan`, { method: 'PUT', body: { planId: assign.planId, startsOn: assign.startsOn || null, endsOn: assign.endsOn || null, price: toPaise(assign.price), discount: toPaise(assign.discount) || 0, note: assign.note } }); setAssign(null); st.reload(); }, 'Plan assigned'); }}>
+            <form className="ao-sub" onSubmit={(e) => { e.preventDefault(); run(async () => { await http(`/api/admin/orgs/${orgId}/billing/plan`, { method: 'PUT', body: { planId: assign.planId, startsOn: assign.startsOn || null, endsOn: assign.endsOn || null, price: toPaise(assign.price), discount: toPaise(assign.discount) || 0, note: assign.note } }); setAssign(null); st.reload(); }, 'Plan assigned'); }}>
               <div className="row g8" style={{ flexWrap: 'wrap' }}>
                 <select aria-label="Plan" className="input" style={inputStyle} value={assign.planId} onChange={(e) => setAssign({ ...assign, planId: e.target.value })}><option value="free">Free (remove the paid plan)</option><option value="drive">Drive</option><option value="campus">Campus</option><option value="custom">Custom</option></select>
                 <label className="small">Starts <input type="date" className="input" style={inputStyle} value={assign.startsOn} onChange={(e) => setAssign({ ...assign, startsOn: e.target.value })} /></label>
@@ -241,13 +263,13 @@ export function OrgBilling({ orgId }) {
             </form>
           )}
           {ext && (
-            <form className="well row g8" onSubmit={(e) => { e.preventDefault(); run(async () => { await http(`/api/admin/orgs/${orgId}/billing/extend`, { method: 'POST', body: { endsOn: ext } }); setExt(''); st.reload(); }, 'Extended'); }}>
+            <form className="ao-sub ao-sub-row" onSubmit={(e) => { e.preventDefault(); run(async () => { await http(`/api/admin/orgs/${orgId}/billing/extend`, { method: 'POST', body: { endsOn: ext } }); setExt(''); st.reload(); }, 'Extended'); }}>
               <label className="small">New end date <input type="date" className="input" style={inputStyle} value={ext} onChange={(e) => setExt(e.target.value)} /></label>
               <button type="submit" className="btn btn-ink" disabled={busy}>Save</button>
             </form>
           )}
           {pricing && (
-            <form className="well stack g8" onSubmit={(e) => { e.preventDefault(); run(async () => { const c = pricing.custom; await http(`/api/admin/orgs/${orgId}/billing/pricing`, { method: 'PUT', body: { discountPct: Number(pricing.discountPct) || 0, customPlan: c ? { price: toPaise(c.price), periodDays: c.unit === 'days' ? Number(c.n) : null, periodMonths: c.unit === 'months' ? Number(c.n) : null, limits: c.limits, features: c.features } : null, ...(pricing.limits ? { limitOverrides: pricing.limits } : { clearLimitOverrides: true }) } }); setPricing(null); st.reload(); }, 'Saved'); }}>
+            <form className="ao-sub" onSubmit={(e) => { e.preventDefault(); run(async () => { const c = pricing.custom; await http(`/api/admin/orgs/${orgId}/billing/pricing`, { method: 'PUT', body: { discountPct: Number(pricing.discountPct) || 0, customPlan: c ? { price: toPaise(c.price), periodDays: c.unit === 'days' ? Number(c.n) : null, periodMonths: c.unit === 'months' ? Number(c.n) : null, limits: c.limits, features: c.features } : null, ...(pricing.limits ? { limitOverrides: pricing.limits } : { clearLimitOverrides: true }) } }); setPricing(null); st.reload(); }, 'Saved'); }}>
               <label className="small">Discount on Drive / Campus checkouts (%) <input type="number" min={0} max={100} className="input" style={{ ...inputStyle, width: 90 }} value={pricing.discountPct} onChange={(e) => setPricing({ ...pricing, discountPct: e.target.value })} /></label>
               <label className="row g8 small"><input type="checkbox" checked={!!pricing.custom} onChange={(e) => setPricing({ ...pricing, custom: e.target.checked ? { price: '', unit: 'months', n: 12, limits: { members: null, groups: null, coordinators: null, kiosks: null, recruiters: null }, features: { branding: true, recruiterLinks: true, membersDownloadFree: true, placementInsights: true, templateRules: true, recruiterJobMatch: true, drives: true, eligibility: true, offers: true, waReminders: true, alumni: true, facultyReview: true, multiCampus: true, recruiterAccounts: true, recruiterCompare: true, interviewScheduling: true, recruiterFeedback: true } } : null })} /> A custom plan this organization can buy</label>
               {pricing.custom && (
@@ -268,7 +290,7 @@ export function OrgBilling({ orgId }) {
           )}
           <OrgPartner orgId={orgId} partner={b.partner} reload={st.reload} />
           <OrgMoney orgId={orgId} b={b} reload={st.reload} />
-          {b.history.length > 0 && <details><summary className="small">Earlier plans ({b.history.length})</summary><ul className="small">{b.history.map((h, i) => <li key={i}>{h.planName} · {h.startsOn ? `${day(h.startsOn)} – ${day(h.endsOn)}` : ''} · {h.source || ''} · replaced {day(h.replacedAt)}</li>)}</ul></details>}
+          {b.history.length > 0 && <details className="ao-details"><summary className="small">Earlier plans ({b.history.length})</summary><ul className="small">{b.history.map((h, i) => <li key={i}>{h.planName} · {h.startsOn ? `${day(h.startsOn)} – ${day(h.endsOn)}` : ''} · {h.source || ''} · replaced {day(h.replacedAt)}</li>)}</ul></details>}
         </section>
       );
     }}</Loading>
@@ -294,13 +316,13 @@ function OrgMoney({ orgId, b, reload }) {
   const openProformas = (docs.data?.rows || []).filter((d) => d.kind === 'proforma' && !paidOrders.has(d.orderId));
   return (
     <div className="stack g12">
-      <div className="row g8" style={{ flexWrap: 'wrap' }}>
+      <div className="ao-demo-actions ao-money-actions">
         <button type="button" className="btn btn-outline" onClick={() => { setMade(null); setPf(pf ? null : { planId: 'drive', extraDiscountPct: 0, paymentLink: true }); }}>Proforma invoice</button>
         <button type="button" className="btn btn-outline" onClick={() => setOff(off ? null : { orderId: openProformas[0]?.orderId || '', planId: 'drive', method: 'bank_transfer', reference: '', paidOn: today(), amount: openProformas[0] ? String(openProformas[0].total / 100) : '' })}>Record offline payment</button>
       </div>
       {!b.details && (pf || off) && <span className="xs" role="note">Add the organization’s billing details first (the Owner does it under Billing).</span>}
       {pf && (
-        <form className="well stack g8" aria-label="Proforma invoice" onSubmit={(e) => { e.preventDefault(); run(async () => { const d = await http(`/api/admin/orgs/${orgId}/billing/proforma`, { method: 'POST', body: { ...pf, extraDiscountPct: Number(pf.extraDiscountPct) || 0 } }); setMade(d); setPf(null); again(); }, 'Proforma issued'); }}>
+        <form className="ao-sub" aria-label="Proforma invoice" onSubmit={(e) => { e.preventDefault(); run(async () => { const d = await http(`/api/admin/orgs/${orgId}/billing/proforma`, { method: 'POST', body: { ...pf, extraDiscountPct: Number(pf.extraDiscountPct) || 0 } }); setMade(d); setPf(null); again(); }, 'Proforma issued'); }}>
           <div className="row g8" style={{ flexWrap: 'wrap' }}>
             <select aria-label="Proforma plan" className="input" style={inputStyle} value={pf.planId} onChange={(e) => setPf({ ...pf, planId: e.target.value })}><option value="drive">Drive</option><option value="campus">Campus</option>{b.customPlan && <option value="custom">Custom</option>}</select>
             <label className="small">Extra discount % <input type="number" min={0} max={100} className="input" style={{ ...inputStyle, width: 80 }} value={pf.extraDiscountPct} onChange={(e) => setPf({ ...pf, extraDiscountPct: e.target.value })} /></label>
@@ -310,9 +332,9 @@ function OrgMoney({ orgId, b, reload }) {
           <button type="submit" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={busy}>Issue proforma</button>
         </form>
       )}
-      {made && <div className="well small" role="status">Proforma <span className="mono">{made.number}</span> for {rupees(made.total)}.{made.paymentLink ? <> Payment link: <a href={made.paymentLink} target="_blank" rel="noreferrer" className="mono">{made.paymentLink}</a></> : ''} Download it below and send it to the organization.</div>}
+      {made && <div className="ao-note ao-note-ok small" role="status">Proforma <span className="mono">{made.number}</span> for {rupees(made.total)}.{made.paymentLink ? <> Payment link: <a href={made.paymentLink} target="_blank" rel="noreferrer" className="mono">{made.paymentLink}</a></> : ''} Download it below and send it to the organization.</div>}
       {off && (
-        <form className="well stack g8" aria-label="Offline payment" onSubmit={(e) => { e.preventDefault(); run(async () => { await http(`/api/admin/orgs/${orgId}/billing/offline-payment`, { method: 'POST', body: { orderId: off.orderId || null, planId: off.orderId ? null : off.planId, method: off.method, reference: off.reference, paidOn: off.paidOn, amount: Math.round(Number(off.amount) * 100) } }); setOff(null); again(); }, 'Payment recorded · plan on · invoice issued'); }}>
+        <form className="ao-sub" aria-label="Offline payment" onSubmit={(e) => { e.preventDefault(); run(async () => { await http(`/api/admin/orgs/${orgId}/billing/offline-payment`, { method: 'POST', body: { orderId: off.orderId || null, planId: off.orderId ? null : off.planId, method: off.method, reference: off.reference, paidOn: off.paidOn, amount: Math.round(Number(off.amount) * 100) } }); setOff(null); again(); }, 'Payment recorded · plan on · invoice issued'); }}>
           <div className="row g8" style={{ flexWrap: 'wrap' }}>
             <select aria-label="Paid for" className="input" style={inputStyle} value={off.orderId} onChange={(e) => { const d = openProformas.find((x) => x.orderId === e.target.value); setOff({ ...off, orderId: e.target.value, amount: d ? String(d.total / 100) : off.amount }); }}>
               {openProformas.map((d) => <option key={d.id} value={d.orderId}>Proforma {d.number} · {rupees(d.total)}</option>)}
@@ -331,13 +353,13 @@ function OrgMoney({ orgId, b, reload }) {
         </form>
       )}
       {b.orders.length > 0 && (
-        <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table">
+        <div className="table-wrap ao-table" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table">
           <thead><tr><th>Order</th><th>Plan</th><th>Amount</th><th>Status</th><th>Paid</th><th>Invoice</th><th /></tr></thead>
-          <tbody>{b.orders.map((o) => <tr key={o.id}><td className="mono small">{o.id}</td><td>{o.planName}</td><td>{rupees(o.amount)}</td><td>{o.status}</td><td>{day(o.paidAt)}</td><td className="mono small">{o.invoiceNo || '—'}</td><td>{o.paidAt && o.status !== 'refunded' && <button type="button" className="link-btn small" onClick={() => setRf(rf?.orderId === o.id ? null : { orderId: o.id, amount: '', note: '', offline: '' })}>Refund</button>}</td></tr>)}</tbody>
+          <tbody>{b.orders.map((o) => <tr key={o.id}><td className="mono small">{o.id}</td><td>{o.planName}</td><td>{rupees(o.amount)}</td><td><Chip tone={o.status === 'paid' ? 'ok' : o.status === 'refunded' ? 'neutral' : 'warn'}>{o.status}</Chip></td><td>{day(o.paidAt)}</td><td className="mono small">{o.invoiceNo || '—'}</td><td>{o.paidAt && o.status !== 'refunded' && <button type="button" className="link-btn small" onClick={() => setRf(rf?.orderId === o.id ? null : { orderId: o.id, amount: '', note: '', offline: '' })}>Refund</button>}</td></tr>)}</tbody>
         </table></div>
       )}
       {rf && (
-        <form className="well stack g8" aria-label="Refund" onSubmit={(e) => { e.preventDefault(); if (!window.confirm('Send this refund? A credit note is issued and cannot be undone.')) return; run(async () => { await http(`/api/admin/orgs/${orgId}/billing/orders/${rf.orderId}/refund`, { method: 'POST', body: { amount: rf.amount ? Math.round(Number(rf.amount) * 100) : null, note: rf.note, offlineReference: rf.offline || null } }); setRf(null); again(); }, 'Refunded · credit note issued'); }}>
+        <form className="ao-sub ao-sub-danger" aria-label="Refund" onSubmit={(e) => { e.preventDefault(); if (!window.confirm('Send this refund? A credit note is issued and cannot be undone.')) return; run(async () => { await http(`/api/admin/orgs/${orgId}/billing/orders/${rf.orderId}/refund`, { method: 'POST', body: { amount: rf.amount ? Math.round(Number(rf.amount) * 100) : null, note: rf.note, offlineReference: rf.offline || null } }); setRf(null); again(); }, 'Refunded · credit note issued'); }}>
           <strong className="small">Refund order <span className="mono">{rf.orderId}</span></strong>
           <div className="row g8" style={{ flexWrap: 'wrap' }}>
             <label className="small">Amount ₹ (empty = all that’s left) <input type="number" min={1} step="0.01" className="input" style={{ ...inputStyle, width: 130 }} value={rf.amount} onChange={(e) => setRf({ ...rf, amount: e.target.value })} /></label>
@@ -349,7 +371,7 @@ function OrgMoney({ orgId, b, reload }) {
         </form>
       )}
       <Loading st={docs}>{(d) => d.rows.length > 0 && (
-        <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table" aria-label="Invoices and credit notes">
+        <div className="table-wrap ao-table" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table" aria-label="Invoices and credit notes">
           <thead><tr><th>Document</th><th>Date</th><th>Taxable</th><th>Total</th><th /></tr></thead>
           <tbody>{d.rows.map((x) => <tr key={x.id}><td className="small"><span className="mono">{x.number}</span><div className="xs faint">{DOC_KIND[x.kind]}{x.against ? ` · against ${x.against}` : ''}</div></td><td className="small">{day(x.date)}</td><td className="small">{rupees(x.taxable)}</td><td className="small">{rupees(x.total)}</td><td><button type="button" className="link-btn small" disabled={busy} onClick={() => run(() => downloadFrom(`/api/admin/org-invoices/${x.id}/pdf`, x.fileName))}>PDF</button></td></tr>)}</tbody>
         </table></div>
@@ -367,23 +389,25 @@ export function LiveOrgInvoices() {
   return (
     <>
       <PageHead title="Organization invoices" sub="Tax invoices and credit notes for organization plans, by financial year (April–March)." right={st.data && (
-        <span className="row g8">
+        <span className="ad-toolbar ao-toolbar-inline">
           <select aria-label="Financial year" className="input" style={inputStyle} value={st.data.fy} onChange={(e) => setFy(e.target.value)}>{st.data.years.map((y) => <option key={y} value={y}>FY 20{y.slice(0, 2)}–{y.slice(3)}</option>)}</select>
           <button type="button" className="btn btn-outline" disabled={busy} onClick={() => run(() => downloadFrom(`/api/admin/org-invoices/gstr1.csv?fy=${st.data.fy}`, `nm7-gstr1-${st.data.fy}.csv`), 'CSV downloaded')}>GSTR-1 CSV</button>
         </span>
       )} />
       <Loading st={st} empty={emptyIf((d) => d.rows.length === 0, 'No invoices in this financial year yet.')}>{(d) => (
         <div className="stack g12">
-          <div className="kpis">
-            <Kpi label="Invoices" value={d.totals.invoice.count} sub={`${rupees(d.totals.invoice.taxable)} taxable · ${rupees(d.totals.invoice.total)} with GST`} />
-            <Kpi label="Credit notes" value={d.totals.credit_note.count} sub={`${rupees(d.totals.credit_note.taxable)} taxable · ${rupees(d.totals.credit_note.total)} with GST`} />
+          <div className="ao-stats">
+            <Stat label="Invoices" value={d.totals.invoice.count} sub={`${rupees(d.totals.invoice.taxable)} taxable · ${rupees(d.totals.invoice.total)} with GST`} />
+            <Stat label="Credit notes" value={d.totals.credit_note.count} sub={`${rupees(d.totals.credit_note.taxable)} taxable · ${rupees(d.totals.credit_note.total)} with GST`} />
           </div>
-          <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ padding: 0 }}>
-            <table className="table"><thead><tr><th>Number</th><th>Date</th><th>Organization</th><th>Taxable</th><th>GST</th><th>Total</th><th /></tr></thead>
-              <tbody>{d.rows.map((x) => (
-                <tr key={x.id}><td className="small"><span className="mono">{x.number}</span><div className="xs faint">{DOC_KIND[x.kind]}{x.against ? ` · against ${x.against}` : ''}</div></td><td className="small">{day(x.date)}</td><td className="small"><Link to={`/admin/orgs/${x.orgId}`}>{x.recipient}</Link>{x.gstin ? <div className="xs faint mono">{x.gstin}</div> : null}</td><td className="small">{rupees(x.taxable)}</td><td className="small">{x.gstOn ? rupees(x.tax) : '—'}</td><td className="small">{rupees(x.total)}</td><td><button type="button" className="link-btn small" disabled={busy} onClick={() => run(() => downloadFrom(`/api/admin/org-invoices/${x.id}/pdf`, x.fileName))}>PDF</button></td></tr>
-              ))}</tbody></table>
-          </div>
+          <section className="mcard ao-card ao-flush" aria-label="Documents">
+            <div className="table-wrap ao-table" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns">
+              <table className="table"><thead><tr><th>Number</th><th>Date</th><th>Organization</th><th>Taxable</th><th>GST</th><th>Total</th><th /></tr></thead>
+                <tbody>{d.rows.map((x) => (
+                  <tr key={x.id}><td className="small"><span className="mono">{x.number}</span><div className="xs faint"><span className={`ao-kind ao-kind-${x.kind}`}>{DOC_KIND[x.kind]}</span>{x.against ? ` · against ${x.against}` : ''}</div></td><td className="small">{day(x.date)}</td><td className="small"><Link to={`/admin/orgs/${x.orgId}`}>{x.recipient}</Link>{x.gstin ? <div className="xs faint mono">{x.gstin}</div> : null}</td><td className="small ao-num">{rupees(x.taxable)}</td><td className="small ao-num">{x.gstOn ? rupees(x.tax) : '—'}</td><td className="small ao-num"><strong>{rupees(x.total)}</strong></td><td><button type="button" className="link-btn small" disabled={busy} onClick={() => run(() => downloadFrom(`/api/admin/org-invoices/${x.id}/pdf`, x.fileName))}>PDF</button></td></tr>
+                ))}</tbody></table>
+            </div>
+          </section>
         </div>
       )}</Loading>
     </>
