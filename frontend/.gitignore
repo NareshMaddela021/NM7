@@ -7,3 +7,5 @@ e2e-live/.api.log
 test-results
 playwright-report
 shots
+e2e-smoke/.state/
+smoke-results.json
