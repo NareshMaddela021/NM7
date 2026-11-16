@@ -12,6 +12,7 @@ import { SIZES, call, json } from './college.mjs';
 const OUT = process.env.SHOTS_DIR || 'shots';
 test.skip(!process.env.SHOTS, 'screenshots only in the shots workflow');
 test.setTimeout(900_000);
+test.use({ actionTimeout: 8000, navigationTimeout: 30000 });  // a missing control fails fast, never hangs
 
 const settle = async (page) => { await page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => {}); await page.waitForTimeout(800); };
 const snap = (page, name, size) => page.screenshot({ path: join(OUT, `${name}-${size}.jpg`), fullPage: true, type: 'jpeg', quality: 60 });
@@ -24,7 +25,7 @@ for (const [size, opts] of SIZES) {
     const mail = `shots-vet-${tag}@example.com`;
     seed('customer', mail, 'Asha Rao', PASSWORD);
     const ctx = await browser.newContext({ ...opts, reducedMotion: 'reduce' });
-    const page = await ctx.newPage();
+    let page = await ctx.newPage();
     const step = async (name, fn) => { try { await fn(); } catch (e) { console.log(`${name}: ${e.message.split('\n')[0]}`); } await settle(page); await snap(page, name, size); };
     await login(page, mail);
     await settle(page);
@@ -33,12 +34,15 @@ for (const [size, opts] of SIZES) {
       await page.getByTestId('sk-list').getByTestId('sk-start-SQL').first().click({ timeout: 8000 });
     });
     await step('vet-question', async () => {
-      const box = page.getByRole('checkbox', { name: /understand/i });
-      if (await box.count()) await box.first().check();
+      const label = page.getByText('I understand what is checked during the test');
+      if (await label.count()) await label.last().click();
       await page.getByRole('button', { name: /^Start/ }).last().click({ timeout: 8000 });
       await page.getByText(/Question 1 of/i).first().waitFor({ timeout: 15000 });
     });
-    // a passed paper through the API (the right answers from the test seed), then its result and the task
+    // a passed paper through the API (the right answers from the test seed), then its result and the task, in a
+    // fresh tab (the running SQL test above lives in the first tab's session storage)
+    page = await ctx.newPage();
+    await page.goto('/me'); await settle(page);  // calls need the site's origin (a blank tab can't fetch)
     let aid = null;
     await step('vet-result', async () => {
       await call(page, '/api/me/skill-checks/consent', json('POST', {}));
