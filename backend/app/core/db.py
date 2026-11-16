@@ -128,6 +128,9 @@ SKILL_ATTEMPTS = "skill_attempts"  # Phase 5 H3: one skill check taken (question
 VETTING_BANKS = "vetting_banks"  # Vetting V2: per role the bank version, topics, practical task and rubric history
 VETTING_VERIFIED = "vetting_verified"  # Vetting V2: "Skill verified" (L2) records: role, band, scores, expires_at
 VETTING_QUEUE = "vetting_queue"  # Vetting V2: Admin review (task grades) and integrity queues
+VETTING_DEMAND = "vetting_demand"  # Vetting V1: the hourly demand watch (live jobs by role × city × band)
+VETTING_LEVEL_LOG = "vetting_level_log"  # Vetting V1: every change of a person's level or ⚡ (what changed it, when)
+VETTING_SHORTLISTS = "vetting_shortlists"  # Vetting V1: cached top 20 per hot role × city (rebuilt hourly)
 VETTING_PHOTOS = "vetting_photos"  # Vetting V2: optional photos of past work (proof tasks), deleted after 30 days
 LEARN_PATHS = "learn_paths"  # Phase 6 S2, _id = role id: courses → project → skill check (Admin → Learning paths)
 OFFER_CHECKS = (
@@ -229,6 +232,9 @@ COLLECTIONS = (
     VETTING_VERIFIED,
     VETTING_QUEUE,
     VETTING_PHOTOS,
+    VETTING_DEMAND,
+    VETTING_LEVEL_LOG,
+    VETTING_SHORTLISTS,
     HIRE_EVENTS,
     HIRE_SLOTS,
     HIRE_OFFERS,
@@ -364,6 +370,8 @@ INDEXES: dict[str, list[IndexModel]] = {
     ],
     VETTING_QUEUE: [IndexModel([("kind", ASCENDING), ("status", ASCENDING), ("created_at", DESCENDING)])],
     VETTING_PHOTOS: [IndexModel("delete_at", expireAfterSeconds=0), IndexModel("attempt_id")],
+    VETTING_LEVEL_LOG: [IndexModel([("user_id", ASCENDING), ("at", DESCENDING)])],
+    VETTING_SHORTLISTS: [IndexModel("users")],
     HIRE_INVITES: [
         IndexModel([("company_id", ASCENDING), ("job_id", ASCENDING), ("user_id", ASCENDING)], unique=True),
         IndexModel([("user_id", ASCENDING), ("created_at", DESCENDING)]),

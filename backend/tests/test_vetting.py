@@ -309,16 +309,7 @@ async def test_task_without_ai_waits_for_a_person_then_badge_and_hire_now(
     assert await nightly(db) == 1
 
 
-def test_rank_verified_first_at_the_same_match_level():
-    from app.hire.shortlist import rank_key
-
-    def row(key, score, sv=None):
-        return {"key": key, "match": {"score": score}, "salary": {"fit": "within"}, "availability": {"joinDate": ""},
-                "skillVerified": sv}  # fmt: skip
-
-    proven = {"expired": False}
-    rows = [row("a", 78), row("b", 72, proven), row("c", 65, proven), row("d", 79, {"expired": True})]
-    assert [r["key"] for r in sorted(rows, key=rank_key)] == ["b", "d", "a", "c"]
+# Hire now's order is the V1 ladder now (level first): tests/test_vetting_levels.py::test_hire_now_order_level_first
 
 
 async def test_auto_graded_task_and_proof_task(outbox, db, make_client, monkeypatch):

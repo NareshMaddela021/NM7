@@ -1,3 +1,4 @@
+# ruff: noqa: E501  (dense response shapes)
 """H2 Instant shortlist (Phase 5): a Verified company opens one of its jobs and, within a minute, sees the top 10
 candidates who are ready to join now and agreed to be seen, with why they fit; it invites them (one or all ten), and
 each candidate answers Accept or Not interested (with a reason).
@@ -130,14 +131,14 @@ SALARY_ORDER = {"within": 0, "below": 0, "unknown": 1, "above": 2}
 
 
 def rank_key(row: dict[str, Any]) -> tuple:
-    """By match level (the match score in steps of 10); at the same level a current "Skill verified" badge (Vetting
-    V2) comes first, then the exact match score, salary within the range, and the soonest join date. An expired badge
-    ranks as unverified."""
+    """Vetting V1 default order: level (L4 first) → match score → reliability (no history counts as neutral) →
+    salary fit → distance (can work in the job's city or remotely first), then the soonest join date. The level
+    includes "Skill verified" (L2), and an expired badge no longer counts toward it."""
     join = row["availability"]["joinDate"] or "9999-12-31"
-    sv = row.get("skillVerified")
-    proven = bool(sv and not sv.get("expired"))
-    score = row["match"]["score"]
-    return (-(score // 10), not proven, -score, SALARY_ORDER.get(row["salary"]["fit"], 1), join, row["key"])
+    rel = (row.get("reliability") or {}).get("score")
+    lvl = (row.get("level") or {}).get("level", 0)
+    return (-lvl, -row["match"]["score"], -(rel if rel is not None else 70), SALARY_ORDER.get(row["salary"]["fit"], 1),
+            0 if row.get("where") else 1, join, row["key"])  # fmt: skip
 
 
 def vetted_for(records: list[dict[str, Any]], wanted: list[str], t: datetime) -> dict[str, Any] | None:
@@ -214,10 +215,28 @@ async def candidates(
     """Every available, consenting candidate who suits the place and kind of job, ranked (best first)."""
     t = t or now()
     site = await get_site(db)
-    days = int(site["hire"]["confirm_days"])
-    q = {"on": True, "consent_at": {"$ne": None}, "paused_at": None, "confirmed_at": {"$gt": t - timedelta(days=days)}}
+    from app.hire.available import visible
+    from app.hire.vetting import ladder
+    from app.hire.vetting.levels import HIDE_DAYS
+
+    q = {
+        "on": True,
+        "consent_at": {"$ne": None},
+        "paused_at": None,
+        "confirmed_at": {"$gt": t - timedelta(days=HIDE_DAYS)},
+    }
     profiles = await db[HIRE_PROFILES].find(q).sort("confirmed_at", -1).limit(SCAN).to_list(SCAN)
-    profiles = [p for p in profiles if available(p, site, t)]
+    profiles = [p for p in profiles if visible(p, t)]  # V1: shown for 21 days; ⚡ "ready now" only for 7
+    # V1 ready shortlists: when this role × city has a fresh cached top 20, start from it (plus anyone who
+    # confirmed in the last hour, so a new person is never missed)
+    cached = await ladder.cached_ids(
+        db,
+        ladder.role_of_title(job.get("title", "")),
+        ((job.get("locations") or ["Anywhere"])[0]).split(",")[0].strip(),
+    )
+    if cached:
+        keep = set(cached)
+        profiles = [p for p in profiles if p["_id"] in keep or p["confirmed_at"] > t - timedelta(hours=1)]
     from app.seek.support import hidden_from, immediate  # Phase 6 S9
 
     profiles = [p for p in profiles if not hidden_from(p, c)]  # "hide me from my current employer"
@@ -232,7 +251,7 @@ async def candidates(
         u["_id"]: u
         async for u in db[USERS].find(
             {"_id": {"$in": uids}, "deleted_at": None, "disabled_at": None},
-            {"name": 1, "demo": 1, "verified_skills": 1},
+            {"name": 1, "demo": 1, "verified_skills": 1, "vetting": 1},
         )
     }
     invites = {i["user_id"]: i async for i in db[HIRE_INVITES].find({"company_id": c["_id"], "job_id": job["_id"]})}
@@ -268,6 +287,21 @@ async def candidates(
         if not fitmod.level_fits(m):
             continue  # round J2: never a fresher for a 10-year job, nor someone with 10 years for a fresher job
         inv = invites.get(p["_id"])
+        vt = u.get("vetting")
+        if not vt:  # never worked out yet (the hourly pass hasn't reached them): work it out now
+            vt = await ladder.refresh(db, p["_id"], "shortlist") or {}
+        lvl = int(vt.get("level") or 0)
+        ready = available(p, site, t)
+        badge = vetted_for(vetted.get(p["_id"], []), wanted, t)
+        rel = reliable[p["_id"]].get("score")
+        sf = salary_fit(p.get("salary"), job.get("salary"))
+        same = where != "remote"
+        conf_days = (t - p["confirmed_at"]).days if p.get("confirmed_at") else None
+        from app.hire.vetting import engine as V
+        from app.hire.vetting import levels as LV
+
+        rd = LV.readiness(skill=int(m.get("score") or 0), level=lvl, reliability=rel, confirmed_days=conf_days,
+                          salary_fit=sf["fit"], same_city=same, remote=where == "remote")  # fmt: skip
         rows.append(
             {
                 "key": p["_id"],
@@ -281,19 +315,53 @@ async def candidates(
                     "remote": bool(p.get("remote")),
                     "confirmedAt": ms(p.get("confirmed_at")),
                 },
-                "salary": salary_fit(p.get("salary"), job.get("salary")),
+                "salary": sf,
+                "level": {"level": lvl, "label": LV.LEVELS[lvl]},  # V1
+                "readyNow": ready,  # V1: ⚡ confirmed within 7 days
+                "band": V.band_for_years(m.get("years")),
+                "readiness": rd,  # V1: 0–100 with its parts
+                "reasons": LV.reasons(
+                    badge=badge,
+                    ready_now=ready,
+                    city=(p.get("cities") or [None])[0],
+                    same_city=same,
+                    remote=where == "remote",
+                    reliability=rel,
+                    level=lvl,
+                    skill=int(m.get("score") or 0),
+                ),  # fmt: skip
                 "skillCheck": best_for(
                     results.get(p["_id"], []), wanted, test_covers()
                 ),  # shared by the candidate (H3)
                 "reliability": {k: v for k, v in reliable[p["_id"]].items() if k != "tips"},  # H4, real events only
                 "verified": [{"skill": v["skill"], "at": ms(v["at"])} for v in u.get("verified_skills") or []],  # S2
-                "skillVerified": vetted_for(vetted.get(p["_id"], []), wanted, t),  # V2: test + practical task
+                "skillVerified": badge,  # V2: test + practical task
                 "applied": p["_id"] in applied,
                 "invite": invite_state(inv, t) if inv else None,
             }
         )
     rows.sort(key=rank_key)
     return rows
+
+
+def keep_v1(
+    row: dict[str, Any], min_level: int, ready_now: bool, notice_max: int, salary_max: int, city: str, band: str
+) -> bool:
+    """Vetting V1 Hire now filters."""
+    if row["level"]["level"] < min_level or (ready_now and not row["readyNow"]):
+        return False
+    if notice_max >= 0 and row["availability"]["noticeDays"] > notice_max:
+        return False
+    want = row["salary"].get("want")
+    if salary_max and want is not None and want > salary_max:
+        return False
+    if (
+        city
+        and not row["availability"]["remote"]
+        and not any(c.lower().startswith(city.lower()) for c in row["availability"]["cities"])
+    ):
+        return False
+    return not band or row["band"] == band
 
 
 def keep_vetted(row: dict[str, Any], role: str, min_score: int) -> bool:
@@ -318,6 +386,12 @@ async def shortlist(
     size: int = Query(TOP, ge=1, le=BULK_TOP),
     support: str = Query("", max_length=40),  # Phase 6 S9: immediate,returners
     verified: bool = False,  # Vetting V2: only people with a current "Skill verified" badge
+    min_level: int = Query(0, ge=0, le=4, alias="minLevel"),  # V1
+    ready_now: bool = Query(False, alias="readyNow"),  # V1: ⚡ only
+    notice_max: int = Query(-1, ge=-1, le=180, alias="noticeMax"),  # V1: notice period at most (days); -1 = any
+    salary_max: int = Query(0, ge=0, le=10_000_000, alias="salaryMax"),  # V1: expected monthly salary at most (₹)
+    city: str = Query("", max_length=60),  # V1
+    band: str = Query("", max_length=10),  # V1: fresher, 1-3, 3-5, 5-8, 8+
     role: str = Query("", max_length=80),  # V2: ... for this test (e.g. "Java")
     min_score: int = Query(0, ge=0, le=100, alias="minScore"),  # V2: ... with at least this test score
     x_recruiter_account: str | None = Header(None),
@@ -351,6 +425,7 @@ async def shortlist(
     rows = await candidates(db, c, j, started, support)
     if verified or role or min_score:
         rows = [r for r in rows if keep_vetted(r, role, min_score)]
+    rows = [r for r in rows if keep_v1(r, min_level, ready_now, notice_max, salary_max, city, band)]
     if rows:  # H9: when the first candidate was shown for this role
         await db[JOBS].update_one({"_id": j["_id"]}, {"$min": {"hire_speed.first_shown_at": started}})
     await db[HIRE_USAGE].update_one(
