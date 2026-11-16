@@ -331,7 +331,7 @@ async def _mine(db, aid: str, uid: str) -> dict[str, Any]:
 
 
 def _merge_signals(old: dict[str, Any], new: Signals) -> dict[str, int]:
-    n = new.model_dump()
+    n = new.model_dump(by_alias=True)  # blurMs, contextMenus: the names integrity() reads
     return {k: max(int(old.get(k) or 0), int(n.get(k) or 0)) for k in n}  # the page sends running totals
 
 

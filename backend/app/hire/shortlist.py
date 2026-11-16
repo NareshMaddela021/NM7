@@ -319,7 +319,7 @@ async def shortlist(
     support: str = Query("", max_length=40),  # Phase 6 S9: immediate,returners
     verified: bool = False,  # Vetting V2: only people with a current "Skill verified" badge
     role: str = Query("", max_length=80),  # V2: ... for this test (e.g. "Java")
-    min_score: int = Query(0, ge=0, le=100),  # V2: ... with at least this test score
+    min_score: int = Query(0, ge=0, le=100, alias="minScore"),  # V2: ... with at least this test score
     x_recruiter_account: str | None = Header(None),
 ) -> dict[str, Any]:
     acc, c, _ = await company_for(db, cid, x_recruiter_account)
