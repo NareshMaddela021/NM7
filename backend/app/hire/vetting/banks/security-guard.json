@@ -1,0 +1,1633 @@
+{
+ "slug": "security-guard",
+ "version": 1,
+ "topics": [
+  "Access control",
+  "Patrolling and reporting",
+  "Fire and emergencies",
+  "Handling people",
+  "Duty rules and conduct"
+ ],
+ "questions": [
+  {
+   "id": "security-guard-001",
+   "topic": "Access control",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A visitor comes to the office gate. What do you do first?",
+   "options": [
+    "Ask whom they are meeting and enter their details",
+    "Let them in if they look decent",
+    "Send them in and check later",
+    "Ask them to wait on the road"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "ఆఫీస్ గేట్ దగ్గరకి ఒక విజిటర్ వచ్చారు. ముందుగా ఏమి చేస్తారు?",
+    "options": [
+     "ఎవరిని కలవాలో అడిగి, వారి వివరాలు రిజిస్టర్‌లో రాస్తాను",
+     "మర్యాదగా కనిపిస్తే లోపలికి పంపిస్తాను",
+     "లోపలికి పంపి తర్వాత చెక్ చేస్తాను",
+     "రోడ్డు మీద వేచి ఉండమంటాను"
+    ]
+   },
+   "hi": {
+    "q": "ऑफिस गेट पर एक विज़िटर आए हैं। सबसे पहले क्या करेंगे?",
+    "options": [
+     "पूछूँगा किससे मिलना है और उनकी डिटेल रजिस्टर में लिखूँगा",
+     "शरीफ दिखें तो अंदर जाने दूँगा",
+     "अंदर भेजकर बाद में जाँच करूँगा",
+     "सड़क पर इंतज़ार करने को कहूँगा"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-002",
+   "topic": "Access control",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "A delivery boy wants to go up to a flat. Society rules say deliveries stay at the gate. What do you do?",
+   "options": [
+    "Let him go up, it takes only a minute",
+    "Call the resident to collect it at the gate",
+    "Take the parcel and open it to check",
+    "Send him back without calling anyone"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "డెలివరీ బాయ్ ఫ్లాట్‌కి పైకి వెళ్తానంటున్నాడు. సొసైటీ రూల్ ప్రకారం డెలివరీలు గేట్ దగ్గరే. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "ఒక్క నిమిషమే కదా, పైకి పంపిస్తాను",
+     "రెసిడెంట్‌కి ఫోన్ చేసి గేట్ దగ్గర తీసుకోమంటాను",
+     "పార్సిల్ తీసుకుని ఓపెన్ చేసి చూస్తాను",
+     "ఎవరికీ ఫోన్ చేయకుండా వెనక్కి పంపిస్తాను"
+    ]
+   },
+   "hi": {
+    "q": "डिलीवरी बॉय फ्लैट तक ऊपर जाना चाहता है। सोसाइटी का नियम है कि डिलीवरी गेट पर ही रहेगी। आप क्या करेंगे?",
+    "options": [
+     "एक मिनट का काम है, ऊपर जाने दूँगा",
+     "रेज़िडेंट को फोन करके गेट पर लेने को कहूँगा",
+     "पार्सल लेकर खोलकर जाँचूँगा",
+     "किसी को फोन किए बिना उसे वापस भेज दूँगा"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-003",
+   "topic": "Access control",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A truck is leaving the factory with material. What must you check?",
+   "options": [
+    "Only the driver's licence",
+    "Only the truck number",
+    "The gate pass matches the items and count",
+    "Nothing, if the driver is known"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "ఫ్యాక్టరీ నుంచి సామానుతో ట్రక్ బయటకు వెళ్తోంది. మీరు తప్పక ఏమి చెక్ చేయాలి?",
+    "options": [
+     "డ్రైవర్ లైసెన్స్ మాత్రమే",
+     "ట్రక్ నంబర్ మాత్రమే",
+     "గేట్ పాస్‌లో ఉన్న వస్తువులు, లెక్క సరిపోతున్నాయా",
+     "డ్రైవర్ తెలిసినవాడైతే ఏమీ అక్కర్లేదు"
+    ]
+   },
+   "hi": {
+    "q": "फैक्ट्री से सामान लेकर ट्रक बाहर जा रहा है। आपको क्या ज़रूर जाँचना है?",
+    "options": [
+     "सिर्फ ड्राइवर का लाइसेंस",
+     "सिर्फ ट्रक का नंबर",
+     "गेट पास में लिखा सामान और गिनती मेल खाती है या नहीं",
+     "ड्राइवर जाना-पहचाना हो तो कुछ नहीं"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-004",
+   "topic": "Access control",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A man says he is from the electricity board and must check the meter room. He has no ID. What do you do?",
+   "options": [
+    "Let him in, as power work is urgent",
+    "Give him the meter room keys",
+    "Push him out of the gate",
+    "Ask for ID and confirm with your supervisor"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "ఒక వ్యక్తి కరెంట్ బోర్డ్ నుంచి వచ్చానని, మీటర్ రూమ్ చెక్ చేయాలని అంటున్నాడు. అతని దగ్గర ID లేదు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "కరెంట్ పని అర్జెంట్ కాబట్టి లోపలికి పంపిస్తాను",
+     "మీటర్ రూమ్ తాళాలు ఇచ్చేస్తాను",
+     "గేట్ బయటకు తోసేస్తాను",
+     "ID అడిగి, సూపర్‌వైజర్‌తో కన్ఫర్మ్ చేసుకుంటాను"
+    ]
+   },
+   "hi": {
+    "q": "एक आदमी कहता है वह बिजली बोर्ड से है और मीटर रूम जाँचना है। उसके पास ID नहीं है। आप क्या करेंगे?",
+    "options": [
+     "बिजली का काम ज़रूरी है, अंदर जाने दूँगा",
+     "मीटर रूम की चाबी दे दूँगा",
+     "धक्का देकर गेट से बाहर कर दूँगा",
+     "ID माँगूँगा और सुपरवाइज़र से पक्का करूँगा"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-005",
+   "topic": "Access control",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "An employee forgot his ID card. He is upset and says everyone knows him. What do you do?",
+   "options": [
+    "Verify with his manager and issue a temporary pass",
+    "Let him in since you know his face",
+    "Refuse entry and argue loudly",
+    "Ask a colleague to lend him a card"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "ఒక ఉద్యోగి ID కార్డ్ మర్చిపోయాడు. అందరికీ నేను తెలుసు అని కోపంగా ఉన్నాడు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "అతని మేనేజర్‌తో కన్ఫర్మ్ చేసి టెంపరరీ పాస్ ఇస్తాను",
+     "ముఖం తెలుసు కాబట్టి లోపలికి పంపిస్తాను",
+     "లోపలికి రానివ్వకుండా గట్టిగా వాదిస్తాను",
+     "ఒక సహోద్యోగి కార్డ్ ఇవ్వమంటాను"
+    ]
+   },
+   "hi": {
+    "q": "एक कर्मचारी ID कार्ड भूल गया है। वह नाराज़ है और कहता है सब उसे जानते हैं। आप क्या करेंगे?",
+    "options": [
+     "उसके मैनेजर से पक्का करके टेम्परेरी पास दूँगा",
+     "चेहरा पहचानता हूँ, इसलिए अंदर जाने दूँगा",
+     "अंदर नहीं जाने दूँगा और ज़ोर से बहस करूँगा",
+     "किसी साथी से उसे अपना कार्ड देने को कहूँगा"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-006",
+   "topic": "Access control",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Someone walks in right behind an employee through a card-access door. What do you do?",
+   "options": [
+    "Ignore it, as the door was already open",
+    "Stop him politely and check his card",
+    "Stop the employee instead",
+    "Note it and report it next week"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "కార్డ్ యాక్సెస్ డోర్ నుంచి ఒక ఉద్యోగి వెనకాలే ఇంకో వ్యక్తి లోపలికి వస్తున్నాడు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "డోర్ అప్పటికే తెరిచి ఉంది కాబట్టి వదిలేస్తాను",
+     "మర్యాదగా ఆపి అతని కార్డ్ చెక్ చేస్తాను",
+     "బదులుగా ఆ ఉద్యోగినే ఆపుతాను",
+     "రాసుకుని వచ్చే వారం రిపోర్ట్ చేస్తాను"
+    ]
+   },
+   "hi": {
+    "q": "कार्ड वाले दरवाज़े से एक कर्मचारी के ठीक पीछे कोई और अंदर आ रहा है। आप क्या करेंगे?",
+    "options": [
+     "दरवाज़ा पहले से खुला था, इसलिए छोड़ दूँगा",
+     "उसे विनम्रता से रोककर उसका कार्ड जाँचूँगा",
+     "उसकी जगह कर्मचारी को रोकूँगा",
+     "लिखकर अगले हफ्ते रिपोर्ट करूँगा"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-007",
+   "topic": "Access control",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "When a visitor leaves, what do you note in the register?",
+   "options": [
+    "Their phone number once again",
+    "How they behaved with staff",
+    "Out time and return of the visitor badge",
+    "Nothing more is needed"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "విజిటర్ వెళ్ళేటప్పుడు రిజిస్టర్‌లో ఏమి రాస్తారు?",
+    "options": [
+     "వారి ఫోన్ నంబర్ మళ్ళీ",
+     "స్టాఫ్‌తో వారు ఎలా ప్రవర్తించారో",
+     "బయటకు వెళ్ళిన సమయం, విజిటర్ బ్యాడ్జ్ తిరిగి ఇచ్చినట్టు",
+     "ఇంకేమీ అక్కర్లేదు"
+    ]
+   },
+   "hi": {
+    "q": "विज़िटर के जाते समय रजिस्टर में क्या लिखते हैं?",
+    "options": [
+     "उनका फोन नंबर दोबारा",
+     "स्टाफ के साथ उनका बर्ताव",
+     "बाहर जाने का समय और विज़िटर बैज की वापसी",
+     "और कुछ लिखने की ज़रूरत नहीं"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-008",
+   "topic": "Access control",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A car without a society sticker arrives at night. The driver says he is a guest. What do you do?",
+   "options": [
+    "Open the barrier since he is polite",
+    "Let him in if it is an expensive car",
+    "Ask him to park inside and confirm later",
+    "Call the flat to confirm and note the car number"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "రాత్రి సొసైటీ స్టిక్కర్ లేని కార్ వచ్చింది. గెస్ట్ అని డ్రైవర్ చెబుతున్నాడు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "మర్యాదగా మాట్లాడాడు కాబట్టి బారియర్ తెరుస్తాను",
+     "ఖరీదైన కార్ అయితే లోపలికి పంపిస్తాను",
+     "లోపల పార్క్ చేయమని చెప్పి, తర్వాత కన్ఫర్మ్ చేస్తాను",
+     "ఫ్లాట్‌కి ఫోన్ చేసి కన్ఫర్మ్ చేసి, కార్ నంబర్ రాసుకుంటాను"
+    ]
+   },
+   "hi": {
+    "q": "रात में बिना सोसाइटी स्टिकर की कार आई। ड्राइवर कहता है वह मेहमान है। आप क्या करेंगे?",
+    "options": [
+     "विनम्र है, इसलिए बैरियर खोल दूँगा",
+     "महँगी कार हो तो अंदर जाने दूँगा",
+     "अंदर पार्क करने दूँगा और बाद में पक्का करूँगा",
+     "फ्लैट में फोन करके पक्का करूँगा और कार नंबर लिखूँगा"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-009",
+   "topic": "Access control",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A senior manager is carrying a company laptop out without a gate pass. What do you do?",
+   "options": [
+    "Politely ask for the pass and inform your supervisor",
+    "Let him go because he is senior",
+    "Keep the laptop with you overnight",
+    "Stop him loudly in front of everyone"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "ఒక సీనియర్ మేనేజర్ గేట్ పాస్ లేకుండా కంపెనీ ల్యాప్‌టాప్ బయటకు తీసుకెళ్తున్నారు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "మర్యాదగా పాస్ అడిగి, సూపర్‌వైజర్‌కి తెలియజేస్తాను",
+     "సీనియర్ కాబట్టి వెళ్ళనిస్తాను",
+     "ల్యాప్‌టాప్ రాత్రంతా నా దగ్గర ఉంచుకుంటాను",
+     "అందరి ముందు గట్టిగా అరిచి ఆపుతాను"
+    ]
+   },
+   "hi": {
+    "q": "एक सीनियर मैनेजर बिना गेट पास के कंपनी का लैपटॉप बाहर ले जा रहे हैं। आप क्या करेंगे?",
+    "options": [
+     "विनम्रता से पास माँगूँगा और सुपरवाइज़र को बताऊँगा",
+     "सीनियर हैं, इसलिए जाने दूँगा",
+     "लैपटॉप रात भर अपने पास रख लूँगा",
+     "सबके सामने ज़ोर से चिल्लाकर रोकूँगा"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-010",
+   "topic": "Patrolling and reporting",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Why do guards scan or sign at fixed points during rounds?",
+   "options": [
+    "It gives them a rest break",
+    "It proves each round was done on time",
+    "It is needed only for new guards",
+    "It counts the visitors of the day"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "రౌండ్స్ సమయంలో గార్డులు నిర్ణీత చోట్ల స్కాన్ లేదా సంతకం ఎందుకు చేస్తారు?",
+    "options": [
+     "విశ్రాంతి తీసుకోవడానికి",
+     "ప్రతి రౌండ్ సమయానికి చేసినట్టు రుజువు",
+     "కొత్త గార్డులకు మాత్రమే అవసరం",
+     "ఆ రోజు విజిటర్లను లెక్కించడానికి"
+    ]
+   },
+   "hi": {
+    "q": "राउंड के दौरान गार्ड तय जगहों पर स्कैन या साइन क्यों करते हैं?",
+    "options": [
+     "आराम करने के लिए",
+     "इससे साबित होता है कि हर राउंड समय पर हुआ",
+     "यह सिर्फ नए गार्ड के लिए ज़रूरी है",
+     "दिन के विज़िटर गिनने के लिए"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-011",
+   "topic": "Patrolling and reporting",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "On a night round, you find a back door unlocked. What do you do?",
+   "options": [
+    "Leave it, someone else will lock it",
+    "Lock it and tell nobody",
+    "Check inside carefully, lock it and record it",
+    "Wait for the morning shift to see it"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "రాత్రి రౌండ్‌లో వెనుక తలుపుకు తాళం వేయలేదు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "వేరే ఎవరైనా వేస్తారు, వదిలేస్తాను",
+     "తాళం వేసి ఎవరికీ చెప్పను",
+     "లోపల జాగ్రత్తగా చూసి, తాళం వేసి, రిజిస్టర్‌లో రాస్తాను",
+     "మార్నింగ్ షిఫ్ట్ వాళ్ళు చూస్తారని వేచి ఉంటాను"
+    ]
+   },
+   "hi": {
+    "q": "रात के राउंड में पीछे का दरवाज़ा खुला मिला। आप क्या करेंगे?",
+    "options": [
+     "छोड़ दूँगा, कोई और लगा देगा",
+     "ताला लगा दूँगा और किसी को नहीं बताऊँगा",
+     "अंदर ध्यान से देखूँगा, ताला लगाऊँगा और रजिस्टर में लिखूँगा",
+     "सुबह की शिफ्ट वालों के देखने का इंतज़ार करूँगा"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-012",
+   "topic": "Patrolling and reporting",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why should you not do your rounds at the exact same time every night?",
+   "options": [
+    "It wastes torch battery",
+    "The register gets full faster",
+    "Residents may complain of noise",
+    "Thieves can learn your timing"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "ప్రతి రాత్రి సరిగ్గా అదే సమయానికి రౌండ్స్ ఎందుకు చేయకూడదు?",
+    "options": [
+     "టార్చ్ బ్యాటరీ వృథా అవుతుంది",
+     "రిజిస్టర్ త్వరగా నిండిపోతుంది",
+     "శబ్దం అని రెసిడెంట్లు కంప్లైంట్ చేస్తారు",
+     "దొంగలు మీ టైమింగ్ తెలుసుకోగలరు"
+    ]
+   },
+   "hi": {
+    "q": "हर रात बिल्कुल एक ही समय पर राउंड क्यों नहीं करना चाहिए?",
+    "options": [
+     "टॉर्च की बैटरी बर्बाद होती है",
+     "रजिस्टर जल्दी भर जाता है",
+     "रहने वाले शोर की शिकायत कर सकते हैं",
+     "चोर आपका समय पहचान सकते हैं"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-013",
+   "topic": "Patrolling and reporting",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What must a good incident report contain?",
+   "options": [
+    "What, where, when, who and the action taken",
+    "Only your own opinion of the people",
+    "Only the date and your signature",
+    "A short note that 'something happened'"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "మంచి ఇన్సిడెంట్ రిపోర్ట్‌లో తప్పక ఏమి ఉండాలి?",
+    "options": [
+     "ఏమి, ఎక్కడ, ఎప్పుడు, ఎవరు, తీసుకున్న చర్య",
+     "వ్యక్తుల గురించి మీ అభిప్రాయం మాత్రమే",
+     "తేదీ, మీ సంతకం మాత్రమే",
+     "'ఏదో జరిగింది' అని చిన్న నోట్"
+    ]
+   },
+   "hi": {
+    "q": "अच्छी घटना रिपोर्ट में क्या ज़रूर होना चाहिए?",
+    "options": [
+     "क्या, कहाँ, कब, कौन और क्या कार्रवाई की",
+     "लोगों के बारे में सिर्फ आपकी राय",
+     "सिर्फ तारीख और आपके साइन",
+     "'कुछ हुआ था' बस इतना छोटा नोट"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-014",
+   "topic": "Patrolling and reporting",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "At night, an unknown man keeps looking at parked bikes in the basement. What do you do?",
+   "options": [
+    "Hit him before he runs",
+    "Approach politely, ask his purpose, and alert the team",
+    "Ignore him; he hasn't stolen yet",
+    "Shout 'thief' loudly at once"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "రాత్రి బేస్‌మెంట్‌లో ఒక తెలియని వ్యక్తి పార్క్ చేసిన బైక్‌లను చూస్తూనే ఉన్నాడు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "పారిపోయే ముందు కొడతాను",
+     "మర్యాదగా దగ్గరకి వెళ్ళి ఎందుకు వచ్చాడో అడిగి, టీమ్‌ని అలర్ట్ చేస్తాను",
+     "ఇంకా దొంగతనం చేయలేదు కాబట్టి వదిలేస్తాను",
+     "వెంటనే 'దొంగ' అని గట్టిగా అరుస్తాను"
+    ]
+   },
+   "hi": {
+    "q": "रात में बेसमेंट में एक अनजान आदमी खड़ी बाइकों को देखता जा रहा है। आप क्या करेंगे?",
+    "options": [
+     "भागने से पहले उसे मारूँगा",
+     "विनम्रता से पास जाकर आने का कारण पूछूँगा और टीम को अलर्ट करूँगा",
+     "अभी चोरी नहीं की, इसलिए छोड़ दूँगा",
+     "तुरंत ज़ोर से 'चोर' चिल्लाऊँगा"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-015",
+   "topic": "Patrolling and reporting",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "During the night shift, one CCTV camera screen goes blank. What do you do?",
+   "options": [
+    "Wait until the morning to report it",
+    "Restart the whole CCTV system yourself",
+    "Inform the supervisor and patrol that area more",
+    "Ignore it; other cameras are working"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "నైట్ షిఫ్ట్‌లో ఒక CCTV కెమెరా స్క్రీన్ ఖాళీ అయింది. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "ఉదయం వరకు ఆగి రిపోర్ట్ చేస్తాను",
+     "మొత్తం CCTV సిస్టమ్ నేనే రీస్టార్ట్ చేస్తాను",
+     "సూపర్‌వైజర్‌కి చెప్పి, ఆ ప్రాంతంలో ఎక్కువ రౌండ్స్ చేస్తాను",
+     "మిగతా కెమెరాలు పని చేస్తున్నాయి, వదిలేస్తాను"
+    ]
+   },
+   "hi": {
+    "q": "नाइट शिफ्ट में एक CCTV कैमरे की स्क्रीन बंद हो गई। आप क्या करेंगे?",
+    "options": [
+     "सुबह तक रुककर रिपोर्ट करूँगा",
+     "पूरा CCTV सिस्टम खुद रीस्टार्ट करूँगा",
+     "सुपरवाइज़र को बताऊँगा और उस जगह ज़्यादा राउंड लगाऊँगा",
+     "बाकी कैमरे चल रहे हैं, छोड़ दूँगा"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-016",
+   "topic": "Patrolling and reporting",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "At shift change, what is most important to hand over?",
+   "options": [
+    "Only the gate keys",
+    "Just leave once your time is over",
+    "A quick verbal 'all OK'",
+    "Open issues, keys and pending tasks, signed in the book"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "షిఫ్ట్ మారేటప్పుడు ఏది హ్యాండోవర్ చేయడం ముఖ్యం?",
+    "options": [
+     "గేట్ తాళాలు మాత్రమే",
+     "మీ టైమ్ అయిపోగానే వెళ్ళిపోవడం",
+     "నోటితో 'అంతా ఓకే' అని చెప్పడం",
+     "పెండింగ్ సమస్యలు, తాళాలు, మిగిలిన పనులు, బుక్‌లో సంతకంతో"
+    ]
+   },
+   "hi": {
+    "q": "शिफ्ट बदलते समय क्या सौंपना सबसे ज़रूरी है?",
+    "options": [
+     "सिर्फ गेट की चाबियाँ",
+     "अपना समय पूरा होते ही निकल जाना",
+     "मुँह से बस 'सब ठीक है' कह देना",
+     "बाकी मामले, चाबियाँ और अधूरे काम, बुक में साइन के साथ"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-017",
+   "topic": "Patrolling and reporting",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A bag has been left alone near the lift for a long time. Nobody claims it. What do you do?",
+   "options": [
+    "Keep people away, don't touch it, call supervisor and police",
+    "Open it carefully to see what is inside",
+    "Pick it up and carry it to the security cabin",
+    "Throw it outside the gate"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "లిఫ్ట్ దగ్గర చాలా సేపటి నుంచి ఒక బ్యాగ్ ఒంటరిగా ఉంది. ఎవరూ తమది అనడం లేదు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "జనాన్ని దూరంగా ఉంచి, ముట్టుకోకుండా, సూపర్‌వైజర్‌కి, పోలీసులకు ఫోన్ చేస్తాను",
+     "లోపల ఏముందో జాగ్రత్తగా తెరిచి చూస్తాను",
+     "ఎత్తుకుని సెక్యూరిటీ క్యాబిన్‌కి తీసుకెళ్తాను",
+     "గేట్ బయటకు విసిరేస్తాను"
+    ]
+   },
+   "hi": {
+    "q": "लिफ्ट के पास काफी देर से एक बैग लावारिस पड़ा है। कोई उसे अपना नहीं बता रहा। आप क्या करेंगे?",
+    "options": [
+     "लोगों को दूर रखूँगा, छुऊँगा नहीं, सुपरवाइज़र और पुलिस को फोन करूँगा",
+     "ध्यान से खोलकर देखूँगा अंदर क्या है",
+     "उठाकर सिक्योरिटी केबिन ले जाऊँगा",
+     "गेट के बाहर फेंक दूँगा"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-018",
+   "topic": "Fire and emergencies",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "The fire alarm rings in the building. What do you do first?",
+   "options": [
+    "Send people down in the lift quickly",
+    "Guide people out by the stairs to the assembly point",
+    "Wait for the supervisor to call you",
+    "Go and collect your own belongings"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "బిల్డింగ్‌లో ఫైర్ అలారం మోగింది. ముందుగా ఏమి చేస్తారు?",
+    "options": [
+     "త్వరగా లిఫ్ట్‌లో కిందకు పంపిస్తాను",
+     "మెట్ల ద్వారా జనాన్ని అసెంబ్లీ పాయింట్‌కి బయటకు తీసుకెళ్తాను",
+     "సూపర్‌వైజర్ ఫోన్ కోసం ఎదురుచూస్తాను",
+     "నా సామాను తెచ్చుకోవడానికి వెళ్తాను"
+    ]
+   },
+   "hi": {
+    "q": "बिल्डिंग में फायर अलार्म बजा। सबसे पहले क्या करेंगे?",
+    "options": [
+     "लोगों को जल्दी लिफ्ट से नीचे भेजूँगा",
+     "सीढ़ियों से लोगों को असेंबली पॉइंट तक बाहर ले जाऊँगा",
+     "सुपरवाइज़र के फोन का इंतज़ार करूँगा",
+     "अपना सामान लेने जाऊँगा"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-019",
+   "topic": "Fire and emergencies",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which number do you call for the fire brigade in India?",
+   "options": [
+    "100",
+    "108",
+    "101",
+    "1098"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "భారతదేశంలో ఫైర్ బ్రిగేడ్‌కి ఏ నంబర్‌కి ఫోన్ చేస్తారు?",
+    "options": [
+     "100",
+     "108",
+     "101",
+     "1098"
+    ]
+   },
+   "hi": {
+    "q": "भारत में फायर ब्रिगेड के लिए कौन सा नंबर मिलाते हैं?",
+    "options": [
+     "100",
+     "108",
+     "101",
+     "1098"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-020",
+   "topic": "Fire and emergencies",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which fire extinguisher is right for a fire in an electrical panel?",
+   "options": [
+    "Water type",
+    "Foam type",
+    "A wet gunny bag",
+    "CO2 type"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "ఎలక్ట్రికల్ ప్యానెల్‌లో మంటకు ఏ ఫైర్ ఎక్స్‌టింగ్విషర్ సరైనది?",
+    "options": [
+     "నీటి రకం",
+     "ఫోమ్ రకం",
+     "తడి గోనె సంచి",
+     "CO2 రకం"
+    ]
+   },
+   "hi": {
+    "q": "बिजली के पैनल में आग के लिए कौन सा फायर एक्सटिंग्विशर सही है?",
+    "options": [
+     "पानी वाला",
+     "फोम वाला",
+     "गीली बोरी",
+     "CO2 वाला"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-021",
+   "topic": "Fire and emergencies",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "When using a fire extinguisher, where should you aim?",
+   "options": [
+    "At the base of the fire",
+    "At the top of the flames",
+    "At the smoke above",
+    "Into the air around it"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "ఫైర్ ఎక్స్‌టింగ్విషర్ వాడేటప్పుడు ఎక్కడ గురి పెట్టాలి?",
+    "options": [
+     "మంట కింది భాగం (మొదలు) వద్ద",
+     "మంటల పై భాగం వద్ద",
+     "పైన ఉన్న పొగ వద్ద",
+     "చుట్టూ గాలిలోకి"
+    ]
+   },
+   "hi": {
+    "q": "फायर एक्सटिंग्विशर चलाते समय निशाना कहाँ लगाना चाहिए?",
+    "options": [
+     "आग की जड़ (नीचे) पर",
+     "लपटों के ऊपरी हिस्से पर",
+     "ऊपर उठते धुएँ पर",
+     "आसपास हवा में"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-022",
+   "topic": "Fire and emergencies",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A worker gets an electric shock and is stuck to a machine. What do you do first?",
+   "options": [
+    "Pull him away with your bare hands",
+    "Switch off the power, then help him",
+    "Throw water on him",
+    "Run to find a doctor first"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "ఒక వర్కర్‌కి కరెంట్ షాక్ తగిలి మెషిన్‌కి అతుక్కుపోయాడు. ముందుగా ఏమి చేస్తారు?",
+    "options": [
+     "ఒట్టి చేతులతో లాగేస్తాను",
+     "కరెంట్ ఆఫ్ చేసి, తర్వాత సహాయం చేస్తాను",
+     "అతనిపై నీళ్ళు పోస్తాను",
+     "ముందు డాక్టర్‌ కోసం పరిగెడతాను"
+    ]
+   },
+   "hi": {
+    "q": "एक मज़दूर को करंट लगा है और वह मशीन से चिपका है। सबसे पहले क्या करेंगे?",
+    "options": [
+     "नंगे हाथों से उसे खींच लूँगा",
+     "बिजली बंद करूँगा, फिर उसकी मदद करूँगा",
+     "उस पर पानी डालूँगा",
+     "पहले डॉक्टर ढूँढने भागूँगा"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-023",
+   "topic": "Fire and emergencies",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "After evacuating for a fire, how do you make sure nobody is left inside?",
+   "options": [
+    "Assume everyone left once the alarm stopped",
+    "Ask one employee if the floor is empty",
+    "Count heads at the assembly point with the register",
+    "Shout once at the entrance"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "ఫైర్ సమయంలో అందరినీ బయటకు తీసుకొచ్చాక, లోపల ఎవరూ మిగలలేదని ఎలా నిర్ధారిస్తారు?",
+    "options": [
+     "అలారం ఆగగానే అందరూ వచ్చేశారని అనుకుంటాను",
+     "ఫ్లోర్ ఖాళీయా అని ఒక ఉద్యోగిని అడుగుతాను",
+     "అసెంబ్లీ పాయింట్‌లో రిజిస్టర్‌తో తలలు లెక్కపెడతాను",
+     "ఎంట్రన్స్ దగ్గర ఒకసారి అరుస్తాను"
+    ]
+   },
+   "hi": {
+    "q": "आग में सबको बाहर निकालने के बाद कैसे पक्का करेंगे कि अंदर कोई नहीं बचा?",
+    "options": [
+     "अलार्म बंद होते ही मान लूँगा कि सब निकल गए",
+     "एक कर्मचारी से पूछूँगा कि फ्लोर खाली है या नहीं",
+     "असेंबली पॉइंट पर रजिस्टर से गिनती करूँगा",
+     "एंट्रेंस पर एक बार आवाज़ लगाऊँगा"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-024",
+   "topic": "Fire and emergencies",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "You find a fire exit door locked with a chain to stop theft. What do you do?",
+   "options": [
+    "Leave it, since theft is a bigger risk",
+    "Add one more lock for safety",
+    "Keep the key hidden somewhere nearby",
+    "Report it at once; fire exits must open easily"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "దొంగతనం ఆపడానికి ఫైర్ ఎగ్జిట్ తలుపుకు చైన్‌తో తాళం వేశారు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "దొంగతనమే పెద్ద రిస్క్, అలాగే వదిలేస్తాను",
+     "సేఫ్టీ కోసం ఇంకో తాళం వేస్తాను",
+     "తాళం చెవి దగ్గర్లో ఎక్కడో దాచిపెడతాను",
+     "వెంటనే రిపోర్ట్ చేస్తాను; ఫైర్ ఎగ్జిట్ సులభంగా తెరుచుకోవాలి"
+    ]
+   },
+   "hi": {
+    "q": "चोरी रोकने के लिए फायर एग्ज़िट दरवाज़े पर चेन से ताला लगा मिला। आप क्या करेंगे?",
+    "options": [
+     "चोरी बड़ा खतरा है, इसलिए छोड़ दूँगा",
+     "सुरक्षा के लिए एक और ताला लगाऊँगा",
+     "चाबी पास में कहीं छिपा दूँगा",
+     "तुरंत रिपोर्ट करूँगा; फायर एग्ज़िट आसानी से खुलना चाहिए"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-025",
+   "topic": "Fire and emergencies",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "At 2 am you find a man lying injured in the parking area. What do you do?",
+   "options": [
+    "Call 108, inform your supervisor and stay with him",
+    "Lift him quickly into your cabin",
+    "Leave him; it is not a security matter",
+    "Give him food and water first"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "రాత్రి 2 గంటలకు పార్కింగ్‌లో ఒక వ్యక్తి గాయాలతో పడి ఉన్నాడు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "108కి ఫోన్ చేసి, సూపర్‌వైజర్‌కి చెప్పి, అతని దగ్గరే ఉంటాను",
+     "త్వరగా ఎత్తి నా క్యాబిన్‌కి తీసుకెళ్తాను",
+     "ఇది సెక్యూరిటీ విషయం కాదు, వదిలేస్తాను",
+     "ముందు అన్నం, నీళ్ళు ఇస్తాను"
+    ]
+   },
+   "hi": {
+    "q": "रात 2 बजे पार्किंग में एक आदमी घायल पड़ा मिला। आप क्या करेंगे?",
+    "options": [
+     "108 पर फोन करूँगा, सुपरवाइज़र को बताऊँगा और उसके पास रहूँगा",
+     "जल्दी उठाकर अपने केबिन में ले जाऊँगा",
+     "यह सिक्योरिटी का मामला नहीं, छोड़ दूँगा",
+     "पहले खाना और पानी दूँगा"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-026",
+   "topic": "Fire and emergencies",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "You smell gas strongly in a hostel kitchen at night. What do you do?",
+   "options": [
+    "Switch on the exhaust fan to clear the gas",
+    "Shut the gas valve and open windows; don't touch switches",
+    "Light a match to find the leak",
+    "Switch off the main power inside the kitchen"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "రాత్రి హాస్టల్ కిచెన్‌లో గ్యాస్ వాసన గట్టిగా వస్తోంది. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "గ్యాస్ పోవడానికి ఎగ్జాస్ట్ ఫ్యాన్ ఆన్ చేస్తాను",
+     "గ్యాస్ వాల్వ్ బంద్ చేసి కిటికీలు తెరుస్తాను; స్విచ్‌లు ముట్టుకోను",
+     "లీక్ కనుక్కోవడానికి అగ్గిపుల్ల వెలిగిస్తాను",
+     "కిచెన్ లోపల మెయిన్ పవర్ ఆఫ్ చేస్తాను"
+    ]
+   },
+   "hi": {
+    "q": "रात में हॉस्टल की रसोई में गैस की तेज़ गंध आ रही है। आप क्या करेंगे?",
+    "options": [
+     "गैस निकालने के लिए एग्ज़ॉस्ट फैन चालू करूँगा",
+     "गैस वाल्व बंद करूँगा और खिड़कियाँ खोलूँगा; स्विच नहीं छुऊँगा",
+     "लीक ढूँढने के लिए माचिस जलाऊँगा",
+     "रसोई के अंदर मेन पावर बंद करूँगा"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-027",
+   "topic": "Handling people",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "How should a guard speak to visitors?",
+   "options": [
+    "Loudly, to show authority",
+    "Only in English",
+    "Politely but firmly",
+    "As little as possible"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "గార్డ్ విజిటర్లతో ఎలా మాట్లాడాలి?",
+    "options": [
+     "అధికారం చూపించడానికి గట్టిగా",
+     "ఇంగ్లీష్‌లో మాత్రమే",
+     "మర్యాదగా, కానీ దృఢంగా",
+     "వీలైనంత తక్కువగా"
+    ]
+   },
+   "hi": {
+    "q": "गार्ड को विज़िटर से कैसे बात करनी चाहिए?",
+    "options": [
+     "रौब दिखाने के लिए ज़ोर से",
+     "सिर्फ अंग्रेज़ी में",
+     "विनम्रता से, पर मज़बूती से",
+     "जितना कम हो सके"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-028",
+   "topic": "Handling people",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A small child is lost in a mall. What do you do?",
+   "options": [
+    "Ask the child to search alone",
+    "Hand the child to the first adult who asks",
+    "Take the child to the exit gate to wait",
+    "Keep the child safe at the help desk and announce"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "మాల్‌లో ఒక చిన్న పిల్లవాడు తప్పిపోయాడు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "ఒంటరిగా వెతుక్కోమని చెబుతాను",
+     "మొదట అడిగిన పెద్దవారికి అప్పగిస్తాను",
+     "ఎగ్జిట్ గేట్ దగ్గర వేచి ఉండటానికి తీసుకెళ్తాను",
+     "పిల్లవాడిని హెల్ప్ డెస్క్ దగ్గర సురక్షితంగా ఉంచి అనౌన్స్ చేయిస్తాను"
+    ]
+   },
+   "hi": {
+    "q": "मॉल में एक छोटा बच्चा खो गया है। आप क्या करेंगे?",
+    "options": [
+     "बच्चे से अकेले ढूँढने को कहूँगा",
+     "जो पहला बड़ा पूछे, उसे सौंप दूँगा",
+     "इंतज़ार के लिए बच्चे को एग्ज़िट गेट ले जाऊँगा",
+     "बच्चे को हेल्प डेस्क पर सुरक्षित रखकर अनाउंस करवाऊँगा"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-029",
+   "topic": "Handling people",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A drunk visitor is shouting and arguing at the gate. What do you do?",
+   "options": [
+    "Stay calm, keep distance and call your supervisor",
+    "Slap him to quieten him",
+    "Shout back louder than him",
+    "Let him in so the noise stops"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "తాగి వచ్చిన ఒక విజిటర్ గేట్ దగ్గర అరుస్తూ గొడవ చేస్తున్నాడు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "శాంతంగా, దూరం పాటిస్తూ, సూపర్‌వైజర్‌ని పిలుస్తాను",
+     "నిశ్శబ్దం చేయడానికి చెంపదెబ్బ కొడతాను",
+     "అతనికంటే గట్టిగా తిరిగి అరుస్తాను",
+     "గొడవ ఆగాలని లోపలికి పంపిస్తాను"
+    ]
+   },
+   "hi": {
+    "q": "नशे में एक विज़िटर गेट पर चिल्लाकर बहस कर रहा है। आप क्या करेंगे?",
+    "options": [
+     "शांत रहूँगा, दूरी रखूँगा और सुपरवाइज़र को बुलाऊँगा",
+     "चुप कराने के लिए थप्पड़ मारूँगा",
+     "उससे ज़्यादा ज़ोर से चिल्लाऊँगा",
+     "शोर बंद हो, इसलिए अंदर जाने दूँगा"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-030",
+   "topic": "Handling people",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A resident asks you to wash their car during your gate duty. What do you do?",
+   "options": [
+    "Do it quickly for a tip",
+    "Politely say you cannot leave your post",
+    "Leave the gate open and go",
+    "Ask a visitor to watch the gate"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "గేట్ డ్యూటీలో ఉండగా ఒక రెసిడెంట్ వారి కార్ కడగమని అడిగారు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "టిప్ కోసం త్వరగా కడిగేస్తాను",
+     "పోస్ట్ వదిలి రాలేనని మర్యాదగా చెబుతాను",
+     "గేట్ తెరిచే వదిలి వెళ్తాను",
+     "గేట్ చూసుకోమని ఒక విజిటర్‌ని అడుగుతాను"
+    ]
+   },
+   "hi": {
+    "q": "गेट ड्यूटी के दौरान एक रेज़िडेंट अपनी कार धोने को कहते हैं। आप क्या करेंगे?",
+    "options": [
+     "टिप के लिए जल्दी धो दूँगा",
+     "विनम्रता से कहूँगा कि मैं पोस्ट नहीं छोड़ सकता",
+     "गेट खुला छोड़कर चला जाऊँगा",
+     "किसी विज़िटर से गेट देखने को कहूँगा"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-031",
+   "topic": "Handling people",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A visitor says a stranger has been following her inside the mall. What do you do?",
+   "options": [
+    "Tell her it is probably nothing",
+    "Ask her to leave the mall",
+    "Take it seriously, stay with her and alert the team",
+    "Tell her to sort it out herself"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "ఒక తెలియని వ్యక్తి మాల్ లోపల తనను వెంబడిస్తున్నాడని ఒక విజిటర్ చెప్పారు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "బహుశా ఏమీ లేదని చెబుతాను",
+     "మాల్ నుంచి వెళ్ళిపొమ్మంటాను",
+     "సీరియస్‌గా తీసుకుని, ఆమెతోనే ఉండి, టీమ్‌ని అలర్ట్ చేస్తాను",
+     "ఆమెనే చూసుకోమని చెబుతాను"
+    ]
+   },
+   "hi": {
+    "q": "एक विज़िटर बताती हैं कि मॉल में एक अनजान आदमी उनका पीछा कर रहा है। आप क्या करेंगे?",
+    "options": [
+     "कहूँगा शायद कुछ नहीं है",
+     "उनसे मॉल छोड़ने को कहूँगा",
+     "गंभीरता से लूँगा, उनके साथ रहूँगा और टीम को अलर्ट करूँगा",
+     "कहूँगा खुद सँभाल लें"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-032",
+   "topic": "Handling people",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Two employees start fighting at the gate. What is the right response?",
+   "options": [
+    "Take the side of the one you know",
+    "Record a video and share it",
+    "Let them settle it themselves",
+    "Call for backup, separate them safely and report it"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "గేట్ దగ్గర ఇద్దరు ఉద్యోగులు కొట్టుకుంటున్నారు. సరైన స్పందన ఏది?",
+    "options": [
+     "తెలిసినవాడి పక్షం తీసుకోవడం",
+     "వీడియో తీసి షేర్ చేయడం",
+     "వాళ్ళే తేల్చుకోనివ్వడం",
+     "సహాయం పిలిచి, జాగ్రత్తగా విడదీసి, రిపోర్ట్ చేయడం"
+    ]
+   },
+   "hi": {
+    "q": "गेट पर दो कर्मचारी लड़ने लगे। सही कदम क्या है?",
+    "options": [
+     "जिसे जानते हैं उसका पक्ष लेना",
+     "वीडियो बनाकर शेयर करना",
+     "उन्हें खुद निपटने देना",
+     "मदद बुलाकर सावधानी से अलग करना और रिपोर्ट करना"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-033",
+   "topic": "Handling people",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A VIP's driver insists on parking in the fire lane for '5 minutes only'. What do you do?",
+   "options": [
+    "Politely refuse and show him the right parking",
+    "Allow it, since it is a VIP car",
+    "Allow it if he pays ₹100",
+    "Park it there yourself to save time"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "ఒక VIP డ్రైవర్ 'కేవలం 5 నిమిషాలు' అని ఫైర్ లేన్‌లో పార్క్ చేస్తానని పట్టుబడుతున్నాడు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "మర్యాదగా వద్దని చెప్పి, సరైన పార్కింగ్ చూపిస్తాను",
+     "VIP కార్ కాబట్టి అనుమతిస్తాను",
+     "₹100 ఇస్తే అనుమతిస్తాను",
+     "సమయం ఆదా కోసం నేనే అక్కడ పార్క్ చేస్తాను"
+    ]
+   },
+   "hi": {
+    "q": "एक VIP का ड्राइवर 'बस 5 मिनट' कहकर फायर लेन में पार्क करने की ज़िद कर रहा है। आप क्या करेंगे?",
+    "options": [
+     "विनम्रता से मना करूँगा और सही पार्किंग दिखाऊँगा",
+     "VIP की गाड़ी है, इसलिए करने दूँगा",
+     "₹100 दे तो करने दूँगा",
+     "समय बचाने के लिए खुद वहीं पार्क कर दूँगा"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-034",
+   "topic": "Handling people",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A large crowd gathers at the factory gate during a protest. What do you do?",
+   "options": [
+    "Open the gate so they can talk to management inside",
+    "Keep the gate closed, stay calm, inform management and police",
+    "Use force to push them back",
+    "Argue with the leaders face to face"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "నిరసన సమయంలో ఫ్యాక్టరీ గేట్ దగ్గర పెద్ద గుంపు చేరింది. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "మేనేజ్‌మెంట్‌తో లోపల మాట్లాడుకోమని గేట్ తెరుస్తాను",
+     "గేట్ మూసే ఉంచి, శాంతంగా ఉండి, మేనేజ్‌మెంట్‌కి, పోలీసులకు చెబుతాను",
+     "బలవంతంగా వెనక్కి తోస్తాను",
+     "నాయకులతో ముఖాముఖి వాదిస్తాను"
+    ]
+   },
+   "hi": {
+    "q": "विरोध के दौरान फैक्ट्री गेट पर बड़ी भीड़ जमा हो गई। आप क्या करेंगे?",
+    "options": [
+     "मैनेजमेंट से अंदर बात करने के लिए गेट खोल दूँगा",
+     "गेट बंद रखूँगा, शांत रहूँगा, मैनेजमेंट और पुलिस को बताऊँगा",
+     "ताकत से उन्हें पीछे धकेलूँगा",
+     "नेताओं से आमने-सामने बहस करूँगा"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-035",
+   "topic": "Handling people",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A visitor complains that you were rude to them. What do you do?",
+   "options": [
+    "Ignore them and carry on",
+    "Argue that they started it",
+    "Listen, apologise and explain the rule politely",
+    "File a complaint against them"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "మీరు దురుసుగా ప్రవర్తించారని ఒక విజిటర్ కంప్లైంట్ చేశారు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "పట్టించుకోకుండా నా పని చేసుకుంటాను",
+     "వాళ్ళే మొదలుపెట్టారని వాదిస్తాను",
+     "విని, క్షమాపణ చెప్పి, రూల్‌ని మర్యాదగా వివరిస్తాను",
+     "వారిపైనే కంప్లైంట్ చేస్తాను"
+    ]
+   },
+   "hi": {
+    "q": "एक विज़िटर शिकायत करते हैं कि आपने बदतमीज़ी की। आप क्या करेंगे?",
+    "options": [
+     "अनदेखा करके अपना काम करता रहूँगा",
+     "बहस करूँगा कि शुरुआत उन्होंने की",
+     "सुनूँगा, माफी माँगूँगा और नियम विनम्रता से समझाऊँगा",
+     "उल्टा उन पर शिकायत करूँगा"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-036",
+   "topic": "Duty rules and conduct",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "How should you come for duty?",
+   "options": [
+    "In any clean shirt and trousers",
+    "In uniform but without the ID card",
+    "In uniform with slippers for comfort",
+    "In clean, full uniform with your ID card"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "డ్యూటీకి ఎలా రావాలి?",
+    "options": [
+     "ఏదైనా శుభ్రమైన షర్ట్, ప్యాంట్‌లో",
+     "యూనిఫాంలో, కానీ ID కార్డ్ లేకుండా",
+     "సౌకర్యం కోసం యూనిఫాంతో చెప్పులు వేసుకుని",
+     "శుభ్రమైన పూర్తి యూనిఫాం, ID కార్డ్‌తో"
+    ]
+   },
+   "hi": {
+    "q": "ड्यूटी पर कैसे आना चाहिए?",
+    "options": [
+     "किसी भी साफ शर्ट-पैंट में",
+     "वर्दी में, पर ID कार्ड के बिना",
+     "आराम के लिए वर्दी के साथ चप्पल पहनकर",
+     "साफ, पूरी वर्दी और ID कार्ड के साथ"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-037",
+   "topic": "Duty rules and conduct",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "You catch a person stealing from a shop in the mall. What is the right action?",
+   "options": [
+    "Hold him safely with help and call the police",
+    "Beat him so he learns a lesson",
+    "Lock him in a room for a day",
+    "Take money from him and let him go"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "మాల్‌లో ఒక షాప్ నుంచి దొంగతనం చేస్తున్న వ్యక్తిని పట్టుకున్నారు. సరైన చర్య ఏది?",
+    "options": [
+     "సహాయంతో అతన్ని జాగ్రత్తగా పట్టుకుని పోలీసులను పిలవడం",
+     "గుణపాఠం కోసం కొట్టడం",
+     "ఒక రోజంతా గదిలో బంధించడం",
+     "డబ్బు తీసుకుని వదిలేయడం"
+    ]
+   },
+   "hi": {
+    "q": "मॉल में एक दुकान से चोरी करते आदमी को पकड़ा। सही कदम क्या है?",
+    "options": [
+     "मदद से उसे सुरक्षित पकड़कर पुलिस को बुलाना",
+     "सबक सिखाने के लिए पीटना",
+     "एक दिन के लिए कमरे में बंद करना",
+     "पैसे लेकर छोड़ देना"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-038",
+   "topic": "Duty rules and conduct",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Your shift is over but the next guard has not come. What do you do?",
+   "options": [
+    "Leave, since your time is over",
+    "Stay at the post and inform your supervisor",
+    "Hand the keys to a resident and go",
+    "Lock the gate and go home"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "మీ షిఫ్ట్ అయిపోయింది, కానీ తర్వాతి గార్డ్ రాలేదు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "నా టైమ్ అయిపోయింది, వెళ్ళిపోతాను",
+     "పోస్ట్‌లోనే ఉండి సూపర్‌వైజర్‌కి చెబుతాను",
+     "తాళాలు ఒక రెసిడెంట్‌కి ఇచ్చి వెళ్తాను",
+     "గేట్‌కి తాళం వేసి ఇంటికి వెళ్తాను"
+    ]
+   },
+   "hi": {
+    "q": "आपकी शिफ्ट खत्म हो गई, पर अगला गार्ड नहीं आया। आप क्या करेंगे?",
+    "options": [
+     "मेरा समय खत्म, इसलिए चला जाऊँगा",
+     "पोस्ट पर ही रहूँगा और सुपरवाइज़र को बताऊँगा",
+     "चाबियाँ किसी रेज़िडेंट को देकर चला जाऊँगा",
+     "गेट पर ताला लगाकर घर चला जाऊँगा"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-039",
+   "topic": "Duty rules and conduct",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A visitor offers you ₹500 to let him in without an entry. What do you do?",
+   "options": [
+    "Take it, as it is a small amount",
+    "Take it and tell the supervisor later",
+    "Refuse and follow the normal entry process",
+    "Ask for more money"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "ఎంట్రీ లేకుండా లోపలికి పంపమని ఒక విజిటర్ ₹500 ఇస్తానంటున్నాడు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "చిన్న మొత్తమే కదా, తీసుకుంటాను",
+     "తీసుకుని తర్వాత సూపర్‌వైజర్‌కి చెబుతాను",
+     "వద్దని చెప్పి, మామూలు ఎంట్రీ ప్రాసెస్ పాటిస్తాను",
+     "ఇంకా ఎక్కువ డబ్బు అడుగుతాను"
+    ]
+   },
+   "hi": {
+    "q": "एक विज़िटर बिना एंट्री अंदर जाने के लिए ₹500 देना चाहता है। आप क्या करेंगे?",
+    "options": [
+     "छोटी रकम है, ले लूँगा",
+     "ले लूँगा और बाद में सुपरवाइज़र को बताऊँगा",
+     "मना करूँगा और सामान्य एंट्री प्रक्रिया अपनाऊँगा",
+     "और ज़्यादा पैसे माँगूँगा"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-040",
+   "topic": "Duty rules and conduct",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "When can you use your mobile phone on duty?",
+   "options": [
+    "Anytime, if it is a quiet night",
+    "To watch videos when no one comes",
+    "With earphones on all the time",
+    "Only for duty calls, while watching your post"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "డ్యూటీలో మొబైల్ ఫోన్ ఎప్పుడు వాడవచ్చు?",
+    "options": [
+     "రాత్రి నిశ్శబ్దంగా ఉంటే ఎప్పుడైనా",
+     "ఎవరూ రానప్పుడు వీడియోలు చూడటానికి",
+     "ఎప్పుడూ ఇయర్‌ఫోన్స్ పెట్టుకుని",
+     "డ్యూటీ కాల్స్‌కి మాత్రమే, పోస్ట్‌ని గమనిస్తూ"
+    ]
+   },
+   "hi": {
+    "q": "ड्यूटी पर मोबाइल फोन कब इस्तेमाल कर सकते हैं?",
+    "options": [
+     "जब रात शांत हो, कभी भी",
+     "जब कोई न आए तब वीडियो देखने के लिए",
+     "हमेशा ईयरफोन लगाकर",
+     "सिर्फ ड्यूटी की कॉल के लिए, पोस्ट पर नज़र रखते हुए"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-041",
+   "topic": "Duty rules and conduct",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "You notice a fellow guard sleeps on duty every night. What do you do?",
+   "options": [
+    "Report it to the supervisor through the proper way",
+    "Take turns sleeping with him",
+    "Post his photo on social media",
+    "Ignore it to keep the peace"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "ఒక తోటి గార్డ్ ప్రతి రాత్రి డ్యూటీలో నిద్రపోతున్నాడని గమనించారు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "సరైన పద్ధతిలో సూపర్‌వైజర్‌కి రిపోర్ట్ చేస్తాను",
+     "అతనితో వంతులవారీగా నిద్రపోతాను",
+     "అతని ఫోటో సోషల్ మీడియాలో పెడతాను",
+     "గొడవ వద్దని పట్టించుకోను"
+    ]
+   },
+   "hi": {
+    "q": "आपने देखा कि एक साथी गार्ड हर रात ड्यूटी पर सोता है। आप क्या करेंगे?",
+    "options": [
+     "सही तरीके से सुपरवाइज़र को रिपोर्ट करूँगा",
+     "उसके साथ बारी-बारी से सोऊँगा",
+     "उसकी फोटो सोशल मीडिया पर डालूँगा",
+     "झगड़ा न हो, इसलिए अनदेखा करूँगा"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-042",
+   "topic": "Duty rules and conduct",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A resident asks you to show CCTV footage of a neighbour's door. What do you do?",
+   "options": [
+    "Show it, since they live here",
+    "Say it needs the manager's or police approval",
+    "Copy the clip to their phone quickly",
+    "Delete it to avoid trouble"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "పక్కింటి వారి తలుపు CCTV ఫుటేజ్ చూపించమని ఒక రెసిడెంట్ అడుగుతున్నారు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "ఇక్కడే ఉంటారు కాబట్టి చూపిస్తాను",
+     "మేనేజర్ లేదా పోలీసుల అనుమతి కావాలని చెబుతాను",
+     "క్లిప్‌ను వారి ఫోన్‌కి త్వరగా కాపీ చేస్తాను",
+     "గొడవ ఎందుకని డిలీట్ చేస్తాను"
+    ]
+   },
+   "hi": {
+    "q": "एक रेज़िडेंट पड़ोसी के दरवाज़े की CCTV फुटेज दिखाने को कहते हैं। आप क्या करेंगे?",
+    "options": [
+     "यहीं रहते हैं, इसलिए दिखा दूँगा",
+     "कहूँगा कि इसके लिए मैनेजर या पुलिस की मंज़ूरी चाहिए",
+     "क्लिप जल्दी उनके फोन में कॉपी कर दूँगा",
+     "झंझट से बचने के लिए डिलीट कर दूँगा"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-043",
+   "topic": "Duty rules and conduct",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A visitor refuses a bag check that is required by site rules. What do you do?",
+   "options": [
+    "Snatch the bag from them and check it",
+    "Let them in this once without the check",
+    "Explain the rule; if they still refuse, call the supervisor",
+    "Check their pockets by force"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "సైట్ రూల్ ప్రకారం తప్పనిసరి అయిన బ్యాగ్ చెక్‌కి ఒక విజిటర్ ఒప్పుకోవడం లేదు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "బ్యాగ్ లాక్కుని చెక్ చేస్తాను",
+     "ఈ ఒక్కసారి చెక్ లేకుండా పంపిస్తాను",
+     "రూల్ వివరిస్తాను; అయినా ఒప్పుకోకపోతే సూపర్‌వైజర్‌ని పిలుస్తాను",
+     "బలవంతంగా జేబులు చెక్ చేస్తాను"
+    ]
+   },
+   "hi": {
+    "q": "साइट के नियम से ज़रूरी बैग चेक के लिए एक विज़िटर मना कर रहा है। आप क्या करेंगे?",
+    "options": [
+     "बैग छीनकर चेक करूँगा",
+     "इस बार बिना चेक के जाने दूँगा",
+     "नियम समझाऊँगा; फिर भी मना करे तो सुपरवाइज़र को बुलाऊँगा",
+     "ज़बरदस्ती जेबें चेक करूँगा"
+    ]
+   }
+  },
+  {
+   "id": "security-guard-044",
+   "topic": "Duty rules and conduct",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Your relief guard is absent and you are asked to continue for another shift. What do you do?",
+   "options": [
+    "Leave the post without telling anyone",
+    "Stay but sleep in the cabin",
+    "Lock the gate and rest outside",
+    "Inform the supervisor, stay alert, and ask for relief"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "మీ రిలీఫ్ గార్డ్ రాలేదు, ఇంకో షిఫ్ట్ కొనసాగించమని అడిగారు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "ఎవరికీ చెప్పకుండా పోస్ట్ వదిలి వెళ్తాను",
+     "ఉంటాను కానీ క్యాబిన్‌లో నిద్రపోతాను",
+     "గేట్‌కి తాళం వేసి బయట విశ్రాంతి తీసుకుంటాను",
+     "సూపర్‌వైజర్‌కి చెప్పి, అలర్ట్‌గా ఉండి, రిలీఫ్ అడుగుతాను"
+    ]
+   },
+   "hi": {
+    "q": "आपका रिलीफ गार्ड नहीं आया और आपसे एक और शिफ्ट करने को कहा गया। आप क्या करेंगे?",
+    "options": [
+     "किसी को बताए बिना पोस्ट छोड़ दूँगा",
+     "रुकूँगा पर केबिन में सो जाऊँगा",
+     "गेट पर ताला लगाकर बाहर आराम करूँगा",
+     "सुपरवाइज़र को बताऊँगा, सतर्क रहूँगा और रिलीफ माँगूँगा"
+    ]
+   }
+  }
+ ],
+ "task": {
+  "title": "Security guard practical check: duty situations and your training proof",
+  "brief": "Answer 7 short picture-style questions about real security duty: gate checks, fire safety and suspicious objects. Pick what you would really do on duty. This takes about 10 minutes. After that you may upload one photo of your security training certificate, your fire safety training certificate, or a duty register page you kept. The photo is optional. Do not show any faces, and cover names, phone numbers and addresses of other people. A good photo is clear and shows real proof of your own training or work.",
+  "minutes": 10,
+  "key_points": [
+   "Photo shows a real security or fire safety training certificate, or a real duty record",
+   "Other people's names, phone numbers and faces are hidden",
+   "Details look genuine and belong to the candidate"
+  ],
+  "rubric": [
+   {
+    "key": "relevance",
+    "label": "Relevance",
+    "guide": "0 = photo has nothing to do with security work, 3 = related but unclear, 5 = clear security or fire training certificate or duty record"
+   },
+   {
+    "key": "genuineness",
+    "label": "Genuineness",
+    "guide": "0 = looks downloaded or edited, 3 = probably real but little detail, 5 = clearly a real document belonging to the candidate"
+   },
+   {
+    "key": "safety",
+    "label": "Privacy and safety",
+    "guide": "0 = faces or others' personal details shown, 3 = some details left visible, 5 = no faces and all private details covered"
+   }
+  ],
+  "type": "proof",
+  "situations": [
+   {
+    "q": "Which is the right way to be at a gate post?",
+    "options": [
+     "Sitting with your back to the gate, using the phone",
+     "Standing alert, facing the gate, register ready",
+     "Sitting inside the cabin with the door shut"
+    ],
+    "answer": 1,
+    "topic": "Patrolling and reporting",
+    "te": {
+     "q": "గేట్ పోస్ట్ దగ్గర సరిగ్గా ఎలా ఉండాలి?",
+     "options": [
+      "గేట్ వైపు వీపు పెట్టి కూర్చుని, ఫోన్ వాడుతూ",
+      "అలర్ట్‌గా నిలబడి, గేట్ వైపు చూస్తూ, రిజిస్టర్ సిద్ధంగా",
+      "తలుపు మూసి క్యాబిన్ లోపల కూర్చుని"
+     ]
+    },
+    "hi": {
+     "q": "गेट पोस्ट पर सही तरीका क्या है?",
+     "options": [
+      "गेट की तरफ पीठ करके बैठे, फोन चलाते हुए",
+      "सतर्क खड़े, गेट की तरफ मुँह, रजिस्टर तैयार",
+      "दरवाज़ा बंद करके केबिन के अंदर बैठे"
+     ]
+    }
+   },
+   {
+    "q": "An electrical panel is on fire. Which extinguisher do you pick?",
+    "options": [
+     "Cylinder filled with water",
+     "Foam cylinder",
+     "Red cylinder with a black horn nozzle (CO2)"
+    ],
+    "answer": 2,
+    "topic": "Fire and emergencies",
+    "te": {
+     "q": "ఎలక్ట్రికల్ ప్యానెల్‌లో మంట వచ్చింది. ఏ ఎక్స్‌టింగ్విషర్ తీసుకుంటారు?",
+     "options": [
+      "నీళ్ళు నింపిన సిలిండర్",
+      "ఫోమ్ సిలిండర్",
+      "నల్ల హార్న్ నాజిల్ ఉన్న ఎర్ర సిలిండర్ (CO2)"
+     ]
+    },
+    "hi": {
+     "q": "बिजली के पैनल में आग लगी है। कौन सा एक्सटिंग्विशर उठाएँगे?",
+     "options": [
+      "पानी भरा सिलिंडर",
+      "फोम सिलिंडर",
+      "काले हॉर्न नोज़ल वाला लाल सिलिंडर (CO2)"
+     ]
+    }
+   },
+   {
+    "q": "Which visitor register entry is complete?",
+    "options": [
+     "Name, phone, whom to meet, in-time, out-time, signature",
+     "Only the visitor's name",
+     "Name and flat number only"
+    ],
+    "answer": 0,
+    "topic": "Access control",
+    "te": {
+     "q": "విజిటర్ రిజిస్టర్‌లో ఏ ఎంట్రీ పూర్తిగా ఉంది?",
+     "options": [
+      "పేరు, ఫోన్, ఎవరిని కలవాలి, వచ్చిన సమయం, వెళ్ళిన సమయం, సంతకం",
+      "విజిటర్ పేరు మాత్రమే",
+      "పేరు, ఫ్లాట్ నంబర్ మాత్రమే"
+     ]
+    },
+    "hi": {
+     "q": "विज़िटर रजिस्टर की कौन सी एंट्री पूरी है?",
+     "options": [
+      "नाम, फोन, किससे मिलना, आने का समय, जाने का समय, साइन",
+      "सिर्फ विज़िटर का नाम",
+      "सिर्फ नाम और फ्लैट नंबर"
+     ]
+    }
+   },
+   {
+    "q": "Which fire exit is in the right condition?",
+    "options": [
+     "Boxes stacked in front of the door",
+     "Clear path, door opens easily, exit sign lit",
+     "Door locked with a chain and padlock"
+    ],
+    "answer": 1,
+    "topic": "Fire and emergencies",
+    "te": {
+     "q": "ఏ ఫైర్ ఎగ్జిట్ సరైన స్థితిలో ఉంది?",
+     "options": [
+      "తలుపు ముందు డబ్బాలు పేర్చి ఉన్నాయి",
+      "దారి ఖాళీగా, తలుపు సులభంగా తెరుచుకుంటుంది, ఎగ్జిట్ బోర్డ్ వెలుగుతోంది",
+      "తలుపుకు చైన్, తాళం వేసి ఉంది"
+     ]
+    },
+    "hi": {
+     "q": "कौन सा फायर एग्ज़िट सही हालत में है?",
+     "options": [
+      "दरवाज़े के आगे डिब्बे रखे हैं",
+      "रास्ता खाली, दरवाज़ा आसानी से खुलता है, एग्ज़िट साइन जल रहा है",
+      "दरवाज़े पर चेन और ताला लगा है"
+     ]
+    }
+   },
+   {
+    "q": "A bag is lying alone in the lobby. Which action is right?",
+    "options": [
+     "Pick it up and open it",
+     "Kick it to one side",
+     "Keep people away and inform the supervisor"
+    ],
+    "answer": 2,
+    "topic": "Patrolling and reporting",
+    "te": {
+     "q": "లాబీలో ఒక బ్యాగ్ ఒంటరిగా పడి ఉంది. ఏ చర్య సరైనది?",
+     "options": [
+      "ఎత్తి తెరిచి చూడటం",
+      "కాలితో పక్కకు తన్నడం",
+      "జనాన్ని దూరంగా ఉంచి సూపర్‌వైజర్‌కి చెప్పడం"
+     ]
+    },
+    "hi": {
+     "q": "लॉबी में एक बैग लावारिस पड़ा है। सही कदम कौन सा है?",
+     "options": [
+      "उठाकर खोल देना",
+      "लात मारकर एक तरफ करना",
+      "लोगों को दूर रखना और सुपरवाइज़र को बताना"
+     ]
+    }
+   },
+   {
+    "q": "There is thick smoke in the corridor. Which is the safe way out?",
+    "options": [
+     "Stay low and use the stairs",
+     "Take the lift down",
+     "Stand straight and run through the smoke"
+    ],
+    "answer": 0,
+    "topic": "Fire and emergencies",
+    "te": {
+     "q": "కారిడార్‌లో దట్టమైన పొగ ఉంది. బయటకు వెళ్ళే సురక్షిత మార్గం ఏది?",
+     "options": [
+      "వంగి కిందగా ఉండి మెట్లు వాడటం",
+      "లిఫ్ట్‌లో కిందకి వెళ్ళడం",
+      "నిటారుగా నిలబడి పొగలోంచి పరిగెత్తడం"
+     ]
+    },
+    "hi": {
+     "q": "गलियारे में घना धुआँ है। बाहर निकलने का सुरक्षित तरीका कौन सा है?",
+     "options": [
+      "नीचे झुककर सीढ़ियों से जाना",
+      "लिफ्ट से नीचे जाना",
+      "सीधे खड़े होकर धुएँ में से भागना"
+     ]
+    }
+   },
+   {
+    "q": "A vehicle is leaving a warehouse. Which check is right?",
+    "options": [
+     "Wave it through if the driver is known",
+     "Match the gate pass with the load, with the driver present",
+     "Look only at the driver's face"
+    ],
+    "answer": 1,
+    "topic": "Access control",
+    "te": {
+     "q": "గోడౌన్ నుంచి ఒక వాహనం బయటకు వెళ్తోంది. ఏ చెకింగ్ సరైనది?",
+     "options": [
+      "డ్రైవర్ తెలిసినవాడైతే వెళ్ళనివ్వడం",
+      "డ్రైవర్ ఎదురుగా ఉండగా గేట్ పాస్‌ను లోడ్‌తో సరిపోల్చడం",
+      "డ్రైవర్ ముఖం మాత్రమే చూడటం"
+     ]
+    },
+    "hi": {
+     "q": "गोदाम से एक गाड़ी बाहर जा रही है। कौन सी जाँच सही है?",
+     "options": [
+      "ड्राइवर जाना-पहचाना हो तो जाने देना",
+      "ड्राइवर के सामने गेट पास को लोड से मिलाना",
+      "सिर्फ ड्राइवर का चेहरा देखना"
+     ]
+    }
+   }
+  ]
+ }
+}
