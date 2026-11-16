@@ -1,0 +1,669 @@
+{
+ "slug": "fullstack-mern",
+ "version": 1,
+ "topics": [
+  "JavaScript and Node.js",
+  "Express and REST APIs",
+  "MongoDB and Mongoose",
+  "React",
+  "Auth, security and deployment"
+ ],
+ "questions": [
+  {
+   "id": "fullstack-mern-001",
+   "topic": "JavaScript and Node.js",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "In JavaScript, what does declaring a variable with const prevent?",
+   "options": [
+    "Changing properties of an object it holds",
+    "Using the variable inside a nested function",
+    "Reading the variable before the block ends",
+    "Reassigning the variable to a new value"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "fullstack-mern-002",
+   "topic": "JavaScript and Node.js",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does [1, 2, 3].map(x => x * 2) return?",
+   "options": [
+    "[1, 2, 3]",
+    "[2, 4, 6]",
+    "12",
+    "undefined"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "fullstack-mern-003",
+   "topic": "JavaScript and Node.js",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which built-in Node.js module do you use to read a file from disk?",
+   "options": [
+    "http",
+    "path",
+    "fs",
+    "os"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "fullstack-mern-004",
+   "topic": "JavaScript and Node.js",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What does await do inside an async function?",
+   "options": [
+    "Blocks the whole Node.js process until it is done",
+    "Runs the promise on a separate CPU thread",
+    "Turns a callback API into a synchronous call",
+    "Pauses only that function until the promise settles"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "fullstack-mern-005",
+   "topic": "JavaScript and Node.js",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "An e-commerce app adds item prices like 199.9 + 0.1 in ₹ and totals come out as 199.99999. What is the safest way to store money?",
+   "options": [
+    "Call toFixed(2) before every save",
+    "Save amounts as strings like '499.50'",
+    "Keep amounts as whole paise integers",
+    "Use parseFloat on each addition"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "fullstack-mern-006",
+   "topic": "JavaScript and Node.js",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "An API reads a 2 GB CSV with fs.readFileSync, and the server stops answering every other user while it runs. Best fix?",
+   "options": [
+    "Process the file as a stream, line by line",
+    "Raise the Node.js heap size flag",
+    "Wrap the call in a try/catch block",
+    "Move the call inside setTimeout(..., 0)"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "fullstack-mern-007",
+   "topic": "JavaScript and Node.js",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "You send OTP SMS to 500 users at once and need to know which ones failed. Which is better, Promise.all or Promise.allSettled?",
+   "options": [
+    "all, because it retries rejected promises itself",
+    "all, because allSettled runs them one by one",
+    "allSettled, because it cancels slow promises",
+    "allSettled, since one rejection won't hide other results"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "fullstack-mern-008",
+   "topic": "JavaScript and Node.js",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "What is printed? setTimeout(() => log('a'), 0); Promise.resolve().then(() => log('b')); log('c');",
+   "options": [
+    "a, b, c",
+    "c, a, b",
+    "b, c, a",
+    "c, b, a"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "fullstack-mern-009",
+   "topic": "JavaScript and Node.js",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A Node service's memory grows for days and then it crashes. A module-level object caches user data keyed by user id. Most likely cause?",
+   "options": [
+    "Entries are never evicted, so the object keeps growing",
+    "The garbage collector is off in production mode",
+    "Too many async functions are awaiting together",
+    "Objects declared with const are never freed"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "fullstack-mern-010",
+   "topic": "Express and REST APIs",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which HTTP method is the usual choice for creating a new order through a REST API?",
+   "options": [
+    "POST",
+    "GET",
+    "DELETE",
+    "HEAD"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "fullstack-mern-011",
+   "topic": "Express and REST APIs",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A client sends a signup request with the phone number missing. Which status code fits best?",
+   "options": [
+    "200 OK",
+    "404 Not Found",
+    "400 Bad Request",
+    "500 Internal Server Error"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "fullstack-mern-012",
+   "topic": "Express and REST APIs",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "In Express, where does req.params.id get its value from?",
+   "options": [
+    "The query string, as in ?id=5",
+    "The route path, as in /orders/:id",
+    "The JSON request body",
+    "The request headers"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "fullstack-mern-013",
+   "topic": "Express and REST APIs",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What does calling next() inside an Express middleware do?",
+   "options": [
+    "Ends the response with status 200",
+    "Restarts the request from the first route",
+    "Sends the response back to the client",
+    "Hands control to the next matching handler"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "fullstack-mern-014",
+   "topic": "Express and REST APIs",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "req.body is undefined in a POST route. Where should app.use(express.json()) be registered?",
+   "options": [
+    "After all routes, next to the error handler",
+    "Only inside the GET route handlers",
+    "Anywhere, since Express sorts middleware itself",
+    "Before the routes that read req.body"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "fullstack-mern-015",
+   "topic": "Express and REST APIs",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A React app on app.shop.in calls api.shop.in. The browser shows a CORS error, but the same call works in Postman. What fixes it?",
+   "options": [
+    "Turn off CORS in each user's browser settings",
+    "Switch the frontend from fetch to axios",
+    "Make the API always reply with status 200",
+    "Allow that origin in the API's CORS response headers"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "fullstack-mern-016",
+   "topic": "Express and REST APIs",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A product list API has 50,000 items. How should it return them to the app?",
+   "options": [
+    "In pages, using a limit plus a cursor or page number",
+    "All at once, and let React filter them",
+    "A random sample of 100 items each time",
+    "Cached whole in localStorage on first load"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "fullstack-mern-017",
+   "topic": "Express and REST APIs",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "How does Express know that a middleware is an error handler?",
+   "options": [
+    "It takes four arguments: err, req, res, next",
+    "It is named errorHandler in app.use",
+    "It is registered before every route",
+    "It returns a rejected promise"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "fullstack-mern-018",
+   "topic": "Express and REST APIs",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A payment gateway's UPI webhook sometimes arrives twice, so orders get marked paid twice and two invoices go out. Best fix?",
+   "options": [
+    "Make the handler idempotent using the gateway's payment id",
+    "Reply 500 to the second call so it stops",
+    "Sleep 5 seconds before processing each call",
+    "Ask gateway support to switch off retries"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "fullstack-mern-019",
+   "topic": "MongoDB and Mongoose",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "In MongoDB, what is one record inside a collection called?",
+   "options": [
+    "A row",
+    "A document",
+    "A table",
+    "A schema"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "fullstack-mern-020",
+   "topic": "MongoDB and Mongoose",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does the Mongoose call Customer.find({ city: 'Pune' }) give back?",
+   "options": [
+    "Only the first matching document",
+    "An array of the matching documents",
+    "A count of the matching documents",
+    "true if any document matches"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "fullstack-mern-021",
+   "topic": "MongoDB and Mongoose",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which Mongoose schema option adds createdAt and updatedAt fields automatically?",
+   "options": [
+    "versionKey: true",
+    "strict: true",
+    "timestamps: true",
+    "autoIndex: true"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "fullstack-mern-022",
+   "topic": "MongoDB and Mongoose",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Listing a user's orders by userId has become slow now that there are 2 million orders. What should you do first?",
+   "options": [
+    "Move the collection to a bigger server",
+    "Fetch all orders and filter them in Node",
+    "Split orders into one collection per user",
+    "Add an index on userId and confirm with explain()"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "fullstack-mern-023",
+   "topic": "MongoDB and Mongoose",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Order line items are few per order and always read together with the order. How should you model them?",
+   "options": [
+    "Keep each item in its own collection by default",
+    "Save them as one JSON string field",
+    "Embed them inside the order document",
+    "Hold them only in the frontend state"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "fullstack-mern-024",
+   "topic": "MongoDB and Mongoose",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is the $inc update operator used for?",
+   "options": [
+    "Inserting a document when none matches",
+    "Changing a number field atomically, like stock",
+    "Including extra fields in query results",
+    "Raising the size limit of a document"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "fullstack-mern-025",
+   "topic": "MongoDB and Mongoose",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Two customers buy the last phone in stock at the same moment. Both orders succeed and stock becomes -1. What is the right fix?",
+   "options": [
+    "Read the stock first, then check it in Node before save",
+    "A conditional update that decrements only where stock >= qty",
+    "A unique index on the product name",
+    "Retrying the order save three times on error"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "fullstack-mern-026",
+   "topic": "MongoDB and Mongoose",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A monthly GST report aggregation runs out of memory on a $sort over millions of documents. What helps most?",
+   "options": [
+    "Always place $sort after $group",
+    "Put $match first and sort on an indexed field",
+    "Replace it with find() and sort in Node",
+    "Raise the 16 MB document size limit"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "fullstack-mern-027",
+   "topic": "MongoDB and Mongoose",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A unique index on email exists, but users still sign up twice as Asha@mail.com and asha@mail.com. Best fix?",
+   "options": [
+    "Lowercase emails on save and use a case-insensitive unique index",
+    "Add a regex check in the React form only",
+    "Mark the email field as required",
+    "Make the email index sparse"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "fullstack-mern-028",
+   "topic": "React",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Why does React ask for a key prop on items rendered from a list?",
+   "options": [
+    "To track which item changed between renders",
+    "To apply a CSS style to each item",
+    "To sort the list automatically",
+    "To make each item clickable"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "fullstack-mern-029",
+   "topic": "React",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "With const [count, setCount] = useState(0), how do you change count?",
+   "options": [
+    "Assign it directly with count = 1",
+    "Call this.forceUpdate() after changing it",
+    "Call setCount with the new value",
+    "Edit the DOM node's innerHTML"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "fullstack-mern-030",
+   "topic": "React",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "How should a child component treat the props it receives?",
+   "options": [
+    "As values it may edit directly",
+    "As globals shared by every component",
+    "As read-only inputs from its parent",
+    "As strings only, never functions"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "fullstack-mern-031",
+   "topic": "React",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "When does a useEffect with an empty dependency array run?",
+   "options": [
+    "Once after the first render, with cleanup on unmount",
+    "After every single render",
+    "Before the component renders",
+    "Only when its props change"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "fullstack-mern-032",
+   "topic": "React",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A search box calls the API on every keystroke, and results flicker as older responses arrive late. Best fix?",
+   "options": [
+    "Call the API inside the render function",
+    "Add one useState hook per typed letter",
+    "Debounce typing and ignore or abort stale requests",
+    "Keep results in a global variable"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "fullstack-mern-033",
+   "topic": "React",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Inside one click handler, setCount(count + 1) is called twice, but count goes up by only 1. What fixes it?",
+   "options": [
+    "Use the updater form: setCount(c => c + 1)",
+    "Call useEffect after each setCount",
+    "Wrap both calls in a setTimeout",
+    "Declare count with let instead of const"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "fullstack-mern-034",
+   "topic": "React",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A dashboard re-renders a 2,000-row table every time a filter input in the parent changes, and typing lags. Best first improvement?",
+   "options": [
+    "Convert every component to a class component",
+    "Move the table data into localStorage",
+    "Replace useState with useRef everywhere",
+    "Memoise rows and virtualise the list so only visible rows render"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "fullstack-mern-035",
+   "topic": "React",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A profile page fetches data in useEffect when userId changes. Switching users quickly sometimes shows the wrong person's data. Why?",
+   "options": [
+    "useEffect runs twice only in production",
+    "An older slow response finishes last and overwrites state",
+    "React merges fetch calls into one",
+    "The dependency array caches old props"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "fullstack-mern-036",
+   "topic": "Auth, security and deployment",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "How should user passwords be kept in the database?",
+   "options": [
+    "As plain text in a locked collection",
+    "As Base64 encoded strings",
+    "As a slow salted hash, such as bcrypt",
+    "AES-encrypted with a key kept in code"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "fullstack-mern-037",
+   "topic": "Auth, security and deployment",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Where should the MongoDB connection string, with its password, be kept?",
+   "options": [
+    "In an environment variable, out of the repo",
+    "In a constant inside the React code",
+    "In the README so the team can find it",
+    "In package.json under scripts"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "fullstack-mern-038",
+   "topic": "Auth, security and deployment",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is a JWT mainly used for in a MERN app?",
+   "options": [
+    "Encrypting the database on disk",
+    "Compressing API responses",
+    "Speeding up React rendering",
+    "Carrying signed proof of who the user is"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "fullstack-mern-039",
+   "topic": "Auth, security and deployment",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Can a user read the payload of a JWT stored in their browser?",
+   "options": [
+    "No, the signature encrypts the payload",
+    "Yes, it is only encoded, so keep secrets out of it",
+    "Only if they know the signing secret",
+    "No, browsers hide JWT contents"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "fullstack-mern-040",
+   "topic": "Auth, security and deployment",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Your login API gets thousands of password attempts per minute from a few IP addresses. What do you add first?",
+   "options": [
+    "Error messages that say which field was wrong",
+    "A longer JWT expiry time",
+    "A GET version of the login route",
+    "Rate limiting and temporary lockout on that route"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "fullstack-mern-041",
+   "topic": "Auth, security and deployment",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What do you deploy to production for the React frontend?",
+   "options": [
+    "The src folder, run with npm start",
+    "The built static files, served by a CDN or web server",
+    "node_modules together with src",
+    "Only package.json, installed on the server"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "fullstack-mern-042",
+   "topic": "Auth, security and deployment",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Login runs User.findOne({ email: req.body.email, password: req.body.password }). An attacker sends {\"$ne\": null} as both values. What happens?",
+   "options": [
+    "The browser blocks it with a CORS error",
+    "Mongoose throws a schema validation error",
+    "NoSQL injection logs them in as some user",
+    "Nothing, as Mongoose escapes every object"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "fullstack-mern-043",
+   "topic": "Auth, security and deployment",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "After moving to two Node instances behind a load balancer, users get logged out at random. Sessions use the default in-memory store. Fix?",
+   "options": [
+    "Raise the cookie maxAge to 30 days",
+    "Keep sessions in a shared store such as Redis",
+    "Restart both instances every night",
+    "Switch the load balancer to random routing"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "fullstack-mern-044",
+   "topic": "Auth, security and deployment",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "In a design with access and refresh tokens, why keep the access token short-lived?",
+   "options": [
+    "Short tokens make API responses faster",
+    "Browsers reject tokens older than 15 minutes",
+    "A stolen one expires soon, and refresh can be revoked",
+    "It removes the need to check signatures"
+   ],
+   "answer": 2
+  }
+ ],
+ "task": {
+  "type": "tech",
+  "title": "Find and fix the bugs in an Express 'place order' API",
+  "minutes": 25,
+  "brief": "This Express + Mongoose route places an order for a small online shop. It has several bugs: some crash it, some lose money, and some are security holes. In about 25 minutes, list each problem you find, say why it matters, and write the corrected route (code does not need to run, but should be close). A good answer covers correctness, concurrency (two buyers at once), trust of client input, money handling with GST, error handling and status codes.",
+  "material": "// POST /api/orders   body: { productId, qty, price, userId }\nrouter.post(\"/api/orders\", auth, async (req, res) => {\n  const { productId, qty, price } = req.body;\n\n  const product = Product.findById(productId);\n  if (product.stock < qty) {\n    res.status(400).json({ error: \"Out of stock\" });\n  }\n\n  product.stock = product.stock - qty;\n  await product.save();\n\n  const total = price * qty;          // rupees, e.g. 499.5\n  const gst = total * 0.18;\n\n  const order = await Order.create({\n    user: req.body.userId,\n    productId,\n    qty,\n    total: total + gst,\n  });\n  res.json(order);\n});\n\n// Product: { name, price (rupees), stock }   Order: { user, productId, qty, total }\n// auth middleware sets req.user = { id, role } from a verified JWT.",
+  "key_points": [
+   "findById is not awaited, so product is a Query, not a document",
+   "No return after the 400 response, so the order continues and headers are sent twice",
+   "No check for a missing product (should return 404)",
+   "Price comes from the client; must use product.price from the database",
+   "userId comes from the body; must use req.user.id from the verified token",
+   "Read-check-save on stock is a race; use an atomic findOneAndUpdate with stock >= qty and $inc",
+   "Validate qty as a positive whole number",
+   "Money as floats; work in paise integers or round GST correctly",
+   "No try/catch or error middleware, and 201 is the right status for a created order"
+  ],
+  "rubric": [
+   {
+    "key": "correctness",
+    "label": "Bugs found and fixed",
+    "guide": "0 = no real bugs found, 3 = await/return/404 fixed but security or race missed, 5 = all major bugs found with a working fix"
+   },
+   {
+    "key": "security",
+    "label": "Security and trust",
+    "guide": "0 = trusts client price and userId, 3 = fixes one of them, 5 = uses DB price and req.user, validates input"
+   },
+   {
+    "key": "edge_cases",
+    "label": "Concurrency and edge cases",
+    "guide": "0 = ignores them, 3 = mentions the stock race without a sound fix, 5 = atomic conditional update plus qty and money handling"
+   },
+   {
+    "key": "explanation",
+    "label": "Explanation",
+    "guide": "0 = code only or unclear, 3 = some reasons given, 5 = each fix clearly explained in plain words"
+   }
+  ]
+ }
+}

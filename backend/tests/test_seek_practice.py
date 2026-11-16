@@ -79,7 +79,7 @@ async def test_practice_never_counts_as_verified(client, outbox, db):
     assert d["verified"] is None and d["test"]["best"] is None
     assert not (await db[USERS].find_one({"_id": uid})).get("verified_skills")
     sk = (await client.get("/api/me/skill-checks")).json()
-    assert all(s["last"] is None for s in sk["skills"])
+    assert all(s["last"] is None for s in sk["roles"])
 
 
 async def test_practice_questions_are_not_the_official_bank(db):

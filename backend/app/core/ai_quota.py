@@ -27,8 +27,8 @@ from app.core.db import AI_USAGE
 from app.core.errors import ApiError
 from app.core.time import IST, now
 
-Feature = Literal["photos", "summary", "linkedin", "jobs", "projects", "roles", "offers"]
-FEATURES: tuple[Feature, ...] = ("photos", "summary", "linkedin", "jobs", "projects", "roles", "offers")
+Feature = Literal["photos", "summary", "linkedin", "jobs", "projects", "roles", "offers", "vetting"]
+FEATURES: tuple[Feature, ...] = ("photos", "summary", "linkedin", "jobs", "projects", "roles", "offers", "vetting")
 PER_PERSON: dict[str, int] = {
     "photos": 5,
     "summary": 10,
@@ -37,6 +37,7 @@ PER_PERSON: dict[str, int] = {
     "projects": 3,
     "roles": 5,
     "offers": 5,
+    "vetting": 4,  # V2 practical tasks: grading a written / spoken answer and checking a photo of work
 }
 PER_KIOSK: dict[str, int] = {
     "photos": 300,
@@ -46,6 +47,7 @@ PER_KIOSK: dict[str, int] = {
     "projects": 600,
     "roles": 600,
     "offers": 600,
+    "vetting": 600,
 }
 DAILY_CAP = 2000  # every AI call on the site, all features together
 OUTCOMES = ("fallback", "failed", "limited", "capped", "dropped")  # always present per feature in usage()
@@ -60,6 +62,7 @@ PERSON_MESSAGE = {
     "projects": "You've used today's 3 free AI project rewrites. Here are bullets made from your answers instead.",
     "roles": "You've used today's AI explanations for the role finder. The reasons below come from your answers.",
     "offers": "You've used today's AI offer explanations. The checks below come from the offer text.",
+    "vetting": "Your task is saved. Our team will grade it within a day.",
 }
 KIOSK_MESSAGE = "This kiosk has used today's AI limit. Please type your details instead."
 

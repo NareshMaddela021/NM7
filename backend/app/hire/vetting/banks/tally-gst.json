@@ -1,0 +1,373 @@
+{
+ "slug": "tally-gst",
+ "version": 1,
+ "topics": [
+  "Tally vouchers",
+  "Ledgers and groups",
+  "GST basics",
+  "GST returns",
+  "GST calculations"
+ ],
+ "questions": [
+  {
+   "id": "tally-gst-001",
+   "topic": "Ledgers and groups",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Under which group do you create the ledger for your bank current account?",
+   "options": [
+    "Sundry Debtors",
+    "Bank Accounts",
+    "Indirect Expenses",
+    "Capital Account"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "tally-gst-002",
+   "topic": "Tally vouchers",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which voucher records goods bought from a supplier?",
+   "options": [
+    "Purchase voucher",
+    "Sales voucher",
+    "Contra voucher",
+    "Receipt voucher"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "tally-gst-003",
+   "topic": "Ledgers and groups",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "The office rent ledger goes under which group?",
+   "options": [
+    "Direct Incomes",
+    "Indirect Expenses",
+    "Current Assets",
+    "Sundry Creditors"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "tally-gst-004",
+   "topic": "GST basics",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "The first two digits of a GSTIN show…",
+   "options": [
+    "The PAN",
+    "The year of registration",
+    "The state code",
+    "The bank branch"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "tally-gst-005",
+   "topic": "GST returns",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which is the yearly GST return for a regular taxpayer?",
+   "options": [
+    "GSTR-1",
+    "GSTR-3B",
+    "GSTR-9",
+    "GSTR-2B"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "tally-gst-006",
+   "topic": "Ledgers and groups",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why fill in the GSTIN and state when creating a customer ledger?",
+   "options": [
+    "So the company logo prints on bills",
+    "So Tally can work out staff salary",
+    "So the right tax type and GST reports come out",
+    "So the bank balance updates by itself"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "tally-gst-007",
+   "topic": "Tally vouchers",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which voucher records depreciation or a correction with no cash or bank movement?",
+   "options": [
+    "Payment voucher",
+    "Journal voucher",
+    "Contra voucher",
+    "Receipt voucher"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "tally-gst-008",
+   "topic": "GST calculations",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A ₹25,000 sale inside the state at 5% GST. What is the invoice total?",
+   "options": [
+    "₹25,500",
+    "₹27,500",
+    "₹26,250",
+    "₹26,000"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "tally-gst-009",
+   "topic": "GST returns",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "In Tally, where do you check your sales data before filing GSTR-1?",
+   "options": [
+    "The Stock Summary",
+    "The Cash Flow report",
+    "The Payroll register",
+    "The GSTR-1 report under GST reports"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "tally-gst-010",
+   "topic": "Ledgers and groups",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Yesterday you posted a sale to the wrong customer ledger. What is the right fix?",
+   "options": [
+    "Open that voucher and change the party ledger",
+    "Enter the same sale again for the right customer",
+    "Delete the wrong customer's ledger",
+    "Pass a contra entry between them"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "tally-gst-011",
+   "topic": "GST basics",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "When can you claim ITC on a purchase?",
+   "options": [
+    "When you hold the invoice, got the goods and the supplier reported it",
+    "As soon as you place the purchase order with the supplier",
+    "When you pay an advance, even before any invoice comes",
+    "Any time in the year, without needing an invoice"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "tally-gst-012",
+   "topic": "GST calculations",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "You buy goods for ₹40,000 + IGST at 18%. What is your ITC?",
+   "options": [
+    "₹3,600",
+    "₹4,000",
+    "₹47,200",
+    "₹7,200"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "tally-gst-013",
+   "topic": "GST calculations",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A ₹60,000 sale to another state at 18% was billed with CGST + SGST by mistake. GSTR-1 isn't filed yet. What do you do?",
+   "options": [
+    "Correct the invoice to IGST ₹10,800 before filing",
+    "Leave it, since the total tax is the same",
+    "Add IGST on top of CGST and SGST",
+    "Change only the customer's state in the ledger"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "tally-gst-014",
+   "topic": "GST returns",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "GSTR-3B is filed after the due date with tax payable. What is usually charged?",
+   "options": [
+    "Nothing, if filed in the same month",
+    "Only a warning letter",
+    "Double the tax amount",
+    "Late fee, plus interest on the tax"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "tally-gst-015",
+   "topic": "Ledgers and groups",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Tally shows a negative cash-in-hand balance. What does this usually mean?",
+   "options": [
+    "The bank has given an overdraft",
+    "A cash entry is wrong or missing",
+    "The business made a profit",
+    "Normal, it fixes itself at year end"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "tally-gst-016",
+   "topic": "Tally vouchers",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A customer pays ₹50,000 advance for goods to be delivered next month. How do you record it now?",
+   "options": [
+    "Sales voucher for ₹50,000 today",
+    "Journal voucher to the sales account",
+    "Contra voucher to the bank",
+    "Receipt voucher against the customer, as an advance"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "tally-gst-017",
+   "topic": "GST basics",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Under reverse charge, who can claim ITC of the GST paid?",
+   "options": [
+    "The seller who supplied the goods",
+    "The buyer who paid it, if used for business",
+    "No one can claim it",
+    "Only the transporter"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "tally-gst-018",
+   "topic": "GST returns",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "GSTR-2B shows ₹12,000 ITC for the month. Your books show ₹15,000. What should you do?",
+   "options": [
+    "Claim ₹12,000 and follow up suppliers for the rest",
+    "Claim ₹15,000 as per your books",
+    "Claim nothing until both match",
+    "Claim ₹27,000 to be safe"
+   ],
+   "answer": 0
+  }
+ ],
+ "existing": {
+  "In Tally, a ledger is…": {
+   "topic": "Ledgers and groups"
+  },
+  "Which voucher records a sale in Tally?": {
+   "topic": "Tally vouchers"
+  },
+  "A contra voucher records…": {
+   "topic": "Tally vouchers"
+  },
+  "How many characters does a GSTIN have?": {
+   "topic": "GST basics"
+  },
+  "Which is the monthly summary GST return with tax payment?": {
+   "topic": "GST returns"
+  },
+  "Input tax credit (ITC) is…": {
+   "topic": "GST basics"
+  },
+  "An HSN code classifies…": {
+   "topic": "GST basics"
+  },
+  "A SAC code classifies…": {
+   "topic": "GST basics"
+  },
+  "A ₹10,000 sale inside the state at 12% GST. CGST and SGST are…": {
+   "topic": "GST calculations"
+  },
+  "A ₹10,000 sale to another state at 18% GST. The tax is…": {
+   "topic": "GST calculations"
+  },
+  "Which return gives the details of sales invoices (outward supplies)?": {
+   "topic": "GST returns"
+  },
+  "GSTR-2B shows…": {
+   "topic": "GST returns"
+  },
+  "In Tally, which key opens a Payment voucher by default?": {
+   "topic": "Tally vouchers"
+  },
+  "In Tally, which key opens a Sales voucher by default?": {
+   "topic": "Tally vouchers"
+  },
+  "Money received from a customer by cheque is entered as a…": {
+   "topic": "Tally vouchers"
+  },
+  "An e-way bill is needed for…": {
+   "topic": "GST basics"
+  },
+  "GST paid on purchases (ITC) is ₹18,000; GST on sales is ₹25,000. Net GST to pay?": {
+   "topic": "GST calculations"
+  },
+  "A price of ₹1,180 includes 18% GST. The taxable value is…": {
+   "topic": "GST calculations"
+  },
+  "Under GST, a credit note is issued when…": {
+   "topic": "GST basics"
+  },
+  "Which tax applies to a supply from Telangana to Karnataka?": {
+   "topic": "GST basics"
+  },
+  "In Tally, the \"Sundry Debtors\" group holds…": {
+   "topic": "Ledgers and groups"
+  },
+  "\"Sundry Creditors\" are…": {
+   "topic": "Ledgers and groups"
+  },
+  "Reverse charge (RCM) means…": {
+   "topic": "GST basics"
+  },
+  "Why match purchase invoices with GSTR-2B every month?": {
+   "topic": "GST returns"
+  }
+ },
+ "task": {
+  "type": "written",
+  "title": "Fix the mistakes in this GST invoice",
+  "brief": "Take about 15 minutes. Read the invoice below. Write: (1) every mistake you find; (2) the correct value or detail for each; and (3) the correct tax and invoice total. Assume all items are taxed at 18%. A good answer spots the wrong tax type, the wrong figures and the missing or wrong details, and shows the correct calculation clearly.",
+  "minutes": 15,
+  "material": "TAX INVOICE\nSeller: Sri Balaji Electricals, Kukatpally, Hyderabad, Telangana. GSTIN: 36ABCPK1234L1Z5\nBuyer: Kaveri Traders, Jayanagar, Bengaluru, Karnataka. GSTIN: 29AAKFK567M1Z\nInvoice no.: (blank)   Date: 14-11-2026\nPlace of supply: Telangana (36)\n1. LED bulb 9W, HSN 8539, 100 nos × ₹120 = ₹12,000\n2. Ceiling fan, HSN 8414, 10 nos × ₹1,800 = ₹16,000\nTaxable value: ₹28,000\nCGST 9%: ₹2,520\nSGST 9%: ₹2,520\nInvoice total: ₹33,040",
+  "key_points": [
+   "Telangana to Karnataka is inter-state: IGST should be charged, not CGST + SGST",
+   "Place of supply should be Karnataka (29)",
+   "Fan line is wrong: 10 × ₹1,800 = ₹18,000",
+   "Correct taxable value is ₹30,000",
+   "Correct IGST at 18% is ₹5,400",
+   "Correct invoice total is ₹35,400",
+   "Buyer GSTIN has 14 characters; a GSTIN must have 15, so confirm it",
+   "Invoice number is missing and must be added"
+  ],
+  "rubric": [
+   {
+    "key": "correctness",
+    "label": "Correct GST",
+    "guide": "0 = misses the tax type and totals, 3 = some fixes right but totals wrong, 5 = IGST, taxable value and total all correct"
+   },
+   {
+    "key": "completeness",
+    "label": "Mistakes found",
+    "guide": "0 = one mistake found, 3 = about half found, 5 = tax type, place of supply, fan amount, GSTIN and invoice number all found"
+   },
+   {
+    "key": "clarity",
+    "label": "Clarity",
+    "guide": "0 = hard to follow, 3 = list given but working unclear, 5 = each mistake and its fix listed with clear working"
+   }
+  ]
+ }
+}

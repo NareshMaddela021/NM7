@@ -1,0 +1,1320 @@
+{
+ "slug": "delivery",
+ "version": 1,
+ "topics": [
+  "Road and vehicle safety",
+  "Delivery process",
+  "Cash and COD",
+  "Customer handling",
+  "Routes and time",
+  "Parcel care"
+ ],
+ "questions": [
+  {
+   "id": "delivery-001",
+   "topic": "Road and vehicle safety",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "It starts raining hard during your deliveries. What is safest?",
+   "options": [
+    "Slow down, keep distance, stop if you can't see",
+    "Ride faster to finish before it gets worse",
+    "Hold an umbrella while riding",
+    "Ride close behind a bus for cover"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "డెలివరీల మధ్యలో భారీ వర్షం మొదలైంది. ఏది సురక్షితం?",
+    "options": [
+     "నెమ్మదిగా వెళ్ళి, దూరం పాటించి, కనిపించకపోతే ఆగడం",
+     "ఇంకా పెరగక ముందే ముగించడానికి వేగంగా వెళ్ళడం",
+     "నడుపుతూ గొడుగు పట్టుకోవడం",
+     "కవర్ కోసం బస్సు వెనకే దగ్గరగా వెళ్ళడం"
+    ]
+   },
+   "hi": {
+    "q": "डिलीवरी के बीच तेज़ बारिश शुरू हो गई। सबसे सुरक्षित क्या है?",
+    "options": [
+     "धीरे चलें, दूरी रखें, न दिखे तो रुक जाएँ",
+     "बारिश बढ़ने से पहले तेज़ चला कर खत्म करें",
+     "चलाते समय छाता पकड़ें",
+     "बचाव के लिए बस के ठीक पीछे चलें"
+    ]
+   }
+  },
+  {
+   "id": "delivery-002",
+   "topic": "Road and vehicle safety",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Before starting your bike each morning, you quickly check…",
+   "options": [
+    "Only the mirror angle",
+    "Brakes, tyre air, lights and fuel",
+    "Only the seat cover",
+    "Nothing, if it ran fine yesterday"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "ప్రతి ఉదయం బైక్ స్టార్ట్ చేసే ముందు మీరు త్వరగా చెక్ చేసేది…",
+    "options": [
+     "అద్దం యాంగిల్ మాత్రమే",
+     "బ్రేకులు, టైర్ గాలి, లైట్లు, పెట్రోల్",
+     "సీట్ కవర్ మాత్రమే",
+     "నిన్న బాగా నడిస్తే ఏమీ అవసరం లేదు"
+    ]
+   },
+   "hi": {
+    "q": "हर सुबह बाइक चालू करने से पहले आप जल्दी से चेक करते हैं…",
+    "options": [
+     "सिर्फ़ शीशे का एंगल",
+     "ब्रेक, टायर की हवा, लाइटें और पेट्रोल",
+     "सिर्फ़ सीट कवर",
+     "कुछ नहीं, अगर कल ठीक चली थी"
+    ]
+   }
+  },
+  {
+   "id": "delivery-003",
+   "topic": "Parcel care",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A parcel is marked 'Keep dry' and it is raining. What do you do?",
+   "options": [
+    "Carry it in your hand to the door",
+    "Keep it open on the seat",
+    "Carry it inside a rain cover or bag",
+    "Tie it outside the delivery bag"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "ఒక పార్సిల్ మీద 'Keep dry' అని ఉంది, వర్షం పడుతోంది. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "చేతిలో పట్టుకుని తలుపు దాకా తీసుకెళ్ళడం",
+     "సీటు మీద తెరిచి ఉంచడం",
+     "రెయిన్ కవర్ లేదా బ్యాగ్ లోపల తీసుకెళ్ళడం",
+     "డెలివరీ బ్యాగ్ బయట కట్టడం"
+    ]
+   },
+   "hi": {
+    "q": "पार्सल पर 'Keep dry' लिखा है और बारिश हो रही है। आप क्या करेंगे?",
+    "options": [
+     "हाथ में पकड़ कर दरवाज़े तक ले जाएँ",
+     "सीट पर खुला रख दें",
+     "रेन कवर या बैग के अंदर रख कर ले जाएँ",
+     "डिलीवरी बैग के बाहर बाँध दें"
+    ]
+   }
+  },
+  {
+   "id": "delivery-004",
+   "topic": "Cash and COD",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A customer pays a ₹420 COD order with a ₹500 note. How much do you return?",
+   "options": [
+    "₹180",
+    "₹120",
+    "₹70",
+    "₹80"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "₹420 COD ఆర్డర్‌కి కస్టమర్ ₹500 నోటు ఇచ్చారు. మీరు ఎంత తిరిగి ఇవ్వాలి?",
+    "options": [
+     "₹180",
+     "₹120",
+     "₹70",
+     "₹80"
+    ]
+   },
+   "hi": {
+    "q": "₹420 के COD ऑर्डर के लिए ग्राहक ₹500 का नोट देता है। आप कितने वापस करेंगे?",
+    "options": [
+     "₹180",
+     "₹120",
+     "₹70",
+     "₹80"
+    ]
+   }
+  },
+  {
+   "id": "delivery-005",
+   "topic": "Customer handling",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A customer is upset that the parcel is late. What should you say first?",
+   "options": [
+    "\"Sorry for the delay, here is your parcel.\"",
+    "\"It is not my fault, traffic was bad.\"",
+    "\"You should have ordered earlier.\"",
+    "\"Take it fast, I am busy.\""
+   ],
+   "answer": 0,
+   "te": {
+    "q": "పార్సిల్ ఆలస్యమైందని కస్టమర్ బాధపడుతున్నారు. మీరు ముందు ఏమి చెప్పాలి?",
+    "options": [
+     "\"ఆలస్యానికి సారీ, ఇదిగో మీ పార్సిల్.\"",
+     "\"నా తప్పు కాదు, ట్రాఫిక్ ఎక్కువగా ఉంది.\"",
+     "\"మీరు ముందే ఆర్డర్ చేయాల్సింది.\"",
+     "\"త్వరగా తీసుకోండి, నేను బిజీ.\""
+    ]
+   },
+   "hi": {
+    "q": "ग्राहक नाराज़ है कि पार्सल देर से आया। आपको पहले क्या कहना चाहिए?",
+    "options": [
+     "\"देरी के लिए माफ़ी, यह रहा आपका पार्सल।\"",
+     "\"मेरी गलती नहीं, ट्रैफ़िक बहुत था।\"",
+     "\"आपको पहले ऑर्डर करना चाहिए था।\"",
+     "\"जल्दी लीजिए, मैं बिज़ी हूँ।\""
+    ]
+   }
+  },
+  {
+   "id": "delivery-006",
+   "topic": "Road and vehicle safety",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A new order alert comes on your phone while you are riding. What do you do?",
+   "options": [
+    "Read it quickly while riding slowly",
+    "Stop safely at the side, then check it",
+    "Check it with one hand on the handle",
+    "Turn off order alerts for the day"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "బైక్ నడుపుతుండగా ఫోన్‌లో కొత్త ఆర్డర్ అలర్ట్ వచ్చింది. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "నెమ్మదిగా నడుపుతూ త్వరగా చదవడం",
+     "పక్కకు సురక్షితంగా ఆపి, తర్వాత చూడటం",
+     "ఒక చేయి హ్యాండిల్ మీద ఉంచి చూడటం",
+     "ఆ రోజంతా ఆర్డర్ అలర్ట్స్ ఆపేయడం"
+    ]
+   },
+   "hi": {
+    "q": "बाइक चलाते समय फ़ोन पर नए ऑर्डर का अलर्ट आता है। आप क्या करेंगे?",
+    "options": [
+     "धीरे चलाते हुए जल्दी पढ़ लें",
+     "साइड में सुरक्षित रुकें, फिर देखें",
+     "एक हाथ हैंडल पर रख कर देख लें",
+     "दिन भर के लिए ऑर्डर अलर्ट बंद कर दें"
+    ]
+   }
+  },
+  {
+   "id": "delivery-007",
+   "topic": "Road and vehicle safety",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Going the wrong way on a one-way road would save you 5 minutes. What do you do?",
+   "options": [
+    "Go the wrong way, but quickly",
+    "Ride on the footpath instead",
+    "Take the longer, legal route",
+    "Go the wrong way with the horn on"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "వన్-వే రోడ్డులో వ్యతిరేక దిశలో వెళ్తే 5 నిమిషాలు ఆదా అవుతాయి. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "వ్యతిరేక దిశలో, కానీ త్వరగా వెళ్ళడం",
+     "బదులుగా ఫుట్‌పాత్ మీద వెళ్ళడం",
+     "కొంచెం పొడవైన, సరైన దారిలో వెళ్ళడం",
+     "హారన్ కొడుతూ వ్యతిరేక దిశలో వెళ్ళడం"
+    ]
+   },
+   "hi": {
+    "q": "वन-वे सड़क पर उल्टी दिशा में जाने से 5 मिनट बचेंगे। आप क्या करेंगे?",
+    "options": [
+     "उल्टी दिशा में, पर जल्दी से जाएँ",
+     "उसकी जगह फ़ुटपाथ पर चलाएँ",
+     "थोड़ा लंबा, सही रास्ता लें",
+     "हॉर्न बजाते हुए उल्टी दिशा में जाएँ"
+    ]
+   }
+  },
+  {
+   "id": "delivery-008",
+   "topic": "Parcel care",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "How should you pack parcels in your delivery bag?",
+   "options": [
+    "Fragile at the bottom, heavy on top",
+    "Any order, as long as they fit",
+    "First stop's parcel at the very bottom",
+    "Heavy at the bottom, light and fragile on top"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "డెలివరీ బ్యాగ్‌లో పార్సిల్స్ ఎలా సర్దాలి?",
+    "options": [
+     "ఫ్రాజైల్ కింద, బరువైనవి పైన",
+     "సరిపోతే ఏ క్రమంలో అయినా",
+     "మొదటి స్టాప్ పార్సిల్ అన్నిటికంటే కింద",
+     "బరువైనవి కింద, తేలికైనవి, ఫ్రాజైల్ పైన"
+    ]
+   },
+   "hi": {
+    "q": "डिलीवरी बैग में पार्सल कैसे रखने चाहिए?",
+    "options": [
+     "फ़्रैजाइल नीचे, भारी ऊपर",
+     "किसी भी क्रम में, बस आ जाएँ",
+     "पहले स्टॉप का पार्सल सबसे नीचे",
+     "भारी नीचे, हल्के और फ़्रैजाइल ऊपर"
+    ]
+   }
+  },
+  {
+   "id": "delivery-009",
+   "topic": "Parcel care",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A heavy box is on the floor. How do you lift it safely?",
+   "options": [
+    "Bend your knees and keep your back straight",
+    "Bend at the waist and pull fast",
+    "Lift it with one hand only",
+    "Swing it up in one quick move"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "ఒక బరువైన బాక్స్ నేల మీద ఉంది. దాన్ని సురక్షితంగా ఎలా ఎత్తాలి?",
+    "options": [
+     "మోకాళ్ళు వంచి, వీపు నిటారుగా ఉంచి",
+     "నడుము దగ్గర వంగి వేగంగా లాగి",
+     "ఒక చేత్తో మాత్రమే ఎత్తి",
+     "ఒక్కసారిగా ఊపుతో పైకి ఎత్తి"
+    ]
+   },
+   "hi": {
+    "q": "एक भारी डिब्बा ज़मीन पर है। उसे सुरक्षित कैसे उठाएँ?",
+    "options": [
+     "घुटने मोड़ें और पीठ सीधी रखें",
+     "कमर से झुक कर तेज़ी से खींचें",
+     "सिर्फ़ एक हाथ से उठाएँ",
+     "एक झटके में घुमा कर ऊपर उठाएँ"
+    ]
+   }
+  },
+  {
+   "id": "delivery-010",
+   "topic": "Cash and COD",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A customer wants to pay the COD amount by UPI. Before handing over the parcel you…",
+   "options": [
+    "Accept a screenshot of their payment",
+    "Check that your app shows the payment as successful",
+    "Hand it over and check later",
+    "Ask them to pay to your friend's number"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "కస్టమర్ COD మొత్తాన్ని UPIతో కట్టాలనుకుంటున్నారు. పార్సిల్ ఇచ్చే ముందు మీరు…",
+    "options": [
+     "వారి పేమెంట్ స్క్రీన్‌షాట్ చూసి ఓకే అనాలి",
+     "మీ యాప్‌లో పేమెంట్ సక్సెస్ అని చూపిస్తోందో చెక్ చేయాలి",
+     "ఇచ్చేసి తర్వాత చెక్ చేయాలి",
+     "మీ స్నేహితుడి నంబర్‌కి కట్టమనాలి"
+    ]
+   },
+   "hi": {
+    "q": "ग्राहक COD की रकम UPI से देना चाहता है। पार्सल देने से पहले आप…",
+    "options": [
+     "उनके पेमेंट का स्क्रीनशॉट मान लें",
+     "चेक करें कि आपके ऐप में पेमेंट सक्सेस दिख रहा है",
+     "दे दें और बाद में चेक करें",
+     "दोस्त के नंबर पर पेमेंट करने को कहें"
+    ]
+   }
+  },
+  {
+   "id": "delivery-011",
+   "topic": "Routes and time",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A customer chose a 5–6 pm delivery slot. Your route reaches them at 3 pm. What do you do?",
+   "options": [
+    "Go at 3 pm and leave it at the gate",
+    "Skip them and mark 'not available'",
+    "Re-plan so you reach them within the slot",
+    "Call and ask them to come out at 3 pm"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "కస్టమర్ సాయంత్రం 5–6 డెలివరీ స్లాట్ ఎంచుకున్నారు. మీ రూట్ ప్రకారం 3 గంటలకి చేరతారు. ఏమి చేస్తారు?",
+    "options": [
+     "3 గంటలకి వెళ్ళి గేట్ దగ్గర వదిలేయడం",
+     "వదిలేసి 'అందుబాటులో లేరు' అని మార్క్ చేయడం",
+     "స్లాట్ లోపల చేరేలా రూట్ మార్చుకోవడం",
+     "కాల్ చేసి 3 గంటలకి బయటకు రమ్మనడం"
+    ]
+   },
+   "hi": {
+    "q": "ग्राहक ने शाम 5–6 बजे का डिलीवरी स्लॉट चुना है। आपका रूट 3 बजे वहाँ पहुँचता है। आप क्या करेंगे?",
+    "options": [
+     "3 बजे जा कर गेट पर छोड़ दें",
+     "छोड़ दें और 'उपलब्ध नहीं' मार्क करें",
+     "रूट ऐसे बदलें कि स्लॉट के अंदर पहुँचें",
+     "कॉल करके 3 बजे बाहर आने को कहें"
+    ]
+   }
+  },
+  {
+   "id": "delivery-012",
+   "topic": "Delivery process",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "The delivery app stops working and you cannot take the OTP. What do you do?",
+   "options": [
+    "Hand over without OTP and note it on paper",
+    "Ask the customer to collect it from the hub",
+    "Stop all deliveries for the day",
+    "Inform the hub or support and follow their steps"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "డెలివరీ యాప్ పనిచేయడం లేదు, OTP తీసుకోలేకపోతున్నారు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "OTP లేకుండా ఇచ్చేసి పేపర్ మీద రాసుకోవడం",
+     "హబ్ నుండి తీసుకెళ్ళమని కస్టమర్‌కి చెప్పడం",
+     "ఆ రోజు అన్ని డెలివరీలు ఆపేయడం",
+     "హబ్ లేదా సపోర్ట్‌కి చెప్పి వారు చెప్పినట్లు చేయడం"
+    ]
+   },
+   "hi": {
+    "q": "डिलीवरी ऐप काम नहीं कर रहा और आप OTP नहीं ले पा रहे। आप क्या करेंगे?",
+    "options": [
+     "बिना OTP के दे दें और कागज़ पर लिख लें",
+     "ग्राहक से हब से ले जाने को कहें",
+     "दिन भर की सारी डिलीवरी रोक दें",
+     "हब या सपोर्ट को बताएँ और उनके बताए कदम मानें"
+    ]
+   }
+  },
+  {
+   "id": "delivery-013",
+   "topic": "Road and vehicle safety",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A car hits your bike lightly. You are fine, but a parcel box is crushed. What do you do first?",
+   "options": [
+    "Move to a safe spot, then call your supervisor and take photos",
+    "Argue with the driver for money",
+    "Deliver the crushed parcel quickly as it is",
+    "Throw the crushed box away"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "ఒక కారు మీ బైక్‌ని కొద్దిగా ఢీకొట్టింది. మీకు ఏమీ కాలేదు, కానీ ఒక పార్సిల్ బాక్స్ నలిగిపోయింది. ముందు ఏమి చేస్తారు?",
+    "options": [
+     "సురక్షితమైన చోటికి వెళ్ళి, సూపర్‌వైజర్‌కి కాల్ చేసి, ఫోటోలు తీయడం",
+     "డబ్బు కోసం డ్రైవర్‌తో గొడవ పడటం",
+     "నలిగిన పార్సిల్ అలాగే త్వరగా డెలివర్ చేయడం",
+     "నలిగిన బాక్స్ పడేయడం"
+    ]
+   },
+   "hi": {
+    "q": "एक कार आपकी बाइक को हल्का सा टक्कर मारती है। आप ठीक हैं, पर एक पार्सल का डिब्बा पिचक गया। पहले क्या करेंगे?",
+    "options": [
+     "सुरक्षित जगह जाएँ, फिर सुपरवाइज़र को कॉल करें और फ़ोटो लें",
+     "पैसों के लिए ड्राइवर से बहस करें",
+     "पिचका पार्सल जैसा है वैसा जल्दी डिलीवर करें",
+     "पिचका डिब्बा फेंक दें"
+    ]
+   }
+  },
+  {
+   "id": "delivery-014",
+   "topic": "Parcel care",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A parcel smells of leaking liquid and the box is wet. What is the right thing to do?",
+   "options": [
+    "Deliver it fast before it gets worse",
+    "Keep it apart and report it before delivering",
+    "Wipe it dry and say nothing",
+    "Open it to see what leaked"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "ఒక పార్సిల్ నుండి ద్రవం కారుతున్న వాసన వస్తోంది, బాక్స్ తడిగా ఉంది. సరైన పని ఏది?",
+    "options": [
+     "ఇంకా పాడవక ముందే త్వరగా డెలివర్ చేయడం",
+     "మిగతా వాటి నుండి వేరుగా ఉంచి, డెలివరీకి ముందే రిపోర్ట్ చేయడం",
+     "తుడిచి ఆరబెట్టి ఏమీ చెప్పకపోవడం",
+     "ఏమి కారిందో చూడటానికి తెరవడం"
+    ]
+   },
+   "hi": {
+    "q": "एक पार्सल से तरल रिसने की गंध आ रही है और डिब्बा गीला है। सही काम क्या है?",
+    "options": [
+     "और खराब होने से पहले जल्दी डिलीवर करें",
+     "बाकी से अलग रखें और डिलीवरी से पहले रिपोर्ट करें",
+     "पोंछ कर सुखा दें और कुछ न कहें",
+     "खोल कर देखें कि क्या रिसा"
+    ]
+   }
+  },
+  {
+   "id": "delivery-015",
+   "topic": "Cash and COD",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "At day end your COD cash is ₹300 less than the app total. What do you do?",
+   "options": [
+    "Fill it quietly from tomorrow's cash",
+    "Change the app entries to match",
+    "Recheck each order and report the gap honestly",
+    "Say nothing and hope no one checks"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "రోజు చివర మీ COD క్యాష్ యాప్ మొత్తం కంటే ₹300 తక్కువగా ఉంది. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "రేపటి క్యాష్ నుండి నిశ్శబ్దంగా నింపడం",
+     "సరిపోయేలా యాప్ ఎంట్రీలు మార్చడం",
+     "ప్రతి ఆర్డర్ మళ్ళీ చెక్ చేసి, తేడాను నిజాయితీగా రిపోర్ట్ చేయడం",
+     "ఎవరూ చెక్ చేయరని ఏమీ చెప్పకపోవడం"
+    ]
+   },
+   "hi": {
+    "q": "दिन के अंत में आपका COD कैश ऐप के टोटल से ₹300 कम है। आप क्या करेंगे?",
+    "options": [
+     "कल के कैश से चुपचाप पूरा कर दें",
+     "मिलाने के लिए ऐप की एंट्री बदल दें",
+     "हर ऑर्डर दोबारा चेक करें और अंतर ईमानदारी से रिपोर्ट करें",
+     "कुछ न कहें और उम्मीद करें कोई चेक न करे"
+    ]
+   }
+  },
+  {
+   "id": "delivery-016",
+   "topic": "Cash and COD",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A customer offers you ₹200 extra to mark a COD order as paid and pay you later. What do you do?",
+   "options": [
+    "Take it, since it helps the customer",
+    "Mark it paid and collect tomorrow",
+    "Share the ₹200 with your supervisor",
+    "Politely refuse and follow the payment rule"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "COD ఆర్డర్‌ని పేమెంట్ అయినట్లు మార్క్ చేసి, తర్వాత కడతానని కస్టమర్ మీకు ₹200 అదనంగా ఇస్తానంటున్నారు. ఏమి చేస్తారు?",
+    "options": [
+     "కస్టమర్‌కి సహాయం కదా అని తీసుకోవడం",
+     "పేమెంట్ అయినట్లు మార్క్ చేసి రేపు వసూలు చేయడం",
+     "₹200 సూపర్‌వైజర్‌తో పంచుకోవడం",
+     "మర్యాదగా వద్దని, పేమెంట్ రూల్ పాటించడం"
+    ]
+   },
+   "hi": {
+    "q": "ग्राहक कहता है कि COD ऑर्डर को पेड मार्क कर दो, पैसे बाद में देगा, और आपको ₹200 एक्स्ट्रा देगा। आप क्या करेंगे?",
+    "options": [
+     "ले लें, इससे ग्राहक की मदद होती है",
+     "पेड मार्क करें और कल पैसे ले लें",
+     "₹200 सुपरवाइज़र के साथ बाँट लें",
+     "विनम्रता से मना करें और पेमेंट का नियम मानें"
+    ]
+   }
+  },
+  {
+   "id": "delivery-017",
+   "topic": "Customer handling",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A customer opens the parcel at the door and says one item is missing. What do you do?",
+   "options": [
+    "Record it in the app and guide them to support",
+    "Say it is not your problem and leave",
+    "Pay for the item from your own pocket",
+    "Take the parcel back without recording it"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "కస్టమర్ తలుపు దగ్గరే పార్సిల్ తెరిచి ఒక వస్తువు లేదని అంటున్నారు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "యాప్‌లో నమోదు చేసి, సపోర్ట్‌ని సంప్రదించే విధానం చెప్పడం",
+     "మీ సమస్య కాదని చెప్పి వెళ్ళిపోవడం",
+     "మీ జేబు నుండి ఆ వస్తువు డబ్బు ఇవ్వడం",
+     "నమోదు చేయకుండా పార్సిల్ తిరిగి తీసుకోవడం"
+    ]
+   },
+   "hi": {
+    "q": "ग्राहक दरवाज़े पर ही पार्सल खोलता है और कहता है एक सामान कम है। आप क्या करेंगे?",
+    "options": [
+     "ऐप में दर्ज करें और उन्हें सपोर्ट से बात करने का तरीका बताएँ",
+     "कहें यह आपकी समस्या नहीं और चले जाएँ",
+     "अपनी जेब से सामान के पैसे दे दें",
+     "बिना दर्ज किए पार्सल वापस ले लें"
+    ]
+   }
+  },
+  {
+   "id": "delivery-018",
+   "topic": "Routes and time",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "There is a big traffic jam on your main road and 6 deliveries are left. What is wise?",
+   "options": [
+    "Wait in the jam until it clears",
+    "Re-plan on the map and inform customers who may be late",
+    "Go home and finish them tomorrow",
+    "Mark the rest as 'customer not available'"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "మీ ముఖ్యమైన రోడ్డుపై పెద్ద ట్రాఫిక్ జామ్ ఉంది, ఇంకా 6 డెలివరీలు మిగిలాయి. తెలివైన పని ఏది?",
+    "options": [
+     "జామ్ క్లియర్ అయ్యే వరకు అక్కడే ఆగడం",
+     "మ్యాప్‌లో రూట్ మార్చుకుని, ఆలస్యమయ్యే కస్టమర్లకు చెప్పడం",
+     "ఇంటికి వెళ్ళి రేపు పూర్తి చేయడం",
+     "మిగతావి 'కస్టమర్ అందుబాటులో లేరు' అని మార్క్ చేయడం"
+    ]
+   },
+   "hi": {
+    "q": "आपकी मुख्य सड़क पर भारी जाम है और 6 डिलीवरी बाकी हैं। समझदारी क्या है?",
+    "options": [
+     "जाम खुलने तक वहीं रुके रहें",
+     "मैप पर रूट बदलें और देर होने वाले ग्राहकों को बता दें",
+     "घर जाएँ और कल पूरी करें",
+     "बाकी को 'ग्राहक उपलब्ध नहीं' मार्क कर दें"
+    ]
+   }
+  }
+ ],
+ "existing": {
+  "Before leaving for deliveries you check that…": {
+   "topic": "Delivery process",
+   "te": {
+    "q": "డెలివరీలకు బయలుదేరే ముందు మీరు చెక్ చేయాల్సింది…",
+    "options": [
+     "పార్సిల్స్ మీ రూట్ లిస్ట్‌తో సరిపోతున్నాయా",
+     "ఫోన్ వాల్‌పేపర్ సెట్ అయిందా",
+     "ఏమీ లేదు",
+     "వాతావరణం మాత్రమే"
+    ]
+   },
+   "hi": {
+    "q": "डिलीवरी के लिए निकलने से पहले आप चेक करते हैं कि…",
+    "options": [
+     "पार्सल आपकी रूट लिस्ट से मिलते हैं",
+     "फ़ोन का वॉलपेपर सेट है",
+     "कुछ नहीं",
+     "सिर्फ़ मौसम"
+    ]
+   }
+  },
+  "COD means…": {
+   "topic": "Cash and COD",
+   "te": {
+    "q": "COD అంటే…",
+    "options": [
+     "క్యాష్ ఆన్ డెలివరీ",
+     "కాల్ ఆన్ డిమాండ్",
+     "క్యారీ ఆన్ డే",
+     "కాస్ట్ ఆఫ్ డెలివరీ"
+    ]
+   },
+   "hi": {
+    "q": "COD का मतलब है…",
+    "options": [
+     "कैश ऑन डिलीवरी",
+     "कॉल ऑन डिमांड",
+     "कैरी ऑन डे",
+     "कॉस्ट ऑफ़ डिलीवरी"
+    ]
+   }
+  },
+  "The customer isn't home. What is best?": {
+   "topic": "Customer handling",
+   "te": {
+    "q": "కస్టమర్ ఇంట్లో లేరు. ఏది మంచిది?",
+    "options": [
+     "వారికి కాల్ చేసి, కంపెనీ రీ-అటెంప్ట్ రూల్ పాటించడం",
+     "రోడ్డు మీద వదిలేయడం",
+     "ఇంటికి తీసుకెళ్ళడం",
+     "డెలివర్డ్ అని మార్క్ చేయడం"
+    ]
+   },
+   "hi": {
+    "q": "ग्राहक घर पर नहीं है। क्या सबसे अच्छा है?",
+    "options": [
+     "उन्हें कॉल करें और कंपनी का री-अटेम्प्ट नियम मानें",
+     "सड़क पर छोड़ दें",
+     "अपने घर ले जाएँ",
+     "डिलीवर्ड मार्क कर दें"
+    ]
+   }
+  },
+  "Why take an OTP or signature at delivery?": {
+   "topic": "Delivery process",
+   "te": {
+    "q": "డెలివరీ సమయంలో OTP లేదా సంతకం ఎందుకు తీసుకుంటారు?",
+    "options": [
+     "సరైన వ్యక్తి తీసుకున్నారని రుజువుగా",
+     "సరదాకి",
+     "పెట్రోల్ ఆదా చేయడానికి",
+     "అవసరం లేదు"
+    ]
+   },
+   "hi": {
+    "q": "डिलीवरी पर OTP या साइन क्यों लेते हैं?",
+    "options": [
+     "सबूत के लिए कि सही व्यक्ति ने लिया",
+     "मज़े के लिए",
+     "पेट्रोल बचाने के लिए",
+     "ज़रूरत नहीं है"
+    ]
+   }
+  },
+  "Which is safe riding?": {
+   "topic": "Road and vehicle safety",
+   "te": {
+    "q": "వీటిలో సురక్షితమైన డ్రైవింగ్ ఏది?",
+    "options": [
+     "హెల్మెట్ పెట్టుకుని ట్రాఫిక్ రూల్స్ పాటించడం",
+     "బైక్ నడుపుతూ ఫోన్ వాడటం",
+     "ఫుట్‌పాత్ మీద నడపడం",
+     "నడుపుతూ చేతిలో పార్సిల్స్ పట్టుకోవడం"
+    ]
+   },
+   "hi": {
+    "q": "इनमें से सुरक्षित राइडिंग कौन सी है?",
+    "options": [
+     "हेलमेट पहनना और ट्रैफ़िक नियम मानना",
+     "चलाते समय फ़ोन इस्तेमाल करना",
+     "फ़ुटपाथ पर चलाना",
+     "चलाते समय हाथ में पार्सल पकड़ना"
+    ]
+   }
+  },
+  "A parcel looks damaged before you deliver it. You…": {
+   "topic": "Parcel care",
+   "te": {
+    "q": "డెలివరీకి ముందే ఒక పార్సిల్ పాడైనట్లు కనిపిస్తోంది. మీరు…",
+    "options": [
+     "రిపోర్ట్ చేసి డ్యామేజ్ ప్రాసెస్ పాటించాలి",
+     "డ్యామేజ్ దాచాలి",
+     "పడేయాలి",
+     "తెరిచి చూడాలి"
+    ]
+   },
+   "hi": {
+    "q": "डिलीवरी से पहले एक पार्सल खराब दिख रहा है। आप…",
+    "options": [
+     "रिपोर्ट करें और डैमेज प्रोसेस मानें",
+     "डैमेज छिपा दें",
+     "फेंक दें",
+     "खोल कर देखें"
+    ]
+   }
+  },
+  "Proof of delivery (POD) is…": {
+   "topic": "Delivery process",
+   "te": {
+    "q": "ప్రూఫ్ ఆఫ్ డెలివరీ (POD) అంటే…",
+    "options": [
+     "పార్సిల్ డెలివర్ అయిందనే రికార్డ్",
+     "పెట్రోల్ బిల్",
+     "మ్యాప్",
+     "యూనిఫామ్"
+    ]
+   },
+   "hi": {
+    "q": "प्रूफ़ ऑफ़ डिलीवरी (POD) है…",
+    "options": [
+     "पार्सल डिलीवर होने का रिकॉर्ड",
+     "पेट्रोल का बिल",
+     "नक्शा",
+     "यूनिफ़ॉर्म"
+    ]
+   }
+  },
+  "Your route is…": {
+   "topic": "Routes and time",
+   "te": {
+    "q": "మీ \"రూట్\" అంటే…",
+    "options": [
+     "ఆ రోజు ఆగాల్సిన చోట్ల ప్లాన్ చేసిన క్రమం",
+     "ఒక పార్సిల్",
+     "ఒక పేమెంట్",
+     "బైక్ పార్ట్"
+    ]
+   },
+   "hi": {
+    "q": "आपका \"रूट\" है…",
+    "options": [
+     "दिन भर के स्टॉप का तय क्रम",
+     "एक पार्सल",
+     "एक पेमेंट",
+     "बाइक का पार्ट"
+    ]
+   }
+  },
+  "You collected ₹1,450, ₹820 and ₹2,300 in cash on delivery. Total to deposit?": {
+   "topic": "Cash and COD",
+   "te": {
+    "q": "మీరు క్యాష్ ఆన్ డెలివరీలో ₹1,450, ₹820, ₹2,300 వసూలు చేశారు. మొత్తం ఎంత జమ చేయాలి?",
+    "options": [
+     "₹4,570",
+     "₹4,470",
+     "₹3,570",
+     "₹4,750"
+    ]
+   },
+   "hi": {
+    "q": "आपने कैश ऑन डिलीवरी में ₹1,450, ₹820 और ₹2,300 लिए। कुल कितना जमा करना है?",
+    "options": [
+     "₹4,570",
+     "₹4,470",
+     "₹3,570",
+     "₹4,750"
+    ]
+   }
+  },
+  "The address isn't clear. What do you do?": {
+   "topic": "Customer handling",
+   "te": {
+    "q": "అడ్రస్ స్పష్టంగా లేదు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "కస్టమర్‌కి కాల్ చేసి దగ్గరి గుర్తు (ల్యాండ్‌మార్క్) కనుక్కోవడం",
+     "ఊహించి వెళ్ళడం",
+     "వెంటనే పార్సిల్ తిరిగి పంపడం",
+     "అడగకుండా పక్కింటి వారికి ఇవ్వడం"
+    ]
+   },
+   "hi": {
+    "q": "पता साफ़ नहीं है। आप क्या करेंगे?",
+    "options": [
+     "ग्राहक को कॉल करके लैंडमार्क पूछें",
+     "अंदाज़ा लगाएँ",
+     "तुरंत पार्सल वापस कर दें",
+     "बिना पूछे पड़ोसी को दे दें"
+    ]
+   }
+  },
+  "Why plan stops that are near each other in order?": {
+   "topic": "Routes and time",
+   "te": {
+    "q": "దగ్గర దగ్గర ఉన్న స్టాప్‌లను వరుసగా ఎందుకు ప్లాన్ చేయాలి?",
+    "options": [
+     "సమయం, పెట్రోల్ ఆదా అవుతాయి",
+     "కస్టమర్లకు ఏదో ఒక క్రమం నచ్చుతుంది",
+     "పర్వాలేదు",
+     "ఎక్కువ పెట్రోల్ వాడటానికి"
+    ]
+   },
+   "hi": {
+    "q": "पास-पास वाले स्टॉप एक क्रम में क्यों प्लान करते हैं?",
+    "options": [
+     "समय और पेट्रोल बचता है",
+     "ग्राहकों को कोई भी क्रम पसंद है",
+     "कोई फ़र्क नहीं पड़ता",
+     "ज़्यादा पेट्रोल खर्च करने के लिए"
+    ]
+   }
+  },
+  "A customer refuses the parcel. You…": {
+   "topic": "Delivery process",
+   "te": {
+    "q": "కస్టమర్ పార్సిల్ తీసుకోవడానికి నిరాకరించారు. మీరు…",
+    "options": [
+     "యాప్‌లో కారణంతో \"రిఫ్యూజ్డ్\" అని మార్క్ చేయాలి",
+     "బలవంతంగా తీసుకోమనాలి",
+     "తలుపు దగ్గర వదిలేయాలి",
+     "డెలివర్డ్ అని మార్క్ చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "ग्राहक पार्सल लेने से मना करता है। आप…",
+    "options": [
+     "ऐप में कारण के साथ \"रिफ़्यूज़्ड\" मार्क करें",
+     "ज़बरदस्ती लेने को कहें",
+     "दरवाज़े पर छोड़ दें",
+     "डिलीवर्ड मार्क कर दें"
+    ]
+   }
+  },
+  "\"Last mile\" delivery is…": {
+   "topic": "Delivery process",
+   "te": {
+    "q": "\"లాస్ట్ మైల్\" డెలివరీ అంటే…",
+    "options": [
+     "హబ్ నుండి కస్టమర్ దాకా చివరి ప్రయాణం",
+     "సెల్లర్ దగ్గర పికప్",
+     "విమానంలో రవాణా",
+     "వేర్‌హౌస్‌లో నిల్వ"
+    ]
+   },
+   "hi": {
+    "q": "\"लास्ट माइल\" डिलीवरी है…",
+    "options": [
+     "हब से ग्राहक तक का आखिरी सफ़र",
+     "सेलर से पिकअप",
+     "हवाई जहाज़ से ढुलाई",
+     "वेयरहाउस में रखना"
+    ]
+   }
+  },
+  "Your bike breaks down mid-route. First step?": {
+   "topic": "Road and vehicle safety",
+   "te": {
+    "q": "రూట్ మధ్యలో మీ బైక్ ఆగిపోయింది. మొదటి స్టెప్ ఏది?",
+    "options": [
+     "సూపర్‌వైజర్‌కి చెప్పి, పార్సిల్స్ సురక్షితంగా ఉంచడం",
+     "పార్సిల్స్ వదిలి ఇంటికి వెళ్ళడం",
+     "అన్నీ డెలివర్డ్ అని మార్క్ చేయడం",
+     "ఫోన్ స్విచ్ ఆఫ్ చేయడం"
+    ]
+   },
+   "hi": {
+    "q": "रूट के बीच में आपकी बाइक खराब हो गई। पहला कदम?",
+    "options": [
+     "सुपरवाइज़र को बताएँ और पार्सल सुरक्षित रखें",
+     "पार्सल छोड़ कर घर चले जाएँ",
+     "सबको डिलीवर्ड मार्क कर दें",
+     "फ़ोन बंद कर दें"
+    ]
+   }
+  },
+  "Some parcels are marked priority. You deliver…": {
+   "topic": "Routes and time",
+   "te": {
+    "q": "కొన్ని పార్సిల్స్‌పై ప్రయారిటీ అని ఉంది. మీరు ముందు డెలివర్ చేసేది…",
+    "options": [
+     "ప్రయారిటీ, సమయం ఉన్నవి ముందు",
+     "తేలికైనవి ముందు",
+     "దూరంగా ఉన్నవి ముందు",
+     "ఏ క్రమంలో అయినా"
+    ]
+   },
+   "hi": {
+    "q": "कुछ पार्सल पर प्रायोरिटी लिखा है। आप डिलीवर करते हैं…",
+    "options": [
+     "प्रायोरिटी और समय वाले पहले",
+     "हल्के वाले पहले",
+     "सबसे दूर वाले पहले",
+     "किसी भी क्रम में"
+    ]
+   }
+  },
+  "The customer asks you to leave the parcel with the security guard. You…": {
+   "topic": "Customer handling",
+   "te": {
+    "q": "పార్సిల్ సెక్యూరిటీ గార్డ్ దగ్గర ఇవ్వమని కస్టమర్ అంటున్నారు. మీరు…",
+    "options": [
+     "యాప్ రూల్ పాటించి, ఎవరు తీసుకున్నారో నమోదు చేయాలి",
+     "ఎక్కడైనా వదిలేయాలి",
+     "దురుసుగా కుదరదనాలి",
+     "చెప్పకుండా తిరిగి తీసుకెళ్ళాలి"
+    ]
+   },
+   "hi": {
+    "q": "ग्राहक कहता है पार्सल सिक्योरिटी गार्ड को दे दो। आप…",
+    "options": [
+     "ऐप का नियम मानें और किसने लिया यह दर्ज करें",
+     "कहीं भी छोड़ दें",
+     "रूखेपन से मना कर दें",
+     "बिना बताए वापस ले जाएँ"
+    ]
+   }
+  },
+  "40 parcels in an 8-hour shift with 1 hour of breaks. Average minutes per parcel?": {
+   "topic": "Routes and time",
+   "te": {
+    "q": "8 గంటల షిఫ్ట్‌లో 1 గంట బ్రేక్‌తో 40 పార్సిల్స్. ఒక్కో పార్సిల్‌కి సగటున ఎన్ని నిమిషాలు?",
+    "options": [
+     "10.5",
+     "12",
+     "9",
+     "15"
+    ]
+   },
+   "hi": {
+    "q": "8 घंटे की शिफ़्ट में 1 घंटे ब्रेक के साथ 40 पार्सल। एक पार्सल पर औसत कितने मिनट?",
+    "options": [
+     "10.5",
+     "12",
+     "9",
+     "15"
+    ]
+   }
+  },
+  "Your bike gives 45 km a litre. A 90 km route needs about…": {
+   "topic": "Routes and time",
+   "te": {
+    "q": "మీ బైక్ లీటర్‌కి 45 కి.మీ. ఇస్తుంది. 90 కి.మీ. రూట్‌కి సుమారు ఎంత కావాలి?",
+    "options": [
+     "2 లీటర్లు",
+     "4 లీటర్లు",
+     "1 లీటర్",
+     "45 లీటర్లు"
+    ]
+   },
+   "hi": {
+    "q": "आपकी बाइक एक लीटर में 45 km चलती है। 90 km के रूट के लिए लगभग कितना चाहिए?",
+    "options": [
+     "2 लीटर",
+     "4 लीटर",
+     "1 लीटर",
+     "45 लीटर"
+    ]
+   }
+  },
+  "Why deposit cash-on-delivery money the same day?": {
+   "topic": "Cash and COD",
+   "te": {
+    "q": "క్యాష్ ఆన్ డెలివరీ డబ్బు అదే రోజు ఎందుకు జమ చేయాలి?",
+    "options": [
+     "కంపెనీ రూల్స్, పోగొట్టుకోవడం, తప్పులు జరగకుండా",
+     "అది ఆప్షనల్",
+     "వడ్డీ రావడానికి",
+     "రేపటి కోసం ఉంచుకోవడానికి"
+    ]
+   },
+   "hi": {
+    "q": "कैश ऑन डिलीवरी का पैसा उसी दिन क्यों जमा करते हैं?",
+    "options": [
+     "कंपनी नियम, और नुकसान व गलतियों से बचने के लिए",
+     "यह ज़रूरी नहीं है",
+     "ब्याज कमाने के लिए",
+     "कल के लिए रखने के लिए"
+    ]
+   }
+  },
+  "A parcel says \"Fragile – this side up\". You…": {
+   "topic": "Parcel care",
+   "te": {
+    "q": "పార్సిల్ మీద \"ఫ్రాజైల్ – ఈ వైపు పైకి\" అని ఉంది. మీరు…",
+    "options": [
+     "నిటారుగా ఉంచి, దాని మీద బరువైనవి పెట్టకూడదు",
+     "బ్యాగ్‌లో విసిరేయాలి",
+     "తిరగేయాలి",
+     "దాని మీద కూర్చోవాలి"
+    ]
+   },
+   "hi": {
+    "q": "पार्सल पर लिखा है \"फ़्रैजाइल – यह साइड ऊपर\"। आप…",
+    "options": [
+     "सीधा रखें और उस पर भारी सामान न रखें",
+     "बैग में फेंक दें",
+     "उल्टा कर दें",
+     "उस पर बैठ जाएँ"
+    ]
+   }
+  },
+  "In e-commerce delivery, \"RTO\" usually means…": {
+   "topic": "Delivery process",
+   "te": {
+    "q": "ఈ-కామర్స్ డెలివరీలో \"RTO\" అంటే సాధారణంగా…",
+    "options": [
+     "రిటర్న్ టు ఆరిజిన్ (సెల్లర్‌కి తిరిగి)",
+     "రెడీ టు ఆర్డర్",
+     "రేట్ ఆఫ్ ట్రావెల్",
+     "రూట్ టైమ్ ఓవర్"
+    ]
+   },
+   "hi": {
+    "q": "ई-कॉमर्स डिलीवरी में \"RTO\" का आमतौर पर मतलब है…",
+    "options": [
+     "रिटर्न टू ओरिजिन (सेलर को वापस)",
+     "रेडी टू ऑर्डर",
+     "रेट ऑफ़ ट्रैवल",
+     "रूट टाइम ओवर"
+    ]
+   }
+  },
+  "The customer's OTP doesn't match. What do you do?": {
+   "topic": "Delivery process",
+   "te": {
+    "q": "కస్టమర్ చెప్పిన OTP సరిపోలడం లేదు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "ఇవ్వకూడదు; చెక్ చేసుకుని సపోర్ట్‌ని సంప్రదించమనాలి",
+     "అయినా ఇచ్చేయాలి",
+     "OTP ఊహించాలి",
+     "తలుపు దగ్గర వదిలేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "ग्राहक का OTP मैच नहीं हो रहा। आप क्या करेंगे?",
+    "options": [
+     "पार्सल न दें; उन्हें चेक करने और सपोर्ट से बात करने को कहें",
+     "फिर भी दे दें",
+     "OTP का अंदाज़ा लगाएँ",
+     "दरवाज़े पर छोड़ दें"
+    ]
+   }
+  },
+  "How do you treat a customer's phone number?": {
+   "topic": "Customer handling",
+   "te": {
+    "q": "కస్టమర్ ఫోన్ నంబర్‌ని ఎలా చూసుకోవాలి?",
+    "options": [
+     "ఈ డెలివరీకి మాత్రమే వాడాలి; సేవ్ చేయకూడదు, ఎవరికీ ఇవ్వకూడదు",
+     "స్నేహితులతో పంచుకోవాలి",
+     "ఆన్‌లైన్‌లో పెట్టాలి",
+     "తర్వాత అమ్మకాల కోసం సేవ్ చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "ग्राहक के फ़ोन नंबर के साथ कैसा व्यवहार करें?",
+    "options": [
+     "सिर्फ़ इसी डिलीवरी के लिए इस्तेमाल करें; न सेव करें, न किसी को दें",
+     "दोस्तों को दे दें",
+     "ऑनलाइन डाल दें",
+     "बाद में बेचने के लिए सेव कर लें"
+    ]
+   }
+  },
+  "When is the best time to call a customer before arriving?": {
+   "topic": "Customer handling",
+   "te": {
+    "q": "చేరుకునే ముందు కస్టమర్‌కి కాల్ చేయడానికి మంచి సమయం ఏది?",
+    "options": [
+     "చేరుకోడానికి కొన్ని నిమిషాల ముందు",
+     "అర్ధరాత్రి",
+     "అక్కడి నుండి వెళ్ళిపోయిన తర్వాత",
+     "ఎప్పుడూ వద్దు"
+    ]
+   },
+   "hi": {
+    "q": "पहुँचने से पहले ग्राहक को कॉल करने का सबसे अच्छा समय कब है?",
+    "options": [
+     "पहुँचने से कुछ मिनट पहले",
+     "आधी रात को",
+     "वहाँ से निकल जाने के बाद",
+     "कभी नहीं"
+    ]
+   }
+  }
+ },
+ "task": {
+  "type": "proof",
+  "title": "Delivery safety and handling: picture questions and optional work photo",
+  "brief": "Part 1 (about 5 minutes): answer the picture-style questions. Each one describes a real delivery moment, like carrying a parcel, wearing a helmet, packing your bag or a locked door. Pick the safe and correct way. Part 2 (optional, 5 minutes): upload one photo of your own past delivery work. Good examples: your delivery bag packed neatly, your bike with helmet and rain cover, or your delivery partner ID or training certificate. Please do not show any faces, and hide customer names, addresses, phone numbers and OTPs. Add one or two lines about what the photo shows.",
+  "minutes": 10,
+  "key_points": [
+   "Photo clearly shows delivery work (bag, vehicle, safety gear, ID or certificate)",
+   "No faces and no customer details visible",
+   "Shows safe practice: helmet, tidy packing, rain protection",
+   "Short note matches what the photo shows"
+  ],
+  "rubric": [
+   {
+    "key": "relevance",
+    "label": "Relevance",
+    "guide": "0 = photo has nothing to do with delivery work; 3 = loosely related; 5 = clearly shows the candidate's own delivery gear, packing or ID"
+   },
+   {
+    "key": "genuineness",
+    "label": "Genuineness",
+    "guide": "0 = looks copied from the internet or staged; 3 = unclear; 5 = clearly a real, personal photo with a matching note"
+   },
+   {
+    "key": "safety",
+    "label": "Safety shown",
+    "guide": "0 = shows unsafe practice (no helmet, loose parcels); 3 = neutral; 5 = shows good safe practice, like helmet, tidy bag, rain cover"
+   },
+   {
+    "key": "privacy",
+    "label": "Privacy care",
+    "guide": "0 = faces or customer details visible; 3 = small details partly visible; 5 = no faces and no customer data at all"
+   }
+  ],
+  "situations": [
+   {
+    "q": "Picture: a rider carrying a big parcel on a bike. Which is the safe way?",
+    "options": [
+     "Tied tightly on the carrier or in the bag behind",
+     "Held in one hand while riding",
+     "Balanced on the fuel tank with the knees",
+     "Hanging from the handlebar"
+    ],
+    "answer": 0,
+    "topic": "Road and vehicle safety",
+    "te": {
+     "q": "చిత్రం: బైక్ మీద పెద్ద పార్సిల్ తీసుకెళ్తున్న రైడర్. సురక్షితమైన పద్ధతి ఏది?",
+     "options": [
+      "వెనుక క్యారియర్‌కి లేదా బ్యాగ్‌లో గట్టిగా కట్టి",
+      "నడుపుతూ ఒక చేత్తో పట్టుకుని",
+      "మోకాళ్ళతో పెట్రోల్ ట్యాంక్ మీద బ్యాలెన్స్ చేసి",
+      "హ్యాండిల్‌కి వేలాడదీసి"
+     ]
+    },
+    "hi": {
+     "q": "तस्वीर: एक राइडर बाइक पर बड़ा पार्सल ले जा रहा है। सुरक्षित तरीका कौन सा है?",
+     "options": [
+      "पीछे कैरियर पर या बैग में कस कर बाँधा हुआ",
+      "चलाते समय एक हाथ में पकड़ा हुआ",
+      "घुटनों से पेट्रोल टंकी पर टिकाया हुआ",
+      "हैंडल से लटकाया हुआ"
+     ]
+    }
+   },
+   {
+    "q": "Picture: four riders wearing helmets in different ways. Which one is correct?",
+    "options": [
+     "Helmet on, chin strap left open",
+     "Full helmet with the chin strap locked",
+     "Helmet hung on the mirror",
+     "A cap instead of a helmet in the city"
+    ],
+    "answer": 1,
+    "topic": "Road and vehicle safety",
+    "te": {
+     "q": "చిత్రం: నలుగురు రైడర్లు వేర్వేరుగా హెల్మెట్ పెట్టుకున్నారు. ఏది సరైనది?",
+     "options": [
+      "హెల్మెట్ పెట్టుకుని, స్ట్రాప్ తెరిచి ఉంచి",
+      "పూర్తి హెల్మెట్, గడ్డం కింద స్ట్రాప్ లాక్ చేసి",
+      "హెల్మెట్ అద్దానికి వేలాడదీసి",
+      "సిటీలో హెల్మెట్ బదులు టోపీ"
+     ]
+    },
+    "hi": {
+     "q": "तस्वीर: चार राइडर अलग-अलग तरह से हेलमेट पहने हैं। कौन सा सही है?",
+     "options": [
+      "हेलमेट पहना, स्ट्रैप खुला",
+      "पूरा हेलमेट, ठोड़ी का स्ट्रैप लॉक",
+      "हेलमेट शीशे पर टँगा",
+      "शहर में हेलमेट की जगह टोपी"
+     ]
+    }
+   },
+   {
+    "q": "Picture: a delivery bag with a 5 kg rice bag, a book and a box of glass jars. Which packing is best?",
+    "options": [
+     "Glass box at the bottom, rice on top of it",
+     "All loose in the bag so they are easy to grab",
+     "Rice at the bottom, book in the middle, glass box on top"
+    ],
+    "answer": 2,
+    "topic": "Parcel care",
+    "te": {
+     "q": "చిత్రం: డెలివరీ బ్యాగ్‌లో 5 కిలోల బియ్యం సంచి, ఒక పుస్తకం, గాజు జాడీల బాక్స్. ఏ సర్దుడు మంచిది?",
+     "options": [
+      "గాజు బాక్స్ కింద, దాని మీద బియ్యం",
+      "త్వరగా తీయడానికి అన్నీ బ్యాగ్‌లో వదులుగా",
+      "బియ్యం కింద, పుస్తకం మధ్యలో, గాజు బాక్స్ పైన"
+     ]
+    },
+    "hi": {
+     "q": "तस्वीर: डिलीवरी बैग में 5 किलो चावल का थैला, एक किताब और काँच के जार का डिब्बा है। सबसे अच्छी पैकिंग कौन सी है?",
+     "options": [
+      "काँच का डिब्बा नीचे, उस पर चावल",
+      "सब बैग में ढीला, ताकि जल्दी निकले",
+      "चावल नीचे, किताब बीच में, काँच का डिब्बा ऊपर"
+     ]
+    }
+   },
+   {
+    "q": "Picture: the customer's door is locked and a neighbour offers to take the parcel. What is right?",
+    "options": [
+     "Call the customer and follow the app rule first",
+     "Give it to the neighbour without asking",
+     "Leave it at the door with a note"
+    ],
+    "answer": 0,
+    "topic": "Customer handling",
+    "te": {
+     "q": "చిత్రం: కస్టమర్ ఇంటికి తాళం వేసి ఉంది, పక్కింటి వారు పార్సిల్ తీసుకుంటామంటున్నారు. ఏది సరైనది?",
+     "options": [
+      "ముందు కస్టమర్‌కి కాల్ చేసి యాప్ రూల్ పాటించడం",
+      "అడగకుండా పక్కింటి వారికి ఇచ్చేయడం",
+      "నోట్ రాసి తలుపు దగ్గర వదిలేయడం"
+     ]
+    },
+    "hi": {
+     "q": "तस्वीर: ग्राहक के दरवाज़े पर ताला है और पड़ोसी पार्सल लेने को कहता है। सही क्या है?",
+     "options": [
+      "पहले ग्राहक को कॉल करें और ऐप का नियम मानें",
+      "बिना पूछे पड़ोसी को दे दें",
+      "नोट लिख कर दरवाज़े पर छोड़ दें"
+     ]
+    }
+   },
+   {
+    "q": "Picture: a box with a 'This side up' arrow. How should it sit in your bag?",
+    "options": [
+     "On its side to save space",
+     "Arrow pointing up, nothing heavy on it",
+     "Upside down under other boxes"
+    ],
+    "answer": 1,
+    "topic": "Parcel care",
+    "te": {
+     "q": "చిత్రం: 'This side up' బాణం ఉన్న బాక్స్. మీ బ్యాగ్‌లో అది ఎలా ఉండాలి?",
+     "options": [
+      "చోటు ఆదా కోసం పక్కకు పడుకోబెట్టి",
+      "బాణం పైకి, దాని మీద బరువు లేకుండా",
+      "ఇతర బాక్సుల కింద తలకిందులుగా"
+     ]
+    },
+    "hi": {
+     "q": "तस्वीर: एक डिब्बे पर 'This side up' का तीर है। उसे बैग में कैसे रखें?",
+     "options": [
+      "जगह बचाने के लिए करवट पर",
+      "तीर ऊपर की ओर, उस पर कोई भारी चीज़ नहीं",
+      "दूसरे डिब्बों के नीचे उल्टा"
+     ]
+    }
+   },
+   {
+    "q": "Picture: the delivery app screen at the customer's door. What is needed before you tap 'Delivered'?",
+    "options": [
+     "Only a photo of the building gate",
+     "Nothing; just tap the button",
+     "OTP or signature from the right person"
+    ],
+    "answer": 2,
+    "topic": "Delivery process",
+    "te": {
+     "q": "చిత్రం: కస్టమర్ తలుపు దగ్గర డెలివరీ యాప్ స్క్రీన్. 'Delivered' నొక్కే ముందు ఏమి కావాలి?",
+     "options": [
+      "బిల్డింగ్ గేట్ ఫోటో మాత్రమే",
+      "ఏమీ అవసరం లేదు; బటన్ నొక్కితే చాలు",
+      "సరైన వ్యక్తి నుండి OTP లేదా సంతకం"
+     ]
+    },
+    "hi": {
+     "q": "तस्वीर: ग्राहक के दरवाज़े पर डिलीवरी ऐप की स्क्रीन। 'Delivered' दबाने से पहले क्या ज़रूरी है?",
+     "options": [
+      "सिर्फ़ बिल्डिंग गेट की फ़ोटो",
+      "कुछ नहीं; बस बटन दबा दें",
+      "सही व्यक्ति से OTP या साइन"
+     ]
+    }
+   },
+   {
+    "q": "Picture: you stop on a busy road to deliver. Where should your bike be?",
+    "options": [
+     "At the side, out of traffic, engine off, key taken",
+     "In the middle of the lane with the engine on",
+     "On the footpath, blocking people walking"
+    ],
+    "answer": 0,
+    "topic": "Road and vehicle safety",
+    "te": {
+     "q": "చిత్రం: డెలివరీ కోసం రద్దీ రోడ్డు మీద ఆగారు. మీ బైక్ ఎక్కడ ఉండాలి?",
+     "options": [
+      "పక్కకు, ట్రాఫిక్‌కి అడ్డు లేకుండా, ఇంజిన్ ఆఫ్, తాళం తీసుకుని",
+      "లేన్ మధ్యలో ఇంజిన్ ఆన్‌లో",
+      "నడిచే వారికి అడ్డుగా ఫుట్‌పాత్ మీద"
+     ]
+    },
+    "hi": {
+     "q": "तस्वीर: डिलीवरी के लिए आप भीड़ वाली सड़क पर रुके हैं। बाइक कहाँ होनी चाहिए?",
+     "options": [
+      "साइड में, ट्रैफ़िक से हट कर, इंजन बंद, चाबी साथ",
+      "लेन के बीच में, इंजन चालू",
+      "फ़ुटपाथ पर, पैदल चलने वालों का रास्ता रोक कर"
+     ]
+    }
+   }
+  ]
+ }
+}

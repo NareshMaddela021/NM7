@@ -1,0 +1,1763 @@
+{
+ "slug": "two-wheeler",
+ "version": 1,
+ "topics": [
+  "Workshop safety",
+  "Engine and fuel",
+  "Brakes, tyres and chain",
+  "Electrical and battery",
+  "Periodic service",
+  "Customer handling"
+ ],
+ "questions": [
+  {
+   "id": "two-wheeler-001",
+   "topic": "Workshop safety",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Before working on the wiring of a bike, what should you do first?",
+   "options": [
+    "Disconnect the positive (+) cable first",
+    "Just turn the ignition key to OFF",
+    "Pull out only the headlight bulb",
+    "Disconnect the battery negative (–) cable"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "బైక్ వైరింగ్ పని మొదలుపెట్టే ముందు ముందుగా ఏం చేయాలి?",
+    "options": [
+     "ముందుగా పాజిటివ్ (+) కేబుల్ తీసేయాలి",
+     "కీ OFF చేస్తే చాలు",
+     "హెడ్‌లైట్ బల్బ్ మాత్రమే తీసేయాలి",
+     "బ్యాటరీ నెగటివ్ (–) కేబుల్ తీసేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "बाइक की वायरिंग पर काम शुरू करने से पहले सबसे पहले क्या करना चाहिए?",
+    "options": [
+     "पहले पॉज़िटिव (+) केबल निकालें",
+     "सिर्फ़ चाबी OFF कर दें",
+     "सिर्फ़ हेडलाइट का बल्ब निकालें",
+     "बैटरी का नेगेटिव (–) केबल निकालें"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-002",
+   "topic": "Workshop safety",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Petrol has spilled on the workshop floor. What should you do?",
+   "options": [
+    "Leave it to dry on its own",
+    "Soak it up with sand or cloth, keep sparks away",
+    "Wash it into the drain with water",
+    "Clean it up at closing time"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "వర్క్‌షాప్ నేలపై పెట్రోల్ ఒలికింది. ఏం చేయాలి?",
+    "options": [
+     "దానంతట అదే ఆరిపోనివ్వాలి",
+     "ఇసుక లేదా గుడ్డతో పీల్చేయాలి, నిప్పురవ్వలు దగ్గర రానివ్వకూడదు",
+     "నీళ్లతో కడిగి డ్రైన్‌లోకి పంపాలి",
+     "షాప్ మూసే టైమ్‌లో శుభ్రం చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "वर्कशॉप के फ़र्श पर पेट्रोल गिर गया है। क्या करना चाहिए?",
+    "options": [
+     "अपने आप सूखने दें",
+     "रेत या कपड़े से सोख लें, चिंगारी पास न आने दें",
+     "पानी से धोकर नाली में बहा दें",
+     "दुकान बंद करते समय साफ़ करें"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-003",
+   "topic": "Workshop safety",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Inside the shop, where should you keep a bike running for engine testing?",
+   "options": [
+    "In the closed back room",
+    "Next to the oil and petrol cans",
+    "Near the open shutter, where air moves freely",
+    "Behind a curtain to cut the noise"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "షాప్ లోపల ఇంజన్ టెస్టింగ్ కోసం బైక్‌ను ఎక్కడ స్టార్ట్ చేసి ఉంచాలి?",
+    "options": [
+     "మూసి ఉన్న వెనుక గదిలో",
+     "ఆయిల్, పెట్రోల్ డబ్బాల పక్కన",
+     "గాలి బాగా ఆడే తెరిచిన షట్టర్ దగ్గర",
+     "శబ్దం తగ్గడానికి కర్టెన్ వెనుక"
+    ]
+   },
+   "hi": {
+    "q": "दुकान के अंदर इंजन टेस्टिंग के लिए बाइक को कहाँ चालू रखना चाहिए?",
+    "options": [
+     "बंद पीछे वाले कमरे में",
+     "तेल और पेट्रोल के डिब्बों के पास",
+     "खुले शटर के पास, जहाँ हवा अच्छी चलती हो",
+     "आवाज़ कम करने के लिए पर्दे के पीछे"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-004",
+   "topic": "Workshop safety",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which extinguisher is right for a small petrol fire in the workshop?",
+   "options": [
+    "Water-type extinguisher",
+    "A bucket of water",
+    "Air from the compressor",
+    "DCP (dry powder) extinguisher"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "వర్క్‌షాప్‌లో చిన్న పెట్రోల్ మంటకు ఏ ఫైర్ ఎక్స్‌టింగ్విషర్ సరైనది?",
+    "options": [
+     "నీళ్ల రకం ఎక్స్‌టింగ్విషర్",
+     "ఒక బకెట్ నీళ్లు",
+     "కంప్రెసర్ గాలి",
+     "DCP (డ్రై పౌడర్) ఎక్స్‌టింగ్విషర్"
+    ]
+   },
+   "hi": {
+    "q": "वर्कशॉप में पेट्रोल की छोटी आग के लिए कौन सा अग्निशामक सही है?",
+    "options": [
+     "पानी वाला एक्सटिंग्विशर",
+     "एक बाल्टी पानी",
+     "कंप्रेसर की हवा",
+     "DCP (ड्राई पाउडर) एक्सटिंग्विशर"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-005",
+   "topic": "Workshop safety",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is the right way to get rid of used engine oil from oil changes?",
+   "options": [
+    "Pour it slowly into the roadside drain",
+    "Bury it in the open ground behind",
+    "Keep it in a closed drum for a licensed recycler",
+    "Burn it in the backyard at night"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "ఆయిల్ మార్చినప్పుడు వచ్చే పాత ఇంజన్ ఆయిల్‌ను ఏం చేయాలి?",
+    "options": [
+     "రోడ్డు పక్క డ్రైన్‌లో నెమ్మదిగా పోయాలి",
+     "వెనుక ఖాళీ నేలలో పాతిపెట్టాలి",
+     "మూత ఉన్న డ్రమ్‌లో ఉంచి లైసెన్స్ ఉన్న రీసైక్లర్‌కు ఇవ్వాలి",
+     "రాత్రి పెరట్లో కాల్చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "ऑयल बदलने पर निकले पुराने इंजन ऑयल का क्या करना चाहिए?",
+    "options": [
+     "सड़क किनारे नाली में धीरे से डाल दें",
+     "पीछे खुली ज़मीन में गाड़ दें",
+     "बंद ड्रम में रखकर लाइसेंस वाले रीसाइक्लर को दें",
+     "रात में पीछे आँगन में जला दें"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-006",
+   "topic": "Workshop safety",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "The owner wants a crack on the petrol tank welded today. What is the safe way?",
+   "options": [
+    "Weld it with a little petrol still inside",
+    "Drain the petrol and start welding at once",
+    "Empty, wash and clear all petrol vapour before welding",
+    "Use a gas torch instead, it is gentler"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "పెట్రోల్ ట్యాంక్ మీద పగులును ఈ రోజే వెల్డ్ చేయమని ఓనర్ అడుగుతున్నారు. సురక్షితమైన పద్ధతి ఏది?",
+    "options": [
+     "కొంచెం పెట్రోల్ లోపల ఉండగానే వెల్డ్ చేయాలి",
+     "పెట్రోల్ తీసేసి వెంటనే వెల్డింగ్ మొదలుపెట్టాలి",
+     "వెల్డింగ్ ముందు ట్యాంక్ ఖాళీ చేసి, కడిగి, పెట్రోల్ ఆవిరి పూర్తిగా పోగొట్టాలి",
+     "వెల్డింగ్ బదులు గ్యాస్ టార్చ్ వాడాలి, అది మెత్తగా ఉంటుంది"
+    ]
+   },
+   "hi": {
+    "q": "मालिक चाहते हैं कि पेट्रोल टंकी की दरार आज ही वेल्ड हो। सुरक्षित तरीका क्या है?",
+    "options": [
+     "थोड़ा पेट्रोल अंदर रहते हुए वेल्ड करें",
+     "पेट्रोल निकालकर तुरंत वेल्डिंग शुरू करें",
+     "वेल्डिंग से पहले टंकी खाली करें, धोएँ और पेट्रोल की भाप पूरी निकालें",
+     "वेल्डिंग की जगह गैस टॉर्च लगाएँ, वो हल्की है"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-007",
+   "topic": "Workshop safety",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A battery is on charge in the shop. Why must sparks and smoking be kept away?",
+   "options": [
+    "Sparks make the battery lose its charge",
+    "Smoke makes the acid weak",
+    "The charger fuse may blow",
+    "Charging gives off hydrogen gas that can explode"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "షాప్‌లో బ్యాటరీ ఛార్జింగ్‌లో ఉంది. దాని దగ్గర నిప్పురవ్వలు, సిగరెట్ ఎందుకు ఉండకూడదు?",
+    "options": [
+     "నిప్పురవ్వలతో బ్యాటరీ ఛార్జ్ పోతుంది",
+     "పొగ వల్ల యాసిడ్ బలహీనం అవుతుంది",
+     "ఛార్జర్ ఫ్యూజ్ పోవచ్చు",
+     "ఛార్జింగ్‌లో హైడ్రోజన్ గ్యాస్ వస్తుంది, అది పేలవచ్చు"
+    ]
+   },
+   "hi": {
+    "q": "दुकान में बैटरी चार्ज हो रही है। उसके पास चिंगारी और बीड़ी-सिगरेट क्यों नहीं होनी चाहिए?",
+    "options": [
+     "चिंगारी से बैटरी का चार्ज खत्म होता है",
+     "धुएँ से एसिड कमज़ोर हो जाता है",
+     "चार्जर का फ़्यूज़ उड़ सकता है",
+     "चार्जिंग में हाइड्रोजन गैस निकलती है जो फट सकती है"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-008",
+   "topic": "Workshop safety",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A heavy bike is raised on the hydraulic ramp. What must you do before working under it?",
+   "options": [
+    "Lock the ramp's safety catch",
+    "Trust the hydraulic pressure to hold",
+    "Put a brick under one wheel",
+    "Keep the engine running for balance"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "బరువైన బైక్‌ను హైడ్రాలిక్ ర్యాంప్ మీద ఎత్తారు. దాని కింద పని చేసే ముందు ఏం చేయాలి?",
+    "options": [
+     "ర్యాంప్ సేఫ్టీ లాక్ వేయాలి",
+     "హైడ్రాలిక్ ప్రెషర్ పట్టుకుంటుందని నమ్మాలి",
+     "ఒక చక్రం కింద ఇటుక పెట్టాలి",
+     "బ్యాలెన్స్ కోసం ఇంజన్ ఆన్‌లో ఉంచాలి"
+    ]
+   },
+   "hi": {
+    "q": "भारी बाइक हाइड्रोलिक रैंप पर उठाई गई है। उसके नीचे काम करने से पहले क्या करें?",
+    "options": [
+     "रैंप का सेफ़्टी लॉक लगाएँ",
+     "हाइड्रोलिक प्रेशर पर भरोसा करें",
+     "एक पहिये के नीचे ईंट रख दें",
+     "बैलेंस के लिए इंजन चालू रखें"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-009",
+   "topic": "Engine and fuel",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which tool should you use to take out a spark plug?",
+   "options": [
+    "Pipe wrench",
+    "Cutting plier",
+    "Open spanner on the porcelain",
+    "Spark plug box spanner"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "స్పార్క్ ప్లగ్ తీయడానికి ఏ టూల్ వాడాలి?",
+    "options": [
+     "పైప్ రెంచ్",
+     "కటింగ్ ప్లయర్",
+     "పింగాణీ భాగంపై ఓపెన్ స్పానర్",
+     "స్పార్క్ ప్లగ్ బాక్స్ స్పానర్"
+    ]
+   },
+   "hi": {
+    "q": "स्पार्क प्लग निकालने के लिए कौन सा टूल इस्तेमाल करना चाहिए?",
+    "options": [
+     "पाइप रिंच",
+     "कटिंग प्लास",
+     "चीनी मिट्टी वाले हिस्से पर ओपन स्पैनर",
+     "स्पार्क प्लग बॉक्स स्पैनर"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-010",
+   "topic": "Engine and fuel",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "A kick-start bike will not start in the morning. The tank has petrol. What is a sensible first check?",
+   "options": [
+    "See if a spark comes at the plug",
+    "Replace the carburettor",
+    "Open the cylinder head",
+    "Change the clutch plates"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "కిక్ స్టార్ట్ బైక్ ఉదయం స్టార్ట్ కావడం లేదు. ట్యాంక్‌లో పెట్రోల్ ఉంది. ముందుగా ఏం చెక్ చేయాలి?",
+    "options": [
+     "ప్లగ్ దగ్గర స్పార్క్ వస్తుందో చూడాలి",
+     "కార్బ్యురేటర్ మార్చాలి",
+     "సిలిండర్ హెడ్ ఓపెన్ చేయాలి",
+     "క్లచ్ ప్లేట్లు మార్చాలి"
+    ]
+   },
+   "hi": {
+    "q": "किक-स्टार्ट बाइक सुबह स्टार्ट नहीं हो रही। टंकी में पेट्रोल है। सबसे पहले क्या चेक करें?",
+    "options": [
+     "देखें कि प्लग पर स्पार्क आ रहा है या नहीं",
+     "कार्बोरेटर बदल दें",
+     "सिलेंडर हेड खोलें",
+     "क्लच प्लेट बदलें"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-011",
+   "topic": "Engine and fuel",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "How should you check the engine oil level with the dipstick on most bikes?",
+   "options": [
+    "Bike upright on level ground, engine off a few minutes",
+    "Bike on side stand, engine running",
+    "Right after a long ride, at once",
+    "Bike leaning on side stand, cold"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "చాలా బైక్‌లలో డిప్‌స్టిక్‌తో ఇంజన్ ఆయిల్ లెవెల్ ఎలా చూడాలి?",
+    "options": [
+     "సమతలంగా ఉన్న నేలపై బైక్ నిటారుగా, ఇంజన్ ఆపి కొన్ని నిమిషాల తర్వాత",
+     "సైడ్ స్టాండ్ మీద, ఇంజన్ నడుస్తుండగా",
+     "లాంగ్ రైడ్ అయిన వెంటనే",
+     "సైడ్ స్టాండ్ మీద వంగి ఉండగా, చల్లగా ఉన్నప్పుడు"
+    ]
+   },
+   "hi": {
+    "q": "ज़्यादातर बाइक में डिपस्टिक से इंजन ऑयल लेवल कैसे देखें?",
+    "options": [
+     "समतल ज़मीन पर बाइक सीधी, इंजन बंद करके कुछ मिनट बाद",
+     "साइड स्टैंड पर, इंजन चालू रखकर",
+     "लंबी राइड के तुरंत बाद",
+     "साइड स्टैंड पर झुकी हुई, ठंडी हालत में"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-012",
+   "topic": "Engine and fuel",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "The spark plug tip is black and sooty. What does this usually point to?",
+   "options": [
+    "Lean mixture, too much air",
+    "A weak battery",
+    "Rich mixture, like a choked air filter",
+    "A slipping clutch"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "స్పార్క్ ప్లగ్ చివర నల్లగా, మసిగా ఉంది. సాధారణంగా దీని అర్థం ఏమిటి?",
+    "options": [
+     "మిశ్రమం లీన్, గాలి ఎక్కువ",
+     "బ్యాటరీ వీక్‌గా ఉంది",
+     "మిశ్రమం రిచ్‌గా ఉంది, ఉదా: ఎయిర్ ఫిల్టర్ బ్లాక్",
+     "క్లచ్ స్లిప్ అవుతోంది"
+    ]
+   },
+   "hi": {
+    "q": "स्पार्क प्लग का सिरा काला और कालिख वाला है। आमतौर पर इसका क्या मतलब है?",
+    "options": [
+     "मिक्सचर लीन है, हवा ज़्यादा",
+     "बैटरी कमज़ोर है",
+     "मिक्सचर रिच है, जैसे एयर फ़िल्टर चोक",
+     "क्लच स्लिप हो रहा है"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-013",
+   "topic": "Engine and fuel",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Blue smoke comes from the silencer and the engine oil drops fast. What should you check?",
+   "options": [
+    "Piston rings and valve stem seals",
+    "Only the spark plug",
+    "Only the air filter",
+    "Petrol quality from the bunk"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "సైలెన్సర్ నుంచి నీలం పొగ వస్తోంది, ఇంజన్ ఆయిల్ త్వరగా తగ్గిపోతోంది. ఏం చెక్ చేయాలి?",
+    "options": [
+     "పిస్టన్ రింగ్స్, వాల్వ్ స్టెమ్ సీల్స్",
+     "స్పార్క్ ప్లగ్ మాత్రమే",
+     "ఎయిర్ ఫిల్టర్ మాత్రమే",
+     "బంక్ పెట్రోల్ క్వాలిటీ"
+    ]
+   },
+   "hi": {
+    "q": "साइलेंसर से नीला धुआँ आ रहा है और इंजन ऑयल जल्दी कम हो रहा है। क्या चेक करें?",
+    "options": [
+     "पिस्टन रिंग और वाल्व स्टेम सील",
+     "सिर्फ़ स्पार्क प्लग",
+     "सिर्फ़ एयर फ़िल्टर",
+     "पंप के पेट्रोल की क्वालिटी"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-014",
+   "topic": "Engine and fuel",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "An air-cooled bike heats up and loses power after 10 km in city traffic. What is the most likely cause?",
+   "options": [
+    "Low or very old engine oil",
+    "Tyre pressure 2 psi low",
+    "Chain slightly loose",
+    "Weak horn relay"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "ఎయిర్-కూల్డ్ బైక్ సిటీ ట్రాఫిక్‌లో 10 కి.మీ. తర్వాత వేడెక్కి పవర్ తగ్గుతోంది. ఎక్కువగా కారణం ఏమిటి?",
+    "options": [
+     "ఇంజన్ ఆయిల్ తక్కువగా లేదా చాలా పాతగా ఉంది",
+     "టైర్ ప్రెషర్ 2 psi తక్కువ",
+     "చైన్ కొంచెం లూజ్",
+     "హార్న్ రిలే వీక్"
+    ]
+   },
+   "hi": {
+    "q": "एयर-कूल्ड बाइक शहर के ट्रैफ़िक में 10 किमी बाद गर्म होकर पावर खो देती है। सबसे संभावित कारण क्या है?",
+    "options": [
+     "इंजन ऑयल कम या बहुत पुराना",
+     "टायर प्रेशर 2 psi कम",
+     "चेन थोड़ी ढीली",
+     "हॉर्न रिले कमज़ोर"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-015",
+   "topic": "Engine and fuel",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A BS6 fuel-injected bike shows the engine check (MIL) light. What is the right first step?",
+   "options": [
+    "Connect the scanner and read the fault code",
+    "Clean the injector with petrol",
+    "Remove the battery to reset it, then deliver",
+    "Replace the throttle body"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "BS6 ఫ్యూయల్ ఇంజెక్షన్ బైక్‌లో ఇంజన్ చెక్ (MIL) లైట్ వెలుగుతోంది. సరైన మొదటి స్టెప్ ఏది?",
+    "options": [
+     "స్కానర్ కనెక్ట్ చేసి ఫాల్ట్ కోడ్ చదవాలి",
+     "ఇంజెక్టర్‌ను పెట్రోల్‌తో క్లీన్ చేయాలి",
+     "బ్యాటరీ తీసి రీసెట్ చేసి బైక్ ఇచ్చేయాలి",
+     "థ్రాటిల్ బాడీ మార్చాలి"
+    ]
+   },
+   "hi": {
+    "q": "BS6 फ़्यूल-इंजेक्शन बाइक में इंजन चेक (MIL) लाइट जल रही है। सही पहला कदम क्या है?",
+    "options": [
+     "स्कैनर लगाकर फ़ॉल्ट कोड पढ़ें",
+     "इंजेक्टर को पेट्रोल से साफ़ करें",
+     "बैटरी निकालकर रीसेट करें और बाइक दे दें",
+     "थ्रॉटल बॉडी बदल दें"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-016",
+   "topic": "Engine and fuel",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "After a carburettor clean, the idle is too high and keeps going up and down. What is the most likely cause?",
+   "options": [
+    "Battery is overcharged",
+    "Rear brake is adjusted tight",
+    "An air leak at the carb rubber or inlet joint",
+    "Plug gap is a little wide"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "కార్బ్యురేటర్ క్లీన్ చేసిన తర్వాత ఐడిల్ ఎక్కువగా ఉంది, పైకి కిందికి మారుతోంది. ఎక్కువగా కారణం ఏమిటి?",
+    "options": [
+     "బ్యాటరీ ఓవర్‌ఛార్జ్ అయింది",
+     "వెనుక బ్రేక్ టైట్‌గా ఉంది",
+     "కార్బ్ రబ్బర్ లేదా ఇన్‌లెట్ జాయింట్ దగ్గర గాలి లీక్",
+     "ప్లగ్ గ్యాప్ కొంచెం ఎక్కువ"
+    ]
+   },
+   "hi": {
+    "q": "कार्बोरेटर साफ़ करने के बाद आइडल बहुत ऊँचा है और ऊपर-नीचे हो रहा है। सबसे संभावित कारण क्या है?",
+    "options": [
+     "बैटरी ओवरचार्ज हो गई",
+     "पिछला ब्रेक टाइट है",
+     "कार्ब रबर या इनलेट जोड़ पर हवा का लीक",
+     "प्लग गैप थोड़ा ज़्यादा है"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-017",
+   "topic": "Engine and fuel",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Valve clearance on a 4-stroke engine is set too tight. What happens over time?",
+   "options": [
+    "A louder tapping noise from the head",
+    "Mileage gets better",
+    "Nothing, tight is safer",
+    "Valves may not shut fully: hard starting, burnt valves"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "4-స్ట్రోక్ ఇంజన్‌లో వాల్వ్ క్లియరెన్స్ చాలా టైట్‌గా సెట్ చేశారు. కొంత కాలానికి ఏమవుతుంది?",
+    "options": [
+     "హెడ్ నుంచి టక్-టక్ శబ్దం ఎక్కువ అవుతుంది",
+     "మైలేజ్ పెరుగుతుంది",
+     "ఏమీ కాదు, టైట్‌గా ఉంటేనే సేఫ్",
+     "వాల్వ్‌లు పూర్తిగా మూసుకోవు: స్టార్టింగ్ కష్టం, వాల్వ్‌లు కాలిపోతాయి"
+    ]
+   },
+   "hi": {
+    "q": "4-स्ट्रोक इंजन में वाल्व क्लीयरेंस बहुत टाइट सेट हो गया। समय के साथ क्या होगा?",
+    "options": [
+     "हेड से टक-टक की आवाज़ बढ़ेगी",
+     "माइलेज बढ़ जाएगा",
+     "कुछ नहीं, टाइट रखना ही सुरक्षित है",
+     "वाल्व पूरे बंद नहीं होंगे: स्टार्ट में दिक्कत, वाल्व जलेंगे"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-018",
+   "topic": "Brakes, tyres and chain",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "How should you check if the tyre pressure is correct?",
+   "options": [
+    "Gauge on cold tyres, as per the manual",
+    "Press the tyre with your thumb",
+    "Check after a long ride, when hot",
+    "Fill 40 psi for every bike"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "టైర్ ప్రెషర్ సరిగ్గా ఉందో ఎలా చెక్ చేయాలి?",
+    "options": [
+     "చల్లగా ఉన్న టైర్లపై గేజ్‌తో, మాన్యువల్ ప్రకారం",
+     "బొటనవేలితో టైర్‌ను నొక్కి చూడాలి",
+     "లాంగ్ రైడ్ తర్వాత వేడిగా ఉన్నప్పుడు",
+     "ప్రతి బైక్‌కూ 40 psi నింపాలి"
+    ]
+   },
+   "hi": {
+    "q": "टायर प्रेशर सही है या नहीं, कैसे चेक करें?",
+    "options": [
+     "ठंडे टायर पर गेज से, मैनुअल के हिसाब से",
+     "अंगूठे से टायर दबाकर देखें",
+     "लंबी राइड के बाद, गर्म होने पर",
+     "हर बाइक में 40 psi भर दें"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-019",
+   "topic": "Brakes, tyres and chain",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "How much up-down play should a bike chain usually have?",
+   "options": [
+    "No play at all, fully tight",
+    "About 20–30 mm, as given in the manual",
+    "Loose enough to touch the swingarm",
+    "About 80–100 mm"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "బైక్ చైన్‌కు సాధారణంగా పైకి-కిందికి ఎంత ఆట (play) ఉండాలి?",
+    "options": [
+     "అసలు ఆట ఉండకూడదు, పూర్తిగా టైట్",
+     "సుమారు 20–30 mm, మాన్యువల్‌లో చెప్పినట్టు",
+     "స్వింగ్‌ఆర్మ్‌కు తగిలేంత లూజ్",
+     "సుమారు 80–100 mm"
+    ]
+   },
+   "hi": {
+    "q": "बाइक की चेन में आमतौर पर ऊपर-नीचे कितना खेल (play) होना चाहिए?",
+    "options": [
+     "बिल्कुल नहीं, पूरी टाइट",
+     "लगभग 20–30 mm, जैसा मैनुअल में लिखा हो",
+     "इतनी ढीली कि स्विंगआर्म को छुए",
+     "लगभग 80–100 mm"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-020",
+   "topic": "Brakes, tyres and chain",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "The drum brake wear arrow points outside the range mark. What does it mean?",
+   "options": [
+    "Brake shoes are worn out and need changing",
+    "The brake is set perfectly",
+    "The brake cable needs oiling",
+    "The rear tyre is worn out"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "డ్రమ్ బ్రేక్ వేర్ బాణం రేంజ్ గుర్తు బయటకు చూపిస్తోంది. దీని అర్థం ఏమిటి?",
+    "options": [
+     "బ్రేక్ షూస్ అరిగిపోయాయి, మార్చాలి",
+     "బ్రేక్ పర్ఫెక్ట్‌గా సెట్ అయింది",
+     "బ్రేక్ కేబుల్‌కు ఆయిల్ వేయాలి",
+     "వెనుక టైర్ అరిగిపోయింది"
+    ]
+   },
+   "hi": {
+    "q": "ड्रम ब्रेक का वियर तीर रेंज के निशान से बाहर दिख रहा है। इसका क्या मतलब है?",
+    "options": [
+     "ब्रेक शू घिस गए हैं, बदलने होंगे",
+     "ब्रेक बिल्कुल सही सेट है",
+     "ब्रेक केबल में तेल डालना है",
+     "पिछला टायर घिस गया है"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-021",
+   "topic": "Brakes, tyres and chain",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "The disc brake feels spongy and the lever almost touches the grip. What is the likely cause?",
+   "options": [
+    "Brand-new brake pads",
+    "Air in the brake line",
+    "Tyre pressure is high",
+    "Chain is too tight"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "డిస్క్ బ్రేక్ మెత్తగా అనిపిస్తోంది, లివర్ దాదాపు గ్రిప్‌కు తగులుతోంది. కారణం ఏమై ఉండొచ్చు?",
+    "options": [
+     "కొత్త బ్రేక్ ప్యాడ్స్",
+     "బ్రేక్ లైన్‌లో గాలి చేరింది",
+     "టైర్ ప్రెషర్ ఎక్కువ",
+     "చైన్ చాలా టైట్"
+    ]
+   },
+   "hi": {
+    "q": "डिस्क ब्रेक नरम लग रहा है और लीवर लगभग ग्रिप को छू रहा है। संभावित कारण क्या है?",
+    "options": [
+     "बिल्कुल नए ब्रेक पैड",
+     "ब्रेक लाइन में हवा",
+     "टायर प्रेशर ज़्यादा है",
+     "चेन बहुत टाइट है"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-022",
+   "topic": "Brakes, tyres and chain",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which fluid should you top up in the disc brake reservoir?",
+   "options": [
+    "Any engine oil in the shop",
+    "Fork (shock absorber) oil",
+    "Clean water if it is low",
+    "The grade marked on its cap, like DOT 3 or DOT 4"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "డిస్క్ బ్రేక్ రిజర్వాయర్‌లో ఏ ఫ్లూయిడ్ నింపాలి?",
+    "options": [
+     "షాప్‌లో ఉన్న ఏదైనా ఇంజన్ ఆయిల్",
+     "ఫోర్క్ (షాక్ అబ్జార్బర్) ఆయిల్",
+     "తక్కువ ఉంటే మంచి నీళ్లు",
+     "దాని మూత మీద రాసిన గ్రేడ్, ఉదా: DOT 3 లేదా DOT 4"
+    ]
+   },
+   "hi": {
+    "q": "डिस्क ब्रेक के रिज़र्वॉयर में कौन सा फ़्लूइड भरना चाहिए?",
+    "options": [
+     "दुकान का कोई भी इंजन ऑयल",
+     "फ़ोर्क (शॉकर) ऑयल",
+     "कम हो तो साफ़ पानी",
+     "ढक्कन पर लिखा ग्रेड, जैसे DOT 3 या DOT 4"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-023",
+   "topic": "Brakes, tyres and chain",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "You are fitting a new chain in place of a badly worn one. What else should normally be changed?",
+   "options": [
+    "Only the rear tyre",
+    "Front and rear sprockets",
+    "The clutch cable",
+    "The spark plug"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "బాగా అరిగిన చైన్ బదులు కొత్త చైన్ వేస్తున్నారు. సాధారణంగా ఇంకా ఏం మార్చాలి?",
+    "options": [
+     "వెనుక టైర్ మాత్రమే",
+     "ముందు, వెనుక స్ప్రాకెట్లు",
+     "క్లచ్ కేబుల్",
+     "స్పార్క్ ప్లగ్"
+    ]
+   },
+   "hi": {
+    "q": "बहुत घिसी चेन की जगह नई चेन लगा रहे हैं। आमतौर पर और क्या बदलना चाहिए?",
+    "options": [
+     "सिर्फ़ पिछला टायर",
+     "आगे और पीछे के स्प्रॉकेट",
+     "क्लच केबल",
+     "स्पार्क प्लग"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-024",
+   "topic": "Brakes, tyres and chain",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "After you adjusted the chain, the customer says the bike pulls to one side. What mistake is most likely?",
+   "options": [
+    "Too much lube on the chain",
+    "Tyre pressure 2 psi high",
+    "Rear wheel not set evenly on both adjusters",
+    "Brake fluid is old"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "మీరు చైన్ అడ్జస్ట్ చేసిన తర్వాత బైక్ ఒక వైపుకు లాగుతోందని కస్టమర్ చెబుతున్నారు. ఎక్కువగా ఏ తప్పు జరిగి ఉంటుంది?",
+    "options": [
+     "చైన్‌కు లూబ్ ఎక్కువ వేశారు",
+     "టైర్ ప్రెషర్ 2 psi ఎక్కువ",
+     "రెండు అడ్జస్టర్లపై వెనుక చక్రం సమానంగా సెట్ కాలేదు",
+     "బ్రేక్ ఫ్లూయిడ్ పాతది"
+    ]
+   },
+   "hi": {
+    "q": "आपने चेन एडजस्ट की, अब ग्राहक कहता है बाइक एक तरफ़ खिंचती है। सबसे संभावित गलती क्या है?",
+    "options": [
+     "चेन पर लुब्रिकेंट ज़्यादा",
+     "टायर प्रेशर 2 psi ज़्यादा",
+     "पिछला पहिया दोनों एडजस्टर पर बराबर सेट नहीं",
+     "ब्रेक फ़्लूइड पुराना है"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-025",
+   "topic": "Brakes, tyres and chain",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A tubeless tyre has a nail cut on the sidewall. What do you advise the customer?",
+   "options": [
+    "Put a plug and ride as normal",
+    "Fit a tube inside and use it",
+    "Change the tyre; sidewall cuts should not be plugged",
+    "Stick a patch on the outside"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "ట్యూబ్‌లెస్ టైర్ సైడ్‌వాల్ మీద మేకు కోత ఉంది. కస్టమర్‌కు ఏం సలహా ఇస్తారు?",
+    "options": [
+     "ప్లగ్ వేసి మామూలుగా నడపొచ్చు",
+     "లోపల ట్యూబ్ వేసి వాడొచ్చు",
+     "టైర్ మార్చాలి; సైడ్‌వాల్ కోతకు ప్లగ్ వేయకూడదు",
+     "బయటి నుంచి ప్యాచ్ అంటించాలి"
+    ]
+   },
+   "hi": {
+    "q": "ट्यूबलेस टायर की साइडवॉल पर कील का कट है। ग्राहक को क्या सलाह देंगे?",
+    "options": [
+     "प्लग लगाकर आराम से चलाएँ",
+     "अंदर ट्यूब डालकर चलाएँ",
+     "टायर बदलें; साइडवॉल के कट में प्लग नहीं लगाते",
+     "बाहर से पैच चिपका दें"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-026",
+   "topic": "Brakes, tyres and chain",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "The brake disc measures below the minimum thickness stamped on it. What should you do?",
+   "options": [
+    "Fit new pads and deliver",
+    "Replace the disc; new pads alone won't make it safe",
+    "Skim the disc on a lathe",
+    "Add more brake fluid"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "బ్రేక్ డిస్క్ మందం దానిపై ముద్రించిన కనీస మందం కంటే తక్కువగా ఉంది. ఏం చేయాలి?",
+    "options": [
+     "కొత్త ప్యాడ్స్ వేసి బైక్ ఇచ్చేయాలి",
+     "డిస్క్ మార్చాలి; కొత్త ప్యాడ్స్ మాత్రమే వేస్తే సేఫ్ కాదు",
+     "లేత్ మీద డిస్క్‌ను స్కిమ్ చేయాలి",
+     "బ్రేక్ ఫ్లూయిడ్ ఎక్కువ పోయాలి"
+    ]
+   },
+   "hi": {
+    "q": "ब्रेक डिस्क की मोटाई उस पर लिखी न्यूनतम मोटाई से कम है। क्या करना चाहिए?",
+    "options": [
+     "नए पैड लगाकर बाइक दे दें",
+     "डिस्क बदलें; सिर्फ़ नए पैड से सुरक्षित नहीं होगा",
+     "लेथ पर डिस्क को स्किम करें",
+     "ब्रेक फ़्लूइड और डाल दें"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-027",
+   "topic": "Electrical and battery",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which tool is used to check a bike battery's voltage?",
+   "options": [
+    "Test lamp only",
+    "Tyre pressure gauge",
+    "Hydrometer on the outside",
+    "Multimeter set to DC volts"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "బైక్ బ్యాటరీ వోల్టేజ్ చెక్ చేయడానికి ఏ టూల్ వాడతారు?",
+    "options": [
+     "టెస్ట్ ల్యాంప్ మాత్రమే",
+     "టైర్ ప్రెషర్ గేజ్",
+     "బయటి నుంచి హైడ్రోమీటర్",
+     "DC వోల్ట్స్‌లో పెట్టిన మల్టీమీటర్"
+    ]
+   },
+   "hi": {
+    "q": "बाइक की बैटरी का वोल्टेज चेक करने के लिए कौन सा टूल लगता है?",
+    "options": [
+     "सिर्फ़ टेस्ट लैंप",
+     "टायर प्रेशर गेज",
+     "बाहर से हाइड्रोमीटर",
+     "DC वोल्ट पर सेट मल्टीमीटर"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-028",
+   "topic": "Electrical and battery",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "With the engine off, about how many volts should a fully charged 12 V bike battery show?",
+   "options": [
+    "9 to 10 V",
+    "12.6 to 12.8 V",
+    "14.5 to 15 V",
+    "6 to 7 V"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "ఇంజన్ ఆపి ఉన్నప్పుడు పూర్తిగా ఛార్జ్ అయిన 12 V బైక్ బ్యాటరీ సుమారు ఎన్ని వోల్ట్స్ చూపించాలి?",
+    "options": [
+     "9 నుంచి 10 V",
+     "12.6 నుంచి 12.8 V",
+     "14.5 నుంచి 15 V",
+     "6 నుంచి 7 V"
+    ]
+   },
+   "hi": {
+    "q": "इंजन बंद होने पर पूरी चार्ज 12 V बाइक बैटरी लगभग कितने वोल्ट दिखानी चाहिए?",
+    "options": [
+     "9 से 10 V",
+     "12.6 से 12.8 V",
+     "14.5 से 15 V",
+     "6 से 7 V"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-029",
+   "topic": "Electrical and battery",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "You are fitting a new battery. Which cable should you connect first?",
+   "options": [
+    "Negative (–) first, then positive (+)",
+    "Any order, it does not matter",
+    "Positive (+) first, then negative (–)",
+    "The two cables at the same moment"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "కొత్త బ్యాటరీ బిగిస్తున్నారు. ముందుగా ఏ కేబుల్ కనెక్ట్ చేయాలి?",
+    "options": [
+     "ముందు నెగటివ్ (–), తర్వాత పాజిటివ్ (+)",
+     "ఏ ఆర్డర్ అయినా పర్వాలేదు",
+     "ముందు పాజిటివ్ (+), తర్వాత నెగటివ్ (–)",
+     "రెండు కేబుల్స్ ఒకేసారి"
+    ]
+   },
+   "hi": {
+    "q": "नई बैटरी लगा रहे हैं। पहले कौन सा केबल जोड़ना चाहिए?",
+    "options": [
+     "पहले नेगेटिव (–), फिर पॉज़िटिव (+)",
+     "कोई भी क्रम, फ़र्क नहीं पड़ता",
+     "पहले पॉज़िटिव (+), फिर नेगेटिव (–)",
+     "दोनों केबल एक साथ"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-030",
+   "topic": "Electrical and battery",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "The headlight bulb keeps blowing again and again. What should you check?",
+   "options": [
+    "Brake shoe wear",
+    "Air filter condition",
+    "Chain slack",
+    "Charging voltage from the regulator rectifier"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "హెడ్‌లైట్ బల్బ్ మళ్లీ మళ్లీ పోతోంది. ఏం చెక్ చేయాలి?",
+    "options": [
+     "బ్రేక్ షూ అరుగుదల",
+     "ఎయిర్ ఫిల్టర్ కండిషన్",
+     "చైన్ స్లాక్",
+     "రెగ్యులేటర్ రెక్టిఫైయర్ నుంచి వచ్చే ఛార్జింగ్ వోల్టేజ్"
+    ]
+   },
+   "hi": {
+    "q": "हेडलाइट का बल्ब बार-बार फ़्यूज़ हो रहा है। क्या चेक करना चाहिए?",
+    "options": [
+     "ब्रेक शू की घिसावट",
+     "एयर फ़िल्टर की हालत",
+     "चेन का ढीलापन",
+     "रेगुलेटर रेक्टिफ़ायर से आने वाला चार्जिंग वोल्टेज"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-031",
+   "topic": "Electrical and battery",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A new fuse blows the moment the key is turned on. What do you do?",
+   "options": [
+    "Find the short in the wiring before another fuse",
+    "Fit a higher-amp fuse",
+    "Join the fuse holder with a wire",
+    "Replace the battery"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "కీ ఆన్ చేయగానే కొత్త ఫ్యూజ్ పోతోంది. ఏం చేస్తారు?",
+    "options": [
+     "ఇంకో ఫ్యూజ్ వేసే ముందు వైరింగ్‌లో షార్ట్ ఎక్కడో కనిపెట్టాలి",
+     "ఎక్కువ ఆంప్ ఫ్యూజ్ వేయాలి",
+     "ఫ్యూజ్ హోల్డర్‌ను వైర్‌తో కలపాలి",
+     "బ్యాటరీ మార్చాలి"
+    ]
+   },
+   "hi": {
+    "q": "चाबी ऑन करते ही नया फ़्यूज़ उड़ जाता है। आप क्या करेंगे?",
+    "options": [
+     "दूसरा फ़्यूज़ लगाने से पहले वायरिंग में शॉर्ट ढूँढें",
+     "ज़्यादा एम्प का फ़्यूज़ लगाएँ",
+     "फ़्यूज़ होल्डर को तार से जोड़ दें",
+     "बैटरी बदल दें"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-032",
+   "topic": "Electrical and battery",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "At 5000 rpm, the battery reads 16.5 V. Which part is most likely faulty?",
+   "options": [
+    "Spark plug",
+    "Starter motor",
+    "Regulator rectifier",
+    "Horn relay"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "5000 rpm వద్ద బ్యాటరీ 16.5 V చూపిస్తోంది. ఎక్కువగా ఏ పార్ట్ పాడై ఉంటుంది?",
+    "options": [
+     "స్పార్క్ ప్లగ్",
+     "స్టార్టర్ మోటార్",
+     "రెగ్యులేటర్ రెక్టిఫైయర్",
+     "హార్న్ రిలే"
+    ]
+   },
+   "hi": {
+    "q": "5000 rpm पर बैटरी 16.5 V दिखा रही है। सबसे संभावित खराब पार्ट कौन सा है?",
+    "options": [
+     "स्पार्क प्लग",
+     "स्टार्टर मोटर",
+     "रेगुलेटर रेक्टिफ़ायर",
+     "हॉर्न रिले"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-033",
+   "topic": "Electrical and battery",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A bike battery goes flat every night even with all lights off. How do you find the cause?",
+   "options": [
+    "Fit a new battery straight away",
+    "Charge it fully and deliver the bike",
+    "Check the spark plug gap",
+    "Meter in series for leakage current, pull fuses one by one"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "అన్ని లైట్లు ఆపి ఉన్నా బైక్ బ్యాటరీ ప్రతి రాత్రి డౌన్ అవుతోంది. కారణం ఎలా కనిపెడతారు?",
+    "options": [
+     "వెంటనే కొత్త బ్యాటరీ వేయాలి",
+     "పూర్తిగా ఛార్జ్ చేసి బైక్ ఇచ్చేయాలి",
+     "స్పార్క్ ప్లగ్ గ్యాప్ చూడాలి",
+     "మీటర్‌ను సిరీస్‌లో పెట్టి లీకేజ్ కరెంట్ చూడాలి, ఫ్యూజ్‌లు ఒక్కొక్కటి తీయాలి"
+    ]
+   },
+   "hi": {
+    "q": "सारी लाइटें बंद होने पर भी बाइक की बैटरी हर रात खत्म हो जाती है। कारण कैसे ढूँढेंगे?",
+    "options": [
+     "तुरंत नई बैटरी लगा दें",
+     "पूरी चार्ज करके बाइक दे दें",
+     "स्पार्क प्लग गैप चेक करें",
+     "मीटर सीरीज़ में लगाकर लीकेज करंट देखें, फ़्यूज़ एक-एक करके निकालें"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-034",
+   "topic": "Electrical and battery",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A customer wants a 100 W fog lamp added on a 110cc bike. What do you advise?",
+   "options": [
+    "Tap it straight into the headlight wire",
+    "Stock charging may not cope; suggest a low-watt LED with relay and fuse",
+    "Fit it and tell him to keep revving",
+    "Refuse without any reason"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "110cc బైక్‌కు 100 W ఫాగ్ ల్యాంప్ పెట్టమని కస్టమర్ అడుగుతున్నారు. ఏం సలహా ఇస్తారు?",
+    "options": [
+     "నేరుగా హెడ్‌లైట్ వైర్‌కు కలపాలి",
+     "కంపెనీ ఛార్జింగ్ సరిపోకపోవచ్చు; రిలే, ఫ్యూజ్‌తో తక్కువ వాట్ LED సూచించాలి",
+     "బిగించి, ఎప్పుడూ రేస్ చేస్తూ ఉండమని చెప్పాలి",
+     "కారణం చెప్పకుండా వద్దనాలి"
+    ]
+   },
+   "hi": {
+    "q": "ग्राहक 110cc बाइक पर 100 W फ़ॉग लैंप लगवाना चाहता है। क्या सलाह देंगे?",
+    "options": [
+     "सीधे हेडलाइट के तार से जोड़ दें",
+     "कंपनी की चार्जिंग शायद न झेले; रिले और फ़्यूज़ के साथ कम वाट का LED सुझाएँ",
+     "लगाकर कहें कि हमेशा रेस देकर चलाएँ",
+     "बिना कारण बताए मना कर दें"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-035",
+   "topic": "Periodic service",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "In a general service, what is cleaned or replaced so the engine gets clean air?",
+   "options": [
+    "Fuel tank cap",
+    "Oil drain bolt",
+    "Air filter element",
+    "Clutch cable"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "జనరల్ సర్వీస్‌లో ఇంజన్‌కు శుభ్రమైన గాలి అందడానికి ఏది క్లీన్ చేస్తారు లేదా మారుస్తారు?",
+    "options": [
+     "ఫ్యూయల్ ట్యాంక్ మూత",
+     "ఆయిల్ డ్రెయిన్ బోల్ట్",
+     "ఎయిర్ ఫిల్టర్ ఎలిమెంట్",
+     "క్లచ్ కేబుల్"
+    ]
+   },
+   "hi": {
+    "q": "जनरल सर्विस में इंजन को साफ़ हवा मिले, इसके लिए क्या साफ़ या बदला जाता है?",
+    "options": [
+     "फ़्यूल टंकी का ढक्कन",
+     "ऑयल ड्रेन बोल्ट",
+     "एयर फ़िल्टर एलिमेंट",
+     "क्लच केबल"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-036",
+   "topic": "Periodic service",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Why run the engine for a few minutes before draining the engine oil?",
+   "options": [
+    "Cold oil can damage the drain bolt",
+    "Warm oil flows out faster and takes dirt with it",
+    "It charges the battery for the service",
+    "It warms the tyres for the test ride"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "ఇంజన్ ఆయిల్ తీసే ముందు కొన్ని నిమిషాలు ఇంజన్ ఎందుకు నడపాలి?",
+    "options": [
+     "చల్లని ఆయిల్ డ్రెయిన్ బోల్ట్‌ను పాడు చేస్తుంది",
+     "వేడి ఆయిల్ త్వరగా బయటకు వస్తుంది, మురికినీ తీసుకెళ్తుంది",
+     "సర్వీస్ కోసం బ్యాటరీ ఛార్జ్ అవుతుంది",
+     "టెస్ట్ రైడ్ కోసం టైర్లు వేడెక్కుతాయి"
+    ]
+   },
+   "hi": {
+    "q": "इंजन ऑयल निकालने से पहले कुछ मिनट इंजन क्यों चलाते हैं?",
+    "options": [
+     "ठंडा ऑयल ड्रेन बोल्ट खराब करता है",
+     "गर्म ऑयल जल्दी निकलता है और गंदगी साथ ले जाता है",
+     "सर्विस के लिए बैटरी चार्ज होती है",
+     "टेस्ट राइड के लिए टायर गर्म होते हैं"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-037",
+   "topic": "Periodic service",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "During a service, the oil drain bolt washer is found crushed. What do you do?",
+   "options": [
+    "Fit a new washer, tighten to the right torque",
+    "Reuse it and tighten extra hard",
+    "Wrap Teflon tape on the bolt",
+    "Leave the washer out"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "సర్వీస్ సమయంలో ఆయిల్ డ్రెయిన్ బోల్ట్ వాషర్ నలిగిపోయి ఉంది. ఏం చేస్తారు?",
+    "options": [
+     "కొత్త వాషర్ వేసి, సరైన టార్క్‌కు బిగించాలి",
+     "అదే వాడి, ఇంకా గట్టిగా బిగించాలి",
+     "బోల్ట్‌కు టెఫ్లాన్ టేప్ చుట్టాలి",
+     "వాషర్ లేకుండానే బిగించాలి"
+    ]
+   },
+   "hi": {
+    "q": "सर्विस में ऑयल ड्रेन बोल्ट का वॉशर पिचका हुआ मिला। क्या करेंगे?",
+    "options": [
+     "नया वॉशर लगाएँ, सही टॉर्क पर कसें",
+     "वही लगाकर और ज़ोर से कसें",
+     "बोल्ट पर टेफ़्लॉन टेप लपेटें",
+     "बिना वॉशर के लगा दें"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-038",
+   "topic": "Periodic service",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "The clutch lever has zero free play. What problem can this cause?",
+   "options": [
+    "Gears are hard to find only when cold",
+    "Mileage goes up a lot",
+    "Brakes become weak",
+    "Clutch slips and the plates wear fast"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "క్లచ్ లివర్‌కు ఫ్రీ ప్లే అసలు లేదు. దీని వల్ల ఏ సమస్య రావచ్చు?",
+    "options": [
+     "చల్లగా ఉన్నప్పుడే గేర్లు పడటం కష్టం",
+     "మైలేజ్ బాగా పెరుగుతుంది",
+     "బ్రేకులు బలహీనం అవుతాయి",
+     "క్లచ్ స్లిప్ అవుతుంది, ప్లేట్లు త్వరగా అరుగుతాయి"
+    ]
+   },
+   "hi": {
+    "q": "क्लच लीवर में फ़्री प्ले बिल्कुल नहीं है। इससे क्या समस्या हो सकती है?",
+    "options": [
+     "सिर्फ़ ठंड में गियर लगाने में दिक्कत",
+     "माइलेज बहुत बढ़ जाएगा",
+     "ब्रेक कमज़ोर हो जाएँगे",
+     "क्लच स्लिप होगा और प्लेट जल्दी घिसेंगी"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-039",
+   "topic": "Periodic service",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "How should the rear axle nut be tightened after fitting the wheel?",
+   "options": [
+    "As tight as possible with a long pipe",
+    "Torque wrench, to the manual's value",
+    "Hand tight is enough",
+    "Tighten fully, then back off half a turn"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "చక్రం బిగించిన తర్వాత వెనుక యాక్సిల్ నట్‌ను ఎలా టైట్ చేయాలి?",
+    "options": [
+     "పొడవాటి పైప్‌తో వీలైనంత గట్టిగా",
+     "టార్క్ రెంచ్‌తో, మాన్యువల్‌లో ఉన్న విలువకు",
+     "చేత్తో బిగిస్తే చాలు",
+     "పూర్తిగా బిగించి, అర రౌండ్ వదులు చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "पहिया लगाने के बाद पिछला एक्सल नट कैसे कसना चाहिए?",
+    "options": [
+     "लंबे पाइप से जितना हो सके उतना टाइट",
+     "टॉर्क रिंच से, मैनुअल में दी वैल्यू तक",
+     "हाथ से कसना काफ़ी है",
+     "पूरा कसकर आधा चक्कर ढीला करें"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-040",
+   "topic": "Periodic service",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A customer says mileage fell from 55 to 40 km/l. Service history is fine. What do you check first?",
+   "options": [
+    "Replace the carburettor",
+    "Change the fuel pump",
+    "Ask him to try another petrol bunk",
+    "Tyre pressure, brake drag, air filter and plug"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "మైలేజ్ 55 నుంచి 40 km/l కి పడిపోయిందని కస్టమర్ చెబుతున్నారు. సర్వీస్ హిస్టరీ బాగుంది. ముందుగా ఏం చెక్ చేస్తారు?",
+    "options": [
+     "కార్బ్యురేటర్ మార్చాలి",
+     "ఫ్యూయల్ పంప్ మార్చాలి",
+     "వేరే పెట్రోల్ బంక్ ట్రై చేయమనాలి",
+     "టైర్ ప్రెషర్, బ్రేక్ పట్టేయడం, ఎయిర్ ఫిల్టర్, ప్లగ్"
+    ]
+   },
+   "hi": {
+    "q": "ग्राहक कहता है माइलेज 55 से 40 km/l हो गया। सर्विस हिस्ट्री ठीक है। सबसे पहले क्या चेक करेंगे?",
+    "options": [
+     "कार्बोरेटर बदल दें",
+     "फ़्यूल पंप बदल दें",
+     "दूसरे पेट्रोल पंप से भरवाने को कहें",
+     "टायर प्रेशर, ब्रेक जाम, एयर फ़िल्टर और प्लग"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-041",
+   "topic": "Periodic service",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A bike stood in flood water up to the seat. What should you do before trying to start it?",
+   "options": [
+    "Kick it many times to push the water out",
+    "Start it and rev hard to clear the water",
+    "Don't crank; check oil and engine for water, dry plug and wiring",
+    "Just dry the seat and start"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "బైక్ సీటు వరకు వరద నీటిలో మునిగింది. స్టార్ట్ చేసే ముందు ఏం చేయాలి?",
+    "options": [
+     "నీరు బయటకు పోవడానికి చాలాసార్లు కిక్ కొట్టాలి",
+     "స్టార్ట్ చేసి గట్టిగా రేస్ చేయాలి",
+     "క్రాంక్ చేయకూడదు; ఆయిల్, ఇంజన్‌లో నీరు చూడాలి, ప్లగ్, వైరింగ్ ఆరబెట్టాలి",
+     "సీటు తుడిచి స్టార్ట్ చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "बाइक सीट तक बाढ़ के पानी में डूबी रही। स्टार्ट करने से पहले क्या करना चाहिए?",
+    "options": [
+     "पानी निकालने के लिए कई बार किक मारें",
+     "स्टार्ट करके ज़ोर से रेस दें",
+     "क्रैंक न करें; ऑयल और इंजन में पानी देखें, प्लग और वायरिंग सुखाएँ",
+     "सिर्फ़ सीट पोंछकर स्टार्ट करें"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-042",
+   "topic": "Customer handling",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "A customer leaves a bike for service and asks what it will cost. What do you do?",
+   "options": [
+    "Say you will tell him after the work",
+    "Quote a very low price to get the job",
+    "Write an estimate on the job card; call before extra work",
+    "Start work and decide the bill later"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "కస్టమర్ సర్వీస్‌కు బైక్ ఇచ్చి ఖర్చు ఎంత అవుతుందని అడుగుతున్నారు. ఏం చేస్తారు?",
+    "options": [
+     "పని అయ్యాక చెబుతానని చెప్పాలి",
+     "పని రావడానికి చాలా తక్కువ రేటు చెప్పాలి",
+     "జాబ్ కార్డ్ మీద అంచనా రాయాలి; ఎక్స్‌ట్రా పనికి ముందు ఫోన్ చేయాలి",
+     "పని మొదలుపెట్టి, బిల్లు తర్వాత చూసుకోవాలి"
+    ]
+   },
+   "hi": {
+    "q": "ग्राहक सर्विस के लिए बाइक छोड़ता है और खर्च पूछता है। आप क्या करेंगे?",
+    "options": [
+     "कहें कि काम के बाद बताएँगे",
+     "काम पाने के लिए बहुत कम दाम बताएँ",
+     "जॉब कार्ड पर अनुमान लिखें; अतिरिक्त काम से पहले फ़ोन करें",
+     "काम शुरू करें, बिल बाद में देखेंगे"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-043",
+   "topic": "Customer handling",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "During a general service, you find the brake pads almost finished. What do you do?",
+   "options": [
+    "Call the customer, explain, and ask before changing",
+    "Change them and add it to the bill",
+    "Ignore it, it is not on the job card",
+    "Mention it on his next visit"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "జనరల్ సర్వీస్‌లో బ్రేక్ ప్యాడ్స్ దాదాపు అరిగిపోయినట్టు కనిపించాయి. ఏం చేస్తారు?",
+    "options": [
+     "కస్టమర్‌కు ఫోన్ చేసి వివరించి, మార్చే ముందు అడగాలి",
+     "మార్చేసి బిల్లులో వేయాలి",
+     "జాబ్ కార్డ్‌లో లేదు కాబట్టి వదిలేయాలి",
+     "ఆయన తర్వాత వచ్చినప్పుడు చెప్పాలి"
+    ]
+   },
+   "hi": {
+    "q": "जनरल सर्विस में ब्रेक पैड लगभग खत्म मिले। आप क्या करेंगे?",
+    "options": [
+     "ग्राहक को फ़ोन करके समझाएँ और बदलने से पहले पूछें",
+     "बदलकर बिल में जोड़ दें",
+     "जॉब कार्ड में नहीं है, छोड़ दें",
+     "अगली बार आने पर बता दें"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-044",
+   "topic": "Customer handling",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A customer is angry that the bike is not ready at the promised time. What do you say first?",
+   "options": [
+    "Loudly blame the spare parts supplier",
+    "Tell him to come tomorrow, no reason given",
+    "Ignore him and keep working",
+    "Say sorry, give the real reason and a firm new time"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "బైక్ చెప్పిన టైమ్‌కు రెడీ కాలేదని కస్టమర్ కోపంగా ఉన్నారు. ముందుగా ఏం చెబుతారు?",
+    "options": [
+     "స్పేర్ పార్ట్స్ సప్లయర్‌ను గట్టిగా తిట్టాలి",
+     "కారణం లేకుండా రేపు రమ్మనాలి",
+     "పట్టించుకోకుండా పని చేసుకోవాలి",
+     "సారీ చెప్పి, అసలు కారణం, ఖచ్చితమైన కొత్త టైమ్ చెప్పాలి"
+    ]
+   },
+   "hi": {
+    "q": "बाइक तय समय पर तैयार नहीं, ग्राहक गुस्से में है। सबसे पहले क्या कहेंगे?",
+    "options": [
+     "ज़ोर से स्पेयर पार्ट वाले को दोष दें",
+     "बिना कारण कल आने को कहें",
+     "अनदेखा करके काम करते रहें",
+     "माफ़ी माँगें, असली कारण और पक्का नया समय बताएँ"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-045",
+   "topic": "Customer handling",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A customer asks to see the old parts you replaced. What do you do?",
+   "options": [
+    "Say they are thrown away as a rule",
+    "Hand the old parts over to him",
+    "Charge extra to give them back",
+    "Show him some other old parts"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "మీరు మార్చిన పాత పార్ట్స్ చూపించమని కస్టమర్ అడుగుతున్నారు. ఏం చేస్తారు?",
+    "options": [
+     "రూల్ ప్రకారం పడేశామని చెప్పాలి",
+     "పాత పార్ట్స్ ఆయనకు ఇచ్చేయాలి",
+     "తిరిగి ఇవ్వడానికి ఎక్స్‌ట్రా ఛార్జ్ చేయాలి",
+     "వేరే ఏవో పాత పార్ట్స్ చూపించాలి"
+    ]
+   },
+   "hi": {
+    "q": "ग्राहक बदले गए पुराने पार्ट देखना चाहता है। आप क्या करेंगे?",
+    "options": [
+     "कहें कि नियम से फेंक दिए जाते हैं",
+     "पुराने पार्ट उसे दे दें",
+     "वापस देने के लिए अलग पैसे लें",
+     "कोई और पुराने पार्ट दिखा दें"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-046",
+   "topic": "Customer handling",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A customer pays ₹1,850 by UPI. What should you check before he leaves?",
+   "options": [
+    "Only his payment screenshot",
+    "The credit alert on the shop's phone or soundbox",
+    "Ask him to pay twice to be safe",
+    "Nothing, just trust him"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "కస్టమర్ UPIలో ₹1,850 కట్టారు. ఆయన వెళ్లే ముందు ఏం చెక్ చేయాలి?",
+    "options": [
+     "ఆయన పేమెంట్ స్క్రీన్‌షాట్ మాత్రమే",
+     "షాప్ ఫోన్ లేదా సౌండ్‌బాక్స్‌లో డబ్బు వచ్చిన మెసేజ్",
+     "సేఫ్‌గా ఉండటానికి రెండుసార్లు కట్టమనాలి",
+     "ఏమీ వద్దు, నమ్మాలి"
+    ]
+   },
+   "hi": {
+    "q": "ग्राहक ने UPI से ₹1,850 दिए। उसके जाने से पहले क्या चेक करें?",
+    "options": [
+     "सिर्फ़ उसका पेमेंट स्क्रीनशॉट",
+     "दुकान के फ़ोन या साउंडबॉक्स पर पैसे आने का मैसेज",
+     "सुरक्षा के लिए दो बार पेमेंट करवाएँ",
+     "कुछ नहीं, भरोसा करें"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-047",
+   "topic": "Customer handling",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A customer asks you to remove the silencer baffle so the bike sounds louder. What do you do?",
+   "options": [
+    "Do it, since he is paying",
+    "Explain it breaks traffic rules and invites fines; politely say no",
+    "Do it but keep it off the bill",
+    "Do it only after shop hours"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "బైక్ శబ్దం ఎక్కువ రావడానికి సైలెన్సర్ బాఫిల్ తీసేయమని కస్టమర్ అడుగుతున్నారు. ఏం చేస్తారు?",
+    "options": [
+     "ఆయన డబ్బులు ఇస్తున్నారు కాబట్టి చేయాలి",
+     "ఇది ట్రాఫిక్ రూల్స్‌కు వ్యతిరేకం, ఫైన్ పడుతుందని వివరించి మర్యాదగా వద్దనాలి",
+     "చేసి బిల్లులో రాయకూడదు",
+     "షాప్ టైమ్ అయ్యాక మాత్రమే చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "ग्राहक चाहता है कि आवाज़ बढ़ाने के लिए साइलेंसर का बैफ़ल निकाल दें। आप क्या करेंगे?",
+    "options": [
+     "कर दें, पैसे तो वही दे रहा है",
+     "समझाएँ कि यह ट्रैफ़िक नियम के खिलाफ़ है, चालान होगा; विनम्रता से मना करें",
+     "कर दें पर बिल में न लिखें",
+     "दुकान बंद होने के बाद ही करें"
+    ]
+   }
+  },
+  {
+   "id": "two-wheeler-048",
+   "topic": "Customer handling",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A customer comes back the day after a service with a new noise. What is the best response?",
+   "options": [
+    "Ride with him, find the cause; fix free if it is our mistake",
+    "Say it cannot be from our work",
+    "Charge a new service fee first",
+    "Send him to the company service centre"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "సర్వీస్ అయిన మరుసటి రోజు కొత్త శబ్దం వస్తోందని కస్టమర్ తిరిగి వచ్చారు. ఉత్తమ స్పందన ఏది?",
+    "options": [
+     "ఆయనతో టెస్ట్ రైడ్ చేసి కారణం కనిపెట్టాలి; మా తప్పు అయితే ఫ్రీగా సరిచేయాలి",
+     "మా పని వల్ల కాదని చెప్పాలి",
+     "ముందుగా కొత్త సర్వీస్ ఫీజు తీసుకోవాలి",
+     "కంపెనీ సర్వీస్ సెంటర్‌కు పంపాలి"
+    ]
+   },
+   "hi": {
+    "q": "सर्विस के अगले दिन ग्राहक नई आवाज़ की शिकायत लेकर आया। सबसे अच्छा जवाब क्या है?",
+    "options": [
+     "उसके साथ टेस्ट राइड करें, कारण ढूँढें; गलती हमारी हो तो मुफ़्त ठीक करें",
+     "कहें कि हमारे काम से नहीं हो सकता",
+     "पहले नई सर्विस फ़ीस लें",
+     "कंपनी सर्विस सेंटर भेज दें"
+    ]
+   }
+  }
+ ],
+ "task": {
+  "type": "proof",
+  "title": "Two-wheeler workshop: safe-work picture check and photo of your work",
+  "brief": "This takes about 10 minutes. First, answer 7 short picture-style questions. Each one describes a real workshop moment (grinding, chain adjustment, jump-start, tyres, spark plug, stand, handover). Pick the safe and correct way. Then, if you like, upload one clear photo of a bike job you did yourself (for example an engine you opened, a brake job, or a wiring repair) or your ITI / training certificate. The photo is optional. Do not show any faces, number plates or customer details. Add one or two lines saying what the job was and what you did.",
+  "minutes": 10,
+  "key_points": [
+   "Picks the safe option in each situation",
+   "Photo shows real two-wheeler work by the candidate",
+   "Short note explains the job clearly",
+   "No faces, number plates or customer details visible"
+  ],
+  "rubric": [
+   {
+    "key": "relevance",
+    "label": "Relevance",
+    "guide": "0 = photo is not two-wheeler work, 3 = related but unclear what was done, 5 = clear two-wheeler job matching the note"
+   },
+   {
+    "key": "genuineness",
+    "label": "Genuineness",
+    "guide": "0 = looks like a stock or copied image, 3 = probably own work but little detail, 5 = clearly own work with a matching, specific note"
+   },
+   {
+    "key": "safety",
+    "label": "Safety and neatness",
+    "guide": "0 = unsafe practice visible (no stand, loose wiring, fuel near flame), 3 = acceptable, 5 = tidy, safe and done the proper way"
+   }
+  ],
+  "situations": [
+   {
+    "q": "A helper is grinding a bracket on the bench grinder. Which picture shows the safe way?",
+    "options": [
+     "Guard removed for a better view",
+     "Goggles on, guard in place, tool rest close to the wheel",
+     "No goggles, but face turned to one side"
+    ],
+    "answer": 1,
+    "topic": "Workshop safety",
+    "te": {
+     "q": "హెల్పర్ బెంచ్ గ్రైండర్ మీద బ్రాకెట్ గ్రైండ్ చేస్తున్నాడు. ఏ చిత్రం సురక్షిత పద్ధతి చూపిస్తుంది?",
+     "options": [
+      "బాగా కనిపించడానికి గార్డ్ తీసేసి",
+      "గాగుల్స్ పెట్టుకుని, గార్డ్ ఉంచి, టూల్ రెస్ట్ వీల్‌కు దగ్గరగా",
+      "గాగుల్స్ లేకుండా, ముఖం పక్కకు తిప్పి"
+     ]
+    },
+    "hi": {
+     "q": "हेल्पर बेंच ग्राइंडर पर ब्रैकेट घिस रहा है। कौन सी तस्वीर सुरक्षित तरीका दिखाती है?",
+     "options": [
+      "साफ़ दिखने के लिए गार्ड हटा दिया",
+      "चश्मा पहना, गार्ड लगा, टूल रेस्ट पहिये के पास",
+      "चश्मा नहीं, बस चेहरा एक तरफ़ घुमाया"
+     ]
+    }
+   },
+   {
+    "q": "Three photos show a rear wheel after chain adjustment. Which one is right?",
+    "options": [
+     "Left mark two notches ahead of right",
+     "Axle nut loose, marks equal",
+     "Adjuster marks equal on both sides"
+    ],
+    "answer": 2,
+    "topic": "Brakes, tyres and chain",
+    "te": {
+     "q": "చైన్ అడ్జస్ట్ చేసిన తర్వాత వెనుక చక్రం మూడు ఫోటోలు ఉన్నాయి. ఏది సరైనది?",
+     "options": [
+      "ఎడమ గుర్తు కుడి కంటే రెండు గీతలు ముందు",
+      "యాక్సిల్ నట్ లూజ్, గుర్తులు సమానం",
+      "రెండు వైపులా అడ్జస్టర్ గుర్తులు సమానంగా"
+     ]
+    },
+    "hi": {
+     "q": "चेन एडजस्ट करने के बाद पिछले पहिये की तीन फ़ोटो हैं। कौन सी सही है?",
+     "options": [
+      "बायाँ निशान दाएँ से दो खाँचे आगे",
+      "एक्सल नट ढीला, निशान बराबर",
+      "दोनों तरफ़ एडजस्टर के निशान बराबर"
+     ]
+    }
+   },
+   {
+    "q": "A bike is being jump-started from another battery. Which cable order is safe?",
+    "options": [
+     "+ to +, then – to bare metal on the dead bike",
+     "– to – first, then + to +",
+     "+ of one to – of the other"
+    ],
+    "answer": 0,
+    "topic": "Electrical and battery",
+    "te": {
+     "q": "ఇంకో బ్యాటరీ నుంచి బైక్‌ను జంప్-స్టార్ట్ చేస్తున్నారు. ఏ కేబుల్ ఆర్డర్ సేఫ్?",
+     "options": [
+      "+ నుంచి +, తర్వాత – ను డెడ్ బైక్ లోహ భాగానికి",
+      "ముందు – నుంచి –, తర్వాత + నుంచి +",
+      "ఒకదాని + ను ఇంకోదాని – కి"
+     ]
+    },
+    "hi": {
+     "q": "दूसरी बैटरी से बाइक को जंप-स्टार्ट कर रहे हैं। केबल लगाने का कौन सा क्रम सुरक्षित है?",
+     "options": [
+      "+ से +, फिर – को खराब बाइक के खुले धातु वाले हिस्से पर",
+      "पहले – से –, फिर + से +",
+      "एक का + दूसरे के – से"
+     ]
+    }
+   },
+   {
+    "q": "Picture of a tyre tread with the wear bar level with the tread. What should you tell the owner?",
+    "options": [
+     "Tyre is at its limit; replace it now",
+     "Tyre is fine for another year",
+     "Just raise the air pressure"
+    ],
+    "answer": 0,
+    "topic": "Brakes, tyres and chain",
+    "te": {
+     "q": "టైర్ ట్రెడ్ ఫోటో, వేర్ బార్ ట్రెడ్‌కు సమానంగా ఉంది. ఓనర్‌కు ఏం చెబుతారు?",
+     "options": [
+      "టైర్ లిమిట్‌కు వచ్చింది; ఇప్పుడే మార్చాలి",
+      "ఇంకో సంవత్సరం బాగానే ఉంటుంది",
+      "గాలి ప్రెషర్ పెంచితే చాలు"
+     ]
+    },
+    "hi": {
+     "q": "टायर ट्रेड की फ़ोटो, वियर बार ट्रेड के बराबर आ गया है। मालिक को क्या बताएँगे?",
+     "options": [
+      "टायर सीमा पर है; अभी बदलें",
+      "एक साल और ठीक चलेगा",
+      "बस हवा का प्रेशर बढ़ा दें"
+     ]
+    }
+   },
+   {
+    "q": "A spark plug is being refitted. Which picture shows the right method?",
+    "options": [
+     "Start with the spanner straight away at an angle",
+     "Tighten with a long pipe for extra grip",
+     "Start by hand, then tighten with plug spanner to spec"
+    ],
+    "answer": 2,
+    "topic": "Engine and fuel",
+    "te": {
+     "q": "స్పార్క్ ప్లగ్ మళ్లీ బిగిస్తున్నారు. ఏ చిత్రం సరైన పద్ధతి చూపిస్తుంది?",
+     "options": [
+      "మొదటి నుంచే స్పానర్‌తో వంకరగా తిప్పాలి",
+      "గట్టి పట్టు కోసం పొడవాటి పైప్‌తో బిగించాలి",
+      "ముందు చేత్తో తిప్పి, తర్వాత ప్లగ్ స్పానర్‌తో స్పెక్ వరకు బిగించాలి"
+     ]
+    },
+    "hi": {
+     "q": "स्पार्क प्लग वापस लगा रहे हैं। कौन सी तस्वीर सही तरीका दिखाती है?",
+     "options": [
+      "शुरू से ही स्पैनर से टेढ़ा घुमाएँ",
+      "ज़्यादा पकड़ के लिए लंबे पाइप से कसें",
+      "पहले हाथ से घुमाएँ, फिर प्लग स्पैनर से तय टॉर्क तक कसें"
+     ]
+    }
+   },
+   {
+    "q": "A bike is on its main stand for wheel removal on soft mud. Which setup is safe?",
+    "options": [
+     "Stand pushed straight into the mud",
+     "Flat board under the stand, bike checked steady",
+     "Bike on side stand with front wheel lifted by hand"
+    ],
+    "answer": 1,
+    "topic": "Workshop safety",
+    "te": {
+     "q": "మెత్తటి మట్టిలో చక్రం తీయడానికి బైక్ మెయిన్ స్టాండ్ మీద ఉంది. ఏ సెటప్ సేఫ్?",
+     "options": [
+      "స్టాండ్ నేరుగా మట్టిలో దిగబడి",
+      "స్టాండ్ కింద చదునైన చెక్క, బైక్ కదలకుండా చెక్ చేయాలి",
+      "సైడ్ స్టాండ్ మీద, ముందు చక్రం చేత్తో ఎత్తి"
+     ]
+    },
+    "hi": {
+     "q": "नरम मिट्टी पर पहिया निकालने के लिए बाइक मेन स्टैंड पर है। कौन सा तरीका सुरक्षित है?",
+     "options": [
+      "स्टैंड सीधा मिट्टी में धँसा हुआ",
+      "स्टैंड के नीचे सपाट तख्ता, बाइक की स्थिरता जाँची",
+      "साइड स्टैंड पर, आगे का पहिया हाथ से उठाया"
+     ]
+    }
+   },
+   {
+    "q": "A customer collects the bike after service. Which handover is best?",
+    "options": [
+     "Explain work done and bill items, show old parts, give next service date",
+     "Hand over keys and bill without a word",
+     "Only tell him the total amount"
+    ],
+    "answer": 0,
+    "topic": "Customer handling",
+    "te": {
+     "q": "సర్వీస్ తర్వాత కస్టమర్ బైక్ తీసుకుంటున్నారు. ఏ హ్యాండోవర్ ఉత్తమం?",
+     "options": [
+      "చేసిన పని, బిల్లు వివరాలు చెప్పి, పాత పార్ట్స్ చూపించి, తర్వాతి సర్వీస్ డేట్ చెప్పాలి",
+      "ఏమీ చెప్పకుండా కీ, బిల్లు ఇవ్వాలి",
+      "మొత్తం ఎంతో మాత్రమే చెప్పాలి"
+     ]
+    },
+    "hi": {
+     "q": "सर्विस के बाद ग्राहक बाइक लेने आया। सबसे अच्छा हैंडओवर कौन सा है?",
+     "options": [
+      "किया गया काम और बिल समझाएँ, पुराने पार्ट दिखाएँ, अगली सर्विस की तारीख बताएँ",
+      "बिना कुछ कहे चाबी और बिल दे दें",
+      "सिर्फ़ कुल रकम बता दें"
+     ]
+    }
+   }
+  ]
+ }
+}

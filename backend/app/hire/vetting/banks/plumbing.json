@@ -1,0 +1,1642 @@
+{
+ "slug": "plumbing",
+ "version": 1,
+ "topics": [
+  "Safety",
+  "Tools and materials",
+  "Water supply and fittings",
+  "Drainage and sanitary",
+  "Customer handling"
+ ],
+ "questions": [
+  {
+   "id": "plumbing-001",
+   "topic": "Safety",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Before cutting into a wall to reach a hidden pipe, what should you check first?",
+   "options": [
+    "Electric wires running inside it",
+    "The colour of the wall paint",
+    "The age of the building",
+    "The brand of the wall tiles"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "గోడలో దాగి ఉన్న పైప్ కోసం గోడను కట్ చేసే ముందు ముందుగా ఏమి చూడాలి?",
+    "options": [
+     "గోడ లోపల ఉన్న కరెంట్ వైర్లు",
+     "గోడ పెయింట్ రంగు",
+     "బిల్డింగ్ ఎంత పాతది",
+     "గోడ టైల్స్ బ్రాండ్"
+    ]
+   },
+   "hi": {
+    "q": "दीवार में छिपे पाइप तक पहुँचने के लिए दीवार काटने से पहले सबसे पहले क्या देखना चाहिए?",
+    "options": [
+     "दीवार के अंदर चल रहे बिजली के तार",
+     "दीवार के पेंट का रंग",
+     "बिल्डिंग कितनी पुरानी है",
+     "दीवार की टाइल्स का ब्रांड"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-002",
+   "topic": "Safety",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "You are cutting a GI pipe with a hacksaw. What protects your eyes from metal chips?",
+   "options": [
+    "A cap pulled low",
+    "Safety goggles",
+    "Your normal spectacles",
+    "Working fast so fewer chips fly"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "మీరు హ్యాక్‌సాతో GI పైప్ కట్ చేస్తున్నారు. లోహపు ముక్కల నుంచి కళ్లను ఏది కాపాడుతుంది?",
+    "options": [
+     "కిందికి లాగిన టోపీ",
+     "సేఫ్టీ గాగుల్స్",
+     "మీ మామూలు కళ్లజోడు",
+     "ముక్కలు తక్కువ ఎగిరేలా వేగంగా కట్ చేయడం"
+    ]
+   },
+   "hi": {
+    "q": "आप हैकसॉ से GI पाइप काट रहे हैं। धातु के टुकड़ों से आँखों को क्या बचाएगा?",
+    "options": [
+     "नीचे खींची हुई टोपी",
+     "सेफ्टी गॉगल्स",
+     "आपका साधारण चश्मा",
+     "तेज़ी से काटना ताकि कम टुकड़े उड़ें"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-003",
+   "topic": "Safety",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "You must repair the inlet pipe of an electric geyser. What do you do first?",
+   "options": [
+    "Open the geyser cover and check inside first",
+    "Remove the pipe while the water is on",
+    "Switch off its power and close the water",
+    "Ask the customer to hold the pipe for you"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "ఎలక్ట్రిక్ గీజర్ ఇన్‌లెట్ పైప్ రిపేర్ చేయాలి. ముందుగా ఏమి చేస్తారు?",
+    "options": [
+     "ముందుగా గీజర్ కవర్ తెరిచి లోపల చూస్తాను",
+     "నీళ్ళు వస్తుండగానే పైప్ తీసేస్తాను",
+     "దాని కరెంట్ ఆఫ్ చేసి, నీళ్ళు బంద్ చేస్తాను",
+     "పైప్ పట్టుకోమని కస్టమర్‌ని అడుగుతాను"
+    ]
+   },
+   "hi": {
+    "q": "इलेक्ट्रिक गीज़र का इनलेट पाइप ठीक करना है। सबसे पहले क्या करेंगे?",
+    "options": [
+     "पहले गीज़र का कवर खोलकर अंदर देखूँगा",
+     "पानी चालू रहते ही पाइप निकाल दूँगा",
+     "उसकी बिजली बंद करके पानी बंद करूँगा",
+     "कस्टमर से पाइप पकड़ने को कहूँगा"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-004",
+   "topic": "Safety",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "You use a chemical drain cleaner on a blocked drain. What is the safe way?",
+   "options": [
+    "Mix two cleaners for more strength",
+    "Use bare hands to feel the block",
+    "Close the door so the smell stays in",
+    "Wear rubber gloves and keep the room airy"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "బ్లాక్ అయిన డ్రెయిన్‌కి కెమికల్ క్లీనర్ వాడుతున్నారు. సురక్షిత పద్ధతి ఏది?",
+    "options": [
+     "ఎక్కువ బలం కోసం రెండు క్లీనర్లు కలపడం",
+     "బ్లాక్ తెలుసుకోవడానికి ఒట్టి చేతులు వాడటం",
+     "వాసన బయటకు రాకుండా తలుపు మూయడం",
+     "రబ్బర్ గ్లవ్స్ వేసుకుని, గదిలో గాలి వచ్చేలా చూడటం"
+    ]
+   },
+   "hi": {
+    "q": "बंद नाली में केमिकल ड्रेन क्लीनर डाल रहे हैं। सुरक्षित तरीका क्या है?",
+    "options": [
+     "ज़्यादा ताकत के लिए दो क्लीनर मिलाएँ",
+     "रुकावट महसूस करने के लिए नंगे हाथ डालें",
+     "दरवाज़ा बंद रखें ताकि बदबू अंदर रहे",
+     "रबर के दस्ताने पहनें और कमरे में हवा आने दें"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-005",
+   "topic": "Safety",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A septic tank is blocked. Your helper wants to climb inside to clear it. What do you do?",
+   "options": [
+    "Stop him and clear it from outside with tools or a machine",
+    "Let him go in quickly with a torch",
+    "Tie a wet cloth on his nose and send him",
+    "Pour water first, then send him in"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "సెప్టిక్ ట్యాంక్ బ్లాక్ అయింది. మీ హెల్పర్ లోపలికి దిగి క్లియర్ చేస్తానంటున్నాడు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "అతన్ని ఆపి, బయట నుంచే టూల్స్ లేదా మెషిన్‌తో క్లియర్ చేస్తాను",
+     "టార్చ్ ఇచ్చి త్వరగా లోపలికి పంపిస్తాను",
+     "ముక్కుకు తడి గుడ్డ కట్టి పంపిస్తాను",
+     "ముందు నీళ్ళు పోసి తర్వాత లోపలికి పంపిస్తాను"
+    ]
+   },
+   "hi": {
+    "q": "सेप्टिक टैंक जाम है। आपका हेल्पर अंदर उतरकर साफ करना चाहता है। आप क्या करेंगे?",
+    "options": [
+     "उसे रोकूँगा और बाहर से औज़ार या मशीन से साफ करूँगा",
+     "टॉर्च देकर उसे जल्दी अंदर भेज दूँगा",
+     "नाक पर गीला कपड़ा बाँधकर भेज दूँगा",
+     "पहले पानी डालूँगा, फिर उसे अंदर भेजूँगा"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-006",
+   "topic": "Safety",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "You fix an overhead pipe from a ladder on a wet bathroom floor. What is the right practice?",
+   "options": [
+    "Stand on the top step to reach higher",
+    "Dry the floor and have someone hold the ladder",
+    "Put the ladder on a bucket for extra height",
+    "Lean far sideways instead of moving the ladder"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "తడి బాత్‌రూమ్ నేలపై నిచ్చెన పెట్టి పైన ఉన్న పైప్ రిపేర్ చేస్తున్నారు. సరైన పద్ధతి ఏది?",
+    "options": [
+     "ఇంకా పైకి అందడానికి చివరి మెట్టుపై నిలబడటం",
+     "నేలను ఆరబెట్టి, నిచ్చెనను ఎవరైనా పట్టుకునేలా చూడటం",
+     "ఎత్తు కోసం నిచ్చెనను బకెట్‌పై పెట్టడం",
+     "నిచ్చెన జరపకుండా పక్కకు బాగా వంగడం"
+    ]
+   },
+   "hi": {
+    "q": "गीले बाथरूम फर्श पर सीढ़ी लगाकर ऊपर का पाइप ठीक कर रहे हैं। सही तरीका क्या है?",
+    "options": [
+     "और ऊपर पहुँचने के लिए सबसे ऊपर वाले डंडे पर खड़े हों",
+     "फर्श सुखाएँ और किसी से सीढ़ी पकड़वाएँ",
+     "ज़्यादा ऊँचाई के लिए सीढ़ी को बाल्टी पर रखें",
+     "सीढ़ी खिसकाने की जगह बहुत तिरछे झुकें"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-007",
+   "topic": "Safety",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "You are using solvent cement on CPVC joints in a small closed bathroom. What should you do?",
+   "options": [
+    "Light a match nearby to dry it faster",
+    "Spread it with your bare fingers",
+    "Keep the window or door open for fresh air",
+    "Keep the exhaust fan off to save power"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "చిన్న మూసి ఉన్న బాత్‌రూమ్‌లో CPVC జాయింట్లకు సాల్వెంట్ సిమెంట్ వాడుతున్నారు. ఏమి చేయాలి?",
+    "options": [
+     "త్వరగా ఆరడానికి దగ్గర అగ్గిపుల్ల వెలిగించాలి",
+     "ఒట్టి వేళ్ళతో పూయాలి",
+     "గాలి కోసం కిటికీ లేదా తలుపు తెరిచి ఉంచాలి",
+     "కరెంట్ ఆదా కోసం ఎగ్జాస్ట్ ఫ్యాన్ ఆఫ్ ఉంచాలి"
+    ]
+   },
+   "hi": {
+    "q": "छोटे बंद बाथरूम में CPVC जोड़ों पर सॉल्वेंट सीमेंट लगा रहे हैं। क्या करना चाहिए?",
+    "options": [
+     "जल्दी सुखाने के लिए पास में माचिस जलाएँ",
+     "नंगी उँगलियों से फैलाएँ",
+     "ताज़ी हवा के लिए खिड़की या दरवाज़ा खुला रखें",
+     "बिजली बचाने के लिए एग्ज़ॉस्ट फैन बंद रखें"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-008",
+   "topic": "Safety",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "You must braze a copper pipe with a gas torch near a wooden cabinet. What is the safe way?",
+   "options": [
+    "Work fast so the wood does not catch fire",
+    "Wet the wood once and then start",
+    "Point the flame away and don't look at the joint",
+    "Put a heat shield behind the joint and keep water ready"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "చెక్క కబోర్డ్ దగ్గర గ్యాస్ టార్చ్‌తో కాపర్ పైప్ జాయింట్ చేయాలి. సురక్షిత పద్ధతి ఏది?",
+    "options": [
+     "చెక్కకు మంట అంటకుండా వేగంగా పని చేయడం",
+     "ఒకసారి చెక్కను తడిపి మొదలుపెట్టడం",
+     "మంటను దూరంగా పెట్టి జాయింట్ వైపు చూడకపోవడం",
+     "జాయింట్ వెనుక హీట్ షీల్డ్ పెట్టి, నీళ్ళు సిద్ధంగా ఉంచడం"
+    ]
+   },
+   "hi": {
+    "q": "लकड़ी की कैबिनेट के पास गैस टॉर्च से कॉपर पाइप जोड़ना है। सुरक्षित तरीका क्या है?",
+    "options": [
+     "तेज़ी से काम करें ताकि लकड़ी में आग न लगे",
+     "लकड़ी को एक बार गीला करके शुरू करें",
+     "लौ दूर रखें और जोड़ की तरफ न देखें",
+     "जोड़ के पीछे हीट शील्ड लगाएँ और पानी तैयार रखें"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-009",
+   "topic": "Tools and materials",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which tool do you use to tighten a GI pipe fitting?",
+   "options": [
+    "Pipe wrench",
+    "Screwdriver",
+    "Claw hammer",
+    "Wire cutter"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "GI పైప్ ఫిట్టింగ్ టైట్ చేయడానికి ఏ టూల్ వాడతారు?",
+    "options": [
+     "పైప్ రెంచ్",
+     "స్క్రూడ్రైవర్",
+     "క్లా హ్యామర్",
+     "వైర్ కట్టర్"
+    ]
+   },
+   "hi": {
+    "q": "GI पाइप फिटिंग कसने के लिए कौन सा औज़ार इस्तेमाल करते हैं?",
+    "options": [
+     "पाइप रिंच",
+     "स्क्रूड्राइवर",
+     "क्लॉ हथौड़ा",
+     "वायर कटर"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-010",
+   "topic": "Tools and materials",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What do you wrap on the threads of a GI joint to stop leaks?",
+   "options": [
+    "Cello tape",
+    "Teflon tape",
+    "Insulation tape",
+    "Masking tape"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "లీక్ ఆపడానికి GI జాయింట్ థ్రెడ్స్‌పై ఏమి చుడతారు?",
+    "options": [
+     "సెల్లో టేప్",
+     "టెఫ్లాన్ టేప్",
+     "ఇన్సులేషన్ టేప్",
+     "మాస్కింగ్ టేప్"
+    ]
+   },
+   "hi": {
+    "q": "लीक रोकने के लिए GI जोड़ की चूड़ियों पर क्या लपेटते हैं?",
+    "options": [
+     "सेलो टेप",
+     "टेफ्लॉन टेप",
+     "इंसुलेशन टेप",
+     "मास्किंग टेप"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-011",
+   "topic": "Tools and materials",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which pipe is commonly used for hot water lines in Indian homes today?",
+   "options": [
+    "PVC rainwater pipe",
+    "Black HDPE garden pipe",
+    "CPVC pipe",
+    "Flexible garden hose"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "ఈరోజుల్లో మన ఇళ్లలో వేడి నీళ్ళ లైన్‌కు ఎక్కువగా ఏ పైప్ వాడతారు?",
+    "options": [
+     "PVC వర్షం నీటి పైప్",
+     "నల్ల HDPE గార్డెన్ పైప్",
+     "CPVC పైప్",
+     "ఫ్లెక్సిబుల్ గార్డెన్ హోస్"
+    ]
+   },
+   "hi": {
+    "q": "आजकल भारतीय घरों में गर्म पानी की लाइन के लिए आमतौर पर कौन सा पाइप लगता है?",
+    "options": [
+     "PVC बारिश के पानी का पाइप",
+     "काला HDPE गार्डन पाइप",
+     "CPVC पाइप",
+     "फ्लेक्सिबल गार्डन होज़"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-012",
+   "topic": "Tools and materials",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "How are two CPVC pipes normally joined?",
+   "options": [
+    "With teflon tape and a clamp",
+    "With an arc welding machine",
+    "By heating with a lighter and pressing",
+    "With a coupler and solvent cement"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "రెండు CPVC పైపులను సాధారణంగా ఎలా జోడిస్తారు?",
+    "options": [
+     "టెఫ్లాన్ టేప్ మరియు క్లాంప్‌తో",
+     "ఆర్క్ వెల్డింగ్ మెషిన్‌తో",
+     "లైటర్‌తో వేడి చేసి నొక్కి",
+     "కప్లర్ మరియు సాల్వెంట్ సిమెంట్‌తో"
+    ]
+   },
+   "hi": {
+    "q": "दो CPVC पाइप आमतौर पर कैसे जोड़े जाते हैं?",
+    "options": [
+     "टेफ्लॉन टेप और क्लैंप से",
+     "आर्क वेल्डिंग मशीन से",
+     "लाइटर से गर्म करके दबाकर",
+     "कपलर और सॉल्वेंट सीमेंट से"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-013",
+   "topic": "Tools and materials",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "How are PPR pipes joined on site?",
+   "options": [
+    "With a heat fusion machine",
+    "With solvent cement",
+    "With threads and teflon tape",
+    "With M-seal only"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "సైట్‌లో PPR పైపులను ఎలా జోడిస్తారు?",
+    "options": [
+     "హీట్ ఫ్యూజన్ మెషిన్‌తో",
+     "సాల్వెంట్ సిమెంట్‌తో",
+     "థ్రెడ్స్ మరియు టెఫ్లాన్ టేప్‌తో",
+     "కేవలం M-seal తో"
+    ]
+   },
+   "hi": {
+    "q": "साइट पर PPR पाइप कैसे जोड़े जाते हैं?",
+    "options": [
+     "हीट फ्यूज़न मशीन से",
+     "सॉल्वेंट सीमेंट से",
+     "चूड़ी और टेफ्लॉन टेप से",
+     "सिर्फ M-seal से"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-014",
+   "topic": "Tools and materials",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does the ISI mark on a pipe or tap tell you?",
+   "options": [
+    "It is imported from abroad",
+    "It meets the Indian quality standard",
+    "It is the cheapest in the shop",
+    "It is only for hot water"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "పైప్ లేదా ట్యాప్‌పై ISI మార్క్ ఏమి చెబుతుంది?",
+    "options": [
+     "ఇది విదేశాల నుంచి వచ్చింది",
+     "ఇది భారత నాణ్యత ప్రమాణానికి సరిపోతుంది",
+     "ఇది షాప్‌లో అన్నిటికంటే చవకైనది",
+     "ఇది వేడి నీళ్ళకు మాత్రమే"
+    ]
+   },
+   "hi": {
+    "q": "पाइप या नल पर ISI मार्क क्या बताता है?",
+    "options": [
+     "यह विदेश से आया है",
+     "यह भारतीय गुणवत्ता मानक पर खरा है",
+     "यह दुकान में सबसे सस्ता है",
+     "यह सिर्फ गर्म पानी के लिए है"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-015",
+   "topic": "Tools and materials",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "You cut a CPVC pipe with a hacksaw. What must you do before joining it?",
+   "options": [
+    "Leave the end rough for better grip",
+    "Dip the end in oil",
+    "Remove the rough edges and bevel the end",
+    "Heat the end to make it soft"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "హ్యాక్‌సాతో CPVC పైప్ కట్ చేశారు. జోడించే ముందు ఏమి చేయాలి?",
+    "options": [
+     "బాగా పట్టుకోవడానికి చివర గరుకుగానే వదలాలి",
+     "చివరను నూనెలో ముంచాలి",
+     "గరుకు అంచులు తీసి, చివరను కొంచెం వాలుగా చేయాలి",
+     "చివరను మెత్తగా చేయడానికి వేడి చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "हैकसॉ से CPVC पाइप काटा। जोड़ने से पहले क्या करना ज़रूरी है?",
+    "options": [
+     "अच्छी पकड़ के लिए सिरा खुरदुरा छोड़ दें",
+     "सिरे को तेल में डुबोएँ",
+     "खुरदुरे किनारे हटाएँ और सिरे को हल्का तिरछा करें",
+     "सिरे को नरम करने के लिए गर्म करें"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-016",
+   "topic": "Tools and materials",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Which tool tells you if new concealed piping has a leak before the wall is plastered?",
+   "options": [
+    "Spirit level",
+    "Measuring tape",
+    "Pipe threading die",
+    "Hydraulic pressure test pump"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "గోడకు ప్లాస్టర్ చేసే ముందు కొత్త కన్సీల్డ్ పైపింగ్‌లో లీక్ ఉందో లేదో ఏ టూల్ చెబుతుంది?",
+    "options": [
+     "స్పిరిట్ లెవెల్",
+     "మెజరింగ్ టేప్",
+     "పైప్ థ్రెడింగ్ డై",
+     "హైడ్రాలిక్ ప్రెషర్ టెస్ట్ పంప్"
+    ]
+   },
+   "hi": {
+    "q": "दीवार पर प्लास्टर से पहले नई कंसील्ड पाइपिंग में लीक है या नहीं, कौन सा औज़ार बताता है?",
+    "options": [
+     "स्पिरिट लेवल",
+     "मेज़रिंग टेप",
+     "पाइप थ्रेडिंग डाई",
+     "हाइड्रोलिक प्रेशर टेस्ट पंप"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-017",
+   "topic": "Tools and materials",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is the best way to get a clean, straight cut on a PVC pipe?",
+   "options": [
+    "Use a pipe cutter",
+    "Use a chisel and hammer",
+    "Use a kitchen knife",
+    "Break it by bending"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "PVC పైప్‌ను నీట్‌గా, నేరుగా కట్ చేయడానికి మంచి మార్గం ఏది?",
+    "options": [
+     "పైప్ కట్టర్ వాడటం",
+     "ఉలి మరియు సుత్తి వాడటం",
+     "వంటింటి కత్తి వాడటం",
+     "వంచి విరగ్గొట్టడం"
+    ]
+   },
+   "hi": {
+    "q": "PVC पाइप को साफ और सीधा काटने का सबसे अच्छा तरीका क्या है?",
+    "options": [
+     "पाइप कटर से काटें",
+     "छेनी और हथौड़े से काटें",
+     "रसोई के चाकू से काटें",
+     "मोड़कर तोड़ दें"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-018",
+   "topic": "Water supply and fittings",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A tap keeps dripping even after you close it fully. What is the usual cause?",
+   "options": [
+    "Low water in the overhead tank",
+    "A worn washer or cartridge",
+    "The tap is fitted too high",
+    "The wall tiles are loose"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "ట్యాప్ పూర్తిగా మూసినా నీళ్ళు చుక్కలుగా పడుతూనే ఉన్నాయి. సాధారణ కారణం ఏమిటి?",
+    "options": [
+     "ఓవర్‌హెడ్ ట్యాంక్‌లో నీళ్ళు తక్కువ",
+     "అరిగిపోయిన వాషర్ లేదా కాట్రిడ్జ్",
+     "ట్యాప్ చాలా ఎత్తులో పెట్టారు",
+     "గోడ టైల్స్ లూజ్‌గా ఉన్నాయి"
+    ]
+   },
+   "hi": {
+    "q": "नल पूरा बंद करने के बाद भी पानी टपकता रहता है। आम कारण क्या है?",
+    "options": [
+     "ऊपर की टंकी में पानी कम है",
+     "घिसा हुआ वॉशर या कार्ट्रिज",
+     "नल बहुत ऊँचा लगा है",
+     "दीवार की टाइल्स ढीली हैं"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-019",
+   "topic": "Water supply and fittings",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Where should the main stop valve of a flat be fitted?",
+   "options": [
+    "Inside the false ceiling",
+    "Under the floor tiles",
+    "At an easy-to-reach spot on the inlet line",
+    "Behind a fixed wardrobe"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "ఫ్లాట్ మెయిన్ స్టాప్ వాల్వ్ ఎక్కడ పెట్టాలి?",
+    "options": [
+     "ఫాల్స్ సీలింగ్ లోపల",
+     "నేల టైల్స్ కింద",
+     "ఇన్‌లెట్ లైన్‌పై సులభంగా అందే చోట",
+     "ఫిక్స్‌డ్ వార్డ్‌రోబ్ వెనుక"
+    ]
+   },
+   "hi": {
+    "q": "फ्लैट का मेन स्टॉप वाल्व कहाँ लगाना चाहिए?",
+    "options": [
+     "फॉल्स सीलिंग के अंदर",
+     "फर्श की टाइल्स के नीचे",
+     "इनलेट लाइन पर ऐसी जगह जहाँ आसानी से हाथ पहुँचे",
+     "फिक्स्ड अलमारी के पीछे"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-020",
+   "topic": "Water supply and fittings",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "One tap gives a weak flow, but all other taps are fine. What do you check first?",
+   "options": [
+    "The size of the overhead tank",
+    "The building's main supply line",
+    "The geyser thermostat",
+    "The aerator at the tap mouth for dirt"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "ఒక్క ట్యాప్‌లో మాత్రమే నీళ్ళు నెమ్మదిగా వస్తున్నాయి, మిగతావి బాగున్నాయి. ముందుగా ఏమి చెక్ చేస్తారు?",
+    "options": [
+     "ఓవర్‌హెడ్ ట్యాంక్ సైజ్",
+     "బిల్డింగ్ మెయిన్ సప్లై లైన్",
+     "గీజర్ థర్మోస్టాట్",
+     "ట్యాప్ మూతి దగ్గర ఉన్న ఏరేటర్‌లో చెత్త"
+    ]
+   },
+   "hi": {
+    "q": "सिर्फ एक नल में पानी धीरे आ रहा है, बाकी सब ठीक हैं। पहले क्या जाँचेंगे?",
+    "options": [
+     "ऊपर की टंकी का साइज़",
+     "बिल्डिंग की मेन सप्लाई लाइन",
+     "गीज़र का थर्मोस्टेट",
+     "नल के मुँह पर लगे एरेटर में कचरा"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-021",
+   "topic": "Water supply and fittings",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A toilet cistern keeps letting water run into the pan. What is likely faulty?",
+   "options": [
+    "The flush valve seal or float setting",
+    "The pan's outlet pipe",
+    "The health faucet hose",
+    "The seat cover hinge"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "టాయిలెట్ సిస్టర్న్ నుంచి పాన్‌లోకి నీళ్ళు ఆగకుండా పోతున్నాయి. ఏది పాడై ఉండవచ్చు?",
+    "options": [
+     "ఫ్లష్ వాల్వ్ సీల్ లేదా ఫ్లోట్ సెట్టింగ్",
+     "పాన్ అవుట్‌లెట్ పైప్",
+     "హెల్త్ ఫాసెట్ హోస్",
+     "సీట్ కవర్ హింజ్"
+    ]
+   },
+   "hi": {
+    "q": "टॉयलेट की टंकी से पॉट में लगातार पानी बहता रहता है। क्या खराब होने की संभावना है?",
+    "options": [
+     "फ्लश वाल्व की सील या फ्लोट की सेटिंग",
+     "पॉट का आउटलेट पाइप",
+     "हेल्थ फॉसेट की होज़",
+     "सीट कवर का कब्ज़ा"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-022",
+   "topic": "Water supply and fittings",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A pressure pump keeps starting again and again when no tap is open. What does this usually mean?",
+   "options": [
+    "The pump capacity is too high",
+    "There is a leak somewhere in the line",
+    "The overhead tank is too small",
+    "The voltage in the building is low"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "ఏ ట్యాప్ తెరవకపోయినా ప్రెషర్ పంప్ మళ్ళీ మళ్ళీ స్టార్ట్ అవుతోంది. దీని అర్థం సాధారణంగా ఏమిటి?",
+    "options": [
+     "పంప్ కెపాసిటీ చాలా ఎక్కువ",
+     "లైన్‌లో ఎక్కడో లీక్ ఉంది",
+     "ఓవర్‌హెడ్ ట్యాంక్ చాలా చిన్నది",
+     "బిల్డింగ్‌లో వోల్టేజ్ తక్కువ"
+    ]
+   },
+   "hi": {
+    "q": "कोई नल खुला नहीं है, फिर भी प्रेशर पंप बार-बार चालू हो रहा है। इसका आमतौर पर क्या मतलब है?",
+    "options": [
+     "पंप की क्षमता बहुत ज़्यादा है",
+     "लाइन में कहीं लीक है",
+     "ऊपर की टंकी बहुत छोटी है",
+     "बिल्डिंग में वोल्टेज कम है"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-023",
+   "topic": "Water supply and fittings",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "While servicing a geyser, you find its safety (pressure release) valve is blocked. The customer says skip it. What do you say?",
+   "options": [
+    "Fine, the thermostat is enough",
+    "Just set a lower temperature",
+    "Replace it before use, or the tank can burst",
+    "Use the geyser only at night"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "గీజర్ సర్వీస్ చేస్తుంటే దాని సేఫ్టీ (ప్రెషర్ రిలీజ్) వాల్వ్ బ్లాక్ అయి ఉంది. కస్టమర్ వదిలేయమంటున్నారు. మీరు ఏమి చెబుతారు?",
+    "options": [
+     "సరే, థర్మోస్టాట్ ఉంటే చాలు",
+     "టెంపరేచర్ తక్కువ పెడితే చాలు",
+     "వాడే ముందు మార్చాలి, లేకపోతే ట్యాంక్ పేలవచ్చు",
+     "గీజర్‌ను రాత్రి మాత్రమే వాడండి"
+    ]
+   },
+   "hi": {
+    "q": "गीज़र की सर्विस करते समय उसका सेफ्टी (प्रेशर रिलीज़) वाल्व जाम मिला। कस्टमर कहते हैं छोड़ दो। आप क्या कहेंगे?",
+    "options": [
+     "ठीक है, थर्मोस्टेट काफी है",
+     "बस तापमान कम रख दीजिए",
+     "इस्तेमाल से पहले इसे बदलें, वरना टंकी फट सकती है",
+     "गीज़र सिर्फ रात में चलाइए"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-024",
+   "topic": "Water supply and fittings",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A builder plans uPVC pipes for the hot water lines to save money. What is your advice?",
+   "options": [
+    "Fine, if the pipes are thick",
+    "Wrap the pipes in tape to handle heat",
+    "Fine, but only run warm water",
+    "Use CPVC or PPR, since uPVC is not made for hot water"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "డబ్బు ఆదా కోసం వేడి నీళ్ళ లైన్‌కు uPVC పైపులు వేయాలని బిల్డర్ అనుకుంటున్నారు. మీ సలహా ఏమిటి?",
+    "options": [
+     "పైపులు మందంగా ఉంటే సరే",
+     "వేడి తట్టుకోవడానికి పైపులకు టేప్ చుట్టండి",
+     "సరే, కానీ గోరువెచ్చని నీళ్ళు మాత్రమే పంపండి",
+     "CPVC లేదా PPR వాడండి, uPVC వేడి నీళ్ళకు కాదు"
+    ]
+   },
+   "hi": {
+    "q": "पैसे बचाने के लिए बिल्डर गर्म पानी की लाइन में uPVC पाइप लगाना चाहता है। आपकी सलाह क्या है?",
+    "options": [
+     "पाइप मोटे हों तो ठीक है",
+     "गर्मी झेलने के लिए पाइप पर टेप लपेट दीजिए",
+     "ठीक है, बस गुनगुना पानी ही चलाइए",
+     "CPVC या PPR लगाइए, uPVC गर्म पानी के लिए नहीं बना"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-025",
+   "topic": "Water supply and fittings",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "An old building with GI pipes gets rusty water at every tap. What is the best long-term advice?",
+   "options": [
+    "Replace the old GI lines with CPVC",
+    "Tie a cloth filter on each tap",
+    "Run each tap for a minute daily",
+    "Add more teflon tape at the joints"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "GI పైపులు ఉన్న పాత బిల్డింగ్‌లో ప్రతి ట్యాప్ నుంచి తుప్పు నీళ్ళు వస్తున్నాయి. దీర్ఘకాలానికి మంచి సలహా ఏది?",
+    "options": [
+     "పాత GI లైన్లను తీసి CPVC వేయడం",
+     "ప్రతి ట్యాప్‌కి గుడ్డ ఫిల్టర్ కట్టడం",
+     "రోజూ ప్రతి ట్యాప్ ఒక నిమిషం తెరిచి ఉంచడం",
+     "జాయింట్లకు ఇంకా టెఫ్లాన్ టేప్ చుట్టడం"
+    ]
+   },
+   "hi": {
+    "q": "GI पाइप वाली पुरानी बिल्डिंग में हर नल से ज़ंग वाला पानी आता है। लंबे समय के लिए सबसे अच्छी सलाह क्या है?",
+    "options": [
+     "पुरानी GI लाइनें हटाकर CPVC लगाएँ",
+     "हर नल पर कपड़े का फिल्टर बाँधें",
+     "रोज़ हर नल एक मिनट चलाएँ",
+     "जोड़ों पर और टेफ्लॉन टेप लपेटें"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-026",
+   "topic": "Water supply and fittings",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "During a pressure test on new piping, the gauge slowly drops over 30 minutes. What does it mean?",
+   "options": [
+    "The gauge needs time to warm up",
+    "A joint is leaking somewhere",
+    "This is normal for new pipes",
+    "The test pump is too strong"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "కొత్త పైపింగ్‌కి ప్రెషర్ టెస్ట్ చేస్తుంటే 30 నిమిషాల్లో గేజ్ నెమ్మదిగా పడిపోతోంది. దీని అర్థం ఏమిటి?",
+    "options": [
+     "గేజ్ వేడెక్కడానికి సమయం కావాలి",
+     "ఎక్కడో ఒక జాయింట్ లీక్ అవుతోంది",
+     "కొత్త పైపులకు ఇది మామూలే",
+     "టెస్ట్ పంప్ చాలా బలంగా ఉంది"
+    ]
+   },
+   "hi": {
+    "q": "नई पाइपिंग के प्रेशर टेस्ट में गेज 30 मिनट में धीरे-धीरे गिर रहा है। इसका क्या मतलब है?",
+    "options": [
+     "गेज को गर्म होने में समय लगता है",
+     "कहीं कोई जोड़ लीक हो रहा है",
+     "नए पाइप में यह सामान्य है",
+     "टेस्ट पंप बहुत तेज़ है"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-027",
+   "topic": "Drainage and sanitary",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is the job of the trap under a wash basin?",
+   "options": [
+    "It makes water flow faster",
+    "It saves water",
+    "It holds water that blocks drain smell",
+    "It stores dirt for cleaning later"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "వాష్ బేసిన్ కింద ఉండే ట్రాప్ పని ఏమిటి?",
+    "options": [
+     "నీళ్ళు వేగంగా పోయేలా చేస్తుంది",
+     "నీటిని ఆదా చేస్తుంది",
+     "డ్రెయిన్ వాసన రాకుండా నీటిని నిలిపి ఉంచుతుంది",
+     "తర్వాత శుభ్రం చేయడానికి చెత్తను దాస్తుంది"
+    ]
+   },
+   "hi": {
+    "q": "वॉश बेसिन के नीचे लगे ट्रैप का काम क्या है?",
+    "options": [
+     "पानी तेज़ी से बहाता है",
+     "पानी बचाता है",
+     "पानी रोककर रखता है ताकि नाली की बदबू न आए",
+     "बाद में साफ करने के लिए कचरा जमा रखता है"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-028",
+   "topic": "Drainage and sanitary",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A kitchen sink drains very slowly. What is the most common cause?",
+   "options": [
+    "Low water in the tank",
+    "A worn tap washer",
+    "Too much water pressure",
+    "Oil and food waste stuck in the pipe"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "కిచెన్ సింక్‌లో నీళ్ళు చాలా నెమ్మదిగా పోతున్నాయి. ఎక్కువగా కారణం ఏమిటి?",
+    "options": [
+     "ట్యాంక్‌లో నీళ్ళు తక్కువ",
+     "అరిగిన ట్యాప్ వాషర్",
+     "నీటి ప్రెషర్ ఎక్కువ",
+     "పైప్‌లో నూనె, ఆహార వ్యర్థాలు అడ్డుపడటం"
+    ]
+   },
+   "hi": {
+    "q": "किचन सिंक का पानी बहुत धीरे निकलता है। सबसे आम कारण क्या है?",
+    "options": [
+     "टंकी में पानी कम है",
+     "नल का वॉशर घिस गया है",
+     "पानी का प्रेशर बहुत ज़्यादा है",
+     "पाइप में तेल और खाने का कचरा फँसा है"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-029",
+   "topic": "Drainage and sanitary",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "How should a horizontal drain pipe be laid?",
+   "options": [
+    "With a gentle fall towards the outlet",
+    "Perfectly level along its length",
+    "Rising slightly towards the outlet",
+    "With up and down bends to slow water"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "అడ్డంగా వెళ్ళే డ్రెయిన్ పైప్‌ను ఎలా వేయాలి?",
+    "options": [
+     "అవుట్‌లెట్ వైపు కొంచెం వాలుగా",
+     "మొత్తం పొడవునా పూర్తిగా సమంగా",
+     "అవుట్‌లెట్ వైపు కొంచెం పైకి లేచేలా",
+     "నీళ్ళు నెమ్మదిగా పోయేలా పైకీ కిందకీ వంపులతో"
+    ]
+   },
+   "hi": {
+    "q": "आड़ा ड्रेन पाइप कैसे बिछाना चाहिए?",
+    "options": [
+     "आउटलेट की तरफ हल्की ढलान के साथ",
+     "पूरी लंबाई में बिल्कुल सीधा समतल",
+     "आउटलेट की तरफ थोड़ा ऊपर उठता हुआ",
+     "पानी धीमा करने के लिए ऊपर-नीचे मोड़ के साथ"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-030",
+   "topic": "Drainage and sanitary",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why does a soil pipe have a vent pipe going up to the roof?",
+   "options": [
+    "It collects rainwater",
+    "It lets air in so traps are not sucked dry",
+    "It lets you look inside the line",
+    "It makes the pipe stronger"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "సాయిల్ పైప్‌కి పైకప్పు వరకు వెంట్ పైప్ ఎందుకు ఉంటుంది?",
+    "options": [
+     "వర్షం నీళ్ళు సేకరించడానికి",
+     "గాలి లోపలికి వచ్చి ట్రాప్‌లలో నీళ్ళు లాగబడకుండా",
+     "లైన్ లోపల చూడటానికి",
+     "పైప్ బలంగా ఉండటానికి"
+    ]
+   },
+   "hi": {
+    "q": "सॉइल पाइप के साथ छत तक वेंट पाइप क्यों होता है?",
+    "options": [
+     "बारिश का पानी जमा करने के लिए",
+     "हवा अंदर आए ताकि ट्रैप का पानी खिंचकर सूखे नहीं",
+     "लाइन के अंदर देखने के लिए",
+     "पाइप को मज़बूत बनाने के लिए"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-031",
+   "topic": "Drainage and sanitary",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A guest bathroom unused for weeks smells of gutter. The floor trap is dry. What is the simple fix?",
+   "options": [
+    "Seal the trap with tape for good",
+    "Pour petrol to kill the smell",
+    "Pour water to refill the trap seal",
+    "Break out and remove the trap"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "వారాలుగా వాడని గెస్ట్ బాత్‌రూమ్‌లో డ్రైనేజ్ వాసన వస్తోంది. ఫ్లోర్ ట్రాప్ ఎండిపోయింది. సులభమైన పరిష్కారం ఏమిటి?",
+    "options": [
+     "ట్రాప్‌ను శాశ్వతంగా టేప్‌తో మూయడం",
+     "వాసన పోవడానికి పెట్రోల్ పోయడం",
+     "ట్రాప్‌లో మళ్ళీ నీళ్ళు పోయడం",
+     "ట్రాప్‌ను పగలగొట్టి తీసేయడం"
+    ]
+   },
+   "hi": {
+    "q": "हफ्तों से बंद गेस्ट बाथरूम में गटर की बदबू आ रही है। फ्लोर ट्रैप सूखा है। आसान उपाय क्या है?",
+    "options": [
+     "ट्रैप को हमेशा के लिए टेप से बंद करें",
+     "बदबू मिटाने के लिए पेट्रोल डालें",
+     "ट्रैप में फिर से पानी डालें",
+     "ट्रैप तोड़कर निकाल दें"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-032",
+   "topic": "Drainage and sanitary",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "In a flat, dirty water comes up from the floor trap when the washing machine drains. What is likely?",
+   "options": [
+    "The machine is too powerful",
+    "The floor trap is too clean",
+    "The water supply is too strong",
+    "A block further down the drain line"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "ఫ్లాట్‌లో వాషింగ్ మెషిన్ నీళ్ళు వదిలినప్పుడు ఫ్లోర్ ట్రాప్ నుంచి మురికి నీళ్ళు పైకి వస్తున్నాయి. కారణం ఏమై ఉండవచ్చు?",
+    "options": [
+     "మెషిన్ చాలా పవర్‌ఫుల్",
+     "ఫ్లోర్ ట్రాప్ చాలా శుభ్రంగా ఉంది",
+     "నీటి సప్లై చాలా ఎక్కువగా ఉంది",
+     "డ్రెయిన్ లైన్‌లో ఇంకా కింద బ్లాక్ ఉంది"
+    ]
+   },
+   "hi": {
+    "q": "फ्लैट में वॉशिंग मशीन का पानी निकलते समय फ्लोर ट्रैप से गंदा पानी ऊपर आता है। संभावित कारण क्या है?",
+    "options": [
+     "मशीन बहुत ताकतवर है",
+     "फ्लोर ट्रैप बहुत साफ है",
+     "पानी की सप्लाई बहुत तेज़ है",
+     "ड्रेन लाइन में आगे कहीं रुकावट है"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-033",
+   "topic": "Drainage and sanitary",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A drain cleaning spring gets stuck deep inside a pipe. What do you do?",
+   "options": [
+    "Turn it back slowly and ease it out",
+    "Pull it out hard with full force",
+    "Cut it and leave the piece inside",
+    "Pour acid down the pipe on it"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "డ్రెయిన్ క్లీనింగ్ స్ప్రింగ్ పైప్ లోపల లోతుగా ఇరుక్కుపోయింది. ఏమి చేస్తారు?",
+    "options": [
+     "నెమ్మదిగా వెనక్కి తిప్పుతూ మెల్లగా బయటకు తీస్తాను",
+     "పూర్తి బలంతో గట్టిగా లాగుతాను",
+     "కట్ చేసి ముక్కను లోపలే వదిలేస్తాను",
+     "పైప్‌లో యాసిడ్ పోస్తాను"
+    ]
+   },
+   "hi": {
+    "q": "नाली साफ करने वाला स्प्रिंग पाइप में अंदर तक फँस गया। आप क्या करेंगे?",
+    "options": [
+     "धीरे-धीरे उल्टा घुमाकर आराम से निकालूँगा",
+     "पूरी ताकत से ज़ोर से खींचूँगा",
+     "काटकर टुकड़ा अंदर ही छोड़ दूँगा",
+     "पाइप में तेज़ाब डाल दूँगा"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-034",
+   "topic": "Drainage and sanitary",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "When fixing a western toilet (EWC), what stops leaks where it meets the outlet pipe?",
+   "options": [
+    "Extra cement around the seat cover",
+    "A proper rubber seal or wax ring",
+    "Tightening the flush button",
+    "Silicone on the cistern lid"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "వెస్టర్న్ టాయిలెట్ (EWC) ఫిట్ చేసేటప్పుడు అవుట్‌లెట్ పైప్ కలిసే చోట లీక్ ఏది ఆపుతుంది?",
+    "options": [
+     "సీట్ కవర్ చుట్టూ ఎక్కువ సిమెంట్",
+     "సరైన రబ్బర్ సీల్ లేదా వ్యాక్స్ రింగ్",
+     "ఫ్లష్ బటన్ టైట్ చేయడం",
+     "సిస్టర్న్ మూతపై సిలికాన్"
+    ]
+   },
+   "hi": {
+    "q": "वेस्टर्न टॉयलेट (EWC) लगाते समय आउटलेट पाइप के जोड़ पर लीक कौन रोकता है?",
+    "options": [
+     "सीट कवर के चारों ओर ज़्यादा सीमेंट",
+     "सही रबर सील या वैक्स रिंग",
+     "फ्लश बटन कसना",
+     "टंकी के ढक्कन पर सिलिकॉन"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-035",
+   "topic": "Drainage and sanitary",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A new bathroom floor was tiled sloping away from the floor trap. What problem will the family face?",
+   "options": [
+    "The tiles will crack in a week",
+    "The toilet flush will stop",
+    "Water will stand on the floor",
+    "The geyser will trip"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "కొత్త బాత్‌రూమ్ నేలకు ఫ్లోర్ ట్రాప్ వైపు కాకుండా వ్యతిరేక వాలుతో టైల్స్ వేశారు. కుటుంబానికి ఏ సమస్య వస్తుంది?",
+    "options": [
+     "వారంలో టైల్స్ పగులుతాయి",
+     "టాయిలెట్ ఫ్లష్ పని చేయదు",
+     "నేలపై నీళ్ళు నిలిచిపోతాయి",
+     "గీజర్ ట్రిప్ అవుతుంది"
+    ]
+   },
+   "hi": {
+    "q": "नए बाथरूम के फर्श पर टाइल्स की ढलान फ्लोर ट्रैप से उल्टी तरफ बनी है। परिवार को क्या दिक्कत होगी?",
+    "options": [
+     "एक हफ्ते में टाइल्स टूट जाएँगी",
+     "टॉयलेट फ्लश बंद हो जाएगा",
+     "फर्श पर पानी जमा रहेगा",
+     "गीज़र ट्रिप हो जाएगा"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-036",
+   "topic": "Customer handling",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "You reach a customer's home for a repair. What do you do first?",
+   "options": [
+    "Start opening the pipes at once",
+    "Ask for full payment first",
+    "Ask to charge your phone first",
+    "Greet them and confirm the problem"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "రిపేర్ కోసం కస్టమర్ ఇంటికి వెళ్ళారు. ముందుగా ఏమి చేస్తారు?",
+    "options": [
+     "వెంటనే పైపులు విప్పడం మొదలుపెడతాను",
+     "ముందే పూర్తి డబ్బు అడుగుతాను",
+     "ముందు నా ఫోన్ ఛార్జ్ చేసుకోవాలని అడుగుతాను",
+     "నమస్కరించి, సమస్య ఏమిటో నిర్ధారించుకుంటాను"
+    ]
+   },
+   "hi": {
+    "q": "मरम्मत के लिए कस्टमर के घर पहुँचे। सबसे पहले क्या करेंगे?",
+    "options": [
+     "तुरंत पाइप खोलना शुरू करूँगा",
+     "पहले पूरा पैसा माँगूँगा",
+     "पहले अपना फोन चार्ज करने को कहूँगा",
+     "नमस्ते करके समस्या पक्की करूँगा"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-037",
+   "topic": "Customer handling",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "You have finished a job. What should you do before leaving?",
+   "options": [
+    "Clean up and show the customer the fix working",
+    "Leave quickly for the next job",
+    "Leave old parts on the floor",
+    "Tell them to test it alone later"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "పని పూర్తయింది. వెళ్ళే ముందు ఏమి చేయాలి?",
+    "options": [
+     "చోటు శుభ్రం చేసి, రిపేర్ పని చేస్తోందని కస్టమర్‌కి చూపించాలి",
+     "తర్వాతి పనికి త్వరగా వెళ్ళిపోవాలి",
+     "పాత పార్ట్స్ నేలపైనే వదిలేయాలి",
+     "తర్వాత వాళ్ళే టెస్ట్ చేసుకోమని చెప్పాలి"
+    ]
+   },
+   "hi": {
+    "q": "काम पूरा हो गया। जाने से पहले क्या करना चाहिए?",
+    "options": [
+     "जगह साफ करें और कस्टमर को ठीक हुआ काम चलाकर दिखाएँ",
+     "अगले काम के लिए जल्दी निकल जाएँ",
+     "पुराने पुर्ज़े फर्श पर ही छोड़ दें",
+     "उनसे कहें बाद में खुद चेक कर लें"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-038",
+   "topic": "Customer handling",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A customer wants a tap without ISI mark to save ₹300. What do you do?",
+   "options": [
+    "Fit it without saying anything",
+    "Explain the risk, let them decide, and note it on the bill",
+    "Refuse the job and walk out",
+    "Fit the cheap one but bill for a branded one"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "₹300 ఆదా కోసం ISI మార్క్ లేని ట్యాప్ పెట్టమని కస్టమర్ అడుగుతున్నారు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "ఏమీ చెప్పకుండా పెట్టేస్తాను",
+     "రిస్క్ వివరించి, వారినే నిర్ణయించనిచ్చి, బిల్లులో రాస్తాను",
+     "పని వద్దని వెళ్ళిపోతాను",
+     "చవక ట్యాప్ పెట్టి బ్రాండెడ్ ధర బిల్ చేస్తాను"
+    ]
+   },
+   "hi": {
+    "q": "₹300 बचाने के लिए कस्टमर बिना ISI मार्क वाला नल लगवाना चाहते हैं। आप क्या करेंगे?",
+    "options": [
+     "बिना कुछ बताए लगा दूँगा",
+     "खतरा समझाऊँगा, फैसला उन पर छोड़ूँगा और बिल पर लिखूँगा",
+     "काम मना करके चला जाऊँगा",
+     "सस्ता नल लगाकर ब्रांडेड का बिल बनाऊँगा"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-039",
+   "topic": "Customer handling",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "You need a part you don't have, and the job will take one more day. What do you do?",
+   "options": [
+    "Leave without telling them",
+    "Do a temporary fix and call it permanent",
+    "Tell the customer why, the cost, and when you will return",
+    "Take full payment and not come back"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "మీ దగ్గర లేని పార్ట్ కావాలి, పని ఇంకో రోజు పడుతుంది. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "చెప్పకుండా వెళ్ళిపోతాను",
+     "తాత్కాలికంగా రిపేర్ చేసి శాశ్వతం అని చెబుతాను",
+     "కారణం, ఖర్చు, మళ్ళీ ఎప్పుడు వస్తానో కస్టమర్‌కి చెబుతాను",
+     "పూర్తి డబ్బు తీసుకుని మళ్ళీ రాను"
+    ]
+   },
+   "hi": {
+    "q": "एक पुर्ज़ा आपके पास नहीं है और काम एक दिन और लगेगा। आप क्या करेंगे?",
+    "options": [
+     "बिना बताए चला जाऊँगा",
+     "कामचलाऊ मरम्मत करके उसे पक्का बताऊँगा",
+     "कस्टमर को कारण, खर्च और वापस आने का समय बताऊँगा",
+     "पूरा पैसा लेकर वापस नहीं आऊँगा"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-040",
+   "topic": "Customer handling",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A customer will pay by UPI and asks for a bill. What should the bill show?",
+   "options": [
+    "Only the total amount",
+    "Only your phone number",
+    "Nothing, UPI is enough proof",
+    "Parts and labour charges listed clearly"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "కస్టమర్ UPI ద్వారా పే చేస్తూ బిల్ అడుగుతున్నారు. బిల్లులో ఏమి ఉండాలి?",
+    "options": [
+     "మొత్తం అమౌంట్ మాత్రమే",
+     "మీ ఫోన్ నంబర్ మాత్రమే",
+     "ఏమీ అక్కర్లేదు, UPI చాలు",
+     "పార్ట్స్, లేబర్ ఛార్జీలు స్పష్టంగా విడిగా"
+    ]
+   },
+   "hi": {
+    "q": "कस्टमर UPI से पेमेंट करेंगे और बिल माँग रहे हैं। बिल में क्या होना चाहिए?",
+    "options": [
+     "सिर्फ कुल रकम",
+     "सिर्फ आपका फोन नंबर",
+     "कुछ नहीं, UPI ही काफी सबूत है",
+     "पुर्ज़े और मज़दूरी साफ-साफ अलग लिखे हों"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-041",
+   "topic": "Customer handling",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "While fixing a tap, you notice the next wall is damp from a hidden leak. The customer did not ask about it. What do you do?",
+   "options": [
+    "Tell them what you saw and suggest a check",
+    "Ignore it, as it is not your job",
+    "Break the wall without asking",
+    "Say the house may collapse, to get more work"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "ట్యాప్ రిపేర్ చేస్తుంటే పక్క గోడ దాగిన లీక్‌తో తడిగా ఉందని గమనించారు. కస్టమర్ దాని గురించి అడగలేదు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "చూసింది చెప్పి, చెక్ చేయించుకోమని సూచిస్తాను",
+     "నా పని కాదు కాబట్టి వదిలేస్తాను",
+     "అడగకుండానే గోడ పగలగొడతాను",
+     "ఎక్కువ పని కోసం ఇల్లు కూలిపోవచ్చని భయపెడతాను"
+    ]
+   },
+   "hi": {
+    "q": "नल ठीक करते समय आपने देखा कि बगल की दीवार छिपे लीक से गीली है। कस्टमर ने इसके बारे में नहीं पूछा। आप क्या करेंगे?",
+    "options": [
+     "जो देखा वह बताऊँगा और जाँच कराने की सलाह दूँगा",
+     "मेरा काम नहीं, इसलिए छोड़ दूँगा",
+     "बिना पूछे दीवार तोड़ दूँगा",
+     "ज़्यादा काम पाने के लिए कहूँगा कि घर गिर सकता है"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-042",
+   "topic": "Customer handling",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A customer calls angry. They say your joint from last week leaked and spoiled their floor. What do you do first?",
+   "options": [
+    "Argue that it was fine when you left",
+    "Listen calmly and go inspect your joint",
+    "Block their number",
+    "Blame the pipe company straight away"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "కస్టమర్ కోపంగా ఫోన్ చేశారు. గత వారం మీరు వేసిన జాయింట్ లీక్ అయి నేల పాడైందని అంటున్నారు. ముందుగా ఏమి చేస్తారు?",
+    "options": [
+     "నేను వెళ్ళినప్పుడు బాగానే ఉందని వాదిస్తాను",
+     "శాంతంగా విని, వెళ్ళి నా జాయింట్ చెక్ చేస్తాను",
+     "వారి నంబర్ బ్లాక్ చేస్తాను",
+     "వెంటనే పైప్ కంపెనీని నిందిస్తాను"
+    ]
+   },
+   "hi": {
+    "q": "कस्टमर गुस्से में फोन करते हैं। कहते हैं पिछले हफ्ते आपका जोड़ लीक हुआ और फर्श खराब हो गया। पहले क्या करेंगे?",
+    "options": [
+     "बहस करूँगा कि जाते समय सब ठीक था",
+     "शांति से सुनूँगा और जाकर अपना जोड़ जाँचूँगा",
+     "उनका नंबर ब्लॉक कर दूँगा",
+     "तुरंत पाइप कंपनी पर दोष डालूँगा"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-043",
+   "topic": "Customer handling",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A customer asks you to fit a booster pump directly on the municipal supply line. What do you say?",
+   "options": [
+    "Sure, more water is always better",
+    "I will fit it, but only run it at night",
+    "It is not allowed and takes others' water; use a sump",
+    "A bigger pump will give even more water"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "మున్సిపల్ సప్లై లైన్‌కి నేరుగా బూస్టర్ పంప్ పెట్టమని కస్టమర్ అడుగుతున్నారు. మీరు ఏమి చెబుతారు?",
+    "options": [
+     "సరే, ఎక్కువ నీళ్ళు ఎప్పుడూ మంచిదే",
+     "పెడతాను, కానీ రాత్రి మాత్రమే నడపండి",
+     "ఇది అనుమతి లేదు, ఇతరుల నీళ్ళు లాగుతుంది; సంప్ వాడండి",
+     "పెద్ద పంప్ పెడితే ఇంకా ఎక్కువ నీళ్ళు వస్తాయి"
+    ]
+   },
+   "hi": {
+    "q": "कस्टमर कहते हैं कि नगर निगम की सप्लाई लाइन पर सीधे बूस्टर पंप लगा दो। आप क्या कहेंगे?",
+    "options": [
+     "ज़रूर, ज़्यादा पानी हमेशा अच्छा है",
+     "लगा दूँगा, बस रात में चलाइए",
+     "इसकी इजाज़त नहीं, यह दूसरों का पानी खींचता है; संप लगाइए",
+     "बड़ा पंप लगाएँ तो और ज़्यादा पानी आएगा"
+    ]
+   }
+  },
+  {
+   "id": "plumbing-044",
+   "topic": "Customer handling",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "You arrive for a job but the customer is out. A neighbour offers to open the flat for you. What do you do?",
+   "options": [
+    "Go in with the neighbour",
+    "Wait inside the flat alone",
+    "Leave a note and go in",
+    "Call the customer and get their OK first"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "పని కోసం వచ్చారు, కానీ కస్టమర్ ఇంట్లో లేరు. పక్కింటివారు ఫ్లాట్ తెరుస్తామంటున్నారు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "పక్కింటివారితో లోపలికి వెళ్తాను",
+     "ఒంటరిగా ఫ్లాట్ లోపల వేచి ఉంటాను",
+     "ఒక నోట్ పెట్టి లోపలికి వెళ్తాను",
+     "ముందు కస్టమర్‌కి ఫోన్ చేసి అనుమతి తీసుకుంటాను"
+    ]
+   },
+   "hi": {
+    "q": "काम पर पहुँचे पर कस्टमर घर पर नहीं हैं। पड़ोसी फ्लैट खोलने को कहते हैं। आप क्या करेंगे?",
+    "options": [
+     "पड़ोसी के साथ अंदर चला जाऊँगा",
+     "फ्लैट में अकेले अंदर इंतज़ार करूँगा",
+     "एक नोट छोड़कर अंदर चला जाऊँगा",
+     "पहले कस्टमर को फोन करके उनकी मंज़ूरी लूँगा"
+    ]
+   }
+  }
+ ],
+ "task": {
+  "title": "Plumbing practical check: safe work situations and a photo of your work",
+  "brief": "Answer 7 short picture-style questions about safe and correct plumbing work. Pick what you would really do on the job. This takes about 10 minutes. After that you may upload one photo of your own past work, for example a bathroom fitting, a CPVC line or a leak you fixed, or your ITI plumber certificate. The photo is optional. Do not show any faces, and hide phone numbers and addresses. A good photo is clear, shows work you did yourself, and shows neat, safe joints.",
+  "minutes": 10,
+  "key_points": [
+   "Photo shows real plumbing work or a plumbing certificate",
+   "Joints look neat, supported and leak-free",
+   "No faces or personal details visible"
+  ],
+  "rubric": [
+   {
+    "key": "relevance",
+    "label": "Relevance",
+    "guide": "0 = photo has nothing to do with plumbing, 3 = plumbing work but unclear, 5 = clear photo of plumbing work or an ITI plumber certificate"
+   },
+   {
+    "key": "genuineness",
+    "label": "Genuineness",
+    "guide": "0 = looks like a stock or downloaded image, 3 = probably real but no detail, 5 = clearly a real site photo or real certificate"
+   },
+   {
+    "key": "safety",
+    "label": "Safe, neat work",
+    "guide": "0 = unsafe or messy work shown, 3 = acceptable work, 5 = neat, well supported, leak-free joints done the safe way"
+   }
+  ],
+  "type": "proof",
+  "situations": [
+   {
+    "q": "Which is the right way to make a CPVC joint?",
+    "options": [
+     "Wrap teflon tape and push the pipe in",
+     "Clean both ends, apply solvent cement, push in and hold a few seconds",
+     "Heat the pipe end with a lighter and press",
+     "Cover the joint with M-seal only"
+    ],
+    "answer": 1,
+    "topic": "Water supply and fittings",
+    "te": {
+     "q": "CPVC జాయింట్ సరిగ్గా ఎలా చేయాలి?",
+     "options": [
+      "టెఫ్లాన్ టేప్ చుట్టి పైప్ లోపలికి నొక్కాలి",
+      "రెండు చివరలు శుభ్రం చేసి, సాల్వెంట్ సిమెంట్ పూసి, లోపలికి నొక్కి కొన్ని సెకన్లు పట్టుకోవాలి",
+      "లైటర్‌తో పైప్ చివర వేడి చేసి నొక్కాలి",
+      "జాయింట్‌పై M-seal మాత్రమే పూయాలి"
+     ]
+    },
+    "hi": {
+     "q": "CPVC जोड़ सही तरीके से कैसे बनाते हैं?",
+     "options": [
+      "टेफ्लॉन टेप लपेटकर पाइप अंदर धकेलें",
+      "दोनों सिरे साफ करें, सॉल्वेंट सीमेंट लगाएँ, अंदर धकेलकर कुछ सेकंड पकड़ें",
+      "लाइटर से पाइप का सिरा गर्म करके दबाएँ",
+      "जोड़ पर सिर्फ M-seal लगा दें"
+     ]
+    }
+   },
+   {
+    "q": "Which way should teflon tape be wound on a male thread?",
+    "options": [
+     "Opposite to the tightening direction",
+     "Only inside the female fitting",
+     "In the same direction the fitting turns to tighten",
+     "No tape, just tighten harder"
+    ],
+    "answer": 2,
+    "topic": "Tools and materials",
+    "te": {
+     "q": "మేల్ థ్రెడ్‌పై టెఫ్లాన్ టేప్ ఎటు వైపు చుట్టాలి?",
+     "options": [
+      "టైట్ అయ్యే దిశకు వ్యతిరేకంగా",
+      "ఫిమేల్ ఫిట్టింగ్ లోపల మాత్రమే",
+      "ఫిట్టింగ్ టైట్ అయ్యే దిశలోనే",
+      "టేప్ వద్దు, ఇంకా గట్టిగా టైట్ చేయాలి"
+     ]
+    },
+    "hi": {
+     "q": "मेल चूड़ी पर टेफ्लॉन टेप किस दिशा में लपेटना चाहिए?",
+     "options": [
+      "कसने की दिशा के उल्टा",
+      "सिर्फ फीमेल फिटिंग के अंदर",
+      "जिस दिशा में फिटिंग कसती है, उसी दिशा में",
+      "टेप नहीं, बस और ज़ोर से कसें"
+     ]
+    }
+   },
+   {
+    "q": "Which wash basin waste connection is correct?",
+    "options": [
+     "A bottle or U trap that holds water before the wall pipe",
+     "A straight pipe going into the floor hole",
+     "A loose hose just resting in an open floor hole"
+    ],
+    "answer": 0,
+    "topic": "Drainage and sanitary",
+    "te": {
+     "q": "వాష్ బేసిన్ వేస్ట్ కనెక్షన్‌లో ఏది సరైనది?",
+     "options": [
+      "గోడ పైప్‌కి ముందు నీళ్ళు నిలిపే బాటిల్ లేదా U ట్రాప్",
+      "నేల రంధ్రంలోకి నేరుగా వెళ్ళే పైప్",
+      "తెరిచిన నేల రంధ్రంలో వదులుగా పెట్టిన హోస్"
+     ]
+    },
+    "hi": {
+     "q": "वॉश बेसिन का वेस्ट कनेक्शन कौन सा सही है?",
+     "options": [
+      "दीवार के पाइप से पहले पानी रोकने वाला बॉटल या U ट्रैप",
+      "फर्श के छेद में सीधा जाता पाइप",
+      "खुले फर्श के छेद में ढीला रखा होज़"
+     ]
+    }
+   },
+   {
+    "q": "A building manhole is choked. Which is the safe way to clear it?",
+    "options": [
+     "Send a worker inside with a torch",
+     "Use rods or a jetting machine from outside",
+     "Send a worker in with a cloth tied on his face"
+    ],
+    "answer": 1,
+    "topic": "Safety",
+    "te": {
+     "q": "బిల్డింగ్ మ్యాన్‌హోల్ చోక్ అయింది. సురక్షితంగా క్లియర్ చేసే మార్గం ఏది?",
+     "options": [
+      "టార్చ్‌తో ఒక వర్కర్‌ని లోపలికి పంపడం",
+      "బయట నుంచే రాడ్లు లేదా జెట్టింగ్ మెషిన్ వాడటం",
+      "ముఖానికి గుడ్డ కట్టి వర్కర్‌ని లోపలికి పంపడం"
+     ]
+    },
+    "hi": {
+     "q": "बिल्डिंग का मैनहोल चोक है। साफ करने का सुरक्षित तरीका कौन सा है?",
+     "options": [
+      "टॉर्च के साथ एक मज़दूर को अंदर भेजना",
+      "बाहर से रॉड या जेटिंग मशीन का इस्तेमाल",
+      "मुँह पर कपड़ा बाँधकर मज़दूर को अंदर भेजना"
+     ]
+    }
+   },
+   {
+    "q": "Which geyser connection is safe?",
+    "options": [
+     "No safety valve, only a stop valve",
+     "Safety valve outlet closed with a cap to stop drips",
+     "Pressure release valve fitted and not blocked"
+    ],
+    "answer": 2,
+    "topic": "Water supply and fittings",
+    "te": {
+     "q": "ఏ గీజర్ కనెక్షన్ సురక్షితం?",
+     "options": [
+      "సేఫ్టీ వాల్వ్ లేదు, స్టాప్ వాల్వ్ మాత్రమే",
+      "చుక్కలు ఆపడానికి సేఫ్టీ వాల్వ్ అవుట్‌లెట్‌కి క్యాప్ పెట్టినది",
+      "ప్రెషర్ రిలీజ్ వాల్వ్ పెట్టి, బ్లాక్ కాకుండా ఉన్నది"
+     ]
+    },
+    "hi": {
+     "q": "कौन सा गीज़र कनेक्शन सुरक्षित है?",
+     "options": [
+      "सेफ्टी वाल्व नहीं, सिर्फ स्टॉप वाल्व",
+      "टपकना रोकने के लिए सेफ्टी वाल्व के मुँह पर कैप लगी है",
+      "प्रेशर रिलीज़ वाल्व लगा है और जाम नहीं है"
+     ]
+    }
+   },
+   {
+    "q": "Which drain pipe layout under a floor is right?",
+    "options": [
+     "Perfectly flat pipe all the way",
+     "Pipe sloping back up towards the main line",
+     "Gentle slope down towards the main line",
+     "A dip in the middle of the run"
+    ],
+    "answer": 2,
+    "topic": "Drainage and sanitary",
+    "te": {
+     "q": "నేల కింద డ్రెయిన్ పైప్ ఏ విధంగా వేయడం సరైనది?",
+     "options": [
+      "మొత్తం పూర్తిగా సమంగా ఉన్న పైప్",
+      "మెయిన్ లైన్ వైపు పైకి లేచే పైప్",
+      "మెయిన్ లైన్ వైపు కొంచెం కిందకి వాలు",
+      "మధ్యలో గుంట ఉన్న పైప్"
+     ]
+    },
+    "hi": {
+     "q": "फर्श के नीचे ड्रेन पाइप कैसे बिछाना सही है?",
+     "options": [
+      "पूरा बिल्कुल समतल पाइप",
+      "मेन लाइन की तरफ ऊपर उठता पाइप",
+      "मेन लाइन की तरफ हल्की ढलान नीचे",
+      "बीच में गड्ढे वाला पाइप"
+     ]
+    }
+   },
+   {
+    "q": "Which ladder setup is safe for work above a sink?",
+    "options": [
+     "On top of a plastic bucket",
+     "On a dry, firm floor with a helper holding it",
+     "On wet tiles with no one holding it"
+    ],
+    "answer": 1,
+    "topic": "Safety",
+    "te": {
+     "q": "సింక్ పైన పని చేయడానికి ఏ నిచ్చెన అమరిక సురక్షితం?",
+     "options": [
+      "ప్లాస్టిక్ బకెట్ పైన",
+      "పొడి, గట్టి నేలపై, హెల్పర్ పట్టుకుని",
+      "తడి టైల్స్‌పై, ఎవరూ పట్టుకోకుండా"
+     ]
+    },
+    "hi": {
+     "q": "सिंक के ऊपर काम के लिए सीढ़ी कैसे लगाना सुरक्षित है?",
+     "options": [
+      "प्लास्टिक की बाल्टी के ऊपर",
+      "सूखे, मज़बूत फर्श पर, हेल्पर पकड़े हुए",
+      "गीली टाइल्स पर, बिना किसी के पकड़े"
+     ]
+    }
+   }
+  ]
+ }
+}

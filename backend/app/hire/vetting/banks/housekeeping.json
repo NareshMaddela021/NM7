@@ -1,0 +1,1656 @@
+{
+ "slug": "housekeeping",
+ "version": 1,
+ "topics": [
+  "Cleaning methods",
+  "Chemicals and tools",
+  "Hygiene",
+  "Safety",
+  "Guest rooms and service"
+ ],
+ "questions": [
+  {
+   "id": "housekeeping-001",
+   "topic": "Cleaning methods",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "When cleaning a room, in which order should you dust?",
+   "options": [
+    "From bottom to top",
+    "Floor first, then shelves",
+    "From top to bottom",
+    "Only the places guests touch"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "గది శుభ్రం చేసేటప్పుడు దుమ్ము ఏ క్రమంలో తుడవాలి?",
+    "options": [
+     "కింద నుండి పైకి",
+     "ముందు నేల, తర్వాత అలమారలు",
+     "పై నుండి కిందకు",
+     "గెస్టులు తాకే చోట్లు మాత్రమే"
+    ]
+   },
+   "hi": {
+    "q": "कमरा साफ़ करते समय धूल किस क्रम में साफ़ करनी चाहिए?",
+    "options": [
+     "नीचे से ऊपर की ओर",
+     "पहले फ़र्श, फिर शेल्फ़",
+     "ऊपर से नीचे की ओर",
+     "सिर्फ़ वो जगहें जो गेस्ट छूते हैं"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-002",
+   "topic": "Cleaning methods",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "You are mopping a room floor. Where should you start?",
+   "options": [
+    "Near the door, moving inside",
+    "In the middle of the room",
+    "At the far corner, moving towards the door",
+    "Wherever the floor is dirtiest"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "మీరు గది నేల మాప్ చేస్తున్నారు. ఎక్కడ నుండి మొదలుపెట్టాలి?",
+    "options": [
+     "తలుపు దగ్గర నుండి, లోపలికి వెళ్తూ",
+     "గది మధ్య నుండి",
+     "దూరంగా ఉన్న మూల నుండి, తలుపు వైపు వస్తూ",
+     "నేల ఎక్కడ ఎక్కువ మురికిగా ఉందో అక్కడ నుండి"
+    ]
+   },
+   "hi": {
+    "q": "आप कमरे में पोछा लगा रहे हैं। कहाँ से शुरू करना चाहिए?",
+    "options": [
+     "दरवाज़े के पास से, अंदर की ओर जाते हुए",
+     "कमरे के बीच से",
+     "दूर वाले कोने से, दरवाज़े की ओर आते हुए",
+     "जहाँ फ़र्श सबसे ज़्यादा गंदा हो वहाँ से"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-003",
+   "topic": "Cleaning methods",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why is a wet mop moved in an S-shape or figure-8 pattern?",
+   "options": [
+    "It dries the floor faster",
+    "It uses less water",
+    "It makes the floor shine",
+    "It picks up dirt instead of pushing it around"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "తడి మాప్‌ను S ఆకారంలో లేదా 8 ఆకారంలో ఎందుకు తిప్పుతారు?",
+    "options": [
+     "నేల త్వరగా ఆరుతుంది",
+     "నీళ్లు తక్కువ ఖర్చవుతాయి",
+     "నేల మెరుస్తుంది",
+     "మురికిని అటూ ఇటూ నెట్టకుండా తీసుకుంటుంది"
+    ]
+   },
+   "hi": {
+    "q": "गीला पोछा S या 8 के आकार में क्यों चलाया जाता है?",
+    "options": [
+     "फ़र्श जल्दी सूखता है",
+     "पानी कम लगता है",
+     "फ़र्श चमकने लगता है",
+     "गंदगी इधर-उधर धकेलने के बजाय उठ जाती है"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-004",
+   "topic": "Cleaning methods",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "In a guest bathroom, which part should you clean last?",
+   "options": [
+    "Toilet bowl",
+    "Mirror",
+    "Washbasin",
+    "Shower area"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "గెస్ట్ బాత్రూమ్‌లో ఏ భాగాన్ని చివరగా శుభ్రం చేయాలి?",
+    "options": [
+     "టాయిలెట్ బౌల్",
+     "అద్దం",
+     "వాష్‌బేసిన్",
+     "షవర్ ఏరియా"
+    ]
+   },
+   "hi": {
+    "q": "गेस्ट बाथरूम में कौन सा हिस्सा सबसे आख़िर में साफ़ करना चाहिए?",
+    "options": [
+     "टॉयलेट सीट/बाउल",
+     "शीशा",
+     "वॉशबेसिन",
+     "शावर एरिया"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-005",
+   "topic": "Cleaning methods",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A marble floor has a dull, rough patch after cleaning. What is the most likely cause?",
+   "options": [
+    "Too little water was used",
+    "It was dusted before mopping",
+    "The mop was squeezed too dry",
+    "An acid cleaner, like toilet cleaner, was used on it"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "శుభ్రం చేసిన తర్వాత మార్బుల్ నేలపై మెరుపు పోయి గరుకుగా ఒక చోట ఉంది. ఎక్కువగా కారణం ఏమిటి?",
+    "options": [
+     "నీళ్లు చాలా తక్కువ వాడారు",
+     "మాప్ ముందు దుమ్ము తుడిచారు",
+     "మాప్‌ను బాగా పిండి పొడిగా వాడారు",
+     "టాయిలెట్ క్లీనర్ లాంటి యాసిడ్ క్లీనర్ వాడారు"
+    ]
+   },
+   "hi": {
+    "q": "सफ़ाई के बाद मार्बल फ़र्श पर एक जगह चमक चली गई और खुरदरा हो गया। सबसे संभावित कारण क्या है?",
+    "options": [
+     "बहुत कम पानी इस्तेमाल हुआ",
+     "पोछे से पहले धूल झाड़ी गई",
+     "पोछा बहुत सूखा निचोड़ा गया",
+     "उस पर टॉयलेट क्लीनर जैसा एसिड वाला क्लीनर लगाया गया"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-006",
+   "topic": "Cleaning methods",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A guest spilled red wine on a light carpet a minute ago. What do you do first?",
+   "options": [
+    "Rub it hard with a wet cloth",
+    "Blot it with a dry white cloth, from the edge inward",
+    "Pour hot water on it",
+    "Cover it with a rug till evening"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "ఒక గెస్ట్ నిమిషం క్రితం లేత రంగు కార్పెట్ మీద రెడ్ వైన్ ఒలికించారు. ముందు మీరు ఏం చేస్తారు?",
+    "options": [
+     "తడి గుడ్డతో గట్టిగా రుద్దండి",
+     "పొడి తెల్లని గుడ్డతో అంచు నుండి లోపలికి అద్దండి",
+     "దాని మీద వేడి నీళ్లు పోయండి",
+     "సాయంత్రం వరకు దాని మీద రగ్గు వేయండి"
+    ]
+   },
+   "hi": {
+    "q": "एक गेस्ट ने अभी एक मिनट पहले हल्के रंग के कार्पेट पर रेड वाइन गिरा दी। आप सबसे पहले क्या करेंगे?",
+    "options": [
+     "गीले कपड़े से ज़ोर से रगड़ें",
+     "सूखे सफ़ेद कपड़े से किनारे से अंदर की ओर दबाकर सोखें",
+     "उस पर गरम पानी डालें",
+     "शाम तक उस पर दरी डाल दें"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-007",
+   "topic": "Cleaning methods",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "You see chewing gum stuck on the lobby carpet. What is the right way to remove it?",
+   "options": [
+    "Cut out that part of the carpet",
+    "Harden it with ice and scrape it off gently",
+    "Pull it off with your fingers",
+    "Soak it in hot water and rub with a brush"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "లాబీ కార్పెట్‌కు చూయింగ్ గమ్ అంటుకుంది. దాన్ని తీసే సరైన పద్ధతి ఏది?",
+    "options": [
+     "కార్పెట్‌లో ఆ భాగాన్ని కత్తిరించండి",
+     "ఐస్‌తో గట్టిపడేలా చేసి మెల్లగా గీకి తీయండి",
+     "వేళ్లతో లాగి తీయండి",
+     "వేడి నీళ్లలో నానబెట్టి బ్రష్‌తో రుద్దండి"
+    ]
+   },
+   "hi": {
+    "q": "लॉबी के कार्पेट पर च्युइंग गम चिपकी है। उसे हटाने का सही तरीक़ा क्या है?",
+    "options": [
+     "कार्पेट का वो हिस्सा काट दें",
+     "बर्फ़ से सख़्त करके धीरे से खुरच दें",
+     "उँगलियों से खींचकर निकालें",
+     "गरम पानी में भिगोकर ब्रश से रगड़ें"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-008",
+   "topic": "Cleaning methods",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which is the best way to clean glass windows without streaks?",
+   "options": [
+    "Soapy water and a wet sponge only",
+    "Phenyl and a floor mop",
+    "Glass cleaner spray and a dry lint-free cloth",
+    "A dry duster only"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "అద్దాల కిటికీలు మరకలు లేకుండా శుభ్రం చేయడానికి ఉత్తమ మార్గం ఏది?",
+    "options": [
+     "సబ్బు నీళ్లు మరియు తడి స్పాంజ్ మాత్రమే",
+     "ఫినాయిల్ మరియు ఫ్లోర్ మాప్",
+     "గ్లాస్ క్లీనర్ స్ప్రే మరియు దారాలు రాని పొడి గుడ్డ",
+     "పొడి డస్టర్ మాత్రమే"
+    ]
+   },
+   "hi": {
+    "q": "काँच की खिड़कियाँ बिना धारियों के साफ़ करने का सबसे अच्छा तरीक़ा क्या है?",
+    "options": [
+     "सिर्फ़ साबुन का पानी और गीला स्पंज",
+     "फिनाइल और फ़र्श वाला पोछा",
+     "ग्लास क्लीनर स्प्रे और रोएँ न छोड़ने वाला सूखा कपड़ा",
+     "सिर्फ़ सूखा डस्टर"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-009",
+   "topic": "Chemicals and tools",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What should you do before using a new cleaning chemical?",
+   "options": [
+    "Smell it to check how strong it is",
+    "Mix it with another cleaner",
+    "Use it at full strength",
+    "Read the label and the mixing instructions"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "కొత్త క్లీనింగ్ కెమికల్ వాడే ముందు ఏం చేయాలి?",
+    "options": [
+     "ఎంత ఘాటుగా ఉందో వాసన చూడాలి",
+     "ఇంకో క్లీనర్‌తో కలపాలి",
+     "నీళ్లు కలపకుండా పూర్తిగా వాడాలి",
+     "లేబుల్ మరియు కలిపే సూచనలు చదవాలి"
+    ]
+   },
+   "hi": {
+    "q": "नया सफ़ाई केमिकल इस्तेमाल करने से पहले क्या करना चाहिए?",
+    "options": [
+     "सूँघकर देखें कि कितना तेज़ है",
+     "किसी दूसरे क्लीनर में मिला दें",
+     "बिना पानी मिलाए पूरा इस्तेमाल करें",
+     "लेबल और मिलाने के निर्देश पढ़ें"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-010",
+   "topic": "Chemicals and tools",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Why do housekeepers use different coloured cloths for toilets and rooms?",
+   "options": [
+    "To make the trolley look neat",
+    "To stop germs moving from toilets to other places",
+    "To know whose cloth it is",
+    "Because coloured cloths last longer"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "హౌస్‌కీపింగ్ వాళ్లు టాయిలెట్‌కు, గదులకు వేర్వేరు రంగుల గుడ్డలు ఎందుకు వాడతారు?",
+    "options": [
+     "ట్రాలీ చక్కగా కనిపించడానికి",
+     "టాయిలెట్ నుండి క్రిములు ఇతర చోట్లకు వెళ్లకుండా",
+     "ఏ గుడ్డ ఎవరిదో తెలియడానికి",
+     "రంగు గుడ్డలు ఎక్కువ కాలం మన్నుతాయి కాబట్టి"
+    ]
+   },
+   "hi": {
+    "q": "हाउसकीपिंग वाले टॉयलेट और कमरों के लिए अलग-अलग रंग के कपड़े क्यों इस्तेमाल करते हैं?",
+    "options": [
+     "ताकि ट्रॉली साफ़-सुथरी दिखे",
+     "ताकि टॉयलेट के कीटाणु दूसरी जगहों पर न जाएँ",
+     "ताकि पता रहे कि कपड़ा किसका है",
+     "क्योंकि रंगीन कपड़े ज़्यादा चलते हैं"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-011",
+   "topic": "Chemicals and tools",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which of these mixes is dangerous and must never be made?",
+   "options": [
+    "Floor cleaner in a bucket of water",
+    "Dish soap with warm water",
+    "Bleach with an acid toilet cleaner",
+    "Glass cleaner with a little plain water"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "వీటిలో ఏ మిశ్రమం ప్రమాదకరం, ఎప్పుడూ కలపకూడదు?",
+    "options": [
+     "బకెట్ నీళ్లలో ఫ్లోర్ క్లీనర్",
+     "గోరువెచ్చని నీళ్లలో డిష్ సోప్",
+     "బ్లీచ్ మరియు యాసిడ్ టాయిలెట్ క్లీనర్",
+     "గ్లాస్ క్లీనర్‌లో కొంచెం మామూలు నీళ్లు"
+    ]
+   },
+   "hi": {
+    "q": "इनमें से कौन सा मिश्रण ख़तरनाक है और कभी नहीं बनाना चाहिए?",
+    "options": [
+     "बाल्टी भर पानी में फ़्लोर क्लीनर",
+     "गुनगुने पानी में बर्तन धोने का साबुन",
+     "ब्लीच के साथ एसिड वाला टॉयलेट क्लीनर",
+     "ग्लास क्लीनर में थोड़ा सादा पानी"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-012",
+   "topic": "Chemicals and tools",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "The label says 20 ml per litre of water. How much do you add to a 5 litre bucket?",
+   "options": [
+    "20 ml",
+    "100 ml",
+    "50 ml",
+    "200 ml"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "లేబుల్ మీద లీటరు నీళ్లకు 20 ml అని ఉంది. 5 లీటర్ల బకెట్‌కు ఎంత కలపాలి?",
+    "options": [
+     "20 ml",
+     "100 ml",
+     "50 ml",
+     "200 ml"
+    ]
+   },
+   "hi": {
+    "q": "लेबल पर लिखा है 20 ml प्रति लीटर पानी। 5 लीटर की बाल्टी में कितना डालेंगे?",
+    "options": [
+     "20 ml",
+     "100 ml",
+     "50 ml",
+     "200 ml"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-013",
+   "topic": "Chemicals and tools",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Where should cleaning chemicals be stored?",
+   "options": [
+    "On a shelf inside the guest room",
+    "In empty water bottles for easy use",
+    "Under the pantry sink near food items",
+    "In a labelled, locked store away from food"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "క్లీనింగ్ కెమికల్స్ ఎక్కడ పెట్టాలి?",
+    "options": [
+     "గెస్ట్ గదిలోని అలమారలో",
+     "సులభంగా వాడటానికి ఖాళీ వాటర్ బాటిళ్లలో",
+     "ఆహార పదార్థాల దగ్గర ప్యాంట్రీ సింక్ కింద",
+     "ఆహారానికి దూరంగా, లేబుల్ ఉన్న, తాళం వేసిన స్టోర్‌లో"
+    ]
+   },
+   "hi": {
+    "q": "सफ़ाई के केमिकल कहाँ रखने चाहिए?",
+    "options": [
+     "गेस्ट रूम के अंदर किसी शेल्फ़ पर",
+     "आसानी के लिए ख़ाली पानी की बोतलों में",
+     "खाने के सामान के पास पैंट्री सिंक के नीचे",
+     "खाने से दूर, लेबल लगे और ताले वाले स्टोर में"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-014",
+   "topic": "Chemicals and tools",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Floor cleaner is used stronger than the label says. What usually happens?",
+   "options": [
+    "A sticky film, a slippery floor and wasted chemical",
+    "Floors get cleaner and germs die faster",
+    "Nothing changes at all",
+    "The floor dries faster and smells fresh"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "లేబుల్‌లో చెప్పిన దానికంటే ఎక్కువ ఫ్లోర్ క్లీనర్ కలిపారు. సాధారణంగా ఏమవుతుంది?",
+    "options": [
+     "జిగురు పొర, జారే నేల, కెమికల్ వృథా",
+     "నేల ఇంకా శుభ్రంగా అవుతుంది, క్రిములు త్వరగా చస్తాయి",
+     "ఏమీ మారదు",
+     "నేల త్వరగా ఆరి మంచి వాసన వస్తుంది"
+    ]
+   },
+   "hi": {
+    "q": "लेबल से ज़्यादा तेज़ फ़्लोर क्लीनर डाला गया। आम तौर पर क्या होता है?",
+    "options": [
+     "चिपचिपी परत, फिसलन वाला फ़र्श और केमिकल की बर्बादी",
+     "फ़र्श ज़्यादा साफ़ होता है और कीटाणु जल्दी मरते हैं",
+     "कुछ भी नहीं बदलता",
+     "फ़र्श जल्दी सूखता है और ख़ुशबू आती है"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-015",
+   "topic": "Chemicals and tools",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A disinfectant label says 'contact time 10 minutes'. What does this mean?",
+   "options": [
+    "Wipe it off quickly or it will stain",
+    "Use it only that long after mixing",
+    "Keep windows open that long after use",
+    "The surface must stay wet with it that long to kill germs"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "డిస్ఇన్ఫెక్టెంట్ లేబుల్ మీద 'కాంటాక్ట్ టైమ్ 10 నిమిషాలు' అని ఉంది. దీని అర్థం ఏమిటి?",
+    "options": [
+     "త్వరగా తుడిచేయాలి లేదంటే మరక పడుతుంది",
+     "కలిపిన తర్వాత అంతసేపు మాత్రమే వాడాలి",
+     "వాడిన తర్వాత అంతసేపు కిటికీలు తెరిచి ఉంచాలి",
+     "క్రిములు చావాలంటే అంతసేపు ఉపరితలం దానితో తడిగా ఉండాలి"
+    ]
+   },
+   "hi": {
+    "q": "डिसइन्फ़ेक्टेंट के लेबल पर लिखा है 'कॉन्टैक्ट टाइम 10 मिनट'। इसका मतलब क्या है?",
+    "options": [
+     "जल्दी पोंछ दें वरना दाग़ पड़ेगा",
+     "मिलाने के बाद सिर्फ़ उतनी देर तक इस्तेमाल करें",
+     "इस्तेमाल के बाद उतनी देर खिड़कियाँ खुली रखें",
+     "कीटाणु मारने के लिए सतह उतनी देर उससे गीली रहनी चाहिए"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-016",
+   "topic": "Chemicals and tools",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which tool is best to remove cobwebs from a high ceiling?",
+   "options": [
+    "A wet floor mop",
+    "A small hand duster on a chair",
+    "A vacuum hose held up high",
+    "A long-handled ceiling brush"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "ఎత్తైన సీలింగ్ మీద బూజు తీయడానికి ఏ పరికరం బాగుంటుంది?",
+    "options": [
+     "తడి ఫ్లోర్ మాప్",
+     "కుర్చీ ఎక్కి చిన్న హ్యాండ్ డస్టర్",
+     "పైకి పట్టుకున్న వాక్యూమ్ పైపు",
+     "పొడవాటి హ్యాండిల్ ఉన్న సీలింగ్ బ్రష్"
+    ]
+   },
+   "hi": {
+    "q": "ऊँची छत से जाले हटाने के लिए कौन सा औज़ार सबसे अच्छा है?",
+    "options": [
+     "गीला फ़र्श वाला पोछा",
+     "कुर्सी पर चढ़कर छोटा हैंड डस्टर",
+     "ऊपर उठाया हुआ वैक्यूम का पाइप",
+     "लंबे हैंडल वाला सीलिंग ब्रश"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-017",
+   "topic": "Chemicals and tools",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which mop should you use for a guest bathroom floor?",
+   "options": [
+    "The mop kept only for bathrooms",
+    "The mop used in the lobby",
+    "Any mop that happens to be dry",
+    "The mop from the kitchen"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "గెస్ట్ బాత్రూమ్ నేలకు ఏ మాప్ వాడాలి?",
+    "options": [
+     "బాత్రూమ్‌ల కోసమే ఉంచిన మాప్",
+     "లాబీలో వాడే మాప్",
+     "ఆ సమయంలో పొడిగా ఉన్న ఏ మాప్ అయినా",
+     "కిచెన్‌లోని మాప్"
+    ]
+   },
+   "hi": {
+    "q": "गेस्ट बाथरूम के फ़र्श के लिए कौन सा पोछा इस्तेमाल करना चाहिए?",
+    "options": [
+     "सिर्फ़ बाथरूम के लिए रखा गया पोछा",
+     "लॉबी में इस्तेमाल होने वाला पोछा",
+     "जो भी पोछा उस समय सूखा हो",
+     "किचन वाला पोछा"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-018",
+   "topic": "Hygiene",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "When must you wash your hands at work?",
+   "options": [
+    "After cleaning toilets and before touching clean linen",
+    "Only at the end of the shift",
+    "Only when they look dirty",
+    "Only before lunch"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "పనిలో చేతులు ఎప్పుడు తప్పకుండా కడుక్కోవాలి?",
+    "options": [
+     "టాయిలెట్ శుభ్రం చేశాక, శుభ్రమైన లినెన్ తాకే ముందు",
+     "షిఫ్ట్ చివరిలో మాత్రమే",
+     "మురికిగా కనిపించినప్పుడు మాత్రమే",
+     "లంచ్ ముందు మాత్రమే"
+    ]
+   },
+   "hi": {
+    "q": "काम पर हाथ कब ज़रूर धोने चाहिए?",
+    "options": [
+     "टॉयलेट साफ़ करने के बाद और साफ़ लिनन छूने से पहले",
+     "सिर्फ़ शिफ़्ट के आख़िर में",
+     "सिर्फ़ जब हाथ गंदे दिखें",
+     "सिर्फ़ लंच से पहले"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-019",
+   "topic": "Hygiene",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Why should you wear gloves while cleaning a toilet?",
+   "options": [
+    "To keep your hands soft",
+    "To protect your skin from germs and chemicals",
+    "Because guests like to see it",
+    "To finish the work faster"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "టాయిలెట్ శుభ్రం చేసేటప్పుడు గ్లవ్స్ ఎందుకు వేసుకోవాలి?",
+    "options": [
+     "చేతులు మెత్తగా ఉండటానికి",
+     "క్రిములు, కెమికల్స్ నుండి చర్మాన్ని కాపాడుకోవడానికి",
+     "గెస్టులు చూడటానికి ఇష్టపడతారు కాబట్టి",
+     "పని త్వరగా అవ్వడానికి"
+    ]
+   },
+   "hi": {
+    "q": "टॉयलेट साफ़ करते समय दस्ताने क्यों पहनने चाहिए?",
+    "options": [
+     "हाथ मुलायम रखने के लिए",
+     "त्वचा को कीटाणुओं और केमिकल से बचाने के लिए",
+     "क्योंकि गेस्ट को यह देखना अच्छा लगता है",
+     "काम जल्दी ख़त्म करने के लिए"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-020",
+   "topic": "Hygiene",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "You wore gloves to clean a bathroom. Next you will make the bed. What do you do?",
+   "options": [
+    "Keep the same gloves on",
+    "Wipe the gloves on a towel and continue",
+    "Remove the gloves, wash hands, then handle linen",
+    "Turn the gloves inside out and continue"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "మీరు గ్లవ్స్ వేసుకుని బాత్రూమ్ శుభ్రం చేశారు. తర్వాత బెడ్ సర్దాలి. ఏం చేస్తారు?",
+    "options": [
+     "అవే గ్లవ్స్‌తో కొనసాగించాలి",
+     "గ్లవ్స్‌ను టవల్‌కు తుడిచి కొనసాగించాలి",
+     "గ్లవ్స్ తీసి, చేతులు కడిగి, తర్వాత లినెన్ పట్టుకోవాలి",
+     "గ్లవ్స్‌ను లోపలి వైపు బయటకు తిప్పి కొనసాగించాలి"
+    ]
+   },
+   "hi": {
+    "q": "आपने दस्ताने पहनकर बाथरूम साफ़ किया। अब बिस्तर लगाना है। आप क्या करेंगे?",
+    "options": [
+     "वही दस्ताने पहने रहें",
+     "दस्तानों को तौलिये से पोंछकर काम करें",
+     "दस्ताने उतारें, हाथ धोएँ, फिर लिनन छुएँ",
+     "दस्तानों को उल्टा करके काम करें"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-021",
+   "topic": "Hygiene",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A guest had fever and vomiting in the room. How should the room be cleaned?",
+   "options": [
+    "Clean it like any other room, just faster",
+    "Spray air freshener and change only pillow covers",
+    "Wear gloves and mask, disinfect, bag linen separately",
+    "Keep windows open overnight and clean it next week"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "ఒక గెస్ట్‌కు గదిలో జ్వరం, వాంతులు అయ్యాయి. ఆ గదిని ఎలా శుభ్రం చేయాలి?",
+    "options": [
+     "మామూలు గదిలాగే, కాస్త త్వరగా శుభ్రం చేయాలి",
+     "ఎయిర్ ఫ్రెష్‌నర్ కొట్టి దిండు కవర్లు మాత్రమే మార్చాలి",
+     "గ్లవ్స్, మాస్క్ వేసుకుని, డిస్ఇన్ఫెక్ట్ చేసి, లినెన్ వేరే బ్యాగ్‌లో వేయాలి",
+     "రాత్రంతా కిటికీలు తెరిచి వచ్చే వారం శుభ్రం చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "एक गेस्ट को कमरे में बुख़ार और उल्टी हुई। कमरा कैसे साफ़ करना चाहिए?",
+    "options": [
+     "बाक़ी कमरों की तरह, बस थोड़ा जल्दी",
+     "एयर फ़्रेशनर छिड़ककर सिर्फ़ तकिये के कवर बदलें",
+     "दस्ताने और मास्क पहनकर, डिसइन्फ़ेक्ट करें, लिनन अलग बैग में रखें",
+     "रात भर खिड़कियाँ खुली रखें और अगले हफ़्ते साफ़ करें"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-022",
+   "topic": "Hygiene",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which places in a room carry the most germs and need disinfecting every day?",
+   "options": [
+    "Ceiling corners and the top of walls",
+    "Curtain rods and the wardrobe top",
+    "Door handles, switches, remote and taps",
+    "Picture frames and the back of the bed"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "గదిలో ఏ చోట్ల ఎక్కువ క్రిములు ఉంటాయి, రోజూ డిస్ఇన్ఫెక్ట్ చేయాలి?",
+    "options": [
+     "సీలింగ్ మూలలు, గోడల పై భాగం",
+     "కర్టెన్ రాడ్లు, అలమారా పైభాగం",
+     "డోర్ హ్యాండిల్స్, స్విచ్‌లు, రిమోట్, కుళాయిలు",
+     "ఫోటో ఫ్రేములు, మంచం వెనుక భాగం"
+    ]
+   },
+   "hi": {
+    "q": "कमरे में किन जगहों पर सबसे ज़्यादा कीटाणु होते हैं और रोज़ डिसइन्फ़ेक्ट करना चाहिए?",
+    "options": [
+     "छत के कोने और दीवारों का ऊपरी हिस्सा",
+     "पर्दे की रॉड और अलमारी का ऊपरी हिस्सा",
+     "दरवाज़े के हैंडल, स्विच, रिमोट और नल",
+     "फ़ोटो फ़्रेम और बेड का पिछला हिस्सा"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-023",
+   "topic": "Hygiene",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "You find a used syringe in a room bin while cleaning. What do you do?",
+   "options": [
+    "Pick it out by hand and drop it in the main bin",
+    "Press it down inside the bag and tie it tight",
+    "Leave it there and clean the rest of the room",
+    "Use tongs, put it in a hard sharps box, inform supervisor"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "శుభ్రం చేస్తుంటే గది డస్ట్‌బిన్‌లో వాడిన సిరంజి కనిపించింది. ఏం చేస్తారు?",
+    "options": [
+     "చేత్తో తీసి పెద్ద డస్ట్‌బిన్‌లో వేయాలి",
+     "బ్యాగ్ లోపలికి నొక్కి గట్టిగా కట్టేయాలి",
+     "అలాగే వదిలేసి మిగతా గది శుభ్రం చేయాలి",
+     "టాంగ్స్‌తో తీసి గట్టి షార్ప్స్ బాక్స్‌లో వేసి, సూపర్‌వైజర్‌కు చెప్పాలి"
+    ]
+   },
+   "hi": {
+    "q": "सफ़ाई करते समय कमरे के डस्टबिन में इस्तेमाल की हुई सिरिंज मिली। आप क्या करेंगे?",
+    "options": [
+     "हाथ से निकालकर बड़े डस्टबिन में डाल दें",
+     "बैग में नीचे दबाकर कसकर बाँध दें",
+     "वहीं छोड़कर बाक़ी कमरा साफ़ करें",
+     "चिमटे से उठाकर सख़्त शार्प्स बॉक्स में डालें, सुपरवाइज़र को बताएँ"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-024",
+   "topic": "Hygiene",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "There is blood on a bathroom floor. What is the right way to clean it?",
+   "options": [
+    "Mop it with the common floor mop and water",
+    "Gloves on, absorb with tissue, then disinfect the spot",
+    "Wash it into the drain with plenty of hot water",
+    "Wipe it with a guest towel and send it to laundry"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "బాత్రూమ్ నేల మీద రక్తం ఉంది. దాన్ని శుభ్రం చేసే సరైన పద్ధతి ఏది?",
+    "options": [
+     "అన్ని చోట్లా వాడే మాప్, నీళ్లతో తుడవాలి",
+     "గ్లవ్స్ వేసుకుని, టిష్యూతో పీల్చి, ఆ చోటును డిస్ఇన్ఫెక్ట్ చేయాలి",
+     "ఎక్కువ వేడి నీళ్లతో డ్రైన్‌లోకి కడిగేయాలి",
+     "గెస్ట్ టవల్‌తో తుడిచి లాండ్రీకి పంపాలి"
+    ]
+   },
+   "hi": {
+    "q": "बाथरूम के फ़र्श पर ख़ून है। इसे साफ़ करने का सही तरीक़ा क्या है?",
+    "options": [
+     "सब जगह वाले पोछे और पानी से पोछ दें",
+     "दस्ताने पहनें, टिशू से सोखें, फिर उस जगह को डिसइन्फ़ेक्ट करें",
+     "ढेर सारे गरम पानी से नाली में बहा दें",
+     "गेस्ट के तौलिये से पोंछकर लॉन्ड्री भेज दें"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-025",
+   "topic": "Hygiene",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "You have a small cut on your hand and are on cleaning duty. What do you do?",
+   "options": [
+    "Cover it with a waterproof plaster and wear gloves",
+    "Leave it open so it dries",
+    "Go home without telling anyone",
+    "Clean using only the other hand"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "మీ చేతికి చిన్న గాయం ఉంది, మీరు క్లీనింగ్ డ్యూటీలో ఉన్నారు. ఏం చేస్తారు?",
+    "options": [
+     "వాటర్‌ప్రూఫ్ ప్లాస్టర్ వేసి గ్లవ్స్ వేసుకోవాలి",
+     "ఆరడానికి అలాగే తెరిచి ఉంచాలి",
+     "ఎవరికీ చెప్పకుండా ఇంటికి వెళ్లాలి",
+     "ఇంకో చేత్తో మాత్రమే శుభ్రం చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "आपके हाथ पर छोटा सा कट है और आप सफ़ाई ड्यूटी पर हैं। आप क्या करेंगे?",
+    "options": [
+     "वॉटरप्रूफ़ प्लास्टर लगाएँ और दस्ताने पहनें",
+     "सूखने के लिए खुला छोड़ दें",
+     "किसी को बताए बिना घर चले जाएँ",
+     "सिर्फ़ दूसरे हाथ से सफ़ाई करें"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-026",
+   "topic": "Safety",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "You have just mopped a corridor. What must you put there?",
+   "options": [
+    "A dustbin",
+    "Your trolley across the path",
+    "A wet floor sign",
+    "Nothing; it will dry soon"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "మీరు ఇప్పుడే కారిడార్ మాప్ చేశారు. అక్కడ తప్పకుండా ఏం పెట్టాలి?",
+    "options": [
+     "డస్ట్‌బిన్",
+     "దారికి అడ్డంగా మీ ట్రాలీ",
+     "వెట్ ఫ్లోర్ బోర్డు",
+     "ఏమీ వద్దు; త్వరగా ఆరిపోతుంది"
+    ]
+   },
+   "hi": {
+    "q": "आपने अभी कॉरिडोर में पोछा लगाया है। वहाँ क्या ज़रूर रखना चाहिए?",
+    "options": [
+     "एक डस्टबिन",
+     "रास्ते के बीच अपनी ट्रॉली",
+     "गीले फ़र्श का बोर्ड",
+     "कुछ नहीं; जल्दी सूख जाएगा"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-027",
+   "topic": "Safety",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "How should you lift a heavy laundry bag?",
+   "options": [
+    "Bend at the waist with straight legs",
+    "Bend your knees, keep your back straight, hold it close",
+    "Lift it fast in one jerk",
+    "Twist your body while lifting"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "బరువైన లాండ్రీ బ్యాగ్‌ను ఎలా ఎత్తాలి?",
+    "options": [
+     "కాళ్లు నిటారుగా ఉంచి నడుము వంచాలి",
+     "మోకాళ్లు వంచి, వెన్ను నిటారుగా ఉంచి, దగ్గరగా పట్టుకోవాలి",
+     "ఒక్కసారిగా విసురుగా ఎత్తాలి",
+     "ఎత్తేటప్పుడు శరీరాన్ని తిప్పాలి"
+    ]
+   },
+   "hi": {
+    "q": "भारी लॉन्ड्री बैग कैसे उठाना चाहिए?",
+    "options": [
+     "पैर सीधे रखकर कमर से झुकें",
+     "घुटने मोड़ें, पीठ सीधी रखें, बैग को पास रखें",
+     "एक झटके में तेज़ी से उठाएँ",
+     "उठाते समय शरीर घुमाएँ"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-028",
+   "topic": "Safety",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "The vacuum cleaner wire is cut and you can see copper inside. What do you do?",
+   "options": [
+    "Wrap tape on it and continue the work",
+    "Stop using it, mark it faulty and report",
+    "Use it only on dry carpet areas",
+    "Keep the wire away from your feet and carry on"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "వాక్యూమ్ క్లీనర్ వైరు తెగి లోపల రాగి తీగ కనిపిస్తోంది. ఏం చేస్తారు?",
+    "options": [
+     "టేప్ చుట్టి పని కొనసాగించాలి",
+     "వాడటం ఆపి, పాడైందని గుర్తు పెట్టి, రిపోర్ట్ చేయాలి",
+     "పొడి కార్పెట్ మీద మాత్రమే వాడాలి",
+     "వైరు కాళ్లకు తగలకుండా చూసుకుని కొనసాగించాలి"
+    ]
+   },
+   "hi": {
+    "q": "वैक्यूम क्लीनर का तार कटा है और अंदर ताँबा दिख रहा है। आप क्या करेंगे?",
+    "options": [
+     "टेप लपेटकर काम चालू रखें",
+     "इस्तेमाल बंद करें, ख़राब का निशान लगाएँ और रिपोर्ट करें",
+     "सिर्फ़ सूखे कार्पेट पर इस्तेमाल करें",
+     "तार को पैरों से दूर रखकर काम करते रहें"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-029",
+   "topic": "Safety",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Where should your housekeeping trolley be kept while you clean a room?",
+   "options": [
+    "Inside the room, blocking the bathroom",
+    "Across the corridor so no one passes",
+    "At the room door, to one side of the corridor",
+    "Inside the lift to save time"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "గది శుభ్రం చేస్తున్నప్పుడు హౌస్‌కీపింగ్ ట్రాలీ ఎక్కడ ఉంచాలి?",
+    "options": [
+     "గది లోపల, బాత్రూమ్‌కు అడ్డంగా",
+     "ఎవరూ వెళ్లకుండా కారిడార్‌కు అడ్డంగా",
+     "గది తలుపు దగ్గర, కారిడార్‌లో ఒక పక్కగా",
+     "సమయం ఆదా కోసం లిఫ్ట్ లోపల"
+    ]
+   },
+   "hi": {
+    "q": "कमरा साफ़ करते समय हाउसकीपिंग ट्रॉली कहाँ रखनी चाहिए?",
+    "options": [
+     "कमरे के अंदर, बाथरूम का रास्ता रोककर",
+     "कॉरिडोर के बीच में ताकि कोई न निकले",
+     "कमरे के दरवाज़े पर, कॉरिडोर में एक तरफ़",
+     "समय बचाने के लिए लिफ़्ट के अंदर"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-030",
+   "topic": "Safety",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "While cleaning, you smell burning plastic from a switch board near the AC. What do you do first?",
+   "options": [
+    "Switch off at the MCB if safe, call maintenance",
+    "Pour water on the switch board",
+    "Open the AC panel and look inside",
+    "Keep cleaning and tell someone later"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "శుభ్రం చేస్తుంటే AC దగ్గర స్విచ్ బోర్డు నుండి ప్లాస్టిక్ కాలుతున్న వాసన వస్తోంది. ముందు ఏం చేస్తారు?",
+    "options": [
+     "సురక్షితమైతే MCB ఆఫ్ చేసి, మెయింటెనెన్స్‌ను పిలవాలి",
+     "స్విచ్ బోర్డు మీద నీళ్లు పోయాలి",
+     "AC ప్యానెల్ తెరిచి లోపల చూడాలి",
+     "శుభ్రం చేస్తూనే ఉండి తర్వాత ఎవరికైనా చెప్పాలి"
+    ]
+   },
+   "hi": {
+    "q": "सफ़ाई करते समय AC के पास वाले स्विच बोर्ड से प्लास्टिक जलने की गंध आ रही है। सबसे पहले क्या करेंगे?",
+    "options": [
+     "सुरक्षित हो तो MCB बंद करें, मेंटेनेंस को बुलाएँ",
+     "स्विच बोर्ड पर पानी डालें",
+     "AC का पैनल खोलकर अंदर देखें",
+     "सफ़ाई करते रहें और बाद में किसी को बताएँ"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-031",
+   "topic": "Safety",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "To clean a high window you need to stand on something. What is safest?",
+   "options": [
+    "A chair with wheels",
+    "A steady step ladder with someone holding it",
+    "A stool placed on top of a table",
+    "The window ledge itself"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "ఎత్తైన కిటికీ శుభ్రం చేయడానికి దేని మీదైనా నిలబడాలి. ఏది సురక్షితం?",
+    "options": [
+     "చక్రాలు ఉన్న కుర్చీ",
+     "ఎవరైనా పట్టుకుని ఉన్న స్థిరమైన స్టెప్ లాడర్",
+     "టేబుల్ మీద పెట్టిన స్టూల్",
+     "కిటికీ అంచు మీదే"
+    ]
+   },
+   "hi": {
+    "q": "ऊँची खिड़की साफ़ करने के लिए किसी चीज़ पर खड़ा होना है। सबसे सुरक्षित क्या है?",
+    "options": [
+     "पहियों वाली कुर्सी",
+     "मज़बूत स्टेप सीढ़ी, जिसे कोई पकड़े हुए हो",
+     "टेबल के ऊपर रखा स्टूल",
+     "खिड़की का छज्जा"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-032",
+   "topic": "Safety",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "The fire alarm rings while you are on the 5th floor. What should you do?",
+   "options": [
+    "Use the stairs and go to the assembly point",
+    "Take the lift down quickly",
+    "Finish cleaning the room, then go",
+    "Go up to the terrace and wait"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "మీరు 5వ అంతస్తులో ఉన్నప్పుడు ఫైర్ అలారం మోగింది. ఏం చేయాలి?",
+    "options": [
+     "మెట్ల ద్వారా అసెంబ్లీ పాయింట్‌కు వెళ్లాలి",
+     "లిఫ్ట్‌లో త్వరగా కిందికి వెళ్లాలి",
+     "గది శుభ్రం పూర్తి చేసి వెళ్లాలి",
+     "టెర్రస్ మీదకు వెళ్లి వేచి ఉండాలి"
+    ]
+   },
+   "hi": {
+    "q": "आप 5वीं मंज़िल पर हैं और फ़ायर अलार्म बजता है। क्या करना चाहिए?",
+    "options": [
+     "सीढ़ियों से असेंबली पॉइंट पर जाएँ",
+     "लिफ़्ट से जल्दी नीचे जाएँ",
+     "कमरे की सफ़ाई पूरी करके जाएँ",
+     "छत पर जाकर इंतज़ार करें"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-033",
+   "topic": "Safety",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A cleaning chemical splashes into your eye. What is the right first aid?",
+   "options": [
+    "Rub the eye gently with a cloth",
+    "Put in any eye drops you have",
+    "Rinse with running water for 15 minutes",
+    "Keep the eye shut and rest a while"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "క్లీనింగ్ కెమికల్ కంట్లో పడింది. సరైన ప్రథమ చికిత్స ఏది?",
+    "options": [
+     "గుడ్డతో కన్ను మెల్లగా రుద్దాలి",
+     "మీ దగ్గర ఉన్న ఏదైనా ఐ డ్రాప్స్ వేయాలి",
+     "పారే నీళ్లతో 15 నిమిషాలు కడగాలి",
+     "కన్ను మూసి కాసేపు విశ్రాంతి తీసుకోవాలి"
+    ]
+   },
+   "hi": {
+    "q": "सफ़ाई का केमिकल आँख में चला गया। सही प्राथमिक उपचार क्या है?",
+    "options": [
+     "कपड़े से आँख धीरे से रगड़ें",
+     "जो भी आई ड्रॉप पास हो डाल लें",
+     "बहते पानी से 15 मिनट तक धोएँ",
+     "आँख बंद करके थोड़ा आराम करें"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-034",
+   "topic": "Guest rooms and service",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does a 'Do Not Disturb' sign on a room door mean?",
+   "options": [
+    "Do not knock or enter; come back later",
+    "Knock loudly once and enter",
+    "Enter quietly without knocking",
+    "Slide a note under the door and enter"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "గది తలుపు మీద 'Do Not Disturb' బోర్డు ఉంటే అర్థం ఏమిటి?",
+    "options": [
+     "తట్టకూడదు, లోపలికి వెళ్లకూడదు; తర్వాత రావాలి",
+     "ఒకసారి గట్టిగా తట్టి లోపలికి వెళ్లాలి",
+     "తట్టకుండా నిశ్శబ్దంగా లోపలికి వెళ్లాలి",
+     "తలుపు కింద చీటీ పెట్టి లోపలికి వెళ్లాలి"
+    ]
+   },
+   "hi": {
+    "q": "कमरे के दरवाज़े पर 'Do Not Disturb' का बोर्ड हो तो इसका मतलब क्या है?",
+    "options": [
+     "न खटखटाएँ, न अंदर जाएँ; बाद में आएँ",
+     "एक बार ज़ोर से खटखटाकर अंदर जाएँ",
+     "बिना खटखटाए चुपचाप अंदर जाएँ",
+     "दरवाज़े के नीचे पर्ची डालकर अंदर जाएँ"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-035",
+   "topic": "Guest rooms and service",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is the correct way to enter an occupied guest room?",
+   "options": [
+    "Open it with the master key directly",
+    "Call the guest's mobile number",
+    "Knock, say 'Housekeeping', wait, repeat",
+    "Look through the door gap first"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "గెస్ట్ ఉన్న గదిలోకి వెళ్లే సరైన పద్ధతి ఏది?",
+    "options": [
+     "మాస్టర్ కీతో నేరుగా తెరవాలి",
+     "గెస్ట్ మొబైల్‌కు కాల్ చేయాలి",
+     "తట్టి, 'హౌస్‌కీపింగ్' అని చెప్పి, ఆగి, మళ్లీ చెప్పాలి",
+     "ముందు తలుపు సందులో నుండి చూడాలి"
+    ]
+   },
+   "hi": {
+    "q": "जिस कमरे में गेस्ट ठहरा है, उसमें जाने का सही तरीक़ा क्या है?",
+    "options": [
+     "मास्टर चाबी से सीधे खोल लें",
+     "गेस्ट के मोबाइल पर कॉल करें",
+     "खटखटाएँ, 'हाउसकीपिंग' बोलें, रुकें, फिर दोहराएँ",
+     "पहले दरवाज़े की दरार से झाँकें"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-036",
+   "topic": "Guest rooms and service",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "You find a gold ring under the bed after the guest has checked out. What do you do?",
+   "options": [
+    "Keep it safe in your locker till someone asks",
+    "Give it to the security guard at the gate",
+    "Put it on the bedside table for the next guest",
+    "Hand it to the supervisor for the lost and found register"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "గెస్ట్ చెక్ అవుట్ అయ్యాక మంచం కింద బంగారు ఉంగరం దొరికింది. ఏం చేస్తారు?",
+    "options": [
+     "ఎవరైనా అడిగేవరకు మీ లాకర్‌లో భద్రంగా ఉంచాలి",
+     "గేటు దగ్గర సెక్యూరిటీ గార్డుకు ఇవ్వాలి",
+     "తర్వాత వచ్చే గెస్ట్ కోసం బెడ్ పక్కన టేబుల్ మీద పెట్టాలి",
+     "లాస్ట్ అండ్ ఫౌండ్ రిజిస్టర్ కోసం సూపర్‌వైజర్‌కు ఇవ్వాలి"
+    ]
+   },
+   "hi": {
+    "q": "गेस्ट के चेक-आउट के बाद बेड के नीचे सोने की अँगूठी मिली। आप क्या करेंगे?",
+    "options": [
+     "कोई माँगे तब तक अपने लॉकर में सँभालकर रखें",
+     "गेट पर सिक्योरिटी गार्ड को दे दें",
+     "अगले गेस्ट के लिए बेड के पास टेबल पर रख दें",
+     "लॉस्ट एंड फ़ाउंड रजिस्टर के लिए सुपरवाइज़र को दें"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-037",
+   "topic": "Guest rooms and service",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A guest asks for extra towels while you are cleaning another room. What do you do?",
+   "options": [
+    "Tell the guest to call reception instead",
+    "Say towels are given only once a day",
+    "Send them later in the evening shift",
+    "Note the room, finish quickly and deliver them"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "మీరు ఇంకో గది శుభ్రం చేస్తుంటే ఒక గెస్ట్ అదనపు టవల్స్ అడిగారు. ఏం చేస్తారు?",
+    "options": [
+     "రిసెప్షన్‌కు కాల్ చేయమని చెప్పాలి",
+     "టవల్స్ రోజుకు ఒక్కసారే ఇస్తామని చెప్పాలి",
+     "సాయంత్రం షిఫ్ట్‌లో పంపించాలి",
+     "గది నంబర్ రాసుకుని, త్వరగా పని ముగించి, అందించాలి"
+    ]
+   },
+   "hi": {
+    "q": "आप दूसरा कमरा साफ़ कर रहे हैं और एक गेस्ट एक्स्ट्रा तौलिये माँगता है। आप क्या करेंगे?",
+    "options": [
+     "गेस्ट से कहें कि रिसेप्शन पर फ़ोन करें",
+     "कहें कि तौलिये दिन में एक ही बार मिलते हैं",
+     "शाम की शिफ़्ट में भिजवा दें",
+     "कमरा नंबर नोट करें, जल्दी काम ख़त्म करके दे आएँ"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-038",
+   "topic": "Guest rooms and service",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "While cleaning, you see the guest's laptop and papers on the desk. What do you do?",
+   "options": [
+    "Clean around them without moving or reading anything",
+    "Arrange the papers neatly in a pile",
+    "Put everything into the drawer",
+    "Shut the laptop to save power"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "శుభ్రం చేస్తుంటే టేబుల్ మీద గెస్ట్ ల్యాప్‌టాప్, కాగితాలు ఉన్నాయి. ఏం చేస్తారు?",
+    "options": [
+     "వాటిని కదపకుండా, చదవకుండా చుట్టూ శుభ్రం చేయాలి",
+     "కాగితాలను చక్కగా ఒక కట్టగా సర్దాలి",
+     "అన్నీ డ్రాయర్‌లో పెట్టాలి",
+     "కరెంట్ ఆదా కోసం ల్యాప్‌టాప్ మూసేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "सफ़ाई करते समय टेबल पर गेस्ट का लैपटॉप और काग़ज़ रखे हैं। आप क्या करेंगे?",
+    "options": [
+     "उन्हें हिलाए या पढ़े बिना आसपास सफ़ाई करें",
+     "काग़ज़ों को ठीक से एक ढेर में लगा दें",
+     "सब कुछ दराज़ में रख दें",
+     "बिजली बचाने के लिए लैपटॉप बंद कर दें"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-039",
+   "topic": "Guest rooms and service",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A guest says ₹2,000 is missing from the room after you cleaned it. What should you do?",
+   "options": [
+    "Argue strongly that you did not take it",
+    "Stay calm and call the supervisor right away",
+    "Pay the money yourself to avoid trouble",
+    "Search the guest's bags to help find it"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "మీరు శుభ్రం చేశాక గదిలో ₹2,000 కనిపించడం లేదని గెస్ట్ అంటున్నారు. ఏం చేయాలి?",
+    "options": [
+     "నేను తీయలేదని గట్టిగా వాదించాలి",
+     "ప్రశాంతంగా ఉండి వెంటనే సూపర్‌వైజర్‌ను పిలవాలి",
+     "గొడవ వద్దని మీరే డబ్బు కట్టాలి",
+     "వెతకడానికి గెస్ట్ బ్యాగులు చూడాలి"
+    ]
+   },
+   "hi": {
+    "q": "आपके सफ़ाई करने के बाद गेस्ट कहता है कि कमरे से ₹2,000 ग़ायब हैं। क्या करना चाहिए?",
+    "options": [
+     "ज़ोर से बहस करें कि आपने नहीं लिए",
+     "शांत रहें और तुरंत सुपरवाइज़र को बुलाएँ",
+     "झंझट से बचने के लिए ख़ुद पैसे दे दें",
+     "ढूँढने के लिए गेस्ट के बैग देखें"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-040",
+   "topic": "Guest rooms and service",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "During check-out cleaning you find a broken TV and a burn mark on the carpet. What is right?",
+   "options": [
+    "Inform the supervisor or front desk immediately",
+    "Repair what you can and say nothing",
+    "Mention it at the end of your shift",
+    "Move a rug over the burn mark"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "చెక్ అవుట్ క్లీనింగ్‌లో పగిలిన TV, కార్పెట్ మీద కాలిన మరక కనిపించాయి. ఏది సరైనది?",
+    "options": [
+     "వెంటనే సూపర్‌వైజర్‌కు లేదా ఫ్రంట్ డెస్క్‌కు చెప్పాలి",
+     "వీలైనంత బాగు చేసి ఏమీ చెప్పకూడదు",
+     "షిఫ్ట్ చివరిలో చెప్పాలి",
+     "కాలిన మరక మీద రగ్గు జరపాలి"
+    ]
+   },
+   "hi": {
+    "q": "चेक-आउट सफ़ाई में टूटा TV और कार्पेट पर जलने का निशान मिला। क्या सही है?",
+    "options": [
+     "तुरंत सुपरवाइज़र या फ़्रंट डेस्क को बताएँ",
+     "जो ठीक हो सके कर दें और कुछ न कहें",
+     "शिफ़्ट के आख़िर में बता दें",
+     "जले निशान पर दरी खिसका दें"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-041",
+   "topic": "Guest rooms and service",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "How should used linen from rooms be handled?",
+   "options": [
+    "Shaken out in the corridor to remove dust",
+    "Left on the floor till the trolley comes",
+    "Used first to wipe the bathroom",
+    "Put in a linen bag, not shaken, kept apart from clean linen"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "గదుల నుండి తీసిన వాడిన లినెన్‌ను ఎలా చూసుకోవాలి?",
+    "options": [
+     "దుమ్ము పోవడానికి కారిడార్‌లో దులపాలి",
+     "ట్రాలీ వచ్చేవరకు నేల మీద వదిలేయాలి",
+     "ముందు బాత్రూమ్ తుడవడానికి వాడాలి",
+     "దులపకుండా లినెన్ బ్యాగ్‌లో వేసి, శుభ్రమైన వాటికి దూరంగా ఉంచాలి"
+    ]
+   },
+   "hi": {
+    "q": "कमरों से निकली इस्तेमाल की हुई लिनन को कैसे सँभालना चाहिए?",
+    "options": [
+     "धूल हटाने के लिए कॉरिडोर में झाड़ें",
+     "ट्रॉली आने तक फ़र्श पर छोड़ दें",
+     "पहले उससे बाथरूम पोंछ लें",
+     "बिना झाड़े लिनन बैग में डालें, साफ़ लिनन से अलग रखें"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-042",
+   "topic": "Guest rooms and service",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "While making the bed you notice a small stain on the clean sheet. What do you do?",
+   "options": [
+    "Use it; the guest may not notice",
+    "Replace it and send the stained one back to laundry",
+    "Turn it so the stain is at the foot end",
+    "Rub the stain with water and use it"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "బెడ్ సర్దుతుంటే శుభ్రమైన బెడ్‌షీట్ మీద చిన్న మరక కనిపించింది. ఏం చేస్తారు?",
+    "options": [
+     "వాడేయాలి; గెస్ట్ గమనించకపోవచ్చు",
+     "మార్చేసి, మరక ఉన్నదాన్ని లాండ్రీకి తిరిగి పంపాలి",
+     "మరక కాళ్ల వైపు వచ్చేలా తిప్పాలి",
+     "మరకను నీళ్లతో రుద్ది వాడాలి"
+    ]
+   },
+   "hi": {
+    "q": "बिस्तर लगाते समय साफ़ चादर पर छोटा सा दाग़ दिखा। आप क्या करेंगे?",
+    "options": [
+     "लगा दें; शायद गेस्ट को न दिखे",
+     "बदल दें और दाग़ वाली चादर लॉन्ड्री वापस भेजें",
+     "घुमा दें ताकि दाग़ पैरों की तरफ़ रहे",
+     "दाग़ को पानी से रगड़कर लगा दें"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-043",
+   "topic": "Guest rooms and service",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "After check-out cleaning, what is the last thing you do before leaving the room?",
+   "options": [
+    "Switch on all the lights and the AC",
+    "Leave the door open to air the room",
+    "Leave the TV on for the next guest",
+    "Check the whole room once, then lock the door"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "చెక్ అవుట్ క్లీనింగ్ తర్వాత గది నుండి బయటకు వచ్చే ముందు చివరగా ఏం చేయాలి?",
+    "options": [
+     "అన్ని లైట్లు, AC ఆన్ చేయాలి",
+     "గాలి రావడానికి తలుపు తెరిచి ఉంచాలి",
+     "తర్వాతి గెస్ట్ కోసం TV ఆన్‌లో ఉంచాలి",
+     "గది మొత్తం ఒకసారి చూసి, తలుపు లాక్ చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "चेक-आउट सफ़ाई के बाद कमरे से निकलने से पहले आख़िरी काम क्या है?",
+    "options": [
+     "सारी लाइटें और AC चालू कर दें",
+     "हवा के लिए दरवाज़ा खुला छोड़ दें",
+     "अगले गेस्ट के लिए TV चालू छोड़ दें",
+     "पूरा कमरा एक बार जाँचें, फिर दरवाज़ा लॉक करें"
+    ]
+   }
+  },
+  {
+   "id": "housekeeping-044",
+   "topic": "Guest rooms and service",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A long-stay guest asks you not to clean the room for 3 days. What is right?",
+   "options": [
+    "Agree, and tell the supervisor so the room is checked",
+    "Agree and don't go near the room at all",
+    "Clean it anyway while the guest is out",
+    "Tell the guest that this is not allowed"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "ఎక్కువ రోజులు ఉండే గెస్ట్ 3 రోజులు గది శుభ్రం చేయవద్దని అడిగారు. ఏది సరైనది?",
+    "options": [
+     "ఒప్పుకుని, గది ఒకసారి చెక్ చేసేలా సూపర్‌వైజర్‌కు చెప్పాలి",
+     "ఒప్పుకుని ఆ గది దగ్గరికే వెళ్లకూడదు",
+     "గెస్ట్ బయట ఉన్నప్పుడు ఎలాగైనా శుభ్రం చేయాలి",
+     "ఇది కుదరదని గెస్ట్‌కు చెప్పాలి"
+    ]
+   },
+   "hi": {
+    "q": "लंबे समय से ठहरे गेस्ट ने 3 दिन कमरा साफ़ न करने को कहा। क्या सही है?",
+    "options": [
+     "मान लें, और सुपरवाइज़र को बताएँ ताकि कमरा चेक हो सके",
+     "मान लें और कमरे के पास भी न जाएँ",
+     "गेस्ट बाहर हो तब भी साफ़ कर दें",
+     "गेस्ट से कहें कि ऐसा नहीं हो सकता"
+    ]
+   }
+  }
+ ],
+ "task": {
+  "type": "proof",
+  "title": "Housekeeping practical check: 7 real situations and an optional work photo",
+  "minutes": 10,
+  "brief": "This takes about 10 minutes. First answer 7 short questions. Each one describes a real housekeeping situation (a bathroom, a bed, a trolley, a wet floor) and asks which way is right and safe. Then, if you want, upload one photo of your own past work: a room you cleaned, a bed you made, or a neatly set trolley. You can also upload a housekeeping training or ITI certificate instead. Do not show any faces or guest belongings in the photo. The photo is optional, but a clear, genuine one helps employers trust your skill.",
+  "key_points": [
+   "Picks the safe, hygienic choice in each situation",
+   "Keeps toilet tools apart from room tools",
+   "Never mixes chemicals",
+   "Reports damage and found items",
+   "Photo shows real, neat housekeeping work"
+  ],
+  "rubric": [
+   {
+    "key": "relevance",
+    "label": "Relevance",
+    "guide": "0 = no photo or unrelated photo, 3 = housekeeping work but unclear, 5 = clear photo of cleaned room, made bed or set trolley"
+   },
+   {
+    "key": "genuineness",
+    "label": "Genuineness",
+    "guide": "0 = looks copied from the internet, 3 = probably own work, 5 = clearly own work or a real certificate"
+   },
+   {
+    "key": "safety",
+    "label": "Safety and hygiene",
+    "guide": "0 = unsafe or dirty practice visible, 3 = mostly fine, 5 = clean, tidy, safe practice and no faces shown"
+   }
+  ],
+  "situations": [
+   {
+    "q": "Which is the safe way to clean a toilet with an acid toilet cleaner?",
+    "options": [
+     "Mixed with bleach for extra strength",
+     "Gloves on, exhaust on, cleaner used alone",
+     "Bare hands, with the door shut",
+     "Poured hot from a bucket on the seat"
+    ],
+    "answer": 1,
+    "topic": "Safety",
+    "te": {
+     "q": "యాసిడ్ టాయిలెట్ క్లీనర్‌తో టాయిలెట్ శుభ్రం చేసే సురక్షిత మార్గం ఏది?",
+     "options": [
+      "ఇంకా బలంగా ఉండాలని బ్లీచ్ కలిపి",
+      "గ్లవ్స్ వేసుకుని, ఎగ్జాస్ట్ ఆన్ చేసి, క్లీనర్ ఒక్కటే వాడాలి",
+      "తలుపు మూసి, ఒట్టి చేతులతో",
+      "బకెట్ నుండి వేడిగా సీటు మీద పోసి"
+     ]
+    },
+    "hi": {
+     "q": "एसिड वाले टॉयलेट क्लीनर से टॉयलेट साफ़ करने का सुरक्षित तरीक़ा कौन सा है?",
+     "options": [
+      "ज़्यादा असर के लिए ब्लीच मिलाकर",
+      "दस्ताने पहनकर, एग्ज़ॉस्ट चालू करके, क्लीनर अकेला इस्तेमाल करें",
+      "दरवाज़ा बंद करके, नंगे हाथों से",
+      "बाल्टी से गरम करके सीट पर डालकर"
+     ]
+    }
+   },
+   {
+    "q": "Picture a made bed. Which one is done right?",
+    "options": [
+     "Sheet loose and hanging to the floor",
+     "Bedcover spread over a stained sheet",
+     "Pillows stacked on the side table",
+     "Sheet tight, corners folded neatly, pillows fluffed"
+    ],
+    "answer": 3,
+    "topic": "Guest rooms and service",
+    "te": {
+     "q": "సర్దిన బెడ్‌ను ఊహించుకోండి. ఏది సరిగ్గా ఉంది?",
+     "options": [
+      "షీట్ వదులుగా నేల వరకు వేలాడుతూ",
+      "మరక ఉన్న షీట్ మీద బెడ్‌కవర్ పరిచి",
+      "దిండ్లు పక్క టేబుల్ మీద పేర్చి",
+      "షీట్ బిగుతుగా, మూలలు చక్కగా మడిచి, దిండ్లు ఉబ్బుగా"
+     ]
+    },
+    "hi": {
+     "q": "लगे हुए बिस्तर की कल्पना करें। कौन सा सही लगा है?",
+     "options": [
+      "चादर ढीली और फ़र्श तक लटकती",
+      "दाग़ वाली चादर के ऊपर बेडकवर बिछा",
+      "तकिये साइड टेबल पर रखे",
+      "चादर कसी हुई, कोने ठीक से मुड़े, तकिये फुले हुए"
+     ]
+    }
+   },
+   {
+    "q": "Which housekeeping trolley is set up correctly?",
+    "options": [
+     "Dirty and clean towels on the same shelf",
+     "Clean linen on top, dirty linen bag apart, chemicals labelled",
+     "Chemicals kept in unmarked water bottles",
+     "Snacks kept next to the toilet brush"
+    ],
+    "answer": 1,
+    "topic": "Hygiene",
+    "te": {
+     "q": "ఏ హౌస్‌కీపింగ్ ట్రాలీ సరిగ్గా సర్దారు?",
+     "options": [
+      "మురికి, శుభ్రమైన టవల్స్ ఒకే అరలో",
+      "పైన శుభ్రమైన లినెన్, మురికి లినెన్ బ్యాగ్ వేరుగా, కెమికల్స్‌కు లేబుల్",
+      "గుర్తు లేని వాటర్ బాటిళ్లలో కెమికల్స్",
+      "టాయిలెట్ బ్రష్ పక్కన తినుబండారాలు"
+     ]
+    },
+    "hi": {
+     "q": "कौन सी हाउसकीपिंग ट्रॉली सही तरीक़े से लगी है?",
+     "options": [
+      "गंदे और साफ़ तौलिये एक ही शेल्फ़ पर",
+      "ऊपर साफ़ लिनन, गंदे लिनन का बैग अलग, केमिकल पर लेबल",
+      "बिना निशान की पानी की बोतलों में केमिकल",
+      "टॉयलेट ब्रश के पास नाश्ता रखा"
+     ]
+    }
+   },
+   {
+    "q": "Which cloth would you pick for the toilet bowl?",
+    "options": [
+     "The cloth used for the glass table",
+     "A guest hand towel",
+     "The pantry duster",
+     "The cloth kept only for toilets"
+    ],
+    "answer": 3,
+    "topic": "Hygiene",
+    "te": {
+     "q": "టాయిలెట్ బౌల్ కోసం ఏ గుడ్డ తీసుకుంటారు?",
+     "options": [
+      "గాజు టేబుల్‌కు వాడే గుడ్డ",
+      "గెస్ట్ హ్యాండ్ టవల్",
+      "ప్యాంట్రీ డస్టర్",
+      "టాయిలెట్ల కోసమే ఉంచిన గుడ్డ"
+     ]
+    },
+    "hi": {
+     "q": "टॉयलेट बाउल के लिए आप कौन सा कपड़ा लेंगे?",
+     "options": [
+      "काँच की टेबल वाला कपड़ा",
+      "गेस्ट का हैंड टॉवल",
+      "पैंट्री का डस्टर",
+      "सिर्फ़ टॉयलेट के लिए रखा कपड़ा"
+     ]
+    }
+   },
+   {
+    "q": "Which is a safe way to clean a ceiling fan?",
+    "options": [
+     "Clean it while it runs slowly",
+     "Switch off, wait till it stops, use a steady ladder",
+     "Stand on the bed to reach it",
+     "Wipe with a wet cloth, switch still on"
+    ],
+    "answer": 1,
+    "topic": "Safety",
+    "te": {
+     "q": "సీలింగ్ ఫ్యాన్ శుభ్రం చేసే సురక్షిత మార్గం ఏది?",
+     "options": [
+      "మెల్లగా తిరుగుతున్నప్పుడే శుభ్రం చేయాలి",
+      "స్విచ్ ఆఫ్ చేసి, ఆగేవరకు ఆగి, స్థిరమైన నిచ్చెన వాడాలి",
+      "అందడానికి మంచం మీద నిలబడాలి",
+      "స్విచ్ ఆన్‌లో ఉండగానే తడి గుడ్డతో తుడవాలి"
+     ]
+    },
+    "hi": {
+     "q": "सीलिंग फ़ैन साफ़ करने का सुरक्षित तरीक़ा कौन सा है?",
+     "options": [
+      "धीमा चलते हुए ही साफ़ करें",
+      "स्विच बंद करें, रुकने तक इंतज़ार करें, मज़बूत सीढ़ी लें",
+      "पहुँचने के लिए बेड पर खड़े हों",
+      "स्विच चालू रहते गीले कपड़े से पोंछें"
+     ]
+    }
+   },
+   {
+    "q": "Which wet floor sign is placed correctly?",
+    "options": [
+     "Folded behind the door",
+     "Inside the store room",
+     "Put out after people have walked through",
+     "At the start of the wet area, easy to see"
+    ],
+    "answer": 3,
+    "topic": "Safety",
+    "te": {
+     "q": "ఏ వెట్ ఫ్లోర్ బోర్డు సరిగ్గా పెట్టారు?",
+     "options": [
+      "తలుపు వెనక మడిచి",
+      "స్టోర్ రూమ్ లోపల",
+      "జనం నడిచి వెళ్లిపోయాక పెట్టి",
+      "తడి ఉన్న చోటు మొదట్లో, బాగా కనిపించేలా"
+     ]
+    },
+    "hi": {
+     "q": "गीले फ़र्श का कौन सा बोर्ड सही जगह रखा है?",
+     "options": [
+      "दरवाज़े के पीछे मुड़ा हुआ",
+      "स्टोर रूम के अंदर",
+      "लोगों के निकल जाने के बाद रखा",
+      "गीली जगह की शुरुआत में, साफ़ दिखता हुआ"
+     ]
+    }
+   },
+   {
+    "q": "A guest's phone charger is left plugged in after check-out. Which is right?",
+    "options": [
+     "Keep it for your own use",
+     "Unplug it and send it to lost and found",
+     "Leave it plugged in as it is",
+     "Throw it in the bin"
+    ],
+    "answer": 1,
+    "topic": "Guest rooms and service",
+    "te": {
+     "q": "చెక్ అవుట్ తర్వాత గెస్ట్ ఫోన్ చార్జర్ ప్లగ్‌లో అలాగే ఉంది. ఏది సరైనది?",
+     "options": [
+      "మీ కోసం ఉంచుకోవాలి",
+      "తీసి లాస్ట్ అండ్ ఫౌండ్‌కు పంపాలి",
+      "అలాగే ప్లగ్‌లో వదిలేయాలి",
+      "డస్ట్‌బిన్‌లో వేయాలి"
+     ]
+    },
+    "hi": {
+     "q": "चेक-आउट के बाद गेस्ट का फ़ोन चार्जर प्लग में लगा रह गया। क्या सही है?",
+     "options": [
+      "अपने इस्तेमाल के लिए रख लें",
+      "निकालकर लॉस्ट एंड फ़ाउंड में भेजें",
+      "जैसा है वैसा लगा रहने दें",
+      "डस्टबिन में फेंक दें"
+     ]
+    }
+   }
+  ]
+ }
+}

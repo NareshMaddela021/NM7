@@ -1,0 +1,668 @@
+{
+ "slug": "mobile-dev",
+ "version": 1,
+ "topics": [
+  "Kotlin and Android basics",
+  "Android UI and lifecycle",
+  "Flutter and Dart",
+  "Networking, storage and offline",
+  "Release, performance and security"
+ ],
+ "questions": [
+  {
+   "id": "mobile-dev-001",
+   "topic": "Kotlin and Android basics",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "In Kotlin, what does declaring a property with val mean?",
+   "options": [
+    "It is a read-only reference that can't be reassigned",
+    "It can be reassigned later in the code",
+    "It is a compile-time constant for numbers only",
+    "It is nullable unless you say otherwise"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "mobile-dev-002",
+   "topic": "Kotlin and Android basics",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "In Kotlin, what is the result of name?.length when name is null?",
+   "options": [
+    "0",
+    "null",
+    "A NullPointerException",
+    "An empty string"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "mobile-dev-003",
+   "topic": "Kotlin and Android basics",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which file declares app permissions such as INTERNET in an Android project?",
+   "options": [
+    "AndroidManifest.xml",
+    "build.gradle",
+    "strings.xml",
+    "proguard-rules.pro"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "mobile-dev-004",
+   "topic": "Kotlin and Android basics",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "How should a ViewModel start a network call written as a suspend function?",
+   "options": [
+    "Use GlobalScope so it outlives the screen",
+    "Run it on Dispatchers.Main so the UI updates faster",
+    "Call runBlocking inside the click listener",
+    "Launch in viewModelScope and run the call on Dispatchers.IO"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "mobile-dev-005",
+   "topic": "Kotlin and Android basics",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What does marking a Kotlin class as a data class give you for free?",
+   "options": [
+    "equals, hashCode, toString and copy",
+    "A Room table mapping for the class",
+    "Automatic JSON parsing from APIs",
+    "Thread-safe access to every field"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "mobile-dev-006",
+   "topic": "Kotlin and Android basics",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What happens if code reads a lateinit var before it has been set?",
+   "options": [
+    "It silently returns null",
+    "It returns the type's default value",
+    "It throws UninitializedPropertyAccessException",
+    "The compiler refuses to build the app"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "mobile-dev-007",
+   "topic": "Kotlin and Android basics",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Crash reports show NullPointerExceptions from user!!.name on the profile screen, mostly after users return to the app hours later. Best fix?",
+   "options": [
+    "Handle the empty state and restore or reload the data safely",
+    "Wrap the line in try/catch and ignore errors",
+    "Replace every !! with lateinit",
+    "Ask users to disable battery optimisation"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "mobile-dev-008",
+   "topic": "Kotlin and Android basics",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A Fragment collects a StateFlow with lifecycleScope.launch, and it keeps working while the app is in the background. Fix?",
+   "options": [
+    "Convert the StateFlow to a plain List",
+    "Start collecting in onDestroy instead",
+    "Collect inside repeatOnLifecycle(Lifecycle.State.STARTED)",
+    "Collect it with GlobalScope.launch"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "mobile-dev-009",
+   "topic": "Kotlin and Android basics",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Inside coroutineScope { }, two child launch blocks run and one throws an exception. What happens?",
+   "options": [
+    "The other child keeps running and the error is lost",
+    "Each child restarts once automatically",
+    "The other child is cancelled and the error goes to the parent",
+    "Nothing, unless you used async instead"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "mobile-dev-010",
+   "topic": "Android UI and lifecycle",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "By default, what happens to an Activity when the user rotates the phone?",
+   "options": [
+    "Only onPause and onResume are called",
+    "It is destroyed and created again",
+    "It stays unchanged in memory",
+    "The whole app closes"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "mobile-dev-011",
+   "topic": "Android UI and lifecycle",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which Android component should hold screen data so it survives rotation?",
+   "options": [
+    "A local variable in onCreate",
+    "The layout XML file",
+    "A ViewModel",
+    "A BroadcastReceiver"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "mobile-dev-012",
+   "topic": "Android UI and lifecycle",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "In Jetpack Compose, what does remember { mutableStateOf(0) } do?",
+   "options": [
+    "Saves the value to disk permanently",
+    "Keeps the value across recompositions",
+    "Runs the block on a background thread",
+    "Shares the value with all screens"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "mobile-dev-013",
+   "topic": "Android UI and lifecycle",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A RecyclerView of 1,000 products scrolls with jank. Each bind decodes a full-size camera photo. Best fix?",
+   "options": [
+    "Use a ScrollView with 1,000 child views",
+    "Load scaled images through a caching image library",
+    "Call notifyDataSetChanged on every scroll",
+    "Decode all images in onCreate first"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "mobile-dev-014",
+   "topic": "Android UI and lifecycle",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "In Jetpack Compose, what makes a composable recompose?",
+   "options": [
+    "A State value it reads has changed",
+    "Any variable in the same file changes",
+    "A timer that runs every frame",
+    "Calling invalidate() on the Activity"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "mobile-dev-015",
+   "topic": "Android UI and lifecycle",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "The user taps a product in a list. What is the clean way to open its details screen?",
+   "options": [
+    "Put the whole product bitmap in the Intent",
+    "Keep it in a public static variable",
+    "Write it to a file and read it back",
+    "Pass the product id as a navigation argument and load it there"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "mobile-dev-016",
+   "topic": "Android UI and lifecycle",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Many users run budget phones with small screens and large font settings. What should your layouts do?",
+   "options": [
+    "Use px so text looks the same everywhere",
+    "Force the font scale back to 1.0",
+    "Target only the most popular screen size",
+    "Use sp for text and test with a large font scale"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "mobile-dev-017",
+   "topic": "Android UI and lifecycle",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "In a Compose LazyColumn, rows show the wrong checked state after items are reordered. What is the fix?",
+   "options": [
+    "Wrap it in a Column with verticalScroll",
+    "Use the list index as each row's remember key",
+    "Give each item a stable key, such as the product id",
+    "Call recompose() after every change"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "mobile-dev-018",
+   "topic": "Android UI and lifecycle",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Users say the app loses the half-filled KYC form when they come back after taking a photo with the camera app. Likely cause?",
+   "options": [
+    "Android killed the process and the state was not saved",
+    "The camera app has a bug on all phones",
+    "The photo is too big for the SD card",
+    "The Activity theme is missing in the manifest"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "mobile-dev-019",
+   "topic": "Flutter and Dart",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which Flutter widget type has no internal state that changes after it is built?",
+   "options": [
+    "StatefulWidget",
+    "FutureBuilder",
+    "AnimatedBuilder",
+    "StatelessWidget"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "mobile-dev-020",
+   "topic": "Flutter and Dart",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does calling setState() do in a Flutter StatefulWidget?",
+   "options": [
+    "Saves the state to device storage",
+    "Opens a new screen",
+    "Restarts the whole app",
+    "Marks it dirty so build() runs again"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "mobile-dev-021",
+   "topic": "Flutter and Dart",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "In Dart, what is the difference between final and const?",
+   "options": [
+    "They mean exactly the same thing in Dart",
+    "final is compile time; const is runtime",
+    "const is fixed at compile time; final is set once at runtime",
+    "const values can be reassigned later"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "mobile-dev-022",
+   "topic": "Flutter and Dart",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why add const to Flutter widget constructors where you can?",
+   "options": [
+    "Taps on them are handled faster",
+    "Hot reload does not work without it",
+    "Flutter can reuse them and skip rebuilding",
+    "They can change colour at runtime"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "mobile-dev-023",
+   "topic": "Flutter and Dart",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A screen uses FutureBuilder with future: api.fetchOrders() written inside build(). The API is called again and again. Fix?",
+   "options": [
+    "Wrap the FutureBuilder in a SingleChildScrollView",
+    "Create the future once in initState and reuse it",
+    "Call setState inside the future's callback",
+    "Turn the screen into a StatelessWidget"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "mobile-dev-024",
+   "topic": "Flutter and Dart",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A ListView placed directly inside a Column throws a layout error about unbounded height. What fixes it?",
+   "options": [
+    "Increase the font size of the items",
+    "Put the ListView inside a Row instead",
+    "Wrap the ListView in Expanded",
+    "Add more padding at the bottom"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "mobile-dev-025",
+   "topic": "Flutter and Dart",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "An onPressed handler awaits an API call and then calls Navigator.push(context, ...). It sometimes crashes if the user leaves first. Fix?",
+   "options": [
+    "Check mounted after the await before using context",
+    "Save the context in a global at startup",
+    "Use a Timer instead of await",
+    "Call build() manually before navigating"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "mobile-dev-026",
+   "topic": "Flutter and Dart",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Parsing a 5 MB JSON response freezes the Flutter UI for two seconds. What helps?",
+   "options": [
+    "Mark the parsing function as async",
+    "Parse it in a separate isolate, for example with compute()",
+    "Add Future.delayed(Duration.zero) before parsing",
+    "Move the parsing into the build method"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "mobile-dev-027",
+   "topic": "Flutter and Dart",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Many screens in a large Flutter app need the cart count, and passing it through constructors is messy. Best approach?",
+   "options": [
+    "A global mutable variable with setState calls",
+    "Reading SharedPreferences in every build",
+    "A state tool like Provider or Riverpod placed above those screens",
+    "Rebuilding MaterialApp on each cart change"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "mobile-dev-028",
+   "topic": "Networking, storage and offline",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which library is widely used on Android to call REST APIs?",
+   "options": [
+    "Glide",
+    "Retrofit",
+    "Room",
+    "Espresso"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "mobile-dev-029",
+   "topic": "Networking, storage and offline",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Where should a small setting like 'dark mode on' be saved on the device?",
+   "options": [
+    "DataStore or SharedPreferences",
+    "A separate Room table per setting",
+    "A file in the SD card root",
+    "Only on the remote server"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "mobile-dev-030",
+   "topic": "Networking, storage and offline",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "The app's API call returns HTTP 401. What does that usually mean?",
+   "options": [
+    "The server crashed",
+    "The endpoint URL does not exist",
+    "The request body was too large",
+    "The user is not logged in or the token expired"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "mobile-dev-031",
+   "topic": "Networking, storage and offline",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Field agents in rural areas with weak 2G signal lose the data they typed when the network drops. Best design?",
+   "options": [
+    "Save it locally first and sync when back online",
+    "Show an error and ask them to retype later",
+    "Lock the form until the signal is strong",
+    "Retry the request in a tight loop"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "mobile-dev-032",
+   "topic": "Networking, storage and offline",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Unsent orders must upload even if the app is closed, but only when there is internet. What should you use?",
+   "options": [
+    "A Thread started in onCreate",
+    "WorkManager with a network constraint",
+    "A Handler with postDelayed",
+    "A coroutine in lifecycleScope"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "mobile-dev-033",
+   "topic": "Networking, storage and offline",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "An app update adds a new column to a Room entity. What must you do?",
+   "options": [
+    "Clear app data for every user",
+    "Only change the entity class",
+    "Create a new database file on each launch",
+    "Bump the database version and add a Migration"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "mobile-dev-034",
+   "topic": "Networking, storage and offline",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "After a UPI payment, the app shows 'Payment successful' based only on the UPI app's intent result. What is the risk?",
+   "options": [
+    "That result can be wrong, so confirm with your server",
+    "UPI apps always return the correct status",
+    "Intent results are encrypted, so they are safe",
+    "It matters only on Android 9 phones"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "mobile-dev-035",
+   "topic": "Networking, storage and offline",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "After a 10-minute outage, one lakh installed apps retry failed calls instantly five times each and knock the server over again. Fix?",
+   "options": [
+    "Retry every second until it works",
+    "Exponential backoff with jitter and a retry limit",
+    "Raise the client timeout to 5 minutes",
+    "Drop retries and let the app crash"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "mobile-dev-036",
+   "topic": "Networking, storage and offline",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "The same customer record is edited offline on two phones and both sync later. How should the app handle it?",
+   "options": [
+    "Ignore it, because Room prevents conflicts",
+    "Always overwrite the server with the phone's copy",
+    "Detect it with a version number and apply a clear merge rule",
+    "Delete both edits and ask users to redo"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "mobile-dev-037",
+   "topic": "Release, performance and security",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "To publish an app on the Google Play Store, the upload must be:",
+   "options": [
+    "Signed with your release key",
+    "Built in debug mode",
+    "A ZIP of the source code",
+    "Tested only on an emulator"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "mobile-dev-038",
+   "topic": "Release, performance and security",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Where is the safest place to keep a third-party API secret the app needs?",
+   "options": [
+    "In strings.xml",
+    "On your backend, which the app calls",
+    "In a BuildConfig field",
+    "In a Dart constants file"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "mobile-dev-039",
+   "topic": "Release, performance and security",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Your APK is 80 MB and many users have low storage. What reduces size most sensibly?",
+   "options": [
+    "One APK carrying every image density",
+    "More native libraries for speed",
+    "Removing ProGuard rules to cut size",
+    "An App Bundle, R8 shrinking and compressed images"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "mobile-dev-040",
+   "topic": "Release, performance and security",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What usually causes an ANR (App Not Responding) dialog?",
+   "options": [
+    "Too many Activities in the manifest",
+    "Too many colours in the theme",
+    "Low battery on the device",
+    "Long work on the main thread, like disk or network"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "mobile-dev-041",
+   "topic": "Release, performance and security",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "After an update, users on Android 13 and newer stop getting order notifications, while older phones are fine. Likely cause?",
+   "options": [
+    "Android 13 does not support notifications",
+    "The app must be re-signed for Android 13",
+    "Notification channels were removed in Android 13",
+    "POST_NOTIFICATIONS now needs a runtime permission"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "mobile-dev-042",
+   "topic": "Release, performance and security",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "The release build crashes when parsing an API response, but the debug build works. Model fields come back empty. Likely cause?",
+   "options": [
+    "The release signing key is wrong",
+    "R8 renamed or removed the model fields; add keep rules",
+    "Gson works only in debug builds",
+    "The phone has old Play Services"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "mobile-dev-043",
+   "topic": "Release, performance and security",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "At 10% staged rollout, the new version's crash rate jumps from 0.3% to 4%. What should you do?",
+   "options": [
+    "Go to 100% to collect data faster",
+    "Unpublish the whole app from Play Store",
+    "Halt the rollout, fix it and ship a new version",
+    "Ask users to clear cache and carry on"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "mobile-dev-044",
+   "topic": "Release, performance and security",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "How should the app keep a user's auth token on the device?",
+   "options": [
+    "Plain SharedPreferences, since it is private",
+    "External storage, so it survives reinstall",
+    "In the app logs for easy debugging",
+    "Keystore-backed encrypted storage"
+   ],
+   "answer": 3
+  }
+ ],
+ "task": {
+  "type": "tech",
+  "title": "Review and fix a buggy Android 'My orders' screen",
+  "minutes": 25,
+  "brief": "This Kotlin ViewModel and Fragment show a customer's orders in a delivery app. Users report crashes on slow or no network, the list reloading on every rotation, and a memory leak. In about 25 minutes, list each problem you see, explain why it happens, and write the corrected code (it does not need to compile perfectly). A good answer covers threading and coroutine scope, lifecycle and rotation, error and loading states, memory leaks, and how the UI should observe data.",
+  "material": "class OrdersViewModel(private val activity: MainActivity) : ViewModel() {\n    val orders = MutableLiveData<List<Order>>()\n\n    fun load(userId: String) {\n        GlobalScope.launch(Dispatchers.Main) {\n            val res = api.getOrders(userId).execute()   // Retrofit Call<List<Order>>, blocking\n            orders.value = res.body()!!\n            Toast.makeText(activity, \"Orders loaded\", Toast.LENGTH_SHORT).show()\n        }\n    }\n}\n\nclass OrdersFragment : Fragment(R.layout.fragment_orders) {\n    private val adapter = OrdersAdapter()\n\n    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {\n        val userId = requireArguments().getString(\"userId\")!!\n        val vm = OrdersViewModel(requireActivity() as MainActivity)\n        vm.load(userId)\n        vm.orders.observe(this) { list -> adapter.submitList(list) }\n    }\n}\n\n// Reported problems: crashes on some phones when the network is slow or off,\n// the list reloads (and the toast shows) every time the phone is rotated,\n// and memory tools flag a leaked MainActivity.",
+  "key_points": [
+   "Holding MainActivity in the ViewModel leaks it; remove it and send UI events instead of Toasts",
+   "ViewModel built with a constructor call is not retained; use by viewModels() / ViewModelProvider",
+   "GlobalScope is not tied to the screen; use viewModelScope",
+   "Blocking execute() on Dispatchers.Main causes NetworkOnMainThreadException or ANR; use a suspend call on IO",
+   "body()!! crashes on errors or empty body; check isSuccessful and catch IOException",
+   "Expose loading, success and error state to the UI",
+   "observe(this) in a Fragment should use viewLifecycleOwner",
+   "Avoid reloading on every view creation; load once (init or when data is empty)"
+  ],
+  "rubric": [
+   {
+    "key": "correctness",
+    "label": "Bugs found and fixed",
+    "guide": "0 = no real bugs found, 3 = threading or crash fixed but lifecycle issues missed, 5 = threading, crash, leak and rotation all fixed"
+   },
+   {
+    "key": "lifecycle",
+    "label": "Lifecycle understanding",
+    "guide": "0 = ignores rotation and leaks, 3 = fixes ViewModel creation only, 5 = proper ViewModel, viewLifecycleOwner and load-once logic"
+   },
+   {
+    "key": "edge_cases",
+    "label": "Errors and edge cases",
+    "guide": "0 = no error handling, 3 = try/catch only, 5 = clear loading, error and empty states with safe parsing"
+   },
+   {
+    "key": "explanation",
+    "label": "Explanation",
+    "guide": "0 = code only or unclear, 3 = some reasons given, 5 = each fix clearly explained in plain words"
+   }
+  ]
+ }
+}

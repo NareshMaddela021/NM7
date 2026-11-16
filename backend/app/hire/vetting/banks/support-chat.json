@@ -1,0 +1,668 @@
+{
+ "slug": "support-chat",
+ "version": 1,
+ "topics": [
+  "Chat and email writing",
+  "Handling complaints",
+  "Tickets and process",
+  "Orders, payments and refunds",
+  "Privacy and safety"
+ ],
+ "questions": [
+  {
+   "id": "support-chat-001",
+   "topic": "Chat and email writing",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A customer writes in a mix of Hindi and English. How should you reply?",
+   "options": [
+    "In pure Hindi with difficult words",
+    "Only in formal English, as per policy",
+    "In simple words, matching their language where you can",
+    "Ask them to write again in English"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "support-chat-002",
+   "topic": "Chat and email writing",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is the best way to start a reply email to a customer?",
+   "options": [
+    "Start with the full refund policy",
+    "Greet them by name and thank them for writing",
+    "Paste the order number and nothing else",
+    "Say sorry for the delay with no greeting"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "support-chat-003",
+   "topic": "Chat and email writing",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Why should you avoid typing in ALL CAPITAL letters in chat?",
+   "options": [
+    "It uses more mobile data",
+    "It reads like shouting to the customer",
+    "It makes the ticket close faster",
+    "Chat tools cannot show capital letters"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "support-chat-004",
+   "topic": "Chat and email writing",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A chat customer has gone quiet for five minutes. What is a good next message?",
+   "options": [
+    "Ask if they still need help and say when the chat will close",
+    "Send the same answer again three times",
+    "Close the chat at once without a message",
+    "Mark the issue as solved and leave"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "support-chat-005",
+   "topic": "Chat and email writing",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which reply sounds most helpful for a delayed parcel?",
+   "options": [
+    "We cannot say anything about your parcel.",
+    "It is not our fault, the courier is slow.",
+    "Your parcel is at the Pune hub and should reach you by Friday.",
+    "Delays happen sometimes. Please wait."
+   ],
+   "answer": 2
+  },
+  {
+   "id": "support-chat-006",
+   "topic": "Chat and email writing",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "You want to use a saved template reply. What must you do before sending it?",
+   "options": [
+    "Send it as it is to save time",
+    "Edit it so it fits this customer's exact problem",
+    "Add two more templates below it",
+    "Remove the greeting to keep it short"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "support-chat-007",
+   "topic": "Chat and email writing",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A customer sends one long email with three different problems. How do you reply?",
+   "options": [
+    "Open three new tickets and send no reply yet",
+    "Answer each problem as a short point, all in one email",
+    "Ask them to call, since the email is too long",
+    "Answer only the first problem and close the ticket"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "support-chat-008",
+   "topic": "Chat and email writing",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "When does the line 'I understand how you feel' actually help?",
+   "options": [
+    "In every single message, to sound kind",
+    "Never, because customers always find it fake",
+    "When a real step to fix the issue comes right after it",
+    "Only when the customer uses bad words"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "support-chat-009",
+   "topic": "Chat and email writing",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A senior manager will read your email thread with an angry customer. What matters most in it?",
+   "options": [
+    "Your personal opinion about the customer",
+    "Clear facts, dates and promises, written without blame",
+    "Short one-word replies to save time",
+    "Long apologies in every line"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "support-chat-010",
+   "topic": "Handling complaints",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "A customer types: 'This is the third time I am asking!' What do you do first?",
+   "options": [
+    "Tell them to stay calm and be patient",
+    "Start fresh and ask for all details again",
+    "Transfer the chat to another team",
+    "Say sorry for the trouble and read the earlier chats"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "support-chat-011",
+   "topic": "Handling complaints",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A customer is upset but polite. What should your tone be?",
+   "options": [
+    "Short, so the chat ends quickly",
+    "Casual, with jokes to lighten things",
+    "Very formal, with legal words",
+    "Calm, warm and focused on fixing it"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "support-chat-012",
+   "topic": "Handling complaints",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does empathy mean in a support chat?",
+   "options": [
+    "Using many emojis in replies",
+    "Giving a discount every time",
+    "Showing you understand the problem and the feeling",
+    "Agreeing with everything the customer says"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "support-chat-013",
+   "topic": "Handling complaints",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A customer starts using abusive words in chat. What is the right step?",
+   "options": [
+    "Reply with the same kind of words",
+    "Warn politely once, then follow the abuse policy if it goes on",
+    "Close the chat at once without any warning",
+    "Ignore it and keep replying for as long as it takes"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "support-chat-014",
+   "topic": "Handling complaints",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A customer asks for a refund you are not allowed to give. What do you say?",
+   "options": [
+    "Tell them to complain on social media",
+    "Say no and end the chat",
+    "Promise the refund just to calm them down",
+    "Explain what you can do instead and give a clear next step"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "support-chat-015",
+   "topic": "Handling complaints",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A customer says they will post about your company on social media. What should you do?",
+   "options": [
+    "Stop replying until they promise not to post",
+    "Tell them that posting is illegal",
+    "Stay calm and keep solving the problem as usual",
+    "Offer free products so they do not post"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "support-chat-016",
+   "topic": "Handling complaints",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Yesterday you gave a customer wrong delivery information. They are back today. What do you do?",
+   "options": [
+    "Admit the mistake, give the correct details and say what happens next",
+    "Ask a colleague to reply instead of you",
+    "Blame the system for showing wrong details",
+    "Say nothing about it unless they ask"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "support-chat-017",
+   "topic": "Handling complaints",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "When should you pass a complaint to a senior?",
+   "options": [
+    "Whenever the customer is a little angry",
+    "Only after the customer asks five times",
+    "When the fix is beyond your limits or the risk is high",
+    "Never, since it looks bad on you"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "support-chat-018",
+   "topic": "Handling complaints",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A customer has had the same issue four times this month. Besides fixing it, what else should you do?",
+   "options": [
+    "Suggest they try another company",
+    "Tag them as a difficult customer",
+    "Flag it to the team as a repeat problem, with ticket numbers",
+    "Give a coupon and close the ticket"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "support-chat-019",
+   "topic": "Tickets and process",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is a ticket number used for?",
+   "options": [
+    "To track one customer issue from start to end",
+    "To give the customer a discount code",
+    "To see the customer's bank details",
+    "To count how many chats you did today"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "support-chat-020",
+   "topic": "Tickets and process",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does 'first response time' measure?",
+   "options": [
+    "How long the full chat lasts",
+    "How long it takes to close a ticket",
+    "How long the customer waits for your first reply",
+    "How many replies you send in a day"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "support-chat-021",
+   "topic": "Tickets and process",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Before you close a ticket, what should you check?",
+   "options": [
+    "That the customer's problem is really solved",
+    "That the chat lasted at least ten minutes",
+    "That the customer gave five stars",
+    "That you used a template"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "support-chat-022",
+   "topic": "Tickets and process",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why do you write internal notes on a ticket?",
+   "options": [
+    "So the next agent knows what was done and promised",
+    "Because notes close the ticket faster",
+    "To make the ticket look longer",
+    "So the customer can read your thoughts"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "support-chat-023",
+   "topic": "Tickets and process",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which of these tickets should you handle first?",
+   "options": [
+    "A customer asking about next month's sale",
+    "A customer whose money was cut twice by UPI today",
+    "A thank-you message from yesterday",
+    "A request to change a profile photo"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "support-chat-024",
+   "topic": "Tickets and process",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "You promised to call a customer back by 5 pm, but you can't make it. What should you do?",
+   "options": [
+    "Message them before 5 pm with a new time",
+    "Let a colleague handle it quietly",
+    "Close the ticket so it does not show overdue",
+    "Call the next day without telling them"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "support-chat-025",
+   "topic": "Tickets and process",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Your team's customer rating score fell this week. What is the best first step?",
+   "options": [
+    "Reply faster even if answers are short",
+    "Ask customers to give higher ratings",
+    "Stop sending the rating survey",
+    "Read the low-rated chats to find common reasons"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "support-chat-026",
+   "topic": "Tickets and process",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A ticket gets reopened again and again for the same issue. What does it usually show?",
+   "options": [
+    "The customer enjoys chatting with you",
+    "The first reply was too polite",
+    "The root cause was not fixed the first time",
+    "The ticket tool has too many options"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "support-chat-027",
+   "topic": "Tickets and process",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Within one hour, three customers say the app's payment page is failing. What do you do?",
+   "options": [
+    "Tell each one to try again tomorrow",
+    "Alert the tech or escalation team at once, with examples",
+    "Handle them one by one as normal tickets",
+    "Wait to see if more complaints come in"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "support-chat-028",
+   "topic": "Orders, payments and refunds",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A customer's UPI payment shows 'pending'. What do you usually tell them?",
+   "options": [
+    "Visit the bank branch at once",
+    "Pay again right now to be safe",
+    "The money is lost and cannot come back",
+    "Wait a little; if it fails, the money returns on its own"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "support-chat-029",
+   "topic": "Orders, payments and refunds",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is a COD order?",
+   "options": [
+    "The order has no delivery charge",
+    "The customer pays when the order is delivered",
+    "The order is sent back to the seller",
+    "The order is paid by card online"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "support-chat-030",
+   "topic": "Orders, payments and refunds",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "A customer says the item they got is damaged. What do you ask for first?",
+   "options": [
+    "Their Aadhaar number",
+    "Their net banking password",
+    "The reason they ordered it",
+    "Photos of the item and the packing"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "support-chat-031",
+   "topic": "Orders, payments and refunds",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Money was cut but the order failed. What detail helps the payments team most?",
+   "options": [
+    "The UPI transaction ID or bank reference number",
+    "The customer's home address",
+    "The product colour and size",
+    "The customer's date of birth"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "support-chat-032",
+   "topic": "Orders, payments and refunds",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A refund to a debit card is approved. What timeline should you share?",
+   "options": [
+    "The usual working days as per your policy, like 5 to 7",
+    "It will reach within one hour",
+    "Refunds to cards never happen",
+    "Only after next month's statement"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "support-chat-033",
+   "topic": "Orders, payments and refunds",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A customer wants to cancel an order that has already been shipped. What do you tell them?",
+   "options": [
+    "The parcel will surely be stopped on the way",
+    "They can throw it away when it comes",
+    "Cancelling is impossible now, with no other option",
+    "They can refuse the delivery or return it once it arrives"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "support-chat-034",
+   "topic": "Orders, payments and refunds",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A customer asks why GST was added on top of the price shown. What is the best reply?",
+   "options": [
+    "Say the government will refund it later",
+    "Say it is a delivery fee with another name",
+    "Check if the shown price included tax, then explain each bill line",
+    "Say GST is optional and remove it"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "support-chat-035",
+   "topic": "Orders, payments and refunds",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A customer says a refund never came, but your system shows it was sent. What do you do?",
+   "options": [
+    "Send the refund again to be safe",
+    "Close the ticket since the system is right",
+    "Share the refund reference number so they can check with their bank",
+    "Tell them they must be mistaken"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "support-chat-036",
+   "topic": "Orders, payments and refunds",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Which return request needs the most care before you approve a refund?",
+   "options": [
+    "A ₹200 item with a clear photo of damage",
+    "A wrong-size shirt returned unused with tags",
+    "A late delivery with tracking proof",
+    "A costly phone returned as an empty box from a new account"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "support-chat-037",
+   "topic": "Privacy and safety",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Someone asks you to share another customer's phone number. What do you do?",
+   "options": [
+    "Refuse politely, as customer data is private",
+    "Share only the last four digits",
+    "Share it if they sound genuine",
+    "Ask a friend in the team first"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "support-chat-038",
+   "topic": "Privacy and safety",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which detail should you never ask a customer for?",
+   "options": [
+    "Their delivery pincode",
+    "Their registered email",
+    "Their order number",
+    "Their UPI PIN or OTP"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "support-chat-039",
+   "topic": "Privacy and safety",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "You need to step away from your desk for a while. What should you do?",
+   "options": [
+    "Turn off only the monitor",
+    "Lock your screen so no one sees customer data",
+    "Ask the next person to watch it",
+    "Leave it open for a quick break"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "support-chat-040",
+   "topic": "Privacy and safety",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A customer wants to change the phone number on their account through chat. What do you do first?",
+   "options": [
+    "Verify who they are using the steps your company allows",
+    "Ask for their bank password to confirm",
+    "Change it at once as they asked",
+    "Tell them it can never be changed"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "support-chat-041",
+   "topic": "Privacy and safety",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A customer pastes a photo of their full debit card in chat. What should you do?",
+   "options": [
+    "Forward it to the payments team on WhatsApp",
+    "Tell them not to share it, and follow the process to hide it",
+    "Thank them and carry on",
+    "Save it for future refunds"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "support-chat-042",
+   "topic": "Privacy and safety",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Someone in chat says they are from head office and need a customer list urgently. What do you do?",
+   "options": [
+    "Ask them to email it to themselves",
+    "Send it since head office is asking",
+    "Send only half of the list",
+    "Share nothing and check through your manager's official channel"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "support-chat-043",
+   "topic": "Privacy and safety",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A customer got a call from 'your company' asking for an OTP. What should you advise?",
+   "options": [
+    "Never share an OTP; report the number and check the account",
+    "Share it only if the caller knew your name",
+    "It is normal; our team does call for OTPs",
+    "Change your phone handset"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "support-chat-044",
+   "topic": "Privacy and safety",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why should you not discuss a customer's issue on your personal WhatsApp?",
+   "options": [
+    "Managers cannot read WhatsApp quickly",
+    "Customers always prefer email",
+    "WhatsApp messages cost extra money",
+    "Their data can leak outside company control"
+   ],
+   "answer": 3
+  }
+ ],
+ "task": {
+  "type": "written",
+  "title": "Reply to an angry customer about a late order",
+  "minutes": 15,
+  "brief": "You work in chat and email support for an online shop. Read the customer's email and the internal notes below. Write the email reply you would send. Take about 15 minutes. A good reply: greets the customer by name, says sorry without blaming anyone, explains in plain words what went wrong, gives both options with clear dates, says what you will do next and by when, and ends politely. Keep it short and easy to read. Do not promise anything the notes do not allow.",
+  "material": "CUSTOMER EMAIL\nFrom: Farhan Qureshi\nSubject: WHERE IS MY ORDER??\n\nI ordered a mixer grinder (order NM48213, Rs 3,499, paid by UPI) on 4 Nov. You said delivery by 10 Nov. It is 16 Nov today. Tracking is stuck for 5 days. I chatted with your team on 12 Nov and they promised a call back. Nobody called. My mother's old mixer is broken and we need this. Either deliver it now or give my money back. Very disappointed.\n\nINTERNAL NOTES (not for the customer to see)\n- Parcel is held at the Hyderabad hub. The pincode in the address (500083) does not match the area (Kukatpally, 500072).\n- If the customer confirms the right pincode today, re-delivery can happen within 2 days.\n- Or a full refund to the UPI account can be made; it takes 5 to 7 working days.\n- The 12 Nov call-back was missed. You may offer a Rs 200 coupon for the trouble.",
+  "key_points": [
+   "Greets the customer by name and apologises sincerely, including for the missed call-back",
+   "Explains the pincode mismatch simply, without blaming the customer",
+   "Asks the customer to confirm the correct pincode",
+   "Offers re-delivery within 2 days of confirmation",
+   "Offers a full refund to UPI in 5 to 7 working days as the other option",
+   "Mentions the Rs 200 coupon for the trouble",
+   "Says what happens next and by when, with a polite close",
+   "Does not promise anything beyond the notes or share internal wording"
+  ],
+  "rubric": [
+   {
+    "key": "tone",
+    "label": "Tone and empathy",
+    "guide": "0 = rude, cold or blaming; 3 = polite but stiff; 5 = warm, calm, owns the mistake"
+   },
+   {
+    "key": "correctness",
+    "label": "Correct facts and options",
+    "guide": "0 = wrong facts or false promises; 3 = mostly right, one option or date missing; 5 = both options, dates and coupon right"
+   },
+   {
+    "key": "clarity",
+    "label": "Clarity",
+    "guide": "0 = confusing or very long; 3 = clear but wordy; 5 = short, simple, easy to act on"
+   },
+   {
+    "key": "completeness",
+    "label": "Next steps",
+    "guide": "0 = no next step; 3 = next step vague; 5 = clear action for the customer and for us, with timing"
+   }
+  ]
+ }
+}

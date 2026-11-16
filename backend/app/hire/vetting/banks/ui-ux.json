@@ -1,0 +1,688 @@
+{
+ "slug": "ui-ux",
+ "version": 1,
+ "topics": [
+  "User research",
+  "Interaction design",
+  "Visual design",
+  "Accessibility",
+  "Usability testing and metrics"
+ ],
+ "questions": [
+  {
+   "id": "ui-ux-001",
+   "topic": "User research",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is the main goal of a user interview in early product discovery?",
+   "options": [
+    "Understand people's needs, habits and pain points",
+    "Get users to approve the final design",
+    "Convince the user to buy the product",
+    "Collect bug reports from the live app"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "ui-ux-002",
+   "topic": "User research",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A persona in UX work is best described as:",
+   "options": [
+    "A list of the app's main features",
+    "A research-based profile of a typical user group",
+    "The brand's mascot character",
+    "A real customer chosen for testimonials"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "ui-ux-003",
+   "topic": "User research",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which method best shows how people naturally group the items in your app's menu?",
+   "options": [
+    "A/B testing",
+    "A heatmap of the home page",
+    "Card sorting",
+    "A Net Promoter Score survey"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "ui-ux-004",
+   "topic": "User research",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Your PM wants to build a feature because two app-store reviews asked for it. What do you do first?",
+   "options": [
+    "Start high-fidelity mockups right away so the team can see it early",
+    "Reject it, since two reviews mean nothing",
+    "Ship it in the next release as a hidden setting",
+    "Check how many users face the underlying problem, using data and a few interviews"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "ui-ux-005",
+   "topic": "User research",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "In a journey map for booking an LPG cylinder refill, what do the pain points show?",
+   "options": [
+    "Moments where the user feels friction or frustration",
+    "Screens with the most traffic",
+    "Steps that earn the company money",
+    "Places where banner ads can be added"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "ui-ux-006",
+   "topic": "User research",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why should you avoid asking \"Would you use this feature?\" in user interviews?",
+   "options": [
+    "It takes too long for users to answer",
+    "People predict their future behaviour poorly; ask about past actions instead",
+    "It is not allowed under data protection rules",
+    "It can reveal the product roadmap to competitors who join as participants"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "ui-ux-007",
+   "topic": "User research",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Interviewees in Bengaluru say they love your grocery app's new filters, but analytics show few people use them. Best next step?",
+   "options": [
+    "Trust the interviews, since users said so directly",
+    "Remove the filters in the next release",
+    "Watch users do real shopping tasks to see where the filters get missed",
+    "Send a push notification about filters to every user"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "ui-ux-008",
+   "topic": "User research",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "For a crop-advisory app used by farmers in rural Maharashtra, which research approach gives the most reliable insight?",
+   "options": [
+    "An English online survey shared on LinkedIn",
+    "Lab sessions with office staff in Pune",
+    "Reading competitor app reviews only",
+    "Field visits watching farmers use their own phones where they work"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "ui-ux-009",
+   "topic": "User research",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which of these is qualitative research data?",
+   "options": [
+    "Quotes and observations from user interviews",
+    "Daily active user count",
+    "Conversion rate from analytics",
+    "Average order value in ₹"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "ui-ux-010",
+   "topic": "Interaction design",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is a wireframe?",
+   "options": [
+    "The final coloured design handed to developers",
+    "A low-detail layout showing structure and where content goes",
+    "The app's database schema",
+    "A recorded video of a user test"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "ui-ux-011",
+   "topic": "Interaction design",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Why show a clear progress state while a UPI payment is processing?",
+   "options": [
+    "To make the app look more modern",
+    "To show an ad while the payment runs",
+    "So users know it is working and don't tap pay again",
+    "To slow users down so they read the terms"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "ui-ux-012",
+   "topic": "Interaction design",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Hick's law suggests that:",
+   "options": [
+    "Bigger targets are always faster to tap",
+    "Users read pages in an F pattern",
+    "Seven items is the hard limit for a menu",
+    "More choices increase the time needed to decide"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "ui-ux-013",
+   "topic": "Interaction design",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "On a mobile checkout, where should the main \"Pay ₹499\" button usually sit?",
+   "options": [
+    "Near the bottom within thumb reach, visually dominant",
+    "At the top right next to the logo",
+    "Inside an overflow menu",
+    "Below the full terms and conditions text"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "ui-ux-014",
+   "topic": "Interaction design",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Users of a delivery app often delete the wrong saved address. Which change helps most?",
+   "options": [
+    "Show an \"Are you sure?\" popup on every action",
+    "Offer an undo option for a few seconds after deleting",
+    "Remove the delete feature entirely",
+    "Make the delete icon smaller and grey"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "ui-ux-015",
+   "topic": "Interaction design",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What does progressive disclosure mean?",
+   "options": [
+    "Revealing the final price only at the last step",
+    "Loading images slowly as the user scrolls",
+    "Showing advanced options only when the user needs them",
+    "Releasing features to users in stages"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "ui-ux-016",
+   "topic": "Interaction design",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A KYC form has 18 fields on one screen and 60% of users drop off. Which redesign is most likely to help?",
+   "options": [
+    "Shrink the fields so all of them fit above the fold",
+    "Add a progress bar but keep the single screen",
+    "Move all help text into tooltips on each field",
+    "Split into short steps, prefill known data, ask only what is needed now"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "ui-ux-017",
+   "topic": "Interaction design",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "When should a form check a field like a PAN number and show an error?",
+   "options": [
+    "When the user leaves the field, saying exactly what to fix",
+    "Only after the whole form is submitted",
+    "On every keystroke from the first character",
+    "Never; let the backend reject it"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "ui-ux-018",
+   "topic": "Interaction design",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Your design system has two button styles that look almost the same but trigger very different actions. Main risk?",
+   "options": [
+    "The app's file size grows a lot with every extra variant",
+    "Users can't predict the outcome, which causes errors and distrust",
+    "Developers need more colour tokens",
+    "It breaks the brand's logo guidelines"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "ui-ux-019",
+   "topic": "Visual design",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does visual hierarchy help users do?",
+   "options": [
+    "Load the page faster",
+    "Print the page correctly",
+    "See what matters most first",
+    "Translate text automatically"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "ui-ux-020",
+   "topic": "Visual design",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Why use a consistent spacing scale such as 4, 8, 16 and 24 px?",
+   "options": [
+    "It makes images load faster",
+    "It is needed for search ranking",
+    "It lets users change their font size",
+    "It keeps layouts tidy and predictable across screens"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "ui-ux-021",
+   "topic": "Visual design",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which file format suits icons that must stay sharp at any size?",
+   "options": [
+    "SVG",
+    "JPG",
+    "GIF",
+    "BMP"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "ui-ux-022",
+   "topic": "Visual design",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "For long reading text on mobile, a comfortable body style is usually around:",
+   "options": [
+    "10 px with tight line height",
+    "16 px with about 1.5 line height",
+    "24 px bold for every paragraph",
+    "12 px in all capitals"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "ui-ux-023",
+   "topic": "Visual design",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Your app shows labels in English, Hindi and Tamil. What should the layout allow for?",
+   "options": [
+    "Fixed-width buttons sized to fit the English labels",
+    "All text set in one Latin-only font",
+    "Flexible widths, since translated text can be longer or taller",
+    "Labels cut with an ellipsis everywhere"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "ui-ux-024",
+   "topic": "Visual design",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Using the same red for error messages and the main \"Buy now\" button can cause what issue?",
+   "options": [
+    "The screen uses more battery",
+    "Developers can't export the colour",
+    "It breaks the grid layout",
+    "Users may read the main action as a warning"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "ui-ux-025",
+   "topic": "Visual design",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A stakeholder wants the logo three times bigger and every section highlighted. How do you respond?",
+   "options": [
+    "Show options tied to the business goal, explaining how heavy emphasis hides key actions",
+    "Do exactly as told, since the stakeholder approves the final work",
+    "Refuse and escalate to their manager",
+    "Make the change now and quietly reduce it next build"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "ui-ux-026",
+   "topic": "Visual design",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why use design tokens (named values for colour, spacing and type)?",
+   "options": [
+    "They compress images for faster loading",
+    "One change updates every use consistently in design and code",
+    "They remove the need for any style guide",
+    "They let users pick any theme with no code at all"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "ui-ux-027",
+   "topic": "Visual design",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "In dark mode, why avoid pure white text on a pure black background?",
+   "options": [
+    "Pure black is not allowed on Android",
+    "Pure black drains more battery than dark grey on OLED screens",
+    "The extreme contrast causes glare and smearing; softer tones read better",
+    "White text can't be anti-aliased on black"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "ui-ux-028",
+   "topic": "Accessibility",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What minimum contrast ratio does WCAG AA require for normal body text?",
+   "options": [
+    "2:1",
+    "3:1",
+    "10:1",
+    "4.5:1"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "ui-ux-029",
+   "topic": "Accessibility",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Why add alt text to an image?",
+   "options": [
+    "Screen readers can describe it to people who can't see it",
+    "It improves the image's colour quality",
+    "It stops others from copying the image",
+    "It makes the image load first"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "ui-ux-030",
+   "topic": "Accessibility",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which practice causes problems for colour-blind users?",
+   "options": [
+    "Adding an icon and message beside the error",
+    "Showing an error only by turning the field red",
+    "Putting text labels on chart lines",
+    "Underlining links in body text"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "ui-ux-031",
+   "topic": "Accessibility",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A common minimum size for touch targets on mobile is roughly:",
+   "options": [
+    "16 px square",
+    "24 px wide by 12 px tall",
+    "44 to 48 px square",
+    "100 px square"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "ui-ux-032",
+   "topic": "Accessibility",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What should happen when a keyboard user tabs through a form?",
+   "options": [
+    "Focus jumps to the footer first",
+    "The outline is hidden for a cleaner look",
+    "Only the submit button can take focus",
+    "Focus moves in a logical order with a visible outline"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "ui-ux-033",
+   "topic": "Accessibility",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "An elderly user can't read the OTP screen because the text is tiny and fixed. Best fix?",
+   "options": [
+    "Support system font scaling so text grows with phone settings",
+    "Add a zoom button only on the OTP screen",
+    "Auto-fill the OTP and hide the text",
+    "Switch to a thinner, more elegant font"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "ui-ux-034",
+   "topic": "Accessibility",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Your custom dropdown is built from plain divs. What must it have for screen reader users?",
+   "options": [
+    "A larger font size",
+    "Proper roles, states and keyboard support, or use a native select",
+    "A tooltip that describes the dropdown",
+    "A brighter background colour"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "ui-ux-035",
+   "topic": "Accessibility",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A government-scheme app must be accessible but the deadline is close. What do you prioritise?",
+   "options": [
+    "Build a separate \"accessible version\" page later",
+    "Run an automated checker and treat a pass as done",
+    "Fix blockers on key flows first: keyboard access, labels and contrast",
+    "Add an accessibility statement to the footer"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "ui-ux-036",
+   "topic": "Accessibility",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why is an automated accessibility scanner not enough on its own?",
+   "options": [
+    "It only works on English websites and fails on Indian languages",
+    "It slows down the live website",
+    "It changes your code without asking",
+    "It misses issues needing judgement, like confusing order or poor alt text"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "ui-ux-037",
+   "topic": "Usability testing and metrics",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "In a usability test, what should the moderator mostly do?",
+   "options": [
+    "Give tasks, observe, and avoid leading the user",
+    "Explain how each screen works",
+    "Help the user whenever they pause",
+    "Defend the design when users struggle"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "ui-ux-038",
+   "topic": "Usability testing and metrics",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does an A/B test compare?",
+   "options": [
+    "Two designers' opinions on one screen, collected in a review meeting",
+    "Two versions shown to different users to see which performs better",
+    "The Android and iOS versions of the app",
+    "The old and new logo in a survey"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "ui-ux-039",
+   "topic": "Usability testing and metrics",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "During a test, a participant asks, \"Should I tap here?\" What do you say?",
+   "options": [
+    "\"Yes, that's the right button.\"",
+    "\"No, try the other one.\"",
+    "\"What would you expect to happen if you did?\"",
+    "\"Let me show you how it works.\""
+   ],
+   "answer": 2
+  },
+  {
+   "id": "ui-ux-040",
+   "topic": "Usability testing and metrics",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "In a small qualitative usability round, about how many users often reveal most major issues?",
+   "options": [
+    "1",
+    "50",
+    "500",
+    "5"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "ui-ux-041",
+   "topic": "Usability testing and metrics",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which metric best shows whether users can complete \"add a new payee\"?",
+   "options": [
+    "Task success rate",
+    "App store rating",
+    "Number of screens in the flow",
+    "Page views per session"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "ui-ux-042",
+   "topic": "Usability testing and metrics",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "After a redesign, checkout conversion rose but support calls about wrong orders doubled. What do you conclude?",
+   "options": [
+    "The redesign succeeded and the calls are unrelated",
+    "The change may make mistakes easier; investigate before calling it a win",
+    "Roll back at once without looking further",
+    "Conversion is the only number that matters"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "ui-ux-043",
+   "topic": "Usability testing and metrics",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Your A/B test shows version B ahead after 2 days with 80 users. What is the right call?",
+   "options": [
+    "Ship B now since it is winning",
+    "Stop the test and keep A, because changing is a risk",
+    "Keep running until the planned sample size and duration are reached",
+    "Restart with a new version C"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "ui-ux-044",
+   "topic": "Usability testing and metrics",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Five of six test users missed the \"Apply coupon\" link, but the PM says it is fine. How do you make the case?",
+   "options": [
+    "Insist, as the UX expert, that it must change",
+    "Drop it to avoid conflict",
+    "Retest with users who already know the app well, to confirm",
+    "Share short clips and task results, link it to lost revenue, and propose a fix"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "ui-ux-045",
+   "topic": "Usability testing and metrics",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "What is the main weakness of relying only on a System Usability Scale (SUS) score?",
+   "options": [
+    "It shows how usable the product feels, not which problems to fix",
+    "It can only be used for websites",
+    "It needs at least 1,000 responses",
+    "It measures speed rather than satisfaction"
+   ],
+   "answer": 0
+  }
+ ],
+ "task": {
+  "type": "written",
+  "title": "Review a rent-payment screen and write a prioritised UX fix list",
+  "minutes": 25,
+  "brief": "Read the description of a 'Pay rent' screen in a payments app (below). In about 25 minutes, write a short UX review for the product team. List the 5 most important problems you see. For each one say: what the problem is, who it hurts and why (refer to usability or accessibility principles), your suggested fix, and a priority (high / medium / low). End with 2–3 lines on how you would check your fixes work with real users before full release. A good answer is specific to this screen, puts the problems that cause payment mistakes or drop-off first, and is easy for a PM and developer to act on.",
+  "material": "PAY RENT screen (Android app, used across India, many first-time digital payers)\n\n- Header: small grey text 'Rent' (12 px) on a light grey background.\n- Field 1: 'Landlord UPI ID' (free text). No check that the ID exists; the landlord's name is not shown before paying.\n- Field 2: 'Amount' with no ₹ sign; users can type 25000 or 2,50,00 and both are accepted.\n- Field 3: 'Month' dropdown, defaults to January every time.\n- A 'Use rewards' toggle and a 'Add GST invoice' toggle sit above the amount, both ON by default.\n- Fee: a convenience fee of ₹249 appears only on the next screen.\n- Two buttons at the bottom side by side, same size and same blue colour: 'Cancel' (left) and 'Pay' (right).\n- Errors: if anything is wrong, the whole form clears and a red toast says 'Error 4012' for 2 seconds.\n- The screen is English only; the app elsewhere supports Hindi and Telugu.\n- Text does not grow when the phone's font size setting is increased.\n- Analytics: 41% of users who open the screen leave without paying; support gets ~300 tickets a week for 'paid wrong person'.",
+  "key_points": [
+   "Flags paying the wrong person: verify the UPI ID and show the payee's name before payment",
+   "Flags the hidden ₹249 fee and asks for total cost to be shown up front",
+   "Flags error handling: form clearing and a meaningless code; keep input and give a clear fix message",
+   "Flags Cancel and Pay looking identical side by side; make Pay the clear primary action",
+   "Mentions amount formatting/validation (₹ sign, Indian digit grouping) and smart month default",
+   "Mentions accessibility: low contrast, tiny text, no font scaling, and missing Hindi/Telugu",
+   "Questions toggles that are ON by default (rewards, GST) as unclear or dark-pattern-like",
+   "Prioritises by impact on payment mistakes and drop-off, using the analytics given",
+   "Proposes a validation plan: usability test with target users and/or an A/B test with clear metrics"
+  ],
+  "rubric": [
+   {
+    "key": "problem_finding",
+    "label": "Finds the real problems",
+    "guide": "0 = misses the main issues or lists only cosmetic ones, 3 = finds some key issues, 5 = finds the wrong-payee, hidden fee and error-handling issues plus others"
+   },
+   {
+    "key": "reasoning",
+    "label": "Explains why",
+    "guide": "0 = no reasons, 3 = some reasons but generic, 5 = each problem tied to users, principles or the analytics"
+   },
+   {
+    "key": "fixes",
+    "label": "Quality of fixes",
+    "guide": "0 = vague or no fixes, 3 = workable fixes for some, 5 = specific, practical fixes a developer could build"
+   },
+   {
+    "key": "prioritisation",
+    "label": "Prioritisation and validation",
+    "guide": "0 = no priorities or test plan, 3 = priorities given but weakly justified, 5 = clear impact-based priorities and a sensible way to test"
+   },
+   {
+    "key": "clarity",
+    "label": "Clarity",
+    "guide": "0 = hard to follow, 3 = understandable but wordy, 5 = short, structured and easy for a PM to act on"
+   }
+  ]
+ }
+}

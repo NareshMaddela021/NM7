@@ -1,0 +1,667 @@
+{
+ "slug": "hr-admin",
+ "version": 1,
+ "topics": [
+  "Joining and records",
+  "Attendance and leave",
+  "Payroll and statutory",
+  "Office admin",
+  "Policies and employee relations"
+ ],
+ "questions": [
+  {
+   "id": "hr-admin-001",
+   "topic": "Joining and records",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which documents are usually collected when a new employee joins?",
+   "options": [
+    "Their school report cards from every class",
+    "Only a copy of the offer letter",
+    "Their parents' bank passbooks",
+    "ID and address proof, PAN, bank details and photos"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "hr-admin-002",
+   "topic": "Joining and records",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is an employee file used for?",
+   "options": [
+    "Tracking visitors who enter the office",
+    "Keeping one person's HR papers in one place",
+    "Storing office stationery and supplies",
+    "Listing the weekly canteen menu"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "hr-admin-003",
+   "topic": "Joining and records",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Who should be able to open employee personal files?",
+   "options": [
+    "Every team leader in the company",
+    "Only staff allowed by HR policy",
+    "Visitors who ask for them politely",
+    "Anyone working in the office"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "hr-admin-004",
+   "topic": "Joining and records",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why is a UAN important for an employee?",
+   "options": [
+    "It is their income tax return number",
+    "It is their ESIC hospital card number",
+    "It is the company's own employee ID",
+    "It links all their PF accounts across jobs"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "hr-admin-005",
+   "topic": "Joining and records",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A new joiner does not have a PAN card yet. What do you do?",
+   "options": [
+    "Use another employee's PAN for now",
+    "Pay their salary in cash to avoid tax",
+    "Stop their joining until the card comes",
+    "Help them apply and note it, as tax may be cut at a higher rate"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "hr-admin-006",
+   "topic": "Joining and records",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is an induction programme?",
+   "options": [
+    "A yearly salary review meeting",
+    "A farewell party for staff who leave",
+    "A first-week session on the company, rules and team",
+    "A test taken before a promotion"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "hr-admin-007",
+   "topic": "Joining and records",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "An employee's date of birth is different in Aadhaar and in the school certificate. What should HR do?",
+   "options": [
+    "Use whichever date the employee likes",
+    "Ignore it, since it is a small thing",
+    "Get a written note and follow a set rule on which record counts",
+    "Edit the Aadhaar details yourself"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "hr-admin-008",
+   "topic": "Joining and records",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "During an employee's exit, which step protects the company most?",
+   "options": [
+    "Updating the photo on the notice board",
+    "Removing system access and collecting company assets",
+    "Sending a farewell email to the whole team",
+    "Ordering a cake for the last working day"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "hr-admin-009",
+   "topic": "Joining and records",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why keep a signed copy of the appointment letter on file?",
+   "options": [
+    "It is used to print the employee's ID card",
+    "It proves the agreed terms if a dispute comes up later",
+    "It is needed to book office travel tickets",
+    "It can be used in place of a monthly payslip"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "hr-admin-010",
+   "topic": "Attendance and leave",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is casual leave usually meant for?",
+   "options": [
+    "Leave for the birth of a child",
+    "National and festival holidays",
+    "Short, unplanned personal needs",
+    "Long medical treatment in hospital"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "hr-admin-011",
+   "topic": "Attendance and leave",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "An employee forgot to punch in but was at work all day. What is the normal step?",
+   "options": [
+    "They raise a correction that their manager approves",
+    "Cut their salary for the full day",
+    "Let them edit the system themselves",
+    "Mark them absent for the day anyway"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "hr-admin-012",
+   "topic": "Attendance and leave",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is a holiday list?",
+   "options": [
+    "The dates on which salary is paid",
+    "The company's paid holidays for the year",
+    "Names of people who take the most leave",
+    "A list of staff who are on leave today"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "hr-admin-013",
+   "topic": "Attendance and leave",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "An employee asks for leave the same day because of a family emergency. What do you do?",
+   "options": [
+    "Process it as per policy, with the manager's quick approval",
+    "Ask for written proof before they can leave",
+    "Tell them to work from the hospital",
+    "Reject it, since it was not planned"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "hr-admin-014",
+   "topic": "Attendance and leave",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What does loss of pay (LOP) mean?",
+   "options": [
+    "A bonus paid for full attendance",
+    "Pay given during the notice period",
+    "Salary cut for absent days with no leave balance",
+    "A tax charged on overtime hours"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "hr-admin-015",
+   "topic": "Attendance and leave",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What helps most to catch attendance errors before payroll?",
+   "options": [
+    "Checking reports with managers before the cut-off date",
+    "Asking employees about it once a year",
+    "Trusting the machine data without checks",
+    "Fixing the errors after salaries are paid"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "hr-admin-016",
+   "topic": "Attendance and leave",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Many staff in one team punch in within seconds of each other every day. What could this mean?",
+   "options": [
+    "They all travel together in one bus",
+    "Possible proxy punching; check with the manager and access logs",
+    "The team is simply very punctual",
+    "The punching machine is running too slow"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "hr-admin-017",
+   "topic": "Attendance and leave",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Under the Maternity Benefit Act, how long is paid maternity leave for the first two children?",
+   "options": [
+    "8 weeks",
+    "12 weeks",
+    "52 weeks",
+    "26 weeks"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "hr-admin-018",
+   "topic": "Attendance and leave",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Leave balances in the system do not match the leave policy. What should you do first?",
+   "options": [
+    "Leave it until someone complains about it",
+    "Reset everyone's leave balance to zero",
+    "Find the cause, fix the rule and correct affected records",
+    "Give everyone extra days to be safe"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "hr-admin-019",
+   "topic": "Payroll and statutory",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does PF stand for on a payslip?",
+   "options": [
+    "Personal Finance",
+    "Provident Fund",
+    "Pay Fixed",
+    "Performance Fee"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "hr-admin-020",
+   "topic": "Payroll and statutory",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is a payslip?",
+   "options": [
+    "A letter given on the joining day",
+    "The list of holidays for the year",
+    "A form used to claim travel costs",
+    "A monthly statement of earnings and deductions"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "hr-admin-021",
+   "topic": "Payroll and statutory",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is ESIC mainly for?",
+   "options": [
+    "Medical and cash benefits for covered workers",
+    "Home loans for employees",
+    "The yearly festival bonus",
+    "Travel allowance for sales staff"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "hr-admin-022",
+   "topic": "Payroll and statutory",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is the usual employee share of PF on basic pay?",
+   "options": [
+    "12%",
+    "18%",
+    "5%",
+    "25%"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "hr-admin-023",
+   "topic": "Payroll and statutory",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is TDS on salary?",
+   "options": [
+    "A fine for coming late to work",
+    "A travel deduction for field staff",
+    "A monthly charge for the canteen",
+    "Income tax the employer cuts before paying salary"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "hr-admin-024",
+   "topic": "Payroll and statutory",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "An employee says their salary is ₹2,000 short this month. What do you do first?",
+   "options": [
+    "Ask them to wait till next month",
+    "Pay ₹2,000 in cash at once",
+    "Say it is correct without checking",
+    "Check their attendance, deductions and payslip lines"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "hr-admin-025",
+   "topic": "Payroll and statutory",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "In general, who is eligible for gratuity under the Payment of Gratuity Act?",
+   "options": [
+    "Only managers and senior staff",
+    "Employees with at least five years of continuous service",
+    "Only those who retire at 60",
+    "Every employee from the first day"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "hr-admin-026",
+   "topic": "Payroll and statutory",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "PF was not deposited for two months because of a system error. What should you do?",
+   "options": [
+    "Wait until the next audit finds it",
+    "Keep quiet until employees ask",
+    "Deposit only the employee's share",
+    "Deposit it now, pay any interest due and inform staff"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "hr-admin-027",
+   "topic": "Payroll and statutory",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why is the monthly payroll freeze date important?",
+   "options": [
+    "Late changes are hard to fix and lead to wrong salaries",
+    "It is the day salaries reach bank accounts",
+    "It is the day bonuses are announced",
+    "It is the day staff can withdraw PF"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "hr-admin-028",
+   "topic": "Office admin",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A visitor arrives at the office. What do you do first?",
+   "options": [
+    "Ask them to wait without telling anyone",
+    "Let them walk in to find the person",
+    "Greet them, make an entry and inform the person they are meeting",
+    "Give them a spare staff ID card to use"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "hr-admin-029",
+   "topic": "Office admin",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Pantry supplies run out often. What helps?",
+   "options": [
+    "Keep a stock register and reorder at a set level",
+    "Buy three times more stock each time",
+    "Stop buying pantry supplies at all",
+    "Ask staff to bring their own supplies"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "hr-admin-030",
+   "topic": "Office admin",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "A fire alarm rings during work hours. What should admin staff do?",
+   "options": [
+    "Use the lift to get everyone down quickly",
+    "Guide people out through fire exits to the assembly point",
+    "Wait a few minutes to see if it is real",
+    "Stay inside to guard the important files"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "hr-admin-031",
+   "topic": "Office admin",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "When choosing a housekeeping vendor, what matters most?",
+   "options": [
+    "Quality, price, references and legal compliance",
+    "The size of the vendor's office",
+    "Only the lowest price quoted",
+    "How fast they reply on WhatsApp"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "hr-admin-032",
+   "topic": "Office admin",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why should a vendor bill match the purchase order?",
+   "options": [
+    "So payments can be delayed for longer",
+    "Because the bank asks for it every time",
+    "So you pay only for what was ordered and received",
+    "So GST credit becomes higher than usual"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "hr-admin-033",
+   "topic": "Office admin",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "The office AC stops working on a hot afternoon. What do you do?",
+   "options": [
+    "Wait for it to start working again",
+    "Send everyone home for the day",
+    "Call the service vendor, log it and arrange fans for now",
+    "Open the AC unit and repair it yourself"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "hr-admin-034",
+   "topic": "Office admin",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Night shift cab costs have doubled in two months. What should you check first?",
+   "options": [
+    "Routes, trip logs and vendor bills for errors or misuse",
+    "Ask staff to pay for their own cabs",
+    "Change the vendor without checking anything",
+    "Stop all cabs from tomorrow"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "hr-admin-035",
+   "topic": "Office admin",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "An employee on night shift says the cab drop route feels unsafe. What should you do?",
+   "options": [
+    "Ask them to move to the day shift",
+    "Ignore it, since nothing has happened yet",
+    "Tell them to take an auto home instead",
+    "Review the route and safe-drop rules, then update them"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "hr-admin-036",
+   "topic": "Office admin",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why keep an asset register for laptops and phones?",
+   "options": [
+    "To work out each employee's salary",
+    "To book meeting rooms for the week",
+    "To plan the yearly holiday list",
+    "To track who holds each item and get it back at exit"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "hr-admin-037",
+   "topic": "Policies and employee relations",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Where should employees be able to find HR policies?",
+   "options": [
+    "Only with the HR head in a locked drawer",
+    "In the handbook or HR portal open to all staff",
+    "Somewhere in old emails from years ago",
+    "From senior staff, by word of mouth"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "hr-admin-038",
+   "topic": "Policies and employee relations",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "An employee brings a complaint to HR. What is the first step?",
+   "options": [
+    "Listen fully and note down the facts",
+    "Decide right away who is wrong",
+    "Ask them to forget about it",
+    "Tell their manager about it at once"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "hr-admin-039",
+   "topic": "Policies and employee relations",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Why should employee complaints be kept confidential?",
+   "options": [
+    "So that no action ever has to be taken",
+    "To protect people and allow a fair inquiry",
+    "Because complaints are not important",
+    "So that HR can avoid doing any work"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "hr-admin-040",
+   "topic": "Policies and employee relations",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A harassment complaint is made in your office. Who should handle it?",
+   "options": [
+    "The canteen vendor",
+    "The security guard on duty",
+    "The Internal Committee set up under the POSH Act",
+    "The person's team leader alone"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "hr-admin-041",
+   "topic": "Policies and employee relations",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "An employee is often late to work. What is the right first step?",
+   "options": [
+    "Talk privately to understand why and set clear expectations",
+    "Give them a termination letter",
+    "Cut their full month's salary",
+    "Warn them loudly in front of the team"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "hr-admin-042",
+   "topic": "Policies and employee relations",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Before giving a warning letter, what should HR make sure of?",
+   "options": [
+    "The whole team agrees with the letter",
+    "It is handed over on a Friday evening",
+    "Facts are checked and the employee had a chance to explain",
+    "The manager is angry enough to sign it"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "hr-admin-043",
+   "topic": "Policies and employee relations",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Two team members had a loud fight and each blames the other. What do you do?",
+   "options": [
+    "Punish both equally right away",
+    "Take the side of the senior person",
+    "Ignore it unless it happens again",
+    "Meet each one separately, gather facts, then decide fairly"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "hr-admin-044",
+   "topic": "Policies and employee relations",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Exit interviews show many people leaving because of one manager. What should HR do?",
+   "options": [
+    "Keep it secret to avoid trouble",
+    "Stop doing exit interviews",
+    "Share the pattern with leadership and plan support or action",
+    "Ask the manager to resign at once"
+   ],
+   "answer": 2
+  }
+ ],
+ "task": {
+  "type": "written",
+  "title": "Check a payslip and reply to an employee's salary query",
+  "minutes": 20,
+  "brief": "An employee says their October salary is lower than it should be. Check the payslip against the attendance and the policy notes below. Then write the email reply to the employee. Take about 20 minutes. A good answer lists each mistake you found, shows the correct amounts, and explains in simple, polite words what went wrong. It should also say how and when the difference will be paid. If something on the payslip is correct, say so briefly.",
+  "material": "EMPLOYEE EMAIL\nFrom: Kiran Rao (Emp ID 1187)\nHi HR, my October salary credited is Rs 29,827. Normally I get around Rs 31,000. I took only one day off without leave. Please check.\n\nPAYSLIP - OCTOBER 2026 (30-day month) - Kiran Rao\nEarnings: Basic 20,000 | HRA 8,000 | Conveyance 1,600 | Special allowance 5,400 | Gross 35,000\nDeductions: PF 2,640 | Professional tax 200 | LOP (2 days) 2,333 | Total deductions 5,173\nNet pay: 29,827\n\nATTENDANCE - OCTOBER\nPresent 27 days, approved casual leave 2 days, absent without leave 1 day.\n\nPOLICY NOTES\n- PF = 12% of basic pay (Rs 20,000).\n- LOP per day = gross / days in month.\n- Professional tax in Telangana for this salary = Rs 200.",
+  "key_points": [
+   "PF is wrong: should be Rs 2,400 (12% of 20,000), not Rs 2,640",
+   "LOP is wrong: 1 day, about Rs 1,167, not 2 days (Rs 2,333); approved casual leave is not LOP",
+   "Professional tax Rs 200 is correct",
+   "Correct total deductions about Rs 3,767 and net pay about Rs 31,233",
+   "Short-paid by about Rs 1,406",
+   "Says when the difference will be paid (e.g. a correction run or next payroll) and that a revised payslip will be shared",
+   "Polite tone, thanks the employee and apologises for the error"
+  ],
+  "rubric": [
+   {
+    "key": "correctness",
+    "label": "Correct findings",
+    "guide": "0 = errors missed or wrong maths; 3 = one error found or small maths slip; 5 = both errors found, amounts right"
+   },
+   {
+    "key": "clarity",
+    "label": "Clear explanation",
+    "guide": "0 = confusing; 3 = right but hard for the employee to follow; 5 = simple, line-by-line, easy to understand"
+   },
+   {
+    "key": "tone",
+    "label": "Tone",
+    "guide": "0 = defensive or cold; 3 = polite but stiff; 5 = warm, owns the mistake, reassuring"
+   },
+   {
+    "key": "next_steps",
+    "label": "Next steps",
+    "guide": "0 = no fix promised; 3 = fix mentioned without timing; 5 = clear how and when the difference is paid"
+   }
+  ]
+ }
+}

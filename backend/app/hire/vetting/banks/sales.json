@@ -1,0 +1,1131 @@
+{
+ "slug": "sales",
+ "version": 1,
+ "topics": [
+  "Needs and pitch",
+  "Objections and closing",
+  "Sales maths",
+  "Leads and follow-up",
+  "Honesty and trust"
+ ],
+ "questions": [
+  {
+   "id": "sales-001",
+   "topic": "Needs and pitch",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "While a customer explains their problem, what should you mainly do?",
+   "options": [
+    "Listen and note the key points",
+    "Plan the next thing you will say",
+    "Check your phone for new leads",
+    "Wait for a gap to say the price"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "కస్టమర్ తమ సమస్య చెబుతున్నప్పుడు మీరు ముఖ్యంగా ఏమి చేయాలి?",
+    "options": [
+     "శ్రద్ధగా విని, ముఖ్యమైన విషయాలు నోట్ చేయడం",
+     "మీరు తర్వాత ఏమి చెప్పాలో ఆలోచించడం",
+     "కొత్త లీడ్స్ కోసం ఫోన్ చూడటం",
+     "ధర చెప్పడానికి గ్యాప్ కోసం ఎదురుచూడటం"
+    ]
+   },
+   "hi": {
+    "q": "जब ग्राहक अपनी समस्या बता रहा हो, तब आपको मुख्य रूप से क्या करना चाहिए?",
+    "options": [
+     "ध्यान से सुनें और ज़रूरी बातें नोट करें",
+     "सोचते रहें कि आगे आप क्या बोलेंगे",
+     "नई लीड के लिए फ़ोन देखते रहें",
+     "कीमत बताने के लिए मौका ढूँढते रहें"
+    ]
+   }
+  },
+  {
+   "id": "sales-002",
+   "topic": "Honesty and trust",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A customer gives you ₹2,000 cash as advance. What must you give them?",
+   "options": [
+    "A promise to remember it",
+    "A signed company receipt",
+    "A thank-you message only",
+    "Your own phone number"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "కస్టమర్ మీకు ₹2,000 క్యాష్ అడ్వాన్స్ ఇచ్చారు. మీరు వారికి తప్పకుండా ఏమి ఇవ్వాలి?",
+    "options": [
+     "గుర్తుపెట్టుకుంటాను అనే మాట",
+     "సంతకం ఉన్న కంపెనీ రసీదు",
+     "థ్యాంక్ యూ మెసేజ్ మాత్రమే",
+     "మీ సొంత ఫోన్ నంబర్"
+    ]
+   },
+   "hi": {
+    "q": "ग्राहक आपको ₹2,000 कैश एडवांस देता है। आपको उसे ज़रूर क्या देना चाहिए?",
+    "options": [
+     "याद रखने का वादा",
+     "साइन की हुई कंपनी की रसीद",
+     "सिर्फ़ थैंक यू मैसेज",
+     "अपना फ़ोन नंबर"
+    ]
+   }
+  },
+  {
+   "id": "sales-003",
+   "topic": "Leads and follow-up",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A happy customer gives you two friends' names to contact. These are called…",
+   "options": [
+    "Complaints",
+    "Returns",
+    "Referrals",
+    "Targets"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "సంతోషంగా ఉన్న కస్టమర్ ఇద్దరు స్నేహితుల పేర్లు ఇచ్చి కలవమన్నారు. వీటిని ఏమంటారు?",
+    "options": [
+     "కంప్లైంట్స్",
+     "రిటర్న్స్",
+     "రిఫరల్స్",
+     "టార్గెట్స్"
+    ]
+   },
+   "hi": {
+    "q": "खुश ग्राहक आपको संपर्क करने के लिए दो दोस्तों के नाम देता है। इन्हें क्या कहते हैं?",
+    "options": [
+     "शिकायतें",
+     "रिटर्न",
+     "रेफ़रल",
+     "टारगेट"
+    ]
+   }
+  },
+  {
+   "id": "sales-004",
+   "topic": "Objections and closing",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "In sales, closing means…",
+   "options": [
+    "Shutting the shop for the day",
+    "Ending every call quickly",
+    "Saying sorry for the high price",
+    "Asking for the order and finishing the deal"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "సేల్స్‌లో \"క్లోజింగ్\" అంటే…",
+    "options": [
+     "ఆ రోజుకి షాప్ మూసేయడం",
+     "ప్రతి కాల్ త్వరగా ముగించడం",
+     "ఎక్కువ ధరకు సారీ చెప్పడం",
+     "ఆర్డర్ అడిగి డీల్ పూర్తి చేయడం"
+    ]
+   },
+   "hi": {
+    "q": "सेल्स में \"क्लोज़िंग\" का मतलब है…",
+    "options": [
+     "दिन के लिए दुकान बंद करना",
+     "हर कॉल जल्दी खत्म करना",
+     "ज़्यादा दाम के लिए माफ़ी माँगना",
+     "ऑर्डर माँगना और डील पूरी करना"
+    ]
+   }
+  },
+  {
+   "id": "sales-005",
+   "topic": "Sales maths",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "You sell 3 water purifiers at ₹9,500 each. What is the total sale?",
+   "options": [
+    "₹28,500",
+    "₹27,500",
+    "₹19,000",
+    "₹29,500"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "మీరు ఒక్కోటి ₹9,500 చొప్పున 3 వాటర్ ప్యూరిఫైయర్లు అమ్మారు. మొత్తం సేల్ ఎంత?",
+    "options": [
+     "₹28,500",
+     "₹27,500",
+     "₹19,000",
+     "₹29,500"
+    ]
+   },
+   "hi": {
+    "q": "आपने ₹9,500 वाले 3 वॉटर प्यूरीफ़ायर बेचे। कुल सेल कितनी हुई?",
+    "options": [
+     "₹28,500",
+     "₹27,500",
+     "₹19,000",
+     "₹29,500"
+    ]
+   }
+  },
+  {
+   "id": "sales-006",
+   "topic": "Needs and pitch",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A kirana owner says your biscuit brand is selling slowly in his shop. What do you ask first?",
+   "options": [
+    "Whether he will order more packs today",
+    "Where the packs are kept and which ones sell",
+    "If he wants a bigger margin from you",
+    "Why he is unhappy with your visits"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "మీ బిస్కెట్ బ్రాండ్ తన షాప్‌లో నెమ్మదిగా అమ్ముడవుతోందని కిరాణా ఓనర్ అంటారు. మీరు ముందు ఏమి అడుగుతారు?",
+    "options": [
+     "ఈ రోజు ఇంకా ప్యాకెట్లు ఆర్డర్ చేస్తారా",
+     "ప్యాకెట్లు ఎక్కడ పెట్టారు, ఏవి అమ్ముడవుతున్నాయి",
+     "మీ నుండి ఎక్కువ మార్జిన్ కావాలా",
+     "మీ విజిట్లతో ఎందుకు సంతోషంగా లేరు"
+    ]
+   },
+   "hi": {
+    "q": "किराना मालिक कहता है कि आपका बिस्किट ब्रांड उसकी दुकान में धीरे बिक रहा है। आप पहले क्या पूछेंगे?",
+    "options": [
+     "क्या वह आज और पैकेट ऑर्डर करेगा",
+     "पैकेट कहाँ रखे हैं और कौन से बिक रहे हैं",
+     "क्या उसे आपसे ज़्यादा मार्जिन चाहिए",
+     "वह आपकी विज़िट से नाखुश क्यों है"
+    ]
+   }
+  },
+  {
+   "id": "sales-007",
+   "topic": "Objections and closing",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A customer says, \"I need to ask my family first.\" What is a good reply?",
+   "options": [
+    "Say the offer ends in ten minutes",
+    "Tell them families don't understand products",
+    "Agree, leave a brochure and fix a time to meet them all",
+    "Cut the price so they decide now"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "కస్టమర్ \"ముందు మా కుటుంబాన్ని అడగాలి\" అంటారు. మంచి జవాబు ఏది?",
+    "options": [
+     "ఆఫర్ పది నిమిషాల్లో ముగుస్తుందని చెప్పడం",
+     "కుటుంబానికి ప్రోడక్ట్‌లు అర్థం కావని చెప్పడం",
+     "సరే అని, బ్రోచర్ ఇచ్చి, అందరినీ కలిసే సమయం ఫిక్స్ చేయడం",
+     "ఇప్పుడే నిర్ణయించేలా ధర తగ్గించడం"
+    ]
+   },
+   "hi": {
+    "q": "ग्राहक कहता है, \"पहले मुझे परिवार से पूछना है।\" अच्छा जवाब क्या है?",
+    "options": [
+     "कहें कि ऑफ़र दस मिनट में खत्म हो रहा है",
+     "कहें कि परिवार प्रोडक्ट नहीं समझता",
+     "मान जाएँ, ब्रोशर दें और सबसे मिलने का समय तय करें",
+     "दाम घटा दें ताकि अभी फ़ैसला कर लें"
+    ]
+   }
+  },
+  {
+   "id": "sales-008",
+   "topic": "Leads and follow-up",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "You have 30 leads but time for only 10 visits this week. Whom do you meet first?",
+   "options": [
+    "Those who live closest to your home",
+    "Those with the biggest houses",
+    "Those whose names come first",
+    "Those most interested who can also decide"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "మీ దగ్గర 30 లీడ్స్ ఉన్నాయి, కానీ ఈ వారం 10 విజిట్లకే సమయం ఉంది. ముందు ఎవరిని కలుస్తారు?",
+    "options": [
+     "మీ ఇంటికి దగ్గరగా ఉండే వారిని",
+     "పెద్ద ఇళ్ళు ఉన్న వారిని",
+     "లిస్ట్‌లో పేర్లు ముందు ఉన్న వారిని",
+     "ఎక్కువ ఆసక్తి ఉండి, నిర్ణయం తీసుకోగలిగే వారిని"
+    ]
+   },
+   "hi": {
+    "q": "आपके पास 30 लीड हैं पर इस हफ़्ते सिर्फ़ 10 विज़िट का समय है। पहले किससे मिलेंगे?",
+    "options": [
+     "जो आपके घर के सबसे पास रहते हैं",
+     "जिनके घर सबसे बड़े हैं",
+     "जिनके नाम लिस्ट में पहले हैं",
+     "जिन्हें सबसे ज़्यादा रुचि है और जो फ़ैसला ले सकते हैं"
+    ]
+   }
+  },
+  {
+   "id": "sales-009",
+   "topic": "Sales maths",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "You get ₹500 for each sale above 20 in a month. You make 27 sales. What is your bonus?",
+   "options": [
+    "₹3,500",
+    "₹13,500",
+    "₹2,500",
+    "₹4,000"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "నెలలో 20 సేల్స్ దాటిన ప్రతి సేల్‌కి ₹500 వస్తుంది. మీరు 27 సేల్స్ చేశారు. మీ బోనస్ ఎంత?",
+    "options": [
+     "₹3,500",
+     "₹13,500",
+     "₹2,500",
+     "₹4,000"
+    ]
+   },
+   "hi": {
+    "q": "महीने में 20 से ऊपर हर सेल पर ₹500 मिलते हैं। आपने 27 सेल कीं। आपका बोनस कितना है?",
+    "options": [
+     "₹3,500",
+     "₹13,500",
+     "₹2,500",
+     "₹4,000"
+    ]
+   }
+  },
+  {
+   "id": "sales-010",
+   "topic": "Honesty and trust",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A rival company's salesperson speaks badly of your product to a customer. What do you do?",
+   "options": [
+    "Say bad things about their product too",
+    "Stay calm and share only facts about yours",
+    "Argue with him in front of the customer",
+    "Leave the customer and walk away"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "పోటీ కంపెనీ సేల్స్‌పర్సన్ కస్టమర్ ముందు మీ ప్రోడక్ట్ గురించి చెడుగా మాట్లాడారు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "వారి ప్రోడక్ట్ గురించి కూడా చెడుగా చెప్పడం",
+     "ప్రశాంతంగా ఉండి, మీ ప్రోడక్ట్ గురించి నిజాలు మాత్రమే చెప్పడం",
+     "కస్టమర్ ముందే అతనితో గొడవ పడటం",
+     "కస్టమర్‌ని వదిలి వెళ్ళిపోవడం"
+    ]
+   },
+   "hi": {
+    "q": "दूसरी कंपनी का सेल्सपर्सन ग्राहक के सामने आपके प्रोडक्ट की बुराई करता है। आप क्या करेंगे?",
+    "options": [
+     "उनके प्रोडक्ट की भी बुराई करें",
+     "शांत रहें और अपने प्रोडक्ट के सिर्फ़ तथ्य बताएँ",
+     "ग्राहक के सामने उससे बहस करें",
+     "ग्राहक को छोड़ कर चले जाएँ"
+    ]
+   }
+  },
+  {
+   "id": "sales-011",
+   "topic": "Objections and closing",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A big dealer asks for 10% extra discount, more than you are allowed to give. What do you do?",
+   "options": [
+    "Give it to close the deal and tell no one",
+    "Refuse and walk out of the meeting",
+    "Ask your manager and offer other value, like quick delivery",
+    "Promise it now and sort it out later"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "ఒక పెద్ద డీలర్ మీకు ఇవ్వడానికి అనుమతి ఉన్నదానికంటే ఎక్కువగా 10% అదనపు డిస్కౌంట్ అడుగుతున్నారు. ఏమి చేస్తారు?",
+    "options": [
+     "డీల్ కోసం ఇచ్చేసి ఎవరికీ చెప్పకపోవడం",
+     "కుదరదని మీటింగ్ నుండి వెళ్ళిపోవడం",
+     "మేనేజర్‌ని అడిగి, త్వరగా డెలివరీ లాంటి వేరే లాభం ఆఫర్ చేయడం",
+     "ఇప్పుడు హామీ ఇచ్చి తర్వాత చూసుకోవడం"
+    ]
+   },
+   "hi": {
+    "q": "एक बड़ा डीलर 10% एक्स्ट्रा डिस्काउंट माँगता है, जो आपकी देने की सीमा से ज़्यादा है। आप क्या करेंगे?",
+    "options": [
+     "डील के लिए दे दें और किसी को न बताएँ",
+     "मना करके मीटिंग से निकल जाएँ",
+     "मैनेजर से पूछें और दूसरा फ़ायदा दें, जैसे जल्दी डिलीवरी",
+     "अभी वादा कर दें और बाद में देख लें"
+    ]
+   }
+  },
+  {
+   "id": "sales-012",
+   "topic": "Sales maths",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Last month you sold ₹2,50,000. This month you sold ₹3,00,000. What is the growth?",
+   "options": [
+    "25%",
+    "50%",
+    "17%",
+    "20%"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "గత నెల మీరు ₹2,50,000 అమ్మారు. ఈ నెల ₹3,00,000 అమ్మారు. పెరుగుదల ఎంత శాతం?",
+    "options": [
+     "25%",
+     "50%",
+     "17%",
+     "20%"
+    ]
+   },
+   "hi": {
+    "q": "पिछले महीने आपने ₹2,50,000 बेचा। इस महीने ₹3,00,000 बेचा। ग्रोथ कितनी है?",
+    "options": [
+     "25%",
+     "50%",
+     "17%",
+     "20%"
+    ]
+   }
+  },
+  {
+   "id": "sales-013",
+   "topic": "Sales maths",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Deal A is ₹50,000 at 4% commission. Deal B is ₹30,000 at 8% commission. Which pays you more?",
+   "options": [
+    "Deal B, by ₹400",
+    "Deal A, by ₹400",
+    "They pay the same",
+    "Deal A, by ₹2,000"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "డీల్ A: ₹50,000 పై 4% కమిషన్. డీల్ B: ₹30,000 పై 8% కమిషన్. దేనిలో మీకు ఎక్కువ వస్తుంది?",
+    "options": [
+     "డీల్ B, ₹400 ఎక్కువ",
+     "డీల్ A, ₹400 ఎక్కువ",
+     "రెండింటిలో సమానం",
+     "డీల్ A, ₹2,000 ఎక్కువ"
+    ]
+   },
+   "hi": {
+    "q": "डील A: ₹50,000 पर 4% कमीशन। डील B: ₹30,000 पर 8% कमीशन। किसमें आपको ज़्यादा मिलेगा?",
+    "options": [
+     "डील B, ₹400 ज़्यादा",
+     "डील A, ₹400 ज़्यादा",
+     "दोनों में बराबर",
+     "डील A, ₹2,000 ज़्यादा"
+    ]
+   }
+  },
+  {
+   "id": "sales-014",
+   "topic": "Leads and follow-up",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A lead has not answered three calls in two weeks. What is the best next step?",
+   "options": [
+    "Call them five times every day",
+    "Send one useful message, then set a later date",
+    "Delete the lead from your list",
+    "Visit their home late at night"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "ఒక లీడ్ రెండు వారాల్లో మూడు కాల్స్‌కి జవాబు ఇవ్వలేదు. తర్వాత చేయాల్సిన మంచి పని ఏది?",
+    "options": [
+     "రోజూ ఐదు సార్లు కాల్ చేయడం",
+     "ఒక ఉపయోగపడే మెసేజ్ పంపి, తర్వాత తేదీ పెట్టుకోవడం",
+     "లిస్ట్ నుండి లీడ్ తీసేయడం",
+     "రాత్రి ఆలస్యంగా వారి ఇంటికి వెళ్ళడం"
+    ]
+   },
+   "hi": {
+    "q": "एक लीड ने दो हफ़्ते में तीन कॉल का जवाब नहीं दिया। अगला सबसे अच्छा कदम क्या है?",
+    "options": [
+     "रोज़ पाँच बार कॉल करें",
+     "एक काम का मैसेज भेजें, फिर आगे की तारीख तय करें",
+     "लीड को लिस्ट से हटा दें",
+     "देर रात उनके घर चले जाएँ"
+    ]
+   }
+  },
+  {
+   "id": "sales-015",
+   "topic": "Honesty and trust",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "To hit target, a colleague books fake orders that will be cancelled next month. What do you do?",
+   "options": [
+    "Copy him so your numbers look good",
+    "Keep quiet as it is not your issue",
+    "Refuse to join and tell your manager",
+    "Ask him to share his commission"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "టార్గెట్ కోసం ఒక సహోద్యోగి వచ్చే నెల క్యాన్సిల్ అయ్యే ఫేక్ ఆర్డర్లు బుక్ చేస్తున్నారు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "మీ నంబర్లు బాగుండేలా మీరూ అలాగే చేయడం",
+     "మీ సమస్య కాదని మౌనంగా ఉండటం",
+     "మీరు చేరకుండా, మేనేజర్‌కి చెప్పడం",
+     "అతని కమిషన్‌లో వాటా అడగడం"
+    ]
+   },
+   "hi": {
+    "q": "टारगेट पूरा करने के लिए एक साथी नकली ऑर्डर बुक करता है जो अगले महीने कैंसिल होंगे। आप क्या करेंगे?",
+    "options": [
+     "अपने नंबर अच्छे दिखाने के लिए आप भी यही करें",
+     "चुप रहें क्योंकि यह आपका मामला नहीं",
+     "शामिल न हों और मैनेजर को बताएँ",
+     "उससे कमीशन में हिस्सा माँगें"
+    ]
+   }
+  },
+  {
+   "id": "sales-016",
+   "topic": "Needs and pitch",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A hospital buyer cares most about after-sales support. How should you shape your pitch?",
+   "options": [
+    "Start with the lowest price in the market",
+    "Talk mostly about your company's history",
+    "Show every model in the catalogue",
+    "Start with service times, spares and contact people"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "ఒక హాస్పిటల్ కొనుగోలుదారుకి అమ్మకం తర్వాత సపోర్ట్ చాలా ముఖ్యం. మీ పిచ్ ఎలా ఉండాలి?",
+    "options": [
+     "మార్కెట్‌లో తక్కువ ధరతో మొదలుపెట్టడం",
+     "ఎక్కువగా మీ కంపెనీ చరిత్ర గురించి మాట్లాడటం",
+     "కేటలాగ్‌లోని ప్రతి మోడల్ చూపించడం",
+     "సర్వీస్ సమయం, స్పేర్ పార్ట్స్, కాంటాక్ట్ వ్యక్తులతో మొదలుపెట్టడం"
+    ]
+   },
+   "hi": {
+    "q": "एक अस्पताल के खरीदार के लिए बिक्री के बाद का सपोर्ट सबसे ज़रूरी है। आपकी पिच कैसी होनी चाहिए?",
+    "options": [
+     "बाज़ार की सबसे कम कीमत से शुरू करें",
+     "ज़्यादातर अपनी कंपनी के इतिहास की बात करें",
+     "कैटलॉग का हर मॉडल दिखाएँ",
+     "सर्विस का समय, स्पेयर पार्ट्स और संपर्क व्यक्ति से शुरू करें"
+    ]
+   }
+  },
+  {
+   "id": "sales-017",
+   "topic": "Objections and closing",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "An old customer is upset about a late delivery and won't place a new order. What is the best approach?",
+   "options": [
+    "Say sorry, explain the fix and give a firm new date",
+    "Blame the warehouse team for the delay",
+    "Offer a big discount without fixing anything",
+    "Avoid them until they cool down"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "ఒక పాత కస్టమర్ ఆలస్యమైన డెలివరీ వల్ల బాధపడి కొత్త ఆర్డర్ ఇవ్వడం లేదు. మంచి పద్ధతి ఏది?",
+    "options": [
+     "సారీ చెప్పి, సరిచేసిన విధానం వివరించి, ఖచ్చితమైన కొత్త తేదీ ఇవ్వడం",
+     "ఆలస్యానికి వేర్‌హౌస్ టీమ్‌ని నిందించడం",
+     "ఏదీ సరిచేయకుండా పెద్ద డిస్కౌంట్ ఇవ్వడం",
+     "వారి కోపం తగ్గే వరకు కలవకపోవడం"
+    ]
+   },
+   "hi": {
+    "q": "एक पुराना ग्राहक देर से डिलीवरी के कारण नाराज़ है और नया ऑर्डर नहीं दे रहा। सबसे अच्छा तरीका क्या है?",
+    "options": [
+     "माफ़ी माँगें, सुधार बताएँ और पक्की नई तारीख दें",
+     "देरी के लिए वेयरहाउस टीम को दोष दें",
+     "कुछ ठीक किए बिना बड़ा डिस्काउंट दें",
+     "गुस्सा ठंडा होने तक उनसे न मिलें"
+    ]
+   }
+  },
+  {
+   "id": "sales-018",
+   "topic": "Leads and follow-up",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Your pipeline has many leads but very few closed deals. What does this most likely show?",
+   "options": [
+    "You only need more leads",
+    "Weak leads or poor follow-up",
+    "The price must be cut for all",
+    "Customers don't read messages"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "మీ పైప్‌లైన్‌లో చాలా లీడ్స్ ఉన్నాయి కానీ క్లోజ్ అయిన డీల్స్ చాలా తక్కువ. దీని అర్థం ఎక్కువగా ఏమిటి?",
+    "options": [
+     "మీకు ఇంకా ఎక్కువ లీడ్స్ మాత్రమే కావాలి",
+     "లీడ్స్ బలహీనం లేదా ఫాలో-అప్ సరిగా లేదు",
+     "అందరికీ ధర తగ్గించాలి",
+     "కస్టమర్లు మెసేజ్‌లు చదవరు"
+    ]
+   },
+   "hi": {
+    "q": "आपकी पाइपलाइन में बहुत लीड हैं पर क्लोज़ हुई डील बहुत कम हैं। इसका सबसे संभावित मतलब क्या है?",
+    "options": [
+     "आपको बस और लीड चाहिए",
+     "लीड कमज़ोर हैं या फॉलो-अप ठीक नहीं",
+     "सबके लिए दाम घटाना होगा",
+     "ग्राहक मैसेज नहीं पढ़ते"
+    ]
+   }
+  }
+ ],
+ "existing": {
+  "What is a \"lead\"?": {
+   "topic": "Leads and follow-up",
+   "te": {
+    "q": "\"లీడ్\" అంటే ఏమిటి?",
+    "options": [
+     "కొనే అవకాశం ఉన్న వ్యక్తి లేదా బిజినెస్",
+     "పూర్తయిన సేల్",
+     "ప్రోడక్ట్ పై డిస్కౌంట్",
+     "డెలివరీ తేదీ"
+    ]
+   },
+   "hi": {
+    "q": "\"लीड\" क्या होता है?",
+    "options": [
+     "ऐसा व्यक्ति या बिज़नेस जो खरीद सकता है",
+     "पूरी हो चुकी सेल",
+     "प्रोडक्ट पर डिस्काउंट",
+     "डिलीवरी की तारीख"
+    ]
+   }
+  },
+  "Before showing a product, a good salesperson first…": {
+   "topic": "Needs and pitch",
+   "te": {
+    "q": "ప్రోడక్ట్ చూపించే ముందు, మంచి సేల్స్‌పర్సన్ ముందుగా…",
+    "options": [
+     "ధర చెబుతారు",
+     "కస్టమర్‌కి ఏమి కావాలో అడుగుతారు",
+     "పోటీ కంపెనీల గురించి మాట్లాడతారు",
+     "అన్ని ప్రోడక్ట్‌లూ చూపిస్తారు"
+    ]
+   },
+   "hi": {
+    "q": "प्रोडक्ट दिखाने से पहले, अच्छा सेल्सपर्सन सबसे पहले…",
+    "options": [
+     "कीमत बताता है",
+     "पूछता है कि ग्राहक को क्या चाहिए",
+     "दूसरी कंपनियों की बात करता है",
+     "हर प्रोडक्ट दिखाता है"
+    ]
+   }
+  },
+  "A customer says \"It's too costly.\" A good first reply is…": {
+   "topic": "Objections and closing",
+   "te": {
+    "q": "కస్టమర్ \"ఇది చాలా ఖరీదు\" అంటారు. మంచి మొదటి జవాబు…",
+    "options": [
+     "\"అయితే కొనకండి.\"",
+     "దేనితో పోలుస్తున్నారో అడిగి, దీని విలువ వివరించడం",
+     "వెంటనే ధర తగ్గించడం",
+     "విషయం మార్చడం"
+    ]
+   },
+   "hi": {
+    "q": "ग्राहक कहता है \"यह बहुत महँगा है।\" अच्छा पहला जवाब है…",
+    "options": [
+     "\"तो मत खरीदिए।\"",
+     "पूछें कि किससे तुलना कर रहे हैं और इसकी वैल्यू समझाएँ",
+     "तुरंत कीमत कम कर दें",
+     "बात बदल दें"
+    ]
+   }
+  },
+  "You made 50 calls and 5 people bought. What is the conversion rate?": {
+   "topic": "Sales maths",
+   "te": {
+    "q": "మీరు 50 కాల్స్ చేశారు, 5 మంది కొన్నారు. కన్వర్షన్ రేట్ ఎంత?",
+    "options": [
+     "5%",
+     "10%",
+     "50%",
+     "45%"
+    ]
+   },
+   "hi": {
+    "q": "आपने 50 कॉल किए और 5 लोगों ने खरीदा। कन्वर्ज़न रेट कितना है?",
+    "options": [
+     "5%",
+     "10%",
+     "50%",
+     "45%"
+    ]
+   }
+  },
+  "What is a follow-up?": {
+   "topic": "Leads and follow-up",
+   "te": {
+    "q": "\"ఫాలో-అప్\" అంటే ఏమిటి?",
+    "options": [
+     "మొదటి మాట తర్వాత కస్టమర్‌ని మళ్ళీ సంప్రదించడం",
+     "కస్టమర్ ఇచ్చిన కంప్లైంట్",
+     "ప్రోడక్ట్ రిటర్న్",
+     "నెల టార్గెట్"
+    ]
+   },
+   "hi": {
+    "q": "\"फॉलो-अप\" क्या है?",
+    "options": [
+     "पहली बात के बाद संभावित ग्राहक से फिर संपर्क करना",
+     "ग्राहक की शिकायत",
+     "प्रोडक्ट वापसी",
+     "महीने का टारगेट"
+    ]
+   }
+  },
+  "Your target is ₹3,00,000 a month. By the 15th you have sold ₹1,20,000. How much is left?": {
+   "topic": "Sales maths",
+   "te": {
+    "q": "మీ టార్గెట్ నెలకు ₹3,00,000. 15వ తేదీకి ₹1,20,000 అమ్మారు. ఇంకా ఎంత మిగిలింది?",
+    "options": [
+     "₹1,20,000",
+     "₹1,80,000",
+     "₹2,00,000",
+     "₹1,50,000"
+    ]
+   },
+   "hi": {
+    "q": "आपका टारगेट महीने का ₹3,00,000 है। 15 तारीख तक आपने ₹1,20,000 बेचा। कितना बाकी है?",
+    "options": [
+     "₹1,20,000",
+     "₹1,80,000",
+     "₹2,00,000",
+     "₹1,50,000"
+    ]
+   }
+  },
+  "Up-selling means…": {
+   "topic": "Needs and pitch",
+   "te": {
+    "q": "\"అప్-సెల్లింగ్\" అంటే…",
+    "options": [
+     "వారు కొంటున్నదానికంటే మంచి లేదా పెద్ద మోడల్ సూచించడం",
+     "కొత్త ఊరిలో అమ్మడం",
+     "అందరికీ ధరలు పెంచడం",
+     "ఆన్‌లైన్‌లో మాత్రమే అమ్మడం"
+    ]
+   },
+   "hi": {
+    "q": "\"अप-सेलिंग\" का मतलब है…",
+    "options": [
+     "जो वे खरीद रहे हैं उसका बेहतर या बड़ा मॉडल सुझाना",
+     "नए शहर में बेचना",
+     "सबके लिए दाम बढ़ाना",
+     "सिर्फ़ ऑनलाइन बेचना"
+    ]
+   }
+  },
+  "Why do you write down each customer talk in the CRM or register?": {
+   "topic": "Leads and follow-up",
+   "te": {
+    "q": "ప్రతి కస్టమర్‌తో మాటను CRM లేదా రిజిస్టర్‌లో ఎందుకు రాస్తారు?",
+    "options": [
+     "ఎవరైనా పాత వివరాలు, తర్వాత చేయాల్సింది చూడగలరని",
+     "అది రూల్ కాబట్టి మాత్రమే",
+     "జీతం కోసం కాల్స్ లెక్కించడానికి",
+     "అవసరం లేదు"
+    ]
+   },
+   "hi": {
+    "q": "हर ग्राहक से हुई बात CRM या रजिस्टर में क्यों लिखते हैं?",
+    "options": [
+     "ताकि कोई भी पिछली बात और अगला कदम देख सके",
+     "सिर्फ़ इसलिए कि नियम है",
+     "सैलरी के लिए कॉल गिनने को",
+     "इसकी ज़रूरत नहीं है"
+    ]
+   }
+  },
+  "A product costs ₹800 and you give a 15% discount. What does the customer pay?": {
+   "topic": "Sales maths",
+   "te": {
+    "q": "ఒక ప్రోడక్ట్ ధర ₹800. మీరు 15% డిస్కౌంట్ ఇస్తారు. కస్టమర్ ఎంత కడతారు?",
+    "options": [
+     "₹680",
+     "₹720",
+     "₹785",
+     "₹650"
+    ]
+   },
+   "hi": {
+    "q": "एक प्रोडक्ट ₹800 का है और आप 15% डिस्काउंट देते हैं। ग्राहक कितना देगा?",
+    "options": [
+     "₹680",
+     "₹720",
+     "₹785",
+     "₹650"
+    ]
+   }
+  },
+  "A customer wants a feature the product doesn't have. What do you do?": {
+   "topic": "Honesty and trust",
+   "te": {
+    "q": "ప్రోడక్ట్‌లో లేని ఫీచర్ కస్టమర్ కోరుతున్నారు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "సేల్ కోసం అది ఉంది అని చెప్పడం",
+     "నిజం చెప్పి, వారి అవసరానికి ఇది బాగా చేసేది చూపించడం",
+     "వారితో మాట్లాడటం ఆపేయడం",
+     "వచ్చే వారం వస్తుంది అని హామీ ఇవ్వడం"
+    ]
+   },
+   "hi": {
+    "q": "ग्राहक ऐसा फ़ीचर चाहता है जो प्रोडक्ट में नहीं है। आप क्या करेंगे?",
+    "options": [
+     "सेल पक्की करने के लिए कह दें कि है",
+     "सच बताएँ और दिखाएँ कि उनकी ज़रूरत के लिए यह क्या अच्छा करता है",
+     "उनसे बात करना बंद कर दें",
+     "अगले हफ़्ते आने का वादा कर दें"
+    ]
+   }
+  },
+  "A \"prospect\" is…": {
+   "topic": "Leads and follow-up",
+   "te": {
+    "q": "\"ప్రాస్పెక్ట్\" అంటే…",
+    "options": [
+     "కొనే అవకాశం ఉన్న వ్యక్తి",
+     "ఒక ప్రోడక్ట్",
+     "ఒక డిస్కౌంట్",
+     "సేల్స్ రిపోర్ట్"
+    ]
+   },
+   "hi": {
+    "q": "\"प्रॉस्पेक्ट\" होता है…",
+    "options": [
+     "जो खरीद सकता है",
+     "एक प्रोडक्ट",
+     "एक डिस्काउंट",
+     "सेल्स रिपोर्ट"
+    ]
+   }
+  },
+  "Which is an open question?": {
+   "topic": "Needs and pitch",
+   "te": {
+    "q": "వీటిలో ఓపెన్ ప్రశ్న ఏది?",
+    "options": [
+     "మీకు ఇది కావాలా?",
+     "ఇప్పుడు ఏది వాడుతున్నారు, అందులో ఏది ఇంకా బాగుండాలి?",
+     "ఎరుపు రంగు ఓకేనా?",
+     "అవునా కాదా?"
+    ]
+   },
+   "hi": {
+    "q": "इनमें से ओपन सवाल कौन सा है?",
+    "options": [
+     "क्या आपको यह चाहिए?",
+     "अभी आप क्या इस्तेमाल करते हैं, और उसमें क्या बेहतर चाहिए?",
+     "लाल रंग ठीक है?",
+     "हाँ या ना?"
+    ]
+   }
+  },
+  "Cross-selling means…": {
+   "topic": "Needs and pitch",
+   "te": {
+    "q": "\"క్రాస్-సెల్లింగ్\" అంటే…",
+    "options": [
+     "సంబంధిత వస్తువు సూచించడం, ఫోన్‌తో పాటు కవర్ లాగా",
+     "కోపంగా ఉన్న కస్టమర్లకు అమ్మడం",
+     "ఆన్‌లైన్‌లో మాత్రమే అమ్మడం",
+     "ధర తగ్గించడం"
+    ]
+   },
+   "hi": {
+    "q": "\"क्रॉस-सेलिंग\" का मतलब है…",
+    "options": [
+     "कोई जुड़ी हुई चीज़ सुझाना, जैसे फ़ोन के साथ कवर",
+     "नाराज़ ग्राहकों को बेचना",
+     "सिर्फ़ ऑनलाइन बेचना",
+     "दाम घटाना"
+    ]
+   }
+  },
+  "You can't answer a product question. What do you do?": {
+   "topic": "Honesty and trust",
+   "te": {
+    "q": "ప్రోడక్ట్ గురించి ఒక ప్రశ్నకు మీకు జవాబు తెలియదు. ఏమి చేస్తారు?",
+    "options": [
+     "ఏదో ఒక జవాబు కల్పించి చెప్పడం",
+     "తెలుసుకుని, చెప్పిన సమయానికి జవాబు ఇస్తానని చెప్పడం",
+     "విషయం మార్చడం",
+     "మీటింగ్ ముగించడం"
+    ]
+   },
+   "hi": {
+    "q": "प्रोडक्ट के किसी सवाल का जवाब आपको नहीं पता। आप क्या करेंगे?",
+    "options": [
+     "कोई भी जवाब बना कर दे दें",
+     "कहें कि पता करके तय समय तक बताएँगे",
+     "बात बदल दें",
+     "मीटिंग खत्म कर दें"
+    ]
+   }
+  },
+  "Your weekly target is ₹60,000 and you sold ₹45,000. What % of target is that?": {
+   "topic": "Sales maths",
+   "te": {
+    "q": "మీ వారం టార్గెట్ ₹60,000. మీరు ₹45,000 అమ్మారు. అది టార్గెట్‌లో ఎంత శాతం?",
+    "options": [
+     "65%",
+     "70%",
+     "75%",
+     "80%"
+    ]
+   },
+   "hi": {
+    "q": "आपका हफ़्ते का टारगेट ₹60,000 है और आपने ₹45,000 बेचा। यह टारगेट का कितना % है?",
+    "options": [
+     "65%",
+     "70%",
+     "75%",
+     "80%"
+    ]
+   }
+  },
+  "Cold calling means…": {
+   "topic": "Leads and follow-up",
+   "te": {
+    "q": "\"కోల్డ్ కాలింగ్\" అంటే…",
+    "options": [
+     "ఇంకా ఆసక్తి చూపని వారికి కాల్ చేయడం",
+     "చలికాలంలో కాల్ చేయడం",
+     "పాత కస్టమర్లకు మాత్రమే కాల్ చేయడం",
+     "ఆఫీసుకు కాల్ చేయడం"
+    ]
+   },
+   "hi": {
+    "q": "\"कोल्ड कॉलिंग\" का मतलब है…",
+    "options": [
+     "उन लोगों को कॉल करना जिन्होंने अभी रुचि नहीं दिखाई",
+     "सर्दी में कॉल करना",
+     "सिर्फ़ पुराने ग्राहकों को कॉल करना",
+     "ऑफ़िस में कॉल करना"
+    ]
+   }
+  },
+  "A customer is interested but asks you to come back next week. What do you do?": {
+   "topic": "Objections and closing",
+   "te": {
+    "q": "కస్టమర్‌కి ఆసక్తి ఉంది, కానీ వచ్చే వారం రమ్మంటున్నారు. ఏమి చేస్తారు?",
+    "options": [
+     "మర్చిపోవడం",
+     "ఒక రోజు, సమయం ఫిక్స్ చేసి నోట్ చేసుకోవడం",
+     "రోజుకు పది మెసేజ్‌లు పంపడం",
+     "ఇప్పుడే పెద్ద డిస్కౌంట్ ఇవ్వడం"
+    ]
+   },
+   "hi": {
+    "q": "ग्राहक को रुचि है पर अगले हफ़्ते आने को कहता है। आप क्या करेंगे?",
+    "options": [
+     "भूल जाएँ",
+     "दिन और समय तय करके नोट कर लें",
+     "रोज़ दस मैसेज भेजें",
+     "अभी बड़ा डिस्काउंट दे दें"
+    ]
+   }
+  },
+  "Commission is 5% of sales. You sell ₹2,40,000. What is the commission?": {
+   "topic": "Sales maths",
+   "te": {
+    "q": "కమిషన్ సేల్స్‌లో 5%. మీరు ₹2,40,000 అమ్మారు. కమిషన్ ఎంత?",
+    "options": [
+     "₹1,200",
+     "₹12,000",
+     "₹24,000",
+     "₹4,800"
+    ]
+   },
+   "hi": {
+    "q": "कमीशन सेल का 5% है। आपने ₹2,40,000 बेचा। कमीशन कितना है?",
+    "options": [
+     "₹1,200",
+     "₹12,000",
+     "₹24,000",
+     "₹4,800"
+    ]
+   }
+  },
+  "In sales, a \"pipeline\" is…": {
+   "topic": "Leads and follow-up",
+   "te": {
+    "q": "సేల్స్‌లో \"పైప్‌లైన్\" అంటే…",
+    "options": [
+     "లీడ్ నుండి క్లోజ్ వరకు ప్రతి దశలో ఉన్న డీల్స్",
+     "నీటి పైపు",
+     "కంపెనీ ఆఫీసు",
+     "ధరల లిస్ట్"
+    ]
+   },
+   "hi": {
+    "q": "सेल्स में \"पाइपलाइन\" होती है…",
+    "options": [
+     "लीड से क्लोज़ तक हर स्टेज पर चल रही डील",
+     "पानी का पाइप",
+     "कंपनी का ऑफ़िस",
+     "प्राइस लिस्ट"
+    ]
+   }
+  },
+  "A customer says \"I'll think about it.\" What is best?": {
+   "topic": "Objections and closing",
+   "te": {
+    "q": "కస్టమర్ \"ఆలోచించి చెబుతాను\" అంటారు. ఏది మంచిది?",
+    "options": [
+     "ఇంకా గట్టిగా ఒత్తిడి చేయడం",
+     "ఏ విషయంలో సందేహం ఉందో అడిగి జవాబు ఇవ్వడం",
+     "ఏమీ అనకుండా వెళ్ళిపోవడం",
+     "వెంటనే ధర తగ్గించడం"
+    ]
+   },
+   "hi": {
+    "q": "ग्राहक कहता है \"मैं सोच कर बताऊँगा।\" क्या सबसे अच्छा है?",
+    "options": [
+     "और ज़ोर डालें",
+     "पूछें किस बात पर शक है और उसका जवाब दें",
+     "बिना कुछ कहे चले जाएँ",
+     "तुरंत दाम कम कर दें"
+    ]
+   }
+  },
+  "An item costs the shop ₹1,200 and sells for ₹1,500. What is the margin on the selling price?": {
+   "topic": "Sales maths",
+   "te": {
+    "q": "ఒక వస్తువు షాప్‌కి ₹1,200 పడుతుంది, ₹1,500కి అమ్ముతారు. అమ్మే ధరపై మార్జిన్ ఎంత?",
+    "options": [
+     "20%",
+     "25%",
+     "30%",
+     "15%"
+    ]
+   },
+   "hi": {
+    "q": "एक सामान दुकान को ₹1,200 का पड़ता है और ₹1,500 में बिकता है। बिक्री मूल्य पर मार्जिन कितना है?",
+    "options": [
+     "20%",
+     "25%",
+     "30%",
+     "15%"
+    ]
+   }
+  },
+  "You have 20 leads; 1 in 4 usually buys and the average sale is ₹8,000. Expected sales?": {
+   "topic": "Sales maths",
+   "te": {
+    "q": "మీ దగ్గర 20 లీడ్స్ ఉన్నాయి. సాధారణంగా 4లో 1 కొంటారు, సగటు సేల్ ₹8,000. ఎంత సేల్స్ ఆశించవచ్చు?",
+    "options": [
+     "₹20,000",
+     "₹40,000",
+     "₹80,000",
+     "₹1,60,000"
+    ]
+   },
+   "hi": {
+    "q": "आपके पास 20 लीड हैं; आमतौर पर 4 में से 1 खरीदता है और औसत सेल ₹8,000 है। कितनी सेल की उम्मीद है?",
+    "options": [
+     "₹20,000",
+     "₹40,000",
+     "₹80,000",
+     "₹1,60,000"
+    ]
+   }
+  },
+  "Why is it wrong to promise a delivery date you aren't sure of?": {
+   "topic": "Honesty and trust",
+   "te": {
+    "q": "ఖచ్చితంగా తెలియని డెలివరీ తేదీని హామీ ఇవ్వడం ఎందుకు తప్పు?",
+    "options": [
+     "తప్పు కాదు",
+     "నమ్మకం పోతుంది, ఆర్డర్లు క్యాన్సిల్ అవుతాయి",
+     "సేల్ పెద్దది అవుతుంది",
+     "కస్టమర్లు మర్చిపోతారు"
+    ]
+   },
+   "hi": {
+    "q": "जिस डिलीवरी तारीख पर पक्का न हों, उसका वादा करना गलत क्यों है?",
+    "options": [
+     "यह गलत नहीं है",
+     "भरोसा टूटता है और ऑर्डर कैंसिल होते हैं",
+     "इससे सेल बड़ी होती है",
+     "ग्राहक भूल जाते हैं"
+    ]
+   }
+  },
+  "A customer says a shop nearby is cheaper. What is the best reply?": {
+   "topic": "Objections and closing",
+   "te": {
+    "q": "దగ్గరలోని షాప్‌లో తక్కువ ధర అని కస్టమర్ అంటారు. మంచి జవాబు ఏది?",
+    "options": [
+     "ఆ షాప్ గురించి చెడుగా మాట్లాడటం",
+     "వారికి అదనంగా ఏమి వస్తుందో చెప్పడం: వారంటీ, సర్వీస్, క్వాలిటీ",
+     "వెంటనే ఏ ధరకైనా సమానం చేయడం",
+     "పట్టించుకోకపోవడం"
+    ]
+   },
+   "hi": {
+    "q": "ग्राहक कहता है पास की दुकान में सस्ता है। सबसे अच्छा जवाब क्या है?",
+    "options": [
+     "दूसरी दुकान की बुराई करें",
+     "बताएँ कि उन्हें यहाँ ज़्यादा क्या मिलता है: वारंटी, सर्विस, क्वालिटी",
+     "तुरंत किसी भी दाम से मैच कर दें",
+     "अनदेखा करें"
+    ]
+   }
+  }
+ },
+ "task": {
+  "type": "voice",
+  "title": "Pitch a water purifier to a family in a new housing colony",
+  "brief": "You are a field sales executive. You visit a flat in a new colony in Hyderabad. Mrs. Lakshmi opens the door. Her family drinks boiled tap water. She says, \"We are fine, and purifiers are too costly.\" Speak to her for 60 to 90 seconds, as you would at the door. A good answer: greets her politely and says who you are; asks one or two questions about her family's water needs; explains two or three clear benefits in simple words; handles the \"too costly\" worry honestly (for example EMI, running cost per day, or a free water test) without running down others; and ends by asking for a clear next step, like a free demo at a fixed time. You can speak in English, Telugu or Hindi.",
+  "minutes": 5,
+  "key_points": [
+   "Polite greeting, says own name and company",
+   "Asks about the family's needs before pitching",
+   "Gives 2-3 clear, true benefits (taste, health, no boiling)",
+   "Handles the price worry with value, EMI or cost per day, not pressure",
+   "Does not make false claims or run down other brands",
+   "Asks for a clear next step (demo, water test, visit time)"
+  ],
+  "rubric": [
+   {
+    "key": "greeting_structure",
+    "label": "Greeting and structure",
+    "guide": "0 = no greeting, jumps around; 3 = greets but order is loose; 5 = greets, asks, explains, handles worry, asks for next step in order"
+   },
+   {
+    "key": "needs_discovery",
+    "label": "Asking about needs",
+    "guide": "0 = no questions, just talks; 3 = one general question; 5 = clear, relevant questions about the family's water use before pitching"
+   },
+   {
+    "key": "objection_handling",
+    "label": "Handling the price worry",
+    "guide": "0 = ignores it or pushes hard; 3 = cuts price or gives a weak reply; 5 = calm, honest reply with value, EMI or cost per day"
+   },
+   {
+    "key": "clarity",
+    "label": "Clarity and confidence",
+    "guide": "0 = hard to follow; 3 = understandable with some confusion; 5 = simple, confident, polite words, ends with a clear ask"
+   }
+  ]
+ }
+}

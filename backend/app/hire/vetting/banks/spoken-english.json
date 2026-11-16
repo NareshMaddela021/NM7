@@ -1,0 +1,376 @@
+{
+ "slug": "spoken-english",
+ "version": 1,
+ "topics": [
+  "Grammar",
+  "Vocabulary",
+  "Polite phrases",
+  "Call phrases",
+  "Understanding meaning"
+ ],
+ "questions": [
+  {
+   "id": "spoken-english-001",
+   "topic": "Call phrases",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Fill in: \"Thank you ___ calling.\"",
+   "options": [
+    "to",
+    "of",
+    "at",
+    "for"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "spoken-english-002",
+   "topic": "Vocabulary",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which word means the same as \"purchase\"?",
+   "options": [
+    "Buy",
+    "Sell",
+    "Return",
+    "Borrow"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "spoken-english-003",
+   "topic": "Polite phrases",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which is the polite way to interrupt a customer?",
+   "options": [
+    "Sorry to interrupt, may I ask one quick question?",
+    "Hold on, I need to say something to you right now.",
+    "Wait a second, let me talk first, then you continue.",
+    "Excuse me, you are saying it wrong."
+   ],
+   "answer": 0
+  },
+  {
+   "id": "spoken-english-004",
+   "topic": "Understanding meaning",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A customer says, \"I'll get back to you.\" What do they mean?",
+   "options": [
+    "They are returning a product",
+    "They will contact you later",
+    "They are angry with you",
+    "They want a refund now"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "spoken-english-005",
+   "topic": "Grammar",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Choose: \"She ___ in the accounts team.\"",
+   "options": [
+    "work",
+    "working",
+    "works",
+    "are work"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "spoken-english-006",
+   "topic": "Understanding meaning",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A customer says, \"The parcel came, but the box was empty.\" What is the problem?",
+   "options": [
+    "The parcel came late",
+    "Nothing was inside the delivered package",
+    "It went to the wrong address",
+    "They want a different colour"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "spoken-english-007",
+   "topic": "Call phrases",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which line best confirms an email address on a call?",
+   "options": [
+    "Okay, I have noted your email, thank you so much.",
+    "Your email is saved, we will send it soon.",
+    "Please type your email in the chat box later.",
+    "Let me read it back: r-a-v-i at gmail dot com. Is that right?"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "spoken-english-008",
+   "topic": "Polite phrases",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which sentence politely asks a customer to check their address?",
+   "options": [
+    "Tell me your address again.",
+    "Address?",
+    "You must give the address now.",
+    "Could you please confirm your delivery address?"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "spoken-english-009",
+   "topic": "Vocabulary",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What does \"pending\" mean in \"Your request is pending\"?",
+   "options": [
+    "Rejected",
+    "Not finished yet",
+    "Completed",
+    "Cancelled"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "spoken-english-010",
+   "topic": "Understanding meaning",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A customer says, \"To be honest, I'm not happy with the service.\" How do they feel?",
+   "options": [
+    "Excited",
+    "Confused about the price",
+    "Disappointed",
+    "Thankful"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "spoken-english-011",
+   "topic": "Polite phrases",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "You gave a customer wrong information earlier in the call. What do you say?",
+   "options": [
+    "That was the system's fault, not mine.",
+    "You must have heard me wrong before.",
+    "Let's forget what I said earlier.",
+    "I'm sorry, I made a mistake earlier. The correct detail is this."
+   ],
+   "answer": 3
+  },
+  {
+   "id": "spoken-english-012",
+   "topic": "Call phrases",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "You must transfer a call to billing. What do you say first?",
+   "options": [
+    "Billing will handle it, bye.",
+    "Please call the billing number yourself.",
+    "I'll connect you to our billing team. Please stay on the line.",
+    "Wait, I'm sending you somewhere else."
+   ],
+   "answer": 2
+  },
+  {
+   "id": "spoken-english-013",
+   "topic": "Grammar",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Choose: \"Neither the manager nor the agents ___ aware of the change.\"",
+   "options": [
+    "was",
+    "were",
+    "is",
+    "has been"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "spoken-english-014",
+   "topic": "Grammar",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Choose the correct reported speech for: He said, \"I am busy.\"",
+   "options": [
+    "He said that he was busy.",
+    "He said that I am busy.",
+    "He said that he is being busy.",
+    "He says that he busy."
+   ],
+   "answer": 0
+  },
+  {
+   "id": "spoken-english-015",
+   "topic": "Vocabulary",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Which word fits: \"We will ___ your refund within five working days.\"",
+   "options": [
+    "proceed",
+    "precede",
+    "process",
+    "progress"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "spoken-english-016",
+   "topic": "Understanding meaning",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "In a flat voice, a customer says, \"Fine, whatever, just do it.\" What is the best way to read this?",
+   "options": [
+    "They are likely annoyed; check they agree with the plan",
+    "They are fully happy with the plan",
+    "They want to cancel the order",
+    "They are asking for a manager"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "spoken-english-017",
+   "topic": "Polite phrases",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Which is the most tactful way to tell a customer their due date is wrong?",
+   "options": [
+    "I can see why that's confusing. The bill shows the 10th.",
+    "No, that is wrong. Please read your bill again carefully.",
+    "Everyone knows the due date is the 10th.",
+    "You have made a mistake about the date."
+   ],
+   "answer": 0
+  },
+  {
+   "id": "spoken-english-018",
+   "topic": "Call phrases",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "The issue isn't solved yet and you must end the call. Which closing is best?",
+   "options": [
+    "Okay, that's all from my side, have a nice day.",
+    "So, ticket 4471 is raised and I'll call you by 5 pm tomorrow.",
+    "We'll see what happens, someone may call you.",
+    "Please call again tomorrow and ask for an update."
+   ],
+   "answer": 1
+  }
+ ],
+ "existing": {
+  "Choose the correct sentence.": {
+   "topic": "Grammar"
+  },
+  "Fill in: I ___ working here since 2024.": {
+   "topic": "Grammar"
+  },
+  "Which is the polite way to ask?": {
+   "topic": "Polite phrases"
+  },
+  "The opposite of \"polite\" is…": {
+   "topic": "Vocabulary"
+  },
+  "On a call: \"Please ___ the line while I check.\"": {
+   "topic": "Call phrases"
+  },
+  "Which greeting fits a call at 3 pm?": {
+   "topic": "Call phrases"
+  },
+  "Choose: \"There ___ two calls waiting.\"": {
+   "topic": "Grammar"
+  },
+  "\"I apologise for the inconvenience\" means…": {
+   "topic": "Vocabulary"
+  },
+  "Choose the correct past-tense sentence.": {
+   "topic": "Grammar"
+  },
+  "Which reply sounds most professional?": {
+   "topic": "Polite phrases"
+  },
+  "You say \"Could you spell that for me?\" when…": {
+   "topic": "Call phrases"
+  },
+  "Choose: \"Your order will arrive ___ Monday.\"": {
+   "topic": "Grammar"
+  },
+  "Which word means \"to make something clear\"?": {
+   "topic": "Vocabulary"
+  },
+  "In \"May I put you on hold for two minutes?\" the speaker is…": {
+   "topic": "Understanding meaning"
+  },
+  "The customer says \"I've been charged twice.\" Which reply shows you understood?": {
+   "topic": "Understanding meaning"
+  },
+  "Choose: \"If it rains, I ___ stay at home.\"": {
+   "topic": "Grammar"
+  },
+  "Which sentence is in the passive voice?": {
+   "topic": "Grammar"
+  },
+  "Which is the most courteous way to say no?": {
+   "topic": "Polite phrases"
+  },
+  "In a call centre, \"escalate\" means…": {
+   "topic": "Vocabulary"
+  },
+  "Which is correct?": {
+   "topic": "Grammar"
+  },
+  "The customer is speaking very fast. Which is best?": {
+   "topic": "Polite phrases"
+  },
+  "Which word is spelt correctly?": {
+   "topic": "Vocabulary"
+  },
+  "Choose: \"By the time you call, I ___ the report.\"": {
+   "topic": "Grammar"
+  },
+  "Which closing line is best?": {
+   "topic": "Call phrases"
+  }
+ },
+ "task": {
+  "type": "voice",
+  "title": "Explain a delivery delay to a customer",
+  "brief": "Speak your answer out loud for 60–90 seconds, as if you are on the call. Situation: Mr. Arjun Nair calls about a mixer grinder he ordered. It was due today, but it is delayed by three days because of heavy rain. The new delivery date is Friday. You can send him a tracking link by SMS. A good answer: greets him politely, says sorry for the delay, explains the reason and the new date in simple English, offers the SMS tracking link, asks if he has any other question, and closes politely. Use full, correct sentences and speak at a steady pace.",
+  "minutes": 5,
+  "key_points": [
+   "Polite greeting with own name",
+   "Apologises for the delay",
+   "Gives the reason (heavy rain) simply",
+   "States the new date: Friday",
+   "Offers the SMS tracking link",
+   "Uses correct grammar and tense",
+   "Asks if anything else is needed and closes politely"
+  ],
+  "rubric": [
+   {
+    "key": "greeting_structure",
+    "label": "Greeting and structure",
+    "guide": "0 = no greeting or order, 3 = greets but misses steps, 5 = greets, explains, offers help and closes in order"
+   },
+   {
+    "key": "grammar",
+    "label": "Grammar and words",
+    "guide": "0 = many errors that confuse the meaning, 3 = some errors but clear, 5 = correct sentences and the right words"
+   },
+   {
+    "key": "politeness",
+    "label": "Politeness",
+    "guide": "0 = rude or abrupt, 3 = polite but flat, 5 = warm, respectful and uses please, sorry and thank you naturally"
+   },
+   {
+    "key": "clarity",
+    "label": "Clarity",
+    "guide": "0 = hard to follow, 3 = mostly clear, 5 = the reason, new date and next step are easy to understand"
+   }
+  ]
+ }
+}

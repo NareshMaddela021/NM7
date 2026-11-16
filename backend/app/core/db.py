@@ -125,6 +125,10 @@ HIRE_SLOTS = "hire_slots"  # Phase 5 H5: interview times a company offers; the c
 HIRE_EVENTS = "hire_events"  # Phase 5 H4: real events behind the reliability score (attended, no-show, joined …)
 SKILL_QUESTIONS = "skill_questions"  # Phase 5 H3: the skill check question bank (Admin → Skill tests)
 SKILL_ATTEMPTS = "skill_attempts"  # Phase 5 H3: one skill check taken (questions, marks, tab switches, spoken text)
+VETTING_BANKS = "vetting_banks"  # Vetting V2: per role the bank version, topics, practical task and rubric history
+VETTING_VERIFIED = "vetting_verified"  # Vetting V2: "Skill verified" (L2) records: role, band, scores, expires_at
+VETTING_QUEUE = "vetting_queue"  # Vetting V2: Admin review (task grades) and integrity queues
+VETTING_PHOTOS = "vetting_photos"  # Vetting V2: optional photos of past work (proof tasks), deleted after 30 days
 LEARN_PATHS = "learn_paths"  # Phase 6 S2, _id = role id: courses → project → skill check (Admin → Learning paths)
 OFFER_CHECKS = (
     "offer_checks"  # Phase 6 S5: saved offer-letter checks (text without ID numbers + result; never the file)
@@ -221,6 +225,10 @@ COLLECTIONS = (
     HIRE_USAGE,
     SKILL_QUESTIONS,
     SKILL_ATTEMPTS,
+    VETTING_BANKS,
+    VETTING_VERIFIED,
+    VETTING_QUEUE,
+    VETTING_PHOTOS,
     HIRE_EVENTS,
     HIRE_SLOTS,
     HIRE_OFFERS,
@@ -347,7 +355,15 @@ INDEXES: dict[str, list[IndexModel]] = {
     SKILL_ATTEMPTS: [
         IndexModel([("user_id", ASCENDING), ("skill", ASCENDING), ("started_at", DESCENDING)]),
         IndexModel([("user_id", ASCENDING), ("share", ASCENDING)]),
+        IndexModel([("skill", ASCENDING), ("submitted_at", DESCENDING)]),  # V2: answer patterns across accounts
+        IndexModel([("skill", ASCENDING), ("fp.device", ASCENDING)]),  # V2: the same device on several accounts
     ],
+    VETTING_VERIFIED: [
+        IndexModel([("user_id", ASCENDING), ("test", ASCENDING)], unique=True),
+        IndexModel([("test", ASCENDING), ("expires_at", ASCENDING)]),
+    ],
+    VETTING_QUEUE: [IndexModel([("kind", ASCENDING), ("status", ASCENDING), ("created_at", DESCENDING)])],
+    VETTING_PHOTOS: [IndexModel("delete_at", expireAfterSeconds=0), IndexModel("attempt_id")],
     HIRE_INVITES: [
         IndexModel([("company_id", ASCENDING), ("job_id", ASCENDING), ("user_id", ASCENDING)], unique=True),
         IndexModel([("user_id", ASCENDING), ("created_at", DESCENDING)]),

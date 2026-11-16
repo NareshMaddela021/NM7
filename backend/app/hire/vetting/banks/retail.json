@@ -1,0 +1,1131 @@
+{
+ "slug": "retail",
+ "version": 1,
+ "topics": [
+  "Customer service",
+  "Billing and payments",
+  "Stock and display",
+  "Store maths",
+  "Safety and store rules"
+ ],
+ "questions": [
+  {
+   "id": "retail-001",
+   "topic": "Safety and store rules",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "You see water spilled on the store floor. What do you do first?",
+   "options": [
+    "Put a wet-floor sign and get it wiped",
+    "Walk around it and carry on",
+    "Wait for the cleaner's next round",
+    "Cover it with an empty carton"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "స్టోర్ ఫ్లోర్ మీద నీళ్ళు ఒలికి ఉన్నాయి. మీరు ముందు ఏమి చేస్తారు?",
+    "options": [
+     "వెట్-ఫ్లోర్ బోర్డ్ పెట్టి వెంటనే తుడిపించడం",
+     "పక్క నుండి నడిచి పని కొనసాగించడం",
+     "క్లీనర్ తర్వాతి రౌండ్ కోసం ఆగడం",
+     "ఖాళీ అట్టపెట్టెతో కప్పేయడం"
+    ]
+   },
+   "hi": {
+    "q": "स्टोर के फ़र्श पर पानी गिरा है। आप सबसे पहले क्या करेंगे?",
+    "options": [
+     "वेट-फ़्लोर बोर्ड लगाएँ और पोंछा लगवाएँ",
+     "बगल से निकल कर काम करते रहें",
+     "सफ़ाई वाले के अगले राउंड का इंतज़ार करें",
+     "खाली गत्ते से ढक दें"
+    ]
+   }
+  },
+  {
+   "id": "retail-002",
+   "topic": "Stock and display",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "New stock arrives at the store. Before putting it on the shelf you should…",
+   "options": [
+    "Put it in front of the old stock",
+    "Check the count and expiry against the bill",
+    "Open each pack to test it",
+    "Leave it in the boxes for a week"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "స్టోర్‌కి కొత్త స్టాక్ వచ్చింది. షెల్ఫ్‌లో పెట్టే ముందు మీరు…",
+    "options": [
+     "పాత స్టాక్ ముందు పెట్టాలి",
+     "బిల్‌తో కౌంట్, ఎక్స్‌పైరీ సరిచూడాలి",
+     "ప్రతి ప్యాకెట్ తెరిచి చూడాలి",
+     "వారం రోజులు బాక్సుల్లోనే ఉంచాలి"
+    ]
+   },
+   "hi": {
+    "q": "स्टोर में नया स्टॉक आया है। शेल्फ़ पर रखने से पहले आपको…",
+    "options": [
+     "पुराने स्टॉक के आगे रख देना चाहिए",
+     "बिल से गिनती और एक्सपायरी मिलानी चाहिए",
+     "हर पैकेट खोल कर देखना चाहिए",
+     "हफ़्ते भर डिब्बों में ही छोड़ देना चाहिए"
+    ]
+   }
+  },
+  {
+   "id": "retail-003",
+   "topic": "Customer service",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A customer asks where the rice is kept. What is best?",
+   "options": [
+    "Say \"somewhere at the back\"",
+    "Tell them to ask someone else",
+    "Walk with them to the shelf or point clearly",
+    "Keep stacking and don't look up"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "బియ్యం ఎక్కడ ఉంచారని కస్టమర్ అడుగుతున్నారు. ఏది మంచిది?",
+    "options": [
+     "\"వెనకాల ఎక్కడో ఉంది\" అనడం",
+     "వేరే వాళ్ళని అడగమనడం",
+     "వారితో షెల్ఫ్ దాకా వెళ్ళడం లేదా స్పష్టంగా చూపించడం",
+     "తల ఎత్తకుండా సర్దుతూనే ఉండటం"
+    ]
+   },
+   "hi": {
+    "q": "ग्राहक पूछता है कि चावल कहाँ रखा है। क्या सबसे अच्छा है?",
+    "options": [
+     "कहें \"पीछे कहीं होगा\"",
+     "कहें किसी और से पूछ लें",
+     "उनके साथ शेल्फ़ तक जाएँ या साफ़ इशारा करें",
+     "सिर उठाए बिना सामान लगाते रहें"
+    ]
+   }
+  },
+  {
+   "id": "retail-004",
+   "topic": "Billing and payments",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A customer pays by card. After the payment goes through, you…",
+   "options": [
+    "Keep the card at the counter",
+    "Ask them to say the PIN aloud",
+    "Note the card number on paper",
+    "Give the bill and the charge slip"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "కస్టమర్ కార్డ్‌తో పేమెంట్ చేశారు. పేమెంట్ అయిన తర్వాత మీరు…",
+    "options": [
+     "కార్డ్ కౌంటర్ దగ్గరే ఉంచుకోవాలి",
+     "PIN గట్టిగా చెప్పమనాలి",
+     "కార్డ్ నంబర్ పేపర్ మీద రాసుకోవాలి",
+     "బిల్, చార్జ్ స్లిప్ ఇవ్వాలి"
+    ]
+   },
+   "hi": {
+    "q": "ग्राहक कार्ड से पेमेंट करता है। पेमेंट होने के बाद आप…",
+    "options": [
+     "कार्ड काउंटर पर रख लेते हैं",
+     "PIN ज़ोर से बोलने को कहते हैं",
+     "कार्ड नंबर कागज़ पर लिख लेते हैं",
+     "बिल और चार्ज स्लिप देते हैं"
+    ]
+   }
+  },
+  {
+   "id": "retail-005",
+   "topic": "Store maths",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A customer buys 2 soaps at ₹45 each and 1 toothpaste at ₹110. What is the total?",
+   "options": [
+    "₹200",
+    "₹155",
+    "₹190",
+    "₹210"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "కస్టమర్ ఒక్కోటి ₹45 చొప్పున 2 సబ్బులు, ₹110 టూత్‌పేస్ట్ 1 కొన్నారు. మొత్తం ఎంత?",
+    "options": [
+     "₹200",
+     "₹155",
+     "₹190",
+     "₹210"
+    ]
+   },
+   "hi": {
+    "q": "ग्राहक ₹45 वाले 2 साबुन और ₹110 का 1 टूथपेस्ट लेता है। कुल कितना हुआ?",
+    "options": [
+     "₹200",
+     "₹155",
+     "₹190",
+     "₹210"
+    ]
+   }
+  },
+  {
+   "id": "retail-006",
+   "topic": "Safety and store rules",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "The fire alarm rings in the mall. What should store staff do?",
+   "options": [
+    "Finish billing the people in the queue",
+    "Calmly guide customers to the nearest exit",
+    "Pull the shutter down with people inside",
+    "Take the lift down quickly"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "మాల్‌లో ఫైర్ అలారం మోగుతోంది. స్టోర్ స్టాఫ్ ఏమి చేయాలి?",
+    "options": [
+     "క్యూలో ఉన్న వారి బిల్లింగ్ పూర్తి చేయడం",
+     "ప్రశాంతంగా కస్టమర్లను దగ్గరి ఎగ్జిట్ వైపు తీసుకెళ్ళడం",
+     "లోపల మనుషులు ఉండగానే షటర్ దించడం",
+     "త్వరగా లిఫ్ట్‌లో కిందకి వెళ్ళడం"
+    ]
+   },
+   "hi": {
+    "q": "मॉल में फ़ायर अलार्म बज रहा है। स्टोर स्टाफ़ को क्या करना चाहिए?",
+    "options": [
+     "लाइन में खड़े लोगों की बिलिंग पूरी करें",
+     "शांति से ग्राहकों को सबसे पास के एग्ज़िट तक ले जाएँ",
+     "लोग अंदर हों फिर भी शटर गिरा दें",
+     "जल्दी से लिफ़्ट से नीचे जाएँ"
+    ]
+   }
+  },
+  {
+   "id": "retail-007",
+   "topic": "Billing and payments",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "The shelf label shows a lower price than the billing system. What do you do?",
+   "options": [
+    "Leave it, as customers rarely notice",
+    "Quietly charge the higher system price",
+    "Tell the manager so the two are made to match",
+    "Remove the label and say nothing"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "షెల్ఫ్ లేబుల్‌పై ధర బిల్లింగ్ సిస్టమ్ కంటే తక్కువగా ఉంది. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "కస్టమర్లు పెద్దగా గమనించరని వదిలేయడం",
+     "సిస్టమ్‌లోని ఎక్కువ ధర నిశ్శబ్దంగా తీసుకోవడం",
+     "రెండూ సరిపోయేలా మేనేజర్‌కి చెప్పడం",
+     "లేబుల్ తీసేసి ఏమీ చెప్పకపోవడం"
+    ]
+   },
+   "hi": {
+    "q": "शेल्फ़ लेबल पर कीमत बिलिंग सिस्टम से कम है। आप क्या करेंगे?",
+    "options": [
+     "छोड़ दें, ग्राहक कम ही ध्यान देते हैं",
+     "चुपचाप सिस्टम वाली ज़्यादा कीमत लें",
+     "मैनेजर को बताएँ ताकि दोनों एक जैसे हों",
+     "लेबल हटा दें और कुछ न कहें"
+    ]
+   }
+  },
+  {
+   "id": "retail-008",
+   "topic": "Stock and display",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "One product keeps running out on the shelf by evening. What should you do?",
+   "options": [
+    "Hide a few packs for regular buyers",
+    "Put up a 'sold out' sign every day",
+    "Move it to the top shelf",
+    "Tell the manager so more is kept or ordered"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "ఒక ప్రోడక్ట్ సాయంత్రానికి రోజూ షెల్ఫ్‌లో అయిపోతోంది. మీరు ఏమి చేయాలి?",
+    "options": [
+     "రెగ్యులర్ కస్టమర్ల కోసం కొన్ని ప్యాకెట్లు దాచడం",
+     "రోజూ 'సోల్డ్ అవుట్' బోర్డ్ పెట్టడం",
+     "దాన్ని పై షెల్ఫ్‌కి మార్చడం",
+     "ఎక్కువ స్టాక్ ఉంచేలా లేదా ఆర్డర్ చేసేలా మేనేజర్‌కి చెప్పడం"
+    ]
+   },
+   "hi": {
+    "q": "एक प्रोडक्ट रोज़ शाम तक शेल्फ़ से खत्म हो जाता है। आपको क्या करना चाहिए?",
+    "options": [
+     "रेगुलर ग्राहकों के लिए कुछ पैकेट छिपा दें",
+     "रोज़ 'सोल्ड आउट' बोर्ड लगा दें",
+     "उसे सबसे ऊपर की शेल्फ़ पर रख दें",
+     "मैनेजर को बताएँ ताकि ज़्यादा स्टॉक रखा या मँगाया जाए"
+    ]
+   }
+  },
+  {
+   "id": "retail-009",
+   "topic": "Customer service",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Two customers ask for your help at the same time. What is best?",
+   "options": [
+    "Help one and tell the other you'll come shortly",
+    "Help whoever speaks louder",
+    "Ignore both until the manager comes",
+    "Leave the first one mid-way for the second"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "ఇద్దరు కస్టమర్లు ఒకేసారి మీ సహాయం అడుగుతున్నారు. ఏది మంచిది?",
+    "options": [
+     "ఒకరికి సహాయం చేస్తూ, ఇంకొకరికి కాసేపట్లో వస్తానని చెప్పడం",
+     "గట్టిగా మాట్లాడిన వారికి సహాయం చేయడం",
+     "మేనేజర్ వచ్చే వరకు ఇద్దరినీ పట్టించుకోకపోవడం",
+     "మొదటి వారిని మధ్యలో వదిలి రెండో వారి దగ్గరికి వెళ్ళడం"
+    ]
+   },
+   "hi": {
+    "q": "दो ग्राहक एक साथ आपकी मदद माँगते हैं। क्या सबसे अच्छा है?",
+    "options": [
+     "एक की मदद करें और दूसरे से कहें कि थोड़ी देर में आते हैं",
+     "जो ज़्यादा ज़ोर से बोले उसकी मदद करें",
+     "मैनेजर के आने तक दोनों को अनदेखा करें",
+     "पहले वाले को बीच में छोड़ कर दूसरे के पास जाएँ"
+    ]
+   }
+  },
+  {
+   "id": "retail-010",
+   "topic": "Store maths",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A ₹2,000 kurta is sold for ₹1,700. What discount percent is that?",
+   "options": [
+    "17%",
+    "15%",
+    "30%",
+    "13%"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "₹2,000 కుర్తా ₹1,700కి అమ్మారు. అది ఎంత శాతం డిస్కౌంట్?",
+    "options": [
+     "17%",
+     "15%",
+     "30%",
+     "13%"
+    ]
+   },
+   "hi": {
+    "q": "₹2,000 का कुर्ता ₹1,700 में बेचा गया। यह कितने प्रतिशत छूट है?",
+    "options": [
+     "17%",
+     "15%",
+     "30%",
+     "13%"
+    ]
+   }
+  },
+  {
+   "id": "retail-011",
+   "topic": "Billing and payments",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A customer says the bill has an item they did not buy. What do you do?",
+   "options": [
+    "Say the system is never wrong",
+    "Ask them to pay now and complain later",
+    "Check the items with them and correct the bill",
+    "Tell them to sort it out with the manager"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "తాము కొనని వస్తువు బిల్‌లో ఉందని కస్టమర్ అంటున్నారు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "సిస్టమ్ ఎప్పుడూ తప్పు చేయదని చెప్పడం",
+     "ఇప్పుడు కట్టి తర్వాత కంప్లైంట్ చేయమనడం",
+     "వారితో కలిసి వస్తువులు చెక్ చేసి బిల్ సరిచేయడం",
+     "మేనేజర్‌తో మాట్లాడుకోమని పంపడం"
+    ]
+   },
+   "hi": {
+    "q": "ग्राहक कहता है कि बिल में ऐसा सामान है जो उसने नहीं लिया। आप क्या करेंगे?",
+    "options": [
+     "कहें कि सिस्टम कभी गलत नहीं होता",
+     "कहें अभी पैसे दें, शिकायत बाद में करें",
+     "उनके साथ सामान चेक करें और बिल ठीक करें",
+     "कहें मैनेजर से खुद बात कर लें"
+    ]
+   }
+  },
+  {
+   "id": "retail-012",
+   "topic": "Safety and store rules",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "An elderly customer feels dizzy and sits down near the counter. What do you do?",
+   "options": [
+    "Ask them to wait outside the store",
+    "Keep billing others and ignore it",
+    "Give them a tablet from the shelf",
+    "Offer water and a seat, and call the manager"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "ఒక వృద్ధ కస్టమర్‌కి తల తిరిగి కౌంటర్ దగ్గర కూర్చున్నారు. మీరు ఏమి చేస్తారు?",
+    "options": [
+     "స్టోర్ బయట వేచి ఉండమనడం",
+     "పట్టించుకోకుండా మిగతా వారి బిల్లింగ్ చేయడం",
+     "షెల్ఫ్ నుండి ఒక టాబ్లెట్ ఇవ్వడం",
+     "నీళ్ళు, కూర్చోడానికి చోటు ఇచ్చి మేనేజర్‌ని పిలవడం"
+    ]
+   },
+   "hi": {
+    "q": "एक बुज़ुर्ग ग्राहक को चक्कर आता है और वे काउंटर के पास बैठ जाते हैं। आप क्या करेंगे?",
+    "options": [
+     "उन्हें स्टोर के बाहर रुकने को कहें",
+     "अनदेखा करके बाकी लोगों की बिलिंग करें",
+     "शेल्फ़ से कोई गोली दे दें",
+     "पानी और बैठने की जगह दें, और मैनेजर को बुलाएँ"
+    ]
+   }
+  },
+  {
+   "id": "retail-013",
+   "topic": "Customer service",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A customer wants to return used shoes after 20 days. The policy allows 7 days. What do you do?",
+   "options": [
+    "Explain the policy politely; offer a repair check",
+    "Take them back quietly to avoid a scene",
+    "Say they damaged the shoes on purpose",
+    "Refuse and walk away from them"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "కస్టమర్ వాడిన చెప్పులు 20 రోజుల తర్వాత రిటర్న్ చేయాలనుకుంటున్నారు. పాలసీ 7 రోజులే. ఏమి చేస్తారు?",
+    "options": [
+     "పాలసీ మర్యాదగా వివరించి, రిపేర్ చెక్ ఆఫర్ చేయడం",
+     "గొడవ వద్దని నిశ్శబ్దంగా తీసుకోవడం",
+     "కావాలనే పాడుచేశారని చెప్పడం",
+     "కుదరదని చెప్పి వెళ్ళిపోవడం"
+    ]
+   },
+   "hi": {
+    "q": "ग्राहक 20 दिन बाद पहने हुए जूते वापस करना चाहता है। पॉलिसी 7 दिन की है। आप क्या करेंगे?",
+    "options": [
+     "विनम्रता से पॉलिसी समझाएँ; रिपेयर चेक की पेशकश करें",
+     "झगड़े से बचने के लिए चुपचाप वापस ले लें",
+     "कहें कि जूते जानबूझकर खराब किए",
+     "मना करके वहाँ से चले जाएँ"
+    ]
+   }
+  },
+  {
+   "id": "retail-014",
+   "topic": "Stock and display",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Every week the system shows more stock of one item than the shelf has. What is the best step?",
+   "options": [
+    "Lower the system count each week and move on",
+    "Track sales, returns and damage to find the cause",
+    "Ask staff to pay for the missing units",
+    "Stop selling that item"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "ప్రతి వారం ఒక వస్తువు సిస్టమ్‌లో షెల్ఫ్ కంటే ఎక్కువ చూపిస్తోంది. మంచి స్టెప్ ఏది?",
+    "options": [
+     "ప్రతి వారం సిస్టమ్ కౌంట్ తగ్గించి వదిలేయడం",
+     "కారణం కనుక్కోవడానికి సేల్స్, రిటర్న్స్, డ్యామేజ్ ట్రాక్ చేయడం",
+     "తప్పిపోయిన వాటికి స్టాఫ్‌ని డబ్బు కట్టమనడం",
+     "ఆ వస్తువు అమ్మడం ఆపేయడం"
+    ]
+   },
+   "hi": {
+    "q": "हर हफ़्ते सिस्टम में एक सामान का स्टॉक शेल्फ़ से ज़्यादा दिखता है। सबसे अच्छा कदम क्या है?",
+    "options": [
+     "हर हफ़्ते सिस्टम की गिनती घटा कर आगे बढ़ें",
+     "कारण जानने के लिए सेल, रिटर्न और डैमेज ट्रैक करें",
+     "गायब यूनिट के पैसे स्टाफ़ से लें",
+     "वह सामान बेचना बंद कर दें"
+    ]
+   }
+  },
+  {
+   "id": "retail-015",
+   "topic": "Store maths",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Monday: 100 bills, average ₹600. Tuesday: 120 bills, average ₹550. Which day sold more?",
+   "options": [
+    "Monday, by ₹6,000",
+    "The two days sold the same",
+    "Tuesday, by ₹6,000",
+    "Tuesday, by ₹12,000"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "సోమవారం: 100 బిల్లులు, సగటు ₹600. మంగళవారం: 120 బిల్లులు, సగటు ₹550. ఏ రోజు ఎక్కువ అమ్మారు?",
+    "options": [
+     "సోమవారం, ₹6,000 ఎక్కువ",
+     "రెండు రోజులూ సమానం",
+     "మంగళవారం, ₹6,000 ఎక్కువ",
+     "మంగళవారం, ₹12,000 ఎక్కువ"
+    ]
+   },
+   "hi": {
+    "q": "सोमवार: 100 बिल, औसत ₹600। मंगलवार: 120 बिल, औसत ₹550। किस दिन ज़्यादा बिक्री हुई?",
+    "options": [
+     "सोमवार, ₹6,000 ज़्यादा",
+     "दोनों दिन बराबर",
+     "मंगलवार, ₹6,000 ज़्यादा",
+     "मंगलवार, ₹12,000 ज़्यादा"
+    ]
+   }
+  },
+  {
+   "id": "retail-016",
+   "topic": "Safety and store rules",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A man says he is from head office and asks for the day's cash. You don't know him. What do you do?",
+   "options": [
+    "Give it if he shows a visiting card",
+    "Give half the cash to be safe",
+    "Let him count it himself at the till",
+    "Call your manager to confirm before giving anything"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "ఒక వ్యక్తి హెడ్ ఆఫీస్ నుండి వచ్చానని, రోజు క్యాష్ ఇవ్వమంటున్నారు. అతను మీకు తెలియదు. ఏమి చేస్తారు?",
+    "options": [
+     "విజిటింగ్ కార్డ్ చూపిస్తే ఇచ్చేయడం",
+     "జాగ్రత్తగా సగం క్యాష్ ఇవ్వడం",
+     "కౌంటర్ దగ్గర అతనే లెక్కించుకోనివ్వడం",
+     "ఏమీ ఇచ్చే ముందు మేనేజర్‌కి కాల్ చేసి నిర్ధారించుకోవడం"
+    ]
+   },
+   "hi": {
+    "q": "एक आदमी कहता है वह हेड ऑफ़िस से है और दिन का कैश माँगता है। आप उसे नहीं जानते। क्या करेंगे?",
+    "options": [
+     "विज़िटिंग कार्ड दिखाए तो दे दें",
+     "सावधानी के लिए आधा कैश दे दें",
+     "उसे काउंटर पर खुद गिनने दें",
+     "कुछ भी देने से पहले मैनेजर को फ़ोन करके पक्का करें"
+    ]
+   }
+  },
+  {
+   "id": "retail-017",
+   "topic": "Stock and display",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A festival is two weeks away. What is the smart stock step now?",
+   "options": [
+    "Check last year's sales and stock up on fast movers",
+    "Order equal amounts of every item",
+    "Wait to see what customers ask for",
+    "Clear all shelves for new arrivals"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "పండుగకు రెండు వారాలు ఉంది. ఇప్పుడు తెలివైన స్టాక్ స్టెప్ ఏది?",
+    "options": [
+     "గత ఏడాది సేల్స్ చూసి, వేగంగా అమ్ముడయ్యేవి ఎక్కువ తెప్పించడం",
+     "ప్రతి వస్తువు సమానంగా ఆర్డర్ చేయడం",
+     "కస్టమర్లు ఏమి అడుగుతారో చూసే వరకు ఆగడం",
+     "కొత్త సరుకు కోసం అన్ని షెల్ఫ్‌లు ఖాళీ చేయడం"
+    ]
+   },
+   "hi": {
+    "q": "त्योहार में दो हफ़्ते बाकी हैं। अभी समझदारी वाला स्टॉक कदम क्या है?",
+    "options": [
+     "पिछले साल की बिक्री देखें और जल्दी बिकने वाला सामान ज़्यादा मँगाएँ",
+     "हर सामान बराबर मात्रा में मँगाएँ",
+     "ग्राहक क्या माँगते हैं, यह देखने तक रुकें",
+     "नए सामान के लिए सारी शेल्फ़ खाली कर दें"
+    ]
+   }
+  },
+  {
+   "id": "retail-018",
+   "topic": "Billing and payments",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A shop owner wants a GST invoice in his business name to claim input credit. What do you need?",
+   "options": [
+    "Only his mobile number",
+    "His GSTIN and registered business name",
+    "A copy of his Aadhaar card",
+    "Nothing extra; any bill will do"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "ఒక షాప్ ఓనర్ ఇన్‌పుట్ క్రెడిట్ కోసం తన బిజినెస్ పేరుతో GST ఇన్‌వాయిస్ కావాలంటున్నారు. మీకు ఏమి కావాలి?",
+    "options": [
+     "అతని మొబైల్ నంబర్ మాత్రమే",
+     "అతని GSTIN, రిజిస్టర్డ్ బిజినెస్ పేరు",
+     "అతని ఆధార్ కార్డ్ కాపీ",
+     "అదనంగా ఏమీ అవసరం లేదు; ఏ బిల్ అయినా సరిపోతుంది"
+    ]
+   },
+   "hi": {
+    "q": "एक दुकानदार इनपुट क्रेडिट के लिए अपने बिज़नेस के नाम से GST इनवॉइस चाहता है। आपको क्या चाहिए?",
+    "options": [
+     "सिर्फ़ उसका मोबाइल नंबर",
+     "उसका GSTIN और रजिस्टर्ड बिज़नेस नाम",
+     "उसके आधार कार्ड की कॉपी",
+     "कुछ और नहीं; कोई भी बिल चलेगा"
+    ]
+   }
+  }
+ ],
+ "existing": {
+  "A customer walks in. What do you do first?": {
+   "topic": "Customer service",
+   "te": {
+    "q": "ఒక కస్టమర్ షాప్‌లోకి వచ్చారు. మీరు ముందు ఏమి చేస్తారు?",
+    "options": [
+     "చిరునవ్వుతో పలకరించడం",
+     "పట్టించుకోకపోవడం",
+     "ఎంత ఖర్చు పెడతారో అడగడం",
+     "వారి వెనకే దగ్గరగా తిరగడం"
+    ]
+   },
+   "hi": {
+    "q": "एक ग्राहक दुकान में आता है। आप सबसे पहले क्या करेंगे?",
+    "options": [
+     "मुस्कुरा कर स्वागत करें",
+     "अनदेखा करें",
+     "पूछें कि कितना खर्च करेंगे",
+     "उनके पीछे-पीछे चलें"
+    ]
+   }
+  },
+  "MRP on a pack means…": {
+   "topic": "Billing and payments",
+   "te": {
+    "q": "ప్యాకెట్ మీద MRP అంటే…",
+    "options": [
+     "మాక్సిమమ్ రీటెయిల్ ప్రైస్ (గరిష్ఠ అమ్మకం ధర)",
+     "మినిమమ్ రీటెయిల్ ప్రైస్",
+     "మంత్లీ రేట్ ప్రైస్",
+     "మార్కెట్ రేట్ ప్రాఫిట్"
+    ]
+   },
+   "hi": {
+    "q": "पैकेट पर MRP का मतलब है…",
+    "options": [
+     "मैक्सिमम रिटेल प्राइस (अधिकतम खुदरा मूल्य)",
+     "मिनिमम रिटेल प्राइस",
+     "मंथली रेट प्राइस",
+     "मार्केट रेट प्रॉफ़िट"
+    ]
+   }
+  },
+  "Can you charge more than the MRP?": {
+   "topic": "Billing and payments",
+   "te": {
+    "q": "MRP కంటే ఎక్కువ ధర తీసుకోవచ్చా?",
+    "options": [
+     "లేదు",
+     "అవును, రద్దీగా ఉన్నప్పుడు",
+     "అవును, వారాంతాల్లో",
+     "అవును, కార్డ్ పేమెంట్‌కి"
+    ]
+   },
+   "hi": {
+    "q": "क्या आप MRP से ज़्यादा ले सकते हैं?",
+    "options": [
+     "नहीं",
+     "हाँ, जब भीड़ हो",
+     "हाँ, वीकेंड पर",
+     "हाँ, कार्ड पेमेंट पर"
+    ]
+   }
+  },
+  "On the shelf, older stock (nearer its expiry) goes…": {
+   "topic": "Stock and display",
+   "te": {
+    "q": "షెల్ఫ్ మీద పాత స్టాక్ (ఎక్స్‌పైరీ దగ్గర ఉన్నది) ఎక్కడ పెట్టాలి?",
+    "options": [
+     "ముందు వైపు, ముందుగా అమ్ముడయ్యేలా",
+     "వెనుక వైపు",
+     "దాచిపెట్టాలి",
+     "స్టోర్ రూమ్‌లో"
+    ]
+   },
+   "hi": {
+    "q": "शेल्फ़ पर पुराना स्टॉक (जिसकी एक्सपायरी पास है) कहाँ रखते हैं?",
+    "options": [
+     "आगे, ताकि पहले बिके",
+     "पीछे",
+     "छिपा कर",
+     "स्टोर रूम में"
+    ]
+   }
+  },
+  "A customer asks for a size you don't have. What is best?": {
+   "topic": "Customer service",
+   "te": {
+    "q": "మీ దగ్గర లేని సైజ్ కస్టమర్ అడిగారు. ఏది మంచిది?",
+    "options": [
+     "వేరే స్టోర్‌లో చెక్ చేస్తాననడం లేదా దగ్గరి వస్తువు సూచించడం",
+     "లేదని చెప్పి వెళ్ళిపోవడం",
+     "తప్పు సైజ్ అమ్మడం",
+     "పట్టించుకోకపోవడం"
+    ]
+   },
+   "hi": {
+    "q": "ग्राहक ऐसा साइज़ माँगता है जो आपके पास नहीं है। क्या सबसे अच्छा है?",
+    "options": [
+     "दूसरे स्टोर में चेक करने या मिलता-जुलता सामान सुझाने की बात करें",
+     "मना करके चले जाएँ",
+     "गलत साइज़ बेच दें",
+     "अनदेखा करें"
+    ]
+   }
+  },
+  "Which is part of visual merchandising?": {
+   "topic": "Stock and display",
+   "te": {
+    "q": "వీటిలో విజువల్ మర్చండైజింగ్‌లో భాగం ఏది?",
+    "options": [
+     "వస్తువులను నీట్‌గా, ఆకర్షణీయంగా అమర్చడం",
+     "క్యాష్ లెక్కించడం",
+     "సప్లయర్లకు కాల్ చేయడం",
+     "పార్కింగ్ శుభ్రం చేయడం"
+    ]
+   },
+   "hi": {
+    "q": "इनमें से विज़ुअल मर्चेंडाइज़िंग का हिस्सा क्या है?",
+    "options": [
+     "सामान को साफ़-सुथरा और आकर्षक ढंग से सजाना",
+     "कैश गिनना",
+     "सप्लायर को कॉल करना",
+     "पार्किंग साफ़ करना"
+    ]
+   }
+  },
+  "Before closing the till you…": {
+   "topic": "Billing and payments",
+   "te": {
+    "q": "క్యాష్ కౌంటర్ మూసే ముందు మీరు…",
+    "options": [
+     "క్యాష్ లెక్కించి సేల్స్ రిపోర్ట్‌తో సరిపోల్చాలి",
+     "ఇంటికి వెళ్ళిపోవాలి",
+     "చిల్లర స్టాఫ్‌తో పంచుకోవాలి",
+     "లైట్లు మాత్రమే ఆపాలి"
+    ]
+   },
+   "hi": {
+    "q": "कैश काउंटर बंद करने से पहले आप…",
+    "options": [
+     "कैश गिन कर सेल्स रिपोर्ट से मिलाते हैं",
+     "घर चले जाते हैं",
+     "छुट्टे पैसे स्टाफ़ में बाँटते हैं",
+     "सिर्फ़ लाइटें बंद करते हैं"
+    ]
+   }
+  },
+  "The billing counter is…": {
+   "topic": "Billing and payments",
+   "te": {
+    "q": "బిల్లింగ్ కౌంటర్ అంటే…",
+    "options": [
+     "పేమెంట్ తీసుకుని బిల్ చేసే చోటు",
+     "స్టోర్ రూమ్",
+     "ట్రయల్ రూమ్",
+     "డిస్‌ప్లే షెల్ఫ్"
+    ]
+   },
+   "hi": {
+    "q": "बिलिंग काउंटर है…",
+    "options": [
+     "जहाँ पेमेंट लिया जाता है और बिल बनता है",
+     "स्टोर रूम",
+     "चेंजिंग रूम",
+     "डिस्प्ले शेल्फ़"
+    ]
+   }
+  },
+  "A shirt is ₹1,200 with 25% off. The price is…": {
+   "topic": "Store maths",
+   "te": {
+    "q": "ఒక షర్ట్ ధర ₹1,200, దానిపై 25% తగ్గింపు. ధర ఎంత?",
+    "options": [
+     "₹900",
+     "₹950",
+     "₹1,000",
+     "₹300"
+    ]
+   },
+   "hi": {
+    "q": "एक शर्ट ₹1,200 की है, उस पर 25% छूट है। कीमत कितनी होगी?",
+    "options": [
+     "₹900",
+     "₹950",
+     "₹1,000",
+     "₹300"
+    ]
+   }
+  },
+  "A customer pays ₹2,000 for a bill of ₹1,365. Change to give?": {
+   "topic": "Store maths",
+   "te": {
+    "q": "₹1,365 బిల్‌కి కస్టమర్ ₹2,000 ఇచ్చారు. ఎంత చిల్లర తిరిగి ఇవ్వాలి?",
+    "options": [
+     "₹635",
+     "₹735",
+     "₹645",
+     "₹535"
+    ]
+   },
+   "hi": {
+    "q": "₹1,365 के बिल के लिए ग्राहक ₹2,000 देता है। कितने पैसे वापस देने हैं?",
+    "options": [
+     "₹635",
+     "₹735",
+     "₹645",
+     "₹535"
+    ]
+   }
+  },
+  "You suspect shoplifting. What do you do?": {
+   "topic": "Safety and store rules",
+   "te": {
+    "q": "ఎవరో దొంగతనం చేస్తున్నారని మీకు అనుమానం. ఏమి చేస్తారు?",
+    "options": [
+     "నిశ్శబ్దంగా మేనేజర్ లేదా సెక్యూరిటీకి చెప్పడం; ఎవరినీ గట్టిగా నిందించకపోవడం",
+     "కస్టమర్ మీద అరవడం",
+     "మీరే వారి బ్యాగ్ వెతకడం",
+     "ఎప్పుడూ పట్టించుకోకపోవడం"
+    ]
+   },
+   "hi": {
+    "q": "आपको चोरी का शक है। आप क्या करेंगे?",
+    "options": [
+     "चुपचाप मैनेजर या सिक्योरिटी को बताएँ; किसी पर ज़ोर से इल्ज़ाम न लगाएँ",
+     "ग्राहक पर चिल्लाएँ",
+     "खुद उनका बैग चेक करें",
+     "हमेशा अनदेखा करें"
+    ]
+   }
+  },
+  "Why check expiry dates on the shelves?": {
+   "topic": "Safety and store rules",
+   "te": {
+    "q": "షెల్ఫ్‌లపై ఎక్స్‌పైరీ తేదీలు ఎందుకు చూడాలి?",
+    "options": [
+     "కస్టమర్ల భద్రత కోసం గడువు ముగిసిన వస్తువులు తీసేయడానికి",
+     "అలంకరణ కోసం",
+     "ధరలు పెంచడానికి",
+     "అవసరం లేదు"
+    ]
+   },
+   "hi": {
+    "q": "शेल्फ़ पर एक्सपायरी डेट क्यों चेक करते हैं?",
+    "options": [
+     "ग्राहकों की सुरक्षा के लिए एक्सपायर्ड सामान हटाने को",
+     "सजावट के लिए",
+     "दाम बढ़ाने के लिए",
+     "ज़रूरत नहीं है"
+    ]
+   }
+  },
+  "Up-selling in a store means…": {
+   "topic": "Customer service",
+   "te": {
+    "q": "స్టోర్‌లో అప్-సెల్లింగ్ అంటే…",
+    "options": [
+     "మంచి లేదా పెద్ద ఆప్షన్ సూచించడం",
+     "స్టోర్ బయట అమ్మడం",
+     "ధరలు తగ్గించడం",
+     "స్టాక్‌ని పై షెల్ఫ్‌కి మార్చడం"
+    ]
+   },
+   "hi": {
+    "q": "स्टोर में अप-सेलिंग का मतलब है…",
+    "options": [
+     "बेहतर या बड़ा विकल्प सुझाना",
+     "स्टोर के बाहर बेचना",
+     "दाम कम करना",
+     "स्टॉक को ऊपर की शेल्फ़ पर रखना"
+    ]
+   }
+  },
+  "A customer wants to return an item. First step?": {
+   "topic": "Customer service",
+   "te": {
+    "q": "కస్టమర్ ఒక వస్తువు రిటర్న్ చేయాలనుకుంటున్నారు. మొదటి స్టెప్ ఏది?",
+    "options": [
+     "బిల్, రిటర్న్ పాలసీ చెక్ చేయడం",
+     "ఎప్పుడూ కుదరదనడం",
+     "చెక్ చేయకుండా డబ్బు ఇచ్చేయడం",
+     "వస్తువును పడేయడం"
+    ]
+   },
+   "hi": {
+    "q": "ग्राहक सामान वापस करना चाहता है। पहला कदम क्या है?",
+    "options": [
+     "बिल और रिटर्न पॉलिसी चेक करें",
+     "हमेशा मना कर दें",
+     "बिना चेक किए पैसे लौटा दें",
+     "सामान फेंक दें"
+    ]
+   }
+  },
+  "\"Footfall\" is…": {
+   "topic": "Store maths",
+   "te": {
+    "q": "\"ఫుట్‌ఫాల్\" అంటే…",
+    "options": [
+     "స్టోర్‌కి వచ్చే మనుషుల సంఖ్య",
+     "ఫ్లోర్ శుభ్రం చేయడం",
+     "చెప్పుల అమ్మకాలు",
+     "సేల్స్ టార్గెట్"
+    ]
+   },
+   "hi": {
+    "q": "\"फ़ुटफ़ॉल\" क्या है?",
+    "options": [
+     "स्टोर में आने वाले लोगों की संख्या",
+     "फ़र्श की सफ़ाई",
+     "जूतों की बिक्री",
+     "सेल्स टारगेट"
+    ]
+   }
+  },
+  "A UPI payment shows pending. What do you do?": {
+   "topic": "Billing and payments",
+   "te": {
+    "q": "UPI పేమెంట్ పెండింగ్ అని చూపిస్తోంది. ఏమి చేస్తారు?",
+    "options": [
+     "సక్సెస్ అయ్యే వరకు ఆగి వస్తువులు ఇవ్వడం, లేదా వేరే పద్ధతిలో తీసుకోవడం",
+     "వస్తువులు ఇచ్చేయడం",
+     "చెప్పకుండా బిల్ క్యాన్సిల్ చేయడం",
+     "అదనంగా క్యాష్ కూడా అడగడం"
+    ]
+   },
+   "hi": {
+    "q": "UPI पेमेंट पेंडिंग दिख रहा है। आप क्या करेंगे?",
+    "options": [
+     "सक्सेस होने तक रुकें फिर सामान दें, या दूसरा तरीका लें",
+     "सामान दे दें",
+     "बिना बताए बिल कैंसिल कर दें",
+     "साथ में कैश भी माँगें"
+    ]
+   }
+  },
+  "Buy 2 get 1 free on a ₹300 item. The customer takes 3. The price per item works out to…": {
+   "topic": "Store maths",
+   "te": {
+    "q": "₹300 వస్తువుపై 2 కొంటే 1 ఫ్రీ. కస్టమర్ 3 తీసుకున్నారు. ఒక్కో వస్తువు ధర ఎంత పడుతుంది?",
+    "options": [
+     "₹200",
+     "₹300",
+     "₹100",
+     "₹150"
+    ]
+   },
+   "hi": {
+    "q": "₹300 के सामान पर 2 खरीदो 1 मुफ़्त। ग्राहक 3 लेता है। एक सामान की कीमत कितनी पड़ी?",
+    "options": [
+     "₹200",
+     "₹300",
+     "₹100",
+     "₹150"
+    ]
+   }
+  },
+  "The day's target is ₹50,000; by 4 pm you've sold ₹32,500. How much more?": {
+   "topic": "Store maths",
+   "te": {
+    "q": "రోజు టార్గెట్ ₹50,000. సాయంత్రం 4 గంటలకి ₹32,500 అమ్మారు. ఇంకా ఎంత కావాలి?",
+    "options": [
+     "₹17,500",
+     "₹18,500",
+     "₹22,500",
+     "₹12,500"
+    ]
+   },
+   "hi": {
+    "q": "दिन का टारगेट ₹50,000 है; शाम 4 बजे तक ₹32,500 बिका। और कितना चाहिए?",
+    "options": [
+     "₹17,500",
+     "₹18,500",
+     "₹22,500",
+     "₹12,500"
+    ]
+   }
+  },
+  "A planogram is…": {
+   "topic": "Stock and display",
+   "te": {
+    "q": "\"ప్లానోగ్రామ్\" అంటే…",
+    "options": [
+     "ప్రతి వస్తువు షెల్ఫ్‌లో ఎక్కడ ఉండాలో చూపే ప్లాన్",
+     "ఒక సేల్స్ యాప్",
+     "క్యాష్ రిపోర్ట్",
+     "స్టాఫ్ డ్యూటీ లిస్ట్"
+    ]
+   },
+   "hi": {
+    "q": "\"प्लानोग्राम\" होता है…",
+    "options": [
+     "हर सामान शेल्फ़ पर कहाँ रहेगा, उसका प्लान",
+     "एक सेल्स ऐप",
+     "कैश रिपोर्ट",
+     "स्टाफ़ की ड्यूटी लिस्ट"
+    ]
+   }
+  },
+  "An angry customer brings back a faulty product. Best response?": {
+   "topic": "Customer service",
+   "te": {
+    "q": "కోపంగా ఉన్న కస్టమర్ పాడైన ప్రోడక్ట్ తిరిగి తెచ్చారు. మంచి స్పందన ఏది?",
+    "options": [
+     "సారీ చెప్పి, విని, పాలసీ ప్రకారం రీప్లేస్ లేదా రిపేర్ ఆఫర్ చేయడం",
+     "వాదించడం",
+     "కంపెనీని నిందించడం",
+     "వెళ్ళిపొమ్మనడం"
+    ]
+   },
+   "hi": {
+    "q": "नाराज़ ग्राहक खराब प्रोडक्ट वापस लाता है। सबसे अच्छा जवाब?",
+    "options": [
+     "माफ़ी माँगें, सुनें, और पॉलिसी के अनुसार बदलने या रिपेयर की पेशकश करें",
+     "बहस करें",
+     "कंपनी को दोष दें",
+     "उन्हें जाने को कहें"
+    ]
+   }
+  },
+  "The system shows 40 units; the shelf and store room together have 36. You…": {
+   "topic": "Stock and display",
+   "te": {
+    "q": "సిస్టమ్‌లో 40 యూనిట్లు ఉన్నాయి; షెల్ఫ్, స్టోర్ రూమ్ కలిపి 36 ఉన్నాయి. మీరు…",
+    "options": [
+     "మళ్ళీ లెక్కించి 4 యూనిట్ల తేడా రిపోర్ట్ చేయడం",
+     "కౌంట్‌ని 40కి మార్చడం",
+     "పట్టించుకోకపోవడం",
+     "మీరే 4 కొని పెట్టడం"
+    ]
+   },
+   "hi": {
+    "q": "सिस्टम में 40 यूनिट हैं; शेल्फ़ और स्टोर रूम मिलाकर 36 हैं। आप…",
+    "options": [
+     "दोबारा गिनें और 4 यूनिट का अंतर रिपोर्ट करें",
+     "गिनती 40 कर दें",
+     "अनदेखा करें",
+     "खुद 4 खरीद कर रख दें"
+    ]
+   }
+  },
+  "Why does the bill show GST separately?": {
+   "topic": "Billing and payments",
+   "te": {
+    "q": "బిల్‌లో GST ఎందుకు విడిగా చూపిస్తారు?",
+    "options": [
+     "ఎంత ట్యాక్స్ తీసుకున్నారో కస్టమర్‌కి తెలియడానికి",
+     "ధరలు తక్కువగా కనిపించడానికి",
+     "అది ఆప్షనల్",
+     "అలంకరణ కోసం"
+    ]
+   },
+   "hi": {
+    "q": "बिल में GST अलग से क्यों दिखाया जाता है?",
+    "options": [
+     "ताकि ग्राहक देख सके कितना टैक्स लगा",
+     "दाम कम दिखाने के लिए",
+     "यह ज़रूरी नहीं है",
+     "सजावट के लिए"
+    ]
+   }
+  },
+  "Why ask for a customer's mobile number at billing only with their consent?": {
+   "topic": "Safety and store rules",
+   "te": {
+    "q": "బిల్లింగ్‌లో కస్టమర్ మొబైల్ నంబర్ వారి అనుమతితోనే ఎందుకు అడగాలి?",
+    "options": [
+     "అది వ్యక్తిగత సమాచారం, వారు వద్దనవచ్చు",
+     "ప్రతి షాప్ తీసుకోవాలని చట్టం చెబుతుంది",
+     "బహుమతుల కోసం మాత్రమే",
+     "అది వ్యక్తిగతం కాదు"
+    ]
+   },
+   "hi": {
+    "q": "बिलिंग पर ग्राहक का मोबाइल नंबर सिर्फ़ उनकी मर्ज़ी से क्यों लेना चाहिए?",
+    "options": [
+     "यह निजी जानकारी है, और वे मना कर सकते हैं",
+     "कानून कहता है हर दुकान इसे ले",
+     "सिर्फ़ इनाम के लिए",
+     "यह निजी नहीं है"
+    ]
+   }
+  },
+  "A long queue forms at billing. Best action?": {
+   "topic": "Customer service",
+   "te": {
+    "q": "బిల్లింగ్ దగ్గర పెద్ద క్యూ ఏర్పడింది. ఏది మంచిది?",
+    "options": [
+     "సహోద్యోగిని పిలిచి ఇంకో కౌంటర్ తెరవడం",
+     "కౌంటర్ మూసేయడం",
+     "పట్టించుకోకపోవడం",
+     "తర్వాత రమ్మని కస్టమర్లకు చెప్పడం"
+    ]
+   },
+   "hi": {
+    "q": "बिलिंग पर लंबी लाइन लग गई है। सबसे अच्छा कदम?",
+    "options": [
+     "साथी को बुला कर दूसरा काउंटर खुलवाएँ",
+     "काउंटर बंद कर दें",
+     "अनदेखा करें",
+     "ग्राहकों से बाद में आने को कहें"
+    ]
+   }
+  }
+ },
+ "task": {
+  "type": "voice",
+  "title": "Calm an upset customer whose new mixer grinder stopped working",
+  "brief": "You work at the counter of an electronics and home store. Mr. Imran comes in, upset. The mixer grinder he bought 10 days ago stopped working this morning, and guests are coming home tonight. He has the bill. The store gives a 7-day replacement, and after that the brand gives a 1-year warranty with service in 2 to 3 days. Speak to him for 60 to 90 seconds, as you would at the counter. A good answer: greets him and stays calm; says sorry and listens; asks to see the bill and the product; explains clearly and honestly what the store and the warranty can do (no false promises); offers something helpful for tonight if possible (for example, booking service quickly or checking with the manager); and ends with a clear next step and time. You can speak in English, Telugu or Hindi.",
+  "minutes": 5,
+  "key_points": [
+   "Greets and stays calm; says sorry for the trouble",
+   "Listens and asks for the bill and the product",
+   "Explains the 7-day replacement is over but the 1-year warranty covers it",
+   "Is honest: no promise the store cannot keep",
+   "Offers practical help: book service fast, check with manager, quick testing",
+   "Ends with a clear next step and time frame"
+  ],
+  "rubric": [
+   {
+    "key": "greeting_structure",
+    "label": "Greeting and structure",
+    "guide": "0 = no greeting, no order; 3 = greets but jumps around; 5 = greets, listens, checks bill, explains, gives a next step in order"
+   },
+   {
+    "key": "empathy",
+    "label": "Empathy and calm",
+    "guide": "0 = argues or blames the customer; 3 = polite but cold; 5 = says sorry, shows he understands the guests problem, stays calm"
+   },
+   {
+    "key": "correctness",
+    "label": "Correct policy and solution",
+    "guide": "0 = wrong or false promise; 3 = partly right; 5 = correctly explains replacement period over, warranty covers it, offers a real way forward"
+   },
+   {
+    "key": "clarity",
+    "label": "Clarity",
+    "guide": "0 = hard to follow; 3 = understandable with some confusion; 5 = simple, clear words and a clear final step with time"
+   }
+  ]
+ }
+}

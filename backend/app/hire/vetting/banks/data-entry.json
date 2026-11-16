@@ -1,0 +1,372 @@
+{
+ "slug": "data-entry",
+ "version": 1,
+ "topics": [
+  "Accuracy and checking",
+  "Keyboard and speed",
+  "Formats and rules",
+  "Data safety and privacy",
+  "Spreadsheet skills"
+ ],
+ "questions": [
+  {
+   "id": "data-entry-001",
+   "topic": "Formats and rules",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "How many digits does an Indian mobile number have, without +91?",
+   "options": [
+    "10",
+    "9",
+    "11",
+    "12"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "data-entry-002",
+   "topic": "Formats and rules",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "How many digits does an Indian PIN code have?",
+   "options": [
+    "5",
+    "6",
+    "7",
+    "8"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "data-entry-003",
+   "topic": "Data safety and privacy",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "You leave your desk for lunch. What should you do with your computer?",
+   "options": [
+    "Leave it open as it is",
+    "Lock the screen",
+    "Turn off only the monitor",
+    "Ask a friend to watch it"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "data-entry-004",
+   "topic": "Spreadsheet skills",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "In a spreadsheet, what is the box where a row and a column meet called?",
+   "options": [
+    "Cell",
+    "Tab",
+    "Ribbon",
+    "Field list"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "data-entry-005",
+   "topic": "Accuracy and checking",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "You finished a batch of entries. What should you do before submitting it?",
+   "options": [
+    "Check it once against the source",
+    "Submit at once to save time",
+    "Throw away the source papers",
+    "Change the font to make it neat"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "data-entry-006",
+   "topic": "Formats and rules",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which of these is in the format of an Indian PAN?",
+   "options": [
+    "1234567890",
+    "AB12345678",
+    "ABCDE1234F",
+    "ABCD12345"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "data-entry-007",
+   "topic": "Formats and rules",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "The source has \"hyderabad\", \"HYDERABAD\" and \"Hyderbad\" for one city. How do you enter them?",
+   "options": [
+    "All in the one agreed spelling",
+    "Exactly as each source shows",
+    "Leave the city blank",
+    "Use whichever you type fastest"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "data-entry-008",
+   "topic": "Data safety and privacy",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A caller says they are from your company's IT team and asks for your login password. What do you do?",
+   "options": [
+    "Don't share it; tell your supervisor",
+    "Share it, since IT needs it",
+    "Share only half of it",
+    "Ask them to email you, then send it"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "data-entry-009",
+   "topic": "Spreadsheet skills",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "How can you quickly find empty cells in a long column?",
+   "options": [
+    "Make the column bold",
+    "Zoom out to 50%",
+    "Print the sheet",
+    "Filter the column and pick (Blanks)"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "data-entry-010",
+   "topic": "Accuracy and checking",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "You notice you typed wrong amounts in 20 rows yesterday. What is best?",
+   "options": [
+    "Fix them quietly and tell no one",
+    "Leave them, as the day is over",
+    "Delete those 20 rows",
+    "Tell your supervisor, then fix and recheck them"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "data-entry-011",
+   "topic": "Formats and rules",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "How many digits does an Aadhaar number have?",
+   "options": [
+    "10",
+    "12",
+    "14",
+    "16"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "data-entry-012",
+   "topic": "Data safety and privacy",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "You find a printout of a customer's bank details left on the office printer. What do you do?",
+   "options": [
+    "Throw it in the dustbin",
+    "Leave it there for the owner",
+    "Give it to your supervisor or shred it as per rules",
+    "Take a photo of it first"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "data-entry-013",
+   "topic": "Accuracy and checking",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Which mistake is hardest to spot by just looking, so needs a check against the source?",
+   "options": [
+    "A spelling mistake in a name",
+    "An extra space at the end",
+    "A cell in bold",
+    "Swapped digits, like 4,536 typed as 4,356"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "data-entry-014",
+   "topic": "Spreadsheet skills",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Landline numbers like 04023456789 lose the first 0 when typed. What fixes this?",
+   "options": [
+    "Widen the column",
+    "Format the column as Text before typing",
+    "Make the font smaller",
+    "Use Wrap Text"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "data-entry-015",
+   "topic": "Formats and rules",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A form shows the date 03/04/2026. You can't tell if it is DD/MM or MM/DD. What do you do?",
+   "options": [
+    "Guess DD/MM and move on",
+    "Leave the date blank",
+    "Check other dates in the batch or ask",
+    "Type both dates in one cell"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "data-entry-016",
+   "topic": "Data safety and privacy",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A friend asks you to check if their neighbour is in your company's customer list. What do you do?",
+   "options": [
+    "Check quickly, since it's harmless",
+    "Politely refuse; the data is for work only",
+    "Check but share only yes or no",
+    "Ask your manager casually later"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "data-entry-017",
+   "topic": "Accuracy and checking",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Your speed is good but 3% of your entries have errors. The target is 1%. What do you change first?",
+   "options": [
+    "Type even faster to make up for it",
+    "Skip the hard records",
+    "Slow down a little and check each record",
+    "Ask for a lower target"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "data-entry-018",
+   "topic": "Spreadsheet skills",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Two lists of 2,000 customer IDs must be compared to find the missing ones. What is quickest and reliable?",
+   "options": [
+    "Check them by eye, side by side",
+    "Print both and tick them off",
+    "Sort only one of the lists",
+    "Use COUNTIF or VLOOKUP on each ID"
+   ],
+   "answer": 3
+  }
+ ],
+ "existing": {
+  "What matters most in data entry?": {
+   "topic": "Accuracy and checking"
+  },
+  "Which key moves to the next cell to the right in a spreadsheet?": {
+   "topic": "Keyboard and speed"
+  },
+  "Ctrl+C and then Ctrl+V…": {
+   "topic": "Keyboard and speed"
+  },
+  "Typing speed is usually measured in…": {
+   "topic": "Keyboard and speed"
+  },
+  "A form asks for the date as DD/MM/YYYY. Which is right for 5 September 2026?": {
+   "topic": "Formats and rules"
+  },
+  "The source shows a 9-digit mobile number. What do you do?": {
+   "topic": "Accuracy and checking"
+  },
+  "Ctrl+S…": {
+   "topic": "Keyboard and speed"
+  },
+  "Why save your work often?": {
+   "topic": "Data safety and privacy"
+  },
+  "Which email address is in a valid format?": {
+   "topic": "Formats and rules"
+  },
+  "Double-entry checking means…": {
+   "topic": "Accuracy and checking"
+  },
+  "Which shortcut finds a word in a document?": {
+   "topic": "Keyboard and speed"
+  },
+  "120 records to enter and 90 done. What % is done?": {
+   "topic": "Keyboard and speed"
+  },
+  "Why must people's personal data (like phone numbers) not be shared?": {
+   "topic": "Data safety and privacy"
+  },
+  "Data validation in a sheet helps to…": {
+   "topic": "Spreadsheet skills"
+  },
+  "The fastest way to type many numbers is…": {
+   "topic": "Keyboard and speed"
+  },
+  "Where is Remove Duplicates in Excel?": {
+   "topic": "Spreadsheet skills"
+  },
+  "You typed 2,400 words in 40 minutes. Your speed?": {
+   "topic": "Keyboard and speed"
+  },
+  "6 mistakes in 600 entries. Your accuracy?": {
+   "topic": "Accuracy and checking"
+  },
+  "The handwriting on a source form can't be read. What is best?": {
+   "topic": "Accuracy and checking"
+  },
+  "Which is a safe way to send a finished file?": {
+   "topic": "Data safety and privacy"
+  },
+  "Proofreading your entries means…": {
+   "topic": "Accuracy and checking"
+  },
+  "Which file is a spreadsheet?": {
+   "topic": "Spreadsheet skills"
+  },
+  "Text to Columns in Excel can…": {
+   "topic": "Spreadsheet skills"
+  },
+  "The target is 500 entries a day at 99% accuracy. Which day is better?": {
+   "topic": "Accuracy and checking"
+  }
+ },
+ "task": {
+  "type": "written",
+  "title": "Check entered records against the source",
+  "brief": "Take about 15 minutes. Below are 6 records from source forms and how they were entered. Compare them line by line. Write: (1) each mistake, with the record number and field; (2) the correct value, or what you would do if the source itself is unclear; and (3) one short line for your supervisor about anything that needs checking. A good answer finds every mismatch, doesn't guess unclear data, and is easy to read.",
+  "minutes": 15,
+  "material": "SOURCE (from forms)\n1 | Ravi Teja K | 9848012345 | PIN 500032 | 12/03/2026 | ₹4,536\n2 | Fatima Begum | 9123456780 | PIN 560001 | 05/09/2026 | ₹12,000\n3 | Joseph D'Souza | 9988776655 | PIN 400050 | 21/07/2026 | ₹800\n4 | Lakshmi Narayan | 987654321 (only 9 digits on form) | PIN 600028 | 30/01/2026 | ₹2,250\n5 | Gurpreet Singh | 9001122334 | PIN 110017 | 14/11/2026 | ₹7,890\n6 | Anjali Mehta | 9765432109 | PIN 38001 (only 5 digits on form) | 08/06/2026 | ₹1,500\n\nENTERED (in the sheet)\n1 | Ravi Teja K | 9848012345 | 500032 | 12/03/2026 | 4,356\n2 | Fatima Begum | 9123456780 | 560001 | 09/05/2026 | 12,000\n3 | Joseph DSouza | 9988776655 | 400050 | 21/07/2026 | 8,000\n4 | Lakshmi Narayan | 9876543210 | 600028 | 30/01/2026 | 2,250\n5 | Gurpreet Singh | 9001122334 | 110017 | 14/11/2026 | 7,890\n6 | Anjali Mehta | 9765432109 | 380001 | 08/06/2026 | 1,500",
+  "key_points": [
+   "Record 1: amount digits swapped, should be 4,536",
+   "Record 2: day and month swapped, should be 05/09/2026",
+   "Record 3: amount has an extra zero, should be 800; name should be D'Souza",
+   "Record 4: a digit was added to a 9-digit number; flag it, don't guess",
+   "Record 5 is correct",
+   "Record 6: PIN was guessed as 380001; flag the 5-digit PIN for checking",
+   "A short note to the supervisor on records 4 and 6"
+  ],
+  "rubric": [
+   {
+    "key": "accuracy",
+    "label": "Mistakes found",
+    "guide": "0 = few mistakes found, 3 = about half found, 5 = every mismatch found and record 5 left as correct"
+   },
+   {
+    "key": "judgement",
+    "label": "Unclear data",
+    "guide": "0 = guesses values, 3 = flags one unclear item, 5 = flags both unclear source items and does not guess"
+   },
+   {
+    "key": "clarity",
+    "label": "Clarity",
+    "guide": "0 = hard to follow, 3 = list given but untidy, 5 = record, field and fix are clear for each item, with a short note"
+   }
+  ]
+ }
+}

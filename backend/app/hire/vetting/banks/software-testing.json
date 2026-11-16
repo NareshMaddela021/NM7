@@ -1,0 +1,420 @@
+{
+ "slug": "software-testing",
+ "version": 1,
+ "topics": [
+  "Testing basics",
+  "Test design",
+  "Defects and reporting",
+  "Test types",
+  "Automation and tools"
+ ],
+ "questions": [
+  {
+   "id": "software-testing-001",
+   "topic": "Testing basics",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is the main goal of software testing?",
+   "options": [
+    "Prove that the software has no bugs at all",
+    "Find problems early and show how ready the product is",
+    "Rewrite the code the developers wrote",
+    "Slow the release down until it is perfect"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "software-testing-002",
+   "topic": "Test design",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which is a positive test for an OTP login page?",
+   "options": [
+    "Log in with a wrong OTP",
+    "Leave the mobile number empty",
+    "Type letters in the mobile number field",
+    "Log in with a registered mobile number and the right OTP"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "software-testing-003",
+   "topic": "Test types",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which kind of test checks the whole flow: search, cart, UPI payment, then order confirmation?",
+   "options": [
+    "End-to-end testing",
+    "Unit testing",
+    "Static code review",
+    "Spell checking"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "software-testing-004",
+   "topic": "Automation and tools",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Selenium is mainly used to…",
+   "options": [
+    "Design database tables",
+    "Write requirement documents",
+    "Automate actions in a web browser",
+    "Track employee leave"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "software-testing-005",
+   "topic": "Test design",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A form has 3 yes/no options that each change the price. How many combinations cover every case?",
+   "options": [
+    "6",
+    "3",
+    "8",
+    "9"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "software-testing-006",
+   "topic": "Test design",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A PIN code field must take exactly 6 digits. Which set of test inputs covers it best?",
+   "options": [
+    "560001, 56000, 5600011, 56A001 and blank",
+    "560001 only",
+    "Ten random valid 6-digit codes",
+    "123456 and 654321"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "software-testing-007",
+   "topic": "Test design",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Rules: 5% off above ₹1,000, 10% off above ₹5,000, members get 2% extra. Which technique fits best to design the tests?",
+   "options": [
+    "Only a quick smoke test",
+    "Random clicking (monkey testing)",
+    "A load test with many users",
+    "A decision table of conditions and outcomes"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "software-testing-008",
+   "topic": "Test design",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "An order goes Placed → Packed → Shipped → Delivered and can be cancelled only before Shipped. Which test matters most?",
+   "options": [
+    "Check the font of the status label",
+    "Try to cancel a Shipped order and check it is refused",
+    "Place 1,000 orders at the same time",
+    "Check that the status names are sorted A to Z"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "software-testing-009",
+   "topic": "Defects and reporting",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is the difference between severity and priority?",
+   "options": [
+    "Severity is the impact; priority is how soon it must be fixed",
+    "They mean exactly the same thing",
+    "Only clients set severity; only testers set priority",
+    "Priority is about the test; severity about the tester"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "software-testing-010",
+   "topic": "Defects and reporting",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A developer says your bug is 'working as designed', but it goes against the written requirement. What do you do?",
+   "options": [
+    "Close the bug at once without comment",
+    "Keep arguing until the developer agrees",
+    "Show the requirement and ask the product owner or BA to decide",
+    "Raise five similar bugs to make the point"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "software-testing-011",
+   "topic": "Defects and reporting",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A day before release you find GST is calculated on the wrong amount for one state. What do you do?",
+   "options": [
+    "Wait until after the release, then report it",
+    "Report it now with proof and flag it as a release blocker",
+    "Quietly change the GST code yourself",
+    "Mention it only in the weekly status mail"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "software-testing-012",
+   "topic": "Defects and reporting",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which makes a good bug title?",
+   "options": [
+    "Written in capitals so it stands out",
+    "The name of the developer who wrote it",
+    "A single word such as 'Broken'",
+    "Short and specific about what fails, and where"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "software-testing-013",
+   "topic": "Test types",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Unit testing checks…",
+   "options": [
+    "The whole system with real users",
+    "A single function or class on its own",
+    "Only the screens and buttons",
+    "The live production server"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "software-testing-014",
+   "topic": "Test types",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Integration testing mainly looks for…",
+   "options": [
+    "Spelling mistakes on each of the screens",
+    "Only slow page loads on mobile",
+    "Wrong colours and fonts in the layout",
+    "Problems where modules or services connect and pass data"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "software-testing-015",
+   "topic": "Test types",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "You are planning tests for a delivery-partner app used mostly on budget Android phones. What must the plan include?",
+   "options": [
+    "Low-RAM devices, slow or dropping networks and low battery",
+    "Only the newest flagship phones on the market",
+    "Only desktop browser tests on laptops",
+    "Only tests on fast office Wi-Fi"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "software-testing-016",
+   "topic": "Test types",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A performance test is fine at 500 users but times out at 2,000. What must your report include?",
+   "options": [
+    "Just one line saying 'Performance is bad'",
+    "Only the average response time at 500 users",
+    "The load where it breaks, the errors seen and server metrics then",
+    "A screenshot of the login page"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "software-testing-017",
+   "topic": "Automation and tools",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which test is the worst choice to automate?",
+   "options": [
+    "The login flow, run on every build",
+    "Regression tests of the checkout",
+    "A one-time check of a screen being redesigned next week",
+    "API tests for the pricing service"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "software-testing-018",
+   "topic": "Automation and tools",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A Selenium test fails at random because a button is not ready yet. What is the best fix?",
+   "options": [
+    "Use an explicit wait for the button's condition",
+    "Add Thread.sleep(10000) before every step",
+    "Delete the test from the suite",
+    "Re-run it until it passes once"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "software-testing-019",
+   "topic": "Automation and tools",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "In Postman you send POST /orders with a required field missing. What should a well-built API return?",
+   "options": [
+    "200 OK with an empty order saved",
+    "A 500 server error",
+    "No response at all, just a timeout",
+    "A 4xx error such as 400 with a clear message"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "software-testing-020",
+   "topic": "Automation and tools",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why run automated tests in the CI pipeline?",
+   "options": [
+    "So the tests never need updating again",
+    "Every change gets checked at once, so breaks are caught early",
+    "So manual testing can stop completely",
+    "So that builds take longer to finish"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "software-testing-021",
+   "topic": "Testing basics",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Testing time is cut from 10 days to 4. How do you decide what to test?",
+   "options": [
+    "Risk-based: test the most used, highest-impact features first",
+    "Test the screens in alphabetical order",
+    "Skip regression and test only new screens",
+    "Run every test case, just faster"
+   ],
+   "answer": 0
+  }
+ ],
+ "existing": {
+  "What is a test case?": {
+   "topic": "Testing basics"
+  },
+  "A bug is…": {
+   "topic": "Defects and reporting"
+  },
+  "Manual testing means…": {
+   "topic": "Testing basics"
+  },
+  "What must a good bug report have?": {
+   "topic": "Defects and reporting"
+  },
+  "Regression testing checks that…": {
+   "topic": "Test types"
+  },
+  "Smoke testing is…": {
+   "topic": "Test types"
+  },
+  "Who usually fixes a bug?": {
+   "topic": "Defects and reporting"
+  },
+  "The \"expected result\" is…": {
+   "topic": "Testing basics"
+  },
+  "A field accepts ages 18 to 60. Which are boundary values to test?": {
+   "topic": "Test design"
+  },
+  "A spelling mistake in the company name on the home page is usually…": {
+   "topic": "Defects and reporting"
+  },
+  "Black-box testing means…": {
+   "topic": "Test design"
+  },
+  "User acceptance testing (UAT) is done by…": {
+   "topic": "Test types"
+  },
+  "A developer marks your bug fixed. What do you do next?": {
+   "topic": "Defects and reporting"
+  },
+  "Equivalence partitioning means…": {
+   "topic": "Test design"
+  },
+  "Login works in Chrome but not in Firefox. This is…": {
+   "topic": "Test types"
+  },
+  "A test plan is…": {
+   "topic": "Testing basics"
+  },
+  "Which is the usual bug life cycle?": {
+   "topic": "Defects and reporting"
+  },
+  "After testing checkout, which query checks that order 1052 was saved?": {
+   "topic": "Automation and tools"
+  },
+  "Load testing checks…": {
+   "topic": "Test types"
+  },
+  "You can't reproduce a bug a user reported. What is best?": {
+   "topic": "Defects and reporting"
+  },
+  "A requirements traceability matrix is used to…": {
+   "topic": "Testing basics"
+  },
+  "Typing letters into a phone-number field to see it is refused is…": {
+   "topic": "Test design"
+  },
+  "Why automate a test?": {
+   "topic": "Automation and tools"
+  },
+  "An API returns status 500 for a valid request. That suggests…": {
+   "topic": "Automation and tools"
+  }
+ },
+ "task": {
+  "type": "tech",
+  "title": "Write test cases and a bug report for a gas booking form",
+  "brief": "Below are the rules for a gas cylinder booking form and one problem seen during testing. In 20 to 25 minutes: (1) write 12 to 15 test cases as a simple table (ID, what you test, test data, expected result), covering positive, negative and boundary cases, and (2) write a clear bug report for the observed problem (title, steps, expected, actual, environment, severity and priority with a short reason). Say which 3 test cases you would run first if time were short, and why.",
+  "minutes": 25,
+  "material": "Screen: 'Book a gas cylinder refill' (mobile web)\n\nFields and rules\n1. Consumer number: required, exactly 10 digits.\n2. Mobile number: required, 10 digits, must start with 6, 7, 8 or 9.\n3. Delivery PIN code: required, exactly 6 digits, must be in the serviceable list.\n4. Delivery slot: Morning / Afternoon / Evening. Same-day slots close at 12:00 noon.\n5. Payment: UPI ID (format name@bank) or Cash on delivery.\n6. Amount: filled in by the system from the cylinder price (₹1 to ₹5,000). Not editable.\n7. 'Book now' button: enabled only when all required fields are valid.\n   One booking per consumer number every 15 days.\n\nObserved during testing (build 2.4.1, Chrome on Android 13, Redmi phone):\n- Consumer 1234567890 booked on 1 Nov. On 10 Nov the same consumer could book again.\n",
+  "key_points": [
+   "Boundary tests for lengths: 9, 10, 11 digit consumer and mobile numbers; 5, 6, 7 digit PIN codes",
+   "Mobile starting with 0-5 is refused; starting with 6-9 accepted",
+   "Non-serviceable PIN, letters/special characters and blank fields are refused with clear messages",
+   "Slot cut-off at 12:00 noon tested just before and just after; UPI format valid and invalid; COD path",
+   "Book now stays disabled until all fields are valid; amount not editable",
+   "15-day rule tested at day 14, 15 and 16 (boundary) and double-click / repeat booking",
+   "Bug report has a specific title, numbered steps, expected vs actual, build and device, and sensible severity/priority (high: business rule broken)",
+   "Picks risk-based first tests (booking rule, payment, required-field validation) with reasons"
+  ],
+  "rubric": [
+   {
+    "key": "coverage",
+    "label": "Coverage",
+    "guide": "0 = only a few happy-path cases, 3 = positive and some negative cases, 5 = positive, negative and boundary cases across all fields and rules"
+   },
+   {
+    "key": "test_design",
+    "label": "Test design",
+    "guide": "0 = vague cases with no data or expected result, 3 = mostly clear, 5 = each case has precise data and an exact expected result, using boundaries and partitions"
+   },
+   {
+    "key": "bug_report",
+    "label": "Bug report",
+    "guide": "0 = missing or 'it doesn't work', 3 = has steps but lacks expected/actual or environment, 5 = complete, reproducible, with justified severity and priority"
+   },
+   {
+    "key": "prioritisation",
+    "label": "Prioritisation",
+    "guide": "0 = no choice made, 3 = choice made with weak reasons, 5 = picks the riskiest cases and explains why clearly"
+   }
+  ]
+ }
+}

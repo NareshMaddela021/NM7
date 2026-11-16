@@ -1,0 +1,406 @@
+{
+ "slug": "excel",
+ "version": 1,
+ "topics": [
+  "Formulas",
+  "Lookup and logic",
+  "Data tools",
+  "Formatting and shortcuts",
+  "Errors and checking"
+ ],
+ "questions": [
+  {
+   "id": "excel-001",
+   "topic": "Formatting and shortcuts",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which shortcut makes the selected text bold?",
+   "options": [
+    "Ctrl+I",
+    "Ctrl+U",
+    "Ctrl+B",
+    "Ctrl+D"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "excel-002",
+   "topic": "Formatting and shortcuts",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A cell shows ##### instead of a number. What is the quick fix?",
+   "options": [
+    "Delete the number and retype",
+    "Make the column wider",
+    "Change the font colour",
+    "Close and open the file"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "excel-003",
+   "topic": "Formatting and shortcuts",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "How do you show 2500 as ₹2,500.00 without retyping it?",
+   "options": [
+    "Format Cells → Currency (₹)",
+    "Type the ₹ sign before each number",
+    "Turn on Wrap Text",
+    "Use Merge & Center"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "excel-004",
+   "topic": "Data tools",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which chart best shows how sales changed month by month over a year?",
+   "options": [
+    "Line chart",
+    "Pie chart",
+    "Doughnut chart",
+    "Radar chart"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "excel-005",
+   "topic": "Formulas",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which formula gives the smallest value in C2:C30?",
+   "options": [
+    "=LOW(C2:C30)",
+    "=SMALL(C2:C30)",
+    "=LEAST(C2:C30)",
+    "=MIN(C2:C30)"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "excel-006",
+   "topic": "Formatting and shortcuts",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which key lets you edit the formula in the selected cell?",
+   "options": [
+    "F5",
+    "F2",
+    "F7",
+    "F12"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "excel-007",
+   "topic": "Lookup and logic",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "=COUNTIFS(B2:B100,\"Delhi\",C2:C100,\">5000\") counts…",
+   "options": [
+    "Rows where B is Delhi or C is more than 5,000",
+    "Rows where B is Delhi and C is more than 5,000",
+    "The total of C for the Delhi rows",
+    "Rows where C is exactly 5,000"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "excel-008",
+   "topic": "Data tools",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Column A has names like \"Sharma, Priya\". Which tool splits them into two columns at the comma?",
+   "options": [
+    "Remove Duplicates",
+    "Freeze Panes",
+    "Text to Columns",
+    "Group"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "excel-009",
+   "topic": "Errors and checking",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A cell shows #NAME?. What is the most likely reason?",
+   "options": [
+    "A number was divided by zero",
+    "The column is too narrow",
+    "The number is too big",
+    "The function name is spelt wrong"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "excel-010",
+   "topic": "Formatting and shortcuts",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Your manager wants staff to type only in the yellow cells. All other cells must stay locked. What do you do?",
+   "options": [
+    "Protect the workbook structure only",
+    "Hide all the other rows and columns",
+    "Unlock the yellow cells, then Protect Sheet",
+    "Save the file as a PDF"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "excel-011",
+   "topic": "Formatting and shortcuts",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "You copy cells with formulas but want to paste only the results. What do you use?",
+   "options": [
+    "Ctrl+V two times",
+    "Format Painter",
+    "Paste Link",
+    "Paste Special → Values"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "excel-012",
+   "topic": "Lookup and logic",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "VLOOKUP cannot return a value from a column to the left of the key. Which pair can?",
+   "options": [
+    "INDEX with MATCH",
+    "SUM with IF",
+    "LEFT with FIND",
+    "COUNT with LEN"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "excel-013",
+   "topic": "Lookup and logic",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A price list VLOOKUP ends with TRUE. Codes not in the list still get some price. What should you change?",
+   "options": [
+    "Use FALSE so only an exact code matches",
+    "Sort the price column from high to low",
+    "Change the column number to 1",
+    "Make the price column wider"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "excel-014",
+   "topic": "Lookup and logic",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Which gives \"Bonus\" when sales in B2 are over 50,000 and attendance in C2 is at least 90%?",
+   "options": [
+    "=IF(OR(B2>50000,C2>=90%),\"Bonus\",\"\")",
+    "=IF(AND(B2>50000,C2>=90%),\"Bonus\",\"\")",
+    "=IF(B2>50000,\"Bonus\",C2>=90%)",
+    "=AND(IF(B2>50000),\"Bonus\")"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "excel-015",
+   "topic": "Errors and checking",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Your SUM total is ₹10,000 less than the bills. Some amounts sit on the left with a small green triangle. What is wrong?",
+   "options": [
+    "The sheet is protected",
+    "The column is too narrow",
+    "Autosave is turned off",
+    "Those amounts are stored as text"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "excel-016",
+   "topic": "Errors and checking",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A VLOOKUP shows #N/A, but the code looks the same in both sheets. What is a likely cause?",
+   "options": [
+    "The other sheet is in a different tab",
+    "A hidden space, or a number stored as text",
+    "The column number is 2",
+    "The file is saved as .xlsx"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "excel-017",
+   "topic": "Data tools",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "New sales rows are added every week. How do you make the pivot table pick them up easily?",
+   "options": [
+    "Format the data as a Table, then Refresh",
+    "Build a new pivot table every week",
+    "Type the new totals into the pivot",
+    "Copy the pivot and paste as values"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "excel-018",
+   "topic": "Data tools",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "In a sales pivot table, how do you show each product's share of the total?",
+   "options": [
+    "Sort the values from largest",
+    "Add the product as a filter",
+    "Show Values As → % of Grand Total",
+    "Change Sum to Count"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "excel-019",
+   "topic": "Formulas",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "The joining date is in A2. Which formula gives the number of days from then to today?",
+   "options": [
+    "=A2-TODAY",
+    "=DAYS(A2)",
+    "=TODAY()-A2",
+    "=NOW(A2)"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "excel-020",
+   "topic": "Errors and checking",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Before sending a report, how do you see which cells a total is taken from?",
+   "options": [
+    "Review → Spelling",
+    "View → Page Break Preview",
+    "Home → Clear Formats",
+    "Formulas → Trace Precedents"
+   ],
+   "answer": 3
+  }
+ ],
+ "existing": {
+  "Which formula adds the numbers in cells A1 to A10?": {
+   "topic": "Formulas"
+  },
+  "What does =AVERAGE(B2:B6) give?": {
+   "topic": "Formulas"
+  },
+  "Which feature shows only the rows you choose, for example one city?": {
+   "topic": "Data tools"
+  },
+  "In =A1*$B$1, what do the $ signs do when you copy the formula down?": {
+   "topic": "Formulas"
+  },
+  "Which formula counts the cells in C2:C50 that say \"Paid\"?": {
+   "topic": "Lookup and logic"
+  },
+  "=IF(D2>=40,\"Pass\",\"Fail\") shows what when D2 is 40?": {
+   "topic": "Lookup and logic"
+  },
+  "Which tool turns a long list of sales into totals by month and by product, without formulas?": {
+   "topic": "Data tools"
+  },
+  "Which keeps the header row visible while you scroll down?": {
+   "topic": "Formatting and shortcuts"
+  },
+  "VLOOKUP(\"E102\",A2:D100,3,FALSE) returns…": {
+   "topic": "Lookup and logic"
+  },
+  "A cell shows #DIV/0!. What happened?": {
+   "topic": "Errors and checking"
+  },
+  "Which formula gives the biggest value in B2:B20?": {
+   "topic": "Formulas"
+  },
+  "What does Ctrl+Z do?": {
+   "topic": "Formatting and shortcuts"
+  },
+  "A formula in Excel starts with…": {
+   "topic": "Formulas"
+  },
+  "Which joins the first name in A2 and the last name in B2 with a space?": {
+   "topic": "Formulas"
+  },
+  "How do you sort a list of names from A to Z?": {
+   "topic": "Data tools"
+  },
+  "=COUNTA(A2:A100) counts…": {
+   "topic": "Formulas"
+  },
+  "Which removes extra spaces from the text in A2?": {
+   "topic": "Errors and checking"
+  },
+  "=SUMIF(B2:B50,\"Hyderabad\",C2:C50) adds…": {
+   "topic": "Lookup and logic"
+  },
+  "Which colours cells above 10,000 in red by itself?": {
+   "topic": "Formatting and shortcuts"
+  },
+  "Which limits a cell to a list of choices such as Yes / No?": {
+   "topic": "Data tools"
+  },
+  "=ROUND(12.456, 1) gives…": {
+   "topic": "Formulas"
+  },
+  "How do you quickly see repeated values in a column?": {
+   "topic": "Errors and checking"
+  },
+  "=IFERROR(VLOOKUP(E2,A:B,2,FALSE),\"Not found\") shows \"Not found\" when…": {
+   "topic": "Errors and checking"
+  },
+  "A2 holds the date 15-08-2026. Which gives the month number, 8?": {
+   "topic": "Formulas"
+  }
+ },
+ "task": {
+  "type": "written",
+  "title": "Find and fix the mistakes in a sales sheet",
+  "brief": "Your manager shared a small sales sheet (below) and says the totals look wrong. Take about 15 minutes. Write: (1) each mistake you find, with the cell; (2) the correct formula or fix for it; (3) the correct grand total; and (4) a 2–3 line note to your manager saying what you fixed. Plain words are fine. A good answer finds most of the mistakes and gives formulas that would work when copied down.",
+  "minutes": 15,
+  "material": "Sheet: October sales (GST is 18% on every row)\nRow 1 headers: A Invoice | B Customer | C City | D Amount (₹) | E GST | F Total\nRow 2: INV-101 | Kiran Stores | Pune | 12,000 | =D2*18 | =D2+E2\nRow 3: INV-102 | Noor Traders | Nagpur | 8,500 | =D3*18% | =D3+E3\nRow 4: INV-103 | Arul Agencies | Chennai | 15,000 | =D4*18% | =D4+E4\nRow 5: INV-104 | Mehta & Co | Surat | '20,000 (left-aligned, green triangle) | =D5*18% | =D5+E5\nRow 6: INV-105 | Das Electricals | Kolkata | 5,500 | =D6*18% | =D5+E5\nRow 8: Grand total | | | =SUM(D2:D5) | | =SUM(F2:F6)\nCommission rate is typed in H1 = 2%.\nRow 2 commission: G2 = D2*H1, then copied down to G6 (G3 to G6 now show 0).\nRate lookup: I2 = VLOOKUP(C2, Rates!A:B, 2, TRUE)",
+  "key_points": [
+   "E2 multiplies by 18 instead of 18%: should be =D2*18%",
+   "D5 is a number stored as text, so SUM skips it: convert it to a number",
+   "F6 points to row 5: should be =D6+E6",
+   "D8 total leaves out row 6: should be =SUM(D2:D6)",
+   "Commission needs an absolute reference: =D2*$H$1",
+   "VLOOKUP should use FALSE for an exact match",
+   "Correct amount total is ₹61,000 (₹71,980 with GST)",
+   "A short, clear note to the manager listing the fixes"
+  ],
+  "rubric": [
+   {
+    "key": "correctness",
+    "label": "Correct fixes",
+    "guide": "0 = no real mistakes found, 3 = about half found with working fixes, 5 = nearly all found and every fix works"
+   },
+   {
+    "key": "completeness",
+    "label": "Completeness",
+    "guide": "0 = one or two lines only, 3 = mistakes listed but no total or note, 5 = mistakes, fixes, correct total and note all given"
+   },
+   {
+    "key": "clarity",
+    "label": "Clarity",
+    "guide": "0 = hard to follow, 3 = understandable but messy, 5 = each mistake, cell and fix is clear and easy to check"
+   },
+   {
+    "key": "tone",
+    "label": "Note to manager",
+    "guide": "0 = no note or rude, 3 = note is there but vague, 5 = short, polite note that says what changed"
+   }
+  ]
+ }
+}

@@ -1,0 +1,666 @@
+{
+ "slug": "pharmacy",
+ "version": 1,
+ "topics": [
+  "Prescriptions",
+  "Storage and stock",
+  "Customer care",
+  "Safety and law",
+  "Billing and records"
+ ],
+ "questions": [
+  {
+   "id": "pharmacy-001",
+   "topic": "Prescriptions",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A prescription has no doctor's signature or registration number. What should you do?",
+   "options": [
+    "Give the medicine if the customer is a regular",
+    "Give only half the quantity",
+    "Hold it and tell the pharmacist it is not valid",
+    "Add the missing details yourself"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "pharmacy-002",
+   "topic": "Prescriptions",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "You cannot read one medicine name on a prescription. What is right?",
+   "options": [
+    "Guess from the other medicines on it",
+    "Give the medicine the customer names",
+    "Check with the pharmacist, who can call the doctor",
+    "Give a common medicine with a similar name"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "pharmacy-003",
+   "topic": "Prescriptions",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A prescription says 'Tab. X 1-0-1 for 5 days'. How many tablets is that?",
+   "options": [
+    "5",
+    "15",
+    "3",
+    "10"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "pharmacy-004",
+   "topic": "Prescriptions",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Two strengths of one brand, 5 mg and 50 mg, sit side by side. How do you avoid a mix-up?",
+   "options": [
+    "Match name and strength on the strip with the prescription",
+    "Pick by box colour, as you know the shelf",
+    "Ask the customer to check it at home",
+    "Take the one at the front of the shelf"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "pharmacy-005",
+   "topic": "Prescriptions",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What does 'SOS' written next to a medicine on a prescription mean?",
+   "options": [
+    "Take three times a day",
+    "Take before food only",
+    "Stop after one dose",
+    "Take only when needed"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "pharmacy-006",
+   "topic": "Prescriptions",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A customer wants an antibiotic refilled on a prescription dated eight months ago. What do you do?",
+   "options": [
+    "Refill it, as the doctor's name is on it",
+    "Refer to the pharmacist; a fresh prescription is usually needed",
+    "Give a smaller pack this time",
+    "Give a different antibiotic instead"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "pharmacy-007",
+   "topic": "Prescriptions",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "The prescribed strength is out of stock. You have another strength. The customer is in a hurry. What do you do?",
+   "options": [
+    "Give the other strength and say adjust the count",
+    "Tell the pharmacist; a strength change needs the doctor's OK",
+    "Give the other strength without a word",
+    "Split tablets to match the dose"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "pharmacy-008",
+   "topic": "Prescriptions",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A child's prescription shows an adult tablet strength. What is the safest step?",
+   "options": [
+    "Dispense it, since the doctor wrote it",
+    "Tell the parent to give half a tablet",
+    "Stop and get the pharmacist to confirm with the doctor",
+    "Swap to a syrup of any strength"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "pharmacy-009",
+   "topic": "Prescriptions",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A customer brings a prescription for two medicines. The pharmacy software shows an interaction warning between them. What do you do?",
+   "options": [
+    "Ignore it, the doctor knows best",
+    "Remove one medicine from the bill",
+    "Tell the customer to take them on different days",
+    "Show the pharmacist before billing"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "pharmacy-010",
+   "topic": "Storage and stock",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Where should unopened insulin vials be kept in the pharmacy?",
+   "options": [
+    "On the shelf near the counter",
+    "In the fridge at 2–8 °C",
+    "In the freezer",
+    "In a dark drawer at room heat"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "pharmacy-011",
+   "topic": "Storage and stock",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which stock of a medicine should be sold first?",
+   "options": [
+    "The newest batch received",
+    "Whatever is at the front of the shelf",
+    "The batch with the earliest expiry date",
+    "The batch with the higher MRP"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "pharmacy-012",
+   "topic": "Storage and stock",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A strip's expiry date has already passed. What should you do with it?",
+   "options": [
+    "Sell it at a discount",
+    "Move it to the expired stock area for return",
+    "Keep it on the shelf till month end",
+    "Give it free to a regular customer"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "pharmacy-013",
+   "topic": "Storage and stock",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "The medicine fridge reads 12 °C in the morning. What is the first thing to do?",
+   "options": [
+    "Turn it to the coldest setting and say nothing",
+    "Move every item to the open shelf",
+    "Wait a day to see if it fixes itself",
+    "Report it and check the temperature log and stock inside"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "pharmacy-014",
+   "topic": "Storage and stock",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why should medicines be kept away from direct sunlight and damp places?",
+   "options": [
+    "Heat and moisture can spoil them before expiry",
+    "Sunlight makes the labels hard to read",
+    "It matters only for syrups",
+    "Customers dislike faded boxes"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "pharmacy-015",
+   "topic": "Storage and stock",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "How should look-alike or sound-alike medicines be stored?",
+   "options": [
+    "Together, so they are easy to find",
+    "In alphabetical order only",
+    "In the same box with a rubber band",
+    "Apart, with a clear shelf label or warning"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "pharmacy-016",
+   "topic": "Storage and stock",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A new delivery arrives. The invoice says 20 boxes, but you count 18. What do you do?",
+   "options": [
+    "Sign it as received and sort it out later",
+    "Add 2 boxes from old stock to match",
+    "Refuse the whole delivery",
+    "Note the shortage on the invoice and inform the supplier"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "pharmacy-017",
+   "topic": "Storage and stock",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "The system shows 30 strips of a Schedule H1 medicine, but the shelf has 26. What is right?",
+   "options": [
+    "Report it at once and check the H1 register and bills",
+    "Change the system count to 26",
+    "Wait for next month's stock check",
+    "Order 4 more strips to cover it"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "pharmacy-018",
+   "topic": "Storage and stock",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "There was a long power cut overnight. The fridge with vaccines and insulin was off for many hours. What do you do?",
+   "options": [
+    "Keep them aside, don't sell, and tell the pharmacist",
+    "Sell them, as they look fine",
+    "Put them in the freezer to cool fast",
+    "Sell them first at a discount"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "pharmacy-019",
+   "topic": "Customer care",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A customer asks about side effects and you are not sure. What should you say?",
+   "options": [
+    "Make a guess so they are not kept waiting",
+    "Let me ask the pharmacist for you",
+    "Tell them to search online",
+    "Say this medicine has no side effects"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "pharmacy-020",
+   "topic": "Customer care",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "When handing over medicines, what should you explain clearly?",
+   "options": [
+    "Only the total bill amount",
+    "Which brand is cheaper online",
+    "When and how to take each one, as written",
+    "Your own advice on the dose"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "pharmacy-021",
+   "topic": "Customer care",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "An elderly customer can't read the small print on strips. What simple help can you give?",
+   "options": [
+    "Tell them to ask a neighbour",
+    "Put all the tablets in one cover",
+    "Write the timing in large letters on each pack",
+    "Say it is written on the strip"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "pharmacy-022",
+   "topic": "Customer care",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A customer asks for a strong painkiller without a prescription, saying their back hurts. What do you do?",
+   "options": [
+    "Give a small strip just this once",
+    "Give it if they pay in cash",
+    "Explain it needs a prescription and call the pharmacist",
+    "Give a sleeping tablet instead"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "pharmacy-023",
+   "topic": "Customer care",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A customer is angry that a medicine is out of stock. What is the best reply?",
+   "options": [
+    "Tell them to try another shop",
+    "Give a different brand without asking anyone",
+    "Say it is the supplier's fault",
+    "Apologise, offer to order it, and give a time"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "pharmacy-024",
+   "topic": "Customer care",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A customer wants to talk about a private health problem. What should you do?",
+   "options": [
+    "Ask loudly so the pharmacist hears",
+    "Speak quietly and keep their details private",
+    "Tell them to come back when the shop is empty",
+    "Discuss it in front of others waiting"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "pharmacy-025",
+   "topic": "Customer care",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A mother wants cough syrup for her 1-year-old without seeing a doctor. What do you do?",
+   "options": [
+    "Advise her to see a doctor and call the pharmacist",
+    "Give an adult syrup and suggest a smaller dose",
+    "Give the syrup the child had last time",
+    "Sell the syrup most mothers buy"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "pharmacy-026",
+   "topic": "Customer care",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A regular customer seems confused and says they took their BP tablets twice today. What do you do?",
+   "options": [
+    "Tell them to skip tomorrow's dose",
+    "Give them water and send them home",
+    "Tell the pharmacist at once; they may need a doctor",
+    "Say it is fine, BP tablets are mild"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "pharmacy-027",
+   "topic": "Customer care",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A customer wants to return a cut strip because the doctor changed the medicine. Shop policy does not take back cut strips. What do you do?",
+   "options": [
+    "Take it back and put it on the shelf to resell",
+    "Politely explain the policy and ask the pharmacist",
+    "Argue until the customer leaves",
+    "Refund it without telling anyone"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "pharmacy-028",
+   "topic": "Safety and law",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Who must supervise the sale of prescription medicines in a pharmacy in India?",
+   "options": [
+    "Any shop owner",
+    "A registered pharmacist",
+    "A medical representative",
+    "Any staff with two years' experience"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "pharmacy-029",
+   "topic": "Safety and law",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A strip is torn and its batch number and expiry are cut off. What should you do?",
+   "options": [
+    "Sell it, the tablets are sealed",
+    "Write a date on it with a pen",
+    "Don't sell it; keep it aside",
+    "Sell it at a lower price"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "pharmacy-030",
+   "topic": "Safety and law",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does the red vertical line on some medicine packs in India tell customers?",
+   "options": [
+    "Use only on a doctor's prescription",
+    "It is an Ayurvedic medicine",
+    "It is safe for children",
+    "It is an imported medicine"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "pharmacy-031",
+   "topic": "Safety and law",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why must you check the patient's name and age on a prescription before dispensing?",
+   "options": [
+    "Only for the GST invoice",
+    "To make sure the medicine is for the right person",
+    "To offer a loyalty card",
+    "It is not needed for tablets"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "pharmacy-032",
+   "topic": "Safety and law",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A customer asks for a Schedule X medicine with an old photocopy of a prescription. What is right?",
+   "options": [
+    "Do not sell; an original prescription is needed",
+    "Sell it, a copy is fine",
+    "Sell a smaller quantity",
+    "Sell it if they show an ID card"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "pharmacy-033",
+   "topic": "Safety and law",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "How should the shop get rid of expired medicines?",
+   "options": [
+    "Throw them in the shop's normal waste bin",
+    "Flush all of them down the drain",
+    "Send them back through the supplier's return system",
+    "Give them to a scrap dealer"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "pharmacy-034",
+   "topic": "Safety and law",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A person buys a codeine cough syrup every few days, each time with a different prescription. What do you do?",
+   "options": [
+    "Inform the pharmacist; it may be misuse",
+    "Keep selling, the prescriptions are there",
+    "Sell only if paid in cash",
+    "Suggest a cheaper brand to them"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "pharmacy-035",
+   "topic": "Safety and law",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A drug inspector asks for the Schedule H1 register. What should it show for each sale?",
+   "options": [
+    "Only the bill number",
+    "Only the customer's phone number",
+    "Patient and doctor name, medicine and quantity",
+    "Only the batch number"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "pharmacy-036",
+   "topic": "Safety and law",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A strip from a new supplier has spelling mistakes and odd printing. What do you do?",
+   "options": [
+    "Sell it, as the price is low",
+    "Mix it with the old stock",
+    "Sell it only to new customers",
+    "Stop selling it and report it as a possible fake"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "pharmacy-037",
+   "topic": "Billing and records",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is the most a customer can be charged for a medicine?",
+   "options": [
+    "MRP plus GST",
+    "MRP plus a service charge",
+    "Any price the owner sets",
+    "The MRP on the pack"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "pharmacy-038",
+   "topic": "Billing and records",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A customer buys 4 tablets from a strip of 10 priced ₹50. What should the bill show?",
+   "options": [
+    "₹20",
+    "₹50",
+    "₹40",
+    "₹12.50"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "pharmacy-039",
+   "topic": "Billing and records",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A customer pays by UPI. When can you hand over the medicines?",
+   "options": [
+    "As soon as they show their phone",
+    "After the payment shows as received",
+    "After they leave the counter",
+    "When a screenshot comes on WhatsApp"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "pharmacy-040",
+   "topic": "Billing and records",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A bill for a Schedule H medicine should show which details?",
+   "options": [
+    "Patient name, doctor name, batch and expiry",
+    "Only the total amount",
+    "Only the customer's mobile number",
+    "The pharmacist's home address"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "pharmacy-041",
+   "topic": "Billing and records",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "The MRP of a medicine is ₹112, including 12% GST. What is the price before GST?",
+   "options": [
+    "₹98.56",
+    "₹124.44",
+    "₹88",
+    "₹100"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "pharmacy-042",
+   "topic": "Billing and records",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "At day end, the cash and UPI total is ₹350 less than the bills. What do you do first?",
+   "options": [
+    "Put in ₹350 from your own pocket",
+    "Recheck bills, returns and UPI entries, then report",
+    "Delete one bill to match",
+    "Leave it for tomorrow's staff"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "pharmacy-043",
+   "topic": "Billing and records",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why should the batch number be written on each bill?",
+   "options": [
+    "It decides the GST rate",
+    "It is used to set the MRP",
+    "So the customer can claim a discount",
+    "So a recalled batch can be traced to buyers"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "pharmacy-044",
+   "topic": "Billing and records",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A company recalls one batch of a BP medicine. What should the pharmacy do?",
+   "options": [
+    "Remove that batch, check bills and contact buyers if told to",
+    "Sell the remaining stock quickly",
+    "Remove all brands of BP medicine",
+    "Wait for customers to complain"
+   ],
+   "answer": 0
+  }
+ ],
+ "task": {
+  "type": "written",
+  "title": "Check a pharmacy bill and write a note to the pharmacist",
+  "brief": "You are the pharmacy assistant. The bill below was made by a new staff member and is still with you. Take about 15 minutes. Write a short note to the pharmacist that lists every mistake you find in the bill, says why it matters, and says what should be done to fix it before the medicines are handed over. Use simple, clear points. A good note finds all the mistakes, puts patient safety first, and is polite.",
+  "minutes": 15,
+  "material": "Ganga Medicals (sample shop), Hyderabad          Bill No. 1043      Date: 14-11-2026\nPatient: Ravi K., 42 yrs      Doctor: (blank)\n\nItem                              Batch    Expiry   Qty   MRP/unit   Amount\nCap. Amoxicillin 500 mg (Sch. H)  AM2231   08/2027   10    ₹9.50     ₹95.00\nCough syrup 100 ml                (blank)  10/2026    1   ₹85.00     ₹95.00\nTab. Paracetamol 650 mg           PC1190   03/2028   15    ₹2.00     ₹30.00\nCap. Omeprazole 20 mg             OM778    05/2028   10    ₹6.00     ₹60.00\n                                         Total (incl. GST)          ₹290.00\nPayment: UPI",
+  "key_points": [
+   "Doctor's name is missing although the bill has a Schedule H antibiotic",
+   "Cough syrup batch number is missing",
+   "Cough syrup expired in 10/2026 and must not be sold; replace it from valid stock",
+   "Cough syrup is charged ₹95, above its ₹85 MRP",
+   "The correct total is ₹280 (or less once the syrup is fixed), not ₹290",
+   "Asks the pharmacist to check before handing over and corrects the UPI amount or refunds the difference"
+  ],
+  "rubric": [
+   {
+    "key": "correctness",
+    "label": "Mistakes found",
+    "guide": "0 = finds none or invents wrong ones, 3 = finds about half, 5 = finds all five mistakes correctly"
+   },
+   {
+    "key": "safety",
+    "label": "Patient safety",
+    "guide": "0 = would let the expired or unverified item go out, 3 = mentions safety loosely, 5 = clearly stops the expired syrup and the incomplete prescription details"
+   },
+   {
+    "key": "completeness",
+    "label": "Fixes",
+    "guide": "0 = no fixes, 3 = some fixes, 5 = a clear fix for every mistake, including the total and payment"
+   },
+   {
+    "key": "clarity",
+    "label": "Clarity and tone",
+    "guide": "0 = confusing or rude, 3 = understandable, 5 = short, clear points in a polite, professional tone"
+   }
+  ]
+ }
+}

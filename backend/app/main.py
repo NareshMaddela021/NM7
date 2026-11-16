@@ -63,6 +63,9 @@ from app.hire import skillcheck as hire_skillcheck
 from app.hire import slots as hire_slots
 from app.hire import speed as hire_speed
 from app.hire import templates as hire_templates
+from app.hire.vetting import admin as vetting_admin
+from app.hire.vetting import jobs as vetting_jobs
+from app.hire.vetting import router as vetting_router
 from app.jobs import admin as jobs_admin
 from app.jobs import alerts as jobs_alerts
 from app.jobs import apply as jobs_apply
@@ -311,7 +314,9 @@ def create_app() -> FastAPI:
     for r in (seek_first90.me, seek_first90.public, seek_first90.admin):
         app.include_router(r)  # /api/me/progress: first 90 days, weekly progress (Phase 6 S10)
     app.include_router(seek_demo.admin)  # /api/admin/seek/demo (Phase 6 demo students)
-    app.include_router(hire_skillcheck.me)  # /api/me/skill-checks (10-minute tests, H3)
+    app.include_router(vetting_router.me)  # /api/me/skill-checks (Vetting V2: 50 roles, bands, tasks, integrity)
+    app.include_router(vetting_admin.admin)  # /api/admin/vetting (rubrics, review / integrity queues, stats)
+    app.include_router(vetting_jobs.public)  # /api/public/vetting/stop-invites
     app.include_router(hire_skillcheck.admin)  # /api/admin/skill-tests (the question bank, H3)
     app.include_router(simple_guided.router)  # /api/me/simple/resume (resume by talking, E4)
     app.include_router(simple_demo.admin)  # /api/admin/simple/demo (Ravi, the Easy dashboard demo)

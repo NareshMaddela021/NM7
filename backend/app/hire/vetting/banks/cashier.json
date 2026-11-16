@@ -1,0 +1,1494 @@
+{
+ "slug": "cashier",
+ "version": 1,
+ "topics": [
+  "Cash handling",
+  "Billing and GST",
+  "UPI and card payments",
+  "Returns and exchange",
+  "Customer care at the counter",
+  "Shift closing"
+ ],
+ "questions": [
+  {
+   "id": "cashier-001",
+   "topic": "Cash handling",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A customer pays ₹500 for a bill of ₹365. How much change do you give?",
+   "options": [
+    "₹145",
+    "₹125",
+    "₹135",
+    "₹235"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "కస్టమర్ ₹365 బిల్లుకి ₹500 ఇచ్చారు. ఎంత చిల్లర ఇవ్వాలి?",
+    "options": [
+     "₹145",
+     "₹125",
+     "₹135",
+     "₹235"
+    ]
+   },
+   "hi": {
+    "q": "कस्टमर ₹365 के बिल के लिए ₹500 देता है। कितने पैसे वापस देंगे?",
+    "options": [
+     "₹145",
+     "₹125",
+     "₹135",
+     "₹235"
+    ]
+   }
+  },
+  {
+   "id": "cashier-002",
+   "topic": "Cash handling",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A customer hands you a ₹500 note. When should it go into the drawer?",
+   "options": [
+    "After you give the change and they agree it is right",
+    "Before you start counting the change",
+    "As soon as you touch the note",
+    "Only at the end of the shift"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "కస్టమర్ ₹500 నోటు ఇచ్చారు. దాన్ని డ్రాయర్‌లో ఎప్పుడు పెట్టాలి?",
+    "options": [
+     "చిల్లర ఇచ్చి, అది సరిగ్గా ఉందని వారు ఒప్పుకున్న తర్వాత",
+     "చిల్లర లెక్కపెట్టడం మొదలుపెట్టే ముందే",
+     "నోటు చేతికి రాగానే",
+     "షిఫ్ట్ చివరిలో మాత్రమే"
+    ]
+   },
+   "hi": {
+    "q": "कस्टमर आपको ₹500 का नोट देता है। उसे दराज़ में कब रखना चाहिए?",
+    "options": [
+     "छुट्टे देने और कस्टमर के सही मानने के बाद",
+     "छुट्टे गिनना शुरू करने से पहले",
+     "नोट हाथ में आते ही",
+     "सिर्फ़ शिफ़्ट के आखिर में"
+    ]
+   }
+  },
+  {
+   "id": "cashier-003",
+   "topic": "Cash handling",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "How do you check that a ₹500 note is real?",
+   "options": [
+    "Check that it is not torn and the colour looks fine",
+    "Hold it near your nose and smell it",
+    "Ask the customer if the note is real",
+    "Look at the security thread, watermark and colour-changing number"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "₹500 నోటు అసలుదో కాదో ఎలా చెక్ చేస్తారు?",
+    "options": [
+     "చిరగలేదు, రంగు బాగుంది అని మాత్రమే చూడాలి",
+     "ముక్కు దగ్గర పెట్టి వాసన చూడాలి",
+     "నోటు అసలుదేనా అని కస్టమర్‌ని అడగాలి",
+     "సెక్యూరిటీ దారం, వాటర్‌మార్క్, రంగు మారే నంబర్ చూడాలి"
+    ]
+   },
+   "hi": {
+    "q": "₹500 का नोट असली है या नहीं, कैसे जाँचेंगे?",
+    "options": [
+     "देखें कि फटा न हो और रंग ठीक लगे",
+     "नाक के पास लाकर सूँघें",
+     "कस्टमर से पूछें कि नोट असली है क्या",
+     "सिक्योरिटी धागा, वॉटरमार्क और रंग बदलने वाला नंबर देखें"
+    ]
+   }
+  },
+  {
+   "id": "cashier-004",
+   "topic": "Cash handling",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "You find that a ₹200 note a customer just gave is fake. What do you do?",
+   "options": [
+    "Keep it and give it out as change later",
+    "Politely return it and ask for another note, without blaming them",
+    "Shout so other customers know",
+    "Tear the note in front of them"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "కస్టమర్ ఇప్పుడే ఇచ్చిన ₹200 నోటు నకిలీ అని తెలిసింది. ఏమి చేస్తారు?",
+    "options": [
+     "ఉంచుకుని తర్వాత చిల్లరగా ఇచ్చేయాలి",
+     "వారిని నిందించకుండా మర్యాదగా తిరిగి ఇచ్చి, వేరే నోటు అడగాలి",
+     "మిగతా కస్టమర్లకు తెలిసేలా గట్టిగా అరవాలి",
+     "వారి ముందే నోటు చింపేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "कस्टमर ने अभी जो ₹200 का नोट दिया, वह नकली है। आप क्या करेंगे?",
+    "options": [
+     "रख लें और बाद में छुट्टे में दे दें",
+     "उन पर इल्ज़ाम लगाए बिना विनम्रता से लौटाएं और दूसरा नोट माँगें",
+     "ज़ोर से बोलें ताकि बाकी कस्टमर जान जाएं",
+     "उनके सामने नोट फाड़ दें"
+    ]
+   }
+  },
+  {
+   "id": "cashier-005",
+   "topic": "Cash handling",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why are big notes like ₹500 often kept under the drawer tray?",
+   "options": [
+    "Because they are used most for change",
+    "So they are safer and not easily seen or grabbed",
+    "So the drawer closes easily",
+    "Because the bank asks shops to do it"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "₹500 లాంటి పెద్ద నోట్లను డ్రాయర్ ట్రే కింద ఎందుకు పెడతారు?",
+    "options": [
+     "చిల్లరకు ఎక్కువగా అవే వాడతారు కాబట్టి",
+     "సురక్షితంగా ఉంటాయి, సులభంగా కనిపించవు, ఎవరూ లాక్కోలేరు",
+     "డ్రాయర్ సులభంగా మూసుకుంటుంది కాబట్టి",
+     "బ్యాంక్ షాపులకు అలా చెబుతుంది కాబట్టి"
+    ]
+   },
+   "hi": {
+    "q": "₹500 जैसे बड़े नोट अक्सर दराज़ की ट्रे के नीचे क्यों रखते हैं?",
+    "options": [
+     "क्योंकि छुट्टे में वही सबसे ज़्यादा लगते हैं",
+     "ताकि वे सुरक्षित रहें और आसानी से न दिखें या छीने न जाएं",
+     "ताकि दराज़ आसानी से बंद हो",
+     "क्योंकि बैंक दुकानों से ऐसा कहता है"
+    ]
+   }
+  },
+  {
+   "id": "cashier-006",
+   "topic": "Cash handling",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "The bill is ₹640. The customer gives ₹1,000, then adds ₹40 more. How much change?",
+   "options": [
+    "₹360",
+    "₹440",
+    "₹300",
+    "₹400"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "బిల్లు ₹640. కస్టమర్ ₹1,000 ఇచ్చి, తర్వాత ఇంకో ₹40 ఇచ్చారు. ఎంత చిల్లర ఇవ్వాలి?",
+    "options": [
+     "₹360",
+     "₹440",
+     "₹300",
+     "₹400"
+    ]
+   },
+   "hi": {
+    "q": "बिल ₹640 है। कस्टमर ₹1,000 देता है, फिर ₹40 और देता है। कितने वापस देंगे?",
+    "options": [
+     "₹360",
+     "₹440",
+     "₹300",
+     "₹400"
+    ]
+   }
+  },
+  {
+   "id": "cashier-007",
+   "topic": "Cash handling",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A customer comes back and says you gave ₹100 less change. You are not sure. What do you do?",
+   "options": [
+    "Say you will check the drawer count or CCTV and settle it fairly",
+    "Give ₹100 at once to avoid a scene",
+    "Refuse, since they already left the counter",
+    "Ask other customers if they saw it"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "ఒక కస్టమర్ తిరిగి వచ్చి ₹100 చిల్లర తక్కువ ఇచ్చారని అంటున్నారు. మీకు ఖచ్చితంగా తెలియదు. ఏమి చేస్తారు?",
+    "options": [
+     "డ్రాయర్ లెక్క లేదా CCTV చూసి న్యాయంగా తేలుస్తానని చెప్పాలి",
+     "గొడవ వద్దని వెంటనే ₹100 ఇచ్చేయాలి",
+     "కౌంటర్ వదిలి వెళ్లారు కాబట్టి కుదరదనాలి",
+     "వేరే కస్టమర్లు చూశారా అని అడగాలి"
+    ]
+   },
+   "hi": {
+    "q": "कस्टमर लौटकर कहता है कि आपने ₹100 कम लौटाए। आपको पक्का नहीं पता। आप क्या करेंगे?",
+    "options": [
+     "कहें कि दराज़ की गिनती या CCTV देखकर सही फ़ैसला करेंगे",
+     "झगड़ा न हो, इसलिए तुरंत ₹100 दे दें",
+     "मना करें, क्योंकि वे काउंटर से जा चुके थे",
+     "दूसरे कस्टमर से पूछें कि किसी ने देखा क्या"
+    ]
+   }
+  },
+  {
+   "id": "cashier-008",
+   "topic": "Cash handling",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Your drawer is ₹50 short at the mid-day check. What is best?",
+   "options": [
+    "Put in ₹50 from your pocket and say nothing",
+    "Take ₹50 extra from the next customer",
+    "Recount, check the bills, then tell the supervisor",
+    "Ignore it until the end of the month"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "మధ్యాహ్నం చెక్‌లో డ్రాయర్‌లో ₹50 తక్కువ ఉంది. ఏది సరైనది?",
+    "options": [
+     "మీ జేబులో నుంచి ₹50 వేసి ఎవరికీ చెప్పకూడదు",
+     "తర్వాతి కస్టమర్ దగ్గర ₹50 ఎక్కువ తీసుకోవాలి",
+     "మళ్లీ లెక్కపెట్టి, బిల్లులు చూసి, సూపర్‌వైజర్‌కి చెప్పాలి",
+     "నెల చివరి వరకు పట్టించుకోకూడదు"
+    ]
+   },
+   "hi": {
+    "q": "दोपहर की जाँच में दराज़ में ₹50 कम हैं। सबसे अच्छा क्या है?",
+    "options": [
+     "अपनी जेब से ₹50 डालें और कुछ न कहें",
+     "अगले कस्टमर से ₹50 ज़्यादा ले लें",
+     "दोबारा गिनें, बिल जाँचें, फिर सुपरवाइज़र को बताएं",
+     "महीने के आखिर तक ध्यान न दें"
+    ]
+   }
+  },
+  {
+   "id": "cashier-009",
+   "topic": "Billing and GST",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Before printing the bill, what should you check?",
+   "options": [
+    "Only the total amount",
+    "The customer's phone model",
+    "Whether the printer has colour ink",
+    "Items, quantity and price match what the customer is buying"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "బిల్ ప్రింట్ చేసే ముందు ఏమి చెక్ చేయాలి?",
+    "options": [
+     "మొత్తం అమౌంట్ మాత్రమే",
+     "కస్టమర్ ఫోన్ మోడల్",
+     "ప్రింటర్‌లో కలర్ ఇంక్ ఉందా",
+     "కస్టమర్ కొంటున్న వస్తువులు, సంఖ్య, ధర సరిపోతున్నాయా"
+    ]
+   },
+   "hi": {
+    "q": "बिल प्रिंट करने से पहले क्या जाँचना चाहिए?",
+    "options": [
+     "सिर्फ़ कुल रकम",
+     "कस्टमर का फ़ोन मॉडल",
+     "प्रिंटर में कलर इंक है या नहीं",
+     "सामान, मात्रा और कीमत वही हैं जो कस्टमर खरीद रहा है"
+    ]
+   }
+  },
+  {
+   "id": "cashier-010",
+   "topic": "Billing and GST",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "An item's barcode will not scan. What do you do?",
+   "options": [
+    "Guess the price from a similar item",
+    "Give the item free of cost",
+    "Type the number printed under the barcode",
+    "Ask the customer what price they paid last time"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "ఒక వస్తువు బార్‌కోడ్ స్కాన్ కావడం లేదు. ఏమి చేస్తారు?",
+    "options": [
+     "అలాంటి వేరే వస్తువు ధర ఊహించి వేయాలి",
+     "ఆ వస్తువు ఫ్రీగా ఇచ్చేయాలి",
+     "బార్‌కోడ్ కింద ఉన్న నంబర్ టైప్ చేయాలి",
+     "పోయినసారి ఎంత కట్టారో కస్టమర్‌ని అడగాలి"
+    ]
+   },
+   "hi": {
+    "q": "किसी सामान का बारकोड स्कैन नहीं हो रहा। आप क्या करेंगे?",
+    "options": [
+     "मिलते-जुलते सामान से कीमत का अंदाज़ा लगाएं",
+     "सामान मुफ़्त दे दें",
+     "बारकोड के नीचे छपा नंबर टाइप करें",
+     "कस्टमर से पूछें पिछली बार कितने दिए थे"
+    ]
+   }
+  },
+  {
+   "id": "cashier-011",
+   "topic": "Billing and GST",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does MRP on a pack mean?",
+   "options": [
+    "The lowest price allowed in shops",
+    "The highest price it can be sold for",
+    "The price the shop paid for it",
+    "The price with home delivery"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "ప్యాకెట్ మీద ఉండే MRP అంటే ఏమిటి?",
+    "options": [
+     "షాపుల్లో అనుమతించిన కనీస ధర",
+     "దాన్ని అమ్మగలిగే గరిష్ఠ ధర",
+     "షాపు దాన్ని కొన్న ధర",
+     "హోమ్ డెలివరీతో కలిపి ధర"
+    ]
+   },
+   "hi": {
+    "q": "पैकेट पर लिखे MRP का मतलब क्या है?",
+    "options": [
+     "दुकान में मंज़ूर सबसे कम कीमत",
+     "सबसे ज़्यादा कीमत जिस पर इसे बेचा जा सकता है",
+     "दुकान ने इसे जिस कीमत पर खरीदा",
+     "होम डिलीवरी के साथ कीमत"
+    ]
+   }
+  },
+  {
+   "id": "cashier-012",
+   "topic": "Billing and GST",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A bill shows CGST 9% and SGST 9%. What is the total GST rate?",
+   "options": [
+    "18%",
+    "9%",
+    "27%",
+    "12%"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "బిల్లులో CGST 9%, SGST 9% ఉంది. మొత్తం GST రేటు ఎంత?",
+    "options": [
+     "18%",
+     "9%",
+     "27%",
+     "12%"
+    ]
+   },
+   "hi": {
+    "q": "बिल में CGST 9% और SGST 9% है। कुल GST रेट कितना है?",
+    "options": [
+     "18%",
+     "9%",
+     "27%",
+     "12%"
+    ]
+   }
+  },
+  {
+   "id": "cashier-013",
+   "topic": "Billing and GST",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "When do you charge IGST instead of CGST and SGST?",
+   "options": [
+    "When goods go to a buyer in another state",
+    "When the bill is above ₹10,000",
+    "When the customer pays by card",
+    "When the buyer is a company"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "CGST, SGST బదులు IGST ఎప్పుడు వేస్తారు?",
+    "options": [
+     "సరుకు వేరే రాష్ట్రంలోని కొనుగోలుదారుకి వెళ్తున్నప్పుడు",
+     "బిల్లు ₹10,000 దాటినప్పుడు",
+     "కస్టమర్ కార్డుతో కట్టినప్పుడు",
+     "కొనేది కంపెనీ అయినప్పుడు"
+    ]
+   },
+   "hi": {
+    "q": "CGST और SGST की जगह IGST कब लगता है?",
+    "options": [
+     "जब माल दूसरे राज्य के खरीदार को जाए",
+     "जब बिल ₹10,000 से ज़्यादा हो",
+     "जब कस्टमर कार्ड से पेमेंट करे",
+     "जब खरीदार कोई कंपनी हो"
+    ]
+   }
+  },
+  {
+   "id": "cashier-014",
+   "topic": "Billing and GST",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A shop owner buying stock asks for a GST bill in their firm's name. What must you enter?",
+   "options": [
+    "Only their mobile number",
+    "Your own shop's GSTIN in both places",
+    "Their 15-character GSTIN and firm name, exactly",
+    "Their Aadhaar number"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "సరుకు కొంటున్న ఒక షాపు యజమాని తమ ఫర్మ్ పేరు మీద GST బిల్ అడుగుతున్నారు. ఏమి ఎంటర్ చేయాలి?",
+    "options": [
+     "వారి మొబైల్ నంబర్ మాత్రమే",
+     "రెండు చోట్లా మీ షాపు GSTIN",
+     "వారి 15 అక్షరాల GSTIN, ఫర్మ్ పేరు ఖచ్చితంగా",
+     "వారి ఆధార్ నంబర్"
+    ]
+   },
+   "hi": {
+    "q": "माल खरीदने वाला एक दुकानदार अपनी फ़र्म के नाम GST बिल माँगता है। आपको क्या डालना होगा?",
+    "options": [
+     "सिर्फ़ उनका मोबाइल नंबर",
+     "दोनों जगह अपनी दुकान का GSTIN",
+     "उनका 15 अक्षर का GSTIN और फ़र्म का नाम, बिल्कुल सही",
+     "उनका आधार नंबर"
+    ]
+   }
+  },
+  {
+   "id": "cashier-015",
+   "topic": "Billing and GST",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "An item costs ₹1,180 including 18% GST. What is its price before GST?",
+   "options": [
+    "₹967.60",
+    "₹1,000",
+    "₹1,162",
+    "₹980"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "ఒక వస్తువు ధర 18% GSTతో కలిపి ₹1,180. GST లేకుండా ధర ఎంత?",
+    "options": [
+     "₹967.60",
+     "₹1,000",
+     "₹1,162",
+     "₹980"
+    ]
+   },
+   "hi": {
+    "q": "एक सामान की कीमत 18% GST मिलाकर ₹1,180 है। GST से पहले कीमत क्या है?",
+    "options": [
+     "₹967.60",
+     "₹1,000",
+     "₹1,162",
+     "₹980"
+    ]
+   }
+  },
+  {
+   "id": "cashier-016",
+   "topic": "Billing and GST",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "You printed a bill with the wrong quantity, and the customer has paid. What is right?",
+   "options": [
+    "Correct the number with a pen on the printed bill",
+    "Leave it, since the difference is small",
+    "Tear the bill but change nothing in the system",
+    "Cancel it or issue a credit note as per system rules, then make a correct bill"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "తప్పు సంఖ్యతో బిల్ ప్రింట్ అయింది, కస్టమర్ డబ్బు కట్టేశారు. ఏది సరైనది?",
+    "options": [
+     "ప్రింట్ అయిన బిల్ మీద పెన్‌తో సరిచేయాలి",
+     "తేడా చిన్నది కాబట్టి వదిలేయాలి",
+     "బిల్ చింపేసి సిస్టమ్‌లో ఏమీ మార్చకూడదు",
+     "సిస్టమ్ నియమాల ప్రకారం బిల్ క్యాన్సిల్ లేదా క్రెడిట్ నోట్ చేసి, సరైన బిల్ ఇవ్వాలి"
+    ]
+   },
+   "hi": {
+    "q": "गलत मात्रा के साथ बिल प्रिंट हो गया और कस्टमर पैसे दे चुका है। क्या सही है?",
+    "options": [
+     "छपे हुए बिल पर पेन से ठीक कर दें",
+     "फ़र्क छोटा है, इसलिए छोड़ दें",
+     "बिल फाड़ दें पर सिस्टम में कुछ न बदलें",
+     "सिस्टम के नियम से बिल कैंसिल करें या क्रेडिट नोट बनाएं, फिर सही बिल दें"
+    ]
+   }
+  },
+  {
+   "id": "cashier-017",
+   "topic": "UPI and card payments",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A customer says they paid by UPI. What should you check before handing over the goods?",
+   "options": [
+    "The success screen on the customer's phone only",
+    "That the customer has a UPI app",
+    "The money shows as received on the shop's app or soundbox",
+    "The customer's UPI PIN"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "కస్టమర్ UPIతో కట్టామని అంటున్నారు. సరుకు ఇచ్చే ముందు ఏమి చెక్ చేయాలి?",
+    "options": [
+     "కస్టమర్ ఫోన్‌లోని సక్సెస్ స్క్రీన్ మాత్రమే",
+     "కస్టమర్ దగ్గర UPI యాప్ ఉందా",
+     "షాపు యాప్ లేదా సౌండ్‌బాక్స్‌లో డబ్బు వచ్చినట్టు చూపిస్తోందా",
+     "కస్టమర్ UPI PIN"
+    ]
+   },
+   "hi": {
+    "q": "कस्टमर कहता है कि उसने UPI से पेमेंट किया। सामान देने से पहले क्या जाँचें?",
+    "options": [
+     "सिर्फ़ कस्टमर के फ़ोन की सक्सेस स्क्रीन",
+     "कस्टमर के पास UPI ऐप है या नहीं",
+     "दुकान के ऐप या साउंडबॉक्स पर पैसे आने की पुष्टि दिखे",
+     "कस्टमर का UPI PIN"
+    ]
+   }
+  },
+  {
+   "id": "cashier-018",
+   "topic": "UPI and card payments",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A customer pays by card. Who should enter the PIN?",
+   "options": [
+    "The customer, while you look away",
+    "You, after asking for the PIN",
+    "Your supervisor",
+    "Whoever is near the machine"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "కస్టమర్ కార్డుతో కడుతున్నారు. PIN ఎవరు ఎంటర్ చేయాలి?",
+    "options": [
+     "కస్టమరే, మీరు వేరే వైపు చూస్తుండగా",
+     "మీరే, PIN అడిగి తీసుకుని",
+     "మీ సూపర్‌వైజర్",
+     "మెషిన్ దగ్గర ఎవరు ఉంటే వాళ్లు"
+    ]
+   },
+   "hi": {
+    "q": "कस्टमर कार्ड से पेमेंट कर रहा है। PIN कौन डालेगा?",
+    "options": [
+     "कस्टमर खुद, जब आप दूसरी तरफ़ देखें",
+     "आप, PIN पूछकर",
+     "आपका सुपरवाइज़र",
+     "जो भी मशीन के पास हो"
+    ]
+   }
+  },
+  {
+   "id": "cashier-019",
+   "topic": "UPI and card payments",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A UPI payment shows 'pending'. What do you do?",
+   "options": [
+    "Treat it as paid and let them go",
+    "Ask them to pay again at once",
+    "Cancel the whole bill",
+    "Wait a little and check again before handing over goods"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "UPI పేమెంట్ 'పెండింగ్' అని చూపిస్తోంది. ఏమి చేస్తారు?",
+    "options": [
+     "కట్టినట్టే అనుకుని పంపించేయాలి",
+     "వెంటనే మళ్లీ కట్టమని అడగాలి",
+     "బిల్ మొత్తం క్యాన్సిల్ చేయాలి",
+     "కాసేపు ఆగి, సరుకు ఇచ్చే ముందు మళ్లీ చెక్ చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "UPI पेमेंट 'पेंडिंग' दिखा रहा है। आप क्या करेंगे?",
+    "options": [
+     "पेमेंट हो गया मानकर जाने दें",
+     "तुरंत दोबारा पेमेंट करने को कहें",
+     "पूरा बिल कैंसिल कर दें",
+     "थोड़ा रुकें और सामान देने से पहले फिर जाँचें"
+    ]
+   }
+  },
+  {
+   "id": "cashier-020",
+   "topic": "UPI and card payments",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A customer shows a payment screenshot, but your soundbox did not announce it. What is best?",
+   "options": [
+    "Accept the screenshot as proof",
+    "Check the shop's UPI app or bank SMS for the credit",
+    "Ask them to pay in cash as well",
+    "Restart the soundbox and let them go"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "కస్టమర్ పేమెంట్ స్క్రీన్‌షాట్ చూపిస్తున్నారు, కానీ సౌండ్‌బాక్స్ ఏమీ చెప్పలేదు. ఏది సరైనది?",
+    "options": [
+     "స్క్రీన్‌షాట్‌నే రుజువుగా తీసుకోవాలి",
+     "షాపు UPI యాప్‌లో లేదా బ్యాంక్ SMSలో డబ్బు వచ్చిందో చూడాలి",
+     "క్యాష్ కూడా కట్టమని అడగాలి",
+     "సౌండ్‌బాక్స్ రీస్టార్ట్ చేసి పంపించేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "कस्टमर पेमेंट का स्क्रीनशॉट दिखाता है, पर साउंडबॉक्स ने कुछ नहीं बोला। क्या सही है?",
+    "options": [
+     "स्क्रीनशॉट को सबूत मान लें",
+     "दुकान के UPI ऐप या बैंक SMS में पैसा आया है या नहीं, देखें",
+     "उनसे कैश में भी पेमेंट करने को कहें",
+     "साउंडबॉक्स रीस्टार्ट करें और जाने दें"
+    ]
+   }
+  },
+  {
+   "id": "cashier-021",
+   "topic": "UPI and card payments",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A card payment failed, but the customer says money was cut from their account. What do you tell them?",
+   "options": [
+    "Pay again; we will give the first amount back in cash",
+    "Failed payments usually come back in a few days; keep the failed slip",
+    "It is your bank's problem, nothing can be done",
+    "Money is never cut for failed payments"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "కార్డ్ పేమెంట్ ఫెయిల్ అయింది, కానీ అకౌంట్ నుంచి డబ్బు కట్ అయిందని కస్టమర్ అంటున్నారు. ఏమి చెప్తారు?",
+    "options": [
+     "మళ్లీ కట్టండి; మొదటి డబ్బు క్యాష్‌గా ఇస్తాం",
+     "ఫెయిల్ అయిన డబ్బు సాధారణంగా కొన్ని రోజుల్లో తిరిగి వస్తుంది; ఫెయిల్ స్లిప్ ఉంచుకోండి",
+     "అది మీ బ్యాంక్ సమస్య, ఏమీ చేయలేం",
+     "ఫెయిల్ అయితే డబ్బు ఎప్పుడూ కట్ కాదు"
+    ]
+   },
+   "hi": {
+    "q": "कार्ड पेमेंट फ़ेल हुआ, पर कस्टमर कहता है खाते से पैसे कट गए। आप क्या बताएंगे?",
+    "options": [
+     "फिर से पेमेंट करें; पहले वाले पैसे कैश में लौटा देंगे",
+     "फ़ेल पेमेंट के पैसे आमतौर पर कुछ दिनों में लौट आते हैं; फ़ेल स्लिप संभालकर रखें",
+     "यह आपके बैंक की दिक्कत है, कुछ नहीं हो सकता",
+     "फ़ेल पेमेंट में पैसे कभी नहीं कटते"
+    ]
+   }
+  },
+  {
+   "id": "cashier-022",
+   "topic": "UPI and card payments",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A ₹2,000 bill is paid as ₹1,200 by UPI and the rest in cash. How do you record it?",
+   "options": [
+    "Full ₹2,000 as UPI",
+    "Full ₹2,000 as cash",
+    "UPI ₹1,200 and cash ₹700",
+    "UPI ₹1,200 and cash ₹800 in the same bill"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "₹2,000 బిల్లులో ₹1,200 UPIతో, మిగతాది క్యాష్‌తో కట్టారు. ఎలా రికార్డ్ చేయాలి?",
+    "options": [
+     "మొత్తం ₹2,000 UPIగా",
+     "మొత్తం ₹2,000 క్యాష్‌గా",
+     "UPI ₹1,200, క్యాష్ ₹700",
+     "అదే బిల్లులో UPI ₹1,200, క్యాష్ ₹800"
+    ]
+   },
+   "hi": {
+    "q": "₹2,000 के बिल में ₹1,200 UPI से और बाकी कैश में दिए गए। इसे कैसे दर्ज करेंगे?",
+    "options": [
+     "पूरे ₹2,000 UPI में",
+     "पूरे ₹2,000 कैश में",
+     "UPI ₹1,200 और कैश ₹700",
+     "उसी बिल में UPI ₹1,200 और कैश ₹800"
+    ]
+   }
+  },
+  {
+   "id": "cashier-023",
+   "topic": "UPI and card payments",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A caller says he is from the bank and needs the shop's UPI PIN to fix the soundbox. What do you do?",
+   "options": [
+    "Refuse, end the call and tell the owner; banks never ask for a PIN",
+    "Give the PIN, since the soundbox is not working",
+    "Give the PIN and change it later",
+    "Ask him to visit and give it to him in person"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "ఒక వ్యక్తి బ్యాంక్ నుంచి కాల్ చేస్తున్నానని, సౌండ్‌బాక్స్ బాగుచేయడానికి షాపు UPI PIN కావాలని అంటున్నారు. ఏమి చేస్తారు?",
+    "options": [
+     "ఇవ్వకుండా కాల్ కట్ చేసి యజమానికి చెప్పాలి; బ్యాంక్ ఎప్పుడూ PIN అడగదు",
+     "సౌండ్‌బాక్స్ పనిచేయడం లేదు కాబట్టి PIN ఇవ్వాలి",
+     "PIN ఇచ్చి తర్వాత మార్చుకోవాలి",
+     "షాపుకి రమ్మని, ఎదురుగా ఇవ్వాలి"
+    ]
+   },
+   "hi": {
+    "q": "कोई कहता है वह बैंक से है और साउंडबॉक्स ठीक करने के लिए दुकान का UPI PIN चाहिए। आप क्या करेंगे?",
+    "options": [
+     "मना करें, कॉल काटें और मालिक को बताएं; बैंक कभी PIN नहीं माँगता",
+     "साउंडबॉक्स खराब है, इसलिए PIN दे दें",
+     "PIN दे दें और बाद में बदल लें",
+     "उसे दुकान पर बुलाकर सामने PIN दें"
+    ]
+   }
+  },
+  {
+   "id": "cashier-024",
+   "topic": "UPI and card payments",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "At day end, UPI received in the app is ₹300 more than UPI in the billing system. What is a likely reason?",
+   "options": [
+    "The bank added a bonus to the account",
+    "The bill printer ran out of paper",
+    "A UPI sale was entered as cash by mistake",
+    "A customer paid the exact amount in cash"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "రోజు చివర యాప్‌లో వచ్చిన UPI, బిల్లింగ్ సిస్టమ్‌లోని UPI కంటే ₹300 ఎక్కువ ఉంది. కారణం ఏమై ఉండొచ్చు?",
+    "options": [
+     "బ్యాంక్ అకౌంట్‌లో బోనస్ వేసింది",
+     "బిల్ ప్రింటర్‌లో పేపర్ అయిపోయింది",
+     "ఒక UPI సేల్‌ని పొరపాటున క్యాష్‌గా ఎంటర్ చేశారు",
+     "ఒక కస్టమర్ సరిగ్గా అంతే క్యాష్ ఇచ్చారు"
+    ]
+   },
+   "hi": {
+    "q": "दिन के आखिर में ऐप में आया UPI, बिलिंग सिस्टम के UPI से ₹300 ज़्यादा है। संभावित कारण क्या है?",
+    "options": [
+     "बैंक ने खाते में बोनस डाला",
+     "बिल प्रिंटर का पेपर खत्म हो गया",
+     "एक UPI बिक्री गलती से कैश में दर्ज हो गई",
+     "एक कस्टमर ने पूरे छुट्टे कैश में दिए"
+    ]
+   }
+  },
+  {
+   "id": "cashier-025",
+   "topic": "Returns and exchange",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A customer wants to return an item. What do you ask for first?",
+   "options": [
+    "Their home address",
+    "Why they bought it",
+    "Their ID card",
+    "The bill or receipt"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "కస్టమర్ ఒక వస్తువు తిరిగి ఇవ్వాలనుకుంటున్నారు. మొదట ఏమి అడుగుతారు?",
+    "options": [
+     "వారి ఇంటి అడ్రస్",
+     "ఎందుకు కొన్నారో",
+     "వారి ID కార్డ్",
+     "బిల్ లేదా రసీదు"
+    ]
+   },
+   "hi": {
+    "q": "कस्टमर कोई सामान लौटाना चाहता है। सबसे पहले क्या माँगेंगे?",
+    "options": [
+     "उनके घर का पता",
+     "उन्होंने यह क्यों खरीदा",
+     "उनका ID कार्ड",
+     "बिल या रसीद"
+    ]
+   }
+  },
+  {
+   "id": "cashier-026",
+   "topic": "Returns and exchange",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "The shop allows exchange within 7 days. A customer comes on day 10. What do you do?",
+   "options": [
+    "Exchange it anyway to keep them happy",
+    "Tell them to leave the shop",
+    "Politely explain the rule and call the supervisor if they insist",
+    "Keep the item and give nothing back"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "షాపులో 7 రోజుల్లో ఎక్స్‌చేంజ్ చేసుకోవచ్చు. కస్టమర్ 10వ రోజు వచ్చారు. ఏమి చేస్తారు?",
+    "options": [
+     "సంతోషంగా ఉండాలని ఎలాగైనా మార్చి ఇవ్వాలి",
+     "షాపు నుంచి వెళ్లిపొమ్మనాలి",
+     "నియమం మర్యాదగా వివరించి, వారు పట్టుబడితే సూపర్‌వైజర్‌ని పిలవాలి",
+     "వస్తువు ఉంచుకుని ఏమీ ఇవ్వకూడదు"
+    ]
+   },
+   "hi": {
+    "q": "दुकान में 7 दिन के अंदर एक्सचेंज होता है। कस्टमर 10वें दिन आता है। आप क्या करेंगे?",
+    "options": [
+     "खुश रखने के लिए फिर भी बदल दें",
+     "दुकान से जाने को कहें",
+     "नियम विनम्रता से समझाएं, और ज़िद करें तो सुपरवाइज़र को बुलाएं",
+     "सामान रख लें और कुछ न लौटाएं"
+    ]
+   }
+  },
+  {
+   "id": "cashier-027",
+   "topic": "Returns and exchange",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A customer paid by card and gets a refund. How is it usually given?",
+   "options": [
+    "In cash from the drawer",
+    "Back to the same card",
+    "To any UPI number they give",
+    "As a voucher, without asking them"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "కస్టమర్ కార్డుతో కట్టారు, రీఫండ్ ఇవ్వాలి. సాధారణంగా ఎలా ఇస్తారు?",
+    "options": [
+     "డ్రాయర్ నుంచి క్యాష్‌గా",
+     "అదే కార్డుకి తిరిగి",
+     "వారు చెప్పే ఏ UPI నంబర్‌కైనా",
+     "అడగకుండా వోచర్‌గా"
+    ]
+   },
+   "hi": {
+    "q": "कस्टमर ने कार्ड से पेमेंट किया था और रिफ़ंड मिलना है। आमतौर पर कैसे दिया जाता है?",
+    "options": [
+     "दराज़ से कैश में",
+     "उसी कार्ड में वापस",
+     "वे जो भी UPI नंबर दें उस पर",
+     "बिना पूछे वाउचर के रूप में"
+    ]
+   }
+  },
+  {
+   "id": "cashier-028",
+   "topic": "Returns and exchange",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A customer returns a shirt with the tag removed and stains on it. What is best?",
+   "options": [
+    "Politely explain that used items cannot be returned, as per policy",
+    "Give a full refund to avoid an argument",
+    "Accept it and put it back on the shelf",
+    "Shout at them for trying to cheat"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "కస్టమర్ ట్యాగ్ తీసేసిన, మరకలు ఉన్న షర్ట్ తిరిగి ఇస్తున్నారు. ఏది సరైనది?",
+    "options": [
+     "పాలసీ ప్రకారం వాడిన వస్తువులు తిరిగి తీసుకోమని మర్యాదగా చెప్పాలి",
+     "గొడవ వద్దని పూర్తి రీఫండ్ ఇవ్వాలి",
+     "తీసుకుని మళ్లీ షెల్ఫ్‌లో పెట్టాలి",
+     "మోసం చేస్తున్నారని అరవాలి"
+    ]
+   },
+   "hi": {
+    "q": "कस्टमर टैग हटी और दाग लगी शर्ट लौटा रहा है। क्या सही है?",
+    "options": [
+     "विनम्रता से बताएं कि पॉलिसी के अनुसार इस्तेमाल किया सामान वापस नहीं होता",
+     "बहस से बचने के लिए पूरा रिफ़ंड दे दें",
+     "ले लें और वापस शेल्फ़ पर रख दें",
+     "धोखा देने के लिए उन पर चिल्लाएं"
+    ]
+   }
+  },
+  {
+   "id": "cashier-029",
+   "topic": "Returns and exchange",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "In an exchange, the new item costs more than the old one. What do you do?",
+   "options": [
+    "Collect the difference and give a bill for it",
+    "Give it at the old item's price",
+    "Make them pay the full new price",
+    "Ask them to pick a cheaper item"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "ఎక్స్‌చేంజ్‌లో కొత్త వస్తువు ధర పాతదాని కంటే ఎక్కువ. ఏమి చేస్తారు?",
+    "options": [
+     "తేడా డబ్బు తీసుకుని దానికి బిల్ ఇవ్వాలి",
+     "పాత వస్తువు ధరకే ఇచ్చేయాలి",
+     "కొత్త వస్తువు పూర్తి ధర కట్టించాలి",
+     "తక్కువ ధర వస్తువు తీసుకోమనాలి"
+    ]
+   },
+   "hi": {
+    "q": "एक्सचेंज में नया सामान पुराने से महंगा है। आप क्या करेंगे?",
+    "options": [
+     "अंतर की रकम लें और उसका बिल दें",
+     "पुराने सामान की कीमत पर ही दे दें",
+     "नए सामान की पूरी कीमत लें",
+     "सस्ता सामान चुनने को कहें"
+    ]
+   }
+  },
+  {
+   "id": "cashier-030",
+   "topic": "Returns and exchange",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A customer returns one item bought in a 'Buy 2 Get 1 free' offer. How much do you refund?",
+   "options": [
+    "The full MRP of that item",
+    "Nothing; offer items are never returned",
+    "The item's share of the offer price, as per policy",
+    "The price of the free item only"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "'2 కొంటే 1 ఫ్రీ' ఆఫర్‌లో కొన్న ఒక వస్తువు కస్టమర్ తిరిగి ఇస్తున్నారు. ఎంత రీఫండ్ ఇవ్వాలి?",
+    "options": [
+     "ఆ వస్తువు పూర్తి MRP",
+     "ఏమీ ఇవ్వకూడదు; ఆఫర్ వస్తువులు ఎప్పుడూ వెనక్కి తీసుకోరు",
+     "పాలసీ ప్రకారం, ఆఫర్ ధరలో ఆ వస్తువు వాటా",
+     "ఫ్రీ వస్తువు ధర మాత్రమే"
+    ]
+   },
+   "hi": {
+    "q": "'2 खरीदो 1 मुफ़्त' ऑफर में लिया एक सामान कस्टमर लौटा रहा है। कितना रिफ़ंड देंगे?",
+    "options": [
+     "उस सामान का पूरा MRP",
+     "कुछ नहीं; ऑफर का सामान कभी वापस नहीं होता",
+     "पॉलिसी के अनुसार, ऑफर कीमत में उस सामान का हिस्सा",
+     "सिर्फ़ मुफ़्त सामान की कीमत"
+    ]
+   }
+  },
+  {
+   "id": "cashier-031",
+   "topic": "Returns and exchange",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A regular customer wants a refund without a bill and says, 'You know me.' What do you do?",
+   "options": [
+    "Give the refund, since they are a known face",
+    "Look up the sale in the system, or ask the supervisor",
+    "Refuse and ask them not to come again",
+    "Give half the money as a middle path"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "ఒక రెగ్యులర్ కస్టమర్ బిల్ లేకుండా రీఫండ్ అడుగుతూ 'నేను మీకు తెలుసు కదా' అంటున్నారు. ఏమి చేస్తారు?",
+    "options": [
+     "తెలిసిన వ్యక్తి కాబట్టి రీఫండ్ ఇవ్వాలి",
+     "సిస్టమ్‌లో ఆ సేల్ వెతకాలి, లేదా సూపర్‌వైజర్‌ని అడగాలి",
+     "కుదరదని చెప్పి మళ్లీ రావద్దనాలి",
+     "మధ్యే మార్గంగా సగం డబ్బు ఇవ్వాలి"
+    ]
+   },
+   "hi": {
+    "q": "एक रेगुलर कस्टमर बिना बिल के रिफ़ंड माँगता है और कहता है, 'आप मुझे जानते हो।' आप क्या करेंगे?",
+    "options": [
+     "जान-पहचान है, इसलिए रिफ़ंड दे दें",
+     "सिस्टम में वह बिक्री खोजें, या सुपरवाइज़र से पूछें",
+     "मना करें और दोबारा न आने को कहें",
+     "बीच का रास्ता निकालकर आधे पैसे दें"
+    ]
+   }
+  },
+  {
+   "id": "cashier-032",
+   "topic": "Customer care at the counter",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A long queue forms at your counter. What should you do?",
+   "options": [
+    "Rush and skip checking the items",
+    "Tell customers to come back later",
+    "Stop billing and argue with slow customers",
+    "Stay calm, work steadily and ask for a second counter if needed"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "మీ కౌంటర్ దగ్గర పెద్ద క్యూ ఏర్పడింది. ఏమి చేయాలి?",
+    "options": [
+     "తొందరపడి వస్తువులు చెక్ చేయడం మానేయాలి",
+     "తర్వాత రమ్మని కస్టమర్లకు చెప్పాలి",
+     "బిల్లింగ్ ఆపి నెమ్మదిగా ఉన్నవారితో గొడవపడాలి",
+     "ప్రశాంతంగా, స్థిరంగా పని చేసి, అవసరమైతే రెండో కౌంటర్ అడగాలి"
+    ]
+   },
+   "hi": {
+    "q": "आपके काउंटर पर लंबी लाइन लग गई है। क्या करना चाहिए?",
+    "options": [
+     "जल्दबाज़ी में सामान जाँचना छोड़ दें",
+     "कस्टमर को बाद में आने को कहें",
+     "बिलिंग रोककर धीमे कस्टमर से बहस करें",
+     "शांत रहें, लगातार काम करें, और ज़रूरत हो तो दूसरा काउंटर खुलवाएं"
+    ]
+   }
+  },
+  {
+   "id": "cashier-033",
+   "topic": "Customer care at the counter",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "A customer asks for a carry bag. Your shop charges ₹5 for it. What do you do?",
+   "options": [
+    "Add it to the bill without telling them",
+    "Give it free and pay from your pocket",
+    "Tell them it costs ₹5 and add it only if they agree",
+    "Refuse to give any bag"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "కస్టమర్ క్యారీ బ్యాగ్ అడుగుతున్నారు. మీ షాపులో దానికి ₹5. ఏమి చేస్తారు?",
+    "options": [
+     "చెప్పకుండా బిల్లులో కలిపేయాలి",
+     "ఫ్రీగా ఇచ్చి మీ జేబులో నుంచి కట్టాలి",
+     "దాని ధర ₹5 అని చెప్పి, వారు ఒప్పుకుంటేనే బిల్లులో వేయాలి",
+     "బ్యాగ్ ఇవ్వనని చెప్పాలి"
+    ]
+   },
+   "hi": {
+    "q": "कस्टमर कैरी बैग माँगता है। आपकी दुकान में इसके ₹5 लगते हैं। आप क्या करेंगे?",
+    "options": [
+     "बिना बताए बिल में जोड़ दें",
+     "मुफ़्त दें और अपनी जेब से भरें",
+     "बताएं कि इसके ₹5 लगेंगे, और मानें तभी बिल में जोड़ें",
+     "बैग देने से मना कर दें"
+    ]
+   }
+  },
+  {
+   "id": "cashier-034",
+   "topic": "Customer care at the counter",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "How should you hand back the change and the bill?",
+   "options": [
+    "Count it in front of the customer and give it with the bill",
+    "Put it on the counter and turn away",
+    "Keep the coins if you lack small change",
+    "Give it to the next customer to pass on"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "చిల్లర, బిల్ ఎలా తిరిగి ఇవ్వాలి?",
+    "options": [
+     "కస్టమర్ ముందే లెక్కపెట్టి, బిల్‌తో కలిపి ఇవ్వాలి",
+     "కౌంటర్ మీద పెట్టి వేరే వైపు తిరగాలి",
+     "చిల్లర లేకపోతే కాయిన్లు ఉంచేసుకోవాలి",
+     "తర్వాతి కస్టమర్‌కి ఇచ్చి అందించమనాలి"
+    ]
+   },
+   "hi": {
+    "q": "छुट्टे और बिल कैसे लौटाने चाहिए?",
+    "options": [
+     "कस्टमर के सामने गिनकर बिल के साथ दें",
+     "काउंटर पर रखकर मुँह फेर लें",
+     "छुट्टे न हों तो सिक्के रख लें",
+     "अगले कस्टमर को दें कि वह पहुँचा दे"
+    ]
+   }
+  },
+  {
+   "id": "cashier-035",
+   "topic": "Customer care at the counter",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A customer is upset because the shelf price was lower than the billed price. What do you do first?",
+   "options": [
+    "Say the shelf label is not your problem",
+    "Charge the bill price without checking",
+    "Ask security to remove them",
+    "Stay calm, check the shelf label, and fix it as per shop policy"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "షెల్ఫ్ మీద ధర, బిల్లు ధర కంటే తక్కువ ఉందని కస్టమర్ కోపంగా ఉన్నారు. మొదట ఏమి చేస్తారు?",
+    "options": [
+     "షెల్ఫ్ లేబుల్ మీ సమస్య కాదని చెప్పాలి",
+     "చెక్ చేయకుండా బిల్లు ధరే వసూలు చేయాలి",
+     "బయటకు పంపమని సెక్యూరిటీని పిలవాలి",
+     "ప్రశాంతంగా ఉండి, షెల్ఫ్ లేబుల్ చూసి, షాపు పాలసీ ప్రకారం సరిచేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "शेल्फ़ पर कीमत बिल से कम थी, इसलिए कस्टमर नाराज़ है। आप पहले क्या करेंगे?",
+    "options": [
+     "कहें कि शेल्फ़ का लेबल आपकी दिक्कत नहीं",
+     "बिना जाँचे बिल वाली कीमत ही लें",
+     "सिक्योरिटी को बुलाकर बाहर करवाएं",
+     "शांत रहें, शेल्फ़ का लेबल देखें, और दुकान की पॉलिसी से ठीक करें"
+    ]
+   }
+  },
+  {
+   "id": "cashier-036",
+   "topic": "Customer care at the counter",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "You have no ₹2 coin to return. What is right?",
+   "options": [
+    "Give a toffee without asking",
+    "Ask if they have coins, or round down in their favour",
+    "Keep the ₹2 quietly",
+    "Ask them to buy something else"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "తిరిగి ఇవ్వడానికి ₹2 కాయిన్ లేదు. ఏది సరైనది?",
+    "options": [
+     "అడగకుండా చాక్లెట్ ఇచ్చేయాలి",
+     "వారి దగ్గర కాయిన్లు ఉన్నాయా అడగాలి, లేదా వారికి లాభంగా తగ్గించాలి",
+     "ఆ ₹2 నిశ్శబ్దంగా ఉంచేసుకోవాలి",
+     "ఇంకేదైనా కొనమని అడగాలి"
+    ]
+   },
+   "hi": {
+    "q": "लौटाने के लिए ₹2 का सिक्का नहीं है। क्या सही है?",
+    "options": [
+     "बिना पूछे टॉफ़ी दे दें",
+     "पूछें कि उनके पास सिक्के हैं क्या, या उनके फ़ायदे में कम कर दें",
+     "चुपचाप ₹2 रख लें",
+     "कुछ और खरीदने को कहें"
+    ]
+   }
+  },
+  {
+   "id": "cashier-037",
+   "topic": "Customer care at the counter",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A customer wants to use a discount coupon that expired yesterday. What do you do?",
+   "options": [
+    "Accept it, since it expired only recently",
+    "Politely say it has expired and mention any current offers",
+    "Accept it and adjust the discount on another bill",
+    "Tell them the coupon looks fake"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "నిన్నే గడువు ముగిసిన డిస్కౌంట్ కూపన్ వాడాలని కస్టమర్ అంటున్నారు. ఏమి చేస్తారు?",
+    "options": [
+     "నిన్ననే ముగిసింది కాబట్టి తీసుకోవాలి",
+     "గడువు ముగిసిందని మర్యాదగా చెప్పి, ఇప్పుడున్న ఆఫర్లు చెప్పాలి",
+     "తీసుకుని ఆ డిస్కౌంట్ వేరే బిల్లులో సర్దాలి",
+     "కూపన్ నకిలీలా ఉందని చెప్పాలి"
+    ]
+   },
+   "hi": {
+    "q": "कस्टमर कल एक्सपायर हुआ डिस्काउंट कूपन इस्तेमाल करना चाहता है। आप क्या करेंगे?",
+    "options": [
+     "कल ही एक्सपायर हुआ है, इसलिए ले लें",
+     "विनम्रता से बताएं कि यह एक्सपायर हो गया, और अभी के ऑफर बताएं",
+     "ले लें और डिस्काउंट किसी दूसरे बिल में एडजस्ट करें",
+     "कहें कि कूपन नकली लगता है"
+    ]
+   }
+  },
+  {
+   "id": "cashier-038",
+   "topic": "Customer care at the counter",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A customer calls from home: you billed one item twice. What do you do?",
+   "options": [
+    "Say the bill is final once printed",
+    "Ask them to prove it with a video",
+    "Tell them to call the head office",
+    "Say sorry, check the bill copy, and arrange the refund as per policy"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "కస్టమర్ ఇంటి నుంచి కాల్ చేశారు: ఒకే వస్తువుకి రెండుసార్లు బిల్ వేశారు. ఏమి చేస్తారు?",
+    "options": [
+     "ప్రింట్ అయిన బిల్ ఫైనల్ అని చెప్పాలి",
+     "వీడియోతో రుజువు చూపమనాలి",
+     "హెడ్ ఆఫీస్‌కి కాల్ చేయమనాలి",
+     "సారీ చెప్పి, బిల్ కాపీ చెక్ చేసి, పాలసీ ప్రకారం రీఫండ్ ఏర్పాటు చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "कस्टमर घर से कॉल करता है: एक सामान का बिल दो बार बन गया। आप क्या करेंगे?",
+    "options": [
+     "कहें कि छपा हुआ बिल फ़ाइनल है",
+     "वीडियो से सबूत दिखाने को कहें",
+     "हेड ऑफ़िस को कॉल करने को कहें",
+     "सॉरी कहें, बिल की कॉपी जाँचें, और पॉलिसी के अनुसार रिफ़ंड करवाएं"
+    ]
+   }
+  },
+  {
+   "id": "cashier-039",
+   "topic": "Shift closing",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is the 'opening float' at a cash counter?",
+   "options": [
+    "Cash kept in the drawer at the start for giving change",
+    "The first sale of the day",
+    "Money taken out for tea",
+    "Yesterday's UPI amount"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "క్యాష్ కౌంటర్‌లో 'ఓపెనింగ్ ఫ్లోట్' అంటే ఏమిటి?",
+    "options": [
+     "చిల్లర ఇవ్వడానికి మొదట్లో డ్రాయర్‌లో పెట్టే క్యాష్",
+     "రోజులో మొదటి సేల్",
+     "టీ కోసం తీసిన డబ్బు",
+     "నిన్నటి UPI మొత్తం"
+    ]
+   },
+   "hi": {
+    "q": "कैश काउंटर पर 'ओपनिंग फ़्लोट' क्या होता है?",
+    "options": [
+     "छुट्टे देने के लिए शुरुआत में दराज़ में रखा कैश",
+     "दिन की पहली बिक्री",
+     "चाय के लिए निकाला गया पैसा",
+     "कल का UPI अमाउंट"
+    ]
+   }
+  },
+  {
+   "id": "cashier-040",
+   "topic": "Shift closing",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "At the end of your shift, what do you count first?",
+   "options": [
+    "How many customers you served",
+    "How many carry bags are left",
+    "The cash in the drawer, note by note",
+    "How many pens are at the counter"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "షిఫ్ట్ చివర మొదట ఏమి లెక్కపెడతారు?",
+    "options": [
+     "ఎంతమంది కస్టమర్లకు సర్వీస్ చేశారో",
+     "ఎన్ని క్యారీ బ్యాగులు మిగిలాయో",
+     "డ్రాయర్‌లోని క్యాష్, ఒక్కో నోటు",
+     "కౌంటర్‌లో ఎన్ని పెన్నులు ఉన్నాయో"
+    ]
+   },
+   "hi": {
+    "q": "शिफ़्ट के आखिर में सबसे पहले क्या गिनते हैं?",
+    "options": [
+     "कितने कस्टमर को सर्विस दी",
+     "कितने कैरी बैग बचे हैं",
+     "दराज़ का कैश, एक-एक नोट",
+     "काउंटर पर कितने पेन हैं"
+    ]
+   }
+  },
+  {
+   "id": "cashier-041",
+   "topic": "Shift closing",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Opening float ₹2,000. Cash sales ₹15,400. One cash refund of ₹400. How much cash should be in the drawer?",
+   "options": [
+    "₹17,800",
+    "₹15,000",
+    "₹17,400",
+    "₹17,000"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "ఓపెనింగ్ ఫ్లోట్ ₹2,000. క్యాష్ సేల్స్ ₹15,400. ఒక ₹400 క్యాష్ రీఫండ్ ఇచ్చారు. డ్రాయర్‌లో ఎంత క్యాష్ ఉండాలి?",
+    "options": [
+     "₹17,800",
+     "₹15,000",
+     "₹17,400",
+     "₹17,000"
+    ]
+   },
+   "hi": {
+    "q": "ओपनिंग फ़्लोट ₹2,000। कैश बिक्री ₹15,400। एक ₹400 का कैश रिफ़ंड दिया। दराज़ में कितना कैश होना चाहिए?",
+    "options": [
+     "₹17,800",
+     "₹15,000",
+     "₹17,400",
+     "₹17,000"
+    ]
+   }
+  },
+  {
+   "id": "cashier-042",
+   "topic": "Shift closing",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why should you never leave the cash drawer open and walk away?",
+   "options": [
+    "The billing system will switch off",
+    "Customers may skip the queue",
+    "Cash could be stolen, and you are responsible for it",
+    "The supervisor will lock you out"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "క్యాష్ డ్రాయర్ తెరిచి ఉంచి ఎందుకు ఎప్పుడూ వెళ్లిపోకూడదు?",
+    "options": [
+     "బిల్లింగ్ సిస్టమ్ ఆఫ్ అయిపోతుంది",
+     "కస్టమర్లు క్యూ దాటేస్తారు",
+     "క్యాష్ దొంగతనం కావొచ్చు, దానికి మీరే బాధ్యులు",
+     "సూపర్‌వైజర్ మిమ్మల్ని లాక్ చేస్తారు"
+    ]
+   },
+   "hi": {
+    "q": "कैश दराज़ खुला छोड़कर कभी क्यों नहीं जाना चाहिए?",
+    "options": [
+     "बिलिंग सिस्टम बंद हो जाएगा",
+     "कस्टमर लाइन तोड़ देंगे",
+     "कैश चोरी हो सकता है, और उसकी ज़िम्मेदारी आपकी है",
+     "सुपरवाइज़र आपको लॉक कर देगा"
+    ]
+   }
+  },
+  {
+   "id": "cashier-043",
+   "topic": "Shift closing",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "At closing, the cash is ₹500 more than the system shows. What is right?",
+   "options": [
+    "Keep it aside to cover any future shortage",
+    "Report the extra amount and find the cause; do not keep it",
+    "Take it home, since it is extra",
+    "Add a dummy sale so the totals match"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "క్లోజింగ్‌లో సిస్టమ్ చూపించేదాని కంటే క్యాష్ ₹500 ఎక్కువ ఉంది. ఏది సరైనది?",
+    "options": [
+     "తర్వాత తక్కువ వస్తే సర్దడానికి పక్కన పెట్టాలి",
+     "ఎక్కువ డబ్బు గురించి రిపోర్ట్ చేసి కారణం వెతకాలి; ఉంచుకోకూడదు",
+     "ఎక్కువే కదా అని ఇంటికి తీసుకెళ్లాలి",
+     "లెక్క సరిపోయేలా ఒక నకిలీ సేల్ వేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "क्लोज़िंग पर कैश सिस्टम से ₹500 ज़्यादा है। क्या सही है?",
+    "options": [
+     "आगे की कमी पूरी करने के लिए अलग रख लें",
+     "ज़्यादा रकम की रिपोर्ट करें और कारण खोजें; रखें नहीं",
+     "ज़्यादा है, इसलिए घर ले जाएं",
+     "टोटल मिलाने के लिए एक नकली बिक्री डाल दें"
+    ]
+   }
+  },
+  {
+   "id": "cashier-044",
+   "topic": "Shift closing",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A relief cashier takes over your counter mid-shift. What should happen first?",
+   "options": [
+    "Count the drawer together and both sign the handover",
+    "Just log out and leave",
+    "Hand over the keys and count later",
+    "Take the cash home to count it"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "షిఫ్ట్ మధ్యలో వేరే క్యాషియర్ మీ కౌంటర్ తీసుకుంటున్నారు. ముందు ఏమి జరగాలి?",
+    "options": [
+     "ఇద్దరూ కలిసి డ్రాయర్ లెక్కపెట్టి, హ్యాండోవర్‌పై సంతకం చేయాలి",
+     "లాగ్ అవుట్ చేసి వెళ్లిపోవాలి",
+     "తాళాలు ఇచ్చి తర్వాత లెక్కపెట్టాలి",
+     "లెక్కపెట్టడానికి క్యాష్ ఇంటికి తీసుకెళ్లాలి"
+    ]
+   },
+   "hi": {
+    "q": "शिफ़्ट के बीच दूसरा कैशियर आपका काउंटर संभाल रहा है। पहले क्या होना चाहिए?",
+    "options": [
+     "दोनों साथ में दराज़ गिनें और हैंडओवर पर साइन करें",
+     "बस लॉग आउट करके चले जाएं",
+     "चाबी दे दें और बाद में गिनें",
+     "गिनने के लिए कैश घर ले जाएं"
+    ]
+   }
+  },
+  {
+   "id": "cashier-045",
+   "topic": "Shift closing",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why does cancelling a bill usually need a supervisor's approval?",
+   "options": [
+    "To stop misuse, like cancelling a paid bill and keeping the cash",
+    "Because cashiers cannot use that screen",
+    "To make billing faster",
+    "Because customers ask for it"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "బిల్ క్యాన్సిల్ చేయడానికి సాధారణంగా సూపర్‌వైజర్ అనుమతి ఎందుకు కావాలి?",
+    "options": [
+     "కట్టిన బిల్ క్యాన్సిల్ చేసి క్యాష్ ఉంచుకోవడం లాంటి దుర్వినియోగం ఆపడానికి",
+     "క్యాషియర్లు ఆ స్క్రీన్ వాడలేరు కాబట్టి",
+     "బిల్లింగ్ వేగంగా అవ్వడానికి",
+     "కస్టమర్లు అలా అడుగుతారు కాబట్టి"
+    ]
+   },
+   "hi": {
+    "q": "बिल कैंसिल करने के लिए आमतौर पर सुपरवाइज़र की मंज़ूरी क्यों चाहिए?",
+    "options": [
+     "गलत इस्तेमाल रोकने के लिए, जैसे पेमेंट हुआ बिल कैंसिल करके कैश रख लेना",
+     "क्योंकि कैशियर वह स्क्रीन नहीं चला सकते",
+     "बिलिंग तेज़ करने के लिए",
+     "क्योंकि कस्टमर ऐसा माँगते हैं"
+    ]
+   }
+  }
+ ],
+ "task": {
+  "type": "written",
+  "title": "Check a grocery GST bill, find the mistakes and reply to the customer",
+  "minutes": 15,
+  "brief": "Take about 15 minutes. Read the bill and the customer's message in the material. All rates are before GST. Part 1: List each mistake on the bill. For each one, write what is wrong and the correct figure (amounts, GST, totals). Then write the correct grand total and how much extra the customer paid. Part 2: Write a short, polite WhatsApp reply (4 to 6 lines) to Mr. Arjun Rao. Say sorry, explain the mistake in simple words, tell him the correct amount, and say how and when he will get the extra money back. You can write in English, Telugu or Hindi.",
+  "material": "TAX INVOICE - Sai Durga Super Market, Gandhi Road, Vijayawada (GSTIN 37XXXXX1234X1Z5)\nBill No: SDM/2611/0482   Date: 14-11-2026   Customer: Mr. Arjun Rao   Paid by: UPI\n\nNo | Item               | Qty | Rate (₹) | Amount (₹) | GST\n1  | Sunflower oil 1 L  |  2  |   160    |    320     | 5%\n2  | Rice 5 kg bag      |  1  |   350    |    350     | 5%\n3  | Bath soap 125 g    |  4  |    45    |    200     | 18%\n4  | Biscuits pack      |  5  |    20    |    100     | 18%\n\nSub-total (before GST):                  ₹970.00\nCGST 2.5% on ₹670:                        ₹16.75\nSGST 2.5% on ₹670:                        ₹16.75\nCGST 18% on ₹300:                         ₹54.00\nSGST 18% on ₹300:                         ₹54.00\nGrand total (rounded):                 ₹1,112.00\nAmount received (UPI):                 ₹1,112.00\n\nCustomer message (WhatsApp, next day):\n\"Hi, I bought groceries yesterday. The bill felt too high. Please check and tell me. - Arjun\"\n",
+  "key_points": [
+   "Soap amount is wrong: 4 x ₹45 = ₹180, not ₹200",
+   "Correct sub-total is ₹950 (₹670 at 5% and ₹280 at 18%)",
+   "18% GST must be split as CGST 9% + SGST 9%, not 18% each",
+   "Correct 18% GST: ₹25.20 CGST + ₹25.20 SGST on ₹280 (₹50.40 in all)",
+   "5% GST on ₹670 is right: ₹16.75 + ₹16.75",
+   "Correct grand total ₹1,033.90, rounded to ₹1,034",
+   "Customer paid ₹78 extra (₹1,112 - ₹1,034)",
+   "Reply says sorry, explains simply, and offers a refund of ₹78 back to his UPI with a clear time",
+   "Mentions a corrected bill or credit note will be shared"
+  ],
+  "rubric": [
+   {
+    "key": "correctness",
+    "label": "Correct figures",
+    "guide": "0 = mistakes not found or wrong numbers; 3 = finds some mistakes but total or refund is wrong; 5 = all mistakes found, correct total ₹1,034 and refund ₹78"
+   },
+   {
+    "key": "completeness",
+    "label": "Completeness",
+    "guide": "0 = only one part answered; 3 = both parts but missing the refund method or a corrected bill; 5 = every mistake listed with the fix, and the reply covers sorry, amount, refund and timing"
+   },
+   {
+    "key": "tone",
+    "label": "Tone with the customer",
+    "guide": "0 = rude, blaming or defensive; 3 = polite but cold or no apology; 5 = warm, apologetic, respectful and reassuring"
+   },
+   {
+    "key": "clarity",
+    "label": "Clarity",
+    "guide": "0 = confusing, hard to follow; 3 = understandable but messy or too long; 5 = short, clear, easy for the customer to understand"
+   }
+  ]
+ }
+}

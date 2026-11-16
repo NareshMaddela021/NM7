@@ -1,0 +1,682 @@
+{
+ "slug": "business-analyst",
+ "version": 1,
+ "topics": [
+  "Requirements elicitation",
+  "User stories and documentation",
+  "Process analysis",
+  "Data and analysis",
+  "Stakeholders and delivery"
+ ],
+ "questions": [
+  {
+   "id": "business-analyst-001",
+   "topic": "Requirements elicitation",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is a functional requirement?",
+   "options": [
+    "What the system must do, like \"send an OTP at login\"",
+    "How fast the pages must load for users",
+    "The project's total budget in ₹",
+    "Which cloud provider the app will run on"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "business-analyst-002",
+   "topic": "Requirements elicitation",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which of these is a non-functional requirement?",
+   "options": [
+    "Users can download invoices as PDF files",
+    "The dashboard must load within 3 seconds for 500 users",
+    "Admins can block a user account",
+    "Customers can pay using UPI"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "business-analyst-003",
+   "topic": "Requirements elicitation",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Why ask \"why\" a few times when a stakeholder requests a feature?",
+   "options": [
+    "To delay the project in a polite way",
+    "To get the request in writing faster",
+    "To uncover the real need behind the request",
+    "To estimate the development cost directly"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "business-analyst-004",
+   "topic": "Requirements elicitation",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "The sales head asks for \"a report with everything in it\". What do you do first?",
+   "options": [
+    "Export every database table to one Excel file",
+    "Copy the layout of the old system's report",
+    "Ask developers which fields are easiest to add",
+    "Ask which decisions it must support and who will use it"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "business-analyst-005",
+   "topic": "Requirements elicitation",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which elicitation method best captures how accounts clerks really process GST invoices today?",
+   "options": [
+    "Observing or shadowing them at their desks",
+    "A company-wide email survey with rating scales",
+    "A brainstorming session with senior management",
+    "Reading the ERP vendor's product brochure"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "business-analyst-006",
+   "topic": "Requirements elicitation",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A requirement reads \"The system should be user-friendly.\" What is wrong with it?",
+   "options": [
+    "It is too technical for business users",
+    "It is vague and can't be tested",
+    "It belongs in the budget section instead",
+    "It should be written as a story title"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "business-analyst-007",
+   "topic": "Requirements elicitation",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Finance and Operations give conflicting rules for refund approval limits. What is your best move?",
+   "options": [
+    "Pick the rule that is simpler for developers to build",
+    "Write down both rules and let developers choose one",
+    "Bring both together with facts and impact, and have the decision owner decide",
+    "Follow the more senior person's rule without discussion"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "business-analyst-008",
+   "topic": "Requirements elicitation",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Late in UAT, a stakeholder asks for a \"small\" change to the loan eligibility rule. What do you do?",
+   "options": [
+    "Add it quietly, since the change is small and urgent",
+    "Refuse every change once design has been signed off",
+    "Ask testers to update their tests without telling the PM",
+    "Assess impact on scope, testing and timeline, then use change control"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "business-analyst-009",
+   "topic": "Requirements elicitation",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "What best shows that a requirement is traceable?",
+   "options": [
+    "It links back to a business objective and forward to its test cases",
+    "It is highlighted in a unique colour in the document",
+    "It was written and approved by a senior manager",
+    "It is saved in a shared drive that everyone can open"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "business-analyst-010",
+   "topic": "User stories and documentation",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which of these is a well-formed user story?",
+   "options": [
+    "Build a UPI report page with a sortable table and an export button",
+    "As a shopkeeper, I want to see today's UPI receipts so I can close my day",
+    "The database stores all UPI transactions in a separate table",
+    "UPI module: high priority, 5 story points, assigned to the backend team"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "business-analyst-011",
+   "topic": "User stories and documentation",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What are acceptance criteria?",
+   "options": [
+    "The developer's estimate of the effort needed",
+    "The list of people who approve the budget",
+    "Conditions a story must meet to be accepted as done",
+    "The colours and fonts used on the screen"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "business-analyst-012",
+   "topic": "User stories and documentation",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does a business requirements document (BRD) mainly capture?",
+   "options": [
+    "Server, network and hosting setup details",
+    "Detailed code structure and class names",
+    "The team's salaries and leave plan",
+    "Business needs, goals and the scope of the solution"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "business-analyst-013",
+   "topic": "User stories and documentation",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "The Given–When–Then format is mainly used to:",
+   "options": [
+    "Write acceptance criteria that can be tested",
+    "Draw organisation charts for the client",
+    "Estimate story points in planning poker",
+    "Plan the team's holidays across sprints"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "business-analyst-014",
+   "topic": "User stories and documentation",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A story is too big to finish in one sprint. What should you do?",
+   "options": [
+    "Split it by layer into UI, API and database stories",
+    "Split it into thinner stories that each deliver user value",
+    "Carry it across several sprints exactly as it is",
+    "Remove its acceptance criteria to save time"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "business-analyst-015",
+   "topic": "User stories and documentation",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A developer says your story \"Customer can cancel an order\" is unclear. What should you add?",
+   "options": [
+    "A bolder title and a higher priority label on the story card",
+    "More story points so the team has extra time to explore",
+    "Rules such as time limits, refund method and what happens after dispatch",
+    "A note saying the PM will clarify the details later on"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "business-analyst-016",
+   "topic": "User stories and documentation",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Which acceptance criterion is best for \"Apply GST on the invoice\"?",
+   "options": [
+    "Tax on the invoice should always be calculated correctly by the system",
+    "The invoice should look exactly like the one in the old billing system",
+    "The tax logic must follow whatever the finance team wants at the time",
+    "Given a ₹1,000 item at 18%, the invoice shows ₹180 tax and ₹1,180 total"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "business-analyst-017",
+   "topic": "User stories and documentation",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "When is a detailed use case more useful than a short user story?",
+   "options": [
+    "For complex flows with many alternate paths, like loan disbursal",
+    "For a simple colour change on one button",
+    "For fixing a spelling mistake on the login page",
+    "Whenever the team works in two-week sprints"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "business-analyst-018",
+   "topic": "User stories and documentation",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Auditors ask why the system rejects some vendor payments. Your documents only cover the happy path. What do you do?",
+   "options": [
+    "Ask developers to walk the auditors through the source code line by line",
+    "Document the business rules and exception flows, confirm with owners, and version them",
+    "Tell the auditors the payment rules are confidential to the company",
+    "Write the rules from memory in an email and send it the same day"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "business-analyst-019",
+   "topic": "Process analysis",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does an \"as-is\" process map show?",
+   "options": [
+    "How the work will be done after the change",
+    "The project timeline and milestones",
+    "How the work is done today",
+    "The company's reporting structure"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "business-analyst-020",
+   "topic": "Process analysis",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "In a basic flowchart, what does a diamond shape usually mean?",
+   "options": [
+    "The start or end of the process",
+    "A printed document",
+    "A data store",
+    "A decision point"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "business-analyst-021",
+   "topic": "Process analysis",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "In a process diagram, what are swimlanes used to show?",
+   "options": [
+    "Who performs each step",
+    "How long each step takes",
+    "The cost of each step",
+    "Which steps use AI"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "business-analyst-022",
+   "topic": "Process analysis",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What does a gap analysis compare?",
+   "options": [
+    "Two competitors' prices for the same product",
+    "The current state with the desired future state",
+    "Planned and actual project spend each month",
+    "Old and new team members' skill levels"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "business-analyst-023",
+   "topic": "Process analysis",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Loan files wait four days at one desk for a single signature. What is this called in process analysis?",
+   "options": [
+    "A swimlane",
+    "A KPI",
+    "A bottleneck",
+    "A use case"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "business-analyst-024",
+   "topic": "Process analysis",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is a SIPOC diagram used for?",
+   "options": [
+    "Detailed screen-by-screen design of an app",
+    "Root cause analysis of a single defect",
+    "Tracking the team's sprint velocity",
+    "A one-page view of who feeds a process and who gets its results"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "business-analyst-025",
+   "topic": "Process analysis",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Vendor onboarding takes 21 days. Most delay is rework from missing GSTIN and bank details. Best first fix?",
+   "options": [
+    "Check required documents at intake with a checklist and automatic validation",
+    "Hire more staff for the approval desk to clear the queue",
+    "Buy a new ERP module that has a vendor portal",
+    "Set a stricter deadline for approvers to act on files"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "business-analyst-026",
+   "topic": "Process analysis",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why is the \"5 Whys\" technique risky if used on its own?",
+   "options": [
+    "It needs special software and a trained facilitator",
+    "It can stop at one cause when several are involved",
+    "It only works for IT and software problems",
+    "It must be run by internal auditors to be valid"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "business-analyst-027",
+   "topic": "Process analysis",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Before automating a messy manual process, what should a BA usually do first?",
+   "options": [
+    "Automate it exactly as it runs today",
+    "Adopt the software vendor's default flow",
+    "Simplify and standardise the process",
+    "Wait until staff raise complaints about it"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "business-analyst-028",
+   "topic": "Data and analysis",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which Excel feature quickly summarises sales by region and month?",
+   "options": [
+    "Spell check",
+    "Freeze panes",
+    "Page layout",
+    "Pivot table"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "business-analyst-029",
+   "topic": "Data and analysis",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is a KPI?",
+   "options": [
+    "A measurable value showing progress towards a goal",
+    "A list of every task in the project plan",
+    "A type of key used in database tables",
+    "A software licence for reporting tools"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "business-analyst-030",
+   "topic": "Data and analysis",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "Two reports show different monthly sales totals. What do you check first?",
+   "options": [
+    "Which of the two reports looks cleaner and better formatted",
+    "Whether both use the same definitions, filters and date range",
+    "Which of the two reports the manager usually prefers",
+    "Which of the two reports was created more recently"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "business-analyst-031",
+   "topic": "Data and analysis",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What does a cohort analysis track?",
+   "options": [
+    "Only the top ten customers by revenue each month",
+    "Daily server errors and their response codes",
+    "A group of users who started in the same period, over time",
+    "Competitors' prices across different cities"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "business-analyst-032",
+   "topic": "Data and analysis",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "In a data model, one customer can have many orders. This relationship is:",
+   "options": [
+    "One-to-one",
+    "Many-to-many",
+    "Self-referencing",
+    "One-to-many"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "business-analyst-033",
+   "topic": "Data and analysis",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why is the median sometimes better than the mean for a \"typical\" order value?",
+   "options": [
+    "A few very large orders don't distort it",
+    "It always gives a higher, safer number",
+    "It is much easier to calculate in SQL",
+    "It includes all orders, unlike the mean"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "business-analyst-034",
+   "topic": "Data and analysis",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Churn rose after a price change, but a new competitor also launched that month. How do you judge the price effect?",
+   "options": [
+    "Assume the price change caused all of the extra churn this month",
+    "Compare similar segments with and without the change, controlling for other factors",
+    "Ignore the price change, since the competitor explains everything",
+    "Survey only loyal long-term customers about the new price"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "business-analyst-035",
+   "topic": "Data and analysis",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A dashboard shows 98% on-time delivery, yet customers keep complaining about delays. Likely issue?",
+   "options": [
+    "Customers tend to complain whatever the real numbers say",
+    "The dashboard uses the wrong colour for late orders",
+    "The metric's definition hides delays that customers care about",
+    "The server stores delivery times in UTC instead of IST"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "business-analyst-036",
+   "topic": "Data and analysis",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Before migrating customer data to a new CRM, what is the most important BA task?",
+   "options": [
+    "Pick a migration date that suits the vendor's schedule",
+    "Train all users on the new screens before anything else",
+    "Delete old customer records to save storage space",
+    "Profile and clean the data, and agree field mapping with owners"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "business-analyst-037",
+   "topic": "Stakeholders and delivery",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Who is a stakeholder in a project?",
+   "options": [
+    "Anyone affected by it or able to influence it",
+    "Only the person who pays for the project",
+    "Only the development and testing team",
+    "Only the external customers who use it"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "business-analyst-038",
+   "topic": "Stakeholders and delivery",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is the main purpose of user acceptance testing (UAT)?",
+   "options": [
+    "Developers check that code follows style rules",
+    "Business users confirm the solution meets their needs",
+    "Testers measure how much load the server can take",
+    "Managers approve the remaining project budget"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "business-analyst-039",
+   "topic": "Stakeholders and delivery",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "In Scrum, who owns and orders the product backlog?",
+   "options": [
+    "Scrum Master",
+    "Tech lead",
+    "Product Owner",
+    "Each developer"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "business-analyst-040",
+   "topic": "Stakeholders and delivery",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "MoSCoW prioritisation sorts requirements into:",
+   "options": [
+    "Major, Small, Core and Optional items",
+    "Manual, Semi-automatic, Coded and Web",
+    "Monthly, Seasonal, Current and Weekly work",
+    "Must, Should, Could and Won't have"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "business-analyst-041",
+   "topic": "Stakeholders and delivery",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A key stakeholder skips every requirements review. What do you do?",
+   "options": [
+    "Meet them briefly one-on-one, learn their concerns, and agree a format that works",
+    "Carry on without them and note their absence in the minutes",
+    "Complain to their manager that reviews are being ignored",
+    "Send them longer and more detailed documents by email"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "business-analyst-042",
+   "topic": "Stakeholders and delivery",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "On a power–interest grid, how should you handle a high-power, low-interest stakeholder?",
+   "options": [
+    "Manage them closely with daily meetings",
+    "Keep them satisfied with short, focused updates",
+    "Ignore them until final sign-off",
+    "Send them full detailed reports every week"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "business-analyst-043",
+   "topic": "Stakeholders and delivery",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "At sprint review the client says a feature \"isn't what we asked for\", though it meets the story. What now?",
+   "options": [
+    "Show the signed-off story and close the matter firmly with the client",
+    "Rebuild the feature at once over the weekend to keep the client happy",
+    "Find where understanding diverged, agree the change, and improve how stories get confirmed",
+    "Explain that the developer misread the story and it will not happen again"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "business-analyst-044",
+   "topic": "Stakeholders and delivery",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Two senior stakeholders each say their feature is the top priority. What helps most?",
+   "options": [
+    "Build both in parallel so that nobody is disappointed",
+    "Do whichever one was requested first in writing",
+    "Let the delivery team vote on which one to build",
+    "Score both on agreed value, cost and risk, and decide with the sponsor"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "business-analyst-045",
+   "topic": "Stakeholders and delivery",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "After go-live, what best shows the BA's requirements work succeeded?",
+   "options": [
+    "The agreed business outcomes improved, like fewer days to settle claims",
+    "The requirements document ran to more than a hundred pages",
+    "No change requests were raised by anyone after launch",
+    "The developers finished the build ahead of the schedule"
+   ],
+   "answer": 0
+  }
+ ],
+ "task": {
+  "type": "written",
+  "title": "Turn a distributor's email into user stories with acceptance criteria",
+  "minutes": 25,
+  "brief": "Read the email from a client (below). In about 25 minutes, write: (1) 4–6 user stories in the 'As a ..., I want ..., so that ...' form, each with 2–4 clear, testable acceptance criteria (Given/When/Then is welcome); (2) a short list of open questions you would ask the client before development starts; (3) one or two assumptions or risks you see. A good answer covers what the client really needs (not just what they said), uses concrete rules and numbers from the email, spots the missing or conflicting details, and is written so a developer and tester can work from it.",
+  "material": "From: Ramesh Iyer, Owner, Sri Lakshmi Distributors (FMCG, Hyderabad)\nSubject: Ordering app for our retailers\n\nHi,\nWe supply about 600 kirana shops. Today salesmen take orders on paper and phone, and we lose orders and make billing mistakes.\nWhat we want:\n- Shop owners should place orders themselves on their phone, in Telugu or English.\n- They should see our current price and scheme (e.g. buy 10 get 1 free) for each product.\n- Every shop has a credit limit. If the order crosses the limit it should not go through. But my senior salesmen should be able to approve it sometimes.\n- Payment by UPI on delivery or credit of 15 days.\n- Invoice must have GST correctly, our GSTIN and the shop's GSTIN if they have one (many small shops don't).\n- I want to see every evening how much was ordered by area and which shops have not ordered in 10 days.\n- Salesmen should get a WhatsApp message when a big order comes.\nWe need this before Diwali.\nThanks, Ramesh",
+  "key_points": [
+   "Stories written from real user roles (shop owner, salesman, owner/admin) with clear value",
+   "Credit-limit rule with the salesman override expressed as testable criteria (who can approve, limits, audit)",
+   "GST invoice criteria handling shops with and without a GSTIN",
+   "Scheme pricing (buy 10 get 1) shown and applied correctly, with a worked example",
+   "Owner's evening report by area and the 'no order in 10 days' list",
+   "Language support (Telugu/English) and payment options (UPI on delivery, 15-day credit)",
+   "Open questions, e.g. what counts as a 'big order', who sets credit limits, how overdue credit is handled",
+   "Notes risks or assumptions such as the Diwali deadline, scope for phase 1, and offline or low-network use"
+  ],
+  "rubric": [
+   {
+    "key": "story_quality",
+    "label": "Story quality",
+    "guide": "0 = tasks or features, not user stories, 3 = proper stories but some are vague or too big, 5 = right roles, clear value, sensibly sized"
+   },
+   {
+    "key": "acceptance_criteria",
+    "label": "Acceptance criteria",
+    "guide": "0 = missing or untestable, 3 = present but generic, 5 = concrete, testable rules using the email's numbers and edge cases"
+   },
+   {
+    "key": "analysis",
+    "label": "Gaps and questions",
+    "guide": "0 = takes the email at face value, 3 = a few obvious questions, 5 = finds the real gaps, conflicts and risks"
+   },
+   {
+    "key": "clarity",
+    "label": "Clarity",
+    "guide": "0 = hard to follow, 3 = understandable but messy, 5 = well organised and ready for a developer and tester"
+   }
+  ]
+ }
+}

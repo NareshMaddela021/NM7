@@ -1,0 +1,392 @@
+{
+ "slug": "nursing",
+ "version": 1,
+ "topics": [
+  "Vital signs",
+  "Infection control",
+  "Medication safety",
+  "Emergency care",
+  "Patient care and safety"
+ ],
+ "questions": [
+  {
+   "id": "nursing-001",
+   "topic": "Patient care and safety",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A patient is at risk of falling. What helps prevent a fall?",
+   "options": [
+    "Bed at its highest so they can get up easily",
+    "Room fully dark so they sleep well",
+    "Bed low, wheels locked, call bell within reach",
+    "Tell them to walk alone to build strength"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "nursing-002",
+   "topic": "Infection control",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which protective item keeps blood off your hands?",
+   "options": [
+    "Face mask",
+    "Cap",
+    "Shoe cover",
+    "Gloves"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "nursing-003",
+   "topic": "Medication safety",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "A patient refuses to take a medicine. What do you do?",
+   "options": [
+    "Make them swallow it anyway",
+    "Hide it in their food",
+    "Ask why, inform the doctor and record it",
+    "Throw it away and say nothing"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "nursing-004",
+   "topic": "Vital signs",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Where do you check the radial pulse?",
+   "options": [
+    "At the side of the neck",
+    "At the ankle",
+    "Behind the knee",
+    "At the wrist, on the thumb side"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "nursing-005",
+   "topic": "Emergency care",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "You find a patient who does not respond when you call and tap them. What do you do first?",
+   "options": [
+    "Give them a sip of water",
+    "Go to fetch their file first",
+    "Wait for the doctor's round",
+    "Shout for help and check breathing"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "nursing-006",
+   "topic": "Patient care and safety",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why do you raise the head of the bed when a patient is eating?",
+   "options": [
+    "To help them sleep after",
+    "To lower the risk of choking",
+    "To make bed cleaning easy",
+    "To check their BP"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "nursing-007",
+   "topic": "Medication safety",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "The doctor's written order is hard to read. What do you do?",
+   "options": [
+    "Give the dose you think is likely",
+    "Clarify it with the doctor before giving",
+    "Skip the dose and tell no one",
+    "Ask the patient what dose they take"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "nursing-008",
+   "topic": "Infection control",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Staff are caring for a patient with suspected lung TB. Which mask should they wear?",
+   "options": [
+    "A cloth mask",
+    "An N95 respirator",
+    "No mask is needed",
+    "A surgical cap only"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "nursing-009",
+   "topic": "Patient care and safety",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is the main reason for a proper handover at the change of shift?",
+   "options": [
+    "So the next nurse knows each patient's needs",
+    "So the shift can end a little early",
+    "Only to mark attendance",
+    "Only for the billing team"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "nursing-010",
+   "topic": "Vital signs",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Before measuring blood pressure, the patient should…",
+   "options": [
+    "Rest quietly for about 5 minutes",
+    "Walk briskly for a while",
+    "Drink a cup of tea",
+    "Talk during the reading"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "nursing-011",
+   "topic": "Medication safety",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "By which route is insulin usually given on the ward?",
+   "options": [
+    "Into a muscle",
+    "By mouth",
+    "Into the eye",
+    "Under the skin (subcutaneous)"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "nursing-012",
+   "topic": "Patient care and safety",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A patient hasn't passed urine for 8 hours after surgery. What do you do?",
+   "options": [
+    "Give fewer fluids to them",
+    "Wait until the next morning",
+    "Check for a full bladder and tell the doctor",
+    "Give a painkiller and leave it"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "nursing-013",
+   "topic": "Emergency care",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Soon after a new IV antibiotic starts, a patient gets itching, a rash and breathlessness. What do you do first?",
+   "options": [
+    "Slow the drip and watch for an hour",
+    "Give a glass of water",
+    "Stop the infusion and call the doctor urgently",
+    "Finish the dose, then report"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "nursing-014",
+   "topic": "Medication safety",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "The order is 1 g. The vial has 500 mg in 2 ml. How much do you draw up?",
+   "options": [
+    "2 ml",
+    "4 ml",
+    "1 ml",
+    "8 ml"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "nursing-015",
+   "topic": "Emergency care",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "In adult CPR, how deep should chest compressions be?",
+   "options": [
+    "About 5–6 cm",
+    "About 1 cm",
+    "About 10 cm",
+    "Just a light press"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "nursing-016",
+   "topic": "Infection control",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "You get a needle-stick injury from a used needle. What is the first step?",
+   "options": [
+    "Wash with soap and running water, then report at once",
+    "Squeeze hard and suck the wound",
+    "Ignore it if the wound is small",
+    "Pour bleach on the wound"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "nursing-017",
+   "topic": "Emergency care",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A diabetic patient's blood sugar is 54 mg/dL. They are awake and can swallow. What do you do first?",
+   "options": [
+    "Give quick sugar like glucose, recheck in 15 minutes",
+    "Give their usual insulin dose",
+    "Let them sleep it off",
+    "Wait for the next meal"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "nursing-018",
+   "topic": "Vital signs",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "After surgery, a patient's pulse rises from 80 to 120 and BP falls to 90/60. What might this mean?",
+   "options": [
+    "Normal recovery after surgery",
+    "Possible bleeding or shock: tell the doctor at once",
+    "Pain is well controlled",
+    "Only a mild fever"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "nursing-019",
+   "topic": "Medication safety",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Two patients with the same name are in one ward. What prevents a medicine mix-up?",
+   "options": [
+    "Go by the bed number only",
+    "Call the name aloud and wait",
+    "Check two identifiers and the ID band each time",
+    "Ask the relatives which patient it is"
+   ],
+   "answer": 2
+  }
+ ],
+ "existing": {
+  "When should you clean your hands in patient care?": {
+   "topic": "Infection control"
+  },
+  "Normal adult body temperature is about…": {
+   "topic": "Vital signs"
+  },
+  "A normal resting adult pulse is about…": {
+   "topic": "Vital signs"
+  },
+  "A normal adult breathing rate at rest is about…": {
+   "topic": "Vital signs"
+  },
+  "Where do used needles go?": {
+   "topic": "Infection control"
+  },
+  "Before giving a medicine you check the \"rights\". Which is one of them?": {
+   "topic": "Medication safety"
+  },
+  "In an adult, a blood pressure of 120/80 mmHg is…": {
+   "topic": "Vital signs"
+  },
+  "Which instrument measures blood pressure?": {
+   "topic": "Vital signs"
+  },
+  "An unconscious patient is breathing. Which position keeps the airway open?": {
+   "topic": "Emergency care"
+  },
+  "An adult's pulse oximeter reads 88% on room air. This usually means…": {
+   "topic": "Vital signs"
+  },
+  "A patient on bed rest can get pressure sores. What helps prevent them?": {
+   "topic": "Patient care and safety"
+  },
+  "Under India's biomedical waste rules, which bin takes soiled dressings and cotton?": {
+   "topic": "Infection control"
+  },
+  "Which muscle is a common site for an adult intramuscular injection?": {
+   "topic": "Medication safety"
+  },
+  "A patient is allergic to penicillin. Where must this be shown?": {
+   "topic": "Medication safety"
+  },
+  "An intake-output chart records…": {
+   "topic": "Patient care and safety"
+  },
+  "Aseptic (sterile) technique means…": {
+   "topic": "Infection control"
+  },
+  "The order is 500 mg and each tablet is 250 mg. How many tablets?": {
+   "topic": "Medication safety"
+  },
+  "1000 ml of IV fluid must run over 8 hours. How many ml an hour?": {
+   "topic": "Medication safety"
+  },
+  "Signs of low blood sugar (hypoglycaemia) include…": {
+   "topic": "Emergency care"
+  },
+  "Adult CPR chest compressions are given at about…": {
+   "topic": "Emergency care"
+  },
+  "A patient's dressing is soaking with fresh blood. First action?": {
+   "topic": "Emergency care"
+  },
+  "An alcohol hand rub should be rubbed in until…": {
+   "topic": "Infection control"
+  },
+  "Why check two identifiers (such as name and date of birth) before a procedure?": {
+   "topic": "Patient care and safety"
+  },
+  "Which adult temperature is a fever?": {
+   "topic": "Vital signs"
+  }
+ },
+ "task": {
+  "type": "written",
+  "title": "Write a shift handover for a patient who is getting worse",
+  "brief": "Take about 20 minutes. Read the patient's notes below. Write a short handover (about 150–250 words) for the next nurse, in SBAR order: Situation, Background, Assessment, Recommendation. Point out which findings are worrying and what should be done now. A good answer is accurate, picks out every warning sign, says the doctor must be told now (not at the next round), and is clear and safe.",
+  "minutes": 20,
+  "material": "Patient: Ramesh Iyer, 62, Bed 14, surgical ward. Day 1 after hernia surgery.\nHistory: type 2 diabetes, on insulin. Allergy: penicillin.\n2 pm: Temp 37.2 °C, pulse 84, BP 128/80, breathing 18/min, SpO2 97%. Pain 3/10.\n6 pm: Temp 38.4 °C, pulse 108, BP 104/68, breathing 22/min, SpO2 94%. Pain 6/10.\nLast painkiller: 1 pm.\nUrine: 150 ml since 10 am.\nBlood sugar at 6 pm: 248 mg/dL.\nWound dressing: small spot of blood at 2 pm; larger, spreading stain at 6 pm.\nDoctor informed of the 6 pm findings: not yet.",
+  "key_points": [
+   "Uses SBAR (Situation, Background, Assessment, Recommendation)",
+   "Notes the new fever, faster pulse and breathing, lower BP and SpO2",
+   "Notes low urine output since 10 am",
+   "Notes the spreading blood on the dressing",
+   "Notes high blood sugar and the diabetes history",
+   "Mentions the penicillin allergy",
+   "Says the doctor must be informed now and observations repeated often",
+   "Mentions pain score and that pain relief is due as prescribed"
+  ],
+  "rubric": [
+   {
+    "key": "correctness",
+    "label": "Accurate and safe",
+    "guide": "0 = wrong facts or unsafe advice, 3 = facts right but misses the urgency, 5 = accurate, safe and says to inform the doctor now"
+   },
+   {
+    "key": "completeness",
+    "label": "Warning signs found",
+    "guide": "0 = one sign noted, 3 = about half the warning signs, 5 = vitals, urine, wound, sugar and allergy all covered"
+   },
+   {
+    "key": "structure",
+    "label": "SBAR structure",
+    "guide": "0 = no order, 3 = partly in SBAR, 5 = clear Situation, Background, Assessment and Recommendation"
+   },
+   {
+    "key": "clarity",
+    "label": "Clarity",
+    "guide": "0 = hard to follow, 3 = clear but long or vague, 5 = short, clear sentences the next nurse can act on"
+   }
+  ]
+ }
+}

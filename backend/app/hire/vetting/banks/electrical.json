@@ -1,0 +1,1338 @@
+{
+ "slug": "electrical",
+ "version": 1,
+ "topics": [
+  "Safety",
+  "Basics and calculations",
+  "Wiring and installation",
+  "Protection and earthing",
+  "Tools and testing",
+  "Motors and three-phase"
+ ],
+ "questions": [
+  {
+   "id": "electrical-001",
+   "topic": "Safety",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "A co-worker is stuck to a live wire and getting a shock. What do you do first?",
+   "options": [
+    "Hold their hand and pull them",
+    "Throw water on them",
+    "Switch off the supply, or push them free with dry wood",
+    "Shout their name and wait"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "తోటి వర్కర్ లైవ్ వైర్‌కు అతుక్కుని షాక్ తింటున్నాడు. మొదట ఏం చేస్తారు?",
+    "options": [
+     "అతని చేయి పట్టుకుని లాగుతారు",
+     "అతని మీద నీళ్లు పోస్తారు",
+     "సప్లై ఆఫ్ చేస్తారు, లేదా పొడి కర్రతో దూరం నెడతారు",
+     "పేరు పెట్టి అరిచి ఎదురుచూస్తారు"
+    ]
+   },
+   "hi": {
+    "q": "साथी लाइव तार से चिपक गया है और झटका लग रहा है। पहले क्या करेंगे?",
+    "options": [
+     "उसका हाथ पकड़कर खींचेंगे",
+     "उस पर पानी डालेंगे",
+     "सप्लाई बंद करेंगे, या सूखी लकड़ी से उसे अलग धकेलेंगे",
+     "उसका नाम पुकारकर इंतज़ार करेंगे"
+    ]
+   }
+  },
+  {
+   "id": "electrical-002",
+   "topic": "Safety",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Why should you never work on wiring with wet hands?",
+   "options": [
+    "Current passes through your body more easily",
+    "Water spoils the tester's colour",
+    "The wire becomes too heavy",
+    "The MCB will trip next day"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "తడి చేతులతో వైరింగ్ పని ఎందుకు చేయకూడదు?",
+    "options": [
+     "కరెంట్ శరీరం గుండా సులువుగా వెళ్తుంది",
+     "నీళ్లు టెస్టర్ రంగును పాడు చేస్తాయి",
+     "వైర్ చాలా బరువవుతుంది",
+     "MCB మరుసటి రోజు ట్రిప్ అవుతుంది"
+    ]
+   },
+   "hi": {
+    "q": "गीले हाथों से वायरिंग का काम क्यों नहीं करना चाहिए?",
+    "options": [
+     "करंट शरीर से आसानी से गुज़रता है",
+     "पानी से टेस्टर का रंग खराब होता है",
+     "तार बहुत भारी हो जाता है",
+     "MCB अगले दिन ट्रिप होगा"
+    ]
+   }
+  },
+  {
+   "id": "electrical-003",
+   "topic": "Safety",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "You switched off an MCB to repair a light. Why put a lock or tag on it?",
+   "options": [
+    "So the MCB lasts longer",
+    "To mark it for the meter reading",
+    "To keep dust out of it",
+    "So nobody switches it on while you work"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "లైట్ రిపేర్ కోసం MCB ఆఫ్ చేశారు. దానికి లాక్ లేదా ట్యాగ్ ఎందుకు పెట్టాలి?",
+    "options": [
+     "MCB ఎక్కువ కాలం పనిచేయడానికి",
+     "మీటర్ రీడింగ్ కోసం గుర్తు పెట్టడానికి",
+     "దుమ్ము పడకుండా",
+     "మీరు పని చేస్తుండగా ఎవరూ ఆన్ చేయకుండా"
+    ]
+   },
+   "hi": {
+    "q": "लाइट ठीक करने के लिए MCB बंद किया। उस पर लॉक या टैग क्यों लगाएँ?",
+    "options": [
+     "ताकि MCB ज़्यादा चले",
+     "मीटर रीडिंग के लिए निशान लगाने को",
+     "धूल से बचाने के लिए",
+     "ताकि काम के दौरान कोई उसे चालू न करे"
+    ]
+   }
+  },
+  {
+   "id": "electrical-004",
+   "topic": "Safety",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "You must work near an old overhead line. Nobody is sure if it is live. What do you do?",
+   "options": [
+    "Touch it with a tester screwdriver",
+    "Treat it as live and get it shut down first",
+    "Work quickly wearing rubber gloves",
+    "Use a wooden ladder and carry on"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "పాత ఓవర్‌హెడ్ లైన్ దగ్గర పని చేయాలి. అది లైవ్‌లో ఉందో లేదో ఎవరికీ తెలియదు. మీరు ఏం చేస్తారు?",
+    "options": [
+     "టెస్టర్ స్క్రూడ్రైవర్‌తో తాకి చూస్తారు",
+     "లైవ్‌గానే భావించి, ముందు దాన్ని ఆఫ్ చేయిస్తారు",
+     "రబ్బర్ గ్లవ్స్ వేసుకుని వేగంగా పని చేస్తారు",
+     "చెక్క నిచ్చెన వాడి పని కొనసాగిస్తారు"
+    ]
+   },
+   "hi": {
+    "q": "पुरानी ओवरहेड लाइन के पास काम करना है। किसी को पक्का नहीं पता कि वह लाइव है या नहीं। आप क्या करेंगे?",
+    "options": [
+     "टेस्टर स्क्रूड्राइवर से छूकर देखेंगे",
+     "उसे लाइव मानकर पहले बंद करवाएँगे",
+     "रबर ग्लव्स पहनकर जल्दी काम करेंगे",
+     "लकड़ी की सीढ़ी लगाकर काम करते रहेंगे"
+    ]
+   }
+  },
+  {
+   "id": "electrical-005",
+   "topic": "Safety",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A small fire starts in a panel. After switching off the main, which extinguisher do you use?",
+   "options": [
+    "Water type",
+    "CO2 type",
+    "Foam type",
+    "A wet gunny bag"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "ప్యానెల్‌లో చిన్న మంట వచ్చింది. మెయిన్ ఆఫ్ చేశాక ఏ ఎక్స్‌టింగ్విషర్ వాడతారు?",
+    "options": [
+     "వాటర్ టైప్",
+     "CO2 టైప్",
+     "ఫోమ్ టైప్",
+     "తడి గోనె సంచి"
+    ]
+   },
+   "hi": {
+    "q": "पैनल में छोटी आग लगी है। मेन बंद करने के बाद कौन सा एक्सटिंग्विशर लेंगे?",
+    "options": [
+     "पानी वाला",
+     "CO2 वाला",
+     "फ़ोम वाला",
+     "गीली बोरी"
+    ]
+   }
+  },
+  {
+   "id": "electrical-006",
+   "topic": "Safety",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why is a tester screwdriver alone not enough to prove a circuit is dead?",
+   "options": [
+    "It only works on DC",
+    "It shows the current in amps",
+    "It is too short to reach",
+    "It can give a false reading"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "సర్క్యూట్‌లో కరెంట్ లేదని నిరూపించడానికి టెస్టర్ స్క్రూడ్రైవర్ ఒక్కటే ఎందుకు సరిపోదు?",
+    "options": [
+     "అది DC మీద మాత్రమే పనిచేస్తుంది",
+     "అది కరెంట్‌ను ఆంపియర్లలో చూపిస్తుంది",
+     "అది చేరడానికి చాలా పొట్టిగా ఉంటుంది",
+     "అది తప్పు రీడింగ్ చూపవచ్చు"
+    ]
+   },
+   "hi": {
+    "q": "सर्किट डेड है, यह साबित करने के लिए सिर्फ़ टेस्टर स्क्रूड्राइवर काफ़ी क्यों नहीं है?",
+    "options": [
+     "वह सिर्फ़ DC पर चलता है",
+     "वह करंट एम्पियर में दिखाता है",
+     "वह पहुँचने के लिए बहुत छोटा है",
+     "वह गलत रीडिंग दे सकता है"
+    ]
+   }
+  },
+  {
+   "id": "electrical-007",
+   "topic": "Tools and testing",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which tool removes the plastic cover of a wire without cutting the copper?",
+   "options": [
+    "Wire stripper",
+    "Hacksaw",
+    "Claw hammer",
+    "Pipe wrench"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "కాపర్ కట్ అవ్వకుండా వైర్ ప్లాస్టిక్ కవర్ తీయడానికి ఏ టూల్ వాడతారు?",
+    "options": [
+     "వైర్ స్ట్రిప్పర్",
+     "హ్యాక్సా",
+     "క్లా హ్యామర్",
+     "పైప్ రెంచ్"
+    ]
+   },
+   "hi": {
+    "q": "कॉपर काटे बिना तार का प्लास्टिक कवर हटाने के लिए कौन सा टूल लेते हैं?",
+    "options": [
+     "वायर स्ट्रिपर",
+     "हैक्सॉ",
+     "क्लॉ हैमर",
+     "पाइप रिंच"
+    ]
+   }
+  },
+  {
+   "id": "electrical-008",
+   "topic": "Tools and testing",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which tool fixes a lug firmly on the end of a cable?",
+   "options": [
+    "Spirit level",
+    "Try square",
+    "Crimping tool",
+    "Cold chisel"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "కేబుల్ చివర లగ్‌ను గట్టిగా బిగించడానికి ఏ టూల్?",
+    "options": [
+     "స్పిరిట్ లెవెల్",
+     "ట్రై స్క్వేర్",
+     "క్రింపింగ్ టూల్",
+     "కోల్డ్ చిసెల్"
+    ]
+   },
+   "hi": {
+    "q": "केबल के सिरे पर लग को मज़बूती से लगाने के लिए कौन सा टूल?",
+    "options": [
+     "स्पिरिट लेवल",
+     "ट्राई स्क्वेयर",
+     "क्रिम्पिंग टूल",
+     "कोल्ड छेनी"
+    ]
+   }
+  },
+  {
+   "id": "electrical-009",
+   "topic": "Tools and testing",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "To check the current in a running motor cable without cutting it, you use…",
+   "options": [
+    "A megger",
+    "A tester screwdriver",
+    "A clamp meter (tong tester)",
+    "A test lamp"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "నడుస్తున్న మోటార్ కేబుల్‌ను కట్ చేయకుండా కరెంట్ చూడటానికి ఏది వాడతారు?",
+    "options": [
+     "మెగ్గర్",
+     "టెస్టర్ స్క్రూడ్రైవర్",
+     "క్లాంప్ మీటర్ (టాంగ్ టెస్టర్)",
+     "టెస్ట్ ల్యాంప్"
+    ]
+   },
+   "hi": {
+    "q": "चलती मोटर की केबल काटे बिना करंट देखने के लिए क्या लेते हैं?",
+    "options": [
+     "मेगर",
+     "टेस्टर स्क्रूड्राइवर",
+     "क्लैंप मीटर (टोंग टेस्टर)",
+     "टेस्ट लैंप"
+    ]
+   }
+  },
+  {
+   "id": "electrical-010",
+   "topic": "Tools and testing",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A helper puts a multimeter, still set to the amps range, across a 230 V socket. What happens?",
+   "options": [
+    "The meter fuse can blow, with a flash",
+    "It shows 230 V correctly",
+    "It shows zero and nothing happens",
+    "It measures the earth value"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "హెల్పర్ ఆంపియర్ రేంజ్‌లో ఉన్న మల్టీమీటర్‌ను 230 V సాకెట్‌కు పెట్టాడు. ఏమవుతుంది?",
+    "options": [
+     "మీటర్ ఫ్యూజ్ పోవచ్చు, మెరుపు రావచ్చు",
+     "సరిగ్గా 230 V చూపిస్తుంది",
+     "సున్నా చూపిస్తుంది, ఏమీ కాదు",
+     "ఎర్త్ విలువ కొలుస్తుంది"
+    ]
+   },
+   "hi": {
+    "q": "हेल्पर ने एम्पियर रेंज पर सेट मल्टीमीटर 230 V सॉकेट में लगा दिया। क्या होगा?",
+    "options": [
+     "मीटर का फ़्यूज़ उड़ सकता है, चिंगारी के साथ",
+     "सही 230 V दिखाएगा",
+     "ज़ीरो दिखाएगा, कुछ नहीं होगा",
+     "अर्थ की वैल्यू नापेगा"
+    ]
+   }
+  },
+  {
+   "id": "electrical-011",
+   "topic": "Motors and three-phase",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A 3-phase motor runs in the wrong direction. How do you correct it?",
+   "options": [
+    "Swap the phase and neutral",
+    "Change the fuse rating",
+    "Fit a bigger MCB",
+    "Swap any two of the three phases"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "త్రీ-ఫేజ్ మోటార్ తప్పు దిశలో తిరుగుతోంది. ఎలా సరిచేస్తారు?",
+    "options": [
+     "ఫేజ్, న్యూట్రల్ మార్చాలి",
+     "ఫ్యూజ్ రేటింగ్ మార్చాలి",
+     "పెద్ద MCB పెట్టాలి",
+     "మూడు ఫేజ్‌లలో ఏవైనా రెండు మార్చాలి"
+    ]
+   },
+   "hi": {
+    "q": "थ्री-फ़ेज़ मोटर उलटी दिशा में घूम रही है। कैसे ठीक करेंगे?",
+    "options": [
+     "फ़ेज़ और न्यूट्रल बदलें",
+     "फ़्यूज़ की रेटिंग बदलें",
+     "बड़ा MCB लगाएँ",
+     "तीन में से कोई दो फ़ेज़ आपस में बदलें"
+    ]
+   }
+  },
+  {
+   "id": "electrical-012",
+   "topic": "Motors and three-phase",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A 3-phase motor hums but does not start, and gets hot. What is the likely cause?",
+   "options": [
+    "The starter is set to star",
+    "One phase is missing (single phasing)",
+    "The belt is a little loose",
+    "The motor paint is old"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "త్రీ-ఫేజ్ మోటార్ హమ్ చేస్తుంది కానీ స్టార్ట్ అవ్వదు, వేడెక్కుతోంది. కారణం ఏమై ఉండొచ్చు?",
+    "options": [
+     "స్టార్టర్ స్టార్‌లో ఉంది",
+     "ఒక ఫేజ్ రావడం లేదు (సింగిల్ ఫేజింగ్)",
+     "బెల్ట్ కొంచెం వదులుగా ఉంది",
+     "మోటార్ పెయింట్ పాతది"
+    ]
+   },
+   "hi": {
+    "q": "थ्री-फ़ेज़ मोटर गुनगुनाती है पर चालू नहीं होती और गरम हो रही है। संभावित कारण क्या है?",
+    "options": [
+     "स्टार्टर स्टार पर सेट है",
+     "एक फ़ेज़ नहीं आ रहा (सिंगल फ़ेज़िंग)",
+     "बेल्ट थोड़ी ढीली है",
+     "मोटर का पेंट पुराना है"
+    ]
+   }
+  },
+  {
+   "id": "electrical-013",
+   "topic": "Motors and three-phase",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "What does the overload relay in a motor starter do?",
+   "options": [
+    "Increases the motor speed",
+    "Trips the motor if current stays too high",
+    "Reverses the motor",
+    "Saves power at night"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "మోటార్ స్టార్టర్‌లోని ఓవర్‌లోడ్ రిలే ఏం చేస్తుంది?",
+    "options": [
+     "మోటార్ స్పీడ్ పెంచుతుంది",
+     "కరెంట్ ఎక్కువసేపు ఎక్కువగా ఉంటే మోటార్‌ను ట్రిప్ చేస్తుంది",
+     "మోటార్ దిశ మారుస్తుంది",
+     "రాత్రి పవర్ ఆదా చేస్తుంది"
+    ]
+   },
+   "hi": {
+    "q": "मोटर स्टार्टर में ओवरलोड रिले क्या करता है?",
+    "options": [
+     "मोटर की स्पीड बढ़ाता है",
+     "करंट ज़्यादा देर तक ज़्यादा रहे तो मोटर ट्रिप करता है",
+     "मोटर की दिशा उलटता है",
+     "रात में बिजली बचाता है"
+    ]
+   }
+  },
+  {
+   "id": "electrical-014",
+   "topic": "Wiring and installation",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "In a switchboard, the phase wire is usually which colour?",
+   "options": [
+    "Green",
+    "Black",
+    "Green-yellow",
+    "Red (or brown)"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "స్విచ్‌బోర్డ్‌లో ఫేజ్ వైర్ సాధారణంగా ఏ రంగు?",
+    "options": [
+     "ఆకుపచ్చ",
+     "నలుపు",
+     "ఆకుపచ్చ-పసుపు",
+     "ఎరుపు (లేదా బ్రౌన్)"
+    ]
+   },
+   "hi": {
+    "q": "स्विचबोर्ड में फ़ेज़ वायर आमतौर पर किस रंग का होता है?",
+    "options": [
+     "हरा",
+     "काला",
+     "हरा-पीला",
+     "लाल (या भूरा)"
+    ]
+   }
+  },
+  {
+   "id": "electrical-015",
+   "topic": "Wiring and installation",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why are wire joints in house wiring made inside a junction box?",
+   "options": [
+    "To keep them covered, safe and easy to check",
+    "To save wire length",
+    "To make lights brighter",
+    "Only for good looks"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "ఇంటి వైరింగ్‌లో వైర్ జాయింట్లు జంక్షన్ బాక్స్ లోపల ఎందుకు చేస్తారు?",
+    "options": [
+     "కప్పి ఉంచి, సురక్షితంగా, సులువుగా చెక్ చేయడానికి",
+     "వైర్ పొడవు ఆదా చేయడానికి",
+     "లైట్లు ఎక్కువ వెలగడానికి",
+     "అందం కోసం మాత్రమే"
+    ]
+   },
+   "hi": {
+    "q": "घर की वायरिंग में तार के जोड़ जंक्शन बॉक्स के अंदर क्यों बनाते हैं?",
+    "options": [
+     "ताकि ढके रहें, सुरक्षित रहें और जाँचना आसान हो",
+     "तार की लंबाई बचाने के लिए",
+     "लाइट ज़्यादा जलने के लिए",
+     "सिर्फ़ दिखावे के लिए"
+    ]
+   }
+  },
+  {
+   "id": "electrical-016",
+   "topic": "Wiring and installation",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A pump 60 m away is fed by 1.5 sq mm cable. It starts slowly and the voltage drops. What is the fix?",
+   "options": [
+    "Use a thinner cable",
+    "Fit a smaller MCB",
+    "Run a thicker cable for the long distance",
+    "Remove the earth wire"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "60 m దూరంలో ఉన్న పంప్‌కు 1.5 sq mm కేబుల్ వేశారు. అది నెమ్మదిగా స్టార్ట్ అవుతుంది, వోల్టేజ్ పడిపోతుంది. పరిష్కారం ఏమిటి?",
+    "options": [
+     "సన్నని కేబుల్ వేయాలి",
+     "చిన్న MCB పెట్టాలి",
+     "అంత దూరానికి మందమైన కేబుల్ వేయాలి",
+     "ఎర్త్ వైర్ తీసేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "60 m दूर पंप पर 1.5 sq mm केबल लगी है। पंप धीरे चालू होता है और वोल्टेज गिरता है। उपाय क्या है?",
+    "options": [
+     "पतली केबल डालें",
+     "छोटा MCB लगाएँ",
+     "लंबी दूरी के लिए मोटी केबल डालें",
+     "अर्थ वायर हटा दें"
+    ]
+   }
+  },
+  {
+   "id": "electrical-017",
+   "topic": "Protection and earthing",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "A room MCB trips whenever the iron and the room heater are used together. What is the likely reason?",
+   "options": [
+    "The bulb in the room is fused",
+    "The earthing is too good",
+    "Too much load on that one circuit",
+    "The switch is brand new"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "ఇస్త్రీ పెట్టె, రూమ్ హీటర్ ఒకేసారి వాడితే రూమ్ MCB ట్రిప్ అవుతోంది. కారణం ఏమై ఉండొచ్చు?",
+    "options": [
+     "రూమ్‌లో బల్బు పోయింది",
+     "ఎర్తింగ్ చాలా బాగుంది",
+     "ఆ ఒక్క సర్క్యూట్‌పై లోడ్ ఎక్కువ",
+     "స్విచ్ కొత్తది"
+    ]
+   },
+   "hi": {
+    "q": "इस्त्री और रूम हीटर साथ चलाने पर कमरे का MCB ट्रिप हो जाता है। संभावित कारण क्या है?",
+    "options": [
+     "कमरे का बल्ब फ़्यूज़ है",
+     "अर्थिंग बहुत अच्छी है",
+     "उस एक सर्किट पर लोड ज़्यादा है",
+     "स्विच बिल्कुल नया है"
+    ]
+   }
+  },
+  {
+   "id": "electrical-018",
+   "topic": "Protection and earthing",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "The RCCB trips only when the geyser is switched on. Other loads work fine. What is the likely problem?",
+   "options": [
+    "The geyser element is leaking current to earth",
+    "The geyser cable is too thick",
+    "The supply voltage is low",
+    "The geyser switch is in the neutral"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "గీజర్ ఆన్ చేసినప్పుడు మాత్రమే RCCB ట్రిప్ అవుతోంది. మిగతావి బాగానే పనిచేస్తున్నాయి. సమస్య ఏమై ఉండొచ్చు?",
+    "options": [
+     "గీజర్ ఎలిమెంట్ నుంచి ఎర్త్‌కు కరెంట్ లీక్ అవుతోంది",
+     "గీజర్ కేబుల్ చాలా మందంగా ఉంది",
+     "సప్లై వోల్టేజ్ తక్కువగా ఉంది",
+     "గీజర్ స్విచ్ న్యూట్రల్‌లో ఉంది"
+    ]
+   },
+   "hi": {
+    "q": "सिर्फ़ गीज़र चालू करने पर RCCB ट्रिप होता है। बाकी सब ठीक चलता है। संभावित समस्या क्या है?",
+    "options": [
+     "गीज़र का एलिमेंट अर्थ में करंट लीक कर रहा है",
+     "गीज़र की केबल बहुत मोटी है",
+     "सप्लाई वोल्टेज कम है",
+     "गीज़र का स्विच न्यूट्रल में है"
+    ]
+   }
+  },
+  {
+   "id": "electrical-019",
+   "topic": "Protection and earthing",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Which MCB curve is usually chosen for a motor with a high starting current?",
+   "options": [
+    "B curve only",
+    "No curve is needed",
+    "A rewireable fuse instead",
+    "C or D curve"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "ఎక్కువ స్టార్టింగ్ కరెంట్ ఉన్న మోటార్‌కు సాధారణంగా ఏ MCB కర్వ్ ఎంచుకుంటారు?",
+    "options": [
+     "B కర్వ్ మాత్రమే",
+     "కర్వ్ అవసరం లేదు",
+     "దానికి బదులు రీవైరబుల్ ఫ్యూజ్",
+     "C లేదా D కర్వ్"
+    ]
+   },
+   "hi": {
+    "q": "ज़्यादा स्टार्टिंग करंट वाली मोटर के लिए आमतौर पर कौन सा MCB कर्व चुनते हैं?",
+    "options": [
+     "सिर्फ़ B कर्व",
+     "कर्व की ज़रूरत नहीं",
+     "उसकी जगह रीवायरेबल फ़्यूज़",
+     "C या D कर्व"
+    ]
+   }
+  }
+ ],
+ "existing": {
+  "What is the unit of electric current?": {
+   "topic": "Basics and calculations",
+   "te": {
+    "q": "విద్యుత్ కరెంట్ యూనిట్ ఏది?",
+    "options": [
+     "వోల్ట్",
+     "ఆంపియర్",
+     "ఓమ్",
+     "వాట్"
+    ]
+   },
+   "hi": {
+    "q": "बिजली के करंट की यूनिट क्या है?",
+    "options": [
+     "वोल्ट",
+     "एम्पियर",
+     "ओम",
+     "वाट"
+    ]
+   }
+  },
+  "Before working on a circuit, what do you do first?": {
+   "topic": "Safety",
+   "te": {
+    "q": "సర్క్యూట్ మీద పని చేసే ముందు మొదట ఏం చేయాలి?",
+    "options": [
+     "సప్లై ఆఫ్ చేసి, టెస్టర్‌తో కరెంట్ లేదని చెక్ చేయాలి",
+     "గ్లవ్స్ మాత్రమే వేసుకోవాలి",
+     "వైర్ పట్టుకోమని ఎవరినైనా అడగాలి",
+     "వేగంగా పని చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "सर्किट पर काम करने से पहले सबसे पहले क्या करें?",
+    "options": [
+     "सप्लाई बंद करें और टेस्टर से जाँचें कि लाइन डेड है",
+     "सिर्फ़ ग्लव्स पहन लें",
+     "किसी से तार पकड़ने को कहें",
+     "जल्दी-जल्दी काम करें"
+    ]
+   }
+  },
+  "In Indian house wiring, which colour is usually the earth wire?": {
+   "topic": "Wiring and installation",
+   "te": {
+    "q": "మన ఇంటి వైరింగ్‌లో సాధారణంగా ఎర్త్ వైర్ రంగు ఏది?",
+    "options": [
+     "ఎరుపు",
+     "నలుపు",
+     "ఆకుపచ్చ (లేదా ఆకుపచ్చ-పసుపు)",
+     "నీలం"
+    ]
+   },
+   "hi": {
+    "q": "भारत में घर की वायरिंग में अर्थ वायर आमतौर पर किस रंग का होता है?",
+    "options": [
+     "लाल",
+     "काला",
+     "हरा (या हरा-पीला)",
+     "नीला"
+    ]
+   }
+  },
+  "Ohm's law: a 230 V supply across a 46 Ω heater gives what current?": {
+   "topic": "Basics and calculations",
+   "te": {
+    "q": "ఓమ్స్ లా: 46 Ω హీటర్‌కు 230 V సప్లై ఇస్తే కరెంట్ ఎంత?",
+    "options": [
+     "2 A",
+     "5 A",
+     "10 A",
+     "0.2 A"
+    ]
+   },
+   "hi": {
+    "q": "ओम का नियम: 46 Ω के हीटर पर 230 V सप्लाई हो तो करंट कितना?",
+    "options": [
+     "2 A",
+     "5 A",
+     "10 A",
+     "0.2 A"
+    ]
+   }
+  },
+  "A 1000 W heater runs for 3 hours. How many units (kWh) does it use?": {
+   "topic": "Basics and calculations",
+   "te": {
+    "q": "1000 W హీటర్ 3 గంటలు నడిస్తే ఎన్ని యూనిట్లు (kWh) వాడుతుంది?",
+    "options": [
+     "1",
+     "3",
+     "30",
+     "300"
+    ]
+   },
+   "hi": {
+    "q": "1000 W का हीटर 3 घंटे चले तो कितनी यूनिट (kWh) लेगा?",
+    "options": [
+     "1",
+     "3",
+     "30",
+     "300"
+    ]
+   }
+  },
+  "What does an MCB do?": {
+   "topic": "Protection and earthing",
+   "te": {
+    "q": "MCB ఏం చేస్తుంది?",
+    "options": [
+     "ఎక్కువ కరెంట్ వస్తే సర్క్యూట్‌ను ఆఫ్ చేస్తుంది",
+     "వోల్టేజ్ పెంచుతుంది",
+     "పవర్ నిల్వ చేస్తుంది",
+     "వాడిన పవర్ కొలుస్తుంది"
+    ]
+   },
+   "hi": {
+    "q": "MCB क्या करता है?",
+    "options": [
+     "ज़्यादा करंट आने पर सर्किट बंद कर देता है",
+     "वोल्टेज बढ़ाता है",
+     "बिजली स्टोर करता है",
+     "इस्तेमाल हुई बिजली नापता है"
+    ]
+   }
+  },
+  "What does an RCCB (or ELCB) protect against?": {
+   "topic": "Protection and earthing",
+   "te": {
+    "q": "RCCB (లేదా ELCB) దేని నుంచి రక్షిస్తుంది?",
+    "options": [
+     "షాక్ ఇచ్చే ఎర్త్ లీకేజ్ నుంచి",
+     "తక్కువ వోల్టేజ్ నుంచి",
+     "వదులుగా ఉన్న బల్బుల నుంచి",
+     "ఎక్కువ కరెంట్ బిల్లుల నుంచి"
+    ]
+   },
+   "hi": {
+    "q": "RCCB (या ELCB) किससे बचाता है?",
+    "options": [
+     "अर्थ लीकेज से, जिससे झटका लग सकता है",
+     "कम वोल्टेज से",
+     "ढीले बल्ब से",
+     "ज़्यादा बिजली बिल से"
+    ]
+   }
+  },
+  "Which tool measures voltage, current and resistance?": {
+   "topic": "Tools and testing",
+   "te": {
+    "q": "వోల్టేజ్, కరెంట్, రెసిస్టెన్స్ కొలిచే టూల్ ఏది?",
+    "options": [
+     "మల్టీమీటర్",
+     "మెగ్గర్ మాత్రమే",
+     "స్పిరిట్ లెవెల్",
+     "క్రింపింగ్ టూల్"
+    ]
+   },
+   "hi": {
+    "q": "वोल्टेज, करंट और रेज़िस्टेंस कौन सा टूल नापता है?",
+    "options": [
+     "मल्टीमीटर",
+     "सिर्फ़ मेगर",
+     "स्पिरिट लेवल",
+     "क्रिम्पिंग टूल"
+    ]
+   }
+  },
+  "Two 10 Ω resistors in parallel give a total of…": {
+   "topic": "Basics and calculations",
+   "te": {
+    "q": "రెండు 10 Ω రెసిస్టర్లు ప్యారలల్‌లో కలిపితే మొత్తం…",
+    "options": [
+     "20 Ω",
+     "10 Ω",
+     "5 Ω",
+     "100 Ω"
+    ]
+   },
+   "hi": {
+    "q": "दो 10 Ω रेज़िस्टर पैरेलल में जोड़ें तो कुल…",
+    "options": [
+     "20 Ω",
+     "10 Ω",
+     "5 Ω",
+     "100 Ω"
+    ]
+   }
+  },
+  "A switch should be fitted in which wire?": {
+   "topic": "Wiring and installation",
+   "te": {
+    "q": "స్విచ్‌ను ఏ వైర్‌లో పెట్టాలి?",
+    "options": [
+     "ఫేజ్ (లైవ్)",
+     "న్యూట్రల్",
+     "ఎర్త్",
+     "ఏదైనా సరే"
+    ]
+   },
+   "hi": {
+    "q": "स्विच किस तार में लगाना चाहिए?",
+    "options": [
+     "फ़ेज़ (लाइव)",
+     "न्यूट्रल",
+     "अर्थ",
+     "किसी में भी"
+    ]
+   }
+  },
+  "Which unit measures resistance?": {
+   "topic": "Basics and calculations",
+   "te": {
+    "q": "రెసిస్టెన్స్‌ను ఏ యూనిట్‌లో కొలుస్తారు?",
+    "options": [
+     "వోల్ట్",
+     "ఓమ్",
+     "ఆంపియర్",
+     "వాట్"
+    ]
+   },
+   "hi": {
+    "q": "रेज़िस्टेंस किस यूनिट में नापते हैं?",
+    "options": [
+     "वोल्ट",
+     "ओम",
+     "एम्पियर",
+     "वाट"
+    ]
+   }
+  },
+  "Which formula gives electrical power in watts?": {
+   "topic": "Basics and calculations",
+   "te": {
+    "q": "విద్యుత్ పవర్ (వాట్లలో) ఏ ఫార్ములాతో వస్తుంది?",
+    "options": [
+     "వోల్టేజ్ × కరెంట్",
+     "వోల్టేజ్ ÷ కరెంట్",
+     "కరెంట్ ÷ రెసిస్టెన్స్",
+     "వోల్టేజ్ + కరెంట్"
+    ]
+   },
+   "hi": {
+    "q": "बिजली की पावर (वाट में) किस फ़ॉर्मूले से निकलती है?",
+    "options": [
+     "वोल्टेज × करंट",
+     "वोल्टेज ÷ करंट",
+     "करंट ÷ रेज़िस्टेंस",
+     "वोल्टेज + करंट"
+    ]
+   }
+  },
+  "The normal single-phase supply in Indian homes is about…": {
+   "topic": "Wiring and installation",
+   "te": {
+    "q": "మన ఇళ్లలో సాధారణ సింగిల్-ఫేజ్ సప్లై సుమారు…",
+    "options": [
+     "110 V",
+     "230 V",
+     "415 V",
+     "12 V"
+    ]
+   },
+   "hi": {
+    "q": "भारत के घरों में सामान्य सिंगल-फ़ेज़ सप्लाई लगभग…",
+    "options": [
+     "110 V",
+     "230 V",
+     "415 V",
+     "12 V"
+    ]
+   }
+  },
+  "What do you wear to test a live panel?": {
+   "topic": "Safety",
+   "te": {
+    "q": "లైవ్ ప్యానెల్ టెస్ట్ చేయడానికి ఏం వేసుకోవాలి?",
+    "options": [
+     "ఇన్సులేటెడ్ రబ్బర్ గ్లవ్స్, సేఫ్టీ షూస్",
+     "కాటన్ గ్లవ్స్",
+     "చెప్పులు",
+     "ప్రత్యేకంగా ఏమీ అవసరం లేదు"
+    ]
+   },
+   "hi": {
+    "q": "लाइव पैनल टेस्ट करते समय क्या पहनें?",
+    "options": [
+     "इंसुलेटेड रबर ग्लव्स और सेफ़्टी शूज़",
+     "कॉटन ग्लव्स",
+     "चप्पल",
+     "कुछ खास नहीं"
+    ]
+   }
+  },
+  "Three-phase supply in India, measured between two phases, is about…": {
+   "topic": "Motors and three-phase",
+   "te": {
+    "q": "మన దేశంలో త్రీ-ఫేజ్ సప్లై, రెండు ఫేజ్‌ల మధ్య కొలిస్తే సుమారు…",
+    "options": [
+     "230 V",
+     "415 V",
+     "110 V",
+     "1000 V"
+    ]
+   },
+   "hi": {
+    "q": "भारत में थ्री-फ़ेज़ सप्लाई, दो फ़ेज़ के बीच नापें तो लगभग…",
+    "options": [
+     "230 V",
+     "415 V",
+     "110 V",
+     "1000 V"
+    ]
+   }
+  },
+  "A fuse blows again and again. What is right?": {
+   "topic": "Protection and earthing",
+   "te": {
+    "q": "ఫ్యూజ్ మళ్లీ మళ్లీ పోతోంది. ఏది సరైనది?",
+    "options": [
+     "మందమైన ఫ్యూజ్ వైర్ వేయడం",
+     "మార్చే ముందు ఫాల్ట్ లేదా ఓవర్‌లోడ్ కనుక్కోవడం",
+     "ఫ్యూజ్‌ను బైపాస్ చేయడం",
+     "టేప్‌తో చుట్టేయడం"
+    ]
+   },
+   "hi": {
+    "q": "फ़्यूज़ बार-बार उड़ रहा है। क्या सही है?",
+    "options": [
+     "मोटा फ़्यूज़ वायर लगा दें",
+     "बदलने से पहले फ़ॉल्ट या ओवरलोड ढूँढें",
+     "फ़्यूज़ को बायपास कर दें",
+     "टेप लपेट दें"
+    ]
+   }
+  },
+  "Two 10 Ω resistors in series give…": {
+   "topic": "Basics and calculations",
+   "te": {
+    "q": "రెండు 10 Ω రెసిస్టర్లు సిరీస్‌లో కలిపితే…",
+    "options": [
+     "5 Ω",
+     "10 Ω",
+     "20 Ω",
+     "100 Ω"
+    ]
+   },
+   "hi": {
+    "q": "दो 10 Ω रेज़िस्टर सीरीज़ में जोड़ें तो…",
+    "options": [
+     "5 Ω",
+     "10 Ω",
+     "20 Ω",
+     "100 Ω"
+    ]
+   }
+  },
+  "Which copper wire size is usual for a 16 A power socket circuit at home?": {
+   "topic": "Wiring and installation",
+   "te": {
+    "q": "ఇంట్లో 16 A పవర్ సాకెట్ సర్క్యూట్‌కు సాధారణంగా ఏ సైజు కాపర్ వైర్ వాడతారు?",
+    "options": [
+     "0.5 sq mm",
+     "1.0 sq mm",
+     "2.5 sq mm",
+     "10 sq mm"
+    ]
+   },
+   "hi": {
+    "q": "घर में 16 A पावर सॉकेट सर्किट के लिए आमतौर पर किस साइज़ का कॉपर वायर लगता है?",
+    "options": [
+     "0.5 sq mm",
+     "1.0 sq mm",
+     "2.5 sq mm",
+     "10 sq mm"
+    ]
+   }
+  },
+  "Earthing is done to…": {
+   "topic": "Protection and earthing",
+   "te": {
+    "q": "ఎర్తింగ్ ఎందుకు చేస్తారు?",
+    "options": [
+     "బిల్లు తగ్గించడానికి",
+     "ఫాల్ట్ కరెంట్‌ను సురక్షితంగా భూమిలోకి పంపడానికి",
+     "వోల్టేజ్ పెంచడానికి",
+     "కాపర్ ఆదా చేయడానికి"
+    ]
+   },
+   "hi": {
+    "q": "अर्थिंग किसलिए की जाती है?",
+    "options": [
+     "बिल कम करने के लिए",
+     "फ़ॉल्ट करंट को सुरक्षित रूप से ज़मीन में भेजने के लिए",
+     "वोल्टेज बढ़ाने के लिए",
+     "कॉपर बचाने के लिए"
+    ]
+   }
+  },
+  "A 60 W bulb runs 10 hours a day for 30 days. How many units (kWh)?": {
+   "topic": "Basics and calculations",
+   "te": {
+    "q": "60 W బల్బు రోజుకు 10 గంటలు, 30 రోజులు వెలిగితే ఎన్ని యూనిట్లు (kWh)?",
+    "options": [
+     "6",
+     "18",
+     "60",
+     "180"
+    ]
+   },
+   "hi": {
+    "q": "60 W का बल्ब रोज़ 10 घंटे, 30 दिन जले तो कितनी यूनिट (kWh)?",
+    "options": [
+     "6",
+     "18",
+     "60",
+     "180"
+    ]
+   }
+  },
+  "A 230 V motor draws 5 A at a power factor of 0.8. Its power is…": {
+   "topic": "Motors and three-phase",
+   "te": {
+    "q": "230 V మోటార్ 0.8 పవర్ ఫ్యాక్టర్‌తో 5 A తీసుకుంటే దాని పవర్…",
+    "options": [
+     "920 W",
+     "1150 W",
+     "1438 W",
+     "184 W"
+    ]
+   },
+   "hi": {
+    "q": "230 V की मोटर 0.8 पावर फ़ैक्टर पर 5 A लेती है। उसकी पावर…",
+    "options": [
+     "920 W",
+     "1150 W",
+     "1438 W",
+     "184 W"
+    ]
+   }
+  },
+  "What is the right order before working on a circuit?": {
+   "topic": "Safety",
+   "te": {
+    "q": "సర్క్యూట్ మీద పని చేసే ముందు సరైన క్రమం ఏది?",
+    "options": [
+     "ఆఫ్ చేయడం, లాక్ & ట్యాగ్ చేయడం, కరెంట్ లేదని టెస్ట్ చేయడం, తర్వాత పని",
+     "టెస్ట్, పని, తర్వాత ఆఫ్",
+     "పని, తర్వాత ఆఫ్",
+     "ఆఫ్ చేసి వెంటనే మొదలుపెట్టడం"
+    ]
+   },
+   "hi": {
+    "q": "सर्किट पर काम से पहले सही क्रम क्या है?",
+    "options": [
+     "बंद करें, लॉक और टैग करें, डेड है जाँचें, फिर काम करें",
+     "टेस्ट, काम, फिर बंद",
+     "काम, फिर बंद",
+     "बंद करके शुरू कर दें"
+    ]
+   }
+  },
+  "What does a star-delta starter do for a 3-phase motor?": {
+   "topic": "Motors and three-phase",
+   "te": {
+    "q": "త్రీ-ఫేజ్ మోటార్‌కు స్టార్-డెల్టా స్టార్టర్ ఏం చేస్తుంది?",
+    "options": [
+     "స్టార్టింగ్ కరెంట్ తగ్గిస్తుంది",
+     "స్పీడ్ పెంచుతుంది",
+     "దిశ మారుస్తుంది",
+     "పవర్ కొలుస్తుంది"
+    ]
+   },
+   "hi": {
+    "q": "थ्री-फ़ेज़ मोटर के लिए स्टार-डेल्टा स्टार्टर क्या करता है?",
+    "options": [
+     "स्टार्टिंग करंट कम करता है",
+     "स्पीड बढ़ाता है",
+     "दिशा उलटता है",
+     "पावर नापता है"
+    ]
+   }
+  },
+  "An insulation tester (megger) measures…": {
+   "topic": "Tools and testing",
+   "te": {
+    "q": "ఇన్సులేషన్ టెస్టర్ (మెగ్గర్) ఏం కొలుస్తుంది?",
+    "options": [
+     "ఎక్కువ టెస్ట్ వోల్టేజ్‌తో ఇన్సులేషన్ రెసిస్టెన్స్",
+     "కరెంట్",
+     "ఫ్రీక్వెన్సీ",
+     "వైర్ రంగు"
+    ]
+   },
+   "hi": {
+    "q": "इंसुलेशन टेस्टर (मेगर) क्या नापता है?",
+    "options": [
+     "ऊँचे टेस्ट वोल्टेज पर इंसुलेशन रेज़िस्टेंस",
+     "करंट",
+     "फ़्रीक्वेंसी",
+     "तार का रंग"
+    ]
+   }
+  }
+ },
+ "task": {
+  "type": "proof",
+  "title": "Electrician safe-work check (with optional work photo)",
+  "minutes": 10,
+  "brief": "Answer 7 short picture-style questions about real electrical work: isolating supply, testing, wiring a board, earthing and motor jobs. Pick the safe and correct way in each. This takes about 10 minutes. Then, if you like, upload one photo of your own past work (a neat distribution board, a conduit run, a motor connection) or your ITI certificate. Do not show any faces, and switch off before you take a photo of any panel. The photo is optional.",
+  "rubric": [
+   {
+    "key": "relevance",
+    "label": "Relevance",
+    "guide": "0 = no photo or unrelated, 3 = shows similar work, 5 = clearly shows the candidate's own work in this trade"
+   },
+   {
+    "key": "genuineness",
+    "label": "Genuineness",
+    "guide": "0 = looks copied or a stock image, 3 = probably real, 5 = clearly real work or a real ITI / training certificate"
+   },
+   {
+    "key": "safety",
+    "label": "Safety",
+    "guide": "0 = unsafe practice visible, 3 = nothing unsafe seen, 5 = good safe practice visible (PPE, neat and tidy work)"
+   }
+  ],
+  "situations": [
+   {
+    "q": "You are about to change a ceiling fan. Which order is safe?",
+    "options": [
+     "Switch off the wall switch only and start",
+     "Switch off MCB, tag it, test the wires are dead, then work",
+     "Work live but stand on a plastic chair"
+    ],
+    "answer": 1,
+    "topic": "Safety",
+    "te": {
+     "q": "మీరు సీలింగ్ ఫ్యాన్ మార్చబోతున్నారు. ఏ క్రమం సురక్షితం?",
+     "options": [
+      "గోడ స్విచ్ మాత్రమే ఆఫ్ చేసి మొదలుపెట్టడం",
+      "MCB ఆఫ్ చేసి, ట్యాగ్ పెట్టి, వైర్లలో కరెంట్ లేదని టెస్ట్ చేసి, తర్వాత పని",
+      "లైవ్‌లోనే పని, కానీ ప్లాస్టిక్ కుర్చీ మీద నిలబడి"
+     ]
+    },
+    "hi": {
+     "q": "आप छत का पंखा बदलने वाले हैं। कौन सा क्रम सुरक्षित है?",
+     "options": [
+      "सिर्फ़ दीवार का स्विच बंद करके शुरू करें",
+      "MCB बंद करें, टैग लगाएँ, तार डेड हैं जाँचें, फिर काम करें",
+      "लाइव पर काम करें पर प्लास्टिक कुर्सी पर खड़े होकर"
+     ]
+    }
+   },
+   {
+    "q": "Three switchboards are shown. In which is the switch wired correctly?",
+    "options": [
+     "Switch breaks the neutral (black) wire",
+     "Switch breaks the earth (green) wire",
+     "Switch breaks the phase (red) wire"
+    ],
+    "answer": 2,
+    "topic": "Wiring and installation",
+    "te": {
+     "q": "మూడు స్విచ్‌బోర్డులు చూపించారు. దేనిలో స్విచ్ సరిగ్గా వైర్ చేశారు?",
+     "options": [
+      "స్విచ్ న్యూట్రల్ (నలుపు) వైర్‌ను కట్ చేస్తుంది",
+      "స్విచ్ ఎర్త్ (ఆకుపచ్చ) వైర్‌ను కట్ చేస్తుంది",
+      "స్విచ్ ఫేజ్ (ఎరుపు) వైర్‌ను కట్ చేస్తుంది"
+     ]
+    },
+    "hi": {
+     "q": "तीन स्विचबोर्ड दिखाए गए हैं। किसमें स्विच सही लगा है?",
+     "options": [
+      "स्विच न्यूट्रल (काले) तार को काटता है",
+      "स्विच अर्थ (हरे) तार को काटता है",
+      "स्विच फ़ेज़ (लाल) तार को काटता है"
+     ]
+    }
+   },
+   {
+    "q": "Two cable joints are shown. Which is acceptable inside a house?",
+    "options": [
+     "Connector or lug joint inside a covered junction box",
+     "Wires twisted and wrapped in tape inside the wall",
+     "Loose twisted wires hanging above the false ceiling"
+    ],
+    "answer": 0,
+    "topic": "Wiring and installation",
+    "te": {
+     "q": "రెండు కేబుల్ జాయింట్లు చూపించారు. ఇంట్లో ఏది సరైనది?",
+     "options": [
+      "కప్పి ఉన్న జంక్షన్ బాక్స్‌లో కనెక్టర్ లేదా లగ్ జాయింట్",
+      "గోడ లోపల మెలిపెట్టి టేప్ చుట్టిన వైర్లు",
+      "ఫాల్స్ సీలింగ్ పైన వేలాడుతున్న మెలిపెట్టిన వైర్లు"
+     ]
+    },
+    "hi": {
+     "q": "दो केबल जोड़ दिखाए गए हैं। घर के अंदर कौन सा ठीक है?",
+     "options": [
+      "ढके हुए जंक्शन बॉक्स में कनेक्टर या लग वाला जोड़",
+      "दीवार के अंदर मरोड़कर टेप लपेटे तार",
+      "फ़ॉल्स सीलिंग के ऊपर लटकते मरोड़े तार"
+     ]
+    }
+   },
+   {
+    "q": "A washing machine body gives a mild shock. What is the right first check?",
+    "options": [
+     "Fit a higher rating MCB",
+     "Put a rubber mat and keep using it",
+     "Check the earth connection at the socket and machine",
+     "Change the plug top colour"
+    ],
+    "answer": 2,
+    "topic": "Protection and earthing",
+    "te": {
+     "q": "వాషింగ్ మెషీన్ బాడీ తాకితే కొంచెం షాక్ కొడుతోంది. మొదట సరిగ్గా ఏం చెక్ చేయాలి?",
+     "options": [
+      "ఎక్కువ రేటింగ్ MCB పెట్టడం",
+      "రబ్బర్ మ్యాట్ వేసి వాడుతూనే ఉండటం",
+      "సాకెట్, మెషీన్ దగ్గర ఎర్త్ కనెక్షన్",
+      "ప్లగ్ టాప్ రంగు మార్చడం"
+     ]
+    },
+    "hi": {
+     "q": "वॉशिंग मशीन की बॉडी छूने पर हल्का झटका लगता है। सबसे पहले सही जाँच क्या है?",
+     "options": [
+      "ज़्यादा रेटिंग का MCB लगाएँ",
+      "रबर मैट डालकर चलाते रहें",
+      "सॉकेट और मशीन पर अर्थ कनेक्शन जाँचें",
+      "प्लग टॉप का रंग बदलें"
+     ]
+    }
+   },
+   {
+    "q": "You need to check a new motor's winding insulation before first start. Which tool?",
+    "options": [
+     "Tester screwdriver",
+     "Megger (insulation tester)",
+     "Clamp meter"
+    ],
+    "answer": 1,
+    "topic": "Tools and testing",
+    "te": {
+     "q": "కొత్త మోటార్ మొదటిసారి స్టార్ట్ చేసే ముందు వైండింగ్ ఇన్సులేషన్ చెక్ చేయాలి. ఏ టూల్?",
+     "options": [
+      "టెస్టర్ స్క్రూడ్రైవర్",
+      "మెగ్గర్ (ఇన్సులేషన్ టెస్టర్)",
+      "క్లాంప్ మీటర్"
+     ]
+    },
+    "hi": {
+     "q": "नई मोटर पहली बार चलाने से पहले वाइंडिंग इंसुलेशन जाँचना है। कौन सा टूल?",
+     "options": [
+      "टेस्टर स्क्रूड्राइवर",
+      "मेगर (इंसुलेशन टेस्टर)",
+      "क्लैंप मीटर"
+     ]
+    }
+   },
+   {
+    "q": "Which set of PPE is right for working on a live LT panel test?",
+    "options": [
+     "Rated rubber gloves, safety shoes, cotton clothes, face shield",
+     "Cotton gloves and sandals",
+     "Nylon jacket and bare hands"
+    ],
+    "answer": 0,
+    "topic": "Safety",
+    "te": {
+     "q": "లైవ్ LT ప్యానెల్ టెస్ట్ చేయడానికి సరైన PPE ఏది?",
+     "options": [
+      "రేటెడ్ రబ్బర్ గ్లవ్స్, సేఫ్టీ షూస్, కాటన్ బట్టలు, ఫేస్ షీల్డ్",
+      "కాటన్ గ్లవ్స్, చెప్పులు",
+      "నైలాన్ జాకెట్, ఒట్టి చేతులు"
+     ]
+    },
+    "hi": {
+     "q": "लाइव LT पैनल टेस्ट के लिए सही PPE कौन सा है?",
+     "options": [
+      "रेटेड रबर ग्लव्स, सेफ़्टी शूज़, सूती कपड़े, फ़ेस शील्ड",
+      "कॉटन ग्लव्स और चप्पल",
+      "नायलॉन जैकेट और खाली हाथ"
+     ]
+    }
+   },
+   {
+    "q": "A 5 HP 3-phase motor's terminal box is open. Which is a good connection?",
+    "options": [
+     "Bare wires wound round studs, no earth",
+     "Lugs crimped, tight, cable glanded and body earthed",
+     "Lugs fixed but cover left off and gland open"
+    ],
+    "answer": 1,
+    "topic": "Motors and three-phase",
+    "te": {
+     "q": "5 HP త్రీ-ఫేజ్ మోటార్ టెర్మినల్ బాక్స్ తెరిచి ఉంది. ఏది మంచి కనెక్షన్?",
+     "options": [
+      "స్టడ్‌ల చుట్టూ ఒట్టి వైర్లు చుట్టి, ఎర్త్ లేదు",
+      "లగ్స్ క్రింప్ చేసి, గట్టిగా బిగించి, కేబుల్ గ్లాండ్ వేసి, బాడీ ఎర్త్ చేసింది",
+      "లగ్స్ పెట్టారు కానీ కవర్ లేదు, గ్లాండ్ తెరిచి ఉంది"
+     ]
+    },
+    "hi": {
+     "q": "5 HP थ्री-फ़ेज़ मोटर का टर्मिनल बॉक्स खुला है। अच्छा कनेक्शन कौन सा है?",
+     "options": [
+      "स्टड पर नंगे तार लपेटे, अर्थ नहीं",
+      "लग क्रिम्प किए, कसे हुए, केबल ग्लैंड लगा, बॉडी अर्थ की",
+      "लग लगे पर कवर नहीं और ग्लैंड खुला"
+     ]
+    }
+   }
+  ]
+ }
+}

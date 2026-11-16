@@ -1,0 +1,681 @@
+{
+ "slug": "lab-tech",
+ "version": 1,
+ "topics": [
+  "Sample collection",
+  "Sample handling",
+  "Safety and infection control",
+  "Equipment and quality",
+  "Reports and patient care"
+ ],
+ "questions": [
+  {
+   "id": "lab-tech-001",
+   "topic": "Sample collection",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Before taking a blood sample, how should you confirm the patient's identity?",
+   "options": [
+    "Call out a name and take whoever answers",
+    "Ask them to say their full name and age, then match the form",
+    "Check only the bed number",
+    "Trust the label already on the tube"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "lab-tech-002",
+   "topic": "Sample collection",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which tube cap colour is usually used for a CBC (complete blood count)?",
+   "options": [
+    "Red (plain)",
+    "Light blue (citrate)",
+    "Grey (fluoride)",
+    "Lavender / purple (EDTA)"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "lab-tech-003",
+   "topic": "Sample collection",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "For a fasting blood sugar test, how long should the patient usually fast?",
+   "options": [
+    "1 to 2 hours",
+    "24 hours",
+    "30 minutes",
+    "8 to 10 hours"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "lab-tech-004",
+   "topic": "Sample collection",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which tube is best for blood glucose when the sample will reach the lab late?",
+   "options": [
+    "Lavender cap (EDTA)",
+    "Light blue cap (citrate)",
+    "Red cap (plain)",
+    "Grey cap (sodium fluoride)"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "lab-tech-005",
+   "topic": "Sample collection",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why should a tourniquet not stay on the arm for more than about one minute?",
+   "options": [
+    "It can change some results, such as potassium",
+    "It makes the needle blunt",
+    "It hurts but never affects results",
+    "It stops the tube from filling"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "lab-tech-006",
+   "topic": "Sample collection",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "What is the correct order of draw for these tubes?",
+   "options": [
+    "Culture, citrate, plain, EDTA, fluoride",
+    "EDTA, fluoride, citrate, plain, culture",
+    "Plain, EDTA, citrate, culture, fluoride",
+    "Fluoride, EDTA, plain, citrate, culture"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "lab-tech-007",
+   "topic": "Sample collection",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A 24-hour urine collection starts at 7 am. What do you tell the patient?",
+   "options": [
+    "Save the 7 am urine and stop when you go to bed",
+    "Collect only morning samples for 24 hours",
+    "Discard the first 7 am urine, then save all till 7 am tomorrow",
+    "Collect any three samples during the day"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "lab-tech-008",
+   "topic": "Sample collection",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A patient faints while you are drawing blood. What do you do first?",
+   "options": [
+    "Finish filling the tube quickly",
+    "Remove the tourniquet and needle, and lay them down safely",
+    "Give them water while they stay seated",
+    "Go to call the doctor with the needle still in"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "lab-tech-009",
+   "topic": "Sample collection",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "You cannot find a vein after two attempts on a nervous patient. What is right?",
+   "options": [
+    "Keep trying the same spot until it works",
+    "Take blood from the arm with the IV drip",
+    "Stop, reassure them, and ask a senior to try",
+    "Squeeze the finger hard to fill a tube"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "lab-tech-010",
+   "topic": "Sample handling",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "When should a blood tube be labelled?",
+   "options": [
+    "Before the patient arrives, in a batch",
+    "At the end of the shift",
+    "When it reaches the analyser",
+    "Right after collection, in front of the patient"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "lab-tech-011",
+   "topic": "Sample handling",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "An EDTA tube must be mixed after filling. How?",
+   "options": [
+    "Turn it gently up and down 8 to 10 times",
+    "Shake it hard for a minute",
+    "Do not mix it at all",
+    "Tap it a few times on the table"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "lab-tech-012",
+   "topic": "Sample handling",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A sample arrives at the lab with no label. What should you do?",
+   "options": [
+    "Guess the patient from the time it came",
+    "Label it with the name on the next form",
+    "Test it and decide whose it is later",
+    "Reject it and ask for a fresh, labelled sample"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "lab-tech-013",
+   "topic": "Sample handling",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A serum sample looks red after centrifuging. What does this most likely mean?",
+   "options": [
+    "The patient is very healthy",
+    "Haemolysis; results like potassium may be wrong",
+    "It has too much sugar in it",
+    "This is normal for serum"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "lab-tech-014",
+   "topic": "Sample handling",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A urine culture sample can't be tested for 3 hours. How should it be kept?",
+   "options": [
+    "On the counter at room temperature",
+    "In the freezer",
+    "In the incubator at 37 °C",
+    "In the fridge at 2–8 °C"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "lab-tech-015",
+   "topic": "Sample handling",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why is a blood sample centrifuged before many chemistry tests?",
+   "options": [
+    "To warm it to body temperature",
+    "To kill germs in the sample",
+    "To separate serum or plasma from cells",
+    "To mix the clot back in"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "lab-tech-016",
+   "topic": "Sample handling",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A home collection sample for a lipid profile reached the lab 6 hours late after sitting in the hot sun. What do you do?",
+   "options": [
+    "Test it and report it normally",
+    "Put it on ice and test as usual",
+    "Note it, inform the senior, and arrange a repeat if needed",
+    "Throw it away without telling anyone"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "lab-tech-017",
+   "topic": "Sample handling",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "The name on the tube and the name on the form are spelt differently. What do you do?",
+   "options": [
+    "Hold it and confirm with the person who collected it",
+    "Use the form spelling and test it",
+    "Correct the tube with a pen",
+    "Test it, small spelling errors don't matter"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "lab-tech-018",
+   "topic": "Sample handling",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A citrate tube for PT/INR is only half filled. What is the problem?",
+   "options": [
+    "There is no problem if it is mixed well",
+    "Only the colour of the plasma will change",
+    "The blood-to-citrate ratio is wrong, so results are unreliable",
+    "It will clot faster, which is fine"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "lab-tech-019",
+   "topic": "Sample handling",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which sample is usually best for a routine urine test?",
+   "options": [
+    "A clean-catch, midstream early morning sample",
+    "The last few drops of urine",
+    "Urine kept overnight in any bottle",
+    "Urine from the toilet bowl"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "lab-tech-020",
+   "topic": "Safety and infection control",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What should you do with a used needle right after taking blood?",
+   "options": [
+    "Put it straight into the sharps container",
+    "Recap it using both hands",
+    "Throw it in the general bin",
+    "Keep it on the tray for later"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "lab-tech-021",
+   "topic": "Safety and infection control",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Under India's biomedical waste rules, which bag is for cotton soaked in blood?",
+   "options": [
+    "Black",
+    "Yellow",
+    "Blue",
+    "White"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "lab-tech-022",
+   "topic": "Safety and infection control",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "When must you change your gloves?",
+   "options": [
+    "Between every patient",
+    "Once a day",
+    "Only if they tear",
+    "Only after a positive sample"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "lab-tech-023",
+   "topic": "Safety and infection control",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Under biomedical waste rules, where do used plastic tubes and gloves (no needles) go?",
+   "options": [
+    "Yellow bag",
+    "Red bag",
+    "Black bag",
+    "Blue box"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "lab-tech-024",
+   "topic": "Safety and infection control",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A blood sample spills on the bench. What is the right first step?",
+   "options": [
+    "Wipe it quickly with a dry cloth",
+    "Leave it to dry and clean later",
+    "Wear gloves, cover it with tissue, then pour hypochlorite",
+    "Wash it into the sink with water"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "lab-tech-025",
+   "topic": "Safety and infection control",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why should you never eat or drink in the lab work area?",
+   "options": [
+    "Germs and chemicals can get into your mouth",
+    "It may stain the reports",
+    "It is a rule only for big labs",
+    "Food smells disturb patients"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "lab-tech-026",
+   "topic": "Safety and infection control",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "You get a needle-stick injury from a used needle. What do you do first?",
+   "options": [
+    "Wash with soap and running water, then report",
+    "Squeeze it hard and suck the wound",
+    "Put on a bandage and carry on",
+    "Wait to see if you feel ill"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "lab-tech-027",
+   "topic": "Safety and infection control",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A colleague recaps needles with two hands to save time. What should you do?",
+   "options": [
+    "Ignore it, as it is their own risk",
+    "Start doing the same to keep up the speed",
+    "Tell them it risks needle injury and suggest the sharps box",
+    "Tell them to wear two pairs of gloves instead"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "lab-tech-028",
+   "topic": "Safety and infection control",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "After a needle-stick from a patient known to have HIV, when should PEP medicine ideally start?",
+   "options": [
+    "Within a week",
+    "Only if a test turns positive",
+    "As soon as possible, within 2 hours",
+    "After 3 days"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "lab-tech-029",
+   "topic": "Equipment and quality",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is the purpose of running a control sample on an analyser each day?",
+   "options": [
+    "To check the machine gives correct results",
+    "To clean the machine",
+    "To warm up the reagents",
+    "To test the patient twice"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "lab-tech-030",
+   "topic": "Equipment and quality",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A reagent bottle has passed its expiry date. What do you do?",
+   "options": [
+    "Use it till the bottle is empty",
+    "Stop using it and replace it",
+    "Mix it with a new bottle",
+    "Use it only for urgent samples"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "lab-tech-031",
+   "topic": "Equipment and quality",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Before using a microscope's 100x oil immersion lens, what must be put on the slide?",
+   "options": [
+    "A drop of immersion oil",
+    "A drop of water",
+    "Nothing at all",
+    "A drop of stain"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "lab-tech-032",
+   "topic": "Equipment and quality",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "The control result for glucose is outside the allowed range. What should you do?",
+   "options": [
+    "Report patient results anyway",
+    "Stop patient tests, find the cause and rerun control",
+    "Change the control value in the log",
+    "Run the patient samples twice"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "lab-tech-033",
+   "topic": "Equipment and quality",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why should a centrifuge be balanced before starting?",
+   "options": [
+    "It makes the spin faster",
+    "It is needed only for big tubes",
+    "An unbalanced load can shake, break tubes and damage it",
+    "It keeps the samples cool"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "lab-tech-034",
+   "topic": "Equipment and quality",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "How often should the reagent fridge temperature be written in the log?",
+   "options": [
+    "Once a month",
+    "Only when it feels warm",
+    "Only during audits",
+    "At least once every working day"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "lab-tech-035",
+   "topic": "Equipment and quality",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "The analyser shows an error and stops midway through a batch. What do you do?",
+   "options": [
+    "Restart and report the results already printed",
+    "Switch it off and leave it for the next shift",
+    "Enter the missing results by estimate",
+    "Follow the error guide, rerun affected samples, tell the senior"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "lab-tech-036",
+   "topic": "Equipment and quality",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A patient's haemoglobin shows 4 g/dL, but they looked well and walked in. What is the right step?",
+   "options": [
+    "Report it, the machine is calibrated",
+    "Change it to a normal value",
+    "Check for clots or sample error and repeat before reporting",
+    "Wait till tomorrow and report then"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "lab-tech-037",
+   "topic": "Equipment and quality",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "One test's results have drifted a little higher every day for a week, though controls pass. What does this suggest?",
+   "options": [
+    "Nothing, the controls passed",
+    "Patients are getting sicker",
+    "The printer needs ink",
+    "A trend; check calibration and reagents before it fails"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "lab-tech-038",
+   "topic": "Reports and patient care",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A patient asks you what their abnormal result means. What should you say?",
+   "options": [
+    "Tell them it is serious",
+    "Tell them it's nothing to worry about",
+    "Suggest a medicine they can take",
+    "Please discuss it with your doctor, who will explain"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "lab-tech-039",
+   "topic": "Reports and patient care",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Who can collect a patient's report from the lab?",
+   "options": [
+    "Anyone who knows the patient's name",
+    "The patient or someone they have authorised",
+    "Any relative who phones",
+    "A neighbour who asks politely"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "lab-tech-040",
+   "topic": "Reports and patient care",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "A patient is very afraid of needles. What helps most?",
+   "options": [
+    "Tell them to stop acting like a child",
+    "Explain the steps calmly and let them look away",
+    "Do it fast without telling them",
+    "Ask them to come back another day"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "lab-tech-041",
+   "topic": "Reports and patient care",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is a 'critical value' in lab reports?",
+   "options": [
+    "The highest normal value",
+    "A result so abnormal the doctor must be told at once",
+    "A result that needs a second print",
+    "A test with a high price"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "lab-tech-042",
+   "topic": "Reports and patient care",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Late at night you find a potassium result of 7.2 mmol/L. What do you do?",
+   "options": [
+    "Put it in the morning reports",
+    "Check the sample, then inform the doctor at once and log it",
+    "Send an SMS to the patient",
+    "Repeat it the next day"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "lab-tech-043",
+   "topic": "Reports and patient care",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "You notice a typing error in a report already sent. What should you do?",
+   "options": [
+    "Leave it, the doctor will notice",
+    "Call the patient and say ignore it",
+    "Tell the senior; issue a corrected report and inform the doctor",
+    "Delete the old report quietly"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "lab-tech-044",
+   "topic": "Reports and patient care",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A family member phones and asks for the patient's HIV test result. What do you do?",
+   "options": [
+    "Politely refuse; results go only to the patient or doctor",
+    "Tell them if they give the patient's age",
+    "Read it out, as they are family",
+    "Tell them only if it is negative"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "lab-tech-045",
+   "topic": "Reports and patient care",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A busy doctor wants a report quickly, before the day's controls are run. What do you do?",
+   "options": [
+    "Report it without controls",
+    "Send an estimated value",
+    "Copy yesterday's result",
+    "Explain the short delay, run controls, then send it fast"
+   ],
+   "answer": 3
+  }
+ ],
+ "task": {
+  "type": "written",
+  "title": "Reply to a doctor about a delayed, haemolysed sample",
+  "brief": "You are the lab technician on duty. Read the doctor's message and the internal lab notes below. Take about 15 minutes. Write the reply you would send to the doctor (it may be shown to your lab in-charge). A good reply apologises, explains honestly and simply why the result may be wrong, says what you will do now for the patient, and says what the lab will change so it does not happen again. Keep it short, polite and professional. Do not give the patient a diagnosis.",
+  "minutes": 15,
+  "material": "WhatsApp message from Dr. Meena Rao (clinic), 10:40 am:\n\n\"This is the third time this month. My patient Mr. Arjun S. (58) gave blood at your home collection yesterday at 8 am.\nThe report came only at 9 pm and shows potassium 6.8. He has no symptoms and his last value was 4.2.\nI had to call him at night and worry him. Now he says he does not want to give blood again.\nWhat is going on with your lab? I need an explanation today.\"\n\nLab notes (internal): sample reached the lab at 2 pm (bike delayed in traffic, no cool box).\nSerum was visibly haemolysed. The report was released without a remark.",
+  "key_points": [
+   "Apologises sincerely for the delay and the worry caused",
+   "Explains the sample was delayed and haemolysed, which can falsely raise potassium",
+   "Admits the report should have carried a remark or been held",
+   "Offers a free, quick recollection (home visit) and a fast repeat report",
+   "Suggests the doctor treat the 6.8 value as unreliable until the repeat, without diagnosing",
+   "Names fixes: cool box and time limits for home collection, haemolysis check before release",
+   "Professional, calm tone; no blaming the patient or the rider"
+  ],
+  "rubric": [
+   {
+    "key": "correctness",
+    "label": "Correct explanation",
+    "guide": "0 = wrong or no reason given, 3 = mentions delay only, 5 = clearly links delay and haemolysis to a falsely high potassium"
+   },
+   {
+    "key": "action",
+    "label": "Action for the patient",
+    "guide": "0 = no next step, 3 = vague offer, 5 = clear free recollection and quick repeat with a time"
+   },
+   {
+    "key": "prevention",
+    "label": "Prevention",
+    "guide": "0 = nothing, 3 = general promise, 5 = specific changes to transport and report checks"
+   },
+   {
+    "key": "tone",
+    "label": "Tone and clarity",
+    "guide": "0 = defensive or rude, 3 = polite but long or unclear, 5 = short, honest, polite and professional"
+   }
+  ]
+ }
+}

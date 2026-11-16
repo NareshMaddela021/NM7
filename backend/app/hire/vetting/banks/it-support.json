@@ -1,0 +1,682 @@
+{
+ "slug": "it-support",
+ "version": 1,
+ "topics": [
+  "Hardware and Windows",
+  "Networking",
+  "Accounts and security",
+  "Email and software",
+  "Service desk practice"
+ ],
+ "questions": [
+  {
+   "id": "it-support-001",
+   "topic": "Hardware and Windows",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A laptop won't power on at all. What do you check first?",
+   "options": [
+    "The charger, wall socket and battery connection",
+    "Reinstall Windows from a recovery drive",
+    "Replace the motherboard under warranty",
+    "Update the BIOS to the latest version"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "it-support-002",
+   "topic": "Hardware and Windows",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which Windows tool shows which apps are using the most CPU and memory?",
+   "options": [
+    "Disk Cleanup",
+    "Task Manager",
+    "Device Manager",
+    "Event Viewer"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "it-support-003",
+   "topic": "Hardware and Windows",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is the right way to take out a USB pen drive?",
+   "options": [
+    "Pull it out while files are copying",
+    "Restart the PC every single time",
+    "Eject it first, then unplug it",
+    "Format it before taking it out"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "it-support-004",
+   "topic": "Hardware and Windows",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "After a power cut, a user's PC is very slow and Task Manager shows disk at 100%. Sensible first step?",
+   "options": [
+    "Reinstall every application on the PC one by one",
+    "Add more RAM to the PC straight away",
+    "Tell the user it will settle down in a week",
+    "Back up data, then check disk health and run a disk check"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "it-support-005",
+   "topic": "Hardware and Windows",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A desktop shows \"No bootable device\" after the office shifted floors. Most likely cause?",
+   "options": [
+    "A loose drive cable or a changed boot order",
+    "An expired antivirus subscription",
+    "A full Recycle Bin on the C drive",
+    "A wrong time zone in Windows settings"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "it-support-006",
+   "topic": "Hardware and Windows",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "The office has frequent power cuts and voltage dips. What best protects the desktops?",
+   "options": [
+    "A plain extension board with more sockets",
+    "A UPS with surge protection, sized for the load",
+    "Unplugging all PCs only at night",
+    "A higher-wattage power supply in each PC"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "it-support-007",
+   "topic": "Hardware and Windows",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Many laptops of the same model blue-screen after a driver update pushed last night. What do you do?",
+   "options": [
+    "Reimage every affected laptop from scratch today",
+    "Send all the laptops back for warranty replacement",
+    "Pause the update, roll back the driver, and test before redeploying",
+    "Ask users to stop using Wi-Fi until it is sorted"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "it-support-008",
+   "topic": "Hardware and Windows",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A laptop shuts down randomly when the user runs heavy Excel files. What should you check?",
+   "options": [
+    "A corrupt Microsoft Office licence key",
+    "Too many bookmarks saved in the browser",
+    "A wrong keyboard layout in Windows",
+    "Overheating from blocked vents or a failing fan"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "it-support-009",
+   "topic": "Hardware and Windows",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Before replacing a failing hard disk for a finance user, what matters most?",
+   "options": [
+    "Back up the data and confirm the backup opens",
+    "Order the cheapest replacement disk available",
+    "Wipe the old disk before removing it",
+    "Note down the user's password on paper"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "it-support-010",
+   "topic": "Networking",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "One user can't open any website, but colleagues can. What do you check first?",
+   "options": [
+    "The company firewall's licence expiry",
+    "Their cable or Wi-Fi link and IP settings",
+    "The website's own server status",
+    "The shared printer's job queue"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "it-support-011",
+   "topic": "Networking",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does the ipconfig command show on Windows?",
+   "options": [
+    "The list of programs installed on the PC",
+    "The free space left on each disk",
+    "The PC's IP address, gateway and network details",
+    "The user's saved Wi-Fi passwords"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "it-support-012",
+   "topic": "Networking",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which address range is private, used inside office networks?",
+   "options": [
+    "8.8.8.x",
+    "1.1.1.x",
+    "142.250.x.x",
+    "192.168.x.x"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "it-support-013",
+   "topic": "Networking",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A PC shows an IP address starting with 169.254. What does this usually mean?",
+   "options": [
+    "It couldn't get an address from the DHCP server",
+    "It has a correctly set static IP address",
+    "It is connected through the company VPN",
+    "Its DNS settings are working normally"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "it-support-014",
+   "topic": "Networking",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A user can ping 8.8.8.8 but can't open any site by its name. What is the likely issue?",
+   "options": [
+    "A faulty network cable",
+    "Name resolution (DNS)",
+    "A wrong Wi-Fi password",
+    "An old display driver"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "it-support-015",
+   "topic": "Networking",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why do offices keep a separate guest Wi-Fi for visitors?",
+   "options": [
+    "Guest Wi-Fi is always faster than the staff network",
+    "It avoids paying for a business broadband plan",
+    "To keep visitors off the internal network and its systems",
+    "It blocks all mobile phones from the office network"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "it-support-016",
+   "topic": "Networking",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Staff in one branch say the internet is slow only between 2 and 4 pm. What do you do?",
+   "options": [
+    "Replace the branch router immediately with a new model",
+    "Ask the ISP to double the plan speed from next month",
+    "Restart all branch PCs every day at 2 pm",
+    "Check bandwidth use by device and app in that window to find the cause"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "it-support-017",
+   "topic": "Networking",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Two PCs keep dropping off with an \"IP address conflict\" warning. Best fix?",
+   "options": [
+    "Find the duplicate and keep static IPs out of the DHCP pool",
+    "Restart both PCs every hour until it stops",
+    "Change the Wi-Fi password on both PCs",
+    "Turn off DHCP on the office router"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "it-support-018",
+   "topic": "Networking",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Remote staff need the office file server. What is the safest common approach?",
+   "options": [
+    "Open the file server's port directly to the internet",
+    "A VPN with MFA, giving access only to the shares they need",
+    "Let staff email files to their personal Gmail accounts",
+    "Share one admin login with the whole remote team"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "it-support-019",
+   "topic": "Accounts and security",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A user gets an email from \"IT\" asking for their password to keep their mailbox active. What is it?",
+   "options": [
+    "A routine IT request",
+    "A spam filter test",
+    "A phishing attempt",
+    "A licence renewal notice"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "it-support-020",
+   "topic": "Accounts and security",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does multi-factor authentication add to a login?",
+   "options": [
+    "A longer and more complex password",
+    "A faster way to reach the desktop",
+    "A backup email address for recovery",
+    "A second proof, such as an OTP or app approval"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "it-support-021",
+   "topic": "Accounts and security",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A user calls saying they forgot their password. What do you do before resetting it?",
+   "options": [
+    "Verify who they are as per policy",
+    "Reset it and send it on WhatsApp",
+    "Ask a colleague to confirm it for them",
+    "Unlock it without any checks"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "it-support-022",
+   "topic": "Accounts and security",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A user entered their login on a fake page after clicking a link. What do you do first?",
+   "options": [
+    "Tell the user to be more careful with links in future",
+    "Reset the password, end active sessions, and check for mail forwarding rules",
+    "Run a disk cleanup and an antivirus scan next week",
+    "Wait a few days to see if anything unusual happens"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "it-support-023",
+   "topic": "Accounts and security",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why shouldn't normal users have local admin rights on their PCs?",
+   "options": [
+    "Admin accounts take up more disk space on the PC",
+    "Admin rights slow down the office internet",
+    "Malware and unapproved software install much more easily",
+    "Admin accounts are unable to print documents"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "it-support-024",
+   "topic": "Accounts and security",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What does the principle of least privilege mean?",
+   "options": [
+    "Give everyone the same access to save time",
+    "Remove all access every day after 6 pm",
+    "Let only managers have email accounts",
+    "Give users only the access their job needs"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "it-support-025",
+   "topic": "Accounts and security",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "An employee left last Friday and HR tells IT only today. What should be done?",
+   "options": [
+    "Disable accounts now, revoke access and sessions, recover devices and hand over data",
+    "Delete the mailbox and OneDrive right away to free the licence",
+    "Wait for the manager to send a formal email before acting",
+    "Change only the office Wi-Fi password and leave the rest"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "it-support-026",
+   "topic": "Accounts and security",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Files on a shared drive suddenly have strange extensions and a ransom note appears. First action?",
+   "options": [
+    "Pay the ransom quickly before the price goes up",
+    "Isolate the affected PC from the network and alert security",
+    "Rename the files back to their old extensions",
+    "Restart the file server to clear the problem"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "it-support-027",
+   "topic": "Accounts and security",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "What best protects company data if a laptop is lost on a train?",
+   "options": [
+    "A wallpaper with the company's phone number on it",
+    "A cable lock attached to the laptop bag",
+    "Full-disk encryption plus the ability to wipe it remotely",
+    "Keeping the data in a hidden folder"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "it-support-028",
+   "topic": "Email and software",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Outlook shows \"Disconnected\" at the bottom. What do you check first?",
+   "options": [
+    "The user's calendar sharing settings",
+    "The monitor's screen resolution",
+    "The default printer driver",
+    "The internet connection and whether Outlook is set to work offline"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "it-support-029",
+   "topic": "Email and software",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A user's mailbox is full. What is a good first step?",
+   "options": [
+    "Help them archive or delete old large mails",
+    "Delete every email in the mailbox",
+    "Create a new email ID for them",
+    "Disable the mailbox for a day"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "it-support-030",
+   "topic": "Email and software",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is the safest source for installing software on office PCs?",
+   "options": [
+    "Any free download website found through a search",
+    "The company's approved software portal or the official vendor site",
+    "A pen drive that a friend brings from home",
+    "A cracked copy shared in a Telegram group"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "it-support-031",
+   "topic": "Email and software",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "Excel crashes for one user whenever they open any file. What should you try first?",
+   "options": [
+    "Reinstall Windows on the user's PC",
+    "Replace the user's keyboard and mouse",
+    "Start Excel in safe mode and disable add-ins",
+    "Create a new email account for the user"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "it-support-032",
+   "topic": "Email and software",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Print jobs are stuck in a shared printer's queue for everyone. What usually helps?",
+   "options": [
+    "Reinstall Microsoft Office on all the PCs",
+    "Change the printer's default paper size",
+    "Replace the toner cartridge in the printer",
+    "Clear the queue and restart the print spooler service"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "it-support-033",
+   "topic": "Email and software",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A user's emails to one client bounce back saying the recipient's mailbox is full. Where is the problem?",
+   "options": [
+    "On the client's side",
+    "In the user's Outlook profile",
+    "In your company's DNS",
+    "In the user's antivirus"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "it-support-034",
+   "topic": "Email and software",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "After a Windows update, the billing software fails on 20 PCs. What do you do?",
+   "options": [
+    "Reinstall the billing software on all 20 PCs at the same time",
+    "Confirm the cause on one PC, pause the update, roll back, and inform the vendor",
+    "Tell staff to write bills by hand for the next week",
+    "Switch off Windows Update on every PC permanently"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "it-support-035",
+   "topic": "Email and software",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Emails from your company domain are landing in clients' spam folders. Which DNS records should you check?",
+   "options": [
+    "MX records only",
+    "The website's A record",
+    "SPF, DKIM and DMARC",
+    "The DHCP lease settings"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "it-support-036",
+   "topic": "Email and software",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "What is the best way to roll out a new application to 200 PCs?",
+   "options": [
+    "Install it on all 200 PCs together first thing on Monday morning",
+    "Email the installer to everyone and let users install it themselves",
+    "Install it only on the managers' PCs and see what happens",
+    "Pilot with a small group, fix issues, then deploy in phases with a rollback plan"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "it-support-037",
+   "topic": "Service desk practice",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Why log every issue as a ticket, even quick fixes?",
+   "options": [
+    "To track work, spot repeat problems and measure SLAs",
+    "To make users wait longer for help",
+    "To make the monthly report look full",
+    "It is needed before anyone can print"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "it-support-038",
+   "topic": "Service desk practice",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does an SLA mean in IT support?",
+   "options": [
+    "A type of network cable used in offices",
+    "The agreed response and resolution times",
+    "The Windows licence agreement",
+    "The office security camera log"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "it-support-039",
+   "topic": "Service desk practice",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "A user is upset because their laptop died 30 minutes before a client demo. What do you do first?",
+   "options": [
+    "Explain the full ticket process and its timelines in detail",
+    "Ask them to raise a ticket by email and wait for a reply",
+    "Stay calm, give a loaner or quick workaround, and diagnose later",
+    "Start a full hardware diagnosis on the laptop right away"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "it-support-040",
+   "topic": "Service desk practice",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which of these requests should get the highest priority?",
+   "options": [
+    "The director wants a new phone set up today",
+    "The shared printer is slow for 20 users",
+    "One user can't log into a training portal",
+    "Payroll processing is down for 3 users on salary day"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "it-support-041",
+   "topic": "Service desk practice",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is the difference between an incident and a problem?",
+   "options": [
+    "An incident is one disruption; a problem is its underlying cause",
+    "They mean the same thing in an IT service desk",
+    "A problem is always smaller than an incident",
+    "Incidents are hardware issues and problems are software"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "it-support-042",
+   "topic": "Service desk practice",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "You fixed a user's VPN issue but don't know why the fix worked. What should you do?",
+   "options": [
+    "Close the ticket and move on to the next one in the queue",
+    "Record the steps, follow up on the cause, and update the knowledge base",
+    "Tell the user the issue is now permanently fixed for good",
+    "Ask the user to remember the steps in case it happens again"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "it-support-043",
+   "topic": "Service desk practice",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Ten tickets this week report Wi-Fi drops on the third floor. What is the best approach?",
+   "options": [
+    "Fix each ticket separately by restarting the user's laptop",
+    "Ask the affected users to sit on another floor for now",
+    "Link them, raise a problem record, and investigate the access points and interference",
+    "Close the newer tickets as duplicates without any action"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "it-support-044",
+   "topic": "Service desk practice",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Before a planned server change during office hours, what is essential?",
+   "options": [
+    "Doing it quietly so that nobody worries about it",
+    "Telling the IT manager only after it is finished",
+    "Taking a photo of the server rack beforehand",
+    "Approval, a tested rollback plan and notice to affected users"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "it-support-045",
+   "topic": "Service desk practice",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A senior manager demands you skip the queue for a minor issue while a P1 outage is open. What do you do?",
+   "options": [
+    "Politely explain the outage, give an ETA, and escalate per policy if needed",
+    "Drop the outage work and fix the manager's issue first",
+    "Ignore the manager's request and carry on without a reply",
+    "Ask the P1 users to wait while you help the manager"
+   ],
+   "answer": 0
+  }
+ ],
+ "task": {
+  "type": "written",
+  "title": "Handle an urgent email ticket: user reply and troubleshooting notes",
+  "minutes": 20,
+  "brief": "Read the ticket (below). In about 20 minutes write two short parts. (1) A reply to the user: polite, clear, what you need from them or what they can do right now, and when they will hear back. (2) Internal ticket notes: the priority you would set and why, your troubleshooting steps in the order you would try them (with what each step tells you), and one or two things to do afterwards so it doesn't happen again. A good answer is calm and helpful to the user, works from simple likely causes to harder ones, protects data and accounts, and uses the facts given.",
+  "material": "Ticket #48213 | Raised 9:12 am | Branch: Vijayawada | User: Anjali Menon, Accounts\n\n\"Outlook has not sent any mail since morning. Everything is stuck in Outbox. Today is the last day for GST filing and I must send the GSTR-1 workings to our CA by 1 pm. Please help urgently!!\"\n\nWhat the service desk can see:\n- Anjali's mailbox is at 49.6 GB of a 50 GB limit.\n- Webmail (Outlook on the web) login works for her from your side.\n- Two other users in the same branch can send mail normally.\n- Her Outbox has an email with a 38 MB Excel attachment at the top.\n- Last night a password change was forced for all users; she changed hers at 8:50 am.\n- Her laptop's antivirus shows up to date.",
+  "key_points": [
+   "Sets high priority because of the 1 pm GST deadline, though only one user is affected",
+   "Offers an immediate workaround: send from webmail, or share the file via OneDrive/link instead of a large attachment",
+   "Spots the nearly full mailbox and helps archive or clear space",
+   "Spots the 38 MB attachment likely over the size limit and blocking the Outbox; move or delete it and resend smaller",
+   "Checks Outlook is using the new password (credential prompt, cached credentials) and is not in offline mode",
+   "Steps go from simple and likely to harder, noting what each step confirms",
+   "Reply is polite, gives a time for the next update, and avoids jargon",
+   "Prevention: mailbox size alerts or archiving policy, guidance on sending large files, password-change communication"
+  ],
+  "rubric": [
+   {
+    "key": "diagnosis",
+    "label": "Correct diagnosis",
+    "guide": "0 = misses the likely causes, 3 = finds one cause, 5 = links the full mailbox, large attachment and password change to sensible checks"
+   },
+   {
+    "key": "steps",
+    "label": "Troubleshooting order",
+    "guide": "0 = random or risky steps, 3 = reasonable steps in a loose order, 5 = clear, logical steps from simple to complex with a fast workaround first"
+   },
+   {
+    "key": "user_reply",
+    "label": "User communication",
+    "guide": "0 = rude, vague or full of jargon, 3 = polite but missing what to do or when, 5 = calm, clear actions and a time for the next update"
+   },
+   {
+    "key": "follow_up",
+    "label": "Priority and prevention",
+    "guide": "0 = no priority or follow-up, 3 = priority set but weak reasons, 5 = justified priority and practical steps to prevent a repeat"
+   }
+  ]
+ }
+}

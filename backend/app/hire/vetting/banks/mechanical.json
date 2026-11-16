@@ -1,0 +1,1334 @@
+{
+ "slug": "mechanical",
+ "version": 1,
+ "topics": [
+  "Measuring",
+  "Hand tools and fitting",
+  "Drawing and tolerance",
+  "Machines and maintenance",
+  "Safety"
+ ],
+ "questions": [
+  {
+   "id": "mechanical-001",
+   "topic": "Safety",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Why must you not wear loose clothes or gloves near a running lathe or drill?",
+   "options": [
+    "They get dirty with oil",
+    "They slow the machine down",
+    "They can get caught and pull you in",
+    "They make the job rough"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "నడుస్తున్న లేత్ లేదా డ్రిల్ దగ్గర వదులు బట్టలు, గ్లవ్స్ ఎందుకు వేసుకోకూడదు?",
+    "options": [
+     "ఆయిల్‌తో మురికి అవుతాయి",
+     "మెషీన్ నెమ్మదిస్తుంది",
+     "అవి చిక్కుకుని మిమ్మల్ని లోపలికి లాగవచ్చు",
+     "జాబ్ రఫ్‌గా వస్తుంది"
+    ]
+   },
+   "hi": {
+    "q": "चलती लेथ या ड्रिल के पास ढीले कपड़े या ग्लव्स क्यों नहीं पहनने चाहिए?",
+    "options": [
+     "तेल से गंदे हो जाते हैं",
+     "मशीन धीमी हो जाती है",
+     "वे फँसकर आपको अंदर खींच सकते हैं",
+     "जॉब खुरदरा बनता है"
+    ]
+   }
+  },
+  {
+   "id": "mechanical-002",
+   "topic": "Safety",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "How do you hold a small job while drilling on a pillar drill?",
+   "options": [
+    "In a machine vice or with a clamp",
+    "Firmly in your hand",
+    "Pressed under your foot",
+    "Just resting on the table"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "పిల్లర్ డ్రిల్‌పై డ్రిల్ చేసేటప్పుడు చిన్న జాబ్‌ను ఎలా పట్టుకోవాలి?",
+    "options": [
+     "మెషీన్ వైస్‌లో లేదా క్లాంప్‌తో",
+     "చేత్తో గట్టిగా",
+     "కాలి కింద నొక్కి",
+     "టేబుల్ మీద అలాగే పెట్టి"
+    ]
+   },
+   "hi": {
+    "q": "पिलर ड्रिल पर ड्रिल करते समय छोटा जॉब कैसे पकड़ें?",
+    "options": [
+     "मशीन वाइस में या क्लैंप से",
+     "हाथ से कसकर",
+     "पैर के नीचे दबाकर",
+     "बस टेबल पर रखकर"
+    ]
+   }
+  },
+  {
+   "id": "mechanical-003",
+   "topic": "Safety",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "The grinder wheel has a small crack. Your supervisor wants the job done fast. What do you do?",
+   "options": [
+    "Use it gently for this one job",
+    "Wrap tape over the crack",
+    "Use only the side of the wheel",
+    "Stop and get the wheel replaced"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "గ్రైండర్ వీల్‌కు చిన్న పగులు ఉంది. సూపర్‌వైజర్ పని త్వరగా కావాలంటున్నారు. మీరు ఏం చేస్తారు?",
+    "options": [
+     "ఈ ఒక్క పనికి నెమ్మదిగా వాడతారు",
+     "పగులు మీద టేప్ చుడతారు",
+     "వీల్ పక్క భాగం మాత్రమే వాడతారు",
+     "ఆపి, వీల్ మార్పిస్తారు"
+    ]
+   },
+   "hi": {
+    "q": "ग्राइंडर व्हील में छोटी दरार है। सुपरवाइज़र जल्दी काम चाहते हैं। आप क्या करेंगे?",
+    "options": [
+     "इस एक काम के लिए धीरे से चलाएँगे",
+     "दरार पर टेप लपेट देंगे",
+     "सिर्फ़ व्हील की साइड से काम करेंगे",
+     "रोककर व्हील बदलवाएँगे"
+    ]
+   }
+  },
+  {
+   "id": "mechanical-004",
+   "topic": "Safety",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Before repairing a machine, why do you switch off and lock out its power?",
+   "options": [
+    "To save electricity",
+    "So it cannot start by mistake while you work",
+    "To let the oil cool down",
+    "To stop the noise"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "మెషీన్ రిపేర్ చేసే ముందు పవర్ ఆఫ్ చేసి ఎందుకు లాక్ చేయాలి?",
+    "options": [
+     "కరెంట్ ఆదా చేయడానికి",
+     "మీరు పని చేస్తుండగా పొరపాటున స్టార్ట్ అవ్వకుండా",
+     "ఆయిల్ చల్లబడటానికి",
+     "శబ్దం ఆపడానికి"
+    ]
+   },
+   "hi": {
+    "q": "मशीन ठीक करने से पहले बिजली बंद करके लॉक क्यों करते हैं?",
+    "options": [
+     "बिजली बचाने के लिए",
+     "ताकि काम करते समय गलती से चालू न हो",
+     "तेल ठंडा होने के लिए",
+     "आवाज़ रोकने के लिए"
+    ]
+   }
+  },
+  {
+   "id": "mechanical-005",
+   "topic": "Safety",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "While lifting a gearbox with a chain block, the load starts to swing. What is right?",
+   "options": [
+    "Put your hands under it to hold it",
+    "Stop, lower it slowly and steady it with a rope",
+    "Lift it faster to finish quickly",
+    "Walk under it to guide it"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "చైన్ బ్లాక్‌తో గేర్‌బాక్స్ ఎత్తుతుంటే లోడ్ ఊగడం మొదలైంది. ఏది సరైనది?",
+    "options": [
+     "చేతులు కింద పెట్టి పట్టుకోవాలి",
+     "ఆపి, నెమ్మదిగా దించి, తాడుతో స్థిరంగా పట్టాలి",
+     "త్వరగా పూర్తి చేయడానికి వేగంగా ఎత్తాలి",
+     "కింద నడుస్తూ గైడ్ చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "चेन ब्लॉक से गियरबॉक्स उठाते समय लोड झूलने लगा। क्या सही है?",
+    "options": [
+     "नीचे हाथ लगाकर पकड़ें",
+     "रोकें, धीरे से नीचे करें और रस्सी से स्थिर करें",
+     "जल्दी खत्म करने को तेज़ उठाएँ",
+     "नीचे चलकर रास्ता दिखाएँ"
+    ]
+   }
+  },
+  {
+   "id": "mechanical-006",
+   "topic": "Safety",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "How do you clear metal chips from a lathe safely?",
+   "options": [
+    "With bare hands",
+    "Blow air towards your face",
+    "Wipe with a cloth while it runs",
+    "With a brush or chip hook, machine stopped"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "లేత్ మీద మెటల్ చిప్స్‌ను సురక్షితంగా ఎలా తీయాలి?",
+    "options": [
+     "ఒట్టి చేతులతో",
+     "ముఖం వైపు గాలి ఊదుతూ",
+     "నడుస్తుండగా గుడ్డతో తుడుస్తూ",
+     "మెషీన్ ఆపి, బ్రష్ లేదా చిప్ హుక్‌తో"
+    ]
+   },
+   "hi": {
+    "q": "लेथ से धातु की चिप्स सुरक्षित तरीके से कैसे हटाएँ?",
+    "options": [
+     "खाली हाथ से",
+     "चेहरे की तरफ़ हवा मारकर",
+     "चलती मशीन पर कपड़े से पोंछकर",
+     "मशीन रोककर ब्रश या चिप हुक से"
+    ]
+   }
+  },
+  {
+   "id": "mechanical-007",
+   "topic": "Drawing and tolerance",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "On a drawing, M10 means…",
+   "options": [
+    "A metric thread of 10 mm size",
+    "A part 10 m long",
+    "Ten holes in a row",
+    "Material grade 10"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "డ్రాయింగ్‌లో M10 అంటే…",
+    "options": [
+     "10 mm సైజు మెట్రిక్ థ్రెడ్",
+     "10 m పొడవు ఉన్న పార్ట్",
+     "వరుసగా 10 రంధ్రాలు",
+     "మెటీరియల్ గ్రేడ్ 10"
+    ]
+   },
+   "hi": {
+    "q": "ड्रॉइंग पर M10 का मतलब…",
+    "options": [
+     "10 mm साइज़ की मेट्रिक चूड़ी",
+     "10 m लंबा पुर्ज़ा",
+     "एक लाइन में 10 छेद",
+     "मटीरियल ग्रेड 10"
+    ]
+   }
+  },
+  {
+   "id": "mechanical-008",
+   "topic": "Drawing and tolerance",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A hole is marked 20 H7 and its shaft 20 g6. What kind of fit is this?",
+   "options": [
+    "A press (interference) fit",
+    "A loose fit with no limit",
+    "A clearance (sliding) fit",
+    "A welded joint"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "రంధ్రం 20 H7, షాఫ్ట్ 20 g6 అని ఉంది. ఇది ఏ రకమైన ఫిట్?",
+    "options": [
+     "ప్రెస్ (ఇంటర్‌ఫియరెన్స్) ఫిట్",
+     "లిమిట్ లేని లూజ్ ఫిట్",
+     "క్లియరెన్స్ (స్లైడింగ్) ఫిట్",
+     "వెల్డెడ్ జాయింట్"
+    ]
+   },
+   "hi": {
+    "q": "छेद 20 H7 और शाफ़्ट 20 g6 लिखा है। यह कौन सा फ़िट है?",
+    "options": [
+     "प्रेस (इंटरफ़ेरेंस) फ़िट",
+     "बिना सीमा का ढीला फ़िट",
+     "क्लीयरेंस (स्लाइडिंग) फ़िट",
+     "वेल्डेड जोड़"
+    ]
+   }
+  },
+  {
+   "id": "mechanical-009",
+   "topic": "Drawing and tolerance",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "In a drawing, a thin long-dash short-dash line shows…",
+   "options": [
+    "A hidden edge",
+    "A cut surface",
+    "A centre line",
+    "The outer outline"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "డ్రాయింగ్‌లో సన్నని పొడవు-డ్యాష్, పొట్టి-డ్యాష్ లైన్ ఏం చూపిస్తుంది?",
+    "options": [
+     "కనిపించని అంచు",
+     "కట్ చేసిన సర్ఫేస్",
+     "సెంటర్ లైన్",
+     "బయటి అవుట్‌లైన్"
+    ]
+   },
+   "hi": {
+    "q": "ड्रॉइंग में पतली लंबी-डैश छोटी-डैश लाइन क्या दिखाती है?",
+    "options": [
+     "छिपा हुआ किनारा",
+     "कटी हुई सतह",
+     "सेंटर लाइन",
+     "बाहरी आउटलाइन"
+    ]
+   }
+  },
+  {
+   "id": "mechanical-010",
+   "topic": "Measuring",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Before measuring with a vernier calliper, what do you check first?",
+   "options": [
+    "It reads zero when the jaws are closed",
+    "Its colour and brand",
+    "Its total weight",
+    "The length of the beam"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "వెర్నియర్ కాలిపర్‌తో కొలిచే ముందు మొదట ఏం చెక్ చేయాలి?",
+    "options": [
+     "జాస్ మూసినప్పుడు సున్నా చూపిస్తుందా అని",
+     "దాని రంగు, బ్రాండ్",
+     "దాని మొత్తం బరువు",
+     "బీమ్ పొడవు"
+    ]
+   },
+   "hi": {
+    "q": "वर्नियर कैलिपर से नापने से पहले सबसे पहले क्या जाँचें?",
+    "options": [
+     "जबड़े बंद होने पर ज़ीरो पढ़ता है या नहीं",
+     "उसका रंग और ब्रांड",
+     "उसका कुल वज़न",
+     "बीम की लंबाई"
+    ]
+   }
+  },
+  {
+   "id": "mechanical-011",
+   "topic": "Measuring",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which tool checks a small gap, like a valve or bearing clearance?",
+   "options": [
+    "Try square",
+    "Scriber",
+    "Centre punch",
+    "Feeler gauge"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "వాల్వ్ లేదా బేరింగ్ క్లియరెన్స్ లాంటి చిన్న గ్యాప్‌ను ఏ టూల్ చెక్ చేస్తుంది?",
+    "options": [
+     "ట్రై స్క్వేర్",
+     "స్క్రైబర్",
+     "సెంటర్ పంచ్",
+     "ఫీలర్ గేజ్"
+    ]
+   },
+   "hi": {
+    "q": "वाल्व या बेयरिंग क्लीयरेंस जैसा छोटा गैप कौन सा टूल जाँचता है?",
+    "options": [
+     "ट्राई स्क्वेयर",
+     "स्क्राइबर",
+     "सेंटर पंच",
+     "फ़ीलर गेज"
+    ]
+   }
+  },
+  {
+   "id": "mechanical-012",
+   "topic": "Measuring",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Your micrometer reading on the same shaft changes every time. What is the likely mistake?",
+   "options": [
+    "Cleaning the shaft before measuring",
+    "Turning the thimble hard instead of using the ratchet",
+    "Holding it square to the shaft",
+    "Taking three readings and averaging"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "ఒకే షాఫ్ట్ మీద మైక్రోమీటర్ రీడింగ్ ప్రతిసారి మారుతోంది. పొరపాటు ఏమై ఉండొచ్చు?",
+    "options": [
+     "కొలిచే ముందు షాఫ్ట్ క్లీన్ చేయడం",
+     "ర్యాచెట్ వాడకుండా థింబుల్‌ను గట్టిగా తిప్పడం",
+     "షాఫ్ట్‌కు స్క్వేర్‌గా పట్టుకోవడం",
+     "మూడు రీడింగ్‌లు తీసి సగటు చేయడం"
+    ]
+   },
+   "hi": {
+    "q": "एक ही शाफ़्ट पर माइक्रोमीटर की रीडिंग हर बार बदल रही है। संभावित गलती क्या है?",
+    "options": [
+     "नापने से पहले शाफ़्ट साफ़ करना",
+     "रैचेट की जगह थिम्बल को ज़ोर से घुमाना",
+     "शाफ़्ट के सीधे कोण पर पकड़ना",
+     "तीन रीडिंग लेकर औसत निकालना"
+    ]
+   }
+  },
+  {
+   "id": "mechanical-013",
+   "topic": "Machines and maintenance",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A bearing makes a grinding noise and feels very hot. What is the likely problem?",
+   "options": [
+    "The shaft is freshly painted",
+    "It is worn or short of grease",
+    "The belt is too new",
+    "The room is too cold"
+   ],
+   "answer": 1,
+   "te": {
+    "q": "బేరింగ్ నుంచి గరగర శబ్దం వస్తోంది, చాలా వేడిగా ఉంది. సమస్య ఏమై ఉండొచ్చు?",
+    "options": [
+     "షాఫ్ట్‌కు కొత్తగా పెయింట్ వేశారు",
+     "అది అరిగిపోయింది లేదా గ్రీజ్ తక్కువ",
+     "బెల్ట్ చాలా కొత్తది",
+     "రూమ్ చాలా చల్లగా ఉంది"
+    ]
+   },
+   "hi": {
+    "q": "बेयरिंग से घिसने की आवाज़ आ रही है और बहुत गरम है। संभावित समस्या क्या है?",
+    "options": [
+     "शाफ़्ट पर नया पेंट हुआ है",
+     "वह घिस गया है या ग्रीस कम है",
+     "बेल्ट बहुत नई है",
+     "कमरा बहुत ठंडा है"
+    ]
+   }
+  },
+  {
+   "id": "mechanical-014",
+   "topic": "Machines and maintenance",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A V-belt squeals when the machine starts. What do you check first?",
+   "options": [
+    "The motor nameplate",
+    "The floor level",
+    "The machine's paint",
+    "Belt tension and wear"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "మెషీన్ స్టార్ట్ అయినప్పుడు V-బెల్ట్ కీచుమంటోంది. మొదట ఏం చెక్ చేస్తారు?",
+    "options": [
+     "మోటార్ నేమ్‌ప్లేట్",
+     "ఫ్లోర్ లెవెల్",
+     "మెషీన్ పెయింట్",
+     "బెల్ట్ టెన్షన్, అరుగుదల"
+    ]
+   },
+   "hi": {
+    "q": "मशीन चालू होते ही V-बेल्ट चीं-चीं करती है। पहले क्या जाँचेंगे?",
+    "options": [
+     "मोटर की नेमप्लेट",
+     "फ़र्श का लेवल",
+     "मशीन का पेंट",
+     "बेल्ट का तनाव और घिसाव"
+    ]
+   }
+  },
+  {
+   "id": "mechanical-015",
+   "topic": "Machines and maintenance",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Two pulleys on a machine are out of line. What will happen over time?",
+   "options": [
+    "The belt wears on one side and may jump off",
+    "The machine will run faster",
+    "The motor will run cooler",
+    "The belt will get tighter by itself"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "మెషీన్‌లో రెండు పుల్లీలు ఒకే లైన్‌లో లేవు. కాలక్రమంలో ఏమవుతుంది?",
+    "options": [
+     "బెల్ట్ ఒక వైపు అరిగి, జారిపోవచ్చు",
+     "మెషీన్ వేగంగా నడుస్తుంది",
+     "మోటార్ చల్లగా నడుస్తుంది",
+     "బెల్ట్ దానంతట అదే బిగుస్తుంది"
+    ]
+   },
+   "hi": {
+    "q": "मशीन की दो पुली एक लाइन में नहीं हैं। समय के साथ क्या होगा?",
+    "options": [
+     "बेल्ट एक तरफ़ घिसेगी और उतर सकती है",
+     "मशीन तेज़ चलेगी",
+     "मोटर ठंडी चलेगी",
+     "बेल्ट अपने आप कस जाएगी"
+    ]
+   }
+  },
+  {
+   "id": "mechanical-016",
+   "topic": "Hand tools and fitting",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Before tapping an M10 thread, what size hole do you drill?",
+   "options": [
+    "Exactly 10 mm",
+    "About 12 mm",
+    "About 8.5 mm",
+    "About 5 mm"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "M10 థ్రెడ్ ట్యాప్ చేసే ముందు ఏ సైజు రంధ్రం డ్రిల్ చేస్తారు?",
+    "options": [
+     "సరిగ్గా 10 mm",
+     "సుమారు 12 mm",
+     "సుమారు 8.5 mm",
+     "సుమారు 5 mm"
+    ]
+   },
+   "hi": {
+    "q": "M10 चूड़ी टैप करने से पहले कितने साइज़ का छेद ड्रिल करते हैं?",
+    "options": [
+     "ठीक 10 mm",
+     "लगभग 12 mm",
+     "लगभग 8.5 mm",
+     "लगभग 5 mm"
+    ]
+   }
+  },
+  {
+   "id": "mechanical-017",
+   "topic": "Hand tools and fitting",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A bolt is rusted and will not turn. What should you try first?",
+   "options": [
+    "Put a long pipe on the spanner",
+    "Hit the spanner with a hammer",
+    "Apply penetrating oil, wait, then turn",
+    "Cut the bolt off at once"
+   ],
+   "answer": 2,
+   "te": {
+    "q": "బోల్ట్ తుప్పు పట్టి తిరగడం లేదు. మొదట ఏం ప్రయత్నించాలి?",
+    "options": [
+     "స్పానర్‌కు పొడవైన పైప్ తగిలించాలి",
+     "స్పానర్‌ను సుత్తితో కొట్టాలి",
+     "పెనెట్రేటింగ్ ఆయిల్ వేసి, కాసేపు ఆగి, తర్వాత తిప్పాలి",
+     "వెంటనే బోల్ట్ కట్ చేయాలి"
+    ]
+   },
+   "hi": {
+    "q": "बोल्ट में जंग लगी है और घूम नहीं रहा। पहले क्या करें?",
+    "options": [
+     "स्पैनर पर लंबा पाइप लगाएँ",
+     "स्पैनर पर हथौड़ा मारें",
+     "पेनिट्रेटिंग ऑयल लगाएँ, रुकें, फिर घुमाएँ",
+     "तुरंत बोल्ट काट दें"
+    ]
+   }
+  },
+  {
+   "id": "mechanical-018",
+   "topic": "Hand tools and fitting",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "When fitting a hacksaw blade, the teeth should point…",
+   "options": [
+    "Forward, away from the handle",
+    "Back, towards the handle",
+    "Upwards",
+    "Any way round"
+   ],
+   "answer": 0,
+   "te": {
+    "q": "హ్యాక్సా బ్లేడ్ బిగించేటప్పుడు పళ్లు ఏ వైపు ఉండాలి?",
+    "options": [
+     "ముందుకు, హ్యాండిల్‌కు దూరంగా",
+     "వెనక్కి, హ్యాండిల్ వైపు",
+     "పైకి",
+     "ఏ వైపైనా"
+    ]
+   },
+   "hi": {
+    "q": "हैक्सॉ ब्लेड लगाते समय दाँत किस तरफ़ होने चाहिए?",
+    "options": [
+     "आगे की ओर, हैंडल से दूर",
+     "पीछे, हैंडल की ओर",
+     "ऊपर की ओर",
+     "किसी भी तरफ़"
+    ]
+   }
+  },
+  {
+   "id": "mechanical-019",
+   "topic": "Drawing and tolerance",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A drawing is to scale 1:2. A line measures 40 mm on paper. The real size is…",
+   "options": [
+    "20 mm",
+    "40 mm",
+    "400 mm",
+    "80 mm"
+   ],
+   "answer": 3,
+   "te": {
+    "q": "డ్రాయింగ్ స్కేల్ 1:2. పేపర్‌పై ఒక లైన్ 40 mm ఉంది. అసలు సైజు…",
+    "options": [
+     "20 mm",
+     "40 mm",
+     "400 mm",
+     "80 mm"
+    ]
+   },
+   "hi": {
+    "q": "ड्रॉइंग का स्केल 1:2 है। कागज़ पर एक लाइन 40 mm है। असली साइज़ है…",
+    "options": [
+     "20 mm",
+     "40 mm",
+     "400 mm",
+     "80 mm"
+    ]
+   }
+  }
+ ],
+ "existing": {
+  "Which tool measures lengths to 0.02 mm?": {
+   "topic": "Measuring",
+   "te": {
+    "q": "0.02 mm వరకు పొడవు కొలిచే టూల్ ఏది?",
+    "options": [
+     "వెర్నియర్ కాలిపర్",
+     "స్టీల్ రూల్",
+     "మెజరింగ్ టేప్",
+     "ట్రై స్క్వేర్"
+    ]
+   },
+   "hi": {
+    "q": "0.02 mm तक लंबाई कौन सा टूल नापता है?",
+    "options": [
+     "वर्नियर कैलिपर",
+     "स्टील रूल",
+     "मेज़रिंग टेप",
+     "ट्राई स्क्वेयर"
+    ]
+   }
+  },
+  "An outside micrometer usually reads to…": {
+   "topic": "Measuring",
+   "te": {
+    "q": "ఔట్‌సైడ్ మైక్రోమీటర్ సాధారణంగా ఎంత వరకు చదువుతుంది?",
+    "options": [
+     "0.01 mm",
+     "1 mm",
+     "1 cm",
+     "0.5 m"
+    ]
+   },
+   "hi": {
+    "q": "आउटसाइड माइक्रोमीटर आमतौर पर कितने तक पढ़ता है?",
+    "options": [
+     "0.01 mm",
+     "1 mm",
+     "1 cm",
+     "0.5 m"
+    ]
+   }
+  },
+  "Which tool checks that two surfaces are at 90°?": {
+   "topic": "Measuring",
+   "te": {
+    "q": "రెండు సర్ఫేస్‌లు 90° లో ఉన్నాయా అని ఏ టూల్ చెక్ చేస్తుంది?",
+    "options": [
+     "ట్రై స్క్వేర్",
+     "హ్యాక్సా",
+     "స్పానర్",
+     "ఫైల్"
+    ]
+   },
+   "hi": {
+    "q": "दो सतहें 90° पर हैं, यह कौन सा टूल जाँचता है?",
+    "options": [
+     "ट्राई स्क्वेयर",
+     "हैक्सॉ",
+     "स्पैनर",
+     "फ़ाइल"
+    ]
+   }
+  },
+  "A hacksaw is used to…": {
+   "topic": "Hand tools and fitting",
+   "te": {
+    "q": "హ్యాక్సా దేనికి వాడతారు?",
+    "options": [
+     "మెటల్ కట్ చేయడానికి",
+     "కోణాలు కొలవడానికి",
+     "బోల్టులు బిగించడానికి",
+     "రంధ్రాలు చేయడానికి"
+    ]
+   },
+   "hi": {
+    "q": "हैक्सॉ किस काम आता है?",
+    "options": [
+     "धातु काटने के लिए",
+     "कोण नापने के लिए",
+     "बोल्ट कसने के लिए",
+     "छेद करने के लिए"
+    ]
+   }
+  },
+  "What protects your eyes while grinding?": {
+   "topic": "Safety",
+   "te": {
+    "q": "గ్రైండింగ్ చేసేటప్పుడు కళ్లను ఏది కాపాడుతుంది?",
+    "options": [
+     "సేఫ్టీ గాగుల్స్",
+     "ఇయర్ ప్లగ్స్",
+     "ఆప్రాన్",
+     "క్యాప్"
+    ]
+   },
+   "hi": {
+    "q": "ग्राइंडिंग करते समय आँखों को क्या बचाता है?",
+    "options": [
+     "सेफ़्टी गॉगल्स",
+     "ईयर प्लग",
+     "एप्रन",
+     "टोपी"
+    ]
+   }
+  },
+  "1 inch is about…": {
+   "topic": "Measuring",
+   "te": {
+    "q": "1 ఇంచ్ సుమారు…",
+    "options": [
+     "2.54 cm",
+     "1 cm",
+     "10 cm",
+     "25.4 cm"
+    ]
+   },
+   "hi": {
+    "q": "1 इंच लगभग…",
+    "options": [
+     "2.54 cm",
+     "1 cm",
+     "10 cm",
+     "25.4 cm"
+    ]
+   }
+  },
+  "Which spanner fits many nut sizes?": {
+   "topic": "Hand tools and fitting",
+   "te": {
+    "q": "చాలా సైజుల నట్లకు సరిపోయే స్పానర్ ఏది?",
+    "options": [
+     "అడ్జస్టబుల్ స్పానర్",
+     "రింగ్ స్పానర్",
+     "బాక్స్ స్పానర్",
+     "అలెన్ కీ"
+    ]
+   },
+   "hi": {
+    "q": "कई साइज़ के नट पर कौन सा स्पैनर फ़िट होता है?",
+    "options": [
+     "एडजस्टेबल स्पैनर",
+     "रिंग स्पैनर",
+     "बॉक्स स्पैनर",
+     "एलन की"
+    ]
+   }
+  },
+  "Lubrication reduces…": {
+   "topic": "Machines and maintenance",
+   "te": {
+    "q": "లూబ్రికేషన్ దేన్ని తగ్గిస్తుంది?",
+    "options": [
+     "ఘర్షణ, అరుగుదల",
+     "బరువు",
+     "రంగు",
+     "సైజు"
+    ]
+   },
+   "hi": {
+    "q": "लुब्रिकेशन किसे कम करता है?",
+    "options": [
+     "घर्षण और घिसाव",
+     "वज़न",
+     "रंग",
+     "साइज़"
+    ]
+   }
+  },
+  "A tap is used to…": {
+   "topic": "Hand tools and fitting",
+   "te": {
+    "q": "ట్యాప్ దేనికి వాడతారు?",
+    "options": [
+     "రంధ్రం లోపల థ్రెడ్లు కట్ చేయడానికి",
+     "రాడ్ మీద థ్రెడ్లు కట్ చేయడానికి",
+     "థ్రెడ్లు కొలవడానికి",
+     "సర్ఫేస్ పాలిష్ చేయడానికి"
+    ]
+   },
+   "hi": {
+    "q": "टैप किस काम आता है?",
+    "options": [
+     "छेद के अंदर चूड़ी काटने के लिए",
+     "रॉड पर चूड़ी काटने के लिए",
+     "चूड़ी नापने के लिए",
+     "सतह पॉलिश करने के लिए"
+    ]
+   }
+  },
+  "A die is used to…": {
+   "topic": "Hand tools and fitting",
+   "te": {
+    "q": "డై దేనికి వాడతారు?",
+    "options": [
+     "రాడ్ బయట థ్రెడ్లు కట్ చేయడానికి",
+     "రంధ్రం లోపల థ్రెడ్లు కట్ చేయడానికి",
+     "షీట్ మెటల్ వంచడానికి",
+     "వెల్డింగ్ చేయడానికి"
+    ]
+   },
+   "hi": {
+    "q": "डाई किस काम आती है?",
+    "options": [
+     "रॉड के बाहर चूड़ी काटने के लिए",
+     "छेद के अंदर चूड़ी काटने के लिए",
+     "शीट मेटल मोड़ने के लिए",
+     "वेल्डिंग के लिए"
+    ]
+   }
+  },
+  "Which file gives the finest finish?": {
+   "topic": "Hand tools and fitting",
+   "te": {
+    "q": "ఏ ఫైల్ అత్యంత నునుపైన ఫినిష్ ఇస్తుంది?",
+    "options": [
+     "స్మూత్ ఫైల్",
+     "బాస్టర్డ్ ఫైల్",
+     "రఫ్ ఫైల్",
+     "రాస్ప్"
+    ]
+   },
+   "hi": {
+    "q": "कौन सी फ़ाइल सबसे चिकनी फ़िनिश देती है?",
+    "options": [
+     "स्मूथ फ़ाइल",
+     "बास्टर्ड फ़ाइल",
+     "रफ़ फ़ाइल",
+     "रास्प"
+    ]
+   }
+  },
+  "A drawing shows Ø20. What does Ø mean?": {
+   "topic": "Drawing and tolerance",
+   "te": {
+    "q": "డ్రాయింగ్‌లో Ø20 అని ఉంది. Ø అంటే ఏమిటి?",
+    "options": [
+     "వ్యాసం (డయామీటర్)",
+     "వ్యాసార్థం (రేడియస్)",
+     "లోతు",
+     "కోణం"
+    ]
+   },
+   "hi": {
+    "q": "ड्रॉइंग में Ø20 लिखा है। Ø का मतलब क्या है?",
+    "options": [
+     "व्यास (डायमीटर)",
+     "त्रिज्या (रेडियस)",
+     "गहराई",
+     "कोण"
+    ]
+   }
+  },
+  "Which part supports a turning shaft and reduces friction?": {
+   "topic": "Machines and maintenance",
+   "te": {
+    "q": "తిరిగే షాఫ్ట్‌ను పట్టుకుని, ఘర్షణ తగ్గించే భాగం ఏది?",
+    "options": [
+     "బాల్ బేరింగ్",
+     "వాషర్",
+     "రివెట్",
+     "స్ప్లిట్ పిన్"
+    ]
+   },
+   "hi": {
+    "q": "घूमते शाफ़्ट को सहारा देकर घर्षण कम करने वाला पुर्ज़ा कौन सा है?",
+    "options": [
+     "बॉल बेयरिंग",
+     "वॉशर",
+     "रिवेट",
+     "स्प्लिट पिन"
+    ]
+   }
+  },
+  "Before drilling, you mark the hole centre with…": {
+   "topic": "Hand tools and fitting",
+   "te": {
+    "q": "డ్రిల్లింగ్ ముందు రంధ్రం సెంటర్‌ను దేనితో మార్క్ చేస్తారు?",
+    "options": [
+     "సెంటర్ పంచ్",
+     "ఫైల్",
+     "చిసెల్",
+     "హ్యాక్సా"
+    ]
+   },
+   "hi": {
+    "q": "ड्रिलिंग से पहले छेद का सेंटर किससे मार्क करते हैं?",
+    "options": [
+     "सेंटर पंच",
+     "फ़ाइल",
+     "छेनी",
+     "हैक्सॉ"
+    ]
+   }
+  },
+  "Tolerance on a drawing is…": {
+   "topic": "Drawing and tolerance",
+   "te": {
+    "q": "డ్రాయింగ్‌లో టాలరెన్స్ అంటే…",
+    "options": [
+     "సైజు ఎంత వరకు మారినా అంగీకరిస్తారో అది",
+     "రంగు",
+     "మెటీరియల్",
+     "బరువు"
+    ]
+   },
+   "hi": {
+    "q": "ड्रॉइंग पर टॉलरेंस का मतलब…",
+    "options": [
+     "साइज़ कितना ऊपर-नीचे हो तो भी मंज़ूर है",
+     "रंग",
+     "मटीरियल",
+     "वज़न"
+    ]
+   }
+  },
+  "Which belt is common for passing power between pulleys?": {
+   "topic": "Machines and maintenance",
+   "te": {
+    "q": "పుల్లీల మధ్య పవర్ పంపడానికి సాధారణంగా ఏ బెల్ట్ వాడతారు?",
+    "options": [
+     "V-బెల్ట్",
+     "సీట్ బెల్ట్",
+     "లెదర్ పట్టీ",
+     "రబ్బర్ బ్యాండ్"
+    ]
+   },
+   "hi": {
+    "q": "पुली के बीच पावर देने के लिए आमतौर पर कौन सी बेल्ट लगती है?",
+    "options": [
+     "V-बेल्ट",
+     "सीट बेल्ट",
+     "चमड़े का पट्टा",
+     "रबर बैंड"
+    ]
+   }
+  },
+  "A shaft must be 25.00 mm ± 0.05 mm. Which size is accepted?": {
+   "topic": "Drawing and tolerance",
+   "te": {
+    "q": "షాఫ్ట్ 25.00 mm ± 0.05 mm ఉండాలి. ఏ సైజు అంగీకరిస్తారు?",
+    "options": [
+     "24.97 mm",
+     "24.90 mm",
+     "25.10 mm",
+     "25.06 mm"
+    ]
+   },
+   "hi": {
+    "q": "शाफ़्ट 25.00 mm ± 0.05 mm होना चाहिए। कौन सा साइज़ मंज़ूर है?",
+    "options": [
+     "24.97 mm",
+     "24.90 mm",
+     "25.10 mm",
+     "25.06 mm"
+    ]
+   }
+  },
+  "A 20-tooth gear drives a 40-tooth gear. The driven gear turns at…": {
+   "topic": "Machines and maintenance",
+   "te": {
+    "q": "20 పళ్ల గేర్ 40 పళ్ల గేర్‌ను తిప్పుతోంది. తిరిగే (డ్రివెన్) గేర్ స్పీడ్…",
+    "options": [
+     "సగం స్పీడ్",
+     "రెట్టింపు స్పీడ్",
+     "అదే స్పీడ్",
+     "నాలుగు రెట్లు స్పీడ్"
+    ]
+   },
+   "hi": {
+    "q": "20 दाँत का गियर 40 दाँत वाले गियर को घुमाता है। घूमने वाला (ड्रिवन) गियर किस स्पीड से घूमेगा?",
+    "options": [
+     "आधी स्पीड",
+     "दुगनी स्पीड",
+     "उतनी ही स्पीड",
+     "चार गुना स्पीड"
+    ]
+   }
+  },
+  "Main scale reads 12 mm and the 7th vernier line matches (least count 0.02 mm). The reading is…": {
+   "topic": "Measuring",
+   "te": {
+    "q": "మెయిన్ స్కేల్ 12 mm, 7వ వెర్నియర్ లైన్ కలుస్తోంది (లీస్ట్ కౌంట్ 0.02 mm). రీడింగ్…",
+    "options": [
+     "12.14 mm",
+     "12.07 mm",
+     "12.70 mm",
+     "19 mm"
+    ]
+   },
+   "hi": {
+    "q": "मेन स्केल 12 mm पढ़ता है और 7वीं वर्नियर लाइन मिलती है (लीस्ट काउंट 0.02 mm)। रीडिंग है…",
+    "options": [
+     "12.14 mm",
+     "12.07 mm",
+     "12.70 mm",
+     "19 mm"
+    ]
+   }
+  },
+  "Why de-burr a part after cutting?": {
+   "topic": "Safety",
+   "te": {
+    "q": "కట్ చేశాక పార్ట్‌ను ఎందుకు డీ-బర్ చేయాలి?",
+    "options": [
+     "సేఫ్టీ కోసం, సరిగ్గా ఫిట్ అవ్వడం కోసం పదునైన అంచులు తీయడానికి",
+     "బరువు పెంచడానికి",
+     "రంగు మార్చడానికి",
+     "అవసరం లేదు"
+    ]
+   },
+   "hi": {
+    "q": "काटने के बाद पुर्ज़े को डी-बर क्यों करें?",
+    "options": [
+     "सेफ़्टी और सही फ़िट के लिए तेज़ किनारे हटाने को",
+     "भारी करने के लिए",
+     "रंग बदलने के लिए",
+     "ज़रूरत नहीं"
+    ]
+   }
+  },
+  "How do you tighten a bolt to the specified force?": {
+   "topic": "Hand tools and fitting",
+   "te": {
+    "q": "బోల్ట్‌ను చెప్పిన ఫోర్స్‌కు ఎలా బిగిస్తారు?",
+    "options": [
+     "ఇచ్చిన విలువకు సెట్ చేసిన టార్క్ రెంచ్‌తో",
+     "వీలైనంత గట్టిగా",
+     "సుత్తితో",
+     "వేలితో బిగించి"
+    ]
+   },
+   "hi": {
+    "q": "बोल्ट को बताए गए ज़ोर तक कैसे कसते हैं?",
+    "options": [
+     "दी गई वैल्यू पर सेट टॉर्क रिंच से",
+     "जितना हो सके उतना ज़ोर से",
+     "हथौड़े से",
+     "उंगली से कसकर"
+    ]
+   }
+  },
+  "In first-angle projection (used in India), the top view goes…": {
+   "topic": "Drawing and tolerance",
+   "te": {
+    "q": "ఫస్ట్-యాంగిల్ ప్రొజెక్షన్‌లో (మన దేశంలో వాడేది) టాప్ వ్యూ ఎక్కడ వస్తుంది?",
+    "options": [
+     "ఫ్రంట్ వ్యూ కింద",
+     "ఫ్రంట్ వ్యూ పైన",
+     "దానికి ఎడమ వైపు",
+     "ఎక్కడైనా"
+    ]
+   },
+   "hi": {
+    "q": "फ़र्स्ट-एंगल प्रोजेक्शन (भारत में इस्तेमाल) में टॉप व्यू कहाँ आता है?",
+    "options": [
+     "फ़्रंट व्यू के नीचे",
+     "फ़्रंट व्यू के ऊपर",
+     "उसके बाईं तरफ़",
+     "कहीं भी"
+    ]
+   }
+  },
+  "Which welding uses a shielding gas such as argon?": {
+   "topic": "Machines and maintenance",
+   "te": {
+    "q": "ఆర్గాన్ లాంటి షీల్డింగ్ గ్యాస్ వాడే వెల్డింగ్ ఏది?",
+    "options": [
+     "TIG వెల్డింగ్",
+     "గ్యాస్ కటింగ్",
+     "సోల్డరింగ్",
+     "రివెటింగ్"
+    ]
+   },
+   "hi": {
+    "q": "आर्गन जैसी शील्डिंग गैस किस वेल्डिंग में लगती है?",
+    "options": [
+     "TIG वेल्डिंग",
+     "गैस कटिंग",
+     "सोल्डरिंग",
+     "रिवेटिंग"
+    ]
+   }
+  },
+  "A machine starts vibrating more than usual. First step?": {
+   "topic": "Machines and maintenance",
+   "te": {
+    "q": "మెషీన్ మామూలు కంటే ఎక్కువగా వైబ్రేట్ అవుతోంది. మొదటి స్టెప్?",
+    "options": [
+     "సురక్షితంగా ఆపి, మౌంటింగ్స్, బ్యాలెన్స్, బేరింగ్స్ చెక్ చేయాలి",
+     "ఇంకా వేగంగా నడపాలి",
+     "పట్టించుకోకూడదు",
+     "ఇంకా లోడ్ పెంచాలి"
+    ]
+   },
+   "hi": {
+    "q": "मशीन सामान्य से ज़्यादा काँप रही है। पहला कदम?",
+    "options": [
+     "सुरक्षित रूप से रोकें और माउंटिंग, बैलेंस और बेयरिंग जाँचें",
+     "और तेज़ चलाएँ",
+     "ध्यान न दें",
+     "और लोड डालें"
+    ]
+   }
+  }
+ },
+ "task": {
+  "type": "proof",
+  "title": "Fitter workshop practice check (with optional work photo)",
+  "minutes": 10,
+  "brief": "Answer 7 short picture-style questions about real fitting work: measuring, using hand tools, drilling, lifting and machine care. Pick the safe and correct way in each. This takes about 10 minutes. Then, if you like, upload one photo of a job you made yourself (a filed fitting, a drilled and tapped plate, an assembled part) or your ITI certificate. Do not show any faces in the photo. The photo is optional.",
+  "rubric": [
+   {
+    "key": "relevance",
+    "label": "Relevance",
+    "guide": "0 = no photo or unrelated, 3 = shows similar work, 5 = clearly shows the candidate's own work in this trade"
+   },
+   {
+    "key": "genuineness",
+    "label": "Genuineness",
+    "guide": "0 = looks copied or a stock image, 3 = probably real, 5 = clearly real work or a real ITI / training certificate"
+   },
+   {
+    "key": "safety",
+    "label": "Safety",
+    "guide": "0 = unsafe practice visible, 3 = nothing unsafe seen, 5 = good safe practice visible (PPE, neat and tidy work)"
+   }
+  ],
+  "situations": [
+   {
+    "q": "Three workers are using a bench grinder. Who is working safely?",
+    "options": [
+     "No goggles, tool rest far from the wheel",
+     "Goggles on, tool rest close to the wheel, standing to one side",
+     "Gloves with loose cuffs, pressing the job hard on the wheel side"
+    ],
+    "answer": 1,
+    "topic": "Safety",
+    "te": {
+     "q": "ముగ్గురు వర్కర్లు బెంచ్ గ్రైండర్ వాడుతున్నారు. ఎవరు సురక్షితంగా పని చేస్తున్నారు?",
+     "options": [
+      "గాగుల్స్ లేకుండా, టూల్ రెస్ట్ వీల్‌కు దూరంగా",
+      "గాగుల్స్ వేసుకుని, టూల్ రెస్ట్ వీల్‌కు దగ్గరగా, పక్కకు నిలబడి",
+      "వదులు కఫ్‌ల గ్లవ్స్‌తో, వీల్ పక్కభాగంపై జాబ్‌ను గట్టిగా నొక్కుతూ"
+     ]
+    },
+    "hi": {
+     "q": "तीन वर्कर बेंच ग्राइंडर चला रहे हैं। कौन सुरक्षित काम कर रहा है?",
+     "options": [
+      "बिना गॉगल्स, टूल रेस्ट व्हील से दूर",
+      "गॉगल्स पहने, टूल रेस्ट व्हील के पास, एक तरफ़ खड़ा",
+      "ढीले कफ़ वाले ग्लव्स, व्हील की साइड पर जॉब ज़ोर से दबाते हुए"
+     ]
+    }
+   },
+   {
+    "q": "A vernier calliper is shown measuring a shaft. Which way is right?",
+    "options": [
+     "Jaws tilted at an angle on the shaft",
+     "Jaws squeezed hard till the shaft is gripped tight",
+     "Jaws square to the shaft, light even pressure"
+    ],
+    "answer": 2,
+    "topic": "Measuring",
+    "te": {
+     "q": "వెర్నియర్ కాలిపర్‌తో షాఫ్ట్ కొలుస్తున్నారు. ఏ పద్ధతి సరైనది?",
+     "options": [
+      "జాస్ షాఫ్ట్ మీద వంకరగా",
+      "షాఫ్ట్ గట్టిగా పట్టుకునేలా జాస్ నొక్కి",
+      "జాస్ షాఫ్ట్‌కు స్క్వేర్‌గా, తేలికైన సమానమైన ఒత్తిడి"
+     ]
+    },
+    "hi": {
+     "q": "वर्नियर कैलिपर से शाफ़्ट नाप रहे हैं। सही तरीका कौन सा है?",
+     "options": [
+      "जबड़े शाफ़्ट पर तिरछे",
+      "जबड़े ज़ोर से दबाकर शाफ़्ट जकड़ा हुआ",
+      "जबड़े शाफ़्ट के सीधे कोण पर, हल्का बराबर दबाव"
+     ]
+    }
+   },
+   {
+    "q": "A worker is filing a job held in a bench vice. Which set-up is right?",
+    "options": [
+     "Job held low in the vice, file with handle, pushing strokes",
+     "Job sticking far out of the vice, file without a handle",
+     "Job held in one hand, filing towards the body"
+    ],
+    "answer": 0,
+    "topic": "Hand tools and fitting",
+    "te": {
+     "q": "బెంచ్ వైస్‌లో జాబ్ పెట్టి ఫైలింగ్ చేస్తున్నారు. ఏ సెటప్ సరైనది?",
+     "options": [
+      "జాబ్ వైస్‌లో కిందుగా, హ్యాండిల్ ఉన్న ఫైల్, ముందుకు నెట్టే స్ట్రోక్స్",
+      "జాబ్ వైస్ నుంచి చాలా బయటకు, హ్యాండిల్ లేని ఫైల్",
+      "జాబ్ ఒక చేత్తో పట్టుకుని, శరీరం వైపు ఫైలింగ్"
+     ]
+    },
+    "hi": {
+     "q": "बेंच वाइस में जॉब पकड़कर फ़ाइलिंग हो रही है। कौन सा सेटअप सही है?",
+     "options": [
+      "जॉब वाइस में नीचे, हैंडल वाली फ़ाइल, आगे धकेलने वाले स्ट्रोक",
+      "जॉब वाइस से बहुत बाहर, बिना हैंडल की फ़ाइल",
+      "जॉब एक हाथ में, शरीर की ओर फ़ाइलिंग"
+     ]
+    }
+   },
+   {
+    "q": "A pillar drill is about to drill a 12 mm hole in a plate. Which is safe?",
+    "options": [
+     "Plate held by hand, chuck key left in the chuck",
+     "Plate on the table, gloves on, sleeves loose",
+     "Plate clamped, chuck key removed, guard down"
+    ],
+    "answer": 2,
+    "topic": "Safety",
+    "te": {
+     "q": "పిల్లర్ డ్రిల్‌తో ప్లేట్‌లో 12 mm రంధ్రం చేయబోతున్నారు. ఏది సురక్షితం?",
+     "options": [
+      "ప్లేట్ చేత్తో పట్టుకుని, చక్ కీ చక్‌లోనే వదిలి",
+      "ప్లేట్ టేబుల్ మీద, గ్లవ్స్ వేసుకుని, స్లీవ్స్ వదులుగా",
+      "ప్లేట్ క్లాంప్ చేసి, చక్ కీ తీసి, గార్డ్ దించి"
+     ]
+    },
+    "hi": {
+     "q": "पिलर ड्रिल से प्लेट में 12 mm छेद करना है। क्या सुरक्षित है?",
+     "options": [
+      "प्लेट हाथ से पकड़ी, चक की चक में ही छोड़ी",
+      "प्लेट टेबल पर, ग्लव्स पहने, आस्तीन ढीली",
+      "प्लेट क्लैंप की, चक की निकाली, गार्ड नीचे"
+     ]
+    }
+   },
+   {
+    "q": "Four flange bolts must be tightened. Which order is right?",
+    "options": [
+     "One bolt fully tight, then the next one beside it",
+     "Criss-cross order, in two or three rounds, to the given torque",
+     "Only two bolts tight, the rest finger-tight"
+    ],
+    "answer": 1,
+    "topic": "Hand tools and fitting",
+    "te": {
+     "q": "ఫ్లాంజ్ మీద నాలుగు బోల్టులు బిగించాలి. ఏ క్రమం సరైనది?",
+     "options": [
+      "ఒక బోల్ట్ పూర్తిగా బిగించి, తర్వాత పక్కది",
+      "క్రాస్ క్రమంలో, రెండు మూడు రౌండ్లలో, ఇచ్చిన టార్క్‌కు",
+      "రెండు బోల్టులే గట్టిగా, మిగతావి వేలితో"
+     ]
+    },
+    "hi": {
+     "q": "फ़्लैंज के चार बोल्ट कसने हैं। सही क्रम कौन सा है?",
+     "options": [
+      "एक बोल्ट पूरा कसें, फिर बगल वाला",
+      "क्रॉस क्रम में, दो-तीन राउंड में, दिए गए टॉर्क तक",
+      "सिर्फ़ दो बोल्ट कसें, बाकी उंगली से"
+     ]
+    }
+   },
+   {
+    "q": "A gearbox oil sight glass shows the level below the minimum mark. What do you do?",
+    "options": [
+     "Stop if needed and top up with the grade on the label",
+     "Add any engine oil that is handy",
+     "Ignore it until the yearly service"
+    ],
+    "answer": 0,
+    "topic": "Machines and maintenance",
+    "te": {
+     "q": "గేర్‌బాక్స్ ఆయిల్ సైట్ గ్లాస్‌లో లెవెల్ మినిమమ్ మార్క్ కంటే తక్కువ ఉంది. మీరు ఏం చేస్తారు?",
+     "options": [
+      "అవసరమైతే ఆపి, లేబుల్‌పై ఉన్న గ్రేడ్ ఆయిల్ నింపుతారు",
+      "చేతిలో ఉన్న ఏ ఇంజిన్ ఆయిల్ అయినా పోస్తారు",
+      "సంవత్సరం సర్వీస్ వరకు పట్టించుకోరు"
+     ]
+    },
+    "hi": {
+     "q": "गियरबॉक्स के ऑयल साइट ग्लास में लेवल मिनिमम निशान से नीचे है। आप क्या करेंगे?",
+     "options": [
+      "ज़रूरत हो तो रोककर लेबल पर लिखे ग्रेड का तेल भरेंगे",
+      "जो भी इंजन ऑयल पास में हो डाल देंगे",
+      "सालाना सर्विस तक ध्यान नहीं देंगे"
+     ]
+    }
+   },
+   {
+    "q": "A drawing says 50 ± 0.1 mm. Your three parts measure 49.95, 50.08 and 50.15 mm. Which part is rejected?",
+    "options": [
+     "49.95 mm",
+     "50.15 mm",
+     "50.08 mm"
+    ],
+    "answer": 1,
+    "topic": "Drawing and tolerance",
+    "te": {
+     "q": "డ్రాయింగ్‌లో 50 ± 0.1 mm అని ఉంది. మీ మూడు పార్టులు 49.95, 50.08, 50.15 mm వచ్చాయి. ఏది రిజెక్ట్?",
+     "options": [
+      "49.95 mm",
+      "50.15 mm",
+      "50.08 mm"
+     ]
+    },
+    "hi": {
+     "q": "ड्रॉइंग में 50 ± 0.1 mm लिखा है। आपके तीन पुर्ज़े 49.95, 50.08 और 50.15 mm निकले। कौन सा रिजेक्ट होगा?",
+     "options": [
+      "49.95 mm",
+      "50.15 mm",
+      "50.08 mm"
+     ]
+    }
+   }
+  ]
+ }
+}

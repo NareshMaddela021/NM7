@@ -1,0 +1,668 @@
+{
+ "slug": "hr-recruiter",
+ "version": 1,
+ "topics": [
+  "Sourcing and job posts",
+  "Screening and interviews",
+  "Offers and salary",
+  "Candidate communication",
+  "Hiring law and fairness"
+ ],
+ "questions": [
+  {
+   "id": "hr-recruiter-001",
+   "topic": "Sourcing and job posts",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What should a good job post state clearly?",
+   "options": [
+    "The manager's personal phone number",
+    "Every skill anyone in the team has",
+    "The role, place, pay range and main duties",
+    "Only the company's history"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "hr-recruiter-002",
+   "topic": "Sourcing and job posts",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is an employee referral?",
+   "options": [
+    "A letter from the old company's HR",
+    "A candidate who applies twice",
+    "A current staff member suggests someone for a job",
+    "A job ad in the newspaper"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "hr-recruiter-003",
+   "topic": "Sourcing and job posts",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "You need 20 delivery riders in Vijayawada quickly. Where are you most likely to find them?",
+   "options": [
+    "Local job portals, WhatsApp groups and walk-in drives",
+    "Only paid ads on foreign job sites",
+    "Senior leadership networking events",
+    "Campus drives at top engineering colleges"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "hr-recruiter-004",
+   "topic": "Sourcing and job posts",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A job post gets 500 applications, mostly unfit. What should you change first?",
+   "options": [
+    "Close the post and try again next quarter",
+    "Make the must-have skills and experience clearer",
+    "Ask every applicant to call you",
+    "Remove the salary so fewer people apply"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "hr-recruiter-005",
+   "topic": "Sourcing and job posts",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "On a job portal, what is a Boolean search used for?",
+   "options": [
+    "Sending bulk SMS to candidates",
+    "Checking a candidate's background",
+    "Setting the salary range",
+    "Using AND, OR and NOT to find the right resumes"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "hr-recruiter-006",
+   "topic": "Sourcing and job posts",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A hiring manager wants a 'young, energetic' person for field sales. How do you write the post?",
+   "options": [
+    "Use the manager's words exactly as they were sent",
+    "Write 'age below 25 only'",
+    "Describe the real skills, like meeting targets and daily travel",
+    "Write 'young candidates preferred'"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "hr-recruiter-007",
+   "topic": "Sourcing and job posts",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A role has stayed open for three months. What is the best step?",
+   "options": [
+    "Lower the bar and hire anyone",
+    "Post the same ad on more sites",
+    "Wait a few more months for the right person to turn up",
+    "Review pay, must-haves and funnel numbers with the manager"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "hr-recruiter-008",
+   "topic": "Sourcing and job posts",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Which source usually gives good long-term hires at a lower cost?",
+   "options": [
+    "Referrals from strong current employees",
+    "Cold calls from old contact lists",
+    "Agencies paid for every CV they send",
+    "Paid ads with the widest reach"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "hr-recruiter-009",
+   "topic": "Sourcing and job posts",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "Your best source for staff nurses suddenly stops sending CVs. What do you do first?",
+   "options": [
+    "Ask the hospital to pause hiring",
+    "Wait for them to start again",
+    "Raise the salary for every open role",
+    "Find out why, and quickly try two new sources"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "hr-recruiter-010",
+   "topic": "Screening and interviews",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is the main aim of a phone screen?",
+   "options": [
+    "To make the final job offer",
+    "To fix the joining bonus",
+    "To test deep technical skills",
+    "To check basic fit before a full interview"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "hr-recruiter-011",
+   "topic": "Screening and interviews",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A resume shows a two-year gap. What should you do?",
+   "options": [
+    "Reject the resume at once",
+    "Ignore it completely",
+    "Assume the person was fired",
+    "Ask about it politely, without judging"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "hr-recruiter-012",
+   "topic": "Screening and interviews",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "A candidate arrives for an interview, but the panel is 45 minutes late. What do you do?",
+   "options": [
+    "Send them home without a word",
+    "Say nothing and let them wait",
+    "Ask them to come back some other day next week",
+    "Tell the candidate, apologise and offer water or a new slot"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "hr-recruiter-013",
+   "topic": "Screening and interviews",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is a structured interview?",
+   "options": [
+    "An interview held only in a meeting room",
+    "Every candidate gets the same job-related questions",
+    "An interview with only one question",
+    "A free chat with no plan, to feel relaxed"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "hr-recruiter-014",
+   "topic": "Screening and interviews",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Which question best checks how someone handles pressure?",
+   "options": [
+    "Do you work well under pressure?",
+    "Tell me about a tight deadline you faced. What did you do?",
+    "What is your biggest strength?",
+    "Are you a hard worker?"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "hr-recruiter-015",
+   "topic": "Screening and interviews",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A CV says 'Advanced Excel' but the candidate cannot explain VLOOKUP. What do you do?",
+   "options": [
+    "Reject them right away for lying",
+    "Ignore it, since the CV says so",
+    "Note the gap honestly in feedback and test further if needed",
+    "Teach them VLOOKUP during the interview"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "hr-recruiter-016",
+   "topic": "Screening and interviews",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Two interviewers rate the same candidate very differently. What should you do?",
+   "options": [
+    "Ask each for specific examples and compare with the job needs",
+    "Go with whatever the senior interviewer has rated",
+    "Take the average and move on",
+    "Reject the candidate to be safe"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "hr-recruiter-017",
+   "topic": "Screening and interviews",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A candidate interviews very well, but one reference mentions cash shortages at the last job. What do you do?",
+   "options": [
+    "Ignore it since the interview was great",
+    "Tell the candidate who said it",
+    "Check with another reference before deciding",
+    "Reject them at once without checking"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "hr-recruiter-018",
+   "topic": "Screening and interviews",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "One strong point makes an interviewer rate everything else high too. What is this bias called?",
+   "options": [
+    "Recency effect",
+    "Contrast effect",
+    "Confirmation bias",
+    "Halo effect"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "hr-recruiter-019",
+   "topic": "Offers and salary",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What does CTC mean in an Indian offer letter?",
+   "options": [
+    "The total yearly cost to the company for the employee",
+    "The joining bonus",
+    "The monthly take-home salary after all cuts",
+    "Only the basic pay"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "hr-recruiter-020",
+   "topic": "Offers and salary",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Why is take-home pay lower than monthly CTC?",
+   "options": [
+    "HR adds a service charge",
+    "The company keeps a security deposit",
+    "Salary is held for six months",
+    "PF, tax and other deductions are cut"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "hr-recruiter-021",
+   "topic": "Offers and salary",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What is a notice period?",
+   "options": [
+    "The trial time in a new job",
+    "The time an employee must serve after resigning",
+    "The time a candidate gets to reply to an offer",
+    "The paid days off in a year"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "hr-recruiter-022",
+   "topic": "Offers and salary",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A selected candidate asks for 30% more than the budget. What do you do?",
+   "options": [
+    "Tell them other candidates will happily take less",
+    "Understand their reasons and check with the manager what is possible",
+    "Agree without asking anyone",
+    "Withdraw the offer at once"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "hr-recruiter-023",
+   "topic": "Offers and salary",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "A candidate has a 90-day notice period, but the job must be filled in 30 days. What is a fair option?",
+   "options": [
+    "Ask if a buyout or early release is possible, and plan for it",
+    "Reject them without any discussion",
+    "Suggest they give a false resignation date",
+    "Ask them to leave without serving notice"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "hr-recruiter-024",
+   "topic": "Offers and salary",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What should a written offer letter include?",
+   "options": [
+    "Role, CTC break-up, joining date and key terms",
+    "Details of the other candidates",
+    "Only the candidate's name and salary",
+    "The interview panel's ratings"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "hr-recruiter-025",
+   "topic": "Offers and salary",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A candidate accepted your offer but now says another company offered more. What do you do?",
+   "options": [
+    "Talk openly about what matters to them and see if a match is possible",
+    "Threaten legal action for backing out",
+    "Raise the salary at once without asking for approval",
+    "Stop taking their calls"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "hr-recruiter-026",
+   "topic": "Offers and salary",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Many candidates accept offers but don't join. What helps most?",
+   "options": [
+    "Stay in touch regularly until the joining day",
+    "Make offers to fewer people",
+    "Send one email after the offer and wait",
+    "Add 20% to every offer"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "hr-recruiter-027",
+   "topic": "Offers and salary",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Why compare a new hire's offer with the pay of current staff in the same role?",
+   "options": [
+    "To make sure new staff always earn more",
+    "To share salary details with the team",
+    "To avoid unfair pay gaps that cause problems later",
+    "Because the law fixes one salary per role"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "hr-recruiter-028",
+   "topic": "Candidate communication",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A candidate is not selected after the interview. What is the best practice?",
+   "options": [
+    "Never reply to them again",
+    "Inform them politely and on time",
+    "Share the reasons with other candidates",
+    "Tell them to keep waiting"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "hr-recruiter-029",
+   "topic": "Candidate communication",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What must an interview invite include?",
+   "options": [
+    "The interviewer's salary",
+    "Only the date",
+    "A list of the other candidates called that day",
+    "Date, time, address or link, and a contact person"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "hr-recruiter-030",
+   "topic": "Candidate communication",
+   "difficulty": "easy",
+   "kind": "scenario",
+   "q": "A candidate calls to ask about their application. You don't know the result yet. What do you say?",
+   "options": [
+    "They are selected, to keep them happy",
+    "They are rejected, to end the call",
+    "It is under review, and you will update them by a set date",
+    "Please stop calling us"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "hr-recruiter-031",
+   "topic": "Candidate communication",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "What is a good tone for a WhatsApp message to a candidate?",
+   "options": [
+    "Long and full of legal words",
+    "One-word replies only",
+    "Polite, short and professional",
+    "Very casual, with slang"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "hr-recruiter-032",
+   "topic": "Candidate communication",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A candidate is rude on the phone because you replied late. What do you do?",
+   "options": [
+    "Hang up and reject them",
+    "Ignore their next calls",
+    "Stay polite, accept the delay and give a clear update",
+    "Argue that they are being impatient and rude"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "hr-recruiter-033",
+   "topic": "Candidate communication",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why does candidate experience matter?",
+   "options": [
+    "It only matters for senior roles",
+    "It is needed by law to create a PF number",
+    "It decides the candidate's salary",
+    "Candidates talk about you, and it affects future hiring"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "hr-recruiter-034",
+   "topic": "Candidate communication",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "A hiring manager keeps delaying interview feedback for weeks. What should you do?",
+   "options": [
+    "Agree on a feedback deadline and show how many candidates were lost",
+    "Stop sending any more candidates to that manager",
+    "Reject all candidates to close the role",
+    "Make the hiring decision yourself"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "hr-recruiter-035",
+   "topic": "Candidate communication",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "A candidate who was not selected asks for feedback. What do you share?",
+   "options": [
+    "How they compared with the person selected",
+    "Short, job-related points that help them improve",
+    "Nothing, and block their number",
+    "Each panel member's exact scores"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "hr-recruiter-036",
+   "topic": "Candidate communication",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "An offer must be withdrawn after the candidate has resigned elsewhere. What is the right approach?",
+   "options": [
+    "Send a short email and avoid calls",
+    "Tell them early, by call and in writing, and explain honestly",
+    "Let the agency handle it",
+    "Wait until their joining day to tell them"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "hr-recruiter-037",
+   "topic": "Hiring law and fairness",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "Which kind of interview question should you avoid?",
+   "options": [
+    "Questions about the notice period",
+    "Questions about past work results",
+    "Personal questions not linked to the job",
+    "Questions about shift timings"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "hr-recruiter-038",
+   "topic": "Hiring law and fairness",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "What should you do with candidate resumes once hiring is done?",
+   "options": [
+    "Sell them to agencies",
+    "Store them safely as per policy, with limited access",
+    "Leave the printouts in a pile on the desk",
+    "Share them in a public group"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "hr-recruiter-039",
+   "topic": "Hiring law and fairness",
+   "difficulty": "easy",
+   "kind": "mcq",
+   "q": "A candidate needs a wheelchair-friendly interview room. What do you do?",
+   "options": [
+    "Arrange a suitable room and help without fuss",
+    "Tell them to bring their own helper",
+    "Reject them because the office has stairs",
+    "Allow only a phone interview"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "hr-recruiter-040",
+   "topic": "Hiring law and fairness",
+   "difficulty": "medium",
+   "kind": "mcq",
+   "q": "Why do companies do background verification before hiring?",
+   "options": [
+    "To find out what their relatives do",
+    "To check their family income",
+    "To confirm past jobs, education and identity are true",
+    "To read their social media likes"
+   ],
+   "answer": 2
+  },
+  {
+   "id": "hr-recruiter-041",
+   "topic": "Hiring law and fairness",
+   "difficulty": "medium",
+   "kind": "scenario",
+   "q": "A manager asks you to reject everyone above 35 for a desk job. What do you do?",
+   "options": [
+    "Explain that hiring should follow skills, and ask for job-based criteria",
+    "Reject those candidates without telling anyone",
+    "Follow it quietly",
+    "Put an age limit in the job post"
+   ],
+   "answer": 0
+  },
+  {
+   "id": "hr-recruiter-042",
+   "topic": "Hiring law and fairness",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "Under the POSH Act, what must a workplace with 10 or more staff set up?",
+   "options": [
+    "A sports club",
+    "An Internal Committee for harassment complaints",
+    "A canteen committee",
+    "A salary and bonus review board"
+   ],
+   "answer": 1
+  },
+  {
+   "id": "hr-recruiter-043",
+   "topic": "Hiring law and fairness",
+   "difficulty": "hard",
+   "kind": "mcq",
+   "q": "After the offer, you learn a candidate hid an earlier dismissal. What is the right step?",
+   "options": [
+    "Cancel the offer at once with a text message",
+    "Ignore it fully",
+    "Post about it online",
+    "Check the facts with them and follow policy before acting"
+   ],
+   "answer": 3
+  },
+  {
+   "id": "hr-recruiter-044",
+   "topic": "Hiring law and fairness",
+   "difficulty": "hard",
+   "kind": "scenario",
+   "q": "An agency sends 'pre-verified' CVs, but you find two fake degrees. What do you do?",
+   "options": [
+    "Quietly reject them and say nothing",
+    "Stop trusting its checks and raise it with the agency in writing",
+    "Pay the agency fee and move on",
+    "Hire them anyway since the agency checked"
+   ],
+   "answer": 1
+  }
+ ],
+ "task": {
+  "type": "written",
+  "title": "Write a job post from the store manager's notes",
+  "minutes": 20,
+  "brief": "A retail store manager has sent you rough notes for a new opening. Turn them into a clear job post for a job portal and WhatsApp. Take about 20 minutes. A good post has a clear title, a short line about the company, location and timings, 4 to 6 main duties, must-have and nice-to-have skills kept separate, the salary range and benefits, and simple steps to apply. Use plain, friendly words. Keep it fair: leave out anything in the notes that is not linked to the job, and don't copy the manager's shorthand.",
+  "material": "MANAGER'S NOTES (WhatsApp)\nNeed 3 sales associates for our Ameerpet store, Hyderabad. Clothing and footwear. Store open 10 am to 10 pm, 2 shifts of 9 hrs, 1 weekly off (not Sat/Sun). Salary 14-17k per month + incentive on sales. PF and ESIC yes. Must talk to customers in Telugu or Hindi, some English ok. 12th pass min. 0-2 yrs exp, retail exp a plus. Billing on computer, we will train. Should be young and good looking, no one from far areas. Join within 15 days. Walk-in Mon-Fri 11 am to 4 pm, bring resume and Aadhaar. Contact: HR desk, 040-4000 1234.",
+  "key_points": [
+   "Clear title: Sales Associate, Ameerpet, Hyderabad",
+   "Timings: 9-hour shifts, one weekday off",
+   "Duties such as helping customers, billing, stock display",
+   "Must-haves: 12th pass, Telugu or Hindi; nice-to-have: retail experience",
+   "Salary Rs 14,000 to 17,000 a month plus sales incentive, PF and ESIC",
+   "Drops 'young and good looking' and 'no one from far areas' as unfair or not job-linked",
+   "How to apply: walk-in days and time, documents to bring, contact number",
+   "Joining within 15 days"
+  ],
+  "rubric": [
+   {
+    "key": "completeness",
+    "label": "Completeness",
+    "guide": "0 = key facts missing; 3 = most facts, pay or apply steps unclear; 5 = all job, pay, timing and apply details"
+   },
+   {
+    "key": "fairness",
+    "label": "Fair and job-linked",
+    "guide": "0 = copies biased lines; 3 = softens them but keeps some; 5 = only job-linked needs, nothing unfair"
+   },
+   {
+    "key": "clarity",
+    "label": "Clarity",
+    "guide": "0 = hard to read or full of shorthand; 3 = readable but messy; 5 = clean headings, short lines, easy to scan"
+   },
+   {
+    "key": "appeal",
+    "label": "Appeal to candidates",
+    "guide": "0 = cold or confusing; 3 = plain but fine; 5 = friendly, shows why the job is worth applying for"
+   }
+  ]
+ }
+}
