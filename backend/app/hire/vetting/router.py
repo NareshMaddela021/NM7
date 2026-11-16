@@ -135,7 +135,10 @@ async def demand(db) -> dict[str, int]:
     t = now()
     if _DEMAND["at"] and t - _DEMAND["at"] < timedelta(hours=1):
         return _DEMAND["counts"]
-    titles = [j.get("title", "") async for j in db[JOBS].find({"status": "active", "demo": {"$ne": True}}, {"title": 1}).limit(5000)]
+    titles = [
+        j.get("title", "")
+        async for j in db[JOBS].find({"status": "active", "demo": {"$ne": True}}, {"title": 1}).limit(5000)
+    ]
     counts = {}
     for r in ROLES:
         words = [
