@@ -6,7 +6,7 @@ name: sample-scan
 # itself is run by the owner from the admin console (Settings → Maintenance), after reading this report.
 on:
   push:
-    branches: [claude/fervent-albattani-wqmaoq]
+    branches: [main]
     paths: ["backend/app/maintenance/**", ".github/workflows/sample-scan.yml"]
   workflow_dispatch:
 

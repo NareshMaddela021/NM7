@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event_name == 'schedule' && 'claude/fervent-albattani-wqmaoq' || '' }}
+          ref: ${{ github.event_name == 'schedule' && 'main' || '' }}
       - uses: astral-sh/setup-uv@v5
         with:
           python-version: "3.12"
@@ -51,7 +51,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event_name == 'schedule' && 'claude/fervent-albattani-wqmaoq' || '' }}
+          ref: ${{ github.event_name == 'schedule' && 'main' || '' }}
       - run: docker build --tag nm7-api:ci backend
       # The API creates its collections and indexes at start-up, so it needs a database to boot.
       - name: Start MongoDB

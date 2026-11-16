@@ -1412,7 +1412,7 @@ card count "Annual passes sold".
   Edit) `CI_MODE` = `full` (or with the GitHub CLI: `gh variable set CI_MODE --body full`). Back to light: set it to
   `light` or delete it. It applies to the next run; no code change.
 - **A full run by hand** (for example the complete run before launch): Actions → **e2e** → **Run workflow** → branch
-  `claude/fervent-albattani-wqmaoq` → **Run workflow** (or `gh workflow run e2e.yml --ref claude/fervent-albattani-wqmaoq`).
+  `main` → **Run workflow** (or `gh workflow run e2e.yml --ref main`).
   A run started by hand is always the whole suite, whatever `CI_MODE` says. tests.yml can be started the same way.
 - **When a nightly run fails:** the e2e run on the Actions page is red and the test results are attached to it; the
   fix goes into the next pull request.
@@ -1420,8 +1420,8 @@ card count "Annual passes sold".
   newer commit arrives. Timeouts: backend 20, frontend 15, quick e2e 25, full e2e 60 minutes.
 - **deps.yml** runs only when dependency files change, and weekly. **backup.yml** runs nightly. **hygraph.yml**
   runs daily. **deploy-check.yml** runs after a backend change lands on the production branch.
-- Scheduled workflows run from the default branch (`main`), so `main` is kept level with the production branch
-  (`claude/fervent-albattani-wqmaoq`, which Vercel and Render deploy from).
+- `main` is the production branch: Vercel and Render (nm7-api) both deploy every merge to `main`, and scheduled
+  workflows run from it (it is also the default branch).
 
 ## Job board
 

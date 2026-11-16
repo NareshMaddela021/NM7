@@ -12,7 +12,7 @@ name: e2e
 # (main), which must have this file.
 on:
   pull_request:
-    branches: ["claude/fervent-albattani-wqmaoq", "main"]
+    branches: ["main"]
     paths-ignore: ["**/*.md", "docs/**"]
   schedule:
     - cron: "30 21 * * *" # 03:00 IST
@@ -115,7 +115,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           # the nightly run tests the production branch (schedules start from the default branch)
-          ref: ${{ github.event_name == 'schedule' && 'claude/fervent-albattani-wqmaoq' || '' }}
+          ref: ${{ github.event_name == 'schedule' && 'main' || '' }}
       - name: Start MongoDB (replica set)
         run: bash "$GITHUB_WORKSPACE/.github/scripts/start-mongo.sh"
       - uses: actions/setup-node@v4
