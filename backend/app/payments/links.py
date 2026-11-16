@@ -75,8 +75,14 @@ async def create_link(db: AsyncDatabase, order: Order, actor_id: str | None, day
     {"url", "id", "expiresAt"}; the order keeps it under `payment_link`."""
     if order.status not in PAYABLE or order.amount <= 0:
         raise ApiError(409, "not_payable", "This order isn’t waiting for a payment.")
+    from app.wapay.settings import razorpay_ready
+
+    if not razorpay_ready():  # an admin action: say what is missing (never the values)
+        raise ApiError(
+            503, "payments_unavailable", "Payments aren’t switched on yet: the Razorpay keys are missing in Render."
+        )
     b = await get_billing(db)
-    rzp = get_razorpay()  # 503 until the keys are set
+    rzp = get_razorpay()
     _check_mode(rzp.key_id, bool(b["razorpay_live"]))  # test keys only until "Razorpay live" is on
     expires = now() + timedelta(days=days)
     try:
