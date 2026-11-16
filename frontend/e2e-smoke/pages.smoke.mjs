@@ -59,6 +59,17 @@ test.describe('public', () => {
   });
 });
 
+// The live API (Render): healthy, and the vetting endpoints exist (signed out they answer 401/403, never 404).
+const API = process.env.SMOKE_API || 'https://nm7-api.onrender.com';
+test('public › API health and the vetting endpoints', async ({ request }) => {
+  const { expect } = await import('@playwright/test');
+  expect((await request.get(`${API}/health`, { timeout: 60_000 })).status()).toBe(200);
+  for (const p of ['/api/admin/vetting/stats', '/api/admin/vetting/queue', '/api/me/skill-checks', '/api/me/skill-checks/access']) {
+    const r = await request.get(`${API}${p}`, { timeout: 30_000 });
+    expect([401, 403], `${p} answered ${r.status()}`).toContain(r.status());
+  }
+});
+
 area('seeker', 'seeker', ME.map((s) => `/me${s ? `/${s}` : ''}`).concat(['/builder']), (p) => p, { allow: ['/api/me/offer', '/api/me/drive'] });
 area('student', 'student', STUDENT);
 area('student', 'easy', ['/me/simple']);
