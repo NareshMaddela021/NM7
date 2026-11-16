@@ -42,6 +42,7 @@ for (const [size, opts] of SIZES) {
     // a passed paper through the API (the right answers from the test seed), then its result and the task, in a
     // fresh tab (the running SQL test above lives in the first tab's session storage)
     page = await ctx.newPage();
+    await page.goto('/me'); await settle(page);  // calls need the site's origin (a blank tab can't fetch)
     let aid = null;
     await step('vet-result', async () => {
       await call(page, '/api/me/skill-checks/consent', json('POST', {}));
