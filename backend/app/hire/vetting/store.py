@@ -1,3 +1,4 @@
+# ruff: noqa: E501
 """The V2 question banks in MongoDB: the bank files (banks/*.json, made once by the generator script and checked by
 validate.py) are loaded into the H3 questions collection, each with a version. A newer file version adds its new
 questions and updates the ones Admin hasn't edited; Admin's edits and switched-off questions are never overwritten.
@@ -13,6 +14,8 @@ import logging
 from typing import Any
 
 from bson import ObjectId
+from pymongo import UpdateMany, UpdateOne
+from pymongo.errors import BulkWriteError
 
 from app.core.db import SKILL_QUESTIONS, VETTING_BANKS
 from app.core.time import now
@@ -20,7 +23,7 @@ from app.hire.vetting.roles import BY_TEST, ROLES
 from app.hire.vetting.validate import BANKS, validate
 
 log = logging.getLogger(__name__)
-_LOADED: set[str] = set()  # "<db name>" once loaded in this process (a cheap check on every request otherwise)
+_FILES: dict[str, dict[str, Any]] | None = None  # the bank files, read and validated once per process
 
 
 def qid(bank_id: str) -> ObjectId:
@@ -28,8 +31,12 @@ def qid(bank_id: str) -> ObjectId:
     return ObjectId(hashlib.sha1(f"v2|{bank_id}".encode()).hexdigest()[:24])
 
 
-def read_banks() -> dict[str, dict[str, Any]]:
-    """{slug: bank} for every bank file that passes the validator (a file with problems is skipped and logged)."""
+def read_banks(fresh: bool = False) -> dict[str, dict[str, Any]]:
+    """{slug: bank} for every bank file that passes the validator (a file with problems is skipped and logged).
+    Read once per process: the files only change with a deploy."""
+    global _FILES
+    if _FILES is not None and not fresh:
+        return _FILES
     out = {}
     for r in ROLES:
         f = BANKS / f"{r['slug']}.json"
@@ -41,6 +48,7 @@ def read_banks() -> dict[str, dict[str, Any]]:
             log.warning("vetting bank %s skipped: %d problems (first: %s)", r["slug"], len(problems), problems[0])
             continue
         out[r["slug"]] = bank
+    _FILES = out
     return out
 
 
@@ -50,42 +58,56 @@ def _tr(item: dict[str, Any]) -> dict[str, Any]:
 
 async def ensure_banks(db, *, force: bool = False) -> dict[str, int]:
     """Load the bank files whose version is newer than the stored one. Returns {slug: questions added or updated}."""
-    key = db.name
-    if key in _LOADED and not force:
-        return {}
     done: dict[str, int] = {}
     t = now()
-    stored = {b["_id"]: b async for b in db[VETTING_BANKS].find({}, {"version": 1, "rubric_version": 1})}
-    for slug, bank in read_banks().items():
+    stored = {
+        b["_id"]: b async for b in db[VETTING_BANKS].find({}, {"version": 1, "rubric_version": 1, "rubric_edited": 1})
+    }
+    for slug, bank in read_banks(fresh=force).items():
         role = next(r for r in ROLES if r["slug"] == slug)
         have = stored.get(slug)
         if have and have.get("version", 0) >= bank["version"]:
-            continue
-        n = 0
-        for q in bank["questions"]:
-            doc = {
+            continue  # one small query per request when nothing is new
+        docs = {
+            qid(q["id"]): {
                 "skill": role["test"], "role": role["role"], "slug": slug, "bank_id": q["id"], "topic": q["topic"],
                 "difficulty": q["difficulty"], "kind": q["kind"], "question": q["q"], "options": q["options"],
                 "answer": q["answer"], "tr": _tr(q), "needs_review": bool(_tr(q)), "version": bank["version"],
                 "updated_at": t,
-            }  # fmt: skip
-            old = await db[SKILL_QUESTIONS].find_one({"_id": qid(q["id"])}, {"edited": 1})
-            if old is None:
-                await db[SKILL_QUESTIONS].insert_one(
-                    {"_id": qid(q["id"]), **doc, "active": True, "seed": True, "created_at": t}
-                )
-            elif not old.get("edited"):  # Admin's wording wins; on/off is Admin's too ("active" isn't touched)
-                await db[SKILL_QUESTIONS].update_one({"_id": old["_id"]}, {"$set": doc})
-            else:
-                continue
-            n += 1
-        for text, v in (bank.get("existing") or {}).items():  # the H3 questions: topic and translations
-            r = await db[SKILL_QUESTIONS].update_many(
+            }
+            for q in bank["questions"]
+        }  # fmt: skip
+        old = {d["_id"]: d async for d in db[SKILL_QUESTIONS].find({"_id": {"$in": list(docs)}}, {"edited": 1})}
+        new = [{"_id": k, **v, "active": True, "seed": True, "created_at": t} for k, v in docs.items() if k not in old]
+        ups = [
+            UpdateOne({"_id": k}, {"$set": docs[k]}) for k, d in old.items() if not d.get("edited")
+        ]  # Admin's wording wins
+        if new:
+            try:
+                await db[SKILL_QUESTIONS].insert_many(new, ordered=False)
+            except BulkWriteError:  # another request loaded the same bank at the same moment
+                pass
+        if ups:
+            await db[SKILL_QUESTIONS].bulk_write(ups, ordered=False)
+        n = len(new) + len(ups)
+        retag = [
+            UpdateMany(
                 {"skill": role["test"], "question": text, "edited": {"$ne": True}},
-                {"$set": {"topic": v["topic"], "slug": slug, "kind": "mcq", "tr": _tr(v), "needs_review": bool(_tr(v)),
-                          "version": bank["version"]}},
-            )  # fmt: skip
-            n += r.modified_count
+                {
+                    "$set": {
+                        "topic": v["topic"],
+                        "slug": slug,
+                        "kind": "mcq",
+                        "tr": _tr(v),
+                        "needs_review": bool(_tr(v)),
+                        "version": bank["version"],
+                    }
+                },
+            )
+            for text, v in (bank.get("existing") or {}).items()
+        ]  # fmt: skip  (the H3 questions: topic and translations)
+        if retag:
+            n += (await db[SKILL_QUESTIONS].bulk_write(retag, ordered=False)).modified_count
         task = bank["task"]
         sets = {"version": bank["version"], "topics": bank["topics"], "test": role["test"], "loaded_at": t,
                 "task": {k: v for k, v in task.items() if k != "rubric"}}  # fmt: skip
@@ -103,7 +125,6 @@ async def ensure_banks(db, *, force: bool = False) -> dict[str, int]:
         else:
             await db[VETTING_BANKS].update_one({"_id": slug}, {"$set": sets}, upsert=True)
         done[slug] = n
-    _LOADED.add(key)
     if done:
         log.info("vetting banks loaded: %s", done)
     return done

@@ -15,6 +15,7 @@ SENT = {
     "app.linkedin.writer": ["SCHEMA"], "app.jobsearch.interview": ["SCHEMA", "FEEDBACK_SCHEMA"],
     "app.jobsearch.ai": ["SCHEMA"], "app.jobsearch.cover": ["SCHEMA"], "app.jobsearch.tailor": ["SCHEMA"],
     "app.photos.reader": ["SCHEMA"], "app.seek.offers": ["EXPLAIN_SCHEMA"], "app.seek.roles": ["SCHEMA"],
+    "app.hire.vetting.grade": ["rubric_schema", "PHOTO_SCHEMA"],
 }  # fmt: skip
 APP = pathlib.Path(__file__).resolve().parents[1] / "app"
 
