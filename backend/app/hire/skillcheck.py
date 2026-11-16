@@ -132,10 +132,14 @@ def result_out(a: dict[str, Any], t: datetime | None = None) -> dict[str, Any]:
 
 
 async def skills(db) -> dict[str, dict[str, Any]]:
-    """{skill: {role, count}} for skills with enough active questions."""
+    """{skill: {role, count}} for skills with enough active H3 questions (the V2 bank questions are not counted, so
+    learning paths and job templates list the same tests as before)."""
     out: dict[str, dict[str, Any]] = {}
     async for g in await db[SKILL_QUESTIONS].aggregate(
-        [{"$match": {"active": True}}, {"$group": {"_id": "$skill", "n": {"$sum": 1}, "role": {"$first": "$role"}}}]
+        [
+            {"$match": {"active": True, "bank_id": {"$exists": False}}},  # the H3 tests (V2 banks: vetting/router.py)
+            {"$group": {"_id": "$skill", "n": {"$sum": 1}, "role": {"$first": "$role"}}},
+        ]
     ):
         if g["n"] >= MIN_QUESTIONS:
             out[g["_id"]] = {"role": g["role"], "count": g["n"]}

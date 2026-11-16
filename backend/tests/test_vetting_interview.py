@@ -7,6 +7,7 @@ summary, Admin grading, the weekly bias re-grade, and one interview per role eve
 import random
 from datetime import timedelta
 
+import pytest
 from bson import ObjectId
 
 from app.core.claude import schema_problems
@@ -20,6 +21,17 @@ from tests.test_companies_signup import H, err, no_network  # noqa: F401
 from tests.test_hire_shortlist import READY
 
 URL = "/api/me/interviews"
+
+
+@pytest.fixture(autouse=True)
+def vetting_public(monkeypatch):
+    """V3 itself: the engine is public here (hidden mode: test_vetting_access.py)."""
+    from app.hire.vetting import access
+
+    async def public(db):
+        return {"public": True, "testers": []}
+
+    monkeypatch.setattr(access, "settings", public)
 
 
 def test_sets_rules_and_schemas():

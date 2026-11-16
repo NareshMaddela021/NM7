@@ -743,6 +743,7 @@ class SettingsIn(CamelModel):
     job_checks: "JobChecksIn | None" = None
     simple: "SimpleSettingsIn | None" = None
     languages: "LanguagesIn | None" = None
+    vetting: "VettingIn | None" = None  # the vetting engine: public, or admins + demo + testers only
     hire: "HireSettingsIn | None" = None
     seek: "SeekSettingsIn | None" = None
 
@@ -776,6 +777,23 @@ class HireOpenIn(CamelModel):
     instant: bool = True  # instant shortlists beyond the free roles a month
     tests: bool = True  # skill checks (H3)
     bulk: bool = True  # bulk hiring mode (H7)
+
+
+class VettingIn(CamelModel):
+    """The vetting engine's launch switch: public for everyone, or only admins, demo accounts and these testers."""
+
+    public: bool
+    testers: list[str] = Field(default_factory=list, max_length=50)
+
+    @field_validator("testers")
+    @classmethod
+    def _emails(cls, v: list[str]) -> list[str]:
+        out = []
+        for e in v:
+            e = str(e).strip().lower()
+            if e and "@" in e and len(e) <= 254 and e not in out:
+                out.append(e)
+        return out
 
 
 class LanguagesIn(CamelModel):
@@ -858,6 +876,7 @@ def _settings_out(site: dict[str, Any]) -> dict[str, Any]:
             "weights": site["simple"]["weights"],
         },
         "languages": {"teHi": bool(site["languages"]["te_hi"])},
+        "vetting": {"public": bool(site["vetting"]["public"]), "testers": list(site["vetting"].get("testers") or [])},
         "seek": {
             "salaryMinJobs": int(site["seek"]["salary_min_jobs"]),
             "salariesMinRoles": int(site["seek"]["salaries_min_roles"]),
@@ -935,6 +954,9 @@ async def put_settings(body: SettingsIn, request: Request, db: DB, auth: AdminAu
             salary._cache.clear()  # the salary guide and its visibility follow the new numbers at once
             changes["seek"] = new
             diff["seek"] = {"from": before["seek"], "to": new}
+    if body.vetting and body.vetting.model_dump() != before["vetting"]:
+        changes["vetting"] = body.vetting.model_dump()
+        diff["vetting"] = {"from": before["vetting"], "to": changes["vetting"]}
     if body.languages and body.languages.model_dump() != before["languages"]:
         changes["languages"] = body.languages.model_dump()
         diff["languages"] = {"from": before["languages"], "to": changes["languages"]}

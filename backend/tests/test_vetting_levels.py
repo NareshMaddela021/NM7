@@ -5,6 +5,8 @@ ready shortlists, the level history log, and Admin → Vetting overview."""
 
 from datetime import timedelta
 
+import pytest
+
 from app.core.db import HIRE_PROFILES, JOBS, USERS, VETTING_LEVEL_LOG, VETTING_SHORTLISTS, VETTING_VERIFIED
 from app.core.time import now
 from app.hire.vetting import ladder
@@ -13,6 +15,17 @@ from tests.test_companies_apply import student
 from tests.test_companies_posting import JOB, no_ai, verified  # noqa: F401
 from tests.test_companies_signup import H, no_network  # noqa: F401
 from tests.test_hire_shortlist import READY, post_job
+
+
+@pytest.fixture(autouse=True)
+def vetting_public(monkeypatch):
+    """V1 itself: the engine is public here (hidden mode: test_vetting_access.py)."""
+    from app.hire.vetting import access
+
+    async def public(db):
+        return {"public": True, "testers": []}
+
+    monkeypatch.setattr(access, "settings", public)
 
 
 def facts(**kw):
