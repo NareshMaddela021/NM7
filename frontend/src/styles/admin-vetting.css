@@ -138,3 +138,15 @@
 .iv-ad-q { margin: 0 0 4px; font-weight: 700; color: var(--ink); overflow-wrap: anywhere; }
 .vq-item.iv-ad-alert { border: 2px solid #f04438; background: #fffbfa; }
 .vt-table tr.iv-ad-gap th, .vt-table tr.iv-ad-gap td { background: #fef3f2; color: #912018; font-weight: 800; }
+
+/* Vetting V5: appeals, fraud scan, fairness */
+.vq-item.tr-overdue { border: 2px solid #f04438; border-left-width: 4px !important; border-left-color: #dc2626 !important; background: #fffbfa; }
+.tr-reason { margin: 0; padding: 10px 14px; border-left: 3px solid #c9bffd; background: #faf9ff; border-radius: 0 12px 12px 0; font-size: 14.5px; line-height: 1.55; color: var(--ink); white-space: pre-line; overflow-wrap: anywhere; }
+.tr-outcomes { border: 0; margin: 0; padding: 0; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.tr-outcome { min-height: 44px; padding: 10px 12px; font-weight: 400; display: flex; }
+.tr-outcome > span { min-width: 0; overflow-wrap: anywhere; }
+.tr-score { max-width: 220px; }
+.tr-people { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 8px; }
+.tr-email { overflow-wrap: anywhere; }
+.tr-fair { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 16px; align-items: start; }
+.vt .vt-seg > button, .vt .vt-btn { min-height: 44px; } /* taps ≥ 44 px on a desktop too */

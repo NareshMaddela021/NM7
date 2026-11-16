@@ -140,3 +140,7 @@
 .acc-gfoot { display: flex; justify-content: flex-end; }
 @media (max-width: 560px) { .acc-join { align-items: stretch; } .acc-join .btn, .acc-glink .btn { width: 100%; } }
 .acc-jp { align-self: flex-start; }
+
+/* Privacy: how long we keep things (Vetting V5) */
+.acc-keep-h { margin: 8px 0 0; font-size: 15px; font-weight: 800; color: var(--ink); }
+.acc-keep { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; color: var(--text); overflow-wrap: anywhere; }

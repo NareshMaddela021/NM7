@@ -2,7 +2,7 @@
 // and the device hash (a short SHA-256, never the raw browser details).
 import { webcrypto } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
-import { badgeLine, clock, devtoolsOpen, fingerprint, fitSize, questionAnnounce, totalAnnounce, words } from './lib';
+import { badgeLine, clock, renewState, devtoolsOpen, fingerprint, fitSize, questionAnnounce, totalAnnounce, words } from './lib';
 
 describe('vetting helpers', () => {
   it('clocks and word counts', () => {
@@ -46,5 +46,16 @@ describe('vetting helpers', () => {
     expect(await fingerprint({ ...win, screen: { width: 1280, height: 900 } })).not.toBe(a);
     expect(a).not.toContain('UA');
     expect(await fingerprint({ ...win, crypto: undefined })).toHaveLength(32); // not a secure page: still a hash
+  });
+
+  it('opens the badge refresher 15 days before the end and up to 30 days after', () => {
+    const now = Date.UTC(2026, 10, 16);
+    const d = 86_400_000;
+    expect(renewState(null, now).open).toBe(false);
+    expect(renewState({ expiresAt: now + 40 * d }, now)).toEqual({ open: false, daysLeft: 40, expired: false });
+    expect(renewState({ expiresAt: now + 15 * d }, now)).toEqual({ open: true, daysLeft: 15, expired: false });
+    expect(renewState({ expiresAt: now - 10 * d, expired: true }, now)).toEqual({ open: true, daysLeft: -10, expired: true });
+    expect(renewState({ expiresAt: now - 31 * d, expired: true }, now).open).toBe(false);
+    expect(renewState({ expiresAt: now + 5 * d, held: true }, now).open).toBe(false);
   });
 });

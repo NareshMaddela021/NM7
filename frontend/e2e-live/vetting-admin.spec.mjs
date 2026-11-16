@@ -1,7 +1,8 @@
 // Admin → Skill checks (Vetting V2) on a desktop and a 390 px phone, against the real API: the Overview tab (Vetting V1,
 // the default) shows people per level, ready now and the success measures with their status; the Banks tab lists a
 // role's questions (the banks load on first open), a question's wording is edited in the dialog and saved, then the
-// Rubrics, Review queue, Integrity queue and Stats tabs open. No sideways scrolling, no browser dialogs.
+// Rubrics, Review queue, Integrity queue, Appeals, Fraud scan, Fairness (Vetting V5) and Stats tabs open. No sideways
+// scrolling, no browser dialogs.
 // (The company "Skill verified" badge is covered by the backend tests: seed() cannot make a skill_verified record.)
 import { expect, test } from '@playwright/test';
 import { PASSWORD, adminLogin, seed } from './helpers.mjs';
@@ -11,7 +12,7 @@ for (const [label, opts] of SIZES) {
   test.describe(label, () => {
     test.use(opts);
 
-    test('overview; banks: edit a question; rubrics, review, integrity and stats tabs', async ({ page }) => {
+    test('overview; banks: edit a question; rubrics, review, integrity, appeals, fraud, fairness and stats tabs', async ({ page }) => {
       test.setTimeout(120_000);
       const owner = `vt-owner-${label}-${Date.now().toString(36)}@nm7.si`;
       const { secret } = seed('admin', owner, 'owner', PASSWORD);
@@ -70,6 +71,34 @@ for (const [label, opts] of SIZES) {
 
       await page.getByRole('tab', { name: /Integrity queue/ }).click();
       await expect(page.getByRole('note')).toContainText('Holding never bans anyone');
+      expect(await noSideScroll(page)).toBe(true);
+
+      // Vetting V5: appeals, the fraud scan and the fairness report
+      await page.getByRole('tab', { name: 'Appeals' }).click();
+      await expect(page).toHaveURL(/tab=appeals/);
+      const appeals = page.getByRole('region', { name: 'Appeals' });
+      await expect(appeals.getByRole('note')).toContainText('72 hours');
+      await expect(appeals).toContainText(/No open appeals|Their reason/);
+      await expect(appeals).toContainText('Appeal rate per role');
+      await page.getByTestId('vq-done').click();
+      await expect(page.getByTestId('vq-done')).toHaveAttribute('aria-pressed', 'true');
+      await expect(appeals).toContainText(/No decided appeals yet|Their reason/);
+      expect(await noSideScroll(page)).toBe(true);
+
+      await page.getByRole('tab', { name: 'Fraud scan' }).click();
+      await expect(page).toHaveURL(/tab=fraud/);
+      const fraud = page.getByRole('region', { name: 'Fraud scan' });
+      await expect(fraud.getByRole('note')).toContainText('It never bans anyone');
+      await expect(fraud).toContainText(/Nothing found to look at|Evidence/);
+      expect(await noSideScroll(page)).toBe(true);
+
+      await page.getByRole('tab', { name: 'Fairness' }).click();
+      await expect(page).toHaveURL(/tab=fairness/);
+      await expect(page.getByTestId('fa-note')).toContainText('caste, religion');
+      const fair = page.getByRole('region', { name: 'Fairness' });
+      for (const h of ['Language of the test', 'City tier', 'Experience band']) await expect(fair.getByRole('heading', { name: h })).toBeVisible();
+      await page.getByTestId('fa-days').selectOption('90');
+      await expect(page.getByTestId('fa-note')).toBeVisible();
       expect(await noSideScroll(page)).toBe(true);
 
       await page.getByRole('tab', { name: 'Stats' }).click();

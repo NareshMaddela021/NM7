@@ -27,6 +27,23 @@ export function badgeLine(v, role) {
   return `✓ Skill verified · ${role || v.role} · ${v.bandLabel} · ${v.score}/100 · task ${v.taskStars}/5 · ${monthYear(v.at)}`;
 }
 
+/* ---------- re-verify (Vetting V5) ---------- */
+
+const DAY_MS = 86_400_000;
+export const RENEW_BEFORE_DAYS = 15; // the refresher opens on day 75 of a 90-day badge
+export const RENEW_AFTER_DAYS = 30; // and stays open up to 30 days after the badge ended
+
+/**
+ * Whether a badge can be renewed with the short refresher now: { open, daysLeft, expired }. `daysLeft` is whole days
+ * until the badge ends (negative once it has ended). Held badges are never renewable.
+ */
+export function renewState(v, nowMs = Date.now()) {
+  if (!v?.expiresAt || v.held) return { open: false, daysLeft: null, expired: !!v?.expired };
+  const daysLeft = Math.ceil((v.expiresAt - nowMs) / DAY_MS);
+  const expired = !!v.expired || v.expiresAt <= nowMs;
+  return { open: daysLeft <= RENEW_BEFORE_DAYS && daysLeft >= -RENEW_AFTER_DAYS, daysLeft, expired };
+}
+
 /** When to say how much time is left, out loud (not every second): seconds → message, or ''. */
 export function questionAnnounce(left) {
   return [60, 30, 10].includes(left) ? `${left} seconds left for this question` : '';
