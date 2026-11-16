@@ -1,0 +1,53 @@
+/* The company dashboard frame (round P, Phase 3): a side menu card with the company's name and trust chip, tabs in
+   two groups, and a section header with a small blue dotted shape (desktop only). Phones: the tabs become a
+   sideways strip that stays at the top. Page styles live in company-*.css next to their pages. */
+.co-page { padding-top: 20px; padding-bottom: 64px; }
+.co-page.container-wide { max-width: 1280px; } /* the dashboard is wide; base.css keeps 820px for the other company pages */
+.co-top .co-h1 { font-size: clamp(30px, 5vw, 40px) !important; }
+
+.co-shell { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (min-width: 960px) { .co-shell { grid-template-columns: 236px minmax(0, 1fr); } }
+
+.co-side { display: flex; flex-direction: column; gap: 12px; min-width: 0; padding: 14px 10px; border-radius: 22px;
+  background: rgba(255, 255, 255, .86); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+@media (min-width: 960px) { .co-side { position: sticky; top: 88px; } }
+.co-side-head { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 4px 10px; padding: 2px 6px 10px; border-bottom: 1px solid var(--border); }
+.co-side-head .mchip { grid-column: 2; justify-self: start; }
+.co-avatar { grid-row: span 2; width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; font-weight: 800; font-size: 18px;
+  color: #fff; background: linear-gradient(135deg, #2563eb, #1d4ed8); }
+.co-side-name { font-weight: 800; font-size: 15px; line-height: 1.25; overflow-wrap: anywhere; color: var(--ink); }
+
+.co-tabs { display: flex; flex-direction: column; gap: 8px; }
+.co-tab-group { display: flex; flex-direction: column; gap: 2px; }
+.co-tab-group + .co-tab-group { border-top: 1px solid var(--border); padding-top: 8px; }
+.co-tab { display: flex; align-items: center; gap: 10px; min-height: 42px; padding: 8px 12px; border: 0; border-radius: 12px; background: transparent;
+  font: inherit; font-weight: 600; font-size: 14.5px; color: var(--text2); text-align: left; cursor: pointer; }
+.co-tab:hover { background: #eef3ff; color: var(--text); }
+.co-tab[aria-selected="true"] { background: #e7efff; color: #1d4ed8; font-weight: 800; }
+.co-tab-ic { width: 20px; text-align: center; flex: none; }
+
+/* phones and tablets: the side card shrinks to a name row plus a sideways strip of tabs */
+@media (max-width: 959px) {
+  .co-side { padding: 10px; gap: 8px; position: sticky; top: 64px; z-index: 15; }
+  .co-side-head { padding: 0 2px 8px; }
+  .co-avatar { width: 36px; height: 36px; font-size: 15px; }
+  .co-tabs { flex-direction: row; flex-wrap: nowrap; overflow-x: auto; gap: 6px; scrollbar-width: none; -webkit-overflow-scrolling: touch; margin: 0 -4px; padding: 0 4px; }
+  .co-tabs::-webkit-scrollbar { display: none; }
+  .co-tab-group { flex-direction: row; flex: none; gap: 6px; }
+  .co-tab-group + .co-tab-group { border-top: 0; padding-top: 0; border-left: 1px solid var(--border); padding-left: 6px; }
+  .co-tab { white-space: nowrap; min-height: 44px; border-radius: 999px; padding: 8px 14px; background: #fff; border: 1px solid var(--border); }
+  .co-tab[aria-selected="true"] { background: #1d4ed8; color: #fff; border-color: #1d4ed8; }
+}
+
+.co-main { min-width: 0; }
+.co-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; }
+.co-head-ic { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 14px; background: #e7efff; color: #1d4ed8; font-size: 20px; }
+.co-head-title { font-family: var(--font-display) !important; font-weight: 500 !important; font-size: clamp(26px, 4vw, 34px) !important; line-height: 1.1; margin: 0; color: var(--ink); }
+.co-head-art { display: none; width: 84px; height: 84px; position: relative; }
+.co-head-art::before { content: ""; position: absolute; inset: 12%; border-radius: 50%; filter: blur(16px); opacity: .6; background: radial-gradient(circle, #bcd2ff, transparent 70%); }
+.co-head-still { position: relative; width: 100%; height: 100%; }
+@media (min-width: 960px) { .co-head-art { display: block; } }
+
+/* company-blue accents for the shared kit inside the company pages */
+.co-page .mcard-ic { background: #e7efff; color: #1d4ed8; }
+.co-page .mbar > span { background: linear-gradient(90deg, #3b82f6, #1d4ed8); }

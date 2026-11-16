@@ -20,12 +20,14 @@ import PhotoImport from '../builder/PhotoImport';
 import SummaryWriter from '../builder/SummaryWriter';
 import ResumePreview from '../builder/ResumePreview';
 import { designOf } from '../builder/design';
+import { Still } from '../newhome/ParticleStage';
+import '../../styles/org-drives.css';
 import { EXP_LEVELS, LISTS, PERSONAL_FIELDS, completeResume, emptyResume, migrateLinks, real } from '../builder/schema';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const big = { fontSize: 18 };
 const bigInput = { height: 56, fontSize: 20 };
-const shell = { minHeight: '100vh', background: 'var(--bg)', display: 'flex', flexDirection: 'column' };
+const shell = { minHeight: '100vh', display: 'flex', flexDirection: 'column' }; // the teal glow background: .ks-shell (org-drives.css)
 
 /** A fresh resume for the candidate (their own name and email; no sample person). */
 function blank(who) {
@@ -259,7 +261,7 @@ export default function KioskScreen() {
 
   if (ended) {
     return (
-      <div style={shell}><main id="main" className="container stack g16" style={{ padding: '15vh 24px', maxWidth: 640, textAlign: 'center' }}>
+      <div style={shell} className="ks-shell"><main id="main" className="container stack g16 ks-plain" style={{ padding: '15vh 24px', maxWidth: 640, textAlign: 'center' }}>
         <h1 className="display h2">This kiosk has ended</h1>
         <p className="lead">{ended}</p>
         <Link to="/" className="btn btn-outline btn-lg" style={{ alignSelf: 'center' }}>Go to nm7.si</Link>
@@ -268,7 +270,7 @@ export default function KioskScreen() {
   }
   if (!info) {
     return (
-      <div style={shell}>
+      <div style={shell} className="ks-shell">
         {loadError ? (
           <main id="main" className="container stack g16" role="alert" data-testid="k-load-error" style={{ padding: '15vh 24px', maxWidth: 640, textAlign: 'center' }}>
             <h1 className="display h2">Can’t load this kiosk</h1>
@@ -288,21 +290,22 @@ export default function KioskScreen() {
   );
 
   return (
-    <div style={shell} className="kiosk">
-      <header className="row between g12" style={{ padding: '14px 20px', borderBottom: '1px solid var(--border)' }}>
+    <div style={shell} className="kiosk ks-shell">
+      <header className="row between g12 ks-bar">
         <span className="row g12" style={{ minWidth: 0 }}>
-          {info.org.logoUrl && <img src={info.org.logoUrl} alt="" height={36} style={{ maxWidth: 120, objectFit: 'contain' }} />}
+          {info.org.logoUrl ? <img src={info.org.logoUrl} alt="" height={36} style={{ maxWidth: 120, objectFit: 'contain' }} /> : <span className="ks-bar-av" aria-hidden="true">{(info.org.name || '?').trim().charAt(0).toUpperCase()}</span>}
           <span className="stack" style={{ minWidth: 0 }}><strong style={{ fontSize: 18 }}>{info.org.name}</strong><span className="small muted">{info.group.name} · {info.label}</span></span>
         </span>
         {who && <button type="button" className="btn btn-outline" onClick={() => reset('Signed out. Your resume is saved in your account.', 'Signed out. Your last changes couldn’t be saved (no internet) — your account has the earlier version of your resume.')}>Sign out</button>}
       </header>
-      <main id="main" className="container stack g20" style={{ flex: 1, width: '100%', boxSizing: 'border-box', padding: '28px 20px 40px', maxWidth: step === 'build' || step === 'finish' ? 1100 : 720 }}>
+      <main id="main" className={`container stack g20 ks-main ks-step-${step}`} style={{ flex: 1, width: '100%', boxSizing: 'border-box', padding: '28px 20px 40px', maxWidth: step === 'build' || step === 'finish' ? 1100 : 720 }}>
         {step === 'welcome' && (
-          <div className="stack g20" style={{ textAlign: 'center', paddingTop: '8vh' }}>
-            <h1 className="display" style={{ fontSize: 'clamp(32px,5vw,52px)' }}>Make your resume here</h1>
+          <div className="stack g20 ks-hero" style={{ textAlign: 'center' }}>
+            <span className="ks-hero-art" aria-hidden="true"><Still shape="college" className="ks-hero-still" /></span>
+            <h1 className="display ks-hero-title">Make your resume here</h1>
             <p className="lead">For <strong>{info.org.name}</strong> · {info.group.name}. Build it step by step in about 10 minutes, then print it.</p>
             {note && <p className="well small" role="status">{note}</p>}
-            <button type="button" className="btn btn-ink btn-xl" style={{ alignSelf: 'center', minWidth: 260, minHeight: 72, fontSize: 22 }} onClick={start}>Start</button>
+            <button type="button" className="btn btn-ink btn-xl ks-start" style={{ alignSelf: 'center', minWidth: 260, minHeight: 72, fontSize: 22 }} onClick={start}>Start</button>
             <span className="small muted">Free. You’ll sign in with a code sent to your email. Nothing stays on this screen after you finish.</span>
           </div>
         )}
@@ -314,12 +317,14 @@ export default function KioskScreen() {
             <h1 className="display h2">How do you want to start?</h1>
             {approval === 'pending' && <p className="well small">{info.org.name} checks new members first — you’re on the list. You can still build and print your resume now.</p>}
             {info.closed && !approval && <p className="well small">Joining this group is closed ({info.closed}). You can still build and print your resume.</p>}
-            <div className="grid-auto g16">
-              <button type="button" className="card stack g8 btn" style={{ textAlign: 'left', alignItems: 'flex-start', whiteSpace: 'normal', height: 'auto', padding: 28, border: '2px solid var(--ink)' }} onClick={() => setStep('build')}>
+            <div className="grid-auto g16 ks-choices">
+              <button type="button" className="card stack g8 btn ks-choice ks-choice-main" style={{ textAlign: 'left', alignItems: 'flex-start', whiteSpace: 'normal', height: 'auto', padding: 28 }} onClick={() => setStep('build')}>
+                <span className="ks-choice-ic" aria-hidden="true">✎</span>
                 <strong className="display" style={{ fontSize: 24 }}>{real(d?.personal?.headline) || d?.exp?.length || d?.proj?.length ? 'Continue my resume' : 'Type it in, step by step'}</strong>
                 <span className="muted" style={{ fontWeight: 400, ...big }}>Six short steps with big boxes. Skip anything you don’t have.</span>
               </button>
-              <button type="button" className="card stack g8 btn" style={{ textAlign: 'left', alignItems: 'flex-start', whiteSpace: 'normal', height: 'auto', padding: 28 }} onClick={() => setStep('photos')}>
+              <button type="button" className="card stack g8 btn ks-choice" style={{ textAlign: 'left', alignItems: 'flex-start', whiteSpace: 'normal', height: 'auto', padding: 28 }} onClick={() => setStep('photos')}>
+                <span className="ks-choice-ic" aria-hidden="true">📷</span>
                 <strong className="display" style={{ fontSize: 24 }}>Snap photos</strong>
                 <span className="muted" style={{ fontWeight: 400, ...big }}>Take photos of your marksheets, certificates or work papers. We read them and fill your resume.</span>
               </button>
@@ -333,7 +338,7 @@ export default function KioskScreen() {
           beforeReload={async () => { await save(); const m = readMarker(token); if (m) writeMarker(token, { ...m, step: 'finish', printAfter: true }); }} approval={approval} org={info.org.name} save={save} onEdit={() => setStep('build')}
           onFinish={() => reset('Done! You’re signed out and this screen is clear. Your resume is saved in your Nm7 account.', 'Done! You’re signed out and this screen is clear. Your last changes couldn’t be saved (no internet) — your Nm7 account has the earlier version of your resume.')} />}
       </main>
-      <footer className="row between g8" style={{ padding: '10px 20px', borderTop: '1px solid var(--border)' }}>
+      <footer className="row between g8 ks-foot">
         <span className="xs faint">Nm7 · your resume is saved in your own account · never asks for Aadhaar, PAN or bank numbers</span>
         <button type="button" className="link-btn xs" onClick={() => setExiting(true)}>Staff: exit kiosk</button>
       </footer>
@@ -359,7 +364,7 @@ function EmailStep({ base, email, setEmail, onSent, onBack }) {
     try { const r = await http(`${base}/code`, { method: 'POST', body: { email: email.trim() } }); onSent(r.newAccount); } catch (err) { setError(err.message); } finally { setBusy(false); }
   };
   return (
-    <form className="stack g16" onSubmit={send}>
+    <form className="stack g16 ks-card" onSubmit={send}>
       <h1 className="display h2">Your email</h1>
       <p style={big}>We’ll email you a 6-digit code. Your resume is saved in your free Nm7 account, so you can keep working on it from your phone.</p>
       <div className="field"><label className="label" htmlFor="k-email">Email address</label><input id="k-email" type="email" inputMode="email" autoComplete="off" className="input" style={bigInput} value={email} onChange={(e) => setEmail(e.target.value)} /></div>
@@ -382,7 +387,7 @@ function CodeStep({ base, email, newAccount, onDone, onBack }) {
     try { await onDone(await http(`${base}/verify`, { method: 'POST', body: { email: email.trim(), code, name: name.trim(), terms } })); } catch (err) { setError(err.message); setBusy(false); }
   };
   return (
-    <form className="stack g16" onSubmit={verify}>
+    <form className="stack g16 ks-card" onSubmit={verify}>
       <h1 className="display h2">Enter your code</h1>
       <p style={big}>We sent a 6-digit code to <strong>{email}</strong>. It works for 10 minutes.</p>
       <div className="field"><label className="label" htmlFor="k-code">6-digit code</label><input id="k-code" inputMode="numeric" autoComplete="one-time-code" maxLength={6} className="input mono" style={{ ...bigInput, letterSpacing: 6 }} value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} /></div>
@@ -412,7 +417,7 @@ function ConsentStep({ base, info, resumeId, onDone }) {
     try { onDone(await http(`${base}/join`, { method: 'POST', body: { consent, fields, resumeId, recruiterOptIn: !!(recruit && info.group.shareWithRecruiters) } })); } catch (err) { setError(err.message); setBusy(false); }
   };
   return (
-    <form className="stack g16" onSubmit={join}>
+    <form className="stack g16 ks-card" onSubmit={join}>
       <h1 className="display h2">Share with {info.org.name}</h1>
       {defs.map((f) => (
         <div key={f.key} className="field">
@@ -476,8 +481,8 @@ export function GuidedBuilder({ d, setD, onDone }) {
     review: <div className="card" style={{ padding: 12 }}><ResumePreview data={d} design={designOf(d)} /></div>,
   }[id];
   return (
-    <div className="stack g16">
-      <ol className="steps" aria-label="Steps" style={{ padding: 0, flexWrap: 'wrap' }}>
+    <div className="stack g16 ks-guided">
+      <ol className="steps ks-steps" aria-label="Steps" style={{ padding: 0, flexWrap: 'wrap' }}>
         {KIOSK_STEPS.map(([k, l], n) => <li key={k} aria-current={n === i ? 'step' : undefined} data-state={n < i ? 'done' : undefined}><span className="mono">{n < i ? '✓' : n + 1}</span>{l}</li>)}
       </ol>
       <h1 className="display h2">{label}</h1>
@@ -531,8 +536,8 @@ function Finish({ base, d, brand, approval, org, save, onEdit, onFinish, autoPri
   useEffect(() => { if (autoPrint && !autoDone.current) { autoDone.current = true; onAutoPrinted(); print(); } }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const fixed = { minHeight: 72, fontSize: 22, width: '100%', gap: 10 };
   return (
-    <div style={{ display: 'grid', width: '100%', gridTemplateColumns: 'repeat(auto-fit, minmax(min(360px, 100%), 1fr))', gap: 24, alignItems: 'start' }}>
-      <div className="stack g16" style={{ minWidth: 0 }}>
+    <div className="ks-finish" style={{ display: 'grid', width: '100%', gridTemplateColumns: 'repeat(auto-fit, minmax(min(360px, 100%), 1fr))', gap: 24, alignItems: 'start' }}>
+      <div className="stack g16 ks-card ks-finish-side" style={{ minWidth: 0 }}>
         <h1 className="display h2">Your resume is ready</h1>
         {approval === 'pending' && <p className="well small">{org} checks new members first. Your own copy prints now.</p>}
         <button type="button" className="btn btn-ink btn-xl" data-testid="k-print" style={fixed} aria-busy={printing} onClick={print}>{printing && <Spinner />}Print now</button>
@@ -542,7 +547,7 @@ function Finish({ base, d, brand, approval, org, save, onEdit, onFinish, autoPri
         <button type="button" className="btn btn-outline btn-lg" data-testid="k-edit" style={{ width: '100%' }} onClick={onEdit}>Make changes</button>
         <button type="button" className="btn btn-ink btn-lg" data-testid="k-finish" style={{ width: '100%' }} onClick={onFinish}>Finish and sign out</button>
       </div>
-      <div className="card" style={{ padding: 12, minWidth: 0 }}><ResumePreview data={d} design={design} brand={brand} /></div>
+      <div className="card ks-paper" style={{ padding: 12, minWidth: 0 }}><ResumePreview data={d} design={design} brand={brand} /></div>
     </div>
   );
 }

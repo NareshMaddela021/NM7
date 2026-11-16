@@ -10,19 +10,25 @@ import { http } from '../../services/http';
 import { BUY_WA, WA_PAY_TEXT, WA_SAFETY, WA_WAITING, buyOnWhatsApp } from '../../lib/waPay';
 import { Loading, day, useAction, useApi } from '../admin/live/common';
 import CodeBox from '../../components/CodeBox';
+import { Chip, FieldGroup } from '../me/kit';
+import '../../styles/me-kit.css';
+import '../../styles/org-signup.css';
 
-const STATE = { free: ['Free', 'b-neutral'], active: ['Active', 'b-success'], grace: ['Ended — grace period', 'b-warning'], expired: ['Ended', 'b-neutral'] };
+const STATE = { free: ['Free', 'neutral'], active: ['Active', 'ok'], grace: ['Ended — grace period', 'warn'], expired: ['Ended', 'neutral'] };
+const ORDER_TONE = { done: 'ok', pending_payment: 'warn', awaiting_payment: 'warn', expired: 'neutral', refunded: 'info', cancelled: 'neutral' };
 const ORDER_STATUS = { done: 'Paid', pending_payment: 'Waiting for payment', awaiting_payment: WA_WAITING, expired: 'Not paid', refunded: 'Refunded', cancelled: 'Cancelled' };
 
 function Usage({ s }) {
   return (
-    <div className="stack g8">
+    <div className="ob-usage">
       {LIMITS.map(([k, label]) => {
         const pct = usagePct(s.usage[k], s.limits[k]);
+        const tone = pct === null ? '' : pct >= 100 ? 'bad' : pct >= 80 ? 'warn' : 'ok';
         return (
-          <div key={k} className="stack g4">
-            <span className="row between small"><span>{label}</span><span className="muted">{s.usage[k].toLocaleString('en-IN')} / {limitText(s.limits[k])}</span></span>
-            {pct !== null && <div role="meter" aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} style={{ height: 6, background: 'var(--sunken)', borderRadius: 4 }}><div style={{ width: `${pct}%`, height: 6, borderRadius: 4, background: pct >= 100 ? 'var(--danger)' : pct >= 80 ? 'var(--warning)' : 'var(--text)' }} /></div>}
+          <div key={k} className={`ob-use ${tone ? `ob-use-${tone}` : ''}`}>
+            <span className="ob-use-l">{label}</span>
+            <span className="ob-use-n"><strong>{s.usage[k].toLocaleString('en-IN')}</strong> <span className="muted">/ {limitText(s.limits[k])}</span></span>
+            {pct !== null && <div role="meter" aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} className="ob-meter"><div style={{ width: `${pct}%` }} /></div>}
           </div>
         );
       })}
@@ -44,17 +50,16 @@ function Details({ data, onSaved }) {
     try { await http(`/api/org/${data.orgId}/billing/details`, { method: 'PUT', body: { ...f, gstin: f.gstin.trim().toUpperCase() } }); toast('Billing details saved'); onSaved(); } catch (err) { setError(err.message); } finally { setBusy(false); }
   };
   return (
-    <form className="card stack g12" onSubmit={save} aria-label="Billing details">
-      <strong>Billing details</strong>
-      <span className="xs muted">Printed on your invoices. The state decides how GST is charged.</span>
-      <div className="field"><label className="label" htmlFor="bd-n">Legal name</label><input id="bd-n" className="input" required minLength={2} maxLength={150} value={f.legalName} onChange={(e) => setF({ ...f, legalName: e.target.value })} /></div>
-      <div className="field"><label className="label" htmlFor="bd-a">Address (with PIN code)</label><textarea id="bd-a" className="input" rows={2} required minLength={5} maxLength={400} value={f.address} onChange={(e) => setF({ ...f, address: e.target.value })} /></div>
-      <div className="row g12" style={{ flexWrap: 'wrap' }}>
-        <div className="field" style={{ flex: '1 1 200px' }}><label className="label" htmlFor="bd-s">State</label><select id="bd-s" className="input" required value={f.stateCode} onChange={(e) => setF({ ...f, stateCode: e.target.value })}><option value="">Choose…</option>{data.states.map((s) => <option key={s.code} value={s.code}>{s.name}</option>)}</select></div>
-        <div className="field" style={{ flex: '1 1 200px' }}><label className="label" htmlFor="bd-g">GSTIN (optional)</label><input id="bd-g" className="input mono" maxLength={15} value={f.gstin} aria-invalid={!!gstErr} onChange={(e) => setF({ ...f, gstin: e.target.value.toUpperCase() })} />{gstErr && <span className="xs" style={{ color: 'var(--danger)' }}>{gstErr}</span>}</div>
-      </div>
-      <div className="field"><label className="label" htmlFor="bd-e">Send invoices to (optional)</label><input id="bd-e" type="email" className="input" maxLength={200} value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></div>
-      <button type="submit" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} disabled={busy}>{busy ? 'Saving…' : 'Save details'}</button>
+    <form className="mcard ob-details" onSubmit={save} aria-label="Billing details">
+      <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">✎</span><span className="mcard-ht"><strong className="mcard-title">Billing details</strong><span className="mcard-sub">Printed on your invoices. The state decides how GST is charged.</span></span></header>
+      <FieldGroup>
+        <div className="field full"><label className="label" htmlFor="bd-n">Legal name</label><input id="bd-n" className="input" required minLength={2} maxLength={150} value={f.legalName} onChange={(e) => setF({ ...f, legalName: e.target.value })} /></div>
+        <div className="field full"><label className="label" htmlFor="bd-a">Address (with PIN code)</label><textarea id="bd-a" className="input" rows={2} required minLength={5} maxLength={400} value={f.address} onChange={(e) => setF({ ...f, address: e.target.value })} /></div>
+        <div className="field"><label className="label" htmlFor="bd-s">State</label><select id="bd-s" className="input" required value={f.stateCode} onChange={(e) => setF({ ...f, stateCode: e.target.value })}><option value="">Choose…</option>{data.states.map((s) => <option key={s.code} value={s.code}>{s.name}</option>)}</select></div>
+        <div className="field"><label className="label" htmlFor="bd-g">GSTIN (optional)</label><input id="bd-g" className="input mono" maxLength={15} value={f.gstin} aria-invalid={!!gstErr} onChange={(e) => setF({ ...f, gstin: e.target.value.toUpperCase() })} />{gstErr && <span className="xs" style={{ color: 'var(--danger)' }}>{gstErr}</span>}</div>
+        <div className="field full"><label className="label" htmlFor="bd-e">Send invoices to (optional)</label><input id="bd-e" type="email" className="input" maxLength={200} value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></div>
+      </FieldGroup>
+      <button type="submit" className="btn btn-signal" style={{ alignSelf: 'flex-start' }} disabled={busy}>{busy ? 'Saving…' : 'Save details'}</button>
       {error && <p className="small" role="alert" style={{ color: 'var(--danger)' }}>{error}</p>}
     </form>
   );
@@ -106,14 +111,18 @@ function Buy({ data, plan, onPaid, onOrdered, refCode }) {
     } catch (err) { setSt(err.code === 'dismissed' ? {} : { error: err.message }); }
   };
   return (
-    <section className="card stack g8" style={{ flex: '1 1 260px' }} aria-label={`Buy ${plan.name}`}>
-      <span className="row between"><strong>{plan.name}</strong><span className="small"><strong>{rupees(plan.price)}</strong> <span className="muted">{periodText(plan)}{data.gstOn ? ' + GST' : ''}</span></span></span>
-      <span className="xs muted">{LIMITS.map(([k, , words]) => `${limitText(plan.limits[k])} ${words}`).join(' · ')}</span>
-      <span className="xs muted">{PLAN_FEATURES.filter(([k]) => plan.features[k]).map(([, l]) => l).join(' · ')}</span>
+    <section className={`ob-buy ${s.planId === plan.id ? 'ob-buy-current' : ''}`} aria-label={`Buy ${plan.name}`}>
+      <span className="ob-buy-top">
+        <strong className="ob-buy-name">{plan.name}</strong>
+        {s.planId === plan.id && <Chip tone="accent">Your plan</Chip>}
+      </span>
+      <span className="ob-buy-price"><strong>{rupees(plan.price)}</strong> <span className="muted small">{periodText(plan)}{data.gstOn ? ' + GST' : ''}</span></span>
+      <ul className="ob-buy-limits">{LIMITS.map(([k, , words]) => <li key={k}><strong>{limitText(plan.limits[k])}</strong> {words}</li>)}</ul>
+      <ul className="mplan-feat ob-buy-feats">{PLAN_FEATURES.filter(([k]) => plan.features[k]).map(([k, l]) => <li key={k}>{l}</li>)}</ul>
       {!q ? (
-        <button type="button" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={st.busy || !data.details} onClick={open}>{renew ? 'Renew' : s.planId === 'free' ? 'Upgrade' : 'Switch to this plan'}</button>
+        <button type="button" className="btn btn-signal ob-buy-go" disabled={st.busy || !data.details} onClick={open}>{renew ? 'Renew' : s.planId === 'free' ? 'Upgrade' : 'Switch to this plan'}</button>
       ) : (
-        <div className="stack g4 well small">
+        <div className="stack g4 small ob-quote">
           <span className="row between"><span>{q.planName} plan</span><span>{rupees(q.listPrice)}</span></span>
           {q.discount > 0 && <span className="row between"><span>{q.discountLabel || 'Discount'}</span><span>−{rupees(q.discount)}</span></span>}
           {q.codeDiscount > 0 && <span className="row between"><span>Code {q.code}</span><span>−{rupees(q.codeDiscount)}</span></span>}
@@ -131,7 +140,7 @@ function Buy({ data, plan, onPaid, onOrdered, refCode }) {
           {q.partnerCode && <span className="xs muted">Referred by partner <span className="mono">{q.partnerCode}</span>.</span>}
           <div className="row g8" style={{ marginTop: 6 }}>
             {mode === 'off' ? <button type="button" className="btn btn-outline" disabled data-testid="org-pay-soon">Coming soon</button>
-              : <button type="button" className="btn btn-ink" disabled={st.busy || st.waiting} onClick={go}>{st.busy ? 'Opening…' : mode === 'whatsapp' ? `${BUY_WA} · ${rupees(q.total)}` : `Pay ${rupees(q.total)}`}</button>}
+              : <button type="button" className="btn btn-signal" disabled={st.busy || st.waiting} onClick={go}>{st.busy ? 'Opening…' : mode === 'whatsapp' ? `${BUY_WA} · ${rupees(q.total)}` : `Pay ${rupees(q.total)}`}</button>}
             <button type="button" className="btn btn-outline" onClick={() => setQ(null)}>Cancel</button>
           </div>
           {mode === 'whatsapp' && <span className="xs muted">{WA_PAY_TEXT} {WA_SAFETY}</span>}
@@ -172,18 +181,18 @@ function Invoices({ orgId }) {
   const st = useApi(`/api/org/${orgId}/billing/invoices`);
   const [busy, run] = useAction(toast);
   return (
-    <section className="card stack g8" aria-label="Invoices">
-      <strong>Invoices</strong>
-      <Loading st={st}>{(rows) => rows.length === 0 ? <span className="small muted">Your invoices appear here after a payment.</span> : (
-        <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table">
+    <section className="mcard" aria-label="Invoices">
+      <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">⎙</span><span className="mcard-ht"><strong className="mcard-title">Invoices</strong><span className="mcard-sub">Every invoice, credit note and proforma, as a PDF.</span></span></header>
+      <Loading st={st}>{(rows) => rows.length === 0 ? <span className="ob-empty small muted">Your invoices appear here after a payment.</span> : (
+        <div className="table-wrap mtable-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table mtable ob-table">
           <thead><tr><th>Number</th><th>Date</th><th>Type</th><th>Amount</th><th /></tr></thead>
           <tbody>{rows.map((d) => (
             <tr key={d.id}>
-              <td className="mono small">{d.number}{d.against ? <div className="xs faint">against {d.against}</div> : null}</td>
-              <td className="small">{day(d.date)}</td>
-              <td className="small">{d.kind === 'invoice' && !d.gstOn ? 'Invoice' : DOC_KIND[d.kind]}</td>
-              <td className="small">{d.kind === 'credit_note' ? '−' : ''}{rupees(d.total)}</td>
-              <td><button type="button" className="link-btn small" disabled={busy} aria-label={`Download ${d.number}`} onClick={() => run(() => downloadFrom(`/api/org/${orgId}/billing/invoices/${d.id}/pdf`, d.fileName))}>Download PDF</button></td>
+              <td className="mono small" data-label="Number"><span>{d.number}{d.against ? <span className="xs faint ob-against">against {d.against}</span> : null}</span></td>
+              <td className="small" data-label="Date">{day(d.date)}</td>
+              <td className="small" data-label="Type">{d.kind === 'invoice' && !d.gstOn ? 'Invoice' : DOC_KIND[d.kind]}</td>
+              <td className="small ob-amt" data-label="Amount">{d.kind === 'credit_note' ? '−' : ''}{rupees(d.total)}</td>
+              <td><button type="button" className="btn btn-outline btn-sm ob-dl" disabled={busy} aria-label={`Download ${d.number}`} onClick={() => run(() => downloadFrom(`/api/org/${orgId}/billing/invoices/${d.id}/pdf`, d.fileName))}><span aria-hidden="true">⤓ </span>Download PDF</button></td>
             </tr>
           ))}</tbody>
         </table></div>
@@ -201,39 +210,45 @@ export default function Billing({ orgId }) {
   return (
     <Loading st={st}>{(data) => {
       const s = data.summary;
-      const [label, cls] = STATE[s.state] || STATE.free;
+      const [label, tone] = STATE[s.state] || STATE.free;
       return (
-        <div className="stack g16">
-          {data.testMode && <div className="well small" role="note">Payments are in <strong>test mode</strong>: no real money is taken yet.</div>}
-          {waiting && <div className="well small row g8" role="status">{waiting.slow ? 'Payment received by Razorpay — confirmation is taking longer than usual. This page updates on its own; you’ll also get an email.' : <><Spinner /> Payment done — waiting for Razorpay to confirm it…</>}</div>}
-          <section className="card stack g12" aria-label="Your plan">
-            <span className="row between g8" style={{ flexWrap: 'wrap' }}>
-              <strong style={{ fontSize: 20 }}>{s.planName} plan</strong>
-              <span className={`badge ${cls}`}>{label}</span>
-            </span>
-            {s.state !== 'free' && <span className="small muted">{day(s.startsOn)} – {day(s.endsOn)}{s.state === 'grace' ? ` · works until ${day(s.graceUntil)}` : ''}{s.daysLeft !== null && s.state === 'active' ? ` · ${s.daysLeft} day${s.daysLeft === 1 ? '' : 's'} left` : ''}</span>}
+        <div className="stack g16 ob-page">
+          {data.testMode && <div className="ob-note ob-note-warn small" role="note"><span aria-hidden="true">⚠ </span>Payments are in <strong>test mode</strong>: no real money is taken yet.</div>}
+          {waiting && <div className="ob-note small row g8" role="status">{waiting.slow ? 'Payment received by Razorpay — confirmation is taking longer than usual. This page updates on its own; you’ll also get an email.' : <><Spinner /> Payment done — waiting for Razorpay to confirm it…</>}</div>}
+          <section className={`mcard ob-plan ob-plan-${s.state}`} aria-label="Your plan">
+            <div className="ob-plan-top">
+              <span className="ob-plan-ic" aria-hidden="true">₹</span>
+              <span className="stack g4" style={{ minWidth: 0 }}>
+                <span className="mkicker">Your plan</span>
+                <strong className="ob-plan-name">{s.planName} plan</strong>
+                {s.state !== 'free' && <span className="small muted">{day(s.startsOn)} – {day(s.endsOn)}{s.state === 'grace' ? ` · works until ${day(s.graceUntil)}` : ''}{s.daysLeft !== null && s.state === 'active' ? ` · ${s.daysLeft} day${s.daysLeft === 1 ? '' : 's'} left` : ''}</span>}
+              </span>
+              <Chip tone={tone}>{label}</Chip>
+            </div>
             <Usage s={s} />
-            {data.discountPct > 0 && <span className="xs muted">Your organization has a {data.discountPct}% discount on plans.</span>}
+            {data.discountPct > 0 && <span className="xs ob-discount">Your organization has a {data.discountPct}% discount on plans.</span>}
           </section>
-          <section className="stack g8" aria-label="Plans">
-            <strong>{s.state === 'free' ? 'Upgrade' : 'Renew or change plan'}</strong>
-            <div className="row g12" style={{ flexWrap: 'wrap', alignItems: 'stretch' }}>
+          <section className="stack g12" aria-label="Plans">
+            <strong className="ob-h">{s.state === 'free' ? 'Upgrade' : 'Renew or change plan'}</strong>
+            <div className="ob-plans">
               {data.plans.map((p) => <Buy key={p.id} data={data} plan={p} onPaid={startWaiting} onOrdered={st.reload} refCode={refCode} />)}
             </div>
             <span className="xs muted">{data.gstOn ? `GST (${data.gstRatePct}%) is added at checkout. ` : ''}Paying by bank transfer or purchase order? Use “Talk to us” on nm7.si/for-orgs and we’ll send a proforma invoice.</span>
           </section>
-          <Details data={data} onSaved={st.reload} />
-          <section className="card stack g8" aria-label="Payments">
-            <strong>Payments</strong>
-            {data.orders.length === 0 ? <span className="small muted">No payments yet.</span> : (
-              <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table">
-                <thead><tr><th>Date</th><th>Plan</th><th>Amount</th><th>Status</th><th>Invoice</th></tr></thead>
-                <tbody>{data.orders.map((o) => (
-                  <tr key={o.id}><td>{day(o.paidAt || o.createdAt)}</td><td>{o.planName}</td><td>{rupees(o.amount)}</td><td>{ORDER_STATUS[o.status] || o.status}</td><td className="mono small">{o.invoiceNo || '—'}</td></tr>
-                ))}</tbody>
-              </table></div>
-            )}
-          </section>
+          <div className="ob-two">
+            <Details data={data} onSaved={st.reload} />
+            <section className="mcard" aria-label="Payments">
+              <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">✓</span><span className="mcard-ht"><strong className="mcard-title">Payments</strong></span></header>
+              {data.orders.length === 0 ? <span className="ob-empty small muted">No payments yet.</span> : (
+                <div className="table-wrap mtable-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table mtable ob-table">
+                  <thead><tr><th>Date</th><th>Plan</th><th>Amount</th><th>Status</th><th>Invoice</th></tr></thead>
+                  <tbody>{data.orders.map((o) => (
+                    <tr key={o.id}><td data-label="Date">{day(o.paidAt || o.createdAt)}</td><td data-label="Plan">{o.planName}</td><td data-label="Amount" className="ob-amt">{rupees(o.amount)}</td><td data-label="Status"><Chip tone={ORDER_TONE[o.status] || 'neutral'}>{ORDER_STATUS[o.status] || o.status}</Chip></td><td data-label="Invoice" className="mono small">{o.invoiceNo || '—'}</td></tr>
+                  ))}</tbody>
+                </table></div>
+              )}
+            </section>
+          </div>
           <Invoices key={data.orders.filter((o) => o.invoiceNo).length} orgId={orgId} />
         </div>
       );

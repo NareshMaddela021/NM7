@@ -85,6 +85,21 @@ async def test_free_plan_shows_tiles_only(owner, make_client, outbox, db):
     j = (await coord.get(f"/api/org/{org['id']}/placement")).json()
     assert j["insights"] is False and set(j) == {"tiles", "insights", "role", "group", "groups", "updatedAt"}
     assert j["tiles"]["joined"] == 3 and j["tiles"]["shared"] == 2 and j["tiles"]["invited"] is None
+    # Phase 4: applications sent and placed students (full-time / PPO, not declined) for the students in view
+    assert (j["tiles"]["applications"], j["tiles"]["placed"]) == (0, 0)
+    mems = [m async for m in db["memberships"].find({"group_id": g["id"]})]
+    await db["applications"].insert_many(
+        [{"user_id": mems[0]["user_id"], "key": "a"}, {"user_id": "someone-else", "key": "b"}]
+    )
+    await db["offers"].insert_many(
+        [
+            {"membership_id": mems[0]["_id"], "status": "accepted", "type": "full_time"},
+            {"membership_id": mems[1]["_id"], "status": "declined", "type": "full_time"},
+            {"membership_id": mems[2]["_id"], "status": "offered", "type": "internship"},
+        ]
+    )
+    t = (await coord.get(f"/api/org/{org['id']}/placement")).json()["tiles"]
+    assert (t["applications"], t["placed"]) == (1, 1)
     r = await coord.put(f"/api/org/{org['id']}/groups/{g['id']}/roll-list", json={"csv": ROLL_CSV})
     assert r.status_code == 402 and err(r) == "plan_feature"
     r = await coord.get(f"/api/org/{org['id']}/placement/missing.csv", params={"list": "noResume"})

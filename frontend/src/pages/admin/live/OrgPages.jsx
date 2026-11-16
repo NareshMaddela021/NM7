@@ -36,6 +36,9 @@ import Placement from '../../org/Placement';
 import SharedCerts from '../../../components/SharedCerts';
 import { openCertFile } from '../../../lib/certs';
 import { liveParams } from '../../../lib/liveParams';
+import { Bar, Chip, Empty } from '../../me/kit';
+import '../../../styles/me-kit.css';
+import '../../../styles/org-groups.css';
 
 export const ORG_TYPES = [
   ['college', 'College'], ['institute', 'Coaching / training institute'], ['job_fair', 'Job fair'], ['skill_centre', 'Skill centre'],
@@ -71,7 +74,7 @@ async function saveGroupPoster(g, ctx, toast) {
 function QrImage({ code, size = 120 }) {
   const [src, setSrc] = useState('');
   useEffect(() => { let off = false; QRCode.toDataURL(joinLink(code), { width: 240, margin: 1 }).then((u) => !off && setSrc(u)); return () => { off = true; }; }, [code]);
-  return src ? <img src={src} width={size} height={size} alt={`QR code for ${joinLink(code)}`} style={{ borderRadius: 8, border: '1px solid var(--border)' }} /> : null;
+  return src ? <img src={src} width={size} height={size} alt={`QR code for ${joinLink(code)}`} className="og-qr-img" /> : <span className="og-qr-img skeleton" style={{ width: size, height: size }} aria-hidden="true" />;
 }
 
 /* ---------- questions (custom fields) editor ---------- */
@@ -82,22 +85,23 @@ export const FIELD_PRESETS = [
 function FieldsEditor({ fields, set }) {
   const upd = (i, patch) => set(fields.map((f, j) => (j === i ? { ...f, ...patch } : f)));
   return (
-    <fieldset className="stack g8" style={{ border: 0, padding: 0, margin: 0 }}>
-      <legend className="label">Questions for members</legend>
+    <fieldset className="og-fields" style={{ border: 0, padding: 0, margin: 0 }}>
+      <legend className="og-fs-h">Questions for members</legend>
+      <span className="og-fs-help">What each student answers when they join (roll number, branch …).</span>
       {fields.map((f, i) => (
-        <div key={i} className="row g8" style={{ alignItems: 'center' }}>
+        <div key={i} className="og-q-row">
           <input aria-label="Question" className="input" style={{ ...inputStyle, flex: '2 1 160px' }} value={f.label} onChange={(e) => upd(i, { label: e.target.value, key: f.fixedKey ? f.key : keyOf(e.target.value) })} />
           <select aria-label="Answer type" className="input" style={{ ...inputStyle, flex: '0 0 120px' }} value={f.type} onChange={(e) => upd(i, { type: e.target.value })}><option value="text">Text</option><option value="select">Choose one</option></select>
           {f.type === 'select' && <input aria-label="Options (comma separated)" className="input" style={{ ...inputStyle, flex: '2 1 180px' }} placeholder="Options, comma separated" value={f.optionsText ?? f.options.join(', ')} onChange={(e) => upd(i, { optionsText: e.target.value, options: e.target.value.split(',').map((x) => x.trim()).filter(Boolean) })} />}
-          <label className="row g4 small"><input type="checkbox" checked={f.required} onChange={(e) => upd(i, { required: e.target.checked })} /> Required</label>
-          <button type="button" className="link-btn small" onClick={() => set(fields.filter((_, j) => j !== i))}>Remove</button>
+          <label className="og-pill-check small"><input type="checkbox" checked={f.required} onChange={(e) => upd(i, { required: e.target.checked })} /> Required</label>
+          <button type="button" className="link-btn small og-q-remove" onClick={() => set(fields.filter((_, j) => j !== i))}>Remove</button>
         </div>
       ))}
-      <div className="row g8">
+      <div className="og-q-add">
         {FIELD_PRESETS.filter(([l]) => !fields.some((f) => f.label === l)).map(([l, type, opts]) => (
-          <button key={l} type="button" className="btn btn-outline" style={{ minHeight: 32 }} onClick={() => set([...fields, { key: keyOf(l), label: l, type, options: opts ? opts.split(', ') : [], required: l === 'Roll number' }])}>+ {l}</button>
+          <button key={l} type="button" className="btn btn-outline og-chip-btn" onClick={() => set([...fields, { key: keyOf(l), label: l, type, options: opts ? opts.split(', ') : [], required: l === 'Roll number' }])}>+ {l}</button>
         ))}
-        <button type="button" className="btn btn-outline" style={{ minHeight: 32 }} onClick={() => set([...fields, { key: `field_${fields.length + 1}`, label: '', type: 'text', options: [], required: false }])}>+ Other question</button>
+        <button type="button" className="btn btn-outline og-chip-btn" onClick={() => set([...fields, { key: `field_${fields.length + 1}`, label: '', type: 'text', options: [], required: false }])}>+ Other question</button>
       </div>
       <span className="xs faint">Never ask for Aadhaar, PAN or other ID / bank numbers — the server refuses them.</span>
     </fieldset>
@@ -123,7 +127,9 @@ function GroupForm({ initial = emptyGroup, onSave, onCancel, busy, label, ctx })
   };
   const set = (k) => (e) => setG({ ...g, settings: { ...g.settings, [k]: e.target.checked } });
   return (
-    <form className="stack g12" aria-label={label} onSubmit={(e) => { e.preventDefault(); onSave(body()); }}>
+    <form className="og-form" aria-label={label} onSubmit={(e) => { e.preventDefault(); onSave(body()); }}>
+      <div className="og-fs">
+      <span className="og-fs-h" aria-hidden="true">Name and dates</span>
       <div className="row g12">
         <div className="field" style={{ flex: '2 1 220px' }}><label className="label" htmlFor={`${label}-n`}>Group name</label><input id={`${label}-n`} className="input" style={inputStyle} placeholder="e.g. B.Tech 2026 placements" value={g.name} onChange={(e) => setG({ ...g, name: e.target.value })} /></div>
         <div className="field" style={{ flex: '1 1 140px' }}><label className="label" htmlFor={`${label}-c`}>Join code</label><input id={`${label}-c`} className="input mono" style={inputStyle} placeholder="Automatic" maxLength={12} value={g.code} onChange={(e) => setG({ ...g, code: e.target.value.toUpperCase() })} /></div>
@@ -133,16 +139,20 @@ function GroupForm({ initial = emptyGroup, onSave, onCancel, busy, label, ctx })
         <div className="field" style={{ flex: '1 1 150px' }}><label className="label" htmlFor={`${label}-e`}>Ends (optional)</label><input id={`${label}-e`} type="date" className="input" style={inputStyle} value={g.endsOn} onChange={(e) => setG({ ...g, endsOn: e.target.value })} /></div>
         <div className="field" style={{ flex: '1 1 150px' }}><label className="label" htmlFor={`${label}-l`}>Member limit (optional)</label><input id={`${label}-l`} type="number" min="1" className="input" style={inputStyle} value={g.memberLimit} onChange={(e) => setG({ ...g, memberLimit: e.target.value })} /></div>
       </div>
-      <FieldsEditor fields={g.customFields} set={(customFields) => setG({ ...g, customFields })} />
-      <div className="row g16">
-        <label className="row g8 small"><input type="checkbox" checked={g.settings.active} onChange={set('active')} /> Open for joining</label>
-        <label className="row g8 small"><input type="checkbox" checked={g.settings.requireApproval} onChange={set('requireApproval')} /> Approve members before they’re shared</label>
-        {ctx.features?.branding && <label className="row g8 small"><input type="checkbox" checked={g.settings.printBranded} onChange={set('printBranded')} /> Print with organization template</label>}
-        {ctx.features?.recruiterLinks && <label className="row g8 small"><input type="checkbox" checked={g.settings.shareWithRecruiters} onChange={set('shareWithRecruiters')} /> Share with recruiters (members choose to allow it)</label>}
-        {canFree && <label className="row g8 small"><input type="checkbox" checked={g.settings.membersDownloadFree} onChange={set('membersDownloadFree')} /> Members download free (no ₹99 unlock)</label>}
       </div>
-      <div className="row g8">
-        <button type="submit" className="btn btn-ink" disabled={busy || g.name.trim().length < 2}>Save group</button>
+      <div className="og-fs"><FieldsEditor fields={g.customFields} set={(customFields) => setG({ ...g, customFields })} /></div>
+      <div className="og-fs">
+      <span className="og-fs-h" aria-hidden="true">Joining and sharing</span>
+      <div className="og-pills">
+        <label className="og-pill-check small"><input type="checkbox" checked={g.settings.active} onChange={set('active')} /> Open for joining</label>
+        <label className="og-pill-check small"><input type="checkbox" checked={g.settings.requireApproval} onChange={set('requireApproval')} /> Approve members before they’re shared</label>
+        {ctx.features?.branding && <label className="og-pill-check small"><input type="checkbox" checked={g.settings.printBranded} onChange={set('printBranded')} /> Print with organization template</label>}
+        {ctx.features?.recruiterLinks && <label className="og-pill-check small"><input type="checkbox" checked={g.settings.shareWithRecruiters} onChange={set('shareWithRecruiters')} /> Share with recruiters (members choose to allow it)</label>}
+        {canFree && <label className="og-pill-check small"><input type="checkbox" checked={g.settings.membersDownloadFree} onChange={set('membersDownloadFree')} /> Members download free (no ₹99 unlock)</label>}
+      </div>
+      </div>
+      <div className="og-form-actions">
+        <button type="submit" className="btn btn-signal" disabled={busy || g.name.trim().length < 2}>Save group</button>
         {onCancel && <button type="button" className="btn btn-outline" onClick={onCancel}>Cancel</button>}
       </div>
     </form>
@@ -182,29 +192,48 @@ export function GroupCard({ g, ctx, busy, run, reload, toast }) {
   const link = joinLink(g.code);
   const state = !g.settings.active ? 'Closed' : g.endsOn && g.endsOn < new Date().toISOString().slice(0, 10) ? 'Ended' : 'Open';
   const patch = (body, ok) => run(async () => { await http(ctx.groupPatchUrl(g), { method: 'PATCH', body }); setEditing(false); reload(); }, ok);
+  const extras = [g.settings.requireApproval && 'approval on', g.settings.membersDownloadFree && 'free downloads', g.settings.printBranded && ctx.features?.branding && 'organization template', g.settings.shareWithRecruiters && ctx.features?.recruiterLinks && 'recruiter sharing'].filter(Boolean);
   return (
-    <section className="card stack g12" aria-label={`Group ${g.name}`}>
-      <div className="row between g12" style={{ alignItems: 'flex-start' }}>
-        <div className="stack g4" style={{ minWidth: 0, flex: '1 1 260px' }}>
-          <strong>{g.name}</strong>
-          <span className="small muted">Code <strong className="mono" data-testid="join-code">{g.code}</strong> · {g.members}{g.memberLimit ? ` / ${g.memberLimit}` : ''} members · <span className={`badge ${state === 'Open' ? 'b-success' : 'b-neutral'}`}>{state}</span>{g.settings.requireApproval ? ' · approval on' : ''}{g.settings.membersDownloadFree ? ' · free downloads' : ''}{g.settings.printBranded && ctx.features?.branding ? ' · organization template' : ''}{g.settings.shareWithRecruiters && ctx.features?.recruiterLinks ? ' · recruiter sharing' : ''}</span>
-          {(g.startsOn || g.endsOn) && <span className="xs faint">{g.startsOn ? `From ${day(Date.parse(g.startsOn))}` : ''}{g.endsOn ? ` until ${day(Date.parse(g.endsOn))}` : ''}</span>}
-          <span className="small" style={{ overflowWrap: 'anywhere' }}>Join link: <a href={link} className="mono" data-testid="join-link">{link}</a></span>
-          <div className="row g8">
-            <button type="button" className="btn btn-outline" style={{ minHeight: 34 }} onClick={async () => { try { await navigator.clipboard.writeText(link); toast('Join link copied'); } catch { toast(link); } }}>Copy link</button>
-            <button type="button" className="btn btn-outline" style={{ minHeight: 34 }} onClick={() => saveGroupQr(g, ctx, toast)}>Download QR code (PNG)</button>
-            <button type="button" className="btn btn-outline" style={{ minHeight: 34 }} onClick={() => saveGroupPoster(g, ctx, toast)}>Download QR poster (PDF)</button>
-            <Link className="btn btn-outline" style={{ minHeight: 34 }} to={ctx.dashboardUrl(g)}>Dashboard</Link>
-            <Link className="btn btn-outline" style={{ minHeight: 34 }} to={ctx.sharedUrl(ctx.orgId ? { group: g.id } : { org: g.orgId, group: g.id })}>Shared resumes</Link>
-            {ctx.canManage && <button type="button" className="btn btn-outline" style={{ minHeight: 34 }} disabled={busy} onClick={() => patch({ settings: { active: !g.settings.active } }, g.settings.active ? 'Joining closed' : 'Joining open')}>{g.settings.active ? 'Close joining' : 'Open joining'}</button>}
-            {ctx.canManage && <button type="button" className="link-btn small" onClick={() => setEditing(!editing)}>{editing ? 'Close' : 'Edit'}</button>}
-            {ctx.role === 'admin' && <button type="button" className="link-btn small" onClick={() => setChecking(true)}>Check members</button>}
+    <section className={`mcard og-gcard og-gcard-${state.toLowerCase()}`} aria-label={`Group ${g.name}`}>
+      <div className="og-gcard-top">
+        <span className="og-gcard-ic" aria-hidden="true">☷</span>
+        <span className="og-gcard-ht">
+          <strong className="og-gcard-name">{g.name}</strong>
+          {(g.startsOn || g.endsOn) && <span className="xs muted">{g.startsOn ? `From ${day(Date.parse(g.startsOn))}` : ''}{g.endsOn ? ` until ${day(Date.parse(g.endsOn))}` : ''}</span>}
+        </span>
+        <Chip tone={state === 'Open' ? 'ok' : 'neutral'}>{state}</Chip>
+      </div>
+      <div className="og-gcard-body">
+        <div className="og-gcard-info">
+          <div className="og-gcard-members">
+            <span className="og-gcard-num">{g.members}<small>{g.memberLimit ? ` / ${g.memberLimit}` : ''} members</small></span>
+            {g.memberLimit ? <Bar value={g.members} max={g.memberLimit} label="Members" showValue={false} /> : null}
+          </div>
+          {extras.length > 0 && <span className="og-gcard-extras small">{extras.map((x) => <span key={x} className="mchip mchip-neutral">{x}</span>)}</span>}
+          <div className="og-code-box">
+            <span className="og-code-l">Join code</span>
+            <strong className="mono og-code" data-testid="join-code">{g.code}</strong>
+            <button type="button" className="btn btn-outline og-btn-sm" onClick={async () => { try { await navigator.clipboard.writeText(link); toast('Join link copied'); } catch { toast(link); } }}>Copy link</button>
+          </div>
+          <span className="small og-link-line">Join link: <a href={link} className="mono" data-testid="join-link">{link}</a></span>
+        </div>
+        <div className="og-qr">
+          <QrImage code={g.code} />
+          <div className="og-qr-btns">
+            <button type="button" className="btn btn-outline og-btn-sm" onClick={() => saveGroupQr(g, ctx, toast)}>Download QR code (PNG)</button>
+            <button type="button" className="btn btn-outline og-btn-sm" onClick={() => saveGroupPoster(g, ctx, toast)}>Download QR poster (PDF)</button>
           </div>
         </div>
-        <QrImage code={g.code} />
+      </div>
+      <div className="og-gcard-actions">
+        <Link className="btn btn-signal og-btn-sm" to={ctx.dashboardUrl(g)}>Dashboard</Link>
+        <Link className="btn btn-outline og-btn-sm" to={ctx.sharedUrl(ctx.orgId ? { group: g.id } : { org: g.orgId, group: g.id })}>Shared resumes</Link>
+        {ctx.canManage && <button type="button" className="btn btn-outline og-btn-sm" disabled={busy} onClick={() => patch({ settings: { active: !g.settings.active } }, g.settings.active ? 'Joining closed' : 'Joining open')}>{g.settings.active ? 'Close joining' : 'Open joining'}</button>}
+        {ctx.canManage && <button type="button" className="link-btn small" onClick={() => setEditing(!editing)}>{editing ? 'Close' : 'Edit'}</button>}
+        {ctx.role === 'admin' && <button type="button" className="link-btn small" onClick={() => setChecking(true)}>Check members</button>}
       </div>
       {checking && <MembershipCheck g={g} onClose={() => setChecking(false)} />}
-      {editing && <GroupForm ctx={ctx} label={`Edit ${g.name}`} initial={g} busy={busy} onCancel={() => setEditing(false)} onSave={(body) => patch(body, 'Group saved')} />}
+      {editing && <div className="og-gcard-edit"><GroupForm ctx={ctx} label={`Edit ${g.name}`} initial={g} busy={busy} onCancel={() => setEditing(false)} onSave={(body) => patch(body, 'Group saved')} /></div>}
     </section>
   );
 }
@@ -213,10 +242,11 @@ export function GroupCard({ g, ctx, busy, run, reload, toast }) {
 export function NewGroup({ ctx, url, busy, run, reload }) {
   const [adding, setAdding] = useState(false);
   return adding ? (
-    <section className="card stack g12"><strong>New group</strong>
+    <section className="mcard og-newgroup-form">
+      <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">+</span><span className="mcard-ht"><strong className="mcard-title">New group</strong><span className="mcard-sub">One batch, event or drive, with its own join code and QR.</span></span></header>
       <GroupForm ctx={ctx} label="New group" busy={busy} onCancel={() => setAdding(false)} onSave={(body) => run(async () => { await http(url, { method: 'POST', body }); setAdding(false); reload(); }, 'Group created')} />
     </section>
-  ) : <button type="button" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} onClick={() => setAdding(true)}>New group</button>;
+  ) : <button type="button" className="og-newgroup" onClick={() => setAdding(true)}><span className="og-newgroup-plus" aria-hidden="true">+</span>New group</button>;
 }
 
 /* ---------- coordinators (admin only) ---------- */
@@ -400,12 +430,15 @@ function OrgFields({ f, set, idp }) {
 export function AuditList({ url, sub }) {
   const log = useApi(url);
   return (
-    <section className="card stack g12" aria-label="Audit log">
-      <div className="row between g8"><strong>Audit log</strong><button type="button" className="link-btn small" onClick={log.reload}>Refresh</button></div>
-      <span className="xs faint">{sub || 'Every view, download, print, export, reminder and approval of a shared resume, and every organization / group change.'}</span>
+    <section className="mcard og-audit" aria-label="Audit log">
+      <header className="mcard-h">
+        <span className="mcard-ic" aria-hidden="true">☰</span>
+        <span className="mcard-ht"><strong className="mcard-title">Audit log</strong><span className="mcard-sub">{sub || 'Every view, download, print, export, reminder and approval of a shared resume, and every organization / group change.'}</span></span>
+        <span className="mcard-actions"><button type="button" className="btn btn-outline og-btn-sm" onClick={log.reload}>Refresh</button></span>
+      </header>
       <Loading st={log} empty={emptyIf((d) => !d.length, 'Nothing logged yet.')}>{(rows) => (
-        <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table"><thead><tr><th>When</th><th>Who</th><th>Action</th><th>Count</th><th>Details</th></tr></thead>
-          <tbody>{rows.map((a) => <tr key={a.id}><td className="small">{when(a.at)}</td><td className="small">{a.actorName || '—'}{a.byStaff && <div className="xs faint">coordinator</div>}</td><td className="small mono">{a.action}</td><td className="small">{a.count ?? '—'}</td><td className="xs" style={{ maxWidth: 320, overflowWrap: 'anywhere' }}>{auditText(a.details)}</td></tr>)}</tbody></table></div>
+        <div className="table-wrap og-table-wrap mtable-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table og-table mtable"><thead><tr><th>When</th><th>Who</th><th>Action</th><th>Count</th><th>Details</th></tr></thead>
+          <tbody>{rows.map((a) => <tr key={a.id}><td className="small og-nowrap" data-label="When">{when(a.at)}</td><td className="small" data-label="Who"><span>{a.actorName || '—'}{a.byStaff && <span className="xs faint og-block">coordinator</span>}</span></td><td className="small" data-label="Action"><span className="mono og-action">{a.action}</span></td><td className="small" data-label="Count">{a.count ?? '—'}</td><td className="xs og-details" data-label="Details">{auditText(a.details)}</td></tr>)}</tbody></table></div>
       )}</Loading>
     </section>
   );
@@ -413,8 +446,8 @@ export function AuditList({ url, sub }) {
 
 /* ---------- group dashboard ---------- */
 function Tile({ label, value, to }) {
-  const inner = <><span className="xs muted">{label}</span><strong className="display" style={{ fontSize: 26 }}>{value}</strong></>;
-  return to ? <Link to={to} className="card stack g4" style={{ padding: 14, textDecoration: 'none', color: 'inherit' }} aria-label={`${label}: ${value}`}>{inner}</Link> : <div className="card stack g4" style={{ padding: 14 }}>{inner}</div>;
+  const inner = <><span className="og-tile-l">{label}</span><strong className="og-tile-v">{value}</strong>{to && <span className="og-tile-go" aria-hidden="true">See them →</span>}</>;
+  return to ? <Link to={to} className="og-tile og-tile-link" aria-label={`${label}: ${value}`}>{inner}</Link> : <div className="og-tile">{inner}</div>;
 }
 
 /** Remind a segment of a group, or chosen members (one email per member per day, 3 sends per group per day). */
@@ -472,26 +505,34 @@ export function GroupDashboard({ ctx, groupId, onBack }) {
   return (
     <Loading st={st}>{(d) => (
       <>
-        <PageHead title={d.group.name} sub={`Group dashboard · code ${d.group.code}`} right={onBack} />
-        <div className="row g8">
-          {can(ctx, 'remind') && <button type="button" className="btn btn-ink" onClick={() => setReminding(true)} disabled={!d.counts.incomplete && !d.counts.needsChanges}>Remind incomplete</button>}
+        <div className="og-gd-head">
+          <PageHead title={d.group.name} sub={`Group dashboard · code ${d.group.code}`} right={onBack} />
+        </div>
+        <div className="mcard mcard-tight og-toolbar">
+          {can(ctx, 'remind') && <button type="button" className="btn btn-signal" onClick={() => setReminding(true)} disabled={!d.counts.incomplete && !d.counts.needsChanges}>Remind incomplete</button>}
           <button type="button" className="btn btn-outline" disabled={!!job || !d.counts.readyNotPrinted} onClick={printReady}>Print ready & not printed ({d.counts.readyNotPrinted})</button>
           {can(ctx, 'export') && <button type="button" className="btn btn-outline" disabled={busy} onClick={csv}>Download CSV</button>}
           <Link className="btn btn-outline" to={shared({})}>Open the table</Link>
+          {job && <span className="small og-job" role="status">{job}</span>}
         </div>
-        {job && <span className="small" role="status">{job}</span>}
-        <div className="grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 12 }}>
+        <div className="og-tiles">
           {countTiles(d.counts).map(([label, value, filters]) => <Tile key={label} label={label} value={value} to={filters ? shared(filters) : null} />)}
         </div>
-        <div className="row g16" style={{ alignItems: 'stretch' }}>
-          <div className="card" style={{ flex: '2 1 360px', padding: 16, minWidth: 0 }}><BarChart title="Joins per day (last 30 days)" data={joinBars(d.joinsPerDay)} series={[{ key: 'joins', label: 'Joined', color: 'var(--viz-1)' }]} height={150} /></div>
-          <div className="card" style={{ flex: '1 1 240px', padding: 16 }}><HBars title="Resume completeness" rows={bucketRows(d.buckets)} /></div>
+        <div className="og-charts">
+          <div className="mcard og-chart-main"><BarChart title="Joins per day (last 30 days)" data={joinBars(d.joinsPerDay)} series={[{ key: 'joins', label: 'Joined', color: '#0d9488' }]} height={150} /></div>
+          <div className="mcard og-chart-side"><HBars title="Resume completeness" rows={bucketRows(d.buckets)} /></div>
         </div>
-        <section className="card stack g8" aria-label="Incomplete members">
-          <strong>Incomplete resumes ({d.counts.incomplete})</strong>
-          {d.incompleteMembers.length === 0 ? <span className="small muted">Everyone’s resume is at least 80% complete.</span> : (
-            <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table"><thead><tr><th>Member</th><th>Complete</th><th>Missing</th></tr></thead>
-              <tbody>{d.incompleteMembers.map((m) => <tr key={m.membershipId}><td className="small">{m.name}{m.roll && <div className="xs faint">{m.roll}</div>}{m.approval === 'pending' && <span className="badge b-warning">Pending</span>}</td><td className="small">{m.completeness}%</td><td className="small">{m.missing.join(', ')}</td></tr>)}</tbody></table></div>
+        <section className="mcard og-incomplete" aria-label="Incomplete members">
+          <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">!</span><span className="mcard-ht"><strong className="mcard-title">Incomplete resumes ({d.counts.incomplete})</strong><span className="mcard-sub">Students below 80%: what each one still needs to add.</span></span></header>
+          {d.incompleteMembers.length === 0 ? <Empty compact shape="college" tint="college" title="All set">Everyone’s resume is at least 80% complete.</Empty> : (
+            <div className="table-wrap og-table-wrap mtable-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table og-table mtable"><thead><tr><th>Member</th><th>Complete</th><th>Missing</th></tr></thead>
+              <tbody>{d.incompleteMembers.map((m) => (
+                <tr key={m.membershipId}>
+                  <td className="small" data-label="Member"><span className="og-person"><span className="mavatar og-av" aria-hidden="true">{(m.name || '?').trim().charAt(0).toUpperCase()}</span><span className="stack" style={{ minWidth: 0 }}><strong>{m.name}</strong>{m.roll && <span className="xs faint">{m.roll}</span>}{m.approval === 'pending' && <span className="mchip mchip-warn" style={{ alignSelf: 'flex-start' }}>Pending</span>}</span></span></td>
+                  <td className="small og-pct" data-label="Complete"><span className="og-pct-in"><span className={`og-pct-n ${m.completeness >= 60 ? 'mid' : 'low'}`}>{m.completeness}%</span><span className="mbar mbar-warn og-pct-bar" aria-hidden="true"><span style={{ width: `${m.completeness}%` }} /></span></span></td>
+                  <td className="small" data-label="Missing"><span className="og-missing">{m.missing.map((x) => <span key={x} className="mchip mchip-neutral">{x}</span>)}</span></td>
+                </tr>
+              ))}</tbody></table></div>
           )}
         </section>
         {reminding && <RemindDialog ctx={ctx} groupId={groupId} onClose={() => setReminding(false)} onSent={() => st.reload()} />}
@@ -762,7 +803,8 @@ export function SharedResumes({ ctx = ADMIN_CTX, groups: portalGroups = null, ti
   return (
     <>
       <PageHead title={title} sub={sub || 'Resumes members shared with their organization (with consent). Downloads and prints here are free and logged.'} right={right} />
-      <section className="card stack g12" aria-label="Filters">
+      <section className="mcard og-filters" aria-label="Filters">
+        <div className="og-filters-h"><span className="mcard-ic" aria-hidden="true">⌕</span><strong className="mcard-title">Find students</strong>{data && <span className="mchip mchip-accent og-count">{data.total} found</span>}</div>
         <div className="row g12">
           {admin && <div className="field" style={{ flex: '1 1 200px' }}><label className="label" htmlFor="sf-org">Organization</label>
             <select id="sf-org" className="input" style={inputStyle} value={filters.org || ''} onChange={(e) => setFilter({ org: e.target.value, group: '' })}><option value="">All</option>{orgs.data?.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}</select></div>}
@@ -789,29 +831,29 @@ export function SharedResumes({ ctx = ADMIN_CTX, groups: portalGroups = null, ti
           </div>
           {recruiting && <div className="field" style={{ flex: '1 1 180px' }}><label className="label" htmlFor="sf-short">Shortlisted by</label>
             <select id="sf-short" className="input" style={inputStyle} value={filters.shortlistedBy || ''} onChange={(e) => setFilter({ shortlistedBy: e.target.value })}><option value="">Any</option>{shortlists.map((l) => <option key={l.id} value={l.id}>{l.label}</option>)}</select></div>}
-          <label className="row g8 small"><input type="checkbox" checked={!!filters.incomplete} onChange={(e) => setFilter({ incomplete: e.target.checked })} /> Incomplete only</label>
-          <label className="row g8 small"><input type="checkbox" checked={!!filters.notPrinted} onChange={(e) => setFilter({ notPrinted: e.target.checked })} /> Not printed yet</label>
-          <label className="row g8 small"><input type="checkbox" checked={!!filters.readyNotPrinted} onChange={(e) => setFilter({ readyNotPrinted: e.target.checked })} /> Ready & not printed</label>
+          <label className="og-pill-check small"><input type="checkbox" checked={!!filters.incomplete} onChange={(e) => setFilter({ incomplete: e.target.checked })} /> Incomplete only</label>
+          <label className="og-pill-check small"><input type="checkbox" checked={!!filters.notPrinted} onChange={(e) => setFilter({ notPrinted: e.target.checked })} /> Not printed yet</label>
+          <label className="og-pill-check small"><input type="checkbox" checked={!!filters.readyNotPrinted} onChange={(e) => setFilter({ readyNotPrinted: e.target.checked })} /> Ready & not printed</label>
           {Object.keys(filters).length > 0 && <button type="button" className="link-btn small" onClick={() => { setQ(''); setParams({}, { replace: true }); setSelected(new Set()); }}>Clear filters</button>}
         </div>
       </section>
 
-      <section className="card stack g12" aria-label="Bulk actions">
+      <section className="mcard og-bulk" aria-label="Bulk actions">
         <div className="row between g12" style={{ alignItems: 'center' }}>
-          <strong>Print or export {scope}</strong>
+          <strong className="og-bulk-t"><span className="mcard-ic" aria-hidden="true">⎙</span>Print or export {scope}</strong>
           {selected.size > 0 && <button type="button" className="link-btn small" onClick={() => setSelected(new Set())}>Clear selection</button>}
         </div>
         <div className="row g12" style={{ alignItems: 'center' }}>
           <label className="row g8 small">Order by <select className="input" style={{ height: 36, width: 'auto' }} value={printSort} onChange={(e) => setPrintSort(e.target.value)}><option value="roll">Roll number</option><option value="name">Name</option></select></label>
-          <label className="row g8 small"><input type="checkbox" checked={cover} onChange={(e) => setCover(e.target.checked)} /> Cover page</label>
-          <label className="row g8 small"><input type="checkbox" checked={onlyReady} onChange={(e) => setOnlyReady(e.target.checked)} /> Export only Ready</label>
-          <button type="button" className="btn btn-ink" disabled={!!job || !data?.total} onClick={() => exportJob('print_bulk', ids, 'Combined PDF')}>Combined PDF</button>
+          <label className="og-pill-check small"><input type="checkbox" checked={cover} onChange={(e) => setCover(e.target.checked)} /> Cover page</label>
+          <label className="og-pill-check small"><input type="checkbox" checked={onlyReady} onChange={(e) => setOnlyReady(e.target.checked)} /> Export only Ready</label>
+          <button type="button" className="btn btn-signal" disabled={!!job || !data?.total} onClick={() => exportJob('print_bulk', ids, 'Combined PDF')}>Combined PDF</button>
           {can(ctx, 'export') && <button type="button" className="btn btn-outline" disabled={!!job || !data?.total} onClick={() => exportJob('export_zip', ids, 'ZIP of PDFs')}>ZIP (one PDF each)</button>}
           {can(ctx, 'export') && <button type="button" className="btn btn-outline" disabled={busy || !data?.total} onClick={csv}>CSV</button>}
           {recruiting && can(ctx, 'manage') && <button type="button" className="btn btn-outline" disabled={!data?.total} onClick={() => setDialog('share')}>Share with a recruiter…</button>}
         </div>
         {can(ctx, 'approve') && (
-          <div className="row g8" style={{ alignItems: 'center' }} aria-label="Review actions">
+          <div className="row g8 og-review" style={{ alignItems: 'center' }} aria-label="Review actions">
             <span className="small muted">Selected ({selected.size}):</span>
             <button type="button" className="btn btn-outline" style={{ minHeight: 34 }} disabled={busy || !selected.size} onClick={() => act('approval', { action: 'approve' }, 'Approved')}>Approve</button>
             <button type="button" className="btn btn-outline" style={{ minHeight: 34 }} disabled={busy || !selected.size} onClick={() => act('approval', { action: 'reject' }, 'Rejected')}>Reject</button>
@@ -824,7 +866,7 @@ export function SharedResumes({ ctx = ADMIN_CTX, groups: portalGroups = null, ti
         {job && (
           <div className="stack g4" role="status" aria-live="polite">
             <div className="row between g8 small"><span>{job.label} · {job.stage} · {job.done} of {job.total}</span><button type="button" className="link-btn small" onClick={() => stop.current?.abort()}>Stop</button></div>
-            <progress max={job.total || 1} value={job.done} style={{ width: '100%' }} aria-label="Export progress" />
+            <progress max={job.total || 1} value={job.done} className="og-progress" aria-label="Export progress" />
             <span className="xs faint">Keep this tab open. The PDFs are drawn in this browser, so nothing times out.</span>
           </div>
         )}
@@ -833,8 +875,8 @@ export function SharedResumes({ ctx = ADMIN_CTX, groups: portalGroups = null, ti
 
       <Loading st={st} empty={emptyIf((d) => d.total === 0, Object.keys(filters).length ? 'No shared resumes match these filters.' : 'No shared resumes yet. Share a group’s join link or QR code.')}>{(d) => (
         <>
-          <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ padding: 0 }}>
-            <table className="table" aria-label="Shared resumes">
+          <div className="mcard table-wrap og-table-wrap og-shared-wrap mtable-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ padding: 0 }}>
+            <table className="table og-table og-shared mtable" aria-label="Shared resumes">
               <thead><tr>
                 <th><input type="checkbox" aria-label="Select all on this page" checked={allOnPage} onChange={() => setSelected((s) => { const n = new Set(s); pageIds.forEach((i) => (allOnPage ? n.delete(i) : n.add(i))); return n; })} /></th>
                 {(recruiting ? [...COLS, [null, 'Shortlisted']] : COLS).map(([k, l]) => <th key={l} aria-sort={k && sort === k ? (dir === 'asc' ? 'ascending' : 'descending') : undefined}>{k ? <button type="button" className="link-btn small" style={{ fontWeight: 600, textAlign: 'left' }} onClick={() => setSort(k)}>{l}{sort === k ? (dir === 'asc' ? ' ↑' : ' ↓') : ''}</button> : l}</th>)}
@@ -842,17 +884,17 @@ export function SharedResumes({ ctx = ADMIN_CTX, groups: portalGroups = null, ti
               </tr></thead>
               <tbody>{d.rows.map((r) => (
                 <tr key={r.membershipId}>
-                  <td><input type="checkbox" aria-label={`Select ${r.name}`} checked={selected.has(r.membershipId)} onChange={() => toggle(r.membershipId)} /></td>
-                  <td className="small"><strong>{r.name}</strong><div className="xs faint">{r.email}{r.phone ? ` · ${r.phone}` : ''}</div></td>
-                  <td className="small">{r.orgName}<div className="xs faint">{r.groupName}</div></td>
-                  <td className="xs">{(r.fieldDefs || []).filter((f) => r.fields[f.key]).map((f) => <div key={f.key}>{f.label}: {r.fields[f.key]}</div>)}</td>
-                  <td className="small">{r.resumeTitle}{r.sample && <span className="badge b-warning" style={{ marginLeft: 6 }} data-testid="sample-badge" title="Still holds the example person’s details (Sai Varsha) from an older version of the builder">Contains sample data</span>}<div className="xs faint">{TEMPLATE_PRESETS[r.template]?.name || 'Custom'}{r.pages ? ` · ${r.pages} page${r.pages > 1 ? 's' : ''}` : ''}</div></td>
-                  <td className="small"><span className={`badge ${r.completeness === 100 ? 'b-success' : 'b-warning'}`} title={r.missing.length ? `Missing: ${r.missing.join(', ')}` : 'Complete'}>{r.completeness}%</span></td>
-                  <td className="small" data-testid="status">{statusBadge(r)}</td>
-                  <td className="small">{day(r.updatedAt)}</td>
-                  <td className="small">{r.printedAt ? <>{day(r.printedAt)}{r.printedCount > 1 ? <div className="xs faint">{r.printedCount}×</div> : null}</> : <span className="muted">{r.printedCount ? `Reprint (${r.printedCount}×)` : 'Not yet'}</span>}</td>
-                  {recruiting && <td className="xs" data-testid="shortlisted">{r.shortlistedBy?.length ? r.shortlistedBy.map((x) => <div key={x.linkId}>Shortlisted by {x.company}</div>) : <span className="faint">—</span>}</td>}
-                  <td><div className="row g8" style={{ flexWrap: 'nowrap' }}>
+                  <td className="og-sel"><input type="checkbox" aria-label={`Select ${r.name}`} checked={selected.has(r.membershipId)} onChange={() => toggle(r.membershipId)} /></td>
+                  <td className="small og-name-cell" data-label="Name"><span className="og-person"><span className="mavatar og-av" aria-hidden="true">{(r.name || '?').trim().charAt(0).toUpperCase()}</span><span className="stack" style={{ minWidth: 0 }}><strong>{r.name}</strong><span className="xs faint og-wrap">{r.email}{r.phone ? ` · ${r.phone}` : ''}</span></span></span></td>
+                  <td className="small" data-label="Group"><span>{r.orgName}<span className="xs faint og-block">{r.groupName}</span></span></td>
+                  <td className="xs" data-label="Fields"><span>{(r.fieldDefs || []).filter((f) => r.fields[f.key]).map((f) => <span key={f.key} className="og-block">{f.label}: {r.fields[f.key]}</span>)}</span></td>
+                  <td className="small" data-label="Resume"><span>{r.resumeTitle}{r.sample && <span className="badge b-warning" style={{ marginLeft: 6 }} data-testid="sample-badge" title="Still holds the example person’s details (Sai Varsha) from an older version of the builder">Contains sample data</span>}<span className="xs faint og-block">{TEMPLATE_PRESETS[r.template]?.name || 'Custom'}{r.pages ? ` · ${r.pages} page${r.pages > 1 ? 's' : ''}` : ''}</span></span></td>
+                  <td className="small" data-label="Complete"><span className={`mchip ${r.completeness === 100 ? 'mchip-ok' : 'mchip-warn'}`} title={r.missing.length ? `Missing: ${r.missing.join(', ')}` : 'Complete'}>{r.completeness}%</span></td>
+                  <td className="small" data-testid="status" data-label="Status">{statusBadge(r)}</td>
+                  <td className="small og-nowrap" data-label="Updated">{day(r.updatedAt)}</td>
+                  <td className="small" data-label="Printed">{r.printedAt ? <>{day(r.printedAt)}{r.printedCount > 1 ? <div className="xs faint">{r.printedCount}×</div> : null}</> : <span className="muted">{r.printedCount ? `Reprint (${r.printedCount}×)` : 'Not yet'}</span>}</td>
+                  {recruiting && <td className="xs" data-testid="shortlisted" data-label="Shortlisted">{r.shortlistedBy?.length ? r.shortlistedBy.map((x) => <div key={x.linkId}>Shortlisted by {x.company}</div>) : <span className="faint">—</span>}</td>}
+                  <td className="og-row-actions"><div className="row g8" style={{ flexWrap: 'nowrap' }}>
                     <button type="button" className="link-btn small" onClick={() => setViewing(r)}>View</button>
                     {r.approval === 'approved' && <button type="button" className="link-btn small" disabled={!!job} onClick={() => rowAction('download', r)}>PDF</button>}
                     {r.approval === 'approved' && <button type="button" className="link-btn small" disabled={!!job} onClick={() => rowAction('print', r)}>Print</button>}
@@ -861,7 +903,7 @@ export function SharedResumes({ ctx = ADMIN_CTX, groups: portalGroups = null, ti
               ))}</tbody>
             </table>
           </div>
-          <div className="row between g8 small">
+          <div className="row between g8 small og-pager">
             <span>{d.total} shared resume{d.total === 1 ? '' : 's'} · page {page} of {pages}</span>
             <div className="row g8">
               <button type="button" className="btn btn-outline" style={{ minHeight: 34 }} disabled={page <= 1} onClick={() => goPage(page - 1)}>Previous</button>

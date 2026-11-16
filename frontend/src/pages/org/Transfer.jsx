@@ -7,6 +7,8 @@ import { Spinner, useToast } from '../../components/ui';
 import { http } from '../../services/http';
 import { Loading, day, emptyIf, useAction, useApi } from '../admin/live/common';
 import { MeHead } from '../me/MeLayout';
+import '../../styles/me-kit.css';
+import '../../styles/org-signup.css';
 
 /** Org > Team: start, see and cancel a transfer (Owner). `base` is the transfer endpoint (Owner or admin). */
 export function TransferOwnership({ base, team = [], admin = false }) {
@@ -16,27 +18,26 @@ export function TransferOwnership({ base, team = [], admin = false }) {
   const [f, setF] = useState({ toEmail: '', oldOwner: 'coordinator' });
   const others = team.filter((s) => s.status === 'active' && s.role !== 'owner');
   return (
-    <section className="card stack g12" aria-label="Transfer ownership" data-testid="transfer">
-      <strong>Transfer ownership</strong>
-      <span className="xs muted">{admin ? 'On the Owner’s request.' : 'Hand the organization to someone else.'} The new owner gets a code by email and confirms it signed in with that address. The plan, invoices and payment reminders move with the organization. Written to the Activity log.</span>
+    <section className="mcard ot-card" aria-label="Transfer ownership" data-testid="transfer">
+      <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">⇄</span><span className="mcard-ht"><strong className="mcard-title">Transfer ownership</strong><span className="mcard-sub">{admin ? 'On the Owner’s request.' : 'Hand the organization to someone else.'} The new owner gets a code by email and confirms it signed in with that address. The plan, invoices and payment reminders move with the organization. Written to the Activity log.</span></span></header>
       <Loading st={st}>{({ transfer: t }) => (t ? (
-        <div className="well stack g8" data-testid="transfer-pending">
+        <div className="ot-pending stack g8" data-testid="transfer-pending">
           <span className="small">Waiting for <strong>{t.toEmail}</strong> to confirm (until {day(t.expiresAt)}). After that, {admin ? 'the old Owner' : 'you'} {t.oldOwner === 'leave' ? 'will leave the organization' : 'will stay as a coordinator'}.</span>
           <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start', minHeight: 36 }} disabled={busy} onClick={() => run(async () => { await http(base, { method: 'DELETE' }); st.reload(); }, 'Transfer cancelled')} data-testid="transfer-cancel">Cancel transfer</button>
         </div>
       ) : (
-        <form className="stack g12" onSubmit={(e) => { e.preventDefault(); if (window.confirm(`Make ${f.toEmail} the Owner? They confirm with a code sent to that address.`)) run(async () => { await http(base, { method: 'POST', body: f }); st.reload(); }, 'Code sent to the new owner'); }}>
+        <form className="stack g12 ot-form" onSubmit={(e) => { e.preventDefault(); if (window.confirm(`Make ${f.toEmail} the Owner? They confirm with a code sent to that address.`)) run(async () => { await http(base, { method: 'POST', body: f }); st.reload(); }, 'Code sent to the new owner'); }}>
           <div className="field"><label className="label" htmlFor="tr-e">New owner’s email</label>
             <input id="tr-e" type="email" className="input" required list="tr-team" value={f.toEmail} onChange={(e) => setF({ ...f, toEmail: e.target.value })} data-testid="transfer-email" />
             <datalist id="tr-team">{others.map((s) => <option key={s.id} value={s.email}>{s.name || s.email}</option>)}</datalist>
             {others.length > 0 && <span className="xs muted">Pick one of your coordinators, or type any email address.</span>}
           </div>
-          <fieldset className="stack g4" style={{ border: 0, padding: 0 }}>
+          <fieldset className="ot-choice" style={{ border: 0, padding: 0, margin: 0 }}>
             <legend className="label">{admin ? 'Then the old Owner' : 'Then you'}</legend>
-            <label className="row g8 small"><input type="radio" name="tr-old" checked={f.oldOwner === 'coordinator'} onChange={() => setF({ ...f, oldOwner: 'coordinator' })} />{admin ? 'stays' : 'stay'} as a coordinator</label>
-            <label className="row g8 small"><input type="radio" name="tr-old" checked={f.oldOwner === 'leave'} onChange={() => setF({ ...f, oldOwner: 'leave' })} data-testid="transfer-leave" />{admin ? 'leaves' : 'leave'} the organization</label>
+            <label className={`ot-opt ${f.oldOwner === 'coordinator' ? 'on' : ''}`}><input type="radio" name="tr-old" checked={f.oldOwner === 'coordinator'} onChange={() => setF({ ...f, oldOwner: 'coordinator' })} />{admin ? 'stays' : 'stay'} as a coordinator</label>
+            <label className={`ot-opt ${f.oldOwner === 'leave' ? 'on' : ''}`}><input type="radio" name="tr-old" checked={f.oldOwner === 'leave'} onChange={() => setF({ ...f, oldOwner: 'leave' })} data-testid="transfer-leave" />{admin ? 'leaves' : 'leave'} the organization</label>
           </fieldset>
-          <button type="submit" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={busy} data-testid="transfer-start">Send code to the new owner</button>
+          <button type="submit" className="btn btn-signal" style={{ alignSelf: 'flex-start' }} disabled={busy} data-testid="transfer-start">Send code to the new owner</button>
         </form>
       ))}</Loading>
     </section>
@@ -60,19 +61,24 @@ export default function AcceptTransfer() {
     } catch (e) { setErr(e.message); } finally { setBusy(''); }
   };
   return (
-    <main id="main" className="container stack g16" style={{ maxWidth: 640, padding: '32px 16px 64px' }}>
+    <main id="main" className="container stack g16 ot-page" style={{ maxWidth: 680, padding: '32px 16px 64px' }}>
       <MeHead title="Become the Owner" sub="Enter the 6-digit code from the email we sent you." />
       <Loading st={st} empty={emptyIf((d) => !d.length, 'Nothing is waiting for this email address. Check you are signed in with the address the code was sent to.')}>{(rows) => rows.map((t) => (
-        <form key={t.id} className="card stack g12" data-testid="accept-transfer" onSubmit={(e) => { e.preventDefault(); accept(t); }}>
-          <strong>{t.orgName}</strong>
-          <span className="small muted">{t.fromName || 'The Owner'} wants to make you the Owner. You’ll choose and pay for the plan, invite coordinators and run placement drives.</span>
-          <div className="field" style={{ maxWidth: 220 }}><label className="label" htmlFor={`tc-${t.id}`}>Code</label>
+        <form key={t.id} className="mcard ot-accept" data-testid="accept-transfer" onSubmit={(e) => { e.preventDefault(); accept(t); }}>
+          <div className="ot-accept-top">
+            <span className="ot-avatar" aria-hidden="true">{(t.orgName || '?').trim().charAt(0).toUpperCase()}</span>
+            <span className="stack g4" style={{ minWidth: 0 }}>
+              <strong className="ot-org">{t.orgName}</strong>
+              <span className="small muted">{t.fromName || 'The Owner'} wants to make you the Owner. You’ll choose and pay for the plan, invite coordinators and run placement drives.</span>
+            </span>
+          </div>
+          <div className="field ot-code"><label className="label" htmlFor={`tc-${t.id}`}>Code</label>
             <input id={`tc-${t.id}`} className="input mono" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={code[t.id] || ''} onChange={(e) => setCode({ ...code, [t.id]: e.target.value.replace(/\D/g, '') })} data-testid="accept-code" /></div>
           {err && <span className="small" role="alert" style={{ color: 'var(--danger)' }}>{err}</span>}
-          <button type="submit" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={!!busy || (code[t.id] || '').length !== 6} data-testid="accept-go">{busy === t.id && <Spinner />}Become the Owner</button>
+          <button type="submit" className="btn btn-signal" style={{ alignSelf: 'flex-start' }} disabled={!!busy || (code[t.id] || '').length !== 6} data-testid="accept-go">{busy === t.id && <Spinner />}Become the Owner</button>
         </form>
       ))}</Loading>
-      <Link to="/org" className="small">← My organizations</Link>
+      <Link to="/org" className="btn btn-outline" style={{ alignSelf: 'flex-start' }}>← My organizations</Link>
     </main>
   );
 }

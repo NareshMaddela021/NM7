@@ -32,11 +32,11 @@ export default function DemoVideo({ t = (k) => translate('en', k), lang }) {
   useEffect(() => { if (playing) video.current?.play?.().catch(() => { /* the controls are there to press */ }); }, [playing]);
   const src = phone ? DEMO.tall : DEMO.wide;
   const poster = phone ? DEMO.posterTall : DEMO.poster;
-  const box = { position: 'relative', width: '100%', aspectRatio: phone ? '9 / 16' : '16 / 9', maxHeight: phone ? '80vh' : undefined, margin: phone ? '0 auto' : undefined, borderRadius: 16, overflow: 'hidden', background: '#0b1020' };
+  const box = { position: 'relative', width: '100%', aspectRatio: phone ? '9 / 16' : '16 / 9', maxHeight: phone ? '80vh' : undefined, margin: phone ? '0 auto' : undefined, borderRadius: 18, overflow: 'hidden', background: '#0b1020', boxShadow: '0 18px 40px -22px rgba(15, 118, 110, .55)' };
   if (phone) box.maxWidth = 'calc(80vh * 9 / 16)';
   return (
-    <section className="stack g12" aria-labelledby="demo-h" data-testid="demo-video" lang={lang}>
-      <h2 id="demo-h" className="display h3">{t('orgs.demo.title')}</h2>
+    <section className="stack g12 fo-card fo-demo" aria-labelledby="demo-h" data-testid="demo-video" lang={lang}>
+      <div className="fo-card-h"><span className="fo-card-ic" aria-hidden="true">▶</span><h2 id="demo-h" className="display h3">{t('orgs.demo.title')}</h2></div>
       <div style={box}>
         {playing ? (
           <video key={src} ref={video} src={src} poster={poster} controls playsInline preload="none" data-testid="demo-player"
@@ -52,7 +52,7 @@ export default function DemoVideo({ t = (k) => translate('en', k), lang }) {
           </button>
         )}
       </div>
-      <div className="row g12" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
+      <div className="row g12 fo-demo-foot" style={{ flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
         <span className="xs muted">{t('orgs.demo.note')}</span>
         <a className="btn btn-outline" href={DEMO.tall} download={fileName(['Nm7', 'demo', 'WhatsApp'], 'mp4')} data-testid="demo-whatsapp">{t('orgs.demo.wa')}</a>
       </div>
