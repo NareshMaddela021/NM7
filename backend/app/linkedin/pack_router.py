@@ -45,7 +45,7 @@ class PackStatusOut(CamelModel):
     payments_on: bool
     on_sale: bool  # payments on and the plan active in Admin > Settings & prices
     price: float  # rupees
-    mode: Literal["off", "whatsapp", "razorpay"] = "off"  # how it is bought: Buy on WhatsApp or Razorpay's checkout
+    mode: Literal["off", "razorpay"] = "off"  # off: "Payments coming soon"; razorpay: Razorpay's checkout
 
 
 def _ms(dt: datetime | None) -> int | None:

@@ -8,7 +8,7 @@ admin's plan editor, billing settings and per-organization billing.
   GET  /api/org/{org_id}/billing/quote?plan=      Owner: price − discount + GST, before paying
   POST /api/org/{org_id}/billing/checkout         Owner: a Razorpay order (the plan turns on from the webhook)
   POST /api/org/{org_id}/billing/code             Owner: a code that makes the plan free turns it on now
-  (quote, checkout and WhatsApp take an optional code: Admin → Codes; one per order, instead of a partner code)
+  (quote and checkout take an optional code: Admin → Codes; one per order, instead of a partner code)
   GET/PUT  /api/admin/billing/settings            supplier details, GST rate, grace, commission, test/live …
   GET  /api/admin/billing/plans · PUT …/{plan}    the plans editor (each save is a new version)
   GET  /api/admin/billing/summary                 org revenue after refunds, active paid orgs, renewals due
@@ -398,24 +398,6 @@ async def checkout(body: CheckoutIn, request: Request, auth: CustomerAuth, db: D
     data = scope.audit_data(plan=body.plan_id, order_id=out["orderId"], amount=out["amount"], ref=extra.get("ref_code"))
     await audit(db, scope.actor_id, "billing_checkout", target=scope.org_id, data=data, ip=client_ip(request))
     return _with_ref(out, r)
-
-
-@portal.post("/whatsapp", status_code=201)
-async def checkout_whatsapp(
-    body: CheckoutIn, request: Request, auth: CustomerAuth, db: DB, scope: OrgScope
-) -> dict[str, Any]:
-    """Retired: a free code still unlocks the plan here; anything to pay goes through Razorpay (410)."""
-    _owner_pays(scope)
-    key = f"org-checkout:{scope.org_id}"
-    await rate_limit.check(db, key, CHECKOUT_RULES)
-    await rate_limit.record(db, key)
-    o = await _org(db, scope.org_id)
-    q, r, c = await _priced(db, o, auth.user.id, request, body.plan_id, body.ref_code, body.code)
-    if c and q["total"] <= 0:
-        return await _redeem(db, o, auth, scope, request, q, c, r)
-    raise ApiError(  # paying on WhatsApp is retired: Razorpay checkout (POST …/checkout) or an emailed payment link
-        410, "whatsapp_payments_retired", "Paying on WhatsApp has been replaced by Razorpay. Use the Pay button."
-    )
 
 
 # ---------- admin: billing settings ----------

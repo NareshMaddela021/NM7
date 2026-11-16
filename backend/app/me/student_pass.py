@@ -2,7 +2,7 @@
 Word downloads, the Tailor pack, the Interview pack (with voice practice) and the LinkedIn pack. The single
 purchases stay on sale.
 
-A pass is a paid order of the plan `annual_pass` (WhatsApp, Razorpay later, or a free code), or an admin grant. It
+A pass is a paid order of the plan `annual_pass` (Razorpay, an old WhatsApp order or a free code), or an admin grant. It
 runs 12 months from the payment; a second pass bought before the first ends starts when the first ends. A refund or
 cancel takes it away at once (checked against the orders themselves). When it ends, things bought separately stay
 unlocked and only pass access stops; resumes and data are never locked or deleted.

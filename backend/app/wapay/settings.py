@@ -9,7 +9,6 @@ Razorpay (or off while the keys are missing). Past WhatsApp orders stay read-onl
 the WhatsApp number is no longer used or shown anywhere for payments.
 """
 
-import re
 from typing import Any, Literal
 
 from pymongo.asynchronous.database import AsyncDatabase
@@ -20,20 +19,9 @@ from app.core.db import SETTINGS, Session
 PAYMENTS = "payments"
 Mode = Literal["off", "razorpay"]
 DEFAULTS: dict[str, Any] = {
-    "mode": None,  # not chosen yet: Razorpay if its keys are set, else off
-    "whatsapp_number": "",  # +91XXXXXXXXXX
-    "reply_hours": "",  # e.g. "We reply 9 am - 9 pm"
-    "cancel_after_hours": 72,  # unpaid WhatsApp orders are cancelled after this long
+    "mode": None,  # not chosen yet: Razorpay as soon as its keys are set, else off
+    "cancel_after_hours": 72,  # old unpaid WhatsApp orders are cancelled after this long (unless a link is open)
 }
-PHONE = re.compile(r"^(?:\+?91[\s-]?)?([6-9]\d{4})[\s-]?(\d{5})$")
-
-
-def normalize_number(v: str) -> str:
-    """'+91 98765 43210' / '9876543210' → '+919876543210'; ValueError when it isn't an Indian mobile number."""
-    m = PHONE.match((v or "").strip())
-    if not m:
-        raise ValueError("Enter an Indian mobile number, like +91 98765 43210.")
-    return f"+91{m.group(1)}{m.group(2)}"
 
 
 def razorpay_ready() -> bool:
@@ -48,6 +36,16 @@ async def get_payments(db: AsyncDatabase, session: Session = None) -> dict[str, 
 
 async def save_payments(db: AsyncDatabase, changes: dict[str, Any]) -> None:
     await db[SETTINGS].update_one({"_id": PAYMENTS}, {"$set": changes}, upsert=True)
+
+
+async def forget_whatsapp_number(db: AsyncDatabase) -> bool:
+    """WhatsApp payments are gone: the WhatsApp number and reply hours once saved for them are deleted (run by the
+    automation pass; a no-op once done)."""
+    r = await db[SETTINGS].update_one(
+        {"_id": PAYMENTS, "$or": [{"whatsapp_number": {"$exists": True}}, {"reply_hours": {"$exists": True}}]},
+        {"$unset": {"whatsapp_number": "", "reply_hours": ""}},
+    )
+    return bool(r.modified_count)
 
 
 def mode_of(p: dict[str, Any]) -> Mode:

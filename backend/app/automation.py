@@ -41,6 +41,7 @@ from app.seek.first90 import send_weekly as weekly_progress
 from app.seek.paths import send_nudges as learn_nudges
 from app.site import get_site, save_site
 from app.wapay.service import cancel_stale
+from app.wapay.settings import forget_whatsapp_number
 
 log = logging.getLogger("nm7.automation")
 EVERY = timedelta(minutes=10)
@@ -146,6 +147,7 @@ async def run_rules(db: AsyncDatabase, mailer: Mailer | None = None) -> dict[str
             done[key] = await RUNNERS[key](db, int(rule["value"]), mailer or get_mailer())
             prev = runs.get(key, {})
             runs[key] = {"last_run": now(), "acted": prev.get("acted", 0) + done[key]}
+        done["whatsapp_number_removed"] = int(await forget_whatsapp_number(db))  # WhatsApp payments are gone
         done["whatsapp_cancel"] = await cancel_stale(db)  # old WhatsApp orders (not while a payment link is open)
         done["payment_reminders"] = await payment_reminders(db, mailer or get_mailer())  # ≤ 2 per unpaid order
         done["payment_check_flags"] = await payment_check(db)  # once a day: nm7.si vs Razorpay

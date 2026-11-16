@@ -228,7 +228,7 @@ async def request_refund(
         raise ApiError(409, "cannot_cancel", "An expert has already started. Choose another reason instead.")
 
     payment = await captured_payment(db, order)
-    # paid on WhatsApp: always reviewed, and the admin sends the money back by UPI / bank (app/wapay)
+    # an old WhatsApp order: always reviewed (its money went outside Razorpay, so it is returned by bank / UPI)
     auto = body.reason in ("late", "cancel") and order.method != "whatsapp"
     rzp = get_razorpay() if auto else None  # 503 before anything is saved
     refund = await new_refund(

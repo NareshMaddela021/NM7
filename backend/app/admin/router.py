@@ -344,7 +344,11 @@ async def approve_refund(
 ) -> AdminRefundOut:
     before, order, user = await _refund_in_review(db, refund_id)
     if order.method == "whatsapp":
-        raise ApiError(409, "whatsapp_order", "Paid on WhatsApp: refund it from Orders → WhatsApp payments.")
+        raise ApiError(
+            409,
+            "whatsapp_order",
+            "Old WhatsApp order (paid outside Razorpay): return it by bank / UPI, then reject this with a note.",
+        )
     rzp = get_razorpay()
     remaining = await refundable_amount(db, order)  # the order total less earlier refunds
     amount = body.amount or min(before.amount, remaining)
