@@ -2,6 +2,9 @@
 // Improve", the experience band and when it can be taken again. A result we couldn't confirm gets a polite free
 // retest; a pass opens the practical task (Task.jsx, loaded when opened); the test and the task together give the
 // "Skill verified" badge for 90 days.
+// Vetting V5: a calm line on how the test went (integrityNote), the top 3 topics to improve with Learn / Practice links,
+// "I think this is wrong" on the check and on a graded task (Appeal.jsx), and a refresher result (kind "refresh") that
+// renews the badge instead of opening a task.
 import { Suspense, lazy, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useToast } from '../../../components/ui';
@@ -9,6 +12,7 @@ import { http } from '../../../services/http';
 import { lazyRetry } from '../../../lib/chunks';
 import { Bar, Chip, MeCard, ScoreRing, Skel } from '../kit';
 import { API, badgeLine, day } from './lib';
+import { Appeal, useAppeals } from './Appeal';
 import '../../../styles/me-vet.css';
 
 const Task = lazy(lazyRetry(() => import('./Task')));
@@ -23,9 +27,9 @@ export function VerifiedBadge({ v, role }) {
   );
 }
 
-function TaskState({ r, onOpen }) {
+function TaskState({ r, onOpen, appeals }) {
   const t = r.task;
-  if (!t || r.retest) return null;
+  if (!t || r.retest || r.kind === 'refresh') return null;
   if (t.status === 'locked') return null;
   if (t.status === 'open' || t.status === 'started') {
     return (
@@ -52,12 +56,25 @@ function TaskState({ r, onOpen }) {
         </ul>
       )}
       {t.photo && <span className="xs muted">{t.photo.checked ? 'Your photo was checked.' : 'We couldn’t use your photo; that doesn’t change the score.'}</span>}
+      {t.status === 'graded' && <Appeal kind="task" refId={r.id} what="the practical task’s marks" appeals={appeals} />}
     </MeCard>
   );
 }
 
+/** `improve` is [{ topic, score, learn, practice }] (V5); older results had plain topic names. */
+const improveList = (r) => (r.improve || []).map((x) => (typeof x === 'string' ? { topic: x } : x)).filter((x) => x?.topic);
+
+function Refreshed({ r }) {
+  const v = r.verified;
+  const renewed = r.pass && !r.retest && v && !v.expired && v.expiresAt - r.startedAt > 60 * 86_400_000; // renewed: about 90 days from now
+  return renewed
+    ? <MeCard tone="ok" icon="✓" title="Badge renewed" sub={`Your badge is valid until ${day(v.expiresAt)}. Nothing else to do.`} testid="vt-renewed" />
+    : <MeCard tone="flat" icon="ⓘ" title="Not renewed this time" sub="The refresher needs 70 or more. You can take the full skill check to earn the badge again." testid="vt-renewed" />;
+}
+
 export default function Result({ id, initial, onRetest }) {
   const toast = useToast();
+  const appeals = useAppeals();
   const [r, setR] = useState(initial || null);
   const [err, setErr] = useState('');
   const [task, setTask] = useState(false);
@@ -74,6 +91,7 @@ export default function Result({ id, initial, onRetest }) {
   if (!r) return <Skel cards={1} lines={4} label="Loading your result" />;
   if (!r.done) return <MeCard title="This test isn’t finished" sub="Go back to the skill checks to carry on." />;
   const name = r.role || r.skill;
+  const improve = improveList(r);
   return (
     <div className="mstack" data-testid="vt-result">
       <section className={`mcard ${r.pass && !r.retest ? 'mcard-accent' : ''}`} aria-label={`${name} result`}>
@@ -87,6 +105,7 @@ export default function Result({ id, initial, onRetest }) {
                 : r.pass ? <Chip tone="ok" testid="vt-pass">Passed · {r.score}/100</Chip>
                   : <Chip tone="warn" testid="vt-pass">Not passed · {r.score}/100 (pass is 70)</Chip>}
               <Chip tone="neutral">{r.bandLabel}</Chip>
+              {r.kind === 'refresh' && <Chip tone="accent">Badge refresher</Chip>}
               {r.late && <Chip tone="warn">Time ran out</Chip>}
             </span>
             <span className="small">{r.right} of {r.total} right.</span>
@@ -94,7 +113,14 @@ export default function Result({ id, initial, onRetest }) {
           </div>
         </div>
         <VerifiedBadge v={r.verified} role={name} />
+        <Appeal kind="skill" refId={r.id} what="this skill check" appeals={appeals} />
       </section>
+
+      {r.kind === 'refresh' && <Refreshed r={r} />}
+
+      {!r.retest && r.integrityNote && (
+        <div className="vet-calm" data-testid="vt-integrity-note"><span aria-hidden="true">ⓘ</span><span className="small"><strong>How the test went:</strong> {r.integrityNote}</span></div>
+      )}
 
       {r.retest && (
         <MeCard tone="flat" icon="ⓘ" title="Please take a free retest" testid="vt-retest">
@@ -106,10 +132,29 @@ export default function Result({ id, initial, onRetest }) {
       )}
 
       {Object.keys(r.topics || {}).length > 0 && (
-        <MeCard title="By topic" sub={[r.strong?.length ? `Strong: ${r.strong.join(', ')}` : '', r.improve?.length ? `Improve: ${r.improve.join(', ')}` : ''].filter(Boolean).join(' · ') || 'Steady across the topics.'} testid="vt-topics">
+        <MeCard title="By topic" sub={[r.strong?.length ? `Strong: ${r.strong.join(', ')}` : '', improve.length ? `Improve: ${improve.map((x) => x.topic).join(', ')}` : ''].filter(Boolean).join(' · ') || 'Steady across the topics.'} testid="vt-topics">
           <div className="vet-topics">
             {Object.entries(r.topics).map(([t, s]) => <Bar key={t} label={t} value={s} tone={s >= 75 ? 'ok' : s < 60 ? 'warn' : 'accent'} testid="vt-topic" />)}
           </div>
+        </MeCard>
+      )}
+
+      {improve.length > 0 && (
+        <MeCard title="Top things to improve" sub="Your lowest topics in this check, with free ways to get better." testid="vt-improve">
+          <ol className="vet-improve">
+            {improve.map((x) => (
+              <li key={x.topic} className="vet-improve-i" data-testid="vt-improve-item">
+                <span className="stack g2" style={{ minWidth: 0 }}>
+                  <strong>{x.topic}</strong>
+                  {x.score != null && <span className="xs muted">{x.score}/100 in this check</span>}
+                </span>
+                <span className="vet-improve-go">
+                  <Link className="btn btn-outline btn-sm" to={x.learn || '/me/learn'} aria-label={`Learn: ${x.topic}`}>Learn</Link>
+                  <Link className="btn btn-ghost btn-sm" to={x.practice || '/me/practice'} aria-label={`Practise: ${x.topic}`}>Practice</Link>
+                </span>
+              </li>
+            ))}
+          </ol>
         </MeCard>
       )}
 
@@ -117,9 +162,9 @@ export default function Result({ id, initial, onRetest }) {
         <Suspense fallback={<Skel cards={1} lines={4} label="Opening the task" />}>
           <Task attempt={r} onDone={(x) => { setR(x); setTask(false); window.scrollTo?.(0, 0); }} onCancel={() => setTask(false)} />
         </Suspense>
-      ) : <TaskState r={r} onOpen={() => setTask(true)} />}
+      ) : <TaskState r={r} onOpen={() => setTask(true)} appeals={appeals} />}
 
-      <MeCard tone="flat" className="mcard-tight" icon="↗" title="Keep learning" sub={r.improve?.length ? `Practise ${r.improve.slice(0, 2).join(' and ')} for free, then try again.` : 'Free learning paths and practice tests for this role.'}>
+      <MeCard tone="flat" className="mcard-tight" icon="↗" title="Keep learning" sub={improve.length ? `Practise ${improve.slice(0, 2).map((x) => x.topic).join(' and ')} for free, then try again.` : 'Free learning paths and practice tests for this role.'}>
         <div className="mrow">
           <Link className="btn btn-outline" to="/me/learn">Learning paths</Link>
           <Link className="btn btn-outline" to="/me/practice">Practice tests</Link>

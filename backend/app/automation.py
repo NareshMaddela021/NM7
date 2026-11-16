@@ -26,6 +26,7 @@ from app.hire.slots import send_reminders as slot_reminders
 from app.hire.vetting import interview as vetting_interview
 from app.hire.vetting import jobs as vetting_jobs
 from app.hire.vetting import ladder as vetting_ladder
+from app.hire.vetting import trust as vetting_trust
 from app.jobs import linkcheck as job_links
 from app.jobs.alerts import send_alerts as job_alerts
 from app.jobs.apply import followups as job_followups
@@ -159,6 +160,8 @@ async def run_rules(db: AsyncDatabase, mailer: Mailer | None = None) -> dict[str
         done["vetting_invites"] = await vetting_jobs.send_invites(db, mailer or get_mailer())  # V2: ≤ 1 a week a person
         done.update({f"vetting_{k}": v for k, v in (await vetting_ladder.hourly_if_due(db)).items()})  # V1: hourly
         done["interview_bias_alerts"] = await vetting_interview.weekly_if_due(db)  # V3: 5% re-graded weekly
+        trust = await vetting_trust.daily_if_due(db, mailer or get_mailer())  # V5: fraud scan, re-verify, retention
+        done.update({f"trust_{k}": v for k, v in trust.items()})
         await save_site(db, {"rule_runs": runs})
         return done
     finally:

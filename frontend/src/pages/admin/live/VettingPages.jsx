@@ -31,7 +31,7 @@ export function signalLines(sig = {}) {
   return out;
 }
 
-function Filter({ status, setStatus, label }) {
+export function Filter({ status, setStatus, label }) {
   return (
     <div className="segmented vt-seg" role="group" aria-label={label}>
       {[['open', 'Open'], ['done', 'Done']].map(([v, l]) => <button key={v} type="button" aria-pressed={status === v} onClick={() => setStatus(v)} data-testid={`vq-${v}`}>{l}</button>)}

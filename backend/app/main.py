@@ -68,6 +68,7 @@ from app.hire.vetting import interview as vetting_interview
 from app.hire.vetting import jobs as vetting_jobs
 from app.hire.vetting import ladder as vetting_ladder
 from app.hire.vetting import router as vetting_router
+from app.hire.vetting import trust as vetting_trust
 from app.jobs import admin as jobs_admin
 from app.jobs import alerts as jobs_alerts
 from app.jobs import apply as jobs_apply
@@ -322,6 +323,8 @@ def create_app() -> FastAPI:
     app.include_router(vetting_interview.me)  # /api/me/interviews (Vetting V3: AI screening interview)
     app.include_router(vetting_interview.company)  # /api/company/{cid}/hire/interview/{uid}
     app.include_router(vetting_interview.admin)  # /api/admin/vetting/interviews
+    app.include_router(vetting_trust.me)  # /api/me/appeals, /api/me/data-export (Vetting V5)
+    app.include_router(vetting_trust.admin)  # /api/admin/vetting/appeals, /fraud, /fairness (V5)
     app.include_router(vetting_ladder.me)  # /api/me/level (Vetting V1: my level, ⚡, what to do next)
     app.include_router(vetting_ladder.admin)  # /api/admin/vetting/overview (V1)
     app.include_router(hire_skillcheck.admin)  # /api/admin/skill-tests (the question bank, H3)

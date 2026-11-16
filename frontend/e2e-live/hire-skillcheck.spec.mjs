@@ -3,7 +3,8 @@
 // time (a tap or a number key, then Next), survives a reload mid-test, sends the answers and sees a score out of 100
 // with topic bars; the same check can't start again for 30 days. A second candidate whose result the server couldn't
 // confirm (signals sent through the API, as backend/tests/test_vetting.py does) sees the polite free-retest message,
-// never any blame. No browser dialogs, no sideways scrolling.
+// never any blame. Vetting V5: after the test, "I think this is wrong" sends an appeal and the page says our team will
+// reply within 72 hours. No browser dialogs, no sideways scrolling.
 import { expect, test } from '@playwright/test';
 import { PASSWORD, email, login, seed } from './helpers.mjs';
 import { SIZES, call, json, noSideScroll } from './college.mjs';
@@ -63,6 +64,15 @@ for (const [label, opts] of SIZES) {
       await expect(res).toContainText('1–3 years');
       await expect(res.getByTestId('vt-again')).toContainText('Next try from');
       expect(await noSideScroll(page)).toBe(true);
+      // an appeal: a reason of 10+ characters, then the 72-hour promise and the open status
+      await res.getByTestId('ap-skill').getByTestId('ap-open').click();
+      const ap = page.getByTestId('ap-dialog');
+      await ap.getByLabel('What looks wrong?').fill('Question 5 has two right answers, I think.');
+      await ap.getByTestId('ap-send').click();
+      await expect(ap).toHaveCount(0);
+      await expect(res.getByTestId('ap-skill')).toContainText('Our team will reply within 72 hours');
+      await page.reload();
+      await expect(page.getByTestId('ap-skill')).toContainText('Our team will reply within 72 hours');
       const again = await call(page, '/api/me/skill-checks/start', json('POST', { skill: 'SQL' }));
       expect(again.status).toBe(409); // once in 30 days
     });

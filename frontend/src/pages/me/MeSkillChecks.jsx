@@ -5,6 +5,9 @@
 // task; both together give "Skill verified" for 90 days. One try per role every 30 days.
 // The test (vetting/TestRunner) and the result + task (vetting/Result, vetting/Task) load only when needed.
 // /me/skill-checks/:id shows one result; ?skill=<test>[&band=<band>] opens the start dialog for that role.
+// Vetting V5 re-verify: from 15 days before a badge ends (and up to 30 days after), the badge list and the role card
+// offer "Renew your badge: 8 questions, ~5 min" (POST start with refresh: true; the same test runner); the reminder
+// email's link ?refresh=<test> opens that prompt.
 import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Dialog } from '../../components/ui';
@@ -14,7 +17,7 @@ import { useLang } from '../../lib/i18n';
 import { useVettingOn } from '../../lib/vettingAccess';
 import { MeHead } from './MeLayout';
 import { Chip, Empty, MeCard, Skel, Stat } from './kit';
-import { API, GROUPS, LANGS, RUN_KEY, TASKS, badgeLine, day, readStore, writeStore } from './vetting/lib';
+import { API, GROUPS, LANGS, RUN_KEY, TASKS, badgeLine, day, readStore, renewState, writeStore } from './vetting/lib';
 import '../../styles/me-vet.css';
 
 const Classic = lazy(lazyRetry(() => import('./MeSkillChecksClassic')));
@@ -60,9 +63,10 @@ function ConsentCard({ onDone }) {
   );
 }
 
-function RoleCard({ r, cat, onStart }) {
+function RoleCard({ r, cat, onStart, onRenew }) {
   const last = r.last;
   const running = last && !last.done;
+  const renew = renewState(r.verified);
   const nQ = Math.min(cat.questions, r.questions);
   return (
     <li className="mcard mcard-tight vet-role" data-testid="vt-role" data-test={r.test}>
@@ -78,14 +82,16 @@ function RoleCard({ r, cat, onStart }) {
         <div className="mrow" style={{ gap: 6 }}>
           {r.verified && !r.verified.expired && <Chip tone="ok">✓ Verified · {r.verified.score}/100</Chip>}
           {r.verified?.expired && <Chip tone="warn">Badge expired</Chip>}
+          {r.verified && !r.verified.expired && renew.open && <Chip tone="warn">Ends in {renew.daysLeft} day{renew.daysLeft === 1 ? '' : 's'}</Chip>}
           {last?.done && !r.verified && (last.retest ? <Chip tone="info">Free retest offered</Chip> : <Chip tone={last.pass ? 'ok' : 'warn'}>Last score {last.score}/100</Chip>)}
           {running && <Chip tone="accent">Test in progress</Chip>}
         </div>
       )}
       <div className="vet-role-go">
+        {!running && renew.open && <button type="button" className="btn btn-signal" onClick={() => onRenew(r)} aria-label={`Renew your badge: ${r.role}`} data-testid={`vt-renew-${r.test}`}>Renew badge</button>}
         {running ? <button type="button" className="btn btn-signal" onClick={() => onStart(r, { resume: true })} data-testid={`sk-start-${r.test}`}>Carry on with the test</button>
-          : r.canStart ? <button type="button" className="btn btn-signal" onClick={() => onStart(r)} aria-label={`Start: ${r.role}`} data-testid={`sk-start-${r.test}`}>{last?.freeRetest ? 'Start free retest' : 'Start'}</button>
-            : <span className="xs muted" data-testid="vt-wait">Next try from {day(last?.againAt)}</span>}
+          : r.canStart ? <button type="button" className={`btn ${renew.open ? 'btn-outline' : 'btn-signal'}`} onClick={() => onStart(r)} aria-label={`Start: ${r.role}`} data-testid={`sk-start-${r.test}`}>{last?.freeRetest ? 'Start free retest' : 'Start'}</button>
+            : !renew.open && <span className="xs muted" data-testid="vt-wait">Next try from {day(last?.againAt)}</span>}
         {last?.done && <Link className="btn btn-outline" to={`/me/skill-checks/${last.id}`} aria-label={`See result: ${r.role}`}>See result</Link>}
       </div>
     </li>
@@ -162,6 +168,64 @@ function StartDialog({ r, cat, preset, needConsent, onConsent, onClose, onGo }) 
   );
 }
 
+function RenewDialog({ r, needConsent, onConsent, onClose, onGo }) {
+  const [, siteLang] = useLang();
+  const v = r.verified;
+  const st = renewState(v);
+  const [lang, setLang] = useState(r.langs.includes(siteLang) ? siteLang : 'en');
+  const [extra, setExtra] = useState(false);
+  const [ok, setOk] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  const go = async () => {
+    setBusy(true); setErr('');
+    try {
+      if (needConsent) onConsent((await http(`${API}/consent`, { method: 'POST' })).consentAt);
+      await onGo({ skill: r.test, band: v.band, lang, extraTime: extra, refresh: true });
+    } catch (e) { setErr(e.message); setBusy(false); }
+  };
+  return (
+    <Dialog title={`Renew your badge: ${r.role}`} onClose={onClose} showTitle>
+      <div className="stack g16" data-testid="vt-renew">
+        <p className="small" style={{ margin: 0 }}><strong>8 questions, about 5 minutes</strong>, at the same level as your badge ({v.bandLabel}). Score 70 or more and your badge lasts another 90 days.</p>
+        <p className="xs muted" style={{ margin: 0 }}>{st.expired ? `Your badge ended on ${day(v.expiresAt)}. You can still renew it until ${day(v.expiresAt + 30 * 86_400_000)}.` : `Your badge ends on ${day(v.expiresAt)}.`} If you skip it, the badge shows as expired.</p>
+        {r.langs.length > 1 && (
+          <fieldset className="vet-fs">
+            <legend className="vet-legend">Language of the questions</legend>
+            <div className="vet-chips">
+              {r.langs.map((l) => (
+                <label key={l} className={`vet-pill ${lang === l ? 'on' : ''}`}>
+                  <input type="radio" name="vt-rlang" value={l} checked={lang === l} onChange={() => setLang(l)} />
+                  <span>{LANGS[l]}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        )}
+        <label className="vet-check">
+          <input type="checkbox" checked={extra} onChange={(e) => setExtra(e.target.checked)} />
+          <span><strong>I need extra time</strong><span className="xs muted" style={{ display: 'block' }}>1½ times the time. It doesn’t change your score.</span></span>
+        </label>
+        {needConsent && (
+          <div className="stack g8">
+            <strong className="small">What the test page checks</strong>
+            <ConsentList />
+            <label className="vet-check">
+              <input type="checkbox" checked={ok} onChange={(e) => setOk(e.target.checked)} />
+              <span>I understand what is checked during the test</span>
+            </label>
+          </div>
+        )}
+        {err && <p className="error" role="alert">{err}</p>}
+        <div className="vet-actions">
+          <button type="button" className="btn btn-signal btn-lg" disabled={busy || (needConsent && !ok)} onClick={go} data-testid="vt-renew-go">{busy ? 'Starting…' : 'Start the refresher'}</button>
+          <button type="button" className="btn btn-ghost" onClick={onClose}>Not now</button>
+        </div>
+      </div>
+    </Dialog>
+  );
+}
+
 /** Vetting V2 for people who get it (Admin → Skill checks → Launch), else the skill checks as before. */
 export default function MeSkillChecks() {
   const on = useVettingOn();
@@ -178,6 +242,8 @@ function MeSkillChecksV2() {
   const [err, setErr] = useState('');
   const [paper, setPaper] = useState(null);
   const [dialog, setDialog] = useState(null); // { r, preset }
+  const [renewing, setRenewing] = useState(null); // a role whose badge is being renewed
+  const [notice, setNotice] = useState('');
   const [q, setQ] = useState('');
   const [group, setGroup] = useState('all');
   const resumed = useRef(false);
@@ -189,7 +255,8 @@ function MeSkillChecksV2() {
     const p = await http(`${API}/start`, { method: 'POST', body });
     writeStore(RUN_KEY, { ...body, id: p.id });
     setDialog(null);
-    setPaper(p);
+    setRenewing(null);
+    setPaper({ ...p, refresh: !!body.refresh });
     window.scrollTo?.(0, 0);
   };
 
@@ -211,9 +278,26 @@ function MeSkillChecksV2() {
     if (r?.canStart && !(r.last && !r.last.done)) setDialog({ r, preset: { band: params.get('band') || r.last?.band } });
   }, [cat, id, want]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // ?refresh=<test> (the reminder email's link): open that badge's refresher prompt, or say why it isn't open
+  const wantRefresh = params.get('refresh');
+  useEffect(() => {
+    if (!cat || id || !wantRefresh) return;
+    const r = cat.roles.find((x) => x.test.toLowerCase() === wantRefresh.toLowerCase() || x.slug === wantRefresh);
+    const st = renewState(r?.verified);
+    if (r && st.open && !(r.last && !r.last.done)) { setRenewing(r); return; }
+    setNotice(!r?.verified ? 'You don’t have this badge yet. Take the skill check to earn it.'
+      : r.last && !r.last.done ? 'You have a test in progress for this role. Carry on with it first.'
+        : st.daysLeft > 0 ? `The refresher opens 15 days before your badge ends (it ends on ${day(r.verified.expiresAt)}).`
+          : 'This badge ended more than 30 days ago. Take the full skill check to earn it again.');
+    setParams({}, { replace: true });
+  }, [cat, id, wantRefresh]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const onRenew = (r) => { setErr(''); setNotice(''); setRenewing(r); };
+  const closeRenew = () => { setRenewing(null); if (wantRefresh) setParams({}, { replace: true }); };
+
   const onStart = (r, { resume } = {}) => {
     setErr('');
-    if (resume) { begin({ skill: r.test, band: r.last.band, lang: r.last.lang }).catch((e) => setErr(e.message)); return; }
+    if (resume) { begin({ skill: r.test, band: r.last.band, lang: r.last.lang, ...(r.last.kind === 'refresh' ? { refresh: true } : {}) }).catch((e) => setErr(e.message)); return; }
     setDialog({ r, preset: { band: r.last?.band } });
   };
   const closeDialog = () => { setDialog(null); if (want) setParams({}, { replace: true }); };
@@ -243,7 +327,7 @@ function MeSkillChecksV2() {
   if (paper) {
     return (
       <>
-        <MeHead title="Skill check" sub={`${paper.role || paper.skill} · ${paper.questions.length} questions. Pick one answer for each; it is sent by itself when the time ends.`} />
+        <MeHead title={paper.refresh ? 'Badge refresher' : 'Skill check'} sub={`${paper.role || paper.skill} · ${paper.questions.length} questions. Pick one answer for each; it is sent by itself when the time ends.`} />
         <Suspense fallback={<Skel cards={1} lines={5} label="Opening the test" />}>
           <TestRunner paper={paper} onDone={finished} onError={(m) => { writeStore(RUN_KEY, null); setPaper(null); setErr(m); load(); }} />
         </Suspense>
@@ -288,11 +372,28 @@ function MeSkillChecksV2() {
 
       {badges.length > 0 && (
         <ul className="mlist" aria-label="Your badges" data-testid="vt-badges">
-          {badges.map((r) => (
-            <li key={r.test} className={`vet-badge ${r.verified.expired ? 'expired' : ''}`}><strong>{badgeLine(r.verified, r.role)}</strong><span className="xs">{r.verified.expired ? `Expired ${day(r.verified.expiresAt)}` : `Valid until ${day(r.verified.expiresAt)}`}</span></li>
-          ))}
+          {badges.map((r) => {
+            const st = renewState(r.verified);
+            const running = r.last && !r.last.done;
+            return (
+              <li key={r.test} className="vet-badge-row" data-testid="vt-badge" data-test={r.test}>
+                <div className={`vet-badge ${st.expired ? 'expired' : ''}`}>
+                  <strong>{badgeLine(r.verified, r.role)}</strong>
+                  <span className="xs">{st.expired ? <><strong>expired</strong> · ended {day(r.verified.expiresAt)}</> : `Valid until ${day(r.verified.expiresAt)}`}</span>
+                </div>
+                {st.open && !running && (
+                  <div className="vet-renew" data-testid="vt-renew-prompt">
+                    <span><strong>Renew your badge: 8 questions, ~5 min</strong>{st.expired ? '' : ` · ends in ${st.daysLeft} day${st.daysLeft === 1 ? '' : 's'}`}</span>
+                    <button type="button" className="btn btn-signal" onClick={() => onRenew(r)} aria-label={`Renew your badge: ${r.role}`}>Renew now</button>
+                  </div>
+                )}
+              </li>
+            );
+          })}
         </ul>
       )}
+
+      {notice && <p className="vet-calm small" role="status" data-testid="vt-notice">{notice}</p>}
 
       {err && <p className="error" role="alert">{err}</p>}
       {!cat.consentAt && <ConsentCard onDone={(at) => setCat({ ...cat, consentAt: at })} />}
@@ -307,7 +408,7 @@ function MeSkillChecksV2() {
                 <h2 id="vt-sug-h" className="vet-sec-h">Suggested for you</h2>
                 <span className="xs muted">From your resume and the jobs companies are hiring for now.</span>
               </div>
-              <ul className="vet-grid" data-testid="vt-suggested">{suggested.map((r) => <RoleCard key={r.test} r={r} cat={cat} onStart={onStart} />)}</ul>
+              <ul className="vet-grid" data-testid="vt-suggested">{suggested.map((r) => <RoleCard key={r.test} r={r} cat={cat} onStart={onStart} onRenew={onRenew} />)}</ul>
             </section>
           )}
 
@@ -331,7 +432,7 @@ function MeSkillChecksV2() {
                 return (
                   <div key={g} className="stack g8">
                     <h3 className="vet-group-h">{label} <span className="xs muted">({rs.length})</span></h3>
-                    <ul className="vet-grid">{rs.map((r) => <RoleCard key={r.test} r={r} cat={cat} onStart={onStart} />)}</ul>
+                    <ul className="vet-grid">{rs.map((r) => <RoleCard key={r.test} r={r} cat={cat} onStart={onStart} onRenew={onRenew} />)}</ul>
                   </div>
                 );
               })}
@@ -342,6 +443,7 @@ function MeSkillChecksV2() {
       )}
 
       <MeCard tone="flat" className="mcard-tight" icon="🔒" title="Fair and private" sub="No camera and no screen recording. Companies see only your badge and scores, and only if you choose to show the score." headingLevel={2} />
+      {renewing && <RenewDialog r={renewing} needConsent={!cat.consentAt} onConsent={(at) => setCat({ ...cat, consentAt: at })} onClose={closeRenew} onGo={begin} />}
       {dialog && <StartDialog r={dialog.r} cat={cat} preset={dialog.preset} needConsent={!cat.consentAt} onConsent={(at) => setCat({ ...cat, consentAt: at })} onClose={closeDialog} onGo={begin} />}
     </>
   );
