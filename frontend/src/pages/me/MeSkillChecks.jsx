@@ -11,11 +11,13 @@ import { Dialog } from '../../components/ui';
 import { http } from '../../services/http';
 import { lazyRetry } from '../../lib/chunks';
 import { useLang } from '../../lib/i18n';
+import { useVettingOn } from '../../lib/vettingAccess';
 import { MeHead } from './MeLayout';
 import { Chip, Empty, MeCard, Skel, Stat } from './kit';
 import { API, GROUPS, LANGS, RUN_KEY, TASKS, badgeLine, day, readStore, writeStore } from './vetting/lib';
 import '../../styles/me-vet.css';
 
+const Classic = lazy(lazyRetry(() => import('./MeSkillChecksClassic')));
 const TestRunner = lazy(lazyRetry(() => import('./vetting/TestRunner')));
 const Result = lazy(lazyRetry(() => import('./vetting/Result')));
 
@@ -160,7 +162,14 @@ function StartDialog({ r, cat, preset, needConsent, onConsent, onClose, onGo }) 
   );
 }
 
+/** Vetting V2 for people who get it (Admin → Skill checks → Launch), else the skill checks as before. */
 export default function MeSkillChecks() {
+  const on = useVettingOn();
+  if (on == null) return <Skel cards={2} lines={3} label="Loading skill checks" />;
+  return on ? <MeSkillChecksV2 /> : <Suspense fallback={<Skel cards={2} lines={3} label="Loading skill checks" />}><Classic /></Suspense>;
+}
+
+function MeSkillChecksV2() {
   const { id } = useParams();
   const loc = useLocation();
   const nav = useNavigate();

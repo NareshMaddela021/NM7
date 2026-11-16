@@ -24,6 +24,7 @@ for (const [size, opts] of SIZES) {
     const tag = `${size}-${Date.now().toString(36)}`;
     const mail = `shots-vet-${tag}@example.com`;
     seed('customer', mail, 'Asha Rao', PASSWORD);
+    seed('vetting-tester', mail); // the vetting engine is hidden by default (Admin → Skill checks → Launch)
     const ctx = await browser.newContext({ ...opts, reducedMotion: 'reduce' });
     let page = await ctx.newPage();
     const step = async (name, fn) => { try { await fn(); } catch (e) { console.log(`${name}: ${e.message.split('\n')[0]}`); } await settle(page); await snap(page, name, size); };

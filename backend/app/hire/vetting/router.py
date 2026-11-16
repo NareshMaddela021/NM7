@@ -27,7 +27,7 @@ from typing import Any, Literal
 
 from bson import ObjectId
 from bson.errors import InvalidId
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
 from pydantic import Field, field_validator
 
 from app.audit import audit
@@ -38,14 +38,24 @@ from app.core.db import DB, SKILL_ATTEMPTS, SKILL_QUESTIONS, USERS, VETTING_PHOT
 from app.core.errors import ApiError
 from app.core.schemas import CamelModel
 from app.core.time import now
+from app.hire import skillcheck_classic as classic
+from app.hire.vetting import access, grade
 from app.hire.vetting import engine as E
-from app.hire.vetting import grade
 from app.hire.vetting.roles import BY_TEST, ROLES
 from app.hire.vetting.store import bank_meta, ensure_banks, localized
 from app.me.service import ms
 
 log = logging.getLogger(__name__)
 me = APIRouter(prefix="/api/me/skill-checks", tags=["vetting"])
+
+
+async def _on(auth: CustomerAuth, db: DB) -> None:
+    """V2-only endpoints: 404 while the vetting engine is hidden from this person (access.py)."""
+    if not await access.for_user(db, auth.user.id):
+        raise ApiError(404, "not_found", "Not found.")
+
+
+V2_ONLY = [Depends(_on)]
 
 FILLERS = re.compile(r"\b(um+|uh+|er+|ah+|like|basically|actually|you know|i mean)\b", re.I)
 
@@ -178,8 +188,16 @@ async def suggested_for(db, uid: str) -> list[str]:
     return out[:4]
 
 
+@me.get("/access")
+async def vetting_access(auth: CustomerAuth, db: DB) -> dict[str, Any]:
+    """{on}: whether this person gets the vetting engine (V2+) or the site as before (the old skill checks)."""
+    return {"on": await access.for_user(db, auth.user.id)}
+
+
 @me.get("")
 async def catalog(auth: CustomerAuth, db: DB) -> dict[str, Any]:
+    if not await access.for_user(db, auth.user.id):
+        return await classic.catalog(db, auth.user.id)  # hidden: the skill checks as before
     from app.hire.skillcheck import ensure_bank
 
     await ensure_bank(db)
@@ -215,7 +233,7 @@ async def catalog(auth: CustomerAuth, db: DB) -> dict[str, Any]:
     }  # fmt: skip
 
 
-@me.post("/consent")
+@me.post("/consent", dependencies=V2_ONLY)
 async def consent(auth: CustomerAuth, db: DB) -> dict[str, Any]:
     t = now()
     await db[USERS].update_one({"_id": auth.user.id}, {"$set": {"vetting_consent_at": t}})
@@ -255,6 +273,8 @@ def paper_out(a: dict[str, Any], picked: list[dict[str, Any]], t: datetime) -> d
 
 @me.post("/start")
 async def start(body: StartIn, auth: CustomerAuth, db: DB) -> dict[str, Any]:
+    if not await access.for_user(db, auth.user.id):
+        return await classic.start(db, auth.user.id, body.skill)
     from app.hire.skillcheck import ensure_bank
 
     await ensure_bank(db)
@@ -317,6 +337,8 @@ class ProgressIn(CamelModel):
     times: dict[str, int] = Field(default_factory=dict)  # ms spent on each question
     signals: Signals = Field(default_factory=Signals)
     fp: str = Field("", max_length=128)  # the page's device fingerprint (hashed again with a secret before storing)
+    tab_switches: int = Field(0, ge=0, le=1000)  # the old skill checks (while vetting is hidden): see classic.SubmitIn
+    spoken: list[classic.SpokenIn] = Field(default_factory=list, max_length=3)
 
     @field_validator("answers", "times")
     @classmethod
@@ -338,7 +360,7 @@ def _merge_signals(old: dict[str, Any], new: Signals) -> dict[str, int]:
     return {k: max(int(old.get(k) or 0), int(n.get(k) or 0)) for k in n}  # the page sends running totals
 
 
-@me.put("/{aid}/progress")
+@me.put("/{aid}/progress", dependencies=V2_ONLY)
 async def progress(aid: str, body: ProgressIn, request: Request, auth: CustomerAuth, db: DB) -> dict[str, Any]:
     a = await _mine(db, aid, auth.user.id)
     t = now()
@@ -361,6 +383,12 @@ async def progress(aid: str, body: ProgressIn, request: Request, auth: CustomerA
 
 @me.post("/{aid}/submit")
 async def submit(aid: str, body: ProgressIn, request: Request, auth: CustomerAuth, db: DB) -> dict[str, Any]:
+    if not await access.for_user(db, auth.user.id):
+        try:
+            old = classic.SubmitIn(answers=body.answers, tab_switches=body.tab_switches, spoken=body.spoken)
+        except ValueError:
+            raise ApiError(422, "bad_answers", "Too many answers.") from None
+        return await classic.submit(db, auth.user.id, aid, old)
     a = await _mine(db, aid, auth.user.id)
     if a.get("submitted_at"):
         raise ApiError(409, "done", "This test is finished already.")
@@ -453,7 +481,7 @@ async def _queue(db, kind: str, a: dict[str, Any], data: dict[str, Any]) -> None
     )  # fmt: skip
 
 
-@me.get("/{aid}")
+@me.get("/{aid}", dependencies=V2_ONLY)
 async def result(aid: str, auth: CustomerAuth, db: DB) -> dict[str, Any]:
     a = await _mine(db, aid, auth.user.id)
     return result_out(a, await db[VETTING_VERIFIED].find_one({"user_id": a["user_id"], "test": a["skill"]}))
@@ -462,7 +490,7 @@ async def result(aid: str, auth: CustomerAuth, db: DB) -> dict[str, Any]:
 # --- the practical task -----------------------------------------------------------------------------------------
 
 
-@me.post("/{aid}/task/start")
+@me.post("/{aid}/task/start", dependencies=V2_ONLY)
 async def task_start(aid: str, auth: CustomerAuth, db: DB) -> dict[str, Any]:
     a = await _mine(db, aid, auth.user.id)
     if not a.get("submitted_at") or (a.get("score") or 0) < E.PASS_MCQ:
@@ -520,7 +548,7 @@ def speech_measures(transcript: str, seconds: float | None) -> dict[str, Any]:
     }
 
 
-@me.post("/{aid}/task/submit")
+@me.post("/{aid}/task/submit", dependencies=V2_ONLY)
 async def task_submit(aid: str, body: TaskIn, auth: CustomerAuth, db: DB) -> dict[str, Any]:
     a = await _mine(db, aid, auth.user.id)
     tk = a.get("task") or {}
@@ -627,6 +655,8 @@ class ShareIn(CamelModel):
 
 @me.put("/{aid}/share")
 async def share(aid: str, body: ShareIn, auth: CustomerAuth, db: DB) -> dict[str, Any]:
+    if not await access.for_user(db, auth.user.id):
+        return await classic.share(db, auth.user.id, aid, body.share)
     a = await db[SKILL_ATTEMPTS].find_one({"_id": _oid(aid), "user_id": auth.user.id})
     if not a or not a.get("submitted_at"):
         raise ApiError(404, "not_found", "Finish the test first.")

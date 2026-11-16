@@ -209,9 +209,10 @@ async def _job(db, cid: str, job_id: str) -> dict[str, Any]:
 
 
 async def candidates(
-    db, c: dict[str, Any], job: dict[str, Any], t: datetime | None = None, support: str = ""
+    db, c: dict[str, Any], job: dict[str, Any], t: datetime | None = None, support: str = "", vetting: bool = True
 ) -> list[dict[str, Any]]:
-    """Every available, consenting candidate who suits the place and kind of job, ranked (best first)."""
+    """Every available, consenting candidate who suits the place and kind of job, ranked (best first). `vetting`
+    False (the vetting engine hidden from this company): no "Skill verified" badges, so the order is as before."""
     t = t or now()
     site = await get_site(db)
     days = int(site["hire"]["confirm_days"])
@@ -246,7 +247,9 @@ async def candidates(
     results = await shared_results(db, uids) if tests_on else {}
     reliable = await reliability_for(db, uids, t)
     vetted: dict[str, list[dict[str, Any]]] = {}
-    async for v in db[VETTING_VERIFIED].find({"user_id": {"$in": uids}}):  # Vetting V2: "Skill verified" (L2)
+    async for v in db[VETTING_VERIFIED].find(
+        {"user_id": {"$in": uids if vetting else []}}
+    ):  # Vetting V2: "Skill verified" (L2)
         vetted.setdefault(v["user_id"], []).append(v)
     wanted = fitmod.job_skills(job)
     rows = []
@@ -348,8 +351,11 @@ async def shortlist(
     )
     await rate_limit.record(db, key)
     started = now()
-    rows = await candidates(db, c, j, started, support)
-    if verified or role or min_score:
+    from app.hire.vetting import access
+
+    vetting = await access.for_company(db, c, acc)
+    rows = await candidates(db, c, j, started, support, vetting)
+    if vetting and (verified or role or min_score):
         rows = [r for r in rows if keep_vetted(r, role, min_score)]
     if rows:  # H9: when the first candidate was shown for this role
         await db[JOBS].update_one({"_id": j["_id"]}, {"$min": {"hire_speed.first_shown_at": started}})
@@ -367,6 +373,7 @@ async def shortlist(
         },
         "items": rows[: min(size, BULK_TOP if is_bulk(j) else TOP)],
         "available": len(rows),
+        "vetting": vetting,  # the Skill verified filters and badges are shown (Admin → Skill checks → Launch)
         "usage": {"used": len(roles), "free": free},
         "ms": int((now() - started).total_seconds() * 1000),
     }

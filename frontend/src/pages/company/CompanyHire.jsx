@@ -120,7 +120,7 @@ export default function CompanyHire({ t, c }) {
             </select>
           </label>
         </div>
-        <fieldset className="hn-sv" data-testid="co-hire-sv-filters">
+        {d?.vetting && <fieldset className="hn-sv" data-testid="co-hire-sv-filters">
           <legend className="hn-sv-legend">{t('co.hire.sv.filters')}</legend>
           <label className="hn-sv-only">
             <input type="checkbox" checked={vf.verified} onChange={setV('verified')} data-testid="co-hire-sv-only" />
@@ -137,7 +137,7 @@ export default function CompanyHire({ t, c }) {
               {MIN_SCORES.map((n) => <option key={n} value={n}>{n ? t('co.hire.sv.atLeast', { n }) : t('co.hire.sv.anyScore')}</option>)}
             </select>
           </label>
-        </fieldset>
+        </fieldset>}
         {d?.usage && <span className="mchip mchip-info hn-usage" data-testid="co-hire-usage">{t('co.hire.usage', { used: d.usage.used, free: d.usage.free })}</span>}
       </div>
       <HireSpeed t={t} c={c} />
