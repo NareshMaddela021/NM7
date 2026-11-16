@@ -22,6 +22,8 @@ for (const [label, opts] of SIZES) {
 
       await page.goto('/admin/skill-tests');
       await expect(page.getByRole('heading', { name: 'Skill checks', level: 1 })).toBeVisible();
+      // Launch: hidden by default (only admins, demo accounts and testers see the new skill checks)
+      await expect(page.getByTestId('vl-state')).toContainText('Hidden');
       // Overview (Vetting V1) is the first tab and opens by default
       await expect(page.getByRole('tab', { name: 'Overview' })).toHaveAttribute('aria-selected', 'true');
       await expect(page.getByTestId('vo-level')).toHaveCount(5, { timeout: 20_000 });

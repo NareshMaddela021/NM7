@@ -10,6 +10,7 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { http } from '../../services/http';
 import { lazyRetry } from '../../lib/chunks';
 import { useLang } from '../../lib/i18n';
+import { useVettingOn } from '../../lib/vettingAccess';
 import { speechSupported } from '../../lib/speechCore';
 import { MeHead } from './MeLayout';
 import { Chip, Empty, MeCard, Skel } from './kit';
@@ -128,7 +129,15 @@ function Setup({ r, d, onCancel, onGo }) {
   );
 }
 
+/** Hidden from this person (Admin → Skill checks → Launch): nothing to see yet. */
 export default function MeInterviews() {
+  const on = useVettingOn();
+  if (on == null) return <Skel cards={1} lines={3} label="Loading" />;
+  if (!on) return <><MeHead title="Screening interview" /><Empty shape="badge" title="Not open yet">The screening interview is not open yet.</Empty></>;
+  return <MeInterviewsPage />;
+}
+
+function MeInterviewsPage() {
   const { id } = useParams();
   const loc = useLocation();
   const nav = useNavigate();

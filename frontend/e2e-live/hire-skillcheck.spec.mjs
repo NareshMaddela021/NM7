@@ -18,6 +18,7 @@ for (const [label, opts] of SIZES) {
       page.on('dialog', () => { throw new Error('no browser dialogs'); });
       const mail = email(`sk-${label}`);
       seed('customer', mail, 'Asha Rao', PASSWORD);
+      seed('vetting-tester', mail); // the vetting engine is hidden by default (Admin → Skill checks → Launch)
       await login(page, mail);
       await expect(page).toHaveURL(/\/me/);
       await page.goto('/me/skill-checks');
@@ -81,6 +82,7 @@ for (const [label, opts] of SIZES) {
       page.on('dialog', () => { throw new Error('no browser dialogs'); });
       const mail = email(`skr-${label}`);
       seed('customer', mail, 'Meena S', PASSWORD);
+      seed('vetting-tester', mail); // the vetting engine is hidden by default (Admin → Skill checks → Launch)
       await login(page, mail);
       await expect(page).toHaveURL(/\/me/);
       expect((await call(page, '/api/me/skill-checks/consent', json('POST', {}))).status).toBe(200);

@@ -5,6 +5,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { http } from '../../services/http';
+import { vettingOn } from '../../lib/vettingAccess';
 import LevelBadge from '../../components/LevelBadge';
 
 const LABELS = { 0: 'Signed up', 1: 'Profile ready', 2: 'Skill verified', 3: 'Interview-ready', 4: 'Nm7 verified' };
@@ -24,7 +25,8 @@ export const stepLink = (s) => { const m = STEP_LINKS.find(([re]) => re.test(s))
 /** The person's level from the server: { d, reload }; d is null while loading and 'failed' when it can't load. */
 export function useMyLevel() {
   const [d, setD] = useState(null);
-  const reload = useCallback(() => http('/api/me/level').then(setD, () => setD('failed')), []);
+  // hidden from this person (Admin → Skill checks → Launch): never asked, nothing shows
+  const reload = useCallback(() => vettingOn().then((on) => (on ? http('/api/me/level').then(setD, () => setD('failed')) : setD('failed'))), []);
   useEffect(() => { reload(); }, [reload]);
   return { d, reload };
 }
