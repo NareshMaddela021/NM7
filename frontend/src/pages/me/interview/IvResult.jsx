@@ -1,12 +1,14 @@
 // A screening interview's result (Vetting V3): passed or not yet, the average out of 5, a bar for each of the 5 rubric
 // lines with the reason and the candidate's own words it was based on, 3 strengths and 1 concern, how long
 // "Interview-ready" (L3) lasts and when the interview can be taken again. Not graded yet ("review") → our team grades
-// it within a day. The answers themselves are in a fold at the end.
+// it within a day. The answers themselves are in a fold at the end. Vetting V5: "I think this is wrong" on a graded
+// interview (vetting/Appeal) and the appeal's status.
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { http } from '../../../services/http';
 import { Bar, Chip, MeCard, Skel } from '../kit';
 import { day } from '../vetting/lib';
+import { Appeal, useAppeals } from '../vetting/Appeal';
 import { API, avg, scoreWord } from './lib';
 import '../../../styles/me-vet.css';
 import '../../../styles/me-iv.css';
@@ -32,6 +34,7 @@ function Transcript({ rows }) {
 export default function IvResult({ id, initial, pass }) {
   const [r, setR] = useState(initial?.id === id ? initial : null);
   const [err, setErr] = useState('');
+  const appeals = useAppeals();
   useEffect(() => {
     http(`${API}/${id}`).then(setR, (e) => { if (initial?.id !== id) setErr(e.message); });
   }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -81,6 +84,7 @@ export default function IvResult({ id, initial, pass }) {
             <span className="xs muted" data-testid="iv-again">{again}</span>
           </div>
         </div>
+        {r.status === 'graded' && <Appeal kind="interview" refId={r.id} what="this interview’s scores" appeals={appeals} />}
       </section>
 
       {r.scores?.length > 0 && (

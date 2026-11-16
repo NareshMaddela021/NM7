@@ -107,3 +107,21 @@
 .vet-file { position: relative; align-self: flex-start; min-height: 48px; cursor: pointer; }
 .vet-file:has(input:focus-visible) { outline: 3px solid var(--accent); outline-offset: 2px; }
 
+
+/* Vetting V5: explanations, appeals, re-verify */
+.vet-calm { display: flex; gap: 10px; align-items: flex-start; padding: 12px 16px; border-radius: 14px; background: #f5f7fb; border: 1px solid var(--border); color: var(--text); overflow-wrap: anywhere; }
+.vet-calm > span[aria-hidden] { flex: none; font-weight: 800; color: #3730a3; }
+.vet-improve { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; counter-reset: imp; }
+.vet-improve-i { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; padding: 10px 0; border-top: 1px solid var(--border); min-width: 0; overflow-wrap: anywhere; }
+.vet-improve-i:first-child { border-top: 0; padding-top: 0; }
+.vet-improve-go { display: flex; gap: 8px; flex-wrap: wrap; }
+.vet-improve-go .btn, .vet-appeal-link, .vet-renew .btn { min-height: 44px; }
+.vet-appeal { display: flex; }
+.vet-appeal-link { padding-left: 0; padding-right: 0; text-decoration: underline; text-underline-offset: 3px; color: #3730a3; }
+.vet-appeal-box { display: flex; flex-direction: column; gap: 4px; padding: 12px 16px; border-radius: 14px; background: #f5f3ff; border: 1px solid #ddd6fe; color: #312e81; overflow-wrap: anywhere; }
+.vet-appeal-box.vet-appeal-ok { background: #ecfdf3; border-color: #bfe5cd; color: #14532d; }
+.vet-appeal-box.vet-appeal-neutral { background: #f5f7fb; border-color: var(--border); color: var(--text); }
+.vet-badge-row { display: flex; flex-direction: column; gap: 8px; }
+.vet-renew { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; padding: 10px 14px; border-radius: 14px; background: #fff7ed; border: 1px solid #fed7aa; color: #7c2d12; font-size: 14.5px; overflow-wrap: anywhere; }
+.vet-renew > span { flex: 1 1 200px; min-width: 0; }
+@media (max-width: 560px) { .vet-renew .btn { flex: 1 1 100%; } }
