@@ -88,7 +88,7 @@ export function sitemap(posts, categories) {
 }
 
 /** What a post page carries for the app. With a small blog, the whole list too (no extra request); with a large one
- * (the asuraa.in posts) only the post itself — the list would add hundreds of KB to every page — and the app reads
+ * only the post itself — the list would add hundreds of KB to every page — and the app reads
  * the list from /blog/data.json when it needs it. */
 export const EMBED_LIST_MAX = 60;
 export const postData = (data, p) => (data.posts.length > EMBED_LIST_MAX ? { builtAt: data.builtAt, post: p } : { ...data, post: p });
