@@ -13,6 +13,7 @@ from fastapi.responses import JSONResponse
 
 from app import automation, home_events, stories
 from app.admin import daily as admin_daily
+from app.admin import test_users
 from app.admin.console import router as admin_console_router
 from app.admin.router import router as admin_router
 from app.admin.setup import router as admin_setup_router
@@ -225,6 +226,7 @@ def create_app() -> FastAPI:
     app.include_router(auth_router)
     app.include_router(admin_auth_router)
     app.include_router(admin_setup_router)  # before admin_router: /api/admin/setup is public
+    app.include_router(test_users.router)  # /api/admin/test-users (100 test users for checking the live site)
     app.include_router(admin_router)
     app.include_router(org_demo_login.admin)  # /api/admin/demo-org/coordinator (before orgs.admin)
     app.include_router(org_demo_login.public)  # /api/public/demo-coordinator

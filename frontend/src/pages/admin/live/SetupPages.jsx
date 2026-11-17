@@ -8,6 +8,7 @@ import { ROLES } from '../roles';
 import { Loading, emptyIf, http, useAction, useApi, when } from './common';
 import { auditText } from './auditText';
 import { PaymentSettings } from './PaymentsSettings';
+import { TestUsers } from './TestUsers';
 
 /* ---------- settings & prices ---------- */
 // same limits as the server (app/admin/console.py), which checks them again
@@ -180,6 +181,7 @@ export function LiveSettings() {
           </div>
           <ReferralRewards />
           {owner && <SampleCleanup />}
+          {owner && <TestUsers />}
           </div>
         </div>
       )}</Loading>
