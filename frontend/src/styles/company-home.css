@@ -42,6 +42,7 @@
 .ch-room-no { background: #fff4e0; color: #92400e; }
 .ch-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 @media (min-width: 720px) { .ch-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 1500px) { .ch-tiles { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); } } /* round W: one row on a wide screen */
 .ch-tiles .mstat { background: rgba(255, 255, 255, .88); box-shadow: 0 10px 28px -20px rgba(29, 78, 216, .45); border-color: #dfe7f8; min-height: 104px; }
 .ch-tiles .mstat-v { color: #1e3a8a; }
 .ch-allow .mbar { margin-top: 6px; }
