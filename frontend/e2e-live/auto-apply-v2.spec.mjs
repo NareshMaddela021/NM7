@@ -123,7 +123,7 @@ for (const [label, opts] of SIZES) {
       for (const k of ['ready', 'waiting', 'applied', 'viewed', 'replied', 'closed']) {
         await expect(admin.getByTestId(`aa2-stage-${k}`)).not.toContainText(/^0/);
       }
-      await expect(admin.getByTestId('aa2-row').filter({ hasText: /^.Reporting Analyst/ })).toContainText('By email');
+      await expect(admin.getByTestId('aa2-row').filter({ hasText: /^.Reporting Analyst/ })).toContainText('Email');
       expect(await noSideScroll(admin)).toBe(true);
       await admin.getByTestId('aa2-tab-waiting').click();
       await expect(admin.getByTestId('aa2-waiting-item').first()).toBeVisible();

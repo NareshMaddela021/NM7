@@ -371,7 +371,7 @@ def optout_read(token: str) -> dict[str, Any] | None:
 
 
 def optout_url(token: str) -> str:
-    return f"{get_settings().site_url.rstrip('/')}/auto-apply/opt-out?t={token}"
+    return f"{get_settings().site_url.rstrip('/')}/stop-alerts#k=employer&t={token}"  # the fragment: not in logs
 
 
 async def block(db, key: str, reason: str, **extra) -> None:

@@ -13,6 +13,7 @@ import re
 import time
 import uuid
 from datetime import timedelta
+from html import unescape
 
 import pypdf
 import pytest
@@ -233,11 +234,11 @@ async def test_message_from_apply_address_with_pdf_profile_and_opt_out(client, o
     assert 5 <= len(cover) <= 6 and all(line in msg.text for line in cover)
     assert "https://nm7.si/r/sai-varsha" in msg.text
     assert "Sent via Nm7 Auto Apply on Sai Varsha's behalf" in msg.text
-    optout = re.search(r"https://nm7\.si/auto-apply/opt-out\?t=(\S+)", msg.text)
+    optout = re.search(r"https://nm7\.si/stop-alerts#k=employer&t=(\S+)", msg.text)
     assert optout and emailing.optout_read(optout.group(1))["address"] == COMPANY
     assert msg.headers["List-Unsubscribe"] == f"<{optout.group(0)}>"
     # no open tracking, no pixels, no tracked links: only the two plain links, in text and html alike
-    for body in (msg.text, msg.html):
+    for body in (msg.text, unescape(msg.html)):
         assert "<img" not in body.lower() and "pixel" not in body.lower() and "utm_" not in body
         assert set(re.findall(r"https?://[^\s<\"]+", body)) == {"https://nm7.si/r/sai-varsha", optout.group(0)}
     # "What was sent" shows the exact email and the attachment
@@ -307,7 +308,7 @@ async def test_follow_up_opt_in_once_after_seven_days_only_without_reply(client,
     assert await emailing.follow_ups(db, outbox, site) == 1
     fu = outbox.sent[n_before]
     assert fu.to == EMAIL and "Following up: Junior Data Analyst" in fu.subject and not fu.attachments
-    assert "Sent via Nm7 Auto Apply" in fu.text and "opt-out" in fu.text
+    assert "Sent via Nm7 Auto Apply" in fu.text and "stop-alerts#k=employer&t=" in fu.text
     assert await emailing.follow_ups(db, outbox, site) == 0  # only one, ever
     assert await db[AUTO_MAIL].count_documents({"user_id": uid, "kind": "follow_up"}) == 1
     sent = (await client.get(f"{V2}/sent/{it['_id']}")).json()

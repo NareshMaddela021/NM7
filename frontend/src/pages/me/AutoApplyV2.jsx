@@ -4,6 +4,8 @@
 // the approval list ("Approve all"), the Waiting questions (answers saved to the profile, then sent at once),
 // "Suggested for you" (55–69) and the rules form with the approval mode and the explicit opt-in (pause / stop any
 // time). English only while it is tested. No pop-up dialogs; nothing scrolls sideways at 390 px.
+// A3: the Email tab (the email channel on / off, the follow-up opt-in, the candidate's own apply address, replies that
+// came back) and, in "What was sent", the exact email with its attachment, any follow-up and the replies.
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useToast } from '../../components/ui';
@@ -16,10 +18,10 @@ import '../../styles/me-aa2.css';
 
 const BASE = '/api/me/auto-apply/v2';
 export const CHANNELS = {
-  internal: ['◆', 'On Nm7'], email: ['✉', 'By email'], partner: ['⇄', 'Partner'], form: ['▤', 'Company form'], one_tap: ['☝', 'One tap'],
+  internal: ['◆', 'On Nm7'], email: ['✉', 'Email'], partner: ['⇄', 'Partner'], form: ['▤', 'Company form'], one_tap: ['☝', 'One tap'],
 };
 const STAGE_TONE = { ready: 'accent', waiting: 'warn', applied: 'info', viewed: 'info', replied: 'ok', closed: 'neutral' };
-const OUTCOME = { offer: 'Offer', rejected: 'Rejected', closed: 'Job closed', interview: 'Interview', shortlisted: 'Shortlisted', no_reply: 'No reply' };
+const OUTCOME = { replied: 'Replied', offer: 'Offer', rejected: 'Rejected', closed: 'Job closed', interview: 'Interview', shortlisted: 'Shortlisted', no_reply: 'No reply' };
 const MODES = [
   ['approve', 'Approve each', 'Every morning you get a list. Nothing goes out until you tap Approve (or Approve all).'],
   ['full_auto', 'Full auto', 'Nm7 applies for you within your rules and daily limit. You can see everything it sent.'],
@@ -28,7 +30,8 @@ const MODES = [
 const NOTICE = [['', 'Not set'], ['immediate', 'Immediately'], ['15_days', '15 days'], ['30_days', '30 days'], ['60_days', '60 days'], ['90_days', '90 days']];
 const EXP_LABEL = { internship: 'Internship', fresher: 'Fresher', '0_1': '0–1 years', '1_3': '1–3 years', '3_5': '3–5 years', '5_8': '5–8 years', '8_12': '8–12 years', '12_15': '12–15 years', '15_plus': '15+ years' };
 const TYPE_LABEL = { full_time: 'Full-time', internship: 'Internship', contract: 'Contract', part_time: 'Part-time' };
-const TABS = [['tracker', 'Tracker'], ['approve', 'Approve'], ['waiting', 'Waiting for you'], ['suggested', 'Suggested'], ['rules', 'Rules']];
+const TABS = [['tracker', 'Tracker'], ['approve', 'Approve'], ['waiting', 'Waiting for you'], ['suggested', 'Suggested'], ['email', 'Email'], ['rules', 'Rules']];
+const fmtAt = (ms) => (ms ? new Date(ms).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) : '');
 const list = (s) => String(s || '').split(',').map((x) => x.trim()).filter(Boolean);
 
 export function ChannelTag({ channel }) {
@@ -89,10 +92,45 @@ function WhatWasSent({ id }) {
   return (
     <div className="stack g8" data-testid="aa2-sent">
       <span className="xs muted">{d.wentOut ? 'This went out to the company:' : 'Not sent yet. This is what will go out:'}</span>
-      {d.email && <div className="aa2-note small"><p><strong>To:</strong> {d.email.to}</p><p><strong>Subject:</strong> {d.email.subject}</p><p className="aa2-pre">{d.email.text}</p></div>}
+      {d.email && <SentEmail e={d.email} />}
+      {d.followUp && <><strong className="small">Follow-up</strong><SentEmail e={d.followUp} /></>}
+      {d.replies?.length > 0 && <Replies rows={d.replies} />}
       <Version v={d.version} />
       {Object.keys(d.screening).length > 0 && <span className="xs muted">Screening answers sent: {Object.values(d.screening).join(', ')}</span>}
     </div>
+  );
+}
+
+function SentEmail({ e }) {
+  const own = e.source?.kind === 'company_account';
+  return (
+    <div className="aa2-note small" data-testid="aa2-email">
+      {e.test && <p className="xs muted" data-testid="aa2-email-test">Test: Auto Apply 2.0 is being tested, so this went to {e.sentTo}, not to the company.</p>}
+      {e.from && <p><strong>From:</strong> {e.from}</p>}
+      <p><strong>To:</strong> {e.to}</p>
+      <p><strong>Subject:</strong> {e.subject}</p>
+      {e.attachment && <p data-testid="aa2-email-attachment"><strong>Attached:</strong> {e.attachment} (your tailored resume)</p>}
+      <p className="aa2-pre">{e.text}</p>
+      {e.source?.kind && <p className="xs muted">{own ? 'The company published this address in its own job post on Nm7.' : 'The company published this address on its own page'}{!own && e.source.url ? <>: <span className="aa2-wrap">{e.source.url}</span></> : null}</p>}
+    </div>
+  );
+}
+
+function Replies({ rows }) {
+  return (
+    <section className="stack g8" aria-label="Replies" data-testid="aa2-replies">
+      <strong className="small">Replies ({rows.length})</strong>
+      <ul className="stack g8 aa2-list">
+        {rows.map((r) => (
+          <li key={r.id} className="aa2-note small" data-testid="aa2-reply">
+            <p><strong>{r.fromName || r.from}</strong>{r.fromName ? <span className="muted"> · {r.from}</span> : null}</p>
+            <p className="xs muted">{fmtAt(r.at)}{r.title ? ` · ${r.title} at ${r.company}` : ''}{r.forwarded ? ' · also sent to your email' : ''}</p>
+            {r.subject && <p><strong>{r.subject}</strong></p>}
+            <p className="aa2-pre">{r.text}</p>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
@@ -111,6 +149,8 @@ function TrackerRow({ it, onChanged, toast }) {
         <span className="aa2-tags"><Chip tone={STAGE_TONE[it.stage]}>{it.outcome ? OUTCOME[it.outcome] || it.outcome : TABS_STAGE[it.stage]}</Chip><ChannelTag channel={it.channel} /></span>
       </div>
       {it.notice && <span className="xs muted aa2-wrap" data-testid="aa2-row-notice">{it.notice.text}</span>}
+      {it.replies > 0 && <span className="xs aa2-wrap" data-testid="aa2-row-replies">✉ {it.replies} {it.replies === 1 ? 'reply' : 'replies'} to your apply address: open “What was sent”</span>}
+      {it.applyTo && <span className="xs muted aa2-wrap" data-testid="aa2-row-applyto">Apply by email yourself: <a href={`mailto:${it.applyTo}`}>{it.applyTo}</a> (attach your tailored resume)</span>}
       <Parts it={it} />
       <div className="row g8 aa2-actions">
         {it.hasVersion && <button type="button" className="link-btn small" aria-expanded={open} onClick={() => setOpen(!open)} data-testid="aa2-what">{open ? 'Hide what was sent' : 'What was sent'}</button>}
@@ -151,6 +191,55 @@ function Tracker({ toast }) {
       </div>
       {rows.length === 0 ? <Empty compact title="Nothing here yet">The morning run fills this in. Every channel shows up here.</Empty>
         : <ul className="stack g8 aa2-list">{rows.map((it) => <TrackerRow key={it.id} it={it} onChanged={load} toast={toast} />)}</ul>}
+    </div>
+  );
+}
+
+function EmailPanel({ toast }) {
+  const [d, setD] = useState(null);
+  const [rows, setRows] = useState(null);
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    http(`${BASE}/email`).then(setD).catch(() => setD(false));
+    http(`${BASE}/replies`).then(setRows).catch(() => setRows([]));
+  }, []);
+  if (d === false) return <Empty compact title="Not available">The email channel can’t be shown right now.</Empty>;
+  if (!d) return <Skel cards={2} />;
+  const save = async (over) => {
+    setBusy(true);
+    try { setD(await http(`${BASE}/email`, { method: 'PUT', body: { emailOn: d.emailOn, followUp: d.followUp, ...over } })); toast('Saved'); } catch (x) { toast(x.message); } finally { setBusy(false); }
+  };
+  return (
+    <div className="stack g12" data-testid="aa2-email-tab">
+      <section className="mcard stack g12" aria-labelledby="aa2-email-h">
+        <h2 id="aa2-email-h" className="mcard-title">Email applications</h2>
+        <p className="small muted" style={{ margin: 0 }}>When a company asks for applications by email in its own job post or on its careers page, Nm7 sends one short email for you: your cover note, your tailored resume and your Nm7 profile link. The email says Nm7 Auto Apply sent it for you. Nm7 never guesses an address and never uses job boards.</p>
+        {!d.channel.on && <p className="mcard mcard-tight mcard-warn small" role="status" style={{ margin: 0 }} data-testid="aa2-email-off">Email applications are off for now. {d.channel.reason} Email jobs show as Ready, so you can apply yourself with one tap.</p>}
+        {d.paused && <p className="mcard mcard-tight mcard-warn small" role="status" style={{ margin: 0 }} data-testid="aa2-email-paused">Your email channel is paused because a company marked an Auto Apply email as unwanted. Nm7 will look into it and turn it back on.</p>}
+        <div className="stack g4">
+          <span className="label">Your apply address</span>
+          <strong className="aa2-wrap" data-testid="aa2-email-address">{d.address}</strong>
+          <span className="xs muted">Emails go out from this address, and companies’ replies come back to it. Nm7 shows the replies here and sends them on to your own email.</span>
+        </div>
+        <label className={`aa2-mode ${d.emailOn ? 'on' : ''}`}>
+          <input type="checkbox" checked={d.emailOn} disabled={busy} onChange={(e) => save({ emailOn: e.target.checked })} data-testid="aa2-email-on" />
+          <span className="stack g4"><strong className="small">Send email applications for me</strong><span className="xs muted">If you turn this off, email jobs wait as Ready and you apply yourself.</span></span>
+        </label>
+        <label className={`aa2-mode ${d.followUp ? 'on' : ''}`}>
+          <input type="checkbox" checked={d.followUp} disabled={busy} onChange={(e) => save({ followUp: e.target.checked })} data-testid="aa2-email-follow" />
+          <span className="stack g4"><strong className="small">One follow-up after 7 days</strong><span className="xs muted">Only if the company hasn’t replied. Never more than one per job.</span></span>
+        </label>
+        <ul className="xs muted aa2-plain" style={{ margin: 0 }}>
+          <li>One email per job, ever. At most {d.perDay} a day (<span data-testid="aa2-email-today">{d.sentToday}</span> today).</li>
+          <li>No read receipts, no tracking pixels and no tracked links.</li>
+          <li>{d.profileLink ? <>Your profile link: <span className="aa2-wrap">{d.profileLink}</span></> : <>Turn on your share link (<Link to="/me/share">Share</Link>) to include your Nm7 profile.</>}</li>
+          {d.testMode && <li data-testid="aa2-email-testmode">While Auto Apply 2.0 is being tested, nothing goes to companies. Test emails go to a test inbox.</li>}
+        </ul>
+      </section>
+      <section className="mcard stack g8" aria-labelledby="aa2-replies-h">
+        <h2 id="aa2-replies-h" className="mcard-title">Replies</h2>
+        {!rows ? <Skel cards={1} lines={2} /> : rows.length === 0 ? <p className="small muted" style={{ margin: 0 }} data-testid="aa2-replies-empty">No replies yet. When a company answers an email, the reply shows here and the tracker says Replied.</p> : <Replies rows={rows} />}
+      </section>
     </div>
   );
 }
@@ -406,6 +495,7 @@ export default function AutoApplyV2() {
       {tab === 'approve' && <Approvals toast={toast} onChanged={load} />}
       {tab === 'waiting' && <Waiting toast={toast} onChanged={load} />}
       {tab === 'suggested' && <Suggested toast={toast} onChanged={load} />}
+      {tab === 'email' && <EmailPanel toast={toast} />}
       {tab === 'rules' && <Rules d={d} onSaved={setD} toast={toast} />}
     </div>
   );
