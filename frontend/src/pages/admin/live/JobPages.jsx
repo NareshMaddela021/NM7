@@ -344,7 +344,7 @@ function Expired() {
 
 /** A company job waiting for review (scam signs / the AI check): why, then approve or reject with a reason typed here. */
 // round J: why a collector job waits for review
-const COLLECTOR_WHY = { no_page_text: 'No page text to summarise (the official page was empty or too short)', summary_failed: 'The summary failed a check (too long, copied the page, or had contact details)', summary_unavailable: 'AI summaries are off (no API key)', ai_daily_limit: "Today's AI summaries for the collector are used up", experience_not_stated: 'Experience not stated', city_not_stated: 'City not stated' };
+const COLLECTOR_WHY = { no_page_text: 'No page text to summarise (the official page was empty or too short)', summary_failed: 'The summary failed a check (too long, copied the page, or had contact details)', summary_unavailable: 'AI summaries are off (no API key)', ai_error: 'The AI could not be reached (an API error); sent back to the collector, so its next run writes the summary', ai_daily_limit: "Today's AI summaries for the collector are used up", experience_not_stated: 'Experience not stated', city_not_stated: 'City not stated' };
 
 function ReviewBox({ j, onDone }) {
   const toast = useToast();

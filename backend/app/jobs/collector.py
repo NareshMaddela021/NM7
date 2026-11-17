@@ -50,7 +50,7 @@ from app.core.time import now
 from app.jobs.ingest import BAD_KEY_RULES, _key_ok
 from app.jobs.model import JobIn, _fold, band_for_years, slug_for, to_doc
 from app.jobsearch import skills as dictionary
-from app.jobsearch.parse import CITIES
+from app.jobsearch.parse import CITIES, NOT_A_CITY, canonical_city
 
 log = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/jobs/collector", tags=["job board"])
@@ -158,6 +158,11 @@ CITY = re.compile(rf"\b({CITIES})\b", re.I)
 EMAIL = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
 PHONE = re.compile(r"(?<!\d)(?:\+?91[\s-]?)?(?:\d[\s-]?){10}(?!\d)|(?<!\d)\d{3,5}[\s-]\d{6,8}(?!\d)")
 WORK = {"onsite": "onsite", "hybrid": "hybrid", "remote": "remote"}
+REMOTE_PAGE = re.compile(
+    r"\b(fully remote|100% remote|remote[- ]first|remote (role|job|position|opportunity|work)|"
+    r"work from home|work-from-home|wfh)\b",
+    re.I,
+)
 
 
 def url_key(url: str) -> str:
@@ -270,7 +275,7 @@ def cities_of(location: str) -> tuple[list[str], str]:
         c = m.group(1)
         if c.lower() in ("remote", "work from home", "wfh", "hybrid", "pan india", "anywhere in india"):
             continue
-        c = c.title() if c.islower() else c
+        c = canonical_city(c)  # one spelling per city: "Bangalore" -> "Bengaluru", "PUNE" -> "Pune"
         if c.lower() not in {x.lower() for x in found}:
             found.append(c)
     low = (location or "").lower()
@@ -399,17 +404,28 @@ async def summarise(db, j: CollectorJob) -> tuple[dict[str, Any] | None, str]:
         return None, "no_page_text"
     if not get_settings().anthropic_api_key:
         return None, "summary_unavailable"
+    from app.jobs import ai_health
+
+    if ai_health.paused():  # a run of API errors just now: don't fail hundreds more calls (sent back instead)
+        return None, "ai_error"
     if not await take_budget(db):
         return None, "ai_daily_limit"
     try:
         out = await claude.ask_models("jobs", prompt(j, page), SCHEMA, check_summary(page), **ASK,
                                       http_client=HTTP_CLIENT)  # fmt: skip
-    except Exception as e:  # noqa: BLE001  (any failure: the job waits for review instead)
+    except claude.Unusable as e:  # the AI answered, but the summary failed a check (too long, copied, contact details)
         await refund_budget(db)
         await ai_quota.note(db, "jobs", "fallback")
-        # the kind and Anthropic's own message and request id (never the prompt, the page or the key)
-        log.warning("collector summary failed: %s%s", claude.error_kind(e), claude.error_detail(e))
+        log.warning("collector summary failed a check: %s", e.reason)
         return None, "summary_failed"
+    except Exception as e:  # noqa: BLE001  (an API error: key, credit, model, timeout... the job is sent back)
+        await refund_budget(db)
+        await ai_quota.note(db, "jobs", "failed")
+        kind = await ai_health.record_error(db, e)
+        # the kind and Anthropic's own message and request id (never the prompt, the page or the key)
+        log.warning("collector summary failed: %s%s", kind, claude.error_detail(e))
+        return None, "ai_error"
+    await ai_health.record_ok(db)
     return out, ""
 
 
@@ -435,7 +451,10 @@ def prompt(j: CollectorJob, page: str) -> list[dict[str, Any]]:
 
 OUTSIDE_INDIA = "outside India"
 # held only for these: sending them again (with page text, on a day with allowance left) can put them live
-RETRY = ("no_page_text", "ai_daily_limit", "summary_failed", "summary_unavailable")
+RETRY = ("no_page_text", "ai_daily_limit", "summary_failed", "summary_unavailable", "ai_error")
+# held only because the AI couldn't be reached or was out of allowance: sent back to the collector on their own, so the
+# next morning run writes the summary (17 Nov: 1,082 jobs held for an API error and nobody had sent them back)
+AUTO_RESEND = ("ai_error", "ai_daily_limit")
 PLACEHOLDER = "Summary not written yet: this job is waiting for review. Open the official page for the details."
 
 
@@ -469,6 +488,13 @@ async def handle(db, raw: Any, dry: bool, sem: asyncio.Semaphore) -> dict[str, A
     exp, exp_from = experience(j.exp_min, j.exp_max, j.title, j.exp_text)
     cities, work = cities_of(j.location)
     city_src = "location" if cities else ""
+    if (
+        not cities
+        and work != "remote"
+        and j.location.strip().lower() in NOT_A_CITY
+        and REMOTE_PAGE.search(scrub(j.page_text)[:4000])
+    ):
+        work = "remote"  # "India" alone, and the page says the job is remote: Remote (India), not "city not stated"
     # experience not stated is no reason to wait (round J2): "Experience not stated"; a missing city is filled from the
     # summary or the page when they name one (round W), so a job held only for its city goes live on its own
     missing_city = not cities and work != "remote"
@@ -512,6 +538,8 @@ async def handle(db, raw: Any, dry: bool, sem: asyncio.Semaphore) -> dict[str, A
     t = now()
     meta = {"url_key": ukey, "ct_key": ckey, "system": j.system[:40], "posted_raw": j.posted[:40],
             "exp_text": scrub(j.exp_text)[:200], "exp_from": exp_from, "location": j.location[:300], "city_from": city_src, "summarised": bool(facts) or has_summary, "removed": False}  # fmt: skip
+    if reasons and set(reasons) <= {*AUTO_RESEND, "city_not_stated"} and set(reasons) & set(AUTO_RESEND):
+        meta["resend"] = True  # the collector sends it again tomorrow (the list at GET /api/jobs/collector/resend)
     status = "review" if reasons else "active"
     review = {"reasons": reasons, "note": ""} if reasons else None
     if old:
