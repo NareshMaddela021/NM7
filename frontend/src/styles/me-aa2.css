@@ -44,3 +44,8 @@
 .aa2 .aa2-copynav .btn { min-height: 48px; height: auto; }
 .aa2-code { font-size: 24px; letter-spacing: .12em; font-variant-numeric: tabular-nums; }
 .aa2-closed { opacity: .8; }
+/* A7: the Replies inbox (unread dot) and This week. */
+.aa2-reply.aa2-unread { border-color: var(--accent); }
+.aa2-dot { display: inline-block; width: 8px; height: 8px; margin-right: 6px; border-radius: 999px; background: var(--accent); vertical-align: middle; }
+.aa2-week-ch { display: grid; gap: 4px; }
+.aa2-week-ch li { padding: 6px 10px; border-radius: 10px; border: 1px solid var(--border2); align-items: center; }

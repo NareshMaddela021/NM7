@@ -2,8 +2,8 @@
 // complaints, students on / paused, stuck items, company "Not relevant" marks, the run log with errors; the off switch
 // (off = nothing is applied or sent), every default, pause a student or a company, and the demo shortcut. All on the
 // page, no pop-up dialogs; everything is in the activity log.
-import { useEffect, useState } from 'react';
-import { useToast } from '../../../components/ui';
+import { Suspense, lazy, useEffect, useState } from 'react';
+import { Spinner, useToast } from '../../../components/ui';
 import { Kpi, PageHead, Panel } from '../AdminUI';
 import { langsShown, useLang } from '../../../lib/i18n';
 import { Loading, http, useAction, useApi, when } from './common';
@@ -36,6 +36,7 @@ export function LiveAutoApply() {
     <div className="adx adx-aa stack g16">
       <PageHead title="Auto Apply" sub="Every morning Nm7 applies for students within their own rules. Only Auto Apply 2.0 sends simple forms, and only on companies’ own sites (see “company form sites”); never a CAPTCHA, a login or a job board." />
       <V2Admin toast={toast} />
+      <V2Stats />
       <EmailHealth toast={toast} />
       <PartnerHealth />
       <FormSites toast={toast} />
@@ -185,8 +186,30 @@ function Companies({ toast }) {
 const V2_FIELDS = [
   ['autoMin', 'Match score that may be applied to automatically', 50, 100], ['suggestMin', '“Suggested for you” from this score', 30, 100],
   ['dailyLimit', 'New users’ applications a day', 1, 50], ['maxDailyLimit', 'Most a user may choose', 1, 50],
-  ['freePerWeek', 'Free applications a week (0 = no weekly limit)', 0, 500], ['paidLimit', 'Paid plan: applications a week (0 = not set)', 0, 1000],
 ];
+// A7: pricing. The weekly limits are enforced only while "Pricing on" is ticked (off by default). Payments are coming
+// soon: they can't be turned on here and nothing is ever charged.
+const PRICE_FIELDS = [
+  ['freePerWeek', 'Free applications a week (0 = no weekly limit)', 0, 500], ['paidLimit', 'Paid plan: applications a week (0 = no weekly limit)', 0, 1000],
+];
+const ALL_FIELDS = [...V2_FIELDS, ...PRICE_FIELDS];
+
+const AutoApplyNumbers = lazy(() => import('./AutoApplyNumbers'));
+
+// A7: the per-channel numbers and the success measures, counted now (the same as Admin → Daily report's section).
+function V2Stats() {
+  const st = useApi('/api/admin/auto-apply/v2/stats');
+  return (
+    <Panel title="Auto Apply 2.0: channels and success measures">
+      <Loading st={st}>{(d) => (
+        <div className="stack g8" data-testid="aa2-admin-stats">
+          <span className="xs muted">Last 7 days by channel (rates over 30 days). Demo accounts are never counted. The same numbers are in Admin → Daily report every morning.</span>
+          <Suspense fallback={<Spinner />}><AutoApplyNumbers aa={d} /></Suspense>
+        </div>
+      )}</Loading>
+    </Panel>
+  );
+}
 
 function V2Admin({ toast }) {
   const st = useApi('/api/admin/auto-apply/v2');
@@ -199,9 +222,9 @@ function V2Admin({ toast }) {
 
 function V2Form({ d, busy, save }) {
   const s = d.settings;
-  const [f, setF] = useState(() => ({ ...Object.fromEntries(V2_FIELDS.map(([k]) => [k, String(s[k] ?? '')])), testers: (s.testers || []).join(', '), paymentsOn: !!s.paymentsOn, testInbox: s.testInbox || '' }));
-  const bad = V2_FIELDS.some(([k, , lo, hi]) => !/^\d+$/.test(f[k]) || Number(f[k]) < lo || Number(f[k]) > hi);
-  const body = (over = {}) => ({ ...s, ...Object.fromEntries(V2_FIELDS.map(([k]) => [k, Number(f[k])])), testers: f.testers.split(/[\s,]+/).filter(Boolean), paymentsOn: f.paymentsOn, testInbox: f.testInbox.trim(), ...over });
+  const [f, setF] = useState(() => ({ ...Object.fromEntries(ALL_FIELDS.map(([k]) => [k, String(s[k] ?? '')])), testers: (s.testers || []).join(', '), pricingOn: !!s.pricingOn, testInbox: s.testInbox || '' }));
+  const bad = ALL_FIELDS.some(([k, , lo, hi]) => !/^\d+$/.test(f[k]) || Number(f[k]) < lo || Number(f[k]) > hi);
+  const body = (over = {}) => ({ ...s, ...Object.fromEntries(ALL_FIELDS.map(([k]) => [k, Number(f[k])])), testers: f.testers.split(/[\s,]+/).filter(Boolean), pricingOn: f.pricingOn, paymentsOn: false, testInbox: f.testInbox.trim(), ...over });
   const x = d.stats;
   return (
     <Panel title="Auto Apply 2.0">
@@ -225,7 +248,16 @@ function V2Form({ d, busy, save }) {
             <textarea className="input" rows={2} style={{ minHeight: 60, maxWidth: '100%' }} value={f.testers} onChange={(e) => setF({ ...f, testers: e.target.value })} data-testid="aa2-testers" /></label>
           <label className="stack g4 small">Test inbox for Auto Apply emails while hidden (empty = each tester’s own inbox). A company is never emailed while hidden.
             <input className="input" type="email" style={{ height: 38, maxWidth: 360 }} value={f.testInbox} onChange={(e) => setF({ ...f, testInbox: e.target.value })} placeholder="qa@yourmail.com" data-testid="aa2-test-inbox" /></label>
-          <label className="row g8 small"><input type="checkbox" checked={f.paymentsOn} onChange={(e) => setF({ ...f, paymentsOn: e.target.checked })} /> Payments on (off: free for everyone)</label>
+          <fieldset className="stack g8 well" style={{ margin: 0, border: '1px solid var(--border2)' }} data-testid="aa2-pricing">
+            <legend className="small"><strong>Pricing</strong></legend>
+            <label className="row g8 small"><input type="checkbox" checked={f.pricingOn} onChange={(e) => setF({ ...f, pricingOn: e.target.checked })} data-testid="aa2-pricingOn" /> Pricing on: enforce the weekly limits below (off: no weekly limit for anyone)</label>
+            {PRICE_FIELDS.map(([k, label, lo, hi]) => (
+              <label key={k} className="row g8 small" style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>{label}
+                <input className="input" type="number" inputMode="numeric" min={lo} max={hi} step={1} style={{ height: 38, width: 110 }} value={f[k]} onChange={(e) => setF({ ...f, [k]: e.target.value })} data-testid={`aa2-${k}`} /></label>
+            ))}
+            <label className="row g8 small muted"><input type="checkbox" checked={false} disabled data-testid="aa2-paymentsOn" /> Payments: coming soon. Auto Apply is free for everyone; nothing is charged.</label>
+            <span className="xs muted" data-testid="aa2-pricing-state">{s.pricingOn ? `Pricing is on: ${s.freePerWeek ? `${s.freePerWeek} free applications a week` : 'no weekly limit on free applications'}${s.paidLimit ? `, ${s.paidLimit} a week on the paid plan` : ''}.` : 'Pricing is off: no weekly limit.'}</span>
+          </fieldset>
           {bad && <span className="xs" style={{ color: 'var(--danger)' }}>Each value must be a whole number in its range.</span>}
           <button type="submit" className="btn btn-signal" style={{ alignSelf: 'flex-start' }} disabled={busy || bad} data-testid="aa2-admin-save">Save Auto Apply 2.0</button>
         </form>
