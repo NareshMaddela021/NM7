@@ -545,7 +545,7 @@ function ReviewQueue({ reasons, onChanged }) {
       )}
       <Loading st={st} empty={emptyIf((d) => !d.items.length, 'Nothing waiting here.')}>{(d) => (
         <>
-          <label className="row g8 small rq-pageall"><input type="checkbox" checked={pageAll || everything} onChange={togglePage} />Select all on this page ({d.items.length})</label>
+          <label className="row g8 small rq-pageall"><input type="checkbox" value="page" checked={pageAll || everything} onChange={togglePage} />Select all on this page ({d.items.length})</label>
           {pageAll && d.total > d.items.length && !everything && (
             <div className="well small row g8" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
               All {d.items.length} on this page are selected.
