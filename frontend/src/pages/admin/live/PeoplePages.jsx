@@ -9,6 +9,7 @@ import { Chip, MeCard } from '../../me/kit';
 import { Hero, Initial } from './SetupKit';
 import { API_BASE } from '../../../services/http';
 import { Loading, STATUS_LABEL, day, emptyIf, http, rupees, useAction, useApi, when } from './common';
+import { SortTh, useSort } from './sort';
 import { WaReport } from './PaymentsSettings';
 
 /* ---------- experts and applications ---------- */
@@ -32,7 +33,7 @@ export function LiveExperts() {
     <>
       <Hero icon="✦" title="Experts" sub="Approve applications, score test tasks and pause experts." stats={stats} />
       <div className="as-bar"><Tabs label="View" tabs={[['applications', 'Applications'], ['experts', 'Approved experts'], ['all', 'Everyone']]} value={tab} onChange={(v) => setParams({ tab: v })} /></div>
-      <div className={`as-split${open ? ' has-panel' : ''}`}>
+      <div className="as-split">
         <div style={{ minWidth: 0 }}>
           <Loading st={st} empty={emptyIf((d) => !d.filter(show).length, tab === 'applications' ? 'No applications waiting.' : tab === 'experts' ? 'No approved experts yet.' : 'No expert accounts yet.')}>{(d) => (
             <div className="mcard as-tcard">
@@ -181,19 +182,12 @@ function CustomerList({ initial }) {
         <button type="submit" className="btn btn-outline" style={{ minHeight: 40 }}>Search</button>
         {search && <span className="xs muted">Showing results for “{search}”</span>}
       </form>
-      <div className={`as-split${open ? ' has-panel' : ''}`}>
+      <div className="as-split">
         <div style={{ minWidth: 0 }}>
           <Loading st={st} failText={search ? 'Search couldn’t run — try different words.' : undefined} empty={emptyIf((d) => !d.items.length, search ? 'No customers match.' : 'No customers yet.')}>{(d) => (
             <div className="mcard as-tcard">
               <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns">
-                <table className="table mtable"><thead><tr><th>Name</th><th>Joined</th><th>Orders</th><th>Spent</th><th /></tr></thead>
-                  <tbody>{d.items.map((c) => (
-                    <tr key={c.id} onClick={() => setOpen(c.id)} className={open === c.id ? 'as-row-on' : undefined} style={{ cursor: 'pointer' }}>
-                      <td className="small"><span className="as-name"><Initial name={c.name} /><span><button type="button" className="link-btn small" onClick={() => setOpen(c.id)}>{c.name}</button><div className="xs faint">{c.email}</div></span></span></td>
-                      <td className="small" data-label="Joined">{day(c.joined)}</td><td className="small as-num" data-label="Orders">{c.orders}</td><td className="small as-num" data-label="Spent">{rupees(c.spent)}</td>
-                      <td>{c.blocked ? <Chip tone="bad">Blocked</Chip> : !c.verified ? <Chip>Email not confirmed</Chip> : null}</td>
-                    </tr>
-                  ))}</tbody></table>
+                <CustomersTable items={d.items} open={open} setOpen={setOpen} />
               </div>
               <div className="xs faint as-tcard-f">{d.total} customer(s)</div>
             </div>
@@ -202,6 +196,23 @@ function CustomerList({ initial }) {
         {open && <CustomerPanel id={open} onClose={() => setOpen(null)} onChanged={st.reload} />}
       </div>
     </>
+  );
+}
+
+const CUSTOMER_SORT = { name: (c) => c.name, joined: (c) => c.joined, orders: (c) => c.orders, spent: (c) => c.spent };
+
+function CustomersTable({ items, open, setOpen }) {
+  const { rows, sort, onSort } = useSort(items, CUSTOMER_SORT);
+  const th = (k, l) => <SortTh k={k} sort={sort} onSort={onSort}>{l}</SortTh>;
+  return (
+                <table className="table mtable"><thead><tr>{th('name', 'Name')}{th('joined', 'Joined')}{th('orders', 'Orders')}{th('spent', 'Spent')}<th scope="col"><span className="sr-only">Account</span></th></tr></thead>
+                  <tbody>{rows.map((c) => (
+                    <tr key={c.id} onClick={() => setOpen(c.id)} className={open === c.id ? 'as-row-on' : undefined} style={{ cursor: 'pointer' }}>
+                      <td className="small"><span className="as-name"><Initial name={c.name} /><span><button type="button" className="link-btn small" onClick={() => setOpen(c.id)}>{c.name}</button><div className="xs faint">{c.email}</div></span></span></td>
+                      <td className="small" data-label="Joined">{day(c.joined)}</td><td className="small as-num" data-label="Orders">{c.orders}</td><td className="small as-num" data-label="Spent">{rupees(c.spent)}</td>
+                      <td>{c.blocked ? <Chip tone="bad">Blocked</Chip> : !c.verified ? <Chip>Email not confirmed</Chip> : null}</td>
+                    </tr>
+                  ))}</tbody></table>
   );
 }
 

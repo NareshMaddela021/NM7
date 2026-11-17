@@ -26,6 +26,7 @@ import { TEMPLATE_PRESETS } from '../../builder/design';
 import { API_BASE } from '../../../services/http';
 import { BarChart, HBars, PageHead } from '../AdminUI';
 import { Loading, day, emptyIf, http, useAction, useApi, when } from './common';
+import { SortTh, useSort } from './sort';
 import { auditText } from './auditText';
 import Kiosks from '../../org/Kiosks';
 import Branding from '../../org/Branding';
@@ -566,6 +567,23 @@ function DemoOrg({ onOpen, reload }) {
 const PLAN_TONE = { active: 'ok', grace: 'warn', expired: 'bad' };
 
 /** /admin/orgs */
+const ORG_SORT = { name: (o) => o.name, type: (o) => o.typeName, plan: (o) => o.plan?.name || 'Free', groups: (o) => o.groups || 0, members: (o) => o.members || 0, added: (o) => o.createdAt };
+
+/** Round W: click a header to sort; cards on a phone. */
+function OrgTable({ rows: list, onOpen }) {
+  const { rows, sort, onSort } = useSort(list, ORG_SORT);
+  const th = (k, l) => <SortTh k={k} sort={sort} onSort={onSort}>{l}</SortTh>;
+  return (
+    <table className="table mtable" aria-label="Organizations"><thead><tr>{th('name', 'Organization')}{th('type', 'Type')}{th('plan', 'Plan')}{th('groups', 'Groups')}{th('members', 'Members')}{th('added', 'Added')}</tr></thead>
+      <tbody>{rows.map((o) => (
+        <tr key={o.id}>
+          <td><span className="ao-person"><span className="ao-av" aria-hidden="true">{(o.name || '?').trim().charAt(0).toUpperCase()}</span><span className="ao-person-t"><button type="button" className="link-btn ao-org-link" onClick={() => onOpen(o.id)}>{o.name}</button>{o.city && <span className="xs faint">{o.city}</span>}<span className="ao-tags">{o.status === 'archived' && <span className="badge b-neutral">Archived</span>}{o.demo && <span className="badge b-warning">Demo</span>}</span></span></span></td>
+          <td className="small" data-label="Type">{o.typeName}</td><td className="small" data-label="Plan"><Chip tone={PLAN_TONE[o.plan?.state] || 'neutral'}>{o.plan?.name || 'Free'}{o.plan?.state === 'grace' ? ' (grace)' : o.plan?.state === 'expired' ? ` (${o.plan.lastPlan} ended)` : ''}</Chip></td><td className="small ao-num" data-label="Groups">{o.groups}</td><td className="small ao-num" data-label="Members">{o.members}</td><td className="small" data-label="Added">{day(o.createdAt)}</td>
+        </tr>
+      ))}</tbody></table>
+  );
+}
+
 export function LiveOrgs() {
   const toast = useToast();
   const [params, setParams] = useSearchParams();
@@ -602,14 +620,8 @@ export function LiveOrgs() {
             <select id="ao-type" className="input" value={type} onChange={(e) => setType(e.target.value)}><option value="">All types</option>{ORG_TYPES.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select>
             <span className="xs muted ao-count">{shown.length} of {all.length}</span>
           </div>
-          <div className="table-wrap ao-table" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns">
-            <table className="table"><thead><tr><th>Organization</th><th>Type</th><th>Plan</th><th>Groups</th><th>Members</th><th>Added</th></tr></thead>
-              <tbody>{shown.map((o) => (
-                <tr key={o.id}>
-                  <td><span className="ao-person"><span className="ao-av" aria-hidden="true">{(o.name || '?').trim().charAt(0).toUpperCase()}</span><span className="ao-person-t"><button type="button" className="link-btn ao-org-link" onClick={() => setParams({ org: o.id })}>{o.name}</button>{o.city && <span className="xs faint">{o.city}</span>}<span className="ao-tags">{o.status === 'archived' && <span className="badge b-neutral">Archived</span>}{o.demo && <span className="badge b-warning">Demo</span>}</span></span></span></td>
-                  <td className="small">{o.typeName}</td><td className="small"><Chip tone={PLAN_TONE[o.plan?.state] || 'neutral'}>{o.plan?.name || 'Free'}{o.plan?.state === 'grace' ? ' (grace)' : o.plan?.state === 'expired' ? ` (${o.plan.lastPlan} ended)` : ''}</Chip></td><td className="small ao-num">{o.groups}</td><td className="small ao-num">{o.members}</td><td className="small">{day(o.createdAt)}</td>
-                </tr>
-              ))}</tbody></table>
+          <div className="table-wrap mtable-wrap ao-table" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns">
+            <OrgTable rows={shown} onOpen={(id) => setParams({ org: id })} />
             {shown.length === 0 && <p className="small muted" style={{ padding: 16, margin: 0 }}>No organization matches. Clear the search to see all.</p>}
           </div>
         </section>

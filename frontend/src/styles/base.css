@@ -23,6 +23,10 @@ p { margin: 0; }
 /* ---------- layout ---------- */
 .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
 .container-wide { max-width: 1440px; margin: 0 auto; padding: 0 24px; }
+/* round W: signed-in app pages fill the screen (no max-width): 24 px sides on a desktop, 16 px on a phone. The home page and
+   the public pages keep .container / .container-wide; the app frame with a side menu is components/AppShell. */
+.app-wide { width: 100%; max-width: none; margin: 0; padding-inline: 24px; }
+@media (max-width: 600px) { .app-wide { padding-inline: 16px; } }
 .stack { display: flex; flex-direction: column; }
 .row { display: flex; flex-wrap: wrap; align-items: center; }
 .between { justify-content: space-between; }
