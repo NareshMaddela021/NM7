@@ -41,7 +41,14 @@ def api(monkeypatch):
 
 
 def batch(n, prefix="t"):
-    return [{**JOB, "title": f"Graduate Engineer Trainee {i}", "apply_url": f"https://careers.acme-industries.com/jobs/{prefix}{i}"} for i in range(n)]
+    return [
+        {
+            **JOB,
+            "title": f"Graduate Engineer Trainee {i}",
+            "apply_url": f"https://careers.acme-industries.com/jobs/{prefix}{i}",
+        }
+        for i in range(n)
+    ]
 
 
 GOOD = {"summary": SUMMARY, "skills": ["AutoCAD", "Excel", "SAP"], "work_type": "onsite", "salary": None}
@@ -53,7 +60,9 @@ async def test_a_good_batch_writes_every_summary(client, db, key, api):
     a = api(answer=GOOD)
     out = await post(client, key, batch(12))
     assert out["created"] == 12, out
-    assert not any("summary_failed" in r.get("reasons", []) or "ai_error" in r.get("reasons", []) for r in out["results"])
+    assert not any(
+        "summary_failed" in r.get("reasons", []) or "ai_error" in r.get("reasons", []) for r in out["results"]
+    )
     assert await db[JOBS].count_documents({"status": "active", "collector.summarised": True}) == 12
     assert len(a.bodies) == 12
     st = await ai_health.status(db)
@@ -73,7 +82,11 @@ async def test_an_api_outage_is_named_paused_and_sent_back(client, db, key, api)
     r = await client.get("/api/jobs/collector/resend", headers=key)
     assert r.json()["count"] == 20
     st = await ai_health.status(db)
-    assert st["errorsToday"] >= 5 and st["lastErrorKind"] == "bad_request" and "credit balance is too low" in st["lastError"]
+    assert (
+        st["errorsToday"] >= 5
+        and st["lastErrorKind"] == "bad_request"
+        and "credit balance is too low" in st["lastError"]
+    )
     assert "sk-ant" not in str(st)
     # the AI works again (pause over): the jobs arrive again and go live
     ai_health.reset()
@@ -128,16 +141,27 @@ async def test_no_attention_when_summaries_were_written(client, db, key, api, ad
 def test_city_names_have_one_spelling():
     assert canonical_city("Bangalore") == "Bengaluru" and canonical_city("BANGALORE") == "Bengaluru"
     assert canonical_city("PUNE") == "Pune" and canonical_city("pune") == "Pune"
-    assert canonical_city("Bengaluru, Karnataka, India") == "Bengaluru" and canonical_city("Gurgaon, Haryana") == "Gurugram"
+    assert (
+        canonical_city("Bengaluru, Karnataka, India") == "Bengaluru"
+        and canonical_city("Gurgaon, Haryana") == "Gurugram"
+    )
     assert canonical_city("New Delhi") == "Delhi" and canonical_city("Vizag") == "Visakhapatnam"
-    assert canonical_city("India") == "India" and canonical_city("Tiruppur") == "Tiruppur" and canonical_city("Navi Mumbai") == "Navi Mumbai"
+    assert (
+        canonical_city("India") == "India"
+        and canonical_city("Tiruppur") == "Tiruppur"
+        and canonical_city("Navi Mumbai") == "Navi Mumbai"
+    )
     assert canonical_cities(["Bangalore", "Bengaluru", "PUNE", "Pune, Maharashtra"]) == ["Bengaluru", "Pune"]
     assert col.cities_of("Bangalore / PUNE")[0] == ["Bengaluru", "Pune"]
 
 
 async def test_new_jobs_and_the_jobs_filter_use_one_spelling(client, db, key, api):
     api(answer=GOOD)
-    await post(client, key, [{**JOB, "location": "BANGALORE, Karnataka", "apply_url": "https://careers.acme-industries.com/jobs/b1"}])
+    await post(
+        client,
+        key,
+        [{**JOB, "location": "BANGALORE, Karnataka", "apply_url": "https://careers.acme-industries.com/jobs/b1"}],
+    )
     j = await db[JOBS].find_one({})
     assert j["locations"] == ["Bengaluru"]
     r = await client.get("/api/jobs", params={"city": "Bangalore"})
@@ -146,15 +170,27 @@ async def test_new_jobs_and_the_jobs_filter_use_one_spelling(client, db, key, ap
 
 async def test_india_alone_and_a_remote_page_is_remote_india(client, db, key, api):
     api(answer={**GOOD, "work_type": "remote"})
-    page = JOB["page_text"].replace("Location: Pune, Maharashtra (onsite).", "This is a fully remote role open across India.")
-    await post(client, key, [{**JOB, "location": "India", "page_text": page, "apply_url": "https://careers.acme-industries.com/jobs/r1"}])
+    page = JOB["page_text"].replace(
+        "Location: Pune, Maharashtra (onsite).", "This is a fully remote role open across India."
+    )
+    await post(
+        client,
+        key,
+        [{**JOB, "location": "India", "page_text": page, "apply_url": "https://careers.acme-industries.com/jobs/r1"}],
+    )
     j = await db[JOBS].find_one({})
     assert j["work_type"] == "remote" and j["locations"] == [] and j["status"] == "active"
 
 
 async def test_repairs_send_back_stuck_jobs_and_tidy_cities(db):
     t = datetime(2026, 11, 17, 0, 12, tzinfo=UTC)
-    base = {"source": "collector", "status": "review", "collector": {"url_key": "x"}, "locations": ["India"], "work_type": "onsite"}
+    base = {
+        "source": "collector",
+        "status": "review",
+        "collector": {"url_key": "x"},
+        "locations": ["India"],
+        "work_type": "onsite",
+    }
     await db[JOBS].insert_many([
         {**base, "_id": "a", "dedupe_key": "ka", "slug": "sa", "review": {"reasons": ["summary_failed"]}, "updated_at": t},  # the outage batch
         {**base, "_id": "b", "dedupe_key": "kb", "slug": "sb", "review": {"reasons": ["city_not_stated", "summary_failed"]}, "updated_at": t},
@@ -180,7 +216,9 @@ async def test_repairs_send_back_stuck_jobs_and_tidy_cities(db):
 async def test_server_errors_are_kept_without_request_data(db):
     from app.admin.daily import count_error, ist_day
 
-    await count_error("POST", "/api/me/resumes/0123456789abcdef0123", ValueError("bad value for x@y.com\nsecond line"), "abc123")
+    await count_error(
+        "POST", "/api/me/resumes/0123456789abcdef0123", ValueError("bad value for x@y.com\nsecond line"), "abc123"
+    )
     d = await db[OPS_DAILY].find_one({"_id": f"errors:{ist_day().isoformat()}"})
     e = d["recent"][-1]
     assert d["n"] == 1 and e["path"] == "/api/me/resumes/:id" and e["error"] == "ValueError"

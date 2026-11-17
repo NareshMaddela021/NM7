@@ -21,6 +21,16 @@ from app.core.db import SETTINGS
 from app.core.time import IST, now
 
 log = logging.getLogger("nm7.jobs")
+
+
+def __getattr__(name: str):  # SCHEMA: the collector's own (read lazily: the collector imports this module too)
+    if name == "SCHEMA":
+        from app.jobs.collector import SCHEMA
+
+        return SCHEMA
+    raise AttributeError(name)
+
+
 DOC = "collector_ai"
 FAIL_STREAK = 5
 PAUSE = timedelta(minutes=10)
@@ -111,8 +121,9 @@ async def probe(db) -> dict[str, Any]:
     })  # fmt: skip
     page = collector.scrub(j.page_text)
     stats: dict[str, Any] = {}
+    SCHEMA = collector.SCHEMA  # noqa: N806  (the same schema the collector sends)
     try:
-        await claude.ask_models("jobs", collector.prompt(j, page), collector.SCHEMA, collector.check_summary(page),
+        await claude.ask_models("jobs", collector.prompt(j, page), SCHEMA, collector.check_summary(page),
                                 stats=stats, **collector.ASK, http_client=collector.HTTP_CLIENT)  # fmt: skip
     except claude.Unusable as e:
         return {"ok": False, "kind": e.reason, "error": "The AI answered, but the answer failed the summary checks."}
