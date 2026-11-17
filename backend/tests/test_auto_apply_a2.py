@@ -372,3 +372,18 @@ async def test_demo_company_shows_labelled_auto_applications(client, outbox, db,
     jobs = (await client.get(f"/api/company/{cid}/jobs", headers=H(session))).json()
     live = [x for x in jobs if x["status"] == "active"]
     assert live and all(x["autoApply"]["accept"] for x in live)
+
+
+async def test_todays_auto_apply_obeys_a_company_that_turned_auto_applications_off(client, outbox, db):
+    from tests.test_auto_apply_engine import run as run_v1
+    from tests.test_auto_apply_engine import student
+
+    await save_site(db, {"auto_apply_v2": {"testers": [FOUNDER]}})  # this company sees the controls
+    session, cid = await verified(client, outbox, db)
+    off = await company_job(client, session, cid, "Junior Data Analyst", autoApply={"accept": False})
+    plain = await company_job(client, session, cid, "Data Analyst Trainee")
+    uid = await student(client, outbox, db)
+    await run_v1(db)
+    got = {a["job_id"] async for a in db[APPLICATIONS].find({"user_id": uid})}
+    assert plain["id"] in got and off["id"] not in got
+    assert (await db[AUTO_ITEMS].find_one({"user_id": uid, "job_id": off["id"]}))["reason"] == "company_off"
