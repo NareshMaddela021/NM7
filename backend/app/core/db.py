@@ -146,6 +146,8 @@ JOININGS = "joinings"  # Phase 6 S10: jobs joined (Nm7 offers or told by the stu
 JOINING_REPORTS = "joining_reports"  # Phase 6 S10: "not as promised" reports from check-ins (Admin → Joining reports)
 PRACTICE_ATTEMPTS = "practice_attempts"  # Phase 6 S3: practice tests (never a verified score; kept apart from H3)
 LEARN_PROGRESS = "learn_progress"  # Phase 6 S2, _id = user:role: courses ticked, the project sent, verified at
+DAILY_REPORTS = "daily_reports"  # Admin → Daily report: one snapshot per IST day (_id "YYYY-MM-DD"), 30-day trends
+COLLECTOR_RUNS = "collector_runs"  # the job collector's run reports (_id = its runId): counts, reasons, ok / error
 HIRE_PROFILES = "hire_profiles"  # Phase 5 H1, _id = user: "Ready to join" (join date, cities, salary), consent
 COLLECTIONS = (
     USERS,
@@ -254,6 +256,8 @@ COLLECTIONS = (
     PROGRAM_APPS,
     JOININGS,
     JOINING_REPORTS,
+    DAILY_REPORTS,
+    COLLECTOR_RUNS,
 )
 
 DAY = 86_400
@@ -436,6 +440,7 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel("token_hash", unique=True),
         IndexModel([("org_id", ASCENDING), ("created_at", DESCENDING)]),
     ],
+    COLLECTOR_RUNS: [IndexModel([("day", ASCENDING), ("started_at", DESCENDING)])],
     AUDIT_LOG: [
         IndexModel([("at", DESCENDING)]),
         IndexModel("action"),
