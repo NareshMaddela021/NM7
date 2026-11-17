@@ -4,11 +4,12 @@ by a one-time link, never emailed, never shown to a real company, and removed wi
 from app.admin import test_users
 from app.core.db import APPLICATIONS, RESUMES, SESSIONS, USERS
 from app.core.email import Email, send_safely
+from app.core.testusers import IDS, uid_of
 from tests.test_companies_apply import company_job
 from tests.test_jobs_public import add
 
 ADMIN = "/api/admin/test-users"
-MINE = {"_id": {"$regex": "^demo-test-"}}
+MINE = {"_id": {"$in": list(IDS)}}
 
 
 def test_people_are_all_different_and_mixed():
@@ -41,7 +42,7 @@ async def test_create_open_and_remove(client, outbox, db, admin_client, make_cli
     # the one-time link signs a browser in as test user 3 (experienced, full resume)
     r = (await owner.post(f"{ADMIN}/3/open")).json()
     token = r["path"].split("#t=")[1]
-    assert r["path"].startswith("/demo-student#t=") and r["user"] == "demo-test-003"
+    assert r["path"].startswith("/demo-student#t=") and r["user"] == uid_of(3)
     phone = make_client()
     assert (await phone.post("/api/public/demo-student", json={"token": token})).json() == {"path": "/me"}
     assert (await phone.post("/api/public/demo-student", json={"token": token})).status_code == 400  # one time
@@ -60,7 +61,7 @@ async def test_create_open_and_remove(client, outbox, db, admin_client, make_cli
     assert await db[APPLICATIONS].count_documents({"company_id": cid}) == 0
     # creating again starts fresh: what test user 3 made is gone, and that browser is signed out
     assert (await owner.post(ADMIN)).json()["created"] == 100
-    assert await db[APPLICATIONS].count_documents({"user_id": "demo-test-003"}) == 0
+    assert await db[APPLICATIONS].count_documents({"user_id": uid_of(3)}) == 0
     assert (await phone.get("/api/auth/me")).status_code == 401
     # remove: nothing of theirs is left
     assert (await owner.request("DELETE", ADMIN)).json() == {"removed": 100}

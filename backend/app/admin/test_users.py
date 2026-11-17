@@ -33,13 +33,12 @@ from app.core.db import DB, EMAIL_CODES, RESUMES, SESSIONS, USERS
 from app.core.errors import ApiError
 from app.core.heavy import heavy_or_busy
 from app.core.security import hash_token
-from app.core.testusers import DOMAIN, PREFIX
+from app.core.testusers import COUNT, DOMAIN, IDS, uid_of
 from app.core.time import now
 from app.hire.templates import TEMPLATES
 
 router = APIRouter(prefix="/api/admin/test-users", tags=["test users"])
 
-COUNT = 100
 LINK_TTL = timedelta(minutes=5)
 PATH = "/me"
 
@@ -52,10 +51,6 @@ KINDS = ("student", "fresher", "experienced", "senior")
 STAGES = ("none", "started", "full", "full", "full")  # 20 without a resume, 20 just started, 60 complete
 EDU = {"10th": "SSC (10th)", "12th": "Intermediate (12th)", "iti": "ITI", "diploma": "Diploma",
        "graduate": "B.Tech", "postgraduate": "MBA"}  # fmt: skip
-
-
-def uid_of(n: int) -> str:
-    return f"{PREFIX}{n:03d}"
 
 
 def person(i: int) -> dict[str, Any]:
@@ -136,7 +131,7 @@ async def remove(db) -> int:
     can, so they go through the same erase as a deleted account; the rest only have what `create` gave them."""
     from app.me.erase import erase_user_data
 
-    mine = {"$regex": f"^{PREFIX}"}
+    mine = {"$in": list(IDS)}
     opened = [u["_id"] async for u in db[USERS].find({"_id": mine, "test_opened_at": {"$ne": None}}, {"_id": 1})]
     for uid in opened:
         await erase_user_data(db, uid)
@@ -199,10 +194,7 @@ def _row(p: dict[str, Any], u: dict[str, Any]) -> dict[str, Any]:
 
 @router.get("")
 async def test_users(db: DB, _: AdminAuth("settings")) -> dict[str, Any]:
-    have = {
-        u["_id"]: u
-        async for u in db[USERS].find({"_id": {"$regex": f"^{PREFIX}"}, "demo": True}, {"test_opened_at": 1})
-    }
+    have = {u["_id"]: u async for u in db[USERS].find({"_id": {"$in": list(IDS)}, "demo": True}, {"test_opened_at": 1})}
     people = [person(i) for i in range(COUNT)]
     return {"count": len(have), "total": COUNT, "users": [_row(p, have[p["id"]]) for p in people if p["id"] in have]}
 

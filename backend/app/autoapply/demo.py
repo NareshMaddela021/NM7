@@ -27,7 +27,7 @@ from app.core.db import APPLICATIONS, AUTO_COPIES, AUTO_ITEMS, COMPANIES, DB, JO
 from app.core.errors import ApiError
 from app.core.schemas import CamelModel
 from app.core.security import hash_password, hash_token
-from app.core.testusers import PREFIX as TEST_PREFIX
+from app.core.testusers import IDS as TEST_USERS
 from app.core.time import now
 from app.jobs.apply import app_key, job_page
 
@@ -330,7 +330,7 @@ async def sign_in(body: TokenIn, request: Request, response: Response, db: DB) -
         {
             "$or": [
                 {"_id": {"$in": [STUDENT_ID, simple_demo.STUDENT_ID, seek_demo.MEERA, seek_demo.ARJUN]}},
-                {"_id": {"$regex": f"^{TEST_PREFIX}"}},  # the 100 test users (app/admin/test_users.py)
+                {"_id": {"$in": list(TEST_USERS)}},  # the 100 test users (app/admin/test_users.py)
             ],
             "demo": True,
             "demo_login_hash": hash_token(body.token),
