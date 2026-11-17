@@ -34,9 +34,10 @@ const TABS = [['tracker', 'Tracker'], ['approve', 'Approve'], ['waiting', 'Waiti
 const fmtAt = (ms) => (ms ? new Date(ms).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) : '');
 const list = (s) => String(s || '').split(',').map((x) => x.trim()).filter(Boolean);
 
-export function ChannelTag({ channel }) {
+export function ChannelTag({ channel, partner }) {
   const [ic, label] = CHANNELS[channel] || CHANNELS.internal;
-  return <span className="aa2-ch" data-channel={channel}><span aria-hidden="true">{ic}</span> {label}</span>;
+  const name = channel === 'partner' && partner?.name ? ` · ${partner.name}` : '';
+  return <span className="aa2-ch" data-channel={channel} data-testid="aa2-ch"><span aria-hidden="true">{ic}</span> {label}{name}</span>;
 }
 
 function JobHead({ it }) {
@@ -146,8 +147,9 @@ function TrackerRow({ it, onChanged, toast }) {
     <li className="mcard mcard-tight stack g8 aa2-row" data-testid="aa2-row" data-stage={it.stage}>
       <div className="aa2-rowtop">
         <JobHead it={it} />
-        <span className="aa2-tags"><Chip tone={STAGE_TONE[it.stage]}>{it.outcome ? OUTCOME[it.outcome] || it.outcome : TABS_STAGE[it.stage]}</Chip><ChannelTag channel={it.channel} /></span>
+        <span className="aa2-tags"><Chip tone={STAGE_TONE[it.stage]}>{it.outcome ? OUTCOME[it.outcome] || it.outcome : TABS_STAGE[it.stage]}</Chip><ChannelTag channel={it.channel} partner={it.partner} /></span>
       </div>
+      {it.partner && <span className="xs muted aa2-wrap" data-testid="aa2-row-partner">{it.partner.state === 'kept' ? `Not delivered to ${it.partner.name}: it stays in the company’s Nm7 dashboard.` : `${it.partner.stateText} to the company’s hiring system (${it.partner.name}). It is in their Nm7 dashboard too.`}</span>}
       {it.notice && <span className="xs muted aa2-wrap" data-testid="aa2-row-notice">{it.notice.text}</span>}
       {it.replies > 0 && <span className="xs aa2-wrap" data-testid="aa2-row-replies">✉ {it.replies} {it.replies === 1 ? 'reply' : 'replies'} to your apply address: open “What was sent”</span>}
       {it.applyTo && <span className="xs muted aa2-wrap" data-testid="aa2-row-applyto">Apply by email yourself: <a href={`mailto:${it.applyTo}`}>{it.applyTo}</a> (attach your tailored resume)</span>}
@@ -265,7 +267,7 @@ function Approvals({ toast, onChanged }) {
         <ul className="stack g8 aa2-list">
           {d.items.map((it) => (
             <li key={it.id} className="mcard mcard-tight stack g8" data-testid="aa2-approval">
-              <div className="aa2-rowtop"><JobHead it={it} /><ChannelTag channel={it.channel} /></div>
+              <div className="aa2-rowtop"><JobHead it={it} /><ChannelTag channel={it.channel} partner={it.partner} /></div>
               {it.reasons.length > 0 && <span className="xs muted aa2-wrap">{it.reasons.join(' · ')}</span>}
               <Parts it={it} />
               <div className="row g8 aa2-actions">
@@ -299,7 +301,7 @@ function WaitingItem({ it, toast, onDone }) {
   };
   return (
     <li className="mcard mcard-tight stack g8" data-testid="aa2-waiting-item">
-      <div className="aa2-rowtop"><JobHead it={it} /><ChannelTag channel={it.channel} /></div>
+      <div className="aa2-rowtop"><JobHead it={it} /><ChannelTag channel={it.channel} partner={it.partner} /></div>
       <form className="stack g8" onSubmit={send}>
         {it.questions.map((q) => (
           <fieldset key={q.id} className="stack g4" style={{ border: 0, margin: 0, padding: 0 }}>
@@ -354,7 +356,7 @@ function Suggested({ toast, onChanged }) {
     <ul className="stack g8 aa2-list" data-testid="aa2-suggested">
       {d.map((it) => (
         <li key={it.id} className="mcard mcard-tight stack g8" data-testid="aa2-suggestion">
-          <div className="aa2-rowtop"><JobHead it={it} /><ChannelTag channel={it.channel} /></div>
+          <div className="aa2-rowtop"><JobHead it={it} /><ChannelTag channel={it.channel} partner={it.partner} /></div>
           {(it.reasons.length > 0 || it.concerns.length > 0) && <span className="xs muted aa2-wrap">{[...it.reasons, ...it.concerns].join(' · ')}</span>}
           <Parts it={it} />
           <div className="row g8 aa2-actions">
