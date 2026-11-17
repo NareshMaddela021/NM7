@@ -229,6 +229,14 @@ select.input { appearance: none; -webkit-appearance: none; padding-right: 40px; 
 .me-side .admin-link:hover, .dialog .me-group .admin-link:hover { background: var(--lav); color: var(--text); }
 .me-side .admin-link.active, .dialog .me-group .admin-link.active { background: #efeaff; color: #3f36c9; }
 .dialog .me-group-h { padding-left: 10px; }
+/* round W: the /me frame is components/AppShell — the side menu runs the full height beside the page instead of a card */
+.app-side.me-side { max-height: none; border-radius: 0; box-shadow: none; border: 0; border-right: 1px solid var(--border); padding: 10px 10px 16px; gap: 2px; }
+.app-side.me-side .app-side-foot { padding: 8px 10px 0; border-top: 1px solid var(--border); }
+.me-shell[data-collapsed="true"] .me-group-h { display: none; }
+@media (max-width: 900px) {
+  .app-shell.me-shell { grid-template-columns: minmax(0, 1fr); }
+  .me-shell .app-main { padding-bottom: 96px; }
+}
 
 /* a dashboard page's header: title, line, buttons, and a small dotted shape in the section's tint (desktop) */
 .me-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px 16px; padding: 4px 0 2px; }

@@ -1,7 +1,8 @@
 // Round W: the frame for signed-in work areas (Admin first; company, college and expert dashboards next). Content
 // fills the screen (24 px side padding, 16 px on a phone). On a desktop the side menu runs the full height, stays put and
 // scrolls on its own, and folds to icons with a button (remembered in this browser). On a phone the menu is a sideways
-// strip (phone="strip") or a drawer behind a Menu button (phone="drawer": Esc or a tap outside closes it).
+// strip (phone="strip") or a drawer behind a Menu button (phone="drawer": Esc or a tap outside closes it), or it is
+// hidden (phone="none") when the page brings its own phone menu (the customer dashboard's bottom tabs).
 // Each menu link: <a ...><span aria-hidden="true">{icon}</span><span className="app-side-text">{label}</span></a> —
 // the words stay readable to screen readers when folded. Styles: styles/app-shell.css.
 import { useEffect, useRef, useState } from 'react';

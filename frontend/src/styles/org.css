@@ -1,12 +1,13 @@
 /* The college / organization portal frame (round P, Phase 4): a side menu card with the college's name and plan,
    links in groups, and a section title with a small teal dotted shape (desktop only). Phones: the links become a
    sideways strip that stays at the top. Page styles live in org-*.css next to their pages. */
-.og-shell { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; align-items: start; max-width: 1280px; margin: 0 auto; width: 100%; }
+.og-shell { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; align-items: start; width: 100%; } /* round W: full width */
 @media (min-width: 960px) { .og-shell { grid-template-columns: 248px minmax(0, 1fr); } }
+@media (min-width: 1600px) { .og-shell { grid-template-columns: 264px minmax(0, 1fr); gap: 28px; } }
 
 .og-side { display: flex; flex-direction: column; gap: 12px; min-width: 0; padding: 14px 10px; border-radius: 22px;
   background: rgba(255, 255, 255, .88); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
-@media (min-width: 960px) { .og-side { position: sticky; top: 88px; } }
+@media (min-width: 960px) { .og-side { position: sticky; top: 88px; max-height: calc(100dvh - 104px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; } }
 .og-side-head { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; padding: 2px 6px 10px; border-bottom: 1px solid var(--border); }
 .og-avatar { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; font-weight: 800; font-size: 18px; color: #fff;
   background: linear-gradient(135deg, #14b8a6, #0f766e); }

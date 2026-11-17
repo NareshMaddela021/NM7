@@ -27,6 +27,8 @@
 }
 @media (max-width: 899px) {
   .app-main { padding: 12px 16px 64px; }
+  /* the page brings its own phone menu */
+  .app-shell[data-phone="none"] .app-side { display: none; }
   /* a drawer behind a Menu button */
   .app-shell[data-phone="drawer"] .app-phonebar { display: flex; align-items: center; gap: 8px; padding: 8px 16px 0; }
   .app-shell[data-phone="drawer"] .app-side { position: fixed; z-index: 45; top: 0; bottom: 0; left: 0; width: min(300px, 86vw); overflow-y: auto;

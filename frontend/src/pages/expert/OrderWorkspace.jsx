@@ -224,7 +224,7 @@ function OrderWorkspace({ id }) {
       </div>
       </div>
 
-      <div className="container-wide" style={{ padding: '0 24px' }}>
+      <div className="app-wide">
         {embedded && <Builder embedded={{ ...embedded, replace, focus }} />}
       </div>
 
