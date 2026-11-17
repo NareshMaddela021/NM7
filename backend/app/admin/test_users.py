@@ -109,7 +109,7 @@ def resume_data(p: dict[str, Any]) -> dict[str, Any]:
         if p["years"] > first:
             exp.append({"company": "Earlier Test Firm (made-up)", "role": f"Junior {tpl['title']}",
                         "from": f"{year - p['years']}-01", "to": f"{year - first - 1}-12", "current": False,
-                        "description": f"Started with {tpl['skills'][0].lower()} and grew into the full role."})  # fmt: skip
+                        "description": f"Started with {tpl['skills'][0].lower()}, then the full role."})  # fmt: skip
     what = "Final-year student" if studying else "Fresher" if not p["years"] else f"{p['years']} years of experience"
     return {
         "personal": {**personal, "headline": tpl["title"]},
