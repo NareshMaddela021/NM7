@@ -171,6 +171,10 @@ def email_health(mailer: Mailer) -> str:
 
 async def send_safely(mailer: Mailer, msg: Email) -> bool:
     """Email problems must not break sign-up or payments; they are logged and the user can ask again."""
+    from app.core.testusers import is_test_address
+
+    if is_test_address(msg.to):  # the 100 test users (Admin → Settings): made-up addresses, never sent
+        return True
     try:
         await mailer.send(msg)
         RECENT.append((time.time(), True))

@@ -36,6 +36,7 @@ from app.core.email import Email, Mailer, send_safely
 from app.core.errors import ApiError
 from app.core.schemas import CamelModel
 from app.core.security import keyed_hash, same
+from app.core.testusers import is_test_user
 from app.core.time import IST, now
 
 log = logging.getLogger("nm7.jobs")
@@ -99,6 +100,9 @@ async def apply(job_id: str, body: ApplyIn, auth: CustomerAuth, db: DB) -> dict[
     t = now()
     key = app_key(job_id)
     company_job = bool(j.get("company_id")) and method == "nm7"
+    if company_job and is_test_user(uid):  # a real company must never see a made-up applicant
+        raise ApiError(409, "test_user", "Test users can’t apply to a real company’s job. Try a job that applies "
+                       "on another website or by email.")  # fmt: skip
     extra: dict[str, Any] = {}
     if company_job and not await db[APPLICATIONS].find_one({"user_id": uid, "key": key}, {"_id": 1}):
         from app.companies import questions
