@@ -334,7 +334,11 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel([("user_id", ASCENDING), ("state", ASCENDING)]),
         IndexModel([("state", ASCENDING), ("updated_at", DESCENDING)]),
     ],
-    AUTO_COPIES: [IndexModel([("user_id", ASCENDING), ("job_id", ASCENDING)])],
+    AUTO_COPIES: [
+        IndexModel([("user_id", ASCENDING), ("job_id", ASCENDING)]),
+        # Auto Apply 2.0: one tailored version per (candidate, job, resume version), never tailored twice
+        IndexModel("cache_key", unique=True, partialFilterExpression=_str("cache_key")),
+    ],
     HIRE_PROFILES: [IndexModel([("on", ASCENDING), ("confirmed_at", DESCENDING)])],
     LEARN_PROGRESS: [IndexModel([("user_id", ASCENDING), ("updated_at", DESCENDING)])],
     PRACTICE_ATTEMPTS: [IndexModel([("user_id", ASCENDING), ("started_at", DESCENDING)])],

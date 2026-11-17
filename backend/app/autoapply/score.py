@@ -94,10 +94,13 @@ def parts(
     t = t or now()
     wanted = len(f.get("found") or []) + len(f.get("missing") or [])
     found = f.get("found") or []
-    skills = (len(found) / wanted if wanted else 0.5), (
-        f"Matches {len(found)} of {wanted} skills" + (f" ({', '.join(found[:3])})" if found else "")
-        if wanted
-        else "The job lists no skills"
+    skills = (
+        (len(found) / wanted if wanted else 0.5),
+        (
+            f"Matches {len(found)} of {wanted} skills" + (f" ({', '.join(found[:3])})" if found else "")
+            if wanted
+            else "The job lists no skills"
+        ),
     )
     exp_share, exp = fitmod._experience(f.get("level") or job.get("experience") or "", float(f.get("years") or 0))
     exp_note = {
@@ -129,7 +132,7 @@ def parts(
 
 
 def thresholds(site: dict[str, Any], a: dict[str, Any] | None = None) -> tuple[int, int]:
-    """(auto, suggest): the candidate may ask for a stricter auto threshold (their minimum score), never a looser one."""
+    """(auto, suggest): the candidate may ask for a stricter auto threshold (their minimum score), never looser."""
     v2 = site["auto_apply_v2"]
     auto = max(int(v2["auto_min"]), int((a or {}).get("min_score") or 0))
     return auto, min(int(v2["suggest_min"]), auto)

@@ -580,41 +580,57 @@ async def run(db, mailer=None, force: bool = False, limit: int = PAGE) -> dict[s
                 "disabled_at": None,
                 "demo": {"$ne": True},  # demo students never run (their jobs are demo-only; no email to them)
             },
-            {"auto_apply": 1, "email": 1, "name": 1},
+            {"auto_apply": 1, "email": 1, "email_lc": 1, "name": 1, "role": 1, "demo": 1},
         )
         .limit(limit)
     )
-    async for u in users:
-        got = await db[USERS].find_one_and_update(  # the per-student lock
-            {
-                "_id": u["_id"],
-                "auto_apply.run_day": {"$ne": day},
-                "$or": [{"auto_apply.lock_until": None}, {"auto_apply.lock_until": {"$lt": now()}}],
-            },
-            {"$set": {"auto_apply.lock_until": now() + LOCK}},
-        )
-        if not got:
-            continue
-        try:
-            await run_user(db, got, site, day, counts, mailer)
-            from app.autoapply.summary import after_run
+    from app.autoapply import access, v2engine
+    from app.core.heavy import heavy_or_skip
 
-            sent = await after_run(db, mailer, got, day)  # the daily summary / weekly report, when there is news
-            counts["summary_emails"] = counts.get("summary_emails", 0) + sent["daily"] + sent["weekly"]
-        except Exception as e:  # noqa: BLE001 — one student's problem never stops the others
-            log.exception("auto apply: run failed for one student")
-            await db[AUTO_RUNS].update_one(
-                {"_id": day},
+    v2 = site["auto_apply_v2"]
+    async with heavy_or_skip(db) as heavy:  # 2.0 tailors: a heavy job; another heavy job running → 2.0 waits a pass
+        async for u in users:
+            is_v2 = bool((u.get("auto_apply") or {}).get("v2_consent_at")) and access.allowed(u, v2)
+            if is_v2 and not heavy:
+                counts["v2_waiting_heavy"] = counts.get("v2_waiting_heavy", 0) + 1
+                continue
+            got = await db[USERS].find_one_and_update(  # the per-student lock
                 {
-                    "$push": {
-                        "errors": {"$each": [{"user": u["_id"], "error": str(e)[:200], "at": now()}], "$slice": -50}
-                    }
+                    "_id": u["_id"],
+                    "auto_apply.run_day": {"$ne": day},
+                    "$or": [{"auto_apply.lock_until": None}, {"auto_apply.lock_until": {"$lt": now()}}],
                 },
+                {"$set": {"auto_apply.lock_until": now() + LOCK}},
             )
-        await db[USERS].update_one(
-            {"_id": u["_id"]}, {"$set": {"auto_apply.run_day": day, "auto_apply.lock_until": None}}
-        )
-        done += 1
+            if not got:
+                continue
+            try:
+                if is_v2:
+                    await v2engine.run_user(db, got, site, day, counts, mailer)
+                else:
+                    await run_user(db, got, site, day, counts, mailer)
+                if not is_v2 or access.may_mail(got, v2):  # 2.0 while hidden: no email to anyone but testers
+                    from app.autoapply.summary import after_run
+
+                    sent = await after_run(db, mailer, got, day)  # the daily summary / weekly report, when news
+                    counts["summary_emails"] = counts.get("summary_emails", 0) + sent["daily"] + sent["weekly"]
+            except Exception as e:  # noqa: BLE001 — one student's problem never stops the others
+                log.exception("auto apply: run failed for one student")
+                await db[AUTO_RUNS].update_one(
+                    {"_id": day},
+                    {
+                        "$push": {
+                            "errors": {
+                                "$each": [{"user": u["_id"], "error": str(e)[:200], "at": now()}],
+                                "$slice": -50,
+                            }
+                        }
+                    },
+                )
+            await db[USERS].update_one(
+                {"_id": u["_id"]}, {"$set": {"auto_apply.run_day": day, "auto_apply.lock_until": None}}
+            )
+            done += 1
     inc = {f"counts.{k}": v for k, v in counts.items() if v}
     await db[AUTO_RUNS].update_one(
         {"_id": day},

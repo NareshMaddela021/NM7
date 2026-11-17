@@ -32,3 +32,32 @@ async def for_user(db, uid: str, site: dict[str, Any] | None = None) -> bool:
     if v2.get("public"):
         return True
     return allowed(await db[USERS].find_one({"_id": uid}, PROJECTION), v2)
+
+
+async def is_public(db) -> bool:
+    return bool((await get_site(db))["auto_apply_v2"].get("public"))
+
+
+async def testers(db) -> set[str]:
+    return {str(e).lower() for e in (await get_site(db))["auto_apply_v2"].get("testers") or []}
+
+
+def may_mail(user: dict[str, Any] | None, v2: dict[str, Any]) -> bool:
+    """Background 2.0 emails to this person: everyone when public; while hidden only the listed testers (admins and
+    demo accounts see 2.0 on the site but get no 2.0 email)."""
+    if v2.get("public"):
+        return True
+    if not user or user.get("demo"):
+        return False
+    email = (user.get("email_lc") or user.get("email") or "").lower()
+    return bool(email) and email in {str(e).lower() for e in v2.get("testers") or []}
+
+
+async def mail_filter(db) -> dict[str, Any] | None:
+    """A Mongo filter on users for background 2.0 emails: {} when public, only the testers while hidden, or None when
+    nobody may be emailed (the vetting engine's rule)."""
+    v2 = (await get_site(db))["auto_apply_v2"]
+    if v2.get("public"):
+        return {}
+    emails = sorted({str(e).lower() for e in v2.get("testers") or []})
+    return {"email_lc": {"$in": emails}, "demo": {"$ne": True}} if emails else None
