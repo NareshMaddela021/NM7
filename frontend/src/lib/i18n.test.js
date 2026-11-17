@@ -6,7 +6,6 @@ import { CSV_PATH, STATUS, buildCsv } from '../../scripts/i18n-review.mjs';
 import { STRINGS as ALL, langsShown, loadLang, pickLang, rich, translate } from './i18n';
 import { LIMITS, PLAN_FEATURES } from './orgBilling';
 import { PROMISES } from './pricing';
-import { WA_PAY_TEXT } from './waPay';
 
 describe('home languages', () => {
   it('a saved choice wins; else te-IN / hi-IN pick Telugu / Hindi; anything else is English', () => {
@@ -109,7 +108,6 @@ describe('more pages in Telugu and Hindi (src/i18n/pages.json)', () => {
 
   it('strings built around shared values still match them', () => {
     expect(PROMISES.delivery).toMatch(/^\S+ hours$/); // the strings say "{h} hours"
-    expect(PAGES.en['pricing.waPay']).toBe(WA_PAY_TEXT);
   });
 
   it('rich(): {values} become the given parts and *word* is emphasised', () => {

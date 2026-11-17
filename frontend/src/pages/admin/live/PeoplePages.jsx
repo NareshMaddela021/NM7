@@ -9,7 +9,7 @@ import { Chip, MeCard } from '../../me/kit';
 import { Hero, Initial } from './SetupKit';
 import { API_BASE } from '../../../services/http';
 import { Loading, STATUS_LABEL, day, emptyIf, http, rupees, useAction, useApi, when } from './common';
-import { WaReport } from './WaPages';
+import { WaReport } from './PaymentsSettings';
 
 /* ---------- experts and applications ---------- */
 const EXPERT_STATUS = { draft: 'Filling in profile', review: 'To review', changes: 'Asked for changes', test: 'Doing test task', testReview: 'Test to score', approved: 'Approved', rejected: 'Not approved' };

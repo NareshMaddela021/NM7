@@ -1,22 +1,47 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
 import { placeOrder } from '../lib/customerStore';
 import Header from '../components/Header';
 import { Spinner } from '../components/ui';
 import { useFlow } from '../lib/flow';
-import { createOrder, pay } from '../services/api';
 import { PLANS, PROMISES, inr, inrExact } from '../lib/pricing';
 import CodeBox from '../components/CodeBox';
-import { BUY_WA, WA_DELIVERY, WA_PAY_TEXT, WA_SAFETY, buyOnWhatsApp, usePayMode } from '../lib/waPay';
+import PayRetry from '../components/PayRetry';
+import { PAY_SOON, buy, payError, usePayMode } from '../lib/payMode';
+import { gstinProblem } from '../lib/orgBilling';
+import { GST_STATES } from '../lib/gstStates';
+
+/** Optional: invoice to a company for an input tax credit. Sent as `billing` only when a company name or GSTIN is typed. */
+function GstFields({ f, setF, disabled, error }) {
+  const local = gstinProblem(f.gstin, f.stateCode);
+  return (
+    <details className="well stack g8" data-testid="checkout-gst" open={f.open} onToggle={(e) => setF({ ...f, open: e.currentTarget.open })} style={{ margin: 0 }}>
+      <summary className="small strong" style={{ cursor: 'pointer', minHeight: 44, display: 'flex', alignItems: 'center' }}>Need a GST invoice for your company?</summary>
+      <span className="xs muted">Optional. Add your company’s name and GSTIN to claim input tax credit. Leave empty for an invoice in your own name.</span>
+      <div className="field"><label className="label" htmlFor="gst-name">Company name</label>
+        <input id="gst-name" className="input" maxLength={150} autoComplete="organization" disabled={disabled} value={f.companyName} onChange={(e) => setF({ ...f, companyName: e.target.value })} /></div>
+      <div className="field"><label className="label" htmlFor="gst-no">GSTIN</label>
+        <input id="gst-no" className="input mono" maxLength={15} autoComplete="off" disabled={disabled} value={f.gstin} aria-invalid={local || error ? 'true' : undefined} aria-describedby={local || error ? 'gst-err' : undefined}
+          onChange={(e) => { const g = e.target.value.toUpperCase().replace(/\s/g, ''); setF({ ...f, gstin: g, stateCode: g.length >= 2 && GST_STATES.some(([c]) => c === g.slice(0, 2)) ? g.slice(0, 2) : f.stateCode }); }} /></div>
+      <div className="field"><label className="label" htmlFor="gst-state">State</label>
+        <select id="gst-state" className="input" disabled={disabled} value={f.stateCode} onChange={(e) => setF({ ...f, stateCode: e.target.value })}>
+          <option value="">Choose…</option>{GST_STATES.map(([c, n]) => <option key={c} value={c}>{n}</option>)}
+        </select></div>
+      {(local || error) && <span id="gst-err" className="error" role="alert">{local || error}</span>}
+    </details>
+  );
+}
+const billingOf = (f) => (f.companyName.trim() || f.gstin.trim() ? { companyName: f.companyName.trim(), gstin: f.gstin.trim(), stateCode: f.stateCode, address: '' } : null);
 
 export default function Checkout() {
   const nav = useNavigate();
   const { role, addon, setAddon, setOrderId, report } = useFlow();
   const { user } = useAuth();
   const [paying, setPaying] = useState(false);
-  const [err, setErr] = useState('');
-  const unpaid = useRef({}); // plan (+ code) → order created but not paid yet (e.g. the window was closed), reused on retry
+  const [err, setErr] = useState(''); // the payment didn't finish (shown with Try again)
+  const [gstErr, setGstErr] = useState(''); // the server refused the GST details (e.g. a wrong GSTIN)
+  const [gst, setGst] = useState({ open: false, companyName: '', gstin: '', stateCode: '' });
   const [quote, setQuote] = useState(null); // a discount code applied (for this plan)
 
   const listTotal = addon ? PLANS.launch.price : PLANS.expert.price;
@@ -24,30 +49,26 @@ export default function Checkout() {
   const code = quote?.code;
   const pm = usePayMode();
   const mode = pm?.mode; // undefined while loading
+  const gstLocal = gstinProblem(gst.gstin, gst.stateCode);
   const disabled = paying || user?.role !== 'customer' || !mode || mode === 'off';
 
   const submit = async (e) => {
-    e.preventDefault();
+    e?.preventDefault();
     if (disabled) return;
-    setPaying(true);
-    setErr('');
+    if (gstLocal) { setGst({ ...gst, open: true }); return; }
+    setPaying(true); // the button stays disabled until the window closes: one order per press
+    setErr(''); setGstErr('');
     const plan = addon ? 'launch' : 'expert';
-    if (mode === 'whatsapp') {
-      try { await buyOnWhatsApp({ planId: plan, role: role || null, ...(code ? { code } : {}) }); } catch (x) { setErr(x.message || 'Something went wrong. Please try again.'); }
-      setPaying(false);
-      return;
-    }
+    const billing = billingOf(gst);
     try {
-      const key = `${plan}:${code || ''}`;
-      const order = unpaid.current[key] || (unpaid.current[key] = await createOrder({ planId: plan, role, code })); // the server sets the price
-      const paid = await pay(order); // Razorpay's own window (UPI, card, netbanking), then the server confirms it
+      // the server sets the price; an order made earlier for the same plan and code (window closed) is reused
+      const paid = await buy({ planId: plan, role: role || null, ...(code ? { code } : {}), ...(billing ? { billing } : {}) });
       // Live: the dashboard copy uses the server's order id, invoice and payment id. Preview: made up here.
       const id = placeOrder({ plan, role, method: paid.method, id: paid.orderId, invoice: paid.invoiceNo, payId: paid.paymentId });
-      unpaid.current = {};
       setOrderId(id);
       nav(`/me/orders/${id}`, { state: { justPaid: true } });
     } catch (x) {
-      setErr(x.code ? x.message : 'Payment didn’t go through. You haven’t been charged — please try again.');
+      if (['bad_gstin', 'bad_state', 'company_required'].includes(x.code)) { setGstErr(x.message); setGst((g) => ({ ...g, open: true })); } else setErr(payError(x));
       setPaying(false);
     }
   };
@@ -71,41 +92,35 @@ export default function Checkout() {
             <div className="row between" style={{ fontSize: 18 }}><strong>Total</strong><strong>{inrExact(total)}</strong></div>
           </div>
           <ul className="stack g8 small muted" style={{ margin: 0, paddingLeft: 18 }}>
-            <li>Delivered in {PROMISES.delivery}, revisions included{mode === 'whatsapp' ? ' — counted from when we confirm your payment' : ''}</li>
+            <li>Delivered in {PROMISES.delivery}, revisions included</li>
             <li>You approve before anything is final</li>
             <li>{PROMISES.refund}</li>
           </ul>
         </section>
 
         <form className="side card stack g20" aria-label="Payment" onSubmit={submit} noValidate>
-          {mode === 'whatsapp' ? (
-            <div className="stack g8" data-testid="checkout-wa">
-              <strong>Pay by UPI on WhatsApp</strong>
-              <p className="small muted" style={{ margin: 0 }}>{WA_PAY_TEXT} When you press {BUY_WA}, we save your order and open a WhatsApp chat with your order number.</p>
-              <p className="small muted" style={{ margin: 0 }}>{WA_SAFETY} {WA_DELIVERY}</p>
-            </div>
-          ) : mode === 'off' ? (
+          {mode === 'off' ? (
             <div className="stack g8" data-testid="checkout-soon">
-              <strong>Coming soon</strong>
+              <strong>{PAY_SOON}</strong>
               <p className="small muted" style={{ margin: 0 }}>Online orders open soon. Nothing can be bought yet.</p>
             </div>
           ) : (
             <div className="stack g8">
-              <strong>Pay with UPI, card or netbanking</strong>
-              <p className="small muted" style={{ margin: 0 }}>When you press Pay, {PROMISES.paymentProvider}’s secure window opens. Choose GPay, PhonePe, Paytm or any UPI app, a Visa / RuPay / Mastercard card, or netbanking there. We never see your card or UPI PIN.</p>
+              <strong>Pay with UPI, card, netbanking or wallet</strong>
+              <p className="small muted" style={{ margin: 0 }}>When you press Pay, {PROMISES.paymentProvider}’s secure window opens. Choose GPay, PhonePe, Paytm or any UPI app, a Visa / RuPay / Mastercard card, netbanking or a wallet there. We never see your card or UPI details.</p>
             </div>
           )}
           {user?.role === 'customer' && mode && <CodeBox key={addon ? 'launch' : 'expert'} item={addon ? 'launch' : 'expert'} onApplied={setQuote} disabled={paying}
             onUnlocked={(r) => { setOrderId(r.orderId); nav(`/me/orders/${r.orderId}`, { state: { justPaid: true } }); }} />}
-          {err && <p role="alert" className="error">{err}</p>}
+          {user?.role === 'customer' && mode === 'razorpay' && <GstFields f={gst} setF={(v) => { setGst(v); setGstErr(''); }} disabled={paying} error={gstErr} />}
+          <PayRetry error={err} busy={paying} onRetry={() => submit()} />
           {!user && <div className="well small">Sign in or create a free account first — your order, drafts and invoices live in your dashboard. <Link to="/login?next=%2Fcheckout">Sign in</Link> · <Link to="/signup?next=%2Fcheckout">Create account</Link></div>}
           {user && user.role !== 'customer' && <div className="well small">You’re signed in with an {user.role} account. Orders need a customer account.</div>}
           <button type="submit" className="btn btn-ink btn-xl" disabled={disabled} aria-busy={paying}>
-            {paying && <Spinner />}{mode === 'off' ? 'Coming soon' : mode === 'whatsapp' ? (paying ? 'Opening WhatsApp…' : `${BUY_WA} · ${inrExact(total)}`) : paying ? 'Waiting for your payment…' : `Pay ${inrExact(total)}`}
+            {paying && <Spinner />}{mode === 'off' ? PAY_SOON : paying ? 'Waiting for your payment…' : `Pay ${inrExact(total)}`}
           </button>
           {mode !== 'off' && <span className="xs muted" style={{ textAlign: 'center' }}>By paying you agree to our <Link to="/terms">Terms</Link> and <Link to="/refund-policy">Refund policy</Link>.</span>}
           {mode === 'razorpay' && <span className="xs faint" style={{ textAlign: 'center' }}>Secured by {PROMISES.paymentProvider} · GST invoice emailed · full refund if we don’t deliver</span>}
-          {mode === 'whatsapp' && <span className="xs faint" style={{ textAlign: 'center' }}>Receipt emailed when we confirm your payment · full refund if we don’t deliver</span>}
         </form>
       </main>
     </>

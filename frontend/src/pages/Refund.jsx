@@ -88,7 +88,7 @@ export default function Refund() {
             </div>
             <div className="stack g4" style={{ borderRadius: 20, padding: 20, background: reason === 'late' ? 'var(--successbg)' : 'var(--sunken)' }}>
               <strong style={{ color: reason === 'late' ? 'var(--success)' : 'var(--text)' }}>{reason === 'late' ? 'You’re eligible for a full refund' : 'We’ll review this within 24 hours'}</strong>
-              <span className="small muted">{reason === 'late' ? 'The delivery window passed, so this is approved instantly — no questions asked.' : 'A team member checks your order and replies on WhatsApp and email. If we didn’t fulfil the service, you get a full refund.'}</span>
+              <span className="small muted">{reason === 'late' ? 'The delivery window passed, so this is approved instantly — no questions asked.' : 'A team member checks your order and replies by email. If we didn’t fulfil the service, you get a full refund.'}</span>
             </div>
             <Link to="/refund-policy" className="small">Read the full refund policy</Link>
           </aside>

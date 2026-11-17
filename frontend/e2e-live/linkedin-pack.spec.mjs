@@ -62,7 +62,7 @@ for (const [label, opts] of SIZES) {
       await signIn(page, `pk-off-${label}`);
       const asked = noCheckout(page);
       const card = page.getByTestId('me-linkedin');
-      await expect(card.getByTestId('me-li-pack-soon')).toHaveText('Coming soon');
+      await expect(card.getByTestId('me-li-pack-soon')).toHaveText('Payments coming soon');
       await page.goto('/linkedin?path=fix');
       const offer = page.getByTestId('li-locked');
       await expect(offer).toContainText('LinkedIn pack');
@@ -77,7 +77,7 @@ for (const [label, opts] of SIZES) {
         expect(r.body.error.code).toBe('pack_locked');
       }
       await page.goto('/me/upgrade');
-      await expect(page.getByTestId('up-li-pack')).toContainText('Coming soon');
+      await expect(page.getByTestId('up-li-pack')).toContainText('Payments coming soon');
       await expect(page.getByTestId('up-li-pack').getByRole('button')).toHaveCount(0);
       await page.goto('/old-home');
       await expect(page.getByTestId('home-linkedin-pack')).toContainText('LinkedIn pack · ₹149');
@@ -191,7 +191,8 @@ for (const [label, opts] of SIZES) {
       await fakeRazorpay(page);
       await page.goto('/linkedin?path=fix');
       await page.getByTestId('li-pack-buy').click();
-      await expect(page.getByRole('alert')).toContainText('You closed the payment window. Nothing was charged.');
+      await expect(page.getByTestId('pay-retry')).toContainText('Payment not completed — no money was taken.');
+      await expect(page.getByTestId('pay-retry').getByRole('button', { name: 'Try again' })).toBeVisible();
       await expect(page.getByTestId('li-pack-buy')).toBeVisible();
       // 2. a failed payment: still locked
       const fail = JSON.stringify({ entity: 'event', event: 'payment.failed', payload: { payment: { entity: { id: `pay_F${label}`, order_id: order.razorpayOrderId, amount: order.amount, currency: 'INR', status: 'failed' } } } });

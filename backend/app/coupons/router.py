@@ -3,7 +3,7 @@
 POST /api/me/codes/apply                      a customer at the pay step: {code, item, resumeId?}. A free code
                                               unlocks at once (an order at Rs 0, in any payment mode); a discount
                                               code returns the new price (it is used when the order is placed).
-(an organization's plan: GET …/billing/quote?code=, POST …/billing/code, …/checkout, …/whatsapp; app/billing)
+(an organization's plan: GET …/billing/quote?code=, POST …/billing/code, …/checkout; app/billing)
 
 Admin → Codes (Owner only: the "settings" permission; everyone else gets 403):
 GET    /api/admin/coupons?q=&status=&type=&item=   list

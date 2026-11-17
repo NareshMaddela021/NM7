@@ -144,6 +144,7 @@ test('payments on (mocked): unpaid sees "Unlock downloads - Rs 99", no file; pay
   await page.waitForURL('**/me');
   let paid = false;
   const orders = [];
+  await page.route('**/api/public/payment-mode', (r) => r.fulfill({ json: { mode: 'razorpay' } })); // the pay button follows it
   await page.route('**/api/me/entitlements', (r) => r.fulfill({ json: { canDownload: paid, reason: paid ? 'paid' : 'unpaid', paymentsOn: true, planId: 'diy', price: 99 } }));
   await page.route('**/api/me/exports', (r) => (paid
     ? r.fulfill({ json: { canDownload: true, reason: 'paid', paymentsOn: true, planId: 'diy', price: 99 } })

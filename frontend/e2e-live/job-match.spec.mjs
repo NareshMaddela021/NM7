@@ -1,7 +1,7 @@
 // Job match (Phase 1) on a desktop and a 390 px phone, against the real API (payments Off, no AI key):
 //   match: paste a job post → score /100, verdict, breakdown, Found / Weak / Missing with honest steps; job links are
 //          refused with "paste the text"; 3 free matches a day; a screenshot can't be read with AI off (paste instead)
-//   pack:  Off → "Coming soon"; WhatsApp → Buy on WhatsApp makes a pending order (nothing unlocks)
+//   pack:  Off → "Coming soon"; payments on (mocked) → Buy opens Razorpay; a closed window unlocks nothing
 //   tailor (admin grant): a copy named after the job, Accept / Skip, the copy is scored again, the original never
 //          changes; saved to My applications with its score and the tailored copy; delete all job-search data
 import { readFileSync } from 'node:fs';
@@ -76,7 +76,7 @@ for (const [label, opts] of SIZES) {
       await expect(res.getByTestId('jm-missing')).toContainText('VLOOKUP');
       await expect(res.getByTestId('jm-missing')).toContainText('Not something you’ve done? Leave it out.'.replace('’', "'"));
       // the Tailor pack: payments are Off → Coming soon, nothing to buy
-      await expect(res.getByTestId('pack-tailor-soon')).toHaveText('Coming soon');
+      await expect(res.getByTestId('pack-tailor-soon')).toHaveText('Payments coming soon');
       await expect(res.getByRole('button', { name: /Buy/ })).toHaveCount(0);
       await expect(page.getByTestId('jm-left')).toHaveText('2 of 3 free matches left today');
       // saved below; save to My applications
@@ -158,29 +158,28 @@ for (const [label, opts] of SIZES) {
       expect((await call(page, '/api/me/jobs/matches')).body).toEqual([]);
     });
 
-    test('WhatsApp mode: Buy on WhatsApp makes a pending Tailor pack order; nothing unlocks', async ({ page, browser }) => {
-      await signIn(page, `jm-wa-${label}`);
-      const o = await owner(browser, `wa-${label}`);
-      const put = (mode) => call(o.page, '/api/admin/payment-settings', { method: 'PUT', body: JSON.stringify({ mode, whatsappNumber: '+91 90000 12345', replyHours: '', cancelAfterHours: 72 }) });
-      expect((await put('whatsapp')).status).toBe(200);
-      try {
-        await page.context().route('https://wa.me/**', (r) => r.fulfill({ contentType: 'text/html', body: 'chat' }));
-        await matchPost(page);
-        const pack = page.getByTestId('jm-result').getByTestId('pack-tailor');
-        await expect(pack).toContainText('Tailor pack · ₹49');
-        await expect(pack).toContainText('Pay by UPI through WhatsApp.');
-        const popup = page.waitForEvent('popup');
-        await pack.getByRole('button', { name: 'Buy on WhatsApp' }).click();
-        const chat = await popup;
-        await chat.waitForURL(/wa\.me/);
-        expect(new URL(chat.url()).searchParams.get('text')).toMatch(/^Hi Nm7, I want to buy Tailor pack \(Rs 49\)\. Order NM7-\d+\.$/);
-        await chat.close();
-        await expect(page.getByTestId('wa-placed')).toBeVisible();
-        expect((await call(page, '/api/me/jobs/access')).body.tailor).toBe(false);
-      } finally {
-        await put('off');
-        await o.ctx.close();
-      }
+    test('payments on (mocked): Buy opens Razorpay; a closed window says no money was taken and nothing unlocks', async ({ page }) => {
+      const { mail } = await signIn(page, `jm-pay-${label}`);
+      // Razorpay mode for this page (the test API has no Razorpay keys, so its payment mode is Off)
+      await page.route(`${API}/api/me/jobs/access`, async (r) => {
+        const res = await r.fetch();
+        await r.fulfill({ response: res, json: { ...(await res.json()), mode: 'razorpay', onSale: { tailor: true, interview: true } } });
+      });
+      const order = seed('customer-order', mail, 'tailor_pack');
+      const made = [];
+      await page.route('**/api/orders', (r) => { if (r.request().method() !== 'POST') return r.fallback(); made.push(r.request().postDataJSON()); return r.fulfill({ status: 201, json: order }); });
+      // Razorpay's window, stood in: the person closes it
+      await page.route('https://checkout.razorpay.com/**', (r) => r.fulfill({ contentType: 'text/javascript', body: 'window.Razorpay=function(o){this.open=function(){setTimeout(function(){o.modal.ondismiss()},50)}}' }));
+      await matchPost(page);
+      const pack = page.getByTestId('jm-result').getByTestId('pack-tailor');
+      await expect(pack).toContainText('Tailor pack · ₹49');
+      await expect(pack).not.toContainText('WhatsApp');
+      await pack.getByRole('button', { name: /^Buy ₹49/ }).click();
+      await expect(page.getByText('Payment not completed — no money was taken. Try again.')).toBeVisible();
+      await pack.getByRole('button', { name: /^Buy ₹49/ }).click(); // again: the same order, not a second one
+      await expect(page.getByText('Payment not completed — no money was taken. Try again.').first()).toBeVisible();
+      expect(made).toEqual([{ planId: 'tailor_pack', role: null, addons: [] }]);
+      expect((await call(page, '/api/me/jobs/access')).body.tailor).toBe(false);
     });
   });
 }

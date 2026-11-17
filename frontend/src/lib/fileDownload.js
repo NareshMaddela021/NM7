@@ -1,5 +1,5 @@
 // Downloads a file the API makes (an invoice PDF, a CSV register) with the signed-in cookie, and saves it under
-// the given name. Errors carry the server's message.
+// the given name. Errors carry the server's message, code and HTTP status.
 import { API_BASE } from '../services/http';
 
 export function saveBlob(blob, filename) {
@@ -12,6 +12,9 @@ export function saveBlob(blob, filename) {
 
 export async function downloadFrom(path, filename) {
   const res = await fetch(`${API_BASE}${path}`, { credentials: 'include' });
-  if (!res.ok) throw new Error((await res.json().catch(() => null))?.error?.message || 'The file couldn’t be downloaded. Please try again.');
+  if (!res.ok) {
+    const err = (await res.json().catch(() => null))?.error;
+    throw Object.assign(new Error(err?.message || 'The file couldn’t be downloaded. Please try again.'), { status: res.status, code: err?.code || '' });
+  }
   saveBlob(await res.blob(), filename);
 }

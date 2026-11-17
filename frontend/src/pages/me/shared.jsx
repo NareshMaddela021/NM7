@@ -5,6 +5,8 @@ import { savePdf } from '../builder/resumePdf';
 import { DownloadBlocked, exportFile } from '../../lib/downloads';
 import { DEFAULT_DESIGN, TEMPLATE_PRESETS } from '../builder/design';
 import { INVOICE, gstSplit } from '../../lib/pricing';
+import { LIVE } from '../../services/http';
+import { downloadFrom } from '../../lib/fileDownload';
 
 export const designOf = (d) => ({ ...DEFAULT_DESIGN, ...(d.design || TEMPLATE_PRESETS.fresher.design), preset: d.design?.preset ?? 'fresher' });
 export const templateName = (d) => TEMPLATE_PRESETS[d.design?.preset || 'fresher']?.name || 'Custom';
@@ -41,7 +43,7 @@ export function countdown(deadline) {
 }
 
 /**
- * A payment receipt for a WhatsApp payment made before Nm7's business details are set: from "Nm7" only, no company
+ * A payment receipt for an old (WhatsApp) order paid before Nm7's business details are set: from "Nm7" only, no company
  * name, no GSTIN and no GST lines (it is not a tax invoice).
  */
 async function receiptPdf({ no, at, name, email, item, amount, method }) {
@@ -85,6 +87,23 @@ export async function invoicePdf({ no, at, name, email, item, amount, payId, met
   doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(120);
   doc.text('Prices include GST. This is a computer-generated invoice and needs no signature.', L, 780);
   await savePdf(doc.output('blob'), `Invoice_${no.replace(/\//g, '-')}.pdf`);
+}
+
+/**
+ * "Download invoice": the server's GST invoice PDF (GET /api/orders/:id/invoice.pdf) when the payment has one
+ * (`invoiceOrder`: the order it was issued for); orders paid before invoices were issued online (404 no_invoice),
+ * receipts and the preview build get the PDF made here instead.
+ */
+export async function downloadInvoice({ invoiceOrder, ...v }) {
+  if (LIVE && invoiceOrder && v.no && !v.receipt) {
+    try {
+      await downloadFrom(`/api/orders/${encodeURIComponent(invoiceOrder)}/invoice.pdf`, `Invoice_${v.no.replace(/\//g, '-')}.pdf`);
+      return;
+    } catch (e) {
+      if (!(e.status === 404 && e.code === 'no_invoice')) throw e;
+    }
+  }
+  await invoicePdf(v);
 }
 
 /** Simple line chart for a score over time (one series, 0–100), with hover tooltip and a table view. */

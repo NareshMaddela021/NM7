@@ -41,6 +41,11 @@ class Razorpay:
         """The payment as Razorpay sees it (status, amount, currency, order_id, method)."""
         return await self._call("GET", f"/payments/{payment_id}")
 
+    async def list_payments(self, start: int, end: int, count: int = 100, skip: int = 0) -> list[dict[str, Any]]:
+        """Payments created between two unix times (newest first), one page (Razorpay: at most 100)."""
+        r = await self._call("GET", f"/payments?from={start}&to={end}&count={count}&skip={skip}")
+        return r.get("items") or []
+
     async def refund(self, payment_id: str, amount: int, receipt: str, notes: dict[str, str]) -> dict[str, Any]:
         body = {"amount": amount, "speed": "normal", "receipt": receipt, "notes": notes}
         return await self._call("POST", f"/payments/{payment_id}/refund", body)

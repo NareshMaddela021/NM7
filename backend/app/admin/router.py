@@ -183,6 +183,12 @@ class AdminPaymentOut(CamelModel):
     error: str | None
     created_at: datetime
     captured_at: datetime | None
+    fee: int | None = None  # paise, Razorpay's fee incl. GST on the fee (from the payment, or the daily check)
+    tax: int | None = None  # the GST part of that fee
+    refunded: int = 0  # paise refunded so far (processed refunds)
+    refund_status: str | None = None  # the latest refund: review / approved / processed / rejected / failed
+    source: str = "razorpay"  # razorpay · old_whatsapp · offline · link (a payment link)
+    reference: str | None = None  # UPI / bank reference of an old WhatsApp or offline payment
 
 
 @router.get("/payments")
@@ -206,9 +212,25 @@ async def admin_payments(
     ]
     rows, total = await _run_page(db, PAYMENTS, _page(stages, {"created_at": -1, "_id": -1}, offset, limit))
     items = []
+    pids = [str(r["_id"]) for r in rows] + [r["_id"] for r in rows]
+    refunds: dict[str, list[dict[str, Any]]] = {}
+    async for rf in db[REFUNDS].find({"payment_id": {"$in": pids}}).sort("created_at", 1):
+        refunds.setdefault(str(rf["payment_id"]), []).append(rf)
     for raw in rows:
         p = Payment.load(raw)
         customer = raw.get("customer")
+        rp = (raw.get("raw") or {}).get("payment") or {}
+        mine = refunds.get(str(raw["_id"]), [])
+        wa = bool((raw.get("raw") or {}).get("whatsapp"))
+        source = (
+            "old_whatsapp"
+            if wa
+            else "offline"
+            if raw.get("reference")
+            else "link"
+            if raw.get("razorpay_link_id")
+            else "razorpay"
+        )
         items.append(
             AdminPaymentOut(
                 id=p.id,
@@ -223,6 +245,12 @@ async def admin_payments(
                 error=p.error,
                 created_at=p.created_at,
                 captured_at=p.captured_at,
+                fee=raw.get("fee", rp.get("fee")),
+                tax=raw.get("fee_tax", rp.get("tax")),
+                refunded=sum(int(r.get("amount") or 0) for r in mine if r.get("status") == "processed"),
+                refund_status=mine[-1]["status"] if mine else None,
+                source=source,
+                reference=raw.get("reference"),
             )
         )
     return Page(items=items, total=total)
@@ -316,7 +344,11 @@ async def approve_refund(
 ) -> AdminRefundOut:
     before, order, user = await _refund_in_review(db, refund_id)
     if order.method == "whatsapp":
-        raise ApiError(409, "whatsapp_order", "Paid on WhatsApp: refund it from Orders → WhatsApp payments.")
+        raise ApiError(
+            409,
+            "whatsapp_order",
+            "Old WhatsApp order (paid outside Razorpay): return it by bank / UPI, then reject this with a note.",
+        )
     rzp = get_razorpay()
     remaining = await refundable_amount(db, order)  # the order total less earlier refunds
     amount = body.amount or min(before.amount, remaining)

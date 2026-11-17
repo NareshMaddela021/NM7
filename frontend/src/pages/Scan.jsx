@@ -8,6 +8,7 @@ import { useFlow } from '../lib/flow';
 import { scanResume } from '../services/api';
 import { MESSAGES } from '../lib/scan';
 import { PLANS, PROMISES, inr } from '../lib/pricing';
+import { PAY_SOON, usePayMode } from '../lib/payState';
 import { currentUser } from '../lib/auth';
 import { blankResume } from '../lib/customerStore';
 import { applyImport } from '../lib/import/apply';
@@ -76,6 +77,7 @@ function SaveScanToProfile({ report }) {
 
 function Report({ report }) {
   const nav = useNavigate();
+  const payOff = usePayMode()?.mode === 'off'; // no Razorpay keys yet: no checkout
   const { setUpload } = useFlow();
   const [focus, setFocus] = useState(null);
   const [skim, setSkim] = useState(false);
@@ -193,7 +195,8 @@ function Report({ report }) {
         <div className="card-ink stack g12">
           <h2 style={{ fontSize: 22, fontWeight: 600 }}>Want a professional to do all of it?</h2>
           <p style={{ opacity: .8, fontSize: 15, ...wrap }}>A verified {report.role || 'industry'} expert rewrites it for this role, delivered in {PROMISES.delivery}.</p>
-          <button type="button" className="btn btn-signal btn-lg" onClick={() => nav('/checkout')}>Get an expert rewrite · {inr(PLANS.expert.price)}</button>
+          {payOff ? <span className="btn btn-signal btn-lg" aria-disabled="true" data-testid="pay-soon" style={{ opacity: 0.7, cursor: 'not-allowed' }}>{PAY_SOON}</span>
+            : <button type="button" className="btn btn-signal btn-lg" onClick={() => nav('/checkout')}>Get an expert rewrite · {inr(PLANS.expert.price)}</button>}
           <Link to="/editor" className="btn" style={{ color: 'var(--onink)', opacity: .85 }}>or keep fixing it myself</Link>
         </div>
       </aside>

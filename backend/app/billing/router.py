@@ -8,7 +8,7 @@ admin's plan editor, billing settings and per-organization billing.
   GET  /api/org/{org_id}/billing/quote?plan=      Owner: price − discount + GST, before paying
   POST /api/org/{org_id}/billing/checkout         Owner: a Razorpay order (the plan turns on from the webhook)
   POST /api/org/{org_id}/billing/code             Owner: a code that makes the plan free turns it on now
-  (quote, checkout and WhatsApp take an optional code: Admin → Codes; one per order, instead of a partner code)
+  (quote and checkout take an optional code: Admin → Codes; one per order, instead of a partner code)
   GET/PUT  /api/admin/billing/settings            supplier details, GST rate, grace, commission, test/live …
   GET  /api/admin/billing/plans · PUT …/{plan}    the plans editor (each save is a new version)
   GET  /api/admin/billing/summary                 org revenue after refunds, active paid orgs, renewals due
@@ -48,7 +48,6 @@ from app.me.service import ms
 from app.orgs.scope import NOT_FOUND, AdminScope, OrgScope
 from app.orgs.shapes import OrgType
 from app.partners.service import REF_COOKIE, checkout_ref, partner_discount_pct
-from app.wapay.service import create_org_order as wa_create_org_order
 from app.wapay.settings import payment_mode
 
 public = APIRouter(prefix="/api/public", tags=["billing"])
@@ -259,7 +258,7 @@ async def billing_page(db: DB, scope: OrgScope) -> dict[str, Any]:
         "gstOn": gst_on(b),
         "gstRatePct": int(b["gst_rate_bp"]) / 100,
         "testMode": not b["razorpay_live"],
-        "paymentMode": await payment_mode(db),  # off: "Coming soon"; whatsapp: Buy on WhatsApp; razorpay: checkout
+        "paymentMode": await payment_mode(db),  # off: "Coming soon"; razorpay: checkout
         "orders": await _org_orders(db, o["_id"]),
         "pendingOrderId": pending["_id"] if pending else None,
         "states": [{"code": c, "name": n} for c, n in STATES.items()],
@@ -399,28 +398,6 @@ async def checkout(body: CheckoutIn, request: Request, auth: CustomerAuth, db: D
     data = scope.audit_data(plan=body.plan_id, order_id=out["orderId"], amount=out["amount"], ref=extra.get("ref_code"))
     await audit(db, scope.actor_id, "billing_checkout", target=scope.org_id, data=data, ip=client_ip(request))
     return _with_ref(out, r)
-
-
-@portal.post("/whatsapp", status_code=201)
-async def checkout_whatsapp(
-    body: CheckoutIn, request: Request, auth: CustomerAuth, db: DB, scope: OrgScope
-) -> dict[str, Any]:
-    """The same plan, price and discount as checkout, paid on WhatsApp: a pending order and the wa.me link."""
-    _owner_pays(scope)
-    key = f"org-checkout:{scope.org_id}"
-    await rate_limit.check(db, key, CHECKOUT_RULES)
-    await rate_limit.record(db, key)
-    o = await _org(db, scope.org_id)
-    q, r, c = await _priced(db, o, auth.user.id, request, body.plan_id, body.ref_code, body.code)
-    if c and q["total"] <= 0:
-        return await _redeem(db, o, auth, scope, request, q, c, r)
-    extra = {"ref_code": r["partner"]["code"], "ref_via": r["via"]} if r else {}
-    if q["total"] <= 0:
-        raise ApiError(409, "nothing_to_pay", "This plan costs nothing after the discount — ask Nm7 to assign it.")
-    order, out = await wa_create_org_order(db, o, auth.user, q, **extra)
-    data = scope.audit_data(plan=body.plan_id, order_id=order.id, amount=order.amount, via="whatsapp")
-    await audit(db, scope.actor_id, "billing_checkout", target=scope.org_id, data=data, ip=client_ip(request))
-    return _code_out(_with_ref({**out, "quote": quote_out(q)}, r), q)
 
 
 # ---------- admin: billing settings ----------

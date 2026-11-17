@@ -7,7 +7,7 @@ import { Hero, Initial } from './SetupKit';
 import { ROLES } from '../roles';
 import { Loading, emptyIf, http, useAction, useApi, when } from './common';
 import { auditText } from './auditText';
-import { PaymentSettings } from './WaPages';
+import { PaymentSettings } from './PaymentsSettings';
 
 /* ---------- settings & prices ---------- */
 // same limits as the server (app/admin/console.py), which checks them again

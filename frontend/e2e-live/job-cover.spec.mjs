@@ -61,7 +61,7 @@ for (const [label, opts] of SIZES) {
       // one free letter a day: the button is off and the Tailor pack is Coming soon (payments Off)
       await expect(jc.getByTestId('jc-left')).toHaveText('You’ve used today’s free cover letter');
       await expect(jc.getByTestId('jc-go')).toBeDisabled();
-      await expect(jc.getByTestId('pack-tailor-soon')).toHaveText('Coming soon');
+      await expect(jc.getByTestId('pack-tailor-soon')).toHaveText('Payments coming soon');
       const m = (await call(page, '/api/me/jobs/matches')).body[0];
       expect((await call(page, `/api/me/jobs/matches/${m.id}/cover`, { method: 'POST', body: '{}' })).status).toBe(402);
 

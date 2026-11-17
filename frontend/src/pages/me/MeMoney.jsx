@@ -7,10 +7,10 @@ import { useMe, payments, orderView, buyAddon, upgradeOrder, getMe } from '../..
 import { useExpertOrders } from '../../lib/expertStore';
 import { PLANS, ADDONS, PROMISES, RESUME_PLANS, inr, upgradePrice } from '../../lib/pricing';
 import { COMING_SOON, buyPack, packStatus } from '../../lib/linkedin/pack';
-import { BUY_WA } from '../../lib/waPay';
+import { PAY_SOON, payErrorLine, usePayMode } from '../../lib/payMode';
 import { MeHead } from './MeLayout';
 import { PayDialog } from './MeOrders';
-import { fmtDay, invoicePdf } from './shared';
+import { downloadInvoice, fmtDay } from './shared';
 import { Chip, Empty, MeCard, Stat } from './kit';
 import '../../styles/me-account.css';
 
@@ -19,6 +19,7 @@ const points = (blurb) => blurb.split(/,\s*|\s\+\s|\s+and\s+/).map((x) => x.trim
 
 export function MePayments() {
   const me = useMe();
+  const toast = useToast();
   const rows = payments(me);
   const paid = rows.filter((r) => r.kind === 'payment').reduce((t, r) => t + r.amount, 0);
   const refunded = rows.filter((r) => r.kind === 'refund').reduce((t, r) => t - r.amount, 0);
@@ -42,7 +43,7 @@ export function MePayments() {
                   <td className="small strong" data-label="Amount" style={{ color: r.amount < 0 ? 'var(--success)' : undefined }}>{r.amount < 0 ? `+ ${inr(-r.amount)}` : inr(r.amount)}</td>
                   <td className="small" data-label="Method">{r.method}</td>
                   <td data-label="Status">{r.kind === 'refund' ? (r.done ? <Chip tone="ok">Refunded {fmtDay(r.done)}</Chip> : <Chip tone="warn">On the way · {PROMISES.refundDays}</Chip>) : <Chip>Paid</Chip>}</td>
-                  <td className="acc-pay-dl">{r.invoice && <button type="button" className="btn btn-outline acc-pdf" onClick={() => invoicePdf({ no: r.invoice, at: r.at, item: r.what, amount: r.amount, payId: r.payId, method: r.method, receipt: r.receipt, name: getMe().account.name, email: getMe().account.email })}>{r.receipt ? 'Receipt' : 'Invoice'}</button>}</td>
+                  <td className="acc-pay-dl">{r.invoice && <button type="button" className="btn btn-outline acc-pdf" aria-label={`Download ${r.receipt ? 'receipt' : 'invoice'} ${r.invoice}`} onClick={() => downloadInvoice({ no: r.invoice, invoiceOrder: r.invoiceOrder, at: r.at, item: r.what, amount: r.amount, payId: r.payId, method: r.method, receipt: r.receipt, name: getMe().account.name, email: getMe().account.email }).catch((e) => toast(e.message))}>{r.receipt ? 'Receipt' : 'Invoice'}</button>}</td>
                 </tr>
               ))}</tbody></table>
           </div>
@@ -66,6 +67,9 @@ export function MeUpgrade() {
   const nav = useNavigate();
   const { setAddon } = useFlow();
   const [pay, setPay] = useState(null);
+  const pm = usePayMode();
+  const off = pm?.mode === 'off'; // no Razorpay keys yet: every pay button says so, nothing opens a checkout
+  const soon = <span className="btn btn-outline" aria-disabled="true" data-testid="up-pay-soon" style={{ opacity: 0.7, cursor: 'not-allowed' }}>{PAY_SOON}</span>;
   const live = me.orders.map(orderView).filter((o) => o.live);
   const o = live[0];
   const owned = o ? o.addons.map((a) => a.id) : [];
@@ -85,9 +89,11 @@ export function MeUpgrade() {
               <ul className="mplan-feat">{points(p.blurb).map((x) => <li key={x}>{x}</li>)}</ul>
               <span className="acc-plan-cta">
                 {mine ? <span className="xs muted">You have this plan.</span>
+                  : can && off ? soon
                   : can ? <button type="button" className="btn btn-signal" onClick={() => setPay({ kind: 'upgrade', id: p.id, amount: upgradePrice(o.plan, p.id), title: `Upgrade ${o.id} to ${p.name}` })}>Upgrade · pay {inr(upgradePrice(o.plan, p.id))}</button>
                     : o ? <span className="xs faint">Included in your plan</span>
                     : p.id === 'diy' ? <Link to="/builder" className="btn btn-outline">Open the builder</Link>
+                    : off ? soon
                     : <button type="button" className="btn btn-signal" onClick={() => { setAddon(p.id === 'launch'); nav('/checkout'); }}>Get {p.name} · {inr(p.price)}</button>}
               </span>
             </section>
@@ -102,6 +108,7 @@ export function MeUpgrade() {
               <li key={a.id} className="mitem">
                 <span className="mitem-main"><span className="mitem-title">{a.name} · {inr(a.price)}</span><span className="mitem-meta">{a.blurb}</span></span>
                 <span className="mitem-side">{owned.includes(a.id) && a.id !== 'revision' ? <Chip tone="ok">Added</Chip>
+                  : off ? soon
                   : <button type="button" className="btn btn-outline" disabled={a.id === 'express' && o.sent.length > 0} title={a.id === 'express' && o.sent.length > 0 ? 'Only before draft 1' : undefined} onClick={() => setPay({ kind: 'addon', id: a.id, amount: a.price, title: a.name })}>Add</button>}</span>
               </li>
             ))}
@@ -113,7 +120,7 @@ export function MeUpgrade() {
   );
 }
 
-/** The LinkedIn pack on Upgrade & add-ons: open it, buy it (payments on) or "Coming soon". */
+/** The LinkedIn pack on Upgrade & add-ons: open it, buy it (payments on) or "Payments coming soon". */
 function PackCard() {
   const toast = useToast();
   const [st, setSt] = useState(null);
@@ -121,8 +128,9 @@ function PackCard() {
   useEffect(() => { packStatus().then(setSt); }, []);
   if (!st) return null;
   const buy = async () => {
+    if (busy) return;
     setBusy(true);
-    try { const r = await buyPack(st.mode); if (!r?.whatsapp) { toast('LinkedIn pack unlocked'); setSt(await packStatus()); } } catch (e) { toast(e.message || 'Payment didn’t go through. You haven’t been charged.'); } finally { setBusy(false); }
+    try { await buyPack(); toast('LinkedIn pack unlocked'); setSt(await packStatus()); } catch (e) { toast(payErrorLine(e)); } finally { setBusy(false); }
   };
   return (
     <section className="mcard mcard-accent acc-pack" aria-label="LinkedIn pack" data-testid="up-li-pack">
@@ -132,7 +140,7 @@ function PackCard() {
         <span className="small muted">Headlines, About in 3 styles, experience, skills, a banner and URL ideas, from your own details. Included in Career Launch.</span>
       </span>
       {st.owned ? <Link to="/linkedin#pack" className="btn btn-signal">Open my LinkedIn pack</Link>
-        : st.onSale ? <button type="button" className="btn btn-signal" onClick={buy} disabled={busy}>{st.mode === 'whatsapp' ? (busy ? 'Opening WhatsApp…' : BUY_WA) : busy ? 'Waiting for your payment…' : `Buy ${inr(st.price)}`}</button>
+        : st.onSale ? <button type="button" className="btn btn-signal" onClick={buy} disabled={busy}>{busy ? 'Waiting for your payment…' : `Buy ${inr(st.price)}`}</button>
           : <span className="btn btn-outline" aria-disabled="true" style={{ opacity: 0.7, cursor: 'not-allowed' }}>{COMING_SOON}</span>}
     </section>
   );

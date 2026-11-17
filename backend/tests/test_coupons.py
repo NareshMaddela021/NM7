@@ -1,4 +1,4 @@
-"""Codes (Admin → Codes): free codes unlock at once (no WhatsApp), discounts lower the order, every rule is checked
+"""Codes (Admin → Codes): free codes unlock at once (no payment step), discounts lower the order, every rule is checked
 on the server (expired / paused / scheduled / used up / used before / wrong item / wrong organization), the last use
 can't be taken twice, wrong codes are rate limited, used codes can't be deleted, bulk codes are one-time, an
 organization's plan turns on like a paid order, Off mode allows only free codes, and only the Owner admin sees codes."""
@@ -10,9 +10,8 @@ import pytest
 
 from app.core.db import AUDIT_LOG, COUPON_USES, COUPONS, MEMBERSHIPS, ORDERS, ORGANIZATIONS
 from app.coupons.service import forget_user
-from tests.conftest import signup
+from tests.conftest import checkout_signature, signup
 from tests.test_billing_plans import details, owner_org  # noqa: F401  (fixture)
-from tests.test_wapay import NUMBER, paid
 
 TODAY = date.today()
 
@@ -27,15 +26,25 @@ async def owner(admin_client):
 
 
 async def set_mode(owner, mode):
-    body = {"mode": mode, "whatsappNumber": NUMBER if mode == "whatsapp" else "", "replyHours": "9-9",
-            "cancelAfterHours": 72}  # fmt: skip
-    r = await owner.put("/api/admin/payment-settings", json=body)
+    r = await owner.put("/api/admin/payment-settings", json={"mode": mode})
     assert r.status_code == 200, r.text
 
 
 @pytest.fixture
-async def whatsapp(owner):
-    await set_mode(owner, "whatsapp")
+async def paying(owner, razorpay):
+    """Payments on (Razorpay, mocked)."""
+    await set_mode(owner, "razorpay")
+    return razorpay
+
+
+async def pay(c, created):
+    """Completes Razorpay's checkout for an order made with POST /api/orders."""
+    pid = f"pay_{created['orderId'].replace('-', '')}"
+    r = await c.post("/api/payments/verify", json={
+        "razorpay_order_id": created["razorpayOrderId"], "razorpay_payment_id": pid,
+        "razorpay_signature": checkout_signature(created["razorpayOrderId"], pid)})  # fmt: skip
+    assert r.status_code == 200, r.text
+    return r.json()
 
 
 async def make(owner, code="SAVE50", type="percent", value=50, items=("all",), **extra):  # noqa: A002
@@ -113,7 +122,7 @@ async def test_create_normalises_and_lists_with_search_and_filters(owner, db):
     assert actions == {"coupon.created"}
 
 
-async def test_edit_pause_resume_and_delete_only_when_unused(owner, make_client, outbox, whatsapp, db):
+async def test_edit_pause_resume_and_delete_only_when_unused(owner, make_client, outbox, paying, db):
     await make(owner, code="FREE1", type="free", items=["resume"])
     r = await owner.put("/api/admin/coupons/free1", json={"type": "free", "items": ["resume"], "note": "Batch A"})
     assert r.status_code == 200 and r.json()["note"] == "Batch A"
@@ -141,7 +150,7 @@ async def test_edit_pause_resume_and_delete_only_when_unused(owner, make_client,
 # ---------- free codes ----------
 
 
-async def test_free_code_unlocks_one_resume_for_good_without_whatsapp(owner, make_client, outbox, whatsapp, db):
+async def test_free_code_unlocks_one_resume_for_good_without_a_payment(owner, make_client, outbox, paying, db):
     await make(owner, code="CAMPUS26", type="free", items=["resume"], totalLimit=100)
     c, me = await person(make_client, outbox)
     assert (await export(c)).status_code == 402
@@ -154,7 +163,8 @@ async def test_free_code_unlocks_one_resume_for_good_without_whatsapp(owner, mak
     assert o["coupon"] == {"code": "CAMPUS26", "type": "free", "value": 0, "original": 99_00, "discount": 99_00,
                            "final": 0}  # fmt: skip
     assert o["paid_at"] is not None and o["receipt_no"]
-    assert await db[ORDERS].count_documents({"method": "whatsapp"}) == 0  # no WhatsApp step
+    assert await db[ORDERS].count_documents({"amount": {"$gt": 0}}) == 0  # no payment step
+    assert not paying.orders.called
     # PDF and Word, again and again
     for fmt in ("pdf", "docx", "pdf", "docx"):
         r = await export(c, fmt, "r1")
@@ -177,7 +187,7 @@ async def test_free_code_unlocks_one_resume_for_good_without_whatsapp(owner, mak
     assert "CAMPUS26" in csv and "Resume download" in csv and "99" in csv
 
 
-async def test_free_pack_code_unlocks_like_a_paid_order(owner, make_client, outbox, whatsapp, db):
+async def test_free_pack_code_unlocks_like_a_paid_order(owner, make_client, outbox, paying, db):
     await make(owner, code="TAILORFREE", type="free", items=["tailor_pack", "interview_pack"])
     c, me = await person(make_client, outbox)
     r = await apply(c, "tailorfree", item="tailor_pack")
@@ -196,19 +206,20 @@ async def test_free_pack_code_unlocks_like_a_paid_order(owner, make_client, outb
     assert r.status_code == 400 and err(r) == "code_used_before"
 
 
-async def test_free_code_through_the_whatsapp_order_also_unlocks_at_once(owner, make_client, outbox, whatsapp, db):
+async def test_free_code_at_checkout_also_unlocks_at_once(owner, make_client, outbox, paying, db):
     await make(owner, code="LIFREE", type="free", items=["linkedin_pack"])
     c, _ = await person(make_client, outbox)
-    r = await c.post("/api/orders/whatsapp", json={"planId": "linkedin_pack", "code": "lifree"})
-    assert r.status_code == 201 and r.json()["unlocked"] is True and r.json()["amount"] == 0
+    r = await c.post("/api/orders", json={"planId": "linkedin_pack", "code": "lifree"})
+    assert r.status_code == 409 and err(r) == "unlocked_with_code"
     assert (await c.get("/api/me/linkedin/pack/status")).json()["owned"] is True
-    assert await db[ORDERS].count_documents({"method": "whatsapp"}) == 0
+    assert not paying.orders.called  # nothing to pay: Razorpay is never asked
+    assert await db[ORDERS].count_documents({"status": "pending_payment"}) == 0
 
 
 # ---------- discounts ----------
 
 
-async def test_percent_and_flat_codes_lower_the_whatsapp_order(owner, make_client, outbox, whatsapp, db):
+async def test_percent_and_flat_codes_lower_the_razorpay_order(owner, make_client, outbox, paying, db):
     await make(owner, code="SAVE50", type="percent", value=50, items=["linkedin_pack"])
     await make(owner, code="FLAT50", type="flat", value=50_00, items=["resume"])
     c, _ = await person(make_client, outbox)
@@ -218,23 +229,19 @@ async def test_percent_and_flat_codes_lower_the_whatsapp_order(owner, make_clien
     q = (await apply(c, "FLAT50")).json()
     assert q["text"] == "Rs 99 -> Rs 49 with FLAT50"
     assert await db[COUPON_USES].count_documents({}) == 0  # a quote doesn't use the code
-    r = await c.post("/api/orders/whatsapp", json={"planId": "diy", "code": "flat50"})
+    r = await c.post("/api/orders", json={"planId": "diy", "code": "flat50"})
     assert r.status_code == 201, r.text
     out = r.json()
-    assert out["amount"] == 49_00 and "FLAT50" in out["message"] and "Rs 99 -> Rs 49" in out["message"]
+    assert out["amount"] == 49_00 and paying.last_json(paying.orders)["amount"] == 49_00
     o = await db[ORDERS].find_one({"_id": out["orderId"]})
     assert o["coupon"]["original"] == 99_00 and o["coupon"]["discount"] == 50_00 and o["coupon"]["final"] == 49_00
     assert [i["amount"] for i in o["items"]] == [99_00, -50_00]
     u = await db[COUPON_USES].find_one({"order_id": o["_id"]})
     assert u["status"] == "reserved"
-    # the admin marks it paid as now: the use counts for good and the download unlocks (account-wide, as paid)
-    r = await paid(owner, o["_id"], amount=49_00)
-    assert r.status_code == 200, r.text
+    # paid through Razorpay: the use counts for good and the download unlocks (account-wide, as paid)
+    assert (await pay(c, out))["status"] == "done"
     assert (await db[COUPON_USES].find_one({"order_id": o["_id"]}))["status"] == "used"
     assert (await export(c, "docx", "r1")).json()["reason"] == "paid"
-    rows = (await owner.get("/api/admin/whatsapp/orders?status=paid")).json()
-    rows = rows if isinstance(rows, list) else rows.get("orders", rows.get("rows"))
-    assert rows[0]["coupon"] == {"code": "FLAT50", "original": 99_00, "discount": 50_00, "final": 49_00}
     rep = (await owner.get("/api/admin/whatsapp/report?days=30")).json()
     assert rep["codes"] == {"orders": 1, "discount": 50_00, "free": 0}
     csv = (await owner.get("/api/admin/whatsapp/report.csv?days=30")).text
@@ -243,16 +250,22 @@ async def test_percent_and_flat_codes_lower_the_whatsapp_order(owner, make_clien
     assert my[0]["coupon"]["code"] == "FLAT50"
 
 
-async def test_cancelled_order_gives_the_use_back(owner, make_client, outbox, whatsapp, db):
+async def test_an_expired_unpaid_order_gives_the_use_back(owner, make_client, outbox, paying, db):
+    from app.automation import _expire_unpaid
+    from app.core.time import now
+
     await make(owner, code="ONE", type="percent", value=10, items=["all"], totalLimit=1)
     a, _ = await person(make_client, outbox)
     b, _ = await person(make_client, outbox, "b@example.com")
-    r = await a.post("/api/orders/whatsapp", json={"planId": "diy", "code": "ONE"})
+    r = await a.post("/api/orders", json={"planId": "diy", "code": "ONE"})
     assert r.status_code == 201
     r2 = await apply(b, "ONE")
     assert r2.status_code == 400 and err(r2) == "code_used_up"
     oid = r.json()["orderId"]
-    assert (await owner.post(f"/api/admin/whatsapp/orders/{oid}/cancel", json={"reason": "x"})).status_code == 200
+    assert await _expire_unpaid(db, 24, outbox) == 0  # not yet
+    await db[ORDERS].update_one({"_id": oid}, {"$set": {"created_at": now() - timedelta(hours=25)}})
+    assert await _expire_unpaid(db, 24, outbox) == 1
+    assert (await db[ORDERS].find_one({"_id": oid}))["status"] == "expired"
     assert (await db[COUPONS].find_one({"_id": "ONE"}))["uses"] == 0
     assert (await apply(b, "ONE")).status_code == 200
 
@@ -260,7 +273,7 @@ async def test_cancelled_order_gives_the_use_back(owner, make_client, outbox, wh
 # ---------- the rules ----------
 
 
-async def test_every_rejection_has_its_own_message(owner, make_client, outbox, whatsapp, db, owner_org):  # noqa: F811
+async def test_every_rejection_has_its_own_message(owner, make_client, outbox, paying, db, owner_org):  # noqa: F811
     _, _, org_id = owner_org
     await make(owner, code="OLD", type="free", validUntil=(TODAY - timedelta(days=1)).isoformat())
     await make(owner, code="LATER", type="free", validFrom=(TODAY + timedelta(days=2)).isoformat())
@@ -273,8 +286,8 @@ async def test_every_rejection_has_its_own_message(owner, make_client, outbox, w
     c, _ = await person(make_client, outbox)
     other, _ = await person(make_client, outbox, "o@example.com")
     assert (await apply(other, "GONE")).status_code == 200
-    assert (await other.post("/api/orders/whatsapp", json={"planId": "diy", "code": "GONE"})).status_code == 201
-    assert (await c.post("/api/orders/whatsapp", json={"planId": "diy", "code": "TWICE"})).status_code == 201
+    assert (await other.post("/api/orders", json={"planId": "diy", "code": "GONE"})).status_code == 201
+    assert (await c.post("/api/orders", json={"planId": "diy", "code": "TWICE"})).status_code == 201
     expect = {
         "NOPE": ("code_not_found", "couldn’t find"),
         "OLD": ("code_expired", "expired"),
@@ -291,7 +304,7 @@ async def test_every_rejection_has_its_own_message(owner, make_client, outbox, w
         assert text in r.json()["error"]["message"], (code, r.json())
 
 
-async def test_org_only_code_works_for_its_members(owner, make_client, outbox, whatsapp, db, owner_org):  # noqa: F811
+async def test_org_only_code_works_for_its_members(owner, make_client, outbox, paying, db, owner_org):  # noqa: F811
     _, _, org_id = owner_org
     await make(owner, code="SVCFREE", type="free", items=["resume"], only={"kind": "org", "id": org_id})
     member, me = await person(make_client, outbox)
@@ -304,7 +317,7 @@ async def test_org_only_code_works_for_its_members(owner, make_client, outbox, w
     assert row["only"] == {"kind": "org", "id": org_id, "name": "Sri Venkateswara College"}
 
 
-async def test_two_people_cannot_take_the_last_use(owner, make_client, outbox, whatsapp, db):
+async def test_two_people_cannot_take_the_last_use(owner, make_client, outbox, paying, db):
     await make(owner, code="LAST", type="free", items=["resume"], totalLimit=1)
     people = [await person(make_client, outbox, f"p{i}@example.com") for i in range(6)]
     rs = await asyncio.gather(*(apply(c, "LAST") for c, _ in people))
@@ -314,17 +327,17 @@ async def test_two_people_cannot_take_the_last_use(owner, make_client, outbox, w
     assert await db[COUPON_USES].count_documents({"code": "LAST"}) == 1
 
 
-async def test_one_person_cannot_use_a_code_twice_at_the_same_moment(owner, make_client, outbox, whatsapp, db):
+async def test_one_person_cannot_use_a_code_twice_at_the_same_moment(owner, make_client, outbox, paying, db):
     await make(owner, code="MINE", type="percent", value=10)
     c, _ = await person(make_client, outbox)
-    rs = await asyncio.gather(*(c.post("/api/orders/whatsapp", json={"planId": "diy", "code": "MINE"})
+    rs = await asyncio.gather(*(c.post("/api/orders", json={"planId": "diy", "code": "MINE"})
                                 for _ in range(4)))  # fmt: skip
     assert sorted(r.status_code for r in rs) == [201, 400, 400, 400]
     assert await db[COUPON_USES].count_documents({"code": "MINE"}) == 1
     assert (await db[COUPONS].find_one({"_id": "MINE"}))["uses"] == 1
 
 
-async def test_ten_wrong_codes_an_hour_then_a_wait(owner, make_client, outbox, whatsapp):
+async def test_ten_wrong_codes_an_hour_then_a_wait(owner, make_client, outbox, paying):
     await make(owner, code="REAL", type="percent", value=10)
     c, _ = await person(make_client, outbox)
     for i in range(10):
@@ -333,7 +346,7 @@ async def test_ten_wrong_codes_an_hour_then_a_wait(owner, make_client, outbox, w
     assert r.status_code == 429 and "wait" in r.json()["error"]["message"]
 
 
-async def test_bulk_codes_are_one_time_each(owner, make_client, outbox, whatsapp, db):
+async def test_bulk_codes_are_one_time_each(owner, make_client, outbox, paying, db):
     r = await owner.post("/api/admin/coupons/bulk", json={"prefix": "drive", "count": 5, "type": "free",
                                                           "items": ["resume"], "note": "Drive 1"})  # fmt: skip
     assert r.status_code == 201, r.text
@@ -379,7 +392,7 @@ async def test_razorpay_order_charges_the_lower_amount(owner, make_client, outbo
 # ---------- organization plans ----------
 
 
-async def test_org_plan_code_turns_the_plan_on_once_per_org(owner, whatsapp, owner_org, db):  # noqa: F811
+async def test_org_plan_code_turns_the_plan_on_once_per_org(owner, paying, owner_org, db):  # noqa: F811
     c, _, org_id = owner_org
     await details(c, org_id)
     await make(owner, code="DRIVEFREE", type="free", items=["drive"], perLimit=1)
@@ -398,15 +411,15 @@ async def test_org_plan_code_turns_the_plan_on_once_per_org(owner, whatsapp, own
     assert await db[AUDIT_LOG].find_one({"action": "coupon.redeemed", "data.orgs": org_id})
 
 
-async def test_org_discount_code_lowers_the_whatsapp_order(owner, whatsapp, owner_org, db):  # noqa: F811
+async def test_org_discount_code_lowers_the_razorpay_order(owner, paying, owner_org, db):  # noqa: F811
     c, _, org_id = owner_org
     await details(c, org_id)
     await make(owner, code="CAMPUS20", type="percent", value=20, items=["campus"])
-    r = await c.post(f"/api/org/{org_id}/billing/whatsapp", json={"planId": "campus", "code": "campus20"})
+    r = await c.post(f"/api/org/{org_id}/billing/checkout", json={"planId": "campus", "code": "campus20"})
     assert r.status_code == 201, r.text
     o = await db[ORDERS].find_one({"_id": r.json()["orderId"]})
     assert o["coupon"]["discount"] == 4999_80 and o["billing"]["taxable"] == 19999_20
-    assert "CAMPUS20" in r.json()["message"]
+    assert r.json()["amount"] == o["amount"] and paying.last_json(paying.orders)["amount"] == o["amount"]
     assert (await db[COUPON_USES].find_one({"order_id": o["_id"]}))["who"] == f"org:{org_id}"
     assert err(await c.post(f"/api/org/{org_id}/billing/code", json={"planId": "drive", "code": "campus20"})) == (
         "code_wrong_item"
@@ -415,7 +428,7 @@ async def test_org_discount_code_lowers_the_whatsapp_order(owner, whatsapp, owne
 
 async def test_org_plan_codes_only_on_billing_and_only_for_their_org(
     owner,
-    whatsapp,
+    paying,
     owner_org,  # noqa: F811
     make_client,
     outbox,
@@ -435,7 +448,7 @@ async def test_org_plan_codes_only_on_billing_and_only_for_their_org(
 # ---------- deleting an account ----------
 
 
-async def test_forget_user_anonymises_their_uses(owner, make_client, outbox, whatsapp, db):
+async def test_forget_user_anonymises_their_uses(owner, make_client, outbox, paying, db):
     await make(owner, code="GIFT", type="free", items=["resume"])
     c, me = await person(make_client, outbox)
     assert (await apply(c, "GIFT")).status_code == 200

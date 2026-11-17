@@ -2,15 +2,15 @@
 // Leave a value '' until you have it: every sentence or line that needs it is hidden (no [brackets] on the site).
 // `missingLegal()` lists what is still empty (shown in the preview build only).
 export const LEGAL = {
-  company: 'AsuraaX AI',
-  entity: '', // legal form, e.g. 'Private Limited Company' / 'LLP' / 'Sole proprietorship'
+  company: 'AsuraaX AI Private Limited',
+  entity: 'Private Limited Company', // legal form
   brands: 'Nm7 (nm7.si) and asuraa.ai',
   site: 'nm7.si',
   brand: 'Nm7',
   email: 'info@nm7.si',
   address: '', // registered office, full postal address
   city: 'Bengaluru, Karnataka, India',
-  phone: '', // support phone / WhatsApp number
+  phone: '', // not shown on the site: support is by email (and the Help page)
   hours: 'Monday–Saturday, 10 am – 7 pm IST',
   grievance: { name: '', email: '', phone: '' }, // Grievance Officer (Consumer Protection E-Commerce Rules, DPDP Act)
   courts: 'Bengaluru, Karnataka',
@@ -24,7 +24,7 @@ export const LEGAL = {
 };
 
 const LABELS = {
-  entity: 'Legal form of the company', address: 'Registered office address', phone: 'Support phone number',
+  entity: 'Legal form of the company', address: 'Registered office address',
   'grievance.name': 'Grievance Officer name', 'grievance.email': 'Grievance Officer email', 'grievance.phone': 'Grievance Officer phone',
   gstin: 'GSTIN', sacCode: 'SAC code', tdsRate: 'TDS rate on expert payouts', hosting: 'Hosting providers and countries',
   supportRetention: 'How long support messages are kept', diyFixTime: 'Time to fix a DIY tool problem before refunding',

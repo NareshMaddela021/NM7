@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { flush, orderFromApi, persist } from './meLive';
+import { flush, orderFromApi, persist, shownOrders } from './meLive';
 
 let calls;
 beforeEach(() => {
@@ -74,6 +74,25 @@ describe('orderFromApi', () => {
     expect(done.refund).toMatchObject({ amount: 1298, ref: 'RF-1', reason: 'Late delivery — automatic refund' });
     const review = orderFromApi(api({ refunds: [{ id: 'RF-2', amount: 99900, reason: 'quality', status: 'review', createdAt: '2026-10-03T00:00:00Z' }] }));
     expect(review.refundRequest).toMatchObject({ status: 'review', ref: 'RF-2' });
+  });
+});
+
+describe('shownOrders: unpaid orders to pay, add-on orders on their parent', () => {
+  const o = (id, extra) => ({ id, plan: 'expert', status: 'offer', amount: 99900, paidAt: '2026-10-01T10:00:00Z', createdAt: '2026-10-01T09:00:00Z', items: [{ kind: 'plan', code: 'expert', name: 'Expert rewrite', amount: 99900 }], refunds: [], ...extra });
+  it('keeps paid and payable orders, drops old expired ones, puts a paid add-on (with its invoice) on its parent', () => {
+    const now = Date.parse('2026-11-16T00:00:00Z');
+    const list = [
+      o('RS-1', { items: [{ kind: 'plan', code: 'expert', name: 'Expert rewrite', amount: 99900 }, { kind: 'addon', code: 'express', name: 'Express', amount: 29900 }] }),
+      o('RS-2', { kind: 'addon', parentId: 'RS-1', invoiceNo: 'NM7/26-27/0009', paymentId: 'pay_9', items: [{ kind: 'addon', code: 'express', name: 'Express', amount: 29900 }] }),
+      o('RS-3', { status: 'pending_payment', paidAt: null, createdAt: '2026-11-15T00:00:00Z' }),
+      o('RS-4', { status: 'expired', paidAt: null, createdAt: '2026-09-01T00:00:00Z' }),
+    ];
+    const shown = shownOrders(list, now);
+    expect(shown.map(([x]) => x.id)).toEqual(['RS-1', 'RS-3']);
+    const parent = orderFromApi(shown[0][0], 'r1', shown[0][1]);
+    expect(parent.addons[0]).toMatchObject({ id: 'express', invoice: 'NM7/26-27/0009', invoiceOrder: 'RS-2', payId: 'pay_9' });
+    expect(orderFromApi(shown[1][0])).toMatchObject({ unpaid: true, paidAt: null });
+    expect(orderFromApi(o('RS-5', { status: 'awaiting_payment', paidAt: null, method: 'whatsapp' }))).toMatchObject({ unpaid: true, wa: true });
   });
 });
 
