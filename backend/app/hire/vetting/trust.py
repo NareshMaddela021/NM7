@@ -143,6 +143,9 @@ def impossible_dates(d: dict[str, Any], t: datetime) -> list[str]:
     return out
 
 
+DEMO_PREFIXES = ("hire-demo-", "demo-")  # made-up people (their resumes are skipped without a lookup)
+
+
 async def _finding(db, key: str, kind: str, users: list[str], evidence: list[str]) -> bool:
     """One open fraud item per key (a phone, a device, a pair of resumes...); evidence refreshed, never duplicated."""
     t = now()
@@ -156,21 +159,53 @@ async def _finding(db, key: str, kind: str, users: list[str], evidence: list[str
 
 
 async def fraud_scan(db, t: datetime | None = None) -> dict[str, int]:
+    """Memory-safe on the 512 MB server: resumes are streamed in small batches and only small values are kept (the
+    phone digits and a short fingerprint per resume); the few resumes whose fingerprints match are fetched again to
+    compare their text. Never the whole collection in memory at once."""
     t = t or now()
     found: Counter[str] = Counter()
-    resumes = await db[RESUMES].find({"active": True}, {"user_id": 1, "data": 1}).limit(20000).to_list(20000)
-    demo = {u["_id"] async for u in db[USERS].find({"demo": True}, {"_id": 1})}
-    resumes = [r for r in resumes if r["user_id"] not in demo]
-    # one phone on several accounts
     phones: dict[str, set[str]] = defaultdict(set)
-    for r in resumes:
-        p = digits(str(((r.get("data") or {}).get("personal") or {}).get("phone") or ""))
+    buckets: dict[str, list[str]] = defaultdict(list)  # fingerprint → resume ids
+    owner: dict[Any, str] = {}  # resume id → user id, only for resumes that share a fingerprint (filled below)
+    async for r in db[RESUMES].find({"active": True}, {"user_id": 1, "data": 1}, batch_size=200).limit(20000):
+        uid = r["user_id"]
+        if str(uid).startswith(DEMO_PREFIXES):
+            continue
+        d = r.get("data") or {}
+        p = digits(str((d.get("personal") or {}).get("phone") or ""))
         if p:
-            phones[p].add(r["user_id"])
+            phones[p].add(uid)
+        bad = impossible_dates(d, t)
+        if bad:
+            found["dates"] += await _finding(db, f"dates:{uid}", "Resume dates that can't be true", [uid], bad)
+        w = resume_words(d)
+        if len(w.split()) >= 60:
+            top = " ".join(sorted(x for x, _ in Counter(w.split()).most_common(12)))
+            buckets[hashlib.sha1(top.encode()).hexdigest()[:20]].append(r["_id"])
+        del r, d, w
+    demo = {u["_id"] async for u in db[USERS].find({"demo": True}, {"_id": 1})}
+    # one phone on several accounts
     for p, uids in phones.items():
+        uids = uids - demo
         if len(uids) > 1:
             found["phone"] += await _finding(db, f"phone:{hashlib.sha256(p.encode()).hexdigest()[:16]}", "Same phone number on several accounts",
                                              sorted(uids), [f"Phone ending …{p[-4:]} is on {len(uids)} accounts"])  # fmt: skip
+    phones.clear()
+    # nearly identical resumes on different accounts: only buckets with 2+ resumes are fetched again
+    for ids in buckets.values():
+        if len(ids) < 2:
+            continue
+        group = []
+        async for r in db[RESUMES].find({"_id": {"$in": ids[:60]}}, {"user_id": 1, "data": 1}):
+            if r["user_id"] not in demo:
+                group.append((r["user_id"], resume_words(r.get("data") or {})))
+        for i in range(len(group)):
+            for j in range(i + 1, min(len(group), i + 30)):
+                (u1, w1), (u2, w2) = group[i], group[j]
+                if u1 != u2 and E.text_similarity(w1, w2) >= 0.9:
+                    found["resume"] += await _finding(db, f"resume:{min(u1, u2)}:{max(u1, u2)}", "Nearly identical resumes", sorted({u1, u2}),
+                                                      ["Two accounts have resumes that are more than 90% the same text"])  # fmt: skip
+    del owner
     # one device on several accounts (V2's salted device hash, kept 30 days)
     devices: dict[str, set[str]] = defaultdict(set)
     async for a in db[SKILL_ATTEMPTS].find(
@@ -181,28 +216,6 @@ async def fraud_scan(db, t: datetime | None = None) -> dict[str, int]:
         if len(uids) > 1:
             found["device"] += await _finding(db, f"device:{dv[:16]}", "Same device on several accounts", sorted(uids),
                                               [f"The same device took skill checks on {len(uids)} accounts in 30 days"])  # fmt: skip
-    # nearly identical resumes on different accounts (bucketed by their most common words, then compared)
-    buckets: dict[str, list[tuple[str, str]]] = defaultdict(list)
-    for r in resumes:
-        w = resume_words(r.get("data") or {})
-        if len(w.split()) < 60:
-            continue
-        top = " ".join(sorted(x for x, _ in Counter(w.split()).most_common(12)))
-        buckets[hashlib.sha1(top.encode()).hexdigest()].append((r["user_id"], w))
-    for group in buckets.values():
-        for i in range(len(group)):
-            for j in range(i + 1, min(len(group), i + 30)):
-                (u1, w1), (u2, w2) = group[i], group[j]
-                if u1 != u2 and E.text_similarity(w1, w2) >= 0.9:
-                    found["resume"] += await _finding(db, f"resume:{min(u1, u2)}:{max(u1, u2)}", "Nearly identical resumes", sorted({u1, u2}),
-                                                      ["Two accounts have resumes that are more than 90% the same text"])  # fmt: skip
-    # impossible dates
-    for r in resumes:
-        bad = impossible_dates(r.get("data") or {}, t)
-        if bad:
-            found["dates"] += await _finding(
-                db, f"dates:{r['user_id']}", "Resume dates that can't be true", [r["user_id"]], bad
-            )
     # copied answers / task text (V2 flags them per attempt)
     async for a in db[SKILL_ATTEMPTS].find({"submitted_at": {"$gt": t - timedelta(days=2)}, "$or": [{"signals.patternMatch": True}, {"signals.textMatch": True}]},
                                            {"user_id": 1, "skill": 1, "signals": 1}):  # fmt: skip
@@ -535,11 +548,15 @@ async def daily_if_due(db, mailer: Mailer) -> dict[str, int]:
     d = await db[VETTING_DEMAND].find_one({"_id": "trust"}) or {}
     if d.get("at") and d["at"] > now() - timedelta(hours=23):
         return {}
+    # the retention clean-up rewrites existing records (raw IPs in the audit log): only once the engine is public
+    from app.core.heavy import heavy_or_skip
     from app.hire.vetting import access
 
-    # the retention clean-up rewrites existing records (raw IPs in the audit log): only once the engine is public
-    clean = await retention(db) if await access.is_public(db) else {"retention_waits": 1}
-    out = {**(await fraud_scan(db)), **clean, "reverify": await reverify_reminders(db, mailer)}
+    async with heavy_or_skip(db) as ok:  # another heavy job running: try again on the next pass
+        if not ok:
+            return {}
+        clean = await retention(db) if await access.is_public(db) else {"retention_waits": 1}
+        out = {**(await fraud_scan(db)), **clean, "reverify": await reverify_reminders(db, mailer)}
     await db[VETTING_DEMAND].update_one({"_id": "trust"}, {"$set": {"at": now(), "last": out}}, upsert=True)
     return out
 

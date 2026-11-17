@@ -44,7 +44,10 @@ class TokenIn(CamelModel):
 async def coordinator_link(request: Request, db: DB, scope: AdminScope) -> dict[str, Any]:
     await rate_limit.check(db, f"demo-org:{scope.actor_id}", [(10, timedelta(hours=1))])
     await rate_limit.record(db, f"demo-org:{scope.actor_id}")
-    await create_demo(db, scope.actor_id)
+    from app.core.heavy import heavy_or_busy
+
+    async with heavy_or_busy(db):  # one heavy job at a time (app/core/heavy.py)
+        await create_demo(db, scope.actor_id)
     token = secrets.token_urlsafe(32)
     await db[ORG_STAFF].update_one(
         {"_id": STAFF_ID}, {"$set": {"demo_login_hash": hash_token(token), "demo_login_exp": now() + LINK_TTL}}
