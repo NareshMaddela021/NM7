@@ -24,6 +24,9 @@ MONGODB_DB=nm7_e2e uv run python -m tests.e2e_seed reset
                                           CAPTCHA, then that tester's run and the form pass, every request answered
                                           by a fake site in this process (nothing leaves it): {"states": {...}}
 ... aa5-site SITE STATE REASON         → A5: a company site in Admin's form site list
+... aa6-onetap-run EMAIL TAG           → A6: three jobs on a company's own site (found by the collector, so Ready
+                                          for one tap while the switch is OFF), that tester's run and morning list,
+                                          then the third job closes (shown as Closed): {"items": {title: id}}
 """
 
 import asyncio
@@ -113,6 +116,33 @@ async def _aa5_form_run(db, mail: str, cid: str, tag: str) -> dict:
         it = await db["auto_items"].find_one({"user_id": u["_id"], "job_id": jid}) or {}
         states[host] = {"state": it.get("state"), "reason": it.get("reason")}
     return {"states": states, "counts": counts, "pass": passes}
+
+
+async def _aa6_onetap_run(db, mail: str, tag: str) -> dict:
+    from app.autoapply import engine, onetap, v2engine
+    from app.jobs import service
+    from app.jobs.model import JobIn
+    from app.site import get_site
+
+    ids = {}
+    for i, title in enumerate((f"Data Analyst {tag}", f"Reporting Analyst {tag}", f"BI Analyst {tag}")):
+        body = {"title": title, "company": {"name": f"Onetap {tag} Pvt Ltd", "website": f"co{tag}.example"},
+                "locations": ["Hyderabad"], "experience": "fresher", "skills": ["SQL", "Power BI"],
+                "description": "Build weekly dashboards in SQL and Power BI for our stores. Freshers are welcome.",
+                "applyMethod": "link", "applyUrl": f"https://careers.co{tag}.example/jobs/{i + 1}"}  # fmt: skip
+        _, doc = await service.save(db, JobIn.model_validate(body), "admin")
+        ids[title] = doc["_id"]
+    u = await db[USERS].find_one({"email_lc": mail.lower()})
+    site = await get_site(db)
+    counts = {"skipped_gate": 0}
+    await v2engine.run_user(db, u, site, engine.today(), counts)
+    listed = await onetap.morning(db, u, site, engine.today())
+    await db["jobs"].update_one({"_id": ids[f"BI Analyst {tag}"]}, {"$set": {"status": "closed"}})
+    items = {}
+    for title, jid in ids.items():
+        it = await db["auto_items"].find_one({"user_id": u["_id"], "job_id": jid}) or {}
+        items[title] = {"id": it.get("_id"), "state": it.get("state")}
+    return {"items": items, "listed": listed, "counts": counts}
 
 
 async def main(cmd: str, *args: str) -> dict:
@@ -260,6 +290,8 @@ async def main(cmd: str, *args: str) -> dict:
         return {**got, "sent": cap.sent, "alias": alias}
     if cmd == "aa5-form-run":
         return await _aa5_form_run(db, *args)
+    if cmd == "aa6-onetap-run":
+        return await _aa6_onetap_run(db, *args)
     if cmd == "aa5-site":
         from app.autoapply.forms import service as forms
 
