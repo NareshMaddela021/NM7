@@ -132,7 +132,7 @@ async def test_approve_with_city_only_city_issues(admin_client, db):
     for i in ready:
         assert (await db[JOBS].find_one({"_id": i}))["locations"] == ["Pune"]
     j = await db[JOBS].find_one({"_id": from_loc[0]})
-    assert j["status"] == "active" and j["locations"] == ["Bangalore"] and j["review"]["reasons"] == []
+    assert j["status"] == "active" and j["locations"] == ["Bengaluru"] and j["review"]["reasons"] == []
     assert (await db[JOBS].find_one({"_id": no_city[0]}))["status"] == "review"
     assert (await db[JOBS].find_one({"_id": other[0]}))["status"] == "review"  # other issues: still Admin's call
     a = await db[AUDIT].find_one({"action": "job.review_city"})
