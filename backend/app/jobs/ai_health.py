@@ -51,6 +51,7 @@ def paused() -> str:
 
 def reset() -> None:  # tests
     _state.update(streak=0, until=None, kind="")
+    _state.pop("probe", None)
 
 
 async def record_ok(db) -> None:
