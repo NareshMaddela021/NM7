@@ -25,9 +25,11 @@ from app.autoapply import demo as auto_demo
 from app.autoapply import inbound as auto_inbound
 from app.autoapply import items as auto_items
 from app.autoapply import onetap as auto_onetap
+from app.autoapply import replies as auto_replies
 from app.autoapply import settings as auto_settings
 from app.autoapply import summary as auto_summary
 from app.autoapply import v2 as auto_v2
+from app.autoapply import weekly as auto_weekly
 from app.autoapply.ats import router as ats_router
 from app.billing import invoice_router as billing_docs
 from app.billing import migrate as billing_migrate
@@ -294,6 +296,8 @@ def create_app() -> FastAPI:
     app.include_router(auto_items.router)  # /api/me/auto-apply/items (A2, A3)
     app.include_router(auto_v2.router)  # /api/me/auto-apply/v2 (Auto Apply 2.0, behind its launch switch)
     app.include_router(auto_v2.admin)  # /api/admin/auto-apply/v2
+    app.include_router(auto_replies.router)  # /api/me/auto-apply/v2/inbox (A7 replies inbox, behind the switch)
+    app.include_router(auto_weekly.router)  # /api/me/auto-apply/v2/week (A7 weekly summary, behind the switch)
     app.include_router(auto_onetap.router)  # /api/me/auto-apply/v2/onetap and /helper (A6 one tap, behind the switch)
     app.include_router(auto_onetap.helper)  # /api/helper: the Nm7 Apply helper (Chrome extension), its own token
     app.include_router(auto_inbound.router)  # /api/webhooks/resend (A3: replies, bounces, complaints)

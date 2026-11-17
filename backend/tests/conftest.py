@@ -43,6 +43,15 @@ async def clean_collections():
         await db[name].delete_many({})
 
 
+@pytest.fixture(autouse=True)
+def no_weekly_day(monkeypatch):
+    """Auto Apply 2.0's weekly summary (A7) replaces the morning email on Mondays; tests that don't ask for it never
+    meet a weekly day, so they pass on any day of the week (a test sets weekly.WEEKDAY to today to get one)."""
+    from app.autoapply import weekly
+
+    monkeypatch.setattr(weekly, "WEEKDAY", -1)
+
+
 @pytest.fixture
 async def db():
     return get_database()

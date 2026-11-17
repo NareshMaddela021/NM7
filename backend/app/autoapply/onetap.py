@@ -396,15 +396,22 @@ async def _mail_morning(db, uid: str, site: dict[str, Any], day: str, n: int, ma
     fresh = await db[USERS].find_one({"_id": uid}) or {}
     if mailer is None or not access.may_mail(fresh, site["auto_apply_v2"]) or not _can_email(fresh):
         return False
+    from app.autoapply.summary import today_counts
+
     lines = [
         f"{n} job{'s are' if n != 1 else ' is'} ready for you to apply to yourself today. Each one has your tailored "
         "resume, a cover note and ready answers to copy.",
         "Open the list, tap Apply now, and paste from your kit on the company's page. Then tap I applied.",
     ]
+    c = await today_counts(db, uid, day)  # A7: today's summary rides along (one routine email a day)
+    if c["applied"] or c["needsAnswer"] or c["waiting"]:
+        lines.append(f"Today Auto Apply sent {c['applied']} · {c['needsAnswer']} question(s) wait for your answer"
+                     + (f" · {c['waiting']} wait for your Approve" if c["waiting"] else "") + ".")  # fmt: skip
     mail = _mail(fresh, f"{n} job{'s' if n != 1 else ''} ready to apply", lines,
                  [("Open my jobs ready list", "/me/auto-apply/v2?tab=ready")])  # fmt: skip
     if await send_safely(mailer, mail):
         await db[AUTO_MORNINGS].update_one({"_id": f"{uid}:{day}"}, {"$set": {"mailed_at": now()}})
+        await db[USERS].update_one({"_id": uid}, {"$set": {"auto_summary_day": day}})  # no second summary today
         return True
     return False
 

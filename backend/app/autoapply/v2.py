@@ -22,9 +22,12 @@ Candidate (signed in):
   GET  /api/me/auto-apply/v2/email              A3: the email channel: on / off (and why), my apply address, follow-up
   PUT  /api/me/auto-apply/v2/email {emailOn, followUp}
   GET  /api/me/auto-apply/v2/replies            A3: replies companies sent to my apply address
+  GET  /api/me/auto-apply/v2/inbox | POST /inbox/read   A7: every reply across channels (app/autoapply/replies.py)
+  GET  /api/me/auto-apply/v2/week               A7: the last 7 days (app/autoapply/weekly.py)
 Admin (permission "jobs"):
   GET  /api/admin/auto-apply/v2                 the switch, thresholds, testers, test inbox, pricing and the numbers
-  PUT  /api/admin/auto-apply/v2/settings {...}
+  PUT  /api/admin/auto-apply/v2/settings {...}   (A7: pricingOn, freePerWeek, paidLimit; paymentsOn stays off)
+  GET  /api/admin/auto-apply/v2/stats           A7: per-channel numbers and the success measures (app/autoapply/stats)
   GET  /api/admin/auto-apply/v2/email           A3: email channel health (sent today, bounces, complaints, blocks,
                                                 opt-outs, candidates paused after a complaint)
   DELETE /api/admin/auto-apply/v2/email/blocks/{id}         undo a block or an opt-out
@@ -46,6 +49,7 @@ from app.audit import audit
 from app.auth.deps import CustomerAuth
 from app.auth.sessions import client_ip
 from app.autoapply import access, engine, learning, onetap, rules, tailoring, v2engine
+from app.autoapply import replies as inbox_mod
 from app.autoapply.settings import gate
 from app.core.db import APPLICATIONS, AUTO_COPIES, AUTO_ITEMS, DB, JOBS, USERS
 from app.core.errors import ApiError
@@ -125,6 +129,8 @@ async def _status(db, uid: str, site: dict[str, Any]) -> dict[str, Any]:
         "learning": learning.explain(await learning.penalties(db, uid)),
         "public": bool(v2.get("public")),
         "morning": (await onetap.listing(db, uid))["morning"],  # A6: today's "N jobs ready" (in-app)
+        "inboxUnread": await inbox_mod.unread(db, uid),  # A7: the Replies tab's badge
+        "pricing": await v2engine.pricing_of(db, u, site),  # A7: nothing while pricing is off (the default)
     }
 
 
@@ -382,6 +388,7 @@ async def answer(iid: str, body: AnswerIn, auth: CustomerAuth, db: DB, backgroun
     from app.companies import questions as qmod
 
     site, u, it, j = await _context(db, auth.user.id, iid, ("needs_answer",))
+    await db[AUTO_ITEMS].update_one({"_id": iid, "answered_at": None}, {"$set": {"answered_at": now()}})  # A7: 24 h
     if it.get("kind") == "form":
         return await _answer_form(db, site, u, it, j, body, background)
     qs = j.get("questions") or []
@@ -584,9 +591,10 @@ class AdminIn(CamelModel):
     suggest_min: int = Field(ge=30, le=100)
     daily_limit: int = Field(ge=1, le=50)
     max_daily_limit: int = Field(ge=1, le=50)
+    pricing_on: bool = False  # A7: the weekly limits below are enforced only while this is on (OFF by default)
     free_per_week: int = Field(0, ge=0, le=500)
     paid_limit: int = Field(0, ge=0, le=1000)
-    payments_on: bool = False
+    payments_on: bool = False  # payments are "coming soon": it can't be turned on
     test_inbox: str = Field("", max_length=200)  # A3: while OFF, 2.0 emails go here (else the tester's own inbox)
 
     @field_validator("test_inbox")
@@ -596,6 +604,13 @@ class AdminIn(CamelModel):
         if v and not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", v):
             raise ValueError("The test inbox must be an email address.")
         return v
+
+    @field_validator("payments_on")
+    @classmethod
+    def _payments(cls, v: bool) -> bool:
+        if v:
+            raise ValueError("Payments are coming soon. Auto Apply stays free for now.")
+        return False
 
     @field_validator("testers")
     @classmethod
@@ -615,6 +630,7 @@ KEYS = (
     "suggest_min",
     "daily_limit",
     "max_daily_limit",
+    "pricing_on",
     "free_per_week",
     "paid_limit",
     "payments_on",
@@ -664,12 +680,23 @@ async def admin_overview(db: DB, _: AdminAuth("jobs")) -> dict[str, Any]:
     }
 
 
+@admin.get("/stats")
+async def admin_stats(db: DB, _: AdminAuth("jobs")) -> dict[str, Any]:
+    """A7: the per-channel numbers and the success measures (the same as Admin → Daily report's Auto Apply section,
+    counted now)."""
+    from app.autoapply import stats
+
+    return await stats.section(db)
+
+
 @admin.put("/settings")
 async def admin_settings(body: AdminIn, request: Request, db: DB, auth: AdminAuth("jobs")) -> dict[str, Any]:
     if body.suggest_min > body.auto_min:
         raise ApiError(400, "suggest_min", "“Suggested” must start below the auto-apply score.")
     if body.daily_limit > body.max_daily_limit:
         raise ApiError(400, "daily_limit", "The default daily limit can't be above the maximum.")
+    if body.paid_limit and body.free_per_week and body.paid_limit < body.free_per_week:
+        raise ApiError(400, "paid_limit", "The paid plan's weekly limit can't be below the free applications a week.")
     before = (await get_site(db))["auto_apply_v2"]
     new = body.model_dump()
     diff = {k: [before.get(k), v] for k, v in new.items() if before.get(k) != v}

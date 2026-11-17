@@ -274,6 +274,12 @@ async def on_reply(db, data: dict[str, Any], mailer=None) -> dict[str, Any]:
             {"_id": it["_id"]},
             {"$set": {"replied_at": t, "notice": notice, "updated_at": t}, "$inc": {"replies": 1}},
         )
+    # A7: what kind of reply it is (rules first, then the cheap model if there is one), kept on the reply
+    from app.autoapply import replies
+
+    kind, by = await replies.classify(db, uid, subject, text)
+    doc |= {"kind": kind, "kind_by": by}
+    await db[AUTO_REPLIES].update_one({"_id": doc["_id"]}, {"$set": {"kind": kind, "kind_by": by}})
     # forwarded to the candidate's own inbox, by the 2.0 email rule (while OFF: testers only; demo: never)
     v2 = (await get_site(db))["auto_apply_v2"]
     why = "ok"
@@ -285,7 +291,12 @@ async def on_reply(db, data: dict[str, Any], mailer=None) -> dict[str, Any]:
         sent = await send_safely(mailer or get_mailer(), forward_email(u, doc, f"{alias['_id']}@{domain}"))
         why = "ok" if sent else "failed"
     await db[AUTO_REPLIES].update_one({"_id": doc["_id"]}, {"$set": {"forwarded": why == "ok", "forward": why}})
-    return {"stored": True, "reply": doc["_id"], "item": doc["item_id"], "forwarded": why == "ok"}
+    if kind == "interview" and it:  # the alert (the forwarded email already says "Interview invitation")
+        await replies.alert_interview(
+            db, it["_id"], f"{it.get('company') or 'The company'} invited you to an interview for "
+            f"{it.get('title') or 'the job'} (by email).", mailer, emailed=why == "ok",
+        )  # fmt: skip
+    return {"stored": True, "reply": doc["_id"], "item": doc["item_id"], "forwarded": why == "ok", "kind": kind}
 
 
 def forward_email(u: dict[str, Any], r: dict[str, Any], apply_addr: str) -> Email:
@@ -313,7 +324,10 @@ def forward_email(u: dict[str, Any], r: dict[str, Any], apply_addr: str) -> Emai
     return Email(
         to=u["email"],
         to_name=u.get("name", ""),
-        subject=f"Reply from {r['company'] or r['from']}: {r['subject']}"[:200],
+        subject=(
+            ("Interview invitation · " if r.get("kind") == "interview" else "")
+            + f"Reply from {r['company'] or r['from']}: {r['subject']}"
+        )[:200],
         text=text,
         html=html,
         reply_to=r["from"],

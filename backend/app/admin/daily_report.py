@@ -365,8 +365,22 @@ async def state(db: AsyncDatabase, day: date) -> tuple[dict[str, Any], dict[str,
         "payments": {"ready": razorpay_ready()},
         "ai": {"cap": ai_quota.DAILY_CAP, "collectorLimit": await daily_limit(db)},
         "github": await github_status(),
+        "autoApply": await _auto_apply(db),
     }  # fmt: skip
     return m, extra
+
+
+async def _auto_apply(db: AsyncDatabase) -> dict[str, Any] | None:
+    """Auto Apply 2.0 (A7): sent / delivered / failed, reply and interview rates per channel for the last 7 days, and
+    the success measures with their targets (app/autoapply/stats.py: aggregations only). A problem here never stops
+    the rest of the snapshot."""
+    from app.autoapply import stats as aa_stats
+
+    try:
+        return await aa_stats.section(db)
+    except Exception:  # noqa: BLE001
+        log.exception("daily report: the Auto Apply numbers failed")
+        return None
 
 
 # --- snapshots -----------------------------------------------------------------------------------------------------

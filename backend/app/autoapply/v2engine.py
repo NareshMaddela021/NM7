@@ -50,6 +50,8 @@ def stage_of(it: dict[str, Any], app: dict[str, Any] | None) -> tuple[str, str]:
         st = app.get("status")
         if it.get("job_closed_at") and st in ("applied", "viewed"):  # A2: the company closed the job first
             return "closed", "closed"
+        if it.get("interview_at") and st in ("applied", "viewed"):  # A7: an email reply read as an interview invite
+            return "replied", "interview"
         if it.get("replied_at") and st in ("applied", "viewed"):  # A3: the company replied to the apply address
             return "replied", "replied"
         if st == "viewed":
@@ -78,12 +80,42 @@ async def week_used(db, uid: str, t: datetime) -> int:
     return await db[AUTO_ITEMS].count_documents({"user_id": uid, "v2": True, "counted_day": {"$gte": since}})
 
 
+def paid(a: dict[str, Any], t: datetime) -> bool:
+    """A paid plan (A7): `auto_apply.plan == "paid"` until `auto_apply.paid_until`. Payments are "coming soon", so
+    nothing sets it yet; the path is here, behind the pricing switch, and tested."""
+    until = a.get("paid_until")
+    return a.get("plan") == "paid" and bool(until) and until > t
+
+
+def week_cap(a: dict[str, Any], v2: dict[str, Any], t: datetime) -> int | None:
+    """The weekly allowance (A7): None while pricing is OFF (the default: no weekly limit for anyone). With pricing
+    ON: the paid plan's limit for a paid candidate, else the free applications a week; 0 means no weekly limit."""
+    if not v2.get("pricing_on"):
+        return None
+    n = int((v2.get("paid_limit") if paid(a, t) else v2.get("free_per_week")) or 0)
+    return n or None
+
+
+async def pricing_of(db, u: dict[str, Any], site: dict[str, Any]) -> dict[str, Any]:
+    """What the candidate sees about pricing: nothing while it is off."""
+    v2 = site["auto_apply_v2"]
+    a = u.get("auto_apply") or {}
+    t = now()
+    cap = week_cap(a, v2, t)
+    if not v2.get("pricing_on"):
+        return {"on": False}
+    used = await week_used(db, u["_id"], t)
+    return {"on": True, "plan": "paid" if paid(a, t) else "free", "weekLimit": cap, "usedThisWeek": used,
+            "leftThisWeek": None if cap is None else max(0, cap - used)}  # fmt: skip
+
+
 async def left_today(db, u: dict[str, Any], site: dict[str, Any], day: str) -> int:
     a = u.get("auto_apply") or {}
     left = rules.limit_of(a, site) - await engine.used_today(db, u["_id"], day)
-    free = int(site["auto_apply_v2"].get("free_per_week") or 0)
-    if free and not site["auto_apply_v2"].get("payments_on"):
-        left = min(left, free - await week_used(db, u["_id"], now()))
+    t = now()
+    cap = week_cap(a, site["auto_apply_v2"], t)
+    if cap is not None:  # pricing ON: the free allowance (or the paid plan's limit) for the last 7 days
+        left = min(left, cap - await week_used(db, u["_id"], t))
     return left
 
 
@@ -135,7 +167,10 @@ async def prepare(db, u, it, j, site, day: str, mailer=None, approved: bool = Fa
     copy = await tailoring.build(db, u["_id"], r, j, u.get("auto_apply") or {})
     mode = rules.mode_of(u.get("auto_apply") or {})
     if mode == "full_auto" or approved:
-        await db[AUTO_ITEMS].update_one({"_id": it["_id"]}, {"$set": {"copy_id": copy["_id"], "counted_day": day}})
+        sets = {"copy_id": copy["_id"], "counted_day": day}
+        if mode == "full_auto" and not approved:
+            sets["auto_full"] = True  # A7: sent with no tap from the candidate (the "fully automatic" share)
+        await db[AUTO_ITEMS].update_one({"_id": it["_id"]}, {"$set": sets})
         return await send(db, u, {**it, "copy_id": copy["_id"], "counted_day": day}, j, site, mailer)
     await db[AUTO_ITEMS].update_one(
         {"_id": it["_id"]},

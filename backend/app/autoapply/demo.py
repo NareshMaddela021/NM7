@@ -191,6 +191,9 @@ async def remove(db) -> None:
     from app.core.db import AUTO_MORNINGS, FORM_SITES
 
     await db[AUTO_MORNINGS].delete_many({"user_id": STUDENT_ID})
+    from app.core.db import AUTO_REPLIES
+
+    await db[AUTO_REPLIES].delete_many({"user_id": STUDENT_ID})  # A7: the demo replies
 
     await db[FORM_SITES].delete_many({"demo": True})
 
@@ -464,6 +467,55 @@ async def _v2(db, u, r, c, jobs, extra, t) -> None:
         j = jobs.get(f"{c['_id']}-job-{n}")
         if j:
             await add(j, "applied", status=status, applied_at=t)
+    await _replies_demo(db, c, t)
+
+
+DEMO_INVITE = (
+    "Hi Kavya,\n\nThank you for your application. We would like to invite you to an interview with our analytics "
+    "team on Thursday at 11:00 AM. Please reply with a time that suits you if that doesn't work.\n\n"
+    "Regards,\nHiring team (demo)"
+)
+
+
+async def _replies_demo(db, c, t) -> None:
+    """A7: the Replies inbox. The demo company's email reply to her email application, read as an interview invite
+    (the rules: the demo never calls the AI), and the companies' moves on her Nm7 applications (viewed, interview,
+    not selected, offer), the newest unread."""
+    from app.autoapply import replies, sync
+    from app.core.db import AUTO_REPLIES
+
+    mail_it = await db[AUTO_ITEMS].find_one({"user_id": STUDENT_ID, "state": "sent"})
+    if mail_it:
+        subject = f"Re: Application for {mail_it.get('title') or 'the job'}"
+        kind = replies.rules_kind(subject, DEMO_INVITE) or "other"
+        at = t - timedelta(hours=1)
+        await db[AUTO_REPLIES].insert_one({
+            "_id": str(ObjectId()), "user_id": STUDENT_ID, "alias": None, "item_id": mail_it["_id"],
+            "job_id": mail_it["job_id"], "mail_id": None, "company": mail_it.get("company") or "",
+            "title": mail_it.get("title") or "", "from": (mail_it.get("sent") or {}).get("to") or "hr@demo.nm7.invalid",
+            "from_name": "Hiring team", "subject": subject, "text": DEMO_INVITE, "provider_id": None,
+            "received_at": at, "forwarded": False, "forward": "demo", "kind": kind, "kind_by": "rules", "demo": True,
+        })  # fmt: skip
+        notice = {"status": "replied", "text": f"{mail_it.get('company') or 'The company'} replied by email.",
+                  "at": at, "seen": False}  # fmt: skip
+        await db[AUTO_ITEMS].update_one(
+            {"_id": mail_it["_id"]},
+            {"$set": {"replied_at": at, "interview_at": at, "interview_alert_at": at, "notice": notice,
+                      "channel_v2": "email", "replies": 1}},
+        )  # fmt: skip
+    hours = {"interview": 3, "viewed": 26, "rejected": 50, "offer": 74}
+    async for app in db[APPLICATIONS].find(
+        {"user_id": STUDENT_ID, "v2": True, "status": {"$in": list(hours)}}, {"status": 1, "company": 1, "role": 1,
+                                                                             "auto_item_id": 1}
+    ):  # fmt: skip
+        st = app["status"]
+        n = {"status": st, "text": sync.TEXT[st].format(company=app.get("company") or "The company",
+                                                        role=app.get("role") or "the job"),
+             "at": t - timedelta(hours=hours[st]), "seen": st in ("rejected", "offer")}  # fmt: skip
+        await db[AUTO_ITEMS].update_one(
+            {"_id": app.get("auto_item_id")}, {"$set": {"notice": n}, "$push": {"notices": n}}
+        )
+    await db[USERS].update_one({"_id": STUDENT_ID}, {"$set": {"auto_apply.inbox_seen_at": t - timedelta(hours=48)}})
 
 
 async def _form_demo(db, u, r, j, add, t) -> None:
