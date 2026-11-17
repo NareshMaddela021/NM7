@@ -20,7 +20,8 @@ Rules (each job on its own; one bad job never stops the others):
   original summary (300–900 characters) with Claude: what the role does, key skills, eligibility, place and work
   type, facts only from the page. page_text is never stored; emails and phone numbers are removed from everything
   kept. Without usable page_text, or when the summary fails a check, the job waits in Admin → Jobs for review (not
-  live) rather than being made up.
+  live) rather than being made up. A location without a city is filled from the summary or the page when they name
+  one to three Indian cities (round W), so a job held only for its city goes live on its own.
 - Shown as "Source: company careers page" with Apply to the official link; never a company logo, never "partner".
 - Source "collector" (Admin → Jobs → Job collector). Rate limited; the key is compared in constant time and never
   logged or echoed.
