@@ -88,11 +88,15 @@ def site(monkeypatch):
     s = FakeSite()
     waits: list[float] = []
 
+    clock = [1000.0]  # time moves only when the polite code waits: the waits are exact, however slow the machine
+
     async def sleep(x):
         waits.append(x)
+        clock[0] += x
 
     monkeypatch.setattr(polite, "TRANSPORT", httpx.MockTransport(s))
     monkeypatch.setattr(polite, "SLEEP", sleep)
+    monkeypatch.setattr(polite, "CLOCK", lambda: clock[0])
     polite._last.clear()
     s.waits = waits
     return s
@@ -161,7 +165,7 @@ async def test_simple_form_filled_posted_politely_with_proof(client, outbox, db,
     for c in site.calls:
         assert c.headers["user-agent"] == polite.UA == "Nm7-AutoApply/1.0 (+https://nm7.si/bot)"
     # polite: every request after the first waited DELAY (one site, one at a time)
-    assert len(site.waits) == 4 and all(w > polite.DELAY - 0.5 for w in site.waits)
+    assert site.waits == [polite.DELAY] * 4
     post = site.posts()[0]
     assert post.headers["referer"] == f"{HOST}/jobs/da-1"
     body = post.content
@@ -482,7 +486,7 @@ async def test_polite_spacing_daily_caps_and_user_agent(db, site, monkeypatch):
         await polite.request(db, http, "GET", "https://www.other.in/a")
         assert site.waits == []  # another site doesn't wait either
         await polite.request(db, http, "GET", f"{HOST}/a")
-        assert len(site.waits) == 1 and site.waits[0] > polite.DELAY - 0.5  # the same site waits
+        assert site.waits == [polite.DELAY]  # the same site waits
         await polite.request(db, http, "POST", f"{HOST}/apply", submit=True)
         with pytest.raises(polite.Refused) as e:  # one submit a day here
             await polite.request(db, http, "POST", f"{HOST}/apply", submit=True)
