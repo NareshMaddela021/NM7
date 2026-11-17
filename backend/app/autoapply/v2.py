@@ -35,7 +35,7 @@ import re
 from datetime import timedelta
 from typing import Any, Literal
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, BackgroundTasks, Request
 from pydantic import Field, field_validator
 
 from app.admin.deps import AdminAuth
@@ -404,7 +404,7 @@ async def _approve_one(db, uid: str, iid: str) -> str:
 
 
 @router.post("/approve-all")
-async def approve_all(auth: CustomerAuth, db: DB) -> dict[str, Any]:
+async def approve_all(auth: CustomerAuth, db: DB, background: BackgroundTasks) -> dict[str, Any]:
     uid = auth.user.id
     await _allowed(db, uid)
     n = 0
@@ -415,14 +415,23 @@ async def approve_all(auth: CustomerAuth, db: DB) -> dict[str, Any]:
             if e.code in ("site_off", "admin_paused", "not_set_up"):
                 raise
     await audit(db, uid, "auto_apply.v2_approve_all", data={"applied": n})
+    background.add_task(_partner_kick, db)
     return {"applied": n}
 
 
 @router.post("/approve/{iid}")
-async def approve(iid: str, auth: CustomerAuth, db: DB) -> dict[str, Any]:
+async def approve(iid: str, auth: CustomerAuth, db: DB, background: BackgroundTasks) -> dict[str, Any]:
     state = await _approve_one(db, auth.user.id, iid)
     await audit(db, auth.user.id, "auto_apply.v2_approve", target=iid, data={"state": state})
+    background.add_task(_partner_kick, db)
     return {"state": state}
+
+
+async def _partner_kick(db) -> None:
+    """A4: an approved application to a job linked to the company's hiring system goes out now, after the answer."""
+    from app.autoapply.ats import service as ats
+
+    await ats.kick(db)
 
 
 @router.post("/approvals/{iid}/skip")
@@ -712,3 +721,13 @@ async def admin_resume_email(uid: str, request: Request, db: DB, auth: AdminAuth
         raise ApiError(404, "not_found", "That candidate's email channel isn't paused.")
     await audit(db, auth.user.id, "auto_apply.v2_email_resume", target=uid, ip=client_ip(request))
     return {"resumed": uid}
+
+
+@admin.get("/partners")
+async def admin_partners(db: DB, _: AdminAuth("jobs")) -> dict[str, Any]:
+    """A4: each hiring-system partner's health: connected companies, deliveries today, retries and failures, the last
+    error's kind (never a key, never a company's settings) and the last successful status sync."""
+    from app.autoapply.ats import service as ats
+
+    site = await get_site(db)
+    return {"public": bool(site["auto_apply_v2"].get("public")), "partners": await ats.health(db)}

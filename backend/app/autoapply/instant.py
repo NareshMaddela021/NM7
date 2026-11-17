@@ -231,10 +231,14 @@ async def queue(db, j: dict[str, Any]) -> bool:
 async def kick(db, mailer=None) -> dict[str, Any]:
     """The background task after a post: one pass now (or the next automation pass when the server is busy)."""
     try:
-        return await run(db, mailer)
+        out = await run(db, mailer)
     except Exception:  # noqa: BLE001 — never surfaces to the company
         log.exception("auto apply 2.0: instant pass failed")
         return {"error": True}
+    from app.autoapply.ats import service as ats
+
+    await ats.kick(db)  # A4: full-auto applications to a job linked to the company's hiring system go out now
+    return out
 
 
 def _bump(counts: dict[str, Any], key: str) -> None:

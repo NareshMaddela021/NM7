@@ -113,6 +113,11 @@ async def send(db, u, it, j, site, mailer=None) -> str:
             if instant.eligible(j):  # A2: what the company sees with a "Sent by Auto Apply" application
                 extra["auto_v2"] = await instant.payload(db, u, it)
             await db[APPLICATIONS].update_one({"user_id": u["_id"], "job_id": j["_id"]}, {"$set": extra})
+            if got["state"] == "applied" and instant.eligible(j) and j.get("partner_job"):
+                from app.autoapply.ats import service as ats  # A4: also to the company's own hiring system
+
+                if mark := await ats.queue(db, u, it, j, site):
+                    sets |= {"channel_v2": "partner", "partner": mark}
     await db[AUTO_ITEMS].update_one({"_id": it["_id"]}, upd)
     return got["state"]
 
@@ -300,7 +305,19 @@ def row(it: dict[str, Any], app: dict[str, Any] | None) -> dict[str, Any]:
         "replies": int(it.get("replies") or 0),  # A3: replies that came to the candidate's apply address
         "applyTo": it.get("apply_to") or None if it.get("state") == "ready" else None,  # A3: email it yourself
         "readyReason": it.get("reason") if it.get("state") == "ready" else None,
+        "partner": _partner(it.get("partner")),  # A4: sent to the company's hiring system (name, state)
     }
+
+
+PARTNER_STATE = {"pending": "Sending", "retrying": "Sending (trying again)", "delivered": "Delivered",
+                 "kept": "Kept on Nm7"}  # fmt: skip
+
+
+def _partner(p: dict[str, Any] | None) -> dict[str, Any] | None:
+    if not p:
+        return None
+    return {"name": p.get("name") or "", "state": p.get("state") or "pending",
+            "stateText": PARTNER_STATE.get(p.get("state") or "pending", "")}  # fmt: skip
 
 
 def _notice(n: dict[str, Any] | None) -> dict[str, Any] | None:
@@ -364,6 +381,7 @@ async def what_was_sent(db, uid: str, iid: str) -> dict[str, Any] | None:
         "email": _email_out(sent, it) if sent else None,
         "followUp": _email_out(it["follow_up"], it) if it.get("follow_up") else None,
         "replies": await replies_of(db, uid, it["_id"]),
+        "partner": _partner(it.get("partner")),
     }
 
 
