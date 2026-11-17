@@ -255,6 +255,9 @@ def create_app() -> FastAPI:
     from app.jobs import collector_admin
 
     app.include_router(collector_admin.router)  # /api/admin/jobs/collector/* (round M; before /api/admin/jobs/{id})
+    from app.jobs import review_bulk
+
+    app.include_router(review_bulk.router)  # /api/admin/jobs/review/* (round W; before /api/admin/jobs/{id})
     app.include_router(jobs_admin.router)  # /api/admin/jobs (job board J1)
     app.include_router(jobs_ingest.router)  # /api/jobs/ingest (the job collector, J2)
     from app.jobs import collector as jobs_collector

@@ -277,6 +277,13 @@ def cities_of(location: str) -> tuple[list[str], str]:
     return found[:10], work
 
 
+def city_from(text: str, most: int = 3) -> list[str]:
+    """Indian cities named in free text (the summary, the official page's text): an answer only when it names a few —
+    a page listing every office is no answer (round W: fill a missing city instead of holding the job)."""
+    found, _ = cities_of(text)
+    return found if 0 < len(found) <= most else []
+
+
 def posted_at(raw: str) -> datetime | None:
     try:
         d = datetime.fromisoformat(raw.replace("Z", "+00:00")) if raw else None
@@ -460,21 +467,35 @@ async def handle(db, raw: Any, dry: bool, sem: asyncio.Semaphore) -> dict[str, A
         return {**base, "result": "skipped", "reason": "removed_on_request", "id": old["_id"]}
     exp, exp_from = experience(j.exp_min, j.exp_max, j.title, j.exp_text)
     cities, work = cities_of(j.location)
-    reasons: list[str] = []  # experience not stated is no reason to wait (round J2): "Experience not stated"
-    if not cities and work != "remote":
-        reasons.append("city_not_stated")
-    if dry:
-        thin = len(scrub(j.page_text)) < PAGE_MIN and not (old and old.get("collector", {}).get("summarised"))
-        res = "review" if reasons or thin else ("updated" if old else "created")
-        return {**base, "result": res, "reasons": reasons + (["no_page_text"] if thin else []), "dryRun": True}
-    facts, wait = None, ""
+    city_src = "location" if cities else ""
+    # experience not stated is no reason to wait (round J2): "Experience not stated"; a missing city is filled from the
+    # summary or the page when they name one (round W), so a job held only for its city goes live on its own
+    missing_city = not cities and work != "remote"
+    reasons: list[str] = []
     has_summary = bool(old and (old.get("collector") or {}).get("summarised"))
+    if dry:
+        if missing_city and (
+            city_from(scrub(j.page_text)) or (has_summary and city_from(old.get("description") or ""))
+        ):
+            missing_city = False
+        thin = len(scrub(j.page_text)) < PAGE_MIN and not has_summary
+        reasons = (["city_not_stated"] if missing_city else []) + (["no_page_text"] if thin else [])
+        res = "review" if reasons else ("updated" if old else "created")
+        return {**base, "result": res, "reasons": reasons, "dryRun": True}
+    facts, wait = None, ""
     if not has_summary:
         async with sem:
             facts, wait = await summarise(db, j)
         if wait:
             reasons.append(wait)
     desc = facts["summary"] if facts else (old["description"] if has_summary else PLACEHOLDER)
+    if missing_city:
+        for src, text in (("summary", desc if (facts or has_summary) else ""), ("page", scrub(j.page_text))):
+            if guess := city_from(text):
+                cities, city_src, missing_city = guess, src, False
+                break
+    if missing_city:
+        reasons.insert(0, "city_not_stated")
     try:
         job = JobIn.model_validate({
             "title": j.title[:120], "company": {"name": j.company}, "locations": cities or ([] if work == "remote" else ["India"]),
@@ -489,7 +510,7 @@ async def handle(db, raw: Any, dry: bool, sem: asyncio.Semaphore) -> dict[str, A
     fields["dedupe_key"] = "collector:" + hashlib.sha256(ukey.encode()).hexdigest()[:32]
     t = now()
     meta = {"url_key": ukey, "ct_key": ckey, "system": j.system[:40], "posted_raw": j.posted[:40],
-            "exp_text": scrub(j.exp_text)[:200], "exp_from": exp_from, "location": j.location[:300], "summarised": bool(facts) or has_summary, "removed": False}  # fmt: skip
+            "exp_text": scrub(j.exp_text)[:200], "exp_from": exp_from, "location": j.location[:300], "city_from": city_src, "summarised": bool(facts) or has_summary, "removed": False}  # fmt: skip
     status = "review" if reasons else "active"
     review = {"reasons": reasons, "note": ""} if reasons else None
     if old:
