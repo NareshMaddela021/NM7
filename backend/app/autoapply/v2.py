@@ -29,6 +29,9 @@ Admin (permission "jobs"):
                                                 opt-outs, candidates paused after a complaint)
   DELETE /api/admin/auto-apply/v2/email/blocks/{id}         undo a block or an opt-out
   POST /api/admin/auto-apply/v2/email/paused/{uid}/resume   turn a candidate's email channel back on after review
+  GET  /api/admin/auto-apply/v2/partners        A4: each hiring-system partner's health
+  GET  /api/admin/auto-apply/v2/forms           A5: every company site seen for forms (state, reason, counts)
+  POST /api/admin/auto-apply/v2/forms/sites/{site}/one-tap | /reset    move a site to one-tap only, or reset it
 """
 
 import re
@@ -220,7 +223,12 @@ async def stop(auth: CustomerAuth, db: DB) -> dict[str, Any]:
     )
     n = (
         await db[AUTO_ITEMS].update_many(
-            {"user_id": uid, "state": {"$in": ["needs_answer", "waiting_approval", "queued", "suggested", "applying"]}},
+            {
+                "user_id": uid,
+                "state": {
+                    "$in": ["needs_answer", "waiting_approval", "queued", "suggested", "applying", "form_queued"]
+                },
+            },
             {"$set": {"state": "withdrawn", "updated_at": t}, "$unset": {"counted_day": ""}},
         )
     ).modified_count
@@ -295,11 +303,20 @@ async def _go(db, site, u, it, j, answers: dict[str, Any]) -> str:
 @router.post("/suggested/{iid}/apply")
 async def apply_suggested(iid: str, auth: CustomerAuth, db: DB) -> dict[str, Any]:
     site, u, it, j = await _context(db, auth.user.id, iid, ("suggested",))
-    if j["apply"]["method"] == "link":
+    no_form = None
+    if j["apply"]["method"] == "link":  # A5: a simple form on the company's own site goes like any other
+        from app.autoapply.forms import service as forms
+
+        no_form = await forms.route(db, u, j, site)
+        if not no_form:
+            await db[AUTO_ITEMS].update_one({"_id": iid}, {"$set": {"channel_v2": "form"}})
+            it = {**it, "channel_v2": "form"}
+    if j["apply"]["method"] == "link" and no_form:
         r = await engine.resume_for(db, u["_id"])
         copy = await tailoring.build(db, u["_id"], r, j, u.get("auto_apply") or {}) if r else None
         await db[AUTO_ITEMS].update_one(
-            {"_id": iid}, {"$set": {"state": "ready", "copy_id": (copy or {}).get("_id"), "updated_at": now()}}
+            {"_id": iid},
+            {"$set": {"state": "ready", "copy_id": (copy or {}).get("_id"), "reason": no_form, "updated_at": now()}},
         )
         return {"state": "ready"}
     answers, missing = await engine.saved_answers(u, j)
@@ -342,6 +359,11 @@ async def waiting(auth: CustomerAuth, db: DB) -> list[dict[str, Any]]:
     u = await _user(db, uid)
     out = []
     async for it in db[AUTO_ITEMS].find({"user_id": uid, "state": "needs_answer"}).sort("updated_at", -1):
+        if it.get("kind") == "form":  # A5: questions the company's own form asks
+            from app.autoapply.forms import service as forms
+
+            out.append({**v2engine.row(it, None), "questions": forms.open_questions(it, u)})
+            continue
         j = await db[JOBS].find_one({"_id": it["job_id"]}, {"questions": 1})
         missing = {q["id"] for q in (await engine.saved_answers(u, j))[1]} if j else set(it.get("missing") or [])
         out.append(
@@ -354,11 +376,13 @@ async def waiting(auth: CustomerAuth, db: DB) -> list[dict[str, Any]]:
 
 
 @router.post("/waiting/{iid}/answer")
-async def answer(iid: str, body: AnswerIn, auth: CustomerAuth, db: DB) -> dict[str, Any]:
+async def answer(iid: str, body: AnswerIn, auth: CustomerAuth, db: DB, background: BackgroundTasks) -> dict[str, Any]:
     """The answers are saved to the profile (never asked again), then this application is sent at once."""
     from app.companies import questions as qmod
 
     site, u, it, j = await _context(db, auth.user.id, iid, ("needs_answer",))
+    if it.get("kind") == "form":
+        return await _answer_form(db, site, u, it, j, body, background)
     qs = j.get("questions") or []
     saved, missing = await engine.saved_answers(u, j)
     given, problems = qmod.answers_for(missing, body.answers)
@@ -378,6 +402,28 @@ async def answer(iid: str, body: AnswerIn, auth: CustomerAuth, db: DB) -> dict[s
         await audit(db, u["_id"], "auto_apply.v2_answer", target=j["_id"], data={"state": "skipped"})
         return {"state": "skipped", "reason": "not_a_fit", "saved": len(given)}
     state = await _go(db, site, u, it, j, answers)
+    await audit(db, u["_id"], "auto_apply.v2_answer", target=j["_id"], data={"state": state, "saved": len(given)})
+    return {"state": state, "saved": len(given)}
+
+
+async def _answer_form(db, site, u, it, j, body: AnswerIn, background: BackgroundTasks) -> dict[str, Any]:
+    """A5: answers to the company form's questions, saved to the profile like any other; then the form goes back to
+    the background pass (within today's limit), which fills it again with the answers."""
+    from app.autoapply.forms import service as forms
+
+    qs = forms.open_questions(it, u)
+    given, problems = forms.clean_answers(qs, body.answers)
+    if problems:
+        raise ApiError(400, "answers", " ".join(problems), extra={"problems": problems})
+    texts = {q["id"]: q["text"] for q in qs}
+    if given:
+        await db[USERS].update_one(
+            {"_id": u["_id"]}, {"$set": {f"auto_apply.answers.{engine.norm(texts[k])}": v for k, v in given.items()}}
+        )
+    left = await v2engine.left_today(db, u, site, engine.today())
+    state = await forms.answered(db, u, it, site, left)
+    if state == "form_queued":
+        background.add_task(forms.kick, db)
     await audit(db, u["_id"], "auto_apply.v2_answer", target=j["_id"], data={"state": state, "saved": len(given)})
     return {"state": state, "saved": len(given)}
 
@@ -428,10 +474,13 @@ async def approve(iid: str, auth: CustomerAuth, db: DB, background: BackgroundTa
 
 
 async def _partner_kick(db) -> None:
-    """A4: an approved application to a job linked to the company's hiring system goes out now, after the answer."""
+    """A4: an approved application to a job linked to the company's hiring system goes out now, after the answer.
+    A5: an approved company-form application is tried now too."""
     from app.autoapply.ats import service as ats
+    from app.autoapply.forms import service as forms
 
     await ats.kick(db)
+    await forms.kick(db)
 
 
 @router.post("/approvals/{iid}/skip")
@@ -731,3 +780,47 @@ async def admin_partners(db: DB, _: AdminAuth("jobs")) -> dict[str, Any]:
 
     site = await get_site(db)
     return {"public": bool(site["auto_apply_v2"].get("public")), "partners": await ats.health(db)}
+
+
+# ---------- A5: company forms ----------
+
+
+@admin.get("/forms")
+async def admin_forms(db: DB, _: AdminAuth("jobs")) -> dict[str, Any]:
+    """Every company site Auto Apply 2.0 has seen for forms: allowed (simple form), one-tap only and why, blocked by
+    robots.txt or by its terms, or a job board; when it was last tried, and the successes and failures."""
+    from app.autoapply.forms import polite
+    from app.autoapply.forms import service as forms
+
+    site = await get_site(db)
+    return {
+        "public": bool(site["auto_apply_v2"].get("public")),
+        "counts": await forms.counts(db),
+        "rules": {
+            "userAgent": polite.UA,
+            "delay": polite.DELAY,
+            "requestsPerDay": polite.REQUESTS_PER_DAY,
+            "submitsPerDay": polite.SUBMITS_PER_DAY,
+        },  # fmt: skip
+        "sites": await forms.sites(db),
+    }
+
+
+@admin.post("/forms/sites/{key}/one-tap")
+async def admin_form_one_tap(key: str, request: Request, db: DB, auth: AdminAuth("jobs")) -> dict[str, Any]:
+    from app.autoapply.forms import service as forms
+
+    if not await forms.admin_one_tap(db, key.lower(), auth.user.id, client_ip(request)):
+        raise ApiError(404, "not_found", "That site isn’t on the list.")
+    return {"site": key.lower(), "state": "one_tap"}
+
+
+@admin.post("/forms/sites/{key}/reset")
+async def admin_form_reset(key: str, request: Request, db: DB, auth: AdminAuth("jobs")) -> dict[str, Any]:
+    from app.autoapply.forms import service as forms
+
+    if not await forms.admin_reset(db, key.lower(), auth.user.id, client_ip(request)):
+        raise ApiError(404, "not_found", "That site isn’t on the list.")
+    from app.core.db import FORM_SITES
+
+    return {"site": key.lower(), "state": (await db[FORM_SITES].find_one({"_id": key.lower()}))["state"]}

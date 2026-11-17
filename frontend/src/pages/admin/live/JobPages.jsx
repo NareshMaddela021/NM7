@@ -225,7 +225,7 @@ function JobForm({ id, onClose, onSaved }) {
   );
 }
 
-const CHANNEL = { nm7: 'Applied on Nm7', link: 'Company link', email: 'By email' };
+const CHANNEL = { nm7: 'Applied on Nm7', link: 'Company link', email: 'By email', form: 'Company form (Auto Apply)' };
 const APP_STEPS = [['viewed', 'Viewed'], ['shortlisted', 'Shortlisted'], ['interview', 'Interview'], ['offer', 'Offer'], ['rejected', 'Rejected']];
 
 function AppRow({ job, a }) {

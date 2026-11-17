@@ -173,6 +173,10 @@ async def run_rules(db: AsyncDatabase, mailer: Mailer | None = None) -> dict[str
         got = await ats.run(db, mailer or get_mailer())  # Auto Apply 2.0: hiring-system deliveries and statuses (A4)
         done["auto_apply_partner_sent"] = int((got.get("delivered") or {}).get("delivered", 0))
         done["auto_apply_partner_moved"] = int((got.get("sync") or {}).get("moved", 0))
+        from app.autoapply.forms import service as forms
+
+        got = await forms.run(db)  # Auto Apply 2.0: simple forms on companies' own sites, politely (A5)
+        done["auto_apply_forms_sent"] = int(got.get("applied", 0))
         done["job_alerts"] = await job_alerts(db, mailer or get_mailer())  # daily / weekly matches; ≤ 1 email a day
         done["job_followups"] = await job_followups(db, mailer or get_mailer())  # a week on; ≤ 1 email a day
         done["pass_reminders"] = await pass_reminders(db, mailer or get_mailer())  # 7 days before a pass ends
