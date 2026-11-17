@@ -10,6 +10,7 @@ MONGODB_DB=nm7_e2e uv run python -m tests.e2e_seed reset
                                           without calling Razorpay (the browser tests run without Razorpay keys)
 ... company-verify COMPANY_ID              → {"ok": true} (as if an admin approved it: Verified for a year)
 ... job JSON [STATUS] [AGE_HOURS]       → {"id", "slug"} (a job-board job, as an admin would add it)
+... aa2-tester EMAIL                   → Auto Apply 2.0 shown to this email while hidden
 ... auto-apply-run [EMAIL [past]]      → the Auto Apply run now (any hour); with EMAIL and "past", that student's
                                           preview days are over first
 ... job-alerts EMAIL                   → {"sent": [{to, subject, text}], "stop": token} (the alert pass for one person,
@@ -48,6 +49,12 @@ async def main(cmd: str, *args: str) -> dict:
     if cmd == "vetting-tester":  # Admin → Skill checks → Launch: this email sees the vetting engine while it is hidden
         (email,) = args
         await db["settings"].update_one({"_id": "site"}, {"$addToSet": {"vetting.testers": email.lower()}}, upsert=True)
+        return {"ok": True}
+    if cmd == "aa2-tester":  # Admin → Auto Apply 2.0: this email sees 2.0 while it is hidden
+        (email,) = args
+        await db["settings"].update_one(
+            {"_id": "site"}, {"$addToSet": {"auto_apply_v2.testers": email.lower()}}, upsert=True
+        )
         return {"ok": True}
     if cmd == "hire-token":  # the one-tap "Still ready" link's token from the reminder email (Phase 5 H1)
         from app.hire.available import still_token

@@ -82,7 +82,13 @@ def _degree_backed(d: str, have: set[str]) -> bool:
 def problems(text: str, original: str, allowed: str = "", typed: str = "") -> list[str]:
     """What in `text` isn't backed by the original resume (`original` = facts.resume_text(data)). `allowed`: the
     job's own words (only for the cover note and answers); `typed`: the candidate's own profile answers."""
-    found = list(facts.problems(text, original, allowed, typed))
+    # a number in the job's own title or company ("L2 Support", "Analyst II 2026") may be named, never made up
+    job_numbers = {facts._num(n) for n in facts.NUMBER.findall(allowed)}
+    found = [
+        p
+        for p in facts.problems(text, original, allowed, typed)
+        if not (p.startswith("the number ") and facts._num(p[len("the number ") :]) in job_numbers)
+    ]
     backing = f"{original}\n{typed}"
     have_deg = _degrees(backing)
     for d in sorted(_degrees(text)):
