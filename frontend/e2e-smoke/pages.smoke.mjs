@@ -131,3 +131,23 @@ area('admin', 'admin', [{
     if (await page.getByTestId('vl-card').count()) await expect(page.getByTestId('vl-state')).toContainText(/Hidden|Live for everyone/); // owners only
   },
 }]);
+
+// one-off (scratch branch, never merged): signed-out screenshots of live public pages at 1920 and 390 px
+for (const [w, h] of [[1920, 1080], [390, 844]]) {
+  test(`public › live shots ${w}`, async ({ browser }) => {
+    test.setTimeout(240_000);
+    const { expect } = await import('@playwright/test');
+    const ctx = await browser.newContext({ viewport: { width: w, height: h }, ...(w < 500 ? { isMobile: true, hasTouch: true } : {}), reducedMotion: 'reduce' });
+    const page = await ctx.newPage();
+    for (const p of ['/', '/jobs', '/blog', '/salaries', '/terms', '/pricing', '/for-companies']) {
+      await page.goto(p); await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {}); await page.waitForTimeout(800);
+      const name = p === '/' ? 'home' : p.slice(1);
+      await page.screenshot({ path: `test-results/live-shots/${name}-${w}.jpg`, type: 'jpeg', quality: 60 });
+      await page.screenshot({ path: `test-results/live-shots/${name}-${w}-full.jpg`, type: 'jpeg', quality: 50, fullPage: true });
+      const side = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      console.log(`${name} ${w}: sideways ${side}px, main width ${await page.evaluate(() => Math.round((document.querySelector('main') || document.body).getBoundingClientRect().width))}`);
+      expect(side, `${p} scrolls sideways at ${w}`).toBeLessThanOrEqual(1);
+    }
+    await ctx.close();
+  });
+}
