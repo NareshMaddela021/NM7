@@ -12,6 +12,7 @@ import '../../../styles/admin.css';
 
 export { http };
 export const NAV = [
+  ['dashboard', '/admin/daily-report', 'Daily report', '☀'],
   ['dashboard', '/admin', 'Dashboard', '▦'],
   ['orders', '/admin/orders', 'Orders', '☰'],
   ['experts', '/admin/experts', 'Experts', '✦'],
@@ -101,7 +102,7 @@ export const tone = (s) => ({ refunded: 'neutral', expired: 'neutral', cancelled
 
 /** Round P, Phase 5: the side menu in groups (the same links, order inside each group as in NAV). */
 export const NAV_GROUPS = [
-  ['Overview', ['/admin', '/admin/reports', '/admin/quality']],
+  ['Overview', ['/admin/daily-report', '/admin', '/admin/reports', '/admin/quality']],
   ['Orders & money', ['/admin/orders', '/admin/refunds', '/admin/payments', '/admin/org-invoices', '/admin/partners', '/admin/billing-settings']],
   ['People', ['/admin/customers', '/admin/experts', '/admin/stories', '/admin/team']],
   ['Jobs & companies', ['/admin/jobs', '/admin/companies', '/admin/auto-apply', '/admin/skill-tests', '/admin/programs', '/admin/joining-reports']],
