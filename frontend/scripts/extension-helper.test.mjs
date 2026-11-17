@@ -132,7 +132,7 @@ describe('manifest', () => {
   it('is Manifest V3 with only activeTab, scripting and storage, and only nm7.si', () => {
     expect(m.manifest_version).toBe(3);
     expect([...m.permissions].sort()).toEqual(['activeTab', 'scripting', 'storage']);
-    expect(m.host_permissions).toEqual(['https://nm7.si/*']);
+    expect(m.host_permissions).toEqual(['https://nm7-api.onrender.com/*']);
     expect(m.optional_permissions).toBeUndefined();
     expect(m.optional_host_permissions).toBeUndefined();
     expect(m.content_scripts).toBeUndefined(); // injected only when the candidate taps Fill (activeTab)
@@ -148,15 +148,15 @@ describe('manifest', () => {
   walk('');
   const code = files.filter((p) => /\.(js|html)$/.test(p));
 
-  it('loads no remote code and sends nothing anywhere but nm7.si (no analytics)', () => {
+  it('loads no remote code and sends nothing anywhere but nm7.si and its API server (no analytics)', () => {
     for (const p of code) {
       const src = read(p);
       expect(src, p).not.toMatch(/<script[^>]+src=["']https?:/i);
       expect(src, p).not.toMatch(/\beval\s*\(|new\s+Function\s*\(|importScripts\(\s*['"]https?:/);
       expect(src, p).not.toMatch(/google-analytics|googletagmanager|gtag\(|segment\.|mixpanel|sentry|amplitude|hotjar/i);
-      for (const url of src.match(/https?:\/\/[^\s'"`)]+/g) || []) expect(url.startsWith('https://nm7.si'), `${p}: ${url}`).toBe(true);
+      for (const url of src.match(/https?:\/\/[^\s'"`)]+/g) || []) expect(/^https:\/\/(nm7\.si|nm7-api\.onrender\.com)([/:]|$)/.test(url), `${p}: ${url}`).toBe(true);
     }
-    expect(read('src/config.js')).toContain("api: 'https://nm7.si/api/helper'");
+    expect(read('src/config.js')).toContain("api: 'https://nm7-api.onrender.com/api/helper'");
   });
 });
 

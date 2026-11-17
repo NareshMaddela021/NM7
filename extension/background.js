@@ -1,4 +1,4 @@
-// Nm7 Apply helper: the service worker. It is the only part that talks to Nm7 (https://nm7.si/api/helper), with the
+// Nm7 Apply helper: the service worker. It is the only part that talks to Nm7 (https://nm7-api.onrender.com/api/helper, the Nm7 API server), with the
 // token from pairing kept in chrome.storage.local. No other site is ever contacted, no analytics, no remote code.
 importScripts('src/config.js');
 

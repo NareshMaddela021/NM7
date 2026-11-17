@@ -19,7 +19,7 @@ in plain words, what you (Naresh) need to do to publish it, and how to try it be
   Nm7's list).
 - After the candidate presses Submit, it offers **Mark as applied on Nm7**, which moves the job to Applied in their
   Nm7 tracker.
-- It talks only to `https://nm7.si/api/helper`. No analytics, no tracking, no code loaded from the internet.
+- It talks only to `https://nm7-api.onrender.com/api/helper` (the Nm7 API server). No analytics, no tracking, no code loaded from the internet.
 
 ## Where it works (say this honestly)
 
@@ -117,7 +117,7 @@ In the dashboard: **New item** → upload the zip. Then fill in each tab.
     The script is part of the extension package; no remote code."
   - `storage`: "Keeps the sign-in token from pairing with Nm7 on this device, and which job the user just submitted,
     so it can offer Mark as applied."
-  - Host permission `https://nm7.si/*`: "The extension's only server: reads the user's own apply kits and marks a job
+  - Host permission `https://nm7-api.onrender.com/*`: "The extension's only server: reads the user's own apply kits and marks a job
     applied in their Nm7 account."
 - **Remote code:** answer **No, I am not using remote code**. (All scripts are in the package; the manifest's content
   security policy is `script-src 'self'`.)

@@ -56,7 +56,7 @@ listed testers only).
     boxes, drop-downs or sensitive questions. It never signs in or creates accounts, and it does nothing on job
     boards (the same list as the server).
   - **After Submit:** once the candidate presses Submit, the helper shows a ✓ badge and a "Mark as applied on Nm7" bar.
-  - **Permissions:** `activeTab`, `scripting` and `storage`, with host permission only for `https://nm7.si/*`. It
+  - **Permissions:** `activeTab`, `scripting` and `storage`, with host permission only for the Nm7 API server, `https://nm7-api.onrender.com/*` (nm7.si has no /api pass-through). It
     loads no remote code (CSP `script-src 'self'`) and has no analytics.
   - **Where it runs:** Chrome on laptops. On Android only in Chrome-based browsers that allow extensions (Kiwi, Edge
     Canary). The normal Chrome app on phones doesn't run extensions. The page and the docs both say so.
