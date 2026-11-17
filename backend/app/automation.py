@@ -162,6 +162,12 @@ async def run_rules(db: AsyncDatabase, mailer: Mailer | None = None) -> dict[str
         done["applicants_removed"] = await company_applicants_removed(db)  # 12 months on: out of the company's view
         done["company_rechecks"] = await company_rechecks(db, mailer or get_mailer())  # 30 days before Verified ends
         done["auto_apply"] = (await auto_apply_run(db, mailer or get_mailer())).get("users", 0)  # from 07:00 IST
+        from app.autoapply import instant
+
+        got = await instant.run(db, mailer or get_mailer())  # Auto Apply 2.0: jobs just posted on Nm7 (A2)
+        done["auto_apply_instant"] = sum(
+            got.get(f"instant_{k}", 0) for k in ("applied", "sent", "waiting_approval", "suggested", "waiting")
+        )
         done["job_alerts"] = await job_alerts(db, mailer or get_mailer())  # daily / weekly matches; ≤ 1 email a day
         done["job_followups"] = await job_followups(db, mailer or get_mailer())  # a week on; ≤ 1 email a day
         done["pass_reminders"] = await pass_reminders(db, mailer or get_mailer())  # 7 days before a pass ends

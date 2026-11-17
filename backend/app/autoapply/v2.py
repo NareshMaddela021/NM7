@@ -9,7 +9,8 @@ Candidate (signed in):
                                                 rephrase only), share my profile with these companies
   POST /api/me/auto-apply/v2/pause {paused}     pause / resume at any time
   POST /api/me/auto-apply/v2/stop               withdraw consent: nothing more is prepared or sent
-  GET  /api/me/auto-apply/v2/tracker            one tracker for every channel
+  GET  /api/me/auto-apply/v2/tracker            one tracker for every channel (+ "updates": the companies' moves)
+  POST /api/me/auto-apply/v2/tracker/seen       the updates were read
   GET  /api/me/auto-apply/v2/suggested          "Suggested for you" (55–69)
   POST /api/me/auto-apply/v2/suggested/{id}/apply | /dismiss
   GET  /api/me/auto-apply/v2/waiting            questions Nm7 can't answer
@@ -217,6 +218,15 @@ async def stop(auth: CustomerAuth, db: DB) -> dict[str, Any]:
 async def tracker(auth: CustomerAuth, db: DB) -> dict[str, Any]:
     await _allowed(db, auth.user.id)
     return await v2engine.tracker(db, auth.user.id)
+
+
+@router.post("/tracker/seen")
+async def tracker_seen(auth: CustomerAuth, db: DB) -> dict[str, Any]:
+    """The tracker's "Updates" (companies' moves on Nm7) were read."""
+    from app.autoapply import sync
+
+    await _allowed(db, auth.user.id)
+    return {"seen": await sync.mark_seen(db, auth.user.id)}
 
 
 async def _rows(db, uid: str, state: str) -> list[dict[str, Any]]:

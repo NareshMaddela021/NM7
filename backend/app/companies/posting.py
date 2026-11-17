@@ -9,6 +9,11 @@
   PUT  /api/company/{id}/jobs/{job_id} {job}     edit (checked again); a live job can be edited 2 times, then support
   POST /api/company/{id}/jobs/{job_id}/status {status: active | paused | closed}
   POST /api/company/{id}/jobs/write {role, skills, place}   the AI description writer (never invents facts)
+  GET  /api/company/{id}/auto-apply              Auto Apply 2.0 (A2): may this company see its controls? + defaults
+  PUT  /api/company/{id}/jobs/{job_id}/auto-apply {accept, max, minLevel}   per-job controls (not counted as an edit)
+
+A new job that takes applications on Nm7 is scored against the people who opted in to Auto Apply 2.0 right after the
+answer is sent (app/autoapply/instant.py, a background task), so posting never waits for it.
 
 `job` is the same shape as the collector's / Admin's (app/jobs/model.py) without company: the company comes from the
 account. Every change is in the activity log.
@@ -16,7 +21,7 @@ account. Every change is in the activity log.
 
 from typing import Any, Literal
 
-from fastapi import APIRouter, Header
+from fastapi import APIRouter, BackgroundTasks, Header
 from pydantic import Field, ValidationError
 
 from app.audit import audit
@@ -26,6 +31,7 @@ from app.companies.limits import posting_room
 from app.companies.model import POST
 from app.companies.signup import company_for
 from app.core.db import DB, JOBS
+from app.core.email import MailerDep
 from app.core.errors import ApiError
 from app.core.schemas import CamelModel
 from app.core.time import now
@@ -44,7 +50,7 @@ class JobBody(CamelModel):
 
 def _job_in(c: dict[str, Any], raw: dict[str, Any]) -> tuple[JobIn | None, list[str]]:
     d = c["details"]
-    body = {k: v for k, v in raw.items() if k not in ("company", "status", "source", "questions")}
+    body = {k: v for k, v in raw.items() if k not in ("company", "status", "source", "questions", "autoApply")}
     body["company"] = {"name": d["legal_name"], "website": d.get("website") or ""}
     body.setdefault("applyMethod", "nm7")
     try:
@@ -126,9 +132,27 @@ async def check_job(cid: str, body: JobBody, db: DB, x_recruiter_account: str | 
     return {"errors": [], **res, "duplicate": await _duplicate(db, cid, job)}
 
 
+def _controls(raw: dict[str, Any]) -> dict[str, Any] | None:
+    """The Auto Apply 2.0 controls sent with a new job (None: the defaults)."""
+    from app.autoapply.instant import ControlsIn
+
+    if not isinstance(raw.get("autoApply"), dict):
+        return None
+    try:
+        return ControlsIn.model_validate(raw["autoApply"]).model_dump()
+    except ValidationError as e:
+        raise ApiError(400, "invalid", " ".join(errors_of(e))) from None
+
+
 @router.post("/{cid}/jobs", status_code=201)
-async def post_job(cid: str, body: JobBody, db: DB, x_recruiter_account: str | None = Header(None)) -> dict[str, Any]:
+async def post_job(
+    cid: str, body: JobBody, db: DB, background: BackgroundTasks, x_recruiter_account: str | None = Header(None)
+) -> dict[str, Any]:
+    from app.autoapply import access as aa_access
+    from app.autoapply import instant
+
     acc, c, _ = await company_for(db, cid, x_recruiter_account, POST)
+    controls = _controls(body.job) if await aa_access.for_company(db, c, acc) else None
     room = await posting_room(db, c)
     if not room["allowed"]:
         raise ApiError(403, "limit", room["reason"])
@@ -170,8 +194,12 @@ async def post_job(cid: str, body: JobBody, db: DB, x_recruiter_account: str | N
         "review": {"reasons": reasons, "ai": ai, "warnings": res["warnings"]},
         "questions": qs,
     }
+    if controls:
+        doc["auto_controls"] = controls
     doc["dedupe_key"] = f"company:{cid}:{doc['_id']}"  # company jobs are kept apart from collector duplicates
     await db[JOBS].insert_one(doc)
+    if await instant.queue(db, doc):  # Auto Apply 2.0: scored after the answer is sent, never inside this request
+        background.add_task(instant.kick, db)
     await audit(
         db,
         None,
@@ -185,14 +213,91 @@ async def post_job(cid: str, body: JobBody, db: DB, x_recruiter_account: str | N
             "reasons": reasons,
         },
     )
-    return {**company_job_out(doc), "warnings": res["warnings"]}
+    out = {**company_job_out(doc), "warnings": res["warnings"]}
+    if await aa_access.for_company(db, c, acc):
+        out["autoApply"] = instant.controls_out(doc, 0) if instant.eligible(doc) else None
+    return out
+
+
+async def _with_auto(db, c: dict[str, Any], acc: dict[str, Any], rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Auto Apply 2.0 (A2): each Nm7 job's controls and its auto applications (companies that see 2.0)."""
+    from app.autoapply import access as aa_access
+    from app.autoapply import instant
+    from app.core.db import APPLICATIONS
+
+    out = [company_job_out(j) for j in rows]
+    if not await aa_access.for_company(db, c, acc):
+        return out
+    got: dict[str, int] = {}
+    ids = [j["_id"] for j in rows if instant.eligible(j)]
+    async for r in await db[APPLICATIONS].aggregate(
+        [
+            {"$match": {"job_id": {"$in": ids}, "origin": "auto", "company_removed_at": None}},
+            {"$group": {"_id": "$job_id", "n": {"$sum": 1}}},
+        ]
+    ):
+        got[r["_id"]] = r["n"]
+    for o, j in zip(out, rows, strict=True):
+        o["autoApply"] = instant.controls_out(j, got.get(j["_id"], 0)) if instant.eligible(j) else None
+    return out
 
 
 @router.get("/{cid}/jobs")
 async def my_jobs(cid: str, db: DB, x_recruiter_account: str | None = Header(None)) -> list[dict[str, Any]]:
-    await company_for(db, cid, x_recruiter_account)
+    acc, c, _ = await company_for(db, cid, x_recruiter_account)
     rows = await db[JOBS].find({"company_id": cid}).sort("created_at", -1).to_list(500)
-    return [company_job_out(j) for j in rows]
+    return await _with_auto(db, c, acc, rows)
+
+
+@router.get("/{cid}/auto-apply")
+async def auto_apply_info(cid: str, db: DB, x_recruiter_account: str | None = Header(None)) -> dict[str, Any]:
+    """Auto Apply 2.0 (A2): whether this company sees the per-job controls, and whether vetting levels show to it."""
+    from app.autoapply import access as aa_access
+    from app.autoapply import instant
+    from app.hire.vetting import access as vetting_access
+
+    acc, c, _ = await company_for(db, cid, x_recruiter_account)
+    on = await aa_access.for_company(db, c, acc)
+    return {
+        "on": on,
+        "vetting": bool(on and await vetting_access.for_company(db, c, acc)),
+        "defaults": instant.controls_out({}),
+        "maxCap": instant.MAX_CAP,
+    }
+
+
+@router.put("/{cid}/jobs/{jid}/auto-apply")
+async def set_auto_apply(
+    cid: str,
+    jid: str,
+    body: dict[str, Any],
+    db: DB,
+    background: BackgroundTasks,
+    x_recruiter_account: str | None = Header(None),
+) -> dict[str, Any]:
+    """The job's Auto Apply 2.0 controls. Not an edit of the post (the edit limit doesn't count it)."""
+    from app.autoapply import access as aa_access
+    from app.autoapply import instant
+
+    acc, c, _ = await company_for(db, cid, x_recruiter_account, POST)
+    if not await aa_access.for_company(db, c, acc):
+        raise ApiError(404, "not_found", "Not found.")
+    j = await _mine(db, cid, jid)
+    if not instant.eligible(j):
+        raise ApiError(409, "not_nm7", "Auto applications only come to jobs that take applications on Nm7.")
+    controls = _controls({"autoApply": body})
+    before = instant.controls_of(j)
+    await db[JOBS].update_one({"_id": jid}, {"$set": {"auto_controls": controls, "updated_at": now()}})
+    await audit(
+        db, None, "company.job_auto_apply", target=cid, data={"by": acc["email_lc"], "job": jid, **(controls or {})}
+    )
+    j = await _mine(db, cid, jid)
+    opened = controls and controls["accept"] and (not before["accept"] or controls["max"] > before["max"])
+    if opened and j["status"] in ("active", "review"):  # more room: look at the opted-in people again
+        await db[JOBS].update_one({"_id": jid}, {"$set": {"auto_scan.state": "reset"}})
+        if await instant.queue(db, j) and j["status"] == "active":
+            background.add_task(instant.kick, db)
+    return {**company_job_out(j), "autoApply": instant.controls_out(j, await instant.received(db, jid))}
 
 
 async def _mine(db, cid: str, jid: str) -> dict[str, Any]:
@@ -245,7 +350,7 @@ class StatusIn(CamelModel):
 
 @router.post("/{cid}/jobs/{jid}/status")
 async def job_status(
-    cid: str, jid: str, body: StatusIn, db: DB, x_recruiter_account: str | None = Header(None)
+    cid: str, jid: str, body: StatusIn, db: DB, mailer: MailerDep, x_recruiter_account: str | None = Header(None)
 ) -> dict[str, Any]:
     acc, c, _ = await company_for(db, cid, x_recruiter_account, POST)
     j = await _mine(db, cid, jid)
@@ -261,6 +366,10 @@ async def job_status(
     if body.status == "closed":
         sets["closed_reason"] = "closed by the company"
     await db[JOBS].update_one({"_id": jid}, {"$set": sets})
+    if body.status == "closed":  # Auto Apply 2.0: the candidates' trackers show it closed
+        from app.autoapply import sync
+
+        await sync.on_job_closed(db, jid, mailer)
     await audit(
         db,
         None,
