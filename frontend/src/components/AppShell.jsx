@@ -55,8 +55,8 @@ export default function AppShell({ label, nav, foot, storageKey, phone = 'drawer
         </div>
       )}
       <nav ref={sideRef} id={sideId} aria-label={label} className={`app-side ${sideClassName}`}>
-        <button type="button" className="app-collapse" onClick={fold} title={folded ? 'Show the menu words' : 'Fold the menu to icons'}>
-          <span aria-hidden="true">{folded ? '»' : '«'}</span><span className="app-side-text">{folded ? 'Show menu' : 'Fold menu'}</span>
+        <button type="button" className="app-collapse" onClick={fold} title={folded ? 'Show the menu words' : 'Collapse the menu to icons'}>
+          <span aria-hidden="true">{folded ? '»' : '«'}</span><span className="app-side-text">{folded ? 'Expand menu' : 'Collapse menu'}</span>
         </button>
         {nav}
         {foot && <div className="app-side-foot">{foot}</div>}
