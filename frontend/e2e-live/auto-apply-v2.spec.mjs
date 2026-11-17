@@ -104,10 +104,16 @@ for (const [label, opts] of SIZES) {
       await expect(panel.getByTestId('aa2-maxDailyLimit')).toHaveValue('25');
       expect(await noSideScroll(admin)).toBe(true);
       await panel.getByTestId('aa2-autoMin').fill('72');
+      const first = admin.waitForResponse((r) => r.url().includes('/api/admin/auto-apply/v2/settings') && r.request().method() === 'PUT');
       await panel.getByTestId('aa2-admin-save').click();
+      expect((await first).ok()).toBe(true);
       await expect(admin.getByTestId('aa2-admin').getByTestId('aa2-autoMin')).toHaveValue('72');
+      // put 70 back (the desktop and phone runs share one database): save, wait for the server, reload and check
       await admin.getByTestId('aa2-admin').getByTestId('aa2-autoMin').fill('70');
-      await admin.getByTestId('aa2-admin').getByTestId('aa2-autoMin').press('Enter'); // submits the form
+      const saved = admin.waitForResponse((r) => r.url().includes('/api/admin/auto-apply/v2/settings') && r.request().method() === 'PUT');
+      await admin.getByTestId('aa2-admin').getByTestId('aa2-admin-save').click();
+      expect((await saved).ok()).toBe(true);
+      await admin.reload();
       await expect(admin.getByTestId('aa2-admin').getByTestId('aa2-autoMin')).toHaveValue('70');
       // the demo student
       await admin.getByTestId('aa-demo-open').click();
