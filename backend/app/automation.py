@@ -8,6 +8,7 @@ from datetime import timedelta
 from pymongo.asynchronous.database import AsyncDatabase
 from pymongo.errors import DuplicateKeyError
 
+from app.admin import daily_report
 from app.admin.daily import send_daily
 from app.autoapply.engine import run as auto_apply_run
 from app.billing.subscription import run_reminders
@@ -154,6 +155,7 @@ async def run_rules(db: AsyncDatabase, mailer: Mailer | None = None) -> dict[str
         done["health_emails"] = await health_batch(db, mailer or get_mailer())  # once a day; each person ≤ 1 / 14 days
         done["accounts_erased"] = await erase_due(db)  # self-serve deletions whose 7-day undo window is over
         done["daily_summary"] = await send_daily(db, mailer or get_mailer())  # 8:00 IST, once a day
+        done["daily_report"] = await daily_report.daily_if_due(db)  # Admin → Daily report: 06:30 IST, once a day
         done["job_links"] = (await job_links.run(db))["checked"]  # apply links ~daily; dead twice: closed
         done["company_scores"] = await company_scores(db)  # trust scores, once a day
         done["no_reply_closed"] = await close_silent(db, mailer or get_mailer())  # Nm7 applications silent 14 days

@@ -59,7 +59,8 @@ test.describe('public', () => {
   });
 });
 
-// The live API (Render): healthy, and the vetting endpoints exist (signed out they answer 401/403, never 404).
+// The live API (Render): healthy, and the vetting and Daily report endpoints exist (signed out they answer 401/403,
+// never 404).
 const API = process.env.SMOKE_API || 'https://nm7-api.onrender.com';
 test('public › API health and the vetting endpoints', async ({ request }) => {
   const { expect } = await import('@playwright/test');
@@ -67,6 +68,11 @@ test('public › API health and the vetting endpoints', async ({ request }) => {
   for (const p of ['/api/admin/vetting/stats', '/api/admin/vetting/queue', '/api/me/skill-checks', '/api/me/skill-checks/access']) {
     const r = await request.get(`${API}${p}`, { timeout: 30_000 });
     expect([401, 403], `${p} answered ${r.status()}`).toContain(r.status());
+  }
+  // Admin → Daily report (read, Refresh now) and the job collector's run report (needs the collector's key)
+  for (const [m, p] of [['get', '/api/admin/daily-report'], ['post', '/api/admin/daily-report/refresh'], ['post', '/api/jobs/collector/run-report']]) {
+    const r = await request[m](`${API}${p}`, { timeout: 30_000, ...(m === 'post' ? { data: {} } : {}) });
+    expect([401, 403], `${m.toUpperCase()} ${p} answered ${r.status()}`).toContain(r.status());
   }
 });
 

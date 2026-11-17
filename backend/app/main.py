@@ -13,6 +13,7 @@ from fastapi.responses import JSONResponse
 
 from app import automation, home_events, stories
 from app.admin import daily as admin_daily
+from app.admin import daily_report as admin_daily_report
 from app.admin import test_users
 from app.admin.console import router as admin_console_router
 from app.admin.router import router as admin_router
@@ -257,10 +258,14 @@ def create_app() -> FastAPI:
     from app.jobs import collector_admin
 
     app.include_router(collector_admin.router)  # /api/admin/jobs/collector/* (round M; before /api/admin/jobs/{id})
+    from app.jobs import review_bulk
+
+    app.include_router(review_bulk.router)  # /api/admin/jobs/review/* (round W; before /api/admin/jobs/{id})
     app.include_router(jobs_admin.router)  # /api/admin/jobs (job board J1)
     app.include_router(jobs_ingest.router)  # /api/jobs/ingest (the job collector, J2)
     from app.jobs import collector as jobs_collector
 
+    app.include_router(admin_daily_report.collector_router)  # /api/jobs/collector/run-report (Admin → Daily report)
     app.include_router(jobs_collector.router)  # /api/jobs/collector (round J: the morning job-collector)
     app.include_router(jobs_public.router)  # /api/jobs, /api/jobs/{slug}, the jobs sitemap (J3)
     app.include_router(jobs_public.me_router)  # /api/me/saved-jobs
@@ -388,6 +393,7 @@ def create_app() -> FastAPI:
     app.include_router(stories.admin)  # /api/admin/stories
     app.include_router(stories.public)  # /api/public/stories
     app.include_router(admin_daily.router)  # /api/admin/today (Dashboard → Today, Share to WhatsApp)
+    app.include_router(admin_daily_report.router)  # /api/admin/daily-report (Admin → Daily report)
     app.include_router(account_delete.admin)  # /api/admin/deletion-requests
     app.include_router(referral_rewards.admin)  # /api/admin/referral-rewards (see, revoke)
     app.include_router(college_campuses.owner)  # /api/college-group/{id} (roll-up, shared format, drives, invites)

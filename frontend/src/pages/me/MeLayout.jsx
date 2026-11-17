@@ -1,5 +1,6 @@
 // Customer dashboard frame: a grouped side menu on desktop, bottom tab bar + a grouped "More" sheet on phones (round P:
-// the new design; the links and their order inside each group are unchanged).
+// the new design; the links and their order inside each group are unchanged). Round W: the frame is components/AppShell
+// (full width, a full-height side menu that folds to icons); phones keep the bottom tabs (phone="none").
 import { useEffect, useState } from 'react';
 import { Link, Navigate, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Header from '../../components/Header';
@@ -9,6 +10,7 @@ import { useExpertOrders } from '../../lib/expertStore';
 import { useLang } from '../../lib/i18n';
 import { loadSimple, savePrefs } from '../../lib/simple';
 import { Still } from '../newhome/ParticleStage';
+import AppShell from '../../components/AppShell';
 import '../../styles/me-kit.css';
 
 export const ME_NAV = [
@@ -91,35 +93,33 @@ export default function MeLayout() {
   if (simple?.on && simple.mode === 'simple' && pathname === '/me') return <Navigate to="/me/simple" replace />;
   const toSimple = async () => { try { await savePrefs({ mode: 'simple' }); } catch { /* open it anyway */ } go('/me/simple'); };
   const link = ([k, to, l, ic], cls = 'admin-link') => (
-    <NavLink key={k} to={to} end={to === '/me'} className={cls}>
-      <span aria-hidden="true" style={{ width: 18, textAlign: 'center' }}>{ic}</span>{l}
+    <NavLink key={k} to={to} end={to === '/me'} className={cls} title={l}>
+      <span aria-hidden="true" style={{ width: 18, textAlign: 'center', flex: 'none' }}>{ic}</span><span className="app-side-text">{l}</span>
       {k === 'messages' && unread > 0 && <span className="badge b-danger" style={{ marginLeft: 'auto', padding: '1px 7px', fontSize: 11 }} aria-label={`${unread} unread`}>{unread}</span>}
     </NavLink>
   );
   return (
     <>
       <Header variant="me" right={<span className="row g8">{simple?.on && <button type="button" className="btn btn-outline" style={{ minHeight: 40 }} onClick={toSimple} data-testid="to-simple">{t('simple.switch.toSimple')}</button>}<Link to="/builder" state={{ open: 'build' }} className="btn btn-outline hide-sm" style={{ minHeight: 40 }}>Open builder</Link></span>} />
-      <div className="container-wide row g24 me-wrap has-tabs" style={{ padding: '20px 24px 64px', alignItems: 'flex-start' }}>
-        <nav aria-label="My dashboard" className="stack sticky me-side" style={{ flex: '0 0 220px', top: 88, gap: 2 }}>
-          <span className="xs muted" style={{ padding: '0 10px 6px' }}>Signed in as <strong>{me.account.name}</strong></span>
-          {ME_GROUPS.map(([g, keys]) => (
-            <div key={g} className="me-group" role="group" aria-label={g}>
-              <span className="me-group-h" aria-hidden="true">{g}</span>
-              {keys.map((k) => link(ME_NAV.find((n) => n[0] === k)))}
-            </div>
-          ))}
-        </nav>
-        <main className="stack g20" style={{ flex: '1 1 600px', minWidth: 0 }}>
-          {me.loading && !me.error && <div className="row g12 muted" role="status" style={{ padding: '48px 0' }}><Spinner /> Loading your dashboard…</div>}
-          {me.loading && me.error && (
-            <div className="card stack g12" role="alert">
-              <strong>We couldn’t load your dashboard.</strong><span className="small muted">{me.error}</span>
-              <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} onClick={reloadMe}>Try again</button>
-            </div>
-          )}
-          {!me.loading && <Outlet />}
-        </main>
-      </div>
+      <AppShell
+        label="My dashboard" phone="none" storageKey="nm7-me-side" routeKey={pathname} className="me-shell has-tabs" sideClassName="me-side" mainClassName="stack g20"
+        foot={<span className="xs muted">Signed in as <strong>{me.account.name}</strong></span>}
+        nav={ME_GROUPS.map(([g, keys]) => (
+          <div key={g} className="me-group" role="group" aria-label={g}>
+            <span className="me-group-h app-side-h" aria-hidden="true">{g}</span>
+            {keys.map((k) => link(ME_NAV.find((n) => n[0] === k)))}
+          </div>
+        ))}
+      >
+        {me.loading && !me.error && <div className="row g12 muted" role="status" style={{ padding: '48px 0' }}><Spinner /> Loading your dashboard…</div>}
+        {me.loading && me.error && (
+          <div className="card stack g12" role="alert">
+            <strong>We couldn’t load your dashboard.</strong><span className="small muted">{me.error}</span>
+            <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} onClick={reloadMe}>Try again</button>
+          </div>
+        )}
+        {!me.loading && <Outlet />}
+      </AppShell>
       {/* phones: bottom tabs */}
       <nav aria-label="My dashboard (tabs)" className="me-tabs">
         {ME_NAV.filter(([k]) => TABS.includes(k)).map(([k, to, _l, ic]) => (

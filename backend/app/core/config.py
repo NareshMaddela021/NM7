@@ -57,6 +57,10 @@ class Settings(BaseSettings):
     # Job board: the bearer key the morning job-collector sends to POST /api/jobs/ingest (JOB_INGEST_KEY, set in
     # Render by the owner; at least 32 characters). Without it the upload answers 503 and nothing else changes.
     job_ingest_key: str = ""
+    # Admin → Daily report: the latest nightly (e2e) / smoke-live results from GitHub Actions, only when a read-only
+    # token is set (GITHUB_STATUS_TOKEN, optional; without it the report says "not connected").
+    github_status_token: str = ""
+    github_status_repo: str = "NareshMaddela021/NM7"
 
     # Error reporting (optional): a Sentry DSN. Without it errors are only logged (with a request id).
     sentry_dsn: str = ""

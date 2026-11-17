@@ -71,13 +71,19 @@ function MatchLine({ m, t }) {
   );
 }
 
-export function JobCard({ job, t, extra }) {
+/** onOpen (the board on a very wide screen): a click on the title shows the job in the preview pane instead of opening
+ *  its page; a click with Ctrl / Cmd / Shift or the middle button still opens the page. picked: shown in the pane now. */
+export function JobCard({ job, t, extra, onOpen, picked }) {
+  const open = onOpen && ((e) => {
+    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    if (onOpen(job)) e.preventDefault();
+  });
   return (
-    <article className="card-sm job-card" data-testid="job-card">
+    <article className={`card-sm job-card${picked ? ' is-picked' : ''}`} data-testid="job-card">
       <div className="row g12" style={{ alignItems: 'flex-start', flexWrap: 'nowrap' }}>
         <Logo name={job.company?.name} />
         <div className="stack g4" style={{ minWidth: 0, flex: 1 }}>
-          <h2 className="job-card-title"><Link to={`/jobs/${job.slug}`}>{job.title}</Link></h2>
+          <h2 className="job-card-title"><Link to={`/jobs/${job.slug}`} onClick={open} aria-current={picked ? 'true' : undefined}>{job.title}</Link></h2>
           <span className="job-company">{job.company?.name}</span>
           <TrustLine trust={job.companyTrust} t={t} />
           <span className="xs muted job-facts">{facts(job, t)}</span>
@@ -110,6 +116,42 @@ function Select({ id, label, value, onChange, options }) {
 }
 
 /* ---------------------------------------- /jobs ---------------------------------------- */
+
+const PREVIEW_MQ = '(min-width: 1600px)';
+/** true while the media query matches (and follows it when the window is resized). */
+function useMedia(query) {
+  const get = () => typeof window !== 'undefined' && !!window.matchMedia?.(query).matches;
+  const [on, setOn] = useState(get);
+  useEffect(() => {
+    const mq = window.matchMedia?.(query);
+    if (!mq) return undefined;
+    const fn = () => setOn(mq.matches);
+    fn();
+    mq.addEventListener?.('change', fn);
+    return () => mq.removeEventListener?.('change', fn);
+  }, [query]);
+  return on;
+}
+
+/** The preview pane beside the list on a very wide screen: the picked job in full, with a link to its own page. */
+function JobPreview({ slug, t, focusRef }) {
+  const [st, setSt] = useState({ slug: '', job: null, error: false });
+  useEffect(() => {
+    if (!slug) return undefined;
+    let live = true;
+    getJob(slug).then((job) => { if (live) setSt({ slug, job, error: false }); }, () => { if (live) setSt({ slug, job: null, error: true }); });
+    return () => { live = false; };
+  }, [slug]);
+  const ready = st.slug === slug && st.job;
+  return (
+    <aside className="jobs-preview" aria-label={t('jobs.preview.label')} data-testid="job-preview">
+      {!slug ? <p className="muted small" style={{ margin: 0 }}>{t('jobs.preview.pick')}</p>
+        : st.slug === slug && st.error ? <p role="alert" className="card-sm" style={{ margin: 0 }}>{t('jobs.error')}</p>
+          : ready ? <JobDetail job={st.job} t={t} setJob={(f) => setSt((x) => ({ ...x, job: typeof f === 'function' ? f(x.job) : f }))} preview headRef={focusRef} />
+            : <p className="muted" aria-live="polite" style={{ margin: 0 }}>{t('jobs.loading')}</p>}
+    </aside>
+  );
+}
 
 export function JobsList() {
   const [t, lang] = useLang();
@@ -155,11 +197,18 @@ export function JobsList() {
   };
   const cities = data?.cities || [];
   const anyFilter = Object.keys(filters).some((k) => k !== 'sort');
+  // round W: on a very wide screen (1600 px and up) a preview pane on the right shows the picked job (the first one
+  // until another is clicked); narrower screens open the job's page as before
+  const wide = useMedia(PREVIEW_MQ);
+  const [picked, setPicked] = useState('');
+  const previewHead = useRef(null);
+  const pickedSlug = data?.items.some((j) => j.slug === picked) ? picked : data?.items[0]?.slug || '';
+  const openPreview = (j) => { setPicked(j.slug); requestAnimationFrame(() => previewHead.current?.focus({ preventScroll: true })); return true; };
 
   return (
     <>
       <Header labels={headerLabels(t)} lang={lang} />
-      <main id="main" className="container stack g20 jobs-page" lang={lang}>
+      <main id="main" className="app-wide stack g20 jobs-page jobs-board" lang={lang}>
         <div className="row g12" style={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div className="stack g8" style={{ minWidth: 0, flex: '1 1 320px' }}>
             <h1 className="display jobs-h1">{showSaved ? t('jobs.savedTitle') : t('jobs.title')}</h1>
@@ -169,8 +218,9 @@ export function JobsList() {
           <PageArt shape="briefcase" />
         </div>
 
+        <div className={`jobs-layout${showSaved ? ' no-filters' : ''}${wide ? ' has-preview' : ''}`}>
         {!showSaved && (
-          <form className="stack g12 card-sm" role="search" aria-label={t('jobs.search.form')} onSubmit={(e) => { e.preventDefault(); set({ q: q.trim() }); }}>
+          <form className="stack g12 card-sm jobs-side" role="search" aria-label={t('jobs.search.form')} onSubmit={(e) => { e.preventDefault(); set({ q: q.trim() }); }}>
             <div className="row g8" style={{ alignItems: 'flex-end', flexWrap: 'nowrap' }}>
               <div className="field" style={{ flex: 1 }}>
                 <label className="label" htmlFor="job-q">{t('jobs.search.label')}</label>
@@ -203,6 +253,7 @@ export function JobsList() {
             </div>
           </form>
         )}
+        <div className="stack g20 jobs-results">
         {!showSaved && data?.match === 'signed_out' && (
           <p className="card-sm xs" style={{ margin: 0 }} data-testid="match-prompt">{t('jobs.match.signin')} <Link to={`/login?next=${encodeURIComponent(`/jobs${key ? `?${key}` : ''}`)}`}>{t('jobs.match.signinLink')}</Link></p>
         )}
@@ -231,7 +282,7 @@ export function JobsList() {
         )}
         {data && data.items.length > 0 && (
           <div className="stack g12" data-testid="jobs-list">
-            {data.items.map((j) => <JobCard key={j.id} job={j} t={t} />)}
+            {data.items.map((j) => <JobCard key={j.id} job={j} t={t} onOpen={wide ? openPreview : undefined} picked={wide && pickedSlug === j.slug} />)}
           </div>
         )}
         {data && data.page < data.pages && !showSaved && (
@@ -239,6 +290,9 @@ export function JobsList() {
             {more ? t('jobs.loading') : t('jobs.more')}
           </button>
         )}
+        </div>
+        {wide && <JobPreview slug={pickedSlug} t={t} focusRef={previewHead} />}
+        </div>
       </main>
       <SiteFooter />
     </>
@@ -373,6 +427,94 @@ function ApplyQuestions({ job, t, busy, onSend, onCancel }) {
   );
 }
 
+/** The whole job (its page, and the preview pane on a very wide screen: preview = a level-2 title that takes focus when
+ *  a job is picked, and a link to the job's own page). */
+function JobDetail({ job, t, setJob, preview, headRef }) {
+  const closed = job.status !== 'active';
+  const share = waShareUrl(t('jobs.share.text', { title: job.title, company: job.company.name, link: `${ORIGIN}/jobs/${job.slug}` }));
+  return (
+    <article className={`card stack g16 job-detail${preview ? ' job-detail-preview' : ''}`} data-testid={preview ? 'job-preview-detail' : 'job-detail'}>
+      <div className="row g12" style={{ alignItems: 'flex-start', flexWrap: 'nowrap' }}>
+        <Logo name={job.company.name} />
+        <div className="stack g4" style={{ minWidth: 0 }}>
+          {preview
+              ? <h2 className="display jobs-h1" ref={headRef} tabIndex={-1}>{job.title}</h2>
+              : <h1 className="display jobs-h1">{job.title}</h1>}
+          <span className="job-company">
+            {job.company.website ? <a href={job.company.website} target="_blank" rel="noopener noreferrer nofollow">{job.company.name}</a> : job.company.name}
+          </span>
+          <TrustLine trust={job.companyTrust} t={t} />
+        </div>
+      </div>
+      <div className="row g8">
+        <span className={`badge ${closed ? 'b-danger' : 'b-success'}`} data-testid="job-status">{closed ? t('jobs.closed') : t('jobs.open')}</span>
+        <span className="xs muted">{postedAgo(job.postedAt, t)}</span>
+        {job.closesAt && !closed && <span className="xs muted">· {t('jobs.closesOn', { date: new Date(job.closesAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) })}</span>}
+      </div>
+      {job.fromCareersPage && ( /* round J: found on the company's own careers page by the job collector */
+        <div className="row g8 xs muted" style={{ flexWrap: 'wrap' }} data-testid="job-source">
+          <span>{t('jobs.src.careers')}</span>
+          <span aria-hidden="true">·</span>
+          <Link to={`/contact?topic=job-removal&job=${encodeURIComponent(`https://nm7.si/jobs/${job.slug}`)}`} data-testid="job-removal">{t('jobs.src.removal')}</Link>
+        </div>
+      )}
+      <dl className="job-facts-grid">
+        <div><dt>{t('jobs.f.city')}</dt><dd>{placeText(job, t) || '—'}</dd></div>
+        <div><dt>{t('jobs.f.experience')}</dt><dd>{t(`jobs.exp.${job.experience}`)}</dd></div>
+        <div><dt>{t('jobs.f.jobType')}</dt><dd>{t(`jobs.type.${job.jobType}`)}</dd></div>
+        <div><dt>{t('jobs.f.workType')}</dt><dd>{t(`jobs.work.${job.workType}`)}</dd></div>
+        <div><dt>{t('jobs.salary')}</dt><dd>{salaryText(job.salary, t) || t('jobs.salaryNone')}</dd></div>
+      </dl>
+      <JobPay job={job} t={t} />
+      {Object.keys(job.policies || {}).length > 0 && (
+        <section className="card-sm stack g4" aria-label={t('jobs.pol.title')} data-testid="job-policies">
+          <strong className="small">{t('jobs.pol.title')}</strong>
+          {Object.entries(job.policies).map(([k, v]) => <span key={k} className="small"><strong>{t(`jobs.support.${k}`)}:</strong> {v}</span>)}
+          <span className="xs muted">{t('jobs.pol.note')}</span>
+        </section>
+      )}
+      {job.match && (
+        <section className="card-sm stack g8" aria-labelledby="job-match-h" data-testid="job-match">
+          <h2 id="job-match-h" className="job-h2">{t('jobs.match.title')}: {t('jobs.match.pct', { n: job.match.score })}</h2>
+          {(() => { const { good, gaps } = matchReasons(job.match, t); return <><span>{good.join(' · ')}</span>{gaps.length > 0 && <span className="xs muted">{gaps.join(' · ')}</span>}</>; })()}
+          {job.match.found.length > 0 && <span className="xs">{t('jobs.match.found', { list: job.match.found.join(', ') })}</span>}
+          {job.match.missing.length > 0 && <span className="xs">{t('jobs.match.missing', { list: job.match.missing.join(', ') })}</span>}
+          <span className="xs muted">{t('jobs.match.how')}</span>
+        </section>
+      )}
+      {closed ? (
+        <p className="card-sm" role="status" style={{ margin: 0 }} data-testid="job-closed-note">{t('jobs.closedNote')}</p>
+      ) : (
+        <div className="row g8">
+          <ApplyBox job={job} t={t} onApplied={(a) => setJob((x) => ({ ...x, application: a }))} />
+          <SaveButton job={job} t={t} />
+          <a className="btn btn-outline" href={share} target="_blank" rel="noopener noreferrer" data-testid="share-wa">{t('jobs.share')}</a>
+        </div>
+      )}
+      {job.skills.length > 0 && (
+        <section className="stack g8" aria-labelledby="job-skills-h">
+          <h2 id="job-skills-h" className="job-h2">{t('jobs.skills')}</h2>
+          <ul className="job-skills">{job.skills.map((s) => <li key={s} className="badge b-neutral">{s}</li>)}</ul>
+        </section>
+      )}
+      <section className="stack g8" aria-labelledby="job-desc-h">
+        <h2 id="job-desc-h" className="job-h2">{t('jobs.about')}</h2>
+        <div className="job-description" lang="en">{job.description}</div>
+      </section>
+      {job.companyTrust && (
+        <section className="card-sm stack g8" aria-labelledby="job-trust-h" data-testid="job-trust">
+          <h2 id="job-trust-h" className="job-h2">{t('jobs.trust.title')}</h2>
+          <TrustLine trust={job.companyTrust} t={t} />
+          <TrustWhy parts={job.companyTrust.parts} t={t} />
+          {['verified', 'basic'].includes(job.companyTrust.level) && <Link className="xs" to={`/companies/${job.companyTrust.slug}`}>{t('jobs.trust.page', { name: job.company.name })}</Link>}
+        </section>
+      )}
+      {!closed && <ReportJob job={job} t={t} />}
+      {preview && <Link to={`/jobs/${job.slug}`} className="btn btn-outline" style={{ alignSelf: 'flex-start' }}>{t('jobs.preview.open')}</Link>}
+    </article>
+  );
+}
+
 export function JobPage() {
   const [t, lang] = useLang();
   const { slug } = useParams();
@@ -392,7 +534,6 @@ export function JobPage() {
   usePageMeta({ title, description: desc, noindex: state !== 'ok' || closed, path: `/jobs/${slug}` });
   useJsonLd(state === 'ok' ? jobPostingJsonLd(job) : null);
 
-  const share = job && waShareUrl(t('jobs.share.text', { title: job.title, company: job.company.name, link: `${ORIGIN}/jobs/${job.slug}` }));
 
   return (
     <>
@@ -410,82 +551,7 @@ export function JobPage() {
         )}
         {state === 'ok' && (
           <>
-            <article className="card stack g16 job-detail" data-testid="job-detail">
-              <div className="row g12" style={{ alignItems: 'flex-start', flexWrap: 'nowrap' }}>
-                <Logo name={job.company.name} />
-                <div className="stack g4" style={{ minWidth: 0 }}>
-                  <h1 className="display jobs-h1">{job.title}</h1>
-                  <span className="job-company">
-                    {job.company.website ? <a href={job.company.website} target="_blank" rel="noopener noreferrer nofollow">{job.company.name}</a> : job.company.name}
-                  </span>
-                  <TrustLine trust={job.companyTrust} t={t} />
-                </div>
-              </div>
-              <div className="row g8">
-                <span className={`badge ${closed ? 'b-danger' : 'b-success'}`} data-testid="job-status">{closed ? t('jobs.closed') : t('jobs.open')}</span>
-                <span className="xs muted">{postedAgo(job.postedAt, t)}</span>
-                {job.closesAt && !closed && <span className="xs muted">· {t('jobs.closesOn', { date: new Date(job.closesAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) })}</span>}
-              </div>
-              {job.fromCareersPage && ( /* round J: found on the company's own careers page by the job collector */
-                <div className="row g8 xs muted" style={{ flexWrap: 'wrap' }} data-testid="job-source">
-                  <span>{t('jobs.src.careers')}</span>
-                  <span aria-hidden="true">·</span>
-                  <Link to={`/contact?topic=job-removal&job=${encodeURIComponent(`https://nm7.si/jobs/${job.slug}`)}`} data-testid="job-removal">{t('jobs.src.removal')}</Link>
-                </div>
-              )}
-              <dl className="job-facts-grid">
-                <div><dt>{t('jobs.f.city')}</dt><dd>{placeText(job, t) || '—'}</dd></div>
-                <div><dt>{t('jobs.f.experience')}</dt><dd>{t(`jobs.exp.${job.experience}`)}</dd></div>
-                <div><dt>{t('jobs.f.jobType')}</dt><dd>{t(`jobs.type.${job.jobType}`)}</dd></div>
-                <div><dt>{t('jobs.f.workType')}</dt><dd>{t(`jobs.work.${job.workType}`)}</dd></div>
-                <div><dt>{t('jobs.salary')}</dt><dd>{salaryText(job.salary, t) || t('jobs.salaryNone')}</dd></div>
-              </dl>
-              <JobPay job={job} t={t} />
-              {Object.keys(job.policies || {}).length > 0 && (
-                <section className="card-sm stack g4" aria-label={t('jobs.pol.title')} data-testid="job-policies">
-                  <strong className="small">{t('jobs.pol.title')}</strong>
-                  {Object.entries(job.policies).map(([k, v]) => <span key={k} className="small"><strong>{t(`jobs.support.${k}`)}:</strong> {v}</span>)}
-                  <span className="xs muted">{t('jobs.pol.note')}</span>
-                </section>
-              )}
-              {job.match && (
-                <section className="card-sm stack g8" aria-labelledby="job-match-h" data-testid="job-match">
-                  <h2 id="job-match-h" className="job-h2">{t('jobs.match.title')}: {t('jobs.match.pct', { n: job.match.score })}</h2>
-                  {(() => { const { good, gaps } = matchReasons(job.match, t); return <><span>{good.join(' · ')}</span>{gaps.length > 0 && <span className="xs muted">{gaps.join(' · ')}</span>}</>; })()}
-                  {job.match.found.length > 0 && <span className="xs">{t('jobs.match.found', { list: job.match.found.join(', ') })}</span>}
-                  {job.match.missing.length > 0 && <span className="xs">{t('jobs.match.missing', { list: job.match.missing.join(', ') })}</span>}
-                  <span className="xs muted">{t('jobs.match.how')}</span>
-                </section>
-              )}
-              {closed ? (
-                <p className="card-sm" role="status" style={{ margin: 0 }} data-testid="job-closed-note">{t('jobs.closedNote')}</p>
-              ) : (
-                <div className="row g8">
-                  <ApplyBox job={job} t={t} onApplied={(a) => setJob((x) => ({ ...x, application: a }))} />
-                  <SaveButton job={job} t={t} />
-                  <a className="btn btn-outline" href={share} target="_blank" rel="noopener noreferrer" data-testid="share-wa">{t('jobs.share')}</a>
-                </div>
-              )}
-              {job.skills.length > 0 && (
-                <section className="stack g8" aria-labelledby="job-skills-h">
-                  <h2 id="job-skills-h" className="job-h2">{t('jobs.skills')}</h2>
-                  <ul className="job-skills">{job.skills.map((s) => <li key={s} className="badge b-neutral">{s}</li>)}</ul>
-                </section>
-              )}
-              <section className="stack g8" aria-labelledby="job-desc-h">
-                <h2 id="job-desc-h" className="job-h2">{t('jobs.about')}</h2>
-                <div className="job-description" lang="en">{job.description}</div>
-              </section>
-              {job.companyTrust && (
-                <section className="card-sm stack g8" aria-labelledby="job-trust-h" data-testid="job-trust">
-                  <h2 id="job-trust-h" className="job-h2">{t('jobs.trust.title')}</h2>
-                  <TrustLine trust={job.companyTrust} t={t} />
-                  <TrustWhy parts={job.companyTrust.parts} t={t} />
-                  {['verified', 'basic'].includes(job.companyTrust.level) && <Link className="xs" to={`/companies/${job.companyTrust.slug}`}>{t('jobs.trust.page', { name: job.company.name })}</Link>}
-                </section>
-              )}
-              {!closed && <ReportJob job={job} t={t} />}
-            </article>
+            <JobDetail job={job} t={t} setJob={setJob} />
             {job.similar?.length > 0 && (
               <section className="stack g12" aria-labelledby="job-similar-h" data-testid="similar-jobs">
                 <h2 id="job-similar-h" className="job-h2">{t('jobs.similar')}</h2>

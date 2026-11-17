@@ -17,21 +17,25 @@ function T({ s }) {
   return <>{confirm && PREVIEW && <span className="badge b-warning" style={{ marginRight: 6, fontSize: 11 }}>To confirm</span>}{confirm ? s.slice(3) : s}</>;
 }
 
+/** Round W: the page is full width; on a wide screen "On this page" stays in view in a left column and the text keeps a
+ *  readable line (about 72 characters); on a phone the list sits above the text. */
 function Page({ title, intro, sections }) {
   return (
     <>
       <Header />
-      <main id="main" className="container stack g20 legal" style={{ maxWidth: 820, padding: '32px 20px 64px' }}>
+      <main id="main" className="app-wide stack g20 legal legal-page">
         <div className="ph-row"><div className="stack g8">
           <span className="kicker">Last updated · {L.updated}</span>
           <h1 className="display" style={{ fontSize: 36 }}>{title}</h1>
           {intro && <p className="lead" style={{ fontSize: 17, margin: 0 }}><T s={intro} /></p>}
           {PREVIEW && <div className="well small" style={{ borderLeft: '3px solid var(--warning)' }}><strong>Draft for review.</strong> Have a lawyer check this page before going live. Still empty in src/lib/legal.js (those lines are hidden): {missingLegal().join(', ') || 'nothing'}.</div>}
         </div><PageArt shape="resume" /></div>
-        <nav aria-label="On this page" className="card stack g4 small" style={{ padding: 16 }}>
+        <div className="legal-body">
+        <nav aria-label="On this page" className="card stack g4 small legal-toc" style={{ padding: 16 }}>
           <strong className="xs muted">ON THIS PAGE</strong>
           {sections.filter(([, body]) => body.length).map(([h], i) => <a key={h} href={`#s${i + 1}`} onClick={(e) => { e.preventDefault(); document.getElementById(`s${i + 1}`)?.scrollIntoView({ behavior: 'smooth' }); }}>{i + 1}. {h}</a>)}
         </nav>
+        <div className="stack g20 legal-text">
         {sections.filter(([, body]) => body.length).map(([h, body], i) => (
           <section key={h} id={`s${i + 1}`} className="stack g8" style={{ scrollMarginTop: 90 }}>
             <h2 style={{ fontSize: 21 }}>{i + 1}. {h}</h2>
@@ -41,6 +45,8 @@ function Page({ title, intro, sections }) {
           </section>
         ))}
         <p className="small muted" style={{ margin: 0 }}>Questions? Write to <a href={`mailto:${L.email}`}>{L.email}</a> or see <Link to="/contact">Contact us</Link>.</p>
+        </div>
+        </div>
       </main>
       <SiteFooter />
     </>

@@ -3,6 +3,10 @@
    sideways strip that stays at the top. Page styles live in company-*.css next to their pages. */
 .co-page { padding-top: 20px; padding-bottom: 64px; }
 .co-page.container-wide { max-width: 1280px; } /* the dashboard is wide; base.css keeps 820px for the other company pages */
+/* round W: once signed in (the dashboard is on the page) it fills the screen: 24 px sides (16 px on a phone), the side
+   menu runs the full height beside it and scrolls on its own */
+.co-page.container-wide:has(.co-shell) { max-width: none; padding-inline: 24px; }
+@media (max-width: 600px) { .co-page.container-wide:has(.co-shell) { padding-inline: 16px; } }
 .co-top .co-h1 { font-size: clamp(30px, 5vw, 40px) !important; }
 
 .co-shell { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; align-items: start; }
@@ -10,7 +14,8 @@
 
 .co-side { display: flex; flex-direction: column; gap: 12px; min-width: 0; padding: 14px 10px; border-radius: 22px;
   background: rgba(255, 255, 255, .86); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
-@media (min-width: 960px) { .co-side { position: sticky; top: 88px; } }
+@media (min-width: 960px) { .co-side { position: sticky; top: 88px; max-height: calc(100dvh - 104px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; } }
+@media (min-width: 1600px) { .co-shell { grid-template-columns: 260px minmax(0, 1fr); gap: 28px; } }
 .co-side-head { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 4px 10px; padding: 2px 6px 10px; border-bottom: 1px solid var(--border); }
 .co-side-head .mchip { grid-column: 2; justify-self: start; }
 .co-avatar { grid-row: span 2; width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; font-weight: 800; font-size: 18px;

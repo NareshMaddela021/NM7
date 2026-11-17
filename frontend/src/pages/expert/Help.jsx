@@ -15,7 +15,7 @@ const ICONS = ['⇢', '✎', '✓', '↺', '⛨'];
 
 export default function Help() {
   return (
-    <ExpertPage width="mid" kicker="For experts" title="Help & rules" sub="How orders work, how to write, and what we check before a draft goes out." shape="badge">
+    <ExpertPage width="wide" kicker="For experts" title="Help & rules" sub="How orders work, how to write, and what we check before a draft goes out." shape="badge">
       <div className="ex-help">
         {SECTIONS.map(([t, items], i) => (
           <MeCard key={t} title={t} icon={ICONS[i]} headingLevel={2}><ul>{items.map((x) => <li key={x}><span>{x}</span></li>)}</ul></MeCard>

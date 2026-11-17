@@ -180,10 +180,13 @@ async def test_review_instead_of_guessing(client, db, key, ai, monkeypatch):
     # later the page text arrives: summarised and live
     out = await post(client, key, [JOB])
     assert out["updated"] == 1 and (await db[JOBS].find_one({}))["status"] == "active"
-    # city unknown: review (experience not stated is no reason to wait, round J2); a summary that copies the page: review
+    # no city in the location: filled from the summary (round W), so it goes live (experience not stated is no reason
+    # to wait, round J2); with no city anywhere it waits (tests/test_jobs_review_bulk.py); a summary that copies the
+    # page: review
     out = await post(client, key, [{**JOB, "title": "Plant Operator", "exp_min": None, "exp_max": None, "exp_text": "", "location": "",
                                     "apply_url": "https://careers.acme-industries.com/jobs/11"}])  # fmt: skip
-    assert out["results"][0]["reasons"] == ["city_not_stated"]
+    assert out["results"][0]["result"] == "created" and out["results"][0]["reasons"] == []
+    assert (await db[JOBS].find_one({"title": "Plant Operator"}))["locations"] == ["Pune"]
 
     async def copy_cat(feature, content, schema, check, **kw):
         return check({"summary": PAGE[:600], "skills": [], "work_type": "onsite"})
