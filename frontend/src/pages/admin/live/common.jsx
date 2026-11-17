@@ -1,6 +1,7 @@
 // Live admin console: frame, data hooks and small parts. Every number comes from /api/admin/*; every change is a
 // request the server checks (role + two-step login) and writes to the audit log.
 import { useCallback, useEffect, useState } from 'react';
+import AppShell from '../../../components/AppShell';
 import ErrorBoundary from '../../../components/ErrorBoundary';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import Header from '../../../components/Header';
@@ -136,27 +137,25 @@ export function LiveAdminLayout() {
   }, []);
   const byPath = Object.fromEntries(NAV.map((n) => [n[1], n]));
   const groups = NAV_GROUPS.map(([g, paths]) => [g, paths.map((p) => byPath[p]).filter((n) => n && can.includes(n[0]))]).filter(([, l]) => l.length);
+  const nav = groups.map(([g, links]) => (
+    <div key={g} className="ad-group" role="group" aria-label={g}>
+      <span className="ad-group-h app-side-h" aria-hidden="true">{g}</span>
+      {links.map(([_k, to, l, ic]) => (
+        <NavLink key={to} to={to} end={to === '/admin'} className="admin-link ad-link" title={l}><span aria-hidden="true" className="ad-link-ic">{ic}</span><span className="app-side-text">{l}</span></NavLink>
+      ))}
+    </div>
+  ));
+  // round W: full width; the side menu runs the full height and folds to icons; on a phone it stays the sideways strip
   return (
     <>
       <Header variant="admin" />
-      <div className="container-wide ad-shell">
-        <nav aria-label="Admin sections" className="ad-side admin-side">
-          {groups.map(([g, links]) => (
-            <div key={g} className="ad-group" role="group" aria-label={g}>
-              <span className="ad-group-h" aria-hidden="true">{g}</span>
-              {links.map(([_k, to, l, ic]) => (
-                <NavLink key={to} to={to} end={to === '/admin'} className="admin-link ad-link"><span aria-hidden="true" className="ad-link-ic">{ic}</span>{l}</NavLink>
-              ))}
-            </div>
-          ))}
-          <span className="xs faint ad-signed">Signed in as {user?.name} · {ROLES[user?.adminRole]?.label || 'Admin'}</span>
-        </nav>
-        <main id="main" className="stack g20 ad-main">
-          {keys && keys.razorpayReady === false && <KeysBanner />}
-          {current && <div className="ad-crumb" aria-hidden="true"><span className="ad-crumb-ic">{current[3]}</span><span>{current[2]}</span></div>}
-          {allowed ? <ErrorBoundary resetKey={`${pathname}${search}`}><Outlet /></ErrorBoundary> : <div className="card stack g8"><strong>No access</strong><span className="small muted">Your role ({ROLES[user?.adminRole]?.label}) can’t open {current[2]}. Ask the owner.</span></div>}
-        </main>
-      </div>
+      <AppShell label="Admin sections" nav={nav} storageKey="nm7.admin.menuFolded" phone="strip" routeKey={pathname}
+        className="ad-shell" sideClassName="ad-side admin-side" mainClassName="stack g20 ad-main"
+        foot={<span className="xs faint ad-signed">Signed in as {user?.name} · {ROLES[user?.adminRole]?.label || 'Admin'}</span>}>
+        {keys && keys.razorpayReady === false && <KeysBanner />}
+        {current && <div className="ad-crumb" aria-hidden="true"><span className="ad-crumb-ic">{current[3]}</span><span>{current[2]}</span></div>}
+        {allowed ? <ErrorBoundary resetKey={`${pathname}${search}`}><Outlet /></ErrorBoundary> : <div className="card stack g8"><strong>No access</strong><span className="small muted">Your role ({ROLES[user?.adminRole]?.label}) can’t open {current[2]}. Ask the owner.</span></div>}
+      </AppShell>
     </>
   );
 }
