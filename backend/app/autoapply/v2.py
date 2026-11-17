@@ -45,7 +45,7 @@ from app.admin.deps import AdminAuth
 from app.audit import audit
 from app.auth.deps import CustomerAuth
 from app.auth.sessions import client_ip
-from app.autoapply import access, engine, learning, rules, tailoring, v2engine
+from app.autoapply import access, engine, learning, onetap, rules, tailoring, v2engine
 from app.autoapply.settings import gate
 from app.core.db import APPLICATIONS, AUTO_COPIES, AUTO_ITEMS, DB, JOBS, USERS
 from app.core.errors import ApiError
@@ -124,6 +124,7 @@ async def _status(db, uid: str, site: dict[str, Any]) -> dict[str, Any]:
         "gate": await gate(db, uid, site),
         "learning": learning.explain(await learning.penalties(db, uid)),
         "public": bool(v2.get("public")),
+        "morning": (await onetap.listing(db, uid))["morning"],  # A6: today's "N jobs ready" (in-app)
     }
 
 

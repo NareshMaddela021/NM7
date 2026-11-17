@@ -103,7 +103,7 @@ async def test_not_relevant_marks_stop_that_company(client, outbox, db):
 async def test_demo_student(client, outbox, db, admin_client, make_client):
     owner = await admin_client("owner")
     r = (await owner.post(f"{ADMIN}/demo")).json()
-    assert r["path"].startswith("/demo-student#t=") and r["items"] == 16  # 4 + 8 for 2.0 + 1 company form (A5) + 3 one tap (A6)
+    assert r["path"].startswith("/demo-student#t=") and r["items"] == 16  # 4 + 8 for 2.0 + 1 form (A5) + 3 one tap (A6)
     token = r["path"].split("#t=")[1]
     browser = make_client()
     assert (await browser.post("/api/public/demo-student", json={"token": token})).json() == {"path": "/me/auto-apply"}

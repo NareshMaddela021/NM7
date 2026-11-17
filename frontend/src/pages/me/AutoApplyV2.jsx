@@ -11,6 +11,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useToast } from '../../components/ui';
 import { EXPERIENCE, JOB_TYPES } from '../../lib/jobBoard';
 import { http } from '../../services/http';
+import OneTap from './AutoApplyOneTap';
 import { MeHead } from './MeLayout';
 import { Chip, Empty, FieldGroup, Skel, StickyBar } from './kit';
 import '../../styles/me-jobs.css';
@@ -30,7 +31,7 @@ const MODES = [
 const NOTICE = [['', 'Not set'], ['immediate', 'Immediately'], ['15_days', '15 days'], ['30_days', '30 days'], ['60_days', '60 days'], ['90_days', '90 days']];
 const EXP_LABEL = { internship: 'Internship', fresher: 'Fresher', '0_1': '0–1 years', '1_3': '1–3 years', '3_5': '3–5 years', '5_8': '5–8 years', '8_12': '8–12 years', '12_15': '12–15 years', '15_plus': '15+ years' };
 const TYPE_LABEL = { full_time: 'Full-time', internship: 'Internship', contract: 'Contract', part_time: 'Part-time' };
-const TABS = [['tracker', 'Tracker'], ['approve', 'Approve'], ['waiting', 'Waiting for you'], ['suggested', 'Suggested'], ['email', 'Email'], ['rules', 'Rules']];
+const TABS = [['tracker', 'Tracker'], ['ready', 'Jobs ready'], ['approve', 'Approve'], ['waiting', 'Waiting for you'], ['suggested', 'Suggested'], ['email', 'Email'], ['rules', 'Rules']];
 const fmtAt = (ms) => (ms ? new Date(ms).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) : '');
 const list = (s) => String(s || '').split(',').map((x) => x.trim()).filter(Boolean);
 
@@ -201,7 +202,7 @@ function Tracker({ toast }) {
     <div className="stack g12" data-testid="aa2-tracker">
       {d.updates?.length > 0 && (
         <section className="mcard mcard-tight mcard-accent stack g8" aria-labelledby="aa2-upd-h" data-testid="aa2-updates">
-          <strong id="aa2-upd-h" className="small">Updates from companies on Nm7</strong>
+          <strong id="aa2-upd-h" className="small">Updates</strong>
           <ul className="stack g4 aa2-list">{d.updates.map((u) => <li key={u.id} className="small aa2-wrap" data-testid="aa2-update" data-status={u.status}>{u.text}</li>)}</ul>
           <button type="button" className="link-btn small" style={{ alignSelf: 'flex-start' }} onClick={seen} data-testid="aa2-updates-seen">Got it</button>
         </section>
@@ -485,7 +486,7 @@ export default function AutoApplyV2() {
     try { setD(await http(url, { method: 'POST', body })); toast(msg); setStopAsk(false); } catch (x) { toast(x.message); } finally { setBusy(false); }
   };
   const setUp = !!d.consent.at;
-  const badge = { approve: d.counts.approvals, waiting: d.counts.waiting, suggested: d.counts.suggested };
+  const badge = { ready: d.morning?.count ?? d.counts.ready, approve: d.counts.approvals, waiting: d.counts.waiting, suggested: d.counts.suggested };
   return (
     <div className="stack g16 aa2" data-testid="aa2">
       <MeHead title="Auto Apply 2.0" sub="Nm7 finds jobs that fit your rules, tailors your resume for each (reorder and rephrase only) and applies the way you choose." />
@@ -510,6 +511,12 @@ export default function AutoApplyV2() {
           )}
         </section>
       ) : <Consent d={d} onSaved={setD} toast={toast} />}
+      {d.morning && !d.morning.seen && d.morning.count > 0 && tab !== 'ready' && (
+        <section className="mcard mcard-tight mcard-accent aa2-bar" aria-label="This morning" data-testid="aa2-morning">
+          <span className="small"><strong>{d.morning.count} job{d.morning.count === 1 ? '' : 's'} ready</strong> for you to apply to yourself, each with its kit.</span>
+          <button type="button" className="btn btn-signal btn-sm" onClick={() => setSp({ tab: 'ready' }, { replace: true })} data-testid="aa2-morning-open">See them</button>
+        </section>
+      )}
       {d.learning.length > 0 && <p className="xs muted" style={{ margin: 0 }} data-testid="aa2-learning">{d.learning.map((x) => x.text).join(' ')}</p>}
       <nav className="aa2-tabs" aria-label="Auto Apply 2.0">
         {TABS.map(([k, l]) => (
@@ -519,6 +526,7 @@ export default function AutoApplyV2() {
         ))}
       </nav>
       {tab === 'tracker' && <Tracker toast={toast} />}
+      {tab === 'ready' && <OneTap toast={toast} onChanged={load} />}
       {tab === 'approve' && <Approvals toast={toast} onChanged={load} />}
       {tab === 'waiting' && <Waiting toast={toast} onChanged={load} />}
       {tab === 'suggested' && <Suggested toast={toast} onChanged={load} />}

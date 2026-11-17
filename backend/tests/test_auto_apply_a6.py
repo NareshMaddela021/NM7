@@ -41,8 +41,9 @@ ROOT = Path(__file__).resolve().parents[2]
 async def site_job(db, title="Junior Data Analyst", url="https://zeta.in/careers/da-1", **over):
     """A job the collector found on a company's own site (no company on Nm7): while the switch is OFF it is never
     sent for the candidate, so it is Ready for one tap."""
-    return await add(db, title=title, company={"name": "Zeta Retail", "website": "zeta.in"}, applyMethod="link",
-                     applyUrl=url, locations=["Hyderabad"], skills=["SQL", "Power BI"], description=DESC, **over)  # fmt: skip
+    co = {"name": "Zeta Retail", "website": "zeta.in"}
+    return await add(db, title=title, company=co, applyMethod="link", applyUrl=url, locations=["Hyderabad"],
+                     skills=["SQL", "Power BI"], description=DESC, **over)  # fmt: skip
 
 
 async def ready(client, outbox, db, n=2):
@@ -227,8 +228,8 @@ async def test_one_reminder_the_next_day_then_it_stays_ready(client, outbox, db)
     card = next(c for c in ok(await client.get(OT))["items"] if c["id"] == iid)
     assert card["stage"] == "ready" and card["reminded"] and not card["closed"]
     # "Apply now" on a kit never listed starts the reminder from that tap
-    await db[AUTO_ITEMS].update_one({"_id": items[1]["_id"]}, {"$set": {"state": "ready"},
-                                                                "$unset": {"remind_at": "", "reminded_at": ""}})  # fmt: skip
+    unset = {"remind_at": "", "reminded_at": ""}
+    await db[AUTO_ITEMS].update_one({"_id": items[1]["_id"]}, {"$set": {"state": "ready"}, "$unset": unset})
     await client.post(f"{OT}/{items[1]['_id']}/opened")
     it2 = await db[AUTO_ITEMS].find_one({"_id": items[1]["_id"]})
     assert it2["opened_at"] and it2["remind_at"] > now() + timedelta(hours=23)
