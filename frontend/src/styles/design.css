@@ -158,6 +158,15 @@ select.input { appearance: none; -webkit-appearance: none; padding-right: 40px; 
 /* ---------- legal and simple text pages ---------- */
 .legal h2 { font-size: 28px; margin-top: 12px; }
 .legal p, .legal li { color: var(--text2); line-height: 1.7; }
+/* round W: full width, the "On this page" list in a left column on a wide screen, the text at a readable width */
+.legal-page { padding-block: 32px 64px; }
+.legal-body { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; align-items: start; }
+.legal-text { min-width: 0; max-width: 72ch; }
+@media (min-width: 1100px) {
+  .legal-body { grid-template-columns: 280px minmax(0, 72ch); gap: 48px; }
+  .legal-toc { position: sticky; top: 88px; max-height: calc(100dvh - 104px); overflow-y: auto; scrollbar-width: thin; }
+}
+@media (min-width: 1600px) { .legal-body { grid-template-columns: 300px minmax(0, 72ch); justify-content: start; gap: 64px; } }
 
 /* ---------- public jobs, companies, blog: a little more air and the new cards ---------- */
 .job-logo { border-radius: 14px; background: var(--lav); color: var(--accent); }

@@ -2,7 +2,7 @@
 // The build pre-renders these pages as static HTML for search engines (scripts/prerender-blog.mjs); here the app
 // takes over with the same markup.
 import { PageArt } from '../../components/PageHero';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Header from '../../components/Header';
 import SiteFooter from '../../components/SiteFooter';
@@ -57,6 +57,24 @@ export function PostCard({ p, as: H = 'h2' }) {
 
 function Frame({ children }) {
   return (<><Header /><main id="main" className="container blog">{children}</main><SiteFooter /></>);
+}
+
+const slugify = (s) => s.toLowerCase().replace(/[^\p{L}\p{M}\p{N}]+/gu, '-').replace(/^-|-$/g, '').slice(0, 60) || 'section';
+/** Round W: "On this page" beside a post on a wide screen (1200 px and up), from the article's own headings (each gets an
+ *  id to link to), shown when the post has at least two; under it "More to read" (the related posts). */
+function useToc(ref, html) {
+  const [items, setItems] = useState([]);
+  useEffect(() => {
+    const box = ref.current;
+    if (!box) { setItems([]); return; }
+    const used = new Set();
+    setItems([...box.querySelectorAll('h2, h3')].map((h) => {
+      if (!h.id) { let id = slugify(h.textContent || ''); let n = 2; while (used.has(id) || document.getElementById(id)) id = `${id.replace(/-\d+$/, '')}-${n++}`; h.id = id; }
+      used.add(h.id);
+      return { id: h.id, text: h.textContent || '', sub: h.tagName === 'H3' };
+    }));
+  }, [ref, html]);
+  return items;
 }
 const Loading = () => <div className="row g12 muted" role="status" style={{ padding: '48px 0' }}><Spinner /> Loading…</div>;
 const Failed = () => <div className="card stack g8" role="alert"><strong>We couldn’t load the blog.</strong><span className="muted">Check your internet and try again.</span></div>;
@@ -122,6 +140,8 @@ export function BlogPost() {
   const m = p ? postMeta(p) : null;
   usePageMeta(p ? { title: m.title.replace(/ · Nm7$/, ''), description: m.description } : { title: 'Blog', description: BLOG_DESC });
   const html = useMemo(() => (p ? richTextToHtml(p.content) : ''), [p]);
+  const body = useRef(null);
+  const toc = useToc(body, html);
   if (st.data && !p) return <BlogNotFound />;
   return (
     <Frame>
@@ -129,14 +149,30 @@ export function BlogPost() {
       {st.error && <Failed />}
       {p && (
         <>
-          <div className="blog-layout">
+          <div className={`blog-layout${toc.length > 1 || st.data.related.length ? ' has-toc' : ''}`}>
+            {(toc.length > 1 || st.data.related.length > 0) && (
+              <div className="blog-toc">
+                {toc.length > 1 && (
+                  <nav className="blog-toc-list" aria-label="On this page">
+                    <strong className="blog-toc-h">On this page</strong>
+                    {toc.map((h) => <a key={h.id} href={`#${h.id}`} data-sub={h.sub || undefined}>{h.text}</a>)}
+                  </nav>
+                )}
+                {st.data.related.length > 0 && (
+                  <nav className="blog-toc-list" aria-label="More to read">
+                    <strong className="blog-toc-h">More to read</strong>
+                    {st.data.related.map((r) => <Link key={r.slug} to={`/blog/${r.slug}`}>{r.title}</Link>)}
+                  </nav>
+                )}
+              </div>
+            )}
             <article className="blog-article">
               <nav className="blog-crumbs" aria-label="Breadcrumb"><Link to="/blog">Blog</Link>{p.category && <> / <Link to={`/blog/category/${p.category.slug}`}>{p.category.name}</Link></>}</nav>
               <h1 className="display h2">{p.title}</h1>
               <p className="blog-byline">{p.author ? `${p.author.name} · ` : ''}{fmtDate(p.publishedAt)} · {p.minutes} min read</p>
               <Cover p={p} className="blog-cover" eager />
               {/* safe: richTextToHtml escapes every text and only emits known tags (see lib/blog/richtext.js) */}
-              <div className="blog-content" dangerouslySetInnerHTML={{ __html: html }} />
+              <div ref={body} className="blog-content" dangerouslySetInnerHTML={{ __html: html }} />
             </article>
             <aside className="blog-cta" aria-label="Free resume scan">
               <strong>Is your resume ATS-ready?</strong>
