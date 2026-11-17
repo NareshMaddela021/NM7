@@ -452,3 +452,25 @@ async def test_demo_kavya_shows_every_state(db):
     u = await db[USERS].find_one({"_id": demo.STUDENT_ID})
     assert u["auto_apply"]["v2_consent_at"] and u["auto_apply"]["mode"] == "approve"
     assert await db[AUTO_COPIES].count_documents({"user_id": demo.STUDENT_ID, "v2": True}) >= 1
+
+
+def test_truth_allows_only_the_jobs_own_numbers():
+    job = "Data Analyst L2 Acme 2026 Hyderabad"
+    assert tailoring.truth.problems("I am applying for the Data Analyst L2 role at Acme 2026.", "SQL", job) == []
+    assert "the number 40" in tailoring.truth.problems("I built 40 dashboards.", "SQL", job)
+
+
+async def test_v2_waits_while_another_heavy_job_runs(client, outbox, db, monkeypatch):
+    from app.core import heavy
+
+    session, cid = await verified(client, outbox, db)
+    await company_job(client, session, cid, "Junior Data Analyst")
+    uid = await tester(client, outbox, db, mode="full_auto")
+
+    async def busy(_db):
+        return False
+
+    monkeypatch.setattr(heavy, "_take", busy)
+    out = await run(db)
+    assert out.get("v2_waiting_heavy") == 1 and await db[APPLICATIONS].count_documents({"user_id": uid}) == 0
+    assert not (await db[USERS].find_one({"_id": uid}))["auto_apply"].get("run_day")  # picked up on the next pass
