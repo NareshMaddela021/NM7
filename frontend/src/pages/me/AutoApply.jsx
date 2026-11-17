@@ -2,8 +2,8 @@
 // (the resume's ATS score must be 60+, else what to fix, with links), the consent tick, "what will happen" in plain
 // words, and one big Pause / Resume button. Once set up Auto Apply is on until paused; Manual Apply always works.
 // English, Telugu and Hindi (pages.json, aa.*). No pop-up dialogs.
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { lazy, Suspense, useEffect, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import LangSwitch from '../../components/LangSwitch';
 import { useToast } from '../../components/ui';
 import { useLang } from '../../lib/i18n';
@@ -37,7 +37,17 @@ export function willHappen(f, limits, t) {
   return out;
 }
 
+// Auto Apply 2.0 (/me/auto-apply/v2) loads from this page's chunk, so the app's entry (and the Easy dashboard's
+// Telugu / Hindi budget) doesn't grow
+const AutoApplyV2 = lazy(() => import('./AutoApplyV2'));
+
 export default function AutoApply() {
+  const { pathname } = useLocation();
+  if (/\/auto-apply\/v2\/?$/.test(pathname)) return <Suspense fallback={<Skel cards={2} />}><AutoApplyV2 /></Suspense>;
+  return <AutoApplyV1 />;
+}
+
+function AutoApplyV1() {
   const [t, lang] = useLang();
   const toast = useToast();
   const [d, setD] = useState(null);
@@ -46,10 +56,12 @@ export default function AutoApply() {
   const [ideas, setIdeas] = useState(null);
   const [busy, setBusy] = useState('');
   const [err, setErr] = useState('');
+  const [v2, setV2] = useState(false); // Auto Apply 2.0: only while Admin's launch switch lets this person in
   const load = (x) => { setD(x); setF(toForm(x.settings)); };
   useEffect(() => {
     http('/api/me/auto-apply').then(load, (e) => setErr(e.message));
     http('/api/me/auto-apply/suggest').then(setIdeas, () => {});
+    http('/api/me/auto-apply/v2').then(() => setV2(true), () => {});
   }, []);
   if (err && !d) return <p className="error" role="alert">{err}</p>;
   if (!d) return <Skel cards={2} label={t('jobs.loading')} />;
@@ -139,6 +151,12 @@ export default function AutoApply() {
   return (
     <div className="stack g16" lang={lang} data-testid="auto-apply">
       <MeHead title={t('aa.title')} sub={t('aa.sub')} right={<LangSwitch t={t} lang={lang} />} />
+      {v2 && (
+        <p className="mcard mcard-tight mcard-accent" style={{ margin: 0, display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center', justifyContent: 'space-between' }} data-testid="aa-v2-link" lang="en">
+          <span className="small">New: Auto Apply 2.0, with match score parts, a tailored resume and cover note for each job, and one tracker for every channel.</span>
+          <Link to="/me/auto-apply/v2" className="btn btn-signal btn-sm">Open Auto Apply 2.0</Link>
+        </p>
+      )}
       {!d.siteOn && <p className="mcard mcard-tight mcard-warn" role="status" style={{ margin: 0 }} data-testid="aa-site-off">{t('aa.siteOff')}</p>}
       {s.setUp && (
         <section className="mcard mcard-accent" aria-label={t('aa.statusTitle')} data-testid="aa-status">

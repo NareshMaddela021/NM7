@@ -1,0 +1,403 @@
+// /me/auto-apply/v2: Auto Apply 2.0 (A1 "Engine"), shown only while Admin's launch switch lets this person in (admins,
+// demo accounts, testers; everyone once public). One page, five tabs: the tracker for every channel (Ready, Waiting for
+// you, Applied, Viewed, Replied / Interview, Offer / Rejected / Closed, with the channel's icon and "What was sent"),
+// the approval list ("Approve all"), the Waiting questions (answers saved to the profile, then sent at once),
+// "Suggested for you" (55–69) and the rules form with the approval mode and the explicit opt-in (pause / stop any
+// time). English only while it is tested. No pop-up dialogs; nothing scrolls sideways at 390 px.
+import { useCallback, useEffect, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { useToast } from '../../components/ui';
+import { EXPERIENCE, JOB_TYPES } from '../../lib/jobBoard';
+import { http } from '../../services/http';
+import { MeHead } from './MeLayout';
+import { Chip, Empty, FieldGroup, Skel, StickyBar } from './kit';
+import '../../styles/me-jobs.css';
+import '../../styles/me-aa2.css';
+
+const BASE = '/api/me/auto-apply/v2';
+export const CHANNELS = {
+  internal: ['◆', 'On Nm7'], email: ['✉', 'By email'], partner: ['⇄', 'Partner'], form: ['▤', 'Company form'], one_tap: ['☝', 'One tap'],
+};
+const STAGE_TONE = { ready: 'accent', waiting: 'warn', applied: 'info', viewed: 'info', replied: 'ok', closed: 'neutral' };
+const OUTCOME = { offer: 'Offer', rejected: 'Rejected', closed: 'Job closed', interview: 'Interview', shortlisted: 'Shortlisted' };
+const MODES = [
+  ['approve', 'Approve each', 'Every morning you get a list. Nothing goes out until you tap Approve (or Approve all).'],
+  ['full_auto', 'Full auto', 'Nm7 applies for you within your rules and daily limit. You can see everything it sent.'],
+  ['digest', 'Weekly digest', 'Jobs collect in one list for the week. You approve them when it suits you.'],
+];
+const NOTICE = [['', 'Not set'], ['immediate', 'Immediately'], ['15_days', '15 days'], ['30_days', '30 days'], ['60_days', '60 days'], ['90_days', '90 days']];
+const EXP_LABEL = { internship: 'Internship', fresher: 'Fresher', '0_1': '0–1 years', '1_3': '1–3 years', '3_5': '3–5 years', '5_8': '5–8 years', '8_12': '8–12 years', '12_15': '12–15 years', '15_plus': '15+ years' };
+const TYPE_LABEL = { full_time: 'Full-time', internship: 'Internship', contract: 'Contract', part_time: 'Part-time' };
+const TABS = [['tracker', 'Tracker'], ['approve', 'Approve'], ['waiting', 'Waiting for you'], ['suggested', 'Suggested'], ['rules', 'Rules']];
+const list = (s) => String(s || '').split(',').map((x) => x.trim()).filter(Boolean);
+
+export function ChannelTag({ channel }) {
+  const [ic, label] = CHANNELS[channel] || CHANNELS.internal;
+  return <span className="aa2-ch" data-channel={channel}><span aria-hidden="true">{ic}</span> {label}</span>;
+}
+
+function JobHead({ it }) {
+  return (
+    <div className="aa2-job">
+      <span className="mavatar" aria-hidden="true">{(it.job.company || '?').slice(0, 1).toUpperCase()}</span>
+      <span className="stack g4" style={{ minWidth: 0 }}>
+        {it.demo ? <strong className="aa2-title">{it.job.title}</strong> : <Link to={`/jobs/${it.job.slug}`} className="aa2-title">{it.job.title}</Link>}
+        <span className="xs muted aa2-wrap">{it.job.company}{it.score != null ? ` · match ${it.score}` : ''}</span>
+      </span>
+    </div>
+  );
+}
+
+function Parts({ it }) {
+  const parts = Object.entries(it.parts || {});
+  if (!parts.length) return null;
+  return (
+    <details className="aa2-parts">
+      <summary className="xs">Why this score</summary>
+      <ul className="aa2-partlist">
+        {parts.map(([k, p]) => <li key={k} className="xs"><strong>{p.points}/{p.max}</strong> {k[0].toUpperCase() + k.slice(1)}: {p.note}</li>)}
+      </ul>
+    </details>
+  );
+}
+
+function Version({ v }) {
+  if (!v) return <p className="xs muted" style={{ margin: 0 }}>No tailored version yet.</p>;
+  return (
+    <div className="stack g8 aa2-version" data-testid="aa2-version">
+      <span className="xs muted">{v.source === 'ai' ? 'Tailored with AI, checked against your resume' : 'Your resume, reordered for this job (rules version)'}{v.truth.blocked ? ' · the AI draft added something not on your resume, so it was not used' : ''}</span>
+      {v.changes.length > 0 && <ul className="xs aa2-plain">{v.changes.map((c) => <li key={c.kind}>{c.label}</li>)}</ul>}
+      <strong className="small">Cover note</strong>
+      <div className="aa2-note small" data-testid="aa2-cover">{v.coverNote.map((l, i) => <p key={i}>{l}</p>)}</div>
+      {v.answers.length > 0 && (
+        <>
+          <strong className="small">Ready answers</strong>
+          <dl className="aa2-answers small">{v.answers.map((a) => <div key={a.question}><dt>{a.question}</dt><dd>{a.answer}</dd></div>)}</dl>
+        </>
+      )}
+      {v.resume?.summary && <><strong className="small">Summary on the resume</strong><p className="small" style={{ margin: 0 }}>{v.resume.summary}</p></>}
+    </div>
+  );
+}
+
+function WhatWasSent({ id }) {
+  const [d, setD] = useState(null);
+  const [err, setErr] = useState('');
+  useEffect(() => { http(`${BASE}/sent/${id}`).then(setD).catch((x) => setErr(x.message)); }, [id]);
+  if (err) return <p className="error" role="alert">{err}</p>;
+  if (!d) return <Skel cards={1} lines={2} />;
+  return (
+    <div className="stack g8" data-testid="aa2-sent">
+      <span className="xs muted">{d.wentOut ? 'This went out to the company:' : 'Not sent yet. This is what will go out:'}</span>
+      {d.email && <div className="aa2-note small"><p><strong>To:</strong> {d.email.to}</p><p><strong>Subject:</strong> {d.email.subject}</p><p className="aa2-pre">{d.email.text}</p></div>}
+      <Version v={d.version} />
+      {Object.keys(d.screening).length > 0 && <span className="xs muted">Screening answers sent: {Object.values(d.screening).join(', ')}</span>}
+    </div>
+  );
+}
+
+function TrackerRow({ it, onChanged, toast }) {
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const mark = async (status) => {
+    setBusy(true);
+    try { await http(`${BASE}/tracker/${it.id}/status`, { method: 'POST', body: { status } }); toast('Saved'); onChanged(); } catch (x) { toast(x.message); } finally { setBusy(false); }
+  };
+  const outside = ['email', 'one_tap', 'form'].includes(it.channel) && ['applied', 'viewed', 'replied'].includes(it.stage);
+  return (
+    <li className="mcard mcard-tight stack g8 aa2-row" data-testid="aa2-row" data-stage={it.stage}>
+      <div className="aa2-rowtop">
+        <JobHead it={it} />
+        <span className="aa2-tags"><Chip tone={STAGE_TONE[it.stage]}>{it.outcome ? OUTCOME[it.outcome] || it.outcome : TABS_STAGE[it.stage]}</Chip><ChannelTag channel={it.channel} /></span>
+      </div>
+      <Parts it={it} />
+      <div className="row g8 aa2-actions">
+        {it.hasVersion && <button type="button" className="link-btn small" aria-expanded={open} onClick={() => setOpen(!open)} data-testid="aa2-what">{open ? 'Hide what was sent' : 'What was sent'}</button>}
+        {outside && <>
+          <button type="button" className="link-btn small" disabled={busy} onClick={() => mark('interview')}>They replied</button>
+          <button type="button" className="link-btn small" disabled={busy} onClick={() => mark('rejected')}>Rejected</button>
+        </>}
+      </div>
+      {open && <WhatWasSent id={it.id} />}
+    </li>
+  );
+}
+const TABS_STAGE = { ready: 'Ready', waiting: 'Waiting for you', applied: 'Applied', viewed: 'Viewed', replied: 'Replied / Interview', closed: 'Closed' };
+
+function Tracker({ toast }) {
+  const [d, setD] = useState(null);
+  const [pick, setPick] = useState(null);
+  const load = useCallback(() => http(`${BASE}/tracker`).then(setD).catch(() => setD({ stages: [], items: [] })), []);
+  useEffect(() => { load(); }, [load]);
+  if (!d) return <Skel cards={2} />;
+  const rows = pick ? d.items.filter((x) => x.stage === pick) : d.items;
+  return (
+    <div className="stack g12" data-testid="aa2-tracker">
+      <div className="aa2-stages" role="radiogroup" aria-label="Filter by stage">
+        {d.stages.map((s) => (
+          <button key={s.key} type="button" role="radio" aria-checked={pick === s.key} className={`aa2-stage aa2-${STAGE_TONE[s.key]} ${pick === s.key ? 'on' : ''}`} onClick={() => setPick(pick === s.key ? null : s.key)} data-testid={`aa2-stage-${s.key}`}>
+            <strong>{s.count}</strong><span>{s.label}</span>
+          </button>
+        ))}
+      </div>
+      {rows.length === 0 ? <Empty compact title="Nothing here yet">The morning run fills this in. Every channel shows up here.</Empty>
+        : <ul className="stack g8 aa2-list">{rows.map((it) => <TrackerRow key={it.id} it={it} onChanged={load} toast={toast} />)}</ul>}
+    </div>
+  );
+}
+
+function Approvals({ toast, onChanged }) {
+  const [d, setD] = useState(null);
+  const [busy, setBusy] = useState('');
+  const [open, setOpen] = useState(null);
+  const load = useCallback(() => http(`${BASE}/approvals`).then(setD).catch(() => setD({ items: [], mode: 'approve' })), []);
+  useEffect(() => { load(); }, [load]);
+  const act = async (key, url, msg) => {
+    setBusy(key);
+    try { const r = await http(url, { method: 'POST' }); toast(msg(r)); await load(); onChanged(); } catch (x) { toast(x.message); } finally { setBusy(''); }
+  };
+  if (!d) return <Skel cards={2} />;
+  return (
+    <div className="stack g12" data-testid="aa2-approvals">
+      <div className="aa2-bar">
+        <span className="small muted">{d.mode === 'digest' ? 'This week’s list' : 'This morning’s list'}: {d.items.length} job{d.items.length === 1 ? '' : 's'} ready, each tailored once and checked against your resume.</span>
+        {d.items.length > 0 && <button type="button" className="btn btn-signal" disabled={!!busy} onClick={() => act('all', `${BASE}/approve-all`, (r) => `Sent ${r.applied}`)} data-testid="aa2-approve-all">Approve all</button>}
+      </div>
+      {d.items.length === 0 ? <Empty compact title="Nothing waiting for your Approve">New matches appear here each morning.</Empty> : (
+        <ul className="stack g8 aa2-list">
+          {d.items.map((it) => (
+            <li key={it.id} className="mcard mcard-tight stack g8" data-testid="aa2-approval">
+              <div className="aa2-rowtop"><JobHead it={it} /><ChannelTag channel={it.channel} /></div>
+              {it.reasons.length > 0 && <span className="xs muted aa2-wrap">{it.reasons.join(' · ')}</span>}
+              <Parts it={it} />
+              <div className="row g8 aa2-actions">
+                <button type="button" className="btn btn-signal btn-sm" disabled={!!busy} onClick={() => act(it.id, `${BASE}/approve/${it.id}`, () => 'Sent')} data-testid="aa2-approve">Approve</button>
+                <button type="button" className="btn btn-outline btn-sm" disabled={!!busy} onClick={() => act(it.id, `${BASE}/approvals/${it.id}/skip`, () => 'Skipped')}>Skip</button>
+                <button type="button" className="link-btn small" aria-expanded={open === it.id} onClick={() => setOpen(open === it.id ? null : it.id)}>{open === it.id ? 'Hide' : 'See what will be sent'}</button>
+              </div>
+              {open === it.id && <Version v={it.version} />}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function WaitingItem({ it, toast, onDone }) {
+  const [answers, setAnswers] = useState({});
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  const send = async (e) => {
+    e.preventDefault();
+    if (it.questions.some((q) => answers[q.id] == null || String(answers[q.id]).trim() === '')) { setErr('Answer every question.'); return; }
+    setBusy(true); setErr('');
+    try {
+      const body = { answers: Object.fromEntries(it.questions.map((q) => [q.id, q.kind === 'number' ? Number(answers[q.id]) : answers[q.id]])) };
+      const r = await http(`${BASE}/waiting/${it.id}/answer`, { method: 'POST', body });
+      toast(r.state === 'applied' || r.state === 'sent' ? 'Saved to your profile and sent' : r.state === 'queued' ? 'Saved. It goes first thing tomorrow (today’s limit is used).' : 'Saved. This job is not a fit for your answers.');
+      onDone();
+    } catch (x) { setErr(x.message); setBusy(false); }
+  };
+  return (
+    <li className="mcard mcard-tight stack g8" data-testid="aa2-waiting-item">
+      <div className="aa2-rowtop"><JobHead it={it} /><ChannelTag channel={it.channel} /></div>
+      <form className="stack g8" onSubmit={send}>
+        {it.questions.map((q) => (
+          <fieldset key={q.id} className="stack g4" style={{ border: 0, margin: 0, padding: 0 }}>
+            {q.kind === 'number' ? (
+              <div className="field"><label className="label" htmlFor={`w-${it.id}-${q.id}`}>{q.text}</label>
+                <input id={`w-${it.id}-${q.id}`} className="input" inputMode="numeric" maxLength={6} value={answers[q.id] ?? ''} onChange={(e) => setAnswers({ ...answers, [q.id]: e.target.value.replace(/[^\d]/g, '') })} /></div>
+            ) : (
+              <>
+                <legend className="label">{q.text}</legend>
+                <div className="row g12" style={{ flexWrap: 'wrap' }}>
+                  {(q.kind === 'yesno' ? [['yes', 'Yes'], ['no', 'No']] : q.options.map((o) => [o, o])).map(([v, l]) => (
+                    <label key={v} className="row g4 small"><input type="radio" name={`w-${it.id}-${q.id}`} checked={answers[q.id] === v} onChange={() => setAnswers({ ...answers, [q.id]: v })} /> {l}</label>
+                  ))}
+                </div>
+              </>
+            )}
+          </fieldset>
+        ))}
+        <span className="xs muted">Your answers are saved to your profile, so Nm7 never asks again. This application is sent as soon as you answer.</span>
+        {err && <p className="error" role="alert" style={{ margin: 0 }}>{err}</p>}
+        <button type="submit" className="btn btn-signal btn-sm" style={{ alignSelf: 'flex-start' }} disabled={busy} data-testid="aa2-answer">Save and send</button>
+      </form>
+    </li>
+  );
+}
+
+function Waiting({ toast, onChanged }) {
+  const [d, setD] = useState(null);
+  const load = useCallback(() => http(`${BASE}/waiting`).then(setD).catch(() => setD([])), []);
+  useEffect(() => { load(); }, [load]);
+  if (!d) return <Skel cards={1} />;
+  return d.length === 0 ? <Empty compact title="No questions waiting" testid="aa2-waiting-empty">When a company asks something Nm7 can’t answer from your profile, it waits here.</Empty> : (
+    <ul className="stack g8 aa2-list" data-testid="aa2-waiting">{d.map((it) => <WaitingItem key={it.id} it={it} toast={toast} onDone={() => { load(); onChanged(); }} />)}</ul>
+  );
+}
+
+function Suggested({ toast, onChanged }) {
+  const [d, setD] = useState(null);
+  const [busy, setBusy] = useState('');
+  const load = useCallback(() => http(`${BASE}/suggested`).then(setD).catch(() => setD([])), []);
+  useEffect(() => { load(); }, [load]);
+  const act = async (id, what) => {
+    setBusy(id);
+    try {
+      const r = await http(`${BASE}/suggested/${id}/${what}`, { method: 'POST' });
+      toast(what === 'dismiss' ? 'Hidden' : r.state === 'needs_answer' ? 'One question first: see Waiting for you' : r.state === 'ready' ? 'Ready: open it from the tracker' : r.state === 'queued' ? 'It goes first thing tomorrow' : 'Sent');
+      await load(); onChanged();
+    } catch (x) { toast(x.message); } finally { setBusy(''); }
+  };
+  if (!d) return <Skel cards={1} />;
+  return d.length === 0 ? <Empty compact title="No suggestions right now">Jobs that match 55–69 show up here for you to decide.</Empty> : (
+    <ul className="stack g8 aa2-list" data-testid="aa2-suggested">
+      {d.map((it) => (
+        <li key={it.id} className="mcard mcard-tight stack g8" data-testid="aa2-suggestion">
+          <div className="aa2-rowtop"><JobHead it={it} /><ChannelTag channel={it.channel} /></div>
+          {(it.reasons.length > 0 || it.concerns.length > 0) && <span className="xs muted aa2-wrap">{[...it.reasons, ...it.concerns].join(' · ')}</span>}
+          <Parts it={it} />
+          <div className="row g8 aa2-actions">
+            <button type="button" className="btn btn-signal btn-sm" disabled={!!busy} onClick={() => act(it.id, 'apply')} data-testid="aa2-sug-apply">Apply</button>
+            <button type="button" className="btn btn-outline btn-sm" disabled={!!busy} onClick={() => act(it.id, 'dismiss')}>Not for me</button>
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+const toForm = (r) => ({ ...r, roles: r.roles.join(', '), cities: r.cities.join(', '), avoid: r.avoid.join(', '), minSalary: r.minSalary ? String(r.minSalary / 100000) : '', noticePeriod: r.noticePeriod || '', dailyLimit: String(r.dailyLimit) });
+
+function Rules({ d, onSaved, toast }) {
+  const [f, setF] = useState(() => toForm(d.rules));
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
+  const toggle = (k, v) => setF({ ...f, [k]: f[k].includes(v) ? f[k].filter((x) => x !== v) : [...f[k], v] });
+  const save = async (e) => {
+    e.preventDefault();
+    setBusy(true); setErr('');
+    try {
+      const lakh = String(f.minSalary).trim();
+      const body = { roles: list(f.roles), cities: list(f.cities), remote: f.remote, experience: f.experience, minSalary: lakh ? Math.round(Number(lakh.replace(/[^\d.]/g, '')) * 100000) : null, noticePeriod: f.noticePeriod || null, jobTypes: f.jobTypes, avoid: list(f.avoid), dailyLimit: Number(f.dailyLimit), mode: f.mode };
+      onSaved(await http(`${BASE}/rules`, { method: 'PUT', body })); toast('Rules saved');
+    } catch (x) { setErr(x.message); } finally { setBusy(false); }
+  };
+  const max = d.limits.maxDailyLimit;
+  return (
+    <form className="mcard stack g16" onSubmit={save} aria-labelledby="aa2-rules-h" data-testid="aa2-rules">
+      <h2 id="aa2-rules-h" className="mcard-title">Your rules</h2>
+      <FieldGroup title="What to apply for">
+        <div className="field full"><label className="label" htmlFor="aa2-roles">Roles or skills (comma between)</label><input id="aa2-roles" className="input" value={f.roles} onChange={set('roles')} placeholder="Data Analyst, SQL" /></div>
+        <fieldset className="stack g8 full" style={{ border: 0, margin: 0, padding: 0 }}><legend className="label">Job types (none = any)</legend>
+          <div className="maa-checks">{JOB_TYPES.map((x) => <label key={x}><input type="checkbox" checked={f.jobTypes.includes(x)} onChange={() => toggle('jobTypes', x)} /> {TYPE_LABEL[x] || x}</label>)}</div></fieldset>
+        <fieldset className="stack g8 full" style={{ border: 0, margin: 0, padding: 0 }}><legend className="label">Experience (none = any that fits your resume)</legend>
+          <div className="maa-checks">{EXPERIENCE.map((x) => <label key={x}><input type="checkbox" checked={f.experience.includes(x)} onChange={() => toggle('experience', x)} /> {EXP_LABEL[x] || x}</label>)}</div></fieldset>
+      </FieldGroup>
+      <FieldGroup title="Where and pay">
+        <div className="field full"><label className="label" htmlFor="aa2-cities">Cities (comma between; empty = anywhere)</label><input id="aa2-cities" className="input" value={f.cities} onChange={set('cities')} placeholder="Hyderabad, Pune" /></div>
+        <div className="maa-checks full"><label><input type="checkbox" checked={f.remote} onChange={(e) => setF({ ...f, remote: e.target.checked })} /> Remote jobs too</label></div>
+        <div className="field"><label className="label" htmlFor="aa2-salary">Minimum salary (lakh a year)</label><input id="aa2-salary" className="input" inputMode="decimal" value={f.minSalary} onChange={set('minSalary')} placeholder="3" /></div>
+        <div className="field"><label className="label" htmlFor="aa2-notice">Notice period</label><select id="aa2-notice" className="input" value={f.noticePeriod} onChange={set('noticePeriod')}>{NOTICE.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select></div>
+      </FieldGroup>
+      <FieldGroup title="Limits">
+        <div className="field full"><label className="label" htmlFor="aa2-avoid">Companies to never apply to (comma between)</label><input id="aa2-avoid" className="input" value={f.avoid} onChange={set('avoid')} /></div>
+        <div className="field"><label className="label" htmlFor="aa2-limit">Applications a day (at most {max})</label><input id="aa2-limit" className="input" type="number" min={1} max={max} step={1} value={f.dailyLimit} onChange={set('dailyLimit')} /></div>
+      </FieldGroup>
+      <fieldset className="stack g8" style={{ border: 0, margin: 0, padding: 0 }} data-testid="aa2-modes">
+        <legend className="label">How applications go out</legend>
+        {MODES.map(([v, l, help]) => (
+          <label key={v} className={`aa2-mode ${f.mode === v ? 'on' : ''}`}>
+            <input type="radio" name="aa2-mode" value={v} checked={f.mode === v} onChange={() => setF({ ...f, mode: v })} />
+            <span className="stack g4" style={{ minWidth: 0 }}><strong className="small">{l}{v === 'approve' ? ' (recommended)' : ''}</strong><span className="xs muted">{help}</span></span>
+          </label>
+        ))}
+      </fieldset>
+      <p className="xs muted" style={{ margin: 0 }}>Match {d.thresholds.auto}+ goes to your list; {d.thresholds.suggest}–{d.thresholds.auto - 1} shows in Suggested; lower is skipped. Nm7 never fills in other websites, never asks for your passwords and never uses job boards.</p>
+      {err && <p className="error" role="alert" style={{ margin: 0 }}>{err}</p>}
+      <StickyBar label="Rules"><button type="submit" className="btn btn-signal" disabled={busy} data-testid="aa2-save">Save rules</button></StickyBar>
+    </form>
+  );
+}
+
+function Consent({ d, onSaved, toast }) {
+  const [agree, setAgree] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  const go = async () => {
+    setBusy(true); setErr('');
+    try { onSaved(await http(`${BASE}/consent`, { method: 'POST', body: { agree } })); toast('Auto Apply 2.0 is on'); } catch (x) { setErr(x.message); } finally { setBusy(false); }
+  };
+  return (
+    <section className="mcard mcard-accent stack g12" aria-labelledby="aa2-consent-h" data-testid="aa2-consent">
+      <h2 id="aa2-consent-h" className="mcard-title">Turn on Auto Apply 2.0</h2>
+      {!d.gate.ok && <p className="small" style={{ margin: 0 }}>Your resume scores {d.gate.score ?? 0}; it needs {d.gate.need}. <Link to="/me/auto-apply">See what to fix</Link></p>}
+      {d.rules.roles.length === 0 && <p className="small" style={{ margin: 0 }}>Save your rules first (the Rules tab).</p>}
+      <label className="maa-consent"><input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} data-testid="aa2-agree" /><span>{d.consent.text}</span></label>
+      {err && <p className="error" role="alert" style={{ margin: 0 }}>{err}</p>}
+      <button type="button" className="btn btn-signal" style={{ alignSelf: 'flex-start' }} disabled={busy || !agree} onClick={go} data-testid="aa2-turn-on">Turn on</button>
+    </section>
+  );
+}
+
+export default function AutoApplyV2() {
+  const toast = useToast();
+  const [d, setD] = useState(null);
+  const [missing, setMissing] = useState(false);
+  const [sp, setSp] = useSearchParams();
+  const tab = TABS.some(([k]) => k === sp.get('tab')) ? sp.get('tab') : 'tracker';
+  const [stopAsk, setStopAsk] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const load = useCallback(() => http(BASE).then(setD).catch(() => setMissing(true)), []);
+  useEffect(() => { load(); }, [load]);
+  if (missing) return <Empty title="Not available" testid="aa2-missing" action={<Link to="/me/auto-apply" className="btn btn-outline">Auto Apply</Link>}>This page isn’t open for your account yet.</Empty>;
+  if (!d) return <Skel cards={3} />;
+  const act = async (url, body, msg) => {
+    setBusy(true);
+    try { setD(await http(url, { method: 'POST', body })); toast(msg); setStopAsk(false); } catch (x) { toast(x.message); } finally { setBusy(false); }
+  };
+  const setUp = !!d.consent.at;
+  const badge = { approve: d.counts.approvals, waiting: d.counts.waiting, suggested: d.counts.suggested };
+  return (
+    <div className="stack g16 aa2" data-testid="aa2">
+      <MeHead title="Auto Apply 2.0" sub="Nm7 finds jobs that fit your rules, tailors your resume for each (reorder and rephrase only) and applies the way you choose." />
+      {!d.public && <p className="xs muted" style={{ margin: 0 }} data-testid="aa2-preview">Preview: only testers see this page for now.</p>}
+      {!d.siteOn && <p className="mcard mcard-tight mcard-warn" role="status" style={{ margin: 0 }}>Auto Apply is paused for everyone right now. Nothing is being sent.</p>}
+      {setUp ? (
+        <section className="mcard mcard-tight aa2-status" aria-label="Status" data-testid="aa2-status">
+          <span className="stack g4" style={{ minWidth: 0 }}>
+            <strong data-testid="aa2-state">{d.on ? 'Auto Apply 2.0 is on' : 'Auto Apply 2.0 is paused'}</strong>
+            <span className="xs muted">{MODES.find(([m]) => m === d.rules.mode)?.[1]} · today {d.today.used} of {d.today.limit}</span>
+          </span>
+          <span className="row g8 aa2-actions">
+            <button type="button" className={`btn ${d.on ? 'btn-outline' : 'btn-signal'} btn-sm`} disabled={busy} onClick={() => act(`${BASE}/pause`, { paused: d.on }, d.on ? 'Paused' : 'Resumed')} data-testid="aa2-pause">{d.on ? 'Pause' : 'Resume'}</button>
+            {!stopAsk && <button type="button" className="link-btn small" onClick={() => setStopAsk(true)}>Stop and withdraw consent</button>}
+          </span>
+          {stopAsk && (
+            <div className="row g8 well aa2-wrap" role="alert" style={{ flexWrap: 'wrap', width: '100%' }}>
+              <span className="small">Nothing more will be prepared or sent. Jobs waiting for you are withdrawn; what was already sent stays in the tracker.</span>
+              <button type="button" className="btn btn-signal btn-sm" disabled={busy} onClick={() => act(`${BASE}/stop`, undefined, 'Stopped')} data-testid="aa2-stop">Stop</button>
+              <button type="button" className="link-btn small" onClick={() => setStopAsk(false)}>Cancel</button>
+            </div>
+          )}
+        </section>
+      ) : <Consent d={d} onSaved={setD} toast={toast} />}
+      {d.learning.length > 0 && <p className="xs muted" style={{ margin: 0 }} data-testid="aa2-learning">{d.learning.map((x) => x.text).join(' ')}</p>}
+      <nav className="aa2-tabs" aria-label="Auto Apply 2.0">
+        {TABS.map(([k, l]) => (
+          <button key={k} type="button" className={`aa2-tab ${tab === k ? 'on' : ''}`} aria-current={tab === k ? 'page' : undefined} onClick={() => setSp({ tab: k }, { replace: true })} data-testid={`aa2-tab-${k}`}>
+            {l}{badge[k] ? <span className="aa2-badge">{badge[k]}</span> : null}
+          </button>
+        ))}
+      </nav>
+      {tab === 'tracker' && <Tracker toast={toast} />}
+      {tab === 'approve' && <Approvals toast={toast} onChanged={load} />}
+      {tab === 'waiting' && <Waiting toast={toast} onChanged={load} />}
+      {tab === 'suggested' && <Suggested toast={toast} onChanged={load} />}
+      {tab === 'rules' && <Rules d={d} onSaved={setD} toast={toast} />}
+    </div>
+  );
+}

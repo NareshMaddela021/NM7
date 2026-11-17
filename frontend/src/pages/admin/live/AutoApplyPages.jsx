@@ -35,6 +35,7 @@ export function LiveAutoApply() {
   return (
     <div className="adx adx-aa stack g16">
       <PageHead title="Auto Apply" sub="Every morning Nm7 applies for students within their own rules. Nothing is ever submitted on other websites by a bot." />
+      <V2Admin toast={toast} />
       <Loading st={st}>{(d) => (
         <div className="stack g16">
           <section className="card stack g8 adx-switch" data-on={d.settings.on ? '1' : '0'} aria-label="Off switch" data-testid="aa-switch">
@@ -84,7 +85,7 @@ export function LiveAutoApply() {
           {/* long labels wrap on a phone instead of running off the screen (re-test N5 follow-up) */}
           <section className="card-sm stack g8 adx-demo" aria-label="Demo student" data-testid="aa-demo">
             <strong className="small">Demo student</strong>
-            <span className="xs muted">A made-up student with Auto Apply on and one of each: applied on Nm7, sent by email (recorded, not sent), needs your answer, ready to apply, against the demo company’s jobs. Never public. Opening it signs this browser in as the student (the admin console signs out here: use a private window to keep both).</span>
+            <span className="xs muted">A made-up student (Kavya) with Auto Apply on and one of each: applied on Nm7, sent by email (recorded, not sent), needs your answer, ready to apply, against the demo company’s jobs. Auto Apply 2.0 too: every tracker state, the approval list, waiting questions and suggested jobs (Open Auto Apply 2.0 on her page). Never public. Opening it signs this browser in as the student (the admin console signs out here: use a private window to keep both).</span>
             <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start', maxWidth: '100%', whiteSpace: 'normal', textAlign: 'left', height: 'auto', minHeight: 40 }} disabled={busy} onClick={() => demo()} data-testid="aa-demo-open">Reset and open as student (Auto Apply)</button>
             <span className="xs muted">Easy dashboard: Ravi Kumar (demo) uses the simple dashboard in {raviLang}, with a half-done resume (no project yet), a job readiness score near 60%, the demo company’s jobs and one question waiting. Never public.</span>
             <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start', maxWidth: '100%', whiteSpace: 'normal', textAlign: 'left', height: 'auto', minHeight: 40 }} disabled={busy} onClick={() => demo('/api/admin/simple/demo')} data-testid="aa-demo-simple">Reset and open as student (Easy dashboard, {raviLang})</button>
@@ -172,6 +173,58 @@ function Companies({ toast }) {
           ))}
         </ul>
       )}</Loading>
+    </Panel>
+  );
+}
+
+// Auto Apply 2.0 (A1 "Engine"): its own launch switch (OFF = only admins, demo accounts and the testers below), the
+// match thresholds, the daily limit and its maximum, pricing (free for now) and the numbers. Everything is logged.
+const V2_FIELDS = [
+  ['autoMin', 'Match score that may be applied to automatically', 50, 100], ['suggestMin', '“Suggested for you” from this score', 30, 100],
+  ['dailyLimit', 'New users’ applications a day', 1, 50], ['maxDailyLimit', 'Most a user may choose', 1, 50],
+  ['freePerWeek', 'Free applications a week (0 = no weekly limit)', 0, 500], ['paidLimit', 'Paid plan: applications a week (0 = not set)', 0, 1000],
+];
+
+function V2Admin({ toast }) {
+  const st = useApi('/api/admin/auto-apply/v2');
+  const [busy, run] = useAction(toast);
+  const save = (s, msg) => run(async () => { await http('/api/admin/auto-apply/v2/settings', { method: 'PUT', body: s }); st.reload(); }, msg);
+  return (
+    <Loading st={st}>{(d) => <V2Form key={JSON.stringify(d.settings)} d={d} busy={busy} save={save} />}</Loading>
+  );
+}
+
+function V2Form({ d, busy, save }) {
+  const s = d.settings;
+  const [f, setF] = useState(() => ({ ...Object.fromEntries(V2_FIELDS.map(([k]) => [k, String(s[k] ?? '')])), testers: (s.testers || []).join(', '), paymentsOn: !!s.paymentsOn }));
+  const bad = V2_FIELDS.some(([k, , lo, hi]) => !/^\d+$/.test(f[k]) || Number(f[k]) < lo || Number(f[k]) > hi);
+  const body = (over = {}) => ({ ...s, ...Object.fromEntries(V2_FIELDS.map(([k]) => [k, Number(f[k])])), testers: f.testers.split(/[\s,]+/).filter(Boolean), paymentsOn: f.paymentsOn, ...over });
+  const x = d.stats;
+  return (
+    <Panel title="Auto Apply 2.0">
+      <div className="stack g12" data-testid="aa2-admin">
+        <div className="row g8 adx-switch" data-on={s.public ? '1' : '0'} style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
+          <strong className="small" data-testid="aa2-admin-state">{s.public ? 'Public: every user gets Auto Apply 2.0' : 'Hidden: only admins, demo accounts and the testers below. Real users see nothing new and get no 2.0 email.'}</strong>
+          <button type="button" className={`btn ${s.public ? 'btn-outline' : 'btn-signal'}`} disabled={busy || bad} onClick={() => save(body({ public: !s.public }), s.public ? 'Hidden again' : 'Auto Apply 2.0 is public')} data-testid="aa2-admin-switch">{s.public ? 'Hide again' : 'Make public'}</button>
+        </div>
+        <div className="kpis adx-kpis">
+          <Kpi label="Opted in" value={x.optedIn} sub={`${x.paused} paused`} />
+          <Kpi label="Modes" value={x.modes.approve} sub={`approve each · ${x.modes.full_auto} full auto · ${x.modes.digest} weekly`} />
+          <Kpi label="Sent with 2.0" value={x.applied} sub={`${x.items.waiting_approval || 0} waiting for approval`} />
+          <Kpi label="Tailored versions" value={Object.values(x.versions).reduce((a, b) => a + b, 0)} sub={`${x.versions.ai || 0} AI · ${x.blocked} AI drafts blocked by the truth check`} />
+        </div>
+        <form className="stack g8" onSubmit={(e) => { e.preventDefault(); save(body(), 'Saved'); }} data-testid="aa2-admin-form">
+          {V2_FIELDS.map(([k, label, lo, hi]) => (
+            <label key={k} className="row g8 small" style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>{label}
+              <input className="input" type="number" inputMode="numeric" min={lo} max={hi} step={1} style={{ height: 38, width: 110 }} value={f[k]} onChange={(e) => setF({ ...f, [k]: e.target.value })} data-testid={`aa2-${k}`} /></label>
+          ))}
+          <label className="stack g4 small">Testers (emails, comma between)
+            <textarea className="input" rows={2} style={{ minHeight: 60, maxWidth: '100%' }} value={f.testers} onChange={(e) => setF({ ...f, testers: e.target.value })} data-testid="aa2-testers" /></label>
+          <label className="row g8 small"><input type="checkbox" checked={f.paymentsOn} onChange={(e) => setF({ ...f, paymentsOn: e.target.checked })} /> Payments on (off: free for everyone)</label>
+          {bad && <span className="xs" style={{ color: 'var(--danger)' }}>Each value must be a whole number in its range.</span>}
+          <button type="submit" className="btn btn-signal" style={{ alignSelf: 'flex-start' }} disabled={busy || bad} data-testid="aa2-admin-save">Save Auto Apply 2.0</button>
+        </form>
+      </div>
     </Panel>
   );
 }
