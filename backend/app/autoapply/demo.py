@@ -38,6 +38,14 @@ STUDENT_ID = "d2bf50b5-0549-5733-b21c-d176dff5619e"  # a fixed id (user ids are 
 EMAIL = "kavya.student@demo.nm7.invalid"
 LINK_TTL = timedelta(minutes=5)
 EXTRA_JOBS = ("demo-tech-solutions-job-web", "demo-tech-solutions-job-mail")
+# Auto Apply 2.0 (A1): more demo-only jobs for Kavya's tracker, approval list and "Suggested for you"
+V2_JOBS = (
+    ("demo-tech-solutions-job-approve", "BI Analyst", "nm7", ["SQL", "Power BI"]),
+    ("demo-tech-solutions-job-approve2", "Junior Reporting Analyst", "nm7", ["SQL", "Excel"]),
+    ("demo-tech-solutions-job-sug1", "Data Engineer", "nm7", ["SQL", "Spark", "Airflow", "Kafka"]),
+    ("demo-tech-solutions-job-sug2", "Analytics Engineer", "nm7", ["SQL", "dbt", "Snowflake", "Python"]),
+    ("demo-tech-solutions-job-offer", "Data Analyst (Retail)", "nm7", ["SQL", "Power BI"]),
+)
 
 RESUME = {
     "personal": {
@@ -99,9 +107,10 @@ async def _extra_jobs(db, company: dict[str, Any]) -> list[dict[str, Any]]:
     t = now()
     name = company["details"]["legal_name"]
     out = []
-    for jid, title, method in (
-        (EXTRA_JOBS[0], "Data Engineer Intern", "link"),
-        (EXTRA_JOBS[1], "Reporting Analyst", "email"),
+    for jid, title, method, skills in (
+        (EXTRA_JOBS[0], "Data Engineer Intern", "link", ["SQL", "Power BI"]),
+        (EXTRA_JOBS[1], "Reporting Analyst", "email", ["SQL", "Power BI"]),
+        *V2_JOBS,
     ):
         body = JobIn.model_validate(
             {
@@ -114,7 +123,7 @@ async def _extra_jobs(db, company: dict[str, Any]) -> list[dict[str, Any]]:
                 "workType": "onsite",
                 "jobType": "internship" if "Intern" in title else "full_time",
                 "experience": "fresher",
-                "skills": ["SQL", "Power BI"],
+                "skills": skills,
                 "applyMethod": method,
                 "applyUrl": "https://demotech.demo.nm7.invalid/careers" if method == "link" else "",
                 "applyEmail": "hr@demotech.demo.nm7.invalid" if method == "email" else "",
@@ -149,7 +158,7 @@ async def remove(db) -> None:
     await db[AUTO_COPIES].delete_many({"user_id": STUDENT_ID})
     await db[APPLICATIONS].delete_many({"user_id": STUDENT_ID})
     await db[RESUMES].delete_many({"user_id": STUDENT_ID})
-    await db[JOBS].delete_many({"_id": {"$in": list(EXTRA_JOBS)}})
+    await db[JOBS].delete_many({"_id": {"$in": [*EXTRA_JOBS, *(x[0] for x in V2_JOBS)]}})
     await db[USERS].delete_one({"_id": STUDENT_ID, "demo": True})
 
 
@@ -185,6 +194,10 @@ async def create(db) -> dict[str, Any]:
         "avoid": [],
         "job_types": [],
         "run_day": engine.today(t),
+        # Auto Apply 2.0: opted in, approve each (the default), notice period for ready answers
+        "v2_consent_at": t - timedelta(days=10),
+        "mode": "approve",
+        "notice_period": "30_days",
     }
     await db[USERS].insert_one({**user.to_mongo(), "demo": True, "email_verified_at": t, "auto_apply": a})
     await db[RESUMES].insert_one(
@@ -202,7 +215,7 @@ async def create(db) -> dict[str, Any]:
     u = await db[USERS].find_one({"_id": STUDENT_ID})
     r = await db[RESUMES].find_one({"user_id": STUDENT_ID})
     jobs = {j["_id"]: j async for j in db[JOBS].find({"company_id": company_demo.COMPANY_ID})}
-    web, mail = await _extra_jobs(db, c)
+    web, mail, *v2_jobs = await _extra_jobs(db, c)
     j_apply = jobs.get(f"{company_demo.COMPANY_ID}-job-1")
     j_question = jobs.get(f"{company_demo.COMPANY_ID}-job-2")
 
@@ -296,6 +309,7 @@ async def create(db) -> dict[str, Any]:
             "updated_at": t,
         }
     )
+    await _v2(db, u, r, c, jobs, v2_jobs, t)
     # three demo-college students with Auto Apply on (for the admin numbers)
     n = 0
     async for s in db[USERS].find({"demo": True, "role": "customer", "_id": {"$ne": STUDENT_ID}}, {"_id": 1}).limit(3):
@@ -342,3 +356,60 @@ async def sign_in(body: TokenIn, request: Request, response: Response, db: DB) -
         raise ApiError(400, "link_used", "This demo link has been used or has expired. Open it again from Admin.")
     await start_session(db, request, response, User.model_validate(doc))
     return {"path": doc.get("demo_path") or "/me/auto-apply"}
+
+
+async def _v2(db, u, r, c, jobs, extra, t) -> None:
+    """Kavya in Auto Apply 2.0: every tracker state (Ready, Waiting for you, Applied, Viewed, Replied / Interview,
+    Offer / Rejected / Closed), the morning approval list, waiting questions and "Suggested for you", with the match
+    score parts and a tailored version (rules version: demo never calls the AI) for each."""
+    from app.autoapply import score, tailoring, v2engine
+    from app.jobs import fit as fitmod
+
+    p = fitmod.Person(r)
+    a = u.get("auto_apply") or {}
+    # the earlier items become 2.0 items too
+    async for it in db[AUTO_ITEMS].find({"user_id": STUDENT_ID}):
+        j = await db[JOBS].find_one({"_id": it["job_id"]})
+        if j:
+            parts = score.parts(j, fitmod.fit(j, p), a, 1, None, t)
+            await db[AUTO_ITEMS].update_one({"_id": it["_id"]}, {"$set": v2engine._item_extra(parts, j)})
+    by = {j["_id"]: j for j in extra}
+
+    async def add(j, state, status=None, **more):
+        parts = score.parts(j, fitmod.fit(j, p), a, 1, None, t)
+        copy = await tailoring.build(db, STUDENT_ID, r, j, a, use_ai=False)
+        doc = {"_id": str(ObjectId()), "user_id": STUDENT_ID, "job_id": j["_id"], "company_id": j.get("company_id"),
+               "company": j["company"]["name"], "title": j["title"], "slug": j["slug"], "channel": j["apply"]["method"],
+               "state": state, "copy_id": copy["_id"], "created_at": t, "updated_at": t, "demo": True,
+               **v2engine._item_extra(parts, j), **more}  # fmt: skip
+        if state == "suggested":
+            doc.pop("copy_id")
+        await db[AUTO_ITEMS].insert_one(doc)
+        if status:
+            await db[APPLICATIONS].insert_one({
+                "key": app_key(j["_id"]), "user_id": STUDENT_ID, "company": j["company"]["name"], "role": j["title"],
+                "status": status, "date": int(t.timestamp() * 1000), "resume_id": "r1", "resume_name": copy["name"],
+                "url": job_page(j), "notes": "", "next": None, "job_id": j["_id"], "channel": "nm7",
+                "origin": "auto", "auto_item_id": doc["_id"], "copy_id": copy["_id"], "v2": True, "demo": True,
+                "cover_note": copy.get("cover_note") or [], "answers": {},
+                "timeline": [{"status": "applied", "at": t}, *([{"status": status, "at": t}] if status != "applied"
+                                                              else [])],
+                "created_at": t, "updated_at": t,
+            })  # fmt: skip
+
+    day = engine_today(t)
+    for jid in ("demo-tech-solutions-job-approve", "demo-tech-solutions-job-approve2"):
+        await add(by[jid], "waiting_approval", mode="approve", counted_day=day)
+    for jid in ("demo-tech-solutions-job-sug1", "demo-tech-solutions-job-sug2"):
+        await add(by[jid], "suggested")
+    await add(by["demo-tech-solutions-job-offer"], "applied", status="offer", applied_at=t)
+    for n, status in ((3, "viewed"), (4, "interview"), (5, "rejected")):
+        j = jobs.get(f"{c['_id']}-job-{n}")
+        if j:
+            await add(j, "applied", status=status, applied_at=t)
+
+
+def engine_today(t) -> str:
+    from app.autoapply import engine
+
+    return engine.today(t)

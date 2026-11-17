@@ -122,11 +122,26 @@ def _entries(data: dict[str, Any], key: str, fields: tuple[str, ...]) -> set[str
     }
 
 
+def _leaves(v: Any) -> list[str]:
+    if isinstance(v, str):
+        return [v]
+    if isinstance(v, dict):
+        return [x for y in v.values() for x in _leaves(y)]
+    if isinstance(v, list):
+        return [x for y in v for x in _leaves(y)]
+    return []
+
+
 def doc_problems(new: dict[str, Any], original: dict[str, Any]) -> list[str]:
     """The whole tailored resume against the original: nothing new anywhere (text, skills items, companies, job
     titles, degrees, colleges)."""
     orig_text = facts.resume_text(original)
-    found = problems(facts.resume_text(new), orig_text)
+    # only what changed is read (the resume's own contact details and builder dates are facts already)
+    same = set(_leaves(original))
+    changed = "\n".join(x for x in _leaves(new) if x not in same)
+    found = problems(changed, orig_text) if changed.strip() else []
+    if (new.get("personal") or {}) != (original.get("personal") or {}):
+        found.append("changed contact details")
     have = {s.lower() for s in skill_items(original)}
     for s in skill_items(new):
         if s.lower() not in have:
