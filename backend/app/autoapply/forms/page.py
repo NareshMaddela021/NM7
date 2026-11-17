@@ -25,7 +25,7 @@ LOGIN_URL = re.compile(r"(?:^|[/?&=._-])(log-?in|sign-?in|sign_in|signin|sso|oau
                        r"create-account|account/new)(?:$|[/?&=._-])", re.I)  # fmt: skip
 NEEDS_JS = re.compile(r"enable javascript|javascript (?:is )?(?:required|disabled)|requires javascript|"
                       r"turn on javascript|you need to enable javascript", re.I)  # fmt: skip
-STEP = re.compile(r"\b(?:step|wizard|multi-?step|progress-?bar|stepper)\b", re.I)
+STEP = re.compile(r"\b(?:step|wizard|multi-?step|stepper)\b", re.I)
 NEXT = re.compile(r"^\s*(?:next|continue|proceed|save (?:and|&) continue|next step)\b", re.I)
 PAYMENT = re.compile(r"cc-(?:number|csc|exp)|card.?number|\bcvv\b|\bcvc\b|\bupi\b|payment|\bpay now\b|"
                      r"application fee|razorpay|paytm|stripe", re.I)  # fmt: skip
