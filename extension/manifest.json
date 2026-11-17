@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Nm7 Apply helper",
+  "short_name": "Nm7 Apply",
+  "version": "1.0.0",
+  "description": "Fills a company's job application form from your Nm7 apply kit. You check it and press Submit yourself.",
+  "minimum_chrome_version": "110",
+  "action": {
+    "default_title": "Nm7 Apply helper",
+    "default_popup": "popup.html",
+    "default_icon": { "16": "icons/icon16.png", "32": "icons/icon32.png", "48": "icons/icon48.png", "128": "icons/icon128.png" }
+  },
+  "icons": { "16": "icons/icon16.png", "32": "icons/icon32.png", "48": "icons/icon48.png", "128": "icons/icon128.png" },
+  "background": { "service_worker": "background.js" },
+  "permissions": ["activeTab", "scripting", "storage"],
+  "host_permissions": ["https://nm7.si/*"],
+  "content_security_policy": { "extension_pages": "script-src 'self'; object-src 'self'" }
+}

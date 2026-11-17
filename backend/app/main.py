@@ -24,6 +24,7 @@ from app.autoapply import admin as auto_admin
 from app.autoapply import demo as auto_demo
 from app.autoapply import inbound as auto_inbound
 from app.autoapply import items as auto_items
+from app.autoapply import onetap as auto_onetap
 from app.autoapply import settings as auto_settings
 from app.autoapply import summary as auto_summary
 from app.autoapply import v2 as auto_v2
@@ -153,7 +154,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     await close_client()
 
 
-PRIVATE_PREFIXES = ("/api/me", "/api/auth", "/api/orders", "/api/org", "/api/admin", "/api/expert")
+PRIVATE_PREFIXES = ("/api/me", "/api/auth", "/api/orders", "/api/org", "/api/admin", "/api/expert", "/api/helper")
 
 
 def create_app() -> FastAPI:
@@ -293,6 +294,8 @@ def create_app() -> FastAPI:
     app.include_router(auto_items.router)  # /api/me/auto-apply/items (A2, A3)
     app.include_router(auto_v2.router)  # /api/me/auto-apply/v2 (Auto Apply 2.0, behind its launch switch)
     app.include_router(auto_v2.admin)  # /api/admin/auto-apply/v2
+    app.include_router(auto_onetap.router)  # /api/me/auto-apply/v2/onetap and /helper (A6 one tap, behind the switch)
+    app.include_router(auto_onetap.helper)  # /api/helper: the Nm7 Apply helper (Chrome extension), its own token
     app.include_router(auto_inbound.router)  # /api/webhooks/resend (A3: replies, bounces, complaints)
     app.include_router(auto_inbound.public)  # /api/public/auto-apply/opt-out (A3: the employer's opt-out)
     app.include_router(auto_summary.router)  # /api/me/auto-apply/summary, /emails (A6)

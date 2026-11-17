@@ -626,6 +626,10 @@ async def run(db, mailer=None, force: bool = False, limit: int = PAGE) -> dict[s
             try:
                 if is_v2:
                     await v2engine.run_user(db, got, site, day, counts, mailer)
+                    from app.autoapply import onetap
+
+                    listed = await onetap.morning(db, got, site, day, mailer)  # A6: "N jobs ready" (once a day)
+                    counts["v2_morning_listed"] = counts.get("v2_morning_listed", 0) + listed
                 else:
                     await run_user(db, got, site, day, counts, mailer)
                 if not is_v2 or access.may_mail(got, v2):  # 2.0 while hidden: no email to anyone but testers

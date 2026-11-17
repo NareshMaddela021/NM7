@@ -111,6 +111,10 @@ AUTO_MAIL_EVENTS = "auto_mail_events"  # _id = the webhook's message id: each Re
 ATS_CONNECTIONS = "ats_connections"  # _id = company id: its hiring system (partner, settings, the key encrypted)
 ATS_DELIVERIES = "ats_deliveries"  # one per application sent to a company's hiring system: state, tries, status
 FORM_SITES = "auto_form_sites"  # A5: _id = a company site (host, no www): form / one-tap only, robots, terms, counts
+# Auto Apply 2.0 one-tap (A6)
+AUTO_MORNINGS = "auto_mornings"  # _id = user:day: the morning "N jobs ready" list (items, count, seen, mailed)
+HELPER_CODES = "auto_helper_codes"  # _id = keyed hash of a pairing code for the Nm7 Apply helper: 10 minutes, one use
+HELPER_TOKENS = "auto_helper_tokens"  # one per paired browser: token hash, scope (kits, mark applied), expiry, revoked
 TALENT_POOL = "talent_pool"  # a company's saved applicants (company_id, user_id), kept as long as the application
 JOB_REMOVALS = "job_removals"  # round J: "remove this job" requests from companies (Admin → Jobs → Removal requests)
 JOB_REPORTS = "job_reports"  # _id = user:job: a student's report of a job (3 from different people pause it)
@@ -244,6 +248,9 @@ COLLECTIONS = (
     ATS_CONNECTIONS,
     ATS_DELIVERIES,
     FORM_SITES,
+    AUTO_MORNINGS,
+    HELPER_CODES,
+    HELPER_TOKENS,
     HIRE_PROFILES,
     HIRE_INVITES,
     HIRE_USAGE,
@@ -368,6 +375,12 @@ INDEXES: dict[str, list[IndexModel]] = {
     AUTO_MAIL_EVENTS: [IndexModel("at", expireAfterSeconds=30 * DAY)],
     ATS_CONNECTIONS: [IndexModel("partner")],
     FORM_SITES: [IndexModel([("state", ASCENDING), ("last_tried", DESCENDING)])],
+    AUTO_MORNINGS: [IndexModel([("user_id", ASCENDING), ("day", DESCENDING)])],
+    HELPER_CODES: [IndexModel("user_id"), IndexModel("expires_at", expireAfterSeconds=0)],
+    HELPER_TOKENS: [
+        IndexModel("token_hash", unique=True),
+        IndexModel([("user_id", ASCENDING), ("created_at", DESCENDING)]),
+    ],
     ATS_DELIVERIES: [
         IndexModel("app_id", unique=True),  # one delivery per application, ever
         IndexModel([("state", ASCENDING), ("next_at", ASCENDING)]),
