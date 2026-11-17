@@ -98,3 +98,22 @@
 .sx-lines { border-radius: 20px; background: #fff; }
 .sx-match { background: #efeaff; color: #3f36c9; }
 .sx-note, .sx-offline { border-radius: 16px; }
+
+/* Round W: on a wide screen the Easy dashboard uses the room. Screens with many choices (home tiles, the job list, the
+   lists of more things / what is left) widen to 1200 px and sit in two or three columns; questions and forms keep one
+   readable column (640 px). CSS only: nothing here adds JavaScript to /me/simple. */
+@media (min-width: 1024px) {
+  .sx-top { padding: 8px 24px; }
+  .sx-main:has(> .sx-tiles), .sx-main:has(.sx-job), .sx-main:has(.sx-list) { max-width: 1200px; padding: 28px 24px 72px; }
+  /* home: greeting across the top, the next step and big buttons on the left, the tiles on the right */
+  .sx-main:has(> .sx-tiles) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; column-gap: 28px; }
+  .sx-main:has(> .sx-tiles) > * { grid-column: 1; }
+  .sx-main:has(> .sx-tiles) > .sx-h1, .sx-main:has(> .sx-tiles) > .sx-offline { grid-column: 1 / -1; }
+  .sx-main:has(> .sx-tiles) > .sx-tiles { grid-column: 2; grid-row: 2 / span 6; align-self: start; }
+  /* the job list: cards two to a row (three on a very wide screen); headings and buttons run across */
+  .sx-stack:has(> .sx-job) { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 460px), 1fr)); align-items: stretch; }
+  .sx-stack:has(> .sx-job) > :not(.sx-job) { grid-column: 1 / -1; }
+  .sx-stack:has(> .sx-job) > .sx-big { justify-self: start; width: auto; min-width: min(100%, 420px); }
+  /* lists of choices: two columns */
+  .sx-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); }
+}

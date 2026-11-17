@@ -5,7 +5,8 @@
 .ex-page { padding: 24px 24px 72px; margin: 0 auto; width: 100%; }
 .ex-narrow { max-width: 820px; }
 .ex-mid { max-width: 1100px; }
-.ex-wide { max-width: 1320px; }
+.ex-wide { max-width: none; } /* round W: the expert's lists and numbers fill the screen */
+.ex-page.container-wide.ex-wide { max-width: none; }
 @media (max-width: 560px) { .ex-page { padding: 16px 16px 64px; } }
 
 .ex-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px 18px; }
@@ -24,7 +25,7 @@
 }
 
 /* ---------- shared bits ---------- */
-.ex-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: 12px; }
+.ex-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 12px; } /* auto-fit: the tiles share a wide row */
 .ex-tile { display: flex; flex-direction: column; gap: 4px; padding: 16px 18px; border-radius: 18px; background: rgba(255, 255, 255, .9); border: 1px solid var(--border); box-shadow: var(--shadow-sm); min-width: 0; }
 .ex-tile-l { font-size: 13px; font-weight: 700; color: var(--text2); }
 .ex-tile-v { font-family: var(--font-display); font-weight: 500; font-size: 32px; line-height: 1.05; color: var(--ink); overflow-wrap: anywhere; }

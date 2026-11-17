@@ -1,5 +1,6 @@
 // Small building blocks for the admin console: KPI tiles, charts (inline SVG), tabs, side panel, helpers.
 import { useState } from 'react';
+import SlideOver from '../../components/SlideOver';
 import { inr } from '../../lib/pricing';
 import { savePdf } from '../builder/resumePdf';
 
@@ -42,10 +43,13 @@ export function Tabs({ tabs, value, onChange, label }) {
   );
 }
 
-export function Panel({ title, onClose, children }) {
+/** A panel with onClose (an edit or detail view opened from a list) slides over from the right (round W: the list
+ *  keeps its full width); without onClose it is a card in the page. */
+export function Panel({ title, onClose, children, testid }) {
+  if (onClose) return <SlideOver title={title} onClose={onClose} testid={testid}>{children}</SlideOver>;
   return (
     <aside aria-label={title} className="card stack g16 sticky" style={{ flex: '2 1 380px', maxWidth: 520, top: 88, maxHeight: 'calc(100vh - 110px)', overflow: 'auto', padding: 20 }}>
-      <div className="row between g8"><strong style={{ fontSize: 18 }}>{title}</strong>{onClose && <button type="button" className="btn btn-icon" aria-label="Close panel" onClick={onClose}>✕</button>}</div>
+      <div className="row between g8"><strong style={{ fontSize: 18 }}>{title}</strong></div>
       {children}
     </aside>
   );

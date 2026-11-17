@@ -158,6 +158,15 @@ select.input { appearance: none; -webkit-appearance: none; padding-right: 40px; 
 /* ---------- legal and simple text pages ---------- */
 .legal h2 { font-size: 28px; margin-top: 12px; }
 .legal p, .legal li { color: var(--text2); line-height: 1.7; }
+/* round W: full width, the "On this page" list in a left column on a wide screen, the text at a readable width */
+.legal-page { padding-block: 32px 64px; }
+.legal-body { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; align-items: start; }
+.legal-text { min-width: 0; max-width: 72ch; }
+@media (min-width: 1100px) {
+  .legal-body { grid-template-columns: 280px minmax(0, 72ch); gap: 48px; }
+  .legal-toc { position: sticky; top: 88px; max-height: calc(100dvh - 104px); overflow-y: auto; scrollbar-width: thin; }
+}
+@media (min-width: 1600px) { .legal-body { grid-template-columns: 300px minmax(0, 72ch); justify-content: start; gap: 64px; } }
 
 /* ---------- public jobs, companies, blog: a little more air and the new cards ---------- */
 .job-logo { border-radius: 14px; background: var(--lav); color: var(--accent); }
@@ -229,6 +238,14 @@ select.input { appearance: none; -webkit-appearance: none; padding-right: 40px; 
 .me-side .admin-link:hover, .dialog .me-group .admin-link:hover { background: var(--lav); color: var(--text); }
 .me-side .admin-link.active, .dialog .me-group .admin-link.active { background: #efeaff; color: #3f36c9; }
 .dialog .me-group-h { padding-left: 10px; }
+/* round W: the /me frame is components/AppShell — the side menu runs the full height beside the page instead of a card */
+.app-side.me-side { max-height: none; border-radius: 0; box-shadow: none; border: 0; border-right: 1px solid var(--border); padding: 10px 10px 16px; gap: 2px; }
+.app-side.me-side .app-side-foot { padding: 8px 10px 0; border-top: 1px solid var(--border); }
+.me-shell[data-collapsed="true"] .me-group-h { display: none; }
+@media (max-width: 900px) {
+  .app-shell.me-shell { grid-template-columns: minmax(0, 1fr); }
+  .me-shell .app-main { padding-bottom: 96px; }
+}
 
 /* a dashboard page's header: title, line, buttons, and a small dotted shape in the section's tint (desktop) */
 .me-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px 16px; padding: 4px 0 2px; }

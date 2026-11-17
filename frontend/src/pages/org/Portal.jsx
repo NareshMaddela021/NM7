@@ -37,8 +37,9 @@ TINTS.college = SHAPE_COLORS.college; // colleges: teal (round P, Phase 4)
 
 const ROLE = { owner: 'Owner', coordinator: 'Coordinator', viewer: 'Viewer (view and print)', reviewer: 'Reviewer', admin: 'Nm7 admin' };
 
+/** wide: the portal with its side menu fills the screen (round W: 24 px sides, 16 px on a phone). */
 function Frame({ children, wide }) {
-  return (<><Header variant="me" /><main id="main" className={`${wide ? 'container-wide' : 'container'} stack g20`} style={{ padding: '24px 16px 72px', maxWidth: wide ? undefined : 720 }}>{children}</main></>);
+  return (<><Header variant="me" /><main id="main" className={`${wide ? 'app-wide og-wide' : 'container'} stack g20`} style={wide ? { paddingBlock: '20px 72px' } : { padding: '24px 16px 72px', maxWidth: 720 }}>{children}</main></>);
 }
 
 /** /org: the organization(s) this account helps run. */

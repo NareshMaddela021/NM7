@@ -2,6 +2,14 @@
 import { expect, test } from '@playwright/test';
 import { API, PASSWORD, adminLogin, email, emailsTo, login, seed } from './helpers.mjs';
 
+/** Admin edit / detail panels slide over the list (a dialog): close one, if open, before using the menu. */
+async function closePanel(page) {
+  if (await page.getByRole('dialog').count()) {
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+  }
+}
+
 test('admin console shows real data (no samples), and every action is saved and logged', async ({ page, browser }) => {
   const owner = email('owner');
   const { secret } = seed('admin', owner, 'owner', PASSWORD);
@@ -35,6 +43,7 @@ test('admin console shows real data (no samples), and every action is saved and 
   await page.getByRole('button', { name: 'Approve without test' }).click();
   await expect(page.getByText('Approved', { exact: true }).first()).toBeVisible();
   expect(emailsTo(ex).some((m) => m.includes('approved'))).toBe(true);
+  await closePanel(page); // the expert panel slides over the list: close it before using the menu
 
   // offer the paid order to the expert
   await page.getByRole('link', { name: 'Orders' }).click();
@@ -44,6 +53,7 @@ test('admin console shows real data (no samples), and every action is saved and 
   await expect(page.getByText('Offered to the expert')).toBeVisible();
 
   // change a price; the public price list follows
+  await closePanel(page);
   await page.getByRole('link', { name: 'Settings & prices' }).click();
   await page.getByLabel('Expert rewrite price in rupees').fill('899');
   await page.getByRole('button', { name: 'Save settings' }).click();
@@ -60,6 +70,7 @@ test('admin console shows real data (no samples), and every action is saved and 
   await cp.getByLabel('What happened?').fill('Where is my expert? I paid yesterday.');
   await cp.getByRole('button', { name: 'Send to support' }).click();
   await expect(cp.getByText(/Sent — our team replies/)).toBeVisible();
+  await closePanel(page);
   await page.getByRole('link', { name: 'Customers & support' }).click();
   await page.getByRole('tab', { name: 'Support tickets' }).click();
   await page.getByLabel('Reply (emailed to the customer)').fill('Your expert Ravi has the order now.');
@@ -71,6 +82,7 @@ test('admin console shows real data (no samples), and every action is saved and 
   await c.close();
 
   // audit log lists what we did
+  await closePanel(page);
   await page.getByRole('link', { name: 'Team & audit log' }).click();
   for (const action of ['expert.approve', 'order.assigned', 'settings.changed', 'ticket.replied']) {
     await expect(page.getByRole('cell', { name: action, exact: true })).toBeVisible();

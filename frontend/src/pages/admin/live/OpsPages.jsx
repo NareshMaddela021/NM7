@@ -8,6 +8,7 @@ import { Chip } from '../../me/kit';
 import '../../../styles/me-kit.css';
 import '../../../styles/admin-ops.css';
 import { Loading, STATUS_LABEL, day, emptyIf, http, rupees, tone, useAction, useApi, when } from './common';
+import { SortTh, useSort } from './sort';
 import { aiDetail } from './aiUsageText';
 import { HomeClicks, OrgRevenue } from './BillingPages';
 import { liveParams } from '../../../lib/liveParams';
@@ -154,8 +155,25 @@ export function LiveOrders() {
         <div className="ops-split-main">
           <Loading st={st} failText={params.get('q') ? SEARCH_FAIL : undefined} empty={emptyIf((d) => !d.items.length, status || late || params.get('q') ? 'No orders match.' : 'No orders yet. Paid orders appear here.')}>{(d) => (
             <div className="card table-wrap ops-table" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns">
-              <table className="table mtable"><thead><tr><th>Order</th><th>Customer</th><th>Plan</th><th>Status</th><th>Deadline</th><th>Amount</th></tr></thead>
-                <tbody>{d.items.map((o) => (
+              <OrdersTable items={d.items} open={open} setOpen={setOpen} />
+              <div className="ops-foot">{d.total} order(s)</div>
+            </div>
+          )}</Loading>
+        </div>
+        {open && <OrderPanel id={open} onClose={() => setOpen(null)} onChanged={st.reload} />}
+      </div>
+    </>
+  );
+}
+
+const ORDER_SORT = { id: (o) => o.id, customer: (o) => o.customer.name, plan: (o) => o.planName, status: (o) => (o.late ? 'Late' : STATUS_LABEL[o.status] || o.status), deadline: (o) => o.hoursLeft, amount: (o) => o.amount };
+
+function OrdersTable({ items, open, setOpen }) {
+  const { rows, sort, onSort } = useSort(items, ORDER_SORT);
+  const th = (k, l) => <SortTh k={k} sort={sort} onSort={onSort}>{l}</SortTh>;
+  return (
+              <table className="table mtable"><thead><tr>{th('id', 'Order')}{th('customer', 'Customer')}{th('plan', 'Plan')}{th('status', 'Status')}{th('deadline', 'Deadline')}{th('amount', 'Amount')}</tr></thead>
+                <tbody>{rows.map((o) => (
                   <tr key={o.id} onClick={() => setOpen(o.id)} className={`clickable ${open === o.id ? 'on' : ''}`}>
                     <td className="ops-mono" data-label="Order"><button type="button" className="link-btn small" onClick={() => setOpen(o.id)}>{o.id}</button></td>
                     <td className="small" data-label="Customer"><span>{o.customer.name}<span className="ops-sub">{o.customer.email}</span></span></td>
@@ -165,13 +183,6 @@ export function LiveOrders() {
                     <td className="small" data-label="Amount"><strong>{rupees(o.amount)}</strong></td>
                   </tr>
                 ))}</tbody></table>
-              <div className="ops-foot">{d.total} order(s)</div>
-            </div>
-          )}</Loading>
-        </div>
-        {open && <OrderPanel id={open} onClose={() => setOpen(null)} onChanged={st.reload} />}
-      </div>
-    </>
   );
 }
 
@@ -281,23 +292,7 @@ export function LivePayments() {
       {tab === 'payments' && (
         <Loading st={pays} empty={emptyIf((d) => !d.items.length, 'No payments yet. Payments stay off until the Razorpay keys are added.')}>{(d) => (
           <div className="card table-wrap ops-table" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns">
-            <table className="table mtable" data-testid="payments-table"><thead><tr><th>When</th><th>Order</th><th>Customer</th><th>Amount</th><th>Razorpay payment ID</th><th>Method</th><th>Status</th><th>Fee (GST)</th><th>Refunded</th><th>Source</th><th>Reference</th><th><span className="sr-only">Actions</span></th></tr></thead>
-              <tbody>{d.items.map((p) => (
-                <tr key={p.id} data-testid="payment-row">
-                  <td className="small" data-label="When">{when(p.createdAt)}</td>
-                  <td className="ops-mono" data-label="Order">{p.orderId || <span style={{ color: 'var(--danger)' }}>no order</span>}</td>
-                  <td className="small" data-label="Customer">{p.customerName || '—'}</td>
-                  <td className="small" data-label="Amount"><strong>{rupees(p.amount)}</strong></td>
-                  <td className="ops-mono small" data-label="Razorpay payment ID">{p.razorpayPaymentId || '—'}</td>
-                  <td className="small" data-label="Method">{p.method || '—'}</td>
-                  <td data-label="Status"><Chip tone={p.status === 'captured' ? 'ok' : p.status === 'failed' ? 'bad' : 'neutral'}>{p.status}</Chip></td>
-                  <td className="small" data-label="Fee (GST)">{p.fee == null ? '—' : <span>{rupeesExact(p.fee)}{p.tax != null && <span className="ops-sub">GST {rupeesExact(p.tax)}</span>}</span>}</td>
-                  <td className="small" data-label="Refunded">{p.refunded ? <span>{rupees(p.refunded)}{p.refundStatus && <span className="ops-sub">{p.refundStatus}</span>}</span> : p.refundStatus ? <span className="ops-sub">{p.refundStatus}</span> : '—'}</td>
-                  <td className="small" data-label="Source">{SOURCE[p.source] || p.source || 'Razorpay'}</td>
-                  <td className="ops-mono small" data-label="Reference">{p.reference || '—'}</td>
-                  <td>{refundable(p) && <button type="button" className="btn btn-outline" style={{ minHeight: 44 }} onClick={() => setRefund(p)}>Refund via Razorpay</button>}</td>
-                </tr>
-              ))}</tbody></table>
+            <PaymentsTable items={d.items} onRefund={setRefund} />
             <div className="ops-foot">{d.total} payment(s). Fees are Razorpay’s, GST on the fee included.</div>
           </div>
         )}</Loading>
@@ -316,6 +311,32 @@ export function LivePayments() {
       {tab === 'check' && <DailyCheck />}
       {tab === 'payouts' && <div className="well small muted" style={{ padding: 24 }}>No expert payouts yet. Payouts are paid by bank/UPI transfer after delivered orders are approved; they will be listed here once experts start completing orders.</div>}
     </>
+  );
+}
+
+const PAY_SORT = { when: (p) => p.createdAt, order: (p) => p.orderId, customer: (p) => p.customerName, amount: (p) => p.amount, method: (p) => p.method, status: (p) => p.status, fee: (p) => p.fee, refunded: (p) => p.refunded, source: (p) => SOURCE[p.source] || p.source };
+
+function PaymentsTable({ items, onRefund }) {
+  const { rows, sort, onSort } = useSort(items, PAY_SORT);
+  const th = (k, l) => <SortTh k={k} sort={sort} onSort={onSort}>{l}</SortTh>;
+  return (
+            <table className="table mtable" data-testid="payments-table"><thead><tr>{th('when', 'When')}{th('order', 'Order')}{th('customer', 'Customer')}{th('amount', 'Amount')}<th scope="col">Razorpay payment ID</th>{th('method', 'Method')}{th('status', 'Status')}{th('fee', 'Fee (GST)')}{th('refunded', 'Refunded')}{th('source', 'Source')}<th scope="col">Reference</th><th scope="col"><span className="sr-only">Actions</span></th></tr></thead>
+              <tbody>{rows.map((p) => (
+                <tr key={p.id} data-testid="payment-row">
+                  <td className="small" data-label="When">{when(p.createdAt)}</td>
+                  <td className="ops-mono" data-label="Order">{p.orderId || <span style={{ color: 'var(--danger)' }}>no order</span>}</td>
+                  <td className="small" data-label="Customer">{p.customerName || '—'}</td>
+                  <td className="small" data-label="Amount"><strong>{rupees(p.amount)}</strong></td>
+                  <td className="ops-mono small" data-label="Razorpay payment ID">{p.razorpayPaymentId || '—'}</td>
+                  <td className="small" data-label="Method">{p.method || '—'}</td>
+                  <td data-label="Status"><Chip tone={p.status === 'captured' ? 'ok' : p.status === 'failed' ? 'bad' : 'neutral'}>{p.status}</Chip></td>
+                  <td className="small" data-label="Fee (GST)">{p.fee == null ? '—' : <span>{rupeesExact(p.fee)}{p.tax != null && <span className="ops-sub">GST {rupeesExact(p.tax)}</span>}</span>}</td>
+                  <td className="small" data-label="Refunded">{p.refunded ? <span>{rupees(p.refunded)}{p.refundStatus && <span className="ops-sub">{p.refundStatus}</span>}</span> : p.refundStatus ? <span className="ops-sub">{p.refundStatus}</span> : '—'}</td>
+                  <td className="small" data-label="Source">{SOURCE[p.source] || p.source || 'Razorpay'}</td>
+                  <td className="ops-mono small" data-label="Reference">{p.reference || '—'}</td>
+                  <td>{refundable(p) && <button type="button" className="btn btn-outline" style={{ minHeight: 44 }} onClick={() => onRefund(p)}>Refund via Razorpay</button>}</td>
+                </tr>
+              ))}</tbody></table>
   );
 }
 

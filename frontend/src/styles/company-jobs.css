@@ -59,6 +59,8 @@
 @media (max-width: 640px) { .ca-view { width: 100%; } .ca-view button { flex: 1; min-height: 44px; } }
 
 .ca-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+/* round W: on a wide screen applicants sit two (or three) to a row */
+@media (min-width: 1280px) { .ca-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 520px), 1fr)); align-items: start; } }
 .mcard.ca-card { gap: 12px; }
 .ca-card.is-picked { border-color: #93b4f8; box-shadow: 0 0 0 3px #dbe6ff, 0 12px 32px -18px rgba(29, 78, 216, .4); }
 .ca-head { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 8px 12px; }

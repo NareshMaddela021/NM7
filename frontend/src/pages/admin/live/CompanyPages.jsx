@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { useToast } from '../../../components/ui';
 import { PageHead, Panel, Tabs } from '../AdminUI';
 import { Loading, day, emptyIf, http, useAction, useApi } from './common';
+import { SortTh, useSort } from './sort';
 import { keepAccount } from '../../../lib/recruiterPortal';
 import { plainWords } from '../../../lib/company';
 import '../../../styles/me-kit.css';
@@ -43,25 +44,45 @@ export function LiveCompanies() {
       <DemoCompany onChanged={() => st.reload()} />
       <SupplyMap />
       <Loading st={st} empty={emptyIf((d) => !d.items.length, 'No companies here.')}>{(d) => (
-        <ul className="stack g12" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-          {d.items.map((c) => (
-            <li key={c.id} className="card stack g8 adx-row" data-status={c.trust} data-testid="admin-company">
-              <div className="row g8 adx-row-head" style={{ justifyContent: 'space-between' }}>
-                <span className="row g8" style={{ minWidth: 0, flexWrap: 'nowrap' }}><span className="mavatar adx-av" aria-hidden="true">{(c.details.legalName || '?').trim().charAt(0).toUpperCase()}</span><strong className="adx-title" style={{ overflowWrap: 'anywhere' }}>{c.details.legalName}</strong></span>
-                <span className={`badge ${TRUST[c.trust]?.[1]}`}>{TRUST[c.trust]?.[0]}</span>
-              </div>
-              <span className="small muted" style={{ overflowWrap: 'anywhere' }}>{c.kind === 'individual' ? 'Individual recruiter' : c.details.website} · {c.adminEmail} · signed up {day(c.createdAt)}</span>
-              {c.flags.length > 0 ? (
-                <ul className="stack g4" style={{ margin: 0, paddingLeft: 18 }} data-testid="company-flags">
-                  {c.flags.map((f, i) => <li key={i} className="small" style={{ color: 'var(--warning)' }}>⚠ {f.text}</li>)}
-                </ul>
-              ) : <span className="small" style={{ color: 'var(--success)' }}>No warnings</span>}
-              <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} onClick={() => setOpen(c.id)}>Review</button>
-            </li>
-          ))}
-        </ul>
+        <CompanyTable items={d.items} onOpen={setOpen} />
       )}</Loading>
       {open && <CompanyReview id={open} onClose={() => setOpen(null)} onChanged={() => st.reload()} />}
+    </div>
+  );
+}
+
+const CO_SORT = { name: (c) => c.details.legalName, joined: (c) => c.createdAt, flags: (c) => c.flags.length, trust: (c) => TRUST[c.trust]?.[0] };
+
+/** Round W: companies as a sortable table on a wide screen, cards on a phone. */
+function CompanyTable({ items, onOpen }) {
+  const { rows, sort, onSort } = useSort(items, CO_SORT);
+  return (
+    <div className="table-wrap mtable-wrap adx-table" tabIndex={0} role="region" aria-label="Companies — scroll sideways to see all columns">
+      <table className="table mtable" aria-label="Companies">
+        <thead><tr>
+          <SortTh k="name" sort={sort} onSort={onSort}>Company</SortTh>
+          <SortTh k="flags" sort={sort} onSort={onSort}>Warnings</SortTh>
+          <SortTh k="joined" sort={sort} onSort={onSort}>Signed up</SortTh>
+          <SortTh k="trust" sort={sort} onSort={onSort}>Trust</SortTh>
+          <th scope="col"><span className="sr-only">Actions</span></th>
+        </tr></thead>
+        <tbody>{rows.map((c) => (
+          <tr key={c.id} className="adx-row" data-status={c.trust} data-testid="admin-company">
+            <td className="adx-cell-job">
+              <span className="row g8" style={{ minWidth: 0, flexWrap: 'nowrap' }}><span className="mavatar adx-av" aria-hidden="true">{(c.details.legalName || '?').trim().charAt(0).toUpperCase()}</span><strong className="adx-title" style={{ overflowWrap: 'anywhere' }}>{c.details.legalName}</strong></span>
+              <span className="xs muted" style={{ display: 'block', overflowWrap: 'anywhere', marginTop: 4 }}>{c.kind === 'individual' ? 'Individual recruiter' : c.details.website} · {c.adminEmail}</span>
+            </td>
+            <td data-label="Warnings">{c.flags.length > 0 ? (
+              <ul className="stack g4" style={{ margin: 0, paddingLeft: 18 }} data-testid="company-flags">
+                {c.flags.map((f, i) => <li key={i} className="small" style={{ color: 'var(--warning)' }}>⚠ {f.text}</li>)}
+              </ul>
+            ) : <span className="small" style={{ color: 'var(--success)' }}>No warnings</span>}</td>
+            <td className="xs muted" data-label="Signed up">{day(c.createdAt)}</td>
+            <td data-label="Trust"><span className={`badge ${TRUST[c.trust]?.[1]}`}>{TRUST[c.trust]?.[0]}</span></td>
+            <td><button type="button" className="btn btn-outline btn-sm" onClick={() => onOpen(c.id)}>Review</button></td>
+          </tr>
+        ))}</tbody>
+      </table>
     </div>
   );
 }

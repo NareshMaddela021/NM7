@@ -49,9 +49,9 @@ export default function Salaries() {
   return (
     <>
       <Header labels={headerLabels(t)} lang={lang} />
-      <main id="main" className="container stack g16" style={{ maxWidth: 900, padding: '24px 16px 64px' }} data-testid="salaries">
+      <main id="main" className="app-wide stack g16 sal-page" data-testid="salaries">
         <h1 className="display" style={{ fontSize: 30 }}>{t('sal.title')}</h1>
-        <p className="small muted" style={{ margin: 0 }}>{t('sal.intro', { n: d?.minJobs ?? 20, days: d?.days ?? 90 })}</p>
+        <p className="small muted" style={{ margin: 0, maxWidth: '72ch' }}>{t('sal.intro', { n: d?.minJobs ?? 20, days: d?.days ?? 90 })}</p>
         <form className="row g8" style={{ flexWrap: 'wrap' }} onSubmit={(e) => { e.preventDefault(); setAsked(city.trim()); }}>
           <label className="row g8 small">{t('sal.city')}<input className="input" style={{ height: 38, width: 180 }} maxLength={60} value={city} onChange={(e) => setCity(e.target.value)} placeholder="Hyderabad" data-testid="sal-city" /></label>
           <button type="submit" className="btn btn-outline btn-sm" data-testid="sal-go">{t('sal.show')}</button>
@@ -62,7 +62,7 @@ export default function Salaries() {
         {role && <Link to="/salaries" className="small" data-testid="sal-all-roles">{t('sal.allRoles')}</Link>}
         {d && role && !one && <p className="small" data-testid="sal-no-role">{t('sal.noRole')}</p>}
         {d && (
-          <ul className="stack g8" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+          <ul className="sal-list">
             {rows.map((r) => (
               <li key={r.id} className="card-sm stack g4" data-testid="sal-role">
                 <strong>{role ? r.title : <Link to={`/salaries/${r.id}`}>{r.title}</Link>} <span className="xs muted">· {r.domain}</span></strong>

@@ -23,6 +23,10 @@ p { margin: 0; }
 /* ---------- layout ---------- */
 .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
 .container-wide { max-width: 1440px; margin: 0 auto; padding: 0 24px; }
+/* round W: signed-in app pages fill the screen (no max-width): 24 px sides on a desktop, 16 px on a phone. The home page and
+   the public pages keep .container / .container-wide; the app frame with a side menu is components/AppShell. */
+.app-wide { width: 100%; max-width: none; margin: 0; padding-inline: 24px; }
+@media (max-width: 600px) { .app-wide { padding-inline: 16px; } }
 .stack { display: flex; flex-direction: column; }
 .row { display: flex; flex-wrap: wrap; align-items: center; }
 .between { justify-content: space-between; }
@@ -384,6 +388,25 @@ mark.fact { background: color-mix(in srgb, var(--signal) 38%, transparent); colo
 .blog-cta span { font-size: 14px; color: var(--text2); }
 .blog-related { display: flex; flex-direction: column; gap: 16px; }
 .blog-related h2 { font-size: 24px; margin: 0; }
+/* round W: the blog fills the screen (24 px sides); a post keeps a readable text column (about 72 characters) with
+   "On this page" on the left (1200 px and up, when the post has headings) and the scan box on the right */
+.container.blog { max-width: none; }
+.blog-article { max-width: min(760px, 100%); }
+.blog-content { max-width: 72ch; }
+.blog-toc { display: none; }
+.blog-content :is(h2, h3) { scroll-margin-top: 96px; }
+@media (min-width: 1200px) {
+  .blog-layout { grid-template-columns: minmax(0, 1fr) 300px; gap: 48px; }
+  .blog-layout .blog-article { justify-self: center; width: 100%; }
+  .blog-layout.has-toc { grid-template-columns: 240px minmax(0, 1fr) 300px; }
+  .blog-toc { position: sticky; top: 96px; display: flex; flex-direction: column; gap: 24px; max-height: calc(100dvh - 120px); overflow-y: auto; scrollbar-width: thin; font-size: 14px; }
+  .blog-toc-list { display: flex; flex-direction: column; gap: 2px; padding: 4px 0 4px 14px; border-left: 2px solid var(--border); }
+  .blog-toc-h { font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--text3); padding-bottom: 6px; }
+  .blog-toc a { display: block; padding: 5px 0; min-height: 24px; color: var(--text2); text-decoration: none; line-height: 1.35; }
+  .blog-toc a[data-sub] { padding-left: 12px; font-size: 13px; }
+  .blog-toc a:hover, .blog-toc a:focus-visible { color: var(--text); text-decoration: underline; }
+}
+@media (min-width: 1600px) { .blog-grid { grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); } }
 @media (max-width: 860px) {
   .blog-layout { grid-template-columns: minmax(0, 1fr); }
   /* phones: the scan button sits at the bottom of the screen */
@@ -479,6 +502,38 @@ mark.fact { background: color-mix(in srgb, var(--signal) 38%, transparent); colo
 .job-description { white-space: pre-line; overflow-wrap: anywhere; line-height: 1.6; }
 .job-match { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin-top: 4px; }
 .app-steps { margin: 2px 0 0; padding-left: 16px; color: var(--text2); }
+/* round W: the board fills the screen. Phones and tablets: search and filters above the list (as before). From 1024 px:
+   the filters in a left column that stays in view, the list fills the rest. From 1600 px: a preview pane on the right
+   shows the picked job (Jobs.jsx JobPreview). */
+.jobs-page.jobs-board { max-width: none; padding: 24px 24px 64px; }
+@media (max-width: 600px) { .jobs-page.jobs-board { padding-inline: 16px; } }
+.jobs-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; align-items: start; }
+.jobs-results { min-width: 0; }
+.job-card.is-picked { border-color: var(--accent); box-shadow: 0 0 0 3px #e4ddff; }
+.jobs-preview { display: none; }
+@media (min-width: 1024px) {
+  .jobs-layout { grid-template-columns: 300px minmax(0, 1fr); gap: 24px; }
+  .jobs-layout.no-filters { grid-template-columns: minmax(0, 1fr); }
+  .jobs-side { position: sticky; top: 88px; max-height: calc(100dvh - 104px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+  .jobs-side .jobs-filters { grid-template-columns: minmax(0, 1fr); }
+  .jobs-side > .row:first-child { flex-wrap: wrap !important; }
+  .jobs-side > .row:first-child .field { flex: 1 1 100% !important; }
+  .jobs-side > .row:first-child .btn { width: 100%; }
+}
+@media (min-width: 1280px) {
+  /* the list: two cards to a row when there is room (no preview pane) */
+  .jobs-layout:not(.has-preview) [data-testid="jobs-list"] { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 440px), 1fr)); align-items: stretch; }
+}
+@media (min-width: 1600px) {
+  .jobs-layout.has-preview { grid-template-columns: 300px minmax(0, 1fr) minmax(0, min(640px, 38vw)); }
+  .jobs-layout.has-preview.no-filters { grid-template-columns: minmax(0, 1fr) minmax(0, min(720px, 44vw)); }
+  .jobs-preview { display: block; position: sticky; top: 88px; max-height: calc(100dvh - 104px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; min-width: 0; }
+  .job-detail-preview .jobs-h1 { font-size: 28px; outline: none; }
+}
+
+/* ---------- the salary guide (/salaries): round W, full width; the roles in a grid of cards (one column on a phone) ---------- */
+.sal-page { padding-block: 24px 64px; }
+.sal-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 12px; align-items: start; }
 
 /* ---------- company sign-up and account (/for-companies, /company) ---------- */
 .co-page { max-width: 820px; padding: 24px 16px 64px; }
