@@ -545,6 +545,7 @@ function ReviewQueue({ reasons, onChanged }) {
       )}
       <Loading st={st} empty={emptyIf((d) => !d.items.length, 'Nothing waiting here.')}>{(d) => (
         <>
+          <label className="row g8 small rq-pageall"><input type="checkbox" checked={pageAll || everything} onChange={togglePage} />Select all on this page ({d.items.length})</label>
           {pageAll && d.total > d.items.length && !everything && (
             <div className="well small row g8" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
               All {d.items.length} on this page are selected.
@@ -554,7 +555,7 @@ function ReviewQueue({ reasons, onChanged }) {
           <div className="table-wrap mtable-wrap adx-table" tabIndex={0} role="region" aria-label="Waiting jobs — scroll sideways to see all columns">
             <table className="table mtable" aria-label="Waiting jobs">
               <thead><tr>
-                <th scope="col" style={{ width: 44 }}><input type="checkbox" aria-label="Select all on this page" checked={pageAll} onChange={togglePage} /></th>
+                <th scope="col" style={{ width: 44 }}><span className="sr-only">Select</span></th>
                 <SortTh k="title" sort={sort} onSort={onSort}>Job</SortTh>
                 <SortTh k="company" sort={sort} onSort={onSort}>Company</SortTh>
                 <SortTh k="city" sort={sort} onSort={onSort}>City found</SortTh>

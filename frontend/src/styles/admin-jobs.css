@@ -117,3 +117,4 @@
   .adx-table tr.adx-row::before { background: var(--row-c); }
   .adx-table td.adx-cell-job, .adx-table td.adx-cell-actions { display: block; }
 }
+@media (min-width: 641px) { .adx-table td[data-label="Posted"], .adx-table td[data-label="Signed up"] { white-space: nowrap; } }
