@@ -441,7 +441,7 @@ function Rules({ d, onSaved, toast }) {
           </label>
         ))}
       </fieldset>
-      <p className="xs muted" style={{ margin: 0 }}>Match {d.thresholds.auto}+ goes to your list; {d.thresholds.suggest}–{d.thresholds.auto - 1} shows in Suggested; lower is skipped. Nm7 never fills in other websites, never asks for your passwords and never uses job boards.</p>
+      <p className="xs muted" style={{ margin: 0 }}>Match {d.thresholds.auto}+ goes to your list; {d.thresholds.suggest}–{d.thresholds.auto - 1} shows in Suggested; lower is skipped. Nm7 only fills simple forms on a company’s own website (never a CAPTCHA, a sign-in or an account), never asks for your passwords and never uses job boards.</p>
       {err && <p className="error" role="alert" style={{ margin: 0 }}>{err}</p>}
       <StickyBar label="Rules"><button type="submit" className="btn btn-signal" disabled={busy} data-testid="aa2-save">Save rules</button></StickyBar>
     </form>

@@ -111,9 +111,10 @@ async def test_demo_student(client, outbox, db, admin_client, make_client):
     me = (await browser.get("/api/auth/me")).json()
     assert me["name"] == "Kavya Reddy (demo)" and me["role"] == "customer"
     items = (await browser.get(f"{URL}/items")).json()
-    # Auto Apply 2.0 adds 4 applied in later tracker states (viewed, interview, offer, rejected) and 2 to approve
+    # Auto Apply 2.0 adds 4 applied in later tracker states (viewed, interview, offer, rejected) and 2 to approve;
+    # A5 adds 1 applied through a company form (channel "link")
     assert len(items["needsAnswer"]) == 1 and len(items["ready"]) == 1 and len(items["applied"]) == 7
-    assert len(items["waiting"]) == 2 and {x["channel"] for x in items["applied"]} == {"nm7", "email", "link"}  # A5: one by the company form
+    assert len(items["waiting"]) == 2 and {x["channel"] for x in items["applied"]} == {"nm7", "email", "link"}
     st = (await browser.get("/api/me/state")).json()["apps"]
     assert any(a.get("sentEmail") for a in st) and all(a.get("origin") == "auto" for a in st)
     # demo jobs are never public, and demo students never run

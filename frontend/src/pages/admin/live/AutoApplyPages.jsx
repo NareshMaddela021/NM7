@@ -34,7 +34,7 @@ export function LiveAutoApply() {
   const demo = (url = '/api/admin/auto-apply/demo', body) => run(async () => { const r = await http(url, { method: 'POST', body }); window.location.assign(r.path); });
   return (
     <div className="adx adx-aa stack g16">
-      <PageHead title="Auto Apply" sub="Every morning Nm7 applies for students within their own rules. Nothing is ever submitted on other websites by a bot." />
+      <PageHead title="Auto Apply" sub="Every morning Nm7 applies for students within their own rules. Only Auto Apply 2.0 sends simple forms, and only on companies’ own sites (see “company form sites”); never a CAPTCHA, a login or a job board." />
       <V2Admin toast={toast} />
       <EmailHealth toast={toast} />
       <PartnerHealth />

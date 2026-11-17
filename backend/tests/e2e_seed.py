@@ -20,6 +20,10 @@ MONGODB_DB=nm7_e2e uv run python -m tests.e2e_seed reset
 ... aa2-email-reply EMAIL FROM TEXT    → A3: a company's reply to that tester's apply address, as Resend's webhook
                                           would deliver it (the forward to the candidate captured)
 ... aa2-optout-token ADDRESS           → A3: the signed opt-out token a real (not test) Auto Apply email carries
+... aa5-form-run EMAIL COMPANY_ID TAG  → A5: two jobs on that company's own (fake) site, one simple form and one with a
+                                          CAPTCHA, then that tester's run and the form pass, every request answered
+                                          by a fake site in this process (nothing leaves it): {"states": {...}}
+... aa5-site SITE STATE REASON         → A5: a company site in Admin's form site list
 """
 
 import asyncio
@@ -49,6 +53,66 @@ class _Capture:
     async def send(self, e):
         self.sent.append({"to": e.to, "subject": e.subject, "text": e.text, "from": e.from_addr,
                           "replyTo": e.reply_to, "attachments": [n for n, _, _ in e.attachments]})  # fmt: skip
+
+
+async def _aa5_form_run(db, mail: str, cid: str, tag: str) -> dict:
+    import httpx
+
+    from app.autoapply import engine, v2engine
+    from app.autoapply.forms import polite
+    from app.autoapply.forms import service as forms
+    from app.jobs import service
+    from app.jobs.model import JobIn
+    from app.site import get_site
+
+    site = f"co{tag}.example"
+    jobs = {}
+    for title, host in ((f"Data Analyst {tag}", f"careers.{site}"), (f"Reporting Analyst {tag}", f"apply.{site}")):
+        body = {"title": title, "company": {"name": f"Autoco {tag} Pvt Ltd", "website": site},
+                "locations": ["Hyderabad"], "experience": "fresher", "skills": ["SQL", "Power BI"],
+                "description": "Build weekly dashboards in SQL and Power BI for our stores. Freshers are welcome.",
+                "applyMethod": "link", "applyUrl": f"https://{host}/jobs/1"}  # fmt: skip
+        _, doc = await service.save(db, JobIn.model_validate(body), "admin")
+        await db["jobs"].update_one({"_id": doc["_id"]}, {"$set": {"company_id": cid}})
+        jobs[host] = doc["_id"]
+    form = (
+        '<html><head><title>Careers</title>{head}</head><body><form method="post" action="/apply" '
+        'enctype="multipart/form-data"><input type="hidden" name="t" value="x1"><label for="n">Full name</label>'
+        '<input id="n" name="name" required><label for="e">Email</label><input id="e" type="email" name="email" '
+        'required><label for="p">Phone</label><input id="p" name="phone"><label for="c">Cover letter</label>'
+        '<textarea id="c" name="cover"></textarea><label for="r">Resume</label><input id="r" type="file" '
+        'name="resume" required><button type="submit">Apply</button></form></body></html>'
+    )
+
+    def answer(request: httpx.Request) -> httpx.Response:
+        path, host = request.url.path, request.url.host
+        if path == "/robots.txt":
+            return httpx.Response(200, text="User-agent: *\nDisallow: /admin\n")
+        if path == "/jobs/1":
+            cap = '<script src="https://www.google.com/recaptcha/api.js"></script>'
+            head = cap if host.startswith("apply.") else ""
+            return httpx.Response(200, text=form.replace("{head}", head), headers={"content-type": "text/html"})
+        if path == "/apply" and request.method == "POST":
+            return httpx.Response(303, headers={"location": "/thanks"})
+        if path == "/thanks":
+            return httpx.Response(200, text="<h1>Thank you!</h1><p>We have received your application.</p>")
+        return httpx.Response(404, text="not found")
+
+    polite.TRANSPORT = httpx.MockTransport(answer)  # this process only: nothing leaves it
+
+    async def no_wait(_s):
+        return None
+
+    polite.SLEEP = no_wait
+    u = await db[USERS].find_one({"email_lc": mail.lower()})
+    counts = {"skipped_gate": 0}
+    await v2engine.run_user(db, u, await get_site(db), engine.today(), counts)
+    passes = await forms.run(db, limit=10)
+    states = {}
+    for host, jid in jobs.items():
+        it = await db["auto_items"].find_one({"user_id": u["_id"], "job_id": jid}) or {}
+        states[host] = {"state": it.get("state"), "reason": it.get("reason")}
+    return {"states": states, "counts": counts, "pass": passes}
 
 
 async def main(cmd: str, *args: str) -> dict:
@@ -194,6 +258,14 @@ async def main(cmd: str, *args: str) -> dict:
             db, {"from": args[1], "to": [alias], "subject": "Re: your application", "text": args[2]}, cap
         )
         return {**got, "sent": cap.sent, "alias": alias}
+    if cmd == "aa5-form-run":
+        return await _aa5_form_run(db, *args)
+    if cmd == "aa5-site":
+        from app.autoapply.forms import service as forms
+
+        key, state, reason = args
+        await forms._seen(db, key, state=state, reason=reason, last_tried=now())
+        return {"ok": True}
     if cmd == "aa2-optout-token":
         from app.autoapply import emailing
 

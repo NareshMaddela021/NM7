@@ -9,8 +9,9 @@ For each job that passes the candidate's rules (app/autoapply/rules.py) and the 
   suggest threshold (55) – 69      → "Suggested for you" (the candidate taps Apply)
   below                            → skipped
 A job whose screening questions the saved answers don't cover waits in "Waiting for you"; the answer is saved to the
-profile (never asked again) and that application is sent at once. Website jobs (apply on the company's site) are
-"Ready" for one tap by the candidate: Nm7 never fills other sites' forms, never touches a CAPTCHA, never creates an
+profile (never asked again) and that application is sent at once. Website jobs (apply on the company's site): A5
+fills only a simple plain-HTML form on the company's OWN site, politely, by plain HTTP (app/autoapply/forms); every
+other website job is "Ready" for one tap by the candidate. Nm7 never touches a CAPTCHA, never logs in, never creates an
 account or stores a password elsewhere, and never uses job boards.
 
 The daily limit (default 10, at most 25) counts what was prepared or sent today; suggestions, waiting questions and

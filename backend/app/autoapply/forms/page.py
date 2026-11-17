@@ -301,7 +301,7 @@ def terms_links(pg: Page) -> list[str]:
             if "privacy" in href.lower() and "terms" not in href.lower() and "terms" not in text.lower():
                 continue
             out.append(href)
-    return out[:3]
+    return out[:2]
 
 
 def terms_forbid(text: str) -> str | None:
