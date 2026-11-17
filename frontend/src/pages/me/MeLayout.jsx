@@ -93,7 +93,7 @@ export default function MeLayout() {
   if (simple?.on && simple.mode === 'simple' && pathname === '/me') return <Navigate to="/me/simple" replace />;
   const toSimple = async () => { try { await savePrefs({ mode: 'simple' }); } catch { /* open it anyway */ } go('/me/simple'); };
   const link = ([k, to, l, ic], cls = 'admin-link') => (
-    <NavLink key={k} to={to} end={to === '/me'} className={cls}>
+    <NavLink key={k} to={to} end={to === '/me'} className={cls} title={l}>
       <span aria-hidden="true" style={{ width: 18, textAlign: 'center', flex: 'none' }}>{ic}</span><span className="app-side-text">{l}</span>
       {k === 'messages' && unread > 0 && <span className="badge b-danger" style={{ marginLeft: 'auto', padding: '1px 7px', fontSize: 11 }} aria-label={`${unread} unread`}>{unread}</span>}
     </NavLink>
