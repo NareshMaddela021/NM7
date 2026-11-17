@@ -215,12 +215,17 @@ async def daily_if_due(db: AsyncDatabase) -> int:
     mark = await db[SETTINGS].find_one({"_id": "payment_check"}) or {}
     if mark.get("at") and mark["at"] > now() - timedelta(hours=23):
         return -1
-    await db[SETTINGS].update_one({"_id": "payment_check"}, {"$set": {"at": now()}}, upsert=True)
-    try:
-        doc = await daily_check(db)
-    except (RazorpayError, ApiError) as e:
-        log.warning("payment check failed: %s", e)
-        return -1
+    from app.core.heavy import heavy_or_skip
+
+    async with heavy_or_skip(db) as ok:  # another heavy job running: try again on the next pass
+        if not ok:
+            return -1
+        await db[SETTINGS].update_one({"_id": "payment_check"}, {"$set": {"at": now()}}, upsert=True)
+        try:
+            doc = await daily_check(db)
+        except (RazorpayError, ApiError) as e:
+            log.warning("payment check failed: %s", e)
+            return -1
     return sum(1 for f in doc["flags"] if not f["resolved"])
 
 

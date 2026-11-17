@@ -316,7 +316,10 @@ async def open_demo(request: Request, db: DB, auth: AdminAuth("companies")) -> d
 
     await rate_limit.check(db, f"demo-company:{auth.user.id}", [(10, timedelta(hours=1))])
     await rate_limit.record(db, f"demo-company:{auth.user.id}")
-    out = await create(db)
+    from app.core.heavy import heavy_or_busy
+
+    async with heavy_or_busy(db):  # one heavy job at a time (app/core/heavy.py)
+        out = await create(db)
     session = await issue_session(db, MAIN[0], MAIN[1], request=request)
     await audit(db, auth.user.id, "demo_company_open", target=COMPANY_ID, data=out, ip=client_ip(request))
     return {"session": session, **out}
