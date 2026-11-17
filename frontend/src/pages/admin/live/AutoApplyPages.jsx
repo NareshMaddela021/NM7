@@ -38,6 +38,7 @@ export function LiveAutoApply() {
       <V2Admin toast={toast} />
       <EmailHealth toast={toast} />
       <PartnerHealth />
+      <FormSites toast={toast} />
       <Loading st={st}>{(d) => (
         <div className="stack g16">
           <section className="card stack g8 adx-switch" data-on={d.settings.on ? '1' : '0'} aria-label="Off switch" data-testid="aa-switch">
@@ -314,6 +315,70 @@ function PartnerHealth() {
           </div>
         </div>
       )}</Loading>
+    </Panel>
+  );
+}
+
+// Auto Apply 2.0 (A5): every company site seen for simple forms. Allowed (a plain form worked), one tap only (and why:
+// a CAPTCHA, a login, a block, an error …), blocked by robots.txt or by its terms, or a job board (never used). Admin
+// can move a site to one tap or reset it (robots.txt and the terms are checked again on the next try). The rules Nm7
+// follows on every site are shown at the top.
+const SITE_TONE = { allowed: 'success', new: 'neutral', one_tap: 'warning', robots: 'danger', terms: 'danger', job_board: 'danger' };
+const SITE_FILTERS = [['', 'All'], ['allowed', 'Allowed'], ['one_tap', 'One tap only'], ['robots', 'Robots.txt'], ['terms', 'Terms'], ['job_board', 'Job boards'], ['new', 'Not tried yet']];
+
+function FormSites({ toast }) {
+  const st = useApi('/api/admin/auto-apply/v2/forms');
+  const [busy, run] = useAction(toast);
+  const [pick, setPick] = useState('');
+  const [ask, setAsk] = useState('');
+  const act = (site, what, msg) => run(async () => { await http(`/api/admin/auto-apply/v2/forms/sites/${encodeURIComponent(site)}/${what}`, { method: 'POST' }); setAsk(''); st.reload(); }, msg);
+  return (
+    <Panel title="Auto Apply 2.0: company form sites">
+      <Loading st={st}>{(d) => {
+        const rows = pick ? d.sites.filter((x) => x.state === pick) : d.sites;
+        return (
+          <div className="stack g12" data-testid="aa5-sites-admin">
+            <span className="xs muted">{d.public ? 'Public: simple forms on companies’ own sites are filled for candidates.' : 'Hidden: only testers’ applications to companies with a tester on their team go through a form; demo never uses the network.'}</span>
+            <span className="xs muted aa2-wrap" data-testid="aa5-sites-rules">Every site: robots.txt first, the terms page when linked, user agent “{d.rules.userAgent}”, {d.rules.delay} s between requests, at most {d.rules.requestsPerDay} requests and {d.rules.submitsPerDay} applications a day. Never a CAPTCHA, a login, an account, a payment or a job board.</span>
+            <div className="kpis adx-kpis">
+              <Kpi label="Allowed" value={d.counts.allowed} sub={`${d.counts.appliedToday} sent today · ${d.counts.queued} waiting to send`} />
+              <Kpi label="One tap only" value={d.counts.one_tap} sub="blocked, CAPTCHA, login or an error" />
+              <Kpi label="Robots.txt / terms" value={`${d.counts.robots} / ${d.counts.terms}`} sub="the site asks bots not to" />
+              <Kpi label="Job boards" value={d.counts.job_board} sub="never used" />
+            </div>
+            <div className="field" style={{ maxWidth: 260 }}>
+              <label className="label" htmlFor="aa5-filter">Show</label>
+              <select id="aa5-filter" className="input" value={pick} onChange={(e) => setPick(e.target.value)} data-testid="aa5-sites-filter">{SITE_FILTERS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select>
+            </div>
+            {rows.length === 0 ? <p className="small muted" style={{ margin: 0 }}>No sites here yet.</p> : (
+              <ul className="stack g8" style={{ listStyle: 'none', margin: 0, padding: 0 }} data-testid="aa5-sites">
+                {rows.map((x) => (
+                  <li key={x.site} className="stack g4" style={{ borderBottom: '1px solid var(--border2)', padding: '8px 0', overflowWrap: 'anywhere' }} data-testid="aa5-site" data-site={x.site} data-state={x.state}>
+                    <div className="row g8" style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
+                      <strong className="small">{x.site}{x.demo ? ' (demo)' : ''}</strong>
+                      <span className={`badge b-${SITE_TONE[x.state] || 'neutral'}`} data-testid="aa5-site-state">{x.stateText}</span>
+                    </div>
+                    {(x.reasonText || x.reason) && x.state !== 'allowed' && x.state !== 'new' && <span className="xs muted" data-testid="aa5-site-reason">{x.reason === 'admin' ? 'Moved to one tap by Admin.' : x.reasonText || x.reason}{x.termsPhrase ? ` “${x.termsPhrase}”` : ''}</span>}
+                    <span className="xs muted" data-testid="aa5-site-counts">{x.successes} sent · {x.failures} failed · last tried {x.lastTried ? when(x.lastTried) : 'never'}{x.lastOk ? ` · last sent ${when(x.lastOk)}` : ''} · today {x.today.requests} requests, {x.today.submits} sent</span>
+                    {ask === x.site ? (
+                      <div className="row g8" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
+                        <span className="small">Reset {x.site}? Nm7 checks robots.txt and the terms again on the next try.</span>
+                        <button type="button" className="btn btn-sm btn-signal" disabled={busy} onClick={() => act(x.site, 'reset', 'Site reset')} data-testid="aa5-site-reset-yes">Reset</button>
+                        <button type="button" className="link-btn small" onClick={() => setAsk('')}>Cancel</button>
+                      </div>
+                    ) : (
+                      <div className="row g12" style={{ flexWrap: 'wrap' }}>
+                        {x.state !== 'one_tap' && x.state !== 'job_board' && <button type="button" className="link-btn small" disabled={busy} onClick={() => act(x.site, 'one-tap', 'Moved to one tap')} data-testid="aa5-site-onetap">Move to one tap</button>}
+                        {x.state !== 'new' && x.state !== 'job_board' && <button type="button" className="link-btn small" disabled={busy} onClick={() => setAsk(x.site)} data-testid="aa5-site-reset">Reset</button>}
+                      </div>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        );
+      }}</Loading>
     </Panel>
   );
 }
