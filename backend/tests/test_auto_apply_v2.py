@@ -57,8 +57,14 @@ async def three_jobs(client, session, cid):
 
 def test_score_parts_and_thresholds():
     t = now()
-    job = {"title": "Junior Data Analyst", "remote": False, "locations": ["Hyderabad"], "experience": "fresher",
-           "salary": {"min": 30000, "max": 40000, "period": "monthly"}, "posted_at": t - timedelta(days=1)}  # fmt: skip
+    job = {
+        "title": "Junior Data Analyst",
+        "remote": False,
+        "locations": ["Hyderabad"],
+        "experience": "fresher",
+        "salary": {"min": 30000, "max": 40000, "period": "monthly"},
+        "posted_at": t - timedelta(days=1),
+    }
     f = {"found": ["SQL", "Power BI"], "missing": ["Tableau", "Excel"], "level": "fresher", "years": 0.5}
     a = {"cities": ["Hyderabad"], "min_salary": 400000}
     p = score.parts(job, f, a, vetting_level=2, t=t)
@@ -80,9 +86,16 @@ def test_score_parts_and_thresholds():
 
 
 def test_rules_filter():
-    j = {"title": "Junior Data Analyst", "skills": ["SQL"], "locations": ["Hyderabad"], "remote": False,
-         "experience": "fresher", "job_type": "full_time", "salary": {"min": 300000, "period": "yearly"},
-         "company": {"name": "Acme Labs"}}  # fmt: skip
+    j = {
+        "title": "Junior Data Analyst",
+        "skills": ["SQL"],
+        "locations": ["Hyderabad"],
+        "remote": False,
+        "experience": "fresher",
+        "job_type": "full_time",
+        "salary": {"min": 300000, "period": "yearly"},
+        "company": {"name": "Acme Labs"},
+    }
     a = {"roles": ["data analyst"], "cities": ["Hyderabad"], "remote": True}
     assert rules.check(j, a) is None
     assert rules.check(j, {**a, "roles": ["Java"]}) == "role"
@@ -105,12 +118,23 @@ def test_learning_penalty_steps():
 
 def test_schema_is_strict_and_prompt_is_fair():
     assert claude.schema_problems(tailoring.SCHEMA) == []
-    data = {**strong_resume(), "personal": {"name": "Sai Varsha", "email": EMAIL, "gender": "female", "photo": "x"},
-            "gender": "female", "dob": "2001-01-01", "religion": "x"}  # fmt: skip
+    data = {
+        **strong_resume(),
+        "personal": {"name": "Sai Varsha", "email": EMAIL, "gender": "female", "photo": "x"},
+        "gender": "female",
+        "dob": "2001-01-01",
+        "religion": "x",
+    }
     from app.autoapply.engine import parsed_for
 
-    job = {"_id": "j", "title": "Data Analyst", "description": "SQL work", "company": {"name": "Acme"},
-           "locations": ["Hyderabad"], "skills": ["SQL"]}  # fmt: skip
+    job = {
+        "_id": "j",
+        "title": "Data Analyst",
+        "description": "SQL work",
+        "company": {"name": "Acme"},
+        "locations": ["Hyderabad"],
+        "skills": ["SQL"],
+    }
     text = tailoring.prompt(parsed_for(job), data, {"notice_period": "30_days"})
     for bad in ("Sai Varsha", EMAIL, "female", "2001", "religion", "gender"):
         assert bad not in text
@@ -145,8 +169,9 @@ async def test_switch_off_hides_everything_from_real_users(client, outbox, db):
     # a stale 2.0 opt-in on a real user does nothing while hidden: today's engine runs for them, no 2.0 items, no email
     uid = (await db[USERS].find_one({"email": EMAIL}))["_id"]
     await client.put("/api/me/auto-apply", json={**RULES, "consent": True, "minScore": 60, "dailyLimit": 5})
-    await db[USERS].update_one({"_id": uid}, {"$set": {"auto_apply.v2_consent_at": now(),
-                                                       "auto_apply.started_at": now() - timedelta(days=5)}})  # fmt: skip
+    await db[USERS].update_one(
+        {"_id": uid}, {"$set": {"auto_apply.v2_consent_at": now(), "auto_apply.started_at": now() - timedelta(days=5)}}
+    )
     session, cid = await verified(client, outbox, db)
     await company_job(client, session, cid, "Junior Data Analyst")
     outbox.sent.clear()
@@ -261,8 +286,7 @@ async def test_waiting_answer_saved_to_profile_and_sent_at_once(client, outbox, 
 async def test_tracker_what_was_sent_rejections_learning_and_stop(client, outbox, db):
     session, cid = await verified(client, outbox, db)
     j1 = await company_job(client, session, cid, "Junior Data Analyst")
-    j2 = await company_job(client, session, cid, "Data Analyst Trainee", applyMethod="email",
-                           applyEmail="hr@acme.com")  # fmt: skip
+    j2 = await company_job(client, session, cid, "Data Analyst Trainee", applyMethod="email", applyEmail="hr@acme.com")
     uid = await tester(client, outbox, db, mode="full_auto", noticePeriod="30_days")
     await run(db, outbox)
     tr = (await client.get(f"{V2}/tracker")).json()
@@ -280,8 +304,9 @@ async def test_tracker_what_was_sent_rejections_learning_and_stop(client, outbox
     ).status_code == 409
     r = await client.post(f"{V2}/tracker/{rows[j2['id']]['id']}/status", json={"status": "rejected"})
     assert r.json() == {"stage": "closed"}
-    await db[APPLICATIONS].update_one({"user_id": uid, "job_id": j1["id"]}, {"$set": {"status": "rejected",
-                                                                                    "updated_at": now()}})  # fmt: skip
+    await db[APPLICATIONS].update_one(
+        {"user_id": uid, "job_id": j1["id"]}, {"$set": {"status": "rejected", "updated_at": now()}}
+    )
     pen = await learning.penalties(db, uid)
     assert pen["data analyst"] == {"rejections": 2, "penalty": 5}
     st = (await client.get(V2)).json()
@@ -310,11 +335,15 @@ def good_answer(data):
         "summary": "Data Analyst Intern at Northwind Retail, skilled in SQL and Power BI.",
         "bullets": [{"id": "e0-0", "text": "Built 6 Power BI dashboards used by 12 store managers"}],
         "skills_order": ["SQL", "Python", "Statistics", "Pandas", "Data Cleaning"],
-        "cover_note": ["I am applying for the Junior Data Analyst role.", "I use SQL and Power BI in my work.",
-                       "At Northwind Retail I built 6 Power BI dashboards.", "I cleaned weekly CSV files in Python.",
-                       "Thank you for reading my application."],
+        "cover_note": [
+            "I am applying for the Junior Data Analyst role.",
+            "I use SQL and Power BI in my work.",
+            "At Northwind Retail I built 6 Power BI dashboards.",
+            "I cleaned weekly CSV files in Python.",
+            "Thank you for reading my application.",
+        ],
         "answers": [{"key": "why_role", "answer": "The role uses SQL and Power BI, which I use every week."}],
-    }  # fmt: skip
+    }
 
 
 async def _setup_tailor(client, outbox, db, monkeypatch, answer):
