@@ -335,6 +335,14 @@ async def deliver(
         from app.core.email import get_mailer
 
         day = today(t)
+        if item.get("v2"):  # Auto Apply 2.0 (A3): the candidate's own apply address, its sources, limits and switch
+            got = await emailing.send_v2(db, mailer or get_mailer(), item, j, u, copy, site)
+            if got["state"] != "sent":
+                return got
+            extra = {"sent_email": got["sent"], "v2": True, "channel_v2": "email",
+                     "cover_note": copy.get("cover_note") or []}  # fmt: skip
+            app = await apply_nm7(db, item, j, u, copy, answers, channel="email", extra=extra)
+            return got if app else {"state": "skipped", "reason": "already"}
         if await emailing.sent_today(db, day) >= int(site["auto_apply"]["email_daily_cap"]):
             return {"state": "queued", "reason": "email_cap"}  # the site's daily email cap: the next run sends it
         sent = await emailing.send(db, mailer or get_mailer(), item, j, u, copy, item.get("found") or [])
@@ -638,6 +646,10 @@ async def run(db, mailer=None, force: bool = False, limit: int = PAGE) -> dict[s
                 {"_id": u["_id"]}, {"$set": {"auto_apply.run_day": day, "auto_apply.lock_until": None}}
             )
             done += 1
+    from app.autoapply.emailing import follow_ups
+    from app.core.email import get_mailer
+
+    counts["v2_follow_ups"] = await follow_ups(db, mailer or get_mailer(), site)  # A3: opted-in, 7 days, no reply
     inc = {f"counts.{k}": v for k, v in counts.items() if v}
     await db[AUTO_RUNS].update_one(
         {"_id": day},

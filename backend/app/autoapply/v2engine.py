@@ -49,6 +49,8 @@ def stage_of(it: dict[str, Any], app: dict[str, Any] | None) -> tuple[str, str]:
         st = app.get("status")
         if it.get("job_closed_at") and st in ("applied", "viewed"):  # A2: the company closed the job first
             return "closed", "closed"
+        if it.get("replied_at") and st in ("applied", "viewed"):  # A3: the company replied to the apply address
+            return "replied", "replied"
         if st == "viewed":
             return "viewed", ""
         if st in ("shortlisted", "interview"):
@@ -98,7 +100,7 @@ async def send(db, u, it, j, site, mailer=None) -> str:
     got = await engine.deliver(db, it, j, u, copy, it.get("answers") or {}, mailer, site)
     sets = {**got, "copy_id": copy["_id"], "approved": True, "updated_at": now()}
     upd: dict[str, Any] = {"$set": sets}
-    if got["state"] in ("queued", "skipped"):
+    if got["state"] in ("queued", "skipped", "ready"):  # ready: no email channel for this one (A3), one tap
         upd["$unset"] = {"counted_day": ""}
     else:
         sets["counted_day"] = it.get("counted_day") or engine.today()
@@ -230,8 +232,14 @@ async def run_user(db, u: dict[str, Any], site: dict[str, Any], day: str, counts
                 suggested += 1
                 counts["v2_suggested"] = counts.get("v2_suggested", 0) + 1
             continue
-        if j["apply"]["method"] == "link":  # the company's own website: Ready for one tap by the candidate
-            it = await engine._item(db, u, j, "ready", ready_day=day, **extra)
+        no_mail = None
+        if j["apply"]["method"] == "email":  # A3: no email channel for this job / person → Ready for one tap
+            from app.autoapply import emailing
+
+            no_mail = await emailing.ready_reason(db, u, j, site)
+        if j["apply"]["method"] == "link" or no_mail:  # the company's own website: Ready for one tap by the candidate
+            more = {"reason": no_mail, "apply_to": j["apply"].get("email", "")} if no_mail else {}
+            it = await engine._item(db, u, j, "ready", ready_day=day, **extra, **more)
             if it:
                 copy = await tailoring.build(db, uid, r, j, a)
                 await db[AUTO_ITEMS].update_one({"_id": it["_id"]}, {"$set": {"copy_id": copy["_id"]}})
@@ -289,6 +297,9 @@ def row(it: dict[str, Any], app: dict[str, Any] | None) -> dict[str, Any]:
         "notice": _notice(it.get("notice")),
         "demo": bool(it.get("demo")),
         "at": ms((app or {}).get("updated_at") or it.get("updated_at")),
+        "replies": int(it.get("replies") or 0),  # A3: replies that came to the candidate's apply address
+        "applyTo": it.get("apply_to") or None if it.get("state") == "ready" else None,  # A3: email it yourself
+        "readyReason": it.get("reason") if it.get("state") == "ready" else None,
     }
 
 
@@ -350,5 +361,48 @@ async def what_was_sent(db, uid: str, iid: str) -> dict[str, Any] | None:
         "wentOut": bool(app),
         "version": tailoring.public(copy),
         "screening": {str(k): v for k, v in (it.get("answers") or (app or {}).get("answers") or {}).items()},
-        "email": {"to": sent["to"], "subject": sent["subject"], "text": sent["text"]} if sent else None,
+        "email": _email_out(sent, it) if sent else None,
+        "followUp": _email_out(it["follow_up"], it) if it.get("follow_up") else None,
+        "replies": await replies_of(db, uid, it["_id"]),
     }
+
+
+def _email_out(sent: dict[str, Any], it: dict[str, Any]) -> dict[str, Any]:
+    """Exactly what went out (A3: from the candidate's apply address, the attachment, where the address came from and,
+    while the switch is OFF, the test inbox that really got it)."""
+    from app.me.service import ms
+
+    return {
+        "to": sent["to"],
+        "subject": sent["subject"],
+        "text": sent["text"],
+        "from": sent.get("from"),
+        "sentTo": sent.get("sent_to") or sent["to"],
+        "test": bool(sent.get("test")),
+        "attachment": sent.get("attachment"),
+        "source": sent.get("source"),
+        "at": ms(sent.get("at")),
+    }
+
+
+async def replies_of(db, uid: str, iid: str | None = None) -> list[dict[str, Any]]:
+    from app.core.db import AUTO_REPLIES
+    from app.me.service import ms
+
+    q: dict[str, Any] = {"user_id": uid, **({"item_id": iid} if iid else {})}
+    rows = await db[AUTO_REPLIES].find(q).sort("received_at", -1).to_list(50)
+    return [
+        {
+            "id": r["_id"],
+            "itemId": r.get("item_id"),
+            "from": r.get("from"),
+            "fromName": r.get("from_name") or "",
+            "subject": r.get("subject") or "",
+            "text": r.get("text") or "",
+            "at": ms(r.get("received_at")),
+            "forwarded": bool(r.get("forwarded")),
+            "company": r.get("company") or "",
+            "title": r.get("title") or "",
+        }
+        for r in rows
+    ]

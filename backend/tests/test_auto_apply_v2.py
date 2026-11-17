@@ -283,7 +283,10 @@ async def test_waiting_answer_saved_to_profile_and_sent_at_once(client, outbox, 
     assert await db[AUTO_ITEMS].count_documents({"user_id": uid, "state": "waiting_approval"}) == 1
 
 
-async def test_tracker_what_was_sent_rejections_learning_and_stop(client, outbox, db):
+async def test_tracker_what_was_sent_rejections_learning_and_stop(client, outbox, db, monkeypatch):
+    s = get_settings()  # A3: the email channel on (a key and the webhook secret); the switch is OFF: the tester's inbox
+    monkeypatch.setattr(s, "resend_api_key", "re_test_key")
+    monkeypatch.setattr(s, "resend_inbound_secret", "whsec_dGVzdC1zZWNyZXQ=")
     session, cid = await verified(client, outbox, db)
     j1 = await company_job(client, session, cid, "Junior Data Analyst")
     j2 = await company_job(client, session, cid, "Data Analyst Trainee", applyMethod="email", applyEmail="hr@acme.com")

@@ -44,6 +44,12 @@ class Settings(BaseSettings):
     resend_url: str = "https://api.resend.com/emails"
     zeptomail_token: str = ""
     zeptomail_url: str = "https://api.zeptomail.in/v1.1/email"  # India data centre
+    # Auto Apply 2.0 email applications (A3): each candidate's own apply address on this domain (sent with Resend; the
+    # domain is verified in Resend → Domains, see docs/autoapply/apply-nm7-si-dns.md) and the signing secret of the
+    # Resend webhook (inbound replies, bounces, complaints). Without the secret or the Resend key the email channel
+    # stays off and email jobs fall back to "Ready" (one tap by the candidate).
+    autoapply_email_domain: str = "apply.nm7.si"
+    resend_inbound_secret: str = ""
 
     # One-time owner setup from the website (POST /api/admin/setup) for hosts without a shell. Only works while no
     # admin exists and the token is at least 24 characters. Remove it after use.
