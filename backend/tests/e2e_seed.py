@@ -15,6 +15,11 @@ MONGODB_DB=nm7_e2e uv run python -m tests.e2e_seed reset
                                           preview days are over first
 ... job-alerts EMAIL                   → {"sent": [{to, subject, text}], "stop": token} (the alert pass for one person,
                                           its emails captured instead of sent, and their "Stop these emails" token)
+... aa2-email-run EMAIL                → A3: that tester's Auto Apply 2.0 run with the email channel on (in this
+                                          process only), its emails captured instead of sent: {"sent": [...]}
+... aa2-email-reply EMAIL FROM TEXT    → A3: a company's reply to that tester's apply address, as Resend's webhook
+                                          would deliver it (the forward to the candidate captured)
+... aa2-optout-token ADDRESS           → A3: the signed opt-out token a real (not test) Auto Apply email carries
 """
 
 import asyncio
@@ -31,6 +36,19 @@ from app.core.security import hash_password
 from app.core.time import now
 from app.orders.service import build_order, next_invoice_no
 from app.payments.models import Payment
+
+
+class _Capture:
+    """A mailer that keeps the emails instead of sending them."""
+
+    available = True
+
+    def __init__(self):
+        self.sent = []
+
+    async def send(self, e):
+        self.sent.append({"to": e.to, "subject": e.subject, "text": e.text, "from": e.from_addr,
+                          "replyTo": e.reply_to, "attachments": [n for n, _, _ in e.attachments]})  # fmt: skip
 
 
 async def main(cmd: str, *args: str) -> dict:
@@ -158,6 +176,28 @@ async def main(cmd: str, *args: str) -> dict:
         cap = Capture()
         await alerts.send_alerts(db, cap)
         return {"sent": [x for x in cap.sent if x["to"] == u["email"]], "stop": alerts.unsub_token(u["_id"])}
+    if cmd in ("aa2-email-run", "aa2-email-reply"):
+        from app.autoapply import emailing, engine, inbound, v2engine
+        from app.core.config import get_settings
+        from app.site import get_site
+
+        s = get_settings()  # the channel on in this process only; every email goes to the capture below, none is sent
+        s.resend_api_key, s.resend_inbound_secret = "re_e2e_capture_only", "whsec_ZTJlLWNhcHR1cmU="
+        u = await db[USERS].find_one({"email_lc": args[0].lower()})
+        cap = _Capture()
+        if cmd == "aa2-email-run":
+            counts = {"skipped_gate": 0}
+            await v2engine.run_user(db, u, await get_site(db), engine.today(), counts, cap)
+            return {"sent": cap.sent, "counts": counts}
+        alias = await emailing.apply_address(db, u)
+        got = await inbound.on_reply(
+            db, {"from": args[1], "to": [alias], "subject": "Re: your application", "text": args[2]}, cap
+        )
+        return {**got, "sent": cap.sent, "alias": alias}
+    if cmd == "aa2-optout-token":
+        from app.autoapply import emailing
+
+        return {"token": emailing.optout_token(args[0])}
     if cmd == "admin":
         email, role, password = args
         _, secret, _ = await create_admin(db, email, role.title(), role, password)
