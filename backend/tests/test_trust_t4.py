@@ -593,3 +593,18 @@ async def test_surepass_adapter(client, outbox, db, admin_client, fake_surepass)
         and st["facts"]["legalName"] == "ACME ANALYTICS PRIVATE LIMITED"
     )
     assert b"sk_test_TOKEN" not in await everything(db)
+
+
+async def test_test_provider_badges_never_reach_the_public_on_production(db, monkeypatch):
+    t = now()
+    await db[COMPANIES].insert_many(
+        [{"_id": "co-real", "slug": "real"}, {"_id": "co-demo", "slug": "demo", "demo": True}]
+    )
+    for cid in ("co-real", "co-demo"):
+        await db[TRUST_EMPLOYER].insert_one(
+            {"_id": cid, "status": "verified", "kind": "gstin", "test": True, "checked_at": t, "verified_at": t}
+        )
+    monkeypatch.setattr(type(get_settings()), "is_prod", property(lambda self: True))
+    assert set(await S.badges(db, ["co-real", "co-demo"])) == {"co-real", "co-demo"}  # switch off: only testers see any
+    await db["settings"].update_one({"_id": "site"}, {"$set": {"trust.public": True}}, upsert=True)
+    assert set(await S.badges(db, ["co-real", "co-demo"])) == {"co-demo"}  # public: no "(test)" badge on a real company

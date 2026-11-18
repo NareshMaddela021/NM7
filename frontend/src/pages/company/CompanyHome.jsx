@@ -12,6 +12,7 @@ import CompanyApplicants, { TalentPool } from './CompanyApplicants';
 import CompanyHire from './CompanyHire';
 import CompanyPrograms from './CompanyPrograms';
 import { useAutoInfo } from './AutoApplyBits';
+import VerifyBusiness from './VerifyBusiness'; // Vetting Trust T4 (renders nothing unless the Trust switch allows)
 import { headerLabels, useLang } from '../../lib/i18n';
 import { usePageMeta } from '../../lib/meta';
 import { keepAccount, readAccount } from '../../lib/recruiterPortal';
@@ -125,7 +126,6 @@ const TAB_META = {
 };
 // Auto Apply 2.0 (A4): the hiring-system page, only for companies the 2.0 switch lets in (English only while tested)
 const ConnectHiring = lazy(() => import('./ConnectHiring'));
-const VerifyBusiness = lazy(() => import('./VerifyBusiness')); // Vetting Trust T4 (only where the Trust switch allows)
 const TAB_LABEL = { connect: 'Connect your hiring system' };
 const TRUST_TONE = { verified: 'ok', basic: 'accent', unverified: 'warn', blocked: 'bad' };
 
@@ -288,7 +288,6 @@ function Team({ t, c, manage, onChanged }) {
         ) : <p className="mcard mcard-tight small muted" style={{ margin: 0 }}>{t('co.dash.onlyAdmins')}</p>}
         {err && <p className="error" role="alert">{err}</p>}
       </div>
-      <Suspense fallback={null}><VerifyBusiness c={c} manage={manage} /></Suspense>
     </section>
   );
 }
@@ -410,6 +409,7 @@ function Settings({ t, c, manage, onChanged }) {
         {!manage && !locked && <p className="small muted" style={{ margin: 0 }}>{t('co.dash.onlyAdmins')}</p>}
         {err && <p className="error" role="alert">{err}</p>}
       </div>
+      <VerifyBusiness c={c} manage={manage} />
     </section>
   );
 }

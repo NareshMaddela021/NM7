@@ -215,12 +215,15 @@ def badge_out(st: dict[str, Any]) -> dict[str, Any]:
 
 
 async def badges(db, cids: list[str]) -> dict[str, dict[str, Any]]:
-    """company id → badge, for verified companies among these. Test-provider badges only on a demo company or outside
-    production. The caller decides whether this viewer may see Trust at all (viewer_allowed)."""
+    """company id → badge, for verified companies among these. Test-provider badges ("(test)") only outside production,
+    on a demo company, or while the switch is not public (then only admins, demo accounts and testers see any badge).
+    The caller decides whether this viewer may see Trust at all (viewer_allowed)."""
+    from app.trust import access
+
     ids = [c for c in set(cids) if c]
     if not ids:
         return {}
-    show_test = not get_settings().is_prod
+    show_test = not get_settings().is_prod or not await access.is_public(db)
     demo = {c["_id"] async for c in db[COMPANIES].find({"_id": {"$in": ids}, "demo": True}, {"_id": 1})}
     out = {}
     async for st in db[TRUST_EMPLOYER].find({"_id": {"$in": ids}, "status": "verified"}):

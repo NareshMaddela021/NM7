@@ -39,7 +39,7 @@ function HealthEmails() {
 const PrivacyConsent = lazy(() => import('./trust/PrivacyConsent')); // Vetting Trust T1, only when the switch says yes
 const DigiLockerCard = lazy(() => import('./trust/DigiLockerCard')); // Vetting Trust T2: Verify with DigiLocker
 const FaceCard = lazy(() => import('./trust/FaceCard')); // Vetting Trust T3: ID + selfie check
-const NeverPayHelp = lazy(() => import('./trust/NeverPayHelp')); // Vetting Trust T4: Never pay for a job
+const NeverPayHelp = lazy(() => import('./trust/HireSafety').then((m) => ({ default: m.NeverPayHelp }))); // Vetting Trust T4
 
 const LEVELS = [['internship', 'Internship'], ['fresher', 'Fresher'], ['0_1', '0–1 years'], ['1_3', '1–3 years'], ['3_5', '3–5 years'], ['5_8', '5–8 years'], ['8_12', '8–12 years'], ['12_15', '12–15 years'], ['15_plus', '15+ years']];
 const ALL_LANGS = [['en', 'English'], ['te', 'తెలుగు (Telugu)'], ['hi', 'हिन्दी (Hindi)']];
