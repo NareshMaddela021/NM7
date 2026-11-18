@@ -163,6 +163,10 @@ TRUST_SNAPSHOTS = "trust_snapshots"  # webcam snapshots during a test (webcam_sn
 TRUST_DL_SESSIONS = "trust_dl_sessions"  # T2: DigiLocker requests (vendor reference, status; never document data)
 TRUST_EMPLOYER = "trust_employer"  # T4: _id = company id: the business registry check, badge, review (no personal data)
 TRUST_EMPLOYER_LOOKUPS = "trust_employer_lookups"  # T4: one row per paid registry lookup (counts; result only)
+TRUST_AGENT_PREFS = "trust_agent_prefs"  # T5: _id = user id: WhatsApp / call channels, language, quiet days, opt-outs
+TRUST_AGENT_CONVOS = "trust_agent_convos"  # T5: one per job × candidate: the WhatsApp / AI call flow, answers, slot
+TRUST_AGENT_EVENTS = "trust_agent_events"  # T5: one row per contact / reply / call / booking / opt-out (counts, caps)
+TRUST_AGENT_LOGS = "trust_agent_logs"  # T5: "What we said": message and call transcript text (consent; 90 days)
 TRUST_FACE = "trust_face"  # T3: _id = user id: the ID + selfie result, retries, review, joining check (never photos)
 LEARN_PATHS = "learn_paths"  # Phase 6 S2, _id = role id: courses → project → skill check (Admin → Learning paths)
 OFFER_CHECKS = (
@@ -289,6 +293,10 @@ COLLECTIONS = (
     TRUST_FACE,
     TRUST_EMPLOYER,
     TRUST_EMPLOYER_LOOKUPS,
+    TRUST_AGENT_PREFS,
+    TRUST_AGENT_CONVOS,
+    TRUST_AGENT_EVENTS,
+    TRUST_AGENT_LOGS,
     VETTING_L4,
     VETTING_REVIEWERS,
     VETTING_INTERVIEWS,
@@ -494,6 +502,25 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel("checked_at"),
     ],  # fmt: skip
     TRUST_EMPLOYER_LOOKUPS: [IndexModel("at"), IndexModel([("company_id", ASCENDING), ("at", DESCENDING)])],
+    TRUST_AGENT_PREFS: [IndexModel("wa_id"), IndexModel("updated_at")],
+    TRUST_AGENT_CONVOS: [
+        IndexModel([("job_id", ASCENDING), ("user_id", ASCENDING)], unique=True),
+        IndexModel([("state", ASCENDING), ("next_at", ASCENDING)]),
+        IndexModel([("user_id", ASCENDING), ("updated_at", DESCENDING)]),
+        IndexModel("call.ref"),
+        IndexModel("created_at"),
+    ],  # fmt: skip
+    TRUST_AGENT_EVENTS: [
+        IndexModel([("user_id", ASCENDING), ("day", ASCENDING), ("kind", ASCENDING)]),
+        IndexModel([("at", DESCENDING)]),
+        IndexModel([("job_id", ASCENDING), ("kind", ASCENDING)]),
+        IndexModel("msg_id", sparse=True),
+    ],  # fmt: skip
+    TRUST_AGENT_LOGS: [
+        IndexModel([("user_id", ASCENDING), ("created_at", DESCENDING)]),
+        IndexModel("convo_id"),
+        IndexModel("created_at"),
+    ],
     VETTING_L4: [
         IndexModel([("user_id", ASCENDING), ("requested_at", DESCENDING)]),
         IndexModel("referees.rid"),

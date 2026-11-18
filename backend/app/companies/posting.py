@@ -50,7 +50,7 @@ class JobBody(CamelModel):
 
 def _job_in(c: dict[str, Any], raw: dict[str, Any]) -> tuple[JobIn | None, list[str]]:
     d = c["details"]
-    body = {k: v for k, v in raw.items() if k not in ("company", "status", "source", "questions", "autoApply")}
+    body = {k: v for k, v in raw.items() if k not in ("company", "status", "source", "questions", "autoApply", "agent")}
     body["company"] = {"name": d["legal_name"], "website": d.get("website") or ""}
     body.setdefault("applyMethod", "nm7")
     try:
@@ -200,6 +200,14 @@ async def post_job(
     await db[JOBS].insert_one(doc)
     if await instant.queue(db, doc):  # Auto Apply 2.0: scored after the answer is sent, never inside this request
         background.add_task(instant.kick, db)
+    if isinstance(body.job.get("agent"), dict) and body.job["agent"].get("on"):  # Vetting Trust T5: call / message
+        from app.trust import access as trust_access
+        from app.trust.agent import service as agent
+
+        if agent.eligible(doc) and await trust_access.for_company(db, c, acc):
+            doc = await agent.set_job(db, doc, True, None, acc["email_lc"])
+            if doc["status"] == "active":
+                background.add_task(agent.kick, db)
     await audit(
         db,
         None,

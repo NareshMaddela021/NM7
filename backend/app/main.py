@@ -137,6 +137,7 @@ from app.trust import admin as trust_admin
 from app.trust import age as trust_age
 from app.trust import breach as trust_breach
 from app.trust import consent as trust_consent
+from app.trust.agent import router as trust_agent
 from app.trust.digilocker import router as trust_digilocker
 from app.trust.employer import router as trust_employer
 from app.trust.face import router as trust_face
@@ -391,6 +392,10 @@ def create_app() -> FastAPI:
     app.include_router(trust_employer.company)  # /api/company/{cid}/trust/employer (T4: verify your business)
     app.include_router(trust_employer.me)  # /api/me/trust/employer, /api/me/trust/fraud (T4: promise, report fraud)
     app.include_router(trust_employer.admin)  # /api/admin/trust/employer, /api/admin/trust/fraud (T4)
+    app.include_router(trust_agent.company)  # /api/company/{cid}/trust/agent (T5: call / message matching candidates)
+    app.include_router(trust_agent.me)  # /api/me/trust/agent (T5: channels, language, quiet days, What we said)
+    app.include_router(trust_agent.public)  # /api/public/trust/agent/whatsapp, /voice/{provider} (T5: signed webhooks)
+    app.include_router(trust_agent.admin)  # /api/admin/trust/agent (T5: providers, caps, templates, counts, log)
     app.include_router(vetting_verify.reviewer_access)  # /api/reviewer/access (the header link, V4)
     app.include_router(vetting_verify.reviewer)  # /api/reviewer (Vetting V4: reviewers, expert accounts)
     app.include_router(vetting_verify.company)  # /api/company/{cid}/hire/l4/{uid}
