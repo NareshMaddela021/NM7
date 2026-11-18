@@ -134,6 +134,8 @@ def test_fluency_from_timing_pauses_and_fillers():
     # fillers: 2 per 100 words are free, then 4 points each
     um = " ".join(["word"] * 120 + ["um"] * 10)
     assert S.fluency([a(um, 60_000)])["fillersPer100"] == 7.7 and S.fluency([a(um, 60_000)])["score"] == 77
+    # speech events that came in one burst (over 400 a minute) can't be timed: the whole answer time
+    assert S.fluency([{"text": words_130, "seconds": 60, "speech_ms": 5000}])["timing"] == "answer"
     # without speech timing, the whole answer time
     assert S.fluency([{"text": words_130, "seconds": 120}])["timing"] == "answer"
 

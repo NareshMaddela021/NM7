@@ -43,6 +43,7 @@ BAND_TEXT = {
 INTELLIGIBLE = 80  # a provider accuracy at or above this counts as fully clear (100)
 MIN_ANSWERS, MIN_WORDS = 2, 40
 LONG_PAUSE_MS = 3000
+MAX_WPM = 400  # faster than anyone speaks: the speech timing is not usable
 RULES_MAX = 75  # rules alone never give more than this for grammar or comprehension
 NOT_MEASURED = "Pronunciation was not measured (no speech-assessment provider), so the band uses fluency, grammar and comprehension."
 
@@ -134,6 +135,8 @@ def fluency(answers: list[dict[str, Any]]) -> dict[str, Any]:
     from_speech = True
     for a in answers:
         sp = float(a.get("speech_ms") or 0)
+        if sp > 0 and len(words(a["text"])) / (sp / 60_000) > MAX_WPM:
+            sp = 0  # speech events that came in one burst can't be timed: use the whole answer time
         if sp <= 0:
             from_speech = False
             sp = float(a.get("seconds") or 0) * 1000

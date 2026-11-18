@@ -88,7 +88,7 @@ for (const [label, opts] of SIZES) {
       await expect(page.getByTestId('sp-choice-off')).toContainText('choose “Speak my answers” in English', { timeout: 20_000 });
       await page.getByTestId('iv-mode-voice').check();
       const choice = page.getByTestId('sp-choice');
-      await choice.getByTestId('sp-tick').check();
+      await choice.getByTestId('sp-tick').click(); // asks for the consent first: stays unticked
       const consent = choice.getByTestId('sp-consent');
       await expect(consent).toContainText('Voice recordings and transcripts');
       await expect(consent).toContainText('never used to guess your caste, religion, region');
