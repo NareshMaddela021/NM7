@@ -182,6 +182,7 @@ TRUST_FAIRNESS_EVENTS = (
 )
 TRUST_REGRADES = "trust_regrades"  # T12: second-opinion re-grades of AI-graded answers (5% sample), human review
 TRUST_FAIRNESS = "trust_fairness"  # T12: _id = ISO week: the weekly pass-rate gap snapshot (counts per group only)
+TRUST_HIRE_EVENTS = "trust_hire_events"  # T13: _id = job:kind: the first time a job reached a hiring step (no people)
 TRUST_FACE = "trust_face"  # T3: _id = user id: the ID + selfie result, retries, review, joining check (never photos)
 LEARN_PATHS = "learn_paths"  # Phase 6 S2, _id = role id: courses → project → skill check (Admin → Learning paths)
 OFFER_CHECKS = (
@@ -325,6 +326,7 @@ COLLECTIONS = (
     TRUST_FAIRNESS_EVENTS,
     TRUST_REGRADES,
     TRUST_FAIRNESS,
+    TRUST_HIRE_EVENTS,
     VETTING_L4,
     VETTING_REVIEWERS,
     VETTING_INTERVIEWS,
@@ -575,6 +577,7 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel("at"),
     ],  # fmt: skip
     TRUST_FAIRNESS_EVENTS: [IndexModel("at"), IndexModel([("company_id", ASCENDING), ("at", DESCENDING)])],
+    TRUST_HIRE_EVENTS: [IndexModel("job_id"), IndexModel([("company_id", ASCENDING), ("at", DESCENDING)])],
     TRUST_REGRADES: [
         IndexModel([("kind", ASCENDING), ("ref", ASCENDING)], unique=True),
         IndexModel([("status", ASCENDING), ("at", DESCENDING)]),
@@ -725,6 +728,8 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel([("user_id", ASCENDING), ("key", ASCENDING)], unique=True),
         # A7: Auto Apply 2.0's per-channel numbers (Admin → Daily report) count by sent day
         IndexModel([("v2", ASCENDING), ("created_at", ASCENDING)], partialFilterExpression={"v2": True}),
+        # T13: time to hire reads a company's applications per job (aggregations grouped by job)
+        IndexModel([("company_id", ASCENDING), ("job_id", ASCENDING)], sparse=True),
     ],
     ATS_CHECKS: [IndexModel([("user_id", ASCENDING), ("at", DESCENDING)])],
     # _id is the owner's user id; short is the code of the short link

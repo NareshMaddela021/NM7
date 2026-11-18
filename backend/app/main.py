@@ -149,6 +149,7 @@ from app.trust.fairness import router as trust_fairness
 from app.trust.honesty import router as trust_honesty
 from app.trust.integrity import router as trust_integrity
 from app.trust.spoken import router as trust_spoken
+from app.trust.tth import router as trust_tth
 from app.wapay.router import router as wapay_router
 from app.work.router import router as work_router
 
@@ -422,6 +423,8 @@ def create_app() -> FastAPI:
     app.include_router(
         trust_fairness.admin
     )  # /api/admin/trust/fairness (T12: blind grading, re-grades, pass-rate gaps)
+    app.include_router(trust_tth.company)  # /api/company/{cid}/trust/tth (T13: its own time to hire vs the Nm7 median)
+    app.include_router(trust_tth.admin)  # /api/admin/trust/tth (T13: "Needs attention" thresholds)
     app.include_router(vetting_verify.reviewer_access)  # /api/reviewer/access (the header link, V4)
     app.include_router(vetting_verify.reviewer)  # /api/reviewer (Vetting V4: reviewers, expert accounts)
     app.include_router(vetting_verify.company)  # /api/company/{cid}/hire/l4/{uid}

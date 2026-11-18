@@ -601,6 +601,12 @@ async def invite(
             await send_safely(mailer, invite_email(u, c, j, body.note))
     if sent:  # H9: an invite means a candidate was shown for this role
         await db[JOBS].update_one({"_id": j["_id"]}, {"$min": {"hire_speed.first_shown_at": t}})
+        from app.trust.tth.service import (
+            mark as tth_mark,  # Vetting Trust T13 (an invite sent again overwrites its date)
+        )
+
+        for kind in ("shortlist", "contact"):  # the invite email reaches the person
+            await tth_mark(db, j["_id"], kind, company_id=cid, via="invite", at=t)
     await audit(db, None, "hire.invite", target=cid, data={"by": acc["email_lc"], "job": j["_id"], "n": len(sent)})
     return {"sent": len(sent), "skipped": skipped}
 
