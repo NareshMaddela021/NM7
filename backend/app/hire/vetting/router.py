@@ -319,6 +319,9 @@ async def start(body: StartIn, auth: CustomerAuth, db: DB) -> dict[str, Any]:
         again = last["started_at"] + E.RETAKE
         raise ApiError(409, "too_soon", f"You can take the {body.skill} check again from {again:%d %b}.",
                        extra={"againAt": ms(again)})  # fmt: skip
+    from app.trust.face.service import gate
+
+    await gate(db, uid, "skill_check")  # Vetting Trust T3: ID + live selfie first (only while Trust allows this person)
     pool = await active_pool(db, body.skill)
     if len(pool) < E.MIN_PAPER:
         raise ApiError(404, "no_test", "There is no test for this skill yet.")

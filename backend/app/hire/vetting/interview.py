@@ -318,6 +318,9 @@ async def start(body: StartIn, auth: CustomerAuth, db: DB) -> dict[str, Any]:
     if last and last["started_at"] + RETAKE > t:
         raise ApiError(409, "too_soon", f"You can take this interview again from {(last['started_at'] + RETAKE):%d %b}.",
                        extra={"againAt": ms(last["started_at"] + RETAKE)})  # fmt: skip
+    from app.trust.face.service import gate
+
+    await gate(db, uid, "interview")  # Vetting Trust T3: ID + live selfie first (only while Trust allows this person)
     lang = body.lang if body.lang in role["langs"] else "en"
     turns = [{"id": q["id"], "kind": q["kind"], "q": q["q"], "looks_for": q["looks_for"], **{k: q[k] for k in ("te", "hi") if q.get(k)}}
              for q in qs["questions"]]  # fmt: skip

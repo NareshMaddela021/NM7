@@ -138,6 +138,7 @@ from app.trust import age as trust_age
 from app.trust import breach as trust_breach
 from app.trust import consent as trust_consent
 from app.trust.digilocker import router as trust_digilocker
+from app.trust.face import router as trust_face
 from app.wapay.router import router as wapay_router
 from app.work.router import router as work_router
 
@@ -384,6 +385,8 @@ def create_app() -> FastAPI:
     app.include_router(trust_digilocker.me)  # /api/me/trust/documents (T2: DigiLocker documents)
     app.include_router(trust_digilocker.public)  # /api/public/trust/digilocker/callback (T2: the vendor's callback)
     app.include_router(trust_digilocker.admin)  # /api/admin/trust/documents (T2: provider, counts, review)
+    app.include_router(trust_face.me)  # /api/me/trust/face (T3: ID + live selfie, the joining-day check)
+    app.include_router(trust_face.admin)  # /api/admin/trust/face (T3: provider, thresholds, switches, review)
     app.include_router(vetting_verify.reviewer_access)  # /api/reviewer/access (the header link, V4)
     app.include_router(vetting_verify.reviewer)  # /api/reviewer (Vetting V4: reviewers, expert accounts)
     app.include_router(vetting_verify.company)  # /api/company/{cid}/hire/l4/{uid}
