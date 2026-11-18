@@ -5,7 +5,8 @@ Nothing here writes to the sources: V2, V3, V5, T2 and T3 keep working exactly a
   V2 skill checks     skill_attempts (v 2) integrity.reasons, one signal per reason per attempt; cleared when a person
                       cleared the attempt (integrity.cleared_by) or a V5 appeal on it was upheld (retest / corrected),
                       confirmed when the V2 integrity queue held it
-  V3 AI interview     vetting_interviews signals: 3+ paste attempts, or 9+ times away / 3+ minutes away
+  V3 AI interview     vetting_interviews signals: 3+ paste attempts, or 9+ times away / 3+ minutes away; T9 "Explained
+                      own work" graded weak (the answer about their own practical task didn't match it)
   V5 fraud scan       vetting_queue kind "fraud" naming the person: phone, device, duplicate resume, dates, copied
                       answers; cleared / confirmed by the V5 decision
   T2 documents        trust_documents review reasons: the name differs, the same PAN on another account; cleared /
@@ -101,7 +102,18 @@ async def collect(db, uids: list[str], t: datetime) -> dict[str, dict[str, Any]]
     # V3 AI interview
     async for iv in db[VETTING_INTERVIEWS].find(
         {"user_id": {"$in": ids}, "started_at": {"$gt": since}},
-        {"user_id": 1, "test": 1, "started_at": 1, "answered_at": 1, "graded_at": 1, "status": 1, "signals": 1},
+        {
+            "user_id": 1,
+            "test": 1,
+            "started_at": 1,
+            "answered_at": 1,
+            "graded_at": 1,
+            "status": 1,
+            "signals": 1,
+            "explain.label": 1,
+            "explain.reason": 1,
+            "explain.by": 1,
+        },
     ):
         if iv.get("status") in ("graded", "review"):
             out[iv["user_id"]]["observations"] += 1
@@ -115,6 +127,10 @@ async def collect(db, uids: list[str], t: datetime) -> dict[str, dict[str, Any]]
         if int(sig.get("blurs") or 0) > 8 or int(sig.get("blurMs") or 0) > 180_000:
             out[iv["user_id"]]["signals"].append(Signal(key=f"interview:{iv['_id']}:away", kind="iv_away", at=at, where=where,
                                                         detail=f"Away {int(sig.get('blurs') or 0)} times, {int(sig.get('blurMs') or 0) // 1000} s in all", ref=appeal))  # fmt: skip
+        ex = iv.get("explain") or {}
+        if ex.get("label") == "weak":  # T9: a signal for a person, never a rejection
+            out[iv["user_id"]]["signals"].append(Signal(key=f"interview:{iv['_id']}:explain", kind="explain_weak", at=at, where=where,
+                                                        detail=f"Explained own work: weak ({'AI check' if ex.get('by') == 'ai' else 'simple rules'}): {ex.get('reason', '')}"[:500], ref=appeal))  # fmt: skip
 
     # V5 fraud scan (one item can name several people)
     async for q in db[VETTING_QUEUE].find({"kind": "fraud", "users": {"$in": ids}, "updated_at": {"$gt": since}}):

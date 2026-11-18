@@ -124,6 +124,14 @@ KINDS: dict[str, Kind] = {
         "You left the AI interview page often or for a long time.",
         "V3 interview",
     ),
+    # T9 "Explain your answer" in the AI interview: the answer about their own practical task didn't match it
+    "explain_weak": Kind(
+        1.0,
+        2.0,
+        "Explained own work: weak (the interview answer about their own practical task didn't match it)",
+        "In the AI interview, your answer about your own practical task didn’t match what you sent.",
+        "T9 interview",
+    ),
     # V5 daily fraud scan
     "fraud_phone": Kind(
         2.0,

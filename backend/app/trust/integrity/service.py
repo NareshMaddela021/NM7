@@ -217,8 +217,14 @@ async def evidence(db, uid: str) -> dict[str, Any]:
         "score": r["score"], "byKind": r["byKind"], "observations": r["observations"], "signals": [_sig_admin(s) for s in r["signals"]],
         "decisions": {k: {"status": v.get("status"), "note": v.get("note", ""), "at": ms(v.get("at"))} for k, v in (doc.get("decisions") or {}).items()},
         "review": review_out(r.get("review"), True), "reviewedAt": ms(r.get("reviewedAt")), "snapshots": snaps,
-        "snapshotConsent": await C.has(db, uid, PURPOSE), "method": RT.method(),
+        "snapshotConsent": await C.has(db, uid, PURPOSE), "method": RT.method(), "pledges": await _pledges(db, uid),
     }  # fmt: skip
+
+
+async def _pledges(db, uid: str) -> list[dict[str, Any]]:
+    from app.trust.honesty.pledge import records  # Vetting Trust T9: the honesty pledges agreed to (version, when)
+
+    return await records(db, uid)
 
 
 # --- company view: the label only ------------------------------------------------------------------------------------------

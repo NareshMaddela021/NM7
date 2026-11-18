@@ -216,6 +216,10 @@ async def catalog(auth: CustomerAuth, db: DB) -> dict[str, Any]:
     want = await demand(db)
     mine = await suggested_for(db, uid)
     u = await db[USERS].find_one({"_id": uid}, {"vetting_consent_at": 1}) or {}
+    from app.trust.honesty import retake as RK
+
+    pol = await RK.policy(db, uid, "skill")  # Vetting Trust T9: the limits shown = the limits enforced
+    starts = await RK.skill_starts(db, uid, t, pol["days"]) if pol["trust"] else {}
     roles = []
     for r in ROLES:
         n = counts.get(r["test"], 0)
@@ -229,9 +233,15 @@ async def catalog(auth: CustomerAuth, db: DB) -> dict[str, Any]:
             "last": result_out(a, badges.get(r["test"]), t) if a else None, "verified": verified_out(badges.get(r["test"]), t),
             "canStart": E.can_start(a["started_at"] if a else None, t, free) or bool(a and not a.get("submitted_at")),
         })  # fmt: skip
+        if pol["trust"]:
+            rk = RK.out("skill", pol, RK.window(starts.get(r["test"], []), t, pol["attempts"], pol["days"]), free=free,
+                        running=bool(a and not a.get("submitted_at")))  # fmt: skip
+            roles[-1].update(canStart=rk["canStart"], retake=rk)
+            if roles[-1]["last"]:
+                roles[-1]["last"].update(againAt=rk["nextAt"], canRetry=rk["canStart"])
     return {
         "pass": E.PASS_MCQ, "taskPass": E.PASS_TASK, "minutes": E.MINUTES, "questions": E.QUESTIONS,
-        "retakeDays": E.RETAKE.days, "validDays": E.VALID.days, "consentAt": ms(u.get("vetting_consent_at")),
+        "retakeDays": pol["days"] if pol["trust"] else E.RETAKE.days, **({"retakeAttempts": pol["attempts"]} if pol["trust"] else {}), "validDays": E.VALID.days, "consentAt": ms(u.get("vetting_consent_at")),
         "bands": [{"id": k, "label": v["label"]} for k, v in E.BANDS.items()], "roles": roles,
         "topDemand": sorted((r["test"] for r in roles), key=lambda x: -want.get(x, 0))[:5],
     }  # fmt: skip
@@ -255,6 +265,9 @@ class StartIn(CamelModel):
     extra_time: bool = False
     refresh: bool = (
         False  # V5: the 8-question refresher that renews a badge (day 75 on, or up to 30 days after it ended)
+    )
+    pledge: int | None = (
+        None  # Vetting Trust T9: the honesty pledge version ticked (asked only while Trust is on for them)
     )
 
 
@@ -302,6 +315,12 @@ async def start(body: StartIn, auth: CustomerAuth, db: DB) -> dict[str, Any]:
         await _finish(db, last, last.get("answers") or {}, last.get("times") or {}, {}, t, expired=True)
         last = await db[SKILL_ATTEMPTS].find_one({"_id": last["_id"]})
     free = bool(last and last.get("retest_offered") and not last.get("retest_used"))
+    from app.trust.honesty import pledge as PL
+    from app.trust.honesty import retake as RK
+
+    pol = await RK.policy(
+        db, uid, "skill"
+    )  # Vetting Trust T9: Admin limits for Trust people, the engine's rule otherwise
     badge = await db[VETTING_VERIFIED].find_one({"user_id": uid, "test": body.skill}) if body.refresh else None
     if body.refresh:
         if (
@@ -315,10 +334,26 @@ async def start(body: StartIn, auth: CustomerAuth, db: DB) -> dict[str, Any]:
                 "no_refresh",
                 "The refresher opens 75 days after you got the badge (and up to 30 days after it ends).",
             )
+        wait = await RK.refresh_wait(db, uid, body.skill, t, pol)  # T9: a failed refresher can't be retried at once
+        if wait:
+            raise ApiError(
+                409, "too_soon", f"You can take the refresher again from {wait:%d %b}.", extra={"againAt": ms(wait)}
+            )
+    elif last and pol["trust"] and not free:
+        w = RK.window(
+            (await RK.skill_starts(db, uid, t, pol["days"], body.skill)).get(body.skill, []),
+            t,
+            pol["attempts"],
+            pol["days"],
+        )
+        if not w["allowed"]:
+            raise ApiError(409, "too_soon", f"You can take the {body.skill} check again from {w['nextAt']:%d %b}.",
+                           extra={"againAt": ms(w["nextAt"])})  # fmt: skip
     elif last and not E.can_start(last["started_at"], t, free):
         again = last["started_at"] + E.RETAKE
         raise ApiError(409, "too_soon", f"You can take the {body.skill} check again from {again:%d %b}.",
                        extra={"againAt": ms(again)})  # fmt: skip
+    pledged = await PL.check(db, uid, body.pledge, lang, t)  # T9: the honesty pledge (only while Trust is on for them)
     from app.trust.face.service import gate
 
     await gate(db, uid, "skill_check")  # Vetting Trust T3: ID + live selfie first (only while Trust allows this person)
@@ -337,7 +372,7 @@ async def start(body: StartIn, auth: CustomerAuth, db: DB) -> dict[str, Any]:
         "order": {str(q["_id"]): E.option_order(q, rng) for q in picked}, "started_at": t, "last_seen": t,
         "ends_at": t + timedelta(milliseconds=total) + E.RESUME_WITHIN, "total_ms": total, "remaining_ms": total,
         "pauses": 0, "answers": {}, "times": {}, "signals": {}, "total": len(picked), "share": False,
-        "submitted_at": None,
+        "submitted_at": None, **({"pledge": pledged} if pledged else {}),
     }  # fmt: skip
     if free:
         await db[SKILL_ATTEMPTS].update_one({"_id": last["_id"]}, {"$set": {"retest_used": True}})
@@ -513,14 +548,30 @@ async def _queue(db, kind: str, a: dict[str, Any], data: dict[str, Any]) -> None
 @me.get("/{aid}", dependencies=V2_ONLY)
 async def result(aid: str, auth: CustomerAuth, db: DB) -> dict[str, Any]:
     a = await _mine(db, aid, auth.user.id)
-    return result_out(a, await db[VETTING_VERIFIED].find_one({"user_id": a["user_id"], "test": a["skill"]}))
+    r = result_out(a, await db[VETTING_VERIFIED].find_one({"user_id": a["user_id"], "test": a["skill"]}))
+    from app.trust.honesty import pledge as PL
+    from app.trust.honesty import retake as RK
+
+    pol = await RK.policy(db, a["user_id"], "skill")
+    if pol["trust"]:  # Vetting Trust T9: the real limits, and the pledges recorded with this attempt
+        last = await db[SKILL_ATTEMPTS].find_one(
+            {"user_id": a["user_id"], "skill": a["skill"]}, sort=[("started_at", -1)]
+        )
+        rk = await RK.skill_status(db, a["user_id"], a["skill"], now(), last, pol)
+        r.update(retake=rk, againAt=rk["nextAt"], canRetry=rk["canStart"], pledge=PL.out(a.get("pledge")),
+                 taskPledge=PL.out((a.get("task") or {}).get("pledge")))  # fmt: skip
+    return r
 
 
 # --- the practical task -----------------------------------------------------------------------------------------
 
 
+class TaskStartIn(CamelModel):
+    pledge: int | None = None  # Vetting Trust T9: the honesty pledge version ticked
+
+
 @me.post("/{aid}/task/start", dependencies=V2_ONLY)
-async def task_start(aid: str, auth: CustomerAuth, db: DB) -> dict[str, Any]:
+async def task_start(aid: str, auth: CustomerAuth, db: DB, body: TaskStartIn | None = None) -> dict[str, Any]:
     a = await _mine(db, aid, auth.user.id)
     if not a.get("submitted_at") or (a.get("score") or 0) < E.PASS_MCQ:
         raise ApiError(409, "locked", f"The practical task opens after scoring {E.PASS_MCQ} or more in the test.")
@@ -535,8 +586,12 @@ async def task_start(aid: str, auth: CustomerAuth, db: DB) -> dict[str, Any]:
         raise ApiError(409, "done", "You have sent this task already.")
     task = meta["task"]
     if not tk.get("started_at"):
+        from app.trust.honesty import pledge as PL
+
+        pledged = await PL.check(db, a["user_id"], (body or TaskStartIn()).pledge, a.get("lang", "en"), t)  # T9
         tk = {"status": "started", "type": task["type"], "started_at": t,
-              "ends_at": t + timedelta(minutes=task["minutes"] * (E.EXTRA_TIME if a.get("extra_time") else 1) + 2)}  # fmt: skip
+              "ends_at": t + timedelta(minutes=task["minutes"] * (E.EXTRA_TIME if a.get("extra_time") else 1) + 2),
+              **({"pledge": pledged} if pledged else {})}  # fmt: skip
         await db[SKILL_ATTEMPTS].update_one({"_id": a["_id"]}, {"$set": {"task": tk}})
     lang = a.get("lang", "en")
     situations = []
