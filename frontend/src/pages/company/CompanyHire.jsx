@@ -124,6 +124,7 @@ export default function CompanyHire({ t, c }) {
   const [vf, setVf] = useState(NO_FILTERS); // Vetting V2 and V1 filters (the ones the list is loaded with)
   const [nt, setNt] = useState(NT_NONE); // Vetting Trust T6: non-tech filters
   const [ntCounts, setNtCounts] = useState(null); // kept while the list reloads, so the filters don't jump
+  const [ntEnglish, setNtEnglish] = useState(false); // Vetting Trust T10: this job's role category offers "Spoken English"
   const [typed, setTyped] = useState({ salaryMax: '', city: '' }); // V1 text filters, applied after a short pause
   const setV = (k) => (e) => setVf((x) => ({ ...x, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
   const setT = (k) => (e) => setTyped((x) => ({ ...x, [k]: e.target.value }));
@@ -148,7 +149,7 @@ export default function CompanyHire({ t, c }) {
     setErr(''); setD(null); setShown(PAGE);
     try {
       const [s, inv] = await Promise.all([rq(`/api/company/${c.id}/hire/shortlist?${shortlistQuery(job, { support, ...vf }, nt)}`), rq(`/api/company/${c.id}/hire/invites?job=${encodeURIComponent(job)}`)]);
-      setD(s); setInvites(inv); setNtCounts(s.nonTech ? s.nonTech.counts : null);
+      setD(s); setInvites(inv); setNtCounts(s.nonTech ? s.nonTech.counts : null); setNtEnglish(!!s.nonTech?.englishFilter);
     } catch (x) { setErr(x.message); setD({ items: [] }); }
   }, [c.id, job, verified, support, vf, nt]);
   useEffect(() => { load(); }, [load]);
@@ -248,7 +249,7 @@ export default function CompanyHire({ t, c }) {
             </select>
           </label>
         </fieldset>}
-        {ntCounts && <NonTechFilters f={nt} setF={setNt} counts={ntCounts} />}
+        {ntCounts && <NonTechFilters f={nt} setF={setNt} counts={ntCounts} english={!!ntEnglish} />}
         {d?.vetting && filtered(vf) && <button type="button" className="btn btn-outline hn-clear" onClick={clear} data-testid="co-hire-lv-clear">{lv('lv.f.clear')}</button>}
         {d?.usage && <span className="mchip mchip-info hn-usage" data-testid="co-hire-usage">{t('co.hire.usage', { used: d.usage.used, free: d.usage.free })}</span>}
       </div>
