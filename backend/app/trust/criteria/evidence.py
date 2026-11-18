@@ -21,8 +21,6 @@ become "[removed]". Quotes are checked against these anonymised lines, so a quot
 
 import hashlib
 import json
-import re
-from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
@@ -39,65 +37,19 @@ from app.core.db import (
     VETTING_INTERVIEWS,
     VETTING_VERIFIED,
 )
-from app.core.pii import PHONE
 from app.core.time import IST, now
 from app.jobsearch.score import Resume
-from app.trust import knockout as K
+from app.trust.fairness import blind as B
 
 SOURCES = ("resume", "skill_check", "interview", "documents", "prefs", "certificate")
 LABEL = {"resume": "Resume", "skill_check": "Skill check", "interview": "AI interview", "documents": "DigiLocker",
          "prefs": "Work preferences (self-declared)", "certificate": "Certificate checked by Nm7"}  # fmt: skip
-GONE = "[removed]"
+GONE = B.GONE
 MAX_LINES = 80  # per source
-MAX_LINE = 400
-
-EMAIL = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
-URL = re.compile(r"\b(?:https?://|www\.)\S+|\b(?:linkedin|github|facebook|instagram|twitter)\.com/\S*", re.IGNORECASE)
-DOB = re.compile(
-    r"\b(?:d\.?o\.?b\.?|date of birth|born(?: on| in)?|birth ?day)\b\s*[:\-]?\s*[\w ,./-]{0,24}?(?:\d{4}|\d{1,2}[/.-]\d{1,2}[/.-]\d{2,4})",
-    re.IGNORECASE,
-)
-AGE = re.compile(r"\b\d{2}\s*(?:years?|yrs?)\s*(?:old|of age)\b|\bage[d]?\s*[:\-]?\s*\d{2}\b", re.IGNORECASE)
-TITLES = re.compile(r"\b(?:Mr|Mrs|Ms|Miss|Shri|Smt|Kumari|MR|MRS|SMT)\b\.?(?=\s+[A-Z][a-z])")  # "MS Excel" stays
-COLLEGE = re.compile(
-    r"\b(?:[A-Z][\w&.'-]*\s+){0,5}(?:College|University|Institute|Vidyalaya|Vidyapeeth|Vidyapith|Polytechnic|Academy)\b(?:\s+of(?:\s+[A-Z][\w&.'-]*){1,4})?"
-    r"|\b(?:IIT|NIT|IIIT|IIM|BITS)\b(?:\s+[A-Z][a-z]+)?"
-)
-PERSONAL = ("gender", "religion", "caste", "marital", "pregnancy")
-
-
-def anonymiser(
-    name: str = "", email: str = "", phone: str = "", extra: list[str] | None = None
-) -> Callable[[str], str]:
-    """A function that removes this person's details (and the general kinds above) from a line of text."""
-    words = [w for w in re.split(r"[\s.]+", name or "") if len(w) >= 3]
-    exact = sorted(
-        {x.strip() for x in [name, email, phone, *(extra or []), *words] if x and len(x.strip()) >= 3},
-        key=len,
-        reverse=True,
-    )
-    exact_rx = (
-        re.compile(r"(?<!\w)(?:" + "|".join(re.escape(x) for x in exact) + r")(?!\w)", re.IGNORECASE) if exact else None
-    )
-    digits = re.sub(r"\D", "", phone or "")[-10:]
-    phone_rx = re.compile(r"(?<!\d)" + r"[\s-]?".join(digits) + r"(?!\d)") if len(digits) == 10 else None
-
-    def scrub(text: str) -> str:
-        s = TITLES.sub(GONE, str(text or ""))
-        for rx in (URL, EMAIL, DOB, AGE):
-            s = rx.sub(GONE, s)
-        if phone_rx:
-            s = phone_rx.sub(GONE, s)
-        s = PHONE.sub(GONE, s)
-        if exact_rx:
-            s = exact_rx.sub(GONE, s)
-        s = COLLEGE.sub(GONE, s)
-        for k in PERSONAL:
-            s = K._TOPIC_RX[k].sub(GONE, s)
-        s = re.sub(r"(?:\[removed\][\s,]*){2,}", GONE + " ", s)
-        return " ".join(s.split())[:MAX_LINE]
-
-    return scrub
+MAX_LINE = B.MAX_LINE
+# T12: the anonymiser lives in app/trust/fairness/blind.py (one for every AI grading call); these names stay for callers
+EMAIL, URL, DOB, AGE, TITLES, COLLEGE, PERSONAL = B.EMAIL, B.URL, B.DOB, B.AGE, B.TITLES, B.COLLEGE, B.PERSONAL
+anonymiser = B.anonymiser
 
 
 def norm(text: str) -> str:
@@ -297,15 +249,7 @@ async def bundles(db, uids: list[str], resumes: dict[str, dict[str, Any] | None]
         u = users.get(uid) or {}
         r = resumes.get(uid) or {}
         data = r.get("data") or {}
-        pers = data.get("personal") or {}
-        extra = [str(pers.get(k) or "") for k in ("location", "address", "dob", "city", "pincode")]
-        extra += [str(e.get("institution") or "") for e in data.get("edu") or [] if isinstance(e, dict)]
-        extra += [str(pers.get("name") or "")] + [
-            w for w in re.split(r"\s+", str(pers.get("name") or "")) if len(w) >= 3
-        ]
-        scrub = anonymiser(
-            u.get("name", ""), u.get("email", "") or str(pers.get("email") or ""), str(pers.get("phone") or ""), extra
-        )
+        scrub = anonymiser(*B.identifiers(u, r))  # T12: the shared anonymiser
         b = Bundle(uid)
         if data:
             b.lines["resume"], b.exp_lines, b.edu_lines = _resume_lines(data, scrub)

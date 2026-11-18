@@ -29,10 +29,10 @@ import anthropic
 
 from app.core import ai_quota, claude
 from app.core.config import get_settings
-from app.core.db import RESUMES, SKILL_ATTEMPTS, USERS, VETTING_VERIFIED
+from app.core.db import SKILL_ATTEMPTS, VETTING_VERIFIED
 from app.core.errors import ApiError
 from app.core.time import now
-from app.trust.criteria.evidence import anonymiser, quote_in
+from app.trust.criteria.evidence import quote_in
 
 log = logging.getLogger("nm7.trust.explain")
 
@@ -121,38 +121,11 @@ async def source(db, uid: str, test: str) -> dict[str, Any] | None:
 
 
 async def scrubber(db, uid: str):
-    """Removes this person's details (name, email, phone, address, colleges, …) and the general kinds (T7's anonymiser)."""
-    u = await db[USERS].find_one({"_id": uid}, {"name": 1, "email": 1, "phone": 1}) or {}
-    r = (
-        await db[RESUMES].find_one({"user_id": uid, "active": True})
-        or await db[RESUMES].find_one({"user_id": uid}, sort=[("updated_at", -1)])
-        or {}
-    )
-    data = r.get("data") or {}
-    pers = data.get("personal") or {}
-    extra = [
-        str(pers.get(k) or "") for k in ("name", "location", "address", "dob", "city", "pincode", "email", "phone")
-    ]
-    extra += [str(e.get("institution") or "") for e in data.get("edu") or [] if isinstance(e, dict)]
-    one = anonymiser(u.get("name", ""), u.get("email", ""), str(u.get("phone") or pers.get("phone") or ""), extra)
+    """Removes this person's details (name, email, phone, address, colleges, …) and the general kinds (T12: the one
+    shared anonymiser, app/trust/fairness/blind.py)."""
+    from app.trust.fairness import blind
 
-    def scrub(text: str) -> str:
-        # the anonymiser works on a line (it keeps 400 characters): go sentence by sentence
-        parts = [p for p in re.split(r"(?<=[.!?।\n])\s+", str(text or "")) if p.strip()]
-        out, chunk = [], ""
-        for p in parts:
-            if len(chunk) + len(p) > 350 and chunk:
-                out.append(one(chunk))
-                chunk = ""
-            chunk = f"{chunk} {p}".strip()
-            while len(chunk) > 380:
-                out.append(one(chunk[:380]))
-                chunk = chunk[380:]
-        if chunk:
-            out.append(one(chunk))
-        return " ".join(x for x in out if x)[:MAX_SOURCE]
-
-    return scrub
+    return await blind.scrubber_for(db, uid, MAX_SOURCE)
 
 
 # --- questions -------------------------------------------------------------------------------------------------------------

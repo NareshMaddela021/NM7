@@ -676,6 +676,8 @@ async def task_submit(aid: str, body: TaskIn, auth: CustomerAuth, db: DB) -> dic
             g = await grade.grade_text(db, a["user_id"], role, task, rubric, answer, speech)
             labels = {c["key"]: c["label"] for c in rubric}
             score = E.task_score(g["scores"])
+            if g.get("blind"):  # Vetting Trust T12: graded on the anonymised answer
+                tk["blind"] = True
             tk.update(score=score, confidence=g["confidence"], model=g["model"],
                       feedback=[{**s, "label": labels[s["key"]]} for s in g["scores"]],
                       status="review" if E.needs_review(score, g["confidence"]) else "graded")  # fmt: skip

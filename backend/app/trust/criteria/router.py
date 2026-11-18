@@ -137,13 +137,21 @@ async def put_criteria(
     cid: str, jid: str, body: CriteriaIn, db: DB, x_recruiter_account: str | None = Header(None)
 ) -> dict[str, Any]:
     acc, _, j = await _company_job(db, cid, jid, x_recruiter_account, POST)
-    items = []
+    from app.trust.fairness import filters as F  # Vetting Trust T12: direct filters refused, proxies warned
+
+    items, warned = [], []
     for x in body.items:
         text = X.tidy(x.text)
         if len(text) < X.MIN_TEXT:
             raise ApiError(400, "too_short", "Each requirement needs a few words.")
+        fs = F.check_text(text)
         if topic := X.unfair(text):
+            await F.log(db, cid, "criteria", [{"topic": topic, "level": "refuse", "phrase": text}], "refused")
             raise ApiError(400, "unfair", X.refusal(topic), extra={"topic": topic, "text": text})
+        if F.refused(fs):
+            await F.log(db, cid, "criteria", F.refused(fs), "refused")
+            raise ApiError(400, "unfair", F.refusal_text(fs), extra={"topic": F.refused(fs)[0].topic, "text": text})
+        warned += F.warned(fs)
         items.append({"kind": x.kind, "text": text, "must": x.must, "by": "company"})
     if len(items) > X.MAX_ITEMS:
         raise ApiError(400, "too_many", f"Keep it to {X.MAX_ITEMS} requirements at most.")
@@ -159,7 +167,8 @@ async def put_criteria(
     await audit(
         db, None, "trust.criteria_edit", target=cid, data={"by": acc["email_lc"], "job": jid, "n": len(cleaned)}
     )
-    return X.out(await db[TRUST_CRITERIA].find_one({"_id": jid}), j)
+    await F.log(db, cid, "criteria", warned, "override")
+    return {**X.out(await db[TRUST_CRITERIA].find_one({"_id": jid}), j), "fairness": F.out(warned)}
 
 
 @company.post("/{cid}/trust/criteria/{jid}/reextract")

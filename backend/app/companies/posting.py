@@ -142,6 +142,41 @@ def company_job_out(j: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+async def _fair(
+    db, c: dict[str, Any], acc: dict[str, Any], job: Any, qs: list[dict[str, Any]]
+) -> dict[str, list] | None:
+    """Vetting Trust T12 (where the switch lets this company in): discriminatory filters in the job and its questions —
+    direct ones refused, proxies warned ({"job": [...], "question": [...]} findings); None = as before."""
+    from app.trust import access as trust_access
+    from app.trust.fairness import filters as F
+
+    if not job or not await trust_access.for_company(db, c, acc):
+        return None
+    d = job.model_dump()
+    return {"job": F.check_text(F.job_text(d, [])), "question": F.check_text(F.job_text({}, qs))}
+
+
+async def _fair_apply(
+    db, cid: str, fair: dict[str, list] | None, res: dict[str, Any], action: str
+) -> list[dict[str, Any]]:
+    """Adds refused phrases to `blocked`, logs the findings (shown on Check; refused / override on post and edit) and
+    returns them for the page."""
+    from app.trust.fairness import filters as F
+
+    if fair is None:
+        return []
+    allf = fair["job"] + fair["question"]
+    res["blocked"] = sorted(set(res["blocked"]) | {f.phrase for f in F.refused(allf)})
+    for where, fs in fair.items():
+        if action == "shown":
+            await F.log(db, cid, where, fs, "shown")
+        else:
+            await F.log(db, cid, where, F.refused(fs), "refused")
+            if not F.refused(allf):
+                await F.log(db, cid, where, F.warned(fs), "override")
+    return F.out(allf)
+
+
 def _with_questions(description: str, qs: list[dict[str, Any]]) -> str:
     """The questions are checked for unfair wording and scam signs like the description."""
     return "\n".join([description, *(q["text"] for q in qs), *(o for q in qs for o in q.get("options") or [])])
@@ -156,7 +191,8 @@ async def check_job(cid: str, body: JobBody, db: DB, x_recruiter_account: str | 
     if not job or errors:
         return {"errors": errors, "blocked": [], "scam": [], "warnings": [], "duplicate": False}
     res = jobcheck.check({**job.model_dump(), "description": _with_questions(job.description, qs)}, await _lists(db))
-    return {"errors": [], **res, "duplicate": await _duplicate(db, cid, job)}
+    fair = await _fair_apply(db, cid, await _fair(db, c, acc, job, qs), res, "shown")  # Vetting Trust T12
+    return {"errors": [], **res, "duplicate": await _duplicate(db, cid, job), **({"fairness": fair} if fair else {})}
 
 
 def _controls(raw: dict[str, Any]) -> dict[str, Any] | None:
@@ -191,12 +227,13 @@ async def post_job(
         raise ApiError(400, "invalid", " ".join(errors), extra={"errors": errors})
     geo = _geo(body.job, rules)
     res = jobcheck.check({**job.model_dump(), "description": _with_questions(job.description, qs)}, await _lists(db))
+    fair = await _fair_apply(db, cid, await _fair(db, c, acc, job, qs), res, "post")  # Vetting Trust T12
     if res["blocked"]:
         raise ApiError(
             400,
             "unfair_wording",
             f"Please remove: {', '.join(res['blocked'])}. Jobs on Nm7 must be open to everyone who can do the work.",
-            extra={"blocked": res["blocked"]},
+            extra={"blocked": res["blocked"], **({"fairness": fair} if fair else {})},
         )
     if await _duplicate(db, cid, job):
         raise ApiError(409, "duplicate", "You already have this job open in the same city. Edit that one instead.")
@@ -252,7 +289,7 @@ async def post_job(
             "reasons": reasons,
         },
     )
-    out = {**company_job_out(doc), "warnings": res["warnings"]}
+    out = {**company_job_out(doc), "warnings": res["warnings"], **({"fairness": fair} if fair else {})}
     if await aa_access.for_company(db, c, acc):
         out["autoApply"] = instant.controls_out(doc, 0) if instant.eligible(doc) else None
     return out
@@ -367,10 +404,12 @@ async def edit_job(
         raise ApiError(400, "invalid", " ".join(errors), extra={"errors": errors})
     geo = _geo(body.job, rules)
     res = jobcheck.check({**job.model_dump(), "description": _with_questions(job.description, qs)}, await _lists(db))
+    fair = await _fair_apply(db, cid, await _fair(db, c, acc, job, qs), res, "edit")  # Vetting Trust T12
     if res["blocked"]:
         raise ApiError(
-            400, "unfair_wording", f"Please remove: {', '.join(res['blocked'])}.", extra={"blocked": res["blocked"]}
-        )
+            400, "unfair_wording", f"Please remove: {', '.join(res['blocked'])}.",
+            extra={"blocked": res["blocked"], **({"fairness": fair} if fair else {})},
+        )  # fmt: skip
     if await _duplicate(db, cid, job, not_id=jid):
         raise ApiError(409, "duplicate", "You already have this job open in the same city.")
     sets = {**to_doc(job), "updated_at": now(), "dedupe_key": old["dedupe_key"], "questions": qs}
@@ -384,7 +423,11 @@ async def edit_job(
         upd["$inc"] = {"edit_count": 1}
     await db[JOBS].update_one({"_id": jid}, upd)
     await audit(db, None, "company.job_edit", target=cid, data={"by": acc["email_lc"], "job": jid, "title": job.title})
-    return {**company_job_out(await _mine(db, cid, jid)), "warnings": res["warnings"]}
+    return {
+        **company_job_out(await _mine(db, cid, jid)),
+        "warnings": res["warnings"],
+        **({"fairness": fair} if fair else {}),
+    }
 
 
 class StatusIn(CamelModel):

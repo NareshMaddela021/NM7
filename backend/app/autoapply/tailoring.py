@@ -121,11 +121,20 @@ def job_words(p) -> str:
     return " ".join([p.title or "", p.company or "", p.location or ""])
 
 
-def prompt(p, data: dict[str, Any], a: dict[str, Any]) -> str:
+def prompt(p, data: dict[str, Any], a: dict[str, Any], scrub=None) -> str:
+    """`scrub` (Vetting Trust T12, blind: the person's details and the general kinds removed, no school / college
+    names) for people the Trust switch lets in; else as before."""
     from app.jobsearch.tailor import bullets_of
 
     resume = facts.resume_text(fair_resume(data))
     head = ((data.get("personal") or {}).get("headline")) or ""
+    bullets = bullets_of(data)[:20]
+    if scrub:
+        from app.trust.fairness.blind import blind_resume
+
+        resume = scrub(facts.resume_text(fair_resume(blind_resume(data))))
+        head = scrub(head)
+        bullets = [{**b, "text": scrub(b["text"])} for b in bullets]
     job = [
         f"Title: {p.title}",
         f"Company: {p.company}",
@@ -150,7 +159,7 @@ def prompt(p, data: dict[str, Any], a: dict[str, Any]) -> str:
             "</job>",
             "Skills, as written: " + ", ".join(truth.skill_items(data)),
             "Bullets to rephrase (id: text):",
-            *[f"{b['id']}: {b['text']}" for b in bullets_of(data)[:20]],
+            *[f"{b['id']}: {b['text']}" for b in bullets],
             f"Answer keys: {', '.join(ANSWER_KEYS)}.",
         ]
     )
@@ -171,8 +180,10 @@ def check(raw: Any) -> dict[str, Any]:
     }
 
 
-async def call_model(p, data: dict[str, Any], a: dict[str, Any], stats: dict[str, Any] | None = None) -> dict:
-    content = [{"type": "text", "text": prompt(p, data, a)}]
+async def call_model(
+    p, data: dict[str, Any], a: dict[str, Any], stats: dict[str, Any] | None = None, scrub=None
+) -> dict:
+    content = [{"type": "text", "text": prompt(p, data, a, scrub)}]
     return await claude.ask_models(
         "autoapply_tailor",
         content,
@@ -324,6 +335,14 @@ def ai_problems(p, data: dict[str, Any], a: dict[str, Any], ai: dict[str, Any], 
         found += truth.problems(line, orig, allowed, typed)
     for x in ai.get("answers") or []:
         found += truth.problems(str(x.get("answer") or ""), orig, allowed, typed)
+    texts = [
+        ai.get("summary") or "",
+        *(ai.get("cover_note") or []),
+        *(str(x.get("answer") or "") for x in ai.get("answers") or []),
+        *(str(b.get("text") or "") for b in ai.get("bullets") or [] if isinstance(b, dict)),
+    ]
+    if any("[removed]" in t for t in texts):  # T12 blind prompt: a removed detail can never reach what is sent
+        found.append("a removed personal detail")
     return list(dict.fromkeys(found))
 
 
@@ -426,8 +445,11 @@ async def _ai(db, uid: str, p, data: dict[str, Any], a: dict[str, Any], stats: d
     except Exception:  # noqa: BLE001 — the person's or the site's daily AI limit: the rules version
         stats["ai"] = "limited"
         return None
+    from app.trust.fairness import blind
+
+    scrub = await blind.maybe(db, uid)  # Vetting Trust T12: blind prompt where the Trust switch lets the person in
     try:
-        return await call_model(p, data, a, stats)
+        return await (call_model(p, data, a, stats, scrub=scrub) if scrub else call_model(p, data, a, stats))
     except Exception:  # noqa: BLE001 — unusable or an API error: the rules version
         log.warning("auto apply 2.0: AI tailoring failed; rules used")
         await ai_quota.note(db, "autoapply_tailor", "fallback")
