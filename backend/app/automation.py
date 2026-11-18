@@ -210,7 +210,12 @@ async def run_rules(db: AsyncDatabase, mailer: Mailer | None = None) -> dict[str
         await release_lease(db)
 
 
-async def loop(get_db) -> None:
+START_DELAY = 45  # seconds after start before the first pass: the port is open and answering health checks first
+
+
+async def loop(get_db, first_delay: float = 0) -> None:
+    if first_delay:
+        await asyncio.sleep(first_delay)
     while True:
         try:
             await run_rules(get_db())

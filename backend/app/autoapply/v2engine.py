@@ -18,6 +18,7 @@ The daily limit (default 10, at most 25) counts what was prepared or sent today;
 one-tap jobs don't use it.
 """
 
+import asyncio
 from datetime import datetime, timedelta
 from typing import Any
 
@@ -246,7 +247,11 @@ async def run_user(db, u: dict[str, Any], site: dict[str, Any], day: str, counts
     fits = await fitmod.fits(db, uid, p, jobs)
     level = int(((await db[USERS].find_one({"_id": uid}, {"vetting": 1}) or {}).get("vetting") or {}).get("level") or 0)
     pens = await learning.penalties(db, uid)
-    scored = [(j, score.parts(j, fits[j["_id"]], a, level, pens, t)) for j in jobs]
+    scored = []
+    for n, j in enumerate(jobs):
+        scored.append((j, score.parts(j, fits[j["_id"]], a, level, pens, t)))
+        if n % 50 == 49:
+            await asyncio.sleep(0)  # a long list: let the server answer requests
     scored.sort(key=lambda x: -x[1]["score"])
     blocked = set(a.get("blocked_companies") or [])
     waiting = suggested = 0
