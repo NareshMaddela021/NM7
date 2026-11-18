@@ -7,7 +7,8 @@
 //                after the notice period.
 //   DigiLocker   (T2) the document provider, keys set / not set, the callback URL, counts and the review queue
 //                (TrustDocsAdmin.jsx); ID + selfie (T3, TrustFaceAdmin.jsx); Employer checks and Fraud reports (T4,
-//                TrustEmployerAdmin.jsx); Calls & WhatsApp (T5, TrustAgentAdmin.jsx).
+//                TrustEmployerAdmin.jsx); Calls & WhatsApp (T5, TrustAgentAdmin.jsx); Integrity rating (T8,
+//                TrustIntegrityAdmin.jsx: review queue, evidence view, webcam snapshots).
 //   Breach log   72-hour incidents: detected at, data, people, status, the CERT-In 6 h and Board 72 h countdowns,
 //                notifications sent (docs/trust/breach-runbook.md).
 // All from /api/admin/trust/* (every change audited).
@@ -17,6 +18,7 @@ import { Loading, http, useAction, useApi, when } from './common';
 import TrustDocsAdmin from './TrustDocsAdmin';
 import TrustCriteriaAdmin from './TrustCriteriaAdmin'; // T7: evidence candidates added for job requirements
 import TrustFaceAdmin from './TrustFaceAdmin';
+import TrustIntegrityAdmin from './TrustIntegrityAdmin'; // T8: integrity rating, review queue, evidence, snapshots
 import TrustEmployerAdmin from './TrustEmployerAdmin';
 import TrustAgentAdmin from './TrustAgentAdmin';
 
@@ -210,6 +212,7 @@ export default function TrustAdmin() {
       {!st.error && <TrustDocsAdmin />}
       {!st.error && <TrustCriteriaAdmin />}
       {!st.error && <TrustFaceAdmin />}
+      {!st.error && <TrustIntegrityAdmin />}
       {!st.error && <TrustEmployerAdmin />}
       {!st.error && <TrustAgentAdmin />}
       {!st.error && <Breaches />}

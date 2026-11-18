@@ -24,6 +24,7 @@ const Classic = lazy(lazyRetry(() => import('./MeSkillChecksClassic')));
 const TestRunner = lazy(lazyRetry(() => import('./vetting/TestRunner')));
 const Result = lazy(lazyRetry(() => import('./vetting/Result')));
 const FaceCheck = lazy(lazyRetry(() => import('./trust/FaceCheck'))); // Vetting Trust T3: ID + selfie before a test
+const SnapshotChoice = lazy(lazyRetry(() => import('./trust/Snapshots').then((m) => ({ default: m.SnapshotChoice })))); // Vetting Trust T8: optional webcam snapshots (own consent)
 
 const MONITORED = [
   ['Leaving the test page', 'how many times, and for how long'],
@@ -148,6 +149,7 @@ function StartDialog({ r, cat, preset, needConsent, onConsent, onClose, onGo }) 
           <input type="checkbox" checked={extra} onChange={(e) => setExtra(e.target.checked)} data-testid="vt-extra" />
           <span><strong>I need extra time</strong><span className="xs muted" style={{ display: 'block' }}>For a disability, reading difficulty or a slow phone: 1½ times the time. It doesn’t change your score.</span></span>
         </label>
+        <Suspense fallback={null}><SnapshotChoice kind="skill" /></Suspense>
         {needConsent && (
           <div className="stack g8">
             <strong className="small">What the test page checks</strong>
