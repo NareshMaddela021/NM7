@@ -1,10 +1,12 @@
 // The two Vetting Trust links that work without signing in (T1), opened from an email at /stop-alerts#k=…&t=…:
 //   k=consent  take back consents (a signed link, valid 30 days; "all" or one purpose)
 //   k=parent   a parent or guardian agrees (or not) for an under-18 (a one-time link, valid 7 days)
+//   k=book · k=join · k=cjoin   T11: interview times, the joining day, the company's "did they join?" (BookingLink.jsx)
 // The token stays in the address fragment, so it never reaches server logs.
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { http } from '../../../services/http';
+import { Book, CompanyJoin, Join } from './BookingLink'; // T11: the one-tap interview / joining-day links
 
 function Withdraw({ token }) {
   const [items, setItems] = useState(null);
@@ -80,7 +82,13 @@ function Parent({ token }) {
   );
 }
 
+const T11 = { book: ['Book your interview', Book], join: ['Your joining day', Join], cjoin: ['Did they join?', CompanyJoin] };
+
 export default function TrustLink({ kind, token }) {
+  if (T11[kind]) {
+    const [title, Page] = T11[kind];
+    return <><h1 className="display h2">{title}</h1>{token ? <Page token={token} /> : <p>This link is incomplete. Sign in to Nm7 and open My hiring.</p>}</>;
+  }
   return (
     <>
       <h1 className="display h2">{kind === 'parent' ? 'Parent or guardian consent' : 'Take back your consent'}</h1>

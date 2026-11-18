@@ -17,7 +17,7 @@ const KINDS = {
   interviews: { title: 'Interview reminder emails', ask: 'Stop the reminder emails the day before an interview? Interview invitations and changes still come.', done: 'interview reminder emails', api: '/api/public/interviews/stop-reminders', where: <Link to="/me/drive">My drive day</Link> },
 };
 const TrustLink = lazy(() => import('./me/trust/TrustLink')); // Vetting Trust T1: #k=consent (take back) · #k=parent
-const trustKind = (hash) => ((/(?:^#|&)k=(consent|parent)(?:&|$)/.exec(hash || '') || [])[1] || '');
+const trustKind = (hash) => ((/(?:^#|&)k=(consent|parent|book|join|cjoin)(?:&|$)/.exec(hash || '') || [])[1] || ''); // T11: book · join · cjoin
 // A3: an employer's one-click opt-out from Auto Apply 2.0 emails (#k=employer&t=…) has its own page, loaded only here
 const AutoApplyOptOut = lazy(() => import('./AutoApplyOptOut'));
 const kindOf = (hash) => ((/(?:^#|&)k=(interviews|followups|alerts|autoapply|learn|progress)(?:&|$)/.exec(hash || '') || [])[1] || 'health');

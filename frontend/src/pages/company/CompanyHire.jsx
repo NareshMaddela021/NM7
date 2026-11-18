@@ -24,6 +24,7 @@ import { rq } from '../../lib/company';
 import { reasons } from './CompanyApplicants';
 import HireSlots from './HireSlots';
 import HireOffers from './HireOffers';
+import TrustBookings from './TrustBookings'; // Vetting Trust T11 (renders nothing unless the Trust switch allows)
 import HireBulk from './HireBulk';
 import HireSpeed from './HireSpeed';
 import SkillBadge from './SkillBadge';
@@ -320,6 +321,7 @@ export default function CompanyHire({ t, c }) {
       )}
       {job && <HireSlots key={job} t={t} c={c} job={job} canEdit={canInvite} />}
       {job && <HireOffers key={`o-${job}`} t={t} c={c} job={job} people={invites.filter((x) => x.status === 'accepted').map((x) => ({ key: x.key, name: x.name }))} canEdit={canInvite} />}
+      {job && <TrustBookings key={`tb-${job}`} c={c} job={job} canEdit={canInvite} />}
       {invites.length > 0 && (
         <section className="mcard" aria-labelledby="co-hire-inv-h" data-testid="co-hire-invites">
           <header className="mcard-h"><span className="mcard-ic blue" aria-hidden="true">✉</span><span className="mcard-ht"><strong id="co-hire-inv-h" className="mcard-title">{t('co.hire.invites')}</strong><span className="mcard-sub">{t('co.hire.privacy')}</span></span></header>
