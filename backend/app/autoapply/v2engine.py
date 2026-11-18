@@ -9,8 +9,9 @@ For each job that passes the candidate's rules (app/autoapply/rules.py) and the 
   suggest threshold (55) – 69      → "Suggested for you" (the candidate taps Apply)
   below                            → skipped
 A job whose screening questions the saved answers don't cover waits in "Waiting for you"; the answer is saved to the
-profile (never asked again) and that application is sent at once. Website jobs (apply on the company's site) are
-"Ready" for one tap by the candidate: Nm7 never fills other sites' forms, never touches a CAPTCHA, never creates an
+profile (never asked again) and that application is sent at once. Website jobs (apply on the company's site): A5
+fills only a simple plain-HTML form on the company's OWN site, politely, by plain HTTP (app/autoapply/forms); every
+other website job is "Ready" for one tap by the candidate. Nm7 never touches a CAPTCHA, never logs in, never creates an
 account or stores a password elsewhere, and never uses job boards.
 
 The daily limit (default 10, at most 25) counts what was prepared or sent today; suggestions, waiting questions and
@@ -64,6 +65,8 @@ def stage_of(it: dict[str, Any], app: dict[str, Any] | None) -> tuple[str, str]:
     s = it.get("state")
     if s == "needs_answer":
         return "waiting", ""
+    if s == "form_queued":  # A5: waiting for the background form pass
+        return "ready", ""
     if s in ("applied", "sent", "opened"):
         return "applied", ""
     if s in ("expired",):
@@ -103,6 +106,8 @@ async def send(db, u, it, j, site, mailer=None) -> str:
     upd: dict[str, Any] = {"$set": sets}
     if got["state"] in ("queued", "skipped", "ready"):  # ready: no email channel for this one (A3), one tap
         upd["$unset"] = {"counted_day": ""}
+    elif got["state"] == "form_queued":  # A5: the background form pass sends it (and keeps the proof)
+        sets["counted_day"] = it.get("counted_day") or engine.today()
     else:
         sets["counted_day"] = it.get("counted_day") or engine.today()
         if j["apply"]["method"] != "email":  # the email channel stores its own copy; the others note what went out
@@ -178,7 +183,7 @@ async def run_user(db, u: dict[str, Any], site: dict[str, Any], day: str, counts
             continue
         state = await send(db, u, {**it, "counted_day": day}, j, site, mailer)
         counts[f"v2_{state}"] = counts.get(f"v2_{state}", 0) + 1
-        left -= state in ("applied", "sent")
+        left -= state in ("applied", "sent", "form_queued")
     seen = {x["job_id"] async for x in db[AUTO_ITEMS].find({"user_id": uid}, {"job_id": 1})}
     seen |= {
         x["job_id"] async for x in db[APPLICATIONS].find({"user_id": uid, "job_id": {"$exists": True}}, {"job_id": 1})
@@ -247,9 +252,18 @@ async def run_user(db, u: dict[str, Any], site: dict[str, Any], day: str, counts
             from app.autoapply import emailing
 
             no_mail = await emailing.ready_reason(db, u, j, site)
-        if j["apply"]["method"] == "link" or no_mail:  # the company's own website: Ready for one tap by the candidate
+        no_form = None
+        if j["apply"]["method"] == "link":  # A5: a simple form on the company's own site, else one tap
+            from app.autoapply.forms import service as forms
+
+            no_form = await forms.route(db, u, j, site)
+            if not no_form:
+                extra["channel_v2"] = "form"
+        if no_form or no_mail:  # Ready for one tap by the candidate
             more = {"reason": no_mail, "apply_to": j["apply"].get("email", "")} if no_mail else {}
-            it = await engine._item(db, u, j, "ready", ready_day=day, **extra, **more)
+            if no_form:
+                more = {"reason": no_form, "channel_v2": "one_tap"}
+            it = await engine._item(db, u, j, "ready", ready_day=day, **{**extra, **more})
             if it:
                 copy = await tailoring.build(db, uid, r, j, a)
                 await db[AUTO_ITEMS].update_one({"_id": it["_id"]}, {"$set": {"copy_id": copy["_id"]}})
@@ -275,7 +289,7 @@ async def run_user(db, u: dict[str, Any], site: dict[str, Any], day: str, counts
             continue
         state = await prepare(db, u, it, j, site, day, mailer)
         counts[f"v2_{state}"] = counts.get(f"v2_{state}", 0) + 1
-        if state in ("applied", "sent", "waiting_approval"):
+        if state in ("applied", "sent", "waiting_approval", "form_queued"):
             left -= 1
 
 
@@ -311,7 +325,34 @@ def row(it: dict[str, Any], app: dict[str, Any] | None) -> dict[str, Any]:
         "applyTo": it.get("apply_to") or None if it.get("state") == "ready" else None,  # A3: email it yourself
         "readyReason": it.get("reason") if it.get("state") == "ready" else None,
         "partner": _partner(it.get("partner")),  # A4: sent to the company's hiring system (name, state)
+        "form": _form(it),  # A5: the company's own form (sending / sent / tried, then one tap)
+        "readyText": _ready_text(it),
     }
+
+
+FORM_STATE = {"form_queued": "Sending to the company’s form", "applied": "Sent through the company’s own form",
+              "needs_answer": "The company’s form asks something Nm7 doesn’t know"}  # fmt: skip
+
+
+def _form(it: dict[str, Any]) -> dict[str, Any] | None:
+    proof = it.get("form_proof") or {}
+    if it.get("channel_v2") != "form" and not proof:
+        return None
+    state = it.get("state") or ""
+    if proof and not proof.get("ok"):
+        text = "Nm7 tried the company’s form, but it didn’t go through"
+    else:
+        text = FORM_STATE.get(state, "")
+    return {"state": state, "text": text, "confirmed": bool(proof.get("confirmed")), "ok": proof.get("ok"),
+            "test": bool(proof.get("test"))}  # fmt: skip
+
+
+def _ready_text(it: dict[str, Any]) -> str | None:
+    if it.get("state") != "ready" or not it.get("reason"):
+        return None
+    from app.autoapply.forms.service import REASONS
+
+    return REASONS.get(it["reason"])
 
 
 PARTNER_STATE = {"pending": "Sending", "retrying": "Sending (trying again)", "delivered": "Delivered",
@@ -333,7 +374,8 @@ def _notice(n: dict[str, Any] | None) -> dict[str, Any] | None:
     return {"status": n.get("status"), "text": n.get("text"), "at": ms(n.get("at")), "seen": bool(n.get("seen"))}
 
 
-TRACKED = ("needs_answer", "waiting_approval", "queued", "ready", "applying", "applied", "sent", "opened", "expired")
+TRACKED = ("needs_answer", "waiting_approval", "queued", "ready", "applying", "applied", "sent", "opened", "expired",
+           "form_queued")  # fmt: skip
 
 
 async def tracker(db, uid: str) -> dict[str, Any]:
@@ -387,6 +429,27 @@ async def what_was_sent(db, uid: str, iid: str) -> dict[str, Any] | None:
         "followUp": _email_out(it["follow_up"], it) if it.get("follow_up") else None,
         "replies": await replies_of(db, uid, it["_id"]),
         "partner": _partner(it.get("partner")),
+        "form": _form_proof(it.get("form_proof")),  # A5: the fields sent, the answer and a snapshot of it
+    }
+
+
+def _form_proof(p: dict[str, Any] | None) -> dict[str, Any] | None:
+    from app.me.service import ms
+
+    if not p:
+        return None
+    return {
+        "page": p.get("page") or "",
+        "action": p.get("action") or "",
+        "fields": [{"label": f["label"], "value": f["value"], "kind": f["kind"]} for f in p.get("fields") or []],
+        "file": p.get("file"),
+        "status": p.get("status"),
+        "finalUrl": p.get("final_url") or "",
+        "snapshot": p.get("snapshot") or "",
+        "confirmed": bool(p.get("confirmed")),
+        "ok": bool(p.get("ok")),
+        "test": bool(p.get("test")),
+        "at": ms(p.get("at")),
     }
 
 

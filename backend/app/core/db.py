@@ -110,6 +110,7 @@ AUTO_MAIL_EVENTS = "auto_mail_events"  # _id = the webhook's message id: each Re
 # Auto Apply 2.0 partner integrations (A4)
 ATS_CONNECTIONS = "ats_connections"  # _id = company id: its hiring system (partner, settings, the key encrypted)
 ATS_DELIVERIES = "ats_deliveries"  # one per application sent to a company's hiring system: state, tries, status
+FORM_SITES = "auto_form_sites"  # A5: _id = a company site (host, no www): form / one-tap only, robots, terms, counts
 TALENT_POOL = "talent_pool"  # a company's saved applicants (company_id, user_id), kept as long as the application
 JOB_REMOVALS = "job_removals"  # round J: "remove this job" requests from companies (Admin → Jobs → Removal requests)
 JOB_REPORTS = "job_reports"  # _id = user:job: a student's report of a job (3 from different people pause it)
@@ -242,6 +243,7 @@ COLLECTIONS = (
     AUTO_MAIL_EVENTS,
     ATS_CONNECTIONS,
     ATS_DELIVERIES,
+    FORM_SITES,
     HIRE_PROFILES,
     HIRE_INVITES,
     HIRE_USAGE,
@@ -365,6 +367,7 @@ INDEXES: dict[str, list[IndexModel]] = {
     AUTO_REPLIES: [IndexModel([("user_id", ASCENDING), ("received_at", DESCENDING)]), IndexModel("item_id")],
     AUTO_MAIL_EVENTS: [IndexModel("at", expireAfterSeconds=30 * DAY)],
     ATS_CONNECTIONS: [IndexModel("partner")],
+    FORM_SITES: [IndexModel([("state", ASCENDING), ("last_tried", DESCENDING)])],
     ATS_DELIVERIES: [
         IndexModel("app_id", unique=True),  # one delivery per application, ever
         IndexModel([("state", ASCENDING), ("next_at", ASCENDING)]),

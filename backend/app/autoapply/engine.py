@@ -355,6 +355,10 @@ async def deliver(
             if app
             else {"state": "skipped", "reason": "already"}
         )
+    if j["apply"]["method"] == "link" and item.get("v2"):  # Auto Apply 2.0 (A5): the company's own simple form
+        from app.autoapply.forms import service as forms
+
+        return await forms.enqueue(db, item, j, u, site)  # filled and sent politely by the background form pass
     app = await apply_nm7(db, item, j, u, copy, answers)
     return {"state": "applied", "applied_at": t} if app else {"state": "skipped", "reason": "already"}
 

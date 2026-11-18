@@ -14,6 +14,7 @@ import secrets
 from datetime import timedelta
 from typing import Any
 
+import httpx
 from bson import ObjectId
 from fastapi import APIRouter, Request, Response
 from pydantic import Field
@@ -45,6 +46,22 @@ V2_JOBS = (
     ("demo-tech-solutions-job-sug1", "Data Engineer", "nm7", ["SQL", "Spark", "Airflow", "Kafka"]),
     ("demo-tech-solutions-job-sug2", "Analytics Engineer", "nm7", ["SQL", "dbt", "Snowflake", "Python"]),
     ("demo-tech-solutions-job-offer", "Data Analyst (Retail)", "nm7", ["SQL", "Power BI"]),
+    ("demo-tech-solutions-job-form", "Data Analyst (Careers page)", "link", ["SQL", "Power BI"]),  # A5
+)
+DEMO_SITE = "demotech.demo.nm7.invalid"
+# A5: the demo company's careers form (never fetched: the demo fills this copy, nothing goes over the network)
+DEMO_FORM = """<html><head><title>Careers · Demo Tech Solutions</title></head><body>
+<form method="post" action="/careers/apply" enctype="multipart/form-data">
+<input type="hidden" name="job" value="data-analyst">
+<label for="n">Full name *</label><input id="n" name="full_name" required>
+<label for="e">Email *</label><input id="e" type="email" name="email" required>
+<label for="p">Mobile number</label><input id="p" type="tel" name="mobile">
+<label for="c">Why do you want to join us?</label><textarea id="c" name="message"></textarea>
+<label for="r">Resume (PDF) *</label><input id="r" type="file" name="resume" required>
+<button type="submit">Apply</button></form></body></html>"""
+DEMO_THANKS = (
+    "Thank you for applying to Demo Tech Solutions. We have received your application for Data Analyst and our "
+    "team will get back to you within a week."
 )
 
 RESUME = {
@@ -160,6 +177,9 @@ async def remove(db) -> None:
     await db[RESUMES].delete_many({"user_id": STUDENT_ID})
     await db[JOBS].delete_many({"_id": {"$in": [*EXTRA_JOBS, *(x[0] for x in V2_JOBS)]}})
     await db[USERS].delete_one({"_id": STUDENT_ID, "demo": True})
+    from app.core.db import FORM_SITES
+
+    await db[FORM_SITES].delete_many({"demo": True})
 
 
 async def create(db) -> dict[str, Any]:
@@ -425,10 +445,38 @@ async def _v2(db, u, r, c, jobs, extra, t) -> None:
     for jid in ("demo-tech-solutions-job-sug1", "demo-tech-solutions-job-sug2"):
         await add(by[jid], "suggested")
     await add(by["demo-tech-solutions-job-offer"], "applied", status="offer", applied_at=t)
+    await _form_demo(db, u, r, by["demo-tech-solutions-job-form"], add, t)
     for n, status in ((3, "viewed"), (4, "interview"), (5, "rejected")):
         j = jobs.get(f"{c['_id']}-job-{n}")
         if j:
             await add(j, "applied", status=status, applied_at=t)
+
+
+async def _form_demo(db, u, r, j, add, t) -> None:
+    """A5: an application sent through the demo company's own careers form, with its proof (no network: the form is
+    filled from DEMO_FORM, the answer page is DEMO_THANKS)."""
+    from app.autoapply import tailoring
+    from app.autoapply.forms import page, polite
+    from app.autoapply.forms import service as forms
+    from app.core.db import FORM_SITES
+
+    a = u.get("auto_apply") or {}
+    copy = await tailoring.build(db, STUDENT_ID, r, j, a, use_ai=False)
+    fm = page.application_form(page.parse(DEMO_FORM))
+    filled = page.fill(fm, await forms.facts(db, u, j, copy), b"%PDF-demo")
+    answer = polite.Answer(200, f"https://{DEMO_SITE}/careers/thank-you", httpx.Headers(), f"<p>{DEMO_THANKS}</p>")
+    proof = forms._proof(j["apply"]["url"], f"https://{DEMO_SITE}/careers/apply", filled, answer, True, False)
+    await add(j, "applied", status="applied", applied_at=t, channel_v2="form", form_proof=proof, form_site=DEMO_SITE)
+    await db[APPLICATIONS].update_one(
+        {"user_id": STUDENT_ID, "job_id": j["_id"]}, {"$set": {"channel": "form", "channel_v2": "form",
+                                                               "form_proof": proof}}
+    )  # fmt: skip
+    await db[FORM_SITES].replace_one(
+        {"_id": DEMO_SITE},
+        {"_id": DEMO_SITE, "state": "allowed", "reason": "", "demo": True, "first_seen": t, "last_tried": t,
+         "last_ok": t, "successes": 1, "failures": 0, "updated_at": t},
+        upsert=True,
+    )  # fmt: skip
 
 
 def engine_today(t) -> str:

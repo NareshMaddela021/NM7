@@ -94,6 +94,7 @@ function WhatWasSent({ id }) {
     <div className="stack g8" data-testid="aa2-sent">
       <span className="xs muted">{d.wentOut ? 'This went out to the company:' : 'Not sent yet. This is what will go out:'}</span>
       {d.email && <SentEmail e={d.email} />}
+      {d.form && <SentForm f={d.form} />}
       {d.followUp && <><strong className="small">Follow-up</strong><SentEmail e={d.followUp} /></>}
       {d.replies?.length > 0 && <Replies rows={d.replies} />}
       <Version v={d.version} />
@@ -113,6 +114,25 @@ function SentEmail({ e }) {
       {e.attachment && <p data-testid="aa2-email-attachment"><strong>Attached:</strong> {e.attachment} (your tailored resume)</p>}
       <p className="aa2-pre">{e.text}</p>
       {e.source?.kind && <p className="xs muted">{own ? 'The company published this address in its own job post on Nm7.' : 'The company published this address on its own page'}{!own && e.source.url ? <>: <span className="aa2-wrap">{e.source.url}</span></> : null}</p>}
+    </div>
+  );
+}
+
+// A5: what went to the company's own form: the fields, the resume file, the site's answer and a copy of its page
+function SentForm({ f }) {
+  return (
+    <div className="aa2-note small stack g4" data-testid="aa2-form">
+      {f.test && <p className="xs muted" data-testid="aa2-form-test">Test: Auto Apply 2.0 is being tested. This went to a test company’s own form.</p>}
+      <p data-testid="aa2-form-result"><strong>{f.ok ? (f.confirmed ? 'Sent. The company’s page confirmed it.' : 'Sent. The company’s page didn’t say clearly that it got it.') : 'Nm7 tried the company’s form, but it didn’t go through. Apply yourself with one tap.'}</strong></p>
+      <p className="aa2-wrap"><strong>Form on:</strong> {f.page}</p>
+      {f.fields.length > 0 && (
+        <dl className="aa2-answers" data-testid="aa2-form-fields">
+          {f.fields.filter((x) => x.kind !== 'hidden').map((x, i) => <div key={`${x.label}-${i}`}><dt>{x.label}</dt><dd className="aa2-pre">{x.value}</dd></div>)}
+        </dl>
+      )}
+      {f.file && <p data-testid="aa2-form-file"><strong>Attached:</strong> {f.file.name} (your tailored resume)</p>}
+      <p className="xs muted" data-testid="aa2-form-status">{f.status != null ? `The site answered with HTTP ${f.status}` : 'The site didn’t answer'}{f.finalUrl ? <> · <span className="aa2-wrap">{f.finalUrl}</span></> : null}{f.at ? ` · ${fmtAt(f.at)}` : ''}</p>
+      {f.snapshot && <details><summary className="xs">The company’s page after sending</summary><p className="aa2-pre xs" data-testid="aa2-form-snapshot">{f.snapshot}</p></details>}
     </div>
   );
 }
@@ -150,6 +170,8 @@ function TrackerRow({ it, onChanged, toast }) {
         <span className="aa2-tags"><Chip tone={STAGE_TONE[it.stage]}>{it.outcome ? OUTCOME[it.outcome] || it.outcome : TABS_STAGE[it.stage]}</Chip><ChannelTag channel={it.channel} partner={it.partner} /></span>
       </div>
       {it.partner && <span className="xs muted aa2-wrap" data-testid="aa2-row-partner">{it.partner.state === 'kept' ? `Not delivered to ${it.partner.name}: it stays in the company’s Nm7 dashboard.` : `${it.partner.stateText} to the company’s hiring system (${it.partner.name}). It is in their Nm7 dashboard too.`}</span>}
+      {it.form?.text && <span className="xs muted aa2-wrap" data-testid="aa2-row-form">{it.form.text}{it.form.ok && it.form.confirmed ? '. The company’s page confirmed it.' : ''}</span>}
+      {it.readyText && <span className="xs muted aa2-wrap" data-testid="aa2-row-ready">{it.readyText}</span>}
       {it.notice && <span className="xs muted aa2-wrap" data-testid="aa2-row-notice">{it.notice.text}</span>}
       {it.replies > 0 && <span className="xs aa2-wrap" data-testid="aa2-row-replies">✉ {it.replies} {it.replies === 1 ? 'reply' : 'replies'} to your apply address: open “What was sent”</span>}
       {it.applyTo && <span className="xs muted aa2-wrap" data-testid="aa2-row-applyto">Apply by email yourself: <a href={`mailto:${it.applyTo}`}>{it.applyTo}</a> (attach your tailored resume)</span>}
@@ -295,7 +317,7 @@ function WaitingItem({ it, toast, onDone }) {
     try {
       const body = { answers: Object.fromEntries(it.questions.map((q) => [q.id, q.kind === 'number' ? Number(answers[q.id]) : answers[q.id]])) };
       const r = await http(`${BASE}/waiting/${it.id}/answer`, { method: 'POST', body });
-      toast(r.state === 'applied' || r.state === 'sent' ? 'Saved to your profile and sent' : r.state === 'queued' ? 'Saved. It goes first thing tomorrow (today’s limit is used).' : 'Saved. This job is not a fit for your answers.');
+      toast(r.state === 'form_queued' ? 'Saved to your profile. Nm7 sends it through the company’s form now.' : r.state === 'applied' || r.state === 'sent' ? 'Saved to your profile and sent' : r.state === 'queued' ? 'Saved. It goes first thing tomorrow (today’s limit is used).' : 'Saved. This job is not a fit for your answers.');
       onDone();
     } catch (x) { setErr(x.message); setBusy(false); }
   };
@@ -305,7 +327,10 @@ function WaitingItem({ it, toast, onDone }) {
       <form className="stack g8" onSubmit={send}>
         {it.questions.map((q) => (
           <fieldset key={q.id} className="stack g4" style={{ border: 0, margin: 0, padding: 0 }}>
-            {q.kind === 'number' ? (
+            {q.kind === 'text' ? (
+              <div className="field"><label className="label" htmlFor={`w-${it.id}-${q.id}`}>{q.text}</label>
+                <input id={`w-${it.id}-${q.id}`} className="input" maxLength={500} value={answers[q.id] ?? ''} onChange={(e) => setAnswers({ ...answers, [q.id]: e.target.value })} data-testid="aa2-answer-text" /></div>
+            ) : q.kind === 'number' ? (
               <div className="field"><label className="label" htmlFor={`w-${it.id}-${q.id}`}>{q.text}</label>
                 <input id={`w-${it.id}-${q.id}`} className="input" inputMode="numeric" maxLength={6} value={answers[q.id] ?? ''} onChange={(e) => setAnswers({ ...answers, [q.id]: e.target.value.replace(/[^\d]/g, '') })} /></div>
             ) : (
@@ -416,7 +441,7 @@ function Rules({ d, onSaved, toast }) {
           </label>
         ))}
       </fieldset>
-      <p className="xs muted" style={{ margin: 0 }}>Match {d.thresholds.auto}+ goes to your list; {d.thresholds.suggest}–{d.thresholds.auto - 1} shows in Suggested; lower is skipped. Nm7 never fills in other websites, never asks for your passwords and never uses job boards.</p>
+      <p className="xs muted" style={{ margin: 0 }}>Match {d.thresholds.auto}+ goes to your list; {d.thresholds.suggest}–{d.thresholds.auto - 1} shows in Suggested; lower is skipped. Nm7 only fills simple forms on a company’s own website (never a CAPTCHA, a sign-in or an account), never asks for your passwords and never uses job boards.</p>
       {err && <p className="error" role="alert" style={{ margin: 0 }}>{err}</p>}
       <StickyBar label="Rules"><button type="submit" className="btn btn-signal" disabled={busy} data-testid="aa2-save">Save rules</button></StickyBar>
     </form>
