@@ -29,6 +29,10 @@ MONGODB_DB=nm7_e2e uv run python -m tests.e2e_seed reset
                                           pronunciation not measured) from a voice interview today
 ... trust-t12-gaps TAG                 → T12: 45 skill checks in Pune (40 passed) and 45 in Ongole (9 passed) by new
                                           people: a pass-rate gap by city tier for the fairness report
+... trust-t13-admin TAG                → T13: a real company "Tt13 TAG Slow Pvt Ltd" with 3 jobs posted 20 days ago,
+                                          first contact 10 days later, and a live job posted 72 h ago nobody contacted
+... trust-t13-job CID JOB              → T13: that job posted 3 hours ago, a Hire invite 45 minutes later (shortlist +
+                                          contact) and an interview booked 2 h 15 m after posting
 ... trust-t12-regrade TAG              → T12: an AI interview whose "Explained own work" a second AI check disagreed
                                           with (strong → weak), waiting for a person → {"id": the re-grade}
 ... trust-t7-person EMAIL KIND [consent] → T7: the adult age check, a resume (KIND data: SQL / Power BI; acct:
@@ -561,6 +565,75 @@ async def main(cmd: str, *args: str) -> dict:
                 row = {"v": 2, "user_id": uid, "skill": "SQL", "kind": "full", "lang": "en", "started_at": t}
                 row |= {"submitted_at": t, "score": 85 if i < passed else 30}
                 await db["skill_attempts"].insert_one(row)
+        return {"ok": True}
+    if cmd == "trust-t13-admin":  # Vetting Trust T13: a slow real company for the Daily report's "Time to hire"
+        from bson import ObjectId
+
+        (tag,) = args
+        t = now()
+        cid = f"tt13-{tag}"
+        name = f"Tt13 {tag} Slow Pvt Ltd"
+        await db["companies"].insert_one(
+            {"_id": cid, "slug": cid, "details": {"legal_name": name}, "members": [], "created_at": t}
+        )
+        for i in range(4):
+            jid = f"{cid}-j{i}"
+            p = t - (timedelta(hours=72) if i == 3 else timedelta(days=20))
+            await db["jobs"].insert_one(
+                {
+                    "_id": jid,
+                    "dedupe_key": f"k-{jid}",
+                    "slug": jid,
+                    "title": f"Tt13 cook {i}",
+                    "status": "active",
+                    "source": "company",
+                    "company_id": cid,
+                    "posted_at": p,
+                    "created_at": p,
+                    "updated_at": p,
+                }
+            )
+            if i < 3:
+                await db["hire_invites"].insert_one(
+                    {
+                        "_id": ObjectId(),
+                        "company_id": cid,
+                        "job_id": jid,
+                        "user_id": f"u-{jid}",
+                        "status": "sent",
+                        "created_at": p + timedelta(days=10),
+                    }
+                )
+        return {"id": cid}
+    if cmd == "trust-t13-job":  # Vetting Trust T13: a company job with a shortlist, a contact and an interview
+        from bson import ObjectId
+
+        cid, jid = args
+        p = now() - timedelta(hours=3)
+        await db["jobs"].update_one({"_id": jid}, {"$set": {"posted_at": p, "created_at": p}})
+        await db["hire_invites"].insert_one(
+            {
+                "_id": ObjectId(),
+                "company_id": cid,
+                "job_id": jid,
+                "user_id": f"u-t13-{jid}",
+                "status": "sent",
+                "created_at": p + timedelta(minutes=45),
+            }
+        )
+        await db["trust_hire_events"].update_one(
+            {"_id": f"{jid}:interview"},
+            {
+                "$set": {
+                    "job_id": jid,
+                    "company_id": cid,
+                    "kind": "interview",
+                    "at": p + timedelta(minutes=135),
+                    "via": "e2e",
+                }
+            },
+            upsert=True,
+        )
         return {"ok": True}
     if cmd == "trust-t12-regrade":  # Vetting Trust T12: a T9 label the second AI check disagreed with
         from bson import ObjectId
