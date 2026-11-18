@@ -92,7 +92,7 @@ async function openJobs(page, session) {
   await page.getByRole('tab', { name: 'Jobs' }).click();
 }
 
-async function console_(admin, mail, button) {
+async function console_(admin, mail) {
   const box = admin.getByTestId('ta-console');
   await expect(box).toBeVisible({ timeout: 20_000 });
   const opt = box.getByTestId('ta-convo').locator('option', { hasText: mail });
