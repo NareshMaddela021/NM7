@@ -120,7 +120,7 @@ export default function FaceCheck({ mode = 'identity', step = 'settings', offerI
   };
 
   const openCamera = async () => {
-    setCamErr(''); setErr('');
+    setCamErr(''); setErr(''); setPrompt(null); // a new movement each time: the old one is no longer valid
     if (!navigator.mediaDevices?.getUserMedia) { setCamErr('This browser can’t open the camera. Try Chrome or Safari, or ask for a manual check.'); return; }
     try {
       stop();
@@ -157,7 +157,8 @@ export default function FaceCheck({ mode = 'identity', step = 'settings', offerI
         : await http(`${API}/check`, { method: 'POST', body: { step, docType: doc, idImage: card.b64, frames, challenge: prompt.key } });
       setD(x); setPhase('');
       const ok = joining ? x.state.continuity?.status === 'same' : x.state.status === 'verified';
-      setStage(ok ? 'done' : 'result');
+      const st = joining ? x.state.continuity?.status : x.state.status;
+      setStage(ok ? 'done' : st === 'review' ? 'person' : 'result');
     } catch (x) {
       setPhase('');
       if (x.code === 'aadhaar_refused') { setCard(null); setStage('id'); }

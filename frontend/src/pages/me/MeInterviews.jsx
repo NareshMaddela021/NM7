@@ -154,7 +154,7 @@ function MeInterviewsPage() {
   const begin = async (body) => {
     let iv;
     try { iv = await http(`${API}/start`, { method: 'POST', body }); } catch (e) {
-      if (e.code === 'face_check_needed') { setFace(body); return; }
+      if (e.code === 'face_check_needed') { setFace(body); throw new Error(''); } // Setup stays, quietly ready again
       throw e;
     }
     setSetup(null); setRun(iv); window.scrollTo?.(0, 0);
