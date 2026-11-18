@@ -461,6 +461,10 @@ async def shortlist(
     )
     await audit(db, None, "hire.shortlist", target=cid, data={"by": acc["email_lc"], "job": job, "n": len(rows)})
     roles = sorted(set(roles) | {job})
+    shown = rows[: min(size, BULK_TOP if is_bulk(j) else TOP)]
+    from app.trust.digilocker.router import add_badges
+
+    await add_badges(db, shown, "key", c, acc)  # Vetting Trust T2: "Verified via DigiLocker" (only where Trust is on)
     return {
         "job": {
             "id": j["_id"],
@@ -468,7 +472,7 @@ async def shortlist(
             "locations": j.get("locations") or [],
             "remote": bool(j.get("remote")),
         },
-        "items": rows[: min(size, BULK_TOP if is_bulk(j) else TOP)],
+        "items": shown,
         "available": len(rows),
         "vetting": vetting,  # the Skill verified filters and badges are shown (Admin → Skill checks → Launch)
         "usage": {"used": len(roles), "free": free},

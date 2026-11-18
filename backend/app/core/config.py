@@ -71,6 +71,17 @@ class Settings(BaseSettings):
     # Error reporting (optional): a Sentry DSN. Without it errors are only logged (with a request id).
     sentry_dsn: str = ""
 
+    # Vetting Trust T2: DigiLocker documents through a KYC vendor (Admin → Skill checks → Vetting Trust → DigiLocker
+    # picks the provider; without keys only the test provider works). Setu DigiLocker: the three keys from the Setu
+    # Bridge dashboard, sandbox URL until the production keys arrive. The webhook secret signs the vendor's callback.
+    # The callback URL to give the vendor is api_public_url + /api/public/trust/digilocker/callback/<provider>.
+    setu_dg_client_id: str = ""
+    setu_dg_client_secret: str = ""
+    setu_dg_product_instance_id: str = ""
+    setu_dg_base_url: str = "https://dg-sandbox.setu.co"
+    digilocker_webhook_secret: str = ""
+    api_public_url: str = "https://nm7-api.onrender.com"
+
     # Razorpay — empty until keys exist
     razorpay_key_id: str = ""
     razorpay_key_secret: str = ""
