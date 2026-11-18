@@ -9,6 +9,7 @@
 // Shown only when the API sends `criteria` (the Trust switch lets the company in). Not met is a label only: nobody is
 // rejected. English only while it is tested. Statically imported by the company page chunk (no new lazy chunk).
 import { useEffect, useState } from 'react';
+import { FairnessNotes } from './FairnessBits'; // Vetting Trust T12
 import { rq } from '../../lib/company';
 
 export const KINDS = [['skill', 'Skill'], ['experience', 'Experience'], ['education', 'Education'], ['certification', 'Certification'],
@@ -80,13 +81,14 @@ export function CriteriaEditor({ c, jobId, criteria, can, onSaved, open: startOp
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   const [open, setOpen] = useState(startOpen);
+  const [fair, setFair] = useState([]); // T12: proxies kept in the saved list (why + a neutral wording)
   const url = `/api/company/${c.id}/trust/criteria/${encodeURIComponent(jobId)}`;
   useEffect(() => { if (criteria) setD(criteria); }, [criteria]);
   useEffect(() => { if (!criteria && open && !d) rq(url).then(setD, (x) => setErr(x.message)); }, [criteria, open, d, url]);
   useEffect(() => { if (d && !dirty) setRows(d.items.map((x) => ({ ...x }))); }, [d, dirty]);
   const save = async (list) => {
     setBusy(true); setErr('');
-    try { const x = await rq(url, { method: 'PUT', body: criteriaBody(list) }); setD(x); setDirty(false); setRows(x.items.map((y) => ({ ...y }))); onSaved?.(x); } catch (x) { setErr(x.message); } finally { setBusy(false); }
+    try { const x = await rq(url, { method: 'PUT', body: criteriaBody(list) }); setD(x); setFair(x.fairness || []); setDirty(false); setRows(x.items.map((y) => ({ ...y }))); onSaved?.(x); } catch (x) { setErr(x.message); } finally { setBusy(false); }
   };
   const again = async () => {
     setBusy(true); setErr('');
@@ -125,6 +127,7 @@ export function CriteriaEditor({ c, jobId, criteria, can, onSaved, open: startOp
               {dirty && <button type="button" className="link-btn xs" disabled={busy} onClick={() => { setDirty(false); setRows(d.items.map((y) => ({ ...y }))); setErr(''); }}>Cancel</button>}
             </div>
           )}
+          <FairnessNotes items={fair} testid="crit-fair" />
           {err && <p className="error" role="alert" data-testid="crit-error">{err}</p>}
         </div>
       )}

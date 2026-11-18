@@ -17,6 +17,7 @@ import '../../styles/company-jobs.css';
 import { JobAuto, NewJobAuto, newJobBody, useAutoInfo } from './AutoApplyBits';
 import AgentJobs from './AgentJobs'; // Vetting Trust T5 (renders nothing unless the Trust switch allows)
 import { CriteriaEditor } from './CriteriaBits'; // Vetting Trust T7
+import { FairnessNotes } from './FairnessBits'; // Vetting Trust T12: discriminatory filters (direct refused, proxies warned)
 
 const BLANK = { title: '', cities: '', workType: 'onsite', jobType: 'full_time', experience: 'fresher', education: '', salaryMin: '', salaryMax: '', period: 'yearly', skills: '', description: '', applyMethod: 'nm7', applyUrl: '', applyEmail: '', closesAt: '', questions: [] };
 const NEW_Q = { text: '', kind: 'yesno', options: '', want: '', min: '', accept: '', template: '' };
@@ -245,13 +246,14 @@ function JobForm({ t, c, auto, ko, init, onDone, onCancel }) {
         {auto && !init.id && f.applyMethod === 'nm7' && <NewJobAuto info={auto} value={aa} onChange={setAa} />}
       </div>
       {check && (
-        <div className={`mcard mcard-tight cj-check ${check.errors.length || blocked || check.duplicate ? 'mcard-bad' : check.scam.length || check.warnings.length ? 'mcard-warn' : 'mcard-ok'}`} role="status" data-testid="co-job-check">
+        <div className={`mcard mcard-tight cj-check ${check.errors.length || blocked || check.duplicate ? 'mcard-bad' : check.scam.length || check.warnings.length || check.fairness?.length ? 'mcard-warn' : 'mcard-ok'}`} role="status" data-testid="co-job-check">
           {check.errors.map((x, i) => <span key={`e${i}`} className="small cj-bad">{x}</span>)}
           {check.blocked.length > 0 && <span className="small cj-bad">{t('co.jobs.blocked', { list: check.blocked.join(', ') })}</span>}
           {check.scam.length > 0 && <span className="small cj-warn">{t('co.jobs.scam', { list: check.scam.join(', ') })}</span>}
           {check.warnings.map((x, i) => <span key={`w${i}`} className="small cj-warn">{x}</span>)}
           {check.duplicate && <span className="small cj-bad">{t('co.jobs.duplicate')}</span>}
-          {!check.errors.length && !blocked && !check.scam.length && !check.warnings.length && !check.duplicate && <span className="small cj-ok">{t('co.jobs.checkOk')}</span>}
+          <FairnessNotes items={check.fairness} testid="co-job-fair" />
+          {!check.errors.length && !blocked && !check.scam.length && !check.warnings.length && !check.duplicate && !check.fairness?.length && <span className="small cj-ok">{t('co.jobs.checkOk')}</span>}
         </div>
       )}
       <div className="msticky cj-bar" role="group" aria-label={init.id ? t('co.jobs.editTitle') : t('co.jobs.post')}>
