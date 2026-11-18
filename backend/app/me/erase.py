@@ -68,6 +68,9 @@ from app.core.db import (
     STORIES,
     TALENT_POOL,
     TICKETS,
+    TRUST_CONSENTS,
+    TRUST_PARENTS,
+    TRUST_PROFILES,
     USERS,
     VETTING_INTERVIEWS,
     VETTING_L4,
@@ -151,6 +154,11 @@ async def erase_user_data(db: AsyncDatabase, user_id: str) -> dict[str, int]:
     out["tickets"] = await gone(TICKETS, mine)
     out["stories"] = await gone(STORIES, mine)
     out["memberships"] = await _memberships(db, user_id)
+    from app.trust.retention import erase_user as erase_trust
+
+    out.update({f"trust_{k}": v for k, v in (await erase_trust(db, user_id)).items()})  # Vetting Trust data types
+    out["trust_consents"] = await gone(TRUST_CONSENTS, mine)  # the consent history goes with the account
+    out["trust_age"] = await gone(TRUST_PROFILES, {"_id": user_id}) + await gone(TRUST_PARENTS, mine)
     out["coupon_uses_anonymised"] = await forget_user(db, user_id)
     return out
 

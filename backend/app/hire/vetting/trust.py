@@ -33,11 +33,11 @@ from app.audit import audit
 from app.auth.deps import CustomerAuth
 from app.core.config import get_settings
 from app.core.db import (
-    AUDIT_LOG,
     DB,
     HIRE_PROFILES,
     RESUMES,
     SKILL_ATTEMPTS,
+    TRUST_CONSENTS,
     USERS,
     VETTING_INTERVIEWS,
     VETTING_LEVEL_LOG,
@@ -68,7 +68,6 @@ admin = APIRouter(prefix="/api/admin/vetting", tags=["vetting"])
 REFRESH_QUESTIONS = 8
 REMIND_DAYS = (75, 85)
 APPEAL_HOURS = 72
-IP_KEEP = timedelta(days=30)
 TIER1 = {
     "mumbai",
     "delhi",
@@ -526,20 +525,20 @@ async def data_export(auth: CustomerAuth, db: DB) -> dict[str, Any]:
         "interviews": [_clean(i) async for i in db[VETTING_INTERVIEWS].find({"user_id": uid})],
         "levelHistory": [_clean(x) async for x in db[VETTING_LEVEL_LOG].find({"user_id": uid})],
         "appeals": [_clean(x) async for x in db[VETTING_QUEUE].find({"user_id": uid, "kind": "appeal"})],
+        "consents": [
+            _clean(x, ("_id", "user_id")) async for x in db[TRUST_CONSENTS].find({"user_id": uid})
+        ],  # Vetting Trust T1
     }
 
 
 async def retention(db, t: datetime | None = None) -> dict[str, int]:
-    """Daily: raw IPs in the audit log after 30 days, device hashes after 30 days (photos and transcripts expire by
-    themselves: 30 and 180 days; audio is never stored)."""
-    t = t or now()
-    ips = await db[AUDIT_LOG].update_many(
-        {"ip": {"$nin": [None, ""]}, "at": {"$lt": t - IP_KEEP}}, {"$set": {"ip": None}}
-    )
-    fps = await db[SKILL_ATTEMPTS].update_many(
-        {"fp": {"$exists": True}, "started_at": {"$lt": t - timedelta(days=30)}}, {"$unset": {"fp": ""}}
-    )
-    return {"ips": ips.modified_count, "devices": fps.modified_count}
+    """Daily: raw IPs in the audit log and device hashes after 30 days (Admin can shorten both). Both types live in the
+    Vetting Trust retention schedule (app/trust/retention.py, runner "vetting"); photos and transcripts expire by
+    themselves (30 and 180 days) and through the Trust job; audio is never stored."""
+    from app.trust import retention as R
+
+    out = await R.run_types(db, "vetting", t)
+    return {"ips": out.get("audit_ips", 0), "devices": out.get("device_hashes", 0)}
 
 
 async def daily_if_due(db, mailer: Mailer) -> dict[str, int]:

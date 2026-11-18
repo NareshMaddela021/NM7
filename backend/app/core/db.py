@@ -135,6 +135,18 @@ VETTING_INTERVIEWS = "vetting_interviews"  # Vetting V3: AI screening interviews
 VETTING_L4 = "vetting_l4"  # Vetting V4: Nm7 human check requests, results and references
 VETTING_REVIEWERS = "vetting_reviewers"  # Vetting V4: the reviewer network (roles, slots, calibration, quality)
 VETTING_PHOTOS = "vetting_photos"  # Vetting V2: optional photos of past work (proof tasks), deleted after 30 days
+# Vetting Trust (T1, app/trust/): consents, the age gate, the breach log, the retention runs. Every Trust data type is
+# in app/trust/retention.py with its retention limit; the four data collections below are filled by later items
+# (each document has user_id and created_at) and emptied by the retention job.
+TRUST_CONSENTS = "trust_consents"  # one row per consent given (purpose, text version, granted / withdrawn, channel)
+TRUST_PROFILES = "trust_profiles"  # _id = user id: the age gate (adult from, never the birth date), inactivity notice
+TRUST_PARENTS = "trust_parents"  # parental consent requests for under-18s (one-time link hash, parent's answer)
+TRUST_BREACHES = "trust_breaches"  # Admin → Vetting Trust → Breach log (72-hour incidents)
+TRUST_RUNS = "trust_runs"  # _id "retention" / "inactivity": the last automatic run and its counts
+TRUST_SELFIES = "trust_selfies"  # selfies and face-match results (selfie_face consent)
+TRUST_VOICE = "trust_voice"  # voice recordings (voice consent)
+TRUST_DOCUMENTS = "trust_documents"  # DigiLocker / KYC documents, never Aadhaar (documents consent)
+TRUST_SNAPSHOTS = "trust_snapshots"  # webcam snapshots during a test (webcam_snapshots consent)
 LEARN_PATHS = "learn_paths"  # Phase 6 S2, _id = role id: courses → project → skill check (Admin → Learning paths)
 OFFER_CHECKS = (
     "offer_checks"  # Phase 6 S5: saved offer-letter checks (text without ID numbers + result; never the file)
@@ -237,6 +249,15 @@ COLLECTIONS = (
     VETTING_VERIFIED,
     VETTING_QUEUE,
     VETTING_PHOTOS,
+    TRUST_CONSENTS,
+    TRUST_PROFILES,
+    TRUST_PARENTS,
+    TRUST_BREACHES,
+    TRUST_RUNS,
+    TRUST_SELFIES,
+    TRUST_VOICE,
+    TRUST_DOCUMENTS,
+    TRUST_SNAPSHOTS,
     VETTING_L4,
     VETTING_REVIEWERS,
     VETTING_INTERVIEWS,
@@ -381,6 +402,13 @@ INDEXES: dict[str, list[IndexModel]] = {
     VETTING_QUEUE: [IndexModel([("kind", ASCENDING), ("status", ASCENDING), ("created_at", DESCENDING)])],
     VETTING_PHOTOS: [IndexModel("delete_at", expireAfterSeconds=0), IndexModel("attempt_id")],
     VETTING_LEVEL_LOG: [IndexModel([("user_id", ASCENDING), ("at", DESCENDING)])],
+    TRUST_CONSENTS: [IndexModel([("user_id", ASCENDING), ("purpose", ASCENDING), ("granted_at", DESCENDING)])],
+    TRUST_PARENTS: [IndexModel("token_hash", unique=True, sparse=True), IndexModel("user_id")],
+    TRUST_BREACHES: [IndexModel([("detected_at", DESCENDING)])],
+    TRUST_SELFIES: [IndexModel("user_id"), IndexModel("created_at")],
+    TRUST_VOICE: [IndexModel("user_id"), IndexModel("created_at")],
+    TRUST_DOCUMENTS: [IndexModel("user_id"), IndexModel("created_at")],
+    TRUST_SNAPSHOTS: [IndexModel("user_id"), IndexModel("created_at")],
     VETTING_L4: [
         IndexModel([("user_id", ASCENDING), ("requested_at", DESCENDING)]),
         IndexModel("referees.rid"),
