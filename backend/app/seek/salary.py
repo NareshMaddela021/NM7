@@ -56,7 +56,9 @@ async def mids_for(db, words: list[str], city: str = "", levels: tuple[str, ...]
     if levels:
         q["experience"] = {"$in": list(levels)}
     if city:
-        q["locations"] = {"$regex": f"^{re.escape(city)}$", "$options": "i"}
+        from app.jobsearch.parse import canonical_city
+
+        q["locations"] = {"$regex": f"^{re.escape(canonical_city(city))}$", "$options": "i"}
     out = []
     async for j in db[JOBS].find(q, {"salary": 1}).limit(5000):
         m = monthly_mid(j.get("salary"))

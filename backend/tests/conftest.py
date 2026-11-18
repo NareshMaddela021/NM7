@@ -37,6 +37,9 @@ async def fresh_database():
 
 @pytest.fixture(autouse=True)
 async def clean_collections():
+    from app.jobs import ai_health
+
+    ai_health.reset()  # the collector's in-process "pause after API errors" never leaks between tests
     yield
     db = get_database()
     for name in COLLECTIONS:

@@ -111,9 +111,11 @@ def place_ok(p: dict[str, Any], job: dict[str, Any]) -> str | None:
     """The place they share with the job ('remote' or a city), or None when it doesn't suit."""
     if job.get("remote") or job.get("work_type") == "remote":
         return "remote"
-    mine = {c.lower() for c in p.get("cities") or []}
+    from app.jobsearch.parse import canonical_city
+
+    mine = {canonical_city(c).lower() for c in p.get("cities") or []}  # "Bangalore" and "Bengaluru" are one city
     for c in job.get("locations") or []:
-        if c.lower() in mine:
+        if canonical_city(c).lower() in mine:
             return c
     return None
 
