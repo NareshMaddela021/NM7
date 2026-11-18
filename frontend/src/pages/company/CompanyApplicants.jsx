@@ -167,7 +167,7 @@ function Profile({ t, c, can, a, rank, onClose, onChanged }) {
         <SkillBadge sv={a.skillVerified} t={t} />
         {a.level?.level >= 3 && <div className="row g8"><ScreeningInterview c={c} uid={a.userId} name={a.name} level={a.level.level} job={a.jobId} appId={a.id} top
           canInvite={can && !['interview', 'offer', 'rejected'].includes(a.status)} onInvited={onChanged} /></div>}
-        <DocBadges docs={a.docs} />
+        <DocBadges docs={a.docs} face={a.face} />
         <NmCheck c={c} uid={a.userId} name={a.name} level={a.level?.level} row={a} canRequest={can} />
         <AutoBlock a={a} open />
         <ul className="ca-reasons">{reasons(a.match, t).map((r) => <li key={r}>{r}</li>)}</ul>
@@ -213,7 +213,7 @@ function Applicant({ t, c, a, rank, can, picked, canPick, onPick, open, onOpen, 
         </div>
       </div>
       <ApLevel lv={a.level} />
-      <DocBadges docs={a.docs} compact />
+      <DocBadges docs={a.docs} face={a.face} compact />
       <p className="ca-why">{reasons(a.match, t).join(' · ')}</p>
       <AutoBlock a={a} />
       {(a.match?.found.length > 0 || a.match?.missing.length > 0) && (
