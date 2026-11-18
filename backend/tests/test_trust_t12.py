@@ -162,7 +162,7 @@ async def v3_interview(db, uid, aid=None, days=1, explain_label="strong", lang="
             "answer": "Because " + PII_TALK,
         }
     )
-    doc = {"_id": ObjectId(), "user_id": uid, "test": "SQL", "lang": lang, "status": "graded", "graded_at": t, "started_at": t, "turns": turns,
+    doc = {"_id": ObjectId(), "user_id": uid, "test": "SQL", "lang": lang, "mode": "text", "status": "graded", "graded_at": t, "started_at": t, "turns": turns,
            "grade": {"by": "ai", "scores": [{"key": k, "label": lab, "score": 4, "reason": "", "quote": ""} for k, lab, _ in V3.CRITERIA]},
            "passed": passed, "explain": {"label": explain_label, "by": "ai", "reason": "r"}, "explain_source": {"attempt_id": aid}}  # fmt: skip
     await db[VETTING_INTERVIEWS].insert_one(doc)
@@ -597,6 +597,32 @@ async def test_regrade_v3_and_t9_go_to_a_person_and_admin_decides(db, monkeypatc
     assert await db[AUDIT_LOG].find_one({"action": "trust.fairness_regrade_decide"})
     # the old weekly check skips an interview T12 already re-graded
     assert await V3.bias_check(db, random.Random(1)) == 0
+
+
+async def test_e2e_regrade_seed_is_a_real_interview_every_list_can_show(db, monkeypatch, admin_client):
+    """The e2e seed "trust-t12-regrade" once stored an interview without a mode or a grade, which made Admin →
+    Interviews → Graded fail for every later e2e spec (the interview spec's graded list came back empty). The seed must
+    store an interview shaped like the app's own, and the lists must still show a real one next to it."""
+    from tests import e2e_seed
+
+    monkeypatch.setenv("MONGODB_DB", "seedcheck_e2e")  # the seed's own guard; the database stays this test one
+    rid = (await e2e_seed.main("trust-t12-regrade", "chk"))["id"]
+    rg = await db[TRUST_REGRADES].find_one({"_id": ObjectId(rid)})
+    iv = await db[VETTING_INTERVIEWS].find_one({"_id": ObjectId(rg["ref"])})
+    [uid] = await bulk_people(db, 1, "ivreal")
+    aid = await v2_attempt(db, uid)
+    await v3_interview(db, uid, aid)  # a real graded interview, as the interview e2e spec makes
+    adm = await admin_client()
+    for status in ("graded", "review", "bias"):
+        r = await adm.get(f"/api/admin/vetting/interviews?status={status}")
+        assert r.status_code == 200, (status, r.text)
+    items = (await adm.get("/api/admin/vetting/interviews?status=graded")).json()["items"]
+    assert {x["person"] for x in items} >= {"T12 Regrade"} and len(items) == 2
+    seeded = next(x for x in items if x["id"] == str(iv["_id"]))
+    assert seeded["passed"] is False and seeded["average"] == 2.0 and seeded["explained"]["label"]
+    assert V3.out(iv)["mode"] == "text"
+    d = (await adm.get("/api/admin/trust/fairness")).json()
+    assert any(x["kind"] == "t9" and x["first"] == "strong" for x in d["regrade"]["review"])
 
 
 async def test_regrade_switch_off_only_testers_sampled(db, monkeypatch):
