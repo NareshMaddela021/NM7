@@ -14,6 +14,8 @@ Nothing here writes to the sources: V2, V3, V5, T2 and T3 keep working exactly a
   T3 ID + selfie      trust_face: the check didn't pass after all tries (a review of kind "tries"), the joining-day
                       selfie not the same person. A manual-check request (no camera, a disability) is never a signal.
   T8 snapshots        trust_snapshots photo rows with a face check: no face, more than one face, not the same person
+  T14 coding tasks    trust_code submissions flagged "code_big_paste" (a large paste into the editor) or "code_no_typing"
+                      (the solution appeared with almost no typing); the replay is the evidence a reviewer watches
   T4 fraud reports    reports are about jobs and companies, never about a candidate: not a candidate signal.
 
 `observations` counts what the person has done (finished skill checks, graded interviews, documents, an ID check,
@@ -25,6 +27,7 @@ from typing import Any
 
 from app.core.db import (
     SKILL_ATTEMPTS,
+    TRUST_CODE,
     TRUST_DOCUMENTS,
     TRUST_FACE,
     TRUST_SNAPSHOTS,
@@ -206,6 +209,26 @@ async def collect(db, uids: list[str], t: datetime) -> dict[str, dict[str, Any]]
             out[p["user_id"]]["signals"].append(Signal(key=f"snap:{p['_id']}", kind=kind, at=p["created_at"], where=where,
                                                        detail=f"Faces seen: {chk.get('faces')}" + (f" · same-person score {chk['score']}" if chk.get("score") is not None else ""),
                                                        ref={"snapshot": str(p["_id"])}))  # fmt: skip
+    # T14 coding tasks (a signal for a person: the replay shows how it was written; never a rejection)
+    async for d in db[TRUST_CODE].find(
+        {"user_id": {"$in": ids}, "submission.flags.0": {"$exists": True}, "submission.queued_at": {"$gt": since}},
+        {
+            "user_id": 1,
+            "skill": 1,
+            "submission.flags": 1,
+            "submission.queued_at": 1,
+            "submission.counters": 1,
+            "submission.replay": 1,
+        },
+    ):
+        sub = d["submission"]
+        cnt = sub.get("counters") or {}
+        for f in sub.get("flags") or []:
+            if f in KINDS:
+                out[d["user_id"]]["signals"].append(Signal(key=f"code:{d['_id']}:{f}", kind=f, at=sub["queued_at"], where=f"Coding task: {d.get('skill', '')}",
+                                                           detail=f"Typed {int(cnt.get('typed') or 0)} characters, pasted {int(cnt.get('pasted') or 0)} (largest paste {int(cnt.get('largestPaste') or 0)})"
+                                                           + (" · replay kept" if sub.get("replay") == "kept" else " · no replay (no consent)"),
+                                                           ref={"codeReplay": str(d["_id"])}))  # fmt: skip
     for v in out.values():
         if v["snapshots"]:
             v["observations"] += 1

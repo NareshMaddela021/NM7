@@ -141,6 +141,7 @@ from app.trust import screening as trust_screening
 from app.trust import workprefs as trust_workprefs
 from app.trust.agent import router as trust_agent
 from app.trust.booking import router as trust_booking
+from app.trust.code import router as trust_code
 from app.trust.criteria import router as trust_criteria
 from app.trust.digilocker import router as trust_digilocker
 from app.trust.employer import router as trust_employer
@@ -424,6 +425,9 @@ def create_app() -> FastAPI:
         trust_fairness.admin
     )  # /api/admin/trust/fairness (T12: blind grading, re-grades, pass-rate gaps)
     app.include_router(trust_tth.company)  # /api/company/{cid}/trust/tth (T13: its own time to hire vs the Nm7 median)
+    app.include_router(trust_code.me)  # /api/me/trust/code/{aid} (T14: coding task: draft, run, submit)
+    app.include_router(trust_code.company)  # /api/company/{cid}/trust/code/{uid} (T14: coding result + editor replay)
+    app.include_router(trust_code.admin)  # /api/admin/trust/code (T14: sandbox, limits, problems, results, replays)
     app.include_router(trust_tth.admin)  # /api/admin/trust/tth (T13: "Needs attention" thresholds)
     app.include_router(vetting_verify.reviewer_access)  # /api/reviewer/access (the header link, V4)
     app.include_router(vetting_verify.reviewer)  # /api/reviewer (Vetting V4: reviewers, expert accounts)

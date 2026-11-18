@@ -118,6 +118,14 @@ class Settings(BaseSettings):
     azure_speech_key: str = ""
     azure_speech_region: str = "centralindia"
 
+    # Vetting Trust T14: running candidates' code for coding tasks, OUTSIDE this server (Admin → Skill checks → Vetting
+    # Trust → Coding tasks picks the provider; without keys only the test sandbox works). Judge0 CE: on RapidAPI (the
+    # URL below + a RapidAPI key) or self-hosted on its own small VM (its URL + the X-Auth-Token it was set up with).
+    # docs/trust/T14-vendors.md. Never printed, logged or returned.
+    judge0_url: str = "https://judge0-ce.p.rapidapi.com"
+    judge0_rapidapi_key: str = ""
+    judge0_auth_token: str = ""
+
     # Razorpay — empty until keys exist
     razorpay_key_id: str = ""
     razorpay_key_secret: str = ""
