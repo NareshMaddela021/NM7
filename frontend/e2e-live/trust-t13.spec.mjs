@@ -40,6 +40,15 @@ async function hireTab(page, co, title) {
   await page.getByTestId('co-hire-job').selectOption({ label: title });
 }
 
+// the first request after the API starts can be slow (indexes on a fresh database): wake it before the first sign-in
+test.beforeAll(async ({ request }) => {
+  for (let i = 0; i < 20; i += 1) {
+    const r = await request.get(`${API}/api/public/prices`).catch(() => null);
+    if (r && r.ok()) break;
+    await new Promise((ok) => { setTimeout(ok, 1500); });
+  }
+});
+
 for (const [label, opts] of SIZES) {
   test.describe(label, () => {
     test.use(opts);
@@ -52,6 +61,7 @@ for (const [label, opts] of SIZES) {
       const owner = `tt13-owner-${tag}@nm7.si`;
       const { secret } = seed('admin', owner, 'owner', PASSWORD);
       await adminLogin(page, owner, secret);
+      await expect(page).not.toHaveURL(/\/login/, { timeout: 20_000 });
       await page.goto('/admin/daily-report');
       await expect(page.getByTestId('dr-summary').getByRole('listitem')).toHaveCount(5, { timeout: 20_000 });
       await page.getByTestId('dr-refresh').click();
