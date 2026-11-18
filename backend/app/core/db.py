@@ -168,6 +168,10 @@ TRUST_AGENT_CONVOS = "trust_agent_convos"  # T5: one per job × candidate: the W
 TRUST_AGENT_EVENTS = "trust_agent_events"  # T5: one row per contact / reply / call / booking / opt-out (counts, caps)
 TRUST_AGENT_LOGS = "trust_agent_logs"  # T5: "What we said": message and call transcript text (consent; 90 days)
 TRUST_WORK_PREFS = "trust_work_prefs"  # T6: _id = user id: Work preferences (self-declared) and the coarse location pin
+TRUST_CRITERIA = "trust_criteria"  # T7: _id = job id: the job's requirements (extracted once per JD version, editable)
+TRUST_CRITERIA_EVALS = "trust_criteria_evals"  # T7: _id = user:criterion hash: Met / Not met / Unknown + a quote
+TRUST_CRITERIA_QUEUE = "trust_criteria_queue"  # T7: _id = user:criterion hash: waiting for the AI (capped passes)
+TRUST_CRITERIA_CLAIMS = "trust_criteria_claims"  # T7: evidence a candidate added (a certificate), checked by Nm7 first
 TRUST_FACE = "trust_face"  # T3: _id = user id: the ID + selfie result, retries, review, joining check (never photos)
 LEARN_PATHS = "learn_paths"  # Phase 6 S2, _id = role id: courses → project → skill check (Admin → Learning paths)
 OFFER_CHECKS = (
@@ -299,6 +303,10 @@ COLLECTIONS = (
     TRUST_AGENT_EVENTS,
     TRUST_AGENT_LOGS,
     TRUST_WORK_PREFS,
+    TRUST_CRITERIA,
+    TRUST_CRITERIA_EVALS,
+    TRUST_CRITERIA_QUEUE,
+    TRUST_CRITERIA_CLAIMS,
     VETTING_L4,
     VETTING_REVIEWERS,
     VETTING_INTERVIEWS,
@@ -506,6 +514,12 @@ INDEXES: dict[str, list[IndexModel]] = {
     TRUST_EMPLOYER_LOOKUPS: [IndexModel("at"), IndexModel([("company_id", ASCENDING), ("at", DESCENDING)])],
     TRUST_AGENT_PREFS: [IndexModel("wa_id"), IndexModel("updated_at")],
     TRUST_WORK_PREFS: [IndexModel("updated_at"), IndexModel("location.at", sparse=True)],
+    TRUST_CRITERIA_EVALS: [IndexModel("user_id"), IndexModel("at")],
+    TRUST_CRITERIA_QUEUE: [IndexModel("at"), IndexModel("job_id"), IndexModel("user_id")],
+    TRUST_CRITERIA_CLAIMS: [
+        IndexModel([("user_id", ASCENDING), ("created_at", DESCENDING)]),
+        IndexModel([("status", ASCENDING), ("created_at", ASCENDING)]),
+    ],
     TRUST_AGENT_CONVOS: [
         IndexModel([("job_id", ASCENDING), ("user_id", ASCENDING)], unique=True),
         IndexModel([("state", ASCENDING), ("next_at", ASCENDING)]),

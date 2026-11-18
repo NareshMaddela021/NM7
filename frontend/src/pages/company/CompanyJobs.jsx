@@ -7,6 +7,7 @@
 // Vetting Trust T6 (only where the Trust switch lets the company in: GET /trust/knockouts): up to 8 screening questions,
 // "Add a common question" templates, a live warning (and the server's refusal) for questions about gender, religion,
 // caste, age, marital status, pregnancy or photos, and an optional office pin for "distance from the job" in Hire now.
+// Vetting Trust T7 (same switch): "Requirements for this job" on each job (CriteriaBits.jsx; loaded when opened).
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { rq } from '../../lib/company';
@@ -15,6 +16,7 @@ import { Bar, Chip, Empty, Skel, Stat } from '../me/kit';
 import '../../styles/company-jobs.css';
 import { JobAuto, NewJobAuto, newJobBody, useAutoInfo } from './AutoApplyBits';
 import AgentJobs from './AgentJobs'; // Vetting Trust T5 (renders nothing unless the Trust switch allows)
+import { CriteriaEditor } from './CriteriaBits'; // Vetting Trust T7
 
 const BLANK = { title: '', cities: '', workType: 'onsite', jobType: 'full_time', experience: 'fresher', education: '', salaryMin: '', salaryMax: '', period: 'yearly', skills: '', description: '', applyMethod: 'nm7', applyUrl: '', applyEmail: '', closesAt: '', questions: [] };
 const NEW_Q = { text: '', kind: 'yesno', options: '', want: '', min: '', accept: '', template: '' };
@@ -118,14 +120,14 @@ export default function CompanyJobs({ t, c }) {
       {form && <JobForm t={t} c={c} auto={auto} ko={ko} init={form} onDone={(msg) => { setForm(null); load(); if (msg) setJobs((x) => x); }} onCancel={() => setForm(null)} />}
       {jobs.length === 0 && !form && <Empty shape="briefcase" tint="company" compact>{t('co.jobs.none')}</Empty>}
       <ul className="cj-list">
-        {jobs.map((j) => <JobRow key={j.id} t={t} c={c} j={j} auto={auto} can={can} onEdit={() => setForm({ id: j.id, f: fromJob(j), editsLeft: j.editsLeft, live: j.status === 'active' })} onChanged={load} />)}
+        {jobs.map((j) => <JobRow key={j.id} t={t} c={c} j={j} auto={auto} trust={!!ko} can={can} onEdit={() => setForm({ id: j.id, f: fromJob(j), editsLeft: j.editsLeft, live: j.status === 'active' })} onChanged={load} />)}
       </ul>
       {jobs.length > 0 && <AgentJobs key={jobs.map((j) => `${j.id}${j.status}`).join()} c={c} />}
     </section>
   );
 }
 
-function JobRow({ t, c, j, auto, can, onEdit, onChanged }) {
+function JobRow({ t, c, j, auto, trust, can, onEdit, onChanged }) {
   const [closing, setClosing] = useState(false);
   const [err, setErr] = useState('');
   const status = async (s) => { setErr(''); try { await rq(`/api/company/${c.id}/jobs/${j.id}/status`, { method: 'POST', body: { status: s } }); setClosing(false); onChanged(); } catch (x) { setErr(x.message); } };
@@ -139,6 +141,7 @@ function JobRow({ t, c, j, auto, can, onEdit, onChanged }) {
       </div>
       <ul className="cj-facts">{facts.map((x) => <li key={x}>{x}</li>)}</ul>
       {auto && <JobAuto c={c} j={j} info={auto} can={can} onSaved={onChanged} />}
+      {trust && j.status !== 'closed' && <CriteriaEditor c={c} jobId={j.id} can={can} />}
       {j.status === 'review' && <p className="cj-note cj-note-warn">{t('co.jobs.reviewNote')}</p>}
       {j.status === 'closed' && j.closedReason && <p className="cj-note">{j.closedReason}</p>}
       {can && j.status !== 'closed' && (

@@ -214,8 +214,9 @@ async def applicants(
     }
     pooled = {p["user_id"] async for p in db[TALENT_POOL].find({"company_id": cid, "user_id": {"$in": uids}})}
     rows = []
+    resumes: dict[str, Any] = {}
     for a in apps:
-        r = await _resume_doc(db, a)
+        r = resumes[a["user_id"]] = await _resume_doc(db, a)
         rows.append(_row(a, jobs.get(a["job_id"]), users.get(a["user_id"]), r, a["user_id"] in pooled))
     from app.hire.vetting import access
 
@@ -230,6 +231,12 @@ async def applicants(
     await add_badges(db, rows, "userId", c, acc)  # Vetting Trust T2: verified documents (only where Trust is on)
     await _fit_for(db, rows, apps, jobs, c, acc)
     rows.sort(key=_rank)
+    criteria = None
+    if job and job in jobs:  # Vetting Trust T7: requirements Met / Not met / Unknown (only where Trust is on)
+        from app.trust.criteria.router import attach_applicants
+
+        full = await db[JOBS].find_one({"_id": job}) or jobs[job]
+        criteria = await attach_applicants(db, rows, full, c, acc, resumes)
     counts: dict[str, int] = {}
     async for a in db[APPLICATIONS].find(_visible(cid), {"job_id": 1}):
         counts[a["job_id"]] = counts.get(a["job_id"], 0) + 1
@@ -240,6 +247,7 @@ async def applicants(
         ],
         "items": rows,
         "keepMonths": int((await get_site(db))["companies"].get("applicant_months", 12)),
+        **({"criteria": criteria} if criteria else {}),  # Vetting Trust T7
     }
 
 

@@ -8,6 +8,9 @@
 // Vetting V4: and can ask for the Nm7 human check (NmCheck.jsx).
 // Vetting Trust T2: "Verified via DigiLocker" document badges (DocBadges.jsx; only where the Trust switch allows).
 // Auto Apply 2.0 (A2): "Sent by Auto Apply" with the score, 3 reasons, badges, notice, salary and cover note.
+// Vetting Trust T7 (only when the list carries `criteria`: one job picked and the Trust switch lets the company in): the
+// job's requirements (CriteriaEditor) and on each card Met / Not met / Unknown with the quoted evidence; the server
+// sorts by must-haves met, then nice-to-haves met, then the match score; an edit reloads the list at once.
 import { useCallback, useEffect, useState } from 'react';
 import { rq } from '../../lib/company';
 import { matchReasons } from '../../lib/jobBoard';
@@ -24,6 +27,7 @@ import ScreeningInterview from './ScreeningInterview';
 import NmCheck from './NmCheck';
 import DocBadges from './DocBadges';
 import { AutoBlock, AutoChip } from './AutoApplyBits';
+import { CriteriaEditor, CriteriaStrip, useEvaluating } from './CriteriaBits';
 import LevelBadge from '../../components/LevelBadge';
 import { lt } from '../../components/levelStrings';
 import { useLang } from '../../lib/i18n';
@@ -66,6 +70,7 @@ export default function CompanyApplicants({ t, c }) {
     rq(`/api/company/${c.id}/applicants${job ? `?job=${encodeURIComponent(job)}` : ''}`).then((x) => { setD(x); setErr(''); }, (x) => setErr(x.message));
   }, [c.id, job]);
   useEffect(() => { load(); }, [load]);
+  useEvaluating(c, d?.criteria ? job : '', !!d?.items?.some((x) => x.criteria?.pending), load); // T7: "evaluating…"
   if (err && !d) return <p className="error" role="alert">{err}</p>;
   if (!d) return <Skel cards={3} lines={3} label={t('co.loading')} />;
   const chosen = d.items.filter((x) => pick.includes(x.id));
@@ -95,6 +100,7 @@ export default function CompanyApplicants({ t, c }) {
         {d.items.length > 0 && <Pipeline steps={counts} label={t('co.ap.cStage')} active={view === 'list' ? stage : null} onPick={view === 'list' ? setStage : undefined} />}
         <span className="xs muted">{t('co.ap.keep', { n: d.keepMonths })}</span>
       </div>
+      {job && d.criteria && <CriteriaEditor key={job} c={c} jobId={job} criteria={d.criteria} can={can} onSaved={load} />}
       {d.items.length === 0 && <Empty shape="magnifier" tint="company" compact>{t('co.ap.none')}</Empty>}
       {view === 'list' ? (
         <ul className="ca-list">
@@ -171,6 +177,7 @@ function Profile({ t, c, can, a, rank, onClose, onChanged }) {
         {a.level?.level >= 3 && <div className="row g8"><ScreeningInterview c={c} uid={a.userId} name={a.name} level={a.level.level} job={a.jobId} appId={a.id} top
           canInvite={can && !['interview', 'offer', 'rejected'].includes(a.status)} onInvited={onChanged} /></div>}
         <DocBadges docs={a.docs} face={a.face} />
+        <CriteriaStrip cr={a.criteria} testid="crit-strip-profile" />
         <NmCheck c={c} uid={a.userId} name={a.name} level={a.level?.level} row={a} canRequest={can} />
         <AutoBlock a={a} open />
         <ul className="ca-reasons">{reasons(a.match, t).map((r) => <li key={r}>{r}</li>)}</ul>
@@ -217,6 +224,7 @@ function Applicant({ t, c, a, rank, can, picked, canPick, onPick, open, onOpen, 
       </div>
       <ApLevel lv={a.level} />
       <DocBadges docs={a.docs} face={a.face} compact />
+      <CriteriaStrip cr={a.criteria} />
       <p className="ca-why">{reasons(a.match, t).join(' · ')}</p>
       <AutoBlock a={a} />
       {(a.match?.found.length > 0 || a.match?.missing.length > 0) && (
