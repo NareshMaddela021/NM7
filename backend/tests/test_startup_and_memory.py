@@ -84,7 +84,10 @@ async def test_an_intake_is_handled_in_small_groups_with_few_summaries_at_once(c
         return check({"summary": SUMMARY, "skills": ["SAP"], "work_type": "onsite", "salary": None})
 
     monkeypatch.setattr(claude, "ask_models", fake)
-    jobs = [{**JOB, "title": f"Trainee {i}", "apply_url": f"https://careers.acme-industries.com/jobs/m{i}"} for i in range(60)]
+    jobs = [
+        {**JOB, "title": f"Trainee {i}", "apply_url": f"https://careers.acme-industries.com/jobs/m{i}"}
+        for i in range(60)
+    ]
     out = await post(client, key, jobs)
     assert out["created"] == 60
     assert live["most"] <= col.PARALLEL
@@ -99,7 +102,15 @@ async def test_intake_memory_stays_flat(client, db, key, monkeypatch):
 
     monkeypatch.setattr(claude, "ask_models", fake)
     page = (JOB["page_text"] + " ") * 44  # ~25 KB
-    jobs = [{**JOB, "title": f"Engineer {i}", "page_text": page, "apply_url": f"https://careers.acme-industries.com/jobs/z{i}"} for i in range(70)]
+    jobs = [
+        {
+            **JOB,
+            "title": f"Engineer {i}",
+            "page_text": page,
+            "apply_url": f"https://careers.acme-industries.com/jobs/z{i}",
+        }
+        for i in range(70)
+    ]
     tracemalloc.start()
     try:
         out = await post(client, key, jobs)
