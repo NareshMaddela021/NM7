@@ -111,9 +111,14 @@ def _place(job: dict[str, Any], p: Person) -> tuple[float, str, str]:
     cities = job.get("locations") or []
     if not p.place:
         return 0.5, "unknown", ""
+    from app.jobsearch.parse import canonical_city
+
+    home = canonical_city(p.place.split(",")[0]).lower()  # "Vizag" and "Visakhapatnam" are one city
     for c in cities:
         lc = c.lower()
-        if lc and (lc in p.place or p.place.split(",")[0].strip() in lc):
+        if lc and (
+            lc in p.place or p.place.split(",")[0].strip() in lc or (home and canonical_city(c).lower() == home)
+        ):
             return 1.0, "city", c
     return 0.0, "other", ""
 

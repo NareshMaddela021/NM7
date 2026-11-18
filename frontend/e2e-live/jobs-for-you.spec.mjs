@@ -34,7 +34,7 @@ for (const [label, opts] of SIZES) {
       await page.reload();
       await expect(card.getByTestId('jfy-job').first()).toContainText(`Looker Analyst ${tag}`);
       await expect(card.getByTestId('jfy-job').first()).toContainText('100% match');
-      await expect(card.getByTestId('jfy-job').first()).toContainText('Matches 2 of 2 skills · Fresher OK · In Vizag');
+      await expect(card.getByTestId('jfy-job').first()).toContainText('Matches 2 of 2 skills · Fresher OK · In Visakhapatnam');
       expect(await card.getByTestId('jfy-job').count()).toBeLessThanOrEqual(3);
       await expect(card.getByTestId('jfy-saved')).toHaveText('Saved jobs (1)');
       await expect(card.getByTestId('jfy-apps')).toHaveText('My applications (0)');

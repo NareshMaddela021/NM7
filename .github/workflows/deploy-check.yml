@@ -24,7 +24,17 @@ jobs:
           for i in $(seq 1 50); do
             got=$(curl -fsS --max-time 60 https://nm7-api.onrender.com/version | sed -n 's/.*"commit":"\([^"]*\)".*/\1/p' || true)
             echo "attempt $i: live commit ${got:-unreachable}"
-            if [ "$got" = "$GITHUB_SHA" ]; then echo "Render runs $GITHUB_SHA"; exit 0; fi
+            if [ "$got" = "$GITHUB_SHA" ]; then
+              echo "Render runs $GITHUB_SHA"
+              # the server checks the collector's AI once after it starts: show the answer (ok / error:<kind>)
+              for j in $(seq 1 8); do
+                ai=$(curl -fsS --max-time 30 https://nm7-api.onrender.com/version | sed -n 's/.*"collectorAi":"\([^"]*\)".*/\1/p' || true)
+                [ -n "$ai" ] && [ "$ai" != "unknown" ] && break
+                sleep 20
+              done
+              echo "Collector AI after this deploy: ${ai:-unknown}"
+              exit 0
+            fi
             sleep 30
           done
           echo "::error::Render is not running $GITHUB_SHA after 25 minutes. Deploy it in the Render dashboard (Manual Deploy → Deploy latest commit)."

@@ -56,7 +56,7 @@ export const shortCommit = (c) => (c && c !== 'unknown' ? String(c).slice(0, 7) 
 
 /** Reasons {reason: n} → [[label, n]] biggest first, with friendly words for the known ones. */
 const REASON_WORDS = {
-  no_page_text: 'No page text to summarise', summary_failed: 'Summary failed a check', summary_unavailable: 'AI summaries off',
+  no_page_text: 'No page text to summarise', summary_failed: 'Summary failed a check', summary_unavailable: 'AI summaries off', ai_error: 'AI error (sent back to the collector)',
   ai_daily_limit: 'AI allowance used up', city_not_stated: 'City not stated', experience_not_stated: 'Experience not stated',
   job_board_or_form: 'Job board or form link', staffing_agency: 'Staffing agency', not_india: 'Not in India', outside_india: 'Outside India',
   invalid: 'Missing or invalid details', duplicate: 'Duplicate',
