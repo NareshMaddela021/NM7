@@ -111,7 +111,7 @@ real candidates keep the written task even after the switch goes public — unti
 
 ## Tests
 
-- Backend `tests/test_trust_t14.py` — **TEST_T14**: the test sandbox's markers, output compare and cap; the built-in
+- Backend `tests/test_trust_t14.py` — **15 passed**: the test sandbox's markers, output compare and cap; the built-in
   problems valid, references passing (also run for real in the test), starters failing; Judge0's request (every limit,
   network off, RapidAPI / self-hosted headers, polling, status mapping, 5xx / 429 / internal / network → down); the coding
   flow with **no hidden test in any response** (start, view, run, submit, result, catalogue), scoring from hidden tests,
@@ -123,7 +123,7 @@ real candidates keep the written task even after the switch goes public — unti
   no replay, Admin setting off → 404; candidates can't reach Admin); Admin problems validated by running the reference
   (bad → not offered, fixed → v2 offered, sandbox down → says so), started tasks keep their tests; the AI review
   anonymised, strict schema, feedback only; switch OFF → the written tech task, 404, nothing stored, sandbox never called.
-- Full backend suite: **FULL_PASSED passed**, 1 failed (only the known local-only `test_test_users::test_create_open_and_remove`, deselected).
+- Full backend suite: **1429 passed**, 1 deselected (only the known local-only `test_test_users::test_create_open_and_remove`); it ran before one T14 test was split in two, so `test_trust_t14.py` was re-run on its own (15 passed) with `test_trust_t1/t8/t9` (41 passed together).
 - `ruff check` / `ruff format --check`: clean. Frontend: vitest **664 passed** (2 skipped; new `codeLib.test.js`: diff,
   recorder with / without consent, size cap, playback timing at 1x / 16x, paste marks and highlight), lint no new warnings
   (the 3 existing ones), build OK.
