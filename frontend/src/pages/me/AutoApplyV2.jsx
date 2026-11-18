@@ -19,7 +19,7 @@ export const CHANNELS = {
   internal: ['◆', 'On Nm7'], email: ['✉', 'By email'], partner: ['⇄', 'Partner'], form: ['▤', 'Company form'], one_tap: ['☝', 'One tap'],
 };
 const STAGE_TONE = { ready: 'accent', waiting: 'warn', applied: 'info', viewed: 'info', replied: 'ok', closed: 'neutral' };
-const OUTCOME = { offer: 'Offer', rejected: 'Rejected', closed: 'Job closed', interview: 'Interview', shortlisted: 'Shortlisted' };
+const OUTCOME = { offer: 'Offer', rejected: 'Rejected', closed: 'Job closed', interview: 'Interview', shortlisted: 'Shortlisted', no_reply: 'No reply' };
 const MODES = [
   ['approve', 'Approve each', 'Every morning you get a list. Nothing goes out until you tap Approve (or Approve all).'],
   ['full_auto', 'Full auto', 'Nm7 applies for you within your rules and daily limit. You can see everything it sent.'],
@@ -110,6 +110,7 @@ function TrackerRow({ it, onChanged, toast }) {
         <JobHead it={it} />
         <span className="aa2-tags"><Chip tone={STAGE_TONE[it.stage]}>{it.outcome ? OUTCOME[it.outcome] || it.outcome : TABS_STAGE[it.stage]}</Chip><ChannelTag channel={it.channel} /></span>
       </div>
+      {it.notice && <span className="xs muted aa2-wrap" data-testid="aa2-row-notice">{it.notice.text}</span>}
       <Parts it={it} />
       <div className="row g8 aa2-actions">
         {it.hasVersion && <button type="button" className="link-btn small" aria-expanded={open} onClick={() => setOpen(!open)} data-testid="aa2-what">{open ? 'Hide what was sent' : 'What was sent'}</button>}
@@ -131,8 +132,16 @@ function Tracker({ toast }) {
   useEffect(() => { load(); }, [load]);
   if (!d) return <Skel cards={2} />;
   const rows = pick ? d.items.filter((x) => x.stage === pick) : d.items;
+  const seen = async () => { try { await http(`${BASE}/tracker/seen`, { method: 'POST' }); } catch { /* shown again next time */ } load(); };
   return (
     <div className="stack g12" data-testid="aa2-tracker">
+      {d.updates?.length > 0 && (
+        <section className="mcard mcard-tight mcard-accent stack g8" aria-labelledby="aa2-upd-h" data-testid="aa2-updates">
+          <strong id="aa2-upd-h" className="small">Updates from companies on Nm7</strong>
+          <ul className="stack g4 aa2-list">{d.updates.map((u) => <li key={u.id} className="small aa2-wrap" data-testid="aa2-update" data-status={u.status}>{u.text}</li>)}</ul>
+          <button type="button" className="link-btn small" style={{ alignSelf: 'flex-start' }} onClick={seen} data-testid="aa2-updates-seen">Got it</button>
+        </section>
+      )}
       <div className="aa2-stages" role="radiogroup" aria-label="Filter by stage">
         {d.stages.map((s) => (
           <button key={s.key} type="button" role="radio" aria-checked={pick === s.key} className={`aa2-stage aa2-${STAGE_TONE[s.key]} ${pick === s.key ? 'on' : ''}`} onClick={() => setPick(pick === s.key ? null : s.key)} data-testid={`aa2-stage-${s.key}`}>

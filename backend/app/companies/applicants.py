@@ -123,7 +123,14 @@ def _row(a, job, user, r, pooled: bool) -> dict[str, Any]:
         "timeline": [{"status": s["status"], "at": ms(s["at"])} for s in a.get("timeline") or []],
         "level": _level(user),  # Vetting V1: L0–L4 and ⚡ (never integrity details)
         "l4": l4_of(user),  # Vetting V4: "Nm7 verified" and the reference line
+        "auto": None,  # Auto Apply 2.0 (A2): "Sent by Auto Apply" with score, 3 reasons, cover note (_auto below)
     }
+
+
+def _auto(row: dict[str, Any], a: dict[str, Any], vetting_visible: bool) -> None:
+    from app.autoapply.instant import company_view
+
+    row["auto"] = company_view(a, row["level"], row["l4"], vetting_visible)
 
 
 def l4_of(user: dict[str, Any] | None) -> dict[str, Any] | None:
@@ -188,11 +195,15 @@ async def applicants(
     apps = [a for a in apps if a["user_id"] not in hidden]
     fresh = [a for a in apps if a.get("status") == "applied"]
     if fresh:  # anyone on the team opening the list counts as seen
+        from app.autoapply import sync
+
         t = now()
         for a in fresh:
             await db[APPLICATIONS].update_one({"_id": a["_id"], "status": "applied"}, status_change(a, "viewed", t))
             a["status"] = "viewed"
             a.setdefault("timeline", []).append({"status": "viewed", "at": t})
+            if a.get("origin") == "auto":
+                await sync.on_status(db, a, "viewed")  # Auto Apply 2.0: the tracker shows Viewed (in-app only)
         await audit(db, None, "company.applicants_viewed", target=cid, data={"by": acc["email_lc"], "n": len(fresh)})
     uids = list({a["user_id"] for a in apps})
     users = {
@@ -208,9 +219,12 @@ async def applicants(
         rows.append(_row(a, jobs.get(a["job_id"]), users.get(a["user_id"]), r, a["user_id"] in pooled))
     from app.hire.vetting import access
 
-    if not await access.for_company(db, c, acc):  # the vetting engine hidden from this company: no level chips
+    shown = await access.for_company(db, c, acc)
+    if not shown:  # the vetting engine hidden from this company: no level chips
         for row in rows:
             row["level"] = row["l4"] = None
+    for row, a in zip(rows, apps, strict=True):
+        _auto(row, a, shown)
     rows.sort(key=_rank)
     counts: dict[str, int] = {}
     async for a in db[APPLICATIONS].find(_visible(cid), {"job_id": 1}):
@@ -238,8 +252,10 @@ async def applicant(cid: str, app_id: str, db: DB, x_recruiter_account: str | No
     out = _row(a, job, user, r, pooled)
     from app.hire.vetting import access
 
-    if not await access.for_company(db, c, acc):
+    shown = await access.for_company(db, c, acc)
+    if not shown:
         out["level"] = out["l4"] = None
+    _auto(out, a, shown)
     out["data"] = recruiter_data({"_data": r["data"]}, a.get("status") in CONTACT_STAGES) if r else None
     out["template"] = (r or {}).get("template") or "classic"
     await audit(db, None, "company.applicant_open", target=cid, data={"by": acc["email_lc"], "app": app_id})
@@ -252,7 +268,7 @@ class StageIn(CamelModel):
 
 @router.post("/{cid}/applicants/{app_id}/status")
 async def set_stage(
-    cid: str, app_id: str, body: StageIn, db: DB, x_recruiter_account: str | None = Header(None)
+    cid: str, app_id: str, body: StageIn, db: DB, mailer: MailerDep, x_recruiter_account: str | None = Header(None)
 ) -> dict[str, Any]:
     acc, _, _ = await company_for(db, cid, x_recruiter_account, POST)
     a = await _app(db, cid, app_id)
@@ -266,8 +282,10 @@ async def set_stage(
             target=cid,
             data={"by": acc["email_lc"], "app": app_id, "from": a.get("status"), "to": body.status},
         )
+        from app.autoapply import sync
         from app.companies.trust import refresh
 
+        await sync.on_status(db, a, body.status, mailer)  # Auto Apply 2.0: the tracker and a notice (A2)
         await refresh(db, cid)  # replies count towards the score and the response badge
     return {"status": body.status}
 
@@ -398,6 +416,10 @@ async def schedule(
     if u and not u.get("email_bounced"):
         mail = interview_email(c["details"]["legal_name"], a.get("role", ""), iv, u["email"], u.get("name", ""), app_id)
         sent = await send_safely(mailer, mail)
+    if change:
+        from app.autoapply import sync
+
+        await sync.on_status(db, a, "interview", mailer, emailed=bool(sent))  # the invitation above was the email
     await audit(
         db,
         None,

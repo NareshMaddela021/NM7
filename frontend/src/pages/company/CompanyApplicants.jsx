@@ -6,6 +6,7 @@
 // English, Telugu and Hindi (co.ap.*). Vetting V1: the level chip and ⚡ Ready now on each card and in the profile.
 // Vetting V3: the profile of someone at L3+ opens their screening interview (ScreeningInterview.jsx).
 // Vetting V4: and can ask for the Nm7 human check (NmCheck.jsx).
+// Auto Apply 2.0 (A2): "Sent by Auto Apply" with the score, 3 reasons, badges, notice, salary and cover note.
 import { useCallback, useEffect, useState } from 'react';
 import { rq } from '../../lib/company';
 import { matchReasons } from '../../lib/jobBoard';
@@ -20,6 +21,7 @@ import ApplicantFeedback from './ApplicantFeedback';
 import SkillBadge from './SkillBadge';
 import ScreeningInterview from './ScreeningInterview';
 import NmCheck from './NmCheck';
+import { AutoBlock, AutoChip } from './AutoApplyBits';
 import LevelBadge from '../../components/LevelBadge';
 import { lt } from '../../components/levelStrings';
 import { useLang } from '../../lib/i18n';
@@ -156,7 +158,7 @@ function Profile({ t, c, can, a, rank, onClose, onChanged }) {
           <div className="stack g4" style={{ minWidth: 0 }}>
             <span className="small muted">#{rank} · {a.job}</span>
             <span className="xs muted">{t('co.ap.applied', { date: day(a.appliedAt) })}</span>
-            <span className="ca-chips"><Chip tone={TONE[a.status] || 'neutral'}>{t(`jobs.app.${a.status}`)}</Chip><Chip tone={a.origin === 'auto' ? 'accent' : 'neutral'}>{t(`aa.badge.${a.origin === 'auto' ? 'auto' : 'manual'}`)}</Chip>{a.pooled && <Chip tone="info">{t('co.ap.inPool')}</Chip>}</span>
+            <span className="ca-chips"><Chip tone={TONE[a.status] || 'neutral'}>{t(`jobs.app.${a.status}`)}</Chip>{a.auto ? <AutoChip a={a} /> : <Chip tone={a.origin === 'auto' ? 'accent' : 'neutral'}>{t(`aa.badge.${a.origin === 'auto' ? 'auto' : 'manual'}`)}</Chip>}{a.pooled && <Chip tone="info">{t('co.ap.inPool')}</Chip>}</span>
           </div>
         </div>
         <ApLevel lv={a.level} />
@@ -164,6 +166,7 @@ function Profile({ t, c, can, a, rank, onClose, onChanged }) {
         {a.level?.level >= 3 && <div className="row g8"><ScreeningInterview c={c} uid={a.userId} name={a.name} level={a.level.level} job={a.jobId} appId={a.id} top
           canInvite={can && !['interview', 'offer', 'rejected'].includes(a.status)} onInvited={onChanged} /></div>}
         <NmCheck c={c} uid={a.userId} name={a.name} level={a.level?.level} row={a} canRequest={can} />
+        <AutoBlock a={a} open />
         <ul className="ca-reasons">{reasons(a.match, t).map((r) => <li key={r}>{r}</li>)}</ul>
         {a.match?.found.length > 0 && <div className="stack g4"><span className="mkicker">{t('co.ap.cFound')}</span><span className="ca-skills">{a.match.found.map((x) => <span key={x} className="ca-skill ok">{x}</span>)}</span></div>}
         {a.match?.missing.length > 0 && <div className="stack g4"><span className="mkicker">{t('co.ap.cMissing')}</span><span className="ca-skills">{a.match.missing.map((x) => <span key={x} className="ca-skill">{x}</span>)}</span></div>}
@@ -202,12 +205,13 @@ function Applicant({ t, c, a, rank, can, picked, canPick, onPick, open, onOpen, 
         </div>
         <div className="ca-chips">
           {a.match && <Chip tone={a.match.score >= 70 ? 'ok' : a.match.score >= 40 ? 'info' : 'neutral'} testid="co-ap-score">{t('jobs.match.pct', { n: a.match.score })}</Chip>}
-          <Chip tone={a.origin === 'auto' ? 'accent' : 'neutral'} testid="co-ap-origin" title={t(`aa.badge.${a.origin === 'auto' ? 'autoHint' : 'manualHint'}`)}>{t(`aa.badge.${a.origin === 'auto' ? 'auto' : 'manual'}`)}</Chip>
+          {a.auto ? <AutoChip a={a} /> : <Chip tone={a.origin === 'auto' ? 'accent' : 'neutral'} testid="co-ap-origin" title={t(`aa.badge.${a.origin === 'auto' ? 'autoHint' : 'manualHint'}`)}>{t(`aa.badge.${a.origin === 'auto' ? 'auto' : 'manual'}`)}</Chip>}
           <Chip tone={TONE[a.status] || 'neutral'} testid="co-ap-stage">{t(`jobs.app.${a.status}`)}</Chip>
         </div>
       </div>
       <ApLevel lv={a.level} />
       <p className="ca-why">{reasons(a.match, t).join(' · ')}</p>
+      <AutoBlock a={a} />
       {(a.match?.found.length > 0 || a.match?.missing.length > 0) && (
         <div className="ca-skillrow">
           {a.match.found.length > 0 && <span className="xs ca-found">{t('jobs.match.found', { list: a.match.found.join(', ') })}</span>}

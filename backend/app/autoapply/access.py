@@ -61,3 +61,37 @@ async def mail_filter(db) -> dict[str, Any] | None:
         return {}
     emails = sorted({str(e).lower() for e in v2.get("testers") or []})
     return {"email_lc": {"$in": emails}, "demo": {"$ne": True}} if emails else None
+
+
+# ---------- A2: the company side (instant apply to jobs posted on Nm7) ----------
+
+
+def test_company(company: dict[str, Any] | None, testers_: set[str]) -> bool:
+    """A company used for testing while the switch is OFF: the demo company, or one with a listed tester on its team."""
+    if not company:
+        return False
+    if company.get("demo"):
+        return True
+    return any((m.get("email_lc") or "").lower() in testers_ for m in company.get("members") or [])
+
+
+def pair_ok(user: dict[str, Any] | None, company: dict[str, Any] | None, v2: dict[str, Any]) -> bool:
+    """May this candidate's 2.0 application reach this company? Demo accounts only ever meet the demo company (and
+    the other way round). While the switch is OFF a real person (a tester or an admin) reaches only a test company,
+    so real companies never get 2.0 applications from real users until launch."""
+    if not user or not company:
+        return False
+    if user.get("demo") or company.get("demo"):
+        return bool(user.get("demo")) and bool(company.get("demo"))
+    if v2.get("public"):
+        return True
+    return allowed(user, v2) and test_company(company, {str(e).lower() for e in v2.get("testers") or []})
+
+
+async def for_company(db, company: dict[str, Any], account: dict[str, Any] | None = None) -> bool:
+    """The company side of 2.0 (per-job Auto Apply controls, the "Sent by Auto Apply" details) for this company."""
+    v2 = (await get_site(db))["auto_apply_v2"]
+    if v2.get("public") or company.get("demo"):
+        return True
+    t = {str(e).lower() for e in v2.get("testers") or []}
+    return test_company(company, t) or ((account or {}).get("email_lc") or "").lower() in t

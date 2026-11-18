@@ -397,6 +397,28 @@ async def _v2(db, u, r, c, jobs, extra, t) -> None:
                 "created_at": t, "updated_at": t,
             })  # fmt: skip
 
+    # A2: her application to the demo company's first job came through Auto Apply 2.0, so the company demo shows her
+    # "Sent by Auto Apply" with the score, 3 reasons, the cover note, notice period and the tailored resume
+    from app.autoapply import instant
+
+    app = await db[APPLICATIONS].find_one({"user_id": STUDENT_ID, "job_id": f"{c['_id']}-job-1"})
+    j1 = jobs.get(f"{c['_id']}-job-1")
+    if app and j1:
+        it = await db[AUTO_ITEMS].find_one({"_id": app.get("auto_item_id")}) or {}
+        copy = await tailoring.build(db, STUDENT_ID, r, j1, a, use_ai=False)
+        await db[AUTO_ITEMS].update_one({"_id": it.get("_id")}, {"$set": {"instant": True, "copy_id": copy["_id"]}})
+        await db[APPLICATIONS].update_one(
+            {"_id": app["_id"]},
+            {
+                "$set": {
+                    "v2": True,
+                    "channel_v2": "internal",
+                    "copy_id": copy["_id"],
+                    "cover_note": copy.get("cover_note") or [],
+                    "auto_v2": await instant.payload(db, u, it),
+                }
+            },
+        )
     day = engine_today(t)
     for jid in ("demo-tech-solutions-job-approve", "demo-tech-solutions-job-approve2"):
         await add(by[jid], "waiting_approval", mode="approve", counted_day=day)

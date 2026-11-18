@@ -21,7 +21,7 @@ import asyncio
 from datetime import datetime, timedelta
 from typing import Any
 
-from app.autoapply import engine, learning, rules, score, tailoring
+from app.autoapply import engine, instant, learning, rules, score, tailoring
 from app.autoapply.settings import gate, resume_for
 from app.core.db import APPLICATIONS, AUTO_COPIES, AUTO_ITEMS, COMPANIES, JOBS, USERS
 from app.core.time import now
@@ -48,12 +48,16 @@ def stage_of(it: dict[str, Any], app: dict[str, Any] | None) -> tuple[str, str]:
     """(tracker stage, outcome) for an item and its application."""
     if app:
         st = app.get("status")
+        if it.get("job_closed_at") and st in ("applied", "viewed"):  # A2: the company closed the job first
+            return "closed", "closed"
         if st == "viewed":
             return "viewed", ""
         if st in ("shortlisted", "interview"):
             return "replied", st
         if st in ("offer", "rejected"):
             return "closed", st
+        if st == "no_reply":
+            return "closed", "no_reply"
         return "applied", ""
     s = it.get("state")
     if s == "needs_answer":
@@ -84,6 +88,13 @@ async def send(db, u, it, j, site, mailer=None) -> str:
     r = await resume_for(db, u["_id"])
     if not r:
         return "skipped"
+    why = await instant.send_block(db, u, it, j, site)
+    if why:  # the company's controls (or the launch switch) turn it away: never sent, not counted in the limit
+        await db[AUTO_ITEMS].update_one(
+            {"_id": it["_id"]},
+            {"$set": {"state": "skipped", "reason": why, "updated_at": now()}, "$unset": {"counted_day": ""}},
+        )
+        return "skipped"
     copy = await tailoring.build(db, u["_id"], r, j, u.get("auto_apply") or {})
     got = await engine.deliver(db, it, j, u, copy, it.get("answers") or {}, mailer, site)
     sets = {**got, "copy_id": copy["_id"], "approved": True, "updated_at": now()}
@@ -93,16 +104,14 @@ async def send(db, u, it, j, site, mailer=None) -> str:
     else:
         sets["counted_day"] = it.get("counted_day") or engine.today()
         if j["apply"]["method"] != "email":  # the email channel stores its own copy; the others note what went out
-            await db[APPLICATIONS].update_one(
-                {"user_id": u["_id"], "job_id": j["_id"]},
-                {
-                    "$set": {
-                        "v2": True,
-                        "cover_note": copy.get("cover_note") or [],
-                        "channel_v2": channel_of(j["apply"]["method"]),
-                    }
-                },
-            )
+            extra: dict[str, Any] = {
+                "v2": True,
+                "cover_note": copy.get("cover_note") or [],
+                "channel_v2": channel_of(j["apply"]["method"]),
+            }
+            if instant.eligible(j):  # A2: what the company sees with a "Sent by Auto Apply" application
+                extra["auto_v2"] = await instant.payload(db, u, it)
+            await db[APPLICATIONS].update_one({"user_id": u["_id"], "job_id": j["_id"]}, {"$set": extra})
     await db[AUTO_ITEMS].update_one({"_id": it["_id"]}, upd)
     return got["state"]
 
@@ -217,6 +226,9 @@ async def run_user(db, u: dict[str, Any], site: dict[str, Any], day: str, counts
         if await engine.company_count(db, uid, j, t) >= int(d["company_cap"]):
             counts["v2_skip_company_cap"] = counts.get("v2_skip_company_cap", 0) + 1
             continue
+        if why := await instant.company_check(db, j, {**u, "vetting": {"level": level}}):  # A2: the company's controls
+            counts[f"v2_skip_{why}"] = counts.get(f"v2_skip_{why}", 0) + 1
+            continue
         extra = _item_extra(parts, j)
         if band == "suggest":
             if suggested < SUGGEST_MAX and await engine._item(db, u, j, "suggested", **extra):
@@ -278,9 +290,19 @@ def row(it: dict[str, Any], app: dict[str, Any] | None) -> dict[str, Any]:
         "concerns": it.get("concerns") or [],
         "mode": it.get("mode"),
         "hasVersion": bool(it.get("copy_id")),
+        "instant": bool(it.get("instant")),
+        "notice": _notice(it.get("notice")),
         "demo": bool(it.get("demo")),
         "at": ms((app or {}).get("updated_at") or it.get("updated_at")),
     }
+
+
+def _notice(n: dict[str, Any] | None) -> dict[str, Any] | None:
+    from app.me.service import ms
+
+    if not n:
+        return None
+    return {"status": n.get("status"), "text": n.get("text"), "at": ms(n.get("at")), "seen": bool(n.get("seen"))}
 
 
 TRACKED = ("needs_answer", "waiting_approval", "queued", "ready", "applying", "applied", "sent", "opened", "expired")
@@ -301,7 +323,16 @@ async def tracker(db, uid: str) -> dict[str, Any]:
     counts = {k: 0 for k, _ in STAGES}
     for x in rows:
         counts[x["stage"]] += 1
-    return {"stages": [{"key": k, "label": lbl, "count": counts[k]} for k, lbl in STAGES], "items": rows}
+    updates = [
+        {"id": x["id"], "job": x["job"], **x["notice"]}
+        for x in sorted(rows, key=lambda r: -((r["notice"] or {}).get("at") or 0))
+        if x["notice"] and not x["notice"]["seen"]
+    ]
+    return {
+        "stages": [{"key": k, "label": lbl, "count": counts[k]} for k, lbl in STAGES],
+        "items": rows,
+        "updates": updates[:20],
+    }
 
 
 async def what_was_sent(db, uid: str, iid: str) -> dict[str, Any] | None:

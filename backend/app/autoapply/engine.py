@@ -324,6 +324,13 @@ async def deliver(
     site = site or await get_site(db)
     if await company_count(db, u["_id"], j, t) >= int(site["auto_apply"]["company_cap"]):
         return {"state": "skipped", "reason": "company_cap"}
+    if j.get("auto_controls"):  # Auto Apply 2.0 (A2): a company that set its job's controls is obeyed by every engine
+        from app.autoapply import instant
+
+        if "vetting" not in u:
+            u = {**u, **(await db[USERS].find_one({"_id": u["_id"]}, {"vetting": 1}) or {})}
+        if why := await instant.company_check(db, j, u):
+            return {"state": "skipped", "reason": why}
     if j["apply"]["method"] == "email":
         from app.autoapply import emailing
         from app.core.email import get_mailer
