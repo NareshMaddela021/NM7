@@ -217,7 +217,7 @@ async def _pool(db, t: datetime) -> list[tuple[str, dict[str, Any]]]:
     }
     rows: list[tuple[str, dict[str, Any]]] = []
     async for a in db[SKILL_ATTEMPTS].find(
-        {"v": 2, "task.submitted_at": {"$gt": since}, "task.model": {"$exists": True}, "task.score": {"$ne": None}, "task.graded_by": {"$exists": False}},
+        {"v": 2, "task.submitted_at": {"$gt": since}, "task.model": {"$exists": True}, "task.score": {"$ne": None}, "task.graded_by": {"$exists": False}, "task.status": "graded"},
         {"user_id": 1, "skill": 1, "task": 1},
     ).limit(5000):  # fmt: skip
         if (a.get("task") or {}).get("answer") and ("v2", str(a["_id"])) not in done:

@@ -124,37 +124,37 @@ for (const [label, opts] of SIZES) {
       await expect(page).not.toHaveURL(/\/login/);
       page.on('dialog', () => { throw new Error('no browser dialogs'); });
       await page.goto('/admin/skill-tests?tab=trust');
-      const card = page.getByTestId('tf-card');
-      await expect(card.getByTestId('tf-save')).toBeVisible({ timeout: 30_000 });
-      await card.getByTestId('tf-blind').locator('summary').click();
-      await expect(card.getByTestId('tf-blind')).toContainText('V2 practical task grading');
-      await expect(card.getByTestId('tf-blind')).toContainText('college names');
+      const card = page.getByTestId('tfa-card');
+      await expect(card.getByTestId('tfa-save')).toBeVisible({ timeout: 30_000 });
+      await card.getByTestId('tfa-blind').locator('summary').click();
+      await expect(card.getByTestId('tfa-blind')).toContainText('V2 practical task grading');
+      await expect(card.getByTestId('tfa-blind')).toContainText('college names');
       // a snapshot now: the city-tier gap, with no person in it
       const snap = page.waitForResponse((r) => r.url().endsWith('/api/admin/trust/fairness/report/run') && r.status() === 200);
-      await card.getByTestId('tf-run-report').click();
+      await card.getByTestId('tfa-run-report').click();
       const body = await (await snap).json();
       expect(JSON.stringify(body)).not.toContain(`t12-${tag}`);
-      await expect(card.getByTestId('tf-flag').filter({ hasText: 'Skill checks' }).filter({ hasText: 'Tier 3' }).first()).toContainText('under 80% of the best group', { timeout: 20_000 });
+      await expect(card.getByTestId('tfa-flag').filter({ hasText: 'Skill checks' }).filter({ hasText: 'Tier 3' }).first()).toContainText('under 80% of the best group', { timeout: 20_000 });
       expect(await noSideScroll(page)).toBe(true);
       // the T9 re-grade a person decides
-      const row = card.getByTestId('tf-rv-t9').filter({ hasText: 'strong → weak' }).first();
+      const row = card.getByTestId('tfa-rv-t9').filter({ hasText: 'strong → weak' }).first();
       await expect(row).toBeVisible();
       const decided = page.waitForResponse((r) => r.url().endsWith(`/regrades/${rg.id}/decide`) && r.status() === 200);
-      await row.getByTestId('tf-second').click();
+      await row.getByTestId('tfa-second').click();
       await decided;
-      await expect(card.getByTestId('tf-rv-t9').filter({ hasText: 'Changed by a person' }).first()).toBeVisible({ timeout: 20_000 });
+      await expect(card.getByTestId('tfa-rv-t9').filter({ hasText: 'Changed by a person' }).first()).toBeVisible({ timeout: 20_000 });
       // settings saved and put back (shared database)
       const saved = () => page.waitForResponse((r) => new URL(r.url()).pathname === '/api/admin/trust/fairness' && r.request().method() === 'GET');
-      await card.getByTestId('tf-r-sample').fill('7');
+      await card.getByTestId('tfa-r-sample').fill('7');
       let back = saved();
-      await card.getByTestId('tf-save').click();
+      await card.getByTestId('tfa-save').click();
       await back;
-      await expect(card.getByTestId('tf-r-sample')).toHaveValue('7');
-      await card.getByTestId('tf-r-sample').fill('5');
+      await expect(card.getByTestId('tfa-r-sample')).toHaveValue('7');
+      await card.getByTestId('tfa-r-sample').fill('5');
       back = saved();
-      await card.getByTestId('tf-save').click();
+      await card.getByTestId('tfa-save').click();
       await back;
-      await expect(card.getByTestId('tf-r-sample')).toHaveValue('5');
+      await expect(card.getByTestId('tfa-r-sample')).toHaveValue('5');
       expect(await noSideScroll(page)).toBe(true);
     });
 
