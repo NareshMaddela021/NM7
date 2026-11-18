@@ -47,7 +47,12 @@ V2_JOBS = (
     ("demo-tech-solutions-job-sug2", "Analytics Engineer", "nm7", ["SQL", "dbt", "Snowflake", "Python"]),
     ("demo-tech-solutions-job-offer", "Data Analyst (Retail)", "nm7", ["SQL", "Power BI"]),
     ("demo-tech-solutions-job-form", "Data Analyst (Careers page)", "link", ["SQL", "Power BI"]),  # A5
+    # A6: the morning "jobs ready" list (one tap with the kit); the last one closed after it was listed
+    ("demo-tech-solutions-job-ready1", "Business Analyst", "link", ["SQL", "Excel"]),
+    ("demo-tech-solutions-job-ready2", "SQL Developer", "link", ["SQL", "Power BI"]),
+    ("demo-tech-solutions-job-closed", "MIS Analyst", "link", ["SQL", "Excel"]),
 )
+READY_JOBS = ("demo-tech-solutions-job-ready1", "demo-tech-solutions-job-ready2", "demo-tech-solutions-job-closed")
 DEMO_SITE = "demotech.demo.nm7.invalid"
 # A5: the demo company's careers form (never fetched: the demo fills this copy, nothing goes over the network)
 DEMO_FORM = """<html><head><title>Careers · Demo Tech Solutions</title></head><body>
@@ -142,7 +147,13 @@ async def _extra_jobs(db, company: dict[str, Any]) -> list[dict[str, Any]]:
                 "experience": "fresher",
                 "skills": skills,
                 "applyMethod": method,
-                "applyUrl": "https://demotech.demo.nm7.invalid/careers" if method == "link" else "",
+                "applyUrl": (
+                    f"https://demotech.demo.nm7.invalid/careers/{jid.rsplit('-', 1)[-1]}"
+                    if jid in READY_JOBS
+                    else "https://demotech.demo.nm7.invalid/careers"
+                )
+                if method == "link"
+                else "",
                 "applyEmail": "hr@demotech.demo.nm7.invalid" if method == "email" else "",
             }
         )
@@ -177,7 +188,9 @@ async def remove(db) -> None:
     await db[RESUMES].delete_many({"user_id": STUDENT_ID})
     await db[JOBS].delete_many({"_id": {"$in": [*EXTRA_JOBS, *(x[0] for x in V2_JOBS)]}})
     await db[USERS].delete_one({"_id": STUDENT_ID, "demo": True})
-    from app.core.db import FORM_SITES
+    from app.core.db import AUTO_MORNINGS, FORM_SITES
+
+    await db[AUTO_MORNINGS].delete_many({"user_id": STUDENT_ID})
 
     await db[FORM_SITES].delete_many({"demo": True})
 
@@ -446,6 +459,7 @@ async def _v2(db, u, r, c, jobs, extra, t) -> None:
         await add(by[jid], "suggested")
     await add(by["demo-tech-solutions-job-offer"], "applied", status="offer", applied_at=t)
     await _form_demo(db, u, r, by["demo-tech-solutions-job-form"], add, t)
+    await _morning_demo(db, u, r, by, add, day, t)
     for n, status in ((3, "viewed"), (4, "interview"), (5, "rejected")):
         j = jobs.get(f"{c['_id']}-job-{n}")
         if j:
@@ -475,6 +489,34 @@ async def _form_demo(db, u, r, j, add, t) -> None:
         {"_id": DEMO_SITE},
         {"_id": DEMO_SITE, "state": "allowed", "reason": "", "demo": True, "first_seen": t, "last_tried": t,
          "last_ok": t, "successes": 1, "failures": 0, "updated_at": t},
+        upsert=True,
+    )  # fmt: skip
+
+
+async def _morning_demo(db, u, r, by, add, day: str, t) -> None:
+    """A6: this morning's "jobs ready" list: the website job from Phase 3 and two more, each with its kit (the
+    tailored resume, cover note, ready answers), and one that closed after it was listed (shown as Closed)."""
+    from app.autoapply import tailoring
+    from app.core.db import AUTO_MORNINGS
+
+    for jid in READY_JOBS:
+        await add(by[jid], "ready", ready_day=day, channel_v2="one_tap", listed_day=day)
+    await db[JOBS].update_one(
+        {"_id": "demo-tech-solutions-job-closed"},
+        {"$set": {"status": "closed", "closed_reason": "closed by the source", "updated_at": t}},
+    )
+    web = await db[AUTO_ITEMS].find_one({"user_id": STUDENT_ID, "job_id": EXTRA_JOBS[0]})
+    j = await db[JOBS].find_one({"_id": EXTRA_JOBS[0]})
+    if web and j:  # its 2.0 kit: the tailored version with the cover note and ready answers
+        copy = await tailoring.build(db, STUDENT_ID, r, j, u.get("auto_apply") or {}, use_ai=False)
+        await db[AUTO_ITEMS].update_one(
+            {"_id": web["_id"]}, {"$set": {"channel_v2": "one_tap", "listed_day": day, "copy_id": copy["_id"]}}
+        )
+    ids = [x["_id"] async for x in db[AUTO_ITEMS].find({"user_id": STUDENT_ID, "state": "ready"}, {"_id": 1})]
+    await db[AUTO_MORNINGS].replace_one(
+        {"_id": f"{STUDENT_ID}:{day}"},
+        {"_id": f"{STUDENT_ID}:{day}", "user_id": STUDENT_ID, "day": day, "items": ids, "count": len(ids), "at": t,
+         "seen_at": None, "mailed_at": None, "demo": True},
         upsert=True,
     )  # fmt: skip
 

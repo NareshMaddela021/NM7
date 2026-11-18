@@ -77,7 +77,7 @@ for (const [label, opts] of SIZES) {
       await expect(admin.getByTestId('aa-applied')).toContainText('Junior Data Analyst');
       await expect(admin.getByTestId('aa-sent')).toContainText('Sent by email to hr@demotech.demo.nm7.invalid');
       await expect(admin.getByTestId('aa-need')).toHaveCount(1);
-      await expect(admin.getByTestId('aa-ready-item')).toContainText('Data Engineer Intern');
+      await expect(admin.getByTestId('aa-ready-item').filter({ hasText: 'Data Engineer Intern' })).toHaveCount(1); // A6 adds more demo kits
       expect(await noSideScroll(admin)).toBe(true);
       await actx.close();
     });

@@ -34,3 +34,13 @@
 .aa2-mode.on { border-color: var(--accent); background: #f7f5ff; }
 .aa2-mode input { margin-top: 3px; }
 .aa2-v2link { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+/* A6 one tap: apply kits with Copy buttons and copy mode (one field at a time, big buttons) for phones. */
+.aa2-kitrow { display: flex; gap: 10px; align-items: center; justify-content: space-between; padding: 8px 10px; border-radius: 12px; border: 1px solid var(--border2); background: #fff; }
+.aa2-kitrow > span { flex: 1 1 auto; }
+.aa2 .btn.aa2-copy { flex: 0 0 auto; min-height: 44px; min-width: 72px; }
+.aa2 .btn.aa2-copybig { width: 100%; min-height: 56px; height: auto; font-size: 18px; }
+.aa2-copyvalue { margin: 0; font-size: 17px; overflow-wrap: anywhere; }
+.aa2-copynav { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.aa2 .aa2-copynav .btn { min-height: 48px; height: auto; }
+.aa2-code { font-size: 24px; letter-spacing: .12em; font-variant-numeric: tabular-nums; }
+.aa2-closed { opacity: .8; }
