@@ -75,6 +75,24 @@ from app.orders.service import build_order, next_invoice_no
 from app.payments.models import Payment
 
 
+def t12_graded_interview(iid, uid: str, t) -> dict:
+    """An AI-graded SQL interview shaped exactly like one the app stores (grade_and_store), with an "Explained own work"
+    turn labelled strong: every list that reads interviews (Admin → Interviews → Graded, the candidate's page, the
+    weekly checks) must be able to show it. Not passed, so it gives nobody the interview-ready level."""
+    from app.hire.vetting.interview import BY_TEST, CRITERIA, SECONDS
+
+    turns = [{"id": f"q{n}", "q": f"Question {n}", "answer": f"An answer about SQL ({n})."} for n in range(1, 7)]
+    turns.append({"id": "explain1", "kind": "explain", "q": "Explain your own task", "quote": "JOIN orders o ON o.id",
+                  "answer": "I joined the two tables on the id."})  # fmt: skip
+    scores = [{"key": k, "score": 2, "reason": "Short answers."} for k, _label, _guide in CRITERIA]
+    grade = {"scores": scores, "strengths": ["Knows joins"], "concern": "Short answers.", "model": "", "by": "ai"}
+    return {"_id": iid, "user_id": uid, "test": "SQL", "slug": BY_TEST["SQL"]["slug"], "lang": "en", "mode": "text",
+            "turns": turns, "at": len(turns), "awaiting": "answer", "status": "graded", "seconds": SECONDS["text"],
+            "started_at": t - timedelta(minutes=20), "asked_at": t - timedelta(minutes=5), "answered_at": t,
+            "graded_at": t, "grade": grade, "passed": False,
+            "explain": {"label": "strong", "by": "ai", "reason": "r"}}  # fmt: skip
+
+
 class _Capture:
     """A mailer that keeps the emails instead of sending them."""
 
@@ -648,9 +666,7 @@ async def main(cmd: str, *args: str) -> dict:
             {"_id": uid, "name": "T12 Regrade", "email": mail, "email_lc": mail, "created_at": t}
         )
         iid = ObjectId()
-        iv = {"_id": iid, "user_id": uid, "test": "SQL", "lang": "en", "status": "graded", "graded_at": t}
-        iv |= {"started_at": t, "turns": [], "explain": {"label": "strong", "by": "ai", "reason": "r"}}
-        await db["vetting_interviews"].insert_one(iv)
+        await db["vetting_interviews"].insert_one(t12_graded_interview(iid, uid, t))
         rid = ObjectId()
         rg = {"_id": rid, "kind": "t9", "ref": str(iid), "user_id": uid, "key": "SQL", "first": "strong"}
         rg |= {"second": "weak", "gap": 2, "material": True, "status": "review", "at": t}
