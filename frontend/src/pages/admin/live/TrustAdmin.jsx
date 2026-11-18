@@ -12,8 +12,9 @@
 //   Breach log   72-hour incidents: detected at, data, people, status, the CERT-In 6 h and Board 72 h countdowns,
 //                notifications sent (docs/trust/breach-runbook.md).
 // All from /api/admin/trust/* (every change audited).
-import { useEffect, useState } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 import { Dialog, useToast } from '../../../components/ui';
+import { lazyRetry } from '../../../lib/chunks';
 import { Loading, http, useAction, useApi, when } from './common';
 import TrustDocsAdmin from './TrustDocsAdmin';
 import TrustCriteriaAdmin from './TrustCriteriaAdmin'; // T7: evidence candidates added for job requirements
@@ -25,6 +26,8 @@ import TrustEmployerAdmin from './TrustEmployerAdmin';
 import TrustAgentAdmin from './TrustAgentAdmin';
 import TrustBookingAdmin from './TrustBookingAdmin'; // T11: interview booking & joining day
 import TrustFairnessAdmin from './TrustFairnessAdmin'; // T12: blind grading, re-grades, pass-rate gaps, unfair filters
+
+const TrustCodeAdmin = lazy(lazyRetry(() => import('./TrustCodeAdmin'))); // T14: coding tasks: sandbox, limits, problems, replays
 
 const STATUS = [['open', 'Open'], ['contained', 'Contained'], ['notified', 'Notified'], ['closed', 'Closed']];
 const TO = [['certin', 'CERT-In'], ['dpb', 'Data Protection Board'], ['people', 'Affected people'], ['police', 'Police / cyber cell'], ['vendor', 'Vendor / processor'], ['other', 'Other']];
@@ -219,6 +222,7 @@ export default function TrustAdmin() {
       {!st.error && <TrustIntegrityAdmin />}
       {!st.error && <TrustHonestyAdmin />}
       {!st.error && <TrustSpokenAdmin />}
+      {!st.error && <Suspense fallback={null}><TrustCodeAdmin /></Suspense>}
       {!st.error && <TrustEmployerAdmin />}
       {!st.error && <TrustAgentAdmin />}
       {!st.error && <TrustBookingAdmin />}

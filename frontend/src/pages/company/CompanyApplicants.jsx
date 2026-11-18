@@ -11,7 +11,7 @@
 // Vetting Trust T7 (only when the list carries `criteria`: one job picked and the Trust switch lets the company in): the
 // job's requirements (CriteriaEditor) and on each card Met / Not met / Unknown with the quoted evidence; the server
 // sorts by must-haves met, then nice-to-haves met, then the match score; an edit reloads the list at once.
-import { useCallback, useEffect, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useState } from 'react';
 import { rq } from '../../lib/company';
 import { matchReasons } from '../../lib/jobBoard';
 import ResumePreview from '../builder/ResumePreview';
@@ -24,7 +24,10 @@ import '../../styles/company-jobs.css';
 import ApplicantFeedback from './ApplicantFeedback';
 import SkillBadge from './SkillBadge';
 import ScreeningInterview from './ScreeningInterview';
+import { lazyRetry } from '../../lib/chunks';
 import NmCheck from './NmCheck';
+
+const CompanyCode = lazy(lazyRetry(() => import('./CompanyCode'))); // Vetting Trust T14: coding result + editor replay
 import DocBadges from './DocBadges';
 import { AutoBlock, AutoChip } from './AutoApplyBits';
 import { CriteriaEditor, CriteriaStrip, useEvaluating } from './CriteriaBits';
@@ -158,7 +161,8 @@ function Board({ t, items, onProfile }) {
   );
 }
 
-/** The candidate's profile in a side panel: only what the list already loaded (no extra calls). */
+/** The candidate's profile in a side panel: only what the list already loaded (no extra calls), except the T14 coding
+ * card (one call when the profile opens; nothing shows unless Vetting Trust is on for the company). */
 function Profile({ t, c, can, a, rank, onClose, onChanged }) {
   return (
     <Dialog title={a.name} onClose={onClose} showTitle overlayStyle={{ justifyContent: 'flex-end', alignItems: 'stretch', padding: 0 }}
@@ -177,6 +181,7 @@ function Profile({ t, c, can, a, rank, onClose, onChanged }) {
         {a.level?.level >= 3 && <div className="row g8"><ScreeningInterview c={c} uid={a.userId} name={a.name} level={a.level.level} job={a.jobId} appId={a.id} top
           canInvite={can && !['interview', 'offer', 'rejected'].includes(a.status)} onInvited={onChanged} /></div>}
         <DocBadges docs={a.docs} face={a.face} integrity={a.integrity} />
+        <Suspense fallback={null}><CompanyCode c={c} uid={a.userId} /></Suspense>
         <CriteriaStrip cr={a.criteria} testid="crit-strip-profile" />
         <NmCheck c={c} uid={a.userId} name={a.name} level={a.level?.level} row={a} canRequest={can} />
         <AutoBlock a={a} open />
