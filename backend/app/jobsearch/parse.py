@@ -149,6 +149,60 @@ CITIES = (
     "Jammu|Shimla|Siliguri|Durgapur|Asansol|Remote|Work from home|WFH|Hybrid|Pan India|Anywhere in India"
 )
 CITY = re.compile(rf"\b({CITIES})\b", re.I)
+
+# One spelling per city on nm7.si (filters, counts, alerts): the old or English name is merged into the current one,
+# and a name in capitals or small letters gets the list's spelling ("PUNE" -> "Pune", "Bangalore" -> "Bengaluru").
+CITY_ALIASES = {
+    "bangalore": "Bengaluru", "bengaluru": "Bengaluru", "bengalooru": "Bengaluru", "gurgaon": "Gurugram",
+    "cochin": "Kochi", "trivandrum": "Thiruvananthapuram", "calicut": "Kozhikode", "mysore": "Mysuru",
+    "mangalore": "Mangaluru", "vizag": "Visakhapatnam", "trichy": "Tiruchirappalli", "allahabad": "Prayagraj",
+    "pondicherry": "Puducherry", "new delhi": "Delhi", "bombay": "Mumbai", "madras": "Chennai", "calcutta": "Kolkata",
+    "poona": "Pune", "baroda": "Vadodara", "belgaum": "Belagavi", "hubballi": "Hubli", "panjim": "Panaji",
+    "vishakhapatnam": "Visakhapatnam", "visakapatnam": "Visakhapatnam", "gurugram": "Gurugram",
+}  # fmt: skip
+_SPELLING = {c.lower(): c for c in CITIES.split("|")}
+_REGION = re.compile(
+    r",?\s*\b(india|in|ind|karnataka|maharashtra|telangana|tamil nadu|tn|andhra pradesh|ap|kerala|gujarat|"
+    r"west bengal|wb|uttar pradesh|up|haryana|rajasthan|madhya pradesh|mp|punjab|odisha|orissa|bihar|assam|"
+    r"jharkhand|chhattisgarh|uttarakhand|goa|delhi ncr|ncr)\s*$",
+    re.I,
+)
+NOT_A_CITY = {"india", "pan india", "anywhere in india", "all india", "multiple locations", "various locations"}
+
+
+def canonical_city(name: str) -> str:
+    """The one spelling of a city ("" for nothing). "Bengaluru, Karnataka, India" -> "Bengaluru"; "PUNE" -> "Pune";
+    a place nm7.si doesn't know keeps its words, in title case when it was all capitals or all small letters.
+    "India" alone stays "India" (it means the city isn't stated; the callers decide what to do with it)."""
+    t = " ".join(str(name or "").replace("\u00a0", " ").split()).strip(" ,;-")
+    if not t:
+        return ""
+    if t.lower() in NOT_A_CITY:
+        return "India" if t.lower() == "india" else t.title() if (t.isupper() or t.islower()) else t
+    base = t
+    for _ in range(3):  # "Pune, Maharashtra, India": peel the state and country off the end
+        nxt = _REGION.sub("", base).strip(" ,;-")
+        if not nxt or nxt == base:
+            break
+        base = nxt
+    low = base.lower()
+    if low in CITY_ALIASES:
+        return CITY_ALIASES[low]
+    if low in _SPELLING:
+        return _SPELLING[low]
+    return base.title() if (base.isupper() or base.islower()) else base
+
+
+def canonical_cities(names) -> list[str]:
+    """Each city once, in its one spelling, in the order given."""
+    out: list[str] = []
+    for n in names or []:
+        c = canonical_city(n)
+        if c and c.lower() not in {o.lower() for o in out}:
+            out.append(c)
+    return out
+
+
 WORDS_STOP = {
     "a",
     "an",

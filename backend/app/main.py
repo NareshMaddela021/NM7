@@ -223,8 +223,10 @@ def create_app() -> FastAPI:
     @app.get("/version", tags=["ops"])
     async def version() -> dict[str, str]:
         """The git commit this server was built from (Render sets RENDER_GIT_COMMIT), to confirm a deploy."""
+        from app.jobs import ai_health
+
         commit = os.environ.get("RENDER_GIT_COMMIT") or os.environ.get("GIT_COMMIT") or "unknown"
-        return {"commit": commit}
+        return {"commit": commit, "collectorAi": ai_health.coarse()}
 
     app.include_router(auth_router)
     app.include_router(admin_auth_router)

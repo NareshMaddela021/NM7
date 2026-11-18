@@ -199,7 +199,7 @@ def job_query(a: dict[str, Any], since) -> dict[str, Any]:
     }
     if a["cities"]:
         where: list[dict[str, Any]] = [
-            {"locations": {"$regex": "|".join(f"^{re.escape(c)}" for c in a["cities"]), "$options": "i"}}
+            {"locations": {"$regex": "|".join(f"^{re.escape(c)}" for c in _cities(a["cities"])), "$options": "i"}}
         ]
         if a["remote"]:
             where.append({"remote": True})
@@ -295,3 +295,10 @@ async def send_alerts(db, mailer: Mailer, limit: int = BATCH) -> int:
     if sent:
         log.info("job alerts: %d email(s) sent", sent)
     return sent
+
+
+def _cities(names: list[str]) -> list[str]:
+    """The alert's cities as typed and in nm7.si's one spelling ("Bangalore" also finds the Bengaluru jobs)."""
+    from app.jobsearch.parse import canonical_city
+
+    return list(dict.fromkeys([*names, *(canonical_city(c) for c in names if c)]))
