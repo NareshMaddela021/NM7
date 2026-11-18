@@ -19,7 +19,7 @@
 // Vetting Trust T7: the job's requirements (CriteriaEditor) and each person's Met / Not met / Unknown with the quoted
 // evidence (CriteriaStrip); after an edit the people shown are checked again (cached answers re-used) and re-sorted at
 // once here: must-haves met, then nice-to-haves met, then the match score (only when the answer carries `criteria`).
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { rq } from '../../lib/company';
 import { reasons } from './CompanyApplicants';
 import HireSlots from './HireSlots';
@@ -148,13 +148,16 @@ export default function CompanyHire({ t, c }) {
       if (live[0]) setJob(live[0].id);
     }, () => setJobs([]));
   }, [c.id]);
+  const latest = useRef(0); // filters changed quickly: only the answer to the newest request is shown
   const load = useCallback(async () => {
     if (!job || !verified) return;
+    const mine = ++latest.current;
     setErr(''); setD(null); setShown(PAGE);
     try {
       const [s, inv] = await Promise.all([rq(`/api/company/${c.id}/hire/shortlist?${shortlistQuery(job, { support, ...vf }, nt)}`), rq(`/api/company/${c.id}/hire/invites?job=${encodeURIComponent(job)}`)]);
-      setD(s); setInvites(inv); setNtCounts(s.nonTech ? s.nonTech.counts : null); setNtEnglish(!!s.nonTech?.englishFilter); setFair(s.nonTech?.fairness || []);
-    } catch (x) { setErr(x.message); setD({ items: [] }); }
+      if (mine !== latest.current) return;
+      setD(s); setInvites(inv); setNtCounts(s.nonTech ? { ...s.nonTech.counts, of: s.nonTech.filters } : null); setNtEnglish(!!s.nonTech?.englishFilter); setFair(s.nonTech?.fairness || []);
+    } catch (x) { if (mine === latest.current) { setErr(x.message); setD({ items: [] }); } }
   }, [c.id, job, verified, support, vf, nt]);
   useEffect(() => { load(); }, [load]);
   // T7: check the people shown against the (edited) requirements and re-sort them here (no new shortlist)

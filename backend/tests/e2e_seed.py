@@ -15,8 +15,9 @@ MONGODB_DB=nm7_e2e uv run python -m tests.e2e_seed reset
 ... trust-t11-book EMAIL CID JOB      → T11: a shortlisted application + its one-tap booking link token
 ... trust-t11-offer EMAIL CID DAYS BY [LANG] → T11: an accepted offer + the joining-day and company link tokens
 ... trust-agent-run [HOUR]             → T5: one calling-agent pass at HOUR (default 11) IST tomorrow (any real hour)
-... trust-t6-ready EMAIL [CLASSES]     → T6: Ready to join in Hyderabad (no notice) and, with CLASSES ("MCWG,LMV"), a
-                                          DigiLocker driving licence from the test provider (verified)
+... trust-t6-ready EMAIL [CLASSES] [CITY] → T6: Ready to join in Hyderabad (or CITY: a test's own place, so Hire now's
+                                          top 10 holds only that test's people) with no notice and, with CLASSES
+                                          ("MCWG,LMV"), a DigiLocker driving licence from the test provider (verified)
 ... trust-t8-high EMAIL|@demo-first   → T8: signals worth "High risk" (a test with the same answers as another
                                           account on a shared device, and the same PAN on another account), then
                                           that person is rated (a review opens)
@@ -294,7 +295,8 @@ async def main(cmd: str, *args: str) -> dict:
         u = await db["users"].find_one({"email": mail})
         t = now()
         prof = {
-            "on": True, "join_date": "", "cities": ["Hyderabad"], "remote": False, "notice_days": 0,
+            "on": True, "join_date": "", "cities": [args[2] if len(args) > 2 and args[2] else "Hyderabad"],
+            "remote": False, "notice_days": 0,
             "salary": {"amount": 25000, "unit": "month"}, "job_types": ["full_time"], "returner": False,
             "hide_from": [], "confirmed_at": t, "consent_at": t, "paused_at": None, "updated_at": t, "created_at": t,
         }  # fmt: skip
