@@ -217,7 +217,7 @@ def test_quiet_hours_and_quiet_days():
 
 async def test_job_post_triggers_selection_within_caps(client, outbox, db, make_client, no_kick):
     session, cid, _ = await co(client, outbox, db)
-    people = [await person(make_client, outbox, db, f"p{i}@example.com", f"9876500{i:03d}") for i in range(3)]
+    people = [await person(make_client, outbox, db, f"p{i}@example.com", f"98765{i}1234") for i in range(3)]
     await person(make_client, outbox, db, "noconsent@example.com", "9876511111", consent=False)
     await person(make_client, outbox, db, "real@example.com", "9876522222", test=False)  # not a tester: never while OFF
     await agent_settings(db, per_job=2)
