@@ -15,8 +15,8 @@ MONGODB_DB=nm7_e2e uv run python -m tests.e2e_seed reset
 ... trust-agent-run [HOUR]             → T5: one calling-agent pass at HOUR (default 11) IST tomorrow (any real hour)
 ... trust-t6-ready EMAIL [CLASSES]     → T6: Ready to join in Hyderabad (no notice) and, with CLASSES ("MCWG,LMV"), a
                                           DigiLocker driving licence from the test provider (verified)
-... trust-t7-person EMAIL KIND [consent] → T7: the adult age check and a resume (KIND data: SQL / Power BI; acct: Tally /
-                                          GST, Telugu) and, with "consent", the "Matching you to a job's requirements" consent
+... trust-t7-person EMAIL KIND [consent] → T7: the adult age check, a resume (KIND data: SQL / Power BI; acct:
+                                          Tally / GST, Telugu) and, with "consent", the job-requirements consent
 ... auto-apply-run [EMAIL [past]]      → the Auto Apply run now (any hour); with EMAIL and "past", that student's
                                           preview days are over first
 ... job-alerts EMAIL                   → {"sent": [{to, subject, text}], "stop": token} (the alert pass for one person,
