@@ -12,6 +12,8 @@ MONGODB_DB=nm7_e2e uv run python -m tests.e2e_seed reset
 ... job JSON [STATUS] [AGE_HOURS]       → {"id", "slug"} (a job-board job, as an admin would add it)
 ... aa2-tester EMAIL                   → Auto Apply 2.0 shown to this email while hidden
 ... trust-agent-person EMAIL PHONE     → T5: that person's mobile number, an adult age check and a resume (no consent)
+... trust-t11-book EMAIL CID JOB      → T11: a shortlisted application + its one-tap booking link token
+... trust-t11-offer EMAIL CID DAYS BY [LANG] → T11: an accepted offer + the joining-day and company link tokens
 ... trust-agent-run [HOUR]             → T5: one calling-agent pass at HOUR (default 11) IST tomorrow (any real hour)
 ... trust-t6-ready EMAIL [CLASSES]     → T6: Ready to join in Hyderabad (no notice) and, with CLASSES ("MCWG,LMV"), a
                                           DigiLocker driving licence from the test provider (verified)
@@ -497,6 +499,50 @@ async def main(cmd: str, *args: str) -> dict:
         }
         await db["hire_offers"].insert_one(offer)
         return {"id": str(oid)}
+    if cmd == "trust-t11-book":  # Vetting Trust T11: a shortlisted application and its one-tap booking link's token
+        from app.jobs.apply import app_key
+        from app.trust.booking import service as booking
+
+        mail, cid, jid = args
+        u = await db["users"].find_one({"email": mail})
+        t = now()
+        await db["applications"].update_one(
+            {"user_id": u["_id"], "key": app_key(jid)},
+            {"$set": {"job_id": jid, "company_id": cid, "status": "shortlisted", "company": "T11 Co", "role": "Analyst",
+                      "channel": "nm7", "company_removed_at": None, "updated_at": t},
+             "$setOnInsert": {"timeline": [{"status": "shortlisted", "at": t}], "created_at": t}},
+            upsert=True,
+        )  # fmt: skip
+        link = await booking.link_for(db, "interview", user_id=u["_id"], company_id=cid, job_id=jid, source="e2e",
+                                      until=t + timedelta(days=14))  # fmt: skip
+        return {"token": booking.token_for(link)}
+    if cmd == "trust-t11-offer":  # Vetting Trust T11: an accepted offer joining in N days + the joining-day link tokens
+        from bson import ObjectId
+
+        from app.core.time import IST
+        from app.trust.booking import service as booking
+
+        mail, cid, days, by = args[0], args[1], int(args[2]), args[3]
+        lang = args[4] if len(args) > 4 else ""
+        u = await db["users"].find_one({"email": mail})
+        t = now()
+        oid = ObjectId()
+        day = (now().astimezone(IST).date() + timedelta(days=days)).isoformat()
+        await db["hire_offers"].insert_one({
+            "_id": oid, "user_id": u["_id"], "job_id": "t11-job", "company_id": cid, "company_name": "T11 Foods",
+            "candidate_name": u.get("name", ""), "title": "Store analyst", "salary": {"amount": 25000, "unit": "month"},
+            "join_date": day, "place": "Hitech City, Gate 2", "notes": "", "status": "accepted",
+            "respond_by": t + timedelta(days=3), "answered_at": t, "typed_name": u.get("name", ""), "agreed": True,
+            "by": by, "created_at": t, "updated_at": t,
+            "t11_join": {"time": "10:00", "place": "Hitech City, Gate 2", "map": "https://maps.example.com/t11"},
+        })  # fmt: skip
+        if lang:
+            await db["trust_agent_prefs"].update_one({"_id": u["_id"]}, {"$set": {"lang": lang}}, upsert=True)
+        until = t + timedelta(days=days + 5)
+        kw = {"user_id": u["_id"], "company_id": cid, "offer_id": str(oid), "source": "e2e", "until": until}
+        j = await booking.link_for(db, "join", **kw)
+        c = await booking.link_for(db, "company_join", **kw)
+        return {"id": str(oid), "join": booking.token_for(j), "company": booking.token_for(c)}
     if cmd == "aa2-tester":  # Admin → Auto Apply 2.0: this email sees 2.0 while it is hidden
         (email,) = args
         await db["settings"].update_one(
