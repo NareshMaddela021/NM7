@@ -168,7 +168,7 @@ def content_words(text: str) -> set[str]:
 
 def clip(s: str, n: int = 22) -> str:
     w = s.split()
-    return " ".join(w[:n]).rstrip(",;:") + ("…" if len(w) > n else "")
+    return " ".join(w[:n]).rstrip(",;:.!?।") + ("…" if len(w) > n else "")
 
 
 def sections(text: str, n: int) -> list[str]:
