@@ -6,12 +6,14 @@
 // time). English only while it is tested. No pop-up dialogs; nothing scrolls sideways at 390 px.
 // A3: the Email tab (the email channel on / off, the follow-up opt-in, the candidate's own apply address, replies that
 // came back) and, in "What was sent", the exact email with its attachment, any follow-up and the replies.
+// A7: the Replies tab (every channel, unread markers, interview invites) and This week (the weekly summary).
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useToast } from '../../components/ui';
 import { EXPERIENCE, JOB_TYPES } from '../../lib/jobBoard';
 import { http } from '../../services/http';
 import OneTap from './AutoApplyOneTap';
+import { Inbox, Week } from './AutoApplyReplies';
 import { MeHead } from './MeLayout';
 import { Chip, Empty, FieldGroup, Skel, StickyBar } from './kit';
 import '../../styles/me-jobs.css';
@@ -31,7 +33,7 @@ const MODES = [
 const NOTICE = [['', 'Not set'], ['immediate', 'Immediately'], ['15_days', '15 days'], ['30_days', '30 days'], ['60_days', '60 days'], ['90_days', '90 days']];
 const EXP_LABEL = { internship: 'Internship', fresher: 'Fresher', '0_1': '0–1 years', '1_3': '1–3 years', '3_5': '3–5 years', '5_8': '5–8 years', '8_12': '8–12 years', '12_15': '12–15 years', '15_plus': '15+ years' };
 const TYPE_LABEL = { full_time: 'Full-time', internship: 'Internship', contract: 'Contract', part_time: 'Part-time' };
-const TABS = [['tracker', 'Tracker'], ['ready', 'Jobs ready'], ['approve', 'Approve'], ['waiting', 'Waiting for you'], ['suggested', 'Suggested'], ['email', 'Email'], ['rules', 'Rules']];
+const TABS = [['tracker', 'Tracker'], ['replies', 'Replies'], ['week', 'This week'], ['ready', 'Jobs ready'], ['approve', 'Approve'], ['waiting', 'Waiting for you'], ['suggested', 'Suggested'], ['email', 'Email'], ['rules', 'Rules']];
 const fmtAt = (ms) => (ms ? new Date(ms).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) : '');
 const list = (s) => String(s || '').split(',').map((x) => x.trim()).filter(Boolean);
 
@@ -190,13 +192,14 @@ function TrackerRow({ it, onChanged, toast }) {
 }
 const TABS_STAGE = { ready: 'Ready', waiting: 'Waiting for you', applied: 'Applied', viewed: 'Viewed', replied: 'Replied / Interview', closed: 'Closed' };
 
-function Tracker({ toast }) {
+function Tracker({ toast, focus, onAll }) {
   const [d, setD] = useState(null);
   const [pick, setPick] = useState(null);
   const load = useCallback(() => http(`${BASE}/tracker`).then(setD).catch(() => setD({ stages: [], items: [] })), []);
   useEffect(() => { load(); }, [load]);
   if (!d) return <Skel cards={2} />;
-  const rows = pick ? d.items.filter((x) => x.stage === pick) : d.items;
+  const focused = focus && d.items.some((x) => x.id === focus);
+  const rows = focused ? d.items.filter((x) => x.id === focus) : pick ? d.items.filter((x) => x.stage === pick) : d.items;
   const seen = async () => { try { await http(`${BASE}/tracker/seen`, { method: 'POST' }); } catch { /* shown again next time */ } load(); };
   return (
     <div className="stack g12" data-testid="aa2-tracker">
@@ -214,6 +217,7 @@ function Tracker({ toast }) {
           </button>
         ))}
       </div>
+      {focused && <div className="aa2-bar"><span className="small muted">The application this reply is about.</span><button type="button" className="link-btn small" onClick={onAll} data-testid="aa2-tracker-all">Show all</button></div>}
       {rows.length === 0 ? <Empty compact title="Nothing here yet">The morning run fills this in. Every channel shows up here.</Empty>
         : <ul className="stack g8 aa2-list">{rows.map((it) => <TrackerRow key={it.id} it={it} onChanged={load} toast={toast} />)}</ul>}
     </div>
@@ -486,7 +490,7 @@ export default function AutoApplyV2() {
     try { setD(await http(url, { method: 'POST', body })); toast(msg); setStopAsk(false); } catch (x) { toast(x.message); } finally { setBusy(false); }
   };
   const setUp = !!d.consent.at;
-  const badge = { ready: d.morning?.count ?? d.counts.ready, approve: d.counts.approvals, waiting: d.counts.waiting, suggested: d.counts.suggested };
+  const badge = { replies: d.inboxUnread, ready: d.morning?.count ?? d.counts.ready, approve: d.counts.approvals, waiting: d.counts.waiting, suggested: d.counts.suggested };
   return (
     <div className="stack g16 aa2" data-testid="aa2">
       <MeHead title="Auto Apply 2.0" sub="Nm7 finds jobs that fit your rules, tailors your resume for each (reorder and rephrase only) and applies the way you choose." />
@@ -525,7 +529,10 @@ export default function AutoApplyV2() {
           </button>
         ))}
       </nav>
-      {tab === 'tracker' && <Tracker toast={toast} />}
+      {d.pricing?.on && <p className="xs muted" style={{ margin: 0 }} data-testid="aa2-pricing">{d.pricing.weekLimit == null ? 'No weekly limit on your plan.' : `This week: ${d.pricing.usedThisWeek} of ${d.pricing.weekLimit} ${d.pricing.plan === 'paid' ? '' : 'free '}applications used.`}</p>}
+      {tab === 'tracker' && <Tracker toast={toast} focus={sp.get('item')} onAll={() => setSp({ tab: 'tracker' }, { replace: true })} />}
+      {tab === 'replies' && <Inbox toast={toast} onOpen={(id) => setSp({ tab: 'tracker', item: id }, { replace: true })} onChanged={load} />}
+      {tab === 'week' && <Week onTab={(k) => setSp({ tab: k }, { replace: true })} />}
       {tab === 'ready' && <OneTap toast={toast} onChanged={load} />}
       {tab === 'approve' && <Approvals toast={toast} onChanged={load} />}
       {tab === 'waiting' && <Waiting toast={toast} onChanged={load} />}

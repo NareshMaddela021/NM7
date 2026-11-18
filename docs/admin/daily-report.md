@@ -147,6 +147,33 @@ When the Razorpay keys are missing (`razorpay_ready()` is false), "Paid orders" 
 - **Vetting switch**: ON when the new skill checks are public (Admin → Skill checks → Launch). This is information
   only, never an issue.
 
+## e) Auto Apply
+
+Auto Apply 2.0 (phase A7, `app/autoapply/stats.py`). Only today's snapshot has it (it is a state section: backfilled
+days leave it out). Counted with aggregations, never by loading collections; demo records are never counted. The same
+numbers, counted at the moment, are on Admin → Auto Apply.
+
+- **Per channel** (Nm7, Email, Partner, Company form, One tap), last 7 days:
+  - **Sent**: 2.0 applications made (`applications`, `v2: true`, by `created_at`; the channel is the tracker row's).
+    Email also counts the `auto_mail` first emails.
+  - **Delivered**: Nm7 and One tap = sent. Email = sent − bounced. Partner = delivered to the hiring system. Company
+    form = sent through the form.
+  - **Failed**: Email = bounced. Partner = kept on Nm7 after the hiring system refused it. Company form = Nm7 tried
+    the form and it didn't go through (the job went to one tap).
+  - **Reply rate / interview rate**: replied (an email reply, or moved to shortlisted / interview / offer) and
+    interviews (interview or offer, or an email reply read as an interview invite) ÷ sent.
+- **Success measures**, each **Met**, **Not met** or **No data yet**:
+  - Reply / interview rate, last 30 days: at least 10%.
+  - Applications per active seeker (2.0 on, not paused, not demo), last 7 days: 10 to 25 a week.
+  - Waiting questions answered within 24 hours (asked 1–30 days ago): at least 70%.
+  - Email bounce rate, last 30 days: below 2%.
+  - Email complaints, last 30 days: below 0.1%.
+  - Company opt-outs and spam complaints, last 30 days: about 0 (met only at 0).
+  - One tap kits on a morning list (1–30 days ago) that ended in "I applied": at least 50%.
+  - Fully automatic applications (full auto, no tap) as a share of the last 7 days: met when it grew against the
+    7 days before. With no week before it shows No data yet.
+- **Auto Apply 2.0 switch**: "public" or "testers only". Information only.
+
 ## Not included
 
 - Vercel deploy status.

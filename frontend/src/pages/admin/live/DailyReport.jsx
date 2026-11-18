@@ -1,14 +1,17 @@
 // Admin → Daily report: the whole business on one page, updated every day. Five plain lines and a "Needs attention"
-// list at the top, then the job collector, site health, users and business, and the vetting engine. Each number has
+// list at the top, then the job collector, site health, users and business, the vetting engine and Auto Apply (A7). Each number has
 // its change vs yesterday and a tiny 30-day sparkline. ONE request loads it all (GET /api/admin/daily-report);
 // "Refresh now" recomputes today on the server and answers with the same report. Numbers: docs/admin/daily-report.md.
-import { useCallback, useEffect, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Spinner, useToast } from '../../../components/ui';
 import { http, when } from './common';
 import { bandWord, change, inr, msText, num, pct, reasonList, shortCommit, sparkPoints, trendWords } from './dailyReportText';
 import '../../../styles/me-kit.css';
 import '../../../styles/admin-daily.css';
+
+// loaded with the report's own chunk's import map (not the main bundle's): shared with Admin → Auto Apply
+const AutoApplyNumbers = lazy(() => import('./AutoApplyNumbers'));
 
 function Sparkline({ series, fmt = num, label }) {
   const runs = sparkPoints(series, 120, 32);
@@ -131,6 +134,7 @@ function Report({ d }) {
   const payReady = t.payments ? t.payments.ready : null;
   const gh = d.health.github || { connected: false, runs: [] };
   const ai = t.ai || {};
+  const aa = t.autoApply;
   return (
     <div className="stack g20">
       <div className="dr-top">
@@ -267,6 +271,11 @@ function Report({ d }) {
             </ul>
           )}
         </div>
+      </Section>
+
+      <Section id="dr-aa-h" title="Auto Apply" sub="Auto Apply 2.0 by channel, last 7 days (rates over 30 days). Demo accounts are never counted."
+        right={aa ? <span className={`mchip ${aa.switchOn ? 'mchip-ok' : 'mchip-neutral'}`} data-testid="dr-aa-switch">Auto Apply 2.0: {aa.switchOn ? 'public' : 'testers only'}</span> : null}>
+        <Suspense fallback={<Spinner />}><AutoApplyNumbers aa={aa} /></Suspense>
       </Section>
     </div>
   );

@@ -356,6 +356,8 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel([("user_id", ASCENDING), ("job_id", ASCENDING)], unique=True),  # never the same job twice
         IndexModel([("user_id", ASCENDING), ("state", ASCENDING)]),
         IndexModel([("state", ASCENDING), ("updated_at", DESCENDING)]),
+        # A7: the Admin numbers count 2.0 items by when they were made (aggregations, never whole collections)
+        IndexModel([("v2", ASCENDING), ("created_at", ASCENDING)], partialFilterExpression={"v2": True}),
     ],
     AUTO_COPIES: [
         IndexModel([("user_id", ASCENDING), ("job_id", ASCENDING)]),
@@ -569,7 +571,11 @@ INDEXES: dict[str, list[IndexModel]] = {
     # Each item has a per-owner `key` (the id the browser uses); every lookup includes user_id.
     RESUMES: [IndexModel([("user_id", ASCENDING), ("key", ASCENDING)], unique=True)],
     COVER_LETTERS: [IndexModel([("user_id", ASCENDING), ("key", ASCENDING)], unique=True)],
-    APPLICATIONS: [IndexModel([("user_id", ASCENDING), ("key", ASCENDING)], unique=True)],
+    APPLICATIONS: [
+        IndexModel([("user_id", ASCENDING), ("key", ASCENDING)], unique=True),
+        # A7: Auto Apply 2.0's per-channel numbers (Admin → Daily report) count by sent day
+        IndexModel([("v2", ASCENDING), ("created_at", ASCENDING)], partialFilterExpression={"v2": True}),
+    ],
     ATS_CHECKS: [IndexModel([("user_id", ASCENDING), ("at", DESCENDING)])],
     # _id is the owner's user id; short is the code of the short link
     SHARES: [IndexModel("slug", unique=True), IndexModel("short", unique=True, sparse=True)],

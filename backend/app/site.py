@@ -61,7 +61,10 @@ AUTO_APPLY_V2 = {
     "suggest_min": 55,  # from here up to auto_min: "Suggested for you"; below: skipped
     "daily_limit": 10,  # a new user's daily limit in 2.0
     "max_daily_limit": 25,  # the most a user may choose in 2.0
-    # pricing (free for now): free applications a week (0 = no weekly limit), the paid plan's weekly limit, payments
+    # pricing (free for now): free applications a week (0 = no weekly limit), the paid plan's weekly limit, payments.
+    # A7: the limits are enforced by the engine only while "pricing_on" is on (OFF by default). Payments are "coming
+    # soon": payments_on stays False (Admin can't turn it on) and nothing is ever charged.
+    "pricing_on": False,
     "free_per_week": 0,
     "paid_limit": 0,
     "payments_on": False,

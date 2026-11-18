@@ -628,13 +628,16 @@ async def run(db, mailer=None, force: bool = False, limit: int = PAGE) -> dict[s
             try:
                 if is_v2:
                     await v2engine.run_user(db, got, site, day, counts, mailer)
-                    from app.autoapply import onetap
+                    from app.autoapply import weekly
 
-                    listed = await onetap.morning(db, got, site, day, mailer)  # A6: "N jobs ready" (once a day)
-                    counts["v2_morning_listed"] = counts.get("v2_morning_listed", 0) + listed
+                    # A6's "N jobs ready" list (in-app, once a day) and A7's rule: at most one routine email a day
+                    # (the weekly summary on Mondays, else the morning email or today's summary), only via may_mail
+                    r = await weekly.routine(db, got, site, day, mailer)
+                    counts["v2_morning_listed"] = counts.get("v2_morning_listed", 0) + r["listed"]
+                    counts["summary_emails"] = counts.get("summary_emails", 0) + r["weekly"] + r["daily"]
+                    counts["v2_weekly_emails"] = counts.get("v2_weekly_emails", 0) + r["weekly"]
                 else:
                     await run_user(db, got, site, day, counts, mailer)
-                if not is_v2 or access.may_mail(got, v2):  # 2.0 while hidden: no email to anyone but testers
                     from app.autoapply.summary import after_run
 
                     sent = await after_run(db, mailer, got, day)  # the daily summary / weekly report, when news

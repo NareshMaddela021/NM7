@@ -400,7 +400,8 @@ async def test_inbound_reply_stored_forwarded_and_replied(client, outbox, db, em
     assert alias in fwd.text
     # the tracker: Replied, with the reply listed for that application
     row = next(x for x in (await client.get(f"{V2}/tracker")).json()["items"] if x["id"] == it["_id"])
-    assert row["stage"] == "replied" and row["outcome"] == "replied" and row["replies"] == 1
+    # A7: "Are you free for a call" is read as an interview invite (the rules), so the row says Interview
+    assert row["stage"] == "replied" and row["outcome"] == "interview" and row["replies"] == 1
     assert row["notice"]["text"] == "Orbit Labs replied by email."
     sent = (await client.get(f"{V2}/sent/{it['_id']}")).json()
     assert sent["replies"][0]["subject"].startswith("Re: Application") and sent["replies"][0]["forwarded"]

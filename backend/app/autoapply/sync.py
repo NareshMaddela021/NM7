@@ -65,7 +65,11 @@ async def on_status(db, app: dict[str, Any], status: str, mailer=None, emailed: 
     await db[AUTO_ITEMS].update_one(
         {"_id": it["_id"]}, {"$set": sets, "$push": {"notices": {"$each": [notice], "$slice": -20}}}
     )
-    if status in MAIL and not emailed:
+    if status == "interview":  # A7: the interview alert (email and, if opted in, WhatsApp), once per tracker row
+        from app.autoapply import replies
+
+        await replies.alert_interview(db, it["_id"], text, mailer, emailed=emailed)
+    elif status in MAIL and not emailed:
         await _mail(db, app, status, text, mailer)
     return True
 
