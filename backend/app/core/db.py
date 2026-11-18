@@ -172,6 +172,7 @@ TRUST_CRITERIA = "trust_criteria"  # T7: _id = job id: the job's requirements (e
 TRUST_CRITERIA_EVALS = "trust_criteria_evals"  # T7: _id = user:criterion hash: Met / Not met / Unknown + a quote
 TRUST_CRITERIA_QUEUE = "trust_criteria_queue"  # T7: _id = user:criterion hash: waiting for the AI (capped passes)
 TRUST_CRITERIA_CLAIMS = "trust_criteria_claims"  # T7: evidence a candidate added (a certificate), checked by Nm7 first
+TRUST_INTEGRITY = "trust_integrity"  # T8: _id = user id: the integrity rating, human decisions per signal, the review
 TRUST_FACE = "trust_face"  # T3: _id = user id: the ID + selfie result, retries, review, joining check (never photos)
 LEARN_PATHS = "learn_paths"  # Phase 6 S2, _id = role id: courses → project → skill check (Admin → Learning paths)
 OFFER_CHECKS = (
@@ -307,6 +308,7 @@ COLLECTIONS = (
     TRUST_CRITERIA_EVALS,
     TRUST_CRITERIA_QUEUE,
     TRUST_CRITERIA_CLAIMS,
+    TRUST_INTEGRITY,
     VETTING_L4,
     VETTING_REVIEWERS,
     VETTING_INTERVIEWS,
@@ -500,7 +502,16 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel("created_at"),
         IndexModel([("vendor", ASCENDING), ("vendor_ref", ASCENDING)]),
     ],  # fmt: skip
-    TRUST_SNAPSHOTS: [IndexModel("user_id"), IndexModel("created_at")],
+    TRUST_SNAPSHOTS: [
+        IndexModel("user_id"),
+        IndexModel("created_at"),
+        IndexModel([("session", ASCENDING), ("kind", ASCENDING)]),
+    ],
+    TRUST_INTEGRITY: [
+        IndexModel([("review.status", ASCENDING), ("review.opened_at", ASCENDING)]),
+        IndexModel([("level", ASCENDING), ("at", DESCENDING)]),
+        IndexModel("updated_at"),
+    ],
     TRUST_FACE: [
         IndexModel("process_at"),
         IndexModel([("review.status", ASCENDING), ("updated_at", DESCENDING)]),

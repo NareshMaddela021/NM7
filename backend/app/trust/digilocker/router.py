@@ -231,7 +231,7 @@ async def callback(provider: str, request: Request, db: DB) -> dict[str, Any]:
 async def add_badges(
     db, rows: list[dict[str, Any]], key: str, company: dict[str, Any], account: dict[str, Any] | None
 ) -> None:
-    """Puts `docs` (verified documents) and `face` (T3: ID + selfie) on each row, only where the Trust switch lets this company see them."""
+    """Puts `docs` (verified documents), `face` (T3: ID + selfie) and `integrity` (T8: the label) on each row, only where the Trust switch lets this company see them."""
     uids = [r[key] for r in rows if r.get(key)]
     got = await S.badges(db, uids, company, account)
     if got is None:
@@ -239,9 +239,13 @@ async def add_badges(
     from app.trust.face.service import badges as face_badges
 
     face = await face_badges(db, uids, company, account) or {}  # T3: "ID + selfie verified", "Same person at joining"
+    from app.trust.integrity.service import labels
+
+    integ = await labels(db, uids, company, account) or {}  # T8: the integrity label only (never the signals)
     for r in rows:
         r["docs"] = got.get(r.get(key), [])
         r["face"] = face.get(r.get(key))
+        r["integrity"] = integ.get(r.get(key))
 
 
 # --- Admin -------------------------------------------------------------------------------------------------------------
