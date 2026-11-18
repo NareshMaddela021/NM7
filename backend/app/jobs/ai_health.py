@@ -98,12 +98,27 @@ async def status(db) -> dict[str, Any]:
     }
 
 
+# A made-up but realistic job page, long like a real one (a short page leaves the AI no room to write fresh words:
+# the first version, 600 characters, failed the copy check every time although the key worked - 18 Nov).
 PROBE_PAGE = (
-    "Data Analyst (Fresher) - Hyderabad. We are hiring a Data Analyst to join our analytics team in Hyderabad. "
-    "You will clean and analyse sales data, build weekly dashboards in Excel and Power BI, write SQL queries to "
-    "answer business questions and present findings to managers. Requirements: a bachelor's degree in any "
-    "discipline, good knowledge of Excel and SQL, basic statistics, clear communication in English. Freshers and "
-    "candidates with up to one year of experience can apply. Work from our Hyderabad office, five days a week."
+    "Data Analyst (Fresher) | Example Analytics | Hyderabad, Telangana | Full time. "
+    "About us: Example Analytics helps retail brands across South India understand what their customers buy. Our "
+    "team of forty people works from a bright office in Madhapur, close to the metro, and we run a two-week "
+    "classroom programme for every new joiner before they start on live projects. "
+    "What you will do: every morning you will pull the previous day's store sales from our warehouse, check the "
+    "numbers for gaps and duplicates, and fix what you can before the 11 o'clock review. You will maintain a set of "
+    "weekly dashboards that store managers open on their phones, and you will add new charts when a regional head "
+    "asks a question the dashboards can't answer yet. Most questions are answered with SQL against PostgreSQL; "
+    "some need a small Python script with pandas. Once a month you will present one finding to the client team, "
+    "with a senior analyst beside you. "
+    "Who can apply: graduates of any stream who finished college in 2025 or 2026, or who have worked for less than "
+    "one year. You should be comfortable with spreadsheets, know the basics of SQL joins and grouping, and be able "
+    "to explain a chart in simple English. Knowledge of Power BI, Tableau or Looker is a plus but not required, and "
+    "we will teach it. "
+    "Salary and benefits: a monthly stipend during the training programme, then a full-time salary, health "
+    "insurance for you and your parents, and a laptop. Work is from the office five days a week, Monday to Friday. "
+    "How to apply: use the apply button on this page. Shortlisted candidates take a 45-minute online test and two "
+    "interviews, and we reply to every applicant within two weeks."
 )
 
 
@@ -118,21 +133,24 @@ async def probe(db) -> dict[str, Any]:
         return {"ok": False, "kind": "no_key", "error": "ANTHROPIC_API_KEY isn't set on the server."}
     j = collector.CollectorJob.model_validate({
         "company": "Example Analytics", "title": "Data Analyst (Fresher)", "apply_url": "https://example.com/jobs/1",
-        "location": "Hyderabad", "page_text": PROBE_PAGE,
+        "location": "Hyderabad, Telangana", "page_text": PROBE_PAGE,
     })  # fmt: skip
     page = collector.scrub(j.page_text)
     stats: dict[str, Any] = {}
     SCHEMA = collector.SCHEMA  # noqa: N806  (the same schema the collector sends)
     try:
-        await claude.ask_models("jobs", collector.prompt(j, page), SCHEMA, collector.check_summary(page),
-                                stats=stats, **collector.ASK, http_client=collector.HTTP_CLIENT)  # fmt: skip
-    except claude.Unusable as e:
-        return {"ok": False, "kind": e.reason, "error": "The AI answered, but the answer failed the summary checks."}
+        check = collector.check_summary(page, collector.own_words(j))
+        await claude.ask_models("jobs", collector.prompt(j, page), SCHEMA, check, stats=stats, **collector.ASK,
+                                http_client=collector.HTTP_CLIENT)  # fmt: skip
+    except claude.Unusable as e:  # the key works (the API answered); the test summary failed a check
+        return {"ok": True, "apiOk": True, "summaryOk": False, "kind": e.reason,
+                "model": stats.get("model") or get_settings().anthropic_model,
+                "error": f"The AI answered, but the test summary failed the {e.reason} check."}  # fmt: skip
     except Exception as e:  # noqa: BLE001
         kind = await record_error(db, e)
         return {"ok": False, "kind": kind, "error": claude.error_detail(e).strip() or type(e).__name__}
     await record_ok(db)
-    return {"ok": True, "model": stats.get("model") or get_settings().anthropic_model}
+    return {"ok": True, "apiOk": True, "summaryOk": True, "model": stats.get("model") or get_settings().anthropic_model}
 
 
 _probed = {"done": False}
@@ -147,13 +165,21 @@ async def probe_once(db) -> int:
         return 0
     _probed["done"] = True
     out = await probe(db)
-    _state["probe"] = "ok" if out.get("ok") else f"error:{out.get('kind') or 'unknown'}"
+    if out.get("summaryOk"):
+        _state["probe"] = "ok"
+    elif out.get("apiOk"):
+        _state["probe"] = (
+            f"api_ok_check:{out.get('kind') or 'unknown'}"  # the key works; the test summary failed a check
+        )
+    else:
+        _state["probe"] = f"error:{out.get('kind') or 'unknown'}"
     log.info("collector AI check after start: %s", _state["probe"])
     return 1
 
 
 def coarse() -> str:
-    """For /version: "ok", "error:<kind>" or "unknown" (never Anthropic's message or anything else)."""
+    """For /version: "ok", "api_ok_check:<check>" (the key works, the test summary failed a check), "error:<kind>" or
+    "unknown" (never Anthropic's message or anything else)."""
     if _state.get("until") and paused():
         return f"error:{_state.get('kind') or 'api_error'}"
     return _state.get("probe") or "unknown"

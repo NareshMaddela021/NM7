@@ -86,7 +86,7 @@ function CollectorAi({ ai }) {
     try {
       const out = await http('/api/admin/daily-report/ai-check', { method: 'POST' });
       setRes(out);
-      toast(out.ok ? 'The AI wrote a test summary: it works' : 'The AI test failed');
+      toast(out.ok ? (out.summaryOk === false ? 'The AI answers, but the test summary failed a check' : 'The AI wrote a test summary: it works') : 'The AI test failed');
     } catch (e) {
       setRes({ ok: false, kind: 'request', error: e.message || 'The test could not run.' });
     } finally {
@@ -101,7 +101,7 @@ function CollectorAi({ ai }) {
       <span className={`dr-delta dr-delta-${bad ? 'bad' : 'good'}`}>{num(a.okToday || 0)} written · {num(a.errorsToday || 0)} API errors today</span>
       {a.lastErrorKind && <span className="xs muted dr-wrap" data-testid="dr-ai-last-error">Last error {when(a.lastErrorAt)}: {a.lastErrorKind}{a.lastError ? ` — ${a.lastError}` : ''}</span>}
       <button type="button" className="btn btn-outline btn-sm" onClick={test} disabled={busy} aria-busy={busy} data-testid="dr-ai-test">{busy ? 'Testing…' : 'Test the AI now'}</button>
-      {res && <span className={`small dr-wrap ${res.ok ? '' : 'dr-err'}`} role="status" data-testid="dr-ai-test-result">{res.ok ? `Works (${res.model}).` : `Failed: ${res.kind}${res.error ? ` — ${res.error}` : ''}`}</span>}
+      {res && <span className={`small dr-wrap ${res.ok ? '' : 'dr-err'}`} role="status" data-testid="dr-ai-test-result">{res.ok ? (res.summaryOk === false ? `The key works (${res.model}), but the test summary failed the ${res.kind} check.` : `Works (${res.model}): a test summary was written.`) : `Failed: ${res.kind}${res.error ? ` — ${res.error}` : ''}`}</span>}
     </div>
   );
 }
