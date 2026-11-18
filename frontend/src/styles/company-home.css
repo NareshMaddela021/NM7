@@ -122,3 +122,11 @@ img.cpub-logo { background: #fff; }
   .cpub-body { padding: 16px; }
   .ch-hero-top { align-items: flex-start; }
 }
+
+/* Auto Apply 2.0 (A4): "Connect your hiring system" */
+.ats-facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: 10px; margin: 0; }
+.ats-facts > div { min-width: 0; }
+.ats-facts dt { font-size: 12px; font-weight: 700; color: var(--text2); text-transform: capitalize; }
+.ats-facts dd { margin: 2px 0 0; font-size: 14px; overflow-wrap: anywhere; }
+.ats-job { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border2); min-width: 0; }
+.ats-select { max-width: 100%; min-width: 0; width: auto; flex: 1 1 200px; }

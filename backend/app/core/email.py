@@ -29,6 +29,9 @@ class Email:
     # (file name, MIME type, bytes) — e.g. an invoice PDF. Kept small: providers cap the whole email (~10 MB).
     attachments: list[tuple[str, str, bytes]] = field(default_factory=list)
     provider_id: str | None = None  # set by the mailer when the provider returns one (Resend: the email id)
+    # Auto Apply 2.0 (A3): the candidate's own apply address as the sender, and extra headers (List-Unsubscribe)
+    from_addr: str | None = None
+    headers: dict[str, str] = field(default_factory=dict)
 
 
 class Mailer(Protocol):
@@ -47,7 +50,7 @@ class ResendMailer:
 
     async def send(self, msg: Email) -> None:
         body = {
-            "from": self.sender,
+            "from": msg.from_addr or self.sender,
             "to": [msg.to],
             "subject": msg.subject,
             "html": msg.html,
@@ -58,6 +61,7 @@ class ResendMailer:
                 if msg.attachments
                 else {}
             ),
+            **({"headers": msg.headers} if msg.headers else {}),
         }
         headers = {"Authorization": f"Bearer {self.api_key}", "Accept": "application/json"}
         async with httpx.AsyncClient(timeout=TIMEOUT) as client:

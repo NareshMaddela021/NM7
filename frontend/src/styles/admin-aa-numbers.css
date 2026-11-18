@@ -1,0 +1,12 @@
+/* Auto Apply 2.0 (A7) numbers (Admin → Daily report and Admin → Auto Apply): one card per channel, the success
+   measures as rows; everything wraps at 390 px (no sideways scroll). Its own file so the two admin pages share no
+   stylesheet chunk. */
+.aan-channels { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr)); gap: 8px; }
+.aan-ch { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--border2); background: var(--surface, #fff); min-width: 0; }
+.aan-nums { display: flex; flex-wrap: wrap; gap: 4px 10px; font-variant-numeric: tabular-nums; }
+.aan-bad { color: var(--danger); }
+.aan-h3 { margin: 0; font-size: 15px; font-weight: 800; }
+.aan-measures { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.aan-measure { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding: 8px 12px; border-radius: 12px; background: var(--surface, #fff); border: 1px solid #ece8fb; font-size: 14px; }
+.aan-measure-l { flex: 1 1 220px; min-width: 0; overflow-wrap: anywhere; }
+.aan-measure-v { font-variant-numeric: tabular-nums; font-weight: 700; overflow-wrap: anywhere; }

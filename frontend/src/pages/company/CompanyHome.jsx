@@ -1,7 +1,7 @@
 // nm7.si/company: a company admin signs in with an emailed code (the same account recruiters use, no password) and
 // sees their company: trust level (Unverified / Basic / Verified), the review state, what they may post now, and the
 // way back into sign-up while it isn't finished. The full company dashboard builds on this (Phase 2, C2).
-import { useCallback, useEffect, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../../components/Header';
 import LangSwitch from '../../components/LangSwitch';
@@ -11,6 +11,7 @@ import CompanyJobs from './CompanyJobs';
 import CompanyApplicants, { TalentPool } from './CompanyApplicants';
 import CompanyHire from './CompanyHire';
 import CompanyPrograms from './CompanyPrograms';
+import { useAutoInfo } from './AutoApplyBits';
 import { headerLabels, useLang } from '../../lib/i18n';
 import { usePageMeta } from '../../lib/meta';
 import { keepAccount, readAccount } from '../../lib/recruiterPortal';
@@ -120,14 +121,20 @@ function Companies({ t, onSignedOut }) {
 const GROUPS = [['overview', 'jobs', 'applicants', 'hire', 'programs', 'pool'], ['team', 'page', 'settings', 'security', 'activity']];
 const TAB_META = {
   overview: ['⌂', 'stopwatch'], jobs: ['▤', 'briefcase'], applicants: ['◉', 'magnifier'], hire: ['⚡', 'stopwatch'], programs: ['▣', 'cap'],
-  pool: ['☆', 'magnifier'], team: ['☺', 'handshake'], page: ['◧', 'badge'], settings: ['⚙', 'sphere'], security: ['⛨', 'badge'], activity: ['☰', 'resume'],
+  pool: ['☆', 'magnifier'], team: ['☺', 'handshake'], page: ['◧', 'badge'], settings: ['⚙', 'sphere'], security: ['⛨', 'badge'], activity: ['☰', 'resume'], connect: ['⇄', 'handshake'],
 };
+// Auto Apply 2.0 (A4): the hiring-system page, only for companies the 2.0 switch lets in (English only while tested)
+const ConnectHiring = lazy(() => import('./ConnectHiring'));
+const TAB_LABEL = { connect: 'Connect your hiring system' };
 const TRUST_TONE = { verified: 'ok', basic: 'accent', unverified: 'warn', blocked: 'bad' };
 
 function Dashboard({ t, c, onChanged, onSignedOut }) {
   const [tab, setTab] = useState(() => (typeof window !== 'undefined' && window.location.hash === '#hire' ? 'hire' : 'overview'));
   const manage = ['main', 'full'].includes(c.myRole);
   const [icon, shape] = TAB_META[tab];
+  const auto = useAutoInfo(c.id);
+  const groups = auto ? [GROUPS[0], [...GROUPS[1].slice(0, 3), 'connect', ...GROUPS[1].slice(3)]] : GROUPS;
+  const label = (k) => TAB_LABEL[k] || t(`co.dash.tab.${k}`);
   return (
     <section className="co-shell" aria-label={c.details.legalName}>
       <aside className="co-side">
@@ -137,11 +144,11 @@ function Dashboard({ t, c, onChanged, onSignedOut }) {
           <Chip tone={TRUST_TONE[c.trust] || 'neutral'}>{t(`co.trustName.${c.trust}`)}</Chip>
         </div>
         <div className="co-tabs" role="tablist" aria-label={t('co.dash.sections')}>
-          {GROUPS.map((g, gi) => (
+          {groups.map((g, gi) => (
             <div key={gi} className="co-tab-group">
               {g.map((k) => (
                 <button key={k} type="button" role="tab" aria-selected={tab === k} className="co-tab" onClick={() => setTab(k)}>
-                  <span className="co-tab-ic" aria-hidden="true">{TAB_META[k][0]}</span>{t(`co.dash.tab.${k}`)}
+                  <span className="co-tab-ic" aria-hidden="true">{TAB_META[k][0]}</span>{label(k)}
                 </button>
               ))}
             </div>
@@ -151,7 +158,7 @@ function Dashboard({ t, c, onChanged, onSignedOut }) {
       <div className="co-main stack g16">
         <div className="co-head">
           <span className="co-head-ic" aria-hidden="true">{icon}</span>
-          <h2 className="co-head-title">{t(`co.dash.tab.${tab}`)}</h2>
+          <h2 className="co-head-title">{label(tab)}</h2>
           <span className="co-head-art" aria-hidden="true"><Still shape={shape} tint="company" className="co-head-still" /></span>
         </div>
         {tab === 'overview' && <Overview t={t} c={c} manage={manage} />}
@@ -165,6 +172,7 @@ function Dashboard({ t, c, onChanged, onSignedOut }) {
         {tab === 'settings' && <Settings t={t} c={c} manage={manage} onChanged={onChanged} />}
         {tab === 'security' && <Security t={t} onSignedOut={onSignedOut} />}
         {tab === 'activity' && <Activity t={t} c={c} />}
+        {tab === 'connect' && <Suspense fallback={<Skel cards={1} lines={3} label={t('co.loading')} />}><ConnectHiring c={c} /></Suspense>}
       </div>
     </section>
   );

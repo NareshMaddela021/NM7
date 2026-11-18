@@ -168,6 +168,25 @@ async def run_rules(db: AsyncDatabase, mailer: Mailer | None = None) -> dict[str
         done["applicants_removed"] = await company_applicants_removed(db)  # 12 months on: out of the company's view
         done["company_rechecks"] = await company_rechecks(db, mailer or get_mailer())  # 30 days before Verified ends
         done["auto_apply"] = (await auto_apply_run(db, mailer or get_mailer())).get("users", 0)  # from 07:00 IST
+        from app.autoapply import instant
+
+        got = await instant.run(db, mailer or get_mailer())  # Auto Apply 2.0: jobs just posted on Nm7 (A2)
+        done["auto_apply_instant"] = sum(
+            got.get(f"instant_{k}", 0) for k in ("applied", "sent", "waiting_approval", "suggested", "waiting")
+        )
+        from app.autoapply.ats import service as ats
+
+        got = await ats.run(db, mailer or get_mailer())  # Auto Apply 2.0: hiring-system deliveries and statuses (A4)
+        done["auto_apply_partner_sent"] = int((got.get("delivered") or {}).get("delivered", 0))
+        done["auto_apply_partner_moved"] = int((got.get("sync") or {}).get("moved", 0))
+        from app.autoapply.forms import service as forms
+
+        got = await forms.run(db)  # Auto Apply 2.0: simple forms on companies' own sites, politely (A5)
+        done["auto_apply_forms_sent"] = int(got.get("applied", 0))
+        from app.autoapply import onetap
+
+        got = await onetap.run(db)  # Auto Apply 2.0: one reminder the day after a one-tap kit (A6)
+        done["auto_apply_one_tap_reminded"] = int(got.get("reminded", 0))
         done["job_alerts"] = await job_alerts(db, mailer or get_mailer())  # daily / weekly matches; ≤ 1 email a day
         done["job_followups"] = await job_followups(db, mailer or get_mailer())  # a week on; ≤ 1 email a day
         done["pass_reminders"] = await pass_reminders(db, mailer or get_mailer())  # 7 days before a pass ends
@@ -197,7 +216,12 @@ async def run_rules(db: AsyncDatabase, mailer: Mailer | None = None) -> dict[str
         await release_lease(db)
 
 
-async def loop(get_db) -> None:
+START_DELAY = 45  # seconds after start before the first pass: the port is open and answering health checks first
+
+
+async def loop(get_db, first_delay: float = 0) -> None:
+    if first_delay:
+        await asyncio.sleep(first_delay)
     while True:
         try:
             await run_rules(get_db())

@@ -23,6 +23,11 @@ from app.core.db import (
     ALUMNI_REQUESTS,
     APPLICATIONS,
     ATS_CHECKS,
+    ATS_DELIVERIES,
+    AUTO_ALIASES,
+    AUTO_MAIL,
+    AUTO_MORNINGS,
+    AUTO_REPLIES,
     CERTIFICATES,
     COVER_LETTERS,
     DRIVE_CHECKINS,
@@ -30,6 +35,8 @@ from app.core.db import (
     EMAIL_CODES,
     FEATURE_GRANTS,
     HEALTH,
+    HELPER_CODES,
+    HELPER_TOKENS,
     HIRE_EVENTS,
     HIRE_INVITES,
     HIRE_OFFERS,
@@ -132,6 +139,12 @@ async def erase_user_data(db: AsyncDatabase, user_id: str) -> dict[str, int]:
         JOININGS, mine
     )  # Phase 6 S10 (reports to Nm7 keep the company side, without the person)
     await db[JOINING_REPORTS].update_many(mine, {"$set": {"user_id": None, "note": ""}})
+    out["auto_apply_replies"] = await gone(AUTO_REPLIES, mine)  # A3: companies' replies to the apply address
+    out["auto_apply_emails"] = await gone(AUTO_MAIL, mine)  # A3: the log of Auto Apply 2.0 emails
+    out["auto_apply_partner"] = await gone(ATS_DELIVERIES, mine)  # A4: deliveries to companies' hiring systems
+    out["auto_apply_mornings"] = await gone(AUTO_MORNINGS, mine)  # A6: the morning "jobs ready" lists
+    out["apply_helper"] = await gone(HELPER_TOKENS, mine) + await gone(HELPER_CODES, mine)  # A6: paired browsers
+    out["auto_apply_address"] = await gone(AUTO_ALIASES, mine)  # A3: the apply address (never reused: replies stop)
     out["program_apps"] = await gone(PROGRAM_APPS, mine)  # Phase 6 S8: certificates stop verifying
     out["certificates"] = await gone(CERTIFICATES, mine)
     out["offers"] = await gone(OFFERS, mine)

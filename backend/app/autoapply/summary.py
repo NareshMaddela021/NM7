@@ -191,8 +191,10 @@ def _can_email(u: dict[str, Any]) -> bool:
     return bool(u.get("email") and u.get("email_verified_at") and not u.get("email_bounced") and emails_on(u))
 
 
-async def after_run(db, mailer, u: dict[str, Any], day: str) -> dict[str, bool]:
-    """The daily summary (when something happened today) and, on Mondays, the weekly report: once each."""
+async def after_run(db, mailer, u: dict[str, Any], day: str, weekly: bool = True) -> dict[str, bool]:
+    """The daily summary (when something happened today) and, on Mondays, the weekly report: once each. A7: for a
+    person in Auto Apply 2.0 only the daily part is used (weekly=False), and only when no other routine Auto Apply
+    email went that day (app/autoapply/weekly.py has the rule)."""
     out = {"daily": False, "weekly": False}
     fresh = await db[USERS].find_one({"_id": u["_id"]}) or u
     if not _can_email(fresh) or mailer is None:
@@ -217,7 +219,7 @@ async def after_run(db, mailer, u: dict[str, Any], day: str) -> dict[str, bool]:
             out["daily"] = True
     t = now().astimezone(IST)
     wk = f"{t.isocalendar().year}-W{t.isocalendar().week:02d}"
-    if t.weekday() == 0 and fresh.get("auto_week") != wk:
+    if weekly and t.weekday() == 0 and fresh.get("auto_week") != wk:
         w = await week(db, u["_id"])
         if w["applied"]:
             lines = [

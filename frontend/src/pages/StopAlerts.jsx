@@ -18,9 +18,16 @@ const KINDS = {
 };
 const TrustLink = lazy(() => import('./me/trust/TrustLink')); // Vetting Trust T1: #k=consent (take back) · #k=parent
 const trustKind = (hash) => ((/(?:^#|&)k=(consent|parent)(?:&|$)/.exec(hash || '') || [])[1] || '');
+// A3: an employer's one-click opt-out from Auto Apply 2.0 emails (#k=employer&t=…) has its own page, loaded only here
+const AutoApplyOptOut = lazy(() => import('./AutoApplyOptOut'));
 const kindOf = (hash) => ((/(?:^#|&)k=(interviews|followups|alerts|autoapply|learn|progress)(?:&|$)/.exec(hash || '') || [])[1] || 'health');
 
 export default function StopAlerts() {
+  const employer = typeof window !== 'undefined' && /(?:^#|&)k=employer(?:&|$)/.test(window.location.hash || '');
+  return employer ? <Suspense fallback={null}><AutoApplyOptOut /></Suspense> : <StopMine />;
+}
+
+function StopMine() {
   const [token] = useState(() => tokenOf(typeof window !== 'undefined' ? window.location.hash : ''));
   const [k] = useState(() => KINDS[kindOf(typeof window !== 'undefined' ? window.location.hash : '')]);
   const [trust] = useState(() => trustKind(typeof window !== 'undefined' ? window.location.hash : ''));

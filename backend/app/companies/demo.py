@@ -7,7 +7,9 @@ marked demo, so it is never on the job board, a company page, search or a sitema
   DELETE /api/admin/demo-company         remove it all
 
 Made-up people only: the admins' addresses end in demo.nm7.invalid (no email can reach them); the applicants are the
-demo college's made-up students.
+demo college's made-up students. Auto Apply 2.0 (A2): three of them arrive "Sent by Auto Apply" (match score with 3
+reasons, a cover note, notice period, expected salary and the tailored resume), and the two live jobs show the
+per-job Auto Apply controls.
 """
 
 from datetime import timedelta
@@ -21,7 +23,21 @@ from app.auth.sessions import client_ip
 from app.companies import questions as qmod
 from app.companies.model import trust_of
 from app.core import rate_limit
-from app.core.db import APPLICATIONS, COMPANIES, DB, JOB_REPORTS, JOBS, RECRUITERS, RESUMES, TALENT_POOL, USERS
+from app.core.db import (
+    APPLICATIONS,
+    ATS_CONNECTIONS,
+    ATS_DELIVERIES,
+    AUTO_COPIES,
+    AUTO_ITEMS,
+    COMPANIES,
+    DB,
+    JOB_REPORTS,
+    JOBS,
+    RECRUITERS,
+    RESUMES,
+    TALENT_POOL,
+    USERS,
+)
 from app.core.security import keyed_hash
 from app.core.time import now
 from app.jobs.apply import app_key
@@ -83,6 +99,10 @@ async def remove(db) -> int:
     await db[APPLICATIONS].delete_many({"company_id": COMPANY_ID, "demo": True})
     await db[TALENT_POOL].delete_many({"company_id": COMPANY_ID})
     await db[JOB_REPORTS].delete_many({"job_id": {"$in": job_ids}})
+    await db[AUTO_ITEMS].delete_many({"company_id": COMPANY_ID, "demo": True})
+    await db[AUTO_COPIES].delete_many({"job_id": {"$in": job_ids}})
+    await db[ATS_CONNECTIONS].delete_many({"_id": COMPANY_ID, "demo": True})
+    await db[ATS_DELIVERIES].delete_many({"company_id": COMPANY_ID, "demo": True})
     await db[RECRUITERS].delete_many({"email_lc": {"$regex": r"@demo\.nm7\.invalid$"}})
     return n
 
@@ -306,8 +326,113 @@ async def create(db) -> dict[str, Any]:
         )
     if apps:
         await db[APPLICATIONS].insert_many(apps)
+    rest = [u for u in students if u["_id"] in with_resume][len(pool) : len(pool) + len(AUTO_PLAN)]
+    auto = await _auto_applicants(db, jobs, rest, t)
+    await _partner_demo(db, jobs, t)
     await refresh(db, COMPANY_ID)
-    return {"company": COMPANY_ID, "jobs": len(jobs), "live": live, "applicants": len(apps), "samples": len(samples)}
+    return {
+        "company": COMPANY_ID,
+        "jobs": len(jobs),
+        "live": live,
+        "applicants": len(apps) + auto,
+        "auto": auto,
+        "samples": len(samples),
+    }
+
+
+# Auto Apply 2.0 (A2): (job index, status, notice, expected salary a year) for the demo's auto applicants
+AUTO_PLAN = [
+    (0, "applied", "30_days", 400000),
+    (0, "shortlisted", "immediate", 350000),
+    (1, "applied", "15_days", None),
+]
+AUTO_CONTROLS = [{"accept": True, "max": 50, "min_level": 0}, {"accept": True, "max": 20, "min_level": 0}]
+
+
+async def _auto_applicants(db, jobs: list[dict[str, Any]], people: list[dict[str, Any]], t) -> int:
+    """Demo students whose applications came through Auto Apply 2.0, exactly as a real one is stored: the item, the
+    tailored version (rules version: the demo never calls the AI), and the application with what the company sees."""
+    from bson import ObjectId
+
+    from app.autoapply import instant, score, tailoring, v2engine
+    from app.jobs import fit as fitmod
+
+    for j, ctl in zip(jobs, AUTO_CONTROLS, strict=False):
+        await db[JOBS].update_one({"_id": j["_id"]}, {"$set": {"auto_controls": ctl}})
+    n = 0
+    for k, (u, (ji, status, notice, salary)) in enumerate(zip(people, AUTO_PLAN, strict=False)):
+        j = jobs[ji]
+        r = await db[RESUMES].find_one({"user_id": u["_id"]})
+        p = fitmod.Person(r) if r else None
+        if not p or not p.usable():
+            continue
+        a = {"notice_period": notice, "min_salary": salary, "cities": j.get("locations") or [], "remote": True}
+        parts = score.parts(j, fitmod.fit(j, p), a, 1, None, t)
+        copy = await tailoring.build(db, u["_id"], r, j, a, use_ai=False)
+        at = t - timedelta(hours=3 + k)
+        it = {"_id": str(ObjectId()), "user_id": u["_id"], "job_id": j["_id"], "company_id": COMPANY_ID,
+              "company": NAME, "title": j["title"], "slug": j["slug"], "channel": "nm7", "state": "applied",
+              "copy_id": copy["_id"], "applied_at": at, "created_at": at, "updated_at": at, "demo": True,
+              "instant": True, **v2engine._item_extra(parts, j)}  # fmt: skip
+        await db[AUTO_ITEMS].insert_one(it)
+        answers = {"q1": "yes", "q2": 8} if ji == 0 else {"q1": "Either"}
+        answers, _ = qmod.answers_for(j["questions"], answers) if j["questions"] else ({}, [])
+        why = qmod.knockout(j["questions"], answers)
+        tl = [{"status": "applied", "at": at}] + ([{"status": status, "at": at + timedelta(hours=1)}]
+                                                  if status != "applied" else [])  # fmt: skip
+        await db[APPLICATIONS].insert_one({
+            "key": app_key(j["_id"]), "user_id": u["_id"], "company": NAME[:120], "role": j["title"],
+            "status": status, "date": int(at.timestamp() * 1000), "resume_id": r["key"],
+            "resume_name": f"{copy['name']} (Auto Apply)"[:120], "url": "", "notes": "", "next": None,
+            "job_id": j["_id"], "channel": "nm7", "origin": "auto", "auto_item_id": it["_id"], "copy_id": copy["_id"],
+            "score": parts["score"], "v2": True, "channel_v2": "internal", "cover_note": copy.get("cover_note") or [],
+            "auto_v2": {"label": instant.LABEL, "score": parts["score"], "parts": parts["parts"],
+                        **(await instant.facts(db, {"_id": u["_id"], "auto_apply": a})), "at": at},
+            "timeline": tl, "created_at": at, "updated_at": at, "consent_at": at, "answers": answers,
+            "company_id": COMPANY_ID, "fit": {"ok": not why, "reasons": why}, "demo": True,
+        })  # fmt: skip
+        n += 1
+    return n
+
+
+async def _partner_demo(db, jobs: list[dict[str, Any]], t) -> int:
+    """Auto Apply 2.0 (A4): the demo company's hiring system is "Greenhouse (demo)": connected, its first job linked,
+    and the auto applications to that job shown as delivered there. Made-up records only: nothing calls Greenhouse."""
+    from bson import ObjectId
+
+    from app.autoapply.engine import today
+
+    if not jobs:
+        return 0
+    await db[ATS_CONNECTIONS].replace_one(
+        {"_id": COMPANY_ID},
+        {
+            "_id": COMPANY_ID, "company_id": COMPANY_ID, "partner": "greenhouse", "config": {"board_token": "nm7-demo"},
+            "secret_enc": None, "last4": "demo", "demo": True, "connected_at": t - timedelta(days=2),
+            "connected_by": MAIN[0], "tested_at": t - timedelta(hours=1), "test_ok": True, "status_readable": False,
+            "last_ok_at": t - timedelta(hours=2), "last_ok_sync_at": t - timedelta(minutes=30), "last_error": None,
+        },
+        upsert=True,
+    )  # fmt: skip
+    link = {"partner": "greenhouse", "id": "demo-101", "title": "Data Analyst (demo)"}
+    await db[JOBS].update_one({"_id": jobs[0]["_id"]}, {"$set": {"partner_job": link}})
+    mark = {"key": "greenhouse", "name": "Greenhouse (demo)", "state": "delivered"}
+    n = 0
+    async for a in db[APPLICATIONS].find({"job_id": jobs[0]["_id"], "origin": "auto", "demo": True}):
+        at = a.get("created_at") or t
+        await db[ATS_DELIVERIES].insert_one({
+            "_id": str(ObjectId()), "app_id": a["_id"], "item_id": a.get("auto_item_id"), "user_id": a["user_id"],
+            "job_id": a["job_id"], "company_id": COMPANY_ID, "partner": "greenhouse",
+            "partner_name": "Greenhouse (demo)", "partner_job_id": link["id"], "state": "delivered", "tries": 1,
+            "next_at": at, "created_at": at, "delivered_at": at + timedelta(minutes=1), "day": today(at),
+            "remote_id": f"demo-{n + 1}", "checked_at": at, "demo": True,
+        })  # fmt: skip
+        await db[APPLICATIONS].update_one({"_id": a["_id"]}, {"$set": {"channel_v2": "partner", "partner": mark}})
+        if a.get("auto_item_id"):
+            await db[AUTO_ITEMS].update_one({"_id": a["auto_item_id"]}, {"$set": {"channel_v2": "partner",
+                                                                                 "partner": mark}})  # fmt: skip
+        n += 1
+    return n
 
 
 @router.post("/open")

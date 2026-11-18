@@ -62,6 +62,7 @@ Content-Type: application/json
 | `skills` | no | up to 30; known skills are renamed to the skills dictionary's names (`powerbi` → `Power BI`) |
 | `description` | yes | 30–20,000 characters, plain text |
 | `applyMethod` | no (`link`) | `link` (needs `applyUrl`), `email` (needs `applyEmail`), `nm7` (apply on Nm7) |
+| `applyEmailSource` | no | the full link of the company's own page (its job posting or official careers page) where the apply email was published. Auto Apply 2.0 only emails addresses that have one; a job board, a form or a people page never counts, and the address must be on the company's own domain |
 | `postedAt` | no (now) | ISO date-time; not in the future |
 | `closesAt` | no | ISO date-time; the job closes itself after it |
 | `status` | no (`active`) | `active`, `paused`, `closed` |

@@ -463,7 +463,7 @@ export default function App() {
           <Route path="interview/:id" element={<MeInterview />} />
           <Route path="covers" element={<MeCovers />} />
           <Route path="jobs" element={<MeJobs />} />
-          <Route path="auto-apply" element={<AutoApply />} />
+          <Route path="auto-apply/*" element={<AutoApply />} />
           <Route path="hire" element={<MeHire />} />
           <Route path="skill-checks" element={<MeSkillChecks />} />
           <Route path="skill-checks/:id" element={<MeSkillChecks />} />

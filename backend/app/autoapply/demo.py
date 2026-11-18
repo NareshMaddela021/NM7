@@ -14,6 +14,7 @@ import secrets
 from datetime import timedelta
 from typing import Any
 
+import httpx
 from bson import ObjectId
 from fastapi import APIRouter, Request, Response
 from pydantic import Field
@@ -38,6 +39,35 @@ STUDENT_ID = "d2bf50b5-0549-5733-b21c-d176dff5619e"  # a fixed id (user ids are 
 EMAIL = "kavya.student@demo.nm7.invalid"
 LINK_TTL = timedelta(minutes=5)
 EXTRA_JOBS = ("demo-tech-solutions-job-web", "demo-tech-solutions-job-mail")
+# Auto Apply 2.0 (A1): more demo-only jobs for Kavya's tracker, approval list and "Suggested for you"
+V2_JOBS = (
+    ("demo-tech-solutions-job-approve", "BI Analyst", "nm7", ["SQL", "Power BI"]),
+    ("demo-tech-solutions-job-approve2", "Junior Reporting Analyst", "nm7", ["SQL", "Excel"]),
+    ("demo-tech-solutions-job-sug1", "Data Engineer", "nm7", ["SQL", "Spark", "Airflow", "Kafka"]),
+    ("demo-tech-solutions-job-sug2", "Analytics Engineer", "nm7", ["SQL", "dbt", "Snowflake", "Python"]),
+    ("demo-tech-solutions-job-offer", "Data Analyst (Retail)", "nm7", ["SQL", "Power BI"]),
+    ("demo-tech-solutions-job-form", "Data Analyst (Careers page)", "link", ["SQL", "Power BI"]),  # A5
+    # A6: the morning "jobs ready" list (one tap with the kit); the last one closed after it was listed
+    ("demo-tech-solutions-job-ready1", "Business Analyst", "link", ["SQL", "Excel"]),
+    ("demo-tech-solutions-job-ready2", "SQL Developer", "link", ["SQL", "Power BI"]),
+    ("demo-tech-solutions-job-closed", "MIS Analyst", "link", ["SQL", "Excel"]),
+)
+READY_JOBS = ("demo-tech-solutions-job-ready1", "demo-tech-solutions-job-ready2", "demo-tech-solutions-job-closed")
+DEMO_SITE = "demotech.demo.nm7.invalid"
+# A5: the demo company's careers form (never fetched: the demo fills this copy, nothing goes over the network)
+DEMO_FORM = """<html><head><title>Careers · Demo Tech Solutions</title></head><body>
+<form method="post" action="/careers/apply" enctype="multipart/form-data">
+<input type="hidden" name="job" value="data-analyst">
+<label for="n">Full name *</label><input id="n" name="full_name" required>
+<label for="e">Email *</label><input id="e" type="email" name="email" required>
+<label for="p">Mobile number</label><input id="p" type="tel" name="mobile">
+<label for="c">Why do you want to join us?</label><textarea id="c" name="message"></textarea>
+<label for="r">Resume (PDF) *</label><input id="r" type="file" name="resume" required>
+<button type="submit">Apply</button></form></body></html>"""
+DEMO_THANKS = (
+    "Thank you for applying to Demo Tech Solutions. We have received your application for Data Analyst and our "
+    "team will get back to you within a week."
+)
 
 RESUME = {
     "personal": {
@@ -99,9 +129,10 @@ async def _extra_jobs(db, company: dict[str, Any]) -> list[dict[str, Any]]:
     t = now()
     name = company["details"]["legal_name"]
     out = []
-    for jid, title, method in (
-        (EXTRA_JOBS[0], "Data Engineer Intern", "link"),
-        (EXTRA_JOBS[1], "Reporting Analyst", "email"),
+    for jid, title, method, skills in (
+        (EXTRA_JOBS[0], "Data Engineer Intern", "link", ["SQL", "Power BI"]),
+        (EXTRA_JOBS[1], "Reporting Analyst", "email", ["SQL", "Power BI"]),
+        *V2_JOBS,
     ):
         body = JobIn.model_validate(
             {
@@ -114,9 +145,15 @@ async def _extra_jobs(db, company: dict[str, Any]) -> list[dict[str, Any]]:
                 "workType": "onsite",
                 "jobType": "internship" if "Intern" in title else "full_time",
                 "experience": "fresher",
-                "skills": ["SQL", "Power BI"],
+                "skills": skills,
                 "applyMethod": method,
-                "applyUrl": "https://demotech.demo.nm7.invalid/careers" if method == "link" else "",
+                "applyUrl": (
+                    f"https://demotech.demo.nm7.invalid/careers/{jid.rsplit('-', 1)[-1]}"
+                    if jid in READY_JOBS
+                    else "https://demotech.demo.nm7.invalid/careers"
+                )
+                if method == "link"
+                else "",
                 "applyEmail": "hr@demotech.demo.nm7.invalid" if method == "email" else "",
             }
         )
@@ -149,8 +186,16 @@ async def remove(db) -> None:
     await db[AUTO_COPIES].delete_many({"user_id": STUDENT_ID})
     await db[APPLICATIONS].delete_many({"user_id": STUDENT_ID})
     await db[RESUMES].delete_many({"user_id": STUDENT_ID})
-    await db[JOBS].delete_many({"_id": {"$in": list(EXTRA_JOBS)}})
+    await db[JOBS].delete_many({"_id": {"$in": [*EXTRA_JOBS, *(x[0] for x in V2_JOBS)]}})
     await db[USERS].delete_one({"_id": STUDENT_ID, "demo": True})
+    from app.core.db import AUTO_MORNINGS, FORM_SITES
+
+    await db[AUTO_MORNINGS].delete_many({"user_id": STUDENT_ID})
+    from app.core.db import AUTO_REPLIES
+
+    await db[AUTO_REPLIES].delete_many({"user_id": STUDENT_ID})  # A7: the demo replies
+
+    await db[FORM_SITES].delete_many({"demo": True})
 
 
 async def create(db) -> dict[str, Any]:
@@ -185,6 +230,10 @@ async def create(db) -> dict[str, Any]:
         "avoid": [],
         "job_types": [],
         "run_day": engine.today(t),
+        # Auto Apply 2.0: opted in, approve each (the default), notice period for ready answers
+        "v2_consent_at": t - timedelta(days=10),
+        "mode": "approve",
+        "notice_period": "30_days",
     }
     await db[USERS].insert_one({**user.to_mongo(), "demo": True, "email_verified_at": t, "auto_apply": a})
     await db[RESUMES].insert_one(
@@ -202,7 +251,7 @@ async def create(db) -> dict[str, Any]:
     u = await db[USERS].find_one({"_id": STUDENT_ID})
     r = await db[RESUMES].find_one({"user_id": STUDENT_ID})
     jobs = {j["_id"]: j async for j in db[JOBS].find({"company_id": company_demo.COMPANY_ID})}
-    web, mail = await _extra_jobs(db, c)
+    web, mail, *v2_jobs = await _extra_jobs(db, c)
     j_apply = jobs.get(f"{company_demo.COMPANY_ID}-job-1")
     j_question = jobs.get(f"{company_demo.COMPANY_ID}-job-2")
 
@@ -296,6 +345,7 @@ async def create(db) -> dict[str, Any]:
             "updated_at": t,
         }
     )
+    await _v2(db, u, r, c, jobs, v2_jobs, t)
     # three demo-college students with Auto Apply on (for the admin numbers)
     n = 0
     async for s in db[USERS].find({"demo": True, "role": "customer", "_id": {"$ne": STUDENT_ID}}, {"_id": 1}).limit(3):
@@ -342,3 +392,188 @@ async def sign_in(body: TokenIn, request: Request, response: Response, db: DB) -
         raise ApiError(400, "link_used", "This demo link has been used or has expired. Open it again from Admin.")
     await start_session(db, request, response, User.model_validate(doc))
     return {"path": doc.get("demo_path") or "/me/auto-apply"}
+
+
+async def _v2(db, u, r, c, jobs, extra, t) -> None:
+    """Kavya in Auto Apply 2.0: every tracker state (Ready, Waiting for you, Applied, Viewed, Replied / Interview,
+    Offer / Rejected / Closed), the morning approval list, waiting questions and "Suggested for you", with the match
+    score parts and a tailored version (rules version: demo never calls the AI) for each."""
+    from app.autoapply import score, tailoring, v2engine
+    from app.jobs import fit as fitmod
+
+    p = fitmod.Person(r)
+    a = u.get("auto_apply") or {}
+    # the earlier items become 2.0 items too
+    async for it in db[AUTO_ITEMS].find({"user_id": STUDENT_ID}):
+        j = await db[JOBS].find_one({"_id": it["job_id"]})
+        if j:
+            parts = score.parts(j, fitmod.fit(j, p), a, 1, None, t)
+            await db[AUTO_ITEMS].update_one({"_id": it["_id"]}, {"$set": v2engine._item_extra(parts, j)})
+    by = {j["_id"]: j for j in extra}
+
+    async def add(j, state, status=None, **more):
+        parts = score.parts(j, fitmod.fit(j, p), a, 1, None, t)
+        copy = await tailoring.build(db, STUDENT_ID, r, j, a, use_ai=False)
+        doc = {"_id": str(ObjectId()), "user_id": STUDENT_ID, "job_id": j["_id"], "company_id": j.get("company_id"),
+               "company": j["company"]["name"], "title": j["title"], "slug": j["slug"], "channel": j["apply"]["method"],
+               "state": state, "copy_id": copy["_id"], "created_at": t, "updated_at": t, "demo": True,
+               **v2engine._item_extra(parts, j), **more}  # fmt: skip
+        if state == "suggested":
+            doc.pop("copy_id")
+        await db[AUTO_ITEMS].insert_one(doc)
+        if status:
+            await db[APPLICATIONS].insert_one({
+                "key": app_key(j["_id"]), "user_id": STUDENT_ID, "company": j["company"]["name"], "role": j["title"],
+                "status": status, "date": int(t.timestamp() * 1000), "resume_id": "r1", "resume_name": copy["name"],
+                "url": job_page(j), "notes": "", "next": None, "job_id": j["_id"], "channel": "nm7",
+                "origin": "auto", "auto_item_id": doc["_id"], "copy_id": copy["_id"], "v2": True, "demo": True,
+                "cover_note": copy.get("cover_note") or [], "answers": {},
+                "timeline": [{"status": "applied", "at": t}, *([{"status": status, "at": t}] if status != "applied"
+                                                              else [])],
+                "created_at": t, "updated_at": t,
+            })  # fmt: skip
+
+    # A2: her application to the demo company's first job came through Auto Apply 2.0, so the company demo shows her
+    # "Sent by Auto Apply" with the score, 3 reasons, the cover note, notice period and the tailored resume
+    from app.autoapply import instant
+
+    app = await db[APPLICATIONS].find_one({"user_id": STUDENT_ID, "job_id": f"{c['_id']}-job-1"})
+    j1 = jobs.get(f"{c['_id']}-job-1")
+    if app and j1:
+        it = await db[AUTO_ITEMS].find_one({"_id": app.get("auto_item_id")}) or {}
+        copy = await tailoring.build(db, STUDENT_ID, r, j1, a, use_ai=False)
+        await db[AUTO_ITEMS].update_one({"_id": it.get("_id")}, {"$set": {"instant": True, "copy_id": copy["_id"]}})
+        await db[APPLICATIONS].update_one(
+            {"_id": app["_id"]},
+            {
+                "$set": {
+                    "v2": True,
+                    "channel_v2": "internal",
+                    "copy_id": copy["_id"],
+                    "cover_note": copy.get("cover_note") or [],
+                    "auto_v2": await instant.payload(db, u, it),
+                }
+            },
+        )
+    day = engine_today(t)
+    for jid in ("demo-tech-solutions-job-approve", "demo-tech-solutions-job-approve2"):
+        await add(by[jid], "waiting_approval", mode="approve", counted_day=day)
+    for jid in ("demo-tech-solutions-job-sug1", "demo-tech-solutions-job-sug2"):
+        await add(by[jid], "suggested")
+    await add(by["demo-tech-solutions-job-offer"], "applied", status="offer", applied_at=t)
+    await _form_demo(db, u, r, by["demo-tech-solutions-job-form"], add, t)
+    await _morning_demo(db, u, r, by, add, day, t)
+    for n, status in ((3, "viewed"), (4, "interview"), (5, "rejected")):
+        j = jobs.get(f"{c['_id']}-job-{n}")
+        if j:
+            await add(j, "applied", status=status, applied_at=t)
+    await _replies_demo(db, c, t)
+
+
+DEMO_INVITE = (
+    "Hi Kavya,\n\nThank you for your application. We would like to invite you to an interview with our analytics "
+    "team on Thursday at 11:00 AM. Please reply with a time that suits you if that doesn't work.\n\n"
+    "Regards,\nHiring team (demo)"
+)
+
+
+async def _replies_demo(db, c, t) -> None:
+    """A7: the Replies inbox. The demo company's email reply to her email application, read as an interview invite
+    (the rules: the demo never calls the AI), and the companies' moves on her Nm7 applications (viewed, interview,
+    not selected, offer), the newest unread."""
+    from app.autoapply import replies, sync
+    from app.core.db import AUTO_REPLIES
+
+    mail_it = await db[AUTO_ITEMS].find_one({"user_id": STUDENT_ID, "state": "sent"})
+    if mail_it:
+        subject = f"Re: Application for {mail_it.get('title') or 'the job'}"
+        kind = replies.rules_kind(subject, DEMO_INVITE) or "other"
+        at = t - timedelta(hours=1)
+        await db[AUTO_REPLIES].insert_one({
+            "_id": str(ObjectId()), "user_id": STUDENT_ID, "alias": None, "item_id": mail_it["_id"],
+            "job_id": mail_it["job_id"], "mail_id": None, "company": mail_it.get("company") or "",
+            "title": mail_it.get("title") or "", "from": (mail_it.get("sent") or {}).get("to") or "hr@demo.nm7.invalid",
+            "from_name": "Hiring team", "subject": subject, "text": DEMO_INVITE, "provider_id": None,
+            "received_at": at, "forwarded": False, "forward": "demo", "kind": kind, "kind_by": "rules", "demo": True,
+        })  # fmt: skip
+        notice = {"status": "replied", "text": f"{mail_it.get('company') or 'The company'} replied by email.",
+                  "at": at, "seen": False}  # fmt: skip
+        await db[AUTO_ITEMS].update_one(
+            {"_id": mail_it["_id"]},
+            {"$set": {"replied_at": at, "interview_at": at, "interview_alert_at": at, "notice": notice,
+                      "channel_v2": "email", "replies": 1}},
+        )  # fmt: skip
+    hours = {"interview": 3, "viewed": 26, "rejected": 50, "offer": 74}
+    async for app in db[APPLICATIONS].find(
+        {"user_id": STUDENT_ID, "v2": True, "status": {"$in": list(hours)}}, {"status": 1, "company": 1, "role": 1,
+                                                                             "auto_item_id": 1}
+    ):  # fmt: skip
+        st = app["status"]
+        n = {"status": st, "text": sync.TEXT[st].format(company=app.get("company") or "The company",
+                                                        role=app.get("role") or "the job"),
+             "at": t - timedelta(hours=hours[st]), "seen": st in ("rejected", "offer")}  # fmt: skip
+        await db[AUTO_ITEMS].update_one(
+            {"_id": app.get("auto_item_id")}, {"$set": {"notice": n}, "$push": {"notices": n}}
+        )
+    await db[USERS].update_one({"_id": STUDENT_ID}, {"$set": {"auto_apply.inbox_seen_at": t - timedelta(hours=48)}})
+
+
+async def _form_demo(db, u, r, j, add, t) -> None:
+    """A5: an application sent through the demo company's own careers form, with its proof (no network: the form is
+    filled from DEMO_FORM, the answer page is DEMO_THANKS)."""
+    from app.autoapply import tailoring
+    from app.autoapply.forms import page, polite
+    from app.autoapply.forms import service as forms
+    from app.core.db import FORM_SITES
+
+    a = u.get("auto_apply") or {}
+    copy = await tailoring.build(db, STUDENT_ID, r, j, a, use_ai=False)
+    fm = page.application_form(page.parse(DEMO_FORM))
+    filled = page.fill(fm, await forms.facts(db, u, j, copy), b"%PDF-demo")
+    answer = polite.Answer(200, f"https://{DEMO_SITE}/careers/thank-you", httpx.Headers(), f"<p>{DEMO_THANKS}</p>")
+    proof = forms._proof(j["apply"]["url"], f"https://{DEMO_SITE}/careers/apply", filled, answer, True, False)
+    await add(j, "applied", status="applied", applied_at=t, channel_v2="form", form_proof=proof, form_site=DEMO_SITE)
+    await db[APPLICATIONS].update_one(
+        {"user_id": STUDENT_ID, "job_id": j["_id"]}, {"$set": {"channel": "form", "channel_v2": "form",
+                                                               "form_proof": proof}}
+    )  # fmt: skip
+    await db[FORM_SITES].replace_one(
+        {"_id": DEMO_SITE},
+        {"_id": DEMO_SITE, "state": "allowed", "reason": "", "demo": True, "first_seen": t, "last_tried": t,
+         "last_ok": t, "successes": 1, "failures": 0, "updated_at": t},
+        upsert=True,
+    )  # fmt: skip
+
+
+async def _morning_demo(db, u, r, by, add, day: str, t) -> None:
+    """A6: this morning's "jobs ready" list: the website job from Phase 3 and two more, each with its kit (the
+    tailored resume, cover note, ready answers), and one that closed after it was listed (shown as Closed)."""
+    from app.autoapply import tailoring
+    from app.core.db import AUTO_MORNINGS
+
+    for jid in READY_JOBS:
+        await add(by[jid], "ready", ready_day=day, channel_v2="one_tap", listed_day=day)
+    await db[JOBS].update_one(
+        {"_id": "demo-tech-solutions-job-closed"},
+        {"$set": {"status": "closed", "closed_reason": "closed by the source", "updated_at": t}},
+    )
+    web = await db[AUTO_ITEMS].find_one({"user_id": STUDENT_ID, "job_id": EXTRA_JOBS[0]})
+    j = await db[JOBS].find_one({"_id": EXTRA_JOBS[0]})
+    if web and j:  # its 2.0 kit: the tailored version with the cover note and ready answers
+        copy = await tailoring.build(db, STUDENT_ID, r, j, u.get("auto_apply") or {}, use_ai=False)
+        await db[AUTO_ITEMS].update_one(
+            {"_id": web["_id"]}, {"$set": {"channel_v2": "one_tap", "listed_day": day, "copy_id": copy["_id"]}}
+        )
+    ids = [x["_id"] async for x in db[AUTO_ITEMS].find({"user_id": STUDENT_ID, "state": "ready"}, {"_id": 1})]
+    await db[AUTO_MORNINGS].replace_one(
+        {"_id": f"{STUDENT_ID}:{day}"},
+        {"_id": f"{STUDENT_ID}:{day}", "user_id": STUDENT_ID, "day": day, "items": ids, "count": len(ids), "at": t,
+         "seen_at": None, "mailed_at": None, "demo": True},
+        upsert=True,
+    )  # fmt: skip
+
+
+def engine_today(t) -> str:
+    from app.autoapply import engine
+
+    return engine.today(t)

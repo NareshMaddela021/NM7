@@ -22,9 +22,15 @@ from app.auth.admin_router import router as admin_auth_router
 from app.auth.router import router as auth_router
 from app.autoapply import admin as auto_admin
 from app.autoapply import demo as auto_demo
+from app.autoapply import inbound as auto_inbound
 from app.autoapply import items as auto_items
+from app.autoapply import onetap as auto_onetap
+from app.autoapply import replies as auto_replies
 from app.autoapply import settings as auto_settings
 from app.autoapply import summary as auto_summary
+from app.autoapply import v2 as auto_v2
+from app.autoapply import weekly as auto_weekly
+from app.autoapply.ats import router as ats_router
 from app.billing import invoice_router as billing_docs
 from app.billing import migrate as billing_migrate
 from app.billing import router as billing
@@ -142,10 +148,16 @@ logging.getLogger("nm7").setLevel(logging.INFO)
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
-    await ensure_indexes(get_database())  # collections + indexes; safe to run on every start
-    await billing_migrate.run(get_database())  # Phase 4: existing organizations keep working (runs once)
+    """The port opens at once (Render's health check gives up after a few minutes: 18 Nov, Auto Apply A1's deploy
+    timed out while the first automation pass ran before the server listened). Collections, indexes and the one-time
+    migrations run in the background right after start (idempotent: an existing index is a no-op); the first
+    automation pass waits automation.START_DELAY. Tests keep the old order (indexes before the first request)."""
     log_email_status()
-    task = asyncio.create_task(automation.loop(get_database)) if get_settings().app_env != "test" else None
+    if get_settings().app_env == "test":
+        await startup_work(get_database())
+        task = None
+    else:
+        task = asyncio.create_task(after_start(get_database))
     yield
     if task:
         task.cancel()
@@ -154,7 +166,20 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     await close_client()
 
 
-PRIVATE_PREFIXES = ("/api/me", "/api/auth", "/api/orders", "/api/org", "/api/admin", "/api/expert")
+async def startup_work(db) -> None:
+    await ensure_indexes(db)  # collections + indexes; safe to run on every start
+    await billing_migrate.run(db)  # Phase 4: existing organizations keep working (runs once)
+
+
+async def after_start(get_db) -> None:
+    try:
+        await startup_work(get_db())
+    except Exception:  # noqa: BLE001  (the server keeps serving; the next start tries again)
+        logging.getLogger("nm7").exception("start-up work failed")
+    await automation.loop(get_db, first_delay=automation.START_DELAY)
+
+
+PRIVATE_PREFIXES = ("/api/me", "/api/auth", "/api/orders", "/api/org", "/api/admin", "/api/expert", "/api/helper")
 
 
 def create_app() -> FastAPI:
@@ -285,6 +310,7 @@ def create_app() -> FastAPI:
     app.include_router(company_dashboard.router)  # /api/company/{id}/overview, page, activity
     app.include_router(company_dashboard.public)  # /api/companies/{slug} (public company page)
     app.include_router(company_posting.router)  # /api/company/{id}/jobs (safe posting, C3)
+    app.include_router(ats_router.router)  # /api/company/{id}/ats: Auto Apply 2.0 hiring-system connections (A4)
     app.include_router(jobs_reports.router)  # /api/jobs/{id}/report (C4)
     app.include_router(company_applicants.router)  # /api/company/{id}/applicants, /pool (C5)
     app.include_router(company_applicants.me)  # /api/me/applications/{key}/withdraw
@@ -293,6 +319,14 @@ def create_app() -> FastAPI:
     app.include_router(jobs_alerts.me)  # /api/me/job-alerts (C6)
     app.include_router(auto_settings.router)  # /api/me/auto-apply (Phase 3, A1)
     app.include_router(auto_items.router)  # /api/me/auto-apply/items (A2, A3)
+    app.include_router(auto_v2.router)  # /api/me/auto-apply/v2 (Auto Apply 2.0, behind its launch switch)
+    app.include_router(auto_v2.admin)  # /api/admin/auto-apply/v2
+    app.include_router(auto_replies.router)  # /api/me/auto-apply/v2/inbox (A7 replies inbox, behind the switch)
+    app.include_router(auto_weekly.router)  # /api/me/auto-apply/v2/week (A7 weekly summary, behind the switch)
+    app.include_router(auto_onetap.router)  # /api/me/auto-apply/v2/onetap and /helper (A6 one tap, behind the switch)
+    app.include_router(auto_onetap.helper)  # /api/helper: the Nm7 Apply helper (Chrome extension), its own token
+    app.include_router(auto_inbound.router)  # /api/webhooks/resend (A3: replies, bounces, complaints)
+    app.include_router(auto_inbound.public)  # /api/public/auto-apply/opt-out (A3: the employer's opt-out)
     app.include_router(auto_summary.router)  # /api/me/auto-apply/summary, /emails (A6)
     app.include_router(auto_summary.public)  # /api/public/auto-apply/stop-emails
     app.include_router(auto_admin.router)  # /api/admin/auto-apply (A7)

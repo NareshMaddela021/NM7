@@ -102,6 +102,19 @@ AUTO_ITEMS = "auto_items"  # Auto Apply: one per (user, job), unique: applied / 
 AUTO_COPIES = "auto_copies"  # the tailored resume copy Auto Apply sent for one job (the version on the application)
 EMAIL_BLOCKS = "email_blocks"  # _id = an address or "@domain": no Auto Apply email after a bounce / a complaint
 AUTO_RUNS = "auto_runs"  # _id = IST day: the daily Auto Apply run log
+# Auto Apply 2.0 email applications (A3)
+AUTO_ALIASES = "auto_aliases"  # _id = the local part of a candidate's apply address (firstname.x7k2) → user_id
+AUTO_MAIL = "auto_mail"  # one row per Auto Apply 2.0 email sent (first / follow-up): to, source, day, delivery, reply
+AUTO_REPLIES = "auto_replies"  # a company's reply that came to a candidate's apply address (stored, forwarded)
+AUTO_MAIL_EVENTS = "auto_mail_events"  # _id = the webhook's message id: each Resend event handled once
+# Auto Apply 2.0 partner integrations (A4)
+ATS_CONNECTIONS = "ats_connections"  # _id = company id: its hiring system (partner, settings, the key encrypted)
+ATS_DELIVERIES = "ats_deliveries"  # one per application sent to a company's hiring system: state, tries, status
+FORM_SITES = "auto_form_sites"  # A5: _id = a company site (host, no www): form / one-tap only, robots, terms, counts
+# Auto Apply 2.0 one-tap (A6)
+AUTO_MORNINGS = "auto_mornings"  # _id = user:day: the morning "N jobs ready" list (items, count, seen, mailed)
+HELPER_CODES = "auto_helper_codes"  # _id = keyed hash of a pairing code for the Nm7 Apply helper: 10 minutes, one use
+HELPER_TOKENS = "auto_helper_tokens"  # one per paired browser: token hash, scope (kits, mark applied), expiry, revoked
 TALENT_POOL = "talent_pool"  # a company's saved applicants (company_id, user_id), kept as long as the application
 JOB_REMOVALS = "job_removals"  # round J: "remove this job" requests from companies (Admin → Jobs → Removal requests)
 JOB_REPORTS = "job_reports"  # _id = user:job: a student's report of a job (3 from different people pause it)
@@ -240,6 +253,16 @@ COLLECTIONS = (
     AUTO_COPIES,
     AUTO_RUNS,
     EMAIL_BLOCKS,
+    AUTO_ALIASES,
+    AUTO_MAIL,
+    AUTO_REPLIES,
+    AUTO_MAIL_EVENTS,
+    ATS_CONNECTIONS,
+    ATS_DELIVERIES,
+    FORM_SITES,
+    AUTO_MORNINGS,
+    HELPER_CODES,
+    HELPER_TOKENS,
     HIRE_PROFILES,
     HIRE_INVITES,
     HIRE_USAGE,
@@ -354,8 +377,41 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel([("user_id", ASCENDING), ("job_id", ASCENDING)], unique=True),  # never the same job twice
         IndexModel([("user_id", ASCENDING), ("state", ASCENDING)]),
         IndexModel([("state", ASCENDING), ("updated_at", DESCENDING)]),
+        # A7: the Admin numbers count 2.0 items by when they were made (aggregations, never whole collections)
+        IndexModel([("v2", ASCENDING), ("created_at", ASCENDING)], partialFilterExpression={"v2": True}),
     ],
-    AUTO_COPIES: [IndexModel([("user_id", ASCENDING), ("job_id", ASCENDING)])],
+    AUTO_COPIES: [
+        IndexModel([("user_id", ASCENDING), ("job_id", ASCENDING)]),
+        # Auto Apply 2.0: one tailored version per (candidate, job, resume version), never tailored twice
+        IndexModel("cache_key", unique=True, partialFilterExpression=_str("cache_key")),
+    ],
+    AUTO_ALIASES: [IndexModel("user_id", unique=True)],
+    AUTO_MAIL: [
+        # one first email and one follow-up per (candidate, job), ever
+        IndexModel([("user_id", ASCENDING), ("job_id", ASCENDING), ("kind", ASCENDING)], unique=True),
+        IndexModel([("user_id", ASCENDING), ("day", ASCENDING)]),
+        IndexModel([("domain", ASCENDING), ("day", ASCENDING)]),
+        IndexModel("provider_id", partialFilterExpression=_str("provider_id")),
+        IndexModel([("kind", ASCENDING), ("at", ASCENDING)]),
+    ],
+    AUTO_REPLIES: [IndexModel([("user_id", ASCENDING), ("received_at", DESCENDING)]), IndexModel("item_id")],
+    AUTO_MAIL_EVENTS: [IndexModel("at", expireAfterSeconds=30 * DAY)],
+    ATS_CONNECTIONS: [IndexModel("partner")],
+    FORM_SITES: [IndexModel([("state", ASCENDING), ("last_tried", DESCENDING)])],
+    AUTO_MORNINGS: [IndexModel([("user_id", ASCENDING), ("day", DESCENDING)])],
+    HELPER_CODES: [IndexModel("user_id"), IndexModel("expires_at", expireAfterSeconds=0)],
+    HELPER_TOKENS: [
+        IndexModel("token_hash", unique=True),
+        IndexModel([("user_id", ASCENDING), ("created_at", DESCENDING)]),
+    ],
+    ATS_DELIVERIES: [
+        IndexModel("app_id", unique=True),  # one delivery per application, ever
+        IndexModel([("state", ASCENDING), ("next_at", ASCENDING)]),
+        IndexModel([("state", ASCENDING), ("checked_at", ASCENDING)]),
+        IndexModel([("partner", ASCENDING), ("day", ASCENDING)]),
+        IndexModel([("company_id", ASCENDING), ("created_at", DESCENDING)]),
+        IndexModel("user_id"),
+    ],
     HIRE_PROFILES: [IndexModel([("on", ASCENDING), ("confirmed_at", DESCENDING)])],
     LEARN_PROGRESS: [IndexModel([("user_id", ASCENDING), ("updated_at", DESCENDING)])],
     PRACTICE_ATTEMPTS: [IndexModel([("user_id", ASCENDING), ("started_at", DESCENDING)])],
@@ -543,7 +599,11 @@ INDEXES: dict[str, list[IndexModel]] = {
     # Each item has a per-owner `key` (the id the browser uses); every lookup includes user_id.
     RESUMES: [IndexModel([("user_id", ASCENDING), ("key", ASCENDING)], unique=True)],
     COVER_LETTERS: [IndexModel([("user_id", ASCENDING), ("key", ASCENDING)], unique=True)],
-    APPLICATIONS: [IndexModel([("user_id", ASCENDING), ("key", ASCENDING)], unique=True)],
+    APPLICATIONS: [
+        IndexModel([("user_id", ASCENDING), ("key", ASCENDING)], unique=True),
+        # A7: Auto Apply 2.0's per-channel numbers (Admin → Daily report) count by sent day
+        IndexModel([("v2", ASCENDING), ("created_at", ASCENDING)], partialFilterExpression={"v2": True}),
+    ],
     ATS_CHECKS: [IndexModel([("user_id", ASCENDING), ("at", DESCENDING)])],
     # _id is the owner's user id; short is the code of the short link
     SHARES: [IndexModel("slug", unique=True), IndexModel("short", unique=True, sparse=True)],

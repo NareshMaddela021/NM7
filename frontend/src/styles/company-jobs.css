@@ -128,3 +128,17 @@
 
 /* small pill buttons used on the cards (company pages only) */
 .co-page .btn-sm { height: auto; min-height: 40px; padding: 6px 16px; font-size: 13.5px; }
+
+/* ---------- Auto Apply 2.0 (A2): per-job controls and "Sent by Auto Apply" on applicant cards ---------- */
+.aa-co { border: 1px dashed var(--border2); border-radius: 14px; padding: 12px 14px; margin: 0; min-width: 0; }
+.aa-co-fields { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.aa-co-switch { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; font-weight: 600; min-height: 32px; }
+.aa-co-switch input { margin-top: 3px; width: 18px; height: 18px; flex: none; }
+.aa-co-job { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; min-width: 0; }
+.aa-co-job > .xs { overflow-wrap: anywhere; }
+.aa-co-form { width: 100%; background: #f7f8fc; border-radius: 12px; padding: 12px; }
+.aa-co-block { background: #f6f4ff; border: 1px solid #e2dcff; border-radius: 12px; padding: 8px 12px; min-width: 0; }
+.aa-co-block > summary { cursor: pointer; min-height: 28px; overflow-wrap: anywhere; }
+.aa-co-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr)); gap: 8px; margin: 0; }
+.aa-co-facts dt { font-size: 12px; color: var(--text2); }
+.aa-co-facts dd { margin: 0; font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }

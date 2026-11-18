@@ -1,6 +1,6 @@
 # Vetting Trust T1: DPDP compliance pack (and the switch the next 14 items sit behind)
 
-Base: `main` · Branch: `claude/confident-knuth-pu6nd3-trust-t1` · Not stacked on another PR (T1 is the foundation; T2–T15 stack on this one).
+Base: `main` · Branch: `claude/confident-knuth-pu6nd3-trust-t1` · Not stacked on another PR (T1 is the foundation; T2–T15 stack on this one). Up to date with `main` (merged after Auto Apply 2.0 A1–A7 #232–#238, the start-up/memory fix #241, collector fixes #239/#240, CI runner pin #242).
 
 ## What this does, in plain words
 
@@ -57,8 +57,8 @@ Base: `main` · Branch: `claude/confident-knuth-pu6nd3-trust-t1` · Not stacked 
 - [x] 72-hour breach runbook + Admin breach log with countdowns, notifications, audit
 - [x] Retention schedule with Admin-editable days in safe bounds, daily deletion job (heavy_or_skip, batches, caps), counts, Admin page; vetting retention folded in
 - [x] Erase-after-inactivity (warning, notice, erase; separate OFF setting; mail_filter respected; reuses the account erase path in "account" mode)
-- [x] Candidate UI (Privacy & consent card, age gate, parent screens) and Admin UI (Vetting Trust tab), nested in existing lazy chunks; no new routes (the two link pages live under the existing `/stop-alerts`)
-- [x] Backend tests `backend/tests/test_trust_t1.py` (10 tests) and e2e `frontend/e2e-live/trust-t1.spec.mjs` (desktop + 390 px, repeat-each 2: 16 passed)
+- [x] Candidate UI (Privacy & consent card, age gate, parent screens) and Admin UI (Vetting Trust tab), nested in existing lazy chunks; no new routes (the two link pages live under the existing `/stop-alerts`, next to Auto Apply 2.0's employer opt-out `#k=employer`; all three work)
+- [x] Backend tests `backend/tests/test_trust_t1.py` (10 tests) and e2e `frontend/e2e-live/trust-t1.spec.mjs` (desktop + 390 px, repeat-each 2: 16 passed). After merging main: backend 1240 passed (only the known local-only `test_test_users::test_create_open_and_remove` fails here), frontend 637 vitest passed, build OK, Easy dashboard 149.1/150 KB unchanged; e2e trust-t1 + auto-apply-v2-email + daily-report, repeat-each 2: 28 passed
 - [ ] Parent link by **SMS/phone**: not built (email only). Needs an SMS provider with DLT registration (see vendors doc).
 - [ ] **Telugu / Hindi consent texts**: not written (the Settings page has no Telugu/Hindi yet). TODO list below.
 

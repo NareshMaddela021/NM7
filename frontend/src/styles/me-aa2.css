@@ -1,0 +1,51 @@
+/* Auto Apply 2.0 (/me/auto-apply/v2): tabs, stage tiles, rows that wrap at 390 px (no sideways scroll). */
+.aa2 { min-width: 0; }
+.aa2 * { min-width: 0; }
+.aa2-wrap { overflow-wrap: anywhere; }
+.aa2-status { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+.aa2-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.aa2-tab { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--border2); background: #fff; font: inherit; font-size: 14px; font-weight: 700; color: inherit; cursor: pointer; }
+.aa2-tab.on { border-color: var(--accent); background: #f3f0ff; color: #3f36c9; }
+.aa2-badge { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: var(--accent); color: #fff; font-size: 12px; }
+.aa2-stages { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+@media (max-width: 760px) { .aa2-stages { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 420px) { .aa2-stages { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.aa2-stage { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 10px 12px; border-radius: 14px; border: 1px solid var(--border2); background: #fff; font: inherit; color: inherit; text-align: left; cursor: pointer; min-height: 64px; }
+.aa2-stage strong { font-size: 20px; font-variant-numeric: tabular-nums; }
+.aa2-stage span { font-size: 12.5px; line-height: 1.3; overflow-wrap: anywhere; }
+.aa2-stage.on { border-color: var(--accent); box-shadow: 0 0 0 2px #dcd3ff; }
+.aa2-list { list-style: none; margin: 0; padding: 0; }
+.aa2-rowtop { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-start; justify-content: space-between; }
+.aa2-job { display: flex; gap: 10px; align-items: flex-start; flex: 1 1 220px; }
+.aa2-title { font-weight: 800; overflow-wrap: anywhere; }
+.aa2-tags { display: inline-flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.aa2-ch { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; background: #f3f2f8; border: 1px solid #e4e1ee; font-size: 12.5px; font-weight: 700; white-space: nowrap; }
+.aa2-actions { flex-wrap: wrap; align-items: center; }
+.aa2-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.aa2-parts summary { cursor: pointer; font-weight: 700; }
+.aa2-partlist, .aa2-plain { margin: 6px 0 0; padding-left: 18px; }
+.aa2-note { padding: 10px 12px; border-radius: 12px; background: #faf9fd; border: 1px solid var(--border2); overflow-wrap: anywhere; }
+.aa2-note p { margin: 0 0 4px; }
+.aa2-pre { white-space: pre-wrap; }
+.aa2-answers { margin: 0; display: grid; gap: 8px; }
+.aa2-answers dt { font-weight: 700; }
+.aa2-answers dd { margin: 0; overflow-wrap: anywhere; }
+.aa2-mode { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--border2); background: #fff; cursor: pointer; }
+.aa2-mode.on { border-color: var(--accent); background: #f7f5ff; }
+.aa2-mode input { margin-top: 3px; }
+.aa2-v2link { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+/* A6 one tap: apply kits with Copy buttons and copy mode (one field at a time, big buttons) for phones. */
+.aa2-kitrow { display: flex; gap: 10px; align-items: center; justify-content: space-between; padding: 8px 10px; border-radius: 12px; border: 1px solid var(--border2); background: #fff; }
+.aa2-kitrow > span { flex: 1 1 auto; }
+.aa2 .btn.aa2-copy { flex: 0 0 auto; min-height: 44px; min-width: 72px; }
+.aa2 .btn.aa2-copybig { width: 100%; min-height: 56px; height: auto; font-size: 18px; }
+.aa2-copyvalue { margin: 0; font-size: 17px; overflow-wrap: anywhere; }
+.aa2-copynav { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.aa2 .aa2-copynav .btn { min-height: 48px; height: auto; }
+.aa2-code { font-size: 24px; letter-spacing: .12em; font-variant-numeric: tabular-nums; }
+.aa2-closed { opacity: .8; }
+/* A7: the Replies inbox (unread dot) and This week. */
+.aa2-reply.aa2-unread { border-color: var(--accent); }
+.aa2-dot { display: inline-block; width: 8px; height: 8px; margin-right: 6px; border-radius: 999px; background: var(--accent); vertical-align: middle; }
+.aa2-week-ch { display: grid; gap: 4px; }
+.aa2-week-ch li { padding: 6px 10px; border-radius: 10px; border: 1px solid var(--border2); align-items: center; }

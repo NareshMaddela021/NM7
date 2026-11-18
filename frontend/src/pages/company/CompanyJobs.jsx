@@ -2,13 +2,15 @@
 // and the posting form. "Check" shows what Nm7 would do before posting: unfair wording (can't be posted), scam signs
 // (waits for our team), fresher-fit warnings and a duplicate open job. "Write it for me" turns 3 lines into a
 // description and never adds a salary, perks or company facts that weren't typed. A live job can be edited twice.
-// No pop-up dialogs. English, Telugu and Hindi (co.jobs.*, jobs.*).
+// No pop-up dialogs. English, Telugu and Hindi (co.jobs.*, jobs.*). Auto Apply 2.0 (A2): per-job controls
+// (AutoApplyBits.jsx) for companies the 2.0 switch lets in.
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { rq } from '../../lib/company';
 import { EXPERIENCE, JOB_TYPES, WORK_TYPES, salaryText } from '../../lib/jobBoard';
 import { Bar, Chip, Empty, Skel, Stat } from '../me/kit';
 import '../../styles/company-jobs.css';
+import { JobAuto, NewJobAuto, newJobBody, useAutoInfo } from './AutoApplyBits';
 
 const BLANK = { title: '', cities: '', workType: 'onsite', jobType: 'full_time', experience: 'fresher', education: '', salaryMin: '', salaryMax: '', period: 'yearly', skills: '', description: '', applyMethod: 'nm7', applyUrl: '', applyEmail: '', closesAt: '', questions: [] };
 const NEW_Q = { text: '', kind: 'yesno', options: '', want: '', min: '', accept: '' };
@@ -71,6 +73,7 @@ export default function CompanyJobs({ t, c }) {
   const [room, setRoom] = useState(null);
   const [form, setForm] = useState(null); // { id?, f }
   const can = ['main', 'full', 'posting'].includes(c.myRole);
+  const auto = useAutoInfo(c.id);
   const load = useCallback(() => {
     rq(`/api/company/${c.id}/jobs`).then(setJobs, () => setJobs([]));
     rq(`/api/company/${c.id}/room`).then(setRoom, () => {});
@@ -92,16 +95,16 @@ export default function CompanyJobs({ t, c }) {
           {ORDER.map((st) => <Stat key={st} label={t(`co.jobs.status.${st}`)} value={count(st)} tone={st === 'active' && count(st) ? 'ok' : st === 'review' && count(st) ? 'warn' : undefined} />)}
         </div>
       )}
-      {form && <JobForm t={t} c={c} init={form} onDone={(msg) => { setForm(null); load(); if (msg) setJobs((x) => x); }} onCancel={() => setForm(null)} />}
+      {form && <JobForm t={t} c={c} auto={auto} init={form} onDone={(msg) => { setForm(null); load(); if (msg) setJobs((x) => x); }} onCancel={() => setForm(null)} />}
       {jobs.length === 0 && !form && <Empty shape="briefcase" tint="company" compact>{t('co.jobs.none')}</Empty>}
       <ul className="cj-list">
-        {jobs.map((j) => <JobRow key={j.id} t={t} c={c} j={j} can={can} onEdit={() => setForm({ id: j.id, f: fromJob(j), editsLeft: j.editsLeft, live: j.status === 'active' })} onChanged={load} />)}
+        {jobs.map((j) => <JobRow key={j.id} t={t} c={c} j={j} auto={auto} can={can} onEdit={() => setForm({ id: j.id, f: fromJob(j), editsLeft: j.editsLeft, live: j.status === 'active' })} onChanged={load} />)}
       </ul>
     </section>
   );
 }
 
-function JobRow({ t, c, j, can, onEdit, onChanged }) {
+function JobRow({ t, c, j, auto, can, onEdit, onChanged }) {
   const [closing, setClosing] = useState(false);
   const [err, setErr] = useState('');
   const status = async (s) => { setErr(''); try { await rq(`/api/company/${c.id}/jobs/${j.id}/status`, { method: 'POST', body: { status: s } }); setClosing(false); onChanged(); } catch (x) { setErr(x.message); } };
@@ -114,6 +117,7 @@ function JobRow({ t, c, j, can, onEdit, onChanged }) {
         <Chip tone={TONE[j.status]} testid="co-job-status">{t(`co.jobs.status.${j.status}`)}</Chip>
       </div>
       <ul className="cj-facts">{facts.map((x) => <li key={x}>{x}</li>)}</ul>
+      {auto && <JobAuto c={c} j={j} info={auto} can={can} onSaved={onChanged} />}
       {j.status === 'review' && <p className="cj-note cj-note-warn">{t('co.jobs.reviewNote')}</p>}
       {j.status === 'closed' && j.closedReason && <p className="cj-note">{j.closedReason}</p>}
       {can && j.status !== 'closed' && (
@@ -134,8 +138,9 @@ function JobRow({ t, c, j, can, onEdit, onChanged }) {
   );
 }
 
-function JobForm({ t, c, init, onDone, onCancel }) {
+function JobForm({ t, c, auto, init, onDone, onCancel }) {
   const [f, setF] = useState(init.f);
+  const [aa, setAa] = useState(null); // Auto Apply 2.0 controls for a new job (null: the defaults)
   const [check, setCheck] = useState(null);
   const [busy, setBusy] = useState('');
   const [err, setErr] = useState('');
@@ -156,7 +161,7 @@ function JobForm({ t, c, init, onDone, onCancel }) {
     run('post', async () => {
       const r = init.id
         ? await rq(`/api/company/${c.id}/jobs/${init.id}`, { method: 'PUT', body: { job: toBody(f) } })
-        : await rq(`/api/company/${c.id}/jobs`, { method: 'POST', body: { job: toBody(f) } });
+        : await rq(`/api/company/${c.id}/jobs`, { method: 'POST', body: { job: { ...toBody(f), ...(auto && f.applyMethod === 'nm7' ? newJobBody(aa) : {}) } } });
       onDone(r.status);
     });
   };
@@ -211,6 +216,7 @@ function JobForm({ t, c, init, onDone, onCancel }) {
           {f.applyMethod === 'email' && <div className="field"><label className="label" htmlFor="cj-mail">{t('co.jobs.f.email')}</label><input id="cj-mail" type="email" className="input" required value={f.applyEmail} onChange={set('applyEmail')} /></div>}
         </div>
         {f.applyMethod === 'nm7' && <Questions t={t} qs={f.questions || []} onChange={(questions) => setF({ ...f, questions })} />}
+        {auto && !init.id && f.applyMethod === 'nm7' && <NewJobAuto info={auto} value={aa} onChange={setAa} />}
       </div>
       {check && (
         <div className={`mcard mcard-tight cj-check ${check.errors.length || blocked || check.duplicate ? 'mcard-bad' : check.scam.length || check.warnings.length ? 'mcard-warn' : 'mcard-ok'}`} role="status" data-testid="co-job-check">
