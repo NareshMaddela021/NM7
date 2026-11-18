@@ -83,7 +83,7 @@ is internal, so admins always see it; demo data is always left out of it.
   a failing section never stops the snapshot.
 - Re-run and passing: `test_daily_report.py`, `test_auto_apply_a7.py`, `test_hire_speed*.py`, `test_trust_t5.py`,
   `test_trust_t11.py` (86 passed together).
-- Full backend suite: see the report (only the known local-only `test_test_users::test_create_open_and_remove` may fail).
+- Full backend suite: **1414 passed**, 1 failed (only the known local-only `test_test_users::test_create_open_and_remove`).
 - `ruff check` / `ruff format --check`: clean. Frontend: vitest **657 passed** (2 skipped; new `trustT13.test.jsx`), lint
   no new warnings (the 3 existing ones), build OK.
 - e2e `frontend/e2e-live/trust-t13.spec.mjs`, desktop + 390 px, `--repeat-each 2`: **8 passed** (Daily report section:
