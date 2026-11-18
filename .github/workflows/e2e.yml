@@ -47,7 +47,7 @@ jobs:
   quick:
     # light mode (CI_MODE unset or light), pull requests: the smoke set and the specs related to this change
     if: github.event_name == 'pull_request' && vars.CI_MODE != 'full'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # pinned: Playwright has no Chromium for ubuntu-26.04 yet (18 Nov)
     timeout-minutes: 25
     defaults:
       run:
@@ -104,7 +104,7 @@ jobs:
   live:
     # the whole suite: nightly, by hand, and on pull requests when CI_MODE=full
     if: (github.event_name != 'pull_request' || vars.CI_MODE == 'full') && !inputs.shots_ref
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # pinned: Playwright has no Chromium for ubuntu-26.04 yet (18 Nov)
     timeout-minutes: 60
     defaults:
       run:
@@ -159,7 +159,7 @@ jobs:
   shots:
     # by hand only, with shots_ref set: screenshots of every dashboard page (e2e-live/zz-shots.spec.mjs)
     if: inputs.shots_ref != ''
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # pinned: Playwright has no Chromium for ubuntu-26.04 yet (18 Nov)
     permissions:
       contents: write
     timeout-minutes: 30
