@@ -60,6 +60,9 @@ function Panel({ c, uid, name, job, appId, canInvite, invited, onInvited }) {
         <section className="stack g8" aria-labelledby="co-iv-str"><h3 id="co-iv-str">Strengths</h3><ul className="iv-list" data-testid="co-iv-strengths">{d.strengths.map((s) => <li key={s}>{s}</li>)}</ul></section>
       )}
       {d.concern && <section className="stack g8" aria-labelledby="co-iv-con"><h3 id="co-iv-con">One concern</h3><p className="small" style={{ margin: 0 }} data-testid="co-iv-concern">{d.concern}</p></section>}
+      {d.explainedOwnWork && ( // Vetting Trust T9: how well they explained their own practical task (label + reason only)
+        <section className="stack g8" aria-labelledby="co-iv-ex" data-testid="co-iv-explained"><h3 id="co-iv-ex">{d.explainedOwnWork.label}</h3><p className="small" style={{ margin: 0 }}>{d.explainedOwnWork.reason}</p><span className="xs muted">Questions about their own practical task, checked against what they sent.</span></section>
+      )}
       <section className="stack g8" aria-labelledby="co-iv-tr">
         <h3 id="co-iv-tr">Transcript</h3>
         <ol className="iv-tr-list" data-testid="co-iv-transcript">

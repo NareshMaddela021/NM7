@@ -383,7 +383,7 @@ async def test_explain_question_from_the_submission_anonymised_graded_weak_is_a_
 
     await c.put("/api/me/hire", json=READY)
     s = (await client.get(f"/api/company/{cid}/hire/interview/{uid}", headers=H(session))).json()
-    assert "explainedOwnWork" not in s  # the switch is off for this company
+    assert "explainedOwnWork" not in s and len(s["transcript"]) == 7  # the switch is off for this company: as before
     await db["settings"].update_one({"_id": "site"}, {"$addToSet": {"trust.testers": "founder@gmail.com"}})
     s = (await client.get(f"/api/company/{cid}/hire/interview/{uid}", headers=H(session))).json()
     assert (

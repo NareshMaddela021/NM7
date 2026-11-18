@@ -16,6 +16,10 @@ import { Appeal, useAppeals } from './Appeal';
 import '../../../styles/me-vet.css';
 
 const Task = lazy(lazyRetry(() => import('./Task')));
+// Vetting Trust T9 (only when the server sends them: people Vetting Trust is on for): the pledge, limits, pledge record
+const Pledge = lazy(lazyRetry(() => import('../trust/Honesty').then((m) => ({ default: m.Pledge }))));
+const RetakeInfo = lazy(lazyRetry(() => import('../trust/Honesty').then((m) => ({ default: m.RetakeInfo }))));
+const PledgeNote = lazy(lazyRetry(() => import('../trust/Honesty').then((m) => ({ default: m.PledgeNote }))));
 
 export function VerifiedBadge({ v, role }) {
   if (!v) return null;
@@ -29,13 +33,15 @@ export function VerifiedBadge({ v, role }) {
 
 function TaskState({ r, onOpen, appeals }) {
   const t = r.task;
+  const [pledge, setPledge] = useState(); // T9: undefined = not asked, null = not ticked yet, n = the version ticked
   if (!t || r.retest || r.kind === 'refresh') return null;
   if (t.status === 'locked') return null;
   if (t.status === 'open' || t.status === 'started') {
     return (
       <MeCard tone="accent" icon="✎" title="Do the practical task" sub="The last step to get “Skill verified”. A short real-work task; it is marked out of 5 stars and you need 3 (60/100)." testid="vt-task-card">
+        {t.status === 'open' && r.retake && <Suspense fallback={null}><Pledge kind="task" lang={r.lang} onChange={setPledge} /></Suspense>}
         <div className="mrow">
-          <button type="button" className="btn btn-signal btn-lg" onClick={onOpen} data-testid="vt-task-open">{t.status === 'started' ? 'Carry on with the task' : 'Start the practical task'}</button>
+          <button type="button" className="btn btn-signal btn-lg" disabled={t.status === 'open' && pledge === null} onClick={() => onOpen(pledge)} data-testid="vt-task-open">{t.status === 'started' ? 'Carry on with the task' : 'Start the practical task'}</button>
           <span className="xs muted">The clock starts when you open it.</span>
         </div>
       </MeCard>
@@ -77,7 +83,7 @@ export default function Result({ id, initial, onRetest }) {
   const appeals = useAppeals();
   const [r, setR] = useState(initial || null);
   const [err, setErr] = useState('');
-  const [task, setTask] = useState(false);
+  const [task, setTask] = useState(false); // false, or { pledge } once opened
   // the result handed over by the test shows at once; the server's copy (always fresh, e.g. after a reload) follows
   useEffect(() => {
     http(`${API}/${id}`).then(setR, (e) => { if (initial?.id !== id) setErr(e.message); });
@@ -112,6 +118,7 @@ export default function Result({ id, initial, onRetest }) {
             <span className="xs muted" data-testid="vt-again">{r.canRetry ? 'You can take this check again now.' : `Next try from ${day(r.againAt)}.`}</span>
           </div>
         </div>
+        {r.retake && <Suspense fallback={null}><RetakeInfo rk={r.retake} /><PledgeNote items={[r.pledge && { ...r.pledge, what: 'test' }, r.taskPledge && { ...r.taskPledge, what: 'practical task' }]} /></Suspense>}
         <VerifiedBadge v={r.verified} role={name} />
         <Appeal kind="skill" refId={r.id} what="this skill check" appeals={appeals} />
       </section>
@@ -160,9 +167,9 @@ export default function Result({ id, initial, onRetest }) {
 
       {task ? (
         <Suspense fallback={<Skel cards={1} lines={4} label="Opening the task" />}>
-          <Task attempt={r} onDone={(x) => { setR(x); setTask(false); window.scrollTo?.(0, 0); }} onCancel={() => setTask(false)} />
+          <Task attempt={r} pledge={task.pledge} onDone={(x) => { setR(x); setTask(false); window.scrollTo?.(0, 0); http(`${API}/${id}`).then(setR, () => {}); }} onCancel={() => setTask(false)} />
         </Suspense>
-      ) : <TaskState r={r} onOpen={() => setTask(true)} appeals={appeals} />}
+      ) : <TaskState r={r} onOpen={(pledge) => setTask({ pledge })} appeals={appeals} />}
 
       <MeCard tone="flat" className="mcard-tight" icon="↗" title="Keep learning" sub={improve.length ? `Practise ${improve.slice(0, 2).map((x) => x.topic).join(' and ')} for free, then try again.` : 'Free learning paths and practice tests for this role.'}>
         <div className="mrow">

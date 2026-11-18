@@ -522,8 +522,11 @@ async def company_view(cid: str, uid: str, db: DB, x_recruiter_account: str | No
     o = out(iv)
     from app.trust import access as trust_access
 
-    if iv.get("explain") and await trust_access.for_company(db, c, acc):  # Vetting Trust T9: "Explained own work"
-        o["explainedOwnWork"] = _explained(iv)
+    if any(x.get("kind") == "explain" for x in iv["turns"]):  # Vetting Trust T9: "Explained own work"
+        if await trust_access.for_company(db, c, acc):
+            o["explainedOwnWork"] = _explained(iv)
+        else:  # a company Vetting Trust is off for sees the interview exactly as before
+            o["transcript"] = [x for x in o["transcript"] or [] if not x.get("explain")]
     return {
         k: o[k]
         for k in (

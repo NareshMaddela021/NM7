@@ -58,6 +58,7 @@ function Evidence({ uid, onChange }) {
         ))}
       </ul>
       {!d.signals.length && <p className="small muted" style={{ margin: 0 }}>Nothing noticed.</p>}
+      {d.pledges?.length > 0 && <><span className="label">Honesty pledges (T9)</span><ul className="small" style={{ margin: 0, paddingLeft: 18 }} data-testid="ti-pledges">{d.pledges.map((x) => <li key={`${x.kind}${x.ref}`}>{x.what}: version {x.version}, {when(x.at)} ({x.lang})</li>)}</ul></>}
       {d.snapshots.length > 0 && <><span className="label">Webcam snapshots</span><ul className="stack g8" style={{ listStyle: 'none', padding: 0, margin: 0 }}>{d.snapshots.map((p) => <Photo key={p.id} uid={uid} p={p} />)}</ul></>}
       <div className="field"><label className="label" htmlFor={`ti-n-${uid}`}>Note (to the person when you ask or finish; kept with a decision)</label>
         <input id={`ti-n-${uid}`} className="input" maxLength={600} value={note} onChange={(e) => setNote(e.target.value)} data-testid="ti-note" /></div>
