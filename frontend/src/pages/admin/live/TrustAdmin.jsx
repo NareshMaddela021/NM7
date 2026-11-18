@@ -201,7 +201,7 @@ function Breaches() {
 export default function TrustAdmin() {
   const st = useApi('/api/admin/trust');
   return (
-    <div className="stack g16" data-testid="tt-page">
+    <div className="stack g16 tt-page" data-testid="tt-page">
       <Loading st={st}>{(d) => (
         <>
           <Switch d={d} reload={st.reload} />

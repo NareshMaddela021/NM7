@@ -8,7 +8,7 @@
 // Desktop and phone share one database: every test uses its own people and puts any global setting back.
 import { expect, test } from '@playwright/test';
 import { PASSWORD, adminLogin, email, emailsTo, login, seed } from './helpers.mjs';
-import { SIZES, noSideScroll } from './college.mjs';
+import { SIZES, fitsPhone } from './college.mjs';
 
 const yearsAgo = (n) => { const d = new Date(); d.setFullYear(d.getFullYear() - n); return d.toISOString().slice(0, 10); };
 
@@ -47,7 +47,7 @@ for (const [label, opts] of SIZES) {
       await expect(dlg).toHaveCount(0);
       await expect(voice.getByTestId('tc-state')).toContainText('Taken back');
       await expect(card.getByTestId('tc-keep')).toContainText('days');
-      expect(await noSideScroll(page)).toBe(true);
+      expect(await fitsPhone(page)).toBe(true);
 
       // the signed link from an email works without signing in
       await card.getByTestId('tc-documents').getByTestId('tc-toggle').click();
@@ -58,7 +58,7 @@ for (const [label, opts] of SIZES) {
       await anon.goto(`/stop-alerts#k=consent&t=${token}`);
       await expect(anon.getByRole('heading', { name: 'Take back your consent' })).toBeVisible();
       await expect(anon.getByTestId('tl-documents')).toBeChecked();
-      expect(await noSideScroll(anon)).toBe(true);
+      expect(await fitsPhone(anon)).toBe(true);
       await anon.getByTestId('tl-withdraw').click();
       await expect(anon.getByTestId('tl-done')).toContainText('1 purpose');
       await anon.goto('about:blank');
@@ -80,7 +80,7 @@ for (const [label, opts] of SIZES) {
       await card.getByTestId('tc-parent-email').fill(parent);
       await card.getByTestId('tc-parent-send').click();
       await expect(card.getByTestId('tc-parent-state')).toContainText('We sent a link');
-      expect(await noSideScroll(page)).toBe(true);
+      expect(await fitsPhone(page)).toBe(true);
       let link = '';
       await expect.poll(() => { const m = emailsTo(parent).join('\n').match(/#k=parent&t=([A-Za-z0-9_-]+)/); link = m ? m[1] : ''; return link; }).not.toBe('');
       const ctx = await browser.newContext(opts);
@@ -91,7 +91,7 @@ for (const [label, opts] of SIZES) {
       await expect(p.getByTestId('tl-confirm')).toBeDisabled();
       await p.getByTestId('tl-parent-name').fill('Lakshmi Rao');
       await p.getByTestId('tl-agree').check();
-      expect(await noSideScroll(p)).toBe(true);
+      expect(await fitsPhone(p)).toBe(true);
       await p.getByTestId('tl-confirm').click();
       await expect(p.getByTestId('tl-done')).toContainText('can now use');
       await p.reload(); // one-time
@@ -113,20 +113,35 @@ for (const [label, opts] of SIZES) {
       await page.goto('/admin/skill-tests?tab=trust');
       await expect(page.getByRole('tab', { name: 'Vetting Trust' })).toHaveAttribute('aria-selected', 'true');
       await expect(page.getByTestId('tt-state')).toContainText('Hidden', { timeout: 20_000 });
+      // every card of the tab has loaded (a card that arrives later could still widen the page)
+      await expect(page.getByTestId('tt-page').getByRole('status').filter({ hasText: 'Loading' })).toHaveCount(0, { timeout: 20_000 });
+      expect(await fitsPhone(page)).toBe(true);
       const rt = page.getByTestId('tt-retention');
       await expect(rt.getByTestId('tt-rt-selfie_face')).toContainText('Selfies');
+      // a save or a run reloads the settings and the cards are drawn again: wait for that reload, not just the toast
+      const reloaded = () => page.waitForResponse((r) => new URL(r.url()).pathname === '/api/admin/trust' && r.request().method() === 'GET');
       const voiceDays = rt.getByTestId('tt-rt-voice').getByTestId('tt-rt-days');
       const before = await voiceDays.inputValue();
-      await voiceDays.fill(before === '60' ? '61' : '60');
+      const other = before === '60' ? '61' : '60';
+      await voiceDays.fill(other);
+      let back = reloaded();
       await rt.getByTestId('tt-rt-save').click();
       await expect(page.getByText('Retention saved')).toBeVisible();
-      await voiceDays.fill(before); // put it back (shared database)
-      await rt.getByTestId('tt-rt-save').click();
+      await back;
+      await expect(voiceDays).toHaveValue(other);
       await expect(rt.getByTestId('tt-rt-save')).toBeDisabled();
+      await voiceDays.fill(before); // put it back (shared database)
+      back = reloaded();
+      await rt.getByTestId('tt-rt-save').click();
+      await back;
+      await expect(voiceDays).toHaveValue(before);
+      await expect(rt.getByTestId('tt-rt-save')).toBeDisabled();
+      back = reloaded();
       await rt.getByTestId('tt-rt-run').click();
       await expect(page.getByText('Deletion job ran')).toBeVisible();
+      await back;
       await expect(page.getByTestId('tt-in-state')).toContainText('Off');
-      expect(await noSideScroll(page)).toBe(true);
+      expect(await fitsPhone(page)).toBe(true);
 
       const title = `Test incident ${label} ${Date.now().toString(36)}`;
       await page.getByTestId('tb-new').click();
@@ -143,7 +158,7 @@ for (const [label, opts] of SIZES) {
       await expect(item).toContainText('CERT-In:');
       await item.getByTestId('tb-status').selectOption('closed');
       await expect(item.getByTestId('tb-countdown')).toHaveCount(0);
-      expect(await noSideScroll(page)).toBe(true);
+      expect(await fitsPhone(page)).toBe(true);
     });
 
     test('switch off: no Privacy & consent for someone who is not a tester', async ({ page }) => {
@@ -155,7 +170,7 @@ for (const [label, opts] of SIZES) {
       await expect(page.getByRole('heading', { name: 'Privacy', exact: true })).toBeVisible({ timeout: 20_000 });
       await page.waitForLoadState('networkidle');
       await expect(page.getByTestId('tc-card')).toHaveCount(0);
-      expect(await noSideScroll(page)).toBe(true);
+      expect(await fitsPhone(page)).toBe(true);
     });
   });
 }
