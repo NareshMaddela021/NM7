@@ -36,6 +36,7 @@ export function LiveAutoApply() {
     <div className="adx adx-aa stack g16">
       <PageHead title="Auto Apply" sub="Every morning Nm7 applies for students within their own rules. Nothing is ever submitted on other websites by a bot." />
       <V2Admin toast={toast} />
+      <EmailHealth toast={toast} />
       <Loading st={st}>{(d) => (
         <div className="stack g16">
           <section className="card stack g8 adx-switch" data-on={d.settings.on ? '1' : '0'} aria-label="Off switch" data-testid="aa-switch">
@@ -196,9 +197,9 @@ function V2Admin({ toast }) {
 
 function V2Form({ d, busy, save }) {
   const s = d.settings;
-  const [f, setF] = useState(() => ({ ...Object.fromEntries(V2_FIELDS.map(([k]) => [k, String(s[k] ?? '')])), testers: (s.testers || []).join(', '), paymentsOn: !!s.paymentsOn }));
+  const [f, setF] = useState(() => ({ ...Object.fromEntries(V2_FIELDS.map(([k]) => [k, String(s[k] ?? '')])), testers: (s.testers || []).join(', '), paymentsOn: !!s.paymentsOn, testInbox: s.testInbox || '' }));
   const bad = V2_FIELDS.some(([k, , lo, hi]) => !/^\d+$/.test(f[k]) || Number(f[k]) < lo || Number(f[k]) > hi);
-  const body = (over = {}) => ({ ...s, ...Object.fromEntries(V2_FIELDS.map(([k]) => [k, Number(f[k])])), testers: f.testers.split(/[\s,]+/).filter(Boolean), paymentsOn: f.paymentsOn, ...over });
+  const body = (over = {}) => ({ ...s, ...Object.fromEntries(V2_FIELDS.map(([k]) => [k, Number(f[k])])), testers: f.testers.split(/[\s,]+/).filter(Boolean), paymentsOn: f.paymentsOn, testInbox: f.testInbox.trim(), ...over });
   const x = d.stats;
   return (
     <Panel title="Auto Apply 2.0">
@@ -220,11 +221,67 @@ function V2Form({ d, busy, save }) {
           ))}
           <label className="stack g4 small">Testers (emails, comma between)
             <textarea className="input" rows={2} style={{ minHeight: 60, maxWidth: '100%' }} value={f.testers} onChange={(e) => setF({ ...f, testers: e.target.value })} data-testid="aa2-testers" /></label>
+          <label className="stack g4 small">Test inbox for Auto Apply emails while hidden (empty = each tester’s own inbox). A company is never emailed while hidden.
+            <input className="input" type="email" style={{ height: 38, maxWidth: 360 }} value={f.testInbox} onChange={(e) => setF({ ...f, testInbox: e.target.value })} placeholder="qa@yourmail.com" data-testid="aa2-test-inbox" /></label>
           <label className="row g8 small"><input type="checkbox" checked={f.paymentsOn} onChange={(e) => setF({ ...f, paymentsOn: e.target.checked })} /> Payments on (off: free for everyone)</label>
           {bad && <span className="xs" style={{ color: 'var(--danger)' }}>Each value must be a whole number in its range.</span>}
           <button type="submit" className="btn btn-signal" style={{ alignSelf: 'flex-start' }} disabled={busy || bad} data-testid="aa2-admin-save">Save Auto Apply 2.0</button>
         </form>
       </div>
+    </Panel>
+  );
+}
+
+// Auto Apply 2.0 email applications (A3): the channel's health (on / off and what the server is missing, sent today,
+// bounce and complaint rates over 30 days), blocked addresses and domains with the employers' opt-outs (undo any), and
+// candidates whose email channel was paused after a complaint (turn it back on after a look). The DNS steps for
+// apply.nm7.si are in docs/autoapply/apply-nm7-si-dns.md.
+const REASON = { bounce: 'Bounced', complaint: 'Complaint', opt_out: 'Opted out' };
+
+function EmailHealth({ toast }) {
+  const st = useApi('/api/admin/auto-apply/v2/email');
+  const [busy, run] = useAction(toast);
+  const [show, setShow] = useState(false);
+  const act = (url, method, msg) => run(async () => { await http(url, { method }); st.reload(); }, msg);
+  return (
+    <Panel title="Auto Apply 2.0: email channel">
+      <Loading st={st}>{(d) => (
+        <div className="stack g12" data-testid="aa2-email-admin">
+          <div className="row g8 adx-switch" data-on={d.channel.on ? '1' : '0'} style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
+            <strong className="small" data-testid="aa2-email-admin-state">{d.channel.on ? `On: candidates’ apply addresses on ${d.channel.domain}` : `Off: ${d.channel.reason} Email jobs fall back to Ready (one tap).`}</strong>
+            <span className="xs muted">{d.public ? 'Public: emails go to companies' : `Hidden: emails go to ${d.testInbox || 'each tester’s own inbox'}, never to a company`}</span>
+          </div>
+          {d.channel.missing.length > 0 && <p className="xs" style={{ margin: 0 }} data-testid="aa2-email-missing">Missing on the server (Render): {d.channel.missing.join(', ')}. See docs/autoapply/apply-nm7-si-dns.md.</p>}
+          <div className="kpis adx-kpis">
+            <Kpi label="Sent today" value={d.sentToday} sub={`${d.testToday} to the test inbox · limits ${d.limits.perCandidateDay}/candidate, ${d.limits.perDomainDay}/company domain a day`} />
+            <Kpi label="Bounces (30 days)" value={`${d.bounceRate}%`} sub={`${d.bounces30} of ${d.sent30} emails`} />
+            <Kpi label="Complaints (30 days)" value={`${d.complaintRate}%`} sub={`${d.complaints30} of ${d.sent30} emails`} />
+            <Kpi label="Blocked" value={d.blocks.length} sub={`${d.blockedDomains} domains · ${d.optOuts} employer opt-outs · ${d.replies30} replies in 30 days`} />
+          </div>
+          {d.paused.length > 0 && (
+            <section className="stack g8" aria-label="Paused after a complaint" data-testid="aa2-email-paused-list">
+              <strong className="small">Candidates paused after a complaint</strong>
+              {d.paused.map((u) => (
+                <div key={u.id} className="row g8 well" style={{ justifyContent: 'space-between', flexWrap: 'wrap', overflowWrap: 'anywhere' }}>
+                  <span className="small">{u.name || u.email} <span className="muted">· {u.email} · {when(u.at)}</span></span>
+                  <button type="button" className="btn btn-outline btn-sm" disabled={busy} onClick={() => act(`/api/admin/auto-apply/v2/email/paused/${u.id}/resume`, 'POST', 'Email channel back on')}>Turn back on</button>
+                </div>
+              ))}
+            </section>
+          )}
+          <button type="button" className="link-btn small" style={{ alignSelf: 'flex-start' }} aria-expanded={show} onClick={() => setShow(!show)} data-testid="aa2-email-blocks-toggle">{show ? 'Hide' : 'Show'} blocked addresses and opt-outs ({d.blocks.length})</button>
+          {show && (d.blocks.length === 0 ? <p className="small muted" style={{ margin: 0 }}>Nothing is blocked.</p> : (
+            <ul className="stack g4" style={{ listStyle: 'none', margin: 0, padding: 0 }} data-testid="aa2-email-blocks">
+              {d.blocks.map((b) => (
+                <li key={b.id} className="row g8" style={{ justifyContent: 'space-between', flexWrap: 'wrap', overflowWrap: 'anywhere', borderBottom: '1px solid var(--border2)', padding: '6px 0' }} data-testid="aa2-email-block">
+                  <span className="small"><strong>{b.id}</strong> <span className="muted">· {b.kind === 'domain' ? 'whole domain' : 'one address'} · {REASON[b.reason] || b.reason} · {when(b.at)}</span></span>
+                  <button type="button" className="link-btn small" disabled={busy} onClick={() => act(`/api/admin/auto-apply/v2/email/blocks/${encodeURIComponent(b.id)}`, 'DELETE', 'Removed from the list')} data-testid="aa2-email-unblock">Undo</button>
+                </li>
+              ))}
+            </ul>
+          ))}
+        </div>
+      )}</Loading>
     </Panel>
   );
 }

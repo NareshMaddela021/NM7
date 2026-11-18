@@ -102,6 +102,11 @@ AUTO_ITEMS = "auto_items"  # Auto Apply: one per (user, job), unique: applied / 
 AUTO_COPIES = "auto_copies"  # the tailored resume copy Auto Apply sent for one job (the version on the application)
 EMAIL_BLOCKS = "email_blocks"  # _id = an address or "@domain": no Auto Apply email after a bounce / a complaint
 AUTO_RUNS = "auto_runs"  # _id = IST day: the daily Auto Apply run log
+# Auto Apply 2.0 email applications (A3)
+AUTO_ALIASES = "auto_aliases"  # _id = the local part of a candidate's apply address (firstname.x7k2) → user_id
+AUTO_MAIL = "auto_mail"  # one row per Auto Apply 2.0 email sent (first / follow-up): to, source, day, delivery, reply
+AUTO_REPLIES = "auto_replies"  # a company's reply that came to a candidate's apply address (stored, forwarded)
+AUTO_MAIL_EVENTS = "auto_mail_events"  # _id = the webhook's message id: each Resend event handled once
 TALENT_POOL = "talent_pool"  # a company's saved applicants (company_id, user_id), kept as long as the application
 JOB_REMOVALS = "job_removals"  # round J: "remove this job" requests from companies (Admin → Jobs → Removal requests)
 JOB_REPORTS = "job_reports"  # _id = user:job: a student's report of a job (3 from different people pause it)
@@ -228,6 +233,10 @@ COLLECTIONS = (
     AUTO_COPIES,
     AUTO_RUNS,
     EMAIL_BLOCKS,
+    AUTO_ALIASES,
+    AUTO_MAIL,
+    AUTO_REPLIES,
+    AUTO_MAIL_EVENTS,
     HIRE_PROFILES,
     HIRE_INVITES,
     HIRE_USAGE,
@@ -339,6 +348,17 @@ INDEXES: dict[str, list[IndexModel]] = {
         # Auto Apply 2.0: one tailored version per (candidate, job, resume version), never tailored twice
         IndexModel("cache_key", unique=True, partialFilterExpression=_str("cache_key")),
     ],
+    AUTO_ALIASES: [IndexModel("user_id", unique=True)],
+    AUTO_MAIL: [
+        # one first email and one follow-up per (candidate, job), ever
+        IndexModel([("user_id", ASCENDING), ("job_id", ASCENDING), ("kind", ASCENDING)], unique=True),
+        IndexModel([("user_id", ASCENDING), ("day", ASCENDING)]),
+        IndexModel([("domain", ASCENDING), ("day", ASCENDING)]),
+        IndexModel("provider_id", partialFilterExpression=_str("provider_id")),
+        IndexModel([("kind", ASCENDING), ("at", ASCENDING)]),
+    ],
+    AUTO_REPLIES: [IndexModel([("user_id", ASCENDING), ("received_at", DESCENDING)]), IndexModel("item_id")],
+    AUTO_MAIL_EVENTS: [IndexModel("at", expireAfterSeconds=30 * DAY)],
     HIRE_PROFILES: [IndexModel([("on", ASCENDING), ("confirmed_at", DESCENDING)])],
     LEARN_PROGRESS: [IndexModel([("user_id", ASCENDING), ("updated_at", DESCENDING)])],
     PRACTICE_ATTEMPTS: [IndexModel([("user_id", ASCENDING), ("started_at", DESCENDING)])],

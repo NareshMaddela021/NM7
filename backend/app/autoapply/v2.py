@@ -19,11 +19,20 @@ Candidate (signed in):
   POST /api/me/auto-apply/v2/approve/{id} | /approve-all | /approvals/{id}/skip
   GET  /api/me/auto-apply/v2/sent/{id}          what was sent: the version, cover note, answers, the email
   POST /api/me/auto-apply/v2/tracker/{id}/status {status}   a reply that came outside Nm7 (email / website)
+  GET  /api/me/auto-apply/v2/email              A3: the email channel: on / off (and why), my apply address, follow-up
+  PUT  /api/me/auto-apply/v2/email {emailOn, followUp}
+  GET  /api/me/auto-apply/v2/replies            A3: replies companies sent to my apply address
 Admin (permission "jobs"):
-  GET  /api/admin/auto-apply/v2                 the switch, thresholds, testers, pricing and the numbers
+  GET  /api/admin/auto-apply/v2                 the switch, thresholds, testers, test inbox, pricing and the numbers
   PUT  /api/admin/auto-apply/v2/settings {...}
+  GET  /api/admin/auto-apply/v2/email           A3: email channel health (sent today, bounces, complaints, blocks,
+                                                opt-outs, candidates paused after a complaint)
+  DELETE /api/admin/auto-apply/v2/email/blocks/{id}         undo a block or an opt-out
+  POST /api/admin/auto-apply/v2/email/paused/{uid}/resume   turn a candidate's email channel back on after review
 """
 
+import re
+from datetime import timedelta
 from typing import Any, Literal
 
 from fastapi import APIRouter, Request
@@ -65,6 +74,11 @@ class AnswerIn(CamelModel):
 
 class StatusIn(CamelModel):
     status: Literal["viewed", "interview", "offer", "rejected"]
+
+
+class EmailIn(CamelModel):
+    email_on: bool = True
+    follow_up: bool = False
 
 
 async def _allowed(db, uid: str) -> dict[str, Any]:
@@ -453,6 +467,54 @@ async def set_status(iid: str, body: StatusIn, auth: CustomerAuth, db: DB) -> di
     return {"stage": v2engine.stage_of(it, {**app, "status": body.status})[0]}
 
 
+# ---------- A3: the email channel ----------
+
+
+async def _email_status(db, uid: str, site: dict[str, Any]) -> dict[str, Any]:
+    from app.autoapply import emailing
+    from app.core.db import AUTO_MAIL
+
+    u = await _user(db, uid)
+    a = u.get("auto_apply") or {}
+    off = emailing.channel_off()
+    paused = a.get("email_paused_at")
+    return {
+        "channel": {"on": not off, "reason": emailing.REASONS.get(off or "", "") if off else ""},
+        "address": await emailing.apply_address(db, u),
+        "emailOn": a.get("email_on") is not False,
+        "followUp": bool(a.get("email_follow_up")),
+        "paused": {"at": ms(paused), "reason": a.get("email_paused_reason") or ""} if paused else None,
+        "profileLink": await emailing.profile_link(db, uid),
+        "sentToday": await db[AUTO_MAIL].count_documents({"user_id": uid, "day": engine.today()}),
+        "perDay": emailing.PER_CANDIDATE_DAY,
+        "testMode": not site["auto_apply_v2"].get("public"),
+        "demo": bool(u.get("demo")),
+    }
+
+
+@router.get("/email")
+async def email_status(auth: CustomerAuth, db: DB) -> dict[str, Any]:
+    site = await _allowed(db, auth.user.id)
+    return await _email_status(db, auth.user.id, site)
+
+
+@router.put("/email")
+async def email_settings(body: EmailIn, auth: CustomerAuth, db: DB) -> dict[str, Any]:
+    uid = auth.user.id
+    site = await _allowed(db, uid)
+    await db[USERS].update_one(
+        {"_id": uid}, {"$set": {"auto_apply.email_on": body.email_on, "auto_apply.email_follow_up": body.follow_up}}
+    )
+    await audit(db, uid, "auto_apply.v2_email", data={"on": body.email_on, "follow_up": body.follow_up})
+    return await _email_status(db, uid, site)
+
+
+@router.get("/replies")
+async def replies(auth: CustomerAuth, db: DB) -> list[dict[str, Any]]:
+    await _allowed(db, auth.user.id)
+    return await v2engine.replies_of(db, auth.user.id)
+
+
 # ---------- Admin ----------
 
 
@@ -466,6 +528,15 @@ class AdminIn(CamelModel):
     free_per_week: int = Field(0, ge=0, le=500)
     paid_limit: int = Field(0, ge=0, le=1000)
     payments_on: bool = False
+    test_inbox: str = Field("", max_length=200)  # A3: while OFF, 2.0 emails go here (else the tester's own inbox)
+
+    @field_validator("test_inbox")
+    @classmethod
+    def _inbox(cls, v: str) -> str:
+        v = str(v or "").strip().lower()
+        if v and not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", v):
+            raise ValueError("The test inbox must be an email address.")
+        return v
 
     @field_validator("testers")
     @classmethod
@@ -488,6 +559,7 @@ KEYS = (
     "free_per_week",
     "paid_limit",
     "payments_on",
+    "test_inbox",
 )
 
 
@@ -546,3 +618,97 @@ async def admin_settings(body: AdminIn, request: Request, db: DB, auth: AdminAut
     if diff:
         await audit(db, auth.user.id, "auto_apply.v2_admin_settings", data=diff, ip=client_ip(request))
     return _admin_out({**before, **new})
+
+
+@admin.get("/email")
+async def admin_email(db: DB, _: AdminAuth("jobs")) -> dict[str, Any]:
+    """Email channel health: sent today, bounce and complaint rates (last 30 days), blocks and opt-outs, candidates
+    whose channel is paused after a complaint, and whether the server has what the channel needs."""
+    from app.autoapply import emailing
+    from app.core.config import get_settings
+    from app.core.db import AUTO_MAIL, AUTO_REPLIES, EMAIL_BLOCKS
+
+    site = await get_site(db)
+    off = emailing.channel_off()
+    since = now() - timedelta(days=30)
+    sent30 = await db[AUTO_MAIL].count_documents({"at": {"$gte": since}})
+    bounced = await db[AUTO_MAIL].count_documents({"at": {"$gte": since}, "bounced_at": {"$ne": None}})
+    complained = await db[AUTO_MAIL].count_documents({"at": {"$gte": since}, "complained_at": {"$ne": None}})
+    blocks = await db[EMAIL_BLOCKS].find().sort("at", -1).to_list(300)
+    paused = (
+        await db[USERS]
+        .find({"auto_apply.email_paused_at": {"$ne": None}}, {"name": 1, "email": 1, "auto_apply": 1})
+        .to_list(100)
+    )
+    s = get_settings()
+    needs = (
+        ("RESEND_API_KEY", s.resend_api_key),
+        ("RESEND_INBOUND_SECRET", s.resend_inbound_secret),
+        ("AUTOAPPLY_EMAIL_DOMAIN", s.autoapply_email_domain),
+    )
+    return {
+        "channel": {
+            "on": not off,
+            "reason": emailing.REASONS.get(off or "", "") if off else "",
+            "domain": s.autoapply_email_domain,
+            "missing": [n for n, v in needs if not str(v).strip()],
+        },
+        "public": bool(site["auto_apply_v2"].get("public")),
+        "testInbox": site["auto_apply_v2"].get("test_inbox") or "",
+        "limits": {"perCandidateDay": emailing.PER_CANDIDATE_DAY, "perDomainDay": emailing.PER_DOMAIN_DAY},
+        "sentToday": await db[AUTO_MAIL].count_documents({"day": engine.today()}),
+        "testToday": await db[AUTO_MAIL].count_documents({"day": engine.today(), "test": True}),
+        "sent30": sent30,
+        "bounces30": bounced,
+        "complaints30": complained,
+        "bounceRate": round(100 * bounced / sent30, 1) if sent30 else 0,
+        "complaintRate": round(100 * complained / sent30, 2) if sent30 else 0,
+        "replies30": await db[AUTO_REPLIES].count_documents({"received_at": {"$gte": since}}),
+        "blocks": [
+            {
+                "id": b["_id"],
+                "kind": "domain" if b["_id"].startswith("@") else "address",
+                "reason": b.get("reason") or "",
+                "at": ms(b.get("at")),
+            }
+            for b in blocks
+        ],
+        "optOuts": sum(1 for b in blocks if b.get("reason") == "opt_out"),
+        "blockedDomains": sum(1 for b in blocks if b["_id"].startswith("@")),
+        "paused": [
+            {
+                "id": u["_id"],
+                "name": u.get("name") or "",
+                "email": u.get("email") or "",
+                "reason": (u.get("auto_apply") or {}).get("email_paused_reason") or "",
+                "at": ms((u.get("auto_apply") or {}).get("email_paused_at")),
+            }
+            for u in paused
+        ],
+    }
+
+
+@admin.delete("/email/blocks/{bid:path}")
+async def admin_unblock(bid: str, request: Request, db: DB, auth: AdminAuth("jobs")) -> dict[str, Any]:
+    from app.core.db import EMAIL_BLOCKS
+
+    got = await db[EMAIL_BLOCKS].find_one_and_delete({"_id": bid.lower()})
+    if not got:
+        raise ApiError(404, "not_found", "Not on the list.")
+    await audit(
+        db, auth.user.id, "auto_apply.v2_unblock", target=bid.lower(), data={"reason": got.get("reason")},
+        ip=client_ip(request),
+    )  # fmt: skip
+    return {"removed": bid.lower()}
+
+
+@admin.post("/email/paused/{uid}/resume")
+async def admin_resume_email(uid: str, request: Request, db: DB, auth: AdminAuth("jobs")) -> dict[str, Any]:
+    r = await db[USERS].update_one(
+        {"_id": uid, "auto_apply.email_paused_at": {"$ne": None}},
+        {"$set": {"auto_apply.email_paused_at": None, "auto_apply.email_paused_reason": None}},
+    )
+    if not r.modified_count:
+        raise ApiError(404, "not_found", "That candidate's email channel isn't paused.")
+    await audit(db, auth.user.id, "auto_apply.v2_email_resume", target=uid, ip=client_ip(request))
+    return {"resumed": uid}

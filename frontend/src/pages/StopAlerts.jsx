@@ -1,6 +1,6 @@
 // /stop-alerts#t=…: the "Stop these emails" link in the resume health email (no sign-in needed). The token is in the
 // address fragment, so it never reaches server logs; one tap confirms.
-import { useState } from 'react';
+import { Suspense, lazy, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import { http } from '../services/http';
@@ -16,9 +16,16 @@ const KINDS = {
   progress: { title: 'Weekly progress and check-in emails', ask: 'Stop the weekly progress email and the day 7 / day 30 check-in emails after you join a job? You can still see everything on My progress.', done: 'progress emails', api: '/api/public/progress/stop', where: <Link to="/me/progress">My progress</Link> },
   interviews: { title: 'Interview reminder emails', ask: 'Stop the reminder emails the day before an interview? Interview invitations and changes still come.', done: 'interview reminder emails', api: '/api/public/interviews/stop-reminders', where: <Link to="/me/drive">My drive day</Link> },
 };
+// A3: an employer's one-click opt-out from Auto Apply 2.0 emails (#k=employer&t=…) has its own page, loaded only here
+const AutoApplyOptOut = lazy(() => import('./AutoApplyOptOut'));
 const kindOf = (hash) => ((/(?:^#|&)k=(interviews|followups|alerts|autoapply|learn|progress)(?:&|$)/.exec(hash || '') || [])[1] || 'health');
 
 export default function StopAlerts() {
+  const employer = typeof window !== 'undefined' && /(?:^#|&)k=employer(?:&|$)/.test(window.location.hash || '');
+  return employer ? <Suspense fallback={null}><AutoApplyOptOut /></Suspense> : <StopMine />;
+}
+
+function StopMine() {
   const [token] = useState(() => tokenOf(typeof window !== 'undefined' ? window.location.hash : ''));
   const [k] = useState(() => KINDS[kindOf(typeof window !== 'undefined' ? window.location.hash : '')]);
   const [st, setSt] = useState({});

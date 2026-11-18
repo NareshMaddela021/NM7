@@ -65,6 +65,8 @@ AUTO_APPLY_V2 = {
     "free_per_week": 0,
     "paid_limit": 0,
     "payments_on": False,
+    # A3: while the switch is OFF, Auto Apply 2.0 emails go here (or to the tester's own inbox), never to a company
+    "test_inbox": "",
 }
 
 
