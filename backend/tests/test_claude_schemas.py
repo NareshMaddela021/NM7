@@ -18,6 +18,7 @@ SENT = {
     "app.hire.vetting.grade": ["rubric_schema", "PHOTO_SCHEMA"],
     "app.hire.vetting.interview": ["FOLLOW_SCHEMA", "GRADE_SCHEMA"],
     "app.autoapply.tailoring": ["SCHEMA"],
+    "app.jobs.ai_health": ["SCHEMA"],  # "Test the AI now": the collector's own schema
 }  # fmt: skip
 APP = pathlib.Path(__file__).resolve().parents[1] / "app"
 

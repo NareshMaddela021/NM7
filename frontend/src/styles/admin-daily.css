@@ -66,3 +66,6 @@
 @media (max-width: 560px) { .dr-section { padding: 14px; } .dr-tile-v { font-size: 24px; } }
 .dr-tile .dr-tile-none, .dr-tile-v.dr-tile-none { font-family: var(--font-body); font-size: 14px; font-weight: 700; color: var(--text3); }
 .dr-tile .xs { overflow-wrap: anywhere; }
+.dr-wrap { overflow-wrap: anywhere; word-break: break-word; }
+.dr-err { color: var(--danger, #b42318); }
+.dr-err-list { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
