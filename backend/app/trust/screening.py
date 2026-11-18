@@ -13,7 +13,10 @@ person gets `nonTech`, every item labelled with where it comes from:
   shifts      Work preferences (day / night / rotational, night shifts yes / no): "self-declared"
   distance    from the person's pin (location consent; rounded to ~1 km when stored) to the job's office pin or its
               city: only the rounded distance ("~4 km"), never a place or coordinates: "self-declared"
-  languages   Work preferences: "self-declared" (T10 will add a verified spoken-English score)
+  languages   Work preferences: "self-declared"; English "verified (B2)" where the T10 spoken-English score measured it
+  english     T10: the spoken-English band (A1–C2) and sub-scores, "Measured by Nm7 voice interview"; the filter
+              "Spoken English: B1 or above" is offered only for jobs whose role category Admin tagged (call centre,
+              customer support, retail, sales, front office, BPO by default); everywhere else it is ignored
   immediate   Work preferences (available now / no notice), else the Ready to join notice period: "self-declared"
 Filters combine (AND); `counts` says how many people each filter would leave with the others as they are.
 """
@@ -35,7 +38,7 @@ company = APIRouter(prefix="/api/company", tags=["trust"])
 
 VERIFIED = "verified"
 SELF = "self-declared"
-FILTER_KEYS = ("licence", "vehicle", "nightShift", "shift", "maxKm", "lang", "immediate")
+FILTER_KEYS = ("licence", "vehicle", "nightShift", "shift", "maxKm", "lang", "immediate", "english")
 PROBE = {
     "licence": "any",
     "vehicle": "two_wheeler",
@@ -43,6 +46,7 @@ PROBE = {
     "shift": "night",
     "maxKm": 10,
     "immediate": True,
+    "english": "B1",
 }
 KM_STEPS = (2, 5, 10, 20, 50)
 
@@ -80,6 +84,7 @@ def _labels(kinds: dict[str, bool]) -> list[str]:
 async def attach(db, rows: list[dict[str, Any]], job: dict[str, Any], c: dict[str, Any]) -> None:
     """Puts `nonTech` on each Hire now row (key = the person's id)."""
     from app.trust.digilocker.service import badge_ok
+    from app.trust.spoken import service as SP
 
     uids = [r["key"] for r in rows]
     if not uids:
@@ -95,6 +100,7 @@ async def attach(db, rows: list[dict[str, Any]], job: dict[str, Any], c: dict[st
         if badge_ok(d, t):
             dls[d["user_id"]] = d
     jp = W.job_point(job)
+    spoken = await SP.latest_for(db, uids, t)  # T10
     for r in rows:
         p = prefs.get(r["key"]) or {}
         dl = dls.get(r["key"])
@@ -116,15 +122,28 @@ async def attach(db, rows: list[dict[str, Any]], job: dict[str, Any], c: dict[st
             imm = False
         else:
             imm = not int(av.get("noticeDays") or 0) and not av.get("joinDate")
+        eng = SP.company_label(spoken.get(r["key"]))
         r["nonTech"] = {
             "licence": lic,
             "vehicles": {"value": p["vehicles"], "source": SELF} if p.get("vehicles") is not None else None,
             "shifts": {"value": p.get("shifts") or [], "nightShift": p.get("night_shift"), "source": SELF}
             if (p.get("shifts") or p.get("night_shift") is not None) else None,
             "distance": dist,
-            "languages": [{"name": x, "source": SELF} for x in p.get("languages") or []],
+            "languages": languages(p.get("languages") or [], eng),
             "immediate": {"value": imm, "source": SELF},
+            "english": eng,
         }  # fmt: skip
+
+
+def languages(declared: list[str], eng: dict[str, Any] | None) -> list[dict[str, Any]]:
+    """T6's self-declared languages; English "verified (B2)" where the T10 score measured it (added if not declared)."""
+    out = [{"name": x, "source": SELF} for x in declared]
+    if eng:
+        out = [x for x in out if x["name"] != "English"]
+        out.insert(
+            0, {"name": "English", "source": VERIFIED, "band": eng["band"], "label": f"verified ({eng['band']})"}
+        )
+    return out
 
 
 def keep(nt: dict[str, Any], f: dict[str, Any], skip: str = "") -> bool:
@@ -156,6 +175,11 @@ def keep(nt: dict[str, Any], f: dict[str, Any], skip: str = "") -> bool:
                 return False
         elif k == "immediate":
             if not (nt.get("immediate") or {}).get("value"):
+                return False
+        elif k == "english":
+            from app.trust.spoken.score import at_least
+
+            if not at_least((nt.get("english") or {}).get("band"), str(v)):
                 return False
     return True
 

@@ -272,7 +272,14 @@ def out(iv: dict[str, Any], t: datetime | None = None) -> dict[str, Any]:
                         "followAnswer": x.get("follow_answer") or None, **({"explain": True} if x.get("kind") == "explain" else {})}
                        for x in turns] if iv["status"] != "running" else None,
         **({"explained": _explained(iv)} if iv.get("explain") else {}),
+        **({"spoken": _spoken(iv)} if iv.get("spoken") else {}),  # Vetting Trust T10: spoken English measured
     }  # fmt: skip
+
+
+def _spoken(iv: dict[str, Any]) -> dict[str, Any] | None:
+    from app.trust.spoken.service import iv_out
+
+    return iv_out(iv)
 
 
 def _explained(iv: dict[str, Any]) -> dict[str, Any] | None:
@@ -310,7 +317,13 @@ async def mine(auth: CustomerAuth, db: DB) -> dict[str, Any]:
             if roles[-1]["last"]:
                 roles[-1]["last"].update(againAt=rk["nextAt"], canRetry=rk["canStart"])
     u = await db[USERS].find_one({"_id": auth.user.id}, {"vetting_l3_until": 1}) or {}
-    return {"roles": roles, "interviewReadyUntil": ms(u.get("vetting_l3_until")), "pass": {"average": PASS_AVG, "min": PASS_MIN},
+    extra: dict[str, Any] = {}
+    if pol["trust"]:  # Vetting Trust T10: "Also measure my spoken English" (voice + English, the voice consent)
+        from app.trust.spoken.router import mine_out
+
+        sp = await mine_out(db, auth.user.id)
+        extra["spoken"] = {k: sp[k] for k in ("consent", "consentText", "consentTitle", "how", "pronunciation")}
+    return {**extra, "roles": roles, "interviewReadyUntil": ms(u.get("vetting_l3_until")), "pass": {"average": PASS_AVG, "min": PASS_MIN},
             "criteria": [{"key": k, "label": label} for k, label, _ in CRITERIA], "seconds": SECONDS, "minutes": 10}  # fmt: skip
 
 
@@ -323,6 +336,7 @@ class StartIn(CamelModel):
     pledge: int | None = (
         None  # Vetting Trust T9: the honesty pledge version ticked (asked only while Trust is on for them)
     )
+    spoken: bool = False  # Vetting Trust T10: also measure my spoken English (voice, English; the voice consent)
 
 
 @me.post("/start")
@@ -384,6 +398,10 @@ async def start(body: StartIn, auth: CustomerAuth, db: DB) -> dict[str, Any]:
                 extra = {"explain_source": src}
     if pledged:
         extra["pledge"] = pledged
+    from app.trust.spoken.service import start_flag
+
+    if sp := await start_flag(db, uid, body.mode, lang, body.spoken):  # T10 (Trust only; None = nothing new)
+        extra["spoken"] = sp
     iv = {"_id": ObjectId(), "user_id": uid, "test": body.test, "slug": role["slug"], "lang": lang, "mode": body.mode,
           "set_version": qs["version"], "turns": turns, "at": 0, "awaiting": "answer", "status": "running",
           "seconds": int(SECONDS[body.mode] * (1.5 if body.extra_time else 1)), "started_at": t, "asked_at": t,
@@ -399,6 +417,11 @@ class AnswerIn(CamelModel):
     paste_attempts: int = Field(0, ge=0, le=1000)
     blurs: int = Field(0, ge=0, le=10000)
     blur_ms: int = Field(0, ge=0, le=86_400_000)
+    # Vetting Trust T10 (kept only when the interview measures spoken English): time actually speaking, long pauses,
+    # and whether this answer was typed after all (a browser without speech)
+    speech_ms: int = Field(0, ge=0, le=3_600_000)
+    pauses: int = Field(0, ge=0, le=1000)
+    typed: bool = False
 
 
 async def _mine(db, iid: str, uid: str) -> dict[str, Any]:
@@ -422,11 +445,20 @@ async def answer(iid: str, body: AnswerIn, auth: CustomerAuth, db: DB) -> dict[s
     sig = {"pasteAttempts": int(sig.get("pasteAttempts") or 0) + body.paste_attempts, "blurs": int(sig.get("blurs") or 0) + body.blurs,
            "blurMs": int(sig.get("blurMs") or 0) + body.blur_ms, "late": int(sig.get("late") or 0) + int(late)}  # fmt: skip
     role = BY_TEST[iv["test"]]
+    timing = None
+    if (iv.get("spoken") or {}).get("on"):  # Vetting Trust T10: the timing for the fluency sub-score
+        from app.trust.spoken.service import timing_of
+
+        timing = timing_of(body)
     if iv["awaiting"] == "follow":
         turn["follow_answer"], turn["follow_seconds"] = text, body.seconds
+        if timing:
+            turn["follow_timing"] = timing
         nxt, awaiting = idx + 1, "answer"
     else:
         turn["answer"], turn["seconds"] = text, body.seconds
+        if timing:
+            turn["timing"] = timing
         follow = (
             await _ai(db, iv["user_id"], follow_prompt(role, turn, text), "follow", 200)
             if len(text.split()) >= 8 and turn.get("kind") != "explain"  # T9: explain questions get no follow-up
@@ -463,6 +495,13 @@ async def grade_and_store(
         e = await explain_grade(db, iv)
         await db[VETTING_INTERVIEWS].update_one({"_id": iv["_id"]}, {"$set": {"explain": e}})
         iv = {**iv, "explain": e}
+    if iv.get("spoken") and by == "ai" and not given:  # Vetting Trust T10: the spoken-English score (never the pass)
+        from app.trust.spoken.service import compute as spoken_compute
+
+        try:
+            await spoken_compute(db, iv)
+        except Exception:  # noqa: BLE001  (the interview's grade must not depend on it)
+            log.exception("spoken-English score failed")
     g = given or await grade_turns(db, iv["user_id"], BY_TEST[iv["test"]], rubric_turns(iv["turns"]), iv["lang"])
     if not g:
         await db[VETTING_INTERVIEWS].update_one({"_id": iv["_id"]}, {"$set": {"status": "review", "answered_at": t}})
@@ -494,6 +533,11 @@ async def result(iid: str, auth: CustomerAuth, db: DB) -> dict[str, Any]:
         )
         rk = await RK.interview_status(db, auth.user.id, iv["test"], now(), last, pol)
         o.update(retake=rk, againAt=rk["nextAt"], canRetry=rk["canStart"], pledge=PL.out(iv.get("pledge")))
+        if iv.get("spoken"):  # Vetting Trust T10: this interview's spoken-English score
+            from app.core.db import TRUST_SPOKEN
+            from app.trust.spoken.service import out as spoken_out
+
+            o["spokenEnglish"] = spoken_out(await db[TRUST_SPOKEN].find_one({"_id": iv["_id"]})) or {"pending": True}
     return o
 
 
