@@ -140,6 +140,7 @@ from app.trust import consent as trust_consent
 from app.trust import screening as trust_screening
 from app.trust import workprefs as trust_workprefs
 from app.trust.agent import router as trust_agent
+from app.trust.booking import router as trust_booking
 from app.trust.criteria import router as trust_criteria
 from app.trust.digilocker import router as trust_digilocker
 from app.trust.employer import router as trust_employer
@@ -413,6 +414,9 @@ def create_app() -> FastAPI:
     app.include_router(trust_criteria.admin)  # /api/admin/trust/criteria (T7: evidence to check)
     app.include_router(trust_agent.public)  # /api/public/trust/agent/whatsapp, /voice/{provider} (T5: signed webhooks)
     app.include_router(trust_agent.admin)  # /api/admin/trust/agent (T5: providers, caps, templates, counts, log)
+    app.include_router(trust_booking.public)  # /api/public/trust/book|join|cjoin (T11: one-tap links, no sign-in)
+    app.include_router(trust_booking.company)  # /api/company/{cid}/trust/booking (T11: live bookings, joining days)
+    app.include_router(trust_booking.admin)  # /api/admin/trust/booking (T11: times, caps, template approvals, run)
     app.include_router(vetting_verify.reviewer_access)  # /api/reviewer/access (the header link, V4)
     app.include_router(vetting_verify.reviewer)  # /api/reviewer (Vetting V4: reviewers, expert accounts)
     app.include_router(vetting_verify.company)  # /api/company/{cid}/hire/l4/{uid}

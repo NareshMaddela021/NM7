@@ -217,6 +217,10 @@ async def run_rules(db: AsyncDatabase, mailer: Mailer | None = None) -> dict[str
 
         agent = await trust_agent.run(db, mailer or get_mailer())  # T5: WhatsApp / AI calls for new jobs, heavy, capped
         done.update({f"trust_agent_{k}": v for k, v in agent.items()})
+        from app.trust.booking import service as trust_booking
+
+        booking = await trust_booking.run(db, mailer or get_mailer())  # T11: booking links, reminders, joining day
+        done.update({f"trust_booking_{k}": v for k, v in booking.items()})
         from app.trust.criteria import evaluate as trust_criteria
 
         crit = await trust_criteria.pass_(db)  # T7: queued requirement checks with the AI, heavy, capped

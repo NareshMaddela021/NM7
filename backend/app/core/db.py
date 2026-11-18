@@ -175,6 +175,8 @@ TRUST_CRITERIA_CLAIMS = "trust_criteria_claims"  # T7: evidence a candidate adde
 TRUST_INTEGRITY = "trust_integrity"  # T8: _id = user id: the integrity rating, human decisions per signal, the review
 TRUST_SPOKEN = "trust_spoken"  # T10: _id = interview id: the spoken-English score (sub-scores, band, provider refs)
 TRUST_SPOKEN_AUDIO = "trust_spoken_audio"  # T10: voice clips, only when Admin turns keeping on (off by default; days)
+TRUST_BOOK_LINKS = "trust_book_links"  # T11: signed one-tap links (interview, joining day, company confirm)
+TRUST_JOIN_EVENTS = "trust_join_events"  # T11: joining-day answers (coming, reschedule, joined) for T15
 TRUST_FACE = "trust_face"  # T3: _id = user id: the ID + selfie result, retries, review, joining check (never photos)
 LEARN_PATHS = "learn_paths"  # Phase 6 S2, _id = role id: courses → project → skill check (Admin → Learning paths)
 OFFER_CHECKS = (
@@ -313,6 +315,8 @@ COLLECTIONS = (
     TRUST_INTEGRITY,
     TRUST_SPOKEN,
     TRUST_SPOKEN_AUDIO,
+    TRUST_BOOK_LINKS,
+    TRUST_JOIN_EVENTS,
     VETTING_L4,
     VETTING_REVIEWERS,
     VETTING_INTERVIEWS,
@@ -549,6 +553,18 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel([("at", DESCENDING)]),
         IndexModel([("job_id", ASCENDING), ("kind", ASCENDING)]),
         IndexModel("msg_id", sparse=True),
+    ],  # fmt: skip
+    TRUST_BOOK_LINKS: [
+        IndexModel("key", unique=True),
+        IndexModel([("user_id", ASCENDING), ("kind", ASCENDING)]),
+        IndexModel([("company_id", ASCENDING), ("updated_at", DESCENDING)]),
+        IndexModel("expires_at"),
+    ],  # fmt: skip
+    TRUST_JOIN_EVENTS: [
+        IndexModel([("offer_id", ASCENDING), ("at", ASCENDING)]),
+        IndexModel([("user_id", ASCENDING), ("at", DESCENDING)]),
+        IndexModel([("company_id", ASCENDING), ("at", DESCENDING)]),
+        IndexModel("at"),
     ],  # fmt: skip
     TRUST_AGENT_LOGS: [
         IndexModel([("user_id", ASCENDING), ("created_at", DESCENDING)]),
