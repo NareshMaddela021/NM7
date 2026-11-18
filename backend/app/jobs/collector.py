@@ -60,7 +60,9 @@ MAX_BODY = 6_000_000
 RULES = [(240, 3600), (1500, 86400)]  # requests per hour / per day (batches of 25 → ~40 a morning)
 SUMMARY_MIN, SUMMARY_MAX = 300, 900
 PAGE_MIN = 300  # page_text shorter than this is too thin to summarise honestly
-PARALLEL = 6
+PARALLEL = 6  # summaries written at the same time
+GROUP = 25  # jobs of one upload handled together (18 Nov: the server ran out of memory during a 1,650-job intake)
+INTAKE = asyncio.Semaphore(1)  # one upload handled at a time
 # summaries a day for the collector, counted apart from people's AI use: Admin → Settings (seek.collector_ai_daily)
 
 # hosts that are never a company's own hiring page
@@ -654,7 +656,11 @@ async def collect(request: Request, db: DB, authorization: str | None = Header(N
     if len(jobs) > MAX_JOBS:
         raise ApiError(400, "too_many", f"At most {MAX_JOBS} jobs a request; split the batch.")
     sem = asyncio.Semaphore(PARALLEL)
-    results = await asyncio.gather(*(handle(db, r, dry, sem) for r in jobs))
+    results: list[dict[str, Any]] = []
+    async with INTAKE:  # one upload at a time on this server (a second one waits): memory stays flat on 512 MB
+        for i in range(0, len(jobs), GROUP):  # a small group at a time, not all 200 page texts in flight at once
+            results += await asyncio.gather(*(handle(db, r, dry, sem) for r in jobs[i : i + GROUP]))
+            jobs[i : i + GROUP] = [None] * len(jobs[i : i + GROUP])  # let the page texts go as soon as they're done
     counts = {k: 0 for k in ("created", "updated", "skipped", "review", "closed", "rejected")}
     by: dict[str, int] = {}
     for i, r in enumerate(results):
