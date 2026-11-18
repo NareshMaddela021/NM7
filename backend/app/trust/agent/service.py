@@ -792,7 +792,9 @@ async def on_whatsapp(db, inb: P.Inbound, mailer=None) -> str:
         )
     await event(db, "reply", u["_id"], convo, t, msg_id=inb.msg_id or None)
     if convo:
-        await say(db, convo, "candidate", "whatsapp", inb.text or (m.group(2) if m else ""), t)
+        await say(
+            db, convo, "candidate", "whatsapp", inb.text or (" ".join(x for x in m.groups()[1:] if x) if m else ""), t
+        )
     action = m.group(2) if m else ""
     if action == "stop" or T.is_stop(inb.text):
         return await _stop_whatsapp(db, u, site, convo, "button" if action == "stop" else "words")

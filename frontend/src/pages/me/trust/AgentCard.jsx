@@ -102,7 +102,8 @@ export default function AgentCard() {
       {!agreed && err && <p className="error" role="alert" style={{ margin: 0 }}>{err}</p>}
       <div className="stack g8" data-testid="ag-said">
         <h3 className="h4" style={{ margin: 0 }}>What we said</h3>
-        {d.conversations.length === 0 ? <p className="small muted" style={{ margin: 0 }}>Nothing yet. Messages and call transcripts show here (we never keep recordings).</p>
+        <span className="xs muted">Every WhatsApp message and AI call transcript we kept, for each job. We never keep recordings.</span>
+        {d.conversations.length === 0 ? <p className="small muted" style={{ margin: 0 }}>Nothing yet.</p>
           : d.conversations.map((c) => <Said key={c.id} c={c} />)}
       </div>
     </MeCard>
