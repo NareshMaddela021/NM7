@@ -10,6 +10,7 @@ import { Dialog, useToast } from '../../../components/ui';
 import { http } from '../../../services/http';
 import { MeCard } from '../kit';
 import AgentCard from './AgentCard'; // T5: Calls & WhatsApp, in this chunk (no new lazy chunk)
+import WorkPrefsCard from './WorkPrefsCard'; // T6: Work preferences + location pin, in this chunk too
 
 const fmt = (v) => (v ? new Date(v).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
 const STATUS = { granted: 'On', not_given: 'Off', withdrawn: 'Taken back', outdated: 'Text changed: please read and agree again' };
@@ -74,7 +75,7 @@ function ParentAsk({ age, onDone }) {
 }
 
 export default function PrivacyConsent() {
-  return <><ConsentCard /><AgentCard /></>;
+  return <><ConsentCard /><WorkPrefsCard /><AgentCard /></>;
 }
 
 function ConsentCard() {

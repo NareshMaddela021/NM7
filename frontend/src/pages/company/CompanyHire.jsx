@@ -14,6 +14,8 @@
 // Vetting V3: people at L3+ get a "Screening interview" button: the summary in a drawer, with Invite to final interview.
 // Vetting Trust T2: "Verified via DigiLocker" document badges (DocBadges.jsx; only where the Trust switch allows).
 // Vetting V4: and "Request Nm7 check" (the human check, NmCheck.jsx) with its status; verified people can be rated.
+// Vetting Trust T6: the verified non-tech filters and each person's non-tech facts with their source (HireNonTech.jsx;
+// only when the answer carries `nonTech`, i.e. the Trust switch lets the company in).
 import { useCallback, useEffect, useState } from 'react';
 import { rq } from '../../lib/company';
 import { reasons } from './CompanyApplicants';
@@ -25,6 +27,7 @@ import SkillBadge from './SkillBadge';
 import ScreeningInterview from './ScreeningInterview';
 import NmCheck from './NmCheck';
 import DocBadges from './DocBadges';
+import { NT_NONE, NonTechChips, NonTechFilters, nonTechQuery } from './HireNonTech'; // Vetting Trust T6
 import { TEST_NAMES } from '../../lib/vettingRoles';
 import { Empty } from '../me/kit';
 import { useLang } from '../../lib/i18n';
@@ -40,7 +43,7 @@ export const MIN_SCORES = [0, 60, 70, 80, 90];
 /** The shortlist's query: job, size, support, the Vetting V2 filters (verified only, test, minimum score) and the V1
  * ones (minimum level, ⚡ ready now only, notice period at most, salary at most, city, experience band). */
 export function shortlistQuery(job, { support = '', verified = false, role = '', minScore = 0, minLevel = 0, readyNow = false,
-  noticeMax = -1, salaryMax = '', city = '', band = '' } = {}) {
+  noticeMax = -1, salaryMax = '', city = '', band = '' } = {}, nonTech = NT_NONE) {
   const q = new URLSearchParams({ job, size: '100' });
   if (support) q.set('support', support);
   if (verified) q.set('verified', 'true');
@@ -53,6 +56,7 @@ export function shortlistQuery(job, { support = '', verified = false, role = '',
   if (sal > 0) q.set('salaryMax', String(sal));
   if (city.trim()) q.set('city', city.trim());
   if (BANDS.includes(band)) q.set('band', band);
+  nonTechQuery(q, nonTech);
   return q.toString();
 }
 export const NO_FILTERS = { verified: false, role: '', minScore: 0, minLevel: 0, readyNow: false, noticeMax: -1, salaryMax: '', city: '', band: '' };
@@ -114,6 +118,8 @@ export default function CompanyHire({ t, c }) {
   const [support, setSupport] = useState(''); // Phase 6 S9: immediate joiners / returning after a break
   const [shown, setShown] = useState(PAGE); // the top 10 first, then "Show more"
   const [vf, setVf] = useState(NO_FILTERS); // Vetting V2 and V1 filters (the ones the list is loaded with)
+  const [nt, setNt] = useState(NT_NONE); // Vetting Trust T6: non-tech filters
+  const [ntCounts, setNtCounts] = useState(null); // kept while the list reloads, so the filters don't jump
   const [typed, setTyped] = useState({ salaryMax: '', city: '' }); // V1 text filters, applied after a short pause
   const setV = (k) => (e) => setVf((x) => ({ ...x, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
   const setT = (k) => (e) => setTyped((x) => ({ ...x, [k]: e.target.value }));
@@ -137,10 +143,10 @@ export default function CompanyHire({ t, c }) {
     if (!job || !verified) return;
     setErr(''); setD(null); setShown(PAGE);
     try {
-      const [s, inv] = await Promise.all([rq(`/api/company/${c.id}/hire/shortlist?${shortlistQuery(job, { support, ...vf })}`), rq(`/api/company/${c.id}/hire/invites?job=${encodeURIComponent(job)}`)]);
-      setD(s); setInvites(inv);
+      const [s, inv] = await Promise.all([rq(`/api/company/${c.id}/hire/shortlist?${shortlistQuery(job, { support, ...vf }, nt)}`), rq(`/api/company/${c.id}/hire/invites?job=${encodeURIComponent(job)}`)]);
+      setD(s); setInvites(inv); setNtCounts(s.nonTech ? s.nonTech.counts : null);
     } catch (x) { setErr(x.message); setD({ items: [] }); }
-  }, [c.id, job, verified, support, vf]);
+  }, [c.id, job, verified, support, vf, nt]);
   useEffect(() => { load(); }, [load]);
   const invite = async (people) => {
     setBusy(true); setMsg(''); setErr('');
@@ -225,6 +231,7 @@ export default function CompanyHire({ t, c }) {
             </select>
           </label>
         </fieldset>}
+        {ntCounts && <NonTechFilters f={nt} setF={setNt} counts={ntCounts} />}
         {d?.vetting && filtered(vf) && <button type="button" className="btn btn-outline hn-clear" onClick={clear} data-testid="co-hire-lv-clear">{lv('lv.f.clear')}</button>}
         {d?.usage && <span className="mchip mchip-info hn-usage" data-testid="co-hire-usage">{t('co.hire.usage', { used: d.usage.used, free: d.usage.free })}</span>}
       </div>
@@ -275,6 +282,7 @@ export default function CompanyHire({ t, c }) {
                 <SkillBadge sv={x.skillVerified} t={t} />
                 <span className="hn-trust" data-testid="co-hire-trust">{x.skillCheck ? t('co.hire.check', { score: x.skillCheck.score }) : t('co.hire.noCheck')} · {x.reliability.score == null ? x.reliability.label : `${x.reliability.label} (${x.reliability.score}%)`}{x.reliability.lines?.length ? `: ${x.reliability.lines.join('; ')}` : ''}</span>
                 <DocBadges docs={x.docs} face={x.face} />
+                <NonTechChips nt={x.nonTech} />
                 <NmCheck c={c} uid={x.key} name={x.name} level={x.level?.level} row={x} canRequest={canInvite} />
                 <div className="hn-person-foot">
                   <ScreeningInterview c={c} uid={x.key} name={x.name} level={x.level?.level} job={job} canInvite={canInvite && !x.applied} invited={!!x.invite} onInvited={load} />

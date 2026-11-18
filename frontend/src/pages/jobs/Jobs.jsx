@@ -387,18 +387,32 @@ function ApplyQuestions({ job, t, busy, onSend, onCancel }) {
   const [answers, setAnswers] = useState({});
   const [consent, setConsent] = useState(false);
   const [err, setErr] = useState('');
+  const [known, setKnown] = useState(() => job.known || {}); // Vetting Trust T6: answered before: shown, not asked again
   const set = (id, v) => setAnswers((a) => ({ ...a, [id]: v }));
+  const ask = job.questions.filter((q) => !(q.id in known));
   const send = (e) => {
     e.preventDefault();
-    if (job.questions.some((q) => answers[q.id] == null || String(answers[q.id]).trim() === '')) { setErr(t('jobs.apply.qMissing')); return; }
+    if (ask.some((q) => answers[q.id] == null || String(answers[q.id]).trim() === '')) { setErr(t('jobs.apply.qMissing')); return; }
     if (!consent) { setErr(t('jobs.apply.consentNeeded', { company: job.company.name })); return; }
     setErr('');
-    onSend({ consent: true, answers: Object.fromEntries(job.questions.map((q) => [q.id, q.kind === 'number' ? Number(answers[q.id]) : answers[q.id]])) });
+    onSend({ consent: true, answers: Object.fromEntries(ask.map((q) => [q.id, q.kind === 'number' ? Number(answers[q.id]) : answers[q.id]])) });
   };
+  const saved = job.questions.filter((q) => q.id in known);
   return (
     <form className="card-sm stack g12" onSubmit={send} data-testid="apply-form" aria-labelledby="apply-form-h">
       <strong id="apply-form-h">{t('jobs.apply.formTitle', { company: job.company.name })}</strong>
-      {job.questions.map((q) => (
+      {saved.length > 0 && (
+        <div className="stack g4" data-testid="apply-known">
+          <span className="xs muted">Already answered (your saved answers and Work preferences):</span>
+          {saved.map((q) => (
+            <span key={q.id} className="row g8 small" style={{ flexWrap: 'wrap', alignItems: 'center' }} data-testid="apply-known-item">
+              <span style={{ flex: '1 1 200px', minWidth: 0, overflowWrap: 'anywhere' }}>{q.text} <strong>{q.kind === 'yesno' ? t(`jobs.apply.${known[q.id]}`) : String(known[q.id])}</strong></span>
+              <button type="button" className="link-btn xs" style={{ minHeight: 44 }} onClick={() => setKnown((k) => { const n = { ...k }; delete n[q.id]; return n; })}>Change</button>
+            </span>
+          ))}
+        </div>
+      )}
+      {ask.map((q) => (
         <fieldset key={q.id} className="stack g4" style={{ border: 0, margin: 0, padding: 0 }}>
           {q.kind === 'number' ? (
             <div className="field"><label className="label" htmlFor={`aq-${q.id}`}>{q.text}</label>
