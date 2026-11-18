@@ -136,6 +136,7 @@ async def search(
         and_.append({"$or": [{"title": rx}, {"company.name": rx}, {"skills": rx}]})
     if ex := _csv(experience.replace("8_plus", "8_12,12_15,15_plus"), EXPERIENCE):  # the "8+ years" chip
         and_.append({"experience": {"$in": with_older(ex)}})
+    city = _city_query(city)
     if remote and city.strip():
         rx = {"$regex": f"^{re.escape(city.strip())}$", "$options": "i"}
         and_.append({"$or": [{"remote": True}, {"locations": rx}]})
@@ -290,3 +291,10 @@ async def save_job(job_id: str, auth: CustomerAuth, db: DB) -> dict[str, Any]:
 async def unsave_job(job_id: str, auth: CustomerAuth, db: DB) -> dict[str, Any]:
     await db[SAVED_JOBS].delete_one({"_id": f"{auth.user.id}:{job_id}"})
     return {"saved": False}
+
+
+def _city_query(city: str) -> str:
+    """The filter's city in nm7.si's one spelling, so "Bangalore" finds the Bengaluru jobs."""
+    from app.jobsearch.parse import canonical_city
+
+    return canonical_city(city) if city and city.strip() else ""

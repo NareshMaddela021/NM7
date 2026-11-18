@@ -60,7 +60,7 @@ async def review(db: DB, _: AdminAuth("jobs")) -> dict[str, Any]:
 
 
 class ResendIn(CamelModel):
-    reason: Literal["no_page_text", "ai_daily_limit", "summary_failed", "summary_unavailable"]
+    reason: Literal["no_page_text", "ai_daily_limit", "summary_failed", "summary_unavailable", "ai_error"]
 
 
 @router.post("/resend")
