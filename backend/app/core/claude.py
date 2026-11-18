@@ -162,11 +162,24 @@ def params(model: str, thinking: dict[str, Any] | None = None) -> dict[str, Any]
     return out
 
 
+_SHARED: dict[str, anthropic.AsyncAnthropic] = {}
+
+
 def client(timeout_s: float, retries: int, http_client: Any = None) -> anthropic.AsyncAnthropic:
-    extra = {"http_client": http_client} if http_client is not None else {}
-    return anthropic.AsyncAnthropic(
-        api_key=get_settings().anthropic_api_key, max_retries=retries, timeout=timeout_s, **extra
-    )
+    """The Anthropic client for one call. One shared client (one connection pool, one TLS setup) for the whole
+    server, with this call's timeout and retries (with_options shares the pool). Until 18 Nov every call built a new
+    client with its own pool and TLS context and never closed it: a big collector intake (1,650 jobs, up to two
+    models each) piled them up past the server's 512 MB. Tests pass their own http_client (a mock transport)."""
+    if http_client is not None:
+        return anthropic.AsyncAnthropic(
+            api_key=get_settings().anthropic_api_key, max_retries=retries, timeout=timeout_s, http_client=http_client
+        )
+    key = get_settings().anthropic_api_key
+    base = _SHARED.get(key)
+    if base is None:
+        _SHARED.clear()  # the key changed (a new key on Render): drop the old client
+        base = _SHARED[key] = anthropic.AsyncAnthropic(api_key=key)
+    return base.with_options(max_retries=retries, timeout=timeout_s)
 
 
 def models() -> list[str]:
