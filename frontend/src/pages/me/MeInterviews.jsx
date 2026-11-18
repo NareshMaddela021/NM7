@@ -82,7 +82,9 @@ function Setup({ r, d, onCancel, onGo }) {
       <MeCard tone="flat" icon="🔒" title="Before you start: how the interview works" sub={`${r.role || r.test}. Please read this, then tick “I agree”.`} testid="iv-consent">
         <ul className="vet-consent-list iv-consent">
           <li><strong>What it is:</strong> 7 questions about your work for this role, about {d.minutes || 10} minutes. You can type or speak your answers. After an answer, the AI may ask one short follow-up about what you said.</li>
-          <li><strong>Speaking:</strong> your speech is turned into text in your browser. No audio is recorded, stored or sent.</li>
+          <li><strong>Speaking:</strong> your speech is turned into text in your browser. {spoken && mode === 'voice' && lang === 'en' && d.spoken?.pronunciation
+            ? 'Because you chose the spoken-English score, a short recording of each answer goes to our speech-assessment partner and is then deleted; it is not kept.'
+            : 'No audio is recorded, stored or sent.'}</li>
           <li><strong>Timed:</strong> each answer has its own timer ({timeWords(secs('text'))} typed, {timeWords(secs('voice'))} spoken). When it ends, what you have is sent.</li>
           <li><strong>Typing:</strong> pasting is turned off, so please type in your own words. Leaving the page is counted.</li>
           <li><strong>Grading:</strong> {d.criteria.map((c) => c.label.toLowerCase()).join(', ')}; each out of 5. To pass: an average of {d.pass.average} or more and no line below {d.pass.min}. A pass makes you L3 “Interview-ready” for 180 days.</li>

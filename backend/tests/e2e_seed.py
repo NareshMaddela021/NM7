@@ -21,6 +21,10 @@ MONGODB_DB=nm7_e2e uv run python -m tests.e2e_seed reset
 ... trust-t9-task EMAIL TEST [TYPE]  → T9: a "Skill verified" badge for TEST from an attempt with a practical
                                           task answer (TYPE tech / voice): the AI interview asks about it
 ... trust-t9-attempt EMAIL TEST DAYS   → T9: a finished skill check for TEST started DAYS days ago → {"id": attempt}
+... trust-t10-badge EMAIL TEST        → T10: a "Skill verified" badge for TEST without a practical task answer (no
+                                          explain question: the AI interview has its 7 questions)
+... trust-t10-score EMAIL BAND [PRON]  → T10: a spoken-English score with that band (sub-scores around it; PRON "none":
+                                          pronunciation not measured) from a voice interview today
 ... trust-t7-person EMAIL KIND [consent] → T7: the adult age check, a resume (KIND data: SQL / Power BI; acct:
                                           Tally / GST, Telugu) and, with "consent", the job-requirements consent
 ... auto-apply-run [EMAIL [past]]      → the Auto Apply run now (any hour); with EMAIL and "past", that student's
@@ -402,6 +406,29 @@ async def main(cmd: str, *args: str) -> dict:
             await db["trust_documents"].insert_one(doc)
             await T8.refresh(db, uid)
         return {"n": len(uids), "ids": uids}
+    if cmd in ("trust-t10-badge", "trust-t10-score"):  # Vetting Trust T10: a badge to interview with / a measured score
+        from bson import ObjectId
+
+        from app.hire.vetting.roles import BY_TEST
+        from app.trust.spoken.score import BANDS
+
+        mail, what, *rest = args
+        u = await db["users"].find_one({"email": mail})
+        t = now()
+        if cmd == "trust-t10-badge":
+            rec = {"user_id": u["_id"], "test": what, "slug": BY_TEST[what]["slug"], "role": BY_TEST[what]["role"]}
+            rec |= {"band": "1-3", "score": 82, "task_score": 80, "at": t, "expires_at": t + timedelta(days=90)}
+            rec["attempt_id"] = ObjectId()
+            await db["vetting_verified"].update_one({"user_id": u["_id"], "test": what}, {"$set": rec}, upsert=True)
+            return {"ok": True}
+        v = dict(BANDS)[what] + 5
+        pron = None if rest and rest[0] == "none" else min(100, v + 10)
+        subs = {"pronunciation": pron, "fluency": v, "grammar": v, "comprehension": v}
+        row = {"_id": ObjectId(), "user_id": u["_id"], "test": "Customer support", "created_at": t, "at": t}
+        row |= {"band": what, "overall": v, "subs": subs, "by": "ai", "provider": "mock", "answers": 7}
+        row["fluency"] = {"score": v, "wpm": 120, "pausesPerMin": 1.0, "fillersPer100": 0.5, "minutes": 2.0}
+        await db["trust_spoken"].insert_one(row)
+        return {"ok": True}
     if cmd in ("trust-t9-task", "trust-t9-attempt"):  # Vetting Trust T9: a task answer behind a badge / a past attempt
         from bson import ObjectId
 
