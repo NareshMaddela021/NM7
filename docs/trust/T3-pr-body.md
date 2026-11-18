@@ -82,7 +82,7 @@ Everything here is behind the one **Vetting Trust** switch from T1 (OFF: only ad
 ## Tests
 
 - Backend: `test_trust_t3.py` 13 passed (mock flow + no image bytes anywhere in the DB, Aadhaar refused, retries → review → admin decision, manual check, gate on/off per step and per switch, joining continuity, withdrawal deletes incl. provider, retention after the hiring process, switch OFF 404s, Admin keys + production gate, company badges only where allowed, SigV4, Rekognition adapter end to end).
-- Full backend suite: FULL_COUNTS
+- Full backend suite: **1267 passed**, 1 failed (only the known local-only `test_test_users::test_create_open_and_remove`).
 - `ruff check` / `ruff format --check`: clean. Frontend: vitest 637 passed, lint no new warnings, build OK.
 
 ## Vendors to sign up for
