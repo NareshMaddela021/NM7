@@ -522,6 +522,24 @@ def attention(
                 "link": "/admin/settings",
             }
         )
+    arrived = _n(m.get("colSent")) or _n(m.get("colCreated"))  # "created" already counts the ones sent to review
+    ai = extra.get("collectorAi") or {}
+    if arrived and not _n(m.get("aiCollector")) and not _n(ai.get("okToday")):
+        why = (
+            f" Last AI error: {ai['lastErrorKind']}{' — ' + ai['lastError'] if ai.get('lastError') else ''}."
+            if ai.get("lastErrorKind")
+            else ""
+        )
+        out.append(
+            {
+                "key": "collector_ai_zero",
+                "level": "bad",
+                "text": f"No collector AI summaries today, but {_plural(arrived, 'job')} arrived: they wait for review "
+                f"until a summary is written.{why} Press “Test the AI now”; jobs held for an AI error are sent back "
+                "to the collector on their own.",
+                "link": "/admin/jobs?tab=collector",
+            }
+        )  # fmt: skip
     cap = (extra.get("ai") or {}).get("cap")
     if cap and _n(m.get("aiUsed")) >= cap:
         out.append({"key": "ai_cap", "level": "warn", "text": "Today's AI allowance is used up.", "link": None})
@@ -603,8 +621,14 @@ async def report(db: AsyncDatabase, t: datetime | None = None) -> dict[str, Any]
                       "series": [by_day.get(d, {}).get(k) for d in days]}  # fmt: skip
     db_ms = await ping_ms(db)
     run_ = await run_status(db, t)
-    extra = doc or {}
+    from app.jobs import ai_health
+
+    collector_ai = await ai_health.status(db)
+    extra = {**(doc or {}), "collectorAi": collector_ai}
     issues = attention({**m, "apiMs": db_ms}, extra, run_, db_ms)
+    errs = await db[OPS_DAILY].find_one({"_id": f"errors:{today.isoformat()}"}, {"recent": 1}) or {}
+    recent_errors = [{**{k: e.get(k) for k in ("method", "path", "error", "message", "rid")}, "at": ms(e.get("at"))}
+                     for e in reversed(errs.get("recent") or [])]  # fmt: skip
     s = get_settings()
     health = {
         "up": db_ms is not None, "dbMs": db_ms, "slowMs": SLOW_MS,
@@ -615,7 +639,8 @@ async def report(db: AsyncDatabase, t: datetime | None = None) -> dict[str, Any]
     return {
         "day": today.isoformat(), "generatedAt": ms(t), "busy": busy, "days": days,
         "today": _doc_out(doc), "yesterday": _doc_out(y), "metrics": metrics,
-        "collectorRun": run_, "health": health, "attention": issues,
+        "collectorRun": run_, "health": health, "attention": issues, "collectorAi": collector_ai,
+        "recentErrors": recent_errors,
         "summary": summary(m, extra, run_, issues) if doc else ["Another big job is running on the server. The numbers appear in a minute."],
         "limits": {"reviewQueue": REVIEW_LIMIT, "collectorBy": "07:00", "runAt": "06:30"},
     }  # fmt: skip
@@ -634,6 +659,23 @@ async def refresh(db: DB, auth: AdminAuth("dashboard")) -> dict[str, Any]:
         n = await run(db)
     await audit(db, auth.user.id, "daily_report.refresh", data={"written": n})
     return await report(db)
+
+
+_last_check: dict[str, Any] = {"at": None}
+
+
+@router.post("/ai-check")
+async def ai_check(db: DB, auth: AdminAuth("dashboard")) -> dict[str, Any]:
+    """ "Test the AI now": one short real summary of a made-up job page, with the collector's model, schema and checks.
+    Says what Anthropic answered (the error kind and its own message), never the key. At most once per 20 seconds."""
+    from app.jobs import ai_health
+
+    if _last_check["at"] and (now() - _last_check["at"]).total_seconds() < 20:
+        raise ApiError(429, "too_soon", "The AI was tested a moment ago. Try again in 20 seconds.")
+    _last_check["at"] = now()
+    out = await ai_health.probe(db)
+    await audit(db, auth.user.id, "daily_report.ai_check", data={"ok": out.get("ok"), "kind": out.get("kind", "")})
+    return out
 
 
 # --- the collector's run report ------------------------------------------------------------------------------------
