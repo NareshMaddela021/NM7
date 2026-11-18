@@ -617,6 +617,7 @@ async def my_invites(auth: CustomerAuth, db: DB) -> list[dict[str, Any]]:
             {
                 **invite_state(i, t),
                 "company": (c.get("details") or {}).get("legal_name", ""),
+                "companyId": i["company_id"],  # Vetting Trust T4: the employer badge and "Report fraud" on the invite
                 "role": j.get("title", ""),
                 "where": "Remote" if j.get("remote") else ", ".join(j.get("locations") or []),
                 "salary": j.get("salary"),

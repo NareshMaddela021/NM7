@@ -55,6 +55,13 @@ def with_badge(out: dict[str, Any], j: dict[str, Any], marks: dict[str, dict[str
     return out
 
 
+def with_employer(out: dict[str, Any], j: dict[str, Any], marks: dict[str, dict[str, Any]] | None) -> dict[str, Any]:
+    """Vetting Trust T4: the "Verified employer" badge on a card (marks: None while Trust is hidden from the viewer)."""
+    if marks and j.get("company_id") in marks:
+        out["employer"] = marks[j["company_id"]]
+    return out
+
+
 def public_out(j: dict[str, Any], full: bool = False) -> dict[str, Any]:
     apply = j["apply"]
     out = {
@@ -179,9 +186,16 @@ async def search(
         ]  # fmt: skip
     )
     marks = await badges(db, rows)
+    from app.trust.employer.router import card_badges  # Vetting Trust T4: only where the switch allows
+
+    employers = await card_badges(db, auth, rows)
     return {
         "items": [
-            with_badge({**public_out(j), **({"match": fits[j["_id"]]} if j["_id"] in fits else {})}, j, marks)
+            with_employer(
+                with_badge({**public_out(j), **({"match": fits[j["_id"]]} if j["_id"] in fits else {})}, j, marks),
+                j,
+                employers,
+            )
             for j in rows
         ],
         "match": state,
@@ -248,6 +262,10 @@ async def one(slug: str, db: DB, auth: MaybeAuth) -> dict[str, Any]:
 
         out["policies"] = policies_out(await db[COMPANIES].find_one({"_id": j["company_id"]}, {"policies": 1}))
     with_badge(out, j, await badges(db, [j]))
+    from app.trust.employer.router import public_items
+
+    if (items := await public_items(db, auth, j.get("company_id"))) is not None:  # Vetting Trust T4 (else unchanged)
+        out["employerTrust"] = items
     state, person = await _person(db, auth)
     out["matchState"] = state
     if auth and auth.user.role == "customer":  # already applied? (J5)

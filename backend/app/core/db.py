@@ -161,6 +161,8 @@ TRUST_VOICE = "trust_voice"  # voice recordings (voice consent)
 TRUST_DOCUMENTS = "trust_documents"  # DigiLocker / KYC documents, never Aadhaar (documents consent)
 TRUST_SNAPSHOTS = "trust_snapshots"  # webcam snapshots during a test (webcam_snapshots consent)
 TRUST_DL_SESSIONS = "trust_dl_sessions"  # T2: DigiLocker requests (vendor reference, status; never document data)
+TRUST_EMPLOYER = "trust_employer"  # T4: _id = company id: the business registry check, badge, review (no personal data)
+TRUST_EMPLOYER_LOOKUPS = "trust_employer_lookups"  # T4: one row per paid registry lookup (counts; result only)
 TRUST_FACE = "trust_face"  # T3: _id = user id: the ID + selfie result, retries, review, joining check (never photos)
 LEARN_PATHS = "learn_paths"  # Phase 6 S2, _id = role id: courses → project → skill check (Admin → Learning paths)
 OFFER_CHECKS = (
@@ -285,6 +287,8 @@ COLLECTIONS = (
     TRUST_SNAPSHOTS,
     TRUST_DL_SESSIONS,
     TRUST_FACE,
+    TRUST_EMPLOYER,
+    TRUST_EMPLOYER_LOOKUPS,
     VETTING_L4,
     VETTING_REVIEWERS,
     VETTING_INTERVIEWS,
@@ -484,6 +488,12 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel([("review.status", ASCENDING), ("updated_at", DESCENDING)]),
         IndexModel([("continuity.review.status", ASCENDING)]),
     ],  # fmt: skip
+    TRUST_EMPLOYER: [
+        IndexModel([("status", ASCENDING), ("next_check_at", ASCENDING)]),
+        IndexModel("number_hash"),
+        IndexModel("checked_at"),
+    ],  # fmt: skip
+    TRUST_EMPLOYER_LOOKUPS: [IndexModel("at"), IndexModel([("company_id", ASCENDING), ("at", DESCENDING)])],
     VETTING_L4: [
         IndexModel([("user_id", ASCENDING), ("requested_at", DESCENDING)]),
         IndexModel("referees.rid"),
@@ -506,6 +516,7 @@ INDEXES: dict[str, list[IndexModel]] = {
     JOB_REPORTS: [
         IndexModel([("job_id", ASCENDING), ("state", ASCENDING)]),
         IndexModel([("state", ASCENDING), ("at", DESCENDING)]),
+        IndexModel([("company_id", ASCENDING), ("state", ASCENDING)]),  # T4: fraud reports about a company
     ],
     COMPANIES: [
         IndexModel("slug", unique=True),

@@ -34,6 +34,14 @@ class ReportIn(CamelModel):
     note: str = Field("", max_length=500)
 
 
+async def _pause_at(db) -> int:
+    """3, or Admin's number once Vetting Trust is public (T4: Admin → Vetting Trust → Employer checks)."""
+    from app.trust import access
+    from app.trust.employer.fraud import pause_at
+
+    return await pause_at(db) if await access.is_public(db) else PAUSE_AT
+
+
 @router.post("/{job_id}/report", status_code=201)
 async def report(job_id: str, body: ReportIn, db: DB, auth: CustomerAuth) -> dict[str, Any]:
     j = await db[JOBS].find_one({"_id": job_id, "demo": {"$ne": True}}, {"status": 1, "title": 1, "company_id": 1})
@@ -55,7 +63,7 @@ async def report(job_id: str, body: ReportIn, db: DB, auth: CustomerAuth) -> dic
         raise ApiError(409, "already", "You’ve already reported this job. Our team will check it.") from None
     n = await db[JOB_REPORTS].count_documents({"job_id": job_id, "state": "open"})
     paused = False
-    if n >= PAUSE_AT and j["status"] == "active":
+    if n >= await _pause_at(db) and j["status"] == "active":
         await db[JOBS].update_one(
             {"_id": job_id}, {"$set": {"status": "paused", "reports_hold": True, "updated_at": now()}}
         )

@@ -208,6 +208,10 @@ async def run_rules(db: AsyncDatabase, mailer: Mailer | None = None) -> dict[str
 
         done.update({f"trust_deleted_{k}": v for k, v in (await trust_retention.run(db)).items()})  # T1: daily, heavy
         inactive = await trust_inactivity.run(db, mailer or get_mailer())  # T1: OFF until the owner turns it on
+        from app.trust.employer import service as trust_employer
+
+        rechecked = await trust_employer.recheck(db, mailer or get_mailer())  # T4: every 90 days, heavy
+        done.update({f"trust_employer_{k}": v for k, v in rechecked.items()})
         done.update({f"trust_inactive_{k}": v for k, v in inactive.items()})
         done["l4_overdue"] = await vetting_verify.overdue_report(db, mailer or get_mailer())  # V4: past the 24 h SLA
         await save_site(db, {"rule_runs": runs})
