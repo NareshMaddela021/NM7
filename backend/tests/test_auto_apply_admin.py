@@ -103,7 +103,7 @@ async def test_not_relevant_marks_stop_that_company(client, outbox, db):
 async def test_demo_student(client, outbox, db, admin_client, make_client):
     owner = await admin_client("owner")
     r = (await owner.post(f"{ADMIN}/demo")).json()
-    assert r["path"].startswith("/demo-student#t=") and r["items"] == 4
+    assert r["path"].startswith("/demo-student#t=") and r["items"] == 12  # 4 + 8 for 2.0
     token = r["path"].split("#t=")[1]
     browser = make_client()
     assert (await browser.post("/api/public/demo-student", json={"token": token})).json() == {"path": "/me/auto-apply"}
@@ -111,8 +111,9 @@ async def test_demo_student(client, outbox, db, admin_client, make_client):
     me = (await browser.get("/api/auth/me")).json()
     assert me["name"] == "Kavya Reddy (demo)" and me["role"] == "customer"
     items = (await browser.get(f"{URL}/items")).json()
-    assert len(items["needsAnswer"]) == 1 and len(items["ready"]) == 1 and len(items["applied"]) == 2
-    assert {x["channel"] for x in items["applied"]} == {"nm7", "email"}
+    # Auto Apply 2.0 adds 4 applied in later tracker states (viewed, interview, offer, rejected) and 2 to approve
+    assert len(items["needsAnswer"]) == 1 and len(items["ready"]) == 1 and len(items["applied"]) == 6
+    assert len(items["waiting"]) == 2 and {x["channel"] for x in items["applied"]} == {"nm7", "email"}
     st = (await browser.get("/api/me/state")).json()["apps"]
     assert any(a.get("sentEmail") for a in st) and all(a.get("origin") == "auto" for a in st)
     # demo jobs are never public, and demo students never run
@@ -122,4 +123,4 @@ async def test_demo_student(client, outbox, db, admin_client, make_client):
     assert (await engine.run(db, outbox, force=True))["users"] == 0
     # reset is repeatable
     again = (await owner.post(f"{ADMIN}/demo")).json()
-    assert again["items"] == 4 and await db[AUTO_ITEMS].count_documents({"user_id": demo.STUDENT_ID}) == 4
+    assert again["items"] == 12 and await db[AUTO_ITEMS].count_documents({"user_id": demo.STUDENT_ID}) == 12

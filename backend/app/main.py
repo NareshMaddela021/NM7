@@ -25,6 +25,7 @@ from app.autoapply import demo as auto_demo
 from app.autoapply import items as auto_items
 from app.autoapply import settings as auto_settings
 from app.autoapply import summary as auto_summary
+from app.autoapply import v2 as auto_v2
 from app.billing import invoice_router as billing_docs
 from app.billing import migrate as billing_migrate
 from app.billing import router as billing
@@ -289,6 +290,8 @@ def create_app() -> FastAPI:
     app.include_router(jobs_alerts.me)  # /api/me/job-alerts (C6)
     app.include_router(auto_settings.router)  # /api/me/auto-apply (Phase 3, A1)
     app.include_router(auto_items.router)  # /api/me/auto-apply/items (A2, A3)
+    app.include_router(auto_v2.router)  # /api/me/auto-apply/v2 (Auto Apply 2.0, behind its launch switch)
+    app.include_router(auto_v2.admin)  # /api/admin/auto-apply/v2
     app.include_router(auto_summary.router)  # /api/me/auto-apply/summary, /emails (A6)
     app.include_router(auto_summary.public)  # /api/public/auto-apply/stop-emails
     app.include_router(auto_admin.router)  # /api/admin/auto-apply (A7)
