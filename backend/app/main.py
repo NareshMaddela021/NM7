@@ -27,6 +27,7 @@ from app.autoapply import items as auto_items
 from app.autoapply import settings as auto_settings
 from app.autoapply import summary as auto_summary
 from app.autoapply import v2 as auto_v2
+from app.autoapply.ats import router as ats_router
 from app.billing import invoice_router as billing_docs
 from app.billing import migrate as billing_migrate
 from app.billing import router as billing
@@ -302,6 +303,7 @@ def create_app() -> FastAPI:
     app.include_router(company_dashboard.router)  # /api/company/{id}/overview, page, activity
     app.include_router(company_dashboard.public)  # /api/companies/{slug} (public company page)
     app.include_router(company_posting.router)  # /api/company/{id}/jobs (safe posting, C3)
+    app.include_router(ats_router.router)  # /api/company/{id}/ats: Auto Apply 2.0 hiring-system connections (A4)
     app.include_router(jobs_reports.router)  # /api/jobs/{id}/report (C4)
     app.include_router(company_applicants.router)  # /api/company/{id}/applicants, /pool (C5)
     app.include_router(company_applicants.me)  # /api/me/applications/{key}/withdraw

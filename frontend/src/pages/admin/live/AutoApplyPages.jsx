@@ -37,6 +37,7 @@ export function LiveAutoApply() {
       <PageHead title="Auto Apply" sub="Every morning Nm7 applies for students within their own rules. Nothing is ever submitted on other websites by a bot." />
       <V2Admin toast={toast} />
       <EmailHealth toast={toast} />
+      <PartnerHealth />
       <Loading st={st}>{(d) => (
         <div className="stack g16">
           <section className="card stack g8 adx-switch" data-on={d.settings.on ? '1' : '0'} aria-label="Off switch" data-testid="aa-switch">
@@ -280,6 +281,37 @@ function EmailHealth({ toast }) {
               ))}
             </ul>
           ))}
+        </div>
+      )}</Loading>
+    </Panel>
+  );
+}
+
+// Auto Apply 2.0 (A4): each hiring-system partner's health. Companies connect with their own keys on their dashboard
+// ("Connect your hiring system"); this shows only counts, the last error's kind and dates, never a key or a company's
+// settings. Darwinbox is marked until Darwinbox confirms its API.
+const ERROR_KIND = { auth: 'Key refused', not_found: 'Account or job not found', rate_limited: 'Rate limited', server: 'Partner error', network: 'Unreachable', bad_request: 'Request refused', config: 'Settings missing', error: 'Other error' };
+
+function PartnerHealth() {
+  const st = useApi('/api/admin/auto-apply/v2/partners');
+  return (
+    <Panel title="Auto Apply 2.0: hiring systems">
+      <Loading st={st}>{(d) => (
+        <div className="stack g8" data-testid="aa2-partners-admin">
+          <span className="xs muted">{d.public ? 'Public: applications to linked jobs go to the companies’ own systems.' : 'Hidden: only testers’ applications reach companies with a tester on their team; demo stays with the demo company.'}</span>
+          <div className="table-wrap" tabIndex={0} role="region" aria-label="Hiring systems">
+            <table className="table" data-testid="aa2-partners"><thead><tr><th scope="col">System</th><th scope="col" style={NUM}>Companies</th><th scope="col" style={NUM}>Delivered today</th><th scope="col" style={NUM}>Retrying / failed</th><th scope="col">Last error</th><th scope="col">Last sync</th></tr></thead>
+              <tbody>{d.partners.map((p) => (
+                <tr key={p.key} data-testid="aa2-partner" data-key={p.key}>
+                  <th scope="row" className="small" style={{ fontWeight: 600 }}>{p.name}{!p.confirmed && <div className="xs muted">needs Darwinbox to confirm its API</div>}</th>
+                  <td style={NUM}>{p.connected}{p.demo > 0 && <div className="xs muted">+{p.demo} demo</div>}</td>
+                  <td style={NUM} data-testid="aa2-partner-today">{p.deliveredToday}</td>
+                  <td style={NUM}>{p.retrying} / {p.failures}</td>
+                  <td className="small">{p.lastErrorType ? <>{ERROR_KIND[p.lastErrorType] || p.lastErrorType}<div className="xs muted">{when(p.lastErrorAt)}</div></> : '—'}</td>
+                  <td className="small">{p.lastSyncAt ? when(p.lastSyncAt) : '—'}</td>
+                </tr>
+              ))}</tbody></table>
+          </div>
         </div>
       )}</Loading>
     </Panel>

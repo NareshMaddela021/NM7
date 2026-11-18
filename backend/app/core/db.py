@@ -107,6 +107,9 @@ AUTO_ALIASES = "auto_aliases"  # _id = the local part of a candidate's apply add
 AUTO_MAIL = "auto_mail"  # one row per Auto Apply 2.0 email sent (first / follow-up): to, source, day, delivery, reply
 AUTO_REPLIES = "auto_replies"  # a company's reply that came to a candidate's apply address (stored, forwarded)
 AUTO_MAIL_EVENTS = "auto_mail_events"  # _id = the webhook's message id: each Resend event handled once
+# Auto Apply 2.0 partner integrations (A4)
+ATS_CONNECTIONS = "ats_connections"  # _id = company id: its hiring system (partner, settings, the key encrypted)
+ATS_DELIVERIES = "ats_deliveries"  # one per application sent to a company's hiring system: state, tries, status
 TALENT_POOL = "talent_pool"  # a company's saved applicants (company_id, user_id), kept as long as the application
 JOB_REMOVALS = "job_removals"  # round J: "remove this job" requests from companies (Admin → Jobs → Removal requests)
 JOB_REPORTS = "job_reports"  # _id = user:job: a student's report of a job (3 from different people pause it)
@@ -237,6 +240,8 @@ COLLECTIONS = (
     AUTO_MAIL,
     AUTO_REPLIES,
     AUTO_MAIL_EVENTS,
+    ATS_CONNECTIONS,
+    ATS_DELIVERIES,
     HIRE_PROFILES,
     HIRE_INVITES,
     HIRE_USAGE,
@@ -359,6 +364,15 @@ INDEXES: dict[str, list[IndexModel]] = {
     ],
     AUTO_REPLIES: [IndexModel([("user_id", ASCENDING), ("received_at", DESCENDING)]), IndexModel("item_id")],
     AUTO_MAIL_EVENTS: [IndexModel("at", expireAfterSeconds=30 * DAY)],
+    ATS_CONNECTIONS: [IndexModel("partner")],
+    ATS_DELIVERIES: [
+        IndexModel("app_id", unique=True),  # one delivery per application, ever
+        IndexModel([("state", ASCENDING), ("next_at", ASCENDING)]),
+        IndexModel([("state", ASCENDING), ("checked_at", ASCENDING)]),
+        IndexModel([("partner", ASCENDING), ("day", ASCENDING)]),
+        IndexModel([("company_id", ASCENDING), ("created_at", DESCENDING)]),
+        IndexModel("user_id"),
+    ],
     HIRE_PROFILES: [IndexModel([("on", ASCENDING), ("confirmed_at", DESCENDING)])],
     LEARN_PROGRESS: [IndexModel([("user_id", ASCENDING), ("updated_at", DESCENDING)])],
     PRACTICE_ATTEMPTS: [IndexModel([("user_id", ASCENDING), ("started_at", DESCENDING)])],
