@@ -770,11 +770,18 @@ async def _channel(db, site, mailer, coll, doc, key, ch, due, deadline, t, send)
     return got
 
 
-async def interview_reminders(db, site: dict[str, Any], mailer, t: datetime) -> dict[str, int]:
+async def interview_reminders(
+    db, site: dict[str, Any], mailer, t: datetime, scope: dict[str, Any] | None = None
+) -> dict[str, int]:
     st = booking_settings(site)
     out: dict[str, int] = {}
     soon = timedelta(hours=int(st["soon_hours"]))
-    q = {"status": "booked", "user_id": {"$ne": None}, "starts_at": {"$gt": t, "$lte": t + timedelta(hours=40)}}
+    q = {
+        "status": "booked",
+        "user_id": {"$ne": None},
+        "starts_at": {"$gt": t, "$lte": t + timedelta(hours=40)},
+        **(scope or {}),
+    }
     async for s in db[HIRE_SLOTS].find(q).sort("starts_at", 1).limit(REMIND_PER_PASS):
         u, c = await _uc(db, s["user_id"], s["company_id"])
         if not takes_over(site, u, c):
@@ -939,7 +946,7 @@ async def run(db, mailer=None, t: datetime | None = None, force: bool = False) -
             return {"waiting_heavy": 1}
         for part in (
             invites(db, site, mailer, t, scope),
-            interview_reminders(db, site, mailer, t),
+            interview_reminders(db, site, mailer, t, scope),
             joining(db, site, mailer, t, scope),
         ):
             try:

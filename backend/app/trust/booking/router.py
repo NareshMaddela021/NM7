@@ -45,7 +45,7 @@ public = APIRouter(prefix="/api/public/trust", tags=["trust"])
 company = APIRouter(prefix="/api/company/{cid}/trust/booking", tags=["trust"])
 admin = APIRouter(prefix="/api/admin/trust/booking", tags=["trust"])
 
-LINK_RULES = [(120, timedelta(hours=1))]
+LINK_RULES = [(300, timedelta(hours=1))]  # per address (many phones share one mobile-network address)
 
 
 class TokenIn(CamelModel):
