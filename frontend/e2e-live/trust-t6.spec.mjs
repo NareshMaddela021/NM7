@@ -152,12 +152,15 @@ for (const [label, opts] of SIZES) {
       test.setTimeout(180_000);
       page.on('dialog', () => { throw new Error('no browser dialogs'); });
       const tag = `${label[0]}h${Date.now().toString(36)}`;
+      // the job's own place (its office pin is in Hyderabad): Hire now's top 10 holds only this test's person, however
+      // many Hyderabad candidates the other specs left in the shared database
+      const city = `Tq${letters()}pur`;
       const co = await company(request, tag);
-      const posted = await (await request.post(`${API}/api/company/${co.id}/jobs`, { headers: co.H, data: { job: { title: `Field Analyst ${tag}`, description: 'Build weekly dashboards in SQL and Power BI for our retail stores. Freshers are welcome.', locations: ['Hyderabad'], experience: 'fresher', jobType: 'full_time', workType: 'onsite', skills: ['SQL', 'Power BI'], geo: { lat: 17.45, lng: 78.38 } } } })).json();
+      const posted = await (await request.post(`${API}/api/company/${co.id}/jobs`, { headers: co.H, data: { job: { title: `Field Analyst ${tag}`, description: 'Build weekly dashboards in SQL and Power BI for our retail stores. Freshers are welcome.', locations: [city], experience: 'fresher', jobType: 'full_time', workType: 'onsite', skills: ['SQL', 'Power BI'], geo: { lat: 17.45, lng: 78.38 } } } })).json();
       expect(posted.status).toBe('active');
       const first = `Ravi${letters()}`;
       const s = await candidate(browser, opts, `tt6h-${label}`, `${first} Kumar`);
-      seed('trust-t6-ready', s.mail, 'MCWG,LMV');
+      seed('trust-t6-ready', s.mail, 'MCWG,LMV', city);
       await workPrefs(s.page);
       await s.ctx.close();
 
@@ -169,7 +172,8 @@ for (const [label, opts] of SIZES) {
       await filters.getByTestId('co-hire-nt-lang').selectOption('Telugu');
       await filters.getByTestId('co-hire-nt-now').check();
       await filters.getByTestId('co-hire-nt-km').selectOption('20');
-      await expect(filters).toContainText(/Distance from the job \([1-9]\d*\)/); // how many the filter leaves
+      // how many the filter leaves (shown once the list is loaded with this distance, never the count for another one)
+      await expect(filters).toContainText(/Distance from the job \([1-9]\d*\)/, { timeout: 20_000 });
       const person = page.getByTestId('co-hire-row').filter({ hasText: first });
       await expect(person).toBeVisible({ timeout: 20_000 });
       await expect(person.getByTestId('co-hire-nt-licence')).toHaveText('✓ Driving licence (two-wheeler, LMV (car)) · verified via DigiLocker (test)');
