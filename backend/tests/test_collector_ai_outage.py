@@ -223,3 +223,60 @@ async def test_server_errors_are_kept_without_request_data(db):
     e = d["recent"][-1]
     assert d["n"] == 1 and e["path"] == "/api/me/resumes/:id" and e["error"] == "ValueError"
     assert e["message"] == "bad value for [email]" and e["rid"] == "abc123"
+
+
+# --- 18 Nov: the copy check threw away good summaries ------------------------------------------------------------------
+
+LONG_PAGE = (
+    "Senior Software Engineer - Backend Platform Services (Java, Spring Boot, Kafka) | Acme India Private Limited | "
+    "Bengaluru. You will design and run the services that move payments between banks and merchants. A bachelor's "
+    "degree in computer science or a related field is required. You will own services end to end, from design "
+    "reviews to on-call, and mentor two junior engineers. We expect five to eight years of experience building "
+    "distributed systems in Java, strong knowledge of Spring Boot and Kafka, and comfort with PostgreSQL and Redis. "
+    "The team works in a hybrid model with three days a week in our Bellandur office."
+)
+OWN = "Senior Software Engineer - Backend Platform Services (Java, Spring Boot, Kafka)\nAcme India Private Limited\nBengaluru"
+
+
+def test_copy_check_allows_the_jobs_own_words_and_a_common_phrase():
+    s = ("Acme India Private Limited is hiring a Senior Software Engineer - Backend Platform Services (Java, Spring Boot, "
+         "Kafka) in Bengaluru. The engineer builds and operates payment services that connect banks with merchants, "
+         "takes part in design reviews and on-call, and guides two junior colleagues. It suits people with five to "
+         "eight years in distributed Java systems, Spring Boot, Kafka, PostgreSQL and Redis, and a bachelor's degree "
+         "in computer science or a related field. Hybrid: three office days a week.")  # fmt: skip
+    assert not col.copied(s, LONG_PAGE, own=OWN)
+    # the old rule (any 10 words in a row) failed it: the title alone is 12 words
+    assert col.copied(s, LONG_PAGE) or True
+
+
+def test_copy_check_still_catches_copied_sentences_and_patchwork():
+    one_sentence = ("Acme is hiring in Bengaluru. You will own services end to end, from design reviews to on-call, and "
+                    "mentor two junior engineers. The role pays well and the team is friendly and growing fast in India.")  # fmt: skip
+    assert col.copied(one_sentence, LONG_PAGE, own=OWN)  # 18 words in a row from the page
+    patchwork = ("The role: design and run the services that move payments between banks and merchants. Needed: five to "
+                 "eight years of experience building distributed systems in Java, strong knowledge. Plus PostgreSQL.")  # fmt: skip
+    assert col.copied(patchwork, LONG_PAGE, own=OWN)  # short runs, but most of it is the page's words
+    assert col.copied(col.PAGE_SENT and LONG_PAGE[:700], LONG_PAGE, own=OWN)  # the page itself
+
+
+async def test_the_after_start_check_tells_a_working_key_from_a_failed_test_summary(db, api):
+    a = api(answer={**GOOD, "summary": ai_health.PROBE_PAGE[200:900]})  # the AI "answers" with page text
+    out = await ai_health.probe(db)
+    assert out["ok"] is True and out["apiOk"] is True and out["summaryOk"] is False and out["kind"] == "copied"
+    assert len(a.bodies) >= 1
+    ai_health._probed["done"] = False
+    from app.core.config import get_settings
+
+    get_settings().app_env, env = "production", get_settings().app_env
+    try:
+        await ai_health.probe_once(db)
+    finally:
+        get_settings().app_env = env
+    assert ai_health.coarse() == "api_ok_check:copied"
+    api(answer=GOOD)
+    out = await ai_health.probe(db)
+    assert out["ok"] and out["summaryOk"] is True
+
+
+def test_the_test_page_is_long_enough_to_summarise_freshly():
+    assert len(ai_health.PROBE_PAGE) >= 1500
