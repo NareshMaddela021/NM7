@@ -140,16 +140,35 @@ logging.getLogger("nm7").setLevel(logging.INFO)
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
-    await ensure_indexes(get_database())  # collections + indexes; safe to run on every start
-    await billing_migrate.run(get_database())  # Phase 4: existing organizations keep working (runs once)
+    """The port opens at once (Render's health check gives up after a few minutes: 18 Nov, Auto Apply A1's deploy
+    timed out while the first automation pass ran before the server listened). Collections, indexes and the one-time
+    migrations run in the background right after start (idempotent: an existing index is a no-op); the first
+    automation pass waits automation.START_DELAY. Tests keep the old order (indexes before the first request)."""
     log_email_status()
-    task = asyncio.create_task(automation.loop(get_database)) if get_settings().app_env != "test" else None
+    if get_settings().app_env == "test":
+        await startup_work(get_database())
+        task = None
+    else:
+        task = asyncio.create_task(after_start(get_database))
     yield
     if task:
         task.cancel()
         with suppress(asyncio.CancelledError):
             await task
     await close_client()
+
+
+async def startup_work(db) -> None:
+    await ensure_indexes(db)  # collections + indexes; safe to run on every start
+    await billing_migrate.run(db)  # Phase 4: existing organizations keep working (runs once)
+
+
+async def after_start(get_db) -> None:
+    try:
+        await startup_work(get_db())
+    except Exception:  # noqa: BLE001  (the server keeps serving; the next start tries again)
+        logging.getLogger("nm7").exception("start-up work failed")
+    await automation.loop(get_db, first_delay=automation.START_DELAY)
 
 
 PRIVATE_PREFIXES = ("/api/me", "/api/auth", "/api/orders", "/api/org", "/api/admin", "/api/expert")
