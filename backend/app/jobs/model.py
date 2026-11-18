@@ -169,12 +169,10 @@ class JobIn(BaseModel):
     @field_validator("locations")
     @classmethod
     def _locations(cls, v):
-        out: list[str] = []
-        for x in v:
-            t = _tidy(x, 60)
-            if t and t.lower() not in {o.lower() for o in out}:
-                out.append(t)
-        return out
+        from app.jobsearch.parse import canonical_cities
+
+        # one spelling per city ("Bangalore" -> "Bengaluru", "PUNE" -> "Pune"), each once
+        return canonical_cities(_tidy(x, 60) for x in v)
 
     @field_validator("skills")
     @classmethod

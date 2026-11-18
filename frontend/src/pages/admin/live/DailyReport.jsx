@@ -78,6 +78,51 @@ function RunChip({ run }) {
   return <span className="mchip mchip-neutral" data-testid="dr-run">No run yet today</span>;
 }
 
+/** Is the collector's AI working? Today's summaries and API errors, Anthropic's last error, and "Test the AI now". */
+function CollectorAi({ ai }) {
+  const toast = useToast();
+  const [busy, setBusy] = useState(false);
+  const [res, setRes] = useState(null);
+  const a = ai || {};
+  const test = async () => {
+    setBusy(true);
+    try {
+      const out = await http('/api/admin/daily-report/ai-check', { method: 'POST' });
+      setRes(out);
+      toast(out.ok ? (out.summaryOk === false ? 'The AI answers, but the test summary failed a check' : 'The AI wrote a test summary: it works') : 'The AI test failed');
+    } catch (e) {
+      setRes({ ok: false, kind: 'request', error: e.message || 'The test could not run.' });
+    } finally {
+      setBusy(false);
+    }
+  };
+  const bad = (a.errorsToday > 0 && !a.okToday) || a.paused;
+  return (
+    <div className="dr-tile" data-testid="dr-collector-ai">
+      <span className="dr-tile-l">Collector AI</span>
+      <span className="dr-tile-v">{a.okToday > 0 ? 'Working' : a.errorsToday > 0 ? 'Failing' : 'No calls yet today'}</span>
+      <span className={`dr-delta dr-delta-${bad ? 'bad' : 'good'}`}>{num(a.okToday || 0)} written · {num(a.errorsToday || 0)} API errors today</span>
+      {a.lastErrorKind && <span className="xs muted dr-wrap" data-testid="dr-ai-last-error">Last error {when(a.lastErrorAt)}: {a.lastErrorKind}{a.lastError ? ` — ${a.lastError}` : ''}</span>}
+      <button type="button" className="btn btn-outline btn-sm" onClick={test} disabled={busy} aria-busy={busy} data-testid="dr-ai-test">{busy ? 'Testing…' : 'Test the AI now'}</button>
+      {res && <span className={`small dr-wrap ${res.ok ? '' : 'dr-err'}`} role="status" data-testid="dr-ai-test-result">{res.ok ? (res.summaryOk === false ? `The key works (${res.model}), but the test summary failed the ${res.kind} check.` : `Works (${res.model}): a test summary was written.`) : `Failed: ${res.kind}${res.error ? ` — ${res.error}` : ''}`}</span>}
+    </div>
+  );
+}
+
+function RecentErrors({ rows }) {
+  if (!rows || rows.length === 0) return null;
+  return (
+    <div className="dr-bars stack g6" data-testid="dr-recent-errors">
+      <h3 className="dr-h3">Today's server errors (latest first)</h3>
+      <ul className="dr-err-list">
+        {rows.map((e) => (
+          <li key={`${e.at}-${e.rid}`} className="small dr-wrap"><span className="dr-mono">{e.method} {e.path}</span> · {e.error}{e.message ? `: ${e.message}` : ''} · {when(e.at)}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 const MSTATE = { met: ['mchip-ok', 'Met'], miss: ['mchip-bad', 'Not met'], none: ['mchip-neutral', 'No data yet'] };
 const LEVELS = ['L0', 'L1', 'L2', 'L3', 'L4'];
 
@@ -162,7 +207,9 @@ function Report({ d }) {
           <Tile m={m} k="errors" label="Server errors" lower />
           <Tile m={m} k="aiUsed" label="AI calls used today" note={ai.cap ? `Daily allowance ${num(ai.cap)}` : undefined} />
           <Tile m={m} k="aiCollector" label="Collector AI summaries" note={ai.collectorLimit ? `Daily allowance ${num(ai.collectorLimit)}` : undefined} />
+          <CollectorAi ai={d.collectorAi} />
         </div>
+        <RecentErrors rows={d.recentErrors} />
       </Section>
 
       <Section id="dr-users" title="Users and business" sub="Demo accounts and demo colleges are never counted.">
