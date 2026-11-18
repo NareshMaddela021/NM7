@@ -76,7 +76,7 @@ class PauseIn(CamelModel):
 
 
 class AnswerIn(CamelModel):
-    answers: dict[str, str | int] = Field(default_factory=dict, max_length=5)
+    answers: dict[str, str | int] = Field(default_factory=dict, max_length=8)  # T6: up to 8 questions
 
 
 class StatusIn(CamelModel):
@@ -401,6 +401,12 @@ async def answer(iid: str, body: AnswerIn, auth: CustomerAuth, db: DB, backgroun
         await db[USERS].update_one(
             {"_id": u["_id"]}, {"$set": {f"auto_apply.answers.{engine.norm(texts[k])}": v for k, v in given.items()}}
         )
+        from app.trust import access as trust_access
+
+        if await trust_access.for_user(db, u["_id"]):  # Vetting Trust T6: a template answer updates Work preferences
+            from app.trust import workprefs
+
+            await workprefs.remember(db, u["_id"], qs, given)
         u = await _user(db, u["_id"])
     answers = {**saved, **given}
     if qmod.knockout(qs, answers):

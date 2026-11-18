@@ -33,7 +33,7 @@ SHOWN_STATES = ("needs_answer", "waiting_approval", "queued", "applied", "sent",
 
 
 class AnswerIn(CamelModel):
-    answers: dict[str, str | int] = Field(default_factory=dict, max_length=5)
+    answers: dict[str, str | int] = Field(default_factory=dict, max_length=8)  # T6: up to 8 questions
     remember: bool = True
 
 

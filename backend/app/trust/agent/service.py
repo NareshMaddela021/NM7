@@ -500,16 +500,78 @@ def _yes_no(convo: dict[str, Any]) -> list[tuple[str, str]]:
     return [(f"nm7:{convo['_id']}:yes", yes), (f"nm7:{convo['_id']}:no", no)]
 
 
+def _choice_buttons(convo: dict[str, Any], k: K.Knockout) -> list[tuple[str, str]] | None:
+    """Up to 3 options as reply buttons (WhatsApp's limit); more are a numbered list in the text."""
+    if len(k.options) > 3:
+        return None
+    return [(f"nm7:{convo['_id']}:opt:{i}", o[:20]) for i, o in enumerate(k.options, 1)]
+
+
+def question_text(convo: dict[str, Any], k: K.Knockout, n: int, of: int) -> str:
+    lang = convo["lang"]
+    q = k.text_in(lang)
+    if k.kind == "number":
+        return T.msg(lang, "q_number", n=n, of=of, q=q)
+    if k.kind == "choice":
+        return T.msg(lang, "q_choice", n=n, of=of, q=q, list="\n".join(f"{i}. {o}" for i, o in enumerate(k.options, 1)))
+    return T.msg(lang, "question", n=n, of=of, q=q)
+
+
+async def _known(db, convo, j) -> dict[str, Any]:
+    """Vetting Trust T6: answers the person already gave (Work preferences, saved answers): never asked twice."""
+    from app.trust import workprefs
+
+    try:
+        return await workprefs.known_answers(db, convo["user_id"], j)
+    except Exception:  # noqa: BLE001 — a lookup problem must not stop the conversation; it just asks
+        log.warning("calling agent: reading saved answers failed")
+        return {}
+
+
+async def _remember(db, convo, j, kid: str, ans: Any) -> None:
+    from app.trust import workprefs
+
+    qs = [q for q in j.get("questions") or [] if q["id"] == kid]
+    if qs:
+        await workprefs.remember(db, convo["user_id"], qs, {kid: ans})
+
+
 async def _ask_next(db, convo, j, u, c, site, mailer=None) -> None:
-    """The next knock-out question, or (all answered) the application and the interview times."""
+    """The next knock-out question, or (all answered) the application and the interview times. T6: questions the
+    person already answered (Work preferences, saved answers) are filled in, not asked; number and choice ones too."""
     kos = K.for_job(j)
     step = int(convo.get("step") or 0)
+    known = await _known(db, convo, j) if step < len(kos) else {}
+    while (
+        step < len(kos)
+        and kos[step].id not in (convo.get("answers") or {})
+        and kos[step].clean(known.get(kos[step].id)) is not None
+    ):
+        a = kos[step].clean(known[kos[step].id])
+        convo["answers"] = {**(convo.get("answers") or {}), kos[step].id: a}
+        step += 1
+        await _set(db, convo, **{f"answers.{kos[step - 1].id}": a}, step=step)
     if step < len(kos):
         await _set(db, convo, state="knockout", step=step)
-        q = T.msg(convo["lang"], "question", n=step + 1, of=len(kos), q=kos[step].text_in(convo["lang"]))
-        await _wa_send(db, convo, u, site, q, _yes_no(convo))
+        k = kos[step]
+        buttons = _yes_no(convo) if k.kind == "yesno" else _choice_buttons(convo, k) if k.kind == "choice" else None
+        await _wa_send(db, convo, u, site, question_text(convo, k, step + 1, len(kos)), buttons)
         return
     await finish_questions(db, convo, j, u, c, site, "whatsapp", mailer)
+
+
+async def _answer_typed(db, convo, j, u, c, site, k: K.Knockout, inb: P.Inbound, opt: int, mailer=None) -> str:
+    """A number or choice question (T6): the rules only (a number, an option's number or its words)."""
+    ans = k.clean(opt) if (k.kind == "choice" and opt) else k.clean(inb.text)
+    if ans is None:
+        key = "number" if k.kind == "number" else "choice_pick"
+        return await _unclear(db, convo, u, site, key, _choice_buttons(convo, k) if k.kind == "choice" else None)
+    step = int(convo.get("step") or 0)
+    await _set(db, convo, **{f"answers.{k.id}": ans}, step=step + 1, reasks=0)
+    convo["answers"] = {**(convo.get("answers") or {}), k.id: ans}
+    await _remember(db, convo, j, k.id, ans)
+    await _ask_next(db, convo, j, u, c, site, mailer)
+    return "answered"
 
 
 async def apply_for(db, convo, j, u, channel: str) -> None:
@@ -534,7 +596,8 @@ async def apply_for(db, convo, j, u, channel: str) -> None:
            "date": int(t.timestamp() * 1000), "resume_id": r["key"] if r else None, "resume_name": (r or {}).get("name", ""),
            "url": job_page(j), "notes": "", "next": int((t + FOLLOW_AFTER).timestamp() * 1000), "job_id": j["_id"], "channel": "nm7",
            "timeline": [{"status": "applied", "at": t}], "created_at": t, "updated_at": t, "origin": "agent", "consent_at": t,
-           "answers": answers, "company_id": j["company_id"], "fit": {"ok": not why, "reasons": why}, "agent": agent}  # fmt: skip
+           "answers": answers, "company_id": j["company_id"], "fit": {"ok": not why, "reasons": why, "for": K.not_met(kos, answers)},
+           "agent": agent}  # fmt: skip
     try:
         await db[APPLICATIONS].insert_one(doc)
         await audit(
@@ -664,15 +727,28 @@ async def start_whatsapp(db, convo, j, u, c, site, p, t) -> bool:
     return True
 
 
-def call_script(convo, j, u, c, slots: list[dict[str, Any]]) -> dict[str, Any]:
+def _call_question(s: dict[str, str], k: K.Knockout, lang: str) -> str:
+    if k.kind == "number":
+        return T.fill(s.get("question_number") or T.CALL["en"]["question_number"], q=k.text_in(lang))
+    if k.kind == "choice":
+        return T.fill(
+            s.get("question_choice") or T.CALL["en"]["question_choice"], q=k.text_in(lang), list=", ".join(k.options)
+        )
+    return T.fill(s["question"], q=k.text_in(lang))
+
+
+def call_script(convo, j, u, c, slots: list[dict[str, Any]], skip: set[str] | None = None) -> dict[str, Any]:
+    """What the voice agent says. `skip`: questions already answered before (T6: never asked twice)."""
     lang = convo["lang"]
     s = T.CALL.get(lang) or T.CALL["en"]
     company = _company_name(c, j)
+    kos = [k for k in K.for_job(j) if k.id not in (skip or set())]
     return {
         "intro": T.fill(s["intro"], name=_first(u), role=j["title"], company=company, city=_city(j)),
         "interest": s["interest"],
-        "questions": [T.fill(s["question"], q=k.text_in(lang)) for k in K.for_job(j)],
-        "question_ids": [k.id for k in K.for_job(j)],
+        "questions": [_call_question(s, k, lang) for k in kos],
+        "question_ids": [k.id for k in kos],
+        "question_kinds": [k.kind for k in kos],
         "slots": [when_text(x["starts_at"]) for x in slots],
         "slots_line": T.fill(s["slots"], company=company, list="; ".join(f"{i}: {when_text(x['starts_at'])}" for i, x in enumerate(slots, 1))) if slots else "",
         "booked": s["booked"], "bye": s["bye"], "stopped": s["stopped"],
@@ -682,7 +758,7 @@ def call_script(convo, j, u, c, slots: list[dict[str, Any]]) -> dict[str, Any]:
 async def start_call(db, convo, j, u, c, site, p, t) -> bool:
     vo = voice_for(site, u)
     slots = await open_slots(db, j["_id"], t)
-    script = call_script(convo, j, u, c, slots)
+    script = call_script(convo, j, u, c, slots, set(await _known(db, convo, j)))
     try:
         ref = await vo.start_call(p["wa_id"], convo["lang"], script, convo["_id"])
     except P.SendError:
@@ -807,8 +883,13 @@ async def on_whatsapp(db, inb: P.Inbound, mailer=None) -> str:
         await _close(db, convo, "closed")
         await _wa_send(db, convo, u, site, T.msg(convo["lang"], "closed"))
         return "closed"
-    expecting = {"asked": "interest", "knockout": "yesno", "slots": "slot"}[convo["state"]]
     slot = int(m.group(3)) if m and m.group(3) else 0
+    if convo["state"] == "knockout":  # T6: number and choice questions are read by the rules alone
+        kos = K.for_job(j)
+        step = int(convo.get("step") or 0)
+        if step < len(kos) and kos[step].kind != "yesno":
+            return await _answer_typed(db, convo, j, u, c, site, kos[step], inb, slot if action == "opt" else 0, mailer)
+    expecting = {"asked": "interest", "knockout": "yesno", "slots": "slot"}[convo["state"]]
     if action in ("interested", "not_now", "yes", "no"):
         intent = action
     elif action == "slot":
@@ -853,6 +934,7 @@ async def on_whatsapp(db, inb: P.Inbound, mailer=None) -> str:
                 ans = "yes" if intent in ("yes", "interested") else "no"
                 await _set(db, convo, **{f"answers.{kos[step].id}": ans}, step=step + 1, reasks=0)
                 convo["answers"] = {**(convo.get("answers") or {}), kos[step].id: ans}
+                await _remember(db, convo, j, kos[step].id, ans)  # T6: saved, never asked again
             await _ask_next(db, convo, j, u, c, site, mailer)
             return "answered"
         return await _unclear(db, convo, u, site, "yes_no", _yes_no(convo))
@@ -941,7 +1023,14 @@ async def on_call(db, res: P.CallResult, ref_hint: str = "", mailer=None) -> str
         await _set(db, convo, interest="not_now", state="declined", next_at=None)
         return "declined"
     kos = K.for_job(j)
-    answers = {k.id: res.answers[k.id] for k in kos if k.id in res.answers}
+    known = await _known(db, convo, j)  # T6: what the call didn't ask (already answered before)
+    answers = {k.id: k.clean(known.get(k.id)) for k in kos if k.clean(known.get(k.id)) is not None}
+    said = {
+        k.id: k.clean(res.answers[k.id]) for k in kos if k.id in res.answers and k.clean(res.answers[k.id]) is not None
+    }
+    answers |= said
+    for kid, a in said.items():
+        await _remember(db, convo, j, kid, a)
     await _set(db, convo, interest="interested", answers=answers, replied_at=t, step=len(answers))
     await apply_for(db, convo, j, u, "call")
     if K.reasons(kos, answers):
@@ -1042,7 +1131,7 @@ async def job_status(db, j: dict[str, Any]) -> dict[str, Any]:
         "on": job_on(j), "picking": ag.get("state") == "pending", "selected": len(rows), "contacted": contacted,
         "interested": len(people), "booked": counts.get("booked", 0), "declined": counts.get("declined", 0),
         "stopped": counts.get("stopped", 0), "waiting": sum(counts.get(k, 0) for k in OPEN), "people": people,
-        "knockouts": [{"id": k.id, "text": k.text, "want": k.want, "source": k.source} for k in kos],
+        "knockouts": [{"id": k.id, "text": k.text, "want": k.want, "source": k.source, "kind": k.kind} for k in kos],
         "extra": [{"text": q["text"], "want": q["want"]} for q in j.get("knockouts") or []],
     }  # fmt: skip
 

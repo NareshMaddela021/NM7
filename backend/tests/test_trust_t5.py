@@ -35,7 +35,7 @@ from app.trust.agent import service as S
 from app.trust.agent import texts as T
 from tests.conftest import signup
 from tests.jobs_helpers import add_resume
-from tests.test_companies_apply import company_job
+from tests.test_companies_apply import QUESTIONS, company_job
 from tests.test_companies_posting import no_ai  # noqa: F401
 from tests.test_companies_signup import H, no_network  # noqa: F401
 
@@ -74,7 +74,8 @@ async def agent_settings(db, **kw) -> None:
 
 
 async def co(client, outbox, db, test=True):
-    session, cid, job = await company_job(client, outbox, db)
+    # the yes/no question only: T6 asks number / choice questions too (tests/test_trust_t6.py)
+    session, cid, job = await company_job(client, outbox, db, questions=[QUESTIONS[0]])
     if test:
         await make_tester(db, "founder@gmail.com")
     await agent_settings(db, min_score=0)
@@ -185,9 +186,15 @@ def test_knockout_model():
                        {"id": "q3", "text": "Any shift?", "kind": "yesno", "want": ""}],
          "knockouts": K.parse_extra(EXTRA + [{"text": "Do you need a visa sponsor?", "want": "no", "texts": {"hi": "क्या आपको वीज़ा चाहिए?", "xx": "?"}}])}  # fmt: skip
     kos = K.for_job(j)
-    assert [k.id for k in kos] == ["q1", "k1", "k2"] and [k.source for k in kos] == ["job", "extra", "extra"]
-    assert kos[2].text_in("hi") == "क्या आपको वीज़ा चाहिए?" and kos[2].text_in("te") == "Do you need a visa sponsor?"
-    assert K.reasons(kos, {"q1": "yes", "k1": "yes", "k2": "no"}) == []
+    # T6: the number question with a minimum is a knock-out too (asked on WhatsApp / calls)
+    assert [k.id for k in kos] == ["q1", "q2", "k1", "k2"] and [k.source for k in kos] == [
+        "job",
+        "job",
+        "extra",
+        "extra",
+    ]
+    assert kos[3].text_in("hi") == "क्या आपको वीज़ा चाहिए?" and kos[3].text_in("te") == "Do you need a visa sponsor?"
+    assert K.reasons(kos, {"q1": "yes", "q2": 6, "k1": "yes", "k2": "no"}) == []
     assert K.reasons(kos, {"q1": "no", "k1": "yes"}) == ["Can you work from Hyderabad? – answered no"]
     with pytest.raises(ValueError):
         K.parse_extra(EXTRA * 6)
@@ -300,7 +307,7 @@ async def test_whatsapp_flow_questions_slots_booking(client, outbox, db, make_cl
     assert (
         app["origin"] == "agent"
         and app["answers"] == {"q1": "yes", "k1": "yes"}
-        and app["fit"] == {"ok": True, "reasons": []}
+        and app["fit"] == {"ok": True, "reasons": [], "for": []}  # T6: "for" (the questions not met)
     )
     n = len(outbox.sent)
     assert await reply(client, phone, text="2") == ["booked"]

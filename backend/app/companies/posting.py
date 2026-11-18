@@ -50,13 +50,39 @@ class JobBody(CamelModel):
 
 def _job_in(c: dict[str, Any], raw: dict[str, Any]) -> tuple[JobIn | None, list[str]]:
     d = c["details"]
-    body = {k: v for k, v in raw.items() if k not in ("company", "status", "source", "questions", "autoApply", "agent")}
+    skip = ("company", "status", "source", "questions", "autoApply", "agent", "geo")
+    body = {k: v for k, v in raw.items() if k not in skip}
     body["company"] = {"name": d["legal_name"], "website": d.get("website") or ""}
     body.setdefault("applyMethod", "nm7")
     try:
         return JobIn.model_validate(body), []
     except ValidationError as e:
         return None, errors_of(e)
+
+
+async def _qrules(db, c: dict[str, Any], acc: dict[str, Any]) -> dict[str, Any]:
+    """Vetting Trust T6, where the switch lets this company in: up to 8 questions, questions about the person rather
+    than the work refused (gender, religion, caste, age, marital status, pregnancy, photos). Else as before."""
+    from app.trust import access as trust_access
+    from app.trust.knockout import MAX_SELF_SERVE
+
+    if await trust_access.for_company(db, c, acc):
+        return {"max_n": MAX_SELF_SERVE, "fair": True}
+    return {}
+
+
+def _geo(raw: dict[str, Any], rules: dict[str, Any]) -> dict[str, Any] | None:
+    """T6: the office pin for "distance from the job" (rounded to ~1 km like a person's), or None."""
+    from app.trust import workprefs
+
+    g = raw.get("geo")
+    if not rules or not isinstance(g, dict) or g.get("lat") is None or g.get("lng") is None:
+        return None
+    try:
+        lat, lng = workprefs.coarse(g["lat"], g["lng"])
+    except (TypeError, ValueError):
+        raise ApiError(400, "invalid", "The office pin must be a place in India.") from None
+    return {"lat": lat, "lng": lng}
 
 
 async def _duplicate(db, cid: str, job: JobIn, not_id: str | None = None) -> bool:
@@ -112,6 +138,7 @@ def company_job_out(j: dict[str, Any]) -> dict[str, Any]:
         "review": {"reasons": rv.get("reasons") or [], "note": rv.get("note", "")},
         "closedReason": j.get("closed_reason", ""),
         "questions": questions.for_company(j.get("questions")),
+        **({"geo": j["geo"]} if j.get("geo") else {}),  # T6: the office pin (the company's own, rounded)
     }
 
 
@@ -122,9 +149,9 @@ def _with_questions(description: str, qs: list[dict[str, Any]]) -> str:
 
 @router.post("/{cid}/jobs/check")
 async def check_job(cid: str, body: JobBody, db: DB, x_recruiter_account: str | None = Header(None)) -> dict[str, Any]:
-    _, c, _ = await company_for(db, cid, x_recruiter_account, POST)
+    acc, c, _ = await company_for(db, cid, x_recruiter_account, POST)
     job, errors = _job_in(c, body.job)
-    qs, qerr = questions.parse(body.job.get("questions"))
+    qs, qerr = questions.parse(body.job.get("questions"), **await _qrules(db, c, acc))
     errors += qerr
     if not job or errors:
         return {"errors": errors, "blocked": [], "scam": [], "warnings": [], "duplicate": False}
@@ -157,10 +184,12 @@ async def post_job(
     if not room["allowed"]:
         raise ApiError(403, "limit", room["reason"])
     job, errors = _job_in(c, body.job)
-    qs, qerr = questions.parse(body.job.get("questions"))
+    rules = await _qrules(db, c, acc)
+    qs, qerr = questions.parse(body.job.get("questions"), **rules)
     errors += qerr
     if not job or errors:
         raise ApiError(400, "invalid", " ".join(errors), extra={"errors": errors})
+    geo = _geo(body.job, rules)
     res = jobcheck.check({**job.model_dump(), "description": _with_questions(job.description, qs)}, await _lists(db))
     if res["blocked"]:
         raise ApiError(
@@ -196,6 +225,8 @@ async def post_job(
     }
     if controls:
         doc["auto_controls"] = controls
+    if geo:
+        doc["geo"] = geo
     doc["dedupe_key"] = f"company:{cid}:{doc['_id']}"  # company jobs are kept apart from collector duplicates
     await db[JOBS].insert_one(doc)
     if await instant.queue(db, doc):  # Auto Apply 2.0: scored after the answer is sent, never inside this request
@@ -329,10 +360,12 @@ async def edit_job(
             409, "edit_limit", f"A live job can be edited {MAX_EDITS} times. Contact Nm7 support for more changes."
         )
     job, errors = _job_in(c, body.job)
-    qs, qerr = questions.parse(body.job.get("questions"))
+    rules = await _qrules(db, c, acc)
+    qs, qerr = questions.parse(body.job.get("questions"), **rules)
     errors += qerr
     if not job or errors:
         raise ApiError(400, "invalid", " ".join(errors), extra={"errors": errors})
+    geo = _geo(body.job, rules)
     res = jobcheck.check({**job.model_dump(), "description": _with_questions(job.description, qs)}, await _lists(db))
     if res["blocked"]:
         raise ApiError(
@@ -341,6 +374,8 @@ async def edit_job(
     if await _duplicate(db, cid, job, not_id=jid):
         raise ApiError(409, "duplicate", "You already have this job open in the same city.")
     sets = {**to_doc(job), "updated_at": now(), "dedupe_key": old["dedupe_key"], "questions": qs}
+    if rules and "geo" in body.job:  # T6: the office pin (a null removes it)
+        sets["geo"] = geo
     if res["scam"]:  # new scam signs: back to Admin review
         sets["status"] = "review"
         sets["review"] = {**(old.get("review") or {}), "reasons": [f"Scam sign: “{p}”" for p in res["scam"]]}
