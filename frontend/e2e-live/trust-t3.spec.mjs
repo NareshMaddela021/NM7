@@ -70,6 +70,7 @@ for (const [label, opts] of SIZES) {
       await consent.getByTestId('vt-consent-go').click();
       await page.getByTestId('vt-search').fill('data analyst');
       await page.getByTestId('sk-list').getByTestId('sk-start-SQL').click();
+      await page.getByTestId('vt-start').getByTestId('pledge-tick').check(); // T9: the honesty pledge
       await page.getByTestId('vt-start').getByTestId('vt-go').click();
 
       const dlg = page.getByRole('dialog', { name: 'Quick check: is it really you?' });
@@ -103,6 +104,7 @@ for (const [label, opts] of SIZES) {
       await page.getByTestId('iv-role').filter({ hasText: 'Data analyst' }).getByTestId('iv-start-SQL').click();
       await page.getByTestId('iv-mode-text').check();
       await page.getByTestId('iv-agree').check();
+      await page.getByTestId('pledge-interview').getByTestId('pledge-tick').check(); // T9: the honesty pledge
       await page.getByTestId('iv-go').click();
 
       const dlg = page.getByRole('dialog', { name: 'Quick check: is it really you?' });

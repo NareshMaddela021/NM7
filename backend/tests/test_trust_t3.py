@@ -237,14 +237,15 @@ async def test_gate_before_interview_and_skill_check(db, make_client, outbox, ad
     assert r.status_code == 200, r.text
     await db["skill_attempts"].delete_many({"user_id": uid})
 
+    # (Vetting Trust T9: Trust people also tick the honesty pledge, version 1)
     await db["settings"].update_one({"_id": "site"}, {"$addToSet": {"trust.testers": "esha@example.com"}})
-    r = await c.post("/api/me/skill-checks/start", json={"skill": "SQL"})
+    r = await c.post("/api/me/skill-checks/start", json={"skill": "SQL", "pledge": 1})
     assert r.status_code == 409 and r.json()["error"]["code"] == "face_check_needed"
     assert "driving licence or PAN card" in r.json()["error"]["message"] and r.json()["error"]["face"] == {
         "status": "none",
         "step": "skill_check",
     }
-    r = await c.post("/api/me/interviews/start", json={"test": "SQL", "consent": True})
+    r = await c.post("/api/me/interviews/start", json={"test": "SQL", "consent": True, "pledge": 1})
     assert (
         r.status_code == 409
         and r.json()["error"]["code"] == "face_check_needed"
@@ -263,8 +264,10 @@ async def test_gate_before_interview_and_skill_check(db, make_client, outbox, ad
         )
     ).json()
     assert d["require"] == {"interview": False, "skillCheck": True}
-    assert (await c.post("/api/me/interviews/start", json={"test": "SQL", "consent": True})).status_code == 200
-    assert (await c.post("/api/me/skill-checks/start", json={"skill": "SQL"})).json()["error"][
+    assert (
+        await c.post("/api/me/interviews/start", json={"test": "SQL", "consent": True, "pledge": 1})
+    ).status_code == 200
+    assert (await c.post("/api/me/skill-checks/start", json={"skill": "SQL", "pledge": 1})).json()["error"][
         "code"
     ] == "face_check_needed"
 
@@ -272,14 +275,14 @@ async def test_gate_before_interview_and_skill_check(db, make_client, outbox, ad
     await c.post("/api/me/trust/age", json={"dob": "1999-04-12"})
     await c.post("/api/me/trust/consents/selfie_face")
     assert (await check(c, step="skill_check")).json()["state"]["status"] == "verified"
-    assert (await c.post("/api/me/skill-checks/start", json={"skill": "SQL"})).status_code == 200
+    assert (await c.post("/api/me/skill-checks/start", json={"skill": "SQL", "pledge": 1})).status_code == 200
     # a person reviewing: told plainly, and nobody rejected
     await db[TRUST_FACE].update_one({"_id": uid}, {"$set": {"status": "review"}})
     await owner.put(
         "/api/admin/trust/face", json={"provider": "mock", "require": {"interview": True, "skillCheck": True}}
     )
     await db["vetting_interviews"].delete_many({"user_id": uid})
-    r = await c.post("/api/me/interviews/start", json={"test": "SQL", "consent": True})
+    r = await c.post("/api/me/interviews/start", json={"test": "SQL", "consent": True, "pledge": 1})
     assert (
         r.json()["error"]["code"] == "face_check_needed"
         and "A person at Nm7 is checking" in r.json()["error"]["message"]

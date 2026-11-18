@@ -115,10 +115,12 @@ the switch is off for sees the interview summary as before.
   explain turn for others); the rules fallback in Hindi with a spoken task and rules grading; an unusable AI answer →
   rules question; Admin 2 questions / off; **switch OFF**: 404, no pledge, no limits block, the old 30-day and refresher
   rules, 7 questions, no explain call, nothing new stored.
-- Full backend suite, ruff check / format: see the report. Frontend: vitest **651 passed** (4 new: the limits and
+- Full backend suite: **1348 passed**, only the known local-only `test_test_users::test_create_open_and_remove` fails
+  (T3's gate test now sends the pledge for its Trust tester). `ruff check` / `ruff format --check`: clean. Frontend: vitest **651 passed** (4 new: the limits and
   pledge texts), lint no new warnings (the 3 old ones), build OK.
-- e2e `frontend/e2e-live/trust-t9.spec.mjs`, desktop + 390 px, `--repeat-each 2`: see the report. `trust-t1.spec.mjs`
-  with `--repeat-each 2`: 16 passed.
+- e2e `frontend/e2e-live/trust-t9.spec.mjs`, desktop + 390 px, `--repeat-each 2`: **16 passed**. `trust-t1.spec.mjs`
+  with `--repeat-each 2`: **16 passed**. Re-run and passing: trust-t3, trust-t8 (they now tick the pledge for their
+  Trust testers), hire-skillcheck, hire-skillcheck-classic, vetting-interview, vetting-admin, hire-shortlist.
 
 ## Vendors to sign up for
 

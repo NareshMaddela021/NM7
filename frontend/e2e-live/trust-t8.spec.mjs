@@ -79,6 +79,7 @@ for (const [label, opts] of SIZES) {
       expect(await noSideScroll(page)).toBe(true);
       await choice.getByTestId('snap-tick').check();
       await expect(choice.getByTestId('snap-tick')).toBeChecked();
+      await dlg.getByTestId('pledge-tick').check(); // T9: the honesty pledge
       await dlg.getByTestId('vt-go').click();
       await expect(page.getByTestId('vt-q')).toBeVisible({ timeout: 20_000 });
       await expect(page.getByTestId('snap-status')).toContainText('0 of 4 still photos taken', { timeout: 20_000 });
@@ -112,6 +113,7 @@ for (const [label, opts] of SIZES) {
       await person(page, `tt8no-${label}`, `Bala NoSnap ${label}`, { vetting: true });
       const dlg = await startSql(page);
       await expect(dlg.getByTestId('snap-choice')).toBeVisible({ timeout: 20_000 });
+      await dlg.getByTestId('pledge-tick').check(); // T9: the honesty pledge
       await dlg.getByTestId('vt-go').click();
       await expect(page.getByTestId('vt-q')).toBeVisible({ timeout: 20_000 });
       await page.waitForLoadState('networkidle');
