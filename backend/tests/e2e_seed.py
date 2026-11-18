@@ -35,6 +35,10 @@ MONGODB_DB=nm7_e2e uv run python -m tests.e2e_seed reset
                                           contact) and an interview booked 2 h 15 m after posting
 ... trust-t12-regrade TAG              → T12: an AI interview whose "Explained own work" a second AI check disagreed
                                           with (strong → weak), waiting for a person → {"id": the re-grade}
+... trust-t14-pass EMAIL TEST         → T14: a passed skill check for TEST (80/100) with its practical task not started
+                                          yet → {"id": attempt} (a tech role becomes a coding task for Trust people)
+... trust-t14-code WHO                 → T14: a finished coding task (5 of 5 hidden tests) with an editor replay (typing
+                                          and one big paste) and the replay consent, for an email or @demo-applicants
 ... trust-t7-person EMAIL KIND [consent] → T7: the adult age check, a resume (KIND data: SQL / Power BI; acct:
                                           Tally / GST, Telugu) and, with "consent", the job-requirements consent
 ... auto-apply-run [EMAIL [past]]      → the Auto Apply run now (any hour); with EMAIL and "past", that student's
@@ -439,6 +443,117 @@ async def main(cmd: str, *args: str) -> dict:
         row["fluency"] = {"score": v, "wpm": 120, "pausesPerMin": 1.0, "fillersPer100": 0.5, "minutes": 2.0}
         await db["trust_spoken"].insert_one(row)
         return {"ok": True}
+    if cmd == "trust-t14-pass":  # Vetting Trust T14: a passed skill check whose practical task is still open
+        from bson import ObjectId
+
+        from app.hire.vetting.roles import BY_TEST
+
+        mail, test = args
+        u = await db["users"].find_one({"email": mail})
+        aid, t = ObjectId(), now()
+        await db["skill_attempts"].insert_one(
+            {
+                "_id": aid,
+                "v": 2,
+                "user_id": u["_id"],
+                "skill": test,
+                "slug": BY_TEST[test]["slug"],
+                "kind": "full",
+                "lang": "en",
+                "integrity": {"level": "clean"},
+                "remaining_ms": 0,
+                "topics": {},
+                "band": "fresher",
+                "started_at": t - timedelta(minutes=12),
+                "last_seen": t,
+                "submitted_at": t,
+                "score": 80,
+                "right": 15,
+                "total": 18,
+            }
+        )
+        return {"id": str(aid)}
+    if cmd == "trust-t14-code":  # Vetting Trust T14: a finished coding task with its editor replay (and the consent)
+        from bson import ObjectId
+
+        from app.companies.demo import COMPANY_ID
+        from app.trust.code import problems as PB
+        from app.trust.code import replay as RP
+
+        (who,) = args
+        if who == "@demo-applicants":
+            uids = await db["applications"].distinct("user_id", {"company_id": COMPANY_ID})
+        else:
+            uids = [(await db["users"].find_one({"email": who}))["_id"]]
+        p = PB.SEEDS[0]
+        start = p["languages"]["python"]
+        typed = "\nprint(sum(x for x in nums if x % 2 == 0))\n"
+        paste = "# helper pasted from my notes\n" + "def evens(xs):\n    return [x for x in xs if x % 2 == 0]\n" * 4
+        events = [[120, "e", len(start) + i, 0, ch] for i, ch in enumerate(typed)] + [
+            [4000, "b", 0, 0, ""],
+            [9000, "f", 0, 0, ""],
+        ]
+        events.append([300, "p", len(start) + len(typed), 0, paste])
+        rep = {"v": 1, "start": start, "lang": "python", "truncated": False, "events": events}
+        source = RP.final_text(rep)
+        t = now()
+        for uid in uids:
+            aid = ObjectId()
+            cases = [
+                {
+                    "i": i,
+                    "hidden": i >= 2,
+                    "name": x["name"],
+                    "status": "ran",
+                    "passed": True,
+                    "time_s": 0.02,
+                    "memory_kb": 3000,
+                }
+                for i, x in enumerate([*p["samples"], *p["hidden"]])
+            ]
+            await db["trust_code"].insert_one(
+                {
+                    "_id": aid,
+                    "user_id": uid,
+                    "skill": "Python",
+                    "problem": PB.snapshot({**p, "version": 1}),
+                    "runs": 3,
+                    "created_at": t,
+                    "submission": {
+                        "status": "done",
+                        "language": "python",
+                        "source": source,
+                        "queued_at": t,
+                        "done_at": t,
+                        "tries": 0,
+                        "passed": 5,
+                        "total": 5,
+                        "failing_samples": [],
+                        "cases": cases,
+                        "flags": ["code_big_paste"],
+                        "counters": {"typed": len(typed), "pasted": len(paste), "largestPaste": len(paste)},
+                        "replay": "kept",
+                    },
+                }
+            )
+            await db["trust_code_replays"].insert_one(
+                {
+                    "user_id": uid,
+                    "attempt_id": aid,
+                    "skill": "Python",
+                    "language": "python",
+                    "replay": rep,
+                    "stats": {**RP.stats(rep), "consistent": True},
+                    "size": RP.size_of(rep),
+                    "created_at": t,
+                }
+            )
+            await db["trust_consents"].update_one(
+                {"user_id": uid, "purpose": "code_replay", "withdrawn_at": None},
+                {"$setOnInsert": {"version": 1, "granted_at": t, "channel": "flow"}},
+                upsert=True,
+            )
+        return {"n": len(uids)}
     if cmd in ("trust-t9-task", "trust-t9-attempt"):  # Vetting Trust T9: a task answer behind a badge / a past attempt
         from bson import ObjectId
 
