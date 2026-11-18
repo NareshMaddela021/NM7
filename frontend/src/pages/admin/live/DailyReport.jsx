@@ -12,6 +12,7 @@ import '../../../styles/admin-daily.css';
 
 // loaded with the report's own chunk's import map (not the main bundle's): shared with Admin → Auto Apply
 const AutoApplyNumbers = lazy(() => import('./AutoApplyNumbers'));
+const TimeToHireNumbers = lazy(() => import('./TimeToHireNumbers')); // Vetting Trust T13 (internal: admins, demo left out)
 
 function Sparkline({ series, fmt = num, label }) {
   const runs = sparkPoints(series, 120, 32);
@@ -126,7 +127,7 @@ function RecentErrors({ rows }) {
 const MSTATE = { met: ['mchip-ok', 'Met'], miss: ['mchip-bad', 'Not met'], none: ['mchip-neutral', 'No data yet'] };
 const LEVELS = ['L0', 'L1', 'L2', 'L3', 'L4'];
 
-function Report({ d }) {
+function Report({ d, toast }) {
   const m = d.metrics;
   const t = d.today || {};
   const col = t.collector || {};
@@ -277,6 +278,10 @@ function Report({ d }) {
         right={aa ? <span className={`mchip ${aa.switchOn ? 'mchip-ok' : 'mchip-neutral'}`} data-testid="dr-aa-switch">Auto Apply 2.0: {aa.switchOn ? 'public' : 'testers only'}</span> : null}>
         <Suspense fallback={<Spinner />}><AutoApplyNumbers aa={aa} /></Suspense>
       </Section>
+
+      <Section id="dr-tth-h" title="Time to hire" sub="From a company job being posted to the first shortlist, contact, interview and offer. Demo companies, demo jobs and test accounts are never counted.">
+        <Suspense fallback={<Spinner />}><TimeToHireNumbers tth={t.timeToHire} http={http} toast={toast} /></Suspense>
+      </Section>
     </div>
   );
 }
@@ -327,7 +332,7 @@ export default function DailyReport() {
         </div>
       )}
       {d && d.busy && <div className="well small" role="status">Another big job is running on the server. Today’s numbers appear in a minute (press Refresh now).</div>}
-      {d && <Report d={d} />}
+      {d && <Report d={d} toast={toast} />}
     </div>
   );
 }

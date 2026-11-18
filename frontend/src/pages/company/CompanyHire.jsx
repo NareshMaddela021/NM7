@@ -27,6 +27,7 @@ import HireOffers from './HireOffers';
 import TrustBookings from './TrustBookings'; // Vetting Trust T11 (renders nothing unless the Trust switch allows)
 import HireBulk from './HireBulk';
 import HireSpeed from './HireSpeed';
+import TimeToHire from './TimeToHire'; // Vetting Trust T13 (renders nothing unless the Trust switch allows)
 import SkillBadge from './SkillBadge';
 import ScreeningInterview from './ScreeningInterview';
 import NmCheck from './NmCheck';
@@ -259,6 +260,7 @@ export default function CompanyHire({ t, c }) {
         {d?.usage && <span className="mchip mchip-info hn-usage" data-testid="co-hire-usage">{t('co.hire.usage', { used: d.usage.used, free: d.usage.free })}</span>}
       </div>
       <HireSpeed t={t} c={c} />
+      <TimeToHire c={c} />
       {job && <HireBulk key={`b-${job}`} t={t} c={c} job={job} canEdit={canInvite} people={invites.filter((x) => x.status === 'accepted').map((x) => ({ key: x.key, name: x.name }))} onChange={load} />}
       {err && <p className="error" role="alert">{err}</p>}
       {!d && !err && (

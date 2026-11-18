@@ -195,3 +195,11 @@
 .hn-parts dd { margin: 0; display: inline-flex; align-items: center; gap: 8px; color: var(--text2); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .hn-bar { width: 56px; height: 6px; border-radius: 6px; background: #dfe7ff; overflow: hidden; display: inline-block; }
 .hn-bar > i { display: block; height: 100%; background: #2563eb; border-radius: 6px; }
+
+/* Vetting Trust T13: Time to hire (own jobs vs the Nm7 median); wraps at 390 px */
+.tth-co-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.tth-co-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 160px), 1fr)); gap: 8px; }
+.tth-co-step { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 14px; background: #f4f7ff; border: 1px solid #dfe7ff; min-width: 0; overflow-wrap: anywhere; }
+.tth-co-step strong { font-size: 20px; font-variant-numeric: tabular-nums; color: #1d4ed8; }
+.tth-co-jobs { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.tth-co-job { display: flex; flex-direction: column; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
