@@ -354,6 +354,24 @@ async def test_snapshots_only_with_consent_encrypted_capped_audited_deleted(db, 
     ).json()["error"]["code"] == "bad_image"
     assert (await c.get(URL)).json()["snapshots"]["note"].startswith("4 webcam snapshots")
 
+    # the AI interview works the same way (a running interview only)
+    iv = ObjectId()
+    await db[VETTING_INTERVIEWS].insert_one(
+        {"_id": iv, "user_id": uid, "test": "SQL", "status": "running", "started_at": now(), "signals": {}}
+    )
+    p = (await c.post(f"{URL}/snapshots/plan", json={"kind": "interview", "ref": str(iv)})).json()
+    assert p["on"] is True and len(p["dueInMs"]) == 4
+    assert (
+        await c.post(f"{URL}/snapshots", json={"kind": "interview", "ref": str(iv), "image": b64(jpeg(b"IV"))})
+    ).json() == {"taken": 1, "left": 3}
+    await db[VETTING_INTERVIEWS].update_one(
+        {"_id": iv}, {"$set": {"status": "graded", "answered_at": now() - timedelta(minutes=5)}}
+    )
+    assert (
+        await c.post(f"{URL}/snapshots/plan", json={"kind": "interview", "ref": str(iv)})
+    ).status_code == 404  # over
+    await db[TRUST_SNAPSHOTS].delete_many({"session": f"{uid}:interview:{iv}"})
+
     # only reviewers see a photo, and each look is recorded
     owner = await admin_client()
     ev = (await owner.get(f"/api/admin/trust/integrity/{uid}")).json()
