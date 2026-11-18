@@ -21,6 +21,7 @@ index), so a re-run never applies twice; each student is locked while their part
 an interrupted run resumes where it stopped. The run log (auto_runs) counts what happened and keeps errors.
 """
 
+import asyncio
 import logging
 import re
 from datetime import datetime, time, timedelta
@@ -609,6 +610,7 @@ async def run(db, mailer=None, force: bool = False, limit: int = PAGE) -> dict[s
     v2 = site["auto_apply_v2"]
     async with heavy_or_skip(db) as heavy:  # 2.0 tailors: a heavy job; another heavy job running → 2.0 waits a pass
         async for u in users:
+            await asyncio.sleep(0)  # let the server answer requests between students (never hold the event loop)
             is_v2 = bool((u.get("auto_apply") or {}).get("v2_consent_at")) and access.allowed(u, v2)
             if is_v2 and not heavy:
                 counts["v2_waiting_heavy"] = counts.get("v2_waiting_heavy", 0) + 1
