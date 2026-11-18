@@ -3,6 +3,7 @@
 // short questions, before → after, a tip when there is no number, Accept / Edit / Skip.
 import { expect, test } from '@playwright/test';
 import { API, PASSWORD, email, login, seed } from './helpers.mjs';
+import { noSideScroll } from './college.mjs';
 
 const SIZES = [['desktop', { viewport: { width: 1280, height: 900 } }], ['phone', { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true }]];
 const post = (page, path, body) => page.evaluate(async ([base, p, b]) => {
@@ -65,7 +66,7 @@ for (const [label, opts] of SIZES) {
       await ph.getByTestId('ph-accept').click();
       await expect(page.getByRole('article', { name: 'Resume preview' })).toContainText('Cut roll call from 10 minutes to 2');
       await expect(page.getByRole('article', { name: 'Resume preview' })).not.toContainText('made an app for attendance');
-      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
+      expect(await noSideScroll(page)).toBe(true);
     });
   });
 }

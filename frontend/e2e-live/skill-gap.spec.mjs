@@ -7,6 +7,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
 import { API, PASSWORD, adminLogin, email, login, seed } from './helpers.mjs';
+import { noSideScroll } from './college.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const POST = readFileSync(join(here, 'fixtures', 'job-data-analyst.txt'), 'utf8');
@@ -46,7 +47,7 @@ for (const [label, opts] of SIZES) {
       await admin.getByTestId('course-url').fill('https://nptel.ac.in/courses');
       await admin.getByTestId('course-save').click();
       await expect(admin.getByText(title)).toBeVisible();
-      expect(await admin.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
+      expect(await noSideScroll(admin)).toBe(true);
 
       // the student
       const page = await browser.newPage(opts);
@@ -78,7 +79,7 @@ for (const [label, opts] of SIZES) {
       await expect(prove.getByRole('link', { name: 'Add a project that uses it' })).toHaveAttribute('href', '/builder?start=section&sec=proj');
       await expect(sql).toContainText('Learned');
       expect((await call(page, `/api/me/resumes/${r.id}`)).body.data.skills).toEqual(before);
-      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
+      expect(await noSideScroll(page)).toBe(true);
       await page.close();
       // clean up (3 links per skill at most: the next run's course must have room)
       const mine = (await call(admin, '/api/admin/courses')).body.find((c) => c.title === title);

@@ -9,6 +9,7 @@ import { readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
 import { API, PASSWORD, adminLogin, email, login, seed, teluguHindi } from './helpers.mjs';
 import { webhook } from './orgBilling.mjs';
+import { noSideScroll } from './college.mjs';
 
 teluguHindi(test); // these tests are about Telugu / Hindi: shown for this file (item 41)
 
@@ -169,7 +170,7 @@ for (const [label, opts] of SIZES) {
       await page.goto('/me');
       await page.getByTestId('me-li-pack').getByRole('link', { name: 'Open my LinkedIn pack' }).click();
       await expect(page.getByTestId('li-pack')).toBeVisible();
-      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
+      expect(await noSideScroll(page)).toBe(true);
 
       // another account stays locked
       const otherCtx = await browser.newContext(opts);

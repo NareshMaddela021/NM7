@@ -6,6 +6,7 @@ import { readFileSync } from 'node:fs';
 import { unzipSync, strFromU8 } from 'fflate';
 import { expect, test } from '@playwright/test';
 import { API, PASSWORD, email, login, seed } from './helpers.mjs';
+import { noSideScroll } from './college.mjs';
 
 const SIZES = [['desktop', { viewport: { width: 1280, height: 900 } }], ['phone', { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true }]];
 const post = (page, path, body) => page.evaluate(async ([base, p, b]) => {
@@ -74,7 +75,7 @@ for (const [label, opts] of SIZES) {
       await expect(dlg.getByTestId('check-cutoff')).toHaveAttribute('data-ok', 'yes');
       await expect(dlg.getByTestId('check-download')).toHaveText('Download PDF anyway');
       // the dialog fits a phone: no sideways scrolling
-      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
+      expect(await noSideScroll(page)).toBe(true);
       await dlg.getByTestId('check-back').click();
       await expect(dlg).toHaveCount(0);
       await page.waitForTimeout(500);
