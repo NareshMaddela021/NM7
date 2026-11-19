@@ -85,7 +85,7 @@ for (const [label, opts] of SIZES) {
     test('expert: after submitting, the application waits for review', async ({ page }) => {
       await seeded(page, `sc-exp-${label}`, ['expert']);
       const profile = {
-        about: { name: 'Kiran Rao', headline: 'Senior recruiter · 8 years', bio: 'I have hired for retail and IT teams for eight years and reviewed hundreds of resumes for freshers and early-career people across India.', city: 'Pune', languages: ['English'] },
+        about: { name: 'Kiran Rao', headline: 'Senior recruiter · 8 years', bio: 'I have hired for retail and IT teams for eight years and reviewed hundreds of resumes for freshers and early-career people across India. I explain every change in plain words.', city: 'Pune', languages: ['English'] },
         photo: 'data:image/png;base64,iVBORw0KGgo=',
         expertise: { domains: ['Sales'], roles: 'Sales executive', levels: ['fresher'] },
         proof: { experience: [{ role: 'Recruiter', company: 'Acme' }], certs: [], linkedin: '', recruiterYears: '8', resumesWritten: '300+' },

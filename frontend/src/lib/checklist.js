@@ -4,13 +4,14 @@
 import { LIVE, http } from '../services/http';
 
 const FRESH = 'nm7-sc-fresh';
+let freshUntil = 0;
 
 /** The active role's checklist (or `role`'s). null in the preview (no server). After the person opened a step, the
  * next read skips the server's short cache so a step they just finished is ticked at once. */
 export function getChecklist(role) {
   if (!LIVE) return Promise.resolve(null);
-  let fresh = false;
-  try { fresh = sessionStorage.getItem(FRESH) === '1'; sessionStorage.removeItem(FRESH); } catch { /* private mode */ }
+  try { if (sessionStorage.getItem(FRESH) === '1') { freshUntil = Date.now() + 3000; sessionStorage.removeItem(FRESH); } } catch { /* private mode */ }
+  const fresh = Date.now() < freshUntil; // a few seconds, so a second read at the same time (React's dev double run) agrees
   const q = new URLSearchParams();
   if (role) q.set('role', role);
   if (fresh) q.set('fresh', '1');
