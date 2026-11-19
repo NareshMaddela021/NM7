@@ -173,6 +173,8 @@ TRUST_CRITERIA_EVALS = "trust_criteria_evals"  # T7: _id = user:criterion hash: 
 TRUST_CRITERIA_QUEUE = "trust_criteria_queue"  # T7: _id = user:criterion hash: waiting for the AI (capped passes)
 TRUST_CRITERIA_CLAIMS = "trust_criteria_claims"  # T7: evidence a candidate added (a certificate), checked by Nm7 first
 TRUST_INTEGRITY = "trust_integrity"  # T8: _id = user id: the integrity rating, human decisions per signal, the review
+TRUST_SPOKEN = "trust_spoken"  # T10: _id = interview id: the spoken-English score (sub-scores, band, provider refs)
+TRUST_SPOKEN_AUDIO = "trust_spoken_audio"  # T10: voice clips, only when Admin turns keeping on (off by default; days)
 TRUST_FACE = "trust_face"  # T3: _id = user id: the ID + selfie result, retries, review, joining check (never photos)
 LEARN_PATHS = "learn_paths"  # Phase 6 S2, _id = role id: courses → project → skill check (Admin → Learning paths)
 OFFER_CHECKS = (
@@ -309,6 +311,8 @@ COLLECTIONS = (
     TRUST_CRITERIA_QUEUE,
     TRUST_CRITERIA_CLAIMS,
     TRUST_INTEGRITY,
+    TRUST_SPOKEN,
+    TRUST_SPOKEN_AUDIO,
     VETTING_L4,
     VETTING_REVIEWERS,
     VETTING_INTERVIEWS,
@@ -525,6 +529,8 @@ INDEXES: dict[str, list[IndexModel]] = {
     TRUST_EMPLOYER_LOOKUPS: [IndexModel("at"), IndexModel([("company_id", ASCENDING), ("at", DESCENDING)])],
     TRUST_AGENT_PREFS: [IndexModel("wa_id"), IndexModel("updated_at")],
     TRUST_WORK_PREFS: [IndexModel("updated_at"), IndexModel("location.at", sparse=True)],
+    TRUST_SPOKEN: [IndexModel([("user_id", ASCENDING), ("created_at", DESCENDING)]), IndexModel("created_at")],
+    TRUST_SPOKEN_AUDIO: [IndexModel("user_id"), IndexModel("created_at")],
     TRUST_CRITERIA_EVALS: [IndexModel("user_id"), IndexModel("at")],
     TRUST_CRITERIA_QUEUE: [IndexModel("at"), IndexModel("job_id"), IndexModel("user_id")],
     TRUST_CRITERIA_CLAIMS: [

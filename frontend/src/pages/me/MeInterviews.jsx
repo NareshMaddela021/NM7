@@ -27,6 +27,7 @@ const SnapshotChoice = lazy(lazyRetry(() => import('./trust/Snapshots').then((m)
 const Pledge = lazy(lazyRetry(() => import('./trust/Honesty').then((m) => ({ default: m.Pledge }))));
 const RetakeInfo = lazy(lazyRetry(() => import('./trust/Honesty').then((m) => ({ default: m.RetakeInfo }))));
 const ExplainNote = lazy(lazyRetry(() => import('./trust/Honesty').then((m) => ({ default: m.ExplainNote }))));
+const SpokenChoice = lazy(lazyRetry(() => import('./trust/Spoken').then((m) => ({ default: m.SpokenChoice })))); // Vetting Trust T10 (only when the server sends `spoken`)
 
 function LastChip({ last }) {
   if (!last) return null;
@@ -70,17 +71,20 @@ function Setup({ r, d, onCancel, onGo }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   const [pledge, setPledge] = useState(); // T9: undefined = not asked, null = not ticked yet, n = the version ticked
+  const [spoken, setSpoken] = useState(false); // T10: also measure my spoken English (voice + English)
   const secs = (m) => Math.round((d.seconds?.[m] || (m === 'voice' ? 100 : 150)) * (extra ? 1.5 : 1));
   const go = async () => {
     setBusy(true); setErr('');
-    try { await onGo({ test: r.test, lang, mode, extraTime: extra, consent: true, ...(pledge ? { pledge } : {}) }); } catch (e) { setErr(e.message); setBusy(false); }
+    try { await onGo({ test: r.test, lang, mode, extraTime: extra, consent: true, ...(pledge ? { pledge } : {}), ...(spoken && mode === 'voice' && lang === 'en' && canSpeak ? { spoken: true } : {}) }); } catch (e) { setErr(e.message); setBusy(false); }
   };
   return (
     <div className="mstack iv-setup" data-testid="iv-setup">
       <MeCard tone="flat" icon="🔒" title="Before you start: how the interview works" sub={`${r.role || r.test}. Please read this, then tick “I agree”.`} testid="iv-consent">
         <ul className="vet-consent-list iv-consent">
           <li><strong>What it is:</strong> 7 questions about your work for this role, about {d.minutes || 10} minutes. You can type or speak your answers. After an answer, the AI may ask one short follow-up about what you said.</li>
-          <li><strong>Speaking:</strong> your speech is turned into text in your browser. No audio is recorded, stored or sent.</li>
+          <li><strong>Speaking:</strong> your speech is turned into text in your browser. {spoken && mode === 'voice' && lang === 'en' && d.spoken?.pronunciation
+            ? 'Because you chose the spoken-English score, a short recording of each answer goes to our speech-assessment partner and is then deleted; it is not kept.'
+            : 'No audio is recorded, stored or sent.'}</li>
           <li><strong>Timed:</strong> each answer has its own timer ({timeWords(secs('text'))} typed, {timeWords(secs('voice'))} spoken). When it ends, what you have is sent.</li>
           <li><strong>Typing:</strong> pasting is turned off, so please type in your own words. Leaving the page is counted.</li>
           <li><strong>Grading:</strong> {d.criteria.map((c) => c.label.toLowerCase()).join(', ')}; each out of 5. To pass: an average of {d.pass.average} or more and no line below {d.pass.min}. A pass makes you L3 “Interview-ready” for 180 days.</li>
@@ -122,6 +126,7 @@ function Setup({ r, d, onCancel, onGo }) {
           <input type="checkbox" checked={extra} onChange={(e) => setExtra(e.target.checked)} data-testid="iv-extra" />
           <span><strong>I need extra time</strong><span className="xs muted" style={{ display: 'block' }}>For a disability, reading difficulty or a slow phone: 1½ times the time for each answer. It doesn’t change your score.</span></span>
         </label>
+        {d.spoken && canSpeak && <Suspense fallback={null}><SpokenChoice d={d.spoken} mode={mode} lang={lang} on={spoken} onChange={setSpoken} /></Suspense>}
         <Suspense fallback={null}><SnapshotChoice kind="interview" /></Suspense>
         <Suspense fallback={null}><Pledge kind="interview" lang={lang} onChange={setPledge} /></Suspense>
         <label className="vet-check">

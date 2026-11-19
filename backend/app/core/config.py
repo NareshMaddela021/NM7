@@ -112,6 +112,12 @@ class Settings(BaseSettings):
     bolna_base_url: str = "https://api.bolna.ai"
     voice_webhook_secret: str = ""
 
+    # Vetting Trust T10: the spoken-English score's pronunciation part (Admin → Skill checks → Vetting Trust → Spoken
+    # English picks the provider; without a key pronunciation is "not measured"). Azure AI Speech, Pronunciation
+    # Assessment (REST, short audio): one Speech resource key and its region (docs/trust/T10-vendors.md).
+    azure_speech_key: str = ""
+    azure_speech_region: str = "centralindia"
+
     # Razorpay — empty until keys exist
     razorpay_key_id: str = ""
     razorpay_key_secret: str = ""

@@ -13,8 +13,8 @@ import { API, PASSWORD, email, lastCode, login, ownNetwork, seed } from './helpe
 import { SIZES, call, json, noSideScroll } from './college.mjs';
 
 const letters = () => Math.random().toString(36).replace(/[^a-z]/g, '').slice(0, 5).padEnd(5, 'x');
-const JOB = (title) => ({ title, description: 'Build weekly dashboards in SQL and Power BI for our stores. Telugu speakers preferred. Freshers are welcome.',
-  locations: ['Hyderabad'], experience: 'fresher', jobType: 'full_time', workType: 'onsite', skills: ['SQL', 'Power BI'] });
+const JOB = (title, city = 'Hyderabad') => ({ title, description: 'Build weekly dashboards in SQL and Power BI for our stores. Telugu speakers preferred. Freshers are welcome.',
+  locations: [city], experience: 'fresher', jobType: 'full_time', workType: 'onsite', skills: ['SQL', 'Power BI'] });
 
 async function company(request, tag, { tester = true } = {}) {
   const site = `t7${tag}.example`;
@@ -141,13 +141,14 @@ for (const [label, opts] of SIZES) {
       page.on('dialog', () => { throw new Error('no browser dialogs'); });
       const tag = `${label[0]}h${Date.now().toString(36)}`;
       const co = await company(request, tag);
-      const posted = await (await request.post(`${API}/api/company/${co.id}/jobs`, { headers: co.H, data: { job: JOB(`Field Analyst ${tag}`) } })).json();
+      const city = `Tq${letters()}pur`; // the job's own place: Hire now's top 10 holds only this test's people
+      const posted = await (await request.post(`${API}/api/company/${co.id}/jobs`, { headers: co.H, data: { job: JOB(`Field Analyst ${tag}`, city) } })).json();
       const dataName = `Ved${letters()} Rao`;
       const acctName = `Ana${letters()} Reddy`;
       const a = await candidate(browser, opts, `tt7ha-${label}`, dataName, 'data', { consent: true });
       const b = await candidate(browser, opts, `tt7hb-${label}`, acctName, 'acct', { consent: true });
-      seed('trust-t6-ready', a.mail);
-      seed('trust-t6-ready', b.mail);
+      seed('trust-t6-ready', a.mail, '', city);
+      seed('trust-t6-ready', b.mail, '', city);
       await a.ctx.close();
       await b.ctx.close();
 

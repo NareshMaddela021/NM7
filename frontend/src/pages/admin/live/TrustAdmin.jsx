@@ -20,6 +20,7 @@ import TrustCriteriaAdmin from './TrustCriteriaAdmin'; // T7: evidence candidate
 import TrustFaceAdmin from './TrustFaceAdmin';
 import TrustIntegrityAdmin from './TrustIntegrityAdmin'; // T8: integrity rating, review queue, evidence, snapshots
 import TrustHonestyAdmin from './TrustHonestyAdmin'; // T9: honesty pledge, retake limits, Explain your answer
+import TrustSpokenAdmin from './TrustSpokenAdmin'; // T10: spoken-English score: provider, role categories, counts
 import TrustEmployerAdmin from './TrustEmployerAdmin';
 import TrustAgentAdmin from './TrustAgentAdmin';
 
@@ -215,6 +216,7 @@ export default function TrustAdmin() {
       {!st.error && <TrustFaceAdmin />}
       {!st.error && <TrustIntegrityAdmin />}
       {!st.error && <TrustHonestyAdmin />}
+      {!st.error && <TrustSpokenAdmin />}
       {!st.error && <TrustEmployerAdmin />}
       {!st.error && <TrustAgentAdmin />}
       {!st.error && <Breaches />}

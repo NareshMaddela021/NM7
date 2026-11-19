@@ -17,6 +17,7 @@ import '../../../styles/me-iv.css';
 // Vetting Trust T9 (only when the server sends them: people Vetting Trust is on for)
 const RetakeInfo = lazy(lazyRetry(() => import('../trust/Honesty').then((m) => ({ default: m.RetakeInfo }))));
 const PledgeNote = lazy(lazyRetry(() => import('../trust/Honesty').then((m) => ({ default: m.PledgeNote }))));
+const SpokenResult = lazy(lazyRetry(() => import('../trust/Spoken').then((m) => ({ default: m.SpokenResult })))); // T10
 
 /** T9 "Explain your answer": how well they explained their own practical task (a plain label and the reason). */
 function Explained({ e }) {
@@ -75,6 +76,7 @@ export default function IvResult({ id, initial, pass }) {
           <span className="xs muted">{again}</span>
         </MeCard>
         <Explained e={r.explained} />
+        {r.spokenEnglish && <Suspense fallback={null}><SpokenResult s={r.spokenEnglish} /></Suspense>}
         {r.retake && <Suspense fallback={null}><RetakeInfo rk={r.retake} what="interview" /><PledgeNote items={[r.pledge && { ...r.pledge, what: 'interview' }]} /></Suspense>}
         <Transcript rows={r.transcript} />
         <div className="mrow"><Link className="btn btn-outline" to="/me/interviews">All interviews</Link></div>
@@ -107,6 +109,7 @@ export default function IvResult({ id, initial, pass }) {
       </section>
 
       <Explained e={r.explained} />
+      {r.spokenEnglish && <Suspense fallback={null}><SpokenResult s={r.spokenEnglish} /></Suspense>}
 
       {r.scores?.length > 0 && (
         <MeCard title="Your scores" sub="Each line is out of 5, with the words of yours it is based on." testid="iv-scores">

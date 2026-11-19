@@ -375,7 +375,16 @@ async def _state(db, uid: str) -> dict[str, Any]:
             :60
         ],
         "answers": await my_answers(db, uid),
+        "verified": await verified_languages(db, uid),  # T10: English "verified (B2)" where measured
     }
+
+
+async def verified_languages(db, uid: str) -> dict[str, dict[str, Any]]:
+    """{"English": {band, label, source}} when the T10 spoken-English score measured it."""
+    from app.trust.spoken.service import SOURCE, latest
+
+    row = await latest(db, uid)
+    return {"English": {"band": row["band"], "label": f"verified ({row['band']})", "source": SOURCE}} if row else {}
 
 
 async def _site(db) -> dict[str, Any]:

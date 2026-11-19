@@ -131,10 +131,11 @@ export default function WorkPrefsCard() {
           <div className="row g8" style={{ flexWrap: 'wrap' }}>
             {d.languages.map((l) => (
               <label key={l} className={`mchip ${f.languages.includes(l) ? 'mchip-accent' : 'mchip-neutral'}`} style={{ minHeight: 44, display: 'inline-flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
-                <input type="checkbox" checked={f.languages.includes(l)} onChange={() => set('languages')(toggle(f.languages, l))} data-testid={`wp-lang-${l}`} />{l}
+                <input type="checkbox" checked={f.languages.includes(l)} onChange={() => set('languages')(toggle(f.languages, l))} data-testid={`wp-lang-${l}`} />{l}{d.verified?.[l] && <span className="xs" data-testid={`wp-verified-${l}`}> · {d.verified[l].label}</span>}
               </label>
             ))}
           </div>
+          {d.verified?.English && <span className="xs muted" data-testid="wp-verified-note">English {d.verified.English.label}: {d.verified.English.source.toLowerCase()}. Companies see it as verified.</span>}
         </fieldset>
         <div className="row g12" style={{ flexWrap: 'wrap', alignItems: 'flex-end' }}>
           <label className="row g8 small" style={ROW}><input type="checkbox" checked={!!f.availableNow} onChange={(e) => set('availableNow')(e.target.checked)} data-testid="wp-now" /> I can join now (no notice period)</label>

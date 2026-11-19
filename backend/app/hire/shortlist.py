@@ -425,6 +425,7 @@ async def shortlist(
     max_km: int = Query(0, ge=0, le=500, alias="maxKm"),  # T6: distance from the job at most (rounded km)
     lang: str = Query("", max_length=20),  # T6: a language spoken
     immediate: bool = False,  # T6: available now / no notice
+    english: str = Query("", pattern="^(|A1|A2|B1|B2|C1|C2)$"),  # T10: spoken English at least (tagged roles only)
     x_recruiter_account: str | None = Header(None),
 ) -> dict[str, Any]:
     acc, c, _ = await company_for(db, cid, x_recruiter_account)
@@ -466,12 +467,16 @@ async def shortlist(
     non_tech = None
     if await trust_access.for_company(db, c, acc):  # Vetting Trust T6: verified non-tech filters (else as before)
         from app.trust import screening
+        from app.trust.spoken.service import filter_on
 
         await screening.attach(db, rows, j, c)
+        eng_on = filter_on(await get_site(db), j)  # T10: only for the role categories Admin tagged
         nf = {"licence": licence, "vehicle": vehicle, "nightShift": night_shift, "shift": shift, "maxKm": max_km,
-              "lang": lang, "immediate": immediate}  # fmt: skip
+              "lang": lang, "immediate": immediate, "english": english if eng_on else ""}  # fmt: skip
         rows, counts = screening.apply_filters(rows, nf)
-        non_tech = {"filters": nf, "counts": counts}
+        if not eng_on:
+            counts["english"] = None
+        non_tech = {"filters": nf, "counts": counts, "englishFilter": eng_on}
     from app.trust.criteria.router import attach_hire
 
     criteria = await attach_hire(

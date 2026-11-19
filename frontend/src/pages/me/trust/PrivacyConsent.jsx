@@ -13,6 +13,7 @@ import AgentCard from './AgentCard'; // T5: Calls & WhatsApp, in this chunk (no 
 import WorkPrefsCard from './WorkPrefsCard'; // T6: Work preferences + location pin, in this chunk too
 import CriteriaCard from './CriteriaCard'; // T7: job requirements I was checked on, add evidence (this chunk too)
 import IntegrityCard from './IntegrityCard'; // T8: my integrity rating, what was noticed, explain (this chunk too)
+import SpokenCard from './Spoken'; // T10: my spoken-English band, how it was measured, how to retake (this chunk too)
 
 const fmt = (v) => (v ? new Date(v).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
 const STATUS = { granted: 'On', not_given: 'Off', withdrawn: 'Taken back', outdated: 'Text changed: please read and agree again' };
@@ -77,7 +78,7 @@ function ParentAsk({ age, onDone }) {
 }
 
 export default function PrivacyConsent() {
-  return <><ConsentCard /><IntegrityCard /><WorkPrefsCard /><CriteriaCard /><AgentCard /></>;
+  return <><ConsentCard /><IntegrityCard /><SpokenCard /><WorkPrefsCard /><CriteriaCard /><AgentCard /></>;
 }
 
 function ConsentCard() {

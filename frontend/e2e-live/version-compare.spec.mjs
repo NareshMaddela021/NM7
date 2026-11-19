@@ -3,6 +3,7 @@
 // template and design changes listed on their own, "Restore this version" as before; stacked on a phone.
 import { expect, test } from '@playwright/test';
 import { API, PASSWORD, email, login, seed } from './helpers.mjs';
+import { noSideScroll } from './college.mjs';
 
 const SIZES = [['desktop', { viewport: { width: 1280, height: 900 } }], ['phone', { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true }]];
 const post = (page, path, body) => page.evaluate(async ([base, p, b]) => {
@@ -65,7 +66,7 @@ for (const [label, opts] of SIZES) {
       // phone: one column, no sideways scrolling
       const cols = await vc.locator('.vc-grid').first().evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(' ').length);
       expect(cols).toBe(label === 'phone' ? 1 : 2);
-      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
+      expect(await noSideScroll(page)).toBe(true);
       // restore stays as before
       await page.locator('#vc-left').selectOption('v1');
       await vc.getByRole('button', { name: 'Restore this version' }).click();

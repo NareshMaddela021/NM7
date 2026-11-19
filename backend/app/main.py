@@ -146,6 +146,7 @@ from app.trust.employer import router as trust_employer
 from app.trust.face import router as trust_face
 from app.trust.honesty import router as trust_honesty
 from app.trust.integrity import router as trust_integrity
+from app.trust.spoken import router as trust_spoken
 from app.wapay.router import router as wapay_router
 from app.work.router import router as work_router
 
@@ -398,6 +399,8 @@ def create_app() -> FastAPI:
     app.include_router(trust_integrity.admin)  # /api/admin/trust/integrity (T8: review queue, evidence, settings)
     app.include_router(trust_honesty.me)  # /api/me/trust/honesty (T9: the honesty pledge, my retake limits)
     app.include_router(trust_honesty.admin)  # /api/admin/trust/honesty (T9: retake limits, Explain your answer)
+    app.include_router(trust_spoken.me)  # /api/me/trust/spoken (T10: my spoken-English score, voice clips)
+    app.include_router(trust_spoken.admin)  # /api/admin/trust/spoken (T10: provider, role categories, counts)
     app.include_router(trust_employer.company)  # /api/company/{cid}/trust/employer (T4: verify your business)
     app.include_router(trust_employer.me)  # /api/me/trust/employer, /api/me/trust/fraud (T4: promise, report fraud)
     app.include_router(trust_employer.admin)  # /api/admin/trust/employer, /api/admin/trust/fraud (T4)
