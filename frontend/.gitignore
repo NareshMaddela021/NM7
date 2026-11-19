@@ -4,6 +4,7 @@ dist
 .DS_Store
 dist-preview
 e2e-live/.api.log
+e2e-live/.google-key.json
 test-results
 playwright-report
 shots

@@ -26,7 +26,7 @@ class User(Doc):
     role: str  # customer / expert / admin
     admin_role: str | None = None  # owner / ops / finance / support / quality
     expert_status: str | None = None  # draft / review / test / approved / rejected
-    password_hash: str
+    password_hash: str  # "" = no password (an account made with Google until a password is set)
     totp_secret_enc: str | None = None  # admins: encrypted authenticator secret
     totp_last_step: int | None = None  # last accepted 30-second step (no reuse)
     email_verified_at: datetime | None = None
@@ -47,6 +47,8 @@ class User(Doc):
     demo: bool = False  # made-up people (demo students, test users, an admin's personas): never counted, never real
     owner_admin_id: str | None = None  # an admin's own persona (app/admin/views.py): the admin it belongs to
     password_changed_at: datetime | None = None
+    # "Sign in with Google": only {sub, email, name, picture, linked_at}; never a Google token (app/auth/google.py)
+    google: dict[str, Any] | None = None
     created_at: datetime = Field(default_factory=now)
     updated_at: datetime = Field(default_factory=now)
 
@@ -58,6 +60,10 @@ class User(Doc):
     @property
     def verified(self) -> bool:
         return self.email_verified_at is not None
+
+    @property
+    def has_password(self) -> bool:
+        return bool(self.password_hash)
 
 
 class EmailCode(Doc):

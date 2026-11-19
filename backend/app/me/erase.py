@@ -231,6 +231,7 @@ async def erase_account(db: AsyncDatabase, user_id: str) -> dict[str, int]:
                 "deleted_at": now(),
             },
             "$unset": {
+                "google": "",  # the Google sign-in link (sub, email, name, picture)
                 "deletion": "",
                 "auto_apply": "",
                 "simple": "",

@@ -392,6 +392,7 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel("unverified_expires_at", expireAfterSeconds=0),  # sign-ups never confirmed are dropped
         IndexModel("referral_code", unique=True, partialFilterExpression=_str("referral_code")),
         IndexModel("referred_by"),
+        IndexModel("google.sub", unique=True, partialFilterExpression=_str("google.sub")),  # Sign in with Google
     ],
     EMAIL_CODES: [
         IndexModel([("user_id", ASCENDING), ("purpose", ASCENDING), ("used_at", ASCENDING)]),

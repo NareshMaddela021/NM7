@@ -23,14 +23,16 @@ function loadGsi() {
   return gsi;
 }
 
-/** mode: 'signin' | 'signup'; role: account type for a new account; next: where to go after; onDone(user). */
-export default function GoogleButton({ mode = 'signin', role, next, onDone }) {
+/** mode: 'signin' | 'signup' | 'link'; role: account type for a new account; next: where to go after; onDone(user).
+ *  action: what to do with the credential instead of signing in (Settings → Connect Google); divider: the "or with
+ *  email" line under the button; note: a short line under the button (the terms for a new account). */
+export default function GoogleButton({ mode = 'signin', role, next, onDone, action = googleSignIn, divider = mode !== 'link', note }) {
   const [clientId, setClientId] = useState('');
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
   const box = useRef(null);
-  const latest = useRef({ role, next, onDone });
-  latest.current = { role, next, onDone };
+  const latest = useRef({ role, next, onDone, action });
+  latest.current = { role, next, onDone, action };
 
   useEffect(() => {
     let dead = false;
@@ -46,22 +48,23 @@ export default function GoogleButton({ mode = 'signin', role, next, onDone }) {
       google.accounts.id.initialize({
         client_id: clientId,
         callback: async ({ credential }) => {
-          const { role: r, next: n, onDone: done } = latest.current;
+          const { role: r, next: n, onDone: done, action: act } = latest.current;
           setErr(''); setBusy(true);
-          try { done?.(await googleSignIn({ credential, role: r, next: n })); } catch (e) { setErr(e.message || 'Google sign-in did not work. Please try again.'); } finally { setBusy(false); }
+          try { done?.(await act({ credential, role: r, next: n })); } catch (e) { setErr(e.message || 'Google sign-in did not work. Please try again.'); } finally { setBusy(false); }
         },
       });
-      google.accounts.id.renderButton(box.current, { type: 'standard', theme: 'outline', size: 'large', shape: 'rectangular', text: 'continue_with', logo_alignment: 'center', width: Math.min(400, box.current.offsetWidth || 320) });
-    }, () => { if (!dead) setErr('Google sign-in could not load. Use your email below.'); });
+      google.accounts.id.renderButton(box.current, { type: 'standard', theme: 'outline', size: 'large', shape: 'rectangular', text: mode === 'link' ? 'signin_with' : mode === 'signup' ? 'signup_with' : 'continue_with', logo_alignment: 'center', width: Math.min(400, box.current.offsetWidth || 320) });
+    }, () => { if (!dead) setErr(mode === 'link' ? 'Google could not load. Please try again later.' : 'Google sign-in could not load. Use your email below.'); });
     return () => { dead = true; };
-  }, [clientId]);
+  }, [clientId, mode]);
 
   if (!clientId) return null;
   return (
     <div className="stack g8" data-testid="google-button" data-mode={mode} aria-busy={busy || undefined}>
       <div ref={box} style={{ minHeight: 44, width: '100%' }} />
       {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
-      <span className="row g8 xs muted" aria-hidden="true" style={{ alignItems: 'center' }}><i style={{ flex: 1, borderTop: '1px solid var(--border)' }} />or with email<i style={{ flex: 1, borderTop: '1px solid var(--border)' }} /></span>
+      {note && <span className="xs muted">{note}</span>}
+      {divider && <span className="row g8 xs muted" aria-hidden="true" style={{ alignItems: 'center' }}><i style={{ flex: 1, borderTop: '1px solid var(--border)' }} />or with email<i style={{ flex: 1, borderTop: '1px solid var(--border)' }} /></span>}
     </div>
   );
 }

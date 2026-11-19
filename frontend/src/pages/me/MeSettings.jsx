@@ -9,7 +9,7 @@ import { useTrustOn } from '../../lib/trustAccess';
 import { Link } from 'react-router-dom';
 import { Dialog, Spinner, useToast } from '../../components/ui';
 import { useMe, setMe, getMe, resetMe, saveProfile, raiseIssue } from '../../lib/customerStore';
-import { LIVE, changePassword, passwordIssue } from '../../lib/auth';
+import { LIVE, changePassword, passwordIssue, useAuth } from '../../lib/auth';
 import { useExpertOrders } from '../../lib/expertStore';
 import { savePdf } from '../builder/resumePdf';
 import { PROMISES } from '../../lib/pricing';
@@ -21,6 +21,8 @@ import { http } from '../../services/http';
 import { fmtDay } from './shared';
 import { Bar, Chip, FieldGroup, MeCard, StickyBar } from './kit';
 import '../../styles/me-account.css';
+
+const GoogleCard = lazy(() => import('./GoogleCard')); // Sign in with Google: connect / remove (live only)
 
 /** Resume health alert emails (at most one every two weeks); the same switch as the email's "Stop these emails". */
 function HealthEmails() {
@@ -168,6 +170,8 @@ export function MeSettings() {
 
       <JobAlerts />
 
+      {LIVE && <Suspense fallback={null}><GoogleCard /></Suspense>}
+
       <ChangePassword />
 
       <MeCard as="section" id="s-privacy" className="acc-sec" label="Privacy" icon="🔒" title="Privacy" sub={`Expert files are kept for ${PROMISES.retentionDays} days after delivery. Your own resumes stay until you delete them.`}>
@@ -229,6 +233,19 @@ export function MeSettings() {
 
 /** Current password + new password twice. Signs out every other browser. */
 function ChangePassword() {
+  const { user } = useAuth();
+  if (LIVE && user && user.hasPassword === false) return <SetPassword email={user.email} />;
+  return <ChangePasswordForm />;
+}
+/** An account made with Google has no password yet: Forgot password's emailed code sets one. */
+function SetPassword({ email }) {
+  return (
+    <MeCard as="section" id="s-password" className="acc-sec" label="Password" icon="🔑" title="Set a password" sub="You sign in with Google. Set a password to also sign in with your email.">
+      <Link to={`/forgot-password?set=1&email=${encodeURIComponent(email || '')}`} className="btn btn-outline" style={{ alignSelf: 'flex-start' }}>Set a password</Link>
+    </MeCard>
+  );
+}
+function ChangePasswordForm() {
   const toast = useToast();
   const [p, setP] = useState({ current: '', next: '', again: '' });
   const [busy, setBusy] = useState(false);
