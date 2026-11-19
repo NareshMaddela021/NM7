@@ -61,6 +61,8 @@ class Provider(Protocol):
 
     async def forget(self, reference: str) -> None: ...
 
+    async def count_faces(self, image: bytes, *, hint: str = "") -> int: ...  # T8: faces in a webcam snapshot
+
 
 # --- the test provider -------------------------------------------------------------------------------------------------
 
@@ -82,6 +84,7 @@ class Mock:
       an ID with b"MOCK:NOFACE"                                            → no face found on the card
       an ID with "AADHAAR" / "UIDAI" / "आधार" in its bytes                 → read as an Aadhaar card (refused)
       b"MOCKFACE:<key>" in a selfie, or a name with "otherface"           → a different face (continuity fails)
+      a snapshot with b"MOCK:NOFACE" / b"MOCK:TWOFACES", or a name with "twofaces"  → 0 / 2 faces (T8 snapshots)
     Real photos without markers (the browser's camera) pass."""
 
     key = "mock"
@@ -123,6 +126,11 @@ class Mock:
 
     async def forget(self, reference: str) -> None:
         return None
+
+    async def count_faces(self, image: bytes, *, hint: str = "") -> int:
+        if b"MOCK:NOFACE" in image:
+            return 0
+        return 2 if b"MOCK:TWOFACES" in image or "twofaces" in (hint or "").lower() else 1
 
 
 # --- the registry ------------------------------------------------------------------------------------------------------

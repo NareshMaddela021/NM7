@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { http } from '../../../services/http';
 import { Bar } from '../kit';
 import { API, clock, emptySignals, fingerprint, questionAnnounce, readStore, runKey, totalAnnounce, useSignals, writeStore } from './lib';
+import { SnapNote, useSnapshots } from '../trust/Snapshots'; // Vetting Trust T8: optional webcam stills (consent only)
 import '../../../styles/me-vet.css';
 
 const SAVE_EVERY = 20_000;
@@ -39,6 +40,7 @@ export default function TestRunner({ paper, onDone, onError }) {
   const [qLeft, setQLeft] = useState(q?.seconds || 0);
 
   useSignals(signals);
+  const snap = useSnapshots('skill', paper.id);
   useEffect(() => { fingerprint().then((x) => { fp.current = x; }); }, []);
 
   const persist = useCallback((extra = {}) => {
@@ -171,6 +173,7 @@ export default function TestRunner({ paper, onDone, onError }) {
         </div>
         <Bar value={done} max={total} label={`${done} of ${total} answered`} showValue={false} tone="accent" />
         <span className={`vet-save ${save}`} aria-live="polite" data-testid="vt-save">{status}</span>
+        <SnapNote st={snap} />
       </div>
       <p className="sr-only" aria-live="polite" data-testid="vt-say">{say}</p>
 

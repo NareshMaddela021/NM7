@@ -22,6 +22,7 @@ import '../../styles/me-iv.css';
 const Runner = lazy(lazyRetry(() => import('./interview/Runner')));
 const IvResult = lazy(lazyRetry(() => import('./interview/IvResult')));
 const FaceCheck = lazy(lazyRetry(() => import('./trust/FaceCheck'))); // Vetting Trust T3: ID + selfie before the interview
+const SnapshotChoice = lazy(lazyRetry(() => import('./trust/Snapshots').then((m) => ({ default: m.SnapshotChoice })))); // Vetting Trust T8: optional webcam snapshots (own consent)
 
 function LastChip({ last }) {
   if (!last) return null;
@@ -115,6 +116,7 @@ function Setup({ r, d, onCancel, onGo }) {
           <input type="checkbox" checked={extra} onChange={(e) => setExtra(e.target.checked)} data-testid="iv-extra" />
           <span><strong>I need extra time</strong><span className="xs muted" style={{ display: 'block' }}>For a disability, reading difficulty or a slow phone: 1½ times the time for each answer. It doesn’t change your score.</span></span>
         </label>
+        <Suspense fallback={null}><SnapshotChoice kind="interview" /></Suspense>
         <label className="vet-check">
           <input type="checkbox" checked={ok} onChange={(e) => setOk(e.target.checked)} data-testid="iv-agree" />
           <span><strong>I agree</strong>: I have read how the interview works and what is kept.</span>

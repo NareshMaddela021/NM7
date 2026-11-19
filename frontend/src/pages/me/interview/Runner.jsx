@@ -10,6 +10,7 @@ import { appendSpeech, speechSupported, useSpeech } from '../../../lib/speechCor
 import { Bar } from '../kit';
 import { SPEECH_LANG, clock, emptySignals, useSignals, words } from '../vetting/lib';
 import { API, answerAnnounce, signalDelta } from './lib';
+import { SnapNote, useSnapshots } from '../trust/Snapshots'; // Vetting Trust T8: optional webcam stills (consent only)
 import '../../../styles/me-vet.css';
 import '../../../styles/me-iv.css';
 
@@ -59,6 +60,7 @@ export default function Runner({ start, onDone, onError }) {
   const sig = useRef(emptySignals());
   const sentSig = useRef({ blurs: 0, blurMs: 0 });
   useSignals(sig);
+  const snap = useSnapshots('interview', start.id);
 
   const a = iv.asking;
   const voice = iv.mode === 'voice' && speechSupported();
@@ -160,7 +162,7 @@ export default function Runner({ start, onDone, onError }) {
           <span className="xs muted">When the time ends, what you have is sent by itself.</span>
         </div>
       </section>
-      <p className="xs muted" style={{ margin: 0 }}>🔒 No camera and no audio stored. Leaving this page is counted.</p>
+      {snap ? <SnapNote st={snap} /> : <p className="xs muted" style={{ margin: 0 }}>🔒 No camera and no audio stored. Leaving this page is counted.</p>}
     </div>
   );
 }

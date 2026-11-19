@@ -225,3 +225,8 @@ class Rekognition:
 
     async def forget(self, reference: str) -> None:
         await self._call("DeleteFaces", {"CollectionId": self._collection(), "FaceIds": [reference]})
+
+    async def count_faces(self, image: bytes, *, hint: str = "") -> int:
+        """T8 webcam snapshots: clear faces in one still photo (DetectFaces, confidence 90+)."""
+        got, _ = await self._call("DetectFaces", {"Image": _img(image), "Attributes": ["DEFAULT"]})
+        return sum(1 for f in got.get("FaceDetails") or [] if float(f.get("Confidence") or 0) >= 90)

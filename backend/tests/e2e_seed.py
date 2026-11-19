@@ -15,6 +15,9 @@ MONGODB_DB=nm7_e2e uv run python -m tests.e2e_seed reset
 ... trust-agent-run [HOUR]             → T5: one calling-agent pass at HOUR (default 11) IST tomorrow (any real hour)
 ... trust-t6-ready EMAIL [CLASSES]     → T6: Ready to join in Hyderabad (no notice) and, with CLASSES ("MCWG,LMV"), a
                                           DigiLocker driving licence from the test provider (verified)
+... trust-t8-high EMAIL|@demo-first   → T8: signals worth "High risk" (a test with the same answers as another
+                                          account on a shared device, and the same PAN on another account), then
+                                          that person is rated (a review opens)
 ... trust-t7-person EMAIL KIND [consent] → T7: the adult age check, a resume (KIND data: SQL / Power BI; acct:
                                           Tally / GST, Telugu) and, with "consent", the job-requirements consent
 ... auto-apply-run [EMAIL [past]]      → the Auto Apply run now (any hour); with EMAIL and "past", that student's
@@ -373,6 +376,29 @@ async def main(cmd: str, *args: str) -> dict:
                 st["continuity"] = {"status": "same", "at": t, "tries": 0}
             await db["trust_face"].update_one({"_id": uid}, {"$set": st, "$setOnInsert": {"created_at": t}}, True)
         return {"n": len(uids)}
+    if cmd == "trust-t8-high":  # Vetting Trust T8: signals worth "High risk" for an email or the first demo applicant
+        from bson import ObjectId
+
+        from app.companies.demo import COMPANY_ID
+        from app.trust.integrity import service as T8
+
+        (who,) = args
+        if who == "@demo-first":
+            uids = sorted(await db["applications"].distinct("user_id", {"company_id": COMPANY_ID}))[:1]
+        else:
+            uids = [(await db["users"].find_one({"email": who}))["_id"]]
+        t = now()
+        for uid in uids:
+            integ = {"level": "retest", "points": 5, "reasons": ["pattern_match", "shared_device"]}
+            att = {"_id": ObjectId(), "v": 2, "user_id": uid, "skill": "SQL", "started_at": t, "last_seen": t}
+            await db["skill_attempts"].insert_one({**att, "submitted_at": t, "remaining_ms": 0, "integrity": integ})
+            rv = {"status": "open", "reasons": ["pan_elsewhere"], "note": "", "explained_at": None}
+            doc = {"_id": ObjectId(), "user_id": uid, "kind": "pan", "fields": {}, "vendor": "mock", "test": True}
+            until = t + timedelta(days=300)
+            doc |= {"fetched_at": t, "created_at": t, "verify_until": until, "name_match": "match", "review": rv}
+            await db["trust_documents"].insert_one(doc)
+            await T8.refresh(db, uid)
+        return {"n": len(uids), "ids": uids}
     if cmd == "trust-offer":  # Vetting Trust T3: an accepted offer joining in N days (the joining check)
         from bson import ObjectId
 

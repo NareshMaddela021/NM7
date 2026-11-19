@@ -2,6 +2,7 @@
 // `docs` only when the Trust switch lets this company see them (Admin → Skill checks → Vetting Trust); otherwise nothing
 // shows. Each badge: what was verified (no numbers, no board / university name: never used to judge anyone) and when.
 // Vetting Trust T3: also the `face` badge (ID + selfie verified, same person at joining). English only for now.
+// Vetting Trust T8: also the `integrity` label (the rating's label and "Reviewed by Nm7", or "Under review by Nm7").
 const day = (v) => new Date(v).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 
 /** Vetting Trust T3: "ID + selfie verified" and, once done, "Same person at joining". Never a photo or a score. */
@@ -11,9 +12,28 @@ function FaceBadge({ face, compact }) {
   return <span className="mchip mchip-ok" data-testid="co-face" style={{ whiteSpace: 'normal', overflowWrap: 'anywhere', alignSelf: 'flex-start', maxWidth: '100%' }}>{text}</span>;
 }
 
-export default function DocBadges({ docs, face, compact = false }) {
+/** Vetting Trust T8: the integrity label only ("Low risk" … · Reviewed by Nm7, or "Under review by Nm7"); never the
+ *  signals, never a device or a network. */
+export function integrityText(integrity) {
+  if (!integrity?.label) return '';
+  return integrity.underReview ? 'Under review by Nm7' : `Integrity: ${integrity.label}${integrity.reviewed ? ' · Reviewed by Nm7' : ''}`;
+}
+
+function IntegrityLabel({ integrity }) {
+  const text = integrityText(integrity);
+  if (!text) return null;
+  const tone = integrity.underReview ? 'mchip-warn' : { low: 'mchip-ok', medium: 'mchip-warn', high: 'mchip-warn' }[integrity.level] || '';
+  return <span className={`mchip ${tone}`} data-testid="co-integrity" style={{ whiteSpace: 'normal', alignSelf: 'flex-start', maxWidth: '100%' }}>{text}</span>;
+}
+
+export default function DocBadges({ integrity, ...rest }) {
+  if (!integrity) return <Badges {...rest} />;
+  return <span className="row g4" style={{ flexWrap: 'wrap', minWidth: 0 }}><Badges {...rest} /><IntegrityLabel integrity={integrity} /></span>;
+}
+
+function Badges({ docs, face, compact = false }) {
   if (!docs?.length) return <FaceBadge face={face} compact={compact} />;
-  if (face?.verifiedAt) return <span className="row g4" style={{ flexWrap: 'wrap', minWidth: 0 }}><FaceBadge face={face} compact={compact} /><DocBadges docs={docs} compact={compact} /></span>;
+  if (face?.verifiedAt) return <span className="row g4" style={{ flexWrap: 'wrap', minWidth: 0 }}><FaceBadge face={face} compact={compact} /><Badges docs={docs} compact={compact} /></span>;
   if (compact) { // the applicant list: one line (the profile shows each badge with its date)
     const names = { dl: 'Driving licence', class10: 'Class 10', class12: 'Class 12', degree: 'Degree', pan: 'PAN' };
     return <span className="mchip mchip-ok" data-testid="co-docs-line" style={{ whiteSpace: 'normal', alignSelf: 'flex-start' }}>✓ Verified via DigiLocker: {docs.map((b) => names[b.kind] || b.kind).join(', ')}{docs.some((b) => b.test) ? ' (test)' : ''}</span>;

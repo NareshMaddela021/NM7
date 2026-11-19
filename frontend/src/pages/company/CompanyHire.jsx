@@ -299,7 +299,7 @@ export default function CompanyHire({ t, c }) {
                 </dl>
                 <SkillBadge sv={x.skillVerified} t={t} />
                 <span className="hn-trust" data-testid="co-hire-trust">{x.skillCheck ? t('co.hire.check', { score: x.skillCheck.score }) : t('co.hire.noCheck')} · {x.reliability.score == null ? x.reliability.label : `${x.reliability.label} (${x.reliability.score}%)`}{x.reliability.lines?.length ? `: ${x.reliability.lines.join('; ')}` : ''}</span>
-                <DocBadges docs={x.docs} face={x.face} />
+                <DocBadges docs={x.docs} face={x.face} integrity={x.integrity} />
                 <NonTechChips nt={x.nonTech} />
                 <CriteriaStrip cr={x.criteria} />
                 <NmCheck c={c} uid={x.key} name={x.name} level={x.level?.level} row={x} canRequest={canInvite} />
