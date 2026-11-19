@@ -89,7 +89,7 @@ select.input { appearance: none; -webkit-appearance: none; padding-right: 40px; 
 /* ---------- tabs ---------- */
 .segmented { border-radius: 999px; background: var(--sunken); padding: 4px; }
 .segmented button { border-radius: 999px; min-height: 40px; font-weight: 700; }
-.segmented button[aria-selected="true"], .segmented button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); }
+.segmented button[aria-selected="true"], .segmented button[aria-pressed="true"], .segmented button[role="radio"][aria-checked="true"] { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); }
 .view-switch, .hx-lang { border-radius: 999px; }
 .view-switch button, .hx-lang button { border-radius: 999px; }
 .steps li[aria-current="step"] { background: var(--grad-btn); color: #fff; }
@@ -124,6 +124,16 @@ select.input { appearance: none; -webkit-appearance: none; padding-right: 40px; 
 .nav a:hover { color: var(--text); background: color-mix(in srgb, var(--accent) 7%, transparent); }
 .nav a[aria-current="page"] { color: var(--text); box-shadow: none; background: color-mix(in srgb, var(--accent) 10%, transparent); border-radius: 999px; }
 .hdr-right .btn:not(.btn-outline):not(.btn-ink) { background: var(--ink); color: #fff; }
+/* signed out: "Create free account" beside "Sign in" (phones: both stay on the first line, a little tighter) */
+.site-header .hdr-right .btn.hdr-join { background: var(--grad-btn); color: #fff; border-color: transparent; }
+@media (max-width: 440px) {
+  .site-header .bar:has(.hdr-join) { gap: 6px; padding-left: 14px; padding-right: 6px; }
+  .site-header .hdr-right:has(.hdr-join) { gap: 6px; }
+  .site-header .bar:has(.hdr-join) .logo .mono { display: none; } /* "/builder" after the logo: room for both buttons */
+  .site-header .hdr-right .btn.hdr-signin { padding: 0 10px; font-size: 13px; }
+  .site-header .hdr-right .btn.hdr-join { padding: 0 10px; font-size: 13px; }
+}
+@media (max-width: 359px) { .site-header .hdr-right .btn.hdr-join { letter-spacing: -0.01em; padding: 0 8px; } }
 @media (max-width: 760px) {
   .site-header .bar { border-radius: 26px; padding: 6px 8px 6px 16px; }
   .site-header .nav-public[data-open="true"] a { border-bottom-color: var(--border); border-radius: 12px; }

@@ -11,6 +11,8 @@ import { useLang } from '../../lib/i18n';
 import { loadSimple, savePrefs } from '../../lib/simple';
 import { Still } from '../newhome/ParticleStage';
 import AppShell from '../../components/AppShell';
+import { useSiteFlags } from '../../lib/siteFlags';
+import { phoneTabs, TAB_LABELS } from '../../lib/meTabs';
 import '../../styles/me-kit.css';
 
 export const ME_NAV = [
@@ -61,8 +63,6 @@ const artFor = (pathname) => {
   const group = hit && ME_GROUPS.find(([, keys]) => keys.includes(hit[0]));
   return SECTION_ART[group?.[0]] || SECTION_ART.Overview;
 };
-const TABS = ['home', 'orders', 'resumes', 'jobs'];
-const SHORT = { home: 'Home', orders: 'Orders', resumes: 'Resumes', jobs: 'Jobs' };
 
 /** A dashboard page's header: title, line under it, buttons, and the section's small dotted shape (desktop only). */
 export function MeHead({ title, sub, right }) {
@@ -83,6 +83,7 @@ export default function MeLayout() {
   const unread = unreadCount(me);
   const [more, setMore] = useState(false);
   const { pathname } = useLocation();
+  const TABS = phoneTabs(useSiteFlags().autoApply); // phones: Auto Apply in the bar while it is on, else My orders
   useEffect(() => { syncFromBuilder(); }, []);
   useEffect(() => { setMore(false); }, [pathname]);
   // the Easy dashboard (Phase 4): people whose dashboard is Simple land there; everyone can switch at the top
@@ -122,8 +123,8 @@ export default function MeLayout() {
       </AppShell>
       {/* phones: bottom tabs */}
       <nav aria-label="My dashboard (tabs)" className="me-tabs">
-        {ME_NAV.filter(([k]) => TABS.includes(k)).map(([k, to, _l, ic]) => (
-          <NavLink key={k} to={to} end={to === '/me'}><span aria-hidden="true">{ic}</span>{SHORT[k]}</NavLink>
+        {TABS.map((k) => ME_NAV.find((n) => n[0] === k)).map(([k, to, _l, ic]) => (
+          <NavLink key={k} to={to} end={to === '/me'} data-tab={k}><span aria-hidden="true">{ic}</span>{TAB_LABELS[k]}</NavLink>
         ))}
         <button type="button" aria-expanded={more} onClick={() => setMore(!more)}><span aria-hidden="true">⋯</span>More{unread > 0 && <span className="dot" aria-label={`${unread} unread messages`} />}</button>
       </nav>
