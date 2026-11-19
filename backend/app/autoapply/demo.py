@@ -390,8 +390,13 @@ async def sign_in(body: TokenIn, request: Request, response: Response, db: DB) -
     )
     if not doc:
         raise ApiError(400, "link_used", "This demo link has been used or has expired. Open it again from Admin.")
-    await start_session(db, request, response, User.model_validate(doc))
-    return {"path": doc.get("demo_path") or "/me/auto-apply"}
+    path = doc.get("demo_path") or "/me/auto-apply"
+    from app.admin.views import demo_as_view
+
+    role = "jobseeker" if doc["_id"] in TEST_USERS else "student"
+    if not await demo_as_view(db, request, response, doc, role, path):  # an admin stays signed in (a view)
+        await start_session(db, request, response, User.model_validate(doc))
+    return {"path": path}
 
 
 async def _v2(db, u, r, c, jobs, extra, t) -> None:

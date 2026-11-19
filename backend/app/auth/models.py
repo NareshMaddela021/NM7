@@ -44,6 +44,8 @@ class User(Doc):
     referred_by: str | None = None  # user id of the friend who referred them
     ref_flags: list[str] = Field(default_factory=list)  # why this sign-up does not count for a referral reward
     partner_id: str | None = None  # an approved referral partner (Phase 4C): /partner
+    demo: bool = False  # made-up people (demo students, test users, an admin's personas): never counted, never real
+    owner_admin_id: str | None = None  # an admin's own persona (app/admin/views.py): the admin it belongs to
     password_changed_at: datetime | None = None
     created_at: datetime = Field(default_factory=now)
     updated_at: datetime = Field(default_factory=now)
@@ -87,6 +89,11 @@ class UserSession(Doc):
     revoked_at: datetime | None = None
     demo_org_id: str | None = None  # the demo coordinator (Admin → Organizations → Demo): only that demo college
     kiosk_id: str | None = None  # signed in at an event kiosk: short, fixed expiry; ends when the kiosk is revoked
+    # An admin's view (app/auth/views.py): set only on the in-memory session load_session answers with, never stored
+    view_id: str | None = None
+    view_mode: str | None = None  # persona / readonly
+    view_role: str | None = None  # jobseeker / student / expert / company / college / user
+    acting_admin_id: str | None = None
 
 
 class AdminChallenge(Doc):

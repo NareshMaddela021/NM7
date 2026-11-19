@@ -10,6 +10,8 @@ import { Hero, Initial } from './SetupKit';
 import { API_BASE } from '../../../services/http';
 import { Loading, STATUS_LABEL, day, emptyIf, http, rupees, useAction, useApi, when } from './common';
 import { SortTh, useSort } from './sort';
+import { useAuth } from '../../../lib/auth';
+import { viewAsUser } from '../../../lib/adminViews';
 import { WaReport } from './PaymentsSettings';
 
 /* ---------- experts and applications ---------- */
@@ -271,6 +273,7 @@ function CustomerPanel({ id, onClose, onChanged }) {
           <strong className="small">Support tickets</strong>
           {c.tickets.length ? c.tickets.map((t) => <span key={t.id} className="small as-line">{t.id} · {t.topic} · {t.status} — {t.text.slice(0, 80)}</span>) : <span className="xs muted">No tickets.</span>}
           </div>
+          <ViewAsUser id={id} name={c.name} />
           <div className="field"><label className="label" htmlFor="c-notes">Private notes (team only)</label><textarea id="c-notes" className="input" rows={3} value={notes ?? c.notes} onChange={(e) => setNotes(e.target.value)} /></div>
           <div className="as-actions">
             <button type="button" className="btn btn-outline" disabled={busy || notes == null} onClick={() => run(async () => { await http(`/api/admin/customers/${id}/notes`, { method: 'PUT', body: { notes } }); }, 'Notes saved')}>Save notes</button>
@@ -279,6 +282,38 @@ function CustomerPanel({ id, onClose, onChanged }) {
         </div>
       )}</Loading>
     </Panel>
+  );
+}
+
+/** Support (owner only): see this person's screens read-only. The server refuses every change while it is open,
+ *  sends nothing, hides private details and writes the reason to the audit log. */
+function ViewAsUser({ id, name }) {
+  const { user } = useAuth();
+  const [open, setOpen] = useState(false);
+  const [reason, setReason] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  if (user?.adminRole !== 'owner') return null;
+  const start = async (e) => {
+    e.preventDefault(); setBusy(true); setErr('');
+    try { await viewAsUser(id, reason.trim()); } catch (x) { setErr(x?.message || 'Couldn’t open the view.'); setBusy(false); }
+  };
+  return (
+    <div className="as-block" data-testid="view-as-user">
+      <strong className="small">See their screens</strong>
+      {!open ? (
+        <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start', minHeight: 44 }} onClick={() => setOpen(true)}>View as this user (read-only)</button>
+      ) : (
+        <form className="stack g8" onSubmit={start}>
+          <div className="field"><label className="label" htmlFor="va-reason">Why do you need to see {name}’s screens?</label>
+            <textarea id="va-reason" className="input" rows={2} maxLength={300} required value={reason} onChange={(e) => setReason(e.target.value)} placeholder="For example: ticket T-41, resume not saving" />
+            <span className="xs faint">Saved in the audit log with your name and the time. Nothing can be changed or sent while you look, and private details stay hidden.</span></div>
+          {err && <span className="small" role="alert" style={{ color: 'var(--danger)' }}>{err}</span>}
+          <div className="row g8"><button type="submit" className="btn btn-signal" style={{ minHeight: 44 }} disabled={busy || reason.trim().length < 5}>{busy ? 'Opening…' : 'Open read-only view'}</button>
+            <button type="button" className="btn btn-ghost" style={{ minHeight: 44 }} onClick={() => { setOpen(false); setErr(''); }}>Cancel</button></div>
+        </form>
+      )}
+    </div>
   );
 }
 

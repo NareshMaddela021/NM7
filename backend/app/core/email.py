@@ -177,7 +177,11 @@ async def send_safely(mailer: Mailer, msg: Email) -> bool:
     """Email problems must not break sign-up or payments; they are logged and the user can ask again."""
     from app.core.testusers import is_test_address
 
-    if is_test_address(msg.to):  # the 100 test users (Admin → Settings): made-up addresses, never sent
+    if is_test_address(msg.to):  # made-up addresses (test users, demo people, admin personas): never sent
+        return True
+    from app.core.readonly import READ_ONLY
+
+    if READ_ONLY.get():  # an admin's read-only "View as this user": nothing is ever sent
         return True
     try:
         await mailer.send(msg)
@@ -200,7 +204,9 @@ MailerDep = Annotated[Mailer, Depends(get_mailer)]
 async def send_batch(mailer: Mailer, msgs: list[Email]) -> list[bool]:
     """Many emails at once (organization reminders): Resend's batch API, 100 per call, so a few hundred reminders
     take a few requests and stay inside Resend's rate limit. Other mailers send one by one. Never raises."""
-    if not isinstance(mailer, ResendMailer):
+    from app.core.readonly import READ_ONLY
+
+    if not isinstance(mailer, ResendMailer) or READ_ONLY.get():
         return [await send_safely(mailer, m) for m in msgs]
     out: list[bool] = []
     headers = {"Authorization": f"Bearer {mailer.api_key}", "Accept": "application/json"}

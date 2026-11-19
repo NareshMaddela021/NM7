@@ -100,7 +100,8 @@ async def apply(job_id: str, body: ApplyIn, auth: CustomerAuth, db: DB) -> dict[
     t = now()
     key = app_key(job_id)
     company_job = bool(j.get("company_id")) and method == "nm7"
-    if company_job and is_test_user(uid):  # a real company must never see a made-up applicant
+    # a real company must never see a made-up applicant (test users, demo people, an admin's personas)
+    if company_job and (is_test_user(uid) or auth.user.demo):
         raise ApiError(409, "test_user", "Test users can’t apply to a real company’s job. Try a job that applies "
                        "on another website or by email.")  # fmt: skip
     extra: dict[str, Any] = {}

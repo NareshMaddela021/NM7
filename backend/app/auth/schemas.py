@@ -55,6 +55,7 @@ class UserOut(CamelModel):
     expert_status: str | None
     admin_role: str | None
     created_at: datetime
+    view: dict | None = None  # an admin's view (app/auth/views.py): {mode, role, label, readOnly, path, expiresAt}
 
 
 class SignupOut(CamelModel):

@@ -112,7 +112,9 @@ async def stats(db: DB, _: AdminAuth("dashboard"), days: int = Query(30, ge=1, l
         "refundsInReview": await db[REFUNDS].count_documents({"status": "review"}),
         "ticketsOpen": await db[TICKETS].count_documents({"status": "open"}),
         "applicationsWaiting": await db[EXPERT_PROFILES].count_documents({"status": {"$in": ["review", "testReview"]}}),
-        "experts": await db[USERS].count_documents({"role": "expert", "expert_status": "approved"}),
+        "experts": await db[USERS].count_documents(
+            {"role": "expert", "expert_status": "approved", "demo": {"$ne": True}}
+        ),
     }
 
 
@@ -388,7 +390,7 @@ async def reply_ticket(
 async def experts(
     db: DB, _: AdminAuth("experts"), status: str | None = Query(None, max_length=20)
 ) -> list[dict[str, Any]]:
-    match: dict[str, Any] = {"role": "expert"}
+    match: dict[str, Any] = {"role": "expert", "demo": {"$ne": True}}  # admins' expert personas are not experts
     if status:
         match["expert_status"] = status
     users = await db[USERS].find(match).sort("created_at", DESCENDING).to_list(None)
@@ -542,7 +544,9 @@ async def assign_order(order_id: str, body: AssignIn, request: Request, db: DB, 
         raise ApiError(409, "bad_status", "Only orders that haven’t started can be (re)assigned.")
     before = (await load_work(db, order.id)).get("expert_id")
     if body.expert_id:
-        ex = await db[USERS].find_one({"_id": body.expert_id, "role": "expert", "expert_status": "approved"})
+        ex = await db[USERS].find_one(
+            {"_id": body.expert_id, "role": "expert", "expert_status": "approved", "demo": {"$ne": True}}
+        )
         if not ex or ex.get("expert_paused"):
             raise ApiError(400, "bad_expert", "Pick an approved expert who isn’t paused.")
     expires = await assign(db, order, body.expert_id)

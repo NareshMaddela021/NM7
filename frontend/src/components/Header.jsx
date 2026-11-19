@@ -1,8 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { BRAND } from '../lib/brand';
 import { useAuth, signOut, homeFor, LIVE } from '../lib/auth';
 import { track } from '../lib/track';
+
+// an admin's "Switch to" list, or "Back to Admin" while a view is open: loaded only then
+const AdminViewItems = lazy(() => import('./AdminViews').then((m) => ({ default: m.AccountItems })));
 
 export function Logo({ suffix }) {
   return (
@@ -47,7 +50,8 @@ export function AccountMenu() {
           <Link role="menuitem" to={homeFor(user)} className="admin-link">{homeLabel}</Link>
           {user.role === 'customer' && <Link role="menuitem" to="/me/settings" className="admin-link">Profile & settings</Link>}
           {user.role === 'expert' && <Link role="menuitem" to="/expert/profile" className="admin-link">Expert profile</Link>}
-          <button role="menuitem" type="button" className="admin-link" style={{ border: 0, background: 'transparent', width: '100%', textAlign: 'left', cursor: 'pointer' }} onClick={async () => { const to = user.role === 'admin' ? '/admin/login' : '/'; await signOut(); nav(to); }}>Sign out</button>
+          {LIVE && (user.view || user.role === 'admin') && <Suspense fallback={null}><AdminViewItems view={user.view} /></Suspense>}
+          {!user.view && <button role="menuitem" type="button" className="admin-link" style={{ border: 0, background: 'transparent', width: '100%', textAlign: 'left', cursor: 'pointer' }} onClick={async () => { const to = user.role === 'admin' ? '/admin/login' : '/'; await signOut(); nav(to); }}>Sign out</button>}
         </div>
       )}
     </span>

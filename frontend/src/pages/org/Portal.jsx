@@ -140,10 +140,12 @@ export function PortalLayout() {
 /** The demo college: made-up data, and (for the demo coordinator) a session that can open nothing else. */
 function DemoBanner() {
   const nav = useNavigate();
+  const { user } = useAuth();
   return (
     <div className="well small row between g8" role="note" data-testid="demo-banner" style={{ flexWrap: 'wrap', borderLeft: '4px solid var(--warning)' }}>
       <span><span className="badge b-warning">Demo</span> Made-up college and students, for demos and testing. Nothing here is real, and nobody is emailed. A demo coordinator can open only this college.</span>
-      <button type="button" className="btn btn-outline" style={{ minHeight: 32 }} onClick={async () => { await signOut(); nav('/login'); }} data-testid="demo-signout">Sign out of the demo</button>
+      {/* an admin's college view: Back to Admin is on the banner at the top instead */}
+      {!user?.view && <button type="button" className="btn btn-outline" style={{ minHeight: 32 }} onClick={async () => { await signOut(); nav('/login'); }} data-testid="demo-signout">Sign out of the demo</button>}
     </div>
   );
 }

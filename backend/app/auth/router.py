@@ -249,7 +249,12 @@ async def change_password(body: ChangePasswordIn, auth: CurrentAuth, request: Re
 
 
 @router.post("/logout")
-async def logout(auth: MaybeAuth, response: Response, db: DB) -> Ok:
+async def logout(auth: MaybeAuth, request: Request, response: Response, db: DB) -> Ok:
+    if auth and auth.session.view_id:  # "Sign out" inside an admin's view only ends the view (Back to Admin)
+        from app.auth.views import end_view
+
+        await end_view(db, request, response)
+        return Ok()
     if auth:
         await db[SESSIONS].update_one({"_id": auth.session.id}, {"$set": {"revoked_at": now()}})
     clear_cookie(response, SESSION_COOKIE)
@@ -257,5 +262,10 @@ async def logout(auth: MaybeAuth, response: Response, db: DB) -> Ok:
 
 
 @router.get("/me")
-async def me(auth: CurrentAuth) -> UserOut:
-    return UserOut.model_validate(auth.user)
+async def me(auth: CurrentAuth, request: Request, db: DB) -> UserOut:
+    out = UserOut.model_validate(auth.user)
+    if auth.session.view_id:  # the banner: "You are viewing as Student (admin preview)"
+        from app.auth.views import find_view, public
+
+        out.view = public(await find_view(db, request), {"name": auth.user.name})
+    return out
