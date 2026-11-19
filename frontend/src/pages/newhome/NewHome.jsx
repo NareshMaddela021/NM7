@@ -9,6 +9,7 @@ import { pageQuery, placeText, postedAgo, salaryText, searchJobs } from '../../l
 import { translate } from '../../lib/i18n';
 import Header from '../../components/Header';
 import SiteFooter from '../../components/SiteFooter';
+import JobActions from '../../components/JobActions';
 import { usePageMeta } from '../../lib/meta';
 import ParticleStage from './ParticleStage';
 import GlassWidget, { reducedMotion } from './GlassWidget';
@@ -276,12 +277,13 @@ function LiveJobs({ live }) {
                 {!list && [0, 1, 2, 3].map((i) => <li key={i} className="nh-live-skel" aria-hidden="true"><i /><i /></li>)}
                 {list && !rows.length && <li className="nh-muted">No jobs for this filter right now. <Link to="/jobs">See all jobs</Link></li>}
                 {rows.map((j) => (
-                  <li key={j.id}>
+                  <li key={j.id} className="nh-live-item" data-testid="job-card">
                     <Link to={`/jobs/${j.slug}`} className="nh-live-row" data-testid="nh-live-row" onMouseEnter={() => setHover(j.id)} onFocus={() => setHover(j.id)}>
                       <span className="nh-live-title">{j.title}</span>
                       <span className="nh-live-meta">{[j.company?.name, placeText(j, en), EXPERIENCE_TEXT[j.experience]].filter(Boolean).join(' · ')}</span>
                       <span className="nh-live-when">{postedAgo(j.postedAt, en)}</span>
                     </Link>
+                    <JobActions job={j} />
                   </li>
                 ))}
               </ul>

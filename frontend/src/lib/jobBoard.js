@@ -177,11 +177,17 @@ const emit = () => { savedVersion += 1; subs.forEach((f) => f()); };
 export const listSaved = () => http('/api/me/saved-jobs');
 
 /** Loads the signed-in person's saved job ids once (again after `reset`). */
+let savedLoading = null;
 export async function loadSaved(force = false) {
   if (!LIVE || (saved && !force)) return saved;
-  try { saved = new Set((await listSaved()).items.map((j) => j.id)); } catch { saved = new Set(); }
-  emit();
-  return saved;
+  if (savedLoading && !force) return savedLoading; // many cards ask at once: one request
+  savedLoading = (async () => {
+    try { saved = new Set((await listSaved()).items.map((j) => j.id)); } catch { saved = new Set(); }
+    savedLoading = null;
+    emit();
+    return saved;
+  })();
+  return savedLoading;
 }
 export function resetSaved() { saved = null; emit(); }
 
@@ -198,6 +204,36 @@ export async function toggleSaved(id) {
 export function useSaved() {
   useSyncExternalStore((f) => { subs.add(f); return () => subs.delete(f); }, () => savedVersion, () => 0);
   return { has: (id) => !!saved?.has(id), count: saved ? saved.size : 0, loaded: !!saved };
+}
+
+/* ---------- applied jobs (signed in): "Applied ✓" on every job card ---------- */
+
+let applied = null; // Map of job id → status, or null until loaded
+let appliedVersion = 0;
+const appliedSubs = new Set();
+const appliedEmit = () => { appliedVersion += 1; appliedSubs.forEach((f) => f()); };
+let appliedLoading = null;
+let appliedUser = null; // whose ids these are (another sign-in loads them again)
+
+/** Loads the signed-in person's applied job ids once (GET /api/me/applied-jobs; again for another person). */
+export function loadApplied(uid = '', force = false) {
+  if (!LIVE) return Promise.resolve(applied);
+  if (uid !== appliedUser) { applied = null; appliedLoading = null; appliedUser = uid; force = true; }
+  if (applied && !force) return Promise.resolve(applied);
+  if (appliedLoading && !force) return appliedLoading;
+  appliedLoading = http('/api/me/applied-jobs').then(
+    (r) => { applied = new Map((r.items || []).map((a) => [a.id, a.status || 'applied'])); },
+    () => { applied = applied || new Map(); },
+  ).then(() => { appliedLoading = null; appliedEmit(); return applied; });
+  return appliedLoading;
+}
+export function resetApplied() { applied = null; appliedEmit(); }
+/** After an application was sent: every card for this job shows "Applied ✓" at once. */
+export function markApplied(id, status = 'applied') { applied = new Map(applied || []); applied.set(id, status); appliedEmit(); }
+/** { has(id), status(id), loaded } — re-renders when it changes. */
+export function useApplied() {
+  useSyncExternalStore((f) => { appliedSubs.add(f); return () => appliedSubs.delete(f); }, () => appliedVersion, () => 0);
+  return { has: (id) => !!applied?.has(id), status: (id) => applied?.get(id) || null, loaded: !!applied };
 }
 
 /* ---------- the match score (J4) ---------- */

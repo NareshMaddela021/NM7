@@ -478,7 +478,7 @@
 "jobs.similar","/jobs (job board)","Similar jobs","ఇలాంటి ఉద్యోగాలు","मिलती-जुलती नौकरियाँ","needs native review"
 "jobs.apply.link","/jobs (job board)","Apply on company site","కంపెనీ సైట్‌లో అప్లై చేయండి","कंपनी की साइट पर अप्लाई करें","needs native review"
 "jobs.apply.signin","/jobs (job board)","Sign in to apply","అప్లై చేయడానికి సైన్ ఇన్ చేయండి","अप्लाई करने के लिए साइन इन करें","needs native review"
-"jobs.share","/jobs (job board)","Share on WhatsApp","WhatsAppలో షేర్ చేయండి","WhatsApp पर शेयर करें","needs native review"
+"jobs.share","/jobs (job board)","Share","షేర్","शेयर","needs native review"
 "jobs.share.text","/jobs (job board)","Job: {title} at {company}. Details and apply: {link}","ఉద్యోగం: {company}లో {title}. వివరాలు, అప్లై: {link}","नौकरी: {company} में {title}। जानकारी और अप्लाई: {link}","needs native review"
 "jobs.gone.title","/jobs (job board)","This job isn’t on Nm7 any more","ఈ ఉద్యోగం ఇప్పుడు Nm7లో లేదు","यह नौकरी अब Nm7 पर नहीं है","needs native review"
 "jobs.gone.sub","/jobs (job board)","It may have been removed by the company. See the jobs that are open now.","కంపెనీ దీన్ని తీసివేసి ఉండవచ్చు. ఇప్పుడు ఓపెన్‌గా ఉన్న ఉద్యోగాలు చూడండి.","शायद कंपनी ने इसे हटा दिया है। अभी खुली नौकरियाँ देखें।","needs native review"

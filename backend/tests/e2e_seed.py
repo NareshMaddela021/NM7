@@ -1018,6 +1018,10 @@ async def main(cmd: str, *args: str) -> dict:
             {"$set": {"review.state": "approved", "verified_until": now() + timedelta(days=365), "trust": "verified"}},
         )
         return {"ok": True}
+    if cmd == "share-count":  # Share button taps today, per channel (the counter has no personal data)
+        from app.core.time import ist_day
+
+        return {r["channel"]: r["n"] async for r in db["share_events"].find({"day": ist_day()})}
     if cmd == "job":
         from app.jobs import service
         from app.jobs.model import JobIn

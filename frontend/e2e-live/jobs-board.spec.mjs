@@ -79,12 +79,20 @@ for (const [label, opts] of SIZES) {
       expect(ld.baseSalary).toEqual({ '@type': 'MonetaryAmount', currency: 'INR', value: { '@type': 'QuantitativeValue', minValue: 300000, maxValue: 450000, unitText: 'YEAR' } });
       expect(ld.jobLocation.address).toEqual({ '@type': 'PostalAddress', addressLocality: 'Hyderabad', addressCountry: 'IN' });
       expect(Date.parse(ld.datePosted)).toBeGreaterThan(Date.now() - 3_600_000);
-      const apply = page.getByTestId('apply');
-      await expect(apply).toHaveAttribute('href', `https://acme.example/jobs/${tag}/1`);
-      await expect(apply).toHaveAttribute('target', '_blank');
-      const wa = await page.getByTestId('share-wa').getAttribute('href');
+      // signed out, Apply asks to create an account or sign in (the company's site is still one tap away)
+      await page.getByTestId('apply').click();
+      const ask = page.getByTestId('apply-ask');
+      await expect(ask.getByTestId('apply-ask-signup')).toHaveAttribute('href', `/signup?next=${encodeURIComponent(`/jobs/${analyst.slug}?apply=1`)}`);
+      await expect(ask.getByTestId('apply-ask-direct')).toHaveAttribute('href', `https://acme.example/jobs/${tag}/1`);
+      await expect(ask.getByTestId('apply-ask-direct')).toHaveAttribute('target', '_blank');
+      await page.keyboard.press('Escape');
+      await expect(page.getByTestId('apply-ask')).toHaveCount(0);
+      // one Share button: the menu with every app (no share sheet in this browser)
+      await page.getByTestId('share-job').click();
+      const wa = await page.getByTestId('share-whatsapp').getAttribute('href');
       expect(wa.startsWith('https://wa.me/?text=')).toBe(true);
       expect(decodeURIComponent(wa)).toContain(`https://nm7.si/jobs/${analyst.slug}`);
+      await page.keyboard.press('Escape');
       await wide();
 
       // Save asks to sign in first

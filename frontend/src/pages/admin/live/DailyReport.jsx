@@ -142,6 +142,7 @@ function Report({ d, toast }) {
         <section className="glass dr-words stack g8" aria-labelledby="dr-words-h">
           <h2 id="dr-words-h" className="dr-h2">Today in plain words</h2>
           <ul className="dr-lines" data-testid="dr-summary">{d.summary.map((l) => <li key={l}>{l}</li>)}</ul>
+          {d.shares && <p className="small dr-wrap" style={{ margin: 0 }} data-testid="dr-shares">{d.shares.text}</p>}
         </section>
         <section className="dr-attn stack g8" aria-labelledby="dr-attn-h" data-testid="dr-attention">
           <h2 id="dr-attn-h" className="dr-h2">Needs attention</h2>
