@@ -13,8 +13,10 @@
 //   Fraud scan  (Vetting V5) the daily scan's findings: Clear or Confirm (holds badges back, never a ban).
 //   Fairness    (Vetting V5) pass rates by language, city tier and experience band (TrustPages.jsx).
 //   Stats       attempts, pass rate and average score per role; flags and AI spend per day.
+//   Vetting Trust  (T1) the Trust switch, the retention schedule, erase-after-inactivity and the breach log (TrustAdmin.jsx,
+//               lazy: owner only).
 // The tab is in the address (?tab=rubrics) so a link opens the right one. Above the tabs: Launch (VettingLaunch.jsx).
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Dialog, useToast } from '../../../components/ui';
 import { PageHead } from '../AdminUI';
@@ -26,11 +28,13 @@ import { InterviewQueue } from './InterviewPages';
 import { L4Checks } from './L4Pages';
 import { Appeals, Fairness, FraudScan } from './TrustPages';
 import VettingLaunch from './VettingLaunch';
+
+const TrustAdmin = lazy(() => import('./TrustAdmin'));
 import '../../../styles/me-kit.css';
 import '../../../styles/admin-jobs.css';
 import '../../../styles/admin-vetting.css';
 
-const TABS = [['overview', 'Overview'], ['banks', 'Banks'], ['rubrics', 'Rubrics'], ['review', 'Review queue'], ['integrity', 'Integrity queue'], ['interviews', 'Interviews'], ['l4', 'L4 checks'], ['appeals', 'Appeals'], ['fraud', 'Fraud scan'], ['fairness', 'Fairness'], ['stats', 'Stats']];
+const TABS = [['overview', 'Overview'], ['banks', 'Banks'], ['rubrics', 'Rubrics'], ['review', 'Review queue'], ['integrity', 'Integrity queue'], ['interviews', 'Interviews'], ['l4', 'L4 checks'], ['appeals', 'Appeals'], ['fraud', 'Fraud scan'], ['fairness', 'Fairness'], ['stats', 'Stats'], ['trust', 'Vetting Trust']];
 const FLAG_LABEL = { too_easy: 'Too easy', too_hard: 'Too hard', top_scorers_fail: 'Top scorers fail it' };
 const FLAG_TONE = { too_easy: 'mchip-warn', too_hard: 'mchip-bad', top_scorers_fail: 'mchip-bad' };
 const DIFF = [['easy', 'Easy'], ['medium', 'Medium'], ['hard', 'Hard']];
@@ -85,6 +89,7 @@ export function LiveSkillTests() {
         {tab === 'fraud' && <FraudScan />}
         {tab === 'fairness' && <Fairness />}
         {tab === 'stats' && <Stats />}
+        {tab === 'trust' && <Suspense fallback={null}><TrustAdmin /></Suspense>}
       </div>
     </div>
   );

@@ -133,6 +133,10 @@ from app.simple import practice as simple_practice
 from app.simple import readiness as simple_readiness
 from app.simple import router as simple
 from app.summary.router import router as summary_router
+from app.trust import admin as trust_admin
+from app.trust import age as trust_age
+from app.trust import breach as trust_breach
+from app.trust import consent as trust_consent
 from app.wapay.router import router as wapay_router
 from app.work.router import router as work_router
 
@@ -370,6 +374,12 @@ def create_app() -> FastAPI:
     app.include_router(vetting_interview.admin)  # /api/admin/vetting/interviews
     app.include_router(vetting_trust.me)  # /api/me/appeals, /api/me/data-export (Vetting V5)
     app.include_router(vetting_trust.admin)  # /api/admin/vetting/appeals, /fraud, /fairness (V5)
+    app.include_router(trust_consent.me)  # /api/me/trust: access, privacy, consents (Vetting Trust T1)
+    app.include_router(trust_age.me)  # /api/me/trust/age, /parent (T1: age gate, parental consent)
+    app.include_router(trust_consent.public)  # /api/public/trust/withdraw (the signed withdraw link)
+    app.include_router(trust_age.public)  # /api/public/trust/parent (the parent's one-time link)
+    app.include_router(trust_breach.admin)  # /api/admin/trust/breaches (T1: 72-hour breach log)
+    app.include_router(trust_admin.admin)  # /api/admin/trust (T1: switch, retention, inactivity)
     app.include_router(vetting_verify.reviewer_access)  # /api/reviewer/access (the header link, V4)
     app.include_router(vetting_verify.reviewer)  # /api/reviewer (Vetting V4: reviewers, expert accounts)
     app.include_router(vetting_verify.company)  # /api/company/{cid}/hire/l4/{uid}

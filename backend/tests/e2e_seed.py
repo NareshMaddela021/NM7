@@ -245,6 +245,16 @@ async def main(cmd: str, *args: str) -> dict:
         (email,) = args
         await db["settings"].update_one({"_id": "site"}, {"$addToSet": {"vetting.testers": email.lower()}}, upsert=True)
         return {"ok": True}
+    if cmd == "trust-tester":  # Admin → Skill checks → Vetting Trust: this email sees Trust while it is hidden
+        (email,) = args
+        await db["settings"].update_one({"_id": "site"}, {"$addToSet": {"trust.testers": email.lower()}}, upsert=True)
+        return {"ok": True}
+    if cmd == "trust-withdraw-token":  # Vetting Trust T1: the signed withdraw link's token (as in an email)
+        from app.trust.consent import withdraw_token
+
+        mail, purpose = args
+        u = await db["users"].find_one({"email": mail})
+        return {"token": withdraw_token(u["_id"], purpose)}
     if cmd == "aa2-tester":  # Admin → Auto Apply 2.0: this email sees 2.0 while it is hidden
         (email,) = args
         await db["settings"].update_one(

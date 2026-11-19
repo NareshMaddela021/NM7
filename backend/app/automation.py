@@ -203,6 +203,12 @@ async def run_rules(db: AsyncDatabase, mailer: Mailer | None = None) -> dict[str
         done["interview_bias_alerts"] = await vetting_interview.weekly_if_due(db)  # V3: 5% re-graded weekly
         trust = await vetting_trust.daily_if_due(db, mailer or get_mailer())  # V5: fraud scan, re-verify, retention
         done.update({f"trust_{k}": v for k, v in trust.items()})
+        from app.trust import inactivity as trust_inactivity
+        from app.trust import retention as trust_retention
+
+        done.update({f"trust_deleted_{k}": v for k, v in (await trust_retention.run(db)).items()})  # T1: daily, heavy
+        inactive = await trust_inactivity.run(db, mailer or get_mailer())  # T1: OFF until the owner turns it on
+        done.update({f"trust_inactive_{k}": v for k, v in inactive.items()})
         done["l4_overdue"] = await vetting_verify.overdue_report(db, mailer or get_mailer())  # V4: past the 24 h SLA
         await save_site(db, {"rule_runs": runs})
         return done

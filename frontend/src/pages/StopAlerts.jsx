@@ -16,6 +16,8 @@ const KINDS = {
   progress: { title: 'Weekly progress and check-in emails', ask: 'Stop the weekly progress email and the day 7 / day 30 check-in emails after you join a job? You can still see everything on My progress.', done: 'progress emails', api: '/api/public/progress/stop', where: <Link to="/me/progress">My progress</Link> },
   interviews: { title: 'Interview reminder emails', ask: 'Stop the reminder emails the day before an interview? Interview invitations and changes still come.', done: 'interview reminder emails', api: '/api/public/interviews/stop-reminders', where: <Link to="/me/drive">My drive day</Link> },
 };
+const TrustLink = lazy(() => import('./me/trust/TrustLink')); // Vetting Trust T1: #k=consent (take back) · #k=parent
+const trustKind = (hash) => ((/(?:^#|&)k=(consent|parent)(?:&|$)/.exec(hash || '') || [])[1] || '');
 // A3: an employer's one-click opt-out from Auto Apply 2.0 emails (#k=employer&t=…) has its own page, loaded only here
 const AutoApplyOptOut = lazy(() => import('./AutoApplyOptOut'));
 const kindOf = (hash) => ((/(?:^#|&)k=(interviews|followups|alerts|autoapply|learn|progress)(?:&|$)/.exec(hash || '') || [])[1] || 'health');
@@ -28,6 +30,7 @@ export default function StopAlerts() {
 function StopMine() {
   const [token] = useState(() => tokenOf(typeof window !== 'undefined' ? window.location.hash : ''));
   const [k] = useState(() => KINDS[kindOf(typeof window !== 'undefined' ? window.location.hash : '')]);
+  const [trust] = useState(() => trustKind(typeof window !== 'undefined' ? window.location.hash : ''));
   const [st, setSt] = useState({});
   const stop = async () => {
     setSt({ busy: true });
@@ -37,6 +40,7 @@ function StopMine() {
     <>
       <Header />
       <main id="main" className="container stack g16" style={{ maxWidth: 560, padding: '48px 16px' }}>
+        {trust ? <Suspense fallback={null}><TrustLink kind={trust} token={token} /></Suspense> : <>
         <h1 className="display h2">{k.title}</h1>
         {st.done ? (
           <p data-testid="stop-done">Done — you won’t get {k.done} any more. You can turn them back on in {k.where}.</p>
@@ -49,6 +53,7 @@ function StopMine() {
             <button type="button" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={st.busy} onClick={stop} data-testid="stop-confirm">Stop these emails</button>
           </>
         )}
+        </>}
       </main>
     </>
   );

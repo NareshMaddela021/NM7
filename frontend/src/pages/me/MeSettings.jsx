@@ -4,7 +4,8 @@ import { useVettingOn } from '../../lib/vettingAccess';
 import { langsShown } from '../../lib/i18n';
 import MyStories from './MyStories';
 import DeleteAccount from './DeleteAccount';
-import { useEffect, useState } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
+import { useTrustOn } from '../../lib/trustAccess';
 import { Link } from 'react-router-dom';
 import { Dialog, Spinner, useToast } from '../../components/ui';
 import { useMe, setMe, getMe, resetMe, saveProfile, raiseIssue } from '../../lib/customerStore';
@@ -34,6 +35,8 @@ function HealthEmails() {
     </label>
   );
 }
+
+const PrivacyConsent = lazy(() => import('./trust/PrivacyConsent')); // Vetting Trust T1, only when the switch says yes
 
 const LEVELS = [['internship', 'Internship'], ['fresher', 'Fresher'], ['0_1', '0–1 years'], ['1_3', '1–3 years'], ['3_5', '3–5 years'], ['5_8', '5–8 years'], ['8_12', '8–12 years'], ['12_15', '12–15 years'], ['15_plus', '15+ years']];
 const ALL_LANGS = [['en', 'English'], ['te', 'తెలుగు (Telugu)'], ['hi', 'हिन्दी (Hindi)']];
@@ -100,6 +103,7 @@ export function MeSettings() {
   const me = useMe();
   const all = useExpertOrders();
   const vet = useVettingOn(); // Vetting V5 additions only for people who get the engine (Admin → Skill checks → Launch)
+  const trust = useTrustOn(); // Vetting Trust T1: Privacy & consent (Admin → Skill checks → Vetting Trust)
   const toast = useToast();
   const [f, setF] = useState(me.account);
   const [del, setDel] = useState(false);
@@ -138,7 +142,7 @@ export function MeSettings() {
     <>
       <MeHead title="Profile & settings" sub="Your account, how we reach you, and your data." />
       <nav className="acc-jump" aria-label="On this page">
-        {[['#s-profile', 'Profile'], ['#s-notify', 'Notifications'], ...(LIVE ? [['#job-alerts', 'Job alerts']] : []), ['#s-password', 'Password'], ['#s-privacy', 'Privacy']].map(([h, l]) => <a key={h} href={h} className="acc-jump-a">{l}</a>)}
+        {[['#s-profile', 'Profile'], ['#s-notify', 'Notifications'], ...(LIVE ? [['#job-alerts', 'Job alerts']] : []), ['#s-password', 'Password'], ['#s-privacy', 'Privacy'], ...(trust ? [['#s-consent', 'Consent']] : [])].map(([h, l]) => <a key={h} href={h} className="acc-jump-a">{l}</a>)}
       </nav>
       <form id="s-profile" className="mcard acc-sec" onSubmit={save} aria-label="Profile" noValidate>
         <header className="mcard-h"><span className="mavatar" aria-hidden="true">{(me.account.name || '?').trim()[0]?.toUpperCase()}</span><span className="mcard-ht"><h2 className="mcard-title">Profile</h2><span className="mcard-sub">Your name and mobile number. Career details live in your Job Profile.</span></span></header>
@@ -176,6 +180,7 @@ export function MeSettings() {
           </ul>
         </div>}
       </MeCard>
+      {trust && <Suspense fallback={null}><PrivacyConsent /></Suspense>}
       <MeCard as="section" tone="bad" className="acc-danger" label="Delete account" icon="⚠" title="Delete account" sub="Removes your account and everything in it. Invoices are kept as the law requires.">
         {LIVE ? <DeleteAccount /> : <div className="mspread"><span className="small" style={{ color: 'var(--danger)' }}>Delete my account and all my data.</span><button type="button" className="btn btn-outline acc-danger-btn" onClick={() => setDel(true)}>Delete account</button></div>}
       </MeCard>

@@ -16,6 +16,7 @@ USER_TTL = timedelta(days=30)  # customers and experts, extended while they use 
 ADMIN_TTL = timedelta(hours=12)  # admins, fixed
 SLIDE_AFTER = timedelta(hours=1)  # refresh the expiry at most once an hour
 DEMO_TTL = timedelta(hours=3)  # the demo coordinator: a sales demo, then sign in again
+ACTIVE_EVERY = timedelta(days=1)  # users.last_active_at is refreshed at most this often
 KIOSK_TTL = timedelta(minutes=45)  # signed in at an event kiosk: fixed, never extended
 
 
@@ -75,7 +76,17 @@ async def start_session(
     )
     await db[SESSIONS].insert_one(session.to_mongo())
     set_cookie(response, SESSION_COOKIE, token, ttl)
+    await mark_active(db, user.id)
     return session
+
+
+async def mark_active(db: AsyncDatabase, user_id: str) -> None:
+    """users.last_active_at, at most once a day (Vetting Trust: erase after inactivity counts from it)."""
+    t = now()
+    await db[USERS].update_one(
+        {"_id": user_id, "$or": [{"last_active_at": {"$lt": t - ACTIVE_EVERY}}, {"last_active_at": None}]},
+        {"$set": {"last_active_at": t}},
+    )
 
 
 async def load_session(db: AsyncDatabase, request: Request, response: Response) -> tuple[UserSession, User] | None:
@@ -102,6 +113,7 @@ async def load_session(db: AsyncDatabase, request: Request, response: Response) 
             {"_id": session.id}, {"$set": {"last_seen_at": session.last_seen_at, "expires_at": session.expires_at}}
         )
         set_cookie(response, SESSION_COOKIE, token, USER_TTL)
+        await mark_active(db, user.id)
     return session, user
 
 
