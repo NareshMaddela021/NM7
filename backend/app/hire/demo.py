@@ -15,7 +15,7 @@ from datetime import timedelta
 from typing import Any
 
 from bson import ObjectId
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Response
 
 from app.admin.deps import AdminAuth
 from app.audit import audit
@@ -195,7 +195,7 @@ async def create(db) -> dict[str, Any]:
 
 
 @router.post("/open")
-async def open_hire_demo(request: Request, db: DB, auth: AdminAuth("companies")) -> dict[str, Any]:
+async def open_hire_demo(request: Request, response: Response, db: DB, auth: AdminAuth("companies")) -> dict[str, Any]:
     from app.orgs.recruiter_account import issue_session
 
     await rate_limit.check(db, f"demo-company:{auth.user.id}", [(10, timedelta(hours=1))])
@@ -208,4 +208,7 @@ async def open_hire_demo(request: Request, db: DB, auth: AdminAuth("companies"))
     await audit(
         db, auth.user.id, "demo_company_hire_open", target=company_demo.COMPANY_ID, data=out, ip=client_ip(request)
     )
+    from app.admin.views import company_view
+
+    await company_view(db, request, response, auth, session, "/company#hire")  # the admin stays signed in; banner on
     return {"session": session, **out}

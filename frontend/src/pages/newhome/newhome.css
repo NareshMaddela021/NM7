@@ -100,6 +100,14 @@
 .nh-btn-big { min-height: 56px; font-size: 18px; padding: 14px 30px; }
 .nh-btn-ghost { color: #fff !important; background: var(--nh-ink2); margin-top: 20px; }
 .nh-btn-ghost:hover { background: #241f3d; }
+/* "Create free account": beside each audience's main button, and once more above the footer */
+.nh-cta-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.nh-btn-line { background: #fff; color: var(--nh-ink2) !important; border-color: rgba(91, 82, 240, 0.45); }
+.nh-btn-line:hover { border-color: var(--nh-violet); background: var(--nh-lav); }
+.nh-btn-ink { color: #fff !important; background: var(--nh-ink2); }
+.nh-btn-ink:hover { background: #241f3d; }
+.nh-final-join { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 20px; }
+@media (max-width: 520px) { .nh-cta-row, .nh-cta-row .nh-btn, .nh-final-join .nh-btn { width: 100%; } }
 
 /* job search */
 .nh-search { display: grid; grid-template-columns: 1fr; gap: 10px; padding: 12px; border-radius: 22px; background: rgba(255, 255, 255, 0.9);

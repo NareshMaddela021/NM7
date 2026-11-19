@@ -11,6 +11,8 @@ import Header from '../../components/Header';
 import SiteFooter from '../../components/SiteFooter';
 import JobActions from '../../components/JobActions';
 import { usePageMeta } from '../../lib/meta';
+import { useAuth } from '../../lib/auth';
+import { joinLink } from '../../lib/signupRoles';
 import ParticleStage from './ParticleStage';
 import GlassWidget, { reducedMotion } from './GlassWidget';
 import { AUDIENCES, EXPERIENCE_TEXT, FAQ, HERO_HEADLINE, HERO_HIGHLIGHT, HIRE_MINUTES, JOB_CHIPS, META, SECTIONS, TAGLINE, TRUST, audienceFor, structuredData, widgetFor } from './content';
@@ -164,6 +166,14 @@ function JobSearch({ cities }) {
   );
 }
 
+/** "Create free account" (signed out only): companies and colleges go to their own sign-up, job seekers and students
+ * to /signup with their role in the link; without an audience, plain /signup. */
+function JoinLink({ who, className = 'nh-btn nh-btn-line', testId }) {
+  const { user } = useAuth();
+  if (user) return null;
+  return <Link to={joinLink(who)} className={className} data-testid={testId}>Create free account</Link>;
+}
+
 function Hero({ aud, onPick, live }) {
   const w = widgetFor(aud.key, live);
   return (
@@ -178,7 +188,10 @@ function Hero({ aud, onPick, live }) {
           <div className="nh-panel-text">
             <h2 className="nh-headline" data-testid="nh-headline">{aud.headline}</h2>
             <p className="nh-sub">{aud.sub}</p>
-            <Link to={aud.cta.to} className="nh-btn nh-btn-solid nh-btn-big" data-testid="nh-cta">{aud.cta.label}</Link>
+            <div className="nh-cta-row">
+              <Link to={aud.cta.to} className="nh-btn nh-btn-solid nh-btn-big" data-testid="nh-cta">{aud.cta.label}</Link>
+              <JoinLink who={aud.key} className="nh-btn nh-btn-line nh-btn-big" testId="nh-join" />
+            </div>
           </div>
           <GlassWidget w={w} audience={aud.key} />
         </div>
@@ -377,6 +390,18 @@ function Faq() {
   );
 }
 
+/** The last call to action above the footer (signed out only). */
+function FinalJoin() {
+  const { user } = useAuth();
+  if (user) return null;
+  return (
+    <div className="nh-final-join">
+      <p className="nh-sub">New here? It takes a minute.</p>
+      <JoinLink className="nh-btn nh-btn-ink nh-btn-big" testId="nh-final-join" />
+    </div>
+  );
+}
+
 function FinalCall() {
   return (
     <section className="nh-final" aria-labelledby="final-h" data-shape="sphere" data-side="0" data-spot="final">
@@ -395,6 +420,7 @@ function FinalCall() {
         <div className="nh-final-btns">
           {AUDIENCES.map((a) => <Link key={a.key} to={a.cta.to} className="nh-btn nh-btn-solid">{a.cta.label}<span className="nh-btn-who">{a.who}</span></Link>)}
         </div>
+        <FinalJoin />
       </div>
     </section>
   );

@@ -22,12 +22,24 @@ describe('vercel.json', () => {
   it('payments: only Razorpay’s own domains (checkout script + frame, api, lumberjack, images)', () => {
     const dir = (name) => header('Content-Security-Policy').split(';').map((d) => d.trim()).find((d) => d.startsWith(`${name} `)) || '';
     expect(dir('script-src')).toContain('https://checkout.razorpay.com');
-    expect(dir('frame-src').split(' ').slice(1).sort()).toEqual(['https://api.razorpay.com', 'https://checkout.razorpay.com']);
+    expect(dir('frame-src').split(' ').slice(1).filter((h) => !h.startsWith('https://accounts.google.com/gsi/')).sort()).toEqual(['https://api.razorpay.com', 'https://checkout.razorpay.com']);
     expect(dir('connect-src')).toContain('https://api.razorpay.com');
     expect(dir('connect-src')).toContain('https://lumberjack.razorpay.com');
     expect(dir('img-src')).toContain('https://*.razorpay.com');
     const paymentHosts = header('Content-Security-Policy').match(/https:\/\/[^\s;]*(pay|upi|stripe|paytm|cashfree)[^\s;]*/gi) || [];
     expect(paymentHosts.every((h) => /razorpay\.com$/.test(h))).toBe(true);
+  });
+
+  it('Sign in with Google: only the Google Identity Services paths Google documents, nothing broader', () => {
+    const csp = header('Content-Security-Policy');
+    const dir = (name) => csp.split(';').map((d) => d.trim()).find((d) => d.startsWith(`${name} `)) || '';
+    const google = (name) => dir(name).split(' ').filter((h) => h.includes('google.com'));
+    expect(google('script-src')).toEqual(['https://accounts.google.com/gsi/client']);
+    expect(google('style-src')).toEqual(['https://accounts.google.com/gsi/style']);
+    expect(google('frame-src')).toEqual(['https://accounts.google.com/gsi/']);
+    expect(google('connect-src')).toEqual(['https://accounts.google.com/gsi/']);
+    expect(csp.match(/[^\s;]*google\.com[^\s;]*/g).every((h) => h.startsWith('https://accounts.google.com/gsi/'))).toBe(true);
+    expect(csp).not.toMatch(/\*\.google\.com|googleapis\.com\/[^\s;]*gsi/);
   });
 
   it('recruiter links and kiosks are never cached or indexed', () => {

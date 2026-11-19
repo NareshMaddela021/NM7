@@ -32,7 +32,7 @@ export default function SiteFooter() {
         <span className="row g16">
           <a href={SISTER_SITE.url} target="_blank" rel="noreferrer" title={SISTER_SITE.blurb}>{SISTER_SITE.name} ↗</a>
           {Object.entries(SOCIAL).filter(([, u]) => u).map(([k, u]) => <a key={k} href={u} target="_blank" rel="noreferrer" style={{ textTransform: 'capitalize' }}>{k === 'x' ? 'X' : k}</a>)}
-          <Link to="/signup?as=expert">Become an expert</Link>{user ? <Link to={homeFor(user)}>My dashboard</Link> : <Link to="/login">Sign in</Link>}</span>
+          <Link to="/signup?role=expert">Become an expert</Link>{user ? <Link to={homeFor(user)}>My dashboard</Link> : <Link to="/login">Sign in</Link>}</span>
       </div>
     </footer>
   );

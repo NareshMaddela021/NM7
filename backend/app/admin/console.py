@@ -50,6 +50,12 @@ from app.orders.service import get_order, order_views
 from app.site import RULES, get_site, save_site
 from app.work.service import assign, load_work, view
 
+# One account for individuals (app/auth/roles.py): a person can be a job seeker or student and an expert. The account
+# type follows the role they use right now, so Admin also matches the stored roles: an expert application never
+# disappears while its owner job-hunts, and a job seeker stays a customer while working as an expert.
+EXPERT: dict[str, Any] = {"$or": [{"role": "expert"}, {"roles": "expert"}]}
+CUSTOMER: dict[str, Any] = {"$or": [{"role": "customer"}, {"roles": {"$in": ["jobseeker", "student"]}}]}
+
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 OPEN_ORDER = ("offer", "in_progress", "waiting", "revision")
 
@@ -112,7 +118,7 @@ async def stats(db: DB, _: AdminAuth("dashboard"), days: int = Query(30, ge=1, l
         "refundsInReview": await db[REFUNDS].count_documents({"status": "review"}),
         "ticketsOpen": await db[TICKETS].count_documents({"status": "open"}),
         "applicationsWaiting": await db[EXPERT_PROFILES].count_documents({"status": {"$in": ["review", "testReview"]}}),
-        "experts": await db[USERS].count_documents({"role": "expert", "expert_status": "approved"}),
+        "experts": await db[USERS].count_documents({**EXPERT, "expert_status": "approved", "demo": {"$ne": True}}),
     }
 
 
@@ -152,9 +158,9 @@ async def customers(
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
 ) -> dict[str, Any]:
-    match: dict[str, Any] = {"role": "customer", "demo": {"$ne": True}}  # the demo organization's students: not real
+    match: dict[str, Any] = {**CUSTOMER, "demo": {"$ne": True}}  # the demo organization's students: not real
     if q:
-        match["$or"] = [{"name": _like(q)}, {"email": _like(q)}, {"phone": _like(q)}]
+        match["$and"] = [{"$or": [{"name": _like(q)}, {"email": _like(q)}, {"phone": _like(q)}]}]
     total = await db[USERS].count_documents(match)
     users = await db[USERS].find(match).sort("created_at", DESCENDING).skip(offset).limit(limit).to_list()
     ids = [u["_id"] for u in users]
@@ -186,7 +192,7 @@ async def customers(
 
 
 async def _customer(db, user_id: str) -> User:
-    u = User.load(await db[USERS].find_one({"_id": user_id, "role": "customer"}))
+    u = User.load(await db[USERS].find_one({"_id": user_id, **CUSTOMER}))
     if not u:
         raise ApiError(404, "not_found", "No such customer.")
     return u
@@ -388,7 +394,7 @@ async def reply_ticket(
 async def experts(
     db: DB, _: AdminAuth("experts"), status: str | None = Query(None, max_length=20)
 ) -> list[dict[str, Any]]:
-    match: dict[str, Any] = {"role": "expert"}
+    match: dict[str, Any] = {**EXPERT, "demo": {"$ne": True}}  # admins' expert personas are not experts
     if status:
         match["expert_status"] = status
     users = await db[USERS].find(match).sort("created_at", DESCENDING).to_list(None)
@@ -420,7 +426,7 @@ async def experts(
 
 @router.get("/experts/{user_id}")
 async def expert_detail(user_id: str, db: DB, _: AdminAuth("experts")) -> dict[str, Any]:
-    u = await db[USERS].find_one({"_id": user_id, "role": "expert"})
+    u = await db[USERS].find_one({"_id": user_id, **EXPERT})
     if not u:
         raise ApiError(404, "not_found", "No such expert.")
     return {
@@ -469,7 +475,7 @@ STATUS_TEXT = {
 async def expert_decision(
     user_id: str, body: DecisionIn, request: Request, db: DB, mailer: MailerDep, auth: AdminAuth("experts")
 ) -> dict[str, Any]:
-    u = User.load(await db[USERS].find_one({"_id": user_id, "role": "expert"}))
+    u = User.load(await db[USERS].find_one({"_id": user_id, **EXPERT}))
     prof = await load_profile(db, user_id)
     if not u or not prof:
         raise ApiError(404, "not_found", "No such application.")
@@ -507,7 +513,7 @@ class PauseIn(CamelModel):
 
 @router.post("/experts/{user_id}/pause")
 async def pause_expert(user_id: str, body: PauseIn, request: Request, db: DB, auth: AdminAuth("experts")) -> dict:
-    r = await db[USERS].update_one({"_id": user_id, "role": "expert"}, {"$set": {"expert_paused": body.paused}})
+    r = await db[USERS].update_one({"_id": user_id, **EXPERT}, {"$set": {"expert_paused": body.paused}})
     if not r.matched_count:
         raise ApiError(404, "not_found", "No such expert.")
     await audit(db, auth.user.id, "expert.paused" if body.paused else "expert.resumed", target=user_id, ip=_ip(request))
@@ -542,9 +548,13 @@ async def assign_order(order_id: str, body: AssignIn, request: Request, db: DB, 
         raise ApiError(409, "bad_status", "Only orders that haven’t started can be (re)assigned.")
     before = (await load_work(db, order.id)).get("expert_id")
     if body.expert_id:
-        ex = await db[USERS].find_one({"_id": body.expert_id, "role": "expert", "expert_status": "approved"})
+        ex = await db[USERS].find_one(
+            {"_id": body.expert_id, **EXPERT, "expert_status": "approved", "demo": {"$ne": True}}
+        )
         if not ex or ex.get("expert_paused"):
             raise ApiError(400, "bad_expert", "Pick an approved expert who isn’t paused.")
+        if ex["_id"] == order.customer_id:  # one account can be a job seeker and an expert: never their own order
+            raise ApiError(400, "own_order", "An expert can’t work on their own order.")
     expires = await assign(db, order, body.expert_id)
     await audit(
         db,

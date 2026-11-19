@@ -29,6 +29,7 @@ EMAIL_CODES = "email_codes"
 SESSIONS = "sessions"
 ADMIN_CHALLENGES = "admin_challenges"
 TRUSTED_DEVICES = "trusted_devices"
+ADMIN_VIEWS = "admin_views"  # an admin's "Switch to" views and read-only "View as this user" (app/auth/views.py)
 RECOVERY_CODES = "recovery_codes"
 RATE_EVENTS = "rate_events"
 AUDIT_LOG = "audit_log"
@@ -210,6 +211,7 @@ COLLECTIONS = (
     SESSIONS,
     ADMIN_CHALLENGES,
     TRUSTED_DEVICES,
+    ADMIN_VIEWS,
     RECOVERY_CODES,
     RATE_EVENTS,
     AUDIT_LOG,
@@ -392,6 +394,7 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel("unverified_expires_at", expireAfterSeconds=0),  # sign-ups never confirmed are dropped
         IndexModel("referral_code", unique=True, partialFilterExpression=_str("referral_code")),
         IndexModel("referred_by"),
+        IndexModel("google.sub", unique=True, partialFilterExpression=_str("google.sub")),  # Sign in with Google
     ],
     EMAIL_CODES: [
         IndexModel([("user_id", ASCENDING), ("purpose", ASCENDING), ("used_at", ASCENDING)]),
@@ -404,6 +407,7 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel("expires_at", expireAfterSeconds=DAY),
     ],
     ADMIN_CHALLENGES: [IndexModel("token_hash", unique=True), IndexModel("expires_at", expireAfterSeconds=DAY)],
+    ADMIN_VIEWS: [IndexModel("token_hash", unique=True), IndexModel("expires_at", expireAfterSeconds=DAY)],
     TRUSTED_DEVICES: [
         IndexModel("token_hash", unique=True),
         IndexModel("user_id"),
@@ -792,7 +796,11 @@ def get_client() -> AsyncMongoClient:
 
 
 def get_database() -> AsyncDatabase:
-    return get_client().get_database(get_settings().mongodb_db, codec_options=CodecOptions(tz_aware=True, tzinfo=UTC))
+    from app.core.readonly import wrap  # a read-only admin view (app/core/readonly.py): writes are skipped
+
+    return wrap(
+        get_client().get_database(get_settings().mongodb_db, codec_options=CodecOptions(tz_aware=True, tzinfo=UTC))
+    )
 
 
 async def close_client() -> None:

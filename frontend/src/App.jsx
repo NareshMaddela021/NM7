@@ -37,6 +37,12 @@ function DownloadGateHost() {
 }
 // "Check before download": the print preview + checklist, loaded when a download starts.
 const PrintCheck = lazy(() => import('./components/PrintCheck'));
+const ViewBanner = lazy(() => import('./components/AdminViews')); // an admin's "viewing as …" banner
+/** While an admin has a view open (Switch to …, View as this user): the banner on every page, above the header. */
+function ViewBannerHost() {
+  const { user } = useAuth();
+  return user?.view ? <Suspense fallback={null}><ViewBanner view={user.view} /></Suspense> : null;
+}
 function PrintCheckHost() {
   const [opened, setOpened] = useState(false);
   useEffect(() => onCheck((c) => { if (c) setOpened(true); }), []);
@@ -68,6 +74,7 @@ const Signup = named(auth, 'Signup');
 const ForgotPassword = named(auth, 'ForgotPassword');
 const AdminLogin = named(auth, 'AdminLogin');
 const AdminSetup = named(auth, 'AdminSetup');
+const Welcome = named(auth, 'Welcome'); // "What would you like to do?" after sign-up; "Add another role"
 const legal = () => import('./pages/legal/Legal');
 const Terms = named(legal, 'Terms');
 const Privacy = named(legal, 'Privacy');
@@ -360,6 +367,7 @@ export default function App() {
       <RouteFocus />
       <CodeFromLink />
       <PreviewBar />
+      <ViewBannerHost />
       <DownloadGateHost />
       <PrintCheckHost />
       <ServerWaking />
@@ -403,7 +411,8 @@ export default function App() {
         <Route path="/expert/test" element={E(<TestTask />, false)} />
         <Route path="/expert/reviewer" element={E(<Reviewer />)} />
         <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route path="/signup/*" element={<Signup />} />
+        <Route path="/welcome" element={<Welcome />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/setup" element={<AdminSetup />} />

@@ -21,4 +21,6 @@ def is_test_user(user_id: str | None) -> bool:
 
 
 def is_test_address(email: str | None) -> bool:
-    return bool(email) and email.strip().lower().endswith(f"@{DOMAIN}")
+    """A made-up address: the test users' (@test.nm7.invalid), the demo people's (@demo.nm7.invalid) and the admins'
+    personas' (@persona.nm7.invalid). ".invalid" can never have an inbox (RFC 2606), so nothing is ever sent there."""
+    return bool(email) and email.strip().lower().endswith(".invalid")

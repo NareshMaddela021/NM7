@@ -59,6 +59,9 @@ let live = { user: null, ready: false };
 const fromApi = (u) => ({
   id: u.id, role: u.role, name: u.name, email: u.email, phone: u.phone || '', verified: u.verified,
   expertStatus: u.expertStatus || undefined, adminRole: u.adminRole || undefined, createdAt: Date.parse(u.createdAt),
+  view: u.view || undefined, // an admin's view (lib/adminViews.js): the banner and Back to Admin
+  roles: u.roles || [], activeRole: u.activeRole || undefined, rolesPending: !!u.rolesPending,
+  hasPassword: u.hasPassword !== false, google: u.google || null, // "Sign in with Google" (Settings)
 });
 // The role of whoever was signed in in this tab (re-test N6): while a sleeping server is slow to say who is signed in,
 // the easy dashboard can show its last screen at once. sessionStorage and nm7-: gone on sign-out and with the tab.
@@ -153,20 +156,27 @@ export async function signIn(email, password) {
   if (!u.verified) throw fail('Please confirm your email first — we’ve sent you a code.', 'email_not_verified');
   return start(u);
 }
+/** "Continue with Google": the Google ID token (credential) goes to the API, which signs in or creates the account
+ *  (role: customer / expert for a new account; next: where to go after). Same answer as signIn. Live site only. */
+export async function googleSignIn({ credential, role, next }) {
+  const r = await http('/api/auth/google', { method: 'POST', body: { credential, role, next } });
+  return { ...setLive(r), isNew: !!r.isNew }; // isNew: a new account, so the page goes on to the step after sign-up
+}
+
 /** Creates the account and emails a 6-digit code. Returns { email, codeSent }. An email that already has an account gets
  *  the same answer (its owner is emailed a sign-in reminder instead of a code), so sign-up never reveals who has an account. */
-export async function signUp({ role, name, email, phone, password, confirm, agree }) {
+export async function signUp({ role = 'customer', name, email, phone, password, confirm, agree, pickRoles = false }) {
   if (LIVE) {
     let ref = null;
     try { ref = sessionStorage.getItem('nm7-ref'); } catch { /* ignore */ }
-    return http('/api/auth/signup', { method: 'POST', body: { role, name: name.trim(), email: email.trim(), phone: phone?.trim() || null, password, passwordConfirm: confirm, termsAccepted: !!agree, ref } });
+    return http('/api/auth/signup', { method: 'POST', body: { role, name: name.trim(), email: email.trim(), phone: phone?.trim() || null, password, passwordConfirm: confirm, termsAccepted: !!agree, pickRoles, ref } });
   }
   await wait(500);
   if (password !== confirm) throw fail('The two passwords don’t match.', 'password_mismatch');
   const existing = byEmail(email);
   if (existing?.verified) return { email: existing.email, codeSent: true }; // a reminder email, no code
   if (phone && byPhone(phone) && byPhone(phone) !== existing) throw fail('This mobile number is already used by another account.', 'phone_taken');
-  const u = { id: existing?.id || `u-${Date.now().toString(36)}`, role, name: name.trim(), email: email.trim(), phone: normPhone(phone), password, verified: false, createdAt: Date.now(), ...(role === 'expert' ? { expertStatus: 'draft' } : {}) };
+  const u = { id: existing?.id || `u-${Date.now().toString(36)}`, role, name: name.trim(), email: email.trim(), phone: normPhone(phone), password, verified: false, createdAt: Date.now(), rolesPending: !!pickRoles, ...(role === 'expert' ? { expertStatus: 'draft' } : {}) };
   users = [...getUsers().filter((x) => x !== existing), u]; emit();
   return { email: u.email, codeSent: true };
 }
@@ -209,7 +219,9 @@ export async function signOut() {
   if (LIVE) {
     // keepalive: the browser finishes this request even if the page moves on (a plain request would be dropped and
     // the next visit would still be signed in)
+    const inView = !!live.user?.view;
     await logoutRequest();
+    if (inView) { await reloadUser(); return; } // inside an admin's view, sign-out only ends the view (the admin stays)
     setLive(null);
     return;
   }
@@ -258,7 +270,10 @@ export async function adminVerify(userId, code, trust) {
 }
 
 /** Where someone lands after signing in. */
-export const homeFor = (u) => (!u ? '/login' : u.role === 'admin' ? '/admin' : u.role === 'expert' ? (u.expertStatus === 'approved' ? '/expert' : '/expert/profile') : '/me');
+// One account for individuals (lib/roles.js): a new account first answers "What would you like to do?" (/welcome);
+// then the active role's dashboard: expert, student (learning) or job seeker.
+export const homeFor = (u) => (!u ? '/login' : u.role === 'admin' ? '/admin' : u.rolesPending ? '/welcome'
+  : u.role === 'expert' ? (u.expertStatus === 'approved' ? '/expert' : '/expert/profile') : u.activeRole === 'student' ? '/me/learn' : '/me');
 
 /** Each signed-in customer has their own builder draft; guests and the sample customer share the original one. */
 export function draftKeyFor(userId) { return !userId || userId === SAMPLE_USER_ID ? 'asuraa-builder-draft-v6' : `asuraa-builder-draft-v6:${userId}`; }

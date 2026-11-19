@@ -9,6 +9,7 @@ import { FlowProvider } from './lib/flow';
 import { ToastProvider } from './components/ui';
 import { installChunkRecovery } from './lib/chunks';
 import { setLangsShown } from './lib/i18n';
+import { NO_FLAGS, loadSiteFlags } from './lib/siteFlags';
 
 // The font stylesheet is linked with media="print" so it doesn't block the first paint; switch it on here.
 // (An inline onload="" handler would do the same, but the Content-Security-Policy forbids inline handlers.)
@@ -52,7 +53,7 @@ root.render(tree());
 // Live: prices come from the server (the owner can change them); show them once loaded.
 if (LIVE) syncPrices(http).then(() => root.render(tree()), () => {});
 // Live: Telugu and Hindi are shown only when Admin turned them on (item 41); kept in this browser for next time.
-if (LIVE) http('/api/public/site-flags').then((f) => setLangsShown(f.langs), () => {});
+if (LIVE) loadSiteFlags().then((f) => { if (f !== NO_FLAGS) setLangsShown(f.langs); }); // a failed request keeps the saved choice
 // Once per browser: older versions saved the example person (Sai Varsha) into the builder's browser draft.
 try {
   if (!localStorage.getItem('nm7-sample-drafts-cleared') && Array.from({ length: localStorage.length }, (_, i) => localStorage.key(i)).some((k) => k?.startsWith('asuraa-builder-draft-v6'))) {

@@ -89,7 +89,11 @@ async def mark_active(db: AsyncDatabase, user_id: str) -> None:
     )
 
 
-async def load_session(db: AsyncDatabase, request: Request, response: Response) -> tuple[UserSession, User] | None:
+async def load_session(
+    db: AsyncDatabase, request: Request, response: Response, overlay: bool = True
+) -> tuple[UserSession, User] | None:
+    """The signed-in browser. With overlay (the default), an admin who opened a view (app/auth/views.py) is answered as
+    that view's person; overlay=False always gives the admin's own session (the view endpoints)."""
     token = request.cookies.get(SESSION_COOKIE)
     if not token:
         return None
@@ -106,6 +110,12 @@ async def load_session(db: AsyncDatabase, request: Request, response: Response) 
         if not k or k.get("revoked_at") or k["expires_at"] <= now():
             return None
         return session, user
+    if overlay and user.role == "admin" and session.two_step and request.cookies.get("nm7_view"):
+        from app.auth.views import overlay as view_overlay
+
+        acting = await view_overlay(db, request, session, user)
+        if acting:
+            return acting
     if user.role != "admin" and now() - session.last_seen_at > SLIDE_AFTER:
         session.last_seen_at = now()
         session.expires_at = now() + USER_TTL
