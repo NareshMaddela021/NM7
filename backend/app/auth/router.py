@@ -84,6 +84,7 @@ async def signup(body: SignupIn, request: Request, response: Response, db: DB, m
         password_hash=await hash_password(body.password),
         terms_accepted_at=now(),
         expert_status="draft" if body.role == "expert" else None,
+        roles_pending=body.pick_roles,
         unverified_expires_at=now() + UNVERIFIED_TTL,
         signup_token_hash=_bind_signup(response),
     )

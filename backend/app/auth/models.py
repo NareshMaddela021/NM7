@@ -10,6 +10,9 @@ from app.core.db import Doc
 from app.core.time import now
 
 ROLES = ("customer", "expert", "admin")
+# One account for individuals: the things a person does on Nm7. `role` above stays the account type the rest of the
+# app checks ("customer" for job seekers and students, "expert" for experts); it follows the active individual role.
+INDIVIDUAL_ROLES = ("jobseeker", "student", "expert")
 CODE_PURPOSES = ("verify_email", "reset_password")
 
 
@@ -33,6 +36,10 @@ class User(Doc):
     unverified_expires_at: datetime | None = None  # set at sign-up, removed on confirmation; TTL index
     signup_token_hash: str | None = None  # the browser that signed up (or signed in) is the one that may confirm
     terms_accepted_at: datetime | None = None
+    roles: list[str] = Field(default_factory=list)  # jobseeker / student / expert; empty on older accounts (derived)
+    active_role: str | None = None  # the dashboard shown now; None on older accounts (derived from `role`)
+    roles_pending: bool = False  # signed up on the new page and hasn't answered "What would you like to do?" yet
+    expert_terms_accepted_at: datetime | None = None  # ticked the Expert Terms when adding the expert role
     disabled_at: datetime | None = None
     # Customer profile (dashboard settings)
     target_role: str = ""
@@ -56,6 +63,31 @@ class User(Doc):
     @property
     def verified(self) -> bool:
         return self.email_verified_at is not None
+
+    @property
+    def individual_roles(self) -> list[str]:
+        """The person's roles. Older accounts have none stored: they are derived from the account type (a customer is
+        a job seeker, an expert an expert), so nothing has to be rewritten. Admins have no individual roles."""
+        if self.role == "admin":
+            return []
+        have = set(self.roles) & set(INDIVIDUAL_ROLES)
+        if self.role == "expert":
+            have.add("expert")
+        elif not have & {"jobseeker", "student"}:
+            have.add("jobseeker")
+        return [r for r in INDIVIDUAL_ROLES if r in have]
+
+    @property
+    def current_role(self) -> str | None:
+        """The active role. It always agrees with `role` (which the route guards check)."""
+        mine = self.individual_roles
+        if not mine:
+            return None
+        if self.role == "expert":
+            return "expert"
+        if self.active_role in mine and self.active_role != "expert":
+            return self.active_role
+        return next(r for r in mine if r != "expert")
 
 
 class EmailCode(Doc):
