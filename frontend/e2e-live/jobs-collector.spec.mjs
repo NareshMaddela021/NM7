@@ -22,7 +22,9 @@ for (const [label, opts] of SIZES) {
       }));
       await page.goto(`/jobs/${job.slug}`);
       await expect(page.getByTestId('job-source')).toContainText('Source: company careers page');
-      await expect(page.getByTestId('apply').first()).toHaveAttribute('href', url);
+      await page.getByTestId('apply').first().click(); // signed out: create an account, or go straight to the company's site
+      await expect(page.getByTestId('apply-ask-direct')).toHaveAttribute('href', url);
+      await page.keyboard.press('Escape');
       await expect(page.locator('img.job-logo, .job-detail img')).toHaveCount(0);
       expect(await noSideScroll(page)).toBe(true);
       await page.getByTestId('job-removal').click();

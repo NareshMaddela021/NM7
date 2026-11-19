@@ -75,6 +75,7 @@ ROLL_LISTS = "roll_lists"  # placement dashboard: a group's roll list (_id = gro
 LINKEDIN = "linkedin_profiles"  # LinkedIn services: the link, PDF / pasted text and the latest check, per user (_id)
 LINKEDIN_PACKS = "linkedin_packs"  # who owns the LinkedIn pack (_id = user id): the paying order or an admin grant
 HOME_EVENTS = "home_events"  # home page tap counters, per day (no personal data)
+SHARE_EVENTS = "share_events"  # Share button taps per day and channel (no personal data)
 JOB_MATCHES = "job_matches"  # job search: the pasted job post, its reading, the score, outputs (per user, never shared)
 FEATURE_GRANTS = "feature_grants"  # job search packs granted by an admin (_id = "<feature>:<user id>")
 COUPONS = "coupons"  # admin-managed codes (_id = the code, upper case, no spaces): type, value, items, limits, dates
@@ -249,6 +250,7 @@ COLLECTIONS = (
     LINKEDIN,
     LINKEDIN_PACKS,
     HOME_EVENTS,
+    SHARE_EVENTS,
     JOB_MATCHES,
     FEATURE_GRANTS,
     COUPONS,
@@ -712,6 +714,7 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel("org_id"),
     ],
     HOME_EVENTS: [IndexModel("day")],
+    SHARE_EVENTS: [IndexModel("day")],
     JOB_MATCHES: [IndexModel([("user_id", ASCENDING), ("created_at", DESCENDING)])],
     COURSES: [IndexModel("skill")],
     DRIVES: [IndexModel([("org_id", ASCENDING), ("date", DESCENDING)]), IndexModel("slots.members")],
