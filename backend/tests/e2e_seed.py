@@ -15,8 +15,9 @@ MONGODB_DB=nm7_e2e uv run python -m tests.e2e_seed reset
 ... trust-t11-book EMAIL CID JOB      → T11: a shortlisted application + its one-tap booking link token
 ... trust-t11-offer EMAIL CID DAYS BY [LANG] → T11: an accepted offer + the joining-day and company link tokens
 ... trust-agent-run [HOUR]             → T5: one calling-agent pass at HOUR (default 11) IST tomorrow (any real hour)
-... trust-t6-ready EMAIL [CLASSES]     → T6: Ready to join in Hyderabad (no notice) and, with CLASSES ("MCWG,LMV"), a
-                                          DigiLocker driving licence from the test provider (verified)
+... trust-t6-ready EMAIL [CLASSES] [CITY] → T6: Ready to join in Hyderabad (or CITY: a test's own place, so Hire now's
+                                          top 10 holds only that test's people) with no notice and, with CLASSES
+                                          ("MCWG,LMV"), a DigiLocker driving licence from the test provider (verified)
 ... trust-t8-high EMAIL|@demo-first   → T8: signals worth "High risk" (a test with the same answers as another
                                           account on a shared device, and the same PAN on another account), then
                                           that person is rated (a review opens)
@@ -76,6 +77,24 @@ from app.core.security import hash_password
 from app.core.time import now
 from app.orders.service import build_order, next_invoice_no
 from app.payments.models import Payment
+
+
+def t12_graded_interview(iid, uid: str, t) -> dict:
+    """An AI-graded SQL interview shaped exactly like one the app stores (grade_and_store), with an "Explained own work"
+    turn labelled strong: every list that reads interviews (Admin → Interviews → Graded, the candidate's page, the
+    weekly checks) must be able to show it. Not passed, so it gives nobody the interview-ready level."""
+    from app.hire.vetting.interview import BY_TEST, CRITERIA, SECONDS
+
+    turns = [{"id": f"q{n}", "q": f"Question {n}", "answer": f"An answer about SQL ({n})."} for n in range(1, 7)]
+    turns.append({"id": "explain1", "kind": "explain", "q": "Explain your own task", "quote": "JOIN orders o ON o.id",
+                  "answer": "I joined the two tables on the id."})  # fmt: skip
+    scores = [{"key": k, "score": 2, "reason": "Short answers."} for k, _label, _guide in CRITERIA]
+    grade = {"scores": scores, "strengths": ["Knows joins"], "concern": "Short answers.", "model": "", "by": "ai"}
+    return {"_id": iid, "user_id": uid, "test": "SQL", "slug": BY_TEST["SQL"]["slug"], "lang": "en", "mode": "text",
+            "turns": turns, "at": len(turns), "awaiting": "answer", "status": "graded", "seconds": SECONDS["text"],
+            "started_at": t - timedelta(minutes=20), "asked_at": t - timedelta(minutes=5), "answered_at": t,
+            "graded_at": t, "grade": grade, "passed": False,
+            "explain": {"label": "strong", "by": "ai", "reason": "r"}}  # fmt: skip
 
 
 class _Capture:
@@ -298,7 +317,8 @@ async def main(cmd: str, *args: str) -> dict:
         u = await db["users"].find_one({"email": mail})
         t = now()
         prof = {
-            "on": True, "join_date": "", "cities": ["Hyderabad"], "remote": False, "notice_days": 0,
+            "on": True, "join_date": "", "cities": [args[2] if len(args) > 2 and args[2] else "Hyderabad"],
+            "remote": False, "notice_days": 0,
             "salary": {"amount": 25000, "unit": "month"}, "job_types": ["full_time"], "returner": False,
             "hide_from": [], "confirmed_at": t, "consent_at": t, "paused_at": None, "updated_at": t, "created_at": t,
         }  # fmt: skip
@@ -761,9 +781,7 @@ async def main(cmd: str, *args: str) -> dict:
             {"_id": uid, "name": "T12 Regrade", "email": mail, "email_lc": mail, "created_at": t}
         )
         iid = ObjectId()
-        iv = {"_id": iid, "user_id": uid, "test": "SQL", "lang": "en", "status": "graded", "graded_at": t}
-        iv |= {"started_at": t, "turns": [], "explain": {"label": "strong", "by": "ai", "reason": "r"}}
-        await db["vetting_interviews"].insert_one(iv)
+        await db["vetting_interviews"].insert_one(t12_graded_interview(iid, uid, t))
         rid = ObjectId()
         rg = {"_id": rid, "kind": "t9", "ref": str(iid), "user_id": uid, "key": "SQL", "first": "strong"}
         rg |= {"second": "weak", "gap": 2, "material": True, "status": "review", "at": t}

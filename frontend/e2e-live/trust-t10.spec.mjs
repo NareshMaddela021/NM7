@@ -137,8 +137,11 @@ for (const [label, opts] of SIZES) {
       test.setTimeout(180_000);
       page.on('dialog', () => { throw new Error('no browser dialogs'); });
       const tag = `${label[0]}${Date.now().toString(36)}`;
+      // the jobs' own place: Hire now's top 10 holds only this test's people, however many Hyderabad candidates the
+      // other specs left in the shared database
+      const city = `Tq${letters()}pur`;
       const co = await company(request, tag);
-      const job = (title) => request.post(`${API}/api/company/${co.id}/jobs`, { headers: co.H, data: { job: { title, description: 'Talk to our customers on calls and chat, solve their order questions and keep notes. Freshers are welcome.', locations: ['Hyderabad'], experience: 'fresher', jobType: 'full_time', workType: 'onsite', skills: ['Communication'] } } }).then((r) => r.json());
+      const job = (title) => request.post(`${API}/api/company/${co.id}/jobs`, { headers: co.H, data: { job: { title, description: 'Talk to our customers on calls and chat, solve their order questions and keep notes. Freshers are welcome.', locations: [city], experience: 'fresher', jobType: 'full_time', workType: 'onsite', skills: ['Communication'] } } }).then((r) => r.json());
       const support = await job(`Customer Support Executive ${tag}`);
       const analyst = await job(`Junior Data Analyst ${tag}`);
       expect(support.status).toBe('active');
@@ -147,7 +150,7 @@ for (const [label, opts] of SIZES) {
         const mail = email(`tt10h-${label}-${uniq()}`);
         seed('customer', mail, `${first} Kumar`, PASSWORD);
         seed('trust-agent-person', mail, phone());
-        seed('trust-t6-ready', mail);
+        seed('trust-t6-ready', mail, '', city);
         seed('trust-t10-score', mail, band, ...(pron ? [pron] : []));
       }
       await page.goto('/company');

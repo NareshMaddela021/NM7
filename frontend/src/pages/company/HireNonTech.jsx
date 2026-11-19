@@ -33,10 +33,12 @@ const n = (c) => (c == null ? '' : ` (${c})`);
 
 export function NonTechFilters({ f, setF, counts = {}, english = false }) {
   const set = (k) => (e) => setF((x) => ({ ...x, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
+  // a count is shown only once it was worked out for this filter's current choice (not the one before, while it reloads)
+  const cnt = (k) => (counts.of && String(counts.of[k] ?? '') !== String(f[k] ?? '') ? null : counts[k]);
   return (
     <fieldset className="hn-sv hn-nt" data-testid="co-hire-nt-filters">
       <legend className="hn-sv-legend">Non-tech filters <span className="xs muted">· each shows where it comes from</span></legend>
-      <label className="field hn-field"><span className="label">Driving licence ✓ verified{n(counts.licence)}</span>
+      <label className="field hn-field"><span className="label">Driving licence ✓ verified{n(cnt('licence'))}</span>
         <select className="input" value={f.licence} onChange={set('licence')} data-testid="co-hire-nt-licence">
           <option value="">Any or none</option>
           <option value="any">Verified licence</option>
@@ -44,7 +46,7 @@ export function NonTechFilters({ f, setF, counts = {}, english = false }) {
           <option value="lmv">Car (LMV)</option>
         </select>
       </label>
-      <label className="field hn-field"><span className="label">Vehicle owned · self-declared{n(f.vehicle ? counts.vehicle : null)}</span>
+      <label className="field hn-field"><span className="label">Vehicle owned · self-declared{n(f.vehicle ? cnt('vehicle') : null)}</span>
         <select className="input" value={f.vehicle} onChange={set('vehicle')} data-testid="co-hire-nt-vehicle">
           <option value="">Any or none</option>
           <option value="any">Has a vehicle</option>
@@ -53,7 +55,7 @@ export function NonTechFilters({ f, setF, counts = {}, english = false }) {
           <option value="bicycle">Bicycle</option>
         </select>
       </label>
-      <label className="field hn-field"><span className="label">Shift · self-declared{n(f.shift ? counts.shift : null)}</span>
+      <label className="field hn-field"><span className="label">Shift · self-declared{n(f.shift ? cnt('shift') : null)}</span>
         <select className="input" value={f.shift} onChange={set('shift')} data-testid="co-hire-nt-shift">
           <option value="">Any</option>
           <option value="day">Day</option>
@@ -61,28 +63,28 @@ export function NonTechFilters({ f, setF, counts = {}, english = false }) {
           <option value="rotational">Rotational</option>
         </select>
       </label>
-      <label className="field hn-field"><span className="label">Distance from the job{n(Number(f.maxKm) > 0 ? counts.maxKm : null)}</span>
+      <label className="field hn-field"><span className="label">Distance from the job{n(Number(f.maxKm) > 0 ? cnt('maxKm') : null)}</span>
         <select className="input" value={f.maxKm} onChange={set('maxKm')} data-testid="co-hire-nt-km">
           <option value={0}>Any distance</option>
           {KMS.map((k) => <option key={k} value={k}>Within {k} km</option>)}
         </select>
       </label>
-      <label className="field hn-field"><span className="label">Speaks · self-declared{n(counts.lang)}</span>
+      <label className="field hn-field"><span className="label">Speaks · self-declared{n(cnt('lang'))}</span>
         <select className="input" value={f.lang} onChange={set('lang')} data-testid="co-hire-nt-lang">
           <option value="">Any language</option>
           {LANGS.map((l) => <option key={l} value={l}>{l}</option>)}
         </select>
       </label>
       {english && (
-        <label className="field hn-field"><span className="label">Spoken English · measured by Nm7 voice interview{n(counts.english)}</span>
+        <label className="field hn-field"><span className="label">Spoken English · measured by Nm7 voice interview{n(cnt('english'))}</span>
           <select className="input" value={f.english} onChange={set('english')} data-testid="co-hire-nt-english">
             <option value="">Any (or not measured)</option>
             {BAND_UP.map((b) => <option key={b} value={b}>Spoken English: {b} or above</option>)}
           </select>
         </label>
       )}
-      <label className="hn-sv-only"><input type="checkbox" checked={f.nightShift} onChange={set('nightShift')} data-testid="co-hire-nt-night" /><span>Night shifts OK · self-declared{n(counts.nightShift)}</span></label>
-      <label className="hn-sv-only"><input type="checkbox" checked={f.immediate} onChange={set('immediate')} data-testid="co-hire-nt-now" /><span>Can join now · self-declared{n(counts.immediate)}</span></label>
+      <label className="hn-sv-only"><input type="checkbox" checked={f.nightShift} onChange={set('nightShift')} data-testid="co-hire-nt-night" /><span>Night shifts OK · self-declared{n(cnt('nightShift'))}</span></label>
+      <label className="hn-sv-only"><input type="checkbox" checked={f.immediate} onChange={set('immediate')} data-testid="co-hire-nt-now" /><span>Can join now · self-declared{n(cnt('immediate'))}</span></label>
       {ntOn(f) && <button type="button" className="btn btn-outline hn-clear" onClick={() => setF(NT_NONE)} data-testid="co-hire-nt-clear">Clear non-tech filters</button>}
     </fieldset>
   );
