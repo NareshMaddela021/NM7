@@ -2,7 +2,8 @@
 """The two outside services of the calling agent, behind small interfaces, with deterministic test providers.
 
 WhatsApp (send a template that opens a conversation, send a reply inside the 24-hour window, read the webhook):
-  send_template(to, lang, params, payloads) → message id      to: digits with country code ("919876543210")
+  send_template(to, lang, params, payloads, name) → message id   to: digits with country code ("919876543210");
+                                                              name: the template ("" = nm7_job_match)
   send_text(to, text, buttons) → message id                   buttons: [(payload, title)] (up to 3 quick replies)
   verify(raw body, headers) → bool                            the webhook's signature
 The webhook format is Meta's (entry → changes → value → messages / statuses); the test provider uses the same format,
@@ -103,7 +104,9 @@ class WhatsApp(Protocol):
 
     def ready(self) -> bool: ...
 
-    async def send_template(self, to: str, lang: str, params: list[str], payloads: list[str]) -> str: ...
+    async def send_template(
+        self, to: str, lang: str, params: list[str], payloads: list[str], name: str = ""
+    ) -> str: ...  # name: the approved template ("" = the job-match one; T11 adds the interview / joining ones)
 
     async def send_text(self, to: str, text: str, buttons: list[tuple[str, str]] | None = None) -> str: ...
 
@@ -130,8 +133,8 @@ class MockWhatsApp:
         SENT.append({"channel": "whatsapp", "to": to, "kind": kind, "id": mid, **data})
         return mid
 
-    async def send_template(self, to: str, lang: str, params: list[str], payloads: list[str]) -> str:
-        return self._send(to, "template", {"lang": lang, "params": params, "payloads": payloads})
+    async def send_template(self, to: str, lang: str, params: list[str], payloads: list[str], name: str = "") -> str:
+        return self._send(to, "template", {"lang": lang, "params": params, "payloads": payloads, "name": name})
 
     async def send_text(self, to: str, text: str, buttons: list[tuple[str, str]] | None = None) -> str:
         return self._send(to, "text", {"text": text, "buttons": buttons or []})

@@ -23,6 +23,7 @@ import TrustHonestyAdmin from './TrustHonestyAdmin'; // T9: honesty pledge, reta
 import TrustSpokenAdmin from './TrustSpokenAdmin'; // T10: spoken-English score: provider, role categories, counts
 import TrustEmployerAdmin from './TrustEmployerAdmin';
 import TrustAgentAdmin from './TrustAgentAdmin';
+import TrustBookingAdmin from './TrustBookingAdmin'; // T11: interview booking & joining day
 
 const STATUS = [['open', 'Open'], ['contained', 'Contained'], ['notified', 'Notified'], ['closed', 'Closed']];
 const TO = [['certin', 'CERT-In'], ['dpb', 'Data Protection Board'], ['people', 'Affected people'], ['police', 'Police / cyber cell'], ['vendor', 'Vendor / processor'], ['other', 'Other']];
@@ -219,6 +220,7 @@ export default function TrustAdmin() {
       {!st.error && <TrustSpokenAdmin />}
       {!st.error && <TrustEmployerAdmin />}
       {!st.error && <TrustAgentAdmin />}
+      {!st.error && <TrustBookingAdmin />}
       {!st.error && <Breaches />}
     </div>
   );

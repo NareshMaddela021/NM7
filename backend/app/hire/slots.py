@@ -147,11 +147,11 @@ async def _names(db, s: dict[str, Any]) -> tuple[str, str, dict[str, Any]]:
     return ((c or {}).get("details") or {}).get("legal_name", "The company"), (j or {}).get("title", ""), c or {}
 
 
-async def notify(db, mailer: Mailer, s: dict[str, Any], kind: str, reason: str = "") -> int:
+async def notify(db, mailer: Mailer, s: dict[str, Any], kind: str, reason: str = "", candidate: bool = True) -> int:
     """The candidate and the company member who offered the times."""
     company, role, _ = await _names(db, s)
     sent = 0
-    if s.get("user_id"):
+    if candidate and s.get("user_id"):
         u = await db[USERS].find_one({"_id": s["user_id"]}, {"email": 1, "name": 1, "email_bounced": 1, "demo": 1})
         if u and not u.get("email_bounced") and not u.get("demo"):
             sent += await send_safely(mailer, slot_email(u["email"], u.get("name", ""), s, company, role, kind, reason))
@@ -394,7 +394,11 @@ async def my_ics(sid: str, auth: CustomerAuth, db: DB) -> Response:
 
 async def send_reminders(db, mailer: Mailer, t: datetime | None = None) -> int:
     """1 day and 1 hour before each booked time; once each (claimed before sending)."""
+    from app.site import get_site
+    from app.trust.booking.service import handled
+
     t = t or now()
+    site = await get_site(db)
     sent = 0
     for kind, ahead, flag in (
         ("day", timedelta(days=1), "reminded_day"),
@@ -402,10 +406,12 @@ async def send_reminders(db, mailer: Mailer, t: datetime | None = None) -> int:
     ):
         q = {"status": "booked", "starts_at": {"$gt": t, "$lte": t + ahead}, flag: {"$ne": True}}
         async for s in db[HIRE_SLOTS].find(q).limit(500):
+            # Vetting Trust T11 reminds the candidate instead (never both); the company keeps its reminder here
+            t11 = bool(s.get("t11_flow")) or await handled(db, site, s.get("user_id"), s.get("company_id"))
             if kind == "day" and s["starts_at"] <= t + timedelta(hours=1):
                 await db[HIRE_SLOTS].update_one({"_id": s["_id"]}, {"$set": {flag: True}})
                 continue  # booked less than an hour before: the 1-hour reminder is enough
             got = await db[HIRE_SLOTS].update_one({"_id": s["_id"], flag: {"$ne": True}}, {"$set": {flag: True}})
             if got.modified_count:
-                sent += await notify(db, mailer, s, kind)
+                sent += await notify(db, mailer, s, kind, candidate=not t11)
     return sent

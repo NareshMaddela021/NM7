@@ -69,14 +69,14 @@ class MetaCloud:
         except (ValueError, AttributeError, IndexError):
             raise SendError("meta: odd answer") from None
 
-    async def send_template(self, to: str, lang: str, params: list[str], payloads: list[str]) -> str:
+    async def send_template(self, to: str, lang: str, params: list[str], payloads: list[str], name: str = "") -> str:
         comps: list[dict[str, Any]] = [
             {"type": "body", "parameters": [{"type": "text", "text": p[:200]} for p in params]}
         ]
         comps += [{"type": "button", "sub_type": "quick_reply", "index": str(i), "parameters": [{"type": "payload", "payload": p}]}
                   for i, p in enumerate(payloads)]  # fmt: skip
         return await self._post({"messaging_product": "whatsapp", "to": to, "type": "template",
-                                 "template": {"name": TEMPLATE_NAME, "language": {"code": lang}, "components": comps}})  # fmt: skip
+                                 "template": {"name": name or TEMPLATE_NAME, "language": {"code": lang}, "components": comps}})  # fmt: skip
 
     async def send_text(self, to: str, text: str, buttons: list[tuple[str, str]] | None = None) -> str:
         if buttons:
