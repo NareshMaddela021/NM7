@@ -43,6 +43,11 @@ describe('the company and college checklist card', () => {
     expect(out).toContain('href="/org/o1#og-groups"');
     expect(out).toContain('href="/org/o1/dashboard"');
   });
+  it('complete: shrinks to Setup complete', () => {
+    const out = draw({ ...company, complete: true, next: null });
+    expect(out).toContain('data-testid="sc-complete"');
+    expect(out).toContain('Setup complete');
+  });
   it('finds the dashboard tab of a step and the API of each team', () => {
     expect(companyTab('/company#jobs')).toBe('jobs');
     expect(companyTab('/org/o1')).toBeNull();

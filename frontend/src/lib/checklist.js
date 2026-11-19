@@ -36,12 +36,13 @@ export const setReminders = (on) => http('/api/me/checklist/reminders', { method
 
 export const STATUS_TEXT = { done: 'Done', next: 'Next', later: 'Later', waiting: 'Waiting for review' };
 export const STATUS_TONE = { done: 'ok', next: 'accent', later: 'neutral', waiting: 'warn' };
-export const ROLE_TITLE = { jobseeker: 'Set up your job seeker profile', student: 'Set up your student profile', expert: 'Set up your expert profile' };
+export const ROLE_TITLE = { jobseeker: 'Set up your job seeker profile', student: 'Set up your student profile', expert: 'Set up your expert profile', company: 'Set up your company', college: 'Set up your college' };
 
 export const minutes = (n) => (n >= 60 ? `About ${Math.round(n / 60)} h` : `About ${n} min`);
 
 /** "Profile complete" with the level when there is one. */
 export function completeText(c) {
+  if (c?.role === 'company' || c?.role === 'college') return 'Setup complete'; // P3: a team's checklist
   if (!c?.level) return 'Profile complete';
   return `Profile complete · L${c.level.level} ${c.level.label}`;
 }
