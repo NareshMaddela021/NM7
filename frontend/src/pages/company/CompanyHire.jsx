@@ -32,6 +32,7 @@ import ScreeningInterview from './ScreeningInterview';
 import NmCheck from './NmCheck';
 import DocBadges from './DocBadges';
 import { NT_NONE, NonTechChips, NonTechFilters, nonTechQuery } from './HireNonTech'; // Vetting Trust T6
+import { FairnessNotes } from './FairnessBits'; // Vetting Trust T12: a language / city filter that works as a proxy
 import { CriteriaEditor, CriteriaStrip, criteriaSort, useEvaluating } from './CriteriaBits'; // Vetting Trust T7
 import { TEST_NAMES } from '../../lib/vettingRoles';
 import { Empty } from '../me/kit';
@@ -126,6 +127,7 @@ export default function CompanyHire({ t, c }) {
   const [nt, setNt] = useState(NT_NONE); // Vetting Trust T6: non-tech filters
   const [ntCounts, setNtCounts] = useState(null); // kept while the list reloads, so the filters don't jump
   const [ntEnglish, setNtEnglish] = useState(false); // Vetting Trust T10: this job's role category offers "Spoken English"
+  const [fair, setFair] = useState([]); // Vetting Trust T12: filters that can stand in for community / region
   const [typed, setTyped] = useState({ salaryMax: '', city: '' }); // V1 text filters, applied after a short pause
   const setV = (k) => (e) => setVf((x) => ({ ...x, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
   const setT = (k) => (e) => setTyped((x) => ({ ...x, [k]: e.target.value }));
@@ -153,7 +155,7 @@ export default function CompanyHire({ t, c }) {
     try {
       const [s, inv] = await Promise.all([rq(`/api/company/${c.id}/hire/shortlist?${shortlistQuery(job, { support, ...vf }, nt)}`), rq(`/api/company/${c.id}/hire/invites?job=${encodeURIComponent(job)}`)]);
       if (mine !== latest.current) return;
-      setD(s); setInvites(inv); setNtCounts(s.nonTech ? { ...s.nonTech.counts, of: s.nonTech.filters } : null); setNtEnglish(!!s.nonTech?.englishFilter);
+      setD(s); setInvites(inv); setNtCounts(s.nonTech ? { ...s.nonTech.counts, of: s.nonTech.filters } : null); setNtEnglish(!!s.nonTech?.englishFilter); setFair(s.nonTech?.fairness || []);
     } catch (x) { if (mine === latest.current) { setErr(x.message); setD({ items: [] }); } }
   }, [c.id, job, verified, support, vf, nt]);
   useEffect(() => { load(); }, [load]);
@@ -254,6 +256,8 @@ export default function CompanyHire({ t, c }) {
           </label>
         </fieldset>}
         {ntCounts && <NonTechFilters f={nt} setF={setNt} counts={ntCounts} english={!!ntEnglish} />}
+        {fair.length > 0 && <FairnessNotes key={fair.map((x) => x.phrase).join("|")} items={fair} cid={c.id} where="hire_filter" testid="co-hire-fair"
+          onRemove={() => { setNt((x) => ({ ...x, lang: '' })); setTyped((x) => ({ ...x, city: '' })); }} />}
         {d?.vetting && filtered(vf) && <button type="button" className="btn btn-outline hn-clear" onClick={clear} data-testid="co-hire-lv-clear">{lv('lv.f.clear')}</button>}
         {d?.usage && <span className="mchip mchip-info hn-usage" data-testid="co-hire-usage">{t('co.hire.usage', { used: d.usage.used, free: d.usage.free })}</span>}
       </div>

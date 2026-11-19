@@ -28,6 +28,10 @@ MONGODB_DB=nm7_e2e uv run python -m tests.e2e_seed reset
                                           explain question: the AI interview has its 7 questions)
 ... trust-t10-score EMAIL BAND [PRON]  → T10: a spoken-English score with that band (sub-scores around it; PRON "none":
                                           pronunciation not measured) from a voice interview today
+... trust-t12-gaps TAG                 → T12: 45 skill checks in Pune (40 passed) and 45 in Ongole (9 passed) by new
+                                          people: a pass-rate gap by city tier for the fairness report
+... trust-t12-regrade TAG              → T12: an AI interview whose "Explained own work" a second AI check disagreed
+                                          with (strong → weak), waiting for a person → {"id": the re-grade}
 ... trust-t7-person EMAIL KIND [consent] → T7: the adult age check, a resume (KIND data: SQL / Power BI; acct:
                                           Tally / GST, Telugu) and, with "consent", the job-requirements consent
 ... auto-apply-run [EMAIL [past]]      → the Auto Apply run now (any hour); with EMAIL and "past", that student's
@@ -65,6 +69,24 @@ from app.core.security import hash_password
 from app.core.time import now
 from app.orders.service import build_order, next_invoice_no
 from app.payments.models import Payment
+
+
+def t12_graded_interview(iid, uid: str, t) -> dict:
+    """An AI-graded SQL interview shaped exactly like one the app stores (grade_and_store), with an "Explained own work"
+    turn labelled strong: every list that reads interviews (Admin → Interviews → Graded, the candidate's page, the
+    weekly checks) must be able to show it. Not passed, so it gives nobody the interview-ready level."""
+    from app.hire.vetting.interview import BY_TEST, CRITERIA, SECONDS
+
+    turns = [{"id": f"q{n}", "q": f"Question {n}", "answer": f"An answer about SQL ({n})."} for n in range(1, 7)]
+    turns.append({"id": "explain1", "kind": "explain", "q": "Explain your own task", "quote": "JOIN orders o ON o.id",
+                  "answer": "I joined the two tables on the id."})  # fmt: skip
+    scores = [{"key": k, "score": 2, "reason": "Short answers."} for k, _label, _guide in CRITERIA]
+    grade = {"scores": scores, "strengths": ["Knows joins"], "concern": "Short answers.", "model": "", "by": "ai"}
+    return {"_id": iid, "user_id": uid, "test": "SQL", "slug": BY_TEST["SQL"]["slug"], "lang": "en", "mode": "text",
+            "turns": turns, "at": len(turns), "awaiting": "answer", "status": "graded", "seconds": SECONDS["text"],
+            "started_at": t - timedelta(minutes=20), "asked_at": t - timedelta(minutes=5), "answered_at": t,
+            "graded_at": t, "grade": grade, "passed": False,
+            "explain": {"label": "strong", "by": "ai", "reason": "r"}}  # fmt: skip
 
 
 class _Capture:
@@ -545,6 +567,38 @@ async def main(cmd: str, *args: str) -> dict:
         j = await booking.link_for(db, "join", **kw)
         c = await booking.link_for(db, "company_join", **kw)
         return {"id": str(oid), "join": booking.token_for(j), "company": booking.token_for(c)}
+    if cmd == "trust-t12-gaps":  # Vetting Trust T12: a city-tier pass-rate gap (new people each time)
+        (tag,) = args
+        t = now() - timedelta(days=1)
+        for city, passed in (("Pune", 40), ("Ongole", 9)):
+            for i in range(45):
+                uid = f"t12-{tag}-{city}-{i}"
+                mail = f"{uid}@example.com"
+                await db["users"].insert_one(
+                    {"_id": uid, "name": f"T12 {i}", "email": mail, "email_lc": mail, "created_at": t}
+                )
+                await db["hire_profiles"].insert_one({"_id": uid, "cities": [city], "on": False})
+                row = {"v": 2, "user_id": uid, "skill": "SQL", "kind": "full", "lang": "en", "started_at": t}
+                row |= {"submitted_at": t, "score": 85 if i < passed else 30}
+                await db["skill_attempts"].insert_one(row)
+        return {"ok": True}
+    if cmd == "trust-t12-regrade":  # Vetting Trust T12: a T9 label the second AI check disagreed with
+        from bson import ObjectId
+
+        (tag,) = args
+        t = now()
+        uid = f"t12-rg-{tag}"
+        mail = f"{uid}@example.com"
+        await db["users"].insert_one(
+            {"_id": uid, "name": "T12 Regrade", "email": mail, "email_lc": mail, "created_at": t}
+        )
+        iid = ObjectId()
+        await db["vetting_interviews"].insert_one(t12_graded_interview(iid, uid, t))
+        rid = ObjectId()
+        rg = {"_id": rid, "kind": "t9", "ref": str(iid), "user_id": uid, "key": "SQL", "first": "strong"}
+        rg |= {"second": "weak", "gap": 2, "material": True, "status": "review", "at": t}
+        await db["trust_regrades"].insert_one(rg)
+        return {"id": str(rid)}
     if cmd == "aa2-tester":  # Admin → Auto Apply 2.0: this email sees 2.0 while it is hidden
         (email,) = args
         await db["settings"].update_one(

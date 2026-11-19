@@ -139,8 +139,13 @@ async def _take(db, uid: str) -> None:
 
 async def grade_text(db, uid: str, role: dict[str, Any], task: dict[str, Any], rubric: list[dict[str, Any]],
                      answer: str, speech: dict | None = None) -> dict[str, Any]:  # fmt: skip
-    """{scores: [{key, score, reason}], confidence, model}. Raises Pending."""
+    """{scores: [{key, score, reason}], confidence, model, blind}. Raises Pending."""
     await _take(db, uid)
+    from app.trust.fairness import blind  # Vetting Trust T12: blind grading where the Trust switch lets the person in
+
+    scrub = await blind.maybe(db, uid, MAX_ANSWER)
+    if scrub:
+        answer = scrub(answer)
     stats: dict[str, Any] = {}
     try:
         out = await claude.ask_models(
@@ -152,7 +157,7 @@ async def grade_text(db, uid: str, role: dict[str, Any], task: dict[str, Any], r
         raise Pending("unusable") from e
     if stats.get("fallback"):
         await ai_quota.note(db, "vetting", "fallback")
-    return {**out, "model": stats.get("model", "")}
+    return {**out, "model": stats.get("model", ""), "blind": bool(scrub)}
 
 
 async def check_photo(db, uid: str, role: dict[str, Any], media_type: str, b64: str) -> dict[str, Any]:

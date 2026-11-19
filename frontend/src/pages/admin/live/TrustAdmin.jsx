@@ -24,6 +24,7 @@ import TrustSpokenAdmin from './TrustSpokenAdmin'; // T10: spoken-English score:
 import TrustEmployerAdmin from './TrustEmployerAdmin';
 import TrustAgentAdmin from './TrustAgentAdmin';
 import TrustBookingAdmin from './TrustBookingAdmin'; // T11: interview booking & joining day
+import TrustFairnessAdmin from './TrustFairnessAdmin'; // T12: blind grading, re-grades, pass-rate gaps, unfair filters
 
 const STATUS = [['open', 'Open'], ['contained', 'Contained'], ['notified', 'Notified'], ['closed', 'Closed']];
 const TO = [['certin', 'CERT-In'], ['dpb', 'Data Protection Board'], ['people', 'Affected people'], ['police', 'Police / cyber cell'], ['vendor', 'Vendor / processor'], ['other', 'Other']];
@@ -221,6 +222,7 @@ export default function TrustAdmin() {
       {!st.error && <TrustEmployerAdmin />}
       {!st.error && <TrustAgentAdmin />}
       {!st.error && <TrustBookingAdmin />}
+      {!st.error && <TrustFairnessAdmin />}
       {!st.error && <Breaches />}
     </div>
   );

@@ -243,10 +243,26 @@ def rubric_turns(turns: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return [x for x in turns if x.get("kind") != "explain"]
 
 
+async def blind_turns(db, uid: str, turns: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Vetting Trust T12 (blind grading, for people the Trust switch lets in): the candidate's words without their name,
+    contact details, college, age, gender, religion, caste … (app/trust/fairness/blind.py). Else as before."""
+    from app.trust.fairness import blind
+
+    scrub = await blind.maybe(db, uid, MAX_ANSWER)
+    if not scrub:
+        return turns
+    keys = ("answer", "follow_answer")
+    return [{**t, **{k: scrub(t[k]) for k in keys if t.get(k)}} for t in turns]
+
+
+async def blind_text(db, uid: str, text: str) -> str:
+    return (await blind_turns(db, uid, [{"answer": text}]))[0]["answer"]
+
+
 async def grade_turns(
     db, uid: str, role: dict[str, Any], turns: list[dict[str, Any]], lang: str
 ) -> dict[str, Any] | None:
-    return await _ai(db, uid, grade_prompt(role, turns, lang), "grade", 1500)
+    return await _ai(db, uid, grade_prompt(role, await blind_turns(db, uid, turns), lang), "grade", 1500)
 
 
 # --- candidate ----------------------------------------------------------------------------------------------------
@@ -460,7 +476,9 @@ async def answer(iid: str, body: AnswerIn, auth: CustomerAuth, db: DB) -> dict[s
         if timing:
             turn["timing"] = timing
         follow = (
-            await _ai(db, iv["user_id"], follow_prompt(role, turn, text), "follow", 200)
+            await _ai(
+                db, iv["user_id"], follow_prompt(role, turn, await blind_text(db, iv["user_id"], text)), "follow", 200
+            )
             if len(text.split()) >= 8 and turn.get("kind") != "explain"  # T9: explain questions get no follow-up
             else None
         )
@@ -653,9 +671,8 @@ async def bias_check(db, rng: random.Random | None = None) -> int:
     picked = [r for r in rows if rng.random() < BIAS_SAMPLE]
     alerts = 0
     for iv in picked:
-        g2 = await _ai(
-            db, iv["user_id"], second_prompt(BY_TEST[iv["test"]], rubric_turns(iv["turns"]), iv["lang"]), "grade", 1500
-        )
+        turns = await blind_turns(db, iv["user_id"], rubric_turns(iv["turns"]))
+        g2 = await _ai(db, iv["user_id"], second_prompt(BY_TEST[iv["test"]], turns, iv["lang"]), "grade", 1500)
         if not g2:
             continue
         a = {s["key"]: s["score"] for s in iv["grade"]["scores"]}

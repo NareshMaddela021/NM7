@@ -201,6 +201,13 @@ async def run_rules(db: AsyncDatabase, mailer: Mailer | None = None) -> dict[str
         done["vetting_invites"] = await vetting_jobs.send_invites(db, mailer or get_mailer())  # V2: ≤ 1 a week a person
         done.update({f"vetting_{k}": v for k, v in (await vetting_ladder.hourly_if_due(db)).items()})  # V1: hourly
         done["interview_bias_alerts"] = await vetting_interview.weekly_if_due(db)  # V3: 5% re-graded weekly
+        from app.trust.fairness import regrade as trust_regrade
+        from app.trust.fairness import report as trust_fairness
+
+        done.update(
+            {f"trust_regrade_{k}": v for k, v in (await trust_regrade.run(db)).items()}
+        )  # T12: 5% weekly, capped
+        done["trust_fairness_gaps"] = await trust_fairness.weekly_if_due(db)  # T12: pass-rate gap snapshot, weekly
         trust = await vetting_trust.daily_if_due(db, mailer or get_mailer())  # V5: fraud scan, re-verify, retention
         done.update({f"trust_{k}": v for k, v in trust.items()})
         from app.trust import inactivity as trust_inactivity

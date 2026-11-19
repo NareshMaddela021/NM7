@@ -24,6 +24,7 @@ SENT = {
     "app.trust.criteria.evaluate": ["SCHEMA"],  # Vetting Trust T7: Met / Not met / Unknown with a quote
     "app.trust.honesty.explain": ["SCHEMA", "GRADE_SCHEMA"],  # Vetting Trust T9: Explain your answer (questions, check)
     "app.trust.spoken.service": ["SCHEMA"],  # Vetting Trust T10: grammar + comprehension of the spoken-English score
+    "app.trust.fairness.regrade": ["rubric_schema", "IV_SCHEMA", "EXPLAIN_SCHEMA"],  # T12: second-opinion re-grades
 }  # fmt: skip
 APP = pathlib.Path(__file__).resolve().parents[1] / "app"
 

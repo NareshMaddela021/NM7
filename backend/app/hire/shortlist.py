@@ -477,6 +477,11 @@ async def shortlist(
         if not eng_on:
             counts["english"] = None
         non_tech = {"filters": nf, "counts": counts, "englishFilter": eng_on}
+        from app.trust.fairness import filters as fair_filters  # Vetting Trust T12: proxy filters warned (logged)
+
+        fair = fair_filters.hire_filters({"lang": lang, "city": city}, j)
+        await fair_filters.log(db, cid, "hire_filter", fair, "shown")
+        non_tech["fairness"] = fair_filters.out(fair)
     from app.trust.criteria.router import attach_hire
 
     criteria = await attach_hire(

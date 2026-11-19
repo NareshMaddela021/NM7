@@ -145,6 +145,7 @@ from app.trust.criteria import router as trust_criteria
 from app.trust.digilocker import router as trust_digilocker
 from app.trust.employer import router as trust_employer
 from app.trust.face import router as trust_face
+from app.trust.fairness import router as trust_fairness
 from app.trust.honesty import router as trust_honesty
 from app.trust.integrity import router as trust_integrity
 from app.trust.spoken import router as trust_spoken
@@ -417,6 +418,10 @@ def create_app() -> FastAPI:
     app.include_router(trust_booking.public)  # /api/public/trust/book|join|cjoin (T11: one-tap links, no sign-in)
     app.include_router(trust_booking.company)  # /api/company/{cid}/trust/booking (T11: live bookings, joining days)
     app.include_router(trust_booking.admin)  # /api/admin/trust/booking (T11: times, caps, template approvals, run)
+    app.include_router(trust_fairness.company)  # /api/company/{cid}/trust/fairness/check|ack (T12: unfair filters)
+    app.include_router(
+        trust_fairness.admin
+    )  # /api/admin/trust/fairness (T12: blind grading, re-grades, pass-rate gaps)
     app.include_router(vetting_verify.reviewer_access)  # /api/reviewer/access (the header link, V4)
     app.include_router(vetting_verify.reviewer)  # /api/reviewer (Vetting V4: reviewers, expert accounts)
     app.include_router(vetting_verify.company)  # /api/company/{cid}/hire/l4/{uid}
