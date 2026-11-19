@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-const FILES = ['pages/me/AutoItems.jsx', 'pages/admin/live/JobPages.jsx', 'pages/jobs/Jobs.jsx', 'pages/company/CompanyApplicants.jsx', 'pages/company/CompanySignup.jsx'];
+const FILES = ['pages/me/AutoItems.jsx', 'pages/admin/live/JobPages.jsx', 'pages/jobs/ApplyFlow.jsx', 'pages/company/CompanyApplicants.jsx', 'pages/company/CompanySignup.jsx'];
 
 describe('screen-reader names (item 35)', () => {
   it.each(FILES)('%s: every radio and checkbox has a value or a name', (f) => {

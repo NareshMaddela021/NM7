@@ -13,7 +13,7 @@ import { MeHead } from './MeLayout';
 import { ResumeThumb, designOf, downloadResume, fmtShort } from './shared';
 import { Chip, Empty, FieldGroup, Stat } from './kit';
 import '../../styles/me-resume.css';
-import ShareWhatsApp from '../../components/ShareWhatsApp';
+import ShareResume from '../../components/ShareResume';
 import { downloadQrPng, qrFileName } from '../../lib/qr';
 import { namedUrl, shareUrl } from '../../lib/shareLink';
 
@@ -63,7 +63,7 @@ export default function MeShare() {
               <div className="mrow" style={{ gap: 8 }}>
                 <button type="button" className="btn btn-signal" onClick={() => copy(short)}>Copy</button>
                 <Link to={`/r/${sh.short || sh.slug}`} className="btn btn-outline">Open</Link>
-                <ShareWhatsApp testid="share-page-wa" />
+                <ShareResume testid="share-page-share" />
                 <button type="button" className="btn btn-outline" onClick={saveQr} data-testid="share-qr">Download QR (PNG)</button>
               </div>
               <span className="xs faint">Search engines are asked not to list this page. ID numbers are never shown.</span>

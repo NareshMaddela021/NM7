@@ -1,5 +1,5 @@
-// The public resume link and "Share on WhatsApp": a wa.me link with a short message and the link — nothing else
-// (no phone number, email or other details go into it).
+// The public resume link and its Share message: a short message and the link — nothing else (no phone number, email
+// or other details go into it). components/ShareButton.jsx shares it in any app.
 export const SHARE_HOST = 'nm7.si';
 
 /** The short link when there is one (nm7.si/r/<short>), else the named one; '' when the link is off. */
@@ -14,13 +14,16 @@ export const namedUrl = (share) => (share?.slug ? `https://${SHARE_HOST}/r/${sha
 
 const clean = (s) => String(s || '').replace(/\s+/g, ' ').trim().slice(0, 80);
 
-/** The message: "Hi, here is my resume: <link>", or "…for the <role> role at <company>: <link>" from a job match. */
-export function shareMessage(link, { role, company } = {}) {
+/** The message without the link: "Hi, here is my resume:", or "…for the <role> role at <company>:" from a job match. */
+export function shareText({ role, company } = {}) {
   const r = clean(role);
   const c = clean(company);
   const job = r ? ` for the ${r} role${c ? ` at ${c}` : ''}` : '';
-  return `Hi, here is my resume${job}: ${link}`;
+  return `Hi, here is my resume${job}:`;
 }
+
+/** The message: "Hi, here is my resume: <link>", or "…for the <role> role at <company>: <link>" from a job match. */
+export const shareMessage = (link, job) => `${shareText(job)} ${link}`;
 
 /** wa.me with the text only: WhatsApp then asks which chat to send it to. */
 export const waShareUrl = (text) => `https://wa.me/?text=${encodeURIComponent(text)}`;

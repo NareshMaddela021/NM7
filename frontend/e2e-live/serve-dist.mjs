@@ -13,6 +13,8 @@ createServer((req, res) => {
   let status = 200;
   // a rewrite's destination with its :params filled in (/blog/:slug → /blog/<slug>/index.html)
   const target = (r) => {
+    // a rewrite only for some visitors (vercel.json "has": the link-preview robots of a shared job): their header must match
+    if (r.has && !r.has.every((h) => h.type === 'header' && new RegExp(`^${h.value}$`).test(req.headers[h.key] || ''))) return null;
     const names = [];
     const re = new RegExp(`^${r.source.replace(/:path\*/g, () => { names.push('path'); return '(.*)'; }).replace(/:([a-z]+)/g, (_, n) => { names.push(n); return '([^/]+)'; })}$`);
     const m = p.match(re);

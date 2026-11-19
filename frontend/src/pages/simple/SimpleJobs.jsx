@@ -1,6 +1,6 @@
 // Jobs made simple (Phase 4, E6), all on the Easy dashboard, all read aloud with 🔊:
 //   /me/simple/jobs            the top 3 jobs as big cards: title, match % with one plain reason, place, ₹ a month,
-//                              the company's trust badge; Apply and Save
+//                              the company's trust badge; View (the job's page) · Apply · Save, "Applied ✓" once sent
 //   /me/simple/jobs/:id        Apply: the normal Manual Apply (consent tick and the company's questions for jobs on
 //                              Nm7; the company's own site opens for the others, and it is saved in My applications)
 //   /me/simple/auto            "Let Nm7 apply for me": role, city, how many a day and the consent tick; the
@@ -13,8 +13,13 @@ import { http } from '../../services/http';
 import { Big, WaitNote } from './SimpleApp';
 import { useScreen } from '../../lib/simple';
 import { SayButton, SpeakField } from './voice';
+import { useAuth } from '../../lib/auth';
+import { loadApplied, markApplied, useApplied } from '../../lib/jobBoard';
 
 const money = (n) => Number(n).toLocaleString('en-IN');
+// View (the job's own page) and "Applied ✓" on each card: the words are here, not in the strings bundle (size budget)
+const VIEW = { en: 'View', te: 'చూడండి', hi: 'देखें' };
+const APPLIED = { en: 'Applied ✓', te: 'అప్లై చేశారు ✓', hi: 'आवेदन किया ✓' };
 const TRUST = { verified: '✔', basic: '✉', unverified: '•' };
 
 export function salaryKey(s) {
@@ -34,6 +39,7 @@ function useJobs() {
 
 function JobCard({ t, lang, j, onSave }) {
   const [busy, setBusy] = useState(false);
+  const applied = useApplied();
   const save = async () => {
     setBusy(true);
     try { await http(`/api/me/saved-jobs/${j.id}`, { method: j.saved ? 'DELETE' : 'PUT' }); onSave(!j.saved); } catch { /* stays as it was */ } finally { setBusy(false); }
@@ -49,8 +55,11 @@ function JobCard({ t, lang, j, onSave }) {
       <p className="sx-p" data-testid="sx-job-reason">👍 {t(`simple.j.reason.${j.reason.key}`, j.reason.vars)}</p>
       <p className="sx-p">📍 {t(...placeKey(j))}</p>
       <p className="sx-p" data-testid="sx-job-salary">💰 {t(...salaryKey(j.salaryMonth))}</p>
-      <div className="sx-frow">
-        <Big to={`/me/simple/jobs/${j.id}`} icon="✉️" label={t('simple.j.apply')} ink testid="sx-job-apply" />
+      <div className="sx-frow sx-frow3">
+        {!j.demo && j.slug && <Big to={`/jobs/${j.slug}`} icon="👁️" label={VIEW[lang] || VIEW.en} testid="sx-job-view" />}
+        {applied.has(j.id)
+          ? <button type="button" className="sx-big sx-applied" disabled data-testid="sx-job-applied"><span>{APPLIED[lang] || APPLIED.en}</span></button>
+          : <Big to={`/me/simple/jobs/${j.id}`} icon="✉️" label={t('simple.j.apply')} ink testid="sx-job-apply" />}
         <button type="button" className="sx-big" aria-pressed={j.saved} disabled={busy} onClick={save} data-testid="sx-job-save"><span className="sx-ic" aria-hidden="true">{j.saved ? '★' : '☆'}</span><span>{j.saved ? t('simple.j.saved') : t('simple.j.save')}</span></button>
       </div>
     </article>
@@ -59,6 +68,8 @@ function JobCard({ t, lang, j, onSave }) {
 
 export function Jobs({ t, lang, setSay }) {
   const { d, err, setD } = useJobs();
+  const { user } = useAuth();
+  useEffect(() => { if (user) loadApplied(user.id); }, [user]);
   useEffect(() => { if (d) setSay([['simple.j.title'], ...(d.items[0] ? cardWords(d.items[0]) : [['simple.j.none']])]); }, [d]); // eslint-disable-line react-hooks/exhaustive-deps
   if (!d) return <WaitNote t={t} err={err} />;
   return (
@@ -116,6 +127,7 @@ export function Apply({ t, lang, setSay }) {
       const r = await http(`/api/jobs/${j.id}/apply`, { method: 'POST', body: j.method === 'nm7' ? { consent, answers } : {} });
       if (j.method === 'link' && r.url) { if (win) { win.opener = null; win.location.href = r.url; } else window.open(r.url, '_blank', 'noopener'); }
       setDone(r);
+      markApplied(j.id, r.application?.status);
     } catch (e) { win?.close(); setNote(e.message); } finally { setBusy(false); }
   };
   if (done) {

@@ -64,3 +64,16 @@ describe('fix round item 26', () => {
     expect(vercel.rewrites).toContainEqual({ source: '/pricing', destination: '/pricing/index.html' });
   });
 });
+
+describe('shared job links show a preview card', () => {
+  const rules = vercel.rewrites.filter((r) => r.source === '/jobs/:slug');
+  const robots = new RegExp(`^${rules[0].has?.[0]?.value}$`);
+  it('link-preview robots get the API\'s preview page, everyone else the app', () => {
+    expect(rules).toHaveLength(2);
+    expect(rules[0].destination).toBe('https://nm7-api.onrender.com/api/jobs/:slug/preview');
+    expect(rules[0].has[0]).toMatchObject({ type: 'header', key: 'user-agent' });
+    expect(rules[1]).toEqual({ source: '/jobs/:slug', destination: '/index.html' });
+    for (const ua of ['WhatsApp/2.23.20.0', 'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)', 'LinkedInBot/1.0 (compatible; Mozilla/5.0)', 'Twitterbot/1.0', 'TelegramBot (like TwitterBot)', 'Mozilla/5.0 (compatible; Discordbot/2.0)']) expect(robots.test(ua), ua).toBe(true);
+    for (const ua of ['Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/126 Mobile Safari/537.36', 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)', 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0) Safari/604.1']) expect(robots.test(ua), ua).toBe(false);
+  });
+});

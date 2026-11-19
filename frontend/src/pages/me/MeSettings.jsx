@@ -8,6 +8,7 @@ import { Suspense, lazy, useEffect, useState } from 'react';
 import { useTrustOn } from '../../lib/trustAccess';
 import { Link } from 'react-router-dom';
 import { Dialog, Spinner, useToast } from '../../components/ui';
+import ShareButton from '../../components/ShareButton';
 import { useMe, setMe, getMe, resetMe, saveProfile, raiseIssue } from '../../lib/customerStore';
 import { LIVE, changePassword, passwordIssue, useAuth } from '../../lib/auth';
 import { useExpertOrders } from '../../lib/expertStore';
@@ -353,7 +354,7 @@ export function MeHelp() {
             <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">♥</span><span className="mcard-ht"><h2 className="mcard-title">Refer a friend</h2><span className="mcard-sub">Share your link. Friends get a resume that works.</span></span></header>
             <ReferralProgress reward={me.referralReward} />
             <div className="acc-reflink"><span className="mono small" style={{ overflowWrap: 'anywhere' }} data-testid="ref-link">{link}</span><button type="button" className="btn btn-outline" onClick={async () => { try { await navigator.clipboard.writeText(`https://${link}`); toast('Link copied'); } catch { toast(`Copy this: https://${link}`); } }}>Copy</button></div>
-            <a className="btn btn-signal" style={{ alignSelf: 'flex-start' }} href={`https://wa.me/?text=${encodeURIComponent(`I fixed my resume on Nm7 — try it: https://${link}`)}`} target="_blank" rel="noreferrer">Share on WhatsApp</a>
+            <ShareButton className="btn btn-signal" style={{ alignSelf: 'flex-start' }} url={`https://${link}`} text="I fixed my resume on Nm7 — try it:" title="Nm7" testid="ref-share" />
             <div className="mgrid-3 acc-ref-stats">
               <div className="mstat"><span className="mstat-l">Friends joined</span><strong className="mstat-v">{me.referrals.length}</strong></div>
               <div className="mstat"><span className="mstat-l">Bought a plan</span><strong className="mstat-v">{me.referrals.filter((r) => r.status === 'bought').length}</strong></div>

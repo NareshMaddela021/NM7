@@ -89,6 +89,7 @@ from app.jobs import foryou as jobs_foryou
 from app.jobs import ingest as jobs_ingest
 from app.jobs import public as jobs_public
 from app.jobs import reports as jobs_reports
+from app.jobs import share as job_share
 from app.jobsearch.cover_router import router as jobs_cover_router
 from app.jobsearch.interview_router import router as jobs_interview_router
 from app.jobsearch.router import router as jobs_router
@@ -327,6 +328,7 @@ def create_app() -> FastAPI:
 
     app.include_router(admin_daily_report.collector_router)  # /api/jobs/collector/run-report (Admin → Daily report)
     app.include_router(jobs_collector.router)  # /api/jobs/collector (round J: the morning job-collector)
+    app.include_router(job_share.preview_router)  # /api/jobs/{slug}/preview (link preview for share robots)
     app.include_router(jobs_public.router)  # /api/jobs, /api/jobs/{slug}, the jobs sitemap (J3)
     app.include_router(jobs_public.me_router)  # /api/me/saved-jobs
     app.include_router(jobs_apply.router)  # /api/jobs/{id}/apply (J5)
@@ -482,6 +484,7 @@ def create_app() -> FastAPI:
     app.include_router(partners.admin)
     app.include_router(home_events.public)
     app.include_router(home_events.admin)
+    app.include_router(job_share.public)  # /api/public/shares (Share button taps per channel, no personal data)
     app.include_router(coupons.me)  # /api/me/codes (Admin → Codes)
     app.include_router(coupons.admin)
     app.include_router(wapay_router)  # old WhatsApp payments, read-only (before /api/orders/{id})
