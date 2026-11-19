@@ -22,6 +22,7 @@ SENT = {
     "app.trust.agent.understand": ["SCHEMA"],  # Vetting Trust T5: a WhatsApp reply the rules can't read
     "app.trust.criteria.extract": ["SCHEMA"],  # Vetting Trust T7: a job's requirements
     "app.trust.criteria.evaluate": ["SCHEMA"],  # Vetting Trust T7: Met / Not met / Unknown with a quote
+    "app.trust.honesty.explain": ["SCHEMA", "GRADE_SCHEMA"],  # Vetting Trust T9: Explain your answer (questions, check)
 }  # fmt: skip
 APP = pathlib.Path(__file__).resolve().parents[1] / "app"
 

@@ -238,6 +238,11 @@ async def _ai(db, uid: str, prompt: str, kind: Literal["follow", "grade"], max_t
         return None
 
 
+def rubric_turns(turns: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """The turns the 5-line rubric grades: never the T9 "Explain your answer" ones (they get their own label)."""
+    return [x for x in turns if x.get("kind") != "explain"]
+
+
 async def grade_turns(
     db, uid: str, role: dict[str, Any], turns: list[dict[str, Any]], lang: str
 ) -> dict[str, Any] | None:
@@ -264,8 +269,16 @@ def out(iv: dict[str, Any], t: datetime | None = None) -> dict[str, Any]:
         "strengths": g.get("strengths"), "concern": g.get("concern"), "passed": iv.get("passed"),
         "validUntil": ms(iv.get("valid_until")), "againAt": ms(iv["started_at"] + RETAKE), "canRetry": iv["started_at"] + RETAKE <= t,
         "transcript": [{"q": localized(x, iv["lang"]), "a": x.get("answer", ""), "followUp": x.get("follow_up") or None,
-                        "followAnswer": x.get("follow_answer") or None} for x in turns] if iv["status"] != "running" else None,
+                        "followAnswer": x.get("follow_answer") or None, **({"explain": True} if x.get("kind") == "explain" else {})}
+                       for x in turns] if iv["status"] != "running" else None,
+        **({"explained": _explained(iv)} if iv.get("explain") else {}),
     }  # fmt: skip
+
+
+def _explained(iv: dict[str, Any]) -> dict[str, Any] | None:
+    from app.trust.honesty.explain import out as explain_out
+
+    return explain_out(iv.get("explain"))
 
 
 @me.get("")
@@ -277,6 +290,10 @@ async def mine(auth: CustomerAuth, db: DB) -> dict[str, Any]:
     last: dict[str, dict[str, Any]] = {}
     async for iv in db[VETTING_INTERVIEWS].find({"user_id": auth.user.id}).sort("started_at", -1):
         last.setdefault(iv["test"], iv)
+    from app.trust.honesty import retake as RK
+
+    pol = await RK.policy(db, auth.user.id, "interview")  # Vetting Trust T9: the limits shown = the limits enforced
+    starts = await RK.interview_starts(db, auth.user.id, t, pol["days"]) if pol["trust"] else {}
     roles = []
     for v in badges:
         if v["test"] not in have:
@@ -286,6 +303,12 @@ async def mine(auth: CustomerAuth, db: DB) -> dict[str, Any]:
                       "langs": list((BY_TEST.get(v["test"]) or {}).get("langs", ["en"])),
                       "last": out(iv, t) if iv else None,
                       "canStart": not iv or iv["status"] == "running" or iv["started_at"] + RETAKE <= t})  # fmt: skip
+        if pol["trust"]:
+            rk = RK.out("interview", pol, RK.window(starts.get(v["test"], []), t, pol["attempts"], pol["days"]),
+                        running=bool(iv and iv["status"] == "running"))  # fmt: skip
+            roles[-1].update(canStart=rk["canStart"], retake=rk)
+            if roles[-1]["last"]:
+                roles[-1]["last"].update(againAt=rk["nextAt"], canRetry=rk["canStart"])
     u = await db[USERS].find_one({"_id": auth.user.id}, {"vetting_l3_until": 1}) or {}
     return {"roles": roles, "interviewReadyUntil": ms(u.get("vetting_l3_until")), "pass": {"average": PASS_AVG, "min": PASS_MIN},
             "criteria": [{"key": k, "label": label} for k, label, _ in CRITERIA], "seconds": SECONDS, "minutes": 10}  # fmt: skip
@@ -297,6 +320,9 @@ class StartIn(CamelModel):
     mode: Literal["text", "voice"] = "text"
     extra_time: bool = False
     consent: bool = False
+    pledge: int | None = (
+        None  # Vetting Trust T9: the honesty pledge version ticked (asked only while Trust is on for them)
+    )
 
 
 @me.post("/start")
@@ -315,19 +341,53 @@ async def start(body: StartIn, auth: CustomerAuth, db: DB) -> dict[str, Any]:
     last = await db[VETTING_INTERVIEWS].find_one({"user_id": uid, "test": body.test}, sort=[("started_at", -1)])
     if last and last["status"] == "running":
         return out(last, t)
-    if last and last["started_at"] + RETAKE > t:
+    from app.trust.honesty import pledge as PL
+    from app.trust.honesty import retake as RK
+
+    pol = await RK.policy(
+        db, uid, "interview"
+    )  # Vetting Trust T9: Admin limits for Trust people, the engine's rule otherwise
+    if pol["trust"]:
+        w = RK.window(
+            (await RK.interview_starts(db, uid, t, pol["days"], body.test)).get(body.test, []),
+            t,
+            pol["attempts"],
+            pol["days"],
+        )
+        if not w["allowed"]:
+            raise ApiError(
+                409,
+                "too_soon",
+                f"You can take this interview again from {w['nextAt']:%d %b}.",
+                extra={"againAt": ms(w["nextAt"])},
+            )
+    elif last and last["started_at"] + RETAKE > t:
         raise ApiError(409, "too_soon", f"You can take this interview again from {(last['started_at'] + RETAKE):%d %b}.",
                        extra={"againAt": ms(last["started_at"] + RETAKE)})  # fmt: skip
+    lang = body.lang if body.lang in role["langs"] else "en"
+    pledged = await PL.check(db, uid, body.pledge, lang, t)  # T9: the honesty pledge (only while Trust is on for them)
     from app.trust.face.service import gate
 
     await gate(db, uid, "interview")  # Vetting Trust T3: ID + live selfie first (only while Trust allows this person)
-    lang = body.lang if body.lang in role["langs"] else "en"
     turns = [{"id": q["id"], "kind": q["kind"], "q": q["q"], "looks_for": q["looks_for"], **{k: q[k] for k in ("te", "hi") if q.get(k)}}
              for q in qs["questions"]]  # fmt: skip
+    extra: dict[str, Any] = {}
+    if pol["trust"]:  # T9 "Explain your answer": 1–2 questions about their own practical task
+        from app.site import get_site
+        from app.trust.honesty import explain as X
+
+        st = RK.settings_of(await get_site(db))
+        if st["explain_on"]:
+            more, src = await X.turns_for(db, uid, body.test, role, lang, st["explain_questions"])
+            if more:
+                turns = X.insert(turns, more)
+                extra = {"explain_source": src}
+    if pledged:
+        extra["pledge"] = pledged
     iv = {"_id": ObjectId(), "user_id": uid, "test": body.test, "slug": role["slug"], "lang": lang, "mode": body.mode,
           "set_version": qs["version"], "turns": turns, "at": 0, "awaiting": "answer", "status": "running",
           "seconds": int(SECONDS[body.mode] * (1.5 if body.extra_time else 1)), "started_at": t, "asked_at": t,
-          "signals": {}, "consent_at": t, "delete_at": t + KEEP}  # fmt: skip
+          "signals": {}, "consent_at": t, "delete_at": t + KEEP, **extra}  # fmt: skip
     await db[VETTING_INTERVIEWS].insert_one(iv)
     await audit(db, uid, "vetting.interview_start", data={"test": body.test, "mode": body.mode, "lang": lang})
     return out(iv, t)
@@ -369,7 +429,7 @@ async def answer(iid: str, body: AnswerIn, auth: CustomerAuth, db: DB) -> dict[s
         turn["answer"], turn["seconds"] = text, body.seconds
         follow = (
             await _ai(db, iv["user_id"], follow_prompt(role, turn, text), "follow", 200)
-            if len(text.split()) >= 8
+            if len(text.split()) >= 8 and turn.get("kind") != "explain"  # T9: explain questions get no follow-up
             else None
         )
         if follow and follow["ask"]:
@@ -397,7 +457,13 @@ async def grade_and_store(
     db, iv: dict[str, Any], by: str = "ai", given: dict[str, Any] | None = None
 ) -> dict[str, Any]:
     t = now()
-    g = given or await grade_turns(db, iv["user_id"], BY_TEST[iv["test"]], iv["turns"], iv["lang"])
+    if not iv.get("explain") and any(x.get("kind") == "explain" for x in iv["turns"]):
+        from app.trust.honesty.explain import grade as explain_grade  # Vetting Trust T9: "Explained own work"
+
+        e = await explain_grade(db, iv)
+        await db[VETTING_INTERVIEWS].update_one({"_id": iv["_id"]}, {"$set": {"explain": e}})
+        iv = {**iv, "explain": e}
+    g = given or await grade_turns(db, iv["user_id"], BY_TEST[iv["test"]], rubric_turns(iv["turns"]), iv["lang"])
     if not g:
         await db[VETTING_INTERVIEWS].update_one({"_id": iv["_id"]}, {"$set": {"status": "review", "answered_at": t}})
         return await db[VETTING_INTERVIEWS].find_one({"_id": iv["_id"]})
@@ -416,7 +482,19 @@ async def grade_and_store(
 
 @me.get("/{iid}")
 async def result(iid: str, auth: CustomerAuth, db: DB) -> dict[str, Any]:
-    return out(await _mine(db, iid, auth.user.id))
+    iv = await _mine(db, iid, auth.user.id)
+    o = out(iv)
+    from app.trust.honesty import pledge as PL
+    from app.trust.honesty import retake as RK
+
+    pol = await RK.policy(db, auth.user.id, "interview")
+    if pol["trust"]:  # Vetting Trust T9: the real limits, and the pledge recorded with this interview
+        last = await db[VETTING_INTERVIEWS].find_one(
+            {"user_id": auth.user.id, "test": iv["test"]}, sort=[("started_at", -1)]
+        )
+        rk = await RK.interview_status(db, auth.user.id, iv["test"], now(), last, pol)
+        o.update(retake=rk, againAt=rk["nextAt"], canRetry=rk["canStart"], pledge=PL.out(iv.get("pledge")))
+    return o
 
 
 # --- company ------------------------------------------------------------------------------------------------------
@@ -442,6 +520,13 @@ async def company_view(cid: str, uid: str, db: DB, x_recruiter_account: str | No
     if not iv:
         raise ApiError(404, "no_interview", "No screening interview yet.")
     o = out(iv)
+    from app.trust import access as trust_access
+
+    if any(x.get("kind") == "explain" for x in iv["turns"]):  # Vetting Trust T9: "Explained own work"
+        if await trust_access.for_company(db, c, acc):
+            o["explainedOwnWork"] = _explained(iv)
+        else:  # a company Vetting Trust is off for sees the interview exactly as before
+            o["transcript"] = [x for x in o["transcript"] or [] if not x.get("explain")]
     return {
         k: o[k]
         for k in (
@@ -455,7 +540,9 @@ async def company_view(cid: str, uid: str, db: DB, x_recruiter_account: str | No
             "concern",
             "transcript",
             "validUntil",
+            "explainedOwnWork",
         )
+        if k in o
     }
 
 
@@ -522,7 +609,9 @@ async def bias_check(db, rng: random.Random | None = None) -> int:
     picked = [r for r in rows if rng.random() < BIAS_SAMPLE]
     alerts = 0
     for iv in picked:
-        g2 = await _ai(db, iv["user_id"], second_prompt(BY_TEST[iv["test"]], iv["turns"], iv["lang"]), "grade", 1500)
+        g2 = await _ai(
+            db, iv["user_id"], second_prompt(BY_TEST[iv["test"]], rubric_turns(iv["turns"]), iv["lang"]), "grade", 1500
+        )
         if not g2:
             continue
         a = {s["key"]: s["score"] for s in iv["grade"]["scores"]}

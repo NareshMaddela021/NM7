@@ -121,7 +121,7 @@ function PhotoPick({ photo, setPhoto }) {
   );
 }
 
-export default function Task({ attempt, onDone, onCancel }) {
+export default function Task({ attempt, pledge, onDone, onCancel }) {
   const [t, setT] = useState(null);
   const [err, setErr] = useState('');
   const [text, setText] = useState('');
@@ -136,8 +136,8 @@ export default function Task({ attempt, onDone, onCancel }) {
   useSignals(sig, { on: !!t, onPaste: (n) => { pasted.current += n; } });
 
   useEffect(() => {
-    http(`${API}/${attempt.id}/task/start`, { method: 'POST' }).then(setT, (e) => setErr(e.message));
-  }, [attempt.id]);
+    http(`${API}/${attempt.id}/task/start`, { method: 'POST', ...(pledge ? { body: { pledge } } : {}) }).then(setT, (e) => setErr(e.message)); // T9: the honesty pledge
+  }, [attempt.id]); // eslint-disable-line react-hooks/exhaustive-deps -- the pledge is ticked before the task opens
   const left = useLeft(t?.endsAt || Date.now());
   const box = useRef(null);
   useEffect(() => { if (t) box.current?.scrollIntoView?.({ block: 'start', behavior: 'smooth' }); }, [t]);

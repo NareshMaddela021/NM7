@@ -23,6 +23,10 @@ const Runner = lazy(lazyRetry(() => import('./interview/Runner')));
 const IvResult = lazy(lazyRetry(() => import('./interview/IvResult')));
 const FaceCheck = lazy(lazyRetry(() => import('./trust/FaceCheck'))); // Vetting Trust T3: ID + selfie before the interview
 const SnapshotChoice = lazy(lazyRetry(() => import('./trust/Snapshots').then((m) => ({ default: m.SnapshotChoice })))); // Vetting Trust T8: optional webcam snapshots (own consent)
+// Vetting Trust T9 (only for people Vetting Trust is on for: the server sends `retake` then): pledge, limits, explain note
+const Pledge = lazy(lazyRetry(() => import('./trust/Honesty').then((m) => ({ default: m.Pledge }))));
+const RetakeInfo = lazy(lazyRetry(() => import('./trust/Honesty').then((m) => ({ default: m.RetakeInfo }))));
+const ExplainNote = lazy(lazyRetry(() => import('./trust/Honesty').then((m) => ({ default: m.ExplainNote }))));
 
 function LastChip({ last }) {
   if (!last) return null;
@@ -65,10 +69,11 @@ function Setup({ r, d, onCancel, onGo }) {
   const [ok, setOk] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
+  const [pledge, setPledge] = useState(); // T9: undefined = not asked, null = not ticked yet, n = the version ticked
   const secs = (m) => Math.round((d.seconds?.[m] || (m === 'voice' ? 100 : 150)) * (extra ? 1.5 : 1));
   const go = async () => {
     setBusy(true); setErr('');
-    try { await onGo({ test: r.test, lang, mode, extraTime: extra, consent: true }); } catch (e) { setErr(e.message); setBusy(false); }
+    try { await onGo({ test: r.test, lang, mode, extraTime: extra, consent: true, ...(pledge ? { pledge } : {}) }); } catch (e) { setErr(e.message); setBusy(false); }
   };
   return (
     <div className="mstack iv-setup" data-testid="iv-setup">
@@ -80,9 +85,10 @@ function Setup({ r, d, onCancel, onGo }) {
           <li><strong>Typing:</strong> pasting is turned off, so please type in your own words. Leaving the page is counted.</li>
           <li><strong>Grading:</strong> {d.criteria.map((c) => c.label.toLowerCase()).join(', ')}; each out of 5. To pass: an average of {d.pass.average} or more and no line below {d.pass.min}. A pass makes you L3 “Interview-ready” for 180 days.</li>
           <li><strong>What is kept:</strong> the transcript (your answers as text) is kept for 180 days, then deleted. Companies you are shown to see a summary: your scores, 3 strengths, 1 concern and your answers.</li>
-          <li><strong>One try</strong> per role every 30 days.</li>
+          <li>{r.retake ? <><strong>Attempts:</strong> {r.retake.attempts} every {r.retake.days} days for this role.</> : <><strong>One try</strong> per role every 30 days.</>}</li>
           <li className="vet-no"><strong>Your language is fine.</strong> English, Telugu or Hindi never lowers your score, unless the job itself needs English.</li>
         </ul>
+        {r.retake && <Suspense fallback={null}><ExplainNote /><RetakeInfo rk={r.retake} what="interview" /></Suspense>}
       </MeCard>
 
       <section className="mcard stack g16" aria-labelledby="iv-opts-h">
@@ -117,6 +123,7 @@ function Setup({ r, d, onCancel, onGo }) {
           <span><strong>I need extra time</strong><span className="xs muted" style={{ display: 'block' }}>For a disability, reading difficulty or a slow phone: 1½ times the time for each answer. It doesn’t change your score.</span></span>
         </label>
         <Suspense fallback={null}><SnapshotChoice kind="interview" /></Suspense>
+        <Suspense fallback={null}><Pledge kind="interview" lang={lang} onChange={setPledge} /></Suspense>
         <label className="vet-check">
           <input type="checkbox" checked={ok} onChange={(e) => setOk(e.target.checked)} data-testid="iv-agree" />
           <span><strong>I agree</strong>: I have read how the interview works and what is kept.</span>
@@ -124,7 +131,7 @@ function Setup({ r, d, onCancel, onGo }) {
         <p className="xs muted" style={{ margin: 0 }}>Find a quiet place with a steady connection. If it drops, come back to carry on.</p>
         {err && <p className="error" role="alert">{err}</p>}
         <div className="vet-actions">
-          <button type="button" className="btn btn-signal btn-lg" disabled={!ok || busy} onClick={go} data-testid="iv-go">{busy ? 'Starting…' : 'Start the interview'}</button>
+          <button type="button" className="btn btn-signal btn-lg" disabled={!ok || busy || pledge === null} onClick={go} data-testid="iv-go">{busy ? 'Starting…' : 'Start the interview'}</button>
           <button type="button" className="btn btn-ghost" onClick={onCancel}>Not now</button>
         </div>
       </section>

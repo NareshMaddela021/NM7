@@ -19,6 +19,7 @@ import TrustDocsAdmin from './TrustDocsAdmin';
 import TrustCriteriaAdmin from './TrustCriteriaAdmin'; // T7: evidence candidates added for job requirements
 import TrustFaceAdmin from './TrustFaceAdmin';
 import TrustIntegrityAdmin from './TrustIntegrityAdmin'; // T8: integrity rating, review queue, evidence, snapshots
+import TrustHonestyAdmin from './TrustHonestyAdmin'; // T9: honesty pledge, retake limits, Explain your answer
 import TrustEmployerAdmin from './TrustEmployerAdmin';
 import TrustAgentAdmin from './TrustAgentAdmin';
 
@@ -201,7 +202,7 @@ function Breaches() {
 export default function TrustAdmin() {
   const st = useApi('/api/admin/trust');
   return (
-    <div className="stack g16" data-testid="tt-page">
+    <div className="stack g16 tt-page" data-testid="tt-page">
       <Loading st={st}>{(d) => (
         <>
           <Switch d={d} reload={st.reload} />
@@ -213,6 +214,7 @@ export default function TrustAdmin() {
       {!st.error && <TrustCriteriaAdmin />}
       {!st.error && <TrustFaceAdmin />}
       {!st.error && <TrustIntegrityAdmin />}
+      {!st.error && <TrustHonestyAdmin />}
       {!st.error && <TrustEmployerAdmin />}
       {!st.error && <TrustAgentAdmin />}
       {!st.error && <Breaches />}

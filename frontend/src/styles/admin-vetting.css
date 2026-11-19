@@ -8,6 +8,9 @@
 .vt-wrap { flex-wrap: wrap; }
 .vt-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .vt-chips .mchip, .vt-q-tags .mchip { white-space: normal; }
+/* Vetting Trust tab: long status chips ("Test mode: only testers and …") wrap instead of widening a 390 px page */
+.tt-page { min-width: 0; }
+.tt-page .mchip { white-space: normal; max-width: 100%; }
 
 /* toolbar */
 .vt-toolbar { align-items: flex-end; }

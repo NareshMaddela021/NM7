@@ -18,6 +18,9 @@ MONGODB_DB=nm7_e2e uv run python -m tests.e2e_seed reset
 ... trust-t8-high EMAIL|@demo-first   → T8: signals worth "High risk" (a test with the same answers as another
                                           account on a shared device, and the same PAN on another account), then
                                           that person is rated (a review opens)
+... trust-t9-task EMAIL TEST [TYPE]  → T9: a "Skill verified" badge for TEST from an attempt with a practical
+                                          task answer (TYPE tech / voice): the AI interview asks about it
+... trust-t9-attempt EMAIL TEST DAYS   → T9: a finished skill check for TEST started DAYS days ago → {"id": attempt}
 ... trust-t7-person EMAIL KIND [consent] → T7: the adult age check, a resume (KIND data: SQL / Power BI; acct:
                                           Tally / GST, Telugu) and, with "consent", the job-requirements consent
 ... auto-apply-run [EMAIL [past]]      → the Auto Apply run now (any hour); with EMAIL and "past", that student's
@@ -399,6 +402,42 @@ async def main(cmd: str, *args: str) -> dict:
             await db["trust_documents"].insert_one(doc)
             await T8.refresh(db, uid)
         return {"n": len(uids), "ids": uids}
+    if cmd in ("trust-t9-task", "trust-t9-attempt"):  # Vetting Trust T9: a task answer behind a badge / a past attempt
+        from bson import ObjectId
+
+        from app.hire.vetting.roles import BY_TEST
+
+        mail, test, *rest = args
+        u = await db["users"].find_one({"email": mail})
+        aid = ObjectId()
+        base = {"_id": aid, "v": 2, "user_id": u["_id"], "skill": test, "slug": BY_TEST[test]["slug"], "kind": "full"}
+        base |= {"lang": "en", "integrity": {"level": "clean"}, "remaining_ms": 0, "topics": {}}
+        if cmd == "trust-t9-attempt":
+            t = now() - timedelta(days=int(rest[0]))
+            when = {"started_at": t, "last_seen": t, "submitted_at": t}
+            await db["skill_attempts"].insert_one(
+                {**base, **when, "band": "fresher", "score": 44, "right": 8, "total": 18}
+            )
+            return {"id": str(aid)}
+        kind = rest[0] if rest else "tech"
+        answers = {
+            "voice": "First I greet the customer and ask what they need. Then I show two phones in their budget and "
+            "explain the battery and camera. If they are unsure I offer a demo and note their number for a call.",
+            "tech": "SELECT c.city, SUM(o.amount) FROM orders o JOIN customers c ON c.id = o.customer_id GROUP BY "
+            "c.city. I join on the key, filter the month and group by city so the owner sees sales per city. "
+            "Before sharing I would check NULL cities and refunds.",
+        }
+        t = now()
+        old = t - timedelta(days=40)
+        task = {"status": "graded", "type": kind, "answer": answers[kind], "score": 80, "submitted_at": old}
+        when = {"started_at": old, "last_seen": old, "submitted_at": old}
+        await db["skill_attempts"].insert_one({**base, **when, "band": "1-3", "score": 82, "task": task})
+        rec = {"user_id": u["_id"], "test": test, "slug": BY_TEST[test]["slug"], "role": BY_TEST[test]["role"]}
+        rec |= {"band": "1-3", "score": 82, "task_score": 80, "at": t, "expires_at": t + timedelta(days=90)}
+        await db["vetting_verified"].update_one(
+            {"user_id": u["_id"], "test": test}, {"$set": {**rec, "attempt_id": aid}}, upsert=True
+        )
+        return {"id": str(aid)}
     if cmd == "trust-offer":  # Vetting Trust T3: an accepted offer joining in N days (the joining check)
         from bson import ObjectId
 

@@ -29,11 +29,11 @@ from app.core.time import IST, now
 
 Feature = Literal[
     "photos", "summary", "linkedin", "jobs", "projects", "roles", "offers", "vetting", "interview", "autoapply_tailor",
-    "autoapply_reply", "agent_reply", "criteria",
+    "autoapply_reply", "agent_reply", "criteria", "explain",
 ]  # fmt: skip
 FEATURES: tuple[Feature, ...] = (
     "photos", "summary", "linkedin", "jobs", "projects", "roles", "offers", "vetting", "interview", "autoapply_tailor",
-    "autoapply_reply", "agent_reply", "criteria",
+    "autoapply_reply", "agent_reply", "criteria", "explain",
 )  # fmt: skip
 PER_PERSON: dict[str, int] = {
     "photos": 5,
@@ -49,6 +49,7 @@ PER_PERSON: dict[str, int] = {
     "autoapply_reply": 30,  # Auto Apply 2.0 (A7): reading a company's email reply the rules can't place
     "agent_reply": 10,  # Vetting Trust T5: a WhatsApp reply to the calling agent the rules can't read
     "criteria": 150,  # Vetting Trust T7, per company: reading a job's requirements, and one call per candidate checked
+    "explain": 4,  # Vetting Trust T9: "Explain your answer" questions from the practical task, and checking the answers
 }
 PER_KIOSK: dict[str, int] = {
     "photos": 300,
@@ -64,6 +65,7 @@ PER_KIOSK: dict[str, int] = {
     "autoapply_reply": 600,
     "agent_reply": 600,
     "criteria": 600,
+    "explain": 600,
 }
 DAILY_CAP = 2000  # every AI call on the site, all features together
 OUTCOMES = ("fallback", "failed", "limited", "capped", "dropped")  # always present per feature in usage()
@@ -82,6 +84,7 @@ PERSON_MESSAGE = {
     "interview": "Your interview is saved. Our team will grade it within a day.",
     "autoapply_tailor": "Today's AI tailoring is used up. Nm7 uses the rules version: your own resume, reordered.",
     "criteria": "Today's AI checks of requirements are used up. The rest are checked by rules or tomorrow.",
+    "explain": "Today's AI checks are used up, so your interview uses a standard question about your task instead.",
 }
 KIOSK_MESSAGE = "This kiosk has used today's AI limit. Please type your details instead."
 

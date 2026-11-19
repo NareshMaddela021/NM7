@@ -25,6 +25,9 @@ const TestRunner = lazy(lazyRetry(() => import('./vetting/TestRunner')));
 const Result = lazy(lazyRetry(() => import('./vetting/Result')));
 const FaceCheck = lazy(lazyRetry(() => import('./trust/FaceCheck'))); // Vetting Trust T3: ID + selfie before a test
 const SnapshotChoice = lazy(lazyRetry(() => import('./trust/Snapshots').then((m) => ({ default: m.SnapshotChoice })))); // Vetting Trust T8: optional webcam snapshots (own consent)
+const Pledge = lazy(lazyRetry(() => import('./trust/Honesty').then((m) => ({ default: m.Pledge })))); // Vetting Trust T9: honesty pledge (Trust only)
+const RetakeInfo = lazy(lazyRetry(() => import('./trust/Honesty').then((m) => ({ default: m.RetakeInfo })))); // T9: retake limits
+const tries = (cat) => (cat.retakeAttempts > 1 ? `${cat.retakeAttempts} tries` : 'One try'); // T9: Admin may allow more
 
 const MONITORED = [
   ['Leaving the test page', 'how many times, and for how long'],
@@ -108,18 +111,20 @@ function StartDialog({ r, cat, preset, needConsent, onConsent, onClose, onGo }) 
   const [ok, setOk] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
+  const [pledge, setPledge] = useState(); // T9: undefined = not asked, null = not ticked yet, n = the version ticked
   const go = async () => {
     setBusy(true); setErr('');
     try {
       if (needConsent) onConsent((await http(`${API}/consent`, { method: 'POST' })).consentAt);
-      await onGo({ skill: r.test, band, lang, extraTime: extra });
+      await onGo({ skill: r.test, band, lang, extraTime: extra, ...(pledge ? { pledge } : {}) });
     } catch (e) { setErr(e.message); setBusy(false); }
   };
   const minutes = extra ? cat.minutes * 1.5 : cat.minutes;
   return (
     <Dialog title={`Start: ${r.role}`} onClose={onClose} showTitle>
       <div className="stack g16" data-testid="vt-start">
-        <p className="small" style={{ margin: 0 }}>{cat.questions} questions, about {String(minutes).replace('.5', '½')} minutes. Each question has its own timer and moves on by itself. Pass mark {cat.pass}/100. One try every {cat.retakeDays} days.</p>
+        <p className="small" style={{ margin: 0 }}>{cat.questions} questions, about {String(minutes).replace('.5', '½')} minutes. Each question has its own timer and moves on by itself. Pass mark {cat.pass}/100. {tries(cat)} every {cat.retakeDays} days.</p>
+        {r.retake && <Suspense fallback={null}><RetakeInfo rk={r.retake} /></Suspense>}
         <fieldset className="vet-fs">
           <legend className="vet-legend">Your experience</legend>
           <div className="vet-chips">
@@ -160,10 +165,11 @@ function StartDialog({ r, cat, preset, needConsent, onConsent, onClose, onGo }) 
             </label>
           </div>
         )}
+        <Suspense fallback={null}><Pledge kind="skill" lang={lang} onChange={setPledge} /></Suspense>
         <p className="xs muted" style={{ margin: 0 }}>Find a quiet place with a steady connection. If the connection drops, come back within 10 minutes to carry on.</p>
         {err && <p className="error" role="alert">{err}</p>}
         <div className="vet-actions">
-          <button type="button" className="btn btn-signal btn-lg" disabled={busy || (needConsent && !ok)} onClick={go} data-testid="vt-go">{busy ? 'Starting…' : 'Start the test'}</button>
+          <button type="button" className="btn btn-signal btn-lg" disabled={busy || (needConsent && !ok) || pledge === null} onClick={go} data-testid="vt-go">{busy ? 'Starting…' : 'Start the test'}</button>
           <button type="button" className="btn btn-ghost" onClick={onClose}>Not now</button>
         </div>
       </div>
@@ -180,11 +186,12 @@ function RenewDialog({ r, needConsent, onConsent, onClose, onGo }) {
   const [ok, setOk] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
+  const [pledge, setPledge] = useState(); // T9 (see StartDialog)
   const go = async () => {
     setBusy(true); setErr('');
     try {
       if (needConsent) onConsent((await http(`${API}/consent`, { method: 'POST' })).consentAt);
-      await onGo({ skill: r.test, band: v.band, lang, extraTime: extra, refresh: true });
+      await onGo({ skill: r.test, band: v.band, lang, extraTime: extra, refresh: true, ...(pledge ? { pledge } : {}) });
     } catch (e) { setErr(e.message); setBusy(false); }
   };
   return (
@@ -219,9 +226,11 @@ function RenewDialog({ r, needConsent, onConsent, onClose, onGo }) {
             </label>
           </div>
         )}
+        <Suspense fallback={null}><Pledge kind="skill" lang={lang} onChange={setPledge} /></Suspense>
+        {r.retake?.refreshDays && <p className="xs muted" style={{ margin: 0 }}>If the refresher doesn’t renew your badge, you can take it again after {r.retake.refreshDays} days.</p>}
         {err && <p className="error" role="alert">{err}</p>}
         <div className="vet-actions">
-          <button type="button" className="btn btn-signal btn-lg" disabled={busy || (needConsent && !ok)} onClick={go} data-testid="vt-renew-go">{busy ? 'Starting…' : 'Start the refresher'}</button>
+          <button type="button" className="btn btn-signal btn-lg" disabled={busy || (needConsent && !ok) || pledge === null} onClick={go} data-testid="vt-renew-go">{busy ? 'Starting…' : 'Start the refresher'}</button>
           <button type="button" className="btn btn-ghost" onClick={onClose}>Not now</button>
         </div>
       </div>
@@ -374,7 +383,7 @@ function MeSkillChecksV2() {
         </div>
         <div className="vet-hero-stats">
           <Stat label="Verified" value={verifiedCount} tone={verifiedCount ? 'ok' : undefined} testid="vt-verified-count" />
-          <Stat label="Tests taken" value={taken} sub={`one try per role every ${cat.retakeDays} days`} />
+          <Stat label="Tests taken" value={taken} sub={`${tries(cat).toLowerCase()} per role every ${cat.retakeDays} days`} />
         </div>
       </section>
 

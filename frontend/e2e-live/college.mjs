@@ -12,6 +12,9 @@ export const call = (page, path, init = {}) => page.evaluate(async ([base, p, i]
 }, [API, path, init]);
 export const json = (method, body) => ({ method, body: JSON.stringify(body) });
 export const noSideScroll = (page) => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1);
+// noSideScroll can't see sideways scroll on a phone (isMobile): there the browser widens window.innerWidth to the content
+// (and zooms the page out, so clicks land off target). fitsPhone compares with the real 390 px width instead.
+export const fitsPhone = (page) => page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1);
 const FIELDS = [{ key: 'roll', label: 'Roll number', type: 'text', required: true }, { key: 'branch', label: 'Branch', type: 'select', options: ['CSE', 'ECE'], required: true }];
 
 export async function college(browser, opts, label, { plan = 'campus', students = 2, shareWithRecruiters = false, prefix = 'cl' } = {}) {

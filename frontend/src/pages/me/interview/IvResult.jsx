@@ -3,15 +3,31 @@
 // "Interview-ready" (L3) lasts and when the interview can be taken again. Not graded yet ("review") → our team grades
 // it within a day. The answers themselves are in a fold at the end. Vetting V5: "I think this is wrong" on a graded
 // interview (vetting/Appeal) and the appeal's status.
-import { useEffect, useState } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { http } from '../../../services/http';
 import { Bar, Chip, MeCard, Skel } from '../kit';
 import { day } from '../vetting/lib';
 import { Appeal, useAppeals } from '../vetting/Appeal';
 import { API, avg, scoreWord } from './lib';
+import { lazyRetry } from '../../../lib/chunks';
 import '../../../styles/me-vet.css';
 import '../../../styles/me-iv.css';
+
+// Vetting Trust T9 (only when the server sends them: people Vetting Trust is on for)
+const RetakeInfo = lazy(lazyRetry(() => import('../trust/Honesty').then((m) => ({ default: m.RetakeInfo }))));
+const PledgeNote = lazy(lazyRetry(() => import('../trust/Honesty').then((m) => ({ default: m.PledgeNote }))));
+
+/** T9 "Explain your answer": how well they explained their own practical task (a plain label and the reason). */
+function Explained({ e }) {
+  if (!e) return null;
+  const tone = e.key === 'strong' ? 'ok' : e.key === 'partial' ? 'flat' : 'warn';
+  return (
+    <MeCard tone={tone} icon="✎" title={e.label} sub="How well you explained your own practical task. It is shown to companies with the reason; it never changes your score." testid="iv-explained" headingLevel={3}>
+      {e.reason && <p className="small" style={{ margin: 0 }} data-testid="iv-explained-reason">{e.reason}</p>}
+    </MeCard>
+  );
+}
 
 function Transcript({ rows }) {
   if (!rows?.length) return null;
@@ -21,7 +37,7 @@ function Transcript({ rows }) {
       <ol className="iv-tr-list">
         {rows.map((t, i) => (
           <li key={i}>
-            <p className="iv-tr-q">{t.q}</p>
+            <p className="iv-tr-q">{t.explain && <span className="iv-follow">About your task:</span>} {t.q}</p>
             <p className="iv-tr-a">{t.a || <span className="muted">(no answer)</span>}</p>
             {t.followUp && <><p className="iv-tr-q"><span className="iv-follow">Follow-up:</span> {t.followUp}</p><p className="iv-tr-a">{t.followAnswer || <span className="muted">(no answer)</span>}</p></>}
           </li>
@@ -58,6 +74,8 @@ export default function IvResult({ id, initial, pass }) {
           <p className="small" style={{ margin: 0 }} data-testid="iv-review-text">Our team will grade it within a day. We will tell you by email and here, with the reasons for each score.</p>
           <span className="xs muted">{again}</span>
         </MeCard>
+        <Explained e={r.explained} />
+        {r.retake && <Suspense fallback={null}><RetakeInfo rk={r.retake} what="interview" /><PledgeNote items={[r.pledge && { ...r.pledge, what: 'interview' }]} /></Suspense>}
         <Transcript rows={r.transcript} />
         <div className="mrow"><Link className="btn btn-outline" to="/me/interviews">All interviews</Link></div>
       </div>
@@ -85,7 +103,10 @@ export default function IvResult({ id, initial, pass }) {
           </div>
         </div>
         {r.status === 'graded' && <Appeal kind="interview" refId={r.id} what="this interview’s scores" appeals={appeals} />}
+        {r.retake && <Suspense fallback={null}><RetakeInfo rk={r.retake} what="interview" /><PledgeNote items={[r.pledge && { ...r.pledge, what: 'interview' }]} /></Suspense>}
       </section>
+
+      <Explained e={r.explained} />
 
       {r.scores?.length > 0 && (
         <MeCard title="Your scores" sub="Each line is out of 5, with the words of yours it is based on." testid="iv-scores">
