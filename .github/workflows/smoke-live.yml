@@ -14,11 +14,15 @@ on:
         description: "Site to check"
         required: false
         default: https://nm7.si
+      projects:
+        description: "Only these projects (space separated, e.g. 'j-desktop j-phone' for the deep journeys); empty = all"
+        required: false
+        default: ""
 
 jobs:
   smoke:
     runs-on: ubuntu-24.04 # pinned: Playwright has no Chromium for ubuntu-26.04 yet (18 Nov)
-    timeout-minutes: 40
+    timeout-minutes: 90
     defaults:
       run:
         working-directory: frontend
@@ -42,7 +46,9 @@ jobs:
           key: playwright-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}
       - run: npx playwright install --with-deps chromium
       - name: Smoke check of the live site (a failed page is retried once; passed on retry = flaky)
-        run: npx playwright test -c playwright.smoke.config.mjs
+        env:
+          PROJECTS: ${{ inputs.projects }}
+        run: npx playwright test -c playwright.smoke.config.mjs $(for p in $PROJECTS; do printf -- '--project=%s ' "$p"; done)
       - name: Summary by area
         if: always()
         run: node e2e-smoke/summary.mjs smoke-results.json | tee -a "$GITHUB_STEP_SUMMARY"
