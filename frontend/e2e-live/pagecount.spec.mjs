@@ -1,5 +1,5 @@
 // While a saved resume (and its fonts) load, the builder shows no page count and no page breaks — never a
-// wrong "2 pages" for a 1-page resume. Also: the tab title of the "Expert accounts are separate" note.
+// wrong "2 pages" for a 1-page resume. Also: "Become an expert" while signed in adds the role (one account).
 import { expect, test } from '@playwright/test';
 import { API, PASSWORD, email, login, seed } from './helpers.mjs';
 
@@ -57,15 +57,14 @@ test('page counter: never "2 pages" while a 1-page resume and its fonts load; no
   expect(again.some((t) => /\d+ pages/.test(t)), `counter showed: ${again.join(' → ')}`).toBe(false);
 });
 
-test('"Become an expert" while signed in as a customer: the tab says so', async ({ page }) => {
+test('"Become an expert" while signed in as a job seeker: add the role to the same account', async ({ page }) => {
   const mail = email('title');
   seed('customer', mail, 'Isha Kapoor', PASSWORD);
   await login(page, mail);
   await page.waitForURL('**/me');
   await page.goto('/signup?as=expert');
-  await expect(page.getByRole('heading', { name: 'Expert accounts are separate' })).toBeVisible();
-  await expect(page).toHaveTitle('Expert accounts are separate · Nm7');
-  await page.getByRole('button', { name: 'Sign out and create an expert account' }).click();
-  await expect(page.getByLabel('Full name')).toBeVisible();
-  await expect(page).toHaveTitle('Create your account · Nm7');
+  await page.waitForURL('**/welcome?add=1&role=expert');
+  await expect(page.getByRole('heading', { name: 'Add another role' })).toBeVisible();
+  await expect(page).toHaveTitle('Add another role · Nm7');
+  await expect(page.getByRole('checkbox', { name: /Work as an expert/ })).toBeChecked();
 });

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { BRAND } from '../lib/brand';
 import { useAuth, signOut, homeFor, LIVE } from '../lib/auth';
@@ -18,7 +18,10 @@ export function ThemeToggle() {
   return null;
 }
 
-/** Signed in: name + menu (my home, sign out). Signed out: "Sign in". */
+// "Switch to: Job seeker / Student / Expert" and "Add another role": loaded when the menu opens (Easy dashboard budget).
+const AccountRoles = lazy(() => import('./AccountRoles'));
+
+/** Signed in: name + menu (my home, roles, sign out). Signed out: "Sign in". */
 export function AccountMenu() {
   const { user } = useAuth();
   const nav = useNavigate();
@@ -47,6 +50,7 @@ export function AccountMenu() {
           <Link role="menuitem" to={homeFor(user)} className="admin-link">{homeLabel}</Link>
           {user.role === 'customer' && <Link role="menuitem" to="/me/settings" className="admin-link">Profile & settings</Link>}
           {user.role === 'expert' && <Link role="menuitem" to="/expert/profile" className="admin-link">Expert profile</Link>}
+          {user.role !== 'admin' && <Suspense fallback={null}><AccountRoles user={user} onDone={() => setOpen(false)} /></Suspense>}
           <button role="menuitem" type="button" className="admin-link" style={{ border: 0, background: 'transparent', width: '100%', textAlign: 'left', cursor: 'pointer' }} onClick={async () => { const to = user.role === 'admin' ? '/admin/login' : '/'; await signOut(); nav(to); }}>Sign out</button>
         </div>
       )}
