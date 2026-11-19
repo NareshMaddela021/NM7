@@ -5,6 +5,13 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "cleanUrls": false,
+  "redirects": [
+    {
+      "source": "/expert/signup",
+      "destination": "/signup?role=expert",
+      "permanent": false
+    }
+  ],
   "rewrites": [
     {
       "source": "/sitemap-jobs.xml",

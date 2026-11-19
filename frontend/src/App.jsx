@@ -68,8 +68,7 @@ const Signup = named(auth, 'Signup');
 const ForgotPassword = named(auth, 'ForgotPassword');
 const AdminLogin = named(auth, 'AdminLogin');
 const AdminSetup = named(auth, 'AdminSetup');
-const Welcome = lazy(() => import('./pages/auth/Welcome')); // "What would you like to do?" after sign-up; "Add another role"
-const SignupAs = named(auth, 'SignupAs'); // old sign-up links by path (/signup/expert, /expert/signup …)
+const Welcome = named(auth, 'Welcome'); // "What would you like to do?" after sign-up; "Add another role"
 const legal = () => import('./pages/legal/Legal');
 const Terms = named(legal, 'Terms');
 const Privacy = named(legal, 'Privacy');
@@ -405,10 +404,7 @@ export default function App() {
         <Route path="/expert/test" element={E(<TestTask />, false)} />
         <Route path="/expert/reviewer" element={E(<Reviewer />)} />
         <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/signup/:role" element={<SignupAs />} />
-        <Route path="/expert/signup" element={<SignupAs role="expert" />} />
-        <Route path="/expert/join" element={<SignupAs role="expert" />} />
+        <Route path="/signup/*" element={<Signup />} />
         <Route path="/welcome" element={<Welcome />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/admin/login" element={<AdminLogin />} />

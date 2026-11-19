@@ -5,7 +5,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { MemoryRouter } from 'react-router-dom';
 import { Signup } from './Auth';
 import Welcome from './Welcome';
-import AccountRoles from '../../components/AccountRoles';
+import { AccountRoles } from '../../components/AccountRoles';
 import { DEMO_CODE, currentUser, homeFor, signUp, verifyEmail } from '../../lib/auth';
 import { activeRoleOf, addRoles, afterPick, fits, roleFromLink, rolesOf, switchRole } from '../../lib/roles';
 

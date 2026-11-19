@@ -1,6 +1,6 @@
 // Sign in, sign up (customer or expert, confirmed with an email code), forgot password, admin two-step login, and route guards.
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
-import { Link, Navigate, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Link, Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Logo, ThemeToggle } from '../../components/Header';
 import { Spinner, useToast } from '../../components/ui';
 import {
@@ -197,22 +197,14 @@ function SignupFooter() {
     </footer>
   );
 }
-/** Old sign-up links by path (/signup/expert, /expert/signup …): the sign-up page with that role preselected. */
-export function SignupAs({ role }) {
-  const { role: param } = useParams();
-  const { search } = useLocation();
-  const q = new URLSearchParams(search);
-  const r = roleFromLink(role || param);
-  if (r) q.set('role', r);
-  const t = q.toString();
-  return <Navigate to={`/signup${t ? `?${t}` : ''}`} replace />;
-}
+export { default as Welcome } from './Welcome'; // the step after sign-up, in this chunk
 export function Signup() {
   const nav = useNavigate();
   const [params] = useSearchParams();
   const next = safeNext(params.get('next'));
   const { user } = useAuth();
-  const role = roleFromLink(params.get('role') || params.get('as') || params.get('tab'));
+  const old = useParams()['*']; // an old link by path: /signup/expert, /signup/student …
+  const role = roleFromLink(params.get('role') || params.get('as') || params.get('tab') || old);
   const [f, setF] = useState({ name: '', email: '', phone: '', password: '', confirm: '', agree: false });
   const [showPw, setShowPw] = useState(false);
   const [touched, setTouched] = useState(false);
@@ -220,7 +212,7 @@ export function Signup() {
   const { busy, err, setErr, run } = useRun();
   const qs = (o) => { const p = new URLSearchParams(Object.entries(o).filter(([, v]) => v)); const t = p.toString(); return t ? `?${t}` : ''; };
   // the old tab links: same page, with the role preselected for the next step
-  if (!params.get('role') && (params.get('as') || params.get('tab'))) return <Navigate to={`/signup${qs({ role, next })}`} replace />;
+  if (!params.get('role') && (params.get('as') || params.get('tab') || old)) return <Navigate to={`/signup${qs({ role, next })}`} replace />;
   if (user && !pending) {
     // signed in: a role from a link means "add this role" (one account), else their own dashboard
     if (role && user.role !== 'admin' && !rolesOf(user).includes(role)) return <Navigate to={`/welcome${qs({ add: '1', role, next })}`} replace />;
