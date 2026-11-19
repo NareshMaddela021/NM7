@@ -151,6 +151,7 @@ from app.trust.honesty import router as trust_honesty
 from app.trust.integrity import router as trust_integrity
 from app.trust.spoken import router as trust_spoken
 from app.trust.tth import router as trust_tth
+from app.trust.worktests import router as trust_worktests
 from app.wapay.router import router as wapay_router
 from app.work.router import router as work_router
 
@@ -429,6 +430,9 @@ def create_app() -> FastAPI:
     app.include_router(trust_code.company)  # /api/company/{cid}/trust/code/{uid} (T14: coding result + editor replay)
     app.include_router(trust_code.admin)  # /api/admin/trust/code (T14: sandbox, limits, problems, results, replays)
     app.include_router(trust_tth.admin)  # /api/admin/trust/tth (T13: "Needs attention" thresholds)
+    app.include_router(trust_worktests.me)  # /api/me/trust/worktests, /reliability (T15)
+    app.include_router(trust_worktests.public)  # /api/public/trust/rel/att|stay|me (T15: one-tap reliability links)
+    app.include_router(trust_worktests.admin)  # /api/admin/trust/worktests (T15: banks, results, disputes, run)
     app.include_router(vetting_verify.reviewer_access)  # /api/reviewer/access (the header link, V4)
     app.include_router(vetting_verify.reviewer)  # /api/reviewer (Vetting V4: reviewers, expert accounts)
     app.include_router(vetting_verify.company)  # /api/company/{cid}/hire/l4/{uid}

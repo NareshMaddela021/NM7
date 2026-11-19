@@ -15,6 +15,7 @@ import { fmtDay } from '../../lib/format';
 
 const FaceCheck = lazy(() => import('./trust/FaceCheck')); // Vetting Trust T3: the joining-day "same person" check
 const HireSafety = lazy(() => import('./trust/HireSafety')); // Vetting Trust T4: employer badge, Never pay, Report fraud
+const ReliabilityCard = lazy(() => import('./trust/ReliabilityCard')); // Vetting Trust T15: the reliability record
 
 const TYPES = [['full_time', 'Full-time'], ['internship', 'Internship'], ['part_time', 'Part-time'], ['contract', 'Contract']];
 const day = (ms) => new Date(ms).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
@@ -110,6 +111,7 @@ export default function MeHire() {
       <Offers />
       <Invites />
       <Slots />
+      <TrustReliability />
       <div className="mgrid-2">
         <form className="mcard" onSubmit={(e) => { e.preventDefault(); save(true); }} aria-label="Ready to join details" data-testid="hire-form">
           <FieldGroup title="When you can start">
@@ -167,6 +169,11 @@ const STATE = { sent: 'Waiting for your answer', accepted: 'Accepted: the compan
 
 /** Invites from companies hiring now (H2): Accept shares the email and phone with that company; Not interested asks
  * for a reason (no pop-up: the reasons open under the invite). */
+function TrustReliability() {
+  const trust = useTrustOn();
+  return trust ? <Suspense fallback={null}><ReliabilityCard /></Suspense> : null;
+}
+
 export function Invites() {
   const toast = useToast();
   const [list, setList] = useState(null);

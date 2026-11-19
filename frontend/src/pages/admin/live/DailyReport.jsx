@@ -2,7 +2,7 @@
 // list at the top, then the job collector, site health, users and business, the vetting engine and Auto Apply (A7). Each number has
 // its change vs yesterday and a tiny 30-day sparkline. ONE request loads it all (GET /api/admin/daily-report);
 // "Refresh now" recomputes today on the server and answers with the same report. Numbers: docs/admin/daily-report.md.
-import { Suspense, lazy, useCallback, useEffect, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Spinner, useToast } from '../../../components/ui';
 import { http, when } from './common';
@@ -290,17 +290,23 @@ export default function DailyReport() {
   const toast = useToast();
   const [st, setSt] = useState({ data: null, error: null, loading: true });
   const [busy, setBusy] = useState(false);
+  // only the newest request may set the report: the first look of the day computes it (slowly, under the heavy lease),
+  // and a "Refresh now" pressed meanwhile must not be overwritten by that older answer arriving after it
+  const seq = useRef(0);
   const load = useCallback(() => {
+    const n = ++seq.current;
     setSt((s) => ({ ...s, loading: true, error: null }));
-    http('/api/admin/daily-report').then((data) => setSt({ data, error: null, loading: false }), (error) => setSt({ data: null, error, loading: false }));
+    http('/api/admin/daily-report').then((data) => { if (n === seq.current) setSt({ data, error: null, loading: false }); },
+      (error) => { if (n === seq.current) setSt({ data: null, error, loading: false }); });
   }, []);
   useEffect(() => { load(); }, [load]);
   const refresh = async () => {
     if (busy) return;
     setBusy(true);
     try {
+      const n = ++seq.current;
       const data = await http('/api/admin/daily-report/refresh', { method: 'POST' });
-      setSt({ data, error: null, loading: false });
+      if (n === seq.current) setSt({ data, error: null, loading: false });
       toast('Report refreshed');
     } catch (e) {
       toast(e.message || 'That didn’t work. Please try again.');

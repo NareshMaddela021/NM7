@@ -75,7 +75,23 @@ DEFAULTS: dict[str, Any] = {
     "on": True, "link_days": 14, "change_hours": 2, "eve_at": "19:00", "soon_hours": 2, "morning_at": "09:00",
     "checkin_at": "13:00", "company_at": "17:00", "per_person_day": 4, "approved": {"en": False, "hi": False, "te": False},
 }  # fmt: skip
-LETTER = {"interview": "b", "join": "j", "company_join": "c"}
+LETTER = {
+    "interview": "b",
+    "join": "j",
+    "company_join": "c",
+    "attendance": "a",
+    "stay": "s",
+    "rel_me": "r",
+}  # T15: a / s / r
+COMPANY_KINDS = {"company_join", "attendance", "stay"}  # links for the company (one per company × slot / offer)
+URL_KIND = {
+    "interview": "book",
+    "join": "join",
+    "company_join": "cjoin",
+    "attendance": "ratt",
+    "stay": "rstay",
+    "rel_me": "rme",
+}
 KIND_OF = {v: k for k, v in LETTER.items()}
 LOOKBACK = timedelta(days=14)  # applications moved to Shortlisted / Interview this recently get a link
 PAIRS_PER_PASS = 100
@@ -138,7 +154,7 @@ def token_for(link: dict[str, Any]) -> str:
 
 def url_for(link: dict[str, Any]) -> str:
     """The token rides in the address fragment, so it never reaches server logs."""
-    k = {"interview": "book", "join": "join", "company_join": "cjoin"}[link["kind"]]
+    k = URL_KIND[link["kind"]]
     return f"{get_settings().site_url.rstrip('/')}/stop-alerts#k={k}&t={token_for(link)}"
 
 
@@ -161,7 +177,7 @@ def read_token(token: str, at: float | None = None) -> tuple[str, str] | None:
 async def link_for(db, kind: str, *, user_id: str, company_id: str, job_id: str = "", offer_id: str = "", source: str,
                    until: datetime) -> dict[str, Any]:  # fmt: skip
     """The one link for this person × job (or offer, or company × offer); a later message extends its expiry."""
-    key = f"{kind}:{company_id if kind == 'company_join' else user_id}:{job_id or offer_id}"
+    key = f"{kind}:{company_id if kind in COMPANY_KINDS else user_id}:{job_id or offer_id}"
     t = now()
     for _ in range(2):
         try:

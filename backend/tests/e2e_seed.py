@@ -40,6 +40,12 @@ MONGODB_DB=nm7_e2e uv run python -m tests.e2e_seed reset
                                           yet → {"id": attempt} (a tech role becomes a coding task for Trust people)
 ... trust-t14-code WHO                 → T14: a finished coding task (5 of 5 hidden tests) with an editor replay (typing
                                           and one big paste) and the replay consent, for an email or @demo-applicants
+... trust-t15-results EMAIL            → T15: work-test results (typing Hindi 38 wpm 96%, SJT strong 85, aptitude 87)
+... trust-t15-record EMAIL CID JOB     → T15: the reliability consent (and the age check) + "Showed up 1/1 · Joined 1/1"
+                                          and a no-show waiting 48 h for their side → {"token": the candidate's link}
+... trust-t15-dispute EMAIL CID JOB    → T15: (consent +) a no-show the candidate disputed, for Admin → {"id": record}
+... trust-t15-att EMAIL CID JOB BY     → T15: a booked interview 2 h ago (consent) → {"token": company's Attended link}
+... trust-t15-stay EMAIL CID BY        → T15: an employer-confirmed join 31 days ago (consent) → {"token": stay link}
 ... trust-t7-person EMAIL KIND [consent] → T7: the adult age check, a resume (KIND data: SQL / Power BI; acct:
                                           Tally / GST, Telugu) and, with "consent", the job-requirements consent
 ... auto-apply-run [EMAIL [past]]      → the Auto Apply run now (any hour); with EMAIL and "past", that student's
@@ -493,6 +499,176 @@ async def main(cmd: str, *args: str) -> dict:
             }
         )
         return {"id": str(aid)}
+    if cmd == "trust-t15-results":  # Vetting Trust T15: work-test results that make badges in Hire now
+        u = await db["users"].find_one({"email": args[0]})
+        t = now()
+        rows = [
+            (
+                "typing",
+                "hi",
+                {"wpm": 38, "accuracy": 96.0, "chars": 230, "errors": 2, "seconds": 72.0, "completed": True},
+            ),
+            ("sjt", "te", {"score": 85, "level": "strong", "points": 17, "of": 20, "answered": 10}),
+            (
+                "aptitude",
+                "en",
+                {
+                    "score": 87,
+                    "right": 13,
+                    "of": 15,
+                    "answered": 15,
+                    "sections": {},
+                    "top": "top30",
+                    "provisional": True,
+                },
+            ),
+        ]
+        for test, lang, res in rows:
+            await db["trust_worktests"].insert_one(
+                {
+                    "user_id": u["_id"],
+                    "test": test,
+                    "lang": lang,
+                    "key": f"typing:{lang}" if test == "typing" else test,
+                    "form": "e2e",
+                    "status": "submitted",
+                    "started_at": t,
+                    "submitted_at": t,
+                    "result": res,
+                    "flags": [],
+                    "integrity": {},
+                }
+            )
+        return {"id": u["_id"]}
+    if cmd in ("trust-t15-record", "trust-t15-dispute", "trust-t15-att", "trust-t15-stay"):  # Vetting Trust T15
+        from bson import ObjectId
+
+        from app.core.time import IST
+        from app.trust import consent as TC
+        from app.trust.booking import service as booking
+        from app.trust.reliability import service as REL
+
+        u = await db["users"].find_one({"email": args[0]})
+        cid = args[1]
+        t = now()
+        await db["trust_profiles"].update_one(
+            {"_id": u["_id"]},
+            {"$set": {"adult_from": t - timedelta(days=3650), "age_checked_at": t, "age_method": "dob"}},
+            upsert=True,
+        )
+        await TC.grant(db, u["_id"], REL.PURPOSE, "flow")
+        if cmd == "trust-t15-record":
+            job = args[2]
+            await REL.put(
+                db,
+                "interview",
+                f"e2e-{ObjectId()}",
+                user_id=u["_id"],
+                company_id=cid,
+                job_id=job,
+                outcome="yes",
+                source="employer",
+            )
+            await REL.put(
+                db,
+                "join",
+                f"e2e-{ObjectId()}",
+                user_id=u["_id"],
+                company_id=cid,
+                job_id=job,
+                outcome="yes",
+                source="employer",
+            )
+            await REL.put(
+                db,
+                "interview",
+                f"e2e-{ObjectId()}",
+                user_id=u["_id"],
+                company_id=cid,
+                job_id=job,
+                outcome="no",
+                source="employer",
+            )
+            link = await booking.link_for(
+                db,
+                "rel_me",
+                user_id=u["_id"],
+                company_id=cid,
+                offer_id="record",
+                source="e2e",
+                until=t + timedelta(days=14),
+            )
+            return {"token": booking.token_for(link)}
+        if cmd == "trust-t15-dispute":
+            ref = f"e2e-{ObjectId()}"
+            await REL.put(
+                db, "interview", ref, user_id=u["_id"], company_id=cid, job_id=args[2], outcome="no", source="employer"
+            )
+            await REL.answer(db, u["_id"], f"interview:{ref}", "company_cancelled")
+            return {"id": f"interview:{ref}"}
+        if cmd == "trust-t15-att":
+            job, by = args[2], args[3]
+            sid = ObjectId()
+            st = t - timedelta(hours=2)
+            await db["hire_slots"].insert_one(
+                {
+                    "_id": sid,
+                    "company_id": cid,
+                    "job_id": job,
+                    "starts_at": st,
+                    "minutes": 30,
+                    "place": "Office",
+                    "link": "",
+                    "interviewer": "",
+                    "round": "",
+                    "status": "booked",
+                    "user_id": u["_id"],
+                    "seq": 1,
+                    "by": by,
+                    "created_at": st,
+                    "updated_at": st,
+                }
+            )
+            link = await booking.link_for(
+                db,
+                "attendance",
+                user_id=u["_id"],
+                company_id=cid,
+                offer_id=str(sid),
+                source="e2e",
+                until=t + timedelta(days=14),
+            )
+            return {"token": booking.token_for(link)}
+        oid = ObjectId()
+        day = (t.astimezone(IST).date() - timedelta(days=31)).isoformat()
+        await db["hire_offers"].insert_one(
+            {
+                "_id": oid,
+                "user_id": u["_id"],
+                "job_id": "t15-job",
+                "company_id": cid,
+                "company_name": "T15 Foods",
+                "candidate_name": u.get("name", ""),
+                "title": "Store associate",
+                "salary": {"amount": 20000, "unit": "month"},
+                "join_date": day,
+                "place": "Hyderabad",
+                "status": "joined",
+                "joined": {"company": True, "candidate": True},
+                "respond_by": t,
+                "answered_at": t,
+                "by": args[2],
+                "created_at": t,
+                "updated_at": t,
+            }
+        )
+        await REL.put(
+            db, "join", str(oid), user_id=u["_id"], company_id=cid, job_id="t15-job", outcome="yes", source="employer"
+        )
+        link = await booking.link_for(
+            db, "stay", user_id=u["_id"], company_id=cid, offer_id=str(oid), source="e2e", until=t + timedelta(days=30)
+        )
+        return {"token": booking.token_for(link)}
     if cmd == "trust-t14-code":  # Vetting Trust T14: a finished coding task with its editor replay (and the consent)
         from bson import ObjectId
 

@@ -758,3 +758,80 @@ async def test_switch_off_companies_see_nothing_new(client, outbox, db):
         await client.post(f"/api/company/{cid}/trust/fairness/check", json={"text": "Locals only"}, headers=H(session))
     ).status_code == 404
     assert await db[TRUST_FAIRNESS_EVENTS].count_documents({}) == 0
+
+
+async def test_pass_rate_gaps_include_the_t15_work_tests(db):
+    """Vetting Trust T15: typing, situational judgement and aptitude are in the gap checks (language / region / tier)."""
+    from app.core.db import TRUST_WORKTESTS
+
+    t = now() - timedelta(days=2)
+    hyd = await bulk_people(db, 40, "wh", city="Hyderabad")
+    pat = await bulk_people(db, 40, "wp", city="Patna")
+    rows = []
+    for i, u in enumerate(hyd):  # Telugu SJT: 80% Good / Strong; typing in Telugu: all 30 wpm at 95%
+        rows.append(
+            {
+                "user_id": u,
+                "test": "sjt",
+                "lang": "te",
+                "status": "submitted",
+                "submitted_at": t,
+                "result": {"score": 80 if i < 32 else 40, "level": "strong" if i < 32 else "developing"},
+            }
+        )
+        rows.append(
+            {
+                "user_id": u,
+                "test": "typing",
+                "lang": "te",
+                "status": "submitted",
+                "submitted_at": t,
+                "result": {"wpm": 30, "accuracy": 95.0},
+            }
+        )
+    for i, u in enumerate(pat):  # Hindi SJT: 40%; aptitude 60+ for half
+        rows.append(
+            {
+                "user_id": u,
+                "test": "sjt",
+                "lang": "hi",
+                "status": "submitted",
+                "submitted_at": t,
+                "result": {"score": 80 if i < 16 else 40, "level": "good" if i < 16 else "developing"},
+            }
+        )
+        rows.append(
+            {
+                "user_id": u,
+                "test": "aptitude",
+                "lang": "hi",
+                "status": "submitted",
+                "submitted_at": t,
+                "result": {"score": 70 if i < 20 else 30},
+            }
+        )
+    await db[TRUST_WORKTESTS].insert_many(rows)
+    rep = await RP.compute(db)
+    by = {m["key"]: m for m in rep["metrics"]}
+    assert {"typing", "sjt", "aptitude"} <= set(by) and by["sjt"]["label"] == "Situational judgement (T15)"
+    lang = {g["group"]: g for g in by["sjt"]["dimensions"]["language"]}
+    assert (
+        lang["Telugu"]["rate"] == 80
+        and lang["Hindi"]["rate"] == 40
+        and lang["Hindi"]["flag"]
+        and not lang["Telugu"]["flag"]
+    )
+    tier = {g["group"]: g for g in by["sjt"]["dimensions"]["tier"]}
+    assert tier["Tier 2"]["flag"] and not tier["Tier 1"]["flag"]
+    assert {(f["metric"], f["dimension"], f["group"]) for f in rep["flags"] if f["metric"] == "sjt"} == {
+        ("sjt", "language", "Hindi"),
+        ("sjt", "tier", "Tier 2"),
+        ("sjt", "region", "East"),
+    }
+    assert by["typing"]["total"] == 40 and {g["group"]: g["rate"] for g in by["typing"]["dimensions"]["language"]} == {
+        "Telugu": 100
+    }
+    assert by["aptitude"]["total"] == 40 and {
+        g["group"]: g["rate"] for g in by["aptitude"]["dimensions"]["language"]
+    } == {"Hindi": 50}
+    assert not [f for f in rep["flags"] if f["metric"] in ("typing", "aptitude")]  # one group each: nothing to compare

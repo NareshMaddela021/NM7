@@ -15,6 +15,7 @@ import { http } from '../../services/http';
 import { lazyRetry } from '../../lib/chunks';
 import { useLang } from '../../lib/i18n';
 import { useVettingOn } from '../../lib/vettingAccess';
+import { useTrustOn } from '../../lib/trustAccess';
 import { MeHead } from './MeLayout';
 import { Chip, Empty, MeCard, Skel, Stat } from './kit';
 import { API, GROUPS, LANGS, RUN_KEY, TASKS, badgeLine, day, readStore, renewState, writeStore } from './vetting/lib';
@@ -27,6 +28,7 @@ const FaceCheck = lazy(lazyRetry(() => import('./trust/FaceCheck'))); // Vetting
 const SnapshotChoice = lazy(lazyRetry(() => import('./trust/Snapshots').then((m) => ({ default: m.SnapshotChoice })))); // Vetting Trust T8: optional webcam snapshots (own consent)
 const Pledge = lazy(lazyRetry(() => import('./trust/Honesty').then((m) => ({ default: m.Pledge })))); // Vetting Trust T9: honesty pledge (Trust only)
 const RetakeInfo = lazy(lazyRetry(() => import('./trust/Honesty').then((m) => ({ default: m.RetakeInfo })))); // T9: retake limits
+const WorkTests = lazy(lazyRetry(() => import('./trust/WorkTests'))); // Vetting Trust T15: typing, SJT, aptitude (Trust only)
 const tries = (cat) => (cat.retakeAttempts > 1 ? `${cat.retakeAttempts} tries` : 'One try'); // T9: Admin may allow more
 
 const MONITORED = [
@@ -246,6 +248,7 @@ export default function MeSkillChecks() {
 }
 
 function MeSkillChecksV2() {
+  const trust = useTrustOn(); // Vetting Trust T15: the work tests card
   const { id } = useParams();
   const loc = useLocation();
   const nav = useNavigate();
@@ -459,6 +462,7 @@ function MeSkillChecksV2() {
         </>
       )}
 
+      {trust && <Suspense fallback={null}><WorkTests /></Suspense>}
       <MeCard tone="flat" className="mcard-tight" icon="🔒" title="Fair and private" sub="No camera and no screen recording. Companies see only your badge and scores, and only if you choose to show the score." headingLevel={2} />
       {renewing && <RenewDialog r={renewing} needConsent={!cat.consentAt} onConsent={(at) => setCat({ ...cat, consentAt: at })} onClose={closeRenew} onGo={begin} />}
       {face && (

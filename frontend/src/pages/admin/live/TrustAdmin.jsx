@@ -28,6 +28,7 @@ import TrustBookingAdmin from './TrustBookingAdmin'; // T11: interview booking &
 import TrustFairnessAdmin from './TrustFairnessAdmin'; // T12: blind grading, re-grades, pass-rate gaps, unfair filters
 
 const TrustCodeAdmin = lazy(lazyRetry(() => import('./TrustCodeAdmin'))); // T14: coding tasks: sandbox, limits, problems, replays
+const TrustWorkAdmin = lazy(lazyRetry(() => import('./TrustWorkAdmin'))); // T15: work tests, reliability record disputes
 
 const STATUS = [['open', 'Open'], ['contained', 'Contained'], ['notified', 'Notified'], ['closed', 'Closed']];
 const TO = [['certin', 'CERT-In'], ['dpb', 'Data Protection Board'], ['people', 'Affected people'], ['police', 'Police / cyber cell'], ['vendor', 'Vendor / processor'], ['other', 'Other']];
@@ -223,6 +224,7 @@ export default function TrustAdmin() {
       {!st.error && <TrustHonestyAdmin />}
       {!st.error && <TrustSpokenAdmin />}
       {!st.error && <Suspense fallback={null}><TrustCodeAdmin /></Suspense>}
+      {!st.error && <Suspense fallback={null}><TrustWorkAdmin /></Suspense>}
       {!st.error && <TrustEmployerAdmin />}
       {!st.error && <TrustAgentAdmin />}
       {!st.error && <TrustBookingAdmin />}

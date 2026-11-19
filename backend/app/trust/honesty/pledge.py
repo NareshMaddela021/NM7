@@ -14,8 +14,8 @@ from typing import Any
 from app.core.errors import ApiError
 
 VERSION = 1
-KINDS = ("skill", "task", "interview")
-WHAT = {"skill": "Skill check", "task": "Practical task", "interview": "AI interview"}
+KINDS = ("skill", "task", "interview", "worktest")
+WHAT = {"skill": "Skill check", "task": "Practical task", "interview": "AI interview", "worktest": "Work test"}
 TEXT = {
     "en": "I will answer on my own, without help from other people or AI tools (like ChatGPT). I won’t copy answers or let someone else do this for me. I understand Nm7 may check my answers and how the test was taken, and a person may ask me about them. Nothing is decided automatically.",
     "hi": "मेरे जवाब मेरे अपने होंगे: किसी दूसरे व्यक्ति या AI टूल (जैसे ChatGPT) की मदद के बिना। मैं जवाब कॉपी नहीं करूँगा/करूँगी और किसी और से यह नहीं करवाऊँगा/करवाऊँगी। मुझे पता है कि Nm7 मेरे जवाबों और टेस्ट देने के तरीके की जाँच कर सकता है, और कोई व्यक्ति मुझसे इनके बारे में पूछ सकता है। कुछ भी अपने आप तय नहीं होता।",
@@ -105,5 +105,16 @@ async def records(db, uid: str, limit: int = 30) -> list[dict[str, Any]]:
                 },
             )
         )
+    from app.core.db import TRUST_WORKTESTS  # T15: typing / SJT / aptitude
+    from app.trust.worktests.service import NAMES as WT_NAMES
+
+    async for d in (
+        db[TRUST_WORKTESTS]
+        .find({"user_id": uid, "pledge": {"$ne": None}}, {"test": 1, "lang": 1, "pledge": 1})
+        .sort("started_at", -1)
+        .limit(limit)
+    ):
+        rows.append((d["pledge"]["at"], {"what": f"{WHAT['worktest']}: {WT_NAMES.get(d['test'], d['test'])} ({d.get('lang', 'en')})", "kind": "worktest",
+                                         "ref": str(d["_id"]), **out(d["pledge"])}))  # fmt: skip
     rows.sort(key=lambda r: r[1]["at"] or 0, reverse=True)
     return [r for _, r in rows[:limit]]

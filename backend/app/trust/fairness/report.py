@@ -2,7 +2,8 @@
 """Vetting Trust T12: pass-rate gap checks for the Admin fairness report (counts per group only, never a person).
 
 For each outcome — skill checks (V2 test passed), AI interviews (passed), spoken English (T10 band B1 or higher), Auto
-Apply (a company replied) and Hire now (invited by a company) — the rate is computed per group of three coarse
+Apply (a company replied), Hire now (invited by a company) and the T15 work tests (typing 25 wpm+ at 90% accuracy, SJT
+Good or Strong, aptitude 60+) — the rate is computed per group of three coarse
 dimensions:
   language   the interview / skill check language (English, Hindi, Telugu); for Auto Apply and Hire now the person's
              chosen site language
@@ -51,6 +52,9 @@ METRICS = {
     "spoken": ("Spoken English (T10)", "got B1 or higher"),
     "autoapply": ("Auto Apply", "got a reply from the company"),
     "hire": ("Hire now", "were invited by a company"),
+    "typing": ("Typing test (T15)", "typed 25 wpm+ with 90% accuracy"),
+    "sjt": ("Situational judgement (T15)", "got Good or Strong"),
+    "aptitude": ("Aptitude test (T15)", "scored 60 or more"),
 }
 LANG = {"en": "English", "hi": "Hindi", "te": "Telugu"}
 SPOKEN_OK = {"B1", "B2", "C1", "C2"}
@@ -161,6 +165,10 @@ async def outcomes(db, since: datetime) -> dict[str, list[tuple[str, str, bool]]
     }
     async for p in db[HIRE_PROFILES].find({"on": True, "consent_at": {"$ne": None}}, {"_id": 1}).limit(CAP):
         rows["hire"].append((p["_id"], "", p["_id"] in invited))
+    from app.trust.worktests.service import outcomes as work_outcomes  # T15: the test language is the language
+
+    for k, v in (await work_outcomes(db, since, CAP)).items():
+        rows[k].extend(v)
     return rows
 
 

@@ -94,8 +94,17 @@ for (const [label, opts] of SIZES) {
       await expect(admin).not.toHaveURL(/\/login/);
 
       await admin.goto('/admin/daily-report');
-      await admin.getByTestId('dr-refresh').click();
+      // the page's own first load can compute today's report under the server's one heavy-job lease: let it finish
+      // first, so "Refresh now" isn't refused (429) or raced by that older answer
+      await expect(admin.getByTestId('dr-updated')).not.toContainText('Loading…', { timeout: 60_000 });
+      // another heavy job (the background automation pass) may hold the lease for a moment: press again once it's free
+      await expect(async () => {
+        const done = admin.waitForResponse((r) => r.url().includes('/api/admin/daily-report/refresh'));
+        await admin.getByTestId('dr-refresh').click();
+        expect((await done).status()).toBe(200);
+      }).toPass({ timeout: 90_000, intervals: [2_000, 5_000] });
       await expect(admin.getByText('Report refreshed')).toBeVisible({ timeout: 30_000 });
+      await expect(admin.getByTestId('dr-updated')).toContainText('Updated');
       await expect(admin.getByRole('heading', { name: 'Auto Apply', level: 2 })).toBeVisible();
       const sec = admin.getByTestId('dr-aa');
       await expect(sec.getByTestId('dr-aa-ch')).toHaveCount(5);
