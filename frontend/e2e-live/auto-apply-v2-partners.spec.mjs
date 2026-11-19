@@ -84,7 +84,7 @@ for (const [label, opts] of SIZES) {
       await expect.poll(async () => (await tracker(page)).items.filter((x) => x.job.id === job.id).map((x) => x.partner?.state), { timeout: 30_000 }).toEqual(['delivered']);
       await page.goto('/me/auto-apply/v2');
       const trow = page.getByTestId('aa2-row').filter({ hasText: `Data Analyst ${tag}` });
-      await expect(trow.getByTestId('aa2-ch')).toHaveText('⇄ Partner · Test system (no network)');
+      await expect(trow.getByTestId('aa2-ch')).toHaveText('Partner · Test system (no network)');
       await expect(trow.getByTestId('aa2-row-partner')).toContainText('Delivered to the company’s hiring system');
       expect(await noSideScroll(page)).toBe(true);
       await cp.getByRole('tab', { name: 'Jobs' }).click();

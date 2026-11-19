@@ -82,7 +82,7 @@ for (const [label, opts] of SIZES) {
       await page.getByTestId('aa2-tab-tracker').click();
       const row = page.getByTestId('aa2-row').filter({ hasText: `Data Analyst ${tag}` });
       await expect(row).toHaveAttribute('data-stage', 'applied');
-      await expect(row.getByTestId('aa2-ch')).toHaveText('☝ One tap');
+      await expect(row.getByTestId('aa2-ch')).toHaveText('One tap');
       await expect(page.getByTestId('aa2-row').filter({ hasText: `Reporting Analyst ${tag}` })).toHaveCount(0);
       expect(await noSideScroll(page)).toBe(true);
     });
