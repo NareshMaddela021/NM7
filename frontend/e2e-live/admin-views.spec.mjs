@@ -65,17 +65,13 @@ for (const [label, opts] of SIZES) {
         if (role !== 'company') expect((await call(page, '/api/admin/stats')).status).toBe(403); // not the admin now
         await backToAdmin(page);
       }
-      // the older demo buttons no longer sign the admin out: Easy dashboard student, then the demo college
+      // the older demo buttons no longer sign the admin out: the Easy dashboard student
       await page.goto('/admin/auto-apply');
       await page.getByTestId('aa-demo-simple').click();
       await page.waitForURL(/\/me\/simple$/);
       await bannerOnTop(page, 'Student');
       await backToAdmin(page);
-      await page.goto('/admin/orgs');
-      await page.getByTestId('demo-as-coordinator').click();
-      await page.waitForURL('**/org/demo-engineering-college');
-      await bannerOnTop(page, 'College');
-      await backToAdmin(page);
+      // (Organizations → Demo → "Reset and open as coordinator" is covered the same way in demo-coordinator.spec.mjs)
     });
 
     test('view a customer read-only: masked, nothing changes, audit-logged', async ({ page }) => {
