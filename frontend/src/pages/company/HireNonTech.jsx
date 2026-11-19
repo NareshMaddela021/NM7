@@ -105,7 +105,7 @@ export function NonTechChips({ nt }) {
   if (!chips.length) return null;
   return (
     <ul className="hn-chips" aria-label="Non-tech facts" data-testid="co-hire-nt">
-      {chips.map(([tone, text, k]) => <li key={k} className={`mchip mchip-${tone}`} data-testid={`co-hire-nt-${k}`} style={{ whiteSpace: 'normal', overflowWrap: 'anywhere', maxWidth: '100%' }}>{tone === 'ok' && <IcCheck size={14} />} {text}</li>)}
+      {chips.map(([tone, text, k]) => <li key={k} className={`mchip mchip-${tone}`} data-testid={`co-hire-nt-${k}`} style={{ whiteSpace: 'normal', overflowWrap: 'anywhere', maxWidth: '100%' }}>{tone === 'ok' ? <><IcCheck size={14} /> {text}</> : text}</li>)}
     </ul>
   );
 }

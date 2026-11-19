@@ -60,7 +60,7 @@ export function WorkChips({ w, rec }) {
   if (!chips.length) return null;
   return (
     <ul className="hn-chips" aria-label="Work tests and reliability" data-testid="co-hire-wt">
-      {chips.map(([tone, text, k]) => <li key={k} className={`mchip mchip-${tone}`} data-testid={`co-hire-wt-${k}`} style={{ whiteSpace: 'normal', overflowWrap: 'anywhere', maxWidth: '100%' }}>{tone === 'ok' && <IcCheck size={14} />} {text}</li>)}
+      {chips.map(([tone, text, k]) => <li key={k} className={`mchip mchip-${tone}`} data-testid={`co-hire-wt-${k}`} style={{ whiteSpace: 'normal', overflowWrap: 'anywhere', maxWidth: '100%' }}>{tone === 'ok' ? <><IcCheck size={14} /> {text}</> : text}</li>)}
     </ul>
   );
 }
