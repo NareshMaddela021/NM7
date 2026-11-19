@@ -130,7 +130,7 @@ consent back deletes it at once):
 - `tests/test_trust_t12.py`: new **`test_pass_rate_gaps_include_the_t15_work_tests`** (SJT by language / tier / region
   flagged by the four-fifths rule, typing and aptitude present). `tests/test_trust_t11.py`: the templates count is now 21
   (7 a language).
-- Full backend suite: see the report (all passed apart from the known local-only `test_test_users::test_create_open_and_remove`).
+- Full backend suite: **1446 passed**, 1 deselected (only the known local-only `test_test_users::test_create_open_and_remove`; run in four parts after a container restart).
 - `ruff check` / `ruff format --check`: clean. Frontend: vitest **669 passed** (2 skipped; new `workLib.test.js`,
   `trustT15.test.js`), lint no new warnings (the 3 existing ones), build OK, budget OK.
 - e2e `frontend/e2e-live/trust-t15.spec.mjs`, desktop + 390 px, `--repeat-each 2`: **20 passed** (typing in Hindi with a
