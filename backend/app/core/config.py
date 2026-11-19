@@ -68,6 +68,10 @@ class Settings(BaseSettings):
     github_status_token: str = ""
     github_status_repo: str = "NareshMaddela021/NM7"
 
+    # "Continue with Google" (optional): the OAuth web client ID from Google Cloud Console (GOOGLE_CLIENT_ID). It is
+    # public, not a secret: the site-flags endpoint hands it to the browser. Empty (default) hides the Google button.
+    google_client_id: str = ""
+
     # Error reporting (optional): a Sentry DSN. Without it errors are only logged (with a request id).
     sentry_dsn: str = ""
 

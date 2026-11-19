@@ -153,6 +153,11 @@ export async function signIn(email, password) {
   if (!u.verified) throw fail('Please confirm your email first — we’ve sent you a code.', 'email_not_verified');
   return start(u);
 }
+/** "Continue with Google": the Google ID token (credential) goes to the API, which signs in or creates the account
+ *  (role: customer / expert for a new account; next: where to go after). Same answer as signIn. Live site only. */
+export async function googleSignIn({ credential, role, next }) {
+  return setLive(await http('/api/auth/google', { method: 'POST', body: { credential, role, next } }));
+}
 /** Creates the account and emails a 6-digit code. Returns { email, codeSent }. An email that already has an account gets
  *  the same answer (its owner is emailed a sign-in reminder instead of a code), so sign-up never reveals who has an account. */
 export async function signUp({ role, name, email, phone, password, confirm, agree }) {

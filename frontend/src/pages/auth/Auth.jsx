@@ -1,5 +1,5 @@
 // Sign in, sign up (customer or expert, confirmed with an email code), forgot password, admin two-step login, and route guards.
-import { useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { Logo, ThemeToggle } from '../../components/Header';
 import { Spinner, useToast } from '../../components/ui';
@@ -12,9 +12,15 @@ import LangSwitch from '../../components/LangSwitch';
 import { useLang } from '../../lib/i18n';
 import { usePageMeta } from '../../lib/meta';
 import { safeNext } from '../../lib/safeNext';
+import { signupAccount } from '../../lib/signupRoles';
 import '../../styles/admin-ops.css';
 
 const isPreview = import.meta.env.VITE_PREVIEW === '1';
+// "Continue with Google": its own small chunk; it renders nothing while the server has no Google client ID.
+const GoogleButtonLazy = lazy(() => import('../../components/GoogleButton'));
+function Google(props) {
+  return <Suspense fallback={null}><GoogleButtonLazy {...props} /></Suspense>;
+}
 
 /** This page's own tab title (when it differs from the route's). */
 function PageTitle({ title }) {
@@ -129,6 +135,7 @@ export function Login() {
   return (
     // A server message (wrong password, too many tries …) is shown as the server wrote it, in English.
     <Shell title={t('signin.title')} sub={t('signin.sub')} lang={lang} top={<LangSwitch t={t} lang={lang} style={{ alignSelf: 'flex-end' }} />}>
+      {LIVE && <Google mode="signin" next={next} onDone={go} />}
       <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); submit(e.currentTarget); }}>
         <Field id="li-e" name="email" label={t('signin.email')} type="email" autoComplete="email" value={f.email} error={emailErr} onChange={(e) => { setF({ ...f, email: e.target.value }); setEmailErr(''); }} />
         <div className="stack g4">
@@ -155,13 +162,16 @@ export function Signup() {
   const [params] = useSearchParams();
   const next = safeNext(params.get('next'));
   const { user } = useAuth();
-  const [role, setRole] = useState(params.get('as') === 'expert' ? 'expert' : 'customer');
+  // ?role=jobseeker|student (a customer account) or ?role=expert; the older ?as=expert still works
+  const urlRole = signupAccount(params.get('role'), params.get('as'));
+  const [role, setRole] = useState(urlRole);
+  const done = (u) => nav(u.role === 'expert' ? '/expert/profile' : next || '/me', { replace: true });
   const [f, setF] = useState({ name: '', email: '', phone: '', password: '', confirm: '', agree: false });
   const [showPw, setShowPw] = useState(false);
   const [touched, setTouched] = useState(false);
   const [pending, setPending] = useState(null); // { email } waiting for the email code
   const { busy, err, run } = useRun();
-  if (user && !pending && params.get('as') === 'expert' && user.role !== 'expert') {
+  if (user && !pending && urlRole === 'expert' && user.role !== 'expert') {
     // "Become an expert" while signed in as a customer: experts use a separate account
     return (
       <Shell meta title="Expert accounts are separate" sub={`You’re signed in as ${user.email || user.name}, a customer account.`}>
@@ -189,13 +199,14 @@ export function Signup() {
 
   if (pending) {
     // The API answers the same way whether or not the address already has an account (nobody can use sign-up to find out).
-    return <VerifyEmail email={pending.email} note={`We sent a 6-digit code to ${pending.email}. It works for 10 minutes. If you already have an account, we sent a sign-in reminder instead.`} onDone={(u) => nav(u.role === 'expert' ? '/expert/profile' : next || '/me', { replace: true })} onBack={() => setPending(null)} />;
+    return <VerifyEmail email={pending.email} note={`We sent a 6-digit code to ${pending.email}. It works for 10 minutes. If you already have an account, we sent a sign-in reminder instead.`} onDone={done} onBack={() => setPending(null)} />;
   }
   return (
     <Shell title="Create your account" sub={role === 'expert' ? 'Experts write resumes for job seekers and get paid per order.' : 'Free to join. You only pay when you order a service.'} wide>
       <div className="segmented" role="radiogroup" aria-label="I want to" style={{ alignSelf: 'flex-start' }}>
         {[['customer', 'Get my resume done'], ['expert', 'Work as an expert']].map(([k, l]) => <button key={k} type="button" role="radio" aria-checked={role === k} onClick={() => setRole(k)}>{l}</button>)}
       </div>
+      {LIVE && <Google mode="signup" role={role} next={next || undefined} onDone={done} />}
       <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); setTouched(true); if (!ok) return; run(async () => setPending(await signUp({ role, ...f }))); }}>
         <Field id="su-n" label="Full name" autoComplete="name" value={f.name} error={e_('name')} onChange={(e) => setF({ ...f, name: e.target.value })} />
         <div className="row g12" style={{ alignItems: 'flex-start' }}>
