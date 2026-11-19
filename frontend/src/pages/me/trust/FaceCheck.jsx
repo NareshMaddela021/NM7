@@ -13,6 +13,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Dialog } from '../../../components/ui';
 import { http } from '../../../services/http';
+import { IcCheck } from '../../../components/icons';
 
 const API = '/api/me/trust/face';
 const SHOT_MS = [1200, 2400]; // the two photos taken while the person follows the prompt
@@ -186,7 +187,7 @@ export default function FaceCheck({ mode = 'identity', step = 'settings', offerI
           <div className="stack g12" data-testid="fc-consent">
             <strong className="small">{d.consentTitle}</strong>
             <p className="small" style={{ margin: 0, overflowWrap: 'anywhere' }} data-testid="fc-consent-text">{d.consentText}</p>
-            {err && <p className="error" role="alert" style={{ margin: 0 }}>{err}{/date of birth|age/i.test(err) ? ' (Profile & settings → Privacy & consent)' : ''}</p>}
+            {err && <p className="error" role="alert" style={{ margin: 0 }}>{err}{/date of birth|age/i.test(err) ? ' (Profile & settings, Privacy & consent)' : ''}</p>}
             <div className="row g8" style={{ flexWrap: 'wrap' }}>
               <button type="button" className="btn btn-signal" style={{ minHeight: 44 }} onClick={agree} data-testid="fc-agree">I agree</button>
               <button type="button" className="btn btn-ghost" style={{ minHeight: 44 }} onClick={() => setStage('manual')}>I can’t use a camera</button>
@@ -290,7 +291,7 @@ export default function FaceCheck({ mode = 'identity', step = 'settings', offerI
 
         {stage === 'done' && (
           <div className="stack g12" data-testid="fc-done">
-            <p className="small" role="status" style={{ margin: 0 }}><strong>✓ {joining ? 'Same person at joining: confirmed.' : 'ID + selfie verified.'}</strong> {joining ? 'Have a great first day!' : 'Thank you. We didn’t keep the photos.'}</p>
+            <p className="small" role="status" style={{ margin: 0 }}><strong><IcCheck size={14} /> {joining ? 'Same person at joining: confirmed.' : 'ID + selfie verified.'}</strong> {joining ? 'Have a great first day!' : 'Thank you. We didn’t keep the photos.'}</p>
             <button type="button" className="btn btn-signal" style={{ minHeight: 44, alignSelf: 'flex-start' }} onClick={() => onDone?.(d.state)} data-testid="fc-continue">{step === 'interview' ? 'Start the interview' : step === 'skill_check' ? 'Start the test' : 'Done'}</button>
           </div>
         )}

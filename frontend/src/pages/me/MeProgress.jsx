@@ -7,6 +7,7 @@ import { http } from '../../services/http';
 import { MeHead } from './MeLayout';
 import { Bar, Chip, Empty, MeCard, Skel, Stat } from './kit';
 import '../../styles/me-work.css';
+import { IcArrowUp, IcCheck } from '../../components/icons';
 
 const PROBLEMS = [['salary', 'Pay is lower than promised'], ['role', 'The work is different'], ['hours', 'Hours are longer'], ['location', 'A different place'], ['fee', 'Asked to pay a deposit or fee'], ['safety', "I don't feel safe"], ['other', 'Something else']];
 export const problemText = (k) => (PROBLEMS.find(([x]) => x === k) || [k, k])[1];
@@ -104,7 +105,7 @@ function Journey({ j }) {
         const state = done ? 'done' : i === nowIdx ? 'now' : '';
         return (
           <li key={d} className={state}>
-            <span className="msteps-dot" aria-hidden="true">{done ? '✓' : i + 1}</span>
+            <span className="msteps-dot" aria-hidden="true">{done ? <IcCheck size={14} /> : i + 1}</span>
             <span className="stack" style={{ minWidth: 0 }}>
               <strong className="small">{l}</strong>
               <span className="xs muted">{i === 0 ? 'Day 1' : `Day ${d}`}{c ? ` · ${c.ok ? 'as promised' : 'reported to Nm7'}` : ''}{state === 'now' ? ' · next' : ''}</span>
@@ -170,7 +171,7 @@ export default function MeProgress() {
     <div className="stack g16" data-testid="me-progress">
       <MeHead title="My progress" sub="Real numbers from your week, and help for your first 90 days in a new job." />
       <section className="mcard" aria-label="This week" data-testid="pr-week">
-        <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">↑</span><span className="mcard-ht"><h2 className="mcard-title">This week</h2><span className="mcard-sub">Counted from what you did on Nm7 in the last 7 days.</span></span></header>
+        <header className="mcard-h"><span className="mcard-ic" aria-hidden="true"><IcArrowUp /></span><span className="mcard-ht"><h2 className="mcard-title">This week</h2><span className="mcard-sub">Counted from what you did on Nm7 in the last 7 days.</span></span></header>
         <div className="mgrid-3 wk-stats">
           <Stat label="Applications" value={w.applications} testid="pr-apps" />
           <Stat label="Interviews" value={w.interviews} />

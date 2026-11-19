@@ -12,6 +12,7 @@ import { appendSpeech, useSpeech } from '../../../lib/speechCore';
 import { lazyRetry } from '../../../lib/chunks';
 import { MeCard, Skel } from '../kit';
 import { API, SPEECH_LANG, clock, compressImage, emptySignals, useSignals, words } from './lib';
+import { IcAlert, IcCamera, IcMic, IcStop } from '../../../components/icons';
 
 const Coding = lazy(lazyRetry(() => import('../trust/Coding'))); // Vetting Trust T14: a coding task (Trust only)
 const MIN_SPEAK = 60;
@@ -54,7 +55,7 @@ function Voice({ lang, transcript, setTranscript, seconds, setSeconds }) {
     <div className="stack g12">
       <div className="vet-mic">
         <button type="button" className={`btn btn-lg ${sp.listening ? 'btn-outline' : 'btn-signal'}`} onClick={sp.listening ? sp.stop : sp.start} disabled={!sp.listening && seconds >= MAX_SPEAK} data-testid="vt-mic">
-          {sp.listening ? '⏹ Stop' : seconds ? '🎤 Speak more' : '🎤 Start speaking'}
+          {sp.listening ? <><IcStop size={18} /> Stop</> : <><IcMic size={18} /> {seconds ? 'Speak more' : 'Start speaking'}</>}
         </button>
         <span className="vet-clock" role="timer" aria-live="off" aria-label={`Spoken for ${seconds} seconds`}><small>Spoken</small>{clock(seconds)} / 1:30</span>
         {(transcript || seconds > 0) && !sp.listening && <button type="button" className="btn btn-ghost" onClick={() => { setTranscript(''); setSeconds(0); }}>Start again</button>}
@@ -107,7 +108,7 @@ function PhotoPick({ photo, setPhoto }) {
   return (
     <div className="stack g8" data-testid="vt-photo">
       <strong className="small">Optional: a photo of your past work or your ITI certificate</strong>
-      <span className="xs muted">⚠ Please don’t include faces (yours or anyone’s). The photo is checked once and deleted after 30 days.</span>
+      <span className="xs muted"><IcAlert size={14} /> Please don’t include faces (yours or anyone’s). The photo is checked once and deleted after 30 days.</span>
       {photo ? (
         <div className="vet-photo">
           <img src={photo.preview} alt="The photo you picked" />
@@ -115,7 +116,7 @@ function PhotoPick({ photo, setPhoto }) {
         </div>
       ) : (
         <label className="btn btn-outline vet-file">
-          {busy ? 'Getting the photo ready…' : '📷 Add a photo'}
+          {busy ? 'Getting the photo ready…' : <><IcCamera size={16} /> Add a photo</>}
           <input type="file" accept="image/*" onChange={pick} className="sr-only" aria-label="Add a photo of your past work or certificate" data-testid="vt-photo-input" />
         </label>
       )}

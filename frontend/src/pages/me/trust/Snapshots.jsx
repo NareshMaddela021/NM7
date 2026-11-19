@@ -2,7 +2,7 @@
 // on for (trustOn) and only with the separate "webcam_snapshots" consent; never needed to take a test.
 //   SnapshotChoice  in the start dialog: the plain consent text and one tick box ("Yes, take a few still photos").
 //                   Ticking it gives the consent (POST /api/me/trust/consents/webcam_snapshots); unticking only skips
-//                   this session (taking it back for good is in Profile & settings → Privacy & consent).
+//                   this session (taking it back for good is in Profile & settings -> Privacy & consent).
 //   useSnapshots    in the test / interview: asks the server for the plan (3–5 random moments), and at each moment
 //                   opens the front camera for one still photo (320 px JPEG, no video, no audio), sends it and closes the
 //                   camera at once. A blocked or missing camera just means no photo: the test carries on as normal.
@@ -10,9 +10,10 @@
 import { useEffect, useState } from 'react';
 import { http } from '../../../services/http';
 import { trustOn } from '../../../lib/trustAccess';
+import { IcCamera } from '../../../components/icons';
 
 const API = '/api/me/trust/integrity/snapshots';
-const skip = {}; // kind → true: "not this time" (session only)
+const skip = {}; // kind -> true: "not this time" (session only)
 
 export function SnapshotChoice({ kind }) {
   const [d, setD] = useState(null);
@@ -43,7 +44,7 @@ export function SnapshotChoice({ kind }) {
         <input type="checkbox" checked={on} disabled={busy} onChange={(e) => change(e.target.checked)} data-testid="snap-tick" />
         <span><strong>Yes, take a few still photos</strong><span className="xs muted" style={{ display: 'block' }}>{d.perSession} photos at random times. Leave it unticked and the {kind === 'interview' ? 'interview' : 'test'} works exactly the same.</span></span>
       </label>
-      {d.consent && !on && <span className="xs muted">Skipped this time. To turn it off for good: Profile &amp; settings → Privacy &amp; consent.</span>}
+      {d.consent && !on && <span className="xs muted">Skipped this time. To turn it off for good: Profile &amp; settings, Privacy &amp; consent.</span>}
       {err && <p className="error" role="alert">{err}</p>}
     </fieldset>
   );
@@ -90,5 +91,5 @@ export function useSnapshots(kind, ref) {
 
 export function SnapNote({ st }) {
   if (!st) return null;
-  return <span className="xs muted" role="status" data-testid="snap-status">📷 Webcam snapshots on: {st.taken} of {st.n} still photos taken (no video, no sound)</span>;
+  return <span className="xs muted" role="status" data-testid="snap-status"><IcCamera size={14} /> Webcam snapshots on: {st.taken} of {st.n} still photos taken (no video, no sound)</span>;
 }

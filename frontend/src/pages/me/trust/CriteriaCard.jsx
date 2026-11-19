@@ -1,7 +1,7 @@
-// Profile & settings → Job requirements (Vetting Trust T7). Rendered by PrivacyConsent (same lazy chunk), so only for
+// Profile & settings -> Job requirements (Vetting Trust T7). Rendered by PrivacyConsent (same lazy chunk), so only for
 // people who get Vetting Trust. GET /api/me/trust/criteria. For each job I applied to that lists requirements: what I
 // was checked on, Met / Not met / Unknown, and the exact words it came from (my own evidence only, never anyone
-// else's). I can add evidence: a certificate from my wallet (Profile → Certificates), which counts only after Nm7 has
+// else's). I can add evidence: a certificate from my wallet (Profile -> Certificates), which counts only after Nm7 has
 // checked it; a document verified with DigiLocker or a skill check counts by itself. Needs the "Matching you to a
 // job's requirements" consent (asked here; taken back in Privacy & consent). English only while it is tested.
 import { useCallback, useEffect, useState } from 'react';
@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import { useToast } from '../../../components/ui';
 import { http } from '../../../services/http';
 import { MeCard } from '../kit';
+import { IcCheckCircle } from '../../../components/icons';
 
 const WORD = { met: 'Met', not_met: 'Not met', unknown: 'Unknown' };
 const TONE = { met: 'ok', not_met: 'warn', unknown: 'neutral' };
@@ -20,7 +21,7 @@ function AddEvidence({ app, item, certs, onDone }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   if (!certs.length) {
-    return <p className="xs" style={{ margin: 0 }}>Add the certificate in <Link to="/me/certificates">Profile → Certificates</Link> first, then pick it here. A document verified with DigiLocker (below) or a <Link to="/me/skill-checks">skill check</Link> counts by itself.</p>;
+    return <p className="xs" style={{ margin: 0 }}>Add the certificate in <Link to="/me/certificates">Profile, Certificates</Link> first, then pick it here. A document verified with DigiLocker (below) or a <Link to="/me/skill-checks">skill check</Link> counts by itself.</p>;
   }
   const send = async (e) => {
     e.preventDefault();
@@ -63,7 +64,7 @@ export default function CriteriaCard() {
   };
   const remove = async (id) => { try { await http(`/api/me/trust/criteria/claims/${id}`, { method: 'DELETE' }); load(); } catch (x) { toast(x.message); } };
   return (
-    <MeCard as="section" id="s-criteria" className="acc-sec" label="Job requirements" icon="☑" title="Job requirements you were checked on" testid="cr-card"
+    <MeCard as="section" id="s-criteria" className="acc-sec" label="Job requirements" icon={<IcCheckCircle />} title="Job requirements you were checked on" testid="cr-card"
       sub="Companies see, for each requirement of their job, Met, Not met or Unknown with the words it came from. It is only a label: nobody is rejected because of it.">
       {!d.consent ? (
         <div className="stack g8" data-testid="cr-consent">

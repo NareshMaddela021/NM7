@@ -17,6 +17,7 @@ import '../../styles/me-resume.css';
 import JobCover from './JobCover';
 import SkillGap from './SkillGap';
 import PassOffer from '../../components/PassOffer';
+import { IcSwap } from '../../components/icons';
 
 const KIND_LABEL = { tech: 'Skill', tool: 'Tool', cert: 'Certification', lang: 'Language' };
 
@@ -119,7 +120,7 @@ function Tailor({ m, onScore }) {
       <div className="mcard mcard-accent mcard-tight">
         <strong>Copy: {t.copy?.name}</strong>
         <span className="xs muted">Your original “{t.original.name}” never changes. Accepted suggestions go into this copy only.</span>
-        <span className="small" data-testid="jm-tailor-score">Score: {t.scoreBefore} → <strong>{t.scoreNow}</strong>{pending > 0 ? ` (${t.scoreIfAll} if you accept all)` : ''}</span>
+        <span className="small" data-testid="jm-tailor-score">Score: {t.scoreBefore} to <strong>{t.scoreNow}</strong>{pending > 0 ? ` (${t.scoreIfAll} if you accept all)` : ''}</span>
         {t.note && <span className="xs muted">{t.note}</span>}
         <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} onClick={() => { openInBuilder(t.copy.id); nav('/builder', { state: { open: 'build' } }); }}>Open the copy in the builder</button>
       </div>
@@ -249,7 +250,7 @@ export default function JobMatch() {
   return (
     <>
       <section className="mcard jm-form" aria-label="Match a job" data-testid="jm-form">
-        <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true">⇄</span><span className="mcard-ht"><h2 className="mcard-title">Match a job</h2><span className="mcard-sub">Paste a job post. We score your resume for it and show what to fix.</span></span></header>
+        <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true"><IcSwap /></span><span className="mcard-ht"><h2 className="mcard-title">Match a job</h2><span className="mcard-sub">Paste a job post. We score your resume for it and show what to fix.</span></span></header>
         <div className="field"><label htmlFor="jm-r" className="label">Resume</label>
           <select id="jm-r" className="input" value={rid} onChange={(e) => setRid(e.target.value)}>{me.resumes.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}</select></div>
         <div className="field">

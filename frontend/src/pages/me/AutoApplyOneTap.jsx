@@ -9,6 +9,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { API_BASE, http } from '../../services/http';
 import { Chip, Empty, Skel } from './kit';
+import { IcCheck } from '../../components/icons';
 
 const BASE = '/api/me/auto-apply/v2';
 
@@ -59,7 +60,7 @@ function CopyButton({ value, label, toast, big }) {
   };
   return (
     <button type="button" className={big ? 'btn btn-signal aa2-copybig' : 'btn btn-outline btn-sm aa2-copy'} onClick={go} aria-label={label ? `Copy ${label}` : 'Copy'} data-testid="aa2-copy">
-      {done ? 'Copied ✓' : 'Copy'}
+      {done ? <><IcCheck size={16} /> Copied</> : 'Copy'}
     </button>
   );
 }

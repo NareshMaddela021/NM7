@@ -35,6 +35,7 @@ function RolesCard() {
 }
 import PassOffer, { PassActive } from '../../components/PassOffer';
 import { useLang } from '../../lib/i18n';
+import { IcBriefcase, IcCheckCircle, IcClock, IcMessage, IcTarget } from '../../components/icons';
 
 /** Skill checks taken, the best score and the "Skill verified" badges, from the person's own results (Vetting V2);
  * nothing until it has loaded. */
@@ -58,7 +59,7 @@ function SkillVerifyCard({ sk }) {
   return (
     <section className="card stack g8" style={{ flex: '1 1 300px' }} aria-label="Get skill verified" data-testid="home-skill-verify">
       <strong>{n ? `Skill verified: ${n} badge${n > 1 ? 's' : ''}` : 'Get skill verified'}</strong>
-      <span className="small">{n ? `✓ ${sk.verified.join(', ')}. Add another skill to stand out to more companies.` : 'A 15-minute test and a short real-work task. Pass both and companies hiring now see a “Skill verified” badge.'}</span>
+      <span className="small">{n ? `Verified: ${sk.verified.join(', ')}. Add another skill to stand out to more companies.` : 'A 15-minute test and a short real-work task. Pass both and companies hiring now see a “Skill verified” badge.'}</span>
       <Link className="btn btn-outline btn-sm" style={{ alignSelf: 'flex-start', minHeight: 44 }} to="/me/skill-checks">{n ? 'Verify another skill' : 'Get skill verified'}</Link>
     </section>
   );
@@ -70,18 +71,18 @@ function SkillVerifyCard({ sk }) {
  */
 function MyNumbers({ score, apps, interviews, tracked, sk }) {
   const tiles = [
-    ['Applications', apps, `${tracked} tracked`, '/me/jobs', '▥'],
-    ['Interviews', interviews, interviews ? 'Prepare with practice questions' : 'None yet', '/me/practice', '❝'],
-    ['Resume ATS score', score, score >= 80 ? 'Good — recruiters’ systems read it well' : 'Below 80 — see the tips', '/me/ats', '◎'],
+    ['Applications', apps, `${tracked} tracked`, '/me/jobs', IcBriefcase],
+    ['Interviews', interviews, interviews ? 'Prepare with practice questions' : 'None yet', '/me/practice', IcMessage],
+    ['Resume ATS score', score, score >= 80 ? 'Good — recruiters’ systems read it well' : 'Below 80 — see the tips', '/me/ats', IcTarget],
     sk?.v2
-      ? ['Skill checks', sk.taken, sk.verified?.length ? `${sk.verified.length} skill${sk.verified.length > 1 ? 's' : ''} verified` : sk.best != null ? `Best score ${sk.best}/100` : 'Get a skill verified', '/me/skill-checks', '✓']
-      : ['Skill checks', sk && !sk.failed ? sk.taken : null, sk?.failed ? 'Take a 10-minute check' : sk ? (sk.best != null ? `Best score ${sk.best}%` : 'Take a 10-minute check') : '', '/me/skill-checks', '✓'],
+      ? ['Skill checks', sk.taken, sk.verified?.length ? `${sk.verified.length} skill${sk.verified.length > 1 ? 's' : ''} verified` : sk.best != null ? `Best score ${sk.best}/100` : 'Get a skill verified', '/me/skill-checks', IcCheckCircle]
+      : ['Skill checks', sk && !sk.failed ? sk.taken : null, sk?.failed ? 'Take a 10-minute check' : sk ? (sk.best != null ? `Best score ${sk.best}%` : 'Take a 10-minute check') : '', '/me/skill-checks', IcCheckCircle],
   ];
   return (
     <div className="me-widgets" data-testid="me-widgets">
-      {tiles.map(([label, value, sub, to, ic]) => (
+      {tiles.map(([label, value, sub, to, Ic]) => (
         <Link key={label} to={to} className="glass me-widget" data-testid={`me-widget-${label.toLowerCase().replace(/[^a-z]+/g, '-')}`}>
-          <span className="me-widget-top"><span className="me-widget-ic" aria-hidden="true">{ic}</span><span className="me-widget-label">{label}</span></span>
+          <span className="me-widget-top"><span className="me-widget-ic" aria-hidden="true"><Ic /></span><span className="me-widget-label">{label}</span></span>
           {value == null ? <span className="skeleton" style={{ width: 64, height: 40 }} aria-label="Loading" /> : <strong className="me-widget-num">{value}</strong>}
           <span className="me-widget-sub">{sub}</span>
         </Link>
@@ -126,7 +127,7 @@ export default function MeHome() {
 
   return (
     <>
-      <div className="stack g4"><span className="kicker">My dashboard</span><h1 className="display me-h1">Hi {first} 👋</h1></div>
+      <div className="stack g4"><span className="kicker">My dashboard</span><h1 className="display me-h1">Hi {first}</h1></div>
       <MyNumbers score={score} apps={apps.length} interviews={me.apps.filter((a) => a.status === 'interview').length} tracked={me.apps.length} sk={sk} />
       <PassActive />
       {typeof window !== 'undefined' && /[?&]pass=1/.test(window.location.search) && <PassOffer />}
@@ -192,32 +193,32 @@ export default function MeHome() {
               <button type="button" className="btn btn-outline" onClick={() => dl('docx')}>Word</button>
               <Link to="/me/share" className="btn btn-ghost">Share</Link>
             </div>
-            <Link to="/me/resumes" className="small">All resumes and versions →</Link>
+            <Link to="/me/resumes" className="small">All resumes and versions</Link>
           </div>
         </section>
 
         <section className="card stack g12" style={{ flex: '2 1 300px' }} aria-label="Orders">
-          <div className="row between"><strong>My orders</strong><Link to="/me/orders" className="small">All →</Link></div>
+          <div className="row between"><strong>My orders</strong><Link to="/me/orders" className="small">All</Link></div>
           {orders.slice(0, 3).map((o) => (
             <Link key={o.id} to={`/me/orders/${o.id}`} className="well row between g8" style={{ textDecoration: 'none', color: 'inherit' }}>
               <span className="small"><strong>{o.id}</strong> · {PLANS[o.plan].name}</span>
               <span className={`badge b-${o.tone}`}>{o.label}</span>
             </Link>
           ))}
-          {me.orders.every((o) => o.plan !== 'launch') && <Link to="/me/upgrade" className="small">Add a LinkedIn makeover or mentor call →</Link>}
+          {me.orders.every((o) => o.plan !== 'launch') && <Link to="/me/upgrade" className="small">Add a LinkedIn makeover or mentor call</Link>}
         </section>
       </div>
 
       <div className="row g16" style={{ alignItems: 'stretch' }}>
         <section className="card stack g12" style={{ flex: '1 1 300px' }} aria-label="Applications">
-          <div className="row between"><strong>Applications</strong><span className="row g12"><Link to="/me/auto-apply" className="small" data-testid="home-auto-apply">{t('aa.link')}</Link><Link to="/me/jobs" className="small">Board →</Link></span></div>
+          <div className="row between"><strong>Applications</strong><span className="row g12"><Link to="/me/auto-apply" className="small" data-testid="home-auto-apply">{t('aa.link')}</Link><Link to="/me/jobs" className="small">Board</Link></span></div>
           <div className="row g8">{APP_STAGES.map(([k, l]) => <span key={k} className="badge b-neutral">{l} · {me.apps.filter((a) => a.status === k).length}</span>)}</div>
-          {followUps.length > 0 && <div className="well small">⏰ {followUps.length} application{followUps.length > 1 ? 's' : ''} sent over a week ago — time to follow up. <Link to="/me/jobs">See which</Link></div>}
+          {followUps.length > 0 && <div className="well small"><IcClock size={14} /> {followUps.length} application{followUps.length > 1 ? 's' : ''} sent over a week ago — time to follow up. <Link to="/me/jobs">See which</Link></div>}
         </section>
         <AutoSummaryCard />
         <LinkedInCard />
         <section className="card stack g12" style={{ flex: '1 1 300px' }} aria-label="Share link">
-          <div className="row between"><strong>Share link</strong><Link to="/me/share" className="small">Settings →</Link></div>
+          <div className="row between"><strong>Share link</strong><Link to="/me/share" className="small">Settings</Link></div>
           {me.share.on ? <><span className="small mono">nm7.si/r/{me.share.slug}</span><span className="small muted">Viewed <strong>{me.share.views.filter((t) => Date.now() - t < 7 * 864e5).length}</strong> times this week</span></> : <span className="small muted">Off — turn it on to share your resume as a link.</span>}
         </section>
       </div>

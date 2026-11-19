@@ -9,6 +9,7 @@ import { MeHead } from './MeLayout';
 import { downloadResume, fmtDay } from './shared';
 import { Chip, Empty, FieldGroup, StickyBar } from './kit';
 import '../../styles/me-resume.css';
+import { IcMail } from '../../components/icons';
 
 export default function MeCovers() {
   const me = useMe();
@@ -38,7 +39,7 @@ export default function MeCovers() {
             {me.covers.map((c) => (
               <li key={c.id}>
                 <button type="button" onClick={() => open(c)} aria-pressed={cur?.id === c.id} className={`mcard mcard-link cv-card ${cur?.id === c.id ? 'on' : ''}`}>
-                  <span className="cv-card-top"><span className="mcard-ic" aria-hidden="true">✉</span><Chip tone="neutral">{fmtDay(c.at)}</Chip></span>
+                  <span className="cv-card-top"><span className="mcard-ic" aria-hidden="true"><IcMail /></span><Chip tone="neutral">{fmtDay(c.at)}</Chip></span>
                   <strong className="cv-card-title">{c.role || 'Untitled'}{c.company ? ` · ${c.company}` : ''}</strong>
                   <span className="mitem-meta">{fmtDay(c.at)} · with “{resumeOf(c).name}”</span>
                   {!cur && c.body && <span className="cv-card-snip" aria-hidden="true">{c.body.slice(0, 140)}…</span>}

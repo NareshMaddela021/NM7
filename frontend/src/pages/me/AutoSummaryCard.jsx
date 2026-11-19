@@ -29,7 +29,7 @@ export default function AutoSummaryCard({ week = false, refreshKey }) {
       <header className="mcard-h">
         <span className="mcard-ic violet" aria-hidden="true">⟳</span>
         <span className="mcard-ht"><h2 id="aa-sum-h" className="mcard-title">{t('aa.sum.title')}</h2><span className="mcard-sub" data-testid="aa-sum-today">{t('aa.sum.today', { applied: c.applied, needs: c.needsAnswer, ready: c.ready })}</span></span>
-        <Link to="/me/auto-apply" className="mchip mchip-accent" style={{ textDecoration: 'none' }}>{d.on ? t('aa.on') : t('aa.off')} →</Link>
+        <Link to="/me/auto-apply" className="mchip mchip-accent" style={{ textDecoration: 'none' }}>{d.on ? t('aa.on') : t('aa.off')}</Link>
       </header>
       <div className="maa-today">
         <Link className="mstat mcard-link" to="/me/jobs"><strong className="mstat-v">{c.applied}</strong><span className="mstat-l">{t('aa.sum.applied')}</span></Link>

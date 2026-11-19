@@ -1,4 +1,4 @@
-// Profile → Certificates: the certificate wallet. Upload a PDF / JPG / PNG (up to 10, 2 MB each after images are
+// Profile -> Certificates: the certificate wallet. Upload a PDF / JPG / PNG (up to 10, 2 MB each after images are
 // compressed here), with title, issuer, date and an optional credential link. One tap adds it to the resume's
 // Certifications. "Share certificates" (off by default) lets the college staff and invited recruiters who already
 // see the shared resume also open the certificates ticked here. Only the owner sees the files otherwise.
@@ -10,6 +10,7 @@ import { API_BASE, http } from '../../services/http';
 import { MeHead } from './MeLayout';
 import { Chip, Empty, Skel } from './kit';
 import '../../styles/me-resume.css';
+import { IcAlert, IcCap, IcSwap, IcX } from '../../components/icons';
 
 const blank = { title: '', issuer: '', date: '', link: '' };
 
@@ -51,13 +52,13 @@ export default function MeCertificates() {
     const { data, added } = addToResume(r.data, c);
     if (!added) { toast('It’s already on your resume'); return; }
     updateResume(r.id, { data });
-    toast(`Added to “${r.name}” → Certifications`);
+    toast(`Added to “${r.name}”, in Certifications`);
   };
   const full = st && st.items.length >= MAX_FILES;
   return (
     <div className="mstack">
       <MeHead title="Certificates" sub="Keep your course and internship certificates in one place. Add any of them to your resume in one tap." />
-      <div className="mcard mcard-warn mcard-tight ct-note" role="note" data-testid="cert-id-warning"><span aria-hidden="true" className="ct-note-ic">⚠</span><span><strong>{ID_WARNING}</strong> Certificates only — your files stay private unless you share them.</span></div>
+      <div className="mcard mcard-warn mcard-tight ct-note" role="note" data-testid="cert-id-warning"><span aria-hidden="true" className="ct-note-ic"><IcAlert /></span><span><strong>{ID_WARNING}</strong> Certificates only — your files stay private unless you share them.</span></div>
       {err && <p role="alert" className="error">{err}</p>}
       {!st ? <Skel cards={3} lines={2} label="Loading…" /> : (
         <>
@@ -71,7 +72,7 @@ export default function MeCertificates() {
               <ul className="mgrid ct-grid" aria-label="My certificates">
                 {st.items.map((c) => (
                   <li key={c.id} className="mcard ct-card" data-testid="cert-item">
-                    <span className="ct-ribbon" aria-hidden="true">✪</span>
+                    <span className="ct-ribbon" aria-hidden="true"><IcCap /></span>
                     <span className="mstack" style={{ gap: 4, minWidth: 0 }}>
                       <strong className="ct-title">{c.title}</strong>
                       <span className="mitem-meta">{[c.issuer, c.date, kb(c.size)].filter(Boolean).join(' · ')}</span>
@@ -84,7 +85,7 @@ export default function MeCertificates() {
                     </span>
                     <span className="mspread ct-foot">
                       <label className="sh-check" title={st.share ? '' : 'Turn on Share certificates first'}><input type="checkbox" checked={c.share} onChange={(e) => patch(c.id, { share: e.target.checked })} data-testid="cert-pick" /> Share</label>
-                      <button type="button" className="btn btn-icon" aria-label={`Delete ${c.title}`} onClick={() => remove(c)}>✕</button>
+                      <button type="button" className="btn btn-icon" aria-label={`Delete ${c.title}`} onClick={() => remove(c)}><IcX /></button>
                     </span>
                   </li>
                 ))}
@@ -110,7 +111,7 @@ export default function MeCertificates() {
               )}
             </form>
             <section className="mcard" aria-label="Sharing">
-              <header className="mcard-h"><span className="mcard-ic teal" aria-hidden="true">⇄</span><span className="mcard-ht"><h2 className="mcard-title">Sharing</h2><span className="mcard-sub">{st.share ? 'On: your college can open the ticked ones.' : 'Off: only you can open your files.'}</span></span></header>
+              <header className="mcard-h"><span className="mcard-ic teal" aria-hidden="true"><IcSwap /></span><span className="mcard-ht"><h2 className="mcard-title">Sharing</h2><span className="mcard-sub">{st.share ? 'On: your college can open the ticked ones.' : 'Off: only you can open your files.'}</span></span></header>
               <label className="sh-check" style={{ alignItems: 'flex-start' }}>
                 <input type="checkbox" checked={st.share} onChange={(e) => sharing(e.target.checked)} data-testid="cert-share" style={{ marginTop: 3 }} />
                 <span><strong>Share certificates</strong> with my college and the recruiters they invite (only the ones ticked on each card, and only where my resume is already shared). Off by default.</span>

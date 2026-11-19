@@ -12,6 +12,7 @@ import { MeHead } from './MeLayout';
 import { PackOffer } from './JobMatch';
 import { Bar, Chip, Empty, MeCard, Skel } from './kit';
 import '../../styles/me-work.css';
+import { IcAlert, IcCheckCircle, IcVolume } from '../../components/icons';
 
 const STAR = [['situation', 'Situation'], ['task', 'Task'], ['action', 'Action'], ['result', 'Result']];
 const mmss = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
@@ -116,7 +117,7 @@ function Practice({ id, pack, start, onSaved, onClose }) {
       <strong className="wk-practice-q" data-testid="iv-practice-q">{q.q}</strong>
       {canRead() && (
         <div className="row g8" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
-          <button type="button" className="btn btn-outline" style={{ minHeight: 40 }} onClick={read} data-testid="iv-read">🔊 Read the question</button>
+          <button type="button" className="btn btn-outline" style={{ minHeight: 40 }} onClick={read} data-testid="iv-read"><IcVolume size={16} /> Read the question</button>
           <label className="xs row g4" style={{ alignItems: 'center' }}>Voice
             <select className="input" style={{ height: 32, width: 'auto' }} value={readLang} onChange={(e) => setReadLang(e.target.value)} data-testid="iv-read-lang">
               {readLangs().map(([c, l]) => <option key={c} value={c}>{l}</option>)}
@@ -246,13 +247,13 @@ export default function MeInterview() {
             </section>
             {pack.unlocked && (
               <>
-                <MeCard title="Weak spots: honest answers" icon="◐" label="Weak spots" testid="iv-weak">
+                <MeCard title="Weak spots: honest answers" icon={<IcAlert />} label="Weak spots" testid="iv-weak">
                   {pack.weak.map((w) => <div key={w.q} className="wk-weak"><strong className="small">{w.q}</strong><p className="small" style={{ margin: 0 }}><Gaps text={w.answer} /></p>{w.tip && <span className="xs muted">{w.tip}</span>}</div>)}
                 </MeCard>
                 <MeCard title="5 questions to ask them" icon="?" label="Questions to ask" testid="iv-ask">
                   <ol className="wk-ask">{pack.ask.map((a) => <li key={a}>{a}</li>)}</ol>
                 </MeCard>
-                <MeCard title="Company homework" icon="✓" label="Company homework">
+                <MeCard title="Company homework" icon={<IcCheckCircle />} label="Company homework">
                   <Homework id={id} items={pack.homework} />
                 </MeCard>
               </>

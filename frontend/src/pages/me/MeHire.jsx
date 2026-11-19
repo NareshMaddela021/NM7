@@ -12,6 +12,7 @@ import { MeHead } from './MeLayout';
 import { Bar, Empty, FieldGroup, MeCard, Skel, StickyBar } from './kit';
 import '../../styles/me-jobs.css';
 import { fmtDay } from '../../lib/format';
+import { IcBolt, IcCheck, IcCheckCircle, IcClock, IcLock, IcMail, IcMinus, IcPause, IcStar } from '../../components/icons';
 
 const FaceCheck = lazy(() => import('./trust/FaceCheck')); // Vetting Trust T3: the joining-day "same person" check
 const HireSafety = lazy(() => import('./trust/HireSafety')); // Vetting Trust T4: employer badge, Never pay, Report fraud
@@ -53,7 +54,7 @@ function PayHint({ cities }) {
 }
 
 export default function MeHire() {
-  const vet = useVettingOn(); // Vetting V2 wording only for people who get it (Admin → Skill checks → Launch)
+  const vet = useVettingOn(); // Vetting V2 wording only for people who get it (Admin -> Skill checks -> Launch)
   const toast = useToast();
   const [s, setS] = useState(null);
   const [f, setF] = useState(null);
@@ -89,7 +90,7 @@ export default function MeHire() {
       <MeHead title="Ready to join" sub="Tell companies hiring now that you can start, and they can invite you to an interview." />
       <section className="mcard mcard-accent" aria-labelledby="hire-status-h" data-testid="hire-status">
         <div className="mhire-status">
-          <span className={`mhire-badge ${ring}`} aria-hidden="true">{s.available ? '✓' : s.on ? (s.paused ? 'II' : '!') : '○'}</span>
+          <span className={`mhire-badge ${ring}`} aria-hidden="true">{s.available ? <IcCheck size={22} /> : s.on ? (s.paused ? <IcPause size={22} /> : '!') : <IcMinus size={22} />}</span>
           <div className="stack g8" style={{ minWidth: 0 }}>
             <div className="mrow"><h2 id="hire-status-h" className="mcard-title">Status</h2><span className={`badge ${tone}`} data-testid="hire-badge">{s.available ? 'Visible' : s.on ? (s.paused ? 'Paused' : 'Not visible') : 'Off'}</span></div>
             <p className="mhire-line" data-testid="hire-line">{hireLine(s)}</p>
@@ -102,7 +103,7 @@ export default function MeHire() {
           </div>
         </div>
         <div className="mgrid" style={{ gap: 12 }}>
-          <p className="xs muted" style={{ margin: 0 }}>🔒 Your phone number and email are never shown to a company until you accept its invite.</p>
+          <p className="xs muted" style={{ margin: 0 }}><IcLock size={14} /> Your phone number and email are never shown to a company until you accept its invite.</p>
           {vet
             ? <p className="small" style={{ margin: 0 }}>Stand out: <a href="/me/skill-checks" data-testid="hire-skill-link">get a skill verified</a> (a 15-minute test and a short practical task). Companies hiring now see the badge.</p>
             : <p className="small" style={{ margin: 0 }}>Stand out: take a 10-minute <a href="/me/skill-checks" data-testid="hire-skill-link">skill check</a> and choose to show the score.</p>}
@@ -145,9 +146,9 @@ export default function MeHire() {
           </StickyBar>
         </form>
         <div className="mstack">
-          <MeCard title="Your checklist" sub="What companies hiring now look at first." icon="✓" tone="flat">
+          <MeCard title="Your checklist" sub="What companies hiring now look at first." icon={<IcCheckCircle />} tone="flat">
             <ul className="mhire-check" aria-label="Your checklist">
-              {ready.map(([l, ok]) => <li key={l}><span className={`ok ${ok ? '' : 'no'}`} aria-hidden="true">{ok ? '✓' : '·'}</span>{l}<span className="sr-only">{ok ? ': done' : ': not yet'}</span></li>)}
+              {ready.map(([l, ok]) => <li key={l}><span className={`ok ${ok ? '' : 'no'}`} aria-hidden="true">{ok ? <IcCheck size={14} /> : '·'}</span>{l}<span className="sr-only">{ok ? ': done' : ': not yet'}</span></li>)}
             </ul>
             <Bar label="Ready" value={ready.filter((x) => x[1]).length} max={ready.length} tone="ok" />
           </MeCard>
@@ -193,7 +194,7 @@ export function Invites() {
   };
   return (
     <section id="invites" className="mcard" aria-labelledby="hire-inv-h" data-testid="hire-invites">
-      <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true">✉</span><span className="mcard-ht"><h2 id="hire-inv-h" className="mcard-title">Invites from companies hiring now</h2><span className="mcard-sub">Accept to share your email and phone with that company only.</span></span></header>
+      <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true"><IcMail /></span><span className="mcard-ht"><h2 id="hire-inv-h" className="mcard-title">Invites from companies hiring now</h2><span className="mcard-sub">Accept to share your email and phone with that company only.</span></span></header>
       {trust && <Suspense fallback={null}><HireSafety promise /></Suspense>}
       {err && <p className="error" role="alert" style={{ margin: 0 }}>{err}</p>}
       <ul className="mgrid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
@@ -244,7 +245,7 @@ export function Slots() {
   };
   return (
     <section className="mcard" aria-labelledby="hire-slots-h" data-testid="hire-slots">
-      <header className="mcard-h"><span className="mcard-ic blue" aria-hidden="true">◷</span><span className="mcard-ht"><h2 id="hire-slots-h" className="mcard-title">Pick your interview time</h2><span className="mcard-sub">Reminders come 1 day and 1 hour before. Times are India time (IST).</span></span></header>
+      <header className="mcard-h"><span className="mcard-ic blue" aria-hidden="true"><IcClock /></span><span className="mcard-ht"><h2 id="hire-slots-h" className="mcard-title">Pick your interview time</h2><span className="mcard-sub">Reminders come 1 day and 1 hour before. Times are India time (IST).</span></span></header>
       {err && <p className="error" role="alert" style={{ margin: 0 }}>{err}</p>}
       {list.map((j) => (
         <div key={j.jobId} className="mhire-offer" data-testid="hire-slot-job">
@@ -300,7 +301,7 @@ export function Offers() {
   const today = new Date().toISOString().slice(0, 10);
   return (
     <section id="offers" className="mcard mcard-ok" aria-labelledby="hire-offers-h" data-testid="hire-offers">
-      <header className="mcard-h"><span className="mcard-ic teal" aria-hidden="true">★</span><span className="mcard-ht"><h2 id="hire-offers-h" className="mcard-title">Your offers</h2><span className="mcard-sub">Read the letter, then accept or decline. The company is told at once.</span></span></header>
+      <header className="mcard-h"><span className="mcard-ic teal" aria-hidden="true"><IcStar /></span><span className="mcard-ht"><h2 id="hire-offers-h" className="mcard-title">Your offers</h2><span className="mcard-sub">Read the letter, then accept or decline. The company is told at once.</span></span></header>
       {trust && <Suspense fallback={null}><HireSafety promise /></Suspense>}
       {err && <p className="error" role="alert" style={{ margin: 0 }}>{err}</p>}
       {list.map((o) => (
@@ -326,7 +327,7 @@ export function Offers() {
             </div>
           ))}
           {face?.provider?.ready && face.joining.some((j) => j.offerId === o.id) && (face.state.continuity?.offerId === o.id && face.state.continuity.status === 'same'
-            ? <span className="mchip mchip-ok" style={{ alignSelf: 'flex-start' }} data-testid="hire-offer-same">✓ Same person at joining: confirmed</span>
+            ? <span className="mchip mchip-ok" style={{ alignSelf: 'flex-start' }} data-testid="hire-offer-same"><IcCheck size={14} /> Same person at joining: confirmed</span>
             : (
               <span className="row g8" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
                 <button type="button" className="btn btn-outline btn-sm" style={{ minHeight: 44 }} onClick={() => setFaceFor(o.id)} data-testid="hire-offer-face">Joining-day selfie check</button>
@@ -377,7 +378,7 @@ export function HireCard() {
   const still = async () => { try { setS(await http('/api/me/hire/confirm', { method: 'POST' })); } catch { /* stays */ } };
   return (
     <section className="mcard" style={{ flex: '1 1 300px' }} aria-labelledby="hire-card-h" data-testid="hire-card">
-      <header className="mcard-h"><span className="mcard-ic teal" aria-hidden="true">⚡</span><span className="mcard-ht"><h2 id="hire-card-h" className="mcard-title">Ready to join</h2></span></header>
+      <header className="mcard-h"><span className="mcard-ic teal" aria-hidden="true"><IcBolt /></span><span className="mcard-ht"><h2 id="hire-card-h" className="mcard-title">Ready to join</h2></span></header>
       <span className="small" data-testid="hire-card-line">{hireLine(s)}</span>
       <span className="row g8" style={{ flexWrap: 'wrap' }}>
         {s.on && !s.paused && (s.due || s.stale) && <button type="button" className="btn btn-signal" onClick={still} data-testid="hire-card-still">Still ready</button>}

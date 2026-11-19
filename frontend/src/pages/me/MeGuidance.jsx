@@ -7,6 +7,7 @@ import { http } from '../../services/http';
 import { MeHead } from './MeLayout';
 import { Chip, FieldGroup, MeCard, Skel } from './kit';
 import '../../styles/me-learn.css';
+import { IcArrowRight, IcCheck, IcCheckCircle, IcEdit } from '../../components/icons';
 
 const REASONS = [['', 'Choose…'], ['exam_prep', 'Preparing for exams'], ['health', 'Health (now resolved)'], ['family', 'Family responsibilities'], ['caregiving', 'Caring for someone'], ['work', 'Working'], ['learning', 'Learning new skills'], ['other', 'Personal reasons']];
 const BLANK = { kind: 'gap', from: '', to: '', reason: '', did: '', backlogs: '0', cleared: false, clearedOn: '' };
@@ -25,7 +26,7 @@ function Exams() {
           {d.map((e) => (
             <div key={e.id} className="mcard mcard-tight" data-testid="gd-exam">
               <div className="mrow" style={{ flexWrap: 'nowrap', alignItems: 'flex-start' }}>
-                <span className="mcard-ic student" aria-hidden="true">✎</span>
+                <span className="mcard-ic student" aria-hidden="true"><IcEdit /></span>
                 <span className="stack g4" style={{ minWidth: 0 }}>
                   <strong className="mserif" style={{ fontSize: 20, color: 'var(--ink)' }}>{e.name}</strong>
                   <span className="xs muted">Subjects: {e.subjects}</span>
@@ -37,7 +38,7 @@ function Exams() {
                 {e.roles.map((r) => (
                   <Link key={r.id} className="ml-slot" style={{ textDecoration: 'none', color: 'var(--text)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }} to={`/me/learn?role=${r.id}`}>
                     <span>{r.title}</span>
-                    {r.liveJobs ? <Chip tone="ok">{r.liveJobs} live job{r.liveJobs === 1 ? '' : 's'}</Chip> : <span aria-hidden="true" style={{ color: '#be185d' }}>→</span>}
+                    {r.liveJobs ? <Chip tone="ok">{r.liveJobs} live job{r.liveJobs === 1 ? '' : 's'}</Chip> : <IcArrowRight style={{ color: '#be185d' }} />}
                   </Link>
                 ))}
               </div>
@@ -66,7 +67,7 @@ function Wording() {
     try { setCheck(await http('/api/me/guidance/check', { method: 'POST', body: { ...body(), text: mine } })); } catch (x) { setErr(x.message); }
   };
   return (
-    <MeCard icon="✓" title="Gap year or backlogs: honest wording for your resume" sub="We only use what you tell us. We never hide a gap or change your dates." testid="gd-wording" label="Gap year and backlogs">
+    <MeCard icon={<IcCheckCircle />} title="Gap year or backlogs: honest wording for your resume" sub="We only use what you tell us. We never hide a gap or change your dates." testid="gd-wording" label="Gap year and backlogs">
       <div className="ml-seg" role="radiogroup" aria-label="What to explain">{[['gap', 'A gap / break'], ['backlog', 'Backlogs']].map(([k, l]) => <label key={k}><input type="radio" name="gd-kind" checked={f.kind === k} onChange={() => { setF({ ...BLANK, kind: k }); setOut(null); setCheck(null); }} data-testid={`gd-kind-${k}`} />{l}</label>)}</div>
       <form className="stack g12" onSubmit={suggest}>
         {f.kind === 'gap' ? (
@@ -96,7 +97,7 @@ function Wording() {
         <label className="field full"><span className="label">Your resume line</span><textarea className="input" rows={2} maxLength={600} value={mine} onChange={(e) => setMine(e.target.value)} data-testid="gd-mine" /></label>
       </FieldGroup>
       <div><button type="button" className="btn btn-outline" onClick={test} data-testid="gd-check">Check my wording</button></div>
-      {check && (check.honest ? <p className="ml-result-ok" role="status" data-testid="gd-check-ok">✓ Honest: it matches what you told us.</p> : <ul className="ml-result-bad" role="alert" data-testid="gd-check-bad">{check.problems.map((p) => <li key={p}>{p}</li>)}</ul>)}
+      {check && (check.honest ? <p className="ml-result-ok" role="status" data-testid="gd-check-ok"><IcCheck size={14} /> Honest: it matches what you told us.</p> : <ul className="ml-result-bad" role="alert" data-testid="gd-check-bad">{check.problems.map((p) => <li key={p}>{p}</li>)}</ul>)}
       {err && <p className="error" role="alert">{err}</p>}
     </MeCard>
   );

@@ -10,13 +10,14 @@ import { best, inHandMonthly, yearly } from '../../lib/offerCompare';
 import { MeHead } from './MeLayout';
 import { Chip, Empty, MeCard, StickyBar } from './kit';
 import '../../styles/me-work.css';
+import { IcAlert, IcBuilding, IcCheck, IcFile, IcLink, IcScale, IcTarget, IcUpload, IcWallet } from '../../components/icons';
 
 const TONE = { ok: 'ok', check: 'warn', warning: 'bad' };
-const VERDICT_IC = { ok: '✓', check: '!', warning: '⚠' };
+const VERDICT_IC = { ok: <IcCheck size={20} />, check: '!', warning: <IcAlert size={20} /> };
 const rupees = (n) => (n == null ? '—' : `₹${Math.round(n).toLocaleString('en-IN')}`);
 const readFile = (file) => new Promise((ok, no) => { const r = new FileReader(); r.onload = () => ok(String(r.result)); r.onerror = no; r.readAsDataURL(file); });
 // what the checker looks at (the rules on the server; see the comment above)
-const LOOKS = [['₹', 'A fee or deposit you must pay'], ['⛓', 'A bond or a penalty for leaving early'], ['☐', 'Missing basics: pay, role, place, joining date'], ['≈', 'Pay far from similar jobs on Nm7'], ['✓', 'Whether the company is on Nm7'], ['!', 'Words often used in job scams']];
+const LOOKS = [[IcWallet, 'A fee or deposit you must pay'], [IcLink, 'A bond or a penalty for leaving early'], [IcFile, 'Missing basics: pay, role, place, joining date'], [IcScale, 'Pay far from similar jobs on Nm7'], [IcBuilding, 'Whether the company is on Nm7'], [IcAlert, 'Words often used in job scams']];
 
 function Result({ r, onSaved }) {
   const tone = TONE[r.verdict] || 'warn';
@@ -82,13 +83,13 @@ function Check({ onUse }) {
       <div className="mstack">
         <form className="mcard wk-form" onSubmit={go} data-testid="oc-form" aria-label="Check an offer">
           <header className="mcard-h">
-            <span className="mcard-ic" aria-hidden="true">⚖</span>
+            <span className="mcard-ic" aria-hidden="true"><IcScale /></span>
             <span className="mcard-ht"><h2 className="mcard-title">Check an offer letter</h2><span className="mcard-sub">Paste the letter or choose its PDF. We read it once to check it.</span></span>
           </header>
           <label className="field"><span className="label">Paste the offer letter</span><textarea className="input wk-paste" rows={9} maxLength={30000} value={text} onChange={(e) => setText(e.target.value)} disabled={!!file} data-testid="oc-text" placeholder="Paste the full text of the offer letter here" /></label>
           <div className="wk-or" aria-hidden="true"><span>or</span></div>
           <label className="wk-file">
-            <span className="wk-file-ic" aria-hidden="true">⇪</span>
+            <span className="wk-file-ic" aria-hidden="true"><IcUpload /></span>
             <span className="stack g4" style={{ minWidth: 0 }}><span className="label" style={{ margin: 0 }}>…or choose its PDF (3 MB or less)</span><span className="xs muted">{file ? file.name : 'The file is read on our server, then dropped.'}</span></span>
             <input type="file" accept="application/pdf,.pdf" onChange={(e) => setFile(e.target.files?.[0] || null)} data-testid="oc-pdf" />
           </label>
@@ -102,9 +103,9 @@ function Check({ onUse }) {
         {r && <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} onClick={() => onUse(r)} data-testid="oc-to-compare">Add to compare</button>}
       </div>
       <div className="mstack">
-        <MeCard title="What we look for" sub="Simple rules, the same for every letter. Free." icon="◎" className="wk-looks">
+        <MeCard title="What we look for" sub="Simple rules, the same for every letter. Free." icon={<IcTarget />} className="wk-looks">
           <ul className="mlist">
-            {LOOKS.map(([ic, t]) => <li key={t} className="wk-look"><span aria-hidden="true">{ic}</span>{t}</li>)}
+            {LOOKS.map(([Ic, t]) => <li key={t} className="wk-look"><span aria-hidden="true"><Ic size={16} /></span>{t}</li>)}
           </ul>
         </MeCard>
         {mine.length > 0 ? (
@@ -182,7 +183,7 @@ export default function MeOfferCheck() {
     <div className="stack g16" data-testid="me-offer-check">
       <MeHead title="Offer checker" sub="Check an offer letter for fees, bonds and missing basics, and compare offers side by side. Free." />
       <div className="wk-tabs" role="tablist" aria-label="Offer checker">
-        {[['check', 'Check an offer', '⚖'], ['compare', 'Compare offers', '⇄']].map(([k, l, ic]) => <button key={k} type="button" role="tab" aria-selected={tab === k} className={`wk-tab ${tab === k ? 'on' : ''}`} onClick={() => setTab(k)} data-testid={`oc-tab-${k}`}><span aria-hidden="true">{ic}</span>{l}</button>)}
+        {[['check', 'Check an offer'], ['compare', 'Compare offers']].map(([k, l]) => <button key={k} type="button" role="tab" aria-selected={tab === k} className={`wk-tab ${tab === k ? 'on' : ''}`} onClick={() => setTab(k)} data-testid={`oc-tab-${k}`}>{l}</button>)}
       </div>
       {tab === 'check' ? <Check onUse={use} /> : <Compare rows={rows} setRows={setRows} />}
     </div>

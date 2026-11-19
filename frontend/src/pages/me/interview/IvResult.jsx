@@ -1,6 +1,6 @@
 // A screening interview's result (Vetting V3): passed or not yet, the average out of 5, a bar for each of the 5 rubric
 // lines with the reason and the candidate's own words it was based on, 3 strengths and 1 concern, how long
-// "Interview-ready" (L3) lasts and when the interview can be taken again. Not graded yet ("review") → our team grades
+// "Interview-ready" (L3) lasts and when the interview can be taken again. Not graded yet ("review") -> our team grades
 // it within a day. The answers themselves are in a fold at the end. Vetting V5: "I think this is wrong" on a graded
 // interview (vetting/Appeal) and the appeal's status.
 import { Suspense, lazy, useEffect, useState } from 'react';
@@ -13,6 +13,7 @@ import { API, avg, scoreWord } from './lib';
 import { lazyRetry } from '../../../lib/chunks';
 import '../../../styles/me-vet.css';
 import '../../../styles/me-iv.css';
+import { IcCheckCircle, IcClock, IcEdit, IcTrend } from '../../../components/icons';
 
 // Vetting Trust T9 (only when the server sends them: people Vetting Trust is on for)
 const RetakeInfo = lazy(lazyRetry(() => import('../trust/Honesty').then((m) => ({ default: m.RetakeInfo }))));
@@ -24,7 +25,7 @@ function Explained({ e }) {
   if (!e) return null;
   const tone = e.key === 'strong' ? 'ok' : e.key === 'partial' ? 'flat' : 'warn';
   return (
-    <MeCard tone={tone} icon="✎" title={e.label} sub="How well you explained your own practical task. It is shown to companies with the reason; it never changes your score." testid="iv-explained" headingLevel={3}>
+    <MeCard tone={tone} icon={<IcEdit />} title={e.label} sub="How well you explained your own practical task. It is shown to companies with the reason; it never changes your score." testid="iv-explained" headingLevel={3}>
       {e.reason && <p className="small" style={{ margin: 0 }} data-testid="iv-explained-reason">{e.reason}</p>}
     </MeCard>
   );
@@ -63,7 +64,7 @@ export default function IvResult({ id, initial, pass }) {
 
   if (r.status === 'running' || r.status === 'answered') {
     return (
-      <MeCard tone="flat" icon="⏳" title="This interview isn’t finished" sub="Go back to the interviews to carry on." testid="iv-unfinished">
+      <MeCard tone="flat" icon={<IcClock />} title="This interview isn’t finished" sub="Go back to the interviews to carry on." testid="iv-unfinished">
         <div className="mrow"><Link className="btn btn-signal" to="/me/interviews">Carry on</Link></div>
       </MeCard>
     );
@@ -71,7 +72,7 @@ export default function IvResult({ id, initial, pass }) {
   if (r.status === 'review') {
     return (
       <div className="mstack" data-testid="iv-result">
-        <MeCard tone="accent" icon="⌛" title={`Thank you: your ${name} interview is in`} testid="iv-review">
+        <MeCard tone="accent" icon={<IcClock />} title={`Thank you: your ${name} interview is in`} testid="iv-review">
           <p className="small" style={{ margin: 0 }} data-testid="iv-review-text">Our team will grade it within a day. We will tell you by email and here, with the reasons for each score.</p>
           <span className="xs muted">{again}</span>
         </MeCard>
@@ -131,7 +132,7 @@ export default function IvResult({ id, initial, pass }) {
       {(r.strengths?.length > 0 || r.concern) && (
         <div className="iv-sc">
           {r.strengths?.length > 0 && (
-            <MeCard tone="ok" icon="✓" title="Strengths" testid="iv-strengths" headingLevel={3}>
+            <MeCard tone="ok" icon={<IcCheckCircle />} title="Strengths" testid="iv-strengths" headingLevel={3}>
               <ul className="iv-list">{r.strengths.map((s) => <li key={s}>{s}</li>)}</ul>
             </MeCard>
           )}
@@ -145,7 +146,7 @@ export default function IvResult({ id, initial, pass }) {
 
       <Transcript rows={r.transcript} />
 
-      <MeCard tone="flat" className="mcard-tight" icon="↗" title="Keep practising" sub="Mock interviews and practice tests are free." headingLevel={3}>
+      <MeCard tone="flat" className="mcard-tight" icon={<IcTrend />} title="Keep practising" sub="Mock interviews and practice tests are free." headingLevel={3}>
         <div className="mrow">
           <Link className="btn btn-outline" to="/me/practice">Practice</Link>
           <Link className="btn btn-ghost" to="/me/interviews">All interviews</Link>
