@@ -1,7 +1,10 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { onSaveError } from '../services/http';
 
-/* ---------- Icons (24px grid, 2px stroke) ---------- */
+/* ---------- Icons (24px grid, 1.75 stroke: the same paths as components/icons.jsx) ----------
+   This small set lives here because ui.jsx is in the first download: importing icons.jsx from here (or from Header,
+   App, main) would put every icon the app uses into the first download and break the Easy dashboard's size budget.
+   Pages loaded later import components/icons.jsx. */
 const P = {
   check: <path d="M5 12l5 5L20 7" />,
   moon: <path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z" />,
@@ -18,10 +21,19 @@ const P = {
   copy: <><rect x="9" y="9" width="11" height="11" rx="2" /><path d="M5 15V5a2 2 0 012-2h8" /></>,
   lock: <><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V7a4 4 0 018 0v4" /></>,
   trash: <><path d="M4 7h16M10 11v6M14 11v6" /><path d="M6 7l1 12a2 2 0 002 2h6a2 2 0 002-2l1-12M9 7V4h6v3" /></>,
+  volume: <><path d="M4 9v6h4l5 4V5L8 9z" /><path d="M16.5 8.5a5 5 0 010 7M19 6a8.5 8.5 0 010 12" /></>,
+  plus: <path d="M12 5v14M5 12h14" />,
+  stop: <rect x="6" y="6" width="12" height="12" rx="1.5" />,
+  edit: <path d="M4 20h4L19 9a2.8 2.8 0 00-4-4L4 16zM13.5 6.5l4 4" />,
+  file: <><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z" /><path d="M14 3v5h5M9 13h6M9 17h6" /></>,
+  briefcase: <><rect x="3" y="7" width="18" height="13" rx="2" /><path d="M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2M3 13h18" /></>,
+  checkc: <><circle cx="12" cy="12" r="9" /><path d="M8 12l3 3 5-6" /></>,
+  globe: <><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.5 3 2.5 15 0 18M12 3c-2.5 3-2.5 15 0 18" /></>,
+  grid: <><rect x="4" y="4" width="7" height="7" rx="1" /><rect x="13" y="4" width="7" height="7" rx="1" /><rect x="4" y="13" width="7" height="7" rx="1" /><rect x="13" y="13" width="7" height="7" rx="1" /></>,
 };
-export function Icon({ name, size = 18, stroke = 2, color = 'currentColor', ...rest }) {
+export function Icon({ name, size = 18, stroke = 1.75, color = 'currentColor', ...rest }) {
   return (
-    <svg aria-hidden="true" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" {...rest}>
+    <svg aria-hidden="true" focusable="false" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" {...rest}>
       {P[name]}
     </svg>
   );

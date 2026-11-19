@@ -1,10 +1,11 @@
 // Voice on the Easy dashboard (Phase 4, E3), with the phone's own voices only (no paid voice service):
-// - 🔊 reads a screen or a card aloud in the person's language when the phone has that voice; else it reads the
+// - the speaker button reads a screen or a card aloud in the person's language when the phone has that voice; else it reads the
 //   same words in English; else it says "Voice not available on this phone" (never an error);
-// - 🎤 on every text answer: Speak in the person's language (lib/speechCore.js), then "We heard: …" with Edit / OK
+// - a mic button on every text answer: Speak in the person's language (lib/speechCore.js), then "We heard: …" with Edit / OK
 //   before anything is saved; without speech (Firefox, some iPhones) a tip points to the keyboard's mic;
 // - "Read screens aloud automatically" (off by default) reads each screen when it opens.
 import { useEffect, useRef, useState } from 'react';
+import { Icon } from '../../components/ui';
 import { translate } from '../../lib/i18n';
 import { readAloud, stopReading } from '../../lib/readAloud';
 import { appendSpeech, useSpeech } from '../../lib/speechCore';
@@ -29,7 +30,7 @@ export async function sayIt(items, lang, read = readAloud) {
   return false;
 }
 
-/** The 🔊 button: reads `items` aloud. A short note says when English was used or there is no voice. */
+/** The speaker button: reads `items` aloud. A short note says when English was used or there is no voice. */
 export function SayButton({ items, t, lang, label, testid, big }) {
   const [note, setNote] = useState('');
   const go = async () => {
@@ -41,7 +42,7 @@ export function SayButton({ items, t, lang, label, testid, big }) {
   useEffect(() => () => stopReading(), []);
   return (
     <span className="sx-saywrap">
-      <button type="button" className={big ? 'sx-say' : 'sx-say sx-say-sm'} aria-label={label || t('simple.voice.read')} onClick={go} data-testid={testid}><span aria-hidden="true">🔊</span></button>
+      <button type="button" className={big ? 'sx-say' : 'sx-say sx-say-sm'} aria-label={label || t('simple.voice.read')} onClick={go} data-testid={testid}><Icon name="volume" size={big ? 28 : 22} /></button>
       {note && <span className="sx-note" role="status" data-testid={testid ? `${testid}-note` : undefined}>{note}</span>}
     </span>
   );
@@ -60,7 +61,7 @@ export function useAutoRead(on, items, lang) {
 }
 
 /**
- * A text answer with 🎤: what was said is shown first ("We heard: …"); OK adds it to the answer, Edit puts it in the
+ * A text answer with a mic button: what was said is shown first ("We heard: …"); OK adds it to the answer, Edit puts it in the
  * box to correct by hand. `onChange(text)` gets every change (typed or confirmed); nothing is saved before OK.
  */
 export function SpeakField({ id, label, value, onChange, t, lang, multiline, testid, inputMode, autoComplete }) {
@@ -78,8 +79,8 @@ export function SpeakField({ id, label, value, onChange, t, lang, multiline, tes
       <div className="sx-frow">
         <Box id={id} className="sx-input" rows={multiline ? 4 : undefined} value={value} onChange={(e) => onChange(e.target.value)} inputMode={inputMode} autoComplete={autoComplete} data-testid={testid} data-editing={editing || undefined} />
         {sp.supported && (sp.listening
-          ? <button type="button" className="sx-say sx-mic-on" onClick={sp.stop} aria-label={t('simple.voice.stop')} data-testid={testid ? `${testid}-stop` : undefined}><span aria-hidden="true">⏹</span></button>
-          : <button type="button" className="sx-say" onClick={start} aria-label={t('simple.voice.speak')} data-testid={testid ? `${testid}-mic` : undefined}><span aria-hidden="true">🎤</span></button>)}
+          ? <button type="button" className="sx-say sx-mic-on" onClick={sp.stop} aria-label={t('simple.voice.stop')} data-testid={testid ? `${testid}-stop` : undefined}><Icon name="stop" size={26} /></button>
+          : <button type="button" className="sx-say" onClick={start} aria-label={t('simple.voice.speak')} data-testid={testid ? `${testid}-mic` : undefined}><Icon name="mic" size={28} /></button>)}
       </div>
       {sp.listening && <span className="sx-note" role="status">{t('simple.voice.listening')}{sp.interim ? ` ${sp.interim}` : ''}</span>}
       {!sp.listening && heard && (
@@ -87,8 +88,8 @@ export function SpeakField({ id, label, value, onChange, t, lang, multiline, tes
           <span className="sx-flabel">{t('simple.voice.heard')}</span>
           <span className="sx-p">{heard}</span>
           <span className="sx-frow">
-            <button type="button" className="sx-big" onClick={edit} data-testid={testid ? `${testid}-edit` : undefined}><span className="sx-ic" aria-hidden="true">✏️</span><span>{t('simple.voice.edit')}</span></button>
-            <button type="button" className="sx-big sx-ink" onClick={ok} data-testid={testid ? `${testid}-ok` : undefined}><span className="sx-ic" aria-hidden="true">✔</span><span>{t('simple.voice.ok')}</span></button>
+            <button type="button" className="sx-big" onClick={edit} data-testid={testid ? `${testid}-edit` : undefined}><span className="sx-ic"><Icon name="edit" size={24} /></span><span>{t('simple.voice.edit')}</span></button>
+            <button type="button" className="sx-big sx-ink" onClick={ok} data-testid={testid ? `${testid}-ok` : undefined}><span className="sx-ic"><Icon name="check" size={24} /></span><span>{t('simple.voice.ok')}</span></button>
           </span>
         </div>
       )}

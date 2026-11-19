@@ -4,7 +4,10 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import PAGES from '../i18n/pages.json';
-import { MORE, NEXT_ICONS, TILES } from '../pages/simple/SimpleApp';
+import { MORE, TILES } from '../pages/simple/SimpleApp';
+
+// the next steps the home card can show (backend/app/simple/router.py PATHS); each has a title, text and button words
+const NEXT_KEYS = ['resume', 'education', 'skills', 'projects', 'fix_score', 'auto_apply', 'answer', 'jobs'];
 
 const DIR = join(__dirname, '..', 'pages', 'simple');
 const SOURCES = readdirSync(DIR).filter((f) => f.endsWith('.jsx')).map((f) => readFileSync(join(DIR, f), 'utf8'));
@@ -26,18 +29,18 @@ describe('simple screen strings', () => {
   it('every key the simple screens use is in the table', () => {
     const used = new Set();
     for (const src of SOURCES) for (const m of src.matchAll(/t\('(simple\.[\w.]+)'/g)) used.add(m[1]);
-    for (const k of Object.keys(NEXT_ICONS)) for (const p of ['title', 'text', 'cta']) used.add(`simple.next.${k}.${p}`);
+    for (const k of NEXT_KEYS) for (const p of ['title', 'text', 'cta']) used.add(`simple.next.${k}.${p}`);
     for (const [k] of TILES) used.add(`simple.tile.${k}`);
     for (const [k] of MORE) used.add(`simple.more.${k}`);
     expect(used.size).toBeGreaterThan(40);
     for (const k of used) expect(PAGES.en[k], k).toBeTruthy();
   });
 
-  it('every next step the server sends has an icon and words', () => {
+  it('every next step the server sends has its words', () => {
     const py = readFileSync(join(__dirname, '..', '..', '..', 'backend', 'app', 'simple', 'router.py'), 'utf8');
     const block = py.match(/PATHS = \{([\s\S]*?)\n\}/)[1];
     const keys = [...block.matchAll(/"(\w+)":/g)].map((m) => m[1]);
-    expect(keys.sort()).toEqual(Object.keys(NEXT_ICONS).sort());
+    expect(keys.sort()).toEqual(NEXT_KEYS.sort());
   });
 
   it('every resume question has its words', () => {
@@ -60,7 +63,7 @@ describe('simple screen strings', () => {
   });
 
   it('Phase 6 S1: the role finder opens inside the easy dashboard', () => {
-    expect(MORE.find(([k]) => k === 'roles')?.[2]).toBe('/me/simple/roles');
+    expect(MORE.find(([k]) => k === 'roles')?.[1]).toBe('/me/simple/roles');
     expect(PAGES.en['simple.rf.jobs.one']).toBe('1 live job now');
   });
 

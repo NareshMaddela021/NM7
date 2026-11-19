@@ -10,9 +10,11 @@
 //   /me/simple/ready      the job readiness score: a big ring, "You are 65% ready", up to 3 things left
 //   /me/simple/hire       Ready to join (Phase 5): visible until …, Still ready, Pause; details in the full page
 //   /me/simple/more       everything else: links to the full dashboard's pages, "Read screens aloud automatically"
-// 🔊 at the top reads each screen's main words (voice.jsx); each card has its own 🔊.
+// The speaker button at the top reads each screen's main words (voice.jsx); each card has its own speaker button.
+// Icons: the line icons of components/ui.jsx's Icon (already in the first download, so they cost no extra bytes here).
 import { Suspense, lazy, useEffect, useState } from 'react';
 import { Link, Navigate, Route, Routes, useNavigate } from 'react-router-dom';
+import { Icon } from '../../components/ui';
 import { useLang } from '../../lib/i18n';
 import { readAloud } from '../../lib/readAloud';
 import { savePrefs, useSimple, useWaking } from '../../lib/simple';
@@ -47,16 +49,15 @@ export function WaitNote({ t, err }) {
 }
 
 export const LANG_NAMES = [['en', 'English', 'en-IN', 'English'], ['te', 'తెలుగు', 'te-IN', 'Telugu'], ['hi', 'हिंदी', 'hi-IN', 'Hindi']];
-export const NEXT_ICONS = { resume: '📝', education: '🎓', skills: '🛠️', projects: '💡', fix_score: '📈', auto_apply: '🤖', answer: '💬', jobs: '💼' };
 // every tile opens a simple screen (items 3, 4, 12): the resume as it is, simple jobs, applications as cards, practice
-export const TILES = [['resume', '📄', '/me/simple/myresume'], ['jobs', '💼', '/me/simple/jobs'], ['apps', '📋', '/me/simple/apps'], ['practice', '🎤', '/me/simple/practice']];
+export const TILES = [['resume', 'file', '/me/simple/myresume'], ['jobs', 'briefcase', '/me/simple/jobs'], ['apps', 'checkc', '/me/simple/apps'], ['practice', 'mic', '/me/simple/practice']];
 // "Things left" inside the easy dashboard (item 13), not the full pages
 export const READY_PATHS = { resume: '/me/simple/resume', score: '/me/simple/fixes', linkedin: '/me/simple/resume?step=about', interview: '/me/simple/practice', skills: '/me/simple/resume?step=skills', roles: '/me/simple/auto', certs: '/me/simple/resume?step=certs', feedback: '/me/simple/practice' };
-export const READY_ICONS = { resume: '📝', score: '📈', linkedin: '🔗', interview: '🎤', skills: '🛠️', roles: '🎯', certs: '🏅', feedback: '💬' };
+// More: plain words, no icons (a list of 15 icons is decoration, not help)
 export const MORE = [
-  ['resumes', '📄', '/me/resumes'], ['profile', '👤', '/me/profile'], ['ats', '📈', '/me/ats'], ['auto', '🤖', '/me/auto-apply'],
-  ['covers', '✉️', '/me/covers'], ['certs', '🏅', '/me/certificates'], ['orders', '🧾', '/me/orders'], ['messages', '💬', '/me/messages'],
-  ['share', '🔗', '/me/share'], ['groups', '🏫', '/me/groups'], ['payments', '₹', '/me/payments'], ['settings', '⚙️', '/me/settings'], ['help', '❓', '/me/help'], ['hire', '⚡', '/me/simple/hire'], ['roles', '🎯', '/me/simple/roles'],
+  ['resumes', '/me/resumes'], ['profile', '/me/profile'], ['ats', '/me/ats'], ['auto', '/me/auto-apply'],
+  ['covers', '/me/covers'], ['certs', '/me/certificates'], ['orders', '/me/orders'], ['messages', '/me/messages'],
+  ['share', '/me/share'], ['groups', '/me/groups'], ['payments', '/me/payments'], ['settings', '/me/settings'], ['help', '/me/help'], ['hire', '/me/simple/hire'], ['roles', '/me/simple/roles'],
 ];
 
 /** What a screen reads aloud: set once per change of words. */
@@ -76,7 +77,7 @@ function Top({ t, lang, say, langs }) {
       <Link to="/me/simple" className="sx-logo" aria-label={t('simple.home')}>Nm7</Link>
       <span className="sx-top-r">
         <SayButton items={say} t={t} lang={lang} label={t('simple.voice.readScreen')} testid="sx-read-screen" />
-        {langs && <Link to="/me/simple/language" className="sx-chip" data-testid="sx-lang"><span aria-hidden="true">🌐</span>{LANG_NAMES.find(([c]) => c === lang)?.[1] || 'English'}</Link>}
+        {langs && <Link to="/me/simple/language" className="sx-chip" data-testid="sx-lang"><Icon name="globe" />{LANG_NAMES.find(([c]) => c === lang)?.[1] || 'English'}</Link>}
         <span className="sx-seg" role="group" aria-label={t('simple.mode.label')}>
           <button type="button" aria-pressed="true">{t('simple.mode.simple')}</button>
           <button type="button" aria-pressed="false" disabled={busy} onClick={full} data-testid="sx-to-full">{t('simple.mode.full')}</button>
@@ -90,15 +91,17 @@ function Frame({ t, lang, offline, say, langs, children }) {
   return (
     <div className="sx" lang={lang}>
       <Top t={t} lang={lang} say={say} langs={langs} />
-      {offline && <div className="sx-offline" role="status" data-testid="sx-offline"><span aria-hidden="true">📶</span>{t('simple.offline')}</div>}
+      {offline && <div className="sx-offline" role="status" data-testid="sx-offline">{t('simple.offline')}</div>}
       <main id="main" className="sx-main" tabIndex={-1}>{children}</main>
     </div>
   );
 }
 
-/** A big button-link with an icon and a short label (never an icon alone). */
-export function Big({ to, icon, label, ink, testid, onClick }) {
-  const body = <><span className="sx-ic" aria-hidden="true">{icon}</span><span>{label}</span></>;
+/** A big button-link with a short label and, when it helps, one line icon (a ui.jsx Icon name; `after` puts it after
+ * the words, for "go on" arrows). Never an icon alone. */
+export function Big({ to, icon, label, ink, testid, onClick, after }) {
+  const ic = icon && <span className="sx-ic"><Icon name={icon} size={24} /></span>;
+  const body = <>{!after && ic}<span>{label}</span>{after && ic}</>;
   return onClick
     ? <button type="button" className={`sx-big${ink ? ' sx-ink' : ''}`} onClick={onClick} data-testid={testid}>{body}</button>
     : <Link to={to} className={`sx-big${ink ? ' sx-ink' : ''}`} data-testid={testid}>{body}</Link>;
@@ -121,11 +124,11 @@ function Languages({ t, onPicked, setSay }) {
   };
   return (
     <section className="sx-stack" aria-labelledby="sx-lang-h">
-      <h1 id="sx-lang-h" className="sx-h1"><span aria-hidden="true">🌐 </span>{t('simple.lang.title')}</h1>
+      <h1 id="sx-lang-h" className="sx-h1">{t('simple.lang.title')}</h1>
       {LANG_NAMES.map(([code, name, voice, english]) => (
         <div key={code} className="sx-langrow">
           <button type="button" className="sx-big sx-lang" lang={code} disabled={busy} onClick={() => pick(code)} data-testid={`sx-pick-${code}`}>{name}</button>
-          <button type="button" className="sx-say" aria-label={t('simple.lang.hear', { name })} onClick={() => hear(name, voice, english)} data-testid={`sx-hear-${code}`}><span aria-hidden="true">🔊</span></button>
+          <button type="button" className="sx-say" aria-label={t('simple.lang.hear', { name })} onClick={() => hear(name, voice, english)} data-testid={`sx-hear-${code}`}><Icon name="volume" size={28} /></button>
         </div>
       ))}
       {note && <p className="sx-note" role="status">{note}</p>}
@@ -143,15 +146,15 @@ function Home({ t, lang, d, setSay }) {
       <h1 className="sx-h1">{d.name ? t('simple.hi', { name: d.name }) : t('simple.hiNoName')}</h1>
       <section className="sx-next" aria-labelledby="sx-next-h" data-testid="sx-next" data-key={n.key}>
         <span className="sx-cardtop"><span className="sx-label">{t('simple.nextLabel')}</span><SayButton items={card} t={t} lang={lang} label={t('simple.voice.readCard')} testid="sx-next-say" /></span>
-        <h2 id="sx-next-h" className="sx-h2"><span aria-hidden="true">{NEXT_ICONS[n.key]} </span>{t(`simple.next.${n.key}.title`, vars)}</h2>
+        <h2 id="sx-next-h" className="sx-h2">{t(`simple.next.${n.key}.title`, vars)}</h2>
         <p className="sx-p">{t(`simple.next.${n.key}.text`, vars)}</p>
-        <Big to={n.path} icon="➜" label={t(`simple.next.${n.key}.cta`, vars)} ink testid="sx-next-go" />
+        <Big to={n.path} icon="arrow" after label={t(`simple.next.${n.key}.cta`, vars)} ink testid="sx-next-go" />
       </section>
-      {d.readiness && <Big to="/me/simple/ready" icon="🎯" label={t('simple.ready.big', { score: d.readiness.score })} testid="sx-ready-link" />}
+      {d.readiness && <Big to="/me/simple/ready" label={t('simple.ready.big', { score: d.readiness.score })} testid="sx-ready-link" />}
       <nav className="sx-tiles" aria-label={t('simple.title')}>
-        {TILES.map(([k, icon, to]) => <Link key={k} to={to} className="sx-tile" data-testid={`sx-tile-${k}`}><span className="sx-ic" aria-hidden="true">{icon}</span><span>{t(`simple.tile.${k}`)}</span></Link>)}
+        {TILES.map(([k, icon, to]) => <Link key={k} to={to} className="sx-tile" data-testid={`sx-tile-${k}`}><span className="sx-ic"><Icon name={icon} size={30} /></span><span>{t(`simple.tile.${k}`)}</span></Link>)}
       </nav>
-      <Big to="/me/simple/more" icon="➕" label={t('simple.tile.more')} testid="sx-more" />
+      <Big to="/me/simple/more" icon="grid" label={t('simple.tile.more')} testid="sx-more" />
     </>
   );
 }
@@ -181,11 +184,11 @@ function Ready({ t, lang, d, setSay }) {
         <>
           <span className="sx-cardtop"><h2 className="sx-h2">{t('simple.ready.left')}</h2><SayButton items={r.left.map((x) => [`simple.ready.item.${x.key}`])} t={t} lang={lang} label={t('simple.voice.readCard')} /></span>
           <ul className="sx-list">
-            {r.left.map((x) => <li key={x.key}><Big to={READY_PATHS[x.key] || x.path} icon={READY_ICONS[x.key]} label={`${t(`simple.ready.item.${x.key}`)} · ${t('simple.ready.points', { points: x.points })}`} testid={`sx-left-${x.key}`} /></li>)}
+            {r.left.map((x) => <li key={x.key}><Big to={READY_PATHS[x.key] || x.path} icon="arrow" after label={`${t(`simple.ready.item.${x.key}`)} · ${t('simple.ready.points', { points: x.points })}`} testid={`sx-left-${x.key}`} /></li>)}
           </ul>
         </>
       ) : <p className="sx-p">{t('simple.ready.done')}</p>}
-      <Big to="/me/simple" icon="←" label={t('simple.back')} />
+      <Big to="/me/simple" icon="back" label={t('simple.back')} />
     </section>
   );
 }
@@ -202,13 +205,13 @@ function More({ t, d, setData, setSay }) {
       <h1 id="sx-more-h" className="sx-h1">{t('simple.more.title')}</h1>
       <p className="sx-p">{t('simple.more.sub')}</p>
       <ul className="sx-list">
-        {MORE.map(([k, icon, to]) => <li key={k}><Big to={to} icon={icon} label={t(`simple.more.${k}`)} testid={`sx-more-${k}`} /></li>)}
+        {MORE.map(([k, to]) => <li key={k}><Big to={to} label={t(`simple.more.${k}`)} testid={`sx-more-${k}`} /></li>)}
       </ul>
       <button type="button" className="sx-big sx-switch" role="switch" aria-checked={!!d.autoRead} disabled={busy} onClick={auto} data-testid="sx-autoread">
-        <span className="sx-ic" aria-hidden="true">🔊</span><span>{t('simple.voice.auto')}</span><span className="sx-onoff" aria-hidden="true">{d.autoRead ? t('simple.voice.on') : t('simple.voice.off')}</span>
+        <span className="sx-ic"><Icon name="volume" size={24} /></span><span>{t('simple.voice.auto')}</span><span className="sx-onoff" aria-hidden="true">{d.autoRead ? t('simple.voice.on') : t('simple.voice.off')}</span>
       </button>
-      <Big to="/me" icon="🗂️" label={t('simple.more.full')} testid="sx-more-full" />
-      <Big to="/me/simple" icon="←" label={t('simple.back')} />
+      <Big to="/me" label={t('simple.more.full')} testid="sx-more-full" />
+      <Big to="/me/simple" icon="back" label={t('simple.back')} />
     </section>
   );
 }
@@ -221,11 +224,11 @@ export default function SimpleApp() {
   useAutoRead(!!data?.autoRead, say, lang);
   let body;
   if (!data && error) {
-    body = <div className="sx-stack" role="alert"><p className="sx-p">{t('simple.error')}</p><Big icon="↻" label={t('simple.retry')} onClick={reload} /></div>;
+    body = <div className="sx-stack" role="alert"><p className="sx-p">{t('simple.error')}</p><Big label={t('simple.retry')} onClick={reload} /></div>;
   } else if (!data) {
     body = <WaitNote t={t} />;
   } else if (!data.on) {
-    body = <div className="sx-stack" role="status"><p className="sx-p">{t('simple.off')}</p><Big to="/me" icon="🗂️" label={t('simple.offLink')} ink /></div>;
+    body = <div className="sx-stack" role="status"><p className="sx-p">{t('simple.off')}</p><Big to="/me" label={t('simple.offLink')} ink /></div>;
   } else {
     const picked = (d) => { setData(d); nav('/me/simple', { replace: true }); };
     const screen = { t, lang, setSay };
