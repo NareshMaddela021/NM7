@@ -4,6 +4,7 @@
 //   2. Under 18: a parent's email gets a one-time link; until the parent agrees, consents are locked.
 //   3. One switch per purpose with its plain-language text; switching one off asks first, then deletes that data now.
 //   4. How long we keep each kind of data, and a download of the consent record.
+//   A change fires a `trust-consent` window event (T2's DigiLocker card listens to it).
 import { useEffect, useState } from 'react';
 import { Dialog, useToast } from '../../../components/ui';
 import { http } from '../../../services/http';
@@ -85,11 +86,11 @@ export default function PrivacyConsent() {
   const setAge = (age) => setD({ ...d, age });
   const give = async (c) => {
     setBusy(c.purpose);
-    try { await http(`/api/me/trust/consents/${c.purpose}`, { method: 'POST' }); toast(`${c.title}: on`); await load(); } catch (x) { toast(x.message); } finally { setBusy(''); }
+    try { await http(`/api/me/trust/consents/${c.purpose}`, { method: 'POST' }); toast(`${c.title}: on`); await load(); window.dispatchEvent(new Event('trust-consent')); } catch (x) { toast(x.message); } finally { setBusy(''); }
   };
   const takeBack = async () => {
     const c = ask; setBusy(c.purpose);
-    try { const r = await http(`/api/me/trust/consents/${c.purpose}`, { method: 'DELETE' }); setAsk(null); toast(r.deleted ? `Taken back. ${r.deleted} item${r.deleted === 1 ? '' : 's'} deleted.` : 'Taken back.'); await load(); } catch (x) { toast(x.message); } finally { setBusy(''); }
+    try { const r = await http(`/api/me/trust/consents/${c.purpose}`, { method: 'DELETE' }); setAsk(null); toast(r.deleted ? `Taken back. ${r.deleted} item${r.deleted === 1 ? '' : 's'} deleted.` : 'Taken back.'); await load(); window.dispatchEvent(new Event('trust-consent')); } catch (x) { toast(x.message); } finally { setBusy(''); }
   };
   const record = async () => {
     try { download(await http('/api/me/trust/consents/export'), 'my-nm7-consents.json'); toast('Your consent record is ready'); } catch (x) { toast(x.message); }

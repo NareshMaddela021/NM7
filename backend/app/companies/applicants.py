@@ -225,6 +225,9 @@ async def applicants(
             row["level"] = row["l4"] = None
     for row, a in zip(rows, apps, strict=True):
         _auto(row, a, shown)
+    from app.trust.digilocker.router import add_badges
+
+    await add_badges(db, rows, "userId", c, acc)  # Vetting Trust T2: verified documents (only where Trust is on)
     rows.sort(key=_rank)
     counts: dict[str, int] = {}
     async for a in db[APPLICATIONS].find(_visible(cid), {"job_id": 1}):
@@ -256,6 +259,9 @@ async def applicant(cid: str, app_id: str, db: DB, x_recruiter_account: str | No
     if not shown:
         out["level"] = out["l4"] = None
     _auto(out, a, shown)
+    from app.trust.digilocker.router import add_badges
+
+    await add_badges(db, [out], "userId", c, acc)  # Vetting Trust T2
     out["data"] = recruiter_data({"_data": r["data"]}, a.get("status") in CONTACT_STAGES) if r else None
     out["template"] = (r or {}).get("template") or "classic"
     await audit(db, None, "company.applicant_open", target=cid, data={"by": acc["email_lc"], "app": app_id})

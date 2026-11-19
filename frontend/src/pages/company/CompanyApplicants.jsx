@@ -6,6 +6,7 @@
 // English, Telugu and Hindi (co.ap.*). Vetting V1: the level chip and ⚡ Ready now on each card and in the profile.
 // Vetting V3: the profile of someone at L3+ opens their screening interview (ScreeningInterview.jsx).
 // Vetting V4: and can ask for the Nm7 human check (NmCheck.jsx).
+// Vetting Trust T2: "Verified via DigiLocker" document badges (DocBadges.jsx; only where the Trust switch allows).
 // Auto Apply 2.0 (A2): "Sent by Auto Apply" with the score, 3 reasons, badges, notice, salary and cover note.
 import { useCallback, useEffect, useState } from 'react';
 import { rq } from '../../lib/company';
@@ -21,6 +22,7 @@ import ApplicantFeedback from './ApplicantFeedback';
 import SkillBadge from './SkillBadge';
 import ScreeningInterview from './ScreeningInterview';
 import NmCheck from './NmCheck';
+import DocBadges from './DocBadges';
 import { AutoBlock, AutoChip } from './AutoApplyBits';
 import LevelBadge from '../../components/LevelBadge';
 import { lt } from '../../components/levelStrings';
@@ -165,6 +167,7 @@ function Profile({ t, c, can, a, rank, onClose, onChanged }) {
         <SkillBadge sv={a.skillVerified} t={t} />
         {a.level?.level >= 3 && <div className="row g8"><ScreeningInterview c={c} uid={a.userId} name={a.name} level={a.level.level} job={a.jobId} appId={a.id} top
           canInvite={can && !['interview', 'offer', 'rejected'].includes(a.status)} onInvited={onChanged} /></div>}
+        <DocBadges docs={a.docs} />
         <NmCheck c={c} uid={a.userId} name={a.name} level={a.level?.level} row={a} canRequest={can} />
         <AutoBlock a={a} open />
         <ul className="ca-reasons">{reasons(a.match, t).map((r) => <li key={r}>{r}</li>)}</ul>
@@ -210,6 +213,7 @@ function Applicant({ t, c, a, rank, can, picked, canPick, onPick, open, onOpen, 
         </div>
       </div>
       <ApLevel lv={a.level} />
+      <DocBadges docs={a.docs} compact />
       <p className="ca-why">{reasons(a.match, t).join(' · ')}</p>
       <AutoBlock a={a} />
       {(a.match?.found.length > 0 || a.match?.missing.length > 0) && (

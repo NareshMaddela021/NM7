@@ -255,6 +255,22 @@ async def main(cmd: str, *args: str) -> dict:
         mail, purpose = args
         u = await db["users"].find_one({"email": mail})
         return {"token": withdraw_token(u["_id"], purpose)}
+    if cmd == "trust-docs":  # Vetting Trust T2: test-provider DigiLocker documents for an email or the demo applicants
+        from app.companies.demo import COMPANY_ID
+        from app.trust.digilocker import providers, service
+
+        (who,) = args
+        if who == "@demo-applicants":
+            uids = await db["applications"].distinct("user_id", {"company_id": COMPANY_ID})
+        else:
+            uids = [(await db["users"].find_one({"email": who}))["_id"]]
+        for uid in uids:
+            u = await db["users"].find_one({"_id": uid}, {"name": 1})
+            sess = {"_id": f"seed-{uid}", "user_id": uid, "kinds": list(service.KINDS),
+                    "vendor_ref": f"mock-seed-{uid}", "mock_approved": True}  # fmt: skip
+            got = await providers.Mock().fetch(sess, name_hint=(u or {}).get("name") or "")
+            await service.store(db, uid, sess, got.docs, "mock", True)
+        return {"n": len(uids)}
     if cmd == "aa2-tester":  # Admin → Auto Apply 2.0: this email sees 2.0 while it is hidden
         (email,) = args
         await db["settings"].update_one(

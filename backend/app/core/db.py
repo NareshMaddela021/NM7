@@ -160,6 +160,7 @@ TRUST_SELFIES = "trust_selfies"  # selfies and face-match results (selfie_face c
 TRUST_VOICE = "trust_voice"  # voice recordings (voice consent)
 TRUST_DOCUMENTS = "trust_documents"  # DigiLocker / KYC documents, never Aadhaar (documents consent)
 TRUST_SNAPSHOTS = "trust_snapshots"  # webcam snapshots during a test (webcam_snapshots consent)
+TRUST_DL_SESSIONS = "trust_dl_sessions"  # T2: DigiLocker requests (vendor reference, status; never document data)
 LEARN_PATHS = "learn_paths"  # Phase 6 S2, _id = role id: courses → project → skill check (Admin → Learning paths)
 OFFER_CHECKS = (
     "offer_checks"  # Phase 6 S5: saved offer-letter checks (text without ID numbers + result; never the file)
@@ -281,6 +282,7 @@ COLLECTIONS = (
     TRUST_VOICE,
     TRUST_DOCUMENTS,
     TRUST_SNAPSHOTS,
+    TRUST_DL_SESSIONS,
     VETTING_L4,
     VETTING_REVIEWERS,
     VETTING_INTERVIEWS,
@@ -463,7 +465,17 @@ INDEXES: dict[str, list[IndexModel]] = {
     TRUST_BREACHES: [IndexModel([("detected_at", DESCENDING)])],
     TRUST_SELFIES: [IndexModel("user_id"), IndexModel("created_at")],
     TRUST_VOICE: [IndexModel("user_id"), IndexModel("created_at")],
-    TRUST_DOCUMENTS: [IndexModel("user_id"), IndexModel("created_at")],
+    TRUST_DOCUMENTS: [
+        IndexModel("user_id"),
+        IndexModel("created_at"),
+        IndexModel("pan_hash", sparse=True),
+        IndexModel([("review.status", ASCENDING), ("fetched_at", DESCENDING)]),
+    ],  # fmt: skip
+    TRUST_DL_SESSIONS: [
+        IndexModel("user_id"),
+        IndexModel("created_at"),
+        IndexModel([("vendor", ASCENDING), ("vendor_ref", ASCENDING)]),
+    ],  # fmt: skip
     TRUST_SNAPSHOTS: [IndexModel("user_id"), IndexModel("created_at")],
     VETTING_L4: [
         IndexModel([("user_id", ASCENDING), ("requested_at", DESCENDING)]),
