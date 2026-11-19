@@ -77,12 +77,15 @@ export function useExpertReady() {
   return snap.for === uid && snap.loaded;
 }
 onSignOut(() => { live = { for: null, loaded: false, p: null, saved: '' }; liveNotify(); });
+/** Live: read this expert's profile from the server again (the quick start saved part of it there). */
+export function reloadExpert() { if (LIVE && !saveTimer) { live = { for: null, loaded: false, p: null, saved: '' }; liveNotify(); } }
 let saveTimer;
 function saveLive(p) {
   live = { ...live, p };
   if (!EDITABLE.includes(p.status) || keep(p) === live.saved) return;
   clearTimeout(saveTimer);
   saveTimer = setTimeout(async () => {
+    saveTimer = null;
     try { const r = fromServer(await http('/api/expert/profile', { method: 'PUT', body: p })); live = { ...live, saved: keep(r) }; } catch (e) { reportSaveError(e); }
   }, 800);
 }

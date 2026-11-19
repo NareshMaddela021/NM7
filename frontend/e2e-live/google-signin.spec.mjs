@@ -69,7 +69,7 @@ for (const [label, opts] of SIZES) {
       await page.getByRole('checkbox', { name: /I agree to the Terms/ }).check();
       expect(await noSideScroll(page)).toBe(true);
       await page.getByRole('button', { name: 'Continue' }).click();
-      await page.waitForURL('**/me/profile');
+      await page.waitForURL('**/start/jobseeker'); // the job seeker quick start
       const me = (await call(page, '/api/auth/me')).body;
       expect(me).toMatchObject({ roles: ['jobseeker'], activeRole: 'jobseeker', rolesPending: false });
       expect(me).toMatchObject({ role: 'customer', name: 'Gita Rao', verified: true, hasPassword: false });

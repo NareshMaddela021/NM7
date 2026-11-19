@@ -7,6 +7,8 @@ import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { http } from '../../services/http';
 import { MeHead } from './MeLayout';
+import { LIVE, useAuth } from '../../lib/auth';
+import ResumeCard from '../start/ResumeCard'; // profile setup P1: "Pick up where you left off"
 import { Bar, Chip, Empty, MeCard, Skel } from './kit';
 import '../../styles/me-learn.css';
 
@@ -131,12 +133,14 @@ function Path({ role }) {
 export default function MeLearn() {
   const [q] = useSearchParams();
   const role = q.get('role');
+  const { user } = useAuth();
   const [d, setD] = useState(null);
   const [err, setErr] = useState('');
   useEffect(() => { if (!role) http('/api/me/learn').then(setD, (e) => setErr(e.message)); }, [role]);
   return (
     <div className="stack g16" data-testid="me-learn">
       <MeHead title="Learning paths" sub="Free courses, a small project, then a skill check. Pass the check and send the project to get “Skill verified”." />
+      {LIVE && !role && user?.activeRole === 'student' && <ResumeCard user={user} role="student" />}
       {role ? <Path key={role} role={role} /> : err ? <p className="error" role="alert">{err}</p> : !d ? <Skel cards={3} label="Loading learning paths" /> : (
         <>
           {d.started.length > 0 ? (

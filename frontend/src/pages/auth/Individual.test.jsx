@@ -80,7 +80,7 @@ describe('the role picker and the switcher (preview accounts)', () => {
     expect(v.rolesPending).toBe(false);
     expect(v.role).toBe('customer');
     expect(v.expertStatus).toBe('draft'); // paid work only after approval
-    expect(afterPick(v)).toBe('/me/profile');
+    expect(afterPick(v)).toBe('/start/jobseeker'); // the quick start first
 
     const menu = at('/me', <AccountRoles user={currentUser()} />);
     expect(text(menu)).toContain('Now: Job seeker');

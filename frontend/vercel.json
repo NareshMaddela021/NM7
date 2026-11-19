@@ -126,6 +126,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/start/:path*",
+      "destination": "/index.html"
+    },
+    {
       "source": "/(me|expert|admin)",
       "destination": "/index.html"
     },
@@ -244,6 +248,15 @@
           "key": "Cache-Control",
           "value": "no-store"
         },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/start/(.*)",
+      "headers": [
         {
           "key": "X-Robots-Tag",
           "value": "noindex, nofollow"

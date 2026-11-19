@@ -98,8 +98,9 @@ const ObjFields = ({ k, fields, p }) => (
   <FieldGrid>{fields.map((fd) => <SchemaField key={fd.key} field={fd} idBase={`pf-${k}`} value={p[k][fd.key]} onChange={(v) => setJobProfile((x) => ({ ...x, [k]: { ...x[k], [fd.key]: v } }))} />)}</FieldGrid>
 );
 
-/** Import: an old resume, a LinkedIn PDF, or one of my resumes. Only adds what's missing. */
-function Importer({ p }) {
+/** Import: an old resume, a LinkedIn PDF, or one of my resumes. Only adds what's missing. onAdded(n): after each
+ * import (the quick start counts the step as done). */
+function Importer({ p, onAdded }) {
   const me = useMe();
   const toast = useToast();
   const [busy, setBusy] = useState('');
@@ -110,6 +111,7 @@ function Importer({ p }) {
     const { profile, added } = mergeIntoProfile(p, resumeToProfileParts(data));
     setJobProfile(profile);
     toast(added ? `Added ${added} item${added === 1 ? '' : 's'} from ${what} — check each section` : `Nothing new in ${what}`);
+    onAdded?.(added);
   };
   const fromFile = async (file, mode) => {
     if (!file) return;
@@ -152,6 +154,14 @@ function Importer({ p }) {
       )}
     </section>
   );
+}
+
+/** "Fill your profile faster" on its own: the quick start's last step (pages/start/QuickStart.jsx). */
+export function FillFaster({ onAdded }) {
+  const pr = useJobProfile();
+  if (pr.loading || (!pr.data && pr.available && !pr.error)) return <Skel cards={1} lines={2} label="Loading your Job Profile…" />;
+  if (!pr.data) return <p className="small muted" role="status">{pr.error || 'This isn’t available right now. Skip it for now and fill it in later from your Job Profile.'}</p>;
+  return <Importer p={pr.data} onAdded={onAdded} />;
 }
 
 export default function MeProfile() {
