@@ -58,7 +58,7 @@ for (const [label, opts] of SIZES) {
       }
       expect(await noSideScroll(page)).toBe(true);
 
-      // Next step → the Company page tab → write the about text → back on Overview it is ticked
+      // Next step -> the Company page tab -> write the about text -> back on Overview it is ticked
       await page.getByTestId('sc-next').click();
       const pg = page.getByTestId('co-page');
       await expect(pg).toBeVisible();
