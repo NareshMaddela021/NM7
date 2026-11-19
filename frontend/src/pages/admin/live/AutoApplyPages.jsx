@@ -203,7 +203,7 @@ function V2Stats() {
     <Panel title="Auto Apply 2.0: channels and success measures">
       <Loading st={st}>{(d) => (
         <div className="stack g8" data-testid="aa2-admin-stats">
-          <span className="xs muted">Last 7 days by channel (rates over 30 days). Demo accounts are never counted. The same numbers are in Admin > Daily report every morning.</span>
+          <span className="xs muted">Last 7 days by channel (rates over 30 days). Demo accounts are never counted. The same numbers are in Admin &gt; Daily report every morning.</span>
           <Suspense fallback={<Spinner />}><AutoApplyNumbers aa={d} /></Suspense>
         </div>
       )}</Loading>

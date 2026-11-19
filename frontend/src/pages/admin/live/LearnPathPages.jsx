@@ -47,7 +47,7 @@ export function LiveLearnPaths() {
         stats={st.data ? [['Paths', st.data.items.length], ['Shown to students', st.data.items.filter((p) => p.active).length, 'ok'], ['Pass mark', `${st.data.passScore}%`, 'accent']] : null} />
       <Loading st={st}>{(d) => (
         <div className="stack g12">
-          <span className="xs muted">Pass mark: {d.passScore}% (Settings > seek.pass_score).</span>
+          <span className="xs muted">Pass mark: {d.passScore}% (Settings &gt; seek.pass_score).</span>
           {edit && <PathForm p={edit} tests={d.tests} onSaved={() => { setEdit(null); st.reload(); }} onCancel={() => setEdit(null)} />}
           <ul className="as-paths">
             {d.items.map((p) => (

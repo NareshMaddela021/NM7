@@ -154,7 +154,7 @@ export default function TrustCodeAdmin() {
             <div><button type="button" className="btn btn-outline" style={{ minHeight: 44 }} disabled={busy} onClick={save} data-testid="tc-save">Save</button></div>
             {d.providers.filter((p) => !p.test).map((p) => (
               <div key={p.key} className="stack g4" data-testid={`tc-keys-${p.key}`}>
-                <span className="label">{p.label}: keys (Render > Environment)</span>
+                <span className="label">{p.label}: keys (Render &gt; Environment)</span>
                 <ul className="small" style={{ margin: 0, paddingLeft: 18 }}>{Object.entries(p.keys).map(([k, v]) => <li key={k}><code>{k}</code>: {v ? 'set' : 'not set'}</li>)}</ul>
               </div>
             ))}

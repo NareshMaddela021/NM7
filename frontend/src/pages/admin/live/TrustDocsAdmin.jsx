@@ -51,7 +51,7 @@ export default function TrustDocsAdmin() {
             </div>
             {d.providers.filter((p) => !p.test).map((p) => (
               <div key={p.key} className="stack g4" data-testid={`td-keys-${p.key}`}>
-                <span className="label">{p.label}: keys (Render > Environment)</span>
+                <span className="label">{p.label}: keys (Render &gt; Environment)</span>
                 <ul className="small" style={{ margin: 0, paddingLeft: 18 }}>{Object.entries(p.keys).map(([k, v]) => <li key={k}><code>{k}</code>: {v ? 'set' : 'not set'}</li>)}</ul>
                 <span className="small" style={{ overflowWrap: 'anywhere' }}>Callback URL to give {p.label}: <code data-testid="td-callback">{p.callbackUrl}</code></span>
               </div>

@@ -112,7 +112,7 @@ export function LiveSettings() {
           </section>
           <section className="mcard as-sec" id="set-easy-dashboard" aria-label="Easy dashboard" data-testid="simple-settings">
             <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true"><IcHome /></span><span className="mcard-ht"><h2 className="mcard-title">Easy dashboard</h2></span></header>
-            <span className="small muted">Big buttons, voice and English / Telugu / Hindi at /me/simple. Everyone can switch between Simple and Full at the top of their dashboard; a college can make Simple its students’ default (Organization > Groups).</span>
+            <span className="small muted">Big buttons, voice and English / Telugu / Hindi at /me/simple. Everyone can switch between Simple and Full at the top of their dashboard; a college can make Simple its students’ default (Organization &gt; Groups).</span>
             <label className="row g8 small"><input type="checkbox" checked={f.simple.on} onChange={(e) => setF({ ...f, simple: { ...f.simple, on: e.target.checked } })} data-testid="simple-on" />Offer the simple dashboard (off: everyone gets the full dashboard)</label>
             {[['defaultTeHi', 'People who picked Telugu or Hindi start with'], ['defaultOther', 'Everyone else starts with']].map(([k, label]) => (
               <label key={k} className="row g8 small">{label}
@@ -129,7 +129,7 @@ export function LiveSettings() {
           </section>
           <section className="mcard as-sec" id="set-company-limits" aria-label="Company limits" data-testid="company-limits">
             <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true"><IcBuilding /></span><span className="mcard-ht"><h2 className="mcard-title">Company limits</h2></span></header>
-            <span className="small muted">What companies may post by trust level (Admin > Companies). Basic: the emails are confirmed. Verified: approved by our team.</span>
+            <span className="small muted">What companies may post by trust level (Admin &gt; Companies). Basic: the emails are confirmed. Verified: approved by our team.</span>
             <div className="as-fieldgrid">{[['basicJobsPerWeek', 'Basic: jobs a week', 0, 50], ['verifiedLiveJobs', 'Verified: live jobs at a time', 0, 500], ['verifiedMonths', 'Verified lasts (months)', 1, 36], ['ipBurst', 'Flag sign-ups from one address within 2 hours, from', 2, 50], ['noReplyDays', 'Close an Nm7 application the company hasn’t answered after (days)', 7, 60], ['applicantMonths', 'Companies see an applicant for (months, at most 12)', 1, 12]].map(([k, label, lo, hi]) => (
               <label key={k} className="row g8 small">{label} <input className="input" type="number" inputMode="numeric" min={lo} max={hi} step={1} style={{ height: 38, width: 90 }} value={f.companies[k]} data-testid={`co-${k}`} onChange={(e) => setF({ ...f, companies: { ...f.companies, [k]: e.target.value } })} /></label>
             ))}</div>
@@ -145,7 +145,7 @@ export function LiveSettings() {
           </section>
           <section className="mcard as-sec" id="set-job-collector" aria-label="Job collector" data-testid="collector-settings">
             <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true">⟳</span><span className="mcard-ht"><h2 className="mcard-title">Job collector</h2></span></header>
-            <span className="small muted">AI summaries a day for the morning job collector. Jobs over the limit wait in Admin > Jobs for review.</span>
+            <span className="small muted">AI summaries a day for the morning job collector. Jobs over the limit wait in Admin &gt; Jobs for review.</span>
             <span className="small" data-testid="collector-ai-today">Used today: {Number(f.collectorAiToday || 0).toLocaleString('en-IN')} of {Number(f.seek.collectorAiDaily || 0).toLocaleString('en-IN')}</span>
             <label className="row g8 small">AI summaries a day <input className="input" type="number" inputMode="numeric" min={0} max={20000} step={100} style={{ height: 38, width: 110 }} value={f.seek.collectorAiDaily} data-testid="collector-ai-daily" onChange={(e) => setF({ ...f, seek: { ...f.seek, collectorAiDaily: e.target.value } })} /></label>
           </section>
@@ -157,14 +157,14 @@ export function LiveSettings() {
             <div className="as-fieldgrid">{[['freeShortlists', 'Instant shortlists free a month, per company (roles)', 0, 10000], ['shortlistsPerHour', 'Instant shortlists a company may run an hour', 1, 1000], ['invitesPerDay', 'Invites a company may send a day', 0, 5000], ['replyHours', 'Reliability: an invite answered within (hours) is a quick reply', 1, 168]].map(([k, label, lo, hi]) => (
               <label key={k} className="row g8 small">{label} <input className="input" type="number" inputMode="numeric" min={lo} max={hi} step={1} style={{ height: 38, width: 90 }} value={f.hire[k]} data-testid={`hire-${k}`} onChange={(e) => setF({ ...f, hire: { ...f.hire, [k]: e.target.value } })} /></label>
             ))}</div>
-            <span className="xs muted">Beyond the free roles a month, instant shortlists are a paid company feature: Admin > Plans > Company hiring (open to every Verified company unless you untick it).</span>
+            <span className="xs muted">Beyond the free roles a month, instant shortlists are a paid company feature: Admin &gt; Plans &gt; Company hiring (open to every Verified company unless you untick it).</span>
           </section>
           <section className="mcard as-sec" id="set-safe-job-posting" aria-label="Safe job posting" data-testid="job-checks">
             <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true"><IcShield /></span><span className="mcard-ht"><h2 className="mcard-title">Safe job posting</h2></span></header>
             <span className="small muted">Checked on every job a company posts. One phrase per line; case and punctuation don’t matter.</span>
             <label className="field"><span className="label">Unfair wording: the job can’t be posted</span>
               <textarea className="input" rows={6} value={f.jobChecks.blocked} onChange={(e) => setF({ ...f, jobChecks: { ...f.jobChecks, blocked: e.target.value } })} data-testid="checks-blocked" /></label>
-            <label className="field"><span className="label">Scam signs: the job waits for review in Admin > Jobs</span>
+            <label className="field"><span className="label">Scam signs: the job waits for review in Admin &gt; Jobs</span>
               <textarea className="input" rows={6} value={f.jobChecks.scam} onChange={(e) => setF({ ...f, jobChecks: { ...f.jobChecks, scam: e.target.value } })} data-testid="checks-scam" /></label>
           </section>
           <section className="mcard as-sec" id="set-referral-rewards" aria-label="Referral rewards" data-testid="ref-settings">

@@ -100,7 +100,7 @@ for (const [label, opts] of SIZES) {
       await expect(vb.getByRole('alert')).toContainText('last character'); // caught before any lookup
       await vb.getByTestId('vb-number-input').fill(number.toLowerCase());
       await vb.getByTestId('vb-send').click();
-      await expect(vb.getByTestId('vb-state')).toHaveText('✓ Verified employer · GST (test)');
+      await expect(vb.getByTestId('vb-state')).toHaveText('Verified employer · GST (test)');
       await expect(vb.getByTestId('vb-number')).toContainText('36');
       await expect(vb.getByTestId('vb-number')).not.toContainText(number);
       await expect(vb.getByTestId('vb-facts')).toContainText(co.legal);
@@ -180,7 +180,7 @@ for (const [label, opts] of SIZES) {
       await ctx.close();
       await page.reload();
       await page.getByRole('tab', { name: 'Settings' }).click();
-      await expect(page.getByTestId('co-verify-business').getByTestId('vb-state')).toHaveText('✓ Verified employer · GST (test)');
+      await expect(page.getByTestId('co-verify-business').getByTestId('vb-state')).toHaveText('Verified employer · GST (test)');
 
       // a company Vetting Trust is not on for sees nothing new
       const other = await company(request, `${tag}x`, { testerCo: false });

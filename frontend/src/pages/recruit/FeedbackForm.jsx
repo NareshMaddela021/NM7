@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { Dialog, Spinner } from '../../components/ui';
 import '../../styles/me-kit.css';
 import '../../styles/recruit.css';
+import { IcShield, IcX } from '../../components/icons';
 
 const VISIT = [['yes', 'Yes'], ['maybe', 'Maybe'], ['no', 'No']];
 const EMPTY = { rating: 0, skills: [], basics: [], projectsNoResults: false, communication: false, other: '', wentWell: '', visitAgain: '' };
@@ -30,7 +31,7 @@ export default function FeedbackForm({ load, save, onClose, onSaved }) {
     <Dialog showTitle title={st ? `Feedback for ${st.orgName}` : 'Feedback for the college'} onClose={onClose}>
       {!st ? (error ? <p className="error" role="alert">{error}</p> : <div className="row g8 muted" role="status"><Spinner /> Loading…</div>) : (
         <form className="rc-fb" onSubmit={submit} aria-label="Feedback for the college">
-          <p className="rc-fb-note"><span aria-hidden="true">⛨</span>About the drive as a whole ({st.company}). The college sees it; students don’t, and it never names a student.</p>
+          <p className="rc-fb-note"><IcShield size={16} /> About the drive as a whole ({st.company}). The college sees it; students don’t, and it never names a student.</p>
           <fieldset className="rc-fb-group">
             <legend className="rc-fb-h">Overall, how was the drive?</legend>
             <div className="rc-rating" role="radiogroup" aria-label="Rating">
@@ -54,7 +55,7 @@ export default function FeedbackForm({ load, save, onClose, onSaved }) {
                 <select id="fb-basics" className="input" value={basic} onChange={(e) => setBasic(e.target.value)}><option value="">Choose a skill</option>{st.options.map((s) => <option key={s} value={s}>{s}</option>)}</select></div>
               <button type="button" className="btn btn-outline" disabled={!basic || form.basics.includes(basic) || form.basics.length >= 10} onClick={() => { set('basics', [...form.basics, basic]); setBasic(''); }}>Add</button>
             </div>
-            {form.basics.length > 0 && <div className="rc-fb-chips">{form.basics.map((s) => <button key={s} type="button" className="rc-fb-chip on" aria-label={`Remove basics of ${s}`} onClick={() => toggle('basics', s)}>Basics of {s} ✕</button>)}</div>}
+            {form.basics.length > 0 && <div className="rc-fb-chips">{form.basics.map((s) => <button key={s} type="button" className="rc-fb-chip on" aria-label={`Remove basics of ${s}`} onClick={() => toggle('basics', s)}>Basics of {s} <IcX size={14} /></button>)}</div>}
             <div className="field"><label className="label" htmlFor="fb-other">Anything else (optional)</label><input id="fb-other" className="input" maxLength={300} value={form.other} onChange={(e) => set('other', e.target.value)} /></div>
           </fieldset>
           <div className="field rc-fb-group"><label className="rc-fb-h" htmlFor="fb-well">What went well (optional)</label><textarea id="fb-well" className="input" rows={2} maxLength={500} value={form.wentWell} onChange={(e) => set('wentWell', e.target.value)} /></div>

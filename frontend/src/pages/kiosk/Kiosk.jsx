@@ -23,6 +23,7 @@ import { designOf } from '../builder/design';
 import { Still } from '../newhome/ParticleStage';
 import '../../styles/org-drives.css';
 import { EXP_LEVELS, LISTS, PERSONAL_FIELDS, completeResume, emptyResume, migrateLinks, real } from '../builder/schema';
+import { IcCamera, IcCheck, IcEdit } from '../../components/icons';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const big = { fontSize: 18 };
@@ -319,12 +320,12 @@ export default function KioskScreen() {
             {info.closed && !approval && <p className="well small">Joining this group is closed ({info.closed}). You can still build and print your resume.</p>}
             <div className="grid-auto g16 ks-choices">
               <button type="button" className="card stack g8 btn ks-choice ks-choice-main" style={{ textAlign: 'left', alignItems: 'flex-start', whiteSpace: 'normal', height: 'auto', padding: 28 }} onClick={() => setStep('build')}>
-                <span className="ks-choice-ic" aria-hidden="true">✎</span>
+                <span className="ks-choice-ic" aria-hidden="true"><IcEdit /></span>
                 <strong className="display" style={{ fontSize: 24 }}>{real(d?.personal?.headline) || d?.exp?.length || d?.proj?.length ? 'Continue my resume' : 'Type it in, step by step'}</strong>
                 <span className="muted" style={{ fontWeight: 400, ...big }}>Six short steps with big boxes. Skip anything you don’t have.</span>
               </button>
               <button type="button" className="card stack g8 btn ks-choice" style={{ textAlign: 'left', alignItems: 'flex-start', whiteSpace: 'normal', height: 'auto', padding: 28 }} onClick={() => setStep('photos')}>
-                <span className="ks-choice-ic" aria-hidden="true">📷</span>
+                <span className="ks-choice-ic" aria-hidden="true"><IcCamera /></span>
                 <strong className="display" style={{ fontSize: 24 }}>Snap photos</strong>
                 <span className="muted" style={{ fontWeight: 400, ...big }}>Take photos of your marksheets, certificates or work papers. We read them and fill your resume.</span>
               </button>
@@ -483,7 +484,7 @@ export function GuidedBuilder({ d, setD, onDone }) {
   return (
     <div className="stack g16 ks-guided">
       <ol className="steps ks-steps" aria-label="Steps" style={{ padding: 0, flexWrap: 'wrap' }}>
-        {KIOSK_STEPS.map(([k, l], n) => <li key={k} aria-current={n === i ? 'step' : undefined} data-state={n < i ? 'done' : undefined}><span className="mono">{n < i ? '✓' : n + 1}</span>{l}</li>)}
+        {KIOSK_STEPS.map(([k, l], n) => <li key={k} aria-current={n === i ? 'step' : undefined} data-state={n < i ? 'done' : undefined}><span className="mono">{n < i ? <IcCheck size={14} /> : n + 1}</span>{l}</li>)}
       </ol>
       <h1 className="display h2">{label}</h1>
       {body}

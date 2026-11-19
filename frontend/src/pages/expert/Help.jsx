@@ -2,6 +2,7 @@
 import { ExpertPage } from './ExpertFrame';
 import { MeCard } from '../me/kit';
 import { PROMISES, FEES } from '../../lib/pricing';
+import { IcArrowRight, IcCheck, IcEdit, IcRefresh, IcShield, IcStar, IcX } from '../../components/icons';
 
 const SECTIONS = [
   ['How an order works', ['Accept the offer within 30 minutes.', 'Read the brief: target role, wins, the job description and their original resume (already filled into the builder).', 'Ask for missing numbers in Messages early — it saves a revision.', 'Send draft 1 with a short note. The customer comments on sections; fix and send again.', `Deliver the final (PDF + Word + into their builder) within ${PROMISES.delivery}. It auto-approves ${PROMISES.autoApproveDays} after delivery.`]],
@@ -11,7 +12,7 @@ const SECTIONS = [
   ['Privacy & conduct', ['Never contact customers outside Nm7 or share their resume.', `Customer files are deleted ${PROMISES.retentionDays} days after delivery. Downloads are logged.`, 'Don’t invent experience, numbers or certificates — ask the customer instead.']],
 ];
 
-const ICONS = ['⇢', '✎', '✓', '↺', '⛨'];
+const ICONS = [<IcArrowRight key="i" />, <IcEdit key="i" />, <IcCheck key="i" />, <IcRefresh key="i" />, <IcShield key="i" />];
 
 export default function Help() {
   return (
@@ -20,9 +21,9 @@ export default function Help() {
         {SECTIONS.map(([t, items], i) => (
           <MeCard key={t} title={t} icon={ICONS[i]} headingLevel={2}><ul>{items.map((x) => <li key={x}><span>{x}</span></li>)}</ul></MeCard>
         ))}
-        <MeCard title="Strong vs weak bullets" icon="★">
-          <span className="ex-weak">✗ Responsible for MIS reports</span>
-          <span className="ex-strong">✓ Automated the weekly MIS report with Excel macros, saving 4 hours a week for a 6-person sales team</span>
+        <MeCard title="Strong vs weak bullets" icon={<IcStar />}>
+          <span className="ex-weak"><IcX size={14} /> Weak: Responsible for MIS reports</span>
+          <span className="ex-strong"><IcCheck size={14} /> Strong: Automated the weekly MIS report with Excel macros, saving 4 hours a week for a 6-person sales team</span>
         </MeCard>
       </div>
       <span className="small muted">Questions? Write to experts@nm7.si.</span>

@@ -95,7 +95,7 @@ for (const [label, opts] of SIZES) {
       await expect(cards.first().getByTestId('crit-line')).toContainText('2 of 2 must-haves');
       await cards.first().getByTestId('crit-why').click();
       const sql = cards.first().getByTestId('crit-item').filter({ hasText: 'SQL' }).first();
-      await expect(sql).toContainText('✓ Met');
+      await expect(sql).toContainText('Met');
       await expect(sql).toContainText('Resume:');
       await expect(sql.getByTestId('crit-quote')).not.toBeEmpty();
       await expect(cards.nth(1).getByTestId('crit-line')).toContainText('0 of 2 must-haves');

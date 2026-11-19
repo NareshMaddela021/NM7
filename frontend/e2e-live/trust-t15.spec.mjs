@@ -241,7 +241,7 @@ for (const [label, opts] of SIZES) {
       await expect(a.getByTestId('co-hire-wt-sjt')).toContainText('SJT: strong');
       await expect(a.getByTestId('co-hire-wt-aptitude')).toContainText('Aptitude: top 30%');
       await expect(a.getByTestId('co-hire-wt-record')).toContainText('Showed up 1/1 · Joined 1/1 · confirmed by employers');
-      await expect(b.getByTestId('co-hire-wt-record')).toHaveText('🤝 No history yet');
+      await expect(b.getByTestId('co-hire-wt-record')).toHaveText('No history yet');
       expect(await noSideScroll(page)).toBe(true);
       await filters.getByTestId('co-hire-wt-typing').selectOption('35');
       await expect(b).toHaveCount(0, { timeout: 20_000 });

@@ -75,7 +75,7 @@ for (const [label, opts] of SIZES) {
       const linked = cp.waitForResponse((r) => r.url().includes(`/jobs/${job.id}/ats`) && r.request().method() === 'PUT');
       await row.getByTestId('ats-job-save').click();
       expect((await linked).ok()).toBe(true);
-      await expect(row.getByTestId('ats-job-link')).toHaveText('→ Data Analyst (sandbox)');
+      await expect(row.getByTestId('ats-job-link')).toHaveText('· linked to Data Analyst (sandbox)');
       expect(await noSideScroll(cp)).toBe(true);
 
       // auto applications on: the tester's application is made on Nm7 and delivered to the test system

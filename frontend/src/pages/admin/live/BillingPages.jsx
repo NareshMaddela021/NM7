@@ -133,7 +133,7 @@ function CompanyHiring() {
   return (
     <Loading st={st}>{(s) => (
       <section className="mcard ao-card" aria-label="Company hiring" data-testid="plans-hiring">
-        <header className="mcard-h"><span className="mcard-ic" aria-hidden="true"><IcBolt /></span><span className="mcard-ht"><strong className="mcard-title">Company hiring (Hire in 60 minutes)</strong><span className="mcard-sub">Paid company features. Ticked: open to every Verified company. Not ticked: only companies you turn it on for in Admin > Companies. Applicants and the basic shortlist are always free; the free roles a month and the limits are in Settings > Hire in 60 minutes.</span></span></header>
+        <header className="mcard-h"><span className="mcard-ic" aria-hidden="true"><IcBolt /></span><span className="mcard-ht"><strong className="mcard-title">Company hiring (Hire in 60 minutes)</strong><span className="mcard-sub">Paid company features. Ticked: open to every Verified company. Not ticked: only companies you turn it on for in Admin &gt; Companies. Applicants and the basic shortlist are always free; the free roles a month and the limits are in Settings &gt; Hire in 60 minutes.</span></span></header>
         <div className="ao-toggles">
           {HIRE_GATES.map(([k, l]) => (
             <label key={k} className={`ao-toggle ${s.hire.open[k] ? 'on' : ''}`}><input type="checkbox" disabled={busy} checked={s.hire.open[k]} data-testid={`gate-${k}`}

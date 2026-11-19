@@ -15,6 +15,7 @@ import { Chip, Empty, MeCard, Skel } from '../me/kit';
 import { GROUP_LABEL, VETTING_ROLES } from '../../lib/vettingRoles';
 import { DAYS, HOURS, hourText, l4Status, noteLines, whenText } from '../../lib/l4';
 import '../../styles/vetting-l4.css';
+import { IcBriefcase, IcClock, IcPhone, IcScale, IcUser } from '../../components/icons';
 
 const TABS = [['profile', 'Profile'], ['calibration', 'Calibration'], ['checks', 'My checks']];
 const STATUS = {
@@ -74,7 +75,7 @@ function Profile({ me, onSaved }) {
   };
   return (
     <form className="stack g16" onSubmit={save} noValidate data-testid="rv-profile">
-      <MeCard title="Roles you can check" icon="◎" sub={`Pick up to ${MAX_ROLES}: the jobs you know well enough to probe in a 15-minute call. ${roles.length} picked.`}>
+      <MeCard title="Roles you can check" icon={<IcBriefcase />} sub={`Pick up to ${MAX_ROLES}: the jobs you know well enough to probe in a 15-minute call. ${roles.length} picked.`}>
         <label className="field"><span className="label">Find a role</span>
           <input className="input" type="search" value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="SQL, nurse, sales…" data-testid="rv-role-filter" /></label>
         <div className="l4-roles" data-testid="rv-roles">
@@ -92,12 +93,12 @@ function Profile({ me, onSaved }) {
           {!groups.length && <span className="small muted">No role matches “{filter}”.</span>}
         </div>
       </MeCard>
-      <MeCard title="About you" icon="✎" sub="A few lines candidates and Nm7 see: your work, the years, the languages you speak.">
+      <MeCard title="About you" icon={<IcUser />} sub="A few lines candidates and Nm7 see: your work, the years, the languages you speak.">
         <label className="field"><span className="label">About you</span>
           <textarea className="input" rows={4} maxLength={600} value={about} onChange={(e) => setAbout(e.target.value)} aria-describedby={`${id}-a`} data-testid="rv-about" /></label>
         <span className="xs muted" id={`${id}-a`}>{about.length} / 600</span>
       </MeCard>
-      <MeCard title="Your weekly hours" icon="◷" sub={`Tap the hours you are free each week (India time). Each is a 15-minute call slot. ${slots.size} picked.`}>
+      <MeCard title="Your weekly hours" icon={<IcClock />} sub={`Tap the hours you are free each week (India time). Each is a 15-minute call slot. ${slots.size} picked.`}>
         <div className="l4-week" data-testid="rv-week">
           {DAYS.map((dname, day) => (
             <fieldset key={dname} className="l4-day">
@@ -151,7 +152,7 @@ function Calibration({ me, onDone }) {
           </span>
         </div>
       )}
-      <MeCard tone="flat" className="mcard-tight" icon="⚖" title="How calibration works" headingLevel={2}
+      <MeCard tone="flat" className="mcard-tight" icon={<IcScale />} title="How calibration works" headingLevel={2}
         sub={`Read 5 short sample interviews and score each one on ${d.criteria.length} lines from 0 to 5. Land within 1 point of Nm7’s scores on ${Math.round(d.pass * 100)}% of the lines to pass.`}>
         <dl className="stack g4" style={{ margin: 0 }}>
           {d.criteria.map((c) => <div key={c.key} className="small"><dt style={{ display: 'inline', fontWeight: 800 }}>{c.label}: </dt><dd style={{ display: 'inline', margin: 0 }} className="muted">{c.guide}</dd></div>)}
@@ -213,7 +214,7 @@ function CheckItem({ x, checklist, onDone }) {
         <strong style={{ fontSize: 17 }}>{x.person || 'Candidate'}</strong>
         {x.senior ? <Chip tone="accent" testid="rv-senior">Second opinion</Chip> : <Chip tone={tone}>{words}</Chip>}
       </div>
-      <span className="small"><span aria-hidden="true">☎ </span>{whenText(x.slotAt)} · 15 minutes</span>
+      <span className="small"><IcPhone size={14} /> {whenText(x.slotAt)} · 15 minutes</span>
       {(x.weakSpots?.length > 0 || x.interviewConcern) && (
         <div className="stack g4">
           <span className="l4-legend">Probe these</span>

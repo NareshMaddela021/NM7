@@ -185,7 +185,7 @@ function HireFeatures({ c, onSaved }) {
   return (
     <fieldset className="card-sm stack g4" style={{ margin: 0 }} data-testid="co-hire-features">
       <legend className="small"><strong>Hiring features for this company</strong></legend>
-      <span className="xs muted">Needed only for features Admin > Plans > Company hiring doesn’t open to every Verified company.</span>
+      <span className="xs muted">Needed only for features Admin &gt; Plans &gt; Company hiring doesn’t open to every Verified company.</span>
       {HIRE_FEATURES.map(([k, l]) => <label key={k} className="row g8 small"><input type="checkbox" disabled={busy} checked={on.includes(k)} onChange={(e) => flip(k, e.target.checked)} data-testid={`co-hf-${k}`} />{l}</label>)}
     </fieldset>
   );

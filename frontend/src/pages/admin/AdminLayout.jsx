@@ -8,17 +8,17 @@ import { AdminProvider, ROLES, atRisk, isLate, useAdmin } from './AdminContext';
 import { IcBell, IcBolt, IcChart, IcFile, IcGrid, IcLock, IcRefresh, IcSearch, IcSettings, IcStar, IcThumb, IcUsers } from '../../components/icons';
 
 export const NAV = [
-  ['dashboard', '/admin', 'Dashboard', <IcGrid />],
-  ['orders', '/admin/orders', 'Orders', <IcFile />],
-  ['experts', '/admin/experts', 'Experts', <IcStar />],
-  ['refunds', '/admin/refunds', 'Refunds & disputes', <IcRefresh />],
+  ['dashboard', '/admin', 'Dashboard', <IcGrid key="i" />],
+  ['orders', '/admin/orders', 'Orders', <IcFile key="i" />],
+  ['experts', '/admin/experts', 'Experts', <IcStar key="i" />],
+  ['refunds', '/admin/refunds', 'Refunds & disputes', <IcRefresh key="i" />],
   ['payments', '/admin/payments', 'Payments & payouts', '₹'],
-  ['customers', '/admin/customers', 'Customers', <IcUsers />],
-  ['quality', '/admin/quality', 'Quality', <IcThumb />],
-  ['reports', '/admin/reports', 'Reports', <IcChart />],
-  ['settings', '/admin/settings', 'Settings', <IcSettings />],
-  ['automation', '/admin/automation', 'Automation', <IcBolt />],
-  ['team', '/admin/team', 'Team & audit log', <IcLock />],
+  ['customers', '/admin/customers', 'Customers', <IcUsers key="i" />],
+  ['quality', '/admin/quality', 'Quality', <IcThumb key="i" />],
+  ['reports', '/admin/reports', 'Reports', <IcChart key="i" />],
+  ['settings', '/admin/settings', 'Settings', <IcSettings key="i" />],
+  ['automation', '/admin/automation', 'Automation', <IcBolt key="i" />],
+  ['team', '/admin/team', 'Team & audit log', <IcLock key="i" />],
 ];
 
 function useAlerts() {

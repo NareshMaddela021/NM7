@@ -14,6 +14,7 @@ import { ExpertLoading, ExpertPage } from './ExpertFrame';
 import { Chip, Empty, MeCard } from '../me/kit';
 import '../../styles/me-kit.css';
 import '../../styles/expert.css';
+import { IcCheck, IcClock } from '../../components/icons';
 
 export default function TestTask() {
   const ready = useExpertReady();
@@ -39,8 +40,8 @@ function TestTaskPage() {
   }
   if (p.status === 'testReview') {
     return (
-      <ExpertPage width="narrow" kicker="Expert test task" title="Test submitted ✓" shape="badge">
-        <MeCard tone="ok" title="We’re reviewing it" icon="✓">
+      <ExpertPage width="narrow" kicker="Expert test task" title="Test submitted" shape="badge">
+        <MeCard tone="ok" title="We’re reviewing it" icon={<IcCheck />}>
           <span className="small">Thanks! We review test tasks in 1–2 working days and email you the result with feedback.</span>
           <Link to="/expert/profile" className="btn btn-outline" style={{ alignSelf: 'flex-start' }}>Back to my profile</Link>
         </MeCard>
@@ -68,9 +69,9 @@ function TestTaskPage() {
           <div className="ex-wsbar-row">
             <div className="stack g4" style={{ minWidth: 0 }}><span className="ex-kicker">Expert test task · {t.id}</span><h1 className="ex-title" style={{ fontSize: 'clamp(22px, 3vw, 28px)' }}>Rewrite this resume for: {t.title}</h1></div>
             <div className="ex-wsbar-id">
-              <Chip tone="accent">ATS {before} → <strong style={{ marginLeft: 4 }}>{now?.score ?? before}</strong></Chip>
+              <Chip tone="accent">ATS {before} to <strong style={{ marginLeft: 4 }}>{now?.score ?? before}</strong></Chip>
               {now && now.match.keywords.length > 0 && <Chip tone="neutral">Job {now.match.found.length}/{now.match.keywords.length}</Chip>}
-              <Chip tone={cd.late ? 'bad' : 'neutral'}>⏱ {cd.text}</Chip>
+              <Chip tone={cd.late ? 'bad' : 'neutral'}><IcClock size={14} /> {cd.text}</Chip>
               <button type="button" className="btn btn-signal" onClick={() => setConfirm(true)}>Submit test</button>
             </div>
           </div>
@@ -86,7 +87,7 @@ function TestTaskPage() {
               <span className="xs muted">Use only facts given here. Where a number or name is missing, write it in [brackets] — that’s what you’d ask the customer.</span>
             </div>
             <ul className="stack g8 small" style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-              {RUBRIC.map(([k, l, h]) => <li key={k} className="ex-tip"><span className="ex-tip-ic" aria-hidden="true">✓</span><span><strong>{l}</strong> — <span className="muted">{h}</span></span></li>)}
+              {RUBRIC.map(([k, l, h]) => <li key={k} className="ex-tip"><span className="ex-tip-ic" aria-hidden="true"><IcCheck size={14} /></span><span><strong>{l}</strong> — <span className="muted">{h}</span></span></li>)}
               <li className="xs faint">Each scored 1–5. You have {TEST_HOURS} hours; it usually takes 30–45 minutes.</li>
             </ul>
           </div>

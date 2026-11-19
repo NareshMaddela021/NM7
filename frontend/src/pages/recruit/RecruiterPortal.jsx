@@ -25,6 +25,7 @@ import Shell from './RecruiterShell';
 import FeedbackForm from './FeedbackForm';
 import { Still } from '../newhome/ParticleStage';
 import { Chip, Empty } from '../me/kit';
+import { IcAlert, IcCalendar, IcClock, IcGrid, IcSearch, IcShield, IcTarget } from '../../components/icons';
 
 const initial = (s) => (s || '?').trim().charAt(0).toUpperCase();
 const STAGE_TONE = { shortlisted: 'info', interview: 'accent', selected: 'ok', rejected: 'bad' };
@@ -83,7 +84,7 @@ export default function RecruiterPortal() {
     return (
       <Shell>
         <div className="mcard rc-gate" role="alert">
-          <span className="rc-gate-ic" aria-hidden="true">{ended ? '⌛' : '!'}</span>
+          <span className="rc-gate-ic" aria-hidden="true">{ended ? <IcClock /> : <IcAlert />}</span>
           <h1 className="display rc-h1">{ended ? 'This invite has expired' : 'Couldn’t open this invite'}</h1>
           <p className="rc-lead">{ended ? 'The college has ended this invite, or it has run out. Ask them for a new one.' : info.error.message}</p>
         </div>
@@ -94,7 +95,7 @@ export default function RecruiterPortal() {
     return (
       <Shell>
         <div className="mcard rc-gate">
-          <span className="rc-gate-ic" aria-hidden="true">⛨</span>
+          <span className="rc-gate-ic" aria-hidden="true"><IcShield /></span>
           <h1 className="display rc-h1">Sign in to open this drive</h1>
           <p className="rc-lead">Sign in with your email to see My drives.</p>
           <Link to="/recruiter" className="btn btn-signal" style={{ alignSelf: 'flex-start' }}>Recruiter sign-in</Link>
@@ -241,7 +242,7 @@ function Workspace({ base, session, onSignedOut }) {
         <span className="rc-head-art" aria-hidden="true"><Still shape="magnifier" tint="company" className="rc-still" /></span>
       </div>
       <div className="rc-tabs" role="tablist" aria-label="Views">
-        {[['search', `Students (${d.total})`, '◉'], ...(d.jobMatch ? [['match', 'Job match', '◎']] : []), ['board', 'Shortlist board', '▥'], ...(d.interviews ? [['interviews', 'Interviews', '◷']] : [])].map(([k, l, ic]) => (
+        {[['search', `Students (${d.total})`, <IcSearch key="i" size={16} />], ...(d.jobMatch ? [['match', 'Job match', <IcTarget key="i" size={16} />]] : []), ['board', 'Shortlist board', <IcGrid key="i" size={16} />], ...(d.interviews ? [['interviews', 'Interviews', <IcCalendar key="i" size={16} />]] : [])].map(([k, l, ic]) => (
           <button key={k} type="button" role="tab" aria-selected={tab === k} className="rc-tab" onClick={() => setTab(k)}><span aria-hidden="true">{ic}</span>{l}</button>
         ))}
       </div>
@@ -457,7 +458,7 @@ function Interviews({ base, session, board, onFail, onChanged }) {
       {!rounds ? <div className="row g12 muted" role="status"><Spinner /> Loading…</div> : rounds.length === 0 ? <Empty compact shape="stopwatch" tint="company">No interviews scheduled yet.</Empty> : rounds.map((rd) => (
         <article key={rd.id} className={`mcard rc-round ${rd.cancelled ? 'rc-round-off' : ''}`} data-testid="round" aria-label={rd.round}>
           <div className="rc-round-head">
-            <span className="rc-round-ic" aria-hidden="true">◷</span>
+            <span className="rc-round-ic" aria-hidden="true"><IcCalendar /></span>
             <div className="rc-card-titles"><strong className="rc-round-name">{rd.round}</strong><span className="rc-card-line">{rd.when} · {rd.minutes} min · {[rd.place, rd.link].filter(Boolean).join(' · ')} · {rd.interviewer}</span></div>
             {rd.cancelled ? <Chip tone="warn">Cancelled</Chip> : <span className="rc-round-counts" data-testid="round-counts">{rd.counts.confirmed} confirmed · {rd.counts.pending} waiting · {rd.counts.reschedule} asked for another time</span>}
           </div>

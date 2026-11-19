@@ -212,7 +212,7 @@ for (const [label, opts] of SIZES) {
       await page.reload();
       await page.getByRole('tab', { name: 'Applicants' }).click();
       const first = page.getByTestId('co-applicant').first();
-      await expect(first.getByTestId('co-face')).toHaveText('✓ ID + selfie verified · Same person at joining (test)');
+      await expect(first.getByTestId('co-face')).toHaveText('ID + selfie verified · Same person at joining (test)');
       expect(await noSideScroll(page)).toBe(true);
       await first.getByRole('button', { name: 'Profile', exact: true }).click();
       const face = page.getByTestId('co-face').last();
