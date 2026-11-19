@@ -1,12 +1,12 @@
 // Profile setup P1: each role's quick start and first results page, on a desktop and a 390 px phone, against the real API:
-//   - a new job seeker signs up → "What would you like to do?" → 4 questions, one per screen (one skipped), a reload
-//     half-way picks up at the same step → "Jobs matched for you" with a matching job; the next role (student) follows;
+//   - a new job seeker signs up -> "What would you like to do?" -> 4 questions, one per screen (one skipped), a reload
+//     half-way picks up at the same step -> "Jobs matched for you" with a matching job; the next role (student) follows;
 //   - a fresher is asked college, course and passing year instead (they land in the Job Profile) and gets the
 //     practice papers;
-//   - a student: college, course + year, looking for, the under-18 parent step (Vetting Trust tester) →
+//   - a student: college, course + year, looking for, the under-18 parent step (Vetting Trust tester) ->
 //     "Internships and projects for you";
-//   - an expert: expertise, years, services → "Your expert application", pending approval;
-//   - an existing user with data is not asked again (answered steps passed; everything answered → the results);
+//   - an expert: expertise, years, services -> "Your expert application", pending approval;
+//   - an existing user with data is not asked again (answered steps passed; everything answered -> the results);
 //   - "Browse jobs" leaves the quick start at any step; nothing scrolls sideways; well under 5 minutes to results.
 // Desktop and phone share one database: every test uses its own people, job titles and cities.
 import { expect, test } from '@playwright/test';
@@ -52,7 +52,7 @@ for (const [label, opts] of SIZES) {
   test.describe(label, () => {
     test.use(opts);
 
-    test('new job seeker: picker → 4 questions (one skipped, a reload) → Jobs matched for you → next role', async ({ page }) => {
+    test('new job seeker: picker -> 4 questions (one skipped, a reload) -> Jobs matched for you -> next role', async ({ page }) => {
       const tag = `${label}${Date.now().toString(36)}`;
       const title = `Quickstart Analyst ${tag}`;
       seed('job', JSON.stringify({ title, description: DESC, experience: '1_3', applyMethod: 'link', applyUrl: 'https://qsco.example/jobs', company: { name: `Qsco ${tag}` }, locations: ['Visakhapatnam'], skills: ['SQL'] }));
@@ -142,7 +142,7 @@ for (const [label, opts] of SIZES) {
       await page.waitForURL('**/me/practice');
     });
 
-    test('student: college, course, looking for, the under-18 parent step → Internships and projects', async ({ page }) => {
+    test('student: college, course, looking for, the under-18 parent step -> Internships and projects', async ({ page }) => {
       const mail = await seeded(page, `qs-stu-${label}`, ['student']);
       seed('trust-tester', mail);
       await page.goto('/start/student');
@@ -177,7 +177,7 @@ for (const [label, opts] of SIZES) {
       expect(s).toMatchObject({ done: true, answers: { college: 'Govt Junior College', course: 'Intermediate MPC', looking: ['internship', 'live_project'], age: 'parent_asked' } });
     });
 
-    test('expert: expertise, years, services → Your expert application, pending approval', async ({ page }) => {
+    test('expert: expertise, years, services -> Your expert application, pending approval', async ({ page }) => {
       await seeded(page, `qs-exp-${label}`, ['expert']);
       await page.goto('/start/expert');
       await atStep(page, 'expertise');

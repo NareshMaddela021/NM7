@@ -1,5 +1,5 @@
 // Expert profile: join with an asuraa.ai profile link, an uploaded document, or from scratch; then edit, preview and submit.
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { currentUser } from '../../lib/auth';
 import Header from '../../components/Header';
@@ -15,6 +15,7 @@ import {
   expertIssues, expertStrength, payoutError, PAN_RE,
 } from '../../lib/expert';
 
+const SetupChecklist = lazy(() => import('../me/SetupChecklist')); // profile setup P2: the checklist, its own chunk
 const SECTIONS = [['about', 'About you'], ['expertise', 'Expertise'], ['proof', 'Experience & proof'], ['samples', 'Sample work'], ['services', 'Services & capacity'], ['payout', 'Payouts & tax'], ['agree', 'Agreement']];
 const AI_PICKS = [['name', 'Name'], ['headline', 'Headline'], ['bio', 'Bio'], ['city', 'City'], ['languages', 'Languages'], ['experience', 'Experience'], ['links', 'LinkedIn link']];
 const mask = (s, keep = 4) => (s ? `${'•'.repeat(Math.max(0, s.length - keep))}${s.slice(-keep)}` : '');
@@ -251,6 +252,7 @@ function ProfilePage() {
         {/* form */}
         <section aria-label="Expert profile form" className="stack g20" style={{ minWidth: 0 }}>
           <ExpertHead kicker="Expert profile" title="Your expert profile" shape="handshake" right={<span className={`badge ${stBadge}`}>{stLabel}</span>} />
+          {LIVE && <Suspense fallback={null}><SetupChecklist /></Suspense>}
           <p className="ex-status" style={{ margin: 0 }}>{stText}{['changes', 'rejected'].includes(p.status) && p.note ? <><br /><strong>Reviewer note:</strong> {p.note}</> : null}</p>
           {p.status === 'test' && <div className="card-ink row between g12"><span className="stack g4"><strong style={{ fontSize: 18 }}>Your test task is ready</strong><span className="small" style={{ opacity: 0.8 }}>Rewrite one sample resume in the real expert workspace. Due {p.test?.due ? new Date(p.test.due).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) : 'within 48 hours'}.</span></span><Link to="/expert/test" className="btn btn-signal btn-lg">Start test task</Link></div>}
           {notes.length > 0 && <div className="mcard mcard-accent mcard-tight stack g4 small">{notes.map((n) => <span key={n}>✦ {n}</span>)}<button type="button" className="btn btn-ghost" style={{ alignSelf: 'flex-start', minHeight: 32 }} onClick={() => setNotes([])}>Got it</button></div>}

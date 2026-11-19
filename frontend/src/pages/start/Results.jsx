@@ -1,8 +1,8 @@
 // The quick start's first results page, from the answers just given (pages/start/QuickStart.jsx):
-//   job seeker → Jobs matched for you: the job board's own search (and match score, with a resume) for the job, cities
+//   job seeker -> Jobs matched for you: the job board's own search (and match score, with a resume) for the job, cities
 //                and experience, widened step by step when nothing matches; freshers also get the practice papers;
-//   student    → Internships and projects for you: open internships, guided projects and courses, the role finder;
-//   expert     → Your expert application: its status (paid work only after Nm7 approves it) and the next step.
+//   student    -> Internships and projects for you: open internships, guided projects and courses, the role finder;
+//   expert     -> Your expert application: its status (paid work only after Nm7 approves it) and the next step.
 // Then: the next role to set up (people with several roles do each one once), the dashboard, "Change my answers".
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';

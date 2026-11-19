@@ -1,5 +1,5 @@
 // Vetting Trust T1 (DPDP): the age gate (date of birth, once; only the day they turn 18 is kept) and, under 18, the
-// parent's or guardian's one-time link. Used by Profile & settings → Privacy & consent and by the student quick start.
+// parent's or guardian's one-time link. Used by Profile & settings -> Privacy & consent and by the student quick start.
 import { useState } from 'react';
 import { http } from '../../../services/http';
 

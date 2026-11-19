@@ -1,6 +1,6 @@
 // Expert home: today's work, offers, revisions, numbers, tier progress, and quick availability switches.
 import { Link } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 import { http } from '../../services/http';
 import { Meter, useToast } from '../../components/ui';
 import { useExpertOrders } from '../../lib/expertStore';
@@ -9,6 +9,8 @@ import { LIVE } from '../../services/http';
 import { expertPayout, inr } from '../../lib/pricing';
 import { timeLeft } from './OrderWorkspace';
 import { ExpertLoading, ExpertPage } from './ExpertFrame';
+
+const SetupChecklist = lazy(() => import('../me/SetupChecklist')); // profile setup P2: the checklist, its own chunk
 import { Chip, Empty, MeCard, ScoreRing } from '../me/kit';
 
 const TIERS = [['New', 0], ['Trusted', 10], ['Top expert', 40]];
@@ -57,6 +59,7 @@ function ExpertHomePage() {
   return (
     <ExpertPage width="wide" kicker="Expert home" title={<>Hi {first} 👋</>} sub={offers.length ? `${offers.length} new offer${offers.length > 1 ? 's' : ''} waiting — accept within 30 minutes.` : 'Your orders, offers and numbers in one place.'} shape="sphere"
       right={<>{!prof && <Link to="/expert/profile" className="btn btn-signal">Complete your expert profile</Link>}<ReviewerLink /></>}>
+      {LIVE && <Suspense fallback={null}><SetupChecklist /></Suspense>}
       <div className="ex-tiles">
         <div className={`ex-tile ${today.length ? 'ex-tile-warn' : ''}`}><span className="ex-tile-l">Due in 24 hours</span><strong className="ex-tile-v">{today.length}</strong><span className="ex-tile-s">{live.length} in progress</span></div>
         <div className="ex-tile"><span className="ex-tile-l">New offers</span><strong className="ex-tile-v">{offers.length}</strong><span className="ex-tile-s">Accept within 30 min</span></div>

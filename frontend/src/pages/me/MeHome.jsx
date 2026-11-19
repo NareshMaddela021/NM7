@@ -1,5 +1,5 @@
 // Dashboard home: one "do this next" card, summary tiles, the current resume, active order, recent activity.
-import { useEffect, useState } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '../../components/ui';
 import { useMe, activeResume, orderView, openInBuilder, APP_STAGES } from '../../lib/customerStore';
@@ -37,6 +37,8 @@ import PassOffer, { PassActive } from '../../components/PassOffer';
 import { useLang } from '../../lib/i18n';
 import { LIVE, useAuth } from '../../lib/auth';
 import ResumeCard from '../start/ResumeCard'; // profile setup P1: "Pick up where you left off"
+
+const SetupChecklist = lazy(() => import('./SetupChecklist')); // profile setup P2: the checklist, its own chunk
 
 /** Skill checks taken, the best score and the "Skill verified" badges, from the person's own results (Vetting V2);
  * nothing until it has loaded. */
@@ -131,6 +133,7 @@ export default function MeHome() {
     <>
       <div className="stack g4"><span className="kicker">My dashboard</span><h1 className="display me-h1">Hi {first} 👋</h1></div>
       {LIVE && user && <ResumeCard user={user} role="jobseeker" />}
+      {LIVE && user && <Suspense fallback={null}><SetupChecklist /></Suspense>}
       <MyNumbers score={score} apps={apps.length} interviews={me.apps.filter((a) => a.status === 'interview').length} tracked={me.apps.length} sk={sk} />
       <PassActive />
       {typeof window !== 'undefined' && /[?&]pass=1/.test(window.location.search) && <PassOffer />}

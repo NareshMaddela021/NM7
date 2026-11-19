@@ -239,7 +239,10 @@ async def erase_account(db: AsyncDatabase, user_id: str) -> dict[str, int]:
                 "job_alert_ran_at": "",
                 "job_alert_sent_day": "",
                 "role_finder": "",
-                "setup": "",  # the quick-start answers (app/setup/store.py)
+                "setup": "",  # the quick-start answers and checklist skips (app/setup/store.py, checklist.py)
+                "setup_reminders_off": "",
+                "setup_reminded_at": "",
+                "setup_checked_at": "",
                 "verified_skills": "",
                 "learn_nudges_off": "",
                 "learn_nudged_at": "",

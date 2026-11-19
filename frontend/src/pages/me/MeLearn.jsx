@@ -3,12 +3,14 @@
 // a small guided project (send a link or a few lines), then the role's skill check. "Skill verified" shows only when
 // the check is passed and the project is sent; companies hiring now and the public resume link see it, with the date.
 import { useVettingOn } from '../../lib/vettingAccess';
-import { useEffect, useState } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { http } from '../../services/http';
 import { MeHead } from './MeLayout';
 import { LIVE, useAuth } from '../../lib/auth';
 import ResumeCard from '../start/ResumeCard'; // profile setup P1: "Pick up where you left off"
+
+const SetupChecklist = lazy(() => import('./SetupChecklist')); // profile setup P2: the checklist, its own chunk
 import { Bar, Chip, Empty, MeCard, Skel } from './kit';
 import '../../styles/me-learn.css';
 
@@ -141,6 +143,7 @@ export default function MeLearn() {
     <div className="stack g16" data-testid="me-learn">
       <MeHead title="Learning paths" sub="Free courses, a small project, then a skill check. Pass the check and send the project to get “Skill verified”." />
       {LIVE && !role && user?.activeRole === 'student' && <ResumeCard user={user} role="student" />}
+      {LIVE && !role && user?.activeRole === 'student' && <Suspense fallback={null}><SetupChecklist /></Suspense>}
       {role ? <Path key={role} role={role} /> : err ? <p className="error" role="alert">{err}</p> : !d ? <Skel cards={3} label="Loading learning paths" /> : (
         <>
           {d.started.length > 0 ? (

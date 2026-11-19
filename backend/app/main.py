@@ -131,6 +131,8 @@ from app.seek import programs as seek_programs
 from app.seek import roles as seek_roles
 from app.seek import salary as seek_salary
 from app.seek import support as seek_support
+from app.setup.checklist import public as setup_public_router
+from app.setup.checklist import router as checklist_router
 from app.setup.router import router as setup_router
 from app.simple import demo as simple_demo
 from app.simple import guided as simple_guided
@@ -279,6 +281,8 @@ def create_app() -> FastAPI:
 
     app.include_router(auth_router)
     app.include_router(roles_router)
+    app.include_router(checklist_router)  # profile setup P2: before /api/me/setup/{role}
+    app.include_router(setup_public_router)
     app.include_router(setup_router)
     app.include_router(google_auth_router)
     app.include_router(admin_auth_router)

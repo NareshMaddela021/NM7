@@ -135,7 +135,7 @@
 .ex-prof-nav > button.ex-nav-btn:hover { background: var(--lav); }
 .ex-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
 @media (max-width: 1099px) {
-  .ex-prof-nav { flex-direction: row; overflow-x: auto; scrollbar-width: none; gap: 6px; padding: 8px; }
+  .ex-prof-nav { position: relative; flex-direction: row; overflow-x: auto; scrollbar-width: none; gap: 6px; padding: 8px; }
   .ex-prof-nav::-webkit-scrollbar { display: none; }
   .ex-prof-nav > button.ex-nav-btn, .ex-prof-nav > .btn, .ex-prof-nav > label { flex: none; white-space: nowrap; min-height: 44px; border-radius: 999px; border: 1px solid var(--border); background: #fff; padding: 0 14px; }
   .ex-prof-nav > hr { display: none; }
