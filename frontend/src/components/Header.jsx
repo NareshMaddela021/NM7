@@ -21,7 +21,7 @@ export function ThemeToggle() {
 // "Switch to: Job seeker / Student / Expert" and "Add another role": loaded when the menu opens (Easy dashboard budget).
 const AccountRoles = lazy(() => import('./AccountRoles'));
 
-/** Signed in: name + menu (my home, roles, sign out). Signed out: "Sign in". */
+/** Signed in: name + menu (my home, roles, sign out). Signed out: "Sign in" and "Create free account". */
 export function AccountMenu() {
   const { user } = useAuth();
   const nav = useNavigate();
@@ -36,7 +36,14 @@ export function AccountMenu() {
     document.addEventListener('mousedown', close); document.addEventListener('keydown', esc);
     return () => { document.removeEventListener('mousedown', close); document.removeEventListener('keydown', esc); };
   }, [open]);
-  if (!user) return <Link to={`/login?next=${encodeURIComponent(pathname)}`} className="btn">Sign in</Link>;
+  if (!user) {
+    return (
+      <>
+        <Link to={`/login?next=${encodeURIComponent(pathname)}`} className="btn hdr-signin">Sign in</Link>
+        <Link to="/signup" className="btn btn-signal hdr-join" data-testid="hdr-join">Create free account</Link>
+      </>
+    );
+  }
   const homeLabel = { customer: 'My dashboard', expert: 'Expert home', admin: 'Admin console' }[user.role];
   return (
     <span ref={ref} style={{ position: 'relative' }}>

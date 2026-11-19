@@ -524,11 +524,17 @@ async def _referral(db: AsyncDatabase, user: User) -> ReferralOut:
 
 @public.get("/site-flags")
 async def site_flags(db: DB) -> dict[str, Any]:
-    """What every page needs before it draws: whether Telugu and Hindi are shown, and the Google sign-in client ID
-    ('' while Google sign-in is off; the client ID is public)."""
+    """What every page needs before it draws: whether Telugu and Hindi are shown, the Google sign-in client ID ('' while
+    Google sign-in is off; the client ID is public), and whether Auto Apply is on (Admin's global switch: when it is
+    off the phone dashboard shows My orders in the bottom bar instead of Auto Apply)."""
     from app.site import langs_on
 
-    return {"langs": langs_on(await get_site(db)), "googleClientId": get_settings().google_client_id}
+    site = await get_site(db)
+    return {
+        "langs": langs_on(site),
+        "googleClientId": get_settings().google_client_id,
+        "autoApply": bool(site["auto_apply"]["on"]),
+    }
 
 
 @public.get("/prices")
