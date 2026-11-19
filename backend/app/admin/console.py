@@ -118,9 +118,7 @@ async def stats(db: DB, _: AdminAuth("dashboard"), days: int = Query(30, ge=1, l
         "refundsInReview": await db[REFUNDS].count_documents({"status": "review"}),
         "ticketsOpen": await db[TICKETS].count_documents({"status": "open"}),
         "applicationsWaiting": await db[EXPERT_PROFILES].count_documents({"status": {"$in": ["review", "testReview"]}}),
-        "experts": await db[USERS].count_documents(
-            {**EXPERT, "expert_status": "approved", "demo": {"$ne": True}}
-        ),
+        "experts": await db[USERS].count_documents({**EXPERT, "expert_status": "approved", "demo": {"$ne": True}}),
     }
 
 
