@@ -61,6 +61,36 @@ def _bind_signup(response: Response) -> str:
     return hash_token(token)
 
 
+async def new_account_fields(
+    db,
+    request: Request,
+    *,
+    role: str,
+    name: str,
+    email: str,
+    password_hash: str,
+    ref: str | None = None,
+    existing_id: str | None = None,
+    **extra,
+) -> dict:
+    """A new customer or expert account, the same for email sign-up and "Continue with Google" (google_router.py):
+    role, name, terms accepted now, an expert starts as a draft, a friend's referral code for customers."""
+    fields = dict(
+        role=role,
+        name=name,
+        password_hash=password_hash,
+        terms_accepted_at=now(),
+        expert_status="draft" if role == "expert" else None,
+        **extra,
+    )
+    if ref and role == "customer":
+        friend = await db[USERS].find_one({"referral_code": ref.strip().upper()}, {"_id": 1})
+        if friend and friend["_id"] != existing_id:
+            fields["referred_by"] = friend["_id"]
+            fields["ref_flags"] = await signup_flags(db, request, friend["_id"], email)
+    return fields
+
+
 @router.post("/signup", status_code=201)
 async def signup(body: SignupIn, request: Request, response: Response, db: DB, mailer: MailerDep) -> SignupOut:
     require_email(mailer)  # 503 rather than claim a code was sent
@@ -77,22 +107,20 @@ async def signup(body: SignupIn, request: Request, response: Response, db: DB, m
         return await _already_registered(db, mailer, user, client_ip(request))
     await may_send_code(db, body.email, client_ip(request))
 
-    fields = dict(
+    fields = await new_account_fields(
+        db,
+        request,
         role=body.role,
         name=name,
-        phone=phone,
+        email=body.email,
         password_hash=await hash_password(body.password),
-        terms_accepted_at=now(),
-        expert_status="draft" if body.role == "expert" else None,
+        ref=body.ref,
+        existing_id=user.id if user else None,
+        phone=phone,
         roles_pending=body.pick_roles,
         unverified_expires_at=now() + UNVERIFIED_TTL,
         signup_token_hash=_bind_signup(response),
     )
-    if body.ref and body.role == "customer":
-        friend = await db[USERS].find_one({"referral_code": body.ref.strip().upper()}, {"_id": 1})
-        if friend and (not user or friend["_id"] != user.id):
-            fields["referred_by"] = friend["_id"]
-            fields["ref_flags"] = await signup_flags(db, request, friend["_id"], body.email)
     if user:  # never verified (e.g. a typo in the first try) — the email owner still has to confirm the code
         await db[USERS].update_one({"_id": user.id}, {"$set": {**fields, "updated_at": now()}})
         user = user.model_copy(update=fields)
@@ -229,6 +257,8 @@ async def change_password(body: ChangePasswordIn, auth: CurrentAuth, request: Re
     user = auth.user
     if user.role == "admin" and not auth.session.two_step:
         raise ApiError(403, "two_step_required", "Finish two-step login first.")
+    if not user.has_password:
+        raise ApiError(400, "no_password", "This account has no password yet. Use “Set a password” to make one.")
     key = f"pwchange:{user.id}"
     await rate_limit.check(db, key, [LOGIN_FAIL_EMAIL])
     if not await verify_password(user.password_hash, body.current_password):

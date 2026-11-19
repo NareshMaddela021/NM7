@@ -144,3 +144,6 @@
 /* Privacy: how long we keep things (Vetting V5) */
 .acc-keep-h { margin: 8px 0 0; font-size: 15px; font-weight: 800; color: var(--ink); }
 .acc-keep { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; color: var(--text); overflow-wrap: anywhere; }
+
+/* Sign in with Google (GoogleCard): a long Google address wraps on a phone instead of pushing the page sideways */
+.acc-google-email { overflow-wrap: anywhere; }

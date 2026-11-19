@@ -19,6 +19,7 @@ from app.admin.console import router as admin_console_router
 from app.admin.router import router as admin_router
 from app.admin.setup import router as admin_setup_router
 from app.auth.admin_router import router as admin_auth_router
+from app.auth.google_router import router as google_auth_router
 from app.auth.roles import router as roles_router
 from app.auth.router import router as auth_router
 from app.autoapply import admin as auto_admin
@@ -273,6 +274,7 @@ def create_app() -> FastAPI:
 
     app.include_router(auth_router)
     app.include_router(roles_router)
+    app.include_router(google_auth_router)
     app.include_router(admin_auth_router)
     app.include_router(admin_setup_router)  # before admin_router: /api/admin/setup is public
     app.include_router(test_users.router)  # /api/admin/test-users (100 test users for checking the live site)

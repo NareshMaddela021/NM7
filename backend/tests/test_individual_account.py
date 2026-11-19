@@ -7,6 +7,7 @@ from app.core.db import AUDIT_LOG, TRUST_CONSENTS, TRUST_PARENTS, TRUST_PROFILES
 from app.core.security import hash_password
 from app.core.time import now
 from tests.conftest import PASSWORD, approved_expert, buy, signup
+from tests.test_google_auth import go, google_on, token  # noqa: F401  (google_on: Google sign-in on, autouse)
 
 
 def err(r):
@@ -225,3 +226,15 @@ async def test_company_signup_endpoints_unchanged(client, outbox, db):
     # a company admin gets no individual account or roles from it
     assert await db[USERS].find_one({"email_lc": "hr-indiv@gmail.com"}) is None
     assert (await client.get("/api/auth/me")).status_code == 401
+
+
+# ---------- Google: a new account lands on the same step as email sign-up ----------
+
+
+async def test_new_google_account_gets_the_role_question(client, db):
+    me = (await go(client, token(sub="g-indiv", email="gita@gmail.com"), role="customer")).json()
+    assert me["isNew"] and me["rolesPending"] is True and me["roles"] == ["jobseeker"]
+    me = (await client.post("/api/auth/roles", json={"add": ["student"]})).json()
+    assert me["rolesPending"] is False and me["roles"] == ["student"] and me["activeRole"] == "student"
+    again = (await go(client, token(sub="g-indiv", email="gita@gmail.com"))).json()
+    assert again["isNew"] is False and again["rolesPending"] is False and again["activeRole"] == "student"

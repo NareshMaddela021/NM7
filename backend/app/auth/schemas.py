@@ -46,6 +46,24 @@ class ResetIn(CamelModel):
     password_confirm: str = Field(max_length=200)
 
 
+class GoogleIn(CamelModel):
+    credential: str = Field(max_length=4096)  # the Google ID token; checked, never stored
+    role: Literal["customer", "expert"] | None = None  # a new account: the sign-up page's choice (customer if none)
+    ref: str | None = Field(default=None, max_length=20)
+    next: str | None = Field(default=None, max_length=300)  # the page goes there afterwards (the browser checks it)
+
+
+class GoogleLinkIn(CamelModel):
+    credential: str = Field(max_length=4096)
+
+
+class GoogleOut(CamelModel):
+    email: str
+    name: str = ""
+    picture: str | None = None
+    linked_at: datetime | None = None
+
+
 class UserOut(CamelModel):
     id: uuid.UUID
     role: str
@@ -56,6 +74,8 @@ class UserOut(CamelModel):
     expert_status: str | None
     admin_role: str | None
     created_at: datetime
+    has_password: bool = True
+    google: GoogleOut | None = None
     roles: list[str] = []
     active_role: str | None = None
     roles_pending: bool = False
@@ -65,9 +85,13 @@ class UserOut(CamelModel):
     def _derived_roles(cls, v: Any) -> Any:
         """From a User: the roles derived for older accounts and the active one (see User.individual_roles)."""
         if hasattr(v, "individual_roles"):
-            return {**v.model_dump(), "id": v.id, "verified": v.verified, "roles": v.individual_roles,
-                    "active_role": v.current_role}  # fmt: skip
+            return {**v.model_dump(), "id": v.id, "verified": v.verified, "has_password": v.has_password,
+                    "roles": v.individual_roles, "active_role": v.current_role}  # fmt: skip
         return v
+
+
+class GoogleSignInOut(UserOut):
+    is_new: bool = False  # a new account: the page goes on to the step after sign-up
 
 
 class RolesIn(CamelModel):
