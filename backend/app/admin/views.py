@@ -38,7 +38,7 @@ PERSONA_DOMAIN = "persona.nm7.invalid"
 # where each view opens, and which admin permission it needs (None: every admin)
 VIEWS: dict[str, tuple[str, str | None]] = {
     "jobseeker": ("/me", None),
-    "student": ("/me", None),
+    "student": ("/me/learn", None),  # each role's own dashboard, as for one individual account (app/auth/roles.py)
     "expert": ("/expert", None),
     "company": ("/company", "companies"),
     "college": ("/org/demo-engineering-college", "organizations"),
@@ -95,6 +95,9 @@ async def ensure_persona(db, admin, role: str) -> dict[str, Any]:
         "target_role": "Data analyst" if role != "expert" else "",
         "cities": "Hyderabad",
         "level": "student" if role == "student" else "",
+        "roles": [role],  # one individual account role each (app/auth/roles.py): its own dashboard
+        "active_role": role,
+        "roles_pending": False,
         "notify": {},
         "ui": {},
         "ref_flags": [],

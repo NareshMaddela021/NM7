@@ -54,13 +54,14 @@ async def test_switch_keeps_the_admin_signed_in_and_back_to_admin(owner, db):
     sessions = await db[SESSIONS].count_documents({"user_id": admin["id"]})
 
     for role, label, path, kind in (("jobseeker", "Job seeker", "/me", "customer"),
-                                    ("student", "Student", "/me", "customer"),
+                                    ("student", "Student", "/me/learn", "customer"),
                                     ("expert", "Expert", "/expert", "expert")):  # fmt: skip
         out = await switch(owner, role)
         assert out["path"] == path and out["view"]["label"] == label and out["view"]["readOnly"] is False
         now_me = await me(owner)
         assert now_me["id"] == persona_id(admin["id"], role) and now_me["role"] == kind
         assert now_me["view"]["role"] == role and now_me["view"]["mode"] == "persona"
+        assert now_me["roles"] == [role] and now_me["activeRole"] == role  # the individual account's role
         assert (await owner.get("/api/admin/stats")).status_code == 403  # admin pages are the admin's, not the view's
         assert (await owner.get(V)).json()["view"]["role"] == role  # the menu still sees the admin underneath
         await back(owner)

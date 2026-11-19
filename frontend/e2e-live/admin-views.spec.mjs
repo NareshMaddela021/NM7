@@ -9,7 +9,7 @@ import { SIZES, call, json, noSideScroll } from './college.mjs';
 
 const VIEWS = [
   ['jobseeker', 'Job seeker', /\/me$/],
-  ['student', 'Student', /\/me$/],
+  ['student', 'Student', /\/me\/learn/],
   ['expert', 'Expert', /\/expert/],
   ['company', 'Company', /\/company/],
   ['college', 'College', /\/org\/demo-engineering-college/],

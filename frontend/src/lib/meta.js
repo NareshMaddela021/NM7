@@ -25,7 +25,7 @@ export const ROUTE_META = [
   [/^\/editor/, 'Resume editor', 'Edit your scanned resume in the builder.'],
   [/^\/checkout/, 'Checkout', 'Pay securely for your resume service.'],
   [/^\/login/, 'Sign in', 'Sign in to track orders, edit resumes and chat with your expert.'],
-  [/^\/signup/, 'Create your account', 'Create a free Nm7 account.'],
+  [/^\/signup/, 'Create your free Nm7 account', 'One free account to find jobs, build your career, or work as an expert.'],
   [/^\/forgot-password/, 'Reset your password', 'Get a code by email to set a new password.'],
   [/^\/admin\/setup/, 'Admin setup', 'One-time owner setup.'],
   [/^\/admin\/login/, 'Admin sign in', 'Nm7 admin console.'],

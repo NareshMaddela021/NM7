@@ -37,7 +37,7 @@ for (const [label, opts] of SIZES) {
       await expect(page.getByRole('banner').getByRole('link', { name: 'Create free account' })).toBeVisible();
       await page.getByRole('banner').getByRole('link', { name: 'Create free account' }).click();
       await expect(page).toHaveURL(/\/signup$/);
-      await expect(page.getByRole('heading', { level: 1, name: 'Create your account' })).toBeVisible();
+      await expect(page.getByRole('heading', { level: 1, name: 'Create your free Nm7 account' })).toBeVisible();
 
       // signed in: gone from the top bar, the hero and the footer call to action
       const mail = email('signupnav-top');
@@ -63,13 +63,14 @@ for (const [label, opts] of SIZES) {
         await join.click();
         await expect(page).toHaveURL(url);
         if (href.startsWith('/signup')) {
-          // job seekers and students: a customer account, picked on the page
-          await expect(page.getByRole('radio', { name: 'Get my resume done' })).toHaveAttribute('aria-checked', 'true');
-          await expect(page.getByRole('radio', { name: 'Work as an expert' })).toHaveAttribute('aria-checked', 'false');
+          // job seekers and students: the one individual sign-up page (the role is ticked on the next step,
+          // individual-account.spec.mjs)
+          await expect(page.getByRole('heading', { level: 1, name: 'Create your free Nm7 account' })).toBeVisible();
+          await expect(page.getByRole('radio')).toHaveCount(0);
         }
       }
       await page.goto('/signup?role=expert');
-      await expect(page.getByRole('radio', { name: 'Work as an expert' })).toHaveAttribute('aria-checked', 'true');
+      await expect(page.getByRole('heading', { level: 1, name: 'Create your free Nm7 account' })).toBeVisible();
 
       // the last call to action, above the footer
       await page.goto('/');
