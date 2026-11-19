@@ -32,7 +32,8 @@ test('sign in to admin and open the demo accounts', async ({ browser }) => {
     await admin.getByRole('button', { name: 'Continue' }).click();
     await admin.getByLabel('Authenticator code').fill(totp(ADMIN.secret));
     await admin.getByRole('button', { name: 'Verify & open admin' }).click();
-    await admin.waitForURL(/\/admin(\/|$)/, { timeout: 30_000 });
+    await admin.waitForURL(/\/admin(?!\/login)(\/|$|\?)/, { timeout: 30_000 }); // not /admin/login itself
+    await admin.waitForLoadState('networkidle').catch(() => {});
     await actx.storageState({ path: join(STATE, 'admin.json') });
     info.admin = true;
 
@@ -46,14 +47,15 @@ test('sign in to admin and open the demo accounts', async ({ browser }) => {
       await ctx.close();
     };
     const viaPath = async (page, body) => { await page.goto(body.path); await page.waitForLoadState('networkidle').catch(() => {}); return { ok: true, url: new URL(page.url()).pathname }; };
+    // the demo college first: its reset also removed the other demos' students (fixed in the API, kept safe here)
+    await open('college', '/api/admin/demo-org/coordinator', {}, async (page, body) => {
+      await page.goto(body.path);
+      await page.waitForURL(/\/org\/(?!demo-login)[^/?]+/, { timeout: 30_000 }).catch(() => {}); // not the sign-in step's own /org/demo-login
+      return { ok: true, base: new URL(page.url()).pathname.match(/^\/org\/(?!demo-login)[^/]+/)?.[0] || null };
+    });
     await open('seeker', '/api/admin/seek/demo', { who: 'meera' }, viaPath);
     await open('student', '/api/admin/auto-apply/demo', {}, viaPath);
     await open('easy', '/api/admin/simple/demo', {}, viaPath);
-    await open('college', '/api/admin/demo-org/coordinator', {}, async (page, body) => {
-      await page.goto(body.path);
-      await page.waitForURL(/\/org\/[^/]+/, { timeout: 30_000 }).catch(() => {});
-      return { ok: true, base: new URL(page.url()).pathname.match(/^\/org\/[^/]+/)?.[0] || null };
-    });
     await open('company', '/api/admin/demo-company/hire/open', {}, async (page, body) => {
       await page.goto('/');
       await page.evaluate((s) => localStorage.setItem('nm7-recruiter-account', s), body.session);

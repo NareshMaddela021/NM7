@@ -21,7 +21,7 @@ export default defineConfig({
     { name: 'setup', testMatch: /setup\.smoke\.mjs/ },
     ...Object.entries(SIZES).map(([name, use]) => ({ name: `j-${name}`, use, testMatch: /journeys-.*\.smoke\.mjs/, dependencies: ['setup'] })),
   ],
-  webServer: [
+  webServer: process.env.JOURNEYS_SERVERS_UP ? undefined : [ // JOURNEYS_SERVERS_UP=1: the API and site are already running
     { command: 'sh e2e-live/api.sh', url: 'http://localhost:8001/health', reuseExistingServer: false, timeout: 120_000 },
     { command: 'node e2e-live/build-with-blog.mjs && node e2e-live/serve-dist.mjs dist', url: 'http://localhost:5182', reuseExistingServer: false, timeout: 240_000 },
   ],

@@ -23,9 +23,9 @@ test.describe('journey public', () => {
     }
     // phone: the header menu opens and its links are collected too
     if (ti.project.name.includes('phone')) {
-      await page.goto('/');
+      await page.goto('/'); await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {});
       const btn = page.getByRole('button', { name: /^Menu$/i }).first();
-      if (await btn.count()) { await btn.click(); await page.waitForTimeout(400); (await menuLinks(page)).forEach((l) => links.add(l)); await r.check(page, 'phone menu open on /'); } else r.note('no Menu button on the phone home page');
+      if (await btn.waitFor({ timeout: 15_000 }).then(() => true, () => false)) { await btn.click(); await page.waitForTimeout(400); (await menuLinks(page)).forEach((l) => links.add(l)); await r.check(page, 'phone menu open on /'); } else r.note('no Menu button on the phone home page');
     }
     // detail pages found from their lists
     for (const [list, re] of [['/jobs', /^\/jobs\/[^/?#]+$/], ['/salaries', /^\/salaries\/[^/?#]+$/], ['/blog', /^\/blog\/(?!category\/)[^/?#]+\/?$/], ['/jobs', /^\/companies\/[^/?#]+$/], ['/blog', /^\/blog\/category\/[^/?#]+$/]]) {
@@ -56,7 +56,7 @@ test.describe('journey public', () => {
     // companies and colleges have their own sign-in pages: they open, with a form
     for (const p of ['/for-companies', '/for-orgs', '/admin/login', '/forgot-password']) {
       await r.visit(page, p);
-      await r.step(page, `${p} has a form`, async () => { await expect(page.locator('form, input[type=email], a[href*="signup"], button').first()).toBeVisible({ timeout: 15_000 }); });
+      await r.step(page, `${p} has a form`, async () => { await expect(page.locator('main').locator('form, input, a[href*="signup"], button').filter({ visible: true }).first()).toBeVisible({ timeout: 15_000 }); });
     }
     r.finish(writes);
   });
