@@ -198,6 +198,9 @@ async def run_rules(db: AsyncDatabase, mailer: Mailer | None = None) -> dict[str
         from app.setup import checklist as setup_checklist
 
         done["setup_reminders"] = await setup_checklist.remind(db, mailer or get_mailer())  # P2: ≤ 1 a week, capped
+        from app.setup import teams as setup_teams
+
+        done["setup_team_reminders"] = await setup_teams.remind(db, mailer or get_mailer())  # P3: companies, colleges
         done["joining_checkins"] = await joining_checkins(db, mailer or get_mailer())  # Phase 6 S10: day 7 and day 30
         done["weekly_progress"] = await weekly_progress(db, mailer or get_mailer())  # Phase 6 S10: ≤ 1 a week a person
         done["vetting_expired"] = await vetting_jobs.nightly(db)  # V2: badges past 90 days, device hashes past 30

@@ -134,6 +134,8 @@ from app.seek import support as seek_support
 from app.setup.checklist import public as setup_public_router
 from app.setup.checklist import router as checklist_router
 from app.setup.router import router as setup_router
+from app.setup.teams import college as setup_college_router
+from app.setup.teams import company as setup_company_router
 from app.simple import demo as simple_demo
 from app.simple import guided as simple_guided
 from app.simple import jobs as simple_jobs
@@ -284,6 +286,8 @@ def create_app() -> FastAPI:
     app.include_router(checklist_router)  # profile setup P2: before /api/me/setup/{role}
     app.include_router(setup_public_router)
     app.include_router(setup_router)
+    app.include_router(setup_company_router)  # profile setup P3: /api/company/{cid}/checklist
+    app.include_router(setup_college_router)  # profile setup P3: /api/org/{org_id}/checklist
     app.include_router(google_auth_router)
     app.include_router(admin_auth_router)
     app.include_router(admin_setup_router)  # before admin_router: /api/admin/setup is public
