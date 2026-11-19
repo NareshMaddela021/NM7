@@ -89,7 +89,7 @@ export async function scan(page) {
  * checks it; check() checks the page as it is now (after a click). Problems are kept with a screenshot each;
  * finish() writes findings.json and fails the test when there were problems.
  */
-export function recorder(testInfo, { role, signedIn = false, allow404 = [] } = {}) {
+export function recorder(testInfo, { role, signedIn = false, allow404 = [], allow401 = [] } = {}) {
   const device = testInfo.project.name.includes('phone') ? 'phone 390' : 'desktop';
   const findings = [];
   const notes = [];
@@ -107,6 +107,7 @@ export function recorder(testInfo, { role, signedIn = false, allow404 = [] } = {
       if (!u.includes('/api/') || s < 400) return;
       const p = u.replace(API, '').split('?')[0];
       if (!signedIn && (s === 401 || s === 403)) return;
+      if (s === 401 && allow401.some((a) => p.startsWith(a))) return;
       if (s === 404 && allow404.some((a) => p.startsWith(a))) return;
       live.push(`API ${s}: ${r.request().method()} ${p}`);
     });

@@ -1,7 +1,11 @@
 // Deep journeys of the LIVE site as a signed-out visitor, desktop + 390 px (projects j-desktop / j-phone). Read-only:
 // nothing is submitted (sign-up pages are only opened), every write to the API is blocked by the guard.
 import { test, expect } from '@playwright/test';
+import { API } from './common.mjs';
 import { guard, recorder, menuLinks } from './journeys-common.mjs';
+
+/** Whether this site has Google sign-in on (live: yes; a local copy: no client ID, so no button). */
+const googleOn = async (request) => { try { return !!(await (await request.get(`${API}/api/public/site-flags`, { timeout: 60_000 })).json()).googleClientId; } catch { return true; } };
 
 const PUBLIC = ['/', '/jobs', '/salaries', '/templates', '/builder', '/linkedin', '/for-companies', '/for-orgs', '/pricing', '/grievance', '/login', '/signup',
   '/signup?role=expert', '/forgot-password', '/admin/login', '/terms', '/privacy', '/refund-policy', '/delivery-policy', '/expert-terms', '/contact', '/blog',
@@ -40,15 +44,17 @@ test.describe('journey public', () => {
     r.finish(writes);
   });
 
-  test('journey public › sign in and sign up pages: email form and the Google button', async ({ page }, ti) => {
+  test('journey public › sign in and sign up pages: email form and the Google button', async ({ page, request }, ti) => {
     test.setTimeout(300_000);
     const r = recorder(ti, { role: 'signed-out visitor' });
+    const google = await googleOn(request);
+    if (!google) r.note('Google sign-in is off on this site (no client ID): the Google button is not expected');
     r.watch(page);
     const writes = await guard(page, { mode: 'block' });
     for (const [p, email] of [['/login', 'Email'], ['/signup', 'Email'], ['/signup?role=expert', 'Email']]) {
       await r.visit(page, p);
       await r.step(page, `${p} email field`, async () => { await expect(page.getByLabel(email, { exact: true }).first()).toBeVisible({ timeout: 15_000 }); });
-      await r.step(page, `${p} Google button`, async () => {
+      if (google) await r.step(page, `${p} Google button`, async () => {
         await expect(page.getByTestId('google-button')).toBeVisible({ timeout: 20_000 });
         await expect(page.getByTestId('google-button').locator('iframe')).toBeVisible({ timeout: 20_000 });
       });
@@ -61,9 +67,10 @@ test.describe('journey public', () => {
     r.finish(writes);
   });
 
-  test('journey public › a job: View, Save, Share, Apply while signed out goes to sign-up and back to the same job', async ({ page }, ti) => {
+  test('journey public › a job: View, Save, Share, Apply while signed out goes to sign-up and back to the same job', async ({ page, request }, ti) => {
     test.setTimeout(300_000);
     const r = recorder(ti, { role: 'signed-out visitor' });
+    const google = await googleOn(request);
     r.watch(page);
     const writes = await guard(page, { mode: 'block', allow: [/^POST \/api\/(track|events)\b/] });
     await r.visit(page, '/jobs');
@@ -125,7 +132,7 @@ test.describe('journey public', () => {
       await page.getByTestId('apply-ask-signup').click();
       await page.waitForURL(/\/signup\?/, { timeout: 15_000 });
       await r.check(page, 'sign-up after Apply');
-      await expect(page.getByTestId('google-button')).toBeVisible({ timeout: 20_000 });
+      if (google) await expect(page.getByTestId('google-button')).toBeVisible({ timeout: 20_000 });
       // the "Sign in" link on the sign-up page keeps the way back to the job
       const back = await page.getByRole('link', { name: 'Sign in', exact: true }).last().getAttribute('href');
       if (new URL(back, 'https://x').searchParams.get('next') !== `/jobs/${slug}?apply=1`) throw new Error(`Sign in link on sign-up is ${back}`);

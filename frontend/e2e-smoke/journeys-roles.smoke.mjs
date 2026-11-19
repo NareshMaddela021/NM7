@@ -126,29 +126,43 @@ test.describe('journey seeker', () => {
     r.finish(writes);
   });
 
-  test('journey seeker › resume builder and PDF download', async ({ page }, ti) => {
-    test.setTimeout(300_000);
+  // one demo resume: two windows saving it at once get "changed elsewhere" (409), so this runs once with both sizes
+  test('journey seeker › resume builder and PDF download (desktop and 390 px)', async ({ browser }, ti) => {
+    test.skip(!ti.project.name.includes('desktop'), 'one demo resume: runs once (j-desktop), both sizes inside');
+    test.setTimeout(400_000);
     ready('seeker');
     const r = recorder(ti, { role: 'job seeker', signedIn: true, allow404: ALLOW404 });
+    const writes = [];
+    for (const [size, use] of Object.entries({ desktop: { viewport: { width: 1280, height: 900 } }, 'phone 390': { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true } })) {
+    const ctx = await browser.newContext({ ...use, storageState: join(STATE, 'seeker.json') });
+    const page = await ctx.newPage();
     r.watch(page);
-    const writes = await guard(page, { mode: 'block', allow: [/^POST \/api\/me\/exports\b/, /^POST \/api\/(track|events)\b/] });
-    await r.visit(page, '/builder');
-    await r.step(page, 'Download PDF', async () => {
+    // the download saves the demo resume first (PATCH), then records the export
+    writes.push(...await guard(page, { mode: 'block', allow: [/^POST \/api\/me\/exports\b/, /^PATCH \/api\/me\/resumes\/[^/]+$/, /^POST \/api\/(track|events)\b/] }));
+    await r.visit(page, '/builder', `${size}: /builder`);
+    await r.step(page, `${size}: Download PDF`, async () => {
       // the Start step first: "Continue" opens the person's own resume
       const cont = page.getByRole('button', { name: 'Continue', exact: true }).or(page.getByRole('link', { name: 'Continue', exact: true })).filter({ visible: true }).first();
       if (await cont.waitFor({ timeout: 15_000 }).then(() => true, () => false)) { await cont.click(); await page.waitForTimeout(1500); }
       const btn = page.getByRole('button', { name: 'Download PDF' }).filter({ visible: true }).first();
       await expect(btn).toBeVisible({ timeout: 30_000 });
       if (await btn.isDisabled()) { r.note('Download PDF is disabled (no name on the demo resume)'); return; }
-      const [dl] = await Promise.all([page.waitForEvent('download', { timeout: 60_000 }), btn.click()]);
+      const wait = page.waitForEvent('download', { timeout: 60_000 });
+      await btn.click();
+      // "Check before you download": the page preview with its checks, then "Download PDF (anyway)"
+      const again = page.getByRole('dialog').getByRole('button', { name: /^Download PDF/ });
+      if (await again.waitFor({ timeout: 15_000 }).then(() => true, () => false)) { await r.check(page, 'check before you download'); await again.click(); }
+      const dl = await wait;
       const name = dl.suggestedFilename();
-      const path = ti.outputPath(name);
+      const path = ti.outputPath(`${size.replace(/\W+/g, '-')}-${name}`);
       await dl.saveAs(path);
       const head = readFileSync(path).subarray(0, 5).toString();
       if (!/\.pdf$/i.test(name) || head !== '%PDF-') throw new Error(`download ${name} is not a PDF (starts ${JSON.stringify(head)})`);
-      r.note(`PDF downloaded: ${name}, ${readFileSync(path).length} bytes`);
-      await r.check(page, 'builder after PDF');
+      r.note(`${size}: PDF downloaded: ${name}, ${readFileSync(path).length} bytes`);
+      await r.check(page, `${size}: builder after PDF`);
     });
+    await ctx.close();
+    }
     r.finish(writes);
   });
 
@@ -250,7 +264,7 @@ test.describe('journey company', () => {
     test.setTimeout(900_000);
     const i = info();
     test.skip(!i.admin, 'no live admin');
-    const r = recorder(ti, { role: 'company', signedIn: true });
+    const r = recorder(ti, { role: 'company', signedIn: true, allow401: ['/api/auth/me'] }); // a company is not a personal account
     const actx = await browser.newContext({ storageState: join(STATE, 'admin.json') });
     const admin = await actx.newPage();
     await admin.goto('/admin'); await admin.waitForLoadState('networkidle').catch(() => {});
