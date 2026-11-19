@@ -30,7 +30,7 @@ export default function ExpertFaster({ onAdded }) {
           <input type="file" accept=".pdf,.docx,application/pdf" className="sr-only" aria-label={label} disabled={!!busy} onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ''; read(f, mode); }} />
         </label>
       ))}
-      <span className="xs muted">On LinkedIn: your profile → More → Save to PDF.</span>
+      <span className="xs muted">On LinkedIn: open your profile, then More, then Save to PDF.</span>
       {msg && <p className="small" role="status" style={{ margin: 0 }}>{msg}</p>}
     </div>
   );

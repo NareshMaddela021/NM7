@@ -1,14 +1,14 @@
 // Profile setup P1: the quick start after "What would you like to do?" — one question per screen (big tap choices
 // on a phone, a compact card on a desktop), then the role's first results page:
-//   /start/jobseeker → Jobs matched for you · /start/student → Internships and projects for you ·
-//   /start/expert → Your expert application. /start/<role>?all=1 goes through every step again ("Change my answers").
-// Every answer is saved at once (lib/quickStart.js → PUT /api/me/setup/<role>); a reload or a later visit picks up at
+//   /start/jobseeker -> Jobs matched for you · /start/student -> Internships and projects for you ·
+//   /start/expert -> Your expert application. /start/<role>?all=1 goes through every step again ("Change my answers").
+// Every answer is saved at once (lib/quickStart.js -> PUT /api/me/setup/<role>); a reload or a later visit picks up at
 // the same step. Every step has "Skip for now", and "Browse jobs" is always there. Steps already answered by the
 // person's existing data are passed (pre-filled when going through all of them). Its own lazy chunk.
 import { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Logo, ThemeToggle } from '../../components/Header';
-import { Spinner } from '../../components/ui';
+import { Icon, Spinner } from '../../components/ui';
 import { homeFor, useAuth } from '../../lib/auth';
 import { usePageMeta } from '../../lib/meta';
 import { ROLE_NAMES, activeRoleOf, rolesOf, switchRole } from '../../lib/roles';
@@ -117,7 +117,7 @@ function Flow({ role, results, all, user }) {
         <div className="stack g4">
           {idx === 0 && !all && <span className="small muted">Hi {(user.name || '').split(' ')[0]}, a few quick questions. Every one can be skipped.</span>}
           <h1 id="qs-q" ref={head} tabIndex={-1} className="qs-q">{q}</h1>
-          <p className="qs-reward" data-testid="qs-reward"><span aria-hidden="true">✓ </span>{reward}</p>
+          <p className="qs-reward" data-testid="qs-reward"><Icon name="check" size={16} className="qs-reward-ic" /> {reward}</p>
           {props.prefilled && <span className="xs muted" data-testid="qs-prefilled">From your profile. Change it, or continue.</span>}
         </div>
         <Step {...props} />
