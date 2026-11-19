@@ -11,6 +11,7 @@ import { EXPERIENCE, JOB_TYPES, WORK_TYPES, salaryText } from '../../lib/jobBoar
 import { Bar, Chip, Empty, Skel, Stat } from '../me/kit';
 import '../../styles/company-jobs.css';
 import { JobAuto, NewJobAuto, newJobBody, useAutoInfo } from './AutoApplyBits';
+import AgentJobs from './AgentJobs'; // Vetting Trust T5 (renders nothing unless the Trust switch allows)
 
 const BLANK = { title: '', cities: '', workType: 'onsite', jobType: 'full_time', experience: 'fresher', education: '', salaryMin: '', salaryMax: '', period: 'yearly', skills: '', description: '', applyMethod: 'nm7', applyUrl: '', applyEmail: '', closesAt: '', questions: [] };
 const NEW_Q = { text: '', kind: 'yesno', options: '', want: '', min: '', accept: '' };
@@ -100,6 +101,7 @@ export default function CompanyJobs({ t, c }) {
       <ul className="cj-list">
         {jobs.map((j) => <JobRow key={j.id} t={t} c={c} j={j} auto={auto} can={can} onEdit={() => setForm({ id: j.id, f: fromJob(j), editsLeft: j.editsLeft, live: j.status === 'active' })} onChanged={load} />)}
       </ul>
+      {jobs.length > 0 && <AgentJobs key={jobs.map((j) => `${j.id}${j.status}`).join()} c={c} />}
     </section>
   );
 }

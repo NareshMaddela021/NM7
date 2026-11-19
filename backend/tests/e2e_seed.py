@@ -11,6 +11,8 @@ MONGODB_DB=nm7_e2e uv run python -m tests.e2e_seed reset
 ... company-verify COMPANY_ID              → {"ok": true} (as if an admin approved it: Verified for a year)
 ... job JSON [STATUS] [AGE_HOURS]       → {"id", "slug"} (a job-board job, as an admin would add it)
 ... aa2-tester EMAIL                   → Auto Apply 2.0 shown to this email while hidden
+... trust-agent-person EMAIL PHONE     → T5: that person's mobile number, an adult age check and a resume (no consent)
+... trust-agent-run [HOUR]             → T5: one calling-agent pass at HOUR (default 11) IST tomorrow (any real hour)
 ... auto-apply-run [EMAIL [past]]      → the Auto Apply run now (any hour); with EMAIL and "past", that student's
                                           preview days are over first
 ... job-alerts EMAIL                   → {"sent": [{to, subject, text}], "stop": token} (the alert pass for one person,
@@ -249,6 +251,27 @@ async def main(cmd: str, *args: str) -> dict:
         (email,) = args
         await db["settings"].update_one({"_id": "site"}, {"$addToSet": {"trust.testers": email.lower()}}, upsert=True)
         return {"ok": True}
+    if cmd == "trust-agent-person":  # Vetting Trust T5: a phone, the age check and a resume (the consent is the UI's)
+        from tests.jobs_helpers import RESUME
+
+        mail, phone = args
+        u = await db["users"].find_one({"email": mail})
+        t = now()
+        await db["users"].update_one({"_id": u["_id"]}, {"$set": {"phone": f"+91 {phone[:5]} {phone[5:]}"}})
+        age = {"adult_from": t - timedelta(days=3650), "age_checked_at": t, "age_method": "dob"}
+        await db["trust_profiles"].update_one({"_id": u["_id"]}, {"$set": age}, upsert=True)
+        doc = {"name": "Main", "data": RESUME, "active": True, "created_at": t, "updated_at": t}
+        await db["resumes"].update_one({"user_id": u["_id"], "key": "r1"}, {"$set": doc}, upsert=True)
+        return {"id": u["_id"]}
+    if cmd == "trust-agent-run":  # Vetting Trust T5: one pass at a daytime hour (the e2e may run at night in India)
+        from datetime import datetime, time
+
+        from app.core.time import IST
+        from app.trust.agent import service as agent
+
+        hour = int(args[0]) if args else 11
+        at = datetime.combine((now().astimezone(IST) + timedelta(days=1)).date(), time(hour, 0), IST)
+        return await agent.run(db, t=at, force=True)
     if cmd == "trust-withdraw-token":  # Vetting Trust T1: the signed withdraw link's token (as in an email)
         from app.trust.consent import withdraw_token
 

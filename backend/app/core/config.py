@@ -97,6 +97,21 @@ class Settings(BaseSettings):
     surepass_token: str = ""
     surepass_base_url: str = "https://sandbox.surepass.io"
 
+    # Vetting Trust T5: WhatsApp + AI calls to matching candidates when a company posts a job (Admin → Skill checks →
+    # Vetting Trust → Calls & WhatsApp picks the providers; without keys only the test providers work). WhatsApp: Meta
+    # Cloud API (a permanent System User token, the phone number id, the app secret that signs webhooks, and a verify
+    # token we choose for the webhook set-up). AI calls: Bolna (an API key, the agent id, a secret we choose that signs
+    # its call-result webhook). docs/trust/T5-vendors.md. Never printed, logged or returned.
+    whatsapp_access_token: str = ""
+    whatsapp_phone_number_id: str = ""
+    whatsapp_app_secret: str = ""
+    whatsapp_verify_token: str = ""
+    whatsapp_graph_url: str = "https://graph.facebook.com/v21.0"
+    bolna_api_key: str = ""
+    bolna_agent_id: str = ""
+    bolna_base_url: str = "https://api.bolna.ai"
+    voice_webhook_secret: str = ""
+
     # Razorpay — empty until keys exist
     razorpay_key_id: str = ""
     razorpay_key_secret: str = ""

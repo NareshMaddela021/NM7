@@ -29,11 +29,11 @@ from app.core.time import IST, now
 
 Feature = Literal[
     "photos", "summary", "linkedin", "jobs", "projects", "roles", "offers", "vetting", "interview", "autoapply_tailor",
-    "autoapply_reply",
+    "autoapply_reply", "agent_reply",
 ]  # fmt: skip
 FEATURES: tuple[Feature, ...] = (
     "photos", "summary", "linkedin", "jobs", "projects", "roles", "offers", "vetting", "interview", "autoapply_tailor",
-    "autoapply_reply",
+    "autoapply_reply", "agent_reply",
 )  # fmt: skip
 PER_PERSON: dict[str, int] = {
     "photos": 5,
@@ -47,6 +47,7 @@ PER_PERSON: dict[str, int] = {
     "interview": 12,  # V3 screening interview: up to 7 follow-ups and 1 grading
     "autoapply_tailor": 25,  # Auto Apply 2.0: one tailoring per new job (never twice), up to the 25-a-day maximum
     "autoapply_reply": 30,  # Auto Apply 2.0 (A7): reading a company's email reply the rules can't place
+    "agent_reply": 10,  # Vetting Trust T5: a WhatsApp reply to the calling agent the rules can't read
 }
 PER_KIOSK: dict[str, int] = {
     "photos": 300,
@@ -60,6 +61,7 @@ PER_KIOSK: dict[str, int] = {
     "interview": 600,
     "autoapply_tailor": 600,
     "autoapply_reply": 600,
+    "agent_reply": 600,
 }
 DAILY_CAP = 2000  # every AI call on the site, all features together
 OUTCOMES = ("fallback", "failed", "limited", "capped", "dropped")  # always present per feature in usage()
