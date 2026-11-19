@@ -408,8 +408,8 @@ STEPS["company"] = (
 )
 STEPS["college"] = (
     Step("basics", "Check your college details", "Your college’s name and city show to students when they join a group.", 2, "/org/{id}/billing", college_basics, who="billing"),
-    Step("groups", "Make your first student group", "One batch or drive, with its own join link and QR code.", 3, "/org/{id}", student_groups, who="groups"),
-    Step("students", "Invite your students", "Share the group’s join link or QR. Students share their resume with you, with their consent.", 5, "/org/{id}", students_joined, who="manage"),
+    Step("groups", "Make your first student group", "One batch or drive, with its own join link and QR code.", 3, "/org/{id}#og-new", student_groups, who="groups"),
+    Step("students", "Invite your students", "Share the group’s join link or QR. Students share their resume with you, with their consent.", 5, "/org/{id}#og-groups", students_joined, who="manage"),
     Step("drive", "Plan your first placement drive", "Companies, rooms and times in one place. Students check in with a QR code.", 10, "/org/{id}/drives", first_drive, feature="drives", who="manage"),
     Step("companies", "Invite companies to see your students", "A recruiter gets a safe link to the students who allowed it, until the date you choose.", 5, "/org/{id}/recruiters", companies_invited, feature="recruiter_links", who="manage"),
     Step("reports", "Download your first placement report", "Numbers by branch and company for management, NAAC and NIRF work. No student contact details.", 2, "/org/{id}/dashboard", first_report, who="export"),

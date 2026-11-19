@@ -10,13 +10,19 @@ let freshUntil = 0;
  * next read skips the server's short cache so a step they just finished is ticked at once. */
 export function getChecklist(role) {
   if (!LIVE) return Promise.resolve(null);
-  try { if (sessionStorage.getItem(FRESH) === '1') { freshUntil = Date.now() + 3000; sessionStorage.removeItem(FRESH); } } catch { /* private mode */ }
-  const fresh = Date.now() < freshUntil; // a few seconds, so a second read at the same time (React's dev double run) agrees
+  const fresh = takeFresh();
   const q = new URLSearchParams();
   if (role) q.set('role', role);
   if (fresh) q.set('fresh', '1');
   const s = q.toString();
   return http(`/api/me/checklist${s ? `?${s}` : ''}`);
+}
+
+/** Did the person just come back from a step's page? Then the next read skips the server's short cache. True for a
+ * few seconds, so a second read at the same time (React's dev double run) agrees. */
+export function takeFresh() {
+  try { if (sessionStorage.getItem(FRESH) === '1') { freshUntil = Date.now() + 3000; sessionStorage.removeItem(FRESH); } } catch { /* private mode */ }
+  return Date.now() < freshUntil;
 }
 
 /** Called when the person opens a step's page. */

@@ -101,7 +101,7 @@ def test_college_detectors_links_and_plan_features():
     links = {s["id"]: s["link"] for s in c["steps"]}
     assert (
         links["basics"] == "/org/o1/billing"
-        and links["groups"] == "/org/o1"
+        and links["groups"] == "/org/o1#og-new"
         and links["reports"] == "/org/o1/dashboard"
     )
     c = C.build("college", {**f, "city": True, "features": {"drives": True, "recruiter_links": True}}, {}, {})
@@ -232,7 +232,7 @@ async def test_college_checklist_for_coordinators(owner, make_client, outbox, db
     out = (await c.get(f"/api/org/{oid}/checklist")).json()
     assert out["title"] == "Set up your college"
     assert status(out) == {"basics": "done", "groups": "done", "students": "next", "reports": "later"}  # free plan
-    assert next(s for s in out["steps"] if s["id"] == "students")["link"] == f"/org/{oid}"
+    assert next(s for s in out["steps"] if s["id"] == "students")["link"] == f"/org/{oid}#og-groups"
     # a student joins; a paid plan adds the drive and recruiter steps; a drive day and an invite tick them
     s, _ = await member(make_client, outbox, "asha@example.com", "Asha Rao")
     r = await s.post(

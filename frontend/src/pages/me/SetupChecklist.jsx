@@ -4,6 +4,9 @@
 // Phone: a compact card with a progress ring and one "Next step" button; "See all steps" opens every step with its
 // status, a one-line reward, the time it takes and "Skip for now". Complete: a small "Profile complete" line with the
 // level, and the card comes back only for renewals (an expired skill badge, the weekly "Still looking?").
+// P3: the same card shows the company's and the college's checklists (TeamChecklist.jsx): a step this member can't do
+// says who can (canAct false, actBy), members who can't skip (canSkip false) get no Skip for now, and a step's page
+// can open inside the dashboard (onOpen: the company dashboard's tabs).
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useToast } from '../../components/ui';
@@ -23,11 +26,12 @@ export function Ring({ done, total, size = 56 }) {
   );
 }
 
-function StepLink({ step, className, children, testid }) {
-  return <Link to={step.link} className={className} onClick={markOpened} data-testid={testid}>{children}</Link>;
+function StepLink({ step, className, children, testid, onOpen }) {
+  const open = (e) => { markOpened(); if (onOpen) onOpen(step, e); };
+  return <Link to={step.link} className={className} onClick={open} data-testid={testid}>{children}</Link>;
 }
 
-function Row({ s, onSkip, busy }) {
+function Row({ s, onSkip, busy, onOpen, canSkip }) {
   return (
     <li className="sc-row" data-testid="sc-row" data-step={s.id} data-status={s.status}>
       <span className="sc-row-main">
@@ -41,11 +45,12 @@ function Row({ s, onSkip, busy }) {
         <span className="small sc-reward">{s.reward}</span>
         <span className="xs muted">{minutes(s.minutes)}</span>
       </span>
-      {s.status !== 'done' && (
+      {s.status !== 'done' && s.canAct === false && <span className="xs muted sc-who" data-testid="sc-row-who">{s.actBy} can do this.</span>}
+      {s.status !== 'done' && s.canAct !== false && (
         <span className="sc-row-act">
-          {s.status !== 'waiting' && <StepLink step={s} className={`btn btn-sm ${s.status === 'next' ? 'btn-ink' : 'btn-outline'}`} testid="sc-row-open">{s.status === 'next' ? 'Start' : 'Open'}</StepLink>}
-          {s.status === 'waiting' && <StepLink step={s} className="btn btn-sm btn-outline" testid="sc-row-open">See status</StepLink>}
-          {(s.status === 'next' || s.status === 'later') && !s.skipped && <button type="button" className="btn btn-sm btn-ghost sc-skip" disabled={busy} onClick={() => onSkip(s.id)} data-testid="sc-row-skip">Skip for now</button>}
+          {s.status !== 'waiting' && <StepLink step={s} onOpen={onOpen} className={`btn btn-sm ${s.status === 'next' ? 'btn-ink' : 'btn-outline'}`} testid="sc-row-open">{s.status === 'next' ? 'Start' : 'Open'}</StepLink>}
+          {s.status === 'waiting' && <StepLink step={s} onOpen={onOpen} className="btn btn-sm btn-outline" testid="sc-row-open">See status</StepLink>}
+          {canSkip && (s.status === 'next' || s.status === 'later') && !s.skipped && <button type="button" className="btn btn-sm btn-ghost sc-skip" disabled={busy} onClick={() => onSkip(s.id)} data-testid="sc-row-skip">Skip for now</button>}
         </span>
       )}
     </li>
@@ -66,9 +71,10 @@ export default function SetupChecklist({ role }) {
 }
 
 /** The card itself (pure: tested in SetupChecklist.test.jsx). */
-export function ChecklistView({ c, open, busy, onSkip, onToggle }) {
+export function ChecklistView({ c, open, busy, onSkip, onToggle, onOpen, onReminders }) {
   if (!showCard(c)) return null;
   const skip = onSkip;
+  const canSkip = c.canSkip !== false;
 
   if (c.complete) {
     return (
@@ -95,7 +101,7 @@ export function ChecklistView({ c, open, busy, onSkip, onToggle }) {
       <div className="sc-head">
         <Ring done={c.done} total={c.total} />
         <span className="sc-head-text">
-          <h2 id="sc-h" className="mcard-title">{ROLE_TITLE[c.role] || 'Set up your profile'}</h2>
+          <h2 id="sc-h" className="mcard-title">{c.title || ROLE_TITLE[c.role] || 'Set up your profile'}</h2>
           {nx ? (
             <span className="sc-next">
               <span className="small"><span className="muted">Next: </span><strong data-testid="sc-next-title">{nx.title}</strong></span>
@@ -106,12 +112,16 @@ export function ChecklistView({ c, open, busy, onSkip, onToggle }) {
           ) : null}
         </span>
       </div>
+      {nx && nx.canAct === false && <p className="xs muted sc-who" style={{ margin: 0 }} data-testid="sc-next-who">{nx.actBy} can do this.</p>}
       <div className="sc-actions">
-        {nx && <StepLink step={nx} className="btn btn-signal sc-btn" testid="sc-next">Next step</StepLink>}
-        {nx && <button type="button" className="btn btn-ghost sc-btn sc-head-skip" disabled={busy} onClick={() => skip(nx.id)} data-testid="sc-skip">Skip for now</button>}
+        {nx && nx.canAct !== false && <StepLink step={nx} onOpen={onOpen} className="btn btn-signal sc-btn" testid="sc-next">Next step</StepLink>}
+        {nx && canSkip && <button type="button" className="btn btn-ghost sc-btn sc-head-skip" disabled={busy} onClick={() => skip(nx.id)} data-testid="sc-skip">Skip for now</button>}
         <button type="button" className="btn btn-outline sc-btn" aria-expanded={open} aria-controls="sc-all" onClick={onToggle} data-testid="sc-toggle">{open ? 'Hide steps' : `See all steps (${c.steps.length})`}</button>
       </div>
-      {open && <ul id="sc-all" className="sc-list" data-testid="sc-list">{c.steps.map((s) => <Row key={s.id} s={s} onSkip={skip} busy={busy} />)}</ul>}
+      {open && <ul id="sc-all" className="sc-list" data-testid="sc-list">{c.steps.map((s) => <Row key={s.id} s={s} onSkip={skip} busy={busy} onOpen={onOpen} canSkip={canSkip} />)}</ul>}
+      {open && onReminders && canSkip && (
+        <label className="small sc-remind"><input type="checkbox" checked={!!c.reminders} disabled={busy} onChange={(e) => onReminders(e.target.checked)} data-testid="sc-remind" /> Email a weekly reminder of the next step</label>
+      )}
     </section>
   );
 }
