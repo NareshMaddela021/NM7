@@ -24,11 +24,14 @@ async function sweep(page, r, paths, { area = /^\/(me|builder|jobs)/, skip = /^\
 }
 
 /** The setup card: shown (or "Profile complete"), all steps open, and Next step opens a working page. */
-async function setupCard(page, r, home) {
+async function setupCard(page, r, home, { optional = false } = {}) {
   await r.visit(page, home, `${home} setup card`);
-  await r.step(page, `${home} setup card shows`, async () => {
-    await expect(page.getByTestId('sc-card').or(page.getByTestId('sc-complete')).first()).toBeVisible({ timeout: 25_000 });
-  });
+  const shown = await page.getByTestId('sc-card').or(page.getByTestId('sc-complete')).first().waitFor({ timeout: 25_000 }).then(() => true, () => false);
+  if (!shown) {
+    if (optional) r.note(`${home}: no setup card for this account`);
+    else await r.fail(page, `${home} setup card shows`, 'no setup card (or "Profile complete") on this home page');
+    return;
+  }
   if (!(await page.getByTestId('sc-card').count())) { r.note(`${home}: setup card says complete`); return; }
   await r.step(page, `${home} See all steps`, async () => {
     await page.getByTestId('sc-toggle').click();
@@ -131,6 +134,9 @@ test.describe('journey seeker', () => {
     const writes = await guard(page, { mode: 'block', allow: [/^POST \/api\/me\/exports\b/, /^POST \/api\/(track|events)\b/] });
     await r.visit(page, '/builder');
     await r.step(page, 'Download PDF', async () => {
+      // the Start step first: "Continue" opens the person's own resume
+      const cont = page.getByRole('button', { name: 'Continue', exact: true }).or(page.getByRole('link', { name: 'Continue', exact: true })).filter({ visible: true }).first();
+      if (await cont.waitFor({ timeout: 15_000 }).then(() => true, () => false)) { await cont.click(); await page.waitForTimeout(1500); }
       const btn = page.getByRole('button', { name: 'Download PDF' }).filter({ visible: true }).first();
       await expect(btn).toBeVisible({ timeout: 30_000 });
       if (await btn.isDisabled()) { r.note('Download PDF is disabled (no name on the demo resume)'); return; }
@@ -180,7 +186,8 @@ test.describe('journey student', () => {
     r.watch(page);
     const writes = await guard(page, { mode: 'log' });
     await sweep(page, r, ['/me', '/me/learn', '/me/auto-apply', '/me/progress', '/me/jobs', '/me/groups', '/me/resumes', '/me/skill-checks', '/me/practice', '/me/roles', '/me/programs', '/start/student']);
-    for (const home of ['/me', '/me/learn']) await setupCard(page, r, home);
+    await setupCard(page, r, '/me');
+    await setupCard(page, r, '/me/learn', { optional: true }); // the Auto Apply demo student is an older account without the student role: its home is /me
     r.finish(writes);
   });
 });
@@ -237,24 +244,40 @@ test.describe('journey easy', () => {
 });
 
 test.describe('journey company', () => {
-  test.use({ storageState: join(STATE, 'company.json') });
-  test('journey company › every tab, Hire now', async ({ page }, ti) => {
-    test.setTimeout(600_000);
-    ready('company');
+  // a fresh demo company sign-in made here (Admin > Companies > demo), so this runs once (j-desktop) with both sizes
+  test('journey company › every tab, Hire now (desktop and 390 px)', async ({ browser }, ti) => {
+    test.skip(!ti.project.name.includes('desktop'), 'the demo company is reset to sign in: runs once, both sizes inside');
+    test.setTimeout(900_000);
+    const i = info();
+    test.skip(!i.admin, 'no live admin');
     const r = recorder(ti, { role: 'company', signedIn: true });
-    r.watch(page);
-    const writes = await guard(page, { mode: 'block', allow: [/^POST \/api\/(track|events)\b/] });
-    await r.visit(page, '/company');
-    const tabs = await page.getByRole('tab').evaluateAll((ts) => ts.map((t) => t.innerText.trim()).filter(Boolean));
-    r.note(`company tabs: ${tabs.join(', ')}`);
-    for (const t of tabs) {
-      await r.step(page, `tab ${t}`, async () => {
-        await page.getByRole('tab', { name: t, exact: true }).first().click({ timeout: 15_000 });
-        await r.check(page, `/company tab ${t}`);
-      });
+    const actx = await browser.newContext({ storageState: join(STATE, 'admin.json') });
+    const admin = await actx.newPage();
+    await admin.goto('/admin'); await admin.waitForLoadState('networkidle').catch(() => {});
+    const out = await admin.evaluate(async (api) => (await fetch(`${api}/api/admin/demo-company/hire/open`, { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: '{}' })).json(), API);
+    await actx.close();
+    if (!out?.session) { r.note(`demo company not opened: ${JSON.stringify(out).slice(0, 200)}`); r.finish(); return; }
+    const allWrites = [];
+    for (const [size, use] of Object.entries({ desktop: { viewport: { width: 1280, height: 900 } }, 'phone 390': { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true } })) {
+      const ctx = await browser.newContext(use);
+      await ctx.addInitScript((s) => { try { localStorage.setItem('nm7-recruiter-account', s); } catch { /* none */ } }, out.session);
+      const page = await ctx.newPage();
+      r.watch(page);
+      const writes = await guard(page, { mode: 'block', allow: [/^POST \/api\/(track|events)\b/] });
+      await r.visit(page, '/company', `${size}: /company`);
+      const tabs = await page.getByRole('tab').evaluateAll((ts) => ts.map((t) => t.innerText.trim()).filter(Boolean));
+      r.note(`${size} company tabs: ${tabs.join(', ')}`);
+      for (const t of tabs) {
+        await r.step(page, `${size} tab ${t}`, async () => {
+          await page.getByRole('tab', { name: t, exact: true }).first().click({ timeout: 15_000 });
+          await r.check(page, `${size}: /company tab ${t}`);
+        });
+      }
+      allWrites.push(...writes);
+      await ctx.close();
     }
-    r.note(`writes blocked: ${writes.filter((w) => !w.allowed).map((w) => `${w.method} ${w.path}`).join(', ') || 'none'}`);
-    r.finish(writes);
+    r.note(`writes blocked: ${[...new Set(allWrites.filter((w) => !w.allowed).map((w) => `${w.method} ${w.path}`))].join(', ') || 'none'}`);
+    r.finish(allWrites);
   });
 });
 

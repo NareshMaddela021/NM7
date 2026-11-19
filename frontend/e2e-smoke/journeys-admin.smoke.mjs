@@ -72,7 +72,7 @@ test.describe('journey admin', () => {
         const ctx = await browser.newContext({ ...use, storageState: join(STATE, 'admin.json') });
         const page = await ctx.newPage();
         r.watch(page);
-        const writes = await guard(page, { mode: 'block', allow: [/^POST \/api\/admin\/views\/(switch|stop)$/, /^POST \/api\/(track|events)\b/] });
+        const writes = await guard(page, { mode: 'block', allow: [/^POST \/api\/admin\/views\/(switch|stop)$/, /^POST \/api\/(track|events)\b/, /^POST \/api\/me\/resumes$/] }); // the persona's first resume (made-up)
         const L = `${size} ${role}`;
         await r.visit(page, '/admin', `${L}: /admin before`);
         const opened = await r.step(page, `${L}: Switch to`, async () => {
