@@ -89,7 +89,7 @@ def _dates(starts, ends) -> tuple[str | None, str | None]:
 FREE_ONLY_NM7 = ApiError(
     403,
     "nm7_only",
-    "Free downloads for members come with the Drive and Campus plans — ask your Owner to upgrade (Organization → "
+    "Free downloads for members come with the Drive and Campus plans — ask your Owner to upgrade (Organization > "
     "Billing), or ask Nm7.",
 )
 

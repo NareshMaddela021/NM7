@@ -353,7 +353,7 @@ def featured(f: dict[str, Any], share_link: str) -> list[dict[str, str]]:
                     "why": "One tap for recruiters to see your full resume."})  # fmt: skip
     else:
         out.append({"kind": "resume", "title": "Your Nm7 resume link", "link": "",
-                    "why": "Turn on your resume link in My dashboard → Share link, then pin it here."})  # fmt: skip
+                    "why": "Turn on your resume link in My dashboard > Share link, then pin it here."})  # fmt: skip
     return out
 
 

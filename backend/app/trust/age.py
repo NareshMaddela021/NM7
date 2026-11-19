@@ -77,7 +77,7 @@ async def require_ok(db, uid: str) -> None:
     p = await db[TRUST_PROFILES].find_one({"_id": uid}) or {}
     if not p.get("age_checked_at"):
         raise ApiError(
-            428, "age_check", "Please confirm your date of birth first (Profile & settings → Privacy & consent)."
+            428, "age_check", "Please confirm your date of birth first (Profile & settings > Privacy & consent)."
         )
     if p.get("adult_from") and p["adult_from"] > now() and not p.get("parent_confirmed_at"):
         raise ApiError(

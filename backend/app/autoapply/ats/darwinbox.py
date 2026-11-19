@@ -36,11 +36,11 @@ class Darwinbox(Adapter):
             "api_key",
             "Recruitment API key",
             secret=True,
-            help="Darwinbox → Settings → Integrations → API, or ask your Darwinbox account manager.",
+            help="Darwinbox > Settings > Integrations > API, or ask your Darwinbox account manager.",
         ),
     ]
     how = (
-        "Ask your Darwinbox account manager (or a Darwinbox admin under Settings → Integrations → API) to turn on "
+        "Ask your Darwinbox account manager (or a Darwinbox admin under Settings > Integrations > API) to turn on "
         "the Recruitment API for Nm7; they give you the user name, password and API key."
     )
 

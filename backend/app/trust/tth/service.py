@@ -110,14 +110,14 @@ def dur_text(m: int | float | None) -> str:
 
 
 def change(cur: int | None, prev: int | None) -> dict[str, Any]:
-    """▲ slower / ▼ faster than the period before (lower is better)."""
+    """Slower / faster than the period before (lower is better)."""
     if cur is None or prev is None:
         return {"dir": "none", "text": "No earlier period to compare", "delta": None}
     d = cur - prev
     if d == 0:
         return {"dir": "same", "text": "Same as the period before", "delta": 0}
     return {"dir": "up" if d > 0 else "down", "delta": d,
-            "text": f"{'▲' if d > 0 else '▼'} {dur_text(abs(d))} {'slower' if d > 0 else 'faster'} than the period before"}  # fmt: skip
+            "text": f"{dur_text(abs(d))} {'slower' if d > 0 else 'faster'} than the period before"}  # fmt: skip
 
 
 def pct(xs: list[int], q: float) -> int | None:
