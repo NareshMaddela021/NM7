@@ -108,6 +108,10 @@ def task_out(a: dict[str, Any], lang: str = "en") -> dict[str, Any]:
         out["photo"] = {"checked": tk["photo"].get("genuine") in ("yes", "unsure"), "faces": tk["photo"].get("faces")}
     if st == "started":
         out["endsAt"] = ms(tk.get("ends_at"))
+    if tk.get("type") == "coding":  # Vetting Trust T14: "X of Y hidden tests passed", failing VISIBLE samples only
+        cd = tk.get("coding") or {}
+        out["coding"] = {"language": cd.get("language"), "status": cd.get("status") or "started", "passed": cd.get("passed"),
+                         "total": cd.get("total"), "failingSamples": cd.get("failing_samples") or []}  # fmt: skip
     return out
 
 
@@ -560,6 +564,13 @@ async def result(aid: str, auth: CustomerAuth, db: DB) -> dict[str, Any]:
         rk = await RK.skill_status(db, a["user_id"], a["skill"], now(), last, pol)
         r.update(retake=rk, againAt=rk["nextAt"], canRetry=rk["canStart"], pledge=PL.out(a.get("pledge")),
                  taskPledge=PL.out((a.get("task") or {}).get("pledge")))  # fmt: skip
+        if (
+            r.get("task") and r["task"]["status"] == "open"
+        ):  # T14: this task will be a coding task: the replay consent line
+            from app.trust.code import service as CODE
+
+            if await CODE.problem_for(db, a):
+                r["task"]["coding"] = {"status": "open", "consent": await CODE.consent_line(db, a["user_id"])}
     return r
 
 
@@ -586,13 +597,25 @@ async def task_start(aid: str, auth: CustomerAuth, db: DB, body: TaskStartIn | N
         raise ApiError(409, "done", "You have sent this task already.")
     task = meta["task"]
     if not tk.get("started_at"):
+        from app.trust.code import service as CODE
         from app.trust.honesty import pledge as PL
 
         pledged = await PL.check(db, a["user_id"], (body or TaskStartIn()).pledge, a.get("lang", "en"), t)  # T9
-        tk = {"status": "started", "type": task["type"], "started_at": t,
-              "ends_at": t + timedelta(minutes=task["minutes"] * (E.EXTRA_TIME if a.get("extra_time") else 1) + 2),
+        problem = await CODE.problem_for(db, a) if task["type"] == "tech" else None  # T14: a coding task (Trust only)
+        minutes = int(problem.get("minutes") or task["minutes"]) if problem else task["minutes"]
+        tk = {"status": "started", "type": "coding" if problem else task["type"], "started_at": t,
+              "ends_at": t + timedelta(minutes=minutes * (E.EXTRA_TIME if a.get("extra_time") else 1) + 2),
               **({"pledge": pledged} if pledged else {})}  # fmt: skip
+        if problem:
+            await CODE.open_task(db, a, problem, t)
         await db[SKILL_ATTEMPTS].update_one({"_id": a["_id"]}, {"$set": {"task": tk}})
+    if tk.get("type") == "coding":  # Vetting Trust T14: the problem (never its hidden tests) instead of a written brief
+        from app.trust.code import service as CODE
+
+        cv = await CODE.view(db, a["_id"], a["user_id"])
+        return {"type": "coding", "title": cv["title"], "brief": cv["statement"], "material": "", "situations": [],
+                "minutes": round((tk["ends_at"] - tk["started_at"]).total_seconds() / 60) - 2, "endsAt": ms(tk["ends_at"]),
+                "rubric": [{"label": "Hidden tests passed"}], "photo": False, "coding": cv}  # fmt: skip
     lang = a.get("lang", "en")
     situations = []
     for i, s in enumerate(task.get("situations") or []):
@@ -638,6 +661,8 @@ async def task_submit(aid: str, body: TaskIn, auth: CustomerAuth, db: DB) -> dic
     tk = a.get("task") or {}
     if tk.get("status") != "started":
         raise ApiError(409, "not_started", "Open the task first." if not tk else "You have sent this task already.")
+    if tk.get("type") == "coding":  # Vetting Trust T14: sent from the code editor (POST /api/me/trust/code/{id}/submit)
+        raise ApiError(409, "coding", "Please send your code with Submit in the code editor.")
     t = now()
     meta = await bank_meta(db, a["skill"])
     role = BY_TEST[a["skill"]]

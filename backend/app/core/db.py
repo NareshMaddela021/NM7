@@ -182,6 +182,9 @@ TRUST_FAIRNESS_EVENTS = (
 )
 TRUST_REGRADES = "trust_regrades"  # T12: second-opinion re-grades of AI-graded answers (5% sample), human review
 TRUST_FAIRNESS = "trust_fairness"  # T12: _id = ISO week: the weekly pass-rate gap snapshot (counts per group only)
+TRUST_CODE_PROBLEMS = "trust_code_problems"  # T14: coding problems (statement, starters, samples, HIDDEN tests)
+TRUST_CODE = "trust_code"  # T14: _id = attempt id: the coding task's draft, runs, queued submission, hidden results
+TRUST_CODE_REPLAYS = "trust_code_replays"  # T14: editor keystroke replays (own consent, 90 days)
 TRUST_HIRE_EVENTS = "trust_hire_events"  # T13: _id = job:kind: the first time a job reached a hiring step (no people)
 TRUST_FACE = "trust_face"  # T3: _id = user id: the ID + selfie result, retries, review, joining check (never photos)
 LEARN_PATHS = "learn_paths"  # Phase 6 S2, _id = role id: courses → project → skill check (Admin → Learning paths)
@@ -327,6 +330,9 @@ COLLECTIONS = (
     TRUST_REGRADES,
     TRUST_FAIRNESS,
     TRUST_HIRE_EVENTS,
+    TRUST_CODE_PROBLEMS,
+    TRUST_CODE,
+    TRUST_CODE_REPLAYS,
     VETTING_L4,
     VETTING_REVIEWERS,
     VETTING_INTERVIEWS,
@@ -577,6 +583,13 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel("at"),
     ],  # fmt: skip
     TRUST_FAIRNESS_EVENTS: [IndexModel("at"), IndexModel([("company_id", ASCENDING), ("at", DESCENDING)])],
+    TRUST_CODE_PROBLEMS: [IndexModel("skills")],
+    TRUST_CODE: [
+        IndexModel("user_id"),
+        IndexModel("created_at"),
+        IndexModel([("submission.status", ASCENDING), ("submission.next_at", ASCENDING)], sparse=True),
+    ],
+    TRUST_CODE_REPLAYS: [IndexModel("user_id"), IndexModel("attempt_id"), IndexModel("created_at")],
     TRUST_HIRE_EVENTS: [IndexModel("job_id"), IndexModel([("company_id", ASCENDING), ("at", DESCENDING)])],
     TRUST_REGRADES: [
         IndexModel([("kind", ASCENDING), ("ref", ASCENDING)], unique=True),

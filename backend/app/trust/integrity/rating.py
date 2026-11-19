@@ -205,6 +205,21 @@ KINDS: dict[str, Kind] = {
         "A webcam photo didn’t look like the person from your ID check.",
         "T8 snapshots",
     ),
+    # T14 coding tasks (from the editor's counters / replay; a person watches the replay before deciding anything)
+    "code_big_paste": Kind(
+        1.5,
+        3.0,
+        "Coding task: a large block of code was pasted into the editor",
+        "A large block of code was pasted into the code editor in your coding task.",
+        "T14 coding",
+    ),
+    "code_no_typing": Kind(
+        2.0,
+        2.0,
+        "Coding task: the solution appeared with almost no typing",
+        "Your coding task’s solution was written with almost no typing in the editor.",
+        "T14 coding",
+    ),
 }
 
 

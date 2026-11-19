@@ -4,13 +4,16 @@
 //          browser can't do that
 //   proof: work situations as big answer cards, then an optional photo of past work or a certificate (made smaller
 //          in the browser first)
+//   coding (Vetting Trust T14): the code editor, Run on the samples, Submit to the hidden tests (trust/Coding.jsx)
 // Pasted characters and time away from the page are counted (never blocked) and sent with the answer.
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { http } from '../../../services/http';
 import { appendSpeech, useSpeech } from '../../../lib/speechCore';
+import { lazyRetry } from '../../../lib/chunks';
 import { MeCard, Skel } from '../kit';
 import { API, SPEECH_LANG, clock, compressImage, emptySignals, useSignals, words } from './lib';
 
+const Coding = lazy(lazyRetry(() => import('../trust/Coding'))); // Vetting Trust T14: a coding task (Trust only)
 const MIN_SPEAK = 60;
 const MAX_SPEAK = 90;
 
@@ -144,6 +147,21 @@ export default function Task({ attempt, pledge, onDone, onCancel }) {
 
   if (err) return <MeCard tone="warn" title="The task didn’t open" sub={err}><button type="button" className="btn btn-outline" onClick={onCancel}>Back</button></MeCard>;
   if (!t) return <Skel cards={1} lines={4} label="Opening the task" />;
+  if (t.type === 'coding') {
+    return (
+      <section ref={box} className="mcard vet-task" aria-label={`Coding task: ${t.title}`} data-testid="vt-task">
+        <div className="vet-bar-row">
+          <span className="stack g2" style={{ minWidth: 0 }}>
+            <span className="mkicker">Coding task · about {t.minutes} min</span>
+            <h2 className="vet-h2">{t.title}</h2>
+          </span>
+          <span className={`vet-clock ${left < 120 ? 'low' : ''}`} role="timer" aria-live="off" aria-label={`${clock(left)} left for the task`}><small>Time left</small>{clock(left)}</span>
+        </div>
+        <p className="vet-brief" style={{ whiteSpace: 'pre-line' }}>{t.brief}</p>
+        <Suspense fallback={<Skel cards={1} lines={4} label="Opening the code editor" />}><Coding attempt={attempt} task={t} left={left} onDone={onDone} onCancel={onCancel} /></Suspense>
+      </section>
+    );
+  }
 
   const speechOk = typeof window !== 'undefined' && !!(window.SpeechRecognition || window.webkitSpeechRecognition);
   const voice = t.type === 'voice' && speechOk;

@@ -31,19 +31,51 @@ export function VerifiedBadge({ v, role }) {
   );
 }
 
-function TaskState({ r, onOpen, appeals }) {
+function TaskState({ r, onOpen, appeals, onRefresh }) {
   const t = r.task;
   const [pledge, setPledge] = useState(); // T9: undefined = not asked, null = not ticked yet, n = the version ticked
+  const [replayOk, setReplayOk] = useState(false); // T14: the "Coding replay" consent, ticked in the task start
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
   if (!t || r.retest || r.kind === 'refresh') return null;
   if (t.status === 'locked') return null;
+  const cl = t.coding?.consent; // T14: this task opens as a coding task (Vetting Trust only)
+  const open = async () => {
+    setErr('');
+    if (cl && replayOk && !cl.given) {
+      setBusy(true);
+      try { await http(`/api/me/trust/consents/${cl.purpose}`, { method: 'POST' }); } catch (e) { setErr(e.message); setBusy(false); return; }
+      setBusy(false);
+    }
+    onOpen(pledge);
+  };
   if (t.status === 'open' || t.status === 'started') {
     return (
-      <MeCard tone="accent" icon="✎" title="Do the practical task" sub="The last step to get “Skill verified”. A short real-work task; it is marked out of 5 stars and you need 3 (60/100)." testid="vt-task-card">
+      <MeCard tone="accent" icon="✎" title={cl ? 'Do the coding task' : 'Do the practical task'} sub={cl ? 'The last step to get “Skill verified”. Write code in the browser, run it on the sample tests, then submit: hidden tests decide the score (you need 60/100).' : 'The last step to get “Skill verified”. A short real-work task; it is marked out of 5 stars and you need 3 (60/100).'} testid="vt-task-card">
         {t.status === 'open' && r.retake && <Suspense fallback={null}><Pledge kind="task" lang={r.lang} onChange={setPledge} /></Suspense>}
+        {t.status === 'open' && cl && !cl.given && (
+          <label className="vet-toggle" data-testid="vt-replay-consent">
+            <input type="checkbox" checked={replayOk} onChange={(e) => setReplayOk(e.target.checked)} data-testid="vt-replay-tick" />
+            <span><strong>Optional: {cl.title}.</strong> We record your typing in this editor only to show reviewers how the solution was written. <span className="xs muted">{cl.text}</span></span>
+          </label>
+        )}
+        {err && <p className="error" role="alert">{err}</p>}
         <div className="mrow">
-          <button type="button" className="btn btn-signal btn-lg" disabled={t.status === 'open' && pledge === null} onClick={() => onOpen(pledge)} data-testid="vt-task-open">{t.status === 'started' ? 'Carry on with the task' : 'Start the practical task'}</button>
+          <button type="button" className="btn btn-signal btn-lg" disabled={busy || (t.status === 'open' && pledge === null)} onClick={open} data-testid="vt-task-open">{t.status === 'started' ? 'Carry on with the task' : cl ? 'Start the coding task' : 'Start the practical task'}</button>
           <span className="xs muted">The clock starts when you open it.</span>
         </div>
+      </MeCard>
+    );
+  }
+  if (t.coding && t.status === 'grading') {
+    const check = async () => {
+      setBusy(true);
+      try { await http(`/api/me/trust/code/${r.id}`); onRefresh?.(); } catch (e) { setErr(e.message); } finally { setBusy(false); }
+    };
+    return (
+      <MeCard tone="flat" icon="⌛" title="Your code is saved and waiting to be checked" sub="The code sandbox runs it against the hidden tests as soon as it can. Nothing is lost; your result appears here." testid="vt-code-queued">
+        {err && <p className="error" role="alert">{err}</p>}
+        <div><button type="button" className="btn btn-outline" disabled={busy} onClick={check} data-testid="vt-code-check">Check now</button></div>
       </MeCard>
     );
   }
@@ -51,7 +83,7 @@ function TaskState({ r, onOpen, appeals }) {
     return <MeCard tone="flat" icon="⌛" title="Your task is with our team" sub="Our team will grade it within a day. We will tell you by email and here." testid="vt-task-review" />;
   }
   return (
-    <MeCard tone={t.score >= 60 ? 'ok' : 'warn'} icon="★" title={`Practical task: ${t.stars}/5`} sub={t.score >= 60 ? 'Passed.' : 'Not passed this time. You can take the skill check again from the date above.'} testid="vt-task-done">
+    <MeCard tone={t.score >= 60 ? 'ok' : 'warn'} icon="★" title={t.coding ? `Coding task: ${t.stars}/5` : `Practical task: ${t.stars}/5`} sub={t.score >= 60 ? 'Passed.' : 'Not passed this time. You can take the skill check again from the date above.'} testid="vt-task-done">
       {t.feedback?.length > 0 && (
         <ul className="mlist">
           {t.feedback.map((f) => (
@@ -60,6 +92,9 @@ function TaskState({ r, onOpen, appeals }) {
             </li>
           ))}
         </ul>
+      )}
+      {t.coding?.total != null && (
+        <p className="small" style={{ margin: 0 }} data-testid="vt-code-result"><strong>{t.coding.passed} of {t.coding.total} hidden tests passed.</strong>{t.coding.failingSamples?.length ? ` Sample tests that failed: ${t.coding.failingSamples.join(', ')}.` : ''}</p>
       )}
       {t.photo && <span className="xs muted">{t.photo.checked ? 'Your photo was checked.' : 'We couldn’t use your photo; that doesn’t change the score.'}</span>}
       {t.status === 'graded' && <Appeal kind="task" refId={r.id} what="the practical task’s marks" appeals={appeals} />}
@@ -169,7 +204,7 @@ export default function Result({ id, initial, onRetest }) {
         <Suspense fallback={<Skel cards={1} lines={4} label="Opening the task" />}>
           <Task attempt={r} pledge={task.pledge} onDone={(x) => { setR(x); setTask(false); window.scrollTo?.(0, 0); http(`${API}/${id}`).then(setR, () => {}); }} onCancel={() => setTask(false)} />
         </Suspense>
-      ) : <TaskState r={r} onOpen={(pledge) => setTask({ pledge })} appeals={appeals} />}
+      ) : <TaskState r={r} onOpen={(pledge) => setTask({ pledge })} appeals={appeals} onRefresh={() => http(`${API}/${id}`).then(setR, () => {})} />}
 
       <MeCard tone="flat" className="mcard-tight" icon="↗" title="Keep learning" sub={improve.length ? `Practise ${improve.slice(0, 2).map((x) => x.topic).join(' and ')} for free, then try again.` : 'Free learning paths and practice tests for this role.'}>
         <div className="mrow">

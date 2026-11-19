@@ -1,0 +1,32 @@
+/* Vetting Trust T14: the coding task's editor and the code replay (loaded only with those lazy chunks). */
+.ct-row { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+.ct-row .label { margin: 0; }
+.ct-lang { width: auto; min-width: 180px; max-width: 100%; min-height: 44px; }
+.ct-editor { display: flex; border-radius: 14px; overflow: hidden; background: #0f1729; border: 1px solid #1e293b; max-width: 100%; }
+.ct-nums { margin: 0; padding: 12px 8px 12px 10px; min-width: 2.6em; text-align: right; color: #64748b; background: #0b1220; font: 14px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; overflow: hidden; user-select: none; height: 360px; box-sizing: border-box; }
+.ct-area { flex: 1 1 auto; min-width: 0; height: 360px; box-sizing: border-box; margin: 0; padding: 12px; border: 0; resize: vertical; background: transparent; color: #e8ecf6; caret-color: #fbbf24; font: 14px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; tab-size: 4; white-space: pre; overflow: auto; }
+.ct-area:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
+.ct-out, .ct-code { margin: 0; padding: 10px 12px; border-radius: 10px; background: #f6f7fb; border: 1px solid var(--border); font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre; overflow-x: auto; max-width: 100%; color: var(--ink); }
+.ct-io { display: flex; flex-direction: column; gap: 4px; margin: 8px 0; min-width: 0; }
+.ct-results { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.ct-result { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--border); min-width: 0; }
+.ct-result.ok { border-color: #86efac; background: #f0fdf4; }
+.ct-result.bad { border-color: #fecaca; background: #fef2f2; }
+.ct-wait { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; border-radius: 14px; background: #f6f7fb; border: 1px solid var(--border); align-items: flex-start; }
+.ct-replay { min-width: 0; }
+.ct-speeds { display: inline-flex; gap: 4px; }
+.ct-speeds .btn, .ct-row .btn { min-height: 44px; }
+.ct-track { position: relative; padding-bottom: 10px; }
+.ct-range { width: 100%; min-height: 32px; }
+.ct-marks { position: absolute; left: 8px; right: 8px; bottom: 0; height: 10px; pointer-events: none; }
+.ct-mark { position: absolute; top: 0; width: 4px; height: 10px; margin-left: -2px; border-radius: 2px; background: #f59e0b; }
+.ct-mark.big { background: #dc2626; }
+.ct-pastes { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; }
+.ct-pastes .btn { min-height: 44px; }
+.ct-big { color: #b42318; font-weight: 700; }
+.ct-play-code { max-height: 360px; overflow: auto; }
+.ct-paste { background: #fde68a; color: inherit; outline: 2px solid #f59e0b; border-radius: 2px; }
+@media (max-width: 560px) {
+  .ct-nums, .ct-area { height: 300px; font-size: 13px; }
+  .ct-lang { flex: 1 1 100%; }
+}
