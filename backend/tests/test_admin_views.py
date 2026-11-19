@@ -228,6 +228,7 @@ async def test_read_only_view_masks_refuses_and_audits(app, owner, make_client, 
     seen = await me(owner)
     assert seen["id"] == u["id"] and seen["view"]["readOnly"] is True
     assert seen["email"] == "r**********@example.com" and seen["phone"].endswith("10") and "98765" not in seen["phone"]
+    assert (await owner.get("/api/me/state")).status_code == 200  # made-on-first-look things (referral code) work
     resumes = (await owner.get("/api/me/resumes")).json()
     personal = resumes[0]["data"]["personal"]
     assert "real.person@" not in str(resumes) and "98765" not in str(resumes)
@@ -279,7 +280,7 @@ async def test_read_only_database_and_mail_while_viewing(outbox):
     token = READ_ONLY.set(True)
     try:
         ro = get_database()
-        assert (await ro["users"].insert_one({"_id": "ro-test"})).inserted_id is None
+        assert (await ro["users"].insert_one({"_id": "ro-test"})).inserted_id == "ro-test"  # as if, not stored
         await ro["users"].update_one({"_id": "x"}, {"$set": {"a": 1}}, upsert=True)
         assert await ro["users"].find_one_and_update({"_id": "x"}, {"$set": {"a": 1}}, upsert=True) is None
         msg = Email(to="someone@example.com", to_name="S", subject="Hi", text="Hi", html="<p>Hi</p>")

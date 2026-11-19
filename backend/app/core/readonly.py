@@ -90,17 +90,19 @@ def mask(v: Any, key: str = "") -> Any:
 
 # ---------- the database: reads only ----------
 class _Result:
+    """What a skipped write answers: as if it worked, so a page that makes something on first look (a referral
+    code, a default setting) carries on with it in memory, and nothing is stored."""
+
     acknowledged = True
-    inserted_id = None
-    inserted_ids: list = []
-    matched_count = 0
-    modified_count = 0
-    deleted_count = 0
     upserted_id = None
-    upserted_count = 0
-    inserted_count = 0
     raw_result: dict = {}
     bulk_api_result: dict = {}
+
+    def __init__(self, inserted_id=None, inserted_ids=None):
+        self.inserted_id = inserted_id
+        self.inserted_ids = inserted_ids or []
+        self.matched_count = self.modified_count = self.deleted_count = self.inserted_count = 1
+        self.upserted_count = 0
 
 
 _WRITES = {"insert_one", "insert_many", "update_one", "update_many", "replace_one", "delete_one", "delete_many",
@@ -117,8 +119,13 @@ class ReadOnlyCollection:
     def __getattr__(self, name: str):
         if name in _WRITES:
 
-            async def skipped(*_a, **_k):
+            async def skipped(*a, **_k):
                 log.info("read-only view: skipped %s on %s", name, self._coll.name)
+                doc = a[0] if a else None
+                if name == "insert_one" and isinstance(doc, dict):
+                    return _Result(inserted_id=doc.get("_id"))
+                if name == "insert_many" and isinstance(doc, list):
+                    return _Result(inserted_ids=[d.get("_id") for d in doc if isinstance(d, dict)])
                 return _Result()
 
             return skipped

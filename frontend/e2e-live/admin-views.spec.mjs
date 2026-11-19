@@ -52,6 +52,7 @@ for (const [label, opts] of SIZES) {
       const owner = `owner-views-${label}-${Date.now()}@nm7.si`;
       const { secret } = seed('admin', owner, 'owner', PASSWORD);
       await adminLogin(page, owner, secret);
+      await expect(page).not.toHaveURL(/\/login/); // the code step finished
       for (const [role, name, url] of VIEWS) {
         await page.goto('/admin');
         await page.getByRole('button', { name: /Account menu/ }).click();
@@ -86,6 +87,7 @@ for (const [label, opts] of SIZES) {
       const owner = `owner-ro-${tag}@nm7.si`;
       const { secret } = seed('admin', owner, 'owner', PASSWORD);
       await adminLogin(page, owner, secret);
+      await expect(page).not.toHaveURL(/\/login/); // the code step finished
       await page.goto(`/admin/customers?id=${id}`);
       const box = page.getByTestId('view-as-user');
       await box.getByRole('button', { name: 'View as this user (read-only)' }).click();
