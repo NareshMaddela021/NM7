@@ -61,7 +61,7 @@ export function JobCard({ job, t, extra, onOpen, picked }) {
       <div className="row g12" style={{ alignItems: 'flex-start', flexWrap: 'nowrap' }}>
         <Logo name={job.company?.name} />
         <div className="stack g4" style={{ minWidth: 0, flex: 1 }}>
-          <h2 className="job-card-title"><Link to={`/jobs/${job.slug}`} onClick={open} aria-current={picked ? 'true' : undefined}>{job.title}</Link></h2>
+          <h2 className="job-card-title" id={`jt-${job.id}`}><Link to={`/jobs/${job.slug}`} onClick={open} aria-current={picked ? 'true' : undefined}>{job.title}</Link></h2>
           <span className="job-company">{job.company?.name}</span>
           <TrustLine trust={job.companyTrust} t={t} />
           <EmployerBadge v={job.employer} />
@@ -76,7 +76,7 @@ export function JobCard({ job, t, extra, onOpen, picked }) {
           <span className="xs muted">{postedAgo(job.postedAt, t)}</span>
         </div>
       </div>
-      <JobActions job={job} />
+      <JobActions job={job} titleId={`jt-${job.id}`} />
     </article>
   );
 }

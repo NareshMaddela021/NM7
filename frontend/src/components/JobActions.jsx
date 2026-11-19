@@ -7,7 +7,7 @@
 //     questions and the consent box, or the email draft) — loaded only when it is needed
 //   - applied: "Applied ✓" (disabled), here and on the job page, also after a reload (GET /api/me/applied-jobs)
 // The words are here (English, Telugu, Hindi) so the strings bundle on every page stays small.
-import { lazy, Suspense, useEffect, useId, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Dialog } from './ui';
 import { useAuth } from '../lib/auth';
@@ -156,15 +156,15 @@ export function ApplyAction({ job, desc }) {
 }
 
 /** View · Apply · Save. Closed jobs: View only. */
-export default function JobActions({ job, save = true }) {
+/** titleId: the card's title element, which describes View and Apply to screen readers ("View, QA Trainee"). */
+export default function JobActions({ job, save = true, titleId }) {
   const w = useWords();
   const { user } = useAuth();
-  const desc = useId(); // "View" and "Apply" are described by the job's title (screen readers: "View, QA Trainee")
+  const desc = titleId;
   useEffect(() => { if (isCustomer(user)) { loadApplied(user.id); loadSaved(); } }, [user]);
   const open = job.status == null || job.status === 'active';
   return (
     <div className="job-actions" data-testid="job-actions">
-      <span id={desc} hidden>{job.title}</span>
       <Link className="btn btn-outline" to={`/jobs/${job.slug}`} aria-describedby={desc} data-testid="card-view">{w.view}</Link>
       {open && <ApplyAction job={job} desc={desc} />}
       {open && save && <SaveButton job={job} testid="card-save" />}

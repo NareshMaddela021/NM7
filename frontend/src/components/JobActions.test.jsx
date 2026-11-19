@@ -30,8 +30,9 @@ describe('JobActions', () => {
 
   it('signed out: Apply is a button (it asks to create an account or sign in), even for a company-site job', () => {
     for (const job of [nm7, ext]) {
-      const out = html(<JobActions job={job} />);
-      expect(out).toMatch(/<button[^>]*aria-describedby="[^"]+"[^>]*data-testid="card-apply"[^>]*>Apply</);
+      const out = html(<JobActions job={job} titleId="jt-1" />);
+      expect(out).toMatch(/<button[^>]*aria-describedby="jt-1"[^>]*data-testid="card-apply"[^>]*>Apply</);
+      expect(out).toMatch(/aria-describedby="jt-1"[^>]*data-testid="card-view"/);
       expect(out).not.toContain('acme.example');
     }
   });
