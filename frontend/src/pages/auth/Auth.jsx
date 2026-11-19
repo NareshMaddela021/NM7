@@ -19,7 +19,16 @@ const isPreview = import.meta.env.VITE_PREVIEW === '1';
 // "Continue with Google": its own small chunk; it renders nothing while the server has no Google client ID.
 const GoogleButtonLazy = lazy(() => import('../../components/GoogleButton'));
 function Google(props) {
-  return <Suspense fallback={null}><GoogleButtonLazy {...props} /></Suspense>;
+  return <Suspense fallback={null}><GoogleButtonLazy note={<GoogleTerms />} {...props} /></Suspense>;
+}
+/** A new account made with Google agrees to the same terms as the sign-up form's box. */
+function GoogleTerms() {
+  return <>New here? Continuing with Google creates a free account: you agree to the <Link to="/terms" target="_blank">Terms</Link> and <Link to="/privacy" target="_blank">Privacy Policy</Link>, and you’re 18 or older (or have a parent’s consent).</>;
+}
+/** Where a new account goes after sign-up — email (after the code) and Google alike. One place, so the next step can
+ * change for both (an expert fills in their profile; everyone else goes to `next` or their dashboard). */
+function afterSignup(nav, u, next) {
+  nav(u.role === 'expert' ? '/expert/profile' : next || '/me', { replace: true });
 }
 
 /** This page's own tab title (when it differs from the route's). */
@@ -135,7 +144,7 @@ export function Login() {
   return (
     // A server message (wrong password, too many tries …) is shown as the server wrote it, in English.
     <Shell title={t('signin.title')} sub={t('signin.sub')} lang={lang} top={<LangSwitch t={t} lang={lang} style={{ alignSelf: 'flex-end' }} />}>
-      {LIVE && <Google mode="signin" next={next} onDone={go} />}
+      {LIVE && <Google mode="signin" next={next} onDone={(u) => (u.isNew ? afterSignup(nav, u, next) : go(u))} />}
       <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); submit(e.currentTarget); }}>
         <Field id="li-e" name="email" label={t('signin.email')} type="email" autoComplete="email" value={f.email} error={emailErr} onChange={(e) => { setF({ ...f, email: e.target.value }); setEmailErr(''); }} />
         <div className="stack g4">
@@ -165,7 +174,7 @@ export function Signup() {
   // ?role=jobseeker|student (a customer account) or ?role=expert; the older ?as=expert still works
   const urlRole = signupAccount(params.get('role'), params.get('as'));
   const [role, setRole] = useState(urlRole);
-  const done = (u) => nav(u.role === 'expert' ? '/expert/profile' : next || '/me', { replace: true });
+  const done = (u) => afterSignup(nav, u, next); // after the email code, or Google (a new or existing account)
   const [f, setF] = useState({ name: '', email: '', phone: '', password: '', confirm: '', agree: false });
   const [showPw, setShowPw] = useState(false);
   const [touched, setTouched] = useState(false);
@@ -237,12 +246,14 @@ export function Signup() {
 export function ForgotPassword() {
   const nav = useNavigate();
   const toast = useToast();
+  const [params] = useSearchParams();
+  const setting = params.get('set') === '1'; // Settings → "Set a password" (an account made with Google)
   const [step, setStep] = useState('email');
-  const [f, setF] = useState({ email: '', code: '', password: '', confirm: '' });
+  const [f, setF] = useState({ email: params.get('email') || '', code: '', password: '', confirm: '' });
   const [emailErr, setEmailErr] = useState('');
   const { busy, err, run } = useRun();
   return (
-    <Shell title="Reset your password" sub={step === 'email' ? 'We’ll email you a code.' : `If ${f.email} has an account, a code is on its way.`}>
+    <Shell title={setting ? 'Set a password' : 'Reset your password'} sub={step === 'email' ? 'We’ll email you a code.' : `If ${f.email} has an account, a code is on its way.`}>
       {step === 'email' ? (
         <form className="card stack g16" noValidate onSubmit={(e) => {
           e.preventDefault();
@@ -254,7 +265,7 @@ export function ForgotPassword() {
             <button type="submit" className="btn btn-ink btn-lg" disabled={busy}>{busy && <Spinner />}Send code</button>
         </form>
       ) : (
-        <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); run(async () => { await resetPassword(f.email, f.code, f.password, f.confirm); toast('Password changed — sign in with the new one'); nav('/login'); }); }}>
+        <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); run(async () => { await resetPassword(f.email, f.code, f.password, f.confirm); toast(setting ? 'Password set — sign in with it once' : 'Password changed — sign in with the new one'); nav(setting ? '/login?next=%2Fme%2Fsettings' : '/login'); }); }}>
           <CodeInput value={f.code} onChange={(code) => setF({ ...f, code })} />
           <Field id="fp-p" label="New password" type="password" autoComplete="new-password" value={f.password} hint="8+ characters, with letters and a number" error={f.password && passwordIssue(f.password)} onChange={(e) => setF({ ...f, password: e.target.value })} />
           <Field id="fp-p2" label="Re-type new password" type="password" autoComplete="new-password" value={f.confirm} error={f.confirm && f.confirm !== f.password && f.confirm.length >= f.password.length ? 'Passwords don’t match' : ''} hint={f.confirm && f.confirm === f.password ? '✓ Passwords match' : ''} onChange={(e) => setF({ ...f, confirm: e.target.value })} />
