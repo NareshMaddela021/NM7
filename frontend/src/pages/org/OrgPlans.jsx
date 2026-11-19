@@ -71,7 +71,7 @@ export function PlansTable({ data, t = EN }) {
             <tr key={k}><th scope="row">{t(`orgs.table.l.${k}`)}</th>{plans.map((p) => <td key={p.id}>{p.id === 'custom' ? t('orgs.table.yourChoice') : p.limits[k] == null ? t('orgs.table.unlimited') : limitText(p.limits[k])}</td>)}</tr>
           ))}
           {TABLE_FEATURES.map(([k]) => (
-            <tr key={k}><th scope="row">{t(`orgs.table.f.${k}`)}</th>{plans.map((p) => <td key={p.id} className={p.features[k] ? 'fo-yes' : 'fo-no'}>{p.features[k] ? <><span className="fo-tick" aria-hidden="true">✓ </span>{t('orgs.table.yes')}</> : '—'}</td>)}</tr>
+            <tr key={k}><th scope="row">{t(`orgs.table.f.${k}`)}</th>{plans.map((p) => <td key={p.id} className={p.features[k] ? 'fo-yes' : 'fo-no'}>{p.features[k] ? t('orgs.table.yes') : '—'}</td>)}</tr>
           ))}
         </tbody>
       </table>

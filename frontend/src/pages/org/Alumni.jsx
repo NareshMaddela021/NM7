@@ -6,6 +6,7 @@ import { Loading, http, useAction, useApi } from '../admin/live/common';
 import { MeCard, Skel, Stat } from '../me/kit';
 import '../../styles/me-kit.css';
 import '../../styles/org-team.css';
+import { IcCap, IcMail } from '../../components/icons';
 
 export default function Alumni({ orgId, canManage }) {
   const toast = useToast();
@@ -20,7 +21,7 @@ export default function Alumni({ orgId, canManage }) {
   // round P, Phase 4: an intro card, the numbers as tiles (people, then the last 30 days), and an invite card
   return (
     <div className="ot-team">
-      <MeCard title="Alumni network" icon="☆" label="Alumni network" sub="Past students opt in with their company, role and city. Current students ask them for referrals or mentoring (5 a week) and they reply inside Nm7. Contact details are never shown. You see counts, not messages." />
+      <MeCard title="Alumni network" icon={<IcCap />} label="Alumni network" sub="Past students opt in with their company, role and city. Current students ask them for referrals or mentoring (5 a week) and they reply inside Nm7. Contact details are never shown. You see counts, not messages." />
       {!st.data && !st.error ? <Skel cards={2} lines={1} label="Loading alumni numbers" /> : (
         <Loading st={st}>{(s) => (
           <div className="ot-stats" data-testid="alumni-counts">
@@ -32,7 +33,7 @@ export default function Alumni({ orgId, canManage }) {
       )}
       {canManage && (
         <form className="mcard" onSubmit={invite} aria-label="Invite alumni" data-testid="alumni-invite">
-          <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">✉</span><span className="mcard-ht"><strong className="mcard-title">Invite alumni by email</strong><span className="mcard-sub">Paste the emails, separated by commas or new lines. Each gets an invite to join.</span></span></header>
+          <header className="mcard-h"><span className="mcard-ic" aria-hidden="true"><IcMail /></span><span className="mcard-ht"><strong className="mcard-title">Invite alumni by email</strong><span className="mcard-sub">Paste the emails, separated by commas or new lines. Each gets an invite to join.</span></span></header>
           <label className="field"><span className="label">Emails</span><textarea className="input" rows={3} required placeholder="one@example.com, two@example.com" value={emails} onChange={(e) => setEmails(e.target.value)} data-testid="alumni-emails" /></label>
           <button type="submit" className="btn btn-signal" disabled={busy} style={{ alignSelf: 'flex-start' }} data-testid="alumni-send">Send invites</button>
         </form>

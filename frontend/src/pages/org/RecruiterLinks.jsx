@@ -10,6 +10,7 @@ import { Chip, Empty, Skel } from '../me/kit';
 import { SHAPE_COLORS, TINTS } from '../newhome/shapes';
 import '../../styles/me-kit.css';
 import '../../styles/org-team.css';
+import { IcLink } from '../../components/icons';
 
 TINTS.college = SHAPE_COLORS.college;
 const tone = { active: 'ok', expired: 'neutral', revoked: 'warn' };
@@ -29,7 +30,7 @@ export default function RecruiterLinks({ orgId, canManage, sharedUrl }) {
   return (
     <section className="mcard" aria-label="Recruiter links">
       <header className="mcard-h">
-        <span className="mcard-ic" aria-hidden="true">⇄</span>
+        <span className="mcard-ic" aria-hidden="true"><IcLink /></span>
         <span className="mcard-ht"><strong className="mcard-title">Recruiter links</strong>
           <span className="mcard-sub">Make a link from Shared resumes: tick the resumes (or filter) and choose “Share with a recruiter…”. Only approved members who allowed sharing with recruiters are on a link, and anyone who leaves or stops sharing disappears from it at once. Recruiters need no account.</span></span>
         <span className="mcard-actions"><button type="button" className="btn btn-outline btn-sm-ot" onClick={st.reload}>Refresh</button></span>

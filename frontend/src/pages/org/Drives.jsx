@@ -180,7 +180,7 @@ function DriveDetail({ base, orgId, id, canManage, features, onBack, onGone }) {
     <Loading st={st}>{(d) => (
       <section className="stack g16" aria-label={d.name} data-testid="drive-detail">
         <div className="mcard dv-hero">
-          <button type="button" className="link-btn xs" onClick={onBack} style={{ alignSelf: 'flex-start' }}>← All drive days</button>
+          <button type="button" className="link-btn xs" onClick={onBack} style={{ alignSelf: 'flex-start' }}>Back to all drive days</button>
           <div className="dv-hero-top">
             <span className="dv-cal" aria-hidden="true"><b>{dateParts(d.date).d}</b><span>{dateParts(d.date).m}</span></span>
             <span className="stack g4" style={{ minWidth: 0 }}>
@@ -258,7 +258,6 @@ export default function Drives({ orgId, groups, canManage, features }) {
                 <span className="dv-cal" aria-hidden="true"><b>{dp.d}</b><span>{dp.m}</span></span>
                 <span className="dv-item-main"><strong>{d.name}</strong><span className="dv-item-cos">{d.companies.map((c) => <span key={c.id} className="dv-co">{c.name}</span>)}</span></span>
                 <span className="small mono dv-item-meta">{d.date} · {d.slots.length} slot{d.slots.length === 1 ? '' : 's'}</span>
-                <span className="dv-go" aria-hidden="true">→</span>
               </button></li>
             );
           })}
@@ -277,7 +276,6 @@ function YearReport({ orgId }) {
   return (
     <div className="mcard dv-year" data-testid="year-report">
       <header className="mcard-h">
-        <span className="mcard-ic" aria-hidden="true">⤓</span>
         <span className="mcard-ht"><strong className="mcard-title">Placement report for the year</strong><span className="mcard-sub">{NAAC}</span></span>
       </header>
       <div className="dv-year-row">
