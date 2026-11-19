@@ -15,6 +15,8 @@ MONGODB_DB=nm7_e2e uv run python -m tests.e2e_seed reset
 ... trust-agent-run [HOUR]             → T5: one calling-agent pass at HOUR (default 11) IST tomorrow (any real hour)
 ... trust-t6-ready EMAIL [CLASSES]     → T6: Ready to join in Hyderabad (no notice) and, with CLASSES ("MCWG,LMV"), a
                                           DigiLocker driving licence from the test provider (verified)
+... trust-t7-person EMAIL KIND [consent] → T7: the adult age check, a resume (KIND data: SQL / Power BI; acct:
+                                          Tally / GST, Telugu) and, with "consent", the job-requirements consent
 ... auto-apply-run [EMAIL [past]]      → the Auto Apply run now (any hour); with EMAIL and "past", that student's
                                           preview days are over first
 ... job-alerts EMAIL                   → {"sent": [{to, subject, text}], "stop": token} (the alert pass for one person,
@@ -286,6 +288,32 @@ async def main(cmd: str, *args: str) -> dict:
                 "review": {"status": "none", "reasons": [], "note": "", "explained_at": None},
             }  # fmt: skip
             await db["trust_documents"].insert_one(doc)
+        return {"id": u["_id"]}
+    if cmd == "trust-t7-person":  # Vetting Trust T7: a resume of one kind, the age check and (optionally) the consent
+        from tests.jobs_helpers import RESUME, resume
+
+        mail, kind = args[0], args[1]
+        u = await db["users"].find_one({"email": mail})
+        t = now()
+        age = {"adult_from": t - timedelta(days=3650), "age_checked_at": t, "age_method": "dob"}
+        await db["trust_profiles"].update_one({"_id": u["_id"]}, {"$set": age}, upsert=True)
+        data = RESUME
+        if kind == "acct":
+            data = resume(
+                personal={"name": u.get("name", ""), "headline": "Accountant · Tally · GST", "location": "Hyderabad"},
+                summary="Accountant who keeps the books for small shops.",
+                exp=[{"company": "Sri Lakshmi Traders", "role": "Tally accountant", "from": "2025-03", "current": True,
+                      "description": "Kept the books in Tally ERP 9 for 40 shops\nFiled monthly GST returns"}],
+                skillGroups=[{"id": "core", "label": "Core", "value": "Tally, GST"}], proj=[], certs=[],
+                langs=[{"name": "Telugu"}],
+            )  # fmt: skip
+        doc = {"name": "Main", "data": data, "active": True, "created_at": t, "updated_at": t}
+        await db["resumes"].update_one({"user_id": u["_id"], "key": "r1"}, {"$set": doc}, upsert=True)
+        if len(args) > 2 and args[2] == "consent":
+            from app.trust import consent as C
+            from app.trust.criteria import router as _  # noqa: F401 — registers the purpose
+
+            await C.grant(db, u["_id"], "criteria_match", "flow")
         return {"id": u["_id"]}
     if cmd == "trust-agent-run":  # Vetting Trust T5: one pass at a daytime hour (the e2e may run at night in India)
         from datetime import datetime, time

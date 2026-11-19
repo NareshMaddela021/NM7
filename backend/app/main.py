@@ -140,6 +140,7 @@ from app.trust import consent as trust_consent
 from app.trust import screening as trust_screening
 from app.trust import workprefs as trust_workprefs
 from app.trust.agent import router as trust_agent
+from app.trust.criteria import router as trust_criteria
 from app.trust.digilocker import router as trust_digilocker
 from app.trust.employer import router as trust_employer
 from app.trust.face import router as trust_face
@@ -398,6 +399,9 @@ def create_app() -> FastAPI:
     app.include_router(trust_agent.me)  # /api/me/trust/agent (T5: channels, language, quiet days, What we said)
     app.include_router(trust_workprefs.me)  # /api/me/trust/work (T6: Work preferences, location pin, saved answers)
     app.include_router(trust_screening.company)  # /api/company/{cid}/trust/knockouts (T6: templates, the refusal list)
+    app.include_router(trust_criteria.company)  # /api/company/{cid}/trust/criteria/{jid} (T7: requirements, evidence)
+    app.include_router(trust_criteria.me)  # /api/me/trust/criteria (T7: what I was checked on, add evidence)
+    app.include_router(trust_criteria.admin)  # /api/admin/trust/criteria (T7: evidence to check)
     app.include_router(trust_agent.public)  # /api/public/trust/agent/whatsapp, /voice/{provider} (T5: signed webhooks)
     app.include_router(trust_agent.admin)  # /api/admin/trust/agent (T5: providers, caps, templates, counts, log)
     app.include_router(vetting_verify.reviewer_access)  # /api/reviewer/access (the header link, V4)

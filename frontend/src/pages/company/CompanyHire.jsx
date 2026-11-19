@@ -16,6 +16,9 @@
 // Vetting V4: and "Request Nm7 check" (the human check, NmCheck.jsx) with its status; verified people can be rated.
 // Vetting Trust T6: the verified non-tech filters and each person's non-tech facts with their source (HireNonTech.jsx;
 // only when the answer carries `nonTech`, i.e. the Trust switch lets the company in).
+// Vetting Trust T7: the job's requirements (CriteriaEditor) and each person's Met / Not met / Unknown with the quoted
+// evidence (CriteriaStrip); after an edit the people shown are checked again (cached answers re-used) and re-sorted at
+// once here: must-haves met, then nice-to-haves met, then the match score (only when the answer carries `criteria`).
 import { useCallback, useEffect, useState } from 'react';
 import { rq } from '../../lib/company';
 import { reasons } from './CompanyApplicants';
@@ -28,6 +31,7 @@ import ScreeningInterview from './ScreeningInterview';
 import NmCheck from './NmCheck';
 import DocBadges from './DocBadges';
 import { NT_NONE, NonTechChips, NonTechFilters, nonTechQuery } from './HireNonTech'; // Vetting Trust T6
+import { CriteriaEditor, CriteriaStrip, criteriaSort, useEvaluating } from './CriteriaBits'; // Vetting Trust T7
 import { TEST_NAMES } from '../../lib/vettingRoles';
 import { Empty } from '../me/kit';
 import { useLang } from '../../lib/i18n';
@@ -148,6 +152,19 @@ export default function CompanyHire({ t, c }) {
     } catch (x) { setErr(x.message); setD({ items: [] }); }
   }, [c.id, job, verified, support, vf, nt]);
   useEffect(() => { load(); }, [load]);
+  // T7: check the people shown against the (edited) requirements and re-sort them here (no new shortlist)
+  const recheck = useCallback(async (crit) => {
+    if (!d?.criteria || !d.items.length) return;
+    try {
+      const r = await rq(`/api/company/${c.id}/trust/criteria/${encodeURIComponent(job)}/evaluate`, { method: 'POST', body: { people: d.items.slice(0, 100).map((x) => x.key) } });
+      setD((old) => {
+        if (!old) return old;
+        const top = old.items.slice(0, 100).map((x) => ({ ...x, criteria: r.items[x.key] || x.criteria }));
+        return { ...old, criteria: crit || r.criteria, items: [...criteriaSort(top, (x) => x.criteria, (x) => x.match.score), ...old.items.slice(100)] };
+      });
+    } catch (x) { setErr(x.message); }
+  }, [c.id, job, d]);
+  useEvaluating(c, d?.criteria ? job : '', !!d?.items?.some((x) => x.criteria?.pending), recheck);
   const invite = async (people) => {
     setBusy(true); setMsg(''); setErr('');
     try {
@@ -255,6 +272,7 @@ export default function CompanyHire({ t, c }) {
             </div>
           )}
           {msg && <p className="small hn-msg" role="status" data-testid="co-hire-msg">{msg}</p>}
+          {d.criteria && <CriteriaEditor key={job} c={c} jobId={job} criteria={d.criteria} can={canInvite} onSaved={(x) => recheck(x)} />}
           {!d.items.length && <Empty shape="magnifier" tint="company" compact />}
           {!d.items.length && filtered(vf) && (
             <button type="button" className="btn btn-outline hn-more" onClick={clear} data-testid="co-hire-sv-clear">{t('co.hire.sv.clear')}</button>
@@ -283,6 +301,7 @@ export default function CompanyHire({ t, c }) {
                 <span className="hn-trust" data-testid="co-hire-trust">{x.skillCheck ? t('co.hire.check', { score: x.skillCheck.score }) : t('co.hire.noCheck')} · {x.reliability.score == null ? x.reliability.label : `${x.reliability.label} (${x.reliability.score}%)`}{x.reliability.lines?.length ? `: ${x.reliability.lines.join('; ')}` : ''}</span>
                 <DocBadges docs={x.docs} face={x.face} />
                 <NonTechChips nt={x.nonTech} />
+                <CriteriaStrip cr={x.criteria} />
                 <NmCheck c={c} uid={x.key} name={x.name} level={x.level?.level} row={x} canRequest={canInvite} />
                 <div className="hn-person-foot">
                   <ScreeningInterview c={c} uid={x.key} name={x.name} level={x.level?.level} job={job} canInvite={canInvite && !x.applied} invited={!!x.invite} onInvited={load} />

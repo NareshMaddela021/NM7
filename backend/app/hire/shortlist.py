@@ -472,6 +472,11 @@ async def shortlist(
               "lang": lang, "immediate": immediate}  # fmt: skip
         rows, counts = screening.apply_filters(rows, nf)
         non_tech = {"filters": nf, "counts": counts}
+    from app.trust.criteria.router import attach_hire
+
+    criteria = await attach_hire(
+        db, rows, j, c, acc
+    )  # Vetting Trust T7: requirements met first (only where Trust is on)
     if rows:  # H9: when the first candidate was shown for this role
         await db[JOBS].update_one({"_id": j["_id"]}, {"$min": {"hire_speed.first_shown_at": started}})
     await db[HIRE_USAGE].update_one(
@@ -494,6 +499,7 @@ async def shortlist(
         "available": len(rows),
         "vetting": vetting,  # the Skill verified filters and badges are shown (Admin → Skill checks → Launch)
         **({"nonTech": non_tech} if non_tech else {}),  # Vetting Trust T6
+        **({"criteria": criteria} if criteria else {}),  # Vetting Trust T7
         "usage": {"used": len(roles), "free": free},
         "ms": int((now() - started).total_seconds() * 1000),
     }

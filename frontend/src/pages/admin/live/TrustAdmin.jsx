@@ -15,6 +15,7 @@ import { useEffect, useState } from 'react';
 import { Dialog, useToast } from '../../../components/ui';
 import { Loading, http, useAction, useApi, when } from './common';
 import TrustDocsAdmin from './TrustDocsAdmin';
+import TrustCriteriaAdmin from './TrustCriteriaAdmin'; // T7: evidence candidates added for job requirements
 import TrustFaceAdmin from './TrustFaceAdmin';
 import TrustEmployerAdmin from './TrustEmployerAdmin';
 import TrustAgentAdmin from './TrustAgentAdmin';
@@ -207,6 +208,7 @@ export default function TrustAdmin() {
         </>
       )}</Loading>
       {!st.error && <TrustDocsAdmin />}
+      {!st.error && <TrustCriteriaAdmin />}
       {!st.error && <TrustFaceAdmin />}
       {!st.error && <TrustEmployerAdmin />}
       {!st.error && <TrustAgentAdmin />}
