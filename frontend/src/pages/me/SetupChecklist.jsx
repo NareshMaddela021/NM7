@@ -6,7 +6,7 @@
 // level, and the card comes back only for renewals (an expired skill badge, the weekly "Still looking?").
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useToast } from '../../components/ui';
+import { Icon, useToast } from '../../components/ui';
 import { Chip } from './kit';
 import { ROLE_TITLE, STATUS_TEXT, STATUS_TONE, completeText, getChecklist, markOpened, minutes, nextStep, showCard, skipStep } from '../../lib/checklist';
 import '../../styles/setup-checklist.css';
@@ -73,7 +73,7 @@ export function ChecklistView({ c, open, busy, onSkip, onToggle }) {
   if (c.complete) {
     return (
       <section className="mcard sc-card sc-done" aria-label="Profile setup" data-testid="sc-complete">
-        <span className="sc-done-line"><span className="sc-tick" aria-hidden="true">✓</span><strong data-testid="sc-complete-text">{completeText(c)}</strong></span>
+        <span className="sc-done-line"><span className="sc-tick" aria-hidden="true"><Icon name="check" size={16} /></span><strong data-testid="sc-complete-text">{completeText(c)}</strong></span>
         {c.renewals?.length > 0 && (
           <ul className="sc-list">
             {c.renewals.map((r) => (

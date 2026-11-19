@@ -57,7 +57,7 @@ for (const [label, opts] of SIZES) {
       }
       expect(await noSideScroll(page)).toBe(true);
 
-      // Next step → Ready to join → save salary, notice and city → back on the dashboard it is ticked
+      // Next step -> Ready to join -> save salary, notice and city -> back on the dashboard it is ticked
       await page.getByTestId('sc-next').click();
       await page.waitForURL('**/me/hire');
       await page.getByLabel('Notice period (days)').fill('30');
@@ -108,7 +108,7 @@ for (const [label, opts] of SIZES) {
       expect(await noSideScroll(page)).toBe(true);
     });
 
-    test('existing user with data: those steps are ticked; all done → Profile complete', async ({ page }) => {
+    test('existing user with data: those steps are ticked; all done -> Profile complete', async ({ page }) => {
       const mail = await seeded(page, `sc-old-${label}`);
       seed('vetting-tester', mail);
       seed('skill-verified', mail, 'SQL', '1-3', '84', '86');
@@ -124,7 +124,7 @@ for (const [label, opts] of SIZES) {
       await expect(page.getByTestId('sc-next-title')).toHaveText('Take the AI interview');
       expect(await noSideScroll(page)).toBe(true);
 
-      // the rest done → the card shrinks to "Profile complete"
+      // the rest done -> the card shrinks to "Profile complete"
       const aa = await call(page, '/api/me/auto-apply', json('PUT', { roles: ['Data analyst'], consent: true }));
       expect(aa.status).toBe(200);
       seed('setup-l3', mail);
