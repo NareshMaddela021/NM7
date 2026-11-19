@@ -128,8 +128,8 @@ export function recorder(testInfo, { role, signedIn = false, allow404 = [] } = {
     const f = { role, device, label, url, problems, ugcEmoji: s.ugcEmoji, screenshot: null };
     if (problems.length || s.ugcEmoji.length) {
       shot += 1;
-      const p = testInfo.outputPath(`${String(shot).padStart(2, '0')}-${label.replace(/[^a-z0-9]+/gi, '_').slice(0, 60)}.png`);
-      await page.screenshot({ path: p, fullPage: false }).catch(() => {});
+      const p = testInfo.outputPath(`${String(shot).padStart(2, '0')}-${label.replace(/[^a-z0-9]+/gi, '_').slice(0, 60)}.jpg`);
+      await page.screenshot({ path: p, fullPage: false, type: 'jpeg', quality: 55 }).catch(() => {});
       f.screenshot = p.replace(/^.*test-results\//, 'test-results/');
     }
     findings.push(f);
@@ -149,8 +149,8 @@ export function recorder(testInfo, { role, signedIn = false, allow404 = [] } = {
   /** A failed step of a journey (an expected button missing, a wrong address): kept like a page problem. */
   const fail = async (page, label, problem) => {
     shot += 1;
-    const p = testInfo.outputPath(`${String(shot).padStart(2, '0')}-${label.replace(/[^a-z0-9]+/gi, '_').slice(0, 60)}.png`);
-    await page.screenshot({ path: p, fullPage: false }).catch(() => {});
+    const p = testInfo.outputPath(`${String(shot).padStart(2, '0')}-${label.replace(/[^a-z0-9]+/gi, '_').slice(0, 60)}.jpg`);
+    await page.screenshot({ path: p, fullPage: false, type: 'jpeg', quality: 55 }).catch(() => {});
     findings.push({ role, device, label, url: page.url().replace(/^https?:\/\/[^/]+/, ''), problems: [problem], ugcEmoji: [], screenshot: p.replace(/^.*test-results\//, 'test-results/') });
   };
   /** Runs one step; an exception becomes a finding and the journey carries on. */

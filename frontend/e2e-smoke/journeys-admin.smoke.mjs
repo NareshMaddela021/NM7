@@ -5,7 +5,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { test, expect } from '@playwright/test';
-import { STATE } from './common.mjs';
+import { API, STATE } from './common.mjs';
 import { guard, recorder, menuLinks } from './journeys-common.mjs';
 
 const info = () => { try { return JSON.parse(readFileSync(join(STATE, 'info.json'), 'utf8')); } catch { return { demos: {} }; } };
@@ -108,7 +108,7 @@ test.describe('journey admin', () => {
         }
         allWrites.push(...writes);
         // never leave a view open
-        await page.evaluate(async () => { await fetch('https://nm7-api.onrender.com/api/admin/views/stop', { method: 'POST', credentials: 'include' }).catch(() => {}); }).catch(() => {});
+        await page.evaluate(async (api) => { await fetch(`${api}/api/admin/views/stop`, { method: 'POST', credentials: 'include' }).catch(() => {}); }, API).catch(() => {});
         await ctx.close();
       }
     }
