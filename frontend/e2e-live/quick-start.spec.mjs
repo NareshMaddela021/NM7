@@ -89,7 +89,7 @@ for (const [label, opts] of SIZES) {
 
       // Q4: fill faster — skipped
       await atStep(page, 'faster');
-      await expect(step(page).getByRole('heading', { name: 'Fill your profile faster', level: 2 })).toBeVisible();
+      await expect(step(page).getByText('Upload my LinkedIn PDF')).toBeVisible(); // the existing "Fill your profile faster"
       await page.getByTestId('qs-skip').click();
 
       await page.waitForURL('**/start/jobseeker/results');
