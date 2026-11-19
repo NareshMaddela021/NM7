@@ -3,7 +3,7 @@
 // that break the company's rules add a "Not a fit" label with the reasons: the person is never hidden or deleted.
 // Contact details show once shortlisted. Stages (the student sees each one), compare up to 3 side by side, schedule an
 // interview (the student gets a calendar file), the talent pool, the resume they applied with. No pop-up dialogs.
-// English, Telugu and Hindi (co.ap.*). Vetting V1: the level chip and ⚡ Ready now on each card and in the profile.
+// English, Telugu and Hindi (co.ap.*). Vetting V1: the level chip and Ready now on each card and in the profile.
 // Vetting V3: the profile of someone at L3+ opens their screening interview (ScreeningInterview.jsx).
 // Vetting V4: and can ask for the Nm7 human check (NmCheck.jsx).
 // Vetting Trust T2: "Verified via DigiLocker" document badges (DocBadges.jsx; only where the Trust switch allows).
@@ -35,7 +35,7 @@ import LevelBadge from '../../components/LevelBadge';
 import { lt } from '../../components/levelStrings';
 import { useLang } from '../../lib/i18n';
 
-/** The level chip and ⚡ for an applicant row (`level` is null for people without a level yet). */
+/** The level chip and the Ready now mark for an applicant row (`level` is null for people without a level yet). */
 function ApLevel({ lv }) {
   const [, lang] = useLang();
   if (!lv) return null;

@@ -3,7 +3,7 @@
 //                   must-have on / off. Ticking must-have or removing one saves at once (the list re-sorts at once);
 //                   new or reworded ones are saved with Save. The server refuses requirements about gender, religion,
 //                   caste, age, looks, names or colleges and says why.
-//   CriteriaStrip   the compact chip strip on an applicant / Hire now card (✓ met · ✗ not met · ? unknown,
+//   CriteriaStrip   the compact chip strip on an applicant / Hire now card (tick met · cross not met · ? unknown,
 //                   "evaluating…"), opening the list with each quote and where it came from.
 //   criteriaSort    must-haves met, then nice-to-haves met, then the score (the server's order, done here after an edit).
 // Shown only when the API sends `criteria` (the Trust switch lets the company in). Not met is a label only: nobody is

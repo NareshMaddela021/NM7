@@ -12,10 +12,10 @@ describe('daily report helpers', () => {
   it('says the change vs yesterday, with the right tone', () => {
     expect(change(5, null)).toEqual({ dir: 'none', text: 'No yesterday to compare', tone: 'neutral' });
     expect(change(5, 5).dir).toBe('same');
-    expect(change(9, 5)).toEqual({ dir: 'up', text: '▲ 4 vs yesterday', tone: 'good' });
-    expect(change(2, 5)).toEqual({ dir: 'down', text: '▼ 3 vs yesterday', tone: 'bad' });
+    expect(change(9, 5)).toEqual({ dir: 'up', text: 'Up 4 vs yesterday', tone: 'good' });
+    expect(change(2, 5)).toEqual({ dir: 'down', text: 'Down 3 vs yesterday', tone: 'bad' });
     expect(change(30, 10, { lowerIsBetter: true }).tone).toBe('bad'); // more jobs waiting for review is worse
-    expect(change(20000, 10000, { fmt: inr }).text).toBe('▲ ₹100 vs yesterday');
+    expect(change(20000, 10000, { fmt: inr }).text).toBe('Up ₹100 vs yesterday');
   });
 
   it('draws sparkline points with gaps for days without data', () => {

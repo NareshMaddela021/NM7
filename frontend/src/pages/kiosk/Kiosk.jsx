@@ -1,6 +1,6 @@
 // The event kiosk (Nm7 for Organizations, Phase 3A): /kiosk/:token, full-screen on a tablet or laptop.
-// Welcome → email + 6-digit code (signs in to the candidate's own Nm7 account, made if needed) → consent and the
-// group's questions → a guided, step-by-step builder (or "Snap photos") → Print now / Send to my email → wiped.
+// Welcome -> email + 6-digit code (signs in to the candidate's own Nm7 account, made if needed) -> consent and the
+// group's questions -> a guided, step-by-step builder (or "Snap photos") -> Print now / Send to my email -> wiped.
 // Nothing personal stays: after Finish, or 2 minutes idle (with a 20-second warning), the kiosk signs out and
 // clears local and session storage, IndexedDB and caches. Leaving the kiosk screen needs the coordinator's exit PIN.
 // Also /continue?t=… — the emailed "continue on your phone" link.

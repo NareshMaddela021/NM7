@@ -26,7 +26,7 @@ export function expertStats(orders) {
   return { delivered: done.length + 24, rating: rating ? +(((rating * rated.length) + 4.7 * 24) / (rated.length + 24)).toFixed(1) : 4.7, onTime: Math.round((onTime * done.length + 93 * 24) / (done.length + 24)), revisions, earned };
 }
 
-/** Vetting V4: the reviewer workspace link, only for experts the vetting engine is open to (Admin → Skill checks → Launch). */
+/** Vetting V4: the reviewer workspace link, only for experts the vetting engine is open to (Admin -> Skill checks -> Launch). */
 function ReviewerLink() {
   const [on, setOn] = useState(false);
   useEffect(() => { if (LIVE) http('/api/reviewer/access').then((x) => setOn(!!x?.on), () => {}); }, []);

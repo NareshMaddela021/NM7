@@ -1,6 +1,6 @@
-// Company account → Settings → "Verify your business" (Vetting Trust T4). Only where the Trust switch lets this company
+// Company account -> Settings -> "Verify your business" (Vetting Trust T4). Only where the Trust switch lets this company
 // in (GET /api/company/{id}/trust/employer answers 404 otherwise, and nothing shows). The company enters its GSTIN, Udyam
-// (MSME) number or CIN; Nm7 checks the format first, then looks it up in the registry. Active + the same name → the
+// (MSME) number or CIN; Nm7 checks the format first, then looks it up in the registry. Active + the same name -> the
 // "Verified employer" badge on its jobs and page; anything else goes to a person at Nm7 (never a rejection), and the
 // card says plainly what didn't match. English only for now.
 import { useCallback, useEffect, useState } from 'react';

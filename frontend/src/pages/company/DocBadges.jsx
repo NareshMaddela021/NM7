@@ -1,5 +1,5 @@
 // Vetting Trust T2: "Verified via DigiLocker" badges on a Hire now card and an applicant card / profile. The row carries
-// `docs` only when the Trust switch lets this company see them (Admin → Skill checks → Vetting Trust); otherwise nothing
+// `docs` only when the Trust switch lets this company see them (Admin -> Skill checks -> Vetting Trust); otherwise nothing
 // shows. Each badge: what was verified (no numbers, no board / university name: never used to judge anyone) and when.
 // Vetting Trust T3: also the `face` badge (ID + selfie verified, same person at joining). English only for now.
 // Vetting Trust T8: also the `integrity` label (the rating's label and "Reviewed by Nm7", or "Under review by Nm7").

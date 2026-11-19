@@ -1,23 +1,24 @@
-// Admin console frame: sidebar, global search (Ctrl/⌘ + K), date range, alerts bell, role preview.
+// Admin console frame: sidebar, global search (Ctrl/Cmd + K), date range, alerts bell, role preview.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import ErrorBoundary from '../../components/ErrorBoundary';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Header from '../../components/Header';
 import { Dialog } from '../../components/ui';
 import { AdminProvider, ROLES, atRisk, isLate, useAdmin } from './AdminContext';
+import { IcBell, IcBolt, IcChart, IcFile, IcGrid, IcLock, IcRefresh, IcSearch, IcSettings, IcStar, IcThumb, IcUsers } from '../../components/icons';
 
 export const NAV = [
-  ['dashboard', '/admin', 'Dashboard', '▦'],
-  ['orders', '/admin/orders', 'Orders', '☰'],
-  ['experts', '/admin/experts', 'Experts', '✦'],
-  ['refunds', '/admin/refunds', 'Refunds & disputes', '↺'],
+  ['dashboard', '/admin', 'Dashboard', <IcGrid />],
+  ['orders', '/admin/orders', 'Orders', <IcFile />],
+  ['experts', '/admin/experts', 'Experts', <IcStar />],
+  ['refunds', '/admin/refunds', 'Refunds & disputes', <IcRefresh />],
   ['payments', '/admin/payments', 'Payments & payouts', '₹'],
-  ['customers', '/admin/customers', 'Customers', '☺'],
-  ['quality', '/admin/quality', 'Quality', '✓'],
-  ['reports', '/admin/reports', 'Reports', '⇩'],
-  ['settings', '/admin/settings', 'Settings', '⚙'],
-  ['automation', '/admin/automation', 'Automation', '⚡'],
-  ['team', '/admin/team', 'Team & audit log', '⚿'],
+  ['customers', '/admin/customers', 'Customers', <IcUsers />],
+  ['quality', '/admin/quality', 'Quality', <IcThumb />],
+  ['reports', '/admin/reports', 'Reports', <IcChart />],
+  ['settings', '/admin/settings', 'Settings', <IcSettings />],
+  ['automation', '/admin/automation', 'Automation', <IcBolt />],
+  ['team', '/admin/team', 'Team & audit log', <IcLock />],
 ];
 
 function useAlerts() {
@@ -67,7 +68,7 @@ function Search({ onClose }) {
             </button>
           ))}
         </div>
-        <span className="xs faint">↑ ↓ to move · Enter to open · Esc to close</span>
+        <span className="xs faint">Arrow keys to move · Enter to open · Esc to close</span>
     </Dialog>
   );
 }
@@ -94,13 +95,13 @@ function Shell() {
     <>
       <Header variant="admin" right={
         <span className="row g8" style={{ flexWrap: 'nowrap' }}>
-          <button type="button" className="btn btn-outline" style={{ minHeight: 40, gap: 8 }} onClick={() => setSearch(true)}>⌕ <span className="hide-sm">Search</span> <kbd className="mono xs faint hide-sm">Ctrl K</kbd></button>
+          <button type="button" className="btn btn-outline" style={{ minHeight: 40, gap: 8 }} onClick={() => setSearch(true)}><IcSearch /> <span className="hide-sm">Search</span> <kbd className="mono xs faint hide-sm">Ctrl K</kbd></button>
           <label htmlFor="adm-range" className="sr-only">Date range</label>
           <select id="adm-range" className="input" style={{ height: 40, width: 'auto', fontSize: 13 }} value={range} onChange={(e) => setRange(+e.target.value)}>
             <option value={1}>Today</option><option value={7}>Last 7 days</option><option value={30}>Last 30 days</option>
           </select>
           <span style={{ position: 'relative' }}>
-            <button type="button" className="btn btn-icon" aria-label={`Alerts: ${alerts.length}`} aria-expanded={bell} onClick={() => setBell(!bell)}>🔔{alerts.length > 0 && <span className="badge b-danger" style={{ position: 'absolute', top: -4, right: -6, padding: '1px 6px', fontSize: 10 }}>{alerts.length}</span>}</button>
+            <button type="button" className="btn btn-icon" aria-label={`Alerts: ${alerts.length}`} aria-expanded={bell} onClick={() => setBell(!bell)}><IcBell />{alerts.length > 0 && <span className="badge b-danger" style={{ position: 'absolute', top: -4, right: -6, padding: '1px 6px', fontSize: 10 }}>{alerts.length}</span>}</button>
             {bell && (
               <div className="card stack g4" style={{ position: 'absolute', right: 0, top: 48, width: 320, zIndex: 30, padding: 8, boxShadow: 'var(--shadow)' }}>
                 <strong className="small" style={{ padding: '4px 8px' }}>Needs you now</strong>

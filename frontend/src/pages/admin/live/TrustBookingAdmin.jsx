@@ -1,4 +1,4 @@
-// Admin → Skill checks → Vetting Trust → "Interview booking & joining day" (T11). The times of the reminders and the
+// Admin -> Skill checks -> Vetting Trust -> "Interview booking & joining day" (T11). The times of the reminders and the
 // joining-day messages, the 2-hour change window, how long a link works, the WhatsApp cap a person a day, the five
 // WhatsApp templates to submit to Meta (with "Meta approved it" per language: a real provider only sends approved
 // ones), counts (24 h / 30 days), the latest links (never a token) and "Run a pass now". Uses T5's WhatsApp provider

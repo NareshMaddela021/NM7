@@ -2,7 +2,7 @@
 // candidate shown, the first invite accepted, the first interview booked and the first offer sent; the share of roles
 // that reached an interview or offer within 60 minutes; the funnel. All from real events. The "Hired in 60 minutes"
 // badge shows only when a real role did it. English, Telugu and Hindi (co.speed.*).
-// Round P, Phase 3: a "Minute 0 → 60" timeline card. The four averages sit on a 60-minute track (a step that took
+// Round P, Phase 3: a "Minute 0 -> 60" timeline card. The four averages sit on a 60-minute track (a step that took
 // longer is pinned at the end, with its real minutes); the funnel is a row of number tiles; each role is a mini track.
 import { useEffect, useState } from 'react';
 import { rq } from '../../lib/company';

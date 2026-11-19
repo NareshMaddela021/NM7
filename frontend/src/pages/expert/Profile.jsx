@@ -69,7 +69,7 @@ function Start({ onAi, onDoc, onFresh, busy, error }) {
   );
 }
 
-/* ---------- asuraa.ai link flow: link → preview & pick → code → done ---------- */
+/* ---------- asuraa.ai link flow: link -> preview & pick -> code -> done ---------- */
 function AiLink({ onBack, onDone, initial = '' }) {
   const [step, setStep] = useState('link');
   const [link, setLink] = useState(initial);

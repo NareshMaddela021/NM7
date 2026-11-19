@@ -70,7 +70,7 @@ function Buy({ data, plan, onPaid, onOrdered, refCode }) {
   const [q, setQ] = useState(null);
   const [st, setSt] = useState({});
   const [code, setCode] = useState(null); // typed partner code; null = the remembered one (partner link)
-  const [coupon, setCoupon] = useState(''); // a code from Admin → Codes, applied (instead of a partner discount)
+  const [coupon, setCoupon] = useState(''); // a code from Admin -> Codes, applied (instead of a partner discount)
   const s = data.summary;
   const renew = s.planId === plan.id && (s.state === 'active' || s.state === 'grace');
   const firstPayment = !data.orders.some((o) => o.paidAt);
@@ -182,7 +182,7 @@ function useWaitForPayment(reload) {
 
 const DOC_KIND = { invoice: 'Tax invoice', credit_note: 'Credit note', proforma: 'Proforma' };
 
-/** Billing → Invoices: every invoice, credit note and proforma of this organization, to download as PDF. */
+/** Billing -> Invoices: every invoice, credit note and proforma of this organization, to download as PDF. */
 function Invoices({ orgId }) {
   const toast = useToast();
   const st = useApi(`/api/org/${orgId}/billing/invoices`);

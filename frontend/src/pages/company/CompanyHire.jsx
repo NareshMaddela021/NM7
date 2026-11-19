@@ -4,12 +4,12 @@
 // all of them; the list shows each answer (Accept, or Not interested with the reason). Email and phone show only after
 // the person accepts, then they are also in Applicants (Shortlisted). Only Verified companies; Basic accounts see a
 // note. No pop-up dialogs. English, Telugu and Hindi (co.hire.*).
-// Round P, Phase 3: a control bar card, the Minute 0 → 60 card, the bulk board, then ranked people cards (rank badge,
+// Round P, Phase 3: a control bar card, the Minute 0 -> 60 card, the bulk board, then ranked people cards (rank badge,
 // match ring, facts as chips, Invite) with Invite all in a bar that sticks on a phone; interview times and offers.
 // Vetting V2: each card shows the "Skill verified" badge (test, band, score, task stars, month; muted when expired),
 // and the control bar filters by "Skill verified only", the test and a minimum test score.
-// Vetting V1: each card shows the level chip (L0–L4) and ⚡ Ready now, the readiness score (0–100) with its top 3
-// reasons and a "Why this score" fold with the parts; filters for the minimum level, ⚡ ready now only, notice period,
+// Vetting V1: each card shows the level chip (L0–L4) and Ready now, the readiness score (0–100) with its top 3
+// reasons and a "Why this score" fold with the parts; filters for the minimum level, ready now only, notice period,
 // salary, city and experience band. The order is the server's.
 // Vetting V3: people at L3+ get a "Screening interview" button: the summary in a drawer, with Invite to final interview.
 // Vetting Trust T2: "Verified via DigiLocker" document badges (DocBadges.jsx; only where the Trust switch allows).
@@ -51,7 +51,7 @@ export const PAGE = 10;
 export const MIN_SCORES = [0, 60, 70, 80, 90];
 
 /** The shortlist's query: job, size, support, the Vetting V2 filters (verified only, test, minimum score) and the V1
- * ones (minimum level, ⚡ ready now only, notice period at most, salary at most, city, experience band). */
+ * ones (minimum level, ready now only, notice period at most, salary at most, city, experience band). */
 export function shortlistQuery(job, { support = '', verified = false, role = '', minScore = 0, minLevel = 0, readyNow = false,
   noticeMax = -1, salaryMax = '', city = '', band = '' } = {}, nonTech = NT_NONE, work = WT_NONE) {
   const q = new URLSearchParams({ job, size: '100' });

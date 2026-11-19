@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { experienceKpi } from './JobPages';
 
-describe('Admin → Jobs "By experience"', () => {
+describe('Admin > Jobs "By experience"', () => {
   it('shows the total as the headline (not the Fresher count) and every band underneath', () => {
     const k = experienceKpi({ fresher: 41, '0_1': 12, '5_8': 3, not_stated: 4 });
     expect(k.value).toBe(60);

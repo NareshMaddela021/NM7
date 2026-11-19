@@ -27,7 +27,7 @@ async function saveFile(path, name) {
   const a = document.createElement('a');
   a.href = URL.createObjectURL(await r.blob()); a.download = name; a.click();
 }
-/** "2026-03-14" → { d: '14', m: 'Mar', w: 'Sat' } for the little calendar block on drive cards. */
+/** "2026-03-14" -> { d: '14', m: 'Mar', w: 'Sat' } for the little calendar block on drive cards. */
 const dateParts = (iso) => { const t = new Date(`${iso}T00:00:00`); if (Number.isNaN(t.getTime())) return { d: iso, m: '', w: '' }; return { d: String(t.getDate()), m: t.toLocaleDateString('en-IN', { month: 'short' }), w: t.toLocaleDateString('en-IN', { weekday: 'short' }) }; };
 const NAAC = 'Numbers only, by branch and company, on your college format — helps with NAAC / NIRF and management reports (not an official NAAC or NIRF format). No student names or contact details.';
 

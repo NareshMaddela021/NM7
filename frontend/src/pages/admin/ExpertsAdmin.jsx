@@ -23,7 +23,7 @@ function Detail({ x, onClose }) {
       <span className="small muted">{x.domains.join(', ')}</span>
       <div className="grid-auto g8 small" style={{ '--min': '140px' }}>
         <span className="well"><strong>{x.onTime}%</strong><br /><span className="xs muted">on time</span></span>
-        <span className="well"><strong>★ {x.rating}</strong><br /><span className="xs muted">rating</span></span>
+        <span className="well"><strong>{x.rating}/5</strong><br /><span className="xs muted">rating</span></span>
         <span className="well"><strong>{x.revisions}</strong><br /><span className="xs muted">revisions / order</span></span>
         <span className="well"><strong>{x.refunds}</strong><br /><span className="xs muted">refunds caused (30d)</span></span>
         <span className="well"><strong>{done.length}</strong><br /><span className="xs muted">delivered</span></span>
@@ -46,7 +46,7 @@ function Detail({ x, onClose }) {
           {x.status !== 'suspended' && <button type="button" className="btn btn-danger-soft" style={{ minHeight: 40 }} disabled={!reason.trim()} onClick={() => { actions.expert(x.id, { status: 'suspended' }, `suspended — ${reason}`); setReason(''); toast('Suspended'); }}>Suspend</button>}
         </div>
       </div>
-      <div className="stack g4 small"><strong>Recent orders</strong>{mine.slice(0, 5).map((o) => <span key={o.id} className="muted">{o.id} · {o.role} · {o.stage}{o.rating ? ` · ★ ${o.rating}` : ''}</span>)}</div>
+      <div className="stack g4 small"><strong>Recent orders</strong>{mine.slice(0, 5).map((o) => <span key={o.id} className="muted">{o.id} · {o.role} · {o.stage}{o.rating ? ` · rated ${o.rating}/5` : ''}</span>)}</div>
       <div className="stack g4 small"><strong>Payouts</strong>{payouts.filter((p) => p.expert === x.id).map((p) => <span key={p.id} className="muted">{p.id} · {inr(p.amount)} · {p.status}</span>)}<span className="xs faint">PAN ••••••{['1234F', '6789K', '4455Q'][x.id.charCodeAt(0) % 3]} · documents on file</span></div>
     </Panel>
   );
@@ -70,9 +70,9 @@ export default function ExpertsAdmin() {
               <tbody>
                 {experts.map((x) => (
                   <tr key={x.id} className={`clickable${sel?.id === x.id ? ' sel' : ''}`} onClick={() => set('id', x.id)}>
-                    <td><button type="button" className="stack" style={{ border: 0, background: 'none', padding: 0, textAlign: 'left' }} onClick={() => set('id', x.id)}><strong>{x.name}{x.ai ? ' ✦' : ''}</strong><span className="xs faint">{x.domains.join(', ')}</span></button></td>
+                    <td><button type="button" className="stack" style={{ border: 0, background: 'none', padding: 0, textAlign: 'left' }} onClick={() => set('id', x.id)}><strong>{x.name}{x.ai ? ' (asuraa.ai)' : ''}</strong><span className="xs faint">{x.domains.join(', ')}</span></button></td>
                     <td style={{ color: x.onTime < 85 ? 'var(--danger)' : undefined }}>{x.onTime}%</td>
-                    <td>★ {x.rating}</td><td>{x.revisions}</td>
+                    <td>{x.rating}/5</td><td>{x.revisions}</td>
                     <td style={{ color: x.refunds >= 2 ? 'var(--danger)' : undefined }}>{x.refunds}</td>
                     <td className="mono">{loads[x.id] || 0}/{x.cap}</td>
                     <td className="small">{x.tier}</td>
@@ -81,7 +81,7 @@ export default function ExpertsAdmin() {
                 ))}
               </tbody>
             </table>
-            <span className="xs faint" style={{ display: 'block', padding: 12 }}>✦ linked to asuraa.ai · red = needs attention (under 85% on time or 2+ refunds)</span>
+            <span className="xs faint" style={{ display: 'block', padding: 12 }}>(asuraa.ai) = linked to asuraa.ai · red = needs attention (under 85% on time or 2+ refunds)</span>
           </div>
           {sel && <Detail key={sel.id} x={sel} onClose={() => set('id', '')} />}
         </div>

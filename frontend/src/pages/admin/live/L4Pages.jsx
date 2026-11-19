@@ -1,4 +1,4 @@
-// Admin → Skill checks → "L4 checks" (Vetting V4, the Nm7 human check). From GET /api/admin/vetting/l4:
+// Admin -> Skill checks -> "L4 checks" (Vetting V4, the Nm7 human check). From GET /api/admin/vetting/l4:
 //   Requests   every company request: the person, the company, when it was asked, when it is due (24-hour SLA), the
 //              status; past due shows in red with "past 24 h".
 //   Reviewers  status, roles, calibration %, quality, checks done, senior; Activate (only after calibration) / Pause /
@@ -50,7 +50,7 @@ function Requests({ rows, sla }) {
                 const [words, tone] = l4Status(r.status);
                 return (
                   <tr key={r.id} className={r.overdue ? 'l4-overdue-row' : ''} data-testid="l4-req" data-overdue={r.overdue ? 'true' : undefined}>
-                    <td><strong>{r.person || 'Unnamed'}</strong>{r.referees?.length > 0 && <span className="xs muted" style={{ display: 'block' }}>{r.referees.filter((x) => x.answered).length}/{r.referees.length} referees answered{r.referees.some((x) => x.flags?.length) ? ' · ⚑ flagged' : ''}</span>}</td>
+                    <td><strong>{r.person || 'Unnamed'}</strong>{r.referees?.length > 0 && <span className="xs muted" style={{ display: 'block' }}>{r.referees.filter((x) => x.answered).length}/{r.referees.length} referees answered{r.referees.some((x) => x.flags?.length) ? ' · flagged' : ''}</span>}</td>
                     <td className="small" data-label="Company">{r.company}</td>
                     <td className="small" data-label="Requested">{when(r.requestedAt)}</td>
                     <td className="small" data-label="Due">{when(r.dueAt)}{r.overdue && <span className="l4-overdue" style={{ display: 'block' }} data-testid="l4-overdue">Overdue · past 24 h</span>}</td>

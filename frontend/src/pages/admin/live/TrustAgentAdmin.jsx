@@ -1,4 +1,4 @@
-// Admin → Skill checks → Vetting Trust → Calls & WhatsApp (T5; every change audited). /api/admin/trust/agent
+// Admin -> Skill checks -> Vetting Trust -> Calls & WhatsApp (T5; every change audited). /api/admin/trust/agent
 //   Providers: WhatsApp (test provider or Meta Cloud API) and AI calls (test provider or Bolna), each key set / not set
 //   (never the value: docs/trust/T5-vendors.md), and the webhook URLs to give Meta and Bolna.
 //   Rules: people per job, contacts per person a day, quiet hours (IST), hours before the AI call, when a conversation

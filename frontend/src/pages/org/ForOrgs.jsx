@@ -1,5 +1,5 @@
 // /for-orgs — Nm7 for Organizations: the plans table (prices and limits come from the server, so Naresh can
-// change them in Admin → Plans), a short FAQ, "Start free" (creates an organization with you as its Owner) and
+// change them in Admin -> Plans), a short FAQ, "Start free" (creates an organization with you as its Owner) and
 // "Talk to us" (a support ticket). A ?ref=CODE link from a partner is remembered (Phase 4C). Readable in English,
 // Telugu or Hindi (the language switch at the top; strings orgs.* in src/i18n/pages.json); messages from the server and
 // the students' stories stay as they are.
@@ -37,7 +37,7 @@ function useRef90() {
   return ref;
 }
 
-/** Round P, Phase 4: the three steps of starting free (account → organization → groups), shown beside the form. */
+/** Round P, Phase 4: the three steps of starting free (account -> organization -> groups), shown beside the form. */
 function StartSteps({ step, t }) {
   const steps = [t('orgs.start.signup'), t('orgs.start.create'), t('orgs.table.l.groups')];
   return (

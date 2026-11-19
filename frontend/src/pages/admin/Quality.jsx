@@ -15,7 +15,7 @@ function AuditCard({ a }) {
   return (
     <div className="card stack g8" style={{ padding: 16 }}>
       <div className="row between g8"><span className="small"><Link to={`/admin/orders?id=${a.orderId}`}><strong>{a.orderId}</strong></Link> · {o.role} · {exName(a.expert)}</span>{done ? <span className={`badge ${done.filter(Boolean).length >= 4 ? 'b-success' : 'b-warning'}`}>{done.filter(Boolean).length}/{done.length}</span> : <span className="badge b-neutral">To check</span>}</div>
-      <span className="xs muted">ATS {o.atsBefore} → {o.atsAfter ?? '—'}{o.rating ? ` · customer ★ ${o.rating}` : ''}</span>
+      <span className="xs muted">ATS {o.atsBefore} to {o.atsAfter ?? '—'}{o.rating ? ` · customer rating ${o.rating}/5` : ''}</span>
       {QA_CHECKS.map((c, i) => (
         <div key={c} className="row between g8 small" style={{ flexWrap: 'nowrap' }}>
           <span>{c}</span>
@@ -47,9 +47,9 @@ export default function Quality() {
     <>
       <PageHead title="Quality" sub={`${settings.auditPct}% of delivered resumes are picked at random for a checklist review.`} right={<button type="button" className="btn btn-outline" onClick={pickMore}>Pick random deliveries</button>} />
       <div className="kpis">
-        <Kpi label="ATS score before → after" value={`${avg('atsBefore')} → ${avg('atsAfter')}`} sub={`+${avg('atsAfter') - avg('atsBefore')} points on average`} tone="var(--success)" />
+        <Kpi label="ATS score before and after" value={`${avg('atsBefore')} to ${avg('atsAfter')}`} sub={`+${avg('atsAfter') - avg('atsBefore')} points on average`} tone="var(--success)" />
         <Kpi label="Audit pass rate" value={`${passRate}%`} sub={`${scored.length} audits done`} />
-        <Kpi label="Low ratings (≤ 3★)" value={low.length} sub="Check these first" tone={low.length ? 'var(--warning)' : undefined} />
+        <Kpi label="Low ratings (3 stars or less)" value={low.length} sub="Check these first" tone={low.length ? 'var(--warning)' : undefined} />
       </div>
       <div className="row g16" style={{ alignItems: 'flex-start' }}>
         <div className="stack g12" style={{ flex: '2 1 460px' }}>
@@ -58,7 +58,7 @@ export default function Quality() {
         </div>
         <div className="stack g16" style={{ flex: '1 1 300px' }}>
           <div className="card"><HBars title="ATS points gained by expert" color="var(--viz-3)" rows={experts.map((x) => { const os = delivered.filter((o) => o.expert === x.id); return { label: x.name, value: os.length ? Math.round(os.reduce((s, o) => s + (o.atsAfter - o.atsBefore), 0) / os.length) : 0 }; }).sort((a, b) => b.value - a.value)} fmt={(v) => `+${v}`} /></div>
-          <div className="card stack g8"><strong className="small">Low ratings</strong>{low.length ? low.map((o) => <Link key={o.id} to={`/admin/orders?id=${o.id}`} className="small">{o.id} · ★ {o.rating} · {o.role}</Link>) : <span className="small muted">None.</span>}</div>
+          <div className="card stack g8"><strong className="small">Low ratings</strong>{low.length ? low.map((o) => <Link key={o.id} to={`/admin/orders?id=${o.id}`} className="small">{o.id} · {o.rating}/5 · {o.role}</Link>) : <span className="small muted">None.</span>}</div>
         </div>
       </div>
     </>

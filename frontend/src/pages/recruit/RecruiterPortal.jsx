@@ -3,7 +3,7 @@
 // My drives, and /recruiter/i.<invite id> opens an invite from there), then searches the students who allowed recruiter sharing in
 // the groups they were given: skills (with synonyms), branch, CGPA, passing year, location, ATS score, internship,
 // projects, certifications, languages. On Campus, job match mode scores every student against a pasted job post.
-// The shortlist board (Shortlisted → Interview → Selected / Rejected, with notes) downloads as a ZIP or one combined
+// The shortlist board (Shortlisted -> Interview -> Selected / Rejected, with notes) downloads as a ZIP or one combined
 // PDF in the college's placement format (with its cover page), or as CSV. The server re-checks consent on every
 // request, logs every view and download, rate-limits downloads and hides contact details unless allowed.
 import { useCallback, useEffect, useMemo, useState } from 'react';

@@ -1,4 +1,4 @@
-// /org/demo-login#t=… — opened from Admin → Organizations → Demo → "Reset and open as coordinator". Signs this
+// /org/demo-login#t=… — opened from Admin -> Organizations -> Demo -> "Reset and open as coordinator". Signs this
 // browser in as the demo college's made-up coordinator (the token is used once), then opens the portal.
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';

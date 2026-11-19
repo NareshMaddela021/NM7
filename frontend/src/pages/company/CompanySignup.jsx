@@ -68,7 +68,7 @@ function Field({ id, label, hint, error, children }) {
   );
 }
 
-// a server field error → the field it belongs to, and the step that field is on
+// a server field error -> the field it belongs to, and the step that field is on
 const FIELD_OF = { website: ['co-site', 0], legal_name: ['co-name', 0], legalName: ['co-name', 0], about: ['co-about', 0], industry: ['co-ind', 0], number: ['co-reg', 1], phone: ['co-phone', 1], linkedin: ['co-li', 1] };
 
 export default function CompanySignup() {

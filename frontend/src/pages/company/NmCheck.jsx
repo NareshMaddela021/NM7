@@ -1,7 +1,7 @@
 // Vetting V4: "Request Nm7 check" on a Hire now card and in an applicant's profile, for people at level 3 or more.
 // POST /api/company/{cid}/hire/l4/{uid} asks Nm7 for the human check (a 15-minute call with an Nm7 reviewer and a
-// reference from a past manager or teacher); the answer is the request's status, shown as a chip (requested → call
-// booked → checked → verified). Verified shows "✓ Nm7 verified · Confirmed by a past manager at <company>". After an
+// reference from a past manager or teacher); the answer is the request's status, shown as a chip (requested -> call
+// booked -> checked -> verified). Verified shows "tick Nm7 verified · Confirmed by a past manager at <company>". After an
 // interview with a verified person, "Rate this candidate" (1–5 stars, POST …/rating) tells Nm7 how well the check
 // predicted them. The row may already carry `l4` ({ status, referenceLine }); L4 people count as verified.
 // English only for now.

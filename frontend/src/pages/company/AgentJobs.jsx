@@ -1,4 +1,4 @@
-// Company dashboard → Jobs → "Call / message matching candidates" (Vetting Trust T5). Only where the Trust switch lets
+// Company dashboard -> Jobs -> "Call / message matching candidates" (Vetting Trust T5). Only where the Trust switch lets
 // this company in (GET /api/company/{id}/trust/agent answers 404 otherwise, and nothing shows). Per job: the toggle
 // (Nm7 messages the best-matching people who said yes to WhatsApp / calls, then calls with an AI assistant if they
 // don't reply), a short list of extra yes/no questions, and the live status: contacted, interested, booked, and for

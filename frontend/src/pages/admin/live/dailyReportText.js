@@ -1,4 +1,4 @@
-// Admin → Daily report: the small formatting helpers (numbers, change vs yesterday, sparkline points and the
+// Admin -> Daily report: the small formatting helpers (numbers, change vs yesterday, sparkline points and the
 // sparkline's words for screen readers). No React here, so the rules are tested on their own.
 
 export const num = (v) => (v == null ? '—' : Number(v).toLocaleString('en-IN'));
@@ -13,7 +13,7 @@ export function change(value, prev, { lowerIsBetter = false, fmt = num } = {}) {
   if (d === 0) return { dir: 'same', text: 'Same as yesterday', tone: 'neutral' };
   const up = d > 0;
   const good = lowerIsBetter ? !up : up;
-  return { dir: up ? 'up' : 'down', text: `${up ? '▲' : '▼'} ${fmt(Math.abs(d))} vs yesterday`, tone: good ? 'good' : 'bad' };
+  return { dir: up ? 'up' : 'down', text: `${up ? 'Up' : 'Down'} ${fmt(Math.abs(d))} vs yesterday`, tone: good ? 'good' : 'bad' };
 }
 
 /** The sparkline's polyline points ("x,y x,y …") in a w×h box; days without a number leave a gap (separate runs). */
@@ -54,7 +54,7 @@ export function trendWords(series, fmt = num) {
 /** "a3f9c1e" from a full commit hash; "unknown" stays. */
 export const shortCommit = (c) => (c && c !== 'unknown' ? String(c).slice(0, 7) : 'unknown');
 
-/** Reasons {reason: n} → [[label, n]] biggest first, with friendly words for the known ones. */
+/** Reasons {reason: n} -> [[label, n]] biggest first, with friendly words for the known ones. */
 const REASON_WORDS = {
   no_page_text: 'No page text to summarise', summary_failed: 'Summary failed a check', summary_unavailable: 'AI summaries off', ai_error: 'AI error (sent back to the collector)',
   ai_daily_limit: 'AI allowance used up', city_not_stated: 'City not stated', experience_not_stated: 'Experience not stated',

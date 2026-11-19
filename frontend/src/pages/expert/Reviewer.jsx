@@ -4,7 +4,7 @@
 //   Calibration  5 sample interviews: score each on the 5 rubric lines (0–5); within 1 point of the gold scores on 80%
 //                of the lines passes, then an Nm7 admin turns them on. GET/POST /api/reviewer/calibration.
 //   My checks    booked calls: the person, the time, a call link, the weak spots to probe, the checklist with ticks, a
-//                1–5 score, pass / fail and a 3-line note → POST /api/reviewer/checks/{id}/result. Senior re-reviews
+//                1–5 score, pass / fail and a 3-line note -> POST /api/reviewer/checks/{id}/result. Senior re-reviews
 //                are marked "Second opinion".
 // Nothing is paid yet (payments off): the page says so.
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
@@ -276,7 +276,7 @@ function Checks() {
   return <ul className="l4-refs" style={{ gap: 16 }} data-testid="rv-checks">{d.items.map((x) => <CheckItem key={x.id} x={x} checklist={d.checklist || []} onDone={load} />)}</ul>;
 }
 
-/** Only for experts the vetting engine is open to (Admin → Skill checks → Launch). */
+/** Only for experts the vetting engine is open to (Admin -> Skill checks -> Launch). */
 export default function Reviewer() {
   const [on, setOn] = useState(null);
   useEffect(() => { http('/api/reviewer/access').then((x) => setOn(!!x?.on), () => setOn(false)); }, []);

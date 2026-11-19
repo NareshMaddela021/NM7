@@ -1,4 +1,4 @@
-// Admin → Skill checks, the Vetting V2 tabs after Banks: Rubrics (each role's practical task and rubric, with an
+// Admin -> Skill checks, the Vetting V2 tabs after Banks: Rubrics (each role's practical task and rubric, with an
 // editor that saves a new rubric version), the Review queue (grade a practical task 0–5 per rubric line), the Integrity
 // queue (Clear or Hold: holding never bans, the person can try again after 30 days) and Stats. All from
 // /api/admin/vetting/* (permission "jobs"). Companies never see anything from the integrity side.
