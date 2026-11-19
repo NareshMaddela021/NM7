@@ -60,8 +60,18 @@ for (const [label, opts] of SIZES) {
       await expect(page.getByTestId('google-button')).toContainText('Terms');
       expect(await noSideScroll(page)).toBe(true);
       await page.getByTestId('gsi-fake').click();
-      await page.waitForURL('**/me'); // where an email sign-up lands
+      // where an email sign-up lands: "What would you like to do?", the role from the link ticked
+      await page.waitForURL('**/welcome?role=jobseeker');
+      await expect(page.getByRole('checkbox', { name: /Find a job/ })).toBeChecked();
+      // it never saw the sign-up form: the same one tick, here
+      await page.getByRole('button', { name: 'Continue' }).click();
+      await expect(page.getByRole('alert')).toContainText('Terms and Privacy Policy');
+      await page.getByRole('checkbox', { name: /I agree to the Terms/ }).check();
+      expect(await noSideScroll(page)).toBe(true);
+      await page.getByRole('button', { name: 'Continue' }).click();
+      await page.waitForURL('**/me/profile');
       const me = (await call(page, '/api/auth/me')).body;
+      expect(me).toMatchObject({ roles: ['jobseeker'], activeRole: 'jobseeker', rolesPending: false });
       expect(me).toMatchObject({ role: 'customer', name: 'Gita Rao', verified: true, hasPassword: false });
 
       // the same Trust steps as every new account: the age check, then a consent

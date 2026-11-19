@@ -117,6 +117,7 @@ async def signup(body: SignupIn, request: Request, response: Response, db: DB, m
         ref=body.ref,
         existing_id=user.id if user else None,
         phone=phone,
+        roles_pending=body.pick_roles,
         unverified_expires_at=now() + UNVERIFIED_TTL,
         signup_token_hash=_bind_signup(response),
     )

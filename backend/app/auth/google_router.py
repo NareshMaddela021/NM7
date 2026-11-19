@@ -128,6 +128,7 @@ async def _create(db, request: Request, body: GoogleIn, g: google.GoogleId) -> U
         ref=body.ref,
         email_verified_at=now(),
         google=_link(g),
+        roles_pending=True,  # one account for individuals: "What would you like to do?" next, as after email sign-up
     )
     user = User(email=g.email, **fields)
     try:
