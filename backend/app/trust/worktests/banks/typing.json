@@ -1,0 +1,17 @@
+{
+ "test": "typing",
+ "version": 1,
+ "seconds": 90,
+ "forms": [
+  {"id": "typing-a", "passages": {
+   "en": "Our shop opens at nine in the morning. Please check the stock list, clean the counter and switch on the billing machine before the first customer arrives. If a customer asks for an item we do not have, note it down and tell the store manager by evening.",
+   "hi": "हमारी दुकान सुबह नौ बजे खुलती है। पहले ग्राहक के आने से पहले स्टॉक की सूची देखें, काउंटर साफ करें और बिलिंग मशीन चालू करें। अगर कोई ग्राहक ऐसी चीज़ माँगे जो हमारे पास नहीं है, तो उसे लिख लें और शाम तक मैनेजर को बताएँ।",
+   "te": "మా షాపు ఉదయం తొమ్మిది గంటలకు తెరుస్తాం. మొదటి కస్టమర్ రాకముందే స్టాక్ జాబితా చూడండి, కౌంటర్ శుభ్రం చేయండి, బిల్లింగ్ మెషీన్ ఆన్ చేయండి. మన దగ్గర లేని వస్తువు ఎవరైనా అడిగితే, దాన్ని రాసుకుని సాయంత్రంలోగా మేనేజర్‌కి చెప్పండి."
+  }},
+  {"id": "typing-b", "passages": {
+   "en": "The delivery van leaves the warehouse at seven. Each parcel has a code on its label. Scan the code, check the address and keep heavy boxes at the bottom. Call the customer ten minutes before you reach, and take a signature or a photo when you hand over the parcel.",
+   "hi": "डिलीवरी वैन सुबह सात बजे गोदाम से निकलती है। हर पार्सल के लेबल पर एक कोड होता है। कोड स्कैन करें, पता जाँचें और भारी डिब्बे नीचे रखें। पहुँचने से दस मिनट पहले ग्राहक को फ़ोन करें और पार्सल देते समय हस्ताक्षर या फ़ोटो लें।",
+   "te": "డెలివరీ వ్యాన్ ఉదయం ఏడు గంటలకు గోడౌన్ నుంచి బయలుదేరుతుంది. ప్రతి పార్సిల్ లేబుల్ మీద ఒక కోడ్ ఉంటుంది. కోడ్ స్కాన్ చేయండి, చిరునామా చూడండి, బరువైన డబ్బాలు కింద పెట్టండి. చేరడానికి పది నిమిషాల ముందు కస్టమర్‌కి ఫోన్ చేయండి, పార్సిల్ ఇచ్చేటప్పుడు సంతకం లేదా ఫోటో తీసుకోండి."
+  }}
+ ]
+}

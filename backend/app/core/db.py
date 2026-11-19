@@ -185,6 +185,8 @@ TRUST_FAIRNESS = "trust_fairness"  # T12: _id = ISO week: the weekly pass-rate g
 TRUST_CODE_PROBLEMS = "trust_code_problems"  # T14: coding problems (statement, starters, samples, HIDDEN tests)
 TRUST_CODE = "trust_code"  # T14: _id = attempt id: the coding task's draft, runs, queued submission, hidden results
 TRUST_CODE_REPLAYS = "trust_code_replays"  # T14: editor keystroke replays (own consent, 90 days)
+TRUST_WORKTESTS = "trust_worktests"  # T15: typing / situational-judgement / aptitude attempts (order, answers, result)
+TRUST_RELIABILITY = "trust_reliability"  # T15: _id = kind:ref: showed up / joined / stayed 30 & 90 days (with consent)
 TRUST_HIRE_EVENTS = "trust_hire_events"  # T13: _id = job:kind: the first time a job reached a hiring step (no people)
 TRUST_FACE = "trust_face"  # T3: _id = user id: the ID + selfie result, retries, review, joining check (never photos)
 LEARN_PATHS = "learn_paths"  # Phase 6 S2, _id = role id: courses → project → skill check (Admin → Learning paths)
@@ -333,6 +335,8 @@ COLLECTIONS = (
     TRUST_CODE_PROBLEMS,
     TRUST_CODE,
     TRUST_CODE_REPLAYS,
+    TRUST_WORKTESTS,
+    TRUST_RELIABILITY,
     VETTING_L4,
     VETTING_REVIEWERS,
     VETTING_INTERVIEWS,
@@ -590,6 +594,16 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel([("submission.status", ASCENDING), ("submission.next_at", ASCENDING)], sparse=True),
     ],
     TRUST_CODE_REPLAYS: [IndexModel("user_id"), IndexModel("attempt_id"), IndexModel("created_at")],
+    TRUST_WORKTESTS: [
+        IndexModel([("user_id", ASCENDING), ("key", ASCENDING), ("started_at", DESCENDING)]),
+        IndexModel([("test", ASCENDING), ("status", ASCENDING), ("submitted_at", DESCENDING)]),
+        IndexModel("started_at"),
+    ],  # fmt: skip
+    TRUST_RELIABILITY: [
+        IndexModel([("user_id", ASCENDING), ("at", DESCENDING)]),
+        IndexModel([("state", ASCENDING), ("respond_by", ASCENDING)]),
+        IndexModel("at"),
+    ],  # fmt: skip
     TRUST_HIRE_EVENTS: [IndexModel("job_id"), IndexModel([("company_id", ASCENDING), ("at", DESCENDING)])],
     TRUST_REGRADES: [
         IndexModel([("kind", ASCENDING), ("ref", ASCENDING)], unique=True),

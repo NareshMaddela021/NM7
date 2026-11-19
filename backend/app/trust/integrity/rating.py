@@ -220,6 +220,21 @@ KINDS: dict[str, Kind] = {
         "Your coding task’s solution was written with almost no typing in the editor.",
         "T14 coding",
     ),
+    # T15 typing test (the SJT and aptitude tests use the V2 kinds above)
+    "typing_paste": Kind(
+        1.5,
+        3.0,
+        "Typing test: a paste was tried, or text arrived in one big insert",
+        "In your typing test, a paste was tried or some text arrived all at once (it didn’t count toward your speed).",
+        "T15 work tests",
+    ),
+    "typing_timing": Kind(
+        1.0,
+        2.0,
+        "Typing test: unusual timing (faster than people type, or the page clock didn’t match the server)",
+        "Your typing test’s timing looked unusual.",
+        "T15 work tests",
+    ),
 }
 
 

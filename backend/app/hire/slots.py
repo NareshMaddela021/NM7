@@ -273,7 +273,7 @@ class MarkIn(CamelModel):
 
 @company.post("/{cid}/hire/slots/{sid}/mark")
 async def mark(
-    cid: str, sid: str, body: MarkIn, db: DB, x_recruiter_account: str | None = Header(None)
+    cid: str, sid: str, body: MarkIn, db: DB, mailer: MailerDep, x_recruiter_account: str | None = Header(None)
 ) -> dict[str, Any]:
     acc, _, _ = await company_for(db, cid, x_recruiter_account, POST)
     s = await db[HIRE_SLOTS].find_one({"_id": _oid(sid), "company_id": cid})
@@ -281,17 +281,27 @@ async def mark(
         raise ApiError(404, "not_found", "Only a booked time can be marked.")
     if s["starts_at"] > now():
         raise ApiError(409, "not_yet", "Mark it once the interview has started.")
-    ref = str(s["_id"])
-    for k in ("attended", "no_show"):
-        await reliability.forget(db, s["user_id"], k, ref)
-    if body.result != "clear":
-        await reliability.record(db, s["user_id"], body.result, cid, ref)
-    new = "" if body.result == "clear" else body.result
-    await db[HIRE_SLOTS].update_one({"_id": s["_id"]}, {"$set": {"mark": new, "updated_at": now()}})
+    new = await apply_mark(db, s, body.result, cid, mailer)
     await audit(
         db, None, "hire.slot_mark", target=cid, data={"by": acc["email_lc"], "slot": sid, "result": body.result}
     )
     return slot_out({**s, "mark": new}, {})
+
+
+async def apply_mark(db, s: dict[str, Any], result: str, cid: str, mailer: Mailer | None = None) -> str:
+    """Attended / No-show / clear on a booked time (here and from the T15 one-tap link): H4 reliability, the slot's
+    mark, and the Vetting Trust T15 reliability record (only with the candidate's consent)."""
+    from app.trust.reliability import service as T15
+
+    ref = str(s["_id"])
+    for k in ("attended", "no_show"):
+        await reliability.forget(db, s["user_id"], k, ref)
+    if result != "clear":
+        await reliability.record(db, s["user_id"], result, cid, ref)
+    new = "" if result == "clear" else result
+    await db[HIRE_SLOTS].update_one({"_id": s["_id"]}, {"$set": {"mark": new, "updated_at": now()}})
+    await T15.on_attendance(db, s, result, cid, mailer)
+    return new
 
 
 @company.get("/{cid}/hire/slots/{sid}/ics")

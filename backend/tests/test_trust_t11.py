@@ -477,7 +477,9 @@ async def test_admin_settings_run_templates_retention(client, outbox, db, make_c
     r = await admin_client.get("/api/admin/trust/booking")
     assert r.status_code == 200
     d = r.json()
-    assert d["settings"]["soonHours"] == 2 and d["settings"]["eveAt"] == "19:00" and len(d["templates"]) == 15
+    assert (
+        d["settings"]["soonHours"] == 2 and d["settings"]["eveAt"] == "19:00" and len(d["templates"]) == 21
+    )  # 7 a language (T15 adds 2)
     bad = await admin_client.put(
         "/api/admin/trust/booking", json={**d["settings"], "morningAt": "14:00", "checkinAt": "13:00"}
     )

@@ -240,6 +240,10 @@ async def run_rules(db: AsyncDatabase, mailer: Mailer | None = None) -> dict[str
 
         code = await trust_code.pass_(db)  # T14: queued coding submissions the sandbox couldn't run yet, heavy, capped
         done.update({f"trust_code_{k}": v for k, v in code.items()})
+        from app.trust.reliability import service as trust_reliability
+
+        rel = await trust_reliability.run(db, mailer or get_mailer())  # T15: 48 h windows, day 30 / 90 asks
+        done.update({f"trust_reliability_{k}": v for k, v in rel.items()})
         done["l4_overdue"] = await vetting_verify.overdue_report(db, mailer or get_mailer())  # V4: past the 24 h SLA
         await save_site(db, {"rule_runs": runs})
         return done

@@ -16,6 +16,8 @@ Nothing here writes to the sources: V2, V3, V5, T2 and T3 keep working exactly a
   T8 snapshots        trust_snapshots photo rows with a face check: no face, more than one face, not the same person
   T14 coding tasks    trust_code submissions flagged "code_big_paste" (a large paste into the editor) or "code_no_typing"
                       (the solution appeared with almost no typing); the replay is the evidence a reviewer watches
+  T15 work tests      trust_worktests: typing "typing_paste" / "typing_timing", and the V2 integrity reasons on the SJT and
+                      aptitude tests (left the page, copy, too fast, same position); a result stands, a person looks
   T4 fraud reports    reports are about jobs and companies, never about a candidate: not a candidate signal.
 
 `observations` counts what the person has done (finished skill checks, graded interviews, documents, an ID check,
@@ -31,6 +33,7 @@ from app.core.db import (
     TRUST_DOCUMENTS,
     TRUST_FACE,
     TRUST_SNAPSHOTS,
+    TRUST_WORKTESTS,
     VETTING_INTERVIEWS,
     VETTING_QUEUE,
 )
@@ -229,6 +232,19 @@ async def collect(db, uids: list[str], t: datetime) -> dict[str, dict[str, Any]]
                                                            detail=f"Typed {int(cnt.get('typed') or 0)} characters, pasted {int(cnt.get('pasted') or 0)} (largest paste {int(cnt.get('largestPaste') or 0)})"
                                                            + (" · replay kept" if sub.get("replay") == "kept" else " · no replay (no consent)"),
                                                            ref={"codeReplay": str(d["_id"])}))  # fmt: skip
+    # T15 work tests (typing / SJT / aptitude): the typing flags and the V2 integrity reasons, signals for a person
+    from app.trust.worktests.service import NAMES as WT_NAMES
+    from app.trust.worktests.service import signals_of as wt_signals
+
+    async for d in db[TRUST_WORKTESTS].find(
+        {"user_id": {"$in": ids}, "status": "submitted", "submitted_at": {"$gt": since}},
+        {"user_id": 1, "test": 1, "lang": 1, "flags": 1, "integrity": 1, "counters": 1, "submitted_at": 1},
+    ):
+        out[d["user_id"]]["observations"] += 1
+        for kind, detail in wt_signals(d):
+            if kind in KINDS:
+                out[d["user_id"]]["signals"].append(Signal(key=f"worktest:{d['_id']}:{kind}", kind=kind, at=d["submitted_at"],
+                                                           where=f"{WT_NAMES.get(d['test'], 'Work test')} ({d.get('lang', 'en')})", detail=detail[:500]))  # fmt: skip
     for v in out.values():
         if v["snapshots"]:
             v["observations"] += 1

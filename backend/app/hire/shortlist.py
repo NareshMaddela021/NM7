@@ -426,6 +426,9 @@ async def shortlist(
     lang: str = Query("", max_length=20),  # T6: a language spoken
     immediate: bool = False,  # T6: available now / no notice
     english: str = Query("", pattern="^(|A1|A2|B1|B2|C1|C2)$"),  # T10: spoken English at least (tagged roles only)
+    typing: int = Query(0, ge=0, le=45),  # T15: typing speed at least (25 / 35 / 45 wpm, 90% accuracy)
+    sjt: str = Query("", pattern="^(|good|strong)$"),  # T15: situational judgement at least
+    aptitude: str = Query("", pattern="^(|top50|top30|top10)$"),  # T15: aptitude in the top X%
     x_recruiter_account: str | None = Header(None),
 ) -> dict[str, Any]:
     acc, c, _ = await company_for(db, cid, x_recruiter_account)
@@ -465,6 +468,7 @@ async def shortlist(
     from app.trust import access as trust_access
 
     non_tech = None
+    work = None
     if await trust_access.for_company(db, c, acc):  # Vetting Trust T6: verified non-tech filters (else as before)
         from app.trust import screening
         from app.trust.spoken.service import filter_on
@@ -482,6 +486,12 @@ async def shortlist(
         fair = fair_filters.hire_filters({"lang": lang, "city": city}, j)
         await fair_filters.log(db, cid, "hire_filter", fair, "shown")
         non_tech["fairness"] = fair_filters.out(fair)
+        from app.trust.worktests import hire as work_hire  # Vetting Trust T15: work-test badges, reliability record
+
+        await work_hire.attach(db, rows)
+        wf = {"typing": typing if typing in work_hire.TYPING_STEPS else 0, "sjt": sjt, "aptitude": aptitude}
+        rows, wcounts = work_hire.apply_filters(rows, wf)
+        work = {"filters": wf, "counts": wcounts}
     from app.trust.criteria.router import attach_hire
 
     criteria = await attach_hire(
@@ -509,6 +519,7 @@ async def shortlist(
         "available": len(rows),
         "vetting": vetting,  # the Skill verified filters and badges are shown (Admin → Skill checks → Launch)
         **({"nonTech": non_tech} if non_tech else {}),  # Vetting Trust T6
+        **({"workTests": work} if work else {}),  # Vetting Trust T15
         **({"criteria": criteria} if criteria else {}),  # Vetting Trust T7
         "usage": {"used": len(roles), "free": free},
         "ms": int((now() - started).total_seconds() * 1000),

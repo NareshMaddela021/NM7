@@ -322,6 +322,9 @@ async def _joined(db, o: dict[str, Any], side: str, body: JoinedIn, via: str = "
     await reliability.forget(db, o["user_id"], "dropped", ref)
     if status in ("joined", "dropped"):
         await reliability.record(db, o["user_id"], status, o["company_id"], ref)
+    from app.trust.reliability import service as T15  # Vetting Trust T15: the reliability record (with consent)
+
+    await T15.on_join(db, o, side, body.joined, body.reason)
     if status == "joined":
         from app.trust.tth.service import mark as tth_mark  # Vetting Trust T13: the first time a job reached a step
 
@@ -452,6 +455,9 @@ async def joining(oid: str, body: JoiningIn, auth: CustomerAuth, db: DB, mailer:
     sets = {"status": "dropped", "drop_reason": body.reason.strip(), "joined": {"candidate": False}, "updated_at": t}
     await db[HIRE_OFFERS].update_one({"_id": o["_id"]}, {"$set": sets})
     await reliability.record(db, o["user_id"], "dropped", o["company_id"], str(o["_id"]))
+    from app.trust.reliability import service as T15  # Vetting Trust T15: in their own words, so it counts
+
+    await T15.on_join(db, o, "candidate", False, body.reason)
     await _college(db, o, "declined")
     if o.get("by"):
         await send_safely(mailer, offer_email({**o, **sets}, o["by"], "declined", body.reason.strip()))
