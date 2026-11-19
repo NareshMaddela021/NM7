@@ -259,6 +259,10 @@ async def send_offer(
         "by_name": m.get("name", ""), "created_at": t, "updated_at": t,
     }  # fmt: skip
     await db[HIRE_OFFERS].insert_one(o)
+    from app.trust.tth.service import mark as tth_mark  # Vetting Trust T13: the first time a job reached a step
+
+    for kind in ("offer", "contact"):  # the offer email reaches the person
+        await tth_mark(db, j["_id"], kind, company_id=cid, user_id=body.person, via="offer", at=t)
     change = status_change(a, "offer", t)
     if change:
         await db[APPLICATIONS].update_one({"_id": a["_id"]}, change)
@@ -318,6 +322,12 @@ async def _joined(db, o: dict[str, Any], side: str, body: JoinedIn, via: str = "
     await reliability.forget(db, o["user_id"], "dropped", ref)
     if status in ("joined", "dropped"):
         await reliability.record(db, o["user_id"], status, o["company_id"], ref)
+    if status == "joined":
+        from app.trust.tth.service import mark as tth_mark  # Vetting Trust T13: the first time a job reached a step
+
+        await tth_mark(
+            db, o.get("job_id"), "joined", company_id=o.get("company_id"), user_id=o["user_id"], via=via, at=t
+        )
     await _college(db, o, "joined" if status == "joined" else "declined" if status == "dropped" else "accepted")
     from app.trust.booking.service import on_joined  # Vetting Trust T11: the event for T15 (only on the new flow)
 
@@ -412,6 +422,9 @@ async def answer(oid: str, body: AnswerIn, auth: CustomerAuth, db: DB, mailer: M
     o |= sets
     if body.answer == "accept":
         await _college(db, o, "accepted")
+        from app.trust.tth.service import mark as tth_mark  # Vetting Trust T13: the first time a job reached a step
+
+        await tth_mark(db, o.get("job_id"), "accepted", company_id=o.get("company_id"), user_id=uid, via="offer", at=t)
     if o.get("by"):
         await send_safely(mailer, offer_email(o, o["by"], "accepted" if body.answer == "accept" else "declined",
                                               body.reason.strip()))  # fmt: skip

@@ -316,6 +316,10 @@ async def set_stage(
 
         await sync.on_status(db, a, body.status, mailer)  # Auto Apply 2.0: the tracker and a notice (A2)
         await refresh(db, cid)  # replies count towards the score and the response badge
+        if body.status in CONTACT_STAGES:
+            from app.trust.tth.service import mark as tth_mark  # Vetting Trust T13: the first shortlist of this job
+
+            await tth_mark(db, a.get("job_id"), "shortlist", company_id=cid, user_id=a.get("user_id"), via="stage")
     return {"status": body.status}
 
 
@@ -449,6 +453,10 @@ async def schedule(
         from app.autoapply import sync
 
         await sync.on_status(db, a, "interview", mailer, emailed=bool(sent))  # the invitation above was the email
+    from app.trust.tth.service import mark as tth_mark  # Vetting Trust T13: the interview and its invitation email
+
+    for kind in ("interview", "contact", "shortlist"):
+        await tth_mark(db, a.get("job_id"), kind, company_id=cid, user_id=a.get("user_id"), via="schedule")
     await audit(
         db,
         None,

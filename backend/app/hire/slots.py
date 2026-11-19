@@ -176,6 +176,12 @@ async def may_book(db, uid: str, job_id: str) -> bool:
 
 
 async def _set_interview(db, s: dict[str, Any], uid: str, clear: bool = False) -> None:
+    if not clear:  # Vetting Trust T13: the job's first booking (booked_at changes when a time is re-booked)
+        from app.trust.tth.service import mark as tth_mark
+
+        await tth_mark(
+            db, s["job_id"], "interview", company_id=s.get("company_id"), user_id=uid, via=s.get("via") or "slot"
+        )
     a = await db[APPLICATIONS].find_one({"user_id": uid, "key": app_key(s["job_id"])})
     if not a:
         return

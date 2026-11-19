@@ -366,6 +366,7 @@ async def state(db: AsyncDatabase, day: date) -> tuple[dict[str, Any], dict[str,
         "ai": {"cap": ai_quota.DAILY_CAP, "collectorLimit": await daily_limit(db)},
         "github": await github_status(),
         "autoApply": await _auto_apply(db),
+        "timeToHire": await _time_to_hire(db),
     }  # fmt: skip
     return m, extra
 
@@ -380,6 +381,20 @@ async def _auto_apply(db: AsyncDatabase) -> dict[str, Any] | None:
         return await aa_stats.section(db)
     except Exception:  # noqa: BLE001
         log.exception("daily report: the Auto Apply numbers failed")
+        return None
+
+
+async def _time_to_hire(db: AsyncDatabase) -> dict[str, Any] | None:
+    """Vetting Trust T13: minutes from a job being posted to the first shortlist, contact, interview and offer (medians
+    and p75 for 7 / 30 / 90 days, the funnel, the slowest companies; app/trust/tth/service.py: aggregations only,
+    demo left out). Internal, so shown to admins whatever the Trust switch. A problem here never stops the snapshot."""
+    from app.site import get_site
+    from app.trust.tth import service as tth
+
+    try:
+        return await tth.section(db, await get_site(db))
+    except Exception:  # noqa: BLE001
+        log.exception("daily report: the time to hire numbers failed")
         return None
 
 
@@ -557,6 +572,9 @@ def attention(
     cap = (extra.get("ai") or {}).get("cap")
     if cap and _n(m.get("aiUsed")) >= cap:
         out.append({"key": "ai_cap", "level": "warn", "text": "Today's AI allowance is used up.", "link": None})
+    from app.trust.tth import service as tth  # Vetting Trust T13: slow first contact, live jobs nobody contacted
+
+    out += tth.attention(extra.get("timeToHire"), extra.get("tthSettings") or dict(tth.DEFAULTS))
     return out
 
 
@@ -638,7 +656,10 @@ async def report(db: AsyncDatabase, t: datetime | None = None) -> dict[str, Any]
     from app.jobs import ai_health
 
     collector_ai = await ai_health.status(db)
-    extra = {**(doc or {}), "collectorAi": collector_ai}
+    from app.site import get_site
+    from app.trust.tth.service import settings_of
+
+    extra = {**(doc or {}), "collectorAi": collector_ai, "tthSettings": settings_of(await get_site(db))}
     issues = attention({**m, "apiMs": db_ms}, extra, run_, db_ms)
     errs = await db[OPS_DAILY].find_one({"_id": f"errors:{today.isoformat()}"}, {"recent": 1}) or {}
     recent_errors = [{**{k: e.get(k) for k in ("method", "path", "error", "message", "rid")}, "at": ms(e.get("at"))}

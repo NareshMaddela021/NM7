@@ -615,6 +615,10 @@ async def finish_questions(db, convo, j, u, c, site, channel: str, mailer=None) 
     await apply_for(db, convo, j, u, channel)
     why = K.reasons(K.for_job(j), convo.get("answers") or {})
     company = _company_name(c, j)
+    if not why:  # Vetting Trust T13: the agent marked someone interested and a fit (a shortlist for time to hire)
+        from app.trust.tth.service import mark as tth_mark
+
+        await tth_mark(db, j["_id"], "shortlist", company_id=j.get("company_id"), user_id=u["_id"], via="agent_fit")
     if why:
         await _set(db, convo, state="not_fit", next_at=None)
         if channel == "whatsapp":
