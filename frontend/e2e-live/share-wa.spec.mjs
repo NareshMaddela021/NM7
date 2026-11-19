@@ -1,5 +1,6 @@
-// WhatsApp sharing and the short public link, on a desktop and a 390 px phone, against the real API: the public link
-// is opt-in (the WhatsApp button asks first, with hide phone / email); wa.me carries only a short message and the
+// Sharing the resume (one Share button for all apps) and the short public link, on a desktop and a 390 px phone,
+// against the real API: the public link is opt-in (Share asks first, with hide phone / email); then the seven ways to
+// share (WhatsApp, LinkedIn, Telegram, Facebook, X, Email, Copy link); wa.me carries only a short message and the
 // link; the short link nm7.si/r/<code> opens the resume without the hidden phone and email; its QR PNG decodes to
 // the short link; turning the link off stops it.
 import { readFileSync } from 'node:fs';
@@ -28,13 +29,14 @@ for (const [label, opts] of SIZES) {
 
       // My resumes: the link is off, so the button asks first
       await page.goto('/me/resumes');
-      await page.getByTestId('resumes-share-wa').click();
+      await page.getByTestId('resumes-share').click();
       const dlg = page.getByRole('dialog');
       await expect(dlg).toContainText('turn on your public resume link');
       await expect(dlg.getByTestId('share-hide-phone')).toBeChecked();
       await expect(dlg.getByTestId('share-hide-email')).toBeChecked();
       await dlg.getByTestId('share-turn-on').click();
-      const open = dlg.getByTestId('share-open-wa');
+      for (const c of ['linkedin', 'telegram', 'facebook', 'x', 'email', 'copy']) await expect(dlg.getByTestId(`share-${c}`)).toBeVisible();
+      const open = dlg.getByTestId('share-whatsapp');
       await expect(open).toBeVisible();
       const href = new URL(await open.getAttribute('href'));
       expect(href.origin + href.pathname).toBe('https://wa.me/');
@@ -46,8 +48,10 @@ for (const [label, opts] of SIZES) {
       const short = text.split('/r/')[1];
       await page.keyboard.press('Escape');
       await expect(page.getByRole('dialog')).toHaveCount(0);
-      // now a plain link to WhatsApp
-      await expect(page.getByTestId('resumes-share-wa')).toHaveAttribute('href', href.toString());
+      // now Share opens the menu at once (no share sheet in this browser)
+      await page.getByTestId('resumes-share').click();
+      await expect(page.getByRole('dialog').getByTestId('share-whatsapp')).toHaveAttribute('href', href.toString());
+      await page.keyboard.press('Escape');
       expect(await noSideScroll(page)).toBe(true);
 
       // Share link page: the short link, QR PNG, settings
@@ -74,7 +78,9 @@ for (const [label, opts] of SIZES) {
       await page.goto('/me/ats');
       await page.getByLabel('Job post', { exact: true }).fill(POST);
       await page.getByTestId('jm-go').click();
-      const jm = new URL(await page.getByTestId('jm-share-wa').getAttribute('href'));
+      await page.getByTestId('jm-share').click();
+      const jm = new URL(await page.getByRole('dialog').getByTestId('share-whatsapp').getAttribute('href'));
+      await page.keyboard.press('Escape');
       expect(jm.searchParams.get('text')).toMatch(new RegExp(`^Hi, here is my resume for the .+ role.*: https://nm7\\.si/r/${short}$`));
 
       // revoke: the short link stops

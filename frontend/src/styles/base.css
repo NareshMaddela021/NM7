@@ -496,6 +496,15 @@ mark.fact { background: color-mix(in srgb, var(--signal) 38%, transparent); colo
 .job-logo { flex: none; width: 44px; height: 44px; border-radius: 10px; display: grid; place-items: center; background: var(--sunken); color: var(--text2); font-weight: 700; font-size: 20px; }
 .job-skills { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
 .job-card-foot { justify-content: space-between; margin-top: 4px; }
+/* View · Apply · Save on every job card: one row, also on a 390 px phone */
+.job-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.job-actions > .btn { flex: 0 1 auto; min-width: 0; padding: 0 14px; white-space: normal; line-height: 1.2; text-align: center; }
+.job-actions > [role="alert"] { flex-basis: 100%; }
+.btn.job-applied:disabled { opacity: 1; cursor: default; color: var(--success, #137a3d); border-color: currentColor; background: var(--successbg, #e8f6ee); }
+@media (max-width: 640px) { .job-actions > .btn { flex: 1 1 0; padding: 0 8px; } }
+/* the Share menu: the seven ways to share */
+.share-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; }
+.share-list .btn { width: 100%; }
 .job-facts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(160px, 100%), 1fr)); gap: 12px; margin: 0; }
 .job-facts-grid dt { font-size: 13px; color: var(--text2); }
 .job-facts-grid dd { margin: 2px 0 0; font-weight: 600; overflow-wrap: anywhere; }

@@ -11,7 +11,7 @@ import { syncFromBuilder, defaultResume, useMe, activeResume, addResume, openInB
 import { useJobProfile } from '../lib/profileStore';
 import { profileCompleteness, profileToResume, profileUpdates } from '../lib/jobProfile';
 import { reviewToResume } from '../lib/photoImport';
-import ShareWhatsApp from '../components/ShareWhatsApp';
+import ShareResume from '../components/ShareResume';
 import { DownloadBlocked, exportFile, forgetPendingDownload, mayFinishDownload, pendingDownload } from '../lib/downloads';
 import { lengthNote, writeSummaries } from '../lib/summary/write';
 import { charCount } from '../lib/text'; // not from me/shared: that file loads the PDF library
@@ -158,7 +158,7 @@ function Done({ name, score, onEdit, onDownload, onCover, pdfBusy, nudge }) {
         <div className="stack g8 bld-done-actions">
           <button type="button" className="btn btn-signal btn-xl" onClick={() => onDownload('pdf')} disabled={pdfBusy}>{pdfBusy ? 'Preparing…' : 'Download PDF'}</button>
           <button type="button" className="btn btn-outline btn-lg" onClick={() => onDownload('docx')} disabled={pdfBusy}>Also download as Word (.docx)</button>
-          <ShareWhatsApp className="btn btn-outline btn-lg" testid="done-share-wa" />
+          <ShareResume className="btn btn-outline btn-lg" testid="done-share" />
           <button type="button" className="btn btn-outline btn-lg" onClick={onCover}>Write a matching cover letter</button>
           <Link to="/" className="btn btn-outline btn-lg">Scan it against a job · free</Link>
           <button type="button" className="btn btn-ghost" onClick={onEdit}>Keep editing</button>

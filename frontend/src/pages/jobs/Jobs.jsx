@@ -1,29 +1,29 @@
 // The public job board (J3). /jobs: search by role, skill or company, filters (experience, city or remote, job type,
 // work type, salary, posted within), newest first, "Show more" for the next 20; the filters live in the URL so a
-// filtered list can be shared. /jobs/<slug>: the whole job with "posted 2 days ago", apply, Save, Share on WhatsApp,
+// filtered list can be shared. /jobs/<slug>: the whole job with "posted 2 days ago", apply, Save, Share (any app),
 // Google JobPosting data while it is open; a closed job says so, drops the markup, isn't indexed, and shows similar
 // jobs. English, Telugu and Hindi (pages.json, jobs.*). Company logos aren't loaded (the page only loads images from
 // our own site); a letter stands in.
 import { PageArt } from '../../components/PageHero';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { liveParams } from '../../lib/liveParams';
 import Header from '../../components/Header';
 import LangSwitch from '../../components/LangSwitch';
 import SiteFooter from '../../components/SiteFooter';
 import { JobPay } from '../salaries/Salaries';
 import { useAuth } from '../../lib/auth';
-import { reloadMe } from '../../lib/customerStore';
-import { matchJob } from '../../lib/jobs';
 import { headerLabels, useLang } from '../../lib/i18n';
 import {
-  EXPERIENCE, JOB_TYPES, ORIGIN, QUICK_EXPERIENCE, applyToJob, mailtoLink, POSTED, SALARIES, SUPPORT, WORK_TYPES, fromQuery, getJob, jobPostingJsonLd, listSaved, loadSaved,
-  matchReasons, pageQuery, placeText, postedAgo, salaryText, searchJobs, toggleSaved, useJsonLd, useSaved,
+  EXPERIENCE, JOB_TYPES, ORIGIN, QUICK_EXPERIENCE, POSTED, SALARIES, SUPPORT, WORK_TYPES, fromQuery, getJob, jobPostingJsonLd, listSaved, loadSaved,
+  matchReasons, pageQuery, placeText, postedAgo, salaryText, searchJobs, useJsonLd, useSaved,
 } from '../../lib/jobBoard';
 import { usePageMeta } from '../../lib/meta';
 import { ReportJob, TrustLine, TrustWhy } from './Trust';
 import { EmployerBadge, FraudReport, NeverPay } from './EmployerTrust'; // Vetting Trust T4 (only when the API sends it)
-import { waShareUrl } from '../../lib/shareLink';
+import JobActions, { SaveButton } from '../../components/JobActions';
+import ShareButton from '../../components/ShareButton';
+import { ApplyBox } from './ApplyFlow';
 
 const lakh = (n) => `₹${n / 100000} L`;
 
@@ -34,29 +34,6 @@ function facts(j, t) {
 
 function Logo({ name }) {
   return <span className="job-logo" aria-hidden="true">{(name || '?').trim().charAt(0).toUpperCase()}</span>;
-}
-
-function SaveButton({ job, t }) {
-  const { user } = useAuth();
-  const saved = useSaved();
-  const nav = useNavigate();
-  const { pathname, search } = useLocation();
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState('');
-  const on = saved.has(job.id);
-  const click = async () => {
-    if (!user) { nav(`/login?next=${encodeURIComponent(pathname + search)}`); return; }
-    setBusy(true); setErr('');
-    try { await toggleSaved(job.id); } catch { setErr(t('jobs.save.error')); } finally { setBusy(false); }
-  };
-  return (
-    <>
-      <button type="button" className="btn btn-outline" aria-pressed={on} disabled={busy} onClick={click} aria-label={`${on ? t('jobs.saved') : t('jobs.save')}: ${job.title}`}>
-        <span aria-hidden="true">{on ? '★' : '☆'}</span> {on ? t('jobs.saved') : t('jobs.save')}
-      </button>
-      {err && <span role="alert" className="xs" style={{ color: 'var(--danger)' }}>{err}</span>}
-    </>
-  );
 }
 
 function MatchLine({ m, t }) {
@@ -84,7 +61,7 @@ export function JobCard({ job, t, extra, onOpen, picked }) {
       <div className="row g12" style={{ alignItems: 'flex-start', flexWrap: 'nowrap' }}>
         <Logo name={job.company?.name} />
         <div className="stack g4" style={{ minWidth: 0, flex: 1 }}>
-          <h2 className="job-card-title"><Link to={`/jobs/${job.slug}`} onClick={open} aria-current={picked ? 'true' : undefined}>{job.title}</Link></h2>
+          <h2 className="job-card-title" id={`jt-${job.id}`}><Link to={`/jobs/${job.slug}`} onClick={open} aria-current={picked ? 'true' : undefined}>{job.title}</Link></h2>
           <span className="job-company">{job.company?.name}</span>
           <TrustLine trust={job.companyTrust} t={t} />
           <EmployerBadge v={job.employer} />
@@ -96,12 +73,10 @@ export function JobCard({ job, t, extra, onOpen, picked }) {
           )}
           <MatchLine m={job.match} t={t} />
           {extra}
-          <div className="row g8 job-card-foot">
-            <span className="xs muted">{postedAgo(job.postedAt, t)}</span>
-            {job.status === 'active' && <SaveButton job={job} t={t} />}
-          </div>
+          <span className="xs muted">{postedAgo(job.postedAt, t)}</span>
         </div>
       </div>
+      <JobActions job={job} titleId={`jt-${job.id}`} />
     </article>
   );
 }
@@ -303,152 +278,10 @@ export function JobsList() {
 
 /* ---------------------------------------- /jobs/<slug> ---------------------------------------- */
 
-function ApplyBox({ job, t, onApplied }) {
-  const { user } = useAuth();
-  const { pathname } = useLocation();
-  const nav = useNavigate();
-  const [busy, setBusy] = useState('');
-  const [err, setErr] = useState('');
-  const [mail, setMail] = useState(null);
-  const [asking, setAsking] = useState(false); // company jobs: the questions and the consent box first (C5)
-  const [confirm, setConfirm] = useState(false); // other jobs on Nm7: one "Send?" step first (item 19)
-  const signedIn = user?.role === 'customer';
-  const go = async (extra, sure) => {
-    if (job.consent && !extra) { setAsking(true); return; }
-    if (!job.consent && job.apply.method === 'nm7' && !sure) { setConfirm(true); return; }
-    setConfirm(false);
-    setBusy('apply'); setErr('');
-    try {
-      const r = await applyToJob(job.id, null, extra || {});
-      setAsking(false);
-      if (r.method === 'email') setMail(r.email);
-      onApplied({ status: r.application.status, at: Date.now() });
-      reloadMe();
-    } catch (e) { setErr(e.message); } finally { setBusy(''); }
-  };
-  const fit = async () => {
-    setBusy('fit'); setErr('');
-    try {
-      // item 7, 8: this job's own skills and the same number as its card; an earlier match for it opens again
-      const m = await matchJob({ text: `${job.title}\n${job.company.name}\n${job.description}`, title: job.title, company: job.company.name, jobId: job.id });
-      nav(`/me/ats?match=${encodeURIComponent(m.id)}`);
-    } catch (e) { setErr(e.message); setBusy(''); }
-  };
-  const applied = job.application;
-  if (!signedIn) {
-    return (
-      <>
-        {job.apply.method === 'link' && job.apply.url
-          ? <a className="btn btn-ink" href={job.apply.url} target="_blank" rel="noopener noreferrer nofollow" data-testid="apply">{t('jobs.apply.link')} <span aria-hidden="true">↗</span></a>
-          : <Link className="btn btn-ink" to={`/login?next=${encodeURIComponent(pathname)}`} data-testid="apply">{t('jobs.apply.signin')}</Link>}
-      </>
-    );
-  }
-  return (
-    <div className="stack g8" style={{ flexBasis: '100%' }}>
-      <div className="row g8">
-        {applied ? (
-          <span className="badge b-success" data-testid="applied">{applied.status === 'applied' ? t('jobs.app.applied') : t('jobs.apply.done', { status: t(`jobs.app.${applied.status}`) })}</span>
-        ) : job.apply.method === 'link' && job.apply.url ? (
-          // the link opens straight away (no pop-up blocker); the application is saved alongside
-          <a className="btn btn-ink" href={job.apply.url} target="_blank" rel="noopener noreferrer nofollow" data-testid="apply" onClick={() => { go(); }}>{t('jobs.apply.link')} <span aria-hidden="true">↗</span></a>
-        ) : (
-          <button type="button" className="btn btn-ink" data-testid="apply" disabled={!!busy || asking || confirm} onClick={() => go()}>{job.apply.method === 'email' ? t('jobs.apply.email') : t('jobs.apply.nm7')}</button>
-        )}
-        <button type="button" className="btn btn-outline" disabled={!!busy} onClick={fit} data-testid="make-fit">{busy === 'fit' ? t('jobs.loading') : t('jobs.apply.fit')}</button>
-      </div>
-      {confirm && !applied && (
-        <div className="card-sm row g8" role="group" aria-label={t('jobs.apply.confirmTitle')} data-testid="apply-confirm" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
-          <span className="small" style={{ flex: '1 1 220px' }}>{t('jobs.apply.confirm', { company: job.company.name })}</span>
-          <button type="button" className="btn btn-ink" disabled={busy === 'apply'} onClick={() => go(undefined, true)} data-testid="apply-send">{t('jobs.apply.send')}</button>
-          <button type="button" className="btn btn-outline" onClick={() => setConfirm(false)}>{t('jobs.apply.cancel')}</button>
-        </div>
-      )}
-      {asking && !applied && <ApplyQuestions job={job} t={t} busy={busy === 'apply'} onSend={go} onCancel={() => setAsking(false)} />}
-      <span className="xs muted">{t('jobs.apply.fitHint')}</span>
-      {applied && <Link className="xs" to="/me/jobs">{t('jobs.apply.track')}</Link>}
-      {mail && (
-        <div className="card-sm stack g8" data-testid="email-apply">
-          <strong>{t('jobs.apply.emailTitle')}</strong>
-          <ol className="stack g4" style={{ margin: 0, paddingLeft: 20 }}>
-            <li><Link to="/me/resumes">{t('jobs.apply.emailStep1')}</Link></li>
-            <li><a href={mailtoLink(mail)} data-testid="mailto">{t('jobs.apply.emailStep2', { to: mail.to })}</a></li>
-          </ol>
-          <span className="xs muted">{t('jobs.apply.emailHint')}</span>
-        </div>
-      )}
-      {err && <p role="alert" className="xs" style={{ color: 'var(--danger)', margin: 0 }}>{err}</p>}
-    </div>
-  );
-}
-
-/** Company jobs on Nm7: the screening questions (never the company's rules) and the consent box, before applying. */
-function ApplyQuestions({ job, t, busy, onSend, onCancel }) {
-  const [answers, setAnswers] = useState({});
-  const [consent, setConsent] = useState(false);
-  const [err, setErr] = useState('');
-  const [known, setKnown] = useState(() => job.known || {}); // Vetting Trust T6: answered before: shown, not asked again
-  const set = (id, v) => setAnswers((a) => ({ ...a, [id]: v }));
-  const ask = job.questions.filter((q) => !(q.id in known));
-  const send = (e) => {
-    e.preventDefault();
-    if (ask.some((q) => answers[q.id] == null || String(answers[q.id]).trim() === '')) { setErr(t('jobs.apply.qMissing')); return; }
-    if (!consent) { setErr(t('jobs.apply.consentNeeded', { company: job.company.name })); return; }
-    setErr('');
-    onSend({ consent: true, answers: Object.fromEntries(ask.map((q) => [q.id, q.kind === 'number' ? Number(answers[q.id]) : answers[q.id]])) });
-  };
-  const saved = job.questions.filter((q) => q.id in known);
-  return (
-    <form className="card-sm stack g12" onSubmit={send} data-testid="apply-form" aria-labelledby="apply-form-h">
-      <strong id="apply-form-h">{t('jobs.apply.formTitle', { company: job.company.name })}</strong>
-      {saved.length > 0 && (
-        <div className="stack g4" data-testid="apply-known">
-          <span className="xs muted">Already answered (your saved answers and Work preferences):</span>
-          {saved.map((q) => (
-            <span key={q.id} className="row g8 small" style={{ flexWrap: 'wrap', alignItems: 'center' }} data-testid="apply-known-item">
-              <span style={{ flex: '1 1 200px', minWidth: 0, overflowWrap: 'anywhere' }}>{q.text} <strong>{q.kind === 'yesno' ? t(`jobs.apply.${known[q.id]}`) : String(known[q.id])}</strong></span>
-              <button type="button" className="link-btn xs" style={{ minHeight: 44 }} onClick={() => setKnown((k) => { const n = { ...k }; delete n[q.id]; return n; })}>Change</button>
-            </span>
-          ))}
-        </div>
-      )}
-      {ask.map((q) => (
-        <fieldset key={q.id} className="stack g4" style={{ border: 0, margin: 0, padding: 0 }}>
-          {q.kind === 'number' ? (
-            <div className="field"><label className="label" htmlFor={`aq-${q.id}`}>{q.text}</label>
-              <input id={`aq-${q.id}`} className="input" inputMode="numeric" maxLength={6} value={answers[q.id] ?? ''} onChange={(e) => set(q.id, e.target.value.replace(/[^\d]/g, ''))} /></div>
-          ) : (
-            <>
-              <legend className="label">{q.text}</legend>
-              <div className="row g12" style={{ flexWrap: 'wrap' }}>
-                {(q.kind === 'yesno' ? [['yes', t('jobs.apply.yes')], ['no', t('jobs.apply.no')]] : q.options.map((o) => [o, o])).map(([v, l]) => (
-                  <label key={v} className="row g4 small"><input type="radio" name={`aq-${q.id}`} value={v} aria-label={l} checked={answers[q.id] === v} onChange={() => set(q.id, v)} /> {l}</label>
-                ))}
-              </div>
-            </>
-          )}
-        </fieldset>
-      ))}
-      <label className="row g8 small" style={{ alignItems: 'flex-start', flexWrap: 'nowrap' }}>
-        <input type="checkbox" value="consent" checked={consent} onChange={(e) => setConsent(e.target.checked)} style={{ marginTop: 3 }} data-testid="apply-consent" />
-        <span>{t('jobs.apply.consent', { company: job.company.name })}</span>
-      </label>
-      <span className="xs muted">{t('jobs.apply.consentMore')} <Link to="/grievance">{t('jobs.apply.yourData')}</Link></span>
-      {job.employerTrust && <NeverPay safety={job.employerTrust} compact />}
-      {err && <p role="alert" className="xs" style={{ color: 'var(--danger)', margin: 0 }}>{err}</p>}
-      <div className="row g8">
-        <button type="submit" className="btn btn-ink" disabled={busy} data-testid="apply-send">{busy ? t('jobs.loading') : t('jobs.apply.send')}</button>
-        <button type="button" className="btn btn-outline" onClick={onCancel}>{t('jobs.report.cancel')}</button>
-      </div>
-    </form>
-  );
-}
-
 /** The whole job (its page, and the preview pane on a very wide screen: preview = a level-2 title that takes focus when
  *  a job is picked, and a link to the job's own page). */
-function JobDetail({ job, t, setJob, preview, headRef }) {
+function JobDetail({ job, t, setJob, preview, headRef, autoStart }) {
   const closed = job.status !== 'active';
-  const share = waShareUrl(t('jobs.share.text', { title: job.title, company: job.company.name, link: `${ORIGIN}/jobs/${job.slug}` }));
   return (
     <article className={`card stack g16 job-detail${preview ? ' job-detail-preview' : ''}`} data-testid={preview ? 'job-preview-detail' : 'job-detail'}>
       <div className="row g12" style={{ alignItems: 'flex-start', flexWrap: 'nowrap' }}>
@@ -505,9 +338,9 @@ function JobDetail({ job, t, setJob, preview, headRef }) {
         <p className="card-sm" role="status" style={{ margin: 0 }} data-testid="job-closed-note">{t('jobs.closedNote')}</p>
       ) : (
         <div className="row g8">
-          <ApplyBox job={job} t={t} onApplied={(a) => setJob((x) => ({ ...x, application: a }))} />
-          <SaveButton job={job} t={t} />
-          <a className="btn btn-outline" href={share} target="_blank" rel="noopener noreferrer" data-testid="share-wa">{t('jobs.share')}</a>
+          <ApplyBox job={job} t={t} autoStart={autoStart} onApplied={(a) => setJob((x) => ({ ...x, application: a }))} />
+          <SaveButton job={job} />
+          <ShareButton url={`${ORIGIN}/jobs/${job.slug}`} title={`${job.title} · ${job.company.name}`} text={t('jobs.share.text', { title: job.title, company: job.company.name, link: '' }).trim()} label={t('jobs.share')} testid="share-job" />
         </div>
       )}
       {job.skills.length > 0 && (
@@ -538,6 +371,14 @@ export function JobPage() {
   const [t, lang] = useLang();
   const { slug } = useParams();
   const { user } = useAuth();
+  const [params, setParams] = useSearchParams();
+  // ?apply=1: back from sign-up / sign-in after pressing Apply: carry on applying (once; the address loses it)
+  const [autoStart] = useState(() => (params.get('apply') === '1' ? 'send' : ''));
+  useEffect(() => {
+    if (params.get('apply') !== '1' || !user) return;
+    const next = new URLSearchParams(params); next.delete('apply');
+    setParams(next, { replace: true });
+  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
   const [job, setJob] = useState(null);
   const [state, setState] = useState('loading'); // loading | ok | gone | error
   useEffect(() => {
@@ -570,7 +411,7 @@ export function JobPage() {
         )}
         {state === 'ok' && (
           <>
-            <JobDetail job={job} t={t} setJob={setJob} />
+            <JobDetail job={job} t={t} setJob={setJob} autoStart={user ? autoStart : ''} />
             {job.similar?.length > 0 && (
               <section className="stack g12" aria-labelledby="job-similar-h" data-testid="similar-jobs">
                 <h2 id="job-similar-h" className="job-h2">{t('jobs.similar')}</h2>

@@ -88,6 +88,9 @@ async def numbers(db: AsyncDatabase, day: date, until: datetime | None = None) -
         )
     ).to_list()  # fmt: skip
     errors = await db[OPS_DAILY].find_one({"_id": f"errors:{day.isoformat()}"}) or {}
+    from app.jobs.share import shares_on
+
+    shares = await shares_on(db, day.isoformat())
     return {
         "day": day.isoformat(),
         "newUsers": await db[USERS].count_documents({"role": "customer", "created_at": w, "demo": {"$ne": True}}),
@@ -109,6 +112,8 @@ async def numbers(db: AsyncDatabase, day: date, until: datetime | None = None) -
         "companySignups": await db[COMPANIES].count_documents({"created_at": w, "demo": {"$ne": True}}),
         "companiesWaiting": await db[COMPANIES].count_documents({"review.state": "pending", "demo": {"$ne": True}}),
         "errors": errors.get("n", 0),
+        "shares": shares["total"],  # Share button taps (per channel on Admin → Daily report)
+        "sharesByChannel": shares["byChannel"],
     }
 
 
@@ -130,6 +135,7 @@ def message(n: dict[str, Any], title: str) -> str:
             f"Jobs posted: {n['jobsPosted']} · Live jobs: {n['jobsLive']}",
             f"Job applications: {n['applications']} (Auto Apply: {n['autoApplications']})",
             f"New companies: {n['companySignups']} · Waiting for review: {n['companiesWaiting']}",
+            f"Shares: {n.get('shares', 0)}",
             f"Server errors: {n['errors']}",
         ]
     )

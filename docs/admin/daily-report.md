@@ -41,6 +41,9 @@ colleges.
 
 - **Today in plain words**: five lines written by code from the numbers (no AI). They cover the collector, sign-ups,
   applications and orders (or "Payments coming soon"), the vetting engine with the ON/OFF switch, and health.
+  Under them one more line: **"Shares yesterday: 12 (WhatsApp 7, Copy link 3, …)"** — taps on the Share button (job
+  links, the resume link, Refer a friend) per channel, from `share_events` (a per-day counter per channel: no user id,
+  no IP address, no link; `app/jobs/share.py`). The 8:00 email has "Shares: N" for the day.
 - **Needs attention** (`attention()`):
   - No collector run arrived by 7:00 AM IST, or today's run failed (urgent).
   - The review queue has more than 20 jobs.

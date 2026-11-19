@@ -13,7 +13,7 @@
   log of its uploads (sent, rejected with reasons).
 - GET /api/admin/daily-report: everything in one call — today's snapshot (computed now when it doesn't exist yet),
   yesterday's, the 30-day series per metric, the collector run status, site health, five plain lines written by
-  code (no AI) and the "Needs attention" list.
+  code (no AI), the "Needs attention" list and yesterday's Share taps by channel (app/jobs/share.py).
 
   GET  /api/admin/daily-report             the report
   POST /api/admin/daily-report/refresh     recompute today (and yesterday, and missing days) now → the report
@@ -654,6 +654,7 @@ async def report(db: AsyncDatabase, t: datetime | None = None) -> dict[str, Any]
     db_ms = await ping_ms(db)
     run_ = await run_status(db, t)
     from app.jobs import ai_health
+    from app.jobs.share import shares_yesterday
 
     collector_ai = await ai_health.status(db)
     from app.site import get_site
@@ -676,6 +677,7 @@ async def report(db: AsyncDatabase, t: datetime | None = None) -> dict[str, Any]
         "today": _doc_out(doc), "yesterday": _doc_out(y), "metrics": metrics,
         "collectorRun": run_, "health": health, "attention": issues, "collectorAi": collector_ai,
         "recentErrors": recent_errors,
+        "shares": await shares_yesterday(db),  # "Shares yesterday: 12 (WhatsApp 7, Copy link 3, …)"
         "summary": summary(m, extra, run_, issues) if doc else ["Another big job is running on the server. The numbers appear in a minute."],
         "limits": {"reviewQueue": REVIEW_LIMIT, "collectorBy": "07:00", "runAt": "06:30"},
     }  # fmt: skip

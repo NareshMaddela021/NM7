@@ -91,6 +91,17 @@
     },
     {
       "source": "/jobs/:slug",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(facebookexternalhit|Facebot|Twitterbot|LinkedInBot|WhatsApp|TelegramBot|Slackbot|Discordbot|Pinterest|redditbot|SkypeUriPreview|vkShare|Embedly|Iframely|Mastodon|Snapchat|Viber|Bluesky|Cardyb).*"
+        }
+      ],
+      "destination": "https://nm7-api.onrender.com/api/jobs/:slug/preview"
+    },
+    {
+      "source": "/jobs/:slug",
       "destination": "/index.html"
     },
     {

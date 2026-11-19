@@ -4,6 +4,7 @@
       nm7    one tap: the application is saved and the company / admin sees it (Admin → Jobs → Applications)
       link   saved as "Applied (outside Nm7)" with the resume used; the page then opens the company's link
       email  saved, and the answer carries the address, a subject and a short letter for a mailto draft
+  GET /api/me/applied-jobs                       the job ids the person applied to ("Applied ✓" on every job card)
   PUT /api/me/job-followups {on}                  follow-up reminder emails on / off
   POST /api/public/jobs/stop-followups {token}    the "Stop these emails" link (no sign-in)
 
@@ -201,6 +202,21 @@ class OnIn(CamelModel):
 
 class TokenIn(CamelModel):
     token: str = Field(min_length=10, max_length=200)
+
+
+APPLIED_MAX = 2000
+
+
+@me_router.get("/applied-jobs")
+async def applied_jobs(auth: CustomerAuth, db: DB) -> dict[str, Any]:
+    """The job ids this person applied to (newest first, ids and status only): every job card shows "Applied ✓"."""
+    rows = (
+        db[APPLICATIONS]
+        .find({"user_id": auth.user.id, "job_id": {"$type": "string"}}, {"job_id": 1, "status": 1})
+        .sort("created_at", -1)
+        .limit(APPLIED_MAX)
+    )
+    return {"items": [{"id": a["job_id"], "status": a.get("status") or "applied"} async for a in rows]}
 
 
 @me_router.get("/job-followups")
