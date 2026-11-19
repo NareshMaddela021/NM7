@@ -10,7 +10,7 @@ const ROOT = join(__dirname);
 const SELF = 'noEmoji.test.js';
 // Arrows, technical symbols, enclosed alphanumerics, geometric shapes, misc symbols, dingbats, misc symbols and
 // arrows, the emoji planes, variation selector 16 and keycap.
-export const BANNED = /[←-⇿⌀-⏿①-⓿■-◿☀-➿⤀-⥿⬀-⯿️⃣\u{1F000}-\u{1FAFF}]/u;
+export const BANNED = /[\u2190-\u21FF\u2300-\u23FF\u2460-\u24FF\u25A0-\u25FF\u2600-\u27BF\u2900-\u297F\u2B00-\u2BFF\u{1F000}-\u{1FAFF}]|\uFE0F|\u20E3/u;
 
 function files(dir) {
   return readdirSync(dir).flatMap((n) => {

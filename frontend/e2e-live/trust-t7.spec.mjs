@@ -130,7 +130,7 @@ for (const [label, opts] of SIZES) {
       const telugu = app.getByTestId('cr-item').filter({ hasText: 'Speaks Telugu' });
       await expect(telugu.getByTestId('cr-status')).toHaveText('Unknown');
       await telugu.getByTestId('cr-add').click();
-      await expect(telugu).toContainText('Profile → Certificates');
+      await expect(telugu).toContainText('Profile > Certificates');
       expect(await noSideScroll(a.page)).toBe(true);
       await a.ctx.close();
       await b.ctx.close();
