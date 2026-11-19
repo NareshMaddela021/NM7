@@ -124,7 +124,8 @@ def state(o: dict[str, Any], t: datetime | None = None) -> str:
 
 def offer_out(o: dict[str, Any], t: datetime | None = None) -> dict[str, Any]:
     return {
-        "id": str(o["_id"]), "jobId": o["job_id"], "company": o["company_name"], "title": o["title"],
+        "id": str(o["_id"]), "jobId": o["job_id"], "companyId": o.get("company_id"),
+        "company": o["company_name"], "title": o["title"],
         "salary": o["salary"], "salaryText": salary_text(o["salary"]), "joinDate": o["join_date"],
         "place": o.get("place", ""), "letter": letter(o), "status": state(o, t), "respondBy": ms(o["respond_by"]),
         "answeredAt": ms(o.get("answered_at")), "typedName": o.get("typed_name", ""),

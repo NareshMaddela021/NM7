@@ -90,6 +90,13 @@ class Settings(BaseSettings):
     rekognition_region: str = "ap-south-1"
     rekognition_collection: str = "nm7-trust-faces"
 
+    # Vetting Trust T4: employer business verification (GSTIN / Udyam / CIN lookups; Admin → Skill checks → Vetting
+    # Trust → Employer checks picks the provider; without a token only the test provider works). Surepass KYC APIs:
+    # one Bearer token for all three registries (docs/trust/T4-vendors.md). Sandbox https://sandbox.surepass.io,
+    # live https://kyc-api.surepass.io.
+    surepass_token: str = ""
+    surepass_base_url: str = "https://sandbox.surepass.io"
+
     # Razorpay — empty until keys exist
     razorpay_key_id: str = ""
     razorpay_key_secret: str = ""

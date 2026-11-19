@@ -372,7 +372,9 @@ function ReviewBox({ j, onDone }) {
   );
 }
 
-const REASON = { scam: 'Asks for money / scam', fake: 'Fake or misleading', unfair: 'Unfair or discriminatory', wrong_info: 'Wrong details', expired: 'Already filled or closed', other: 'Something else' };
+const REASON = { scam: 'Asks for money / scam', fake: 'Fake or misleading', unfair: 'Unfair or discriminatory', wrong_info: 'Wrong details', expired: 'Already filled or closed', other: 'Something else',
+  // Vetting Trust T4 "Report fraud" (also in Vetting Trust → Fraud reports)
+  money: 'Asked for money', fake_company: 'Fake company', impersonation: 'Impersonation', misleading: 'Misleading job', harassment: 'Harassment' };
 
 /** Jobs students reported. Dismiss (the reports were wrong; a job they paused goes live again) or close with a note. */
 function Reports() {

@@ -11,6 +11,7 @@ import { usePageMeta } from '../../lib/meta';
 import { http } from '../../services/http';
 import { JobCard } from '../jobs/Jobs';
 import { ReplyBadge, TrustWhy } from '../jobs/Trust';
+import { EmployerBadge, FraudReport, NeverPay } from '../jobs/EmployerTrust'; // Vetting Trust T4 (only when the API sends it)
 import { Chip, Empty, Skel } from '../me/kit';
 import { Still } from '../newhome/ParticleStage';
 import '../../styles/me-kit.css';
@@ -53,6 +54,7 @@ export default function CompanyPublic() {
                   <span className="mrow" style={{ gap: 8 }}>
                     <Chip tone={c.trust === 'verified' ? 'ok' : 'neutral'} data-testid="company-badge">{t(`co.pub.badge.${c.trust}`)}</Chip>
                     {c.hiredIn30 && <Chip tone="info" data-testid="company-hired30" title={t('co.pub.hired30Why')}>{t('co.speed.badge')}</Chip>}
+                    <EmployerBadge v={c.employerTrust?.employer} chip full />
                   </span>
                   <p className="small muted" style={{ margin: 0 }}>{[c.industry, c.size && t(`co.size.${c.size}`), c.kind === 'individual' && t('co.cat.individual')].filter(Boolean).join(' · ')}</p>
                 </div>
@@ -70,6 +72,12 @@ export default function CompanyPublic() {
                   </span>
                   <TrustWhy parts={c.parts} t={t} />
                 </div>
+                {c.employerTrust && (
+                  <div className="mstack" data-testid="company-safety" style={{ minWidth: 0 }}>
+                    <NeverPay safety={c.employerTrust} />
+                    <FraudReport safety={c.employerTrust} context="company" id={c.slug} label="Report this company" />
+                  </div>
+                )}
               </div>
             </section>
             <section className="mstack" aria-labelledby="cp-jobs">

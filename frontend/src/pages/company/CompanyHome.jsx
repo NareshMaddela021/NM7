@@ -12,6 +12,7 @@ import CompanyApplicants, { TalentPool } from './CompanyApplicants';
 import CompanyHire from './CompanyHire';
 import CompanyPrograms from './CompanyPrograms';
 import { useAutoInfo } from './AutoApplyBits';
+import VerifyBusiness from './VerifyBusiness'; // Vetting Trust T4 (renders nothing unless the Trust switch allows)
 import { headerLabels, useLang } from '../../lib/i18n';
 import { usePageMeta } from '../../lib/meta';
 import { keepAccount, readAccount } from '../../lib/recruiterPortal';
@@ -408,6 +409,7 @@ function Settings({ t, c, manage, onChanged }) {
         {!manage && !locked && <p className="small muted" style={{ margin: 0 }}>{t('co.dash.onlyAdmins')}</p>}
         {err && <p className="error" role="alert">{err}</p>}
       </div>
+      <VerifyBusiness c={c} manage={manage} />
     </section>
   );
 }

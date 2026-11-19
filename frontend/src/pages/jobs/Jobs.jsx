@@ -22,6 +22,7 @@ import {
 } from '../../lib/jobBoard';
 import { usePageMeta } from '../../lib/meta';
 import { ReportJob, TrustLine, TrustWhy } from './Trust';
+import { EmployerBadge, FraudReport, NeverPay } from './EmployerTrust'; // Vetting Trust T4 (only when the API sends it)
 import { waShareUrl } from '../../lib/shareLink';
 
 const lakh = (n) => `₹${n / 100000} L`;
@@ -86,6 +87,7 @@ export function JobCard({ job, t, extra, onOpen, picked }) {
           <h2 className="job-card-title"><Link to={`/jobs/${job.slug}`} onClick={open} aria-current={picked ? 'true' : undefined}>{job.title}</Link></h2>
           <span className="job-company">{job.company?.name}</span>
           <TrustLine trust={job.companyTrust} t={t} />
+          <EmployerBadge v={job.employer} />
           <span className="xs muted job-facts">{facts(job, t)}</span>
           {job.skills?.length > 0 && (
             <ul className="job-skills" aria-label={t('jobs.skills')}>
@@ -418,6 +420,7 @@ function ApplyQuestions({ job, t, busy, onSend, onCancel }) {
         <span>{t('jobs.apply.consent', { company: job.company.name })}</span>
       </label>
       <span className="xs muted">{t('jobs.apply.consentMore')} <Link to="/grievance">{t('jobs.apply.yourData')}</Link></span>
+      {job.employerTrust && <NeverPay safety={job.employerTrust} compact />}
       {err && <p role="alert" className="xs" style={{ color: 'var(--danger)', margin: 0 }}>{err}</p>}
       <div className="row g8">
         <button type="submit" className="btn btn-ink" disabled={busy} data-testid="apply-send">{busy ? t('jobs.loading') : t('jobs.apply.send')}</button>
@@ -444,6 +447,7 @@ function JobDetail({ job, t, setJob, preview, headRef }) {
             {job.company.website ? <a href={job.company.website} target="_blank" rel="noopener noreferrer nofollow">{job.company.name}</a> : job.company.name}
           </span>
           <TrustLine trust={job.companyTrust} t={t} />
+          <EmployerBadge v={job.employerTrust?.employer} full />
         </div>
       </div>
       <div className="row g8">
@@ -482,6 +486,7 @@ function JobDetail({ job, t, setJob, preview, headRef }) {
           <span className="xs muted">{t('jobs.match.how')}</span>
         </section>
       )}
+      {job.employerTrust && !closed && <NeverPay safety={job.employerTrust} />}
       {closed ? (
         <p className="card-sm" role="status" style={{ margin: 0 }} data-testid="job-closed-note">{t('jobs.closedNote')}</p>
       ) : (
@@ -509,7 +514,7 @@ function JobDetail({ job, t, setJob, preview, headRef }) {
           {['verified', 'basic'].includes(job.companyTrust.level) && <Link className="xs" to={`/companies/${job.companyTrust.slug}`}>{t('jobs.trust.page', { name: job.company.name })}</Link>}
         </section>
       )}
-      {!closed && <ReportJob job={job} t={t} />}
+      {job.employerTrust ? <FraudReport safety={job.employerTrust} context="job" id={job.id} /> : !closed && <ReportJob job={job} t={t} />}
       {preview && <Link to={`/jobs/${job.slug}`} className="btn btn-outline" style={{ alignSelf: 'flex-start' }}>{t('jobs.preview.open')}</Link>}
     </article>
   );

@@ -39,6 +39,7 @@ function HealthEmails() {
 const PrivacyConsent = lazy(() => import('./trust/PrivacyConsent')); // Vetting Trust T1, only when the switch says yes
 const DigiLockerCard = lazy(() => import('./trust/DigiLockerCard')); // Vetting Trust T2: Verify with DigiLocker
 const FaceCard = lazy(() => import('./trust/FaceCard')); // Vetting Trust T3: ID + selfie check
+const NeverPayHelp = lazy(() => import('./trust/HireSafety').then((m) => ({ default: m.NeverPayHelp }))); // Vetting Trust T4
 
 const LEVELS = [['internship', 'Internship'], ['fresher', 'Fresher'], ['0_1', '0–1 years'], ['1_3', '1–3 years'], ['3_5', '3–5 years'], ['5_8', '5–8 years'], ['8_12', '8–12 years'], ['12_15', '12–15 years'], ['15_plus', '15+ years']];
 const ALL_LANGS = [['en', 'English'], ['te', 'తెలుగు (Telugu)'], ['hi', 'हिन्दी (Hindi)']];
@@ -275,11 +276,13 @@ export function MeHelp() {
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState('');
   const link = `nm7.si/?ref=${me.account.referralCode}`;
+  const trust = useTrustOn();
   return (
     <>
       <MeHead title="Help & referral" sub="Answers, support, and a link to share with friends." />
       <div className="mgrid-2">
         <div className="mstack">
+          {trust && <Suspense fallback={null}><NeverPayHelp /></Suspense>}
           <MeCard as="section" label="Questions" icon="?" title="Common questions" sub="Tap a question to see the answer.">
             <div className="acc-faq">{FAQ.map(([q, a]) => <details key={q} className="acc-faq-i"><summary>{q}</summary><p className="small muted">{a}</p></details>)}</div>
           </MeCard>
