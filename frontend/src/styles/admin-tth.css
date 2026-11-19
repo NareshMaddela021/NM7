@@ -1,4 +1,4 @@
-/* Vetting Trust T13: Admin → Daily report → "Time to hire". Step cards, a funnel, the slowest companies, a per-company
+/* Vetting Trust T13: Admin -> Daily report -> "Time to hire". Step cards, a funnel, the slowest companies, a per-company
    table that scrolls inside itself; everything wraps at 390 px (no sideways page scroll). Its own file (no shared chunk). */
 .tth-tabs { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
 .tth-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr)); gap: 8px; }

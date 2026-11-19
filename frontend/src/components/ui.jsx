@@ -22,6 +22,8 @@ const P = {
   lock: <><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V7a4 4 0 018 0v4" /></>,
   trash: <><path d="M4 7h16M10 11v6M14 11v6" /><path d="M6 7l1 12a2 2 0 002 2h6a2 2 0 002-2l1-12M9 7V4h6v3" /></>,
   volume: <><path d="M4 9v6h4l5 4V5L8 9z" /><path d="M16.5 8.5a5 5 0 010 7M19 6a8.5 8.5 0 010 12" /></>,
+  chev: <path d="M6 9l6 6 6-6" />,
+  menu: <path d="M4 6h16M4 12h16M4 18h16" />,
   plus: <path d="M12 5v14M5 12h14" />,
   stop: <rect x="6" y="6" width="12" height="12" rx="1.5" />,
   edit: <path d="M4 20h4L19 9a2.8 2.8 0 00-4-4L4 16zM13.5 6.5l4 4" />,
@@ -106,7 +108,7 @@ export const useToast = () => useContext(ToastCtx);
 const FOCUSABLE = 'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])';
 const openDialogs = []; // the open dialogs, newest last: Escape closes only the top one
 
-/** A modal. Escape (wherever focus is) and the ✕ close it; focus goes back to the element that opened it
+/** A modal. Escape (wherever focus is) and the close (X) button close it; focus goes back to the element that opened it
  * (`returnTo`, else whatever had focus when it opened). */
 export function Dialog({ title, children, onClose, wide, showTitle, top, returnTo, overlayStyle, panelStyle }) {
   const ref = useRef();
@@ -147,7 +149,7 @@ export function Dialog({ title, children, onClose, wide, showTitle, top, returnT
   return (
     <div className="overlay" style={{ ...(top ? { zIndex: 60 } : {}), ...overlayStyle }} onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <div ref={ref} role="dialog" aria-modal="true" aria-label={title} className="dialog rise stack g16" style={{ ...(wide ? { maxWidth: 780 } : {}), maxHeight: 'calc(100vh - 32px)', overflow: 'auto', ...panelStyle }}>
-        {showTitle && <div className="row between g8"><strong style={{ fontSize: 18 }}>{title}</strong><button type="button" className="btn btn-icon" aria-label="Close" onClick={onClose}>✕</button></div>}
+        {showTitle && <div className="row between g8"><strong style={{ fontSize: 18 }}>{title}</strong><button type="button" className="btn btn-icon" aria-label="Close" onClick={onClose}><Icon name="x" /></button></div>}
         {children}
       </div>
     </div>

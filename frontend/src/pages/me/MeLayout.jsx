@@ -11,38 +11,39 @@ import { useLang } from '../../lib/i18n';
 import { loadSimple, savePrefs } from '../../lib/simple';
 import { Still } from '../newhome/ParticleStage';
 import AppShell from '../../components/AppShell';
+import { IcArrowUp, IcBolt, IcBook, IcBriefcase, IcCap, IcChart, IcCheckCircle, IcClock, IcEdit, IcFile, IcFlag, IcGrid, IcHelp, IcHome, IcInfo, IcMenu, IcLink, IcMail, IcMessage, IcRefresh, IcScale, IcSettings, IcTarget, IcThumb, IcTrend, IcUser, IcUsers, IcWallet } from '../../components/icons';
 import { useSiteFlags } from '../../lib/siteFlags';
 import { phoneTabs, TAB_LABELS } from '../../lib/meTabs';
 import '../../styles/me-kit.css';
 
 export const ME_NAV = [
-  ['home', '/me', 'Home', '⌂'],
-  ['orders', '/me/orders', 'My orders', '☰'],
-  ['messages', '/me/messages', 'Messages', '✉'],
-  ['resumes', '/me/resumes', 'My resumes', '▤'],
-  ['profile', '/me/profile', 'Job Profile', '◉'],
-  ['roles', '/me/roles', 'Find my role', '◇'],
-  ['learn', '/me/learn', 'Learning paths', '↗'],
-  ['practice', '/me/practice', 'Practice tests', '✎'],
-  ['offercheck', '/me/offer-check', 'Offer checker', '⚖'],
-  ['feedback', '/me/feedback', 'Interview feedback', '❝'],
-  ['programs', '/me/programs', 'Internships & projects', '▣'],
-  ['guidance', '/me/guidance', 'Guidance', '☼'],
-  ['progress', '/me/progress', 'My progress', '↑'],
-  ['ats', '/me/ats', 'ATS & job match', '◎'],
-  ['covers', '/me/covers', 'Cover letters', '✎'],
-  ['certificates', '/me/certificates', 'Certificates', '✪'],
-  ['jobs', '/me/jobs', 'Applications', '▥'],
-  ['auto', '/me/auto-apply', 'Auto Apply', '⟳'],
-  ['hire', '/me/hire', 'Ready to join', '⚡'],
-  ['skills', '/me/skill-checks', 'Skill checks', '✓'],
-  ['share', '/me/share', 'Share link', '↗'],
-  ['groups', '/me/groups', 'My groups', '⚑'],
-  ['launch', '/me/launch', 'Career Launch', '★'],
-  ['payments', '/me/payments', 'Payments & refunds', '₹'],
-  ['upgrade', '/me/upgrade', 'Upgrade & add-ons', '⇧'],
-  ['settings', '/me/settings', 'Profile & settings', '⚙'],
-  ['help', '/me/help', 'Help & referral', '?'],
+  ['home', '/me', 'Home', IcHome],
+  ['orders', '/me/orders', 'My orders', IcClock],
+  ['messages', '/me/messages', 'Messages', IcMessage],
+  ['resumes', '/me/resumes', 'My resumes', IcFile],
+  ['profile', '/me/profile', 'Job Profile', IcUser],
+  ['roles', '/me/roles', 'Find my role', IcTarget],
+  ['learn', '/me/learn', 'Learning paths', IcBook],
+  ['practice', '/me/practice', 'Practice tests', IcEdit],
+  ['offercheck', '/me/offer-check', 'Offer checker', IcScale],
+  ['feedback', '/me/feedback', 'Interview feedback', IcThumb],
+  ['programs', '/me/programs', 'Internships & projects', IcGrid],
+  ['guidance', '/me/guidance', 'Guidance', IcInfo],
+  ['progress', '/me/progress', 'My progress', IcTrend],
+  ['ats', '/me/ats', 'ATS & job match', IcChart],
+  ['covers', '/me/covers', 'Cover letters', IcMail],
+  ['certificates', '/me/certificates', 'Certificates', IcCap],
+  ['jobs', '/me/jobs', 'Applications', IcBriefcase],
+  ['auto', '/me/auto-apply', 'Auto Apply', IcRefresh],
+  ['hire', '/me/hire', 'Ready to join', IcBolt],
+  ['skills', '/me/skill-checks', 'Skill checks', IcCheckCircle],
+  ['share', '/me/share', 'Share link', IcLink],
+  ['groups', '/me/groups', 'My groups', IcUsers],
+  ['launch', '/me/launch', 'Career Launch', IcFlag],
+  ['payments', '/me/payments', 'Payments & refunds', IcWallet],
+  ['upgrade', '/me/upgrade', 'Upgrade & add-ons', IcArrowUp],
+  ['settings', '/me/settings', 'Profile & settings', IcSettings],
+  ['help', '/me/help', 'Help & referral', IcHelp],
 ];
 /** The side menu in groups (round P). Every link of ME_NAV is in exactly one group. */
 export const ME_GROUPS = [
@@ -93,9 +94,9 @@ export default function MeLayout() {
   useEffect(() => { loadSimple().then(setSimple, () => {}); }, []);
   if (simple?.on && simple.mode === 'simple' && pathname === '/me') return <Navigate to="/me/simple" replace />;
   const toSimple = async () => { try { await savePrefs({ mode: 'simple' }); } catch { /* open it anyway */ } go('/me/simple'); };
-  const link = ([k, to, l, ic], cls = 'admin-link') => (
+  const link = ([k, to, l, Ic], cls = 'admin-link') => (
     <NavLink key={k} to={to} end={to === '/me'} className={cls} title={l}>
-      <span aria-hidden="true" style={{ width: 18, textAlign: 'center', flex: 'none' }}>{ic}</span><span className="app-side-text">{l}</span>
+      <Ic style={{ flex: 'none' }} /><span className="app-side-text">{l}</span>
       {k === 'messages' && unread > 0 && <span className="badge b-danger" style={{ marginLeft: 'auto', padding: '1px 7px', fontSize: 11 }} aria-label={`${unread} unread`}>{unread}</span>}
     </NavLink>
   );
@@ -123,10 +124,10 @@ export default function MeLayout() {
       </AppShell>
       {/* phones: bottom tabs */}
       <nav aria-label="My dashboard (tabs)" className="me-tabs">
-        {TABS.map((k) => ME_NAV.find((n) => n[0] === k)).map(([k, to, _l, ic]) => (
-          <NavLink key={k} to={to} end={to === '/me'} data-tab={k}><span aria-hidden="true">{ic}</span>{TAB_LABELS[k]}</NavLink>
+        {TABS.map((k) => ME_NAV.find((n) => n[0] === k)).map(([k, to, _l, Ic]) => (
+          <NavLink key={k} to={to} end={to === '/me'} data-tab={k}><Ic size={20} />{TAB_LABELS[k]}</NavLink>
         ))}
-        <button type="button" aria-expanded={more} onClick={() => setMore(!more)}><span aria-hidden="true">⋯</span>More{unread > 0 && <span className="dot" aria-label={`${unread} unread messages`} />}</button>
+        <button type="button" aria-expanded={more} onClick={() => setMore(!more)}><IcMenu size={20} />More{unread > 0 && <span className="dot" aria-label={`${unread} unread messages`} />}</button>
       </nav>
       {more && (
         <Dialog title="More" onClose={() => setMore(false)} overlayStyle={{ alignItems: 'flex-end', padding: 0 }} panelStyle={{ borderRadius: '20px 20px 0 0', maxWidth: '100%', margin: 0, paddingBottom: 88, gap: 4 }}>

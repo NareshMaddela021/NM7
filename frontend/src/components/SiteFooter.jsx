@@ -4,6 +4,7 @@ import { LEGAL } from '../lib/legal';
 import { SOCIAL, SISTER_SITE } from '../lib/homeContent';
 import { homeFor, useAuth } from '../lib/auth';
 import { track } from '../lib/track';
+import { IcExternal } from './icons';
 import { useSalariesStatus } from '../lib/salaries';
 
 export default function SiteFooter() {
@@ -30,7 +31,7 @@ export default function SiteFooter() {
           <Link to="/accessibility">Accessibility</Link>
         </nav>
         <span className="row g16">
-          <a href={SISTER_SITE.url} target="_blank" rel="noreferrer" title={SISTER_SITE.blurb}>{SISTER_SITE.name} ↗</a>
+          <a href={SISTER_SITE.url} target="_blank" rel="noreferrer" title={SISTER_SITE.blurb}>{SISTER_SITE.name} <IcExternal size={14} /></a>
           {Object.entries(SOCIAL).filter(([, u]) => u).map(([k, u]) => <a key={k} href={u} target="_blank" rel="noreferrer" style={{ textTransform: 'capitalize' }}>{k === 'x' ? 'X' : k}</a>)}
           <Link to="/signup?role=expert">Become an expert</Link>{user ? <Link to={homeFor(user)}>My dashboard</Link> : <Link to="/login">Sign in</Link>}</span>
       </div>

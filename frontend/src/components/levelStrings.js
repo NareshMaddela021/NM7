@@ -12,7 +12,7 @@ export const LV_STRINGS = {
     'lv.p.skill': 'Skill match', 'lv.p.level': 'Level', 'lv.p.reliability': 'Reliability', 'lv.p.freshness': 'Confirmed recently',
     'lv.p.salary': 'Salary fit', 'lv.p.distance': 'Can work where the job is',
     'lv.f.legend': 'Level and availability', 'lv.f.min': 'Minimum level', 'lv.f.anyLevel': 'Any level', 'lv.f.atLeast': 'L{n} {label} or higher',
-    'lv.f.ready': '⚡ Ready now only', 'lv.f.notice': 'Notice period at most', 'lv.f.anyNotice': 'Any notice period',
+    'lv.f.ready': 'Ready now only', 'lv.f.notice': 'Notice period at most', 'lv.f.anyNotice': 'Any notice period',
     'lv.f.days': '{n} days', 'lv.f.zero': 'Can join now (0 days)', 'lv.f.salary': 'Salary at most (₹ a month)', 'lv.f.salaryPh': 'e.g. 30000',
     'lv.f.city': 'City', 'lv.f.cityPh': 'e.g. Hyderabad', 'lv.f.band': 'Experience', 'lv.f.anyBand': 'Any experience',
     'lv.b.fresher': 'Fresher', 'lv.b.1-3': '1–3 years', 'lv.b.3-5': '3–5 years', 'lv.b.5-8': '5–8 years', 'lv.b.8+': '8+ years',
@@ -25,7 +25,7 @@ export const LV_STRINGS = {
     'lv.p.skill': 'నైపుణ్య సరిపోలిక', 'lv.p.level': 'లెవెల్', 'lv.p.reliability': 'విశ్వసనీయత', 'lv.p.freshness': 'ఇటీవల నిర్ధారించారు',
     'lv.p.salary': 'జీతం సరిపోలిక', 'lv.p.distance': 'ఉద్యోగం ఉన్న చోట పని చేయగలరు',
     'lv.f.legend': 'లెవెల్ మరియు అందుబాటు', 'lv.f.min': 'కనీస లెవెల్', 'lv.f.anyLevel': 'ఏ లెవెల్ అయినా', 'lv.f.atLeast': 'L{n} {label} లేదా పైన',
-    'lv.f.ready': '⚡ ఇప్పుడే సిద్ధం ఉన్నవారు మాత్రమే', 'lv.f.notice': 'నోటీస్ పీరియడ్ గరిష్టంగా', 'lv.f.anyNotice': 'ఏ నోటీస్ పీరియడ్ అయినా',
+    'lv.f.ready': 'ఇప్పుడే సిద్ధం ఉన్నవారు మాత్రమే', 'lv.f.notice': 'నోటీస్ పీరియడ్ గరిష్టంగా', 'lv.f.anyNotice': 'ఏ నోటీస్ పీరియడ్ అయినా',
     'lv.f.days': '{n} రోజులు', 'lv.f.zero': 'ఇప్పుడే చేరగలరు (0 రోజులు)', 'lv.f.salary': 'జీతం గరిష్టంగా (నెలకు ₹)', 'lv.f.salaryPh': 'ఉదా. 30000',
     'lv.f.city': 'నగరం', 'lv.f.cityPh': 'ఉదా. హైదరాబాద్', 'lv.f.band': 'అనుభవం', 'lv.f.anyBand': 'ఏ అనుభవం అయినా',
     'lv.b.fresher': 'ఫ్రెషర్', 'lv.b.1-3': '1–3 సంవత్సరాలు', 'lv.b.3-5': '3–5 సంవత్సరాలు', 'lv.b.5-8': '5–8 సంవత్సరాలు', 'lv.b.8+': '8+ సంవత్సరాలు',
@@ -38,7 +38,7 @@ export const LV_STRINGS = {
     'lv.p.skill': 'कौशल मिलान', 'lv.p.level': 'लेवल', 'lv.p.reliability': 'भरोसेमंदी', 'lv.p.freshness': 'हाल ही में पुष्टि की',
     'lv.p.salary': 'वेतन मेल', 'lv.p.distance': 'नौकरी की जगह पर काम कर सकते हैं',
     'lv.f.legend': 'लेवल और उपलब्धता', 'lv.f.min': 'न्यूनतम लेवल', 'lv.f.anyLevel': 'कोई भी लेवल', 'lv.f.atLeast': 'L{n} {label} या ऊपर',
-    'lv.f.ready': '⚡ केवल अभी तैयार', 'lv.f.notice': 'नोटिस अवधि अधिकतम', 'lv.f.anyNotice': 'कोई भी नोटिस अवधि',
+    'lv.f.ready': 'केवल अभी तैयार', 'lv.f.notice': 'नोटिस अवधि अधिकतम', 'lv.f.anyNotice': 'कोई भी नोटिस अवधि',
     'lv.f.days': '{n} दिन', 'lv.f.zero': 'अभी जुड़ सकते हैं (0 दिन)', 'lv.f.salary': 'वेतन अधिकतम (₹ प्रति माह)', 'lv.f.salaryPh': 'जैसे 30000',
     'lv.f.city': 'शहर', 'lv.f.cityPh': 'जैसे हैदराबाद', 'lv.f.band': 'अनुभव', 'lv.f.anyBand': 'कोई भी अनुभव',
     'lv.b.fresher': 'फ्रेशर', 'lv.b.1-3': '1–3 साल', 'lv.b.3-5': '3–5 साल', 'lv.b.5-8': '5–8 साल', 'lv.b.8+': '8+ साल',
@@ -46,7 +46,7 @@ export const LV_STRINGS = {
   },
 };
 
-/** lt(lang)('lv.ready') → the string in that language, else English. */
+/** lt(lang)('lv.ready') -> the string in that language, else English. */
 export const lt = (lang = 'en') => (key, vars) => translate(lang, key, vars, LV_STRINGS);
 
 export const BANDS = ['fresher', '1-3', '3-5', '5-8', '8+'];
