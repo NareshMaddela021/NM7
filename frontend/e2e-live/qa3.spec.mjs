@@ -139,7 +139,7 @@ test('home: improve demo only says IMPROVED when the score rises; samples have n
   await expect(page.getByText(/^IMPROVED/)).toHaveCount(0);
   await box.fill('made dashboards in power bi for sales team');
   await page.getByRole('button', { name: 'Improve this line' }).click();
-  await expect(page.getByText(/^IMPROVED · \d+ → \d+\/100/)).toBeVisible();
+  await expect(page.getByText(/^IMPROVED · \d+ to \d+\/100/)).toBeVisible();
 
   const text = await page.locator('main').textContent();
   expect(text).not.toMatch(/\[(Company|College)\]/);

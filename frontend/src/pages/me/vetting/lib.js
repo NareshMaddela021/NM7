@@ -17,14 +17,14 @@ export const TASKS = {
 
 export const day = (ms) => (ms ? new Date(ms).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
 export const monthYear = (ms) => (ms ? new Date(ms).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : '');
-/** 75 → "1:15"; never negative. */
+/** 75 -> "1:15"; never negative. */
 export const clock = (s) => { const v = Math.max(0, Math.ceil(s)); return `${Math.floor(v / 60)}:${String(v % 60).padStart(2, '0')}`; };
 export const words = (t) => (t || '').trim().split(/\s+/).filter(Boolean).length;
 
 /** The line a verified badge reads as. */
 export function badgeLine(v, role) {
   if (!v) return '';
-  return `✓ Skill verified · ${role || v.role} · ${v.bandLabel} · ${v.score}/100 · task ${v.taskStars}/5 · ${monthYear(v.at)}`;
+  return `Skill verified · ${role || v.role} · ${v.bandLabel} · ${v.score}/100 · task ${v.taskStars}/5 · ${monthYear(v.at)}`;
 }
 
 /* ---------- re-verify (Vetting V5) ---------- */
@@ -44,7 +44,7 @@ export function renewState(v, nowMs = Date.now()) {
   return { open: daysLeft <= RENEW_BEFORE_DAYS && daysLeft >= -RENEW_AFTER_DAYS, daysLeft, expired };
 }
 
-/** When to say how much time is left, out loud (not every second): seconds → message, or ''. */
+/** When to say how much time is left, out loud (not every second): seconds -> message, or ''. */
 export function questionAnnounce(left) {
   return [60, 30, 10].includes(left) ? `${left} seconds left for this question` : '';
 }
@@ -145,7 +145,7 @@ export function fitSize(w, h, max = 1280) {
   return [Math.round(w * k), Math.round(h * k)];
 }
 
-/** A picked image file → { type: 'image/jpeg', data: base64 without the "data:" prefix, preview: data URL }. */
+/** A picked image file -> { type: 'image/jpeg', data: base64 without the "data:" prefix, preview: data URL }. */
 export async function compressImage(file, { max = 1280, quality = 0.8 } = {}) {
   const url = URL.createObjectURL(file);
   try {

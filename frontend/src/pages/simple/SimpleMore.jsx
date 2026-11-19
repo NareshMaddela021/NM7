@@ -5,6 +5,7 @@
 //                         for each job the person matched
 //   /me/simple/fixes      the resume score's fixes in plain words, each one button to the exact place
 import { useEffect, useState } from 'react';
+import { Icon } from '../../components/ui';
 import { http } from '../../services/http';
 import { Big, WaitNote } from './SimpleApp';
 import { useScreen } from '../../lib/simple';
@@ -13,7 +14,7 @@ import { SayButton, SpeakField } from './voice';
 const useGet = (path) => useScreen(path); // the last data at once, then fresh (re-test N6)
 export const Wait = ({ t, err }) => <WaitNote t={t} err={err} />;
 const list = (v) => (Array.isArray(v) ? v : []);
-const lines = (s) => String(s || '').split('\n').map((x) => x.replace(/^[•\-*–▸ ]+/, '').trim()).filter(Boolean);
+const lines = (s) => String(s || '').split('\n').map((x) => x.replace(/^[•\-*–\u25b8 ]+/, '').trim()).filter(Boolean);
 
 /** The resume's parts in plain words (what the student told us, the same resume the full builder opens). */
 export function resumeParts(d) {
@@ -44,7 +45,7 @@ export function MyResume({ t, setSay }) {
   const parts = r ? resumeParts(r.data) : null;
   useEffect(() => { setSay([['simple.mr.title'], parts?.name || '']); }, [parts?.name]); // eslint-disable-line react-hooks/exhaustive-deps
   if (!rs) return <Wait t={t} err={err} />;
-  if (!r) return <div className="sx-stack"><p className="sx-p">{t('simple.mr.none')}</p><Big to="/me/simple/resume" icon="📝" label={t('simple.next.resume.cta')} ink /></div>;
+  if (!r) return <div className="sx-stack"><p className="sx-p">{t('simple.mr.none')}</p><Big to="/me/simple/resume" label={t('simple.next.resume.cta')} ink /></div>;
   const pdf = async () => {
     setBusy(true); setNote('');
     try {
@@ -56,7 +57,7 @@ export function MyResume({ t, setSay }) {
   return (
     <section className="sx-stack" aria-labelledby="sx-mr-h" data-testid="sx-myresume">
       <h1 id="sx-mr-h" className="sx-h1">{t('simple.mr.title')}</h1>
-      <button type="button" className="sx-big sx-ink" disabled={busy} onClick={pdf} data-testid="sx-pdf"><span className="sx-ic" aria-hidden="true">⬇️</span><span>{busy ? t('simple.loading') : t('simple.mr.pdf')}</span></button>
+      <button type="button" className="sx-big sx-ink" disabled={busy} onClick={pdf} data-testid="sx-pdf"><span>{busy ? t('simple.loading') : t('simple.mr.pdf')}</span></button>
       {note && <p className="sx-note" role="status" data-testid="sx-pdf-note">{note}</p>}
       <Part title={t('simple.mr.about')} testid="sx-mr-about"><p className="sx-p"><strong>{parts.name || '—'}</strong></p><p className="sx-p">{parts.contact || t('simple.mr.empty')}</p></Part>
       <Part title={t('simple.mr.studied')}><p className="sx-p">{parts.studied || t('simple.mr.empty')}</p></Part>
@@ -65,13 +66,11 @@ export function MyResume({ t, setSay }) {
       {parts.work.length > 0 && <Part title={t('simple.mr.work')}>{parts.work.map((x) => <div key={x.title} className="sx-stack" style={{ gap: 4 }}><strong className="sx-p">{x.title}</strong>{row(x.lines)}</div>)}</Part>}
       <Part title={t('simple.mr.certs')}>{row(parts.certs)}</Part>
       <Part title={t('simple.mr.langs')}>{row(parts.langs)}</Part>
-      <Big to="/me/simple/resume?step=about" icon="✏️" label={t('simple.mr.change')} testid="sx-mr-change" />
-      <Big to="/me/simple" icon="←" label={t('simple.back')} />
+      <Big to="/me/simple/resume?step=about" icon="edit" label={t('simple.mr.change')} testid="sx-mr-change" />
+      <Big to="/me/simple" icon="back" label={t('simple.back')} />
     </section>
   );
 }
-
-const STATUS_ICON = { saved: '☆', applied: '📨', viewed: '👀', shortlisted: '⭐', interview: '🎤', offer: '🎉', rejected: '✖', no_reply: '⏳' };
 
 export function Apps({ t, setSay }) {
   const [st, err] = useGet('/api/me/state');
@@ -81,18 +80,18 @@ export function Apps({ t, setSay }) {
   return (
     <section className="sx-stack" aria-labelledby="sx-ap-h" data-testid="sx-apps">
       <h1 id="sx-ap-h" className="sx-h1">{t('simple.ap.title')}</h1>
-      {apps.length === 0 && <><p className="sx-p">{t('simple.ap.none')}</p><Big to="/me/simple/jobs" icon="💼" label={t('simple.next.jobs.cta')} ink /></>}
+      {apps.length === 0 && <><p className="sx-p">{t('simple.ap.none')}</p><Big to="/me/simple/jobs" label={t('simple.next.jobs.cta')} ink /></>}
       <ul className="sx-list">
         {apps.map((a) => (
           <li key={a.id} className="sx-next" data-testid="sx-app">
-            <span className="sx-cardtop"><span className="sx-match">{STATUS_ICON[a.status] || '•'} {t(`simple.ap.status.${a.status}`)}</span><SayButton items={[a.role, a.company, [`simple.ap.status.${a.status}`]]} t={t} lang="en" label={t('simple.voice.readCard')} /></span>
+            <span className="sx-cardtop"><span className="sx-match">{t(`simple.ap.status.${a.status}`)}</span><SayButton items={[a.role, a.company, [`simple.ap.status.${a.status}`]]} t={t} lang="en" label={t('simple.voice.readCard')} /></span>
             <h2 className="sx-h2">{a.role || '—'}</h2>
             <p className="sx-p"><strong>{a.company}</strong></p>
             {a.date ? <p className="sx-hint">{t('simple.ap.when', { date: new Date(a.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) })}</p> : null}
           </li>
         ))}
       </ul>
-      <Big to="/me/simple" icon="←" label={t('simple.back')} />
+      <Big to="/me/simple" icon="back" label={t('simple.back')} />
     </section>
   );
 }
@@ -138,11 +137,11 @@ export function Practice({ t, lang, setSay }) {
         {err && <p className="sx-note" role="alert">{err}</p>}
         {fb && <Feedback fb={fb} t={t} lang={lang} />}
         <div className="sx-navrow">
-          <button type="button" className="sx-big" onClick={() => setI(i - 1)}><span className="sx-ic" aria-hidden="true">←</span><span>{t('simple.r.back')}</span></button>
+          <button type="button" className="sx-big" onClick={() => setI(i - 1)}><span className="sx-ic"><Icon name="back" size={24} /></span><span>{t('simple.r.back')}</span></button>
           {/* first "How did I do?", then Next: feedback after every answer (N1); an empty answer can be skipped */}
           {answer.trim() && !fb
-            ? <button type="button" className="sx-big sx-ink" disabled={busy} onClick={check} data-testid="sx-pr-check"><span>{busy ? t('simple.loading') : t('simple.pr.check')}</span><span className="sx-ic" aria-hidden="true">✓</span></button>
-            : <button type="button" className="sx-big sx-ink" onClick={next} data-testid="sx-pr-next"><span>{i + 1 < COMMON.length ? t('simple.r.next') : t('simple.r.finish')}</span><span className="sx-ic" aria-hidden="true">→</span></button>}
+            ? <button type="button" className="sx-big sx-ink" disabled={busy} onClick={check} data-testid="sx-pr-check"><span>{busy ? t('simple.loading') : t('simple.pr.check')}</span><span className="sx-ic"><Icon name="check" size={24} /></span></button>
+            : <button type="button" className="sx-big sx-ink" onClick={next} data-testid="sx-pr-next"><span>{i + 1 < COMMON.length ? t('simple.r.next') : t('simple.r.finish')}</span><span className="sx-ic"><Icon name="arrow" size={24} /></span></button>}
         </div>
       </section>
     );
@@ -153,10 +152,10 @@ export function Practice({ t, lang, setSay }) {
       <h1 id="sx-pr-h" className="sx-h1">{t('simple.pr.title')}</h1>
       <p className="sx-p">{t('simple.pr.text')}</p>
       {done && <p className="sx-note sx-ok" role="status" data-testid="sx-pr-done">{t('simple.pr.done')}</p>}
-      <Big icon="🎤" label={t('simple.pr.common')} ink onClick={() => { setDone(false); setI(0); }} testid="sx-pr-common" />
+      <Big icon="mic" label={t('simple.pr.common')} ink onClick={() => { setDone(false); setI(0); }} testid="sx-pr-common" />
       {mine.length > 0 && <h2 className="sx-h2">{t('simple.pr.forJobs')}</h2>}
-      <ul className="sx-list">{mine.map((m) => <li key={m.id}><Big to={`/me/interview/${m.id}`} icon="💼" label={t('simple.pr.forJob', { title: m.title || m.company || '—' })} testid="sx-pr-job" /></li>)}</ul>
-      <Big to="/me/simple" icon="←" label={t('simple.back')} />
+      <ul className="sx-list">{mine.map((m) => <li key={m.id}><Big to={`/me/interview/${m.id}`} label={t('simple.pr.forJob', { title: m.title || m.company || '—' })} testid="sx-pr-job" /></li>)}</ul>
+      <Big to="/me/simple" icon="back" label={t('simple.back')} />
     </section>
   );
 }
@@ -183,13 +182,13 @@ export function Fixes({ t, setSay }) {
           return (
             <li key={f.key} className="sx-next" data-testid="sx-fix" data-key={f.key}>
               <p className="sx-p">{t(`simple.fix.${FIX_KEYS.includes(f.key) ? f.key : 'other'}`)}</p>
-              <Big to={to} icon="➜" label={t('simple.fx.fix')} ink testid={`sx-fix-${f.key}`} />
+              <Big to={to} icon="arrow" after label={t('simple.fx.fix')} ink testid={`sx-fix-${f.key}`} />
               {!SIMPLE_FIX[f.key] && f.key !== 'resume' && <span className="sx-hint">{t('simple.fx.builder')}</span>}
             </li>
           );
         })}
       </ul>
-      <Big to="/me/simple" icon="←" label={t('simple.back')} />
+      <Big to="/me/simple" icon="back" label={t('simple.back')} />
     </section>
   );
 }
@@ -212,16 +211,16 @@ export function Hire({ t, lang, setSay }) {
   return (
     <section className="sx-stack" aria-labelledby="sx-h-h" data-testid="sx-hire">
       <h1 id="sx-h-h" className="sx-h1">{t('simple.h.title')}</h1>
-      {waiting > 0 && <Big to="/me/hire#invites" icon="📩" label={t('simple.h.invites', { n: waiting })} ink testid="sx-hire-invites" />}
+      {waiting > 0 && <Big to="/me/hire#invites" label={t('simple.h.invites', { n: waiting })} ink testid="sx-hire-invites" />}
       <p className="sx-p" data-testid="sx-hire-line">{t(line, { date })}</p>
       {s.on && !s.paused && s.due && !s.stale && <p className="sx-hint">{t('simple.h.due', { date })}</p>}
-      {!s.on && <Big to="/me/hire" icon="⚡" label={t('simple.h.start')} ink testid="sx-hire-start" />}
-      {s.on && !s.paused && <Big icon="✅" label={t('simple.h.still')} ink onClick={() => act('/api/me/hire/confirm', undefined, 'simple.h.thanks')} testid="sx-hire-still" />}
-      {s.on && <Big icon={s.paused ? '▶️' : '⏸️'} label={t(s.paused ? 'simple.h.resume' : 'simple.h.pause')} ink={s.paused} onClick={() => act('/api/me/hire/pause', { paused: !s.paused })} testid="sx-hire-pause" />}
+      {!s.on && <Big to="/me/hire" label={t('simple.h.start')} ink testid="sx-hire-start" />}
+      {s.on && !s.paused && <Big icon="check" label={t('simple.h.still')} ink onClick={() => act('/api/me/hire/confirm', undefined, 'simple.h.thanks')} testid="sx-hire-still" />}
+      {s.on && <Big label={t(s.paused ? 'simple.h.resume' : 'simple.h.pause')} ink={s.paused} onClick={() => act('/api/me/hire/pause', { paused: !s.paused })} testid="sx-hire-pause" />}
       {note && <p className="sx-note" role="status" data-testid="sx-hire-note">{note}</p>}
       <p className="sx-hint">{t('simple.h.private')}</p>
-      {s.on && <Big to="/me/hire" icon="✏️" label={t('simple.h.change')} testid="sx-hire-change" />}
-      <Big to="/me/simple" icon="←" label={t('simple.back')} />
+      {s.on && <Big to="/me/hire" icon="edit" label={t('simple.h.change')} testid="sx-hire-change" />}
+      <Big to="/me/simple" icon="back" label={t('simple.back')} />
     </section>
   );
 }

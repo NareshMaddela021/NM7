@@ -5,9 +5,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { http } from '../../services/http';
 import { Chip, Empty, Skel } from './kit';
+import { IcStar } from '../../components/icons';
 
 const BASE = '/api/me/auto-apply/v2';
-const ICON = { email: '✉', internal: '◆', partner: '⇄', form: '▤', one_tap: '☝' };
 const STATUS = { viewed: 'Viewed', shortlisted: 'Shortlisted', interview: 'Interview invite', offer: 'Offer', rejected: 'Not selected', closed: 'Job closed', no_reply: 'No reply' };
 const fmtAt = (ms) => (ms ? new Date(ms).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) : '');
 
@@ -21,9 +21,9 @@ function Entry({ e, onOpen, onRead }) {
       <div className="aa2-rowtop">
         <span className="stack g4" style={{ flex: '1 1 220px' }}>
           <strong className="small aa2-wrap">{e.unread && <span className="aa2-dot" aria-label="Unread" />}{e.company || 'A company'}{e.title ? <span className="muted"> · {e.title}</span> : null}</strong>
-          <span className="xs muted aa2-wrap"><span aria-hidden="true">{ICON[e.channel] || '◆'}</span> {e.label} · {fmtAt(e.at)}</span>
+          <span className="xs muted aa2-wrap">{e.label} · {fmtAt(e.at)}</span>
         </span>
-        <Chip tone={tone} testid="aa2-inbox-tag">{e.interview ? '★ ' : ''}{tag}</Chip>
+        <Chip tone={tone} testid="aa2-inbox-tag">{e.interview ? <IcStar size={14} fill="currentColor" /> : null}{e.interview ? ' ' : ''}{tag}</Chip>
       </div>
       {e.source === 'email' ? (
         <>
@@ -85,7 +85,7 @@ export function Week({ onTab }) {
         <div className="stack g6">
           <strong className="small">Sent by channel</strong>
           <ul className="aa2-list aa2-week-ch" data-testid="aa2-week-channels">
-            {w.byChannel.map((c) => <li key={c.key} className="row g8 small" data-channel={c.key}><span aria-hidden="true">{ICON[c.key]}</span><span style={{ flex: 1 }}>{c.label}</span><strong>{c.sent}</strong></li>)}
+            {w.byChannel.map((c) => <li key={c.key} className="row g8 small" data-channel={c.key}><span style={{ flex: 1 }}>{c.label}</span><strong>{c.sent}</strong></li>)}
           </ul>
         </div>
         <div className="row g8 aa2-actions">

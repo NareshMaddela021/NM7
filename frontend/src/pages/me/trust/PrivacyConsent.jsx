@@ -1,5 +1,5 @@
-// Profile & settings → Privacy & consent (Vetting Trust T1, DPDP). Only for people who get Vetting Trust (Admin → Skill
-// checks → Vetting Trust; useTrustOn). Lazy: loaded only once the switch says yes.
+// Profile & settings -> Privacy & consent (Vetting Trust T1, DPDP). Only for people who get Vetting Trust (Admin -> Skill
+// checks -> Vetting Trust; useTrustOn). Lazy: loaded only once the switch says yes.
 //   1. Age gate: the date of birth, once (only the day they turn 18 is kept; never used for scoring).
 //   2. Under 18: a parent's email gets a one-time link; until the parent agrees, consents are locked.
 //   3. One switch per purpose with its plain-language text; switching one off asks first, then deletes that data now.
@@ -16,6 +16,7 @@ import IntegrityCard from './IntegrityCard'; // T8: my integrity rating, what wa
 import SpokenCard from './Spoken'; // T10: my spoken-English band, how it was measured, how to retake (this chunk too)
 
 const fmt = (v) => (v ? new Date(v).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
+import { IcShield } from '../../../components/icons';
 const STATUS = { granted: 'On', not_given: 'Off', withdrawn: 'Taken back', outdated: 'Text changed: please read and agree again' };
 
 function download(data, name) {
@@ -89,7 +90,7 @@ function ConsentCard() {
   const [busy, setBusy] = useState('');
   const load = () => http('/api/me/trust/privacy').then(setD, (x) => setErr(x.message));
   useEffect(() => { load(); }, []);
-  if (err) return <MeCard as="section" id="s-consent" className="acc-sec" label="Privacy and consent" icon="🛡" title="Privacy & consent"><p className="error" role="alert">{err}</p></MeCard>;
+  if (err) return <MeCard as="section" id="s-consent" className="acc-sec" label="Privacy and consent" icon={<IcShield />} title="Privacy & consent"><p className="error" role="alert">{err}</p></MeCard>;
   if (!d) return null;
   const locked = !d.age.checked || (d.age.minor && !d.age.parentOk);
   const setAge = (age) => setD({ ...d, age });
@@ -105,7 +106,7 @@ function ConsentCard() {
     try { download(await http('/api/me/trust/consents/export'), 'my-nm7-consents.json'); toast('Your consent record is ready'); } catch (x) { toast(x.message); }
   };
   return (
-    <MeCard as="section" id="s-consent" className="acc-sec" label="Privacy and consent" icon="🛡" title="Privacy & consent" sub="Say yes or no to each use of your data on its own. You can take any of them back at any time; we then delete that data." testid="tc-card">
+    <MeCard as="section" id="s-consent" className="acc-sec" label="Privacy and consent" icon={<IcShield />} title="Privacy & consent" sub="Say yes or no to each use of your data on its own. You can take any of them back at any time; we then delete that data." testid="tc-card">
       {!d.age.checked && <AgeGate onDone={setAge} />}
       {d.age.checked && d.age.minor && !d.age.parentOk && <ParentAsk age={d.age} onDone={setAge} />}
       <ul className="mlist" aria-label="Consents">

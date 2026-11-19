@@ -7,6 +7,7 @@
 // Loaded only with TrustLink (and by the My hiring card).
 import { useEffect, useState } from 'react';
 import { http } from '../../../services/http';
+import { IcCheck } from '../../../components/icons';
 
 const BTN = { minHeight: 44 };
 const IST = { timeZone: 'Asia/Kolkata' };
@@ -63,7 +64,7 @@ export function RelItems({ d, lang = 'en', onAnswer, onStay }) {
       <p style={{ margin: 0 }} data-testid="rel-summary"><strong>{d.summary.empty ? t.none : d.summary.text}</strong>{!d.summary.empty && <span className="xs muted"> · {d.summary.source}</span>}</p>
       {d.stays?.map((s) => (
         <button key={`${s.offer}-${s.days}`} type="button" className="btn btn-outline" style={{ ...BTN, alignSelf: 'flex-start', whiteSpace: 'normal' }} disabled={busy}
-          onClick={() => run(() => onStay(s.offer, s.days))} data-testid="rel-stay">✓ {t.still} {s.company} ({s.days})</button>
+          onClick={() => run(() => onStay(s.offer, s.days))} data-testid="rel-stay"><IcCheck size={14} /> {t.still} {s.company} ({s.days})</button>
       ))}
       {d.items?.length > 0 && (
         <ul className="stack g8" style={{ listStyle: 'none', padding: 0, margin: 0 }} data-testid="rel-items">
@@ -119,7 +120,7 @@ export function RelAttendance({ token }) {
   return (
     <div className="stack g16" data-testid="ratt">
       <p style={{ margin: 0 }}>Did <strong>{d.first}</strong> come to the interview{d.role ? ` for ${d.role}` : ''} on {when(d.at)}?</p>
-      {d.mark && <p role="status" data-testid="ratt-done">Thanks: marked as {d.mark === 'attended' ? 'attended' : 'no-show'}. You can change it in Hire → Interview times.</p>}
+      {d.mark && <p role="status" data-testid="ratt-done">Thanks: marked as {d.mark === 'attended' ? 'attended' : 'no-show'}. You can change it in Hire &gt; Interview times.</p>}
       {!d.mark && d.canMark && (
         <div className="row g8" style={{ flexWrap: 'wrap' }}>
           <button type="button" className="btn btn-signal" style={BTN} disabled={st.busy} onClick={() => act({ result: 'attended' }).catch(() => {})} data-testid="ratt-yes">Attended</button>

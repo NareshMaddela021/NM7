@@ -13,6 +13,7 @@ import { Chip, Empty, MeCard, Skel } from './kit';
 import { L4_STEPS, RELATIONS, byDay, l4Status, refereeProblems, stepIndex, timeText, whenText } from '../../lib/l4';
 import '../../styles/me-vet.css';
 import '../../styles/vetting-l4.css';
+import { IcCheck, IcCheckCircle, IcLock, IcMail, IcPhone } from '../../components/icons';
 
 const API = '/api/me/verification';
 const YEAR = 365 * 24 * 3600 * 1000;
@@ -27,7 +28,7 @@ function Steps({ status }) {
         const now = i === at && status !== 'verified';
         return (
           <li key={k} className={done ? 'done' : now ? 'now' : ''} aria-current={now ? 'step' : undefined}>
-            <span className="l4-dot" aria-hidden="true">{done ? '✓' : i + 1}</span>{l}<span className="sr-only">{done ? ' (done)' : now ? ' (now)' : ''}</span>
+            <span className="l4-dot" aria-hidden="true">{done ? <IcCheck size={14} /> : i + 1}</span>{l}<span className="sr-only">{done ? ' (done)' : now ? ' (now)' : ''}</span>
           </li>
         );
       })}
@@ -114,7 +115,7 @@ function RefereeForm({ onSaved }) {
   );
 }
 
-/** Hidden from this person (Admin → Skill checks → Launch): nothing to see yet. */
+/** Hidden from this person (Admin -> Skill checks -> Launch): nothing to see yet. */
 export default function MeVerification() {
   const on = useVettingOn();
   if (on == null) return <Skel cards={1} lines={3} label="Loading" />;
@@ -150,7 +151,7 @@ function MeVerificationPage() {
           <span className="small">We never ask for Aadhaar, PAN or any ID number. {d.free ? 'It’s free.' : ''} Verified lasts a year.</span>
         </div>
         {r?.status === 'verified'
-          ? <div className="vet-badge" data-testid="l4-badge"><strong>✓ Nm7 verified</strong>{r.referenceLine && <span className="small" data-testid="l4-line">{r.referenceLine}</span>}{r.grantedAt && <span className="xs">Until {new Date(r.grantedAt + YEAR).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>}</div>
+          ? <div className="vet-badge" data-testid="l4-badge"><strong><IcCheck size={14} /> Nm7 verified</strong>{r.referenceLine && <span className="small" data-testid="l4-line">{r.referenceLine}</span>}{r.grantedAt && <span className="xs">Until {new Date(r.grantedAt + YEAR).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>}</div>
           : d.free && <Chip tone="ok" testid="l4-free" style={{ justifySelf: 'start', alignSelf: 'start' }}>Free</Chip>}
       </section>
 
@@ -162,7 +163,7 @@ function MeVerificationPage() {
         </Empty>
       ) : (
         <>
-          <MeCard title="Your check" icon="✓" sub={`Asked ${whenText(r.requestedAt)}`} testid="l4-status-card"
+          <MeCard title="Your check" icon={<IcCheckCircle />} sub={`Asked ${whenText(r.requestedAt)}`} testid="l4-status-card"
             actions={<Chip tone={tone} testid="l4-status">{words}</Chip>}>
             <Steps status={r.status} />
             {r.status === 'failed' && (
@@ -175,7 +176,7 @@ function MeVerificationPage() {
           </MeCard>
 
           {open && (
-            <MeCard title={r.slotAt ? 'Your call' : '1. Pick a call time'} icon="☎" testid="l4-call"
+            <MeCard title={r.slotAt ? 'Your call' : '1. Pick a call time'} icon={<IcPhone />} testid="l4-call"
               sub={r.slotAt ? 'An Nm7 reviewer will call you or send a video link before the time.' : 'Choose a time that suits you in the next 7 days.'}>
               {r.slotAt ? (
                 <div className="stack g8">
@@ -188,14 +189,14 @@ function MeVerificationPage() {
           )}
 
           {(open || r.referees.length > 0) && (
-            <MeCard title={r.referees.length ? 'Your referees' : '2. Name 1 or 2 referees'} icon="✉" testid="l4-referees"
+            <MeCard title={r.referees.length ? 'Your referees' : '2. Name 1 or 2 referees'} icon={<IcMail />} testid="l4-referees"
               sub={r.referees.length ? 'They got an email with 5 short questions (about 2 minutes).' : 'Someone who saw your work: they get 5 short questions by email. Only a one-line confirmation is shown to companies.'}>
               {r.referees.length ? (
                 <ul className="l4-refs">
                   {r.referees.map((x, i) => (
                     <li key={i} className="l4-ref" data-testid="l4-ref">
                       <span className="l4-ref-main"><strong>{x.name}</strong><span className="xs muted">{x.relation}{x.company ? ` · ${x.company}` : ''}</span></span>
-                      <Chip tone={x.answered ? 'ok' : 'info'}>{x.answered ? '✓ Answered' : 'Sent'}</Chip>
+                      <Chip tone={x.answered ? 'ok' : 'info'}>{x.answered ? <><IcCheck size={14} /> Answered</> : 'Sent'}</Chip>
                     </li>
                   ))}
                 </ul>
@@ -205,7 +206,7 @@ function MeVerificationPage() {
         </>
       )}
 
-      <MeCard tone="flat" className="mcard-tight" icon="🔒" title="What the reviewer checks" headingLevel={2}>
+      <MeCard tone="flat" className="mcard-tight" icon={<IcLock />} title="What the reviewer checks" headingLevel={2}>
         <ul className="l4-checklist" data-testid="l4-checklist">{(d.checklist || []).map((x) => <li key={x}>{x}</li>)}</ul>
       </MeCard>
     </>

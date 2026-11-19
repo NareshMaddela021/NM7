@@ -1,5 +1,5 @@
-/* Admin → Daily report (DailyReport.jsx): glass summary, a "Needs attention" card, sections of stat tiles with a
-   ▲/▼ change vs yesterday and a tiny inline SVG sparkline. Builds on admin.css, design.css (.glass) and me-kit.css
+/* Admin -> Daily report (DailyReport.jsx): glass summary, a "Needs attention" card, sections of stat tiles with a
+   up / down change vs yesterday and a tiny inline SVG sparkline. Builds on admin.css, design.css (.glass) and me-kit.css
    (.mchip). Mobile first: at 390 px the tiles and cards stack, nothing scrolls sideways. */
 .dr-page { min-width: 0; }
 .dr-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; }

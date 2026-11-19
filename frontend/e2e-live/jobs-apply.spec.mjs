@@ -42,7 +42,7 @@ for (const [label, opts] of SIZES) {
       await expect(page.getByTestId('apply-confirm')).toContainText(`Orbit ${tag}`);
       await expect(page.getByTestId('applied')).toHaveCount(0);
       await page.getByTestId('apply-send').click();
-      await expect(page.getByTestId('applied')).toHaveText('Applied ✓');
+      await expect(page.getByTestId('applied')).toHaveText('Applied');
       await expect(page.getByRole('link', { name: 'See it in My applications' })).toBeVisible();
       await wide();
 

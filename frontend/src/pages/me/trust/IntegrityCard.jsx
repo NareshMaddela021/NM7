@@ -1,4 +1,4 @@
-// Profile & settings → Your integrity rating (Vetting Trust T8). Rendered by PrivacyConsent (same lazy chunk), so only
+// Profile & settings -> Your integrity rating (Vetting Trust T8). Rendered by PrivacyConsent (same lazy chunk), so only
 // for people who get Vetting Trust. GET /api/me/trust/integrity: the rating in plain words (Low / Medium / High risk or
 // Not enough data), what was noticed (what, where, when, how much it counts, and whether a person cleared or confirmed
 // it), the review (a person at Nm7 is looking / asked you to explain / has looked), and how the rating is worked out.
@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { useToast } from '../../../components/ui';
 import { http } from '../../../services/http';
 import { MeCard } from '../kit';
+import { IcScale } from '../../../components/icons';
 
 const fmt = (v) => (v ? new Date(v).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
 const TONE = { low: 'mchip-ok', medium: 'mchip-warn', high: 'mchip-warn', not_enough_data: '' };
@@ -40,7 +41,7 @@ export default function IntegrityCard() {
     try { setD(await http('/api/me/trust/integrity/explain', { method: 'POST', body: { note } })); setNote(''); toast('Sent: a person at Nm7 will read it'); } catch (x) { toast(x.message); } finally { setBusy(false); }
   };
   return (
-    <MeCard as="section" id="s-integrity" className="acc-sec" label="Integrity rating" icon="⚖" title="Your integrity rating" sub="One rating from your skill checks, interviews and ID checks. Companies only see the label, never what was noticed." testid="ig-card">
+    <MeCard as="section" id="s-integrity" className="acc-sec" label="Integrity rating" icon={<IcScale />} title="Your integrity rating" sub="One rating from your skill checks, interviews and ID checks. Companies only see the label, never what was noticed." testid="ig-card">
       <div className="row g8" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
         <span className={`mchip ${TONE[d.level] || ''}`} data-testid="ig-label">{d.label}</span>
         {d.reviewedAt && (!rv || rv.status === 'closed') && <span className="mchip mchip-ok" data-testid="ig-reviewed">Reviewed by Nm7</span>}

@@ -1,4 +1,4 @@
-// Settings → Sign in with Google: connected / not connected, and Remove blocked while Google is the only way in.
+// Settings -> Sign in with Google: connected / not connected, and Remove blocked while Google is the only way in.
 import { describe, expect, it } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MemoryRouter } from 'react-router-dom';
@@ -9,7 +9,7 @@ const draw = (user, extra = {}) => renderToStaticMarkup(
   <MemoryRouter><GoogleCardView user={user} busy={false} err="" onRemove={() => {}} connect={<button type="button">CONNECT</button>} {...extra} /></MemoryRouter>,
 );
 
-describe('Settings → Sign in with Google', () => {
+describe('Settings -> Sign in with Google', () => {
   it('not connected: offers Connect', () => {
     const out = draw({ ...base, hasPassword: true, google: null });
     expect(out).toContain('CONNECT');

@@ -9,6 +9,7 @@ import { http } from '../../services/http';
 import { MeHead } from './MeLayout';
 import MyInterviews from '../../components/MyInterviews';
 import '../../styles/org-drives.css';
+import { IcCheck, IcClock } from '../../components/icons';
 
 /** The camera, when the browser can read QR codes (Android Chrome can). Calls onCode(slotId, code) once. */
 function Scanner({ onCode, onClose }) {
@@ -121,7 +122,7 @@ export function CheckinLink() {
   return (
     <main id="main" className="container ks-check" style={{ padding: '48px 16px', maxWidth: 560 }}>
       <div className={`ks-check-card ${!msg ? '' : msg.ok ? 'ok' : 'bad'}`}>
-        <span className="ks-check-ic" aria-hidden="true">{!msg ? '⏳' : msg.ok ? '✓' : '!'}</span>
+        <span className="ks-check-ic" aria-hidden="true">{!msg ? <IcClock size={28} /> : msg.ok ? <IcCheck size={28} /> : '!'}</span>
         <h1 className="display h2 ks-check-title">Drive day check-in</h1>
         {!msg ? <div className="row g8" style={{ justifyContent: 'center' }}><Spinner /> Checking you in…</div> : <p role={msg.ok ? 'status' : 'alert'} data-testid="checkin-result" className={`ks-check-msg ${msg.ok ? '' : 'error'}`}>{msg.text}</p>}
         <span className="ks-check-actions"><Link className="btn btn-outline" to="/me/drive">My drive day</Link>{msg && !msg.ok && <button type="button" className="btn btn-signal" onClick={() => nav('/me/drive')}>Type the code instead</button>}</span>

@@ -7,6 +7,7 @@ import { Spinner, useToast } from '../../components/ui';
 import { useMe, setMe, newId } from '../../lib/customerStore';
 import { deleteCover, writeCover } from '../../lib/jobs';
 import { downloadResume } from './shared';
+import { IcMail } from '../../components/icons';
 
 const LENGTHS = [['short', 'Short email (80-120 words)'], ['standard', 'Standard (200-250 words)'], ['formal', 'Formal letter']];
 const MIN_WORDS = { short: 80, standard: 200, formal: 200 };
@@ -55,7 +56,7 @@ export default function JobCover({ m, acc, onUsed, offer }) {
   const terms = cur ? [...(cur.used || []), ...(cur.used || []).map((u) => u.slice(0, 40)), ...(cur.skills || [])] : [];
   return (
     <section className="mcard mcard-flat jc" aria-label="Cover letter" data-testid="jc">
-      <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">✉</span><span className="mcard-ht"><h3 className="mcard-title">Write cover letter</h3><span className="mcard-sub">Built only from your resume, for this job.</span></span></header>
+      <header className="mcard-h"><span className="mcard-ic" aria-hidden="true"><IcMail /></span><span className="mcard-ht"><h3 className="mcard-title">Write cover letter</h3><span className="mcard-sub">Built only from your resume, for this job.</span></span></header>
       <div className="mfields-body">
         <div className="field"><label htmlFor="jc-len" className="label">Length</label>
           <select id="jc-len" className="input" value={form.length} onChange={(e) => setForm({ ...form, length: e.target.value })}>{LENGTHS.map(([v, t]) => <option key={v} value={v}>{t}</option>)}</select></div>

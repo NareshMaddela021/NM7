@@ -1,5 +1,5 @@
-// Appeals (Vetting V5): "I think this is wrong" on a skill check, its practical task or a screening interview → a small
-// dialog with the reason (10 characters or more) → POST /api/me/appeals. A person on our team replies within 72 hours
+// Appeals (Vetting V5): "I think this is wrong" on a skill check, its practical task or a screening interview -> a small
+// dialog with the reason (10 characters or more) -> POST /api/me/appeals. A person on our team replies within 72 hours
 // with a free retest, a corrected score, or the result kept as it is, with a reason. The status comes from
 // GET /api/me/appeals. Used by vetting/Result and interview/IvResult (both load only when a result opens).
 import { useCallback, useEffect, useId, useState } from 'react';

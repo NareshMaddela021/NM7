@@ -13,6 +13,7 @@ import { PayDialog } from './MeOrders';
 import { downloadInvoice, fmtDay } from './shared';
 import { Chip, Empty, MeCard, Stat } from './kit';
 import '../../styles/me-account.css';
+import { IcRefresh } from '../../components/icons';
 
 /** A plan's short text as a list of points (its own words, split at commas, "+" and "and"). */
 const points = (blurb) => blurb.split(/,\s*|\s\+\s|\s+and\s+/).map((x) => x.trim()).filter(Boolean).map((x) => x[0].toUpperCase() + x.slice(1));
@@ -49,7 +50,7 @@ export function MePayments() {
           </div>
         )}
       </MeCard>
-      <MeCard as="section" title="How refunds work" icon="↺" className="acc-howto" label="How refunds work">
+      <MeCard as="section" title="How refunds work" icon={<IcRefresh />} className="acc-howto" label="How refunds work">
         <ol className="msteps">
           <li><span className="msteps-dot" aria-hidden="true">1</span><span className="small"><strong>Late delivery</strong> — if your first draft doesn’t arrive within {PROMISES.delivery}, the refund starts automatically. You don’t need to ask.</span></li>
           <li><span className="msteps-dot" aria-hidden="true">2</span><span className="small"><strong>Not happy with the quality</strong> — we first re-do it free with your comments. If it’s still not right, ask for a refund; our team reviews it within 24 hours.</span></li>

@@ -1,4 +1,4 @@
-// After a job match: "3 of 5 must-have skills missing" with 1-3 FREE learning links per missing skill (Admin →
+// After a job match: "3 of 5 must-have skills missing" with 1-3 FREE learning links per missing skill (Admin ->
 // Courses keeps the list; no affiliate or sponsored links). "I learned this" never adds the skill to the resume: it
 // asks for a project or certificate that proves it.
 import { useEffect, useState } from 'react';
@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { http, LIVE } from '../../services/http';
 import { Bar, Chip } from './kit';
 import '../../styles/me-learn.css';
+import { IcTrend } from '../../components/icons';
 
 const LEARNED = 'nm7.learned';
 const learnedSet = () => { try { return new Set(JSON.parse(localStorage.getItem(LEARNED) || '[]')); } catch { return new Set(); } };
@@ -34,7 +35,7 @@ export default function SkillGap({ m }) {
   return (
     <section className="mcard mcard-flat stack g12" aria-labelledby="gap-h" data-testid="skill-gap">
       <header className="mcard-h">
-        <span className="mcard-ic student" aria-hidden="true">↗</span>
+        <span className="mcard-ic student" aria-hidden="true"><IcTrend /></span>
         <span className="mcard-ht">
           <h3 className="mcard-title" id="gap-h" style={{ fontSize: '20px' }}>{missing.length} of {must.length} must-have skill{must.length > 1 ? 's' : ''} missing</h3>
           <span className="mcard-sub">Free courses only — no paid or sponsored links. Learning a skill doesn’t add it to your resume: show it with a project or certificate.</span>
