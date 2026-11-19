@@ -315,3 +315,27 @@ async def test_reset_and_open_as_company_shows_the_banner(owner, db, no_network)
     assert now_me["id"] == admin["id"] and now_me["view"]["role"] == "company"
     await back(owner)
     assert await account_for(db, out["session"]) is None and (await me(owner))["view"] is None
+
+
+async def test_personas_can_never_sign_in_with_google(owner, make_client, db, monkeypatch):
+    from app.auth import google
+    from app.core.config import get_settings
+    from tests.test_google_auth import CID, JWKS, token
+
+    monkeypatch.setattr(get_settings(), "google_client_id", CID)
+    google.set_test_keys(JWKS)
+    try:
+        await switch(owner, "student")
+        persona = await db[USERS].find_one({"persona": "student"})
+        # connecting Google from inside the view is refused (it would be a way in without the admin)
+        r = await owner.post("/api/auth/google/link", json={"credential": token(sub="g-p1", email="p1@gmail.com")})
+        assert r.status_code == 403 and r.json()["error"]["code"] == "demo_account"
+        # and a Google account carrying the persona's address (or already linked to it) can't sign in either
+        await db[USERS].update_one({"_id": persona["_id"]}, {"$set": {"google": {"sub": "g-p2", "email": "x"}}})
+        r = await make_client().post("/api/auth/google", json={"credential": token(sub="g-p2", email="p2@gmail.com")})
+        assert r.status_code == 403 and r.json()["error"]["code"] == "demo_account"
+        r = await make_client().post("/api/auth/google", json={"credential": token(sub="g-p3", email=persona["email"])})
+        assert r.status_code in (400, 403)
+        assert await db[SESSIONS].count_documents({"user_id": persona["_id"]}) == 0
+    finally:
+        google.set_test_keys(None)
