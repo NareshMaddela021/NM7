@@ -1,11 +1,13 @@
 // The open account menu (loaded when it opens): home, settings, the roles of one account for individuals
 // (lib/roles.js) — "Switch to: Job seeker / Student / Expert" for people with several roles and "Add another role";
-// each role opens its own dashboard — and sign out.
-import { useState } from 'react';
+// each role opens its own dashboard — and sign out. An admin also gets "Switch to: Job seeker / Student / Expert /
+// Company / College view" (components/AdminViews.jsx); inside such a view "Back to Admin" replaces Sign out.
+import { Suspense, lazy, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { homeFor, signOut } from '../lib/auth';
+import { LIVE, homeFor, signOut } from '../lib/auth';
 import { ROLE_NAMES, activeRoleOf, rolesOf, switchRole } from '../lib/roles';
 
+const AdminViewItems = lazy(() => import('./AdminViews').then((m) => ({ default: m.AccountItems })));
 const ITEM = { border: 0, background: 'transparent', width: '100%', textAlign: 'left', cursor: 'pointer' };
 
 export function AccountRoles({ user, onDone }) {
@@ -43,8 +45,9 @@ export default function AccountPanel({ user, onClose }) {
       <Link role="menuitem" to={homeFor(user)} className="admin-link">{homeLabel}</Link>
       {user.role === 'customer' && <Link role="menuitem" to="/me/settings" className="admin-link">Profile & settings</Link>}
       {user.role === 'expert' && <Link role="menuitem" to="/expert/profile" className="admin-link">Expert profile</Link>}
-      {user.role !== 'admin' && <AccountRoles user={user} onDone={onClose} />}
-      <button role="menuitem" type="button" className="admin-link" style={ITEM} onClick={async () => { const to = user.role === 'admin' ? '/admin/login' : '/'; await signOut(); nav(to); }}>Sign out</button>
+      {LIVE && (user.view || user.role === 'admin') && <Suspense fallback={null}><AdminViewItems view={user.view} /></Suspense>}
+      {user.role !== 'admin' && !user.view && <AccountRoles user={user} onDone={onClose} />}
+      {!user.view && <button role="menuitem" type="button" className="admin-link" style={ITEM} onClick={async () => { const to = user.role === 'admin' ? '/admin/login' : '/'; await signOut(); nav(to); }}>Sign out</button>}
     </div>
   );
 }

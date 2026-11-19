@@ -15,6 +15,7 @@ from app import automation, home_events, stories
 from app.admin import daily as admin_daily
 from app.admin import daily_report as admin_daily_report
 from app.admin import test_users
+from app.admin import views as admin_views
 from app.admin.console import router as admin_console_router
 from app.admin.router import router as admin_router
 from app.admin.setup import router as admin_setup_router
@@ -58,6 +59,7 @@ from app.core.config import get_settings
 from app.core.db import DB, close_client, ensure_indexes, get_database
 from app.core.email import email_health, get_mailer, log_email_status
 from app.core.observability import RequestContext, init_sentry
+from app.core.readonly import ReadOnlyGuard
 from app.coupons import router as coupons
 from app.courses import router as courses
 from app.downloads.router import router as downloads_router
@@ -215,6 +217,7 @@ def create_app() -> FastAPI:
     errors.install(app)
     app.add_middleware(RequestContext)  # innermost: request ids and a JSON 500 for anything unexpected
     app.add_middleware(BodyLimit)
+    app.add_middleware(ReadOnlyGuard)  # an admin's read-only "View as this user": no changes, masked answers
 
     @app.middleware("http")
     async def origin_check(request: Request, call_next):
@@ -277,6 +280,7 @@ def create_app() -> FastAPI:
     app.include_router(google_auth_router)
     app.include_router(admin_auth_router)
     app.include_router(admin_setup_router)  # before admin_router: /api/admin/setup is public
+    app.include_router(admin_views.router)  # /api/admin/views (Switch to …, View as this user, Back to Admin)
     app.include_router(test_users.router)  # /api/admin/test-users (100 test users for checking the live site)
     app.include_router(admin_router)
     app.include_router(org_demo_login.admin)  # /api/admin/demo-org/coordinator (before orgs.admin)

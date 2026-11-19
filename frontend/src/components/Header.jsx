@@ -4,6 +4,7 @@ import { BRAND } from '../lib/brand';
 import { useAuth, LIVE } from '../lib/auth';
 import { track } from '../lib/track';
 
+
 export function Logo({ suffix }) {
   return (
     <Link to="/" className="logo" aria-label={`${BRAND.name} home`}>

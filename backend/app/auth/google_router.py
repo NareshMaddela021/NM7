@@ -54,6 +54,7 @@ OTHER_GOOGLE = ApiError(
     "google_other_account",
     "This Nm7 account is connected to a different Google account. Sign in with that one, or with your password.",
 )
+DEMO_REFUSED = ApiError(403, "demo_account", "Made-up demo and test accounts can’t use Google sign-in.")
 GOOGLE_TAKEN = ApiError(409, "google_taken", "This Google account is already connected to another Nm7 account.")
 DISABLED_ACCOUNT = ApiError(403, "account_disabled", "This account is turned off. Write to info@nm7.si.")
 
@@ -82,6 +83,8 @@ def _check_may_sign_in(user: User) -> None:
         raise ADMIN_REFUSED
     if user.totp_secret_enc:
         raise TWO_STEP_REFUSED
+    if user.demo or user.owner_admin_id:  # demo people, test users, an admin's personas: only Admin opens them
+        raise DEMO_REFUSED
 
 
 async def _connect(db, user: User, g: google.GoogleId, role: str | None) -> User:
@@ -176,6 +179,8 @@ async def google_sign_in(body: GoogleIn, request: Request, response: Response, d
 @router.post("/google/link")
 async def google_link(body: GoogleLinkIn, auth: CurrentAuth, request: Request, db: DB) -> UserOut:
     user = auth.user
+    if auth.session.view_id:  # inside an admin's view: never give the viewed account a way in of its own
+        raise DEMO_REFUSED
     _check_may_sign_in(user)
     g = await _verified(db, request, body.credential)
     if user.google and user.google.get("sub") != g.sub:

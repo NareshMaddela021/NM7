@@ -20,7 +20,7 @@ export function TestUsers() {
   return (
     <section className="mcard as-sec" id="set-test-users" aria-label="Test users" data-testid="test-users">
       <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true">👥</span><span className="mcard-ht"><h2 className="mcard-title">Test users</h2></span></header>
-      <span className="xs muted">100 made-up people for checking the site: students, freshers, experienced and senior people, with no resume, a started one or a complete one. Not counted in your numbers, never emailed, never shown to a real company, and they can’t apply to a real company’s job on Nm7. Opening one signs this browser in as that person (the admin console signs out here: use a private window to keep both).</span>
+      <span className="xs muted">100 made-up people for checking the site: students, freshers, experienced and senior people, with no resume, a started one or a complete one. Not counted in your numbers, never emailed, never shown to a real company, and they can’t apply to a real company’s job on Nm7. Opening one shows the site as that person; you stay signed in as admin and Back to Admin at the top brings you back.</span>
       <Loading st={st}>{(d) => (
         <div className="stack g8">
           <div className="row g8" style={{ flexWrap: 'wrap', alignItems: 'center' }}>

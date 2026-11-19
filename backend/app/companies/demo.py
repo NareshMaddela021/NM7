@@ -15,7 +15,7 @@ per-job Auto Apply controls.
 from datetime import timedelta
 from typing import Any
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Response
 
 from app.admin.deps import AdminAuth
 from app.audit import audit
@@ -436,7 +436,7 @@ async def _partner_demo(db, jobs: list[dict[str, Any]], t) -> int:
 
 
 @router.post("/open")
-async def open_demo(request: Request, db: DB, auth: AdminAuth("companies")) -> dict[str, Any]:
+async def open_demo(request: Request, response: Response, db: DB, auth: AdminAuth("companies")) -> dict[str, Any]:
     from app.orgs.recruiter_account import issue_session
 
     await rate_limit.check(db, f"demo-company:{auth.user.id}", [(10, timedelta(hours=1))])
@@ -447,6 +447,9 @@ async def open_demo(request: Request, db: DB, auth: AdminAuth("companies")) -> d
         out = await create(db)
     session = await issue_session(db, MAIN[0], MAIN[1], request=request)
     await audit(db, auth.user.id, "demo_company_open", target=COMPANY_ID, data=out, ip=client_ip(request))
+    from app.admin.views import company_view
+
+    await company_view(db, request, response, auth, session, "/company")  # the admin stays signed in; banner on
     return {"session": session, **out}
 
 

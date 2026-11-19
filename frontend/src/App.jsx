@@ -37,6 +37,12 @@ function DownloadGateHost() {
 }
 // "Check before download": the print preview + checklist, loaded when a download starts.
 const PrintCheck = lazy(() => import('./components/PrintCheck'));
+const ViewBanner = lazy(() => import('./components/AdminViews')); // an admin's "viewing as …" banner
+/** While an admin has a view open (Switch to …, View as this user): the banner on every page, above the header. */
+function ViewBannerHost() {
+  const { user } = useAuth();
+  return user?.view ? <Suspense fallback={null}><ViewBanner view={user.view} /></Suspense> : null;
+}
 function PrintCheckHost() {
   const [opened, setOpened] = useState(false);
   useEffect(() => onCheck((c) => { if (c) setOpened(true); }), []);
@@ -361,6 +367,7 @@ export default function App() {
       <RouteFocus />
       <CodeFromLink />
       <PreviewBar />
+      <ViewBannerHost />
       <DownloadGateHost />
       <PrintCheckHost />
       <ServerWaking />
