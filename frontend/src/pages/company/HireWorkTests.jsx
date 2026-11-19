@@ -5,6 +5,7 @@
 
 /** "Showed up 4/4 · Joined 2/2 · confirmed by employers", or "No history yet" (kept here so no chunk is shared). */
 export const recordLine = (rec) => (!rec ? '' : rec.empty ? rec.text : `${rec.text} · ${rec.source}`);
+import { IcCheck } from '../../components/icons';
 
 export const WT_NONE = { typing: 0, sjt: '', aptitude: '' };
 
@@ -52,14 +53,14 @@ export function WorkFilters({ f, setF, counts = {} }) {
 /** One person's work-test badges and reliability record as chips, each with its source. */
 export function WorkChips({ w, rec }) {
   const chips = [];
-  if (w?.typing) chips.push(['ok', `✓ ${w.typing.label} · ${w.typing.wpm} wpm, ${w.typing.accuracy}% accuracy`, 'typing']);
-  if (w?.sjt) chips.push(['ok', `✓ ${w.sjt.label}`, 'sjt']);
-  if (w?.aptitude) chips.push(['ok', `✓ ${w.aptitude.label}`, 'aptitude']);
-  if (rec) chips.push([rec.empty ? 'neutral' : 'info', `🤝 ${recordLine(rec)}`, 'record']);
+  if (w?.typing) chips.push(['ok', `${w.typing.label} · ${w.typing.wpm} wpm, ${w.typing.accuracy}% accuracy`, 'typing']);
+  if (w?.sjt) chips.push(['ok', `${w.sjt.label}`, 'sjt']);
+  if (w?.aptitude) chips.push(['ok', `${w.aptitude.label}`, 'aptitude']);
+  if (rec) chips.push([rec.empty ? 'neutral' : 'info', recordLine(rec), 'record']);
   if (!chips.length) return null;
   return (
     <ul className="hn-chips" aria-label="Work tests and reliability" data-testid="co-hire-wt">
-      {chips.map(([tone, text, k]) => <li key={k} className={`mchip mchip-${tone}`} data-testid={`co-hire-wt-${k}`} style={{ whiteSpace: 'normal', overflowWrap: 'anywhere', maxWidth: '100%' }}>{text}</li>)}
+      {chips.map(([tone, text, k]) => <li key={k} className={`mchip mchip-${tone}`} data-testid={`co-hire-wt-${k}`} style={{ whiteSpace: 'normal', overflowWrap: 'anywhere', maxWidth: '100%' }}>{tone === 'ok' ? <><IcCheck size={14} /> {text}</> : text}</li>)}
     </ul>
   );
 }

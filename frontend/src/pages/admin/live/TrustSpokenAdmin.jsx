@@ -1,4 +1,4 @@
-// Admin → Skill checks → Vetting Trust → Spoken English (T10; changes need the "settings" permission and are audited).
+// Admin -> Skill checks -> Vetting Trust -> Spoken English (T10; changes need the "settings" permission and are audited).
 // The pronunciation provider (none = not measured, the test provider, or Azure AI Speech), whether each key is set
 // (never the value: keys live in Render env vars, docs/trust/T10-vendors.md), which role categories get the "Spoken
 // English" filter in Hire now, whether voice clips are kept (off by default; then the "Voice clips" retention days),
@@ -35,13 +35,13 @@ export default function TrustSpokenAdmin() {
               <div className="row g8" style={{ flexWrap: 'wrap' }}>
                 {d.allCategories.map((x) => <label key={x.key} className="row g8 small" style={{ minHeight: 44, alignItems: 'center', flex: '1 1 220px' }}><input type="checkbox" checked={f.categories.includes(x.key)} onChange={() => cat(x.key)} data-testid={`ts-cat-${x.key}`} />{x.label}</label>)}
               </div>
-              <span className="xs muted">A job’s category comes from its title and skills (for example “Customer Support Executive” → customer support).</span>
+              <span className="xs muted">A job’s category comes from its title and skills (for example “Customer Support Executive” is customer support).</span>
             </fieldset>
             <label className="row g8 small" style={{ minHeight: 44, alignItems: 'center' }}><input type="checkbox" checked={f.keepAudio} onChange={(e) => setF({ ...f, keepAudio: e.target.checked })} data-testid="ts-keep" />Keep voice clips (encrypted) for {d.keepDays} days, for checking a score by hand. Off: clips go to the provider and are dropped (recommended). The days are in Retention above.</label>
             <div><button type="button" className="btn btn-outline" style={{ minHeight: 44 }} disabled={busy} onClick={save} data-testid="ts-save">Save</button></div>
             {d.providers.filter((p) => !p.test && Object.keys(p.keys).length).map((p) => (
               <div key={p.key} className="stack g4" data-testid={`ts-keys-${p.key}`}>
-                <span className="label">{p.label}: keys (Render → Environment)</span>
+                <span className="label">{p.label}: keys (Render &gt; Environment)</span>
                 <ul className="small" style={{ margin: 0, paddingLeft: 18 }}>{Object.entries(p.keys).map(([k, v]) => <li key={k}><code>{k}</code>: {v ? 'set' : 'not set'}</li>)}</ul>
               </div>
             ))}

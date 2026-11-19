@@ -26,7 +26,7 @@ export function jdMatch(d, jd) {
 /** The best result line from experience or projects (one with a number wins). */
 function bestLine(d) {
   const lines = [...d.exp, ...d.proj].flatMap((e) => (e.description || '').split('\n'))
-    .map((l) => l.replace(/^[•\-*▸–]\s*/, '').replace(/^[A-Z][\w &/]{2,30}:\s*/, '').trim()).filter((l) => l.length > 30);
+    .map((l) => l.replace(/^[•\-*\u25B8–]\s*/, '').replace(/^[A-Z][\w &/]{2,30}:\s*/, '').trim()).filter((l) => l.length > 30);
   return lines.find((l) => /\d/.test(l)) || lines[0] || '';
 }
 

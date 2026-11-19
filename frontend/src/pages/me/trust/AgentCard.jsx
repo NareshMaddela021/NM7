@@ -1,4 +1,4 @@
-// Profile & settings → Calls & WhatsApp (Vetting Trust T5). Rendered by PrivacyConsent (same lazy chunk), so only for
+// Profile & settings -> Calls & WhatsApp (Vetting Trust T5). Rendered by PrivacyConsent (same lazy chunk), so only for
 // people who get Vetting Trust. GET/PUT /api/me/trust/agent. When a company posts a job that fits, Nm7 may message the
 // person on WhatsApp and, only if they allow calls and don't reply, call with an AI voice assistant. Here they choose
 // the channels, the language (English / Hindi / Telugu) and quiet days, see a Stop they sent (and turn the channel back
@@ -8,6 +8,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useToast } from '../../../components/ui';
 import { http } from '../../../services/http';
 import { MeCard } from '../kit';
+import { IcMessage } from '../../../components/icons';
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const fmt = (v) => (v ? new Date(v).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) : '');
@@ -60,7 +61,7 @@ export default function AgentCard() {
   };
   const day = (i) => setF({ ...f, quietDays: f.quietDays.includes(i) ? f.quietDays.filter((x) => x !== i) : [...f.quietDays, i] });
   return (
-    <MeCard as="section" id="s-calls" className="acc-sec" label="Calls and WhatsApp" icon="💬" title="Calls & WhatsApp" testid="ag-card"
+    <MeCard as="section" id="s-calls" className="acc-sec" label="Calls and WhatsApp" icon={<IcMessage />} title="Calls & WhatsApp" testid="ag-card"
       sub={`When a company posts a job that fits you, Nm7 can message you on WhatsApp (and call you with an AI assistant if you allow it) to ask if you're interested and book an interview. Never between ${hm(d.quiet.from)} and ${hm(d.quiet.to)}, at most ${d.perDay} a day. Reply STOP any time.`}>
       {!agreed ? (
         <div className="stack g8" data-testid="ag-consent">

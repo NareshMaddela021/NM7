@@ -58,13 +58,13 @@ export default function DesignPanel({ d, ds, set, setResume, applyPreset, setTit
             <span className="row g8" style={{ alignItems: 'baseline' }}><strong className="display" style={{ fontSize: 30 }}>{ats.score}</strong><span className={`badge ${ats.score >= 90 ? 'b-success' : ats.score >= 75 ? 'b-warning' : 'b-danger'}`}>{ats.label}</span></span>
           </div>
           <div className="row g8">
-            <button type="button" className="btn btn-outline" onClick={history.undo} disabled={!history.canUndo} aria-label="Undo design change">↶ Undo</button>
-            <button type="button" className="btn btn-outline" onClick={history.redo} disabled={!history.canRedo} aria-label="Redo design change">↷ Redo</button>
+            <button type="button" className="btn btn-outline" onClick={history.undo} disabled={!history.canUndo} aria-label="Undo design change">Undo</button>
+            <button type="button" className="btn btn-outline" onClick={history.redo} disabled={!history.canRedo} aria-label="Redo design change">Redo</button>
           </div>
         </div>
         {ats.issues.length > 0 && <ul className="stack g4 xs muted" style={{ margin: 0, paddingLeft: 18 }}>{ats.issues.map((m) => <li key={m}>{m}</li>)}</ul>}
         <div className="row g8">
-          <button type="button" className="btn btn-ink" onClick={fit} disabled={fitting || pages <= 1}>{fitting ? 'Fitting…' : pages > 1 ? `Fit to one page (now ${pages})` : 'Fits on one page ✓'}</button>
+          <button type="button" className="btn btn-ink" onClick={fit} disabled={fitting || pages <= 1}>{fitting ? 'Fitting…' : pages > 1 ? `Fit to one page (now ${pages})` : 'Fits on one page'}</button>
           <button type="button" className="btn btn-ghost" onClick={reset}>Reset to template</button>
         </div>
       </section>

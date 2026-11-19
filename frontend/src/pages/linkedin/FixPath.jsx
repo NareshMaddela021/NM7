@@ -1,6 +1,6 @@
 // Path 1, "I have a LinkedIn profile": the link (stored and shown only), then the LinkedIn PDF or pasted sections,
 // then the free check: score, a fix per section ("Keep as it is" when it is already good), the keyword match and
-// one headline before → after. We never open linkedin.com and never ask for a LinkedIn password.
+// one headline before -> after. We never open linkedin.com and never ask for a LinkedIn password.
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Icon } from '../../components/ui';
@@ -88,7 +88,7 @@ export default function FixPath({ saved }) {
     const r = roleFrom(role, sections.headline);
     setRan({ sections, role: r, url: norm });
     requestAnimationFrame(() => resultRef.current?.focus());
-    // one free headline, before → after: the rules at once, AI's when it answers
+    // one free headline, before -> after: the rules at once, AI's when it answers
     const facts = headlineFacts({ sections, role: r });
     const rules = improveHeadline(sections.headline, facts);
     setAfter({ text: rules, notice: '', busy: canSave() });
@@ -193,7 +193,7 @@ export default function FixPath({ saved }) {
           </div>
 
           <div className="card stack g12" data-testid="li-headline">
-            <h3 className="h4" style={{ margin: 0 }}>Your headline, before → after</h3>
+            <h3 className="h4" style={{ margin: 0 }}>Your headline, before and after</h3>
             <div className="stack g4">
               <span className="xs muted">Before</span>
               <p style={{ margin: 0 }} data-testid="li-before">{ran.sections.headline || <em className="muted">No headline yet</em>}</p>

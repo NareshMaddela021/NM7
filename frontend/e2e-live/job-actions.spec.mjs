@@ -1,7 +1,7 @@
 // View · Apply · Save on every job card, and one Share button for all apps, on a desktop and a 390 px phone, against
 // the real API: the three sit in one row (no sideways scrolling) on /jobs, the home page's live jobs, a company page,
 // saved jobs and the Easy dashboard; signed out, Apply asks to create an account and comes back to the job and applies;
-// a company-site job opens the company's site; "Applied ✓" stays after a reload; the Share menu (desktop) has the
+// a company-site job opens the company's site; "Applied" stays after a reload; the Share menu (desktop) has the
 // seven ways and Copy link copies the job's link; the phone's share sheet is used on a phone; each share is counted.
 import { expect, test } from '@playwright/test';
 import { API, PASSWORD, email, lastCode, seed } from './helpers.mjs';
@@ -12,7 +12,7 @@ const DESC = 'Build weekly dashboards in SQL and Power BI for our retail stores.
 const job = (body) => seed('job', JSON.stringify({ description: DESC, locations: ['Hyderabad'], experience: 'fresher', skills: ['SQL', 'Power BI'], ...body }));
 const own = (page, n) => page.route(`${API}/**`, (r) => r.continue({ headers: { ...r.request().headers(), 'x-forwarded-for': `10.77.${n}.${Date.now() % 200}` } }));
 
-/** View, Apply (or Applied ✓) and Save: all there, one row, big enough to tap, inside the screen. */
+/** View, Apply (or Applied) and Save: all there, one row, big enough to tap, inside the screen. */
 async function oneRow(page, card, ids = ['card-view', 'card-apply', 'card-save']) {
   const width = page.viewportSize().width;
   const boxes = [];
@@ -63,7 +63,7 @@ for (const [label, opts] of SIZES) {
       const onCo = page.getByTestId('job-card').filter({ hasText: `Row Analyst ${tag}` });
       await oneRow(page, onCo);
 
-      // signed in: the company's site opens and the card says Applied ✓, also after a reload
+      // signed in: the company's site opens and the card says Applied, also after a reload
       await studentWith(page, label, STRONG, 'rows');
       await context.route(`https://row${tag}.example/**`, (r) => r.fulfill({ status: 200, contentType: 'text/html', body: '<h1>Careers</h1>' }));
       await page.goto(`/jobs?q=${encodeURIComponent(tag)}`);
@@ -72,10 +72,10 @@ for (const [label, opts] of SIZES) {
       const [tab] = await Promise.all([context.waitForEvent('page'), extCard.getByTestId('card-apply').click()]);
       await expect.poll(() => tab.url()).toBe(site);
       await tab.close();
-      await expect(extCard.getByTestId('card-applied')).toHaveText('Applied ✓');
+      await expect(extCard.getByTestId('card-applied')).toHaveText('Applied');
       await expect(extCard.getByTestId('card-applied')).toBeDisabled();
       await page.reload();
-      await expect(extCard.getByTestId('card-applied')).toHaveText('Applied ✓');
+      await expect(extCard.getByTestId('card-applied')).toHaveText('Applied');
       await oneRow(page, extCard, ['card-view', 'card-applied', 'card-save']);
       // the company's Nm7 job: the job page's own steps (the consent box) in a dialog
       const compCard = cards.filter({ hasText: `Row Analyst ${tag}` });
@@ -84,15 +84,15 @@ for (const [label, opts] of SIZES) {
       await expect(dlg.getByTestId('apply-form')).toBeVisible();
       await dlg.getByTestId('apply-consent').check();
       await dlg.getByTestId('apply-send').click();
-      await expect(dlg.getByTestId('applied')).toHaveText('Applied ✓');
+      await expect(dlg.getByTestId('applied')).toHaveText('Applied');
       expect(await noSideScroll(page)).toBe(true);
       await page.keyboard.press('Escape');
-      await expect(compCard.getByTestId('card-applied')).toHaveText('Applied ✓');
+      await expect(compCard.getByTestId('card-applied')).toHaveText('Applied');
       // the job page says so on load
       await page.goto(`/jobs/${ext.slug}`);
-      await expect(page.getByTestId('applied')).toHaveText('Applied ✓');
+      await expect(page.getByTestId('applied')).toHaveText('Applied');
       await page.goto(`/jobs/${comp.slug}`);
-      await expect(page.getByTestId('applied')).toHaveText('Applied ✓');
+      await expect(page.getByTestId('applied')).toHaveText('Applied');
 
       // saved jobs
       await page.goto(`/jobs?q=${encodeURIComponent(tag)}`);
@@ -140,12 +140,12 @@ for (const [label, opts] of SIZES) {
       await page.getByRole('button', { name: 'Confirm & continue' }).click();
       // back on the job, and the application went on from there
       await expect(page).toHaveURL(new RegExp(`/jobs/${j.slug}$`));
-      await expect(page.getByTestId('applied')).toHaveText('Applied ✓');
+      await expect(page.getByTestId('applied')).toHaveText('Applied');
       expect((await call(page, '/api/me/applied-jobs')).body.items.map((x) => x.id)).toContain(j.id);
       await page.reload();
-      await expect(page.getByTestId('applied')).toHaveText('Applied ✓');
+      await expect(page.getByTestId('applied')).toHaveText('Applied');
       await page.goto(`/jobs?q=${encodeURIComponent(tag)}`);
-      await expect(card.getByTestId('card-applied')).toHaveText('Applied ✓');
+      await expect(card.getByTestId('card-applied')).toHaveText('Applied');
       expect(await noSideScroll(page)).toBe(true);
     });
 

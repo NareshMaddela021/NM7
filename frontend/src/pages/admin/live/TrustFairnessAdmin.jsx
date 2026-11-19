@@ -1,4 +1,4 @@
-// Admin → Skill checks → Vetting Trust → Fairness (T12; changes need the "settings" permission and are audited).
+// Admin -> Skill checks -> Vetting Trust -> Fairness (T12; changes need the "settings" permission and are audited).
 //   Blind grading   every AI call that grades or evaluates a person and since when it is anonymised (no name, photo,
 //                   gender, college, age, address, contact, religion / caste words).
 //   Re-grades       about 5% of AI-graded practical tasks, interviews and "Explained own work" labels get a second,
@@ -13,6 +13,7 @@
 import { useEffect, useState } from 'react';
 import { useToast } from '../../../components/ui';
 import { Loading, http, useAction, useApi, when } from './common';
+import { IcAlert } from '../../../components/icons';
 
 const R_FIELDS = [['sample', 'Sample (% of AI grades)'], ['cap', 'Second passes a week (most)'], ['gap', 'Material change (task points of 100)'],
   ['alert_share', 'Alert when this % disagree'], ['alert_min', '… after at least this many re-grades']];
@@ -62,18 +63,18 @@ export default function TrustFairnessAdmin() {
             </div>
             {rg.alerts.some((a) => a.alert) && (
               <div className="mcard mcard-tight mcard-warn stack g4" role="alert" data-testid="tfa-alerts">
-                {rg.alerts.filter((a) => a.alert).map((a) => <span key={`${a.kind}-${a.key}`} className="small">⚠ {a.kindLabel} · {a.key}: {a.material} of {a.n} re-grades disagreed ({a.share}%). Look at this role’s rubric, questions and AI grading.</span>)}
+                {rg.alerts.filter((a) => a.alert).map((a) => <span key={`${a.kind}-${a.key}`} className="small"><IcAlert size={14} /> {a.kindLabel} · {a.key}: {a.material} of {a.n} re-grades disagreed ({a.share}%). Look at this role’s rubric, questions and AI grading.</span>)}
               </div>
             )}
             {rg.review.length > 0 && (
               <div className="table-wrap mtable-wrap vt-scroll">
                 <table className="table mtable vt-table" data-testid="tfa-review">
-                  <thead><tr><th>What</th><th>Role</th><th>First → second</th><th>Waiting in</th><th /></tr></thead>
+                  <thead><tr><th>What</th><th>Role</th><th>First, second</th><th>Waiting in</th><th /></tr></thead>
                   <tbody>{rg.review.map((r) => (
                     <tr key={r.id} data-testid={`tfa-rv-${r.kind}`}>
                       <td>{r.kindLabel}<div className="xs faint">{when(r.at)}</div></td>
                       <td>{r.key}</td>
-                      <td>{String(r.first)} → {String(r.second)}</td>
+                      <td>{String(r.first)} then {String(r.second)}</td>
                       <td>{r.open ? r.where : r.status === 'changed' ? 'Changed by a person' : r.status === 'kept' ? 'Kept by a person' : 'Done'}</td>
                       <td>{r.kind === 't9' && r.open && (
                         <span className="row g4" style={{ flexWrap: 'wrap' }}>
@@ -95,7 +96,7 @@ export default function TrustFairnessAdmin() {
             {!snap ? <p className="small muted" data-testid="tfa-nosnap">No snapshot yet (made once a week, or Run now).</p> : (
               <div className="stack g8" data-testid="tfa-snap">
                 <p className="xs muted" style={{ margin: 0 }}>Snapshot {snap.week} · {when(snap.at)}</p>
-                {snap.flags.length ? snap.flags.map((x, i) => <p key={i} className="small cj-warn" style={{ margin: 0 }} data-testid="tfa-flag">⚠ {x.why}</p>) : <p className="small" style={{ margin: 0 }} data-testid="tfa-noflags">No gaps beyond the four-fifths rule.</p>}
+                {snap.flags.length ? snap.flags.map((x, i) => <p key={i} className="small cj-warn" style={{ margin: 0 }} data-testid="tfa-flag"><IcAlert size={14} /> {x.why}</p>) : <p className="small" style={{ margin: 0 }} data-testid="tfa-noflags">No gaps beyond the four-fifths rule.</p>}
                 {snap.metrics.map((m) => (
                   <details key={m.key} className="small">
                     <summary style={{ minHeight: 44, display: 'flex', alignItems: 'center', cursor: 'pointer' }}>{m.label}{m.total != null ? ` · ${m.total}` : ' · too few to compare'}</summary>

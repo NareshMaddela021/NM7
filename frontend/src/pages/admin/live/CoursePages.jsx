@@ -1,10 +1,11 @@
-// Admin → Courses: the free learning links students see after a job match (per missing skill). Free and active only
+// Admin -> Courses: the free learning links students see after a job match (per missing skill). Free and active only
 // are shown; links with tracking or affiliate parts are refused by the server. Owner only.
 import { useState } from 'react';
 import { useToast } from '../../../components/ui';
 import { Chip } from '../../me/kit';
 import { Hero } from './SetupKit';
 import { Loading, emptyIf, http, useAction, useApi } from './common';
+import { IcBook } from '../../../components/icons';
 
 const blank = { skill: '', title: '', provider: '', url: '', language: 'English', hours: '', free: true, active: true };
 const inputStyle = { height: 40 };
@@ -21,7 +22,7 @@ function Form({ start, onDone, onCancel }) {
   };
   return (
     <form className="mcard" onSubmit={save} aria-label={f.id ? 'Edit course' : 'New course'} data-testid="course-form">
-      <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true">✎</span><span className="mcard-ht"><h2 className="mcard-title">{f.id ? 'Edit course' : 'New course'}</h2><span className="mcard-sub">Only free, active courses are shown to students. No affiliate or sponsored links.</span></span></header>
+      <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true"><IcBook /></span><span className="mcard-ht"><h2 className="mcard-title">{f.id ? 'Edit course' : 'New course'}</h2><span className="mcard-sub">Only free, active courses are shown to students. No affiliate or sponsored links.</span></span></header>
       <div className="as-bar" style={{ background: '#faf9ff' }}>
         <label className="small">Skill <input required className="input" style={{ ...inputStyle, width: 180 }} value={f.skill} onChange={set('skill')} placeholder="Python" data-testid="course-skill" /></label>
         <label className="small" style={{ flex: '1 1 220px' }}>Title <input required minLength={2} className="input" style={inputStyle} value={f.title} onChange={set('title')} data-testid="course-title" /></label>
@@ -49,7 +50,7 @@ export function LiveCourses() {
   const del = (c) => { if (!window.confirm(`Delete “${c.title}”?`)) return; run(async () => { await http(`/api/admin/courses/${c.id}`, { method: 'DELETE' }); st.reload(); }, 'Deleted'); };
   return (
     <>
-      <Hero icon="✎" title="Courses" sub="Free learning links shown after a job match, for each missing must-have skill (up to 3 per skill)."
+      <Hero icon={<IcBook />} title="Courses" sub="Free learning links shown after a job match, for each missing must-have skill (up to 3 per skill)."
         stats={st.data?.length ? [['Courses', st.data.length], ['Shown to students', st.data.filter((c) => c.free && c.active).length, 'ok'], ['Skills covered', new Set(st.data.map((c) => c.skill.toLowerCase())).size, 'accent']] : null}
         right={<button type="button" className="btn btn-signal" onClick={() => setEdit({})} data-testid="course-new">New course</button>} />
       {edit && <Form key={edit.id || 'new'} start={edit.id ? edit : null} onCancel={() => setEdit(null)} onDone={() => { setEdit(null); st.reload(); }} />}

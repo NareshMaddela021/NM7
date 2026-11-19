@@ -18,7 +18,7 @@ export default function JobsForYouCard() {
   if (!d) return null;
   return (
     <section className="card stack g12" style={{ flex: '1 1 320px' }} aria-labelledby="jfy-h" data-testid="jobs-for-you">
-      <div className="row between"><strong id="jfy-h">{t('jobs.foryou.title')}</strong><Link to="/jobs" className="small">{t('jobs.foryou.all')} →</Link></div>
+      <div className="row between"><strong id="jfy-h">{t('jobs.foryou.title')}</strong><Link to="/jobs" className="small">{t('jobs.foryou.all')}</Link></div>
       {d.state === 'no_resume' ? (
         <span className="small muted">{t('jobs.match.noResume')} <Link to="/builder">{t('jobs.match.noResumeLink')}</Link></span>
       ) : d.items.length === 0 ? (

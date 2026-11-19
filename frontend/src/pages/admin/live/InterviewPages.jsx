@@ -1,7 +1,7 @@
-// Admin → Skill checks → Interviews (Vetting V3, the AI screening interview). Three lists from
+// Admin -> Skill checks -> Interviews (Vetting V3, the AI screening interview). Three lists from
 // /api/admin/vetting/interviews?status=…:
 //   Review queue  interviews the AI could not grade (no key, the day's allowance used, an unusable answer): read the
-//                 transcript and give 0–5 per rubric line, up to 3 strengths and 1 concern → POST …/{id}/grade.
+//                 transcript and give 0–5 per rubric line, up to 3 strengths and 1 concern -> POST …/{id}/grade.
 //   Bias checks   the weekly second grading: first and second score per line with the gap; a gap over 1 is an alert
 //                 (highlighted). Re-grading by hand clears it.
 //   Graded        the latest graded interviews with their scores (a grade can be corrected by hand).

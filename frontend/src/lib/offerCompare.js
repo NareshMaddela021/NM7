@@ -1,7 +1,7 @@
 // Phase 6 S5: compare 2–3 offers. Pure helpers (tested): the in-hand amount is shown ONLY when the person typed their
 // deductions (PF, tax, insurance…); we never guess deductions.
 
-/** "3.5" (LPA) or "300000" (₹ a year) → rupees a year; '' or bad → null. */
+/** "3.5" (LPA) or "300000" (₹ a year) -> rupees a year; '' or bad -> null. */
 export function yearly(v, unit) {
   const n = Number(String(v ?? '').replace(/[,\s₹]/g, ''));
   if (!Number.isFinite(n) || n <= 0) return null;

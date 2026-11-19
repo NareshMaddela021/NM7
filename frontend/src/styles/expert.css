@@ -102,7 +102,7 @@
 .ex-help { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 16px; }
 .ex-help ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 14.5px; line-height: 1.5; }
 .ex-help li { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 8px; }
-.ex-help li::before { content: "✓"; color: #6d5fd8; font-weight: 800; }
+.ex-help li::before { content: ""; display: inline-block; width: 1em; height: 1em; background: currentColor; -webkit-mask: var(--ic-check) center / contain no-repeat; mask: var(--ic-check) center / contain no-repeat; margin-top: .2em; color: #6d5fd8; }
 .ex-weak, .ex-strong { padding: 10px 14px; border-radius: 14px; font-size: 14.5px; line-height: 1.5; }
 .ex-weak { background: #fde8e8; color: #7f1d1d; }
 .ex-strong { background: #e7f6ec; color: #14532d; }

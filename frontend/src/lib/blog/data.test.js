@@ -22,7 +22,7 @@ describe('live answers only ever add posts (merge by slug)', async () => {
   const { cacheBustComment } = await import('./hygraph');
   const p = (slug, publishedAt) => ({ slug, title: slug, publishedAt });
   const built = { builtAt: '2026-10-16T05:47:00Z', posts: [p('b', '2026-10-15'), p('a', '2026-10-14')], categories: [{ slug: 'ats', name: 'ATS' }] };
-  it('live returns [] but the build has posts → the built posts stay', () => {
+  it('live returns [] but the build has posts -> the built posts stay', () => {
     expect(mergeIndex(built, { live: true, posts: [], categories: [] }).posts.map((x) => x.slug)).toEqual(['b', 'a']);
   });
   it('a shorter live list never removes built posts', () => {
@@ -33,7 +33,7 @@ describe('live answers only ever add posts (merge by slug)', async () => {
     expect(m.posts.map((x) => x.slug)).toEqual(['c', 'b', 'a']);
     expect(m.categories.map((x) => x.slug)).toEqual(['ats', 'freshers']);
   });
-  it('no built list (or an empty one) → the live list', () => {
+  it('no built list (or an empty one) -> the live list', () => {
     expect(mergeIndex(null, { live: true, posts: [p('c', '2026-10-16')], categories: [] }).posts).toHaveLength(1);
     expect(mergeIndex({ posts: [], categories: built.categories }, { live: true, posts: [p('c', '2026-10-16')], categories: [] }).categories).toEqual(built.categories);
   });

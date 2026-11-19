@@ -3,7 +3,7 @@
 // that break the company's rules add a "Not a fit" label with the reasons: the person is never hidden or deleted.
 // Contact details show once shortlisted. Stages (the student sees each one), compare up to 3 side by side, schedule an
 // interview (the student gets a calendar file), the talent pool, the resume they applied with. No pop-up dialogs.
-// English, Telugu and Hindi (co.ap.*). Vetting V1: the level chip and ⚡ Ready now on each card and in the profile.
+// English, Telugu and Hindi (co.ap.*). Vetting V1: the level chip and Ready now on each card and in the profile.
 // Vetting V3: the profile of someone at L3+ opens their screening interview (ScreeningInterview.jsx).
 // Vetting V4: and can ask for the Nm7 human check (NmCheck.jsx).
 // Vetting Trust T2: "Verified via DigiLocker" document badges (DocBadges.jsx; only where the Trust switch allows).
@@ -34,8 +34,9 @@ import { CriteriaEditor, CriteriaStrip, useEvaluating } from './CriteriaBits';
 import LevelBadge from '../../components/LevelBadge';
 import { lt } from '../../components/levelStrings';
 import { useLang } from '../../lib/i18n';
+import { IcCalendar, IcGrid, IcLock, IcMail, IcMenu } from '../../components/icons';
 
-/** The level chip and ⚡ for an applicant row (`level` is null for people without a level yet). */
+/** The level chip and the Ready now mark for an applicant row (`level` is null for people without a level yet). */
 function ApLevel({ lv }) {
   const [, lang] = useLang();
   if (!lv) return null;
@@ -95,8 +96,8 @@ export default function CompanyApplicants({ t, c }) {
           </div>
           {d.items.length > 0 && (
             <div className="ca-view" role="group" aria-label={t('co.ap.view')}>
-              <button type="button" aria-pressed={view === 'list'} onClick={() => setView('list')}><span aria-hidden="true">☰ </span>{t('co.ap.viewList')}</button>
-              <button type="button" aria-pressed={view === 'board'} onClick={() => { setView('board'); setStage(null); }}><span aria-hidden="true">▥ </span>{t('co.ap.viewBoard')}</button>
+              <button type="button" aria-pressed={view === 'list'} onClick={() => setView('list')}><IcMenu size={16} /> {t('co.ap.viewList')}</button>
+              <button type="button" aria-pressed={view === 'board'} onClick={() => { setView('board'); setStage(null); }}><IcGrid size={16} /> {t('co.ap.viewBoard')}</button>
             </div>
           )}
         </div>
@@ -147,7 +148,7 @@ function Board({ t, items, onProfile }) {
                 <li key={a.id}>
                   <button type="button" className="ca-mini" onClick={() => onProfile(a.id)}>
                     <span className="mavatar ca-av-sm" aria-hidden="true">{initial(a.name)}</span>
-                    <span className="ca-mini-main"><strong>{a.name}</strong><span className="xs muted">{a.job}</span>{a.level && <span className="xs ca-mini-lv" data-testid="co-ap-mini-level">L{a.level.level} · {lv(`lv.${a.level.level}`)}{a.level.readyNow ? <> · <span aria-hidden="true">⚡</span>{lv('lv.ready')}</> : ''}</span>}</span>
+                    <span className="ca-mini-main"><strong>{a.name}</strong><span className="xs muted">{a.job}</span>{a.level && <span className="xs ca-mini-lv" data-testid="co-ap-mini-level">L{a.level.level} · {lv(`lv.${a.level.level}`)}{a.level.readyNow ? <> · {lv('lv.ready')}</> : ''}</span>}</span>
                     {a.match && <span className="ca-mini-score">{a.match.score}</span>}
                   </button>
                 </li>
@@ -251,10 +252,10 @@ function Applicant({ t, c, a, rank, can, picked, canPick, onPick, open, onOpen, 
       )}
       <div className="ca-info">
         {a.contact ? (
-          <span className="xs" data-testid="co-ap-contact"><span aria-hidden="true">✉ </span><a href={`mailto:${a.contact.email}`}>{a.contact.email}</a>{a.contact.phone ? ` · ${a.contact.phone}` : ''}</span>
-        ) : <span className="xs muted"><span aria-hidden="true">🔒 </span>{t('co.ap.contactLater')}</span>}
-        {a.interview && <span className="xs" data-testid="co-ap-interview"><span aria-hidden="true">📅 </span>{t('co.ap.ivOn', { when: new Date(a.interview.at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) })}{[a.interview.round, a.interview.interviewer].filter(Boolean).map((x) => ` · ${x}`).join('')}</span>}
-        {a.pooled && <span className="xs">☆ {t('co.ap.inPool')}</span>}
+          <span className="xs" data-testid="co-ap-contact"><IcMail size={14} /> <a href={`mailto:${a.contact.email}`}>{a.contact.email}</a>{a.contact.phone ? ` · ${a.contact.phone}` : ''}</span>
+        ) : <span className="xs muted"><IcLock size={14} /> {t('co.ap.contactLater')}</span>}
+        {a.interview && <span className="xs" data-testid="co-ap-interview"><IcCalendar size={14} /> {t('co.ap.ivOn', { when: new Date(a.interview.at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) })}{[a.interview.round, a.interview.interviewer].filter(Boolean).map((x) => ` · ${x}`).join('')}</span>}
+        {a.pooled && <span className="xs">{t('co.ap.inPool')}</span>}
         {a.irrelevant && <span className="xs muted" data-testid="co-ap-marked">{t('aa.co.marked')}</span>}
       </div>
       <div className="ca-tools">
@@ -285,7 +286,7 @@ function InterviewForm({ t, iv, setIv, busy, onSend }) {
   const set = (k) => (e) => setIv({ ...iv, [k]: e.target.value });
   return (
     <form className="stack g8 ca-ivform" onSubmit={(e) => { e.preventDefault(); onSend(); }} data-testid="co-ap-ivform">
-      <strong className="ca-iv-title"><span aria-hidden="true">📅 </span>{t('co.ap.ivTitle')}</strong>
+      <strong className="ca-iv-title"><IcCalendar /> {t('co.ap.ivTitle')}</strong>
       <div className="cj-grid">
         <div className="field"><label className="label" htmlFor="iv-d">{t('co.ap.ivDate')}</label><input id="iv-d" type="date" className="input" required value={iv.date} onChange={set('date')} /></div>
         <div className="field"><label className="label" htmlFor="iv-t">{t('co.ap.ivTime')}</label><input id="iv-t" type="time" className="input" required value={iv.time} onChange={set('time')} /></div>

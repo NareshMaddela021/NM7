@@ -69,7 +69,7 @@ export function JobAuto({ c, j, info, can, onSaved }) {
   return (
     <div className="aa-co-job" data-testid="aa-co-job">
       <span className="xs" data-testid="aa-co-summary">
-        <span aria-hidden="true">⚡ </span>Auto Apply: {a.accept ? `on · ${a.received} of ${a.max} received${info.vetting ? ` · ${level}` : ''}` : 'off'}
+        Auto Apply: {a.accept ? `on · ${a.received} of ${a.max} received${info.vetting ? ` · ${level}` : ''}` : 'off'}
       </span>
       {can && j.status !== 'closed' && !open && <button type="button" className="link-btn small" onClick={() => { setV({ ...a }); setOpen(true); }} data-testid="aa-co-edit">Auto Apply settings</button>}
       {open && (

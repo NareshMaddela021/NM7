@@ -8,6 +8,7 @@ import { MeHead } from './MeLayout';
 import { fmtRange } from '../../lib/format';
 import { Chip, Empty, Skel } from './kit';
 import '../../styles/me-learn.css';
+import { IcClock, IcPin } from '../../components/icons';
 
 const pay = (p) => (p.stipend ? `₹${p.stipend.toLocaleString('en-IN')}${p.kind === 'internship' ? ' a month' : ''}` : 'Unpaid');
 const STATUS = { applied: 'Applied', accepted: 'Accepted: send your work', submitted: 'Work sent: waiting for review', completed: 'Completed', not_completed: 'Not completed' };
@@ -35,8 +36,8 @@ function Open({ p, applied, onApplied }) {
       </div>
       <div className="ml-facts">
         <span className="ml-fact">₹ {pay(p)}</span>
-        <span className="ml-fact">⏱ {p.weeks} week{p.weeks === 1 ? '' : 's'}</span>
-        <span className="ml-fact">⌖ {p.remote ? 'Remote' : p.city}</span>
+        <span className="ml-fact"><IcClock size={14} /> {p.weeks} week{p.weeks === 1 ? '' : 's'}</span>
+        <span className="ml-fact"><IcPin size={14} /> {p.remote ? 'Remote' : p.city}</span>
         {p.deadline && <span className="ml-fact">Send by {p.deadline}</span>}
       </div>
       <p className="small" style={{ margin: 0, lineHeight: 1.55 }}>{p.brief}</p>

@@ -62,7 +62,7 @@ async def razorpay_refund(
             "This old WhatsApp order was paid outside Razorpay: record its refund under WhatsApp payments (old).",
         )
     if await has_open_refund(db, order.id):
-        raise ApiError(409, "refund_exists", "This order already has a refund in progress (Admin → Refunds).")
+        raise ApiError(409, "refund_exists", "This order already has a refund in progress (Admin > Refunds).")
     left = await refundable_amount(db, order)
     if left <= 0:
         raise ApiError(409, "already_refunded", "Nothing left to refund.")

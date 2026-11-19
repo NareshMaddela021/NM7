@@ -5,6 +5,7 @@ import { Spinner, useToast } from '../../components/ui';
 import { http } from '../../services/http';
 import '../../styles/me-kit.css';
 import '../../styles/org-dashboard.css';
+import { IcEdit } from '../../components/icons';
 
 const FIELDS = [['cgpa', 'CGPA (out of 10)', '0.01', 0, 10], ['backlogs', 'Active backlogs', '1', 0, 60], ['year', 'Passing year', '1', 1990, 2100], ['tenth', '10th %', '0.01', 0, 100], ['twelfth', '12th / diploma %', '0.01', 0, 100]];
 const blank = (a) => Object.fromEntries(FIELDS.map(([k]) => [k, a?.[k] ?? '']));
@@ -26,7 +27,7 @@ export default function Marks({ g }) {
   return (
     <form className="pld-marks" onSubmit={save} aria-label="My marks for placements" data-testid="marks">
       <span className="pld-marks-h">
-        <span className="pld-card-ic" aria-hidden="true">✎</span>
+        <span className="pld-card-ic" aria-hidden="true"><IcEdit /></span>
         <span className="stack g4" style={{ flex: 1, minWidth: 0 }}>
           <strong className="pld-card-title">My marks for placements</strong>
           <span className="xs muted">{g.orgName} uses these to check which companies you can apply to. Enter them as on your marks memo.</span>

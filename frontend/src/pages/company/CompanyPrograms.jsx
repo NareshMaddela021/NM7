@@ -8,11 +8,12 @@ import { rq } from '../../lib/company';
 import { Bar, Chip, Empty, FieldGroup, MeCard, Skel, StickyBar } from '../me/kit';
 import '../../styles/me-kit.css';
 import '../../styles/company-programs.css';
+import { IcAlert, IcArrowRight, IcCap, IcTarget } from '../../components/icons';
 
 const BLANK = { kind: 'project', title: '', brief: '', deliverable: '', deadline: '', weeks: '2', stipend: '', remote: true, city: '', seats: '5' };
 const STATUS_TONE = { open: 'ok', review: 'warn', closed: 'neutral', removed: 'bad' };
 const APP_TONE = { applied: 'info', accepted: 'accent', submitted: 'warn', completed: 'ok', not_completed: 'bad' };
-const KIND_IC = { project: '◆', internship: '▣' };
+const KIND_IC = { project: <IcTarget />, internship: <IcCap /> };
 const initial = (s) => (s || '?').trim().charAt(0).toUpperCase();
 
 function Applicant({ t, c, p, a, onChange }) {
@@ -37,7 +38,7 @@ function Applicant({ t, c, p, a, onChange }) {
       {a.status === 'submitted' && (
         <div className="cp-review">
           <div className="cp-work">
-            <span className="cp-work-ic" aria-hidden="true">↗</span>
+            <span className="cp-work-ic" aria-hidden="true"><IcArrowRight size={14} /></span>
             {a.submission.link ? <a className="cp-work-link" href={a.submission.link} target="_blank" rel="noopener noreferrer">{a.submission.link}</a> : <span className="cp-work-text">{a.submission.text}</span>}
           </div>
           <input className="input" maxLength={500} value={note} onChange={(e) => setNote(e.target.value)} placeholder={t('co.pg.reviewNote')} aria-label={t('co.pg.reviewNote')} />
@@ -56,7 +57,7 @@ function Program({ t, c, p, onChange }) {
   return (
     <section className="mcard cp-row" data-testid="co-pg-row" data-status={p.status}>
       <header className="cp-row-head">
-        <span className="mcard-ic cp-kind-ic" aria-hidden="true">{KIND_IC[p.kind] || '◆'}</span>
+        <span className="mcard-ic cp-kind-ic" aria-hidden="true">{KIND_IC[p.kind] || <IcTarget />}</span>
         <span className="cp-row-titles">
           <strong className="cp-row-title">{p.title}</strong>
           <span className="cp-facts">
@@ -67,7 +68,7 @@ function Program({ t, c, p, onChange }) {
         <Chip tone={STATUS_TONE[p.status] || 'neutral'} testid="co-pg-status">{t(`co.pg.status.${p.status}`)}</Chip>
       </header>
       <Bar value={p.accepted} max={Math.max(1, p.seats)} label={t('co.pg.places', { n: p.accepted, of: p.seats })} showValue={false} />
-      {p.flags.length > 0 && <div className="cp-flags" role="note"><span aria-hidden="true">⚠</span><span data-testid="co-pg-flags">{t('co.pg.held')}: {p.flags.join('; ')}</span></div>}
+      {p.flags.length > 0 && <div className="cp-flags" role="note"><span aria-hidden="true"><IcAlert /></span><span data-testid="co-pg-flags">{t('co.pg.held')}: {p.flags.join('; ')}</span></div>}
       {p.applicants.length > 0 && (
         <div className="cp-apps">
           <ul className="cp-app-list">{p.applicants.map((a) => <Applicant key={a.id} t={t} c={c} p={p} a={a} onChange={onChange} />)}</ul>
@@ -104,7 +105,7 @@ export default function CompanyPrograms({ t, c }) {
   };
   return (
     <section className="cp stack g16" aria-label={t('co.pg.title')} data-testid="co-pg">
-      <MeCard tone="accent" className="cp-intro" icon="▣" title={t('co.pg.title')} sub={t('co.pg.intro')} headingLevel={3} label={t('co.pg.title')}
+      <MeCard tone="accent" className="cp-intro" icon={<IcCap />} title={t('co.pg.title')} sub={t('co.pg.intro')} headingLevel={3} label={t('co.pg.title')}
         actions={!f && <button type="button" className="btn btn-signal" onClick={() => setF({ ...BLANK })} data-testid="co-pg-new">{t('co.pg.new')}</button>} />
       {f && (
         <form className="mcard cp-form" onSubmit={post} data-testid="co-pg-form">

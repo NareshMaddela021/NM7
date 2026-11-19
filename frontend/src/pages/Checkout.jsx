@@ -78,7 +78,7 @@ export default function Checkout() {
       <Header variant="flow" />
       <main className="container split rise" style={{ maxWidth: 1040, padding: '48px 24px 96px' }}>
         <section className="main stack g20" aria-label="Your order">
-          {report && <button type="button" className="btn btn-ghost" style={{ alignSelf: 'flex-start', paddingLeft: 0 }} onClick={() => nav('/scan')}>← Back to your report</button>}
+          {report && <button type="button" className="btn btn-ghost" style={{ alignSelf: 'flex-start', paddingLeft: 0 }} onClick={() => nav('/scan')}>Back to your report</button>}
           <h1 className="display" style={{ fontSize: 36 }}>{PLANS[addon ? 'launch' : 'expert'].name}</h1>
           <div className="card stack g16">
             <div className="row between"><span>Expert rewrite · {role || 'your target role'}</span><strong>{inr(PLANS.expert.price)}</strong></div>

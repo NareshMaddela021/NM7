@@ -12,6 +12,7 @@ import { fmtWhen } from './shared';
 import { Chip, MeCard } from './kit';
 import { Still } from '../newhome/ParticleStage';
 import '../../styles/me-learn.css';
+import { IcMail, IcPhone } from '../../components/icons';
 
 const H = 3600000;
 const ics = (t, title) => {
@@ -68,13 +69,13 @@ export default function MeLaunch() {
     <>
       <MeHead title="Career Launch" sub={`Order ${o.id}${isLaunch ? '' : ' · LinkedIn makeover add-on'}`} />
       <div className="mgrid-2">
-        <MeCard icon="in" title="LinkedIn makeover" sub={li ? 'Paste each part into LinkedIn → Edit profile.' : 'Your expert writes this once your resume is final — it uses the same wording, so they match.'} actions={<Chip tone={li ? 'ok' : 'warn'}>{li ? 'Ready' : 'Being written'}</Chip>}>
+        <MeCard icon="in" title="LinkedIn makeover" sub={li ? 'Paste each part into LinkedIn > Edit profile.' : 'Your expert writes this once your resume is final — it uses the same wording, so they match.'} actions={<Chip tone={li ? 'ok' : 'warn'}>{li ? 'Ready' : 'Being written'}</Chip>}>
           {li ? <div className="stack g12"><Copy label="Headline" text={li.headline} /><Copy label="About" text={li.about} />{li.experience && <Copy label="Experience" text={li.experience} />}</div>
             : <div className="mempty mempty-sm" style={{ borderStyle: 'dashed' }}><span className="mempty-text">Nothing to do yet. We’ll tell you on WhatsApp and email when it is ready.</span></div>}
         </MeCard>
         <div className="mstack">
           {isLaunch && (
-            <MeCard icon="☎" title="1:1 mentor call · 30 min" actions={picked ? <Chip tone="ok">Booked</Chip> : slots.length ? <Chip tone="accent">Pick a time</Chip> : <Chip tone="neutral">Waiting for times</Chip>}>
+            <MeCard icon={<IcPhone />} title="1:1 mentor call · 30 min" actions={picked ? <Chip tone="ok">Booked</Chip> : slots.length ? <Chip tone="accent">Pick a time</Chip> : <Chip tone="neutral">Waiting for times</Chip>}>
               {picked ? (
                 <div className="stack g12">
                   <div className="ml-booked">
@@ -104,7 +105,7 @@ export default function MeLaunch() {
             </MeCard>
           )}
           {isLaunch && (
-            <MeCard icon="✉" title="Cover letter" sub="For your first target job.">
+            <MeCard icon={<IcMail />} title="Cover letter" sub="For your first target job.">
               <div><Link to="/me/covers" className="btn btn-outline">Open cover letters</Link></div>
             </MeCard>
           )}

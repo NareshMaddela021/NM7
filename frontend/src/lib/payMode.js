@@ -1,4 +1,4 @@
-// How Nm7 takes payments (Admin → Settings → Payments → "Payment method": Razorpay | Off).
+// How Nm7 takes payments (Admin -> Settings -> Payments -> "Payment method": Razorpay | Off).
 //   payMode()      the active mode from GET /api/public/payment-mode: "razorpay" or "off" ("off" on any error)
 //   usePayMode()   the same for a page (null while loading)
 //   buy(body)      Razorpay checkout for a new order (POST /api/orders), reusing an unpaid order for the same thing
@@ -15,7 +15,7 @@ export const NOT_PAID = 'Payment not completed — no money was taken.';
 export const NOT_CONFIRMED = 'We couldn’t confirm your payment yet. If money was taken, your order updates in My orders within a few minutes — you won’t be charged twice.';
 export const PAY_METHODS = 'UPI, card, netbanking or wallet · GST invoice emailed';
 
-/** The message for a payment that didn't finish: closed window → "no money was taken"; server errors → their text. */
+/** The message for a payment that didn't finish: closed window -> "no money was taken"; server errors -> their text. */
 export function payError(e) {
   if (!e || e.code === 'dismissed') return NOT_PAID;
   if (e.code === 'verify_failed') return NOT_CONFIRMED;

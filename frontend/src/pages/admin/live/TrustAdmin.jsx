@@ -1,4 +1,4 @@
-// Admin → Skill checks → Vetting Trust (T1, the DPDP pack; owner only, the "settings" permission). Four cards:
+// Admin -> Skill checks -> Vetting Trust (T1, the DPDP pack; owner only, the "settings" permission). Four cards:
 //   Switch       the one Vetting Trust switch (site settings `trust`): OFF = only admins, demo accounts and testers see
 //                anything new, and background jobs email nobody else. Every Trust item (T1–T15) sits behind it.
 //   Retention    how long each kind of personal data is kept (editable within safe bounds), the last automatic

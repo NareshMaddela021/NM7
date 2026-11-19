@@ -1,4 +1,4 @@
-// Nm7 for Organizations: organizations → groups (join code, link, QR code), coordinators, group dashboards and the
+// Nm7 for Organizations: organizations -> groups (join code, link, QR code), coordinators, group dashboards and the
 // shared-resumes table (filters, approval, review, reminders, print, combined PDF / ZIP / CSV).
 // Every part takes a `ctx` and works in both places:
 //   the admin console — ctx.base '/api/admin', every organization;
@@ -38,6 +38,7 @@ import SharedCerts from '../../../components/SharedCerts';
 import { openCertFile } from '../../../lib/certs';
 import { liveParams } from '../../../lib/liveParams';
 import '../../../styles/org-groups.css';
+import { IcArrowDown, IcArrowRight, IcArrowUp, IcFile, IcPrint, IcSearch, IcSettings, IcSpark, IcUser, IcUsers } from '../../../components/icons';
 
 export const ORG_TYPES = [
   ['college', 'College'], ['institute', 'Coaching / training institute'], ['job_fair', 'Job fair'], ['skill_centre', 'Skill centre'],
@@ -195,7 +196,7 @@ export function GroupCard({ g, ctx, busy, run, reload, toast }) {
   return (
     <section className={`mcard og-gcard og-gcard-${state.toLowerCase()}`} aria-label={`Group ${g.name}`}>
       <div className="og-gcard-top">
-        <span className="og-gcard-ic" aria-hidden="true">☷</span>
+        <span className="og-gcard-ic" aria-hidden="true"><IcUsers /></span>
         <span className="og-gcard-ht">
           <strong className="og-gcard-name">{g.name}</strong>
           {(g.startsOn || g.endsOn) && <span className="xs muted">{g.startsOn ? `From ${day(Date.parse(g.startsOn))}` : ''}{g.endsOn ? ` until ${day(Date.parse(g.endsOn))}` : ''}</span>}
@@ -277,7 +278,7 @@ function Coordinators({ orgId, groups }) {
   const gname = (ids) => (ids === null ? 'All groups' : ids.map((i) => groups.find((g) => g.id === i)?.name || '—').join(', '));
   const sent = (r) => { setLink(r); st.reload(); };
   return (
-    <MeCard title="Coordinators" icon="☺" className="ao-card" id="ao-coordinators" sub="People from the organization who run their own drives at nm7.si/org. They sign in with their own Nm7 account; removing someone ends their access at once.">
+    <MeCard title="Coordinators" icon={<IcUser />} className="ao-card" id="ao-coordinators" sub="People from the organization who run their own drives at nm7.si/org. They sign in with their own Nm7 account; removing someone ends their access at once.">
       <Loading st={st} empty={emptyIf((d) => !d.length, 'No coordinators yet.')}>{(rows) => (
         <div className="table-wrap ao-table" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table"><thead><tr><th>Person</th><th>Role</th><th>Groups</th><th>Status</th><th /></tr></thead>
           <tbody>{rows.map((s) => (
@@ -299,7 +300,7 @@ function Coordinators({ orgId, groups }) {
           ))}</tbody></table></div>
       )}</Loading>
       <form className="ao-sub" aria-label="Invite a coordinator" onSubmit={(e) => { e.preventDefault(); run(async () => { sent(await http(`/api/admin/orgs/${orgId}/staff`, { method: 'POST', body: f })); setF({ email: '', role: 'coordinator', groupIds: null }); }, 'Invite sent'); }}>
-        <span className="ao-sub-h" aria-hidden="true">✉ Invite someone</span>
+        <span className="ao-sub-h" aria-hidden="true">Invite someone</span>
         <div className="ao-fields">
           <div className="field ao-span2"><label className="label" htmlFor="st-email">Invite by email</label><input id="st-email" type="email" className="input" style={inputStyle} placeholder="placement.cell@college.edu" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></div>
           <div className="field"><label className="label" htmlFor="st-role">Role</label><select id="st-role" className="input" style={inputStyle} value={f.role} onChange={(e) => setF({ ...f, role: e.target.value })}>{Object.entries(ROLE_TEXT).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
@@ -341,7 +342,7 @@ const FEATURES = [
 const FEATURE_KEY = { kiosk: 'kiosk', branding: 'branding', recruiterLinks: 'recruiter_links', membersDownloadFree: 'members_download_free', placementInsights: 'placement_insights', templateRules: 'template_rules', recruiterJobMatch: 'recruiter_job_match', drives: 'drives', eligibility: 'eligibility', offers: 'offers', waReminders: 'wa_reminders', alumni: 'alumni', facultyReview: 'faculty_review', multiCampus: 'multi_campus', recruiterAccounts: 'recruiter_accounts', recruiterCompare: 'recruiter_compare', interviewScheduling: 'interview_scheduling', recruiterFeedback: 'recruiter_feedback' };
 const OVERRIDE = { plan: null, on: true, off: false };
 
-/** Admin → Organizations → (organization) → Features: the plan decides; Nm7 can force one on or off. */
+/** Admin -> Organizations -> (organization) -> Features: the plan decides; Nm7 can force one on or off. */
 function Features({ o, reload }) {
   const toast = useToast();
   const [busy, run] = useAction(toast);
@@ -349,7 +350,7 @@ function Features({ o, reload }) {
   const mode = (k) => { const v = o.featureOverrides?.[k]; return v === true ? 'on' : v === false ? 'off' : 'plan'; };
   const onCount = FEATURES.filter(([k]) => o.features?.[k]).length;
   return (
-    <MeCard title="Features" icon="✦" className="ao-card" id="ao-features" sub={`The organization’s plan (${o.plan?.name || 'Free'}) decides these. Force one on or off for this organization only; coordinators and Owners can’t change them.`} actions={<Chip tone="accent">{onCount} of {FEATURES.length} on</Chip>}>
+    <MeCard title="Features" icon={<IcSettings />} className="ao-card" id="ao-features" sub={`The organization’s plan (${o.plan?.name || 'Free'}) decides these. Force one on or off for this organization only; coordinators and Owners can’t change them.`} actions={<Chip tone="accent">{onCount} of {FEATURES.length} on</Chip>}>
       <div className="ao-feats">
         {FEATURES.map(([k, l, d]) => (
           <div key={k} className={`ao-feat ${o.features?.[k] ? 'is-on' : ''} ${mode(k) !== 'plan' ? 'is-forced' : ''}`}>
@@ -392,7 +393,7 @@ function OrgDetail({ id, onBack, onPlacement }) {
         <nav className="ao-jump" aria-label="On this page">{jump.map(([h, l]) => <a key={h} href={`#${h}`} className="ao-jump-a">{l}</a>)}</nav>
         {edit && (
           <form className="mcard ao-card" aria-label="Edit organization" onSubmit={(e) => { e.preventDefault(); run(async () => { await http(`/api/admin/orgs/${id}`, { method: 'PATCH', body: edit }); setEdit(null); st.reload(); }, 'Saved'); }}>
-            <span className="ao-sub-h" aria-hidden="true">✎ Edit organization</span>
+            <span className="ao-sub-h" aria-hidden="true">Edit organization</span>
             <OrgFields f={edit} set={setEdit} idp="eo" />
             <label className="ao-check"><input type="checkbox" checked={edit.status === 'archived'} onChange={(e) => setEdit({ ...edit, status: e.target.checked ? 'archived' : 'active' })} /> Archived</label>
             <button type="submit" className="btn btn-signal" style={{ alignSelf: 'flex-start' }} disabled={busy}>Save</button>
@@ -431,7 +432,7 @@ export function AuditList({ url, sub }) {
   return (
     <section className="mcard og-audit" aria-label="Audit log">
       <header className="mcard-h">
-        <span className="mcard-ic" aria-hidden="true">☰</span>
+        <span className="mcard-ic" aria-hidden="true"><IcFile /></span>
         <span className="mcard-ht"><strong className="mcard-title">Audit log</strong><span className="mcard-sub">{sub || 'Every view, download, print, export, reminder and approval of a shared resume, and every organization / group change.'}</span></span>
         <span className="mcard-actions"><button type="button" className="btn btn-outline og-btn-sm" onClick={log.reload}>Refresh</button></span>
       </header>
@@ -445,7 +446,7 @@ export function AuditList({ url, sub }) {
 
 /* ---------- group dashboard ---------- */
 function Tile({ label, value, to }) {
-  const inner = <><span className="og-tile-l">{label}</span><strong className="og-tile-v">{value}</strong>{to && <span className="og-tile-go" aria-hidden="true">See them →</span>}</>;
+  const inner = <><span className="og-tile-l">{label}</span><strong className="og-tile-v">{value}</strong>{to && <span className="og-tile-go" aria-hidden="true">See them <IcArrowRight size={14} /></span>}</>;
   return to ? <Link to={to} className="og-tile og-tile-link" aria-label={`${label}: ${value}`}>{inner}</Link> : <div className="og-tile">{inner}</div>;
 }
 
@@ -546,13 +547,13 @@ async function csvBlob(ctx, body, sort = 'name') {
   return res.blob();
 }
 
-/** Admin → Organizations: the demo college with made-up students (sales demos and testing; not in real numbers). */
+/** Admin -> Organizations: the demo college with made-up students (sales demos and testing; not in real numbers). */
 function DemoOrg({ onOpen, reload }) {
   const toast = useToast();
   const [busy, run] = useAction(toast);
   return (
     <section className="mcard ao-card ao-demo" aria-label="Demo organization" data-testid="demo-org">
-      <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">✧</span><span className="mcard-ht"><strong className="mcard-title">Demo organization</strong><span className="mcard-sub">For testing and sales demos. Marked Demo and left out of real numbers.</span></span><span className="mcard-actions"><Chip tone="warn">Made-up data</Chip></span></header>
+      <header className="mcard-h"><span className="mcard-ic" aria-hidden="true"><IcSpark /></span><span className="mcard-ht"><strong className="mcard-title">Demo organization</strong><span className="mcard-sub">For testing and sales demos. Marked Demo and left out of real numbers.</span></span><span className="mcard-actions"><Chip tone="warn">Made-up data</Chip></span></header>
       <span className="xs muted">“Demo Engineering College”: two closed groups, 48 made-up students and a roll list, on the Campus plan, with a recruiter invite from a made-up company (“Reset and open as a recruiter” signs you straight in to it, no email code). “Reset and open as coordinator” signs this browser in as the demo college’s coordinator, also with no code, to show drives, eligibility, offers, reminders, alumni, reviewers and the college group; that session can open only the demo college. Marked Demo and left out of real numbers; demo students can’t sign in and are never emailed. Reset puts it back to the starting data.</span>
       <div className="ao-demo-actions">
         <button type="button" className="btn btn-signal" disabled={busy} onClick={() => run(async () => { const r = await http('/api/admin/demo-org', { method: 'POST' }); reload(); onOpen(r.orgId); }, 'Demo organization ready')}>Create / reset demo</button>
@@ -814,7 +815,7 @@ export function SharedResumes({ ctx = ADMIN_CTX, groups: portalGroups = null, ti
     <>
       <PageHead title={title} sub={sub || 'Resumes members shared with their organization (with consent). Downloads and prints here are free and logged.'} right={right} />
       <section className="mcard og-filters" aria-label="Filters">
-        <div className="og-filters-h"><span className="mcard-ic" aria-hidden="true">⌕</span><strong className="mcard-title">Find students</strong>{data && <span className="mchip mchip-accent og-count">{data.total} found</span>}</div>
+        <div className="og-filters-h"><span className="mcard-ic" aria-hidden="true"><IcSearch /></span><strong className="mcard-title">Find students</strong>{data && <span className="mchip mchip-accent og-count">{data.total} found</span>}</div>
         <div className="row g12">
           {admin && <div className="field" style={{ flex: '1 1 200px' }}><label className="label" htmlFor="sf-org">Organization</label>
             <select id="sf-org" className="input" style={inputStyle} value={filters.org || ''} onChange={(e) => setFilter({ org: e.target.value, group: '' })}><option value="">All</option>{orgs.data?.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}</select></div>}
@@ -850,7 +851,7 @@ export function SharedResumes({ ctx = ADMIN_CTX, groups: portalGroups = null, ti
 
       <section className="mcard og-bulk" aria-label="Bulk actions">
         <div className="row between g12" style={{ alignItems: 'center' }}>
-          <strong className="og-bulk-t"><span className="mcard-ic" aria-hidden="true">⎙</span>Print or export {scope}</strong>
+          <strong className="og-bulk-t"><span className="mcard-ic" aria-hidden="true"><IcPrint /></span>Print or export {scope}</strong>
           {selected.size > 0 && <button type="button" className="link-btn small" onClick={() => setSelected(new Set())}>Clear selection</button>}
         </div>
         <div className="row g12" style={{ alignItems: 'center' }}>
@@ -889,7 +890,7 @@ export function SharedResumes({ ctx = ADMIN_CTX, groups: portalGroups = null, ti
             <table className="table og-table og-shared mtable" aria-label="Shared resumes">
               <thead><tr>
                 <th><input type="checkbox" aria-label="Select all on this page" checked={allOnPage} onChange={() => setSelected((s) => { const n = new Set(s); pageIds.forEach((i) => (allOnPage ? n.delete(i) : n.add(i))); return n; })} /></th>
-                {(recruiting ? [...COLS, [null, 'Shortlisted']] : COLS).map(([k, l]) => <th key={l} aria-sort={k && sort === k ? (dir === 'asc' ? 'ascending' : 'descending') : undefined}>{k ? <button type="button" className="link-btn small" style={{ fontWeight: 600, textAlign: 'left' }} onClick={() => setSort(k)}>{l}{sort === k ? (dir === 'asc' ? ' ↑' : ' ↓') : ''}</button> : l}</th>)}
+                {(recruiting ? [...COLS, [null, 'Shortlisted']] : COLS).map(([k, l]) => <th key={l} aria-sort={k && sort === k ? (dir === 'asc' ? 'ascending' : 'descending') : undefined}>{k ? <button type="button" className="link-btn small" style={{ fontWeight: 600, textAlign: 'left' }} onClick={() => setSort(k)}>{l}{sort === k ? (dir === 'asc' ? <IcArrowUp size={14} /> : <IcArrowDown size={14} />) : ''}</button> : l}</th>)}
                 <th />
               </tr></thead>
               <tbody>{d.rows.map((r) => (

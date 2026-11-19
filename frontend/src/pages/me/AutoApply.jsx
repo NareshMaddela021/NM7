@@ -14,6 +14,7 @@ import AutoSummaryCard, { SummaryEmails } from './AutoSummaryCard';
 import { MeHead } from './MeLayout';
 import { FieldGroup, ScoreRing, Skel, StickyBar } from './kit';
 import '../../styles/me-jobs.css';
+import { IcSettings } from '../../components/icons';
 
 const list = (s) => String(s || '').split(',').map((x) => x.trim()).filter(Boolean);
 const toForm = (s) => ({ ...s, roles: s.roles.join(', '), cities: s.cities.join(', '), avoid: s.avoid.join(', '), minSalary: s.minSalary ? String(s.minSalary / 100000) : '' });
@@ -86,7 +87,7 @@ function AutoApplyV1() {
   const form = (
     <form className="mcard stack g16" onSubmit={save} aria-labelledby="aa-form-h" data-testid="aa-form">
       <header className="mcard-h">
-        <span className="mcard-ic violet" aria-hidden="true">⚙</span>
+        <span className="mcard-ic violet" aria-hidden="true"><IcSettings /></span>
         <span className="mcard-ht"><h2 id="aa-form-h" className="mcard-title">{t('aa.formTitle')}</h2></span>
       </header>
       <FieldGroup>
@@ -172,7 +173,7 @@ function AutoApplyV1() {
           </div>
           <div className="mspread">
             <SummaryEmails t={t} />
-            <Link to="/me/jobs" className="small" style={{ fontWeight: 700 }}>{t('aa.seeApplications')} →</Link>
+            <Link to="/me/jobs" className="small" style={{ fontWeight: 700 }}>{t('aa.seeApplications')}</Link>
           </div>
         </section>
       )}

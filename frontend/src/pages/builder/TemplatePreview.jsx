@@ -7,6 +7,7 @@ import { TEMPLATE_PRESETS } from './design';
 import { INITIAL } from './schema';
 import { audienceOf, layoutOf, PHOTO_PLACEHOLDER, withTemplate } from './templatePick';
 import { NoDetails, ViewSwitch } from './ViewSwitch';
+import { IcX } from '../../components/icons';
 
 /**
  * view: 'sample' (the example person) or 'mine' (`data`, the person's own resume; null = nothing to show yet).
@@ -26,7 +27,7 @@ export default function TemplatePreview({ id, view = 'sample', data, accent, onV
           <strong style={{ fontSize: 20 }}>{t.name}{sample && <span className="badge b-neutral" style={{ marginLeft: 8, verticalAlign: 'middle' }}>Sample</span>}</strong>
           <span className="xs muted">{two ? '2 columns' : '1 column'} · {audienceOf(t)}{t.photo ? ' · Photo' : ''}</span>
         </div>
-        <button type="button" className="btn btn-icon" aria-label="Close" onClick={onClose}>✕</button>
+        <button type="button" className="btn btn-icon" aria-label="Close" onClick={onClose}><IcX size={18} /></button>
       </div>
       {onView && <ViewSwitch view={view} onChange={onView} />}
       {shown ? (

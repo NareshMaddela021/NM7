@@ -42,7 +42,7 @@ export const toBase64 = (blob) => new Promise((resolve, reject) => {
   r.readAsDataURL(blob);
 });
 
-/** "2025-03" → the resume's issue date field; the credential link as the entry's link. */
+/** "2025-03" -> the resume's issue date field; the credential link as the entry's link. */
 export function certEntry(c) {
   return {
     name: c.title, issuer: c.issuer || '', issueDate: (c.date || '').slice(0, 7), expiryDate: '', noExpiry: false,

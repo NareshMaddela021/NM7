@@ -7,6 +7,7 @@
 // the words stay readable to screen readers when folded. Styles: styles/app-shell.css.
 import { useEffect, useRef, useState } from 'react';
 import '../styles/app-shell.css';
+import { IcMenu } from './icons';
 
 function readFolded(key) {
   try { return localStorage.getItem(key) === '1'; } catch { return false; }
@@ -51,7 +52,7 @@ export default function AppShell({ label, nav, foot, storageKey, phone = 'drawer
     <div ref={ref} className={`app-shell ${className}`} data-collapsed={folded || undefined} data-phone={phone} data-open={open || undefined}>
       {phone === 'drawer' && (
         <div className="app-phonebar">
-          <button ref={menuBtn} type="button" className="btn btn-outline" aria-expanded={open} aria-controls={sideId} onClick={() => setOpen(!open)}>☰ Menu</button>
+          <button ref={menuBtn} type="button" className="btn btn-outline" aria-expanded={open} aria-controls={sideId} onClick={() => setOpen(!open)}><IcMenu /> Menu</button>
         </div>
       )}
       <nav ref={sideRef} id={sideId} aria-label={label} className={`app-side ${sideClassName}`}>

@@ -2,7 +2,7 @@
 // page, phase 1) and src/i18n/pages.json (the rest of the home page, /for-orgs, the builder's Start step, sign-in); a
 // missing string falls back to English. Telugu and Hindi are AI drafts until a native speaker reviews them
 // (docs/translations-review.md). The choice is remembered in this browser; the first visit follows the phone's
-// language (te-IN → Telugu, hi-IN → Hindi), else English. Noto Sans Telugu / Devanagari load only when that language
+// language (te-IN -> Telugu, hi-IN -> Hindi), else English. Noto Sans Telugu / Devanagari load only when that language
 // is picked, with font-display: optional — the text never re-flows when the font arrives (it would shift the whole
 // hero); until it is cached, the phone's own Telugu / Devanagari font is used (Android ships Noto itself).
 // Telugu and Hindi (home.json's and pages.json's) are not in the main bundle: each loads (a few KB) the first time that
@@ -14,7 +14,7 @@ import { en as PAGES_EN } from '../i18n/pages.json';
 
 export const LANGS = [['en', 'English'], ['te', 'తెలుగు'], ['hi', 'हिन्दी']];
 export const STORE_KEY = 'nm7-lang';
-// Telugu and Hindi are shown only when Admin → Settings → "Show Telugu and Hindi" is on (item 41; off by default
+// Telugu and Hindi are shown only when Admin -> Settings -> "Show Telugu and Hindi" is on (item 41; off by default
 // until a native speaker has checked them). The flag comes from GET /api/public/site-flags (main.jsx) and is kept in
 // this browser (not personal, so it doesn't start with nm7-) so the next visit draws in the right language at once.
 // Off: no language switch anywhere and everything is English; saved Telugu / Hindi choices are kept for later.
@@ -106,7 +106,7 @@ export function setLangsShown(on) {
   changed();
 }
 
-/** A translated string with parts that are not plain text: {name} → parts.name (a link, a <strong> …) and *word* →
+/** A translated string with parts that are not plain text: {name} -> parts.name (a link, a <strong> …) and *word* ->
  * parts.em(word) (or the bare word). Returns an array for React to render. */
 export function rich(s, parts = {}) {
   return String(s).split(/(\{\w+\}|\*[^*]+\*)/).filter(Boolean).map((p, i) => {

@@ -40,18 +40,18 @@ test('page counter: never "2 pages" while a 1-page resume and its fonts load; no
 
   await page.goto('/builder');
   await page.getByRole('region', { name: 'CONTINUE EDITING' }).getByRole('button', { name: 'Continue' }).click();
-  await expect(page.getByTestId('page-count')).toHaveText('1 page ✓', { timeout: 15_000 });
+  await expect(page.getByTestId('page-count')).toHaveText('1 page', { timeout: 15_000 });
   await expect(page.getByRole('article', { name: 'Resume preview' })).toContainText('Northwind Retail');
   await page.waitForTimeout(800);
   const counts = await page.evaluate(() => window.__counts);
   expect(counts.some((t) => /\d+ pages/.test(t)), `counter showed: ${counts.join(' → ')}`).toBe(false);
-  expect(counts[counts.length - 1]).toBe('1 page ✓');
+  expect(counts[counts.length - 1]).toBe('1 page');
   expect(await page.evaluate(() => window.__breaks)).toBe(0);
 
   // a reload straight into the builder: same
   await page.evaluate(() => window.history.replaceState({ usr: { open: 'build' }, key: 'x' }, ''));
   await page.reload();
-  await expect(page.getByTestId('page-count')).toHaveText('1 page ✓', { timeout: 15_000 });
+  await expect(page.getByTestId('page-count')).toHaveText('1 page', { timeout: 15_000 });
   const again = await page.evaluate(() => window.__counts);
   expect(again[0]).toBe('Measuring…');
   expect(again.some((t) => /\d+ pages/.test(t)), `counter showed: ${again.join(' → ')}`).toBe(false);

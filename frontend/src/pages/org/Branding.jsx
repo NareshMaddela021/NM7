@@ -13,6 +13,7 @@ import { Loading, http, useAction, useApi } from '../admin/live/common';
 import { Chip, FieldGroup, StickyBar } from '../me/kit';
 import '../../styles/me-kit.css';
 import '../../styles/org-team.css';
+import { IcArrowDown, IcArrowUp, IcEdit } from '../../components/icons';
 
 const inputStyle = { height: 40 };
 const readFile = (f) => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(f); });
@@ -51,7 +52,7 @@ function BrandForm({ url, saved, canManage, reload }) {
     <div className="ob-wrap">
       <section className="mcard ob-form" aria-label="Branding">
         <header className="mcard-h">
-          <span className="mcard-ic" aria-hidden="true">◧</span>
+          <span className="mcard-ic" aria-hidden="true"><IcEdit /></span>
           <span className="mcard-ht"><strong className="mcard-title">Official placement template</strong>
             <span className="mcard-sub">Used for every copy your team views, prints or exports from groups with “Print with organization template” on — and for kiosk prints. Members’ own resumes and downloads don’t change. The logo and colour go in the header only; the resume text stays plain, selectable text for ATS.</span></span>
         </header>
@@ -130,7 +131,7 @@ function Rules({ r, set, canManage }) {
             {r.order.map((id, i) => (
               <li key={id} className={`ob-order-row ${r.allowed[id] ? '' : 'off'}`}>
                 <span className="ob-order-n" aria-hidden="true">{i + 1}</span>
-                <span className="row g4"><button type="button" className="btn btn-ghost ob-move" aria-label={`Move ${SECTION_NAMES[id]} up`} disabled={i === 0} onClick={() => move(i, -1)}>↑</button><button type="button" className="btn btn-ghost ob-move" aria-label={`Move ${SECTION_NAMES[id]} down`} disabled={i === r.order.length - 1} onClick={() => move(i, 1)}>↓</button></span>
+                <span className="row g4"><button type="button" className="btn btn-ghost ob-move" aria-label={`Move ${SECTION_NAMES[id]} up`} disabled={i === 0} onClick={() => move(i, -1)}><IcArrowUp /></button><button type="button" className="btn btn-ghost ob-move" aria-label={`Move ${SECTION_NAMES[id]} down`} disabled={i === r.order.length - 1} onClick={() => move(i, 1)}><IcArrowDown /></button></span>
                 <span className="ob-order-name">{SECTION_NAMES[id]}</span>
                 <label className="row g4 xs"><input type="checkbox" checked={!!r.allowed[id]} onChange={(e) => set({ ...r, allowed: { ...r.allowed, [id]: e.target.checked }, required: e.target.checked ? r.required : { ...r.required, [id]: false } })} /> Allowed</label>
                 <label className="row g4 xs"><input type="checkbox" aria-label={`${SECTION_NAMES[id]} required`} checked={!!r.required[id]} disabled={!r.allowed[id]} onChange={(e) => set({ ...r, required: { ...r.required, [id]: e.target.checked } })} /> Required</label>

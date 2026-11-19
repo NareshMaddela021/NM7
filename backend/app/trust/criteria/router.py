@@ -330,7 +330,7 @@ async def add_claim(body: ClaimIn, db: DB, auth: CustomerAuth) -> dict[str, Any]
         raise ApiError(404, "not_found", "That requirement isn’t on the job any more.")
     cert = await db[CERTIFICATES].find_one({"_id": body.cert_id, "user_id": uid}, {"title": 1})
     if not cert:
-        raise ApiError(404, "not_found", "Pick a certificate from your wallet (Profile → Certificates).")
+        raise ApiError(404, "not_found", "Pick a certificate from your wallet (Profile > Certificates).")
     h = X.chash(c["kind"], c["text"])
     if await db[TRUST_CRITERIA_CLAIMS].find_one(
         {"user_id": uid, "chash": h, "cert_id": body.cert_id, "status": {"$ne": "rejected"}}

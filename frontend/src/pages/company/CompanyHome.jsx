@@ -21,6 +21,7 @@ import { Chip, Empty, FieldGroup, MeCard, Skel, Stat, StickyBar } from '../me/ki
 import '../../styles/me-kit.css';
 import '../../styles/company.css';
 import '../../styles/company-home.css';
+import { IcBolt, IcBriefcase, IcBuilding, IcCap, IcCheck, IcClock, IcExternal, IcFile, IcGlobe, IcGrid, IcHome, IcLock, IcMail, IcPhone, IcSettings, IcShield, IcStar, IcSwap, IcUser, IcUsers } from '../../components/icons';
 
 export default function CompanyHome() {
   const [t, lang] = useLang();
@@ -62,11 +63,11 @@ function SignIn({ t, onSession }) {
     <div className="ch-signin">
       <form className="mcard ch-signin-card" onSubmit={sent ? verify : send} aria-label={t('co.home.signIn')}>
         <header className="mcard-h">
-          <span className="mcard-ic" aria-hidden="true">⌂</span>
+          <span className="mcard-ic" aria-hidden="true"><IcHome /></span>
           <span className="mcard-ht"><h2 className="mcard-title">{t('co.home.signIn')}</h2><span className="mcard-sub">{t('co.home.signInHint')}</span></span>
         </header>
         <ol className="ch-steps" aria-hidden="true">
-          {[1, 2, 3].slice(0, needTotp ? 3 : 2).map((n) => <li key={n} className={n < step ? 'done' : n === step ? 'now' : ''}><span>{n < step ? '✓' : n}</span></li>)}
+          {[1, 2, 3].slice(0, needTotp ? 3 : 2).map((n) => <li key={n} className={n < step ? 'done' : n === step ? 'now' : ''}><span>{n < step ? <IcCheck size={14} /> : n}</span></li>)}
         </ol>
         <div className="field"><label className="label" htmlFor="ch-email">{t('co.f.yourEmail')}</label>
           <input id="ch-email" type="email" className="input" required autoComplete="email" value={email} disabled={sent} onChange={(e) => setEmail(e.target.value.trim())} /></div>
@@ -121,8 +122,8 @@ function Companies({ t, onSignedOut }) {
  * small blue dotted shape shown beside its title on a desktop. */
 const GROUPS = [['overview', 'jobs', 'applicants', 'hire', 'programs', 'pool'], ['team', 'page', 'settings', 'security', 'activity']];
 const TAB_META = {
-  overview: ['⌂', 'stopwatch'], jobs: ['▤', 'briefcase'], applicants: ['◉', 'magnifier'], hire: ['⚡', 'stopwatch'], programs: ['▣', 'cap'],
-  pool: ['☆', 'magnifier'], team: ['☺', 'handshake'], page: ['◧', 'badge'], settings: ['⚙', 'sphere'], security: ['⛨', 'badge'], activity: ['☰', 'resume'], connect: ['⇄', 'handshake'],
+  overview: [<IcHome key="i" />, 'stopwatch'], jobs: [<IcBriefcase key="i" />, 'briefcase'], applicants: [<IcUsers key="i" />, 'magnifier'], hire: [<IcBolt key="i" />, 'stopwatch'], programs: [<IcCap key="i" />, 'cap'],
+  pool: [<IcStar key="i" />, 'magnifier'], team: [<IcUser key="i" />, 'handshake'], page: [<IcGlobe key="i" />, 'badge'], settings: [<IcSettings key="i" />, 'sphere'], security: [<IcShield key="i" />, 'badge'], activity: [<IcClock key="i" />, 'resume'], connect: [<IcSwap key="i" />, 'handshake'],
 };
 // Auto Apply 2.0 (A4): the hiring-system page, only for companies the 2.0 switch lets in (English only while tested)
 const ConnectHiring = lazy(() => import('./ConnectHiring'));
@@ -205,7 +206,7 @@ function Overview({ t, c, manage }) {
         </div>
         {level >= 0 && (
           <ol className="ch-trust" aria-hidden="true">
-            {TRUST_STEPS.map((k, i) => <li key={k} className={i < level ? 'done' : i === level ? 'now' : ''}><span className="ch-trust-dot">{i < level ? '✓' : i + 1}</span><span className="ch-trust-l">{t(`co.trustName.${k}`)}</span></li>)}
+            {TRUST_STEPS.map((k, i) => <li key={k} className={i < level ? 'done' : i === level ? 'now' : ''}><span className="ch-trust-dot">{i < level ? <IcCheck size={16} /> : i + 1}</span><span className="ch-trust-l">{t(`co.trustName.${k}`)}</span></li>)}
           </ol>
         )}
         <p className="small" style={{ margin: 0 }}>{t(`co.trust.${c.trust}`)}</p>
@@ -215,7 +216,7 @@ function Overview({ t, c, manage }) {
         {(unfinished && manage) || ['basic', 'verified'].includes(c.trust) ? (
           <div className="mrow">
             {unfinished && manage && <Link to="/for-companies" onClick={resume} className="btn btn-signal">{t('co.home.continue')}</Link>}
-            {['basic', 'verified'].includes(c.trust) && <Link to={`/companies/${c.slug}`} className="btn btn-outline" data-testid="co-public-link">{t('co.dash.publicPage')} ↗</Link>}
+            {['basic', 'verified'].includes(c.trust) && <Link to={`/companies/${c.slug}`} className="btn btn-outline" data-testid="co-public-link">{t('co.dash.publicPage')} <IcExternal size={14} /></Link>}
           </div>
         ) : null}
       </section>
@@ -365,7 +366,7 @@ function PageEditor({ t, c, manage, onChanged }) {
           </div>
           {about.trim() ? <p className="small ch-preview-about">{about}</p> : <span className="ch-preview-line" />}
           {shown.length > 0 && <ul className="ch-preview-pol">{shown.map((k) => <li key={k}><strong className="xs">{t(`jobs.support.${k}`)}</strong><span className="xs">{pol[k]}</span></li>)}</ul>}
-          {c.details.website && <span className="xs ch-preview-web">{c.details.website.replace(/^https?:\/\//, '')} ↗</span>}
+          {c.details.website && <span className="xs ch-preview-web">{c.details.website.replace(/^https?:\/\//, '')} <IcExternal size={14} /></span>}
         </div>
       </aside>
     </div>
@@ -380,11 +381,11 @@ function Settings({ t, c, manage, onChanged }) {
   const change = async () => { setBusy(true); setErr(''); try { await rq(`/api/company/${c.id}/request-change`, { method: 'POST' }); setAsk(false); onChanged(); } catch (x) { setErr(x.message); } finally { setBusy(false); } };
   const resume = () => { const d = readDraft(); keepDraft({ ...d, companyId: c.id, step: 0 }); };
   const rows = [
-    [c.kind === 'individual' ? t('co.f.yourName') : t('co.f.legalName'), c.details.legalName, '◧'],
-    c.details.website && [t('co.f.website'), c.details.website, '↗'],
-    c.registration && [c.registration.kind.toUpperCase(), c.registration.number, '#', true],
-    c.companyEmail && [t('co.f.companyEmail'), c.companyEmail, '✉'],
-    [t('co.f.category'), t(`co.cat.${c.details.category}`), '▣'],
+    [c.kind === 'individual' ? t('co.f.yourName') : t('co.f.legalName'), c.details.legalName, <IcBuilding key="i" />],
+    c.details.website && [t('co.f.website'), c.details.website, <IcGlobe key="i" />],
+    c.registration && [c.registration.kind.toUpperCase(), c.registration.number, <IcFile key="i" />, true],
+    c.companyEmail && [t('co.f.companyEmail'), c.companyEmail, <IcMail key="i" />],
+    [t('co.f.category'), t(`co.cat.${c.details.category}`), <IcGrid key="i" />],
   ].filter(Boolean);
   return (
     <section className="mstack" aria-label={t('co.dash.tab.settings')} data-testid="co-settings">
@@ -396,7 +397,7 @@ function Settings({ t, c, manage, onChanged }) {
         </dl>
       </div>
       <div className={`mcard ${locked ? 'mcard-ok' : ''}`}>
-        {locked ? <p className="small" style={{ margin: 0 }} data-testid="co-locked"><span aria-hidden="true">🔒 </span>{t('co.dash.locked')}</p> : null}
+        {locked ? <p className="small" style={{ margin: 0 }} data-testid="co-locked"><IcLock size={14} /> {t('co.dash.locked')}</p> : null}
         {manage && locked && !ask && <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} onClick={() => setAsk(true)}>{t('co.dash.requestChange')}</button>}
         {manage && locked && ask && (
           <div className="mcard mcard-warn mcard-tight" role="alert">
@@ -427,7 +428,7 @@ function Activity({ t, c }) {
         <ol className="msteps ch-log">
           {rows.map((a, i) => (
             <li key={i} className={i === 0 ? 'now' : 'done'}>
-              <span className="msteps-dot" aria-hidden="true">{i === 0 ? '•' : '✓'}</span>
+              <span className="msteps-dot" aria-hidden="true">{i === 0 ? '•' : <IcCheck size={14} />}</span>
               <span className="ch-log-body">
                 <strong className="small">{actLabel(t, a.action)}{a.reason ? `: ${a.reason}` : ''}</strong>
                 <span className="xs muted">{new Date(a.at).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}{a.by ? ` · ${a.by}` : ''}</span>
@@ -466,7 +467,7 @@ function Security({ t, onSignedOut }) {
       <h2 id="sec-h" className="sr-only">{t('co.sec.title')}</h2>
       <div className={`mcard ${st.twoStep ? 'mcard-ok' : 'mcard-warn'}`}>
         <div className="ch-2fa-top">
-          <span className={`ch-shield ${st.twoStep ? 'on' : ''}`} aria-hidden="true">⛨</span>
+          <span className={`ch-shield ${st.twoStep ? 'on' : ''}`} aria-hidden="true"><IcShield size={24} /></span>
           <span className="mcard-ht">
             <strong className="mcard-title">{t('co.sec.twoStep')}: <span data-testid="co-2fa">{st.twoStep ? t('co.sec.on') : t('co.sec.off')}</span></strong>
             <span className="mcard-sub">{t('co.sec.twoStepHint')}</span>
@@ -500,11 +501,11 @@ function Security({ t, onSignedOut }) {
           </form>
         )}
       </div>
-      <MeCard title={t('co.sec.devices')} sub={t('co.sec.devicesHint')} icon="▭" headingLevel={3}>
+      <MeCard title={t('co.sec.devices')} sub={t('co.sec.devicesHint')} icon={<IcPhone />} headingLevel={3}>
         <ul className="mlist">
           {st.devices.map((d) => (
             <li key={d.id} className="mitem" data-testid="co-device">
-              <span className="mavatar" aria-hidden="true">{d.current ? '★' : '▭'}</span>
+              <span className="mavatar" aria-hidden="true">{d.current ? <IcCheck /> : <IcPhone />}</span>
               <span className="mitem-main"><span className="mitem-title">{d.device}{d.current ? ` · ${t('co.sec.thisDevice')}` : ''}</span>
                 <span className="mitem-meta">{new Date(d.at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span></span>
               <button type="button" className="btn btn-outline mitem-side" disabled={busy} onClick={() => signOutDevice(d)}>{t('co.home.signOut')}</button>

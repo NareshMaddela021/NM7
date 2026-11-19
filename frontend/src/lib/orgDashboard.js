@@ -5,7 +5,7 @@
 export const apiBase = (orgId) => (orgId ? `/api/org/${encodeURIComponent(orgId)}` : '/api/admin');
 
 const DAY_FMT = { day: 'numeric', month: 'short' };
-/** joinsPerDay from the server → the bar chart's rows ({ label, joins }), oldest first. */
+/** joinsPerDay from the server -> the bar chart's rows ({ label, joins }), oldest first. */
 export function joinBars(joinsPerDay = []) {
   return joinsPerDay.map((d) => ({ label: new Date(`${d.day}T00:00:00`).toLocaleDateString('en-IN', DAY_FMT), joins: d.n }));
 }

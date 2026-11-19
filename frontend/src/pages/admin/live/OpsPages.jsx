@@ -13,7 +13,7 @@ import { aiDetail } from './aiUsageText';
 import { HomeClicks, OrgRevenue } from './BillingPages';
 import { liveParams } from '../../../lib/liveParams';
 
-/** badge tone → chip tone */
+/** badge tone -> chip tone */
 const CHIP = { success: 'ok', danger: 'bad', warning: 'warn', neutral: 'neutral' };
 /** A number tile on the dashboard (same label, value and line as before). */
 function Tile({ label, value, sub }) {
@@ -213,7 +213,7 @@ function OrderPanel({ id, onClose, onChanged }) {
                 <strong>Expert work</strong>
                 <span>Expert: {w.expertName || 'not assigned'}{w.expertId && !w.accepted ? ` · offer until ${when(w.offerExpires)}` : w.accepted ? ` · accepted ${when(w.accepted)}` : ''}</span>
                 <span>Intake: {w.intake?.target ? `done — ${w.intake.target}` : 'not filled in yet'}</span>
-                <span>Drafts sent: {w.versions.filter((v) => v.sent).length} · messages: {w.messages.length}{w.rating ? ` · rated ${w.rating}★` : ''}</span>
+                <span>Drafts sent: {w.versions.filter((v) => v.sent).length} · messages: {w.messages.length}{w.rating ? ` · rated ${w.rating}/5` : ''}</span>
               </div>
             )}
             {canAssign && (

@@ -7,7 +7,7 @@ describe('organization dashboard helpers', () => {
     expect(apiBase('org 1')).toBe('/api/org/org%201');
   });
 
-  it('dashboard aggregates → tiles, chart rows and buckets', () => {
+  it('dashboard aggregates -> tiles, chart rows and buckets', () => {
     const counts = { joined: 12, pending: 2, approved: 9, rejected: 1, complete: 7, incomplete: 4, needsChanges: 1, ready: 5, printed: 3, readyNotPrinted: 2 };
     const tiles = countTiles(counts);
     expect(tiles.map(([l, v]) => [l, v])).toEqual([

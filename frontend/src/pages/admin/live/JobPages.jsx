@@ -1,4 +1,4 @@
-// Admin → Jobs (job board J1): every job on nm7.si/jobs. Search and filter, add or edit one, pause, close, reopen,
+// Admin -> Jobs (job board J1): every job on nm7.si/jobs. Search and filter, add or edit one, pause, close, reopen,
 // delete (confirmed here on the page), bulk import (JSON array or CSV, preview with per-row errors first), the jobs
 // whose apply link failed its check, who applied, and jobs students reported (3 reports pause a job). Every change is in
 // the audit log.
@@ -373,7 +373,7 @@ function ReviewBox({ j, onDone }) {
 }
 
 const REASON = { scam: 'Asks for money / scam', fake: 'Fake or misleading', unfair: 'Unfair or discriminatory', wrong_info: 'Wrong details', expired: 'Already filled or closed', other: 'Something else',
-  // Vetting Trust T4 "Report fraud" (also in Vetting Trust → Fraud reports)
+  // Vetting Trust T4 "Report fraud" (also in Vetting Trust -> Fraud reports)
   money: 'Asked for money', fake_company: 'Fake company', impersonation: 'Impersonation', misleading: 'Misleading job', harassment: 'Harassment' };
 
 /** Jobs students reported. Dismiss (the reports were wrong; a job they paused goes live again) or close with a note. */

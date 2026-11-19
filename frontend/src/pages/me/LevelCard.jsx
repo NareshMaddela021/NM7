@@ -1,12 +1,13 @@
-// Vetting V1: "You are L1 · Profile ready. Do this to reach L2:" on the candidate dashboard. The level, the ⚡ ready-now
+// Vetting V1: "You are L1 · Profile ready. Do this to reach L2:" on the candidate dashboard. The level, the ready-now
 // state and the steps come from GET /api/me/level (one rule module on the server); nothing is guessed here. Each
 // missing step links to the page where it is done. "Still looking? Tap to confirm" (POST /api/me/hire/confirm) puts the
-// ⚡ back for another week. Nothing shows until the level has loaded, or if it can't load.
+// ready-now mark back for another week. Nothing shows until the level has loaded, or if it can't load.
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { http } from '../../services/http';
 import { vettingOn } from '../../lib/vettingAccess';
 import LevelBadge from '../../components/LevelBadge';
+import { IcArrowRight, IcBolt, IcCheck, IcTrend } from '../../components/icons';
 
 const LABELS = { 0: 'Signed up', 1: 'Profile ready', 2: 'Skill verified', 3: 'Interview-ready', 4: 'Nm7 verified' };
 
@@ -25,7 +26,7 @@ export const stepLink = (s) => { const m = STEP_LINKS.find(([re]) => re.test(s))
 /** The person's level from the server: { d, reload }; d is null while loading and 'failed' when it can't load. */
 export function useMyLevel() {
   const [d, setD] = useState(null);
-  // hidden from this person (Admin → Skill checks → Launch): never asked, nothing shows
+  // hidden from this person (Admin -> Skill checks -> Launch): never asked, nothing shows
   const reload = useCallback(() => vettingOn().then((on) => (on ? http('/api/me/level').then(setD, () => setD('failed')) : setD('failed'))), []);
   useEffect(() => { reload(); }, [reload]);
   return { d, reload };
@@ -36,7 +37,7 @@ export function Ladder({ level }) {
     <ol className="lvl-ladder" aria-label={`Level ${level} of 4`}>
       {[0, 1, 2, 3, 4].map((n) => (
         <li key={n} className={n < level ? 'done' : n === level ? 'now' : ''} aria-current={n === level ? 'step' : undefined}>
-          <span className="lvl-rung" aria-hidden="true">{n < level ? '✓' : `L${n}`}</span>
+          <span className="lvl-rung" aria-hidden="true">{n < level ? <IcCheck size={16} /> : `L${n}`}</span>
           <span className="lvl-rung-l"><span className="sr-only">L{n} </span>{LABELS[n]}<span className="sr-only">{n < level ? ' (done)' : n === level ? ' (you are here)' : ''}</span></span>
         </li>
       ))}
@@ -60,7 +61,7 @@ export default function LevelCard() {
   return (
     <section className="mcard lvl-card" aria-labelledby="lvl-card-h" data-testid="level-card">
       <header className="mcard-h">
-        <span className="mcard-ic violet" aria-hidden="true">▲</span>
+        <span className="mcard-ic violet" aria-hidden="true"><IcTrend /></span>
         <span className="mcard-ht">
           <h2 id="lvl-card-h" className="mcard-title">You are L{d.level} · {d.label}</h2>
           <span className="mcard-sub">Higher levels show first to companies hiring now.</span>
@@ -76,7 +77,7 @@ export default function LevelCard() {
               const { to, cta } = stepLink(s);
               return (
                 <li key={s}>
-                  {to ? <Link to={to} className="lvl-step"><span className="lvl-step-t">{s}</span><span className="lvl-step-cta">{cta} <span aria-hidden="true">→</span></span></Link>
+                  {to ? <Link to={to} className="lvl-step"><span className="lvl-step-t">{s}</span><span className="lvl-step-cta">{cta} <IcArrowRight size={16} /></span></Link>
                     : <span className="lvl-step lvl-step-off"><span className="lvl-step-t">{s}</span><span className="lvl-step-cta">{cta}</span></span>}
                 </li>
               );
@@ -86,10 +87,10 @@ export default function LevelCard() {
       )}
       <div className={`lvl-ready ${d.readyNow ? 'on' : ''}`} data-testid="level-ready">
         {d.readyNow ? (
-          <span className="small"><strong><span aria-hidden="true">⚡ </span>Ready now.</strong> Companies hiring now see you first for {d.readyDays} days after you confirm.</span>
+          <span className="small"><strong><IcBolt size={14} /> Ready now.</strong> Companies hiring now see you first for {d.readyDays} days after you confirm.</span>
         ) : (
           <>
-            <span className="small"><strong>Not shown as ready now.</strong> Confirm that you can still join so companies see the ⚡.</span>
+            <span className="small"><strong>Not shown as ready now.</strong> Confirm that you can still join so companies see you as ready now.</span>
             <button type="button" className="btn btn-signal lvl-confirm" disabled={busy} onClick={confirm} data-testid="level-confirm">Still looking? Tap to confirm</button>
           </>
         )}

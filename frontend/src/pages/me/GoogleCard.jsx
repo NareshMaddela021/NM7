@@ -1,5 +1,5 @@
-// Profile & settings → Sign-in methods: "Connect Google" / "Remove Google", and "Set a password" for an account made
-// with Google. Lazy (its own chunk); shown only while Google sign-in is on (site flags → googleClientId) or Google is
+// Profile & settings -> Sign-in methods: "Connect Google" / "Remove Google", and "Set a password" for an account made
+// with Google. Lazy (its own chunk); shown only while Google sign-in is on (site flags -> googleClientId) or Google is
 // still connected. A Google-only account can't remove Google until it has a password (the server checks it too).
 import { Suspense, lazy, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -8,6 +8,7 @@ import { reloadUser, useAuth } from '../../lib/auth';
 import { loadSiteFlags } from '../../lib/siteFlags';
 import { http } from '../../services/http';
 import { MeCard } from './kit';
+import { IcLock } from '../../components/icons';
 
 const GoogleButton = lazy(() => import('../../components/GoogleButton'));
 
@@ -23,7 +24,7 @@ export function GoogleCardView({ user, busy, err, onRemove, connect }) {
   const g = user.google;
   const last = g && !user.hasPassword; // Google is the only way to sign in
   return (
-    <MeCard as="section" id="s-google" className="acc-sec" label="Sign-in methods" icon="🔐" title="Sign in with Google" sub={g ? 'You can sign in with Google or with your email and password.' : 'Sign in with one tap, without typing your password.'}>
+    <MeCard as="section" id="s-google" className="acc-sec" label="Sign-in methods" icon={<IcLock />} title="Sign in with Google" sub={g ? 'You can sign in with Google or with your email and password.' : 'Sign in with one tap, without typing your password.'}>
       {g ? (
         <ul className="mlist">
           <li className="mitem">

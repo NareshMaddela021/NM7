@@ -137,7 +137,7 @@ for (const [label, opts] of SIZES) {
       await expect(card.getByTestId('tfa-flag').filter({ hasText: 'Skill checks' }).filter({ hasText: 'Tier 3' }).first()).toContainText('under 80% of the best group', { timeout: 20_000 });
       expect(await noSideScroll(page)).toBe(true);
       // the T9 re-grade a person decides
-      const row = card.getByTestId('tfa-rv-t9').filter({ hasText: 'strong → weak' }).first();
+      const row = card.getByTestId('tfa-rv-t9').filter({ hasText: 'strong then weak' }).first();
       await expect(row).toBeVisible();
       const decided = page.waitForResponse((r) => r.url().endsWith(`/regrades/${rg.id}/decide`) && r.status() === 200);
       await row.getByTestId('tfa-second').click();

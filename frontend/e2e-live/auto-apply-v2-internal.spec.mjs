@@ -79,7 +79,7 @@ for (const [label, opts] of SIZES) {
       expect(off.autoApply.accept).toBe(false);
       await cp.getByRole('tab', { name: 'Jobs' }).click();
       const jr = cp.getByTestId('co-job').filter({ hasText: `Reporting Analyst ${tag}` });
-      await expect(jr.getByTestId('aa-co-summary')).toHaveText('⚡ Auto Apply: off');
+      await expect(jr.getByTestId('aa-co-summary')).toHaveText('Auto Apply: off');
       await expect(cp.getByTestId('co-job').filter({ hasText: `Data Analyst ${tag}` }).getByTestId('aa-co-summary')).toContainText('on · 1 of 50 received');
       expect((await tracker(page)).items.some((x) => x.job.id === off.id)).toBe(false);
       await jr.getByTestId('aa-co-edit').click();

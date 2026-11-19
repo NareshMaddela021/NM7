@@ -1,10 +1,11 @@
-// Admin → Settings → "Test users" (owner only): 100 made-up people for checking the live site with many different
+// Admin -> Settings -> "Test users" (owner only): 100 made-up people for checking the live site with many different
 // accounts. Create, open one (a one-time link signs this browser in as that person), remove. They are marked demo:
 // left out of the numbers and the customers list, never emailed, never shown to a real company.
 // Backend: backend/app/admin/test_users.py. All on the page, no pop-up dialogs.
 import { useState } from 'react';
 import { useToast } from '../../../components/ui';
 import { Loading, http, useAction, useApi } from './common';
+import { IcUsers } from '../../../components/icons';
 
 const KIND = { student: 'Student', fresher: 'Fresher', experienced: 'Experienced', senior: 'Senior' };
 const RESUME = { none: 'No resume', started: 'Started', full: 'Complete' };
@@ -19,7 +20,7 @@ export function TestUsers() {
   const open = (n) => run(async () => { const r = await http(`/api/admin/test-users/${n}/open`, { method: 'POST' }); window.location.assign(r.path); });
   return (
     <section className="mcard as-sec" id="set-test-users" aria-label="Test users" data-testid="test-users">
-      <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true">👥</span><span className="mcard-ht"><h2 className="mcard-title">Test users</h2></span></header>
+      <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true"><IcUsers /></span><span className="mcard-ht"><h2 className="mcard-title">Test users</h2></span></header>
       <span className="xs muted">100 made-up people for checking the site: students, freshers, experienced and senior people, with no resume, a started one or a complete one. Not counted in your numbers, never emailed, never shown to a real company, and they can’t apply to a real company’s job on Nm7. Opening one shows the site as that person; you stay signed in as admin and Back to Admin at the top brings you back.</span>
       <Loading st={st}>{(d) => (
         <div className="stack g8">

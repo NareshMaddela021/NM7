@@ -169,7 +169,7 @@ function Report({ report }) {
         <div className="card stack g8">
           <h2 style={{ fontSize: 16, fontFamily: 'var(--font-body)', letterSpacing: 0, ...wrap }}>Keywords for {role}</h2>
           <div className="row g4" style={{ flexWrap: 'wrap' }}>
-            {report.keywords.found.map((k) => <span key={k} className="badge b-success">✓ {k}</span>)}
+            {report.keywords.found.map((k) => <span key={k} className="badge b-success"><Icon name="check" size={13} stroke={2.5} style={{ marginRight: 4 }} />{k}</span>)}
             {report.keywords.missing.map((k) => <span key={k} className="badge b-neutral" style={{ opacity: .8 }}>{k}</span>)}
           </div>
           <span className="xs faint">Green = found in your resume. Add the others only if you really have them.</span>
@@ -227,7 +227,7 @@ export default function Scan() {
     return () => { alive = false; };
   }, [upload]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!upload && !report) return leaving.current ? null : <Navigate to="/pricing#scan" replace />; // nothing scanned yet → back to the upload box
+  if (!upload && !report) return leaving.current ? null : <Navigate to="/pricing#scan" replace />; // nothing scanned yet -> back to the upload box
   return (
     <>
       <Header variant="flow" />

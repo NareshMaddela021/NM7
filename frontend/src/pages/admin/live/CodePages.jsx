@@ -1,4 +1,4 @@
-// Admin → Codes: every code with its uses and status, create / edit, pause / resume, delete (only a code never used),
+// Admin -> Codes: every code with its uses and status, create / edit, pause / resume, delete (only a code never used),
 // bulk one-time codes with a prefix (+ CSV) and "Who used it" (+ CSV). Owner only: the server answers 403 to anyone
 // else, and checks every rule again when a code is used.
 import { useState } from 'react';

@@ -1,5 +1,5 @@
 // A rule-based ATS score for builder data (0–100) and a job-description keyword match.
-// Same rules for the original resume and the expert's draft, so "54 → 86" is a fair comparison.
+// Same rules for the original resume and the expert's draft, so "54 -> 86" is a fair comparison.
 import { ALL_SKILLS, allSkills } from '../pages/builder/schema';
 import { atsCheck, DEFAULT_DESIGN } from '../pages/builder/design';
 import { visibleResume } from '../pages/builder/entries';
@@ -34,7 +34,7 @@ export function jobMatch(d, jd) {
 export function atsScore(data, jd = '') {
   const d = plainResume(visibleResume(data)); // the scan sees only what prints, as text (no bold markers)
   const ds = { ...DEFAULT_DESIGN, ...(d.design || {}) };
-  const bullets = [...(d.exp || []), ...(d.proj || [])].flatMap((e) => (e.description || '').split('\n')).map((b) => b.replace(/^[•\-*▸–]\s*/, '').trim()).filter((b) => b.length > 12);
+  const bullets = [...(d.exp || []), ...(d.proj || [])].flatMap((e) => (e.description || '').split('\n')).map((b) => b.replace(/^[•\-*\u25B8–]\s*/, '').trim()).filter((b) => b.length > 12);
   const withNum = bullets.filter((b) => /\d/.test(b)).length;
   const strong = bullets.filter((b) => ACTION.test(b) && !/^(made|handled|ran)\b/i.test(b)).length;
   const skills = allSkills(d.skillGroups || []).length;

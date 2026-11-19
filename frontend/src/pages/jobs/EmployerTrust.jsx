@@ -3,20 +3,21 @@
 // money, and "Report fraud" (a reason + an optional note; a person at Nm7 checks it, the company never learns who).
 // Shown only when the API sends them: job cards carry `employer`, the job page and the company page `employerTrust`,
 // and /api/me/trust/employer serves invites and offers; all only while the Trust switch lets this person in
-// (Admin → Skill checks → Vetting Trust). English only for now.
+// (Admin -> Skill checks -> Vetting Trust). English only for now.
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../lib/auth';
 import { http } from '../../services/http';
+import { IcCheck } from '../../components/icons';
 
 const day = (v) => (v ? new Date(v).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
 
-/** "✓ Verified employer · GST". `chip`: the dashboard chip style (MeHire) instead of the job board's badge. */
+/** "Verified employer · GST". `chip`: the dashboard chip style (MeHire) instead of the job board's badge. */
 export function EmployerBadge({ v, chip = false, full = false }) {
   if (!v) return null;
   const title = `Business registration checked in the ${v.registry} registry${v.checkedAt ? ` on ${day(v.checkedAt)}` : ''}${v.test ? ' (test provider)' : ''}`;
-  const text = `✓ ${v.label} · ${v.registry}${full && v.checkedAt ? `, checked ${day(v.checkedAt)}` : ''}${v.test ? ' (test)' : ''}`;
-  return <span className={chip ? 'mchip mchip-ok' : 'badge b-success'} title={title} data-testid="employer-badge" style={{ whiteSpace: 'normal', overflowWrap: 'anywhere', alignSelf: 'flex-start', maxWidth: '100%' }}>{text}</span>;
+  const text = `${v.label} · ${v.registry}${full && v.checkedAt ? `, checked ${day(v.checkedAt)}` : ''}${v.test ? ' (test)' : ''}`;
+  return <span className={chip ? 'mchip mchip-ok' : 'badge b-success'} title={title} data-testid="employer-badge" style={{ whiteSpace: 'normal', overflowWrap: 'anywhere', alignSelf: 'flex-start', maxWidth: '100%' }}><IcCheck size={14} style={{ marginRight: 4, flex: 'none' }} />{text}</span>;
 }
 
 /** The promise in one plain line, and (open = false) a short "What to do if anyone asks for money" list. */
@@ -24,7 +25,7 @@ export function NeverPay({ safety, compact = false }) {
   if (!safety?.promise) return null;
   return (
     <div className="stack g4" data-testid="never-pay" style={{ minWidth: 0 }}>
-      <p className="small" style={{ margin: 0 }}><strong aria-hidden="true">🛡 </strong><strong>{safety.promise.split('. ')[0]}.</strong>{compact ? '' : ` ${safety.promise.split('. ').slice(1).join('. ')}`}</p>
+      <p className="small" style={{ margin: 0 }}><strong>{safety.promise.split('. ')[0]}.</strong>{compact ? '' : ` ${safety.promise.split('. ').slice(1).join('. ')}`}</p>
       {safety.help?.length > 0 && (
         <details className="xs" data-testid="never-pay-help">
           <summary style={{ cursor: 'pointer', minHeight: 24 }}>What to do if anyone asks you for money</summary>
@@ -44,10 +45,10 @@ export function FraudReport({ safety, context, id, label = 'Report fraud' }) {
   const { user } = useAuth();
   const { pathname } = useLocation();
   if (!safety?.reasons) return null;
-  if (!user) return <Link className="small" style={{ color: 'var(--danger)' }} to={`/login?next=${encodeURIComponent(pathname)}`} data-testid="fraud-signin">⚑ Sign in to report fraud</Link>;
+  if (!user) return <Link className="small" style={{ color: 'var(--danger)' }} to={`/login?next=${encodeURIComponent(pathname)}`} data-testid="fraud-signin">Sign in to report fraud</Link>;
   const fid = `fr-${context}-${id}`.replace(/[^a-zA-Z0-9_-]/g, '');
   if (st.done) return <p className="small" role="status" style={{ margin: 0 }} data-testid="fraud-done">{st.done}</p>;
-  if (!open) return <button type="button" className="link-btn small" style={{ alignSelf: 'flex-start', minHeight: 44, color: 'var(--danger)' }} onClick={() => setOpen(true)} data-testid="fraud-open">⚑ {label}</button>;
+  if (!open) return <button type="button" className="link-btn small" style={{ alignSelf: 'flex-start', minHeight: 44, color: 'var(--danger)' }} onClick={() => setOpen(true)} data-testid="fraud-open">{label}</button>;
   const send = async (e) => {
     e.preventDefault();
     if (!reason) { setSt({ error: 'Pick what happened.' }); return; }

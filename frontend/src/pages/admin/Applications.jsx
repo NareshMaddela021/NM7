@@ -7,6 +7,7 @@ import { jobMatch } from '../../lib/atsScore';
 import Compare from '../builder/Compare';
 import ResumePreview from '../builder/ResumePreview';
 import { DEFAULT_DESIGN, TEMPLATE_PRESETS } from '../builder/design';
+import { IcCheck } from '../../components/icons';
 
 const H = 3600 * 1000;
 const fmt = (t) => new Date(t).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
@@ -44,7 +45,7 @@ function TestReview({ x, onDecide }) {
     <div className="stack g16">
       <div className="row g8">
         <span className="badge b-neutral">Task {t.id} · {t.title}</span>
-        <span className="badge b-success">ATS {before} → {after}</span>
+        <span className="badge b-success">ATS {before} to {after}</span>
         <span className="badge b-neutral">Job keywords {m.found.length}/{m.keywords.length}</span>
         <span className={`badge ${x.test.submitted.late ? 'b-danger' : 'b-neutral'}`}>Submitted {fmt(x.test.submitted.at)}{x.test.submitted.late ? ' · late' : ''}</span>
       </div>
@@ -119,12 +120,12 @@ export function ApplicationsPanel() {
           <div className="card stack g16" style={{ flex: '3 1 480px', padding: 24, minWidth: 0 }}>
             <div className="row between g12">
               <div className="stack g4"><h2 style={{ fontSize: 24 }}>{cur.about.name}</h2><span className="muted">{cur.about.headline} · {cur.about.city}</span></div>
-              {cur.ai && <span className="badge b-signal">asuraa.ai ✓ {cur.ai.url} · ★ {cur.ai.rating}</span>}
+              {cur.ai && <span className="badge b-signal">asuraa.ai linked: {cur.ai.url} · rating {cur.ai.rating}/5</span>}
             </div>
             <ol className="tl" aria-label="Application steps">
               {[['Profile', true], ['Test sent', !!cur.test], ['Test submitted', !!cur.test?.submitted], ['Decision', ['approved', 'rejected'].includes(cur.status)]].map(([l, done], i, arr) => {
                 const now = !done && arr.slice(0, i).every((a) => a[1]);
-                return <li key={l} data-state={done ? 'done' : now ? 'now' : 'next'}><span className="dot2">{done ? '✓' : ''}</span><span className="xs">{l}</span></li>;
+                return <li key={l} data-state={done ? 'done' : now ? 'now' : 'next'}><span className="dot2">{done ? <IcCheck size={14} label="Done" /> : ''}</span><span className="xs">{l}</span></li>;
               })}
             </ol>
 
@@ -142,7 +143,7 @@ export function ApplicationsPanel() {
                 <div className="stack g4 small"><strong>Experience</strong>{cur.proof.experience.map((e, i) => <span key={i} className="muted">{[e.role, e.company, e.period].filter(Boolean).join(' · ')}</span>)}</div>
                 {cur.proof.certs?.length > 0 && <span className="small"><strong>Certifications:</strong> {cur.proof.certs.map((c) => c.name).join(', ')}</span>}
                 <span className="small"><strong>LinkedIn:</strong> {cur.proof.linkedin || '—'}</span>
-                <div className="stack g4 small"><strong>Samples</strong>{cur.samples.length ? cur.samples.map((s) => <span key={s.name} className="muted">{s.name} · {s.anonymised ? 'anonymised ✓' : 'NOT anonymised'}</span>) : <span className="muted">None — the test task matters more here.</span>}</div>
+                <div className="stack g4 small"><strong>Samples</strong>{cur.samples.length ? cur.samples.map((s) => <span key={s.name} className="muted">{s.name} · {s.anonymised ? 'anonymised' : 'NOT anonymised'}</span>) : <span className="muted">None — the test task matters more here.</span>}</div>
                 <span className="small"><strong>Payout:</strong> {cur.payout.reuseAi ? 'Same as asuraa.ai account' : cur.payout.method === 'bank' ? 'Bank account' : `UPI ${cur.payout.upi || ''}`} · PAN {cur.payout.pan ? `${'•'.repeat(6)}${cur.payout.pan.slice(-4)}` : '—'}</span>
 
                 {cur.status === 'review' && (

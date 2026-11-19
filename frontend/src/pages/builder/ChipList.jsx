@@ -1,5 +1,5 @@
 // A list of short names edited as chips: type and press Enter or comma (a pasted comma list works too), × removes,
-// drag a chip (mouse or finger) or Alt+←/→ to reorder. Used by "Relevant courses" in Education. The B button bolds
+// drag a chip (mouse or finger) or Alt+<-/-> to reorder. Used by "Relevant courses" in Education. The B button bolds
 // the selected chip (or the words selected in the box) with **markers**, like the rest of the resume text.
 import { useRef, useState } from 'react';
 import { parseBold, toggleBold } from '../../lib/bold';

@@ -45,7 +45,7 @@ export const editSection = (section, value) => http('/api/me/linkedin/pack/edit'
 export const BANNER_W = 1584;
 export const BANNER_H = 396;
 
-/** '#2E46D8' → a light tint of it for the banner background. */
+/** '#2E46D8' -> a light tint of it for the banner background. */
 export function tint(hex, amount = 0.88) {
   const m = /^#?([0-9a-f]{6})$/i.exec(hex || '');
   const [r, g, b] = m ? [0, 2, 4].map((i) => parseInt(m[1].slice(i, i + 2), 16)) : [17, 24, 39];

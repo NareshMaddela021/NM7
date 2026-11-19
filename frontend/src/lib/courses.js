@@ -11,7 +11,7 @@ export const COURSE_LABELS = ['Courses', 'Relevant coursework', 'Coursework'];
 
 const key = (c) => stripBold(String(c || '')).trim().toLowerCase().replace(/\s+/g, ' ');
 
-/** "A, B; C\nD" → ['A', 'B', 'C', 'D'] (trimmed, empty parts dropped). */
+/** "A, B; C\nD" -> ['A', 'B', 'C', 'D'] (trimmed, empty parts dropped). */
 export const splitCourses = (text) => String(text || '').split(/[,;\n]+/).map((x) => x.replace(/\s+/g, ' ').trim()).filter(Boolean);
 
 /** The list with `adds` appended: trimmed, cut to 60 characters, no duplicates, at most 12. */
@@ -50,8 +50,8 @@ export function suggestCourses(entry) {
   return found ? found[1].filter((c) => !hasCourse(entry?.courses, c)) : [];
 }
 
-/** "Relevant coursework: A, B" (or "Courses - A; B") at the start of a line → ['A', 'B'], else null. */
+/** "Relevant coursework: A, B" (or "Courses - A; B") at the start of a line -> ['A', 'B'], else null. */
 export function coursesLine(line) {
-  const m = String(line || '').match(/^\s*[•\-*▸–]?\s*(?:relevant\s+)?(?:course\s*work|courses|coursework|key courses|subjects)\s*[:–-]\s*(.+)$/i);
+  const m = String(line || '').match(/^\s*[•\-*\u25B8–]?\s*(?:relevant\s+)?(?:course\s*work|courses|coursework|key courses|subjects)\s*[:–-]\s*(.+)$/i);
   return m ? addCourses([], splitCourses(m[1])) : null;
 }

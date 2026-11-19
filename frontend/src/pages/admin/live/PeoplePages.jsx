@@ -13,6 +13,7 @@ import { SortTh, useSort } from './sort';
 import { useAuth } from '../../../lib/auth';
 import { viewAsUser } from '../../../lib/adminViews';
 import { WaReport } from './PaymentsSettings';
+import { IcChart, IcStar, IcThumb, IcTrash, IcUsers } from '../../../components/icons';
 
 /* ---------- experts and applications ---------- */
 const EXPERT_STATUS = { draft: 'Filling in profile', review: 'To review', changes: 'Asked for changes', test: 'Doing test task', testReview: 'Test to score', approved: 'Approved', rejected: 'Not approved' };
@@ -33,7 +34,7 @@ export function LiveExperts() {
   ] : null;
   return (
     <>
-      <Hero icon="✦" title="Experts" sub="Approve applications, score test tasks and pause experts." stats={stats} />
+      <Hero icon={<IcStar />} title="Experts" sub="Approve applications, score test tasks and pause experts." stats={stats} />
       <div className="as-bar"><Tabs label="View" tabs={[['applications', 'Applications'], ['experts', 'Approved experts'], ['all', 'Everyone']]} value={tab} onChange={(v) => setParams({ tab: v })} /></div>
       <div className="as-split">
         <div style={{ minWidth: 0 }}>
@@ -138,7 +139,7 @@ export function LiveCustomers() {
   const tab = params.get('tab') || 'customers';
   return (
     <>
-      <Hero icon="☺" title="Customers & support" sub="Accounts, their orders, and support tickets from “Raise an issue”." />
+      <Hero icon={<IcUsers />} title="Customers & support" sub="Accounts, their orders, and support tickets from “Raise an issue”." />
       <div className="as-bar"><Tabs label="View" tabs={[['customers', 'Customers'], ['tickets', 'Support tickets'], ['deletions', 'Deletion requests']]} value={tab} onChange={(v) => setParams({ tab: v })} /></div>
       {tab === 'customers' ? <CustomerList initial={params.get('id')} /> : tab === 'tickets' ? <Tickets /> : <Deletions />}
     </>
@@ -150,7 +151,7 @@ const DELETION = { pending: ['Waiting 7 days', 'b-warning'], undone: ['Undone', 
 function Deletions() {
   const st = useApi('/api/admin/deletion-requests');
   return (
-    <MeCard as="section" icon="⌫" title="Deletion requests" label="Deletion requests" sub="People who chose Delete account. Erased automatically 7 days after they confirm with an email code, unless they undo it. Paid orders and invoices are kept for GST, without their name or email.">
+    <MeCard as="section" icon={<IcTrash />} title="Deletion requests" label="Deletion requests" sub="People who chose Delete account. Erased automatically 7 days after they confirm with an email code, unless they undo it. Paid orders and invoices are kept for GST, without their name or email.">
       <Loading st={st} empty={emptyIf((d) => !d.length, 'No deletion requests.')}>{(rows) => (
         <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table mtable" data-testid="deletions">
           <thead><tr><th>Who</th><th>Asked</th><th>Erase on</th><th>Status</th></tr></thead>
@@ -354,7 +355,7 @@ export function LiveQuality() {
   const [edit, setEdit] = useState({});
   return (
     <>
-      <Hero icon="✓" title="Quality" sub="Score delivered resumes against the five checks. Scores are saved with who scored them."
+      <Hero icon={<IcThumb />} title="Quality" sub="Score delivered resumes against the five checks. Scores are saved with who scored them."
         stats={st.data?.orders?.length ? [['Delivered orders', st.data.orders.length], ['Scored', st.data.orders.filter((o) => o.scores).length, 'ok'], ['Not scored yet', st.data.orders.filter((o) => !o.scores).length, 'warn']] : null} />
       <Loading st={st} empty={emptyIf((d) => !d.orders.length, 'No delivered orders to audit yet.')}>{(d) => (
         <div className="mcard as-tcard">
@@ -365,7 +366,7 @@ export function LiveQuality() {
               const cur = edit[o.orderId] || o.scores || d.checks.map(() => 0);
               return (
                 <tr key={o.orderId}>
-                  <td className="mono small">{o.orderId}</td><td className="small">{day(o.deliveredAt)}</td><td className="small">{o.rating ? `${o.rating}★` : '—'}</td>
+                  <td className="mono small">{o.orderId}</td><td className="small">{day(o.deliveredAt)}</td><td className="small">{o.rating ? `${o.rating}/5` : '—'}</td>
                   {d.checks.map((c, i) => <td key={c}><input type="checkbox" aria-label={`${o.orderId}: ${c}`} checked={!!cur[i]} onChange={(e) => setEdit({ ...edit, [o.orderId]: cur.map((v, j) => (j === i ? (e.target.checked ? 1 : 0) : v)) })} /></td>)}
                   <td><button type="button" className="btn btn-outline" style={{ minHeight: 34 }} disabled={busy || !edit[o.orderId]} onClick={() => run(async () => { await http(`/api/admin/quality/${o.orderId}`, { method: 'PUT', body: { scores: cur } }); setEdit({ ...edit, [o.orderId]: undefined }); st.reload(); }, 'Audit saved')}>{o.scores ? 'Update' : 'Save'}</button></td>
                 </tr>
@@ -391,7 +392,7 @@ export function LiveReports() {
   }, 'CSV downloaded');
   return (
     <>
-      <Hero icon="⇩" title="Reports" sub="Paid orders and money in, by day (India time)." right={
+      <Hero icon={<IcChart />} title="Reports" sub="Paid orders and money in, by day (India time)." right={
         <span className="row g8">
           <select aria-label="Period" className="input" style={{ height: 40, width: 'auto' }} value={days} onChange={(e) => setDays(+e.target.value)}><option value={7}>Last 7 days</option><option value={30}>Last 30 days</option><option value={90}>Last 90 days</option><option value={365}>Last 12 months</option></select>
           <button type="button" className="btn btn-outline" disabled={busy} onClick={csv}>Download orders CSV</button>

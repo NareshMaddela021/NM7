@@ -95,7 +95,7 @@ for (const [label, size] of SIZES) {
       await c.getByRole('radio').click();
       await c.getByTestId('tp-use-card').click();
       await expect(page.getByText('Live preview · Classic')).toBeVisible();
-      await expect(page.getByTestId('page-count')).toHaveText(/1 page ✓|pages · aim for 1/); // the 1-page check runs
+      await expect(page.getByTestId('page-count')).toHaveText(/^1 page$|pages · aim for 1/); // the 1-page check runs
       const after = await page.getByRole('region', { name: 'Live resume preview' }).innerText();
       for (const line of ['Arjun Das', 'Electrician · ITI']) expect(after).toContain(line);
       expect(after.replace(/Live preview · [^\n]+/, '')).toContain(before.split('\n').find((l) => l.includes('Arjun Das')));

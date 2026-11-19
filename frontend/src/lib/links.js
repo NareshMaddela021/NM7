@@ -2,7 +2,7 @@
 const SCHEME = /^[a-z][a-z0-9+.-]*:/i;
 const HOST = /^[a-z0-9-]+(\.[a-z0-9-]+)+([/:?#].*)?$/i;
 
-/** '' → ''; 'company.com/jobs/1' → 'https://company.com/jobs/1'; http(s) kept; anything else (javascript:, data:…) → null. */
+/** '' -> ''; 'company.com/jobs/1' -> 'https://company.com/jobs/1'; http(s) kept; anything else (javascript:, data:…) -> null. */
 export function webLink(v) {
   const s = (v || '').trim();
   if (!s) return '';

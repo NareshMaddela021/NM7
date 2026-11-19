@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import { API_BASE, http } from '../../services/http';
 import { AA_CHANGED } from './AutoSummaryCard';
 import { Empty, Skel } from './kit';
+import { IcCheck, IcCheckCircle, IcExternal } from '../../components/icons';
 
 const BASE = '/api/me/auto-apply/items';
 
@@ -126,7 +127,7 @@ export default function AutoItems({ t, toast, refreshKey }) {
       </section>
       {d.waiting.length > 0 && (
         <section className="mcard" aria-labelledby="aa-wait-h" data-testid="aa-waiting">
-          {head('aa-wait-h', '✓', t('aa.items.waiting'), d.waiting.length, 'violet', <span className="mcard-sub">{t('aa.items.waitingHint')}</span>)}
+          {head('aa-wait-h', <IcCheckCircle />, t('aa.items.waiting'), d.waiting.length, 'violet', <span className="mcard-sub">{t('aa.items.waitingHint')}</span>)}
           <button type="button" className="btn btn-signal" style={{ alignSelf: 'flex-start' }} disabled={!!busy} onClick={approveAll} data-testid="aa-approve-all">{t('aa.items.approveAll', { n: d.waiting.length })}</button>
           {d.waiting.map((it) => (
             <article key={it.id} className="maa-job maa-job-row" data-testid="aa-wait">
@@ -138,13 +139,13 @@ export default function AutoItems({ t, toast, refreshKey }) {
         </section>
       )}
       <section id="ready" className="mcard" aria-labelledby="aa-ready-h" data-testid="aa-ready" style={{ scrollMarginTop: 96 }}>
-        {head('aa-ready-h', '↗', t('aa.items.ready'), d.ready.length, 'blue', <span className="mcard-sub">{t('aa.items.readyHint')}</span>)}
+        {head('aa-ready-h', <IcExternal />, t('aa.items.ready'), d.ready.length, 'blue', <span className="mcard-sub">{t('aa.items.readyHint')}</span>)}
         {d.ready.map((it) => (
           <article key={it.id} className="maa-job" data-testid="aa-ready-item">
             <JobLine it={it} t={t} />
             <div className="row g8" style={{ flexWrap: 'wrap' }}>
               {it.applyUrl && <a className="btn btn-signal" href={it.applyUrl} target="_blank" rel="noopener noreferrer nofollow" data-testid="aa-open"
-                onClick={() => { http(`${BASE}/${it.id}/opened`, { method: 'POST' }).then(() => { toast(t('aa.items.openedToast')); changed(); }, () => {}); }}>{t('aa.items.open')} <span aria-hidden="true">↗</span></a>}
+                onClick={() => { http(`${BASE}/${it.id}/opened`, { method: 'POST' }).then(() => { toast(t('aa.items.openedToast')); changed(); }, () => {}); }}>{t('aa.items.open')} <IcExternal size={14} /></a>}
               {it.hasCopy && <button type="button" className="btn btn-outline" disabled={!!busy} onClick={() => downloadPdf(it.id).catch(() => setErr(t('aa.items.pdfError')))} data-testid="aa-pdf">{t('aa.items.pdf')}</button>}
               <button type="button" className="link-btn small" style={{ minHeight: 44 }} disabled={!!busy} onClick={() => act(it.id, 'skip')}>{t('aa.items.skip')}</button>
             </div>
@@ -159,7 +160,7 @@ export default function AutoItems({ t, toast, refreshKey }) {
         </section>
       )}
       <section className="mcard" aria-labelledby="aa-done-h" data-testid="aa-applied">
-        {head('aa-done-h', '✓', t('aa.items.appliedTitle'), d.applied.length, 'teal', null)}
+        {head('aa-done-h', <IcCheck />, t('aa.items.appliedTitle'), d.applied.length, 'teal', null)}
         {d.applied.length === 0 ? <Empty compact shape="briefcase">{t('aa.items.appliedNone')}</Empty> : (
           <ul className="maa-hist">
             {d.applied.map((it) => (
@@ -173,7 +174,7 @@ export default function AutoItems({ t, toast, refreshKey }) {
             ))}
           </ul>
         )}
-        {d.applied.length > 0 && <Link to="/me/jobs" className="small" style={{ fontWeight: 700 }}>{t('aa.seeApplications')} →</Link>}
+        {d.applied.length > 0 && <Link to="/me/jobs" className="small" style={{ fontWeight: 700 }}>{t('aa.seeApplications')}</Link>}
       </section>
     </>
   );

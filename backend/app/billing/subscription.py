@@ -149,7 +149,7 @@ def _limit_error(key: str, limit: int, member_side: bool) -> ApiError:
         409,
         "plan_limit",
         f"Your organization’s plan allows {limit} {words}, and that’s reached. Nothing has been deleted — "
-        "ask your Owner to upgrade the plan (Organization → Billing) to add more.",
+        "ask your Owner to upgrade the plan (Organization > Billing) to add more.",
     )
 
 

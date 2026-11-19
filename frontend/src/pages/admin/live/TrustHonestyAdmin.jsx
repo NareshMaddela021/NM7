@@ -1,4 +1,4 @@
-// Admin → Skill checks → Vetting Trust → Honesty and retakes (T9; changes audited). The retake limits people Vetting
+// Admin -> Skill checks -> Vetting Trust -> Honesty and retakes (T9; changes audited). The retake limits people Vetting
 // Trust is on for get (attempts per role in a period, for the skill check and the AI interview; the badge refresher's
 // wait after one that doesn't renew), "Explain your answer" (on / off, 1 or 2 questions about the candidate's own
 // practical task in the AI interview) and the honesty pledge they tick before a test, a task or the interview.

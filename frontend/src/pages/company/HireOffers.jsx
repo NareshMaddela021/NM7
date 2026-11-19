@@ -9,6 +9,7 @@ import { rq } from '../../lib/company';
 import { API_BASE } from '../../services/http';
 import { fmtDay } from '../../lib/format';
 import '../../styles/company-hire.css';
+import { IcDownload, IcEdit } from '../../components/icons';
 
 const TONE = { sent: 'mchip-info', accepted: 'mchip-ok', joined: 'mchip-ok', declined: 'mchip-bad', dropped: 'mchip-bad', expired: 'mchip-neutral', withdrawn: 'mchip-neutral' };
 const BLANK = { amount: '', unit: 'month', joinDate: '', place: '', notes: '', respondDays: '3' };
@@ -40,7 +41,7 @@ export default function HireOffers({ t, c, job, people, canEdit }) {
   const today = new Date().toISOString().slice(0, 10);
   return (
     <section className="mcard ho" aria-labelledby="co-offers-h" data-testid="co-offers">
-      <header className="mcard-h"><span className="mcard-ic blue" aria-hidden="true">✍</span><span className="mcard-ht"><strong id="co-offers-h" className="mcard-title">{t('co.offer.title')}</strong><span className="mcard-sub">{t('co.offer.intro')}</span></span></header>
+      <header className="mcard-h"><span className="mcard-ic blue" aria-hidden="true"><IcEdit /></span><span className="mcard-ht"><strong id="co-offers-h" className="mcard-title">{t('co.offer.title')}</strong><span className="mcard-sub">{t('co.offer.intro')}</span></span></header>
       {err && <p className="error" role="alert" style={{ margin: 0 }}>{err}</p>}
       {list.length > 0 && (
         <ul className="ho-list">
@@ -53,7 +54,7 @@ export default function HireOffers({ t, c, job, people, canEdit }) {
               </div>
               <span className="ho-meta">{t('co.offer.joins', { date: fmtDay(o.joinDate) })}{o.typedName ? ` · ${t('co.offer.signed', { name: o.typedName })}` : ''}{o.declineReason || o.dropReason ? ` · ${o.declineReason || o.dropReason}` : ''}</span>
               <div className="ho-actions">
-                <button type="button" className="btn btn-ghost btn-sm" onClick={() => pdf(o.id)} data-testid="co-offer-pdf"><span aria-hidden="true">⤓ </span>{t('co.offer.pdf')}</button>
+                <button type="button" className="btn btn-ghost btn-sm" onClick={() => pdf(o.id)} data-testid="co-offer-pdf"><IcDownload size={16} /> {t('co.offer.pdf')}</button>
                 {canEdit && o.status === 'accepted' && o.joinDate <= today && (why[o.id] !== undefined ? (
                   <span className="hsl-cancel">
                     <input className="input" maxLength={300} aria-label={t('co.offer.why')} placeholder={t('co.offer.why')} value={why[o.id]} onChange={(e) => setWhy({ ...why, [o.id]: e.target.value })} />

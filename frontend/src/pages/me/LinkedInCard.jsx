@@ -19,7 +19,7 @@ export default function LinkedInCard() {
   const score = rec?.path === 'fix' ? rec.result?.score : undefined;
   return (
     <section className="card stack g12" style={{ flex: '1 1 300px' }} aria-label="LinkedIn" data-testid="me-linkedin">
-      <div className="row between"><strong>LinkedIn</strong><Link to="/linkedin" className="small">Open →</Link></div>
+      <div className="row between"><strong>LinkedIn</strong><Link to="/linkedin" className="small">Open</Link></div>
       {typeof score === 'number' ? (
         <>
           <span className="small">Latest score <strong data-testid="me-li-score" style={{ fontSize: 20 }}>{score}</strong>/100</span>

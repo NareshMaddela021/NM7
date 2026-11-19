@@ -1,4 +1,4 @@
-// /linkedin: free LinkedIn help. "I have a LinkedIn profile" → the check (FixPath); "I don't have one yet" → the
+// /linkedin: free LinkedIn help. "I have a LinkedIn profile" -> the check (FixPath); "I don't have one yet" -> the
 // headlines and the guide (CreatePath). Signed-in customers keep their latest check on their account.
 import { useEffect, useState } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';

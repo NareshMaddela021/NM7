@@ -5,6 +5,7 @@ import { Spinner, useToast } from '../../components/ui';
 import { LIVE, http } from '../../services/http';
 import { Chip } from './kit';
 import '../../styles/me-work.css';
+import { IcMessage } from '../../components/icons';
 
 const STATUS = { pending: ['Waiting for review', 'warn'], approved: ['On the website', 'ok'], rejected: ['Not used', 'neutral'] };
 const readPhoto = (file) => new Promise((ok, no) => {
@@ -31,7 +32,7 @@ export default function MyStories({ name = '' }) {
   };
   return (
     <section className="mcard" style={{ flex: '1 1 340px' }} aria-label="Share your story" data-testid="my-stories">
-      <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true">❝</span><span className="mcard-ht"><h2 className="mcard-title">Share your story</h2><span className="mcard-sub">Did Nm7 help you get shortlisted or placed? A few lines help other students. We fix typos only, and you can withdraw it any time.</span></span></header>
+      <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true"><IcMessage /></span><span className="mcard-ht"><h2 className="mcard-title">Share your story</h2><span className="mcard-sub">Did Nm7 help you get shortlisted or placed? A few lines help other students. We fix typos only, and you can withdraw it any time.</span></span></header>
       {rows.map((s) => {
         const [label, tone] = STATUS[s.status] || [s.status, 'neutral'];
         return (

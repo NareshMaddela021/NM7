@@ -201,7 +201,7 @@ export function BlogStrip() {
       <div className="h-wrap stack g24">
         <div className="row between g12" style={{ alignItems: 'flex-end' }}>
           <h2 id="blog-strip-t" className="h-sec-title">From the blog</h2>
-          <Link to="/blog">All articles →</Link>
+          <Link to="/blog">All articles</Link>
         </div>
         <div className="blog-grid">{posts.map((p) => <PostCard key={p.slug} p={p} as="h3" />)}</div>
       </div>

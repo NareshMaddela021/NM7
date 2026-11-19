@@ -1,4 +1,4 @@
-// Auto Apply 2.0 (A7) numbers, shared by Admin → Daily report (the "Auto Apply" section, from the snapshot) and Admin →
+// Auto Apply 2.0 (A7) numbers, shared by Admin -> Daily report (the "Auto Apply" section, from the snapshot) and Admin ->
 // Auto Apply (counted now): per channel sent / delivered / failed with reply and interview rates, and the success
 // measures with their targets as plain Met / Not met / No data yet (backend: app/autoapply/stats.py).
 import '../../../styles/admin-aa-numbers.css';
@@ -10,7 +10,7 @@ const MSTATE = { met: ['mchip-ok', 'Met'], miss: ['mchip-bad', 'Not met'], none:
 const AA_COUNT = new Set(['perSeeker', 'companyComplaints']);
 
 /** Auto Apply 2.0 (A7): per channel for the last 7 days, and the success measures with plain met / not met. Also on
- * Admin → Auto Apply (same numbers). */
+ * Admin -> Auto Apply (same numbers). */
 export default function AutoApplyNumbers({ aa }) {
   if (!aa) return <span className="small muted" data-testid="dr-aa-none">No Auto Apply numbers in this snapshot yet. Press Refresh now.</span>;
   return (

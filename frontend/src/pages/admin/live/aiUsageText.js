@@ -1,5 +1,5 @@
 // The AI usage card's detail line under a day's counts for one feature:
-// {fallback: 3, unusable: {too_long: 2, empty: 1}, dropped: 4} → "fallback 3 (too_long 2, empty 1) · dropped 4"
+// {fallback: 3, unusable: {too_long: 2, empty: 1}, dropped: 4} -> "fallback 3 (too_long 2, empty 1) · dropped 4"
 // (empty string when there is nothing to say).
 export function aiDetail(f) {
   if (!f) return '';

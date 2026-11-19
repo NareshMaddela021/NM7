@@ -377,5 +377,5 @@ def item_out(r: dict[str, Any], queue_open: bool | None = None) -> dict[str, Any
     return {"id": str(r["_id"]), "kind": r["kind"], "kindLabel": KIND_LABEL[r["kind"]], "key": r.get("key") or "",
             "first": r.get("first"), "second": r.get("second"), "gap": r.get("gap"), "material": bool(r.get("material")),
             "status": r.get("status"), "at": ms(r.get("at")),
-            "where": {"v2": "Skill checks → Review queue", "v3": "Interviews → Bias checks", "t9": "here"}[r["kind"]],
+            "where": {"v2": "Skill checks > Review queue", "v3": "Interviews > Bias checks", "t9": "here"}[r["kind"]],
             "open": queue_open}  # fmt: skip

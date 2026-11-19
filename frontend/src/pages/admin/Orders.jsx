@@ -53,12 +53,12 @@ function Detail({ o, onClose }) {
         <div className="stack g8 well">
           <label htmlFor="as-ex" className="label" style={{ margin: 0 }}>Expert</label>
           <div className="row g8" style={{ flexWrap: 'nowrap' }}>
-            <select id="as-ex" className="input" style={{ height: 42 }} value={o.expert || ''} onChange={(e) => { actions.assign(o.id, e.target.value); toast(`${o.id} → ${exName(e.target.value)}`); }}>
+            <select id="as-ex" className="input" style={{ height: 42 }} value={o.expert || ''} onChange={(e) => { actions.assign(o.id, e.target.value); toast(`${o.id} assigned to ${exName(e.target.value)}`); }}>
               <option value="" disabled>Choose an expert…</option>
-              {experts.filter((x) => x.status === 'active').map((x) => <option key={x.id} value={x.id}>{x.name} · {x.domains[0]} · {loads[x.id] || 0}/{x.cap}{x.domains.includes(o.domain) ? ' ✓ domain' : ''}</option>)}
+              {experts.filter((x) => x.status === 'active').map((x) => <option key={x.id} value={x.id}>{x.name} · {x.domains[0]} · {loads[x.id] || 0}/{x.cap}{x.domains.includes(o.domain) ? ' · domain match' : ''}</option>)}
             </select>
           </div>
-          {suggestion && <button type="button" className="btn btn-signal" onClick={() => { actions.assign(o.id, suggestion.id); toast(`Assigned to ${suggestion.name}`); }}>✦ Best match: {suggestion.name} (★ {suggestion.rating}, {suggestion.onTime}% on time) — assign</button>}
+          {suggestion && <button type="button" className="btn btn-signal" onClick={() => { actions.assign(o.id, suggestion.id); toast(`Assigned to ${suggestion.name}`); }}>Best match: {suggestion.name} ({suggestion.rating}/5, {suggestion.onTime}% on time) — assign</button>}
         </div>
       )}
 
@@ -66,7 +66,7 @@ function Detail({ o, onClose }) {
       {tab === 'timeline' && <ol className="stack g8" style={{ margin: 0, paddingLeft: 18 }}>{orderTimeline(o).map(([l, t]) => <li key={l} className="small"><strong>{l}</strong> <span className="muted">· {fmtDT(t)}</span></li>)}{o.deadline && <li className="small muted">Deadline · {fmtDT(o.deadline)}</li>}</ol>}
       {tab === 'intake' && <div className="stack g4 small"><span><strong>Target role:</strong> {o.role}</span><span><strong>Experience:</strong> Fresher (0–1 yr)</span><span><strong>Top wins to highlight:</strong> “Built a Power BI dashboard for my college fest; internship at a local firm.”</span><span><strong>Anything to avoid:</strong> “Don’t mention my gap year in detail.”</span><span className="xs faint">Sample answers in this preview.</span></div>}
       {tab === 'files' && <div className="stack g4 small">{['Original upload · v0', ...(o.stage !== 'Placed' && o.stage !== 'Expert assigned' ? ['Draft 1 · v1'] : []), ...(['Revisions', 'Delivered', 'Approved'].includes(o.stage) ? ['Draft 2 · v2'] : []), ...(o.deliveredAt ? ['Final PDF + DOCX · v3'] : [])].map((f) => <span key={f} className="row between well"><span>{f}</span><span className="xs faint">ATS {f.includes('v0') ? o.atsBefore : o.atsAfter || '—'}</span></span>)}<span className="xs faint">Files are deleted 60 days after delivery.</span></div>}
-      {tab === 'messages' && <div className="stack g8 small"><span className="well"><strong>{o.customer}:</strong> Can you make it one page?</span>{o.expert && <span className="well"><strong>{exName(o.expert)}:</strong> Yes — draft 2 trims projects to the best two.</span>}<span className="xs faint">Customer ↔ expert chat (sample).</span></div>}
+      {tab === 'messages' && <div className="stack g8 small"><span className="well"><strong>{o.customer}:</strong> Can you make it one page?</span>{o.expert && <span className="well"><strong>{exName(o.expert)}:</strong> Yes — draft 2 trims projects to the best two.</span>}<span className="xs faint">Customer and expert chat (sample).</span></div>}
       {tab === 'notes' && (
         <div className="stack g8">
           {(notes[o.id] || []).map((n, i) => <span key={i} className="well small"><strong>{n.who}</strong> <span className="faint xs">{fmtDT(n.at)}</span><br />{n.text}</span>)}
@@ -129,7 +129,7 @@ export default function Orders() {
     <>
       <PageHead title="Orders" sub="Late and due-soon orders are always on top."
         right={<>
-          <button type="button" className="btn btn-signal" disabled={!unassignedIds.length} onClick={() => toast(`Auto-assigned ${actions.autoAssign(unassignedIds)} order(s) by domain, rating, on-time and free capacity`)}>✦ Auto-assign {unassignedIds.length || ''}</button>
+          <button type="button" className="btn btn-signal" disabled={!unassignedIds.length} onClick={() => toast(`Auto-assigned ${actions.autoAssign(unassignedIds)} order(s) by domain, rating, on-time and free capacity`)}>Auto-assign {unassignedIds.length || ''}</button>
           <button type="button" className="btn btn-outline" onClick={() => downloadCsv('orders.csv', [['Order', 'Customer', 'Plan', 'Price', 'Domain', 'Role', 'Expert', 'Stage', 'Placed', 'Deadline'], ...list.map((o) => [o.id, o.customer, PLANS[o.planId].name, o.price, o.domain, o.role, exName(o.expert), o.stage, fmtDT(o.createdAt), o.deadline ? fmtDT(o.deadline) : ''])])}>Export CSV</button>
         </>} />
       <div className="row g8" role="tablist" aria-label="Saved views">
@@ -145,7 +145,7 @@ export default function Orders() {
         <div className="card row g8" style={{ padding: 12, borderColor: 'var(--ink)' }}>
           <strong className="small">{checked.length} selected</strong>
           <select aria-label="Assign selected to" className="input" style={{ height: 40, width: 'auto' }} value={bulkTo} onChange={(e) => setBulkTo(e.target.value)}><option value="">Assign to…</option>{experts.filter((x) => x.status === 'active').map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}</select>
-          <button type="button" className="btn btn-ink" disabled={!bulkTo} onClick={() => { checked.forEach((id) => actions.assign(id, bulkTo)); toast(`${checked.length} orders → ${exName(bulkTo)}`); setChecked([]); }}>Assign</button>
+          <button type="button" className="btn btn-ink" disabled={!bulkTo} onClick={() => { checked.forEach((id) => actions.assign(id, bulkTo)); toast(`${checked.length} orders assigned to ${exName(bulkTo)}`); setChecked([]); }}>Assign</button>
           <button type="button" className="btn btn-signal" onClick={() => { toast(`Auto-assigned ${actions.autoAssign(checked)} order(s)`); setChecked([]); }}>Auto-assign selected</button>
           <button type="button" className="btn btn-ghost" onClick={() => setChecked([])}>Clear</button>
         </div>

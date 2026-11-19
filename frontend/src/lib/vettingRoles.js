@@ -62,7 +62,7 @@ export const BY_TEST = Object.fromEntries(VETTING_ROLES.map((r) => [r.test, r]))
 export const GROUP_LABEL = { tech: 'Tech', business: 'Business and office', trades: 'Trades and services', health: 'Health and teaching' };
 export const TASK_LABEL = { tech: 'Written mini task', written: 'Written scenario', voice: 'Spoken reply', proof: 'Situations + work photo' };
 
-/** "3–5 years" → "3–5 yrs band"; "Fresher" → "Fresher band". */
+/** "3–5 years" -> "3–5 yrs band"; "Fresher" -> "Fresher band". */
 export const bandText = (label) => `${String(label || '').replace(/\byears?\b/, 'yrs')} band`;
 
 /** "Nov 2026" from a millisecond time. */
@@ -80,8 +80,8 @@ export function badgeParts(sv) {
   ].filter(Boolean);
 }
 
-/** "✓ Skill verified · Java · 3–5 yrs band · 82/100 · task 4.2/5 · Nov 2026", or "Skill verified (expired) · Java …". */
+/** "Skill verified · Java · 3–5 yrs band · 82/100 · task 4.2/5 · Nov 2026", or "Skill verified (expired) · Java …". */
 export function badgeLine(sv) {
   if (!sv) return '';
-  return [sv.expired ? 'Skill verified (expired)' : '✓ Skill verified', ...badgeParts(sv)].join(' · ');
+  return [sv.expired ? 'Skill verified (expired)' : 'Skill verified', ...badgeParts(sv)].join(' · ');
 }

@@ -8,6 +8,7 @@ import { Bar } from '../kit';
 import { API, clock, emptySignals, fingerprint, questionAnnounce, readStore, runKey, totalAnnounce, useSignals, writeStore } from './lib';
 import { SnapNote, useSnapshots } from '../trust/Snapshots'; // Vetting Trust T8: optional webcam stills (consent only)
 import '../../../styles/me-vet.css';
+import { IcLock } from '../../../components/icons';
 
 const SAVE_EVERY = 20_000;
 
@@ -207,7 +208,7 @@ export default function TestRunner({ paper, onDone, onError }) {
         </section>
       )}
       {q && sendErr && <p className="error" role="alert">{sendErr} <button type="button" className="btn btn-outline" onClick={submit}>Send again</button></p>}
-      <p className="xs muted" style={{ margin: 0 }}>🔒 No camera. Leaving this page, copy / paste and right-click are counted, never blocked.</p>
+      <p className="xs muted" style={{ margin: 0 }}><IcLock size={14} /> No camera. Leaving this page, copy / paste and right-click are counted, never blocked.</p>
     </div>
   );
 }

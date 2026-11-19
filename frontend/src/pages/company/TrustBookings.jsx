@@ -1,4 +1,4 @@
-// Company dashboard → Hire now → "Bookings by one-tap link" (Vetting Trust T11). Only where the Trust switch lets this
+// Company dashboard -> Hire now -> "Bookings by one-tap link" (Vetting Trust T11). Only where the Trust switch lets this
 // company in (GET /api/company/{id}/trust/booking answers 404 otherwise, and nothing shows). Live (every 30 s while the
 // tab is visible): candidates who booked, moved or cancelled an interview time with the link Nm7 sent them, and "can't
 // make it" notes; the joining days coming up with each new hire's answers (coming / reschedule / joined) and the

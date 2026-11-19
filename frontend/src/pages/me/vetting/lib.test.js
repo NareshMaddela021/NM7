@@ -23,7 +23,7 @@ describe('vetting helpers', () => {
 
   it('the verified badge reads as one line', () => {
     const v = { role: 'Data analyst', bandLabel: '1–3 years', score: 84, taskStars: 4.2, at: Date.UTC(2026, 10, 16) };
-    expect(badgeLine(v)).toMatch(/^✓ Skill verified · Data analyst · 1–3 years · 84\/100 · task 4.2\/5 · Nov 2026$/);
+    expect(badgeLine(v)).toMatch(/^Skill verified · Data analyst · 1–3 years · 84\/100 · task 4.2\/5 · Nov 2026$/);
     expect(badgeLine(null)).toBe('');
   });
 
