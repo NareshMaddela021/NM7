@@ -1,4 +1,4 @@
-/* Company → Internships & projects (round P, Phase 3): intro card, program cards with a places bar and applicant
+/* Company -> Internships & projects (round P, Phase 3): intro card, program cards with a places bar and applicant
    rows, and the post form with big choice tiles. Company blue. */
 .cp .mcard-accent { background: linear-gradient(140deg, rgba(255, 255, 255, .94), rgba(231, 239, 255, .94)); border-color: #cddcff; }
 .cp-intro .mcard-sub { max-width: 70ch; }

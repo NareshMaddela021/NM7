@@ -70,7 +70,7 @@ for (const [label, size] of SIZES) {
       await c.getByRole('radio').click();
       await c.getByTestId('tp-use-card').click();
       await expect(page.getByText('Live preview · Academic')).toBeVisible();
-      await expect(page.getByTestId('page-count')).toHaveText('1 page ✓', { timeout: 15_000 });
+      await expect(page.getByTestId('page-count')).toHaveText('1 page', { timeout: 15_000 });
 
       // the look: CMU Serif from our own origin, centred name, two-line entries
       expect(await page.evaluate(async () => { await document.fonts.ready; return document.fonts.check('700 12px "CMU Serif"') && [...document.fonts].some((f) => f.family.includes('CMU Serif') && f.status === 'loaded'); })).toBe(true);

@@ -1,4 +1,4 @@
-// Admin → Skill checks → Vetting Trust → ID + selfie (T3; owner only, the "settings" permission). One card:
+// Admin -> Skill checks -> Vetting Trust -> ID + selfie (T3; owner only, the "settings" permission). One card:
 //   the provider (the test provider or Amazon Rekognition), whether each key is set (never the value: keys live in
 //   Render env vars, docs/trust/T3-vendors.md), the pass marks (liveness, ID match, same person at joining), how many
 //   tries before a person checks, which steps need the check (AI interview, skill check), today's counts, and the review
@@ -76,7 +76,7 @@ export default function TrustFaceAdmin() {
             <div><button type="button" className="btn btn-outline" style={{ minHeight: 44 }} disabled={busy} onClick={save} data-testid="tf-save">Save</button></div>
             {d.providers.filter((p) => !p.test).map((p) => (
               <div key={p.key} className="stack g4" data-testid={`tf-keys-${p.key}`}>
-                <span className="label">{p.label}: keys (Render → Environment)</span>
+                <span className="label">{p.label}: keys (Render &gt; Environment)</span>
                 <ul className="small" style={{ margin: 0, paddingLeft: 18 }}>{Object.entries(p.keys).map(([k, v]) => <li key={k}><code>{k}</code>: {v ? 'set' : 'not set'}</li>)}</ul>
               </div>
             ))}

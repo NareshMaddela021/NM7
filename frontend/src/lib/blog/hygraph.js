@@ -68,7 +68,7 @@ export async function gql(query, variables, { endpoint = ENDPOINT, fetchImpl = f
   } finally { if (t) clearTimeout(t); }
 }
 
-/** A post from the API → what the pages use (reading time worked out, dates as ISO strings). */
+/** A post from the API -> what the pages use (reading time worked out, dates as ISO strings). */
 export function normalizePost(p) {
   const content = p.content?.raw ?? p.content ?? { children: [] }; // Hygraph's Rich Text AST is the `raw` field
   return {

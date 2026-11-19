@@ -1,4 +1,4 @@
-/* Hire now (round P, Phase 3): control bar, the Minute 0 → 60 card, the bulk board, ranked people cards, interview
+/* Hire now (round P, Phase 3): control bar, the Minute 0 -> 60 card, the bulk board, ranked people cards, interview
    times and offers. Company blue. Uses the shared kit (me-kit.css). No backdrop-filter or transform on anything that
    holds a form, so nothing fixed is trapped. */
 .hn { min-width: 0; }
@@ -24,7 +24,7 @@
   color: #14532d; background: #ecfdf3; border: 1px solid #bbe5c9; overflow-wrap: anywhere; }
 .sv-badge.sv-expired { color: #4b5563; background: #f4f4f6; border-color: #e2e2e8; font-weight: 600; }
 
-/* ---------- Minute 0 → 60 ---------- */
+/* ---------- Minute 0 -> 60 ---------- */
 .hs-card { gap: 18px; }
 .hs-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: start; }
 .hs-head-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; }

@@ -176,7 +176,7 @@ for (const [label, opts] of SIZES) {
       await expect(filters).toContainText(/Distance from the job \([1-9]\d*\)/, { timeout: 20_000 });
       const person = page.getByTestId('co-hire-row').filter({ hasText: first });
       await expect(person).toBeVisible({ timeout: 20_000 });
-      await expect(person.getByTestId('co-hire-nt-licence')).toHaveText('✓ Driving licence (two-wheeler, LMV (car)) · verified via DigiLocker (test)');
+      await expect(person.getByTestId('co-hire-nt-licence')).toHaveText('Driving licence (two-wheeler, LMV (car)) · verified via DigiLocker (test)');
       await expect(person.getByTestId('co-hire-nt-vehicle')).toHaveText('Owns a two-wheeler · self-declared');
       await expect(person.getByTestId('co-hire-nt-distance')).toHaveText(/^~\d+ km from the job · self-declared$/);
       await expect(person.getByTestId('co-hire-nt-langs')).toContainText('Telugu');

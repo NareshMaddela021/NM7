@@ -7,7 +7,7 @@ const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 /** Keeps each bullet to about 22 words, cutting at a comma or "and" where possible. */
 export function shorten(text) {
   return lines(text).map((l) => {
-    const words = l.replace(/^[•\-*▸–]\s*/, '').split(/\s+/);
+    const words = l.replace(/^[•\-*\u25B8–]\s*/, '').split(/\s+/);
     if (words.length <= 22) return l;
     let cut = words.slice(0, 22).join(' ');
     const at = Math.max(cut.lastIndexOf(','), cut.lastIndexOf(' and '));
@@ -19,7 +19,7 @@ export function shorten(text) {
 /** ATS-friendly: plain characters, starts with an action verb, no first person, no trailing full stops. */
 export function atsFriendly(text) {
   return lines(text).map((l, i) => {
-    let t = l.replace(/^[•\-*▸–➢✓]\s*/, '').replace(/[“”]/g, '"').replace(/[‘’]/g, "'").replace(/\s*&\s*/g, ' and ').replace(/[|→]/g, '-')
+    let t = l.replace(/^[•\-*\u25B8–\u27A2\u2713]\s*/, '').replace(/[“”]/g, '"').replace(/[‘’]/g, "'").replace(/\s*&\s*/g, ' and ').replace(/[|\u2192]/g, '-')
       .replace(/\b(I|we|my|our)\s+/gi, '').replace(/\s{2,}/g, ' ').trim();
     if (WEAK.test(t)) t = `${VERBS[i % VERBS.length]} ${t.replace(WEAK, '')}`;
     return cap(t).replace(/\.$/, '');

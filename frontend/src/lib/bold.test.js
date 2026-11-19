@@ -27,9 +27,9 @@ describe('bold markers', () => {
     expect(r.value).toBe(s);
     expect(toggleBold(s, 8, 8).value).toBe('Built **dashboards** in Power BI'); // cursor inside a word
     expect(toggleBold('a  b', 1, 3).value).toBe('a  b'); // only spaces: nothing to do
-    // part of a bold run → that part only
+    // part of a bold run -> that part only
     expect(toggleBold('**Power BI** dashboards', 8, 10).value).toBe('**Power** BI dashboards');
-    // a selection spanning plain and bold → all bold; spaces at the edges stay outside the markers
+    // a selection spanning plain and bold -> all bold; spaces at the edges stay outside the markers
     expect(toggleBold('cut **costs** by 20%', 0, 20).value).toBe('**cut costs by 20%**');
     // never across a line break
     expect(toggleBold('one\ntwo', 0, 7).value).toBe('**one**\n**two**');

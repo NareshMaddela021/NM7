@@ -1,4 +1,4 @@
-// Admin → Auto Apply (Phase 3, A7): applications per day (Auto vs Manual, by channel), emails sent / bounced /
+// Admin -> Auto Apply (Phase 3, A7): applications per day (Auto vs Manual, by channel), emails sent / bounced /
 // complaints, students on / paused, stuck items, company "Not relevant" marks, the run log with errors; the off switch
 // (off = nothing is applied or sent), every default, pause a student or a company, and the demo shortcut. All on the
 // page, no pop-up dialogs; everything is in the activity log.
@@ -25,7 +25,7 @@ const Count = ({ o }) => <td style={NUM}><strong>{total(o)}</strong>{total(o) > 
 
 export function LiveAutoApply() {
   const toast = useToast();
-  useLang(); // redraws when Admin → Settings "Show Telugu and Hindi" changes
+  useLang(); // redraws when Admin -> Settings "Show Telugu and Hindi" changes
   const raviLang = langsShown() ? 'Telugu' : 'English'; // Ravi follows that setting (re-test N5)
   const st = useApi('/api/admin/auto-apply');
   const [busy, run] = useAction(toast);
@@ -196,14 +196,14 @@ const ALL_FIELDS = [...V2_FIELDS, ...PRICE_FIELDS];
 
 const AutoApplyNumbers = lazy(() => import('./AutoApplyNumbers'));
 
-// A7: the per-channel numbers and the success measures, counted now (the same as Admin → Daily report's section).
+// A7: the per-channel numbers and the success measures, counted now (the same as Admin -> Daily report's section).
 function V2Stats() {
   const st = useApi('/api/admin/auto-apply/v2/stats');
   return (
     <Panel title="Auto Apply 2.0: channels and success measures">
       <Loading st={st}>{(d) => (
         <div className="stack g8" data-testid="aa2-admin-stats">
-          <span className="xs muted">Last 7 days by channel (rates over 30 days). Demo accounts are never counted. The same numbers are in Admin → Daily report every morning.</span>
+          <span className="xs muted">Last 7 days by channel (rates over 30 days). Demo accounts are never counted. The same numbers are in Admin &gt; Daily report every morning.</span>
           <Suspense fallback={<Spinner />}><AutoApplyNumbers aa={d} /></Suspense>
         </div>
       )}</Loading>

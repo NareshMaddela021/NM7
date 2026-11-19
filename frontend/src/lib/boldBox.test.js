@@ -49,7 +49,7 @@ describe('bold text box', () => {
     // no selection: the word around the cursor; a selection with spaces at its edges
     expect(fromMask(plain, toggleMask(plain, mask, 2, 2).mask)).toBe('**Built** dashboards in Power BI for sales');
     expect(fromMask(plain, toggleMask(plain, mask, i - 1, i + 9).mask)).toBe('Built dashboards in **Power BI** for sales');
-    // part bold → all bold, then all plain
+    // part bold -> all bold, then all plain
     const part = toggleMask(plain, mask, i, i + 5).mask;
     const all = toggleMask(plain, part, i, i + 8).mask;
     expect(fromMask(plain, all)).toBe('Built dashboards in **Power BI** for sales');

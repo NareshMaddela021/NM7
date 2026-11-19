@@ -61,7 +61,7 @@ def plan_active(
     )
     lines = [hi, line]
     if invoice:
-        lines.append(f"Invoice {invoice[0]} is attached. You can download it again any time from Billing → Invoices.")
+        lines.append(f"Invoice {invoice[0]} is attached. You can download it again any time from Billing > Invoices.")
     text = "\n\n".join(lines) + f"\n\nBilling and invoices: {url}\n\nNm7 · nm7.si"
     html = _wrap([escape(x) for x in lines], url, "Open billing")
     files = [(invoice[1], "application/pdf", invoice[2])] if invoice else []

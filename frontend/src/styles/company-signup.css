@@ -108,7 +108,7 @@
 .gr-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
 .gr-list > li { position: relative; padding-left: 22px; line-height: 1.5; }
 .gr-list > li::before { content: ""; position: absolute; left: 4px; top: .6em; width: 8px; height: 8px; border-radius: 50%; background: #3b82f6; }
-.gr-ticks > li::before { content: "✓"; width: auto; height: auto; background: none; color: #16a34a; font-weight: 800; top: 0; left: 2px; }
+.gr-ticks > li::before { content: ""; display: inline-block; width: 1em; height: 1em; background: currentColor; -webkit-mask: var(--ic-check) center / contain no-repeat; mask: var(--ic-check) center / contain no-repeat; border-radius: 0; color: #16a34a; top: .25em; left: 2px; }
 .gr-contact .gr-mail { padding: 10px 12px; border-radius: 12px; background: #fff; border: 1px dashed #b9cbff; font-weight: 700; overflow-wrap: anywhere; }
 
 /* feedback after "Not selected" (inside an applicant card) */
@@ -120,4 +120,4 @@
 .fb-pill.on { border-color: #1d4ed8; background: #eef4ff; color: #1d4ed8; }
 .fb-pill:has(input:focus-visible) { outline: 2px solid #1d4ed8; outline-offset: 2px; }
 .fb-done { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 12px; background: #f0faf3; color: #166534; font-weight: 600; }
-.fb-done::before { content: "✓"; font-weight: 800; }
+.fb-done::before { content: ""; display: inline-block; width: 1em; height: 1em; background: currentColor; -webkit-mask: var(--ic-check) center / contain no-repeat; mask: var(--ic-check) center / contain no-repeat; flex: none; }

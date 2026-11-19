@@ -54,7 +54,7 @@ for (const [label, opts] of SIZES) {
       const docs = dl.getByTestId('dl-docs');
       await expect(docs.locator('[data-testid^="dl-doc-"]')).toHaveCount(4);
       await expect(dl.getByTestId('dl-doc-class12')).toHaveCount(0); // only what was picked
-      await expect(dl.getByTestId('dl-doc-dl').getByTestId('dl-state')).toContainText(/✓ Verified via DigiLocker, \d+ \w+ \d{4}/);
+      await expect(dl.getByTestId('dl-doc-dl').getByTestId('dl-state')).toContainText(/Verified via DigiLocker, \d+ \w+ \d{4}/);
       await expect(dl.getByTestId('dl-doc-dl')).toContainText('Driving licence (MCWG, LMV) · valid to 11 Apr 2039');
       await expect(dl.getByTestId('dl-doc-pan')).toContainText(/PAN verified \(ending \d{3}L\)/);
       await expect(dl).not.toContainText(/aadhaar number|9999\d{8}/i);

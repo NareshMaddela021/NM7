@@ -210,7 +210,7 @@ const appBody = (x, patch) => ({
   ...(x.score != null ? { score: x.score } : {}), ...(x.tailoredResumeId ? { tailoredResumeId: x.tailoredResumeId } : {}),
 });
 
-/** Called after every change to the store (prev → next). Returns a promise for new support tickets. */
+/** Called after every change to the store (prev -> next). Returns a promise for new support tickets. */
 export function persist(prev, next) {
   // resumes: new ones now, edits debounced, deleted ones now
   const a = byId(prev.resumes); const b = byId(next.resumes);

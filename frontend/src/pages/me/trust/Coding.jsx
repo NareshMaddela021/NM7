@@ -9,6 +9,7 @@ import { http } from '../../../services/http';
 import { API, emptySignals, useSignals } from '../vetting/lib';
 import { createRecorder } from './codeLib';
 import '../../../styles/code-task.css';
+import { IcCheck, IcX } from '../../../components/icons';
 
 const CODE = '/api/me/trust/code';
 
@@ -17,7 +18,7 @@ function Results({ results }) {
     <ul className="ct-results" aria-label="Sample test results" data-testid="ct-results">
       {results.map((r) => (
         <li key={r.name} className={`ct-result ${r.passed ? 'ok' : 'bad'}`} data-testid="ct-result">
-          <strong>{r.passed ? '✓' : '✗'} {r.name}</strong>
+          <strong>{r.passed ? <IcCheck size={14} label="Passed" /> : <IcX size={14} label="Failed" />} {r.name}</strong>
           {!r.passed && <span className="xs">{r.statusText}</span>}
           {!r.passed && (
             <div className="ct-io">

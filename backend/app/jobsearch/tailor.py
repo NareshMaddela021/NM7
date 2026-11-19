@@ -244,8 +244,8 @@ def build(p: Parsed, data: dict[str, Any], ai_answer: dict[str, Any] | None = No
         projs = data.get("proj") or []
         before = [projs[i].get("title") or f"Project {i + 1}" for i in range(len(projs))]
         after = [projs[i].get("title") or f"Project {i + 1}" for i in order]
-        out.append({"id": "projects", "kind": "projects", "label": "Projects order", "before": " → ".join(before),
-                    "after": " → ".join(after), "source": "rules", "order": order})  # fmt: skip
+        out.append({"id": "projects", "kind": "projects", "label": "Projects order", "before": ", ".join(before),
+                    "after": ", ".join(after), "source": "rules", "order": order})  # fmt: skip
     for s in out:
         s["status"] = "pending"
     return out, stats

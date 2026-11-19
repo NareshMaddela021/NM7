@@ -15,6 +15,7 @@ import { http, useAction, useApi } from '../admin/live/common';
 import { Chip, Empty } from '../me/kit';
 import '../../styles/me-kit.css';
 import '../../styles/org-dashboard.css';
+import { IcCap, IcChart, IcCheckCircle, IcDownload, IcFile, IcFlag, IcMail, IcPrint, IcSpark, IcStar, IcTarget, IcUsers } from '../../components/icons';
 
 const REFRESH_MS = 30_000;
 const BAND = [['low', 'Under 60', 'var(--danger)'], ['mid', '60–79', 'var(--warning)'], ['high', '80+', 'var(--success)']];
@@ -44,7 +45,7 @@ function Tile({ label, value, sub, testid, icon, bar, bands, hero }) {
   );
 }
 
-const TILE_ICON = { 'pl-joined': '☺', 'pl-shared': '▤', 'pl-approved': '✓', 'pl-ats': '◎', 'pl-linkedin': 'in', 'pl-printed': '⎙', 'pl-shortlisted': '★', 'pl-applications': '✉', 'pl-placed': '🎓' };
+const TILE_ICON = { 'pl-joined': <IcUsers />, 'pl-shared': <IcFile />, 'pl-approved': <IcCheckCircle />, 'pl-ats': <IcTarget />, 'pl-linkedin': 'in', 'pl-printed': <IcPrint />, 'pl-shortlisted': <IcStar />, 'pl-applications': <IcMail />, 'pl-placed': <IcCap /> };
 const HERO = ['pl-joined', 'pl-shared', 'pl-applications', 'pl-placed'];
 /** Small bars only from the numbers the server sent (no guessing). */
 const tileBar = (id, t) => ({
@@ -74,7 +75,7 @@ function Funnel({ steps }) {
   const max = Math.max(1, steps[0]?.n || 0);
   return (
     <div className="stack g12" data-testid="pl-funnel">
-      <span className="pld-card-h"><span className="pld-card-ic" aria-hidden="true">⏷</span><strong className="pld-card-title">Readiness funnel</strong></span>
+      <span className="pld-card-h"><span className="pld-card-ic" aria-hidden="true"><IcChart /></span><strong className="pld-card-title">Readiness funnel</strong></span>
       <ol className="pld-funnel">
         {steps.map((s, i) => (
           <li key={s.key} className="pld-step">
@@ -94,7 +95,7 @@ function Bands({ rows, by }) {
   return (
     <div className="stack g12" data-testid="pl-bands">
       <span className="row between g8" style={{ flexWrap: 'wrap' }}>
-        <span className="pld-card-h"><span className="pld-card-ic" aria-hidden="true">◎</span><strong className="pld-card-title">ATS score by {by}</strong></span>
+        <span className="pld-card-h"><span className="pld-card-ic" aria-hidden="true"><IcTarget /></span><strong className="pld-card-title">ATS score by {by}</strong></span>
         <span className="row g12 xs muted">{BAND.map(([k, l, c]) => <span key={k} className="row g4" style={{ alignItems: 'center' }}><span aria-hidden="true" style={{ width: 10, height: 10, borderRadius: 3, background: c }} />{l}</span>)}</span>
       </span>
       {rows.length === 0 && <Empty compact shape="resume" tint="college">No shared resumes yet.</Empty>}
@@ -114,7 +115,7 @@ function Skills({ skills }) {
   const max = Math.max(1, ...skills.map((s) => s.n));
   return (
     <div className="stack g8" data-testid="pl-skills">
-      <span className="pld-card-h"><span className="pld-card-ic" aria-hidden="true">✦</span><strong className="pld-card-title">Skills across shared resumes</strong></span>
+      <span className="pld-card-h"><span className="pld-card-ic" aria-hidden="true"><IcSpark /></span><strong className="pld-card-title">Skills across shared resumes</strong></span>
       {skills.length === 0 ? <span className="small muted">No skills yet.</span> : (
         <div className="pld-skills">
           {skills.map((s) => <span key={s.name} className="pld-skill" title={`${s.name}: ${s.n} students`} style={{ fontSize: 12 + Math.round((s.n / max) * 6), opacity: 0.7 + (s.n / max) * 0.3 }}>{s.name}<span className="pld-skill-n">{s.n}</span></span>)}
@@ -138,7 +139,7 @@ function RollList({ base, groups, canManage, onChange }) {
   return (
     <section className="mcard pld-roll" aria-label="Roll list" data-testid="pl-roll">
       <header className="mcard-h">
-        <span className="mcard-ic" aria-hidden="true">☷</span>
+        <span className="mcard-ic" aria-hidden="true"><IcUsers /></span>
         <span className="mcard-ht"><strong className="mcard-title">Roll list</strong><span className="mcard-sub">Upload a CSV with name, roll number, branch and email. Students are matched when they join (by email or roll number), so “Not joined” stays up to date. ID numbers (Aadhaar, PAN…) are refused.</span></span>
       </header>
       <div className="pld-roll-box">
@@ -190,7 +191,7 @@ function MissingTabs({ base, d, group, role, onChange, wa }) {
   return (
     <section className="mcard pld-missing" aria-label="Who’s missing" data-testid="pl-missing">
       <header className="mcard-h">
-        <span className="mcard-ic" aria-hidden="true">⚑</span>
+        <span className="mcard-ic" aria-hidden="true"><IcFlag /></span>
         <span className="mcard-ht"><strong className="mcard-title">Who’s missing</strong><span className="mcard-sub">Pick a list, tick students and act on them together.</span></span>
       </header>
       <div className="pld-tabs" role="tablist" aria-label="Who’s missing">
@@ -200,10 +201,10 @@ function MissingTabs({ base, d, group, role, onChange, wa }) {
         {!viewer && <button type="button" className="btn btn-signal" disabled={busy || !sel.length} onClick={() => setDialog('remind')}>Send reminder{sel.length ? ` (${sel.length})` : ''}</button>}
         {!viewer && tab !== 'notJoined' && tab !== 'noResume' && <button type="button" className="btn btn-outline" disabled={busy || !sel.length} onClick={() => setDialog('changes')}>Mark needs changes</button>}
         {!viewer && wa && <button type="button" className="btn btn-outline" disabled={busy || !sel.length} onClick={() => setDialog('wa')} data-testid="pl-wa">WhatsApp / SMS{sel.length ? ` (${sel.length})` : ''}</button>}
-        {!viewer && <button type="button" className="btn btn-outline pld-export" disabled={busy || !rows.length} onClick={csv}><span aria-hidden="true">⤓ </span>Download CSV</button>}
+        {!viewer && <button type="button" className="btn btn-outline pld-export" disabled={busy || !rows.length} onClick={csv}><IcDownload size={16} /> Download CSV</button>}
         {tab === 'notJoined' && <span className="pld-toolbar-note">They haven’t joined, so they can’t be emailed from here: share the group’s join link or QR code with them.</span>}
       </div>
-      {rows.length === 0 ? <div data-testid="pl-missing-empty"><Empty compact shape="college" tint="college" title="No one here. 🎉">Everyone in this list is done.</Empty></div> : (
+      {rows.length === 0 ? <div data-testid="pl-missing-empty"><Empty compact shape="college" tint="college" title="No one here.">Everyone in this list is done.</Empty></div> : (
         <div className="table-wrap mtable-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table mtable pld-table" data-testid="pl-missing-table">
           <thead><tr>
             {tab !== 'notJoined' && !viewer && <th className="pld-all" style={{ width: 36 }}><label className="pld-all-l"><input type="checkbox" aria-label="Select all" checked={all} onChange={() => setSel(all ? [] : selectable.map((r) => r.membershipId))} /><span className="pld-all-t" aria-hidden="true">Select all</span></label></th>}
@@ -274,7 +275,7 @@ export default function Placement({ base, role, canManage, billingUrl, wa }) {
       <div className="pld-more">{all.filter(([id]) => !HERO.includes(id)).map(tile)}</div>
       {!d.insights ? (
         <div className="mcard mcard-accent pld-upgrade" data-testid="pl-upgrade">
-          <span className="pld-upgrade-ic" aria-hidden="true">✦</span>
+          <span className="pld-upgrade-ic" aria-hidden="true"><IcSpark /></span>
           <span className="stack g8">
             <strong className="pld-card-title">Charts, who’s-missing lists, reminders and roll lists</strong>
             <span className="small muted">See who hasn’t joined, who has no resume or a low ATS score, remind them in one click and track weekly progress. These are in the Drive and Campus plans.</span>

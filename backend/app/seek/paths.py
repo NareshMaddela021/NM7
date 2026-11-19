@@ -400,7 +400,7 @@ async def edit_path(role: str, body: PathIn, request: Request, db: DB, auth: Adm
 
     await ensure_paths(db)
     if body.test and body.test not in await skills(db):
-        raise ApiError(422, "no_test", "That skill check has no questions yet (Admin → Skill tests).")
+        raise ApiError(422, "no_test", "That skill check has no questions yet (Admin > Skill tests).")
     sets = {"skills": [skill_name(s) for s in body.skills if s.strip()], "project": body.project.model_dump(),
             "test": body.test, "active": body.active, "updated_at": now()}  # fmt: skip
     p = await db[LEARN_PATHS].find_one_and_update({"_id": role}, {"$set": sets}, return_document=True)

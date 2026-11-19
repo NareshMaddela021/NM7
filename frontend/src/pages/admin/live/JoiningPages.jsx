@@ -1,4 +1,4 @@
-// Admin → Joining reports (Phase 6, S10): "the job is not what was promised", from the day 7 / day 30 check-ins or
+// Admin -> Joining reports (Phase 6, S10): "the job is not what was promised", from the day 7 / day 30 check-ins or
 // sent any day of the first 90 from My progress (round E).
 // Close one when handled, or dismiss it when it isn't about the company (then it no longer lowers the trust score).
 import { useState } from 'react';

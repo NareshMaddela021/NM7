@@ -2,7 +2,7 @@
 // dialog when Apply is pressed on a job card (loaded only then). By the job's apply method: on Nm7 one "Send?" step
 // (company jobs: their questions and the consent box), the company's own site (opens in a new tab and is saved as
 // "outside Nm7"), or by email (a filled-in mailto draft). Signed out: create a free account or sign in, then back to
-// /jobs/<slug>?apply=1 to carry on. Applied: "Applied ✓", on this page and on every card for the job.
+// /jobs/<slug>?apply=1 to carry on. Applied: "Applied", on this page and on every card for the job.
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Dialog } from '../../components/ui';
@@ -13,6 +13,7 @@ import { matchJob } from '../../lib/jobs';
 import { useLang } from '../../lib/i18n';
 import { applyToJob, getJob, mailtoLink, markApplied, useApplied } from '../../lib/jobBoard';
 import { NeverPay } from './EmployerTrust';
+import { IcExternal } from '../../components/icons';
 
 export function ApplyBox({ job, t, onApplied, autoStart = '', inDialog = false }) {
   const { user } = useAuth();
@@ -64,7 +65,7 @@ export function ApplyBox({ job, t, onApplied, autoStart = '', inDialog = false }
   if (!signedIn) {
     return (
       <>
-        <button type="button" className="btn btn-ink" onClick={(e) => setAsk(e.currentTarget)} data-testid="apply">{linkJob ? <>{t('jobs.apply.link')} <span aria-hidden="true">↗</span></> : t('jobs.apply.signin')}</button>
+        <button type="button" className="btn btn-ink" onClick={(e) => setAsk(e.currentTarget)} data-testid="apply">{linkJob ? <>{t('jobs.apply.link')} <IcExternal size={16} /></> : t('jobs.apply.signin')}</button>
         {ask && <AuthAsk job={job} onClose={() => setAsk(null)} returnTo={ask} />}
       </>
     );
@@ -76,7 +77,7 @@ export function ApplyBox({ job, t, onApplied, autoStart = '', inDialog = false }
           <span className="badge b-success" data-testid="applied">{applied.status === 'applied' || !applied.status ? w.applied : t('jobs.apply.done', { status: t(`jobs.app.${applied.status}`) })}</span>
         ) : job.apply.method === 'link' && job.apply.url ? (
           // the link opens straight away (no pop-up blocker); the application is saved alongside
-          <a ref={applyRef} className="btn btn-ink" href={job.apply.url} target="_blank" rel="noopener noreferrer nofollow" data-testid="apply" onClick={() => { go(); }}>{t('jobs.apply.link')} <span aria-hidden="true">↗</span></a>
+          <a ref={applyRef} className="btn btn-ink" href={job.apply.url} target="_blank" rel="noopener noreferrer nofollow" data-testid="apply" onClick={() => { go(); }}>{t('jobs.apply.link')} <IcExternal size={16} /></a>
         ) : (
           <button type="button" className="btn btn-ink" data-testid="apply" disabled={!!busy || asking || confirm} onClick={() => go()}>{job.apply.method === 'email' ? t('jobs.apply.email') : t('jobs.apply.nm7')}</button>
         )}

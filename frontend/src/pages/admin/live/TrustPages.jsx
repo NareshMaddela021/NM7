@@ -1,4 +1,4 @@
-// Admin → Skill checks, the Vetting V5 tabs: Appeals ("I think this is wrong" from candidates: a person replies within
+// Admin -> Skill checks, the Vetting V5 tabs: Appeals ("I think this is wrong" from candidates: a person replies within
 // 72 hours with a free retest, a corrected score or "kept" with a note; the appeal rate per role points at bad
 // questions), Fraud scan (the daily scan's findings with the people and the evidence: Clear or Confirm with a note;
 // confirming holds badges back and never bans anyone) and Fairness (pass rates by language, city tier and experience

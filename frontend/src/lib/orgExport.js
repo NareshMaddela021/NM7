@@ -1,7 +1,7 @@
-// Nm7 for Organizations: printing many shared resumes at once (admin → Shared resumes).
+// Nm7 for Organizations: printing many shared resumes at once (admin -> Shared resumes).
 // Each resume is drawn by the same PDF maker members download with (so it matches their template exactly), in the
 // admin's browser, in batches of 25. The server only hands out the data and records what was printed:
-//   POST {base}/shared-resumes/exports → GET …/exports/{job}/data?offset&limit → POST …/exports/{job}/done
+//   POST {base}/shared-resumes/exports -> GET …/exports/{job}/data?offset&limit -> POST …/exports/{job}/done
 import { jsPDF } from 'jspdf';
 import { PDFDocument } from 'pdf-lib';
 import { zipSync } from 'fflate';
@@ -77,7 +77,7 @@ export function coverPdf({ orgs = [], groups = [], count = 0, date = new Date() 
   return doc.output('blob');
 }
 
-/** The server's file-name rule (lib/fileName.js), for a row that reaches the browser without one; nothing usable →
+/** The server's file-name rule (lib/fileName.js), for a row that reaches the browser without one; nothing usable ->
  * the membership id. */
 export function zipName({ fileName, name, membershipId }) {
   if (fileName) return fileName;

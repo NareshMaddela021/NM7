@@ -273,7 +273,7 @@ async def set_branding(body: BrandingIn, request: Request, db: DB, scope: OrgSco
             402,
             "plan_feature",
             "More than one template, section order and college rules are in the Campus plan. "
-            "Ask your Owner to upgrade (Organization → Billing).",
+            "Ask your Owner to upgrade (Organization > Billing).",
         )
     sets: dict[str, Any] = {
         "branding.color": body.color.upper(),

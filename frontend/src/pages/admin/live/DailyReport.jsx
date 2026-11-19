@@ -1,4 +1,4 @@
-// Admin → Daily report: the whole business on one page, updated every day. Five plain lines and a "Needs attention"
+// Admin -> Daily report: the whole business on one page, updated every day. Five plain lines and a "Needs attention"
 // list at the top, then the job collector, site health, users and business, the vetting engine and Auto Apply (A7). Each number has
 // its change vs yesterday and a tiny 30-day sparkline. ONE request loads it all (GET /api/admin/daily-report);
 // "Refresh now" recomputes today on the server and answers with the same report. Numbers: docs/admin/daily-report.md.
@@ -10,7 +10,7 @@ import { bandWord, change, inr, msText, num, pct, reasonList, shortCommit, spark
 import '../../../styles/me-kit.css';
 import '../../../styles/admin-daily.css';
 
-// loaded with the report's own chunk's import map (not the main bundle's): shared with Admin → Auto Apply
+// loaded with the report's own chunk's import map (not the main bundle's): shared with Admin -> Auto Apply
 const AutoApplyNumbers = lazy(() => import('./AutoApplyNumbers'));
 const SetupFunnel = lazy(() => import('./SetupFunnel')); // profile setup P4: users reaching each checklist step, per role
 const TimeToHireNumbers = lazy(() => import('./TimeToHireNumbers')); // Vetting Trust T13 (internal: admins, demo left out)
@@ -25,7 +25,7 @@ function Sparkline({ series, fmt = num, label }) {
   );
 }
 
-/** One number: today, ▲/▼ vs yesterday, a 30-day sparkline. `state` numbers have no history on backfilled days. */
+/** One number: today, up/down vs yesterday, a 30-day sparkline. `state` numbers have no history on backfilled days. */
 function Tile({ m, k, label, fmt = num, lower = false, note, to, empty = 'No data yet' }) {
   const x = m[k] || { value: null, prev: null, series: [] };
   const c = change(x.value, x.prev, { lowerIsBetter: lower, fmt });
@@ -249,7 +249,7 @@ function Report({ d, toast }) {
           <Tile m={m} k="checksStarted" label="Skill checks started" />
           <Tile m={m} k="checksPassed" label="Skill checks passed" />
           <Tile m={m} k="passRate" label="Pass rate" fmt={pct} />
-          <Tile m={m} k="readyNow" label="⚡ Ready now" />
+          <Tile m={m} k="readyNow" label="Ready now" />
           <Tile m={m} k="aiInterviews" label="AI interviews" />
           <Tile m={m} k="l4Checks" label="L4 checks requested" />
           <Tile m={m} k="appealsOpen" label="Appeals open" lower />

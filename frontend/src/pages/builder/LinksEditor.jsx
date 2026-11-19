@@ -62,7 +62,7 @@ export default function LinksEditor({ d, setD }) {
           <label htmlFor="ln-portfolio" className="label row g8" style={{ alignItems: 'center' }}><Logo k={portfolioIcon(d)} />Portfolio / website · optional</label>
           <input id="ln-portfolio" className="input" type="url" value={links.portfolio || ''} placeholder="yourname.dev, kaggle.com/you, behance.net/you…" onChange={(e) => setLink('portfolio', e.target.value)} />
           {fieldError('url', links.portfolio) && <span role="alert" className="error">{fieldError('url', links.portfolio)}</span>}
-          {links.portfolio && detectedP && (d.portfolioIcon || 'auto') === 'auto' && <span className="xs" style={{ color: 'var(--success)' }}>✓ {brandName(detectedP)} link — its logo will show on your resume.</span>}
+          {links.portfolio && detectedP && (d.portfolioIcon || 'auto') === 'auto' && <span className="xs" style={{ color: 'var(--success)' }}>{brandName(detectedP)} link — its logo will show on your resume.</span>}
         </div>
         <div className="stack g4">
           <span className="label">Icon on your resume</span>

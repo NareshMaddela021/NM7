@@ -1,5 +1,5 @@
 // The skill checks as they were before Vetting V2 (10 questions, 10 minutes, a spoken answer). Shown while the vetting
-// engine is hidden from this person (Admin → Skill checks → Launch); MeSkillChecks.jsx picks this or the V2 page.
+// engine is hidden from this person (Admin -> Skill checks -> Launch); MeSkillChecks.jsx picks this or the V2 page.
 // Skill checks (Phase 5, H3): a 10-minute multiple-choice test per skill (IT and non-IT), 10 questions picked at random
 // from the question bank, with a timer on screen. One try per skill every 30 days. The page counts how often you leave
 // the tab (shown with the result; no camera, nothing else is watched). Up to 3 spoken answers (speak or type), kept as
@@ -12,6 +12,7 @@ import { MeHead } from './MeLayout';
 import { appendSpeech, useSpeech } from '../../lib/summary/speech';
 import { Bar, Chip, Empty, MeCard, ScoreRing, Skel, Stat, StickyBar } from './kit';
 import '../../styles/me-learn.css';
+import { IcCheckCircle, IcLock, IcMic, IcStop } from '../../components/icons';
 
 const day = (ms) => (ms ? new Date(ms).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '');
 const clock = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
@@ -37,7 +38,7 @@ function Spoken({ i, q, value, onChange }) {
     <div className="field">
       <label className="label" htmlFor={`sk-sp-${i}`}>{q}</label>
       <textarea id={`sk-sp-${i}`} className="input" rows={3} maxLength={1500} value={value.text} onChange={(e) => onChange({ ...value, text: e.target.value })} data-testid={`sk-spoken-${i}`} />
-      {sp.supported && <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start', marginTop: 6 }} onClick={sp.listening ? sp.stop : sp.start}>{sp.listening ? '⏹ Stop' : '🎤 Speak'}</button>}
+      {sp.supported && <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start', marginTop: 6 }} onClick={sp.listening ? sp.stop : sp.start}>{sp.listening ? <><IcStop size={16} /> Stop</> : <><IcMic size={16} /> Speak</>}</button>}
     </div>
   );
 }
@@ -171,7 +172,7 @@ export default function MeSkillChecksClassic() {
           {cat.skills.map((s) => (
             <li key={s.skill} className="mcard mcard-tight" data-testid="sk-skill">
               <div className="mrow" style={{ flexWrap: 'nowrap', alignItems: 'flex-start' }}>
-                <span className="mcard-ic student" aria-hidden="true">✓</span>
+                <span className="mcard-ic student" aria-hidden="true"><IcCheckCircle /></span>
                 <span className="stack g4" style={{ minWidth: 0, flex: 1 }}>
                   <strong className="mserif" style={{ fontSize: 20, color: 'var(--ink)', overflowWrap: 'anywhere' }}>{s.skill}</strong>
                   <span className="xs muted">{s.role}</span>
@@ -185,7 +186,7 @@ export default function MeSkillChecksClassic() {
           ))}
         </ul>
       )}
-      <MeCard tone="flat" className="mcard-tight" icon="🔒" title="Fair and private" sub="No camera and no screen recording. We only count how often you leave the test tab." headingLevel={2} />
+      <MeCard tone="flat" className="mcard-tight" icon={<IcLock />} title="Fair and private" sub="No camera and no screen recording. We only count how often you leave the test tab." headingLevel={2} />
     </>
   );
 }

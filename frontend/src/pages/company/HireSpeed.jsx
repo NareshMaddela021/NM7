@@ -2,11 +2,12 @@
 // candidate shown, the first invite accepted, the first interview booked and the first offer sent; the share of roles
 // that reached an interview or offer within 60 minutes; the funnel. All from real events. The "Hired in 60 minutes"
 // badge shows only when a real role did it. English, Telugu and Hindi (co.speed.*).
-// Round P, Phase 3: a "Minute 0 → 60" timeline card. The four averages sit on a 60-minute track (a step that took
+// Round P, Phase 3: a "Minute 0 -> 60" timeline card. The four averages sit on a 60-minute track (a step that took
 // longer is pinned at the end, with its real minutes); the funnel is a row of number tiles; each role is a mini track.
 import { useEffect, useState } from 'react';
 import { rq } from '../../lib/company';
 import '../../styles/company-hire.css';
+import { IcCheck, IcClock } from '../../components/icons';
 
 const STEPS = ['shown', 'accepted', 'interview', 'offer'];
 const FUNNEL = ['invited', 'accepted', 'interviews', 'offers', 'offersAccepted', 'joined'];
@@ -21,7 +22,7 @@ export default function HireSpeed({ t, c }) {
   return (
     <section className="mcard hs-card" aria-labelledby="co-speed-h" data-testid="co-speed">
       <header className="hs-head">
-        <span className="mcard-ic blue" aria-hidden="true">⏱</span>
+        <span className="mcard-ic blue" aria-hidden="true"><IcClock /></span>
         <span className="hs-head-text">
           <strong id="co-speed-h" className="mcard-title">{t('co.speed.title')}</strong>
           <span className="mcard-sub" data-testid="co-speed-pct">{t('co.speed.pct', { pct: d.in30Pct, n: d.in30, total: d.roles })}</span>
@@ -60,7 +61,7 @@ export default function HireSpeed({ t, c }) {
         <ul className="hs-roles">
           {d.items.filter((r) => r.minutes.shown != null).map((r) => (
             <li key={r.id} className="hs-role" data-testid="co-speed-role">
-              <span className="hs-role-top"><strong>{r.title}</strong>{r.in30 && <span className="mchip mchip-ok">✓ 60</span>}</span>
+              <span className="hs-role-top"><strong>{r.title}</strong>{r.in30 && <span className="mchip mchip-ok"><IcCheck size={14} /> 60</span>}</span>
               <span className="hs-mini" aria-hidden="true">
                 {STEPS.filter((k) => r.minutes[k] != null).map((k, i) => <span key={k} className="hs-mini-dot" style={{ left: pos(r.minutes[k]) }}>{i + 1}</span>)}
               </span>

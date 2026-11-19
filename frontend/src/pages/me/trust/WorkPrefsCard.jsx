@@ -1,4 +1,4 @@
-// Profile & settings → Work preferences (Vetting Trust T6). Rendered by PrivacyConsent (same lazy chunk), so only for
+// Profile & settings -> Work preferences (Vetting Trust T6). Rendered by PrivacyConsent (same lazy chunk), so only for
 // people who get Vetting Trust. GET/PUT /api/me/trust/work. Shifts, night shifts, weekends, vehicles, languages, notice
 // period / available now, relocating: all self-declared. They answer the common screening questions for every job, so
 // the apply form, Auto Apply and WhatsApp / AI calls never ask them again. The location pin needs its own consent; it
@@ -8,6 +8,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useToast } from '../../../components/ui';
 import { http } from '../../../services/http';
 import { MeCard } from '../kit';
+import { IcPin, IcTarget } from '../../../components/icons';
 
 const SHIFTS = [['day', 'Day'], ['night', 'Night'], ['rotational', 'Rotational']];
 const VEHICLES = [['two_wheeler', 'Two-wheeler'], ['car', 'Car'], ['bicycle', 'Bicycle']];
@@ -58,7 +59,7 @@ function Location({ d, onState, busy, setBusy }) {
         </div>
       ) : (
         <div className="stack g8">
-          {loc ? <span className="small" data-testid="wp-loc-label">📍 {loc.label} · set {fmt(loc.at)}. Companies see only the distance, like “~4 km”.</span>
+          {loc ? <span className="small" data-testid="wp-loc-label"><IcPin size={14} /> {loc.label} · set {fmt(loc.at)}. Companies see only the distance, like “~4 km”.</span>
             : <span className="small muted">No location yet.</span>}
           <div className="row g8" style={{ flexWrap: 'wrap', alignItems: 'flex-end' }}>
             <button type="button" className="btn btn-outline" style={{ minHeight: 44 }} disabled={busy} onClick={pin} data-testid="wp-loc-pin">Use my location (rounded to ~1 km)</button>
@@ -107,7 +108,7 @@ export default function WorkPrefsCard() {
   const forget = async (key) => { setBusy(true); try { onState(await http(`/api/me/trust/work/saved/${encodeURIComponent(key)}`, { method: 'DELETE' })); } catch (x) { setErr(x.message); } finally { setBusy(false); } };
   const noVehicle = Array.isArray(f.vehicles) && f.vehicles.length === 0;
   return (
-    <MeCard as="section" id="s-work" className="acc-sec" label="Work preferences" icon="🧭" title="Work preferences" testid="wp-card"
+    <MeCard as="section" id="s-work" className="acc-sec" label="Work preferences" icon={<IcTarget />} title="Work preferences" testid="wp-card"
       sub="Answer these once: we use them for the questions companies ask when you apply, in Auto Apply and on WhatsApp / AI calls, so you're never asked twice. Companies see them marked “self-declared”.">
       <form className="stack g12" onSubmit={save} aria-label="Work preferences">
         <fieldset className="stack g4" style={{ border: 0, padding: 0, margin: 0 }}>

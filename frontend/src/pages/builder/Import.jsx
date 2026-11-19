@@ -1,10 +1,11 @@
-// "Import LinkedIn" and "Rebuild my old resume": upload → reading → review (side by side) → builder.
+// "Import LinkedIn" and "Rebuild my old resume": upload -> reading -> review (side by side) -> builder.
 import { useEffect, useRef, useState } from 'react';
 import { Icon } from '../../components/ui';
 import { FieldGrid, SchemaField } from './Fields';
 import { EXP_LEVELS, LISTS, PINFO_FIELDS, DECL_FIELDS } from './schema';
 import { TEMPLATE_PRESETS, fmtDate } from './design';
 import { applyImport, counts } from '../../lib/import/apply';
+import { IcAlert, IcCheck, IcChevronDown, IcDownload, IcInfo, IcSpark } from '../../components/icons';
 
 const STEPS = ['Reading your file', 'Finding sections', 'Sorting skills into categories', 'Checking dates and details'];
 const COPY = {
@@ -14,8 +15,8 @@ const COPY = {
 
 /* ---------- small pieces ---------- */
 function Conf({ o }) {
-  if (o?._conf === 'check') return <span className="badge b-warning" title={o._why}>⚠ Check</span>;
-  return <span className="badge b-success">✓ Found</span>;
+  if (o?._conf === 'check') return <span className="badge b-warning" title={o._why}>Check</span>;
+  return <span className="badge b-success">Found</span>;
 }
 const dateText = (o, a = 'from', b = 'to', cur = 'current') => [fmtDate(o[a], 'mon'), o[cur] ? 'Present' : fmtDate(o[b], 'mon')].filter(Boolean).join(' – ');
 const LINE = {
@@ -30,7 +31,7 @@ const TITLES = { exp: 'Experience', edu: 'Education', proj: 'Projects', certs: '
 
 function LinkedInGuide() {
   const steps = [
-    ['Open your profile', 'On linkedin.com (computer), click Me → View profile.'],
+    ['Open your profile', 'On linkedin.com (computer), click Me, then View profile.'],
     ['Click “Resources”', 'Below your name, next to Open to and Add profile section. On some accounts this button is called More.'],
     ['Choose “Save to PDF”', 'LinkedIn downloads a file called Profile.pdf. Upload it here.'],
   ];
@@ -48,8 +49,8 @@ function LinkedInGuide() {
       <div aria-hidden="true" className="well row g8" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
         <span className="chip" style={{ minHeight: 30, fontSize: 12 }}>Open to</span>
         <span className="chip" style={{ minHeight: 30, fontSize: 12 }}>Add profile section</span>
-        <span className="chip" style={{ minHeight: 30, fontSize: 12, borderColor: 'var(--ink)', borderWidth: 2 }}>Resources ▾</span>
-        <span style={{ background: 'var(--surface)', border: '1px solid var(--border2)', borderRadius: 8, padding: '6px 10px', fontSize: 12, fontWeight: 600 }}>⤓ <span className="hl" style={{ padding: '0 2px' }}>Save to PDF</span></span>
+        <span className="chip" style={{ minHeight: 30, fontSize: 12, borderColor: 'var(--ink)', borderWidth: 2 }}>Resources <IcChevronDown size={12} style={{ marginLeft: 2 }} /></span>
+        <span style={{ background: 'var(--surface)', border: '1px solid var(--border2)', borderRadius: 8, padding: '6px 10px', fontSize: 12, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 4 }}><IcDownload size={13} /><span className="hl" style={{ padding: '0 2px' }}>Save to PDF</span></span>
       </div>
       <span className="xs faint">LinkedIn doesn’t let other sites read your full profile from a link, so the PDF is the reliable way.</span>
     </div>
@@ -140,7 +141,7 @@ export default function Import({ mode, d, onBack, onDone, onPhotos = null }) {
             {mode === 'linkedin' ? <LinkedInGuide /> : (
               <div className="card stack g12" style={{ padding: 20 }}>
                 <strong>What we can read</strong>
-                {[['One or two columns', 'Sidebars are read in the right order.'], ['Any section names', '“Academic Details” → Education, “Key Skills” → Skills, and so on.'], ['Indian formats', 'Class 10/12, CGPA or %, personal details and declaration.'], ['Dates in any style', 'Jun’23, 06/2023, 2021 – Present…']].map(([t, s]) => (
+                {[['One or two columns', 'Sidebars are read in the right order.'], ['Any section names', '“Academic Details” goes to Education, “Key Skills” to Skills, and so on.'], ['Indian formats', 'Class 10/12, CGPA or %, personal details and declaration.'], ['Dates in any style', 'Jun’23, 06/2023, 2021 – Present…']].map(([t, s]) => (
                   <span key={t} className="row g8" style={{ flexWrap: 'nowrap', alignItems: 'flex-start' }}><Icon name="check" size={16} color="var(--success)" stroke={3} /><span className="stack"><strong className="small">{t}</strong><span className="xs muted">{s}</span></span></span>
                 ))}
                 <span className="xs faint">Photo or scanned resumes: use “Snap photos” on the start screen, which reads photos. Here, paste the text.</span>
@@ -180,7 +181,7 @@ export default function Import({ mode, d, onBack, onDone, onPhotos = null }) {
   ];
   const jump = () => { const id = checks[0]; if (id) document.getElementById(`rv-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }); };
   const found = counts(x);
-  const NOTE = { warn: ['⚠', 'var(--warning)'], tip: ['✦', 'var(--accent)'], info: ['ℹ', 'var(--text2)'] };
+  const NOTE = { warn: [IcAlert, 'var(--warning)'], tip: [IcSpark, 'var(--accent)'], info: [IcInfo, 'var(--text2)'] };
   const suggest = R.suggest && TEMPLATE_PRESETS[R.suggest];
 
   const listCard = (k) => (x[k]?.length ? (
@@ -240,13 +241,13 @@ export default function Import({ mode, d, onBack, onDone, onPhotos = null }) {
           <section className="card stack g12" style={{ padding: 20, border: '2px solid var(--ink)' }}>
             <div className="row between g12">
               <strong style={{ fontSize: 18 }}>{found.length ? `Found ${found.join(' · ')}` : 'We found only a little text'}</strong>
-              {checks.length > 0 && <button type="button" className="btn btn-outline" style={{ minHeight: 40 }} onClick={jump}>⚠ {checks.length} to check — jump</button>}
+              {checks.length > 0 && <button type="button" className="btn btn-outline" style={{ minHeight: 40 }} onClick={jump}>{checks.length} to check — jump</button>}
             </div>
             {R.sectionsFound?.length > 0 && <span className="xs muted">Sections in your file: {R.sectionsFound.join(', ')}</span>}
             <div className="stack g8">
               {R.notes.map((n, i) => (
                 <div key={i} className="row g8 small" style={{ flexWrap: 'nowrap', alignItems: 'flex-start' }}>
-                  <span aria-hidden="true" style={{ color: NOTE[n.kind][1], fontWeight: 700, width: 16, flex: 'none' }}>{NOTE[n.kind][0]}</span>
+                  <span style={{ color: NOTE[n.kind][1], width: 16, flex: 'none', display: 'inline-flex', paddingTop: 2 }}>{(() => { const I = NOTE[n.kind][0]; return <I size={16} />; })()}</span>
                   <span style={{ color: n.kind === 'warn' ? 'var(--warning)' : undefined }}>{n.msg}</span>
                 </div>
               ))}
@@ -258,7 +259,7 @@ export default function Import({ mode, d, onBack, onDone, onPhotos = null }) {
             <FieldGrid>
               {PF.map(([k, l, req]) => (
                 <div key={k} className="field">
-                  <label htmlFor={`rvp-${k}`} className="label row between g8"><span>{l}</span>{x.personal[k] ? <span className="xs" style={{ color: 'var(--success)' }}>✓</span> : req ? <span className="xs" style={{ color: 'var(--danger)' }}>Not found</span> : null}</label>
+                  <label htmlFor={`rvp-${k}`} className="label row between g8"><span>{l}</span>{x.personal[k] ? <span className="xs" style={{ color: 'var(--success)', display: 'inline-flex' }}><IcCheck size={14} label="Found" /></span> : req ? <span className="xs" style={{ color: 'var(--danger)' }}>Not found</span> : null}</label>
                   <input id={`rvp-${k}`} className="input" value={x.personal[k] || ''} onChange={(e) => setP(k, e.target.value)} />
                 </div>
               ))}

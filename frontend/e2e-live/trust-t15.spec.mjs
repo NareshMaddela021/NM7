@@ -127,17 +127,17 @@ for (const [label, opts] of SIZES) {
         await expect(opts.nth(0).getByTestId('wt-most')).toHaveAttribute('aria-pressed', 'true');
       };
       for (let i = 0; i < 3; i += 1) { await answer(); await q.getByTestId('wt-next').click(); }
-      await expect(q.getByTestId('wt-count')).toContainText('✓ 3');
+      await expect(q.getByTestId('wt-count')).toHaveText(/·\s+3$/);
       expect(await noSideScroll(page)).toBe(true);
       await page.waitForTimeout(800); // the last answer's save
       await page.reload();
       const q2 = page.getByTestId('wt-questions');
-      await expect(q2.getByTestId('wt-count')).toContainText('✓ 3', { timeout: 30_000 }); // the same paper, answers kept
+      await expect(q2.getByTestId('wt-count')).toHaveText(/·\s+3$/, { timeout: 30_000 }); // the same paper, answers kept
       for (let i = 0; i < 10; i += 1) {
         await answer();
         if (i < 9) await q2.getByTestId('wt-next').click();
       }
-      await expect(q2.getByTestId('wt-count')).toContainText('✓ 10');
+      await expect(q2.getByTestId('wt-count')).toHaveText(/·\s+10$/);
       await q2.getByTestId('wt-submit').click();
       const res = page.getByTestId('wt-result');
       await expect(res.getByTestId('wt-result-line')).toContainText('/100', { timeout: 20_000 });
@@ -148,7 +148,7 @@ for (const [label, opts] of SIZES) {
       const a = page.getByTestId('wt-questions');
       await expect(a.getByTestId('wt-clock')).toContainText(/1[45]:\d\d/, { timeout: 20_000 });
       await a.getByTestId('wt-option').nth(0).click();
-      await expect(a.getByTestId('wt-count')).toContainText('✓ 1');
+      await expect(a.getByTestId('wt-count')).toHaveText(/·\s+1$/);
       expect(await noSideScroll(page)).toBe(true);
       await a.getByTestId('wt-submit').click();
       await expect(page.getByTestId('wt-result').getByTestId('wt-result-line')).toContainText('numbers', { timeout: 20_000 });
@@ -241,7 +241,7 @@ for (const [label, opts] of SIZES) {
       await expect(a.getByTestId('co-hire-wt-sjt')).toContainText('SJT: strong');
       await expect(a.getByTestId('co-hire-wt-aptitude')).toContainText('Aptitude: top 30%');
       await expect(a.getByTestId('co-hire-wt-record')).toContainText('Showed up 1/1 · Joined 1/1 · confirmed by employers');
-      await expect(b.getByTestId('co-hire-wt-record')).toHaveText('🤝 No history yet');
+      await expect(b.getByTestId('co-hire-wt-record')).toHaveText('No history yet');
       expect(await noSideScroll(page)).toBe(true);
       await filters.getByTestId('co-hire-wt-typing').selectOption('35');
       await expect(b).toHaveCount(0, { timeout: 20_000 });

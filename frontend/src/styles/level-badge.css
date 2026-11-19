@@ -1,4 +1,4 @@
-/* Vetting V1: the level chip and the ⚡ Ready now chip (src/components/LevelBadge.jsx). One calm colour per level;
+/* Vetting V1: the level chip and the Ready now chip (src/components/LevelBadge.jsx). One calm colour per level;
    text on each tint is at least 4.5:1. The four dots show how far up the ladder the person is (decoration: the
    words say the same). */
 .lvb-row { display: inline-flex; flex-wrap: wrap; gap: 6px; align-items: center; min-width: 0; }

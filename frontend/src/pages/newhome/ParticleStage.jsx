@@ -51,7 +51,7 @@ export const Still = memo(function Still({ shape, className = 'nh-still', tint }
 export default function ParticleStage({ shape, side = 0, dim = false }) {
   const host = useRef(null);
   const scene = useRef(null);
-  const [mode, setMode] = useState('still'); // still → 3d once the scene is running
+  const [mode, setMode] = useState('still'); // still -> 3d once the scene is running
   const [off, setOff] = useState(null);
   const latest = useRef({ shape, side });
   latest.current = { shape, side };

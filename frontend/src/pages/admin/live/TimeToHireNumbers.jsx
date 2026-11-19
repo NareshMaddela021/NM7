@@ -1,5 +1,5 @@
-// Vetting Trust T13: the "Time to hire" section of Admin → Daily report (from the snapshot): per step the median and p75
-// minutes from a job being posted (7 / 30 / 90 days, ▲ slower / ▼ faster than the period before), a small funnel, the
+// Vetting Trust T13: the "Time to hire" section of Admin -> Daily report (from the snapshot): per step the median and p75
+// minutes from a job being posted (7 / 30 / 90 days, up slower / down faster than the period before), a small funnel, the
 // slowest companies by time to first contact, live jobs nobody contacted, every company's medians and the "Needs
 // attention" thresholds (Admin). Backend: app/trust/tth/service.py. Its own stylesheet and no shared imports (`http` comes
 // from the report), so the main bundle's import map stays the same.

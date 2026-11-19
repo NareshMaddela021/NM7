@@ -129,7 +129,7 @@ function customUrl(url) {
 
 /**
  * sections (see profile.js); opts: { role, url, checklist: { photo, banner, featured, openToWork } }.
- * → { score, role, keywords, keywordLine, items: [{ id, title, max, points, good, keep, issues }], top: [3 issues] }
+ * -> { score, role, keywords, keywordLine, items: [{ id, title, max, points, good, keep, issues }], top: [3 issues] }
  */
 export function checkProfile(sections, { role = '', url = '', checklist = {} } = {}) {
   const s = sections || {};

@@ -106,7 +106,7 @@ export function Privacy() {
     ['Why we use it', [['To provide what you ask for: scans, the builder, expert orders, downloads and share links.', 'To match you with an expert and let them work on your order.', 'To take payments, send invoices and process refunds.', 'To send order updates by email (order emails stay on because they carry invoices), and on WhatsApp or SMS if you turn them on in Settings.', 'To prevent fraud and keep accounts secure, and to meet legal and tax duties.'], 'We use your data for these purposes because you consent to them when you sign up or place an order, or because the law requires it. You can withdraw consent any time — some services may then stop working.']],
     ['Who we share it with', [['Your assigned expert — only for the order they work on.', `${PROMISES.paymentProvider} — to take payments and refunds.`, 'Messaging providers that deliver our WhatsApp, SMS and email.', `Cloud hosting and storage providers that run Nm7${L.hosting ? ` (${L.hosting})` : ''}.`, 'Authorities, when the law requires it.'], 'We do not sell your personal data and we do not share it for advertising.']],
     ['How long we keep it', [[`Files your expert creates: ${PROMISES.retentionDays} days after delivery, then deleted.`, 'Your own resumes, cover letters and applications: until you delete them or your account.', 'Invoices and payment records: as long as Indian tax law requires, even after you delete your account.', L.supportRetention && `Support messages: ${L.supportRetention}.`].filter(Boolean)]],
-    ['Your rights', [['See a summary of your data and download a copy (Profile & settings → Download my data).', 'Correct or update your data.', 'Erase your data (Profile & settings → Delete account).', 'Withdraw consent.', 'Nominate someone to exercise these rights if you cannot.', 'Complain to our Grievance Officer, and then to the Data Protection Board of India.']]],
+    ['Your rights', [['See a summary of your data and download a copy (Profile & settings > Download my data).', 'Correct or update your data.', 'Erase your data (Profile & settings > Delete account).', 'Withdraw consent.', 'Nominate someone to exercise these rights if you cannot.', 'Complain to our Grievance Officer, and then to the Data Protection Board of India.']]],
     ['Children', ['Nm7 is for people 18 and older. If you are under 18, we need verifiable consent from a parent or guardian before we process your data.']],
     ['Security', ['We use encryption in transit (HTTPS), encrypted passwords, two-step login for staff, access only on a need-to-know basis, and audit logs of admin actions. No system is perfectly secure; if a breach affects you, we will tell you and the authorities as the law requires.']],
     ['Cookies and local storage', ['We use essential cookies and browser storage to keep you signed in and to save drafts on your device. We do not use advertising cookies.']],
@@ -123,7 +123,7 @@ export function RefundPolicy() {
     [`${PLANS.diy.name} (${inr(PLANS.diy.price)})`, [`The DIY plan unlocks tools straight away, so it is refunded only if a problem on our side stops you using them and we can’t fix it${L.diyFixTime ? ` within ${L.diyFixTime}` : ''}.`]],
     ['Add-ons and upgrades', [`Express delivery (${inr(ADDONS.express.price)}): refunded if your first draft misses the 24-hour promise.`, 'Upgrades and other add-ons follow the same rules as the order they were added to.']],
     ['How and when you get the money', [`Refunds go back to your original payment method (the UPI app, card, bank account or wallet you paid with) through ${PROMISES.paymentProvider}. They usually reach you in ${PROMISES.refundDays} after approval.`, 'You can see the refund status in My orders.']],
-    ['Contact', [`Write to ${L.email} with your order number, or use Help → Raise an issue in your dashboard.`, ...grievance]],
+    ['Contact', [`Write to ${L.email} with your order number, or use Help > Raise an issue in your dashboard.`, ...grievance]],
   ]} />;
 }
 
@@ -162,7 +162,7 @@ export function Contact() {
             <strong>Support</strong>
             <span>Email: <a href={`mailto:${L.email}`}>{L.email}</a></span>
             <span className="small muted">{L.hours}</span>
-            <span className="small">Have an order? The fastest way is <Link to="/me/help">Help → Raise an issue</Link> in your dashboard.</span>
+            <span className="small">Have an order? The fastest way is <Link to="/me/help">Help, then Raise an issue</Link> in your dashboard.</span>
           </section>
           <section className="card stack g8" style={{ flex: '1 1 300px' }}>
             <strong>Company</strong>

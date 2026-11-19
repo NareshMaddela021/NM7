@@ -6,6 +6,7 @@ import { Dialog, Spinner, useToast } from '../../components/ui';
 import { http, useAction } from '../admin/live/common';
 import '../../styles/me-kit.css';
 import '../../styles/org-dashboard.css';
+import { IcScale } from '../../components/icons';
 
 const num = (v) => (v === '' || v == null ? null : Number(v));
 const list = (s) => s.split(',').map((x) => x.trim()).filter(Boolean);
@@ -38,7 +39,7 @@ export default function Eligibility({ dbase, company, canManage, onClose }) {
       {!x ? <div className="row g8"><Spinner /> Loading…</div> : (
         <div className="stack g16 pld-el" data-testid="eligibility">
           <form className="pld-el-rules" onSubmit={save} aria-label="Rules">
-            <span className="pld-card-h"><span className="pld-card-ic" aria-hidden="true">⚖</span><span className="stack g4"><strong className="pld-card-title">Rules</strong><span className="xs muted">Rules on marks only. Leave a box empty for no rule. Students fill in their own marks under My groups; you can tick them verified.</span></span></span>
+            <span className="pld-card-h"><span className="pld-card-ic" aria-hidden="true"><IcScale /></span><span className="stack g4"><strong className="pld-card-title">Rules</strong><span className="xs muted">Rules on marks only. Leave a box empty for no rule. Students fill in their own marks under My groups; you can tick them verified.</span></span></span>
             <div className="pld-el-grid">
               {field('cgpaMin', 'CGPA at least', 'e.g. 7')}{field('backlogsMax', 'Active backlogs at most', 'e.g. 0')}{field('branches', 'Branches (comma)', 'CSE, ECE')}{field('years', 'Passing years', '2026')}{field('tenthMin', '10th % at least')}{field('twelfthMin', '12th % at least')}
             </div>

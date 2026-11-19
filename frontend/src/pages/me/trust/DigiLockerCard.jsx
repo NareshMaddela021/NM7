@@ -1,8 +1,8 @@
-// Profile & settings → Verify with DigiLocker (Vetting Trust T2). Only for people who get Vetting Trust (useTrustOn in
+// Profile & settings -> Verify with DigiLocker (Vetting Trust T2). Only for people who get Vetting Trust (useTrustOn in
 // MeSettings); lazy. GET /api/me/trust/documents.
 //   1. Needs the "Documents (DigiLocker / KYC)" consent (Privacy & consent card; it tells us with a `trust-consent` event).
-//   2. Pick documents → "Verify with DigiLocker" → the vendor's DigiLocker page (the candidate approves there) → back to
-//      /me/settings?dl=<request> → we ask the vendor. The test provider shows its own approve dialog instead.
+//   2. Pick documents -> "Verify with DigiLocker" -> the vendor's DigiLocker page (the candidate approves there) -> back to
+//      /me/settings?dl=<request> -> we ask the vendor. The test provider shows its own approve dialog instead.
 //   3. The list: each document with its badge ("Verified via DigiLocker" + date), or plainly why a person is checking
 //      it (a name that differs: fix the profile name and check again, or explain). Remove one; take back the consent
 //      to delete all.
@@ -11,6 +11,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Dialog, useToast } from '../../../components/ui';
 import { http } from '../../../services/http';
 import { MeCard } from '../kit';
+import { IcCheck, IcUser } from '../../../components/icons';
 
 const fmt = (v) => (v ? new Date(v).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
 const TONE = { verified: 'mchip-ok', review: 'mchip-warn', not_cleared: 'mchip-bad', expired: 'mchip-neutral' };
@@ -36,7 +37,7 @@ function Doc({ d, profileName, onChange, busy, setBusy }) {
         <span className="mitem-title">{d.title}{d.test ? <span className="xs faint"> (test document)</span> : null}</span>
         <span className="mitem-meta" style={{ overflowWrap: 'anywhere' }}>{d.summary}</span>
         <span className="row g8" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
-          <span className={`mchip ${TONE[d.state]}`} data-testid="dl-state">{d.state === 'verified' ? '✓ ' : ''}{d.stateText}{d.state === 'verified' ? `, ${fmt(d.fetchedAt)}` : ''}</span>
+          <span className={`mchip ${TONE[d.state]}`} data-testid="dl-state">{d.state === 'verified' ? <><IcCheck size={14} /> </> : ''}{d.stateText}{d.state === 'verified' ? `, ${fmt(d.fetchedAt)}` : ''}</span>
           {d.state === 'verified' && d.verifyUntil && <span className="xs faint">Verify again by {fmt(d.verifyUntil)}</span>}
         </span>
         {d.state !== 'verified' && d.reasons.length > 0 && (
@@ -103,7 +104,7 @@ export default function DigiLockerCard() {
     window.addEventListener('trust-consent', on);
     return () => window.removeEventListener('trust-consent', on);
   }, [load, check]);
-  if (err) return <MeCard as="section" id="s-docs" className="acc-sec" label="Verify with DigiLocker" icon="🪪" title="Verify with DigiLocker"><p className="error" role="alert">{err}</p></MeCard>;
+  if (err) return <MeCard as="section" id="s-docs" className="acc-sec" label="Verify with DigiLocker" icon={<IcUser />} title="Verify with DigiLocker"><p className="error" role="alert">{err}</p></MeCard>;
   if (!d) return null;
   const start = async () => {
     setBusy('start');
@@ -123,7 +124,7 @@ export default function DigiLockerCard() {
   const s = d.session;
   const toggle = (k) => setPick((p) => (p.includes(k) ? p.filter((x) => x !== k) : [...p, k]));
   return (
-    <MeCard as="section" id="s-docs" className="acc-sec" label="Verify with DigiLocker" icon="🪪" title="Verify with DigiLocker"
+    <MeCard as="section" id="s-docs" className="acc-sec" label="Verify with DigiLocker" icon={<IcUser />} title="Verify with DigiLocker"
       sub="Fetch your driving licence, Class 10 and 12, degree or PAN from DigiLocker. Companies then see a “Verified via DigiLocker” badge. We never fetch or keep your Aadhaar." testid="dl-card">
       {!d.provider.ready ? <p className="small" role="status" style={{ margin: 0 }} data-testid="dl-off">DigiLocker isn’t connected yet. Please check back later.</p>
         : !d.consent ? (

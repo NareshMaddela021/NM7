@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom';
 import { BRAND } from '../lib/brand';
 import { useAuth, LIVE } from '../lib/auth';
 import { track } from '../lib/track';
+import { Icon } from './ui';
 
 
 export function Logo({ suffix }) {
@@ -89,7 +90,7 @@ function StudentsMenu({ L }) {
   return (
     <div ref={ref} className="nav-drop" data-open={open}>
       <button type="button" className="nav-drop-btn" aria-expanded={open} aria-controls="students-menu" data-here={here} onClick={() => setOpen(!open)}>
-        {L.students}<span aria-hidden="true" className="nav-drop-caret">▾</span>
+        {L.students}<Icon name="chev" size={14} className="nav-drop-caret" />
       </button>
       <div id="students-menu" className="nav-sub" hidden={!open}>
         <Link to="/?for=student">{L.studentHome}</Link>
@@ -120,7 +121,7 @@ export default function Header({ variant = 'public', right, labels, lang }) {
         {variant === 'public' && (
           <span className="row g8 hdr-quick" lang={lang}>
             <button type="button" className="btn btn-outline nav-toggle" aria-expanded={menu} aria-controls="main-nav" aria-label={L.menu} onClick={() => setMenu(!menu)}>
-              <span aria-hidden="true">{menu ? '✕' : '☰'}</span><span className="nav-toggle-text">{L.menu}</span>
+              <Icon name={menu ? 'x' : 'menu'} /><span className="nav-toggle-text">{L.menu}</span>
             </button>
           </span>
         )}
@@ -139,7 +140,7 @@ export default function Header({ variant = 'public', right, labels, lang }) {
           <ol className="steps" aria-label="Progress">
             {FLOW.map(([id, label], i) => (
               <li key={id} aria-current={i === flowIdx ? 'step' : undefined} data-state={i < flowIdx ? 'done' : undefined}>
-                <span className="mono">{i < flowIdx ? '✓' : i + 1}</span>{label}
+                <span className="mono">{i < flowIdx ? <Icon name="check" size={14} /> : i + 1}</span>{label}
               </li>
             ))}
           </ol>

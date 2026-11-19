@@ -10,6 +10,7 @@
 // Statically imported by CompanyHire (the company page chunk; no new lazy chunk).
 
 export const NT_NONE = { licence: '', vehicle: '', nightShift: false, shift: '', maxKm: 0, lang: '', immediate: false, english: '' };
+import { IcCheck } from '../../components/icons';
 const BAND_UP = ['A2', 'B1', 'B2', 'C1', 'C2'];
 const SUB = { pronunciation: 'pronunciation', fluency: 'fluency', grammar: 'grammar', comprehension: 'comprehension' };
 const LANGS = ['English', 'Hindi', 'Telugu', 'Tamil', 'Kannada', 'Malayalam', 'Marathi', 'Bengali', 'Gujarati', 'Punjabi', 'Odia', 'Urdu', 'Assamese'];
@@ -38,7 +39,7 @@ export function NonTechFilters({ f, setF, counts = {}, english = false }) {
   return (
     <fieldset className="hn-sv hn-nt" data-testid="co-hire-nt-filters">
       <legend className="hn-sv-legend">Non-tech filters <span className="xs muted">· each shows where it comes from</span></legend>
-      <label className="field hn-field"><span className="label">Driving licence ✓ verified{n(cnt('licence'))}</span>
+      <label className="field hn-field"><span className="label">Driving licence verified{n(cnt('licence'))}</span>
         <select className="input" value={f.licence} onChange={set('licence')} data-testid="co-hire-nt-licence">
           <option value="">Any or none</option>
           <option value="any">Verified licence</option>
@@ -94,17 +95,17 @@ export function NonTechFilters({ f, setF, counts = {}, english = false }) {
 export function NonTechChips({ nt }) {
   if (!nt) return null;
   const chips = [];
-  if (nt.licence) chips.push(['ok', `✓ Driving licence${nt.licence.kinds.length ? ` (${nt.licence.kinds.join(', ')})` : ''} · verified via DigiLocker${nt.licence.test ? ' (test)' : ''}`, 'licence']);
+  if (nt.licence) chips.push(['ok', `Driving licence${nt.licence.kinds.length ? ` (${nt.licence.kinds.join(', ')})` : ''} · verified via DigiLocker${nt.licence.test ? ' (test)' : ''}`, 'licence']);
   if (nt.vehicles) chips.push(['neutral', `${nt.vehicles.value.length ? `Owns a ${nt.vehicles.value.map((v) => VEH[v] || v).join(', ')}` : 'No vehicle'} · self-declared`, 'vehicle']);
   if (nt.shifts) chips.push(['neutral', `${nt.shifts.value.length ? `Shifts: ${nt.shifts.value.join(', ')}` : 'Shifts'}${nt.shifts.nightShift === true ? ' · night shifts OK' : nt.shifts.nightShift === false ? ' · no night shifts' : ''} · self-declared`, 'shifts']);
   if (nt.distance) chips.push(['info', `${nt.distance.text} from the job · self-declared`, 'distance']);
-  if (nt.english) chips.push(['ok', `✓ Spoken English ${nt.english.band} (${nt.english.subs.filter((x) => x.measured).map((x) => `${SUB[x.key]} ${x.score}`).join(', ')}${nt.english.subs.some((x) => !x.measured) ? ', pronunciation not measured' : ''}) · ${nt.english.source}`, 'english']);
+  if (nt.english) chips.push(['ok', `Spoken English ${nt.english.band} (${nt.english.subs.filter((x) => x.measured).map((x) => `${SUB[x.key]} ${x.score}`).join(', ')}${nt.english.subs.some((x) => !x.measured) ? ', pronunciation not measured' : ''}) · ${nt.english.source}`, 'english']);
   if (nt.languages?.length) chips.push(['neutral', `Speaks ${nt.languages.map((l) => (l.label ? `${l.name} (${l.label})` : l.name)).join(', ')} · ${nt.languages.some((l) => l.source === 'verified') ? 'partly verified' : 'self-declared'}`, 'langs']);
   if (nt.immediate?.value) chips.push(['ok', 'Can join now · self-declared', 'now']);
   if (!chips.length) return null;
   return (
     <ul className="hn-chips" aria-label="Non-tech facts" data-testid="co-hire-nt">
-      {chips.map(([tone, text, k]) => <li key={k} className={`mchip mchip-${tone}`} data-testid={`co-hire-nt-${k}`} style={{ whiteSpace: 'normal', overflowWrap: 'anywhere', maxWidth: '100%' }}>{text}</li>)}
+      {chips.map(([tone, text, k]) => <li key={k} className={`mchip mchip-${tone}`} data-testid={`co-hire-nt-${k}`} style={{ whiteSpace: 'normal', overflowWrap: 'anywhere', maxWidth: '100%' }}>{tone === 'ok' ? <><IcCheck size={14} /> {text}</> : text}</li>)}
     </ul>
   );
 }

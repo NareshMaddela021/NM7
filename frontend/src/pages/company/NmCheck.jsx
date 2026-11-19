@@ -1,7 +1,7 @@
 // Vetting V4: "Request Nm7 check" on a Hire now card and in an applicant's profile, for people at level 3 or more.
 // POST /api/company/{cid}/hire/l4/{uid} asks Nm7 for the human check (a 15-minute call with an Nm7 reviewer and a
-// reference from a past manager or teacher); the answer is the request's status, shown as a chip (requested → call
-// booked → checked → verified). Verified shows "✓ Nm7 verified · Confirmed by a past manager at <company>". After an
+// reference from a past manager or teacher); the answer is the request's status, shown as a chip (requested -> call
+// booked -> checked -> verified). Verified shows "tick Nm7 verified · Confirmed by a past manager at <company>". After an
 // interview with a verified person, "Rate this candidate" (1–5 stars, POST …/rating) tells Nm7 how well the check
 // predicted them. The row may already carry `l4` ({ status, referenceLine }); L4 people count as verified.
 // English only for now.
@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { rq } from '../../lib/company';
 import { l4Status } from '../../lib/l4';
 import '../../styles/vetting-l4.css';
+import { IcCheck, IcStar } from '../../components/icons';
 
 function Stars({ c, uid, name }) {
   const [stars, setStars] = useState(0);
@@ -32,7 +33,7 @@ function Stars({ c, uid, name }) {
         {[1, 2, 3, 4, 5].map((n) => (
           <button key={n} type="button" role="radio" className={`l4-choice ${n <= stars ? 'on' : ''}`} aria-checked={stars === n} tabIndex={(stars || 1) === n ? 0 : -1}
             aria-label={`${n} out of 5${n === 1 ? ' (not as the check said)' : n === 5 ? ' (just as the check said)' : ''}`} disabled={busy} onClick={() => rate(n)} data-testid={`co-l4-star-${n}`}>
-            <span aria-hidden="true">{n <= stars ? '★' : '☆'}</span>
+            <IcStar fill={n <= stars ? 'currentColor' : 'none'} />
           </button>
         ))}
       </div>
@@ -57,7 +58,7 @@ export default function NmCheck({ c, uid, name, level, row, canRequest = true })
   return (
     <div className="l4-co" data-testid="co-l4">
       {st?.status === 'verified' ? (
-        <p className="l4-verified" data-testid="co-l4-verified">✓ Nm7 verified{st.referenceLine ? ` · ${st.referenceLine}` : ''}</p>
+        <p className="l4-verified" data-testid="co-l4-verified"><IcCheck size={14} /> Nm7 verified{st.referenceLine ? ` · ${st.referenceLine}` : ''}</p>
       ) : st ? (
         <div className="l4-co-row">
           <span className={`mchip mchip-${tone}`} role="status" data-testid="co-l4-status">Nm7 check: {words}</span>

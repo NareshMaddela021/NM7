@@ -1,4 +1,4 @@
-/* Auto Apply 2.0 (A7) numbers (Admin → Daily report and Admin → Auto Apply): one card per channel, the success
+/* Auto Apply 2.0 (A7) numbers (Admin -> Daily report and Admin -> Auto Apply): one card per channel, the success
    measures as rows; everything wraps at 390 px (no sideways scroll). Its own file so the two admin pages share no
    stylesheet chunk. */
 .aan-channels { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr)); gap: 8px; }

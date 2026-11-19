@@ -9,6 +9,7 @@ import { Loading, day, emptyIf, useAction, useApi } from '../admin/live/common';
 import { MeHead } from '../me/MeLayout';
 import '../../styles/me-kit.css';
 import '../../styles/org-signup.css';
+import { IcArrowLeft, IcSwap } from '../../components/icons';
 
 /** Org > Team: start, see and cancel a transfer (Owner). `base` is the transfer endpoint (Owner or admin). */
 export function TransferOwnership({ base, team = [], admin = false }) {
@@ -19,7 +20,7 @@ export function TransferOwnership({ base, team = [], admin = false }) {
   const others = team.filter((s) => s.status === 'active' && s.role !== 'owner');
   return (
     <section className="mcard ot-card" aria-label="Transfer ownership" data-testid="transfer">
-      <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">⇄</span><span className="mcard-ht"><strong className="mcard-title">Transfer ownership</strong><span className="mcard-sub">{admin ? 'On the Owner’s request.' : 'Hand the organization to someone else.'} The new owner gets a code by email and confirms it signed in with that address. The plan, invoices and payment reminders move with the organization. Written to the Activity log.</span></span></header>
+      <header className="mcard-h"><span className="mcard-ic" aria-hidden="true"><IcSwap /></span><span className="mcard-ht"><strong className="mcard-title">Transfer ownership</strong><span className="mcard-sub">{admin ? 'On the Owner’s request.' : 'Hand the organization to someone else.'} The new owner gets a code by email and confirms it signed in with that address. The plan, invoices and payment reminders move with the organization. Written to the Activity log.</span></span></header>
       <Loading st={st}>{({ transfer: t }) => (t ? (
         <div className="ot-pending stack g8" data-testid="transfer-pending">
           <span className="small">Waiting for <strong>{t.toEmail}</strong> to confirm (until {day(t.expiresAt)}). After that, {admin ? 'the old Owner' : 'you'} {t.oldOwner === 'leave' ? 'will leave the organization' : 'will stay as a coordinator'}.</span>
@@ -78,7 +79,7 @@ export default function AcceptTransfer() {
           <button type="submit" className="btn btn-signal" style={{ alignSelf: 'flex-start' }} disabled={!!busy || (code[t.id] || '').length !== 6} data-testid="accept-go">{busy === t.id && <Spinner />}Become the Owner</button>
         </form>
       ))}</Loading>
-      <Link to="/org" className="btn btn-outline" style={{ alignSelf: 'flex-start' }}>← My organizations</Link>
+      <Link to="/org" className="btn btn-outline" style={{ alignSelf: 'flex-start' }}><IcArrowLeft size={16} /> My organizations</Link>
     </main>
   );
 }

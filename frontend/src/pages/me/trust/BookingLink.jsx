@@ -173,7 +173,7 @@ export function CompanyJoin({ token }) {
         </div>
       )}
       {mode === 'no' && <Reason t={L.en} label="What happened? (kept with the record)" busy={st.busy} testid="cj-no" onBack={() => setMode('')} onSend={async (v) => { if (await act('act', { joined: false, reason: v })) setMode(''); }} />}
-      <span className="xs muted">This feeds the candidate’s reliability record on Nm7. You can correct it later in Hire → Offers.</span>
+      <span className="xs muted">This feeds the candidate’s reliability record on Nm7. You can correct it later in Hire &gt; Offers.</span>
       {st.error && <p role="alert" className="error" data-testid="cj-error">{st.error}</p>}
     </div>
   );

@@ -75,7 +75,7 @@ export async function switchRole(role) {
     updateUser(u.id, fromApi(r));
     return currentUser();
   }
-  if (!rolesOf(u).includes(role)) throw Object.assign(new Error('Add this role first (account menu → Add another role).'), { code: 'no_such_role' });
+  if (!rolesOf(u).includes(role)) throw Object.assign(new Error('Add this role first (account menu > Add another role).'), { code: 'no_such_role' });
   updateUser(u.id, { roles: rolesOf(u), activeRole: role, role: accountType(role) });
   return currentUser();
 }

@@ -24,6 +24,7 @@ import { Chip, Empty, Skel } from '../me/kit';
 import '../../styles/me-account.css';
 import '../../styles/org-groups.css';
 import { Still } from '../newhome/ParticleStage';
+import { IcAlert, IcBuilding, IcCalendar, IcCap, IcCheck, IcFlag, IcGlobe, IcLock, IcStar } from '../../components/icons';
 
 const chipTone = (cls = '') => ({ 'b-success': 'ok', 'b-warning': 'warn', 'b-danger': 'bad', 'b-signal': 'accent' }[cls] || 'neutral');
 /** A link to another part of My groups, as a card. */
@@ -194,14 +195,14 @@ export function Join() {
                   <option value={NEW}>Start a new resume</option>
                 </select>
               )}
-              <span className="xs faint">You can change this later in your dashboard → My groups.</span>
+              <span className="xs faint">You can change this later in your dashboard, under My groups.</span>
             </div>
             <button type="submit" className="btn btn-signal btn-lg og-join-submit" disabled={busy || resumes.loading}>{busy ? 'Joining…' : chosen === NEW ? 'Join and build my resume' : 'Join and share this resume'}</button>
           </>
         )}
         {error && <p className="small" role="alert" style={{ color: 'var(--danger)' }}>{error}</p>}
       </form>
-      <p className="xs faint og-join-safe"><span aria-hidden="true">🔒 </span>Nm7 never asks for Aadhaar or other ID numbers. Only {j.org.name} and Nm7 see what you share.</p>
+      <p className="xs faint og-join-safe"><IcLock size={14} /> Nm7 never asks for Aadhaar or other ID numbers. Only {j.org.name} and Nm7 see what you share.</p>
     </Frame>
   );
 }
@@ -225,7 +226,7 @@ export function MeGroups() {
     <div className="stack g20">
       <MeHead title="My groups" sub="Colleges, institutes and job fairs you share your resume with." />
       <form className="mcard mcard-accent acc-join" aria-label="Join a group" onSubmit={(e) => { e.preventDefault(); if (cleanCode(code)) nav(`/join/${cleanCode(code)}`); }}>
-        <span className="mcard-ic" aria-hidden="true">⚑</span>
+        <span className="mcard-ic" aria-hidden="true"><IcFlag /></span>
         <div className="field" style={{ flex: '1 1 220px' }}>
           <label className="label" htmlFor="g-code">Join a group</label>
           <input id="g-code" className="input mono" placeholder="e.g. JNTUA26" value={code} maxLength={20} onChange={(e) => setCode(e.target.value.toUpperCase())} aria-describedby="g-code-h" />
@@ -236,15 +237,15 @@ export function MeGroups() {
       {LIVE && <MyInterviews />}
       {(drives.data?.length > 0 || alumni.data?.browse?.length > 0 || alumni.data?.canJoin?.length > 0 || alumni.data?.profiles?.length > 0 || cgroups.data?.length > 0 || staff.data?.length > 0) && (
         <div className="mgrid">
-          {drives.data?.length > 0 && <LinkCard to="/me/drive" testid="drive-link" icon="◷" title="My drive day" text={`${drives.data[0].name} · ${drives.data[0].date} · ${drives.data[0].slots.length} slot${drives.data[0].slots.length === 1 ? '' : 's'}`} cta="Open" />}
-          {(alumni.data?.browse?.length > 0 || alumni.data?.canJoin?.length > 0 || alumni.data?.profiles?.length > 0) && <LinkCard to="/me/alumni" testid="alumni-link" icon="✦" title="Alumni network" text={alumni.data.canJoin.length ? 'Your batch has passed out: join your college’s alumni network.' : 'Ask alumni for a referral or mentoring.'} cta="Open" />}
-          {cgroups.data?.map((g) => <LinkCard key={g.id} to={`/college-group/${g.id}`} testid="cg-link" icon="▦" title={`You run ${g.name}`} text={`College group · ${g.campuses} campuses · numbers by campus`} cta="Open" />)}
-          {staff.data?.map((o) => <LinkCard key={o.orgId} to={o.role === 'reviewer' ? `/review/${o.orgId}` : `/org/${o.orgId}`} icon="⌂" title={`You help run ${o.orgName}`} text={staffSummary(o)} textTestid="staff-summary" cta="Open organization" />)}
+          {drives.data?.length > 0 && <LinkCard to="/me/drive" testid="drive-link" icon={<IcCalendar />} title="My drive day" text={`${drives.data[0].name} · ${drives.data[0].date} · ${drives.data[0].slots.length} slot${drives.data[0].slots.length === 1 ? '' : 's'}`} cta="Open" />}
+          {(alumni.data?.browse?.length > 0 || alumni.data?.canJoin?.length > 0 || alumni.data?.profiles?.length > 0) && <LinkCard to="/me/alumni" testid="alumni-link" icon={<IcCap />} title="Alumni network" text={alumni.data.canJoin.length ? 'Your batch has passed out: join your college’s alumni network.' : 'Ask alumni for a referral or mentoring.'} cta="Open" />}
+          {cgroups.data?.map((g) => <LinkCard key={g.id} to={`/college-group/${g.id}`} testid="cg-link" icon={<IcGlobe />} title={`You run ${g.name}`} text={`College group · ${g.campuses} campuses · numbers by campus`} cta="Open" />)}
+          {staff.data?.map((o) => <LinkCard key={o.orgId} to={o.role === 'reviewer' ? `/review/${o.orgId}` : `/org/${o.orgId}`} icon={<IcBuilding />} title={`You help run ${o.orgName}`} text={staffSummary(o)} textTestid="staff-summary" cta="Open organization" />)}
         </div>
       )}
       {offers.data?.length > 0 && (
         <section className="mcard" aria-label="My offers" data-testid="my-offers">
-          <header className="mcard-h"><span className="mcard-ic teal" aria-hidden="true">★</span><span className="mcard-ht"><h2 className="mcard-title">My offers</h2><span className="mcard-sub">Recorded by your college’s placement office. Only you and your college see these.</span></span></header>
+          <header className="mcard-h"><span className="mcard-ic teal" aria-hidden="true"><IcStar /></span><span className="mcard-ht"><h2 className="mcard-title">My offers</h2><span className="mcard-sub">Recorded by your college’s placement office. Only you and your college see these.</span></span></header>
           <ul className="mlist">
             {offers.data.map((o) => <li key={o.id} className="mitem" data-testid="my-offer"><span className="mitem-main"><span className="mitem-title">{o.company}</span><span className="mitem-meta">{[o.role, o.ctcLpa != null ? `${o.ctcLpa} LPA` : null, o.typeName].filter(Boolean).join(' · ')}</span></span><Chip>{o.statusName}</Chip></li>)}
           </ul>
@@ -330,7 +331,7 @@ function CollegeFormat({ g, resume }) {
       <span className="xs muted">{g.orgName} prints and shares your resume in its own format: same content, their layout and header. Your own resume and downloads don’t change.</span>
       {items.length > 0 && (
         <ul className="stack g4" style={{ listStyle: 'none', margin: 0, padding: 0 }} aria-label="College rules" data-testid="format-checklist">
-          {items.map((i) => <li key={i.key} className="row g8 small" style={{ alignItems: 'baseline' }}><span aria-hidden="true" style={{ color: i.ok ? 'var(--success)' : 'var(--warning)' }}>{i.ok ? '✓' : '!'}</span><span>{i.text}</span><span className="sr-only">{i.ok ? 'done' : 'to fix'}</span></li>)}
+          {items.map((i) => <li key={i.key} className="row g8 small" style={{ alignItems: 'baseline' }}><span aria-hidden="true" style={{ color: i.ok ? 'var(--success)' : 'var(--warning)' }}>{i.ok ? <IcCheck size={14} /> : <IcAlert size={14} />}</span><span>{i.text}</span><span className="sr-only">{i.ok ? 'done' : 'to fix'}</span></li>)}
         </ul>
       )}
       {todo.length > 0 && <Link to="/builder" className="small">Fix these in my resume</Link>}

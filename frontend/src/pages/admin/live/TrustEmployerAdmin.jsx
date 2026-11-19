@@ -1,4 +1,4 @@
-// Admin → Skill checks → Vetting Trust → Employer checks and Fraud reports (T4; every change audited).
+// Admin -> Skill checks -> Vetting Trust -> Employer checks and Fraud reports (T4; every change audited).
 //   Employer checks: the registry-lookup provider (test provider or Surepass), whether its key is set (never the value:
 //   docs/trust/T4-vendors.md), the re-check interval, the name-match mark, after how many independent reports a job is
 //   paused, lookup counts, and the review queue (cancelled registrations, other names, look-alike domains): a person
@@ -49,7 +49,7 @@ export function EmployerChecks() {
         const recheck = () => run(async () => { const r = await http('/api/admin/trust/employer/recheck', { method: 'POST' }); toast(`Re-checked ${r.checked}: ${r.dropped} badge(s) dropped`); st.reload(); });
         return (
           <>
-            <p className="small" style={{ margin: 0 }}>Companies enter their GSTIN, Udyam (MSME) number or CIN in their account settings. Active in the registry, the same name and a website that belongs to it → “✓ Verified employer” on their jobs and page. Anything else comes here. Only companies and candidates Vetting Trust is on for see any of it.</p>
+            <p className="small" style={{ margin: 0 }}>Companies enter their GSTIN, Udyam (MSME) number or CIN in their account settings. Active in the registry, the same name and a website that belongs to it get “Verified employer” on their jobs and page. Anything else comes here. Only companies and candidates Vetting Trust is on for see any of it.</p>
             <div className="row g8" style={{ flexWrap: 'wrap', alignItems: 'flex-end' }}>
               <div className="field" style={{ flex: '1 1 240px' }}><label className="label" htmlFor="te-p">Provider</label>
                 <select id="te-p" className="input" value={f.provider} onChange={(e) => setF({ ...f, provider: e.target.value })} data-testid="te-provider">{d.providers.map((p) => <option key={p.key} value={p.key}>{p.label}{p.test || p.ready ? '' : ' (key not set)'}</option>)}</select></div>
@@ -67,7 +67,7 @@ export function EmployerChecks() {
             </div>
             {d.providers.filter((p) => !p.test).map((p) => (
               <div key={p.key} className="stack g4" data-testid={`te-keys-${p.key}`}>
-                <span className="label">{p.label}: keys (Render → Environment)</span>
+                <span className="label">{p.label}: keys (Render &gt; Environment)</span>
                 <ul className="small" style={{ margin: 0, paddingLeft: 18 }}>{Object.entries(p.keys).map(([k, v]) => <li key={k}><code>{k}</code>: {v ? 'set' : 'not set'}</li>)}</ul>
               </div>
             ))}

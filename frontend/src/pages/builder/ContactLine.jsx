@@ -1,5 +1,5 @@
 // Contact + links for the resume header (preview). The PDF and Word file draw the same items from contactItems().
-// linkStyle 'icon' → short handle (saivarsha); 'url' → full link. contactIcons (contactMode below) → icon + text,
+// linkStyle 'icon' -> short handle (saivarsha); 'url' -> full link. contactIcons (contactMode below) -> icon + text,
 // text only or icon only.
 // Brand logos come from icons.js / brands.js; design.logoColor picks brand colours or one colour.
 
@@ -7,7 +7,7 @@ import { detectBrand, iconColor, iconInner } from './icons';
 
 const stripUrl = (u) => (u || '').trim().replace(/^https?:\/\//i, '').replace(/^www\./i, '').replace(/\/+$/, '');
 
-/** "linkedin.com/in/saivarsha" → "saivarsha"; "yourname.dev" → "yourname.dev" */
+/** "linkedin.com/in/saivarsha" -> "saivarsha"; "yourname.dev" -> "yourname.dev" */
 export function handleOf(key, url) {
   const clean = stripUrl(url);
   if (!clean) return '';

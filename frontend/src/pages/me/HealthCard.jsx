@@ -1,8 +1,9 @@
-// Dashboard: "Resume health" — small things to fix, each with one button that opens the exact place, and a ✕ to
+// Dashboard: "Resume health" — small things to fix, each with one button that opens the exact place, and a close (X) button to
 // dismiss it. The same alerts go out by email at most once every two weeks (switch off in Settings).
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { http, LIVE } from '../../services/http';
+import { IcX } from '../../components/icons';
 
 export default function HealthCard() {
   const [alerts, setAlerts] = useState(null);
@@ -32,7 +33,7 @@ export default function HealthCard() {
             </span>
             <span className="row g8" style={{ alignItems: 'center' }}>
               <Link to={a.fix.path} className="btn btn-outline" style={{ minHeight: 36 }} data-testid={`health-fix-${a.kind}`}>{a.fix.label}</Link>
-              <button type="button" className="btn btn-icon" aria-label={`Dismiss: ${a.title}`} onClick={() => dismiss(a.id)} data-testid={`health-dismiss-${a.kind}`}>✕</button>
+              <button type="button" className="btn btn-icon" aria-label={`Dismiss: ${a.title}`} onClick={() => dismiss(a.id)} data-testid={`health-dismiss-${a.kind}`}><IcX /></button>
             </span>
           </li>
         ))}

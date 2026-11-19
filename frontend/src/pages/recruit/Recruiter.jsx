@@ -23,6 +23,7 @@ import { Still } from '../newhome/ParticleStage';
 import { Empty } from '../me/kit';
 import '../../styles/me-kit.css';
 import '../../styles/recruit.css';
+import { IcAlert, IcClock, IcShield } from '../../components/icons';
 
 /** /r/:slug — a recruiter link (long token) or a member's public resume link (a short name). */
 export default function ShareRoute() {
@@ -118,7 +119,7 @@ function RecruiterPage({ token }) {
     return (
       <Shell>
         <form className="mcard rc-signin" onSubmit={(e) => { e.preventDefault(); setCode(typed); setSt({ loading: true }); load(typed); }}>
-          <span className="rc-gate-ic" aria-hidden="true">⛨</span>
+          <span className="rc-gate-ic" aria-hidden="true"><IcShield /></span>
           <h1 className="display rc-h1">Enter the access code</h1>
           <p className="rc-lead">The organization gave you a 6-digit code with this link.</p>
           <div className="field"><label className="label" htmlFor="rc-code">Access code</label><input id="rc-code" className="input mono rc-code" inputMode="numeric" maxLength={6} autoComplete="off" value={typed} onChange={(e) => setTyped(e.target.value.replace(/\D/g, ''))} /></div>
@@ -133,7 +134,7 @@ function RecruiterPage({ token }) {
     return (
       <Shell>
         <div className="mcard rc-gate" role="alert">
-          <span className="rc-gate-ic" aria-hidden="true">{ended ? '⌛' : '!'}</span>
+          <span className="rc-gate-ic" aria-hidden="true">{ended ? <IcClock /> : <IcAlert />}</span>
           <h1 className="display rc-h1">{ended ? 'This link has expired' : 'Couldn’t open this link'}</h1>
           <p className="rc-lead">{ended ? 'The organization that shared these resumes has ended this link, or it has run out. Ask them for a new one.' : st.error.message}</p>
         </div>

@@ -12,6 +12,7 @@ import PayRetry from '../../components/PayRetry';
 import { countdown, downloadInvoice, fmtDay, fmtWhen } from './shared';
 import { Chip, Empty, MeCard, Stat } from './kit';
 import '../../styles/me-account.css';
+import { IcArrowLeft, IcCheck, IcCheckCircle, IcClock, IcEdit, IcRefresh, IcX } from '../../components/icons';
 
 /** The order's status as a chip tone. */
 export const toneOf = (t) => ({ success: 'ok', warning: 'warn', danger: 'bad' }[t] || 'neutral');
@@ -132,7 +133,7 @@ export function OrdersList() {
                 </span>
                 <span className="acc-order-side">
                   <Chip tone={toneOf(o.tone)}>{o.label}</Chip>
-                  {cd && <span className="xs strong" style={{ color: cd.late ? 'var(--danger)' : 'var(--text2)' }}>⏱ {cd.text}</span>}
+                  {cd && <span className="xs strong" style={{ color: cd.late ? 'var(--danger)' : 'var(--text2)' }}><IcClock size={14} /> {cd.text}</span>}
                   <span className="acc-chev" aria-hidden="true">›</span>
                 </span>
               </Link>
@@ -159,10 +160,10 @@ function WaitingOrder({ o, justPaid }) {
   const on = pm?.mode === 'razorpay';
   return (
     <>
-      <Link to="/me/orders" className="small">← My orders</Link>
+      <Link to="/me/orders" className="small"><IcArrowLeft size={16} /> My orders</Link>
       <MeHead title={`${o.id} · ${PLANS[o.plan]?.name || o.plan}`} sub={`${o.createdAt ? `Ordered ${fmtDay(o.createdAt)} · ` : ''}${inr(total(o))}`} right={<Chip tone={toneOf(o.tone)}>{o.label}</Chip>} />
       {justPaid && o.unpaid ? (
-        <MeCard as="section" tone="ok" icon="✓" title="Payment received" label="Payment" testid="order-confirming">
+        <MeCard as="section" tone="ok" icon={<IcCheckCircle />} title="Payment received" label="Payment" testid="order-confirming">
           <span className="small row g8" role="status"><Spinner /> Updating your order…</span>
         </MeCard>
       ) : o.unpaid && o.wa ? (
@@ -179,7 +180,7 @@ function WaitingOrder({ o, justPaid }) {
           <span className="xs muted">{pm && !on ? 'Payments are paused right now. Please try again later.' : `Secure payment by ${PROMISES.paymentProvider}: ${PAY_METHODS}.`}</span>
         </MeCard>
       ) : (
-        <MeCard as="section" icon="✕" title="Cancelled" label="Cancelled" testid="wa-cancelled"><span className="small muted">This order wasn’t paid, so it was cancelled. Nothing was charged. You can place a new order any time.</span></MeCard>
+        <MeCard as="section" icon={<IcX />} title="Cancelled" label="Cancelled" testid="wa-cancelled"><span className="small muted">This order wasn’t paid, so it was cancelled. Nothing was charged. You can place a new order any time.</span></MeCard>
       )}
     </>
   );
@@ -214,9 +215,9 @@ export function OrderDetail() {
   const summary = [['Plan', PLANS[o.plan].name], ['Paid', fmtDay(o.paidAt)], ['Payment', o.method], ['Total', inr(total(o))], ...(o.addons.length ? [['Add-ons', o.addons.map((x) => ADDONS[x.id]?.name).join(', ')]] : [])];
   return (
     <>
-      <Link to="/me/orders" className="small acc-back">← My orders</Link>
+      <Link to="/me/orders" className="small acc-back"><IcArrowLeft size={16} /> My orders</Link>
       {navState?.justPaid && (
-        <MeCard tone="ok" icon="✓" title="Payment received. You’re in good hands." label="Payment received">
+        <MeCard tone="ok" icon={<IcCheckCircle />} title="Payment received. You’re in good hands." label="Payment received">
           <span className="small muted">Order #{o.id} · {receipt ? 'Receipt' : 'GST invoice'} below and in your email. Next: answer 4 quick questions so your expert can start.</span>
         </MeCard>
       )}
@@ -226,11 +227,11 @@ export function OrderDetail() {
       <div className="mgrid-2">
         <div className="mstack">
           {o.x && (
-            <MeCard as="section" label="Progress" icon="✎" title={o.action?.text || o.label} sub={left != null ? `Expert files are kept for ${PROMISES.retentionDays} days — ${left > 0 ? `${left} days left` : 'expired'}. Your copy in “My resumes” stays as long as your account.` : undefined}>
-              <ol className="msteps acc-tl">{o.steps.map((x) => <li key={x.label} className={x.state === 'done' ? 'done' : x.state === 'now' ? 'now' : ''} data-state={x.state}><span className="msteps-dot" aria-hidden="true">{x.state === 'done' ? '✓' : ''}</span><span className="acc-tl-l" style={{ fontWeight: x.state === 'now' ? 800 : 600, color: x.state === 'next' ? 'var(--text3)' : 'var(--text)' }}>{x.label}{x.state === 'now' && <span className="sr-only"> (now)</span>}</span></li>)}</ol>
+            <MeCard as="section" label="Progress" icon={<IcEdit />} title={o.action?.text || o.label} sub={left != null ? `Expert files are kept for ${PROMISES.retentionDays} days — ${left > 0 ? `${left} days left` : 'expired'}. Your copy in “My resumes” stays as long as your account.` : undefined}>
+              <ol className="msteps acc-tl">{o.steps.map((x) => <li key={x.label} className={x.state === 'done' ? 'done' : x.state === 'now' ? 'now' : ''} data-state={x.state}><span className="msteps-dot" aria-hidden="true">{x.state === 'done' ? <IcCheck size={14} /> : ''}</span><span className="acc-tl-l" style={{ fontWeight: x.state === 'now' ? 800 : 600, color: x.state === 'next' ? 'var(--text3)' : 'var(--text)' }}>{x.label}{x.state === 'now' && <span className="sr-only"> (now)</span>}</span></li>)}</ol>
               {cd && (cd.late
                 ? <div className="acc-note acc-note-bad small"><strong>{cd.text}.</strong> We promised {PROMISES.delivery}. If the draft doesn’t arrive, a full refund starts automatically ({PROMISES.refundDays} to reach you).</div>
-                : <div className="acc-note mspread small"><span>Delivery promise: first draft within {PROMISES.delivery}</span><strong style={{ color: cd.hours < 6 ? 'var(--warning)' : 'var(--text)' }}>⏱ {cd.text}</strong></div>)}
+                : <div className="acc-note mspread small"><span>Delivery promise: first draft within {PROMISES.delivery}</span><strong style={{ color: cd.hours < 6 ? 'var(--warning)' : 'var(--text)' }}><IcClock size={14} /> {cd.text}</strong></div>)}
               <div className="mrow">
                 {o.action && o.action.to !== `/me/orders/${o.id}` && <Link to={o.action.to} className="btn btn-signal">{o.action.cta}</Link>}
                 <Link to={`/me/messages?order=${o.id}`} className="btn btn-outline">Message your expert</Link>
@@ -245,7 +246,7 @@ export function OrderDetail() {
           )}
 
           {!o.x && (
-            <MeCard as="section" tone={o.refund ? undefined : 'ok'} icon={o.refund ? '↺' : '✓'} title={o.refund ? `Refunded ${inr(o.refund.amount)}` : o.label} label="Status">
+            <MeCard as="section" tone={o.refund ? undefined : 'ok'} icon={o.refund ? <IcRefresh /> : <IcCheckCircle />} title={o.refund ? `Refunded ${inr(o.refund.amount)}` : o.label} label="Status">
               {o.refund
                 ? <span className="small muted">{o.refund.reason} · started {fmtDay(o.refund.at)} · reached your account {fmtDay(o.refund.done)} · ref {o.refund.ref}</span>
                 : <span className="small">{o.plan === 'diy' ? 'DIY tools unlocked for your account: AI rewrites, every template, PDF and Word download.' : o.plan === 'linkedin_pack' ? <>LinkedIn pack unlocked for your account. <Link to="/linkedin#pack">Open it</Link></> : 'Completed.'}</span>}

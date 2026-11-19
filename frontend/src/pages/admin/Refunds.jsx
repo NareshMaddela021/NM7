@@ -5,6 +5,7 @@ import { useToast } from '../../components/ui';
 import { useAdmin } from './AdminContext';
 import { PageHead, Panel, Tabs, Empty, inr, fmtDT, ago } from './AdminUI';
 import { NOW_MS } from '../../data/adminData';
+import { IcCheck } from '../../components/icons';
 
 const ST = { review: ['To review', 'b-warning'], 'redo-offered': ['Re-do offered', 'b-neutral'], 'auto-approved': ['Auto-approved (late)', 'b-success'], refunded: ['Refunded', 'b-success'], rejected: ['Rejected', 'b-danger'] };
 const TYPE = { late: 'Late delivery', quality: 'Quality complaint', other: 'Other' };
@@ -23,8 +24,8 @@ function Detail({ r, onClose }) {
       <span className="small"><Link to={`/admin/orders?id=${r.orderId}`}>{r.orderId}</Link> · {o.customer} · {o.role} · expert {exName(o.expert)}</span>
       <div className="well stack g4 small"><strong>Customer says</strong><span>{r.reason}</span><span className="xs faint">{fmtDT(r.at)}</span></div>
       <div className="well stack g4 small"><strong>Expert says</strong><span>{r.expertSide}</span></div>
-      <div className="stack g4 small"><strong>Rule</strong><span className="muted">{r.type === 'late' ? 'Late delivery → full refund automatically. Nothing to decide.' : r.type === 'quality' ? 'Quality complaint → offer one free re-do first. If the customer still isn’t happy, decide within 24 hours.' : 'Review against the refund policy within 24 hours.'}</span></div>
-      {r.rp && <div className="stack g4 small"><strong>Razorpay refund</strong><ol className="steps" aria-label="Refund progress"><li data-state="done"><span className="mono">✓</span>Started</li><li aria-current={r.rp === 'processing' ? 'step' : undefined} data-state={r.rp === 'done' ? 'done' : undefined}><span className="mono">{r.rp === 'done' ? '✓' : 2}</span>Processing</li><li data-state={r.rp === 'done' ? 'done' : undefined}><span className="mono">{r.rp === 'done' ? '✓' : 3}</span>In bank (3–5 days)</li></ol></div>}
+      <div className="stack g4 small"><strong>Rule</strong><span className="muted">{r.type === 'late' ? 'Late delivery: full refund automatically. Nothing to decide.' : r.type === 'quality' ? 'Quality complaint: offer one free re-do first. If the customer still isn’t happy, decide within 24 hours.' : 'Review against the refund policy within 24 hours.'}</span></div>
+      {r.rp && <div className="stack g4 small"><strong>Razorpay refund</strong><ol className="steps" aria-label="Refund progress"><li data-state="done"><span className="mono"><IcCheck size={14} /></span>Started</li><li aria-current={r.rp === 'processing' ? 'step' : undefined} data-state={r.rp === 'done' ? 'done' : undefined}><span className="mono">{r.rp === 'done' ? <IcCheck size={14} /> : 2}</span>Processing</li><li data-state={r.rp === 'done' ? 'done' : undefined}><span className="mono">{r.rp === 'done' ? <IcCheck size={14} /> : 3}</span>In bank (3–5 days)</li></ol></div>}
       {r.note && <span className="small"><strong>Decision note:</strong> {r.note}</span>}
       {['review', 'redo-offered'].includes(r.status) && (
         <div className="stack g8">

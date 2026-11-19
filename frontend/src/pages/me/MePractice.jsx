@@ -9,9 +9,10 @@ import { MeHead } from './MeLayout';
 import { countOf } from '../../lib/format';
 import { Bar, Empty, MeCard, ScoreRing, Skel, StickyBar } from './kit';
 import '../../styles/me-learn.css';
+import { IcArrowRight, IcArrowUp, IcCheck, IcEdit, IcX } from '../../components/icons';
 
 const ICONS = { Aptitude: '∑', English: 'Aa', Coding: '</>' };
-const iconFor = (area) => Object.entries(ICONS).find(([k]) => area.toLowerCase().includes(k.toLowerCase()))?.[1] || '✎';
+const iconFor = (area) => Object.entries(ICONS).find(([k]) => area.toLowerCase().includes(k.toLowerCase()))?.[1] || <IcEdit size={20} />;
 const toneOf = (pct) => (pct >= 70 ? 'ok' : pct >= 40 ? 'warn' : 'bad');
 
 function Weak({ weak }) {
@@ -68,7 +69,7 @@ function Test({ t, onEnd }) {
             return (
               <label key={o} className={`ml-opt ${right ? 'right' : ''} ${wrong ? 'wrong' : ''}`}>
                 <input type="radio" name={`pr-${q.id}`} checked={pick === k} disabled={!!res} onChange={() => setPick(k)} data-testid="pr-opt" />
-                <span>{o}{right ? ' ✓' : wrong ? ' ✗' : ''}</span>
+                <span>{o}{right ? <> <IcCheck size={16} label="Right answer" /></> : wrong ? <> <IcX size={16} label="Wrong answer" /></> : ''}</span>
               </label>
             );
           })}
@@ -125,7 +126,7 @@ export default function MePractice() {
                   <button key={s.id} type="button" className="ml-tile" onClick={() => start(s.id)} data-testid={`pr-start-${s.id}`}>
                     <span className="ml-tile-ic" aria-hidden="true">{iconFor(a)}</span>
                     <span className="ml-tile-title">{s.title}</span>
-                    <span className="ml-tile-go" aria-hidden="true">Start →</span>
+                    <span className="ml-tile-go" aria-hidden="true">Start <IcArrowRight size={16} /></span>
                   </button>
                 ))}
               </div>
@@ -133,7 +134,7 @@ export default function MePractice() {
           ))}
           {!t && d.sets.length === 0 && <Empty shape="cap" tint="student" title="No practice tests yet" action={<Link className="btn btn-signal" to="/me/learn">See learning paths</Link>}>New tests are added often. Meanwhile, start a free learning path.</Empty>}
           {d.topics.length > 0 && (
-            <MeCard icon="↑" title="My scores by topic (last 90 days)" testid="pr-topics">
+            <MeCard icon={<IcArrowUp />} title="My scores by topic (last 90 days)" testid="pr-topics">
               <div className="mgrid" style={{ gap: 14 }}>
                 {d.topics.map((x) => (
                   <div key={x.topic} className="stack g4">

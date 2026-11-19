@@ -88,8 +88,8 @@ for (const [label, opts] of SIZES) {
       await task.getByTestId('ct-run').click();
       const results = task.getByTestId('ct-result');
       await expect(results).toHaveCount(2, { timeout: 20_000 });
-      await expect(results.nth(0)).toContainText('✓ Sample 1: a mix');
-      await expect(results.nth(1)).toContainText('✗ Sample 2: no even numbers');
+      await expect(results.nth(0)).toContainText('Sample 1: a mix');
+      await expect(results.nth(1)).toContainText('Sample 2: no even numbers');
       await expect(results.nth(1)).toContainText('Expected');
       await expect(task).toContainText('29 runs left');
       expect(await fitsPhone(page)).toBe(true);

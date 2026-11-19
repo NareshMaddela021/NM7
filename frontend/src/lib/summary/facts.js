@@ -86,7 +86,7 @@ export function factsFromResume(raw) {
 export function findAchievement(texts) {
   for (const t of texts) {
     for (const raw of (t || '').split('\n')) {
-      const line = clean(raw.replace(/^[•\-*▸–➢✓]\s*/, '')).replace(/[.;]+$/, '');
+      const line = clean(raw.replace(/^[•\-*\u25B8–\u27A2\u2713]\s*/, '')).replace(/[.;]+$/, '');
       if (line.length < 12 || line.length > 160 || !NUMBERISH.test(line) || ID_LIKE.test(line) || CONTACT_RE.test(line)) continue;
       return line;
     }

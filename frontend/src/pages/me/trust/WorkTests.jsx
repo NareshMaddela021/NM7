@@ -13,6 +13,7 @@ import { http } from '../../../services/http';
 import { MeCard } from '../kit';
 import { Pledge, RetakeInfo } from './Honesty';
 import { LANGS, answered, clock, norm, pickSjt, secondsLeft, typingTracker, wpm } from './workLib';
+import { IcCheck, IcEdit, IcThumb } from '../../../components/icons';
 
 const API = '/api/me/trust/worktests';
 const L = {
@@ -119,7 +120,7 @@ function Questions({ p, onDone }) {
     <div className="stack g12" data-testid="wt-questions">
       <div className="row g8" style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
         <span className="mchip mchip-info" data-testid="wt-clock">{t.left}: {clock(left)}</span>
-        <span className="mchip mchip-neutral" data-testid="wt-count">{t.q} {i + 1} {t.of} {p.items.length} · ✓ {n}</span>
+        <span className="mchip mchip-neutral" data-testid="wt-count">{t.q} {i + 1} {t.of} {p.items.length} · <IcCheck size={14} /> {n}</span>
       </div>
       <p lang={p.lang} style={{ margin: 0, fontWeight: 600, overflowWrap: 'anywhere' }} data-testid="wt-q">{it.q}</p>
       {sjt ? (
@@ -128,8 +129,8 @@ function Questions({ p, onDone }) {
             <li key={k} className="mcard mcard-tight stack g8" data-testid="wt-option">
               <span lang={p.lang} style={{ overflowWrap: 'anywhere' }}>{o}</span>
               <span className="row g8" style={{ flexWrap: 'wrap' }}>
-                <button type="button" className={`btn ${a?.most === k ? 'btn-signal' : 'btn-outline'}`} style={BTN} aria-pressed={a?.most === k} onClick={() => save({ ...answers, [it.id]: pickSjt(a, 'most', k) })} data-testid="wt-most">👍 {t.most}</button>
-                <button type="button" className={`btn ${a?.least === k ? 'btn-ink' : 'btn-outline'}`} style={BTN} aria-pressed={a?.least === k} onClick={() => save({ ...answers, [it.id]: pickSjt(a, 'least', k) })} data-testid="wt-least">👎 {t.least}</button>
+                <button type="button" className={`btn ${a?.most === k ? 'btn-signal' : 'btn-outline'}`} style={BTN} aria-pressed={a?.most === k} onClick={() => save({ ...answers, [it.id]: pickSjt(a, 'most', k) })} data-testid="wt-most"><IcThumb size={16} /> {t.most}</button>
+                <button type="button" className={`btn ${a?.least === k ? 'btn-ink' : 'btn-outline'}`} style={BTN} aria-pressed={a?.least === k} onClick={() => save({ ...answers, [it.id]: pickSjt(a, 'least', k) })} data-testid="wt-least"><IcThumb size={16} style={{ transform: 'scaleY(-1)' }} /> {t.least}</button>
               </span>
             </li>
           ))}
@@ -164,7 +165,7 @@ function Result({ r, onBack }) {
       ) : (
         <p style={{ margin: 0 }} data-testid="wt-result-line"><strong>{r.score}</strong>/100{r.sections ? ` · numbers ${r.sections.numerical ?? '–'}, words ${r.sections.verbal ?? '–'}, reasoning ${r.sections.logical ?? '–'}` : ''}</p>
       )}
-      {r.badge ? <span className="mchip mchip-ok" style={{ alignSelf: 'flex-start', whiteSpace: 'normal' }} data-testid="wt-badge">✓ {r.badge}</span>
+      {r.badge ? <span className="mchip mchip-ok" style={{ alignSelf: 'flex-start', whiteSpace: 'normal' }} data-testid="wt-badge"><IcCheck size={14} /> {r.badge}</span>
         : <span className="small muted" data-testid="wt-no-badge">Companies don’t see this result. You can try again when your retake opens.</span>}
       {(r.flags || []).map((f) => <p key={f} className="small vet-calm" style={{ margin: 0 }} data-testid="wt-flag">{f} Nothing is decided by this alone.</p>)}
       <button type="button" className="btn btn-outline" style={{ ...BTN, alignSelf: 'flex-start' }} onClick={onBack} data-testid="wt-again">{t.again}</button>
@@ -211,7 +212,7 @@ export default function WorkTests() {
   const back = () => { setPaper(null); setResult(null); setOpen(''); load(); };
   const running = paper || d.tests.map((x) => x.running).find(Boolean);
   return (
-    <MeCard icon="⌨️" title="Typing, work situations and aptitude" sub="Short tests for many jobs, in English, हिन्दी or తెలుగు. Good results show as badges companies can filter on." testid="wt" headingLevel={2}>
+    <MeCard icon={<IcEdit />} title="Typing, work situations and aptitude" sub="Short tests for many jobs, in English, हिन्दी or తెలుగు. Good results show as badges companies can filter on." testid="wt" headingLevel={2}>
       {result ? <Result r={result} onBack={back} />
         : running ? (running.test === 'typing' ? <Typing key={running.id} p={running} onDone={setResult} /> : <Questions key={running.id} p={running} onDone={setResult} />)
           : (

@@ -48,7 +48,7 @@ describe('home languages', () => {
 
 // Brand names, abbreviations and numbers may stay as they are in Telugu and Hindi; nothing else may.
 const KEEP = /\b(Nm7|ATS|PDF|DOCX|Word|LinkedIn|WhatsApp|GST|GSTIN|UPI|PAN|PSU|NGO|Razorpay|HR|AI|QR|SMS|PO|URL|ID|MB|Free|Owner|Billing|Settings|Organization)\b/g;
-const brandOnly = (s) => !s.replace(/\{\w+\}/g, '').replace(KEEP, '').replace(/[\s\d₹%.,·:;/&+\-–—→()*!?“”"'’]/g, '');
+const brandOnly = (s) => !s.replace(/\{\w+\}/g, '').replace(KEEP, '').replace(/[\s\d₹%.,·:;/&+\-–—\u2192()*!?“”"'’]/g, '');
 const holes = (s) => (s.match(/\{\w+\}/g) || []).sort();
 const SCRIPT = { te: /[ఀ-౿]/, hi: /[ऀ-ॿ]/ };
 

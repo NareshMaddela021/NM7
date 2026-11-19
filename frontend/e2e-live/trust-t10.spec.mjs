@@ -163,7 +163,7 @@ for (const [label, opts] of SIZES) {
       await expect(filters).toContainText('Spoken English · measured by Nm7 voice interview');
       const ravi = page.getByTestId('co-hire-row').filter({ hasText: people[0][0] });
       const mala = page.getByTestId('co-hire-row').filter({ hasText: people[1][0] });
-      await expect(ravi.getByTestId('co-hire-nt-english')).toContainText('✓ Spoken English B2 (pronunciation', { timeout: 20_000 });
+      await expect(ravi.getByTestId('co-hire-nt-english')).toContainText('Spoken English B2 (pronunciation', { timeout: 20_000 });
       await expect(ravi.getByTestId('co-hire-nt-english')).toContainText('· Measured by Nm7 voice interview');
       await expect(ravi.getByTestId('co-hire-nt-langs')).toContainText('English (verified (B2))');
       await expect(mala.getByTestId('co-hire-nt-english')).toContainText('Spoken English A2');

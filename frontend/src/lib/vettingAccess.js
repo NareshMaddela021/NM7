@@ -1,5 +1,5 @@
-// Whether this person gets the vetting engine (Vetting V2+) or the site as before. While Admin → Skill checks → Launch
-// is off, only demo accounts and the listed testers get it (GET /api/me/skill-checks/access → { on }). Asked once per
+// Whether this person gets the vetting engine (Vetting V2+) or the site as before. While Admin -> Skill checks -> Launch
+// is off, only demo accounts and the listed testers get it (GET /api/me/skill-checks/access -> { on }). Asked once per
 // page load; anything that fails counts as off, so nobody sees half-launched features.
 import { useEffect, useState } from 'react';
 import { http } from '../services/http';

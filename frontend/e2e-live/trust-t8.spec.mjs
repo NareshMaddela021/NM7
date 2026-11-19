@@ -154,7 +154,7 @@ for (const [label, opts] of SIZES) {
       await item.getByTestId('ti-evidence-open').click();
       const ev = item.getByTestId('ti-evidence');
       const pattern = ev.getByTestId('ti-signal').filter({ hasText: 'Answer similarity' });
-      await expect(pattern).toContainText('weight 3 → counts 3 (cap 4)');
+      await expect(pattern).toContainText('weight 3, counts 3 (cap 4)');
       await pattern.getByTestId('ti-clear').click();
       await expect(pattern.getByTestId('ti-signal-status')).toHaveText('Cleared by a person');
       await expect(ev).toContainText('score 6'); // 3 + 2 + 4 = 9 before; the shared device 2 + the PAN 4 are left: still High

@@ -1,5 +1,5 @@
 // The organization plans table and FAQ, shared by /for-orgs and the home page. Prices, limits and features come from
-// the server (Admin → Organization plans), so nothing here is hard-coded. Words around them follow the chosen language
+// the server (Admin -> Organization plans), so nothing here is hard-coded. Words around them follow the chosen language
 // (t from useLang; strings orgs.table.* and orgs.faq.* in src/i18n/pages.json); plan names stay as the server has them.
 import { useEffect, useState } from 'react';
 import { LIVE } from '../../lib/auth';
@@ -9,7 +9,7 @@ import { http, onSlow } from '../../services/http';
 import '../../styles/org-signup.css';
 
 const EN = (k, v) => translate('en', k, v);
-/** The organizations' FAQ (orgs.faq.1–6) in one language; tr = (key, values) → string. */
+/** The organizations' FAQ (orgs.faq.1–6) in one language; tr = (key, values) -> string. */
 export const orgFaq = (tr = EN) => [1, 2, 3, 4, 5, 6].map((i) => [tr(`orgs.faq.${i}.q`), tr(`orgs.faq.${i}.a`)]);
 export const ORG_FAQ = orgFaq(); // English: Google's FAQ rich results
 
@@ -20,7 +20,7 @@ export function periodWords(plan, tr = EN) {
   return '';
 }
 
-/** GET /api/public/org-plans once: { loading } → { data } or { error }. Without the API (preview builds): {}. */
+/** GET /api/public/org-plans once: { loading } -> { data } or { error }. Without the API (preview builds): {}. */
 export function useOrgPlans() {
   const [st, setSt] = useState(() => (LIVE ? { loading: true } : {}));
   useEffect(() => {
@@ -71,7 +71,7 @@ export function PlansTable({ data, t = EN }) {
             <tr key={k}><th scope="row">{t(`orgs.table.l.${k}`)}</th>{plans.map((p) => <td key={p.id}>{p.id === 'custom' ? t('orgs.table.yourChoice') : p.limits[k] == null ? t('orgs.table.unlimited') : limitText(p.limits[k])}</td>)}</tr>
           ))}
           {TABLE_FEATURES.map(([k]) => (
-            <tr key={k}><th scope="row">{t(`orgs.table.f.${k}`)}</th>{plans.map((p) => <td key={p.id} className={p.features[k] ? 'fo-yes' : 'fo-no'}>{p.features[k] ? <><span className="fo-tick" aria-hidden="true">✓ </span>{t('orgs.table.yes')}</> : '—'}</td>)}</tr>
+            <tr key={k}><th scope="row">{t(`orgs.table.f.${k}`)}</th>{plans.map((p) => <td key={p.id} className={p.features[k] ? 'fo-yes' : 'fo-no'}>{p.features[k] ? t('orgs.table.yes') : '—'}</td>)}</tr>
           ))}
         </tbody>
       </table>

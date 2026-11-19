@@ -79,7 +79,7 @@ export function widgetFor(key, live) {
 export const SECTIONS = [
   {
     key: 'company', id: 'companies', kicker: 'For companies', title: `Hire any role in ${HIRE_MINUTES} minutes`, shape: 'stopwatch',
-    flow: ['Post', 'Instant shortlist', 'Invite', 'Interviews booked', 'Offer'], // the timeline, minute 0 → HIRE_MINUTES
+    flow: ['Post', 'Instant shortlist', 'Invite', 'Interviews booked', 'Offer'], // the timeline, minute 0 -> HIRE_MINUTES
     cards: [
       { title: `The ${HIRE_MINUTES}-minute flow`, text: 'Post a role and get a ranked shortlist at once. Invite people, they book interview slots, and you send the offer from the same screen.', to: '/for-companies', link: 'Post a job free' },
       { title: 'Bulk hiring and walk-in drives', text: 'Hiring 20 to 500 people for one role? Bigger shortlists, invites up to 100 at a time, batch offers, and a walk-in day with QR check-in.', to: '/for-companies', link: 'Start hiring' },

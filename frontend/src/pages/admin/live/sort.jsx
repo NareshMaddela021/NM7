@@ -1,6 +1,7 @@
 // Round W: sortable admin tables. Click a column header to sort by it (again: the other way); the sorted header says
 // so to screen readers (aria-sort). Sorting is of the rows on screen (the page the server sent).
 import { useMemo, useState } from 'react';
+import { IcArrowDown, IcArrowUp, IcSwap } from '../../../components/icons';
 
 const blank = (v) => v == null || v === '' || (typeof v === 'number' && Number.isNaN(v));
 
@@ -38,7 +39,7 @@ export function SortTh({ k, sort, onSort, children, className }) {
   return (
     <th scope="col" className={className} aria-sort={on ? (sort.dir === 'asc' ? 'ascending' : 'descending') : undefined}>
       <button type="button" className="ad-sort" onClick={() => onSort(k)}>
-        {children}<span aria-hidden="true" className="ad-sort-ic" data-on={on || undefined}>{on ? (sort.dir === 'asc' ? '▲' : '▼') : '↕'}</span>
+        {children}<span aria-hidden="true" className="ad-sort-ic" data-on={on || undefined}>{on ? (sort.dir === 'asc' ? <IcArrowUp size={14} /> : <IcArrowDown size={14} />) : <IcSwap size={14} style={{ transform: 'rotate(90deg)', opacity: 0.5 }} />}</span>
       </button>
     </th>
   );

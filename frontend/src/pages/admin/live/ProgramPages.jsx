@@ -1,4 +1,4 @@
-// Admin → Programs (Phase 6, S8): internships and live projects held because they may be free labour (unpaid for
+// Admin -> Programs (Phase 6, S8): internships and live projects held because they may be free labour (unpaid for
 // many students, very long and unpaid, or sounding like the company's paid work). Approve to show it, or remove it.
 import { useState } from 'react';
 import { useToast } from '../../../components/ui';

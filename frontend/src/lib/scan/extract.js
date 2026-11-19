@@ -12,7 +12,7 @@ export const MIN_PDF_CHARS = 100;
 const fail = (code, message) => Object.assign(new Error(message), { code });
 export const MESSAGES = {
   type: 'Please upload a PDF or Word (.docx) file.',
-  doc: 'Old .doc files can’t be read. In Word, use File → Save As → .docx or PDF, then upload again.',
+  doc: 'Old .doc files can’t be read. In Word, use File > Save As > .docx or PDF, then upload again.',
   size: `This file is over ${MAX_MB} MB. Try a smaller copy (export again as PDF).`,
   notPdf: 'This file isn’t a real PDF — it may have been renamed. Open your resume and export or save it as PDF, then try again.',
   notDocx: 'This file isn’t a real Word document. Open your resume and save it as .docx or PDF, then try again.',

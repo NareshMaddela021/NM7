@@ -10,38 +10,39 @@ import { useAuth } from '../../../lib/auth';
 import { http } from '../../../services/http';
 import { ROLES } from '../roles';
 import '../../../styles/admin.css';
+import { IcBolt, IcBook, IcBriefcase, IcBuilding, IcCalendar, IcCap, IcChart, IcCheckCircle, IcFile, IcFlag, IcGlobe, IcGrid, IcKey, IcLink, IcLock, IcMessage, IcPrint, IcRefresh, IcRobot, IcScale, IcSettings, IcStar, IcSun, IcSwap, IcTarget, IcThumb, IcTrend, IcUsers, IcWallet } from '../../../components/icons';
 
 export { http };
 export const NAV = [
-  ['dashboard', '/admin/daily-report', 'Daily report', '☀'],
-  ['dashboard', '/admin', 'Dashboard', '▦'],
-  ['orders', '/admin/orders', 'Orders', '☰'],
-  ['experts', '/admin/experts', 'Experts', '✦'],
-  ['refunds', '/admin/refunds', 'Refunds & disputes', '↺'],
-  ['payments', '/admin/payments', 'Payments & invoices', '₹'],
-  ['customers', '/admin/customers', 'Customers & support', '☺'],
-  ['customers', '/admin/stories', 'Stories', '❝'],
-  ['jobs', '/admin/jobs', 'Jobs', '◎'],
-  ['companies', '/admin/companies', 'Companies', '▣'],
-  ['jobs', '/admin/auto-apply', 'Auto Apply', '⟳'],
-  ['jobs', '/admin/skill-tests', 'Skill checks', '✓'],
-  ['companies', '/admin/programs', 'Internships & projects', '▣'],
-  ['companies', '/admin/joining-reports', 'Joining reports', '!'],
-  ['quality', '/admin/quality', 'Quality', '✓'],
-  ['reports', '/admin/reports', 'Reports', '⇩'],
-  ['settings', '/admin/settings', 'Settings & prices', '⚙'],
-  ['settings', '/admin/codes', 'Codes', '%'],
-  ['settings', '/admin/courses', 'Courses', '✎'],
-  ['settings', '/admin/learn-paths', 'Learning paths', '↗'],
-  ['automation', '/admin/automation', 'Automation', '⚡'],
-  ['team', '/admin/team', 'Team & audit log', '⚿'],
-  ['organizations', '/admin/orgs', 'Organizations', '⌂'],
-  ['organizations', '/admin/college-groups', 'College groups', '⌂'],
-  ['organizations', '/admin/shared-resumes', 'Shared resumes', '▤'],
-  ['organizations', '/admin/plans', 'Organization plans', '◇'],
-  ['payments', '/admin/org-invoices', 'Organization invoices', '№'],
-  ['payments', '/admin/partners', 'Partners', '⇄'],
-  ['settings', '/admin/billing-settings', 'Billing settings', '§'],
+  ['dashboard', '/admin/daily-report', 'Daily report', <IcSun key="i" />],
+  ['dashboard', '/admin', 'Dashboard', <IcGrid key="i" />],
+  ['orders', '/admin/orders', 'Orders', <IcFile key="i" />],
+  ['experts', '/admin/experts', 'Experts', <IcStar key="i" />],
+  ['refunds', '/admin/refunds', 'Refunds & disputes', <IcRefresh key="i" />],
+  ['payments', '/admin/payments', 'Payments & invoices', <IcWallet key="i" />],
+  ['customers', '/admin/customers', 'Customers & support', <IcUsers key="i" />],
+  ['customers', '/admin/stories', 'Stories', <IcMessage key="i" />],
+  ['jobs', '/admin/jobs', 'Jobs', <IcBriefcase key="i" />],
+  ['companies', '/admin/companies', 'Companies', <IcBuilding key="i" />],
+  ['jobs', '/admin/auto-apply', 'Auto Apply', <IcRobot key="i" />],
+  ['jobs', '/admin/skill-tests', 'Skill checks', <IcCheckCircle key="i" />],
+  ['companies', '/admin/programs', 'Internships & projects', <IcTarget key="i" />],
+  ['companies', '/admin/joining-reports', 'Joining reports', <IcFlag key="i" />],
+  ['quality', '/admin/quality', 'Quality', <IcThumb key="i" />],
+  ['reports', '/admin/reports', 'Reports', <IcChart key="i" />],
+  ['settings', '/admin/settings', 'Settings & prices', <IcSettings key="i" />],
+  ['settings', '/admin/codes', 'Codes', <IcKey key="i" />],
+  ['settings', '/admin/courses', 'Courses', <IcBook key="i" />],
+  ['settings', '/admin/learn-paths', 'Learning paths', <IcTrend key="i" />],
+  ['automation', '/admin/automation', 'Automation', <IcBolt key="i" />],
+  ['team', '/admin/team', 'Team & audit log', <IcLock key="i" />],
+  ['organizations', '/admin/orgs', 'Organizations', <IcCap key="i" />],
+  ['organizations', '/admin/college-groups', 'College groups', <IcGlobe key="i" />],
+  ['organizations', '/admin/shared-resumes', 'Shared resumes', <IcLink key="i" />],
+  ['organizations', '/admin/plans', 'Organization plans', <IcScale key="i" />],
+  ['payments', '/admin/org-invoices', 'Organization invoices', <IcPrint key="i" />],
+  ['payments', '/admin/partners', 'Partners', <IcSwap key="i" />],
+  ['settings', '/admin/billing-settings', 'Billing settings', <IcCalendar key="i" />],
 ];
 
 /** GET a path; { data, error, loading, reload }. `path` null = don't load. */
@@ -129,7 +130,7 @@ export function LiveAdminLayout() {
   const can = ROLES[user?.adminRole]?.can || [];
   const current = NAV.find(([, to]) => (to === '/admin' ? pathname === '/admin' || pathname === '/admin/' : pathname.startsWith(to)));
   const allowed = !current || can.includes(current[0]);
-  // Razorpay keys missing on the server: a calm banner on every page (GET /api/admin/payments/status; errors → none)
+  // Razorpay keys missing on the server: a calm banner on every page (GET /api/admin/payments/status; errors -> none)
   const [keys, setKeys] = useState(null);
   useEffect(() => {
     let on = true;

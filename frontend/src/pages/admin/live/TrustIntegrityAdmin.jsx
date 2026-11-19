@@ -1,6 +1,6 @@
-// Admin → Skill checks → Vetting Trust → Integrity rating (T8). One card, in the admin chunk:
-//   the review queue (High risk, an explanation from the candidate, or opened by Nm7) → each person's evidence view:
-//   every signal with where / when, its weight → what it counts now (60-day half-life, cap), its status, the detail
+// Admin -> Skill checks -> Vetting Trust -> Integrity rating (T8). One card, in the admin chunk:
+//   the review queue (High risk, an explanation from the candidate, or opened by Nm7) -> each person's evidence view:
+//   every signal with where / when, its weight -> what it counts now (60-day half-life, cap), its status, the detail
 //   (reviewers only), and Clear / Confirm / Reopen; the person's explanation; Ask them to explain (email to testers only
 //   while the switch is off) and Finish the review (companies then see "Reviewed by Nm7"). Webcam snapshots: listed,
 //   each photo opened on its own (every look recorded in the audit log). Settings: snapshots on / off, photos per
@@ -47,7 +47,7 @@ function Evidence({ uid, onChange }) {
               <strong className="small" style={{ overflowWrap: 'anywhere' }}>{s.label}</strong>
               <span className={`mchip ${STONE[s.status] || ''}`} data-testid="ti-signal-status">{s.statusText}</span>
             </span>
-            <span className="xs" style={{ overflowWrap: 'anywhere' }}>{s.where} · {when(s.at)} · {s.source} · weight {s.baseWeight} → counts {s.weight} (cap {s.cap}){s.by ? ` · ${s.by}` : ''}</span>
+            <span className="xs" style={{ overflowWrap: 'anywhere' }}>{s.where} · {when(s.at)} · {s.source} · weight {s.baseWeight}, counts {s.weight} (cap {s.cap}){s.by ? ` · ${s.by}` : ''}</span>
             {s.detail && <span className="xs muted" style={{ overflowWrap: 'anywhere' }}>{s.detail}</span>}
             <span className="row g8" style={{ flexWrap: 'wrap' }}>
               {s.status !== 'cleared' && <button type="button" className="btn btn-outline btn-sm" style={{ minHeight: 44 }} disabled={busy} onClick={() => act('signals', { key: s.key, decision: 'clear', note }, 'Cleared: it counts nothing now')} data-testid="ti-clear">Clear</button>}

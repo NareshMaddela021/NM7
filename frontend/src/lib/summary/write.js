@@ -97,7 +97,7 @@ export const shorter = (text) => dropLastSentence(text);
 export function lengthNote(n) {
   if (n < MIN_CHARS) return { ok: false, text: `${MIN_CHARS - n} more characters recommended` };
   if (n > MAX_CHARS) return { ok: false, text: 'Consider trimming' };
-  return { ok: true, text: '✓ Great length' };
+  return { ok: true, text: 'Great length' };
 }
 
 /** Every number in `text` must appear in the facts or the note (nothing invented). */

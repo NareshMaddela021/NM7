@@ -16,6 +16,7 @@ import { Chip, Empty, Skel } from '../me/kit';
 import { Still } from '../newhome/ParticleStage';
 import '../../styles/me-kit.css';
 import '../../styles/company-home.css';
+import { IcExternal } from '../../components/icons';
 
 export default function CompanyPublic() {
   const [t, lang] = useLang();
@@ -58,7 +59,7 @@ export default function CompanyPublic() {
                   </span>
                   <p className="small muted" style={{ margin: 0 }}>{[c.industry, c.size && t(`co.size.${c.size}`), c.kind === 'individual' && t('co.cat.individual')].filter(Boolean).join(' · ')}</p>
                 </div>
-                {c.website && <a href={c.website} target="_blank" rel="noopener noreferrer nofollow" className="btn btn-outline cpub-web">{c.website.replace(/^https:\/\//, '')} ↗</a>}
+                {c.website && <a href={c.website} target="_blank" rel="noopener noreferrer nofollow" className="btn btn-outline cpub-web">{c.website.replace(/^https:\/\//, '')} <IcExternal size={14} /></a>}
               </div>
               <div className="cpub-body">
                 <div className="mstack cpub-about">

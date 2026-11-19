@@ -18,6 +18,7 @@ import { speechTiming } from '../trust/spokenLib'; // Vetting Trust T10: timing 
 import { createRecorder } from './recorder'; // T10: the clip for pronunciation (only with a provider)
 import '../../../styles/me-vet.css';
 import '../../../styles/me-iv.css';
+import { IcLock, IcMic, IcStop } from '../../../components/icons';
 
 function Typed({ text, setText, onPasteTry, pasteNote, lang, label }) {
   const n = words(text);
@@ -38,7 +39,7 @@ function Spoken({ lang, transcript, setTranscript, sp, measured }) {
     <div className="stack g12">
       <div className="vet-mic">
         <button type="button" className={`btn btn-lg ${sp.listening ? 'btn-outline' : 'btn-signal'}`} onClick={sp.listening ? sp.stop : sp.start} data-testid="iv-mic">
-          {sp.listening ? '⏹ Stop' : transcript ? '🎤 Speak more' : '🎤 Start speaking'}
+          {sp.listening ? <><IcStop size={18} /> Stop</> : <><IcMic size={18} /> {transcript ? 'Speak more' : 'Start speaking'}</>}
         </button>
         {transcript && !sp.listening && <button type="button" className="btn btn-ghost" onClick={() => setTranscript('')}>Clear and start again</button>}
       </div>
@@ -191,8 +192,8 @@ export default function Runner({ start, onDone, onError }) {
           <span className="xs muted">When the time ends, what you have is sent by itself.</span>
         </div>
       </section>
-      {iv.spoken && <p className="xs muted" style={{ margin: 0 }} data-testid="iv-spoken-on">🗣 Your spoken English is being measured (English answers only). It never changes your interview score.</p>}
-      {snap ? <SnapNote st={snap} /> : <p className="xs muted" style={{ margin: 0 }}>🔒 No camera and no audio stored. Leaving this page is counted.</p>}
+      {iv.spoken && <p className="xs muted" style={{ margin: 0 }} data-testid="iv-spoken-on">Your spoken English is being measured (English answers only). It never changes your interview score.</p>}
+      {snap ? <SnapNote st={snap} /> : <p className="xs muted" style={{ margin: 0 }}><IcLock size={14} /> No camera and no audio stored. Leaving this page is counted.</p>}
     </div>
   );
 }

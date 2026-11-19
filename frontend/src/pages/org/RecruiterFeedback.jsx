@@ -5,6 +5,7 @@ import { useApi } from '../admin/live/common';
 import { Chip } from '../me/kit';
 import '../../styles/me-kit.css';
 import '../../styles/org-team.css';
+import { IcMessage } from '../../components/icons';
 
 const VISIT = { yes: 'Would visit again', maybe: 'Maybe', no: 'Wouldn’t visit again' };
 const day = (t) => (t ? new Date(t).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
@@ -17,7 +18,7 @@ export default function RecruiterFeedback({ base }) {
   return (
     <section className="mcard" aria-label="What recruiters said" data-testid="recruiter-feedback">
       <header className="mcard-h">
-        <span className="mcard-ic" aria-hidden="true">❝</span>
+        <span className="mcard-ic" aria-hidden="true"><IcMessage /></span>
         <span className="mcard-ht"><strong className="mcard-title">What recruiters said</strong>
           {s.count > 0 && <span className="mcard-sub" data-testid="feedback-rating">{s.rating} / 5 · {s.count} drive{s.count === 1 ? '' : 's'} · {s.visitAgain.yes} would visit again</span>}</span>
       </header>

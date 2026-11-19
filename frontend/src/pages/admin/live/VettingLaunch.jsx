@@ -1,4 +1,4 @@
-// Admin → Skill checks → Launch: the vetting engine's one switch (site settings `vetting`). OFF (the default): only
+// Admin -> Skill checks -> Launch: the vetting engine's one switch (site settings `vetting`). OFF (the default): only
 // admins, demo accounts and the tester emails below see the new skill checks, badges and Hire now filters; everyone
 // else sees the site exactly as before and gets no new emails. ON: everyone. Needs the "settings" permission (the
 // owner); other admins see the state but cannot change it.

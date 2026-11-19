@@ -1,5 +1,5 @@
-// Whether this person gets Vetting Trust (T1–T15) or the site as before. While Admin → Skill checks → Vetting Trust is
-// off, only admins, demo accounts and the listed testers get it (GET /api/me/trust/access → { on }). Asked once per page
+// Whether this person gets Vetting Trust (T1–T15) or the site as before. While Admin -> Skill checks -> Vetting Trust is
+// off, only admins, demo accounts and the listed testers get it (GET /api/me/trust/access -> { on }). Asked once per page
 // load; anything that fails counts as off, so nobody sees half-launched features.
 import { useEffect, useState } from 'react';
 import { LIVE, http } from '../services/http';

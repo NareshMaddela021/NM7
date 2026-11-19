@@ -7,6 +7,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { fileName } from '../../lib/fileName';
 import { translate } from '../../lib/i18n';
+import { IcPlay } from '../../components/icons';
 
 export const DEMO = {
   wide: '/media/nm7-demo.mp4',
@@ -36,7 +37,7 @@ export default function DemoVideo({ t = (k) => translate('en', k), lang }) {
   if (phone) box.maxWidth = 'calc(80vh * 9 / 16)';
   return (
     <section className="stack g12 fo-card fo-demo" aria-labelledby="demo-h" data-testid="demo-video" lang={lang}>
-      <div className="fo-card-h"><span className="fo-card-ic" aria-hidden="true">▶</span><h2 id="demo-h" className="display h3">{t('orgs.demo.title')}</h2></div>
+      <div className="fo-card-h"><span className="fo-card-ic" aria-hidden="true"><IcPlay /></span><h2 id="demo-h" className="display h3">{t('orgs.demo.title')}</h2></div>
       <div style={box}>
         {playing ? (
           <video key={src} ref={video} src={src} poster={poster} controls playsInline preload="none" data-testid="demo-player"

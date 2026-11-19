@@ -20,8 +20,8 @@ export default function SimpleRoles({ t, setSay }) {
           {r.jobs.length > 0 && <p className="sx-note">{t('simple.rf.jobs', { n: r.jobs.length })}</p>}
         </div>
       ))}
-      <Big to="/me/roles" icon={roles.length ? '✏️' : '🎯'} label={t(roles.length ? 'simple.rf.change' : 'simple.rf.start')} ink={!roles.length} testid="sx-roles-go" />
-      <Big to="/me/simple" icon="←" label={t('simple.back')} />
+      <Big to="/me/roles" icon={roles.length ? 'edit' : 'arrow'} after={!roles.length} label={t(roles.length ? 'simple.rf.change' : 'simple.rf.start')} ink={!roles.length} testid="sx-roles-go" />
+      <Big to="/me/simple" icon="back" label={t('simple.back')} />
     </section>
   );
 }

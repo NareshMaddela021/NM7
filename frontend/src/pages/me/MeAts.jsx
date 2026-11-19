@@ -1,4 +1,4 @@
-// ATS & job match: "Match a job" (job post → score /100, what to fix, a tailored copy: JobMatch.jsx) and "ATS check"
+// ATS & job match: "Match a job" (job post -> score /100, what to fix, a tailored copy: JobMatch.jsx) and "ATS check"
 // (score any resume with the expert rules, missing keywords, the score trend).
 import { lazy, Suspense, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -10,6 +10,7 @@ import { MeHead } from './MeLayout';
 import { ScoreTrend, fmtShort, fmtDay } from './shared';
 import { Bar, Chip, ScoreRing, StickyBar } from './kit';
 import '../../styles/me-resume.css';
+import { IcCheck, IcTarget, IcX } from '../../components/icons';
 
 const JobMatch = lazy(() => import('./JobMatch'));
 const TABS = [['match', 'Match a job'], ['ats', 'ATS check']];
@@ -65,7 +66,7 @@ function AtsCheck() {
           <ul className="mlist ats-checks">
             {[...res.checks].sort((a, b) => a.ok - b.ok).map((c) => (
               <li key={c.label} className={`ats-check ${c.ok ? 'ok' : 'todo'}`}>
-                <span className="ats-check-ic" aria-hidden="true">{c.ok ? '✓' : '!'}</span>
+                <span className="ats-check-ic" aria-hidden="true">{c.ok ? <IcCheck size={14} /> : '!'}</span>
                 <span className="mstack" style={{ gap: 2 }}><span className="ats-check-l"><strong>{c.label}</strong> <span className="sr-only">{c.ok ? 'passed' : 'needs work'}</span></span>{!c.ok && <span className="mitem-meta">{c.tip}</span>}</span>
                 <Chip tone={c.ok ? 'ok' : 'warn'}>{c.ok ? 'Done' : 'Fix'}</Chip>
               </li>
@@ -76,8 +77,8 @@ function AtsCheck() {
               <strong>Job keywords · {m.found.length} of {m.keywords.length} found</strong>
               <Bar value={m.found.length} max={m.keywords.length} label="Keywords found" tone={m.found.length / m.keywords.length >= 0.7 ? 'ok' : 'warn'} />
               <div className="mrow" style={{ gap: 6 }}>
-                {m.found.map((k) => <span key={k} className="badge b-success">✓ {k}</span>)}
-                {m.missing.map((k) => <span key={k} className="badge b-danger">✕ {k}</span>)}
+                {m.found.map((k) => <span key={k} className="badge b-success"><IcCheck size={14} /> {k}</span>)}
+                {m.missing.map((k) => <span key={k} className="badge b-danger"><IcX size={14} /> {k}</span>)}
               </div>
               <span className="mitem-meta">Add a missing keyword only if you really have that skill — interviewers ask about it.</span>
             </div>
@@ -85,7 +86,7 @@ function AtsCheck() {
         </section>
 
         <section className="mcard" aria-label="Check">
-          <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true">◎</span><span className="mcard-ht"><h2 className="mcard-title">What to check</h2><span className="mcard-sub">Pick a resume. Paste a job post to score it for that job.</span></span></header>
+          <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true"><IcTarget /></span><span className="mcard-ht"><h2 className="mcard-title">What to check</h2><span className="mcard-sub">Pick a resume. Paste a job post to score it for that job.</span></span></header>
           <div className="field"><label htmlFor="ats-r" className="label">Resume</label>
             <select id="ats-r" className="input" value={r.id} onChange={(e) => setRid(e.target.value)}>{me.resumes.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}</select></div>
           <div className="mfields-body">

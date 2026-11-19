@@ -1,4 +1,4 @@
-// Admin → Skill checks → Vetting Trust → Work tests & reliability (T15). The three banks (typing, situational judgement,
+// Admin -> Skill checks -> Vetting Trust -> Work tests & reliability (T15). The three banks (typing, situational judgement,
 // aptitude; English / Hindi / Telugu, 2 forms each) with their validation, attempts by test / language, how many people
 // the aptitude "top X%" compares with (provisional cut scores until enough), the latest results (with the typing /
 // integrity signals for a person), the reliability record counts and the disputes to decide (count it / remove it),

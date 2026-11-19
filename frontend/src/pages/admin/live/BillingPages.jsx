@@ -13,6 +13,7 @@ import { Loading, day, emptyIf, http, useAction, useApi } from './common';
 import { Bar, Chip, Stat } from '../../me/kit';
 import '../../../styles/me-kit.css';
 import '../../../styles/admin-orgs.css';
+import { IcAlert, IcBolt, IcFile } from '../../../components/icons';
 
 const inputStyle = { height: 40 };
 const FEATURE_EDIT = PLAN_FEATURES.filter(([k]) => k !== 'kiosk'); // kiosks come from the kiosk-stall limit
@@ -103,7 +104,7 @@ function PlanForm({ p, reload }) {
   );
 }
 
-/** Admin → Organization plans */
+/** Admin -> Organization plans */
 export function LivePlans() {
   const st = useApi('/api/admin/billing/plans');
   return (
@@ -124,7 +125,7 @@ const HIRE_GATES = [
 ];
 
 /** Hire in 60 minutes (Phase 5): the paid company features. Ticked = open to every Verified company (the default);
- * not ticked = only companies turned on in Admin → Companies. The basic shortlist (applicants) is always free. */
+ * not ticked = only companies turned on in Admin -> Companies. The basic shortlist (applicants) is always free. */
 function CompanyHiring() {
   const toast = useToast();
   const st = useApi('/api/admin/settings');
@@ -132,7 +133,7 @@ function CompanyHiring() {
   return (
     <Loading st={st}>{(s) => (
       <section className="mcard ao-card" aria-label="Company hiring" data-testid="plans-hiring">
-        <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">⚡</span><span className="mcard-ht"><strong className="mcard-title">Company hiring (Hire in 60 minutes)</strong><span className="mcard-sub">Paid company features. Ticked: open to every Verified company. Not ticked: only companies you turn it on for in Admin → Companies. Applicants and the basic shortlist are always free; the free roles a month and the limits are in Settings → Hire in 60 minutes.</span></span></header>
+        <header className="mcard-h"><span className="mcard-ic" aria-hidden="true"><IcBolt /></span><span className="mcard-ht"><strong className="mcard-title">Company hiring (Hire in 60 minutes)</strong><span className="mcard-sub">Paid company features. Ticked: open to every Verified company. Not ticked: only companies you turn it on for in Admin &gt; Companies. Applicants and the basic shortlist are always free; the free roles a month and the limits are in Settings &gt; Hire in 60 minutes.</span></span></header>
         <div className="ao-toggles">
           {HIRE_GATES.map(([k, l]) => (
             <label key={k} className={`ao-toggle ${s.hire.open[k] ? 'on' : ''}`}><input type="checkbox" disabled={busy} checked={s.hire.open[k]} data-testid={`gate-${k}`}
@@ -172,10 +173,10 @@ function SettingsForm({ s, states, reload }) {
   };
   return (
     <form className="stack g16" onSubmit={save} aria-label="Billing settings">
-      {s.missing.length > 0 && <div className="ao-note ao-note-warn" role="note"><span aria-hidden="true">⚠</span><span className="small">Before going live, fill in: <strong>{s.missing.join(', ')}</strong>. GST stays off (plain invoices, no tax lines) until a GSTIN is entered.</span></div>}
+      {s.missing.length > 0 && <div className="ao-note ao-note-warn" role="note"><span aria-hidden="true"><IcAlert /></span><span className="small">Before going live, fill in: <strong>{s.missing.join(', ')}</strong>. GST stays off (plain invoices, no tax lines) until a GSTIN is entered.</span></div>}
       <div className="ao-two ao-two-wide">
         <section className="mcard ao-card" aria-label="Supplier">
-          <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">▤</span><span className="mcard-ht"><strong className="mcard-title">Supplier</strong><span className="mcard-sub">Printed on every invoice.</span></span><span className="mcard-actions"><Chip tone={f.supplier.gstin ? 'ok' : 'warn'}>{f.supplier.gstin ? 'GST on' : 'GST off'}</Chip></span></header>
+          <header className="mcard-h"><span className="mcard-ic" aria-hidden="true"><IcFile /></span><span className="mcard-ht"><strong className="mcard-title">Supplier</strong><span className="mcard-sub">Printed on every invoice.</span></span><span className="mcard-actions"><Chip tone={f.supplier.gstin ? 'ok' : 'warn'}>{f.supplier.gstin ? 'GST on' : 'GST off'}</Chip></span></header>
           <div className="ao-fields">
             <div className="field ao-span2"><label className="label" htmlFor="bs-ln">Legal name</label><input id="bs-ln" className="input" style={inputStyle} required value={f.supplier.legalName} onChange={sup('legalName')} /></div>
             <div className="field"><label className="label" htmlFor="bs-tn">Trade name</label><input id="bs-tn" className="input" style={inputStyle} value={f.supplier.tradeName} onChange={sup('tradeName')} /></div>
@@ -207,7 +208,7 @@ function SettingsForm({ s, states, reload }) {
   );
 }
 
-/** Admin → Billing settings */
+/** Admin -> Billing settings */
 export function LiveBillingSettings() {
   const st = useApi('/api/admin/billing/settings');
   const pub = useApi('/api/public/org-plans');
@@ -221,7 +222,7 @@ export function LiveBillingSettings() {
 
 const STATE_TEXT = { free: 'Free', active: 'Active', grace: 'Grace period', expired: 'Ended (Free limits)' };
 
-/** Admin → Organizations → (organization) → Billing: assign / extend a plan, discount, custom plan, limits. */
+/** Admin -> Organizations -> (organization) -> Billing: assign / extend a plan, discount, custom plan, limits. */
 export function OrgBilling({ orgId }) {
   const toast = useToast();
   const st = useApi(`/api/admin/orgs/${orgId}/billing`);
@@ -301,7 +302,7 @@ const METHODS = [['bank_transfer', 'Bank transfer (NEFT/RTGS/IMPS)'], ['upi', 'U
 const DOC_KIND = { invoice: 'Invoice', credit_note: 'Credit note', proforma: 'Proforma' };
 const today = () => new Date(Date.now() + 5.5 * 3600_000).toISOString().slice(0, 10); // IST
 
-/** Admin → Organization → Billing: proforma (with an optional Razorpay payment link), offline payment, refunds,
+/** Admin -> Organization -> Billing: proforma (with an optional Razorpay payment link), offline payment, refunds,
  * and this organization's invoices and credit notes. The server does all the money arithmetic. */
 function OrgMoney({ orgId, b, reload }) {
   const toast = useToast();

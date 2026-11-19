@@ -1,4 +1,4 @@
-// Admin → Skill checks → Vetting Trust → Coding tasks (T14; changes need the "settings" permission and are audited).
+// Admin -> Skill checks -> Vetting Trust -> Coding tasks (T14; changes need the "settings" permission and are audited).
 // The code sandbox (the test sandbox or Judge0 CE), whether each key is set (never the value: Render env vars,
 // docs/trust/T14-vendors.md), "Check the sandbox now", the limits passed on every run (CPU, wall time, memory, output,
 // processes; never network), run limits per person, the AI code review and company replays switches, counts, the coding
@@ -106,7 +106,7 @@ function Results() {
         <Dialog title="Coding task" onClose={() => setOpen(null)} wide>
           {!rep ? <p className="small muted">Loading…</p> : rep.error ? <p className="error">Couldn’t load it.</p> : (
             <div className="stack g8">
-              <p className="small" style={{ margin: 0 }}>{rep.problem} · {rep.language} · {rep.passed} of {rep.total} hidden tests · tests: {rep.cases.map((c) => `${c.hidden ? '' : '(sample) '}${c.name} ${c.passed ? '✓' : '✗'}`).join(' · ')}</p>
+              <p className="small" style={{ margin: 0 }}>{rep.problem} · {rep.language} · {rep.passed} of {rep.total} hidden tests · tests: {rep.cases.map((c) => `${c.hidden ? '' : '(sample) '}${c.name} ${c.passed ? 'passed' : 'failed'}`).join(' · ')}</p>
               {rep.replay ? <Suspense fallback={<p className="small muted">Loading the replay…</p>}><CodeReplay replay={rep.replay} /></Suspense> : <><p className="small muted" style={{ margin: 0 }}>No replay (the candidate didn’t agree to it, or it was deleted). The submitted code:</p><pre className="small" style={{ whiteSpace: 'pre', overflowX: 'auto', maxWidth: '100%' }}>{rep.source}</pre></>}
             </div>
           )}
@@ -154,7 +154,7 @@ export default function TrustCodeAdmin() {
             <div><button type="button" className="btn btn-outline" style={{ minHeight: 44 }} disabled={busy} onClick={save} data-testid="tc-save">Save</button></div>
             {d.providers.filter((p) => !p.test).map((p) => (
               <div key={p.key} className="stack g4" data-testid={`tc-keys-${p.key}`}>
-                <span className="label">{p.label}: keys (Render → Environment)</span>
+                <span className="label">{p.label}: keys (Render &gt; Environment)</span>
                 <ul className="small" style={{ margin: 0, paddingLeft: 18 }}>{Object.entries(p.keys).map(([k, v]) => <li key={k}><code>{k}</code>: {v ? 'set' : 'not set'}</li>)}</ul>
               </div>
             ))}

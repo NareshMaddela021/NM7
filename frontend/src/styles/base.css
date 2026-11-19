@@ -570,3 +570,4 @@ mark.fact { background: color-mix(in srgb, var(--signal) 38%, transparent); colo
 .aa-big { min-height: 52px; padding: 0 24px; font-size: 1.05rem; }
 .aa-chip { cursor: pointer; border: 0; font: inherit; }
 @media (max-width: 720px) { .aa-big { width: 100%; } }
+svg.ic { flex: none; vertical-align: -0.18em; } /* the line icons (components/icons.jsx) sit on the text line */

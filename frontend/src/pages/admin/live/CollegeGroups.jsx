@@ -1,4 +1,4 @@
-// Admin → College groups: a parent group owning several campus organizations (Campus plan). Set its campuses, its
+// Admin -> College groups: a parent group owning several campus organizations (Campus plan). Set its campuses, its
 // owners (existing Nm7 accounts; they see roll-up numbers only) and, if agreed, a group price for billing.
 import { useState } from 'react';
 import { useToast } from '../../../components/ui';
@@ -7,6 +7,7 @@ import { Chip } from '../../me/kit';
 import { Loading, emptyIf, http, useAction, useApi } from './common';
 import '../../../styles/me-kit.css';
 import '../../../styles/admin-orgs.css';
+import { IcCap } from '../../../components/icons';
 
 function Edit({ g, orgs, onDone }) {
   const toast = useToast();
@@ -18,7 +19,7 @@ function Edit({ g, orgs, onDone }) {
   };
   return (
     <form className="mcard ao-card ao-cg-edit" onSubmit={save} aria-label={`College group ${g.name}`} data-testid="cg-edit">
-      <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">⌂</span><span className="mcard-ht"><span className="mcard-title">{g.name}</span><span className="mcard-sub">{f.orgIds.length} campus{f.orgIds.length === 1 ? '' : 'es'} picked</span></span></header>
+      <header className="mcard-h"><span className="mcard-ic" aria-hidden="true"><IcCap /></span><span className="mcard-ht"><span className="mcard-title">{g.name}</span><span className="mcard-sub">{f.orgIds.length} campus{f.orgIds.length === 1 ? '' : 'es'} picked</span></span></header>
       <label className="small ao-lbl">Name <input className="input" required value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></label>
       <fieldset className="ao-picker"><legend className="small ao-legend">Campuses</legend>
         <div className="ao-campuses">

@@ -8,7 +8,7 @@ export const BANDS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 
 /**
  * The time actually spent speaking and the long pauses, from the moments words were recognised.
- * events: [{ t: ms, s: listening-session number }] → { speechMs, pauses }. Within one listening session the speech
+ * events: [{ t: ms, s: listening-session number }] -> { speechMs, pauses }. Within one listening session the speech
  * runs from its first recognised word to its last (+ ½ s for the last word); a gap of 3 s or more between two words
  * of the same session is a long pause. The gap between two sessions (Stop, then Speak more) is not counted.
  */
@@ -27,7 +27,7 @@ export function speechTiming(events) {
   return { speechMs: Math.round(speechMs), pauses };
 }
 
-/** Float samples at `rate` → 16 kHz (averaging), at most CLIP_SECONDS. */
+/** Float samples at `rate` -> 16 kHz (averaging), at most CLIP_SECONDS. */
 export function downsample(samples, rate, to = CLIP_RATE, maxSeconds = CLIP_SECONDS) {
   if (!samples?.length) return new Float32Array(0);
   const ratio = rate / to;

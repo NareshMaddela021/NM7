@@ -12,7 +12,7 @@ const LONG_EDGE = 1600;
 const TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
 const EXT = /\.(jpe?g|png|webp|heic|heif)$/i;
 
-/** A file the person picked → { name, data (base64 JPEG, ≤1600 px), url (preview) } or { name, error }. */
+/** A file the person picked -> { name, data (base64 JPEG, ≤1600 px), url (preview) } or { name, error }. */
 export async function preparePhoto(file) {
   const name = file.name || 'photo';
   if (!TYPES.includes((file.type || '').toLowerCase()) && !EXT.test(name)) return { name, error: 'This isn’t a photo. Please choose a JPG, PNG, WebP or HEIC picture.' };
@@ -50,7 +50,7 @@ const rid = () => `r${Date.now().toString(36)}${(n += 1)}`;
 export const ID_FIELDS = [['name', 'Name', true], ['city', 'City', true], ['state', 'State', true], ['address', 'Full address', false], ['dob', 'Date of birth', false], ['gender', 'Gender', false], ['guardian', 'Father’s / husband’s name', false]];
 export const ABOUT_FIELDS = [['name', 'Name'], ['headline', 'Job title'], ['city', 'City'], ['state', 'State'], ['phone', 'Phone'], ['email', 'Email']];
 
-/** The server's answer → what the review screen edits. */
+/** The server's answer -> what the review screen edits. */
 export function toReview(res) {
   const p = res.personal || {};
   const about = ABOUT_FIELDS.map(([k, label]) => {
@@ -77,14 +77,14 @@ const toDate = (dmy) => {
   return m ? `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}` : dmy;
 };
 const GENDER = { m: 'Male', male: 'Male', f: 'Female', female: 'Female', other: 'Other', transgender: 'Other' };
-/** "S/O Ramaiah" → father, "W/O Suresh" → spouse */
+/** "S/O Ramaiah" -> father, "W/O Suresh" -> spouse */
 function guardianParts(text) {
   const t = (text || '').trim();
   if (/^(w\/o|wife of|h\/o|husband)/i.test(t)) return { spouse: t.replace(/^(w\/o|wife of|h\/o|husband( of|'s name)?)[:.\s]*/i, '').trim() };
   return { father: t.replace(/^(s\/o|d\/o|c\/o|son of|daughter of|father('s name)?)[:.\s]*/i, '').trim() };
 }
 
-/** Kept review items → builder resume data, on top of `base` (a blank resume). */
+/** Kept review items -> builder resume data, on top of `base` (a blank resume). */
 export function reviewToResume(r, base = emptyResume()) {
   const d = structuredClone(base);
   const about = Object.fromEntries(r.about.filter((x) => x.keep && x.value.trim()).map((x) => [x.key, x.value.trim()]));
@@ -93,7 +93,7 @@ export function reviewToResume(r, base = emptyResume()) {
   const name = about.name || shown('name');
   const place = [about.city || shown('city'), about.state || shown('state')].filter(Boolean).join(', ');
   d.personal = { ...d.personal, name: name || d.personal.name, headline: about.headline || d.personal.headline || '', location: place || d.personal.location || '', phone: about.phone || d.personal.phone || '', email: about.email || d.personal.email || '' };
-  // ID details: switched on → printed in Personal Information; off → kept there, not printed
+  // ID details: switched on -> printed in Personal Information; off -> kept there, not printed
   const pinfo = { ...d.pinfo };
   if (id.address) pinfo.address = id.address.value.trim();
   if (id.dob) pinfo.dob = toDate(id.dob.value.trim());
