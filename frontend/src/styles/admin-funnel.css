@@ -1,0 +1,17 @@
+/* Profile setup P4: Admin > Daily report > "Profile setup". One row per checklist step with a bar, the number who got
+   this far and the drop-off; everything wraps at 390 px (no sideways page scroll). Its own file (no shared chunk). */
+.sf-tabs { display: flex; flex-wrap: wrap; gap: 6px 8px; }
+.sf-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.sf-step { display: grid; grid-template-columns: minmax(0, 15em) minmax(60px, 1fr) auto; align-items: center; gap: 4px 10px; font-size: 14px; min-width: 0; }
+.sf-name { overflow-wrap: anywhere; font-weight: 600; }
+.sf-n { display: inline-block; min-width: 1.6em; color: var(--text2); font-variant-numeric: tabular-nums; }
+.sf-track { height: 10px; border-radius: 6px; background: #eef0f7; overflow: hidden; }
+.sf-fill { display: block; height: 100%; background: #6d5ce7; border-radius: 6px; }
+.sf-opt .sf-fill { background: #b7aef5; }
+.sf-v { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.sf-more { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 2px 12px; padding-left: 1.6em; }
+.sf-drop { color: var(--danger); font-weight: 700; }
+@media (max-width: 560px) {
+  .sf-step { grid-template-columns: minmax(0, 1fr) auto; }
+  .sf-track { grid-column: 1 / -1; grid-row: 2; }
+}

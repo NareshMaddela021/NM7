@@ -121,3 +121,13 @@
   /* lists of choices: two columns */
   .sx-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); }
 }
+
+/* Profile setup P4: the setup checklist (SimpleChecklist.jsx) */
+.sx-setup-prog { gap: 8px; }
+.sx-setup-skip, .sx-setup-all { justify-content: center; }
+.sx-setup-skip { font-weight: 600; }
+.sx-setup-go, .sx-step-go { justify-content: space-between; }
+.sx-setup-done { display: flex; align-items: center; gap: 8px; font-weight: 700; }
+.sx-step .sx-label { display: inline-flex; align-items: center; gap: 6px; }
+.sx-step-done { border-color: var(--border2); box-shadow: none; }
+.sx-step-later, .sx-step-waiting { border-color: var(--border2); }

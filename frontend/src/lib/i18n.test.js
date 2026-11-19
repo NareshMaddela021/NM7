@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import STRINGS from '../i18n/home.json';
 import PAGES from '../i18n/pages.json';
+import SETUP from '../i18n/setup.json';
 import { CSV_PATH, STATUS, buildCsv } from '../../scripts/i18n-review.mjs';
 import { STRINGS as ALL, langsShown, loadLang, pickLang, rich, translate } from './i18n';
 import { LIMITS, PLAN_FEATURES } from './orgBilling';
@@ -129,15 +130,17 @@ describe('the review list (docs/translations-review.csv)', () => {
     await Promise.all([loadLang('te'), loadLang('hi')]);
     const [head, ...rows] = parse(readFileSync(CSV_PATH, 'utf8'));
     expect(head).toEqual(['key', 'page', 'English', 'Telugu', 'Hindi', 'status']);
-    const all = [...Object.keys(STRINGS.en), ...Object.keys(PAGES.en)];
+    const all = [...Object.keys(STRINGS.en), ...Object.keys(PAGES.en), ...Object.keys(SETUP.en)];
     expect(rows.map((r) => r[0])).toEqual(all);
+    const te = { ...ALL.te, ...SETUP.te }; // setup.json loads with the Easy dashboard's setup steps (its own chunk)
+    const hi = { ...ALL.hi, ...SETUP.hi };
     expect(new Set(rows.map((r) => r[0])).size).toBe(rows.length);
     for (const r of rows) {
       expect(r, r[0]).toHaveLength(6);
       expect(r[5], r[0]).toBe(STATUS);
       expect(r[1], `${r[0]} has a page`).not.toBe('');
-      expect(r[3], r[0]).toBe(ALL.te[r[0]]);
-      expect(r[4], r[0]).toBe(ALL.hi[r[0]]);
+      expect(r[3], r[0]).toBe(te[r[0]]);
+      expect(r[4], r[0]).toBe(hi[r[0]]);
     }
   });
 });

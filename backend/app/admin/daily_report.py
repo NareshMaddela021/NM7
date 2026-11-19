@@ -367,6 +367,7 @@ async def state(db: AsyncDatabase, day: date) -> tuple[dict[str, Any], dict[str,
         "github": await github_status(),
         "autoApply": await _auto_apply(db),
         "timeToHire": await _time_to_hire(db),
+        "setupFunnel": await _setup_funnel(db),
     }  # fmt: skip
     return m, extra
 
@@ -381,6 +382,19 @@ async def _auto_apply(db: AsyncDatabase) -> dict[str, Any] | None:
         return await aa_stats.section(db)
     except Exception:  # noqa: BLE001
         log.exception("daily report: the Auto Apply numbers failed")
+        return None
+
+
+async def _setup_funnel(db: AsyncDatabase) -> dict[str, Any] | None:
+    """Profile setup P4: per role, how many people reached each checklist step and the drop-off between steps
+    (app/setup/funnel.py: counts only, capped per role, demo / test / persona accounts left out). A problem here never
+    stops the rest of the snapshot."""
+    from app.setup import funnel
+
+    try:
+        return await funnel.section(db)
+    except Exception:  # noqa: BLE001
+        log.exception("daily report: the setup funnel failed")
         return None
 
 

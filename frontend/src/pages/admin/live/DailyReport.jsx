@@ -12,6 +12,7 @@ import '../../../styles/admin-daily.css';
 
 // loaded with the report's own chunk's import map (not the main bundle's): shared with Admin → Auto Apply
 const AutoApplyNumbers = lazy(() => import('./AutoApplyNumbers'));
+const SetupFunnel = lazy(() => import('./SetupFunnel')); // profile setup P4: users reaching each checklist step, per role
 const TimeToHireNumbers = lazy(() => import('./TimeToHireNumbers')); // Vetting Trust T13 (internal: admins, demo left out)
 
 function Sparkline({ series, fmt = num, label }) {
@@ -282,6 +283,10 @@ function Report({ d, toast }) {
 
       <Section id="dr-tth-h" title="Time to hire" sub="From a company job being posted to the first shortlist, contact, interview and offer. Demo companies, demo jobs and test accounts are never counted.">
         <Suspense fallback={<Spinner />}><TimeToHireNumbers tth={t.timeToHire} http={http} toast={toast} /></Suspense>
+      </Section>
+
+      <Section id="dr-sf-h" title="Profile setup" sub="For each role: how many reached each step of the setup checklist, and how many dropped off between steps. Updated with the daily snapshot.">
+        <Suspense fallback={<Spinner />}><SetupFunnel f={t.setupFunnel} /></Suspense>
       </Section>
     </div>
   );

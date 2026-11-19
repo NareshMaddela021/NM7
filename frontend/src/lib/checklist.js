@@ -1,6 +1,7 @@
 // Profile setup P2: the dashboard checklist (backend app/setup/registry.py + checklist.py). The server works out every
 // step from the person's own data, so this file only fetches, skips and words things. Loaded only by the checklist
-// card (its own lazy chunk) and Profile & settings — never by the Easy dashboard.
+// card (its own lazy chunk), Profile & settings and (P4) the Easy dashboard's lazy setup steps chunk
+// (pages/simple/SimpleChecklist.jsx) — never by the Easy dashboard's first download.
 import { LIVE, http } from '../services/http';
 
 const FRESH = 'nm7-sc-fresh';
