@@ -156,4 +156,7 @@ async def put_one(role: str, body: SetupIn, auth: CurrentAuth, db: DB) -> dict[s
         new["services"] = [x for x in new["services"] if x != "l4_reviewer"]  # hidden while its switch is off
     u = await db[USERS].find_one({"_id": auth.user.id}) or {}
     await store.save(db, u, role, new, body.skip, body.step, body.done)
+    from app.setup.checklist import forget
+
+    forget(auth.user.id)  # the checklist reads some of these answers (fresher, L4 reviewer)
     return await _state(db, auth.user.id, role)
