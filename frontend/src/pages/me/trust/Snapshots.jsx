@@ -44,7 +44,7 @@ export function SnapshotChoice({ kind }) {
         <input type="checkbox" checked={on} disabled={busy} onChange={(e) => change(e.target.checked)} data-testid="snap-tick" />
         <span><strong>Yes, take a few still photos</strong><span className="xs muted" style={{ display: 'block' }}>{d.perSession} photos at random times. Leave it unticked and the {kind === 'interview' ? 'interview' : 'test'} works exactly the same.</span></span>
       </label>
-      {d.consent && !on && <span className="xs muted">Skipped this time. To turn it off for good: Profile &amp; settings, Privacy &amp; consent.</span>}
+      {d.consent && !on && <span className="xs muted">Skipped this time. To turn it off for good: Profile &amp; settings &gt; Privacy &amp; consent.</span>}
       {err && <p className="error" role="alert">{err}</p>}
     </fieldset>
   );

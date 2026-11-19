@@ -52,7 +52,7 @@ export default function MeCertificates() {
     const { data, added } = addToResume(r.data, c);
     if (!added) { toast('It’s already on your resume'); return; }
     updateResume(r.id, { data });
-    toast(`Added to “${r.name}”, in Certifications`);
+    toast(`Added to “${r.name}” > Certifications`);
   };
   const full = st && st.items.length >= MAX_FILES;
   return (

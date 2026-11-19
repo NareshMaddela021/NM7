@@ -69,7 +69,7 @@ export default function MeLaunch() {
     <>
       <MeHead title="Career Launch" sub={`Order ${o.id}${isLaunch ? '' : ' · LinkedIn makeover add-on'}`} />
       <div className="mgrid-2">
-        <MeCard icon="in" title="LinkedIn makeover" sub={li ? 'Paste each part into LinkedIn, in Edit profile.' : 'Your expert writes this once your resume is final — it uses the same wording, so they match.'} actions={<Chip tone={li ? 'ok' : 'warn'}>{li ? 'Ready' : 'Being written'}</Chip>}>
+        <MeCard icon="in" title="LinkedIn makeover" sub={li ? 'Paste each part into LinkedIn > Edit profile.' : 'Your expert writes this once your resume is final — it uses the same wording, so they match.'} actions={<Chip tone={li ? 'ok' : 'warn'}>{li ? 'Ready' : 'Being written'}</Chip>}>
           {li ? <div className="stack g12"><Copy label="Headline" text={li.headline} /><Copy label="About" text={li.about} />{li.experience && <Copy label="Experience" text={li.experience} />}</div>
             : <div className="mempty mempty-sm" style={{ borderStyle: 'dashed' }}><span className="mempty-text">Nothing to do yet. We’ll tell you on WhatsApp and email when it is ready.</span></div>}
         </MeCard>

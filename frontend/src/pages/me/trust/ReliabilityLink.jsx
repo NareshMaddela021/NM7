@@ -120,7 +120,7 @@ export function RelAttendance({ token }) {
   return (
     <div className="stack g16" data-testid="ratt">
       <p style={{ margin: 0 }}>Did <strong>{d.first}</strong> come to the interview{d.role ? ` for ${d.role}` : ''} on {when(d.at)}?</p>
-      {d.mark && <p role="status" data-testid="ratt-done">Thanks: marked as {d.mark === 'attended' ? 'attended' : 'no-show'}. You can change it in Hire, Interview times.</p>}
+      {d.mark && <p role="status" data-testid="ratt-done">Thanks: marked as {d.mark === 'attended' ? 'attended' : 'no-show'}. You can change it in Hire > Interview times.</p>}
       {!d.mark && d.canMark && (
         <div className="row g8" style={{ flexWrap: 'wrap' }}>
           <button type="button" className="btn btn-signal" style={BTN} disabled={st.busy} onClick={() => act({ result: 'attended' }).catch(() => {})} data-testid="ratt-yes">Attended</button>

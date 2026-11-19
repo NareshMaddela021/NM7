@@ -21,7 +21,7 @@ function AddEvidence({ app, item, certs, onDone }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   if (!certs.length) {
-    return <p className="xs" style={{ margin: 0 }}>Add the certificate in <Link to="/me/certificates">Profile, Certificates</Link> first, then pick it here. A document verified with DigiLocker (below) or a <Link to="/me/skill-checks">skill check</Link> counts by itself.</p>;
+    return <p className="xs" style={{ margin: 0 }}>Add the certificate in <Link to="/me/certificates">Profile > Certificates</Link> first, then pick it here. A document verified with DigiLocker (below) or a <Link to="/me/skill-checks">skill check</Link> counts by itself.</p>;
   }
   const send = async (e) => {
     e.preventDefault();

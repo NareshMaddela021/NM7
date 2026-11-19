@@ -187,7 +187,7 @@ export default function FaceCheck({ mode = 'identity', step = 'settings', offerI
           <div className="stack g12" data-testid="fc-consent">
             <strong className="small">{d.consentTitle}</strong>
             <p className="small" style={{ margin: 0, overflowWrap: 'anywhere' }} data-testid="fc-consent-text">{d.consentText}</p>
-            {err && <p className="error" role="alert" style={{ margin: 0 }}>{err}{/date of birth|age/i.test(err) ? ' (Profile & settings, Privacy & consent)' : ''}</p>}
+            {err && <p className="error" role="alert" style={{ margin: 0 }}>{err}{/date of birth|age/i.test(err) ? ' (Profile & settings > Privacy & consent)' : ''}</p>}
             <div className="row g8" style={{ flexWrap: 'wrap' }}>
               <button type="button" className="btn btn-signal" style={{ minHeight: 44 }} onClick={agree} data-testid="fc-agree">I agree</button>
               <button type="button" className="btn btn-ghost" style={{ minHeight: 44 }} onClick={() => setStage('manual')}>I can’t use a camera</button>

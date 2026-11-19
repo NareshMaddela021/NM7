@@ -68,7 +68,7 @@ for (const [label, opts] of SIZES) {
       await popup.close();
       // one tap into the resume's Certifications
       await py.getByTestId('cert-to-resume').click();
-      await expect(page.getByText(/Added to “.*”, in Certifications/)).toBeVisible();
+      await expect(page.getByText(/Added to “.*” > Certifications/)).toBeVisible();
       await expect.poll(async () => ((await call(page, `/api/me/resumes/${r.id}`)).body.data.certs || []).map((c) => c.name)).toContain('Python for Data Science');
       expect(await noSideScroll(page)).toBe(true);
 
