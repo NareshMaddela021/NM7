@@ -276,8 +276,8 @@ def create_app() -> FastAPI:
         return {"commit": commit, "collectorAi": ai_health.coarse()}
 
     app.include_router(auth_router)
-    app.include_router(google_auth_router)
     app.include_router(roles_router)
+    app.include_router(google_auth_router)
     app.include_router(admin_auth_router)
     app.include_router(admin_setup_router)  # before admin_router: /api/admin/setup is public
     app.include_router(admin_views.router)  # /api/admin/views (Switch to …, View as this user, Back to Admin)

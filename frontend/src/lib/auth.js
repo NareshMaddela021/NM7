@@ -60,8 +60,8 @@ const fromApi = (u) => ({
   id: u.id, role: u.role, name: u.name, email: u.email, phone: u.phone || '', verified: u.verified,
   expertStatus: u.expertStatus || undefined, adminRole: u.adminRole || undefined, createdAt: Date.parse(u.createdAt),
   view: u.view || undefined, // an admin's view (lib/adminViews.js): the banner and Back to Admin
-  hasPassword: u.hasPassword !== false, google: u.google || null, // "Sign in with Google" (Settings)
   roles: u.roles || [], activeRole: u.activeRole || undefined, rolesPending: !!u.rolesPending,
+  hasPassword: u.hasPassword !== false, google: u.google || null, // "Sign in with Google" (Settings)
 });
 // The role of whoever was signed in in this tab (re-test N6): while a sleeping server is slow to say who is signed in,
 // the easy dashboard can show its last screen at once. sessionStorage and nm7-: gone on sign-out and with the tab.

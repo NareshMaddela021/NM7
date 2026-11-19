@@ -1,11 +1,9 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { BRAND } from '../lib/brand';
-import { useAuth, signOut, homeFor, LIVE } from '../lib/auth';
+import { useAuth, LIVE } from '../lib/auth';
 import { track } from '../lib/track';
 
-// an admin's "Switch to" list, or "Back to Admin" while a view is open: loaded only then
-const AdminViewItems = lazy(() => import('./AdminViews').then((m) => ({ default: m.AccountItems })));
 
 export function Logo({ suffix }) {
   return (
@@ -21,13 +19,13 @@ export function ThemeToggle() {
   return null;
 }
 
-// "Switch to: Job seeker / Student / Expert" and "Add another role": loaded when the menu opens (Easy dashboard budget).
-const AccountRoles = lazy(() => import('./AccountRoles'));
+// The open menu (home, settings, "Switch to: Job seeker / Student / Expert", "Add another role", sign out): its own
+// small chunk, loaded when the menu opens, so the Easy dashboard's first download stays small.
+const AccountPanel = lazy(() => import('./AccountRoles'));
 
 /** Signed in: name + menu (my home, roles, sign out). Signed out: "Sign in" and "Create free account". */
 export function AccountMenu() {
   const { user } = useAuth();
-  const nav = useNavigate();
   const [open, setOpen] = useState(false);
   const ref = useRef();
   const { pathname } = useLocation();
@@ -47,24 +45,13 @@ export function AccountMenu() {
       </>
     );
   }
-  const homeLabel = { customer: 'My dashboard', expert: 'Expert home', admin: 'Admin console' }[user.role];
   return (
     <span ref={ref} style={{ position: 'relative' }}>
       <button type="button" className="btn btn-outline" style={{ minHeight: 40, gap: 8 }} aria-expanded={open} aria-haspopup="menu" aria-label={`Account menu: ${user.name}`} onClick={() => setOpen(!open)}>
         <span aria-hidden="true" style={{ width: 24, height: 24, borderRadius: '50%', background: 'var(--ink)', color: 'var(--onink)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700 }}>{user.name.trim()[0]?.toUpperCase()}</span>
         <span className="hide-sm">{user.name.split(' ')[0]}</span>
       </button>
-      {open && (
-        <div role="menu" className="card stack g4" style={{ position: 'absolute', right: 0, top: 48, width: 230, zIndex: 30, padding: 8, boxShadow: 'var(--shadow)' }}>
-          <span className="xs muted" style={{ padding: '4px 8px' }}>{user.email}</span>
-          <Link role="menuitem" to={homeFor(user)} className="admin-link">{homeLabel}</Link>
-          {user.role === 'customer' && <Link role="menuitem" to="/me/settings" className="admin-link">Profile & settings</Link>}
-          {user.role === 'expert' && <Link role="menuitem" to="/expert/profile" className="admin-link">Expert profile</Link>}
-          {LIVE && (user.view || user.role === 'admin') && <Suspense fallback={null}><AdminViewItems view={user.view} /></Suspense>}
-          {user.role !== 'admin' && !user.view && <Suspense fallback={null}><AccountRoles user={user} onDone={() => setOpen(false)} /></Suspense>}
-          {!user.view && <button role="menuitem" type="button" className="admin-link" style={{ border: 0, background: 'transparent', width: '100%', textAlign: 'left', cursor: 'pointer' }} onClick={async () => { const to = user.role === 'admin' ? '/admin/login' : '/'; await signOut(); nav(to); }}>Sign out</button>}
-        </div>
-      )}
+      {open && <Suspense fallback={null}><AccountPanel user={user} onClose={() => setOpen(false)} /></Suspense>}
     </span>
   );
 }

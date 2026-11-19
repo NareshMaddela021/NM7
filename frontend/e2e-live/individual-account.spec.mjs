@@ -2,7 +2,7 @@
 //   - sign up on the one individual page (no tabs, one tick) → "What would you like to do?" (the role from the link
 //     ticked already) → the chosen role's setup; then "Switch to: …" in the account menu opens each role's own dashboard;
 //   - an older account adds another role (expert): the expert application opens, and no paid work before approval;
-//   - old sign-up links (the tabs ?as=expert, /signup/expert, /expert/signup) come to the new page with the role kept;
+//   - old sign-up links (the tabs ?as=expert, ?as=customer, and /signup/expert by path) come to the new page with the role kept;
 //   - the page names hiring / companies / colleges only in its footer link; company, college and admin sign-up and
 //     sign-in pages are their own, as before; nothing scrolls sideways on the phone.
 // Desktop and phone share one database: every test uses its own people.
@@ -122,7 +122,7 @@ for (const [label, opts] of SIZES) {
     });
 
     test('old sign-up links come to the new page with the role kept', async ({ page }) => {
-      for (const [from, role] of [['/signup?as=expert', 'expert'], ['/signup/expert', 'expert'], ['/expert/signup', 'expert'], ['/signup?as=customer', 'jobseeker'], ['/signup/student', 'student']]) {
+      for (const [from, role] of [['/signup?as=expert', 'expert'], ['/signup/expert', 'expert'], ['/signup?as=customer', 'jobseeker'], ['/signup/student', 'student']]) {
         await page.goto(from);
         await page.waitForURL(`**/signup?role=${role}`);
         await expect(page.getByRole('heading', { level: 1, name: 'Create your free Nm7 account' })).toBeVisible();

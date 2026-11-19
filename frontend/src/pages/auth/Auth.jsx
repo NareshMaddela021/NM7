@@ -1,6 +1,6 @@
 // Sign in, sign up (customer or expert, confirmed with an email code), forgot password, admin two-step login, and route guards.
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
-import { Link, Navigate, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Link, Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Logo, ThemeToggle } from '../../components/Header';
 import { Spinner, useToast } from '../../components/ui';
 import {
@@ -21,14 +21,26 @@ const GoogleButtonLazy = lazy(() => import('../../components/GoogleButton'));
 function Google(props) {
   return <Suspense fallback={null}><GoogleButtonLazy note={<GoogleTerms />} {...props} /></Suspense>;
 }
-/** A new account made with Google agrees to the same terms as the sign-up form's box. */
+/** A new account made with Google gives the sign-up form's one tick on the next step ("What would you like to do?"). */
 function GoogleTerms() {
-  return <>New here? Continuing with Google creates a free account: you agree to the <Link to="/terms" target="_blank">Terms</Link> and <Link to="/privacy" target="_blank">Privacy Policy</Link>, and you’re 18 or older (or have a parent’s consent).</>;
+  return <>New here? Continuing with Google creates a free account. Next you tick to agree to the <Link to="/terms" target="_blank">Terms</Link> and <Link to="/privacy" target="_blank">Privacy Policy</Link> and confirm you’re 18 or older (or your parent or guardian agrees).</>;
 }
-/** Where a new account goes after sign-up — email (after the code) and Google alike. One place, so the next step can
- * change for both (an expert fills in their profile; everyone else goes to `next` or their dashboard). */
-function afterSignup(nav, u, next) {
-  nav(u.role === 'expert' ? '/expert/profile' : next || '/me', { replace: true });
+/** Where a new account goes after sign-up — email (after the code) and Google alike: "What would you like to do?"
+ * (/welcome, the role from the link ticked). A page that sent them here to finish something (a download, a checkout,
+ * their college's group) gets them straight back, with the role that fits. An existing account: `next` or its home. */
+const ORG_NEXT = /^\/(for-orgs|org\/|college-group\/)/; // a college's own flow: no role question on the way
+const JOIN_NEXT = /^\/join\//; // a student joining their college's placement group
+async function afterSignup(nav, u, next, role = '') {
+  if (!u.rolesPending) { nav(next || homeFor(u), { replace: true }); return; }
+  // a new Google account never saw the form's one tick: it gives it on the picker, so it always goes there
+  if (next && role !== 'expert' && u.hasPassword !== false) {
+    const add = role ? [role] : JOIN_NEXT.test(next) ? ['student'] : ORG_NEXT.test(next) ? [] : ['jobseeker'];
+    try { await addRoles({ add }); } catch { /* the account menu can add roles later */ }
+    nav(next, { replace: true });
+    return;
+  }
+  const q = new URLSearchParams(Object.entries({ role, next }).filter(([, v]) => v)).toString();
+  nav(`/welcome${q ? `?${q}` : ''}`, { replace: true });
 }
 
 /** This page's own tab title (when it differs from the route's). */
@@ -172,8 +184,6 @@ export function Login() {
 // Companies and colleges have their own sign-up and sign-in (/for-companies, /for-orgs): this page names them only in
 // the one small link at the bottom. Old links (the tabs: ?as=expert, ?tab=…, /signup/expert, /expert/signup) come here
 // with the role preselected for the "What would you like to do?" step that follows the email code.
-const ORG_NEXT = /^\/(for-orgs|org\/|college-group\/)/; // a college's own flow: no role question on the way
-const JOIN_NEXT = /^\/join\//; // a student joining their college's placement group
 function SignupFooter() {
   return (
     <footer className="site-footer" lang="en" style={{ borderTop: '1px solid var(--border)' }}>
@@ -188,22 +198,14 @@ function SignupFooter() {
     </footer>
   );
 }
-/** Old sign-up links by path (/signup/expert, /expert/signup …): the sign-up page with that role preselected. */
-export function SignupAs({ role }) {
-  const { role: param } = useParams();
-  const { search } = useLocation();
-  const q = new URLSearchParams(search);
-  const r = roleFromLink(role || param);
-  if (r) q.set('role', r);
-  const t = q.toString();
-  return <Navigate to={`/signup${t ? `?${t}` : ''}`} replace />;
-}
+export { default as Welcome } from './Welcome'; // the step after sign-up, in this chunk
 export function Signup() {
   const nav = useNavigate();
   const [params] = useSearchParams();
   const next = safeNext(params.get('next'));
   const { user } = useAuth();
-  const role = roleFromLink(params.get('role') || params.get('as') || params.get('tab'));
+  const old = useParams()['*']; // an old link by path: /signup/expert, /signup/student …
+  const role = roleFromLink(params.get('role') || params.get('as') || params.get('tab') || old);
   const [f, setF] = useState({ name: '', email: '', phone: '', password: '', confirm: '', agree: false });
   const [showPw, setShowPw] = useState(false);
   const [touched, setTouched] = useState(false);
@@ -211,24 +213,13 @@ export function Signup() {
   const { busy, err, setErr, run } = useRun();
   const qs = (o) => { const p = new URLSearchParams(Object.entries(o).filter(([, v]) => v)); const t = p.toString(); return t ? `?${t}` : ''; };
   // the old tab links: same page, with the role preselected for the next step
-  if (!params.get('role') && (params.get('as') || params.get('tab'))) return <Navigate to={`/signup${qs({ role, next })}`} replace />;
+  if (!params.get('role') && (params.get('as') || params.get('tab') || old)) return <Navigate to={`/signup${qs({ role, next })}`} replace />;
   if (user && !pending) {
     // signed in: a role from a link means "add this role" (one account), else their own dashboard
     if (role && user.role !== 'admin' && !rolesOf(user).includes(role)) return <Navigate to={`/welcome${qs({ add: '1', role, next })}`} replace />;
     return <Navigate to={next || homeFor(user)} replace />;
   }
-  // after the email code (or Google): "What would you like to do?". A page that sent them here to finish something
-  // (a download, a checkout, their college's group) gets them straight back, with the role that fits.
-  const after = async (u) => {
-    if (!u.rolesPending) { nav(next || homeFor(u), { replace: true }); return; }
-    if (next && role !== 'expert') {
-      const add = role ? [role] : JOIN_NEXT.test(next) ? ['student'] : ORG_NEXT.test(next) ? [] : ['jobseeker'];
-      try { await addRoles({ add }); } catch { /* the account menu can add roles later */ }
-      nav(next, { replace: true });
-      return;
-    }
-    nav(`/welcome${qs({ role, next })}`, { replace: true });
-  };
+  const after = (u) => afterSignup(nav, u, next, role); // after the email code, or Google
   const errs = {
     name: f.name.trim().length < 2 && 'Enter your full name',
     email: !EMAIL_RE.test(f.email.trim()) && 'Enter a valid email address',

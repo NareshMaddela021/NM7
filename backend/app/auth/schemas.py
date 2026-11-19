@@ -99,6 +99,7 @@ class RolesIn(CamelModel):
     add: list[Literal["jobseeker", "student", "expert"]] = Field(default_factory=list, max_length=3)
     active: Literal["jobseeker", "student", "expert"] | None = None
     expert_terms: bool = False
+    terms_accepted: bool = False  # a new Google account: the sign-up page's one tick, given here
 
 
 class SwitchIn(CamelModel):

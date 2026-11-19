@@ -6,11 +6,14 @@ route guards check) follows the active role: "expert" while working as an expert
 student. Older accounts have no stored roles; they are derived from the account type when read, so nothing is
 rewritten at startup.
 
+A new account made with Google gives the sign-up page's one tick (Terms, Privacy Policy, 18+ or a parent's consent)
+on the picker, since it never saw the form.
+
 Adding the expert role starts the expert application (status "draft"): an expert gets paid work only after an admin
 approves the application, exactly as before (Admin → Experts, and every expert work route checks the status).
 
-  POST /api/auth/roles          {add: [...], active?, expertTerms?}   add roles (never removes), answer the picker
-  POST /api/auth/roles/switch   {role}                                switch the active role
+  POST /api/auth/roles          {add, active?, expertTerms?, termsAccepted?}   add roles (never removes); the picker
+  POST /api/auth/roles/switch   {role}                                         switch the active role
 """
 
 from typing import Any
@@ -57,6 +60,12 @@ async def add_roles(body: RolesIn, auth: CurrentAuth, db: DB) -> UserOut:
         roles = [r for r in INDIVIDUAL_ROLES if r in have or r in add]
     new = [r for r in add if r not in have or user.roles_pending]
     sets: dict[str, Any] = {"roles": roles, "roles_pending": False}
+    if user.roles_pending and not user.has_password:
+        # a new account made with Google skipped the sign-up form: the same one tick (Terms, Privacy Policy, 18+ or a
+        # parent's consent) is given here, before anything else. Existing accounts signing in with Google never are.
+        if not body.terms_accepted:
+            raise ApiError(400, "terms_required", "Please tick the box to agree to the Terms and Privacy Policy.")
+        sets["terms_accepted_at"] = now()
     if "expert" in roles and "expert" not in have:
         if not body.expert_terms and not user.expert_terms_accepted_at:
             raise ApiError(400, "expert_terms", "Please agree to the Expert Terms to work as an expert.")

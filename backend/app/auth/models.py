@@ -69,10 +69,6 @@ class User(Doc):
         return self.email_verified_at is not None
 
     @property
-    def has_password(self) -> bool:
-        return bool(self.password_hash)
-
-    @property
     def individual_roles(self) -> list[str]:
         """The person's roles. Older accounts have none stored: they are derived from the account type (a customer is
         a job seeker, an expert an expert), so nothing has to be rewritten. Admins have no individual roles."""
@@ -96,6 +92,10 @@ class User(Doc):
         if self.active_role in mine and self.active_role != "expert":
             return self.active_role
         return next(r for r in mine if r != "expert")
+
+    @property
+    def has_password(self) -> bool:
+        return bool(self.password_hash)
 
 
 class EmailCode(Doc):
