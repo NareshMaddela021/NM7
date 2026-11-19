@@ -14,6 +14,7 @@ import { usePageMeta } from '../../lib/meta';
 import { safeNext } from '../../lib/safeNext';
 import { addRoles, fits, roleFor, roleFromLink, rolesOf, switchRole } from '../../lib/roles';
 import '../../styles/admin-ops.css';
+import { IcCheck, IcKey, IcShield } from '../../components/icons';
 
 const isPreview = import.meta.env.VITE_PREVIEW === '1';
 // "Continue with Google": its own small chunk; it renders nothing while the server has no Google client ID.
@@ -248,7 +249,7 @@ export function Signup() {
           <div style={{ flex: '1 1 220px', minWidth: 0 }}><Field id="su-pw" label="Password" type={showPw ? 'text' : 'password'} autoComplete="new-password" value={f.password} error={e_('password')} hint="8+ characters, with letters and a number" onChange={(e) => setF({ ...f, password: e.target.value })} /></div>
           <div style={{ flex: '1 1 220px', minWidth: 0 }}><Field id="su-pw2" label="Re-type password" type={showPw ? 'text' : 'password'} autoComplete="new-password" value={f.confirm}
             error={e_('confirm') || (f.confirm && f.confirm !== f.password && f.confirm.length >= f.password.length ? 'Passwords don’t match' : '')}
-            hint={f.confirm && f.confirm === f.password ? '✓ Passwords match' : 'Type it again to be sure'} onChange={(e) => setF({ ...f, confirm: e.target.value })} /></div>
+            hint={f.confirm && f.confirm === f.password ? 'Passwords match' : 'Type it again to be sure'} onChange={(e) => setF({ ...f, confirm: e.target.value })} /></div>
         </div>
         <label className="row g4 xs" style={{ marginTop: -8, minHeight: 44 }}><input type="checkbox" checked={showPw} onChange={(e) => setShowPw(e.target.checked)} />Show passwords</label>
         {/* The one tick. The per-purpose privacy consents (Vetting Trust T1) are asked one by one later, when a
@@ -271,7 +272,7 @@ export function ForgotPassword() {
   const nav = useNavigate();
   const toast = useToast();
   const [params] = useSearchParams();
-  const setting = params.get('set') === '1'; // Settings → "Set a password" (an account made with Google)
+  const setting = params.get('set') === '1'; // Settings -> "Set a password" (an account made with Google)
   const [step, setStep] = useState('email');
   const [f, setF] = useState({ email: params.get('email') || '', code: '', password: '', confirm: '' });
   const [emailErr, setEmailErr] = useState('');
@@ -292,13 +293,13 @@ export function ForgotPassword() {
         <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); run(async () => { await resetPassword(f.email, f.code, f.password, f.confirm); toast(setting ? 'Password set — sign in with it once' : 'Password changed — sign in with the new one'); nav(setting ? '/login?next=%2Fme%2Fsettings' : '/login'); }); }}>
           <CodeInput value={f.code} onChange={(code) => setF({ ...f, code })} />
           <Field id="fp-p" label="New password" type="password" autoComplete="new-password" value={f.password} hint="8+ characters, with letters and a number" error={f.password && passwordIssue(f.password)} onChange={(e) => setF({ ...f, password: e.target.value })} />
-          <Field id="fp-p2" label="Re-type new password" type="password" autoComplete="new-password" value={f.confirm} error={f.confirm && f.confirm !== f.password && f.confirm.length >= f.password.length ? 'Passwords don’t match' : ''} hint={f.confirm && f.confirm === f.password ? '✓ Passwords match' : ''} onChange={(e) => setF({ ...f, confirm: e.target.value })} />
+          <Field id="fp-p2" label="Re-type new password" type="password" autoComplete="new-password" value={f.confirm} error={f.confirm && f.confirm !== f.password && f.confirm.length >= f.password.length ? 'Passwords don’t match' : ''} hint={f.confirm && f.confirm === f.password ? 'Passwords match' : ''} onChange={(e) => setF({ ...f, confirm: e.target.value })} />
           {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
             <button type="submit" className="btn btn-ink btn-lg" disabled={busy || f.code.length !== 6 || !!passwordIssue(f.password) || f.confirm !== f.password}>{busy && <Spinner />}Change password</button>
         </form>
       )}
       <Demo>the code is <code>{DEMO_CODE}</code>.</Demo>
-      <Link to="/login" className="small">← Back to sign in</Link>
+      <Link to="/login" className="small">Back to sign in</Link>
     </Shell>
   );
 }
@@ -327,7 +328,7 @@ export function AdminLogin() {
           if (!email || !password) { setErr('Enter your work email and password.'); return; }
           run(async () => { const r = await adminPassword(email, password); if (r.signedIn) nav(next?.startsWith('/admin') ? next : '/admin', { replace: true }); else setStep(r); });
         }}>
-          <span className="ad-auth-top"><span className="ad-auth-ic" aria-hidden="true">⚿</span><span className="ad-auth-kicker">STEP 1 OF 2 · PASSWORD</span><span className="ad-auth-steps" aria-hidden="true"><i className="on" /><i /></span></span>
+          <span className="ad-auth-top"><span className="ad-auth-ic"><IcKey size={22} /></span><span className="ad-auth-kicker">STEP 1 OF 2 · PASSWORD</span><span className="ad-auth-steps" aria-hidden="true"><i className="on" /><i /></span></span>
           <p className="ad-auth-help">Use your Nm7 work email. After the password you’ll enter a code from your authenticator app.</p>
           <Field id="ad-e" name="email" label="Work email" type="email" autoComplete="username" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
           <Field id="ad-p" name="password" label="Password" type="password" autoComplete="current-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />
@@ -336,7 +337,7 @@ export function AdminLogin() {
         </form>
       ) : (
         <form className="ad-auth" noValidate onSubmit={(e) => { e.preventDefault(); run(async () => { await adminVerify(step.userId, f.code, f.trust); nav(next?.startsWith('/admin') ? next : '/admin', { replace: true }); }); }}>
-          <span className="ad-auth-top"><span className="ad-auth-ic" aria-hidden="true">⛨</span><span className="ad-auth-kicker">STEP 2 OF 2 · AUTHENTICATOR</span><span className="ad-auth-steps" aria-hidden="true"><i className="on" /><i className="on" /></span></span>
+          <span className="ad-auth-top"><span className="ad-auth-ic"><IcShield size={22} /></span><span className="ad-auth-kicker">STEP 2 OF 2 · AUTHENTICATOR</span><span className="ad-auth-steps" aria-hidden="true"><i className="on" /><i className="on" /></span></span>
           <span className="ad-auth-help">Open Google Authenticator, Microsoft Authenticator or Authy and enter the 6-digit code for Nm7 admin.</span>
           {recovery
             ? <Field id="ad-r" label="Recovery code" autoComplete="one-time-code" placeholder="ABCD-EFGH" maxLength={9} value={f.code} onChange={(e) => setF({ ...f, code: e.target.value.toUpperCase() })} hint="Each recovery code works once." />
@@ -345,7 +346,7 @@ export function AdminLogin() {
           {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
             <button type="submit" className="btn btn-signal btn-lg" disabled={busy || (recovery ? f.code.replace(/[^A-Z0-9]/gi, '').length !== 8 : f.code.length !== 6)}>{busy && <Spinner />}Verify & open admin</button>
           <div className="ad-auth-foot">
-          <button type="button" className="link-btn small" style={{ alignSelf: 'flex-start' }} onClick={() => { setStep(null); setF({ ...f, code: '' }); }}>← Use a different account</button>
+          <button type="button" className="link-btn small" style={{ alignSelf: 'flex-start' }} onClick={() => { setStep(null); setF({ ...f, code: '' }); }}>Use a different account</button>
           <span className="xs faint">Lost your phone? <button type="button" className="link-btn xs" onClick={() => { setRecovery(!recovery); setF({ ...f, code: '' }); }}>{recovery ? 'Use the authenticator code' : 'Use a recovery code'}</button> or ask the owner to reset your two-step login.</span>
           </div>
         </form>
@@ -404,7 +405,7 @@ export function AdminSetup() {
     return (
       <Shell title="Owner account ready" sub={`${done.email} is the owner admin. Setup is now closed for good.`}>
         <div className="ad-auth">
-          <span className="ad-auth-top"><span className="ad-auth-ic" aria-hidden="true">✓</span><span className="ad-auth-kicker">SETUP DONE</span></span>
+          <span className="ad-auth-top"><span className="ad-auth-ic"><IcCheck size={22} /></span><span className="ad-auth-kicker">SETUP DONE</span></span>
           <span className="small">Sign in with your email, password and the 6-digit code from your authenticator app.</span>
           <span className="small muted">On Render, delete <code>ADMIN_SETUP_TOKEN</code> from the API’s environment now.</span>
           <Link to="/admin/login" className="btn btn-signal btn-lg">Go to admin sign in</Link>
@@ -445,17 +446,17 @@ export function AdminSetup() {
   return (
     <Shell title="Set up the owner admin" sub="One time only. This page stops working as soon as an admin account exists.">
       <form className="ad-auth" noValidate onSubmit={(e) => { e.preventDefault(); if (ready) run(async () => setSetup(await adminSetupStart(f))); }}>
-        <span className="ad-auth-top"><span className="ad-auth-ic" aria-hidden="true">⚿</span><span className="ad-auth-kicker">OWNER ACCOUNT</span></span>
+        <span className="ad-auth-top"><span className="ad-auth-ic"><IcKey size={22} /></span><span className="ad-auth-kicker">OWNER ACCOUNT</span></span>
         <p className="ad-auth-help">You need the setup token from the API’s environment. After this you’ll scan a QR code and save recovery codes.</p>
         <Field id="as-t" label="Setup token" type="password" autoComplete="off" value={f.token} hint="The ADMIN_SETUP_TOKEN value from the API’s environment on Render" onChange={(e) => setF({ ...f, token: e.target.value })} />
         <Field id="as-e" label="Work email" type="email" autoComplete="username" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
         <Field id="as-n" label="Your name" autoComplete="name" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} />
         <Field id="as-p" label="Password" type="password" autoComplete="new-password" value={f.password} hint="8+ characters, with letters and a number" error={pwIssue || ''} onChange={(e) => setF({ ...f, password: e.target.value })} />
-        <Field id="as-p2" label="Re-type password" type="password" autoComplete="new-password" value={f.confirm} error={f.confirm && f.confirm !== f.password && f.confirm.length >= f.password.length ? 'Passwords don’t match' : ''} hint={f.confirm && f.confirm === f.password ? '✓ Passwords match' : ''} onChange={(e) => setF({ ...f, confirm: e.target.value })} />
+        <Field id="as-p2" label="Re-type password" type="password" autoComplete="new-password" value={f.confirm} error={f.confirm && f.confirm !== f.password && f.confirm.length >= f.password.length ? 'Passwords don’t match' : ''} hint={f.confirm && f.confirm === f.password ? 'Passwords match' : ''} onChange={(e) => setF({ ...f, confirm: e.target.value })} />
         {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
         <button type="submit" className="btn btn-signal btn-lg" disabled={busy || !ready}>{busy && <Spinner />}Continue</button>
       </form>
-      <Link to="/admin/login" className="small">← Admin sign in</Link>
+      <Link to="/admin/login" className="small">Admin sign in</Link>
     </Shell>
   );
 }

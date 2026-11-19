@@ -58,7 +58,7 @@ export default function Refund() {
       {step === 'form' && (
         <main className="container split" style={{ maxWidth: 1040, padding: '48px 24px 88px' }}>
           <section className="main stack g20 rise">
-            <Link to={`/me/orders/${id}`} className="btn btn-ghost" style={{ alignSelf: 'flex-start', paddingLeft: 0 }}>← Back to my order</Link>
+            <Link to={`/me/orders/${id}`} className="btn btn-ghost" style={{ alignSelf: 'flex-start', paddingLeft: 0 }}>Back to my order</Link>
             <h1 className="display" style={{ fontSize: 40 }}>Request a refund</h1>
             <p className="lead" style={{ fontSize: 17 }}>Our promise: if we don’t fulfil the service, you get your money back in full. Tell us what happened.</p>
             <fieldset className="stack g8" style={{ border: 0, margin: 0, padding: 0 }}>

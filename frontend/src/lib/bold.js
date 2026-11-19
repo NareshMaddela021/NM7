@@ -6,7 +6,7 @@
 
 const MARK = '**';
 
-/** "Led **12 people** and cut costs" → [{ t: 'Led ', b: false }, { t: '12 people', b: true }, { t: ' and cut costs', b: false }].
+/** "Led **12 people** and cut costs" -> [{ t: 'Led ', b: false }, { t: '12 people', b: true }, { t: ' and cut costs', b: false }].
  * An unpaired ** is dropped (never printed). Adjacent pieces of the same weight are merged. */
 export function parseBold(raw) {
   const s = String(raw ?? '');
@@ -30,7 +30,7 @@ export function parseBold(raw) {
 export const stripBold = (raw) => (typeof raw === 'string' && raw.includes(MARK) ? parseBold(raw).map((p) => p.t).join('') : raw);
 export const hasBold = (raw) => parseBold(raw).some((p) => p.b && p.t.trim());
 
-/** Pieces → marker text. Spaces at a bold piece's edges go outside the markers; bold never spans a line break. */
+/** Pieces -> marker text. Spaces at a bold piece's edges go outside the markers; bold never spans a line break. */
 export function serializeBold(pieces) {
   let out = '';
   for (const { t, b } of pieces) {
@@ -132,7 +132,7 @@ export function sanitizeRich(raw) {
 
 const BLOCK = new Set(['P', 'DIV', 'LI', 'TR', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'UL', 'OL', 'TABLE', 'SECTION', 'ARTICLE', 'BLOCKQUOTE']);
 const isBoldEl = (el) => el.tagName === 'B' || el.tagName === 'STRONG' || /font-weight\s*:\s*(bold|[6-9]00)/i.test(el.getAttribute?.('style') || '');
-/** Clipboard HTML (Word, Google Docs, a website) → text with **bold** markers and line breaks; nothing else. */
+/** Clipboard HTML (Word, Google Docs, a website) -> text with **bold** markers and line breaks; nothing else. */
 export function htmlToRich(html, parse = (h) => new DOMParser().parseFromString(h, 'text/html')) {
   const doc = parse(html);
   const pieces = [];
@@ -175,13 +175,13 @@ export function carryBold(oldRaw, newText) {
 // The box shows the words without markers (bold is drawn behind them); what is saved keeps the **markers**, so the
 // preview, PDF, Word, ATS score and the college format see exactly the same value as before.
 
-/** Marker text → { plain, mask } (mask[i]: is plain letter i bold). Every marker is hidden, as when printed. */
+/** Marker text -> { plain, mask } (mask[i]: is plain letter i bold). Every marker is hidden, as when printed. */
 export function toMask(raw) {
   const pieces = parseBold(raw); // the same reading as printing (a stray marker never shows)
   return { plain: pieces.map((p) => p.t).join(''), mask: pieces.flatMap((p) => p.t.split('').map(() => p.b)) };
 }
 
-/** { plain, mask } → marker text (the saved format). */
+/** { plain, mask } -> marker text (the saved format). */
 export function fromMask(plain, mask) {
   const pieces = [];
   String(plain ?? '').split('').forEach((c, i) => { // UTF-16 units, as the text box counts
@@ -207,7 +207,7 @@ export function editMask(oldPlain, oldMask, newPlain) {
 }
 
 /** The B button / Ctrl+B on the box's selection [start, end) (plain offsets): the word at the cursor when nothing is
- * selected; spaces at the edges are never bold; all bold → plain, else bold. Returns { mask, start, end }. */
+ * selected; spaces at the edges are never bold; all bold -> plain, else bold. Returns { mask, start, end }. */
 export function toggleMask(plain, mask, start, end) {
   const s = String(plain ?? '');
   let a = Math.min(start, end); let b = Math.max(start, end);

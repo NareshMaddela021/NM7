@@ -8,7 +8,7 @@ import {
 } from './vocab';
 import { emptyResult, groupSkills, splitDegree } from './shared';
 
-const BULLET_RE = /^[•●▪■◦‣\-*➢➤✓✔►▶◆◇□❖·]\s*/;
+const BULLET_RE = /^[•\u25CF\u25AA\u25A0\u25E6‣\-*\u27A2\u27A4\u2713\u2714\u25BA\u25B6\u25C6\u25C7\u25A1\u2756·]\s*/;
 const isBullet = (l) => BULLET_RE.test(l.text) && !/^-\s*\d/.test(l.text);
 const unbullet = (t) => t.replace(BULLET_RE, '').trim();
 const PRINT_TITLES = { summary: 'Summary', exp: 'Experience', edu: 'Education', skills: 'Skills', proj: 'Projects', certs: 'Certifications', ach: 'Achievements', langs: 'Languages', hobbies: 'Hobbies', strengths: 'Strengths', pinfo: 'Personal Information', decl: 'Declaration' };
@@ -179,7 +179,7 @@ function toExp(b) {
     role = roleLine || hs[0] || '';
     company = orgLine || (roleLine ? '' : hs[1] || '');
   }
-  // "Hyundai Glovis, Penukonda-Andhra Pradesh" → company only (place goes away)
+  // "Hyundai Glovis, Penukonda-Andhra Pradesh" -> company only (place goes away)
   const parts = company.split(/\s*,\s*/);
   if (parts.length > 1 && INDIAN_PLACE_RE.test(parts.slice(1).join(','))) company = parts[0];
   const type = /intern/i.test(role) ? 'Internship' : '';
@@ -228,7 +228,7 @@ function toProj(b) {
   return flag({ title: title.replace(/\s*[|–-]\s*$/, ''), tagline: tm ? '' : sub, type: '', status: d?.current ? 'In Development' : '', from: d?.from || '', to: d?.to || '', ongoing: !!d?.current, description: bullets.join('\n'), tech: tech || (tm ? tm[1] : ''), links: projLinks(b) }, title ? '' : 'Project title not found.');
 }
 
-/** Web addresses written inside a project → clickable words (GitHub / Live Demo). */
+/** Web addresses written inside a project -> clickable words (GitHub / Live Demo). */
 function projLinks(b) {
   const urls = [...b.head, ...b.bullets].join(' ').match(/(?:https?:\/\/)?(?:www\.)?(?:github\.com|[a-z0-9-]+\.(?:vercel\.app|netlify\.app|herokuapp\.com|github\.io|streamlit\.app|onrender\.com))\/?[^\s,|()]*/gi) || [];
   return [...new Set(urls)].slice(0, 2).map((u) => ({ url: cleanUrl(u), label: /github\.com/i.test(u) ? 'GitHub' : 'Live Demo' }));
@@ -267,7 +267,7 @@ function skills(R, L) {
   bs.forEach((b) => {
     const d = dateOf(b);
     if (d && b.head.length) {
-      // a dated entry inside Skills is a course → Certifications
+      // a dated entry inside Skills is a course -> Certifications
       const [name = '', issuer = ''] = strip(b, d);
       R.data.certs.push({ name, issuer, issueDate: d.from, expiryDate: '', credentialId: '', links: [], noExpiry: !!d.current, _conf: 'check', _why: d.current ? 'Ongoing course — found under Skills, moved here.' : 'Found under Skills, moved here.' });
       R.notes.push({ kind: 'info', sec: 'certs', msg: `“${name}” was listed under Skills — moved to Certifications.` });

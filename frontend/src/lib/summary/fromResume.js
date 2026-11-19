@@ -26,7 +26,7 @@ const safe = (v) => {
 const on = (d, list, section) => (d.hidden?.[section] ? [] : (d[list] || []).filter((x) => x && !x.off));
 const latest = (a, b) => (b.current ? '9999' : b.to || b.from || '').localeCompare(a.current ? '9999' : a.to || a.from || '');
 const words = (t) => new Set(String(t || '').toLowerCase().match(/[a-z0-9+#]{2,}/g) || []);
-/** How well a job's role matches the target role: shared words (Data Analyst Intern ~ Data Analyst → 2). */
+/** How well a job's role matches the target role: shared words (Data Analyst Intern ~ Data Analyst -> 2). */
 const fit = (role, target) => { const w = words(target); return [...words(role)].filter((x) => w.has(x)).length; };
 
 /** The facts, in the order the summary uses them. */

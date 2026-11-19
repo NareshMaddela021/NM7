@@ -21,7 +21,7 @@ export const FIX_LABEL = { shorter: 'Shorter', professional: 'More professional'
 /** "Write with AI" needs the live API and a signed-in person (a kiosk sign-in counts). */
 export const aiAvailable = () => LIVE && currentUser()?.role === 'customer';
 
-/** The merged facts → only the keys the writer knows, as strings or lists of strings, empties dropped. */
+/** The merged facts -> only the keys the writer knows, as strings or lists of strings, empties dropped. */
 export function factsForAi(facts) {
   const out = {};
   for (const k of FACT_KEYS) {
@@ -44,7 +44,7 @@ export function aiRequest(resume, note = '', mode = 'generate', current = '', hi
   };
 }
 
-/** The server's options → cards that pass the browser's own quality gate too. */
+/** The server's options -> cards that pass the browser's own quality gate too. */
 export function acceptOptions(res, body) {
   const seen = new Set();
   const options = [];

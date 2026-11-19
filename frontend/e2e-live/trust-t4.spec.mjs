@@ -111,7 +111,7 @@ for (const [label, opts] of SIZES) {
       const s = await candidate(browser, opts, `tt4c-${label}`, `Ravi Jobs ${label}`);
       await s.page.goto(`/jobs?q=${encodeURIComponent(title)}`);
       const card = s.page.getByTestId('job-card').filter({ hasText: title });
-      await expect(card.getByTestId('employer-badge')).toHaveText('✓ Verified employer · GST (test)');
+      await expect(card.getByTestId('employer-badge')).toHaveText('Verified employer · GST (test)');
       await card.getByRole('link', { name: title }).click();
       const detail = s.page.getByTestId('job-detail');
       await expect(detail.getByTestId('employer-badge')).toContainText('Verified employer · GST, checked');

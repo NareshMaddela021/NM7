@@ -2,7 +2,7 @@
 // Noto Sans fonts (public/fonts/, OFL) that are fetched from our own origin only when a resume contains that
 // script. Latin, digits and punctuation stay in the template's own font.
 
-/** Unicode blocks → { file: Noto Sans family file prefix }. Order does not matter. */
+/** Unicode blocks -> { file: Noto Sans family file prefix }. Order does not matter. */
 export const SCRIPTS = {
   devanagari: { from: 0x0900, to: 0x097f, file: 'NotoSansDevanagari', serifFile: 'NotoSerifDevanagari', label: 'Hindi / Marathi' },
   bengali: { from: 0x0980, to: 0x09ff, file: 'NotoSansBengali', label: 'Bengali' },
@@ -53,10 +53,10 @@ export function splitRuns(text, defaultScript = 'devanagari') {
 
 // Emoji (and the selectors/joiners that build them): no PDF font here can draw them, so they are left out of the PDF
 const EMOJI = /(?:[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}](?:\uFE0F|\u20E3)?\u200D?)+|[\uFE0F\u20E3]/gu;
-/** Text without emoji; a gap left behind is closed ("Done ✅ fast" → "Done fast"). */
+/** Text without emoji; a gap left behind is closed ("Done <emoji> fast" -> "Done fast"). */
 const HAS_EMOJI = new RegExp(EMOJI.source, 'u');
 const SPACED_EMOJI = new RegExp(` ?(?:${EMOJI.source})`, 'gu'); // with the space before it
-/** Text without emoji, and without the space each one leaves ("won 🏆 twice ✅." → "won twice."). */
+/** Text without emoji, and without the space each one leaves ("won <emoji> twice <emoji>." -> "won twice."). */
 export const noEmoji = (t) => (typeof t === 'string' && HAS_EMOJI.test(t) ? t.replace(SPACED_EMOJI, '').replace(/^ +/gm, '') : t);
 /** The same for every string in an object or array (a copy; the resume itself is not changed). */
 export function withoutEmoji(v) {
@@ -67,7 +67,7 @@ export function withoutEmoji(v) {
 }
 
 const WEIGHTS = ['Regular', 'Bold'];
-const cache = {}; // script → promise of { normal, bold } (Uint8Array)
+const cache = {}; // script -> promise of { normal, bold } (Uint8Array)
 
 /** Where a font file lives: next to the app (dist/fonts/…), so the CSP's connect-src 'self' allows it. */
 // serif: the Noto Serif face where there is one (Telugu, Devanagari — the Academic template), else Noto Sans

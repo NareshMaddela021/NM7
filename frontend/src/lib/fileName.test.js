@@ -12,7 +12,7 @@ describe('one file-name rule for every resume file (QA)', () => {
     expect(pdfName('TEST – Data Analyst')).toBe('TEST_Data_Analyst_Resume.pdf');
     expect(resumeFileName('Asha Rao', { kind: 'Cover_Letter', ext: 'docx' })).toBe('Asha_Rao_Cover_Letter.docx');
     expect(resumeFileName('  O’Brien / R.  ')).toBe('O_Brien_R_Resume.pdf');
-    expect(resumeFileName('Asha 🚀 Rao')).toBe('Asha_Rao_Resume.pdf');
+    expect(resumeFileName('Asha \u{1F680} Rao')).toBe('Asha_Rao_Resume.pdf');
     expect(resumeFileName('రాము కుమార్')).toBe('రాము_కుమార్_Resume.pdf'); // names in Indian scripts stay readable
     expect(resumeFileName('', { fallback: 'ab12cd34ef' })).toBe('ab12cd34ef_Resume.pdf');
     expect(resumeFileName('')).toBe('Resume.pdf');
@@ -43,7 +43,7 @@ describe('fileName: one helper for every download', () => {
     expect(long.endsWith('.pdf')).toBe(true);
     expect(long).not.toMatch(/_\.pdf$/);
     expect(fileName(['x'.repeat(200)], 'zip').length).toBeLessThanOrEqual(80);
-    expect(fileName(['', '🚀'], 'csv')).toBe('Nm7.csv');
+    expect(fileName(['', '\u{1F680}'], 'csv')).toBe('Nm7.csv');
     expect(fileName([], 'zip', { fallback: 'Shortlist' })).toBe('Shortlist.zip');
     expect(fileName(['Asha'], '.PDF')).toBe('Asha.pdf');
     expect(fileName(['Nm7', 'resumes', '2026-10-25'], 'zip')).toBe('Nm7_resumes_2026-10-25.zip'); // dates keep their dashes

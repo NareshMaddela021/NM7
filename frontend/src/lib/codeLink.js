@@ -1,4 +1,4 @@
-// ?code= in a link (Admin → Codes): kept for the pay step, never used by itself. Its own file so the app's first
+// ?code= in a link (Admin -> Codes): kept for the pay step, never used by itself. Its own file so the app's first
 // script carries only this, not the rest of lib/codes.js (round L: the Easy dashboard's 150 KB budget).
 export const normCode = (s) => String(s ?? '').replace(/\s+/g, '').toUpperCase().slice(0, 40);
 const KEY = 'nm7.code';

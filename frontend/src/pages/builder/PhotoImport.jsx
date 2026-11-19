@@ -1,4 +1,4 @@
-// "Snap photos": pick photos → (consent for ID cards) → read on the server → review in big, simple text →
+// "Snap photos": pick photos -> (consent for ID cards) -> read on the server -> review in big, simple text ->
 // "Looks right" hands the kept items to `onDone(review)`. Nothing is saved before that.
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';

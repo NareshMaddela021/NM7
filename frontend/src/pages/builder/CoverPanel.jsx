@@ -30,7 +30,7 @@ export default function CoverPanel({ d, setCover, onAddSkill, profile = null }) 
         </div>
         {c.jd?.trim() && (
           <div className="well stack g8 small">
-            {matched.length > 0 && <span><strong style={{ color: 'var(--success)' }}>✓ You have:</strong> {matched.join(', ')}</span>}
+            {matched.length > 0 && <span><strong style={{ color: 'var(--success)' }}>You have:</strong> {matched.join(', ')}</span>}
             {missing.length > 0 && (
               <span className="stack g8"><span><strong style={{ color: 'var(--warning)' }}>The job also asks for:</strong> {missing.join(', ')}. Add any you really have to your skills.</span>
                 <span className="row g4">{missing.slice(0, 8).map((m) => <button key={m} type="button" className="chip" style={{ minHeight: 32, fontSize: 12 }} onClick={() => onAddSkill(m)}>+ {m}</button>)}</span>

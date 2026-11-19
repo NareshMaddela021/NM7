@@ -11,6 +11,7 @@ import { headlineFacts } from '../../lib/linkedin/headlines';
 import { fromResumeData } from '../../lib/linkedin/profile';
 import Pack from './Pack';
 import { CopyButton, NoteBox } from './parts';
+import { IcLock } from '../../components/icons';
 
 const EMPTY = { name: '', city: '', role: '', education: [{ degree: '', school: '', year: '' }], work: [], skills: '', projects: '', certs: '' };
 const NEED = 'Add the job you want, a few skills or your degree, or pick one of your resumes.';
@@ -171,7 +172,7 @@ export default function CreatePath({ saved }) {
                       <CopyButton text={s.copy} testid={`li-copy-${s.id}`} />
                     </div>
                   )}
-                  {s.locked && <span className="xs muted" lang="en">🔒 {s.locked.title}: in the LinkedIn pack below</span>}
+                  {s.locked && <span className="xs muted row g4" style={{ alignItems: 'center' }} lang="en"><IcLock size={13} />{s.locked.title}: in the LinkedIn pack below</span>}
                 </li>
               ))}
             </ol>

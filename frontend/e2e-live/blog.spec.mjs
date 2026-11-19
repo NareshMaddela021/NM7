@@ -133,7 +133,7 @@ test('no posts yet: "First articles coming soon" and no blog strip on the home p
   const strip = page.getByRole('region', { name: 'From the blog' });
   await expect(strip.locator('.blog-card')).toHaveCount(3);
   await expect(strip.locator('.blog-card-title').first()).toHaveText('Your first resume as a fresher');
-  await strip.getByRole('link', { name: 'All articles →' }).click();
+  await strip.getByRole('link', { name: 'All articles' }).click();
   await expect(page).toHaveURL(/\/blog$/);
 });
 

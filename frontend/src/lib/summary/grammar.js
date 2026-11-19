@@ -20,14 +20,14 @@ export const withArticle = (word) => (word ? `${article(word)} ${word}` : '');
 // a job title that already says what kind of thing it is: "Data Analyst role", "driver job", "Sales position"
 const ROLE_WORD = /\s+(?:role|job|position|work|opening|vacancy|post)$/i;
 
-/** "Data Analyst" → "Data Analyst role" (or "… job" / "… work"); a title that already ends in role/job/… is kept. */
+/** "Data Analyst" -> "Data Analyst role" (or "… job" / "… work"); a title that already ends in role/job/… is kept. */
 export function roleNoun(title, word = 'role') {
   const t = (title || '').trim().replace(/[.,;:]+$/, '');
   if (!t) return '';
   return ROLE_WORD.test(t) ? t : `${t} ${word}`;
 }
 
-/** "Data Analyst role" → "Data Analyst": for "work as a Data Analyst". */
+/** "Data Analyst role" -> "Data Analyst": for "work as a Data Analyst". */
 export const bareRole = (title) => (title || '').trim().replace(/[.,;:]+$/, '').replace(ROLE_WORD, '');
 
 /** "Computer Science graduate (B.Tech)" / "Computer Science graduate (B.Tech, 2024)"; without a field, "B.Tech graduate". */

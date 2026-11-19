@@ -38,7 +38,7 @@ const RE = {
   email: /[\w.+-]+@[\w-]+(\.[\w-]+)+/,
   phoneCandidate: /\+?\d[\d\s().-]{8,}\d/g,
   linkedin: /linkedin\.com\/(in|pub)\//i,
-  bulletChar: /^[•●▪■◦‣\-*➢➤✓✔►▶○◆◇–]\s*/,
+  bulletChar: /^[•\u25CF\u25AA\u25A0\u25E6‣\-*\u27A2\u27A4\u2713\u2714\u25BA\u25B6\u25CB\u25C6\u25C7–]\s*/,
   weak: /^(responsible for|helped( with| in| to)?|worked (on|with|in)|assisted( in| with)?|involved in|participated in|duties (included|include)|tasked with|was part of|part of a team)\b/i,
   monthYear: new RegExp(`\\b(${MONTHS})\\.?\\s*[,']?\\s*((?:19|20)\\d{2}|'?\\d{2})\\b`, 'gi'),
   numMonth: /\b(0?[1-9]|1[0-2])[/.-]((?:19|20)\d{2})\b/g,
@@ -59,7 +59,7 @@ function headingOf(text) {
   const hit = HEADINGS.find(([, re]) => re.test(t));
   return hit ? hit[0] : null;
 }
-/** "SKILLS | SQL | Python" or "Skills: SQL, Python" → the heading key, when content follows on the same line. */
+/** "SKILLS | SQL | Python" or "Skills: SQL, Python" -> the heading key, when content follows on the same line. */
 function inlineHeadingOf(text) {
   const m = clean(text).match(/^([A-Za-z &]{3,40}?)\s*[:|]\s*(.{2,})$/);
   return m ? headingOf(m[1]) : null;

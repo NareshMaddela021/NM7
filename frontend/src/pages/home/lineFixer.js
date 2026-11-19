@@ -6,7 +6,7 @@ const STRONG = /^(built|led|created|improved|reduced|increased|designed|automate
 const skillCase = (t) => ALL_SKILLS.reduce((s, k) => s.replace(new RegExp(`\\b${k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'gi'), k), t);
 
 export function improveBullet(raw) {
-  let t = (raw || '').trim().replace(/^[•\-*▸–]\s*/, '').replace(/\.$/, '').replace(/\b(I|we|my|our)\s+/gi, '');
+  let t = (raw || '').trim().replace(/^[•\-*\u25B8–]\s*/, '').replace(/\.$/, '').replace(/\b(I|we|my|our)\s+/gi, '');
   const weak = Object.keys(VERB_FOR).find((w) => t.toLowerCase().startsWith(`${w} `));
   if (weak) t = `${VERB_FOR[weak]} ${t.slice(weak.length + 1)}`;
   t = skillCase(t).replace(/\bteam\b/i, 'team').replace(/\s{2,}/g, ' ');

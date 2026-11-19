@@ -75,7 +75,7 @@ export function keywordsFor(role) {
   (lists.length ? lists.flatMap((l) => l.keywords) : GENERAL).forEach(([label, pattern]) => {
     if (!seen.has(label.toLowerCase())) { seen.add(label.toLowerCase()); out.push([label, pattern]); }
   });
-  // A role we have no list for, e.g. "Supply Chain Analyst" → look for "supply chain" too
+  // A role we have no list for, e.g. "Supply Chain Analyst" -> look for "supply chain" too
   const words = r.replace(/[^a-z0-9+#.\s-]/g, ' ').split(/\s+/).filter((w) => w.length > 1 && !GENERIC_ROLE_WORDS.has(w));
   if (words.length && !lists.length) { // a known role's list already covers its own words ("data" in Data Analyst)
     const phrase = words.join(' ');

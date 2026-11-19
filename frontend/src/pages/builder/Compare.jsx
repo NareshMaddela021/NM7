@@ -3,7 +3,7 @@ import { buildSections } from './resumeModel';
 import { DEFAULT_DESIGN, TEMPLATE_PRESETS } from './design';
 import { stripBold } from '../../lib/bold';
 
-/** Section → printed lines, for the compare view. */
+/** Section -> printed lines, for the compare view. */
 export function sectionLines(data) {
   const ds = { ...DEFAULT_DESIGN, ...(data.design || TEMPLATE_PRESETS.fresher.design), layout: 'one' };
   const { main } = buildSections(data, ds);

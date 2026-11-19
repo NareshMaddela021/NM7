@@ -18,7 +18,7 @@ describe('vetting roles', () => {
   it('writes the badge line', () => {
     const at = Date.UTC(2026, 10, 10, 6);
     const sv = { test: 'Java', bandLabel: '3–5 years', score: 82, taskStars: 4.2, at, expired: false };
-    expect(badgeLine(sv)).toBe('✓ Skill verified · Java · 3–5 yrs band · 82/100 · task 4.2/5 · Nov 2026');
+    expect(badgeLine(sv)).toBe('Skill verified · Java · 3–5 yrs band · 82/100 · task 4.2/5 · Nov 2026');
     expect(badgeLine({ ...sv, taskStars: 4 })).toContain('task 4.0/5');
     expect(badgeLine({ ...sv, expired: true })).toMatch(/^Skill verified \(expired\) · Java/);
     expect(badgeLine(null)).toBe('');

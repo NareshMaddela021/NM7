@@ -1,7 +1,7 @@
 // Phase 6 S4: the salary guide, public at /salaries. Ranges by role, city and experience come only from Nm7's own job
-// posts (not demo, last 90 days, with a salary): shown only when enough jobs have one (Admin → Settings), with
+// posts (not demo, last 90 days, with a salary): shown only when enough jobs have one (Admin -> Settings), with
 // "based on X jobs". Otherwise "Not enough data yet". Nothing is estimated. English, Telugu and Hindi (sal.*).
-// Round D1: until enough roles have data (Admin → Settings) the page is hidden: no menu link, "noindex, follow", not in
+// Round D1: until enough roles have data (Admin -> Settings) the page is hidden: no menu link, "noindex, follow", not in
 // the sitemap; it still works for anyone who opens it. /salaries/:role shows one role (noindex while it lacks data).
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';

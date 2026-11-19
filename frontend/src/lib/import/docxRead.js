@@ -1,4 +1,4 @@
-// Word (.docx) and pasted text → the same "lines" the resume reader uses.
+// Word (.docx) and pasted text -> the same "lines" the resume reader uses.
 import { unzipSync, strFromU8 } from 'fflate';
 
 const ent = (s) => s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, '&');

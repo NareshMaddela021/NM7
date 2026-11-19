@@ -1,4 +1,4 @@
-// The job board helpers: filters ⇄ URL, salary and "posted … ago" text, and the Google JobPosting data (the fields
+// The job board helpers: filters <-> URL, salary and "posted … ago" text, and the Google JobPosting data (the fields
 // Google's Rich Results test needs, remote jobs, salary in INR, closed jobs without the markup).
 import { describe, expect, it } from 'vitest';
 import { translate } from './i18n';
@@ -89,7 +89,7 @@ describe('Google JobPosting', () => {
     expect(ld.jobLocation).toBeUndefined();
     expect(ld.validThrough).toBeUndefined();
   });
-  it('no salary → no baseSalary; one city → one Place; closed → no markup at all', () => {
+  it('no salary -> no baseSalary; one city -> one Place; closed -> no markup at all', () => {
     const ld = jobPostingJsonLd({ ...JOB, salary: null, locations: ['Chennai'] });
     expect(ld.baseSalary).toBeUndefined();
     expect(ld.jobLocation.address.addressLocality).toBe('Chennai');

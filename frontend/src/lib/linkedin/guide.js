@@ -70,7 +70,7 @@ function copyFor(id, c) {
 
 /**
  * The steps in a language, with copy text from `content` ({ headline, skills, experience, role }).
- * Experience is left out when the person has none. → [{ id, n, title, body, copy, locked, review }]
+ * Experience is left out when the person has none. -> [{ id, n, title, body, copy, locked, review }]
  */
 export function guideSteps(lang = 'en', content = {}) {
   const l = T.signup[lang] ? lang : 'en';

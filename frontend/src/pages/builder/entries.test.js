@@ -68,7 +68,7 @@ describe('renderers skip switched-off entries', () => {
     expect(sec(d, 'edu').items.map((x) => x.sub.split(' · ')[0])).toEqual(['IIT Madras']);
     expect(hiddenCount(d, 'edu')).toBe(1);
     d.edu = toggleItem(d.edu, 1);
-    expect(sec(d, 'edu')).toBeUndefined(); // all off → no heading
+    expect(sec(d, 'edu')).toBeUndefined(); // all off -> no heading
     expect(d.edu.map((x) => x.institution)).toEqual(['DAV School', 'IIT Madras']); // typed data kept
   });
   it('custom sections, languages, skills, hobbies and extra links', () => {
