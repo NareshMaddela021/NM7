@@ -18,7 +18,7 @@ const LINE_PATHS = {
 /** { fill: true, paths } for brand logos (filled), { fill: false, paths } for line icons (2/24 stroke). */
 export const iconShape = (key) => (BRANDS[key] ? { fill: true, paths: [BRANDS[key].path] } : { fill: false, paths: LINE_PATHS[key] || LINE_PATHS.link });
 
-/* ---------- SVG path data → absolute M / L / C / Z segments ---------- */
+/* ---------- SVG path data -> absolute M / L / C / Z segments ---------- */
 
 const NUM = /-?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?/gi;
 /** Splits "M3 7l9 6" into [['M', [3, 7]], ['l', [9, 6]]]; arc flags may be written without separators ("a2 2 0 012 2"). */
@@ -84,7 +84,7 @@ function arcToCubics(x1, y1, rx, ry, phi, large, sweep, x2, y2) {
   return out;
 }
 
-/** SVG path data → [['M', x, y] | ['L', x, y] | ['C', x1, y1, x2, y2, x, y] | ['Z']] in absolute coordinates. */
+/** SVG path data -> [['M', x, y] | ['L', x, y] | ['C', x1, y1, x2, y2, x, y] | ['Z']] in absolute coordinates. */
 export function pathSegments(d) {
   const segs = [];
   let x = 0; let y = 0; let sx = 0; let sy = 0; let lastC = null; let lastQ = null;

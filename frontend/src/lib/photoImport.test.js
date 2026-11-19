@@ -26,7 +26,7 @@ describe('Snap photos review', () => {
     const show = Object.fromEntries(r.fromId.map((x) => [x.key, x.show]));
     expect(show).toEqual({ name: true, city: true, state: true, address: false, dob: false, gender: false, guardian: false });
     expect(r.about.map((x) => x.key)).toEqual(['headline', 'phone']); // ID fields aren't repeated under "About you"
-    expect(r.skills.find((s) => s.text === 'Basic vehicle repair').check).toBe(true); // low confidence → "Please check"
+    expect(r.skills.find((s) => s.text === 'Basic vehicle repair').check).toBe(true); // low confidence -> "Please check"
   });
 
   it('builds a resume: personal details private, education off when none was found', () => {
@@ -75,7 +75,7 @@ describe('Snap photos review', () => {
     const { profile } = mergeIntoProfile(p, resumeToProfileParts(reviewToResume(toReview(RES), blankResume({}))));
     expect(profile.personal.name).toBe('Ramesh K'); // never overwritten
     expect(profile.personal.location).toBe('Secunderabad');
-    expect(profile.personal.phone).toBe('98765 43210'); // was empty → added
+    expect(profile.personal.phone).toBe('98765 43210'); // was empty -> added
     expect(profile.skillGroups[0].value).toBe('LMV driving licence, Basic vehicle repair');
     expect(profile.exp[0].company).toBe('Sri Sai Transports');
   });

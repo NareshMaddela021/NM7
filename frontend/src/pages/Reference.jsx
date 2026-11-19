@@ -1,7 +1,7 @@
 // /reference#t=… (Vetting V4): the page a referee opens from their email, no account needed. Who asked (the
 // candidate's first name and how they know them), then 5 short questions: their role, when they worked together,
 // "Would you hire or work with them again?" as three big buttons (Yes / Maybe / No), what they are best at and
-// anything else (optional). Send → thank you. Already answered → thank you. A bad or old link → "This link doesn't
+// anything else (optional). Send -> thank you. Already answered -> thank you. A bad or old link -> "This link doesn't
 // work". The token is in the address fragment, so it never reaches server logs.
 // GET/POST /api/public/reference/{token}.
 import { useEffect, useState } from 'react';

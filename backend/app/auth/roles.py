@@ -87,7 +87,7 @@ async def add_roles(body: RolesIn, auth: CurrentAuth, db: DB) -> UserOut:
 async def switch_role(body: SwitchIn, auth: CurrentAuth, db: DB) -> UserOut:
     user = _individual(auth)
     if body.role not in user.individual_roles:
-        raise ApiError(400, "no_such_role", "Add this role first (account menu → Add another role).")
+        raise ApiError(400, "no_such_role", "Add this role first (account menu > Add another role).")
     if body.role != user.current_role:
         user = await _save(
             db, user, {"roles": user.individual_roles, "active_role": body.role, "role": account_type(body.role)}

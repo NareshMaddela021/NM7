@@ -12,7 +12,7 @@ const clean = (s) => String(stripBold(s) ?? '').replace(/[ \t]+/g, ' ').replace(
 const list = (v) => (Array.isArray(v) ? v : String(v || '').split(/[,\n;•·|]+/)).map((x) => clean(x).replace(/^[-*]\s*/, '')).filter(Boolean);
 const ym = (v) => { const m = String(v || '').match(/^(\d{4})(?:-(\d{2}))?/); return m ? m[1] : ''; };
 
-/** 'linkedin.com/in/ravi-kumar' → 'https://www.linkedin.com/in/ravi-kumar'; '' for an empty box; null when invalid. */
+/** 'linkedin.com/in/ravi-kumar' -> 'https://www.linkedin.com/in/ravi-kumar'; '' for an empty box; null when invalid. */
 export function normalizeUrl(v) {
   const t = String(v || '').trim();
   if (!t) return '';
@@ -29,7 +29,7 @@ export function isCustomUrl(url) {
   return !(/-[a-z0-9]{6,}$/.test(slug) && /\d/.test(slug.split('-').pop())) && !/^\d+$/.test(slug);
 }
 
-/** Resume-shaped data (an Nm7 resume, or what the LinkedIn PDF reader returns) → profile sections. */
+/** Resume-shaped data (an Nm7 resume, or what the LinkedIn PDF reader returns) -> profile sections. */
 export function fromResumeData(d) {
   if (!d) return emptySections();
   const on = (arr, sec) => (d.hidden?.[sec] ? [] : (arr || []).filter((x) => x && !x.off));
@@ -53,7 +53,7 @@ export function fromResumeData(d) {
 
 export const emptySections = () => ({ headline: '', about: '', location: '', experience: [], skills: [], education: [], certs: [], projects: [] });
 
-/** Pasted boxes → sections. Experience: one role per block (a blank line between roles); the first line is the title. */
+/** Pasted boxes -> sections. Experience: one role per block (a blank line between roles); the first line is the title. */
 export function fromPaste({ headline = '', about = '', experience = '', skills = '', education = '' } = {}) {
   const blocks = String(experience || '').split(/\n\s*\n/).map((b) => b.trim()).filter(Boolean);
   return {

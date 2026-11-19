@@ -17,7 +17,7 @@ export * from '../speechCore';
 
 const ALL_SPEECH = dictionary.speechLanguages; // [[code, label], …], en-IN first
 const HIDDEN = /^(te|hi)-/;
-/** The languages to speak in: without Telugu and Hindi while they are hidden (Admin → Settings). */
+/** The languages to speak in: without Telugu and Hindi while they are hidden (Admin -> Settings). */
 export const speechLanguages = () => (langsShown() ? ALL_SPEECH : ALL_SPEECH.filter(([c]) => !HIDDEN.test(c)));
 export const SPEECH_LANGUAGES = ALL_SPEECH;
 export const LANG_KEY = 'nm7.speechLang';

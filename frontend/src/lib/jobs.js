@@ -33,7 +33,7 @@ export const makeInterview = (id, useAi = true) => http(`${J}/matches/${encodeUR
 export const getInterview = (id) => http(`${J}/matches/${encodeURIComponent(id)}/interview`);
 export const practise = (id, body) => http(`${J}/matches/${encodeURIComponent(id)}/interview/practice`, { method: 'POST', body, timeout: 60_000 });
 
-/** A screenshot of a job post → its text (read on the server; the picture isn't kept). */
+/** A screenshot of a job post -> its text (read on the server; the picture isn't kept). */
 export async function readScreenshot(file) {
   const p = await preparePhoto(file);
   if (p.error) throw new ApiError(400, 'bad_image', p.error);
@@ -41,7 +41,7 @@ export async function readScreenshot(file) {
   return r.text;
 }
 
-/** A PDF of a job post → its text, read in this browser. */
+/** A PDF of a job post -> its text, read in this browser. */
 export async function readPdfText(file) {
   if (file.size > 10 * 1024 * 1024) throw new ApiError(400, 'too_large', 'This PDF is over 10 MB. Please paste the job post text instead.');
   const { loadPdfjs } = await import('./import/index');

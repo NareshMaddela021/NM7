@@ -33,7 +33,7 @@ function Student({ base, id, onBack }) {
   // round P, Phase 4: the resume on a paper frame beside a decision card, the comment form and the comments so far
   return (
     <div className="rv-student" data-testid="rv-student">
-      <button type="button" className="btn btn-ghost rv-back" onClick={onBack}>← My students</button>
+      <button type="button" className="btn btn-ghost rv-back" onClick={onBack}>My students</button>
       <div className="mcard rv-head">
         <span className="mavatar ot-av" aria-hidden="true">{(x.name || '?').trim().charAt(0).toUpperCase()}</span>
         <strong className="rv-name">{x.name}</strong>

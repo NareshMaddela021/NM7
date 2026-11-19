@@ -143,7 +143,7 @@ describe('headlines (rules)', () => {
       expect(headlineOk(h, f)).toBe(true);
     }
   });
-  it('the free before → after differs from the current headline', () => {
+  it('the free before -> after differs from the current headline', () => {
     const f = headlineFacts({ sections: fromResumeData(PDF_DATA), role: 'Data Analyst' });
     const after = improveHeadline('Student at JNTU Hyderabad', f);
     expect(after).toMatch(/^Data Analyst \| /);

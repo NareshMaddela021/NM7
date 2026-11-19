@@ -277,22 +277,22 @@ def reminder_email(u: dict[str, Any], days: int) -> Email:
     lines = [
         f"Hi {first},",
         "",
-        f"Still looking? Tap to confirm, and companies hiring now see you as ⚡ ready now for the next {days} days:",
+        f"Still looking? Tap to confirm, and companies hiring now see you as ready now for the next {days} days:",
         yes,
         "",
         f"Changed your plans? Update or pause it here: {edit}",
-        "If you do nothing, you lose ⚡ ready now; after 3 weeks companies stop seeing you until you confirm. "
+        "If you do nothing, you lose “ready now”; after 3 weeks companies stop seeing you until you confirm. "
         "Nothing is deleted.",
         "",
         "Nm7 · nm7.si",
     ]
     html = (
         f'<div style="{STYLE}"><p>Hi {escape(first)},</p><p>Still looking? Tap to confirm, and companies hiring now '
-        f"see you as ⚡ ready now for the next {days} days:</p>"
+        f"see you as ready now for the next {days} days:</p>"
         f'<p><a href="{escape(yes)}" style="display:inline-block;padding:10px 18px;background:#111;color:#fff;'
         f'border-radius:8px;text-decoration:none">Still ready</a></p>'
         f'<p style="color:#666;font-size:13px">Changed your plans? <a href="{escape(edit)}">Update or pause it</a>. '
-        "If you do nothing, you lose ⚡ ready now; after 3 weeks companies stop seeing you until you confirm. "
+        "If you do nothing, you lose “ready now”; after 3 weeks companies stop seeing you until you confirm. "
         "Nothing is deleted.</p></div>"
     )
     subject = "Still looking? Tap to confirm"

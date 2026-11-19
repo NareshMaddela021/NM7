@@ -13,7 +13,7 @@ describe('profile strength matches the ticks', () => {
     const all = Object.fromEntries(Object.keys(SCORE_WEIGHTS).map((k) => [k, true]));
     expect(strengthOf(all, STEPS)).toBe(100);
     for (const k of Object.keys(SCORE_WEIGHTS)) expect(strengthOf({ ...all, [k]: false }, STEPS), k).toBeLessThan(100);
-    // the reported case: Achievements and Review & Submit unticked → 92, not 95 or 100
+    // the reported case: Achievements and Review & Submit unticked -> 92, not 95 or 100
     expect(strengthOf({ ...all, ach: false, review: false }, STEPS)).toBe(92);
     expect(strengthOf({}, STEPS)).toBe(0);
     // optional steps never change the score

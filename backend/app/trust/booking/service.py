@@ -509,7 +509,7 @@ async def cant_make_it(db, link: dict[str, Any], reason: str, mailer: Mailer | N
     company, role = await _names(db, link["company_id"], link["job_id"])
     if mine.get("by"):
         text = (f"{u.get('name') or 'The candidate'} says they can’t make it to the interview for {role} on {when_text(mine['starts_at'])} IST.\n"
-                f"Reason: {reason.strip()}\n\nThe time is still booked: cancel it or agree a new time with them on Nm7 (Hire → Interview times).")  # fmt: skip
+                f"Reason: {reason.strip()}\n\nThe time is still booked: cancel it or agree a new time with them on Nm7 (Hire > Interview times).")  # fmt: skip
         await _mail(
             db,
             mailer,
@@ -621,7 +621,7 @@ async def join_act(db, link: dict[str, Any], action: str, reason: str, mailer: M
     await join_event(db, o, "candidate", "reschedule", "link", reason.strip())
     if o.get("by"):
         text = (f"{o.get('candidate_name') or 'Your new hire'} asks to move their joining day ({date.fromisoformat(o['join_date']).strftime('%-d %b')}) for {o['title']}.\n"
-                f"What they said: {reason.strip()}\n\nPlease reply to them on Nm7 (Hire → Offers).")  # fmt: skip
+                f"What they said: {reason.strip()}\n\nPlease reply to them on Nm7 (Hire > Offers).")  # fmt: skip
         await _mail(
             db,
             mailer,

@@ -32,7 +32,7 @@ export function getIndex() {
 }
 
 const STALE_MS = 10 * 60 * 1000;
-/** A missed or old build must never hide posts: no posts, no date, or built over 10 minutes ago → ask Hygraph too. */
+/** A missed or old build must never hide posts: no posts, no date, or built over 10 minutes ago -> ask Hygraph too. */
 export const needsLive = (idx, now = Date.now()) => !idx?.live && (!idx?.posts?.length || !idx.builtAt || now - Date.parse(idx.builtAt) > STALE_MS);
 
 let live = null;

@@ -131,7 +131,7 @@ for (const [label, size] of [['desktop', { width: 1280, height: 900 }], ['phone'
     const noteBox = page.getByLabel(/Tell us about yourself/);
     await noteBox.fill('I am Angelin');
     // the tip and the language picker (full locale codes, English + mixed first)
-    await expect(writer.getByTestId('sw-tip')).toHaveText('Tip: you can also use your phone keyboard’s mic 🎤');
+    await expect(writer.getByTestId('sw-tip')).toHaveText('Tip: you can also use your phone keyboard’s mic.');
     const picker = writer.getByLabel('Speaking language');
     await expect(picker).toHaveValue('en-IN');
     expect(await picker.locator('option').evaluateAll((os) => os.map((o) => [o.value, o.textContent]))).toEqual([

@@ -3,10 +3,10 @@
 // The files are built in the browser, so `exportFile` asks the server first (POST /api/me/exports) and only then
 // builds and saves the file. Every download button goes through it — the builder, the dashboard (/me, My resumes,
 // Cover letters) and the share page — so there is no other path to a file.
-//   guests            → 401 → "Create a free account to download your resume"
-//   payments are off  → every signed-in account downloads free (no paywall shown)
-//   payments are on   → 402 until the account has paid for any plan → "Unlock downloads - Rs 99 one-time"
-//   admins            → always (for checking files)
+//   guests            -> 401 -> "Create a free account to download your resume"
+//   payments are off  -> every signed-in account downloads free (no paywall shown)
+//   payments are on   -> 402 until the account has paid for any plan -> "Unlock downloads - Rs 99 one-time"
+//   admins            -> always (for checking files)
 // Preview builds (no server) have no payments: guests need an account, everyone signed in downloads.
 import { http, LIVE } from '../services/http';
 import { currentUser } from './auth';

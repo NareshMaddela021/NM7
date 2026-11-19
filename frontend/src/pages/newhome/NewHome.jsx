@@ -17,6 +17,7 @@ import ParticleStage from './ParticleStage';
 import GlassWidget, { reducedMotion } from './GlassWidget';
 import { AUDIENCES, EXPERIENCE_TEXT, FAQ, HERO_HEADLINE, HERO_HIGHLIGHT, HIRE_MINUTES, JOB_CHIPS, META, SECTIONS, TAGLINE, TRUST, audienceFor, structuredData, widgetFor } from './content';
 import './newhome.css';
+import { IcArrowRight } from '../../components/icons';
 
 const en = (k, v) => translate('en', k, v);
 
@@ -208,7 +209,7 @@ function Cards({ cards }) {
         <article key={c.title} className="nh-card nh-reveal" style={{ '--i': i }}>
           <h3>{c.title}</h3>
           <p>{c.text}</p>
-          {c.to && <Link to={c.to} className="nh-card-link">{c.link} <span aria-hidden="true">→</span></Link>}
+          {c.to && <Link to={c.to} className="nh-card-link">{c.link} <IcArrowRight size={16} /></Link>}
         </article>
       ))}
     </div>
@@ -311,7 +312,7 @@ function LiveJobs({ live }) {
                     {!!shown.skills?.length && <><dt>Skills</dt><dd>{shown.skills.slice(0, 6).join(', ')}</dd></>}
                     {shown.fromCareersPage && <><dt>Source</dt><dd>Company careers page</dd></>}
                   </dl>
-                  <Link to={`/jobs/${shown.slug}`} className="nh-card-link">View this job <span aria-hidden="true">→</span></Link>
+                  <Link to={`/jobs/${shown.slug}`} className="nh-card-link">View this job <IcArrowRight size={16} /></Link>
                 </aside>
               )}
             </div>

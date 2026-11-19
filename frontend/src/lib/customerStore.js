@@ -286,7 +286,7 @@ export async function forgetMe() {
   notify();
 }
 onSignOut(forgetMe);
-/** Profile & settings → Save. Live: saved on the server first (the email can't be changed here). */
+/** Profile & settings -> Save. Live: saved on the server first (the email can't be changed here). */
 export async function saveProfile(account) {
   if (!LIVE) { setMe(() => ({ account })); return; }
   const p = await http('/api/me/profile', { method: 'PATCH', body: { name: account.name, phone: account.phone || null, targetRole: account.targetRole || '', cities: account.cities || '', level: account.level || '' } });
@@ -482,7 +482,7 @@ export function placeOrder({ plan, role, method, id: serverId, invoice: serverIn
   addExpertOrder({ id, customer: u?.name || s.account.name, customerId: u?.id || SAMPLE_USER_ID, plan, price: PLANS[plan].price, role: role || s.account.targetRole || 'Not set', domain: '', level: s.account.level || 'Fresher', createdAt: t, deadline: t + PROMISES.deliveryHours * H, status: 'offer', offerExpires: t + 30 * 60 * 1000, intake: {}, jd: '', original: a.data, versions: [], comments: [], messages: [], linkedin: null, call: null, rating: null });
   return id;
 }
-/** Late → refunded at once; otherwise our team reviews it within 24 hours (it shows in the admin support inbox). */
+/** Late -> refunded at once; otherwise our team reviews it within 24 hours (it shows in the admin support inbox). */
 /** `decided` (live app) is the server's answer { ref, autoApproved, amount }; without it the browser decides. */
 export function askRefund(orderId, { reason, details }, decided = null) {
   if (LIVE) { reloadMe(); reloadExpertOrders(); return decided; } // the server decided and saved it
@@ -539,7 +539,7 @@ export function decideRefund(key, orderId, approve, reply) {
   if (approve && findOrder(orderId)) updateExpertOrder(orderId, (y) => ({ status: 'cancelled', messages: [...(y.messages || []), { from: 'system', text: 'Order refunded after review.', at: Date.now() }] }));
 }
 
-/** Cancel before an expert accepts → full refund at once. */
+/** Cancel before an expert accepts -> full refund at once. */
 export function cancelOrder(orderId) {
   if (LIVE) return requestRefund(orderId, { reason: 'cancel', details: '' }).then(() => { reloadMe(); reloadExpertOrders(); return true; });
   const o = get().orders.find((x) => x.id === orderId); const x = findOrder(orderId);

@@ -1,4 +1,4 @@
-// Target role → the words recruiters search for on LinkedIn. The role comes from the role box, else the headline.
+// Target role -> the words recruiters search for on LinkedIn. The role comes from the role box, else the headline.
 // A keyword counts as present when it appears (whole word, any case) anywhere in the profile text.
 
 export const ROLES = [

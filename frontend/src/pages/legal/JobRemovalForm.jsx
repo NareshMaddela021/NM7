@@ -1,5 +1,5 @@
 // Round J: "Request removal of this job" (/contact?topic=job-removal, linked from every job found on a company's
-// careers page). Company name, job link, email, reason → Admin → Jobs → Removal requests; one click closes the job.
+// careers page). Company name, job link, email, reason -> Admin -> Jobs -> Removal requests; one click closes the job.
 // No pop-up dialogs.
 import { useState } from 'react';
 import { http } from '../../services/http';

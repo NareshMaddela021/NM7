@@ -34,7 +34,7 @@ export function fallbackNotice(err) {
 
 /**
  * `count` headlines: AI's (each checked again here) topped up with rule-based ones. Never throws except when the
- * person cancels. → { headlines, ai (how many came from AI), notice }
+ * person cancels. -> { headlines, ai (how many came from AI), notice }
  */
 export async function writeHeadlines(facts, { note = '', count = 5, current = '', signal } = {}) {
   const rules = headlineOptions(facts, count + 2);

@@ -48,7 +48,7 @@ class Greenhouse(Adapter):
             "api_key",
             "Job Board API key",
             secret=True,
-            help="Greenhouse → Configure → Dev Center → API Credential Management → Create new API key → "
+            help="Greenhouse > Configure > Dev Center > API Credential Management > Create new API key > "
             "API type “Job Board”.",
         ),
         Field(
@@ -61,7 +61,7 @@ class Greenhouse(Adapter):
         ),
     ]
     how = (
-        "A Greenhouse admin creates the keys under Configure → Dev Center → API Credential Management. The Job "
+        "A Greenhouse admin creates the keys under Configure > Dev Center > API Credential Management. The Job "
         "Board key sends applications; the optional Harvest key lets Nm7 read their status."
     )
     status_ready_field = "harvest_key"
@@ -148,18 +148,18 @@ class Lever(Adapter):
             "api_key",
             "Postings API key",
             secret=True,
-            help="Lever → Settings → Integrations and API → API Credentials → Postings API → Generate new key.",
+            help="Lever > Settings > Integrations and API > API Credentials > Postings API > Generate new key.",
         ),
         Field(
             "lever_key",
             "Lever API key (optional, for status updates)",
             secret=True,
             required=False,
-            help="Same page, Lever API → Generate new key, read access to Opportunities and Archive reasons.",
+            help="Same page, Lever API > Generate new key, read access to Opportunities and Archive reasons.",
         ),
     ]
     how = (
-        "A Lever super admin creates the keys under Settings → Integrations and API → API Credentials. The Postings "
+        "A Lever super admin creates the keys under Settings > Integrations and API > API Credentials. The Postings "
         "key sends applications; the optional Lever API key lets Nm7 read their status."
     )
     status_ready_field = "lever_key"
@@ -246,13 +246,13 @@ class Zoho(Adapter):
             ],
             pattern=r"^(com|in|eu|com\.au|jp|ca|sa)$",
         ),
-        Field("client_id", "Client ID", secret=True, help="Zoho API Console → Self Client → Client Secret tab."),
+        Field("client_id", "Client ID", secret=True, help="Zoho API Console > Self Client > Client Secret tab."),
         Field("client_secret", "Client secret", secret=True, help="Same tab as the Client ID."),
         Field(
             "code",
             "One-time code",
             secret=True,
-            help="Self Client → Generate Code, scope ZohoRecruit.modules.ALL, 10 minutes. Paste it here straight "
+            help="Self Client > Generate Code, scope ZohoRecruit.modules.ALL, 10 minutes. Paste it here straight "
             "away: Nm7 swaps it once for a lasting token.",
         ),
     ]

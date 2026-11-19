@@ -3,7 +3,7 @@
 import { sectionLines } from '../pages/builder/Compare';
 import { TEMPLATE_PRESETS } from '../pages/builder/design';
 
-/** Longest common subsequence of two lists → [{ op: 'same' | 'del' | 'add', a?, b? }] in order. */
+/** Longest common subsequence of two lists -> [{ op: 'same' | 'del' | 'add', a?, b? }] in order. */
 export function align(A, B, eq = (x, y) => x === y) {
   const n = A.length; const m = B.length;
   const L = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
@@ -31,7 +31,7 @@ export function similarity(a, b) {
   return both / (A.size + B.size - both);
 }
 
-/** Word-level changes inside one line → { a: [{ t, op }], b: [{ t, op }] } (op: same | del | add) */
+/** Word-level changes inside one line -> { a: [{ t, op }], b: [{ t, op }] } (op: same | del | add) */
 export function wordDiff(a, b) {
   const steps = align(toks(a), toks(b));
   return {

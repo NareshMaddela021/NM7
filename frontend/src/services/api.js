@@ -21,7 +21,7 @@ export async function scanResume(source, role, onStep) {
 }
 
 /* ---------- Orders & payment ---------- */
-/** POST /api/orders { planId, role, addons } → { orderId, razorpayOrderId, amount (paise), currency, keyId, … } */
+/** POST /api/orders { planId, role, addons } -> { orderId, razorpayOrderId, amount (paise), currency, keyId, … } */
 export async function createOrder({ planId, role, addons = [], code, billing }) {
   if (LIVE) return http('/api/orders', { method: 'POST', body: { planId, role: role || null, addons, ...(code ? { code } : {}), ...(billing ? { billing } : {}) } });
   await wait(400);
@@ -89,7 +89,7 @@ export async function submitIntake(id, intake, role) {
 }
 
 /**
- * POST /api/orders/:id/refund { reason, details } — the server decides (late → refunded at once, else reviewed).
+ * POST /api/orders/:id/refund { reason, details } — the server decides (late -> refunded at once, else reviewed).
  * Live: resolves with { ref, autoApproved, amount (₹) }. Preview: null (the browser decides, see askRefund).
  */
 export async function requestRefund(id, { reason, details }) {
@@ -118,7 +118,7 @@ export async function getExpertOrders() { await wait(200); return LIVE ? [] : EX
 // Real: POST /api/expert/orders/:id/draft
 export async function sendDraft(id) { await wait(600); return { ok: true, id }; }
 export async function getEarnings() { await wait(200); return LIVE ? null : EARNINGS; }
-// Real: POST /api/expert/withdraw { amount } → Razorpay payout
+// Real: POST /api/expert/withdraw { amount } -> Razorpay payout
 export async function withdraw(amount) { await wait(1200); return { ok: true, amount }; }
 
 /* ---------- Admin ---------- */
@@ -128,7 +128,7 @@ export async function assignExpert(orderId, expertId) { await wait(300); return 
 
 /**
  * Resume / LinkedIn import. In this frontend-only version the file is read in the browser
- * (src/lib/import). Real endpoint later: POST /api/resume/parse (multipart file) → same shape as
+ * (src/lib/import). Real endpoint later: POST /api/resume/parse (multipart file) -> same shape as
  * importResume() returns, adding OCR for scanned files and an AI check of every field.
  */
 export async function parseResumeOnServer(file) {
@@ -138,9 +138,9 @@ export async function parseResumeOnServer(file) {
 
 /* ---------- asuraa.ai profile link (experts already on asuraa.ai) ---------- */
 // Real (needs two small endpoints on asuraa.ai, called from the Nm7 BACKEND, never the browser):
-//   GET  https://asuraa.ai/api/public/profile/{username}           → public profile fields
-//   POST https://asuraa.ai/api/public/profile/{username}/verify    → sends a 6-digit code to the account's email/phone
-//   POST https://asuraa.ai/api/public/profile/{username}/verify/check { code } → { ok }
+//   GET  https://asuraa.ai/api/public/profile/{username}           -> public profile fields
+//   POST https://asuraa.ai/api/public/profile/{username}/verify    -> sends a 6-digit code to the account's email/phone
+//   POST https://asuraa.ai/api/public/profile/{username}/verify/check { code } -> { ok }
 // Nm7 exposes them as: GET /api/experts/asuraa-ai/{username}, POST …/send-code, POST …/check-code
 /** Linking an asuraa.ai profile needs those endpoints; until they exist it only works in the preview build. */
 export const ASURAA_AI_LINK = !LIVE;

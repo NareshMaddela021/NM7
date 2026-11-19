@@ -19,7 +19,7 @@ export function emptyResult(source) {
 
 /** Sorts a flat skill list into the builder's 4 categories (unknown ones go to Core). */
 export function groupSkills(R, list, label) {
-  const clean = list.map((s) => s.replace(/^[•●▪■◦‣\-*➢➤✓✔►▶]\s*/, '').replace(/[.;]$/, '').trim()).filter((s) => s && s.length < 60);
+  const clean = list.map((s) => s.replace(/^[•\u25CF\u25AA\u25A0\u25E6‣\-*\u27A2\u27A4\u2713\u2714\u25BA\u25B6]\s*/, '').replace(/[.;]$/, '').trim()).filter((s) => s && s.length < 60);
   if (!clean.length) return;
   if (label) { R.data.skillGroups.push({ id: `g_${R.data.skillGroups.length}_${Date.now()}`, label, value: clean.join(', ') }); return; }
   const by = {};
@@ -32,7 +32,7 @@ export function groupSkills(R, list, label) {
   });
 }
 
-/** "B. Tech in ECE" / "Bachelor of Technology - BTech, Electronics" → { degree, field } */
+/** "B. Tech in ECE" / "Bachelor of Technology - BTech, Electronics" -> { degree, field } */
 export function splitDegree(text) {
   const t = text.replace(/\s+/g, ' ').replace(/[,\s·-]+$/, '').trim();
   const fix = (x) => x.replace(/\b([BM])\.\s+(Tech|Sc|Com|E|A)\b/g, '$1.$2');

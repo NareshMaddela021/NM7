@@ -28,7 +28,7 @@ export function searchJobs(filters = {}, page = 1) {
 
 export const getJob = (slug) => http(`/api/jobs/${encodeURIComponent(slug)}`);
 
-/* ---------- filters ⇄ URL ---------- */
+/* ---------- filters <-> URL ---------- */
 
 const KEYS = ['q', 'experience', 'city', 'jobType', 'workType', 'salary', 'posted', 'support', 'sort'];
 // Phase 6 S9: returning after a break, immediate joiners, inclusive employers (declared by the company), accessible workplaces
@@ -49,7 +49,7 @@ export function fromQuery(search) {
   return Object.fromEntries(Object.entries(f).filter(([, v]) => v));
 }
 
-/** Filters → URL query values (only the ones set), in a fixed order. */
+/** Filters -> URL query values (only the ones set), in a fixed order. */
 export function toQuery(f = {}) {
   const out = {};
   for (const k of KEYS) {
@@ -100,7 +100,7 @@ const MONTHS = { '1_3': 12, '3_5': 36, '5_8': 60, '8_12': 96, '12_15': 144, '15_
 const escHtml = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const iso = (ms) => new Date(ms).toISOString();
 
-/** Plain text with line breaks → simple HTML paragraphs (Google shows the description as HTML). */
+/** Plain text with line breaks -> simple HTML paragraphs (Google shows the description as HTML). */
 export const descriptionHtml = (text) => String(text || '').trim().split(/\n\s*\n/).map((p) => `<p>${escHtml(p).replace(/\n/g, '<br>')}</p>`).join('');
 
 /** The JobPosting for an active job; null for a closed one (Google: take the markup off a job that has ended). */
@@ -206,9 +206,9 @@ export function useSaved() {
   return { has: (id) => !!saved?.has(id), count: saved ? saved.size : 0, loaded: !!saved };
 }
 
-/* ---------- applied jobs (signed in): "Applied ✓" on every job card ---------- */
+/* ---------- applied jobs (signed in): "Applied" on every job card ---------- */
 
-let applied = null; // Map of job id → status, or null until loaded
+let applied = null; // Map of job id -> status, or null until loaded
 let appliedVersion = 0;
 const appliedSubs = new Set();
 const appliedEmit = () => { appliedVersion += 1; appliedSubs.forEach((f) => f()); };
@@ -228,7 +228,7 @@ export function loadApplied(uid = '', force = false) {
   return appliedLoading;
 }
 export function resetApplied() { applied = null; appliedEmit(); }
-/** After an application was sent: every card for this job shows "Applied ✓" at once. */
+/** After an application was sent: every card for this job shows "Applied" at once. */
 export function markApplied(id, status = 'applied') { applied = new Map(applied || []); applied.set(id, status); appliedEmit(); }
 /** { has(id), status(id), loaded } — re-renders when it changes. */
 export function useApplied() {
@@ -238,7 +238,7 @@ export function useApplied() {
 
 /* ---------- the match score (J4) ---------- */
 
-/** A match → { good: ["Matches 4 of 5 skills", "Fresher OK", "In Hyderabad"], gaps: ["Asks for 3+ years"] }. */
+/** A match -> { good: ["Matches 4 of 5 skills", "Fresher OK", "In Hyderabad"], gaps: ["Asks for 3+ years"] }. */
 export function matchReasons(m, t) {
   const good = []; const gaps = [];
   if (!m) return { good, gaps };
@@ -258,7 +258,7 @@ export function matchReasons(m, t) {
 
 /* ---------- Manual Apply (J5) ---------- */
 
-/** Applies (signed in). → { method, created, application, url? (link), email? {to, subject, body} } */
+/** Applies (signed in). -> { method, created, application, url? (link), email? {to, subject, body} } */
 export const applyToJob = (id, resumeId = null, extra = {}) => http(`/api/jobs/${encodeURIComponent(id)}/apply`, { method: 'POST', body: { resumeId, ...extra } }); // extra: {consent, answers} for company jobs (C5)
 
 /** The mailto: link for an email application (subject and letter filled in). */

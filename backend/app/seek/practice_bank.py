@@ -31,7 +31,7 @@ SETS: dict[str, dict] = {
             ("Series", "What comes next: 2, 6, 12, 20, 30, ?", ["36", "40", "42", "44"], 2, "The gaps grow by 2 (4, 6, 8, 10), so the next gap is 12: 30 + 12 = 42."),
             ("Series", "What comes next: 3, 9, 27, 81, ?", ["108", "162", "243", "324"], 2, "Each number is 3 times the one before: 81 × 3 = 243."),
             ("Series", "What comes next: A, C, E, G, ?", ["H", "I", "J", "K"], 1, "Every second letter is skipped: G, (H), I."),
-            ("Coding-decoding", "If CAT is written as DBU, how is DOG written?", ["CNF", "DPG", "EPH", "FQI"], 2, "Each letter moves one step forward: D→E, O→P, G→H."),
+            ("Coding-decoding", "If CAT is written as DBU, how is DOG written?", ["CNF", "DPG", "EPH", "FQI"], 2, "Each letter moves one step forward: D to E, O to P, G to H."),
             ("Directions", "Ravi walks 5 km north, turns right and walks 3 km, then turns right again and walks 5 km. Where is he from the start?", ["3 km east", "3 km west", "5 km north", "8 km south"], 0, "North 5, east 3, south 5: the north and south cancel, leaving 3 km east."),
             ("Blood relations", "Meena's father's only son is Arjun. Who is Arjun to Meena?", ["Brother", "Father", "Uncle", "Cousin"], 0, "Her father's son is her brother."),
             ("Odd one out", "Which is the odd one out: Apple, Mango, Potato, Banana?", ["Apple", "Mango", "Potato", "Banana"], 2, "Potato is a vegetable; the others are fruits."),
