@@ -167,6 +167,7 @@ TRUST_AGENT_PREFS = "trust_agent_prefs"  # T5: _id = user id: WhatsApp / call ch
 TRUST_AGENT_CONVOS = "trust_agent_convos"  # T5: one per job × candidate: the WhatsApp / AI call flow, answers, slot
 TRUST_AGENT_EVENTS = "trust_agent_events"  # T5: one row per contact / reply / call / booking / opt-out (counts, caps)
 TRUST_AGENT_LOGS = "trust_agent_logs"  # T5: "What we said": message and call transcript text (consent; 90 days)
+TRUST_WORK_PREFS = "trust_work_prefs"  # T6: _id = user id: Work preferences (self-declared) and the coarse location pin
 TRUST_FACE = "trust_face"  # T3: _id = user id: the ID + selfie result, retries, review, joining check (never photos)
 LEARN_PATHS = "learn_paths"  # Phase 6 S2, _id = role id: courses → project → skill check (Admin → Learning paths)
 OFFER_CHECKS = (
@@ -297,6 +298,7 @@ COLLECTIONS = (
     TRUST_AGENT_CONVOS,
     TRUST_AGENT_EVENTS,
     TRUST_AGENT_LOGS,
+    TRUST_WORK_PREFS,
     VETTING_L4,
     VETTING_REVIEWERS,
     VETTING_INTERVIEWS,
@@ -503,6 +505,7 @@ INDEXES: dict[str, list[IndexModel]] = {
     ],  # fmt: skip
     TRUST_EMPLOYER_LOOKUPS: [IndexModel("at"), IndexModel([("company_id", ASCENDING), ("at", DESCENDING)])],
     TRUST_AGENT_PREFS: [IndexModel("wa_id"), IndexModel("updated_at")],
+    TRUST_WORK_PREFS: [IndexModel("updated_at"), IndexModel("location.at", sparse=True)],
     TRUST_AGENT_CONVOS: [
         IndexModel([("job_id", ASCENDING), ("user_id", ASCENDING)], unique=True),
         IndexModel([("state", ASCENDING), ("next_at", ASCENDING)]),

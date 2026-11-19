@@ -63,7 +63,7 @@ def job_page(j: dict[str, Any]) -> str:
 class ApplyIn(CamelModel):
     resume_id: str | None = Field(None, max_length=40)
     consent: bool = False  # company jobs on Nm7: "share my resume and answers with <company>" (C5)
-    answers: dict[str, str | int] = Field(default_factory=dict, max_length=5)
+    answers: dict[str, str | int] = Field(default_factory=dict, max_length=8)  # T6: up to 8 questions
 
 
 async def _resume(db, user_id: str, key: str | None) -> dict[str, Any] | None:
@@ -111,13 +111,26 @@ async def apply(job_id: str, body: ApplyIn, auth: CustomerAuth, db: DB) -> dict[
             raise ApiError(400, "consent", f"Tick the box to share your resume with {j['company']['name']}.")
         if not resume:
             raise ApiError(400, "no_resume", "Make a resume first: the company sees the resume you apply with.")
+        from app.trust import access as trust_access
+
         qs = j.get("questions") or []
-        answers, problems = questions.answers_for(qs, body.answers)
+        t6 = bool(qs) and await trust_access.for_user(db, uid)  # Vetting Trust T6: saved answers, never asked twice
+        given = dict(body.answers)
+        if t6:
+            from app.trust import workprefs
+
+            known = await workprefs.known_answers(db, uid, j)
+            given = {**known, **{k: v for k, v in given.items() if v not in (None, "")}}
+        answers, problems = questions.answers_for(qs, given)
         if problems:
             raise ApiError(400, "answers", " ".join(problems), extra={"problems": problems})
         why = questions.knockout(qs, answers)
-        extra = {"consent_at": t, "answers": answers, "company_id": j["company_id"],
-                 "fit": {"ok": not why, "reasons": why}}  # fmt: skip
+        fit: dict[str, Any] = {"ok": not why, "reasons": why}
+        if t6:
+            fit["for"] = questions.not_met(qs, answers)  # "Not a fit for: <question>": a label, never a rejection
+            new = {k: v for k, v in answers.items() if k in body.answers}
+            await workprefs.remember(db, uid, qs, new)
+        extra = {"consent_at": t, "answers": answers, "company_id": j["company_id"], "fit": fit}
     doc = {
         "key": key,
         "user_id": uid,

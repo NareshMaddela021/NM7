@@ -418,6 +418,13 @@ async def shortlist(
     band: str = Query("", max_length=10),  # V1: fresher, 1-3, 3-5, 5-8, 8+
     role: str = Query("", max_length=80),  # V2: ... for this test (e.g. "Java")
     min_score: int = Query(0, ge=0, le=100, alias="minScore"),  # V2: ... with at least this test score
+    licence: str = Query("", pattern="^(|any|two_wheeler|lmv)$"),  # Vetting Trust T6: verified driving licence
+    vehicle: str = Query("", pattern="^(|any|two_wheeler|car|bicycle)$"),  # T6: vehicle owned (self-declared)
+    night_shift: bool = Query(False, alias="nightShift"),  # T6
+    shift: str = Query("", pattern="^(|day|night|rotational)$"),  # T6
+    max_km: int = Query(0, ge=0, le=500, alias="maxKm"),  # T6: distance from the job at most (rounded km)
+    lang: str = Query("", max_length=20),  # T6: a language spoken
+    immediate: bool = False,  # T6: available now / no notice
     x_recruiter_account: str | None = Header(None),
 ) -> dict[str, Any]:
     acc, c, _ = await company_for(db, cid, x_recruiter_account)
@@ -454,6 +461,17 @@ async def shortlist(
         rows = [r for r in rows if keep_vetted(r, role, min_score)]
     if vetting:
         rows = [r for r in rows if keep_v1(r, min_level, ready_now, notice_max, salary_max, city, band)]
+    from app.trust import access as trust_access
+
+    non_tech = None
+    if await trust_access.for_company(db, c, acc):  # Vetting Trust T6: verified non-tech filters (else as before)
+        from app.trust import screening
+
+        await screening.attach(db, rows, j, c)
+        nf = {"licence": licence, "vehicle": vehicle, "nightShift": night_shift, "shift": shift, "maxKm": max_km,
+              "lang": lang, "immediate": immediate}  # fmt: skip
+        rows, counts = screening.apply_filters(rows, nf)
+        non_tech = {"filters": nf, "counts": counts}
     if rows:  # H9: when the first candidate was shown for this role
         await db[JOBS].update_one({"_id": j["_id"]}, {"$min": {"hire_speed.first_shown_at": started}})
     await db[HIRE_USAGE].update_one(
@@ -475,6 +493,7 @@ async def shortlist(
         "items": shown,
         "available": len(rows),
         "vetting": vetting,  # the Skill verified filters and badges are shown (Admin → Skill checks → Launch)
+        **({"nonTech": non_tech} if non_tech else {}),  # Vetting Trust T6
         "usage": {"used": len(roles), "free": free},
         "ms": int((now() - started).total_seconds() * 1000),
     }

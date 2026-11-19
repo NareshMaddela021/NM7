@@ -13,6 +13,8 @@ MONGODB_DB=nm7_e2e uv run python -m tests.e2e_seed reset
 ... aa2-tester EMAIL                   → Auto Apply 2.0 shown to this email while hidden
 ... trust-agent-person EMAIL PHONE     → T5: that person's mobile number, an adult age check and a resume (no consent)
 ... trust-agent-run [HOUR]             → T5: one calling-agent pass at HOUR (default 11) IST tomorrow (any real hour)
+... trust-t6-ready EMAIL [CLASSES]     → T6: Ready to join in Hyderabad (no notice) and, with CLASSES ("MCWG,LMV"), a
+                                          DigiLocker driving licence from the test provider (verified)
 ... auto-apply-run [EMAIL [past]]      → the Auto Apply run now (any hour); with EMAIL and "past", that student's
                                           preview days are over first
 ... job-alerts EMAIL                   → {"sent": [{to, subject, text}], "stop": token} (the alert pass for one person,
@@ -262,6 +264,28 @@ async def main(cmd: str, *args: str) -> dict:
         await db["trust_profiles"].update_one({"_id": u["_id"]}, {"$set": age}, upsert=True)
         doc = {"name": "Main", "data": RESUME, "active": True, "created_at": t, "updated_at": t}
         await db["resumes"].update_one({"user_id": u["_id"], "key": "r1"}, {"$set": doc}, upsert=True)
+        return {"id": u["_id"]}
+    if cmd == "trust-t6-ready":  # Vetting Trust T6: a Hire now candidate, with a verified (test) driving licence
+        from bson import ObjectId
+
+        mail = args[0]
+        u = await db["users"].find_one({"email": mail})
+        t = now()
+        prof = {
+            "on": True, "join_date": "", "cities": ["Hyderabad"], "remote": False, "notice_days": 0,
+            "salary": {"amount": 25000, "unit": "month"}, "job_types": ["full_time"], "returner": False,
+            "hide_from": [], "confirmed_at": t, "consent_at": t, "paused_at": None, "updated_at": t, "created_at": t,
+        }  # fmt: skip
+        await db["hire_profiles"].update_one({"_id": u["_id"]}, {"$set": prof}, upsert=True)
+        if len(args) > 1 and args[1]:
+            await db["trust_documents"].delete_many({"user_id": u["_id"], "kind": "dl"})
+            doc = {
+                "_id": ObjectId(), "user_id": u["_id"], "kind": "dl", "doc_type": "DRVLC", "issuer": "Transport",
+                "fields": {"classes": args[1].split(","), "valid_until": ""}, "vendor": "mock", "test": True,
+                "fetched_at": t, "created_at": t, "verify_until": t + timedelta(days=300), "name_match": "match",
+                "review": {"status": "none", "reasons": [], "note": "", "explained_at": None},
+            }  # fmt: skip
+            await db["trust_documents"].insert_one(doc)
         return {"id": u["_id"]}
     if cmd == "trust-agent-run":  # Vetting Trust T5: one pass at a daytime hour (the e2e may run at night in India)
         from datetime import datetime, time

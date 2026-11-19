@@ -111,7 +111,8 @@ class Bolna:
         return CallResult(
             ref=str(body.get("id") or body.get("execution_id") or ""), status=STATUS.get(str(body.get("status") or "").lower(), "failed"),
             transcript=_turns(body.get("transcript")), interest=str(ex.get("interest") or "").lower().replace(" ", "_"),
-            answers={str(k): str(v).lower() for k, v in kos.items() if str(v).lower() in ("yes", "no")},
+            answers={str(k)[:10]: str(v).strip().lower() if str(v).strip().lower() in ("yes", "no") else str(v).strip()[:80]
+                     for k, v in list(kos.items())[:12] if str(v).strip()},  # T6: numbers and options too (checked per question)
             slot=int(slot) if slot.isdigit() else 0, minutes=round(minutes, 2),
         ) if body else CallResult("", "failed")  # fmt: skip
 

@@ -273,6 +273,13 @@ async def one(slug: str, db: DB, auth: MaybeAuth) -> dict[str, Any]:
             {"user_id": auth.user.id, "job_id": j["_id"]}, {"status": 1, "created_at": 1}
         )
         out["application"] = {"status": mine["status"], "at": ms(mine["created_at"])} if mine else None
+        if out.get("questions") and not mine:  # Vetting Trust T6: answers given before are shown, never asked again
+            from app.trust import access as trust_access
+
+            if await trust_access.for_user(db, auth.user.id):
+                from app.trust import workprefs
+
+                out["known"] = await workprefs.known_answers(db, auth.user.id, j)
     if person:
         out["match"] = (await fitmod.fits(db, auth.user.id, person, [j]))[j["_id"]]
     return out

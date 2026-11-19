@@ -146,7 +146,7 @@ class CallResult:
     status: str  # completed | no_answer | busy | failed
     transcript: list[dict[str, str]] = field(default_factory=list)  # [{who: agent | candidate, text}]
     interest: str = ""  # interested | not_now | stop | ""
-    answers: dict[str, str] = field(default_factory=dict)  # knock-out id → yes / no
+    answers: dict[str, str] = field(default_factory=dict)  # knock-out id → yes / no (T6: or a number / an option)
     slot: int = 0  # 1.. the number of the offered time it picked, 0 none
     minutes: float = 0.0
 
@@ -158,7 +158,7 @@ def parse_canonical(body: dict[str, Any]) -> CallResult:
         ref=str(body.get("ref") or ""), status=str(body.get("status") or "failed"),
         transcript=[{"who": "agent" if t.get("who") == "agent" else "candidate", "text": str(t.get("text") or "")[:1000]}
                     for t in (body.get("transcript") or [])[:80] if isinstance(t, dict)],
-        interest=str(a.get("interest") or ""), answers={str(k): str(v) for k, v in (a.get("knockouts") or {}).items() if v in ("yes", "no")},
+        interest=str(a.get("interest") or ""), answers={str(k)[:10]: str(v)[:80] for k, v in list((a.get("knockouts") or {}).items())[:12] if str(v).strip()},
         slot=int(a.get("slot") or 0) if str(a.get("slot") or "0").isdigit() else 0, minutes=float(body.get("minutes") or 0),
     )  # fmt: skip
 

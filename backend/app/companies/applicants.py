@@ -114,7 +114,7 @@ def _row(a, job, user, r, pooled: bool) -> dict[str, Any]:
         "irrelevant": bool(a.get("irrelevant_at")),
         "match": m
         and {k: m[k] for k in ("score", "found", "missing", "experience", "level", "years", "place", "city")},
-        "fit": a.get("fit") or {"ok": True, "reasons": []},
+        "fit": {k: v for k, v in (a.get("fit") or {"ok": True, "reasons": []}).items() if k != "for"},
         "answers": [{"q": questions.get(k, k), "a": v} for k, v in (a.get("answers") or {}).items()],
         "contact": _contact(user, r) if contact else None,
         "pooled": pooled,
@@ -228,6 +228,7 @@ async def applicants(
     from app.trust.digilocker.router import add_badges
 
     await add_badges(db, rows, "userId", c, acc)  # Vetting Trust T2: verified documents (only where Trust is on)
+    await _fit_for(db, rows, apps, jobs, c, acc)
     rows.sort(key=_rank)
     counts: dict[str, int] = {}
     async for a in db[APPLICATIONS].find(_visible(cid), {"job_id": 1}):
@@ -240,6 +241,19 @@ async def applicants(
         "items": rows,
         "keepMonths": int((await get_site(db))["companies"].get("applicant_months", 12)),
     }
+
+
+async def _fit_for(db, rows, apps, jobs, c, acc) -> None:
+    """Vetting Trust T6 (only where the switch lets the company in): "Not a fit for: <question>" on each label."""
+    from app.companies.questions import not_met
+    from app.trust import access as trust_access
+
+    if not await trust_access.for_company(db, c, acc):
+        return
+    for row, a in zip(rows, apps, strict=True):
+        if not row["fit"].get("ok"):
+            qs = (jobs.get(a["job_id"]) or {}).get("questions") or []
+            row["fit"]["for"] = (a.get("fit") or {}).get("for") or not_met(qs, a.get("answers") or {})
 
 
 @router.get("/{cid}/applicants/{app_id}")
@@ -262,6 +276,7 @@ async def applicant(cid: str, app_id: str, db: DB, x_recruiter_account: str | No
     from app.trust.digilocker.router import add_badges
 
     await add_badges(db, [out], "userId", c, acc)  # Vetting Trust T2
+    await _fit_for(db, [out], [a], {a["job_id"]: job or {}}, c, acc)  # T6
     out["data"] = recruiter_data({"_data": r["data"]}, a.get("status") in CONTACT_STAGES) if r else None
     out["template"] = (r or {}).get("template") or "classic"
     await audit(db, None, "company.applicant_open", target=cid, data={"by": acc["email_lc"], "app": app_id})

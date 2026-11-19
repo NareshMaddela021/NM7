@@ -145,7 +145,7 @@ export function MeSettings() {
     <>
       <MeHead title="Profile & settings" sub="Your account, how we reach you, and your data." />
       <nav className="acc-jump" aria-label="On this page">
-        {[['#s-profile', 'Profile'], ['#s-notify', 'Notifications'], ...(LIVE ? [['#job-alerts', 'Job alerts']] : []), ['#s-password', 'Password'], ['#s-privacy', 'Privacy'], ...(trust ? [['#s-consent', 'Consent'], ['#s-calls', 'Calls & WhatsApp'], ['#s-docs', 'Documents'], ['#s-face', 'ID + selfie']] : [])].map(([h, l]) => <a key={h} href={h} className="acc-jump-a">{l}</a>)}
+        {[['#s-profile', 'Profile'], ['#s-notify', 'Notifications'], ...(LIVE ? [['#job-alerts', 'Job alerts']] : []), ['#s-password', 'Password'], ['#s-privacy', 'Privacy'], ...(trust ? [['#s-consent', 'Consent'], ['#s-work', 'Work preferences'], ['#s-calls', 'Calls & WhatsApp'], ['#s-docs', 'Documents'], ['#s-face', 'ID + selfie']] : [])].map(([h, l]) => <a key={h} href={h} className="acc-jump-a">{l}</a>)}
       </nav>
       <form id="s-profile" className="mcard acc-sec" onSubmit={save} aria-label="Profile" noValidate>
         <header className="mcard-h"><span className="mavatar" aria-hidden="true">{(me.account.name || '?').trim()[0]?.toUpperCase()}</span><span className="mcard-ht"><h2 className="mcard-title">Profile</h2><span className="mcard-sub">Your name and mobile number. Career details live in your Job Profile.</span></span></header>

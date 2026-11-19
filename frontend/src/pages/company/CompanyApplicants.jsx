@@ -43,6 +43,9 @@ const initial = (n) => (n || '?').trim().charAt(0).toUpperCase();
 const day = (ms) => (ms ? new Date(ms).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
 
 /** "Matches 3 of 4 skills · Fresher OK · In Hyderabad" (the job board's own words). */
+/** "Not a fit", or with Vetting Trust T6 (only where the switch lets the company in) "Not a fit for: <question>". */
+const notFitFor = (fit, t) => (fit.for?.length ? `${t('co.ap.notFit')} for: ${fit.for.join('; ')}` : t('co.ap.notFit'));
+
 export function reasons(m, t) {
   if (!m) return [t('co.ap.noResume')];
   const { good, gaps } = matchReasons(m, t);
@@ -175,7 +178,7 @@ function Profile({ t, c, can, a, rank, onClose, onChanged }) {
         {a.match?.missing.length > 0 && <div className="stack g4"><span className="mkicker">{t('co.ap.cMissing')}</span><span className="ca-skills">{a.match.missing.map((x) => <span key={x} className="ca-skill">{x}</span>)}</span></div>}
         {a.match && <div className="stack g4"><span className="mkicker">{t('co.ap.cYears')}</span><span className="small">{yearsText(a.match.years, t)}</span></div>}
         <div className={`mcard mcard-tight ${a.fit.ok ? 'mcard-ok' : 'mcard-warn'}`}>
-          <strong className="small">{t('co.ap.cFit')}: {a.fit.ok ? t('co.ap.fitOk') : t('co.ap.notFit')}</strong>
+          <strong className="small">{t('co.ap.cFit')}: {a.fit.ok ? t('co.ap.fitOk') : notFitFor(a.fit, t)}</strong>
           {!a.fit.ok && <ul className="xs" style={{ margin: 0, paddingLeft: 18 }}>{a.fit.reasons.map((r, i) => <li key={i}>{r}</li>)}</ul>}
         </div>
         {a.answers.length > 0 && (
@@ -224,7 +227,7 @@ function Applicant({ t, c, a, rank, can, picked, canPick, onPick, open, onOpen, 
       )}
       {!a.fit.ok && (
         <div className="ca-notfit" data-testid="co-ap-notfit">
-          <Chip tone="warn">{t('co.ap.notFit')}</Chip>
+          <Chip tone="warn" testid="co-ap-notfit-chip" style={{ whiteSpace: 'normal', overflowWrap: 'anywhere', maxWidth: '100%' }}>{notFitFor(a.fit, t)}</Chip>
           <ul className="xs" style={{ margin: 0, paddingLeft: 18 }}>{a.fit.reasons.map((r, i) => <li key={i}>{r}</li>)}</ul>
         </div>
       )}
