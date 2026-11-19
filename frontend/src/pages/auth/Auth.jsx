@@ -1,5 +1,5 @@
 // Sign in, sign up (customer or expert, confirmed with an email code), forgot password, admin two-step login, and route guards.
-import { useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { Logo, ThemeToggle } from '../../components/Header';
 import { Spinner, useToast } from '../../components/ui';
@@ -15,6 +15,11 @@ import { safeNext } from '../../lib/safeNext';
 import '../../styles/admin-ops.css';
 
 const isPreview = import.meta.env.VITE_PREVIEW === '1';
+// "Continue with Google": its own small chunk; it renders nothing while the server has no Google client ID.
+const GoogleButtonLazy = lazy(() => import('../../components/GoogleButton'));
+function Google(props) {
+  return <Suspense fallback={null}><GoogleButtonLazy {...props} /></Suspense>;
+}
 
 /** This page's own tab title (when it differs from the route's). */
 function PageTitle({ title }) {
@@ -129,6 +134,7 @@ export function Login() {
   return (
     // A server message (wrong password, too many tries …) is shown as the server wrote it, in English.
     <Shell title={t('signin.title')} sub={t('signin.sub')} lang={lang} top={<LangSwitch t={t} lang={lang} style={{ alignSelf: 'flex-end' }} />}>
+      {LIVE && <Google mode="signin" next={next} onDone={go} />}
       <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); submit(e.currentTarget); }}>
         <Field id="li-e" name="email" label={t('signin.email')} type="email" autoComplete="email" value={f.email} error={emailErr} onChange={(e) => { setF({ ...f, email: e.target.value }); setEmailErr(''); }} />
         <div className="stack g4">
