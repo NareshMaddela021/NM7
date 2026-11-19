@@ -2,7 +2,7 @@
 """Profile setup P2: the dashboard checklist (steps in registry.py), worked out on read from the data the site already
 has, so existing users see their done steps ticked and are never asked again.
 
-  GET  /api/me/checklist?role=            the active role's checklist (or the role asked for, one I have)
+  GET  /api/me/checklist?role=&fresh=     the active role's checklist (or the role asked for, one I have); fresh: no cache
   POST /api/me/checklist/{role}/skip {step, undo?}   "Skip for now" (the next step moves on); undo puts it back
   GET  /api/me/checklist/reminders        {on}
   PUT  /api/me/checklist/reminders {on}   the weekly reminder on / off (Profile & settings → Notifications)
@@ -396,10 +396,17 @@ async def put_reminders(body: RemindIn, auth: CurrentAuth, db: DB) -> dict[str, 
 
 
 @router.get("")
-async def get_checklist(auth: CurrentAuth, db: DB, role: str | None = Query(None, max_length=20)) -> dict[str, Any]:
+async def get_checklist(
+    auth: CurrentAuth, db: DB, role: str | None = Query(None, max_length=20), fresh: bool = False
+) -> dict[str, Any]:
+    """fresh: the person just came back from a step's page, so the short cache is skipped."""
     role = _role(auth, role)
     u = await db[USERS].find_one({"_id": auth.user.id}) or {}
-    return {**await checklist(db, u, role), "roles": auth.user.individual_roles, "active": auth.user.current_role}
+    return {
+        **await checklist(db, u, role, fresh=fresh),
+        "roles": auth.user.individual_roles,
+        "active": auth.user.current_role,
+    }
 
 
 @router.post("/{role}/skip")
