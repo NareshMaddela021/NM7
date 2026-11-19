@@ -73,6 +73,7 @@ for (const [label, opts] of SIZES) {
       await expect(page).not.toHaveURL(/\/login/);
       await page.goto('/admin/daily-report');
       await expect(page.getByRole('heading', { name: 'Daily report', level: 1 })).toBeVisible();
+      await expect(page.getByTestId('dr-summary').getByRole('listitem')).toHaveCount(5, { timeout: 60_000 }); // loaded first
       await page.getByTestId('dr-refresh').click();
       await expect(page.getByText('Report refreshed')).toBeVisible({ timeout: 60_000 });
       await expect(page.getByRole('heading', { name: 'Profile setup', level: 2 })).toBeVisible();
