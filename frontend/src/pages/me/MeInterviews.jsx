@@ -18,6 +18,7 @@ import { LANGS, day } from './vetting/lib';
 import { API, ROLES_API, avg, timeWords } from './interview/lib';
 import '../../styles/me-vet.css';
 import '../../styles/me-iv.css';
+import { IcArrowLeft, IcCheck, IcLock } from '../../components/icons';
 
 const Runner = lazy(lazyRetry(() => import('./interview/Runner')));
 const IvResult = lazy(lazyRetry(() => import('./interview/IvResult')));
@@ -47,8 +48,8 @@ function RoleCard({ r, onStart, onResume }) {
         <span className="xs muted">{r.test} · 7 questions · about 10 minutes</span>
       </div>
       <div className="mrow" style={{ gap: 6 }}>
-        <Chip tone="ok">✓ Skill verified</Chip>
-        {r.langs.length > 1 && <span className="xs">🗣 {r.langs.map((l) => LANGS[l].split(' ')[0]).join(' · ')}</span>}
+        <Chip tone="ok"><IcCheck size={14} /> Skill verified</Chip>
+        {r.langs.length > 1 && <span className="xs">Languages: {r.langs.map((l) => LANGS[l].split(' ')[0]).join(' · ')}</span>}
         <LastChip last={last} />
       </div>
       <div className="vet-role-go">
@@ -79,7 +80,7 @@ function Setup({ r, d, onCancel, onGo }) {
   };
   return (
     <div className="mstack iv-setup" data-testid="iv-setup">
-      <MeCard tone="flat" icon="🔒" title="Before you start: how the interview works" sub={`${r.role || r.test}. Please read this, then tick “I agree”.`} testid="iv-consent">
+      <MeCard tone="flat" icon={<IcLock />} title="Before you start: how the interview works" sub={`${r.role || r.test}. Please read this, then tick “I agree”.`} testid="iv-consent">
         <ul className="vet-consent-list iv-consent">
           <li><strong>What it is:</strong> 7 questions about your work for this role, about {d.minutes || 10} minutes. You can type or speak your answers. After an answer, the AI may ask one short follow-up about what you said.</li>
           <li><strong>Speaking:</strong> your speech is turned into text in your browser. {spoken && mode === 'voice' && lang === 'en' && d.spoken?.pronunciation
@@ -113,7 +114,7 @@ function Setup({ r, d, onCancel, onGo }) {
         <fieldset className="vet-fs">
           <legend className="vet-legend">How you will answer</legend>
           <div className="vet-chips">
-            {[['text', '⌨ Type my answers'], ['voice', '🎤 Speak my answers']].map(([m, l]) => (
+            {[['text', 'Type my answers'], ['voice', 'Speak my answers']].map(([m, l]) => (
               <label key={m} className={`vet-pill ${mode === m ? 'on' : ''}`}>
                 <input type="radio" name="iv-mode" value={m} checked={mode === m} onChange={() => setMode(m)} data-testid={`iv-mode-${m}`} />
                 <span>{l}</span>
@@ -144,7 +145,7 @@ function Setup({ r, d, onCancel, onGo }) {
   );
 }
 
-/** Hidden from this person (Admin → Skill checks → Launch): nothing to see yet. */
+/** Hidden from this person (Admin -> Skill checks -> Launch): nothing to see yet. */
 export default function MeInterviews() {
   const on = useVettingOn();
   if (on == null) return <Skel cards={1} lines={3} label="Loading" />;
@@ -195,7 +196,7 @@ function MeInterviewsPage() {
   if (id) {
     return (
       <>
-        <MeHead title="Your screening interview" right={<Link className="btn btn-ghost" to="/me/interviews">← All interviews</Link>} />
+        <MeHead title="Your screening interview" right={<Link className="btn btn-ghost" to="/me/interviews"><IcArrowLeft size={16} /> All interviews</Link>} />
         <Suspense fallback={<Skel cards={1} lines={4} label="Loading your result" />}>
           <IvResult key={id} id={id} initial={loc.state?.result} pass={d?.pass} />
         </Suspense>
@@ -221,7 +222,7 @@ function MeInterviewsPage() {
           </ol>
         </div>
         {d.interviewReadyUntil
-          ? <div className="vet-badge" data-testid="iv-ready"><strong>✓ L3 Interview-ready</strong><span className="xs">Until {day(d.interviewReadyUntil)}</span></div>
+          ? <div className="vet-badge" data-testid="iv-ready"><strong><IcCheck size={14} /> L3 Interview-ready</strong><span className="xs">Until {day(d.interviewReadyUntil)}</span></div>
           : <span className="small muted">You need a current “Skill verified” badge for a role to take its interview.</span>}
       </section>
 
@@ -239,7 +240,7 @@ function MeInterviewsPage() {
       )}
 
       {faceEl}
-      <MeCard tone="flat" className="mcard-tight" icon="🔒" title="Fair and private" sub="No camera and no audio stored. Only what you say about the work is graded, never who you are or how you sound." headingLevel={2} />
+      <MeCard tone="flat" className="mcard-tight" icon={<IcLock />} title="Fair and private" sub="No camera and no audio stored. Only what you say about the work is graded, never who you are or how you sound." headingLevel={2} />
     </>
   );
 }

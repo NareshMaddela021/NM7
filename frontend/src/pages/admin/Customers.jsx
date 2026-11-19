@@ -8,7 +8,7 @@ import { NOW_MS } from '../../data/adminData';
 import { PLANS } from '../../lib/pricing';
 import { useMe, allCustomerStores, patchCustomer, decideRefund } from '../../lib/customerStore';
 
-/** Issues and refund requests customers raise from their dashboard (Help → Raise an issue, Order → Refund). */
+/** Issues and refund requests customers raise from their dashboard (Help -> Raise an issue, Order -> Refund). */
 function SupportInbox() {
   useMe(); // re-render on changes
   const toast = useToast();

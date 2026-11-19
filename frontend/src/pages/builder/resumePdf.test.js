@@ -87,7 +87,7 @@ describe('buildResumePdf', () => {
     const blob = await buildResumePdf({ data: TELUGU, design: design('fresher'), photo: null, cover: null });
     const r = await read(blob);
     expect(r.text).toContain('రాము కుమార్');
-    // pdf.js's extraction API splits items at vowel signs and returns decomposed two-part signs (ై → ె + ౖ)
+    // pdf.js's extraction API splits items at vowel signs and returns decomposed two-part signs (ై -> ె + ౖ)
     expect(r.items.map((i) => i.str).join('').normalize('NFC')).toContain('హైదరాబాద్,');
     expect(r.text).toContain('తెలంగాణ');
     expect(r.text).toContain('डेटा और एक्सेल में तीन साल का अनुभव।');
@@ -144,7 +144,7 @@ describe('indicFonts', () => {
     expect('రాము కుమార్'.length).toBe(11);
     expect(charCount('abc')).toBe(3);
     expect(charCount('')).toBe(0);
-    expect(charCount('👍🏽')).toBe(1);
+    expect(charCount('\u{1F44D}\u{1F3FD}')).toBe(1);
   });
 });
 
@@ -152,11 +152,11 @@ describe('rupee sign and emoji (QA)', () => {
   it('₹ prints as ₹ (drawn with a Noto Sans font), emoji are left out, and job preferences never decide the font', async () => {
     expect(scriptsIn('Saved ₹2 lakh a year')).toEqual(['devanagari']);
     expect(splitRuns('Saved ₹2 lakh').map((r) => [r.text, r.script])).toEqual([['Saved ', null], ['₹', 'devanagari'], ['2 lakh', null]]);
-    const data = { ...structuredClone(INITIAL), summary: 'Cut costs by ₹2,00,000 a year 🚀 and won 🏆 twice ✅.', exp: [{ ...INITIAL.exp[0], description: 'Handled ₹5 lakh in daily sales 💰' }] };
+    const data = { ...structuredClone(INITIAL), summary: 'Cut costs by ₹2,00,000 a year \u{1F680} and won \u{1F3C6} twice \u2705.', exp: [{ ...INITIAL.exp[0], description: 'Handled ₹5 lakh in daily sales \u{1F4B0}' }] };
     const r = await read(await buildResumePdf({ data, design: design('fresher'), photo: null, cover: null }));
     expect(r.text).toContain('Cut costs by ₹2,00,000 a year and won twice.');
     expect(r.text).toContain('Handled ₹5 lakh in daily sales');
-    expect(r.text).not.toMatch(/[\u{1F300}-\u{1FAFF}✅]|�/u);
+    expect(r.text).not.toMatch(/[\u{1F300}-\u{1FAFF}\u2705]|\uFFFD/u);
     expect(r.meta.Producer || '').not.toMatch(/jsPDF/i); // the shaping engine, with the Noto font
     // "Under ₹5 LPA" is only a job preference (never printed): a plain resume stays on the light engine
     const plain = await read(await buildResumePdf({ data: INITIAL, design: design('fresher'), photo: null, cover: null }));

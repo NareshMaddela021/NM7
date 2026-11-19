@@ -7,6 +7,7 @@ import { Chip, Empty, MeCard, Skel } from '../me/kit';
 import { SHAPE_COLORS, TINTS } from '../newhome/shapes';
 import '../../styles/me-kit.css';
 import '../../styles/org-team.css';
+import { IcEdit } from '../../components/icons';
 
 TINTS.college = SHAPE_COLORS.college;
 
@@ -44,7 +45,7 @@ export default function Reviewers({ orgId, canManage }) {
   // round P, Phase 4: an intro card with the invite form, then each reviewer as a card with their students
   return (
     <div className="ot-team">
-      <MeCard title="Faculty reviewers" icon="✎" label="Faculty reviewers" sub="Faculty mentors review the resumes of the students you assign: comments on a section or line, then “needs changes” or “approved” (the same review status you see in Shared resumes). Reviewers see only their students.">
+      <MeCard title="Faculty reviewers" icon={<IcEdit />} label="Faculty reviewers" sub="Faculty mentors review the resumes of the students you assign: comments on a section or line, then “needs changes” or “approved” (the same review status you see in Shared resumes). Reviewers see only their students.">
         {canManage && (
           <form className="ot-inline-form" onSubmit={invite} aria-label="Invite a reviewer">
             <label className="field" style={{ flex: '1 1 240px' }}><span className="label">Faculty email</span><input className="input" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} data-testid="rv-email" /></label>

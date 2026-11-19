@@ -481,7 +481,7 @@ def _need_insights(o: dict[str, Any]) -> None:
             402,
             "plan_feature",
             "Charts, who's-missing lists, reminders and roll lists are in the Drive and Campus plans. "
-            "Ask your Owner to upgrade (Organization → Billing).",
+            "Ask your Owner to upgrade (Organization > Billing).",
         )
 
 

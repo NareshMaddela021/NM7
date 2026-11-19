@@ -1,11 +1,12 @@
-// Company account → Settings → "Verify your business" (Vetting Trust T4). Only where the Trust switch lets this company
+// Company account -> Settings -> "Verify your business" (Vetting Trust T4). Only where the Trust switch lets this company
 // in (GET /api/company/{id}/trust/employer answers 404 otherwise, and nothing shows). The company enters its GSTIN, Udyam
-// (MSME) number or CIN; Nm7 checks the format first, then looks it up in the registry. Active + the same name → the
+// (MSME) number or CIN; Nm7 checks the format first, then looks it up in the registry. Active + the same name -> the
 // "Verified employer" badge on its jobs and page; anything else goes to a person at Nm7 (never a rejection), and the
 // card says plainly what didn't match. English only for now.
 import { useCallback, useEffect, useState } from 'react';
 import { rq } from '../../lib/company';
 import { Chip } from '../me/kit';
+import { IcCheck } from '../../components/icons';
 
 const day = (v) => (v ? new Date(v).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
 const TONE = { verified: 'ok', review: 'warn', not_verified: 'bad', none: 'neutral' };
@@ -34,12 +35,12 @@ export default function VerifyBusiness({ c, manage }) {
   };
   return (
     <section className="mcard" aria-labelledby="vb-h" data-testid="co-verify-business" style={{ minWidth: 0 }}>
-      <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">✓</span><span className="mcard-ht">
+      <header className="mcard-h"><span className="mcard-ic" aria-hidden="true"><IcCheck /></span><span className="mcard-ht">
         <h2 id="vb-h" className="mcard-title">Verify your business</h2>
-        <span className="mcard-sub">Candidates see “✓ Verified employer” on your jobs and company page once your GST, Udyam (MSME) or company (MCA) registration is checked.</span>
+        <span className="mcard-sub">Candidates see “Verified employer” on your jobs and company page once your GST, Udyam (MSME) or company (MCA) registration is checked.</span>
       </span></header>
       <span className="row g8" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
-        <Chip tone={TONE[s.status]} data-testid="vb-state">{s.status === 'verified' ? '✓ ' : ''}{s.statusText}{s.status === 'verified' && s.registry ? ` · ${s.registry}` : ''}{s.test ? ' (test)' : ''}</Chip>
+        <Chip tone={TONE[s.status]} data-testid="vb-state">{s.status === 'verified' ? <><IcCheck size={14} />{' '}</> : ''}{s.statusText}{s.status === 'verified' && s.registry ? ` · ${s.registry}` : ''}{s.test ? ' (test)' : ''}</Chip>
         {s.numberMasked && <span className="xs muted mono" data-testid="vb-number">{s.kindText}: {s.numberMasked}</span>}
       </span>
       {s.facts?.found && (

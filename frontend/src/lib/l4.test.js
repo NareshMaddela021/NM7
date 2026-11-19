@@ -3,7 +3,7 @@ import { HOURS, byDay, hourText, l4Status, noteLines, refereeProblems, settingsO
 
 describe('Vetting V4 helpers', () => {
   it('words for each status, and a fallback', () => {
-    expect(l4Status('verified')).toEqual(['✓ Nm7 verified', 'ok']);
+    expect(l4Status('verified')).toEqual(['Nm7 verified', 'ok']);
     expect(l4Status('requested')[0]).toBe('Requested');
     expect(l4Status('odd')).toEqual(['odd', 'neutral']);
     expect(stepIndex('booked')).toBe(1);

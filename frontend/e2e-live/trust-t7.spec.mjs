@@ -95,7 +95,7 @@ for (const [label, opts] of SIZES) {
       await expect(cards.first().getByTestId('crit-line')).toContainText('2 of 2 must-haves');
       await cards.first().getByTestId('crit-why').click();
       const sql = cards.first().getByTestId('crit-item').filter({ hasText: 'SQL' }).first();
-      await expect(sql).toContainText('✓ Met');
+      await expect(sql).toContainText('Met');
       await expect(sql).toContainText('Resume:');
       await expect(sql.getByTestId('crit-quote')).not.toBeEmpty();
       await expect(cards.nth(1).getByTestId('crit-line')).toContainText('0 of 2 must-haves');
@@ -130,7 +130,7 @@ for (const [label, opts] of SIZES) {
       const telugu = app.getByTestId('cr-item').filter({ hasText: 'Speaks Telugu' });
       await expect(telugu.getByTestId('cr-status')).toHaveText('Unknown');
       await telugu.getByTestId('cr-add').click();
-      await expect(telugu).toContainText('Profile → Certificates');
+      await expect(telugu).toContainText('Profile > Certificates');
       expect(await noSideScroll(a.page)).toBe(true);
       await a.ctx.close();
       await b.ctx.close();

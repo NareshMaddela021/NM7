@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { http } from '../../../services/http';
 import { MeCard } from '../kit';
 import { RelItems } from './ReliabilityLink';
+import { IcUsers } from '../../../components/icons';
 
 const API = '/api/me/trust/reliability';
 
@@ -23,7 +24,7 @@ export default function ReliabilityCard() {
     try { await http(`/api/me/trust/consents/reliability_record`, { method: on ? 'DELETE' : 'POST' }); await load(); } catch (e) { setErr(e.message); } finally { setBusy(false); }
   };
   return (
-    <MeCard icon="🤝" title="Your reliability record" sub="Showed up, joined and stayed, as confirmed by employers. A signal for companies, never a reason to turn anyone down." testid="rel-card" headingLevel={2}>
+    <MeCard icon={<IcUsers />} title="Your reliability record" sub="Showed up, joined and stayed, as confirmed by employers. A signal for companies, never a reason to turn anyone down." testid="rel-card" headingLevel={2}>
       <details className="small" data-testid="rel-consent-text"><summary>What this is and how it works</summary><p style={{ margin: '8px 0 0' }}>{d.consent.text}</p></details>
       <label className="vet-check">
         <input type="checkbox" checked={on} disabled={busy} onChange={toggle} data-testid="rel-consent" />

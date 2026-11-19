@@ -20,6 +20,7 @@ import { MeHead } from './MeLayout';
 import { Chip, Empty, MeCard, Skel, Stat } from './kit';
 import { API, GROUPS, LANGS, RUN_KEY, TASKS, badgeLine, day, readStore, renewState, writeStore } from './vetting/lib';
 import '../../styles/me-vet.css';
+import { IcArrowLeft, IcCheck, IcLock } from '../../components/icons';
 
 const Classic = lazy(lazyRetry(() => import('./MeSkillChecksClassic')));
 const TestRunner = lazy(lazyRetry(() => import('./vetting/TestRunner')));
@@ -58,7 +59,7 @@ function ConsentCard({ onDone }) {
     try { onDone((await http(`${API}/consent`, { method: 'POST' })).consentAt); } catch (e) { setErr(e.message); setBusy(false); }
   };
   return (
-    <MeCard tone="flat" icon="🔒" title="Before your first test: what we check" sub="So results are fair for everyone, the test page notices a few things while you take it." testid="vt-consent" id="vt-consent">
+    <MeCard tone="flat" icon={<IcLock />} title="Before your first test: what we check" sub="So results are fair for everyone, the test page notices a few things while you take it." testid="vt-consent" id="vt-consent">
       <ConsentList />
       <label className="vet-check">
         <input type="checkbox" checked={ok} onChange={(e) => setOk(e.target.checked)} data-testid="vt-consent-tick" />
@@ -82,12 +83,12 @@ function RoleCard({ r, cat, onStart, onRenew }) {
         <span className="xs muted">{r.test} · {nQ} questions · {TASKS[r.task] || 'Practical task'}</span>
       </div>
       <div className="vet-role-meta">
-        {r.langs.length > 1 && <span className="xs">🗣 {r.langs.map((l) => LANGS[l].split(' ')[0]).join(' · ')}</span>}
-        <span className="xs">{r.demand ? `💼 ${r.demand} live job${r.demand === 1 ? '' : 's'}` : '💼 No live jobs right now'}</span>
+        {r.langs.length > 1 && <span className="xs">Languages: {r.langs.map((l) => LANGS[l].split(' ')[0]).join(' · ')}</span>}
+        <span className="xs">{r.demand ? `${r.demand} live job${r.demand === 1 ? '' : 's'}` : 'No live jobs right now'}</span>
       </div>
       {(r.verified || last) && (
         <div className="mrow" style={{ gap: 6 }}>
-          {r.verified && !r.verified.expired && <Chip tone="ok">✓ Verified · {r.verified.score}/100</Chip>}
+          {r.verified && !r.verified.expired && <Chip tone="ok"><IcCheck size={14} /> Verified · {r.verified.score}/100</Chip>}
           {r.verified?.expired && <Chip tone="warn">Badge expired</Chip>}
           {r.verified && !r.verified.expired && renew.open && <Chip tone="warn">Ends in {renew.daysLeft} day{renew.daysLeft === 1 ? '' : 's'}</Chip>}
           {last?.done && !r.verified && (last.retest ? <Chip tone="info">Free retest offered</Chip> : <Chip tone={last.pass ? 'ok' : 'warn'}>Last score {last.score}/100</Chip>)}
@@ -240,7 +241,7 @@ function RenewDialog({ r, needConsent, onConsent, onClose, onGo }) {
   );
 }
 
-/** Vetting V2 for people who get it (Admin → Skill checks → Launch), else the skill checks as before. */
+/** Vetting V2 for people who get it (Admin -> Skill checks -> Launch), else the skill checks as before. */
 export default function MeSkillChecks() {
   const on = useVettingOn();
   if (on == null) return <Skel cards={2} lines={3} label="Loading skill checks" />;
@@ -359,7 +360,7 @@ function MeSkillChecksV2() {
     const retest = (r) => nav(`/me/skill-checks?skill=${encodeURIComponent(r.skill)}&band=${encodeURIComponent(r.band)}`);
     return (
       <>
-        <MeHead title="Your skill check result" right={<Link className="btn btn-ghost" to="/me/skill-checks">← All skill checks</Link>} />
+        <MeHead title="Your skill check result" right={<Link className="btn btn-ghost" to="/me/skill-checks"><IcArrowLeft size={16} /> All skill checks</Link>} />
         <Suspense fallback={<Skel cards={1} lines={4} label="Loading your result" />}>
           <Result key={id} id={id} initial={loc.state?.result} onRetest={retest} />
         </Suspense>
@@ -381,7 +382,7 @@ function MeSkillChecksV2() {
           <ol className="vet-steps">
             <li><strong>Test:</strong> {cat.questions} questions, about {cat.minutes} minutes, at your experience level. Pass mark {cat.pass}.</li>
             <li><strong>Practical task:</strong> a short real-work task (writing, speaking or work situations). Pass mark {cat.taskPass}.</li>
-            <li><strong>Badge:</strong> “✓ Skill verified” on your profile for {cat.validDays} days. Companies hiring now see it.</li>
+            <li><strong>Badge:</strong> “Skill verified” on your profile for {cat.validDays} days. Companies hiring now see it.</li>
           </ol>
         </div>
         <div className="vet-hero-stats">
@@ -398,7 +399,7 @@ function MeSkillChecksV2() {
             return (
               <li key={r.test} className="vet-badge-row" data-testid="vt-badge" data-test={r.test}>
                 <div className={`vet-badge ${st.expired ? 'expired' : ''}`}>
-                  <strong>{badgeLine(r.verified, r.role)}</strong>
+                  <strong><IcCheck size={14} /> {badgeLine(r.verified, r.role)}</strong>
                   <span className="xs">{st.expired ? <><strong>expired</strong> · ended {day(r.verified.expiresAt)}</> : `Valid until ${day(r.verified.expiresAt)}`}</span>
                 </div>
                 {st.open && !running && (
@@ -463,7 +464,7 @@ function MeSkillChecksV2() {
       )}
 
       {trust && <Suspense fallback={null}><WorkTests /></Suspense>}
-      <MeCard tone="flat" className="mcard-tight" icon="🔒" title="Fair and private" sub="No camera and no screen recording. Companies see only your badge and scores, and only if you choose to show the score." headingLevel={2} />
+      <MeCard tone="flat" className="mcard-tight" icon={<IcLock />} title="Fair and private" sub="No camera and no screen recording. Companies see only your badge and scores, and only if you choose to show the score." headingLevel={2} />
       {renewing && <RenewDialog r={renewing} needConsent={!cat.consentAt} onConsent={(at) => setCat({ ...cat, consentAt: at })} onClose={closeRenew} onGo={begin} />}
       {face && (
         <Suspense fallback={null}>

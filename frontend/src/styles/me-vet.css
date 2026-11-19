@@ -17,7 +17,8 @@
 /* consent */
 .vet-consent-list { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 14.5px; color: var(--text2); line-height: 1.5; }
 .vet-consent-list strong { color: var(--text); }
-.vet-consent-list .vet-no { list-style: "✓  "; color: #166534; }
+.vet-consent-list .vet-no { list-style: none; margin-left: -20px; color: #166534; }
+.vet-consent-list .vet-no::before { content: ""; display: inline-block; width: 1em; height: 1em; background: currentColor; -webkit-mask: var(--ic-check) center / contain no-repeat; mask: var(--ic-check) center / contain no-repeat; margin-right: 6px; vertical-align: -2px; }
 .vet-consent-list .vet-no strong { color: #166534; }
 .vet-check { display: flex; align-items: flex-start; gap: 12px; min-height: 44px; padding: 10px 14px; border-radius: 14px; border: 1.5px solid var(--border2); background: #fff; cursor: pointer; font-size: 14.5px; line-height: 1.4; }
 .vet-check input { width: 22px; height: 22px; margin: 0; flex: none; accent-color: var(--accent); }

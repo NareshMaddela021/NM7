@@ -5,11 +5,12 @@
 //   - a job on the company's own site: the site opens in a new tab and the application is saved as "outside Nm7"
 //   - a job on Nm7 (or by email): the job page's own apply step opens in a dialog (the "Send?" step, the company's
 //     questions and the consent box, or the email draft) — loaded only when it is needed
-//   - applied: "Applied ✓" (disabled), here and on the job page, also after a reload (GET /api/me/applied-jobs)
+//   - applied: "Applied" with a tick (disabled), here and on the job page, also after a reload (GET /api/me/applied-jobs)
 // The words are here (English, Telugu, Hindi) so the strings bundle on every page stays small.
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Dialog } from './ui';
+import { IcCheck, IcExternal, IcStar } from './icons';
 import { useAuth } from '../lib/auth';
 import { useLang } from '../lib/i18n';
 import { applyToJob, loadApplied, loadSaved, markApplied, toggleSaved, useApplied, useSaved } from '../lib/jobBoard';
@@ -18,21 +19,21 @@ const ApplyDialog = lazy(() => import('../pages/jobs/ApplyFlow'));
 
 const WORDS = {
   en: {
-    view: 'View', apply: 'Apply', applied: 'Applied ✓', save: 'Save', saved: 'Saved', saveError: 'Not saved. Please try again.',
+    view: 'View', apply: 'Apply', applied: 'Applied', save: 'Save', saved: 'Saved', saveError: 'Not saved. Please try again.',
     askTitle: 'Create a free account to apply', askText: 'It takes a minute. You come straight back to this job and your application goes on from there.',
     create: 'Create free account', signin: 'Sign in', notNow: 'Not now', direct: 'Or go to the company’s site without an account',
     finish: 'You’re signed in. Tap “Apply” to open the company’s site and finish.', loading: 'Loading…', error: 'This job could not be loaded. Please try again.',
     close: 'Close', track: 'See it in My applications',
   },
   te: {
-    view: 'చూడండి', apply: 'అప్లై', applied: 'అప్లై చేశారు ✓', save: 'సేవ్', saved: 'సేవ్ అయింది', saveError: 'సేవ్ కాలేదు. మళ్లీ ప్రయత్నించండి.',
+    view: 'చూడండి', apply: 'అప్లై', applied: 'అప్లై చేశారు', save: 'సేవ్', saved: 'సేవ్ అయింది', saveError: 'సేవ్ కాలేదు. మళ్లీ ప్రయత్నించండి.',
     askTitle: 'అప్లై చేయడానికి ఉచిత ఖాతా తెరవండి', askText: 'ఒక్క నిమిషం చాలు. మీరు నేరుగా ఈ ఉద్యోగానికి తిరిగి వస్తారు, అక్కడి నుంచే అప్లై కొనసాగుతుంది.',
     create: 'ఉచిత ఖాతా తెరవండి', signin: 'సైన్ ఇన్', notNow: 'ఇప్పుడు కాదు', direct: 'లేదా ఖాతా లేకుండా కంపెనీ సైట్‌కు వెళ్లండి',
     finish: 'మీరు సైన్ ఇన్ అయ్యారు. కంపెనీ సైట్ తెరిచి పూర్తి చేయడానికి “అప్లై” నొక్కండి.', loading: 'లోడ్ అవుతోంది…', error: 'ఈ ఉద్యోగం లోడ్ కాలేదు. మళ్లీ ప్రయత్నించండి.',
     close: 'మూసివేయండి', track: 'నా అప్లికేషన్లలో చూడండి',
   },
   hi: {
-    view: 'देखें', apply: 'आवेदन करें', applied: 'आवेदन किया ✓', save: 'सेव करें', saved: 'सेव किया', saveError: 'सेव नहीं हुआ। फिर से कोशिश करें।',
+    view: 'देखें', apply: 'आवेदन करें', applied: 'आवेदन किया', save: 'सेव करें', saved: 'सेव किया', saveError: 'सेव नहीं हुआ। फिर से कोशिश करें।',
     askTitle: 'आवेदन के लिए मुफ़्त खाता बनाएं', askText: 'बस एक मिनट लगेगा। आप सीधे इसी नौकरी पर लौटेंगे और आवेदन वहीं से आगे बढ़ेगा।',
     create: 'मुफ़्त खाता बनाएं', signin: 'साइन इन', notNow: 'अभी नहीं', direct: 'या बिना खाते के कंपनी की साइट पर जाएं',
     finish: 'आप साइन इन हैं। कंपनी की साइट खोलकर पूरा करने के लिए “आवेदन करें” दबाएं।', loading: 'लोड हो रहा है…', error: 'यह नौकरी लोड नहीं हुई। फिर से कोशिश करें।',
@@ -65,7 +66,7 @@ export function AuthAsk({ job, onClose, returnTo }) {
           <button type="button" className="btn btn-ghost" onClick={onClose}>{w.notNow}</button>
         </div>
         {linkJob(job) && (
-          <a className="xs" href={job.apply.url} target="_blank" rel="noopener noreferrer nofollow" style={{ minHeight: 44, display: 'inline-flex', alignItems: 'center' }} data-testid="apply-ask-direct">{w.direct} <span aria-hidden="true">↗</span></a>
+          <a className="xs" href={job.apply.url} target="_blank" rel="noopener noreferrer nofollow" style={{ minHeight: 44, display: 'inline-flex', alignItems: 'center' }} data-testid="apply-ask-direct">{w.direct} <IcExternal size={14} /></a>
         )}
       </div>
     </Dialog>
@@ -90,17 +91,17 @@ export function SaveButton({ job, testid }) {
   return (
     <>
       <button type="button" className="btn btn-outline" aria-pressed={on} disabled={busy} onClick={click} aria-label={`${on ? t('jobs.saved') : t('jobs.save')}: ${job.title}`} data-testid={testid}>
-        <span aria-hidden="true">{on ? '★' : '☆'}</span> {on ? t('jobs.saved') : t('jobs.save')}
+        <IcStar size={16} fill={on ? 'currentColor' : 'none'} /> {on ? t('jobs.saved') : t('jobs.save')}
       </button>
       {err && <span role="alert" className="xs" style={{ color: 'var(--danger)' }}>{err}</span>}
     </>
   );
 }
 
-/** "Applied ✓" (disabled) once this person applied to the job. */
+/** "Applied" with a tick (disabled) once this person applied to the job. */
 export function AppliedButton({ testid = 'card-applied' }) {
   const w = useWords();
-  return <button type="button" className="btn btn-outline job-applied" disabled data-testid={testid}>{w.applied}</button>;
+  return <button type="button" className="btn btn-outline job-applied" disabled data-testid={testid}><IcCheck size={16} />{w.applied}</button>;
 }
 
 /** Apply on a card: the same as the job page's Apply (see the top of this file). */
@@ -111,11 +112,11 @@ export function ApplyAction({ job, desc }) {
   const [ask, setAsk] = useState(null); // the button that opened the dialog (focus goes back to it)
   const [flow, setFlow] = useState(null);
   const [err, setErr] = useState('');
-  // the apply steps stay open after sending (they say "Applied ✓" and where to see it), while the card already says so
+  // the apply steps stay open after sending (they say "Applied" and where to see it), while the card already says so
   const closeFlow = () => {
     const view = flow?.closest('.job-actions')?.querySelector('[data-testid="card-view"]');
     setFlow(null);
-    setTimeout(() => { if (flow && !flow.isConnected) view?.focus(); }, 0); // Apply became "Applied ✓": focus View
+    setTimeout(() => { if (flow && !flow.isConnected) view?.focus(); }, 0); // Apply became "Applied": focus View
   };
   const steps = flow && (
     <Suspense fallback={null}>
@@ -142,7 +143,7 @@ export function ApplyAction({ job, desc }) {
     };
     return (
       <>
-        <a className="btn btn-ink" href={job.apply.url} target="_blank" rel="noopener noreferrer nofollow" aria-describedby={desc} onClick={record} data-testid="card-apply">{w.apply} <span aria-hidden="true">↗</span></a>
+        <a className="btn btn-ink" href={job.apply.url} target="_blank" rel="noopener noreferrer nofollow" aria-describedby={desc} onClick={record} data-testid="card-apply">{w.apply} <IcExternal size={14} /></a>
         {err && <span role="alert" className="xs" style={{ color: 'var(--danger)', flexBasis: '100%' }}>{err}</span>}
       </>
     );

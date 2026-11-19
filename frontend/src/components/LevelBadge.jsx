@@ -1,7 +1,8 @@
-// Vetting V1: the level chip ("L2 · Skill verified", a calm colour of its own per level) and the "⚡ Ready now" chip.
+// Vetting V1: the level chip ("L2 · Skill verified", a calm colour of its own per level) and the "Ready now" chip (a bolt icon).
 // The words carry the meaning (never colour alone): screen readers hear "Level 2 of 4: Skill verified". Used on the
 // candidate dashboard and Job Profile, company Hire now and Applicants. `lang` translates the label (company pages).
 import { lt } from './levelStrings';
+import { IcBolt } from './icons';
 import '../styles/level-badge.css';
 
 export function LevelChip({ level, label, lang = 'en', testid = 'level-chip' }) {
@@ -22,7 +23,7 @@ export function ReadyChip({ lang = 'en', testid = 'ready-chip' }) {
   const t = lt(lang);
   return (
     <span className="lvb lvb-ready" data-testid={testid} title={t('lv.readyTip')}>
-      <span aria-hidden="true">⚡</span>{t('lv.ready')}<span className="sr-only">: {t('lv.readyTip')}</span>
+      <IcBolt size={14} />{t('lv.ready')}<span className="sr-only">: {t('lv.readyTip')}</span>
     </span>
   );
 }

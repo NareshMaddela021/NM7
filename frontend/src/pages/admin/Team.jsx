@@ -5,6 +5,7 @@ import { useToast } from '../../components/ui';
 import { useAdmin, ROLES } from './AdminContext';
 import { PageHead, Tabs, ago, fmtDT, downloadCsv } from './AdminUI';
 import { NAV } from './AdminLayout';
+import { IcCheck } from '../../components/icons';
 
 function Members() {
   const { team, actions } = useAdmin();
@@ -31,7 +32,7 @@ function Members() {
       </form>
       <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ padding: 0 }}>
         <table className="table"><thead><tr><th>Section</th>{Object.values(ROLES).map((r) => <th key={r.label}>{r.label}</th>)}</tr></thead>
-          <tbody>{NAV.map(([k, , l]) => <tr key={k}><td className="small">{l}</td>{Object.entries(ROLES).map(([rk, r]) => <td key={rk} aria-label={r.can.includes(k) ? 'Allowed' : 'No access'}>{r.can.includes(k) ? '✓' : <span className="faint">—</span>}</td>)}</tr>)}</tbody></table>
+          <tbody>{NAV.map(([k, , l]) => <tr key={k}><td className="small">{l}</td>{Object.entries(ROLES).map(([rk, r]) => <td key={rk} aria-label={r.can.includes(k) ? 'Allowed' : 'No access'}>{r.can.includes(k) ? <IcCheck size={16} /> : <span className="faint">—</span>}</td>)}</tr>)}</tbody></table>
       </div>
     </>
   );
@@ -52,8 +53,8 @@ function AuditLog() {
         <button type="button" className="btn btn-outline" onClick={() => downloadCsv('audit-log.csv', [['Time', 'Who', 'Area', 'What', 'Before', 'After'], ...list.map((l) => [fmtDT(l.at), l.who, l.area, l.what, l.from, l.to])])}>Export CSV</button>
       </div>
       <div className="card table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns" style={{ padding: 0 }}>
-        <table className="table"><thead><tr><th>When</th><th>Who</th><th>Area</th><th>What</th><th>Before → after</th></tr></thead>
-          <tbody>{list.map((l, i) => <tr key={i}><td className="small">{fmtDT(l.at)}</td><td className="small">{l.who}</td><td><span className="badge b-neutral">{l.area}</span></td><td className="small">{l.what}</td><td className="xs muted" style={{ maxWidth: 260, overflowWrap: 'anywhere' }}>{l.from} → <strong>{l.to}</strong></td></tr>)}</tbody></table>
+        <table className="table"><thead><tr><th>When</th><th>Who</th><th>Area</th><th>What</th><th>Before, after</th></tr></thead>
+          <tbody>{list.map((l, i) => <tr key={i}><td className="small">{fmtDT(l.at)}</td><td className="small">{l.who}</td><td><span className="badge b-neutral">{l.area}</span></td><td className="small">{l.what}</td><td className="xs muted" style={{ maxWidth: 260, overflowWrap: 'anywhere' }}>{l.from} to <strong>{l.to}</strong></td></tr>)}</tbody></table>
       </div>
       <span className="xs faint">The log can’t be edited or deleted — not even by the owner.</span>
     </>

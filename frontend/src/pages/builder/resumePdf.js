@@ -258,7 +258,7 @@ export async function buildResumePdf({ data, design: ds, photo: photoArg, cover,
   const drawBulletMark = (col) => {
     const bs = ds.bodySize;
     if (ds.bullet === 'none') return;
-    if (ds.bullet === '▸') { doc.setFillColor(...text); const cy = col.y + bs * 0.55; doc.triangle(col.x + 1, cy - 2.4, col.x + 1, cy + 2.4, col.x + 5, cy, 'F'); } else { set(bs, 'normal', text); doc.text(ds.bullet, col.x, col.y + bs * 0.9); }
+    if (ds.bullet === '\u25B8') { doc.setFillColor(...text); const cy = col.y + bs * 0.55; doc.triangle(col.x + 1, cy - 2.4, col.x + 1, cy + 2.4, col.x + 5, cy, 'F'); } else { set(bs, 'normal', text); doc.text(ds.bullet, col.x, col.y + bs * 0.9); }
   };
   // text with bold words: the **bold** pieces, and numbers in templates like Impact; wrapped word by word, where a
   // word can change weight inside it ("**Power BI**," keeps its comma regular). A paragraph break starts a new row.
@@ -267,7 +267,7 @@ export async function buildResumePdf({ data, design: ds, photo: photoArg, cover,
     const segs = parseBold(raw);
     set(bs, 'normal', text);
     const space = doc.getTextWidth(' ');
-    const paras = [[[]]]; // paragraphs → words → [{ t, b }]
+    const paras = [[[]]]; // paragraphs -> words -> [{ t, b }]
     segs.forEach(({ t, b }) => {
       t.split(/(\n|[ \t]+)/).forEach((tok) => {
         if (!tok) return;
@@ -321,7 +321,7 @@ export async function buildResumePdf({ data, design: ds, photo: photoArg, cover,
       parts.forEach((p, i) => {
         ensure(col, lh(bs));
         if (i === 0) {
-          if (ds.bullet === '▸') { doc.setFillColor(...text); const cy = col.y + bs * 0.55; doc.triangle(col.x + 1, cy - 2.4, col.x + 1, cy + 2.4, col.x + 5, cy, 'F'); }
+          if (ds.bullet === '\u25B8') { doc.setFillColor(...text); const cy = col.y + bs * 0.55; doc.triangle(col.x + 1, cy - 2.4, col.x + 1, cy + 2.4, col.x + 5, cy, 'F'); }
           else doc.text(ds.bullet, col.x, col.y + bs * 0.9);
         }
         doc.text(p, col.x + 10, col.y + bs * 0.9);

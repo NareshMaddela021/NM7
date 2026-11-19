@@ -2,7 +2,7 @@
    and lavender glows, EB Garamond headings, Manrope text, navy ink, purple gradient accents and white cards with
    soft shadows. Everything is scoped under .nh so the rest of the site is untouched. Text keeps 4.5:1 or more
    (large headings 3:1). Mobile first: 390 px phones, then wider screens.
-   Layers: section backgrounds (bottom) → the 3D dots (.nh-stage, z 1) → all content (.nh-wrap, z 2) → header. */
+   Layers: section backgrounds (bottom) -> the 3D dots (.nh-stage, z 1) -> all content (.nh-wrap, z 2) -> header. */
 .nh {
   --nh-ink: #1b1730;
   --nh-ink2: #0f1729;

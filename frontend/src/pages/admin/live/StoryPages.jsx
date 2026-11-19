@@ -1,4 +1,4 @@
-// Admin → Stories: students' stories waiting for review. Approve (fixing typos only), or don't use. Demo stories
+// Admin -> Stories: students' stories waiting for review. Approve (fixing typos only), or don't use. Demo stories
 // are marked and never shown on the public site.
 import { useState } from 'react';
 import { useToast } from '../../../components/ui';
@@ -6,6 +6,7 @@ import { Tabs } from '../AdminUI';
 import { Chip } from '../../me/kit';
 import { Hero, Initial } from './SetupKit';
 import { Loading, day, emptyIf, http, useAction, useApi } from './common';
+import { IcMessage } from '../../../components/icons';
 
 export function LiveStories() {
   const toast = useToast();
@@ -16,7 +17,7 @@ export function LiveStories() {
   const decide = (s, action) => run(async () => { await http(`/api/admin/stories/${s.id}`, { method: 'PUT', body: { action, ...(edit[s.id] !== undefined ? { story: edit[s.id] } : {}) } }); st.reload(); }, action === 'approve' ? 'Approved — it shows on the website' : 'Not used');
   return (
     <>
-      <Hero icon="❝" title="Stories" sub="Students’ stories for the home page and For organizations. Fix typos only; for anything bigger ask the student to send a new one. Students can withdraw a story any time." />
+      <Hero icon={<IcMessage />} title="Stories" sub="Students’ stories for the home page and For organizations. Fix typos only; for anything bigger ask the student to send a new one. Students can withdraw a story any time." />
       <div className="as-bar"><Tabs label="Show" tabs={[['pending', 'Waiting'], ['approved', 'On the website'], ['rejected', 'Not used']]} value={tab} onChange={setTab} /></div>
       <Loading st={st} empty={emptyIf((d) => !d.length, 'Nothing here.')}>{(rows) => (
         <div className="stack g12">

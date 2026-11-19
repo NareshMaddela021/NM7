@@ -7,6 +7,7 @@ import Header from '../components/Header';
 import SiteFooter from '../components/SiteFooter';
 import { headerLabels, useLang } from '../lib/i18n';
 import { http } from '../services/http';
+import { IcCheckCircle } from '../components/icons';
 
 export default function Verify() {
   const { token } = useParams();
@@ -22,7 +23,7 @@ export default function Verify() {
         {d === null && <p className="error" role="alert" data-testid="verify-none">{t('verify.none')}</p>}
         {d && (
           <section className="card stack g8" data-testid="verify-ok">
-            <strong>✓ {t('verify.ok')}</strong>
+            <strong className="row g4" style={{ alignItems: 'center' }}><IcCheckCircle size={18} style={{ color: 'var(--success)' }} />{t('verify.ok')}</strong>
             <p style={{ margin: 0 }}>{t('verify.line', { name: d.name, title: d.title, company: d.company, from: d.from, to: d.to })}</p>
             <span className="xs muted">{t('verify.number', { n: d.number })}</span>
           </section>

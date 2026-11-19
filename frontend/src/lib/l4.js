@@ -1,12 +1,12 @@
 // Vetting V4, the Nm7 human check (L4): status words and small helpers shared by the company control, the candidate's
 // /me/verification, the reviewer workspace and the Admin "L4 checks" tab. Only those pages import this.
 
-/** status → [words, chip tone] */
+/** status -> [words, chip tone] */
 export const L4_STATUS = {
   requested: ['Requested', 'info'],
   booked: ['Call booked', 'accent'],
   checked: ['Checked · waiting for a reference', 'accent'],
-  verified: ['✓ Nm7 verified', 'ok'],
+  verified: ['Nm7 verified', 'ok'],
   failed: ['Not passed', 'bad'],
 };
 export const l4Status = (s) => L4_STATUS[s] || [s || '—', 'neutral'];

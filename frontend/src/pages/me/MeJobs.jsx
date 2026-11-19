@@ -1,4 +1,4 @@
-// Application tracker: Saved → Applied → Viewed (Nm7 jobs) → Shortlisted → Interview → Offer / Rejected, with
+// Application tracker: Saved -> Applied -> Viewed (Nm7 jobs) -> Shortlisted -> Interview -> Offer / Rejected, with
 // follow-up reminders and simple stats. Applications sent on Nm7 move when the company moves them; the rest you move.
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -12,6 +12,7 @@ import '../../styles/me-jobs.css';
 import { MeHead } from './MeLayout';
 import { fmtShort, fmtDay } from './shared';
 import { webLink } from '../../lib/links';
+import { IcArrowLeft, IcArrowRight, IcBriefcase, IcCalendar, IcClip, IcClock, IcExternal } from '../../components/icons';
 
 const DAY = 864e5;
 const CHANNEL = { nm7: 'Applied on Nm7', link: 'Applied (outside Nm7)', email: 'Applied by email' };
@@ -83,7 +84,7 @@ export default function MeJobs() {
     <>
       <MeHead title="Applications" sub="Track every job you apply to and which resume you sent. Job matches you save land here with their score." right={<span className="row g8"><Link to="/me/auto-apply" className="btn btn-outline" data-testid="jobs-auto-apply">{t('aa.link')}</Link><button type="button" className="btn btn-signal" onClick={() => setEdit({})}>Add application</button></span>} />
       <div className="mjobs-top">
-        <MeCard title="Where your applications are" sub="Tap a step to see only those jobs. Tap it again to see all." icon="▥" className="mjobs-pipe">
+        <MeCard title="Where your applications are" sub="Tap a step to see only those jobs. Tap it again to see all." icon={<IcBriefcase />} className="mjobs-pipe">
           <Pipeline label="Applications by step" steps={cols.map(([k, l]) => ({ key: k, label: l, count: countOf(k), tone: TONE[k] }))} active={filter} onPick={setFilter} />
         </MeCard>
         <div className="mjobs-stats">
@@ -132,13 +133,13 @@ export default function MeJobs() {
                         </span>
                       )}
                       <span className="mjob-meta">{fmtDay(a.date)} · {a.resumeName || resumeName(a.resumeId)}</span>
-                      {a.next && <span className="mjob-next"><span aria-hidden="true">→</span> Next: {fmtShort(a.next)}</span>}
-                      {due(a) && <span className="mjob-follow">⏰ Follow up? <button type="button" className="link-btn xs" onClick={() => { setMe((s) => ({ apps: s.apps.map((x) => (x.id === a.id ? { ...x, followed: Date.now(), notes: `${x.notes ? `${x.notes}\n` : ''}Followed up ${fmtDay(Date.now())}.` } : x)) })); toast('Marked as followed up'); }}>Done</button></span>}
-                      {a.sentEmail && <details className="xs mjob-more" data-testid="app-sent-email"><summary>{t('aa.items.whatSent')}</summary><div className="stack g4" style={{ marginTop: 4 }}><span>{t('aa.items.sentTo', { to: a.sentEmail.to })}</span><strong>{a.sentEmail.subject}</strong><span style={{ whiteSpace: 'pre-line' }}>{a.sentEmail.text}</span>{a.sentEmail.attachment && <span className="muted">📎 {a.sentEmail.attachment}</span>}</div></details>}
+                      {a.next && <span className="mjob-next"><IcCalendar size={14} /> Next: {fmtShort(a.next)}</span>}
+                      {due(a) && <span className="mjob-follow"><IcClock size={14} /> Follow up? <button type="button" className="link-btn xs" onClick={() => { setMe((s) => ({ apps: s.apps.map((x) => (x.id === a.id ? { ...x, followed: Date.now(), notes: `${x.notes ? `${x.notes}\n` : ''}Followed up ${fmtDay(Date.now())}.` } : x)) })); toast('Marked as followed up'); }}>Done</button></span>}
+                      {a.sentEmail && <details className="xs mjob-more" data-testid="app-sent-email"><summary>{t('aa.items.whatSent')}</summary><div className="stack g4" style={{ marginTop: 4 }}><span>{t('aa.items.sentTo', { to: a.sentEmail.to })}</span><strong>{a.sentEmail.subject}</strong><span style={{ whiteSpace: 'pre-line' }}>{a.sentEmail.text}</span>{a.sentEmail.attachment && <span className="muted"><IcClip size={14} /> {a.sentEmail.attachment}</span>}</div></details>}
                       {a.timeline?.length > 1 && <ol className="app-steps xs" aria-label={`Steps for ${a.company}`}>{a.timeline.map((s, i) => <li key={i}>{APP_STAGES.find(([x]) => x === s.status)?.[1] || s.status} · {fmtShort(s.at)}</li>)}</ol>}
                       {(webLink(a.url) || (a.tailoredResumeId && me.resumes.some((r) => r.id === a.tailoredResumeId)) || a.matchId) && (
                         <span className="mjob-links">
-                          {webLink(a.url) && <a className="xs" href={webLink(a.url)} target="_blank" rel="noopener noreferrer" style={{ overflowWrap: 'anywhere' }}>Job post ↗<span className="sr-only"> for {a.company} (opens in a new tab)</span></a>}
+                          {webLink(a.url) && <a className="xs" href={webLink(a.url)} target="_blank" rel="noopener noreferrer" style={{ overflowWrap: 'anywhere' }}>Job post <IcExternal size={14} /><span className="sr-only"> for {a.company} (opens in a new tab)</span></a>}
                           {a.tailoredResumeId && me.resumes.some((r) => r.id === a.tailoredResumeId) && <button type="button" className="link-btn xs" style={{ textAlign: 'left' }} onClick={() => { openInBuilder(a.tailoredResumeId); nav('/builder', { state: { open: 'build' } }); }}>Open the tailored copy</button>}
                           {a.matchId && <button type="button" className="link-btn xs" style={{ textAlign: 'left' }} onClick={() => nav(`/me/interview/${a.matchId}`)}>Interview prep</button>}
                         </span>
@@ -148,8 +149,8 @@ export default function MeJobs() {
                       {a.channel === 'nm7' ? <span className="mjob-foot xs faint">Updated by the company</span> : (
                         <span className="mjob-foot mjob-move">
                           <span className="xs faint">Move to</span>
-                          <button type="button" className="btn btn-icon" aria-label={`Move ${a.company} back`} disabled={k === stages(a)[0][0]} onClick={() => move(a, -1)}>←</button>
-                          <button type="button" className="btn btn-icon" aria-label={`Move ${a.company} forward`} disabled={k === stages(a)[stages(a).length - 1][0]} onClick={() => move(a, 1)}>→</button>
+                          <button type="button" className="btn btn-icon" aria-label={`Move ${a.company} back`} disabled={k === stages(a)[0][0]} onClick={() => move(a, -1)}><IcArrowLeft /></button>
+                          <button type="button" className="btn btn-icon" aria-label={`Move ${a.company} forward`} disabled={k === stages(a)[stages(a).length - 1][0]} onClick={() => move(a, 1)}><IcArrowRight /></button>
                         </span>
                       )}
                     </article>

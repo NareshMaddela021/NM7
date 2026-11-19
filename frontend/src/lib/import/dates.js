@@ -9,7 +9,7 @@ export const SINGLE_RE = new RegExp(`(${ONE})`, 'i');
 const pad = (n) => String(n).padStart(2, '0');
 function fullYear(y) { const n = parseInt(y, 10); return y.length === 2 ? (n > 50 ? 1900 + n : 2000 + n) : n; }
 
-/** "Feb 2020" → "2020-02", "2017" → "2017" (year only stays year only), "06/2023" → "2023-06" */
+/** "Feb 2020" -> "2020-02", "2017" -> "2017" (year only stays year only), "06/2023" -> "2023-06" */
 export function normDate(s) {
   if (!s) return '';
   const t = s.trim().toLowerCase().replace(/[’']/g, ' ');

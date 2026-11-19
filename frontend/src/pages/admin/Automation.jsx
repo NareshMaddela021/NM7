@@ -1,4 +1,4 @@
-// Automation: simple "when → then" rules with on/off, and a builder for new ones.
+// Automation: simple "when -> then" rules with on/off, and a builder for new ones.
 import { useState } from 'react';
 import { useToast } from '../../components/ui';
 import { useAdmin } from './AdminContext';
@@ -8,7 +8,7 @@ const WHEN = {
   deadline: ['Hours before the deadline, no draft yet', 'hours'],
   unassigned: ['Order unassigned for', 'minutes'],
   'expert-refunds': ['Expert refunds in a week reach', 'refunds'],
-  'low-rating': ['Customer rating at or below', '★'],
+  'low-rating': ['Customer rating at or below', 'stars'],
   'payout-waiting': ['Payout request waiting for', 'hours'],
 };
 const THEN = {
@@ -18,7 +18,7 @@ const THEN = {
   audit: 'Add to the quality audit queue',
   'alert-finance': 'Alert finance',
 };
-const label = (r) => `${WHEN[r.when][0]} ${r.value} ${WHEN[r.when][1]} → ${THEN[r.then]}`;
+const label = (r) => `${WHEN[r.when][0]} ${r.value} ${WHEN[r.when][1]}, then ${THEN[r.then]}`;
 
 export default function Automation() {
   const { rules, actions } = useAdmin();

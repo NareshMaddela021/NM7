@@ -12,6 +12,7 @@ import Shell from './RecruiterShell';
 import FeedbackForm from './FeedbackForm';
 import { Still } from '../newhome/ParticleStage';
 import { Chip, Empty } from '../me/kit';
+import { IcShield } from '../../components/icons';
 
 async function rq(path, { method = 'GET', body } = {}) {
   let res;
@@ -102,7 +103,7 @@ function Drives({ onSignedOut }) {
         <button type="button" className="btn btn-outline" onClick={signOut}>Sign out</button>
         <span className="rc-head-art" aria-hidden="true"><Still shape="college" tint="company" className="rc-still" /></span>
       </div>
-      <p className="rc-note"><span aria-hidden="true">⛨</span>Each college decides who you can see. Students show only while that college’s invite is active; when it ends you keep the counts and your own notes.</p>
+      <p className="rc-note"><IcShield size={16} /> Each college decides who you can see. Students show only while that college’s invite is active; when it ends you keep the counts and your own notes.</p>
       {data.drives.length === 0 && <Empty shape="college" tint="company">No drives yet. When a college invites this email, it shows here.</Empty>}
       {active.length > 0 && <section className="rc-group" aria-label="Active drives"><h2 className="rc-group-h"><span className="rc-dot rc-dot-ok" aria-hidden="true" />Active <span className="rc-count">{active.length}</span></h2><div className="rc-drive-grid">{active.map((d) => <Drive key={d.id} d={d} onChanged={load} />)}</div></section>}
       {past.length > 0 && <section className="rc-group" aria-label="Past drives"><h2 className="rc-group-h"><span className="rc-dot" aria-hidden="true" />Past <span className="rc-count">{past.length}</span></h2><div className="rc-drive-grid">{past.map((d) => <Drive key={d.id} d={d} onChanged={load} />)}</div></section>}

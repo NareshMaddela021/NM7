@@ -2,6 +2,7 @@
 // black & white. Saves a sharp 600×600 JPEG; the original is kept so it can be re-cropped later.
 import { useEffect, useRef, useState } from 'react';
 import { Dialog } from '../../components/ui';
+import { IcSwap } from '../../components/icons';
 
 export const PHOTO_OUT = 400; // saved size in px (≈ 35 mm at 290 dpi; small enough to save inside the resume)
 const FRAME = 300; // on-screen frame in px
@@ -85,7 +86,7 @@ export default function PhotoEditor({ src, initial, shape = 'circle', onSave, on
     drawAdjusted(thumb.current.getContext('2d'), img, a, 128);
   }, [img, a]);
 
-  const k = PHOTO_OUT / FRAME; // screen px → output px
+  const k = PHOTO_OUT / FRAME; // screen px -> output px
   const onDown = (e) => { e.currentTarget.setPointerCapture(e.pointerId); drag.current = { x: e.clientX, y: e.clientY, ox: a.x, oy: a.y }; };
   const onMove = (e) => { if (!drag.current) return; const d0 = drag.current; set({ x: d0.ox + (e.clientX - d0.x) * k, y: d0.oy + (e.clientY - d0.y) * k }); };
   const onUp = () => { drag.current = null; };
@@ -136,7 +137,7 @@ export default function PhotoEditor({ src, initial, shape = 'circle', onSave, on
             <div className="row g8">
               <button type="button" className="btn btn-outline" style={{ minHeight: 38 }} aria-label="Rotate left" onClick={() => set({ quarter: (a.quarter + 3) % 4 })}>⟲ Left</button>
               <button type="button" className="btn btn-outline" style={{ minHeight: 38 }} aria-label="Rotate right" onClick={() => set({ quarter: (a.quarter + 1) % 4 })}>Right ⟳</button>
-              <button type="button" className="btn btn-outline" style={{ minHeight: 38 }} aria-pressed={a.flip} onClick={() => set({ flip: !a.flip })}>⇋ Flip</button>
+              <button type="button" className="btn btn-outline" style={{ minHeight: 38 }} aria-pressed={a.flip} onClick={() => set({ flip: !a.flip })}><IcSwap size={16} /> Flip</button>
             </div>
           </div>
           <Range id="pe-fine" label="Straighten" value={a.fine} min={-15} max={15} step={0.5} unit="°" onChange={(v) => set({ fine: v })} />

@@ -34,7 +34,7 @@ for (const [label, opts] of SIZES) {
       await page.goto('/me/auto-apply/v2');
       const row = page.getByTestId('aa2-row').filter({ hasText: `Data Analyst ${tag}` });
       await expect(row).toHaveAttribute('data-stage', 'applied');
-      await expect(row.getByTestId('aa2-ch')).toHaveText('▤ Company form');
+      await expect(row.getByTestId('aa2-ch')).toHaveText('Company form');
       await expect(row.getByTestId('aa2-row-form')).toHaveText('Sent through the company’s own form. The company’s page confirmed it.');
       await row.getByTestId('aa2-what').click();
       const proof = row.getByTestId('aa2-form');
@@ -51,7 +51,7 @@ for (const [label, opts] of SIZES) {
 
       const ready = page.getByTestId('aa2-row').filter({ hasText: `Reporting Analyst ${tag}` });
       await expect(ready).toHaveAttribute('data-stage', 'ready');
-      await expect(ready.getByTestId('aa2-ch')).toHaveText('☝ One tap');
+      await expect(ready.getByTestId('aa2-ch')).toHaveText('One tap');
       await expect(ready.getByTestId('aa2-row-ready')).toContainText('CAPTCHA');
       expect(await noSideScroll(page)).toBe(true);
     });

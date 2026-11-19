@@ -35,7 +35,7 @@ export function SchemaField({ field, value, onChange, disabled, onAi, idBase, er
         <div className="row g8" role="group" aria-labelledby={`${id}-l`}>
           {field.options.map((o) => {
             const on = arr.includes(o);
-            return <button key={o} type="button" className="chip" aria-pressed={on} onClick={() => onChange(on ? arr.filter((x) => x !== o) : [...arr, o])}>{on ? '✓ ' : ''}{o}</button>;
+            return <button key={o} type="button" className="chip" aria-pressed={on} onClick={() => onChange(on ? arr.filter((x) => x !== o) : [...arr, o])}>{on && <Icon name="check" size={13} stroke={2.5} style={{ marginRight: 4 }} />}{o}</button>;
           })}
         </div>
       </div>

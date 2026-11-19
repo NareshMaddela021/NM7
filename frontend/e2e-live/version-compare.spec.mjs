@@ -49,8 +49,8 @@ for (const [label, opts] of SIZES) {
       await expect(page.locator('#vc-left')).toHaveValue('v0');
       await expect(page.locator('#vc-right')).toHaveValue('current');
       await page.locator('#vc-left').selectOption('v1');
-      await expect(vc.getByTestId('vc-design')).toContainText('Font: source-sans-3 → lora');
-      await expect(vc.getByTestId('vc-design')).toContainText('Accent colour: #111827 → #1d4ed8');
+      await expect(vc.getByTestId('vc-design')).toContainText('Font: source-sans-3 to lora');
+      await expect(vc.getByTestId('vc-design')).toContainText('Accent colour: #111827 to #1d4ed8');
       const exp = vc.locator('[data-testid^="vc-section-"]').filter({ hasText: 'Answered support emails' });
       await expect(exp.locator('[data-change="removed"]')).toHaveText('Answered support emails');
       await expect(exp.locator('[data-change="added"]')).toHaveText('Trained 3 new interns');

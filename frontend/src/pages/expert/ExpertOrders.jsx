@@ -35,7 +35,7 @@ export default function ExpertOrders() {
               <span className="ex-order-foot">
                 <span className={`badge ${LABEL[o.status][1]}`}>{LABEL[o.status][0]}</span>
                 {live && <span className="ex-time" style={{ color: o.status === 'offer' ? 'var(--warning)' : t.color }}>{o.status === 'offer' ? `${Math.max(0, Math.round((o.offerExpires - Date.now()) / 60000))} min to accept` : t.label}</span>}
-                {o.rating && <span className="small">★ {o.rating}</span>}
+                {o.rating && <span className="small">Rated {o.rating}/5</span>}
               </span>
             </Link>
           );

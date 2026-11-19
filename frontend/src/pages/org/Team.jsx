@@ -10,6 +10,7 @@ import { SHAPE_COLORS, TINTS } from '../newhome/shapes';
 import { TransferOwnership } from './Transfer';
 import '../../styles/me-kit.css';
 import '../../styles/org-team.css';
+import { IcMail, IcUsers } from '../../components/icons';
 
 TINTS.college = SHAPE_COLORS.college;
 
@@ -26,7 +27,7 @@ export default function Team({ orgId, groups }) {
   const rows = st.data || [];
   return (
     <div className="ot-team">
-      <MeCard label="Team" title="Who helps run your organization" icon="☺" sub={st.data ? `${rows.length} ${rows.length === 1 ? 'person' : 'people'}` : undefined} className="ot-team-list">
+      <MeCard label="Team" title="Who helps run your organization" icon={<IcUsers />} sub={st.data ? `${rows.length} ${rows.length === 1 ? 'person' : 'people'}` : undefined} className="ot-team-list">
         {st.error ? (
           <div className="stack g8" role="alert"><strong>Couldn’t load this</strong><span className="small muted">{st.error.message}</span><button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} onClick={st.reload}>Try again</button></div>
         ) : !st.data ? <Skel cards={2} lines={2} label="Loading the team" /> : rows.length === 0 ? (
@@ -53,7 +54,7 @@ export default function Team({ orgId, groups }) {
       </MeCard>
       <form className="mcard ot-invite" aria-label="Invite someone" onSubmit={(e) => { e.preventDefault(); run(async () => { const r = await http(`/api/org/${orgId}/team`, { method: 'POST', body: f }); setLink(r.emailSent ? '' : r.inviteUrl); setF({ email: '', role: 'coordinator', groupIds: null }); st.reload(); }, 'Invite sent'); }}>
         <header className="mcard-h">
-          <span className="mcard-ic" aria-hidden="true">✉</span>
+          <span className="mcard-ic" aria-hidden="true"><IcMail /></span>
           <span className="mcard-ht"><strong className="mcard-title">Invite a coordinator or viewer</strong><span className="mcard-sub">They get a one-time link by email (valid 7 days) and sign in with their own Nm7 account. Your plan sets how many coordinators you can have.</span></span>
         </header>
         <div className="ot-fields">

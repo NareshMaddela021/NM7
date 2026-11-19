@@ -32,7 +32,7 @@ export function AdminProvider({ children }) {
   const [rules, setRules] = useState(DEFAULT_RULES);
   const [team, setTeam] = useState(TEAM);
   const [log, setLog] = useState(AUDIT_SEED);
-  const [notes, setNotes] = useState({}); // orderId → [{ at, who, text }]
+  const [notes, setNotes] = useState({}); // orderId -> [{ at, who, text }]
   const [role, setRole] = useState('owner');
   const [range, setRange] = useState(30);
   const me = team.find((t) => t.role === role)?.name || 'Admin';

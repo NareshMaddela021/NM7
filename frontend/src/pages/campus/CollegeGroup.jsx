@@ -8,6 +8,7 @@ import { http } from '../../services/http';
 import { Still } from '../newhome/ParticleStage';
 import '../../styles/me-kit.css';
 import '../../styles/org-groups.css';
+import { IcEdit, IcSwap, IcUsers } from '../../components/icons';
 
 const lpa = (v) => (v == null ? '—' : `${v} LPA`);
 
@@ -52,17 +53,17 @@ export default function CollegeGroup() {
               ))}
             </div>
             <section className="mcard og-cg-table">
-              <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">☷</span><span className="mcard-ht"><strong className="mcard-title">By campus</strong><span className="mcard-sub">Numbers only. Students’ details stay with each campus.</span></span></header>
+              <header className="mcard-h"><span className="mcard-ic" aria-hidden="true"><IcUsers /></span><span className="mcard-ht"><strong className="mcard-title">By campus</strong><span className="mcard-sub">Numbers only. Students’ details stay with each campus.</span></span></header>
               <div className="table-wrap og-table-wrap mtable-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table og-table mtable" aria-label="By campus" data-testid="cg-campuses"><thead><tr><th>Campus</th><th>Joined</th><th>Ready</th><th>Placed</th><th>Offers</th><th>Highest</th><th>Median</th><th>Average</th></tr></thead>
                 <tbody>{d.campuses.map((c) => <tr key={c.id}><td className="small" data-label="Campus"><strong>{c.name}</strong></td><td className="small" data-label="Joined">{c.joined}</td><td className="small" data-label="Ready">{c.ready}</td><td className="small" data-label="Placed">{c.placed}</td><td className="small" data-label="Offers">{c.offers}</td><td className="small" data-label="Highest">{lpa(c.highest)}</td><td className="small" data-label="Median">{lpa(c.median)}</td><td className="small" data-label="Average">{lpa(c.average)}</td></tr>)}</tbody></table></div>
             </section>
             <div className="og-cg-cards">
             <section className="mcard og-cg-card" aria-label="College format">
-              <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">◧</span><span className="mcard-ht"><strong className="mcard-title">One college format for every campus</strong><span className="mcard-sub">Copies a campus’s logo, header, colours and placement-template rules to the others.</span></span></header>
+              <header className="mcard-h"><span className="mcard-ic" aria-hidden="true"><IcEdit /></span><span className="mcard-ht"><strong className="mcard-title">One college format for every campus</strong><span className="mcard-sub">Copies a campus’s logo, header, colours and placement-template rules to the others.</span></span></header>
               <div className="row g8" style={{ flexWrap: 'wrap' }}><select className="input" value={fmt} onChange={(e) => setFmt(e.target.value)} aria-label="Copy from" data-testid="cg-format-from"><option value="">Copy from…</option>{d.campuses.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select><button type="button" className="btn btn-signal" disabled={!fmt} onClick={doFormat} data-testid="cg-format">Apply to all campuses</button></div>
             </section>
             <form className="mcard og-cg-card" onSubmit={doShare} aria-label="Share with other campuses">
-              <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">⇄</span><span className="mcard-ht"><strong className="mcard-title">Share with other campuses</strong><span className="mcard-sub">A drive day’s schedule or a recruiter invite, copied to the campuses you pick.</span></span></header>
+              <header className="mcard-h"><span className="mcard-ic" aria-hidden="true"><IcSwap /></span><span className="mcard-ht"><strong className="mcard-title">Share with other campuses</strong><span className="mcard-sub">A drive day’s schedule or a recruiter invite, copied to the campuses you pick.</span></span></header>
               <div className="row g8" style={{ flexWrap: 'wrap' }}>
                 <select className="input" value={share.kind} onChange={(e) => setShare({ ...share, kind: e.target.value, item: '' })} aria-label="What"><option value="drive">A drive day’s schedule</option><option value="invite">A recruiter invite</option></select>
                 <select className="input" value={share.from} onChange={(e) => setShare({ ...share, from: e.target.value, item: '', to: [] })} aria-label="From campus" data-testid="cg-share-from"><option value="">From campus…</option>{items.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select>

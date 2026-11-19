@@ -3,13 +3,13 @@
 //   - letters and digits stay (in any script, with their vowel signs, so a Telugu or Hindi name is still readable);
 //     every other run of characters — spaces, dashes, dots, slashes, emoji — becomes one underscore;
 //   - empty parts are dropped, and so are repeats: a part already said by another or inside a longer part
-//     ("AsuraaX" + "AsuraaX Batch 2026" → "AsuraaX_Batch_2026"), and the same word twice in a row
+//     ("AsuraaX" + "AsuraaX Batch 2026" -> "AsuraaX_Batch_2026"), and the same word twice in a row
 //     ("AsuraaX_AsuraaX"), ignoring case;
 //   - at most about 80 characters with the extension, cut between words; the extension is always kept.
 const KEEP = /[\p{L}\p{N}\p{M}‌‍]/u;
 export const MAX_NAME = 80;
 
-/** "Asha – Data Analyst" → "Asha_Data_Analyst" ('' when nothing usable is left). */
+/** "Asha – Data Analyst" -> "Asha_Data_Analyst" ('' when nothing usable is left). */
 export function fileSlug(s, max = 60) {
   return [...String(s ?? '')].map((c) => (KEEP.test(c) ? c : '_')).join('').replace(/_+/g, '_')
     .replace(/^[_‌‍]+|[_‌‍]+$/g, '').slice(0, max).replace(/_+$/, '');
@@ -24,7 +24,7 @@ function within(outer, inner) {
   return false;
 }
 
-/** fileName(['AsuraaX', 'AsuraaX Batch 2026', 'QR'], 'png') → "AsuraaX_Batch_2026_QR.png". `fallback` when no part
+/** fileName(['AsuraaX', 'AsuraaX Batch 2026', 'QR'], 'png') -> "AsuraaX_Batch_2026_QR.png". `fallback` when no part
  * leaves anything usable. */
 export function fileName(parts, ext, { fallback = 'Nm7', max = MAX_NAME } = {}) {
   const e = String(ext || '').replace(/^\.+/, '').replace(/[^A-Za-z0-9]/g, '').toLowerCase();

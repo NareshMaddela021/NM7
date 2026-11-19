@@ -1,8 +1,8 @@
 // Payments, admin side (the server checks every rule again: app/wapay, app/payments):
-//   PaymentSettings  Admin → Settings & prices → Payments: the payment method, Razorpay or Off (pause payments),
+//   PaymentSettings  Admin -> Settings & prices -> Payments: the payment method, Razorpay or Off (pause payments),
 //                    and whether the Razorpay keys are set on the server.
-//   WaReport         Admin → Reports: money in, Razorpay vs old (WhatsApp) orders, CSV.
-// The old (WhatsApp) orders themselves are read-only in Admin → Payments & invoices → Old WhatsApp orders.
+//   WaReport         Admin -> Reports: money in, Razorpay vs old (WhatsApp) orders, CSV.
+// The old (WhatsApp) orders themselves are read-only in Admin -> Payments & invoices -> Old WhatsApp orders.
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useToast } from '../../../components/ui';
@@ -16,7 +16,7 @@ export const MODES = [['razorpay', 'Razorpay'], ['off', 'Off (pause payments)']]
 export const OLD_WA = 'old (WhatsApp)';
 export const KEYS_HINT = 'Naresh adds RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET, RAZORPAY_WEBHOOK_SECRET in Render.';
 
-/* ---------- Settings → Payments ---------- */
+/* ---------- Settings -> Payments ---------- */
 export function PaymentSettings() {
   const toast = useToast();
   const st = useApi('/api/admin/payment-settings');

@@ -12,6 +12,7 @@ import { Chip, Empty, FieldGroup } from '../me/kit';
 import { SHAPE_COLORS, TINTS } from '../newhome/shapes';
 import '../../styles/me-kit.css';
 import '../../styles/org-team.css';
+import { IcMail } from '../../components/icons';
 
 TINTS.college = SHAPE_COLORS.college;
 const tone = { active: 'ok', expired: 'neutral', revoked: 'warn' };
@@ -58,7 +59,7 @@ export default function RecruiterInvites({ orgId, groups = [], canManage }) {
   return (
     <section className="mcard" aria-label="Recruiter invites">
       <header className="mcard-h">
-        <span className="mcard-ic" aria-hidden="true">✉</span>
+        <span className="mcard-ic" aria-hidden="true"><IcMail /></span>
         <span className="mcard-ht"><strong className="mcard-title">Recruiter invites</strong>
           <span className="mcard-sub">The recruiter gets a secure link by email and signs in with a one-time code sent to the same address (no Nm7 account). They see only students who ticked “Allow recruiter sharing”, in the groups you choose, until the expiry date. A student who stops sharing or leaves disappears at once. ID numbers are never shown.</span></span>
         <span className="mcard-actions">

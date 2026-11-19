@@ -47,7 +47,7 @@ export default function MeMessages() {
           <header className="acc-chat-h">
             <span className="mavatar" aria-hidden="true">{(cur.x.role || 'E')[0]}</span>
             <span className="acc-thread-main"><strong>Your expert · {cur.x.role}</strong><span className="xs muted">{PLANS[cur.x.plan].name}</span></span>
-            <Link to={`/me/orders/${cur.o.id}`} className="small acc-chat-order">Order {cur.o.id} →</Link>
+            <Link to={`/me/orders/${cur.o.id}`} className="small acc-chat-order">Order {cur.o.id}</Link>
           </header>
           <div className="mchat acc-chat-body" aria-live="polite">
             {msgs.length === 0 && <span className="small muted acc-chat-hi">Say hi, or share anything your expert should know.</span>}

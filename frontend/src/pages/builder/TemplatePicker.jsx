@@ -113,7 +113,7 @@ export default function TemplatePicker({ d, ds, suggest, photo, onPick, onNext, 
                     <ResumePreview decorative data={mine ? shownData : { ...shownData, ...layoutOf(k) }} design={design} photo={t.photo ? ((mine ? photo : null) || PHOTO_PLACEHOLDER) : (mine ? photo : null)} />
                   </InView>
                 </div>
-                <span aria-hidden="true" className="tp-check" style={{ visibility: chosen ? 'visible' : 'hidden' }}>✓</span>
+                <span aria-hidden="true" className="tp-check" style={{ visibility: chosen ? 'visible' : 'hidden' }}><Icon name="check" size={15} stroke={2.5} /></span>
               </button>
               <div className="row g8" style={{ alignItems: 'center' }}>
                 <strong>{t.name}</strong>

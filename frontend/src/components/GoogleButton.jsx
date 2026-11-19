@@ -1,5 +1,5 @@
 // "Continue with Google" (sign-in and sign-up pages). Renders nothing until the server reports a Google client ID
-// (GET /api/public/site-flags → googleClientId; empty while Google sign-in is off). Then it loads Google Identity
+// (GET /api/public/site-flags -> googleClientId; empty while Google sign-in is off). Then it loads Google Identity
 // Services (accounts.google.com/gsi/client) only on this page, draws Google's own button, and sends the ID token to
 // POST /api/auth/google as { credential, role, next }; the signed-in user goes to onDone, the same as email sign-in.
 import { useEffect, useRef, useState } from 'react';
@@ -24,7 +24,7 @@ function loadGsi() {
 }
 
 /** mode: 'signin' | 'signup' | 'link'; role: account type for a new account; next: where to go after; onDone(user).
- *  action: what to do with the credential instead of signing in (Settings → Connect Google); divider: the "or with
+ *  action: what to do with the credential instead of signing in (Settings -> Connect Google); divider: the "or with
  *  email" line under the button; note: a short line under the button (the terms for a new account). */
 export default function GoogleButton({ mode = 'signin', role, next, onDone, action = googleSignIn, divider = mode !== 'link', note }) {
   const [clientId, setClientId] = useState('');

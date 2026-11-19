@@ -5,8 +5,8 @@ describe('audit log details', () => {
   it('reads as text, not JSON', () => {
     expect(auditText({ via: 'totp', trust: false })).toBe('via: authenticator app · trusted device: no');
     expect(auditText({ via: 'trusted_device' })).toBe('via: trusted device');
-    expect(auditText({ delivery_hours: { from: 72, to: 48 } })).toBe('delivery hours: 72 → 48');
-    expect(auditText({ 'plans.expert': { from: { amount: 999, active: true }, to: { amount: 1099, active: true } } })).toBe('expert: ₹999 → ₹1099');
+    expect(auditText({ delivery_hours: { from: 72, to: 48 } })).toBe('delivery hours: 72 to 48');
+    expect(auditText({ 'plans.expert': { from: { amount: 999, active: true }, to: { amount: 1099, active: true } } })).toBe('expert: ₹999 to ₹1099');
     expect(auditText({ order_id: 'RS-1', reason: 'Late' })).toBe('order: RS-1 · reason: Late');
     expect(auditText({})).toBe('');
     expect(auditText(null)).toBe('');

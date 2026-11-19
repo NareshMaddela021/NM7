@@ -149,7 +149,7 @@ function Jobs({ c, d, onChanged }) {
         {d.jobs.map((j) => (
           <li key={j.id} className="ats-job" data-testid="ats-job">
             <span className="small" style={WRAP}><strong>{j.title}</strong>{' '}
-              <span className="muted" data-testid="ats-job-link">{j.link ? `→ ${j.link.title || j.link.id}` : '· not linked'}</span></span>
+              <span className="muted" data-testid="ats-job-link">{j.link ? `· linked to ${j.link.title || j.link.id}` : '· not linked'}</span></span>
             {d.canLink && list && (
               <span className="row g8" style={{ flexWrap: 'wrap', minWidth: 0 }}>
                 <select className="input ats-select" aria-label={`Job in ${d.connection.name} for ${j.title}`} value={pick[j.id] ?? j.link?.id ?? ''} onChange={(e) => setPick({ ...pick, [j.id]: e.target.value })} data-testid="ats-job-pick">

@@ -13,7 +13,7 @@ describe('salary guide visibility', () => {
     expect(indexable(true, false)).toBe(false);
     expect(indexable(true, true)).toBe(true);
   });
-  it('says the status in Admin → Settings', () => {
+  it('says the status in Admin -> Settings', () => {
     expect(salariesLine({ visible: false, ready: 0, needRoles: 15, mode: 'auto' })).toBe('Salaries page: hidden, 0 of 15 roles ready (Auto)');
     expect(salariesLine({ visible: true, ready: 3, needRoles: 15, mode: 'show' })).toBe('Salaries page: shown, 3 of 15 roles ready (Always show)');
   });

@@ -122,8 +122,8 @@ def test_median_and_p75():
     assert S.pct([0, 60, 120, 180], 75) == 135
     assert S.pct([10, 20, 30, 40, 50], 50) == 30 and S.pct([10, 20, 30, 40, 50], 75) == 40
     c = S.change(150, 90)
-    assert c["dir"] == "up" and c["text"].startswith("▲ 1 h slower")
-    assert S.change(60, 90)["dir"] == "down" and "▼ 30 m faster" in S.change(60, 90)["text"]
+    assert c["dir"] == "up" and c["text"].startswith("1 h slower")
+    assert S.change(60, 90)["dir"] == "down" and "30 m faster" in S.change(60, 90)["text"]
     assert S.change(60, None)["dir"] == "none"
 
 

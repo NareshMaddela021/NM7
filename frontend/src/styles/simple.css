@@ -67,7 +67,10 @@
 .sx-frow3 { gap: 8px; }
 .sx-frow3 .sx-big { min-width: 0; flex-direction: column; gap: 2px; padding: 8px 6px; font-size: 17px; text-align: center; }
 .sx-big.sx-applied:disabled { opacity: 1; background: var(--successbg); border-color: var(--success); color: var(--success); }
-.sx-chipic { display: inline-block; width: 1.2em; text-align: center; } /* the same width ticked or not: chips don't move (item 31) */
+.sx-chipic { display: inline-grid; place-items: center; width: 1.2em; vertical-align: -3px; color: var(--accent); } /* the same width ticked or not: chips don't move (item 31) */
+.sx-chipbtn[aria-pressed="true"] .sx-chipic { color: inherit; }
+.sx-trust svg, .sx-chip svg { vertical-align: -3px; color: var(--accent); }
+.sx-applied svg { flex: none; }
 .sx-chipbtn { font-weight: 600 !important; }
 .sx-ul { margin: 0; padding-left: 24px; display: flex; flex-direction: column; gap: 4px; font-size: 19px; }
 
@@ -88,13 +91,13 @@
 .sx-big { border: 2px solid var(--border2); border-radius: 20px; background: #fff; box-shadow: 0 1px 2px rgba(27, 23, 48, .04), 0 8px 20px -14px rgba(52, 40, 120, .3); font-weight: 700; }
 .sx-big:hover { border-color: var(--accent); }
 .sx-big.sx-ink { background: var(--grad-btn); color: #fff; border-color: transparent; box-shadow: var(--shadow-btn); }
-.sx-ic { display: inline-grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: #efeaff; font-size: 26px; }
-.sx-ink .sx-ic { background: rgba(255, 255, 255, .2); }
+.sx-ic { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; background: #f1eefc; color: var(--accent); }
+.sx-ink .sx-ic { background: rgba(255, 255, 255, .16); color: #fff; }
 .sx-tile { border: 2px solid var(--border2); border-radius: 22px; background: #fff; box-shadow: var(--shadow-sm); min-height: 132px; font-weight: 700; }
-.sx-tile .sx-ic { width: 64px; height: 64px; font-size: 32px; background: #fff1e6; }
+.sx-tile .sx-ic { width: 56px; height: 56px; border-radius: 14px; }
 .sx-input { border: 2px solid var(--border2); border-radius: 16px; }
 .sx-input:focus { border-color: var(--accent); }
-.sx-say { border: 2px solid var(--border2); border-radius: 18px; background: #fff; }
+.sx-say { display: inline-grid; place-items: center; border: 2px solid var(--border2); border-radius: 18px; background: #fff; }
 .sx-check { border-radius: 16px; background: #fff; }
 .sx-check input { accent-color: var(--accent); }
 .sx-bar { border-color: var(--border); }

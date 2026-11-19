@@ -287,7 +287,7 @@ async def _link_user(db, request: Request, token: str) -> tuple[str, str]:
         raise ApiError(
             404,
             "invalid_link",
-            "This link doesn’t work or has expired. Sign in and open Profile & settings → Privacy & consent.",
+            "This link doesn’t work or has expired. Sign in and open Profile & settings > Privacy & consent.",
         )
     return got
 

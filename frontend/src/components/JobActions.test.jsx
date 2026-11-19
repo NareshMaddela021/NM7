@@ -1,5 +1,5 @@
 // View · Apply · Save on job cards: signed out (the create-account / sign-in dialog with the way back to the job),
-// signed in on a job on Nm7 (the job page's apply steps) or on the company's site (the link opens), and "Applied ✓".
+// signed in on a job on Nm7 (the job page's apply steps) or on the company's site (the link opens), and "Applied".
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MemoryRouter } from 'react-router-dom';
@@ -59,11 +59,11 @@ describe('JobActions', () => {
     expect(onNm7).not.toContain('target="_blank"');
   });
 
-  it('applied: "Applied ✓", disabled, instead of Apply', () => {
+  it('applied: "Applied" with a tick, disabled, instead of Apply', () => {
     who = { id: 'u1', role: 'customer' };
     markApplied('j1');
     const out = html(<JobActions job={nm7} />);
-    expect(out).toMatch(/<button[^>]*disabled=""[^>]*data-testid="card-applied"[^>]*>Applied ✓</);
+    expect(out).toMatch(/<button[^>]*disabled=""[^>]*data-testid="card-applied"[^>]*><svg[^]*?<\/svg>Applied</);
     expect(out).not.toContain('card-apply"');
     expect(html(<JobActions job={ext} />)).toContain('data-testid="card-apply"'); // other jobs unchanged
   });

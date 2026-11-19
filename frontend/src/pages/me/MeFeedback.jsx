@@ -6,9 +6,10 @@ import { http } from '../../services/http';
 import { MeHead } from './MeLayout';
 import { Chip, Empty, FieldGroup, Skel } from './kit';
 import '../../styles/me-work.css';
+import { IcEdit, IcMessage } from '../../components/icons';
 
 const day = (ms) => (ms ? new Date(ms).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
-const WENT = [['well', 'It went well', '☺'], ['ok', 'It was OK', '◐'], ['badly', 'It went badly', '☹']];
+const WENT = [['well', 'It went well'], ['ok', 'It was OK'], ['badly', 'It went badly']];
 const BLANK = { company: '', role: '', date: '', asked: '', went: 'ok', notes: '' };
 
 function Help({ h }) {
@@ -47,7 +48,7 @@ export default function MeFeedback() {
         <div className="mgrid-2">
           <div className="mstack">
             <section className="mcard" aria-label="From companies">
-              <header className="mcard-h"><span className="mcard-ic blue" aria-hidden="true">❝</span><span className="mcard-ht"><h2 className="mcard-title">From companies</h2><span className="mcard-sub">Kind, useful reasons after an interview, with free help.</span></span>{d.feedback.length > 0 && <Chip tone="info">{d.feedback.length}</Chip>}</header>
+              <header className="mcard-h"><span className="mcard-ic blue" aria-hidden="true"><IcMessage /></span><span className="mcard-ht"><h2 className="mcard-title">From companies</h2><span className="mcard-sub">Kind, useful reasons after an interview, with free help.</span></span>{d.feedback.length > 0 && <Chip tone="info">{d.feedback.length}</Chip>}</header>
               {!d.feedback.length && <Empty shape="handshake" tint="seeker" compact title="Nothing yet" action={<Link className="btn btn-outline btn-sm" to="/me/practice">Try a free practice test</Link>}>When a company shares a reason after an interview, it shows here.</Empty>}
               {d.feedback.map((x) => (
                 <article key={x.id} className="wk-fb" data-testid="fb-item">
@@ -58,7 +59,7 @@ export default function MeFeedback() {
             </section>
             {d.reviews.length > 0 && (
               <section className="mcard" aria-label="My notes">
-                <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true">✎</span><span className="mcard-ht"><h2 className="mcard-title">My notes</h2><span className="mcard-sub">Only you see these. Tips come from what you wrote.</span></span></header>
+                <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true"><IcEdit /></span><span className="mcard-ht"><h2 className="mcard-title">My notes</h2><span className="mcard-sub">Only you see these. Tips come from what you wrote.</span></span></header>
                 <ul className="mlist">
                   {d.reviews.map((r) => (
                     <li key={r.id} className="wk-note-card" data-testid="fb-review">
@@ -82,7 +83,7 @@ export default function MeFeedback() {
             <fieldset className="wk-went">
               <legend className="label">How did it go?</legend>
               <div className="wk-went-row">
-                {WENT.map(([k, l, ic]) => <label key={k} className={`wk-went-opt ${f.went === k ? 'on' : ''}`}><input type="radio" name="fb-went" checked={f.went === k} onChange={() => setF({ ...f, went: k })} data-testid={`fb-went-${k}`} /><span aria-hidden="true" className="wk-went-ic">{ic}</span>{l}</label>)}
+                {WENT.map(([k, l]) => <label key={k} className={`wk-went-opt ${f.went === k ? 'on' : ''}`}><input type="radio" name="fb-went" checked={f.went === k} onChange={() => setF({ ...f, went: k })} data-testid={`fb-went-${k}`} />{l}</label>)}
               </div>
             </fieldset>
             <label className="field"><span className="label">Anything else</span><textarea className="input" rows={2} maxLength={2000} value={f.notes} onChange={set('notes')} /></label>

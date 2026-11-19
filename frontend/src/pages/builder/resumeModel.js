@@ -8,7 +8,7 @@ import { coursesOf } from '../../lib/courses';
 
 const fullUrl = (u) => (/^https?:\/\//i.test(u) ? u : `https://${u}`);
 const shortUrl = (u) => u.replace(/^https?:\/\//i, '').replace(/^www\./i, '').replace(/\/+$/, '');
-/** item.links → [{ label, url }] (blank word = "Link"). */
+/** item.links -> [{ label, url }] (blank word = "Link"). */
 const linksOf = (o) => (o.links || []).filter((l) => l.url && l.url.trim()).map((l) => ({ label: (l.label || '').trim() || 'Link', url: fullUrl(l.url.trim()) }));
 /** Optional: also print the address itself, for paper copies. */
 const printed = (o, ds) => (ds.printLinks ? linksOf(o).map((l) => `${l.label}: ${shortUrl(l.url)}`) : []);
@@ -16,14 +16,14 @@ const printed = (o, ds) => (ds.printLinks ? linksOf(o).map((l) => `${l.label}: $
 const t = (v) => String(v ?? '').trim(); // a typed value, or ''
 const SIDE_IDS = ['skills', 'langs', 'certs', 'hobbies', 'strengths'];
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-/** "2001-05-15" → "15 May 2001" */
+/** "2001-05-15" -> "15 May 2001" */
 const longDate = (v) => { const [y, m, day] = (v || '').split('-'); return y && m && day ? `${+day} ${MONTHS[+m - 1]} ${y}` : v; };
 
 
-/** Lines of a textarea → [{ t, bullet: true }] (a leading •, -, * stripped; a **bold** start is kept). */
+/** Lines of a textarea -> [{ t, bullet: true }] (a leading •, -, * stripped; a **bold** start is kept). */
 function bullets(text) {
   return (text || '').split('\n').map((s) => s.trim()).filter(Boolean)
-    .map((s) => ({ t: s.replace(/^(?:[•\-▸–]|\*(?!\*))\s*/, ''), bullet: true }));
+    .map((s) => ({ t: s.replace(/^(?:[•\-\u25B8–]|\*(?!\*))\s*/, ''), bullet: true }));
 }
 
 /** Only the text that prints as running text keeps its **bold** markers (the summary and the descriptions of

@@ -14,6 +14,7 @@ import {
   BLANK, DOMAINS, LEVELS, LANGS, STATUS, loadExpert, saveExpert, clearExpert, useExpertReady, submitExpert, fromAsuraaAi, fromDocument, suggestDomains,
   expertIssues, expertStrength, payoutError, PAN_RE,
 } from '../../lib/expert';
+import { IcCheck } from '../../components/icons';
 
 const SetupChecklist = lazy(() => import('../me/SetupChecklist')); // profile setup P2: the checklist, its own chunk
 const SECTIONS = [['about', 'About you'], ['expertise', 'Expertise'], ['proof', 'Experience & proof'], ['samples', 'Sample work'], ['services', 'Services & capacity'], ['payout', 'Payouts & tax'], ['agree', 'Agreement']];
@@ -36,7 +37,7 @@ function Chips({ label, options, value, onChange }) {
     <div className="field">
       <span className="label">{label}</span>
       <div className="row g8" role="group" aria-label={label}>
-        {options.map((o) => { const [v, l] = Array.isArray(o) ? o : [o, o]; const on = value.includes(v); return <button key={v} type="button" className="chip" aria-pressed={on} style={{ minHeight: 36, fontSize: 13 }} onClick={() => onChange(on ? value.filter((x) => x !== v) : [...value, v])}>{on ? '✓ ' : ''}{l}</button>; })}
+        {options.map((o) => { const [v, l] = Array.isArray(o) ? o : [o, o]; const on = value.includes(v); return <button key={v} type="button" className="chip" aria-pressed={on} style={{ minHeight: 36, fontSize: 13 }} onClick={() => onChange(on ? value.filter((x) => x !== v) : [...value, v])}>{on ? <><IcCheck size={14} />{' '}</> : ''}{l}</button>; })}
       </div>
     </div>
   );
@@ -70,7 +71,7 @@ function Start({ onAi, onDoc, onFresh, busy, error }) {
   );
 }
 
-/* ---------- asuraa.ai link flow: link → preview & pick → code → done ---------- */
+/* ---------- asuraa.ai link flow: link -> preview & pick -> code -> done ---------- */
 function AiLink({ onBack, onDone, initial = '' }) {
   const [step, setStep] = useState('link');
   const [link, setLink] = useState(initial);
@@ -100,13 +101,13 @@ function AiLink({ onBack, onDone, initial = '' }) {
     <main className="container-wide ex-page ex-narrow stack g20 rise">
       <button type="button" className="btn btn-ghost" style={{ alignSelf: 'flex-start', paddingLeft: 0 }} onClick={onBack}><Icon name="back" size={16} />Back</button>
       <ol className="steps" aria-label="Link asuraa.ai">
-        {['Paste link', 'Pick details', 'Confirm it’s you'].map((l, i) => { const at = ['link', 'pick', 'code'].indexOf(step); return <li key={l} aria-current={i === at ? 'step' : undefined} data-state={i < at ? 'done' : undefined}><span className="mono">{i < at ? '✓' : i + 1}</span>{l}</li>; })}
+        {['Paste link', 'Pick details', 'Confirm it’s you'].map((l, i) => { const at = ['link', 'pick', 'code'].indexOf(step); return <li key={l} aria-current={i === at ? 'step' : undefined} data-state={i < at ? 'done' : undefined}><span className="mono">{i < at ? <IcCheck size={14} /> : i + 1}</span>{l}</li>; })}
       </ol>
 
       {step === 'link' && (
         <form className="mcard stack g16" onSubmit={fetchIt}>
           <h1 className="ex-title" style={{ fontSize: 30 }}>Paste your asuraa.ai profile link</h1>
-          <Text id="ai-link" label="Profile link" value={link} onChange={setLink} ph="asuraa.ai/yourname" error={err} hint="Open your profile on asuraa.ai → Share profile → copy link." />
+          <Text id="ai-link" label="Profile link" value={link} onChange={setLink} ph="asuraa.ai/yourname" error={err} hint="Open your profile on asuraa.ai, tap Share profile, then copy the link." />
           <div className="row g8"><button type="submit" className="btn btn-ink btn-lg" disabled={busy || !link.trim()}>{busy ? 'Finding your profile…' : 'Find my profile'}</button></div>
           <span className="xs faint">Preview: try asuraa.ai/nareshmaddela or asuraa.ai/saivarsha.</span>
         </form>
@@ -116,7 +117,7 @@ function AiLink({ onBack, onDone, initial = '' }) {
         <div className="mcard stack g16">
           <div className="row g16" style={{ alignItems: 'center', flexWrap: 'nowrap' }}>
             <span style={{ width: 64, height: 64, flex: 'none', borderRadius: '50%', background: 'var(--ink)', color: 'var(--onink)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 26 }}>{ai.name[0]}</span>
-            <div className="stack g4"><strong style={{ fontSize: 20 }}>{ai.name}</strong><span className="muted small">{ai.headline} · {ai.location}</span><span className="xs faint">{ai.url} · ★ {ai.rating} ({ai.reviews} review{ai.reviews === 1 ? '' : 's'})</span></div>
+            <div className="stack g4"><strong style={{ fontSize: 20 }}>{ai.name}</strong><span className="muted small">{ai.headline} · {ai.location}</span><span className="xs faint">{ai.url} · rated {ai.rating} ({ai.reviews} review{ai.reviews === 1 ? '' : 's'})</span></div>
           </div>
           <strong>Bring these details over</strong>
           <div className="stack g8">
@@ -255,7 +256,7 @@ function ProfilePage() {
           {LIVE && <Suspense fallback={null}><SetupChecklist /></Suspense>}
           <p className="ex-status" style={{ margin: 0 }}>{stText}{['changes', 'rejected'].includes(p.status) && p.note ? <><br /><strong>Reviewer note:</strong> {p.note}</> : null}</p>
           {p.status === 'test' && <div className="card-ink row between g12"><span className="stack g4"><strong style={{ fontSize: 18 }}>Your test task is ready</strong><span className="small" style={{ opacity: 0.8 }}>Rewrite one sample resume in the real expert workspace. Due {p.test?.due ? new Date(p.test.due).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) : 'within 48 hours'}.</span></span><Link to="/expert/test" className="btn btn-signal btn-lg">Start test task</Link></div>}
-          {notes.length > 0 && <div className="mcard mcard-accent mcard-tight stack g4 small">{notes.map((n) => <span key={n}>✦ {n}</span>)}<button type="button" className="btn btn-ghost" style={{ alignSelf: 'flex-start', minHeight: 32 }} onClick={() => setNotes([])}>Got it</button></div>}
+          {notes.length > 0 && <div className="mcard mcard-accent mcard-tight stack g4 small">{notes.map((n) => <span key={n}>{n}</span>)}<button type="button" className="btn btn-ghost" style={{ alignSelf: 'flex-start', minHeight: 32 }} onClick={() => setNotes([])}>Got it</button></div>}
           <fieldset disabled={locked} className="stack g20" style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
 
             <div className="mcard stack g16">
@@ -274,7 +275,7 @@ function ProfilePage() {
                 <Text id="ex-city" label="City" value={p.about.city} onChange={(v) => set('about.city', v)} ph="Bengaluru" />
               </div>
               <Text id="ex-head" label="Headline *" value={p.about.headline} max={80} onChange={(v) => set('about.headline', v)} ph="Senior Data Analyst · 6 yrs · 300+ resumes reviewed" />
-              <Text id="ex-bio" label="Bio * (150–600 characters)" area value={p.about.bio} max={600} onChange={(v) => set('about.bio', v)} ph="Who you are, your hiring experience, and how you help job seekers." hint={p.about.bio.length < 150 ? `${150 - p.about.bio.length} more characters needed` : '✓ Good length'} />
+              <Text id="ex-bio" label="Bio * (150–600 characters)" area value={p.about.bio} max={600} onChange={(v) => set('about.bio', v)} ph="Who you are, your hiring experience, and how you help job seekers." hint={p.about.bio.length < 150 ? `${150 - p.about.bio.length} more characters needed` : 'Good length'} />
               <Chips label="Languages you can work in *" options={LANGS} value={p.about.languages} onChange={(v) => set('about.languages', v)} />
             </div>
 
@@ -282,7 +283,7 @@ function ProfilePage() {
               <SecHead id="expertise" title="Expertise" sub="We match orders to you by domain and level." />
               <Chips label="Domains *" options={DOMAINS} value={p.expertise.domains} onChange={(v) => set('expertise.domains', v)} />
               {suggested.length > 0 && (
-                <div className="well stack g8"><span className="xs strong" style={{ color: 'var(--accent)' }}>✦ Suggested from your profile — tap to add the ones that fit</span>
+                <div className="well stack g8"><span className="xs strong" style={{ color: 'var(--accent)' }}>Suggested from your profile — tap to add the ones that fit</span>
                   <div className="row g8">{suggested.map((dm) => <button key={dm} type="button" className="chip" style={{ minHeight: 32, fontSize: 12, borderStyle: 'dashed' }} onClick={() => set('expertise.domains', [...p.expertise.domains, dm])}>+ {dm}</button>)}</div></div>
               )}
               <Text id="ex-roles" label="Roles you can write for" value={p.expertise.roles} onChange={(v) => set('expertise.roles', v)} ph="Data Analyst, Business Analyst, MIS Executive" hint="Separate with commas." />
@@ -392,7 +393,7 @@ function ProfilePage() {
             <div className="row g12" style={{ flexWrap: 'nowrap' }}>
               <span style={{ width: 56, height: 56, flex: 'none', borderRadius: '50%', overflow: 'hidden', background: 'var(--sunken)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>{p.photo ? <img src={p.photo} alt="" style={{ width: 56, height: 56, objectFit: 'cover' }} /> : (p.about.name || '?')[0]}</span>
               <span className="stack g4" style={{ minWidth: 0 }}>
-                <strong className="row g4">{p.about.name || 'Your name'}{p.status === 'approved' && <span className="badge b-success" style={{ fontSize: 10 }}>✓ Verified</span>}</strong>
+                <strong className="row g4">{p.about.name || 'Your name'}{p.status === 'approved' && <span className="badge b-success" style={{ fontSize: 10 }}>Verified</span>}</strong>
                 <span className="xs muted" style={{ overflowWrap: 'anywhere' }}>{p.about.headline || 'Your headline'}</span>
               </span>
             </div>
@@ -401,9 +402,9 @@ function ProfilePage() {
             <span className="xs faint">Rating and resumes delivered appear after your first orders.</span>
             {p.ai && (
               <label className="check xs" style={{ minHeight: 28 }}><input type="checkbox" checked={p.ai.showBadge} onChange={(e) => set('ai', { ...p.ai, showBadge: e.target.checked })} />
-                Show “Also on asuraa.ai · ★ {p.ai.rating}” badge</label>
+                Show “Also on asuraa.ai · rated {p.ai.rating}” badge</label>
             )}
-            {p.ai?.showBadge && <span className="badge b-signal" style={{ alignSelf: 'flex-start' }}>Also on asuraa.ai · ★ {p.ai.rating}</span>}
+            {p.ai?.showBadge && <span className="badge b-signal" style={{ alignSelf: 'flex-start' }}>Also on asuraa.ai · rated {p.ai.rating}</span>}
             </div>
           </div>
           {p.ai && <div className="mcard mcard-tight xs stack g4"><span><strong>Linked:</strong> {p.ai.url} · confirmed with a code</span><span className="faint">Last copied {new Date(p.ai.syncedAt).toLocaleDateString('en-IN')}. Use “Refresh from asuraa.ai” to bring changes over.</span><button type="button" className="link-btn xs" style={{ alignSelf: 'flex-start', color: 'var(--danger)' }} onClick={() => set('ai', null)}>Unlink asuraa.ai</button></div>}

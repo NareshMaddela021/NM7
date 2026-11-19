@@ -220,7 +220,7 @@ select.input { appearance: none; -webkit-appearance: none; padding-right: 40px; 
 .nav-drop-btn { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 10px 12px; border: 0; border-radius: 999px; background: transparent;
   color: var(--text2); font: inherit; font-weight: 600; font-size: 15px; cursor: pointer; }
 .nav-drop-btn:hover, .nav-drop[data-open="true"] .nav-drop-btn, .nav-drop-btn[data-here="true"] { color: var(--text); background: color-mix(in srgb, var(--accent) 8%, transparent); }
-.nav-drop-caret { font-size: 11px; transition: transform .2s; }
+.nav-drop-caret { flex: none; transition: transform .2s; }
 .nav-drop[data-open="true"] .nav-drop-caret { transform: rotate(180deg); }
 .nav-sub { position: absolute; top: calc(100% + 8px); left: 0; z-index: 30; min-width: 220px; display: flex; flex-direction: column; gap: 2px; padding: 8px;
   background: var(--surface); border: 1px solid var(--border); border-radius: 18px; box-shadow: var(--shadow); }

@@ -19,7 +19,9 @@ export const TEXT_COLORS = [['#111111', 'Black'], ['#2D3139', 'Dark grey'], ['#4
 export const MARGINS = { narrow: 36, normal: 50, wide: 64 };
 export const PAGE = { a4: { w: 595.28, h: 841.89, label: 'A4' }, letter: { w: 612, h: 792, label: 'US Letter' } };
 export const HEADING_STYLES = [['underline', 'Underline'], ['rule', 'Line after'], ['bar', 'Filled bar'], ['caps', 'Small caps'], ['left', 'Left line']];
-export const BULLETS = [['•', '• Dot'], ['–', '– Dash'], ['▸', '▸ Arrow'], ['none', 'None']];
+/** The arrow bullet's saved value (a small triangle; the PDF draws it, Word gets ›). */
+export const ARROW_BULLET = '\u25B8';
+export const BULLETS = [['•', '• Dot'], ['–', '– Dash'], [ARROW_BULLET, '› Arrow'], ['none', 'None']];
 
 export const DEFAULT_DESIGN = {
   font: 'source-sans-3',

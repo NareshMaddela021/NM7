@@ -62,7 +62,7 @@ export function profileCompleteness(p) {
   return { pct: Math.round(((CHECKS.length - missing.length) / CHECKS.length) * 100), missing };
 }
 
-/* ---------- profile → resume ---------- */
+/* ---------- profile -> resume ---------- */
 // The resume remembers what its contact fields were when copied, as short fingerprints (not the values, so
 // a phone number removed from a resume doesn't linger in its data or on its share link).
 const PERSONAL_SYNC = ['name', 'headline', 'email', 'phone', 'location'];
@@ -76,7 +76,7 @@ const strip = (x, keep = []) => Object.fromEntries(Object.entries(x).filter(([k]
 /** A resume entry copied from a profile entry (remembers where it came from). */
 export const copyEntry = (x) => ({ ...strip(x, ['off']), pid: x.pid, pv: x.pu || 0 });
 const internAsExp = (x) => ({ ...copyEntry(x), employmentType: x.employmentType || 'Internship' });
-/** Resume list → profile entries feeding it. */
+/** Resume list -> profile entries feeding it. */
 export function sourcesFor(p, section) {
   switch (section) {
     case 'exp': return [...p.exp.map((x) => ({ x, list: 'exp' })), ...p.intern.map((x) => ({ x, list: 'intern' }))];
@@ -106,7 +106,7 @@ export function profileToResume(p, base = emptyResume()) {
   return d;
 }
 
-/* ---------- resume / import → profile ---------- */
+/* ---------- resume / import -> profile ---------- */
 const lc = (s) => (s || '').toString().trim().toLowerCase();
 const KEY = {
   exp: (x) => `${lc(x.company)}|${lc(x.role)}`, intern: (x) => `${lc(x.company)}|${lc(x.role)}`, proj: (x) => lc(x.title),
@@ -239,7 +239,7 @@ export const entryLabel = (x) => x.title || x.name || [x.role, x.company].filter
 export { LIST_OF };
 
 /* ---------- cover letters ---------- */
-/** The role a cover letter is for, when the user hasn't typed one: the headline's first part ("Data Analyst · SQL" → "Data Analyst"). */
+/** The role a cover letter is for, when the user hasn't typed one: the headline's first part ("Data Analyst · SQL" -> "Data Analyst"). */
 export const targetRoleOf = (p) => (p ? (p.personal.headline.split(/[·|]/)[0] || '').trim() : '');
 /** Resume data whose empty name / contact fields are taken from the profile (for the cover letter header). */
 export function withProfileContact(d, p) {

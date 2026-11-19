@@ -69,7 +69,7 @@ function Tip({ tip }) {
 
 /**
  * Bars per day. series = [{ key, label, color }]; data = [{ label, [key]: number }].
- * One series → simple bars; several → stacked with a 2px gap, legend, hover tooltip and a table view.
+ * One series -> simple bars; several -> stacked with a 2px gap, legend, hover tooltip and a table view.
  */
 export function BarChart({ title, data, series, fmt = (v) => v, height = 180 }) {
   const [tip, setTip] = useState(null);
@@ -146,7 +146,7 @@ export function Funnel({ steps }) {
   const max = steps[0].value || 1;
   return (
     <div className="stack g12">
-      <strong className="small">Funnel · free scan → checkout → paid</strong>
+      <strong className="small">Funnel · free scan, checkout, paid</strong>
       {steps.map((s, i) => (
         <div key={s.label} className="stack g4">
           <div className="row between xs"><strong>{s.label}</strong><span className="mono">{s.value.toLocaleString('en-IN')}{i > 0 && <span className="muted"> · {Math.round((s.value / (steps[i - 1].value || 1)) * 100)}% of previous</span>}</span></div>

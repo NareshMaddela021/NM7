@@ -1,5 +1,5 @@
 // Sample data for the admin console. Deterministic (seeded), so the preview looks the same every time.
-// Replace with API calls (see services/api.js → admin section) when the backend is ready.
+// Replace with API calls (see services/api.js -> admin section) when the backend is ready.
 import { PLANS, expertPayout } from '../lib/pricing';
 
 let seed = 42;
@@ -124,10 +124,10 @@ export const DEFAULT_SETTINGS = {
 };
 
 export const DEFAULT_RULES = [
-  { id: 'r1', on: true, when: 'deadline', value: 6, then: 'alert-expert-ops', label: '6 hours before the deadline and no draft yet → alert the expert and ops', runs: 3 },
-  { id: 'r2', on: true, when: 'unassigned', value: 30, then: 'auto-assign', label: 'Order unassigned for 30 minutes → auto-assign the best expert', runs: 11 },
-  { id: 'r3', on: true, when: 'expert-refunds', value: 2, then: 'flag-expert', label: 'Expert gets 2 refunds in a week → flag for review', runs: 1 },
-  { id: 'r4', on: false, when: 'low-rating', value: 3, then: 'audit', label: 'Customer rates 3★ or less → add to quality audit', runs: 0 },
+  { id: 'r1', on: true, when: 'deadline', value: 6, then: 'alert-expert-ops', label: '6 hours before the deadline and no draft yet: alert the expert and ops', runs: 3 },
+  { id: 'r2', on: true, when: 'unassigned', value: 30, then: 'auto-assign', label: 'Order unassigned for 30 minutes: auto-assign the best expert', runs: 11 },
+  { id: 'r3', on: true, when: 'expert-refunds', value: 2, then: 'flag-expert', label: 'Expert gets 2 refunds in a week: flag for review', runs: 1 },
+  { id: 'r4', on: false, when: 'low-rating', value: 3, then: 'audit', label: 'Customer rates 3 stars or less: add to quality audit', runs: 0 },
 ];
 
 export const TEAM = [
@@ -146,5 +146,5 @@ export const AUDIT_SEED = [
   { at: NOW - 50 * H, who: '[Finance]', area: 'Payouts', what: 'Marked PO-305 as paid', from: 'approved', to: 'paid · UTR4419920013' },
 ];
 
-/* ---------- funnel (scans → checkout → paid) per day, for the date range ---------- */
+/* ---------- funnel (scans -> checkout -> paid) per day, for the date range ---------- */
 export const FUNNEL_DAILY = Array.from({ length: 30 }, () => { const scans = 30 + Math.round(rnd() * 25); const checkouts = Math.round(scans * (0.22 + rnd() * 0.1)); return { scans, checkouts }; });

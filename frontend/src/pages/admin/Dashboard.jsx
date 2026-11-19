@@ -53,7 +53,7 @@ export default function Dashboard() {
         <Kpi label="Refunds" value={inr(m.refunded)} sub={`${refunds.filter((r) => r.status === 'review').length} to review`} tone={m.refunded ? 'var(--danger)' : undefined} />
         <Kpi label="On-time delivery" value={`${m.onTime}%`} sub={`${m.delivered} delivered · promise ${settings.rules.minDeliveryHours}–${settings.rules.deliveryHours}h`} tone={m.onTime >= 90 ? 'var(--success)' : 'var(--warning)'} />
         <Kpi label="In progress" value={m.live.length} sub={`${m.live.filter(isLate).length} late · ${unassigned.length} unassigned`} />
-        <Kpi label="Average rating" value={`★ ${m.rated}`} sub="From approved orders" />
+        <Kpi label="Average rating" value={`${m.rated}/5`} sub="From approved orders" />
       </div>
 
       <div className="row g16" style={{ alignItems: 'stretch' }}>
@@ -73,7 +73,7 @@ export default function Dashboard() {
         <section className="card stack g8" style={{ flex: '1 1 380px', padding: 20 }}>
           <strong>Needs you now</strong>
           {risky.slice(0, 5).map((o) => <Link key={o.id} to={`/admin/orders?id=${o.id}`} className="row between g8 small well" style={{ textDecoration: 'none', color: 'inherit' }}><span>{o.id} · {o.role} · {exName(o.expert)}</span><span className="strong" style={{ color: isLate(o) ? 'var(--danger)' : 'var(--warning)' }}>{isLate(o) ? 'Late' : 'Due < 6h'}</span></Link>)}
-          {unassigned.length > 0 && <Link to="/admin/orders?view=unassigned" className="small well" style={{ textDecoration: 'none', color: 'inherit' }}>{unassigned.length} unassigned order{unassigned.length > 1 ? 's' : ''} → assign</Link>}
+          {unassigned.length > 0 && <Link to="/admin/orders?view=unassigned" className="small well" style={{ textDecoration: 'none', color: 'inherit' }}>{unassigned.length} unassigned order{unassigned.length > 1 ? 's' : ''}: assign</Link>}
           {refunds.filter((r) => r.status === 'review').map((r) => <Link key={r.id} to={`/admin/refunds?id=${r.id}`} className="small well" style={{ textDecoration: 'none', color: 'inherit' }}>Refund {r.id} waiting for a decision</Link>)}
           {payouts.filter((p) => p.status !== 'paid').length > 0 && <Link to="/admin/payments?tab=payouts" className="small well" style={{ textDecoration: 'none', color: 'inherit' }}>{payouts.filter((p) => p.status !== 'paid').length} payouts to approve or send</Link>}
         </section>
@@ -83,7 +83,7 @@ export default function Dashboard() {
             const l = loads[x.id] || 0; const pct = Math.min(100, (l / x.cap) * 100);
             return (
               <Link key={x.id} to={`/admin/experts?id=${x.id}`} className="stack g4" style={{ textDecoration: 'none', color: 'inherit' }}>
-                <div className="row between xs"><span><strong>{x.name}</strong> <span className="faint">· ★ {x.rating} · {x.onTime}% on time{x.status !== 'active' ? ` · ${x.status}` : ''}</span></span><span className="mono muted">{l}/{x.cap}</span></div>
+                <div className="row between xs"><span><strong>{x.name}</strong> <span className="faint">· rating {x.rating}/5 · {x.onTime}% on time{x.status !== 'active' ? ` · ${x.status}` : ''}</span></span><span className="mono muted">{l}/{x.cap}</span></div>
                 <div style={{ height: 6, borderRadius: 3, background: 'var(--sunken)' }}><div style={{ height: 6, borderRadius: 3, width: `${pct}%`, background: pct >= 85 ? 'var(--danger)' : pct >= 60 ? 'var(--warning)' : 'var(--success)' }} /></div>
               </Link>
             );

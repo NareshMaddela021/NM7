@@ -4,7 +4,7 @@ export const API = '/api/me/interviews';
 /** The role list (plain GET /api/me/interviews belongs to the org interview list, so the server serves it here). */
 export const ROLES_API = `${API}/roles`;
 
-/** When the answer timer speaks (aria-live), not every second: seconds left → message, or ''. */
+/** When the answer timer speaks (aria-live), not every second: seconds left -> message, or ''. */
 export function answerAnnounce(left) {
   return [60, 30, 10].includes(left) ? `${left} seconds left for this answer` : '';
 }
@@ -25,7 +25,7 @@ export function signalDelta(now, sent) {
 /** "4.2" for an average; "—" when there is none. */
 export const avg = (n) => (n == null ? '—' : Number(n).toFixed(1));
 
-/** 150 → "2½ minutes", 100 → "1 minute 40 seconds". */
+/** 150 -> "2½ minutes", 100 -> "1 minute 40 seconds". */
 export function timeWords(s) {
   const m = Math.floor(s / 60); const r = s % 60;
   if (r === 30) return `${m ? `${m}½` : '½'} minute${m >= 1 ? 's' : ''}`;

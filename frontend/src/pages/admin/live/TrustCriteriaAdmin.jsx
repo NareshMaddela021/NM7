@@ -1,4 +1,4 @@
-// Admin → Skill checks → Vetting Trust → Evidence to check (T7; owner only, the "settings" permission). Certificates a
+// Admin -> Skill checks -> Vetting Trust -> Evidence to check (T7; owner only, the "settings" permission). Certificates a
 // candidate added as evidence for a job requirement: open the file, then Accept (it becomes evidence, quoted as
 // "Certificate checked by Nm7") or Not accepted (the person is told). Also how many requirement checks wait for the AI.
 // /api/admin/trust/criteria (every decision audited).

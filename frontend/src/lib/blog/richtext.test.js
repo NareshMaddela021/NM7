@@ -17,7 +17,7 @@ describe('reading time (about 200 words a minute)', () => {
   });
 });
 
-describe('rich text → HTML', () => {
+describe('rich text -> HTML', () => {
   const html = richTextToHtml(CONTENT);
   it('renders headings, lists, links, images, code, quotes and tables', () => {
     expect(html).toContain('<p>ATS software reads your resume before a person does. <strong>Keep it simple</strong>.</p>');

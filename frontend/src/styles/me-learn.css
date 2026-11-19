@@ -37,7 +37,7 @@
 .ml-box-h { font-size: 11.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--text3); }
 .ml-jobs { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 .ml-jobs li { font-size: 14px; overflow-wrap: anywhere; }
-.ml-jobs li::before { content: "→ "; color: #db2777; font-weight: 800; }
+.ml-jobs li::before { content: ""; display: inline-block; width: 1em; height: 1em; background: currentColor; -webkit-mask: var(--ic-arrow) center / contain no-repeat; mask: var(--ic-arrow) center / contain no-repeat; margin-right: 6px; vertical-align: -2px; color: #db2777; }
 .ml-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; }
 .ml-actions .btn { min-height: 44px; }
 

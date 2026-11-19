@@ -17,7 +17,7 @@ export const hint = () => (LANG_CODES.includes(read(STORE_KEY)) ? read(STORE_KEY
 
 /** The person's own language wins on the simple screens: the whole site follows it in this browser. */
 export const applyLang = (d) => {
-  if (d && 'langs' in d) setLangsShown(d.langs); // Telugu and Hindi shown or hidden (Admin → Settings)
+  if (d && 'langs' in d) setLangsShown(d.langs); // Telugu and Hindi shown or hidden (Admin -> Settings)
   if (d?.lang && LANG_CODES.includes(d.lang)) setLang(d.lang);
   return d;
 };

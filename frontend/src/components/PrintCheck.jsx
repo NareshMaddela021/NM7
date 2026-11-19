@@ -2,6 +2,7 @@
 // white paper whatever the site theme) and a checklist next to it. "Download anyway" is always there.
 import { useEffect, useRef, useState } from 'react';
 import { Dialog, Spinner } from './ui';
+import { IcCheck, IcX } from './icons';
 import { onCheck } from '../lib/downloads';
 import { printChecks, problems, readPrint } from '../lib/printCheck';
 import { closePdf, loadPdfjs } from '../lib/import';
@@ -70,7 +71,7 @@ function PrintCheck({ c }) {
     <Dialog title="Check before you download" onClose={() => c.done(false)} wide top returnTo={c.opener}>
       <div className="row between g8" style={{ alignItems: 'center' }}>
         <strong style={{ fontSize: 20 }}>Check before you download</strong>
-        <button type="button" className="btn btn-icon" aria-label="Close" onClick={() => c.done(false)} data-testid="check-close">✕</button>
+        <button type="button" className="btn btn-icon" aria-label="Close" onClick={() => c.done(false)} data-testid="check-close"><IcX /></button>
       </div>
       <div style={{ marginTop: -8 }}>
         <span className="small muted">{print ? `${print.count} page${print.count > 1 ? 's' : ''} · exactly as it prints` : 'Preparing the preview…'}</span>
@@ -87,7 +88,7 @@ function PrintCheck({ c }) {
           <ul className="stack g8" style={{ listStyle: 'none', margin: 0, padding: 0 }} aria-label="Checks">
             {items.map((i) => (
               <li key={i.key} className="row g8 small" style={{ alignItems: 'flex-start' }} data-testid={`check-${i.key}`} data-ok={i.ok ? 'yes' : 'no'}>
-                <span aria-hidden="true" style={{ flex: 'none', width: 18, color: i.ok ? 'var(--success)' : 'var(--warning)', fontWeight: 700 }}>{i.ok ? '✓' : '!'}</span>
+                <span aria-hidden="true" style={{ flex: 'none', width: 18, color: i.ok ? 'var(--success)' : 'var(--warning)', fontWeight: 700 }}>{i.ok ? <IcCheck size={16} /> : '!'}</span>
                 <span><span className="sr-only">{i.ok ? 'OK: ' : 'Check: '}</span>{i.text}</span>
               </li>
             ))}

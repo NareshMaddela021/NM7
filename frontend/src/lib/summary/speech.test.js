@@ -45,7 +45,7 @@ describe('appendSpeech: committed words are added, never overwrite, with spacing
     ['typed text', '', 'typed text'],
     ['నేను ఇంటర్ చదివాను', 'driver job kavali', 'నేను ఇంటర్ చదివాను. Driver job kavali'],
     ['నేను ఇంటర్ చదివాను।', 'driver job kavali', 'నేను ఇంటర్ చదివాను। Driver job kavali'],
-  ])('%j + %j → %j', (existing, chunk, out) => {
+  ])('%j + %j -> %j', (existing, chunk, out) => {
     expect(appendSpeech(existing, chunk)).toBe(out);
   });
 });
@@ -161,7 +161,7 @@ describe('the language', () => {
   });
 
   it('remembers the last pick, else follows an Indian browser locale, else English', () => {
-    setLangsShown(true); // Telugu and Hindi shown (Admin → Settings)
+    setLangsShown(true); // Telugu and Hindi shown (Admin -> Settings)
     expect(speechLanguages().map(([c]) => c)).toContain('te-IN');
     expect(defaultSpeechLang(win('en-US', 'ta-IN'))).toBe('ta-IN');
     expect(defaultSpeechLang(win('te-IN'))).toBe('te-IN');

@@ -2,7 +2,7 @@ import { createContext, useContext, useState } from 'react';
 
 export const ROLE_MAX = 60;
 
-/** Shared state for the Scan → Checkout → Track journey. The scanned file stays in memory (never uploaded). */
+/** Shared state for the Scan -> Checkout -> Track journey. The scanned file stays in memory (never uploaded). */
 const FlowCtx = createContext(null);
 
 export function FlowProvider({ children }) {

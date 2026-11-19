@@ -1,4 +1,4 @@
-/* Admin → Skill checks (Vetting V2): banks, rubrics, review and integrity queues, stats. Neutral Nm7 purple like the
+/* Admin -> Skill checks (Vetting V2): banks, rubrics, review and integrity queues, stats. Neutral Nm7 purple like the
    rest of admin (admin.css + admin-jobs.css); dense tables with sticky headers on a desktop, cards on a phone (.mtable
    from me-kit.css). Every control is at least 44 px tall on a phone. */
 .vt { min-width: 0; }

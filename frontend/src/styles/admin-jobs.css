@@ -1,4 +1,4 @@
-/* Admin → Jobs, Companies, Auto Apply, Skill tests, Internships & projects, Joining reports (round P, Phase 5).
+/* Admin -> Jobs, Companies, Auto Apply, Skill tests, Internships & projects, Joining reports (round P, Phase 5).
    Neutral Nm7 purple, dense but clean. Rows are white cards with a coloured status edge; tabs are a pill bar that
    scrolls sideways on a phone; filters sit in the .ad-toolbar card (admin.css); KPIs are a tidy grid. */
 .adx { min-width: 0; }
@@ -71,7 +71,6 @@
 
 /* the demo boxes and folding extras */
 .adx-demo { background: linear-gradient(140deg, #f7f4ff, #fff) !important; border: 1px solid #ddd3ff !important; }
-.adx-demo > strong::before { content: "✦ "; color: #5b52f0; }
 .adx-fold > summary { cursor: pointer; font-weight: 700; min-height: 40px; display: flex; align-items: center; }
 
 /* Auto Apply off switch: green edge when on, red card when off */

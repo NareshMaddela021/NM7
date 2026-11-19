@@ -1,7 +1,7 @@
 // Headlines from fixed patterns (no AI): the target role first, then 2-4 skills the person really has, then one
 // proof point from their own facts (degree, current job, a project or a certificate). Always English, at most 220
 // characters, never a phone / email / ID number, and never a number that isn't in the facts. Used for the free
-// "before → after" in the check, the 5 options for a new profile, and whenever AI is off, busy or over the limit.
+// "before -> after" in the check, the 5 options for a new profile, and whenever AI is off, busy or over the limit.
 import { factsFromNote } from '../summary/facts';
 import { LIMITS } from './profile';
 import { roleInfo } from './keywords';
@@ -14,7 +14,7 @@ const title = (s) => tidy(s).replace(/(^|\s)([a-z])/g, (m, a, b) => a + b.toUppe
 const latin = (s) => { const t = tidy(stripPrivate(s)); return t && LATIN.test(t) ? t : ''; };
 const shortDegree = (d) => tidy(d).split(/,|\s+in\s+|\s+-\s+/)[0];
 
-/** A role typed in any language → an English role ("డేటా అనలిస్ట్" isn't readable here, so it falls back to the note). */
+/** A role typed in any language -> an English role ("డేటా అనలిస్ట్" isn't readable here, so it falls back to the note). */
 export function englishRole(raw, note = '') {
   const t = latin(raw);
   if (t) return title(t);
@@ -24,7 +24,7 @@ export function englishRole(raw, note = '') {
 
 /**
  * Facts for headlines, from profile sections (see profile.js) and/or the "Create" details, plus the note.
- * Only English text the person gave; nothing invented. → { target, skills, degree, current, projects, certs, city, year }
+ * Only English text the person gave; nothing invented. -> { target, skills, degree, current, projects, certs, city, year }
  */
 export function headlineFacts({ sections, details, role = '', note = '' } = {}) {
   const s = sections || {};
@@ -107,7 +107,7 @@ export function headlineOptions(facts, count = 5) {
   return out;
 }
 
-/** The free "before → after": the first option that is different from (and longer than a bare copy of) the current. */
+/** The free "before -> after": the first option that is different from (and longer than a bare copy of) the current. */
 export function improveHeadline(current, facts) {
   const cur = tidy(current).toLowerCase();
   return headlineOptions(facts, 7).find((h) => h.toLowerCase() !== cur) || '';

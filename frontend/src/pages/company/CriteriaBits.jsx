@@ -3,7 +3,7 @@
 //                   must-have on / off. Ticking must-have or removing one saves at once (the list re-sorts at once);
 //                   new or reworded ones are saved with Save. The server refuses requirements about gender, religion,
 //                   caste, age, looks, names or colleges and says why.
-//   CriteriaStrip   the compact chip strip on an applicant / Hire now card (✓ met · ✗ not met · ? unknown,
+//   CriteriaStrip   the compact chip strip on an applicant / Hire now card (tick met · cross not met · ? unknown,
 //                   "evaluating…"), opening the list with each quote and where it came from.
 //   criteriaSort    must-haves met, then nice-to-haves met, then the score (the server's order, done here after an edit).
 // Shown only when the API sends `criteria` (the Trust switch lets the company in). Not met is a label only: nobody is
@@ -11,11 +11,12 @@
 import { useEffect, useState } from 'react';
 import { FairnessNotes } from './FairnessBits'; // Vetting Trust T12
 import { rq } from '../../lib/company';
+import { IcCheck, IcX } from '../../components/icons';
 
 export const KINDS = [['skill', 'Skill'], ['experience', 'Experience'], ['education', 'Education'], ['certification', 'Certification'],
   ['language', 'Language'], ['licence', 'Licence'], ['location', 'Location'], ['shift', 'Shift / timing'], ['other', 'Other']];
 const MAX = 10;
-const MARK = { met: '✓', not_met: '✗', unknown: '?' };
+const MARK = { met: <IcCheck size={14} />, not_met: <IcX size={14} />, unknown: '?' };
 const WORD = { met: 'Met', not_met: 'Not met', unknown: 'Unknown' };
 const TONE = { met: 'ok', not_met: 'warn', unknown: 'neutral' };
 
@@ -60,7 +61,7 @@ export function CriteriaStrip({ cr, testid = 'crit-strip' }) {
         <ul className="stack g4" style={{ margin: 0, paddingLeft: 0, listStyle: 'none' }} data-testid="crit-list">
           {cr.items.map((x) => (
             <li key={x.id} className="xs" style={{ overflowWrap: 'anywhere' }} data-testid="crit-item">
-              <span className={`mchip mchip-${x.pending ? 'info' : TONE[x.status]}`} style={{ minHeight: 0 }}>{x.pending ? 'Evaluating…' : `${MARK[x.status]} ${WORD[x.status]}`}</span>{' '}
+              <span className={`mchip mchip-${x.pending ? 'info' : TONE[x.status]}`} style={{ minHeight: 0 }}>{x.pending ? 'Evaluating…' : <>{MARK[x.status]} {WORD[x.status]}</>}</span>{' '}
               <strong>{x.text}</strong>{x.must ? ' · must-have' : ' · nice to have'}
               {x.quote && <> · {x.sourceLabel}: <q data-testid="crit-quote">{x.quote}</q></>}
               {x.note && <span className="muted"> ({x.note})</span>}

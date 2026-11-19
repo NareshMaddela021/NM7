@@ -18,10 +18,11 @@ import { MeHead } from './MeLayout';
 import { Chip, Empty, FieldGroup, Skel, StickyBar } from './kit';
 import '../../styles/me-jobs.css';
 import '../../styles/me-aa2.css';
+import { IcMail } from '../../components/icons';
 
 const BASE = '/api/me/auto-apply/v2';
 export const CHANNELS = {
-  internal: ['◆', 'On Nm7'], email: ['✉', 'Email'], partner: ['⇄', 'Partner'], form: ['▤', 'Company form'], one_tap: ['☝', 'One tap'],
+  internal: 'On Nm7', email: 'Email', partner: 'Partner', form: 'Company form', one_tap: 'One tap',
 };
 const STAGE_TONE = { ready: 'accent', waiting: 'warn', applied: 'info', viewed: 'info', replied: 'ok', closed: 'neutral' };
 const OUTCOME = { replied: 'Replied', offer: 'Offer', rejected: 'Rejected', closed: 'Job closed', interview: 'Interview', shortlisted: 'Shortlisted', no_reply: 'No reply' };
@@ -38,9 +39,9 @@ const fmtAt = (ms) => (ms ? new Date(ms).toLocaleString('en-IN', { day: 'numeric
 const list = (s) => String(s || '').split(',').map((x) => x.trim()).filter(Boolean);
 
 export function ChannelTag({ channel, partner }) {
-  const [ic, label] = CHANNELS[channel] || CHANNELS.internal;
+  const label = CHANNELS[channel] || CHANNELS.internal;
   const name = channel === 'partner' && partner?.name ? ` · ${partner.name}` : '';
-  return <span className="aa2-ch" data-channel={channel} data-testid="aa2-ch"><span aria-hidden="true">{ic}</span> {label}{name}</span>;
+  return <span className="aa2-ch" data-channel={channel} data-testid="aa2-ch">{label}{name}</span>;
 }
 
 function JobHead({ it }) {
@@ -176,7 +177,7 @@ function TrackerRow({ it, onChanged, toast }) {
       {it.form?.text && <span className="xs muted aa2-wrap" data-testid="aa2-row-form">{it.form.text}{it.form.ok && it.form.confirmed ? '. The company’s page confirmed it.' : ''}</span>}
       {it.readyText && <span className="xs muted aa2-wrap" data-testid="aa2-row-ready">{it.readyText}</span>}
       {it.notice && <span className="xs muted aa2-wrap" data-testid="aa2-row-notice">{it.notice.text}</span>}
-      {it.replies > 0 && <span className="xs aa2-wrap" data-testid="aa2-row-replies">✉ {it.replies} {it.replies === 1 ? 'reply' : 'replies'} to your apply address: open “What was sent”</span>}
+      {it.replies > 0 && <span className="xs aa2-wrap" data-testid="aa2-row-replies"><IcMail size={14} /> {it.replies} {it.replies === 1 ? 'reply' : 'replies'} to your apply address: open “What was sent”</span>}
       {it.applyTo && <span className="xs muted aa2-wrap" data-testid="aa2-row-applyto">Apply by email yourself: <a href={`mailto:${it.applyTo}`}>{it.applyTo}</a> (attach your tailored resume)</span>}
       <Parts it={it} />
       <div className="row g8 aa2-actions">

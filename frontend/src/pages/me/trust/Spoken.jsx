@@ -5,13 +5,14 @@
 //                 text to agree to first and what is measured
 //   SpokenScore   the band, what it means, the sub-scores, "how this was measured"
 //   SpokenResult  on an interview result (being measured / the score)
-//   SpokenCard    Profile & settings → the score, and how to retake it (the interview's retake limits, T9)
+//   SpokenCard    Profile & settings -> the score, and how to retake it (the interview's retake limits, T9)
 // Loaded lazily by the interview page; SpokenCard sits in the Privacy & consent chunk (no new route).
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { http } from '../../../services/http';
 import { Bar, Chip, MeCard } from '../kit';
 import { bandTone } from './spokenLib';
+import { IcMessage } from '../../../components/icons';
 
 const day = (t) => (t ? new Date(t).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
 
@@ -87,7 +88,7 @@ export function SpokenScore({ s, how }) {
 export function SpokenResult({ s }) {
   if (!s) return null;
   return (
-    <MeCard tone="flat" icon="🗣" title="Your spoken English" sub="From your spoken English answers. It never changes your interview score." testid="iv-spoken" headingLevel={3}>
+    <MeCard tone="flat" icon={<IcMessage />} title="Your spoken English" sub="From your spoken English answers. It never changes your interview score." testid="iv-spoken" headingLevel={3}>
       {s.pending ? <p className="small" style={{ margin: 0 }}>Being measured. Open this result again in a minute.</p> : <SpokenScore s={s} />}
       <Link className="small" to="/me/settings#spoken">See it on your profile, with how it was measured</Link>
     </MeCard>
@@ -100,7 +101,7 @@ export default function SpokenCard() {
   if (!d) return null;
   const rk = d.retake;
   return (
-    <MeCard icon="🗣" title="Spoken English" sub="A band from A1 to C2, measured by the AI interview when you speak in English." testid="sp-card" id="spoken">
+    <MeCard icon={<IcMessage />} title="Spoken English" sub="A band from A1 to C2, measured by the AI interview when you speak in English." testid="sp-card" id="spoken">
       {d.score ? <SpokenScore s={d.score} how={d.how} /> : (
         <>
           <p className="small" style={{ margin: 0 }} data-testid="sp-empty">No spoken-English score yet. In the AI interview choose “Speak my answers” in English and tick “Also measure my spoken English”.</p>

@@ -4,7 +4,7 @@
 import { langsShown } from './i18n';
 
 export const READ_LANGS = [['en-IN', 'English'], ['te-IN', 'Telugu'], ['hi-IN', 'Hindi']];
-/** The voices to offer: English only while Telugu and Hindi are hidden (Admin → Settings). */
+/** The voices to offer: English only while Telugu and Hindi are hidden (Admin -> Settings). */
 export const readLangs = () => (langsShown() ? READ_LANGS : READ_LANGS.slice(0, 1));
 
 const synth = () => (typeof window !== 'undefined' ? window.speechSynthesis : undefined);

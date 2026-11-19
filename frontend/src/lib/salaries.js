@@ -1,5 +1,5 @@
 // Round D1: /salaries stays hidden (no menu link, noindex, not in the sitemap) until enough roles have real salary
-// data; the API decides (Admin → Settings → Job seekers: Auto / Always show / Always hide). One request per page load.
+// data; the API decides (Admin -> Settings -> Job seekers: Auto / Always show / Always hide). One request per page load.
 import { useEffect, useState } from 'react';
 import { http } from '../services/http';
 

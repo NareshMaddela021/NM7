@@ -15,7 +15,7 @@ export async function qrCanvas(text, size = QR_PRINT_SIZE) {
   return canvas;
 }
 
-/** "data:image/png;base64,…" → Blob, decoded in the page (no fetch). */
+/** "data:image/png;base64,…" -> Blob, decoded in the page (no fetch). */
 export function dataUrlToBlob(dataUrl) {
   const [head, b64] = String(dataUrl).split(',');
   const type = /data:([^;]+)/.exec(head)?.[1] || 'application/octet-stream';
