@@ -1,11 +1,12 @@
 // The open account menu (loaded when it opens): home, settings, the roles of one account for individuals
 // (lib/roles.js) — "Switch to: Job seeker / Student / Expert" for people with several roles and "Add another role";
-// each role opens its own dashboard — and sign out. An admin also gets "Switch to: Job seeker / Student / Expert /
+// each role opens its own dashboard (its quick start first, once) — and sign out. An admin also gets "Switch to: Job seeker / Student / Expert /
 // Company / College view" (components/AdminViews.jsx); inside such a view "Back to Admin" replaces Sign out.
 import { Suspense, lazy, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { LIVE, homeFor, signOut } from '../lib/auth';
 import { ROLE_NAMES, activeRoleOf, rolesOf, switchRole } from '../lib/roles';
+import { getSetup, startPath } from '../lib/quickStart';
 
 const AdminViewItems = lazy(() => import('./AdminViews').then((m) => ({ default: m.AccountItems })));
 const ITEM = { border: 0, background: 'transparent', width: '100%', textAlign: 'left', cursor: 'pointer' };
@@ -19,7 +20,13 @@ export function AccountRoles({ user, onDone }) {
   const others = mine.filter((r) => r !== active);
   const go = async (r) => {
     setBusy(r); setErr('');
-    try { const u = await switchRole(r); onDone?.(); nav(homeFor(u)); } catch (e) { setErr(e.message || 'Please try again.'); } finally { setBusy(''); }
+    try {
+      const u = await switchRole(r);
+      // each role's quick start once: a role whose quick start isn't done opens it (steps already answered are passed)
+      const done = await getSetup(r).then((s) => s.done, () => true);
+      onDone?.();
+      nav(done ? homeFor(u) : startPath(r));
+    } catch (e) { setErr(e.message || 'Please try again.'); } finally { setBusy(''); }
   };
   return (
     <div className="stack g4" data-testid="account-roles" style={{ borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', padding: '4px 0' }}>
