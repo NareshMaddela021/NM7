@@ -2,11 +2,13 @@
 //   k=consent  take back consents (a signed link, valid 30 days; "all" or one purpose)
 //   k=parent   a parent or guardian agrees (or not) for an under-18 (a one-time link, valid 7 days)
 //   k=book · k=join · k=cjoin   T11: interview times, the joining day, the company's "did they join?" (BookingLink.jsx)
+//   k=ratt · k=rstay · k=rme    T15: attended?, still working after 30 / 90 days?, the candidate's side (ReliabilityLink.jsx)
 // The token stays in the address fragment, so it never reaches server logs.
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { http } from '../../../services/http';
 import { Book, CompanyJoin, Join } from './BookingLink'; // T11: the one-tap interview / joining-day links
+import { RelAttendance, RelMe, RelStay } from './ReliabilityLink'; // T15: the reliability record's one-tap links
 
 function Withdraw({ token }) {
   const [items, setItems] = useState(null);
@@ -82,7 +84,8 @@ function Parent({ token }) {
   );
 }
 
-const T11 = { book: ['Book your interview', Book], join: ['Your joining day', Join], cjoin: ['Did they join?', CompanyJoin] };
+const T11 = { book: ['Book your interview', Book], join: ['Your joining day', Join], cjoin: ['Did they join?', CompanyJoin],
+  ratt: ['Did they come to the interview?', RelAttendance], rstay: ['Still working with you?', RelStay], rme: ['Your reliability record', RelMe] }; // T15
 
 export default function TrustLink({ kind, token }) {
   if (T11[kind]) {

@@ -19,6 +19,8 @@
 // Vetting Trust T7: the job's requirements (CriteriaEditor) and each person's Met / Not met / Unknown with the quoted
 // evidence (CriteriaStrip); after an edit the people shown are checked again (cached answers re-used) and re-sorted at
 // once here: must-haves met, then nice-to-haves met, then the match score (only when the answer carries `criteria`).
+// Vetting Trust T15: work-test filters (typing / SJT / aptitude) and each person's badges + reliability record
+// (HireWorkTests.jsx; only when the answer carries `workTests`). No filter on the reliability record.
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { rq } from '../../lib/company';
 import { reasons } from './CompanyApplicants';
@@ -33,6 +35,7 @@ import ScreeningInterview from './ScreeningInterview';
 import NmCheck from './NmCheck';
 import DocBadges from './DocBadges';
 import { NT_NONE, NonTechChips, NonTechFilters, nonTechQuery } from './HireNonTech'; // Vetting Trust T6
+import { WT_NONE, WorkChips, WorkFilters, workQuery } from './HireWorkTests'; // Vetting Trust T15
 import { FairnessNotes } from './FairnessBits'; // Vetting Trust T12: a language / city filter that works as a proxy
 import { CriteriaEditor, CriteriaStrip, criteriaSort, useEvaluating } from './CriteriaBits'; // Vetting Trust T7
 import { TEST_NAMES } from '../../lib/vettingRoles';
@@ -50,7 +53,7 @@ export const MIN_SCORES = [0, 60, 70, 80, 90];
 /** The shortlist's query: job, size, support, the Vetting V2 filters (verified only, test, minimum score) and the V1
  * ones (minimum level, ⚡ ready now only, notice period at most, salary at most, city, experience band). */
 export function shortlistQuery(job, { support = '', verified = false, role = '', minScore = 0, minLevel = 0, readyNow = false,
-  noticeMax = -1, salaryMax = '', city = '', band = '' } = {}, nonTech = NT_NONE) {
+  noticeMax = -1, salaryMax = '', city = '', band = '' } = {}, nonTech = NT_NONE, work = WT_NONE) {
   const q = new URLSearchParams({ job, size: '100' });
   if (support) q.set('support', support);
   if (verified) q.set('verified', 'true');
@@ -64,6 +67,7 @@ export function shortlistQuery(job, { support = '', verified = false, role = '',
   if (city.trim()) q.set('city', city.trim());
   if (BANDS.includes(band)) q.set('band', band);
   nonTechQuery(q, nonTech);
+  workQuery(q, work);
   return q.toString();
 }
 export const NO_FILTERS = { verified: false, role: '', minScore: 0, minLevel: 0, readyNow: false, noticeMax: -1, salaryMax: '', city: '', band: '' };
@@ -129,6 +133,8 @@ export default function CompanyHire({ t, c }) {
   const [ntCounts, setNtCounts] = useState(null); // kept while the list reloads, so the filters don't jump
   const [ntEnglish, setNtEnglish] = useState(false); // Vetting Trust T10: this job's role category offers "Spoken English"
   const [fair, setFair] = useState([]); // Vetting Trust T12: filters that can stand in for community / region
+  const [wt, setWt] = useState(WT_NONE); // Vetting Trust T15: work-test filters
+  const [wtCounts, setWtCounts] = useState(null);
   const [typed, setTyped] = useState({ salaryMax: '', city: '' }); // V1 text filters, applied after a short pause
   const setV = (k) => (e) => setVf((x) => ({ ...x, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
   const setT = (k) => (e) => setTyped((x) => ({ ...x, [k]: e.target.value }));
@@ -154,11 +160,11 @@ export default function CompanyHire({ t, c }) {
     const mine = ++latest.current;
     setErr(''); setD(null); setShown(PAGE);
     try {
-      const [s, inv] = await Promise.all([rq(`/api/company/${c.id}/hire/shortlist?${shortlistQuery(job, { support, ...vf }, nt)}`), rq(`/api/company/${c.id}/hire/invites?job=${encodeURIComponent(job)}`)]);
+      const [s, inv] = await Promise.all([rq(`/api/company/${c.id}/hire/shortlist?${shortlistQuery(job, { support, ...vf }, nt, wt)}`), rq(`/api/company/${c.id}/hire/invites?job=${encodeURIComponent(job)}`)]);
       if (mine !== latest.current) return;
-      setD(s); setInvites(inv); setNtCounts(s.nonTech ? { ...s.nonTech.counts, of: s.nonTech.filters } : null); setNtEnglish(!!s.nonTech?.englishFilter); setFair(s.nonTech?.fairness || []);
+      setD(s); setInvites(inv); setNtCounts(s.nonTech ? { ...s.nonTech.counts, of: s.nonTech.filters } : null); setNtEnglish(!!s.nonTech?.englishFilter); setFair(s.nonTech?.fairness || []); setWtCounts(s.workTests ? s.workTests.counts : null);
     } catch (x) { if (mine === latest.current) { setErr(x.message); setD({ items: [] }); } }
-  }, [c.id, job, verified, support, vf, nt]);
+  }, [c.id, job, verified, support, vf, nt, wt]);
   useEffect(() => { load(); }, [load]);
   // T7: check the people shown against the (edited) requirements and re-sort them here (no new shortlist)
   const recheck = useCallback(async (crit) => {
@@ -257,6 +263,7 @@ export default function CompanyHire({ t, c }) {
           </label>
         </fieldset>}
         {ntCounts && <NonTechFilters f={nt} setF={setNt} counts={ntCounts} english={!!ntEnglish} />}
+        {wtCounts && <WorkFilters f={wt} setF={setWt} counts={wtCounts} />}
         {fair.length > 0 && <FairnessNotes key={fair.map((x) => x.phrase).join("|")} items={fair} cid={c.id} where="hire_filter" testid="co-hire-fair"
           onRemove={() => { setNt((x) => ({ ...x, lang: '' })); setTyped((x) => ({ ...x, city: '' })); }} />}
         {d?.vetting && filtered(vf) && <button type="button" className="btn btn-outline hn-clear" onClick={clear} data-testid="co-hire-lv-clear">{lv('lv.f.clear')}</button>}
@@ -312,6 +319,7 @@ export default function CompanyHire({ t, c }) {
                 <span className="hn-trust" data-testid="co-hire-trust">{x.skillCheck ? t('co.hire.check', { score: x.skillCheck.score }) : t('co.hire.noCheck')} · {x.reliability.score == null ? x.reliability.label : `${x.reliability.label} (${x.reliability.score}%)`}{x.reliability.lines?.length ? `: ${x.reliability.lines.join('; ')}` : ''}</span>
                 <DocBadges docs={x.docs} face={x.face} integrity={x.integrity} />
                 <NonTechChips nt={x.nonTech} />
+                <WorkChips w={x.workTests} rec={x.reliabilityRecord} />
                 <CriteriaStrip cr={x.criteria} />
                 <NmCheck c={c} uid={x.key} name={x.name} level={x.level?.level} row={x} canRequest={canInvite} />
                 <div className="hn-person-foot">
