@@ -12,7 +12,7 @@ added):
 Only `sub`, `email`, `name` and `picture` leave this module. The token itself is never stored or logged.
 
 Tests and the browser tests never reach Google: tests put keys in with `set_test_keys`, and the browser tests' API
-reads GOOGLE_TEST_JWKS, which is ignored (with a warning) when APP_ENV is prod, the default.
+reads GOOGLE_TEST_JWKS and GOOGLE_TEST_CLIENT_ID, which are ignored (with a warning) when APP_ENV is prod, the default.
 """
 
 import base64
@@ -136,15 +136,22 @@ async def _key(kid: str) -> rsa.RSAPublicKey | None:
     return _cache.keys.get(kid)
 
 
+def client_id() -> str:
+    """GOOGLE_CLIENT_ID, or (browser tests, never in production) GOOGLE_TEST_CLIENT_ID. The test one is not put in
+    the site flags, so other browser tests never see a Google button; the Google test sets it in the page itself."""
+    s = get_settings()
+    return s.google_client_id.strip() or ("" if s.is_prod else s.google_test_client_id.strip())
+
+
 def _client_id() -> str:
-    cid = get_settings().google_client_id.strip()
+    cid = client_id()
     if not cid:
         raise DISABLED
     return cid
 
 
 def enabled() -> bool:
-    return bool(get_settings().google_client_id.strip())
+    return bool(client_id())
 
 
 async def verify(token: str) -> GoogleId:

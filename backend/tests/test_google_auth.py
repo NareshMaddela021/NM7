@@ -163,6 +163,16 @@ def test_test_keys_from_the_environment_never_work_in_production(monkeypatch):
     assert google._cache.fixed and "k1" in google._cache.keys
 
 
+async def test_test_client_id_only_outside_production(client, monkeypatch):
+    monkeypatch.setattr(get_settings(), "google_client_id", "")
+    monkeypatch.setattr(get_settings(), "google_test_client_id", CID)
+    assert (await client.get("/api/public/site-flags")).json()["googleClientId"] == ""  # never shown
+    monkeypatch.setattr(get_settings(), "app_env", "prod")
+    assert (await go(client)).status_code == 404
+    monkeypatch.setattr(get_settings(), "app_env", "test")
+    assert (await go(client)).status_code == 200
+
+
 # ---------- new accounts ----------
 
 

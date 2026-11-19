@@ -74,6 +74,7 @@ class Settings(BaseSettings):
     # Browser tests only: Google's public keys (a JWKS as JSON) to trust instead of fetching them from Google, so test
     # tokens signed with a test key work. Ignored when APP_ENV is prod (the default), so it can't be used live.
     google_test_jwks: str = ""
+    google_test_client_id: str = ""  # browser tests only, with the above: accepted but never shown in site flags
 
     # Error reporting (optional): a Sentry DSN. Without it errors are only logged (with a request id).
     sentry_dsn: str = ""

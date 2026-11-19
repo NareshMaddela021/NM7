@@ -59,6 +59,7 @@ let live = { user: null, ready: false };
 const fromApi = (u) => ({
   id: u.id, role: u.role, name: u.name, email: u.email, phone: u.phone || '', verified: u.verified,
   expertStatus: u.expertStatus || undefined, adminRole: u.adminRole || undefined, createdAt: Date.parse(u.createdAt),
+  hasPassword: u.hasPassword !== false, google: u.google || null, // "Sign in with Google" (Settings)
 });
 // The role of whoever was signed in in this tab (re-test N6): while a sleeping server is slow to say who is signed in,
 // the easy dashboard can show its last screen at once. sessionStorage and nm7-: gone on sign-out and with the tab.
@@ -156,8 +157,10 @@ export async function signIn(email, password) {
 /** "Continue with Google": the Google ID token (credential) goes to the API, which signs in or creates the account
  *  (role: customer / expert for a new account; next: where to go after). Same answer as signIn. Live site only. */
 export async function googleSignIn({ credential, role, next }) {
-  return setLive(await http('/api/auth/google', { method: 'POST', body: { credential, role, next } }));
+  const r = await http('/api/auth/google', { method: 'POST', body: { credential, role, next } });
+  return { ...setLive(r), isNew: !!r.isNew }; // isNew: a new account, so the page goes on to the step after sign-up
 }
+
 /** Creates the account and emails a 6-digit code. Returns { email, codeSent }. An email that already has an account gets
  *  the same answer (its owner is emailed a sign-in reminder instead of a code), so sign-up never reveals who has an account. */
 export async function signUp({ role, name, email, phone, password, confirm, agree }) {
