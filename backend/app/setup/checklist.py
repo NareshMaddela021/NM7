@@ -294,7 +294,8 @@ def build(
         state = s.detect(f)
         rows.append({"id": s.id, "title": s.title, "reward": s.reward, "minutes": s.minutes, "link": s.link, "required": s.required,
                      "state": state, "skipped": state == "todo" and s.id in skipped, "testersOnly": testers})  # fmt: skip
-    nxt = pick_next(rows)
+    req_left = any(r["required"] and r["state"] != "done" for r in rows)
+    nxt = pick_next(rows) if req_left or not rows else None  # complete: no "next step" (optional ones stay listed)
     for r in rows:
         r["status"] = (
             "done"
