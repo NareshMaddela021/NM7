@@ -56,7 +56,7 @@ for (const [label, opts] of SIZES) {
       const who = { token: idToken(`g-${mail}`, mail, 'Gita Rao') };
       await fakeGoogle(page, who);
 
-      await page.goto('/login');
+      await page.goto('/signup?role=jobseeker');
       await expect(page.getByTestId('google-button')).toContainText('Terms');
       expect(await noSideScroll(page)).toBe(true);
       await page.getByTestId('gsi-fake').click();

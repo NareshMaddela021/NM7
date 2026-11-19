@@ -69,7 +69,7 @@ class Settings(BaseSettings):
     github_status_repo: str = "NareshMaddela021/NM7"
 
     # "Continue with Google" (optional): the OAuth web client ID from Google Cloud Console (GOOGLE_CLIENT_ID). It is
-    # public, not a secret: the site-flags endpoint hands it to the browser. Empty (the default) hides the Google button.
+    # public, not a secret: the site-flags endpoint hands it to the browser. Empty (default) hides the Google button.
     google_client_id: str = ""
     # Browser tests only: Google's public keys (a JWKS as JSON) to trust instead of fetching them from Google, so test
     # tokens signed with a test key work. Ignored when APP_ENV is prod (the default), so it can't be used live.

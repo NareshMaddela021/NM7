@@ -296,6 +296,10 @@ async def main(cmd: str, *args: str) -> dict:
         (state,) = args
         await db["settings"].update_one({"_id": "site"}, {"$set": {"languages.te_hi": state == "on"}}, upsert=True)
         return {"ok": True}
+    if cmd == "site-autoapply":  # Admin → Auto Apply → the global switch: on | off
+        (state,) = args
+        await db["settings"].update_one({"_id": "site"}, {"$set": {"auto_apply.on": state == "on"}}, upsert=True)
+        return {"ok": True}
     if cmd == "vetting-tester":  # Admin → Skill checks → Launch: this email sees the vetting engine while it is hidden
         (email,) = args
         await db["settings"].update_one({"_id": "site"}, {"$addToSet": {"vetting.testers": email.lower()}}, upsert=True)
