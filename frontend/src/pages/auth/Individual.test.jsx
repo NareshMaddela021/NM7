@@ -6,7 +6,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { Signup } from './Auth';
 import Welcome from './Welcome';
 import { AccountRoles } from '../../components/AccountRoles';
-import { DEMO_CODE, currentUser, homeFor, signUp, verifyEmail } from '../../lib/auth';
+import { DEMO_CODE, currentUser, homeFor, signUp, updateUser, verifyEmail } from '../../lib/auth';
 import { activeRoleOf, addRoles, afterPick, fits, roleFromLink, rolesOf, switchRole } from '../../lib/roles';
 
 const at = (url, el) => renderToStaticMarkup(<MemoryRouter initialEntries={[url]}>{el}</MemoryRouter>);
@@ -100,6 +100,15 @@ describe('the role picker and the switcher (preview accounts)', () => {
     expect(rolesOf(x)).toEqual(['jobseeker', 'student', 'expert']);
     expect(activeRoleOf(x)).toBe('student');
     expect(homeFor(x)).toBe('/me/learn');
+  });
 
+  it('a new Google account (no password) gives the one tick on the picker; others are not asked again', () => {
+    const u = currentUser();
+    expect(text(at('/welcome?add=1', <Welcome />))).not.toContain('I agree to the Terms and Privacy Policy');
+    updateUser(u.id, { rolesPending: true, hasPassword: false });
+    const html = text(at('/welcome', <Welcome />));
+    expect(html).toContain('I agree to the Terms and Privacy Policy, and I’m 18 or older (or my parent or guardian agrees).');
+    expect(html).toContain('a parent or guardian confirms by email');
+    updateUser(u.id, { rolesPending: false, hasPassword: undefined });
   });
 });

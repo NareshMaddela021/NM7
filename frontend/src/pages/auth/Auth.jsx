@@ -21,9 +21,9 @@ const GoogleButtonLazy = lazy(() => import('../../components/GoogleButton'));
 function Google(props) {
   return <Suspense fallback={null}><GoogleButtonLazy note={<GoogleTerms />} {...props} /></Suspense>;
 }
-/** A new account made with Google agrees to the same terms as the sign-up form's box. */
+/** A new account made with Google gives the sign-up form's one tick on the next step ("What would you like to do?"). */
 function GoogleTerms() {
-  return <>New here? Continuing with Google creates a free account: you agree to the <Link to="/terms" target="_blank">Terms</Link> and <Link to="/privacy" target="_blank">Privacy Policy</Link>, and you’re 18 or older (or have a parent’s consent).</>;
+  return <>New here? Continuing with Google creates a free account. Next you tick to agree to the <Link to="/terms" target="_blank">Terms</Link> and <Link to="/privacy" target="_blank">Privacy Policy</Link> and confirm you’re 18 or older (or your parent or guardian agrees).</>;
 }
 /** Where a new account goes after sign-up — email (after the code) and Google alike: "What would you like to do?"
  * (/welcome, the role from the link ticked). A page that sent them here to finish something (a download, a checkout,
@@ -32,7 +32,8 @@ const ORG_NEXT = /^\/(for-orgs|org\/|college-group\/)/; // a college's own flow:
 const JOIN_NEXT = /^\/join\//; // a student joining their college's placement group
 async function afterSignup(nav, u, next, role = '') {
   if (!u.rolesPending) { nav(next || homeFor(u), { replace: true }); return; }
-  if (next && role !== 'expert') {
+  // a new Google account never saw the form's one tick: it gives it on the picker, so it always goes there
+  if (next && role !== 'expert' && u.hasPassword !== false) {
     const add = role ? [role] : JOIN_NEXT.test(next) ? ['student'] : ORG_NEXT.test(next) ? [] : ['jobseeker'];
     try { await addRoles({ add }); } catch { /* the account menu can add roles later */ }
     nav(next, { replace: true });

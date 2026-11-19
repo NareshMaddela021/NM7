@@ -234,7 +234,15 @@ async def test_company_signup_endpoints_unchanged(client, outbox, db):
 async def test_new_google_account_gets_the_role_question(client, db):
     me = (await go(client, token(sub="g-indiv", email="gita@gmail.com"), role="customer")).json()
     assert me["isNew"] and me["rolesPending"] is True and me["roles"] == ["jobseeker"]
-    me = (await client.post("/api/auth/roles", json={"add": ["student"]})).json()
+    # it never saw the sign-up form: the same one tick is asked on the picker
+    r = await client.post("/api/auth/roles", json={"add": ["student"]})
+    assert r.status_code == 400 and err(r) == "terms_required"
+    before = (await db[USERS].find_one({"_id": me["id"]}))["terms_accepted_at"]
+    me = (await client.post("/api/auth/roles", json={"add": ["student"], "termsAccepted": True})).json()
+    assert (await db[USERS].find_one({"_id": me["id"]}))["terms_accepted_at"] >= before
     assert me["rolesPending"] is False and me["roles"] == ["student"] and me["activeRole"] == "student"
     again = (await go(client, token(sub="g-indiv", email="gita@gmail.com"))).json()
     assert again["isNew"] is False and again["rolesPending"] is False and again["activeRole"] == "student"
+    # T1 as for every account: no consent given at sign-up, the age gate first
+    assert await db[TRUST_CONSENTS].count_documents({"user_id": me["id"]}) == 0
+    assert await db[TRUST_PROFILES].find_one({"_id": me["id"]}) is None

@@ -63,6 +63,11 @@ for (const [label, opts] of SIZES) {
       // where an email sign-up lands: "What would you like to do?", the role from the link ticked
       await page.waitForURL('**/welcome?role=jobseeker');
       await expect(page.getByRole('checkbox', { name: /Find a job/ })).toBeChecked();
+      // it never saw the sign-up form: the same one tick, here
+      await page.getByRole('button', { name: 'Continue' }).click();
+      await expect(page.getByRole('alert')).toContainText('Terms and Privacy Policy');
+      await page.getByRole('checkbox', { name: /I agree to the Terms/ }).check();
+      expect(await noSideScroll(page)).toBe(true);
       await page.getByRole('button', { name: 'Continue' }).click();
       await page.waitForURL('**/me/profile');
       const me = (await call(page, '/api/auth/me')).body;

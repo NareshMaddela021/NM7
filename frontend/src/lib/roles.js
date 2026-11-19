@@ -42,11 +42,11 @@ const accountType = (r) => (r === 'expert' ? 'expert' : 'customer');
 const fromApi = (u) => ({ role: u.role, roles: u.roles || [], activeRole: u.activeRole || undefined, rolesPending: !!u.rolesPending, expertStatus: u.expertStatus || undefined });
 
 /** Adds roles (never removes). Right after sign-up the answer replaces the placeholder role. Returns the user. */
-export async function addRoles({ add = [], active, expertTerms = false }) {
+export async function addRoles({ add = [], active, expertTerms = false, termsAccepted = false }) {
   const u = currentUser();
   if (!u) throw new Error('Please sign in.');
   if (LIVE) {
-    const r = await http('/api/auth/roles', { method: 'POST', body: { add, active: active || null, expertTerms } });
+    const r = await http('/api/auth/roles', { method: 'POST', body: { add, active: active || null, expertTerms, termsAccepted } });
     updateUser(u.id, fromApi(r));
     return currentUser();
   }

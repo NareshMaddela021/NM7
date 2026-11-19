@@ -28,6 +28,7 @@ export default function Welcome() {
   const have = user && !user.rolesPending ? rolesOf(user) : [];
   const [picked, setPicked] = useState(() => (linked && !have.includes(linked) ? [linked] : []));
   const [terms, setTerms] = useState(false);
+  const [agree, setAgree] = useState(false); // a new Google account: the sign-up form's one tick
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   usePageMeta({ title: adding ? 'Add another role' : 'What would you like to do?', noindex: true });
@@ -36,15 +37,17 @@ export default function Welcome() {
   if (user.role === 'admin') return <Navigate to="/admin" replace />;
   const open = ROLES.filter((r) => !have.includes(r));
   const needTerms = picked.includes('expert') && !have.includes('expert');
+  const needAgree = !!user.rolesPending && user.hasPassword === false; // made with Google: never saw the form
   const toggle = (r) => { setErr(''); setPicked((p) => (p.includes(r) ? p.filter((x) => x !== r) : [...p, r])); };
   const submit = async (e) => {
     e.preventDefault();
     if (!picked.length) { setErr(adding ? 'Pick the role to add.' : 'Pick at least one.'); return; }
+    if (needAgree && !agree) { setErr('Please tick the box to agree to the Terms and Privacy Policy.'); return; }
     if (needTerms && !terms) { setErr('Please agree to the Expert Terms to work as an expert.'); return; }
     const active = picked.includes(linked) ? linked : ROLES.find((r) => picked.includes(r));
     setBusy(true); setErr('');
     try {
-      const u = await addRoles({ add: picked, active, expertTerms: terms });
+      const u = await addRoles({ add: picked, active, expertTerms: terms, termsAccepted: agree });
       nav(adding ? next || SETUP[active] : afterPick(u, next), { replace: true });
     } catch (x) { setErr(x.message || 'Please try again.'); setBusy(false); }
   };
@@ -78,6 +81,15 @@ export default function Welcome() {
               <input type="checkbox" checked={terms} onChange={(e) => { setTerms(e.target.checked); setErr(''); }} />
               <span>I agree to the <Link to="/expert-terms" target="_blank">Expert Terms</Link>. I can take paid work only after Nm7 approves my application.</span>
             </label>
+          )}
+          {needAgree && (
+            <>
+              <label className="check small" style={{ alignItems: 'flex-start' }}>
+                <input type="checkbox" checked={agree} onChange={(e) => { setAgree(e.target.checked); setErr(''); }} aria-describedby="wl-agree-m" />
+                <span>I agree to the <Link to="/terms" target="_blank">Terms</Link> and <Link to="/privacy" target="_blank">Privacy Policy</Link>, and I’m 18 or older (or my parent or guardian agrees).</span>
+              </label>
+              <span id="wl-agree-m" className="help" style={{ marginTop: -8 }}>Under 18? Before skill checks or AI interviews we ask your date of birth, and a parent or guardian confirms by email.</span>
+            </>
           )}
           {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
           {!open.length && <p className="small muted" style={{ margin: 0 }}>You have every role already.</p>}
