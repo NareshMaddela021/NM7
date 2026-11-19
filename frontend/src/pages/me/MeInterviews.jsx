@@ -21,6 +21,7 @@ import '../../styles/me-iv.css';
 
 const Runner = lazy(lazyRetry(() => import('./interview/Runner')));
 const IvResult = lazy(lazyRetry(() => import('./interview/IvResult')));
+const FaceCheck = lazy(lazyRetry(() => import('./trust/FaceCheck'))); // Vetting Trust T3: ID + selfie before the interview
 
 function LastChip({ last }) {
   if (!last) return null;
@@ -149,10 +150,20 @@ function MeInterviewsPage() {
   const load = () => http(ROLES_API).then(setD, (e) => setErr(e.message));
   useEffect(() => { load(); }, []);
 
+  const [face, setFace] = useState(null); // Vetting Trust T3: the start body waiting for the ID + selfie check
   const begin = async (body) => {
-    const iv = await http(`${API}/start`, { method: 'POST', body });
+    let iv;
+    try { iv = await http(`${API}/start`, { method: 'POST', body }); } catch (e) {
+      if (e.code === 'face_check_needed') { setFace(body); throw new Error(''); } // Setup stays, quietly ready again
+      throw e;
+    }
     setSetup(null); setRun(iv); window.scrollTo?.(0, 0);
   };
+  const faceEl = face && (
+    <Suspense fallback={null}>
+      <FaceCheck mode="identity" step="interview" onClose={() => setFace(null)} onDone={() => { const b = face; setFace(null); begin(b).catch((e) => setErr(e.message)); }} />
+    </Suspense>
+  );
   const resume = (r) => { setErr(''); begin({ test: r.test, lang: r.last.lang, mode: r.last.mode, consent: true }).catch((e) => setErr(e.message)); };
   const done = (result) => { const iid = run.id; setRun(null); load(); nav(`/me/interviews/${iid}`, { state: { result } }); };
 
@@ -180,7 +191,7 @@ function MeInterviewsPage() {
 
   const head = <MeHead title="AI screening interview" sub="Instead of a first phone call: 7 questions about your work, about 10 minutes, typed or spoken. Free." />;
   if (!d) return err ? <>{head}<p className="error" role="alert">{err}</p></> : <>{head}<Skel cards={2} label="Loading interviews" /></>;
-  if (setup) return <>{head}<Setup r={setup} d={d} onCancel={() => setSetup(null)} onGo={begin} /></>;
+  if (setup) return <>{head}<Setup r={setup} d={d} onCancel={() => setSetup(null)} onGo={begin} />{faceEl}</>;
 
   return (
     <>
@@ -213,6 +224,7 @@ function MeInterviewsPage() {
         </section>
       )}
 
+      {faceEl}
       <MeCard tone="flat" className="mcard-tight" icon="🔒" title="Fair and private" sub="No camera and no audio stored. Only what you say about the work is graded, never who you are or how you sound." headingLevel={2} />
     </>
   );

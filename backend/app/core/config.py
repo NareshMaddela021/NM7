@@ -82,6 +82,14 @@ class Settings(BaseSettings):
     digilocker_webhook_secret: str = ""
     api_public_url: str = "https://nm7-api.onrender.com"
 
+    # Vetting Trust T3: ID + live selfie face check (Admin → Skill checks → Vetting Trust → ID + selfie picks the
+    # provider; without keys only the test provider works). Amazon Rekognition in Mumbai: an IAM user's access key with
+    # only the Rekognition actions in docs/trust/T3-vendors.md; the collection holds face vectors for the joining check.
+    rekognition_access_key_id: str = ""
+    rekognition_secret_access_key: str = ""
+    rekognition_region: str = "ap-south-1"
+    rekognition_collection: str = "nm7-trust-faces"
+
     # Razorpay — empty until keys exist
     razorpay_key_id: str = ""
     razorpay_key_secret: str = ""

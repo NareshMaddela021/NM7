@@ -23,6 +23,7 @@ import '../../styles/me-vet.css';
 const Classic = lazy(lazyRetry(() => import('./MeSkillChecksClassic')));
 const TestRunner = lazy(lazyRetry(() => import('./vetting/TestRunner')));
 const Result = lazy(lazyRetry(() => import('./vetting/Result')));
+const FaceCheck = lazy(lazyRetry(() => import('./trust/FaceCheck'))); // Vetting Trust T3: ID + selfie before a test
 
 const MONITORED = [
   ['Leaving the test page', 'how many times, and for how long'],
@@ -251,8 +252,13 @@ function MeSkillChecksV2() {
   const load = () => http(API).then(setCat, (e) => setErr(e.message));
   useEffect(() => { load(); }, []);
 
+  const [face, setFace] = useState(null); // Vetting Trust T3: the start body waiting for the ID + selfie check
   const begin = async (body) => {
-    const p = await http(`${API}/start`, { method: 'POST', body });
+    let p;
+    try { p = await http(`${API}/start`, { method: 'POST', body }); } catch (e) {
+      if (e.code === 'face_check_needed') { setDialog(null); setRenewing(null); setFace(body); return; }
+      throw e;
+    }
     writeStore(RUN_KEY, { ...body, id: p.id });
     setDialog(null);
     setRenewing(null);
@@ -444,6 +450,11 @@ function MeSkillChecksV2() {
 
       <MeCard tone="flat" className="mcard-tight" icon="🔒" title="Fair and private" sub="No camera and no screen recording. Companies see only your badge and scores, and only if you choose to show the score." headingLevel={2} />
       {renewing && <RenewDialog r={renewing} needConsent={!cat.consentAt} onConsent={(at) => setCat({ ...cat, consentAt: at })} onClose={closeRenew} onGo={begin} />}
+      {face && (
+        <Suspense fallback={null}>
+          <FaceCheck mode="identity" step="skill_check" onClose={() => setFace(null)} onDone={() => { const b = face; setFace(null); begin(b).catch((e) => setErr(e.message)); }} />
+        </Suspense>
+      )}
       {dialog && <StartDialog r={dialog.r} cat={cat} preset={dialog.preset} needConsent={!cat.consentAt} onConsent={(at) => setCat({ ...cat, consentAt: at })} onClose={closeDialog} onGo={begin} />}
     </>
   );

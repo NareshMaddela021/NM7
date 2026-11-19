@@ -82,8 +82,12 @@ add_purpose(Purpose("voice", "Voice recordings and transcripts",
     "When you answer by speaking, we record your voice and turn it into text. Recordings are kept for {days} days, then deleted. "
     "Your voice is never used to guess your caste, religion, region or anything about you. If you take this back, your recordings are deleted now.", 1, "voice"))  # fmt: skip
 add_purpose(Purpose("selfie_face", "Selfie and face match",
-    "We take a selfie to check that it is really you taking a test, and compare it with your earlier selfie. It is never used for scoring and never shown to companies. "
-    "Selfies and match results are deleted after {days} days, or now if you take this back.", 1, "selfie_face"))  # fmt: skip
+    "Before your AI interview or a skill check, and again on your joining day, we check that it is really you. Your camera takes 2–3 quick photos of your face "
+    "while you turn your head or smile, and you take one photo of your driving licence or PAN card (never Aadhaar). The photos go straight to our face-check partner, "
+    "Amazon Web Services (Rekognition, servers in Mumbai, India), which checks that a live person is in front of the camera and that the face matches the card. "
+    "We don't save the photos. We keep only the result (yes or no, with scores), the partner's reference number and the time, and the partner keeps a face reference "
+    "(not a photo) so we can check it's you on your joining day. All of it is deleted {days} days after your hiring process ends, or now if you take this back. "
+    "It is never used for scoring and companies never see your photos: they only see \u201cID + selfie verified\u201d.", 2, "face_check"))  # fmt: skip
 add_purpose(Purpose("documents", "Documents (DigiLocker / KYC)",
     "To verify your identity, certificates or experience, we fetch only the documents you choose from DigiLocker or a KYC partner. "
     "We never store your Aadhaar number or an Aadhaar image. Documents are kept for {days} days at most, then deleted, or now if you take this back.", 1, "documents"))  # fmt: skip

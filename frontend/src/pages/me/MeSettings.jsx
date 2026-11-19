@@ -38,6 +38,7 @@ function HealthEmails() {
 
 const PrivacyConsent = lazy(() => import('./trust/PrivacyConsent')); // Vetting Trust T1, only when the switch says yes
 const DigiLockerCard = lazy(() => import('./trust/DigiLockerCard')); // Vetting Trust T2: Verify with DigiLocker
+const FaceCard = lazy(() => import('./trust/FaceCard')); // Vetting Trust T3: ID + selfie check
 
 const LEVELS = [['internship', 'Internship'], ['fresher', 'Fresher'], ['0_1', '0–1 years'], ['1_3', '1–3 years'], ['3_5', '3–5 years'], ['5_8', '5–8 years'], ['8_12', '8–12 years'], ['12_15', '12–15 years'], ['15_plus', '15+ years']];
 const ALL_LANGS = [['en', 'English'], ['te', 'తెలుగు (Telugu)'], ['hi', 'हिन्दी (Hindi)']];
@@ -143,7 +144,7 @@ export function MeSettings() {
     <>
       <MeHead title="Profile & settings" sub="Your account, how we reach you, and your data." />
       <nav className="acc-jump" aria-label="On this page">
-        {[['#s-profile', 'Profile'], ['#s-notify', 'Notifications'], ...(LIVE ? [['#job-alerts', 'Job alerts']] : []), ['#s-password', 'Password'], ['#s-privacy', 'Privacy'], ...(trust ? [['#s-consent', 'Consent'], ['#s-docs', 'Documents']] : [])].map(([h, l]) => <a key={h} href={h} className="acc-jump-a">{l}</a>)}
+        {[['#s-profile', 'Profile'], ['#s-notify', 'Notifications'], ...(LIVE ? [['#job-alerts', 'Job alerts']] : []), ['#s-password', 'Password'], ['#s-privacy', 'Privacy'], ...(trust ? [['#s-consent', 'Consent'], ['#s-docs', 'Documents'], ['#s-face', 'ID + selfie']] : [])].map(([h, l]) => <a key={h} href={h} className="acc-jump-a">{l}</a>)}
       </nav>
       <form id="s-profile" className="mcard acc-sec" onSubmit={save} aria-label="Profile" noValidate>
         <header className="mcard-h"><span className="mavatar" aria-hidden="true">{(me.account.name || '?').trim()[0]?.toUpperCase()}</span><span className="mcard-ht"><h2 className="mcard-title">Profile</h2><span className="mcard-sub">Your name and mobile number. Career details live in your Job Profile.</span></span></header>
@@ -183,6 +184,7 @@ export function MeSettings() {
       </MeCard>
       {trust && <Suspense fallback={null}><PrivacyConsent /></Suspense>}
       {trust && <Suspense fallback={null}><DigiLockerCard /></Suspense>}
+      {trust && <Suspense fallback={null}><FaceCard /></Suspense>}
       <MeCard as="section" tone="bad" className="acc-danger" label="Delete account" icon="⚠" title="Delete account" sub="Removes your account and everything in it. Invoices are kept as the law requires.">
         {LIVE ? <DeleteAccount /> : <div className="mspread"><span className="small" style={{ color: 'var(--danger)' }}>Delete my account and all my data.</span><button type="button" className="btn btn-outline acc-danger-btn" onClick={() => setDel(true)}>Delete account</button></div>}
       </MeCard>

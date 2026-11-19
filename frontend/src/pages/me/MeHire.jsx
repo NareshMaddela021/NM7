@@ -4,13 +4,16 @@
 // everything. Phone and email are never shown to a company until the candidate accepts an invite. Invites from
 // companies (H2) show at the top: Accept, or Not interested with a reason.
 import { useVettingOn } from '../../lib/vettingAccess';
-import { useEffect, useState } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
+import { trustOn } from '../../lib/trustAccess';
 import { useToast } from '../../components/ui';
 import { API_BASE, http } from '../../services/http';
 import { MeHead } from './MeLayout';
 import { Bar, Empty, FieldGroup, MeCard, Skel, StickyBar } from './kit';
 import '../../styles/me-jobs.css';
 import { fmtDay } from '../../lib/format';
+
+const FaceCheck = lazy(() => import('./trust/FaceCheck')); // Vetting Trust T3: the joining-day "same person" check
 
 const TYPES = [['full_time', 'Full-time'], ['internship', 'Internship'], ['part_time', 'Part-time'], ['contract', 'Contract']];
 const day = (ms) => new Date(ms).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
@@ -271,7 +274,10 @@ export function Offers() {
   const [f, setF] = useState({});
   const [err, setErr] = useState('');
   const load = () => http('/api/me/hire/offers').then(setList, () => setList([]));
-  useEffect(() => { load(); }, []);
+  const [face, setFace] = useState(null); // Vetting Trust T3: joining-day check state (only when Trust is on)
+  const [faceFor, setFaceFor] = useState(null);
+  const loadFace = () => trustOn().then((on) => (on ? http('/api/me/trust/face').then(setFace, () => setFace(null)) : null));
+  useEffect(() => { load(); loadFace(); }, []);
   if (!list || !list.length) return null;
   const v = (id) => f[id] || { name: '', agree: false, reason: '', mode: '' };
   const put = (id, x) => setF({ ...f, [id]: { ...v(id), ...x } });
@@ -305,6 +311,14 @@ export function Offers() {
               <span className="xs muted">{o.notESign}</span>
             </div>
           ))}
+          {face?.provider?.ready && face.joining.some((j) => j.offerId === o.id) && (face.state.continuity?.offerId === o.id && face.state.continuity.status === 'same'
+            ? <span className="mchip mchip-ok" style={{ alignSelf: 'flex-start' }} data-testid="hire-offer-same">✓ Same person at joining: confirmed</span>
+            : (
+              <span className="row g8" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
+                <button type="button" className="btn btn-outline btn-sm" style={{ minHeight: 44 }} onClick={() => setFaceFor(o.id)} data-testid="hire-offer-face">Joining-day selfie check</button>
+                <span className="xs muted">A quick live selfie to confirm it’s the same person who did the interview. Your photos aren’t kept.</span>
+              </span>
+            ))}
           {o.status === 'accepted' && (v(o.id).mode === 'drop' ? (
             <div className="stack g8">
               <label className="field"><span className="label">Why can’t you join? (the company sees it)</span><input className="input" maxLength={300} value={v(o.id).reason} onChange={(e) => put(o.id, { reason: e.target.value })} data-testid="hire-offer-drop-reason" /></label>
@@ -320,6 +334,7 @@ export function Offers() {
           ))}
         </article>
       ))}
+      {faceFor && <Suspense fallback={null}><FaceCheck mode="joining" offerId={faceFor} onClose={() => { setFaceFor(null); loadFace(); }} onDone={() => { setFaceFor(null); loadFace(); }} /></Suspense>}
     </section>
   );
 }

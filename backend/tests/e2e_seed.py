@@ -271,6 +271,65 @@ async def main(cmd: str, *args: str) -> dict:
             got = await providers.Mock().fetch(sess, name_hint=(u or {}).get("name") or "")
             await service.store(db, uid, sess, got.docs, "mock", True)
         return {"n": len(uids)}
+    if cmd == "trust-face":  # Vetting Trust T3: test-provider "ID + selfie verified" (email or @demo-applicants)
+        from app.companies.demo import COMPANY_ID
+
+        who, same = args
+        if who == "@demo-applicants":
+            uids = await db["applications"].distinct("user_id", {"company_id": COMPANY_ID})
+        else:
+            uids = [(await db["users"].find_one({"email": who}))["_id"]]
+        t = now()
+        for uid in uids:
+            st = {
+                "user_id": uid,
+                "status": "verified",
+                "verified_at": t,
+                "verified_by": "check",
+                "vendor": "mock",
+                "test": True,
+                "tries": 0,
+                "process_at": t,
+                "updated_at": t,
+                "liveness": {"pass": True, "score": 97},
+                "match": {"pass": True, "score": 96},
+            }
+            if same == "same":
+                st["continuity"] = {"status": "same", "at": t, "tries": 0}
+            await db["trust_face"].update_one({"_id": uid}, {"$set": st, "$setOnInsert": {"created_at": t}}, True)
+        return {"n": len(uids)}
+    if cmd == "trust-offer":  # Vetting Trust T3: an accepted offer joining in N days (the joining check)
+        from bson import ObjectId
+
+        from app.core.time import IST
+
+        mail, days = args
+        u = await db["users"].find_one({"email": mail})
+        oid = ObjectId()
+        day = (now().astimezone(IST).date() + timedelta(days=int(days))).isoformat()
+        t = now()
+        offer = {
+            "_id": oid,
+            "user_id": u["_id"],
+            "job_id": "seed-job",
+            "company_id": "seed-co",
+            "company_name": "Seed Foods",
+            "candidate_name": u.get("name", ""),
+            "title": "Store analyst",
+            "salary": {"amount": 25000, "unit": "month"},
+            "join_date": day,
+            "place": "Hyderabad",
+            "notes": "",
+            "status": "accepted",
+            "respond_by": t + timedelta(days=3),
+            "answered_at": t,
+            "typed_name": u.get("name", ""),
+            "agreed": True,
+            "created_at": t,
+            "updated_at": t,
+        }
+        await db["hire_offers"].insert_one(offer)
+        return {"id": str(oid)}
     if cmd == "aa2-tester":  # Admin → Auto Apply 2.0: this email sees 2.0 while it is hidden
         (email,) = args
         await db["settings"].update_one(
