@@ -40,6 +40,20 @@ function HealthEmails() {
   );
 }
 
+/** Profile setup P2: the weekly reminder about the next checklist step (at most once a week, none once complete). */
+function SetupReminders() {
+  const [on, setOn] = useState(null);
+  useEffect(() => { if (LIVE) http('/api/me/checklist/reminders').then((d) => setOn(d.on), () => {}); }, []);
+  if (on === null) return null;
+  const set = async (v) => { setOn(v); try { setOn((await http('/api/me/checklist/reminders', { method: 'PUT', body: { on: v } })).on); } catch { setOn(!v); } };
+  return (
+    <label className="acc-switch small">
+      <input type="checkbox" checked={on} onChange={(e) => set(e.target.checked)} data-testid="setup-reminders" />
+      <span><strong>Profile setup reminders</strong> — your next step, at most once a week, until your profile is complete.</span>
+    </label>
+  );
+}
+
 const PrivacyConsent = lazy(() => import('./trust/PrivacyConsent')); // Vetting Trust T1, only when the switch says yes
 const DigiLockerCard = lazy(() => import('./trust/DigiLockerCard')); // Vetting Trust T2: Verify with DigiLocker
 const FaceCard = lazy(() => import('./trust/FaceCard')); // Vetting Trust T3: ID + selfie check
@@ -168,6 +182,7 @@ export function MeSettings() {
           <tbody>{EVENTS.map(([ev, l]) => <tr key={ev}><th scope="row" className="small acc-ev">{l}</th>{CHANNELS.map(([ch, cl]) => <td key={ch} data-label={cl}><input type="checkbox" className="acc-cb" aria-label={`${l} on ${cl}`} checked={!!me.account.notify[ch][ev]} disabled={ev === 'order' && ch === 'email'} onChange={(e) => notify(ch, ev, e.target.checked)} /></td>)}</tr>)}</tbody></table></div>
         <span className="xs faint">Order emails stay on — they carry your receipts and refund updates.</span>
         <HealthEmails />
+        <SetupReminders />
       </MeCard>
 
       <JobAlerts />

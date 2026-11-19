@@ -1,0 +1,54 @@
+/* Profile setup P1: the quick start and its first results page (pages/start/QuickStart.jsx, Results.jsx).
+   Phones: one question per screen, big tap choices (52 px). Desktop: the same step as a compact card. */
+.qs-page { min-height: 100vh; background: var(--bg); }
+.qs-main { max-width: 600px; padding: 24px 16px 64px; display: flex; flex-direction: column; gap: 16px; }
+.qs-main.qs-wide { max-width: 760px; }
+.qs-browse { min-height: 44px; }
+.qs-progress { display: flex; flex-direction: column; gap: 6px; }
+.qs-bar { display: block; height: 6px; border-radius: 999px; background: var(--sunken); overflow: hidden; }
+.qs-bar > span { display: block; height: 100%; background: var(--grad); border-radius: inherit; transition: width .25s var(--ease); }
+.qs-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 24px; box-shadow: var(--shadow); min-width: 0; }
+.qs-q { margin: 0; font-family: var(--font-display); font-size: 28px; line-height: 1.2; font-weight: 600; outline: none; overflow-wrap: anywhere; }
+.qs-reward { margin: 0; color: var(--success); font-weight: 600; font-size: 15px; }
+.qs-input { font-size: 17px; }
+.qs-choices { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.qs-choice {
+  min-height: 52px; padding: 10px 14px; border-radius: 14px; border: 1px solid var(--border2); background: var(--surface);
+  color: var(--text); font: inherit; font-weight: 650; font-size: 16px; text-align: left; cursor: pointer; overflow-wrap: anywhere;
+}
+.qs-choice:hover:not(:disabled) { border-color: var(--accent); }
+.qs-choice:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.qs-choice[aria-pressed="true"] { background: var(--ink); color: var(--onink); border-color: var(--ink); }
+.qs-choice:disabled { opacity: .45; cursor: default; }
+.qs-loc, .qs-file { min-height: 48px; justify-content: center; align-self: flex-start; }
+.qs-continue { align-self: flex-start; min-width: 200px; }
+.qs-foot { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 12px; }
+.qs-skip { min-height: 44px; margin-left: auto; }
+.qs-foot .btn-ghost { min-height: 44px; }
+.qs-faster .mcard { margin: 0; }
+.qs-faster .mcard-h { display: none; } /* the step's own heading and reward say it already */
+.qs-results-h { font-size: 34px; margin: 0; overflow-wrap: anywhere; }
+.qs-jobs { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.qs-job { display: flex; flex-direction: column; gap: 2px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); min-width: 0; }
+.qs-job-title { font-weight: 700; font-size: 17px; overflow-wrap: anywhere; }
+.qs-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.qs-tile { display: flex; flex-direction: column; gap: 4px; padding: 16px; border: 1px solid var(--border); border-radius: 16px; background: var(--surface); color: var(--text); text-decoration: none; min-height: 44px; }
+.qs-tile:hover { border-color: var(--accent); }
+.qs-tile strong { color: var(--accent); }
+.qs-next { background: var(--lav); }
+.qs-note { margin: 0; padding: 12px 14px; border-radius: 12px; background: var(--warningbg); }
+.qs-facts { margin: 0; display: grid; gap: 8px; }
+.qs-facts dd { margin: 0; overflow-wrap: anywhere; }
+.qs-actions { flex-wrap: wrap; }
+.qs-actions .btn { min-height: 48px; }
+
+@media (max-width: 640px) {
+  .qs-main { padding: 16px 16px 48px; }
+  .qs-card { border: 0; box-shadow: none; padding: 4px 0 0; background: transparent; }
+  .qs-q { font-size: 24px; }
+  .qs-choices { grid-template-columns: 1fr 1fr; }
+  .qs-continue, .qs-loc, .qs-file { width: 100%; align-self: stretch; }
+  .qs-results-h { font-size: 28px; }
+  .qs-actions .btn { flex: 1 1 100%; }
+}
+.qs-reward-ic { vertical-align: -3px; flex: none; }

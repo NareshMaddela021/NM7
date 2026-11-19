@@ -8,7 +8,7 @@
 // Desktop and phone share one database: every test uses its own people.
 import { expect, test } from '@playwright/test';
 import { PASSWORD, email, lastCode, login, seed } from './helpers.mjs';
-import { SIZES, call, noSideScroll } from './college.mjs';
+import { SIZES, call, json, noSideScroll } from './college.mjs';
 
 const ORG_LINK = 'Hiring or placements? Go to Nm7 for companies / colleges';
 
@@ -58,15 +58,20 @@ for (const [label, opts] of SIZES) {
       await expect(page.getByRole('checkbox', { name: /Find a job/ })).not.toBeChecked();
       await page.getByRole('checkbox', { name: /Find a job/ }).check();
       await page.getByRole('button', { name: 'Continue' }).click();
-      await page.waitForURL('**/me/roles'); // student setup: the role finder
-      await expect(page.getByRole('heading', { level: 1, name: 'Find my role' })).toBeVisible();
+      await page.waitForURL('**/start/student'); // student setup: the quick start
+      await expect(page.getByRole('heading', { level: 1, name: 'Which college are you at (or did you finish)?' })).toBeVisible();
       const me = (await call(page, '/api/auth/me')).body;
       expect(me.roles).toEqual(['jobseeker', 'student']);
       expect(me.activeRole).toBe('student');
       expect(me.rolesPending).toBe(false);
 
-      // the account menu: switch to the job seeker dashboard and back to the student one
+      // the account menu: a role whose quick start isn't done opens it once
+      await page.goto('/me/learn');
       await switchTo(page, name, 'Job seeker');
+      await page.waitForURL('**/start/jobseeker');
+      // once both are done: switch to the job seeker dashboard and back to the student one
+      for (const r of ['jobseeker', 'student']) expect((await call(page, `/api/me/setup/${r}`, json('PUT', { step: 'results', done: true }))).status).toBe(200);
+      await page.goto('/me');
       await page.waitForURL(/\/me$/);
       await expect(page.getByRole('heading', { level: 1, name: /^Hi Asha/ })).toBeVisible();
       await menu(page, name).click();
@@ -100,10 +105,11 @@ for (const [label, opts] of SIZES) {
       await expect(page.getByRole('alert')).toContainText('Expert Terms');
       await page.getByRole('checkbox', { name: /I agree to the Expert Terms/ }).check();
       await page.getByRole('button', { name: 'Continue' }).click();
-      await page.waitForURL('**/expert/profile'); // the expert application
+      await page.waitForURL('**/start/expert'); // the expert quick start, then the expert application
       expect(await noSideScroll(page)).toBe(true);
       const me = (await call(page, '/api/auth/me')).body;
       expect(me).toMatchObject({ roles: ['jobseeker', 'expert'], activeRole: 'expert', role: 'expert', expertStatus: 'draft' });
+      for (const r of ['jobseeker', 'expert']) expect((await call(page, `/api/me/setup/${r}`, json('PUT', { step: 'results', done: true }))).status).toBe(200);
 
       // the gate: paid-work pages send an unapproved expert back to the application; no orders reach them
       await page.goto('/expert/orders');

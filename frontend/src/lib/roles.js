@@ -35,8 +35,8 @@ export function roleFromLink(v) {
   if (s === 'customer' || s === 'seeker' || s === 'job') return 'jobseeker';
   return '';
 }
-/** The first screen after choosing a role (its setup). */
-export const SETUP = { jobseeker: '/me/profile', student: '/me/roles', expert: '/expert/profile' };
+/** The first screen after choosing a role: its quick start (pages/start/QuickStart.jsx), then its first results. */
+export const SETUP = { jobseeker: '/start/jobseeker', student: '/start/student', expert: '/start/expert' };
 
 const accountType = (r) => (r === 'expert' ? 'expert' : 'customer');
 const fromApi = (u) => ({ role: u.role, roles: u.roles || [], activeRole: u.activeRole || undefined, rolesPending: !!u.rolesPending, expertStatus: u.expertStatus || undefined });

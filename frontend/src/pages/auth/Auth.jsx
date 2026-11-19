@@ -200,6 +200,9 @@ function SignupFooter() {
   );
 }
 export { default as Welcome } from './Welcome'; // the step after sign-up, in this chunk
+/** Each role's quick start (/start/<role>): its own chunk, loaded through this one so the main bundle stays small. */
+const QuickStartPage = lazy(() => import('../start/QuickStart'));
+export const QuickStart = () => <QuickStartPage />;
 export function Signup() {
   const nav = useNavigate();
   const [params] = useSearchParams();

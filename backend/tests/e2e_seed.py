@@ -320,6 +320,19 @@ async def main(cmd: str, *args: str) -> dict:
         doc = {"name": "Main", "data": RESUME, "active": True, "created_at": t, "updated_at": t}
         await db["resumes"].update_one({"user_id": u["_id"], "key": "r1"}, {"$set": doc}, upsert=True)
         return {"id": u["_id"]}
+    if cmd == "strong-resume":  # profile setup P2: a resume that passes every ATS check (score 100), as the active one
+        from tests.jobs_helpers import strong_resume
+
+        (mail,) = args
+        u = await db["users"].find_one({"email": mail})
+        t = now()
+        doc = {"name": "Main", "data": strong_resume(), "active": True, "created_at": t, "updated_at": t}
+        await db["resumes"].update_one({"user_id": u["_id"], "key": "r1"}, {"$set": doc}, upsert=True)
+        return {"id": u["_id"]}
+    if cmd == "setup-l3":  # profile setup P2: a passed AI interview (Vetting V3's L3), valid for 30 days
+        (mail,) = args
+        await db["users"].update_one({"email": mail}, {"$set": {"vetting_l3_until": now() + timedelta(days=30)}})
+        return {"ok": True}
     if cmd == "trust-t6-ready":  # Vetting Trust T6: a Hire now candidate, with a verified (test) driving licence
         from bson import ObjectId
 

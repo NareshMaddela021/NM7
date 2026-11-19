@@ -75,6 +75,7 @@ const ForgotPassword = named(auth, 'ForgotPassword');
 const AdminLogin = named(auth, 'AdminLogin');
 const AdminSetup = named(auth, 'AdminSetup');
 const Welcome = named(auth, 'Welcome'); // "What would you like to do?" after sign-up; "Add another role"
+const QuickStart = named(auth, 'QuickStart'); // each role's quick start and first results (its own chunk)
 const legal = () => import('./pages/legal/Legal');
 const Terms = named(legal, 'Terms');
 const Privacy = named(legal, 'Privacy');
@@ -413,6 +414,7 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup/*" element={<Signup />} />
         <Route path="/welcome" element={<Welcome />} />
+        <Route path="/start/*" element={<QuickStart />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/setup" element={<AdminSetup />} />
